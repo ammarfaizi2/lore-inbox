@@ -1,55 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751035AbWIMIzi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751038AbWIMI4a@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751035AbWIMIzi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Sep 2006 04:55:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751036AbWIMIzh
+	id S1751038AbWIMI4a (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Sep 2006 04:56:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751045AbWIMI4a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Sep 2006 04:55:37 -0400
-Received: from hp3.statik.TU-Cottbus.De ([141.43.120.68]:3461 "EHLO
-	hp3.statik.tu-cottbus.de") by vger.kernel.org with ESMTP
-	id S1751034AbWIMIzh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Sep 2006 04:55:37 -0400
-Message-ID: <4507C685.2040101@s5r6.in-berlin.de>
-Date: Wed, 13 Sep 2006 10:51:17 +0200
-From: Stefan Richter <stefanr@s5r6.in-berlin.de>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; en-US; rv:1.8.0.5) Gecko/20060721 SeaMonkey/1.0.3
-MIME-Version: 1.0
-To: David Wagner <daw-usenet@taverner.cs.berkeley.edu>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: R: Linux kernel source archive vulnerable
-References: <20060907182304.GA10686@danisch.de> <Pine.LNX.4.61.0609121619470.19976@chaos.analogic.com> <ee796o$vue$1@taverner.cs.berkeley.edu> <45073B2B.4090906@lsrfire.ath.cx> <ee7m7r$6qr$1@taverner.cs.berkeley.edu>
-In-Reply-To: <ee7m7r$6qr$1@taverner.cs.berkeley.edu>
-Content-Type: text/plain; charset=ISO-8859-1
+	Wed, 13 Sep 2006 04:56:30 -0400
+Received: from mtagate5.de.ibm.com ([195.212.29.154]:54520 "EHLO
+	mtagate5.de.ibm.com") by vger.kernel.org with ESMTP
+	id S1751036AbWIMI43 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Sep 2006 04:56:29 -0400
+Subject: Re: [patch 1/9] Guest page hinting: unused / free pages.
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Reply-To: schwidefsky@de.ibm.com
+To: Rik van Riel <riel@redhat.com>
+Cc: Hubertus Franke <frankeh@watson.ibm.com>, linux-kernel@vger.kernel.org,
+       virtualization@lists.osdl.org, akpm@osdl.org, nickpiggin@yahoo.com.au,
+       rhim@cc.gateh.edu
+In-Reply-To: <45075F09.5010708@redhat.com>
+References: <20060901110908.GB15684@skybase> <45073901.8020906@redhat.com>
+	 <45074BD0.3060400@watson.ibm.com>  <45075F09.5010708@redhat.com>
+Content-Type: text/plain
+Organization: IBM Corporation
+Date: Wed, 13 Sep 2006 10:56:26 +0200
+Message-Id: <1158137786.2560.3.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.3 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Wagner wrote:
->     (a) The Linux kernel tar archive contains files with world-writeable
->     permissions.
+On Tue, 2006-09-12 at 21:29 -0400, Rik van Riel wrote:
+> Note that the transition _to_ volatile can also be batched
+> and done somewhat lazily.  For frequently mmaped pages that
+> could end up saving us the transition the other way, too...
 
-The group's and others' permissions in the tar archive don't matter.
-They have no meaning on the local system. These archives are
-distributions of sources and a few scripts --- they are not local archives.
+That would be helpful, only how to do it? We need some sort of list or
+array where to store the pages that should be made volatile. The main
+problem that I see is that you have to remove a page that is freed from
+the list/array again, otherwise you would end up with a non page-cache
+page being made volatile. That makes using per-cpu arrays hard since a
+page can be freed on another cpu.
 
->     (b) There is no need for those files to have world-writeable
->     permissions.  It doesn't serve any particular purpose.
-
-Correction: The group's and others' permissions, regardless how they are
-set in the tar archive, don't serve any particular purpose. You should
-consequently demand that an archive format is used which does not
-transfer group's and others' permissions at all.
-
->     (c) Some users may get screwed over by virtue of the fact that those
->     files are listed in the tar archive with world-writeable permissions.
-
-Correction: Some users who set a wrong umask when creating files by
-extraction from these archives and then attempt to build an own kernel
-from that may screw themselves over.
-
-The danger here as that users who handle umask in a wrong way actually
-run self-made kernels. _This_ is what you should campaign against first.
 -- 
-Stefan Richter
--=====-=-==- =--= -==-=
-http://arcgraph.de/sr/
+blue skies,
+  Martin.
+
+Martin Schwidefsky
+Linux for zSeries Development & Services
+IBM Deutschland Entwicklung GmbH
+
+"Reality continues to ruin my life." - Calvin.
+
+

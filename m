@@ -1,100 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751099AbWIMSot@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751102AbWIMSqN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751099AbWIMSot (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Sep 2006 14:44:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751100AbWIMSot
+	id S1751102AbWIMSqN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Sep 2006 14:46:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751103AbWIMSqN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Sep 2006 14:44:49 -0400
-Received: from iolanthe.rowland.org ([192.131.102.54]:23052 "HELO
-	iolanthe.rowland.org") by vger.kernel.org with SMTP
-	id S1751099AbWIMSot (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Sep 2006 14:44:49 -0400
-Date: Wed, 13 Sep 2006 14:44:48 -0400 (EDT)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@iolanthe.rowland.org
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-cc: Pete Zaitcev <zaitcev@redhat.com>, Andrew Morton <akpm@osdl.org>,
-       Kernel development list <linux-kernel@vger.kernel.org>,
-       USB development list <linux-usb-devel@lists.sourceforge.net>
-Subject: Re: 2.6.18-rc6-mm2: rmmod ohci_hcd oopses on HPC 6325
-In-Reply-To: <200609131558.03391.rjw@sisk.pl>
-Message-ID: <Pine.LNX.4.44L0.0609131441080.6684-100000@iolanthe.rowland.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 13 Sep 2006 14:46:13 -0400
+Received: from caramon.arm.linux.org.uk ([217.147.92.249]:2830 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S1751102AbWIMSqM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Sep 2006 14:46:12 -0400
+Date: Wed, 13 Sep 2006 19:45:58 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Geert Uytterhoeven <geert@linux-m68k.org>
+Cc: David Howells <dhowells@redhat.com>, Matthew Wilcox <matthew@wil.cx>,
+       Adrian Bunk <bunk@stusta.de>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Development <linux-kernel@vger.kernel.org>,
+       linux-arch@vger.kernel.org
+Subject: Re: [PATCH 4/6] Implement a general log2 facility in the kernel
+Message-ID: <20060913184558.GB15563@flint.arm.linux.org.uk>
+Mail-Followup-To: Geert Uytterhoeven <geert@linux-m68k.org>,
+	David Howells <dhowells@redhat.com>,
+	Matthew Wilcox <matthew@wil.cx>, Adrian Bunk <bunk@stusta.de>,
+	Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+	Linux Kernel Development <linux-kernel@vger.kernel.org>,
+	linux-arch@vger.kernel.org
+References: <20060913163806.GA15563@flint.arm.linux.org.uk> <20060913130253.32022.69230.stgit@warthog.cambridge.redhat.com> <20060913130300.32022.69743.stgit@warthog.cambridge.redhat.com> <20060913161734.GE3564@stusta.de> <20060913163136.GA2585@parisc-linux.org> <4143.1158166615@warthog.cambridge.redhat.com> <Pine.LNX.4.62.0609132038350.27940@pademelon.sonytel.be>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.62.0609132038350.27940@pademelon.sonytel.be>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 13 Sep 2006, Rafael J. Wysocki wrote:
-
-> 'rmmod ohci_hcd' causes the following oops to appear on my HPC 6325 every
-> time (happens also on -rc6-mm1, does not happen on -rc7):
+On Wed, Sep 13, 2006 at 08:38:59PM +0200, Geert Uytterhoeven wrote:
+> On Wed, 13 Sep 2006, David Howells wrote:
+> > Russell King <rmk+lkml@arm.linux.org.uk> wrote:
+> > 
+> > > Therefore, re-using "log2()" is about as bad as re-using the "strcmp()"
+> > > name to implement a function which copies strings.
+> > 
+> > I should probably use ilog2() then which would at least be consistent with the
+> > powerpc arch.
+> > 
+> > > t.c:2: warning: conflicting types for built-in function 'log2'
 > 
-> Unable to handle kernel NULL pointer dereference at 0000000000000274 RIP:
->  [<ffffffff8822c185>] :ohci_hcd:ohci_hub_status_data+0x25/0x27b
-> PGD 35ca9067 PUD 369a4067 PMD 0
+> And apparently gcc < 4.0 doesn't give the warning.
 
-> Call Trace:
->  [<ffffffff8818e03f>] :usbcore:usb_hcd_poll_rh_status+0x40/0x13b
->  [<ffffffff8822c01b>] :ohci_hcd:ohci_irq+0xcb/0x210
->  [<ffffffff8818e78b>] :usbcore:usb_hcd_irq+0x2f/0x5f
->  [<ffffffff8020ef13>] handle_IRQ_event+0x33/0x66
->  [<ffffffff802af5f8>] handle_fasteoi_irq+0x9d/0xe3
->  [<ffffffff80267c85>] do_IRQ+0x104/0x11f
->  [<ffffffff80259621>] ret_from_intr+0x0/0xa
-> DWARF2 unwinder stuck at ret_from_intr+0x0/0xa
-> 
-> Leftover inexact backtrace:
-> 
->  <IRQ>  <EOI>  [<ffffffff802ee4ac>] sysfs_hash_and_remove+0x9/0x137
->  [<ffffffff802eed13>] sysfs_remove_file+0x10/0x12
->  [<ffffffff8038baf7>] class_device_remove_file+0x12/0x14
->  [<ffffffff8822aa02>] :ohci_hcd:ohci_stop+0xf5/0x17b
->  [<ffffffff8818d9d2>] :usbcore:usb_remove_hcd+0xdc/0x114
->  [<ffffffff8040f8eb>] klist_release+0x0/0x82
->  [<ffffffff88197f45>] :usbcore:usb_hcd_pci_remove+0x1e/0x7d
->  [<ffffffff803204d8>] pci_device_remove+0x25/0x3c
->  [<ffffffff8038b1b5>] __device_release_driver+0x80/0x9c
->  [<ffffffff8038b617>] driver_detach+0xac/0xee
->  [<ffffffff8038ad92>] bus_remove_driver+0x75/0x98
->  [<ffffffff8038b696>] driver_unregister+0x15/0x21
->  [<ffffffff80320686>] pci_unregister_driver+0x13/0x8e
->  [<ffffffff8822cd1c>] :ohci_hcd:ohci_hcd_pci_cleanup+0x10/0x12
->  [<ffffffff8029b281>] sys_delete_module+0x1b5/0x1e6
->  [<ffffffff8025910e>] system_call+0x7e/0x83
-> 
-> 
-> Code: 8a 98 74 02 00 00 e8 d6 3b 03 f8 48 89 45 d0 41 8b 84 24 e4
-> RIP  [<ffffffff8822c185>] :ohci_hcd:ohci_hub_status_data+0x25/0x27b
->  RSP <ffffffff805c7e18>
-> CR2: 0000000000000274
->  <0>Kernel panic - not syncing: Aiee, killing interrupt handler!
-> 
-> where
-> 
-> (gdb) l *ohci_hub_status_data+0x25
-> 0x4185 is in ohci_hub_status_data (drivers/usb/host/ohci-hub.c:316).
-> 311             struct ohci_hcd *ohci = hcd_to_ohci (hcd);
-> 312             int             i, changed = 0, length = 1;
-> 313             int             can_suspend;
-> 314             unsigned long   flags;
-> 315
-> 316             can_suspend = device_may_wakeup(&hcd->self.root_hub->dev);
-> 317             spin_lock_irqsave (&ohci->lock, flags);
-> 318
-> 319             /* handle autosuspended root:  finish resuming before
-> 320              * letting khubd or root hub timer see state changes.
-> 
-> I guess it may be related to the suspend issues?
+Eh?  That's gcc 3.4.3 producing that warning.  It probably depends on
+the target configuration.
 
-No, this is completely separate.  The suspend issue involved ehci-hcd, not 
-ohci-hcd.
-
-This problem has already been identified by Pete Zaitcev in this thread:
-
-	http://marc.theaimsgroup.com/?t=115769512800001&r=1&w=2
-
-Perhaps Pete has an updated patch to fix the problem.  If not, I could 
-write one.
-
-Alan Stern
-
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

@@ -1,67 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751440AbWIMK5X@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750783AbWIMLIb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751440AbWIMK5X (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Sep 2006 06:57:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751441AbWIMK5X
+	id S1750783AbWIMLIb (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Sep 2006 07:08:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750788AbWIMLIb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Sep 2006 06:57:23 -0400
-Received: from [213.184.169.222] ([213.184.169.222]:20608 "EHLO raad.intranet")
-	by vger.kernel.org with ESMTP id S1751440AbWIMK5X (ORCPT
+	Wed, 13 Sep 2006 07:08:31 -0400
+Received: from albireo.ucw.cz ([84.242.87.5]:30481 "EHLO albireo.ucw.cz")
+	by vger.kernel.org with ESMTP id S1750783AbWIMLIa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Sep 2006 06:57:23 -0400
-From: Al Boldi <a1426z@gawab.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: What's in linux-2.6-block.git
-Date: Wed, 13 Sep 2006 13:59:04 +0300
-User-Agent: KMail/1.5
-MIME-Version: 1.0
+	Wed, 13 Sep 2006 07:08:30 -0400
+Date: Wed, 13 Sep 2006 12:45:52 +0200
+From: Martin Mares <mj@ucw.cz>
+To: David Wagner <daw-usenet@taverner.cs.berkeley.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: R: Linux kernel source archive vulnerable
+Message-ID: <mj+md-20060913.103931.6418.albireo@ucw.cz>
+References: <20060907182304.GA10686@danisch.de> <20060913043319.GH541@1wt.eu> <ee8589$e70$1@taverner.cs.berkeley.edu> <1BB4231A-7D69-4A77-A050-1C633BDFA545@mac.com> <ee88af$fgo$1@taverner.cs.berkeley.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200609131359.04972.a1426z@gawab.com>
+In-Reply-To: <ee88af$fgo$1@taverner.cs.berkeley.edu>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jens Axboe  wrote:
-> This lists the main features of the 'block' branch, which is bound for
-> Linus when 2.6.19 opens:
->
-> - Splitting of request->flags into two parts:
->         - cmd type
->         - modified flags
->   Right now it's a bit of a mess, splitting this up invites a cleaner
->   usage and also enables us to implement generic "messages" passed on
->   the regular queue for the device.
->
-> - Abstract out the request back merging and put it into the core io
->   scheduler layer. Cleans up all the io schedulers, and noop gets
->   merging for "free".
->
-> - Abstract out the rbtree sorting. Gets rid of duplicated code in
->   as/cfq/deadline.
->
-> - General shrinkage of the request structure.
->
-> - Killing dynamic rq private structures in deadline/as/cfq. This should
->   speed up the io path somewhat, as we avoid allocating several
->   structures (struct request + scheduler private request) for each io
->   request.
->
-> - meta data io logging for blktrace.
->
-> - CFQ improvements.
->
-> - Make the block layer configurable through Kconfig (David Howells).
->
-> - Lots of cleanups.
+Hello!
 
-Does it also address the strange "max_sectors_kb<>192 causes a 50%-slowdown" 
-problem?
+> In any case, regardless of whether this is by design or not, it is not
+> courteous to your users to distribute tar files where all the files have
+> permissions 0666.  That's not a user-friendly to do.
 
+I disagree.
 
-Thanks!
+(1) Some systems use per-user groups and create all files group-writeable
+by default, i.e., they set the umask to 002. If you want to be user-friendly,
+you should respect this setting, so the permissions in the tar archives you
+distribute should be 666.
 
---
-Al
+(2) People extracting random archives as root with preserving permissions
+(and owners) are relying on *ALL* archive creators using what they suppose
+are the right permissions, which is at least simple-minded, if not completely
+silly. If you want to help such users, you should do so by helping them
+understand they do a wrong thing and not by hiding the problem in a single
+specific case.
 
+				Have a nice fortnight
+-- 
+Martin `MJ' Mares   <mj@ucw.cz>   http://atrey.karlin.mff.cuni.cz/~mj/
+Faculty of Math and Physics, Charles University, Prague, Czech Rep., Earth
+First law of socio-genetics: Celibacy is not hereditary.

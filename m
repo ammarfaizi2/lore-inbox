@@ -1,39 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750787AbWIMQ6j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750784AbWIMRBJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750787AbWIMQ6j (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Sep 2006 12:58:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750785AbWIMQ6i
+	id S1750784AbWIMRBJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Sep 2006 13:01:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750785AbWIMRBJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Sep 2006 12:58:38 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:36526 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1750768AbWIMQ6i (ORCPT
+	Wed, 13 Sep 2006 13:01:09 -0400
+Received: from ogre.sisk.pl ([217.79.144.158]:19408 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S1750784AbWIMRBI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Sep 2006 12:58:38 -0400
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <20060913163806.GA15563@flint.arm.linux.org.uk> 
-References: <20060913163806.GA15563@flint.arm.linux.org.uk>  <20060913130253.32022.69230.stgit@warthog.cambridge.redhat.com> <20060913130300.32022.69743.stgit@warthog.cambridge.redhat.com> <20060913161734.GE3564@stusta.de> <20060913163136.GA2585@parisc-linux.org> 
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: Matthew Wilcox <matthew@wil.cx>, Adrian Bunk <bunk@stusta.de>,
-       David Howells <dhowells@redhat.com>, torvalds@osdl.org, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
-Subject: Re: [PATCH 4/6] Implement a general log2 facility in the kernel 
-X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
-Date: Wed, 13 Sep 2006 17:56:55 +0100
-Message-ID: <4143.1158166615@warthog.cambridge.redhat.com>
+	Wed, 13 Sep 2006 13:01:08 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Alan Stern <stern@rowland.harvard.edu>
+Subject: Re: [linux-usb-devel] 2.6.18-rc6-mm1
+Date: Wed, 13 Sep 2006 19:00:37 +0200
+User-Agent: KMail/1.9.1
+Cc: Mattia Dongili <malattia@linux.it>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org,
+       USB development list <linux-usb-devel@lists.sourceforge.net>
+References: <Pine.LNX.4.44L0.0609121605200.5686-100000@iolanthe.rowland.org>
+In-Reply-To: <Pine.LNX.4.44L0.0609121605200.5686-100000@iolanthe.rowland.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200609131900.38215.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Russell King <rmk+lkml@arm.linux.org.uk> wrote:
+On Tuesday, 12 September 2006 22:10, Alan Stern wrote:
+> On Tue, 12 Sep 2006, Mattia Dongili wrote:
+> 
+> > No luck here. I'll give -mm2 a run just to 
+> > 
+> > full dmesg
+> > with patch applied[1]:
+> > http://oioio.altervista.org/linux/dmesg-2.6.18-rc6-mm1-fail-S3-2
+> > 
+> > without it (it's almost identical :)):
+> > http://oioio.altervista.org/linux/dmesg-2.6.18-rc6-mm1-fail-S3
+> > 
+> > .config:
+> > http://oioio.altervista.org/linux/config-2.6.18-rc6-mm1-3
+> > 
+> > [1]: I didn't rebuild fully, just applied the patch and re-run make
+> > bzImage modules
+> 
+> I can't reproduce your results here with my configuration.  I used 
+> 2.6.18-rc6-mm2 instead of -mm1 but I don't think that should matter.
 
-> Therefore, re-using "log2()" is about as bad as re-using the "strcmp()"
-> name to implement a function which copies strings.
+On my box the issue (the second suspend of USB controllers in a row fails
+100% of the time) went away after I had reverted the following patches
+(I'm using 2.6.18-rc6-mm2 now):
 
-I should probably use ilog2() then which would at least be consistent with the
-powerpc arch.
+fix-gregkh-usb-usbcore-add-autosuspend-autoresume-infrastructure.patch
+gregkh-usb-usbcore-add-autosuspend-autoresume-infrastructure.patch
+gregkh-usb-usbcore-non-hub-specific-uses-of-autosuspend.patch
+gregkh-usb-usbcore-remove-usb_suspend_root_hub.patch
 
-> t.c:2: warning: conflicting types for built-in function 'log2'
+Greetings,
+Rafael
 
-Which, of course, I didn't see because I didn't define it as a function,
-merely as a macro.
 
-David
+-- 
+You never change things by fighting the existing reality.
+		R. Buckminster Fuller

@@ -1,102 +1,115 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751672AbWIMHox@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751670AbWIMHsG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751672AbWIMHox (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Sep 2006 03:44:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751673AbWIMHox
+	id S1751670AbWIMHsG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Sep 2006 03:48:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751673AbWIMHsG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Sep 2006 03:44:53 -0400
-Received: from nf-out-0910.google.com ([64.233.182.187]:62748 "EHLO
+	Wed, 13 Sep 2006 03:48:06 -0400
+Received: from nf-out-0910.google.com ([64.233.182.186]:18983 "EHLO
 	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1751670AbWIMHow (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Sep 2006 03:44:52 -0400
+	id S1751670AbWIMHsD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Sep 2006 03:48:03 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=googlemail.com;
-        h=received:from:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=upT97TMb9+5Cbua1zgOy5gxLNka/pC8lwtgckURnPY1ILCnlO2aeugt8xu1JYCSy7iVMzLjmpl6vcCcmvRrFRg2U1IUwsi1CPbbnlnQuRgQ45VHayYIr0XuDnrb/dRBK3vtH9WjvMX3Uvne1HVGNJH885KcJeo6ee0Cc8A501b8=
-From: Denis Vlasenko <vda.linux@googlemail.com>
-To: linux-kernel@vger.kernel.org
-Subject: MSI K9N Neo: corruption on streaming PATA/SATA i/o - testers needed
-Date: Wed, 13 Sep 2006 09:41:48 +0200
-User-Agent: KMail/1.8.2
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Jeff Garzik <jeff@garzik.org>
-References: <200609121046.24610.vda.linux@googlemail.com> <200609121818.44766.vda.linux@googlemail.com>
-In-Reply-To: <200609121818.44766.vda.linux@googlemail.com>
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type;
+        b=mEar5yZ4lvhgAHiRl9Byp+dh2Z0GAX1oGZdal7d3Wu728wurLgJ+fxgLv9LJ2ng3u3RY4cNuhUR4eGMj3N8NpWhMIKGQLAcPu6HR959VRICmEgHjWWzmI3kWmLFxn228ATP3TJ4u/Ml3Mum3MQ5NTLD0YHKKIUsopcR4NxjT6H8=
+Message-ID: <94a0d4530609130048g67860be0p53932276f1ad745a@mail.gmail.com>
+Date: Wed, 13 Sep 2006 02:48:01 -0500
+From: "Felipe Contreras" <felipe.contreras@gmail.com>
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: [PATCH] Random warning fixes
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="koi8-r"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200609130941.48695.vda.linux@googlemail.com>
+Content-Type: multipart/mixed; 
+	boundary="----=_Part_323516_14103161.1158133681729"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello lkml'ers
+------=_Part_323516_14103161.1158133681729
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-If you happen to have the same mobo, MSI AM2 K9N NEO-F
+I compiled 2.6.18-rc7 and I fixed all the warnings I saw.
 
-http://www.msi.com.tw/program/products/mainboard/mbd/pro_mbd_detail.php?UID=733
+The patch is attached.
 
-and streaming disk i/o works for you, plase send me:
-* kernel version and .config
-* hdparm -i output
-* lspci -vvvxxx output
+The change I'm not so sure about is the __init additions in ACPI. It
+fixes the warnings, but someone who knows better should check it.
 
-Thanks... now with gory details.
+Cheers.
 
-On Tuesday 12 September 2006 18:18, Denis Vlasenko wrote:
-> > I bought new Athlon46 mobo with AM2 socket and recently
-> > I noticed that copying large amounts of data reliably
-> > crashes 2.6.17.11 64-bit on it.
-> > 
-> > memtest runs ok on this machine overnight.
-> > Machine is not overclocked.
-> > 
-> > Copying movies from SATA drive to PATA drive oopses
-> > after few gigabytes transferred. Creating iso image
-> > with mkisofs (done entirely on PATA drive, no SATA attached)
-> > does the same.
-> > 
-> > After some testing I found ou that rw load crashes
-> > machine rather fast, while read load usually runs for several
-> > minutes before crash. Setting udma4 or udma3 instead of udma5
-> > doesn't help. Pity I don't have my own SATA drive to run tests
-> > with it, ran most of the tests on PATA drive.
-> 
-> I obtained PCI config space dumps under Windows XP on this machine
-> and compared them to Linux settings. Integrated PATA IDE controller
-> has some differences in rows 5x and 8x.
+-- 
+Felipe Contreras
 
-As Alan pointed out, there aren't any obvious differences which
-may affect IDE. They are mostly in AMD CPU Northbridge...
+------=_Part_323516_14103161.1158133681729
+Content-Type: text/x-patch; name=linux-2.6.18-rc7-felipec.diff; 
+	charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: base64
+X-Attachment-Id: f_es1et2hm
+Content-Disposition: attachment; filename="linux-2.6.18-rc7-felipec.diff"
 
-I bought SATA II Samsung drive yesterday. Created 32gb file on it.
-Windows XP can do "copy 32g nul" - no problems.
-The very same thing on Linux randomly crashes in a few minutes.
-
-Please note that I was using Linux on this machine for a bit more than
-a month and I had just one unexplained (at that time) crash.
-I compiled stuff on it and copied a lot of files (kernel trees, for one),
-without crashes. It was feeling like everything was working okay.
-
-So it seems likely that memory corruption and resulting crashes
-occur only when there are large amounts of streaming I/O, "short"
-reads/writes (less than ten megabytes at once) are affected much less
-or not affected at all.
-
-BTW, I tried running with mem=500 and tried 32-bit kernels,
-still crashes.
-
-I also did a direct device-to-device copy using dd
-(translation: no filesystem code involved) and it crashed too.
-
-And to repeat: it happens both on PATA IDE Western Digital drive
-(WDC WD2500JB-55GVC0, FwRev=08.02D08, SerialNo=WD-WCAL78337950)
-and this new Samsung SATA drive...
-
-Does this rings any bells? What is different when I do streaming i/o?
-IOW: where should I start poking in the driver? Because Windows
-somehow works, dammit... it must be possible to make it work...
-
-I do not have another mobo for testing.
---
-vda
+ZGlmZiAtdXIgbGludXgtMi42LjE4LXJjNy1vcmlnL2FyY2gvaTM4Ni9rZXJuZWwvY3B1L3RyYW5z
+bWV0YS5jIGxpbnV4LTIuNi4xOC1yYzctbmV3L2FyY2gvaTM4Ni9rZXJuZWwvY3B1L3RyYW5zbWV0
+YS5jCi0tLSBsaW51eC0yLjYuMTgtcmM3LW9yaWcvYXJjaC9pMzg2L2tlcm5lbC9jcHUvdHJhbnNt
+ZXRhLmMJMjAwNi0wOC0wNiAxMzoyMDoxMS4wMDAwMDAwMDAgLTA1MDAKKysrIGxpbnV4LTIuNi4x
+OC1yYzctbmV3L2FyY2gvaTM4Ni9rZXJuZWwvY3B1L3RyYW5zbWV0YS5jCTIwMDYtMDktMTMgMDA6
+NTU6NDguMDAwMDAwMDAwIC0wNTAwCkBAIC0xOCw2ICsxOCw3IEBACiAJLyogUHJpbnQgQ01TIGFu
+ZCBDUFUgcmV2aXNpb24gKi8KIAltYXggPSBjcHVpZF9lYXgoMHg4MDg2MDAwMCk7CiAJY3B1X3Jl
+diA9IDA7CisJY3B1X2ZyZXEgPSAwOwogCWlmICggbWF4ID49IDB4ODA4NjAwMDEgKSB7CiAJCWNw
+dWlkKDB4ODA4NjAwMDEsICZkdW1teSwgJmNwdV9yZXYsICZjcHVfZnJlcSwgJmNwdV9mbGFncyk7
+IAogCQlpZiAoY3B1X3JldiAhPSAweDAyMDAwMDAwKSB7CmRpZmYgLXVyIGxpbnV4LTIuNi4xOC1y
+Yzctb3JpZy9hcmNoL2kzODYva2VybmVsL21wcGFyc2UuYyBsaW51eC0yLjYuMTgtcmM3LW5ldy9h
+cmNoL2kzODYva2VybmVsL21wcGFyc2UuYwotLS0gbGludXgtMi42LjE4LXJjNy1vcmlnL2FyY2gv
+aTM4Ni9rZXJuZWwvbXBwYXJzZS5jCTIwMDYtMDgtMDYgMTM6MjA6MTEuMDAwMDAwMDAwIC0wNTAw
+CisrKyBsaW51eC0yLjYuMTgtcmM3LW5ldy9hcmNoL2kzODYva2VybmVsL21wcGFyc2UuYwkyMDA2
+LTA5LTEzIDAyOjI0OjE4LjAwMDAwMDAwMCAtMDUwMApAQCAtMjI4LDEyICsyMjgsMTQgQEAKIAog
+CW1wY19vZW1fYnVzX2luZm8obSwgc3RyLCB0cmFuc2xhdGlvbl90YWJsZVttcGNfcmVjb3JkXSk7
+CiAKKyNpZiBNQVhfTVBfQlVTU0VTIDwgMjU2CiAJaWYgKG0tPm1wY19idXNpZCA+PSBNQVhfTVBf
+QlVTU0VTKSB7CiAJCXByaW50ayhLRVJOX1dBUk5JTkcgIk1QIHRhYmxlIGJ1c2lkIHZhbHVlICgl
+ZCkgZm9yIGJ1c3R5cGUgJXMgIgogCQkJIiBpcyB0b28gbGFyZ2UsIG1heC4gc3VwcG9ydGVkIGlz
+ICVkXG4iLAogCQkJbS0+bXBjX2J1c2lkLCBzdHIsIE1BWF9NUF9CVVNTRVMgLSAxKTsKIAkJcmV0
+dXJuOwogCX0KKyNlbmRpZgogCiAJaWYgKHN0cm5jbXAoc3RyLCBCVVNUWVBFX0lTQSwgc2l6ZW9m
+KEJVU1RZUEVfSVNBKS0xKSA9PSAwKSB7CiAJCW1wX2J1c19pZF90b190eXBlW20tPm1wY19idXNp
+ZF0gPSBNUF9CVVNfSVNBOwpkaWZmIC11ciBsaW51eC0yLjYuMTgtcmM3LW9yaWcvZHJpdmVycy9h
+Y3BpL3Byb2Nlc3Nvcl9jb3JlLmMgbGludXgtMi42LjE4LXJjNy1uZXcvZHJpdmVycy9hY3BpL3By
+b2Nlc3Nvcl9jb3JlLmMKLS0tIGxpbnV4LTIuNi4xOC1yYzctb3JpZy9kcml2ZXJzL2FjcGkvcHJv
+Y2Vzc29yX2NvcmUuYwkyMDA2LTA4LTA2IDEzOjIwOjExLjAwMDAwMDAwMCAtMDUwMAorKysgbGlu
+dXgtMi42LjE4LXJjNy1uZXcvZHJpdmVycy9hY3BpL3Byb2Nlc3Nvcl9jb3JlLmMJMjAwNi0wOS0x
+MyAwMjoxNTowOC4wMDAwMDAwMDAgLTA1MDAKQEAgLTUxOSw3ICs1MTksNyBAQAogCiBzdGF0aWMg
+dm9pZCAqcHJvY2Vzc29yX2RldmljZV9hcnJheVtOUl9DUFVTXTsKIAotc3RhdGljIGludCBhY3Bp
+X3Byb2Nlc3Nvcl9zdGFydChzdHJ1Y3QgYWNwaV9kZXZpY2UgKmRldmljZSkKK3N0YXRpYyBfX2lu
+aXQgaW50IGFjcGlfcHJvY2Vzc29yX3N0YXJ0KHN0cnVjdCBhY3BpX2RldmljZSAqZGV2aWNlKQog
+ewogCWludCByZXN1bHQgPSAwOwogCWFjcGlfc3RhdHVzIHN0YXR1cyA9IEFFX09LOwpkaWZmIC11
+ciBsaW51eC0yLjYuMTgtcmM3LW9yaWcvZHJpdmVycy9hY3BpL3Byb2Nlc3Nvcl9pZGxlLmMgbGlu
+dXgtMi42LjE4LXJjNy1uZXcvZHJpdmVycy9hY3BpL3Byb2Nlc3Nvcl9pZGxlLmMKLS0tIGxpbnV4
+LTIuNi4xOC1yYzctb3JpZy9kcml2ZXJzL2FjcGkvcHJvY2Vzc29yX2lkbGUuYwkyMDA2LTA4LTA2
+IDEzOjIwOjExLjAwMDAwMDAwMCAtMDUwMAorKysgbGludXgtMi42LjE4LXJjNy1uZXcvZHJpdmVy
+cy9hY3BpL3Byb2Nlc3Nvcl9pZGxlLmMJMjAwNi0wOS0xMyAwMjoxNDoyMi4wMDAwMDAwMDAgLTA1
+MDAKQEAgLTEwNzcsNyArMTA3Nyw3IEBACiAJLnJlbGVhc2UgPSBzaW5nbGVfcmVsZWFzZSwKIH07
+CiAKLWludCBhY3BpX3Byb2Nlc3Nvcl9wb3dlcl9pbml0KHN0cnVjdCBhY3BpX3Byb2Nlc3NvciAq
+cHIsCitpbnQgX19pbml0IGFjcGlfcHJvY2Vzc29yX3Bvd2VyX2luaXQoc3RydWN0IGFjcGlfcHJv
+Y2Vzc29yICpwciwKIAkJCSAgICAgIHN0cnVjdCBhY3BpX2RldmljZSAqZGV2aWNlKQogewogCWFj
+cGlfc3RhdHVzIHN0YXR1cyA9IDA7CmRpZmYgLXVyIGxpbnV4LTIuNi4xOC1yYzctb3JpZy9mcy9i
+aW8uYyBsaW51eC0yLjYuMTgtcmM3LW5ldy9mcy9iaW8uYwotLS0gbGludXgtMi42LjE4LXJjNy1v
+cmlnL2ZzL2Jpby5jCTIwMDYtMDgtMDYgMTM6MjA6MTEuMDAwMDAwMDAwIC0wNTAwCisrKyBsaW51
+eC0yLjYuMTgtcmM3LW5ldy9mcy9iaW8uYwkyMDA2LTA5LTEzIDAxOjIyOjE5LjAwMDAwMDAwMCAt
+MDUwMApAQCAtMTY2LDcgKzE2Niw3IEBACiAKIAkJYmlvX2luaXQoYmlvKTsKIAkJaWYgKGxpa2Vs
+eShucl9pb3ZlY3MpKSB7Ci0JCQl1bnNpZ25lZCBsb25nIGlkeDsKKwkJCXVuc2lnbmVkIGxvbmcg
+aWR4ID0gMDsKIAogCQkJYnZsID0gYnZlY19hbGxvY19icyhnZnBfbWFzaywgbnJfaW92ZWNzLCAm
+aWR4LCBicyk7CiAJCQlpZiAodW5saWtlbHkoIWJ2bCkpIHsKZGlmZiAtdXIgbGludXgtMi42LjE4
+LXJjNy1vcmlnL2lwYy9tc2cuYyBsaW51eC0yLjYuMTgtcmM3LW5ldy9pcGMvbXNnLmMKLS0tIGxp
+bnV4LTIuNi4xOC1yYzctb3JpZy9pcGMvbXNnLmMJMjAwNi0wOC0wNiAxMzoyMDoxMS4wMDAwMDAw
+MDAgLTA1MDAKKysrIGxpbnV4LTIuNi4xOC1yYzctbmV3L2lwYy9tc2cuYwkyMDA2LTA5LTEzIDAx
+OjM0OjQ2LjAwMDAwMDAwMCAtMDUwMApAQCAtMzQ1LDYgKzM0NSw4IEBACiAJaWYgKG1zcWlkIDwg
+MCB8fCBjbWQgPCAwKQogCQlyZXR1cm4gLUVJTlZBTDsKIAorCXNldGJ1Zi5xYnl0ZXMgPSBzZXRi
+dWYudWlkID0gc2V0YnVmLmdpZCA9IHNldGJ1Zi5tb2RlID0gMDsKKwogCXZlcnNpb24gPSBpcGNf
+cGFyc2VfdmVyc2lvbigmY21kKTsKIAogCXN3aXRjaCAoY21kKSB7CmRpZmYgLXVyIGxpbnV4LTIu
+Ni4xOC1yYzctb3JpZy9pcGMvc2VtLmMgbGludXgtMi42LjE4LXJjNy1uZXcvaXBjL3NlbS5jCi0t
+LSBsaW51eC0yLjYuMTgtcmM3LW9yaWcvaXBjL3NlbS5jCTIwMDYtMDgtMDYgMTM6MjA6MTEuMDAw
+MDAwMDAwIC0wNTAwCisrKyBsaW51eC0yLjYuMTgtcmM3LW5ldy9pcGMvc2VtLmMJMjAwNi0wOS0x
+MyAwMTozNTo1Ni4wMDAwMDAwMDAgLTA1MDAKQEAgLTgwOSw2ICs4MDksOCBAQAogCXN0cnVjdCBz
+ZW1fc2V0YnVmIHNldGJ1ZjsKIAlzdHJ1Y3Qga2Vybl9pcGNfcGVybSAqaXBjcDsKIAorCXNldGJ1
+Zi51aWQgPSBzZXRidWYuZ2lkID0gc2V0YnVmLm1vZGUgPSAwOworCiAJaWYoY21kID09IElQQ19T
+RVQpIHsKIAkJaWYoY29weV9zZW1pZF9mcm9tX3VzZXIgKCZzZXRidWYsIGFyZy5idWYsIHZlcnNp
+b24pKQogCQkJcmV0dXJuIC1FRkFVTFQ7Cg==
+------=_Part_323516_14103161.1158133681729--

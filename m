@@ -1,68 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751138AbWIMTTX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751146AbWIMTTp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751138AbWIMTTX (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Sep 2006 15:19:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751140AbWIMTTX
+	id S1751146AbWIMTTp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Sep 2006 15:19:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751141AbWIMTTo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Sep 2006 15:19:23 -0400
-Received: from fed1rmmtao08.cox.net ([68.230.241.31]:54449 "EHLO
-	fed1rmmtao08.cox.net") by vger.kernel.org with ESMTP
-	id S1751138AbWIMTTW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Sep 2006 15:19:22 -0400
-From: Junio C Hamano <junkio@cox.net>
-To: git@vger.kernel.org
-Subject: [ANNOUNCE] GIT 1.4.2.1
-cc: linux-kernel@vger.kernel.org
-Date: Wed, 13 Sep 2006 12:19:21 -0700
-Message-ID: <7vsliv8thi.fsf@assigned-by-dhcp.cox.net>
-User-Agent: Gnus/5.110006 (No Gnus v0.6) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 13 Sep 2006 15:19:44 -0400
+Received: from e3.ny.us.ibm.com ([32.97.182.143]:11665 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751140AbWIMTTn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Sep 2006 15:19:43 -0400
+Subject: Re: - r-o-bind-mount-clean-up-ocfs2-nlink-handling.patch removed
+	from -mm tree
+From: Dave Hansen <haveblue@us.ibm.com>
+To: Mark Fasheh <mark.fasheh@oracle.com>
+Cc: linux-kernel@vger.kernel.org, hch@lst.de, viro@zeniv.linux.org.uk,
+       mm-commits@vger.kernel.org, akpm@osdl.org
+In-Reply-To: <20060913191217.GJ8792@ca-server1.us.oracle.com>
+References: <200609130506.k8D56U3m018878@shell0.pdx.osdl.net>
+	 <20060913182716.GI8792@ca-server1.us.oracle.com>
+	 <1158172596.9141.91.camel@localhost.localdomain>
+	 <20060913191217.GJ8792@ca-server1.us.oracle.com>
+Content-Type: text/plain
+Date: Wed, 13 Sep 2006 12:18:41 -0700
+Message-Id: <1158175121.9141.114.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The latest maintenance release GIT 1.4.2.1 is available at the
-usual places:
+On Wed, 2006-09-13 at 12:12 -0700, Mark Fasheh wrote:
+> > Now that the vote call is gone, I don't think we even use future_nlink.
+> > Can we just kill this entire section?
+> Yeah, good catch. Lets try this one again...
 
-  http://www.kernel.org/pub/software/scm/git/
+Looks good to me.  Thanks a bunch for updating this one.
 
-  git-1.4.2.1.tar.{gz,bz2}			(tarball)
-  git-htmldocs-1.4.2.1.tar.{gz,bz2}		(preformatted docs)
-  git-manpages-1.4.2.1.tar.{gz,bz2}		(preformatted docs)
-  RPMS/$arch/git-*-1.4.2.1-1.$arch.rpm	(RPM)
+Signed-off-by:  Dave Hansen <haveblue@us.ibm.com>
 
-This release is primarily for these two fixes:
-
- * git-mv was broken.  Notably, this did not work:
-
-	git-mv foo foo-renamed
-
- * git-http-fetch failed to follow objects/info/alternates on
-   the remote side.  This broke a fetch from Paul's powerpc.git
-   repository.
-
-I have built i386 and x86_64 RPM this time, since the machine I
-do the former has become available again.
-
-----------------------------------------------------------------
-
-Changes since v1.4.2 are as follows:
-
-Dennis Stosberg:
-      Solaris does not support C99 format strings before version 10
-
-Johannes Schindelin:
-      git-mv: succeed even if source is a prefix of destination
-      git-mv: add more path normalization
-      git-mv: special case destination "."
-      git-mv: fix off-by-one error
-      builtin-mv: readability patch
-
-Junio C Hamano:
-      finish_connect(): thinkofix
-      http-fetch: fix alternates handling.
-
-Luben Tuikov:
-      Fix regex pattern in commit-msg
-      sample commit-msg hook: no silent exit on duplicate Signed-off-by lines
+-- Dave
 

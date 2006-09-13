@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750899AbWIMSAo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750909AbWIMSAI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750899AbWIMSAo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Sep 2006 14:00:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750908AbWIMSAn
+	id S1750909AbWIMSAI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Sep 2006 14:00:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750907AbWIMSAI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Sep 2006 14:00:43 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:64989 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1750904AbWIMSA1 (ORCPT
+	Wed, 13 Sep 2006 14:00:08 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:42461 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1750895AbWIMSAE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Sep 2006 14:00:27 -0400
+	Wed, 13 Sep 2006 14:00:04 -0400
 From: David Howells <dhowells@redhat.com>
-Subject: [PATCH 3/7] FRV: Optimise ffs() [try #2]
-Date: Wed, 13 Sep 2006 18:59:38 +0100
+Subject: [PATCH 2/7] FRV: Implement fls64() [try #2]
+Date: Wed, 13 Sep 2006 18:59:36 +0100
 To: torvalds@osdl.org, akpm@osdl.org
 Cc: linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org,
        dhowells@redhat.com
-Message-Id: <20060913175938.21216.77494.stgit@warthog.cambridge.redhat.com>
+Message-Id: <20060913175936.21216.72521.stgit@warthog.cambridge.redhat.com>
 In-Reply-To: <20060913175934.21216.73561.stgit@warthog.cambridge.redhat.com>
 References: <20060913175934.21216.73561.stgit@warthog.cambridge.redhat.com>
 Content-Type: text/plain; charset=utf-8; format=fixed
@@ -26,61 +26,62 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: David Howells <dhowells@redhat.com>
 
-Optimise ffs(x) by using fls(x & x - 1) which we optimise to use the SCAN
-instruction.
+Implement fls64() for FRV without recource to conditional jumps.
 
 Signed-Off-By: David Howells <dhowells@redhat.com>
 ---
 
- include/asm-frv/bitops.h |   33 +++++++++++++++++++++++++++++++--
- 1 files changed, 31 insertions(+), 2 deletions(-)
+ include/asm-frv/bitops.h |   42 +++++++++++++++++++++++++++++++++++++++++-
+ 1 files changed, 41 insertions(+), 1 deletions(-)
 
 diff --git a/include/asm-frv/bitops.h b/include/asm-frv/bitops.h
-index 591eecc..1f70d47 100644
+index 97fb746..591eecc 100644
 --- a/include/asm-frv/bitops.h
 +++ b/include/asm-frv/bitops.h
-@@ -157,8 +157,6 @@ (__builtin_constant_p(nr) ? \
-  __constant_test_bit((nr),(addr)) : \
-  __test_bit((nr),(addr)))
+@@ -186,7 +186,47 @@ ({							\
+ 	bit;						\
+ })
  
--#include <asm-generic/bitops/ffs.h>
--#include <asm-generic/bitops/__ffs.h>
- #include <asm-generic/bitops/find.h>
- 
- /**
-@@ -227,6 +225,37 @@ int fls64(u64 n)
- 
- }
- 
+-#include <asm-generic/bitops/fls64.h>
 +/**
-+ * ffs - find first bit set
-+ * @x: the word to search
++ * fls64 - find last bit set in a 64-bit value
++ * @n: the value to search
 + *
-+ * - return 32..1 to indicate bit 31..0 most least significant bit set
++ * This is defined the same way as ffs:
++ * - return 64..1 to indicate bit 63..0 most significant bit set
 + * - return 0 to indicate no bits set
 + */
 +static inline __attribute__((const))
-+int ffs(int x)
++int fls64(u64 n)
 +{
-+	/* Note: (x & -x) gives us a mask that is the least significant
-+	 * (rightmost) 1-bit of the value in x.
-+	 */
-+	return fls(x & -x);
-+}
++	union {
++		u64 ll;
++		struct { u32 h, l; };
++	} _;
++	int bit, x, y;
 +
-+/**
-+ * __ffs - find first bit set
-+ * @x: the word to search
-+ *
-+ * - return 31..0 to indicate bit 31..0 most least significant bit set
-+ * - if no bits are set in x, the result is undefined
-+ */
-+static inline __attribute__((const))
-+int __ffs(unsigned long x)
-+{
-+	int bit;
-+	asm("scan %1,gr0,%0" : "=r"(bit) : "r"(x & -x));
-+	return 31 - bit;
++	_.ll = n;
++
++	asm("	subcc.p		%3,gr0,gr0,icc0		\n"
++	    "	subcc		%4,gr0,gr0,icc1		\n"
++	    "	ckne		icc0,cc4		\n"
++	    "	ckne		icc1,cc5		\n"
++	    "	norcr		cc4,cc5,cc6		\n"
++	    "	csub.p		%0,%0,%0	,cc6,1	\n"
++	    "	orcr		cc5,cc4,cc4		\n"
++	    "	andcr		cc4,cc5,cc4		\n"
++	    "	cscan.p		%3,gr0,%0	,cc4,0	\n"
++	    "   setlos		#64,%1			\n"
++	    "	cscan.p		%4,gr0,%0	,cc4,1	\n"
++	    "   setlos		#32,%2			\n"
++	    "	csub.p		%1,%0,%0	,cc4,0	\n"
++	    "	csub		%2,%0,%0	,cc4,1	\n"
++	    : "=&r"(bit), "=r"(x), "=r"(y)
++	    : "0r"(_.h), "r"(_.l)
++	    : "icc0", "icc1", "cc4", "cc5", "cc6"
++	    );
++	return bit;
++
 +}
 +
  #include <asm-generic/bitops/sched.h>

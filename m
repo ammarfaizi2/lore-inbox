@@ -1,128 +1,152 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751217AbWIMWF7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751228AbWIMWMq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751217AbWIMWF7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Sep 2006 18:05:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751218AbWIMWF7
+	id S1751228AbWIMWMq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Sep 2006 18:12:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751227AbWIMWMq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Sep 2006 18:05:59 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:29164 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751217AbWIMWF6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Sep 2006 18:05:58 -0400
-Date: Wed, 13 Sep 2006 15:05:34 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-cc: Ingo Molnar <mingo@elte.hu>, Andi Kleen <ak@suse.de>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Zachary Amsden <zach@vmware.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Michael A Fetterman <Michael.Fetterman@cl.cam.ac.uk>
-Subject: Re: Assignment of GDT entries
-In-Reply-To: <45087C78.20308@goop.org>
-Message-ID: <Pine.LNX.4.64.0609131454480.4388@g5.osdl.org>
-References: <450854F3.20603@goop.org> <Pine.LNX.4.64.0609131358090.4388@g5.osdl.org>
- <45087C78.20308@goop.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 13 Sep 2006 18:12:46 -0400
+Received: from server99.tchmachines.com ([72.9.230.178]:13000 "EHLO
+	server99.tchmachines.com") by vger.kernel.org with ESMTP
+	id S1751228AbWIMWMp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Sep 2006 18:12:45 -0400
+Date: Wed, 13 Sep 2006 15:14:35 -0700
+From: Ravikiran G Thirumalai <kiran@scalex86.org>
+To: Christoph Lameter <clameter@sgi.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Alok Kataria <alok.kataria@calsoftinc.com>,
+       "Shai Fultheim (Shai@scalex86.org)" <shai@scalex86.org>,
+       Christoph Lameter <clameter@engr.sgi.com>,
+       "Benzi Galili (Benzi@ScaleMP.com)" <benzi@scalemp.com>
+Subject: Re: [patch] slab: Do not use mempolicy for kmalloc_node
+Message-ID: <20060913221435.GA4359@localhost.localdomain>
+References: <20060912144518.GA4653@localhost.localdomain> <Pine.LNX.4.64.0609121034290.11278@schroedinger.engr.sgi.com> <20060912195246.GA4039@localhost.localdomain> <Pine.LNX.4.64.0609121251160.12388@schroedinger.engr.sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0609121251160.12388@schroedinger.engr.sgi.com>
+User-Agent: Mutt/1.4.2.1i
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - server99.tchmachines.com
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - scalex86.org
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Wed, 13 Sep 2006, Jeremy Fitzhardinge wrote:
+On Tue, Sep 12, 2006 at 12:52:14PM -0700, Christoph Lameter wrote:
+> On Tue, 12 Sep 2006, Ravikiran G Thirumalai wrote:
 > 
-> So does this mean that moving the user-visible cs/ds isn't likely to break
-> stuff, if it has been done before?
-
-Yes. I _think_ we could do it. It's been done before, and nobody noticed.
-
-That said, it may actually be that programs have since become much more 
-aware of segments, for a rather perverse reason: the TLS stuff. Old 
-programs are all very much coded and compiled for a totally flat model, 
-and as such they really don't know _anything_ about segments. But with 
-more TLS stuff, it's possible that a modern threded program is at least 
-aware of _some_ of it. 
-
-In other words - I _suspect_ we can move things around, but it would 
-require some rather heavy testing, at least. Especially programs like Wine 
-might react badly.
-
-> > And segment #8 (ie 0x40) is special (TLS segment #3), of course. Anybody who
-> > wants to emulate windows or use the BIOS needs to use that for their "common
-> > BIOS area" thing, iirc.
+> > On Tue, Sep 12, 2006 at 10:36:54AM -0700, Christoph Lameter wrote:
+> > > On Tue, 12 Sep 2006, Ravikiran G Thirumalai wrote:
+> > > 
+> > > ... 
+> > > This is not complete. Please see the discussion on GFP_THISNODE and the 
+> > > related patch to fix this issue 
+> > > http://marc.theaimsgroup.com/?l=linux-mm&m=115505682122540&w=2
+> > 
+> > Hmm, I see, but with the above patch, if we ignore mempolicy for 
+> > __GFP_THISNODE slab caches at alternate_node_alloc (which is pretty much 
+> > all the slab caches) then we would be ignoring memplocies altogether no?
 > 
-> Do you mean that something like dosemu/Wine needs to be able to use GDT #8?
-> Or is it only used in kernel code?
+> We are implementing memory policies in the slab layer. I.e. we 
+> are taking slab objects round robin from the per node lists of the 
+> slab.
 
-Both. I think the APM BIOS callbacks use GDT#8 too. As long as it's not 
-one of the really _core_ kernel segments, that's ok (you can swap it 
-around and nobody will care). But it would be a total disaster (I suspect) 
-if GDT#8 was the kernel code segment, for example. Suddenly the "switch 
-things around temporarily" is not as trivial any more, and involves nasty 
-nasty things.
+Christoph,
+As discussed offline, cpuset constraints and mempolicy constraints still
+get applied to kmalloc_node in current mainline as well as the patch pointed
+above.  Here is the fix we agreed upon.  Please ack it if you can :)
 
-[ BUT! I haven't ever really had much to do with those BIOS callbacks, and 
-  I'm too lazy to check, so this is all from memory. ]
+Thanks,
+Kiran
 
-> > See above. The kernel and user segments have to be moved as a block of four,
-> > and obviously we'd like to keep them in the same cacheline too. Also, the
-> > cacheline that contains segment #8/0x40 is not available,
-> 
-> Why's that?  That cacheline (assuming 64 byte line size) already contains the
-> user/kernel/cs/ds descriptors.
 
-Right. That's what I'm saying. We should move them all together, and we 
-should keep them as aligned as they are now. 
+Slab should follow the specified cpuset constraints/mem policy constraints
+for kmalloc allocations, which it does.  However, for kmalloc_node 
+allocations, slab should serve the object from the requested node 
+irrespective of memory policy. This seems to be broken in slab code.  
+Following patch fixes this.
 
-> I'm thinking of putting together a patch to change the descriptor use to:
-> 
->    8  - TLS #1
->    9  - TLS #2
->    10 - TLS #3
+Patch just moves out the cpuset/mempolicy base allocation from ____cache_alloc
+to __cache_alloc.  __cache_alloc is used for general purpose allocation, 
+and cpuset/mempolicy constraints should be considered there.  Whereas, 
+____cache_alloc should always be used to allocate objects from the
+array_cache of the executing CPU 
 
-So I'd not be surprised if movign the TLS segments around would break 
-something. 
+Signed-off-by: Alok N Kataria <alok.kataria@calsoftinc.com>
+Signed-off-by: Ravikiran Thirumalai <kiran@scalex86.org>
+Signed-off-by: Shai Fultheim <shai@scalex86.org>
 
->    11 - Kernel PDA
-
-But you keep the four basic ones in the same place:
-
->    12 - Kernel CS
->    13 - Kernel DS
->    14 - User CS
->    15 - User DS
-
-So that's obviously ok at least for _those_.
-
-> Alternatively, maybe:
-> 
->    0  - NULL
->    1  - Kernel PDA
->    2  - Kernel CS
->    3  - Kernel DS
->    4  - User CS
->    5  - User DS
->    6  - TLS #1
->    7  - TLS #2
->      
-> which moves the user cs/ds, but avoids #8.
-
-I don't like that one, exactly because now the four most common segments 
-(which get accessed for all system calls) are no longer in the same 
-32-byte cacheline.
-
-[ Unless we start playing games with offsetting the GDT or something.. 
-  Quite frankly, I'd rather keep it simple and obvious. ]
-
-Now, most systems have a 64-byte cacheline these days (and some have a 
-split 128-byte one), and maybe we'll never go back to the "good old days" 
-with 32-byte lines, so maybe this is a total non-issue. But fitting in the 
-same 32-byte aligned thing would still count as a "good thing" in my book.
-
-That said, numbers talk, bullshit walks. If the above just works a lot 
-better for all modern CPU's that all have 64-byte cachelines (because now 
-_everything_ is in that bigger cacheline), and if you can show that with 
-numbers, and nothing breaks in practice, then hey..
-
-			Linus
+Index: linux-2.6.18-rc6/mm/slab.c
+===================================================================
+--- linux-2.6.18-rc6.orig/mm/slab.c	2006-09-13 14:19:25.000000000 -0700
++++ linux-2.6.18-rc6/mm/slab.c	2006-09-13 14:21:19.000000000 -0700
+@@ -2963,19 +2963,11 @@ static void *cache_alloc_debugcheck_afte
+ #define cache_alloc_debugcheck_after(a,b,objp,d) (objp)
+ #endif
+ 
++/* Allocate object from the array cache of the executing cpu */
+ static inline void *____cache_alloc(struct kmem_cache *cachep, gfp_t flags)
+ {
+ 	void *objp;
+ 	struct array_cache *ac;
+-
+-#ifdef CONFIG_NUMA
+-	if (unlikely(current->flags & (PF_SPREAD_SLAB | PF_MEMPOLICY))) {
+-		objp = alternate_node_alloc(cachep, flags);
+-		if (objp != NULL)
+-			return objp;
+-	}
+-#endif
+-
+ 	check_irq_off();
+ 	ac = cpu_cache_get(cachep);
+ 	if (likely(ac->avail)) {
+@@ -2989,15 +2981,29 @@ static inline void *____cache_alloc(stru
+ 	return objp;
+ }
+ 
++/* 
++ * Allocate object from the appropriate node as per mempolicy/cpuset
++ * constraints
++ */
+ static __always_inline void *__cache_alloc(struct kmem_cache *cachep,
+ 						gfp_t flags, void *caller)
+ {
+ 	unsigned long save_flags;
+ 	void *objp;
+-
+ 	cache_alloc_debugcheck_before(cachep, flags);
+-
+ 	local_irq_save(save_flags);
++
++#ifdef CONFIG_NUMA
++	if (unlikely(current->flags & (PF_SPREAD_SLAB | PF_MEMPOLICY))) {
++		objp = alternate_node_alloc(cachep, flags);
++		if (objp != NULL) {
++			local_irq_restore(save_flags);
++			prefetchw(objp);
++			return objp;
++		}
++	}
++#endif
++
+ 	objp = ____cache_alloc(cachep, flags);
+ 	local_irq_restore(save_flags);
+ 	objp = cache_alloc_debugcheck_after(cachep, flags, objp,
+@@ -3303,9 +3309,10 @@ void *kmem_cache_alloc_node(struct kmem_
+ 	cache_alloc_debugcheck_before(cachep, flags);
+ 	local_irq_save(save_flags);
+ 
+-	if (nodeid == -1 || nodeid == numa_node_id() ||
+-			!cachep->nodelists[nodeid])
++	if (nodeid == numa_node_id())
+ 		ptr = ____cache_alloc(cachep, flags);
++	else if (nodeid == -1 || !cachep->nodelists[nodeid])
++		ptr = __cache_alloc(cachep, flags, __builtin_return_address(0));
+ 	else
+ 		ptr = __cache_alloc_node(cachep, flags, nodeid);
+ 	local_irq_restore(save_flags);

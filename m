@@ -1,76 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030456AbWIMEFm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751543AbWIME0o@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030456AbWIMEFm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Sep 2006 00:05:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751540AbWIMEFl
+	id S1751543AbWIME0o (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Sep 2006 00:26:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751544AbWIME0o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Sep 2006 00:05:41 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:8072 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1751536AbWIMEFk (ORCPT
+	Wed, 13 Sep 2006 00:26:44 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:40086 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1751542AbWIME0n (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Sep 2006 00:05:40 -0400
-Message-ID: <45078390.7010901@garzik.org>
-Date: Wed, 13 Sep 2006 00:05:36 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060808)
-MIME-Version: 1.0
-To: Dan Williams <dan.j.williams@gmail.com>
-CC: NeilBrown <neilb@suse.de>, linux-raid@vger.kernel.org, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, christopher.leech@intel.com
-Subject: Re: [PATCH 00/19] Hardware Accelerated MD RAID5: Introduction
-References: <1158015632.4241.31.camel@dwillia2-linux.ch.intel.com>	 <4505F358.3040204@garzik.org>	 <e9c3a7c20609111653v29cd4609hd0584ae300b735b7@mail.gmail.com>	 <45061E63.6010901@garzik.org> <e9c3a7c20609112247u30685133kc84f094ce7854776@mail.gmail.com>
-In-Reply-To: <e9c3a7c20609112247u30685133kc84f094ce7854776@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.3 (----)
-X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.3 points, 5.0 required)
+	Wed, 13 Sep 2006 00:26:43 -0400
+Date: Wed, 13 Sep 2006 14:26:27 +1000
+From: David Chinner <dgc@sgi.com>
+To: linux-kernel@vger.kernel.org
+Cc: xfs-masters@oss.sgi.com,
+       Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
+Subject: Re: [xfs-masters] Re: 2.6.18-rc6-mm2
+Message-ID: <20060913042627.GE3024@melbourne.sgi.com>
+References: <20060912000618.a2e2afc0.akpm@osdl.org> <6bffcb0e0609120554j5e69e2sd2c8ebb914c4c9f5@mail.gmail.com> <6bffcb0e0609120842s6a38b326u4e1fff2e562a6832@mail.gmail.com> <20060912162555.d71af631.akpm@osdl.org> <6bffcb0e0609121634l7db1808cwa33601a6628ee7eb@mail.gmail.com> <20060912163749.27c1e0db.akpm@osdl.org> <20060913015850.GB3034@melbourne.sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060913015850.GB3034@melbourne.sgi.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dan Williams wrote:
-> On 9/11/06, Jeff Garzik <jeff@garzik.org> wrote:
->> Dan Williams wrote:
->> > This is a frequently asked question, Alan Cox had the same one at OLS.
->> > The answer is "probably."  The only complication I currently see is
->> > where/how the stripe cache is maintained.  With the IOPs its easy
->> > because the DMA engines operate directly on kernel memory.  With the
->> > Promise card I believe they have memory on the card and it's not clear
->> > to me if the XOR engines on the card can deal with host memory.  Also,
->> > MD would need to be modified to handle a stripe cache located on a
->> > device, or somehow synchronize its local cache with card in a manner
->> > that is still able to beat software only MD.
->>
->> sata_sx4 operates through [standard PC] memory on the card, and you use
->> a DMA engine to copy memory to/from the card.
->>
->> [select chipsets supported by] sata_promise operates directly on host
->> memory.
->>
->> So, while sata_sx4 is farther away from your direct-host-memory model,
->> it also has much more potential for RAID acceleration:  ideally, RAID1
->> just copies data to the card once, then copies the data to multiple
->> drives from there.  Similarly with RAID5, you can eliminate copies and
->> offload XOR, presuming the drives are all connected to the same card.
-> In the sata_promise case its straight forward, all that is needed is
-> dmaengine drivers for the xor and memcpy engines.  This would be
-> similar to the current I/OAT model where dma resources are provided by
-> a PCI function.  The sata_sx4 case would need a different flavor of
-> the dma_do_raid5_block_ops routine, one that understands where the
-> cache is located.  MD would also need the capability to bypass the
-> block layer since the data will have already been transferred to the
-> card by a stripe cache operation
+On Wed, Sep 13, 2006 at 11:58:50AM +1000, David Chinner wrote:
+> Call Trace:
+> [<c013ae74>] lock_release_non_nested+0xd8/0x143
+> [<c013b291>] lock_release+0x178/0x19f
+> [<c02f7dc5>] __mutex_unlock_slowpath+0xbb/0x131
+> [<c02f7e43>] mutex_unlock+0x8/0xa
+> [<c017655f>] generic_shutdown_super+0x9c/0xd9
+> [<c01765bc>] kill_block_super+0x20/0x32
+> [<c017667c>] deactivate_super+0x5d/0x6f
+> [<c01892bc>] mntput_no_expire+0x52/0x85
+> [<c017b2c9>] path_release_on_umount+0x15/0x18
+> [<c018a469>] sys_umount+0x1e1/0x215
+> [<c018a4aa>] sys_oldumount+0xd/0xf
+> [<c0103156>] sysenter_past_esp+0x5f/0x99
 > 
-> The RAID1 case give me pause because it seems any work along these
-> lines requires that the implementation work for both MD and DM, which
-> then eventually leads to being tasked with merging the two.
+> I'm not sure why XFS would cause this - the crash is outside XFS releasing
+> a mutex (sb->s_lock) that XFS code has never touched. I doubt anyone
+> in the XFS team has done any testing on this -mm kernel...
+> 
+> What is the test case, Michal? Can you post the script you used?
 
-RAID5 has similar properties.  If all devices in a RAID5 array are 
-attached to a single SX4 card, then a high level write to the RAID5 
-array is passed directly to the card, which then performs XOR, striping, 
-etc.
+I've booted 2.6.18-rc6-mm2 and mounted and unmounted several xfs
+filesystems. I'm currently running xfsqa on it, and I haven't seen
+any failures on unmount yet.
 
-	Jeff
+That test case would be really handy, Michal.
 
+Cheers,
 
-
+Dave.
+-- 
+Dave Chinner
+Principal Engineer
+SGI Australian Software Group

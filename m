@@ -1,65 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750970AbWIMQQI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751007AbWIMQRp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750970AbWIMQQI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Sep 2006 12:16:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750998AbWIMQQI
+	id S1751007AbWIMQRp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Sep 2006 12:17:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751010AbWIMQRp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Sep 2006 12:16:08 -0400
-Received: from xenotime.net ([66.160.160.81]:11983 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1750970AbWIMQQF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Sep 2006 12:16:05 -0400
-Date: Wed, 13 Sep 2006 09:17:11 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: Alexey Dobriyan <adobriyan@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [RFC 1/2] kmemdup: introduce
-Message-Id: <20060913091711.aa4021f0.rdunlap@xenotime.net>
-In-Reply-To: <20060909013555.GC5192@martell.zuzino.mipt.ru>
-References: <20060909013555.GC5192@martell.zuzino.mipt.ru>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 13 Sep 2006 12:17:45 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:17 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1751006AbWIMQRn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Sep 2006 12:17:43 -0400
+Date: Wed, 13 Sep 2006 18:17:34 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: David Howells <dhowells@redhat.com>
+Cc: torvalds@osdl.org, akpm@osdl.org, linux-kernel@vger.kernel.org,
+       linux-arch@vger.kernel.org
+Subject: Re: [PATCH 4/6] Implement a general log2 facility in the kernel
+Message-ID: <20060913161734.GE3564@stusta.de>
+References: <20060913130253.32022.69230.stgit@warthog.cambridge.redhat.com> <20060913130300.32022.69743.stgit@warthog.cambridge.redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060913130300.32022.69743.stgit@warthog.cambridge.redhat.com>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 9 Sep 2006 05:35:55 +0400 Alexey Dobriyan wrote:
-
-> Not tested yet, this is for semantics commentary.
+On Wed, Sep 13, 2006 at 02:03:00PM +0100, David Howells wrote:
+> From: David Howells <dhowells@redhat.com>
 > 
->  include/linux/string.h |    1 +
->  mm/util.c              |   18 ++++++++++++++++++
->  2 files changed, 19 insertions(+)
+> This facility provides three entry points:
 > 
-> --- a/mm/util.c
-> +++ b/mm/util.c
-> @@ -40,6 +40,24 @@ char *kstrdup(const char *s, gfp_t gfp)
->  }
->  EXPORT_SYMBOL(kstrdup);
->  
-> +/**
-> + * kmemdup - duplicate region of memory
-> + *
+> 	log2()		Log base 2 of u32
+>...
 
-No blank line here, please.  kernel-doc "language" doesn't allow
-that.  Hopefully that will be fixed someday.
+Considering that several arch maintainers have vetoed my patch to revert 
+the -ffreestanding removal Andi sneaked in with his usual trick to hide 
+generic patches as "x86_64 patch", such a usage of a libc function name 
+with a signature different from the one defined in ISO/IEC 9899:1999 is 
+a namespace violation that mustn't happen.
 
-> + * @src: memory region to duplicate
-> + * @len: memory region length
-> + * @gfp: GFP mask to use
-> + */
-> +void *kmemdup(const void *src, size_t len, gfp_t gfp)
-> +{
-> +	void *p;
-> +
-> +	p = ____kmalloc(len, gfp);
-> +	if (p)
-> +		memcpy(p, src, len);
-> +	return p;
-> +}
-> +EXPORT_SYMBOL(kmemdup);
+cu
+Adrian
 
----
-~Randy
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

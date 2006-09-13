@@ -1,84 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751489AbWIMB7a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751501AbWIMCQU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751489AbWIMB7a (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Sep 2006 21:59:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751492AbWIMB7a
+	id S1751501AbWIMCQU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Sep 2006 22:16:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751502AbWIMCQT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Sep 2006 21:59:30 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:11399 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1751489AbWIMB73 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Sep 2006 21:59:29 -0400
-Date: Wed, 13 Sep 2006 11:58:50 +1000
-From: David Chinner <dgc@sgi.com>
-To: xfs-masters@oss.sgi.com
-Cc: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [xfs-masters] Re: 2.6.18-rc6-mm2
-Message-ID: <20060913015850.GB3034@melbourne.sgi.com>
-References: <20060912000618.a2e2afc0.akpm@osdl.org> <6bffcb0e0609120554j5e69e2sd2c8ebb914c4c9f5@mail.gmail.com> <6bffcb0e0609120842s6a38b326u4e1fff2e562a6832@mail.gmail.com> <20060912162555.d71af631.akpm@osdl.org> <6bffcb0e0609121634l7db1808cwa33601a6628ee7eb@mail.gmail.com> <20060912163749.27c1e0db.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060912163749.27c1e0db.akpm@osdl.org>
-User-Agent: Mutt/1.4.2.1i
+	Tue, 12 Sep 2006 22:16:19 -0400
+Received: from smtp104.mail.mud.yahoo.com ([209.191.85.214]:22960 "HELO
+	smtp104.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1751501AbWIMCQT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Sep 2006 22:16:19 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=lIdaw7eGzXXa0pC1unyTU2tPn0ri9FXG21IgGDrW6y/FzhTjED25xIlMm6ErccEHmJkJ3H7XGEG9jd9/CSDbXFq3x/miVYzV2yFEkyAwYjY3rwQ4+MBAAqkdkxxl7Os2xsBHZokoufELTskTN3duR4W3+s/3HLzveNI1ft4yDX4=  ;
+Message-ID: <450769E2.4080904@yahoo.com.au>
+Date: Wed, 13 Sep 2006 12:16:02 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: David Howells <dhowells@redhat.com>
+CC: Matt Mackall <mpm@selenic.com>, Aubrey <aubreylee@gmail.com>,
+       linux-kernel@vger.kernel.org, davidm@snapgear.com, gerg@snapgear.com
+Subject: Re: kernel BUGs when removing largish files with the SLOB allocator
+References: <20060912174339.GA19707@waste.org>  <6d6a94c50609032356t47950e40lbf77f15136e67bc5@mail.gmail.com> <17162.1157365295@warthog.cambridge.redhat.com> <6d6a94c50609042052n4c1803eey4f4412f6153c4a2b@mail.gmail.com> <3551.1157448903@warthog.cambridge.redhat.com> <6d6a94c50609051935m607f976j942263dd1ac9c4fb@mail.gmail.com> <44FE4222.3080106@yahoo.com.au> <6d6a94c50609120107w1942a8d8j368dd57a271d0250@mail.gmail.com> <15193.1158088232@warthog.cambridge.redhat.com>
+In-Reply-To: <15193.1158088232@warthog.cambridge.redhat.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 12, 2006 at 04:37:49PM -0700, Andrew Morton wrote:
-> On Wed, 13 Sep 2006 01:34:34 +0200
-> "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com> wrote:
+David Howells wrote:
+> Matt Mackall <mpm@selenic.com> wrote:
 > 
-> > On 13/09/06, Andrew Morton <akpm@osdl.org> wrote:
-> > > On Tue, 12 Sep 2006 17:42:10 +0200
-> > > "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com> wrote:
-> > >
-> > > > On 12/09/06, Michal Piotrowski <michal.k.k.piotrowski@gmail.com> wrote:
-> > > > > On 12/09/06, Andrew Morton <akpm@osdl.org> wrote:
-> > > > > >
-> > > > > > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc6/2.6.18-rc6-mm2/
-> > > > > >
-> > > > >
-> > > > > I get this while umounting jfs (umount segfaulted).
-> > > >
-> > > > s/jfs/xfs
-> > >
-> > > Do you mean that both JFS and XFS exhibit this bug, or only XFS?
-> > 
-> > Only XFS. (s/jfs/xfs - "Thinking in s/c++/sed :)")
 > 
-> OK, thanks.  Let us rub the xfs-masters lamp and see what emerges.
+>>>+		for (i = 0; i < (1 << bb->order); i++) {
+>>>+			SetPageSlab(page);
+>>>+			page++;
+>>>+		}
+>>
+>>for ( ; page < page + (1 << bb->order), page++)
+>>      SetPageSlab(page);
+> 
+> 
+> Ugh.  No.  You can't do that.  "page < page + X" will be true until "page + X"
+> wraps the end of memory.
+> 
+> 
+>>>+				for (i = 0; i < (1 << bb->order); i++) {
+>>>+					if (!TestClearPageSlab(page))
+>>>+						BUG();
+>>>+					page++;
+>>>+				}
+>>
+>>Please drop the BUG. We've already established it's on our lists by
+>>this point.
+> 
+> 
+> I disagree.  Let's catch accidental reuse of pages.  It should, however, be
+> marked unlikely().
 
-Just for XFs list folks:
+If you do this, the biggest problem with those ops is that they are atomic,
+and the latter also requires strong memory barriers. Don't use RMW variants,
+and use __ prepended iff you are the only user of the page at this point.
 
-
-http://www.stardust.webpages.pl/files/mm/2.6.18-rc6-mm2/mm-config1
-http://www.stardust.webpages.pl/files/mm/2.6.18-rc6-mm2/mm-dmesg1
-
-Call Trace:
-[<c013ae74>] lock_release_non_nested+0xd8/0x143
-[<c013b291>] lock_release+0x178/0x19f
-[<c02f7dc5>] __mutex_unlock_slowpath+0xbb/0x131
-[<c02f7e43>] mutex_unlock+0x8/0xa
-[<c017655f>] generic_shutdown_super+0x9c/0xd9
-[<c01765bc>] kill_block_super+0x20/0x32
-[<c017667c>] deactivate_super+0x5d/0x6f
-[<c01892bc>] mntput_no_expire+0x52/0x85
-[<c017b2c9>] path_release_on_umount+0x15/0x18
-[<c018a469>] sys_umount+0x1e1/0x215
-[<c018a4aa>] sys_oldumount+0xd/0xf
-[<c0103156>] sysenter_past_esp+0x5f/0x99
-
-I'm not sure why XFS would cause this - the crash is outside XFS releasing
-a mutex (sb->s_lock) that XFS code has never touched. I doubt anyone
-in the XFS team has done any testing on this -mm kernel...
-
-What is the test case, Michal? Can you post the script you used?
-
-Cheers,
-
-Dave.
 -- 
-Dave Chinner
-Principal Engineer
-SGI Australian Software Group
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

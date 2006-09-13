@@ -1,80 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750901AbWIMOvY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750918AbWIMO7I@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750901AbWIMOvY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Sep 2006 10:51:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750905AbWIMOvX
+	id S1750918AbWIMO7I (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Sep 2006 10:59:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750916AbWIMO7I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Sep 2006 10:51:23 -0400
-Received: from atlrel9.hp.com ([156.153.255.214]:55940 "EHLO atlrel9.hp.com")
-	by vger.kernel.org with ESMTP id S1750900AbWIMOvW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Sep 2006 10:51:22 -0400
-From: Bjorn Helgaas <bjorn.helgaas@hp.com>
-To: kmannth@us.ibm.com
-Subject: Re: one more ACPI Error (utglobal-0125): Unknown exception  code:0xFFFFFFEA [Re: 2.6.18-rc4-mm3]
-Date: Wed, 13 Sep 2006 08:51:15 -0600
-User-Agent: KMail/1.9.1
-Cc: Shaohua Li <shaohua.li@intel.com>,
-       "Moore, Robert" <robert.moore@intel.com>, Len Brown <lenb@kernel.org>,
-       Mattia Dongili <malattia@linux.it>, Andrew Morton <akpm@osdl.org>,
-       lkml <linux-kernel@vger.kernel.org>,
-       linux acpi <linux-acpi@vger.kernel.org>,
-       KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-References: <B28E9812BAF6E2498B7EC5C427F293A4E38B52@orsmsx415.amr.corp.intel.com> <4132.24.9.204.52.1157682479.squirrel@mail.cce.hp.com> <1158110859.6047.27.camel@keithlap>
-In-Reply-To: <1158110859.6047.27.camel@keithlap>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
+	Wed, 13 Sep 2006 10:59:08 -0400
+Received: from mtagate2.de.ibm.com ([195.212.29.151]:31657 "EHLO
+	mtagate2.de.ibm.com") by vger.kernel.org with ESMTP
+	id S1750908AbWIMO7G (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Sep 2006 10:59:06 -0400
+Subject: Re: [patch 1/9] Guest page hinting: unused / free pages.
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Reply-To: schwidefsky@de.ibm.com
+To: Rik van Riel <riel@redhat.com>
+Cc: Hubertus Franke <frankeh@watson.ibm.com>, linux-kernel@vger.kernel.org,
+       virtualization@lists.osdl.org, akpm@osdl.org, nickpiggin@yahoo.com.au,
+       rhim@cc.gatech.edu
+In-Reply-To: <4508198E.10707@redhat.com>
+References: <20060901110908.GB15684@skybase> <45073901.8020906@redhat.com>
+	 <45074BD0.3060400@watson.ibm.com>  <45075F09.5010708@redhat.com>
+	 <1158137786.2560.3.camel@localhost>  <4507F453.1040809@watson.ibm.com>
+	 <1158151535.2560.20.camel@localhost> <45080262.8050009@watson.ibm.com>
+	 <4508198E.10707@redhat.com>
+Content-Type: text/plain
+Organization: IBM Corporation
+Date: Wed, 13 Sep 2006 16:59:03 +0200
+Message-Id: <1158159543.2560.29.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.3 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200609130851.16028.bjorn.helgaas@hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 12 September 2006 19:27, keith mannthey wrote:
-> On Thu, 2006-09-07 at 20:27 -0600, Bjorn Helgaas wrote:
-> > > On Thu, 2006-09-07 at 09:25 -0600, Bjorn Helgaas wrote:
-> > >> If we decide that "try HID first, then try CID" is the right thing,
-> > >> I think we should figure out how to make that work.  Maybe that
-> > >> means extending the driver model somehow.
-> > > Don't think it's easy, especially no other bus needs it I guess.
-> > 
-> > I agree it's probably not easy, but I think having the right
-> > semantics is more important than fitting cleanly into the
-> > driver model.  But I know that without code, I'm just venting
-> > hot air, not contributing to a solution.
-> > 
-> > How's the ACPI driver model integration going, anyway?  I seem
-> > to recall some patches a while back, but I don't think they're
-> > in the tree yet.
-> > 
-> > > Do we really need the memory hotplug device returns pnp0c01/pnp0c02?
-> > > What's the purpose?
-> > 
-> > I don't know.  But I think Keith already determined that a BIOS change
-> > is not likely.  I hate to ask for BIOS changes like this because it
-> > feels like asking them to avoid broken things in Linux.
+On Wed, 2006-09-13 at 10:45 -0400, Rik van Riel wrote:
+> > But another trouble you have not mentioned is what happens to pages
+> > with pending make-volatile that need to and/or have been made stable
+> > in the meantime. They too need to be removed from this pending list.
 > 
->   Ok my motherboard patch was dropped from -mm so I am broken again but
-> others are fixed. Is the answer that we do nothing about this issues?   
-> 
->   I am pretty sure my SSDT table is valid if someone *cannot* point out
-> in the spec where my device is malformed  by having both HID and CID I
-> will not be able even start the request to change the BIOS (it would be
-> a waste of my time).  Sure having the CID of the memory device may be
-> overkill but is it wrong?  
+> At the time where you walk the set of pages (pagevec?) to make
+> volatile, you can check whether the page flags are still right.
 
-I think that your SSDT is valid.  I can't point to a specific
-reference in the spec, but I think the "try _HID first, then try
-_CID" strategy is clearly the intent.  Otherwise, there would be
-no reason to separate _HID from _CID.
+A make volatile can be done anytime as long as the page is in page
+cache. Before a page can be made stable the caller needs to make sure
+that one of the conditions that prevent a make volatile becomes true.
+So a page in the pending make-volatile array does not have to be removed
+because a make stable has been done. It only has to be removed if it
+gets freed.
 
->   Unless someone can show me a alternate solution I am going to push the
-> check HID before CID patch to -mm in the next day or two. 
+> A page that was set to be marked volatile with the hypervisor,
+> but later turned stable again would have that indicated in its
+> page flags, right?
 
-I support this, although I do understand that it will make it more
-difficult to integrate ACPI into the driver model because the driver
-model currently only does one pass to check whether a driver can claim
-a device.
+Several page flag bits and some other conditions like "has a mapping"
+and "reference count is map count + 1". Most of the checks that need to
+be done for make volatile are on page flags.
 
-Bjorn
+-- 
+blue skies,
+  Martin.
+
+Martin Schwidefsky
+Linux for zSeries Development & Services
+IBM Deutschland Entwicklung GmbH
+
+"Reality continues to ruin my life." - Calvin.
+
+

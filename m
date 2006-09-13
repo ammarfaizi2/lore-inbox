@@ -1,61 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750738AbWIMQjT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750736AbWIMQlg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750738AbWIMQjT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Sep 2006 12:39:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750756AbWIMQjH
+	id S1750736AbWIMQlg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Sep 2006 12:41:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750741AbWIMQlf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Sep 2006 12:39:07 -0400
-Received: from mtagate4.de.ibm.com ([195.212.29.153]:61770 "EHLO
-	mtagate4.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1750738AbWIMQip (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Sep 2006 12:38:45 -0400
-Date: Wed, 13 Sep 2006 18:39:04 +0200
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
-To: Greg K-H <greg@kroah.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [11/12] driver core fixes: device_create_file() retval check in
- dmapool.c
-Message-ID: <20060913183904.578d8a6f@gondolin.boeblingen.de.ibm.com>
-In-Reply-To: <20060913163007.21cf10a8@gondolin.boeblingen.de.ibm.com>
-References: <20060913163007.21cf10a8@gondolin.boeblingen.de.ibm.com>
-X-Mailer: Sylpheed-Claws 2.5.0-rc3 (GTK+ 2.8.20; i486-pc-linux-gnu)
+	Wed, 13 Sep 2006 12:41:35 -0400
+Received: from caramon.arm.linux.org.uk ([217.147.92.249]:64522 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S1750736AbWIMQiW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Sep 2006 12:38:22 -0400
+Date: Wed, 13 Sep 2006 17:38:06 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Matthew Wilcox <matthew@wil.cx>
+Cc: Adrian Bunk <bunk@stusta.de>, David Howells <dhowells@redhat.com>,
+       torvalds@osdl.org, akpm@osdl.org, linux-kernel@vger.kernel.org,
+       linux-arch@vger.kernel.org
+Subject: Re: [PATCH 4/6] Implement a general log2 facility in the kernel
+Message-ID: <20060913163806.GA15563@flint.arm.linux.org.uk>
+Mail-Followup-To: Matthew Wilcox <matthew@wil.cx>,
+	Adrian Bunk <bunk@stusta.de>, David Howells <dhowells@redhat.com>,
+	torvalds@osdl.org, akpm@osdl.org, linux-kernel@vger.kernel.org,
+	linux-arch@vger.kernel.org
+References: <20060913130253.32022.69230.stgit@warthog.cambridge.redhat.com> <20060913130300.32022.69743.stgit@warthog.cambridge.redhat.com> <20060913161734.GE3564@stusta.de> <20060913163136.GA2585@parisc-linux.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060913163136.GA2585@parisc-linux.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
+On Wed, Sep 13, 2006 at 10:31:36AM -0600, Matthew Wilcox wrote:
+> On Wed, Sep 13, 2006 at 06:17:34PM +0200, Adrian Bunk wrote:
+> > On Wed, Sep 13, 2006 at 02:03:00PM +0100, David Howells wrote:
+> > > From: David Howells <dhowells@redhat.com>
+> > > 
+> > > This facility provides three entry points:
+> > > 
+> > > 	log2()		Log base 2 of u32
+> > >...
+> > 
+> > Considering that several arch maintainers have vetoed my patch to revert 
+> > the -ffreestanding removal Andi sneaked in with his usual trick to hide 
+> > generic patches as "x86_64 patch", such a usage of a libc function name 
+> > with a signature different from the one defined in ISO/IEC 9899:1999 is 
+> > a namespace violation that mustn't happen.
+> 
+> log2 is only defined if math.h gets included.  If we're including math.h
+> at any point in the kernel itself (excluding the bootloader and similar),
+> we're already screwed six ways from sunday.
 
-Check for device_create_file() return value in dma_pool_create().
+Adrian's point is that gcc without -ffreestanding may decide to implement
+log2() itself by issuing the appropriate floating point instructions
+rather than using a function call into a library to do this operation.
 
-Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+Therefore, re-using "log2()" is about as bad as re-using the "strcmp()"
+name to implement a function which copies strings.
 
- dmapool.c |   13 +++++++++++--
- 1 file changed, 11 insertions(+), 2 deletions(-)
+And, sure enough, try throwing this at a compiler:
 
---- linux-2.6.18-rc6/drivers/base/dmapool.c	2006-09-13 10:55:47.000000000 +0200
-+++ linux-2.6.18-rc6+CH/drivers/base/dmapool.c	2006-09-13 10:55:03.000000000 +0200
-@@ -141,11 +141,20 @@ dma_pool_create (const char *name, struc
- 	init_waitqueue_head (&retval->waitq);
- 
- 	if (dev) {
-+		int ret;
-+
- 		down (&pools_lock);
- 		if (list_empty (&dev->dma_pools))
--			device_create_file (dev, &dev_attr_pools);
-+			ret = device_create_file (dev, &dev_attr_pools);
-+		else
-+			ret = 0;
- 		/* note:  not currently insisting "name" be unique */
--		list_add (&retval->pools, &dev->dma_pools);
-+		if (!ret)
-+			list_add (&retval->pools, &dev->dma_pools);
-+		else {
-+			kfree(retval);
-+			retval = NULL;
-+		}
- 		up (&pools_lock);
- 	} else
- 		INIT_LIST_HEAD (&retval->pools);
+int log2(int foo)
+{
+	return foo;
+}
+
+you get:
+
+t.c:2: warning: conflicting types for built-in function 'log2'
+
+but not if you use -ffreestanding.
+
+Don't re-use C standard library identifiers (or use -ffreestanding.)
+
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

@@ -1,52 +1,29 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030435AbWIMA1J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030439AbWIMAea@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030435AbWIMA1J (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Sep 2006 20:27:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030436AbWIMA1J
+	id S1030439AbWIMAea (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Sep 2006 20:34:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030440AbWIMAea
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Sep 2006 20:27:09 -0400
-Received: from zeus.pimb.org ([80.68.88.21]:28435 "EHLO zeus.pimb.org")
-	by vger.kernel.org with ESMTP id S1030435AbWIMA1I (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Sep 2006 20:27:08 -0400
-Date: Wed, 13 Sep 2006 01:42:22 +0100
-From: Jody Belka <lists-lkml@pimb.org>
-To: Greg Kroah-Hartman <gregkh@suse.de>
-Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>
-Subject: Re: Linux 2.6.18-rc6
-Message-ID: <20060913004222.GD6294@pimb.org>
-References: <20060912150433.GB2808@pimb.org> <20060912223309.GA9271@suse.de> <20060912231117.GC2808@pimb.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060912231117.GC2808@pimb.org>
-User-Agent: Mutt/1.5.6+20040523i
+	Tue, 12 Sep 2006 20:34:30 -0400
+Received: from pD9E365C8.dip.t-dialin.net ([217.227.101.200]:20220 "HELO
+	pD9E365C8.dip.t-dialin.net") by vger.kernel.org with SMTP
+	id S1030439AbWIMAe3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Sep 2006 20:34:29 -0400
+From: "Norris Land" <ctwangwmeh@ifb.com.tw>
+Reply-To: "Norris Land" <ctwangwmeh@ifb.com.tw>
+Message-ID: <3255356189.1359733674@ifb.com.tw>
+Date: Wed, 13 Sep 2006 15:36:13 -0400
+To: <linux-kernel@vger.kernel.org>
+Subject: darling teens in bukkaake action.
+MIME-Version: 1.0
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 13, 2006 at 12:11:17AM +0100, Jody Belka wrote:
-> On Tue, Sep 12, 2006 at 03:33:09PM -0700, Greg KH wrote:
-> > Yes, this exposed a bug in HAL where it was overflowing an internal
-> > buffer.  Please upgrade to the latest version, it has been fixed for a
-> > few months now.
-> 
-> Would you happen to have a patch for the fix please? Then i can open a
-> report in the ubuntu bug tracker, and they can release an updated 0.5.3
-> that will work with 2.6.18.
-> 
-> Thanks in advance.
 
-Never mind, following some googling i found the commit. Tested and it works,
-so opened a bug report with Ubuntu. In the meantime i'm running my own build
-of the .deb :)
+goluptious Sluts at Porn!
 
-Thanks for the help.
+http://palicomeshailvo.com
 
-
-J
--- 
-Jody Belka
-knew (at) pimb (dot) org
-
-ps. Please CC me, as i'm not subscribed to the list. Thanks.
 

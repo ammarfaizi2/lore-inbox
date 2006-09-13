@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750755AbWIMQjv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750738AbWIMQjT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750755AbWIMQjv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Sep 2006 12:39:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750753AbWIMQim
+	id S1750738AbWIMQjT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Sep 2006 12:39:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750756AbWIMQjH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Sep 2006 12:38:42 -0400
-Received: from mtagate1.de.ibm.com ([195.212.29.150]:43463 "EHLO
-	mtagate1.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1750741AbWIMQi0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Sep 2006 12:38:26 -0400
-Date: Wed, 13 Sep 2006 18:38:46 +0200
+	Wed, 13 Sep 2006 12:39:07 -0400
+Received: from mtagate4.de.ibm.com ([195.212.29.153]:61770 "EHLO
+	mtagate4.de.ibm.com") by vger.kernel.org with ESMTP
+	id S1750738AbWIMQip (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Sep 2006 12:38:45 -0400
+Date: Wed, 13 Sep 2006 18:39:04 +0200
 From: Cornelia Huck <cornelia.huck@de.ibm.com>
 To: Greg K-H <greg@kroah.com>
 Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [05/12] driver core fixes: sysfs_create_link() retval check in
- class.c
-Message-ID: <20060913183846.7c82eeaa@gondolin.boeblingen.de.ibm.com>
+Subject: [11/12] driver core fixes: device_create_file() retval check in
+ dmapool.c
+Message-ID: <20060913183904.578d8a6f@gondolin.boeblingen.de.ibm.com>
 In-Reply-To: <20060913163007.21cf10a8@gondolin.boeblingen.de.ibm.com>
 References: <20060913163007.21cf10a8@gondolin.boeblingen.de.ibm.com>
 X-Mailer: Sylpheed-Claws 2.5.0-rc3 (GTK+ 2.8.20; i486-pc-linux-gnu)
@@ -27,24 +27,35 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Cornelia Huck <cornelia.huck@de.ibm.com>
 
-Check for return value of sysfs_create_link() in class_device_add().
+Check for device_create_file() return value in dma_pool_create().
 
 Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 
- class.c |    5 ++++-
- 1 file changed, 4 insertions(+), 1 deletion(-)
+ dmapool.c |   13 +++++++++++--
+ 1 file changed, 11 insertions(+), 2 deletions(-)
 
---- linux-2.6.18-rc6/drivers/base/class.c	2006-09-12 17:01:56.000000000 +0200
-+++ linux-2.6.18-rc6+CH/drivers/base/class.c	2006-09-12 17:03:21.000000000 +0200
-@@ -562,7 +562,10 @@ int class_device_add(struct class_device
- 		goto out2;
+--- linux-2.6.18-rc6/drivers/base/dmapool.c	2006-09-13 10:55:47.000000000 +0200
++++ linux-2.6.18-rc6+CH/drivers/base/dmapool.c	2006-09-13 10:55:03.000000000 +0200
+@@ -141,11 +141,20 @@ dma_pool_create (const char *name, struc
+ 	init_waitqueue_head (&retval->waitq);
  
- 	/* add the needed attributes to this device */
--	sysfs_create_link(&class_dev->kobj, &parent_class->subsys.kset.kobj, "subsystem");
-+	error = sysfs_create_link(&class_dev->kobj,
-+				  &parent_class->subsys.kset.kobj, "subsystem");
-+	if (error)
-+		goto out3;
- 	class_dev->uevent_attr.attr.name = "uevent";
- 	class_dev->uevent_attr.attr.mode = S_IWUSR;
- 	class_dev->uevent_attr.attr.owner = parent_class->owner;
+ 	if (dev) {
++		int ret;
++
+ 		down (&pools_lock);
+ 		if (list_empty (&dev->dma_pools))
+-			device_create_file (dev, &dev_attr_pools);
++			ret = device_create_file (dev, &dev_attr_pools);
++		else
++			ret = 0;
+ 		/* note:  not currently insisting "name" be unique */
+-		list_add (&retval->pools, &dev->dma_pools);
++		if (!ret)
++			list_add (&retval->pools, &dev->dma_pools);
++		else {
++			kfree(retval);
++			retval = NULL;
++		}
+ 		up (&pools_lock);
+ 	} else
+ 		INIT_LIST_HEAD (&retval->pools);

@@ -1,66 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750704AbWIMMGw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750703AbWIMMIM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750704AbWIMMGw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Sep 2006 08:06:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750703AbWIMMGw
+	id S1750703AbWIMMIM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Sep 2006 08:08:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750705AbWIMMIM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Sep 2006 08:06:52 -0400
-Received: from e1.ny.us.ibm.com ([32.97.182.141]:12437 "EHLO e1.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1750704AbWIMMGv (ORCPT
+	Wed, 13 Sep 2006 08:08:12 -0400
+Received: from ogre.sisk.pl ([217.79.144.158]:23758 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S1750703AbWIMMIK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Sep 2006 08:06:51 -0400
-Message-ID: <4507F453.1040809@watson.ibm.com>
-Date: Wed, 13 Sep 2006 08:06:43 -0400
-From: Hubertus Franke <frankeh@watson.ibm.com>
-User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
-X-Accept-Language: en-us, en
+	Wed, 13 Sep 2006 08:08:10 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Alan Stern <stern@rowland.harvard.edu>
+Subject: Re: [linux-usb-devel] 2.6.18-rc6-mm1 (-mm2): ohci resume problem
+Date: Wed, 13 Sep 2006 14:07:41 +0200
+User-Agent: KMail/1.9.1
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       USB development list <linux-usb-devel@lists.sourceforge.net>
+References: <Pine.LNX.4.44L0.0609081636310.7953-100000@iolanthe.rowland.org> <200609090057.49518.rjw@sisk.pl>
+In-Reply-To: <200609090057.49518.rjw@sisk.pl>
 MIME-Version: 1.0
-To: schwidefsky@de.ibm.com
-CC: Rik van Riel <riel@redhat.com>, linux-kernel@vger.kernel.org,
-       virtualization@lists.osdl.org, akpm@osdl.org, nickpiggin@yahoo.com.au,
-       rhim@cc.gateh.edu
-Subject: Re: [patch 1/9] Guest page hinting: unused / free pages.
-References: <20060901110908.GB15684@skybase> <45073901.8020906@redhat.com>	 <45074BD0.3060400@watson.ibm.com>  <45075F09.5010708@redhat.com> <1158137786.2560.3.camel@localhost>
-In-Reply-To: <1158137786.2560.3.camel@localhost>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200609131407.41936.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin Schwidefsky wrote:
-> On Tue, 2006-09-12 at 21:29 -0400, Rik van Riel wrote:
+On Saturday, 9 September 2006 00:57, Rafael J. Wysocki wrote:
+> On Friday, 8 September 2006 22:44, Alan Stern wrote:
+> > On Fri, 8 Sep 2006, Andrew Morton wrote:
+> > 
+> > > Alan, is this likely to be due to your USB PM changes?
+> > 
+> > It's possible.  Most of those changes are innocuous.  They add routines
+> > that don't get used until a later patch.  However one of them might be
+> > responsible.
 > 
->>Note that the transition _to_ volatile can also be batched
->>and done somewhat lazily.  For frequently mmaped pages that
->>could end up saving us the transition the other way, too...
-> 
-> 
-> That would be helpful, only how to do it? We need some sort of list or
-> array where to store the pages that should be made volatile. The main
-> problem that I see is that you have to remove a page that is freed from
-> the list/array again, otherwise you would end up with a non page-cache
-> page being made volatile. That makes using per-cpu arrays hard since a
-> page can be freed on another cpu.
-> 
+> Well, after recompiling the kernel for several times (because of a different
+> problem) I'm no longer able to reproduce the problem.
+
+I have retested it on 2.6.18-rc6-mm1 and the problem sometimes happens.
+It's not readily reproducible, as I said before, and it apparently doesn't
+happen with gregkh-usb-usbcore-remove-usb_suspend_root_hub.patch
+reverted.
+
+Greetings,
+Rafael
 
 
-Martin. the point was that pages
-which are in the hold/cold lists are technically free.
-However we keep them stable.
-When the hot/cold list is spilled back to the buddy allocator
-we make them volatile in buld (i.e. through the array).
-So we only build the array for the duration of the bulk-release
-to the buddy allocator (and potentially the other way as well).
-Hence there is no "state" to maintain or track for the array.
-Pages in the hot/cold lists remain stable.
-This would not any of the problems you described as long as we hold
-the lock for the hot/cold list during buld-volatile.
-
-I know we did this once. I think we "discarded" the idea
-in order to have as many pages volatile as possible.
-
-But this design should be quite easily added and the architecture
-can choose whether to be aggressive about this or do it in bulk.
-
--- Hubertus
-
+-- 
+You never change things by fighting the existing reality.
+		R. Buckminster Fuller

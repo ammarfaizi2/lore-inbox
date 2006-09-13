@@ -1,185 +1,122 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751230AbWIMW3F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751232AbWIMWbN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751230AbWIMW3F (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Sep 2006 18:29:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751234AbWIMW3F
+	id S1751232AbWIMWbN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Sep 2006 18:31:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751233AbWIMWbN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Sep 2006 18:29:05 -0400
-Received: from orfeus.profiwh.com ([85.93.165.27]:40713 "EHLO
-	orfeus.profiwh.com") by vger.kernel.org with ESMTP id S1751233AbWIMW3D
+	Wed, 13 Sep 2006 18:31:13 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.149]:50363 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751232AbWIMWbM
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Sep 2006 18:29:03 -0400
-Message-ID: <45083587.50908.reply@carlislefsp.com>
-In-Reply-To: <45083587.50908@carlislefsp.com>
-References: <4506DAD7.8030307.reply@wsc.cz>, <45082055.7010309@carlislefsp.com> <45082055.7010309.reply@wsc.cz>, <45083587.50908@carlislefsp.com>
-From: Jiri Slaby <jirislaby@gmail.com>
-To: Steve Roemen <stever@carlislefsp.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: isicom module oops 2.6.17.13
-X-SpamReason: {Bypass=00}-{0,00}-{0,00}-{0,00
-Date: Wed, 13 Sep 2006 18:29:03 -0400
+	Wed, 13 Sep 2006 18:31:12 -0400
+Subject: Re: [ckrm-tech] [PATCH] BC: resource beancounters (v4) (added	user
+	memory)
+From: Chandra Seetharaman <sekharan@us.ibm.com>
+Reply-To: sekharan@us.ibm.com
+To: Pavel Emelianov <xemul@openvz.org>
+Cc: balbir@in.ibm.com, Srivatsa <vatsa@in.ibm.com>,
+       Rik van Riel <riel@redhat.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       CKRM-Tech <ckrm-tech@lists.sourceforge.net>,
+       Dave Hansen <haveblue@us.ibm.com>, Andi Kleen <ak@suse.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Christoph Hellwig <hch@infradead.org>, Andrey Savochkin <saw@sw.ru>,
+       Matt Helsley <matthltc@us.ibm.com>, Hugh Dickins <hugh@veritas.com>,
+       Alexey Dobriyan <adobriyan@mail.ru>, Kirill Korotaev <dev@sw.ru>,
+       Oleg Nesterov <oleg@tv-sign.ru>, devel@openvz.org
+In-Reply-To: <4507BC11.6080203@openvz.org>
+References: <44FD918A.7050501@sw.ru>	<44FDAB81.5050608@in.ibm.com>
+	 <44FEC7E4.7030708@sw.ru>	<44FF1EE4.3060005@in.ibm.com>
+	 <1157580371.31893.36.camel@linuxchandra>	<45011CAC.2040502@openvz.org>
+	 <1157730221.26324.52.camel@localhost.localdomain>
+	 <4501B5F0.9050802@in.ibm.com> <450508BB.7020609@openvz.org>
+	 <4505161E.1040401@in.ibm.com> <45051AC7.2000607@openvz.org>
+	 <1158000590.6029.33.camel@linuxchandra> <45069072.4010007@openvz.org>
+	 <1158105488.4800.23.camel@linuxchandra>  <4507BC11.6080203@openvz.org>
+Content-Type: text/plain
+Organization: IBM
+Date: Wed, 13 Sep 2006 15:31:04 -0700
+Message-Id: <1158186664.18927.17.camel@linuxchandra>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-7) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Steve Roemen wrote:
-> here's with the firmware in the (converted to .deb rpm from 
-> ftp://ftp.linux.org.uk/pub/linux/alan/Kernel/Drivers/ISI/ )
+On Wed, 2006-09-13 at 12:06 +0400, Pavel Emelianov wrote:
+> Chandra Seetharaman wrote:
+> > On Tue, 2006-09-12 at 14:48 +0400, Pavel Emelianov wrote:
+> > <snip>
+> >   
+> >>> I do not think it is that simple since
+> >>>  - there is typically more than one class I want to set guarantee to
+> >>>  - I will not able to use both limit and guarantee
+> >>>  - Implementation will not be work-conserving.
+> >>>
+> >>> Also, How would you configure the following in your model ?
+> >>>
+> >>> 5 classes: Class A(10, 40), Class B(20, 100), Class C (30, 100), Class D
+> >>> (5, 100), Class E(15, 50); (class_name(guarantee, limit))
+> >>>   
+> >>>       
+> >> What's the total memory amount on the node? Without it it's hard to make
+> >> any
+> >> guarantee.
+> >>     
+> >
+> > I wrote the example treating them as %, so 100 would be the total amount
+> > of memory.
+> >   
+> OK. Then limiting must be done this way (unreclaimable limit/total limit)
+> A (15/40)
+> B (25/100)
+> C (35/100)
+> D (10/100)
+> E (20/50)
+> In this case each group will receive it's guarantee for sure.
 > 
-> isicom 0000:00:10.0: ISI PCI Card(Device ID 0x2052)
-> isicom 0000:00:10.0: -Done
-> isicom 0000:00:10.0: Firmware requested, size: 6553
-> isicom 0000:00:10.0: Firmware loaded, last values:
->         WC: 5, FD: e09cc000, FP: e09cd999
-> isicom 0000:00:10.0: Card is not free: 1836
-> isicom: probe of 0000:00:10.0 failed with error -5
+> E.g. even if A, B, E and D will eat all it's unreclaimable memory then
+> we'll have
+> 100 - 15 - 25 - 20 - 10 = 30% of memory left (maybe after reclaiming) which
+> is perfectly enough for C's guarantee.
+
+How did you arrive at the +5 number ?
+
+What if I have 40 containers each with 2% guarantee ? what do we do
+then ? and many other different combinations (what I gave was not the
+_only_ scenario).
+
+> >   
+> >>> "Limit only" approach works for DoS prevention. But for providing QoS
+> >>> you would need guarantee.
+> >>>   
+> >>>       
+> >> You may not provide guarantee on physycal resource for a particular group
+> >> without limiting its usage by other groups. That's my major idea.
+> >>     
+> >
+> > I agree with that, but the other way around (i.e provide guarantee for
+> > everyone by imposing limits on everyone) is what I am saying is not
+> > possible.
+> Then how do you make sure that memory WILL be available when the group needs
+> it without limiting the others in a proper way?
+
+You could limit others only if you _know_ somebody is not getting what
+they are supposed to get (based on guarantee).
+
 > 
-> here's with the firmware from ftp://ftp.multitech.com/isi-cards/linux/ 
-> l309_22x_24x.tar
-> 
-> isicom 0000:00:10.0: ISI PCI Card(Device ID 0x2052)
-> isicom 0000:00:10.0: -Done
-> isicom 0000:00:10.0: Firmware requested, size: 7325
-> isicom 0000:00:10.0: Firmware loaded, last values:
->         WC: 1, FD: e09cc000, FP: e09cdc9d
-> isicom 0000:00:10.0: Card is not free: 1836
-> isicom: probe of 0000:00:10.0 failed with error -5
+> -------------------------------------------------------------------------
+> Using Tomcat but need to do more? Need to support web services, security?
+> Get stuff done quickly with pre-integrated technology to make your job easier
+> Download IBM WebSphere Application Server v.1.0.1 based on Apache Geronimo
+> http://sel.as-us.falkag.net/sel?cmd=lnk&kid=120709&bid=263057&dat=121642
+> _______________________________________________
+> ckrm-tech mailing list
+> https://lists.sourceforge.net/lists/listinfo/ckrm-tech
+-- 
 
-Great, the third (and hope the last) copy&paste-at-2am-bug. Could you test
-this patch, I hope this is why the card is not ready when reading?
+----------------------------------------------------------------------
+    Chandra Seetharaman               | Be careful what you choose....
+              - sekharan@us.ibm.com   |      .......you may get it.
+----------------------------------------------------------------------
 
-BTW. which WaitTillCardIsFree fails, the line number (1836) doesn't match for
-me here? (post `tail -n+1830 isicom.c | head`)
 
-diff --git a/drivers/char/isicom.c b/drivers/char/isicom.c
-index 6cca4b2..ab78f5a 100644
---- a/drivers/char/isicom.c
-+++ b/drivers/char/isicom.c
-@@ -1756,11 +1756,18 @@ static int __devinit load_firmware(struc
- 	if (retval)
- 		goto end;
- 
-+	dev_info(&pdev->dev, "Firmware requested, size: %u\n", fw->size);
-+
-+	retval = -EIO;
-+
- 	for (frame = (struct stframe *)fw->data;
- 			frame < (struct stframe *)(fw->data + fw->size);
--			frame++) {
--		if (WaitTillCardIsFree(base))
-+			frame = (struct stframe *)((u8 *)frame + 4 +
-+				frame->count)) {
-+		if (WaitTillCardIsFree(base)) {
-+			dev_err(&pdev->dev, "Card is not free: %u\n", __LINE__);
- 			goto errrelfw;
-+		}
- 
- 		outw(0xf0, base);	/* start upload sequence */
- 		outw(0x00, base);
-@@ -1772,8 +1779,10 @@ static int __devinit load_firmware(struc
- 
- 		udelay(100); /* 0x2f */
- 
--		if (WaitTillCardIsFree(base))
-+		if (WaitTillCardIsFree(base)) {
-+			dev_err(&pdev->dev, "Card is not free: %u\n", __LINE__);
- 			goto errrelfw;
-+		}
- 
- 		if ((status = inw(base + 0x4)) != 0) {
- 			dev_warn(&pdev->dev, "Card%d rejected load header:\n"
-@@ -1787,8 +1796,10 @@ static int __devinit load_firmware(struc
- 
- 		udelay(50); /* 0x0f */
- 
--		if (WaitTillCardIsFree(base))
-+		if (WaitTillCardIsFree(base)) {
-+			dev_err(&pdev->dev, "Card is not free: %u\n", __LINE__);
- 			goto errrelfw;
-+		}
- 
- 		if ((status = inw(base + 0x4)) != 0) {
- 			dev_err(&pdev->dev, "Card%d got out of sync.Card "
-@@ -1796,39 +1807,35 @@ static int __devinit load_firmware(struc
- 			goto errrelfw;
- 		}
-  	}
--
--	retval = -EIO;
--
--	if (WaitTillCardIsFree(base))
--		goto errrelfw;
--
--	outw(0xf2, base);
--	outw(0x800, base);
--	outw(0x0, base);
--	outw(0x0, base);
--	InterruptTheCard(base);
--	outw(0x0, base + 0x4); /* for ISI4608 cards */
-+	dev_info(&pdev->dev, "Firmware loaded, last values: \n\tWC: %u, "
-+			"FD: %p, FP: %p\n",
-+			word_count, fw->data, frame);
- 
- /* XXX: should we test it by reading it back and comparing with original like
-  * in load firmware package? */
--	for (frame = (struct stframe*)fw->data;
--			frame < (struct stframe*)(fw->data + fw->size);
--			frame++) {
--		if (WaitTillCardIsFree(base))
-+	for (frame = (struct stframe *)fw->data;
-+			frame < (struct stframe *)(fw->data + fw->size);
-+			frame = (struct stframe *)((u8 *)frame + 4 +
-+				frame->count)) {
-+		if (WaitTillCardIsFree(base)) {
-+			dev_err(&pdev->dev, "Card is not free: %u\n", __LINE__);
- 			goto errrelfw;
-+		}
- 
- 		outw(0xf1, base); /* start download sequence */
- 		outw(0x00, base);
- 		outw(frame->addr, base); /* lsb of address */
- 
--		word_count = (frame->count >> 1) + frame->count % 2;
-+		word_count = frame->count / 2 + frame->count % 2;
- 		outw(word_count + 1, base);
- 		InterruptTheCard(base);
- 
- 		udelay(50); /* 0xf */
- 
--		if (WaitTillCardIsFree(base))
-+		if (WaitTillCardIsFree(base)) {
-+			dev_err(&pdev->dev, "Card is not free: %u\n", __LINE__);
- 			goto errrelfw;
-+		}
- 
- 		if ((status = inw(base + 0x4)) != 0) {
- 			dev_warn(&pdev->dev, "Card%d rejected verify header:\n"
-@@ -1853,8 +1860,10 @@ static int __devinit load_firmware(struc
- 
- 		udelay(50); /* 0xf */
- 
--		if (WaitTillCardIsFree(base))
-+		if (WaitTillCardIsFree(base)) {
-+			dev_err(&pdev->dev, "Card is not free: %u\n", __LINE__);
- 			goto errrelfw;
-+		}
- 
- 		if ((status = inw(base + 0x4)) != 0) {
- 			dev_err(&pdev->dev, "Card%d verify got out of sync. "
-@@ -1863,6 +1872,17 @@ static int __devinit load_firmware(struc
- 		}
- 	}
- 
-+	/* xfer ctrl */
-+	if (WaitTillCardIsFree(base))
-+		goto errrelfw;
-+
-+	outw(0xf2, base);
-+	outw(0x800, base);
-+	outw(0x0, base);
-+	outw(0x0, base);
-+	InterruptTheCard(base);
-+	outw(0x0, base + 0x4); /* for ISI4608 cards */
-+
- 	board->status |= FIRMWARE_LOADED;
- 	retval = 0;
- 

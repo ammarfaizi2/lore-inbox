@@ -1,61 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751543AbWIME0o@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030449AbWIMEla@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751543AbWIME0o (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Sep 2006 00:26:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751544AbWIME0o
+	id S1030449AbWIMEla (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Sep 2006 00:41:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751559AbWIMEla
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Sep 2006 00:26:44 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:40086 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1751542AbWIME0n (ORCPT
+	Wed, 13 Sep 2006 00:41:30 -0400
+Received: from 1wt.eu ([62.212.114.60]:36370 "EHLO 1wt.eu")
+	by vger.kernel.org with ESMTP id S1751557AbWIMEl3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Sep 2006 00:26:43 -0400
-Date: Wed, 13 Sep 2006 14:26:27 +1000
-From: David Chinner <dgc@sgi.com>
-To: linux-kernel@vger.kernel.org
-Cc: xfs-masters@oss.sgi.com,
-       Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
-Subject: Re: [xfs-masters] Re: 2.6.18-rc6-mm2
-Message-ID: <20060913042627.GE3024@melbourne.sgi.com>
-References: <20060912000618.a2e2afc0.akpm@osdl.org> <6bffcb0e0609120554j5e69e2sd2c8ebb914c4c9f5@mail.gmail.com> <6bffcb0e0609120842s6a38b326u4e1fff2e562a6832@mail.gmail.com> <20060912162555.d71af631.akpm@osdl.org> <6bffcb0e0609121634l7db1808cwa33601a6628ee7eb@mail.gmail.com> <20060912163749.27c1e0db.akpm@osdl.org> <20060913015850.GB3034@melbourne.sgi.com>
+	Wed, 13 Sep 2006 00:41:29 -0400
+Date: Wed, 13 Sep 2006 06:33:19 +0200
+From: Willy Tarreau <w@1wt.eu>
+To: David Wagner <daw-usenet@taverner.cs.berkeley.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: R: Linux kernel source archive vulnerable
+Message-ID: <20060913043319.GH541@1wt.eu>
+References: <20060907182304.GA10686@danisch.de> <Pine.LNX.4.61.0609121619470.19976@chaos.analogic.com> <ee796o$vue$1@taverner.cs.berkeley.edu> <45073B2B.4090906@lsrfire.ath.cx> <ee7m7r$6qr$1@taverner.cs.berkeley.edu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060913015850.GB3034@melbourne.sgi.com>
-User-Agent: Mutt/1.4.2.1i
+In-Reply-To: <ee7m7r$6qr$1@taverner.cs.berkeley.edu>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 13, 2006 at 11:58:50AM +1000, David Chinner wrote:
-> Call Trace:
-> [<c013ae74>] lock_release_non_nested+0xd8/0x143
-> [<c013b291>] lock_release+0x178/0x19f
-> [<c02f7dc5>] __mutex_unlock_slowpath+0xbb/0x131
-> [<c02f7e43>] mutex_unlock+0x8/0xa
-> [<c017655f>] generic_shutdown_super+0x9c/0xd9
-> [<c01765bc>] kill_block_super+0x20/0x32
-> [<c017667c>] deactivate_super+0x5d/0x6f
-> [<c01892bc>] mntput_no_expire+0x52/0x85
-> [<c017b2c9>] path_release_on_umount+0x15/0x18
-> [<c018a469>] sys_umount+0x1e1/0x215
-> [<c018a4aa>] sys_oldumount+0xd/0xf
-> [<c0103156>] sysenter_past_esp+0x5f/0x99
+On Wed, Sep 13, 2006 at 01:17:48AM +0000, David Wagner wrote:
+> Rene Scharfe  wrote:
+> >[details on how GNU tar works, snipped]
 > 
-> I'm not sure why XFS would cause this - the crash is outside XFS releasing
-> a mutex (sb->s_lock) that XFS code has never touched. I doubt anyone
-> in the XFS team has done any testing on this -mm kernel...
+> Again, you miss my point.  I already know how tar works, but that's not
+> my point.  Why is it that people are so unwilling to address the real
+> issue here?  Let's try a few facts:
 > 
-> What is the test case, Michal? Can you post the script you used?
+>     (a) The Linux kernel tar archive contains files with world-writeable
+>     permissions.
+> 
+>     (b) There is no need for those files to have world-writeable
+>     permissions.  It doesn't serve any particular purpose.  If the
+>     permissions in the tar archive were changed to be not world-writeable,
+>     no harm would be done.
+> 
+>     (c) Some users may get screwed over by virtue of the fact that those
+>     files are listed in the tar archive with world-writeable permissions.
+>     (Sure, if every user was an expert on "tar" and on security, then
+>     maybe no one would get screwed over.  But in the real world, that's
+>     not the case.)
+> 
+>     (d) Consequently, the format of the Linux kernel tar archive is
+>     exposing some users to unnecessary riskis.
+> 
+>     (e) The Linux kernel folks could take a quick and easy step that
+>     would eliminate this risk.  That step would involve storing the
+>     files in the tar archive with permissions that were more reasonable
+>     (not world-writeable would be a good start!).  This step wouldn't
+>     hurt anyone.  There's no downside.
+> 
+>     (f) Yet the Linux kernel folks refuse to take this step, and any
+>     time someone mentions that there is something the Linux kernel folks
+>     could do about the problem, someone tries to change the topic to
+>     something else (e.g., complaints about bugs in GNU tar, suggestions
+>     that the user should invoke tar with some other option, claims that
+>     this question has been addressed before, you name it).
+> 
+> So why is it that the tar archive is structured this way?  Why are
+> the Linux kernel folks unnecessarily exposing their users to risk?
+> What purpose, exactly, does it serve to have these files stored with
+> world-writeable permissions?
+> 
+> Folks on the Linux kernel mailing list seem to be reluctant to admit these
+> facts forthrightly.  The posts I've seen mostly seem to have little or
+> no sympathy for users who get screwed over.  The attitude seems to be:
+> if you get screwed over, it's your fault and your problem.  Why is that?
+> If there is a simple step that Linux developers can take to eliminate
+> this risk, why is there such reluctance to take it, and why is there
+> such eagerness to point the finger at someone else?
+> 
+> The way I see it, storing files in a tar archive with world-writeable
+> permissions is senseless.  Why do such a strange thing on purpose?
+> 
+> It all seems thoroughly mysterious to me.
 
-I've booted 2.6.18-rc6-mm2 and mounted and unmounted several xfs
-filesystems. I'm currently running xfsqa on it, and I haven't seen
-any failures on unmount yet.
+The initial reason is that Linus now uses the "git-tar-tree" command
+which creates the full tar archive from the tree. It does not use tar,
+it know how to produce the tar format itself. The command has to set
+permissions on the files, and by default, it sets full permissions to
+the files. This began in early git history. Recently, I've been using
+git for another project. There, it has annoyed me to put such
+permissions in tar files which mostly contained scripts. So I proposed
+a patch to add the umask option to the repository config file which
+solved my problem. Junio merged it into git 1.4.2 (so it's very recent).
+It would be perfectly usable for linux too (in fact, I do use it on the
+2.4 tree).
 
-That test case would be really handy, Michal.
+Maybe you should ask Linus if he considers using this ? When he initially
+refused doing anything, it was when every single change would have needed
+to change git. Now that git has changed, maybe Linus would consider going
+back to the old behaviour ?
 
-Cheers,
+Regards,
+Willy
 
-Dave.
--- 
-Dave Chinner
-Principal Engineer
-SGI Australian Software Group

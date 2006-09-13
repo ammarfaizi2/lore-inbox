@@ -1,84 +1,115 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751683AbWIMIGr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751685AbWIMIKX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751683AbWIMIGr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Sep 2006 04:06:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751686AbWIMIGq
+	id S1751685AbWIMIKX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Sep 2006 04:10:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751689AbWIMIKX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Sep 2006 04:06:46 -0400
-Received: from mailhub.sw.ru ([195.214.233.200]:5561 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S1751683AbWIMIGp (ORCPT
+	Wed, 13 Sep 2006 04:10:23 -0400
+Received: from nat-132.atmel.no ([80.232.32.132]:50156 "EHLO relay.atmel.no")
+	by vger.kernel.org with ESMTP id S1751685AbWIMIKW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Sep 2006 04:06:45 -0400
-Message-ID: <4507BC11.6080203@openvz.org>
-Date: Wed, 13 Sep 2006 12:06:41 +0400
-From: Pavel Emelianov <xemul@openvz.org>
-User-Agent: Thunderbird 1.5 (X11/20060317)
-MIME-Version: 1.0
-To: sekharan@us.ibm.com, balbir@in.ibm.com, Srivatsa <vatsa@in.ibm.com>
-CC: Rik van Riel <riel@redhat.com>,
-       CKRM-Tech <ckrm-tech@lists.sourceforge.net>,
-       Dave Hansen <haveblue@us.ibm.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andi Kleen <ak@suse.de>, Christoph Hellwig <hch@infradead.org>,
-       Andrey Savochkin <saw@sw.ru>, devel@openvz.org,
-       Matt Helsley <matthltc@us.ibm.com>, Hugh Dickins <hugh@veritas.com>,
-       Alexey Dobriyan <adobriyan@mail.ru>, Kirill Korotaev <dev@sw.ru>,
-       Oleg Nesterov <oleg@tv-sign.ru>, Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [ckrm-tech] [PATCH] BC: resource beancounters (v4) (added	user
- memory)
-References: <44FD918A.7050501@sw.ru>	<44FDAB81.5050608@in.ibm.com>	 <44FEC7E4.7030708@sw.ru>	<44FF1EE4.3060005@in.ibm.com>	 <1157580371.31893.36.camel@linuxchandra>	<45011CAC.2040502@openvz.org>	 <1157730221.26324.52.camel@localhost.localdomain>	 <4501B5F0.9050802@in.ibm.com> <450508BB.7020609@openvz.org>	 <4505161E.1040401@in.ibm.com> <45051AC7.2000607@openvz.org>	 <1158000590.6029.33.camel@linuxchandra>  <45069072.4010007@openvz.org> <1158105488.4800.23.camel@linuxchandra>
-In-Reply-To: <1158105488.4800.23.camel@linuxchandra>
-Content-Type: text/plain; charset=ISO-8859-1
+	Wed, 13 Sep 2006 04:10:22 -0400
+Date: Wed, 13 Sep 2006 10:11:22 +0200
+From: Haavard Skinnemoen <hskinnemoen@atmel.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, Rusty Russell <rusty@rustcorp.com.au>,
+       Alon Bar-Lev <alon.barlev@gmail.com>
+Subject: [-mm patch] AVR32: Use parse_early_param
+Message-ID: <20060913101122.72d7c0a1@cad-250-152.norway.atmel.com>
+Organization: Atmel Norway
+X-Mailer: Sylpheed-Claws 2.5.0-rc2 (GTK+ 2.8.20; i486-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chandra Seetharaman wrote:
-> On Tue, 2006-09-12 at 14:48 +0400, Pavel Emelianov wrote:
-> <snip>
->   
->>> I do not think it is that simple since
->>>  - there is typically more than one class I want to set guarantee to
->>>  - I will not able to use both limit and guarantee
->>>  - Implementation will not be work-conserving.
->>>
->>> Also, How would you configure the following in your model ?
->>>
->>> 5 classes: Class A(10, 40), Class B(20, 100), Class C (30, 100), Class D
->>> (5, 100), Class E(15, 50); (class_name(guarantee, limit))
->>>   
->>>       
->> What's the total memory amount on the node? Without it it's hard to make
->> any
->> guarantee.
->>     
->
-> I wrote the example treating them as %, so 100 would be the total amount
-> of memory.
->   
-OK. Then limiting must be done this way (unreclaimable limit/total limit)
-A (15/40)
-B (25/100)
-C (35/100)
-D (10/100)
-E (20/50)
-In this case each group will receive it's guarantee for sure.
+Get rid of the AVR32-specific parse_cmdline_early function and call
+parse_early_param instead. Parsing of the "fbmem=" parameter has been
+implemented using early_param, allowing it to be greatly simplified.
 
-E.g. even if A, B, E and D will eat all it's unreclaimable memory then
-we'll have
-100 - 15 - 25 - 20 - 10 = 30% of memory left (maybe after reclaiming) which
-is perfectly enough for C's guarantee.
->   
->>> "Limit only" approach works for DoS prevention. But for providing QoS
->>> you would need guarantee.
->>>   
->>>       
->> You may not provide guarantee on physycal resource for a particular group
->> without limiting its usage by other groups. That's my major idea.
->>     
->
-> I agree with that, but the other way around (i.e provide guarantee for
-> everyone by imposing limits on everyone) is what I am saying is not
-> possible.
-Then how do you make sure that memory WILL be available when the group needs
-it without limiting the others in a proper way?
+Signed-off-by: Haavard Skinnemoen <hskinnemoen@atmel.com>
+---
+ arch/avr32/kernel/setup.c |   60 ++++++++++++++--------------------------------
+ 1 file changed, 19 insertions(+), 41 deletions(-)
+
+Index: linux-2.6.18-rc5-mm1/arch/avr32/kernel/setup.c
+===================================================================
+--- linux-2.6.18-rc5-mm1.orig/arch/avr32/kernel/setup.c	2006-09-07 09:40:48.000000000 +0200
++++ linux-2.6.18-rc5-mm1/arch/avr32/kernel/setup.c	2006-09-07 10:05:07.000000000 +0200
+@@ -90,48 +90,24 @@ static struct resource mem_res[] = {
+ static unsigned long __initdata fbmem_start;
+ static unsigned long __initdata fbmem_size;
+ 
+-/* --- */
+-
+-static void __init parse_cmdline_early(char **cmdline_p)
++/*
++ * "fbmem=xxx[kKmM]" allocates the specified amount of boot memory for
++ * use as framebuffer.
++ *
++ * "fbmem=xxx[kKmM]@yyy[kKmM]" defines a memory region of size xxx and
++ * starting at yyy to be reserved for use as framebuffer.
++ *
++ * The kernel won't verify that the memory region starting at yyy
++ * actually contains usable RAM.
++ */
++static int __init early_parse_fbmem(char *p)
+ {
+-	char *to = command_line, *from = saved_command_line;
+-	int len = 0;
+-	char c = ' ';
+-
+-	for (;;) {
+-		if (c != ' ')
+-			goto next_char;
+-
+-		/*
+-		 * "fbmem=xxx[kKmM]" allocates the specified amount of
+-		 * boot memory for use as framebuffer.
+-		 * "fbmem=xxx[kKmM]@yyy" defines a memory region of
+-		 * size xxx and starting at yyy to be reserved for use
+-		 * as framebuffer.
+-		 *
+-		 * The kernel won't verify that the memory region
+-		 * starting at yyy actually contains usable RAM.
+-		 */
+-		if (!memcmp(from, "fbmem=", 6)) {
+-			if (to != command_line)
+-				to--;
+-			fbmem_size = memparse(from + 6, &from);
+-			if (*from == '@')
+-				fbmem_start = memparse(from + 1, &from);
+-		}
+-
+-	next_char:
+-		c = *(from++);
+-		if (c == '\0')
+-			break;
+-		if (COMMAND_LINE_SIZE <= ++len)
+-			break;
+-		*(to++) = c;
+-	}
+-
+-	*to = '\0';
+-	*cmdline_p = command_line;
++	fbmem_size = memparse(p, &p);
++	if (*p == '@')
++		fbmem_start = memparse(p, &p);
++	return 0;
+ }
++early_param("fbmem", early_parse_fbmem);
+ 
+ static inline void __init resource_init(void)
+ {
+@@ -341,7 +317,9 @@ void __init setup_arch (char **cmdline_p
+ 	init_mm.end_data = (unsigned long) &_edata;
+ 	init_mm.brk = (unsigned long) &_end;
+ 
+-	parse_cmdline_early(cmdline_p);
++	strlcpy(command_line, saved_command_line, COMMAND_LINE_SIZE);
++	*cmdline_p = command_line;
++	parse_early_param();
+ 
+ 	setup_bootmem();
+ 

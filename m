@@ -1,21 +1,23 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750892AbWIMSAG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750921AbWIMSAn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750892AbWIMSAG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Sep 2006 14:00:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750904AbWIMSAF
+	id S1750921AbWIMSAn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Sep 2006 14:00:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750908AbWIMSAL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Sep 2006 14:00:05 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:38109 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1750889AbWIMSAC (ORCPT
+	Wed, 13 Sep 2006 14:00:11 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:47069 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1750904AbWIMSAH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Sep 2006 14:00:02 -0400
+	Wed, 13 Sep 2006 14:00:07 -0400
 From: David Howells <dhowells@redhat.com>
-Subject: [PATCH 1/7] FRV: Fix fls() to handle bit 31 being set correctly [try #2]
-Date: Wed, 13 Sep 2006 18:59:34 +0100
+Subject: [PATCH 6/7] Alter roundup_pow_of_two() so that it can make use of ilog2() on a constant [try #2]
+Date: Wed, 13 Sep 2006 18:59:45 +0100
 To: torvalds@osdl.org, akpm@osdl.org
 Cc: linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org,
        dhowells@redhat.com
-Message-Id: <20060913175934.21216.73561.stgit@warthog.cambridge.redhat.com>
+Message-Id: <20060913175945.21216.44026.stgit@warthog.cambridge.redhat.com>
+In-Reply-To: <20060913175934.21216.73561.stgit@warthog.cambridge.redhat.com>
+References: <20060913175934.21216.73561.stgit@warthog.cambridge.redhat.com>
 Content-Type: text/plain; charset=utf-8; format=fixed
 Content-Transfer-Encoding: 8bit
 User-Agent: StGIT/0.10
@@ -24,49 +26,75 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: David Howells <dhowells@redhat.com>
 
-Fix FRV fls() to handle bit 31 being set correctly (it should return 32 not 0).
+Alter roundup_pow_of_two() so that it can make use of ilog2() on a constant to
+produce a constant value, retaining the ability for an arch to override it in
+the non-const case.
+
+This permits the function to be used to initialise variables.
 
 Signed-Off-By: David Howells <dhowells@redhat.com>
 ---
 
- include/asm-frv/bitops.h |   21 +++++++++++++++++----
- 1 files changed, 17 insertions(+), 4 deletions(-)
+ include/linux/kernel.h |    6 ------
+ include/linux/log2.h   |   26 ++++++++++++++++++++++++++
+ 2 files changed, 26 insertions(+), 6 deletions(-)
 
-diff --git a/include/asm-frv/bitops.h b/include/asm-frv/bitops.h
-index 980ae1b..97fb746 100644
---- a/include/asm-frv/bitops.h
-+++ b/include/asm-frv/bitops.h
-@@ -161,16 +161,29 @@ #include <asm-generic/bitops/ffs.h>
- #include <asm-generic/bitops/__ffs.h>
- #include <asm-generic/bitops/find.h>
+diff --git a/include/linux/kernel.h b/include/linux/kernel.h
+index e8c6c66..e5947fb 100644
+--- a/include/linux/kernel.h
++++ b/include/linux/kernel.h
+@@ -155,12 +155,6 @@ #endif
  
--/*
-- * fls: find last bit set.
+ unsigned long int_sqrt(unsigned long);
+ 
+-static inline unsigned long
+-__attribute_const__ roundup_pow_of_two(unsigned long x)
+-{
+-	return 1UL << fls_long(x - 1);
+-}
+-
+ extern int printk_ratelimit(void);
+ extern int __printk_ratelimit(int ratelimit_jiffies, int ratelimit_burst);
+ 
+diff --git a/include/linux/log2.h b/include/linux/log2.h
+index 88b7b0e..c7574a6 100644
+--- a/include/linux/log2.h
++++ b/include/linux/log2.h
+@@ -73,6 +73,15 @@ #endif
+ }
+ #endif
+ 
++/*
++ * round up to nearest power of two
++ */
++static inline __attribute__((const))
++unsigned long __roundup_pow_of_two(unsigned long n)
++{
++	return 1UL << fls_long(n - 1);
++}
++
+ /**
+  * ilog2_u32 - log of base 2 of 32-bit unsigned value
+  * @n - parameter
+@@ -230,4 +239,21 @@ (									\
+ 	__get_order(n, PAGE_SHIFT)					\
+  )
+ 
 +/**
-+ * fls - find last bit set
-+ * @x: the word to search
++ * roundup_pow_of_two - round the given value up to nearest power of two
++ * @n - parameter
 + *
-+ * This is defined the same way as ffs:
-+ * - return 32..1 to indicate bit 31..0 most significant bit set
-+ * - return 0 to indicate no bits set
-  */
- #define fls(x)						\
- ({							\
- 	int bit;					\
- 							\
--	asm("scan %1,gr0,%0" : "=r"(bit) : "r"(x));	\
-+	asm("	subcc	%1,gr0,gr0,icc0		\n"	\
-+	    "	ckne	icc0,cc4		\n"	\
-+	    "	cscan.p	%1,gr0,%0	,cc4,#1	\n"	\
-+	    "	csub	%0,%0,%0	,cc4,#0	\n"	\
-+	    "   csub    %2,%0,%0	,cc4,#1	\n"	\
-+	    : "=&r"(bit)				\
-+	    : "r"(x), "r"(32)				\
-+	    : "icc0", "cc4"				\
-+	    );						\
- 							\
--	bit ? 33 - bit : bit;				\
-+	bit;						\
- })
- 
- #include <asm-generic/bitops/fls64.h>
++ * round the given balue up to the nearest power of two
++ * - the result is undefined when n == 0
++ * - this can be used to initialise global variables from constant data
++ */
++#define roundup_pow_of_two(n)			\
++(						\
++	__builtin_constant_p(n) ? (		\
++		(n == 1) ? 0 :			\
++		(1UL << (ilog2((n) - 1) + 1))	\
++				   ) :		\
++	__roundup_pow_of_two(n)			\
++ )
++
+ #endif /* _LINUX_LOG2_H */

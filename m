@@ -1,78 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751562AbWIMEyi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751571AbWIMFG3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751562AbWIMEyi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Sep 2006 00:54:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751563AbWIMEyh
+	id S1751571AbWIMFG3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Sep 2006 01:06:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751569AbWIMFG3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Sep 2006 00:54:37 -0400
-Received: from cantor.suse.de ([195.135.220.2]:48799 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751561AbWIMEyh convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Sep 2006 00:54:37 -0400
-From: Neil Brown <neilb@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Date: Wed, 13 Sep 2006 14:54:29 +1000
+	Wed, 13 Sep 2006 01:06:29 -0400
+Received: from exprod6og50.obsmtp.com ([64.18.1.181]:64897 "HELO
+	exprod6og50.obsmtp.com") by vger.kernel.org with SMTP
+	id S1751565AbWIMFG2 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Sep 2006 01:06:28 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6603.0
+content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset="iso-8859-1"
 Content-Transfer-Encoding: 8BIT
-Message-ID: <17671.36613.134163.171162@cse.unsw.edu.au>
-Cc: Magnus =?ISO-8859-1?B?TeTkdHTk?= <novell@kiruna.se>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.18-rc6-mm1
-In-Reply-To: message from Andrew Morton on Saturday September 9
-References: <200609091445.32744.novell@kiruna.se>
-	<20060909112724.a214197b.akpm@osdl.org>
-X-Mailer: VM 7.19 under Emacs 21.4.1
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Subject: AW: fix 2.4.33.3 / sun partition size
+Date: Wed, 13 Sep 2006 07:06:25 +0200
+Message-ID: <DA6197CAE190A847B662079EF7631C06015692C4@OEKAW2EXVS03.hbi.ad.harman.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: fix 2.4.33.3 / sun partition size
+Thread-Index: AcbWoSvqPVu9Yx2SQ3+AiSox8VhdywAUEexw
+From: "Jurzitza, Dieter" <DJurzitza@harmanbecker.com>
+To: "Willy Tarreau" <w@1wt.eu>, <davem@davemloft.net>
+Cc: <linux-kernel@vger.kernel.org>, "Jeff Mahoney" <jeffm@suse.com>,
+       <sparclinux@vger.kernel.org>
+X-OriginalArrivalTime: 13 Sep 2006 05:06:25.0609 (UTC) 
+    FILETIME=[5CECCB90:01C6D6F2]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday September 9, akpm@osdl.org wrote:
-> On Sat, 9 Sep 2006 14:45:32 +0200
-> Magnus M‰‰tt‰ <novell@kiruna.se> wrote:
-> > [15164.017991] RPC request reserved 9136 but used 9268
-> > [15164.037431] RPC request reserved 9136 but used 9268
-> > [15164.052988] RPC request reserved 9136 but used 9268
-> > 
-
-Don't know what is causing this yet....
-
-> > Using defaults from ksymoops -t elf32-i386 -a i386
-> > EFLAGS: 00210212   (2.6.18-rc6-mm1 #1)
-> > eax: 00000000   ebx: e5299000   ecx: 00000000   edx: e8843620
-..
-> >  [<c02784ba>] nfsd+0x18a/0x2b0
-> >  [<c0103fb7>] kernel_thread_helper+0x7/0x10
-> > Code: 89 45 e8 8b 52 28 83 c6 70 89 55 e4 8b 40 04 83 f8 17 0f 86 6d 
-> > 04 00 00 8b 5d 08 8b 83 9c 04 00 00 c7 83 a0 04 00 00 01 00 00 00 
-> > <8b> 00 89 04 24 e8 06 d4 ca ff c7 46 04 00 00 00 00 89 c1 89 43
-> > 
-> > 
-> > >>EIP; c04ad300 <svc_process+40/6a0>   <=====
-
-But this is probably fixed by the following patch.
-Can you confirm?
+Hi Willy,
+> It would really depend on the on-disk format. If the 
+> partition table really stores 32 bit ints for sector counts, 
+> there's no point switching from ints to longs. But if it 
+> already stores 64 bits, then we're limiting it to 2 TB with 
+> 32 bit ints. I haven't checked the code right now, so I don't 
+> know. I hope Davem will enlighten us on this matter.
+> 
+I see your point. The question is: what happens if we forcibly cast a 8 byte unsigned long into a 4 byte (unsigned ...) int.
+One point is only sun related here: the 1/2TByte limit for sun partitions. The other things are generic ones, independent of the architecture but no: at the very moment that a long differs in size from an int we run into problems IMHO. It's unclean, at last.
+Do you think it would be better to do an explicit cast in each call to pinpoint the issue?
+Thanks for your inputs, and, yes, it's been quiet on sparclinux, it sounds like Dave Miller is (hopefully!) off for holidays - and I think he deserves it, doesn't he :-) ?
+Take care
 
 
-thanks,
-NeilBrown
 
-Signed-off-by: Neil Brown <neilb@suse.de>
+Dieter
 
-### Diffstat output
- ./net/sunrpc/svcsock.c |    1 +
- 1 file changed, 1 insertion(+)
 
-diff .prev/net/sunrpc/svcsock.c ./net/sunrpc/svcsock.c
---- .prev/net/sunrpc/svcsock.c	2006-09-13 14:48:05.000000000 +1000
-+++ ./net/sunrpc/svcsock.c	2006-09-13 14:48:14.000000000 +1000
-@@ -1709,6 +1709,7 @@ static int svc_deferred_recv(struct svc_
- 	rqstp->rq_prot        = dr->prot;
- 	rqstp->rq_addr        = dr->addr;
- 	rqstp->rq_daddr       = dr->daddr;
-+	rqstp->rq_respages    = rqstp->rq_pages;
- 	return dr->argslen<<2;
- }
+-- 
+________________________________________________
+
+HARMAN BECKER AUTOMOTIVE SYSTEMS
+
+Dr.-Ing. Dieter Jurzitza
+Manager Hardware Systems
+   System Development
+
+Industriegebiet Ittersbach
+Becker-Gˆring Str. 16
+D-76307 Karlsbad / Germany
+
+Phone: +49 (0)7248 71-1577
+Fax:   +49 (0)7248 71-1216
+eMail: DJurzitza@harmanbecker.com
+Internet: http://www.becker.de
+
+
+*******************************************
+Diese E-Mail enthaelt vertrauliche und/oder rechtlich geschuetzte Informationen. Wenn Sie nicht der richtige Adressat sind oder diese E-Mail irrtuemlich erhalten haben, informieren Sie bitte sofort den Absender und loeschen Sie diese Mail. Das unerlaubte Kopieren sowie die unbefugte Weitergabe dieser Mail ist nicht gestattet.
  
+This e-mail may contain confidential and/or privileged information. If you are not the intended recipient (or have received this e-mail in error) please notify the sender immediately and delete this e-mail. Any unauthorized copying, disclosure or distribution of the contents in this e-mail is strictly forbidden.
+*******************************************
+

@@ -1,70 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751137AbWIMTSA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751138AbWIMTTX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751137AbWIMTSA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Sep 2006 15:18:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751139AbWIMTR7
+	id S1751138AbWIMTTX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Sep 2006 15:19:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751140AbWIMTTX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Sep 2006 15:17:59 -0400
-Received: from ug-out-1314.google.com ([66.249.92.175]:60678 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1750937AbWIMTR6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Sep 2006 15:17:58 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=AV+mzwjm5ygyWjRM7Cf4DrLJelaYIpHtES3T0BG1eUtxBDt6KC5iinO6keboeFvDbngbegFl0++4xII7SwHpWkLvlHQ6OvGCItCFkdLoWInmVWABqIXr77TBx+qAxR+NZvlDZpIodwEgR5NB+hw7jb9jOBXKmOf142TshxDpatw=
-Message-ID: <e9c3a7c20609131217q145fb234q36f70b23f1acf950@mail.gmail.com>
-Date: Wed, 13 Sep 2006 12:17:55 -0700
-From: "Dan Williams" <dan.j.williams@gmail.com>
-To: "Jakob Oestergaard" <jakob@unthought.net>,
-       "Dan Williams" <dan.j.williams@intel.com>, NeilBrown <neilb@suse.de>,
-       linux-raid@vger.kernel.org, akpm@osdl.org, linux-kernel@vger.kernel.org,
-       christopher.leech@intel.com
-Subject: Re: [PATCH 00/19] Hardware Accelerated MD RAID5: Introduction
-In-Reply-To: <20060913071512.GA23492@unthought.net>
+	Wed, 13 Sep 2006 15:19:23 -0400
+Received: from fed1rmmtao08.cox.net ([68.230.241.31]:54449 "EHLO
+	fed1rmmtao08.cox.net") by vger.kernel.org with ESMTP
+	id S1751138AbWIMTTW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Sep 2006 15:19:22 -0400
+From: Junio C Hamano <junkio@cox.net>
+To: git@vger.kernel.org
+Subject: [ANNOUNCE] GIT 1.4.2.1
+cc: linux-kernel@vger.kernel.org
+Date: Wed, 13 Sep 2006 12:19:21 -0700
+Message-ID: <7vsliv8thi.fsf@assigned-by-dhcp.cox.net>
+User-Agent: Gnus/5.110006 (No Gnus v0.6) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <1158015632.4241.31.camel@dwillia2-linux.ch.intel.com>
-	 <20060913071512.GA23492@unthought.net>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 9/13/06, Jakob Oestergaard <jakob@unthought.net> wrote:
-> On Mon, Sep 11, 2006 at 04:00:32PM -0700, Dan Williams wrote:
-> > Neil,
-> >
-> ...
-> >
-> > Concerning the context switching performance concerns raised at the
-> > previous release, I have observed the following.  For the hardware
-> > accelerated case it appears that performance is always better with the
-> > work queue than without since it allows multiple stripes to be operated
-> > on simultaneously.  I expect the same for an SMP platform, but so far my
-> > testing has been limited to IOPs.  For a single-processor
-> > non-accelerated configuration I have not observed performance
-> > degradation with work queue support enabled, but in the Kconfig option
-> > help text I recommend disabling it (CONFIG_MD_RAID456_WORKQUEUE).
->
-> Out of curiosity; how does accelerated compare to non-accelerated?
+The latest maintenance release GIT 1.4.2.1 is available at the
+usual places:
 
-One quick example:
-4-disk SATA array rebuild on iop321 without acceleration - 'top'
-reports md0_resync and md0_raid5 dueling for the CPU each at ~50%
-utilization.
+  http://www.kernel.org/pub/software/scm/git/
 
-With acceleration - 'top' reports md0_resync cpu utilization at ~90%
-with the rest split between md0_raid5 and md0_raid5_ops.
+  git-1.4.2.1.tar.{gz,bz2}			(tarball)
+  git-htmldocs-1.4.2.1.tar.{gz,bz2}		(preformatted docs)
+  git-manpages-1.4.2.1.tar.{gz,bz2}		(preformatted docs)
+  RPMS/$arch/git-*-1.4.2.1-1.$arch.rpm	(RPM)
 
-The sync speed reported by /proc/mdstat is ~40% higher in the accelerated case.
+This release is primarily for these two fixes:
 
-That being said, array resync is a special case, so your mileage may
-vary with other applications.
+ * git-mv was broken.  Notably, this did not work:
 
-I will put together some data from bonnie++, iozone, maybe contest,
-and post it on SourceForge.
+	git-mv foo foo-renamed
 
->  / jakob
+ * git-http-fetch failed to follow objects/info/alternates on
+   the remote side.  This broke a fetch from Paul's powerpc.git
+   repository.
 
-Dan
+I have built i386 and x86_64 RPM this time, since the machine I
+do the former has become available again.
+
+----------------------------------------------------------------
+
+Changes since v1.4.2 are as follows:
+
+Dennis Stosberg:
+      Solaris does not support C99 format strings before version 10
+
+Johannes Schindelin:
+      git-mv: succeed even if source is a prefix of destination
+      git-mv: add more path normalization
+      git-mv: special case destination "."
+      git-mv: fix off-by-one error
+      builtin-mv: readability patch
+
+Junio C Hamano:
+      finish_connect(): thinkofix
+      http-fetch: fix alternates handling.
+
+Luben Tuikov:
+      Fix regex pattern in commit-msg
+      sample commit-msg hook: no silent exit on duplicate Signed-off-by lines
+

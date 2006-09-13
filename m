@@ -1,47 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751189AbWIMUwP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751191AbWIMUyP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751189AbWIMUwP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Sep 2006 16:52:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751190AbWIMUwP
+	id S1751191AbWIMUyP (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Sep 2006 16:54:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751192AbWIMUyP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Sep 2006 16:52:15 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:48779 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751189AbWIMUwO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Sep 2006 16:52:14 -0400
-Date: Wed, 13 Sep 2006 17:52:03 -0300
-From: Aristeu Sergio Rozanski Filho <aris@cathedrallabs.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH -mm] 8250: remove not needed NMI watchdog tickle in serial8250_console_write()
-Message-ID: <20060913205203.GC4787@cathedrallabs.org>
+	Wed, 13 Sep 2006 16:54:15 -0400
+Received: from iolanthe.rowland.org ([192.131.102.54]:59920 "HELO
+	iolanthe.rowland.org") by vger.kernel.org with SMTP
+	id S1751191AbWIMUyP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Sep 2006 16:54:15 -0400
+Date: Wed, 13 Sep 2006 16:54:13 -0400 (EDT)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@iolanthe.rowland.org
+To: Mattia Dongili <malattia@linux.it>
+cc: "Rafael J. Wysocki" <rjw@sisk.pl>, Andrew Morton <akpm@osdl.org>,
+       Kernel development list <linux-kernel@vger.kernel.org>,
+       USB development list <linux-usb-devel@lists.sourceforge.net>
+Subject: Re: [linux-usb-devel] 2.6.18-rc6-mm1 (-mm2): ohci resume problem
+In-Reply-To: <20060913203806.GA5580@inferi.kami.home>
+Message-ID: <Pine.LNX.4.44L0.0609131652290.5758-100000@iolanthe.rowland.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.13 (2006-08-11)
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-When touch_nmi_watchdog() was added to inside the wait loop in
-wait_for_xmitr()[1], where the long delays come from, a unneeded
-touch_nmi_watchdog() call was left in the beginning of
-serial8250_console_write() (introduced in
-78512ece148992a5c00c63fbf4404f3cde635016) and this patch reverts it.
+On Wed, 13 Sep 2006, Mattia Dongili wrote:
 
-[1] http://www.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc6/2.6.18-rc6-mm2/broken-out/tickle-nmi-watchdog-on-serial-output.patch
-    http://www.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc6/2.6.18-rc6-mm2/broken-out/tickle-nmi-watchdog-on-serial-output-fix.patch
-[2] http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff;h=78512ece148992a5c00c63fbf4404f3cde635016;hp=0ad775dbba12de3b7d25f586efe81ad995ca75a7
+> > The patch below will add some extra debugging information.  We need to
+> > find out why the resume didn't succeed.  Oh -- and of course, you should
+> > reinstate all those autosuspend patches.  Otherwise this patch won't 
+> > apply!
+> 
+> ok, with USB_DEBUG=y and this is with your first patch still applied
+> http://oioio.altervista.org/linux/dmesg-2.6.18-rc6-mm1-verbose-usb-try2
+> 
+> this is without it:
+> http://oioio.altervista.org/linux/dmesg-2.6.18-rc6-mm1-verbose-usb-try3
+> 
+> I hope I'm not mixing thing too much with Rafael :)
 
-Signed-off-by: Aristeu S. Rozanski F. <aris@cathedrallabs.org>
+No.  But this log doesn't include the debugging output in the patch from 
+my previous message.
 
---- mm.orig/drivers/serial/8250.c	2006-09-13 17:26:53.000000000 -0300
-+++ mm/drivers/serial/8250.c	2006-09-13 17:27:14.000000000 -0300
-@@ -2263,8 +2263,6 @@
- 	unsigned int ier;
- 	int locked = 1;
- 
--	touch_nmi_watchdog();
--
- 	local_irq_save(flags);
- 	if (up->port.sysrq) {
- 		/* serial8250_handle_port() already took the lock */
+Alan Stern
+

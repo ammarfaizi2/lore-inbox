@@ -1,42 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751156AbWIMTiy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751157AbWIMTk7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751156AbWIMTiy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Sep 2006 15:38:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751157AbWIMTiy
+	id S1751157AbWIMTk7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Sep 2006 15:40:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751154AbWIMTk7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Sep 2006 15:38:54 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:56028 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1751156AbWIMTix (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Sep 2006 15:38:53 -0400
-Subject: Re: Assignment of GDT entries
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>, Linus Torvalds <torvalds@osdl.org>,
-       Ingo Molnar <mingo@elte.hu>, Andi Kleen <ak@suse.de>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       Zachary Amsden <zach@vmware.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Michael A Fetterman <Michael.Fetterman@cl.cam.ac.uk>
-In-Reply-To: <1158175001.3054.7.camel@laptopd505.fenrus.org>
-References: <450854F3.20603@goop.org>
-	 <1158175001.3054.7.camel@laptopd505.fenrus.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Wed, 13 Sep 2006 21:00:47 +0100
-Message-Id: <1158177647.16902.2.camel@localhost.localdomain>
+	Wed, 13 Sep 2006 15:40:59 -0400
+Received: from waste.org ([66.93.16.53]:33455 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S1751157AbWIMTk6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Sep 2006 15:40:58 -0400
+Date: Wed, 13 Sep 2006 14:39:17 -0500
+From: Matt Mackall <mpm@selenic.com>
+To: David Howells <dhowells@redhat.com>
+Cc: Aubrey <aubreylee@gmail.com>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       linux-kernel@vger.kernel.org, davidm@snapgear.com, gerg@snapgear.com
+Subject: Re: kernel BUGs when removing largish files with the SLOB allocator
+Message-ID: <20060913193917.GH6412@waste.org>
+References: <6d6a94c50609032356t47950e40lbf77f15136e67bc5@mail.gmail.com> <17162.1157365295@warthog.cambridge.redhat.com> <6d6a94c50609042052n4c1803eey4f4412f6153c4a2b@mail.gmail.com> <3551.1157448903@warthog.cambridge.redhat.com> <6d6a94c50609051935m607f976j942263dd1ac9c4fb@mail.gmail.com> <44FE4222.3080106@yahoo.com.au> <6d6a94c50609120107w1942a8d8j368dd57a271d0250@mail.gmail.com> <15193.1158088232@warthog.cambridge.redhat.com> <6495.1158094606@warthog.cambridge.redhat.com> <31224.1158098385@warthog.cambridge.redhat.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <31224.1158098385@warthog.cambridge.redhat.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Mer, 2006-09-13 am 21:16 +0200, ysgrifennodd Arjan van de Ven:
-> I don't know the exact details on these; I do know that several GDT
-> entries tend to be used by BIOSes in their APM implementations and thus
-> are better of not being used.
+Another issue that occurred to me last night is that the size of
+objects allocated with SLOB's slab-like API are implicit and not
+calculable from the object. kmalloc'ed objects, in contrast, have a
+header that contains the object size.
 
-Thats 0x40 which tends to get used as if was a real mode base for BIOS
-accesses even via the protected mode interface.
+So ksize(kmalloc(...)) works, but not ksize(kmem_cache_alloc(...)). I
+don't know if anything in the kernel is using the latter aside from
+kobjsize.
 
-Alan
-
+-- 
+Mathematics is the supreme nostalgia of our time.

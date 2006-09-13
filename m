@@ -1,43 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750720AbWIMQcZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750702AbWIMQdm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750720AbWIMQcZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Sep 2006 12:32:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750721AbWIMQcY
+	id S1750702AbWIMQdm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Sep 2006 12:33:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750700AbWIMQdl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Sep 2006 12:32:24 -0400
-Received: from odin2.bull.net ([129.184.85.11]:38277 "EHLO odin2.bull.net")
-	by vger.kernel.org with ESMTP id S1750895AbWIMPCk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Sep 2006 11:02:40 -0400
-From: "Serge Noiraud" <serge.noiraud@bull.net>
-To: linux-kernel@vger.kernel.org
-Subject: RT, timers and CLOCK_REALTIME_HR
-Date: Wed, 13 Sep 2006 17:07:51 +0200
-User-Agent: KMail/1.7.1
+	Wed, 13 Sep 2006 12:33:41 -0400
+Received: from mga01.intel.com ([192.55.52.88]:30353 "EHLO mga01.intel.com")
+	by vger.kernel.org with ESMTP id S1750702AbWIMQdk convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Sep 2006 12:33:40 -0400
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.09,160,1157353200"; 
+   d="scan'208"; a="129807277:sNHT1893644970"
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200609131707.52280.Serge.Noiraud@bull.net>
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: speedstep-centrino broke
+Date: Wed, 13 Sep 2006 09:33:25 -0700
+Message-ID: <EB12A50964762B4D8111D55B764A84549560BA@scsmsx413.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: speedstep-centrino broke
+Thread-Index: AcbXBi37R5pw1sZKQEOH6gtxDPzxXAAS+ssg
+From: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
+To: "Michiel de Boer" <x@rebelhomicide.demon.nl>,
+       "Ben B" <kernel@bb.cactii.net>
+Cc: <linux-kernel@vger.kernel.org>, <davej@codemonkey.org.uk>
+X-OriginalArrivalTime: 13 Sep 2006 16:33:26.0386 (UTC) FILETIME=[566C3520:01C6D752]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+ 
 
-	I have one question about CLOCK_REALTIME_HR. 
-Before the rt patch I used to work with this clock. ie :
-hrtimers-support-3.1.1 from http://sourceforge.net/projects/high-res-timers/
+>-----Original Message-----
+>From: linux-kernel-owner@vger.kernel.org 
+>[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of 
+>Michiel de Boer
+>Sent: Wednesday, September 13, 2006 12:28 AM
+>To: Ben B
+>Cc: linux-kernel@vger.kernel.org; davej@codemonkey.org.uk
+>Subject: Re: speedstep-centrino broke
+>
+>Ben B wrote:
+>> Hi,
+>>
+>> My HP notebook decided that its BIOS upgrade would break
+>> speedstep-centrino, and trying to load the module gives me a "no such
+>> device" error. This is with various combinations of kernel config
+>> relating to cpufreq. Also tried acpi-cpufreq with the same error.
+>>
+>> I suspect that the new bios is broken, but perhaps it's 
+>correct and the
+>> linux driver is missing something?
+>>
+>> Anyway, relevent info below.
+>>
+>> Cheers,
+>> Ben
+>>   
+>
+>I have the same problem, running kernel 2.6.17.13, and also 
+>get the 'No 
+>such device' error.
+>This problem doesn't occur when i boot 2.6.16.16, so the 
+>behaviour must 
+>have been introduced
+>somewhere in between.
+>
 
-With the rt patch it seems CLOCK_REALTIME_HR does not exist anymore !
-Is this normal ?
-The kernel speaks about that in arch/ia64/Kconfig
-perhaps it should be removed !
+Just to confirm. Moving from 2.6.16.16 to 2.6.17.13 with no other change
+to system (BIOS change) breaks the driver? Did you also try acpi-cpufreq
+driver with 2.6.17.13?
 
-I had a libtimers using this clock.
-
-Is the good correction to say CLOCK_REALTIME_HR = CLOCK_REALTIME ?
-I don't want to modify all my programs.
-
--- 
-Serge Noiraud
+Thanks,
+Venki

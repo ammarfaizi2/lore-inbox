@@ -1,58 +1,125 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750700AbWIMQf6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750707AbWIMQhG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750700AbWIMQf6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Sep 2006 12:35:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750705AbWIMQf6
+	id S1750707AbWIMQhG (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Sep 2006 12:37:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750721AbWIMQhF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Sep 2006 12:35:58 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:42653 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1750700AbWIMQf5 (ORCPT
+	Wed, 13 Sep 2006 12:37:05 -0400
+Received: from ogre.sisk.pl ([217.79.144.158]:3536 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S1750707AbWIMQhD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Sep 2006 12:35:57 -0400
-Date: Wed, 13 Sep 2006 12:42:51 -0400
-From: Dave Jones <davej@redhat.com>
-To: Jarek Poplawski <jarkao2@o2.pl>
-Cc: linux-kernel@vger.kernel.org, ak@suse.de
-Subject: Re: [PATCH] mpparse.c:231: warning: comparison is always false
-Message-ID: <20060913164251.GD13956@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Jarek Poplawski <jarkao2@o2.pl>, linux-kernel@vger.kernel.org,
-	ak@suse.de
-References: <20060913065010.GA2110@ff.dom.local>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 13 Sep 2006 12:37:03 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.18-rc6-mm2: rmmod ohci_hcd oopses on HPC 6325
+Date: Wed, 13 Sep 2006 18:36:34 +0200
+User-Agent: KMail/1.9.1
+Cc: linux-kernel@vger.kernel.org, Alan Stern <stern@rowland.harvard.edu>,
+       USB development list <linux-usb-devel@lists.sourceforge.net>
+References: <20060912000618.a2e2afc0.akpm@osdl.org> <200609131558.03391.rjw@sisk.pl>
+In-Reply-To: <200609131558.03391.rjw@sisk.pl>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060913065010.GA2110@ff.dom.local>
-User-Agent: Mutt/1.4.2.2i
+Message-Id: <200609131836.34714.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 13, 2006 at 08:50:10AM +0200, Jarek Poplawski wrote:
- 
- > Probably after 2.6.18-rc6-git1 there is this cc warning: 
- > "arch/i386/kernel/mpparse.c:231: warning: comparison is
- > always false due to limited range of data type".
- > Maybe this patch will be helpful.
- > 
- > diff -Nurp linux-2.6.18-rc6-git4-/arch/i386/kernel/mpparse.c linux-2.6.18-rc6-git4/arch/i386/kernel/mpparse.c
- > --- linux-2.6.18-rc6-git4-/arch/i386/kernel/mpparse.c	2006-09-13 00:01:00.000000000 +0200
- > +++ linux-2.6.18-rc6-git4/arch/i386/kernel/mpparse.c	2006-09-13 00:01:00.000000000 +0200
- > @@ -228,12 +228,14 @@ static void __init MP_bus_info (struct m
- >  
- >  	mpc_oem_bus_info(m, str, translation_table[mpc_record]);
- >  
- > +#if 0xFF >= MAX_MP_BUSSES
- >  	if (m->mpc_busid >= MAX_MP_BUSSES) {
- >  		printk(KERN_WARNING "MP table busid value (%d) for bustype %s "
- >  			" is too large, max. supported is %d\n",
- >  			m->mpc_busid, str, MAX_MP_BUSSES - 1);
- >  		return;
- >  	}
- > +#endif
+On Wednesday, 13 September 2006 15:58, Rafael J. Wysocki wrote:
+> On Tuesday, 12 September 2006 09:06, Andrew Morton wrote:
+> > 
+> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc6/2.6.18-rc6-mm2/
+> 
+> 'rmmod ohci_hcd' causes the following oops to appear on my HPC 6325 every
+> time (happens also on -rc6-mm1, does not happen on -rc7):
 
-mpc_busid is a uchar. I don't see how this can ever be > 0xff, yet
-mach-summit and mach-generic have MAX_MP_BUSSES set to 260.
+So far, I have verified that the problem already happened on -rc5-mm1.
 
-I don't see how this can possibly work.
+Greetings,
+Rafael
 
-	Dave
+
+> Unable to handle kernel NULL pointer dereference at 0000000000000274 RIP:
+>  [<ffffffff8822c185>] :ohci_hcd:ohci_hub_status_data+0x25/0x27b
+> PGD 35ca9067 PUD 369a4067 PMD 0
+> Oops: 0000 [1] SMP
+> last sysfs file: /devices/system/cpu/cpu0/cpufreq/scaling_available_frequencies
+> CPU 0
+> Modules linked in: netconsole cpufreq_ondemand cpufreq_userspace cpufreq_powersa
+> ve powernow_k8 freq_table button af_packet edd battery snd_pcm_oss snd_mixer_oss
+>  snd_seq snd_seq_device ac ip6t_REJECT xt_tcpudp ipt_REJECT xt_state iptable_man
+> gle iptable_nat ip_nat iptable_filter ip6table_mangle ip_conntrack nfnetlink ip_
+> tables ip6table_filter ip6_tables x_tables ipv6 loop dm_mod usbhid ff_memless hc
+> i_usb bluetooth snd_hda_intel snd_hda_codec bcm43xx ohci1394 ohci_hcd shpchp pci
+> _hotplug pcmcia ehci_hcd i2c_piix4 ieee1394 firmware_class ieee80211softmac usbc
+> ore tg3 sdhci ieee80211 ieee80211_crypt mmc_core ide_cd k8temp yenta_socket rsrc
+> _nonstatic pcmcia_core i2c_core hwmon snd_pcm snd_timer snd soundcore snd_page_a
+> lloc cdrom ext3 jbd fan thermal processor atiixp ide_disk ide_core sg
+> Pid: 3667, comm: rmmod Tainted: G   M  2.6.18-rc6-mm2 #19
+> RIP: 0010:[<ffffffff8822c185>]  [<ffffffff8822c185>] :ohci_hcd:ohci_hub_status_d
+> ata+0x25/0x27b
+> RSP: 0018:ffffffff805c7e18  EFLAGS: 00010296
+> RAX: 0000000000000000 RBX: ffff81003485c508 RCX: 0000000000000000
+> RDX: 0000000000000064 RSI: ffffffff805c7e68 RDI: ffff81003485c640
+> RBP: ffffffff805c7e58 R08: 0000000000000000 R09: ffff810037438138
+> R10: ffffffff80701c40 R11: ffff81003263bc88 R12: ffff81003485c640
+> R13: ffffffff805c7e68 R14: ffffc2000003c000 R15: ffff81003485c508
+> FS:  00002ba0d06fa6d0(0000) GS:ffffffff8066f000(0000) knlGS:0000000000000000
+> CS:  0010 DS: 0000 ES: 0000 CR0: 000000008005003b
+> CR2: 0000000000000274 CR3: 000000002f153000 CR4: 00000000000006e0
+> Process rmmod (pid: 3667, threadinfo ffff81003263a000, task ffff81003697c810)
+> Stack:  ffffffff802813b0 ffffffff805c7e40 ffffffff80281258 ffff81003485c508
+>  ffff81003485c508 ffff81003485c508 ffffc2000003c000 ffffffff805c7e68
+>  ffffffff805c7ea8 ffffffff8818e03f 003d09e3f5998950 ffffffff80509860
+> Call Trace:
+>  [<ffffffff8818e03f>] :usbcore:usb_hcd_poll_rh_status+0x40/0x13b
+>  [<ffffffff8822c01b>] :ohci_hcd:ohci_irq+0xcb/0x210
+>  [<ffffffff8818e78b>] :usbcore:usb_hcd_irq+0x2f/0x5f
+>  [<ffffffff8020ef13>] handle_IRQ_event+0x33/0x66
+>  [<ffffffff802af5f8>] handle_fasteoi_irq+0x9d/0xe3
+>  [<ffffffff80267c85>] do_IRQ+0x104/0x11f
+>  [<ffffffff80259621>] ret_from_intr+0x0/0xa
+> DWARF2 unwinder stuck at ret_from_intr+0x0/0xa
+> 
+> Leftover inexact backtrace:
+> 
+>  <IRQ>  <EOI>  [<ffffffff802ee4ac>] sysfs_hash_and_remove+0x9/0x137
+>  [<ffffffff802eed13>] sysfs_remove_file+0x10/0x12
+>  [<ffffffff8038baf7>] class_device_remove_file+0x12/0x14
+>  [<ffffffff8822aa02>] :ohci_hcd:ohci_stop+0xf5/0x17b
+>  [<ffffffff8818d9d2>] :usbcore:usb_remove_hcd+0xdc/0x114
+>  [<ffffffff8040f8eb>] klist_release+0x0/0x82
+>  [<ffffffff88197f45>] :usbcore:usb_hcd_pci_remove+0x1e/0x7d
+>  [<ffffffff803204d8>] pci_device_remove+0x25/0x3c
+>  [<ffffffff8038b1b5>] __device_release_driver+0x80/0x9c
+>  [<ffffffff8038b617>] driver_detach+0xac/0xee
+>  [<ffffffff8038ad92>] bus_remove_driver+0x75/0x98
+>  [<ffffffff8038b696>] driver_unregister+0x15/0x21
+>  [<ffffffff80320686>] pci_unregister_driver+0x13/0x8e
+>  [<ffffffff8822cd1c>] :ohci_hcd:ohci_hcd_pci_cleanup+0x10/0x12
+>  [<ffffffff8029b281>] sys_delete_module+0x1b5/0x1e6
+>  [<ffffffff8025910e>] system_call+0x7e/0x83
+> 
+> 
+> Code: 8a 98 74 02 00 00 e8 d6 3b 03 f8 48 89 45 d0 41 8b 84 24 e4
+> RIP  [<ffffffff8822c185>] :ohci_hcd:ohci_hub_status_data+0x25/0x27b
+>  RSP <ffffffff805c7e18>
+> CR2: 0000000000000274
+>  <0>Kernel panic - not syncing: Aiee, killing interrupt handler!
+> 
+> where
+> 
+> (gdb) l *ohci_hub_status_data+0x25
+> 0x4185 is in ohci_hub_status_data (drivers/usb/host/ohci-hub.c:316).
+> 311             struct ohci_hcd *ohci = hcd_to_ohci (hcd);
+> 312             int             i, changed = 0, length = 1;
+> 313             int             can_suspend;
+> 314             unsigned long   flags;
+> 315
+> 316             can_suspend = device_may_wakeup(&hcd->self.root_hub->dev);
+> 317             spin_lock_irqsave (&ohci->lock, flags);
+> 318
+> 319             /* handle autosuspended root:  finish resuming before
+> 320              * letting khubd or root hub timer see state changes.

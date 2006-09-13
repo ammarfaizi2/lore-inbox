@@ -1,72 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030444AbWIMBTc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030473AbWIMBTQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030444AbWIMBTc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Sep 2006 21:19:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030471AbWIMBTb
+	id S1030473AbWIMBTQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Sep 2006 21:19:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030474AbWIMBTP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Sep 2006 21:19:31 -0400
-Received: from py-out-1112.google.com ([64.233.166.183]:56594 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S1030479AbWIMBTa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Sep 2006 21:19:30 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=m1E6qqdw4ec7tUBRWdEmryfY0IqgwhYmLm7N18oQdaTGY4u2zrmWWDCDzk105Kkpn0RB83dXZ+90uggyHttJs80mh2fGHEGS5CgcSE0nQz1khIclTiic6RtXQ8uBBB4TSsnEkLOVIBilRvK7T8VkdDXH/DmGeepFMnBi0U6xXV4=
-Message-ID: <4506AB4B.9010801@gmail.com>
-Date: Tue, 12 Sep 2006 21:42:51 +0900
-From: Tejun Heo <htejun@gmail.com>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060713)
+	Tue, 12 Sep 2006 21:19:15 -0400
+Received: from 207-71-50-114.static.twtelecom.net ([207.71.50.114]:49884 "HELO
+	mail.ticom-geo.com") by vger.kernel.org with SMTP id S1030473AbWIMBTO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Sep 2006 21:19:14 -0400
+Message-ID: <45075C6A.6040808@ticom-geo.com>
+Date: Tue, 12 Sep 2006 20:18:34 -0500
+From: Rudy Klinksiek <rklinksiek@ticom-geo.com>
+User-Agent: Mozilla Thunderbird 1.0.7 (Windows/20050923)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Jeff Garzik <jeff@garzik.org>
-CC: Michael Tokarev <mjt@tls.msk.ru>,
-       Linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Vendor field with USB, [SP]ATA etc-attached disks
-References: <4505A612.8070603@tls.msk.ru> <4505BA2B.1020105@garzik.org>
-In-Reply-To: <4505BA2B.1020105@garzik.org>
+To: linux-kernel@vger.kernel.org
+Subject: ext2/ext3 balancing streaming io  -  help
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
-> Michael Tokarev wrote:
->> With current SATA, PATA and at least some USB disks,
->> Linux reports Vendor: $subsystem, instead of the actual
->> vendor of the drive, like this:
->>
->> scsi1 : ata_piix
->>   Vendor: ATA       Model: ST3808110AS       Rev: n/a
->>   Type:   Direct-Access                      ANSI SCSI revision: 05
->>
->> This should be Vendor: Seagate, not ATA (Note also the lack
->> of "Revision" field).  The same for PATA disk:
->>
->> scsi0 : pata_via
->>   Vendor: ATA       Model: ST3120026A        Rev: 3.76
->>   Type:   Direct-Access                      ANSI SCSI revision: 05
->>
->> The same is shown in /sys/block/$DEV/device/vendor.
->>
->> Can it be changed to show real vendor, instead of the subsystem name?
-> 
-> No.  Two reasons:
-> 
-> * ATA doesn't export the vendor separate from the model, and in some 
-> cases (Seagate) it isn't present at all, anywhere.
-> * "ATA" vendor string is the standardized value to put in that field, 
-> according to the SCSI T10 specifications.
+Hi:
 
-To add a small detail.  The reason it's printed that way is because 
-libata (the new ATA driver) emulates SCSI device at the moment, so it 
-has to fake SCSI vendor ID and model string, which BTW is shorter than 
-ATA string and thus truncated in some cases.  The vendor ID "ATA" is 
-defined in SAT (SCSI ATA translation) standard, IIRC.
+Don't know if this is the right list, if not I apologize and
+ask someone to point me to right mailing list.
 
-For the time being, we'll have to live with boilerplate ATA vendor and 
-truncated vendor ID.  There are plans to make libata independent from 
-SCSI which should solve the problem but it will take quite some time.
+For 2.4.27 with low-latency patches, is there a way to balance
+data streaming in ( around 4-8Mb/sec )with writing it to disk, using
+an ext2 or ext3 filesystem.  The system has a single disk, and can
+sustain 10-20MB/sec for 2-4 secs.  And  yes I'm stuck with this
+particular system.
 
--- 
-tejun
+Twiddling with bdflush parameters, I had a setup that was doing this
+( monitoring with "vmstat 1" ) but it is not really reproducible.
+Mostly, data is flushed out in chunks, often 1/2/3 secs with
+nothing written in between flushes. Eventually freemem is depleted,
+with cache increasing, but the rate going out to disk is still
+generally less than the ncoming rate.
+
+After shutting down the input side, it takes many 10's of secs for
+vmstat to show nothing going to disk.
+
+"bdflush" doesn't seem to have enough/correct knobs to effect a 
+"streaming" mode.
+
+Or am I missing something here? 
+Any other tunable parameters?
+
+Any help appreciated
+klink
 

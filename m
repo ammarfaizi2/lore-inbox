@@ -1,102 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030449AbWIMEla@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751558AbWIMEmK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030449AbWIMEla (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Sep 2006 00:41:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751559AbWIMEla
+	id S1751558AbWIMEmK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Sep 2006 00:42:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751560AbWIMEmJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Sep 2006 00:41:30 -0400
-Received: from 1wt.eu ([62.212.114.60]:36370 "EHLO 1wt.eu")
-	by vger.kernel.org with ESMTP id S1751557AbWIMEl3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Sep 2006 00:41:29 -0400
-Date: Wed, 13 Sep 2006 06:33:19 +0200
-From: Willy Tarreau <w@1wt.eu>
-To: David Wagner <daw-usenet@taverner.cs.berkeley.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: R: Linux kernel source archive vulnerable
-Message-ID: <20060913043319.GH541@1wt.eu>
-References: <20060907182304.GA10686@danisch.de> <Pine.LNX.4.61.0609121619470.19976@chaos.analogic.com> <ee796o$vue$1@taverner.cs.berkeley.edu> <45073B2B.4090906@lsrfire.ath.cx> <ee7m7r$6qr$1@taverner.cs.berkeley.edu>
+	Wed, 13 Sep 2006 00:42:09 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.152]:36742 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751558AbWIMEmI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Sep 2006 00:42:08 -0400
+Date: Wed, 13 Sep 2006 10:11:24 +0530
+From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
+To: Rohit Seth <rohitseth@google.com>
+Cc: sekharan@us.ibm.com, Rik van Riel <riel@redhat.com>,
+       CKRM-Tech <ckrm-tech@lists.sourceforge.net>, balbir@in.ibm.com,
+       Dave Hansen <haveblue@us.ibm.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andi Kleen <ak@suse.de>, Christoph Hellwig <hch@infradead.org>,
+       Andrey Savochkin <saw@sw.ru>, devel@openvz.org,
+       Matt Helsley <matthltc@us.ibm.com>, Hugh Dickins <hugh@veritas.com>,
+       Alexey Dobriyan <adobriyan@mail.ru>, Kirill Korotaev <dev@sw.ru>,
+       Oleg Nesterov <oleg@tv-sign.ru>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Pavel Emelianov <xemul@openvz.org>
+Subject: Re: [ckrm-tech] [PATCH] BC: resource beancounters	(v4)	(added	user	memory)
+Message-ID: <20060913044124.GA6640@in.ibm.com>
+Reply-To: vatsa@in.ibm.com
+References: <1157743424.19884.65.camel@linuxchandra> <1157751834.1214.112.camel@galaxy.corp.google.com> <1157999107.6029.7.camel@linuxchandra> <1158001831.12947.16.camel@galaxy.corp.google.com> <1158003725.6029.60.camel@linuxchandra> <1158019099.12947.102.camel@galaxy.corp.google.com> <1158105253.4800.20.camel@linuxchandra> <1158107948.20211.47.camel@galaxy.corp.google.com> <1158109818.4800.39.camel@linuxchandra> <1158110751.20211.61.camel@galaxy.corp.google.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <ee7m7r$6qr$1@taverner.cs.berkeley.edu>
+In-Reply-To: <1158110751.20211.61.camel@galaxy.corp.google.com>
 User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 13, 2006 at 01:17:48AM +0000, David Wagner wrote:
-> Rene Scharfe  wrote:
-> >[details on how GNU tar works, snipped]
-> 
-> Again, you miss my point.  I already know how tar works, but that's not
-> my point.  Why is it that people are so unwilling to address the real
-> issue here?  Let's try a few facts:
-> 
->     (a) The Linux kernel tar archive contains files with world-writeable
->     permissions.
-> 
->     (b) There is no need for those files to have world-writeable
->     permissions.  It doesn't serve any particular purpose.  If the
->     permissions in the tar archive were changed to be not world-writeable,
->     no harm would be done.
-> 
->     (c) Some users may get screwed over by virtue of the fact that those
->     files are listed in the tar archive with world-writeable permissions.
->     (Sure, if every user was an expert on "tar" and on security, then
->     maybe no one would get screwed over.  But in the real world, that's
->     not the case.)
-> 
->     (d) Consequently, the format of the Linux kernel tar archive is
->     exposing some users to unnecessary riskis.
-> 
->     (e) The Linux kernel folks could take a quick and easy step that
->     would eliminate this risk.  That step would involve storing the
->     files in the tar archive with permissions that were more reasonable
->     (not world-writeable would be a good start!).  This step wouldn't
->     hurt anyone.  There's no downside.
-> 
->     (f) Yet the Linux kernel folks refuse to take this step, and any
->     time someone mentions that there is something the Linux kernel folks
->     could do about the problem, someone tries to change the topic to
->     something else (e.g., complaints about bugs in GNU tar, suggestions
->     that the user should invoke tar with some other option, claims that
->     this question has been addressed before, you name it).
-> 
-> So why is it that the tar archive is structured this way?  Why are
-> the Linux kernel folks unnecessarily exposing their users to risk?
-> What purpose, exactly, does it serve to have these files stored with
-> world-writeable permissions?
-> 
-> Folks on the Linux kernel mailing list seem to be reluctant to admit these
-> facts forthrightly.  The posts I've seen mostly seem to have little or
-> no sympathy for users who get screwed over.  The attitude seems to be:
-> if you get screwed over, it's your fault and your problem.  Why is that?
-> If there is a simple step that Linux developers can take to eliminate
-> this risk, why is there such reluctance to take it, and why is there
-> such eagerness to point the finger at someone else?
-> 
-> The way I see it, storing files in a tar archive with world-writeable
-> permissions is senseless.  Why do such a strange thing on purpose?
-> 
-> It all seems thoroughly mysterious to me.
+On Tue, Sep 12, 2006 at 06:25:51PM -0700, Rohit Seth wrote:
+> And how will the kernel reclaimer know which RGs are don't care?
 
-The initial reason is that Linus now uses the "git-tar-tree" command
-which creates the full tar archive from the tree. It does not use tar,
-it know how to produce the tar format itself. The command has to set
-permissions on the files, and by default, it sets full permissions to
-the files. This began in early git history. Recently, I've been using
-git for another project. There, it has annoyed me to put such
-permissions in tar files which mostly contained scripts. So I proposed
-a patch to add the umask option to the repository config file which
-solved my problem. Junio merged it into git 1.4.2 (so it's very recent).
-It would be perfectly usable for linux too (in fact, I do use it on the
-2.4 tree).
+The UBC code can provide this information certainly. For ex: in my CPU
+controller patch, I do keep track of such don't care groups in the
+controller itself:
 
-Maybe you should ask Linus if he considers using this ? When he initially
-refused doing anything, it was when every single change would have needed
-to change git. Now that git has changed, maybe Linus would consider going
-back to the old behaviour ?
+	http://lkml.org/lkml/2006/8/20/120
 
+
+-- 
 Regards,
-Willy
-
+vatsa

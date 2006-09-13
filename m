@@ -1,57 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750946AbWIMTPV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751131AbWIMTRc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750946AbWIMTPV (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Sep 2006 15:15:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751131AbWIMTPV
+	id S1751131AbWIMTRc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Sep 2006 15:17:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750937AbWIMTRc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Sep 2006 15:15:21 -0400
-Received: from outmx013.isp.belgacom.be ([195.238.5.64]:16007 "EHLO
-	outmx013.isp.belgacom.be") by vger.kernel.org with ESMTP
-	id S1750946AbWIMTPU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Sep 2006 15:15:20 -0400
-Date: Wed, 13 Sep 2006 21:15:04 +0200
-From: Wim Van Sebroeck <wim@iguana.be>
-To: Sergey Vlasov <vsu@altlinux.ru>
-Cc: Samuel Tardieu <sam@rfc1149.net>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       linux-kernel@vger.kernel.org,
-       =?iso-8859-1?Q?P=E1draig?= Brady <P@draigBrady.com>,
-       Rudolf Marek <r.marek@sh.cvut.cz>
-Subject: Re: [PATCH] watchdog: add support for w83697hg chip
-Message-ID: <20060913191504.GA2386@infomag.infomag.iguana.be>
-References: <87fyf5jnkj.fsf@willow.rfc1149.net> <1157815525.6877.43.camel@localhost.localdomain> <2006-09-09-17-18-13+trackit+sam@rfc1149.net> <1157817522.6877.46.camel@localhost.localdomain> <2006-09-09-17-38-12+trackit+sam@rfc1149.net> <2006-09-09-18-28-44+trackit+sam@rfc1149.net> <20060909214941.GA5192@martell.zuzino.mipt.ru> <2006-09-10-00-11-56+trackit+sam@rfc1149.net> <20060909222718.GB5192@martell.zuzino.mipt.ru>
+	Wed, 13 Sep 2006 15:17:32 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:29905 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1751137AbWIMTRb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Sep 2006 15:17:31 -0400
+Subject: Re: Assignment of GDT entries
+From: Arjan van de Ven <arjan@infradead.org>
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: Linus Torvalds <torvalds@osdl.org>, Ingo Molnar <mingo@elte.hu>,
+       Andi Kleen <ak@suse.de>, "Eric W. Biederman" <ebiederm@xmission.com>,
+       Zachary Amsden <zach@vmware.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Michael A Fetterman <Michael.Fetterman@cl.cam.ac.uk>
+In-Reply-To: <450854F3.20603@goop.org>
+References: <450854F3.20603@goop.org>
+Content-Type: text/plain
+Organization: Intel International BV
+Date: Wed, 13 Sep 2006 21:16:41 +0200
+Message-Id: <1158175001.3054.7.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060909220256.d4486a4f.vsu@altlinux.ru>
-User-Agent: Mutt/1.4.2.1i
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Sergey,
+On Wed, 2006-09-13 at 11:58 -0700, Jeremy Fitzhardinge wrote:
+> What's the rationale for the current assignment of GDT entries?  In 
+> particular, this section:
+> 
+>  *   0 - null
+>  *   1 - reserved
+>  *   2 - reserved
+>  *   3 - reserved
+>  *
+>  *   4 - unused			<==== new cacheline
+>  *   5 - unused
+>  *
+>  *  ------- start of TLS (Thread-Local Storage) segments:
+>  *
+>  *   6 - TLS segment #1			[ glibc's TLS segment ]
+>  *   7 - TLS segment #2			[ Wine's %fs Win32 segment ]
+>  *   8 - TLS segment #3
+>  *   9 - reserved
+>  *  10 - reserved
+>  *  11 - reserved
+> 
+> 
+> What are entries 1-3 and 9-11 reserved for?  Must they be unused for 
+> some reason, or is there some proposed use that has not been impemented yet?
 
-> Actually the situation is worse.  This driver pokes at SuperIO
-> configuration registers, which are shared by all logical devices of the
-> SuperIO chip.  There are other drivers which touch these registers -
-> e.g., drivers/hwmon/w83627hf.c handles the hardware monitor part of this
-> chip; many other hwmon drivers handle other SuperIO devices.  Hardware
-> monitor drivers access the SuperIO config during initialization and do
-> not request that port region, therefore loading hwmon drivers when
-> w83697hf_wdt is loaded can lead to conflicts.
 
-My opinion: a watchdog device is a special "harware monitoring" device and
-thus we should combine the existing hwmon and watchdog code in one driver
-where possible.
-This will definitely not solve all SuperIO alike problems but it is a first
-step towards having a single device driver for every autonomous piece of
-electronics.
+I don't know the exact details on these; I do know that several GDT
+entries tend to be used by BIOSes in their APM implementations and thus
+are better of not being used. That might be the underlying reason
+here....
 
-We can start with the Winbond SuperIO chipsets (Rudolf allready started
-this (see his initial mail about Watchdog device classes)).
-We should also change/convert the /dev/temperature setup in the watchdog
-drivers to a hwmon-alike setup. I will definitely do this for the pcwd 
-drivers. And secondly we should define how we handle "temperature panic's"
-because there we still have differences between the watchdog drivers.
-
-Greetings,
-Wim.
 

@@ -1,86 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751633AbWIMGtv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751634AbWIMGzy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751633AbWIMGtv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Sep 2006 02:49:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751637AbWIMGtv
+	id S1751634AbWIMGzy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Sep 2006 02:55:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751624AbWIMGzy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Sep 2006 02:49:51 -0400
-Received: from smtpout.mac.com ([17.250.248.171]:27884 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S1751633AbWIMGtu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Sep 2006 02:49:50 -0400
-In-Reply-To: <ee88af$fgo$1@taverner.cs.berkeley.edu>
-References: <20060907182304.GA10686@danisch.de> <20060913043319.GH541@1wt.eu> <ee8589$e70$1@taverner.cs.berkeley.edu> <1BB4231A-7D69-4A77-A050-1C633BDFA545@mac.com> <ee88af$fgo$1@taverner.cs.berkeley.edu>
-Mime-Version: 1.0 (Apple Message framework v752.2)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <B7C6636B-03E9-4D4C-AC0E-2898181F419B@mac.com>
-Cc: linux-kernel@vger.kernel.org
+	Wed, 13 Sep 2006 02:55:54 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:56020 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1751121AbWIMGzy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Sep 2006 02:55:54 -0400
+Subject: Re: OT: calling kernel syscall manually
+From: David Woodhouse <dwmw2@infradead.org>
+To: Albert Cahalan <acahalan@gmail.com>
+Cc: guest01@gmail.com, linux-kernel@vger.kernel.org
+In-Reply-To: <787b0d920609122235j57ac327ckcc8d08832fb3989c@mail.gmail.com>
+References: <787b0d920609122235j57ac327ckcc8d08832fb3989c@mail.gmail.com>
+Content-Type: text/plain
+Date: Wed, 13 Sep 2006 07:55:30 +0100
+Message-Id: <1158130530.18619.156.camel@pmac.infradead.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5.dwmw2.1) 
 Content-Transfer-Encoding: 7bit
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: R: Linux kernel source archive vulnerable
-Date: Wed, 13 Sep 2006 02:49:45 -0400
-To: daw-usenet@taverner.cs.berkeley.edu (David Wagner)
-X-Mailer: Apple Mail (2.752.2)
-X-Brightmail-Tracker: AAAAAQAAA+k=
-X-Language-Identified: TRUE
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sep 13, 2006, at 02:26:23, David Wagner wrote:
-> Kyle Moffett  wrote:
->> On Sep 13, 2006, at 01:34:01, David Wagner wrote:
->>> So it sounds like git-tar-tree has a bug; its default isn't setting
->>> meaningful permissions on the files that it puts into the tar  
->>> archive.
->>> I hope the maintainers of git-tar-tree will consider fixing this  
->>> bug.
->>
->> Let me reiterate:  This is not a bug!
->
-> I think it is a bug.  It sounds like git-tar-tree is storing the  
-> wrong set of permissions in the tar archive.
+On Wed, 2006-09-13 at 01:35 -0400, Albert Cahalan wrote:
+> > The third one has always been broken on i386 for PIC code
+> 
+> No, I was just using it today in PIC i386 code.
+> The %ebx register gets pushed, the needed value
+> gets moved into %ebx, the int 0x80 is done, and
+> the %ebx register gets popped. Only a few odd
+> calls like clone() need something different.
 
-No, git-tar-tree is storing the desired permissions (0666 and 0777)  
-in the tar archive.  This is not a bug, those are actually the  
-permissions we want in the tar archive.
+That's a very recent change -- it was broken for years before that.
 
-> When I run "tar cf foo.tar bar", and bar has permissions 0644, then  
-> tar inserts an entry into the archive for "bar" with its  
-> permissions listed as 0644 (*not* 0666).
+> > and was pointless anyway, since glibc provides this
+> > functionality. The kernel method has been removed from
+> > userspace visibility all architectures, and we plan to
+> > remove it entirely in 2.6.19 since it's not at all useful.
+> 
+> It's damn useful. Hint: Linux does not require glibc.
 
-This is irrelevant because the actual permissions copied from GIT to  
-the tar archive are 0666 (as desired).
+Are you being deliberately obtuse or is it just a natural talent?
 
-> If "tar cf foo.tar bar" just ignored the permissions on bar and  
-> always used a default of 0666 out of laziness, that would be a bug  
-> in "tar cf". The same goes for git-tar-tree.  It seems to me that  
-> git-tar-tree ought to behave the same as "tar cf".
+Other C libraries also provide syscall() -- at least dietlibc and uClibc
+do.
 
-It does; except the permissions in git are 0666 for files and 0777  
-for directories so that your umask takes effect when you check out  
-from GIT or extract a tar archive exported from GIT.
-
-> In any case, regardless of whether this is by design or not, it is  
-> not courteous to your users to distribute tar files where all the  
-> files have permissions 0666.  That's not a user-friendly to do.
-
-No, it is user-friendly.  This is like distributing programs who use  
-open(..., 0666) when opening globally-readable files.  Programs that  
-use open(..., 0644) are considered uncourteous because they  
-intentionally ignore your umask.  The only cases where that is  
-acceptable is user SSH private key files.  Likewise we store files  
-with permissions 0666 in the tar archive so that the user's umask is  
-applied to them properly.
-
-o   Do *not* extract kernel trees as root
-o   Do *not* build kernel trees as root
-o   Do *not* package kernel trees as root
-o   Do install kernel packages as root
-
-It's that simple.  Please drop this discussion as it was brought up  
-repeatedly on this list and the fairly general consensus is that this  
-is not a bug in either the kernel source trees or GIT.
-
-Cheers,
-Kyle Moffett
+Kernel headers do not exist to provide a library of random crap for
+userspace to use.
+ 
+-- 
+dwmw2
 

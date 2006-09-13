@@ -1,163 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750954AbWIMPeo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750961AbWIMPpO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750954AbWIMPeo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Sep 2006 11:34:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750956AbWIMPeo
+	id S1750961AbWIMPpO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Sep 2006 11:45:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750959AbWIMPpO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Sep 2006 11:34:44 -0400
-Received: from orfeus.profiwh.com ([85.93.165.27]:31503 "EHLO
-	orfeus.profiwh.com") by vger.kernel.org with ESMTP id S1750950AbWIMPen
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Sep 2006 11:34:43 -0400
-Message-ID: <45082055.7010309.reply@wsc.cz>
-In-Reply-To: <45082055.7010309@carlislefsp.com>
-References: <4506DAD7.8030307.reply@wsc.cz>, <45082055.7010309@carlislefsp.com>
-From: Jiri Slaby <jirislaby@gmail.com>
-To: Steve Roemen <stever@carlislefsp.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: Re: isicom module oops 2.6.17.13
-X-SpamReason: {Bypass=00}-{0,00}-{0,00}-{0,00
-Date: Wed, 13 Sep 2006 11:34:43 -0400
+	Wed, 13 Sep 2006 11:45:14 -0400
+Received: from xenotime.net ([66.160.160.81]:10159 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1750960AbWIMPpM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Sep 2006 11:45:12 -0400
+Date: Wed, 13 Sep 2006 08:46:19 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: Kirill Korotaev <dev@sw.ru>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Fernando Vazquez <fernando@oss.ntt.co.jp>,
+       "David S. Miller" <davem@davemloft.net>, tony.luck@intel.com,
+       linux-ia64@vger.kernel.org, stable@kernel.org, xemul@openvz.org,
+       devel@openvz.org
+Subject: Re: [PATCH] IA64,sparc: local DoS with corrupted ELFs
+Message-Id: <20060913084619.05b5f04f.rdunlap@xenotime.net>
+In-Reply-To: <450195B2.8000004@sw.ru>
+References: <44FC193C.4080205@openvz.org>
+	<Pine.LNX.4.64.0609061120430.27779@g5.osdl.org>
+	<44FFF1A0.2060907@openvz.org>
+	<Pine.LNX.4.64.0609070816170.27779@g5.osdl.org>
+	<4501891D.5090607@sw.ru>
+	<Pine.LNX.4.64.0609080831530.27779@g5.osdl.org>
+	<450195B2.8000004@sw.ru>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Steve Roemen wrote:
-> after adding that patch to 2.6.18-rc6-mm2 and trying another card (an 
-> isi5634 pci/8) i get this in dmesg while loading the driver:
+On Fri, 08 Sep 2006 20:09:22 +0400 Kirill Korotaev wrote:
+
+> Linus Torvalds wrote:
+> > 
+> > On Fri, 8 Sep 2006, Kirill Korotaev wrote:
+> > 
+> >>I even checked the email myself and the only difference between "good"
+> >>patches and mine is that mine has "format=flowed" in
+> >>Content-Type: text/plain; charset=us-ascii; format=flowed
+> >>
+> >>It looks like some mailers replace TABs with spaces when format=flowed
+> >>is specified. So are you sure that the problem is in mozilla?
+> > 
+> > 
+> > Hey, what do you know? Good call. I can actually just "S"ave the message 
+> > to a file, and it is a perfectly fine patch. But when I view it in my mail 
+> > reader, your "format=flowed" means that it _shows_ it as being corrupted 
+> > (ie word wrapping and missing spaces at the beginning of lines).
+> Oh, I finally found how to tune Mozilla and fix it:
 > 
-> faxserver2:~# modprobe isicom
-> faxserver2:~# cat /var/log/kern.log
+> One need to edit defaults/pref/mailnews.js file to have:
+> pref("mailnews.send_plaintext_flowed", false); // RFC 2646=======
+> pref("mailnews.display.disable_format_flowed_support", true);
 > 
-> Sep 13 09:59:11 localhost kernel: isicom 0000:00:10.0: ISI PCI 
-> Card(Device ID 0x2052)
-> Sep 13 09:59:14 localhost kernel: isicom 0000:00:10.0: -Done
-> Sep 13 09:59:15 localhost kernel: 00, FP: e09c762c
-> Sep 13 09:59:15 localhost kernel: isicom 0000:00:10.0: WC: 8, FC: 16, 
-> FD: e09c7000, FP: e09c7640
-> Sep 13 09:59:15 localhost kernel: isicom 0000:00:10.0: WC: 8, FC: 16, 
-> FD: e09c7000, FP: e09c7654
+> This makes Mozilla to send emails w/o "format=flowed".
+> 
+> Thanks a lot for your patience :)
 
-[snip]
+Here is some (similar) info for thunderbird:
+  http://mbligh.org/linuxdocs/Email/Clients/Thunderbird
 
-> Sep 13 09:59:15 localhost kernel: isicom 0000:00:10.0: WC: 8, FC: 16, 
-> FD: e09c7000, FP: e09c8964
-> Sep 13 09:59:15 localhost kernel: isicom 0000:00:10.0: WC: 8, FC: 16, 
-> FD: e09c7000, FP: e09c8978
-> Sep 13 09:59:15 localhost kernel: isicom 0000:00:10.0: WC: 5, FC: 9, FD: 
-> e09c7000, FP: e09c898c
-> Sep 13 09:59:17 localhost kernel: isicom: probe of 0000:00:10.0 failed 
-> with error -5
-
-Yes, thanks a lot, but more diagnostics is needed and I forgot to correct for
-loop for checking uploaded firmware...
-Could you revert previous patch and apply this one, please?
-
-diff --git a/drivers/char/isicom.c b/drivers/char/isicom.c
-index 6cca4b2..bf371b0 100644
---- a/drivers/char/isicom.c
-+++ b/drivers/char/isicom.c
-@@ -1756,11 +1756,18 @@ static int __devinit load_firmware(struc
- 	if (retval)
- 		goto end;
- 
-+	dev_info(&pdev->dev, "Firmware requested, size: %u\n", fw->size);
-+
-+	retval = -EIO;
-+
- 	for (frame = (struct stframe *)fw->data;
- 			frame < (struct stframe *)(fw->data + fw->size);
--			frame++) {
--		if (WaitTillCardIsFree(base))
-+			frame = (struct stframe *)((u8 *)frame + 4 +
-+				frame->count)) {
-+		if (WaitTillCardIsFree(base)) {
-+			dev_err(&pdev->dev, "Card is not free: %u\n", __LINE__);
- 			goto errrelfw;
-+		}
- 
- 		outw(0xf0, base);	/* start upload sequence */
- 		outw(0x00, base);
-@@ -1772,8 +1779,10 @@ static int __devinit load_firmware(struc
- 
- 		udelay(100); /* 0x2f */
- 
--		if (WaitTillCardIsFree(base))
-+		if (WaitTillCardIsFree(base)) {
-+			dev_err(&pdev->dev, "Card is not free: %u\n", __LINE__);
- 			goto errrelfw;
-+		}
- 
- 		if ((status = inw(base + 0x4)) != 0) {
- 			dev_warn(&pdev->dev, "Card%d rejected load header:\n"
-@@ -1787,8 +1796,10 @@ static int __devinit load_firmware(struc
- 
- 		udelay(50); /* 0x0f */
- 
--		if (WaitTillCardIsFree(base))
-+		if (WaitTillCardIsFree(base)) {
-+			dev_err(&pdev->dev, "Card is not free: %u\n", __LINE__);
- 			goto errrelfw;
-+		}
- 
- 		if ((status = inw(base + 0x4)) != 0) {
- 			dev_err(&pdev->dev, "Card%d got out of sync.Card "
-@@ -1796,8 +1807,9 @@ static int __devinit load_firmware(struc
- 			goto errrelfw;
- 		}
-  	}
--
--	retval = -EIO;
-+	dev_info(&pdev->dev, "Firmware loaded, last values: \n\tWC: %u, "
-+			"FD: %p, FP: %p\n",
-+			word_count, fw->data, frame);
- 
- 	if (WaitTillCardIsFree(base))
- 		goto errrelfw;
-@@ -1811,24 +1823,29 @@ static int __devinit load_firmware(struc
- 
- /* XXX: should we test it by reading it back and comparing with original like
-  * in load firmware package? */
--	for (frame = (struct stframe*)fw->data;
--			frame < (struct stframe*)(fw->data + fw->size);
--			frame++) {
--		if (WaitTillCardIsFree(base))
-+	for (frame = (struct stframe *)fw->data;
-+			frame < (struct stframe *)(fw->data + fw->size);
-+			frame = (struct stframe *)((u8 *)frame + 4 +
-+				frame->count)) {
-+		if (WaitTillCardIsFree(base)) {
-+			dev_err(&pdev->dev, "Card is not free: %u\n", __LINE__);
- 			goto errrelfw;
-+		}
- 
- 		outw(0xf1, base); /* start download sequence */
- 		outw(0x00, base);
- 		outw(frame->addr, base); /* lsb of address */
- 
--		word_count = (frame->count >> 1) + frame->count % 2;
-+		word_count = frame->count / 2 + frame->count % 2;
- 		outw(word_count + 1, base);
- 		InterruptTheCard(base);
- 
- 		udelay(50); /* 0xf */
- 
--		if (WaitTillCardIsFree(base))
-+		if (WaitTillCardIsFree(base)) {
-+			dev_err(&pdev->dev, "Card is not free: %u\n", __LINE__);
- 			goto errrelfw;
-+		}
- 
- 		if ((status = inw(base + 0x4)) != 0) {
- 			dev_warn(&pdev->dev, "Card%d rejected verify header:\n"
-@@ -1853,8 +1870,10 @@ static int __devinit load_firmware(struc
- 
- 		udelay(50); /* 0xf */
- 
--		if (WaitTillCardIsFree(base))
-+		if (WaitTillCardIsFree(base)) {
-+			dev_err(&pdev->dev, "Card is not free: %u\n", __LINE__);
- 			goto errrelfw;
-+		}
- 
- 		if ((status = inw(base + 0x4)) != 0) {
- 			dev_err(&pdev->dev, "Card%d verify got out of sync. "
+---
+~Randy

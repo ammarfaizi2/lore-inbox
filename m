@@ -1,71 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751529AbWIMDnU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030448AbWIMEEW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751529AbWIMDnU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Sep 2006 23:43:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751528AbWIMDnU
+	id S1030448AbWIMEEW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Sep 2006 00:04:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751539AbWIMEEU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Sep 2006 23:43:20 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:63668 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751527AbWIMDnU (ORCPT
+	Wed, 13 Sep 2006 00:04:20 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:648 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1751533AbWIMEET (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Sep 2006 23:43:20 -0400
-Date: Tue, 12 Sep 2006 20:43:14 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "Marcin =?UTF-8?B?UHLEhWN6a28i?= <marcin.praczko@googlemail.com>"@osdl.org
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Kernel Oops
-Message-Id: <20060912204314.ef48c782.akpm@osdl.org>
-In-Reply-To: <6c99578d0609120321h461e18c1tc50e06ec7cd43619@mail.gmail.com>
-References: <6c99578d0609120321h461e18c1tc50e06ec7cd43619@mail.gmail.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+	Wed, 13 Sep 2006 00:04:19 -0400
+Message-ID: <4507833A.30504@garzik.org>
+Date: Wed, 13 Sep 2006 00:04:10 -0400
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060808)
+MIME-Version: 1.0
+To: Dan Williams <dan.j.williams@gmail.com>
+CC: Roland Dreier <rdreier@cisco.com>, neilb@suse.de,
+       linux-raid@vger.kernel.org, akpm@osdl.org, linux-kernel@vger.kernel.org,
+       christopher.leech@intel.com, Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+Subject: Re: [PATCH 08/19] dmaengine: enable multiple clients and operations
+References: <1158015632.4241.31.camel@dwillia2-linux.ch.intel.com>	 <20060911231817.4737.49381.stgit@dwillia2-linux.ch.intel.com>	 <4505F4D0.7010901@garzik.org>	 <e9c3a7c20609111714h1b88f8cbid99c567d7f3e997c@mail.gmail.com>	 <adairjt3nz4.fsf@cisco.com> <e9c3a7c20609112318o7febe296he6162ddd494499fd@mail.gmail.com>
+In-Reply-To: <e9c3a7c20609112318o7febe296he6162ddd494499fd@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.3 (----)
+X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 12 Sep 2006 11:21:57 +0100
-"Marcin Prączko" <marcin.praczko@googlemail.com> wrote:
+Dan Williams wrote:
+> On 9/11/06, Roland Dreier <rdreier@cisco.com> wrote:
+>>     Jeff> Are we really going to add a set of hooks for each DMA
+>>     Jeff> engine whizbang feature?
+> ...ok, but at some level we are going to need a file that has:
+> EXPORT_SYMBOL_GPL(dma_whizbang_op1)
+> . . .
+> EXPORT_SYMBOL_GPL(dma_whizbang_opX)
+> correct?
 
-> Hi,
-> 
-> I compiled kernel 2.6.17.7 - all is build in kernel (no modules)
-> And yesterday I had Oops:
-> I enclosed Oops info.
-> 
-> Can you explain to me please, where is some problem ??
->
+If properly modularized, you'll have multiple files with such exports.
 
->  
-> BUG: unable to handlekernel paging request at virtual adress 04000020
->   printing eip:
-> c024c3d5
-> *pde = 00000000
-> Oops: 0000 [#1]
-> Modules linked in:
-> CPU:     0
-> EIP:     0060:[<c024c3d5>]  Not tainted VLI
-> EFLAGS:  00010206  (2.6.17.7 #3)
-> EIP: is at rt_check_expire+0x9a/0x10c
-> eax: 04000000  ebx: 04000000  ecx: 00000000  edx: 00000055
-> esi: f7ca0154  edi: 000124f8  ebp: 00001891  esp: c0343f60
-> ds: 007b  es: 007b  ss: 0068
-> Process swapper (pid: 0, threadinfo=c0342000 task=c02eb180)
-> Stack: 0043cea3 00000055 0000000a c0342000 c03791e0 00000100 c024c33b c0119c7d
->        c0390034 c0390034 c0127ce8 00000001 c0378ee8 0000000a 003b9007 c0116e69
->        00000046 0009fb00 c0337800 c0116ed3 00010800 c01048de c010337a 00010800
-> Call Trace:
->  <c024c33b> rt_check_expire+0x0/0x10c  <c0119c7d> run_timer_softirq+0x35/0x7d
->  <c0127ce8> handle_IRQ_event+0x21/0x4a  <c0116e69> __do_softirq+0x35/0x7d
->  <c0116ed3> do_softirq+0x22/0x26  <c01048de> do_IRQ+0x1e/0x24
->  <c010337a> common_interrupt+0x1a/0x20  <c0100a73> default_idle+0x2b/0x53
->  <c0100af1> cpu_idle+0x42/0x57  <c03445ea> start_kernel+0x170/0x172
-> Code: ed 74 73 ff 44 24 04 8b 15 08 1f 39 c0 21 54 24 04 a1 04 1f 39 c0 8b 54 24 04 8b 3d 88 d3 30 c0 8d 34 90 8b 06 85 c0 74 4a
->  89 c3 <8b> 43 20 85 c0 74 07 3b 04 24 78 1b eb 13 8b 0d 88 d3 30 c0 89
-> EIP: [<c024c3d5>] rt_check_expire+0x9a/0x10c SS:ESP 0068:c0343f60
->  <0>Kernel panic - not syncing: Fatal exception in interrupt 
-> 
+Or perhaps you won't have such exports at all, if it is hidden inside a 
+module-specific struct-of-hooks.
 
-I'd be suspecting that 0x04000000 should have been 0x00000000: a single bit
-error often indicates hardware problems.
+
+> I understand what you are saying Jeff, the implementation can be made
+> better, but something I think is valuable is the ability to write
+> clients once like NET_DMA and RAID5_DMA and have them run without
+> modification on any platform that can provide the engine interface
+> rather than needing a client per architecture
+> IOP_RAID5_DMA...FOO_X_RAID5_DMA.
+
+It depends on the situation.
+
+The hardware capabilities exported by each platform[or device] vary 
+greatly, not only in the raw capabilities provided, but also in the 
+level of offload.
+
+In general, we don't want to see hardware-specific stuff in generic 
+code, though...
+
+
+> Or is this an example of the where "Do What You Must, And No More"
+> comes in, i.e. don't worry about making a generic RAID5_DMA while
+> there is only one implementation existence?
+
+> I also want to pose the question of whether the dmaengine interface
+> should handle cryptographic transforms?  We already have Acrypto:
+> http://tservice.net.ru/~s0mbre/blog/devel/acrypto/index.html.  At the
+> same time since IOPs can do Galois Field multiplication and XOR it
+> would be nice to take advantage of that for crypto acceleration, but
+> this does not fit the model of a device that Acrypto supports.
+
+It would be quite interesting to see where the synergies are between the 
+two, at the very least.  "async [transform|sum]" is a superset of "async 
+crypto" after all.
+
+	Jeff
+
 

@@ -1,49 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750891AbWIMOcc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750877AbWIMOkj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750891AbWIMOcc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Sep 2006 10:32:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750888AbWIMOcc
+	id S1750877AbWIMOkj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Sep 2006 10:40:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750883AbWIMOki
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Sep 2006 10:32:32 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.153]:23239 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750885AbWIMOcb
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Sep 2006 10:32:31 -0400
-In-Reply-To: <1158156835.15449.40.camel@dantu.rdu.redhat.com>
-To: Jeff Layton <jlayton@poochiereds.net>
-Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-       netdev-owner@vger.kernel.org
+	Wed, 13 Sep 2006 10:40:38 -0400
+Received: from mailout10.sul.t-online.com ([194.25.134.21]:16540 "EHLO
+	mailout10.sul.t-online.com") by vger.kernel.org with ESMTP
+	id S1750867AbWIMOki convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Sep 2006 10:40:38 -0400
 MIME-Version: 1.0
-Subject: Re: [PATCH] make ipv4 multicast packets only get delivered to sockets	that
- are joined to group
-X-Mailer: Lotus Notes Release 7.0 HF144 February 01, 2006
-Message-ID: <OF0C86B64A.DE64FE98-ON882571E8.004F57A7-882571E8.004FDDED@us.ibm.com>
-From: David Stevens <dlstevens@us.ibm.com>
-Date: Wed, 13 Sep 2006 07:32:22 -0700
-X-MIMETrack: Serialize by Router on D03NM121/03/M/IBM(Release 7.0.1HF269 | June 22, 2006) at
- 09/13/2006 08:32:24,
-	Serialize complete at 09/13/2006 08:32:24
-Content-Type: text/plain; charset="US-ASCII"
+Subject: Error binding socket: address already in use
+From: pledr@t-online.de (Peter Lezoch)
+To: <linux-kernel@vger.kernel.org>
+X-Mailer: T-Online eMail 6.01.0001
+Content-Type: Text/Plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Date: 13 Sep 2006 14:41 GMT
+X-Antivirus: avast! (VPS 0637-0, 11.09.2006), Outbound message
+X-Antivirus-Status: Clean
+Message-ID: <1GNVuW-02KMfw0@fwd29.sul.t-online.de>
+X-ID: G-XcAMZd8eE70slYitdw5N0JchPwlF-9jEsRnEBggIiQGsRvXqrGEp
+X-TOI-MSGID: df1a499a-4ee4-4456-bfe5-59ca787ba37c
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-netdev-owner@vger.kernel.org wrote on 09/13/2006 07:13:55 AM:
 
-> Only
-> the socket that is bound to the group address to which the packet was
-> sent should get it.
+Hi,
+killing a server task that is operating on a UDP socket( AF_INET, SOCK_DGRAM, IPPROTO_UDP ), leaves the socket in an unclosed state. A subsequently started task, that wants to use the same port, gets from bind above error message.This is, in my opinion, wrong behavior, because of the connectionless nature of UDP. Only reboot solves this situation. It looks, as if in net/socket.c, TCP and UDP are handled in the same way without taking into account the different nature of the protocols?!
+How can I overcome this problem ?
 
-        This is not true on any OS I'm aware of, including the
-original sockets multicast implementation on early BSD.
+kind regards
 
-        Multicast group membership is per-interface, not per-socket.
-Joining a group on any socket on the machine allows packets for that
-group to be delivered on the interface where it was joined.
-
-Delivery of packets to a socket is determined by the binding, and
-INADDR_ANY means "any".
-
-IPv6 behaves the same way.
-                                                                +-DLS
-
-
+peter lezoch

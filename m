@@ -1,88 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751083AbWIMShR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751098AbWIMShR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751083AbWIMShR (ORCPT <rfc822;willy@w.ods.org>);
+	id S1751098AbWIMShR (ORCPT <rfc822;willy@w.ods.org>);
 	Wed, 13 Sep 2006 14:37:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751082AbWIMSfg
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751092AbWIMSgq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Sep 2006 14:35:36 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:61326 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751073AbWIMSfd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Sep 2006 14:35:33 -0400
-From: David Howells <dhowells@redhat.com>
-Subject: [PATCH 3/7] FRV: Optimise ffs() [try #3]
-Date: Wed, 13 Sep 2006 19:35:27 +0100
-To: torvalds@osdl.org, akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org,
-       dhowells@redhat.com
-Message-Id: <20060913183527.22109.67075.stgit@warthog.cambridge.redhat.com>
-In-Reply-To: <20060913183522.22109.10565.stgit@warthog.cambridge.redhat.com>
-References: <20060913183522.22109.10565.stgit@warthog.cambridge.redhat.com>
-Content-Type: text/plain; charset=utf-8; format=fixed
-Content-Transfer-Encoding: 8bit
-User-Agent: StGIT/0.10
+	Wed, 13 Sep 2006 14:36:46 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.151]:39581 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751075AbWIMSgn
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Sep 2006 14:36:43 -0400
+Subject: Re: - r-o-bind-mount-clean-up-ocfs2-nlink-handling.patch removed
+	from -mm tree
+From: Dave Hansen <haveblue@us.ibm.com>
+To: Mark Fasheh <mark.fasheh@oracle.com>
+Cc: linux-kernel@vger.kernel.org, hch@lst.de, viro@zeniv.linux.org.uk,
+       mm-commits@vger.kernel.org, akpm@osdl.org
+In-Reply-To: <20060913182716.GI8792@ca-server1.us.oracle.com>
+References: <200609130506.k8D56U3m018878@shell0.pdx.osdl.net>
+	 <20060913182716.GI8792@ca-server1.us.oracle.com>
+Content-Type: text/plain
+Date: Wed, 13 Sep 2006 11:36:36 -0700
+Message-Id: <1158172596.9141.91.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.4.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
+On Wed, 2006-09-13 at 11:27 -0700, Mark Fasheh wrote:
+> On Tue, Sep 12, 2006 at 10:06:30PM -0700, akpm@osdl.org wrote:
+> > The patch titled
+> > 
+> >      r/o bind mounts: clean up OCFS2 nlink handling
+> > 
+> > has been removed from the -mm tree.  Its filename is
+> > 
+> >      r-o-bind-mount-clean-up-ocfs2-nlink-handling.patch
+> > 
+> > This patch was dropped because git-ocfs2 changes broke it. New patch, please.
+> Yep, that was very likely due to my dentry vote removal changes.
+> 
+> Dave, how's this one look? I guess I'll leave the same description message
+> below...
 
-Optimise ffs(x) by using fls(x & x - 1) which we optimise to use the SCAN
-instruction.
+I was _just_ fighting with your git tree to see what was conflicting!
+You have impeccable timing.
 
-Signed-Off-By: David Howells <dhowells@redhat.com>
----
+>  static int ocfs2_unlink(struct inode *dir,
+>  			struct dentry *dentry)
+>  {
+>  	int status;
+> -	unsigned int saved_nlink = 0;
+>  	struct inode *inode = dentry->d_inode;
+>  	struct ocfs2_super *osb = OCFS2_SB(dir->i_sb);
+>  	u64 blkno;
+> @@ -813,6 +825,7 @@ static int ocfs2_unlink(struct inode *di
+>  	struct buffer_head *dirent_bh = NULL;
+>  	char orphan_name[OCFS2_ORPHAN_NAMELEN + 1];
+>  	struct buffer_head *orphan_entry_bh = NULL;
+> +	unsigned int future_nlink;
+>  
+>  	mlog_entry("(0x%p, 0x%p, '%.*s')\n", dir, dentry,
+>  		   dentry->d_name.len, dentry->d_name.name);
+> @@ -876,15 +889,10 @@ static int ocfs2_unlink(struct inode *di
+>  		}
+>  	}
+>  
+> -	/* There are still a few steps left until we can consider the
+> -	 * unlink to have succeeded. Save off nlink here before
+> -	 * modification so we can set it back in case we hit an issue
+> -	 * before commit. */
+> -	saved_nlink = inode->i_nlink;
+> -	if (S_ISDIR(inode->i_mode))
+> -		inode->i_nlink = 0;
+> +	if (S_ISDIR(inode->i_mode) && (inode->i_nlink == 2))
+> +		future_nlink = 0;
+>  	else
+> -		inode->i_nlink--;
+> +		future_nlink = inode->i_nlink - 1;
 
- include/asm-frv/bitops.h |   33 +++++++++++++++++++++++++++++++--
- 1 files changed, 31 insertions(+), 2 deletions(-)
+Now that the vote call is gone, I don't think we even use future_nlink.
+Can we just kill this entire section?
 
-diff --git a/include/asm-frv/bitops.h b/include/asm-frv/bitops.h
-index 591eecc..1f70d47 100644
---- a/include/asm-frv/bitops.h
-+++ b/include/asm-frv/bitops.h
-@@ -157,8 +157,6 @@ (__builtin_constant_p(nr) ? \
-  __constant_test_bit((nr),(addr)) : \
-  __test_bit((nr),(addr)))
- 
--#include <asm-generic/bitops/ffs.h>
--#include <asm-generic/bitops/__ffs.h>
- #include <asm-generic/bitops/find.h>
- 
- /**
-@@ -227,6 +225,37 @@ int fls64(u64 n)
- 
- }
- 
-+/**
-+ * ffs - find first bit set
-+ * @x: the word to search
-+ *
-+ * - return 32..1 to indicate bit 31..0 most least significant bit set
-+ * - return 0 to indicate no bits set
-+ */
-+static inline __attribute__((const))
-+int ffs(int x)
-+{
-+	/* Note: (x & -x) gives us a mask that is the least significant
-+	 * (rightmost) 1-bit of the value in x.
-+	 */
-+	return fls(x & -x);
-+}
-+
-+/**
-+ * __ffs - find first bit set
-+ * @x: the word to search
-+ *
-+ * - return 31..0 to indicate bit 31..0 most least significant bit set
-+ * - if no bits are set in x, the result is undefined
-+ */
-+static inline __attribute__((const))
-+int __ffs(unsigned long x)
-+{
-+	int bit;
-+	asm("scan %1,gr0,%0" : "=r"(bit) : "r"(x & -x));
-+	return 31 - bit;
-+}
-+
- #include <asm-generic/bitops/sched.h>
- #include <asm-generic/bitops/hweight.h>
- 
+-- Dave
+

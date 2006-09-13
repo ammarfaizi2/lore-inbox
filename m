@@ -1,23 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750776AbWIMNDK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750779AbWIMNDe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750776AbWIMNDK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Sep 2006 09:03:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750772AbWIMNDJ
+	id S1750779AbWIMNDe (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Sep 2006 09:03:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750777AbWIMNDR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Sep 2006 09:03:09 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:38342 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1750770AbWIMNDG (ORCPT
+	Wed, 13 Sep 2006 09:03:17 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:45766 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1750779AbWIMNDK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Sep 2006 09:03:06 -0400
+	Wed, 13 Sep 2006 09:03:10 -0400
 From: David Howells <dhowells@redhat.com>
-Subject: [PATCH 3/6] FRV: Optimise ffs()
-Date: Wed, 13 Sep 2006 14:02:58 +0100
+Subject: [PATCH 1/6] FRV: Fix fls() to handle bit 31 being set correctly
+Date: Wed, 13 Sep 2006 14:02:53 +0100
 To: torvalds@osdl.org, akpm@osdl.org
 Cc: linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org,
        dhowells@redhat.com
-Message-Id: <20060913130258.32022.85288.stgit@warthog.cambridge.redhat.com>
-In-Reply-To: <20060913130253.32022.69230.stgit@warthog.cambridge.redhat.com>
-References: <20060913130253.32022.69230.stgit@warthog.cambridge.redhat.com>
+Message-Id: <20060913130253.32022.69230.stgit@warthog.cambridge.redhat.com>
 Content-Type: text/plain; charset=utf-8; format=fixed
 Content-Transfer-Encoding: 8bit
 User-Agent: StGIT/0.10
@@ -26,63 +24,49 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: David Howells <dhowells@redhat.com>
 
-Optimise ffs(x) by using fls(x & x - 1) which we optimise to use the SCAN
-instruction.
+Fix FRV fls() to handle bit 31 being set correctly (it should return 32 not 0).
 
 Signed-Off-By: David Howells <dhowells@redhat.com>
 ---
 
- include/asm-frv/bitops.h |   33 +++++++++++++++++++++++++++++++--
- 1 files changed, 31 insertions(+), 2 deletions(-)
+ include/asm-frv/bitops.h |   21 +++++++++++++++++----
+ 1 files changed, 17 insertions(+), 4 deletions(-)
 
 diff --git a/include/asm-frv/bitops.h b/include/asm-frv/bitops.h
-index 591eecc..1f70d47 100644
+index 980ae1b..97fb746 100644
 --- a/include/asm-frv/bitops.h
 +++ b/include/asm-frv/bitops.h
-@@ -157,8 +157,6 @@ (__builtin_constant_p(nr) ? \
-  __constant_test_bit((nr),(addr)) : \
-  __test_bit((nr),(addr)))
- 
--#include <asm-generic/bitops/ffs.h>
--#include <asm-generic/bitops/__ffs.h>
+@@ -161,16 +161,29 @@ #include <asm-generic/bitops/ffs.h>
+ #include <asm-generic/bitops/__ffs.h>
  #include <asm-generic/bitops/find.h>
  
- /**
-@@ -227,6 +225,37 @@ int fls64(u64 n)
- 
- }
- 
+-/*
+- * fls: find last bit set.
 +/**
-+ * ffs - find first bit set
++ * fls - find last bit set
 + * @x: the word to search
 + *
-+ * - return 32..1 to indicate bit 31..0 most least significant bit set
++ * This is defined the same way as ffs:
++ * - return 32..1 to indicate bit 31..0 most significant bit set
 + * - return 0 to indicate no bits set
-+ */
-+static inline __attribute__((const))
-+int ffs(int x)
-+{
-+	/* Note: (x & -x) gives us a mask that is the least significant
-+	 * (rightmost) 1-bit of the value in x.
-+	 */
-+	return fls(x & -x);
-+}
-+
-+/**
-+ * __ffs - find first bit set
-+ * @x: the word to search
-+ *
-+ * - return 31..0 to indicate bit 31..0 most least significant bit set
-+ * - if no bits are set in x, the result is undefined
-+ */
-+static inline __attribute__((const))
-+int __ffs(unsigned long x)
-+{
-+	int bit;
-+	asm("scan %1,gr0,%0" : "=r"(bit) : "r"(x & -x));
-+	return 31 - bit;
-+}
-+
- #include <asm-generic/bitops/sched.h>
- #include <asm-generic/bitops/hweight.h>
+  */
+ #define fls(x)						\
+ ({							\
+ 	int bit;					\
+ 							\
+-	asm("scan %1,gr0,%0" : "=r"(bit) : "r"(x));	\
++	asm("	subcc	%1,gr0,gr0,icc0		\n"	\
++	    "	ckne	icc0,cc4		\n"	\
++	    "	cscan.p	%1,gr0,%0	,cc4,#1	\n"	\
++	    "	csub	%0,%0,%0	,cc4,#0	\n"	\
++	    "   csub    %2,%0,%0	,cc4,#1	\n"	\
++	    : "=&r"(bit)				\
++	    : "r"(x), "r"(32)				\
++	    : "icc0", "cc4"				\
++	    );						\
+ 							\
+-	bit ? 33 - bit : bit;				\
++	bit;						\
+ })
  
+ #include <asm-generic/bitops/fls64.h>

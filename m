@@ -1,64 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751120AbWIMTIR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750904AbWIMTJk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751120AbWIMTIR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Sep 2006 15:08:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751121AbWIMTIR
+	id S1750904AbWIMTJk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Sep 2006 15:09:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750933AbWIMTJk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Sep 2006 15:08:17 -0400
-Received: from gw.goop.org ([64.81.55.164]:46019 "EHLO mail.goop.org")
-	by vger.kernel.org with ESMTP id S1751120AbWIMTIQ (ORCPT
+	Wed, 13 Sep 2006 15:09:40 -0400
+Received: from atlrel8.hp.com ([156.153.255.206]:6604 "EHLO atlrel8.hp.com")
+	by vger.kernel.org with ESMTP id S1750904AbWIMTJj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Sep 2006 15:08:16 -0400
-Message-ID: <450854F3.20603@goop.org>
-Date: Wed, 13 Sep 2006 11:58:59 -0700
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060907)
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-       Andi Kleen <ak@suse.de>, "Eric W. Biederman" <ebiederm@xmission.com>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Zachary Amsden <zach@vmware.com>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Michael A Fetterman <Michael.Fetterman@cl.cam.ac.uk>
-Subject: Assignment of GDT entries
-Content-Type: text/plain; charset=UTF-8; format=flowed
+	Wed, 13 Sep 2006 15:09:39 -0400
+Subject: [PATCH 2.6.18-rc6.mm2] revert migrate_move_mapping to use direct
+	radix tree slot update
+From: Lee Schermerhorn <Lee.Schermerhorn@hp.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>, linux-mm <linux-mm@kvack.org>,
+       Andrew Morton <akpm@osdl.org>
+Content-Type: text/plain
+Organization: HP/OSLO
+Date: Wed, 13 Sep 2006 15:09:34 -0400
+Message-Id: <1158174574.5328.37.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-What's the rationale for the current assignment of GDT entries?  In 
-particular, this section:
-
- *   0 - null
- *   1 - reserved
- *   2 - reserved
- *   3 - reserved
- *
- *   4 - unused			<==== new cacheline
- *   5 - unused
- *
- *  ------- start of TLS (Thread-Local Storage) segments:
- *
- *   6 - TLS segment #1			[ glibc's TLS segment ]
- *   7 - TLS segment #2			[ Wine's %fs Win32 segment ]
- *   8 - TLS segment #3
- *   9 - reserved
- *  10 - reserved
- *  11 - reserved
 
 
-What are entries 1-3 and 9-11 reserved for?  Must they be unused for 
-some reason, or is there some proposed use that has not been impemented yet?
+Now that the problem with the rcu radix tree replace slot function has
+been fixed, we can, if Christoph agrees:
 
-Also, is there a particular reason kernel GDT entries start at 12?  
-Would there be a problem in using either 4 or 5 for a kernel GDT descriptor?
+Revert migrate_page_move_mapping() to use direct radix tree
+slot replacement.  Fix up variable types to match modified
+interfaces to radix_tree_{deref|replace}_slot().
 
-I'm asking because I'd like to use one of these entries for the PDA 
-descriptor, so that it is on the same cache line as the TLS 
-descriptors.  That way, the entry/exit segment register reloads would 
-still only need to touch two GDT cache lines.  Would there be a real 
-problem in doing this?
 
-Thanks,
-    J
+Signed-off-by:  Lee Schermerhorn <lee.schermerhorn@hp.com>
+
+ mm/migrate.c |   23 ++++++++++++-----------
+ 1 files changed, 12 insertions(+), 11 deletions(-)
+
+Index: linux-2.6.18-rc6-mm2/mm/migrate.c
+===================================================================
+--- linux-2.6.18-rc6-mm2.orig/mm/migrate.c	2006-09-13 11:39:14.000000000 -0400
++++ linux-2.6.18-rc6-mm2/mm/migrate.c	2006-09-13 11:42:36.000000000 -0400
+@@ -294,8 +294,7 @@ out:
+ static int migrate_page_move_mapping(struct address_space *mapping,
+ 		struct page *newpage, struct page *page)
+ {
+-	struct page *current_page;
+-	long index;
++	void **pslot;
+ 
+ 	if (!mapping) {
+ 		/* Anonymous page */
+@@ -306,14 +305,11 @@ static int migrate_page_move_mapping(str
+ 
+ 	write_lock_irq(&mapping->tree_lock);
+ 
+-	index = page_index(page);
+-
+-	current_page = (struct page *)radix_tree_lookup(
+-						&mapping->page_tree,
+-						index);
++	pslot = radix_tree_lookup_slot(&mapping->page_tree,
++ 					page_index(page));
+ 
+ 	if (page_count(page) != 2 + !!PagePrivate(page) ||
+-			current_page != page) {
++			(struct page *)radix_tree_deref_slot(pslot) != page) {
+ 		write_unlock_irq(&mapping->tree_lock);
+ 		return -EAGAIN;
+ 	}
+@@ -321,7 +317,7 @@ static int migrate_page_move_mapping(str
+ 	/*
+ 	 * Now we know that no one else is looking at the page.
+ 	 */
+-	get_page(newpage);
++	get_page(newpage);	/* add cache reference */
+ #ifdef CONFIG_SWAP
+ 	if (PageSwapCache(page)) {
+ 		SetPageSwapCache(newpage);
+@@ -329,9 +325,14 @@ static int migrate_page_move_mapping(str
+ 	}
+ #endif
+ 
+-	radix_tree_delete(&mapping->page_tree, index);
+-	radix_tree_insert(&mapping->page_tree, index, newpage);
++	radix_tree_replace_slot(pslot, newpage);
++
++	/*
++	 * Drop cache reference from old page.
++	 * We know this isn't the last reference.
++	 */
+ 	__put_page(page);
++
+ 	write_unlock_irq(&mapping->tree_lock);
+ 
+ 	return 0;
+
 

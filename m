@@ -1,77 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751390AbWIOA6u@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751394AbWIOBDb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751390AbWIOA6u (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Sep 2006 20:58:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751392AbWIOA6u
+	id S1751394AbWIOBDb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Sep 2006 21:03:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751397AbWIOBDb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Sep 2006 20:58:50 -0400
-Received: from gatekeeper.ncic.ac.cn ([159.226.41.188]:52432 "HELO ncic.ac.cn")
-	by vger.kernel.org with SMTP id S1751390AbWIOA6t convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Sep 2006 20:58:49 -0400
-Date: Fri, 15 Sep 2006 08:58:45 +0800
-From: "Yingchao Zhou" <yc_zhou@ncic.ac.cn>
-To: "Hugh Dickins" <hugh@veritas.com>
-Cc: "linux-kernel" <linux-kernel@vger.kernel.org>, "akpm" <akpm@osdl.org>,
-       "alan" <alan@redhat.com>, "zxc" <zxc@ncic.ac.cn>
-Subject: Re: Re: [RFC] PAGE_RW Should be added to PAGE_COPY ?
-X-mailer: Foxmail 5.0 [cn]
+	Thu, 14 Sep 2006 21:03:31 -0400
+Received: from ug-out-1314.google.com ([66.249.92.175]:19601 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1751394AbWIOBDa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Sep 2006 21:03:30 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:message-id:organization:x-mailer:mime-version:content-type:content-transfer-encoding:x-sylpheed-account-id:resent-date:resent-from:resent-to:resent-cc:subject:resent-message-id;
+        b=Rbr1Z7QueFRpbt3jzbYzlD3Zjjo8buud+Xut0OuRXKmIR0aALP0yl8SOCu6lzwLuc+6YREJaSN8kkv9KHCZuKhrW43+0a9EnYibslBfLoBJ01Yj54hGDaw7jCMgiUk48GQNXiMn3K5xqV54ytqevhUSLMXyO4CRshgdoYOxQ7V0=
+Date: Wed, 13 Sep 2006 15:33:29 +0200
+From: Miguel Ojeda Sandonis <maxextreme@gmail.com>
+To: torvalds@osdl.org
+Cc: greg@kroah.com, alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+Message-Id: <20060913153329.7737183c.maxextreme@gmail.com>
+Organization: -
+X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain;
-	charset="gb2312"
-Message-Id: <20060915005846.07C31FB045@ncic.ac.cn>
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+X-Sylpheed-Account-Id: 1
+Subject: [PATCH 0/1 Re] drivers: add const to class_create
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->
->PAGE_COPY (without the write bit) is used when the area was mmap'ed
->MAP_PRIVATE: which indeed is asking for private copies of pages to
->be made - which will be left containing the data written there by the
->application, rather than shared data received later by the driver.
->
->You want to mmap MAP_SHARED, which will use PAGE_SHARED instead,
->including the write bit, both before and after the mprotects.
->There should be no problem then: do you actually see a problem
->when MAP_SHARED is used?
-It's ok to mmap MAP_SHARED. But is it not a normal way to malloc() a space and
-then registered to NIC ?
->
->(You don't mention which release you're describing, and some of
->the details may vary: the not-yet-started 2.6.19 is likely to use
->PAGE_COPY even when MAP_SHARED, to help it keep track of the number
->of dirty pages; but in that case, do_wp_page() won't make a copy.)
->
->> 
->>      The reson is that :
->>      1) User-level network driver locks phy pages when memory space is registered;
->>      2) 2 calls to mprotect change ptes in the space to PAGE_COPY, so write any page in the space will cause a page fault;
->
->Not if PROT_WRITE, MAP_SHARED I think.
-Yeah, of course.
->
->>      3) In the page fault handler, it goes to do_wp_page, and in it if Page Is Locked, a new page is generated and filled into the pte. So the physical page seen by the host is not the same one by the NIC.
->
->When MAP_PRIVATE, it's not the page being locked that causes the copy
->(it's not normally locked there, is it?), it's that it's not PageAnon;
->or if you're looking at 2.6.12 or older, that page_count is raised.
->
->> 
->>      Adding PAGE_RW to PAGE_COPY will resolve this problem.  
->
->No!  That would give every user write access to shared files they
->should have no write access to.
-I guess you refer to mmap a file MAP_READ|MAP_WRITE in MAP_PRIVATE way.
-I think it is probably more logical to read the file data into an anoymous page and filled the pte with _PAGE_RW in the first time page-fault. It will probably reduce numbers of page fault interrupt.
->
->>      In my option, the reason for absense of RW is to save memory by mapping all those only read pages into ZERO_PAGE. But is there really programs which make many read-ops in memory space without even initialize them?
->
->Not just the ZERO_PAGE: initial program data is another common example.
-Ok, we can deal with initial program data using the above flow.
->
->Hugh
->
-Best regards
-Yingchao Zhou
+Trivial patch.
 
+Adds const to class_create second parameter, because:
 
+struct class {
+	const char * name;
+
+	/*...*/
+}
+
+Signed-off-by: Miguel Ojeda Sandonis <maxextreme@gmail.com>
+---
+diff -uprN -X linux-2.6.18-rc7/Documentation/dontdiff linux-2.6.18-rc7-vanilla/drivers/base/class.c linux-2.6.18-rc7/drivers/base/class.c
+--- linux-2.6.18-rc7-vanilla/drivers/base/class.c	2006-09-13 14:01:47.000000000 +0200
++++ linux-2.6.18-rc7/drivers/base/class.c	2006-09-13 14:13:16.000000000 +0200
+@@ -197,7 +197,7 @@ static int class_device_create_uevent(st
+  * Note, the pointer created here is to be destroyed when finished by
+  * making a call to class_destroy().
+  */
+-struct class *class_create(struct module *owner, char *name)
++struct class *class_create(struct module *owner, const char *name)
+ {
+ 	struct class *cls;
+ 	int retval;
+diff -uprN -X linux-2.6.18-rc7/Documentation/dontdiff linux-2.6.18-rc7-vanilla/include/linux/device.h linux-2.6.18-rc7/include/linux/device.h
+--- linux-2.6.18-rc7-vanilla/include/linux/device.h	2006-09-13 14:02:12.000000000 +0200
++++ linux-2.6.18-rc7/include/linux/device.h	2006-09-13 14:12:45.000000000 +0200
+@@ -271,7 +271,7 @@ struct class_interface {
+ extern int class_interface_register(struct class_interface *);
+ extern void class_interface_unregister(struct class_interface *);
+ 
+-extern struct class *class_create(struct module *owner, char *name);
++extern struct class *class_create(struct module *owner, const char *name);
+ extern void class_destroy(struct class *cls);
+ extern struct class_device *class_device_create(struct class *cls,
+ 						struct class_device *parent,

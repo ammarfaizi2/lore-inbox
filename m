@@ -1,69 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751501AbWIMCQU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751500AbWIMCSS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751501AbWIMCQU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Sep 2006 22:16:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751502AbWIMCQT
+	id S1751500AbWIMCSS (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Sep 2006 22:18:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751503AbWIMCSR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Sep 2006 22:16:19 -0400
-Received: from smtp104.mail.mud.yahoo.com ([209.191.85.214]:22960 "HELO
-	smtp104.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1751501AbWIMCQT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Sep 2006 22:16:19 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=lIdaw7eGzXXa0pC1unyTU2tPn0ri9FXG21IgGDrW6y/FzhTjED25xIlMm6ErccEHmJkJ3H7XGEG9jd9/CSDbXFq3x/miVYzV2yFEkyAwYjY3rwQ4+MBAAqkdkxxl7Os2xsBHZokoufELTskTN3duR4W3+s/3HLzveNI1ft4yDX4=  ;
-Message-ID: <450769E2.4080904@yahoo.com.au>
-Date: Wed, 13 Sep 2006 12:16:02 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: David Howells <dhowells@redhat.com>
-CC: Matt Mackall <mpm@selenic.com>, Aubrey <aubreylee@gmail.com>,
-       linux-kernel@vger.kernel.org, davidm@snapgear.com, gerg@snapgear.com
-Subject: Re: kernel BUGs when removing largish files with the SLOB allocator
-References: <20060912174339.GA19707@waste.org>  <6d6a94c50609032356t47950e40lbf77f15136e67bc5@mail.gmail.com> <17162.1157365295@warthog.cambridge.redhat.com> <6d6a94c50609042052n4c1803eey4f4412f6153c4a2b@mail.gmail.com> <3551.1157448903@warthog.cambridge.redhat.com> <6d6a94c50609051935m607f976j942263dd1ac9c4fb@mail.gmail.com> <44FE4222.3080106@yahoo.com.au> <6d6a94c50609120107w1942a8d8j368dd57a271d0250@mail.gmail.com> <15193.1158088232@warthog.cambridge.redhat.com>
-In-Reply-To: <15193.1158088232@warthog.cambridge.redhat.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Tue, 12 Sep 2006 22:18:17 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.152]:19593 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751500AbWIMCSQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Sep 2006 22:18:16 -0400
+Subject: [Bug] 2.6.18-rc6-mm2 i386 trouble finding RSDT in
+	get_memcfg_from_srat
+From: keith mannthey <kmannth@us.ibm.com>
+Reply-To: kmannth@us.ibm.com
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: linux acpi <linux-acpi@vger.kernel.org>
+Content-Type: text/plain
+Organization: Linux Technology Center IBM
+Date: Tue, 12 Sep 2006 19:18:14 -0700
+Message-Id: <1158113895.9562.13.camel@keithlap>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Howells wrote:
-> Matt Mackall <mpm@selenic.com> wrote:
-> 
-> 
->>>+		for (i = 0; i < (1 << bb->order); i++) {
->>>+			SetPageSlab(page);
->>>+			page++;
->>>+		}
->>
->>for ( ; page < page + (1 << bb->order), page++)
->>      SetPageSlab(page);
-> 
-> 
-> Ugh.  No.  You can't do that.  "page < page + X" will be true until "page + X"
-> wraps the end of memory.
-> 
-> 
->>>+				for (i = 0; i < (1 << bb->order); i++) {
->>>+					if (!TestClearPageSlab(page))
->>>+						BUG();
->>>+					page++;
->>>+				}
->>
->>Please drop the BUG. We've already established it's on our lists by
->>this point.
-> 
-> 
-> I disagree.  Let's catch accidental reuse of pages.  It should, however, be
-> marked unlikely().
+Hello,
+  I am trying to use i386 SRAT and it is not working.  The srat code
+(get_memcfg_from_srat) needs to map in the SRAT table during boot to see
+all the numa information.  It gets the RSDP just fine but when it looks
+up the RSDT the header is empty (I tried to print out RSDT header and it
+was empty) and it exits :( 
 
-If you do this, the biggest problem with those ops is that they are atomic,
-and the latter also requires strong memory barriers. Don't use RMW variants,
-and use __ prepended iff you are the only user of the page at this point.
+Excerpts from my boot log.... 
 
--- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+get_memcfg_from_srat: assigning address to rsdp
+RSD PTR  v0 [IBM   ]
+ACPI: RSDT signature incorrect
+failed to get NUMA memory information from SRAT table
+NUMA - single node, flat memory mode
+Node: 0, start_pfn: 0, end_pfn: 156
+
+Something is wrong.
+
+A while later in the boot I see. 
+
+Using APIC driver default
+ACPI: RSDP (v000 IBM                                   ) @ 0x000fdfc0
+ACPI: RSDT (v001 IBM    SERVIGIL 0x00001000 IBM  0x45444f43) @ 0xeff9c2c0
+ACPI: FADT (v001 IBM    SERVIGIL 0x00001000 IBM  0x45444f43) @ 0xeff9c240
+ACPI: MADT (v001 IBM    SERVIGIL 0x00001000 IBM  0x45444f43) @ 0xeff9c0c0
+ACPI: SRAT (v001 IBM    SERVIGIL 0x00001000 IBM  0x45444f43) @ 0xeff9bf40
+ACPI: DSDT (v001 IBM    SERVIGIL 0x00001000 INTL 0x02002025) @ 0x00000000
+ 
+Looks like the RSDT table it there.... 
+
+I haven't booted i386 numa Summit in a while and was wondering if anyone
+had any ideas?
+
+Thanks,
+  Keith 
+

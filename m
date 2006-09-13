@@ -1,47 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750717AbWIMQwN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750787AbWIMQ6j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750717AbWIMQwN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Sep 2006 12:52:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750768AbWIMQwM
+	id S1750787AbWIMQ6j (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Sep 2006 12:58:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750785AbWIMQ6i
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Sep 2006 12:52:12 -0400
-Received: from nf-out-0910.google.com ([64.233.182.185]:30836 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1750717AbWIMQwM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Sep 2006 12:52:12 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=FOfeWdwLeDUYuitd3hOI8ACgmh+pDHPhH1bTLAqZ+u9jn3l5Q4/n785Mdeqpn35GemrHS9+I1O6nCFGs/4r7k3cf7i1Gyvl6gmLK24/MQUr/AiFHgZahLiwXKu2HWQw19KIFvdfIhZdKLxyEZ8kCU6mMO3PU2CgTxdGdrig6lH0=
-Message-ID: <45083731.7040904@gmail.com>
-Date: Wed, 13 Sep 2006 18:52:01 +0200
-From: guest01 <guest01@gmail.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.8.0.5) Gecko/20060719 Thunderbird/1.5.0.5 Mnenhy/0.7.4.666
-MIME-Version: 1.0
-To: David Woodhouse <dwmw2@infradead.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: OT: calling kernel syscall manually
-References: <4506A295.6010206@gmail.com>	 <1158068045.9189.93.camel@hades.cambridge.redhat.com>	 <450717A5.90509@cfl.rr.com> <1158101019.18619.113.camel@pmac.infradead.org>
-In-Reply-To: <1158101019.18619.113.camel@pmac.infradead.org>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Wed, 13 Sep 2006 12:58:38 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:36526 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1750768AbWIMQ6i (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Sep 2006 12:58:38 -0400
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <20060913163806.GA15563@flint.arm.linux.org.uk> 
+References: <20060913163806.GA15563@flint.arm.linux.org.uk>  <20060913130253.32022.69230.stgit@warthog.cambridge.redhat.com> <20060913130300.32022.69743.stgit@warthog.cambridge.redhat.com> <20060913161734.GE3564@stusta.de> <20060913163136.GA2585@parisc-linux.org> 
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+Cc: Matthew Wilcox <matthew@wil.cx>, Adrian Bunk <bunk@stusta.de>,
+       David Howells <dhowells@redhat.com>, torvalds@osdl.org, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
+Subject: Re: [PATCH 4/6] Implement a general log2 facility in the kernel 
+X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
+Date: Wed, 13 Sep 2006 17:56:55 +0100
+Message-ID: <4143.1158166615@warthog.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Woodhouse wrote:
-> However, the _example_ that the OP gave of this 'third one' was in fact
-> using the old _syscallX() macros which used to be found in the kernel's
-> private header files. So I assumed that's what he meant, rather than
-> open-coding his own inline assembly.
-> 
+Russell King <rmk+lkml@arm.linux.org.uk> wrote:
 
-Yes, indeed. I think we should use the _syscallX() macro, but
-nevertheless I like the inline assembly example :-)
+> Therefore, re-using "log2()" is about as bad as re-using the "strcmp()"
+> name to implement a function which copies strings.
 
-So these macros are no longer available in the latest kernel versions?
-Ok, if that's true, I will use the example with the inline assembler
-code and write a few lines, that these "macros" are no longer supported.
+I should probably use ilog2() then which would at least be consistent with the
+powerpc arch.
 
-thxs
+> t.c:2: warning: conflicting types for built-in function 'log2'
 
+Which, of course, I didn't see because I didn't define it as a function,
+merely as a macro.
 
+David

@@ -1,44 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751023AbWIMSQ6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751019AbWIMSSt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751023AbWIMSQ6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Sep 2006 14:16:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751033AbWIMSQ6
+	id S1751019AbWIMSSt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Sep 2006 14:18:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751026AbWIMSSs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Sep 2006 14:16:58 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:21638 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1751023AbWIMSQ5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Sep 2006 14:16:57 -0400
-Date: Wed, 13 Sep 2006 11:16:49 -0700 (PDT)
-From: Christoph Lameter <clameter@sgi.com>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-cc: David Howells <dhowells@redhat.com>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Dong Feng <middle.fengdong@gmail.com>, ak@suse.de,
-       Paul Mackerras <paulus@samba.org>, linux-kernel@vger.kernel.org,
-       linux-arch@vger.kernel.org
-Subject: Re: Why Semaphore Hardware-Dependent?
-In-Reply-To: <45084A2C.8030804@yahoo.com.au>
-Message-ID: <Pine.LNX.4.64.0609131113550.18264@schroedinger.engr.sgi.com>
-References: <44F395DE.10804@yahoo.com.au>  <a2ebde260608271222x2b51693fnaa600965fcfaa6d2@mail.gmail.com>
- <1156750249.3034.155.camel@laptopd505.fenrus.org> <11861.1156845927@warthog.cambridge.redhat.com>
- <45084833.4040602@yahoo.com.au> <Pine.LNX.4.64.0609131106260.18264@schroedinger.engr.sgi.com>
- <45084A2C.8030804@yahoo.com.au>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 13 Sep 2006 14:18:48 -0400
+Received: from e36.co.us.ibm.com ([32.97.110.154]:52201 "EHLO
+	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751019AbWIMSSs
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Sep 2006 14:18:48 -0400
+Subject: [PATCH] Add preprocessed files (*.i) to .gitignore
+From: Josh Triplett <josht@us.ibm.com>
+To: linux-kernel@vger.kernel.org
+Cc: Andrew Morton <akpm@osdl.org>, Paul McKenney <paulmck@us.ibm.com>
+Content-Type: text/plain
+Date: Wed, 13 Sep 2006 11:19:08 -0700
+Message-Id: <1158171548.5097.7.camel@josh-work.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 14 Sep 2006, Nick Piggin wrote:
+The kernel build system supports making preprocessed files (*.i) from C source
+files.  Add these files to .gitignore .
 
-> Oh really? OK I figured if ppc64 was OK then that would be enough,
-> but your large Altix systems did slip my mind.
+Signed-off-by: Josh Triplett <josh@freedesktop.org>
+---
+ .gitignore |    1 +
+ 1 files changed, 1 insertions(+), 0 deletions(-)
 
-Look at the ia64 rwsem implementation in include/asm-ia64/rwsem.h.
+diff --git a/.gitignore b/.gitignore
+index b1f5b9d..0ec4533 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -12,6 +12,7 @@ #
+ *.ko
+ *.so
+ *.mod.c
++*.i
  
-> That is a fair criticism... atomic_long it will have to be, then.
-> That will require a bit of atomic work to get atomic64_cmpxchg
-> available on all 64-bit architectures.
+ #
+ # Top-level generic files
+-- 
+1.4.1.1
 
-I would greatly appreciate having that.
 

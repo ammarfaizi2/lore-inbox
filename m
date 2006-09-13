@@ -1,68 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750969AbWIMPqy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750975AbWIMPw7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750969AbWIMPqy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Sep 2006 11:46:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750970AbWIMPqy
+	id S1750975AbWIMPw7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Sep 2006 11:52:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750976AbWIMPw7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Sep 2006 11:46:54 -0400
-Received: from xsmtp1.ethz.ch ([82.130.70.13]:29611 "EHLO xsmtp1.ethz.ch")
-	by vger.kernel.org with ESMTP id S1750968AbWIMPqy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Sep 2006 11:46:54 -0400
-From: Benjamin Schindler <bschindler@student.ethz.ch>
-Organization: ETH =?iso-8859-1?q?Z=FCrich?=
-To: Lee Revell <rlrevell@joe-job.com>
-Subject: Re: Soft Lockup detected on cpu#0
-Date: Wed, 13 Sep 2006 17:45:29 +0200
-User-Agent: KMail/1.9.4
-Cc: linux-kernel@vger.kernel.org
-References: <4507B77F.1040907@student.ethz.ch> <1158157797.3768.26.camel@mindpipe>
-In-Reply-To: <1158157797.3768.26.camel@mindpipe>
+	Wed, 13 Sep 2006 11:52:59 -0400
+Received: from wr-out-0506.google.com ([64.233.184.237]:37409 "EHLO
+	wr-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1750974AbWIMPw7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Sep 2006 11:52:59 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=W6BF2pQUbH4diumiFhzMoW7jOAiY1gYZiUlnRLBQw/3R7BUbZny/QuA/23z02uUf2vkVecz0+6FLpOSI2mWpBktpWL0sg1QpAv4WGMHSHZ5OkczA5FX9PNPBu8xwB3Zvcs82tsHG5m5RIRl4Ogqc2BfGd/twdg3mwOdviqZ78ro=
+Message-ID: <787b0d920609130852x1e335cc8l7e398dbc046fa3f8@mail.gmail.com>
+Date: Wed, 13 Sep 2006 11:52:52 -0400
+From: "Albert Cahalan" <acahalan@gmail.com>
+To: "David Woodhouse" <dwmw2@infradead.org>
+Subject: Re: OT: calling kernel syscall manually
+Cc: guest01@gmail.com, linux-kernel@vger.kernel.org
+In-Reply-To: <1158130530.18619.156.camel@pmac.infradead.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1181196.bL5rAi2RHm";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <200609131745.30082.bschindler@student.ethz.ch>
-X-OriginalArrivalTime: 13 Sep 2006 15:46:52.0812 (UTC) FILETIME=[D552A4C0:01C6D74B]
+Content-Disposition: inline
+References: <787b0d920609122235j57ac327ckcc8d08832fb3989c@mail.gmail.com>
+	 <1158130530.18619.156.camel@pmac.infradead.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1181196.bL5rAi2RHm
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
-
-I will certainly try. (I'll use the default gentoo-patchset - I assume this=
- is=20
-ok since others seem to use it as well). But the problem is hard to=20
-reproduce...
-
-Thanks
-Benjamin Schindler
-On Wednesday 13 September 2006 16:29, Lee Revell wrote:
-> On Wed, 2006-09-13 at 09:47 +0200, Benjamin Schindler wrote:
-> > EIP is at log_do_checkpoint+0xa0/0x134
-> >  EFLAGS: 00000202    Not tainted    (2.6.16/suspend2/r1 #4)
+On 9/13/06, David Woodhouse <dwmw2@infradead.org> wrote:
+> On Wed, 2006-09-13 at 01:35 -0400, Albert Cahalan wrote:
+> > > The third one has always been broken on i386 for PIC code
+> >
+> > No, I was just using it today in PIC i386 code.
+> > The %ebx register gets pushed, the needed value
+> > gets moved into %ebx, the int 0x80 is done, and
+> > the %ebx register gets popped. Only a few odd
+> > calls like clone() need something different.
 >
-> Do you have the same problem without the suspend2 patch applied?
+> That's a very recent change -- it was broken for years before that.
+
+It's fixed now. Obviously people care. Probably the
+only reason it wasn't fixed earlier is that PIC code
+just isn't all that popular for i386 executables.
+
+> > > and was pointless anyway, since glibc provides this
+> > > functionality. The kernel method has been removed from
+> > > userspace visibility all architectures, and we plan to
+> > > remove it entirely in 2.6.19 since it's not at all useful.
+> >
+> > It's damn useful. Hint: Linux does not require glibc.
 >
-> Problems with out-of-tree patched kernels should be reported to the
-> maintainer of the patches.
+> Are you being deliberately obtuse or is it just a natural talent?
 >
-> Lee
+> Other C libraries also provide syscall() -- at least dietlibc and uClibc
+> do.
 
---nextPart1181196.bL5rAi2RHm
-Content-Type: application/pgp-signature
+OK, but I don't need to be using a C library. I could write
+my own or do without.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2.2 (GNU/Linux)
+> Kernel headers do not exist to provide a library of random crap for
+> userspace to use.
 
-iD8DBQBFCCeZIExHgErho7kRAsIvAJ9h4uUfTGQfkYx9rFSEl4T7l2KubgCfSkL/
-OeK33e4UUoSKUFsmzpyfDhU=
-=SdFV
------END PGP SIGNATURE-----
-
---nextPart1181196.bL5rAi2RHm--
+Sure, but this is existing functionality. It also isn't random crap;
+it's the kernel's system call interface.

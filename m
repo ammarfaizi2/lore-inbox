@@ -1,68 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751201AbWIMVPU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751202AbWIMVWN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751201AbWIMVPU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Sep 2006 17:15:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751093AbWIMVPU
+	id S1751202AbWIMVWN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Sep 2006 17:22:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751210AbWIMVWN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Sep 2006 17:15:20 -0400
-Received: from gw.goop.org ([64.81.55.164]:24205 "EHLO mail.goop.org")
-	by vger.kernel.org with ESMTP id S1751201AbWIMVPS (ORCPT
+	Wed, 13 Sep 2006 17:22:13 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:21729 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751202AbWIMVWN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Sep 2006 17:15:18 -0400
-Message-ID: <450874DD.8090109@goop.org>
-Date: Wed, 13 Sep 2006 14:15:09 -0700
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060907)
-MIME-Version: 1.0
-To: Zachary Amsden <zach@vmware.com>
-CC: Arjan van de Ven <arjan@infradead.org>, Linus Torvalds <torvalds@osdl.org>,
-       Ingo Molnar <mingo@elte.hu>, Andi Kleen <ak@suse.de>,
+	Wed, 13 Sep 2006 17:22:13 -0400
+Date: Wed, 13 Sep 2006 14:21:49 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+cc: Ingo Molnar <mingo@elte.hu>, Andi Kleen <ak@suse.de>,
        "Eric W. Biederman" <ebiederm@xmission.com>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Zachary Amsden <zach@vmware.com>,
        Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Michael A Fetterman <Michael.Fetterman@cl.cam.ac.uk>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
+       Michael A Fetterman <Michael.Fetterman@cl.cam.ac.uk>
 Subject: Re: Assignment of GDT entries
-References: <450854F3.20603@goop.org> <1158175001.3054.7.camel@laptopd505.fenrus.org> <4508681E.3070708@goop.org> <4508711B.6060905@vmware.com>
-In-Reply-To: <4508711B.6060905@vmware.com>
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <450854F3.20603@goop.org>
+Message-ID: <Pine.LNX.4.64.0609131358090.4388@g5.osdl.org>
+References: <450854F3.20603@goop.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Zachary Amsden wrote:
-> I believe 9,10,11 are reserved for future users like yourself or 
-> expanded TLS segments.  I think a bank of 3 TLS segments in the GDT is 
-> working fine now (does NPTL even use more than one?).
 
-Nope.  And there's a comment that wine uses one more.  I think the third 
-is completely unused.
 
-Does this mean that "reserved" is actually synonymous with "unused" in 
-asm/segment.h?
+On Wed, 13 Sep 2006, Jeremy Fitzhardinge wrote:
+> *
+> *   4 - unused			<==== new cacheline
+> *   5 - unused
 
->> Otherwise line 1 would be ideal for putting 3 TLS, kernel+user 
->> code+data and PDA into, thereby making 99.999% of GDT descriptor uses 
->> come from one cache line.
->
-> That change is visible to userspace, unfortunately.
+These _used_ to be the "user CS/DS" respectively, but that got changed 
+around by me when did the "sysenter" support.
 
-Don't think it matters much.  32-bit processes on x86-64 seem perfectly 
-happy with the TLS being in a different place.  I think the ABI is 
-defined in terms of "use the selector for the entry that 
-set_thread_area/clone returns", and so is not a constant.  But I agree 
-it would be better not to.
+The sysenter logic (or, more properly, the sysexit one) requires that the 
+user code segment number is the same as the kernel code segment +2 (ie 
+"+16" in actual selector term). And the user data segment needs to be +3.
 
-Hm, moving user cs/ds would be pretty visible too... Hm, and it would 
-have a greater chance of breaking stuff if they changed, compared to 
-moving the TLS...
+So with sysenter, we needed a block of four contiguous segments: kernel 
+code, kernel data, user code, user data (in that order).
 
-So is there any reason for "kernel entries start at 12"?  If there's no 
-reason for it, then we can pack everything useful into 1-5.
+There are other possible things to do, but what we did was to move the 
+user segments up to just above the kernel ones (which we left in place).
 
->> But anyway, what breaks if I put the PDA in 11?
->
-> Nothing.
+> *   6 - TLS segment #1			[ glibc's TLS segment ]
+> *   7 - TLS segment #2			[ Wine's %fs Win32 segment ]
+> *   8 - TLS segment #3
+> *   9 - reserved
+> *  10 - reserved
+> *  11 - reserved
 
-OK then.
+These are really reserved, I think we left them that way on purpose so 
+that if we wanted to, we can allow more of the contiguous per-thread 
+state. And segment #8 (ie 0x40) is special (TLS segment #3), of course. 
+Anybody who wants to emulate windows or use the BIOS needs to use that for 
+their "common BIOS area" thing, iirc.
 
-    J
+I think it's generally a good idea to keep the low segment reserved (or at 
+least free to use for whatever user code), since if there are any special 
+magic segment descriptor numbers, they tend to be in that low range. The 
+#8/0x40 thing is just an example.
+
+> What are entries 1-3 and 9-11 reserved for?  Must they be unused for some
+> reason, or is there some proposed use that has not been impemented yet?
+> 
+> Also, is there a particular reason kernel GDT entries start at 12?  Would
+> there be a problem in using either 4 or 5 for a kernel GDT descriptor?
+
+See above. The kernel and user segments have to be moved as a block of 
+four, and obviously we'd like to keep them in the same cacheline too. 
+Also, the cacheline that contains segment #8/0x40 is not available, so 
+that together with keeping low segments for user space explains why it's 
+at segment numbers #12-15 (selectors 0x60/0x68/0x73/0x7b).
+
+But I don't think anything but 0x40 is "set in stone".
+
+		Linus

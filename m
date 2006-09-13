@@ -1,126 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750862AbWIMOXZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750869AbWIMOZi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750862AbWIMOXZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Sep 2006 10:23:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750863AbWIMOXZ
+	id S1750869AbWIMOZi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Sep 2006 10:25:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750870AbWIMOZi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Sep 2006 10:23:25 -0400
-Received: from mxsf25.cluster1.charter.net ([209.225.28.225]:10955 "EHLO
-	mxsf25.cluster1.charter.net") by vger.kernel.org with ESMTP
-	id S1750861AbWIMOXY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Sep 2006 10:23:24 -0400
-X-IronPort-AV: i="4.09,160,1157342400"; 
-   d="scan'208"; a="680093774:sNHT160548710"
+	Wed, 13 Sep 2006 10:25:38 -0400
+Received: from py-out-1112.google.com ([64.233.166.181]:27817 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S1750865AbWIMOZi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Sep 2006 10:25:38 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=ij3apQz/diGt2ZUmuLvDuRcQKYAKFWlFQOr17UI6TQxf6kmr/2BLKM9Q9ypIPCKW0fvkjbKYKR19fojBQ4Y2uG313lW3MQVj+2pttiPL5Phwln23LLI8UaKQw0FBycpttIjBHJsEMyg+9BJRs+RZvFIzD7U5KwDjoLhSPAxmwso=
+Message-ID: <653402b90609130725i10a47accy854d677188b5d7a8@mail.gmail.com>
+Date: Wed, 13 Sep 2006 16:25:37 +0200
+From: "Miguel Ojeda" <maxextreme@gmail.com>
+To: "Ben Dooks" <ben-linux@fluff.org>
+Subject: Re: [PATCH V3] LCD Display Driver lcddisplay, ks0108, cfag12864b
+Cc: greg@kroah.com, alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+In-Reply-To: <20060913140639.GA26265@home.fluff.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-ID: <17672.5209.158911.963437@smtp.charter.net>
-Date: Wed, 13 Sep 2006 10:23:21 -0400
-From: "John Stoffel" <john@stoffel.org>
-To: Al Boldi <a1426z@gawab.com>
-Cc: Jens Axboe <axboe@kernel.dk>, linux-kernel@vger.kernel.org
-Subject: Re: What's in linux-2.6-block.git
-In-Reply-To: <200609131435.31390.a1426z@gawab.com>
-References: <200609131359.04972.a1426z@gawab.com>
-	<20060913105932.GA4792@kernel.dk>
-	<200609131435.31390.a1426z@gawab.com>
-X-Mailer: VM 7.19 under Emacs 21.4.1
+Content-Disposition: inline
+References: <20060912193212.1407209b.maxextreme@gmail.com>
+	 <20060913140639.GA26265@home.fluff.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Al" == Al Boldi <a1426z@gawab.com> writes:
+Please reply in the last patch version, subject:
 
-Al> Jens Axboe wrote:
->> On Wed, Sep 13 2006, Al Boldi wrote:
->> > Jens Axboe  wrote:
->> > > This lists the main features of the 'block' branch, which is bound for
->> > > Linus when 2.6.19 opens:
->> > >
->> > > - Splitting of request->flags into two parts:
->> > >         - cmd type
->> > >         - modified flags
->> > >   Right now it's a bit of a mess, splitting this up invites a cleaner
->> > >   usage and also enables us to implement generic "messages" passed on
->> > >   the regular queue for the device.
->> > >
->> > > - Abstract out the request back merging and put it into the core io
->> > >   scheduler layer. Cleans up all the io schedulers, and noop gets
->> > >   merging for "free".
->> > >
->> > > - Abstract out the rbtree sorting. Gets rid of duplicated code in
->> > >   as/cfq/deadline.
->> > >
->> > > - General shrinkage of the request structure.
->> > >
->> > > - Killing dynamic rq private structures in deadline/as/cfq. This
->> > > should speed up the io path somewhat, as we avoid allocating several
->> > > structures (struct request + scheduler private request) for each io
->> > > request.
->> > >
->> > > - meta data io logging for blktrace.
->> > >
->> > > - CFQ improvements.
->> > >
->> > > - Make the block layer configurable through Kconfig (David Howells).
->> > >
->> > > - Lots of cleanups.
->> >
->> > Does it also address the strange "max_sectors_kb<>192 causes a
->> > 50%-slowdown" problem?
->> 
->> (remember to cc me/others when replying, I can easily miss lkml
->> messages for several days otherwise).
->> 
->> It does not, the investigation of that is still pending I'm afraid. The
->> data is really puzzling, I'm inclined to think it's drive related. Are
->> you reproducing it just one box/drive, or on several?
+[PATCH 2/2] drivers: LCD Display support.
 
-Al> Several boxes, same drive.
+On 9/13/06, Ben Dooks <ben-linux@fluff.org> wrote:
+> I think there would be a case for splitting the lcd
+> drivers into two layers, one to deal with the hardware
+> talking to an lcd device (such as an parallel port)
+> and the second to deal with the command sequences
+> being sent.
+>
 
-Al> /dev/hda:
+It is divided already in two layers:
 
-Al> ATA device, with non-removable media
-Al> 	Model Number:       WDC WD1200JB-00DUA0                     
-Al> 	Serial Number:      WD-WMACM1007651
-Al> 	Firmware Revision:  65.13G65
-Al> Standards:
-Al> 	Supported: 6 5 4 3 
-Al> 	Likely used: 6
+ks0108.c -> It is the driver for a LCD controller. It deals with the
+hardware (not directly, it uses parport module). It exports the
+functions defined for such controller to other modules.
 
-I've got a pair of drives which are very close in model type, and I
-can run some non-destructive tests on them if you like to confirm
-what's going on here if you like:
+cfag12864b.c -> It is a LCD driver, depends on ks0108. This is the
+driver that tells what and how to write.
 
-    /dev/hde:
+> For instance, we have two boards based on ARM which
+> use a CPLD to decode CS1 and CS2, etc. This would
+> mean re-writing your driver (and anyone elses)
+> depending on what sort of LCD we would like to
+> connect to these.
+>
 
-    ATA device, with non-removable media
-	    Model Number:       WDC WD1200JB-00CRA1                     
-	    Serial Number:      WD-WMA8C4365875
-	    Firmware Revision:  17.07W17
-    Standards:
-	    Supported: 5 4 3 
-	    Likely used: 6
-    jfsnew:~> sudo hdparm -I /dev/hdg | head
+I don't think so. The ks0108 controller driver was built to control
+the LCD using the parallel port and a specific wiring.
 
-    /dev/hdg:
+If you want to use your boards, write a driver for them. What is the problem.
 
-    ATA device, with non-removable media
-	    Model Number:       WDC WD1200JB-00EVA0                     
-	    Serial Number:      WD-WMAEK2844058
-	    Firmware Revision:  15.05R15
-    Standards:
-	    Supported: 6 5 4 
-	    Likely used: 6
+(Please tell me if I misunderstood you)
 
+> If there was an generic device driver, then you
+> could export the writing of bytes to user-space
+> and have them use the hardware to do any protocol
+> they liked.
+>
 
-The drives have different defaul max_sectors too:
+A generic driver for what? There are many different ports/wirings,
+different LCDs displays, different LCD controllers, different
+protocols...
 
-    > cat /sys/block/hdg/queue/max_sectors_kb
-    512
-    > cat /sys/block/hde/queue/max_sectors_kb
-    128
-
-Let me know your test method and I'll run it here and post the
-results.
-
-John
+I didn't understand what do you mean.

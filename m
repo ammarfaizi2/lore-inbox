@@ -1,45 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751233AbWIMWeF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751245AbWIMWsd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751233AbWIMWeF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Sep 2006 18:34:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751237AbWIMWeE
+	id S1751245AbWIMWsd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Sep 2006 18:48:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751243AbWIMWsd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Sep 2006 18:34:04 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:11466 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751235AbWIMWeD (ORCPT
+	Wed, 13 Sep 2006 18:48:33 -0400
+Received: from atlrel8.hp.com ([156.153.255.206]:36553 "EHLO atlrel8.hp.com")
+	by vger.kernel.org with ESMTP id S1751242AbWIMWsc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Sep 2006 18:34:03 -0400
-Date: Wed, 13 Sep 2006 15:31:58 -0700
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, Andrew Morton <akpm@osdl.org>,
-       Kernel development list <linux-kernel@vger.kernel.org>,
-       USB development list <linux-usb-devel@lists.sourceforge.net>,
-       zaitcev@redhat.com
-Subject: Re: 2.6.18-rc6-mm2: rmmod ohci_hcd oopses on HPC 6325
-Message-Id: <20060913153158.612ef473.zaitcev@redhat.com>
-In-Reply-To: <Pine.LNX.4.44L0.0609131441080.6684-100000@iolanthe.rowland.org>
-References: <200609131558.03391.rjw@sisk.pl>
-	<Pine.LNX.4.44L0.0609131441080.6684-100000@iolanthe.rowland.org>
-Organization: Red Hat, Inc.
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.10.2; i386-redhat-linux-gnu)
+	Wed, 13 Sep 2006 18:48:32 -0400
+Subject: [PATCH 2.6.18-rc6-mm2] fix migrate_page_move_mapping for radix
+	tree cleanup
+From: Lee Schermerhorn <Lee.Schermerhorn@hp.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>, linux-mm <linux-mm@kvack.org>,
+       Andrew Morton <akpm@osdl.org>
+Cc: Christoph Lameter <clameter@sgi.com>
+Content-Type: text/plain
+Organization: HP/OSLO
+Date: Wed, 13 Sep 2006 18:48:27 -0400
+Message-Id: <1158187707.5328.86.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 13 Sep 2006 14:44:48 -0400 (EDT), Alan Stern <stern@rowland.harvard.edu> wrote:
+Alternative to my "revert migrate_move_mapping ..." patch:
 
-> This problem has already been identified by Pete Zaitcev in this thread:
-> 
-> 	http://marc.theaimsgroup.com/?t=115769512800001&r=1&w=2
-> 
-> Perhaps Pete has an updated patch to fix the problem.  If not, I could 
-> write one.
 
-No, not yet. I am working on getting David's approach with irq = -1
-tested at Stratus. Since it was the only reproducer known to me, I wanted
-to test. Now that Rafael has a fault case, I'll expedite.
+Change to radix_tree_{deref|replace}_slot() API requires
+change to migrate_page_move_mapping() [only user of those
+APIs, so far] to eliminate compiler warnings.
 
--- Pete
+Apply only after backing out the patch:
+
+page-migration-replace-radix_tree_lookup_slot-with-radix_tree_lockup.patch
+
+
+Signed-off-by:  Lee Schermerhorn <lee.schermerhorn@hp.com>
+
+ mm/migrate.c |   11 +++++------
+ 1 files changed, 5 insertions(+), 6 deletions(-)
+
+Index: linux-2.6.18-rc6-mm2/mm/migrate.c
+===================================================================
+--- linux-2.6.18-rc6-mm2.orig/mm/migrate.c	2006-09-13 22:32:44.000000000 -0400
++++ linux-2.6.18-rc6-mm2/mm/migrate.c	2006-09-13 22:38:43.000000000 -0400
+@@ -294,7 +294,7 @@ out:
+ static int migrate_page_move_mapping(struct address_space *mapping,
+ 		struct page *newpage, struct page *page)
+ {
+-	struct page **radix_pointer;
++	void **pslot;
+ 
+ 	if (!mapping) {
+ 		/* Anonymous page */
+@@ -305,12 +305,11 @@ static int migrate_page_move_mapping(str
+ 
+ 	write_lock_irq(&mapping->tree_lock);
+ 
+-	radix_pointer = (struct page **)radix_tree_lookup_slot(
+-						&mapping->page_tree,
+-						page_index(page));
++	pslot = radix_tree_lookup_slot(&mapping->page_tree,
++					page_index(page));
+ 
+ 	if (page_count(page) != 2 + !!PagePrivate(page) ||
+-			radix_tree_deref_slot(radix_pointer) != page) {
++			(struct page *)radix_tree_deref_slot(pslot) != page) {
+ 		write_unlock_irq(&mapping->tree_lock);
+ 		return -EAGAIN;
+ 	}
+@@ -326,7 +325,7 @@ static int migrate_page_move_mapping(str
+ 	}
+ #endif
+ 
+-	radix_tree_replace_slot(radix_pointer, newpage);
++	radix_tree_replace_slot(pslot, newpage);
+ 	__put_page(page);
+ 	write_unlock_irq(&mapping->tree_lock);
+ 
+
+

@@ -1,43 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030426AbWIMAS6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030434AbWIMAVV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030426AbWIMAS6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Sep 2006 20:18:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030428AbWIMAS6
+	id S1030434AbWIMAVV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Sep 2006 20:21:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030432AbWIMAVU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Sep 2006 20:18:58 -0400
-Received: from adelphi.physics.adelaide.edu.au ([129.127.102.1]:52407 "EHLO
-	adelphi.physics.adelaide.edu.au") by vger.kernel.org with ESMTP
-	id S1030426AbWIMAS5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Sep 2006 20:18:57 -0400
-From: Jonathan Woithe <jwoithe@physics.adelaide.edu.au>
-Message-Id: <200609130035.k8D0ZgT7008377@auster.physics.adelaide.edu.au>
-Subject: 2.6.17 oops, possibly ntfs/mmap related
-To: linux-kernel@vger.kernel.org
-Date: Wed, 13 Sep 2006 10:05:42 +0930 (CST)
-Cc: jwoithe@physics.adelaide.edu.au (Jonathan Woithe)
-X-Mailer: ELM [version 2.5 PL6]
+	Tue, 12 Sep 2006 20:21:20 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:29826 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1030428AbWIMAVT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Sep 2006 20:21:19 -0400
+Message-ID: <45074EF2.3080407@garzik.org>
+Date: Tue, 12 Sep 2006 20:21:06 -0400
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060808)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Jens Axboe <axboe@kernel.dk>
+CC: Peter Zijlstra <a.p.zijlstra@chello.nl>, linux-mm@kvack.org,
+       linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       David Miller <davem@davemloft.net>, Rik van Riel <riel@redhat.com>,
+       Daniel Phillips <phillips@google.com>, Pavel Machek <pavel@ucw.cz>
+Subject: Re: [PATCH 11/20] nbd: request_fn fixup
+References: <20060912143049.278065000@chello.nl> <20060912144904.197253000@chello.nl> <20060912224710.GB23515@kernel.dk>
+In-Reply-To: <20060912224710.GB23515@kernel.dk>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.3 (----)
+X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We have a machine which is currently making heavy use of a usb hard disc
-formatted with ntfs.  There have been two occasions where the kernel has
-oopsed while this disc was being accessed heavily.  Before adding this HDD
-the machine in question was rock solid which leads me to think that it
-might be related to ntfs.  USB drives formatted with other filesystems do
-not appear to suffer from this problem.
+Jens Axboe wrote:
+> Generally the block device rule is that once you are invoked due to an
+> unplug (or whatever) event, it is the responsibility of the block device
+> to run the queue until it's done. So if you bail out of queue handling
+> for whatever reason (might be resource starvation in hard- or software),
+> you must make sure to reenter queue handling since the device will not
+> get replugged while it has requests pending. Unless you run into some
+> software resource shortage, running of the queue is done
+> deterministically when you know resources are available (ie an io
+> completes). The device plugging itself is only ever done when you
+> encounter a shortage outside of your control (memory shortage, for
+> instance) _and_ you don't already have pending work where you can invoke
+> queueing from again.
 
-Unfortunately bogofilter considers the oops reports as spam so I cannot post
-them to the list.  I have instead put the full text of my original post
-regarding this topic on the web at
+Or he could employ the blk_{start,stop}_queue() functions, if that model 
+is easier for the driver (and brain).
 
-  http://www.atrad.com.au/~jwoithe/kernel/oopses-20060913.txt
+	Jeff
 
-I'm happy to try things to narrow down the cause if it will help.
 
-Please CC me on reply.
-
-Regards
-  jonathan

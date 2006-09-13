@@ -1,62 +1,163 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750945AbWIMPdQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750954AbWIMPeo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750945AbWIMPdQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Sep 2006 11:33:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750949AbWIMPdQ
+	id S1750954AbWIMPeo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Sep 2006 11:34:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750956AbWIMPeo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Sep 2006 11:33:16 -0400
-Received: from odyssey.analogic.com ([204.178.40.5]:3343 "EHLO
-	odyssey.analogic.com") by vger.kernel.org with ESMTP
-	id S1750945AbWIMPdP convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Sep 2006 11:33:15 -0400
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-X-OriginalArrivalTime: 13 Sep 2006 15:33:12.0978 (UTC) FILETIME=[ECA9E720:01C6D749]
-Content-class: urn:content-classes:message
-Subject: Re: Error binding socket: address already in use
-Date: Wed, 13 Sep 2006 11:33:12 -0400
-Message-ID: <Pine.LNX.4.61.0609131130180.27566@chaos.analogic.com>
-In-Reply-To: <1GNVuW-02KMfw0@fwd29.sul.t-online.de>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Error binding socket: address already in use
-thread-index: AcbXSezSni3NkGbJQhOsqJiiYSnJow==
-References: <1GNVuW-02KMfw0@fwd29.sul.t-online.de>
-From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-To: "Peter Lezoch" <pledr@t-online.de>
+	Wed, 13 Sep 2006 11:34:44 -0400
+Received: from orfeus.profiwh.com ([85.93.165.27]:31503 "EHLO
+	orfeus.profiwh.com") by vger.kernel.org with ESMTP id S1750950AbWIMPen
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Sep 2006 11:34:43 -0400
+Message-ID: <45082055.7010309.reply@wsc.cz>
+In-Reply-To: <45082055.7010309@carlislefsp.com>
+References: <4506DAD7.8030307.reply@wsc.cz>, <45082055.7010309@carlislefsp.com>
+From: Jiri Slaby <jirislaby@gmail.com>
+To: Steve Roemen <stever@carlislefsp.com>
 Cc: <linux-kernel@vger.kernel.org>
-Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+Subject: Re: isicom module oops 2.6.17.13
+X-SpamReason: {Bypass=00}-{0,00}-{0,00}-{0,00
+Date: Wed, 13 Sep 2006 11:34:43 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Steve Roemen wrote:
+> after adding that patch to 2.6.18-rc6-mm2 and trying another card (an 
+> isi5634 pci/8) i get this in dmesg while loading the driver:
+> 
+> faxserver2:~# modprobe isicom
+> faxserver2:~# cat /var/log/kern.log
+> 
+> Sep 13 09:59:11 localhost kernel: isicom 0000:00:10.0: ISI PCI 
+> Card(Device ID 0x2052)
+> Sep 13 09:59:14 localhost kernel: isicom 0000:00:10.0: -Done
+> Sep 13 09:59:15 localhost kernel: 00, FP: e09c762c
+> Sep 13 09:59:15 localhost kernel: isicom 0000:00:10.0: WC: 8, FC: 16, 
+> FD: e09c7000, FP: e09c7640
+> Sep 13 09:59:15 localhost kernel: isicom 0000:00:10.0: WC: 8, FC: 16, 
+> FD: e09c7000, FP: e09c7654
 
-On Wed, 13 Sep 2006, Peter Lezoch wrote:
+[snip]
 
->
-> Hi,
-> killing a server task that is operating on a UDP socket( AF_INET, SOCK_DGRAM, IPPROTO_UDP ), leaves the socket in an unclosed state. A subsequently started task, that wants to use the same port, gets from bind above error message.This is, in my opinion, wrong behavior, because of the connectionless nature of UDP. Only reboot solves this situation. It looks, as if in net/socket.c, TCP and UDP are handled in the same way without taking into account the different nature of the protocols?!
-> How can I overcome this problem ?
->
-> kind regards
->
-> peter lezoch
+> Sep 13 09:59:15 localhost kernel: isicom 0000:00:10.0: WC: 8, FC: 16, 
+> FD: e09c7000, FP: e09c8964
+> Sep 13 09:59:15 localhost kernel: isicom 0000:00:10.0: WC: 8, FC: 16, 
+> FD: e09c7000, FP: e09c8978
+> Sep 13 09:59:15 localhost kernel: isicom 0000:00:10.0: WC: 5, FC: 9, FD: 
+> e09c7000, FP: e09c898c
+> Sep 13 09:59:17 localhost kernel: isicom: probe of 0000:00:10.0 failed 
+> with error -5
 
+Yes, thanks a lot, but more diagnostics is needed and I forgot to correct for
+loop for checking uploaded firmware...
+Could you revert previous patch and apply this one, please?
 
-Try:
-  int opt = 1;
-  setsockopt(s, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.16.24 on an i686 machine (5592.66 BogoMips).
-New book: http://www.AbominableFirebug.com/
-_
-
-
-****************************************************************
-The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
-
-Thank you.
+diff --git a/drivers/char/isicom.c b/drivers/char/isicom.c
+index 6cca4b2..bf371b0 100644
+--- a/drivers/char/isicom.c
++++ b/drivers/char/isicom.c
+@@ -1756,11 +1756,18 @@ static int __devinit load_firmware(struc
+ 	if (retval)
+ 		goto end;
+ 
++	dev_info(&pdev->dev, "Firmware requested, size: %u\n", fw->size);
++
++	retval = -EIO;
++
+ 	for (frame = (struct stframe *)fw->data;
+ 			frame < (struct stframe *)(fw->data + fw->size);
+-			frame++) {
+-		if (WaitTillCardIsFree(base))
++			frame = (struct stframe *)((u8 *)frame + 4 +
++				frame->count)) {
++		if (WaitTillCardIsFree(base)) {
++			dev_err(&pdev->dev, "Card is not free: %u\n", __LINE__);
+ 			goto errrelfw;
++		}
+ 
+ 		outw(0xf0, base);	/* start upload sequence */
+ 		outw(0x00, base);
+@@ -1772,8 +1779,10 @@ static int __devinit load_firmware(struc
+ 
+ 		udelay(100); /* 0x2f */
+ 
+-		if (WaitTillCardIsFree(base))
++		if (WaitTillCardIsFree(base)) {
++			dev_err(&pdev->dev, "Card is not free: %u\n", __LINE__);
+ 			goto errrelfw;
++		}
+ 
+ 		if ((status = inw(base + 0x4)) != 0) {
+ 			dev_warn(&pdev->dev, "Card%d rejected load header:\n"
+@@ -1787,8 +1796,10 @@ static int __devinit load_firmware(struc
+ 
+ 		udelay(50); /* 0x0f */
+ 
+-		if (WaitTillCardIsFree(base))
++		if (WaitTillCardIsFree(base)) {
++			dev_err(&pdev->dev, "Card is not free: %u\n", __LINE__);
+ 			goto errrelfw;
++		}
+ 
+ 		if ((status = inw(base + 0x4)) != 0) {
+ 			dev_err(&pdev->dev, "Card%d got out of sync.Card "
+@@ -1796,8 +1807,9 @@ static int __devinit load_firmware(struc
+ 			goto errrelfw;
+ 		}
+  	}
+-
+-	retval = -EIO;
++	dev_info(&pdev->dev, "Firmware loaded, last values: \n\tWC: %u, "
++			"FD: %p, FP: %p\n",
++			word_count, fw->data, frame);
+ 
+ 	if (WaitTillCardIsFree(base))
+ 		goto errrelfw;
+@@ -1811,24 +1823,29 @@ static int __devinit load_firmware(struc
+ 
+ /* XXX: should we test it by reading it back and comparing with original like
+  * in load firmware package? */
+-	for (frame = (struct stframe*)fw->data;
+-			frame < (struct stframe*)(fw->data + fw->size);
+-			frame++) {
+-		if (WaitTillCardIsFree(base))
++	for (frame = (struct stframe *)fw->data;
++			frame < (struct stframe *)(fw->data + fw->size);
++			frame = (struct stframe *)((u8 *)frame + 4 +
++				frame->count)) {
++		if (WaitTillCardIsFree(base)) {
++			dev_err(&pdev->dev, "Card is not free: %u\n", __LINE__);
+ 			goto errrelfw;
++		}
+ 
+ 		outw(0xf1, base); /* start download sequence */
+ 		outw(0x00, base);
+ 		outw(frame->addr, base); /* lsb of address */
+ 
+-		word_count = (frame->count >> 1) + frame->count % 2;
++		word_count = frame->count / 2 + frame->count % 2;
+ 		outw(word_count + 1, base);
+ 		InterruptTheCard(base);
+ 
+ 		udelay(50); /* 0xf */
+ 
+-		if (WaitTillCardIsFree(base))
++		if (WaitTillCardIsFree(base)) {
++			dev_err(&pdev->dev, "Card is not free: %u\n", __LINE__);
+ 			goto errrelfw;
++		}
+ 
+ 		if ((status = inw(base + 0x4)) != 0) {
+ 			dev_warn(&pdev->dev, "Card%d rejected verify header:\n"
+@@ -1853,8 +1870,10 @@ static int __devinit load_firmware(struc
+ 
+ 		udelay(50); /* 0xf */
+ 
+-		if (WaitTillCardIsFree(base))
++		if (WaitTillCardIsFree(base)) {
++			dev_err(&pdev->dev, "Card is not free: %u\n", __LINE__);
+ 			goto errrelfw;
++		}
+ 
+ 		if ((status = inw(base + 0x4)) != 0) {
+ 			dev_err(&pdev->dev, "Card%d verify got out of sync. "

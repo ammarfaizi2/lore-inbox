@@ -1,46 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750988AbWIMIi3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750996AbWIMIpX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750988AbWIMIi3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Sep 2006 04:38:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750983AbWIMIi3
+	id S1750996AbWIMIpX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Sep 2006 04:45:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751002AbWIMIpX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Sep 2006 04:38:29 -0400
-Received: from mx2.suse.de ([195.135.220.15]:37850 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1750790AbWIMIi2 (ORCPT
+	Wed, 13 Sep 2006 04:45:23 -0400
+Received: from www.osadl.org ([213.239.205.134]:63670 "EHLO mail.tglx.de")
+	by vger.kernel.org with ESMTP id S1750986AbWIMIpW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Sep 2006 04:38:28 -0400
-From: Andi Kleen <ak@suse.de>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCH] quirks: Flag up and handle the AMD 8151 Errata #24
-Date: Wed, 13 Sep 2006 09:06:47 +0200
-User-Agent: KMail/1.9.1
-Cc: linux-kernel@vger.kernel.org
-References: <1158078540.6780.61.camel@localhost.localdomain> <200609121729.12009.ak@suse.de> <1158086743.6780.86.camel@localhost.localdomain>
-In-Reply-To: <1158086743.6780.86.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
+	Wed, 13 Sep 2006 04:45:22 -0400
+Subject: Re: [ltp] do I have to worry?
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: Martin Lorenz <martin@lorenz.eu.org>
+Cc: linux-thinkpad@linux-thinkpad.org, linux-kernel@vger.kernel.org,
+       Ingo Molnar <mingo@elte.hu>
+In-Reply-To: <20060912144106.GT7767@gimli>
+References: <20060912102844.GH7767@gimli>  <20060912144106.GT7767@gimli>
+Content-Type: text/plain
+Date: Wed, 13 Sep 2006 10:46:00 +0200
+Message-Id: <1158137160.5724.123.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200609130906.47361.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 12 September 2006 20:45, Alan Cox wrote:
-> Ar Maw, 2006-09-12 am 17:29 +0200, ysgrifennodd Andi Kleen:
-> > If the system really locks up afterwards they will likely never see it
-> > though?
->
-> They'll see it at boot.
->
-> > I just don't think the printk will that useful and if it locks up people
-> > will blame Linux anyways even with printk.
->
-> Which is why I also intend to make sure the drivers aren't defaulting to
-> ignore but all do it properly and require a force flag. PCIPCI_FAIL
-> means it doesn't work. No driver should be ignoring that flag.
+On Tue, 2006-09-12 at 16:41 +0200, Martin Lorenz wrote:
+> On Tue, Sep 12, 2006 at 12:28:44PM +0200, Dipl.-Ing. Martin Lorenz wrote:
+> > Hi all,
+> > 
+> > I found another error in my dmesg:
 
-Ok that would be more reasonable. Just the printk alone seems to be fairly
-pointless to me.
+Which kernel version ?
 
--Andi
+> > [50219.992000] e1000: eth0: e1000_watchdog: NIC Link is Down
+> > [50225.266000] Trying to free already-free IRQ 201
+
+free_irq() is called either twice or without a previous request_irq()
+
+> > [50225.271000] bridge-eth0: disabling the bridge
+> > [50225.274000] bridge-eth0: down
+> > [50225.317000] IRQ handler type mismatch for IRQ 90
+
+request_irq() is called for a shared interrupt, where one of the drivers
+does not set the IRQF_SHARED flag.
+
+Can you provide a full bootlog and "lspci -vvv" output please ?
+
+	tglx
+
+

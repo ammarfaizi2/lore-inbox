@@ -1,87 +1,108 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030440AbWIMAoO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030442AbWIMAsn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030440AbWIMAoO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Sep 2006 20:44:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030442AbWIMAoO
+	id S1030442AbWIMAsn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Sep 2006 20:48:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030443AbWIMAsn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Sep 2006 20:44:14 -0400
-Received: from smtp-out.google.com ([216.239.45.12]:10863 "EHLO
-	smtp-out.google.com") by vger.kernel.org with ESMTP
-	id S1030440AbWIMAoN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Sep 2006 20:44:13 -0400
-DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
-	h=received:subject:from:reply-to:to:cc:in-reply-to:references:
-	content-type:organization:date:message-id:mime-version:x-mailer:content-transfer-encoding;
-	b=IJjZZD4LUwgobSlldt026sJvCZ9GeDmqSGoX2UqTPRo/INZzliS8utMu6wqkmQ/ty
-	hLWP2qvO8bf0MztuKZ0Fg==
-Subject: Re: [ckrm-tech] [PATCH] BC: resource beancounters (v4)
-	(added	user	memory)
-From: Rohit Seth <rohitseth@google.com>
-Reply-To: rohitseth@google.com
-To: sekharan@us.ibm.com
-Cc: vatsa@in.ibm.com, Rik van Riel <riel@redhat.com>,
-       CKRM-Tech <ckrm-tech@lists.sourceforge.net>, balbir@in.ibm.com,
-       Dave Hansen <haveblue@us.ibm.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andi Kleen <ak@suse.de>, Christoph Hellwig <hch@infradead.org>,
-       Andrey Savochkin <saw@sw.ru>, devel@openvz.org,
-       Matt Helsley <matthltc@us.ibm.com>, Hugh Dickins <hugh@veritas.com>,
-       Alexey Dobriyan <adobriyan@mail.ru>, Kirill Korotaev <dev@sw.ru>,
-       Oleg Nesterov <oleg@tv-sign.ru>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Pavel Emelianov <xemul@openvz.org>
-In-Reply-To: <1158105732.4800.26.camel@linuxchandra>
-References: <44FD918A.7050501@sw.ru> <44FDAB81.5050608@in.ibm.com>
-	 <44FEC7E4.7030708@sw.ru> <44FF1EE4.3060005@in.ibm.com>
-	 <1157580371.31893.36.camel@linuxchandra> <45011CAC.2040502@openvz.org>
-	 <1157743424.19884.65.camel@linuxchandra>
-	 <1157751834.1214.112.camel@galaxy.corp.google.com>
-	 <1157999107.6029.7.camel@linuxchandra>
-	 <1158001831.12947.16.camel@galaxy.corp.google.com>
-	 <20060912104410.GA28444@in.ibm.com>
-	 <1158081752.20211.12.camel@galaxy.corp.google.com>
-	 <1158105732.4800.26.camel@linuxchandra>
-Content-Type: text/plain
-Organization: Google Inc
-Date: Tue, 12 Sep 2006 17:43:23 -0700
-Message-Id: <1158108203.20211.52.camel@galaxy.corp.google.com>
+	Tue, 12 Sep 2006 20:48:43 -0400
+Received: from xenotime.net ([66.160.160.81]:37266 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1030442AbWIMAsm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Sep 2006 20:48:42 -0400
+Date: Tue, 12 Sep 2006 17:49:34 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: Nico Schottelius <nico-kernel20060910@schottelius.org>
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.17.13 Uninitialized variable / printf timing
+Message-Id: <20060912174934.acb55c70.rdunlap@xenotime.net>
+In-Reply-To: <20060910170837.GA18697@schottelius.org>
+References: <20060910170837.GA18697@schottelius.org>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-09-12 at 17:02 -0700, Chandra Seetharaman wrote:
-> On Tue, 2006-09-12 at 10:22 -0700, Rohit Seth wrote:
-> > On Tue, 2006-09-12 at 16:14 +0530, Srivatsa Vaddagiri wrote:
-> > > On Mon, Sep 11, 2006 at 12:10:31PM -0700, Rohit Seth wrote:
-> > > > It seems that a single notion of limit should suffice, and that limit
-> > > > should more be treated as something beyond which that resource
-> > > > consumption in the container will be throttled/not_allowed.
-> > > 
-> > > The big question is : are containers/RG allowed to use *upto* their
-> > > limit always? In other words, will you typically setup limits such that
-> > > sum of all limits = max resource capacity? 
-> > > 
-> > 
-> > If a user is really interested in ensuring that all scheduled jobs (or
-> > containers) get what they have asked for (guarantees) then making the
-> > sum of all container limits equal to total system limit is the right
-> > thing to do.
-> > 
-> > > If it is setup like that, then what you are considering as limit is
-> > > actually guar no?
-> > > 
-> > Right.  And if we do it like this then it is up to sysadmin to configure
-> > the thing right without adding additional logic in kernel.
+On Sun, 10 Sep 2006 19:08:37 +0200 Nico Schottelius wrote:
+
+> Hello!
 > 
-> It won't be a complete solution, as the user won't be able to
->  - set both guarantee and limit for a resource group
->  - use limit on some and guarantee on some
->  - optimize the usage of available resources 
+> When booting 2.6.17.13 on my Geode, kprintf enabled with timing output,
+> it looks a bit strange (the first 24 lines):
+> 
+> --------------------------------------------------------------------------------
+> 
+>   Booting 'Zwerg - 2.6.17.13'
+>                 
+> root (hd0,1)    
+>  Filesystem type is jfs, partition type 0x83
+> kernel /usr/src/linux-2.6.17.13/arch/i386/boot/bzImage root=/dev/hda2
+> console=t
+> tyS0,38400      
+>    [Linux-bzImage, setup=0x1400, size=0x10afff]
+>                 
+> [42949372.960000] Linux version 2.6.17.13-zwerg (root@buche) (gcc
+> version 4.1.2 20060613 (prerelease) (Debian 4.1.1-5)) #1 Sun Sep 10
+> 16:15:23 UTC 2006
+> [42949372.960000] BIOS-provided physical RAM map:
+> [42949372.960000]  BIOS-e820: 0000000000000000 - 000000000009fc00
+> (usable)
+> [42949372.960000]  BIOS-e820: 000000000009fc00 - 00000000000a0000
+> (reserved)
+> [42949372.960000]  BIOS-e820: 00000000000f0000 - 0000000000100000
+> (reserved)
+> [42949372.960000]  BIOS-e820: 0000000000100000 - 0000000008000000
+> (usable)
+> [42949372.960000]  BIOS-e820: 00000000fff0000 - 0000000100000000
+> (reserved)
+> [42949372.960000] 128MB LOWMEM available.
+> [42949372.960000] DMI not present or invalid.
+> [42949372.960000] ACPI: Unable to locate RSDP
+> [42949372.960000] Allocating PCI resources starting at 10000000 (gap:
+> 08000000:f7f00000)
+> [42949372.960000] Built 1 zonelists
+> [42949372.960000] Kernel command line: root=/dev/hda2
+> console=ttyS0,38400
+> [42949372.960000] No local APIC present or hardware disabled
+> [42949372.960000] Initializing CPU#0
+> [42949372.960000] PID hash table entries: 1024 (order: 10, 4096 bytes)
+> [    0.000000] Detected 266.663 MHz processor.
+> [   20.718339] Using tsc for high-res timesource
+> [   20.718638] Console: colour dummy device 80x25
+> [   21.045363] Dentry cache hash table entries: 16384 (order: 4, 65536
+> bytes)
+> [   21.067257] Inode-cache hash table entries: 8192 (order: 3, 32768
+> bytes)
+> [   21.129713] Memory: 127256k/131072k available 333k kernel code, 3420k
+> reserved, 498k data, 124k init, 0k highmem)
+> [   21.161087] Checking if this processor honours the WP bit even in
+> supervisor mode... Ok.
+> [   21.328007] Calibrating delay using timer specific routine.. 534.16
+> BogoMIPS (lpj=2670830)
+> [   21.353474] Mount-cache hash table entries: 512
+> [   21.368758] CPU: NSC Unknown stepping 01
+> [   21.380743] Checking 'hlt' instruction... OK.
+> [   21.394059] SMP alternatives: switching to UP code
+> [   21.408503] Freeing SMP alternatives: 0k freed
+> [...]
+> --------------------------------------------------------------------------------
+> 
+> Just wanted to ask whether this is ...
+>    a) wanted
+>    b) not yet seen
+>    c) nothing one should care about
 
-I think, if we have some of the dynamic resource limit adjustments
-possible then some of the above functionality could be achieved. And I
-think that could be a good start point.
+It's intentional.  It helps with checking for code that cares
+about timer^W jiffy rollovers.  The kernel starts "time" at -5 minutes
+then the jiffy count rolls over soon.  From include/linux/jiffies.h:
 
--rohit
+/*
+ * Have the 32 bit jiffies value wrap 5 minutes after boot
+ * so jiffies wrap bugs show up earlier.
+ */
+#define INITIAL_JIFFIES ((unsigned long)(unsigned int) (-300*HZ))
 
+---
+~Randy

@@ -1,47 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751164AbWIMUJA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751041AbWIMURr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751164AbWIMUJA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Sep 2006 16:09:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751163AbWIMUJA
+	id S1751041AbWIMURr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Sep 2006 16:17:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751167AbWIMURr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Sep 2006 16:09:00 -0400
-Received: from gw.goop.org ([64.81.55.164]:31442 "EHLO mail.goop.org")
-	by vger.kernel.org with ESMTP id S1751164AbWIMUJA (ORCPT
+	Wed, 13 Sep 2006 16:17:47 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:7651 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751041AbWIMURr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Sep 2006 16:09:00 -0400
-Message-ID: <45086553.4090804@goop.org>
-Date: Wed, 13 Sep 2006 13:08:51 -0700
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060907)
+	Wed, 13 Sep 2006 16:17:47 -0400
+Date: Wed, 13 Sep 2006 17:16:35 -0300
+From: Aristeu Sergio Rozanski Filho <aris@cathedrallabs.org>
+To: Alex Williamson <alex.williamson@hp.com>
+Cc: rmk+serial@arm.linux.org.uk, linux-kernel <linux-kernel@vger.kernel.org>,
+       akpm@osdl.org
+Subject: Re: [PATCH] 8250 UART backup timer
+Message-ID: <20060913201635.GA4787@cathedrallabs.org>
+References: <1151435054.11285.41.camel@lappy> <1152070743.5710.20.camel@lappy>
 MIME-Version: 1.0
-To: "linux-os (Dick Johnson)" <linux-os@analogic.com>
-CC: Linus Torvalds <torvalds@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-       Andi Kleen <ak@suse.de>, "Eric W. Biederman" <ebiederm@xmission.com>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Zachary Amsden <zach@vmware.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Michael A Fetterman <Michael.Fetterman@cl.cam.ac.uk>
-Subject: Re: Assignment of GDT entries
-References: <450854F3.20603@goop.org> <Pine.LNX.4.61.0609131523390.28091@chaos.analogic.com>
-In-Reply-To: <Pine.LNX.4.61.0609131523390.28091@chaos.analogic.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1152070743.5710.20.camel@lappy>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-linux-os (Dick Johnson) wrote:
-> The entries 1 through 3 are used during the boot sequence, see
-> setup.S, search for "gdt" around line 983.
->   
+Hi Alex,
+>    Ping.  Any other comments on this?  Thanks,
+this was tested on the following HP machines and solved the problem:
+rx2600, rx2620, rx1600 and rx1620s
 
-OK, but that's an early GDT used during boot, which shouldn't have any 
-bearing on the GDT of the running kernel.
+Russel, is there any objections on this patch[1]?
 
-> I can't imagine a reason why you'd want to do this.
->   
+Otherwise,
+Acked-by: Aristeu S. Rozanski F. <aris@cathedrallabs.org>
 
-I'm looking at packing all the descriptors together so they share a 
-cache line, and therefore reduce the likelihood of a cache miss when 
-loading a segment register.
+[1] http://lkml.org/lkml/2006/6/27/472
 
-    J
+-- 
+Aristeu
+

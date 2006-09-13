@@ -1,51 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751007AbWIMQRp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751004AbWIMQRm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751007AbWIMQRp (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Sep 2006 12:17:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751010AbWIMQRp
+	id S1751004AbWIMQRm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Sep 2006 12:17:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751006AbWIMQRm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Sep 2006 12:17:45 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:17 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1751006AbWIMQRn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Sep 2006 12:17:43 -0400
-Date: Wed, 13 Sep 2006 18:17:34 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: David Howells <dhowells@redhat.com>
-Cc: torvalds@osdl.org, akpm@osdl.org, linux-kernel@vger.kernel.org,
-       linux-arch@vger.kernel.org
-Subject: Re: [PATCH 4/6] Implement a general log2 facility in the kernel
-Message-ID: <20060913161734.GE3564@stusta.de>
-References: <20060913130253.32022.69230.stgit@warthog.cambridge.redhat.com> <20060913130300.32022.69743.stgit@warthog.cambridge.redhat.com>
+	Wed, 13 Sep 2006 12:17:42 -0400
+Received: from gw.goop.org ([64.81.55.164]:25575 "EHLO mail.goop.org")
+	by vger.kernel.org with ESMTP id S1751001AbWIMQRl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Sep 2006 12:17:41 -0400
+Message-ID: <45082F1C.8000003@goop.org>
+Date: Wed, 13 Sep 2006 09:17:32 -0700
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060907)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060913130300.32022.69743.stgit@warthog.cambridge.redhat.com>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+To: Ingo Molnar <mingo@elte.hu>
+CC: Arjan van de Ven <arjan@infradead.org>, akpm@osdl.org, ak@suse.de,
+       linux-kernel@vger.kernel.org, Michael.Fetterman@cl.cam.ac.uk,
+       Ian Campbell <Ian.Campbell@XenSource.com>
+Subject: Re: i386 PDA patches use of %gs
+References: <1158046540.2992.5.camel@laptopd505.fenrus.org> <45075829.701@goop.org> <20060913095942.GA10075@elte.hu>
+In-Reply-To: <20060913095942.GA10075@elte.hu>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 13, 2006 at 02:03:00PM +0100, David Howells wrote:
-> From: David Howells <dhowells@redhat.com>
-> 
-> This facility provides three entry points:
-> 
-> 	log2()		Log base 2 of u32
->...
+Ingo Molnar wrote:
+> well, the most important thing i believe you didnt test: the effect of 
+> mixing two descriptors on the _same_ selector: one %gs selector value 
+> loaded and used by glibc, and another %gs selector value loaded and used 
+> by the kernel, intermixed. It's the mixing that causes the descriptor 
+> cache reload. (unless i missed some detail about your testcase)
 
-Considering that several arch maintainers have vetoed my patch to revert 
-the -ffreestanding removal Andi sneaked in with his usual trick to hide 
-generic patches as "x86_64 patch", such a usage of a libc function name 
-with a signature different from the one defined in ISO/IEC 9899:1999 is 
-a namespace violation that mustn't happen.
+But it doesn't mix different descriptors on the same selector; the GDT 
+is initialized when the CPU is brought up, and is unchanged from then 
+on.  The PDA descriptor is GDT entry 27 and the userspace TLS entries 
+are 6-8, so in the typical case %gs will alternate between 0x33 and 0xd8 
+as it enters and leaves the kernel.
 
-cu
-Adrian
+My test program does the same thing, except using GDT entries 6 and 7 
+(selectors 0x33 and 0x3b).
 
--- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+    J
 

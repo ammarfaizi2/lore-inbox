@@ -1,69 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030438AbWIMBSD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751466AbWIMBSF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030438AbWIMBSD (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 12 Sep 2006 21:18:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751469AbWIMBSD
+	id S1751466AbWIMBSF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 12 Sep 2006 21:18:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751423AbWIMBSF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 12 Sep 2006 21:18:03 -0400
-Received: from zeniv.linux.org.uk ([195.92.253.2]:50382 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1751423AbWIMBSA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 12 Sep 2006 21:18:00 -0400
-Date: Wed, 13 Sep 2006 02:17:59 +0100
-From: Al Viro <viro@ftp.linux.org.uk>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       "David S. Miller" <davem@davemloft.net>, linux-audit@redhat.com
-Subject: Re: [git pull] audit updates and fixes
-Message-ID: <20060913011759.GD29920@ftp.linux.org.uk>
-References: <E1GMpjB-0002Ek-NP@ZenIV.linux.org.uk> <20060911180346.c4bfd211.akpm@osdl.org> <20060912071429.GB29920@ftp.linux.org.uk> <Pine.LNX.4.64.0609121737460.4388@g5.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0609121737460.4388@g5.osdl.org>
-User-Agent: Mutt/1.4.1i
+	Tue, 12 Sep 2006 21:18:05 -0400
+Received: from taverner.CS.Berkeley.EDU ([128.32.168.222]:5338 "EHLO
+	taverner.cs.berkeley.edu") by vger.kernel.org with ESMTP
+	id S1751466AbWIMBSB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 12 Sep 2006 21:18:01 -0400
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: daw@cs.berkeley.edu (David Wagner)
+Newsgroups: isaac.lists.linux-kernel
+Subject: Re: R: Linux kernel source archive vulnerable
+Date: Wed, 13 Sep 2006 01:17:48 +0000 (UTC)
+Organization: University of California, Berkeley
+Message-ID: <ee7m7r$6qr$1@taverner.cs.berkeley.edu>
+References: <20060907182304.GA10686@danisch.de> <Pine.LNX.4.61.0609121619470.19976@chaos.analogic.com> <ee796o$vue$1@taverner.cs.berkeley.edu> <45073B2B.4090906@lsrfire.ath.cx>
+Reply-To: daw-usenet@taverner.cs.berkeley.edu (David Wagner)
+NNTP-Posting-Host: taverner.cs.berkeley.edu
+X-Trace: taverner.cs.berkeley.edu 1158110268 7003 128.32.168.222 (13 Sep 2006 01:17:48 GMT)
+X-Complaints-To: news@taverner.cs.berkeley.edu
+NNTP-Posting-Date: Wed, 13 Sep 2006 01:17:48 +0000 (UTC)
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Originator: daw@taverner.cs.berkeley.edu (David Wagner)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 12, 2006 at 05:39:08PM -0700, Linus Torvalds wrote:
-> >  arch/i386/kernel/audit.c             |   51 ---------------------------
-> >  b/arch/i386/kernel/Makefile          |    1
-> >  b/arch/ia64/Kconfig                  |    4 ++
-> >  b/arch/powerpc/Kconfig               |    4 ++
-> >  b/arch/s390/Kconfig                  |    4 ++
-> >  b/arch/sparc64/Kconfig               |    4 ++
-> >  b/arch/sparc64/kernel/Makefile       |    3 +
-> >  b/arch/sparc64/kernel/audit.c        |   66 +++++++++++++++++++++++++++++++++++
-> >  b/arch/sparc64/kernel/compat_audit.c |   37 +++++++++++++++++++
-> >  b/arch/x86_64/Kconfig                |    4 ++
-> >  b/lib/Kconfig                        |    5 ++
-> >  b/lib/Makefile                       |    1
-> >  b/lib/audit.c                        |   53 ++++++++++++++++++++++++++++
-> >  13 files changed, 185 insertions(+), 52 deletions(-)
-> 
-> Btw, if you do "git diff --stat --summary -M", you'd have gotten
-> 
->  arch/i386/kernel/Makefile          |    1 -
->  arch/ia64/Kconfig                  |    4 ++
->  arch/powerpc/Kconfig               |    4 ++
->  arch/s390/Kconfig                  |    4 ++
->  arch/sparc64/Kconfig               |    4 ++
->  arch/sparc64/kernel/Makefile       |    3 ++
->  arch/sparc64/kernel/audit.c        |   66 ++++++++++++++++++++++++++++++++++++
->  arch/sparc64/kernel/compat_audit.c |   37 ++++++++++++++++++++
->  arch/x86_64/Kconfig                |    4 ++
->  lib/Kconfig                        |    5 +++
->  lib/Makefile                       |    1 +
->  {arch/i386/kernel => lib}/audit.c  |    2 +
->  12 files changed, 134 insertions(+), 1 deletions(-)
->  create mode 100644 arch/sparc64/kernel/audit.c
->  create mode 100644 arch/sparc64/kernel/compat_audit.c
->  rename arch/i386/kernel/audit.c => lib/audit.c (97%)
-> 
-> instead, which is much nicer. It shows the rename, and the summary info 
-> also points out that some of the files were newly created.
+Rene Scharfe  wrote:
+>[details on how GNU tar works, snipped]
 
-I see...  FWIW, I'd been using git diff fed through diffstat(1) for that
-part.  Thanks, that's indeed much better.
+Again, you miss my point.  I already know how tar works, but that's not
+my point.  Why is it that people are so unwilling to address the real
+issue here?  Let's try a few facts:
 
-ObMIPS: how many ABI do we have there, anyway?  4 + IRIX compat?  More?
+    (a) The Linux kernel tar archive contains files with world-writeable
+    permissions.
+
+    (b) There is no need for those files to have world-writeable
+    permissions.  It doesn't serve any particular purpose.  If the
+    permissions in the tar archive were changed to be not world-writeable,
+    no harm would be done.
+
+    (c) Some users may get screwed over by virtue of the fact that those
+    files are listed in the tar archive with world-writeable permissions.
+    (Sure, if every user was an expert on "tar" and on security, then
+    maybe no one would get screwed over.  But in the real world, that's
+    not the case.)
+
+    (d) Consequently, the format of the Linux kernel tar archive is
+    exposing some users to unnecessary riskis.
+
+    (e) The Linux kernel folks could take a quick and easy step that
+    would eliminate this risk.  That step would involve storing the
+    files in the tar archive with permissions that were more reasonable
+    (not world-writeable would be a good start!).  This step wouldn't
+    hurt anyone.  There's no downside.
+
+    (f) Yet the Linux kernel folks refuse to take this step, and any
+    time someone mentions that there is something the Linux kernel folks
+    could do about the problem, someone tries to change the topic to
+    something else (e.g., complaints about bugs in GNU tar, suggestions
+    that the user should invoke tar with some other option, claims that
+    this question has been addressed before, you name it).
+
+So why is it that the tar archive is structured this way?  Why are
+the Linux kernel folks unnecessarily exposing their users to risk?
+What purpose, exactly, does it serve to have these files stored with
+world-writeable permissions?
+
+Folks on the Linux kernel mailing list seem to be reluctant to admit these
+facts forthrightly.  The posts I've seen mostly seem to have little or
+no sympathy for users who get screwed over.  The attitude seems to be:
+if you get screwed over, it's your fault and your problem.  Why is that?
+If there is a simple step that Linux developers can take to eliminate
+this risk, why is there such reluctance to take it, and why is there
+such eagerness to point the finger at someone else?
+
+The way I see it, storing files in a tar archive with world-writeable
+permissions is senseless.  Why do such a strange thing on purpose?
+
+It all seems thoroughly mysterious to me.

@@ -1,65 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750788AbWIMRF2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750836AbWIMRqa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750788AbWIMRF2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Sep 2006 13:05:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750793AbWIMRF2
+	id S1750836AbWIMRqa (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Sep 2006 13:46:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750839AbWIMRqa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Sep 2006 13:05:28 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:13490 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1750788AbWIMRF1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Sep 2006 13:05:27 -0400
-Message-ID: <45083A50.8030708@watson.ibm.com>
-Date: Wed, 13 Sep 2006 13:05:20 -0400
-From: Hubertus Franke <frankeh@watson.ibm.com>
-User-Agent: Mozilla Thunderbird 1.0.2 (Windows/20050317)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: schwidefsky@de.ibm.com
-CC: Rik van Riel <riel@redhat.com>, linux-kernel@vger.kernel.org,
-       virtualization@lists.osdl.org, akpm@osdl.org, nickpiggin@yahoo.com.au,
-       rhim@cc.gatech.edu
-Subject: Re: [patch 1/9] Guest page hinting: unused / free pages.
-References: <20060901110908.GB15684@skybase> <45073901.8020906@redhat.com>	 <45074BD0.3060400@watson.ibm.com>  <45075F09.5010708@redhat.com>	 <1158137786.2560.3.camel@localhost>  <4507F453.1040809@watson.ibm.com>	 <1158151535.2560.20.camel@localhost> <45080262.8050009@watson.ibm.com>	 <4508198E.10707@redhat.com> <1158159543.2560.29.camel@localhost>
-In-Reply-To: <1158159543.2560.29.camel@localhost>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 13 Sep 2006 13:46:30 -0400
+Received: from amsfep17-int.chello.nl ([213.46.243.15]:61881 "EHLO
+	amsfep12-int.chello.nl") by vger.kernel.org with ESMTP
+	id S1750836AbWIMRq3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Sep 2006 13:46:29 -0400
+Message-Id: <20060913174650.432175000@chello.nl>
+References: <20060913174312.528491000@chello.nl>
+User-Agent: quilt/0.45-1
+Date: Wed, 13 Sep 2006 19:43:14 +0200
+From: Peter Zijlstra <a.p.zijlstra@chello.nl>
+To: linux-kernel@vger.kernel.org
+Cc: Neil Brown <neilb@cse.unsw.edu.au>, Ingo Molnar <mingo@elte.hu>,
+       Arjan van de Ven <arjan@linux.intel.com>, Andrew Morton <akpm@osdl.org>,
+       Jason Baron <jbaron@redhat.com>,
+       Peter Zijlstra <a.p.zijlstra@chello.nl>
+Subject: [PATCH 2/2] new bd_mutex lockdep annotation
+Content-Disposition: inline; filename=new_block_annotation.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin Schwidefsky wrote:
-> On Wed, 2006-09-13 at 10:45 -0400, Rik van Riel wrote:
-> 
->>>But another trouble you have not mentioned is what happens to pages
->>>with pending make-volatile that need to and/or have been made stable
->>>in the meantime. They too need to be removed from this pending list.
->>
->>At the time where you walk the set of pages (pagevec?) to make
->>volatile, you can check whether the page flags are still right.
-> 
-> 
-> A make volatile can be done anytime as long as the page is in page
-> cache. Before a page can be made stable the caller needs to make sure
-> that one of the conditions that prevent a make volatile becomes true.
-> So a page in the pending make-volatile array does not have to be removed
-> because a make stable has been done. It only has to be removed if it
-> gets freed.
-> 
-> 
->>A page that was set to be marked volatile with the hypervisor,
->>but later turned stable again would have that indicated in its
->>page flags, right?
-> 
-> 
-> Several page flag bits and some other conditions like "has a mapping"
-> and "reference count is map count + 1". Most of the checks that need to
-> be done for make volatile are on page flags.
-> 
+Use the gendisk partition number to set a lock class.
 
-Interesting..
-But don't we have to do some locking on the page to avoid race conditions?
-A page needs to be consistent between check through __page_discardable and
-committing to the hypervisor. We could raise the PG_state_change flag for
-that period.
+Signed-off-by: Peter Zijlstra <a.p.zijlstra@chello.nl>
+Cc: Neil Brown <neilb@cse.unsw.edu.au>
+Cc: Ingo Molnar <mingo@elte.hu>
+Cc: Arjan van de Ven <arjan@linux.intel.com>
+Cc: Andrew Morton <akpm@osdl.org>
+Cc: Jason Baron <jbaron@redhat.com>
+---
+ fs/block_dev.c |    9 +++++++++
+ 1 file changed, 9 insertions(+)
 
+Index: linux-2.6-mm/fs/block_dev.c
+===================================================================
+--- linux-2.6-mm.orig/fs/block_dev.c
++++ linux-2.6-mm/fs/block_dev.c
+@@ -357,10 +357,14 @@ static int bdev_set(struct inode *inode,
+ 
+ static LIST_HEAD(all_bdevs);
+ 
++static struct lock_class_key bdev_part_lock_key;
++
+ struct block_device *bdget(dev_t dev)
+ {
+ 	struct block_device *bdev;
+ 	struct inode *inode;
++	struct gendisk *disk;
++	int part = 0;
+ 
+ 	inode = iget5_locked(bd_mnt->mnt_sb, hash(dev),
+ 			bdev_test, bdev_set, &dev);
+@@ -386,6 +390,11 @@ struct block_device *bdget(dev_t dev)
+ 		list_add(&bdev->bd_list, &all_bdevs);
+ 		spin_unlock(&bdev_lock);
+ 		unlock_new_inode(inode);
++		mutex_init(&bdev->bd_mutex);
++		disk = get_gendisk(dev, &part);
++		if (part)
++			lockdep_set_class(&bdev->bd_mutex, &bdev_part_lock_key);
++		put_disk(disk);
+ 	}
+ 	return bdev;
+ }
+
+--
 

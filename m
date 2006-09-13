@@ -1,36 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750877AbWIMOkj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750884AbWIMOlq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750877AbWIMOkj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Sep 2006 10:40:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750883AbWIMOki
+	id S1750884AbWIMOlq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Sep 2006 10:41:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750888AbWIMOlq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Sep 2006 10:40:38 -0400
-Received: from mailout10.sul.t-online.com ([194.25.134.21]:16540 "EHLO
-	mailout10.sul.t-online.com") by vger.kernel.org with ESMTP
-	id S1750867AbWIMOki convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Sep 2006 10:40:38 -0400
+	Wed, 13 Sep 2006 10:41:46 -0400
+Received: from wx-out-0506.google.com ([66.249.82.225]:47519 "EHLO
+	wx-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1750884AbWIMOlp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Sep 2006 10:41:45 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=tEWl1pS6qFKBYPRbLQKFWgzoO7I9sUDwUZ+PtHswiCl52jVatRjmp61KXwrkF6ZAK6WwK5MwqSAp+ner6XZzntwY2r3tRCZCYmFGoEpiDCEEwF/yIO1RkW6x1qgHoFf0zHZ4pfKmISI94smfJgB03sFH1bsml7Jpab/6OnNsbl8=
+Message-ID: <450818A2.30402@gmail.com>
+Date: Wed, 13 Sep 2006 23:41:38 +0900
+From: Tejun Heo <htejun@gmail.com>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060812)
 MIME-Version: 1.0
-Subject: Error binding socket: address already in use
-From: pledr@t-online.de (Peter Lezoch)
-To: <linux-kernel@vger.kernel.org>
-X-Mailer: T-Online eMail 6.01.0001
-Content-Type: Text/Plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Date: 13 Sep 2006 14:41 GMT
-X-Antivirus: avast! (VPS 0637-0, 11.09.2006), Outbound message
-X-Antivirus-Status: Clean
-Message-ID: <1GNVuW-02KMfw0@fwd29.sul.t-online.de>
-X-ID: G-XcAMZd8eE70slYitdw5N0JchPwlF-9jEsRnEBggIiQGsRvXqrGEp
-X-TOI-MSGID: df1a499a-4ee4-4456-bfe5-59ca787ba37c
+To: Keith Owens <kaos@ocs.com.au>
+CC: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Jeff Garzik <jeff@garzik.org>
+Subject: Re: Linux v2.6.18-rc5
+References: <15740.1157524923@ocs3.ocs.com.au>
+In-Reply-To: <15740.1157524923@ocs3.ocs.com.au>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Keith Owens wrote:
+> Tejun Heo (on Sun, 03 Sep 2006 15:10:44 +0900) wrote:
+>> Hmm... Can you try the attached patch and see what happens?  ATM, I'm on 
+>> the road and can't test the patch, so it's only compile-tested.  This 
+>> patch basically reverts some of the effects of the following commit and 
+>> makes PCS update a little bit more aggressive iff necessary.
+>>
+>> ea35d29e2fa8b3d766a2ce8fbcce599dce8d2734
+>> [libata] ata_piix: Consolidate PCS register writing
+> 
+> I am also on the road, without access to the machines that had the ich5
+> and ich7 problems.  I will not be able to test the patch until about
+> September 18.
 
-Hi,
-killing a server task that is operating on a UDP socket( AF_INET, SOCK_DGRAM, IPPROTO_UDP ), leaves the socket in an unclosed state. A subsequently started task, that wants to use the same port, gets from bind above error message.This is, in my opinion, wrong behavior, because of the connectionless nature of UDP. Only reboot solves this situation. It looks, as if in net/socket.c, TCP and UDP are handled in the same way without taking into account the different nature of the protocols?!
-How can I overcome this problem ?
+It seems my box can't reproduce your condition.  I did ~50 soft reboots 
+but PCS always correctly detects devices.  I'll wait for your test result.
 
-kind regards
+Thanks.
 
-peter lezoch
+-- 
+tejun

@@ -1,71 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750961AbWIMPpO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750969AbWIMPqy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750961AbWIMPpO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Sep 2006 11:45:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750959AbWIMPpO
+	id S1750969AbWIMPqy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Sep 2006 11:46:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750970AbWIMPqy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Sep 2006 11:45:14 -0400
-Received: from xenotime.net ([66.160.160.81]:10159 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1750960AbWIMPpM (ORCPT
+	Wed, 13 Sep 2006 11:46:54 -0400
+Received: from xsmtp1.ethz.ch ([82.130.70.13]:29611 "EHLO xsmtp1.ethz.ch")
+	by vger.kernel.org with ESMTP id S1750968AbWIMPqy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Sep 2006 11:45:12 -0400
-Date: Wed, 13 Sep 2006 08:46:19 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: Kirill Korotaev <dev@sw.ru>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Fernando Vazquez <fernando@oss.ntt.co.jp>,
-       "David S. Miller" <davem@davemloft.net>, tony.luck@intel.com,
-       linux-ia64@vger.kernel.org, stable@kernel.org, xemul@openvz.org,
-       devel@openvz.org
-Subject: Re: [PATCH] IA64,sparc: local DoS with corrupted ELFs
-Message-Id: <20060913084619.05b5f04f.rdunlap@xenotime.net>
-In-Reply-To: <450195B2.8000004@sw.ru>
-References: <44FC193C.4080205@openvz.org>
-	<Pine.LNX.4.64.0609061120430.27779@g5.osdl.org>
-	<44FFF1A0.2060907@openvz.org>
-	<Pine.LNX.4.64.0609070816170.27779@g5.osdl.org>
-	<4501891D.5090607@sw.ru>
-	<Pine.LNX.4.64.0609080831530.27779@g5.osdl.org>
-	<450195B2.8000004@sw.ru>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 13 Sep 2006 11:46:54 -0400
+From: Benjamin Schindler <bschindler@student.ethz.ch>
+Organization: ETH =?iso-8859-1?q?Z=FCrich?=
+To: Lee Revell <rlrevell@joe-job.com>
+Subject: Re: Soft Lockup detected on cpu#0
+Date: Wed, 13 Sep 2006 17:45:29 +0200
+User-Agent: KMail/1.9.4
+Cc: linux-kernel@vger.kernel.org
+References: <4507B77F.1040907@student.ethz.ch> <1158157797.3768.26.camel@mindpipe>
+In-Reply-To: <1158157797.3768.26.camel@mindpipe>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart1181196.bL5rAi2RHm";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
+Message-Id: <200609131745.30082.bschindler@student.ethz.ch>
+X-OriginalArrivalTime: 13 Sep 2006 15:46:52.0812 (UTC) FILETIME=[D552A4C0:01C6D74B]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 08 Sep 2006 20:09:22 +0400 Kirill Korotaev wrote:
+--nextPart1181196.bL5rAi2RHm
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-> Linus Torvalds wrote:
-> > 
-> > On Fri, 8 Sep 2006, Kirill Korotaev wrote:
-> > 
-> >>I even checked the email myself and the only difference between "good"
-> >>patches and mine is that mine has "format=flowed" in
-> >>Content-Type: text/plain; charset=us-ascii; format=flowed
-> >>
-> >>It looks like some mailers replace TABs with spaces when format=flowed
-> >>is specified. So are you sure that the problem is in mozilla?
-> > 
-> > 
-> > Hey, what do you know? Good call. I can actually just "S"ave the message 
-> > to a file, and it is a perfectly fine patch. But when I view it in my mail 
-> > reader, your "format=flowed" means that it _shows_ it as being corrupted 
-> > (ie word wrapping and missing spaces at the beginning of lines).
-> Oh, I finally found how to tune Mozilla and fix it:
-> 
-> One need to edit defaults/pref/mailnews.js file to have:
-> pref("mailnews.send_plaintext_flowed", false); // RFC 2646=======
-> pref("mailnews.display.disable_format_flowed_support", true);
-> 
-> This makes Mozilla to send emails w/o "format=flowed".
-> 
-> Thanks a lot for your patience :)
+I will certainly try. (I'll use the default gentoo-patchset - I assume this=
+ is=20
+ok since others seem to use it as well). But the problem is hard to=20
+reproduce...
 
-Here is some (similar) info for thunderbird:
-  http://mbligh.org/linuxdocs/Email/Clients/Thunderbird
+Thanks
+Benjamin Schindler
+On Wednesday 13 September 2006 16:29, Lee Revell wrote:
+> On Wed, 2006-09-13 at 09:47 +0200, Benjamin Schindler wrote:
+> > EIP is at log_do_checkpoint+0xa0/0x134
+> >  EFLAGS: 00000202    Not tainted    (2.6.16/suspend2/r1 #4)
+>
+> Do you have the same problem without the suspend2 patch applied?
+>
+> Problems with out-of-tree patched kernels should be reported to the
+> maintainer of the patches.
+>
+> Lee
 
----
-~Randy
+--nextPart1181196.bL5rAi2RHm
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2.2 (GNU/Linux)
+
+iD8DBQBFCCeZIExHgErho7kRAsIvAJ9h4uUfTGQfkYx9rFSEl4T7l2KubgCfSkL/
+OeK33e4UUoSKUFsmzpyfDhU=
+=SdFV
+-----END PGP SIGNATURE-----
+
+--nextPart1181196.bL5rAi2RHm--

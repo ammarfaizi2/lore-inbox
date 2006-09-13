@@ -1,54 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751038AbWIMI4a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751025AbWIMJWT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751038AbWIMI4a (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Sep 2006 04:56:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751045AbWIMI4a
+	id S1751025AbWIMJWT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Sep 2006 05:22:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751036AbWIMJWT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Sep 2006 04:56:30 -0400
-Received: from mtagate5.de.ibm.com ([195.212.29.154]:54520 "EHLO
-	mtagate5.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1751036AbWIMI43 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Sep 2006 04:56:29 -0400
-Subject: Re: [patch 1/9] Guest page hinting: unused / free pages.
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Reply-To: schwidefsky@de.ibm.com
-To: Rik van Riel <riel@redhat.com>
-Cc: Hubertus Franke <frankeh@watson.ibm.com>, linux-kernel@vger.kernel.org,
-       virtualization@lists.osdl.org, akpm@osdl.org, nickpiggin@yahoo.com.au,
-       rhim@cc.gateh.edu
-In-Reply-To: <45075F09.5010708@redhat.com>
-References: <20060901110908.GB15684@skybase> <45073901.8020906@redhat.com>
-	 <45074BD0.3060400@watson.ibm.com>  <45075F09.5010708@redhat.com>
-Content-Type: text/plain
-Organization: IBM Corporation
-Date: Wed, 13 Sep 2006 10:56:26 +0200
-Message-Id: <1158137786.2560.3.camel@localhost>
+	Wed, 13 Sep 2006 05:22:19 -0400
+Received: from nat-132.atmel.no ([80.232.32.132]:1739 "EHLO relay.atmel.no")
+	by vger.kernel.org with ESMTP id S1751005AbWIMJWT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Sep 2006 05:22:19 -0400
+Date: Wed, 13 Sep 2006 11:23:27 +0200
+From: Haavard Skinnemoen <hskinnemoen@atmel.com>
+To: "Alon Bar-Lev" <alon.barlev@gmail.com>
+Cc: "Andrew Morton" <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 05/26] Dynamic kernel command-line - avr32 (resend with
+ signoff)
+Message-ID: <20060913112327.0d832f8c@cad-250-152.norway.atmel.com>
+In-Reply-To: <9e0cf0bf0609070921k7a96f9f7x1605a66745feef9f@mail.gmail.com>
+References: <200609040115.22856.alon.barlev@gmail.com>
+	<200609040118.06291.alon.barlev@gmail.com>
+	<20060907093111.1bf57c61@cad-250-152.norway.atmel.com>
+	<9e0cf0bf0609070921k7a96f9f7x1605a66745feef9f@mail.gmail.com>
+Organization: Atmel Norway
+X-Mailer: Sylpheed-Claws 2.5.0-rc2 (GTK+ 2.8.20; i486-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-09-12 at 21:29 -0400, Rik van Riel wrote:
-> Note that the transition _to_ volatile can also be batched
-> and done somewhat lazily.  For frequently mmaped pages that
-> could end up saving us the transition the other way, too...
+On Thu, 7 Sep 2006 19:21:17 +0300
+"Alon Bar-Lev" <alon.barlev@gmail.com> wrote:
 
-That would be helpful, only how to do it? We need some sort of list or
-array where to store the pages that should be made volatile. The main
-problem that I see is that you have to remove a page that is freed from
-the list/array again, otherwise you would end up with a non page-cache
-page being made volatile. That makes using per-cpu arrays hard since a
-page can be freed on another cpu.
+> On 9/7/06, Haavard Skinnemoen <hskinnemoen@atmel.com> wrote:
+>
+> > On Mon, 4 Sep 2006 01:18:04 +0300
+> > Alon Bar-Lev <alon.barlev@gmail.com> wrote:
+> >  
+> > >
+> > > 1. Rename saved_command_line into boot_command_line.
+> > > 2. Set command_line as __initdata.  
+> >
+> > I should probably start using that parse_early_param() stuff,
+> > though. I'll update this patch if I do.
 
--- 
-blue skies,
-  Martin.
+The patch "AVR32: Use parse_early_param" does that. Here's an updated
+version of your patch that goes on top of that one.
 
-Martin Schwidefsky
-Linux for zSeries Development & Services
-IBM Deutschland Entwicklung GmbH
+Signed-off-by: Haavard Skinnemoen <hskinnemoen@atmel.com>
+---
+ arch/avr32/kernel/setup.c |    6 +++---
+ 1 file changed, 3 insertions(+), 3 deletions(-)
 
-"Reality continues to ruin my life." - Calvin.
-
-
+Index: linux-2.6.18-rc5-mm1/arch/avr32/kernel/setup.c
+===================================================================
+--- linux-2.6.18-rc5-mm1.orig/arch/avr32/kernel/setup.c	2006-09-07 10:05:07.000000000 +0200
++++ linux-2.6.18-rc5-mm1/arch/avr32/kernel/setup.c	2006-09-07 10:30:00.000000000 +0200
+@@ -44,7 +44,7 @@ struct avr32_cpuinfo boot_cpu_data = {
+ };
+ EXPORT_SYMBOL(boot_cpu_data);
+ 
+-static char command_line[COMMAND_LINE_SIZE];
++static char __initdata command_line[COMMAND_LINE_SIZE];
+ 
+ /*
+  * Should be more than enough, but if you have a _really_ complex
+@@ -202,7 +202,7 @@ __tagtable(ATAG_MEM, parse_tag_mem);
+ 
+ static int __init parse_tag_cmdline(struct tag *tag)
+ {
+-	strlcpy(saved_command_line, tag->u.cmdline.cmdline, COMMAND_LINE_SIZE);
++	strlcpy(boot_command_line, tag->u.cmdline.cmdline, COMMAND_LINE_SIZE);
+ 	return 0;
+ }
+ __tagtable(ATAG_CMDLINE, parse_tag_cmdline);
+@@ -317,7 +317,7 @@ void __init setup_arch (char **cmdline_p
+ 	init_mm.end_data = (unsigned long) &_edata;
+ 	init_mm.brk = (unsigned long) &_end;
+ 
+-	strlcpy(command_line, saved_command_line, COMMAND_LINE_SIZE);
++	strlcpy(command_line, boot_command_line, COMMAND_LINE_SIZE);
+ 	*cmdline_p = command_line;
+ 	parse_early_param();
+ 

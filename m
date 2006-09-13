@@ -1,113 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751037AbWIMTzN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751154AbWIMT6U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751037AbWIMTzN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Sep 2006 15:55:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751015AbWIMTzN
+	id S1751154AbWIMT6U (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Sep 2006 15:58:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751158AbWIMT6U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Sep 2006 15:55:13 -0400
-Received: from odyssey.analogic.com ([204.178.40.5]:40197 "EHLO
-	odyssey.analogic.com") by vger.kernel.org with ESMTP
-	id S1751154AbWIMTzL convert rfc822-to-8bit (ORCPT
+	Wed, 13 Sep 2006 15:58:20 -0400
+Received: from 1wt.eu ([62.212.114.60]:39186 "EHLO 1wt.eu")
+	by vger.kernel.org with ESMTP id S1751154AbWIMT6T (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Sep 2006 15:55:11 -0400
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-X-OriginalArrivalTime: 13 Sep 2006 19:55:05.0355 (UTC) FILETIME=[81F85DB0:01C6D76E]
-Content-class: urn:content-classes:message
-Subject: Re: Assignment of GDT entries
-Date: Wed, 13 Sep 2006 15:55:00 -0400
-Message-ID: <Pine.LNX.4.61.0609131523390.28091@chaos.analogic.com>
-In-Reply-To: <450854F3.20603@goop.org>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Assignment of GDT entries
-thread-index: AcbXboIE1DOT6hHSRD+M2ztf+niHGg==
-References: <450854F3.20603@goop.org>
-From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-To: "Jeremy Fitzhardinge" <jeremy@goop.org>
-Cc: "Linus Torvalds" <torvalds@osdl.org>, "Ingo Molnar" <mingo@elte.hu>,
-       "Andi Kleen" <ak@suse.de>, "Eric W. Biederman" <ebiederm@xmission.com>,
-       "Arjan van de Ven" <arjan@infradead.org>,
-       "Zachary Amsden" <zach@vmware.com>,
-       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
-       "Michael A Fetterman" <Michael.Fetterman@cl.cam.ac.uk>
-Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+	Wed, 13 Sep 2006 15:58:19 -0400
+Date: Wed, 13 Sep 2006 21:49:14 +0200
+From: Willy Tarreau <w@1wt.eu>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Cc: Kyle Moffett <mrmacman_g4@mac.com>, David Wagner <daw@cs.berkeley.edu>,
+       linux-kernel@vger.kernel.org
+Subject: Re: R: Linux kernel source archive vulnerable
+Message-ID: <20060913194914.GI541@1wt.eu>
+References: <20060907182304.GA10686@danisch.de> <45073B2B.4090906@lsrfire.ath.cx> <ee7m7r$6qr$1@taverner.cs.berkeley.edu> <20060913043319.GH541@1wt.eu> <ee8589$e70$1@taverner.cs.berkeley.edu> <1BB4231A-7D69-4A77-A050-1C633BDFA545@mac.com> <Pine.LNX.4.61.0609130823430.17906@yvahk01.tjqt.qr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0609130823430.17906@yvahk01.tjqt.qr>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, Sep 13, 2006 at 08:26:57AM +0200, Jan Engelhardt wrote:
+> >> 
+> >> Ahh, thanks for the explanation.  That's helpful.
+> >> 
+> >> So it sounds like git-tar-tree has a bug; its default isn't setting
+> >> meaningful permissions on the files that it puts into the tar archive.
+> >> I hope the maintainers of git-tar-tree will consider fixing this bug.
+> >
+> > Let me reiterate:  This is not a bug!
+> >
+> > Here are a few facts:
+> >
+> > 4)  When I run "tar -xvf foo.tar" as a normal user, the "tar" command uses
+> > permissions from the archive for new files, which are modified by my umask
+> > before hitting the FS.
+> >
+> > 5)  Do you see the pattern here?
+> >
+> > Now when I run that tar command as root, for some reason they assume that just
+> > because my UID is 0 I want to try to ignore my umask while extracting my
+> > j_random.tar file.  How does this follow from the behavior of any other
+> > programs mentioned above?
+> 
+> > The program "git-tar-tree" has no bug.  It creates the tar archive such that
+> > when extracted as a normal user the users' umask is applied exactly as for
+> > every other standard program.  If anything the "bug" is in tar assuming that
+> > every archive file extracted as UID 0 is a backup, or in the admin assuming
+> > that tar doesn't behave differently when run as UID 0.
+> 
+> The 'complaint' made is that while the tar archive is created, 0666 gets
+> written into it.
 
-On Wed, 13 Sep 2006, Jeremy Fitzhardinge wrote:
+Let me repeat it : git-tar-tree can use a umask to set something different.
 
-> What's the rationale for the current assignment of GDT entries?  In
-> particular, this section:
->
-> *   0 - null
-> *   1 - reserved
-> *   2 - reserved
-> *   3 - reserved
-> *
-> *   4 - unused			<==== new cacheline
-> *   5 - unused
-> *
-> *  ------- start of TLS (Thread-Local Storage) segments:
-> *
-> *   6 - TLS segment #1			[ glibc's TLS segment ]
-> *   7 - TLS segment #2			[ Wine's %fs Win32 segment ]
-> *   8 - TLS segment #3
-> *   9 - reserved
-> *  10 - reserved
-> *  11 - reserved
->
->
-> What are entries 1-3 and 9-11 reserved for?  Must they be unused for
-> some reason, or is there some proposed use that has not been impemented yet?
->
+> However, most software projects out there always make sure
+> that files are 0644 before tar -cvf'ing their tree.
 
-In the ix86, the first descriptor in the GDT is not used. The are
-TWO 32-bits words for each GDT entry. The GDT numbers are the offset from
-the first, so they are numbered as offsets, there are multiplied by
-8, the size of a GDT, by the processor when they are used to set segment
-registers. This table is only accessed by the CPU when the LGDT
-instruction in executed. When a segment register is set, the invisible
-part of the segment, the top 16 bits, contains the information extracted
-from the GDT, so no further access is necessary. This means that
-it has nothing to do with cache-lines.
+The real problem IMHO is that many people got used for 10 years to receive
+kernels packaged by user 'linus' with perms 0644, and suddenly their
+(discutable) habits are considerably upset because of what initially was
+a limitation in the tool, which was argumented as a feature and might not
+change anytime now.
 
-The entries 1 through 3 are used during the boot sequence, see
-setup.S, search for "gdt" around line 983.
+Moral of the story : do not ever try to convince Linus he's wrong
+when you disagree with him, because the argument he will give you
+will quickly become desired features :-)
 
-> Also, is there a particular reason kernel GDT entries start at 12?
-> Would there be a problem in using either 4 or 5 for a kernel GDT descriptor?
->
-> I'm asking because I'd like to use one of these entries for the PDA
-> descriptor, so that it is on the same cache line as the TLS
-> descriptors.  That way, the entry/exit segment register reloads would
-> still only need to touch two GDT cache lines.  Would there be a real
-> problem in doing this?
->
+> Jan Engelhardt
 
-You can add other GDT entries up to 8192 if you want. If you set the
-base, limit, type, etc., to something that's different than the
-kernel DS, SS, CS, etc., then you need to reload the segment registers
-and if the base is different, the code offset will be WRONG so you
-will need to tell the linker the new relocation information.
+Regards,
+Willy
 
-I can't imagine a reason why you'd want to do this.
-
-> Thanks,
->    J
->
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.16.24 on an i686 machine (5592.66 BogoMips).
-New book: http://www.AbominableFirebug.com/
-_
-
-
-****************************************************************
-The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
-
-Thank you.

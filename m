@@ -1,57 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751634AbWIMGzy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751642AbWIMG7t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751634AbWIMGzy (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Sep 2006 02:55:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751624AbWIMGzy
+	id S1751642AbWIMG7t (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Sep 2006 02:59:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751644AbWIMG7t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Sep 2006 02:55:54 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:56020 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751121AbWIMGzy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Sep 2006 02:55:54 -0400
-Subject: Re: OT: calling kernel syscall manually
-From: David Woodhouse <dwmw2@infradead.org>
-To: Albert Cahalan <acahalan@gmail.com>
-Cc: guest01@gmail.com, linux-kernel@vger.kernel.org
-In-Reply-To: <787b0d920609122235j57ac327ckcc8d08832fb3989c@mail.gmail.com>
-References: <787b0d920609122235j57ac327ckcc8d08832fb3989c@mail.gmail.com>
-Content-Type: text/plain
-Date: Wed, 13 Sep 2006 07:55:30 +0100
-Message-Id: <1158130530.18619.156.camel@pmac.infradead.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5.dwmw2.1) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Wed, 13 Sep 2006 02:59:49 -0400
+Received: from taverner.CS.Berkeley.EDU ([128.32.168.222]:35525 "EHLO
+	taverner.cs.berkeley.edu") by vger.kernel.org with ESMTP
+	id S1751642AbWIMG7s (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Sep 2006 02:59:48 -0400
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: daw@cs.berkeley.edu (David Wagner)
+Newsgroups: isaac.lists.linux-kernel
+Subject: Re: R: Linux kernel source archive vulnerable
+Date: Wed, 13 Sep 2006 06:59:31 +0000 (UTC)
+Organization: University of California, Berkeley
+Message-ID: <ee8a8j$gf7$1@taverner.cs.berkeley.edu>
+References: <20060907182304.GA10686@danisch.de> <1BB4231A-7D69-4A77-A050-1C633BDFA545@mac.com> <ee88af$fgo$1@taverner.cs.berkeley.edu> <B7C6636B-03E9-4D4C-AC0E-2898181F419B@mac.com>
+Reply-To: daw-usenet@taverner.cs.berkeley.edu (David Wagner)
+NNTP-Posting-Host: taverner.cs.berkeley.edu
+X-Trace: taverner.cs.berkeley.edu 1158130771 16871 128.32.168.222 (13 Sep 2006 06:59:31 GMT)
+X-Complaints-To: news@taverner.cs.berkeley.edu
+NNTP-Posting-Date: Wed, 13 Sep 2006 06:59:31 +0000 (UTC)
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Originator: daw@taverner.cs.berkeley.edu (David Wagner)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-09-13 at 01:35 -0400, Albert Cahalan wrote:
-> > The third one has always been broken on i386 for PIC code
-> 
-> No, I was just using it today in PIC i386 code.
-> The %ebx register gets pushed, the needed value
-> gets moved into %ebx, the int 0x80 is done, and
-> the %ebx register gets popped. Only a few odd
-> calls like clone() need something different.
+Kyle Moffett  wrote:
+>No, git-tar-tree is storing the desired permissions (0666 and 0777)  
+>in the tar archive.  This is not a bug, those are actually the  
+>permissions we want in the tar archive.
 
-That's a very recent change -- it was broken for years before that.
+Those may be the permissions *you* want, but they're not the permissions
+I suspect many users would prefer.  Take a look at any open-source
+project that ships tar archives of their source code.  Do they ship
+tarballs of their source code where all the files have 0666 permissions?
+Not in my experience.  That should tell you something.
 
-> > and was pointless anyway, since glibc provides this
-> > functionality. The kernel method has been removed from
-> > userspace visibility all architectures, and we plan to
-> > remove it entirely in 2.6.19 since it's not at all useful.
-> 
-> It's damn useful. Hint: Linux does not require glibc.
+Telling me that this is "by design" is not a very persuasive response
+when my claim is that the design is poorly chosen.
 
-Are you being deliberately obtuse or is it just a natural talent?
+>No, it is user-friendly.  This is like distributing programs who use  
+>open(..., 0666) when opening globally-readable files.
 
-Other C libraries also provide syscall() -- at least dietlibc and uClibc
-do.
+It's not the same.  There's a reason that most other open-source
+projects are careful not to distribute 0666 files in their tar archives.
 
-Kernel headers do not exist to provide a library of random crap for
-userspace to use.
- 
--- 
-dwmw2
+>o   Do *not* extract kernel trees as root
 
+I don't see anything unreasonable about extracting tarballs from a
+trusted source as root (unless, of course, the folks who put together
+the tarballs are malicious or careless or can't be trusted).
+
+I don't see any good justification for this other than that the
+maintainers of git-tar-tree can't be bothered to store more reasonable
+permissions in the tar archive.  It smells like a workaround that is
+designed to make the lives of the git-tar-tree programmers easier --
+but at the cost of making users lives a little harder.  That's what I
+mean when I said that this decision doesn't seem very user-friendly.

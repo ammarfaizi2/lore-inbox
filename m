@@ -1,53 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751032AbWINTD1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751031AbWINTDd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751032AbWINTD1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Sep 2006 15:03:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751033AbWINTD1
+	id S1751031AbWINTDd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Sep 2006 15:03:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751034AbWINTDd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Sep 2006 15:03:27 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:58528 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751031AbWINTD1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Sep 2006 15:03:27 -0400
-Subject: Re: [PATCH 0/3] Synaptics - fix lockdep warnings
-From: Arjan van de Ven <arjan@infradead.org>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Jiri Kosina <jikos@jikos.cz>, lkml <linux-kernel@vger.kernel.org>,
-       Ingo Molnar <mingo@elte.hu>
-In-Reply-To: <d120d5000609141156h5e06eb68k87a6fe072a701dab@mail.gmail.com>
-References: <Pine.LNX.4.64.0609140227500.22181@twin.jikos.cz>
-	 <Pine.LNX.4.64.0609141028540.22181@twin.jikos.cz>
-	 <d120d5000609140618h6e929883u2ed82d1cab677e57@mail.gmail.com>
-	 <Pine.LNX.4.64.0609141635040.2721@twin.jikos.cz>
-	 <d120d5000609140758w7ba5cfdbs399d6831082e7cb4@mail.gmail.com>
-	 <Pine.LNX.4.64.0609141700250.2721@twin.jikos.cz>
-	 <d120d5000609140851r2299c64cv8b0a365be795a1bc@mail.gmail.com>
-	 <Pine.LNX.4.64.0609141754480.2721@twin.jikos.cz>
-	 <d120d5000609140918j18d68a4dmd9d9e1e72d2fd718@mail.gmail.com>
-	 <Pine.LNX.4.64.0609142037110.2721@twin.jikos.cz>
-	 <d120d5000609141156h5e06eb68k87a6fe072a701dab@mail.gmail.com>
-Content-Type: text/plain
-Organization: Intel International BV
-Date: Thu, 14 Sep 2006 21:03:03 +0200
-Message-Id: <1158260584.4200.3.camel@laptopd505.fenrus.org>
+	Thu, 14 Sep 2006 15:03:33 -0400
+Received: from mailhost.terra.es ([213.4.149.12]:37199 "EHLO
+	csmtpout4.frontal.correo") by vger.kernel.org with ESMTP
+	id S1751031AbWINTDc convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Sep 2006 15:03:32 -0400
+Date: Thu, 14 Sep 2006 21:03:12 +0200 (added by postmaster@terra.es)
+From: grundig <grundig@teleline.es>
+To: "Martin J. Bligh" <mbligh@mbligh.org>
+Cc: mingo@elte.hu, mathieu.desnoyers@polymtl.ca, linux-kernel@vger.kernel.org,
+       hch@infradead.org, akpm@osdl.org, mingo@redhat.com, gregkh@suse.de,
+       tglx@linutronix.de, zanussi@us.ibm.com, ltt-dev@shafik.org,
+       michel.dagenais@polymtl.ca
+Subject: Re: [PATCH 0/11] LTTng-core (basic tracing infrastructure) 0.5.108
+Message-Id: <20060914210307.2cd10da4.grundig@teleline.es>
+In-Reply-To: <450971CB.6030601@mbligh.org>
+References: <20060914033826.GA2194@Krystal>
+	<20060914112718.GA7065@elte.hu>
+	<450971CB.6030601@mbligh.org>
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.20; i486-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+El Thu, 14 Sep 2006 08:14:19 -0700,
+"Martin J. Bligh" <mbligh@mbligh.org> escribió:
 
-> 
-> I think it is - as far as I understand the reason for not tracking
-> every lock individually is just that it is too expensive to do by
-> default.
+> 2. You can get zero overhead by CONFIG'ing things out.
 
-that is not correct. While it certainly plays a role, 
-the other reason is that you can find out "class" level locking rules
-(such as inode->i_mutex comes before <other lock>) for all inodes at a
-time; eg no need to see every inode do this before you can find the
-deadlock. 
+IOW, no distro will enable it by default to avoid the overhead,
+making it useless for lots of real-world working systems where
+you need to guess what's hapenning to software running real
+workloads that can't just be stopped.
 
+I guess there's no problem in having both LTT and Kprobes merged in 
+the main tree at the same time. But Kprobes + systemtap will get
+enabled and used by distros massively just because users can start
+using it inmediately, without recompiling or installing extra
+kernels and rebooting. There're cases where distros may want to
+enable automatic tracing in every boot and only on boot but that
+don't like to suffer from an extra performance hit after booting...
 
+I'm not meaning that LTT sucks and doesn't have advantages and that 
+doesn't deserve being merged/used, it just looks like kprobes+systemtap
+will get way more real-world users no matter how much you discuss here

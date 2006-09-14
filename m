@@ -1,75 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751287AbWINMrM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932070AbWINNCu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751287AbWINMrM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Sep 2006 08:47:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751290AbWINMrM
+	id S932070AbWINNCu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Sep 2006 09:02:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932071AbWINNCu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Sep 2006 08:47:12 -0400
-Received: from nf-out-0910.google.com ([64.233.182.188]:7578 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1751287AbWINMrM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Sep 2006 08:47:12 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=IBpwYuD5AIFQhMA33oYcynbaCgnM15XvEsRMp8licgnWT0CbSYgduM+akc2WScNfjdmWoPMpAWieNmY2UoHSyAH7VEGM/9emYkyUz1oOEuK28CAR+YKOFd2dQmyjc0v8LKi+XVd0oUMtDVwGSYhLzfM9utv51WX81TeSZWzlVbg=
-Message-ID: <a2ebde260609140547xff48956rcf610f208500b7d5@mail.gmail.com>
-Date: Thu, 14 Sep 2006 20:47:10 +0800
-From: "Dong Feng" <middle.fengdong@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Question on The Timer Interrupt Dispatch
-In-Reply-To: <a2ebde260609130826u12a82ffy2c71dd5ec7c4f6bd@mail.gmail.com>
+	Thu, 14 Sep 2006 09:02:50 -0400
+Received: from mailhub.sw.ru ([195.214.233.200]:63046 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S932070AbWINNCu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Sep 2006 09:02:50 -0400
+Message-ID: <450952F8.8080606@openvz.org>
+Date: Thu, 14 Sep 2006 17:02:48 +0400
+From: Pavel Emelianov <xemul@openvz.org>
+User-Agent: Thunderbird 1.5 (X11/20060317)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: balbir@in.ibm.com, sekharan@us.ibm.com, Srivatsa <vatsa@in.ibm.com>,
+       Kirill Korotaev <dev@sw.ru>
+CC: Rik van Riel <riel@redhat.com>,
+       CKRM-Tech <ckrm-tech@lists.sourceforge.net>,
+       Dave Hansen <haveblue@us.ibm.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andi Kleen <ak@suse.de>, Christoph Hellwig <hch@infradead.org>,
+       Andrey Savochkin <saw@sw.ru>, devel@openvz.org,
+       Matt Helsley <matthltc@us.ibm.com>, Hugh Dickins <hugh@veritas.com>,
+       Alexey Dobriyan <adobriyan@mail.ru>, Oleg Nesterov <oleg@tv-sign.ru>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [ckrm-tech] [PATCH] BC: resource beancounters (v4) (added	user
+ memory)
+References: <44FD918A.7050501@sw.ru>	<44FDAB81.5050608@in.ibm.com>		<44FEC7E4.7030708@sw.ru>	<44FF1EE4.3060005@in.ibm.com>		<1157580371.31893.36.camel@linuxchandra>	<45011CAC.2040502@openvz.org>		<1157730221.26324.52.camel@localhost.localdomain>		<4501B5F0.9050802@in.ibm.com> <450508BB.7020609@openvz.org>		<4505161E.1040401@in.ibm.com> <45051AC7.2000607@openvz.org>		<1158000590.6029.33.camel@linuxchandra>	<45069072.4010007@openvz.org>		<1158105488.4800.23.camel@linuxchandra>	<4507BC11.6080203@openvz.org>	<1158186664.18927.17.camel@linuxchandra> <45090A6E.1040206@openvz.org> <45090D9E.9000903@in.ibm.com>
+In-Reply-To: <45090D9E.9000903@in.ibm.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <a2ebde260609130826u12a82ffy2c71dd5ec7c4f6bd@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I am not sure whether this phenomena is an hardware-specific wired one
-or is a result of some design intent. I observed there is fixed delay
-since the init thread entered run_init_process() to the secondary CPU
-got the first tick, that is, around 7000 tick.
-
-If I add a sleep_on_timeout(), or a busy-loop before the
-run_init_process(), the delay period will not change. So I am confused
-because that seems something within the ram disk image trigger the
-first tick on the secondary CPU.
-
-Could anyone at least confirm whether this is any design intent?
-Thanks in advance.
-
-
-
-2006/9/13, Dong Feng <middle.fengdong@gmail.com>:
-> One question confuses me for quiet a while about the initialization of
-> the IO APIC.
+Balbir Singh wrote:
+> Pavel Emelianov wrote:
 >
-> For my understanding, in i386 architecture, the timer interrupts are
-> dispatched among every CPU in a roughly round-robin fashion
-> *immediately* (or reasonably short) after the IO APIC has been
-> initialized and a secondary CPU has enabled its local IRQ. Turning to
-> code, I suppose the first condition should be met by [init() ->
-> smp_prepare_cpus() -> smp_boot_cpus() -> smpboot_setup_io_apic() ->
-> setup_IO_APIC()], and the second condition should be met by [
-> start_secondary() -> local_irq_enable() ].
+>> I don't understand your idea. Limit does _not_ imply anything - it's
+>> just a limit.
+>> You may limit anything to anyone w/o bothering the consequences.
+>> Guarantee implies that the resource you guarantee will be available and
+>> this "will be" is something not that easy.
+>>
+>> So I repeat my question - how can you be sure that these X megabytes you
+>> guarantee to some group won't be used by others so that you won't be
+>> able
+>> to reclaim them?
+>>
+>>
 >
-> I tried to confirm my guess by tracing the initialization code
-> execution on my Dual-core laptop . However, I get very confusing
-> result. While both the conditions had just been met as described
-> above, CPU 0 has handled about 70 ticks (i.e. timer interrupt) and CPU
-> 1 has handled 0 tick. I expected CPU 1 would get its first timer
-> interrupt after few ticks. But the fact is that CPU 1 has not been
-> interrupted by timer until CPU 0 has handled over 7000 ticks. Since
-> CPU 1 gets the first interrupt, the subsequent timer interrupts are
-> distributed on both CPU roughly equally.
+> May be we can treat a guarantee as a soft guarantee. A soft
+> guarantee would imply that when a group needs its guaranteed
+> resources, the
+> system makes its best effort to make it available.
 >
-> I still can not find any explanation myself for the gap between my
-> presumption and the result from code tracing. According to the
-> presumption, CPU 1 should get the first interrupt while CPU 0 handles
-> 70 ticks, but CPU 1 does not until CPU 0 handles over 7000 ticks.
-> Could you please pointed out which part I missed in my understanding?
+> In soft guarantees, resources not actively used by a group can be
+> shared with
+> other groups.
 >
-> Thanks.
+> Hard guarantees would probably require reserving the resource in
+> advance and
+> sharing of the resources not used, with other groups, might not be
+> possible.
 >
+> Comments?
+>
+Reserving in advance means that sometimes you won't be able to start a
+new group without taking back some of reserved pages. This is ... strange.
+
+I think that a satisfactory solution now would be:
+ - limit unreclaimable memory during mmap() against soft limit to prevent
+   potential rejects during page faults;
+ - reclaim memory in case of hitting hard limit;
+ - guarantees are done via setting soft and hard limits as I've shown
+before.
+
+The question still open is wether or not to account fractions.
+I propose to skip fractions for a while and try to charge the page to
+it's first user.
+
+So final BC design is:
+1. three resources:
+       - kernel memory
+       - user unreclaimable memory
+       - user reclaimable memory
+2. unreclaimable memory is charged "in advance", reclaimable
+   is charged "on demand" with reclamation if needed
+3. each object (kernel one or user page) is charged to the
+   first user
+4. each resource controller declares it's own
+       - meaning of "limit" parameter (percent/size/bandwidth/etc)
+       - behaviour on changing limit (e.g. reclamation)
+       - behaviour on hitting the limit (e.g. reclamation)
+5. BC can be assigned to any task by pid (not just current)
+   without recharging currently charged resources.

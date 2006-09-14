@@ -1,103 +1,124 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750745AbWINU6n@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750891AbWINU7y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750745AbWINU6n (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Sep 2006 16:58:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750746AbWINU6n
+	id S1750891AbWINU7y (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Sep 2006 16:59:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750879AbWINU7y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Sep 2006 16:58:43 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:51382 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1750745AbWINU6m (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Sep 2006 16:58:42 -0400
-Date: Thu, 14 Sep 2006 21:58:34 +0100
-From: Alasdair G Kergon <agk@redhat.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>
-Subject: [PATCH RESEND] dm: support ioctls on mapped devices: fix with fake file
-Message-ID: <20060914205833.GH3928@agk.surrey.redhat.com>
-Mail-Followup-To: Alasdair G Kergon <agk@redhat.com>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-	Christoph Hellwig <hch@infradead.org>
-Mime-Version: 1.0
+	Thu, 14 Sep 2006 16:59:54 -0400
+Received: from sj-iport-6.cisco.com ([171.71.176.117]:40608 "EHLO
+	sj-iport-6.cisco.com") by vger.kernel.org with ESMTP
+	id S1750746AbWINU7x (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Sep 2006 16:59:53 -0400
+To: torvalds@osdl.org
+Cc: linux-kernel@vger.kernel.org, openib-general@openib.org
+Subject: [GIT PULL] please pull infiniband.git
+X-Message-Flag: Warning: May contain useful information
+From: Roland Dreier <rdreier@cisco.com>
+Date: Thu, 14 Sep 2006 13:59:48 -0700
+Message-ID: <adar6yeuptn.fsf@cisco.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+X-OriginalArrivalTime: 14 Sep 2006 20:59:48.0918 (UTC) FILETIME=[B72ACD60:01C6D840]
+Authentication-Results: sj-dkim-7.cisco.com; header.From=rdreier@cisco.com; dkim=pass (
+	sig from cisco.com verified; ); 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Milan Broz <mbroz@redhat.com>
+Linus, please pull from
 
-The new ioctl code passes the wrong file pointer to the underlying device.
-No file pointer is available so make a temporary fake one.
+    master.kernel.org:/pub/scm/linux/kernel/git/roland/infiniband.git for-linus
+
+This tree is also available from kernel.org mirrors at:
+
+    git://git.kernel.org/pub/scm/linux/kernel/git/roland/infiniband.git for-linus
+
+This contains a few last-minute fixes -- a couple of one-liners, and a
+panic fix that turns out to be pure deletions:
+
+Eli Cohen:
+      IPoIB: Retry failed send-only multicast group joins
+
+Ishai Rabinovitz:
+      IB/srp: Don't schedule reconnect from srp
+
+Michael S. Tsirkin:
+      RDMA/cma: Increase the IB CM retry count in CMA
+
+ drivers/infiniband/core/cma.c                  |    2 +-
+ drivers/infiniband/ulp/ipoib/ipoib_multicast.c |    1 +
+ drivers/infiniband/ulp/srp/ib_srp.c            |   14 --------------
+ 3 files changed, 2 insertions(+), 15 deletions(-)
 
 
-[Resending: ioctl_by_bdev() does set_fs(KERNEL_DS) so it's for ioctls
-originating within the kernel and unsuitable here.  We are processing ioctls
-that originated in userspace and mapping them to different devices.  Fixing
-the existing callers that pass a NULL file struct and consolidating the
-fake_file users are separate matters to solve in later patches.]
-
-
-Signed-off-by: Milan Broz <mbroz@redhat.com>
-Signed-off-by: Alasdair G Kergon <agk@redhat.com>
-
-Index: linux-2.6.17/drivers/md/dm-mpath.c
-===================================================================
---- linux-2.6.17.orig/drivers/md/dm-mpath.c	2006-06-23 19:17:27.000000000 +0100
-+++ linux-2.6.17/drivers/md/dm-mpath.c	2006-06-23 19:17:40.000000000 +0100
-@@ -1272,15 +1272,22 @@ static int multipath_ioctl(struct dm_tar
- 	struct multipath *m = (struct multipath *) ti->private;
- 	struct block_device *bdev = NULL;
- 	unsigned long flags;
-+	struct file fake_file = {};
-+	struct dentry fake_dentry = {};
- 	int r = 0;
+diff --git a/drivers/infiniband/core/cma.c b/drivers/infiniband/core/cma.c
+index d6f99d5..5d625a8 100644
+--- a/drivers/infiniband/core/cma.c
++++ b/drivers/infiniband/core/cma.c
+@@ -49,7 +49,7 @@ MODULE_DESCRIPTION("Generic RDMA CM Agen
+ MODULE_LICENSE("Dual BSD/GPL");
  
-+	fake_file.f_dentry = &fake_dentry;
-+
- 	spin_lock_irqsave(&m->lock, flags);
+ #define CMA_CM_RESPONSE_TIMEOUT 20
+-#define CMA_MAX_CM_RETRIES 3
++#define CMA_MAX_CM_RETRIES 15
  
- 	if (!m->current_pgpath)
- 		__choose_pgpath(m);
+ static void cma_add_one(struct ib_device *device);
+ static void cma_remove_one(struct ib_device *device);
+diff --git a/drivers/infiniband/ulp/ipoib/ipoib_multicast.c b/drivers/infiniband/ulp/ipoib/ipoib_multicast.c
+index b5e6a7b..ec356ce 100644
+--- a/drivers/infiniband/ulp/ipoib/ipoib_multicast.c
++++ b/drivers/infiniband/ulp/ipoib/ipoib_multicast.c
+@@ -326,6 +326,7 @@ ipoib_mcast_sendonly_join_complete(int s
  
--	if (m->current_pgpath)
-+	if (m->current_pgpath) {
- 		bdev = m->current_pgpath->path.dev->bdev;
-+		fake_dentry.d_inode = bdev->bd_inode;
-+		fake_file.f_mode = m->current_pgpath->path.dev->mode;
-+	}
+ 		/* Clear the busy flag so we try again */
+ 		clear_bit(IPOIB_MCAST_FLAG_BUSY, &mcast->flags);
++		mcast->query = NULL;
+ 	}
  
- 	if (m->queue_io)
- 		r = -EAGAIN;
-@@ -1289,8 +1296,8 @@ static int multipath_ioctl(struct dm_tar
- 
- 	spin_unlock_irqrestore(&m->lock, flags);
- 
--	return r ? : blkdev_driver_ioctl(bdev->bd_inode, filp, bdev->bd_disk,
--		     cmd, arg);
-+	return r ? : blkdev_driver_ioctl(bdev->bd_inode, &fake_file,
-+					 bdev->bd_disk, cmd, arg);
+ 	complete(&mcast->done);
+diff --git a/drivers/infiniband/ulp/srp/ib_srp.c b/drivers/infiniband/ulp/srp/ib_srp.c
+index 8257d5a..fd8344c 100644
+--- a/drivers/infiniband/ulp/srp/ib_srp.c
++++ b/drivers/infiniband/ulp/srp/ib_srp.c
+@@ -799,13 +799,6 @@ static void srp_process_rsp(struct srp_t
+ 	spin_unlock_irqrestore(target->scsi_host->host_lock, flags);
  }
  
- /*-----------------------------------------------------------------
-Index: linux-2.6.17/drivers/md/dm-linear.c
-===================================================================
---- linux-2.6.17.orig/drivers/md/dm-linear.c	2006-06-23 19:17:27.000000000 +0100
-+++ linux-2.6.17/drivers/md/dm-linear.c	2006-06-23 19:17:40.000000000 +0100
-@@ -104,8 +104,14 @@ static int linear_ioctl(struct dm_target
+-static void srp_reconnect_work(void *target_ptr)
+-{
+-	struct srp_target_port *target = target_ptr;
+-
+-	srp_reconnect_target(target);
+-}
+-
+ static void srp_handle_recv(struct srp_target_port *target, struct ib_wc *wc)
  {
- 	struct linear_c *lc = (struct linear_c *) ti->private;
- 	struct block_device *bdev = lc->dev->bdev;
-+	struct file fake_file = {};
-+	struct dentry fake_dentry = {};
+ 	struct srp_iu *iu;
+@@ -858,7 +851,6 @@ static void srp_completion(struct ib_cq 
+ {
+ 	struct srp_target_port *target = target_ptr;
+ 	struct ib_wc wc;
+-	unsigned long flags;
  
--	return blkdev_driver_ioctl(bdev->bd_inode, filp, bdev->bd_disk, cmd, arg);
-+	fake_file.f_mode = lc->dev->mode;
-+	fake_file.f_dentry = &fake_dentry;
-+	fake_dentry.d_inode = bdev->bd_inode;
-+
-+	return blkdev_driver_ioctl(bdev->bd_inode, &fake_file, bdev->bd_disk, cmd, arg);
- }
+ 	ib_req_notify_cq(cq, IB_CQ_NEXT_COMP);
+ 	while (ib_poll_cq(cq, 1, &wc) > 0) {
+@@ -866,10 +858,6 @@ static void srp_completion(struct ib_cq 
+ 			printk(KERN_ERR PFX "failed %s status %d\n",
+ 			       wc.wr_id & SRP_OP_RECV ? "receive" : "send",
+ 			       wc.status);
+-			spin_lock_irqsave(target->scsi_host->host_lock, flags);
+-			if (target->state == SRP_TARGET_LIVE)
+-				schedule_work(&target->work);
+-			spin_unlock_irqrestore(target->scsi_host->host_lock, flags);
+ 			break;
+ 		}
  
- static struct target_type linear_target = {
-
+@@ -1705,8 +1693,6 @@ static ssize_t srp_create_target(struct 
+ 	target->scsi_host  = target_host;
+ 	target->srp_host   = host;
+ 
+-	INIT_WORK(&target->work, srp_reconnect_work, target);
+-
+ 	INIT_LIST_HEAD(&target->free_reqs);
+ 	INIT_LIST_HEAD(&target->req_queue);
+ 	for (i = 0; i < SRP_SQ_SIZE; ++i) {

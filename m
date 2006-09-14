@@ -1,74 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750757AbWINPOe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750755AbWINPPO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750757AbWINPOe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Sep 2006 11:14:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750756AbWINPOe
+	id S1750755AbWINPPO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Sep 2006 11:15:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750758AbWINPPO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Sep 2006 11:14:34 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:3268 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1750749AbWINPOd (ORCPT
+	Thu, 14 Sep 2006 11:15:14 -0400
+Received: from dvhart.com ([64.146.134.43]:38369 "EHLO dvhart.com")
+	by vger.kernel.org with ESMTP id S1750755AbWINPPL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Sep 2006 11:14:33 -0400
-Message-ID: <450971D3.2040405@garzik.org>
-Date: Thu, 14 Sep 2006 11:14:27 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060808)
+	Thu, 14 Sep 2006 11:15:11 -0400
+Message-ID: <450971CB.6030601@mbligh.org>
+Date: Thu, 14 Sep 2006 08:14:19 -0700
+From: "Martin J. Bligh" <mbligh@mbligh.org>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060728)
 MIME-Version: 1.0
-To: "Darrick J. Wong" <djwong@us.ibm.com>
-CC: linux-scsi <linux-scsi@vger.kernel.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Alexis Bruemmer <alexisb@us.ibm.com>,
-       Mike Anderson <andmike@us.ibm.com>
-Subject: Re: [PATCH] libsas: move ATA bits into a separate module
-References: <4508A0A2.2080605@us.ibm.com>
-In-Reply-To: <4508A0A2.2080605@us.ibm.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
+       linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
+       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@redhat.com>,
+       Greg Kroah-Hartman <gregkh@suse.de>,
+       Thomas Gleixner <tglx@linutronix.de>, Tom Zanussi <zanussi@us.ibm.com>,
+       ltt-dev@shafik.org, Michel Dagenais <michel.dagenais@polymtl.ca>
+Subject: Re: [PATCH 0/11] LTTng-core (basic tracing infrastructure) 0.5.108
+References: <20060914033826.GA2194@Krystal> <20060914112718.GA7065@elte.hu>
+In-Reply-To: <20060914112718.GA7065@elte.hu>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.3 (----)
-X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Darrick J. Wong wrote:
-> Hi all,
+Ingo Molnar wrote:
+> * Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca> wrote:
 > 
-> Per James Bottomley's request, I've moved all the libsas SATA support
-> code into a separate module, named sas_ata.  To satisfy his further
-> requirement that libsas not require libata (and vice versa), ata_sas
-> maintains fixed function pointer tables to various required functions
-> within libsas and libata.  Unfortunately, this means that libsas and
-> libata both require sas_ata, but sas_ata is smaller than libata.
-> Unloads of libata/libsas at inopportune moments are prevented by
-> increasing the refcounts on both modules whenever libsas detects a SATA
-> device (and decreasing it when the device goes away, of course).  If the
-> module is removed from the .config, then all of hooks into libsas/libata
-> should go away.
+>> Following an advice Christoph gave me this summer, submitting a 
+>> smaller, easier to review patch should make everybody happier. Here is 
+>> a stripped down version of LTTng : I removed everything that would 
+>> make the code review reluctant (especially kernel instrumentation and 
+>> kernel state dump module). I plan to release this "core" version every 
+>> few LTTng releases and post it to LKML.
+>>
+>> Comments and reviews are very welcome.
 > 
-> This is a rough-cut at separating out the ATA code; please let me know
-> what I can improve.  At the moment, I can load and talk to SATA disks
-> with the module enabled, as well as watch nothing happen if the module
-> is not config'd in.
-> 
-> The patch is a bit large, so here's where it lives:
-> http://sweaglesw.net/~djwong/docs/sas-ata_2.patch
+> i have one very fundamental question: why should we do this 
+> source-intrusive method of adding tracepoints instead of the dynamic, 
+> unintrusive (and thus zero-overhead) KProbes+SystemTap method?
 
-I disagree completely with this approach.
+Because:
 
-You don't need a table of hooks for the case where libata is disabled in 
-.config.  Thus, it's only useful for the case where libsas is loaded as 
-a module, but libata is not.
-
-And the cost of having libata loaded via the normal symbol resolution / 
-module load mechanisms is low, so adding a table of hooks completely 
-wrapping libata functions is just silly.
-
-The libsas code should directly call libata functions.  If ATA support 
-in libsas is disabled in .config, then those functions will never be 
-called, thus never loaded the libata module.
-
-	Jeff
+1. Kprobes are more overhead when they *are* being used.
+2. You can get zero overhead by CONFIG'ing things out.
+3. (most importantly) it's a bitch to maintain tracepoints out
+    of-tree on a rapidly moving kernel
+4. I believe kprobes still doesn't have full access to local variables.
 
 
+Now (3) is possibly solvable by putting the points in as no-ops (either
+insert a few nops or just a marker entry in the symbol table?), but full
+dynamic just isn't sustainable. What would be really nice is one trace
+infrastructure, that allowed both static and dynamic tracepoints without
+all the awk-style language crap that seems to come with systemtap.
 
-
+M.

@@ -1,318 +1,2745 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750758AbWINRJI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750771AbWINRLx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750758AbWINRJI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Sep 2006 13:09:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750759AbWINRJI
+	id S1750771AbWINRLx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Sep 2006 13:11:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750775AbWINRLx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Sep 2006 13:09:08 -0400
-Received: from ogre.sisk.pl ([217.79.144.158]:29401 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S1750758AbWINRJF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Sep 2006 13:09:05 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Alan Stern <stern@rowland.harvard.edu>
-Subject: Re: [linux-usb-devel] 2.6.18-rc6-mm1 (-mm2): ohci resume problem
-Date: Thu, 14 Sep 2006 19:08:15 +0200
-User-Agent: KMail/1.9.1
-Cc: Andrew Morton <akpm@osdl.org>, Mattia Dongili <malattia@linux.it>,
-       Robert Hancock <hancockr@shaw.ca>,
-       Kernel development list <linux-kernel@vger.kernel.org>,
-       USB development list <linux-usb-devel@lists.sourceforge.net>
-References: <Pine.LNX.4.44L0.0609141202300.5715-100000@iolanthe.rowland.org>
-In-Reply-To: <Pine.LNX.4.44L0.0609141202300.5715-100000@iolanthe.rowland.org>
+	Thu, 14 Sep 2006 13:11:53 -0400
+Received: from nz-out-0102.google.com ([64.233.162.206]:45941 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1750771AbWINRLu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Sep 2006 13:11:50 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=dZPoSAFUh+DK6dosqNWIOR00lyoXhSNlqxW2HSMeiT0Pc5tZSIKlQjIiJDYJ101WPwpFG4lcJy3Qnket7rRHqYMqcmshSvEGP83h6rQ7ud6G4BsezFcxQRlnD1e7zZn5efcz+XiSVxrwNiE/RKmxEzwtBfyuIoT3Rt4Tn+8tEl4=
+Message-ID: <b324b5ad0609141011h9eae8d7re0da11fffa7ab859@mail.gmail.com>
+Date: Thu, 14 Sep 2006 10:11:49 -0700
+From: "David Singleton" <daviado@gmail.com>
+To: "Greg KH" <greg@kroah.com>
+Subject: Re: OpPoint summary
+Cc: linux-pm@lists.osdl.org, "kernel list" <linux-kernel@vger.kernel.org>
+In-Reply-To: <20060914055529.GA18031@kroah.com>
 MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_/xYCFjhIf1U029o"
-Message-Id: <200609141908.15991.rjw@sisk.pl>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <20060911082025.GD1898@elf.ucw.cz>
+	 <20060911195546.GB11901@elf.ucw.cz> <4505CCDA.8020501@gmail.com>
+	 <20060911210026.GG11901@elf.ucw.cz> <4505DDA6.8080603@gmail.com>
+	 <20060911225617.GB13474@elf.ucw.cz>
+	 <20060912001701.GC14234@linux.intel.com>
+	 <20060912033700.GD27397@kroah.com>
+	 <b324b5ad0609131650q1b7a78cfsa90e3fbe8d7b4093@mail.gmail.com>
+	 <20060914055529.GA18031@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Boundary-00=_/xYCFjhIf1U029o
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+>
+> Care to resend your patches in the proper format, through email so that
+> we can see them, and possibly get some testing in -mm if they look sane?
+>
+> thanks,
+>
+> greg k-h
+>
 
-On Thursday, 14 September 2006 18:17, Alan Stern wrote:
-> On Thu, 14 Sep 2006, Alan Stern wrote:
-> 
-> > Now of course, the autosuspend stuff has to work properly no matter what 
-> > the kernel configuration is.  I'll go back and rebuild the drivers with 
-> > USB_SUSPEND turned off and see what happens.  With any luck I'll have a 
-> > fix ready in the near future.
-> 
-> This should start fixing things, but I'm not certain it will solve the 
-> entire problem.  If it doesn't work, send another dmesg log.
-
-Now USB didn't work after the first resume (kernel configured with USB_SUSPEND
-unset).
-
-The dmesg output is attached.
-
-Rafael
+Greg,
+   here's the arm-pxa7x patch which creates operating points for the much more
+complex ARM platform.  It illustrates the straight forward nature of creating
+operating points, both frequency and sleep states, for different and more
+complex architectures, and eliminates the need to have users pass in all
+the parameters needed to create an operating point.
 
 
--- 
-You never change things by fighting the existing reality.
-		R. Buckminster Fuller
+Signed-Off-by: David Singleton <dsingleton@mvista.com>
 
---Boundary-00=_/xYCFjhIf1U029o
-Content-Type: application/x-gzip;
-  name="dmesg-with-fix.log.gz"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
-	filename="dmesg-with-fix.log.gz"
+ arch/arm/Kconfig                      |    2
+ arch/arm/mach-pxa/Makefile            |    3
+ arch/arm/mach-pxa/mainstone_freq.c    |  211 +++
+ arch/arm/mach-pxa/mainstone_oppoint.c | 1910 ++++++++++++++++++++++++++++++++++
+ arch/arm/mach-pxa/mainstone_volt.c    |  363 ++++++
+ include/asm-arm/arch-pxa/oppoint.h    |  119 ++
+ include/asm-arm/arch-pxa/pxa-regs.h   |    8
+ 7 files changed, 2614 insertions(+), 2 deletions(-)
 
-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
+Index: linux-2.6.17/arch/arm/mach-pxa/Makefile
+===================================================================
+--- linux-2.6.17.orig/arch/arm/mach-pxa/Makefile
++++ linux-2.6.17/arch/arm/mach-pxa/Makefile
+@@ -10,7 +10,8 @@ obj-$(CONFIG_PXA27x) += pxa27x.o
+ # Specific board support
+ obj-$(CONFIG_ARCH_LUBBOCK) += lubbock.o
+ obj-$(CONFIG_MACH_LOGICPD_PXA270) += lpd270.o
+-obj-$(CONFIG_MACH_MAINSTONE) += mainstone.o
++obj-$(CONFIG_MACH_MAINSTONE) += mainstone.o mainstone_oppoint.o \
++mainstone_freq.o  mainstone_volt.o
+ obj-$(CONFIG_ARCH_PXA_IDP) += idp.o
+ obj-$(CONFIG_MACH_TRIZEPS4)    += trizeps4.o
+ obj-$(CONFIG_PXA_SHARP_C7xx)   += corgi.o corgi_ssp.o corgi_lcd.o
+sharpsl_pm.o corgi_pm.o
+Index: linux-2.6.17/arch/arm/mach-pxa/mainstone_freq.c
+===================================================================
+--- /dev/null
++++ linux-2.6.17/arch/arm/mach-pxa/mainstone_freq.c
+@@ -0,0 +1,211 @@
++/*
++ * linux/arch/arm/mach-pxa/mainstone_freq.c
++ *
++ * Functions to change CPU frequencies on the Bulverde processor
++ * adopted from Intel code for MontaVista Linux.
++ *
++ * Author: David Singleton <dsingleton@mvista.com>
++ *
++ * 2006 (c) MontaVista Software, Inc. This file is licensed under the
++ * terms of the GNU General Public License version 2. This program is
++ * licensed "as is" without any warranty of any kind, whether express
++ * or implied.
++ *
++ */
++#include <linux/kernel.h>
++#include <linux/module.h>
++#include <linux/sched.h>
++#include <linux/init.h>
++#include <linux/mm.h>
++#include <linux/hardirq.h>
++#include <asm/io.h>
++
++#include <asm/hardware.h>
++#include <asm/arch/oppoint.h>
++#include <asm/arch/pxa-regs.h>
++#include <asm/pgtable.h>
++#include <asm/pgalloc.h>
++
++#include <asm/arch/mainstone.h>
++
++/*
++ * Since CPDIS and PPDIS is always the same, we use only one definition here.
++ */
++#define        PDIS    0       /* Core PLL and Peripheral PLL is
+enabled after FCS. */
++
++/*
++ *     Available CPU frequency list for Bulverde.
++ */
++static unsigned int cpufreq_matrix[N_NUM][L_NUM + 1];
++static void mainstone_freq_debug_info(void);
++static volatile int *ramstart;
++
++/*
++ *  Init according to mainstone manual.
++ */
++static void mainstone_initialize_freq_matrix(void)
++{
++       int n, l;
++
++       memset(&cpufreq_matrix, 0, sizeof(cpufreq_matrix));
++
++       for (n = 2; n < N_NUM + 2; n++) {
++               for (l = 2; l <= L_NUM; l++) {
++                       cpufreq_matrix[n - 2][l - 2] = (13 * n * l / 2) * 1000;
++                       if (cpufreq_matrix[n - 2][l - 2] > BLVD_MAX_FREQ)
++                               cpufreq_matrix[n - 2][l - 2] = 0;
++               }
++       }
++}
++
++/*
++ * This should be called with a valid freq point that was
++ * obtained via mainstone_validate_speed
++ */
++void mainstone_set_freq(unsigned int CLKCFGValue)
++{
++       unsigned long flags;
++       unsigned int unused;
++       volatile int v;
++
++       local_irq_save(flags);
++
++       /*
++        * force a tlb fault to get the mapping into the tlb
++        * (otherwise this will occur below when the sdram is turned off and
++        * something-bad(tm) will happen)
++        */
++       v = *(volatile unsigned long *)ramstart;
++       *(volatile unsigned long *)ramstart = v;
++
++       MST_LEDDAT1 = CLKCFGValue;
++
++       __asm__ __volatile__(" \n\
++               ldr     r4, [%1]                        @load MDREFR \n\
++               mcr     p14, 0, %2, c6, c0, 0           @ set CCLKCFG[FCS] \n\
++               ldr     r5, =0xe3dfefff \n\
++               and     r4, r4, r5      \n\
++               str     r4,  [%1]                       @restore \n\
++               ":"=&r"(unused)
++                            :"r"(&MDREFR), "r"(CLKCFGValue), "r"(ramstart)
++                            :"r4", "r5");
++
++       MST_LEDDAT1 = 0x0002;
++       /*
++          NOTE: if we don't turn off IRQs up top, there is no point
++          to restoring them here.
++        */
++       local_irq_restore(flags);
++
++       /* spit out some info about what happened */
++       mainstone_freq_debug_info();
++
++}
++
++extern void mainstone_get_current_info(struct md_opt *);
++
++static void mainstone_freq_debug_info(void)
++{
++       unsigned int sysbus, run, t, turbo, mem, m = 1;
++       struct md_opt opt;
++
++       mainstone_get_current_info(&opt);
++
++       run = 13000 * opt.l;
++       turbo = (13000 * opt.l * opt.n) >> 1;
++       sysbus = (opt.b) ? run : (run / 2);
++       t = opt.regs.clkcfg & 0x1;
++
++       /* If CCCR[A] is on */
++       if (opt.cccra) {
++               mem = sysbus;
++       } else {
++               /* If A=0
++                  m initialized to 1 (for l=2-10)
++                */
++               if (opt.l > 10)
++                       m = 2;  /* for l=11-20 */
++               if (opt.l > 20)
++                       m = 4;  /* for l=21-31 */
++               mem = run / m;
++       }
++}
++
++int mainstone_get_freq(void)
++{
++       unsigned int freq, n, l, ccsr;
++
++       ccsr = CCSR;
++
++       l = ccsr & CCCR_L_MASK; /* Get L */
++       n = (ccsr & CCCR_N_MASK) >> 7;  /* Get 2N */
++
++       if (n < 2)
++               n = 2;
++
++       /* Shift to divide by 2 because N is really 2N */
++       freq = (13000 * l * n) >> 1;    /*      in kHz */
++
++       return freq;
++}
++
++unsigned int mainstone_read_clkcfg(void)
++{
++       unsigned int value = 0;
++       unsigned int un_used;
++
++        __asm__ __volatile__("mrc      p14, 0, %0, c6, c0, 0":
+"=r"(value) : "r"(un_used) );
++
++       return value;
++}
++
++static int mainstone_init_freqs(void)
++{
++       int cpu_ver;
++
++       asm volatile ("mrc%? p15, 0, %0, c0, c0":"=r" (cpu_ver));
++
++       /*
++          Bulverde     A0:     0x69054110,
++          A1 :         0x69054111
++        */
++       if ((cpu_ver & 0x0000f000) >> 12 == 4 &&
++           (cpu_ver & 0xffff0000) >> 16 == 0x6905) {
++               /*    It is an xscale core bulverde chip. */
++               return 1;
++       }
++
++       return 0;
++}
++
++int mainstone_clk_init(void)
++{
++       unsigned int freq;
++
++       /*
++        * In order to turn the sdram back on (see below) we need to
++        * r/w the sdram.  We need to do this without the cache and
++        * write buffer in the way.  So, we temporarily ioremap the
++        * first page of sdram as uncached i/o memory and use the
++        * aliased address
++        */
++
++       /* map the first page of sdram to an uncached virtual page */
++       ramstart = (int *)ioremap(PHYS_OFFSET, 4096);
++
++       freq = mainstone_get_freq();    /*      in kHz */
++       printk(KERN_INFO "Init freq: %dkHz.\n", freq);
++
++       mainstone_initialize_freq_matrix();
++
++       if (mainstone_init_freqs()) {
++               printk(KERN_INFO "CPU frequency change initialized.\n");
++       }
++       return 0;
++}
++
++void mainstone_freq_cleanup(void)
++{
++       /* unmap the page we used*/
++       iounmap((void *)ramstart);
++}
+Index: linux-2.6.17/arch/arm/mach-pxa/mainstone_volt.c
+===================================================================
+--- /dev/null
++++ linux-2.6.17/arch/arm/mach-pxa/mainstone_volt.c
+@@ -0,0 +1,363 @@
++/*
++ * linux/arch/arm/mach-pxa/mainstone_volt.c
++ *
++ * Bulverde voltage change driver.
++ *
++ * Author: David Singleton dsingleton@mvista.com MontaVista Software, Inc.
++ *
++ * 2006 (c) MontaVista Software, Inc. This file is licensed under
++ * the terms of the GNU General Public License version 2. This program
++ * is licensed "as is" without any warranty of any kind, whether express
++ * or implied.
++ */
++
++#include <linux/kernel.h>
++#include <linux/module.h>
++#include <linux/sched.h>
++#include <linux/init.h>
++#include <asm/hardware.h>
++#include <asm/arch/oppoint.h>
++#include <asm/arch/pxa-regs.h>
++
++/* For ioremap */
++#include <asm/io.h>
++
++#define CP15R0_REV_MASK                0x0000000f
++#define PXA270_C5              0x7
++
++static u32 chiprev;
++static unsigned int blvd_min_vol, blvd_max_vol;
++static int mvdt_size;
++
++static volatile int *ramstart;
++
++struct MvDAC {
++       unsigned int mv;
++       unsigned int DACIn;
++} *mvDACtable;
++
++/*
++ *  Transfer desired mv to required DAC value.
++ *  Vcore = 1.3v - ( 712uv * DACIn )
++ */
++static struct MvDAC table_c0[] = {
++       {1425, 0},
++       {1400, 69},
++       {1300, 248},
++       {1200, 428},
++       {1100, 601},
++       {1000, 777},
++       {950, 872},
++       {868, 1010},
++       {861, 0xFFFFFFFF},
++};
++
++/*
++ *  Transfer desired mv to required DAC value, update for new boards,
++ *  according to "Intel PXA27x Processor Developer's Kit User's Guide,
++ *  April 2004, Revision 4.001"
++ *  Vcore = 1.5V - (587uV * DAC(input)).
++ */
++static struct MvDAC table_c5[] = {
++       {1500, 0},
++       {1484,25},
++       {1471,50},
++       {1456,75},
++       {1441,100},
++       {1427,125},
++       {1412,150},
++       {1397,175},
++       {1383,200},
++       {1368,225},
++       {1353,250},
++       {1339,275},
++       {1323,300},
++       {1309,325},
++       {1294,350},
++       {1280,375},
++       {1265,400},
++       {1251,425},
++       {1236,450},
++       {1221,475},
++       {1207,500},
++       {1192,525},
++       {1177,550},
++       {1162,575},
++       {1148,600},
++       {1133,625},
++       {1118,650},
++       {1104,675},
++       {1089,700},
++       {1074,725},
++       {1060,750},
++       {1045,775},
++       {1030,800},
++       {1016,825},
++       {1001,850},
++       {986,875},
++       {972,900},
++       {957,925},
++       {942,950},
++       {928,975},
++       {913,1000},
++       {899, 1023},
++};
++
++unsigned int mainstone_validate_voltage(unsigned int mv)
++{
++       /*
++        *      Just to check whether user specified mv
++        *      can be set to the CPU.
++        */
++       if ((mv >= blvd_min_vol) && (mv <= blvd_max_vol)) {
++               return mv;
++       } else {
++               return 0;
++       }
++}
++
++/*
++ * Prepare for a voltage change, possibly coupled with a frequency
++ * change
++ */
++static void power_change_cmd(unsigned int DACValue, int coupled);
++void mainstone_prep_set_voltage(unsigned int mv)
++{
++        power_change_cmd(mv2DAC(mv), 1 /* coupled */ );
++}
++
++
++unsigned int mv2DAC(unsigned int mv)
++{
++       int i, num = mvdt_size;
++
++       if (mvDACtable[0].mv <= mv) {   /* Max or bigger */
++               /* Return the first one */
++               return mvDACtable[0].DACIn;
++       }
++
++       if (mvDACtable[num - 1].mv >= mv) {     /* Min or smaller */
++               /* Return the last one */
++               return mvDACtable[num - 1].DACIn;
++       }
++
++       /*
++        * The biggest and smallest value cases are covered, now the
++        *  loop may skip those
++        */
++       for (i = 1; i <= (num - 1); i++) {
++               if ((mvDACtable[i].mv >= mv) && (mvDACtable[i + 1].mv < mv)) {
++                       return mvDACtable[i].DACIn;
++               }
++       }
++
++       /* Should never get here */
++       return 0;
++}
++extern void mainstone_change_voltage(void);
++void vm_setvoltage(unsigned int DACValue)
++{
++       power_change_cmd(DACValue, 0 /* not-coupled */ );
++       /* Execute voltage change sequence      */
++       mainstone_change_voltage();     /* set VC on the PWRMODE on CP14 */
++}
++/*
++ *     According to bulverde's manual, set the core's voltage.
++ */
++void mainstone_set_voltage(unsigned int mv)
++{
++       vm_setvoltage(mv2DAC(mv));
++}
++
++/*
++ *     Functionality: Initialize PWR I2C.
++ *     Argument:      None
++ *     Return:        void
++*/
++int mainstone_vcs_init(void)
++{
++       /*
++        * we distinguish new and old boards by proc chip
++        * revision, we assume new boards have C5 proc
++        * revision and we use the new table (table_c5) for them,
++        * for all other boards we use the old table (table_c0).
++        * Note, the logics won't work and inaccurate voltage
++        * will be set if C5 proc installed to old board
++        * and vice versa.
++        */
++
++       asm("mrc%? p15, 0, %0, c0, c0" : "=r" (chiprev));
++
++       chiprev &= CP15R0_REV_MASK;
++
++       if ( chiprev == PXA270_C5 ) {
++               mvDACtable = table_c5;
++               mvdt_size = sizeof(table_c5) / sizeof(struct MvDAC);
++               blvd_min_vol = BLVD_MIN_VOL_C5;
++               blvd_max_vol = BLVD_MAX_VOL_C5;
++       } else {
++               mvDACtable = table_c0;
++               mvdt_size = sizeof(table_c0) / sizeof(struct MvDAC);
++               blvd_min_vol = BLVD_MIN_VOL_C0;
++               blvd_max_vol = BLVD_MAX_VOL_C0;
++       }
++
++       CKEN |= 0x1 << 15;
++       CKEN |= 0x1 << 14;
++       PCFR |= 0x60;
++
++       /* map the first page of sdram to an uncached virtual page */
++       ramstart = (int *)ioremap(PHYS_OFFSET, 4096);
++
++       printk(KERN_INFO "CPU voltage change initialized.\n");
++
++       return 0;
++}
++
++void mainstone_voltage_cleanup(void)
++{
++       /* unmap the page we used*/
++       iounmap((void *)ramstart);
++}
++
++
++void mainstone_change_voltage(void)
++{
++       unsigned long flags;
++       unsigned int unused;
++
++
++       local_irq_save(flags);
++
++       __asm__ __volatile__("\n\
++    @ BV B0 WORKAROUND - Core hangs on voltage change at different\n\
++    @ alignments and at different core clock frequencies\n\
++    @ To ensure that no external fetches occur, we want to store the next\n\
++    @ several instructions that occur after the voltage change inside\n\
++    @ the cache. The load dependency stall near the retry label ensures \n\
++    @ that any outstanding instruction cacheline loads are complete before \n\
++    @ the mcr instruction is executed on the 2nd pass. This procedure \n\
++    @ ensures us that the internal bus will not be busy. \n\
++                                       \n\
++    b      2f                          \n\
++    nop                                        \n\
++    .align  5                          \n\
++2:                                     \n\
++    ldr     r0, [%1]                   @ APB register read and compare \n\
++    cmp     r0, #0                     @ fence for pending slow apb reads \n\
++                                       \n\
++    mov     r0, #8                     @ VC bit for PWRMODE \n\
++    movs    r1, #1                     @ don't execute mcr on 1st pass \n\
++                                       \n\
++    @ %1 points to uncacheable memory to force memory read \n\
++                                       \n\
++retry:                                 \n\
++    ldreq   r3, [%2]                   @ only stall on the 2nd pass\n\
++    cmpeq   r3, #0                     @ cmp causes fence on mem transfers\n\
++    cmp     r1, #0                     @ is this the 2nd pass? \n\
++    mcreq   p14, 0, r0, c7, c0, 0      @ write to PWRMODE on 2nd pass only \n\
++                                       \n\
++    @ Read VC bit until it is 0, indicates that the VoltageChange is done.\n\
++    @ On first pass, we never set the VC bit, so it will be clear already.\n\
++                                       \n\
++VoltageChange_loop:                    \n\
++    mrc     p14, 0, r3, c7, c0, 0      \n\
++    tst     r3, #0x8                   \n\
++    bne     VoltageChange_loop         \n\
++                                       \n\
++    subs    r1, r1, #1         @ update conditional execution counter\n\
++    beq     retry":"=&r"(unused)
++                            :"r"(&CCCR), "r"(ramstart)
++                            :"r0", "r1", "r3");
++
++       local_irq_restore(flags);
++
++}
++
++static void clr_all_sqc(void)
++{
++       int i = 0;
++       for (i = 0; i < 32; i++)
++               PCMD(i) &= ~PCMD_SQC;
++}
++
++static void clr_all_mbc(void)
++{
++       int i = 0;
++       for (i = 0; i < 32; i++)
++               PCMD(i) &= ~PCMD_MBC;
++}
++
++static void clr_all_dce(void)
++{
++       int i = 0;
++       for (i = 0; i < 32; i++)
++               PCMD(i) &= ~PCMD_DCE;
++}
++
++static void set_mbc_bit(int ReadPointer, int NumOfBytes)
++{
++       PCMD0 |= PCMD_MBC;
++       PCMD1 |= PCMD_MBC;
++}
++
++static void set_lc_bit(int ReadPointer, int NumOfBytes)
++{
++       PCMD0 |= PCMD_LC;
++       PCMD1 |= PCMD_LC;
++       PCMD2 |= PCMD_LC;
++}
++
++static void set_cmd_data(unsigned char *DataArray, int StartPoint, int size)
++{
++       PCMD0 &= 0xFFFFFF00;
++       PCMD0 |= DataArray[0];
++       PCMD1 &= 0xFFFFFF00;
++       PCMD1 |= DataArray[1];
++       PCMD2 &= 0xFFFFFF00;
++       PCMD2 |= DataArray[2];
++}
++
++/* coupled indicates that this VCS is to be coupled with a FCS */
++static void power_change_cmd(unsigned int DACValue, int coupled)
++{
++       unsigned char dataArray[3];
++
++       dataArray[0] = 0;                               /* Command 0 */
++       dataArray[1] = (DACValue & 0x000000FF);         /* data LSB */
++       dataArray[2] = (DACValue & 0x0000FF00) >> 8;    /* data MSB */
++
++       PVCR = 0;
++
++       PCFR &= ~PCFR_FVC;
++       PVCR &= 0xFFFFF07F;     /*      no delay is necessary   */
++       PVCR &= 0xFFFFFF80;     /*  clear slave address         */
++       PVCR |= 0x20;           /*      set slave address       */
++
++       PVCR &= 0xFE0FFFFF;     /*      clear read pointer 0    */
++       PVCR |= 0;
++
++       /*  DCE and SQC are not necessary for single command */
++       clr_all_sqc();
++       clr_all_dce();
++
++       clr_all_mbc();
++       set_mbc_bit(0, 2);
++
++       /*  indicate the last byte of this command is holded in this register */
++       PCMD2 &= ~PCMD_MBC;
++
++       /*  indicate this is the first command and last command also        */
++       set_lc_bit(0, 3);
++
++       /*  programming the command data bit        */
++       set_cmd_data(dataArray, 0, 2);
++
++       /* Enable Power I2C */
++       PCFR |= PCFR_PI2CEN;
++
++       if (coupled) {
++               /* Enable Power I2C and FVC */
++               PCFR |= PCFR_FVC;
++       }
++}
+Index: linux-2.6.17/include/asm-arm/arch-pxa/pxa-regs.h
+===================================================================
+--- linux-2.6.17.orig/include/asm-arm/arch-pxa/pxa-regs.h
++++ linux-2.6.17/include/asm-arm/arch-pxa/pxa-regs.h
+@@ -2042,6 +2042,14 @@
+ #define MDMRS          __REG(0x48000040)  /* MRS value to be written
+to SDRAM */
+ #define BOOT_DEF       __REG(0x48000044)  /* Read-Only Boot-Time
+Register. Contains BOOT_SEL and PKG_SEL */
 
---Boundary-00=_/xYCFjhIf1U029o--
++#define MDREFR_DRI 0xFFF
++#define MSC0_RDF (0xF << 20)
++#define MSC0_RDN (0xF << 24)
++#define MSC0_RRR (0x7 << 12)
++#define MDREFR_RFU 0xC0200000
++#define MDCNFG_DTC0 (0x3 << 8)
++#define MDCNFG_DTC2 (0x3 << 24)
++
+ /*
+  * More handy macros for PCMCIA
+  *
+Index: linux-2.6.17/include/asm-arm/arch-pxa/oppoint.h
+===================================================================
+--- /dev/null
++++ linux-2.6.17/include/asm-arm/arch-pxa/oppoint.h
+@@ -0,0 +1,119 @@
++/*
++ * include/asm-arm/arch-pxa/oppoint.h
++ *
++ * Bulverde-specific definitions for OpPoint.  If further PXA boards are
++ * supported in the future, will split into board-specific files.
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
++ *
++ * Copyright (C) 2002, 2006 MontaVista Software <source@mvista.com>
++ *
++ * Based on arch/ppc/platforms/ibm405lp_dpm.h by Bishop Brock.
++ */
++
++#ifndef __ASM_ARM_PXA_POWEROP_H__
++#define __ASM_ARM_PXA_POWEROP_H__
++
++#ifdef __KERNEL__
++#ifndef __ASSEMBLER__
++#include <linux/config.h>
++#include <linux/notifier.h>
++#include <linux/ioctl.h>
++#include <linux/miscdevice.h>
++
++#define CCLKCFG_TURBO   0x1
++#define CCLKCFG_FCS     0x2
++
++#define L_NUM   31              /*  30 different L numbers. */
++#define N_NUM   7               /*  7 N numbers. */
++
++#define BLVD_MIN_FREQ       13000
++/* latest PowerPoint documentation indicates 624000, not 540000*/
++#define BLVD_MAX_FREQ       624000
++
++void mainstone_set_freq(unsigned int);
++
++int mainstone_clk_init(void);
++unsigned int mainstone_read_clkcfg(void);
++void mainstone_freq_cleanup(void);
++
++#define BLVD_MAX_VOL_C5        1500    /*  in mV.  */
++#define BLVD_MIN_VOL_C5        899     /*  in Mv.  */
++#define BLVD_MAX_VOL_C0        1400    /*  in mV.  */
++#define BLVD_MIN_VOL_C0        850     /*  in Mv.  */
++
++unsigned int mv2DAC(unsigned int mv);
++void vm_setvoltage(unsigned int);
++unsigned int mainstone_validate_voltage(unsigned int mv);
++
++void mainstone_set_voltage(unsigned int mv);
++void mainstone_prep_set_voltage(unsigned int mv);
++int mainstone_vcs_init(void);
++
++void mainstone_set_freq(unsigned int);
++
++int mainstone_clk_init(void);
++unsigned int mainstone_read_clkcfg(void);
++void mainstone_freq_cleanup(void);
++
++enum {
++       CPUMODE_RUN,
++       CPUMODE_IDLE,
++       CPUMODE_STANDBY,
++       CPUMODE_SLEEP,
++       CPUMODE_RESERVED,
++       CPUMODE_SENSE,
++       CPUMODE_RESERVED2,
++       CPUMODE_DEEPSLEEP,
++};
++
++#define PM_SUSPEND_DEEP        ((__force suspend_state_t) 2)
++
++struct oppoint_regs {
++       unsigned int    cccr;
++       unsigned int    clkcfg;
++       unsigned int    voltage;        /*This is not a register.*/
++};
++
++/*
++ * Instances of this structure define valid Bulverde operating points for DPM.
++ * Voltages are represented in mV, and frequencies are represented in KHz.
++ */
++
++struct md_opt {
++       /* Specified values */
++        int v;         /* Target voltage in mV*/
++        int l;         /* Run Mode to Oscillator ratio */
++        int n;         /* Turbo-Mode to Run-Mode ratio */
++        int b;         /* Fast Bus Mode */
++        int half_turbo;/* Half Turbo bit */
++        int cccra;     /* the 'A' bit of the CCCR register,
++                         alternate MEMC clock */
++       int cpll_enabled; /* core PLL is ON?  (Bulverde >="C0" feature)*/
++       int ppll_enabled; /* peripherial PLL is ON? (Bulverde >="C0" feature)*/
++
++       int sleep_mode;
++        /*Calculated values*/
++       unsigned int lcd;       /*in KHz  */
++       unsigned int lpj;       /*New value for loops_per_jiffy */
++       unsigned int cpu;       /*CPU frequency in KHz */
++       unsigned int turbo;     /* Turbo bit in clkcfg */
++
++       struct oppoint_regs regs;   /* Register values */
++};
++
++#endif /* __ASSEMBLER__ */
++#endif /* __KERNEL__ */
++#endif
+Index: linux-2.6.17/arch/arm/mach-pxa/mainstone_oppoint.c
+===================================================================
+--- /dev/null
++++ linux-2.6.17/arch/arm/mach-pxa/mainstone_oppoint.c
+@@ -0,0 +1,1910 @@
++/*
++ * arch/arm/mach-pxa/mainstone_oppoint.c  PM support for Intel PXA27x
++ *
++ * Author: <source@mvista.com>
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
++ * GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
++ *
++ * Copyright (C) 2002, 2005, 2006 MontaVista Software <source@mvista.com>.
++ *
++ * Based on code by Matthew Locke, Dmitry Chigirev, and Bishop Brock.
++ */
++#define DEBUG
++#include <linux/config.h>
++
++#include <linux/errno.h>
++#include <linux/init.h>
++#include <linux/kernel.h>
++#include <linux/pm.h>
++
++#include <linux/proc_fs.h>
++#include <linux/delay.h>
++#include <linux/cpufreq.h>
++
++#include <asm/uaccess.h>
++
++#include <asm/hardware.h>
++#include <asm/arch/oppoint.h>
++#include <asm/arch/pxa-regs.h>
++
++static int saved_loops_per_jiffy = 0;
++static int saved_cpu_freq = 0;
++
++#define BULVERDE_DEFAULT_VOLTAGE 1400
++
++#define FSCALER_NOP         0
++#define FSCALER_CPUFREQ        (1 << 0)
++#define FSCALER_SLEEP    (1 << 1)
++#define FSCALER_STANDBY        (1 << 2)
++#define FSCALER_DEEPSLEEP      (1 << 3)
++#define FSCALER_WAKEUP  (1 << 4)
++#define FSCALER_VOLTAGE        (1 << 5)
++#define FSCALER_XPLLON   (1 << 6)
++#define FSCALER_HALFTURBO_ON   (1 << 7)
++#define FSCALER_HALFTURBO_OFF  (1 << 8)
++#define FSCALER_TURBO_ON       (1 << 9)
++#define FSCALER_TURBO_OFF      (1 << 10)
++
++#define FSCALER_TURBO (FSCALER_TURBO_ON | FSCALER_TURBO_OFF)
++
++#define FSCALER_ANY_SLEEPMODE     (FSCALER_SLEEP | \
++                                  FSCALER_STANDBY | \
++                                  FSCALER_DEEPSLEEP)
++
++#define CCCR_CPDIS_BIT_ON        (1 << 31)
++#define CCCR_PPDIS_BIT_ON        (1 << 30)
++#define CCCR_CPDIS_BIT_OFF      (0 << 31)
++#define CCCR_PPDIS_BIT_OFF      (0 << 30)
++#define CCCR_PLL_EARLY_EN_BIT_ON   (1 << 26)
++#define CCSR_CPLL_LOCKED          (1 << 29)
++#define CCSR_PPLL_LOCKED          (1 << 28)
++
++/* CLKCFG
++   | 31------------------------------------------- | 3 | 2  | 1 | 0 |
++   | --------------------------------------------- | B | HT | F | T |
++*/
++#define CLKCFG_B_BIT          (1 << 3)
++#define CLKCFG_HT_BIT        (1 << 2)
++#define CLKCFG_F_BIT          (1 << 1)
++#define CLKCFG_T_BIT          1
++
++/* Initialize the machine-dependent operating point from a list of parameters,
++   which has already been installed in the pp field of the operating point.
++   Some of the parameters may be specified with a value of -1 to indicate a
++   default value. */
++
++#define        PLL_L_MAX       31
++#define        PLL_N_MAX       8
++
++/* The MIN for L is 2 in the Yellow Book tables, but L=1 really means
++   13M mode, so L min includes 1 */
++#define        PLL_L_MIN       1
++#define        PLL_N_MIN       2
++
++/* memory timing (MSC0,DTC,DRI) constants (see Blob and Intel BBU sources) */
++#define XLLI_MSC0_13 0x11101110
++#define XLLI_MSC0_19 0x11101110
++#define XLLI_MSC0_26 0x11201120  /* 26 MHz setting */
++#define XLLI_MSC0_32 0x11201120
++#define XLLI_MSC0_39 0x11301130   /* 39 MHz setting */
++#define XLLI_MSC0_45 0x11301130
++#define XLLI_MSC0_52 0x11401140  /* @ 52 MHz setting */
++#define XLLI_MSC0_58 0x11401140
++#define XLLI_MSC0_65 0x11501150  /* @ 65 MHz setting */
++#define XLLI_MSC0_68 0x11501150
++#define XLLI_MSC0_71 0x11501150  /* @ 71.5 MHz setting */
++#define XLLI_MSC0_74 0x11601160
++#define XLLI_MSC0_78 0x12601260  /* @ 78 MHz setting */
++#define XLLI_MSC0_81 0x12601260
++#define XLLI_MSC0_84 0x12601260  /*  @ 84.5 MHz setting */
++#define XLLI_MSC0_87 0x12701270
++#define XLLI_MSC0_91 0x12701270  /* 91 MHz setting */
++#define XLLI_MSC0_94 0x12701270  /* 94.2 MHz setting */
++#define XLLI_MSC0_97 0x12701270  /* 97.5 MHz setting */
++#define XLLI_MSC0_100 0x12801280 /* 100.7 MHz setting */
++#define XLLI_MSC0_104 0x12801280 /* 104 MHz setting */
++#define XLLI_MSC0_110 0x12901290
++#define XLLI_MSC0_117 0x13901390 /* 117 MHz setting */
++#define XLLI_MSC0_124 0x13A013A0
++#define XLLI_MSC0_130 0x13A013A0 /* 130 MHz setting */
++#define XLLI_MSC0_136 0x13B013B0
++#define XLLI_MSC0_143 0x13B013B0
++#define XLLI_MSC0_149 0x13C013C0
++#define XLLI_MSC0_156 0x14C014C0
++#define XLLI_MSC0_162 0x14C014C0
++#define XLLI_MSC0_169 0x14C014C0
++#define XLLI_MSC0_175 0x14C014C0
++#define XLLI_MSC0_182 0x14C014C0
++#define XLLI_MSC0_188 0x14C014C0
++#define XLLI_MSC0_195 0x15C015C0
++#define XLLI_MSC0_201 0x15D015D0
++#define XLLI_MSC0_208 0x15D015D0
++
++/* DTC settings depend on 16/32 bit SDRAM we have (32 is chosen) */
++#define XLLI_DTC_13 0x00000000
++#define XLLI_DTC_19 0x00000000
++#define XLLI_DTC_26 0x00000000
++#define XLLI_DTC_32 0x00000000
++#define XLLI_DTC_39 0x00000000
++#define XLLI_DTC_45 0x00000000
++#define XLLI_DTC_52 0x00000000
++#define XLLI_DTC_58 0x01000100
++#define XLLI_DTC_65 0x01000100
++#define XLLI_DTC_68 0x01000100
++#define XLLI_DTC_71 0x01000100
++#define XLLI_DTC_74 0x01000100
++#define XLLI_DTC_78 0x01000100
++#define XLLI_DTC_81 0x01000100
++#define XLLI_DTC_84 0x01000100
++#define XLLI_DTC_87 0x01000100
++#define XLLI_DTC_91 0x02000200
++#define XLLI_DTC_94 0x02000200
++#define XLLI_DTC_97 0x02000200
++#define XLLI_DTC_100 0x02000200
++#define XLLI_DTC_104 0x02000200
++/* 110-208 MHz setting - SDCLK Halved*/
++#define XLLI_DTC_110 0x01000100
++#define XLLI_DTC_117 0x01000100
++#define XLLI_DTC_124 0x01000100
++#define XLLI_DTC_130 0x01000100
++#define XLLI_DTC_136 0x01000100
++#define XLLI_DTC_143 0x01000100
++#define XLLI_DTC_149 0x01000100
++#define XLLI_DTC_156 0x01000100
++#define XLLI_DTC_162 0x01000100
++#define XLLI_DTC_169 0x01000100
++#define XLLI_DTC_175 0x01000100
++/*  182-208 MHz setting - SDCLK Halved - Close to edge, so bump up */
++#define XLLI_DTC_182 0x02000200
++#define XLLI_DTC_188 0x02000200
++#define XLLI_DTC_195 0x02000200
++#define XLLI_DTC_201 0x02000200
++#define XLLI_DTC_208 0x02000200
++
++/*       Optimal values for DRI (refreash interval) settings for
++ * various MemClk settings (MDREFR)
++ */
++#define XLLI_DRI_13 0x002
++#define XLLI_DRI_19 0x003
++#define XLLI_DRI_26 0x005
++#define XLLI_DRI_32 0x006
++#define XLLI_DRI_39 0x008
++#define XLLI_DRI_45 0x00A
++#define XLLI_DRI_52 0x00B
++#define XLLI_DRI_58 0x00D
++#define XLLI_DRI_65 0x00E
++#define XLLI_DRI_68 0x00F
++#define XLLI_DRI_71 0x010
++#define XLLI_DRI_74 0x011
++#define XLLI_DRI_78 0x012
++#define XLLI_DRI_81 0x012
++#define XLLI_DRI_84 0x013
++#define XLLI_DRI_87 0x014
++#define XLLI_DRI_91 0x015
++#define XLLI_DRI_94 0x016
++#define XLLI_DRI_97 0x016
++#define XLLI_DRI_100 0x017
++#define XLLI_DRI_104 0x018
++#define XLLI_DRI_110 0x01A
++#define XLLI_DRI_117 0x01B
++#define XLLI_DRI_124 0x01D
++#define XLLI_DRI_130 0x01E
++#define XLLI_DRI_136 0x020
++#define XLLI_DRI_143 0x021
++#define XLLI_DRI_149 0x023
++#define XLLI_DRI_156 0x025
++#define XLLI_DRI_162 0x026
++#define XLLI_DRI_169 0x028
++#define XLLI_DRI_175 0x029
++#define XLLI_DRI_182 0x02B
++#define XLLI_DRI_188 0x02D
++#define XLLI_DRI_195 0x02E
++#define XLLI_DRI_201 0x030
++#define XLLI_DRI_208 0x031
++
++
++
++/* timings for memory controller set up (masked values) */
++struct mem_timings{
++       unsigned int msc0; /* for MSC0 */
++       unsigned int dtc; /* for MDCNFG */
++       unsigned int dri; /* for MDREFR */
++};
++
++static int pxa27x_transition(struct oppoint *cur, struct oppoint *new);
++
++static struct oppoint m13 = {
++       .name = "13m",
++       .type = PM_FREQ_CHANGE,
++       .prepare_transition  = cpufreq_prepare_transition,
++       .transition = pxa27x_transition,
++       .finish_transition = cpufreq_finish_transition,
++};
++
++static struct oppoint mext13 = {
++       .name = "13mext",
++       .type = PM_FREQ_CHANGE,
++       .voltage = 1500,
++       .prepare_transition  = cpufreq_prepare_transition,
++       .transition = pxa27x_transition,
++       .finish_transition = cpufreq_finish_transition,
++};
++
++static struct oppoint sleep = {
++       .name = "sleep",
++       .type = PM_FREQ_CHANGE,
++       .voltage = 1500,
++       .frequency = 0,
++       .latency = 150,
++       .prepare_transition  = cpufreq_prepare_transition,
++       .transition = pxa27x_transition,
++       .finish_transition = cpufreq_finish_transition,
++};
++
++static struct oppoint deepsleep = {
++       .name = "deepsleep",
++       .type = PM_FREQ_CHANGE,
++       .voltage = 1500,
++       .frequency = 0,
++       .latency = 1000,
++       .prepare_transition  = cpufreq_prepare_transition,
++       .transition = pxa27x_transition,
++       .finish_transition = cpufreq_finish_transition,
++};
++
++static struct oppoint standby = {
++       .name = "pxastandby",
++       .type = PM_FREQ_CHANGE,
++       .voltage = 1500,
++       .frequency = 0,
++       .latency = 150,
++       .prepare_transition  = cpufreq_prepare_transition,
++       .transition = pxa27x_transition,
++       .finish_transition = cpufreq_finish_transition,
++};
++
++static struct oppoint lowest = {
++       .name = "lowest",
++       .type = PM_FREQ_CHANGE,
++       .frequency = 0,
++       .voltage = 0,
++       .latency = 100,
++       .prepare_transition  = cpufreq_prepare_transition,
++       .transition = pxa27x_transition,
++       .finish_transition = cpufreq_finish_transition,
++};
++
++static struct oppoint low = {
++       .name = "low",
++       .type = PM_FREQ_CHANGE,
++       .frequency = 0,
++       .voltage = 0,
++       .latency = 100,
++       .prepare_transition  = cpufreq_prepare_transition,
++       .transition = pxa27x_transition,
++       .finish_transition = cpufreq_finish_transition,
++};
++
++static struct oppoint mediumlow = {
++       .name = "mediumlow",
++       .type = PM_FREQ_CHANGE,
++       .frequency = 0,
++       .voltage = 0,
++       .latency = 100,
++       .prepare_transition  = cpufreq_prepare_transition,
++       .transition = pxa27x_transition,
++       .finish_transition = cpufreq_finish_transition,
++};
++
++static struct oppoint medium = {
++       .name = "medium",
++       .type = PM_FREQ_CHANGE,
++       .frequency = 0,
++       .voltage = 0,
++       .latency = 100,
++       .prepare_transition  = cpufreq_prepare_transition,
++       .transition = pxa27x_transition,
++       .finish_transition = cpufreq_finish_transition,
++};
++
++static struct oppoint mediumhigh = {
++       .name = "mediumhigh",
++       .type = PM_FREQ_CHANGE,
++       .frequency = 0,
++       .voltage = 0,
++       .latency = 100,
++       .prepare_transition  = cpufreq_prepare_transition,
++       .transition = pxa27x_transition,
++       .finish_transition = cpufreq_finish_transition,
++};
++
++static struct oppoint high = {
++       .name = "high",
++       .type = PM_FREQ_CHANGE,
++       .frequency = 0,
++       .voltage = 0,
++       .latency = 100,
++       .prepare_transition  = cpufreq_prepare_transition,
++       .transition = pxa27x_transition,
++       .finish_transition = cpufreq_finish_transition,
++};
++
++static struct oppoint highest = {
++       .name = "highest",
++       .type = PM_FREQ_CHANGE,
++       .frequency = 0,
++       .voltage = 0,
++       .latency = 100,
++       .prepare_transition  = cpufreq_prepare_transition,
++       .transition = pxa27x_transition,
++       .finish_transition = cpufreq_finish_transition,
++};
++
++static struct md_opt mhz104 = {
++       .v = 900,
++       .l = 8,
++       .n = 2,
++       .b = 1,
++       .half_turbo = 0,
++       .cccra = 1,
++       .cpll_enabled = 1,
++       .ppll_enabled = 1,
++       .sleep_mode = 0,
++};
++
++static struct md_opt mhz208 = {
++       .v = 1050,
++       .l = 16,
++       .n = 2,
++       .b = 1,
++       .half_turbo = 0,
++       .cccra = 0,
++       .cpll_enabled = 1,
++       .ppll_enabled = 1,
++       .sleep_mode = 0,
++};
++
++static struct md_opt mhz312 = {
++       .v = 1250,
++       .l = 16,
++       .n = 3,
++       .b = 1,
++       .half_turbo = 0,
++       .cccra = 0,
++       .cpll_enabled = 1,
++       .ppll_enabled = 1,
++       .sleep_mode = 0,
++};
++
++static struct md_opt mhz208hi = {
++       .v = 1150,
++       .l = 16,
++       .n = 2,
++       .b = 1,
++       .half_turbo = 0,
++       .cccra = 1,
++       .cpll_enabled = 1,
++       .ppll_enabled = 1,
++       .sleep_mode = 0,
++};
++
++static struct md_opt mhz312hi = {
++       .v = 1250,
++       .l = 16,
++       .n = 3,
++       .b = 1,
++       .half_turbo = 0,
++       .cccra = 1,
++       .cpll_enabled = 1,
++       .ppll_enabled = 1,
++       .sleep_mode = 0,
++};
++
++static struct md_opt mhz416hi = {
++       .v = 1350,
++       .l = 16,
++       .n = 4,
++       .b = 1,
++       .half_turbo = 0,
++       .cccra = 1,
++       .cpll_enabled = 1,
++       .ppll_enabled = 1,
++       .sleep_mode = 0,
++};
++
++static struct md_opt mhz520hi = {
++       .v = 1450,
++       .l = 16,
++       .n = 5,
++       .b = 1,
++       .half_turbo = 0,
++       .cccra = 1,
++       .cpll_enabled = 1,
++       .ppll_enabled = 1,
++       .sleep_mode = 0,
++};
++
++static struct md_opt md_sleep = {
++       .v = 1500,
++       .l = 0,
++       .n = 0,
++       .b = 0,
++       .half_turbo = -1,
++       .cccra = 0,
++       .cpll_enabled = 0,
++       .ppll_enabled = 0,
++       .sleep_mode = 3,
++};
++
++static struct md_opt md_deepsleep = {
++       .v = 1500,
++       .l = 0,
++       .n = 0,
++       .b = 0,
++       .half_turbo = -1,
++       .cccra = 0,
++       .cpll_enabled = 0,
++       .ppll_enabled = 0,
++       .sleep_mode = 7,
++};
++
++static struct md_opt md_standby = {
++       .v = 1500,
++       .l = 1,
++       .n = 2,
++       .b = 0,
++       .half_turbo = -1,
++       .cccra = 0,
++       .cpll_enabled = 0,
++       .ppll_enabled = 0,
++       .sleep_mode = -1,
++};
++
++static struct md_opt md_13m = {
++       .v = 1500,
++       .l = 1,
++       .n = 2,
++       .b = 0,
++       .half_turbo = -1,
++       .cccra = 0,
++       .cpll_enabled = 0,
++       .ppll_enabled = 0,
++       .sleep_mode = -1,
++};
++
++static struct md_opt md_13mext = {
++       .v = 1500,
++       .l = 1,
++       .n = 2,
++       .b = 0,
++       .half_turbo = -1,
++       .cccra = 0,
++       .cpll_enabled = 0,
++       .ppll_enabled = 0,
++       .sleep_mode = -1,
++};
++
++static void
++mainstone_setup_opt(struct oppoint *op, uint freq, struct md_opt *md)
++{
++       op->frequency = freq * 1000;
++       op->md_data = (void *)md;
++       op->voltage = md->v;
++}
++
++static unsigned int fscaler_flags = 0;
++
++void mainstone_fully_define_opt(struct oppoint *cur,
++                                  struct oppoint *new);
++static int mainstone_fscale(struct oppoint *cur, struct oppoint *new);
++static void mainstone_fscaler(struct oppoint_regs *regs);
++
++extern void mainstone_set_voltage(unsigned int mv);
++extern void mainstone_prep_set_voltage(unsigned int mv);
++extern int mainstone_vcs_init(void);
++extern void mainstone_voltage_cleanup(void);
++
++static unsigned long
++calculate_memclk(unsigned long cccr, unsigned long clkcfg)
++{
++       unsigned long M, memclk;
++       u32 L;
++
++       L = cccr & 0x1f;
++       if (cccr & (1 << 25)) {
++               if  (clkcfg & CLKCFG_B_BIT)
++                       memclk = (L*13);
++               else
++                       memclk = (L*13)/2;
++       }
++       else {
++               if (L <= 10) M = 1;
++               else if (L <= 20) M = 2;
++               else M = 4;
++
++               memclk = (L*13)/M;
++       }
++
++       return memclk;
++}
++
++static unsigned long
++calculate_new_memclk(struct oppoint_regs *regs)
++{
++       return calculate_memclk(regs->cccr, regs->clkcfg);
++}
++
++static unsigned long
++calculate_cur_memclk(void)
++{
++       unsigned long cccr = CCCR;
++       return calculate_memclk(cccr, mainstone_read_clkcfg());
++}
++
++/* Returns optimal timings for memory controller
++ * a - [A]
++ * b - [B]
++ * l - value of L
++ */
++static struct mem_timings get_optimal_mem_timings(int a, int b, int l){
++       struct mem_timings ret = {
++               .msc0 = 0,
++               .dtc = 0,
++               .dri = 0,
++       };
++
++       if (a!=0 && b==0) {
++               switch (l) {
++               case 2:
++                       ret.msc0 = XLLI_MSC0_13;
++                       ret.dtc = XLLI_DTC_13;
++                       ret.dri = XLLI_DRI_13;
++                       break;
++               case 3:
++                       ret.msc0 = XLLI_MSC0_19;
++                       ret.dtc = XLLI_DTC_19;
++                       ret.dri = XLLI_DRI_19;
++                       break;
++               case 4:
++                       ret.msc0 = XLLI_MSC0_26;
++                       ret.dtc = XLLI_DTC_26;
++                       ret.dri = XLLI_DRI_26;
++                       break;
++               case 5:
++                       ret.msc0 = XLLI_MSC0_32;
++                       ret.dtc = XLLI_DTC_32;
++                       ret.dri = XLLI_DRI_32;
++                       break;
++               case 6:
++                       ret.msc0 = XLLI_MSC0_39;
++                       ret.dtc = XLLI_DTC_39;
++                       ret.dri = XLLI_DRI_39;
++                       break;
++               case 7:
++                       ret.msc0 = XLLI_MSC0_45;
++                       ret.dtc = XLLI_DTC_45;
++                       ret.dri = XLLI_DRI_45;
++                       break;
++               case 8:
++                       ret.msc0 = XLLI_MSC0_52;
++                       ret.dtc = XLLI_DTC_52;
++                       ret.dri = XLLI_DRI_52;
++                       break;
++               case 9:
++                       ret.msc0 = XLLI_MSC0_58;
++                       ret.dtc = XLLI_DTC_58;
++                       ret.dri = XLLI_DRI_58;
++                       break;
++               case 10:
++                       ret.msc0 = XLLI_MSC0_65;
++                       ret.dtc = XLLI_DTC_65;
++                       ret.dri = XLLI_DRI_65;
++                       break;
++                       /*
++                        *       L11 - L20 ARE THE SAME for A0Bx
++                        */
++               case 11:
++                       ret.msc0 = XLLI_MSC0_71;
++                       ret.dtc = XLLI_DTC_71;
++                       ret.dri = XLLI_DRI_71;
++                       break;
++               case 12:
++                       ret.msc0 = XLLI_MSC0_78;
++                       ret.dtc = XLLI_DTC_78;
++                       ret.dri = XLLI_DRI_78;
++                       break;
++               case 13:
++                       ret.msc0 = XLLI_MSC0_84;
++                       ret.dtc = XLLI_DTC_84;
++                       ret.dri = XLLI_DRI_84;
++                       break;
++               case 14:
++                       ret.msc0 = XLLI_MSC0_91;
++                       ret.dtc = XLLI_DTC_91;
++                       ret.dri = XLLI_DRI_91;
++                       break;
++               case 15:
++                       ret.msc0 = XLLI_MSC0_97;
++                       ret.dtc = XLLI_DTC_97;
++                       ret.dri = XLLI_DRI_97;
++                       break;
++               case 16:
++                       ret.msc0 = XLLI_MSC0_104;
++                       ret.dtc = XLLI_DTC_104;
++                       ret.dri = XLLI_DRI_104;
++                       break;
++               case 17:
++                       ret.msc0 = XLLI_MSC0_110;
++                       ret.dtc = XLLI_DTC_110;
++                       ret.dri = XLLI_DRI_110;
++                       break;
++               case 18:
++                       ret.msc0 = XLLI_MSC0_117;
++                       ret.dtc = XLLI_DTC_117;
++                       ret.dri = XLLI_DRI_117;
++                       break;
++               case 19:
++                       ret.msc0 = XLLI_MSC0_124;
++                       ret.dtc = XLLI_DTC_124;
++                       ret.dri = XLLI_DRI_124;
++                       break;
++               case 20:
++                       ret.msc0 = XLLI_MSC0_130;
++                       ret.dtc = XLLI_DTC_130;
++                       ret.dri = XLLI_DRI_130;
++                       break;
++               case 21:
++                       ret.msc0 = XLLI_MSC0_136;
++                       ret.dtc = XLLI_DTC_136;
++                       ret.dri = XLLI_DRI_136;
++                       break;
++               case 22:
++                       ret.msc0 = XLLI_MSC0_143;
++                       ret.dtc = XLLI_DTC_143;
++                       ret.dri = XLLI_DRI_143;
++                       break;
++               case 23:
++                       ret.msc0 = XLLI_MSC0_149;
++                       ret.dtc = XLLI_DTC_149;
++                       ret.dri = XLLI_DRI_149;
++                       break;
++               case 24:
++                       ret.msc0 = XLLI_MSC0_156;
++                       ret.dtc = XLLI_DTC_156;
++                       ret.dri = XLLI_DRI_156;
++                       break;
++               case 25:
++                       ret.msc0 = XLLI_MSC0_162;
++                       ret.dtc = XLLI_DTC_162;
++                       ret.dri = XLLI_DRI_162;
++                       break;
++               case 26:
++                       ret.msc0 = XLLI_MSC0_169;
++                       ret.dtc = XLLI_DTC_169;
++                       ret.dri = XLLI_DRI_169;
++                       break;
++               case 27:
++                       ret.msc0 = XLLI_MSC0_175;
++                       ret.dtc = XLLI_DTC_175;
++                       ret.dri = XLLI_DRI_175;
++                       break;
++               case 28:
++                       ret.msc0 = XLLI_MSC0_182;
++                       ret.dtc = XLLI_DTC_182;
++                       ret.dri = XLLI_DRI_182;
++                       break;
++               case 29:
++                       ret.msc0 = XLLI_MSC0_188;
++                       ret.dtc = XLLI_DTC_188;
++                       ret.dri = XLLI_DRI_188;
++                       break;
++               case 30:
++                       ret.msc0 = XLLI_MSC0_195;
++                       ret.dtc = XLLI_DTC_195;
++                       ret.dri = XLLI_DRI_195;
++                       break;
++               case 31:
++                       ret.msc0 = XLLI_MSC0_201;
++                       ret.dtc = XLLI_DTC_201;
++                       ret.dri = XLLI_DRI_201;
++               }
++
++       } else if (a!=0 && b!=0) {
++         switch (l) {
++               case 2:
++                       ret.msc0 = XLLI_MSC0_26;
++                       ret.dtc = XLLI_DTC_26;
++                       ret.dri = XLLI_DRI_26;
++                       break;
++               case 3:
++                       ret.msc0 = XLLI_MSC0_39;
++                       ret.dtc = XLLI_DTC_39;
++                       ret.dri = XLLI_DRI_39;
++                       break;
++               case 4:
++                       ret.msc0 = XLLI_MSC0_52;
++                       ret.dtc = XLLI_DTC_52;
++                       ret.dri = XLLI_DRI_52;
++                       break;
++               case 5:
++                       ret.msc0 = XLLI_MSC0_65;
++                       ret.dtc = XLLI_DTC_65;
++                       ret.dri = XLLI_DRI_65;
++                       break;
++               case 6:
++                       ret.msc0 = XLLI_MSC0_78;
++                       ret.dtc = XLLI_DTC_78;
++                       ret.dri = XLLI_DRI_78;
++                       break;
++               case 7:
++                       ret.msc0 = XLLI_MSC0_91;
++                       ret.dtc = XLLI_DTC_91;
++                       ret.dri = XLLI_DRI_91;
++                       break;
++               case 8:
++                       ret.msc0 = XLLI_MSC0_104;
++                       ret.dtc = XLLI_DTC_104;
++                       ret.dri = XLLI_DRI_104;
++                       break;
++               case 9:
++                       ret.msc0 = XLLI_MSC0_117;
++                       ret.dtc = XLLI_DTC_117;
++                       ret.dri = XLLI_DRI_117;
++                       break;
++               case 10:
++                       ret.msc0 = XLLI_MSC0_130;
++                       ret.dtc = XLLI_DTC_130;
++                       ret.dri = XLLI_DRI_130;
++                       break;
++               case 11:
++                       ret.msc0 = XLLI_MSC0_143;
++                       ret.dtc = XLLI_DTC_143;
++                       ret.dri = XLLI_DRI_143;
++                       break;
++               case 12:
++                       ret.msc0 = XLLI_MSC0_156;
++                       ret.dtc = XLLI_DTC_156;
++                       ret.dri = XLLI_DRI_156;
++                       break;
++               case 13:
++                       ret.msc0 = XLLI_MSC0_169;
++                       ret.dtc = XLLI_DTC_169;
++                       ret.dri = XLLI_DRI_169;
++                       break;
++               case 14:
++                       ret.msc0 = XLLI_MSC0_182;
++                       ret.dtc = XLLI_DTC_182;
++                       ret.dri = XLLI_DRI_182;
++                       break;
++               case 15:
++                       ret.msc0 = XLLI_MSC0_195;
++                       ret.dtc = XLLI_DTC_195;
++                       ret.dri = XLLI_DRI_195;
++                       break;
++               case 16:
++                       ret.msc0 = XLLI_MSC0_208;
++                       ret.dtc = XLLI_DTC_208;
++                       ret.dri = XLLI_DRI_208;
++               }
++       } else {
++         /* A0Bx */
++               switch (l) {
++               case 2:
++                       ret.msc0 = XLLI_MSC0_26;
++                       ret.dtc = XLLI_DTC_26;
++                       ret.dri = XLLI_DRI_26;
++                       break;
++               case 3:
++                       ret.msc0 = XLLI_MSC0_39;
++                       ret.dtc = XLLI_DTC_39;
++                       ret.dri = XLLI_DRI_39;
++                       break;
++               case 4:
++                       ret.msc0 = XLLI_MSC0_52;
++                       ret.dtc = XLLI_DTC_52;
++                       ret.dri = XLLI_DRI_52;
++                       break;
++               case 5:
++                       ret.msc0 = XLLI_MSC0_65;
++                       ret.dtc = XLLI_DTC_65;
++                       ret.dri = XLLI_DRI_65;
++                       break;
++               case 6:
++                       ret.msc0 = XLLI_MSC0_78;
++                       ret.dtc = XLLI_DTC_78;
++                       ret.dri = XLLI_DRI_78;
++                       break;
++               case 7:
++                       ret.msc0 = XLLI_MSC0_91;
++                       ret.dtc = XLLI_DTC_91;
++                       ret.dri = XLLI_DRI_91;
++                       break;
++               case 8:
++                       ret.msc0 = XLLI_MSC0_104;
++                       ret.dtc = XLLI_DTC_104;
++                       ret.dri = XLLI_DRI_104;
++                       break;
++               case 9:
++                       ret.msc0 = XLLI_MSC0_117;
++                       ret.dtc = XLLI_DTC_117;
++                       ret.dri = XLLI_DRI_117;
++                       break;
++               case 10:
++                       ret.msc0 = XLLI_MSC0_130;
++                       ret.dtc = XLLI_DTC_130;
++                       ret.dri = XLLI_DRI_130;
++                       break;
++               case 11:
++                       ret.msc0 = XLLI_MSC0_71;
++                       ret.dtc = XLLI_DTC_71;
++                       ret.dri = XLLI_DRI_71;
++                       break;
++               case 12:
++                       ret.msc0 = XLLI_MSC0_78;
++                       ret.dtc = XLLI_DTC_78;
++                       ret.dri = XLLI_DRI_78;
++                       break;
++               case 13:
++                       ret.msc0 = XLLI_MSC0_84;
++                       ret.dtc = XLLI_DTC_84;
++                       ret.dri = XLLI_DRI_84;
++                       break;
++               case 14:
++                       ret.msc0 = XLLI_MSC0_91;
++                       ret.dtc = XLLI_DTC_91;
++                       ret.dri = XLLI_DRI_91;
++                       break;
++               case 15:
++                       ret.msc0 = XLLI_MSC0_97;
++                       ret.dtc = XLLI_DTC_97;
++                       ret.dri = XLLI_DRI_97;
++                       break;
++               case 16:
++                       ret.msc0 = XLLI_MSC0_104;
++                       ret.dtc = XLLI_DTC_104;
++                       ret.dri = XLLI_DRI_104;
++                       break;
++               case 17:
++                       ret.msc0 = XLLI_MSC0_110;
++                       ret.dtc = XLLI_DTC_110;
++                       ret.dri = XLLI_DRI_110;
++                       break;
++               case 18:
++                       ret.msc0 = XLLI_MSC0_117;
++                       ret.dtc = XLLI_DTC_117;
++                       ret.dri = XLLI_DRI_117;
++                       break;
++               case 19:
++                       ret.msc0 = XLLI_MSC0_124;
++                       ret.dtc = XLLI_DTC_124;
++                       ret.dri = XLLI_DRI_124;
++                       break;
++               case 20:
++                       ret.msc0 = XLLI_MSC0_130;
++                       ret.dtc = XLLI_DTC_130;
++                       ret.dri = XLLI_DRI_130;
++                       break;
++               case 21:
++                       ret.msc0 = XLLI_MSC0_68;
++                       ret.dtc = XLLI_DTC_68;
++                       ret.dri = XLLI_DRI_68;
++                       break;
++               case 22:
++                       ret.msc0 = XLLI_MSC0_71;
++                       ret.dtc = XLLI_DTC_71;
++                       ret.dri = XLLI_DRI_71;
++                       break;
++               case 23:
++                       ret.msc0 = XLLI_MSC0_74;
++                       ret.dtc = XLLI_DTC_74;
++                       ret.dri = XLLI_DRI_74;
++                       break;
++               case 24:
++                       ret.msc0 = XLLI_MSC0_78;
++                       ret.dtc = XLLI_DTC_78;
++                       ret.dri = XLLI_DRI_78;
++                       break;
++               case 25:
++                       ret.msc0 = XLLI_MSC0_81;
++                       ret.dtc = XLLI_DTC_81;
++                       ret.dri = XLLI_DRI_81;
++                       break;
++               case 26:
++                       ret.msc0 = XLLI_MSC0_84;
++                       ret.dtc = XLLI_DTC_84;
++                       ret.dri = XLLI_DRI_84;
++                       break;
++               case 27:
++                       ret.msc0 = XLLI_MSC0_87;
++                       ret.dtc = XLLI_DTC_87;
++                       ret.dri = XLLI_DRI_87;
++                       break;
++               case 28:
++                       ret.msc0 = XLLI_MSC0_91;
++                       ret.dtc = XLLI_DTC_91;
++                       ret.dri = XLLI_DRI_91;
++                       break;
++               case 29:
++                       ret.msc0 = XLLI_MSC0_94;
++                       ret.dtc = XLLI_DTC_94;
++                       ret.dri = XLLI_DRI_94;
++                       break;
++               case 30:
++                       ret.msc0 = XLLI_MSC0_97;
++                       ret.dtc = XLLI_DTC_97;
++                       ret.dri = XLLI_DRI_97;
++                       break;
++               case 31:
++                       ret.msc0 = XLLI_MSC0_100;
++                       ret.dtc = XLLI_DTC_100;
++                       ret.dri = XLLI_DRI_100;
++               }
++       }
++
++       return ret;
++}
++
++static void assign_optimal_mem_timings(
++       unsigned int* msc0_reg,
++       unsigned int* mdrefr_reg,
++       unsigned int* mdcnfg_reg,
++       int a, int b, int l
++       )
++{
++       unsigned int msc0_reg_tmp = (*msc0_reg);
++       unsigned int mdrefr_reg_tmp = (*mdrefr_reg);
++       unsigned int mdcnfg_reg_tmp = (*mdcnfg_reg);
++       struct mem_timings timings = get_optimal_mem_timings(a,b,l);
++
++       /* clear bits which are set by get_optimal_mem_timings*/
++       msc0_reg_tmp &= ~(MSC0_RDF & MSC0_RDN & MSC0_RRR);
++       mdrefr_reg_tmp &= ~(MDREFR_RFU & MDREFR_DRI);
++       mdcnfg_reg_tmp &= ~(MDCNFG_DTC0 & MDCNFG_DTC2);
++
++       /* prepare appropriate timings */
++       msc0_reg_tmp |= timings.msc0;
++       mdrefr_reg_tmp |= timings.dri;
++       mdcnfg_reg_tmp |= timings.dtc;
++
++       /* set timings (all bits one time) */
++       (*msc0_reg) = msc0_reg_tmp;
++       (*mdrefr_reg) = mdrefr_reg_tmp;
++       (*mdcnfg_reg) = mdcnfg_reg_tmp;
++}
++
++static void set_mdrefr_value(u32 new_mdrefr)
++{
++       unsigned long s, old_mdrefr, errata62;
++       old_mdrefr = MDREFR;
++       /* E62 (28007106.pdf): Memory controller may hang while clearing
++        * MDREFR[K1DB2] or MDREFR[K2DB2]
++        */
++       errata62 = (((old_mdrefr & MDREFR_K1DB2) != 0) &&
++               ((new_mdrefr & MDREFR_K1DB2) == 0)) ||
++               (((old_mdrefr & MDREFR_K2DB2) != 0) &&
++               ((new_mdrefr & MDREFR_K2DB2) == 0));
++
++       if (errata62) {
++               unsigned long oscr_0 = OSCR;
++               unsigned long oscr_1 = oscr_0;
++               /* Step 1 - disable interrupts */
++               local_irq_save(s);
++               /* Step 2 - leave KxDB2, but set MDREFR[DRI] (bits 0-11) to
++                *  0xFFF
++                */
++               MDREFR = MDREFR | MDREFR_DRI;
++               /* Step 3 - read MDREFR one time */
++               MDREFR;
++               /* Step 4 - wait 1.6167us
++                * (3.25MHz clock increments OSCR0 7 times)
++                */
++               while (oscr_1-oscr_0 < 7) {
++                       cpu_relax();
++                       oscr_1 = OSCR;
++               }
++
++       }
++
++       /* Step 5 - clear K1DB1 and/or K2DB2, and set MDREFR[DRI] to
++        * proper value at the same time
++        */
++
++       /*Set MDREFR as if no errata workaround is needed*/
++       MDREFR = new_mdrefr;
++
++       if (errata62) {
++               /* Step 6 - read MDREFR one time*/
++               MDREFR;
++               /* Step 7 - enable interrupts*/
++               local_irq_restore(s);
++       }
++}
++
++static void mainstone_scale_cpufreq(struct oppoint_regs *regs)
++{
++       unsigned long new_memclk, cur_memclk;
++       u32 new_mdrefr, cur_mdrefr, read_mdrefr;
++       u32 new_msc0, new_mdcnfg;
++       int set_mdrefr = 0, scaling_up = 0;
++       int l, a, b;
++
++       l = regs->cccr & CCCR_L_MASK;   /* Get L */
++       b = (regs->clkcfg >> 3) & 0x1;
++       a = (regs->cccr >> 25) & 0x1;   /* cccr[A]: bit 25 */
++
++       cur_memclk = calculate_cur_memclk();
++       new_memclk = calculate_new_memclk(regs);
++
++       new_mdrefr = cur_mdrefr = MDREFR;
++       new_msc0 = MSC0;
++       new_mdcnfg = MDCNFG;
++
++       if (new_memclk != cur_memclk) {
++               /* SDCLK0,SDCLK1,SDCLK2 = MEMCLK - by default (<=52MHz) */
++               new_mdrefr &= ~( MDREFR_K0DB2 | MDREFR_K0DB4 |
++                       MDREFR_K1DB2 | MDREFR_K2DB2 );
++
++               if ((new_memclk > 52) && (new_memclk <= 104)) {
++                       /* SDCLK0 = MEMCLK/2, SDCLK1,SDCLK2 = MEMCLK */
++                       new_mdrefr |= MDREFR_K0DB2;
++               }
++               else if (new_memclk > 104){
++                       /* SDCLK0 = MEMCLK/4,  SDCLK1 and SDCLK2 = MEMCLK/2 */
++                       new_mdrefr |= (MDREFR_K0DB4 | MDREFR_K1DB2 |
+MDREFR_K2DB2);
++               }
++
++               /* clock increasing or decreasing? */
++               if (new_memclk > cur_memclk) scaling_up = 1;
++       }
++
++       /* set MDREFR if necessary */
++       if (new_mdrefr != cur_mdrefr){
++               set_mdrefr = 1;
++               /* also adjust timings  as long as we change MDREFR value */
++               assign_optimal_mem_timings(
++                                          &new_msc0,
++                                          &new_mdrefr,
++                                          &new_mdcnfg,
++                                          a,b,l
++                                          );
++       }
++
++       /* if memclk is scaling up, set MDREFR before freq change
++        * (2800002.pdf:6.5.1.4)
++        */
++       if (set_mdrefr && scaling_up) {
++               MSC0 = new_msc0;
++               set_mdrefr_value(new_mdrefr);
++               MDCNFG = new_mdcnfg;
++               read_mdrefr = MDREFR;
++       }
++
++       CCCR = regs->cccr;
++       mainstone_set_freq(regs->clkcfg);
++
++       /* if memclk is scaling down, set MDREFR after freq change
++        * (2800002.pdf:6.5.1.4)
++        */
++       if (set_mdrefr && !scaling_up) {
++               MSC0 = new_msc0;
++               set_mdrefr_value(new_mdrefr);
++               MDCNFG = new_mdcnfg;
++               read_mdrefr = MDREFR;
++       }
++}
++
++static void mainstone_scale_voltage(struct oppoint_regs *regs)
++{
++       mainstone_set_voltage(regs->voltage);
++}
++
++static void mainstone_scale_voltage_coupled(struct oppoint_regs *regs)
++{
++       mainstone_prep_set_voltage(regs->voltage);
++}
++
++static void calculate_lcd_freq(struct md_opt *opt)
++{
++       int k = 1;              /* lcd divisor */
++
++       /* L is verified to be between PLL_L_MAX and PLL_L_MIN in */
++       if (opt->l == -1) {
++               opt->lcd = -1;
++               return;
++       }
++
++       if (opt->l > 16) {
++               /* When L=17-31, K=4 */
++               k = 4;
++       } else if (opt->l > 7) {
++               /* When L=8-16, K=2 */
++               k = 2;
++       }
++
++       /* Else, when L=2-7, K=1 */
++
++       opt->lcd = 13000 * opt->l / k;
++}
++
++static void calculate_reg_values(struct md_opt *opt)
++{
++       int f = 0;              /* frequency change bit */
++       int turbo = 0;          /* turbo mode bit; depends on N value */
++
++       opt->regs.voltage = opt->v;
++/*
++  CCCR
++    | 31| 30|29-28| 27| 26| 25|24-11| 10| 9 | 8 | 7 |6-5  | 4 | 3 | 2 | 1 | 0 |
++    | C | P |     | L | P |   |     |         |     |             |
++    | P | P |     | C | L |   |     |         |     |             |
++    | D | D |resrv| D | L | A |resrv|  2 * N   |resrv|    L          |
++    | I | I |     | 2 | . |   |     |         |     |             |
++    | S | S |     | 6 | . |   |     |         |     |             |
++
++    A: Alternate setting for MEMC clock
++       0 = MEM clock frequency as specified in YB's table 3-7
++       1 = MEM clock frq = System Bus Frequency
++
++
++  CLKCFG
++    | 31------------------------------------------- | 3 | 2  | 1 | 0 |
++    | --------------------------------------------- | B | HT | F | T |
++
++    B = Fast-Bus Mode  0: System Bus is half of run-mode
++                      1: System Bus is equal to run-mode
++                      NOTE: only allowed when L <= 16
++
++    HT = Half-Turbo    0: core frequency = run or turbo, depending on T bit
++                      1: core frequency = turbo frequency / 2
++                      NOTE: only allowed when 2N = 6 or 2N = 8
++
++    F = Frequency change
++                      0: No frequency change is performed
++                      1: Do frequency-change
++
++    T = Turbo Mode     0: CPU operates at run Frequency
++                      1: CPU operates at Turbo Frequency (when n2 > 2)
++
++*/
++       /* Set the CLKCFG with B, T, and HT */
++       if (opt->b != -1 && opt->n != -1) {
++               f = 1;
++
++               /*When N2=2, Turbo Mode equals Run Mode, so it
++                  does not really matter if this is >2 or >=2
++                */
++               if (opt->n > 2) {
++                       turbo = 0x1;
++               }
++               opt->regs.clkcfg = (opt->b << 3) + (f << 1) + turbo;
++       } else {
++               f = 0x1;
++               opt->regs.clkcfg = (f << 1);
++       }
++
++       /*
++          What about when n2=0 ... it is not defined by the yellow
++          book
++        */
++       if (opt->n != -1) {
++               /* N2 is 4 bits, L is 5 bits */
++               opt->regs.cccr = ((opt->n & 0xF) << 7) + (opt->l & 0x1F);
++       }
++
++       if (opt->cccra > 0) {
++               /* Turn on the CCCR[A] bit */
++               opt->regs.cccr |= (1 << 25);
++       }
++
++       /* 13M Mode */
++       if (opt->l == 1) {
++       }
++
++       if ( (opt->l > 1) && (opt->cpll_enabled == 0) ) {
++                printk(KERN_WARNING
++                 "DPM: internal error if l>1 CPLL must be On\n");
++       }
++       if( (opt->cpll_enabled == 1) && (opt->ppll_enabled == 0) ){
++                printk(KERN_WARNING
++                "DPM: internal error CPLL=On PPLL=Off is NOT
+supported in hardware\n");
++       }
++       if(opt->cpll_enabled == 0) {
++                opt->regs.cccr |= (CCCR_CPDIS_BIT_ON);
++       }
++       if(opt->ppll_enabled == 0) {
++                opt->regs.cccr |= (CCCR_PPDIS_BIT_ON);
++       }
++
++}
++
++/* This routine computes the "forward" frequency scaler flags
++ * for moving the system
++ * from the current operating point to the new operating point.  The resulting
++ * fscaler is applied to the registers of the new operating point.
++ */
++void compute_fscaler_flags(struct md_opt *cur, struct md_opt *new)
++{
++       int current_n, ccsr;
++
++       ccsr = CCSR;
++       current_n = (ccsr & CCCR_N_MASK) >> 7;
++       fscaler_flags = FSCALER_NOP;
++       /* If new CPU is 0, that means sleep, we do NOT switch PLLs
++          if going to sleep.
++        */
++       if (!new->cpu) {
++               if (new->sleep_mode == CPUMODE_DEEPSLEEP) {
++                       fscaler_flags |= FSCALER_DEEPSLEEP;
++               } else if (new->sleep_mode == CPUMODE_STANDBY) {
++                       fscaler_flags |= FSCALER_STANDBY;
++               } else {
++                       fscaler_flags |= FSCALER_SLEEP;
++               }
++       } else {
++
++               /*
++                * If exiting 13M mode, set the flag so we can do the extra
++                * work to get out before the frequency change
++                */
++               if( ((cur->cpll_enabled == 0) && (new->cpll_enabled ==1)) ||
++                       ((cur->ppll_enabled == 0) && (new->ppll_enabled ==1)) ){
++                       fscaler_flags |= FSCALER_XPLLON;
++               }
++
++       }
++
++
++       /* if CPU is *something*, it means we are not going to sleep */
++       if ((new->cpu) &&
++           /* And something has indeed changed */
++           ((new->regs.cccr != cur->regs.cccr) ||
++            (new->regs.clkcfg != cur->regs.clkcfg))) {
++
++               /* Find out if it is *just* a turbo bit change */
++               if ((cur->l == new->l) &&
++                   (cur->cccra == new->cccra) &&
++                   (cur->b == new->b) &&
++                   (cur->half_turbo == new->half_turbo)) {
++                       /*
++                        * If the real, current N is a turbo freq and
++                        * the new N is not a turbo freq, then set
++                        * TURBO_OFF and do not change N
++                        */
++                       if ((cur->n > 1) && (new->n == 2)) {
++                               fscaler_flags |= FSCALER_TURBO_OFF;
++                       }
++                       /*
++                        * Else if the current operating point's N is
++                        * not-turbo and the new N is the desired
++                        * destination N, then set TURBO_ON
++                        */
++                       else if ((cur->n == 2) && (new->n == current_n)) {
++                               /*
++                                * Desired N must be what is current
++                                * set in the CCCR/CCSR
++                                */
++                               fscaler_flags |= FSCALER_TURBO_ON;
++                       }
++                       /* Else, fall through to regular FCS     */
++               }
++               if (!(fscaler_flags & FSCALER_TURBO)) {
++                       /* It this is not a Turbo bit only change, it
++                          must be a regular FCS
++                        */
++                       fscaler_flags |= FSCALER_CPUFREQ;
++               }
++               loops_per_jiffy = new->lpj;
++       }
++
++       if (new->half_turbo != cur->half_turbo) {
++               loops_per_jiffy = new->lpj;
++
++               if (new->half_turbo)
++                       fscaler_flags |= FSCALER_HALFTURBO_ON;
++               else
++                       fscaler_flags |= FSCALER_HALFTURBO_OFF;
++       }
++
++       if (new->regs.voltage != cur->regs.voltage)
++               fscaler_flags |= FSCALER_VOLTAGE;
++
++}
++
++static int pxa27x_transition(struct oppoint *cur, struct oppoint *new)
++{
++       int rc = 0;
++       unsigned target_v;
++       struct md_opt *md_cur, *md_new;
++
++       pr_debug("%s: %s => %s\n", __FUNCTION__, cur->name, new->name);
++
++       md_cur = (struct md_opt *)cur->md_data;
++       md_new = (struct md_opt *)new->md_data;
++
++       /* fully define the new opt, if necessary, based on values
++          from the current opt
++        */
++       mainstone_fully_define_opt(cur, new);
++       target_v = md_new->v;
++
++       /* In accordance with Yellow Book section 3.7.6.3, "Coupling
++          Voltage Change with Frequency Change", always set the
++          voltage first (setting the FVC bit in the PCFR) and then do
++          the frequency change
++        */
++       rc = mainstone_fscale(cur, new);
++       if (rc == 0)
++               current_state = new;
++
++       udelay(new->latency);
++
++       return rc;
++}
++
++static int mainstone_fscale(struct oppoint *c, struct oppoint *n)
++{
++       struct md_opt *cur = (struct md_opt *)c->md_data;
++       struct md_opt *new = (struct md_opt *)n->md_data;
++
++       compute_fscaler_flags(cur, new);
++
++       mainstone_fscaler(&new->regs);
++
++}
++
++void mainstone_fully_define_opt(struct oppoint *c, struct oppoint *n)
++{
++       struct md_opt *cur = (struct md_opt *)c->md_data;
++       struct md_opt *new = (struct md_opt *)n->md_data;
++
++       if (new->v == -1)
++               new->v = cur->v;
++       if (new->l == -1)
++               new->l = cur->l;
++       if (new->n == -1)
++               new->n = cur->n;
++       if (new->b == -1)
++               new->b = cur->b;
++       if (new->half_turbo == -1)
++               new->half_turbo = cur->half_turbo;
++       if (new->cccra == -1)
++               new->cccra = cur->cccra;
++       if (new->cpll_enabled == -1)
++               new->cpll_enabled = cur->cpll_enabled;
++       if (new->ppll_enabled == -1)
++               new->ppll_enabled = cur->ppll_enabled;
++       if (new->sleep_mode == -1)
++               new->sleep_mode = cur->sleep_mode;
++
++#ifdef CONFIG_BULVERDE_B0
++       /* for "B0"-revision PLLs have the same value */
++       new->ppll_enabled = new->cpll_enabled;
++#endif
++       /* PXA27x manual ("Yellow book") 3.5.5 (Table 3-7) states that
++        * CPLL-"On" and PPLL-"Off"
++        * configuration is forbidden (all others seem to be OK for "B0")
++        * for "C0" boards we suppose that this configuration is also enabled.
++        * PXA27x manual ("Yellow book") also states at 3.5.7.1 (page 3-25)
++        * that "CCCR[PPDIS] and CCCR[CPDIS] must always be identical and
++        * changed together". "If PLLs are to be turned off using xPDIS then
++        * set xPDIS before frequency change and clear xPDIS after frequency
++        * change"
++        */
++
++       if (new->n > 2) {
++               new->turbo = 1;
++               /* turbo mode: 13K * L * (N/2)
++                  Shift at the end to divide N by 2 for Turbo mode or
++                  by 4 for Half-Turbo mode )
++                */
++               new->cpu = (13000 * new->l * new->n) >>
++                   ((new->half_turbo == 1) ? 2 : 1);
++       } else {
++               new->turbo = 0;
++               /* run mode */
++               new->cpu = 13000 * new->l;
++       }
++       /* lcd freq is derived from L */
++       calculate_lcd_freq(new);
++       calculate_reg_values(new);
++       /* We want to keep a baseline loops_per_jiffy/cpu-freq ratio
++          to work off of for future calculations, especially when
++          emerging from sleep when there is no current cpu frequency
++          to calculate from (because cpu-freq of 0 means sleep).
++        */
++       if (!saved_loops_per_jiffy) {
++               saved_loops_per_jiffy = loops_per_jiffy;
++               saved_cpu_freq = cur->cpu;
++       }
++       if (!saved_cpu_freq) {
++               saved_cpu_freq = c->frequency;
++       }
++       /*
++        * a dedicated method for updating jiffies when frequency is changed
++        */
++       if (new->cpu) {
++               /* Normal change (not sleep), just compute. Always use
++                  the "baseline" lpj and freq */
++               new->lpj = oppoint_compute_lpj(saved_loops_per_jiffy,
++                   saved_cpu_freq, new->cpu);
++       } else {
++               /* If sleeping, keep the old LPJ */
++               new->lpj = loops_per_jiffy;
++       }
++}
++
++static void xpll_on(struct oppoint_regs *regs, int fscaler_flags)
++{
++       int tmp_cccr, tmp_ccsr;
++       int new_cpllon=0, new_pllon=0, cur_cpllon=0;
++       int  cur_pllon=0, start_cpll=0, start_pll=0;
++
++       tmp_ccsr = CCSR;
++
++       if ((regs->cccr & CCCR_CPDIS_BIT_ON) == 0)
++               new_cpllon=1;
++       if ((regs->cccr & CCCR_PPDIS_BIT_ON) == 0)
++               new_pllon=1;
++       if (((tmp_ccsr >> 31) & 0x1) == 0)
++               cur_cpllon=1;
++       if (((tmp_ccsr >> 30) & 0x1) == 0)
++               cur_pllon=1;
++
++       if ((new_cpllon == 1) && (cur_cpllon == 0)) {
++               start_cpll=1;
++       }
++       if ((new_pllon == 1) && (cur_pllon == 0)) {
++               start_pll=1;
++       }
++
++       if (!(fscaler_flags & FSCALER_XPLLON)) {
++               return;
++       }
++       if ((start_cpll == 0) && (start_pll == 0)) {
++               return;
++       }
++       /* NOTE: the Yellow Book says that exiting 13M mode requires a
++          PLL relock, which takes at least 120uS, so the book suggests
++          the OS could use a timer to keep busy until it is time to
++          check the CCSR bits which must happen before changing the
++          frequency back.
++
++          For now, we'll just loop.
++        */
++
++       /* From Yellow Book, page 3-31, section 3.5.7.5 13M Mode
++
++          Exiting 13M Mode:
++
++          1. Remain in 13M mode, but early enable the PLL via
++          CCCR[CPDIS, PPDIS]=11, and CCCR[PLL_EARLY_EN]=1. Doing
++          so will allow the PLL to be started early.
++
++          2. Read CCCR and compare to make sure that the data was
++          correctly written.
++
++          3. Check to see if CCS[CPLOCK] and CCSR[PPLOCK] bits are
++          both set. Once these bits are both high, the PLLs are
++          locked and you may move on.
++
++          4. Note that the CPU is still in 13M mode, but the PLLs are
++          started.
++
++          5. Exit from 13M mode by writing CCCR[CPDIS, PPDIS]=00, but
++          maintain CCCR[PLL_EARLY_EN]=1. This bit will be cleared
++          by the imminent frequency change.
++        */
++
++       /* Step 1 */
++       tmp_cccr = CCCR;
++       if (start_cpll)
++               tmp_cccr |= CCCR_CPDIS_BIT_ON;
++       if (start_pll)
++               tmp_cccr |= CCCR_PPDIS_BIT_ON;
++       tmp_cccr |= CCCR_PLL_EARLY_EN_BIT_ON;
++
++       CCCR = tmp_cccr;
++
++       /* Step 2 */
++       tmp_cccr = CCCR;
++
++       if ((tmp_cccr & CCCR_PLL_EARLY_EN_BIT_ON) != CCCR_PLL_EARLY_EN_BIT_ON) {
++               printk(KERN_WARNING
++                      "DPM: Warning: PLL_EARLY_EN is NOT on\n");
++       }
++       if ((start_cpll==1) &&
++             ((tmp_cccr & CCCR_CPDIS_BIT_ON) != CCCR_CPDIS_BIT_ON)) {
++               printk(KERN_WARNING
++                      "DPM: Warning: CPDIS is NOT on\n");
++       }
++       if ((start_pll==1) &&
++             (tmp_cccr & CCCR_PPDIS_BIT_ON) != CCCR_PPDIS_BIT_ON) {
++               printk(KERN_WARNING
++                      "DPM: Warning: PPDIS is NOT on\n");
++       }
++
++       /* Step 3 */
++       {
++               /* Note: the point of this is to "wait" for the lock
++                  bits to be set; the Yellow Book says this may take
++                  a while, but observation indicates that it is
++                  instantaneous
++                */
++
++               long volatile int i = 0;
++
++               int cpll_complete=1;
++               int pll_complete=1;
++               if (start_cpll==1)
++                       cpll_complete=0;
++               if (start_pll==1)
++                       pll_complete=0;
++
++               /*loop  arbitrary big value to prevent  looping forever */
++               for (i = 0; i < 999999; i++) {
++                       tmp_ccsr = CCSR;
++
++                       if ((tmp_ccsr & CCSR_CPLL_LOCKED) == CCSR_CPLL_LOCKED) {
++                               /*CPLL locked*/
++                               cpll_complete=1;
++                       }
++                       if ((tmp_ccsr & CCSR_PPLL_LOCKED) == CCSR_PPLL_LOCKED) {
++                               /*PPLL locked*/
++                               pll_complete=1;
++                       }
++                       if ((cpll_complete == 1) && (pll_complete == 1)) {
++                               break;
++                       }
++               }
++       }
++
++       /* Step 4: NOP */
++
++       /* Step 5
++          Clear the PLL disable bits - do NOT do it here.
++        */
++
++       /* But leave EARLY_EN on; it will be cleared by the frequency change */
++       regs->cccr |= CCCR_PLL_EARLY_EN_BIT_ON;
++       /* Do not set it now
++          Step 6: Now go continue on with frequency change
++          We do this step later as if voltage is too low,
++          we must ensure that it rised up  before entereng to higher
++          freq mode or simultaniously
++        */
++}
++
++static void mainstone_fscaler(struct oppoint_regs *regs)
++{
++       unsigned int cccr, clkcfg = 0;
++       unsigned long s;
++
++       /* If no flags are set, don't waste time here, just return */
++       if (fscaler_flags == FSCALER_NOP)
++               return;
++
++       if (!(fscaler_flags & FSCALER_ANY_SLEEPMODE))
++               local_irq_save(s);
++
++       /* If exiting 13M mode (turn on  PLL(s) ), do some extra work
++          before changing the CPU frequency or voltage.
++          We may turn on a combination of PLLs supported by hardware
++          only. Otherwise xpll_on(...) hang the system.
++        */
++       if (fscaler_flags & FSCALER_XPLLON)
++               xpll_on(regs, fscaler_flags);
++
++       /* if not sleeping, and have a voltage change
++          note that SLEEPMODE will handle voltage itself
++        */
++       if (((fscaler_flags & FSCALER_ANY_SLEEPMODE) == 0) &&
++           (fscaler_flags & FSCALER_VOLTAGE)) {
++               if (fscaler_flags & FSCALER_CPUFREQ) {
++                       /* coupled voltage & freq change */
++                       mainstone_scale_voltage_coupled(regs);
++               } else {
++                       /* Scale CPU voltage un-coupled with freq */
++                       mainstone_scale_voltage(regs);
++               }
++       }
++
++       if (fscaler_flags & FSCALER_CPUFREQ)    /* Scale CPU freq */
++               mainstone_scale_cpufreq(regs);
++
++       if ((fscaler_flags & FSCALER_VOLTAGE) &&
++           (fscaler_flags & FSCALER_CPUFREQ))
++               PCFR &= ~PCFR_FVC;
++
++       if (fscaler_flags & FSCALER_TURBO) {
++
++               clkcfg = mainstone_read_clkcfg();
++
++               /* Section 3.5.7 of the Yellow Book says that the F
++                  bit will be left on after a FCS, so we need to
++                  explicitly clear it. But do not change the B bit
++                */
++               clkcfg &= ~(CLKCFG_F_BIT);
++
++               if (fscaler_flags & FSCALER_TURBO_ON) {
++                       clkcfg = clkcfg | (CLKCFG_T_BIT);
++               } else {
++                       clkcfg = clkcfg & ~(CLKCFG_T_BIT);
++               }
++
++               /* enable */
++               mainstone_set_freq(clkcfg);
++       }
++
++       if ((fscaler_flags & FSCALER_HALFTURBO_ON) ||
++           (fscaler_flags & FSCALER_HALFTURBO_OFF)) {
++               if ((fscaler_flags & FSCALER_CPUFREQ) ||
++                   (fscaler_flags & FSCALER_VOLTAGE)) {
++
++                       /*
++                          From the Yellow Book, p 3-106:
++
++                          "Any two writes to CLKCFG or PWRMODE
++                          registers must be separated by siz 13-MHz
++                          cycles.  This requirement is achieved by
++                          doing the write to the CLKCFG or POWERMODE
++                          reigster, performing a read of CCCR, and
++                          then comparing the value in the CLKCFG or
++                          POWERMODE register to the written value
++                          until it matches."
++
++                          Since the setting of half turbo is a
++                          separate write to CLKCFG, we need to adhere
++                          to this requirement.
++                        */
++                       cccr = CCCR;
++                       clkcfg = mainstone_read_clkcfg();
++                       while (clkcfg != regs->clkcfg)
++                               clkcfg = mainstone_read_clkcfg();
++               }
++
++               if (clkcfg == 0)
++                       clkcfg = regs->clkcfg;
++               /* Turn off f-bit.
++
++                  According to the Yellow Book, page 3-23, "If only
++                  HT is set, F is clear, and B is not altered, then
++                  the core PLL is not stopped."
++                */
++               clkcfg = clkcfg & ~(CLKCFG_F_BIT);
++               /* set half turbo bit */
++               if (fscaler_flags & FSCALER_HALFTURBO_ON) {
++                       clkcfg = clkcfg | (CLKCFG_HT_BIT);
++               } else {
++                       clkcfg = clkcfg & ~(CLKCFG_HT_BIT);
++               }
++
++               /* enable */
++               mainstone_set_freq(clkcfg);
++       }
++
++       /* Devices only need to scale on a core frequency
++          change. Half-Turbo changes are separate from the regular
++          frequency changes, so Half-Turbo changes do not need to
++          trigger a device recalculation.
++
++          NOTE: turbo-mode-only changes could someday also be
++          optimized like Half-Turbo (to not trigger a device
++          recalc).
++        */
++
++       if (fscaler_flags & FSCALER_ANY_SLEEPMODE) {
++               /* NOTE: voltage needs i2c, so be sure to change
++                  voltage BEFORE* calling device_suspend
++                */
++
++               if (fscaler_flags & FSCALER_VOLTAGE) {
++                       /* Scale CPU voltage un-coupled with freq */
++                       mainstone_scale_voltage(regs);
++               }
++
++               if (fscaler_flags & FSCALER_SLEEP) {
++                       pm_suspend(&sleep);
++               } else if (fscaler_flags & FSCALER_STANDBY) {
++                       pm_suspend(&standby);
++               } else if (fscaler_flags & FSCALER_DEEPSLEEP) {
++                       pm_suspend(&deepsleep);
++               }
++
++               /* Here when we wake up. */
++
++       } else {
++               local_irq_restore(s);
++       }
++}
++
++/*
++ * Fully determine the current machine-dependent operating point, and fill in a
++ * structure presented by the caller.
++ */
++
++void mainstone_get_current_info(void)
++{
++       unsigned int tmp_cccr;
++       unsigned int cpdis;
++       unsigned int ppdis;
++       struct md_opt *opt = (struct md_opt *)current_state->md_data;
++
++       /* You should read CCSR to see what's up...but there is no A
++          bit in the CCSR, so we'll grab it from the CCCR.
++        */
++       tmp_cccr = CCCR;
++       opt->cccra = (tmp_cccr >> 25) & 0x1;    /* cccr[A]: bit 25 */
++
++       /* NOTE: the current voltage is not obtained, but will be left
++          as 0 in the opt which will mean no voltage change at all
++        */
++
++       opt->regs.cccr = CCSR;
++
++       opt->l = opt->regs.cccr & CCCR_L_MASK;  /* Get L */
++       opt->n = (opt->regs.cccr & CCCR_N_MASK) >> 7;   /* Get 2N */
++
++       /* This should never really be less than 2 */
++       if (opt->n < 2) {
++               opt->n = 2;
++       }
++
++       opt->regs.clkcfg = mainstone_read_clkcfg();
++       opt->b = (opt->regs.clkcfg >> 3) & 0x1; /* Fast Bus (b): bit 3 */
++       opt->turbo = opt->regs.clkcfg & 0x1;    /* Turbo is bit 1 */
++       opt->half_turbo = (opt->regs.clkcfg >> 2) & 0x1;/* HalfTurbo: bit 2 */
++
++       calculate_lcd_freq(opt);
++
++       /* are any of the PLLs is on? */
++       cpdis = ((opt->regs.cccr >> 31) & 0x1);
++       ppdis = ((opt->regs.cccr >> 30) & 0x1);
++       /*
++        * Newer revisions still require that if CPLL is On
++        * then PPLL must also be On.
++        */
++       if ((cpdis == 0) && (ppdis != 0)) {
++               /*
++                * CPLL=On PPLL=Off is NOT supported with hardware.
++                * NOTE:"B0"-revision has even more restrictive requirments
++                * to PLLs
++                */
++               printk("OpPoint: cpdis and ppdis are not in sync!\n");
++       }
++
++       opt->cpll_enabled = (cpdis == 0);
++       opt->ppll_enabled = (ppdis == 0);
++
++       /* Shift 1 to divide by 2 (because opt->n is really 2*N */
++       if (opt->turbo) {
++               opt->cpu = (13000 * opt->l * opt->n) >> 1;
++       } else {
++               /*
++                * turbo bit is off, so skip N multiplier (no matter
++                * what N really is) and use Run frequency (13K * L)
++                */
++               opt->cpu = 13000 * opt->l;
++       }
++}
++
++static void oppoint_print_opt(struct oppoint *opt)
++{
++       struct md_opt *md_opt = (struct md_opt *)opt->md_data;
++
++       printk("OpPoint : Table of defined operating points:\n");
++       printk("\t%s freq %d volt %d latency %d\n", opt->name,
++            opt->frequency, opt->voltage, opt->latency);
++
++       printk("        Name  Vol   CPU    L    N    A    B   HT  PLL
+CPLL Sleep LCD\n");
++
++       printk("%12s %5d%5d%5d%5d%5d%5d%5d%5d%5d%5d%5d\n",
++           opt->name, (md_opt->v), (md_opt->cpu / 1000), md_opt->l, md_opt->n,
++           md_opt->cccra, md_opt->b, md_opt->half_turbo, md_opt->cpll_enabled,
++           md_opt->ppll_enabled, md_opt->sleep_mode, (md_opt->lcd / 1000));
++       return ;
++}
++
++/* Crystal clock: 13MHz */
++#define BASE_CLK  13000000
++
++int __init oppoint_mainstone_init(void)
++{
++       unsigned int freq;
++       unsigned long ccsr;
++       unsigned int l;
++
++       printk("Mainstone OpPoint Power Management\n");
++
++       mainstone_clk_init();
++       mainstone_vcs_init();
++        ccsr = CCSR;
++        l  = ccsr & 0x1f;
++        freq  = l * BASE_CLK;
++
++       /*
++        * supported operating point sets.
++        * 104, 208, 312
++        * 208, 312, 416, 520
++        */
++       switch (freq) {
++           case 104000000: {
++               mainstone_setup_opt(&low, 104, &mhz104);
++               oppoint_print_opt(&low);
++               mainstone_setup_opt(&medium, 208, &mhz208);
++               oppoint_print_opt(&medium);
++               mainstone_setup_opt(&high, 312, &mhz312);
++               oppoint_print_opt(&high);
++               current_state = &medium;
++               break;
++           }
++           case 208000000: {
++               mainstone_setup_opt(&low, 208, &mhz208hi);
++               oppoint_print_opt(&low);
++               mainstone_setup_opt(&medium, 312, &mhz312hi);
++               oppoint_print_opt(&medium);
++               mainstone_setup_opt(&high, 416, &mhz416hi);
++               oppoint_print_opt(&high);
++               mainstone_setup_opt(&highest, 520, &mhz520hi);
++               oppoint_print_opt(&highest);
++               break;
++
++           }
++           default: {
++               printk("OpPoint: unknown frequency set %d\n", freq);
++               break;
++           }
++       }
++
++        if (lowest.frequency)
++               register_operating_point(&lowest);
++        if (low.frequency)
++                register_operating_point(&low);
++        if (mediumlow.frequency)
++                register_operating_point(&mediumlow);
++        if (medium.frequency)
++                register_operating_point(&medium);
++        if (mediumhigh.frequency)
++                register_operating_point(&mediumhigh);
++        if (high.frequency) {
++                register_operating_point(&high);
++               current_state = &high;
++        }
++        if (highest.frequency) {
++                register_operating_point(&highest);
++               current_state = &highest;
++        }
++       /*
++        * add sleep states
++        */
++       mainstone_setup_opt(&sleep, 0, &md_sleep);
++       register_operating_point(&sleep);
++       oppoint_print_opt(&sleep);
++       mainstone_setup_opt(&deepsleep, 0, &md_deepsleep);
++       register_operating_point(&deepsleep);
++       oppoint_print_opt(&deepsleep);
++       mainstone_setup_opt(&standby, 0, &md_standby);
++       register_operating_point(&standby);
++       oppoint_print_opt(&standby);
++
++       return 0;
++}
++
++void __exit oppoint_mainstone_exit(void) {
++       mainstone_freq_cleanup();
++       mainstone_voltage_cleanup();
++}
++
++__initcall(oppoint_mainstone_init);
++__exitcall(oppoint_mainstone_exit);
+Index: linux-2.6.17/arch/arm/Kconfig
+===================================================================
+--- linux-2.6.17.orig/arch/arm/Kconfig
++++ linux-2.6.17/arch/arm/Kconfig
+@@ -690,7 +690,7 @@ config XIP_PHYS_ADDR
+
+ endmenu
+
+-if (ARCH_SA1100 || ARCH_INTEGRATOR || ARCH_OMAP)
++if (ARCH_SA1100 || ARCH_INTEGRATOR || ARCH_OMAP || ARCH_PXA)
+
+ menu "CPU Frequency scaling"
+
+
+
+David

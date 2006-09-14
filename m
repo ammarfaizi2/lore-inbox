@@ -1,50 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750727AbWINNlL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750754AbWINNmw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750727AbWINNlL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Sep 2006 09:41:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750748AbWINNlL
+	id S1750754AbWINNmw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Sep 2006 09:42:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750759AbWINNmv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Sep 2006 09:41:11 -0400
-Received: from dwdmx4.dwd.de ([141.38.3.230]:51019 "EHLO csg-cluster.dwd.de")
-	by vger.kernel.org with ESMTP id S1750727AbWINNlK (ORCPT
+	Thu, 14 Sep 2006 09:42:51 -0400
+Received: from mx2.suse.de ([195.135.220.15]:3513 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1750754AbWINNmv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Sep 2006 09:41:10 -0400
-Date: Thu, 14 Sep 2006 13:41:09 +0000 (GMT)
-From: Holger Kiehl <Holger.Kiehl@dwd.de>
-X-X-Sender: kiehl@diagnostix.dwd.de
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: LM85 problems with 2.6.16.x
-Message-ID: <Pine.LNX.4.64.0609141334070.879@diagnostix.dwd.de>
+	Thu, 14 Sep 2006 09:42:51 -0400
+Message-ID: <45095C58.5020106@suse.com>
+Date: Thu, 14 Sep 2006 09:42:48 -0400
+From: Jeff Mahoney <jeffm@suse.com>
+Organization: SUSE Labs, Novell, Inc
+User-Agent: Thunderbird 1.5 (X11/20060317)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+To: Dave Kleikamp <shaggy@austin.ibm.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, akpm@osdl.org,
+       reiserfs-dev@namesys.com, reiserfs-list@namesys.com
+Subject: Re: argh! it's reiserfs deadlocking! [was: Re: JFS - real deadlock
+ and lockdep warning (2.6.18-rc5-mm1)]
+References: <20060905203309.GA3981@inferi.kami.home> <1157580028.8200.72.camel@kleikamp.austin.ibm.com> <20060907184930.GA13380@inferi.kami.home>
+In-Reply-To: <20060907184930.GA13380@inferi.kami.home>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-I am using a Tyan S4882 motherboard with 4 CPU's that has a LM85 sensor chip
-which reports the following message during boot:
+Mattia Dongili wrote:
+> On Wed, Sep 06, 2006 at 05:00:28PM -0500, Dave Kleikamp wrote:
+>> I meant to reply to this earlier.  I've had a lot of distractions.
+>>
+>> On Tue, 2006-09-05 at 22:33 +0200, Mattia Dongili wrote:
+>>> Hello,
+>>>
+>>> as the subject says it's some time[0] I'm experiencing deadlocks[1] (I'm
+>>> only tracking -mm, and sporadically using the stable series). I have a
+>>> couple of use cases that seem to reliably trigger the deadlock, namely
+>>> using Eclipse and Firefox.
+> [...]
+>>> /dev/hda1 on / type reiserfs (rw)
+>>> /dev/hda3 on /usr type reiserfs (rw)
+>>> /dev/hda5 on /home type jfs (rw)
+>>>
+>>> bootlog: http://oioio.altervista.org/linux/dmesg-2.6.18-rc5-mm1-lockdep
+>>> config: http://oioio.altervista.org/linux/config-2.6.18-rc5-mm1-lockdep
+> 
+> Dave,
+> 
+> I have to apologize. Reiser3 seem to be the one deadlocking here
+> actually. Changing /home to reiser4 still deadlocks.
+> 
+> Now, reiserfs-developers:
+> would you want me to keep the filesystem around to try to test patches
+> or potential fixes or can I wipe it out?
+> The good thing is that the deadlock is 100% repeatable, the bad thing is
+> that this laptop has a broken cdrom and I have to take the drive out and
+> fsck it via usb1.1 each time. :)
+> 
+> Thanks
 
 
-     .
-     .
-     ipmi device interface
-     Enabling SMBus multiplexing for Tyan S4882
-     lm85 0-002e: Client (0,0x2e) config is locked.
-     lm85 0-002e: Client (0,0x2e) is not ready.
-     lm85 0-002e: Client (0,0x2e) VxI mode is set. Please report this to the lm85 maintainer.
+How is it that you arrived on reiser3 and reiser4 deadlocking here?
 
-Looking at /var/log/messages I also can see multiple entries of:
+- -Jeff
 
-     i2c_adapter i2c-0: SMBus collision!
+- --
+Jeff Mahoney
+SUSE Labs
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+Comment: Using GnuPG with SUSE - http://enigmail.mozdev.org
 
-Any idea what is causing this and what I can do to remove the problem?
-
-Who is the lm85 maintainer? In MAINTANERS I only found LM80 and LM83. In
-lm85.c there is Justin Thiessen <jthiessen@penguincomputing.com> in the
-Copyright, but failed to contact him.
-
-Thanks,
-Holger
--- 
-
+iD8DBQFFCVxYLPWxlyuTD7IRArZ1AJ9pJPRw0ERLLS36xhn6dyHiXZJtVgCeN+Xe
+OVBhxH0xk8UL/YaUKlHJuEE=
+=9R9c
+-----END PGP SIGNATURE-----

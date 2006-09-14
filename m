@@ -1,50 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751345AbWINFc7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751357AbWINGLO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751345AbWINFc7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Sep 2006 01:32:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751346AbWINFc6
+	id S1751357AbWINGLO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Sep 2006 02:11:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751358AbWINGLO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Sep 2006 01:32:58 -0400
-Received: from mx10.go2.pl ([193.17.41.74]:16818 "EHLO poczta.o2.pl")
-	by vger.kernel.org with ESMTP id S1751345AbWINFc6 (ORCPT
+	Thu, 14 Sep 2006 02:11:14 -0400
+Received: from gw.goop.org ([64.81.55.164]:462 "EHLO mail.goop.org")
+	by vger.kernel.org with ESMTP id S1751357AbWINGLO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Sep 2006 01:32:58 -0400
-Date: Thu, 14 Sep 2006 07:36:47 +0200
-From: Jarek Poplawski <jarkao2@o2.pl>
-To: Dave Jones <davej@redhat.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] mpparse.c:231: warning: comparison is always false
-Message-ID: <20060914053647.GA1640@ff.dom.local>
-References: <20060913065010.GA2110@ff.dom.local> <20060913164251.GD13956@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060913164251.GD13956@redhat.com>
-User-Agent: Mutt/1.4.2.2i
+	Thu, 14 Sep 2006 02:11:14 -0400
+Message-ID: <4508F279.6010205@goop.org>
+Date: Wed, 13 Sep 2006 23:11:05 -0700
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060907)
+MIME-Version: 1.0
+To: Albert Cahalan <acahalan@gmail.com>
+CC: torvalds@osdl.org, mingo@elte.hu, ak@suse.de, ebiederm@xmission.com,
+       arjan@infradead.org, zach@vmware.com, linux-kernel@vger.kernel.org
+Subject: Re: Assignment of GDT entries
+References: <787b0d920609132023t1686525ei9c1703b044029909@mail.gmail.com>
+In-Reply-To: <787b0d920609132023t1686525ei9c1703b044029909@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 13, 2006 at 12:42:51PM -0400, Dave Jones wrote:
-> On Wed, Sep 13, 2006 at 08:50:10AM +0200, Jarek Poplawski wrote:
-...  
->  > +#if 0xFF >= MAX_MP_BUSSES
->  >  	if (m->mpc_busid >= MAX_MP_BUSSES) {
->  >  		printk(KERN_WARNING "MP table busid value (%d) for bustype %s "
->  >  			" is too large, max. supported is %d\n",
->  >  			m->mpc_busid, str, MAX_MP_BUSSES - 1);
->  >  		return;
->  >  	}
->  > +#endif
-> 
-> mpc_busid is a uchar. I don't see how this can ever be > 0xff, yet
-> mach-summit and mach-generic have MAX_MP_BUSSES set to 260.
-> 
-> I don't see how this can possibly work.
-> 
-> 	Dave
-> 
+Albert Cahalan wrote:
+> We actually have an ABI problem right now because of this.
+> Note that i386 and x86_64 use different GDT slots.
+>
+> As far as I can tell, users need to hard-code the mapping
+> from TLS slot to segment number. They use 0,1,2 to ask the
+> kernel to set things up (via set_thread_area), but can't
+> just pop that into %fs or %gs.
 
-0xFF >= 260 is false so the block is not compiled and
-the warning is gone (+ several bytes of useless code).
+That's not true at all.  The program I posted earlier in this thread 
+uses set_thread_area() to allocate a GDT slot, and it works on both 
+native 32 bit and 32-under-64.  The entry_number field in the struct 
+user_desc is an actual entry number, so you can easily construct a 
+selector from it.
 
-Jarek P.
+> Typical hacks that result from this:
+>
+> call uname() and look for "x86_64"
+> see of the addresses of local variables exceed 0xbfffffff
+> examine /proc/1/maps
+> check for a /lib64 directory
+> change SSE register 8 in a signal handler frame and see if it sticks
+> checksum the vdso code
+> ...
+>
+> Please save us from these foul hacks.
+
+Er, that all looks completely unnecessary.
+
+    J

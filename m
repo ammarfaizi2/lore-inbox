@@ -1,127 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750972AbWINUzr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750745AbWINU6n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750972AbWINUzr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Sep 2006 16:55:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750984AbWINUzr
+	id S1750745AbWINU6n (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Sep 2006 16:58:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750746AbWINU6n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Sep 2006 16:55:47 -0400
-Received: from dvhart.com ([64.146.134.43]:62433 "EHLO dvhart.com")
-	by vger.kernel.org with ESMTP id S1750958AbWINUzq (ORCPT
+	Thu, 14 Sep 2006 16:58:43 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:51382 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1750745AbWINU6m (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Sep 2006 16:55:46 -0400
-Message-ID: <4509C1D0.6080208@mbligh.org>
-Date: Thu, 14 Sep 2006 13:55:44 -0700
-From: Martin Bligh <mbligh@mbligh.org>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051011)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Roman Zippel <zippel@linux-m68k.org>,
-       Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
-       linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
-       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@redhat.com>,
-       Greg Kroah-Hartman <gregkh@suse.de>,
-       Thomas Gleixner <tglx@linutronix.de>, Tom Zanussi <zanussi@us.ibm.com>,
-       ltt-dev@shafik.org, Michel Dagenais <michel.dagenais@polymtl.ca>,
-       fche@redhat.com
-Subject: Re: [PATCH 0/11] LTTng-core (basic tracing infrastructure) 0.5.108
-References: <20060914033826.GA2194@Krystal> <20060914112718.GA7065@elte.hu> <Pine.LNX.4.64.0609141537120.6762@scrub.home> <20060914135548.GA24393@elte.hu> <Pine.LNX.4.64.0609141623570.6761@scrub.home> <20060914171320.GB1105@elte.hu> <4509BAD4.8010206@mbligh.org> <20060914203430.GB9252@elte.hu>
-In-Reply-To: <20060914203430.GB9252@elte.hu>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 14 Sep 2006 16:58:42 -0400
+Date: Thu, 14 Sep 2006 21:58:34 +0100
+From: Alasdair G Kergon <agk@redhat.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>
+Subject: [PATCH RESEND] dm: support ioctls on mapped devices: fix with fake file
+Message-ID: <20060914205833.GH3928@agk.surrey.redhat.com>
+Mail-Followup-To: Alasdair G Kergon <agk@redhat.com>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+	Christoph Hellwig <hch@infradead.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
-> * Martin Bligh <mbligh@mbligh.org> wrote:
-> 
-> 
->>>if there are lots of tracepoints (and the union of _all_ useful 
->>>tracepoints that i ever encountered in my life goes into the thousands) 
->>>then the overhead is not zero at all.
->>>
->>>also, the other disadvantages i listed very much count too. Static 
->>>tracepoints are fundamentally limited because:
->>>
->>> - they can only be added at the source code level
->>>
->>> - modifying them requires a reboot which is not practical in a
->>>   production environment
->>>
->>> - there can only be a limited set of them, while many problems need
->>>   finegrained tracepoints tailored to the problem at hand
->>>
->>> - conditional tracepoints are typically either nonexistent or very
->>>   limited.
->>>
->>>for me these are all _independent_ grounds for rejection, as a generic 
->>>kernel infrastructure.
->>
->>I don't think anyone is saying that static tracepoints do not have 
->>their limitations, or that dynamic tracepointing is useless. But 
->>that's not the point ... why can't we have one infrastructure that 
->>supports both? Preferably in a fairly simple, consistent way.
-> 
-> 
-> primarily because i fail to see any property of static tracers that are 
-> not met by dynamic tracers. So to me dynamic tracers like SystemTap are 
-> a superset of static tracers.
+From: Milan Broz <mbroz@redhat.com>
 
-1. They're harder to maintain out of tree.
-2. they're written in some jibberish awk crap
-3. They're slower. If you're doing thousands of tracepoints a second,
-	into a circular 8GB log buffer, that *does* matter. You want
-	to peturb what you're measuring as little as possible.
+The new ioctl code passes the wrong file pointer to the underlying device.
+No file pointer is available so make a temporary fake one.
 
-If you're running across thousands of systems, in live production, in
-order to catch a rare race condition, the performance does matter.
 
-> So my position is that what we should concentrate on is to make the life 
-> of dynamic tracers easier (be that a handful of generic, parametric 
-> hooks that gather debuginfo information and add NOPs for easy patching), 
-> while realizing that static tracers have no advantage over dynamic 
-> tracers.
+[Resending: ioctl_by_bdev() does set_fs(KERNEL_DS) so it's for ioctls
+originating within the kernel and unsuitable here.  We are processing ioctls
+that originated in userspace and mapping them to different devices.  Fixing
+the existing callers that pass a NULL file struct and consolidating the
+fake_file users are separate matters to solve in later patches.]
 
-I'm confused. You're saying that the dynamic tracers need help by
-adding some static data to the kernel, and yet at the same time
-rejecting static additions to the kernel on the grounds they have
-no value???
 
-Perhaps we're just meaning different things by static tracing. To me,
-what is important is that there is a well-defined place in the source
-code where the data needed to be logged, and the exact place to log
-it at, is defined. If all that macro does to the compilation is add
-a couple of nops, and make an entry in a symbol data, or other debug
-data, for something to hook into later that's *fine*. The point is
-to maintain the location and intelligence about *what* to trace.
+Signed-off-by: Milan Broz <mbroz@redhat.com>
+Signed-off-by: Alasdair G Kergon <agk@redhat.com>
 
-Perhaps I'm calling that static, and you're calling it dynamic? Would
-explain why we're disagreeing ;-) Seems to be exactly what you're
-suggesting above?
+Index: linux-2.6.17/drivers/md/dm-mpath.c
+===================================================================
+--- linux-2.6.17.orig/drivers/md/dm-mpath.c	2006-06-23 19:17:27.000000000 +0100
++++ linux-2.6.17/drivers/md/dm-mpath.c	2006-06-23 19:17:40.000000000 +0100
+@@ -1272,15 +1272,22 @@ static int multipath_ioctl(struct dm_tar
+ 	struct multipath *m = (struct multipath *) ti->private;
+ 	struct block_device *bdev = NULL;
+ 	unsigned long flags;
++	struct file fake_file = {};
++	struct dentry fake_dentry = {};
+ 	int r = 0;
+ 
++	fake_file.f_dentry = &fake_dentry;
++
+ 	spin_lock_irqsave(&m->lock, flags);
+ 
+ 	if (!m->current_pgpath)
+ 		__choose_pgpath(m);
+ 
+-	if (m->current_pgpath)
++	if (m->current_pgpath) {
+ 		bdev = m->current_pgpath->path.dev->bdev;
++		fake_dentry.d_inode = bdev->bd_inode;
++		fake_file.f_mode = m->current_pgpath->path.dev->mode;
++	}
+ 
+ 	if (m->queue_io)
+ 		r = -EAGAIN;
+@@ -1289,8 +1296,8 @@ static int multipath_ioctl(struct dm_tar
+ 
+ 	spin_unlock_irqrestore(&m->lock, flags);
+ 
+-	return r ? : blkdev_driver_ioctl(bdev->bd_inode, filp, bdev->bd_disk,
+-		     cmd, arg);
++	return r ? : blkdev_driver_ioctl(bdev->bd_inode, &fake_file,
++					 bdev->bd_disk, cmd, arg);
+ }
+ 
+ /*-----------------------------------------------------------------
+Index: linux-2.6.17/drivers/md/dm-linear.c
+===================================================================
+--- linux-2.6.17.orig/drivers/md/dm-linear.c	2006-06-23 19:17:27.000000000 +0100
++++ linux-2.6.17/drivers/md/dm-linear.c	2006-06-23 19:17:40.000000000 +0100
+@@ -104,8 +104,14 @@ static int linear_ioctl(struct dm_target
+ {
+ 	struct linear_c *lc = (struct linear_c *) ti->private;
+ 	struct block_device *bdev = lc->dev->bdev;
++	struct file fake_file = {};
++	struct dentry fake_dentry = {};
+ 
+-	return blkdev_driver_ioctl(bdev->bd_inode, filp, bdev->bd_disk, cmd, arg);
++	fake_file.f_mode = lc->dev->mode;
++	fake_file.f_dentry = &fake_dentry;
++	fake_dentry.d_inode = bdev->bd_inode;
++
++	return blkdev_driver_ioctl(bdev->bd_inode, &fake_file, bdev->bd_disk, cmd, arg);
+ }
+ 
+ static struct target_type linear_target = {
 
-If we want it to be superfast, we could compile with a different config 
-option to insert some tracing statically in there or something, but I
-agree it should not be the default.
-
-> i.e. why add infrastructure for the sake of something that is clearly 
-> inferior? I have no problem with adding infrastructure for SystemTap, 
-> but i am asking the question: is it worth adding a static tracer?
-
-Yes ;-) Realise that your usage model is not exactly the same as
-everyone else's, and I don't give a damn if I have to recompile. I
-realise other people do, but ....
-
-> I would of course accept static tracers too if someone proved it that 
-> they offer something that dynamic tracers cannot do.
-
-Can you *really* trace *any* variable (stack variables, etc) at *any*
-point within *any* function with kprobes? It didn't do that before,
-and I find it hard to see how it could, given compiler optimizations,
-etc.
-
-> (Just like i would accept the reintroduction of the Big Kernel Lock too, 
-> if someone proved it that it's the right thing to do.)
-
-Surely it's still there at the moment? ;-)
-
-M.

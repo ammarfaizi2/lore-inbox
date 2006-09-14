@@ -1,65 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751128AbWINUUs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751127AbWINUWH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751128AbWINUUs (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Sep 2006 16:20:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751129AbWINUUs
+	id S1751127AbWINUWH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Sep 2006 16:22:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751131AbWINUWH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Sep 2006 16:20:48 -0400
-Received: from aa001msr.fastwebnet.it ([85.18.95.64]:24233 "EHLO
-	aa001msr.fastwebnet.it") by vger.kernel.org with ESMTP
-	id S1751128AbWINUUs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Sep 2006 16:20:48 -0400
-Date: Thu, 14 Sep 2006 22:19:19 +0200
-From: Mattia Dongili <malattia@linux.it>
+	Thu, 14 Sep 2006 16:22:07 -0400
+Received: from ogre.sisk.pl ([217.79.144.158]:43738 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S1751127AbWINUWE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Sep 2006 16:22:04 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
 To: Alan Stern <stern@rowland.harvard.edu>
-Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, Andrew Morton <akpm@osdl.org>,
+Subject: Re: [linux-usb-devel] 2.6.18-rc6-mm1 (-mm2): ohci resume problem
+Date: Thu, 14 Sep 2006 22:21:05 +0200
+User-Agent: KMail/1.9.1
+Cc: Andrew Morton <akpm@osdl.org>, Mattia Dongili <malattia@linux.it>,
+       Robert Hancock <hancockr@shaw.ca>,
        Kernel development list <linux-kernel@vger.kernel.org>,
        USB development list <linux-usb-devel@lists.sourceforge.net>
-Subject: Re: [linux-usb-devel] 2.6.18-rc6-mm1 (-mm2): ohci resume problem
-Message-ID: <20060914201919.GB3963@inferi.kami.home>
-Mail-Followup-To: Alan Stern <stern@rowland.harvard.edu>,
-	"Rafael J. Wysocki" <rjw@sisk.pl>, Andrew Morton <akpm@osdl.org>,
-	Kernel development list <linux-kernel@vger.kernel.org>,
-	USB development list <linux-usb-devel@lists.sourceforge.net>
-References: <20060913203806.GA5580@inferi.kami.home> <Pine.LNX.4.44L0.0609131652290.5758-100000@iolanthe.rowland.org>
+References: <Pine.LNX.4.44L0.0609141428070.5715-100000@iolanthe.rowland.org> <200609142137.52066.rjw@sisk.pl>
+In-Reply-To: <200609142137.52066.rjw@sisk.pl>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44L0.0609131652290.5758-100000@iolanthe.rowland.org>
-X-Message-Flag: Cranky? Try Free Software instead!
-X-Operating-System: Linux 2.6.18-rc5-mm1-3 i686
-X-Editor: Vim http://www.vim.org/
-X-Disclaimer: Buh!
-User-Agent: Mutt/1.5.13 (2006-08-11)
+Message-Id: <200609142221.06507.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 13, 2006 at 04:54:13PM -0400, Alan Stern wrote:
-> On Wed, 13 Sep 2006, Mattia Dongili wrote:
+On Thursday, 14 September 2006 21:37, Rafael J. Wysocki wrote:
+> On Thursday, 14 September 2006 20:28, Alan Stern wrote:
+> > On Thu, 14 Sep 2006, Rafael J. Wysocki wrote:
+> > 
+> > > > Let's try a simpler test.  Leave USB_SUSPEND unset.
+> > > > 
+> > > > First rmmod ohci-hcd.  None of your full-speed USB devices will work, but 
+> > > > that's okay.  Try the suspend-twice test and see what happens.
+> > > > 
+> > > > Second, rmmod ehci-hcd and modprobe ohci-hcd.  Again try the suspend-twice 
+> > > > test.
+> > > 
+> > > Done, works (with USB_SUSPEND unset).
+> > 
+> > Okay, good.
 > 
-> > > The patch below will add some extra debugging information.  We need to
-> > > find out why the resume didn't succeed.  Oh -- and of course, you should
-> > > reinstate all those autosuspend patches.  Otherwise this patch won't 
-> > > apply!
-> > 
-> > ok, with USB_DEBUG=y and this is with your first patch still applied
-> > http://oioio.altervista.org/linux/dmesg-2.6.18-rc6-mm1-verbose-usb-try2
-> > 
-> > this is without it:
-> > http://oioio.altervista.org/linux/dmesg-2.6.18-rc6-mm1-verbose-usb-try3
-> > 
-> > I hope I'm not mixing thing too much with Rafael :)
+> Well, sorry.  This test has been passed, but after a reboot it refused to
+> suspend just once giving the same messages that I've got from the kernel
+> with USB_SUSPEND set (the relevant dmesg output is attached).
+
+This only happens if _both_ ohci_hcd and ehci_hcd are loaded before the
+suspend.
+ 
+> > Then for the next stage, repeat the same tests but with  
+> > USB_SUSPEND set.
 > 
-> No.  But this log doesn't include the debugging output in the patch from 
-> my previous message.
+> Compiling.
 
-doh! I'm pretty sure the patch is applied...
-$ patch -p1 --dry-run < ../add_usb_debug.patch
-patching file drivers/usb/core/driver.c
-Reversed (or previously applied) patch detected!  Assume -R? [n]
+The results are now the same with and without USB_SUSPEND set.  Namely,
+if one hcd is loaded before a suspend (either ehci or ohci), it succeeds
+(repeatable arbitrary number of times in a row).  However, if both hcds are
+loaded before a suspend, it fails (100% of the time) and the messages are
+like in the dmesg output attached to the previous message.
 
-Will try again with USB_SUSPEND=y, tomorrow I'll try to find some time
-to test all the other things you suggested  (if still necessary) :)
+I've reproduced this behavior on another x86_64 box.
+
+Greetings,
+Rafael
+
+
 -- 
-mattia
-:wq!
+You never change things by fighting the existing reality.
+		R. Buckminster Fuller

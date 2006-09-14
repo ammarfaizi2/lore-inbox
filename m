@@ -1,51 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750862AbWINOhv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750872AbWINOiq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750862AbWINOhv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Sep 2006 10:37:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750854AbWINOhv
+	id S1750872AbWINOiq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Sep 2006 10:38:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750873AbWINOiq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Sep 2006 10:37:51 -0400
-Received: from py-out-1112.google.com ([64.233.166.177]:7941 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S1750862AbWINOht (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Sep 2006 10:37:49 -0400
+	Thu, 14 Sep 2006 10:38:46 -0400
+Received: from nf-out-0910.google.com ([64.233.182.190]:59777 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1750868AbWINOip (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Sep 2006 10:38:45 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=C/enhsgcvAOFtsSksgLJgUoW/cSBVENPpnM5AsLwGPqa2rp39/2VmchgY8ZrbSrQwYQdMWYbgJRHJ38TnLa2kuQLAOCW7BG+89EuX1FUvb4MckV6uhNncayHrn2Srtm2JPKZaNAZkWQzZV+yUEjRMEsNPCXM+FfiIFq/YBDHpHM=
-Message-ID: <45096936.4040007@gmail.com>
-Date: Thu, 14 Sep 2006 23:37:42 +0900
-From: Tejun Heo <htejun@gmail.com>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060812)
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:content-type:content-transfer-encoding;
+        b=LzPyGwRWeDFhlAUwT88GccKVEMgMWG+Uahgsp4PYK/OzO/Q35W0u8zDsSYcMQrcgakvm67kgTvAzrpiWjdOjOtqPL6kH+YIeqVdDrsr/A9Qsdpb2bCUL/ac/+phojR4rn8gml6F/Vi+MdCYRQxq1uVh6OVCyHKUXkQewzgChVpk=
+Message-ID: <4509697D.1050107@gmail.com>
+Date: Thu, 14 Sep 2006 18:38:53 +0400
+From: "Eugeny S. Mints" <eugeny.mints@gmail.com>
+User-Agent: Thunderbird 1.5 (X11/20060313)
 MIME-Version: 1.0
-To: linux-thinkpad@linux-thinkpad.org, linux-kernel@vger.kernel.org
-Subject: Re: [ltp] 2.6.18-rc6, SATA, resume from RAM
-References: <87u03dcmfc.fsf@pereiro.luannocracy.com> <20060912132838.GQ7767@gimli>
-In-Reply-To: <20060912132838.GQ7767@gimli>
+To: pm list <linux-pm@lists.osdl.org>
+CC: Matthew Locke <matt@nomadgs.com>, Amit Kucheria <amit.kucheria@nokia.com>,
+       Igor Stoppa <igor.stoppa@nokia.com>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: PowerOP, Whatchanged/Issues/TODO 2/2
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin Lorenz wrote:
-> On Tue, Sep 12, 2006 at 08:13:43AM -0400, David Abrahams wrote:
->> Since installing a 2.6.18-rc6 kernel, my Thinkpad T60P's SATA hard
->> drive doesn't seem to spin up when resuming from a suspend-to-RAM.  Am
->> I missing something obvious, is this a kernel bug, or am I missing
->> something less-obvious ;-)?
-> 
-> I don't know if your T60 has the same issue like my X60s but I had to patch
-> my kernel to get a proper resume
-> 
-> I applied forrest zhauo's set of ahci patches to 2.6.18-rc5
-> 
-> you find those patches here:
-> http://marc.theaimsgroup.com/?l=linux-ide&m=115277002327654&w=2
-> 
-> maybe they find there way into the kernel sometime :-)
+whatchanged:
+- optional sysfs interface is added
+- code is moved under kernel/power
+- Greg's comments on kobject and coding style are addressed
 
-Those patches are currently in -mm and will make into 2.6.19-rc1 when it 
-opens.
+todo/issues:
+- better implementation for getting registered operating point names
+- move string parsing into powerop generic code
+- configfs for operating points creation from user space
+- powerop driver module refcounting
 
--- 
-tejun
+

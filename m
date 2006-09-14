@@ -1,90 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751185AbWINVVd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751217AbWINV3N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751185AbWINVVd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Sep 2006 17:21:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751187AbWINVVc
+	id S1751217AbWINV3N (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Sep 2006 17:29:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751208AbWINV3N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Sep 2006 17:21:32 -0400
-Received: from nf-out-0910.google.com ([64.233.182.184]:33544 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1751185AbWINVVb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Sep 2006 17:21:31 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=mWwOUGzrr+3XD/+EfvNavRtPs0ornbUg5k9nVDurDgCRnOFlbai5M4OVYQiamZ88NlheuCsTtvycjT/N07KiizdG5MdSwV/UC/iYYzt+m6aCRnaZC5sqa+TxKLTD6zADTTscUSDIsGnNXlkXsz5FzSl3olhMN6WyrGAbNzsuQzg=
-Message-ID: <4509C7D0.8080108@gmail.com>
-Date: Thu, 14 Sep 2006 23:20:57 +0159
-From: Jiri Slaby <jirislaby@gmail.com>
-User-Agent: Thunderbird 2.0a1 (X11/20060724)
+	Thu, 14 Sep 2006 17:29:13 -0400
+Received: from sabe.cs.wisc.edu ([128.105.6.20]:12232 "EHLO sabe.cs.wisc.edu")
+	by vger.kernel.org with ESMTP id S1751205AbWINV3M (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Sep 2006 17:29:12 -0400
+Message-ID: <4509C997.4070006@cs.wisc.edu>
+Date: Thu, 14 Sep 2006 16:28:55 -0500
+From: Mike Christie <michaelc@cs.wisc.edu>
+User-Agent: Thunderbird 1.5 (X11/20060313)
 MIME-Version: 1.0
-To: Adrian Bunk <bunk@stusta.de>
-CC: Jim Cromie <jim.cromie@gmail.com>,
-       Linux kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [RFC patch] MAINTAINERS:  encourage testers to volunteer
-References: <4509AA10.4050907@gmail.com> <20060914194411.GA669@stusta.de>
-In-Reply-To: <20060914194411.GA669@stusta.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Peter Zijlstra <a.p.zijlstra@chello.nl>
+CC: linux-mm@kvack.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       David Miller <davem@davemloft.net>, Rik van Riel <riel@redhat.com>,
+       Daniel Phillips <phillips@google.com>
+Subject: Re: [PATCH 20/20] iscsi: support for swapping over iSCSI.
+References: <20060912143049.278065000@chello.nl>	 <20060912144905.201160000@chello.nl>  <45086F16.9030307@cs.wisc.edu>	 <1158214650.13665.27.camel@twins>  <4509ABE5.2080904@cs.wisc.edu>	 <1158266150.30737.92.camel@taijtu> <1158266816.30737.99.camel@taijtu> <4509C4ED.9080508@cs.wisc.edu>
+In-Reply-To: <4509C4ED.9080508@cs.wisc.edu>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adrian Bunk wrote:
-> On Thu, Sep 14, 2006 at 01:14:24PM -0600, Jim Cromie wrote:
->> Add a new entry-type into MAINTAINERS whereby folks with hardware can 
->> volunteer to
->> test patches to the driver.  It should encourage folks to put themselves 
->> "on the hook"
->> in trade for a little bit of notoriety.
+Mike Christie wrote:
+> Peter Zijlstra wrote:
+>> On Thu, 2006-09-14 at 22:35 +0200, Peter Zijlstra wrote:
+>>> On Thu, 2006-09-14 at 14:22 -0500, Mike Christie wrote:
+>>>>> I thought I found allocations in that path, lemme search...
+>>>>> found this:
+>>>>>
+>>>>> iscsi_tcp_data_recv()
+>>>>>   iscsi_data_rescv()
+>>>>>     iscsi_complete_pdu()
+>>>>>       __iscsi_complete_pdu()
+>>>>>         iscsi_recv_pdu()
+>>>>>           alloc_skb( GFP_ATOMIC);
+>>>>>
+>>>> You are right that is for the netlink interface. Could we move the
+>>>> PF_MEMALLOC setting and clearing to iscsi_recv_pdu and and add it to
+>>>> iscsi_conn_error in scsi_transport_iscsi.c so that iscsi_iser and
+>>>> qla4xxx will have it set when they need it. I will send a patch for this
+>>>> along with a way to have the netlink sock vmio set for all iscsi drivers
+>>>> that need it.
+>>> I already have such a patch, look at:
+>>> http://programming.kicks-ass.net/kernel-patches/vm_deadlock/current/iscsi_vmio.patch
+>>>
+>>> but what conditional do you want to use for PF_MEMALLOC, an
+>>> unconditional setting will be highly unpopular.
+>>>
+>>> Hmm, perhaps you could key it of sk_has_vmio(nls)...
+>> On second thought, not such a good idea, that will still be too course.
+>> You only want to force feed stuff originating from
+>> sk_has_vmio(iscsi_tcp_conn->sock->sk) connections, not all
+>> connectections as soon as there is a swapper in the system.
 >>
->> Hopefully this will help improve:
->> - support for rare hardware
->> - QA on that hardware
->> - connections between hackers & testers
->> - would-be hackers can find new things to do, esp in less visited parts 
->> of the dist.
->>
->> Additions should be approved by maintainers etc, but thats no different 
->> than is currently done.
 > 
-> There are currently 97 different saa7134 card types supported by the 
-> kernel. Do we need an entry for each of them (each card type has it's 
-> own specific support)?
-
-It's utterly sufficient to know about only one person, who have that piece of 
-hardware in most cases -- to test the core of the driver, not all specific 
-parts. Something like to test it at least roughly.
-
-> And this information will become outdated much faster than updated
-> (even the maintainers entries are sometimes outdated).
-
-When akpm proposed this, I agreed (but still have no contacts to post a patch), 
-because I needed somebody to test a driver I had rewritten a little bit, but 
-there was no place to take a look...
-But his thoughts were a little bit different, he considered creating a separate 
-file named TESTERS and there have a list of these "qa people" (even for one 
-specific piece of hw if necessary). [I hope I did understand him correctly...]
-
->> --- doc-touches/MAINTAINERS~	2006-09-14 11:50:03.000000000 -0600
->> +++ doc-touches/MAINTAINERS	2006-09-14 12:19:13.000000000 -0600
->> @@ -80,6 +80,12 @@
->> 			it has been replaced by a better system and you
->> 			should be using that.
+> You can move the iscsi_session->swapper field to the iscsi_cls_session
+> and have iscsi_swapdev take a iscsi_cls_session and set that flag.
+> iscsi_recv_pdu and iscsi_conn_error and all the llds can then access
+> this bit.
+> 
+>> In order to preserve that information you need extra state, abusing this
+>> process flags is as good as propagating __GFP_EMERGENCY down the call
+>> chain with extra gfp_t arguments, perhaps even better, since it will
+>> make sure we catch all allocations.
 >>
->> +V: Validation/Test contact and hardware they can test.
->> +
->> +	Identifies folks who are willing to test driver patches, etc.
->> +	Also can identify lack of hardware for otherwize maintained drivers
->> +	by using 'none'
->> +
->> 3C359 NETWORK DRIVER
->> P:	Mike Phillips
->> M:	mikep@linuxtr.net
 
-regards,
--- 
-http://www.fi.muni.cz/~xslaby/            Jiri Slaby
-faculty of informatics, masaryk university, brno, cz
-e-mail: jirislaby gmail com, gpg pubkey fingerprint:
-B674 9967 0407 CE62 ACC8  22A0 32CC 55C3 39D4 7A7E
+Oh yeah, on the send side we also allocate some memory for the netlink
+interface if there is a connection error (iscsi_conn_failure ->
+iscsi_conn_error). And when that is called from the transmit side we can
+change the GFP_ATOMICs to GFP_NOIOs since we have process context.
+
+So I am just saying we need to set that flag in a couple more places (if
+you set it in iscsi_conn_error if iscsi_cls_session->swapper is set then
+don't worry about it), and that I need to change iscsi_conn_failure and
+iscsi_conn_error to take a gfp_t as an argument (or do a in_interrupt or
+something) so we can use GFP_NOIO in the transmit code.

@@ -1,98 +1,119 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750715AbWINWb0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932073AbWINWiS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750715AbWINWb0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Sep 2006 18:31:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750738AbWINWb0
+	id S932073AbWINWiS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Sep 2006 18:38:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932079AbWINWiS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Sep 2006 18:31:26 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:41130 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1750715AbWINWbZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Sep 2006 18:31:25 -0400
-Date: Fri, 15 Sep 2006 00:23:18 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Michel Dagenais <michel.dagenais@polymtl.ca>
-Cc: Martin Bligh <mbligh@mbligh.org>,
-       Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
-       linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
-       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@redhat.com>,
-       Greg Kroah-Hartman <gregkh@suse.de>,
-       Thomas Gleixner <tglx@linutronix.de>, Tom Zanussi <zanussi@us.ibm.com>,
-       ltt-dev@shafik.org, fche@redhat.com
-Subject: Re: [PATCH 0/11] LTTng-core (basic tracing infrastructure) 0.5.108
-Message-ID: <20060914222318.GA25004@elte.hu>
-References: <20060914033826.GA2194@Krystal> <20060914112718.GA7065@elte.hu> <450971CB.6030601@mbligh.org> <20060914174306.GA18890@elte.hu> <4509B5A4.2070508@mbligh.org> <20060914201448.GA7357@elte.hu> <1158267906.5068.49.camel@localhost>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1158267906.5068.49.camel@localhost>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -2.9
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.9 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5000]
-	-0.1 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Thu, 14 Sep 2006 18:38:18 -0400
+Received: from taverner.CS.Berkeley.EDU ([128.32.168.222]:41183 "EHLO
+	taverner.cs.berkeley.edu") by vger.kernel.org with ESMTP
+	id S932073AbWINWiR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Sep 2006 18:38:17 -0400
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: daw@cs.berkeley.edu (David Wagner)
+Newsgroups: isaac.lists.linux-kernel
+Subject: Re: R: Linux kernel source archive vulnerable
+Date: Thu, 14 Sep 2006 22:38:06 +0000 (UTC)
+Organization: University of California, Berkeley
+Message-ID: <eeclke$s44$1@taverner.cs.berkeley.edu>
+References: <20060907182304.GA10686@danisch.de> <B7C6636B-03E9-4D4C-AC0E-2898181F419B@mac.com> <ee8a8j$gf7$1@taverner.cs.berkeley.edu> <45F1F6C1-FB19-4E6D-BEFE-B8C541D7A2F3@mac.com>
+Reply-To: daw-usenet@taverner.cs.berkeley.edu (David Wagner)
+NNTP-Posting-Host: taverner.cs.berkeley.edu
+X-Trace: taverner.cs.berkeley.edu 1158273486 28804 128.32.168.222 (14 Sep 2006 22:38:06 GMT)
+X-Complaints-To: news@taverner.cs.berkeley.edu
+NNTP-Posting-Date: Thu, 14 Sep 2006 22:38:06 +0000 (UTC)
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Originator: daw@taverner.cs.berkeley.edu (David Wagner)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I get the impression that people are tired of hearing about this,
+so I thought I'd collect my responses to the most recent set of posts
+into a single message.  I'll try to make this my last message on this
+subject.
 
-* Michel Dagenais <michel.dagenais@polymtl.ca> wrote:
+Kyle Moffett wrote:
+> I fail to see how you get world-writable  
+> files from a kernel tree unless your umask is 0000 or you're using  
+> tar in backup-mode [...]
 
-> > the question is: what is more maintainance, hundreds of static 
-> > tracepoints (with long parameter lists) all around the (core) kernel, or 
-> > hundreds of detached dynamic rules that need an update every now and 
-> > then? [but of which most would still be usable even if some of them 
-> > "broke"] To me the answer is clear: having hundreds of tracepoints 
-> > _within_ the source code is higher cost. But please prove me wrong :-)
-> 
-> Actually I rarely find that any of the 70 000 printk is such a huge 
-> nuisance to code readability. They may even help understand what is 
-> going on in a code area you are less familiar with.
+Think about this from the point of view of the user, who may well
+say something like: "Huh?  I don't know what you're talking about.
+What do you mean, backup-mode?  I didn't tell tar to use some special
+mode.  I used it with its default options."  It seems to me that it
+would be reasonable to ask that extracting the Linux tarball using the
+default options should lead to some fairly sane state on the filesystem.
 
-i disagree. Consider the following example from LTT:
+Kyle Moffett wrote:
+> For that matter, how do you determine which  
+> user it should extract as?  UID 0?
 
- int sock_sendmsg(struct socket *sock, struct msghdr *msg, size_t size)
- {
-         struct kiocb iocb;
-         struct sock_iocb siocb;
-         int ret;
+Yes, that is the obvious choice.  It's a good default that will be
+right for 99.99% of users.
 
-         trace_socket_sendmsg(sock, sock->sk->sk_family,
-                 sock->sk->sk_type,
-                 sock->sk->sk_protocol,
-                 size);
+Kyle Moffett wrote:
+> Actually, if you start browsing random software tarballs you'll find  
+> that 1 in 5 or so has world-write permissions on at _minimum_ the  
+> root directory, more often the whole source tree.
 
-         init_sync_kiocb(&iocb, NULL);
-         iocb.private = &siocb;
-         ret = __sock_sendmsg(&iocb, sock, msg, size);
-         if (-EIOCBQUEUED == ret)
-                 ret = wait_on_sync_kiocb(&iocb);
-         return ret;
- }
+I didn't realize that.  Thanks for checking.  Well, I consider that
+unfortunate and poorly chosen.  I guess I'm out of date.
 
-what do the 5 extra lines introduced by trace_socket_sendmsg() tell us? 
-Nothing. They mostly just duplicate the information i already have from 
-the function declaration. They obscure the clear view of the function:
+Martin Mares wrote:
+> People extracting random archives as root with preserving permissions
+> (and owners) are relying on *ALL* archive creators using what they suppose
+> are the right permissions, which is at least simple-minded, if not completely
+> silly.
 
- int sock_sendmsg(struct socket *sock, struct msghdr *msg, size_t size)
- {
-         struct kiocb iocb;
-         struct sock_iocb siocb;
-         int ret;
+I'm not suggesting extracting random archives as root.  But I don't
+see a problem with extracting Linux kernel archives as root.  I'm prepared
+-- or I was prepared -- to trust the Linux kernel developers not to
+deliberately do anything that would harm my system.  After all, if the
+Linux kernel developers are malicious, I'm totally screwed; the act of
+running their code requires a great deal of trust, and extracting a tarball
+as root seems very minor compared to that.
 
-         init_sync_kiocb(&iocb, NULL);
-         iocb.private = &siocb;
-         ret = __sock_sendmsg(&iocb, sock, msg, size);
-         if (-EIOCBQUEUED == ret)
-                 ret = wait_on_sync_kiocb(&iocb);
-         return ret;
- }
+Martin Mares wrote:
+> If you want to help such users, you should do so by helping them
+> understand they do a wrong thing and not by hiding the problem in a single
+> specific case.
 
-the resulting visual and structural redundancy hurts.
+You can do both.  You can educate users, *and* provide sensible defaults
+in the meantime for those users who don't already know about the risks.
 
-	Ingo
+Stefan Richter wrote:
+> Correction: Some users who set a wrong umask when creating files by
+> extraction from these archives and then attempt to build an own kernel
+> from that may screw themselves over.
+
+No, this is not correct.  For non-root users who set their umask to
+something silly, I agree that this is their problem, not Linux's problem.
+But that's not what I'm talking about.  I'm talking about the case of a
+root user who extracts the tar archive with 'tar xzvf'.  That's a very
+natural thing to do, and what I'm saying is that unsuspecting users
+are likely to get bitten by the presence of 0666 files in the Linux
+kernel tarball.  That seems unfortunate.
+
+Keep in mind that there are good reasons to extract the Linux tarball
+as root.  There is a long-standing tradition of storing the kernel
+source under /usr/src, and usually /usr/src is writeable only by root.
+Moreover, I bet that many users are not intimately familiar with tar
+and all its obscure options, and consequently are unaware of the need
+for --no-same-permissions.  Those users are likely to get bitten by
+this pitfall.  I still think it would be a kindness to users to not set
+up this trap for them to fall into; to distribute the Linux tarball with
+files that are not group- or world-writeable.
+
+It feels to me like there is this attitude towards users that says "if you
+don't know all of the esoteric tar options, you deserve what you get".
+I don't believe in punishing users for their ignorance.
+
+It's not like it would be a terrible hardship to change all the
+0666 permissions to 0644.  There's basically no downside to doing so.
+The Linux tarballs used to have 0644-style permissions for years, and I'm
+not aware of any users complaining that they wished you would change all
+the 0644 permissions to 0666.  Instead, it sounds like that the change to
+0666 happened perhaps by accident, maybe without much discussion about
+the consequences for users, and now there is inertia and resistance to
+changing it back.

@@ -1,97 +1,124 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751146AbWINUgT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751156AbWINUko@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751146AbWINUgT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Sep 2006 16:36:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751155AbWINUgT
+	id S1751156AbWINUko (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Sep 2006 16:40:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751158AbWINUko
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Sep 2006 16:36:19 -0400
-Received: from opersys.com ([64.40.108.71]:34577 "EHLO www.opersys.com")
-	by vger.kernel.org with ESMTP id S1751146AbWINUgS (ORCPT
+	Thu, 14 Sep 2006 16:40:44 -0400
+Received: from dvhart.com ([64.146.134.43]:59105 "EHLO dvhart.com")
+	by vger.kernel.org with ESMTP id S1751156AbWINUko (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Sep 2006 16:36:18 -0400
-Message-ID: <4509BF9D.5080806@opersys.com>
-Date: Thu, 14 Sep 2006 16:46:21 -0400
-From: Karim Yaghmour <karim@opersys.com>
-Reply-To: karim@opersys.com
-Organization: Opersys inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.8.0.6) Gecko/20060804 Fedora/1.0.4-0.5.1.fc5 SeaMonkey/1.0.4
+	Thu, 14 Sep 2006 16:40:44 -0400
+Message-ID: <4509BE4A.6000006@mbligh.org>
+Date: Thu, 14 Sep 2006 13:40:42 -0700
+From: Martin Bligh <mbligh@mbligh.org>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051011)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
 To: Ingo Molnar <mingo@elte.hu>
-CC: Tim Bird <tim.bird@am.sony.com>, Roman Zippel <zippel@linux-m68k.org>,
-       Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
+Cc: Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
        linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
        Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@redhat.com>,
        Greg Kroah-Hartman <gregkh@suse.de>,
        Thomas Gleixner <tglx@linutronix.de>, Tom Zanussi <zanussi@us.ibm.com>,
-       ltt-dev@shafik.org, Michel Dagenais <michel.dagenais@polymtl.ca>
+       ltt-dev@shafik.org, Michel Dagenais <michel.dagenais@polymtl.ca>,
+       fche@redhat.com
 Subject: Re: [PATCH 0/11] LTTng-core (basic tracing infrastructure) 0.5.108
-References: <20060914033826.GA2194@Krystal> <20060914112718.GA7065@elte.hu> <Pine.LNX.4.64.0609141537120.6762@scrub.home> <20060914135548.GA24393@elte.hu> <Pine.LNX.4.64.0609141623570.6761@scrub.home> <20060914171320.GB1105@elte.hu> <Pine.LNX.4.64.0609141935080.6761@scrub.home> <20060914181557.GA22469@elte.hu> <4509B03A.3070504@am.sony.com> <20060914200040.GB5812@elte.hu>
-In-Reply-To: <20060914200040.GB5812@elte.hu>
-Content-Type: text/plain; charset=us-ascii
+References: <20060914033826.GA2194@Krystal> <20060914112718.GA7065@elte.hu> <450971CB.6030601@mbligh.org> <20060914174306.GA18890@elte.hu> <4509B5A4.2070508@mbligh.org> <20060914201448.GA7357@elte.hu>
+In-Reply-To: <20060914201448.GA7357@elte.hu>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
 Ingo Molnar wrote:
-> There's a third option, and that's the one i'm advocating: adding the 
-> tracepoint rules to the kernel, but in a _detached_ form from the actual 
-> source code.
+> * Martin Bligh <mbligh@mbligh.org> wrote:
 > 
-> yes, someone has to maintain it, but that will be a detached effort, on 
-> a low-frequency as-needed basis. It doesnt slow down or hinder 
-> high-frequency fast prototyping work, it does not impact the source code 
-> visually, and it does not make reading the code harder. Furthermore, 
-> while a single broken LTT tracepoint prevents the kernel from building 
-> at all, a single broken dynamic rule just wont be inserted into the 
-> kernel. All the other rules are still very much intact.
+> 
+>>an external patch is, indeed, pretty useless. Merging a few simple 
+>>tracepoints should not be a problem [...]
+> 
+> 
+> the problem is, LTT is not about a 'few' tracepoints: it adds a whopping 
+> 350 tracepoints, a fair portion of it is multi-line with tons of 
+> arguments.
 
-Actually the way ltt used to add its trace-statements is again an
-implementation issue. Broken tracepoints need not lead to kernel
-build failure.
+"static tracepoints" does not equate directly to "all of LTT". I'm not
+saying we should accept LTT as-is. I'm saying we should not reject the
+concept of static tracepoints.
 
-That's where the markers idea can be useful. What a marker should
-do is but provide location. It doesn't need to specify the variables
-being observed or anything local, though it doesn't mean the
-infrastructure shouldn't allow for this if the maintainer of the
-code wanted to.
+>  $ diffstat patch-2.6.17-lttng-0.5.108-instrumentation*
+>  98 files changed, 1450 insertions(+), 64 deletions(-)
+> 
+> saying "it's just a few lightweight tracepoints" misses two points: it's 
+> not just a few, and it's not lightweight.
+> 
+> and the set of tracepoints never gets smaller. People who start to rely 
+> on a tracepoint will scream bloody murder if it goes away or breaks. 
+> Static tracepoints are a maintainance PITA that will rarely get smaller, 
+> and will easily grow ...
 
-Ideally, though, markers should be self-contained. IOW, the person
-implementing such a marker should not need to edit any other file
-that the one being worked on to add an instrumentation point --
-at least that's the way I think is easiest. What this means is that
-you would be able to add an instrumentation point in the kernel,
-build it, run the tracing and view the trace with your new event
-without any further intervention on any tool, header, or anything
-else.
+If people are *using* them, it's no easier to maintain them outside of
+tree, than in-tree. it's significantly harder.
 
-The only way that I believe this can be done is with a flexible
-marker infrastructure that a has a few basic properties:
-- Markers should be inlined (clearly this is the bone of contention
-  at this point of the thread.)
-- By default, all markers should generate not a single instruction
-  or modify any instruction path that would be generated should the
-  the instrumentation not be there.
-- Allow the person instrumenting to specify which variables they
-  are interested in without any possibility of build failure should
-  the code change making the variable obsolete.
-- Build options should be added allowing users to:
-  - Keep instrumentation disabled.
-  - Create inlined trace points.
-  - Create dynamic instrumentation markers.
-  - Automatically generate appropriate information required for
-    tools to be able to deal with the new instrumentation and/or
-    display new information properly -- possibly in a new section
-    of the binary.
-  - etc.
+>>[...] - see blktrace and schedstats, for instance.
+> 
+> yes, i do want to remove the 34 schedstats tracepoints too, once a 
+> feasible alternative is present. I already have to do two compilations 
+> when changing something substantial in the scheduler - once with and 
+> once without schedstats.
+> 
+> same for blktrace: once SystemTap can provide a compatible replacement, 
+> it should.
 
-Again, the goal is to have the loop from instrumentation to
-visualization as simple as possible. Any instrumentation required
-more that single-file modification is bound to fall in bitrot,
-and fast.
+Your argument about schedstats only seems to illustrate the flaws in the
+arguments for dynamic tracepointing - you've put your finger on exactly
+what the problem is, when the code changes, the tracing HAS to change
+too. The best time to do this is when the code itself changes.
 
-Hope this helps.
+It's the same arguement for putting documentation in the C file against
+the source itself.
 
-Thanks,
+>>It amuses me that we're so opposed to external patches to the tree 
+>>(for perfectly understandable reasons), but we somehow think 
+>>tracepoints are magically different and should be maintained out of 
+>>tree somehow.
+> 
+> i think you misunderstood what i meant. SystemTap should very much be 
+> integrated into the kernel proper, but i dont think the _rules_ (and 
+> scripts) should become part of the _source code files themselves_. So 
+> yes, there's advantage to kernel integration, but there's disadvantage 
+> to littering the kernel source with countless static tracepoints, if 
+> dynamic tracepoints can offer the same benefits (or more).
 
-Karim
+If you're talking about the scriptable awk-like "stuff" that comes with
+Systemtap, yes I agree it should not be in the C code, it's foul.
+However, I don't think a simple macro hooks are a burden.
+
+> the question is: what is more maintainance, hundreds of static 
+> tracepoints (with long parameter lists) all around the (core) kernel, or 
+> hundreds of detached dynamic rules that need an update every now and 
+> then? [but of which most would still be usable even if some of them 
+> "broke"] To me the answer is clear: having hundreds of tracepoints 
+> _within_ the source code is higher cost. But please prove me wrong :-)
+
+How can you possibly say that maintaining the same set of data in two
+dis-coupled trees is easier than doing it in the same place? You don't
+require any *less* information to do it with systemtap than you do with
+some form of static tracing.
+
+If you're talking about the effort of maintaining just what's in the
+kernel tree, then of course it's a little easier, but that's only half
+the equation. And I don't think it's much of a burden, frankly. Yes,
+if we have 2 billion tracepoints, it'll be a pain in the arse, but the
+taste of the subsystem maintainers is what would regulate this, along
+with everything else that we do. They'll accept a few important ones,
+and reject the rest. If it's not valuable in general, they won't take
+it. I don't see what the big problem is.
+
+What *is* a problem is having a two separate mechanisms for doing
+dynamic and static tracing. They should share the same logging 
+facilities and readback mechanisms so we can read both types
+consistently from userspace, and the data is correctly interspersed.
+
+M.

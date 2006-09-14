@@ -1,71 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750762AbWINOJ2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750779AbWINOLl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750762AbWINOJ2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Sep 2006 10:09:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750779AbWINOJ2
+	id S1750779AbWINOLl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Sep 2006 10:11:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750781AbWINOLl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Sep 2006 10:09:28 -0400
-Received: from ogre.sisk.pl ([217.79.144.158]:53463 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S1750762AbWINOJ1 (ORCPT
+	Thu, 14 Sep 2006 10:11:41 -0400
+Received: from jaguar.mkp.net ([192.139.46.146]:52866 "EHLO jaguar.mkp.net")
+	by vger.kernel.org with ESMTP id S1750779AbWINOLk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Sep 2006 10:09:27 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Alan Stern <stern@rowland.harvard.edu>
-Subject: Re: [linux-usb-devel] 2.6.18-rc6-mm1 (-mm2): ohci resume problem
-Date: Thu, 14 Sep 2006 16:08:45 +0200
-User-Agent: KMail/1.9.1
-Cc: Andrew Morton <akpm@osdl.org>, Mattia Dongili <malattia@linux.it>,
-       Kernel development list <linux-kernel@vger.kernel.org>,
-       USB development list <linux-usb-devel@lists.sourceforge.net>
-References: <Pine.LNX.4.44L0.0609131749230.8180-100000@iolanthe.rowland.org> <200609141514.49527.rjw@sisk.pl>
-In-Reply-To: <200609141514.49527.rjw@sisk.pl>
+	Thu, 14 Sep 2006 10:11:40 -0400
+To: Dimitri Sivanich <sivanich@sgi.com>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, Andi Kleen <ak@suse.de>
+Subject: Re: [PATCH] Migration of standard timers
+References: <20060914132917.GA9898@sgi.com>
+From: Jes Sorensen <jes@sgi.com>
+Date: 14 Sep 2006 10:11:39 -0400
+In-Reply-To: <20060914132917.GA9898@sgi.com>
+Message-ID: <yq0irjqedwk.fsf@jaguar.mkp.net>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.4
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200609141608.45884.rjw@sisk.pl>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday, 14 September 2006 15:14, Rafael J. Wysocki wrote:
-> On Wednesday, 13 September 2006 23:55, Alan Stern wrote:
-> > On Wed, 13 Sep 2006, Rafael J. Wysocki wrote:
-> > 
-> > > > Try this patch instead.  It looks for problems occurring a little earlier 
-> > > > in the call chain.
-> > > 
-> > > I've applied both patches at a time (I hope they don't conflict).
-> > > 
-> > > The dmesg output is attached.
-> > 
-> > The dmesg output shows the root-hub device state is set wrong.
-> > 
-> > I have to leave now, so I can't give you another patch to try.  You can 
-> > experiment as follows...
-> > 
-> > Look in drivers/usb/host/ehci-pci.c, at ehci_pci_resume().  The part of 
-> > interest is everything following the "restart:" statement label.
-> > 
-> > Try adding some ehci_dbg() lines in there (copy the form of the line just
-> > after restart:).  We want to follow the value of
-> > hcd->self.root_hub->state.  Initially it should be equal to
-> > USB_STATE_SUSPENDED (= 8), and it shouldn't change.  But somewhere it is
-> > getting set to USB_STATE_CONFIGURED (= 7).  I don't know where, but almost 
-> > certainly somewhere in this routine.  If you can find out where that 
-> > happens, I'd appreciate it.
-> 
-> Done, but it shows hcd->self.root_hub->state is already 7 right after restart.
+>>>>> "Dimitri" == Dimitri Sivanich <sivanich@sgi.com> writes:
 
-BTW, all of the systems on which the problem shows up seem to be 64-bit.
+Dimitri> This patch allows the user to migrate currently queued
+Dimitri> standard timers from one cpu to another, thereby reducing
+Dimitri> timer induced latency on the chosen cpu.  Timers that were
+Dimitri> placed with add_timer_on() are considered to have 'cpu
+Dimitri> affinity' and are not moved.
 
-If you can't reproduce it on a 32-bit system, some type casting may be wrong
-somewhere.
+Dimitri> The changes in drivers/base/cpu.c provide a clean and
+Dimitri> convenient interface for triggering the migration through
+Dimitri> sysfs, via writing the destination cpu number to a file
+Dimitri> associated with the source cpu.
 
-Greetings,
-Rafael
+Hi Dimitri,
+
+I just took a quick look at your patch, and at least on the surface it
+looks pretty nice to me.
+
+One minor nit, why choose short for the affinity field in struct
+timer_list, it seems a strange size to pick for something which is
+either 0 or 1. Wouldn't int or char be better?  I don't know if all
+CPUs have 16 bit stores, but they should have 8 and 32 bit.
+
+The name 'aff' for affinity might not be good either, since we tend to
+refer to affinity as a mask specifying where it's locked to, maybe
+'locked' would be better?
+
+All in the nit-picking department though.
+
+Cheers,
+Jes
 
 
--- 
-You never change things by fighting the existing reality.
-		R. Buckminster Fuller
+Index: linux/include/linux/timer.h
+===================================================================
+--- linux.orig/include/linux/timer.h
++++ linux/include/linux/timer.h
+@@ -15,6 +15,8 @@ struct timer_list {
+ 	unsigned long data;
+ 
+ 	struct tvec_t_base_s *base;
++
++	short aff;
+ };
+ 

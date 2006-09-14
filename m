@@ -1,69 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751224AbWINVsS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751225AbWINVsV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751224AbWINVsS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Sep 2006 17:48:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751218AbWINVsR
+	id S1751225AbWINVsV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Sep 2006 17:48:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751199AbWINVsU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Sep 2006 17:48:17 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:10968 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751224AbWINVsP (ORCPT
+	Thu, 14 Sep 2006 17:48:20 -0400
+Received: from ogre.sisk.pl ([217.79.144.158]:25819 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S1751225AbWINVsR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Sep 2006 17:48:15 -0400
-Date: Thu, 14 Sep 2006 22:48:06 +0100
-From: Alasdair G Kergon <agk@redhat.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, Bryn Reeves <breeves@redhat.com>
-Subject: [PATCH 16/25] dm: add debug macro
-Message-ID: <20060914214806.GX3928@agk.surrey.redhat.com>
-Mail-Followup-To: Alasdair G Kergon <agk@redhat.com>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-	Bryn Reeves <breeves@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 14 Sep 2006 17:48:17 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Alan Stern <stern@rowland.harvard.edu>
+Subject: Re: [linux-usb-devel] 2.6.18-rc6-mm1 (-mm2): ohci resume problem
+Date: Thu, 14 Sep 2006 23:47:15 +0200
+User-Agent: KMail/1.9.1
+Cc: David Brownell <david-b@pacbell.net>, Andrew Morton <akpm@osdl.org>,
+       Mattia Dongili <malattia@linux.it>, Robert Hancock <hancockr@shaw.ca>,
+       Kernel development list <linux-kernel@vger.kernel.org>,
+       USB development list <linux-usb-devel@lists.sourceforge.net>
+References: <Pine.LNX.4.44L0.0609141618450.6982-100000@iolanthe.rowland.org>
+In-Reply-To: <Pine.LNX.4.44L0.0609141618450.6982-100000@iolanthe.rowland.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+Message-Id: <200609142347.16578.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Bryn Reeves <breeves@redhat.com>
+On Thursday, 14 September 2006 22:55, Alan Stern wrote:
+> On Thu, 14 Sep 2006, Rafael J. Wysocki wrote:
+> 
+> > Well, sorry.  This test has been passed, but after a reboot it refused to
+> > suspend just once giving the same messages that I've got from the kernel
+> > with USB_SUSPEND set (the relevant dmesg output is attached).
+> > 
+> > > Then for the next stage, repeat the same tests but with  
+> > > USB_SUSPEND set.
+> 
+> Okay, hang on, let's try to solve this first.
+> 
+> This actually is a completely different problem from what I've been
+> attacking up to now, and we definitely should resolve it.  It's purely a
+> question of the ohci-hcd driver, nothing (or very little) to do with
+> usbcore or ehci-hcd or uhci-hcd.
+> 
+> I'm asking David to chime in, because this is his code and his driver.
+> 
+> Here's an explanation of the problem.  Basically it boils down to the way 
+> ohci-hcd rolls its own root-hub autosuspend.  I'm referring to the call to 
+> ohci_bus_suspend() near the end of ohci-hub.c:ohci_hub_status_data().
+> Things go wrong because that call totally bypasses usbcore.  It's a 
+> layering violation.
+> 
+> The corresponding root-hub autoresume code, i.e., the call to
+> usb_hcd_resume_root_hub() in ohci-hcd.c:ohci_irq(), _does_ go through
+> usbcore.  It fails for two reasons.  First, resume_root_hub does its job
+> by queuing a call to usb_autoresume_device(), and when CONFIG_USB_SUSPEND
+> isn't set that routine is a no-op.  Second, since usbcore was never
+> notified when the root hub was suspended, the root hub's device state
+> isn't USB_STATE_SUSPENED and the interface is still marked as active -- so
+> even if usb_autoresume_device() did get called it wouldn't do anything.
+> 
+> As I see it, there are two ways to resolve the problem.  The easiest is to
+> rip out the autosuspend stuff from ohci-hcd entirely.  When my generic
+> autosuspend patches are accepted, the HCD-specific stuff won't be needed
+> so much.  This has the disadvantage that the root hub will never get
+> suspended if CONFIG_USB_SUSPEND isn't set.  On the other hand, this is how 
+> ehci_hcd works already.
 
-Add CONFIG_DM_DEBUG and DMDEBUG() macro.
+This isn't a big deal as far as I'm concerned, but I think that dependancy
+will have to be reflected by some Kconfig rules (eg. if CONFIG_USB_SUSPEND
+gets selected automatically if CONFIG_PM is set).
 
-Signed-off-by: Bryn Reeves <breeves@redhat.com>
-Signed-off-by: Alasdair G Kergon <agk@redhat.com>
+> The second way is to copy what I did in uhci-hcd.  There is a special
+> "root hub is stopped" mode which kicks in only when no ports are
+> connected.  It isn't a full-fledged suspend, in the sense that usbcore
+> isn't notified -- just like what happens in ohci-hcd.  The difference is,
+> since we know no devices are attached, the driver can go back to normal
+> operation while in interrupt context.  It doesn't have to sleep because no
+> attached devices means no TRSMRCY delay is needed and the controller's
+> hardware can be reset directly.  As a result, the corresponding
+> "auto-restart" code doesn't need to go through usbcore either and so
+> usb_autoresume_device() never enters the picture.
+> 
+> I don't know if this is feasible with OHCI.  For now, I'll include a patch 
+> that takes the first approach and disables the ohci-hcd autosuspend 
+> entirely.  I think it will solve your problem above.
 
-Index: linux-2.6.18-rc7/drivers/md/Kconfig
-===================================================================
---- linux-2.6.18-rc7.orig/drivers/md/Kconfig	2006-09-14 20:20:55.000000000 +0100
-+++ linux-2.6.18-rc7/drivers/md/Kconfig	2006-09-14 21:00:46.000000000 +0100
-@@ -199,6 +199,14 @@ config BLK_DEV_DM
- 
- 	  If unsure, say N.
- 
-+config DM_DEBUG
-+	boolean "Device mapper debugging support"
-+	depends on BLK_DEV_DM && EXPERIMENTAL
-+	---help---
-+	  Enable this for messages that may help debug device-mapper problems.
-+
-+	  If unsure, say N.
-+
- config DM_CRYPT
- 	tristate "Crypt target support"
- 	depends on BLK_DEV_DM && EXPERIMENTAL
-Index: linux-2.6.18-rc7/drivers/md/dm.h
-===================================================================
---- linux-2.6.18-rc7.orig/drivers/md/dm.h	2006-09-14 20:20:55.000000000 +0100
-+++ linux-2.6.18-rc7/drivers/md/dm.h	2006-09-14 21:00:46.000000000 +0100
-@@ -21,6 +21,11 @@
- #define DMERR(f, arg...) printk(KERN_ERR DM_NAME ": " DM_MSG_PREFIX ": " f "\n", ## arg)
- #define DMWARN(f, arg...) printk(KERN_WARNING DM_NAME ": " DM_MSG_PREFIX ": " f "\n", ## arg)
- #define DMINFO(f, arg...) printk(KERN_INFO DM_NAME ": " DM_MSG_PREFIX ": " f "\n", ## arg)
-+#ifdef CONFIG_DM_DEBUG
-+#  define DMDEBUG(f, arg...) printk(KERN_DEBUG DM_NAME ": " DM_MSG_PREFIX " DEBUG: " f "\n", ## arg)
-+#else
-+#  define DMDEBUG(f, arg...) do {} while (0)
-+#endif
- 
- #define DMEMIT(x...) sz += ((sz >= maxlen) ? \
- 			  0 : scnprintf(result + sz, maxlen - sz, x))
+Yes it does.
+
+Now I'm able to suspend/resume several times in a row with both
+ohci and ehci hcds loaded all the time.  Thanks a lot!
+
+Greetings,
+Rafael
+
+
+-- 
+You never change things by fighting the existing reality.
+		R. Buckminster Fuller

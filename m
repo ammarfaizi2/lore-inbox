@@ -1,60 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751158AbWINUmI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751159AbWINUmh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751158AbWINUmI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Sep 2006 16:42:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751159AbWINUmI
+	id S1751159AbWINUmh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Sep 2006 16:42:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751155AbWINUmh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Sep 2006 16:42:08 -0400
-Received: from aa004msr.fastwebnet.it ([85.18.95.67]:25992 "EHLO
-	aa004msr.fastwebnet.it") by vger.kernel.org with ESMTP
-	id S1751158AbWINUmF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Sep 2006 16:42:05 -0400
-Date: Thu, 14 Sep 2006 22:35:39 +0200
-From: Mattia Dongili <malattia@linux.it>
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, Andrew Morton <akpm@osdl.org>,
-       Kernel development list <linux-kernel@vger.kernel.org>,
-       USB development list <linux-usb-devel@lists.sourceforge.net>
-Subject: Re: [linux-usb-devel] 2.6.18-rc6-mm1 (-mm2): ohci resume problem
-Message-ID: <20060914203539.GD3963@inferi.kami.home>
-Mail-Followup-To: Alan Stern <stern@rowland.harvard.edu>,
-	"Rafael J. Wysocki" <rjw@sisk.pl>, Andrew Morton <akpm@osdl.org>,
-	Kernel development list <linux-kernel@vger.kernel.org>,
-	USB development list <linux-usb-devel@lists.sourceforge.net>
-References: <20060914201919.GB3963@inferi.kami.home> <Pine.LNX.4.44L0.0609141622030.6982-100000@iolanthe.rowland.org>
-MIME-Version: 1.0
+	Thu, 14 Sep 2006 16:42:37 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:20661 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1751159AbWINUmf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Sep 2006 16:42:35 -0400
+Date: Thu, 14 Sep 2006 22:34:30 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Martin Bligh <mbligh@mbligh.org>
+Cc: Roman Zippel <zippel@linux-m68k.org>,
+       Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
+       linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
+       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@redhat.com>,
+       Greg Kroah-Hartman <gregkh@suse.de>,
+       Thomas Gleixner <tglx@linutronix.de>, Tom Zanussi <zanussi@us.ibm.com>,
+       ltt-dev@shafik.org, Michel Dagenais <michel.dagenais@polymtl.ca>,
+       fche@redhat.com
+Subject: Re: [PATCH 0/11] LTTng-core (basic tracing infrastructure) 0.5.108
+Message-ID: <20060914203430.GB9252@elte.hu>
+References: <20060914033826.GA2194@Krystal> <20060914112718.GA7065@elte.hu> <Pine.LNX.4.64.0609141537120.6762@scrub.home> <20060914135548.GA24393@elte.hu> <Pine.LNX.4.64.0609141623570.6761@scrub.home> <20060914171320.GB1105@elte.hu> <4509BAD4.8010206@mbligh.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44L0.0609141622030.6982-100000@iolanthe.rowland.org>
-X-Message-Flag: Cranky? Try Free Software instead!
-X-Operating-System: Linux 2.6.18-rc5-mm1-3 i686
-X-Editor: Vim http://www.vim.org/
-X-Disclaimer: Buh!
-User-Agent: Mutt/1.5.13 (2006-08-11)
+In-Reply-To: <4509BAD4.8010206@mbligh.org>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -2.9
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.9 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5000]
+	-0.1 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 14, 2006 at 04:25:26PM -0400, Alan Stern wrote:
-> On Thu, 14 Sep 2006, Mattia Dongili wrote:
-[...]
-> > Will try again with USB_SUSPEND=y, tomorrow I'll try to find some time
-> > to test all the other things you suggested  (if still necessary) :)
+
+* Martin Bligh <mbligh@mbligh.org> wrote:
+
+> >if there are lots of tracepoints (and the union of _all_ useful 
+> >tracepoints that i ever encountered in my life goes into the thousands) 
+> >then the overhead is not zero at all.
+> >
+> >also, the other disadvantages i listed very much count too. Static 
+> >tracepoints are fundamentally limited because:
+> >
+> >  - they can only be added at the source code level
+> >
+> >  - modifying them requires a reboot which is not practical in a
+> >    production environment
+> >
+> >  - there can only be a limited set of them, while many problems need
+> >    finegrained tracepoints tailored to the problem at hand
+> >
+> >  - conditional tracepoints are typically either nonexistent or very
+> >    limited.
+> >
+> >for me these are all _independent_ grounds for rejection, as a generic 
+> >kernel infrastructure.
 > 
-> No, don't do that.  Keep USB_SUSPEND=n, and try only the most recent patch
+> I don't think anyone is saying that static tracepoints do not have 
+> their limitations, or that dynamic tracepointing is useless. But 
+> that's not the point ... why can't we have one infrastructure that 
+> supports both? Preferably in a fairly simple, consistent way.
 
-damn! (hitting ctrl-c) :)
+primarily because i fail to see any property of static tracers that are 
+not met by dynamic tracers. So to me dynamic tracers like SystemTap are 
+a superset of static tracers.
 
-> I sent to Rafael:
-> 
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=115825076000987&w=2
-> 
-> I know for certain that some of Rafael's problems are different from 
-> yours, because his involve ehci-hcd and ohci-hcd whereas you have only 
-> UHCI controllers.
+So my position is that what we should concentrate on is to make the life 
+of dynamic tracers easier (be that a handful of generic, parametric 
+hooks that gather debuginfo information and add NOPs for easy patching), 
+while realizing that static tracers have no advantage over dynamic 
+tracers.
 
-ok, will do. But please allow some time (can go back to you tomorrow) as
-I'm in low-spare-time-mode...
+i.e. why add infrastructure for the sake of something that is clearly 
+inferior? I have no problem with adding infrastructure for SystemTap, 
+but i am asking the question: is it worth adding a static tracer?
 
--- 
-mattia
-:wq!
+I would of course accept static tracers too if someone proved it that 
+they offer something that dynamic tracers cannot do.
+
+(Just like i would accept the reintroduction of the Big Kernel Lock too, 
+if someone proved it that it's the right thing to do.)
+
+	Ingo

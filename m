@@ -1,142 +1,274 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750775AbWINKWf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750769AbWINKWg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750775AbWINKWf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Sep 2006 06:22:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750769AbWINKWE
+	id S1750769AbWINKWg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Sep 2006 06:22:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750819AbWINKV6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Sep 2006 06:22:04 -0400
-Received: from ns.miraclelinux.com ([219.118.163.66]:13388 "EHLO
+	Thu, 14 Sep 2006 06:21:58 -0400
+Received: from ns.miraclelinux.com ([219.118.163.66]:14924 "EHLO
 	mail01.miraclelinux.com") by vger.kernel.org with ESMTP
-	id S1750753AbWINKUf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	id S1750769AbWINKUf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Thu, 14 Sep 2006 06:20:35 -0400
-Message-Id: <20060914102031.649791311@localhost.localdomain>
+Message-Id: <20060914102032.633059366@localhost.localdomain>
 References: <20060914102012.251231177@localhost.localdomain>
-Date: Thu, 14 Sep 2006 18:20:16 +0800
+Date: Thu, 14 Sep 2006 18:20:18 +0800
 From: Akinobu Mita <mita@miraclelinux.com>
 To: linux-kernel@vger.kernel.org
 Cc: ak@suse.de, akpm@osdl.org, Don Mullis <dwm@meer.net>,
        Akinobu Mita <mita@miraclelinux.com>
-Subject: [patch 4/8] fault-injection capability for alloc_pages()
-Content-Disposition: inline; filename=fail_alloc_pages.patch
+Subject: [patch 6/8] debugfs entries for configuration
+Content-Disposition: inline; filename=knobs.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch provides fault-injection capability for alloc_pages()
+This kernel module provides debugfs entries to enable to configure
+fault-injection capabilities for failslab, fail_page_alloc, and
+fail_make_request.
 
-Boot option:
+The slab allocator, the page allocator, and the block layer are initalized
+before debugfs is available. and failslab, fail_page_alloc, and
+fail_make_request are also enabled at the same time.
+So I put the initalization and cleanup for these debugfs entries into
+this kernel module.
 
-fail_page_alloc=<interval>,<probability>,<space>,<times>
+This module provides the following entries so that we can configure
+by writing these files.
 
-	<interval> -- specifies the interval of failures.
-
-	<probability> -- specifies how often it should fail in percent.
-
-	<space> -- specifies the size of free space where memory can be
-		   allocated safely in pages.
-
-	<times> -- specifies how many times failures may happen at most.
-
-Example:
-
-	fail_page_alloc=10,100,0,-1
-
-The page allocation (alloc_pages(), ...) fails once per 10 times.
+/debug/
+|-- fail_make_request
+|   |-- interval
+|   |-- probability
+|   |-- space
+|   `-- times
+|-- fail_page_alloc
+|   |-- interval
+|   |-- probability
+|   |-- space
+|   `-- times
+`-- failslab
+    |-- interval
+    |-- probability
+    |-- space
+    `-- times
 
 Signed-off-by: Akinobu Mita <mita@miraclelinux.com>
 
- include/linux/fault-inject.h |    3 +++
- lib/Kconfig.debug            |    7 +++++++
- mm/page_alloc.c              |   35 +++++++++++++++++++++++++++++++++++
- 3 files changed, 45 insertions(+)
+ lib/Kconfig.debug          |    8 ++
+ lib/Makefile               |    1 
+ lib/fault-inject-debugfs.c |  179 +++++++++++++++++++++++++++++++++++++++++++++
+ 3 files changed, 188 insertions(+)
 
 Index: work-shouldfail/lib/Kconfig.debug
 ===================================================================
 --- work-shouldfail.orig/lib/Kconfig.debug
 +++ work-shouldfail/lib/Kconfig.debug
-@@ -379,3 +379,10 @@ config FAILSLAB
+@@ -393,3 +393,11 @@ config FAIL_MAKE_REQUEST
  	help
- 	  This option provides fault-injection capabilitiy for kmalloc.
+ 	  This option provides fault-injection capabilitiy to disk IO.
  
-+config FAIL_PAGE_ALLOC
-+	bool "fault-injection capabilitiy for alloc_pages()"
-+	depends on DEBUG_KERNEL
-+	select FAULT_INJECTION
++config FAULT_INJECTION_DEBUGFS 
++	tristate "runtime configuration for fault-injection capabilities"
++	depends on DEBUG_KERNEL && SYSFS && FAULT_INJECTION
++	select DEBUG_FS
 +	help
-+	  This option provides fault-injection capabilitiy for alloc_pages().
++	  This option provides kernel module that provides runtime
++	  configuration interface by debugfs.
 +
-Index: work-shouldfail/mm/page_alloc.c
+Index: work-shouldfail/lib/fault-inject-debugfs.c
 ===================================================================
---- work-shouldfail.orig/mm/page_alloc.c
-+++ work-shouldfail/mm/page_alloc.c
-@@ -37,6 +37,7 @@
- #include <linux/vmalloc.h>
- #include <linux/mempolicy.h>
- #include <linux/stop_machine.h>
+--- /dev/null
++++ work-shouldfail/lib/fault-inject-debugfs.c
+@@ -0,0 +1,179 @@
++#include <linux/module.h>
 +#include <linux/fault-inject.h>
- 
- #include <asm/tlbflush.h>
- #include <asm/div64.h>
-@@ -903,6 +904,37 @@ get_page_from_freelist(gfp_t gfp_mask, u
- 	return page;
- }
- 
-+#ifdef CONFIG_FAIL_PAGE_ALLOC
++#include <linux/debugfs.h>
 +
-+static DEFINE_FAULT_ATTR(fail_page_alloc_attr);
++struct fault_attr_entries {
++	struct dentry *dir;
++	struct dentry *probability_file;
++	struct dentry *interval_file;
++	struct dentry *times_file;
++	struct dentry *space_file;
++	struct dentry *process_filter_file;
++};
 +
-+static int __init setup_fail_page_alloc(char *str)
++static void debugfs_ul_set(void *data, u64 val)
 +{
-+	should_fail_srandom(jiffies);
-+	return setup_fault_attr(&fail_page_alloc_attr, str);
-+}
-+__setup("fail_page_alloc=", setup_fail_page_alloc);
-+
-+struct fault_attr *fail_page_alloc = &fail_page_alloc_attr;
-+EXPORT_SYMBOL_GPL(fail_page_alloc);
-+
-+static int should_fail_alloc_page(gfp_t gfp_mask, unsigned int order)
-+{
-+	if (gfp_mask & __GFP_NOFAIL)
-+		return 0;
-+
-+	return should_fail(fail_page_alloc, 1 << order);
++	*(unsigned long *)data = val;
 +}
 +
-+#else
-+
-+static inline int should_fail_alloc_page(gfp_t gfp_mask, unsigned int order)
++static u64 debugfs_ul_get(void *data)
 +{
++	return *(unsigned long *)data;
++}
++
++DEFINE_SIMPLE_ATTRIBUTE(fops_ul, debugfs_ul_get, debugfs_ul_set, "%llu\n");
++
++static struct dentry *debugfs_create_ul(const char *name, mode_t mode,
++				struct dentry *parent, unsigned long *value)
++{
++	return debugfs_create_file(name, mode, parent, value, &fops_ul);
++}
++
++static void debugfs_atomic_t_set(void *data, u64 val)
++{
++	atomic_set((atomic_t *)data, val);
++}
++
++static u64 debugfs_atomic_t_get(void *data)
++{
++	return atomic_read((atomic_t *)data);
++}
++
++DEFINE_SIMPLE_ATTRIBUTE(fops_atomic_t, debugfs_atomic_t_get,
++			debugfs_atomic_t_set, "%lld\n");
++
++static struct dentry *debugfs_create_atomic_t(const char *name, mode_t mode,
++				struct dentry *parent, atomic_t *value)
++{
++	return debugfs_create_file(name, mode, parent, value, &fops_atomic_t);
++}
++
++static void cleanup_fault_attr_entries(struct fault_attr_entries *entries)
++{
++	if (entries->dir) {
++		if (entries->probability_file) {
++			debugfs_remove(entries->probability_file);
++			entries->probability_file = NULL;
++		}
++		if (entries->interval_file) {
++			debugfs_remove(entries->interval_file);
++			entries->interval_file = NULL;
++		}
++		if (entries->times_file) {
++			debugfs_remove(entries->times_file);
++			entries->times_file = NULL;
++		}
++		if (entries->space_file) {
++			debugfs_remove(entries->space_file);
++			entries->space_file = NULL;
++		}
++		if (entries->process_filter_file) {
++			debugfs_remove(entries->process_filter_file);
++			entries->process_filter_file = NULL;
++		}
++		debugfs_remove(entries->dir);
++		entries->dir = NULL;
++	}
++}
++
++static int init_fault_attr_entries(struct fault_attr_entries *entries,
++				struct fault_attr *attr, const char *name)
++{
++	mode_t mode = S_IFREG | S_IRUSR | S_IWUSR;
++	struct dentry *dir;
++	struct dentry *file;
++
++	memset(entries, 0, sizeof(*entries));
++
++	dir = debugfs_create_dir(name, NULL);
++	if (!dir)
++		goto fail;
++	entries->dir = dir;
++
++	file = debugfs_create_ul("probability", mode, dir, &attr->probability);
++	if (!file)
++		goto fail;
++	entries->probability_file = file;
++
++	file = debugfs_create_ul("interval", mode, dir, &attr->interval);
++	if (!file)
++		goto fail;
++	entries->interval_file = file;
++
++	file = debugfs_create_atomic_t("times", mode, dir, &attr->times);
++	if (!file)
++		goto fail;
++	entries->times_file = file;
++
++	file = debugfs_create_atomic_t("space", mode, dir, &attr->space);
++	if (!file)
++		goto fail;
++	entries->space_file = file;
++
++	file = debugfs_create_bool("process-filter", mode, dir,
++				   &attr->process_filter);
++	if (!file)
++		goto fail;
++	entries->process_filter_file = file;
++
 +	return 0;
++fail:
++	cleanup_fault_attr_entries(entries);
++	return -ENOMEM;
 +}
 +
++#ifdef CONFIG_FAILSLAB
++static struct fault_attr_entries failslab_entries;
 +#endif
-+
- /*
-  * This is the 'heart' of the zoned buddy allocator.
-  */
-@@ -921,6 +953,9 @@ __alloc_pages(gfp_t gfp_mask, unsigned i
- 
- 	might_sleep_if(wait);
- 
-+	if (should_fail_alloc_page(gfp_mask, order))
-+		return NULL;
-+
- restart:
- 	z = zonelist->zones;  /* the list of zones suitable for gfp_mask */
- 
-Index: work-shouldfail/include/linux/fault-inject.h
-===================================================================
---- work-shouldfail.orig/include/linux/fault-inject.h
-+++ work-shouldfail/include/linux/fault-inject.h
-@@ -39,6 +39,9 @@ int should_fail(struct fault_attr *attr,
- #ifdef CONFIG_FAILSLAB
- extern struct fault_attr *failslab;
- #endif
 +#ifdef CONFIG_FAIL_PAGE_ALLOC
-+extern struct fault_attr *fail_page_alloc;
++static struct fault_attr_entries fail_page_alloc_entries;
 +#endif
++#ifdef CONFIG_FAIL_MAKE_REQUEST
++static struct fault_attr_entries fail_make_request_entries;
++#endif
++
++static void cleanup_entries(void)
++{
++#ifdef CONFIG_FAILSLAB
++	cleanup_fault_attr_entries(&failslab_entries);
++#endif
++#ifdef CONFIG_FAIL_PAGE_ALLOC
++	cleanup_fault_attr_entries(&fail_page_alloc_entries);
++#endif
++#ifdef CONFIG_FAIL_MAKE_REQUEST
++	cleanup_fault_attr_entries(&fail_make_request_entries);
++#endif
++}
++
++static int init_entries(void)
++{
++	int err;
++
++#ifdef CONFIG_FAILSLAB
++	err = init_fault_attr_entries(&failslab_entries, failslab, "failslab");
++	if (err)
++		goto fail;
++#endif
++#ifdef CONFIG_FAIL_PAGE_ALLOC
++	err = init_fault_attr_entries(&fail_page_alloc_entries, fail_page_alloc,
++				     "fail_page_alloc");
++	if (err)
++		goto fail;
++#endif
++#ifdef CONFIG_FAIL_MAKE_REQUEST
++	err = init_fault_attr_entries(&fail_make_request_entries,
++				     fail_make_request, "fail_make_request");
++	if (err)
++		goto fail;
++#endif
++
++	return 0;
++fail:
++	cleanup_entries();
++
++	return err;
++}
++
++module_init(init_entries);
++module_exit(cleanup_entries);
++MODULE_LICENSE("GPL");
+Index: work-shouldfail/lib/Makefile
+===================================================================
+--- work-shouldfail.orig/lib/Makefile
++++ work-shouldfail/lib/Makefile
+@@ -53,6 +53,7 @@ obj-$(CONFIG_AUDIT_GENERIC) += audit.o
  
- #endif /* CONFIG_FAULT_INJECTION */
+ obj-$(CONFIG_SWIOTLB) += swiotlb.o
+ obj-$(CONFIG_FAULT_INJECTION) += fault-inject.o
++obj-$(CONFIG_FAULT_INJECTION_DEBUGFS) += fault-inject-debugfs.o
  
+ hostprogs-y	:= gen_crc32table
+ clean-files	:= crc32table.h
 
 --

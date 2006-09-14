@@ -1,65 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751471AbWINI2b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751283AbWINIdY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751471AbWINI2b (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Sep 2006 04:28:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751475AbWINI2b
+	id S1751283AbWINIdY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Sep 2006 04:33:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751370AbWINIdY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Sep 2006 04:28:31 -0400
-Received: from smtp103.biz.mail.mud.yahoo.com ([68.142.200.238]:46699 "HELO
-	smtp103.biz.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1751471AbWINI2a (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Sep 2006 04:28:30 -0400
-Mime-Version: 1.0 (Apple Message framework v624)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <330177f4f8f83d0d39034c8f05d4b1f7@nomadgs.com>
+	Thu, 14 Sep 2006 04:33:24 -0400
+Received: from mail.math.TU-Berlin.DE ([130.149.12.212]:25267 "EHLO
+	mail.math.TU-Berlin.DE") by vger.kernel.org with ESMTP
+	id S1751283AbWINIdX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Sep 2006 04:33:23 -0400
+From: Thomas Richter <thor@mail.math.tu-berlin.de>
+Message-Id: <200609140833.k8E8XDWQ013712@mersenne.math.TU-Berlin.DE>
+Subject: Re: MSI K9N Neo: crash under heavy IDE read
+In-Reply-To: <200609121818.44766.vda.linux@googlemail.com>
+To: Denis Vlasenko <vda.linux@googlemail.com>
+Date: Thu, 14 Sep 2006 10:33:13 +0200 (CEST)
+CC: linux-kernel@vger.kernel.org
+X-Mailer: ELM [version 2.4ME+ PL108 (25)]
+MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
-Cc: kernel list <linux-kernel@vger.kernel.org>
-From: Matthew Locke <matt@nomadgs.com>
-Subject: PowerOP summary
-Date: Thu, 14 Sep 2006 01:28:25 -0700
-To: Greg KH <greg@kroah.com>, pm list <linux-pm@lists.osdl.org>
-X-Mailer: Apple Mail (2.624)
+Content-Type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-As a result of some discussion during the Linux PM summit between 
-myself, Todd Poynor, Dominik Brodowski, Mark Gross, Amit Kucheria and a 
-few others,  Eugeny and I have been working on getting a power 
-management interface called PowerOP accepted.   A good bit of 
-discussion has occurred on linux-pm over the last couple months about 
-PowerOP interfaces and why its needed.  Here is a short summary 
-requested by Greg:
+Hi,
 
-Summary
-PowerOP is an interface to create and select operating points.  
-Operating points are a collection of platform specific system 
-parameters (ie not i/o devices) that affect power consumption.  These 
-parameters include cpu frequency, voltages, clock sources and dividers 
-and others.  PowerOP provides a platform independent interface to 
-control these platform specific parameters.   This interface is a basic 
-building block of a power management stack for advanced power 
-management on embedded mobile devices.  For those familiar with 
-cpufreq, it can be viewed as a redesign of the cpufreq_driver layer to 
-be platform independent and enable more advanced governors and policies 
-on hardware with lots of power parameters.
+> > I bought new Athlon46 mobo with AM2 socket and recently
+> > I noticed that copying large amounts of data reliably
+> > crashes 2.6.17.11 64-bit on it.
+> > 
+> > memtest runs ok on this machine overnight.
+> > Machine is not overclocked.
+> > 
+> > Copying movies from SATA drive to PATA drive oopses
+> > after few gigabytes transferred. Creating iso image
+> > with mkisofs (done entirely on PATA drive, no SATA attached)
+> > does the same.
+> > 
+> > After some testing I found ou that rw load crashes
+> > machine rather fast, while read load usually runs for several
+> > minutes before crash. Setting udma4 or udma3 instead of udma5
+> > doesn't help. Pity I don't have my own SATA drive to run tests
+> > with it, ran most of the tests on PATA drive.
+> 
+> I obtained PCI config space dumps under Windows XP on this machine
+> and compared them to Linux settings. Integrated PATA IDE controller
+> has some differences in rows 5x and 8x. Grep for "IDE interface".
+> 
+> Maybe this sheds some light.
+> 
+> URLs to chipset docs, anyone?...
 
-Developers
-Matthew Locke and Eugeny Mints are the main guys behind PowerOP now but 
-many have contributed to get to this point.
+Not really, but allow me to make another comment: MSI seems to have
+massive problems with the K9N based boards. A good percentage of them
+just "freaks out" from time to time and shuts the system down with no
+aparent reason. This happens under Linux as well as under windows, and
+is, interestingly, related to copying large amounts of data to the
+PATA controller, and transfering large amounts of data over the LAN
+causes the same problem. It thus would be interesting to know whether
+for the affected board the same or a similar problem appears under
+win32. If so, it's just the defective board, and not a linux kernel
+problem.
 
-A few key points
-- PowerOP does not replace cpufreq
-- PowerOP authors and advocates are not suggesting to replace cpufreq
-- PowerOP is required for doing power management on embedded mobile 
-devices
-- PowerOP patches are standalone and do not require integration with 
-cpufreq or suspend/resume subsystems
-- PowerOP does not break anything including existing userspace 
-interface and centrino code.
+Reference for the problem: Look into the MSI forum at www.msi.com, 
+check for the thread "Post your K9N problems here...".
 
-We will resend the patches again for review and discussion.  Each patch 
-contains more detailed description.
+So long,
+	Thomas
 
-
-Matt and Eugeny
 

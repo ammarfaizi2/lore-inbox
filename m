@@ -1,209 +1,146 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751099AbWINTqQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750830AbWINTr4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751099AbWINTqQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Sep 2006 15:46:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751100AbWINTqQ
+	id S1750830AbWINTr4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Sep 2006 15:47:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751102AbWINTr4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Sep 2006 15:46:16 -0400
-Received: from mxsf11.cluster1.charter.net ([209.225.28.211]:1690 "EHLO
-	mxsf11.cluster1.charter.net") by vger.kernel.org with ESMTP
-	id S1751099AbWINTqP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Sep 2006 15:46:15 -0400
+	Thu, 14 Sep 2006 15:47:56 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:15773 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S1750830AbWINTrz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Sep 2006 15:47:55 -0400
+Date: Thu, 14 Sep 2006 21:47:32 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Ingo Molnar <mingo@elte.hu>
+cc: Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
+       linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
+       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@redhat.com>,
+       Greg Kroah-Hartman <gregkh@suse.de>,
+       Thomas Gleixner <tglx@linutronix.de>, Tom Zanussi <zanussi@us.ibm.com>,
+       ltt-dev@shafik.org, Michel Dagenais <michel.dagenais@polymtl.ca>
+Subject: Re: [PATCH 0/11] LTTng-core (basic tracing infrastructure) 0.5.108
+In-Reply-To: <20060914181557.GA22469@elte.hu>
+Message-ID: <Pine.LNX.4.64.0609142038570.6761@scrub.home>
+References: <20060914033826.GA2194@Krystal> <20060914112718.GA7065@elte.hu>
+ <Pine.LNX.4.64.0609141537120.6762@scrub.home> <20060914135548.GA24393@elte.hu>
+ <Pine.LNX.4.64.0609141623570.6761@scrub.home> <20060914171320.GB1105@elte.hu>
+ <Pine.LNX.4.64.0609141935080.6761@scrub.home> <20060914181557.GA22469@elte.hu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17673.45444.235935.556763@smtp.charter.net>
-Date: Thu, 14 Sep 2006 15:46:12 -0400
-From: "John Stoffel" <john@stoffel.org>
-To: Al Boldi <a1426z@gawab.com>
-Cc: "John Stoffel" <john@stoffel.org>, Jens Axboe <axboe@kernel.dk>,
-       linux-kernel@vger.kernel.org
-Subject: Re: What's in linux-2.6-block.git
-In-Reply-To: <200609132052.53984.a1426z@gawab.com>
-References: <200609131359.04972.a1426z@gawab.com>
-	<200609131435.31390.a1426z@gawab.com>
-	<17672.5209.158911.963437@smtp.charter.net>
-	<200609132052.53984.a1426z@gawab.com>
-X-Mailer: VM 7.19 under Emacs 21.4.1
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Al" == Al Boldi <a1426z@gawab.com> writes:
+Hi,
 
-Al> Thanks for your input!
+On Thu, 14 Sep 2006, Ingo Molnar wrote:
 
-You're welcome, sorry I've been delayed in getting more details to
-you.  I'll try and run some tests tonight, but the six month old kept
-me up alot last niht.
+> > > for me these are all _independent_ grounds for rejection, as a generic 
+> > > kernel infrastructure.
+> > 
+> > Tracepoints of course need to be managed, but that's true for both 
+> > dynamic and static tracepoints. [...]
+> 
+> that's not true, and this is the important thing that i believe you are 
+> missing. A dynamic tracepoint is _detached_ from the normal source code 
+> and thus is zero maintainance overhead. You dont have to maintain it 
+> during normal development - only if you need it. You dont see the 
+> dynamic tracepoints in the source code.
+> 
+> a static tracepoint, once it's in the mainline kernel, is a nonzero 
+> maintainance overhead _until eternity_.
 
-Al> Are you running UDMA5?  Can you dump the full hdparm -I
+I hope you do realize that this a rather selfish point of view. The zero 
+maintainance overhead is a myth, only because _you_ don't have to do it.
+OTOH maintaining the trace points along with the corresponding source is 
+a barely noticable noise and is certainly less work than having them to 
+maintain separately.
 
-Here's the info for each drive.  They're on an HPT302 Rev 1 controller
-in my system.
+> It is a constant visual 
+> hindrance and a constant build-correctness and boot-correctness problem 
+> if you happen to change the code that is being traced by a static 
+> tracepoint. Again, I am talking out of actual experience with static 
+> tracepoints: i frequently break my kernel via static tracepoints and i 
+> have constant maintainance cost from them.
 
-/dev/hde:
+Sorry, but you're not the only one with actual experience and in my 
+experience the value far outweighs the occasional need for adjustments. If 
+you don't use them, they are of course a nuisance, but is your personal 
+dislike really reason enough to deny others a useful tool?
 
-ATA device, with non-removable media
-        Model Number:       WDC WD1200JB-00CRA1                     
-        Serial Number:      WD-WMA8C4365875
-        Firmware Revision:  17.07W17
-Standards:
-        Supported: 5 4 3 
-        Likely used: 6
-Configuration:
-        Logical         max     current
-        cylinders       16383   16383
-        heads           16      16
-        sectors/track   63      63
-        --
-        CHS current addressable sectors:   16514064
-        LBA    user addressable sectors:  234441648
-        device size with M = 1024*1024:      114473 MBytes
-        device size with M = 1000*1000:      120034 MBytes (120 GB)
-Capabilities:
-        LBA, IORDY(can be disabled)
-        bytes avail on r/w long: 40
-        Standby timer values: spec'd by Standard, with device specific
-minimum
-        R/W multiple sector transfer: Max = 16  Current = 16
-        Recommended acoustic management value: 128, current value: 254
-        DMA: mdma0 mdma1 mdma2 udma0 udma1 udma2 udma3 udma4 *udma5 
-             Cycle time: min=120ns recommended=120ns
-        PIO: pio0 pio1 pio2 pio3 pio4 
-             Cycle time: no flow control=120ns  IORDY flow
-control=120ns
-Commands/features:
-        Enabled Supported:
-           *    SMART feature set
-                Security Mode feature set
-           *    Power Management feature set
-           *    Write cache
-           *    Look-ahead
-           *    Host Protected Area feature set
-           *    WRITE_BUFFER command
-           *    READ_BUFFER command
-           *    DOWNLOAD_MICROCODE
-                SET_MAX security extension
-                Automatic Acoustic Management feature set
-           *    Device Configuration Overlay feature set
-           *    SMART error logging
-           *    SMART self-test
-Security: 
-                supported
-        not     enabled
-        not     locked
-        not     frozen
-        not     expired: security count
-        not     supported: enhanced erase
-HW reset results:
-        CBLID- above Vih
-        Device num = 0 determined by the jumper
-Checksum: correct
+> i am giving a line by line rebuttal of all arguments that come up. 
+> Please be fair and do the same. Here are the arguments again, for a 
+> third time. Thanks!
 
+Ingo, maybe you should try to understand the point I'm trying to make?
+You mostly emphasize your personal dislike of static tracepoints.
 
+> > > also, the other disadvantages i listed very much count too. Static 
+> > > tracepoints are fundamentally limited because:
+> > > 
+> > >   - they can only be added at the source code level
+> > > 
+> > >   - modifying them requires a reboot which is not practical in a
+> > >     production environment
+> > > 
+> > >   - there can only be a limited set of them, while many problems need
+> > >     finegrained tracepoints tailored to the problem at hand
+> > > 
+> > >   - conditional tracepoints are typically either nonexistent or very
+> > >     limited.
 
-/dev/hdg:
+Sorry, but I fail to see the point you're trying to make (beside your 
+personal preferences), none of this is a unsolvable problem, which would 
+prevent making good use of static tracepoints.
 
-ATA device, with non-removable media
-        Model Number:       WDC WD1200JB-00EVA0                     
-        Serial Number:      WD-WMAEK2844058
-        Firmware Revision:  15.05R15
-Standards:
-        Supported: 6 5 4 
-        Likely used: 6
-Configuration:
-        Logical         max     current
-        cylinders       16383   65535
-        heads           16      1
-        sectors/track   63      63
-        --
-        CHS current addressable sectors:    4128705
-        LBA    user addressable sectors:  234441648
-        LBA48  user addressable sectors:  234441648
-        device size with M = 1024*1024:      114473 MBytes
-        device size with M = 1000*1000:      120034 MBytes (120 GB)
-Capabilities:
-        LBA, IORDY(can be disabled)
-        Standby timer values: spec'd by Standard, with device specific
-minimum
-        R/W multiple sector transfer: Max = 16  Current = 16
-        Recommended acoustic management value: 128, current value: 254
-        DMA: mdma0 mdma1 mdma2 udma0 udma1 udma2 udma3 udma4 *udma5 
-             Cycle time: min=120ns recommended=120ns
-        PIO: pio0 pio1 pio2 pio3 pio4 
-             Cycle time: no flow control=120ns  IORDY flow
-control=120ns
-Commands/features:
-        Enabled Supported:
-           *    SMART feature set
-                Security Mode feature set
-           *    Power Management feature set
-           *    Write cache
-           *    Look-ahead
-           *    Host Protected Area feature set
-           *    WRITE_BUFFER command
-           *    READ_BUFFER command
-           *    DOWNLOAD_MICROCODE
-                SET_MAX security extension
-                Automatic Acoustic Management feature set
-           *    48-bit Address feature set
-           *    Device Configuration Overlay feature set
-           *    Mandatory FLUSH_CACHE
-           *    FLUSH_CACHE_EXT
-           *    SMART error logging
-           *    SMART self-test
-Security: 
-                supported
-        not     enabled
-        not     locked
-        not     frozen
-        not     expired: security count
-        not     supported: enhanced erase
-HW reset results:
-        CBLID- above Vih
-        Device num = 0 determined by CSEL
-Checksum: correct
+> > > the kprobes infrastructure, despite being fairly young, is widely 
+> > > available: powerpc, i386, x86_64, ia64 and sparc64. The other 
+> > > architectures are free to implement them too, there's nothing 
+> > > hardware-specific about kprobes and the "porting overhead" is in 
+> > > essence a one-time cost - while for static tracepoints the 
+> > > maintainance overhead goes on forever and scales linearly with the 
+> > > number of tracepoints added.
+> > 
+> > kprobes are not trivial to implement [...]
+> 
+> nor are smp-alternatives, which was suggested as a solution to reduce 
+> the overhead of static tracepoints. So what's the point? It's a one-off 
+> development overhead that has already been done for all the major 
+> arches. If another arch needs it they can certainly implement it.
 
+Static tracepoints don't have to be implemented via alternatives and
+you continue to ignore that kprobes are nontrivial, you continue to ignore 
+that both can coexist just fine. You just want to force your personal 
+preferences onto others. :-(
 
-Al> What thruput do you get with cat /dev/hd[eg] > /dev/null?
+> it's like arguing against ptrace on the grounds of: "application 
+> developers can add printf if they want to debug their apps, or they can 
+> add static tracepoints too, and besides, ptrace is hard to implement".
 
-Al> What does cat /sys/block/hde/queue/read_ahead_kb say?
+Sorry, I don't understand this point. Ptrace support would match kernel 
+gdb support, which would be a complete different discussion...
 
-    > cat /sys/block/hde/queue/max_hw_sectors_kb 
-    128
-    > cat /sys/block/hde/queue/max_sectors_kb
-    128
-    > cat /sys/block/hde/queue/read_ahead_kb
-    1024
-    > cat /sys/block/hde/queue/scheduler 
-    noop [anticipatory] deadline cfq 
-    > cat /sys/block/hde/queue/nr_requests
-    128
+> > I also think you highly exaggerate the maintaince overhead of static 
+> > tracepoints, once added they hardly need any maintainance, most of the 
+> > time you can just ignore them. [...]
+> 
+> hundreds (or possibly thousands) of tracepoints? Have you ever tried to 
+> maintain that? I have and it's a nightmare.
 
-    > cat /sys/block/hdg/queue/max_hw_sectors_kb 
-    1024
-    > cat /sys/block/hdg/queue/max_sectors_kb 
-    512
-    > cat /sys/block/hdg/queue/read_ahead_kb
-    1024
-    > cat /sys/block/hdg/queue/scheduler 
-    noop [anticipatory] deadline cfq 
-    > cat /sys/block/hdg/queue/nr_requests 
-    128
+_This_ discussion is about a core set of trace points! Yes, you can have 
+thousands of trace points in drivers, but they don't have to be enabled by 
+default and are no reason at all against a few core trace point, which 
+can be used by _all_ archs to trace core events as _cheaply_ as possible.
 
-Al> Then try this for best performance:
-Al> echo 192 > /sys/block/hde/queue/max_sectors_kb
-Al> echo 192 > /sys/block/hde/queue/read_ahead_kb
+> Even assuming a rich set of hundreds of static tracepoints, it doesnt 
+> even solve the problems at hand: people want to do much more when they 
+> probe the kernel - and today, with DTrace under Solaris people _know_ 
+> that much better tracing _can be done_, and they _demand_ that Linux 
+> adopts an intelligent solution. The clock is ticking for dinosaurs like 
+> static printks and static tracepoints to debug the kernel...
 
-Al> and repeat the thruput test reporting vmstat results.
+Huh? How exactly do static tracepoints prevent you from doing this?
+Different problems require different solutions, nobody is taking Kprobes 
+away, but why should Kprobes be the only solution?
 
-I'll try and do this all tonight if I get a chance.
-
->From looking at my setup, I've got two identical drives which are
-slightly different in terms of BIOS levels, as well as in native
-capabilities, so this should be a useful test.
-
-I've got a third drive of the same type, but it's in a USB/FireWire
-enclosure and I can't hdparm it directly.  
-
-John
+bye, Roman

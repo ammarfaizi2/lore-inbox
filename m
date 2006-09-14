@@ -1,61 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751498AbWINJWa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751502AbWINJXk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751498AbWINJWa (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Sep 2006 05:22:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751502AbWINJWa
+	id S1751502AbWINJXk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Sep 2006 05:23:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751505AbWINJXk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Sep 2006 05:22:30 -0400
-Received: from sccrmhc14.comcast.net ([63.240.77.84]:14742 "EHLO
-	sccrmhc14.comcast.net") by vger.kernel.org with ESMTP
-	id S1751498AbWINJW3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Sep 2006 05:22:29 -0400
-Mime-Version: 1.0 (Apple Message framework v624)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <ff355e0e9a7ba8350241ffe483c664ab@comcast.net>
+	Thu, 14 Sep 2006 05:23:40 -0400
+Received: from mailout1.vmware.com ([65.113.40.130]:26784 "EHLO
+	mailout1.vmware.com") by vger.kernel.org with ESMTP
+	id S1751502AbWINJXj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Sep 2006 05:23:39 -0400
+Message-ID: <45091F9A.5020805@vmware.com>
+Date: Thu, 14 Sep 2006 02:23:38 -0700
+From: Zachary Amsden <zach@vmware.com>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060719)
+MIME-Version: 1.0
+To: schwidefsky@de.ibm.com
+Cc: linux-kernel@vger.kernel.org, virtualization@lists.osdl.org, akpm@osdl.org,
+       nickpiggin@yahoo.com.au, frankeh@watson.ibm.com, rhim@cc.gateh.edu
+Subject: Re: [patch 3/9] Guest page hinting: volatile page cache.
+References: <20060901110948.GD15684@skybase>  <45084C2E.4060203@vmware.com> <1158224199.18478.22.camel@localhost>
+In-Reply-To: <1158224199.18478.22.camel@localhost>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Cc: kernel list <linux-kernel@vger.kernel.org>
-From: Matthew Locke <matthew.a.locke@comcast.net>
-Subject: PowerOP vs OPpoint
-Date: Thu, 14 Sep 2006 02:22:25 -0700
-To: pm list <linux-pm@lists.osdl.org>
-X-Mailer: Apple Mail (2.624)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Unfortunately, there are two efforts underway that makes this confusing 
-and I think require a bit more than the short summary requested.  A one 
-paragraph summary can't address the why and how.  This email briefly 
-describes the why and the differences.
+Martin Schwidefsky wrote
+> The discard fault happens on access to a volatile that has been
+> discarded. An important property of the s390 architecture comes into
+> play here: there are two page tables, a guest page table and a host page
+> table. What the guest perceives as its "physical" memory is in virtual
+> storage for the host. An address resolution has to walk two pages
+> tables, if a pte is invalid in either table you get a fault. A guest
+> fault if the invalid pte is in the guest table and a host fault if it is
+>   
 
-There are two main reasons for both these efforts:
-- existing power management interfaces do not enable the power 
-management features on the latest SOC's used in embedded mobile  
-devices
-- existing power management interfaces do not provide the API necessary 
-to build power managers (userspace and/or kernel space) that optimize 
-power consumption to level required by embedded mobile devices
+Yes, I'm familiar with that trick.  Wasn't sure if you had it in 
+hardware or not.
 
-PowerOP
-Focus is on a platform independent interface for selecting and creating 
-operating points.  We want to get the basic power management block in 
-place and build on it.  Integrating with other existing power 
-management interfaces as it makes sense.  The first natural integration 
-point is the cpufreq_driver layer in cpufreq and does not affect the 
-userspace interface.
+> in the host table. That gives s390 a simple method to implement
+> discarded pages: the hypervisor just unmaps the page from the host table
+> and changes the state of the guest page. I can see that you will have a
+> much harder time to implement this on i386.
+>   
 
-OPpoint
-Goal is to show how all existing interfaces can use the operating point 
-concept.  It is more than an interface for selecting and creating 
-operating points.  It integrates with cpufreq and sleep states defining 
-new userspace interfaces and using existing interfaces in different 
-ways.  There are a lot of issues with the OPpoint operating point 
-interface that was discussed here: 
-http://lists.osdl.org/pipermail/linux-pm/2006-August/003541.html .  
-Many objections to the sleep state integration.  Most of the negative 
-comments about cpufreq are about the OPpoint patches.
+Nah, I think we'll do just fine.
 
-I have not seen or heard any justification for the OPpoint patches to 
-create a different operating point interface.
+Thanks for the info - based on this, I think we can probably use the 
+volatile page / swap cache changes as well for VMware, also pretty much 
+unchanged.  Sorry to take so long to look at these patches, BTW - I was 
+on holiday for two weeks.
 
-Matt
-
+Zach

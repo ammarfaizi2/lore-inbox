@@ -1,230 +1,200 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750822AbWINKV6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750765AbWINKUx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750822AbWINKV6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Sep 2006 06:21:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750810AbWINKVz
+	id S1750765AbWINKUx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Sep 2006 06:20:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750793AbWINKUg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Sep 2006 06:21:55 -0400
-Received: from ns.miraclelinux.com ([219.118.163.66]:15436 "EHLO
+	Thu, 14 Sep 2006 06:20:36 -0400
+Received: from ns.miraclelinux.com ([219.118.163.66]:7244 "EHLO
 	mail01.miraclelinux.com") by vger.kernel.org with ESMTP
-	id S1750775AbWINKUf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Sep 2006 06:20:35 -0400
-Message-Id: <20060914102032.989190948@localhost.localdomain>
+	id S1750765AbWINKUe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Sep 2006 06:20:34 -0400
+Message-Id: <20060914102030.721230898@localhost.localdomain>
 References: <20060914102012.251231177@localhost.localdomain>
-Date: Thu, 14 Sep 2006 18:20:19 +0800
+Date: Thu, 14 Sep 2006 18:20:14 +0800
 From: Akinobu Mita <mita@miraclelinux.com>
 To: linux-kernel@vger.kernel.org
-Cc: ak@suse.de, akpm@osdl.org, Don Mullis <dwm@meer.net>,
+Cc: ak@suse.de, akpm@osdl.org, Don Mullis <dwm@meer.net>, okuji@enbug.org,
        Akinobu Mita <mita@miraclelinux.com>
-Subject: [patch 7/8] process filtering for fault-injection capabilities
-Content-Disposition: inline; filename=process-filter.patch
+Subject: [patch 2/8] fault-injection capabilities infrastructure
+Content-Disposition: inline; filename=should-fail.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch provides process filtering feature.
-The process filter allows failing only permitted processes
-by /proc/<pid>/make-it-fail
+This patch provides some functions for implement fault-injection
+capabilities.
 
-Please see the example that demostrates how to inject slab allocation
-failures into module init/cleanup code
-in Documentation/fault-injection/fault-injection.txt
+- Lightweight random simulator is taken from crasher module for SUSE kernel
+- The function should_fail() is taken from failmalloc-1.0
+  (http://www.nongnu.org/failmalloc/)
 
+Cc: okuji@enbug.org
 Signed-off-by: Akinobu Mita <mita@miraclelinux.com>
 
- fs/proc/base.c               |   77 +++++++++++++++++++++++++++++++++++++++++++
- include/linux/fault-inject.h |    3 +
- include/linux/sched.h        |    3 +
- lib/fault-inject.c           |   13 +++++++
- 4 files changed, 96 insertions(+)
+ include/linux/fault-inject.h |   41 ++++++++++++++++++++
+ lib/Kconfig.debug            |    4 ++
+ lib/Makefile                 |    1 
+ lib/fault-inject.c           |   84 +++++++++++++++++++++++++++++++++++++++++++
+ 4 files changed, 130 insertions(+)
 
-Index: work-shouldfail/fs/proc/base.c
+Index: work-shouldfail/lib/Kconfig.debug
 ===================================================================
---- work-shouldfail.orig/fs/proc/base.c
-+++ work-shouldfail/fs/proc/base.c
-@@ -138,6 +138,9 @@ enum pid_directory_inos {
- #endif
- 	PROC_TGID_OOM_SCORE,
- 	PROC_TGID_OOM_ADJUST,
-+#ifdef CONFIG_FAULT_INJECTION
-+	PROC_TGID_FAULT_INJECTION,
-+#endif
- 	PROC_TID_INO,
- 	PROC_TID_STATUS,
- 	PROC_TID_MEM,
-@@ -181,6 +184,9 @@ enum pid_directory_inos {
- #endif
- 	PROC_TID_OOM_SCORE,
- 	PROC_TID_OOM_ADJUST,
-+#ifdef CONFIG_FAULT_INJECTION
-+	PROC_TID_FAULT_INJECTION,
-+#endif
- 
- 	/* Add new entries before this */
- 	PROC_TID_FD_DIR = 0x8000,	/* 0x8000-0xffff */
-@@ -240,6 +246,9 @@ static struct pid_entry tgid_base_stuff[
- #ifdef CONFIG_AUDITSYSCALL
- 	E(PROC_TGID_LOGINUID, "loginuid", S_IFREG|S_IWUSR|S_IRUGO),
- #endif
-+#ifdef CONFIG_FAULT_INJECTION
-+	E(PROC_TGID_FAULT_INJECTION, "make-it-fail", S_IFREG|S_IWUSR|S_IRUGO),
-+#endif
- 	{0,0,NULL,0}
- };
- static struct pid_entry tid_base_stuff[] = {
-@@ -282,6 +291,9 @@ static struct pid_entry tid_base_stuff[]
- #ifdef CONFIG_AUDITSYSCALL
- 	E(PROC_TID_LOGINUID, "loginuid", S_IFREG|S_IWUSR|S_IRUGO),
- #endif
-+#ifdef CONFIG_FAULT_INJECTION
-+	E(PROC_TID_FAULT_INJECTION, "make-it-fail", S_IFREG|S_IWUSR|S_IRUGO),
-+#endif
- 	{0,0,NULL,0}
- };
- 
-@@ -992,6 +1004,65 @@ static struct file_operations proc_login
- };
- #endif
- 
-+#ifdef CONFIG_FAULT_INJECTION
-+static ssize_t proc_fault_inject_read(struct file * file, char __user * buf,
-+				      size_t count, loff_t *ppos)
-+{
-+	struct task_struct *task = get_proc_task(file->f_dentry->d_inode);
-+	char buffer[PROC_NUMBUF];
-+	size_t len;
-+	int make_it_fail;
-+	loff_t __ppos = *ppos;
+--- work-shouldfail.orig/lib/Kconfig.debug
++++ work-shouldfail/lib/Kconfig.debug
+@@ -368,3 +368,7 @@ config RCU_TORTURE_TEST
+ 	  at boot time (you probably don't).
+ 	  Say M if you want the RCU torture tests to build as a module.
+ 	  Say N if you are unsure.
 +
-+	if (!task)
-+		return -ESRCH;
-+	make_it_fail = task->make_it_fail;
-+	put_task_struct(task);
++config FAULT_INJECTION
++	bool
 +
-+	len = snprintf(buffer, sizeof(buffer), "%i\n", make_it_fail);
-+	if (__ppos >= len)
-+		return 0;
-+	if (count > len-__ppos)
-+		count = len-__ppos;
-+	if (copy_to_user(buf, buffer + __ppos, count))
-+		return -EFAULT;
-+	*ppos = __ppos + count;
-+	return count;
-+}
-+
-+static ssize_t proc_fault_inject_write(struct file * file,
-+			const char __user * buf, size_t count, loff_t *ppos)
-+{
-+	struct task_struct *task;
-+	char buffer[PROC_NUMBUF], *end;
-+	int make_it_fail;
-+
-+	if (!capable(CAP_SYS_RESOURCE))
-+		return -EPERM;
-+	memset(buffer, 0, sizeof(buffer));
-+	if (count > sizeof(buffer) - 1)
-+		count = sizeof(buffer) - 1;
-+	if (copy_from_user(buffer, buf, count))
-+		return -EFAULT;
-+	make_it_fail = simple_strtol(buffer, &end, 0);
-+	if (*end == '\n')
-+		end++;
-+	task = get_proc_task(file->f_dentry->d_inode);
-+	if (!task)
-+		return -ESRCH;
-+	task->make_it_fail = make_it_fail;
-+	put_task_struct(task);
-+	if (end - buffer == 0)
-+		return -EIO;
-+	return end - buffer;
-+}
-+
-+static struct file_operations proc_fault_inject_operations = {
-+	.read		= proc_fault_inject_read,
-+	.write		= proc_fault_inject_write,
-+};
-+#endif
-+
- #ifdef CONFIG_SECCOMP
- static ssize_t seccomp_read(struct file *file, char __user *buf,
- 			    size_t count, loff_t *ppos)
-@@ -1834,6 +1905,12 @@ static struct dentry *proc_pident_lookup
- 			inode->i_fop = &proc_loginuid_operations;
- 			break;
- #endif
-+#ifdef CONFIG_FAULT_INJECTION
-+		case PROC_TID_FAULT_INJECTION:
-+		case PROC_TGID_FAULT_INJECTION:
-+			inode->i_fop = &proc_fault_inject_operations;
-+			break;
-+#endif
- 		default:
- 			printk("procfs: impossible type (%d)",p->type);
- 			iput(inode);
-Index: work-shouldfail/include/linux/sched.h
+Index: work-shouldfail/lib/Makefile
 ===================================================================
---- work-shouldfail.orig/include/linux/sched.h
-+++ work-shouldfail/include/linux/sched.h
-@@ -996,6 +996,9 @@ struct task_struct {
- #ifdef	CONFIG_TASK_DELAY_ACCT
- 	struct task_delay_info *delays;
- #endif
-+#ifdef CONFIG_FAULT_INJECTION
-+	int make_it_fail;
-+#endif
- };
+--- work-shouldfail.orig/lib/Makefile
++++ work-shouldfail/lib/Makefile
+@@ -52,6 +52,7 @@ obj-$(CONFIG_SMP) += percpu_counter.o
+ obj-$(CONFIG_AUDIT_GENERIC) += audit.o
  
- static inline pid_t process_group(struct task_struct *tsk)
+ obj-$(CONFIG_SWIOTLB) += swiotlb.o
++obj-$(CONFIG_FAULT_INJECTION) += fault-inject.o
+ 
+ hostprogs-y	:= gen_crc32table
+ clean-files	:= crc32table.h
 Index: work-shouldfail/include/linux/fault-inject.h
 ===================================================================
---- work-shouldfail.orig/include/linux/fault-inject.h
+--- /dev/null
 +++ work-shouldfail/include/linux/fault-inject.h
-@@ -27,6 +27,9 @@ struct fault_attr {
- 	atomic_t space;
- 
- 	unsigned long count;
+@@ -0,0 +1,41 @@
++#ifndef _LINUX_FAULT_INJECT_H
++#define _LINUX_FAULT_INJECT_H
 +
-+	/* A value of '0' means process filter is disabled. */
-+	u32 process_filter;
- };
- 
- #define DEFINE_FAULT_ATTR(name) \
++#ifdef CONFIG_FAULT_INJECTION
++
++#include <linux/types.h>
++#include <asm/atomic.h>
++
++struct fault_attr {
++
++	/* how often it should fail in percent. */
++	unsigned long probability;
++
++	/* the interval of failures. */
++	unsigned long interval;
++
++	/*
++	 * how many times failures may happen at most.
++	 * A value of '-1' means infinity.
++	 */
++	atomic_t times;
++
++	/*
++	 * the size of free space where memory can be allocated safely.
++	 * A value of '0' means infinity.
++	 */
++	atomic_t space;
++
++	unsigned long count;
++};
++
++#define DEFINE_FAULT_ATTR(name) \
++	struct fault_attr name = { .times = ATOMIC_INIT(-1), }
++
++int setup_fault_attr(struct fault_attr *attr, char *str);
++void should_fail_srandom(unsigned long entropy);
++int should_fail(struct fault_attr *attr, ssize_t size);
++
++#endif /* CONFIG_FAULT_INJECTION */
++
++#endif /* _LINUX_FAULT_INJECT_H */
 Index: work-shouldfail/lib/fault-inject.c
 ===================================================================
---- work-shouldfail.orig/lib/fault-inject.c
+--- /dev/null
 +++ work-shouldfail/lib/fault-inject.c
-@@ -5,6 +5,7 @@
- #include <linux/types.h>
- #include <linux/fs.h>
- #include <linux/module.h>
-+#include <linux/interrupt.h>
- #include <linux/fault-inject.h>
- 
- int setup_fault_attr(struct fault_attr *attr, char *str)
-@@ -49,6 +50,15 @@ void should_fail_srandom(unsigned long e
- 	should_fail_random();
- }
- 
-+static int fail_process(struct fault_attr *attr, struct task_struct *task)
-+{
-+	/* process filter is disabled */
-+	if (!attr->process_filter)
-+		return 1;
+@@ -0,0 +1,84 @@
++#include <linux/kernel.h>
++#include <linux/init.h>
++#include <linux/random.h>
++#include <linux/stat.h>
++#include <linux/types.h>
++#include <linux/fs.h>
++#include <linux/module.h>
++#include <linux/fault-inject.h>
 +
-+	return !in_interrupt() && task->make_it_fail;
++int setup_fault_attr(struct fault_attr *attr, char *str)
++{
++	unsigned long probability;
++	unsigned long interval;
++	int times;
++	int space;
++
++	/* "<interval>,<probability>,<space>,<times>" */
++	if (sscanf(str, "%lu,%lu,%d,%d",
++			&interval, &probability, &space, &times) < 4) {
++		printk(KERN_WARNING "SHOULD_FAIL: failed to parse arguments\n");
++		return 0;
++	}
++
++	attr->probability = probability;
++	attr->interval = interval;
++	atomic_set(&attr->times, times);
++	atomic_set(&attr->space, space);
++
++	return 1;
 +}
 +
- /*
-  * This code is stolen from failmalloc-1.0
-  * http://www.nongnu.org/failmalloc/
-@@ -56,6 +66,9 @@ void should_fail_srandom(unsigned long e
- 
- int should_fail(struct fault_attr *attr, ssize_t size)
- {
-+	if (!fail_process(attr, current))
++#define failure_probability(attr)	(attr)->probability
++#define failure_interval(attr)		(attr)->interval
++#define max_failures(attr)		(attr)->times
++#define current_space(attr)		(attr)->space
++#define atomic_dec_not_zero(v)		atomic_add_unless((v), -1, 0)
++
++static unsigned long rand_seed = 152L;
++
++static unsigned long should_fail_random(void)
++{
++	rand_seed = rand_seed * 690690L+1;
++	return rand_seed ^ jiffies;
++}
++
++void should_fail_srandom(unsigned long entropy)
++{
++	rand_seed ^= entropy;
++	should_fail_random();
++}
++
++/*
++ * This code is stolen from failmalloc-1.0
++ * http://www.nongnu.org/failmalloc/
++ */
++
++int should_fail(struct fault_attr *attr, ssize_t size)
++{
++	if (atomic_read(&max_failures(attr)) == 0)
 +		return 0;
 +
- 	if (atomic_read(&max_failures(attr)) == 0)
- 		return 0;
- 
++	if (atomic_read(&current_space(attr)) > size) {
++		atomic_sub(size, &current_space(attr));
++		return 0;
++	}
++
++	if (failure_interval(attr) > 1) {
++		attr->count++;
++		if (attr->count % failure_interval(attr))
++			return 0;
++	}
++
++	if (failure_probability(attr) > should_fail_random() % 100)
++		goto fail;
++
++	return 0;
++
++fail:
++
++	if (atomic_read(&max_failures(attr)) != -1)
++		atomic_dec_not_zero(&max_failures(attr));
++
++	return 1;
++}
 
 --

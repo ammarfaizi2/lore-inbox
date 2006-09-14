@@ -1,203 +1,145 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750707AbWINOnx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750713AbWINOrg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750707AbWINOnx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Sep 2006 10:43:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750752AbWINOnx
+	id S1750713AbWINOrg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Sep 2006 10:47:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750721AbWINOrg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Sep 2006 10:43:53 -0400
-Received: from ecfrec.frec.bull.fr ([129.183.4.8]:48526 "EHLO
-	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP
-	id S1750721AbWINOnv convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Sep 2006 10:43:51 -0400
-Subject: Re: [PATCH AIO 2/2] Add listio support
-From: =?ISO-8859-1?Q?S=E9bastien_Dugu=E9?= <sebastien.dugue@bull.net>
-To: Zach Brown <zach.brown@oracle.com>
-Cc: linux-kernel@vger.kernel.org, linux-aio@kvack.org, drepper@redhat.com,
-       suparna@in.ibm.com, pbadari@us.ibm.com, hch@infradead.org,
-       johnpol@2ka.mipt.ru, davem@davemloft.net,
-       Jean Pierre Dion <jean-pierre.dion@bull.net>
-In-Reply-To: <450753C1.2080308@oracle.com>
-References: <20060911114152.4f67e59f@frecb000686>
-	 <450753C1.2080308@oracle.com>
-Date: Thu, 14 Sep 2006 16:43:42 +0200
-Message-Id: <1158245022.3890.68.camel@frecb000686>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.2.1 
-X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 14/09/2006 16:49:27,
-	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 14/09/2006 16:49:30,
-	Serialize complete at 14/09/2006 16:49:30
-Content-Transfer-Encoding: 8BIT
-Content-Type: text/plain; charset=ISO-8859-15
+	Thu, 14 Sep 2006 10:47:36 -0400
+Received: from nz-out-0102.google.com ([64.233.162.195]:49926 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1750713AbWINOrf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Sep 2006 10:47:35 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=BdKpp3Vtku623WQ1JFEvipWzvceq91Cf9ys9CTNbq7nRJiA9RqgenVryE1kVCdbCUw8dyPP+U2vY5Wj48HflMIEgt0jw43wF3WrnJS6k3GDPpBvldllxWnl8U/EEZiCsN8PDR24t97cXh/268CBHWotCyfiTmx2sQ4qvqwJKEyE=
+Message-ID: <45096B80.3040303@gmail.com>
+Date: Thu, 14 Sep 2006 23:47:28 +0900
+From: Tejun Heo <htejun@gmail.com>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060812)
+MIME-Version: 1.0
+To: "philippe.grenard" <philippe.grenard@laposte.net>
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: (Another?) Seagate / Sil3112a problem...
+References: <J5J0S1$E84BD2336C01F896088E954AAF120859@laposte.net>
+In-Reply-To: <J5J0S1$E84BD2336C01F896088E954AAF120859@laposte.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-09-12 at 17:41 -0700, Zach Brown wrote:
-> >   As io_submit already accepts an array of iocbs, as part of listio submission,
-> > the user process prepends to a list of requests an empty special aiocb with
-> > an aio_lio_opcode of IOCB_CMD_GROUP, filling only the aio_sigevent fields.
+philippe.grenard wrote:
+[--snip--]
+> Seagate 7200.8 drive. 
+> Well, all went well for a week or two, but then the drive
+> began to make strange noises, and i got some weird messages
+> from dmesg output...
+> I feared a drive failure, so I made a full Seagate diagnoses
+> of the disk, but no errors...
+> Well, maybe I got bad luck with that drive, so I decided to
+> get another one. I took another Seagate, 250Go, 7200.10 this time.
 > 
-> Hmm, overloading an iocb as the _GROUP indication doesn't make much
-> sense to me, other than being an expedient way to shoe-horn the
-> semantics into the existing API.  That we have to worry about multiple
-> _GROUP iocbs in the array (ignoring them currently) seems like
-> complexity that we shouldn't even have to consider.
+> I put this new Seagate (let's call it S_new, the other being
+> S_old) to the first connector of the Sil 3112a chip, and put
+> the "old" one on the second connector : thus I have sda for
+> S_new, and sdb for S_old...
 > 
-> Am I just missing the discussion that lead us to avoid a syscall?  It
-> seems like we're getting a pretty funky API in return.
-
-  The original intent was to use the io_submit() interface which already
-accepts a list of iocbs without having to resort on yet another syscall.
-  But I agree that it's kludgy and a new syscall might end up being much
-cleaner.
-
-  Discussion on this issue would be much welcomed.
-
+> What is really surprising, is that i still got issues with
+> sda, but none with sdb... so the believed faulty drive is not,
+> as i got no dmesg errors from sdb...
 > 
-> I guess I could also see an iocb command whose buf/bytes pointed to an
-> array of iocb pointers that it should issue and wait for completion on.
->  You could call it, uh, IOCB_CMD_IO_SUBMIT :).  I'm only sort of kidding
-> here :).  With a sys_io_wait_for_one_iocb() that might not be entirely
-> ridiculous.  Then you could get an io_getevents() completion of a group
-> instead of only being able to get a signal or waiting on sync
-> completion.  It makes it less of a special case.
+> thus i suspect either a faulty controller, or a problem with
+> the driver (sata_sil) i use...(or even something with IRQ as I
+> don't understand anything with IRQ...)
+> I tried to put both disks numbers in the "blacklist" in
+> sata_sil.c, but apart from a degraded speed, it didn't do
+> anything...
+
+Don't do that.  It has nothing to do with your problem.
+
+> The other observation I made, was that these problems happens
+> only when the computer is still "cold" : I mean, after an hour
+> or two, no problem with this... and even if i reboot (I really
+> mean reboot, not halt and restart : when the power still turns
+> on), i got no problem...
 > 
-> In any case, this current approach doesn't seem complete.  It doesn't
-> deal with the case where canceled iocbs don't come through
-> aio_complete() and so don't drop their lio_users count.
-
-  Yep, will have to think a bit more about this.
-
+> Well since I use my computer for Desktop, it really is an
+> issue for me at the moment, especially when the disk is making
+> a noise...
 > 
-> Also, it seems that the lio_submit() interface allows NULL iocb pointers
-> by skipping them.  sys_io_submit() looks like it'd fault on them.  It
-> sounds unpleasant to have an app allow nulls in the array and have the
-> library copy and compress the members, or something.  Maybe we could fix
-> up that mismatch in an API that explicitly took the sigevent struct?  Am
-> I making up this problem?
-
-  Effectively, right now the NULL pointers have to be handled by the 
-library and the new syscall approach would allow to solve this in
-an elegant way.
-
+> I'm on Linux for about 2 or 3 years now, under Debian/SID,
+> with kernel 2.6.17.13 from kernel.org (self-compiled)
 > 
-> more inline..
+> Here is the output of dmesg if it helps...
+> I can provide any information you would find useful, even make
+> some tests, but if you could be not too technical, that would
+> really be great, as I'm a real noob with Hardware problems...
 > 
-> > +static void lio_wait(struct kioctx *ctx, struct lio_event *lio)
-> > +{
-> > +       struct task_struct *tsk = current;
-> > +       DECLARE_WAITQUEUE(wait, tsk);
-> > +
-> > +       add_wait_queue(&ctx->wait, &wait);
-> > +       set_task_state(tsk, TASK_UNINTERRUPTIBLE);
-> > +
-> > +       while ( atomic_read(&lio->lio_users) ) {
-> > +               schedule();
-> > +               set_task_state(tsk, TASK_UNINTERRUPTIBLE);
-> > +       }
-> > +       __set_task_state(tsk, TASK_RUNNING);
-> > +       remove_wait_queue(&ctx->wait, &wait);
-> 
-> wait_event(ctx->wait, atomic_read(&lio->lio_users));
+> Any help/links/infos/hints would really be appreciated!
+> I've already googled a lot and found that Seagate/sil3112a is
+> a problematic couple, but i didn't find any solution for that...
+> I'll try this evening with an older kernel (if you have any
+> suggestion for a kernel version...) to see if it's not related
+> to a kernel upgrade...
 
-  Nice shortcut, thanks.
+All recent Seagate drives work fine w/ sil3112.  Only some old models of 
+.7 drives are problematic.
 
-> 
-> > +static inline void lio_check(struct lio_event *lio)
-> > +{
-> > +	int ret;
-> > +
-> > +	ret = atomic_dec_and_test(&(lio->lio_users));
-> > +
-> > +	if (unlikely(ret) && lio->lio_notify.notify != SIGEV_NONE) {
-> > +		/* last one -> notify process */
-> > +		aio_send_signal(&lio->lio_notify);
-> > +		kfree(lio);
-> 
-> Since io_submit() doesn't hold a ref on lio_users this can race during
-> submission to send the signal and free the lio before all the operations
-> have been submitted.
+> EXT3-fs: unable to read superblock
+> ata1: command 0xec timeout, stat 0xd0 host_stat 0x0
+> ata1: translated ATA stat/err 0xd0/00 to SCSI SK/ASC/ASCQ
+> 0xb/47/00
+> ata1: status=0xd0 { Busy }
+> ata1: command 0xec timeout, stat 0xd0 host_stat 0x0
+> ata1: translated ATA stat/err 0xd0/00 to SCSI SK/ASC/ASCQ
+> 0xb/47/00
+> ata1: status=0xd0 { Busy }
+> ata1: command 0xb0 timeout, stat 0xd0 host_stat 0x0
+> ata1: translated ATA stat/err 0xd0/00 to SCSI SK/ASC/ASCQ
+> 0xb/47/00
+> ata1: status=0xd0 { Busy }
+> ata1: command 0xb0 timeout, stat 0xd0 host_stat 0x0
+> ata1: translated ATA stat/err 0xd0/00 to SCSI SK/ASC/ASCQ
+> 0xb/47/00
+> ata1: status=0xd0 { Busy }
+> ata1: command 0xec timeout, stat 0xd0 host_stat 0x0
+> ata1: translated ATA stat/err 0xd0/00 to SCSI SK/ASC/ASCQ
+> 0xb/47/00
+> ata1: status=0xd0 { Busy }
+> ata1: command 0xec timeout, stat 0xd0 host_stat 0x0
+> ata1: translated ATA stat/err 0xd0/00 to SCSI SK/ASC/ASCQ
+> 0xb/47/00
+> ata1: status=0xd0 { Busy }
+> ata1: command 0xb0 timeout, stat 0xd0 host_stat 0x0
+> ata1: translated ATA stat/err 0xd0/00 to SCSI SK/ASC/ASCQ
+> 0xb/47/00
+> ata1: status=0xd0 { Busy }
+> ata1: command 0xb0 timeout, stat 0xd0 host_stat 0x0
+> ata1: translated ATA stat/err 0xd0/00 to SCSI SK/ASC/ASCQ
+> 0xb/47/00
+> ata1: status=0xd0 { Busy }
 
-  Right.
+You'll probably get better result with 2.6.18-rc7 which includes new 
+libata error handling and more detailed diagnostic messages.  However, 
+your problem seems to be hardware issue.  Probably the controller or the 
+cable.
 
-> 
-> > +	if (*lio) {
-> > +               printk (KERN_DEBUG "lio_create: already have an lio\n");
-> 
-> We should get rid of the printk so that the user doesn't have a trivial
-> way to flood the kernel message log.
+I think your link is just flaky enough to cause problem from time to 
+time and even when it does it oscillates between link established and 
+broken.  Such condition can cause rapid continuous hardresets to the 
+attached device, which, depending on drive, can result in weird noise.
 
-  OK.
+So, several things to try...
 
-> 
-> > +	*lio = kmalloc(sizeof(*lio), GFP_KERNEL);
-> > +
-> > +	if (!*lio)
-> > +		return -EAGAIN;
-> > +
-> > +	memset (*lio, 0, sizeof(struct lio_event));
-> 
-> kzalloc(), and I imagine it would be a lot cleaner to return the lio or
-> ERR_PTR() instead of passing in the pointer to the struct and filling it in.
+* make sure the cables are well-plugged
 
-  Makes sense.
+* if you have a spare, swap cables.  if not, swap the first and second 
+cable and see what happens.
 
-> 
-> And is it legal to memset(&atomic_t, 0, )?  I would have expected a
-> atomic_set(&lio->lio_users, 0).  Maybe I'm stuck in the bad old days of
-> 24 bit atomic_t and embedded locks :).
-
-  Well, it's just an allocation so lio->lio_users is not even ready to 
-be used. So I don't think it makes any difference whether this field
-is cleared during the memset (or kzalloc) or using an explicit
-atomic_set(). Or are there any architectures still out there that stuff
-state bits in an atomic_t?
-
-> 
-> > +		if (lio && ((tmp.aio_lio_opcode == IOCB_CMD_PREAD) ||
-> > +			    (tmp.aio_lio_opcode == IOCB_CMD_PWRITE))) {
-> 
-> It doesn't make sense to me to restrict which ops are allowed to be in a
-> list or not.  Why not PREADV?  An iocb is an iocb, I think.
-
-  Right, I wrongly focused on the POSIX aspects, but we should be more
-versatile here.
-
-> 
-> > +	IOCB_CMD_GROUP = 7,
-> 
-> 7 is already taken in -mm by IOCB_CMD_PREADV .
-
-  Argh, forgot to check -mm. Sorry.
-
-> 
-> > +struct lio_event {
-> > +	atomic_t		lio_users;
-> > +	int			lio_wait;
-> > +	struct aio_notify	lio_notify;
-> 
-> I'm pretty sure you don't need lio_wait here, given that it's only
-> tested in the submission path.
-> 
-
-  Yes, we can do without.
-
-  Thanks,
-
-  Sébastien.
+* if the problem still persists && it doesn't follow the cable (ie. you 
+swapped the first and second cable but the first port still fails), your 
+controller or circuits on board is the problem.  Buy a add-on card, it's 
+really cheap these days.
 
 -- 
------------------------------------------------------
-
-  Sébastien Dugué                BULL/FREC:B1-247
-  phone: (+33) 476 29 77 70      Bullcom: 229-7770
-
-  mailto:sebastien.dugue@bull.net
-
-  Linux POSIX AIO: http://www.bullopensource.org/posix
-                   http://sourceforge.net/projects/paiol
-
------------------------------------------------------
-
+tejun

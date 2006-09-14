@@ -1,99 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932096AbWINWz2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932106AbWINW7W@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932096AbWINWz2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Sep 2006 18:55:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932101AbWINWz2
+	id S932106AbWINW7W (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Sep 2006 18:59:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932107AbWINW7W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Sep 2006 18:55:28 -0400
-Received: from gate.crashing.org ([63.228.1.57]:39299 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S932096AbWINWz1 (ORCPT
+	Thu, 14 Sep 2006 18:59:22 -0400
+Received: from dvhart.com ([64.146.134.43]:11746 "EHLO dvhart.com")
+	by vger.kernel.org with ESMTP id S932106AbWINW7W (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Sep 2006 18:55:27 -0400
-Subject: [RFC] page fault retry with NOPAGE_RETRY
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: linux-mm@kvack.org
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>
-Content-Type: text/plain
-Date: Fri, 15 Sep 2006 08:55:08 +1000
-Message-Id: <1158274508.14473.88.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+	Thu, 14 Sep 2006 18:59:22 -0400
+Message-ID: <4509DEC3.70806@mbligh.org>
+Date: Thu, 14 Sep 2006 15:59:15 -0700
+From: Martin Bligh <mbligh@mbligh.org>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051011)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Roman Zippel <zippel@linux-m68k.org>,
+       Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
+       linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
+       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@redhat.com>,
+       Greg Kroah-Hartman <gregkh@suse.de>,
+       Thomas Gleixner <tglx@linutronix.de>, Tom Zanussi <zanussi@us.ibm.com>,
+       ltt-dev@shafik.org, Michel Dagenais <michel.dagenais@polymtl.ca>,
+       fche@redhat.com
+Subject: Re: [PATCH 0/11] LTTng-core (basic tracing infrastructure) 0.5.108
+References: <20060914112718.GA7065@elte.hu> <Pine.LNX.4.64.0609141537120.6762@scrub.home> <20060914135548.GA24393@elte.hu> <Pine.LNX.4.64.0609141623570.6761@scrub.home> <20060914171320.GB1105@elte.hu> <4509BAD4.8010206@mbligh.org> <20060914203430.GB9252@elte.hu> <4509C1D0.6080208@mbligh.org> <20060914213113.GA16989@elte.hu> <4509D6E6.5030409@mbligh.org> <20060914223607.GB25004@elte.hu>
+In-Reply-To: <20060914223607.GB25004@elte.hu>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi !
+Ingo Molnar wrote:
+> * Martin Bligh <mbligh@mbligh.org> wrote:
+> 
+>>>i very much agree that they should become as fast as possible. So to 
+>>>rephrase the question: can we make dynamic tracepoints as fast (or 
+>>>nearly as fast) as static tracepoints? If yes, should we care about 
+>>>static tracers at all?
+>>
+>>Depends how many nops you're willing to add, I guess. Anything, even 
+>>the static tracepoints really needs at least a branch to be useful, 
+>>IMHO. At least for what I've been doing with it, you need to stop the 
+>>data flow after a while (when the event you're interested in happens, 
+>>I'm using it like a flight data recorder, so we can go back and do 
+>>postmortem on what went wrong). I should imagine branch prediction 
+>>makes it very cheap on most modern CPUs, but don't have hard data to 
+>>hand.
+> 
+> only 5 bytes of NOP are needed by default, so that a kprobe can insert a 
+> call/callq instruction. The easiest way in practice is to insert a 
+> _single_, unconditional function call that is patched out to NOPs upon 
+> its first occurance (doing this is not a performance issue at all). That 
+> way the only cost is the NOP and the function parameter preparation 
+> side-effects. (which might or might not be significant - with register 
+> calling conventions and most parameters being readily available it 
+> should be small.)
+> 
+> note that such a limited, minimally invasive 'data extraction point' 
+> infrastructure is not actually what the LTT patches are doing. It's not 
+> even close, and i think you'll be surprised. Let me quote from the 
+> latest LTT patch (patch-2.6.17-lttng-0.5.108, which is the same version 
+> submitted to lkml - although no specific tracepoints were submitted):
 
-While tracking some issues with mapping of SPEs on Cell into userland
-processes, I figured out that we have a problem that can be solved with
-a small generic change (which might be useful for other situations as
-well).
+OK, I grant you that's pretty scary ;-) However, it's not the only way
+to do it. Most things we're using write a statically sized 64-bit event
+into a relayfs buffer, with a timestamp, a minor and major event type,
+and a byte of data payload.
 
-Basically, when a user tries to access some mmap'ed SPE registers, the
-no_page() function for those tries to schedule in a physial SPE the
-virtual SPE context of that user. For that, it needs to wait for an SPE
-to become available, which can take some time, and with the current SPE
-scheduler, can take a long time indeed.
+> believe it or not, this is inlined into: kernel/sched.c ...
+> 
+> 'enuff said. LTT is so far from being even considerable that it's not 
+> even funny.
 
-This wait is interruptible. However, we have no way to fail "gracefully"
-from no_page() if the routine we use underneath returns a failure due to
-a signal (we use, logically, -EINTR). It's a generic issue with no_page
-handlers. They can either wait non-interruptibly, or fail with a sigbus
-or oom result.
+Particularly if we're doing more complex things like that, I'd agree
+that the overhead of doing the out of line jump is non-existant by
+comparison. Even with the relayfs logging alone, perhaps the jump is
+not that heavy ... hmmm.
 
-However, it would be trivial to add the ability for no_page() to fail in
-such a way that execution just comes back all the way to userland (and
-thus pending signals are delivered), and the faulting instruction is
-simply taken again. All we need is something like:
+If we put the NOPs in (at least as an option on some architectures)
+from a macro, you don't really need the full kprobes implemented to
+to tracing, even ... just overwrite the nops with a jump, so presumably
+would be easier to port. However, not sure how local variable data
+is specified in that case ... perhaps the kprobes guys know better.
+Most of the complexity seemed to be with relocating existing code
+because you didn't have nops.
 
-in mm.h:
+To me, the main thing is to have hooks for the at least some of the
+basic needs maintained in-kernel - from the dtrace paper Val pointed
+me to, that seems to be exactly what they do too, and it integrates
+with the newly added dynamic ones where necessary. Plus I hate the
+whole awk thing, and general complexity of systemtap, but we can
+probably avoid that easily enough - either the embedded C option
+you mentioned, or just a different definiton for the same hook macros
+under a config option.
 
- #define NOPAGE_SIGBUS   (NULL)
- #define NOPAGE_OOM      ((struct page *) (-1))
-+#define NOPAGE_RETRY	((struct page *) (-2))
+So perhaps it'll all work. Still need a little bit of data maintained
+in tree though.
 
-and in memory.c, in do_no_page():
-
-
-        /* no page was available -- either SIGBUS or OOM */
-        if (new_page == NOPAGE_SIGBUS)
-                return VM_FAULT_SIGBUS;
-        if (new_page == NOPAGE_OOM)
-                return VM_FAULT_OOM;
-+       if (new_page == NOPAGE_RETRY)
-+               return VM_FAULT_MINOR;
-
-In fact, it would be nicer to turn the whole serie into -one- if
-(unlikely(something wrong)) and inside that if, a switch case of fault
-codes. That would probably make the code better than what it is today
-and allow for adding error cases without performance harm to the fast
-path. I'll provide a patch doing that if there is no strong disagreement
-with the approach.
-
-With the above change, a no_page() handler can just return NOPAGE_RETRY
-(for example if it was waiting on availability of a hardware resource
-and a signal got detected) and this will simply be counted as a minor
-fault. I've looked at the callers of handle_mm_fault() on a couple of
-archs and it seems that the approach will work though I haven't looked
-at all of them yet (though at this point, I only plan to use that for
-PowerPC SPE code anyway).
-
-Somebody pointed to me that this might also be used to shoot another
-bird, though I have not really though about it and wether it's good or
-bad, which is the old problem of needing struct page for things that can
-be mmap'ed. Using that trick, a driver could do the set_pte() itself in
-the no_page handler and return NOPAGE_RETRY. I'm not sure about
-advertising that feature though as I like all  callers of things like
-set_pte() to be in well known locations, as there are various issues
-related to manipulating the page tables that driver writers might not
-get right. Though I suppose that if we consider the approach good, we
-can provide a helper that "does the right thing" as well (like calling
-update_mmu_cache(), flush_tlb_whatever(), etc...).
-
-Any comment ? If it's ok, I'll cook a patch candidate for 2.6.19 along
-with the matching change to spufs to make use of it.
-
-Ben.
-
-
+M.

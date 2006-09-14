@@ -1,98 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932128AbWINX2X@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932129AbWINXc4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932128AbWINX2X (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Sep 2006 19:28:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932129AbWINX2X
+	id S932129AbWINXc4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Sep 2006 19:32:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932134AbWINXcz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Sep 2006 19:28:23 -0400
-Received: from e36.co.us.ibm.com ([32.97.110.154]:41188 "EHLO
-	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S932128AbWINX2U
+	Thu, 14 Sep 2006 19:32:55 -0400
+Received: from mercury.sdinet.de ([193.103.161.30]:11490 "EHLO
+	mercury.sdinet.de") by vger.kernel.org with ESMTP id S932129AbWINXcz
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Sep 2006 19:28:20 -0400
-Subject: Re: [ckrm-tech] [PATCH] BC:
-	resource	beancounters	(v4)	(added	user	memory)
-From: Chandra Seetharaman <sekharan@us.ibm.com>
-Reply-To: sekharan@us.ibm.com
-To: rohitseth@google.com
-Cc: Rik van Riel <riel@redhat.com>, vatsa@in.ibm.com,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       CKRM-Tech <ckrm-tech@lists.sourceforge.net>, balbir@in.ibm.com,
-       Dave Hansen <haveblue@us.ibm.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andi Kleen <ak@suse.de>, Christoph Hellwig <hch@infradead.org>,
-       Andrey Savochkin <saw@sw.ru>, Matt Helsley <matthltc@us.ibm.com>,
-       Hugh Dickins <hugh@veritas.com>, Alexey Dobriyan <adobriyan@mail.ru>,
-       Kirill Korotaev <dev@sw.ru>, Oleg Nesterov <oleg@tv-sign.ru>,
-       devel@openvz.org, Pavel Emelianov <xemul@openvz.org>
-In-Reply-To: <1158197232.20211.96.camel@galaxy.corp.google.com>
-References: <44FD918A.7050501@sw.ru> <44FDAB81.5050608@in.ibm.com>
-	 <44FEC7E4.7030708@sw.ru> <44FF1EE4.3060005@in.ibm.com>
-	 <1157580371.31893.36.camel@linuxchandra> <45011CAC.2040502@openvz.org>
-	 <1157743424.19884.65.camel@linuxchandra>
-	 <1157751834.1214.112.camel@galaxy.corp.google.com>
-	 <1157999107.6029.7.camel@linuxchandra>
-	 <1158001831.12947.16.camel@galaxy.corp.google.com>
-	 <20060912104410.GA28444@in.ibm.com>
-	 <1158081752.20211.12.camel@galaxy.corp.google.com>
-	 <1158105732.4800.26.camel@linuxchandra>
-	 <1158108203.20211.52.camel@galaxy.corp.google.com>
-	 <1158109991.4800.43.camel@linuxchandra>
-	 <1158111218.20211.69.camel@galaxy.corp.google.com>
-	 <1158186247.18927.11.camel@linuxchandra>
-	 <1158197232.20211.96.camel@galaxy.corp.google.com>
-Content-Type: text/plain
-Organization: IBM
-Date: Thu, 14 Sep 2006 16:28:15 -0700
-Message-Id: <1158276495.6357.18.camel@linuxchandra>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-7) 
-Content-Transfer-Encoding: 7bit
+	Thu, 14 Sep 2006 19:32:55 -0400
+Date: Fri, 15 Sep 2006 01:32:53 +0200 (CEST)
+From: Sven-Haegar Koch <haegar@sdinet.de>
+To: xixi lii <xixi.limeng@gmail.com>
+cc: Linux-Kernel-Mailinglist <linux-kernel@vger.kernel.org>
+Subject: Re: UDP question.
+In-Reply-To: <a885b78b0609140900x385c9453n9ef25a936524dff7@mail.gmail.com>
+Message-ID: <Pine.LNX.4.64.0609150129150.21941@mercury.sdinet.de>
+References: <a885b78b0609140900x385c9453n9ef25a936524dff7@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-09-13 at 18:27 -0700, Rohit Seth wrote:
+On Fri, 15 Sep 2006, xixi lii wrote:
 
-<snip>
-> > > As said earlier, if strict QoS is desired then system should be
-> > > appropriately partitioned so that the sum of limits doesn't exceed
-> > > physical limit (that is cost of QoS).  Let us first get at least that
-> > > much settled on and accepted in mainline before getting into these
-> > > esoteric features.
-> > > 
-> > 
-> > esoteric ?! Please look at the different operating system that provide
-> > resource management and other resource management capability providers.
-> > All of them have both guarantees and limits (they might call them
-> > differently).
-> > 
-> 
-> Is this among the very first features you would like (to get absolutely
-> right) before containers get in mm tree?  Or is this something that can
+> This result can't satisfy me, so I add another network adapter, and
+> try the code blow:
+>
+> //////
+> socket1 = socket(AF_INET, SOCK_DGRAM, .....)
+> socket2 = socket(AF_INET, SOCK_DGRAM, .....)
+> bind socket1.network adapter1...
+> bind socket2 network adapter2
+> time = time(NULL);
+> while (1)
+> {
+> sendto(socket1, "", 1, 0, dstaddr1, addrlen);
+> sendto(socket2, "", 1, 0, dstaddr2, addrlen);
+> count += 2;
+> }
+> time = time(NULL) - time;
+> avg = count / time;
+> ///////////////////
+>
+> But I get the result is also 75000 packet per second, WHY?
 
-Let me make it clear, I am interested in resource management and not in
-containers.
 
-IMO, for resource management to work as expected (as is in other OSes),
-guarantee is needed. It will be a good idea to have it from start as it
-would affect the design of controllers. 
+> It look like that when send a packet to bond dev, bond use current
+> slave and send packet, then change current slave to next. What is the
+> essence different between the bond and my code (use two network
+> adapters)?
+>
+> Any suggestions?
 
-For example, instead of writing two controllers (one to control limit
-and another to provide guarantee), controller writers can provide both
-in a single controller. (OpenVZ has two parameters, oomguarpages and
-vmguarpages whose purpose is to provide some sort of guarantee using the
-barrier and/or limit available in BC)
- 
-> wait after the minimal infrastructure is in Andrew's tree and the code
-> gets wider testing...And above all we have agreed upon user interface.
-> 
-> -rohit
-> 
+I am not really sure, but I think the bind to an adapter under linux only 
+chooses the source ip, not really the adapter used to send the packets.
+
+Did you check that the two destination ips have routes through different 
+interfaces, and not go out through the same one?
+
+(You should even be able to verify this with tcpdump, if you get packets 
+on one interface and nothing on the second)
+
+c'ya
+sven
 
 -- 
 
-----------------------------------------------------------------------
-    Chandra Seetharaman               | Be careful what you choose....
-              - sekharan@us.ibm.com   |      .......you may get it.
-----------------------------------------------------------------------
-
-
+The Internet treats censorship as a routing problem, and routes around it.
+(John Gilmore on http://www.cygnus.com/~gnu/)

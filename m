@@ -1,25 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750809AbWINOew@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750814AbWINOex@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750809AbWINOew (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Sep 2006 10:34:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750817AbWINOev
+	id S1750814AbWINOex (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Sep 2006 10:34:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750818AbWINOew
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Sep 2006 10:34:51 -0400
-Received: from nat-132.atmel.no ([80.232.32.132]:751 "EHLO relay.atmel.no")
-	by vger.kernel.org with ESMTP id S1750809AbWINOev (ORCPT
+	Thu, 14 Sep 2006 10:34:52 -0400
+Received: from nat-132.atmel.no ([80.232.32.132]:26565 "EHLO relay.atmel.no")
+	by vger.kernel.org with ESMTP id S1750814AbWINOev (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Thu, 14 Sep 2006 10:34:51 -0400
-Date: Thu, 14 Sep 2006 16:34:21 +0200
+Date: Thu, 14 Sep 2006 16:29:26 +0200
 From: Haavard Skinnemoen <hskinnemoen@atmel.com>
 To: Andrew Morton <akpm@osdl.org>
 Cc: linux-mtd@lists.infradead.org, linux-kernel@vger.kernel.org
-Subject: [-mm patch 4/4] AVR32 MTD: AT49BV6416 platform device for atstk1000
-Message-ID: <20060914163421.53ac453e@cad-250-152.norway.atmel.com>
-In-Reply-To: <20060914163259.068abe6d@cad-250-152.norway.atmel.com>
-References: <20060914162926.6c117b36@cad-250-152.norway.atmel.com>
-	<20060914163026.49766346@cad-250-152.norway.atmel.com>
-	<20060914163121.241dec3e@cad-250-152.norway.atmel.com>
-	<20060914163259.068abe6d@cad-250-152.norway.atmel.com>
+Subject: [-mm patch 0/4] AVR32 MTD: Introduction
+Message-ID: <20060914162926.6c117b36@cad-250-152.norway.atmel.com>
 Organization: Atmel Norway
 X-Mailer: Sylpheed-Claws 2.5.0-rc2 (GTK+ 2.8.20; i486-pc-linux-gnu)
 Mime-Version: 1.0
@@ -28,82 +23,47 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Register a platform device for the AT49BV6416 NOR flash chip on the
-ATSTK1000 development board for use by the ATSTK1000 MTD map driver.
+Hi Andrew and MTD people,
 
-Signed-off-by: Haavard Skinnemoen <hskinnemoen@atmel.com>
----
- arch/avr32/boards/atstk1000/atstk1002.c |   46 ++++++++++++++++++++++++++++
- 1 file changed, 46 insertions(+)
+This patchset adds the necessary drivers and infrastructure to access
+the external flash on the ATSTK1000 board through the MTD subsystem.
 
-Index: linux-2.6.18-rc5-mm1/arch/avr32/boards/atstk1000/atstk1002.c
-===================================================================
---- linux-2.6.18-rc5-mm1.orig/arch/avr32/boards/atstk1000/atstk1002.c	2006-09-07 15:18:55.000000000 +0200
-+++ linux-2.6.18-rc5-mm1/arch/avr32/boards/atstk1000/atstk1002.c	2006-09-07 15:21:18.000000000 +0200
-@@ -8,6 +8,9 @@
-  * published by the Free Software Foundation.
-  */
- #include <linux/init.h>
-+#include <linux/platform_device.h>
-+#include <linux/mtd/mtd.h>
-+#include <linux/mtd/partitions.h>
- 
- #include <asm/arch/board.h>
- 
-@@ -20,6 +23,47 @@ struct eth_platform_data __initdata eth0
- 
- extern struct lcdc_platform_data atstk1000_fb0_data;
- 
-+static struct mtd_partition flash_parts[] = {
-+	{
-+		.name           = "u-boot",
-+		.offset         = 0x00000000,
-+		.size           = 0x00020000,           /* 128 KiB */
-+		.mask_flags     = MTD_WRITEABLE,
-+	},
-+	{
-+		.name           = "root",
-+		.offset         = 0x00020000,
-+		.size           = 0x007d0000,
-+	},
-+	{
-+		.name           = "env",
-+		.offset         = 0x007f0000,
-+		.size           = 0x00010000,
-+		.mask_flags     = MTD_WRITEABLE,
-+	},
-+};
-+
-+static struct flash_platform_data flash_data = {
-+	.nr_parts	= ARRAY_SIZE(flash_parts),
-+	.parts		= flash_parts,
-+};
-+
-+struct resource flash_resource = {
-+	.start		= 0x00000000,
-+	.end		= 0x007fffff,
-+	.flags		= IORESOURCE_MEM,
-+};
-+
-+struct platform_device flash_device = {
-+	.name		= "atstk1000-flash",
-+	.id		= 0,
-+	.resource	= &flash_resource,
-+	.num_resources	= 1,
-+	.dev		= {
-+		.platform_data = &flash_data,
-+	},
-+};
-+
- static int __init atstk1002_init(void)
- {
- 	at32_add_system_devices();
-@@ -32,6 +76,8 @@ static int __init atstk1002_init(void)
- 	at32_add_device_spi(0);
- 	at32_add_device_lcdc(0, &atstk1000_fb0_data);
- 
-+	platform_device_register(&flash_device);
-+
- 	return 0;
- }
- postcore_initcall(atstk1002_init);
+With this stuff in place, it will be possible to use a jffs2
+filesystem stored in the external flash as a root filesystem. It might
+also be possible to update the boot loader if you drop the write
+protection of partition 0.
+
+Andrew, can you apply this to -mm? They probably don't make sense for
+the MTD tree until the rest of the AVR32 patches are merged into
+mainline, but I'd really appreciate if someone could have a quick look
+to see if I did something stupid.
+
+This also needs two patches I've submitted earlier (included in
+git-mtd.patch) in order to work, but it should still apply without
+them. For the record, these are:
+  MTD: Add lock/unlock operations for Atmel AT49BV6416
+  MTD: Convert Atmel PRI information to AMD format
+
+This patchset includes the following patches:
+
+  AVR32 MTD: Static Memory Controller driver
+  AVR32 MTD: Define struct flash_platform_data
+  AVR32 MTD: Mapping driver for the ATSTK1000 board
+  AVR32 MTD: AT49BV6416 platform device for atstk1000
+
+And the combined diffstat looks like this:
+
+ arch/avr32/boards/atstk1000/atstk1002.c |   46 ++++++++
+ arch/avr32/mach-at32ap/Makefile         |    2 
+ arch/avr32/mach-at32ap/at32ap7000.c     |   10 +
+ arch/avr32/mach-at32ap/hsmc.c           |  164 +++++++++++++++++++++++++++++
+ arch/avr32/mach-at32ap/hsmc.h           |  169 ++++++++++++++++++++++++++++++
+ drivers/mtd/maps/Kconfig                |   10 +
+ drivers/mtd/maps/Makefile               |    1 
+ drivers/mtd/maps/atstk1000.c            |  179 ++++++++++++++++++++++++++++++++
+ include/asm-avr32/arch-at32ap/board.h   |    7 +
+ include/asm-avr32/arch-at32ap/smc.h     |   60 ++++++++++
+ 10 files changed, 647 insertions(+), 1 deletion(-)
+
+Best regards,
+Haavard

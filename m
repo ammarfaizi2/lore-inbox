@@ -1,91 +1,208 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932086AbWINWny@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932087AbWINWo2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932086AbWINWny (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Sep 2006 18:43:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932087AbWINWny
+	id S932087AbWINWo2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Sep 2006 18:44:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932089AbWINWo1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Sep 2006 18:43:54 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.150]:22923 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S932086AbWINWnx
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Sep 2006 18:43:53 -0400
-Subject: Re: [Bug] 2.6.18-rc6-mm2 i386 trouble finding RSDT in
-	get_memcfg_from_srat
-From: keith mannthey <kmannth@us.ibm.com>
-Reply-To: kmannth@us.ibm.com
-To: dave hansen <haveblue@us.ibm.com>
-Cc: lkml <linux-kernel@vger.kernel.org>, Vivek goyal <vgoyal@in.ibm.com>,
-       ebiederm@xmission.com, andrew <akpm@osdl.org>
-In-Reply-To: <1158271274.24414.6.camel@localhost.localdomain>
-References: <1158113895.9562.13.camel@keithlap>
-	 <1158269696.15745.5.camel@keithlap>
-	 <1158271274.24414.6.camel@localhost.localdomain>
-Content-Type: text/plain
-Organization: Linux Technology Center IBM
-Date: Thu, 14 Sep 2006 15:43:50 -0700
-Message-Id: <1158273830.15745.14.camel@keithlap>
+	Thu, 14 Sep 2006 18:44:27 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:42400 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932087AbWINWo0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Sep 2006 18:44:26 -0400
+Date: Fri, 15 Sep 2006 00:36:07 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Martin Bligh <mbligh@mbligh.org>
+Cc: Roman Zippel <zippel@linux-m68k.org>,
+       Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
+       linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
+       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@redhat.com>,
+       Greg Kroah-Hartman <gregkh@suse.de>,
+       Thomas Gleixner <tglx@linutronix.de>, Tom Zanussi <zanussi@us.ibm.com>,
+       ltt-dev@shafik.org, Michel Dagenais <michel.dagenais@polymtl.ca>,
+       fche@redhat.com
+Subject: Re: [PATCH 0/11] LTTng-core (basic tracing infrastructure) 0.5.108
+Message-ID: <20060914223607.GB25004@elte.hu>
+References: <20060914112718.GA7065@elte.hu> <Pine.LNX.4.64.0609141537120.6762@scrub.home> <20060914135548.GA24393@elte.hu> <Pine.LNX.4.64.0609141623570.6761@scrub.home> <20060914171320.GB1105@elte.hu> <4509BAD4.8010206@mbligh.org> <20060914203430.GB9252@elte.hu> <4509C1D0.6080208@mbligh.org> <20060914213113.GA16989@elte.hu> <4509D6E6.5030409@mbligh.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4509D6E6.5030409@mbligh.org>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -2.9
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.9 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5000]
+	-0.1 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-09-14 at 15:01 -0700, Dave Hansen wrote:
-> Keith, can you get printouts of the phys_addrs it is trying to use
-> there?  In fact, can you print out all of the calls to all of the
-> functions and all of their arguments in that file?
-The call to boot_ioremap is always the same
 
-(works)
- BIOS-e820: 0000000000000000 - 000000000009c400 (usable)
- BIOS-e820: 000000000009c400 - 00000000000a0000 (reserved)
- BIOS-e820: 00000000000e0000 - 0000000000100000 (reserved)
- BIOS-e820: 0000000000100000 - 00000000eff91840 (usable)
- BIOS-e820: 00000000eff91840 - 00000000eff9c340 (ACPI data)
- BIOS-e820: 00000000eff9c340 - 00000000f0000000 (reserved)
- BIOS-e820: 00000000fec00000 - 0000000100000000 (reserved)
- BIOS-e820: 0000000100000000 - 00000001d0000000 (usable)
-Node: 0, start_pfn: 0, end_pfn: 156
-Node: 0, start_pfn: 256, end_pfn: 982929
-Node: 0, start_pfn: 1048576, end_pfn: 1900544
-get_memcfg_from_srat: assigning address to rsdp fdfc0
-RSD PTR  v0 [IBM   ]
-rsdp->rsdt_address eff9c2c0
-boot_ioremap phys_addr = eff9c2c0 long = 44
-boot_ioremap and I return c04da2c0
-rsdt = c04da2c0 header is RSDT4
-Begin SRAT table scan....
-.... 
+* Martin Bligh <mbligh@mbligh.org> wrote:
 
-(no works)
- BIOS-e820: 0000000000000000 - 000000000009c400 (usable)
- BIOS-e820: 000000000009c400 - 00000000000a0000 (reserved)
- BIOS-e820: 00000000000e0000 - 0000000000100000 (reserved)
- BIOS-e820: 0000000000100000 - 00000000eff91840 (usable)
- BIOS-e820: 00000000eff91840 - 00000000eff9c340 (ACPI data)
- BIOS-e820: 00000000eff9c340 - 00000000f0000000 (reserved)
- BIOS-e820: 00000000fec00000 - 0000000100000000 (reserved)
- BIOS-e820: 0000000100000000 - 00000001d0000000 (usable)
-Node: 0, start_pfn: 0, end_pfn: 156
-Node: 0, start_pfn: 256, end_pfn: 982929
-Node: 0, start_pfn: 1048576, end_pfn: 1900544
-get_memcfg_from_srat: assigning address to rsdp fdfc0
-RSD PTR  v0 [IBM   ]
-rsdp->rsdt_address eff9c2c0
-boot_ioremap phys_addr = eff9c2c0 long = 44
-boot_ioremap and I return c13db2c0
-rsdt = c13db2c0 header is
-ACPI: RSDT signature incorrect
-failed to get NUMA memory information from SRAT table
-NUMA - single node, flat memory mode
-...
+> > i very much agree that they should become as fast as possible. So to 
+> > rephrase the question: can we make dynamic tracepoints as fast (or 
+> > nearly as fast) as static tracepoints? If yes, should we care about 
+> > static tracers at all?
+> 
+> Depends how many nops you're willing to add, I guess. Anything, even 
+> the static tracepoints really needs at least a branch to be useful, 
+> IMHO. At least for what I've been doing with it, you need to stop the 
+> data flow after a while (when the event you're interested in happens, 
+> I'm using it like a flight data recorder, so we can go back and do 
+> postmortem on what went wrong). I should imagine branch prediction 
+> makes it very cheap on most modern CPUs, but don't have hard data to 
+> hand.
 
+only 5 bytes of NOP are needed by default, so that a kprobe can insert a 
+call/callq instruction. The easiest way in practice is to insert a 
+_single_, unconditional function call that is patched out to NOPs upon 
+its first occurance (doing this is not a performance issue at all). That 
+way the only cost is the NOP and the function parameter preparation 
+side-effects. (which might or might not be significant - with register 
+calling conventions and most parameters being readily available it 
+should be small.)
 
-> Also, it might be possible that this data somehow got pushed above the
-> 8MB boundary.  Getting me those addresses will let me check that.
+note that such a limited, minimally invasive 'data extraction point' 
+infrastructure is not actually what the LTT patches are doing. It's not 
+even close, and i think you'll be surprised. Let me quote from the 
+latest LTT patch (patch-2.6.17-lttng-0.5.108, which is the same version 
+submitted to lkml - although no specific tracepoints were submitted):
 
-I think the kernel starts @ 16mb with i386 kdump.  
++/* Event wakeup logging function */
++static inline void trace_process_wakeup(
++		unsigned int lttng_param_pid,
++		int lttng_param_state)
++#if (!defined(CONFIG_LTT) || !defined(CONFIG_LTT_FACILITY_PROCESS))
++{
++}
++#else
++{
++	unsigned int index;
++	struct ltt_channel_struct *channel;
++	struct ltt_trace_struct *trace;
++	void *transport_data;
++	char *buffer = NULL;
++	size_t real_to_base = 0; /* The buffer is allocated on arch_size alignment */
++	size_t *to_base = &real_to_base;
++	size_t real_to = 0;
++	size_t *to = &real_to;
++	size_t real_len = 0;
++	size_t *len = &real_len;
++	size_t reserve_size;
++	size_t slot_size;
++	size_t align;
++	const char *real_from;
++	const char **from = &real_from;
++	u64 tsc;
++	size_t before_hdr_pad, after_hdr_pad, header_size;
++
++	if(ltt_traces.num_active_traces == 0) return;
++
++	/* For each field, calculate the field size. */
++	/* size = *to_base + *to + *len */
++	/* Assume that the padding for alignment starts at a
++	 * sizeof(void *) address. */
++
++	*from = (const char*)&lttng_param_pid;
++	align = sizeof(unsigned int);
++
++	if(*len == 0) {
++		*to += ltt_align(*to, align); /* align output */
++	} else {
++		*len += ltt_align(*to+*len, align); /* alignment, ok to do a memcpy of it */
++	}
++
++	*len += sizeof(unsigned int);
++
++	*from = (const char*)&lttng_param_state;
++	align = sizeof(int);
++
++	if(*len == 0) {
++		*to += ltt_align(*to, align); /* align output */
++	} else {
++		*len += ltt_align(*to+*len, align); /* alignment, ok to do a memcpy of it */
++	}
++
++	*len += sizeof(int);
++
++	reserve_size = *to_base + *to + *len;
++	preempt_disable();
++	ltt_nesting[smp_processor_id()]++;
++	index = ltt_get_index_from_facility(ltt_facility_process_2905B6EB,
++						event_process_wakeup);
++
++	list_for_each_entry_rcu(trace, &ltt_traces.head, list) {
++		if(!trace->active) continue;
++
++		channel = ltt_get_channel_from_index(trace, index);
++
++		slot_size = 0;
++		buffer = ltt_reserve_slot(trace, channel, &transport_data,
++			reserve_size, &slot_size, &tsc,
++			&before_hdr_pad, &after_hdr_pad, &header_size);
++		if(!buffer) continue; /* buffer full */
++
++		*to_base = *to = *len = 0;
++
++		ltt_write_event_header(trace, channel, buffer,
++			ltt_facility_process_2905B6EB, event_process_wakeup,
++			reserve_size, before_hdr_pad, tsc);
++		*to_base += before_hdr_pad + after_hdr_pad + header_size;
++
++		*from = (const char*)&lttng_param_pid;
++		align = sizeof(unsigned int);
++
++		if(*len == 0) {
++			*to += ltt_align(*to, align); /* align output */
++		} else {
++			*len += ltt_align(*to+*len, align); /* alignment, ok to do a memcpy of it */
++		}
++
++		*len += sizeof(unsigned int);
++
++		/* Flush pending memcpy */
++		if(*len != 0) {
++			memcpy(buffer+*to_base+*to, *from, *len);
++			*to += *len;
++			*len = 0;
++		}
++
++		*from = (const char*)&lttng_param_state;
++		align = sizeof(int);
++
++		if(*len == 0) {
++			*to += ltt_align(*to, align); /* align output */
++		} else {
++			*len += ltt_align(*to+*len, align); /* alignment, ok to do a memcpy of it */
++		}
++
++		*len += sizeof(int);
++
++		/* Flush pending memcpy */
++		if(*len != 0) {
++			memcpy(buffer+*to_base+*to, *from, *len);
++			*to += *len;
++			*len = 0;
++		}
++
++		ltt_commit_slot(channel, &transport_data, buffer, slot_size);
++
++	}
++
++	ltt_nesting[smp_processor_id()]--;
++	preempt_enable_no_resched();
++}
++#endif //(!defined(CONFIG_LTT) || !defined(CONFIG_LTT_FACILITY_PROCESS))
++
 
-Thanks,
-  Keith 
+believe it or not, this is inlined into: kernel/sched.c ...
 
+'enuff said. LTT is so far from being even considerable that it's not 
+even funny.
+
+	Ingo

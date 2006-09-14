@@ -1,124 +1,123 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750891AbWINU7y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750975AbWINVAg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750891AbWINU7y (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Sep 2006 16:59:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750879AbWINU7y
+	id S1750975AbWINVAg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Sep 2006 17:00:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750879AbWINVAg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Sep 2006 16:59:54 -0400
-Received: from sj-iport-6.cisco.com ([171.71.176.117]:40608 "EHLO
-	sj-iport-6.cisco.com") by vger.kernel.org with ESMTP
-	id S1750746AbWINU7x (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Sep 2006 16:59:53 -0400
-To: torvalds@osdl.org
-Cc: linux-kernel@vger.kernel.org, openib-general@openib.org
-Subject: [GIT PULL] please pull infiniband.git
-X-Message-Flag: Warning: May contain useful information
-From: Roland Dreier <rdreier@cisco.com>
-Date: Thu, 14 Sep 2006 13:59:48 -0700
-Message-ID: <adar6yeuptn.fsf@cisco.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
+	Thu, 14 Sep 2006 17:00:36 -0400
+Received: from sabe.cs.wisc.edu ([128.105.6.20]:56007 "EHLO sabe.cs.wisc.edu")
+	by vger.kernel.org with ESMTP id S1750896AbWINVAe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Sep 2006 17:00:34 -0400
+Message-ID: <4509C2DF.8000007@cs.wisc.edu>
+Date: Thu, 14 Sep 2006 16:00:15 -0500
+From: Mike Christie <michaelc@cs.wisc.edu>
+User-Agent: Thunderbird 1.5 (X11/20060313)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 14 Sep 2006 20:59:48.0918 (UTC) FILETIME=[B72ACD60:01C6D840]
-Authentication-Results: sj-dkim-7.cisco.com; header.From=rdreier@cisco.com; dkim=pass (
-	sig from cisco.com verified; ); 
+To: Peter Zijlstra <a.p.zijlstra@chello.nl>
+CC: linux-mm@kvack.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       David Miller <davem@davemloft.net>, Rik van Riel <riel@redhat.com>,
+       Daniel Phillips <phillips@google.com>
+Subject: Re: [PATCH 20/20] iscsi: support for swapping over iSCSI.
+References: <20060912143049.278065000@chello.nl>	 <20060912144905.201160000@chello.nl>  <45086F16.9030307@cs.wisc.edu>	 <1158214650.13665.27.camel@twins>  <4509ABE5.2080904@cs.wisc.edu> <1158266150.30737.92.camel@taijtu>
+In-Reply-To: <1158266150.30737.92.camel@taijtu>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus, please pull from
+Peter Zijlstra wrote:
+> On Thu, 2006-09-14 at 14:22 -0500, Mike Christie wrote:
+>> Peter Zijlstra wrote:
+>>> On Wed, 2006-09-13 at 15:50 -0500, Mike Christie wrote:
+>>>> Peter Zijlstra wrote:
+>>>>> Implement sht->swapdev() for iSCSI. This method takes care of reserving
+>>>>> the extra memory needed and marking all relevant sockets with SOCK_VMIO.
+>>>>>
+>>>>> When used for swapping, TCP socket creation is done under GFP_MEMALLOC and
+>>>>> the TCP connect is done with SOCK_VMIO to ensure their success. Also the
+>>>>> netlink userspace interface is marked SOCK_VMIO, this will ensure that even
+>>>>> under pressure we can still communicate with the daemon (which runs as
+>>>>> mlockall() and needs no additional memory to operate).
+>>>>>
+>>>>> Netlink requests are handled under the new PF_MEM_NOWAIT when a swapper is
+>>>>> present. This ensures that the netlink socket will not block. User-space will
+>>>>> need to retry failed requests.
+>>>>>
+>>>>> The TCP receive path is handled under PF_MEMALLOC for SOCK_VMIO sockets.
+>>>>> This makes sure we do not block the critical socket, and that we do not
+>>>>> fail to process incomming data.
+>>>>>
+>>>>> Signed-off-by: Peter Zijlstra <a.p.zijlstra@chello.nl>
+>>>>> CC: Mike Christie <michaelc@cs.wisc.edu>
+>>>>> ---
+>>>>>  drivers/scsi/iscsi_tcp.c            |  103 +++++++++++++++++++++++++++++++-----
+>>>>>  drivers/scsi/scsi_transport_iscsi.c |   23 +++++++-
+>>>>>  include/scsi/libiscsi.h             |    1 
+>>>>>  include/scsi/scsi_transport_iscsi.h |    2 
+>>>>>  4 files changed, 113 insertions(+), 16 deletions(-)
+>>>>>
+>>>>> Index: linux-2.6/drivers/scsi/iscsi_tcp.c
+>>>>> ===================================================================
+>>>>> --- linux-2.6.orig/drivers/scsi/iscsi_tcp.c
+>>>>> +++ linux-2.6/drivers/scsi/iscsi_tcp.c
+>>>>> @@ -42,6 +42,7 @@
+>>>>>  #include <scsi/scsi_host.h>
+>>>>>  #include <scsi/scsi.h>
+>>>>>  #include <scsi/scsi_transport_iscsi.h>
+>>>>> +#include <scsi/scsi_device.h>
+>>>>>  
+>>>>>  #include "iscsi_tcp.h"
+>>>>>  
+>>>>> @@ -845,9 +846,13 @@ iscsi_tcp_data_recv(read_descriptor_t *r
+>>>>>  	int rc;
+>>>>>  	struct iscsi_conn *conn = rd_desc->arg.data;
+>>>>>  	struct iscsi_tcp_conn *tcp_conn = conn->dd_data;
+>>>>> -	int processed;
+>>>>> +	int processed = 0;
+>>>>>  	char pad[ISCSI_PAD_LEN];
+>>>>>  	struct scatterlist sg;
+>>>>> +	unsigned long pflags = current->flags;
+>>>>> +
+>>>>> +	if (sk_has_vmio(tcp_conn->sock->sk))
+>>>>> +		current->flags |= PF_MEMALLOC;
+>>>>>  
+>>>> Is this too late or not needed or what is it for? This function gets run
+>>>> from the network layer's softirq and at this point we have a skbuff with
+>>>> data that we want to process. The iscsi layer also does not allocate
+>>>> memory for read or write IO in this path.
+>>> I thought I found allocations in that path, lemme search...
+>>> found this:
+>>>
+>>> iscsi_tcp_data_recv()
+>>>   iscsi_data_rescv()
+>>>     iscsi_complete_pdu()
+>>>       __iscsi_complete_pdu()
+>>>         iscsi_recv_pdu()
+>>>           alloc_skb( GFP_ATOMIC);
+>>>
+>> You are right that is for the netlink interface. Could we move the
+>> PF_MEMALLOC setting and clearing to iscsi_recv_pdu and and add it to
+>> iscsi_conn_error in scsi_transport_iscsi.c so that iscsi_iser and
+>> qla4xxx will have it set when they need it. I will send a patch for this
+>> along with a way to have the netlink sock vmio set for all iscsi drivers
+>> that need it.
+> 
+> I already have such a patch, look at:
+> http://programming.kicks-ass.net/kernel-patches/vm_deadlock/current/iscsi_vmio.patch
+> 
 
-    master.kernel.org:/pub/scm/linux/kernel/git/roland/infiniband.git for-linus
+You are drowning me in patches :) I did not see that one. I was still
+commenting on this patch :)
 
-This tree is also available from kernel.org mirrors at:
-
-    git://git.kernel.org/pub/scm/linux/kernel/git/roland/infiniband.git for-linus
-
-This contains a few last-minute fixes -- a couple of one-liners, and a
-panic fix that turns out to be pure deletions:
-
-Eli Cohen:
-      IPoIB: Retry failed send-only multicast group joins
-
-Ishai Rabinovitz:
-      IB/srp: Don't schedule reconnect from srp
-
-Michael S. Tsirkin:
-      RDMA/cma: Increase the IB CM retry count in CMA
-
- drivers/infiniband/core/cma.c                  |    2 +-
- drivers/infiniband/ulp/ipoib/ipoib_multicast.c |    1 +
- drivers/infiniband/ulp/srp/ib_srp.c            |   14 --------------
- 3 files changed, 2 insertions(+), 15 deletions(-)
+The new patch looks ok.
 
 
-diff --git a/drivers/infiniband/core/cma.c b/drivers/infiniband/core/cma.c
-index d6f99d5..5d625a8 100644
---- a/drivers/infiniband/core/cma.c
-+++ b/drivers/infiniband/core/cma.c
-@@ -49,7 +49,7 @@ MODULE_DESCRIPTION("Generic RDMA CM Agen
- MODULE_LICENSE("Dual BSD/GPL");
- 
- #define CMA_CM_RESPONSE_TIMEOUT 20
--#define CMA_MAX_CM_RETRIES 3
-+#define CMA_MAX_CM_RETRIES 15
- 
- static void cma_add_one(struct ib_device *device);
- static void cma_remove_one(struct ib_device *device);
-diff --git a/drivers/infiniband/ulp/ipoib/ipoib_multicast.c b/drivers/infiniband/ulp/ipoib/ipoib_multicast.c
-index b5e6a7b..ec356ce 100644
---- a/drivers/infiniband/ulp/ipoib/ipoib_multicast.c
-+++ b/drivers/infiniband/ulp/ipoib/ipoib_multicast.c
-@@ -326,6 +326,7 @@ ipoib_mcast_sendonly_join_complete(int s
- 
- 		/* Clear the busy flag so we try again */
- 		clear_bit(IPOIB_MCAST_FLAG_BUSY, &mcast->flags);
-+		mcast->query = NULL;
- 	}
- 
- 	complete(&mcast->done);
-diff --git a/drivers/infiniband/ulp/srp/ib_srp.c b/drivers/infiniband/ulp/srp/ib_srp.c
-index 8257d5a..fd8344c 100644
---- a/drivers/infiniband/ulp/srp/ib_srp.c
-+++ b/drivers/infiniband/ulp/srp/ib_srp.c
-@@ -799,13 +799,6 @@ static void srp_process_rsp(struct srp_t
- 	spin_unlock_irqrestore(target->scsi_host->host_lock, flags);
- }
- 
--static void srp_reconnect_work(void *target_ptr)
--{
--	struct srp_target_port *target = target_ptr;
--
--	srp_reconnect_target(target);
--}
--
- static void srp_handle_recv(struct srp_target_port *target, struct ib_wc *wc)
- {
- 	struct srp_iu *iu;
-@@ -858,7 +851,6 @@ static void srp_completion(struct ib_cq 
- {
- 	struct srp_target_port *target = target_ptr;
- 	struct ib_wc wc;
--	unsigned long flags;
- 
- 	ib_req_notify_cq(cq, IB_CQ_NEXT_COMP);
- 	while (ib_poll_cq(cq, 1, &wc) > 0) {
-@@ -866,10 +858,6 @@ static void srp_completion(struct ib_cq 
- 			printk(KERN_ERR PFX "failed %s status %d\n",
- 			       wc.wr_id & SRP_OP_RECV ? "receive" : "send",
- 			       wc.status);
--			spin_lock_irqsave(target->scsi_host->host_lock, flags);
--			if (target->state == SRP_TARGET_LIVE)
--				schedule_work(&target->work);
--			spin_unlock_irqrestore(target->scsi_host->host_lock, flags);
- 			break;
- 		}
- 
-@@ -1705,8 +1693,6 @@ static ssize_t srp_create_target(struct 
- 	target->scsi_host  = target_host;
- 	target->srp_host   = host;
- 
--	INIT_WORK(&target->work, srp_reconnect_work, target);
--
- 	INIT_LIST_HEAD(&target->free_reqs);
- 	INIT_LIST_HEAD(&target->req_queue);
- 	for (i = 0; i < SRP_SQ_SIZE; ++i) {
+> but what conditional do you want to use for PF_MEMALLOC, an
+> unconditional setting will be highly unpopular.
+> 
+> Hmm, perhaps you could key it of sk_has_vmio(nls)...
+
+Yes.

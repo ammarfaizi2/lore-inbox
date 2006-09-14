@@ -1,120 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750987AbWINSaJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750988AbWINSdd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750987AbWINSaJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Sep 2006 14:30:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750991AbWINSaJ
+	id S1750988AbWINSdd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Sep 2006 14:33:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751008AbWINSdd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Sep 2006 14:30:09 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.151]:51928 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750987AbWINSaH
+	Thu, 14 Sep 2006 14:33:33 -0400
+Received: from mail.clusterfs.com ([206.168.112.78]:12942 "EHLO
+	mail.clusterfs.com") by vger.kernel.org with ESMTP id S1750988AbWINSdc
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Sep 2006 14:30:07 -0400
-Subject: [PATCH] RCU: CREDITS and MAINTAINERS
-From: Josh Triplett <josht@us.ibm.com>
-To: linux-kernel@vger.kernel.org
-Cc: Andrew Morton <akpm@osdl.org>, Paul McKenney <paulmck@us.ibm.com>,
-       Dipankar Sarma <dipankar@in.ibm.com>
-Content-Type: text/plain
-Date: Thu, 14 Sep 2006 11:30:28 -0700
-Message-Id: <1158258628.5414.4.camel@josh-work.beaverton.ibm.com>
+	Thu, 14 Sep 2006 14:33:32 -0400
+Date: Thu, 14 Sep 2006 12:33:25 -0600
+From: Andreas Dilger <adilger@clusterfs.com>
+To: =?utf-8?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Alignment of fields in struct dentry
+Message-ID: <20060914183325.GU6441@schatzie.adilger.int>
+Mail-Followup-To: =?utf-8?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>,
+	linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <20060914093123.GA10431@wohnheim.fh-wedel.de> <20060914105029.GA1702@wohnheim.fh-wedel.de>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20060914105029.GA1702@wohnheim.fh-wedel.de>
+User-Agent: Mutt/1.4.1i
+X-GPG-Key: 1024D/0D35BED6
+X-GPG-Fingerprint: 7A37 5D79 BF1B CECA D44F  8A29 A488 39F5 0D35 BED6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add MAINTAINERS entry for Read-Copy Update (RCU), listing Dipankar Sarma as
-maintainer, and giving the URL for Paul McKenney's RCU site.  Add MAINTAINERS
-entry for rcutorture, listing myself as maintainer.  Add CREDITS entries for
-developers of RCU, RCU variants, and rcutorture.  Use Paul McKenney's
-preferred email address in include/linux/rcupdate.h .
+On Sep 14, 2006  12:50 +0200, J�rn Engel wrote:
+> > After taking a look at struct dentry, Arnd noted an alignment
+> > problem.
+> > On 64bit architectures, the first three take 12 bytes and d_inode is
+> > not naturally aligned, so it can be aligned to byte 16.
+> 
+>  struct dentry {
+>  	atomic_t d_count;
+>  	unsigned int d_flags;		/* protected by d_lock */
+>  	spinlock_t d_lock;		/* per dentry lock */
+> -	struct inode *d_inode;		/* Where the name belongs to - NULL is
+> -					 * negative */
+> +	int d_mounted;
+>  	/*
+>  	 * The next three fields are touched by __d_lookup.  Place them here
+>  	 * so they all fit in a cache line.
+> @@ -93,6 +96,8 @@ struct dentry {
+>  	struct dentry *d_parent;	/* parent directory */
+>  	struct qstr d_name;
+>  
+> +	struct inode *d_inode;		/* Where the name belongs to - NULL is
 
-Signed-off-by: Josh Triplett <josh@freedesktop.org>
----
- CREDITS                  |   16 ++++++++++++++++
- MAINTAINERS              |   13 +++++++++++++
- include/linux/rcupdate.h |    2 +-
- 3 files changed, 30 insertions(+), 1 deletions(-)
+I think it makes sense to keep d_inode in the first part of the dentry
+always, because it is by far the most referenced field in the dentry,
+along with the critical fields from prune_dcache(), shrink_dcache_anon(),
+dget(), dput(), d_lookup().
 
-diff --git a/CREDITS b/CREDITS
-index 0fe904e..61b4bb5 100644
---- a/CREDITS
-+++ b/CREDITS
-@@ -2227,6 +2227,12 @@ D: tc: HFSC scheduler
- S: Freiburg
- S: Germany
- 
-+N: Paul E. McKenney
-+E: paulmck@us.ibm.com
-+W: http://www.rdrop.com/users/paulmck/
-+D: RCU and variants
-+D: rcutorture module
-+
- N: Mike McLagan
- E: mike.mclagan@linux.org
- W: http://www.invlogic.com/~mmclagan
-@@ -2960,6 +2966,10 @@ S: 69 rue Dunois
- S: 75013 Paris
- S: France
- 
-+N: Dipankar Sarma
-+E: dipankar@in.ibm.com
-+D: RCU
-+
- N: Hannu Savolainen
- E: hannu@opensound.com
- D: Maintainer of the sound drivers until 2.1.x days.
-@@ -3272,6 +3282,12 @@ S: 3 Ballow Crescent
- S: MacGregor A.C.T 2615
- S: Australia
- 
-+N: Josh Triplett
-+E: josh@freedesktop.org
-+P: 1024D/D0FE7AFB B24A 65C9 1D71 2AC2 DE87  CA26 189B 9946 D0FE 7AFB
-+D: rcutorture maintainer
-+D: lock annotations, finding and fixing lock bugs
-+
- N: Winfried Trmper
- E: winni@xpilot.org
- W: http://www.shop.de/~winni/
-diff --git a/MAINTAINERS b/MAINTAINERS
-index 25cd707..fa8fc95 100644
---- a/MAINTAINERS
-+++ b/MAINTAINERS
-@@ -2402,6 +2402,19 @@ M:	mporter@kernel.crashing.org
- L:	linux-kernel@vger.kernel.org
- S:	Maintained
- 
-+READ-COPY UPDATE (RCU)
-+P:	Dipankar Sarma
-+M:	dipankar@in.ibm.com
-+W:	http://www.rdrop.com/users/paulmck/rclock/
-+L:	linux-kernel@vger.kernel.org
-+S:	Supported
-+
-+RCUTORTURE MODULE
-+P:	Josh Triplett
-+M:	josh@freedesktop.org
-+L:	linux-kernel@vger.kernel.org
-+S:	Maintained
-+
- REAL TIME CLOCK DRIVER
- P:	Paul Gortmaker
- M:	p_gortmaker@yahoo.com
-diff --git a/include/linux/rcupdate.h b/include/linux/rcupdate.h
-index b4ca73d..20243ee 100644
---- a/include/linux/rcupdate.h
-+++ b/include/linux/rcupdate.h
-@@ -19,7 +19,7 @@
-  *
-  * Author: Dipankar Sarma <dipankar@in.ibm.com>
-  * 
-- * Based on the original work by Paul McKenney <paul.mckenney@us.ibm.com>
-+ * Based on the original work by Paul McKenney <paulmck@us.ibm.com>
-  * and inputs from Rusty Russell, Andrea Arcangeli and Andi Kleen.
-  * Papers:
-  * http://www.rdrop.com/users/paulmck/paper/rclockpdcsproof.pdf
--- 
-1.4.1.1
+While not totally accurate in terms of runtime frequency of use, the counts
+in the code:
 
+          fs/*.[ch] fs/*/*.[ch] size32 size64 prune_dc shrk_dc_anon d_lookup
+d_inode	        384        2131      4      8
+d_lock          104         529      4      4       1       2
+d_count          18          66      4      4       1       2
+d_lru            18          18      4_     8       1       1
+d_hash           37         154      4      8_              2          1
+d_name           73         908     12_    16                          1
+d_flags          26         104      4      4       2
+d_mounted         7           7      4      4
+d_parent         40         231      4      8_                         2
+d_op             37         269      4      8
+d_rcu/d_child  3+22        3+45      8     16
+
+The '_' are potential cacheline boundaries.
+
+Cheers, Andreas
+--
+Andreas Dilger
+Principal Software Engineer
+Cluster File Systems, Inc.
 

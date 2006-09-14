@@ -1,55 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750866AbWINCqF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751043AbWINCvQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750866AbWINCqF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Sep 2006 22:46:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750875AbWINCqF
+	id S1751043AbWINCvQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Sep 2006 22:51:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751021AbWINCvQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Sep 2006 22:46:05 -0400
-Received: from msr43.hinet.net ([168.95.4.143]:2486 "EHLO msr43.hinet.net")
-	by vger.kernel.org with ESMTP id S1750864AbWINCqC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Sep 2006 22:46:02 -0400
-Message-ID: <002101c6d7a7$c5bd0fd0$4964a8c0@icplus.com.tw>
-From: "Jesse Huang" <jesse@icplus.com.tw>
-To: "Jeff Garzik" <jgarzik@pobox.com>
-Cc: <linux-kernel@vger.kernel.org>, <netdev@vger.kernel.org>, <akpm@osdl.org>
-References: <1156448955.20424.6.camel@localhost.localdomain> <00ae01c6d635$bdfa8340$4964a8c0@icplus.com.tw> <4506DAAE.3020305@pobox.com>
-Subject: Re: What is current sundance.c status?
-Date: Thu, 14 Sep 2006 10:45:00 +0800
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2800.1807
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1807
+	Wed, 13 Sep 2006 22:51:16 -0400
+Received: from de01egw01.freescale.net ([192.88.165.102]:57060 "EHLO
+	de01egw01.freescale.net") by vger.kernel.org with ESMTP
+	id S1750966AbWINCvP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Sep 2006 22:51:15 -0400
+Subject: Re: [patch 3/3] Add tsi108 On Chip Ethernet device driver support
+From: Zang Roy-r61911 <tie-fei.zang@freescale.com>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Roland Dreier <rdreier@cisco.com>, Andrew Morton <akpm@osdl.org>,
+       netdev@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <4506C789.4050404@pobox.com>
+References: <A0CDBA58F226D911B202000BDBAD46730A1B1410@zch01exm23.fsl.freescale.net>
+	 <1157962200.10526.10.camel@localhost.localdomain>
+	 <1158051351.14448.97.camel@localhost.localdomain>
+	 <ada3bax2lzw.fsf@cisco.com>  <4506C789.4050404@pobox.com>
+Content-Type: text/plain
+Organization: 
+Message-Id: <1158202261.22615.0.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
+Date: 14 Sep 2006 10:51:01 +0800
+Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 14 Sep 2006 02:51:11.0199 (UTC) FILETIME=[A2C5D6F0:01C6D7A8]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-OK! I will resend my patchset.
-
-Thanks!
-
-Jesse
------ Original Message ----- 
-From: "Jeff Garzik" <jgarzik@pobox.com>
-To: "Jesse Huang" <jesse@icplus.com.tw>
-Cc: <linux-kernel@vger.kernel.org>; <netdev@vger.kernel.org>;
-<akpm@osdl.org>
-Sent: Wednesday, September 13, 2006 12:05 AM
-Subject: Re: What is current sundance.c status?
-
-
-Jesse Huang wrote:
-> Dear Jeff:
->
-> Would you tell me what is current sundance.c status
-> which support IP100A? Are those patches update to
-> current tree or not? Is there anything should I need to
-> add to it and generate new patches?
-
-I think they disappeared from my queue somewhere :(
-
-Would you be kind enough to resend your patchset?
-
-Jeff
-
-
+On Tue, 2006-09-12 at 22:43, Jeff Garzik wrote:
+> Roland Dreier wrote:
+> >  > +struct tsi108_prv_data {
+> >  > +  volatile u32 regs;      /* Base of normal regs */
+> >  > +  volatile u32 phyregs;   /* Base of register bank used for PHY
+> access */
+> > 
+> > Why volatile?  This looks really wrong here.
+> 
+> Indeed.
+I will remove it.
+> 
+> 
+> >  > +  data->regs = (u32)ioremap(einfo->regs, 0x400);  /*FIX ME */
+> >  > +  data->phyregs = (u32)ioremap(einfo->phyregs, 0x400);    /*FIX
+> ME */
+> > 
+> > What needs to be fixed here?  And why are you casting the result of
+> > ioremap to u32?  Shouldn't you keep the normal return value?
+> 
+> Oh, that's very, very wrong.
+I will find method to avoid this :-).
+Roy
 

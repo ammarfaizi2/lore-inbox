@@ -1,262 +1,230 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750785AbWINKVx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750822AbWINKV6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750785AbWINKVx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Sep 2006 06:21:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750822AbWINKVx
+	id S1750822AbWINKV6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Sep 2006 06:21:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750810AbWINKVz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Sep 2006 06:21:53 -0400
-Received: from ns.miraclelinux.com ([219.118.163.66]:16204 "EHLO
+	Thu, 14 Sep 2006 06:21:55 -0400
+Received: from ns.miraclelinux.com ([219.118.163.66]:15436 "EHLO
 	mail01.miraclelinux.com") by vger.kernel.org with ESMTP
-	id S1750785AbWINKUf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	id S1750775AbWINKUf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Thu, 14 Sep 2006 06:20:35 -0400
-Message-Id: <20060914102032.069051543@localhost.localdomain>
+Message-Id: <20060914102032.989190948@localhost.localdomain>
 References: <20060914102012.251231177@localhost.localdomain>
-Date: Thu, 14 Sep 2006 18:20:17 +0800
+Date: Thu, 14 Sep 2006 18:20:19 +0800
 From: Akinobu Mita <mita@miraclelinux.com>
 To: linux-kernel@vger.kernel.org
 Cc: ak@suse.de, akpm@osdl.org, Don Mullis <dwm@meer.net>,
-       Jens Axboe <axboe@suse.de>, Akinobu Mita <mita@miraclelinux.com>
-Subject: [patch 5/8] fault-injection capability for disk IO
-Content-Disposition: inline; filename=fail_make_request.patch
+       Akinobu Mita <mita@miraclelinux.com>
+Subject: [patch 7/8] process filtering for fault-injection capabilities
+Content-Disposition: inline; filename=process-filter.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch provides fault-injection capability for disk IO.
+This patch provides process filtering feature.
+The process filter allows failing only permitted processes
+by /proc/<pid>/make-it-fail
 
-Boot option:
+Please see the example that demostrates how to inject slab allocation
+failures into module init/cleanup code
+in Documentation/fault-injection/fault-injection.txt
 
-fail_make_request=<probability>,<interval>,<space>,<times>
-
-	<interval> -- specifies the interval of failures.
-
-	<probability> -- specifies how often it should fail in percent.
-
-	<space> -- specifies the size of free space where disk IO can be issued
-		   safely in bytes.
-
-	<times> -- specifies how many times failures may happen at most.
-
-Example:
-
-	fail_make_request=10,100,0,-1
-	echo 1 > /sys/blocks/hda/hda1/make-it-fail
-
-generic_make_request() on /dev/hda1 fails once per 10 times.
-
-Cc: Jens Axboe <axboe@suse.de>
 Signed-off-by: Akinobu Mita <mita@miraclelinux.com>
 
- block/genhd.c                |   31 +++++++++++++++++++++++++++++++
- block/ll_rw_blk.c            |   35 +++++++++++++++++++++++++++++++++++
- fs/partitions/check.c        |   27 +++++++++++++++++++++++++++
- include/linux/fault-inject.h |    3 +++
- include/linux/genhd.h        |    4 ++++
- lib/Kconfig.debug            |    7 +++++++
- 6 files changed, 107 insertions(+)
+ fs/proc/base.c               |   77 +++++++++++++++++++++++++++++++++++++++++++
+ include/linux/fault-inject.h |    3 +
+ include/linux/sched.h        |    3 +
+ lib/fault-inject.c           |   13 +++++++
+ 4 files changed, 96 insertions(+)
 
-Index: work-shouldfail/block/ll_rw_blk.c
+Index: work-shouldfail/fs/proc/base.c
 ===================================================================
---- work-shouldfail.orig/block/ll_rw_blk.c
-+++ work-shouldfail/block/ll_rw_blk.c
-@@ -28,6 +28,7 @@
- #include <linux/interrupt.h>
- #include <linux/cpu.h>
- #include <linux/blktrace_api.h>
-+#include <linux/fault-inject.h>
- 
- /*
-  * for max sense size
-@@ -2993,6 +2994,37 @@ static void handle_bad_sector(struct bio
- 	set_bit(BIO_EOF, &bio->bi_flags);
- }
- 
-+#ifdef CONFIG_FAIL_MAKE_REQUEST
-+
-+static DEFINE_FAULT_ATTR(fail_make_request_attr);
-+
-+static int __init setup_fail_make_request(char *str)
-+{
-+	should_fail_srandom(jiffies);
-+	return setup_fault_attr(&fail_make_request_attr, str);
-+}
-+__setup("fail_make_request=", setup_fail_make_request);
-+
-+struct fault_attr *fail_make_request = &fail_make_request_attr;
-+EXPORT_SYMBOL_GPL(fail_make_request);
-+
-+static int should_fail_request(struct bio *bio)
-+{
-+	if ((bio->bi_bdev->bd_disk->flags & GENHD_FL_FAIL) ||
-+	    (bio->bi_bdev->bd_part && bio->bi_bdev->bd_part->make_it_fail))
-+		return should_fail(fail_make_request, bio->bi_size);
-+
-+	return 0;
-+}
-+#else
-+
-+static inline int should_fail_request(struct bio *bio)
-+{
-+	return 0;
-+}
-+
+--- work-shouldfail.orig/fs/proc/base.c
++++ work-shouldfail/fs/proc/base.c
+@@ -138,6 +138,9 @@ enum pid_directory_inos {
+ #endif
+ 	PROC_TGID_OOM_SCORE,
+ 	PROC_TGID_OOM_ADJUST,
++#ifdef CONFIG_FAULT_INJECTION
++	PROC_TGID_FAULT_INJECTION,
 +#endif
-+
- /**
-  * generic_make_request: hand a buffer to its device driver for I/O
-  * @bio:  The bio describing the location in memory and on the device.
-@@ -3077,6 +3109,9 @@ end_io:
- 		if (unlikely(test_bit(QUEUE_FLAG_DEAD, &q->queue_flags)))
- 			goto end_io;
+ 	PROC_TID_INO,
+ 	PROC_TID_STATUS,
+ 	PROC_TID_MEM,
+@@ -181,6 +184,9 @@ enum pid_directory_inos {
+ #endif
+ 	PROC_TID_OOM_SCORE,
+ 	PROC_TID_OOM_ADJUST,
++#ifdef CONFIG_FAULT_INJECTION
++	PROC_TID_FAULT_INJECTION,
++#endif
  
-+		if (should_fail_request(bio))
-+			goto end_io;
-+
- 		/*
- 		 * If this device has partitions, remap block n
- 		 * of partition p to block n+start(p) of the disk.
-Index: work-shouldfail/lib/Kconfig.debug
-===================================================================
---- work-shouldfail.orig/lib/Kconfig.debug
-+++ work-shouldfail/lib/Kconfig.debug
-@@ -386,3 +386,10 @@ config FAIL_PAGE_ALLOC
- 	help
- 	  This option provides fault-injection capabilitiy for alloc_pages().
- 
-+config FAIL_MAKE_REQUEST
-+	bool "fault-injection capabilitiy for disk IO"
-+	depends on DEBUG_KERNEL
-+	select FAULT_INJECTION 
-+	help
-+	  This option provides fault-injection capabilitiy to disk IO.
-+
-Index: work-shouldfail/block/genhd.c
-===================================================================
---- work-shouldfail.orig/block/genhd.c
-+++ work-shouldfail/block/genhd.c
-@@ -412,6 +412,34 @@ static struct disk_attribute disk_attr_s
- 	.show	= disk_stats_read
+ 	/* Add new entries before this */
+ 	PROC_TID_FD_DIR = 0x8000,	/* 0x8000-0xffff */
+@@ -240,6 +246,9 @@ static struct pid_entry tgid_base_stuff[
+ #ifdef CONFIG_AUDITSYSCALL
+ 	E(PROC_TGID_LOGINUID, "loginuid", S_IFREG|S_IWUSR|S_IRUGO),
+ #endif
++#ifdef CONFIG_FAULT_INJECTION
++	E(PROC_TGID_FAULT_INJECTION, "make-it-fail", S_IFREG|S_IWUSR|S_IRUGO),
++#endif
+ 	{0,0,NULL,0}
+ };
+ static struct pid_entry tid_base_stuff[] = {
+@@ -282,6 +291,9 @@ static struct pid_entry tid_base_stuff[]
+ #ifdef CONFIG_AUDITSYSCALL
+ 	E(PROC_TID_LOGINUID, "loginuid", S_IFREG|S_IWUSR|S_IRUGO),
+ #endif
++#ifdef CONFIG_FAULT_INJECTION
++	E(PROC_TID_FAULT_INJECTION, "make-it-fail", S_IFREG|S_IWUSR|S_IRUGO),
++#endif
+ 	{0,0,NULL,0}
  };
  
-+#ifdef CONFIG_FAIL_MAKE_REQUEST
-+
-+static ssize_t disk_fail_store(struct gendisk * disk,
-+			       const char *buf, size_t count)
+@@ -992,6 +1004,65 @@ static struct file_operations proc_login
+ };
+ #endif
+ 
++#ifdef CONFIG_FAULT_INJECTION
++static ssize_t proc_fault_inject_read(struct file * file, char __user * buf,
++				      size_t count, loff_t *ppos)
 +{
-+	int i;
++	struct task_struct *task = get_proc_task(file->f_dentry->d_inode);
++	char buffer[PROC_NUMBUF];
++	size_t len;
++	int make_it_fail;
++	loff_t __ppos = *ppos;
 +
-+	if (count > 0 && sscanf(buf, "%d", &i) > 0) {
-+		if (i == 0)
-+			disk->flags &= ~GENHD_FL_FAIL;
-+		else
-+			disk->flags |= GENHD_FL_FAIL;
-+	}
++	if (!task)
++		return -ESRCH;
++	make_it_fail = task->make_it_fail;
++	put_task_struct(task);
 +
++	len = snprintf(buffer, sizeof(buffer), "%i\n", make_it_fail);
++	if (__ppos >= len)
++		return 0;
++	if (count > len-__ppos)
++		count = len-__ppos;
++	if (copy_to_user(buf, buffer + __ppos, count))
++		return -EFAULT;
++	*ppos = __ppos + count;
 +	return count;
 +}
-+static ssize_t disk_fail_read(struct gendisk * disk, char *page)
++
++static ssize_t proc_fault_inject_write(struct file * file,
++			const char __user * buf, size_t count, loff_t *ppos)
 +{
-+	return sprintf(page, "%d\n", disk->flags & GENHD_FL_FAIL ? 1 : 0);
++	struct task_struct *task;
++	char buffer[PROC_NUMBUF], *end;
++	int make_it_fail;
++
++	if (!capable(CAP_SYS_RESOURCE))
++		return -EPERM;
++	memset(buffer, 0, sizeof(buffer));
++	if (count > sizeof(buffer) - 1)
++		count = sizeof(buffer) - 1;
++	if (copy_from_user(buffer, buf, count))
++		return -EFAULT;
++	make_it_fail = simple_strtol(buffer, &end, 0);
++	if (*end == '\n')
++		end++;
++	task = get_proc_task(file->f_dentry->d_inode);
++	if (!task)
++		return -ESRCH;
++	task->make_it_fail = make_it_fail;
++	put_task_struct(task);
++	if (end - buffer == 0)
++		return -EIO;
++	return end - buffer;
 +}
-+static struct disk_attribute disk_attr_fail = {
-+	.attr = {.name = "make-it-fail", .mode = S_IRUGO | S_IWUSR },
-+	.store	= disk_fail_store,
-+	.show	= disk_fail_read
++
++static struct file_operations proc_fault_inject_operations = {
++	.read		= proc_fault_inject_read,
++	.write		= proc_fault_inject_write,
 +};
-+
 +#endif
 +
- static struct attribute * default_attrs[] = {
- 	&disk_attr_uevent.attr,
- 	&disk_attr_dev.attr,
-@@ -419,6 +447,9 @@ static struct attribute * default_attrs[
- 	&disk_attr_removable.attr,
- 	&disk_attr_size.attr,
- 	&disk_attr_stat.attr,
-+#ifdef CONFIG_FAIL_MAKE_REQUEST
-+	&disk_attr_fail.attr,
+ #ifdef CONFIG_SECCOMP
+ static ssize_t seccomp_read(struct file *file, char __user *buf,
+ 			    size_t count, loff_t *ppos)
+@@ -1834,6 +1905,12 @@ static struct dentry *proc_pident_lookup
+ 			inode->i_fop = &proc_loginuid_operations;
+ 			break;
+ #endif
++#ifdef CONFIG_FAULT_INJECTION
++		case PROC_TID_FAULT_INJECTION:
++		case PROC_TGID_FAULT_INJECTION:
++			inode->i_fop = &proc_fault_inject_operations;
++			break;
 +#endif
- 	NULL,
- };
- 
-Index: work-shouldfail/include/linux/genhd.h
+ 		default:
+ 			printk("procfs: impossible type (%d)",p->type);
+ 			iput(inode);
+Index: work-shouldfail/include/linux/sched.h
 ===================================================================
---- work-shouldfail.orig/include/linux/genhd.h
-+++ work-shouldfail/include/linux/genhd.h
-@@ -81,6 +81,9 @@ struct hd_struct {
- 	struct kobject *holder_dir;
- 	unsigned ios[2], sectors[2];	/* READs and WRITEs */
- 	int policy, partno;
-+#ifdef CONFIG_FAIL_MAKE_REQUEST
+--- work-shouldfail.orig/include/linux/sched.h
++++ work-shouldfail/include/linux/sched.h
+@@ -996,6 +996,9 @@ struct task_struct {
+ #ifdef	CONFIG_TASK_DELAY_ACCT
+ 	struct task_delay_info *delays;
+ #endif
++#ifdef CONFIG_FAULT_INJECTION
 +	int make_it_fail;
 +#endif
  };
  
- #define GENHD_FL_REMOVABLE			1
-@@ -88,6 +91,7 @@ struct hd_struct {
- #define GENHD_FL_CD				8
- #define GENHD_FL_UP				16
- #define GENHD_FL_SUPPRESS_PARTITION_INFO	32
-+#define GENHD_FL_FAIL				64
- 
- struct disk_stats {
- 	unsigned long sectors[2];	/* READs and WRITEs */
-Index: work-shouldfail/fs/partitions/check.c
-===================================================================
---- work-shouldfail.orig/fs/partitions/check.c
-+++ work-shouldfail/fs/partitions/check.c
-@@ -265,12 +265,39 @@ static struct part_attribute part_attr_s
- 	.show	= part_stat_read
- };
- 
-+#ifdef CONFIG_FAIL_MAKE_REQUEST
-+
-+static ssize_t part_fail_store(struct hd_struct * p,
-+			       const char *buf, size_t count)
-+{
-+	int i;
-+
-+	if (count > 0 && sscanf(buf, "%d", &i) > 0)
-+		p->make_it_fail = (i == 0) ? 0 : 1;
-+
-+	return count;
-+}
-+static ssize_t part_fail_read(struct hd_struct * p, char *page)
-+{
-+	return sprintf(page, "%d\n", p->make_it_fail);
-+}
-+static struct part_attribute part_attr_fail = {
-+	.attr = {.name = "make-it-fail", .mode = S_IRUGO | S_IWUSR },
-+	.store	= part_fail_store,
-+	.show	= part_fail_read
-+};
-+
-+#endif
-+
- static struct attribute * default_attrs[] = {
- 	&part_attr_uevent.attr,
- 	&part_attr_dev.attr,
- 	&part_attr_start.attr,
- 	&part_attr_size.attr,
- 	&part_attr_stat.attr,
-+#ifdef CONFIG_FAIL_MAKE_REQUEST
-+	&part_attr_fail.attr,
-+#endif
- 	NULL,
- };
- 
+ static inline pid_t process_group(struct task_struct *tsk)
 Index: work-shouldfail/include/linux/fault-inject.h
 ===================================================================
 --- work-shouldfail.orig/include/linux/fault-inject.h
 +++ work-shouldfail/include/linux/fault-inject.h
-@@ -42,6 +42,9 @@ extern struct fault_attr *failslab;
- #ifdef CONFIG_FAIL_PAGE_ALLOC
- extern struct fault_attr *fail_page_alloc;
- #endif
-+#ifdef CONFIG_FAIL_MAKE_REQUEST
-+extern struct fault_attr *fail_make_request;
-+#endif
+@@ -27,6 +27,9 @@ struct fault_attr {
+ 	atomic_t space;
  
- #endif /* CONFIG_FAULT_INJECTION */
+ 	unsigned long count;
++
++	/* A value of '0' means process filter is disabled. */
++	u32 process_filter;
+ };
+ 
+ #define DEFINE_FAULT_ATTR(name) \
+Index: work-shouldfail/lib/fault-inject.c
+===================================================================
+--- work-shouldfail.orig/lib/fault-inject.c
++++ work-shouldfail/lib/fault-inject.c
+@@ -5,6 +5,7 @@
+ #include <linux/types.h>
+ #include <linux/fs.h>
+ #include <linux/module.h>
++#include <linux/interrupt.h>
+ #include <linux/fault-inject.h>
+ 
+ int setup_fault_attr(struct fault_attr *attr, char *str)
+@@ -49,6 +50,15 @@ void should_fail_srandom(unsigned long e
+ 	should_fail_random();
+ }
+ 
++static int fail_process(struct fault_attr *attr, struct task_struct *task)
++{
++	/* process filter is disabled */
++	if (!attr->process_filter)
++		return 1;
++
++	return !in_interrupt() && task->make_it_fail;
++}
++
+ /*
+  * This code is stolen from failmalloc-1.0
+  * http://www.nongnu.org/failmalloc/
+@@ -56,6 +66,9 @@ void should_fail_srandom(unsigned long e
+ 
+ int should_fail(struct fault_attr *attr, ssize_t size)
+ {
++	if (!fail_process(attr, current))
++		return 0;
++
+ 	if (atomic_read(&max_failures(attr)) == 0)
+ 		return 0;
  
 
 --

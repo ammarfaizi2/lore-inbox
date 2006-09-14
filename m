@@ -1,63 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750733AbWINPEG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750736AbWINPEu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750733AbWINPEG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Sep 2006 11:04:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750736AbWINPEF
+	id S1750736AbWINPEu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Sep 2006 11:04:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750738AbWINPEu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Sep 2006 11:04:05 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:25233 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1750733AbWINPED (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Sep 2006 11:04:03 -0400
-Subject: Re: [PATCH 0/3] Synaptics - fix lockdep warnings
-From: Arjan van de Ven <arjan@infradead.org>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Jiri Kosina <jikos@jikos.cz>, Andrew Morton <akpm@osdl.org>,
-       lkml <linux-kernel@vger.kernel.org>, Dave Jones <davej@redhat.com>
-In-Reply-To: <d120d5000609140758w7ba5cfdbs399d6831082e7cb4@mail.gmail.com>
-References: <Pine.LNX.4.64.0609140227500.22181@twin.jikos.cz>
-	 <200609132200.51342.dtor@insightbb.com>
-	 <Pine.LNX.4.64.0609141028540.22181@twin.jikos.cz>
-	 <d120d5000609140618h6e929883u2ed82d1cab677e57@mail.gmail.com>
-	 <Pine.LNX.4.64.0609141635040.2721@twin.jikos.cz>
-	 <d120d5000609140758w7ba5cfdbs399d6831082e7cb4@mail.gmail.com>
-Content-Type: text/plain
-Organization: Intel International BV
-Date: Thu, 14 Sep 2006 17:03:57 +0200
-Message-Id: <1158246237.2931.33.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Thu, 14 Sep 2006 11:04:50 -0400
+Received: from iolanthe.rowland.org ([192.131.102.54]:7944 "HELO
+	iolanthe.rowland.org") by vger.kernel.org with SMTP
+	id S1750736AbWINPEt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Sep 2006 11:04:49 -0400
+Date: Thu, 14 Sep 2006 11:04:48 -0400 (EDT)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@iolanthe.rowland.org
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+cc: Andrew Morton <akpm@osdl.org>, Mattia Dongili <malattia@linux.it>,
+       Robert Hancock <hancockr@shaw.ca>,
+       Kernel development list <linux-kernel@vger.kernel.org>,
+       USB development list <linux-usb-devel@lists.sourceforge.net>
+Subject: Re: [linux-usb-devel] 2.6.18-rc6-mm1 (-mm2): ohci resume problem
+In-Reply-To: <200609141608.45884.rjw@sisk.pl>
+Message-ID: <Pine.LNX.4.44L0.0609141100580.8471-100000@iolanthe.rowland.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-09-14 at 10:58 -0400, Dmitry Torokhov wrote:
-> On 9/14/06, Jiri Kosina <jikos@jikos.cz> wrote:
-> > On Thu, 14 Sep 2006, Dmitry Torokhov wrote:
-> >
-> > > Can we add lock_class_key to the struct psmouse and use it to define
-> > > per-device mutex class regardless of whether it is a child, grandchild
-> > > or a parent?
-> >
-> > Hi Dmitry,
-> >
-> > what do you think about the patches below? I have used a slightly
-> > different approach, as we also need to get rid of the spurious lockdep
-> > warning in case of recursive call of serio_interrupt(), which can't be
-> > handled well with lock subclass stored in struct psmouse. What do you
-> > think about this? It shuts up the lockdep, and seems much cleaner to me.
-> >
+On Thu, 14 Sep 2006, Rafael J. Wysocki wrote:
+
+> > > Try adding some ehci_dbg() lines in there (copy the form of the line just
+> > > after restart:).  We want to follow the value of
+> > > hcd->self.root_hub->state.  Initially it should be equal to
+> > > USB_STATE_SUSPENDED (= 8), and it shouldn't change.  But somewhere it is
+> > > getting set to USB_STATE_CONFIGURED (= 7).  I don't know where, but almost 
+> > > certainly somewhere in this routine.  If you can find out where that 
+> > > happens, I'd appreciate it.
+> > 
+> > Done, but it shows hcd->self.root_hub->state is already 7 right after restart.
 > 
-> Yes, this is much, much better. Could you please tell me if depth
-> should be a true depth or just an unique number? The reason I am
-> asking is that I hope to get rid of parent/child pointers in serio
-> (they were introduced when driver core could not handle recursive
-> addition/removing of devices on the same bus).
+> BTW, all of the systems on which the problem shows up seem to be 64-bit.
+> 
+> If you can't reproduce it on a 32-bit system, some type casting may be wrong
+> somewhere.
 
-lockdep sort of expects the depth to be a number between 0 and 7.
-Other than that lockdep does not assume an ordering based on numerical
-value at all; it figures that out at runtime. 
+I realized last night what the problem must be.  It's extremely obvious in 
+retrospect, but I happen to have a blind spot in this particular area.
 
+All you guys must have CONFIG_USB_SUSPEND turned off.  Mattis certainly 
+does; I checked his .config.  Now I hardly ever do any testing without 
+CONFIG_USB_SUSPEND, since there's not much point working on power 
+management code if your kernel isn't set up to actually suspend devices.
+As a result I missed seeing the problems caused by the autosuspend 
+changes.
+
+Now of course, the autosuspend stuff has to work properly no matter what 
+the kernel configuration is.  I'll go back and rebuild the drivers with 
+USB_SUSPEND turned off and see what happens.  With any luck I'll have a 
+fix ready in the near future.
+
+Alan Stern
 

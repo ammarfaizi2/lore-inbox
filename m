@@ -1,74 +1,236 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751443AbWINHte@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751445AbWINHwb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751443AbWINHte (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Sep 2006 03:49:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751444AbWINHte
+	id S1751445AbWINHwb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Sep 2006 03:52:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751438AbWINHwb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Sep 2006 03:49:34 -0400
-Received: from agent.admingilde.org ([213.95.21.5]:54201 "EHLO
-	mail.admingilde.org") by vger.kernel.org with ESMTP
-	id S1751443AbWINHtd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Sep 2006 03:49:33 -0400
-Date: Thu, 14 Sep 2006 09:49:22 +0200
-From: Martin Waitz <tali@admingilde.org>
-To: Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>
-Cc: linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
-       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@redhat.com>,
-       Greg Kroah-Hartman <gregkh@suse.de>,
-       Thomas Gleixner <tglx@linutronix.de>, Tom Zanussi <zanussi@us.ibm.com>,
-       ltt-dev@shafik.org, Michel Dagenais <michel.dagenais@polymtl.ca>
-Subject: Re: [PATCH 1/11] LTTng-core 0.5.108 : build
-Message-ID: <20060914074922.GR17042@admingilde.org>
-Mail-Followup-To: Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
-	linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
-	Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@redhat.com>,
-	Greg Kroah-Hartman <gregkh@suse.de>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	Tom Zanussi <zanussi@us.ibm.com>, ltt-dev@shafik.org,
-	Michel Dagenais <michel.dagenais@polymtl.ca>
-References: <20060914034030.GB2194@Krystal>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="tZCmRiovzb4sxAVa"
-Content-Disposition: inline
-In-Reply-To: <20060914034030.GB2194@Krystal>
-X-PGP-Fingerprint: B21B 5755 9684 5489 7577  001A 8FF1 1AC5 DFE8 0FB2
-User-Agent: Mutt/1.5.9i
+	Thu, 14 Sep 2006 03:52:31 -0400
+Received: from nz-out-0102.google.com ([64.233.162.207]:45098 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1751445AbWINHwa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Sep 2006 03:52:30 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:references;
+        b=QBUReXRwzR41ih9PSNIJHZ0KmDBhzccBhly++DOC8oG4NSeUlXDqVCucOqQdZbdSgjqkMbTVhMuqgPgR8cHkFCuwgQvzwyxsLzzDO4GUDgIxn7LWzwtFLyOq7WB+NhUee/5JP6nhbLcAMzRjADxwMPmnHa8HK5A7Havdw5xZNCY=
+Message-ID: <401f4f10609140052g48a92406i248f0f2c4175540d@mail.gmail.com>
+Date: Thu, 14 Sep 2006 10:52:29 +0300
+From: "Pavel Mironchik" <tibor0@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Fwd: ext2/3 create large filesystem takes too much time; solutions
+In-Reply-To: <401f4f10609120407j6816372mfdfea392dcae9e00@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: multipart/mixed; 
+	boundary="----=_Part_142243_20781008.1158220349599"
+References: <401f4f10609120407j6816372mfdfea392dcae9e00@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---tZCmRiovzb4sxAVa
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-hoi :)
-
-On Wed, Sep 13, 2006 at 11:40:30PM -0400, Mathieu Desnoyers wrote:
-> 1- LTTng menu options and Makefiles
-
-adding Makefiles before the needed .c files breaks bisecting.
-
-> (do not enable blktrace for now : kernel/relay.o is disabled)
-
-If kernel/relay.c becomes obsolete, then perhaps this should be a separate
-patch, removing it entirely.
-
---=20
-Martin Waitz
-
---tZCmRiovzb4sxAVa
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
+------=_Part_142243_20781008.1158220349599
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
+---------- Forwarded message ----------
+From: Pavel Mironchik <tibor0@gmail.com>
+Date: Sep 12, 2006 2:07 PM
+Subject: ext2/3 create large filesystem takes too much time; solutions
+To: linux-ext4@vger.kernel.org
 
-iD8DBQFFCQmCj/Eaxd/oD7IRAp6UAJ9h+wwXnE+gNzy38rDOQ0Jds40amQCggCz0
-W7+0JPtO4+bAKALD02Nqt/o=
-=YRyj
------END PGP SIGNATURE-----
 
---tZCmRiovzb4sxAVa--
+Hi,
+
+Ext2/3 does erase of inode tables, when do creation of new systems.
+This is very very long operation when the target file system volume is more than
+2Tb. Other filesystem are not affected by such huge delay on creation of
+filesystem. My concern was to improve design of ext3 to decrease time
+consuption of creation large ext3 volumes on storage servers.
+In general to solve problem, we should defer job of cleaning nodes to
+kernel. In e2fsprogs there is LAZY_BG options but it  just avoids doing
+erase of inodes only.
+
+I see several solutions for that problem:
+1) Add special bitmaps into fs header (inode groups descriptors?).
+By looking at those bitmaps kernel could determine if inode is not cleaned, and
+that inode will be propertly initialized.
+2) Add special identifiers into inodes. If super block id != inode id
+-> inode is dirty
+and should be cleaned in kernel, where super block id is generated on
+creation stage.
+
+I choosed second (much easier - just few lines of code)
+and implemented patch for e2fsprogs, kernel ext3. It is just proof of a concept.
+With the help of this patch I could create  terrabytes volumes fast.
+Of cource this patch will broke compatibility for existing filesystem.
+More correctly is to choose first way and do not broke compatibility.
+
+Writing this mail, I just want check if there is any interest for this problem
+from community.
+I would like to see that future ext4 filesystem will be created fast.
+and I would be appreciate for  thoughts, remarks.
+---------------------------
+Pavel S. Mironchik
+
+
+
+
+-- 
+-----------------------------------
+Pavel S. Mironchik
+
+------=_Part_142243_20781008.1158220349599
+Content-Type: text/x-patch; name=ext3-kernel.patch; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: base64
+X-Attachment-Id: f_es06t6e1
+Content-Disposition: attachment; filename="ext3-kernel.patch"
+
+ZGlmZiAtcnVOIHVwbG9hZC9mcy9leHQzL2lub2RlLmMgbDEvbGludXgtMi42LjE3L2ZzL2V4dDMv
+aW5vZGUuYwotLS0gdXBsb2FkL2ZzL2V4dDMvaW5vZGUuYwkyMDA2LTA4LTI0IDAwOjE2OjMzICsw
+MzAwCisrKyBsaW51eC0yLjYuMTcvZnMvZXh0My9pbm9kZS5jCTIwMDYtMDktMDYgMTY6MjI6MTcg
+KzAzMDAKQEAgLTI1NzYsNiArMjU3NiwxNyBAQAogCQlpbm9kZS0+aV9mbGFncyB8PSBTX0RJUlNZ
+TkM7CiB9CiAKK3ZvaWQgZXh0M19jaGVja191dWlkX2lub2RlKHN0cnVjdCBleHQzX2lub2RlICpy
+aW5vZGUsIHN0cnVjdCBpbm9kZSAqdmlub2RlKSAKK3sKKyAgc3RydWN0IGV4dDNfc2JfaW5mbyog
+c2JpID0gKHN0cnVjdCBleHQzX3NiX2luZm8qKSh2aW5vZGUtPmlfc2IpLT5zX2ZzX2luZm87Cisg
+IGludCBsZW5ndGggPSBzaXplb2YodTgpKjE2OworCisgIGlmKG1lbWNtcChyaW5vZGUtPmlfdXVp
+ZCxzYmktPnNfdXVpZCwgbGVuZ3RoKSkgeworICAgIG1lbXNldChyaW5vZGUsMCxzaXplb2Yoc3Ry
+dWN0IGV4dDNfaW5vZGUpKTsKKyAgICBtZW1jcHkocmlub2RlLT5pX3V1aWQsc2JpLT5zX3V1aWQs
+IGxlbmd0aCk7CisgIH0KK30KKwogdm9pZCBleHQzX3JlYWRfaW5vZGUoc3RydWN0IGlub2RlICog
+aW5vZGUpCiB7CiAJc3RydWN0IGV4dDNfaWxvYyBpbG9jOwpAQCAtMjU5NCw2ICsyNjA1LDkgQEAK
+IAkJZ290byBiYWRfaW5vZGU7CiAJYmggPSBpbG9jLmJoOwogCXJhd19pbm9kZSA9IGV4dDNfcmF3
+X2lub2RlKCZpbG9jKTsKKwkKKwlleHQzX2NoZWNrX3V1aWRfaW5vZGUocmF3X2lub2RlLGlub2Rl
+KTsKKwogCWlub2RlLT5pX21vZGUgPSBsZTE2X3RvX2NwdShyYXdfaW5vZGUtPmlfbW9kZSk7CiAJ
+aW5vZGUtPmlfdWlkID0gKHVpZF90KWxlMTZfdG9fY3B1KHJhd19pbm9kZS0+aV91aWRfbG93KTsK
+IAlpbm9kZS0+aV9naWQgPSAoZ2lkX3QpbGUxNl90b19jcHUocmF3X2lub2RlLT5pX2dpZF9sb3cp
+OwpAQCAtMjcxMyw2ICsyNzI3LDggQEAKIAlyZXR1cm47CiB9CiAKKworCiAvKgogICogUG9zdCB0
+aGUgc3RydWN0IGlub2RlIGluZm8gaW50byBhbiBvbi1kaXNrIGlub2RlIGxvY2F0aW9uIGluIHRo
+ZQogICogYnVmZmVyLWNhY2hlLiAgVGhpcyBnb2JibGVzIHRoZSBjYWxsZXIncyByZWZlcmVuY2Ug
+dG8gdGhlCkBAIC0yNzI1LDYgKzI3NDEsNyBAQAogCQkJCXN0cnVjdCBleHQzX2lsb2MgKmlsb2Mp
+CiB7CiAJc3RydWN0IGV4dDNfaW5vZGUgKnJhd19pbm9kZSA9IGV4dDNfcmF3X2lub2RlKGlsb2Mp
+OworCXN0cnVjdCBleHQzX3NiX2luZm8qIHNiaSA9IChzdHJ1Y3QgZXh0M19zYl9pbmZvKikoaW5v
+ZGUtPmlfc2IpLT5zX2ZzX2luZm87CiAJc3RydWN0IGV4dDNfaW5vZGVfaW5mbyAqZWkgPSBFWFQz
+X0koaW5vZGUpOwogCXN0cnVjdCBidWZmZXJfaGVhZCAqYmggPSBpbG9jLT5iaDsKIAlpbnQgZXJy
+ID0gMCwgcmMsIGJsb2NrOwpAQCAtMjc3Myw2ICsyNzkwLDggQEAKIAlyYXdfaW5vZGUtPmlfZnNp
+emUgPSBlaS0+aV9mcmFnX3NpemU7CiAjZW5kaWYKIAlyYXdfaW5vZGUtPmlfZmlsZV9hY2wgPSBj
+cHVfdG9fbGUzMihlaS0+aV9maWxlX2FjbCk7CisJbWVtY3B5KHJhd19pbm9kZS0+aV91dWlkLCBz
+YmktPnNfdXVpZCwgc2l6ZW9mKHU4KSoxNik7CisKIAlpZiAoIVNfSVNSRUcoaW5vZGUtPmlfbW9k
+ZSkpIHsKIAkJcmF3X2lub2RlLT5pX2Rpcl9hY2wgPSBjcHVfdG9fbGUzMihlaS0+aV9kaXJfYWNs
+KTsKIAl9IGVsc2UgewpAQCAtMjgzMiw3ICsyODUxLDcgQEAKIH0KIAogLyoKLSAqIGV4dDNfd3Jp
+dGVfaW5vZGUoKQorICogZXh0M193cml0ZV9pbm9kZQogICoKICAqIFdlIGFyZSBjYWxsZWQgZnJv
+bSBhIGZldyBwbGFjZXM6CiAgKgpkaWZmIC1ydU4gdXBsb2FkL2ZzL2V4dDMvc3VwZXIuYyBsMS9s
+aW51eC0yLjYuMTcvZnMvZXh0My9zdXBlci5jCi0tLSB1cGxvYWQvZnMvZXh0My9zdXBlci5jCTIw
+MDYtMDgtMjQgMDA6MTY6MzMgKzAzMDAKKysrIGxpbnV4LTIuNi4xNy9mcy9leHQzL3N1cGVyLmMJ
+MjAwNi0wOS0wNiAxNjowMzoyNSArMDMwMApAQCAtMTQ2NCw2ICsxNDI1LDggQEAKIAlzYmktPnNf
+cmVzdWlkID0gbGUxNl90b19jcHUoZXMtPnNfZGVmX3Jlc3VpZCk7CiAJc2JpLT5zX3Jlc2dpZCA9
+IGxlMTZfdG9fY3B1KGVzLT5zX2RlZl9yZXNnaWQpOwogCisJbWVtY3B5KHNiaS0+c191dWlkLGVz
+LT5zX3V1aWQsIHNpemVvZih1OCkqMTYpOworCiAJc2V0X29wdChzYmktPnNfbW91bnRfb3B0LCBS
+RVNFUlZBVElPTik7CiAKIAlpZiAoIXBhcnNlX29wdGlvbnMgKChjaGFyICopIGRhdGEsIHNiLCAm
+am91cm5hbF9pbnVtLCAmam91cm5hbF9kZXZudW0sCmRpZmYgLXJ1TiB1cGxvYWQvaW5jbHVkZS9s
+aW51eC9leHQzX2ZzLmggbDEvbGludXgtMi42LjE3L2luY2x1ZGUvbGludXgvZXh0M19mcy5oCi0t
+LSB1cGxvYWQvaW5jbHVkZS9saW51eC9leHQzX2ZzLmgJMjAwNi0wOC0yNCAwMDoxNjozMyArMDMw
+MAorKysgbDEvbGludXgtMi42LjE3L2luY2x1ZGUvbGludXgvZXh0M19mcy5oCTIwMDYtMDktMDYg
+MTY6MjA6NTMgKzAzMDAKQEAgLTI4NCw2ICsyODQsNyBAQAogCV9fbGUzMglpX2ZpbGVfYWNsOwkv
+KiBGaWxlIEFDTCAqLwogCV9fbGUzMglpX2Rpcl9hY2w7CS8qIERpcmVjdG9yeSBBQ0wgKi8KIAlf
+X2xlMzIJaV9mYWRkcjsJLyogRnJhZ21lbnQgYWRkcmVzcyAqLworICAgICAgICBfX2xlMTYgICBp
+X3V1aWRbOF07CiAJdW5pb24gewogCQlzdHJ1Y3QgewogCQkJX191OAlsX2lfZnJhZzsJLyogRnJh
+Z21lbnQgbnVtYmVyICovCkBAIC01MzEsNyArNTMyLDcgQEAKICNkZWZpbmUgRVhUM19DVVJSRU5U
+X1JFVglFWFQzX0dPT0RfT0xEX1JFVgogI2RlZmluZSBFWFQzX01BWF9TVVBQX1JFVglFWFQzX0RZ
+TkFNSUNfUkVWCiAKLSNkZWZpbmUgRVhUM19HT09EX09MRF9JTk9ERV9TSVpFIDEyOAorI2RlZmlu
+ZSBFWFQzX0dPT0RfT0xEX0lOT0RFX1NJWkUgKDEyOCsoOCoxNikpCiAKIC8qCiAgKiBGZWF0dXJl
+IHNldCBkZWZpbml0aW9ucwpkaWZmIC1ydU4gdXBsb2FkL2luY2x1ZGUvbGludXgvZXh0M19mc19z
+Yi5oIGwxL2xpbnV4LTIuNi4xNy9pbmNsdWRlL2xpbnV4L2V4dDNfZnNfc2IuaAotLS0gdXBsb2Fk
+L2luY2x1ZGUvbGludXgvZXh0M19mc19zYi5oCTIwMDYtMDgtMjQgMDA6MTY6MzMgKzAzMDAKKysr
+IGwxL2xpbnV4LTIuNi4xNy9pbmNsdWRlL2xpbnV4L2V4dDNfZnNfc2IuaAkyMDA2LTA5LTA2IDE1
+OjU5OjM1ICswMzAwCkBAIC03OCw2ICs3OCw3IEBACiAJY2hhciAqc19xZl9uYW1lc1tNQVhRVU9U
+QVNdOwkJLyogTmFtZXMgb2YgcXVvdGEgZmlsZXMgd2l0aCBqb3VybmFsbGVkIHF1b3RhICovCiAJ
+aW50IHNfanF1b3RhX2ZtdDsJCQkvKiBGb3JtYXQgb2YgcXVvdGEgdG8gdXNlICovCiAjZW5kaWYK
+KyAgICAgICAgdTggc191dWlkWzE2XTsgCiB9OwogCiAjZW5kaWYJLyogX0xJTlVYX0VYVDNfRlNf
+U0IgKi8K
+------=_Part_142243_20781008.1158220349599
+Content-Type: text/x-patch; name=mkfs_and_fsck.patch; charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: base64
+X-Attachment-Id: f_es06tf45
+Content-Disposition: attachment; filename="mkfs_and_fsck.patch"
+
+ZGlmZiAtLWdpdCBhL2xpYi9leHQyZnMvZXh0Ml9mcy5oIGIvbGliL2V4dDJmcy9leHQyX2ZzLmgK
+aW5kZXggMWNmYmMzNS4uNzAwODgyNiAxMDA2NDQKLS0tIGEvbGliL2V4dDJmcy9leHQyX2ZzLmgK
+KysrIGIvbGliL2V4dDJmcy9leHQyX2ZzLmgKQEAgLTI5Niw3ICsyOTYsOCBAQCBzdHJ1Y3QgZXh0
+Ml9pbm9kZSB7CiAJX191MzIJaV9nZW5lcmF0aW9uOwkvKiBGaWxlIHZlcnNpb24gKGZvciBORlMp
+ICovCiAJX191MzIJaV9maWxlX2FjbDsJLyogRmlsZSBBQ0wgKi8KIAlfX3UzMglpX2Rpcl9hY2w7
+CS8qIERpcmVjdG9yeSBBQ0wgKi8KLQlfX3UzMglpX2ZhZGRyOwkvKiBGcmFnbWVudCBhZGRyZXNz
+ICovCisJX191MzIJaV9mYWRkcjsJLyogRnJhZ21lbnQgYWRkcmVzcyAqLyAgICAgICAgCisgICAg
+ICAgIF9fdTggICAgc191dWlkWzE2XTsKIAl1bmlvbiB7CiAJCXN0cnVjdCB7CiAJCQlfX3U4CWxf
+aV9mcmFnOwkvKiBGcmFnbWVudCBudW1iZXIgKi8KQEAgLTM1NCw2ICszNTUsNyBAQCBzdHJ1Y3Qg
+ZXh0Ml9pbm9kZV9sYXJnZSB7CiAJX191MzIJaV9maWxlX2FjbDsJLyogRmlsZSBBQ0wgKi8KIAlf
+X3UzMglpX2Rpcl9hY2w7CS8qIERpcmVjdG9yeSBBQ0wgKi8KIAlfX3UzMglpX2ZhZGRyOwkvKiBG
+cmFnbWVudCBhZGRyZXNzICovCisgICAgICAgIF9fdTggICAgc191dWlkWzE2XTsKIAl1bmlvbiB7
+CiAJCXN0cnVjdCB7CiAJCQlfX3U4CWxfaV9mcmFnOwkvKiBGcmFnbWVudCBudW1iZXIgKi8KQEAg
+LTU0Nyw3ICs1NDksNyBAQCAjZGVmaW5lIEVYVDJfRFlOQU1JQ19SRVYJMQkvKiBWMiBmb3JtYXQg
+CiAjZGVmaW5lIEVYVDJfQ1VSUkVOVF9SRVYJRVhUMl9HT09EX09MRF9SRVYKICNkZWZpbmUgRVhU
+Ml9NQVhfU1VQUF9SRVYJRVhUMl9EWU5BTUlDX1JFVgogCi0jZGVmaW5lIEVYVDJfR09PRF9PTERf
+SU5PREVfU0laRSAxMjgKKyNkZWZpbmUgRVhUMl9HT09EX09MRF9JTk9ERV9TSVpFICgxMjgrKDE2
+KjgpKQogCiAvKgogICogSm91cm5hbCBpbm9kZSBiYWNrdXAgdHlwZXMKZGlmZiAtLWdpdCBhL2xp
+Yi9leHQyZnMvaW5vZGUuYyBiL2xpYi9leHQyZnMvaW5vZGUuYwppbmRleCA4ZDUyOGI0Li5hZjNi
+ODdmIDEwMDY0NAotLS0gYS9saWIvZXh0MmZzL2lub2RlLmMKKysrIGIvbGliL2V4dDJmcy9pbm9k
+ZS5jCkBAIC0zODEsNiArMzgxLDggQEAgc3RhdGljIGlubGluZSBpbnQgaXNfZW1wdHlfc2Nhbihl
+eHQyX2lubwogfQogI2VuZGlmCiAKK2VycmNvZGVfdCBleHQyZnNfY2hlY2tfaW5vZGVfdXVpZChl
+eHQyX2ZpbHN5cyBmcywgc3RydWN0IGV4dDJfaW5vZGUqIGlub2RlKTsKKwogZXJyY29kZV90IGV4
+dDJmc19nZXRfbmV4dF9pbm9kZV9mdWxsKGV4dDJfaW5vZGVfc2NhbiBzY2FuLCBleHQyX2lub190
+ICppbm8sCiAJCQkJICAgICBzdHJ1Y3QgZXh0Ml9pbm9kZSAqaW5vZGUsIGludCBidWZzaXplKQog
+ewpAQCAtNDUyLDcgKzQ1NCw3IEBAICNlbmRpZgogCQkgICAgICAgc2Nhbi0+aW5vZGVfc2l6ZSAt
+IGV4dHJhX2J5dGVzKTsKIAkJc2Nhbi0+cHRyICs9IHNjYW4tPmlub2RlX3NpemUgLSBleHRyYV9i
+eXRlczsKIAkJc2Nhbi0+Ynl0ZXNfbGVmdCAtPSBzY2FuLT5pbm9kZV9zaXplIC0gZXh0cmFfYnl0
+ZXM7Ci0KKwkJLyogQ0hFQ0sgKi8KICNpZmRlZiBFWFQyRlNfRU5BQkxFX1NXQVBGUwogCQlpZiAo
+KHNjYW4tPmZzLT5mbGFncyAmIEVYVDJfRkxBR19TV0FQX0JZVEVTKSB8fAogCQkgICAgKHNjYW4t
+PmZzLT5mbGFncyAmIEVYVDJfRkxBR19TV0FQX0JZVEVTX1JFQUQpKQpAQCAtNDYzLDEwICs0NjUs
+MTIgQEAgI2lmZGVmIEVYVDJGU19FTkFCTEVfU1dBUEZTCiAJCWVsc2UKICNlbmRpZgogCQkJKmlu
+b2RlID0gKigoc3RydWN0IGV4dDJfaW5vZGUgKikgc2Nhbi0+dGVtcF9idWZmZXIpOworCQlleHQy
+ZnNfY2hlY2tfaW5vZGVfdXVpZChzY2FuLT5mcyxpbm9kZSk7CiAJCWlmIChzY2FuLT5zY2FuX2Zs
+YWdzICYgRVhUMl9TRl9CQURfRVhUUkFfQllURVMpCiAJCQlyZXR2YWwgPSBFWFQyX0VUX0JBRF9C
+TE9DS19JTl9JTk9ERV9UQUJMRTsKIAkJc2Nhbi0+c2Nhbl9mbGFncyAmPSB+RVhUMl9TRl9CQURf
+RVhUUkFfQllURVM7CiAJfSBlbHNlIHsKKwkgIC8qIENIRUNLICovCiAjaWZkZWYgRVhUMkZTX0VO
+QUJMRV9TV0FQRlMKIAkJaWYgKChzY2FuLT5mcy0+ZmxhZ3MgJiBFWFQyX0ZMQUdfU1dBUF9CWVRF
+UykgfHwKIAkJICAgIChzY2FuLT5mcy0+ZmxhZ3MgJiBFWFQyX0ZMQUdfU1dBUF9CWVRFU19SRUFE
+KSkKQEAgLTQ3Nyw2ICs0ODEsNyBAQCAjaWZkZWYgRVhUMkZTX0VOQUJMRV9TV0FQRlMKIAkJZWxz
+ZQogI2VuZGlmCiAJCQltZW1jcHkoaW5vZGUsIHNjYW4tPnB0ciwgYnVmc2l6ZSk7CisJCWV4dDJm
+c19jaGVja19pbm9kZV91dWlkKHNjYW4tPmZzLGlub2RlKTsKIAkJc2Nhbi0+cHRyICs9IHNjYW4t
+Pmlub2RlX3NpemU7CiAJCXNjYW4tPmJ5dGVzX2xlZnQgLT0gc2Nhbi0+aW5vZGVfc2l6ZTsKIAkJ
+aWYgKHNjYW4tPnNjYW5fZmxhZ3MgJiBFWFQyX1NGX0JBRF9JTk9ERV9CTEspCkBAIC00OTYsNiAr
+NTAxLDE3IEBAIGVycmNvZGVfdCBleHQyZnNfZ2V0X25leHRfaW5vZGUoZXh0Ml9pbm8KIAkJCQkJ
+CXNpemVvZihzdHJ1Y3QgZXh0Ml9pbm9kZSkpOwogfQogCitlcnJjb2RlX3QgZXh0MmZzX3VwZGF0
+ZV9pbm9kZV91dWlkKGV4dDJfZmlsc3lzIGZzLCBzdHJ1Y3QgZXh0Ml9pbm9kZSogaW5vZGUpOwor
+CitlcnJjb2RlX3QgZXh0MmZzX2NoZWNrX2lub2RlX3V1aWQoZXh0Ml9maWxzeXMgZnMsIHN0cnVj
+dCBleHQyX2lub2RlKiBpbm9kZSkgIAoreworICBpZihtZW1jbXAoaW5vZGUtPnNfdXVpZCxmcy0+
+c3VwZXItPnNfdXVpZCxzaXplb2YoX191OCkqMTYpKSB7CisgICAgbWVtc2V0KGlub2RlLCAwLCBz
+aXplb2Yoc3RydWN0IGV4dDJfaW5vZGUpKTsKKyAgICBleHQyZnNfdXBkYXRlX2lub2RlX3V1aWQo
+ZnMsIGlub2RlKTsKKyAgfQorICByZXR1cm4gMDsKK30KKwogLyoKICAqIEZ1bmN0aW9ucyB0byBy
+ZWFkIGFuZCB3cml0ZSBhIHNpbmdsZSBpbm9kZS4KICAqLwpAQCAtNTg5LDYgKzYwNSw5IEBAICNp
+ZmRlZiBFWFQyRlNfRU5BQkxFX1NXQVBGUwogCQkJCSAgICAgICAwLCBsZW5ndGgpOwogI2VuZGlm
+CiAKKworCWV4dDJmc19jaGVja19pbm9kZV91dWlkKGZzLGlub2RlKTsKKwkKIAkvKiBVcGRhdGUg
+dGhlIGlub2RlIGNhY2hlICovCiAJZnMtPmljYWNoZS0+Y2FjaGVfbGFzdCA9IChmcy0+aWNhY2hl
+LT5jYWNoZV9sYXN0ICsgMSkgJQogCQlmcy0+aWNhY2hlLT5jYWNoZV9zaXplOwpAQCAtNjA1LDYg
+KzYyNCwxOCBAQCBlcnJjb2RlX3QgZXh0MmZzX3JlYWRfaW5vZGUoZXh0Ml9maWxzeXMgCiAJCQkJ
+CXNpemVvZihzdHJ1Y3QgZXh0Ml9pbm9kZSkpOwogfQogCisKKy8qIAorICAgTk9ERSBDT05ORUNU
+SVZJVFkhISEKKyAqLworZXJyY29kZV90IGV4dDJmc191cGRhdGVfaW5vZGVfdXVpZChleHQyX2Zp
+bHN5cyBmcywgc3RydWN0IGV4dDJfaW5vZGUqIGlub2RlKSAKK3sKKyAgCisgICAgICAgICBtZW1j
+cHkoaW5vZGUtPnNfdXVpZCxmcy0+c3VwZXItPnNfdXVpZCwgc2l6ZW9mKF9fdTgpICogMTYpOwor
+ICAgICAgICAgcmV0dXJuIDA7Cit9CisKKwogZXJyY29kZV90IGV4dDJmc193cml0ZV9pbm9kZV9m
+dWxsKGV4dDJfZmlsc3lzIGZzLCBleHQyX2lub190IGlubywKIAkJCQkgIHN0cnVjdCBleHQyX2lu
+b2RlICogaW5vZGUsIGludCBidWZzaXplKQogewpAQCAtNjE1LDYgKzY0Niw4IEBAIGVycmNvZGVf
+dCBleHQyZnNfd3JpdGVfaW5vZGVfZnVsbChleHQyX2YKIAlpbnQgY2xlbiwgaSwgbGVuZ3RoOwog
+CiAJRVhUMl9DSEVDS19NQUdJQyhmcywgRVhUMl9FVF9NQUdJQ19FWFQyRlNfRklMU1lTKTsKKwkK
+KwlleHQyZnNfdXBkYXRlX2lub2RlX3V1aWQoZnMsaW5vZGUpOwogCiAJLyogQ2hlY2sgdG8gc2Vl
+IGlmIHVzZXIgcHJvdmlkZWQgYW4gb3ZlcnJpZGUgZnVuY3Rpb24gKi8KIAlpZiAoZnMtPndyaXRl
+X2lub2RlKSB7CmRpZmYgLS1naXQgYS9taXNjL21rZTJmcy5jIGIvbWlzYy9ta2UyZnMuYwppbmRl
+eCBkMDA4ZTE1Li5lNzg2OTM4IDEwMDY0NAotLS0gYS9taXNjL21rZTJmcy5jCisrKyBiL21pc2Mv
+bWtlMmZzLmMKQEAgLTM5OCw3ICszOTgsNyBAQCBzdGF0aWMgZXJyY29kZV90IHplcm9fYmxvY2tz
+KGV4dDJfZmlsc3lzCiAKIHN0YXRpYyB2b2lkIHdyaXRlX2lub2RlX3RhYmxlcyhleHQyX2ZpbHN5
+cyBmcykKIHsKLQllcnJjb2RlX3QJcmV0dmFsOworCWVycmNvZGVfdAlyZXR2YWwgPSAwOwogCWJs
+a190CQlibGs7CiAJZGdycF90CQlpOwogCWludAkJbnVtOwpAQCAtNDIzLDcgKzQyMyw3IEBAIHN0
+YXRpYyB2b2lkIHdyaXRlX2lub2RlX3RhYmxlcyhleHQyX2ZpbHMKIAogCQlpZiAoIShsYXp5X2Zs
+YWcgJiYKIAkJICAgICAgKGZzLT5ncm91cF9kZXNjW2ldLmJnX2ZsYWdzICYgRVhUMl9CR19JTk9E
+RV9VTklOSVQpKSkgewotCQkJcmV0dmFsID0gemVyb19ibG9ja3MoZnMsIGJsaywgbnVtLCAwLCAm
+YmxrLCAmbnVtKTsKKwkJLy8JcmV0dmFsID0gemVyb19ibG9ja3MoZnMsIGJsaywgbnVtLCAwLCAm
+YmxrLCAmbnVtKTsKIAkJCWlmIChyZXR2YWwpIHsKIAkJCQlmcHJpbnRmKHN0ZGVyciwgXygiXG5D
+b3VsZCBub3Qgd3JpdGUgJWQgIgogCQkJCSJibG9ja3MgaW4gaW5vZGUgdGFibGUgc3RhcnRpbmcg
+YXQgJXU6ICVzXG4iKSwK
+------=_Part_142243_20781008.1158220349599--

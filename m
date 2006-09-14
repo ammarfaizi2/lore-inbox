@@ -1,61 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750736AbWINPEu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750704AbWINPHR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750736AbWINPEu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Sep 2006 11:04:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750738AbWINPEu
+	id S1750704AbWINPHR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Sep 2006 11:07:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750738AbWINPHR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Sep 2006 11:04:50 -0400
-Received: from iolanthe.rowland.org ([192.131.102.54]:7944 "HELO
-	iolanthe.rowland.org") by vger.kernel.org with SMTP
-	id S1750736AbWINPEt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Sep 2006 11:04:49 -0400
-Date: Thu, 14 Sep 2006 11:04:48 -0400 (EDT)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@iolanthe.rowland.org
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-cc: Andrew Morton <akpm@osdl.org>, Mattia Dongili <malattia@linux.it>,
-       Robert Hancock <hancockr@shaw.ca>,
-       Kernel development list <linux-kernel@vger.kernel.org>,
-       USB development list <linux-usb-devel@lists.sourceforge.net>
-Subject: Re: [linux-usb-devel] 2.6.18-rc6-mm1 (-mm2): ohci resume problem
-In-Reply-To: <200609141608.45884.rjw@sisk.pl>
-Message-ID: <Pine.LNX.4.44L0.0609141100580.8471-100000@iolanthe.rowland.org>
+	Thu, 14 Sep 2006 11:07:17 -0400
+Received: from mga07.intel.com ([143.182.124.22]:62610 "EHLO
+	azsmga101.ch.intel.com") by vger.kernel.org with ESMTP
+	id S1750704AbWINPHP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Sep 2006 11:07:15 -0400
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.09,165,1157353200"; 
+   d="scan'208"; a="116446343:sNHT704618488"
+Date: Thu, 14 Sep 2006 08:04:14 -0700
+From: Mark Gross <mgross@linux.intel.com>
+To: Vitaly Wool <vitalywool@gmail.com>
+Cc: Pavel Machek <pavel@ucw.cz>,
+       Preece Scott-PREECE <scott.preece@motorola.com>,
+       pm list <linux-pm@lists.osdl.org>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [linux-pm] cpufreq terminally broken [was Re: community PM requirements/issues and PowerOP]
+Message-ID: <20060914150414.GB6008@linux.intel.com>
+Reply-To: mgross@linux.intel.com
+References: <20060911082025.GD1898@elf.ucw.cz> <b0623b9bb79afacc77cddc6e39c96b62@nomadgs.com> <20060911195546.GB11901@elf.ucw.cz> <4505CCDA.8020501@gmail.com> <20060911210026.GG11901@elf.ucw.cz> <4505DDA6.8080603@gmail.com> <20060911225617.GB13474@elf.ucw.cz> <20060912001701.GC14234@linux.intel.com> <20060912083328.GA19197@elf.ucw.cz> <acd2a5930609120210w7ee5a156s5fa5bbc59aeabad8@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <acd2a5930609120210w7ee5a156s5fa5bbc59aeabad8@mail.gmail.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 14 Sep 2006, Rafael J. Wysocki wrote:
-
-> > > Try adding some ehci_dbg() lines in there (copy the form of the line just
-> > > after restart:).  We want to follow the value of
-> > > hcd->self.root_hub->state.  Initially it should be equal to
-> > > USB_STATE_SUSPENDED (= 8), and it shouldn't change.  But somewhere it is
-> > > getting set to USB_STATE_CONFIGURED (= 7).  I don't know where, but almost 
-> > > certainly somewhere in this routine.  If you can find out where that 
-> > > happens, I'd appreciate it.
-> > 
-> > Done, but it shows hcd->self.root_hub->state is already 7 right after restart.
+On Tue, Sep 12, 2006 at 01:10:24PM +0400, Vitaly Wool wrote:
+> Pavel,
 > 
-> BTW, all of the systems on which the problem shows up seem to be 64-bit.
+> On 9/12/06, Pavel Machek <pavel@ucw.cz> wrote:
+> >Can we at least try adding that, before deciding cpufreq is unsuitable
+> >and starting new interface? I do not think issues are nearly as big as
+> >you think.. (at user<->kernel interface level, anyway; you'll need big
+> >changes under the hood).
 > 
-> If you can't reproduce it on a 32-bit system, some type casting may be wrong
-> somewhere.
+> who talks about user <-> kernel interface level changes at the moment?!
+>
 
-I realized last night what the problem must be.  It's extremely obvious in 
-retrospect, but I happen to have a blind spot in this particular area.
+Mostly Pavel is.
 
-All you guys must have CONFIG_USB_SUSPEND turned off.  Mattis certainly 
-does; I checked his .config.  Now I hardly ever do any testing without 
-CONFIG_USB_SUSPEND, since there's not much point working on power 
-management code if your kernel isn't set up to actually suspend devices.
-As a result I missed seeing the problems caused by the autosuspend 
-changes.
+There are questions on how to set/get operating points between the
+platform and user space, and some questions on one to make the space of
+operating points extensible outside of compile time deployment nice.
+But these questions aren't the ones I see folks fussing about.
 
-Now of course, the autosuspend stuff has to work properly no matter what 
-the kernel configuration is.  I'll go back and rebuild the drivers with 
-USB_SUSPEND turned off and see what happens.  With any luck I'll have a 
-fix ready in the near future.
-
-Alan Stern
-
+--mgross

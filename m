@@ -1,30 +1,30 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750875AbWINDke@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751039AbWINDle@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750875AbWINDke (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Sep 2006 23:40:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750964AbWINDke
+	id S1751039AbWINDle (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Sep 2006 23:41:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751047AbWINDle
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Sep 2006 23:40:34 -0400
-Received: from tomts43.bellnexxia.net ([209.226.175.110]:47276 "EHLO
+	Wed, 13 Sep 2006 23:41:34 -0400
+Received: from tomts43-srv.bellnexxia.net ([209.226.175.110]:26797 "EHLO
 	tomts43-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id S1750864AbWINDkc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Sep 2006 23:40:32 -0400
-Date: Wed, 13 Sep 2006 23:40:30 -0400
+	id S1751010AbWINDld (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Sep 2006 23:41:33 -0400
+Date: Wed, 13 Sep 2006 23:41:29 -0400
 From: Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>
 To: linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
        Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@redhat.com>,
        Greg Kroah-Hartman <gregkh@suse.de>,
        Thomas Gleixner <tglx@linutronix.de>, Tom Zanussi <zanussi@us.ibm.com>
 Cc: ltt-dev@shafik.org, Michel Dagenais <michel.dagenais@polymtl.ca>
-Subject: [PATCH 1/11] LTTng-core 0.5.108 : build
-Message-ID: <20060914034030.GB2194@Krystal>
+Subject: [PATCH 2/11] LTTng-core 0.5.108 : core-header
+Message-ID: <20060914034129.GC2194@Krystal>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="=_Krystal-31631-1158205230-0001-2"
+Content-Type: multipart/mixed; boundary="=_Krystal-9689-1158205289-0001-2"
 Content-Disposition: inline
 X-Editor: vi
 X-Info: http://krystal.dyndns.org:8080
 X-Operating-System: Linux/2.4.32-grsec (i686)
-X-Uptime: 23:38:29 up 22 days, 47 min,  6 users,  load average: 0.24, 0.16, 0.10
+X-Uptime: 23:40:32 up 22 days, 49 min,  6 users,  load average: 0.56, 0.31, 0.16
 User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
@@ -32,293 +32,652 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 This is a MIME-formatted message.  If you see this text it means that your
 E-mail software does not support MIME-formatted messages.
 
---=_Krystal-31631-1158205230-0001-2
+--=_Krystal-9689-1158205289-0001-2
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
 
-1- LTTng menu options and Makefiles
-(do not enable blktrace for now : kernel/relay.o is disabled)
-patch-2.6.17-lttng-core-0.5.108-build.diff
+2 - Core tracer header
+patch-2.6.17-lttng-core-0.5.108-core-header.diff
 
 
 OpenPGP public key:              http://krystal.dyndns.org:8080/key/compudj.gpg
 Key fingerprint:     8CD5 52C3 8E3C 4140 715F  BA06 3F25 A8FE 3BAE 9A68 
 
---=_Krystal-31631-1158205230-0001-2
+--=_Krystal-9689-1158205289-0001-2
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename="patch-2.6.17-lttng-core-0.5.108-build.diff"
+Content-Disposition: attachment; filename="patch-2.6.17-lttng-core-0.5.108-core-header.diff"
 
---- a/Makefile
-+++ b/Makefile
-@@ -1,8 +1,9 @@
- VERSION = 2
- PATCHLEVEL = 6
- SUBLEVEL = 17
--EXTRAVERSION =
-+EXTRAVERSION =-lttng-0.5.108-core
- NAME=Crazed Snow-Weasel
-+NAME=Sliding Snow Leopard
- 
- # *DOCUMENTATION*
- # To see a list of typical targets execute "make help"
-@@ -518,7 +519,7 @@ export MODLIB
- 
- 
- ifeq ($(KBUILD_EXTMOD),)
--core-y		+= kernel/ mm/ fs/ ipc/ security/ crypto/ block/
-+core-y		+= kernel/ mm/ fs/ ipc/ security/ crypto/ block/ ltt/
- 
- vmlinux-dirs	:= $(patsubst %/,%,$(filter %/, $(init-y) $(init-m) \
- 		     $(core-y) $(core-m) $(drivers-y) $(drivers-m) \
---- a/kernel/Makefile
-+++ b/kernel/Makefile
-@@ -25,6 +25,10 @@ obj-$(CONFIG_KALLSYMS) += kallsyms.o
- obj-$(CONFIG_PM) += power/
- obj-$(CONFIG_BSD_PROCESS_ACCT) += acct.o
- obj-$(CONFIG_KEXEC) += kexec.o
-+obj-$(CONFIG_LTT) += ltt-base.o
-+obj-$(CONFIG_LTT) += ltt-facilities.o
-+obj-$(CONFIG_LTT_USERSPACE_GENERIC) += ltt-syscall.o
-+obj-$(CONFIG_LTT_HEARTBEAT) += ltt-heartbeat.o
- obj-$(CONFIG_COMPAT) += compat.o
- obj-$(CONFIG_CPUSETS) += cpuset.o
- obj-$(CONFIG_IKCONFIG) += configs.o
-@@ -37,7 +41,7 @@ obj-$(CONFIG_DETECT_SOFTLOCKUP) += softl
- obj-$(CONFIG_GENERIC_HARDIRQS) += irq/
- obj-$(CONFIG_SECCOMP) += seccomp.o
- obj-$(CONFIG_RCU_TORTURE_TEST) += rcutorture.o
--obj-$(CONFIG_RELAY) += relay.o
-+#obj-$(CONFIG_RELAY) += relay.o
- 
- ifneq ($(CONFIG_SCHED_NO_NO_OMIT_FRAME_POINTER),y)
- # According to Alan Modra <alan@linuxcare.com.au>, the -fno-omit-frame-pointer is
-@@ -61,3 +65,4 @@ quiet_cmd_ikconfiggz = IKCFG   $@
- targets += config_data.h
- $(obj)/config_data.h: $(obj)/config_data.gz FORCE
- 	$(call if_changed,ikconfiggz)
-+
 --- /dev/null
-+++ b/ltt/Kconfig
-@@ -0,0 +1,132 @@
-+config LTT
-+	bool "Linux Trace Toolkit Instrumentation Support"
-+	select LTT_FACILITY_CORE
-+	depends on EXPERIMENTAL
-+	select LTT_HEARTBEAT if MIPS
-+	select LTT_SYNTHETIC_TSC if MIPS
-+	default n
-+	help
-+	  It is possible for the kernel to log important events to a trace
-+	  facility. Doing so, enables the use of the generated traces in order
-+	  to reconstruct the dynamic behavior of the kernel, and hence the
-+	  whole system.
++++ b/include/linux/ltt-core.h
+@@ -0,0 +1,627 @@
++/*
++ * linux/include/linux/ltt-core.h
++ *
++ * Copyright (C) 2005,2006 Mathieu Desnoyers (mathieu.desnoyers@polymtl.ca)
++ *
++ * This contains the core definitions for the Linux Trace Toolkit.
++ */
 +
-+	  The tracing process contains 4 parts :
-+	      1) The logging of events by key parts of the kernel.
-+	      2) The tracer that keeps the events in a data buffer (uses
-+	         relayfs).
-+	      3) A trace daemon that interacts with the tracer and is
-+	         notified every time there is a certain quantity of data to
-+	         read from the tracer.
-+	      4) A trace event data decoder that reads the accumulated data
-+	         and formats it in a human-readable format.
++#ifndef _LTT_CORE_H
++#define _LTT_CORE_H
 +
-+	  If you say Y, the first component will be built into the kernel.
++#include <linux/config.h>
++#include <linux/types.h>
++#include <linux/limits.h>
++#include <linux/list.h>
++#include <linux/cache.h>
++#include <linux/kernel.h>
++#include <linux/timex.h>
++#include <linux/wait.h>
++#include <linux/relay.h>
++#include <linux/ltt-facilities.h>
++#include <linux/ltt/ltt-facility-id-core.h>
 +
-+	  For more information on kernel tracing, the trace daemon or the event
-+	  decoder, please check the following address :
-+	       http://www.opersys.com/ltt
-+	  See also the experimental page of the project :
-+	       http://ltt.polymtl.ca
++#include <asm/semaphore.h>
++#include <asm/atomic.h>
++#include <asm/ltt.h>
 +
-+config LTT_TRACER
-+	tristate "Linux Trace Toolkit Tracer"
-+	depends on LTT
-+	default y
-+	help
-+	  If you enable this option, the Linux Trace Toolkit Tracer will be
-+	  either built in the kernel or as module.
++/* Number of bytes to log with a read/write event */
++#define LTT_LOG_RW_SIZE			32
 +
-+	  Critical parts of the kernel will call upon the kernel tracing
-+	  function. The data is then recorded by the tracer if a trace daemon
-+	  is running in user-space and has issued a "start" command.
++#ifdef CONFIG_LTT_ALIGNMENT
 +
-+	  For more information on kernel tracing, the trace daemon or the event
-+	  decoder, please check the following address :
-+	       http://www.opersys.com/ltt
-+	  See also the experimental page of the project :
-+	       http://ltt.polymtl.ca
++/* Calculate the offset needed to align the type */
++static inline unsigned int ltt_align(size_t align_drift,
++		 size_t size_of_type)
++{
++	size_t alignment = min(sizeof(void*), size_of_type);
++	return ((alignment - align_drift) & (alignment-1));
++}
++/* Default arch alignment */
++#define LTT_ALIGN
 +
-+config LTT_RELAY
-+	tristate "Linux Trace Toolkit RelayFS Support"
-+	select RELAY
-+	depends on LTT
-+	depends on LTT_TRACER
-+	default y
-+	help
-+	  Support using relayfs to log the data obtained through LTT.
++#else
++static inline unsigned int ltt_align(size_t align_drift,
++		 size_t size_of_type)
++{
++	return 0;
++}
 +
-+	  If you don't have special hardware, you almost certainly want
-+	  to say Y here.
++#define LTT_ALIGN __attribute__((packed))
 +
-+config LTT_ALIGNMENT
-+	bool "Align Linux Trace Toolkit Traces"
-+	depends on LTT
-+	default y
-+	help
-+	  This option enables dynamic alignment of data in buffers. The
-+	  alignment is made on the smallest size between architecture size
-+	  and the size of the value to be written.
++#endif //CONFIG_LTT_ALIGNMENT
 +
-+	  Dynamically calculating the offset of the data has a performance cost,
-+	  but it is more efficient on some architectures (especially 64 bits) to
-+	  align data than to write it unaligned.
++#ifdef CONFIG_LTT
 +
-+config LTT_HEARTBEAT
-+	bool "Activate Linux Trace Toolkit Heartbeat Timer"
-+	depends on LTT
-+	default n
-+	help
-+	  The Linux Trace Toolkit Heartbeat Timer fires at an interval small
-+	  enough to guarantee that the 32 bits truncated TSC won't overflow
-+	  between two timer execution.
 +
-+config LTT_HEARTBEAT_EVENT
-+	bool "Write heartbeat event to shrink traces"
-+	depends on LTT_HEARTBEAT
-+	default y
-+	help
-+	  This option makes the heartbeat timer write an event in each tracefile
-+	  at an interval that is one tenth of the time it takes to overflow 32
-+	  bits at your CPU frequency.
++extern void ltt_init(void);
 +
-+	  If this option is not enabled, 64 bits fields must be used in each
-+	  event header to save the full TSC : it can make traces about 1/10
-+	  bigger. It is suggested that you enable this option to make more
-+	  compact traces.
++/* All modifications of ltt_traces must be done by ltt-core.c, while holding the
++ * semaphore. Only reading of this information can be done elsewhere, with the
++ * RCU mechanism : the preemption must be disabled while reading the list. */
++struct ltt_traces {
++	struct list_head head;		/* Traces list */
++	unsigned int num_active_traces;	/* Number of active traces */
++} ____cacheline_aligned;
 +
-+config LTT_SYNTHETIC_TSC
-+	bool "Keep a synthetic cpu timestamp counter"
-+	depends on LTT_HEARTBEAT
-+	default n
-+	help
-+	  This option is only useful on archtecture lacking a 64 bits timestamp
-+	  counter : it generates a "synthetic" 64 bits timestamp by updating
-+	  the 32 MSB at each heartbeat atomically. See kernel/ltt-heartbeat.c
-+	  for details.
++extern struct ltt_traces ltt_traces;
++/* Keep track of traps nesting inside LTT */
++extern volatile unsigned int ltt_nesting[];
++struct ltt_trace_struct;
 +
-+config LTT_USERSPACE_GENERIC
-+	bool "Allow tracing from userspace"
-+	depends on LTT
-+	default y
-+	help
-+	  This options allows processes to trace through the ltt_trace_generic
-+	  system call after they have registered their facilities with
-+	  ltt_register_generic.
++/* LTTng lockless logging buffer info */
++struct ltt_channel_buf_struct {
++	/* Use the relayfs void *start as buffer start pointer */
++	atomic_t offset;		/* Current offset in the buffer */
++	atomic_t consumed;		/* Current offset in the buffer */
++	atomic_t active_readers;	/* Active readers count */
++	atomic_t wakeup_readers;	/* Boolean : wakeup readers waiting ? */
++	atomic_t *reserve_count;	/* Final per sub-buffer reserve count */
++	atomic_t *commit_count;		/* Commit count per sub-buffer */
++	spinlock_t full_lock;		/* buffer full condition spinlock, only
++					 * for userspace tracing blocking mode
++					 * synchronisation with reader. */
++	atomic_t events_lost;
++	atomic_t corrupted_subbuffers;
++	struct timeval	current_subbuffer_start_time;
++	wait_queue_head_t write_wait;	/* Wait queue for blocking user space
++					 * writers */
++	struct work_struct wake_writers;/* Writers wake-up work struct */
++} ____cacheline_aligned;
 +
-+config LTT_NETLINK_CONTROL
-+	tristate "Linux Trace Toolkit Netlink Controller"
-+	depends on LTT_TRACER
-+	default m
-+	help
-+	  If you enable this option, the Linux Trace Toolkit Netlink Controller
-+	  will be either built in the kernel of as module.
++struct ltt_channel_struct {
++	char channel_name[PATH_MAX];
++	struct ltt_trace_struct	*trace;
++	struct ltt_channel_buf_struct buf[NR_CPUS];
 +
-+config LTT_FACILITY_CORE
-+	bool "Linux Trace Toolkit Core Facility"
-+	depends on LTT
-+	default y
-+	help
-+	  LTT core facility. Contains event definition for facility load/unload
-+	  and heartbeat.
++	void *trans_channel_data;
 +
---- /dev/null
-+++ b/ltt/Makefile
-@@ -0,0 +1,8 @@
-+#
-+# Makefile for the LTT objects.
-+#
-+obj-$(CONFIG_LTT_FACILITY_CORE)		+= ltt-facility-loader-core.o
++	/*
++	 * buffer_begin - called on buffer-switch to a new sub-buffer
++	 * @buf: the channel buffer containing the new sub-buffer
++	 */
++	void (*buffer_begin) (struct rchan_buf *buf,
++			u64 tsc, unsigned int subbuf_idx);
++	/*
++	 * buffer_end - called on buffer-switch to a new sub-buffer
++	 * @buf: the channel buffer containing the previous sub-buffer
++	 */
++	void (*buffer_end) (struct rchan_buf *buf,
++			u64 tsc, unsigned int offset, unsigned int subbuf_idx);
++};
 +
-+obj-$(CONFIG_LTT_TRACER)		+= ltt-core.o
-+obj-$(CONFIG_LTT_RELAY)			+= ltt-relay.o
-+obj-$(CONFIG_LTT_NETLINK_CONTROL)	+= ltt-control.o
---- a/arch/i386/Kconfig
-+++ b/arch/i386/Kconfig
-@@ -1081,6 +1081,9 @@ config KPROBES
- 	  a probepoint and specifies the callback.  Kprobes is useful
- 	  for kernel debugging, non-intrusive instrumentation and testing.
- 	  If in doubt, say "N".
++struct user_dbg_data {
++	unsigned long avail_size;
++	unsigned long write;
++	unsigned long read;
++};
 +
-+source "ltt/Kconfig"
++struct ltt_trace_ops {
++	int (*create_dirs) (struct ltt_trace_struct *new_trace);
++	void (*remove_dirs) (struct ltt_trace_struct *new_trace);
++	int (*create_channel) (char *trace_name, struct ltt_trace_struct *trace,
++				struct dentry *dir, char *channel_name,
++				struct ltt_channel_struct **ltt_chan,
++				unsigned int subbuf_size,
++				unsigned int n_subbufs, int overwrite);
++	void (*wakeup_channel) (struct ltt_channel_struct *ltt_channel);
++	void (*finish_channel) (struct ltt_channel_struct *channel);
++	void (*remove_channel) (struct ltt_channel_struct *channel);
++	void *(*reserve_slot) (struct ltt_trace_struct *trace,
++				struct ltt_channel_struct *channel,
++				void **transport_data, unsigned int data_size,
++				size_t *slot_size, u64 *tsc,
++				size_t *before_hdr_pad, size_t *after_hdr_pad,
++				size_t *header_size);
++	void (*commit_slot) (struct ltt_channel_struct *channel,
++				void **transport_data, void *reserved,
++				size_t slot_size);
++	void (*print_errors)(struct ltt_trace_struct *trace,
++				struct ltt_channel_struct *ltt_chan, int cpu);
++	int (*user_blocking) (struct ltt_trace_struct *trace,
++				unsigned int index, size_t data_size,
++				struct user_dbg_data *dbg);
++	void (*user_errors) (struct ltt_trace_struct *trace,
++				unsigned int index, size_t data_size,
++				struct user_dbg_data *dbg);
++};
 +
- endmenu
- 
- source "arch/i386/Kconfig.debug"
---- a/arch/ppc/Kconfig
-+++ b/arch/ppc/Kconfig
-@@ -1417,3 +1417,9 @@ source "arch/ppc/Kconfig.debug"
- source "security/Kconfig"
- 
- source "crypto/Kconfig"
++struct ltt_transport {
++	char *name;
++	struct module *owner;
++	struct list_head node;
++	struct ltt_trace_ops ops;
++};
 +
-+menu "Instrumentation Support"
 +
-+source "ltt/Kconfig"
++enum trace_mode { LTT_TRACE_NORMAL, LTT_TRACE_FLIGHT, LTT_TRACE_HYBRID };
 +
-+endmenu
---- a/arch/powerpc/Kconfig
-+++ b/arch/powerpc/Kconfig
-@@ -1011,6 +1011,9 @@ config KPROBES
- 	  a probepoint and specifies the callback.  Kprobes is useful
- 	  for kernel debugging, non-intrusive instrumentation and testing.
- 	  If in doubt, say "N".
++/* Per-trace information - each trace/flight recorder represented by one */
++struct ltt_trace_struct {
++	struct list_head list;
++	int active;
++	char trace_name[NAME_MAX];
++	int paused;
++	enum trace_mode mode;
++	struct ltt_transport *transport;
++	struct ltt_trace_ops *ops;
++	u32 freq_scale;
++	u64 start_freq;
++	u64 start_tsc;
++	unsigned long long start_monotonic;
++	struct timeval		start_time;
++	struct {
++		struct dentry			*trace_root;
++		struct dentry			*control_root;
++	} dentry;
++	struct {
++		struct ltt_channel_struct	*facilities;
++		struct ltt_channel_struct	*interrupts;
++		struct ltt_channel_struct	*processes;
++		struct ltt_channel_struct	*modules;
++		struct ltt_channel_struct	*cpu;
++		struct ltt_channel_struct	*network;
++	} channel;
++	struct rchan_callbacks callbacks;
++	struct kref kref; /* Each channel has a kref of the trace struct */
++} ____cacheline_aligned;
 +
-+source "ltt/Kconfig"
-+  
- endmenu
- 
- source "arch/powerpc/Kconfig.debug"
---- a/arch/arm/Kconfig
-+++ b/arch/arm/Kconfig
-@@ -871,6 +871,12 @@ source "fs/Kconfig"
- 
- source "arch/arm/oprofile/Kconfig"
- 
-+menu "Instrumentation Support"
++enum ltt_channels { LTT_CHANNEL_FACILITIES, LTT_CHANNEL_INTERRUPTS,
++	LTT_CHANNEL_PROCESSES, LTT_CHANNEL_MODULES, LTT_CHANNEL_CPU,
++	LTT_CHANNEL_NETWORK };
 +
-+source "ltt/Kconfig"
++/* Hardcoded event headers */
 +
-+endmenu
++/* event header for a trace with active heartbeat : 32 bits timestamps */
 +
- source "arch/arm/Kconfig.debug"
- 
- source "security/Kconfig"
---- a/arch/mips/Kconfig
-+++ b/arch/mips/Kconfig
-@@ -1857,3 +1857,9 @@ source "security/Kconfig"
- source "crypto/Kconfig"
- 
- source "lib/Kconfig"
++/* headers are 8 bytes aligned : that means members are aligned on memory
++ * boundaries *if* structure starts on a 8 bytes boundary. In order to insure
++ * such alignment, a dynamic per trace alignment value must be set.
++ *
++ * Remeber that the C compiler does align each member on the boundary equivalent
++ * to their own size.
++ *
++ * As relayfs subbuffers are aligned on pages, we are sure that they are 8 bytes
++ * aligned, so the buffer header and trace header are aligned.
++ *
++ * Event headers are aligned depending on the trace alignment option. */
 +
-+menu "Instrumentation Support"
++struct ltt_event_header_hb {
++	uint32_t timestamp;
++	unsigned char facility_id;
++	unsigned char event_id;
++	uint16_t event_size;
++} __attribute((packed));
 +
-+source "ltt/Kconfig"
++struct ltt_event_header_nohb {
++	uint64_t timestamp;
++	unsigned char facility_id;
++	unsigned char event_id;
++	uint16_t event_size;
++} __attribute((packed));
 +
-+endmenu
---- a/arch/x86_64/Kconfig
-+++ b/arch/x86_64/Kconfig
-@@ -611,6 +611,9 @@ config KPROBES
- 	  a probepoint and specifies the callback.  Kprobes is useful
- 	  for kernel debugging, non-intrusive instrumentation and testing.
- 	  If in doubt, say "N".
++struct ltt_trace_header {
++	uint32_t magic_number;
++	uint32_t arch_type;
++	uint32_t arch_variant;
++	uint32_t float_word_order;	 /* Only useful for user space traces */
++	uint8_t arch_size;
++	uint8_t major_version;
++	uint8_t minor_version;
++	uint8_t flight_recorder;
++	uint8_t has_heartbeat;
++	uint8_t has_alignment;		/* Event header alignment */
++	uint32_t freq_scale;
++	uint64_t start_freq;
++	uint64_t start_tsc;
++	uint64_t start_monotonic;
++	uint64_t start_time_sec;
++	uint64_t start_time_usec;
++} __attribute((packed));
 +
-+source "ltt/Kconfig"
 +
- endmenu
- 
- source "arch/x86_64/Kconfig.debug"
++/* We use asm/timex.h : cpu_khz/HZ variable in here : we might have to deal
++ * specifically with CPU frequency scaling someday, so using an interpolation
++ * between the start and end of buffer values is not flexible enough. Using an
++ * immediate frequency value permits to calculate directly the times for parts
++ * of a buffer that would be before a frequency change. */
++struct ltt_block_start_header {
++	struct { 
++		uint64_t cycle_count;
++		uint64_t freq; /* khz */
++	} begin;
++	struct { 
++		uint64_t cycle_count;
++		uint64_t freq; /* khz */
++	} end;
++	uint32_t lost_size;	/* Size unused at the end of the buffer */
++	uint32_t buf_size;	/* The size of this sub-buffer */
++	struct ltt_trace_header	trace;
++} __attribute((packed));
++
++/*
++ * ltt_subbuf_header_len - called on buffer-switch to a new sub-buffer
++ *
++ * returns the client header size at the beginning of the buffer.
++ */
++static inline unsigned int ltt_subbuf_header_len(void)
++{
++	return sizeof(struct ltt_block_start_header);
++}
++
++/* Get the offset of the channel in the ltt_trace_struct */
++#define GET_CHANNEL_INDEX(chan)	\
++	(unsigned int)&((struct ltt_trace_struct*)NULL)->channel.chan
++
++/* ltt_get_index_from_facility
++ *
++ * Get channel index from facility and event id.
++ * 
++ * @fID : facility ID
++ * @eID : event number
++ *
++ * Get the channel index into which events must be written for the given
++ * facility and event number. We get this structure offset as soon as possible
++ * and remember it so we pass through this logic only once per trace call (not
++ * for every trace).
++ */
++static inline unsigned int ltt_get_index_from_facility(ltt_facility_t fID,
++		u8 eID)
++{
++	if(fID == ltt_facility_core) {
++		switch(eID) {
++			case event_core_facility_load:
++			case event_core_facility_unload:
++			case event_core_state_dump_facility_load:
++				return GET_CHANNEL_INDEX(facilities);
++			default:
++				return GET_CHANNEL_INDEX(cpu);
++		}
++	}
++	
++	/* Default channel */
++	return GET_CHANNEL_INDEX(cpu);
++}
++
++static inline struct ltt_channel_struct *ltt_get_channel_from_index(
++		struct ltt_trace_struct *trace, unsigned int index)
++{
++	return *(struct ltt_channel_struct **)((void*)trace+index);
++}
++
++
++/*
++ * ltt_get_header_size
++ *
++ * Calculate alignment offset for arch size void*. This is the
++ * alignment offset of the event header.
++ *
++ * Important note :
++ * The event header must be a size multiple of the void* size. This is necessary
++ * to be able to calculate statically the alignment offset of the variable
++ * length data fields that follows. The total offset calculated here :
++ *
++ *	 Alignment of header struct on arch size
++ * + sizeof(header struct)
++ * + padding added to end of struct to align on arch size.
++ * */
++static inline unsigned char ltt_get_header_size(struct ltt_trace_struct *trace,
++		void *address,
++		size_t *before_hdr_pad,
++		size_t *after_hdr_pad,
++		size_t *header_size)
++{
++	unsigned int padding;
++	unsigned int header;
++	
++#ifdef CONFIG_LTT_HEARTBEAT_EVENT
++	header = sizeof(struct ltt_event_header_hb);
++#else
++	header = sizeof(struct ltt_event_header_nohb);
++#endif // CONFIG_LTT_HEARTBEAT_EVENT
++
++	/* Padding before the header. Calculated dynamically */
++	*before_hdr_pad = ltt_align((unsigned long)address, header);
++	padding = *before_hdr_pad;
++
++	/* Padding after header, considering header aligned on ltt_align.
++	 * Calculated statically if header size if known. */
++	*after_hdr_pad = ltt_align(header, sizeof(void*));
++	padding += *after_hdr_pad;
++
++	*header_size = header;
++
++	return header+padding;
++}
++
++
++/* ltt_write_event_header
++ *
++ * Writes the event header to the pointer.
++ *
++ * @channel : pointer to the channel structure
++ * @ptr : buffer pointer
++ * @fID : facility ID
++ * @eID : event ID
++ * @event_size : size of the event, excluding the event header.
++ * @offset : offset of the beginning of the header, for alignment.
++ *           Calculated by ltt_get_event_header_size.
++ * @tsc : time stamp counter.
++ */
++static inline void ltt_write_event_header(struct ltt_trace_struct *trace,
++		struct ltt_channel_struct *channel,
++		void *ptr, ltt_facility_t fID,
++		uint32_t eID, size_t event_size,
++		size_t offset, u64 tsc)
++{
++#ifdef CONFIG_LTT_HEARTBEAT_EVENT
++	struct ltt_event_header_hb *hb;
++
++	event_size = min(event_size, (size_t)0xFFFFU);
++	hb = (struct ltt_event_header_hb *)(ptr+offset);
++	hb->timestamp = (u32)tsc;
++	hb->facility_id = fID;
++	hb->event_id = eID;
++	hb->event_size = (uint16_t)event_size;
++#else
++	struct ltt_event_header_nohb *nohb;
++	
++	event_size = min(event_size, (size_t)0xFFFFU);
++	nohb = (struct ltt_event_header_nohb *)(ptr+offset);
++	nohb->timestamp = (u64)tsc;
++	nohb->facility_id = fID;
++	nohb->event_id = eID;
++	nohb->event_size = (uint16_t)event_size;
++#endif //CONFIG_LTT_HEARTBEAT_EVENT
++}
++
++/* for flight recording. must be called after relay_commit.
++ * This function does not protect from corruption resulting from writing non
++ * sequentially in the buffer (and trying to read this buffer after a crash
++ * which occured at the wrong moment).
++ * That's why sequential writes are good!
++ *
++ * This function does nothing if trace is in normal mode. */
++#if 0
++static inline void ltt_write_commit_counter(struct rchan_buf *buf,
++		void *reserved)
++{
++	struct ltt_channel_struct *channel = 
++		(struct ltt_channel_struct*)buf->chan->client_data;
++	struct ltt_block_start_header *header =
++		(struct ltt_block_start_header*)buf->data;
++	unsigned offset, subbuf_idx;
++	
++	offset = reserved - buf->start;
++	subbuf_idx = offset / buf->chan->subbuf_size;
++
++	if(channel->trace->mode == LTT_TRACE_FLIGHT)
++		header->lost_size = buf->chan->subbuf_size - 
++			buf->commit[subbuf_idx];
++
++}
++#endif //0
++
++/* Lockless LTTng */
++
++/* Buffer offset macros */
++
++#define BUFFER_OFFSET(offset, chan) (offset & (chan->alloc_size-1))
++#define SUBBUF_OFFSET(offset, chan) (offset & (chan->subbuf_size-1))
++#define SUBBUF_ALIGN(offset, chan) \
++	(((offset) + chan->subbuf_size) & (~(chan->subbuf_size-1)))
++#define SUBBUF_TRUNC(offset, chan) \
++	((offset) & (~(chan->subbuf_size-1)))
++#define SUBBUF_INDEX(offset, chan) \
++	(BUFFER_OFFSET(offset,chan)/chan->subbuf_size)
++
++/* ltt_reserve_slot
++ *
++ * Atomic slot reservation in a LTTng buffer. It will take care of
++ * sub-buffer switching.
++ *
++ * Parameters:
++ *
++ * @trace : the trace structure to log to.
++ * @buf : the buffer to reserve space into.
++ * @data_size : size of the variable length data to log.
++ * @slot_size : pointer to total size of the slot (out)
++ * @tsc : pointer to the tsc at the slot reservation (out)
++ * @before_hdr_pad : dynamic padding before the event header.
++ * @after_hdr_pad : dynamic padding after the event header.
++ *
++ * Return : NULL if not enough space, else returns the pointer
++ * 					to the beginning of the reserved slot. */
++static inline void *ltt_reserve_slot(
++		struct ltt_trace_struct *trace,
++		struct ltt_channel_struct *channel,
++		void **transport_data,
++		size_t data_size,
++		size_t *slot_size,
++		u64 *tsc,
++		size_t *before_hdr_pad,
++		size_t *after_hdr_pad,
++		size_t *header_size)
++{
++	return trace->ops->reserve_slot(trace, channel, transport_data,
++			data_size, slot_size, tsc, before_hdr_pad,
++			after_hdr_pad, header_size);
++}
++	
++	
++/* ltt_commit_slot
++ *
++ * Atomic unordered slot commit. Increments the commit count in the
++ * specified sub-buffer, and delivers it if necessary.
++ *
++ * Parameters:
++ *
++ * @buf : the buffer to commit to.
++ * @reserved : address of the beginnig of the reserved slot.
++ * @slot_size : size of the reserved slot.
++ *
++ */
++static inline void ltt_commit_slot(
++		struct ltt_channel_struct *channel,
++		void **transport_data,
++		void *reserved,
++		size_t slot_size)
++{
++	struct ltt_trace_struct *trace = channel->trace;
++
++	trace->ops->commit_slot(channel, transport_data, reserved, slot_size);
++}
++
++#endif //CONFIG_LTT
++
++/* Is kernel tracer enabled */
++#if defined(CONFIG_LTT_TRACER) || defined(CONFIG_LTT_TRACER_MODULE)
++
++/* 4 control channels :
++ * ltt/control/facilities
++ * ltt/control/interrupts
++ * ltt/control/processes
++ * ltt/control/network
++ *
++ * 1 cpu channel :
++ * ltt/cpu
++ */
++#define LTT_RELAYFS_ROOT	"ltt"
++#define LTT_CONTROL_ROOT	"control"
++#define LTT_FACILITIES_CHANNEL	"facilities"
++#define LTT_INTERRUPTS_CHANNEL	"interrupts"
++#define LTT_PROCESSES_CHANNEL	"processes"
++#define LTT_MODULES_CHANNEL	"modules"
++#define LTT_NETWORK_CHANNEL	"network"
++#define LTT_CPU_CHANNEL		"cpu"
++#define LTT_FLIGHT_PREFIX	"flight-"
++
++/* System types */
++#define LTT_SYS_TYPE_VANILLA_LINUX	1
++
++/* Architecture types */
++#define LTT_ARCH_TYPE_I386		1
++#define LTT_ARCH_TYPE_PPC		2
++#define LTT_ARCH_TYPE_SH		3
++#define LTT_ARCH_TYPE_S390		4
++#define LTT_ARCH_TYPE_MIPS		5
++#define LTT_ARCH_TYPE_ARM		6
++#define LTT_ARCH_TYPE_PPC64		7
++#define LTT_ARCH_TYPE_X86_64		8
++#define LTT_ARCH_TYPE_C2		9
++#define LTT_ARCH_TYPE_POWERPC		10
++
++/* Standard definitions for variants */
++#define LTT_ARCH_VARIANT_NONE		0
++
++/* Tracer properties */
++#define LTT_DEFAULT_SUBBUF_SIZE_LOW	65536
++#define LTT_DEFAULT_N_SUBBUFS_LOW	2
++#define LTT_DEFAULT_SUBBUF_SIZE_MED	262144
++#define LTT_DEFAULT_N_SUBBUFS_MED	2
++#define LTT_DEFAULT_SUBBUF_SIZE_HIGH	1048576
++#define LTT_DEFAULT_N_SUBBUFS_HIGH	2
++#define LTT_TRACER_MAGIC_NUMBER		0x00D6B7ED
++#define LTT_TRACER_VERSION_MAJOR	0
++#define LTT_TRACER_VERSION_MINOR	7
++
++/* Size reserved for high priority events (interrupts, NMI, BH) at the end of a
++ * nearly full buffer. User space won't use this last amount of space when in
++ * blocking mode. This space also includes the event header that would be
++ * written by this user space event. */
++#define LTT_RESERVE_CRITICAL		4096
++
++/* Register and unregister function pointers */
++
++enum ltt_module_function {
++	LTT_FUNCTION_RUN_FILTER,
++	LTT_FUNCTION_FILTER_CONTROL,
++	LTT_FUNCTION_STATEDUMP
++};
++
++extern int ltt_module_register(enum ltt_module_function name, void *function,
++		struct module *owner);
++extern void ltt_module_unregister(enum ltt_module_function name);
++
++void ltt_transport_register(struct ltt_transport *transport);
++void ltt_transport_unregister(struct ltt_transport *transport);
++
++/* Exported control function */
++
++enum ltt_heartbeat_functor_msg { LTT_HEARTBEAT_START, LTT_HEARTBEAT_STOP };
++
++enum ltt_control_msg {
++	LTT_CONTROL_START,
++	LTT_CONTROL_STOP,
++	LTT_CONTROL_CREATE_TRACE,
++	LTT_CONTROL_DESTROY_TRACE
++};
++
++union ltt_control_args {
++	struct {
++		enum trace_mode mode;
++		unsigned subbuf_size_low;
++		unsigned n_subbufs_low;
++		unsigned subbuf_size_med;
++		unsigned n_subbufs_med;
++		unsigned subbuf_size_high;
++		unsigned n_subbufs_high;
++	} new_trace;
++};
++
++extern int ltt_control(enum ltt_control_msg msg, char *trace_name,
++		char *trace_type, union ltt_control_args args);
++
++enum ltt_filter_control_msg { 
++	LTT_FILTER_DEFAULT_ACCEPT,
++	LTT_FILTER_DEFAULT_REJECT };
++
++extern int ltt_filter_control(enum ltt_filter_control_msg msg,
++		char *trace_name);
++
++void ltt_write_trace_header(struct ltt_trace_struct *trace,
++		struct ltt_trace_header *header);
++extern void ltt_channel_destroy(void *object);
++extern void ltt_wakeup_writers(void *private);
++
++void ltt_core_register(int (*function)(u8, void*));
++
++void ltt_core_unregister(void);
++
++#ifdef CONFIG_LTT_HEARTBEAT
++int ltt_heartbeat_trigger(enum ltt_heartbeat_functor_msg msg);
++#endif //CONFIG_LTT_HEARTBEAT
++
++/* Relayfs IOCTL */
++
++/* Get the next sub buffer that can be read. */
++#define RELAYFS_GET_SUBBUF		_IOR(0xF4, 0x00,__u32)
++/* Release the oldest reserved (by "get") sub buffer. */
++#define RELAYFS_PUT_SUBBUF		_IOW(0xF4, 0x01,__u32)
++/* returns the number of sub buffers in the per cpu channel. */
++#define RELAYFS_GET_N_SUBBUFS		_IOR(0xF4, 0x02,__u32)
++/* returns the size of the sub buffers. */
++#define RELAYFS_GET_SUBBUF_SIZE		_IOR(0xF4, 0x03,__u32)
++
++#endif /* defined(CONFIG_LTT_TRACER) || defined(CONFIG_LTT_TRACER_MODULE) */
++#endif /* _LTT_CORE_H */
 
---=_Krystal-31631-1158205230-0001-2--
+--=_Krystal-9689-1158205289-0001-2--

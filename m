@@ -1,57 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751358AbWINGOg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751360AbWINGOi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751358AbWINGOg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Sep 2006 02:14:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751360AbWINGOg
+	id S1751360AbWINGOi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Sep 2006 02:14:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751361AbWINGOh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Sep 2006 02:14:36 -0400
-Received: from mail.kroah.org ([69.55.234.183]:23964 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1751358AbWINGOf (ORCPT
+	Thu, 14 Sep 2006 02:14:37 -0400
+Received: from mail.kroah.org ([69.55.234.183]:24220 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1751360AbWINGOh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Sep 2006 02:14:35 -0400
-Date: Wed, 13 Sep 2006 22:55:29 -0700
+	Thu, 14 Sep 2006 02:14:37 -0400
+Date: Wed, 13 Sep 2006 22:57:20 -0700
 From: Greg KH <greg@kroah.com>
-To: David Singleton <daviado@gmail.com>
-Cc: linux-pm@lists.osdl.org, kernel list <linux-kernel@vger.kernel.org>
-Subject: OpPoint summary
-Message-ID: <20060914055529.GA18031@kroah.com>
-References: <20060911082025.GD1898@elf.ucw.cz> <b0623b9bb79afacc77cddc6e39c96b62@nomadgs.com> <20060911195546.GB11901@elf.ucw.cz> <4505CCDA.8020501@gmail.com> <20060911210026.GG11901@elf.ucw.cz> <4505DDA6.8080603@gmail.com> <20060911225617.GB13474@elf.ucw.cz> <20060912001701.GC14234@linux.intel.com> <20060912033700.GD27397@kroah.com> <b324b5ad0609131650q1b7a78cfsa90e3fbe8d7b4093@mail.gmail.com>
+To: Sam Ravnborg <sam@ravnborg.org>
+Cc: linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>
+Subject: Re: [RFC] Simple userspace interface for PCI drivers
+Message-ID: <20060914055720.GB18031@kroah.com>
+References: <20060830062338.GA10285@kroah.com> <20060912194714.GA1970@uranus.ravnborg.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <b324b5ad0609131650q1b7a78cfsa90e3fbe8d7b4093@mail.gmail.com>
+In-Reply-To: <20060912194714.GA1970@uranus.ravnborg.org>
 User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 13, 2006 at 04:50:43PM -0700, David Singleton wrote:
-> Greg,
->   here's a few paragraphs about the power management code I'm working on.
-> The OpPoint patch set is a fully functionaly power management solution,
-> from kernel operating state support to userland power manager.
-
-Thanks for the summary, but it was a bit longer than just "one
-paragraph" :)
-
-> OpPoint constructs operating points for all supported frequency, voltage
-> and suspend states for PC and SoC solutions running Linux.  OpPoint
-> does not break or replace cpufreq.  It leverages cpufreq code to provide
-> the same driver scaling functions when cpu frequency changes affect drivers.
-
-So it works with cpufreq?  That's a good thing, as it is a requirement.
-We can't just break current usages.
-
-> OpPoint is a fully functional solution ready for testing and evaluation
-> in Andrew's or your tree.
+On Tue, Sep 12, 2006 at 09:47:14PM +0200, Sam Ravnborg wrote:
+> On Tue, Aug 29, 2006 at 11:23:38PM -0700, Greg KH wrote:
+> > 
+> > So, here's the code.  I think it does a bit too much all at once, but it
+> > is an example of how this can be done.  This is working today in some
+> > industrial environments, successfully handling hardware controls of very
+> > large and scary machines.
 > 
-> The kernel patches are available at:
+> At present it is named uio in -mm. But that seems to conflict with a
+> few cases (uio.h + Solaris).
 > 
->        http://source.mvista.com/~dsingleton/2.6.1-rc6
+> How about:
+> Universal User IO => uuio
+> 
+> A quick google did not turn up anything conflicting.
 
-I get a 404 with that link :(
-
-Care to resend your patches in the proper format, through email so that
-we can see them, and possibly get some testing in -mm if they look sane?
+Ah, I like that better.  I had made the header file be called
+uio_driver.h to get around the namespace issue, but uuio sounds nice.
 
 thanks,
 

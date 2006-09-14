@@ -1,95 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751145AbWINUbz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751148AbWINUdF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751145AbWINUbz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Sep 2006 16:31:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751146AbWINUbz
+	id S1751148AbWINUdF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Sep 2006 16:33:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751149AbWINUdF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Sep 2006 16:31:55 -0400
-Received: from aa003msr.fastwebnet.it ([85.18.95.66]:6797 "EHLO
-	aa003msr.fastwebnet.it") by vger.kernel.org with ESMTP
-	id S1751145AbWINUbz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Sep 2006 16:31:55 -0400
-Date: Thu, 14 Sep 2006 22:30:36 +0200
-From: Mattia Dongili <malattia@linux.it>
-To: Jeff Mahoney <jeffm@suse.com>
-Cc: Dave Kleikamp <shaggy@austin.ibm.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, akpm@osdl.org,
-       reiserfs-dev@namesys.com, reiserfs-list@namesys.com
-Subject: Re: argh! it's reiserfs deadlocking! [was: Re: JFS - real deadlock and lockdep warning (2.6.18-rc5-mm1)]
-Message-ID: <20060914203036.GC3963@inferi.kami.home>
-Mail-Followup-To: Jeff Mahoney <jeffm@suse.com>,
-	Dave Kleikamp <shaggy@austin.ibm.com>,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	akpm@osdl.org, reiserfs-dev@namesys.com, reiserfs-list@namesys.com
-References: <20060905203309.GA3981@inferi.kami.home> <1157580028.8200.72.camel@kleikamp.austin.ibm.com> <20060907184930.GA13380@inferi.kami.home> <45095C58.5020106@suse.com>
-MIME-Version: 1.0
+	Thu, 14 Sep 2006 16:33:05 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:1773 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1751148AbWINUdC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Sep 2006 16:33:02 -0400
+Date: Thu, 14 Sep 2006 22:24:52 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
+       linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
+       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@redhat.com>,
+       Greg Kroah-Hartman <gregkh@suse.de>,
+       Thomas Gleixner <tglx@linutronix.de>, Tom Zanussi <zanussi@us.ibm.com>,
+       ltt-dev@shafik.org, Michel Dagenais <michel.dagenais@polymtl.ca>
+Subject: Re: [PATCH 0/11] LTTng-core (basic tracing infrastructure) 0.5.108
+Message-ID: <20060914202452.GA9252@elte.hu>
+References: <20060914033826.GA2194@Krystal> <20060914112718.GA7065@elte.hu> <Pine.LNX.4.64.0609141537120.6762@scrub.home> <20060914135548.GA24393@elte.hu> <Pine.LNX.4.64.0609141623570.6761@scrub.home> <20060914171320.GB1105@elte.hu> <Pine.LNX.4.64.0609141935080.6761@scrub.home> <20060914181557.GA22469@elte.hu> <Pine.LNX.4.64.0609142038570.6761@scrub.home>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <45095C58.5020106@suse.com>
-X-Message-Flag: Cranky? Try Free Software instead!
-X-Operating-System: Linux 2.6.18-rc5-mm1-3 i686
-X-Editor: Vim http://www.vim.org/
-X-Disclaimer: Buh!
-User-Agent: Mutt/1.5.13 (2006-08-11)
+In-Reply-To: <Pine.LNX.4.64.0609142038570.6761@scrub.home>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -2.9
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.9 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5000]
+	-0.1 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-n Thu, Sep 14, 2006 at 09:42:48AM -0400, Jeff Mahoney wrote:
-> Mattia Dongili wrote:
-> > On Wed, Sep 06, 2006 at 05:00:28PM -0500, Dave Kleikamp wrote:
-> >> I meant to reply to this earlier.  I've had a lot of distractions.
-> >>
-> >> On Tue, 2006-09-05 at 22:33 +0200, Mattia Dongili wrote:
-> >>> Hello,
-> >>>
-> >>> as the subject says it's some time[0] I'm experiencing deadlocks[1] (I'm
-> >>> only tracking -mm, and sporadically using the stable series). I have a
-> >>> couple of use cases that seem to reliably trigger the deadlock, namely
-> >>> using Eclipse and Firefox.
-> > [...]
-> >>> /dev/hda1 on / type reiserfs (rw)
-> >>> /dev/hda3 on /usr type reiserfs (rw)
-> >>> /dev/hda5 on /home type jfs (rw)
-> >>>
-> >>> bootlog: http://oioio.altervista.org/linux/dmesg-2.6.18-rc5-mm1-lockdep
-> >>> config: http://oioio.altervista.org/linux/config-2.6.18-rc5-mm1-lockdep
-> > 
-> > Dave,
-> > 
-> > I have to apologize. Reiser3 seem to be the one deadlocking here
-> > actually. Changing /home to reiser4 still deadlocks.
-> > 
-> > Now, reiserfs-developers:
-> > would you want me to keep the filesystem around to try to test patches
-> > or potential fixes or can I wipe it out?
-> > The good thing is that the deadlock is 100% repeatable, the bad thing is
-> > that this laptop has a broken cdrom and I have to take the drive out and
-> > fsck it via usb1.1 each time. :)
-> > 
-> > Thanks
+
+* Roman Zippel <zippel@linux-m68k.org> wrote:
+
+> > > > also, the other disadvantages i listed very much count too. Static 
+> > > > tracepoints are fundamentally limited because:
+> > > > 
+> > > >   - they can only be added at the source code level
+> > > > 
+> > > >   - modifying them requires a reboot which is not practical in a
+> > > >     production environment
+> > > > 
+> > > >   - there can only be a limited set of them, while many problems need
+> > > >     finegrained tracepoints tailored to the problem at hand
+> > > > 
+> > > >   - conditional tracepoints are typically either nonexistent or very
+> > > >     limited.
 > 
-> 
-> How is it that you arrived on reiser3 and reiser4 deadlocking here?
+> Sorry, but I fail to see the point you're trying to make (beside your 
+> personal preferences), none of this is a unsolvable problem, which 
+> would prevent making good use of static tracepoints.
 
-oh, no that's not what I said.
+those are technical arguments - i'm not sure how you can understand them 
+to be "personal preferences". The only personal preference i have is 
+that in the end a technically most superior solution should be merged. 
+(be that one project or the other, or a hybrid of the two) The analysis 
+of which one is a better solution depends on pros and cons - exactly 
+like the ones listed above. If they are solvable problems then please 
+let me know how you would solve them and when you (or others) would 
+solve them, preferably before merging the code. Right now they are 
+pretty heavy cons as far as LTT goes, so obviously they have a primary 
+impact on the topic at hand (whic is whether to merge LTT or not).
 
-I had:
-
-/dev/hda1 on / type reiserfs (rw)
-/dev/hda3 on /usr type reiserfs (rw)
-/dev/hda5 on /home type jfs (rw)
-
-the deadlock was there. I then changed to
-
-/dev/hda1 on / type reiserfs (rw)
-/dev/hda3 on /usr type reiserfs (rw)
-/dev/hda5 on /home type reiser4 (rw)
-
-still deadlocking, so it wasn't jfs but reiserfs.
-
-Anyway I wiped out the reiserfs partitions, it was starting to become
-really annoying sorry.
-
--- 
-mattia
-:wq!
+	Ingo

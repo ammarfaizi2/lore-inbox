@@ -1,54 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751208AbWINVap@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751220AbWINVbX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751208AbWINVap (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Sep 2006 17:30:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751220AbWINVap
+	id S1751220AbWINVbX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Sep 2006 17:31:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751222AbWINVbX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Sep 2006 17:30:45 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:42654 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S1751208AbWINVao (ORCPT
+	Thu, 14 Sep 2006 17:31:23 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:57301 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751220AbWINVbW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Sep 2006 17:30:44 -0400
-Date: Thu, 14 Sep 2006 23:30:25 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Daniel Walker <dwalker@mvista.com>
-cc: Ingo Molnar <mingo@elte.hu>,
-       Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
-       linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
-       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@redhat.com>,
-       Greg Kroah-Hartman <gregkh@suse.de>,
-       Thomas Gleixner <tglx@linutronix.de>, Tom Zanussi <zanussi@us.ibm.com>,
-       ltt-dev@shafik.org, Michel Dagenais <michel.dagenais@polymtl.ca>
-Subject: Re: [PATCH 0/11] LTTng-core (basic tracing infrastructure) 0.5.108
-In-Reply-To: <1158268113.17467.38.camel@c-67-180-230-165.hsd1.ca.comcast.net>
-Message-ID: <Pine.LNX.4.64.0609142324181.6761@scrub.home>
-References: <20060914033826.GA2194@Krystal> <20060914112718.GA7065@elte.hu>
-  <Pine.LNX.4.64.0609141537120.6762@scrub.home>  <20060914135548.GA24393@elte.hu>
-  <Pine.LNX.4.64.0609141623570.6761@scrub.home>  <20060914171320.GB1105@elte.hu>
-  <Pine.LNX.4.64.0609141935080.6761@scrub.home>  <20060914181557.GA22469@elte.hu>
-  <Pine.LNX.4.64.0609142038570.6761@scrub.home>  <20060914202452.GA9252@elte.hu>
-  <Pine.LNX.4.64.0609142248360.6761@scrub.home>
- <1158268113.17467.38.camel@c-67-180-230-165.hsd1.ca.comcast.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 14 Sep 2006 17:31:22 -0400
+Date: Thu, 14 Sep 2006 14:31:18 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Alexey Dobriyan <adobriyan@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] raw: return negative from raw_init()
+Message-Id: <20060914143118.47d3bf62.akpm@osdl.org>
+In-Reply-To: <20060912011918.GC5192@martell.zuzino.mipt.ru>
+References: <20060912011918.GC5192@martell.zuzino.mipt.ru>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Tue, 12 Sep 2006 05:19:18 +0400
+Alexey Dobriyan <adobriyan@gmail.com> wrote:
 
-On Thu, 14 Sep 2006, Daniel Walker wrote:
-
-> > Ingo, so far you have made not a single argument why they can't coexist 
-> > except for your personal dislike.
+> Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
+> ---
 > 
-> Not to put to fine a point on it, but I think there's not a small number
-> of us that "prefer" the best solution.
+>  drivers/char/raw.c |    2 +-
+>  1 file changed, 1 insertion(+), 1 deletion(-)
+> 
+> --- a/drivers/char/raw.c
+> +++ b/drivers/char/raw.c
+> @@ -312,7 +312,7 @@ static int __init raw_init(void)
+>  
+>  error:
+>  	printk(KERN_ERR "error register raw device\n");
+> -	return 1;
+> +	return -1;
+>  }
+>  
+>  static void __exit raw_exit(void)
 
-You can have it.
-OTOH I would also like to know what's going in my m68k kernel without 
-having to implement some rather complex infrastructure, which I don't need 
-otherwise. There hasn't been a single argument so far, why we can't have 
-both.
-
-bye, Roman
+Rolf got there first.  Please review
+ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc6/2.6.18-rc6-mm2/broken-out/return-better-error-codes-if-drivers-char-rawc-module-init-fails.patch

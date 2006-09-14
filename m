@@ -1,63 +1,123 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751012AbWINVCr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751003AbWINVCp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751012AbWINVCr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Sep 2006 17:02:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751011AbWINVCr
+	id S1751003AbWINVCp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Sep 2006 17:02:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751012AbWINVCp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Sep 2006 17:02:47 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:50333 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S1750991AbWINVCo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Sep 2006 17:02:45 -0400
+Received: from wohnheim.fh-wedel.de ([213.39.233.138]:18121 "EHLO
+	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S1750992AbWINVCo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Thu, 14 Sep 2006 17:02:44 -0400
-Date: Thu, 14 Sep 2006 23:02:04 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Ingo Molnar <mingo@elte.hu>
-cc: Tim Bird <tim.bird@am.sony.com>,
-       Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
-       linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
-       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@redhat.com>,
-       Greg Kroah-Hartman <gregkh@suse.de>,
-       Thomas Gleixner <tglx@linutronix.de>, Tom Zanussi <zanussi@us.ibm.com>,
-       ltt-dev@shafik.org, Michel Dagenais <michel.dagenais@polymtl.ca>
-Subject: Re: [PATCH 0/11] LTTng-core (basic tracing infrastructure) 0.5.108
-In-Reply-To: <20060914200040.GB5812@elte.hu>
-Message-ID: <Pine.LNX.4.64.0609142226480.6761@scrub.home>
-References: <20060914033826.GA2194@Krystal> <20060914112718.GA7065@elte.hu>
- <Pine.LNX.4.64.0609141537120.6762@scrub.home> <20060914135548.GA24393@elte.hu>
- <Pine.LNX.4.64.0609141623570.6761@scrub.home> <20060914171320.GB1105@elte.hu>
- <Pine.LNX.4.64.0609141935080.6761@scrub.home> <20060914181557.GA22469@elte.hu>
- <4509B03A.3070504@am.sony.com> <20060914200040.GB5812@elte.hu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Date: Thu, 14 Sep 2006 23:02:35 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Andreas Dilger <adilger@clusterfs.com>
+Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Alignment of fields in struct dentry
+Message-ID: <20060914210235.GA10548@wohnheim.fh-wedel.de>
+References: <20060914093123.GA10431@wohnheim.fh-wedel.de> <20060914105029.GA1702@wohnheim.fh-wedel.de> <20060914183325.GU6441@schatzie.adilger.int>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20060914183325.GU6441@schatzie.adilger.int>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hello Andreas,
 
-On Thu, 14 Sep 2006, Ingo Molnar wrote:
-
-> > It's only zero maintenance overhead for you.  Someone has to maintain 
-> > it. The party line for years has been that in-tree maintenance is 
-> > easier than out-of-tree maintenance.
+On Thu, 14 September 2006 12:33:25 -0600, Andreas Dilger wrote:
 > 
-> There's a third option, and that's the one i'm advocating: adding the 
-> tracepoint rules to the kernel, but in a _detached_ form from the actual 
-> source code.
+> I think it makes sense to keep d_inode in the first part of the dentry
+> always, because it is by far the most referenced field in the dentry,
+> along with the critical fields from prune_dcache(), shrink_dcache_anon(),
+> dget(), dput(), d_lookup().
+
+d_inode is definitely one of the hotter fields in there.  It just
+happens to cause the misalignment.  Bah, I don't see a good solution.
+
+> While not totally accurate in terms of runtime frequency of use, the counts
+> in the code:
 > 
-> yes, someone has to maintain it, but that will be a detached effort, on 
-> a low-frequency as-needed basis. It doesnt slow down or hinder 
-> high-frequency fast prototyping work, it does not impact the source code 
-> visually, and it does not make reading the code harder. Furthermore, 
-> while a single broken LTT tracepoint prevents the kernel from building 
-> at all, a single broken dynamic rule just wont be inserted into the 
-> kernel. All the other rules are still very much intact.
+>           fs/*.[ch] fs/*/*.[ch] size32 size64 prune_dc shrk_dc_anon d_lookup
+> d_inode	        384        2131      4      8
+> d_lock          104         529      4      4       1       2
+> d_count          18          66      4      4       1       2
+> d_lru            18          18      4_     8       1       1
+> d_hash           37         154      4      8_              2          1
+> d_name           73         908     12_    16                          1
+> d_flags          26         104      4      4       2
+> d_mounted         7           7      4      4
+> d_parent         40         231      4      8_                         2
+> d_op             37         269      4      8
+> d_rcu/d_child  3+22        3+45      8     16
 
-This pretty much contradicts existing experience, most core events are 
-rather static - a schedule event is a schedule event no matter how the 
-actual scheduler is implemented.
-Separate tracepoints are like separate documentation, there are forgotten 
-by the developers who could easily keep them uptodate if they were close 
-to the source.
+[ d_hash is 8/16, actually ]
 
-bye, Roman
+d_hash, d_name and d_parent belong way up to the top of the list, imo.
+d_lookup() should be the hottest function of all, as the comment in
+the structure definition already indicates.  Maybe the solution is to
+rearrange the fields with those going to the top?
+
+Using your scheme (slightly reduced) we now have:
+		size32	size64	funky?
+d_count		4	4
+d_flags		4	4
+d_lock		4	4_	y
+d_inode		4_	8
+d_hash		8	16--
+d_parent	4	8_
+d_name		12--	16___
+d_lru		8_	16_
+d_rcu/d_child	8	16__
+d_subdirs	8___	16_
+d_alias		8	16____
+d_time		4	8
+d_op		4_	8_
+d_sb		4	8
+d_fsdata	4	8__
+d_cookie	0	0	y
+d_mounted	4	4
+d_iname		36____	36
+
+With the two funky fields possibly growing, depending on kernel
+config.  [_-] mark 16-, 32- 64- and 128-byte boundaries, depending on
+len.  What really frightens me is that a 32-byte boundary goes right
+through d_name on 32bit machines.  Iirc, my PIII has 32-byte
+cachelines.  Not good.
+
+How about moving [d_hash,d_parent,d_name] to the front?  Something
+like:
+		size32	size64	funky?
+d_hash		8	16_
+d_parent	4	8
+d_name		12-	16--
+d_inode		4	8_
+d_count		4__	4
+d_flags		4	4
+d_lock		4	4	y
+
+d_mounted	4	4
+
+d_lru		8	16
+d_rcu/d_child	8	16
+d_subdirs	8	16
+d_alias		8	16
+d_time		4	8
+d_op		4	8
+d_sb		4	8
+d_fsdata	4	8
+d_cookie	0	0	y
+d_iname		36	36
+
+Now d_lookup() should use a single cacheline, even on my aged
+notebook, and the other hot fields remain at the top.  d_mounted is
+also moved up to remove the misalignment on 64bit.  Might be worth
+a benchmark or two to see whether it makes a difference...
+
+Jörn
+
+-- 
+Joern's library part 1:
+http://lwn.net/Articles/2.6-kernel-api/

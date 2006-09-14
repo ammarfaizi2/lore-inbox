@@ -1,199 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750777AbWINNtb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750718AbWINOEO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750777AbWINNtb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Sep 2006 09:49:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750778AbWINNtb
+	id S1750718AbWINOEO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Sep 2006 10:04:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750725AbWINOEO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Sep 2006 09:49:31 -0400
-Received: from ecfrec.frec.bull.fr ([129.183.4.8]:35758 "EHLO
-	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP
-	id S1750777AbWINNta convert rfc822-to-8bit (ORCPT
+	Thu, 14 Sep 2006 10:04:14 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:59296 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1750718AbWINOEN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Sep 2006 09:49:30 -0400
-Subject: Re: [Resend PATCH AIO 1/2] Add AIO completion notification
-From: =?ISO-8859-1?Q?S=E9bastien_Dugu=E9?= <sebastien.dugue@bull.net>
-To: Zach Brown <zach.brown@oracle.com>
-Cc: linux-kernel@vger.kernel.org, linux-aio@kvack.org, drepper@redhat.com,
-       suparna@in.ibm.com, pbadari@us.ibm.com, hch@infradead.org,
-       johnpol@2ka.mipt.ru, davem@davemloft.net, Andrew Morton <akpm@osdl.org>,
-       Jean Pierre Dion <jean-pierre.dion@bull.net>
-In-Reply-To: <45073A35.10600@oracle.com>
-References: <20060912094443.4a7b1c9a@frecb000686>
-	 <45073A35.10600@oracle.com>
-Date: Thu, 14 Sep 2006 15:49:20 +0200
-Message-Id: <1158241761.3890.42.camel@frecb000686>
+	Thu, 14 Sep 2006 10:04:13 -0400
+Date: Thu, 14 Sep 2006 15:55:48 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
+       linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
+       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@redhat.com>,
+       Greg Kroah-Hartman <gregkh@suse.de>,
+       Thomas Gleixner <tglx@linutronix.de>, Tom Zanussi <zanussi@us.ibm.com>,
+       ltt-dev@shafik.org, Michel Dagenais <michel.dagenais@polymtl.ca>
+Subject: Re: [PATCH 0/11] LTTng-core (basic tracing infrastructure) 0.5.108
+Message-ID: <20060914135548.GA24393@elte.hu>
+References: <20060914033826.GA2194@Krystal> <20060914112718.GA7065@elte.hu> <Pine.LNX.4.64.0609141537120.6762@scrub.home>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.2.1 
-X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 14/09/2006 15:55:06,
-	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 14/09/2006 15:55:09,
-	Serialize complete at 14/09/2006 15:55:09
-Content-Transfer-Encoding: 8BIT
-Content-Type: text/plain; charset=ISO-8859-15
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0609141537120.6762@scrub.home>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -2.9
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.9 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5000]
+	-0.1 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-09-12 at 15:52 -0700, Zach Brown wrote:
-> >                       AIO completion notification
+
+* Roman Zippel <zippel@linux-m68k.org> wrote:
+
+> On Thu, 14 Sep 2006, Ingo Molnar wrote:
 > 
-> Thanks for sending this again.
+> > i have one very fundamental question: why should we do this 
+> > source-intrusive method of adding tracepoints instead of the dynamic, 
+> > unintrusive (and thus zero-overhead) KProbes+SystemTap method?
 > 
-> >   The current 2.6 kernel does not support notification of user space via
-> > an RT signal upon an asynchronous IO completion. The POSIX specification
-> > states that when an AIO request completes, a signal can be delivered to
-> > the application as notification.
-> 
-> Does it say anything about the reliability of that signal delivery?  The
-> current implementation lets IO submission succeed but signal delivery
-> fail and that makes me nervous.  What are the API design goals here?  If
-> I missed some previous discussion could we have them summarized in a
-> comment above aio_send_signal() ?  More inline..
+> Could you define "zero-overhead"?
 
-  I could not find anything concerning signal delivery reliability, but
-POSIX AIO being part of the realtime POSIX extension, I'd tend to think
-reliability should be taken into acount.
+zero overhead when not used: not a single instruction added to the 
+kernel codepath that is to be traced, anywhere. (which will be the case 
+on 99% of the systems)
 
-  Aside from that could you elaborate on the signal delivery
-failures you have in mind? From what I gathered, the only failure I can
-see is if __sigqueue_alloc() fails to allocate from the cache or we
-reached the RLIMIT_SIGPENDING limit for the task.
+> Actual implementation aside having a core number of tracepoints is far 
+> more portable than KProbes.
 
-> 
-> > +static void aio_send_signal(struct aio_notify *notify)
-> > +{
-> > +	struct siginfo info;
-> 
-> That's pretty big to be putting on the stack down under aio_complete()
-> which itself is called from block -> fs completion handlers.  It's a
-> path with pretty strong stack pressure.  It looks like we only use a
-> fraction of the struct, too, so can we rework the signal delivery code a
-> little to allow us to specify our inputs more efficiently?  I guess it's
-> not a big deal, but it'd be nice to get right if we can.
+the key point is that we want _zero_ "static tracepoints". Firstly, 
+static tracepoints are fundamentally limited:
 
-  Right, I'm open to suggestions here.
+ - they can only be added at the source code level
 
+ - modifying them requires a reboot which is not practical in a 
+   production environment
 
-> 
-> > +	info.si_code = SI_ASYNCIO;
-> 
-> It looks like USB (usbfs?  urb mumble something?) is already using
-> SI_ASYNCIO.  Is that a problem?
+ - there can only be a limited set of them, while many problems need 
+   finegrained tracepoints tailored to the problem at hand
 
-  Well SusV3 states: SI_ASYNCIO - Signal generated by completion of an
-asynchronous I/O request.
+ - conditional tracepoints are typically either nonexistent or very 
+   limited.
 
-  From what I understand, the usb core code uses SI_ASYNCIO in two
-places:
-     - in usbfs_remove_device() and it's a mystery to me why it needs to
-       set si_code
+But besides the usability problems, the most important problem is that 
+static tracepoints add a _constant maintainance overhead_ to the kernel. 
+I'm talking from first hand experience: i wrote 'iotrace' (a static 
+tracer) in 1996 and have maintained it for many years, and even today 
+i'm maintaining a handful of tracepoints in the -rt kernel. I _dont_ 
+want static tracepoints in the mainline kernel.
 
-     - in async_completed() to notify upon completion of an async IO
-       operation which is consistent with the specification
+enter KProbes+SystemTap. It needs no changes at the source code level at 
+all, so no maintainance overhead to generic kernel code. Tracepoints can 
+be added and removed while the system is running. Trace actions and 
+filters can be added based on a scripting language, so tracing is as 
+dynamic as it gets.
 
-  Anyway, I don't see it as a problem, but maybe I'm missing something.
+(check out http://lwn.net/Articles/198557/ if you have an lwn 
+subscription - it's subscriber-only for a few weeks)
 
-
-
-> 
-> > +	if (notify->notify & SIGEV_THREAD_ID)
-> > +		ret = specific_send_sig_info(notify->signo, &info, p);
-> > +	else
-> > +		ret = __group_send_sig_info(notify->signo, &info, p);
-> > +
-> > +
-> > +	spin_unlock_irqrestore(&p->sighand->siglock, flags);
-> > +
-> > +	if (ret)
-> > +		printk(KERN_DEBUG "aio_send_signal: failed to send signal %d to %d\n",
-> > +		       notify->signo, notify->pid);
-> 
-> It looks like this is trivial to make fail if one submits more
-> operations than the RLIMIT_SIGPENDING rlimit will allow queued signals
-> for.  So we definitely don't want a printk that the user can generate.
-
-  Argh, yes.
-
-> 
-> This is where I'm nervous about what promises we've made about signal
-> delivery back at submit time :).  If the posix API allows lossy delivery
-> then we're OK.
-> 
-> And it can fail if delivery can't allocate a struct sigqueue.  I wonder
-> if we should allocate one at submit time and hang it off the iocb to be
-> used at completion.  It's just a little struct with a list_head.
-
-  That may be a solution if signal delivery reliability is 
-critical, so that we fail at submission time.
-
-> 
-> > +static struct task_struct * good_sigevent(sigevent_t * event)
-> 
-> This is lifted directly from kernel/posix-timers.c, including the lack
-> of any indication that it has to be called with the tasklist_lock held
-> 'cause it calls find_task_by_pid().  If we're making this a shared
-> notion lets put it somewhere that both posix-timers.c and aio.c can get
-> at.  kernel/signal.c, presumably?
-
-  Good point, I will do that along with a comment stating the locking 
-constraints.
-
-> 
-> > +	if (!access_ok(VERIFY_READ, user_event, sizeof(struct sigevent)))
-> > +		return -EFAULT;
-> 
-> You don't need this access_ok(), I don't think.  copy_from_user() should
-> return non-zero if something goes wrong.
-
-  OK, but then the comment for __copy_from_user_inatomic() in
-asm-*/uaccess.h should be changed ("Caller must check the specified
-block with access_ok() before calling this function").
-
-> 
-> > +	if (copy_from_user(&event, user_event, sizeof (event)))
-> > +		return -EFAULT;
-> 
-> sigevent is chock-full of members that need compat help when 32bit
-> userspace hands it to a 64bit kernel.  See compat_sys_timer_create() ->
-> get_compat_sigevent().
-> 
-> I'm not sure how best to handle this.  It'd be pretty gross to allocate
-> compat copies of every sigevent on the stack like compat_sys_io_submit()
-> seems to do for the 32bit iocb pointers.  I imagine you'll want to
-> conditionally call get_compat_sigevent() for each sigevent somehow.
-> 
-> Or push the problem to userspace by pointing from the iocb to a special
-> case sigevent with fixed width notify, signo, and value.
-> 
-> None of those options seem thrilling :/.
-
-  Well, I'm not sure either and I'm open for discussion.
-
-
-> 
-> > +static void __aio_write_evt(struct kioctx *ctx, struct io_event *event)
-> 
-> Making this its own function seems to be unrelated to the completion
-> signaling work.  Please drop it from the patch so that we don't have to
-> audit it to make sure that code motion didn't mess something up.
-
-  Oops, that slipped past into the patch, will remove.
-
-
-  Thanks, for your comments.
-
-  Sébastien.
-
--- 
------------------------------------------------------
-
-  Sébastien Dugué                BULL/FREC:B1-247
-  phone: (+33) 476 29 77 70      Bullcom: 229-7770
-
-  mailto:sebastien.dugue@bull.net
-
-  Linux POSIX AIO: http://www.bullopensource.org/posix
-                   http://sourceforge.net/projects/paiol
-
------------------------------------------------------
-
+	Ingo

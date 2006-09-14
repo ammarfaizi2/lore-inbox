@@ -1,132 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751505AbWINJ3x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751513AbWINJb0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751505AbWINJ3x (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Sep 2006 05:29:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751508AbWINJ3x
+	id S1751513AbWINJb0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Sep 2006 05:31:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751512AbWINJbZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Sep 2006 05:29:53 -0400
-Received: from wx-out-0506.google.com ([66.249.82.239]:7515 "EHLO
-	wx-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1751505AbWINJ3w (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Sep 2006 05:29:52 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=nykFDdi6wHk17MzndJHB0DeFSbz693ZjEL5/dBS583v2arM6MX04nh9i9gb97p5knLIc96PKd9NypNlHB2cRi/ZHE0emY/AxsAf2qmNaZZ/+ex6GkbRXKfxG7TEFbS9HLo4hKFmitTt970Ug5yp5F4Wcaz65jcOXBMOCXjE6fl4=
-Message-ID: <6bffcb0e0609140229r59691de5i58d2d81f839d744e@mail.gmail.com>
-Date: Thu, 14 Sep 2006 11:29:51 +0200
-From: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
-To: "David Chinner" <dgc@sgi.com>
-Subject: Re: [xfs-masters] Re: 2.6.18-rc6-mm2
-Cc: linux-kernel@vger.kernel.org, xfs-masters@oss.sgi.com
-In-Reply-To: <20060914090808.GS3024@melbourne.sgi.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 14 Sep 2006 05:31:25 -0400
+Received: from wohnheim.fh-wedel.de ([213.39.233.138]:45784 "EHLO
+	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S1751508AbWINJbY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Sep 2006 05:31:24 -0400
+Date: Thu, 14 Sep 2006 11:31:23 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [RFC] Alignment of fields in struct dentry
+Message-ID: <20060914093123.GA10431@wohnheim.fh-wedel.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-References: <6bffcb0e0609120842s6a38b326u4e1fff2e562a6832@mail.gmail.com>
-	 <6bffcb0e0609121634l7db1808cwa33601a6628ee7eb@mail.gmail.com>
-	 <20060912163749.27c1e0db.akpm@osdl.org>
-	 <20060913015850.GB3034@melbourne.sgi.com>
-	 <20060913042627.GE3024@melbourne.sgi.com>
-	 <6bffcb0e0609130243y776492c7g78f4d3902dc3c72c@mail.gmail.com>
-	 <20060914035904.GF3034@melbourne.sgi.com> <450914C4.2080607@gmail.com>
-	 <6bffcb0e0609140150n7499bf54k86e2b7da47766005@mail.gmail.com>
-	 <20060914090808.GS3024@melbourne.sgi.com>
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 14/09/06, David Chinner <dgc@sgi.com> wrote:
-> On Thu, Sep 14, 2006 at 10:50:42AM +0200, Michal Piotrowski wrote:
-> > On 14/09/06, Michal Piotrowski <michal.k.k.piotrowski@gmail.com> wrote:
-> > >David Chinner wrote:
-> > >> On Wed, Sep 13, 2006 at 11:43:32AM +0200, Michal Piotrowski wrote:
-> > >>> On 13/09/06, David Chinner <dgc@sgi.com> wrote:
-> > >>>> I've booted 2.6.18-rc6-mm2 and mounted and unmounted several xfs
-> > >>>> filesystems. I'm currently running xfsqa on it, and I haven't seen
-> > >>>> any failures on unmount yet.
-> > >>>>
-> > >>>> That test case would be really handy, Michal.
-> > >>> http://www.stardust.webpages.pl/files/mm/2.6.18-rc6-mm2/test_mount_fs.sh
-> > >>>
-> > >>> ls -hs /home/fs-farm/
-> > >>> total 3.6G
-> > >>> 513M ext2.img  513M ext4.img  513M reiser3.img  513M xfs.img
-> > >>> 513M ext3.img  513M jfs.img   513M reiser4.img
-> > >>
-> > >> Ok, so you're using loopback and mounting one of each filesystem, then
-> > >> unmounting them in the same order. I have mounted and unmounted an
-> > >> XFS filesystem in isolation in exactly the same way you have been, but
-> > >> I haven't seen any failures.
-> > >>
-> > >> Can you rerun the test with just XFS in your script and see if you
-> > >> see any failures? If you don't see any failures, can you add each
-> > >> filesystem back in one at a time until you see failures again?
-> > >
-> > >
-> > >I still get an oops (with xfs only). Maybe it's file system image problem.
-> > >
-> > >xfs_info /mnt/fs-farm/xfs/
-> > >meta-data=/dev/loop1             isize=256    agcount=8, agsize=16384 blks
-> > >         =                       sectsz=512
-> > >data     =                       bsize=4096   blocks=131072, imaxpct=25
-> > >         =                       sunit=0      swidth=0 blks, unwritten=1
-> > >naming   =version 2              bsize=4096
-> > >log      =internal               bsize=4096   blocks=1200, version=1
-> > >         =                       sectsz=512   sunit=0 blks
-> > >realtime =none                   extsz=65536  blocks=0, rtextents=0
-> >
-> > Can I send to you this fs image? It's only 246KB bz2 file.
->
-> I've downloaded it, and I don't see a panic on that fs at all.
-> I've got it sitting in a tight loop mounting and unmounting the
-> image you sent me, and nothing has gone wrong. I don't think it's
-> a corrupted filesystem problem - it seems more like a memory corruption
-> problem to me.
+After taking a look at struct dentry, Arnd noted an alignment
+problem.  The first four fields currently are:
+	atomic_t d_count;
+	unsigned int d_flags;		/* protected by d_lock */
+	spinlock_t d_lock;		/* per dentry lock */
+	struct inode *d_inode;		/* Where the name belongs to - NULL is
+					 * negative */
+On 64bit architectures, the first three take 12 bytes and d_inode is
+not naturally aligned, so it can be aligned to byte 16.  This grows a
+struct dentry from 196 to 200 Bytes (assuming no funky config options
+like DEBUG_*, PROFILING or PREEMT && SMP are set).
 
-I'm checking memory from time to time with memtest86.
+One possible solution would be to exchange d_inode with d_mounted, but
+I fear that d_inode would move from a hot cacheline to a cold one,
+reducing performance.  Could there be a good solution or would any
+rearrangement here only cause regressions?
 
->
-> What arch are you running on and what compiler are you using?
+Also, both 196 and 200 bytes are fairly close to 192 bytes, so I could
+imagine performance improvements on 64bit machines with 64 Byte
+cachelines.  Might it make sense to trim DNAME_INLINE_LEN_MIN by 4 or
+8 bytes for such machines?
 
-gcc -v
-Using built-in specs.
-Target: i386-redhat-linux
-Configured with: ../configure --prefix=/usr --mandir=/usr/share/man
---infodir=/usr/share/info --enable-shared --enable-threads=posix
---enable-checking=release --with-system-zlib --enable-__cxa_atexit
---disable-libunwind-exceptions --enable-libgcj-multifile
---enable-languages=c,c++,objc,obj-c++,java,fortran,ada
---enable-java-awt=gtk --disable-dssi
---with-java-home=/usr/lib/jvm/java-1.4.2-gcj-1.4.2.0/jre
---with-cpu=generic --host=i386-redhat-linux
-Thread model: posix
-gcc version 4.1.1 20060525 (Red Hat 4.1.1-1)
-
-I'll build system with gcc 3.4
-
-> Can you try 2.6.18-rc6 and see if it panics like this on your
-> machine?
-
-2.6.18-rc7 works fine.
-
-> there is little difference in xfs between -rc6 and -rc6-mm2
-> so it would be good to know if this is a problem isolated to
-> the -mm tree or not....
->
-> Cheers,
->
-> Dave.
-> --
-> Dave Chinner
-> Principal Engineer
-> SGI Australian Software Group
->
-
-Regards,
-Michal
+Jörn
 
 -- 
-Michal K. K. Piotrowski
-LTG - Linux Testers Group
-(http://www.stardust.webpages.pl/ltg/)
+The wise man seeks everything in himself; the ignorant man tries to get
+everything from somebody else.
+-- unknown

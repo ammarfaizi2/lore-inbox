@@ -1,45 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751043AbWINTLB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751048AbWINTLe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751043AbWINTLB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Sep 2006 15:11:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751046AbWINTLA
+	id S1751048AbWINTLe (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Sep 2006 15:11:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751050AbWINTLe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Sep 2006 15:11:00 -0400
-Received: from opersys.com ([64.40.108.71]:24592 "EHLO www.opersys.com")
-	by vger.kernel.org with ESMTP id S1751042AbWINTLA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Sep 2006 15:11:00 -0400
-Message-ID: <4509AB9E.2090909@opersys.com>
-Date: Thu, 14 Sep 2006 15:21:02 -0400
-From: Karim Yaghmour <karim@opersys.com>
-Reply-To: karim@opersys.com
-Organization: Opersys inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.8.0.6) Gecko/20060804 Fedora/1.0.4-0.5.1.fc5 SeaMonkey/1.0.4
+	Thu, 14 Sep 2006 15:11:34 -0400
+Received: from ug-out-1314.google.com ([66.249.92.172]:28288 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1751048AbWINTLd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Sep 2006 15:11:33 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Lnxeqo6xzP7ldZPGOF55zYYj16BIrvcASlu7S1xVo66RT++Q356phNHNm8Hgkkuekv6GaVsv80JToMqDAbYDDeqpGF4h0GugNuqZYxktrVpFVjuesQwmNb3LArXRmLx7xJDNYZM/foauySikGvhot1ra7ewjKlkQs0jc3G+y5ww=
+Message-ID: <d120d5000609141211o76432bd3l82582ef3896e3be@mail.gmail.com>
+Date: Thu, 14 Sep 2006 15:11:32 -0400
+From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
+To: "Arjan van de Ven" <arjan@infradead.org>
+Subject: Re: [PATCH 0/3] Synaptics - fix lockdep warnings
+Cc: "Jiri Kosina" <jikos@jikos.cz>, lkml <linux-kernel@vger.kernel.org>,
+       "Ingo Molnar" <mingo@elte.hu>
+In-Reply-To: <1158260584.4200.3.camel@laptopd505.fenrus.org>
 MIME-Version: 1.0
-To: grundig <grundig@teleline.es>
-CC: "Martin J. Bligh" <mbligh@mbligh.org>, mingo@elte.hu,
-       mathieu.desnoyers@polymtl.ca, linux-kernel@vger.kernel.org,
-       hch@infradead.org, akpm@osdl.org, mingo@redhat.com, gregkh@suse.de,
-       tglx@linutronix.de, zanussi@us.ibm.com, ltt-dev@shafik.org,
-       michel.dagenais@polymtl.ca
-Subject: Re: [PATCH 0/11] LTTng-core (basic tracing infrastructure) 0.5.108
-References: <20060914033826.GA2194@Krystal>	<20060914112718.GA7065@elte.hu>	<450971CB.6030601@mbligh.org> <20060914210307.2cd10da4.grundig@teleline.es>
-In-Reply-To: <20060914210307.2cd10da4.grundig@teleline.es>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <Pine.LNX.4.64.0609140227500.22181@twin.jikos.cz>
+	 <Pine.LNX.4.64.0609141635040.2721@twin.jikos.cz>
+	 <d120d5000609140758w7ba5cfdbs399d6831082e7cb4@mail.gmail.com>
+	 <Pine.LNX.4.64.0609141700250.2721@twin.jikos.cz>
+	 <d120d5000609140851r2299c64cv8b0a365be795a1bc@mail.gmail.com>
+	 <Pine.LNX.4.64.0609141754480.2721@twin.jikos.cz>
+	 <d120d5000609140918j18d68a4dmd9d9e1e72d2fd718@mail.gmail.com>
+	 <Pine.LNX.4.64.0609142037110.2721@twin.jikos.cz>
+	 <d120d5000609141156h5e06eb68k87a6fe072a701dab@mail.gmail.com>
+	 <1158260584.4200.3.camel@laptopd505.fenrus.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 9/14/06, Arjan van de Ven <arjan@infradead.org> wrote:
+>
+> >
+> > I think it is - as far as I understand the reason for not tracking
+> > every lock individually is just that it is too expensive to do by
+> > default.
+>
+> that is not correct. While it certainly plays a role,
+> the other reason is that you can find out "class" level locking rules
+> (such as inode->i_mutex comes before <other lock>) for all inodes at a
+> time; eg no need to see every inode do this before you can find the
+> deadlock.
+>
 
-grundig wrote:
-> IOW, no distro will enable it by default to avoid the overhead,
+OK, I can see that. However you must agree that for certain locks we
+do want to track them individually, right?
 
-Please bear in mind that this is an implementation issue. As I've
-explained elsewhere, there are ways to implement this where even
-compiled-in static tracepoints have practically no cost at all
--- being noops until enabling. Thereby being no justification for
-not actually shipping with such built kernels and, therefore,
-no reason why tools such as ltt can't real-world usage.
-
-Karim
-
+-- 
+Dmitry

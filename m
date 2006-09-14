@@ -1,93 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751159AbWINUmh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751155AbWINUpN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751159AbWINUmh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Sep 2006 16:42:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751155AbWINUmh
+	id S1751155AbWINUpN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Sep 2006 16:45:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751166AbWINUpN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Sep 2006 16:42:37 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:20661 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751159AbWINUmf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Sep 2006 16:42:35 -0400
-Date: Thu, 14 Sep 2006 22:34:30 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Martin Bligh <mbligh@mbligh.org>
-Cc: Roman Zippel <zippel@linux-m68k.org>,
-       Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
-       linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
-       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@redhat.com>,
-       Greg Kroah-Hartman <gregkh@suse.de>,
-       Thomas Gleixner <tglx@linutronix.de>, Tom Zanussi <zanussi@us.ibm.com>,
-       ltt-dev@shafik.org, Michel Dagenais <michel.dagenais@polymtl.ca>,
-       fche@redhat.com
-Subject: Re: [PATCH 0/11] LTTng-core (basic tracing infrastructure) 0.5.108
-Message-ID: <20060914203430.GB9252@elte.hu>
-References: <20060914033826.GA2194@Krystal> <20060914112718.GA7065@elte.hu> <Pine.LNX.4.64.0609141537120.6762@scrub.home> <20060914135548.GA24393@elte.hu> <Pine.LNX.4.64.0609141623570.6761@scrub.home> <20060914171320.GB1105@elte.hu> <4509BAD4.8010206@mbligh.org>
+	Thu, 14 Sep 2006 16:45:13 -0400
+Received: from amsfep19-int.chello.nl ([213.46.243.16]:51296 "EHLO
+	amsfep17-int.chello.nl") by vger.kernel.org with ESMTP
+	id S1751155AbWINUpL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Sep 2006 16:45:11 -0400
+Subject: Re: [PATCH 20/20] iscsi: support for swapping over iSCSI.
+From: Peter Zijlstra <a.p.zijlstra@chello.nl>
+To: Mike Christie <michaelc@cs.wisc.edu>
+Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       David Miller <davem@davemloft.net>, Rik van Riel <riel@redhat.com>,
+       Daniel Phillips <phillips@google.com>
+In-Reply-To: <1158266150.30737.92.camel@taijtu>
+References: <20060912143049.278065000@chello.nl>
+	 <20060912144905.201160000@chello.nl>  <45086F16.9030307@cs.wisc.edu>
+	 <1158214650.13665.27.camel@twins>  <4509ABE5.2080904@cs.wisc.edu>
+	 <1158266150.30737.92.camel@taijtu>
+Content-Type: text/plain
+Date: Thu, 14 Sep 2006 22:46:56 +0200
+Message-Id: <1158266816.30737.99.camel@taijtu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4509BAD4.8010206@mbligh.org>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -2.9
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.9 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5000]
-	-0.1 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 2006-09-14 at 22:35 +0200, Peter Zijlstra wrote:
+> On Thu, 2006-09-14 at 14:22 -0500, Mike Christie wrote:
 
-* Martin Bligh <mbligh@mbligh.org> wrote:
-
-> >if there are lots of tracepoints (and the union of _all_ useful 
-> >tracepoints that i ever encountered in my life goes into the thousands) 
-> >then the overhead is not zero at all.
-> >
-> >also, the other disadvantages i listed very much count too. Static 
-> >tracepoints are fundamentally limited because:
-> >
-> >  - they can only be added at the source code level
-> >
-> >  - modifying them requires a reboot which is not practical in a
-> >    production environment
-> >
-> >  - there can only be a limited set of them, while many problems need
-> >    finegrained tracepoints tailored to the problem at hand
-> >
-> >  - conditional tracepoints are typically either nonexistent or very
-> >    limited.
-> >
-> >for me these are all _independent_ grounds for rejection, as a generic 
-> >kernel infrastructure.
+> > > I thought I found allocations in that path, lemme search...
+> > > found this:
+> > > 
+> > > iscsi_tcp_data_recv()
+> > >   iscsi_data_rescv()
+> > >     iscsi_complete_pdu()
+> > >       __iscsi_complete_pdu()
+> > >         iscsi_recv_pdu()
+> > >           alloc_skb( GFP_ATOMIC);
+> > > 
+> > 
+> > You are right that is for the netlink interface. Could we move the
+> > PF_MEMALLOC setting and clearing to iscsi_recv_pdu and and add it to
+> > iscsi_conn_error in scsi_transport_iscsi.c so that iscsi_iser and
+> > qla4xxx will have it set when they need it. I will send a patch for this
+> > along with a way to have the netlink sock vmio set for all iscsi drivers
+> > that need it.
 > 
-> I don't think anyone is saying that static tracepoints do not have 
-> their limitations, or that dynamic tracepointing is useless. But 
-> that's not the point ... why can't we have one infrastructure that 
-> supports both? Preferably in a fairly simple, consistent way.
+> I already have such a patch, look at:
+> http://programming.kicks-ass.net/kernel-patches/vm_deadlock/current/iscsi_vmio.patch
+> 
+> but what conditional do you want to use for PF_MEMALLOC, an
+> unconditional setting will be highly unpopular.
+> 
+> Hmm, perhaps you could key it of sk_has_vmio(nls)...
 
-primarily because i fail to see any property of static tracers that are 
-not met by dynamic tracers. So to me dynamic tracers like SystemTap are 
-a superset of static tracers.
+On second thought, not such a good idea, that will still be too course.
+You only want to force feed stuff originating from
+sk_has_vmio(iscsi_tcp_conn->sock->sk) connections, not all
+connectections as soon as there is a swapper in the system.
 
-So my position is that what we should concentrate on is to make the life 
-of dynamic tracers easier (be that a handful of generic, parametric 
-hooks that gather debuginfo information and add NOPs for easy patching), 
-while realizing that static tracers have no advantage over dynamic 
-tracers.
+In order to preserve that information you need extra state, abusing this
+process flags is as good as propagating __GFP_EMERGENCY down the call
+chain with extra gfp_t arguments, perhaps even better, since it will
+make sure we catch all allocations.
 
-i.e. why add infrastructure for the sake of something that is clearly 
-inferior? I have no problem with adding infrastructure for SystemTap, 
-but i am asking the question: is it worth adding a static tracer?
 
-I would of course accept static tracers too if someone proved it that 
-they offer something that dynamic tracers cannot do.
 
-(Just like i would accept the reintroduction of the Big Kernel Lock too, 
-if someone proved it that it's the right thing to do.)
-
-	Ingo

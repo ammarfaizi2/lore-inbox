@@ -1,47 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751107AbWINVhk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751131AbWINVhp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751107AbWINVhk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Sep 2006 17:37:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751123AbWINVhk
+	id S1751131AbWINVhp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Sep 2006 17:37:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751123AbWINVhp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Sep 2006 17:37:40 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:14290 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751107AbWINVhj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Sep 2006 17:37:39 -0400
-Date: Thu, 14 Sep 2006 22:37:33 +0100
-From: Alasdair G Kergon <agk@redhat.com>
+	Thu, 14 Sep 2006 17:37:45 -0400
+Received: from stat9.steeleye.com ([209.192.50.41]:42217 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S1751131AbWINVhn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Sep 2006 17:37:43 -0400
+Subject: Re: [GIT PATCH] (hopefully) final SCSI fixes for 2.6.19
+From: James Bottomley <James.Bottomley@SteelEye.com>
 To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, Milan Broz <mbroz@redhat.com>
-Subject: [PATCH 02/25] dm snapshot: fix invalidation ENOMEM
-Message-ID: <20060914213733.GJ3928@agk.surrey.redhat.com>
-Mail-Followup-To: Alasdair G Kergon <agk@redhat.com>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-	Milan Broz <mbroz@redhat.com>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-scsi <linux-scsi@vger.kernel.org>
+In-Reply-To: <20060914142044.4272fc56.akpm@osdl.org>
+References: <1158268378.3514.61.camel@mulgrave.il.steeleye.com>
+	 <20060914142044.4272fc56.akpm@osdl.org>
+Content-Type: text/plain
+Date: Thu, 14 Sep 2006 16:37:39 -0500
+Message-Id: <1158269859.3514.74.camel@mulgrave.il.steeleye.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Milan Broz <mbroz@redhat.com>
+On Thu, 2006-09-14 at 14:20 -0700, Andrew Morton wrote:
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc6/2.6.18-rc6-mm2/broken-out/fix-panic-when-reinserting-adaptec-pcmcia-scsi-card.patch
+> might be handy too.  Your ack is my command.
 
-Fix ENOMEM error sign.
+Well ... no, not really, on the grounds that the patch is wrong.
 
-Signed-off-by: Milan Broz <mbroz@redhat.com>
-Signed-off-By: Alasdair G Kergon <agk@redhat.com>
+The correct fix is to eliminate the aha152x_host array by converting the
+driver to the correct driver model ... I just haven't had time to look
+at doing that yet.
 
-Index: linux-2.6.18-rc7/drivers/md/dm-snap.c
-===================================================================
---- linux-2.6.18-rc7.orig/drivers/md/dm-snap.c	2006-09-14 20:25:35.000000000 +0100
-+++ linux-2.6.18-rc7/drivers/md/dm-snap.c	2006-09-14 20:26:20.000000000 +0100
-@@ -1034,7 +1034,7 @@ static int __origin_write(struct list_he
- 
- 		pe = __find_pending_exception(snap, bio);
- 		if (!pe) {
--			__invalidate_snapshot(snap, pe, ENOMEM);
-+			__invalidate_snapshot(snap, pe, -ENOMEM);
- 			goto next_snapshot;
- 		}
- 
+James
+
+

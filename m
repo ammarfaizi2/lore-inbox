@@ -1,297 +1,148 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750915AbWINUBF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750913AbWINUDx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750915AbWINUBF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Sep 2006 16:01:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750951AbWINUBF
+	id S1750913AbWINUDx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Sep 2006 16:03:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751105AbWINUDw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Sep 2006 16:01:05 -0400
-Received: from MAIL.13thfloor.at ([213.145.232.33]:23948 "EHLO
-	MAIL.13thfloor.at") by vger.kernel.org with ESMTP id S1750915AbWINUBE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Sep 2006 16:01:04 -0400
-Date: Thu, 14 Sep 2006 22:01:03 +0200
-From: Herbert Poetzl <herbert@13thfloor.at>
-To: "Eric W. Biederman" <ebiederm@xmission.com>,
-       Cedric Le Goater <clg@fr.ibm.com>, containers@lists.osdl.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Cc: v4l-dvb-maintainer@linuxtv.org, Andrew Morton <akpm@osdl.org>,
-       Andrew de Quincey <adq_dvb@lidskialf.net>
-Subject: [PATCH/RFC] kthread API conversion for dvb_frontend and av7110
-Message-ID: <20060914200103.GA8448@MAIL.13thfloor.at>
-Mail-Followup-To: "Eric W. Biederman" <ebiederm@xmission.com>,
-	Cedric Le Goater <clg@fr.ibm.com>, containers@lists.osdl.org,
-	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-	v4l-dvb-maintainer@linuxtv.org, Andrew Morton <akpm@osdl.org>,
-	Andrew de Quincey <adq_dvb@lidskialf.net>
-References: <45019CC3.2030709@fr.ibm.com> <m18xktkbli.fsf@ebiederm.dsl.xmission.com> <450537B6.1020509@fr.ibm.com> <m1u03eacdc.fsf@ebiederm.dsl.xmission.com> <45056D3E.6040702@fr.ibm.com> <m14pve9qip.fsf@ebiederm.dsl.xmission.com> <20060912110559.GD23808@MAIL.13thfloor.at>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060912110559.GD23808@MAIL.13thfloor.at>
-User-Agent: Mutt/1.5.11
+	Thu, 14 Sep 2006 16:03:52 -0400
+Received: from dvhart.com ([64.146.134.43]:51681 "EHLO dvhart.com")
+	by vger.kernel.org with ESMTP id S1750913AbWINUDw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Sep 2006 16:03:52 -0400
+Message-ID: <4509B5A4.2070508@mbligh.org>
+Date: Thu, 14 Sep 2006 13:03:48 -0700
+From: Martin Bligh <mbligh@mbligh.org>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051011)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
+       linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
+       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@redhat.com>,
+       Greg Kroah-Hartman <gregkh@suse.de>,
+       Thomas Gleixner <tglx@linutronix.de>, Tom Zanussi <zanussi@us.ibm.com>,
+       ltt-dev@shafik.org, Michel Dagenais <michel.dagenais@polymtl.ca>
+Subject: Re: [PATCH 0/11] LTTng-core (basic tracing infrastructure) 0.5.108
+References: <20060914033826.GA2194@Krystal> <20060914112718.GA7065@elte.hu> <450971CB.6030601@mbligh.org> <20060914174306.GA18890@elte.hu>
+In-Reply-To: <20060914174306.GA18890@elte.hu>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Ingo Molnar wrote:
+> * Martin J. Bligh <mbligh@mbligh.org> wrote:
+> 
+> 
+>>>>Comments and reviews are very welcome.
+>>>
+>>>i have one very fundamental question: why should we do this 
+>>>source-intrusive method of adding tracepoints instead of the 
+>>>dynamic, unintrusive (and thus zero-overhead) KProbes+SystemTap 
+>>>method?
+>>
+>>Because:
+>>
+>>1. Kprobes are more overhead when they *are* being used.
+> 
+> 
+> minimally so - at least on i386 and x86_64. In that sense tracing is a 
+> _slowpath_, and it _will_ slow things down if done excessively. I dont 
+> care about the tracepoint being slower by a few instructions as long as 
+> it has _zero effect_ on normal code, be that source code or binary code.
 
-Okay, as I promised, I had a first shot at the
-dvb kernel_thread to kthread API port, and here
-is the result, which is running fine here since
-yesterday, including module load/unload and
-software suspend (which doesn't work as expected
-with or without this patch :), I didn't convert
-the dvb_ca_en50221 as I do not have such an
-interface, but if the conversion process is fine
-with the v4l-dvb maintainers, it should not be
-a problem to send a patch for that too ...
+Would be interesting to see some measurements. But jumping is slower
+than a simple branch (or noops to skip over that can be overwritten).
 
-best,
-Herbert
+>>2. You can get zero overhead by CONFIG'ing things out.
+> 
+> but that's not how a fair chunk of people want to use tracing. People 
+> (enterprise customers trying to figure out performance problems, 
+> engineers trying to debug things on a live, production system) want to 
+> be able to insert a tracepoint anywhere and anytime - and also they want 
+> to have zero overhead from tracing if no tracepoints are used on a 
+> system.
 
-Signed-off-by: Herbert Poetzl <herbert@13thfloor.at>
+I'm fine with that ... "a fair chunk of people" - but it's not everyone,
+by any means. We need both static and dynamic tracepoints, in one
+infrastructure.
 
-diff -NurpP linux-2.6.18-rc6/drivers/media/dvb/dvb-core/dvb_frontend.c linux-2.6.18-rc6-kthread.v02.3/drivers/media/dvb/dvb-core/dvb_frontend.c
---- linux-2.6.18-rc6/drivers/media/dvb/dvb-core/dvb_frontend.c	2006-09-12 18:16:12 +0200
-+++ linux-2.6.18-rc6-kthread.v02.3/drivers/media/dvb/dvb-core/dvb_frontend.c	2006-09-14 21:23:37 +0200
-@@ -36,6 +36,7 @@
- #include <linux/list.h>
- #include <linux/suspend.h>
- #include <linux/jiffies.h>
-+#include <linux/kthread.h>
- #include <asm/processor.h>
- 
- #include "dvb_frontend.h"
-@@ -100,7 +101,7 @@ struct dvb_frontend_private {
- 	struct semaphore sem;
- 	struct list_head list_head;
- 	wait_queue_head_t wait_queue;
--	pid_t thread_pid;
-+	struct task_struct *thread;
- 	unsigned long release_jiffies;
- 	unsigned int exit;
- 	unsigned int wakeup;
-@@ -508,19 +509,11 @@ static int dvb_frontend_thread(void *dat
- 	struct dvb_frontend *fe = data;
- 	struct dvb_frontend_private *fepriv = fe->frontend_priv;
- 	unsigned long timeout;
--	char name [15];
- 	fe_status_t s;
- 	struct dvb_frontend_parameters *params;
- 
- 	dprintk("%s\n", __FUNCTION__);
- 
--	snprintf (name, sizeof(name), "kdvb-fe-%i", fe->dvb->num);
--
--	lock_kernel();
--	daemonize(name);
--	sigfillset(&current->blocked);
--	unlock_kernel();
--
- 	fepriv->check_wrapped = 0;
- 	fepriv->quality = 0;
- 	fepriv->delay = 3*HZ;
-@@ -534,14 +527,16 @@ static int dvb_frontend_thread(void *dat
- 		up(&fepriv->sem);	    /* is locked when we enter the thread... */
- 
- 		timeout = wait_event_interruptible_timeout(fepriv->wait_queue,
--							   dvb_frontend_should_wakeup(fe),
--							   fepriv->delay);
--		if (0 != dvb_frontend_is_exiting(fe)) {
-+			dvb_frontend_should_wakeup(fe) || kthread_should_stop(),
-+			fepriv->delay);
-+
-+		if (kthread_should_stop() || dvb_frontend_is_exiting(fe)) {
- 			/* got signal or quitting */
- 			break;
- 		}
- 
--		try_to_freeze();
-+		if (try_to_freeze())
-+			continue;
- 
- 		if (down_interruptible(&fepriv->sem))
- 			break;
-@@ -591,7 +586,7 @@ static int dvb_frontend_thread(void *dat
- 			fe->ops.sleep(fe);
- 	}
- 
--	fepriv->thread_pid = 0;
-+	fepriv->thread = NULL;
- 	mb();
- 
- 	dvb_frontend_wakeup(fe);
-@@ -600,7 +595,6 @@ static int dvb_frontend_thread(void *dat
- 
- static void dvb_frontend_stop(struct dvb_frontend *fe)
- {
--	unsigned long ret;
- 	struct dvb_frontend_private *fepriv = fe->frontend_priv;
- 
- 	dprintk ("%s\n", __FUNCTION__);
-@@ -608,33 +602,17 @@ static void dvb_frontend_stop(struct dvb
- 	fepriv->exit = 1;
- 	mb();
- 
--	if (!fepriv->thread_pid)
--		return;
--
--	/* check if the thread is really alive */
--	if (kill_proc(fepriv->thread_pid, 0, 1) == -ESRCH) {
--		printk("dvb_frontend_stop: thread PID %d already died\n",
--				fepriv->thread_pid);
--		/* make sure the mutex was not held by the thread */
--		init_MUTEX (&fepriv->sem);
-+	if (!fepriv->thread)
- 		return;
--	}
--
--	/* wake up the frontend thread, so it notices that fe->exit == 1 */
--	dvb_frontend_wakeup(fe);
- 
--	/* wait until the frontend thread has exited */
--	ret = wait_event_interruptible(fepriv->wait_queue,0 == fepriv->thread_pid);
--	if (-ERESTARTSYS != ret) {
--		fepriv->state = FESTATE_IDLE;
--		return;
--	}
-+	kthread_stop(fepriv->thread);
-+	init_MUTEX (&fepriv->sem);
- 	fepriv->state = FESTATE_IDLE;
- 
- 	/* paranoia check in case a signal arrived */
--	if (fepriv->thread_pid)
--		printk("dvb_frontend_stop: warning: thread PID %d won't exit\n",
--				fepriv->thread_pid);
-+	if (fepriv->thread)
-+		printk("dvb_frontend_stop: warning: thread %p won't exit\n",
-+				fepriv->thread);
- }
- 
- s32 timeval_usec_diff(struct timeval lasttime, struct timeval curtime)
-@@ -684,10 +662,11 @@ static int dvb_frontend_start(struct dvb
- {
- 	int ret;
- 	struct dvb_frontend_private *fepriv = fe->frontend_priv;
-+	struct task_struct *fe_thread;
- 
- 	dprintk ("%s\n", __FUNCTION__);
- 
--	if (fepriv->thread_pid) {
-+	if (fepriv->thread) {
- 		if (!fepriv->exit)
- 			return 0;
- 		else
-@@ -701,18 +680,18 @@ static int dvb_frontend_start(struct dvb
- 
- 	fepriv->state = FESTATE_IDLE;
- 	fepriv->exit = 0;
--	fepriv->thread_pid = 0;
-+	fepriv->thread = NULL;
- 	mb();
- 
--	ret = kernel_thread (dvb_frontend_thread, fe, 0);
--
--	if (ret < 0) {
--		printk("dvb_frontend_start: failed to start kernel_thread (%d)\n", ret);
-+	fe_thread = kthread_run(dvb_frontend_thread, fe,
-+		"kdvb-fe-%i", fe->dvb->num);
-+	if (IS_ERR(fe_thread)) {
-+		ret = PTR_ERR(fe_thread);
-+		printk("dvb_frontend_start: failed to start kthread (%d)\n", ret);
- 		up(&fepriv->sem);
- 		return ret;
- 	}
--	fepriv->thread_pid = ret;
--
-+	fepriv->thread = fe_thread;
- 	return 0;
- }
- 
-diff -NurpP linux-2.6.18-rc6/drivers/media/dvb/ttpci/av7110.c linux-2.6.18-rc6-kthread.v02.3/drivers/media/dvb/ttpci/av7110.c
---- linux-2.6.18-rc6/drivers/media/dvb/ttpci/av7110.c	2006-09-12 18:16:13 +0200
-+++ linux-2.6.18-rc6-kthread.v02.3/drivers/media/dvb/ttpci/av7110.c	2006-09-14 21:21:03 +0200
-@@ -51,6 +51,7 @@
- #include <linux/firmware.h>
- #include <linux/crc32.h>
- #include <linux/i2c.h>
-+#include <linux/kthread.h>
- 
- #include <asm/system.h>
- 
-@@ -223,11 +224,10 @@ static void recover_arm(struct av7110 *a
- 
- static void av7110_arm_sync(struct av7110 *av7110)
- {
--	av7110->arm_rmmod = 1;
--	wake_up_interruptible(&av7110->arm_wait);
-+	if (av7110->arm_thread)
-+		kthread_stop(av7110->arm_thread);
- 
--	while (av7110->arm_thread)
--		msleep(1);
-+	av7110->arm_thread = NULL;
- }
- 
- static int arm_thread(void *data)
-@@ -238,17 +238,11 @@ static int arm_thread(void *data)
- 
- 	dprintk(4, "%p\n",av7110);
- 
--	lock_kernel();
--	daemonize("arm_mon");
--	sigfillset(&current->blocked);
--	unlock_kernel();
--
--	av7110->arm_thread = current;
--
- 	for (;;) {
- 		timeout = wait_event_interruptible_timeout(av7110->arm_wait,
--							   av7110->arm_rmmod, 5 * HZ);
--		if (-ERESTARTSYS == timeout || av7110->arm_rmmod) {
-+			kthread_should_stop(), 5 * HZ);
-+
-+		if (-ERESTARTSYS == timeout || kthread_should_stop()) {
- 			/* got signal or told to quit*/
- 			break;
- 		}
-@@ -276,7 +270,6 @@ static int arm_thread(void *data)
- 		av7110->arm_errors = 0;
- 	}
- 
--	av7110->arm_thread = NULL;
- 	return 0;
- }
- 
-@@ -2334,6 +2327,7 @@ static int __devinit av7110_attach(struc
- 	const int length = TS_WIDTH * TS_HEIGHT;
- 	struct pci_dev *pdev = dev->pci;
- 	struct av7110 *av7110;
-+	struct task_struct *thread;
- 	int ret, count = 0;
- 
- 	dprintk(4, "dev: %p\n", dev);
-@@ -2618,9 +2612,12 @@ static int __devinit av7110_attach(struc
- 		printk ("dvb-ttpci: Warning, firmware version 0x%04x is too old. "
- 			"System might be unstable!\n", FW_VERSION(av7110->arm_app));
- 
--	ret = kernel_thread(arm_thread, (void *) av7110, 0);
--	if (ret < 0)
-+	thread = kthread_run(arm_thread, (void *) av7110, "arm_mon");
-+	if (IS_ERR(thread)) {
-+		ret = PTR_ERR(thread);
- 		goto err_stop_arm_9;
-+	}
-+	av7110->arm_thread = thread;
- 
- 	/* set initial volume in mixer struct */
- 	av7110->mixer.volume_left  = volume;
-diff -NurpP linux-2.6.18-rc6/drivers/media/dvb/ttpci/av7110.h linux-2.6.18-rc6-kthread.v02.3/drivers/media/dvb/ttpci/av7110.h
---- linux-2.6.18-rc6/drivers/media/dvb/ttpci/av7110.h	2006-09-12 18:16:13 +0200
-+++ linux-2.6.18-rc6-kthread.v02.3/drivers/media/dvb/ttpci/av7110.h	2006-09-14 21:21:03 +0200
-@@ -205,7 +205,6 @@ struct av7110 {
- 	struct task_struct *arm_thread;
- 	wait_queue_head_t   arm_wait;
- 	u16		    arm_loops;
--	int		    arm_rmmod;
- 
- 	void		   *debi_virt;
- 	dma_addr_t	    debi_bus;
+>>3. (most importantly) it's a bitch to maintain tracepoints out
+>>   of-tree on a rapidly moving kernel
+> 
+> wrong: the original demo tracepoints that came with SystemTap still work 
+> on the current kernel, because the 'coupling' is loose: based on 
+> function names.
+
+And what do those trace? I bet not half the stuff we want to do.
+I've been migrating Google's tracepoints around between different
+kernel versions, and it's not a mechanical port. Just stupid things
+like renaming of functions inside memory reclaim creates pain, for
+starters. (shrink_cache/shrink_list, refill_inactive_zone, etc).
+
+> Static tracepoints on the other hand, if added via an external patch, do 
+> depend on the target function not moving around and the context of the 
+> tracepoint not being changed. (and static tracepoints if in the source 
+> all the time are a constant hindrance to development and code 
+> readability.)
+
+an external patch is, indeed, pretty useless. Merging a few simple
+tracepoints should not be a problem - see blktrace and schedstats,
+for instance.
+
+> and of course the big advantage of dynamic probing is its flexibility: 
+> you can add add-hoc tracepoints to thousands of functions, instead of 
+> having to maintain hundreds (or thousands) of static tracepoints all the 
+> time. (and if we wont end up with hundreds/thousands of static 
+> tracepoints then it wont be usable enough as a generic solution.)
+
+I wasn't saying that dynamic tracepoints are useless - I agree it's
+valuable to add stuff on the fly. But some things are better done
+statically.
+
+>>4. I believe kprobes still doesn't have full access to local 
+>>variables. 
+> 
+> wrong: with SystemTap you can probe local variables too (via 
+> jprobes/kretprobes, all in the upstream kernel already).
+
+I'll look again, but last time I looked it didn't do this, and
+when I spoke to the kprobes/systemtap people at OLS, IIRC they
+said it still couldn't.
+
+>>Now (3) is possibly solvable by putting the points in as no-ops 
+>>(either insert a few nops or just a marker entry in the symbol 
+>>table?), but full dynamic just isn't sustainable. [...]
+> 
+> i'm not sure i follow. Could you explain where SystemTap has this 
+> difficulty?
+
+If you have an extremely limited set of probes, on a static area
+of the kernel, then yes, they may work for a long time. But try
+tracing something like the scheduler, which people seem to delight
+in rewriting every month or two ...
+
+It amuses me that we're so opposed to external patches to the tree
+(for perfectly understandable reasons), but we somehow think tracepoints
+are magically different and should be maintained out of tree somehow.
+You yourself made the argument that it's a maintainance burden to
+keep the trace points *in* the tree ... if that's true, how is it
+any easier to keep them outside of the tree?
+
+If we really want to, we can still keep the hooks inside the code,
+and have them do absolutely nothing at all - putting markers into
+the symbol table is pretty much free. It also reuses the well
+structured code-sharing mechanism we already have in place - the
+linux kernel tree.
+
+I really don't want to deal with all the systemtap crap - I just
+want something that works, and I don't particularly care if I have
+to recompile the kernel to get it. I know that doesn't suit everyone,
+but there are requirements on both sides, and we should not dismiss
+each other's requirements out of hand.
+
+Having one consistent consistent collection mechanism for all these
+different types of tracing data seems both logical and very important
+to me ...
+
+M.

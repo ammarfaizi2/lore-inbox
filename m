@@ -1,76 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932150AbWINXws@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932151AbWINXyq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932150AbWINXws (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Sep 2006 19:52:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932154AbWINXws
+	id S932151AbWINXyq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Sep 2006 19:54:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932156AbWINXyp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Sep 2006 19:52:48 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:56787 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932150AbWINXwr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Sep 2006 19:52:47 -0400
-Date: Fri, 15 Sep 2006 01:43:54 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Daniel Walker <dwalker@mvista.com>,
-       Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
-       linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
-       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@redhat.com>,
-       Greg Kroah-Hartman <gregkh@suse.de>,
-       Thomas Gleixner <tglx@linutronix.de>, Tom Zanussi <zanussi@us.ibm.com>,
-       ltt-dev@shafik.org, Michel Dagenais <michel.dagenais@polymtl.ca>
-Subject: Re: [PATCH 0/11] LTTng-core (basic tracing infrastructure) 0.5.108
-Message-ID: <20060914234354.GA2754@elte.hu>
-References: <20060914171320.GB1105@elte.hu> <Pine.LNX.4.64.0609141935080.6761@scrub.home> <20060914181557.GA22469@elte.hu> <Pine.LNX.4.64.0609142038570.6761@scrub.home> <20060914202452.GA9252@elte.hu> <Pine.LNX.4.64.0609142248360.6761@scrub.home> <1158268113.17467.38.camel@c-67-180-230-165.hsd1.ca.comcast.net> <Pine.LNX.4.64.0609142324181.6761@scrub.home> <20060914221521.GA23371@elte.hu> <Pine.LNX.4.64.0609150113450.6761@scrub.home>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 14 Sep 2006 19:54:45 -0400
+Received: from liaag2ae.mx.compuserve.com ([149.174.40.156]:2436 "EHLO
+	liaag2ae.mx.compuserve.com") by vger.kernel.org with ESMTP
+	id S932151AbWINXyp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Sep 2006 19:54:45 -0400
+Date: Thu, 14 Sep 2006 19:47:43 -0400
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: ACPI Exception (acpi_thermal-0412)
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Cc: Len Brown <len.brown@intel.com>
+Message-ID: <200609141951_MC3-1-CB3C-3653@compuserve.com>
+MIME-Version: 1.0
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	 charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0609150113450.6761@scrub.home>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -2.9
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.9 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5000]
-	-0.1 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+I get this message at boot on 2.6.18-rc6:
 
-* Roman Zippel <zippel@linux-m68k.org> wrote:
+ ACPI Exception (acpi_thermal-0412): AE_NOT_FOUND, Invalid active threshold [0] [20060707]
 
-> > While with SystemTap the coupling is alot smaller.
-> 
-> What guarantees we don't have similiar problems with dynamic 
-> tracepoints? As soon as any tracing is merged, users will have some 
-> kind of expectation [...]
+Followed by:
 
-because users rely on the functionality, not on the implementation 
-details. As i outlined it before: with dynamic tracers, static 
-tracepoints _are not a necessity_. With static tracers, _static 
-tracepoints are the only game in town_.
+ ACPI: Thermal Zone [THRM] (47 C)
 
-i outlined one such specific "removal of static tracepoint" example 
-already: static trace points at the head/prologue of functions (half of 
-the existing tracepoints are such). The sock_sendmsg() example i quoted 
-before is such a case. Those trace points can be replaced with a simple 
-GCC function attribute, which would cause a 5-byte (or whatever 
-necessary) NOP to be inserted at the function prologue. The attribute 
-would be alot less invasive than an explicit tracepoint (and thus easier 
-to maintain):
+And looking in /proc/acpi/thermal_zone/THRM/cooling_mode, I see:
 
- int __trace function(char arg1, char arg2)
- {
- }
+<setting not supported>
+cooling mode:   passive
 
-where kprobes can be used to attach a lightweight tracepoint that does a 
-call, not a break (INT3) instruction. With static tracers we couldnt do 
-this so we'd have to stick with the static tracepoints forever! It's 
-always hard to remove features, so we have to make sure we add the 
-feature that we know is the best long-term solution.
+The fan seems to run at low speed even when CPU temp is stable at 37C,
+and speeds up when it gets warmer, so there seems to be no overheating
+problem (highest temp seen under full load is 60C.)
 
-	Ingo
+Is this normal?
+
+-- 
+Chuck

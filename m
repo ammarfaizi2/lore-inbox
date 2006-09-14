@@ -1,123 +1,119 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751003AbWINVCp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751010AbWINVDb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751003AbWINVCp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Sep 2006 17:02:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751012AbWINVCp
+	id S1751010AbWINVDb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Sep 2006 17:03:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751097AbWINVDb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Sep 2006 17:02:45 -0400
-Received: from wohnheim.fh-wedel.de ([213.39.233.138]:18121 "EHLO
-	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S1750992AbWINVCo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Sep 2006 17:02:44 -0400
-Date: Thu, 14 Sep 2006 23:02:35 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Andreas Dilger <adilger@clusterfs.com>
-Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [RFC] Alignment of fields in struct dentry
-Message-ID: <20060914210235.GA10548@wohnheim.fh-wedel.de>
-References: <20060914093123.GA10431@wohnheim.fh-wedel.de> <20060914105029.GA1702@wohnheim.fh-wedel.de> <20060914183325.GU6441@schatzie.adilger.int>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20060914183325.GU6441@schatzie.adilger.int>
-User-Agent: Mutt/1.5.9i
+	Thu, 14 Sep 2006 17:03:31 -0400
+Received: from sabe.cs.wisc.edu ([128.105.6.20]:59591 "EHLO sabe.cs.wisc.edu")
+	by vger.kernel.org with ESMTP id S1751010AbWINVD3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Sep 2006 17:03:29 -0400
+Message-ID: <4509C38B.3000808@cs.wisc.edu>
+Date: Thu, 14 Sep 2006 16:03:07 -0500
+From: Mike Christie <michaelc@cs.wisc.edu>
+User-Agent: Thunderbird 1.5 (X11/20060313)
+MIME-Version: 1.0
+To: Peter Zijlstra <a.p.zijlstra@chello.nl>
+CC: linux-mm@kvack.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       David Miller <davem@davemloft.net>, Rik van Riel <riel@redhat.com>,
+       Daniel Phillips <phillips@google.com>
+Subject: Re: [PATCH 20/20] iscsi: support for swapping over iSCSI.
+References: <20060912143049.278065000@chello.nl>	 <20060912144905.201160000@chello.nl>  <45086F16.9030307@cs.wisc.edu>	 <1158214650.13665.27.camel@twins>  <4509ABE5.2080904@cs.wisc.edu> <1158266150.30737.92.camel@taijtu> <4509C2DF.8000007@cs.wisc.edu>
+In-Reply-To: <4509C2DF.8000007@cs.wisc.edu>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Andreas,
-
-On Thu, 14 September 2006 12:33:25 -0600, Andreas Dilger wrote:
+Mike Christie wrote:
+> Peter Zijlstra wrote:
+>> On Thu, 2006-09-14 at 14:22 -0500, Mike Christie wrote:
+>>> Peter Zijlstra wrote:
+>>>> On Wed, 2006-09-13 at 15:50 -0500, Mike Christie wrote:
+>>>>> Peter Zijlstra wrote:
+>>>>>> Implement sht->swapdev() for iSCSI. This method takes care of reserving
+>>>>>> the extra memory needed and marking all relevant sockets with SOCK_VMIO.
+>>>>>>
+>>>>>> When used for swapping, TCP socket creation is done under GFP_MEMALLOC and
+>>>>>> the TCP connect is done with SOCK_VMIO to ensure their success. Also the
+>>>>>> netlink userspace interface is marked SOCK_VMIO, this will ensure that even
+>>>>>> under pressure we can still communicate with the daemon (which runs as
+>>>>>> mlockall() and needs no additional memory to operate).
+>>>>>>
+>>>>>> Netlink requests are handled under the new PF_MEM_NOWAIT when a swapper is
+>>>>>> present. This ensures that the netlink socket will not block. User-space will
+>>>>>> need to retry failed requests.
+>>>>>>
+>>>>>> The TCP receive path is handled under PF_MEMALLOC for SOCK_VMIO sockets.
+>>>>>> This makes sure we do not block the critical socket, and that we do not
+>>>>>> fail to process incomming data.
+>>>>>>
+>>>>>> Signed-off-by: Peter Zijlstra <a.p.zijlstra@chello.nl>
+>>>>>> CC: Mike Christie <michaelc@cs.wisc.edu>
+>>>>>> ---
+>>>>>>  drivers/scsi/iscsi_tcp.c            |  103 +++++++++++++++++++++++++++++++-----
+>>>>>>  drivers/scsi/scsi_transport_iscsi.c |   23 +++++++-
+>>>>>>  include/scsi/libiscsi.h             |    1 
+>>>>>>  include/scsi/scsi_transport_iscsi.h |    2 
+>>>>>>  4 files changed, 113 insertions(+), 16 deletions(-)
+>>>>>>
+>>>>>> Index: linux-2.6/drivers/scsi/iscsi_tcp.c
+>>>>>> ===================================================================
+>>>>>> --- linux-2.6.orig/drivers/scsi/iscsi_tcp.c
+>>>>>> +++ linux-2.6/drivers/scsi/iscsi_tcp.c
+>>>>>> @@ -42,6 +42,7 @@
+>>>>>>  #include <scsi/scsi_host.h>
+>>>>>>  #include <scsi/scsi.h>
+>>>>>>  #include <scsi/scsi_transport_iscsi.h>
+>>>>>> +#include <scsi/scsi_device.h>
+>>>>>>  
+>>>>>>  #include "iscsi_tcp.h"
+>>>>>>  
+>>>>>> @@ -845,9 +846,13 @@ iscsi_tcp_data_recv(read_descriptor_t *r
+>>>>>>  	int rc;
+>>>>>>  	struct iscsi_conn *conn = rd_desc->arg.data;
+>>>>>>  	struct iscsi_tcp_conn *tcp_conn = conn->dd_data;
+>>>>>> -	int processed;
+>>>>>> +	int processed = 0;
+>>>>>>  	char pad[ISCSI_PAD_LEN];
+>>>>>>  	struct scatterlist sg;
+>>>>>> +	unsigned long pflags = current->flags;
+>>>>>> +
+>>>>>> +	if (sk_has_vmio(tcp_conn->sock->sk))
+>>>>>> +		current->flags |= PF_MEMALLOC;
+>>>>>>  
+>>>>> Is this too late or not needed or what is it for? This function gets run
+>>>>> from the network layer's softirq and at this point we have a skbuff with
+>>>>> data that we want to process. The iscsi layer also does not allocate
+>>>>> memory for read or write IO in this path.
+>>>> I thought I found allocations in that path, lemme search...
+>>>> found this:
+>>>>
+>>>> iscsi_tcp_data_recv()
+>>>>   iscsi_data_rescv()
+>>>>     iscsi_complete_pdu()
+>>>>       __iscsi_complete_pdu()
+>>>>         iscsi_recv_pdu()
+>>>>           alloc_skb( GFP_ATOMIC);
+>>>>
+>>> You are right that is for the netlink interface. Could we move the
+>>> PF_MEMALLOC setting and clearing to iscsi_recv_pdu and and add it to
+>>> iscsi_conn_error in scsi_transport_iscsi.c so that iscsi_iser and
+>>> qla4xxx will have it set when they need it. I will send a patch for this
+>>> along with a way to have the netlink sock vmio set for all iscsi drivers
+>>> that need it.
+>> I already have such a patch, look at:
+>> http://programming.kicks-ass.net/kernel-patches/vm_deadlock/current/iscsi_vmio.patch
+>>
 > 
-> I think it makes sense to keep d_inode in the first part of the dentry
-> always, because it is by far the most referenced field in the dentry,
-> along with the critical fields from prune_dcache(), shrink_dcache_anon(),
-> dget(), dput(), d_lookup().
-
-d_inode is definitely one of the hotter fields in there.  It just
-happens to cause the misalignment.  Bah, I don't see a good solution.
-
-> While not totally accurate in terms of runtime frequency of use, the counts
-> in the code:
+> You are drowning me in patches :) I did not see that one. I was still
+> commenting on this patch :)
 > 
->           fs/*.[ch] fs/*/*.[ch] size32 size64 prune_dc shrk_dc_anon d_lookup
-> d_inode	        384        2131      4      8
-> d_lock          104         529      4      4       1       2
-> d_count          18          66      4      4       1       2
-> d_lru            18          18      4_     8       1       1
-> d_hash           37         154      4      8_              2          1
-> d_name           73         908     12_    16                          1
-> d_flags          26         104      4      4       2
-> d_mounted         7           7      4      4
-> d_parent         40         231      4      8_                         2
-> d_op             37         269      4      8
-> d_rcu/d_child  3+22        3+45      8     16
+> The new patch looks ok.
+> 
 
-[ d_hash is 8/16, actually ]
-
-d_hash, d_name and d_parent belong way up to the top of the list, imo.
-d_lookup() should be the hottest function of all, as the comment in
-the structure definition already indicates.  Maybe the solution is to
-rearrange the fields with those going to the top?
-
-Using your scheme (slightly reduced) we now have:
-		size32	size64	funky?
-d_count		4	4
-d_flags		4	4
-d_lock		4	4_	y
-d_inode		4_	8
-d_hash		8	16--
-d_parent	4	8_
-d_name		12--	16___
-d_lru		8_	16_
-d_rcu/d_child	8	16__
-d_subdirs	8___	16_
-d_alias		8	16____
-d_time		4	8
-d_op		4_	8_
-d_sb		4	8
-d_fsdata	4	8__
-d_cookie	0	0	y
-d_mounted	4	4
-d_iname		36____	36
-
-With the two funky fields possibly growing, depending on kernel
-config.  [_-] mark 16-, 32- 64- and 128-byte boundaries, depending on
-len.  What really frightens me is that a 32-byte boundary goes right
-through d_name on 32bit machines.  Iirc, my PIII has 32-byte
-cachelines.  Not good.
-
-How about moving [d_hash,d_parent,d_name] to the front?  Something
-like:
-		size32	size64	funky?
-d_hash		8	16_
-d_parent	4	8
-d_name		12-	16--
-d_inode		4	8_
-d_count		4__	4
-d_flags		4	4
-d_lock		4	4	y
-
-d_mounted	4	4
-
-d_lru		8	16
-d_rcu/d_child	8	16
-d_subdirs	8	16
-d_alias		8	16
-d_time		4	8
-d_op		4	8
-d_sb		4	8
-d_fsdata	4	8
-d_cookie	0	0	y
-d_iname		36	36
-
-Now d_lookup() should use a single cacheline, even on my aged
-notebook, and the other hot fields remain at the top.  d_mounted is
-also moved up to remove the misalignment on 64bit.  Might be worth
-a benchmark or two to see whether it makes a difference...
-
-Jörn
-
--- 
-Joern's library part 1:
-http://lwn.net/Articles/2.6-kernel-api/
+Oh, I think you need a sock_put to go with netlink lookup (lookup does a
+hold).

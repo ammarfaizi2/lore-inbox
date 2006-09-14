@@ -1,53 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750704AbWINPHR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750742AbWINPIs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750704AbWINPHR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Sep 2006 11:07:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750738AbWINPHR
+	id S1750742AbWINPIs (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Sep 2006 11:08:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750743AbWINPIs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Sep 2006 11:07:17 -0400
-Received: from mga07.intel.com ([143.182.124.22]:62610 "EHLO
-	azsmga101.ch.intel.com") by vger.kernel.org with ESMTP
-	id S1750704AbWINPHP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Sep 2006 11:07:15 -0400
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.09,165,1157353200"; 
-   d="scan'208"; a="116446343:sNHT704618488"
-Date: Thu, 14 Sep 2006 08:04:14 -0700
-From: Mark Gross <mgross@linux.intel.com>
-To: Vitaly Wool <vitalywool@gmail.com>
-Cc: Pavel Machek <pavel@ucw.cz>,
-       Preece Scott-PREECE <scott.preece@motorola.com>,
-       pm list <linux-pm@lists.osdl.org>,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [linux-pm] cpufreq terminally broken [was Re: community PM requirements/issues and PowerOP]
-Message-ID: <20060914150414.GB6008@linux.intel.com>
-Reply-To: mgross@linux.intel.com
-References: <20060911082025.GD1898@elf.ucw.cz> <b0623b9bb79afacc77cddc6e39c96b62@nomadgs.com> <20060911195546.GB11901@elf.ucw.cz> <4505CCDA.8020501@gmail.com> <20060911210026.GG11901@elf.ucw.cz> <4505DDA6.8080603@gmail.com> <20060911225617.GB13474@elf.ucw.cz> <20060912001701.GC14234@linux.intel.com> <20060912083328.GA19197@elf.ucw.cz> <acd2a5930609120210w7ee5a156s5fa5bbc59aeabad8@mail.gmail.com>
+	Thu, 14 Sep 2006 11:08:48 -0400
+Received: from twin.jikos.cz ([213.151.79.26]:59290 "EHLO twin.jikos.cz")
+	by vger.kernel.org with ESMTP id S1750742AbWINPIr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Sep 2006 11:08:47 -0400
+Date: Thu, 14 Sep 2006 17:08:21 +0200 (CEST)
+From: Jiri Kosina <jikos@jikos.cz>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+cc: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
+       Arjan van de Ven <arjan@infradead.org>, Dave Jones <davej@redhat.com>
+Subject: Re: [PATCH 0/3] Synaptics - fix lockdep warnings
+In-Reply-To: <d120d5000609140758w7ba5cfdbs399d6831082e7cb4@mail.gmail.com>
+Message-ID: <Pine.LNX.4.64.0609141700250.2721@twin.jikos.cz>
+References: <Pine.LNX.4.64.0609140227500.22181@twin.jikos.cz> 
+ <200609132200.51342.dtor@insightbb.com>  <Pine.LNX.4.64.0609141028540.22181@twin.jikos.cz>
+  <d120d5000609140618h6e929883u2ed82d1cab677e57@mail.gmail.com> 
+ <Pine.LNX.4.64.0609141635040.2721@twin.jikos.cz>
+ <d120d5000609140758w7ba5cfdbs399d6831082e7cb4@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <acd2a5930609120210w7ee5a156s5fa5bbc59aeabad8@mail.gmail.com>
-User-Agent: Mutt/1.5.11
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 12, 2006 at 01:10:24PM +0400, Vitaly Wool wrote:
-> Pavel,
-> 
-> On 9/12/06, Pavel Machek <pavel@ucw.cz> wrote:
-> >Can we at least try adding that, before deciding cpufreq is unsuitable
-> >and starting new interface? I do not think issues are nearly as big as
-> >you think.. (at user<->kernel interface level, anyway; you'll need big
-> >changes under the hood).
-> 
-> who talks about user <-> kernel interface level changes at the moment?!
->
+On Thu, 14 Sep 2006, Dmitry Torokhov wrote:
 
-Mostly Pavel is.
+> Yes, this is much, much better. Could you please tell me if depth should 
+> be a true depth or just an unique number? The reason I am asking is that 
+> I hope to get rid of parent/child pointers in serio (they were 
+> introduced when driver core could not handle recursive addition/removing 
+> of devices on the same bus).
 
-There are questions on how to set/get operating points between the
-platform and user space, and some questions on one to make the space of
-operating points extensible outside of compile time deployment nice.
-But these questions aren't the ones I see folks fussing about.
+I am afraid you can't generate just any unique number to represent the 
+lock class, as the lockdep validator fails if the class number is higher 
+than MAX_LOCKDEP_SUBCLASSES, which is by default 8.
 
---mgross
+Regarding the patches - should I submit them upstream, or will you?
+
+Thanks,
+
+-- 
+JiKos.

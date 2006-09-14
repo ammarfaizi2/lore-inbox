@@ -1,68 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751056AbWINDXT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751257AbWINDfg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751056AbWINDXT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Sep 2006 23:23:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751257AbWINDXT
+	id S1751257AbWINDfg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Sep 2006 23:35:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751293AbWINDff
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Sep 2006 23:23:19 -0400
-Received: from wx-out-0506.google.com ([66.249.82.234]:22726 "EHLO
-	wx-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1751056AbWINDXS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Sep 2006 23:23:18 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=Udew/n5+e55w3zQZhZuR90/glEsiZoolv5tWrXJoI5pshAca/4OraH+56tjgqXP/kbY8HTrN4NKiyn43mzzeklB/KgbIVrWE8CAi/8Rd/r0QhWpr4LW4wG6GnovN8klZJyr3K+IHVDC52ZP784q4FXP2ht/0c0L3DQZ646B7IpA=
-Message-ID: <787b0d920609132023t1686525ei9c1703b044029909@mail.gmail.com>
-Date: Wed, 13 Sep 2006 23:23:18 -0400
-From: "Albert Cahalan" <acahalan@gmail.com>
-To: torvalds@osdl.org, jeremy@goop.org, mingo@elte.hu, ak@suse.de,
-       ebiederm@xmission.com, arjan@infradead.org, zach@vmware.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: Assignment of GDT entries
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Wed, 13 Sep 2006 23:35:35 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:14033
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1751257AbWINDff (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Sep 2006 23:35:35 -0400
+Date: Wed, 13 Sep 2006 20:36:26 -0700 (PDT)
+Message-Id: <20060913.203626.104044096.davem@davemloft.net>
+To: kaber@trash.net
+Cc: bugfixer@list.ru, linux-kernel@vger.kernel.org, akpm@osdl.org,
+       netdev@vger.kernel.org
+Subject: Re: netdevice name corruption is still present in 2.6.18-rc6-mm1
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <4503DD7B.1070003@trash.net>
+References: <20060909032939.GA3087@nickolas.homeunix.com>
+	<20060910020707.GA3160@nickolas.homeunix.com>
+	<4503DD7B.1070003@trash.net>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds writes:
-> On Wed, 13 Sep 2006, Jeremy Fitzhardinge wrote:
+From: Patrick McHardy <kaber@trash.net>
+Date: Sun, 10 Sep 2006 11:40:11 +0200
 
->> So does this mean that moving the user-visible cs/ds isn't
->> likely to break stuff, if it has been done before?
->
-> Yes. I _think_ we could do it. It's been done before, and nobody noticed.
->
-> That said, it may actually be that programs have since become much more
-> aware of segments, for a rather perverse reason: the TLS stuff. Old
-> programs are all very much coded and compiled for a totally flat model,
-> and as such they really don't know _anything_ about segments. But with
-> more TLS stuff, it's possible that a modern threded program is at least
-> aware of _some_ of it.
+> Dave, please apply the attached patch to net-2.6.19, it fixes the
+> netdevice name corruption reported by multiple people.
 
-We actually have an ABI problem right now because of this.
-Note that i386 and x86_64 use different GDT slots.
-
-As far as I can tell, users need to hard-code the mapping
-from TLS slot to segment number. They use 0,1,2 to ask the
-kernel to set things up (via set_thread_area), but can't
-just pop that into %fs or %gs.
-
-So a 32-bit app using set_thread_area can work on i386 or x86_64,
-but not both. I guess glibc gets %gs set up free via clone() with
-the right flags, and thus does not need to determine the kernel.
-For anything involving set_thread_area though, it gets nasty.
-
-Typical hacks that result from this:
-
-call uname() and look for "x86_64"
-see of the addresses of local variables exceed 0xbfffffff
-examine /proc/1/maps
-check for a /lib64 directory
-change SSE register 8 in a signal handler frame and see if it sticks
-checksum the vdso code
-...
-
-Please save us from these foul hacks.
+Applied, thanks a lot.

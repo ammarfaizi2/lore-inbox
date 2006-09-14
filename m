@@ -1,393 +1,901 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932074AbWINNPd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932071AbWINNNq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932074AbWINNPd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Sep 2006 09:15:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932075AbWINNPd
+	id S932071AbWINNNq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Sep 2006 09:13:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932073AbWINNNq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Sep 2006 09:15:33 -0400
-Received: from ogre.sisk.pl ([217.79.144.158]:8407 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S932074AbWINNPc (ORCPT
+	Thu, 14 Sep 2006 09:13:46 -0400
+Received: from mail.sf-mail.de ([62.27.20.61]:64482 "EHLO mail.sf-mail.de")
+	by vger.kernel.org with ESMTP id S932071AbWINNNo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Sep 2006 09:15:32 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Alan Stern <stern@rowland.harvard.edu>
-Subject: Re: [linux-usb-devel] 2.6.18-rc6-mm1 (-mm2): ohci resume problem
-Date: Thu, 14 Sep 2006 15:14:48 +0200
-User-Agent: KMail/1.9.1
-Cc: Andrew Morton <akpm@osdl.org>, Mattia Dongili <malattia@linux.it>,
-       Kernel development list <linux-kernel@vger.kernel.org>,
-       USB development list <linux-usb-devel@lists.sourceforge.net>
-References: <Pine.LNX.4.44L0.0609131749230.8180-100000@iolanthe.rowland.org>
-In-Reply-To: <Pine.LNX.4.44L0.0609131749230.8180-100000@iolanthe.rowland.org>
+	Thu, 14 Sep 2006 09:13:44 -0400
+From: Rolf Eike Beer <eike-kernel@sf-tec.de>
+To: linux-kernel@vger.kernel.org
+Subject: "hard-safe -> hard-unsafe lock order detected" on rmmod
+Date: Thu, 14 Sep 2006 15:13:52 +0200
+User-Agent: KMail/1.9.4
 MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_JXVCFwdkohYPszl"
-Message-Id: <200609141514.49527.rjw@sisk.pl>
+Content-Type: multipart/signed;
+  boundary="nextPart1626601.oYr4kK8KYi";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200609141513.52932.eike-kernel@sf-tec.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Boundary-00=_JXVCFwdkohYPszl
+--nextPart1626601.oYr4kK8KYi
 Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+  charset="us-ascii"
+Content-Transfer-Encoding: quoted-printable
 Content-Disposition: inline
 
-On Wednesday, 13 September 2006 23:55, Alan Stern wrote:
-> On Wed, 13 Sep 2006, Rafael J. Wysocki wrote:
-> 
-> > > Try this patch instead.  It looks for problems occurring a little earlier 
-> > > in the call chain.
-> > 
-> > I've applied both patches at a time (I hope they don't conflict).
-> > 
-> > The dmesg output is attached.
-> 
-> The dmesg output shows the root-hub device state is set wrong.
-> 
-> I have to leave now, so I can't give you another patch to try.  You can 
-> experiment as follows...
-> 
-> Look in drivers/usb/host/ehci-pci.c, at ehci_pci_resume().  The part of 
-> interest is everything following the "restart:" statement label.
-> 
-> Try adding some ehci_dbg() lines in there (copy the form of the line just
-> after restart:).  We want to follow the value of
-> hcd->self.root_hub->state.  Initially it should be equal to
-> USB_STATE_SUSPENDED (= 8), and it shouldn't change.  But somewhere it is
-> getting set to USB_STATE_CONFIGURED (= 7).  I don't know where, but almost 
-> certainly somewhere in this routine.  If you can find out where that 
-> happens, I'd appreciate it.
+I tried to clean up my modules list from all the stuff SuSE loaded on boot:
 
-Done, but it shows hcd->self.root_hub->state is already 7 right after restart.
+rmmod dm_snapshot ohci_hcd snd_intel8x0 ide_cd ehci_hcd floppy ip6table_man=
+gle=20
+iptable_nat iptable_mangle snd_seq snd_seq_device snd_pcm_oss edd
 
-I've used the following patch to verify this:
+Result was this:
 
----
- drivers/usb/host/ehci-pci.c |    8 ++++++++
- 1 file changed, 8 insertions(+)
+Result of uname -a
+Linux siso-rl-i34d 2.6.18-rc6 #38 SMP Tue Sep 5 16:14:22 CEST 2006 i686 i68=
+6=20
+i386 GNU/Linux
 
-Index: linux-2.6.18-rc6-mm2/drivers/usb/host/ehci-pci.c
-===================================================================
---- linux-2.6.18-rc6-mm2.orig/drivers/usb/host/ehci-pci.c
-+++ linux-2.6.18-rc6-mm2/drivers/usb/host/ehci-pci.c
-@@ -291,14 +291,19 @@ static int ehci_pci_resume(struct usb_hc
- 
- restart:
- 	ehci_dbg(ehci, "lost power, restarting\n");
-+	ehci_dbg(ehci, "root hub state: %d\n", hcd->self.root_hub->state);
- 	usb_root_hub_lost_power(hcd->self.root_hub);
-+	ehci_dbg(ehci, "root hub state: %d\n", hcd->self.root_hub->state);
- 
- 	/* Else reset, to cope with power loss or flush-to-storage
- 	 * style "resume" having let BIOS kick in during reboot.
- 	 */
- 	(void) ehci_halt(ehci);
-+	ehci_dbg(ehci, "root hub state: %d\n", hcd->self.root_hub->state);
- 	(void) ehci_reset(ehci);
-+	ehci_dbg(ehci, "root hub state: %d\n", hcd->self.root_hub->state);
- 	(void) ehci_pci_reinit(ehci, pdev);
-+	ehci_dbg(ehci, "root hub state: %d\n", hcd->self.root_hub->state);
- 
- 	/* emptying the schedule aborts any urbs */
- 	spin_lock_irq(&ehci->lock);
-@@ -306,12 +311,15 @@ restart:
- 		ehci->reclaim_ready = 1;
- 	ehci_work(ehci, NULL);
- 	spin_unlock_irq(&ehci->lock);
-+	ehci_dbg(ehci, "root hub state: %d\n", hcd->self.root_hub->state);
- 
- 	/* restart; khubd will disconnect devices */
- 	retval = ehci_run(hcd);
-+	ehci_dbg(ehci, "root hub state: %d\n", hcd->self.root_hub->state);
- 
- 	/* here we "know" root ports should always stay powered */
- 	ehci_port_power(ehci, 1);
-+	ehci_dbg(ehci, "root hub state: %d\n", hcd->self.root_hub->state);
- 
- 	return retval;
+
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D
+[ INFO: hard-safe -> hard-unsafe lock order detected ]
+=2D-----------------------------------------------------
+rmmod/5158 [HC0[0]:SC0[0]:HE0:SE1] is trying to acquire:
+ (proc_subdir_lock){--..}, at: [<c10811fe>] remove_proc_entry+0x40/0x18b
+
+and this task is already holding:
+ (ide_lock){++..}, at: [<c115e0c1>] ide_unregister_subdriver+0x38/0xc7
+which would create a new lock dependency:
+ (ide_lock){++..} -> (proc_subdir_lock){--..}
+
+but this new dependency connects a hard-irq-safe lock:
+ (ide_lock){++..}
+=2E.. which became hard-irq-safe at:
+  [<c102e39c>] lock_acquire+0x4a/0x6a
+  [<c120672f>] _spin_lock_irqsave+0x22/0x32
+  [<c11608e1>] ide_intr+0x18/0x1a7
+  [<c103cb3a>] handle_IRQ_event+0x1f/0x4c
+  [<c103cbfb>] __do_IRQ+0x94/0xef
+  [<c1004dab>] do_IRQ+0x9e/0xbf
+
+to a hard-irq-unsafe lock:
+ (proc_subdir_lock){--..}
+=2E.. which became hard-irq-unsafe at:
+=2E..  [<c102e39c>] lock_acquire+0x4a/0x6a
+  [<c120632a>] _spin_lock+0x19/0x28
+  [<c1080fd6>] xlate_proc_name+0x1b/0x99
+  [<c108138f>] proc_create+0x46/0xdf
+  [<c1081488>] create_proc_entry+0x60/0xa3
+  [<c13b6eb6>] proc_misc_init+0x1c/0x1b0
+  [<c13b6da0>] proc_root_init+0x4c/0xd1
+  [<c13a6649>] start_kernel+0x279/0x391
+  [<00000000>] 0x0
+
+other info that might help us debug this:
+
+1 lock held by rmmod/5158:
+ #0:  (ide_lock){++..}, at: [<c115e0c1>] ide_unregister_subdriver+0x38/0xc7
+
+the hard-irq-safe lock's dependencies:
+=2D> (ide_lock){++..} ops: 0 {
+   initial-use  at:
+                        [<c102e39c>] lock_acquire+0x4a/0x6a
+                        [<c12065da>] _spin_lock_irq+0x1f/0x2e
+                        [<c1163d2d>] init_irq+0x2f5/0x43d
+                        [<c1163f75>] hwif_init+0x100/0x25e
+                        [<c1164217>] probe_hwif_init_with_fixup+0x1d/0x75
+                        [<c1165d7d>] ide_setup_pci_device+0x3e/0x71
+                        [<f0808612>] amd74xx_probe+0x63/0x6a [amd74xx]
+                        [<c10d8b80>] pci_device_probe+0x39/0x59
+                        [<c1140ece>] driver_probe_device+0x45/0x98
+                        [<c1141001>] __driver_attach+0x68/0x93
+                        [<c1140503>] bus_for_each_dev+0x36/0x5b
+                        [<c1140db0>] driver_attach+0x14/0x17
+                        [<c11407d9>] bus_add_driver+0x64/0xf3
+                        [<c11413e6>] driver_register+0x78/0x7d
+                        [<c10d8805>] __pci_register_driver+0x4f/0x69
+                        [<c1165392>] __ide_pci_register_driver+0x13/0x35
+                        [<f080862b>] amd74xx_ide_init+0x12/0x14 [amd74xx]
+                        [<c1033937>] sys_init_module+0x16b6/0x17cf
+                        [<c1002841>] sysenter_past_esp+0x56/0x8d
+   in-hardirq-W at:
+                        [<c102e39c>] lock_acquire+0x4a/0x6a
+                        [<c120672f>] _spin_lock_irqsave+0x22/0x32
+                        [<c11608e1>] ide_intr+0x18/0x1a7
+                        [<c103cb3a>] handle_IRQ_event+0x1f/0x4c
+                        [<c103cbfb>] __do_IRQ+0x94/0xef
+                        [<c1004dab>] do_IRQ+0x9e/0xbf
+   in-softirq-W at:
+                        [<c102e39c>] lock_acquire+0x4a/0x6a
+                        [<c120672f>] _spin_lock_irqsave+0x22/0x32
+                        [<c11608e1>] ide_intr+0x18/0x1a7
+                        [<c103cb3a>] handle_IRQ_event+0x1f/0x4c
+                        [<c103cbfb>] __do_IRQ+0x94/0xef
+                        [<c1004dab>] do_IRQ+0x9e/0xbf
  }
+ ... key      at: [<c132a190>] ide_lock+0x10/0x80
+ -> (base_lock_keys + cpu){++..} ops: 0 {
+    initial-use  at:
+                          [<c102e39c>] lock_acquire+0x4a/0x6a
+                          [<c120672f>] _spin_lock_irqsave+0x22/0x32
+                          [<c101fa88>] lock_timer_base+0x18/0x33
+                          [<c101fe73>] __mod_timer+0x26/0xac
+                          [<c101ff1e>] mod_timer+0x25/0x2b
+                          [<c13bbca4>] con_init+0xb6/0x1e7
+                          [<c13bb3a8>] console_init+0x1e/0x2c
+                          [<c13a658d>] start_kernel+0x1bd/0x391
+                          [<00000000>] 0x0
+    in-hardirq-W at:
+                          [<c102e39c>] lock_acquire+0x4a/0x6a
+                          [<c120672f>] _spin_lock_irqsave+0x22/0x32
+                          [<c101fa88>] lock_timer_base+0x18/0x33
+                          [<c101ff3b>] del_timer+0x17/0x49
+                          [<c116ad32>] scsi_delete_timer+0xe/0x1f
+                          [<c116952e>] scsi_done+0xb/0x19
+                          [<c1176cc1>] ata_scsi_qc_complete+0xb0/0xbd
+                          [<c1171794>] __ata_qc_complete+0x1b0/0x1b8
+                          [<c117183e>] ata_qc_complete+0xa2/0xa9
+                          [<c1172e50>] ata_hsm_qc_complete+0x1b8/0x1c7
+                          [<c11734ef>] ata_hsm_move+0x690/0x6a6
+                          [<c11735b2>] ata_host_intr+0xad/0xc5
+                          [<c117acde>] nv_do_interrupt+0x9a/0xdf
+                          [<c117ad75>] nv_ck804_interrupt+0x21/0x30
+                          [<c103cb3a>] handle_IRQ_event+0x1f/0x4c
+                          [<c103cbfb>] __do_IRQ+0x94/0xef
+                          [<c1004dab>] do_IRQ+0x9e/0xbf
+    in-softirq-W at:
+                          [<c102e39c>] lock_acquire+0x4a/0x6a
+                          [<c12065da>] _spin_lock_irq+0x1f/0x2e
+                          [<c101fd1c>] run_timer_softirq+0x3d/0x16e
+                          [<c101cff8>] __do_softirq+0x76/0xee
+                          [<c1004caf>] do_softirq+0x61/0xbf
+  }
+  ... key      at: [<c1416fc0>] base_lock_keys+0x0/0x40
+ ... acquired at:
+   [<c102e39c>] lock_acquire+0x4a/0x6a
+   [<c120672f>] _spin_lock_irqsave+0x22/0x32
+   [<c101fa88>] lock_timer_base+0x18/0x33
+   [<c101fe73>] __mod_timer+0x26/0xac
+   [<c1161313>] __ide_set_handler+0x59/0x61
+   [<c1161344>] ide_set_handler+0x29/0x3e
+   [<f099dcd9>] cdrom_transfer_packet_command+0x76/0xcb [ide_cd]
+   [<f099de93>] cdrom_do_pc_continuation+0x2e/0x31 [ide_cd]
+   [<f099b234>] cdrom_start_packet_command+0x12f/0x137 [ide_cd]
+   [<f099d8fb>] ide_do_rw_cdrom+0x455/0x494 [ide_cd]
+   [<c116065c>] ide_do_request+0x521/0x682
+   [<c1160cf1>] do_ide_request+0x17/0x1a
+   [<c10c5e3c>] elv_insert+0x58/0x135
+   [<c10c5f9c>] __elv_add_request+0x83/0x88
+   [<c116087c>] ide_do_drive_cmd+0xbf/0x10c
+   [<f099b27c>] cdrom_queue_packet_command+0x40/0xc6 [ide_cd]
+   [<f099b599>] ide_cdrom_packet+0x86/0xa4 [ide_cd]
+   [<f0852668>] cdrom_mode_sense+0x58/0x60 [cdrom]
+   [<f099bc00>] ide_cdrom_get_capabilities+0x7d/0x8d [ide_cd]
+   [<f099c81d>] ide_cd_probe+0x54a/0xa3b [ide_cd]
+   [<c115decb>] generic_ide_probe+0x22/0x24
+   [<c1140ece>] driver_probe_device+0x45/0x98
+   [<c1141001>] __driver_attach+0x68/0x93
+   [<c1140503>] bus_for_each_dev+0x36/0x5b
+   [<c1140db0>] driver_attach+0x14/0x17
+   [<c11407d9>] bus_add_driver+0x64/0xf3
+   [<c11413e6>] driver_register+0x78/0x7d
+   [<f087d00d>] ____versions+0x42d/0xfffffec3 [ip6_tables]
+   [<c1033937>] sys_init_module+0x16b6/0x17cf
+   [<c1002841>] sysenter_past_esp+0x56/0x8d
 
-The output of dmesg is attached.
+ -> (&input_pool.lock){++..} ops: 0 {
+    initial-use  at:
+                          [<c102e39c>] lock_acquire+0x4a/0x6a
+                          [<c120672f>] _spin_lock_irqsave+0x22/0x32
+                          [<c111d723>] account+0x35/0xcb
+                          [<c111e212>] extract_entropy+0x28/0x83
+                          [<c111dfd4>] xfer_secondary_pool+0xc1/0xfa
+                          [<c111e202>] extract_entropy+0x18/0x83
+                          [<c111e282>] get_random_bytes+0x15/0x19
+                          [<c11b77c2>] neigh_table_init_no_netlink+0x103/0x=
+1ba
+                          [<c11b7885>] neigh_table_init+0xc/0x5f
+                          [<c13c145a>] arp_init+0xd/0x62
+                          [<c13c16b7>] inet_init+0x101/0x2cb
+                          [<c1000409>] init+0x114/0x293
+                          [<c1000bb1>] kernel_thread_helper+0x5/0xb
+    in-hardirq-W at:
+                          [<c102e39c>] lock_acquire+0x4a/0x6a
+                          [<c120672f>] _spin_lock_irqsave+0x22/0x32
+                          [<c111d58c>] __add_entropy_words+0x4c/0x161
+                          [<c111dc6f>] add_timer_randomness+0x6a/0x106
+                          [<c111dd31>] add_disk_randomness+0x26/0x28
+                          [<c115f8d5>] ide_end_request+0x9e/0xd8
+                          [<f099d41e>] cdrom_end_request+0x10e/0x116 [ide_c=
+d]
+                          [<f099e49c>] cdrom_pc_intr+0xc9/0x1f4 [ide_cd]
+                          [<c1160a10>] ide_intr+0x147/0x1a7
+                          [<c103cb3a>] handle_IRQ_event+0x1f/0x4c
+                          [<c103cbfb>] __do_IRQ+0x94/0xef
+                          [<c1004dab>] do_IRQ+0x9e/0xbf
+    in-softirq-W at:
+                          [<c102e39c>] lock_acquire+0x4a/0x6a
+                          [<c120672f>] _spin_lock_irqsave+0x22/0x32
+                          [<c111d58c>] __add_entropy_words+0x4c/0x161
+                          [<c111dc6f>] add_timer_randomness+0x6a/0x106
+                          [<c111dd31>] add_disk_randomness+0x26/0x28
+                          [<c116cf13>] scsi_end_request+0x62/0xa9
+                          [<c116d04e>] scsi_io_completion+0xf4/0x2bb
+                          [<c117b091>] sd_rw_intr+0x1c0/0x1c8
+                          [<c1168f3f>] scsi_finish_command+0x42/0x47
+                          [<c116dab5>] scsi_softirq_done+0xab/0xb6
+                          [<c10c7dd2>] blk_done_softirq+0x5e/0x6d
+                          [<c101cff8>] __do_softirq+0x76/0xee
+                          [<c1004caf>] do_softirq+0x61/0xbf
+  }
+  ... key      at: [<c1294010>] input_pool+0x90/0x100
+ ... acquired at:
+   [<c102e39c>] lock_acquire+0x4a/0x6a
+   [<c120672f>] _spin_lock_irqsave+0x22/0x32
+   [<c111d58c>] __add_entropy_words+0x4c/0x161
+   [<c111dc6f>] add_timer_randomness+0x6a/0x106
+   [<c111dd31>] add_disk_randomness+0x26/0x28
+   [<c115f8d5>] ide_end_request+0x9e/0xd8
+   [<f099d41e>] cdrom_end_request+0x10e/0x116 [ide_cd]
+   [<f099e49c>] cdrom_pc_intr+0xc9/0x1f4 [ide_cd]
+   [<c1160a10>] ide_intr+0x147/0x1a7
+   [<c103cb3a>] handle_IRQ_event+0x1f/0x4c
+   [<c103cbfb>] __do_IRQ+0x94/0xef
+   [<c1004dab>] do_IRQ+0x9e/0xbf
 
-Greetings,
-Rafael
+ -> (random_read_wait.lock){++..} ops: 0 {
+    initial-use  at:
+                          [<c102e39c>] lock_acquire+0x4a/0x6a
+                          [<c120672f>] _spin_lock_irqsave+0x22/0x32
+                          [<c1011bb2>] __wake_up+0x13/0x39
+                          [<c111dd03>] add_timer_randomness+0xfe/0x106
+                          [<c111dd31>] add_disk_randomness+0x26/0x28
+                          [<c116cf13>] scsi_end_request+0x62/0xa9
+                          [<c116d04e>] scsi_io_completion+0xf4/0x2bb
+                          [<c117b091>] sd_rw_intr+0x1c0/0x1c8
+                          [<c1168f3f>] scsi_finish_command+0x42/0x47
+                          [<c116dab5>] scsi_softirq_done+0xab/0xb6
+                          [<c10c7dd2>] blk_done_softirq+0x5e/0x6d
+                          [<c101cff8>] __do_softirq+0x76/0xee
+                          [<c1004caf>] do_softirq+0x61/0xbf
+    in-hardirq-W at:
+                          [<c102e39c>] lock_acquire+0x4a/0x6a
+                          [<c120672f>] _spin_lock_irqsave+0x22/0x32
+                          [<c1011bb2>] __wake_up+0x13/0x39
+                          [<c111dd03>] add_timer_randomness+0xfe/0x106
+                          [<c111dd31>] add_disk_randomness+0x26/0x28
+                          [<c115f8d5>] ide_end_request+0x9e/0xd8
+                          [<f099d41e>] cdrom_end_request+0x10e/0x116 [ide_c=
+d]
+                          [<f099e49c>] cdrom_pc_intr+0xc9/0x1f4 [ide_cd]
+                          [<c1160a10>] ide_intr+0x147/0x1a7
+                          [<c103cb3a>] handle_IRQ_event+0x1f/0x4c
+                          [<c103cbfb>] __do_IRQ+0x94/0xef
+                          [<c1004dab>] do_IRQ+0x9e/0xbf
+    in-softirq-W at:
+                          [<c102e39c>] lock_acquire+0x4a/0x6a
+                          [<c120672f>] _spin_lock_irqsave+0x22/0x32
+                          [<c1011bb2>] __wake_up+0x13/0x39
+                          [<c111dd03>] add_timer_randomness+0xfe/0x106
+                          [<c111dd31>] add_disk_randomness+0x26/0x28
+                          [<c116cf13>] scsi_end_request+0x62/0xa9
+                          [<c116d04e>] scsi_io_completion+0xf4/0x2bb
+                          [<c117b091>] sd_rw_intr+0x1c0/0x1c8
+                          [<c1168f3f>] scsi_finish_command+0x42/0x47
+                          [<c116dab5>] scsi_softirq_done+0xab/0xb6
+                          [<c10c7dd2>] blk_done_softirq+0x5e/0x6d
+                          [<c101cff8>] __do_softirq+0x76/0xee
+                          [<c1004caf>] do_softirq+0x61/0xbf
+  }
+  ... key      at: [<c1294450>] random_read_wait+0x10/0x40
+ ... acquired at:
+   [<c102e39c>] lock_acquire+0x4a/0x6a
+   [<c120672f>] _spin_lock_irqsave+0x22/0x32
+   [<c1011bb2>] __wake_up+0x13/0x39
+   [<c111dd03>] add_timer_randomness+0xfe/0x106
+   [<c111dd31>] add_disk_randomness+0x26/0x28
+   [<c115f8d5>] ide_end_request+0x9e/0xd8
+   [<f099d41e>] cdrom_end_request+0x10e/0x116 [ide_cd]
+   [<f099e49c>] cdrom_pc_intr+0xc9/0x1f4 [ide_cd]
+   [<c1160a10>] ide_intr+0x147/0x1a7
+   [<c103cb3a>] handle_IRQ_event+0x1f/0x4c
+   [<c103cbfb>] __do_IRQ+0x94/0xef
+   [<c1004dab>] do_IRQ+0x9e/0xbf
+
+ -> (&q->lock){++..} ops: 0 {
+    initial-use  at:
+                          [<c102e39c>] lock_acquire+0x4a/0x6a
+                          [<c12065da>] _spin_lock_irq+0x1f/0x2e
+                          [<c1204a22>] wait_for_completion+0x29/0xb4
+                          [<c10287a7>] keventd_create_kthread+0x2b/0x57
+                          [<c102890f>] kthread_create+0x7f/0xbc
+                          [<c13b33d8>] migration_call+0x2d/0xb0
+                          [<c13b347a>] migration_init+0x1f/0x3f
+                          [<c1000333>] init+0x3e/0x293
+                          [<c1000bb1>] kernel_thread_helper+0x5/0xb
+    in-hardirq-W at:
+                          [<c102e39c>] lock_acquire+0x4a/0x6a
+                          [<c120672f>] _spin_lock_irqsave+0x22/0x32
+                          [<c1011c41>] complete+0x12/0x3e
+                          [<c117046f>] ata_qc_complete_internal+0xe/0x10
+                          [<c1171794>] __ata_qc_complete+0x1b0/0x1b8
+                          [<c117183e>] ata_qc_complete+0xa2/0xa9
+                          [<c1172e50>] ata_hsm_qc_complete+0x1b8/0x1c7
+                          [<c11734ef>] ata_hsm_move+0x690/0x6a6
+                          [<c11735b2>] ata_host_intr+0xad/0xc5
+                          [<c117acde>] nv_do_interrupt+0x9a/0xdf
+                          [<c117ad75>] nv_ck804_interrupt+0x21/0x30
+                          [<c103cb3a>] handle_IRQ_event+0x1f/0x4c
+                          [<c103cbfb>] __do_IRQ+0x94/0xef
+                          [<c1004dab>] do_IRQ+0x9e/0xbf
+    in-softirq-W at:
+                          [<c102e39c>] lock_acquire+0x4a/0x6a
+                          [<c120672f>] _spin_lock_irqsave+0x22/0x32
+                          [<c1011c41>] complete+0x12/0x3e
+                          [<c1026cbf>] wakeme_after_rcu+0xb/0xd
+                          [<c1026c01>] __rcu_process_callbacks+0x113/0x172
+                          [<c1026e8e>] rcu_process_callbacks+0x25/0x44
+                          [<c101ce53>] tasklet_action+0x65/0xca
+                          [<c101cff8>] __do_softirq+0x76/0xee
+                          [<c1004caf>] do_softirq+0x61/0xbf
+  }
+  ... key      at: [<c1417b74>] __key.13301+0x0/0x8
+  -> (&rq->rq_lock_key){++..} ops: 0 {
+     initial-use  at:
+                            [<c102e39c>] lock_acquire+0x4a/0x6a
+                            [<c120672f>] _spin_lock_irqsave+0x22/0x32
+                            [<c10129dd>] init_idle+0x5c/0x7a
+                            [<c13b33a5>] sched_init+0x173/0x179
+                            [<c13a64e3>] start_kernel+0x113/0x391
+                            [<00000000>] 0x0
+     in-hardirq-W at:
+                            [<c102e39c>] lock_acquire+0x4a/0x6a
+                            [<c120632a>] _spin_lock+0x19/0x28
+                            [<c101436d>] scheduler_tick+0x97/0x327
+                            [<c101fb76>] update_process_times+0x55/0x61
+                            [<c100c409>] smp_local_timer_interrupt+0x2d/0x30
+                            [<c10058f5>] timer_interrupt+0x53/0x7b
+                            [<c103cb3a>] handle_IRQ_event+0x1f/0x4c
+                            [<c103cbfb>] __do_IRQ+0x94/0xef
+                            [<c1004dab>] do_IRQ+0x9e/0xbf
+     in-softirq-W at:
+                            [<c102e39c>] lock_acquire+0x4a/0x6a
+                            [<c120632a>] _spin_lock+0x19/0x28
+                            [<c10126d2>] task_rq_lock+0x34/0x5b
+                            [<c1013c2c>] try_to_wake_up+0x19/0x361
+                            [<c1013f9c>] wake_up_process+0xf/0x11
+                            [<c101d056>] __do_softirq+0xd4/0xee
+                            [<c1004caf>] do_softirq+0x61/0xbf
+   }
+   ... key      at: [<c49aa7ec>] 0xc49aa7ec
+   -> (&rq->rq_lock_key#2){++..} ops: 0 {
+      initial-use  at:
+                              [<c102e39c>] lock_acquire+0x4a/0x6a
+                              [<c120672f>] _spin_lock_irqsave+0x22/0x32
+                              [<c10129dd>] init_idle+0x5c/0x7a
+                              [<c1017c9e>] fork_idle+0x3f/0x49
+                              [<c13ae919>] smp_boot_cpus+0x4e1/0xd21
+                              [<c13af17a>] smp_prepare_cpus+0x21/0x23
+                              [<c100032e>] init+0x39/0x293
+                              [<c1000bb1>] kernel_thread_helper+0x5/0xb
+      in-hardirq-W at:
+                              [<c102e39c>] lock_acquire+0x4a/0x6a
+                              [<c120632a>] _spin_lock+0x19/0x28
+                              [<c101436d>] scheduler_tick+0x97/0x327
+                              [<c101fb76>] update_process_times+0x55/0x61
+                              [<c100cb16>] smp_apic_timer_interrupt+0x60/0x=
+68
+                              [<c1003422>] apic_timer_interrupt+0x2a/0x30
+                              [<c100174c>] cpu_idle+0x61/0x77
+                              [<c100c029>] start_secondary+0x3e8/0x3f3
+                              [<00000000>] 0x0
+                              [<dfd0efb4>] 0xdfd0efb4
+      in-softirq-W at:
+                              [<c102e39c>] lock_acquire+0x4a/0x6a
+                              [<c120632a>] _spin_lock+0x19/0x28
+                              [<c10126d2>] task_rq_lock+0x34/0x5b
+                              [<c1013c2c>] try_to_wake_up+0x19/0x361
+                              [<c1013f9c>] wake_up_process+0xf/0x11
+                              [<c101d056>] __do_softirq+0xd4/0xee
+                              [<c1004caf>] do_softirq+0x61/0xbf
+    }
+    ... key      at: [<c49b27ec>] 0xc49b27ec
+   ... acquired at:
+   [<c102e39c>] lock_acquire+0x4a/0x6a
+   [<c120632a>] _spin_lock+0x19/0x28
+   [<c1011aec>] double_lock_balance+0x2f/0x33
+   [<c1203e9b>] schedule+0x24e/0x900
+   [<c1204b32>] schedule_timeout+0x72/0x90
+   [<c1204b68>] schedule_timeout_uninterruptible+0x18/0x1a
+   [<c1097c56>] journal_stop+0xda/0x1e1
+   [<c1098db3>] journal_force_commit+0x1f/0x25
+   [<c109160a>] ext3_force_commit+0x22/0x24
+   [<c108ba85>] ext3_write_inode+0x38/0x3e
+   [<c1074942>] __writeback_single_inode+0x1bb/0x331
+   [<c1074ad4>] sync_inode+0x1c/0x2e
+   [<c1089bed>] ext3_sync_file+0xa1/0xb8
+   [<c1059571>] do_fsync+0x4a/0x7c
+   [<c10595c3>] __do_fsync+0x20/0x2f
+   [<c10595df>] sys_fsync+0xd/0xf
+   [<c1002841>] sysenter_past_esp+0x56/0x8d
+
+  ... acquired at:
+   [<c102e39c>] lock_acquire+0x4a/0x6a
+   [<c120632a>] _spin_lock+0x19/0x28
+   [<c10126d2>] task_rq_lock+0x34/0x5b
+   [<c1013c2c>] try_to_wake_up+0x19/0x361
+   [<c1013f7f>] default_wake_function+0xb/0xd
+   [<c1011b7b>] __wake_up_common+0x2f/0x53
+   [<c1011c5a>] complete+0x2b/0x3e
+   [<c10289f1>] kthread+0xa5/0xf0
+   [<c1000bb1>] kernel_thread_helper+0x5/0xb
+
+  -> (&rq->rq_lock_key#2){++..} ops: 0 {
+     initial-use  at:
+                            [<c102e39c>] lock_acquire+0x4a/0x6a
+                            [<c120672f>] _spin_lock_irqsave+0x22/0x32
+                            [<c10129dd>] init_idle+0x5c/0x7a
+                            [<c1017c9e>] fork_idle+0x3f/0x49
+                            [<c13ae919>] smp_boot_cpus+0x4e1/0xd21
+                            [<c13af17a>] smp_prepare_cpus+0x21/0x23
+                            [<c100032e>] init+0x39/0x293
+                            [<c1000bb1>] kernel_thread_helper+0x5/0xb
+     in-hardirq-W at:
+                            [<c102e39c>] lock_acquire+0x4a/0x6a
+                            [<c120632a>] _spin_lock+0x19/0x28
+                            [<c101436d>] scheduler_tick+0x97/0x327
+                            [<c101fb76>] update_process_times+0x55/0x61
+                            [<c100cb16>] smp_apic_timer_interrupt+0x60/0x68
+                            [<c1003422>] apic_timer_interrupt+0x2a/0x30
+                            [<c100174c>] cpu_idle+0x61/0x77
+                            [<c100c029>] start_secondary+0x3e8/0x3f3
+                            [<00000000>] 0x0
+                            [<dfd0efb4>] 0xdfd0efb4
+     in-softirq-W at:
+                            [<c102e39c>] lock_acquire+0x4a/0x6a
+                            [<c120632a>] _spin_lock+0x19/0x28
+                            [<c10126d2>] task_rq_lock+0x34/0x5b
+                            [<c1013c2c>] try_to_wake_up+0x19/0x361
+                            [<c1013f9c>] wake_up_process+0xf/0x11
+                            [<c101d056>] __do_softirq+0xd4/0xee
+                            [<c1004caf>] do_softirq+0x61/0xbf
+   }
+   ... key      at: [<c49b27ec>] 0xc49b27ec
+  ... acquired at:
+   [<c102e39c>] lock_acquire+0x4a/0x6a
+   [<c120632a>] _spin_lock+0x19/0x28
+   [<c10126d2>] task_rq_lock+0x34/0x5b
+   [<c1013c2c>] try_to_wake_up+0x19/0x361
+   [<c1013f7f>] default_wake_function+0xb/0xd
+   [<c1011b7b>] __wake_up_common+0x2f/0x53
+   [<c1011c5a>] complete+0x2b/0x3e
+   [<c1013ae3>] migration_thread+0x210/0x236
+   [<c1028a10>] kthread+0xc4/0xf0
+   [<c1000bb1>] kernel_thread_helper+0x5/0xb
+
+ ... acquired at:
+   [<c102e39c>] lock_acquire+0x4a/0x6a
+   [<c120672f>] _spin_lock_irqsave+0x22/0x32
+   [<c1011c41>] complete+0x12/0x3e
+   [<c10c8402>] blk_end_sync_rq+0x1f/0x22
+   [<c10c83d0>] end_that_request_last+0xba/0xcd
+   [<c115f8f6>] ide_end_request+0xbf/0xd8
+   [<f099d41e>] cdrom_end_request+0x10e/0x116 [ide_cd]
+   [<f099e49c>] cdrom_pc_intr+0xc9/0x1f4 [ide_cd]
+   [<c1160a10>] ide_intr+0x147/0x1a7
+   [<c103cb3a>] handle_IRQ_event+0x1f/0x4c
+   [<c103cbfb>] __do_IRQ+0x94/0xef
+   [<c1004dab>] do_IRQ+0x9e/0xbf
+
+ -> (base_lock_keys + cpu#2){++..} ops: 0 {
+    initial-use  at:
+                          [<c102e39c>] lock_acquire+0x4a/0x6a
+                          [<c12065da>] _spin_lock_irq+0x1f/0x2e
+                          [<c101fd1c>] run_timer_softirq+0x3d/0x16e
+                          [<c101cff8>] __do_softirq+0x76/0xee
+                          [<c1004caf>] do_softirq+0x61/0xbf
+    in-hardirq-W at:
+                          [<c102e39c>] lock_acquire+0x4a/0x6a
+                          [<c120672f>] _spin_lock_irqsave+0x22/0x32
+                          [<c101fa88>] lock_timer_base+0x18/0x33
+                          [<c101ff3b>] del_timer+0x17/0x49
+                          [<c116ad32>] scsi_delete_timer+0xe/0x1f
+                          [<c116952e>] scsi_done+0xb/0x19
+                          [<c1176cc1>] ata_scsi_qc_complete+0xb0/0xbd
+                          [<c1171794>] __ata_qc_complete+0x1b0/0x1b8
+                          [<c117183e>] ata_qc_complete+0xa2/0xa9
+                          [<c1172e50>] ata_hsm_qc_complete+0x1b8/0x1c7
+                          [<c11734ef>] ata_hsm_move+0x690/0x6a6
+                          [<c11735b2>] ata_host_intr+0xad/0xc5
+                          [<c117acde>] nv_do_interrupt+0x9a/0xdf
+                          [<c117ad75>] nv_ck804_interrupt+0x21/0x30
+                          [<c103cb3a>] handle_IRQ_event+0x1f/0x4c
+                          [<c103cbfb>] __do_IRQ+0x94/0xef
+                          [<c1004dab>] do_IRQ+0x9e/0xbf
+    in-softirq-W at:
+                          [<c102e39c>] lock_acquire+0x4a/0x6a
+                          [<c12065da>] _spin_lock_irq+0x1f/0x2e
+                          [<c101fd1c>] run_timer_softirq+0x3d/0x16e
+                          [<c101cff8>] __do_softirq+0x76/0xee
+                          [<c1004caf>] do_softirq+0x61/0xbf
+  }
+  ... key      at: [<c1416fc8>] base_lock_keys+0x8/0x40
+ ... acquired at:
+   [<c102e39c>] lock_acquire+0x4a/0x6a
+   [<c120632a>] _spin_lock+0x19/0x28
+   [<c101fed0>] __mod_timer+0x83/0xac
+   [<c1161313>] __ide_set_handler+0x59/0x61
+   [<c1161344>] ide_set_handler+0x29/0x3e
+   [<f099dcd9>] cdrom_transfer_packet_command+0x76/0xcb [ide_cd]
+   [<f099de93>] cdrom_do_pc_continuation+0x2e/0x31 [ide_cd]
+   [<f099b234>] cdrom_start_packet_command+0x12f/0x137 [ide_cd]
+   [<f099d8fb>] ide_do_rw_cdrom+0x455/0x494 [ide_cd]
+   [<c116065c>] ide_do_request+0x521/0x682
+   [<c1160cf1>] do_ide_request+0x17/0x1a
+   [<c10c5e3c>] elv_insert+0x58/0x135
+   [<c10c5f9c>] __elv_add_request+0x83/0x88
+   [<c116087c>] ide_do_drive_cmd+0xbf/0x10c
+   [<f099b27c>] cdrom_queue_packet_command+0x40/0xc6 [ide_cd]
+   [<f099b35a>] cdrom_check_status+0x58/0x63 [ide_cd]
+   [<f099b792>] ide_cdrom_check_media_change_real+0x1d/0x39 [ide_cd]
+   [<f0851396>] media_changed+0x3b/0x6a [cdrom]
+   [<f08513e9>] cdrom_media_changed+0x24/0x2a [cdrom]
+   [<f099ba99>] idecd_media_changed+0x10/0x12 [ide_cd]
+   [<c105e5cc>] check_disk_change+0x19/0x6a
+   [<f0852fb8>] cdrom_open+0x7d1/0x80d [cdrom]
+   [<f099b8fe>] idecd_open+0x83/0xa3 [ide_cd]
+   [<c105efe8>] do_open+0xa4/0x3ad
+   [<c105f310>] blkdev_open+0x1f/0x4c
+   [<c1057c30>] __dentry_open+0xc7/0x1aa
+   [<c1057d81>] nameidata_to_filp+0x1c/0x2e
+   [<c1057dc1>] do_filp_open+0x2e/0x35
+   [<c1057ec7>] do_sys_open+0x38/0x68
+   [<c1057f23>] sys_open+0x16/0x18
+   [<c1002841>] sysenter_past_esp+0x56/0x8d
 
 
--- 
-You never change things by fighting the existing reality.
-		R. Buckminster Fuller
+the hard-irq-unsafe lock's dependencies:
+=2D> (proc_subdir_lock){--..} ops: 0 {
+   initial-use  at:
+                        [<c102e39c>] lock_acquire+0x4a/0x6a
+                        [<c120632a>] _spin_lock+0x19/0x28
+                        [<c1080fd6>] xlate_proc_name+0x1b/0x99
+                        [<c108138f>] proc_create+0x46/0xdf
+                        [<c1081488>] create_proc_entry+0x60/0xa3
+                        [<c13b6eb6>] proc_misc_init+0x1c/0x1b0
+                        [<c13b6da0>] proc_root_init+0x4c/0xd1
+                        [<c13a6649>] start_kernel+0x279/0x391
+                        [<00000000>] 0x0
+   softirq-on-W at:
+                        [<c102e39c>] lock_acquire+0x4a/0x6a
+                        [<c120632a>] _spin_lock+0x19/0x28
+                        [<c1080fd6>] xlate_proc_name+0x1b/0x99
+                        [<c108138f>] proc_create+0x46/0xdf
+                        [<c1081488>] create_proc_entry+0x60/0xa3
+                        [<c13b6eb6>] proc_misc_init+0x1c/0x1b0
+                        [<c13b6da0>] proc_root_init+0x4c/0xd1
+                        [<c13a6649>] start_kernel+0x279/0x391
+                        [<00000000>] 0x0
+   hardirq-on-W at:
+                        [<c102e39c>] lock_acquire+0x4a/0x6a
+                        [<c120632a>] _spin_lock+0x19/0x28
+                        [<c1080fd6>] xlate_proc_name+0x1b/0x99
+                        [<c108138f>] proc_create+0x46/0xdf
+                        [<c1081488>] create_proc_entry+0x60/0xa3
+                        [<c13b6eb6>] proc_misc_init+0x1c/0x1b0
+                        [<c13b6da0>] proc_root_init+0x4c/0xd1
+                        [<c13a6649>] start_kernel+0x279/0x391
+                        [<00000000>] 0x0
+ }
+ ... key      at: [<c1289610>] proc_subdir_lock+0x10/0x1c
+ -> (files_lock){--..} ops: 0 {
+    initial-use  at:
+                          [<c102e39c>] lock_acquire+0x4a/0x6a
+                          [<c120632a>] _spin_lock+0x19/0x28
+                          [<c105905a>] file_move+0x17/0x3b
+                          [<c1057c12>] __dentry_open+0xa9/0x1aa
+                          [<c1057d81>] nameidata_to_filp+0x1c/0x2e
+                          [<c1057dc1>] do_filp_open+0x2e/0x35
+                          [<c1057ec7>] do_sys_open+0x38/0x68
+                          [<c1057f23>] sys_open+0x16/0x18
+                          [<c13a6e12>] do_name+0xc8/0x1d0
+                          [<c13a6fa4>] write_buffer+0x1d/0x2c
+                          [<c13a7842>] flush_window+0x64/0xb3
+                          [<c13a7be8>] inflate_codes+0x357/0x3b3
+                          [<c13a82f1>] inflate_dynamic+0x57f/0x5d9
+                          [<c13a8a76>] unpack_to_rootfs+0x4d9/0x8d7
+                          [<c13a8ec5>] populate_rootfs+0x51/0xfd
+                          [<c10003af>] init+0xba/0x293
+                          [<c1000bb1>] kernel_thread_helper+0x5/0xb
+    softirq-on-W at:
+                          [<c102e39c>] lock_acquire+0x4a/0x6a
+                          [<c120632a>] _spin_lock+0x19/0x28
+                          [<c105905a>] file_move+0x17/0x3b
+                          [<c1057c12>] __dentry_open+0xa9/0x1aa
+                          [<c1057d81>] nameidata_to_filp+0x1c/0x2e
+                          [<c1057dc1>] do_filp_open+0x2e/0x35
+                          [<c1057ec7>] do_sys_open+0x38/0x68
+                          [<c1057f23>] sys_open+0x16/0x18
+                          [<c13a6e12>] do_name+0xc8/0x1d0
+                          [<c13a6fa4>] write_buffer+0x1d/0x2c
+                          [<c13a7842>] flush_window+0x64/0xb3
+                          [<c13a7be8>] inflate_codes+0x357/0x3b3
+                          [<c13a82f1>] inflate_dynamic+0x57f/0x5d9
+                          [<c13a8a76>] unpack_to_rootfs+0x4d9/0x8d7
+                          [<c13a8ec5>] populate_rootfs+0x51/0xfd
+                          [<c10003af>] init+0xba/0x293
+                          [<c1000bb1>] kernel_thread_helper+0x5/0xb
+    hardirq-on-W at:
+                          [<c102e39c>] lock_acquire+0x4a/0x6a
+                          [<c120632a>] _spin_lock+0x19/0x28
+                          [<c105905a>] file_move+0x17/0x3b
+                          [<c1057c12>] __dentry_open+0xa9/0x1aa
+                          [<c1057d81>] nameidata_to_filp+0x1c/0x2e
+                          [<c1057dc1>] do_filp_open+0x2e/0x35
+                          [<c1057ec7>] do_sys_open+0x38/0x68
+                          [<c1057f23>] sys_open+0x16/0x18
+                          [<c13a6e12>] do_name+0xc8/0x1d0
+                          [<c13a6fa4>] write_buffer+0x1d/0x2c
+                          [<c13a7842>] flush_window+0x64/0xb3
+                          [<c13a7be8>] inflate_codes+0x357/0x3b3
+                          [<c13a82f1>] inflate_dynamic+0x57f/0x5d9
+                          [<c13a8a76>] unpack_to_rootfs+0x4d9/0x8d7
+                          [<c13a8ec5>] populate_rootfs+0x51/0xfd
+                          [<c10003af>] init+0xba/0x293
+                          [<c1000bb1>] kernel_thread_helper+0x5/0xb
+  }
+  ... key      at: [<c1329e90>] files_lock+0x10/0x80
+  -> (fasync_lock){....} ops: 0 {
+     initial-use  at:
+                            [<c102e39c>] lock_acquire+0x4a/0x6a
+                            [<c12063b2>] _write_lock_irq+0x1f/0x2e
+                            [<c1066be0>] fasync_helper+0x3a/0xb7
+                            [<c111fa7e>] tty_fasync+0x3d/0xb1
+                            [<c1121992>] release_dev+0x4b/0x67d
+                            [<c11222be>] tty_release+0x12/0x1c
+                            [<c105918e>] __fput+0x59/0xf6
+                            [<c1059242>] fput+0x17/0x19
+                            [<c1056e93>] filp_close+0x51/0x5b
+                            [<c10578df>] sys_close+0x79/0x8d
+                            [<c1002841>] sysenter_past_esp+0x56/0x8d
+   }
+   ... key      at: [<c12881e4>] fasync_lock+0x10/0x1c
+  ... acquired at:
+   [<c102e39c>] lock_acquire+0x4a/0x6a
+   [<c12063b2>] _write_lock_irq+0x1f/0x2e
+   [<c1066be0>] fasync_helper+0x3a/0xb7
+   [<c111fa7e>] tty_fasync+0x3d/0xb1
+   [<c111fb9b>] do_tty_hangup+0xa9/0x2d4
+   [<c111fdce>] tty_vhangup+0x8/0xa
+   [<c1124e95>] pty_close+0x104/0x109
+   [<c1121b36>] release_dev+0x1ef/0x67d
+   [<c11222be>] tty_release+0x12/0x1c
+   [<c105918e>] __fput+0x59/0xf6
+   [<c1059242>] fput+0x17/0x19
+   [<c1056e93>] filp_close+0x51/0x5b
+   [<c10578df>] sys_close+0x79/0x8d
+   [<c1002841>] sysenter_past_esp+0x56/0x8d
 
---Boundary-00=_JXVCFwdkohYPszl
-Content-Type: application/x-gzip;
-  name="dmesg-debug-3.log.gz"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
-	filename="dmesg-debug-3.log.gz"
+ ... acquired at:
+   [<c102e39c>] lock_acquire+0x4a/0x6a
+   [<c120632a>] _spin_lock+0x19/0x28
+   [<c1081255>] remove_proc_entry+0x97/0x18b
+   [<c103e305>] unregister_handler_proc+0x1b/0x1d
+   [<c103d2b3>] free_irq+0xb7/0xe7
+   [<c118b6e9>] i8042_probe+0x144/0x540
+   [<c11426d6>] platform_drv_probe+0xf/0x11
+   [<c1140ece>] driver_probe_device+0x45/0x98
+   [<c1140f29>] __device_attach+0x8/0xa
+   [<c11405c4>] bus_for_each_drv+0x38/0x63
+   [<c1140f84>] device_attach+0x59/0x6e
+   [<c11406cf>] bus_attach_device+0x16/0x2b
+   [<c113fa39>] device_add+0x1f9/0x2e7
+   [<c11425e5>] platform_device_add+0xdc/0x10c
+   [<c13be1b1>] i8042_init+0x2b5/0x2dd
+   [<c1000409>] init+0x114/0x293
+   [<c1000bb1>] kernel_thread_helper+0x5/0xb
 
-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
+ -> (proc_inum_lock){--..} ops: 0 {
+    initial-use  at:
+                          [<c102e39c>] lock_acquire+0x4a/0x6a
+                          [<c120632a>] _spin_lock+0x19/0x28
+                          [<c108108a>] proc_register+0x2c/0xfe
+                          [<c10814b5>] create_proc_entry+0x8d/0xa3
+                          [<c13b6eb6>] proc_misc_init+0x1c/0x1b0
+                          [<c13b6da0>] proc_root_init+0x4c/0xd1
+                          [<c13a6649>] start_kernel+0x279/0x391
+                          [<00000000>] 0x0
+    softirq-on-W at:
+                          [<c102e39c>] lock_acquire+0x4a/0x6a
+                          [<c120632a>] _spin_lock+0x19/0x28
+                          [<c108108a>] proc_register+0x2c/0xfe
+                          [<c10814b5>] create_proc_entry+0x8d/0xa3
+                          [<c13b6eb6>] proc_misc_init+0x1c/0x1b0
+                          [<c13b6da0>] proc_root_init+0x4c/0xd1
+                          [<c13a6649>] start_kernel+0x279/0x391
+                          [<00000000>] 0x0
+    hardirq-on-W at:
+                          [<c102e39c>] lock_acquire+0x4a/0x6a
+                          [<c120632a>] _spin_lock+0x19/0x28
+                          [<c108108a>] proc_register+0x2c/0xfe
+                          [<c10814b5>] create_proc_entry+0x8d/0xa3
+                          [<c13b6eb6>] proc_misc_init+0x1c/0x1b0
+                          [<c13b6da0>] proc_root_init+0x4c/0xd1
+                          [<c13a6649>] start_kernel+0x279/0x391
+                          [<00000000>] 0x0
+  }
+  ... key      at: [<c128967c>] proc_inum_lock+0x10/0x34
+  -> (proc_inum_idr.lock){....} ops: 0 {
+     initial-use  at:
+                            [<c102e39c>] lock_acquire+0x4a/0x6a
+                            [<c120672f>] _spin_lock_irqsave+0x22/0x32
+                            [<c10cf68d>] free_layer+0x14/0x2e
+                            [<c10cf6cb>] idr_pre_get+0x24/0x33
+                            [<c1081078>] proc_register+0x1a/0xfe
+                            [<c10814b5>] create_proc_entry+0x8d/0xa3
+                            [<c13b6eb6>] proc_misc_init+0x1c/0x1b0
+                            [<c13b6da0>] proc_root_init+0x4c/0xd1
+                            [<c13a6649>] start_kernel+0x279/0x391
+                            [<00000000>] 0x0
+   }
+   ... key      at: [<c1289660>] proc_inum_idr+0x20/0x2c
+  ... acquired at:
+   [<c102e39c>] lock_acquire+0x4a/0x6a
+   [<c120672f>] _spin_lock_irqsave+0x22/0x32
+   [<c10cf652>] alloc_layer+0x12/0x39
+   [<c10cf9ae>] idr_get_new_above_int+0x2e/0x1fe
+   [<c10cfb8b>] idr_get_new+0xd/0x2a
+   [<c1081099>] proc_register+0x3b/0xfe
+   [<c10814b5>] create_proc_entry+0x8d/0xa3
+   [<c13b6eb6>] proc_misc_init+0x1c/0x1b0
+   [<c13b6da0>] proc_root_init+0x4c/0xd1
+   [<c13a6649>] start_kernel+0x279/0x391
+   [<00000000>] 0x0
 
---Boundary-00=_JXVCFwdkohYPszl--
+ ... acquired at:
+   [<c102e39c>] lock_acquire+0x4a/0x6a
+   [<c120632a>] _spin_lock+0x19/0x28
+   [<c1081177>] free_proc_entry+0x1b/0x62
+   [<c1081305>] remove_proc_entry+0x147/0x18b
+   [<c103e305>] unregister_handler_proc+0x1b/0x1d
+   [<c103d2b3>] free_irq+0xb7/0xe7
+   [<c118b6e9>] i8042_probe+0x144/0x540
+   [<c11426d6>] platform_drv_probe+0xf/0x11
+   [<c1140ece>] driver_probe_device+0x45/0x98
+   [<c1140f29>] __device_attach+0x8/0xa
+   [<c11405c4>] bus_for_each_drv+0x38/0x63
+   [<c1140f84>] device_attach+0x59/0x6e
+   [<c11406cf>] bus_attach_device+0x16/0x2b
+   [<c113fa39>] device_add+0x1f9/0x2e7
+   [<c11425e5>] platform_device_add+0xdc/0x10c
+   [<c13be1b1>] i8042_init+0x2b5/0x2dd
+   [<c1000409>] init+0x114/0x293
+   [<c1000bb1>] kernel_thread_helper+0x5/0xb
+
+ -> (&ptr->list_lock){++..} ops: 0 {
+    initial-use  at:
+                          [<c102e39c>] lock_acquire+0x4a/0x6a
+                          [<c120632a>] _spin_lock+0x19/0x28
+                          [<c1055b00>] cache_alloc_refill+0x72/0x483
+                          [<c1055f8e>] __kmalloc+0x7d/0xa0
+                          [<c1055fcc>] alloc_arraycache+0x1b/0x4d
+                          [<c105625e>] do_tune_cpucache+0x36/0x20f
+                          [<c10565ae>] enable_cpucache+0x59/0x87
+                          [<c13b63f4>] kmem_cache_init+0x303/0x33e
+                          [<c13a65ee>] start_kernel+0x21e/0x391
+                          [<00000000>] 0x0
+    in-hardirq-W at:
+                          [<c102e39c>] lock_acquire+0x4a/0x6a
+                          [<c120632a>] _spin_lock+0x19/0x28
+                          [<c1055b00>] cache_alloc_refill+0x72/0x483
+                          [<c1055a69>] kmem_cache_alloc+0x57/0x7c
+                          [<c1055db4>] cache_alloc_refill+0x326/0x483
+                          [<c1055f8e>] __kmalloc+0x7d/0xa0
+                          [<c11ae719>] __alloc_skb+0x47/0xf2
+                          [<f09bf343>] nv_alloc_rx+0x51/0x16c [forcedeth]
+                          [<f09c1892>] nv_nic_irq+0x83/0x196 [forcedeth]
+                          [<c103cb3a>] handle_IRQ_event+0x1f/0x4c
+                          [<c103cbfb>] __do_IRQ+0x94/0xef
+                          [<c1004dab>] do_IRQ+0x9e/0xbf
+    in-softirq-W at:
+                          [<c102e39c>] lock_acquire+0x4a/0x6a
+                          [<c120632a>] _spin_lock+0x19/0x28
+                          [<c105551c>] cache_flusharray+0x22/0xa1
+                          [<c105560a>] kfree+0x6f/0x9b
+                          [<c106e604>] free_fdtable_rcu+0x73/0xd8
+                          [<c1026c01>] __rcu_process_callbacks+0x113/0x172
+                          [<c1026e8e>] rcu_process_callbacks+0x25/0x44
+                          [<c101ce53>] tasklet_action+0x65/0xca
+                          [<c101cff8>] __do_softirq+0x76/0xee
+                          [<c1004caf>] do_softirq+0x61/0xbf
+  }
+  ... key      at: [<c15520fc>] __key.15818+0x0/0x8
+ ... acquired at:
+   [<c102e39c>] lock_acquire+0x4a/0x6a
+   [<c120632a>] _spin_lock+0x19/0x28
+   [<c105551c>] cache_flusharray+0x22/0xa1
+   [<c105560a>] kfree+0x6f/0x9b
+   [<c10811ba>] free_proc_entry+0x5e/0x62
+   [<c1081305>] remove_proc_entry+0x147/0x18b
+   [<c11a2977>] snd_remove_proc_entry+0x13/0x15
+   [<c11a2dc7>] snd_info_unregister+0x31/0x48
+   [<f0866606>] snd_pcm_free_stream+0x70/0xeb [snd_pcm]
+   [<f08666a5>] snd_pcm_free+0x24/0x3b [snd_pcm]
+   [<f0866ee9>] snd_pcm_dev_unregister+0xbb/0xc1 [snd_pcm]
+   [<c11a5189>] snd_device_free+0x40/0x90
+   [<c11a5209>] snd_device_free_all+0x30/0x4f
+   [<c11a259b>] snd_card_free+0xd5/0x17e
+   [<f09d0689>] 0xf09d0689
+   [<c10d88ec>] pci_device_remove+0x19/0x2c
+   [<c1140e16>] __device_release_driver+0x63/0x79
+   [<c114111c>] driver_detach+0xb2/0xe2
+   [<c11408c5>] bus_remove_driver+0x5d/0x79
+   [<c11413f6>] driver_unregister+0xb/0x18
+   [<c10d882f>] pci_unregister_driver+0x10/0x5f
+   [<f09d1841>] 0xf09d1841
+   [<c1033fd2>] sys_delete_module+0x195/0x1c5
+   [<c1002841>] sysenter_past_esp+0x56/0x8d
+
+
+stack backtrace:
+ [<c1003aa9>] show_trace_log_lvl+0x58/0x16f
+ [<c100496f>] show_trace+0xd/0x10
+ [<c1004989>] dump_stack+0x17/0x1a
+ [<c102ce5a>] check_usage+0x1eb/0x1f8
+ [<c102df98>] __lock_acquire+0x81a/0x99c
+ [<c102e39c>] lock_acquire+0x4a/0x6a
+ [<c120632a>] _spin_lock+0x19/0x28
+ [<c10811fe>] remove_proc_entry+0x40/0x18b
+ [<c11670c1>] ide_remove_proc_entries+0x20/0x2d
+ [<c115e0d2>] ide_unregister_subdriver+0x49/0xc7
+ [<f099b7dc>] ide_cd_remove+0xf/0x21 [ide_cd]
+ [<c115deea>] generic_ide_remove+0x1d/0x21
+ [<c1140e16>] __device_release_driver+0x63/0x79
+ [<c114111c>] driver_detach+0xb2/0xe2
+ [<c11408c5>] bus_remove_driver+0x5d/0x79
+ [<c11413f6>] driver_unregister+0xb/0x18
+ [<f099e8b5>] ide_cdrom_exit+0xd/0xf [ide_cd]
+ [<c1033fd2>] sys_delete_module+0x195/0x1c5
+ [<c1002841>] sysenter_past_esp+0x56/0x8d
+DWARF2 unwinder stuck at sysenter_past_esp+0x56/0x8d
+Leftover inexact backtrace:
+ [<c100496f>] show_trace+0xd/0x10
+ [<c1004989>] dump_stack+0x17/0x1a
+ [<c102ce5a>] check_usage+0x1eb/0x1f8
+ [<c102df98>] __lock_acquire+0x81a/0x99c
+ [<c102e39c>] lock_acquire+0x4a/0x6a
+ [<c120632a>] _spin_lock+0x19/0x28
+ [<c10811fe>] remove_proc_entry+0x40/0x18b
+ [<c11670c1>] ide_remove_proc_entries+0x20/0x2d
+ [<c115e0d2>] ide_unregister_subdriver+0x49/0xc7
+ [<f099b7dc>] ide_cd_remove+0xf/0x21 [ide_cd]
+ [<c115deea>] generic_ide_remove+0x1d/0x21
+ [<c1140e16>] __device_release_driver+0x63/0x79
+ [<c114111c>] driver_detach+0xb2/0xe2
+ [<c11408c5>] bus_remove_driver+0x5d/0x79
+ [<c11413f6>] driver_unregister+0xb/0x18
+ [<f099e8b5>] ide_cdrom_exit+0xd/0xf [ide_cd]
+ [<c1033fd2>] sys_delete_module+0x195/0x1c5
+ [<c1002841>] sysenter_past_esp+0x56/0x8d
+
+--nextPart1626601.oYr4kK8KYi
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+
+iD8DBQBFCVWQXKSJPmm5/E4RAn0eAKCoBTuRTJBp/4IaJWYMcQ1W5E0hzwCgpw/c
+agyiwqcFSi7pekTbbbJ0otg=
+=JK54
+-----END PGP SIGNATURE-----
+
+--nextPart1626601.oYr4kK8KYi--

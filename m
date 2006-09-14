@@ -1,60 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750846AbWINPi2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750836AbWINPhq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750846AbWINPi2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Sep 2006 11:38:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750842AbWINPi1
+	id S1750836AbWINPhq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Sep 2006 11:37:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750837AbWINPhq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Sep 2006 11:38:27 -0400
-Received: from smtp110.mail.mud.yahoo.com ([209.191.85.220]:3977 "HELO
-	smtp110.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1750839AbWINPi0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Sep 2006 11:38:26 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=fs59qqvQIjVWoSWbnO2bfuk8nT7/bRwPU4Z+C5Q0md5xOu52EdUUon1zGPjYJ49cjHZsP0JmuxDpNGUyVSwbKzRP8QGaww64uosJFZbJ442WIyUnrsOAS9TVzPGDxxEMcdxeolVFlFVA0IG57PH3wQGxXKlfqMYAxUG0cB9Did8=  ;
-Message-ID: <45097767.7010405@yahoo.com.au>
-Date: Fri, 15 Sep 2006 01:38:15 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-CC: David Howells <dhowells@redhat.com>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Dong Feng <middle.fengdong@gmail.com>, ak@suse.de,
-       Paul Mackerras <paulus@samba.org>, Christoph Lameter <clameter@sgi.com>,
-       linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
-Subject: Re: Why Semaphore Hardware-Dependent?
-References: <45085B31.3080504@yahoo.com.au>  <45084833.4040602@yahoo.com.au> <44F395DE.10804@yahoo.com.au> <a2ebde260608271222x2b51693fnaa600965fcfaa6d2@mail.gmail.com> <1156750249.3034.155.camel@laptopd505.fenrus.org> <11861.1156845927@warthog.cambridge.redhat.com> <22461.1158173455@warthog.cambridge.redhat.com> <21102.1158234082@warthog.cambridge.redhat.com> <450974F2.1020104@yahoo.com.au>
-In-Reply-To: <450974F2.1020104@yahoo.com.au>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Thu, 14 Sep 2006 11:37:46 -0400
+Received: from tomts22-srv.bellnexxia.net ([209.226.175.184]:45516 "EHLO
+	tomts22-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id S1750836AbWINPhp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Sep 2006 11:37:45 -0400
+Date: Thu, 14 Sep 2006 11:37:43 -0400
+From: Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>
+To: "Serge E. Hallyn" <serue@us.ibm.com>
+Cc: linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
+       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@redhat.com>,
+       Greg Kroah-Hartman <gregkh@suse.de>,
+       Thomas Gleixner <tglx@linutronix.de>, Tom Zanussi <zanussi@us.ibm.com>,
+       ltt-dev@shafik.org, Michel Dagenais <michel.dagenais@polymtl.ca>
+Subject: Re: [PATCH 4/11] LTTng-core 0.5.108 : core
+Message-ID: <20060914153743.GC29906@Krystal>
+References: <20060914034308.GE2194@Krystal> <20060914140459.GA23823@sergelap.austin.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20060914140459.GA23823@sergelap.austin.ibm.com>
+X-Editor: vi
+X-Info: http://krystal.dyndns.org:8080
+X-Operating-System: Linux/2.4.32-grsec (i686)
+X-Uptime: 11:28:28 up 22 days, 12:37,  8 users,  load average: 0.15, 0.19, 0.22
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ahh, my mistake :)
-
-Nick Piggin wrote:
-
-> It is actually larger here.
+* Serge E. Hallyn (serue@us.ibm.com) wrote:
+> Hi,
 > 
->    text    data     bss     dec     hex filename
->     970       0       0     970     3ca lib/rwsem-spinlock.o
->     576       0       0     576     240 kernel/spinlock.o
-                                            ^^ should be:
-        35       0       0      35      23 kernel/rwsem.o
-
->   =1546
+> I'm wondering why this is safe:
 > 
->    text    data     bss     dec     hex filename
->    1310       0       0    1310     51e lib/rwsem.o
->     193       0       0     193      c1 kernel/rwsem.o
->   =1503
+> you grab references to the object which may be deleted after
+> you drop the transport_list_lock at the top of this block.  Since
+> a later patch shows the unregister being called right before the
+> owning module is unloaded, that seems awefuly dangerous.
+> 
+> Is there some other magic going on making this safe?
+> 
 
-Well, it is still larger than the atomic_inc_return variant
-after my patch.
+The ltt_traces_sem mutex is intended to make this safe. However, the transport
+separation patch, contributed recently, uses its own transport_list_lock, which
+seems to be broken.
 
--- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+I will fix it by using ltt_traces_sem around :
+
+
+        down(&ltt_traces_sem);
+        list_for_each_entry(tran, &ltt_transport_list, node) {
+                if (!strcmp(tran->name, trace_type)) {
+                        transport = tran;
+                        break;
+                }
+        }
+
+        if (!transport) {
+                err = EINVAL;
+                printk(KERN_ERR "LTT : Transport %s is not present.\n", trace_type);
+                goto trace_error;
+        }
+
+        if(!try_module_get(transport->owner)) {
+                err = ENODEV;
+                printk(KERN_ERR "LTT : Can't lock transport module.\n");
+                goto trace_error;
+        }
+        up(&ltt_traces_sem);
+
+And change the transport_list_lock for ltt_traces_sem everywhere else.
+
+Thanks for spotting this bug,
+
+Mathieu
+
+
+OpenPGP public key:              http://krystal.dyndns.org:8080/key/compudj.gpg
+Key fingerprint:     8CD5 52C3 8E3C 4140 715F  BA06 3F25 A8FE 3BAE 9A68 

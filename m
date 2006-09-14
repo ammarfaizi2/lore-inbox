@@ -1,116 +1,122 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751261AbWINA0S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751155AbWINAcK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751261AbWINA0S (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Sep 2006 20:26:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751262AbWINA0S
+	id S1751155AbWINAcK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Sep 2006 20:32:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751258AbWINAcK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Sep 2006 20:26:18 -0400
-Received: from mailout1.vmware.com ([65.113.40.130]:12724 "EHLO
-	mailout1.vmware.com") by vger.kernel.org with ESMTP
-	id S1751261AbWINA0S (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Sep 2006 20:26:18 -0400
-Message-ID: <4508A191.1060203@vmware.com>
-Date: Wed, 13 Sep 2006 17:25:53 -0700
-From: Zachary Amsden <zach@vmware.com>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060719)
+	Wed, 13 Sep 2006 20:32:10 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:50102 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1751155AbWINAcJ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Sep 2006 20:32:09 -0400
+Message-ID: <4508A2FB.7040704@melbourne.sgi.com>
+Date: Thu, 14 Sep 2006 10:31:55 +1000
+From: David Chatterton <chatz@melbourne.sgi.com>
+Reply-To: chatz@melbourne.sgi.com
+Organization: SGI
+User-Agent: Thunderbird 1.5.0.5 (Windows/20060719)
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Linus Torvalds <torvalds@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-       Andi Kleen <ak@suse.de>, "Eric W. Biederman" <ebiederm@xmission.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Michael A Fetterman <Michael.Fetterman@cl.cam.ac.uk>
-Subject: Re: Assignment of GDT entries
-References: <450854F3.20603@goop.org>	 <1158175001.3054.7.camel@laptopd505.fenrus.org> <4508681E.3070708@goop.org>	 <4508711B.6060905@vmware.com> <1158183322.16902.8.camel@localhost.localdomain>
-In-Reply-To: <1158183322.16902.8.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: Luca <kronos.it@gmail.com>
+CC: xfs-masters@oss.sgi.com, linux-kernel@vger.kernel.org, xfs@oss.sgi.com
+Subject: Re: XFS: lockdep warning: BUG: held lock freed!
+References: <20060912163600.GA2948@dreamland.darkstar.lan>
+In-Reply-To: <20060912163600.GA2948@dreamland.darkstar.lan>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> Ar Mer, 2006-09-13 am 13:59 -0700, ysgrifennodd Zachary Amsden:
->   
->> TLS #3 overlaps BIOS 0x40, but code which calls borken APM / PnP BIOS 
->> and sets up protected mode 0x40 GDT segment does so by swapping out the 
->> TLS segment with the identity simulation of physical 0x400 offset, 
->> swapping it back afterwards.  Short of bugs in that code (which there 
->> are, btw), you shouldn't need to be concerned with it.
->>     
->
-> Care to elucidate ?
->   
+Luca,
 
-I believe the current max use case for GDT descriptors is Wine.  Wine 
-compiled against TLS glibc uses entry zero for libc, and allocates 
-another GDT entry for the first thread created by NTDLL (although I have 
-no idea why, since there is fallback code to use LDT allocation instead, 
-and all subsequent allocations happen via the LDT -  perhaps some kernel 
-mode DLL thing insists on having the first thread in the GDT?)  DOSemu 
-by the way, only uses the LDT.
+I've added this report to a list of lockdep related work we need to
+do in XFS.
 
-But there is no reason userspace can't allocate 3 TLS descriptors in the 
-GDT per thread.  If it did, the overlap between 0x40 (descriptor #8, 
-real mode BIOS simulation of physical address 0x400, BIOS data area) 
-causes a problem.  Fortunately, APM and PnP take care to fix this by 
-swapping in and out the descriptors.  Unfortunately, they don't get it 
-quite right.
+Thanks,
 
-Selected code snippets (PnP):
-
-        /*
-         * PnP BIOSes are generally not terribly re-entrant.
-         * Also, don't rely on them to save everything correctly.
-         */
-        if(pnp_bios_is_utter_crap)
-                return PNP_FUNCTION_NOT_SUPPORTED;
-
-        cpu = get_cpu();
-        save_desc_40 = get_cpu_gdt_table(cpu)[0x40 / 8];
-        get_cpu_gdt_table(cpu)[0x40 / 8] = bad_bios_desc;   <---- set up 
-fake BIOS descriptor for 0x400
-
-        /* On some boxes IRQ's during PnP BIOS calls are deadly.  */
-        spin_lock_irqsave(&pnp_bios_lock, flags);
-
-...  now inline assembler
-
-                "pushl %%fs\n\t"
-                "pushl %%gs\n\t"
-                "pushfl\n\t"
-                "movl %%esp, pnp_bios_fault_esp\n\t"
-                "movl $1f, pnp_bios_fault_eip\n\t"
-                "lcall %5,%6\n\t"
-                "1:popfl\n\t"
-                "popl %%gs\n\t"   <---- (**)
-                "popl %%fs\n\t"    <---- (**)
-
-... now restore original GDT descriptor back
-
-        spin_unlock_irqrestore(&pnp_bios_lock, flags);
-
-        get_cpu_gdt_table(cpu)[0x40 / 8] = save_desc_40;
-        put_cpu();
+David
 
 
-But it is too late - damage is already done (at **), since %fs or %gs 
-could have had a reference to TLS descriptor #3, and they get reloaded 
-_before_ the GDT is restored.  Thus any userspace process that uses TLS 
-descriptor #3 in FS or GS and makes a BIOS call to PnP may get corrupted 
-data loaded into the hidden state of FS / GS selectors.
 
-APM has a similar problem.  Both are easily fixable, but there has been 
-too much flux in this area recently to get a stable patch for these 
-problems, and the problems are exceedingly unlikely, since I don't know 
-of a single userspace program using TLS descriptor #3, much less one 
-that makes use of APM or PnP facilities.  There is the possibility 
-however, that such a program could sleep, run the idle thread, which 
-makes a call into some of these BIOS facilities, and then reschedules 
-the same program thread - which means FS/GS never get reloaded, thus 
-maintaining their corrupted values.  It is worth fixing, just not a high 
-priority.  I had a patch that fixed both APM and PnP at one time, but it 
-is covered with mold and now looks like a science experiment.  Shall I 
-apply disinfectant?
+Luca wrote:
+> Hi,
+> I see that this error has alredy been observed with 2.6.17-mm; I'm
+> running kernel 2.6.18-rc5 (x86, UP, with PREEMPT) and may have
+> additional information. In my case the FS was affected by 2.6.17
+> directory corruption (I forgot to run xfs_repair on this machine); after
+> the FS was shut down I rebooted the machine (with init=/bin/bash, rootfs
+> on ext2, so it was not affected) and mounted XFS partition read-only to
+> recover the log.
+> I tried to reproduce with "simple" crashes (i.e. write a file and
+> reboot, I don't want to trash the FS too much ;)) without success, so
+> the error may be related to directory corruption.
+> 
+> lockdep message:
+> 
+> SGI XFS with no debug enabled
+> XFS mounting filesystem hda8
+> Starting XFS recovery on filesystem: hda8 (logdev: internal)
+> 
+> =========================
+> [ BUG: held lock freed! ]
+> -------------------------
+> mount/290 is freeing memory ef798b70-ef798baf, with a lock still held there!
+>  (&(&ip->i_lock)->mr_lock){--..}, at: [<f193e4ed>] xfs_ilock+0x7d/0xb0 [xfs]
+> 3 locks held by mount/290:
+>  #0:  (&type->s_umount_key#14){--..}, at: [<b01689cc>] sget+0x19c/0x320
+>  #1:  (&(&ip->i_iolock)->mr_lock){--..}, at: [<f193e50e>] xfs_ilock+0x9e/0xb0 [xfs]
+>  #2:  (&(&ip->i_lock)->mr_lock){--..}, at: [<f193e4ed>] xfs_ilock+0x7d/0xb0 [xfs]
+> 
+> stack backtrace:
+>  [<b0104376>] show_trace_log_lvl+0x176/0x1a0
+>  [<b0104a32>] show_trace+0x12/0x20
+>  [<b0104a99>] dump_stack+0x19/0x20
+>  [<b0135699>] debug_check_no_locks_freed+0x169/0x180
+>  [<b01d5c71>] __init_rwsem+0x21/0x60
+>  [<f193e855>] xfs_inode_lock_init+0x25/0x80 [xfs]
+>  [<f193ee4a>] xfs_iget+0x18a/0x5b8 [xfs]
+>  [<f194f0d6>] xlog_recover_process_iunlinks+0x316/0x500 [xfs]
+>  [<f194f57e>] xlog_recover_finish+0x2be/0x380 [xfs]
+>  [<f194af47>] xfs_log_mount_finish+0x37/0x50 [xfs]
+>  [<f1953b70>] xfs_mountfs+0xe50/0x1020 [xfs]
+>  [<f1945579>] xfs_ioinit+0x29/0x40 [xfs]
+>  [<f195af8c>] xfs_mount+0x65c/0xa10 [xfs]
+>  [<f196d855>] vfs_mount+0x25/0x30 [xfs]
+>  [<f196d676>] xfs_fs_fill_super+0x76/0x1e0 [xfs]
+>  [<b01692bc>] get_sb_bdev+0xec/0x130
+>  [<f196c7f1>] xfs_fs_get_sb+0x21/0x30 [xfs]
+>  [<b0168dc0>] vfs_kern_mount+0x40/0xa0
+>  [<b0168e76>] do_kern_mount+0x36/0x50
+>  [<b017f2ee>] do_mount+0x22e/0x610
+>  [<b017f73f>] sys_mount+0x6f/0xb0
+>  [<b0103173>] syscall_call+0x7/0xb
+>  [<a7ef00be>] 0xa7ef00be
+>  [<b0104a32>] show_trace+0x12/0x20
+>  [<b0104a99>] dump_stack+0x19/0x20
+>  [<b0135699>] debug_check_no_locks_freed+0x169/0x180
+>  [<b01d5c71>] __init_rwsem+0x21/0x60
+>  [<f193e855>] xfs_inode_lock_init+0x25/0x80 [xfs]
+>  [<f193ee4a>] xfs_iget+0x18a/0x5b8 [xfs]
+>  [<f194f0d6>] xlog_recover_process_iunlinks+0x316/0x500 [xfs]
+>  [<f194f57e>] xlog_recover_finish+0x2be/0x380 [xfs]
+>  [<f194af47>] xfs_log_mount_finish+0x37/0x50 [xfs]
+>  [<f1953b70>] xfs_mountfs+0xe50/0x1020 [xfs]
+>  [<f1945579>] xfs_ioinit+0x29/0x40 [xfs]
+>  [<f195af8c>] xfs_mount+0x65c/0xa10 [xfs]
+>  [<f196d855>] vfs_mount+0x25/0x30 [xfs]
+>  [<f196d676>] xfs_fs_fill_super+0x76/0x1e0 [xfs]
+>  [<b01692bc>] get_sb_bdev+0xec/0x130
+>  [<f196c7f1>] xfs_fs_get_sb+0x21/0x30 [xfs]
+>  [<b0168dc0>] vfs_kern_mount+0x40/0xa0
+>  [<b0168e76>] do_kern_mount+0x36/0x50
+>  [<b017f2ee>] do_mount+0x22e/0x610
+>  [<b017f73f>] sys_mount+0x6f/0xb0
+>  [<b0103173>] syscall_call+0x7/0xb
+> Ending XFS recovery on filesystem: hda8 (logdev: internal)
+> 
+> 
+> Luca
 
-Zach
+-- 
+David Chatterton
+XFS Engineering Manager
+SGI Australia

@@ -1,93 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750917AbWINQAx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750938AbWINQBv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750917AbWINQAx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Sep 2006 12:00:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750920AbWINQAw
+	id S1750938AbWINQBv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Sep 2006 12:01:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750951AbWINQBv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Sep 2006 12:00:52 -0400
-Received: from ug-out-1314.google.com ([66.249.92.173]:62111 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1750933AbWINQAv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Sep 2006 12:00:51 -0400
+	Thu, 14 Sep 2006 12:01:51 -0400
+Received: from wr-out-0506.google.com ([64.233.184.232]:48195 "EHLO
+	wr-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1750938AbWINQBu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Sep 2006 12:01:50 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=HBeviyvyiwiWG0Dbo+Kj2nyf9iNKcV6oBvvG8KX6whqqP90DGHnOTWxlpYBohTiGD2Lu7qrOtymuNeTMwrS4DxGwqJ8NgCyQ0WU8ETWB0gln8QzVrivWjQ1klSLZR27sTV9aWb0TPWU9WUCBeuxjf0vUsmqYoE183KFntDtKYdk=
-Message-ID: <a885b78b0609140900x385c9453n9ef25a936524dff7@mail.gmail.com>
-Date: Fri, 15 Sep 2006 00:00:49 +0800
-From: "xixi lii" <xixi.limeng@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: UDP question.
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=k/EHPkyVkSUx4b0UfD9XpHh43oS+P12cxH37HSrRpVdCJHOHFz1YMuWwAy7Tl4vvBmBTnXLM1ubUkTa1fK9Ay1WCsTc5g/Eub0hzELiZVEcZS9PE7MsKIy3pbIiaVQ3KOBIXPj46mHrkPEcbQ+ZTaoAfcBzpFxzxrM5BO2dEIVQ=
+Message-ID: <787b0d920609140901l46ce6cd3l400c33e74a67b8db@mail.gmail.com>
+Date: Thu, 14 Sep 2006 12:01:48 -0400
+From: "Albert Cahalan" <acahalan@gmail.com>
+To: "Andi Kleen" <ak@suse.de>
+Subject: Re: [PATCH] i386/x86_64 signal handler arg fixes
+Cc: linux-kernel@vger.kernel.org, "Andrew Morton" <akpm@osdl.org>,
+       "Linus Torvalds" <torvalds@osdl.org>, hpa@zytor.com
+In-Reply-To: <200609141540.44984.ak@suse.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+References: <787b0d920609140134j5935c743kae4af8d51eea2a90@mail.gmail.com>
+	 <200609141211.53087.ak@suse.de>
+	 <787b0d920609140801r452ff7d7vdc2d96865836eefc@mail.gmail.com>
+	 <200609141540.44984.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi:
-I have a very puzzled question. When I test the limits of my network
-adapters, I send many small UDP packets and compute the average
-packets sent per second. Use those codes, I get the result: 75000
-packets per second.
-(All my sockets has set to unblock)
-//////
-socket = socket(AF_INET, SOCK_DGRAM, .....)
-bind....
-time = time(NULL);
-while (1)
-{
-sendto(socket, "", 1, 0, dstaddr, addrlen);
-count++;
-}
-time = time(NULL) - time;
-avg = count / time; // here, I get avg = 75000 //////
+On 9/14/06, Andi Kleen <ak@suse.de> wrote:
+>
+> > I guess that should be deleted then?
+>
+> Yes. I will delete it right now. Thanks for the notice.
 
-This result can't satisfy me, so I add another network adapter, and
-try the code blow:
+Er, OK. This means I can't patch it without conflict.
+Mind just adding the six lines of code needed for
+support of regparm(3) apps?
 
-//////
-socket1 = socket(AF_INET, SOCK_DGRAM, .....)
-socket2 = socket(AF_INET, SOCK_DGRAM, .....)
-bind socket1.network adapter1...
-bind socket2 network adapter2
-time = time(NULL);
-while (1)
-{
-sendto(socket1, "", 1, 0, dstaddr1, addrlen);
-sendto(socket2, "", 1, 0, dstaddr2, addrlen);
-count += 2;
-}
-time = time(NULL) - time;
-avg = count / time;
-///////////////////
+> > Currently you remap signals. Whatever you do this for
+> > regparm(0) should also be done for regparm(3).
+>
+> Not sure I parse you here. You're asking how to fix the regparm(3)
+> case?
 
-But I get the result is also 75000 packet per second, WHY?
+No. I'd thought that the two cases should match.
+The regparm(3) case should remap signals if and only if
+the regparm(0) case remaps signals. Perhaps this
+is not correct if the remapping is not needed for
+native Linux apps; I doubt iBCS stuff would ever be
+needing regparm(3) support.
 
-Then I find a technique name bond, and then I configure my server's
-two network adapters into a dev bond0. And then I test again with the
-first paragraph of the code, then I get result 150000 packets per
-second. So I want to know how bond can increate the speed of network
-adapters (use my own code to send with the two network adapters at the
-same time is not helpful), then I open the kernel code, and then find
-such code:
-bond_main.c  L3861:
-if (IS_UP(slave->dev) &&
-    (slave->link == BOND_LINK_UP) &&
-    (slave->state == BOND_STATE_ACTIVE)) {
-res = bond_dev_queue_xmit(bond, skb, slave->dev);
-
-write_lock(&bond->curr_slave_lock);
-bond->curr_active_slave = slave->next;
-write_unlock(&bond->curr_slave_lock);
-
-break;
-}
-It look like that when send a packet to bond dev, bond use current
-slave and send packet, then change current slave to next. What is the
-essence different between the bond and my code (use two network
-adapters)?
-
-Any suggestions?
-
-xixi
+Since you plan to delete the remapping cruft from
+the regparm(0) case, then obviously it should not
+be added to the regparm(3) case.

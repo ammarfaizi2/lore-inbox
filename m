@@ -1,101 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932115AbWINX2I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932128AbWINX2X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932115AbWINX2I (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Sep 2006 19:28:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932128AbWINX2I
+	id S932128AbWINX2X (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Sep 2006 19:28:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932129AbWINX2X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Sep 2006 19:28:08 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:23497 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932115AbWINX2F (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Sep 2006 19:28:05 -0400
-Date: Fri, 15 Sep 2006 01:19:56 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Martin Bligh <mbligh@mbligh.org>
-Cc: Roman Zippel <zippel@linux-m68k.org>,
-       Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
-       linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
-       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@redhat.com>,
-       Greg Kroah-Hartman <gregkh@suse.de>,
-       Thomas Gleixner <tglx@linutronix.de>, Tom Zanussi <zanussi@us.ibm.com>,
-       ltt-dev@shafik.org, Michel Dagenais <michel.dagenais@polymtl.ca>,
-       fche@redhat.com
-Subject: Re: [PATCH 0/11] LTTng-core (basic tracing infrastructure) 0.5.108
-Message-ID: <20060914231956.GB29229@elte.hu>
-References: <20060914135548.GA24393@elte.hu> <Pine.LNX.4.64.0609141623570.6761@scrub.home> <20060914171320.GB1105@elte.hu> <4509BAD4.8010206@mbligh.org> <20060914203430.GB9252@elte.hu> <4509C1D0.6080208@mbligh.org> <20060914213113.GA16989@elte.hu> <4509D6E6.5030409@mbligh.org> <20060914223607.GB25004@elte.hu> <4509DEC3.70806@mbligh.org>
+	Thu, 14 Sep 2006 19:28:23 -0400
+Received: from e36.co.us.ibm.com ([32.97.110.154]:41188 "EHLO
+	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S932128AbWINX2U
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Sep 2006 19:28:20 -0400
+Subject: Re: [ckrm-tech] [PATCH] BC:
+	resource	beancounters	(v4)	(added	user	memory)
+From: Chandra Seetharaman <sekharan@us.ibm.com>
+Reply-To: sekharan@us.ibm.com
+To: rohitseth@google.com
+Cc: Rik van Riel <riel@redhat.com>, vatsa@in.ibm.com,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       CKRM-Tech <ckrm-tech@lists.sourceforge.net>, balbir@in.ibm.com,
+       Dave Hansen <haveblue@us.ibm.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andi Kleen <ak@suse.de>, Christoph Hellwig <hch@infradead.org>,
+       Andrey Savochkin <saw@sw.ru>, Matt Helsley <matthltc@us.ibm.com>,
+       Hugh Dickins <hugh@veritas.com>, Alexey Dobriyan <adobriyan@mail.ru>,
+       Kirill Korotaev <dev@sw.ru>, Oleg Nesterov <oleg@tv-sign.ru>,
+       devel@openvz.org, Pavel Emelianov <xemul@openvz.org>
+In-Reply-To: <1158197232.20211.96.camel@galaxy.corp.google.com>
+References: <44FD918A.7050501@sw.ru> <44FDAB81.5050608@in.ibm.com>
+	 <44FEC7E4.7030708@sw.ru> <44FF1EE4.3060005@in.ibm.com>
+	 <1157580371.31893.36.camel@linuxchandra> <45011CAC.2040502@openvz.org>
+	 <1157743424.19884.65.camel@linuxchandra>
+	 <1157751834.1214.112.camel@galaxy.corp.google.com>
+	 <1157999107.6029.7.camel@linuxchandra>
+	 <1158001831.12947.16.camel@galaxy.corp.google.com>
+	 <20060912104410.GA28444@in.ibm.com>
+	 <1158081752.20211.12.camel@galaxy.corp.google.com>
+	 <1158105732.4800.26.camel@linuxchandra>
+	 <1158108203.20211.52.camel@galaxy.corp.google.com>
+	 <1158109991.4800.43.camel@linuxchandra>
+	 <1158111218.20211.69.camel@galaxy.corp.google.com>
+	 <1158186247.18927.11.camel@linuxchandra>
+	 <1158197232.20211.96.camel@galaxy.corp.google.com>
+Content-Type: text/plain
+Organization: IBM
+Date: Thu, 14 Sep 2006 16:28:15 -0700
+Message-Id: <1158276495.6357.18.camel@linuxchandra>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4509DEC3.70806@mbligh.org>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -2.9
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.9 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5000]
-	-0.1 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+X-Mailer: Evolution 2.0.4 (2.0.4-7) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 2006-09-13 at 18:27 -0700, Rohit Seth wrote:
 
-* Martin Bligh <mbligh@mbligh.org> wrote:
-
-> > note that such a limited, minimally invasive 'data extraction point' 
-> > infrastructure is not actually what the LTT patches are doing. It's 
-> > not even close, and i think you'll be surprised. Let me quote from 
-> > the latest LTT patch (patch-2.6.17-lttng-0.5.108, which is the same 
-> > version submitted to lkml - although no specific tracepoints were 
-> > submitted):
+<snip>
+> > > As said earlier, if strict QoS is desired then system should be
+> > > appropriately partitioned so that the sum of limits doesn't exceed
+> > > physical limit (that is cost of QoS).  Let us first get at least that
+> > > much settled on and accepted in mainline before getting into these
+> > > esoteric features.
+> > > 
+> > 
+> > esoteric ?! Please look at the different operating system that provide
+> > resource management and other resource management capability providers.
+> > All of them have both guarantees and limits (they might call them
+> > differently).
+> > 
 > 
-> OK, I grant you that's pretty scary ;-) However, it's not the only way 
-> to do it. Most things we're using write a statically sized 64-bit 
-> event into a relayfs buffer, with a timestamp, a minor and major event 
-> type, and a byte of data payload.
+> Is this among the very first features you would like (to get absolutely
+> right) before containers get in mm tree?  Or is this something that can
 
-oh, no need to tell me. I wrote ktrace 10 years ago, iotrace 8 years ago 
-and latency-trace 2 years ago. (The latter even does extensive mcount 
-based tracing, which is as demanding on the ringbuffer as it gets - on 
-my testbox i routinely get 10-20 million trace events per second, where 
-each trace entry includes: type, cpu, flags, preempt_count, pid, 
-timestamp and 4 words of arbitrary payload, all fit into 32 bytes. It 
-has static tracepoints too, in addition to the 20,000-40,000 mcount 
-tracepoints a typical kernel has.)
+Let me make it clear, I am interested in resource management and not in
+containers.
 
-So i think i know the advantages and disadvantages of static tracers, 
-their maintainance and performance impact.
+IMO, for resource management to work as expected (as is in other OSes),
+guarantee is needed. It will be a good idea to have it from start as it
+would affect the design of controllers. 
 
-but i think (and i think now you'll be surprised) the way to go is to do 
-all this in SystemTap ;-) If we add any static points to the kernel then 
-it should have a pure 'local data preparation for extraction' purpose - 
-nothing more. Static tracing can be built around that too, but at that 
-point it will be unnecessary because SystemTap will be able to do that 
-too, with the same (or better, considering the LTT mess) performance.
+For example, instead of writing two controllers (one to control limit
+and another to provide guarantee), controller writers can provide both
+in a single controller. (OpenVZ has two parameters, oomguarpages and
+vmguarpages whose purpose is to provide some sort of guarantee using the
+barrier and/or limit available in BC)
+ 
+> wait after the minimal infrastructure is in Andrew's tree and the code
+> gets wider testing...And above all we have agreed upon user interface.
+> 
+> -rohit
+> 
 
-i.e. we should have macros to prepare local information, with macro 
-arities of 2, 3, 4 and 5:
+-- 
 
-    _(name, data1);
-   __(name, data1, data2);
-  ___(name, data1, data2, data3);
- ____(name, data1, data2, data3, data4);
+----------------------------------------------------------------------
+    Chandra Seetharaman               | Be careful what you choose....
+              - sekharan@us.ibm.com   |      .......you may get it.
+----------------------------------------------------------------------
 
-that and nothing more. But no guarantees that these trace points will 
-always be there and usable for static tracers: for example about 50% of 
-all tracepoints can be eliminated via a function attribute. (which 
-function attribute tells GCC to generate a 5-byte NOP as the first 
-instruction of the function prologue.) That will be invariant to things 
-like function renames, etc.
 
-> So perhaps it'll all work. Still need a little bit of data maintained 
-> in tree though.
-
-ok. And i think SystemTap itself should be in tree too, with a couple of 
-examples and helper scripts all around tracing and probing - and of 
-course an LTT-compatible trace output so that all the nice LTT userspace 
-code and visualization can live on.
-
-	Ingo

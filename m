@@ -1,142 +1,236 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750796AbWINKUx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750751AbWINKUe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750796AbWINKUx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Sep 2006 06:20:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750765AbWINKUh
-	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Sep 2006 06:20:37 -0400
-Received: from ns.miraclelinux.com ([219.118.163.66]:9548 "EHLO
-	mail01.miraclelinux.com") by vger.kernel.org with ESMTP
-	id S1750767AbWINKUe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	id S1750751AbWINKUe (ORCPT <rfc822;willy@w.ods.org>);
 	Thu, 14 Sep 2006 06:20:34 -0400
-Message-Id: <20060914102031.313830702@localhost.localdomain>
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750769AbWINKUe
+	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Thu, 14 Sep 2006 06:20:34 -0400
+Received: from ns.miraclelinux.com ([219.118.163.66]:844 "EHLO
+	mail01.miraclelinux.com") by vger.kernel.org with ESMTP
+	id S1750751AbWINKUd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Sep 2006 06:20:33 -0400
+Message-Id: <20060914102029.642906830@localhost.localdomain>
 References: <20060914102012.251231177@localhost.localdomain>
-Date: Thu, 14 Sep 2006 18:20:15 +0800
+Date: Thu, 14 Sep 2006 18:20:13 +0800
 From: Akinobu Mita <mita@miraclelinux.com>
 To: linux-kernel@vger.kernel.org
 Cc: ak@suse.de, akpm@osdl.org, Don Mullis <dwm@meer.net>,
-       Pekka Enberg <penberg@cs.helsinki.fi>,
        Akinobu Mita <mita@miraclelinux.com>
-Subject: [patch 3/8] fault-injection capability for kmalloc
-Content-Disposition: inline; filename=failslab.patch
+Subject: [patch 1/8] documentation and scripts
+Content-Disposition: inline; filename=doc.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch provides fault-injection capability for kmalloc.
+This patch provides the documentation and helper/testing scripts for
+fault-injection capabilities.
 
-Boot option:
-
-failslab=<interval>,<probability>,<space>,<times>
-
-	<interval> -- specifies the interval of failures.
-
-	<probability> -- specifies how often it should fail in percent.
-
-	<space> -- specifies the size of free space where memory can be
-		   allocated safely in bytes.
-
-	<times> -- specifies how many times failures may happen at most.
-
-Example:
-
-	failslab=10,100,0,-1
-
-slab allocation (kmalloc(), kmem_cache_alloc(),..) fails once per 10 times.
-
-Cc: Pekka Enberg <penberg@cs.helsinki.fi>
 Signed-off-by: Akinobu Mita <mita@miraclelinux.com>
 
- include/linux/fault-inject.h |    4 ++++
- lib/Kconfig.debug            |    7 +++++++
- mm/slab.c                    |   34 ++++++++++++++++++++++++++++++++++
- 3 files changed, 45 insertions(+)
+ Documentation/fault-injection/failcmd.sh          |    4 
+ Documentation/fault-injection/failmodule.sh       |   32 ++++
+ Documentation/fault-injection/fault-injection.txt |  150 ++++++++++++++++++++++
+ 3 files changed, 186 insertions(+)
 
-Index: work-shouldfail/mm/slab.c
+Index: work-shouldfail/Documentation/fault-injection/failcmd.sh
 ===================================================================
---- work-shouldfail.orig/mm/slab.c
-+++ work-shouldfail/mm/slab.c
-@@ -108,6 +108,7 @@
- #include	<linux/mempolicy.h>
- #include	<linux/mutex.h>
- #include	<linux/rtmutex.h>
-+#include	<linux/fault-inject.h>
- 
- #include	<asm/uaccess.h>
- #include	<asm/cacheflush.h>
-@@ -2963,11 +2964,44 @@ static void *cache_alloc_debugcheck_afte
- #define cache_alloc_debugcheck_after(a,b,objp,d) (objp)
- #endif
- 
-+#ifdef CONFIG_FAILSLAB
+--- /dev/null
++++ work-shouldfail/Documentation/fault-injection/failcmd.sh
+@@ -0,0 +1,4 @@
++#!/bin/bash
 +
-+static DEFINE_FAULT_ATTR(failslab_attr);
-+
-+static int __init setup_failslab(char *str)
-+{
-+	should_fail_srandom(jiffies);
-+	return setup_fault_attr(&failslab_attr, str);
-+}
-+__setup("failslab=", setup_failslab);
-+
-+struct fault_attr *failslab = &failslab_attr;
-+EXPORT_SYMBOL_GPL(failslab);
-+
-+static int should_failslab(struct kmem_cache *cachep, gfp_t flags)
-+{
-+	if ((flags & __GFP_NOFAIL) || cachep == &cache_cache)
-+		return 0;
-+	return should_fail(failslab, obj_size(cachep));
-+}
-+
-+#else
-+
-+static inline int should_failslab(struct kmem_cache *cachep, gfp_t flags)
-+{
-+	return 0;
-+}
-+
-+#endif
-+
- static inline void *____cache_alloc(struct kmem_cache *cachep, gfp_t flags)
- {
- 	void *objp;
- 	struct array_cache *ac;
- 
-+	if (should_failslab(cachep, flags))
-+		return NULL;
-+
- #ifdef CONFIG_NUMA
- 	if (unlikely(current->flags & (PF_SPREAD_SLAB | PF_MEMPOLICY))) {
- 		objp = alternate_node_alloc(cachep, flags);
-Index: work-shouldfail/lib/Kconfig.debug
++echo 1 > /proc/self/make-it-fail
++exec $*
+Index: work-shouldfail/Documentation/fault-injection/failmodule.sh
 ===================================================================
---- work-shouldfail.orig/lib/Kconfig.debug
-+++ work-shouldfail/lib/Kconfig.debug
-@@ -372,3 +372,10 @@ config RCU_TORTURE_TEST
- config FAULT_INJECTION
- 	bool
- 
-+config FAILSLAB
-+	bool "fault-injection capabilitiy for kmalloc"
-+	depends on DEBUG_KERNEL
-+	select FAULT_INJECTION
-+	help
-+	  This option provides fault-injection capabilitiy for kmalloc.
+--- /dev/null
++++ work-shouldfail/Documentation/fault-injection/failmodule.sh
+@@ -0,0 +1,32 @@
++#!/bin/bash
++#
++# Usage: failmodule <failname> <modulename> [stacktrace-depth]
++#
++#	<failname>: "failslab", "fail_alloc_page", or "fail_make_request"
++#
++#	<modulename>: module name that you want to inject faults.
++#
++#	[stacktrace-depth]: the maximum number of stacktrace walking allowed
++#
 +
-Index: work-shouldfail/include/linux/fault-inject.h
++STACKTRACE_DEPTH=5
++if [ $# -gt 2 ]; then
++	STACKTRACE_DEPTH=$3
++fi
++
++if [ ! -d /debug/$1 ]; then
++	echo "Fault-injection $1 does not exist" >&2
++	exit 1
++fi
++if [ ! -d /sys/module/$2 ]; then
++	echo "Module $2 does not exist" >&2
++	exit 1
++fi
++
++# Disable stacktrace filter at first
++echo 0 > /debug/$1/address-end
++echo 1 > /debug/$1/stacktrace-depth
++
++echo `cat /sys/module/$2/sections/.text` > /debug/$1/address-start
++echo `cat /sys/module/$2/sections/.exit.text` > /debug/$1/address-end
++echo $STACKTRACE_DEPTH > /debug/$1/stacktrace-depth
+Index: work-shouldfail/Documentation/fault-injection/fault-injection.txt
 ===================================================================
---- work-shouldfail.orig/include/linux/fault-inject.h
-+++ work-shouldfail/include/linux/fault-inject.h
-@@ -36,6 +36,10 @@ int setup_fault_attr(struct fault_attr *
- void should_fail_srandom(unsigned long entropy);
- int should_fail(struct fault_attr *attr, ssize_t size);
- 
-+#ifdef CONFIG_FAILSLAB
-+extern struct fault_attr *failslab;
-+#endif
+--- /dev/null
++++ work-shouldfail/Documentation/fault-injection/fault-injection.txt
+@@ -0,0 +1,150 @@
++Fault injection capabilities infrastructure
++===========================================
 +
- #endif /* CONFIG_FAULT_INJECTION */
- 
- #endif /* _LINUX_FAULT_INJECT_H */
++Available fault injection capabilities
++--------------------------------------
++
++o failslab
++
++  injects slab allocation failures. (kmalloc(), kmem_cache_alloc(), ...)
++
++o fail_page_alloc
++
++  injects page allocation failures. (alloc_pages(), get_free_pages(), ...)
++
++o fail_make_request
++
++  injects disk IO errors on permitted devices by /sys/block/<device>/make-it-fail
++  or /sys/block/<device>/<partition>/make-it-fail. (generic_make_request())
++
++Configure fault-injection capabilities behavior
++-----------------------------------------------
++
++Example for failslab:
++
++o debugfs entries
++
++fault-inject-debugfs kernel module provides some debugfs entries for runtime
++configuration for fault-injection capabilities.
++
++- /debug/failslab/probability:
++
++	specifies how often it should fail in percent.
++
++- /debug/failslab/interval:
++
++	specifies the interval of failures.
++
++- /debug/failslab/times:
++
++	specifies how many times failures may happen at most.
++
++- /debug/failslab/space:
++
++	specifies the size of free space where memory can be allocated
++	safely in bytes.
++
++- /debug/failslab/process-filter:
++
++	specifies whether the process filter is enabled or not.
++	It allows failing only permitted processes by /proc/<pid>/make-it-fail
++
++- /debug/failslab/stacktrace-depth:
++
++	specifies the maximum stacktrace depth walking allowed.
++	A value '0' means stacktrace filter is disabled.
++
++- /debug/failslab/address-start:
++- /debug/failslab/address-end:
++
++	specifies the range of virtual address.
++	It allows failing only if the stacktrace hits in this range.
++
++o Boot option
++
++In order to inject faults while debugfs is not available (early boot time),
++We can use boot option.
++
++- failslab=<interval>,<probability>,<space>,<times>
++
++How to add new fault injection capability
++-----------------------------------------
++
++o #include <linux/fault-inject.h>
++
++o define the fault attributes
++
++  DEFINE_FAULT_INJECTION(name);
++
++  Please see the definition of struct fault_attr in fault-inject.h
++  for the detail.
++
++o provide the way to configure fault attributes
++
++- boot option
++
++  If you need to enable the fault injection capability ealier boot time,
++  you can provide boot option to configure it. There is a helper function for it.
++
++  setup_fault_attr(attr, str);
++
++- module parameters
++
++  If the scope of the fault injection capability is limited by a kernel module,
++  It is better to provide module parameters to configure the member of fault
++  attributes.
++
++- debugfs entries
++
++  failslab, fail_page_alloc, and fail_make_request use this way.
++
++  But now there is no helper functions to provides debugfs entries for
++  fault injection capabilities. Please refer to lib/fault-inject-debugfs.c
++  to know how to do. And please try not to add new one into
++  fault-inject-debugfs module.
++
++  Because failslab, fail_page_alloc, and fail_make_request are used ealier
++  boot time before debugfs is available and the slab allocator,
++  the page allocator, and the block layer cannot be built as module.
++
++o add a hook to insert failures
++
++  should_fail() returns 1 when failures should happen.
++
++  should_fail(attr);
++
++Tests
++-----
++
++o inject slab allocation failures into module init/cleanup code
++
++------------------------------------------------------------------------------
++#!/bin/bash
++
++FAILCMD=Documentation/fault-injection/failcmd.sh
++
++modprobe fault-inject-debugfs
++echo Y > /debug/failslab/process-filter
++echo 25 > /debug/failslab/probability
++
++find /lib/modules/`uname -r` -name '*.ko' -exec basename {} .ko \; \
++	| while read i; do bash $FAILCMD modprobe $i;done
++
++lsmod | awk '{ if ($3 == 0) { system("bash $FAILCMD modprobe -r " $1) } }'
++
++------------------------------------------------------------------------------
++
++o inject slab allocation failures only for a specific module
++
++------------------------------------------------------------------------------
++#!/bin/bash
++
++FAILMOD=Documentation/fault-injection/failmodule.sh
++
++modprobe fault-inject-debugfs
++modprobe your-test-module
++bash $FAILMOD failslab your-test-module 10
++echo 25 > /debug/failslab/probability
++
++------------------------------------------------------------------------------
++
 
 --

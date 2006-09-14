@@ -1,74 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751127AbWINUWH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751141AbWINUXb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751127AbWINUWH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Sep 2006 16:22:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751131AbWINUWH
+	id S1751141AbWINUXb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Sep 2006 16:23:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751138AbWINUXb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Sep 2006 16:22:07 -0400
-Received: from ogre.sisk.pl ([217.79.144.158]:43738 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S1751127AbWINUWE (ORCPT
+	Thu, 14 Sep 2006 16:23:31 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:10731 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1751141AbWINUXa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Sep 2006 16:22:04 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Alan Stern <stern@rowland.harvard.edu>
-Subject: Re: [linux-usb-devel] 2.6.18-rc6-mm1 (-mm2): ohci resume problem
-Date: Thu, 14 Sep 2006 22:21:05 +0200
-User-Agent: KMail/1.9.1
-Cc: Andrew Morton <akpm@osdl.org>, Mattia Dongili <malattia@linux.it>,
-       Robert Hancock <hancockr@shaw.ca>,
-       Kernel development list <linux-kernel@vger.kernel.org>,
-       USB development list <linux-usb-devel@lists.sourceforge.net>
-References: <Pine.LNX.4.44L0.0609141428070.5715-100000@iolanthe.rowland.org> <200609142137.52066.rjw@sisk.pl>
-In-Reply-To: <200609142137.52066.rjw@sisk.pl>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
+	Thu, 14 Sep 2006 16:23:30 -0400
+Date: Thu, 14 Sep 2006 22:14:48 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Martin Bligh <mbligh@mbligh.org>
+Cc: Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
+       linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
+       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@redhat.com>,
+       Greg Kroah-Hartman <gregkh@suse.de>,
+       Thomas Gleixner <tglx@linutronix.de>, Tom Zanussi <zanussi@us.ibm.com>,
+       ltt-dev@shafik.org, Michel Dagenais <michel.dagenais@polymtl.ca>,
+       fche@redhat.com
+Subject: Re: [PATCH 0/11] LTTng-core (basic tracing infrastructure) 0.5.108
+Message-ID: <20060914201448.GA7357@elte.hu>
+References: <20060914033826.GA2194@Krystal> <20060914112718.GA7065@elte.hu> <450971CB.6030601@mbligh.org> <20060914174306.GA18890@elte.hu> <4509B5A4.2070508@mbligh.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200609142221.06507.rjw@sisk.pl>
+In-Reply-To: <4509B5A4.2070508@mbligh.org>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -2.9
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.9 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5000]
+	-0.1 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday, 14 September 2006 21:37, Rafael J. Wysocki wrote:
-> On Thursday, 14 September 2006 20:28, Alan Stern wrote:
-> > On Thu, 14 Sep 2006, Rafael J. Wysocki wrote:
-> > 
-> > > > Let's try a simpler test.  Leave USB_SUSPEND unset.
-> > > > 
-> > > > First rmmod ohci-hcd.  None of your full-speed USB devices will work, but 
-> > > > that's okay.  Try the suspend-twice test and see what happens.
-> > > > 
-> > > > Second, rmmod ehci-hcd and modprobe ohci-hcd.  Again try the suspend-twice 
-> > > > test.
-> > > 
-> > > Done, works (with USB_SUSPEND unset).
-> > 
-> > Okay, good.
-> 
-> Well, sorry.  This test has been passed, but after a reboot it refused to
-> suspend just once giving the same messages that I've got from the kernel
-> with USB_SUSPEND set (the relevant dmesg output is attached).
 
-This only happens if _both_ ohci_hcd and ehci_hcd are loaded before the
-suspend.
- 
-> > Then for the next stage, repeat the same tests but with  
-> > USB_SUSPEND set.
-> 
-> Compiling.
+* Martin Bligh <mbligh@mbligh.org> wrote:
 
-The results are now the same with and without USB_SUSPEND set.  Namely,
-if one hcd is loaded before a suspend (either ehci or ohci), it succeeds
-(repeatable arbitrary number of times in a row).  However, if both hcds are
-loaded before a suspend, it fails (100% of the time) and the messages are
-like in the dmesg output attached to the previous message.
+> an external patch is, indeed, pretty useless. Merging a few simple 
+> tracepoints should not be a problem [...]
 
-I've reproduced this behavior on another x86_64 box.
+the problem is, LTT is not about a 'few' tracepoints: it adds a whopping 
+350 tracepoints, a fair portion of it is multi-line with tons of 
+arguments.
 
-Greetings,
-Rafael
+ $ diffstat patch-2.6.17-lttng-0.5.108-instrumentation*
+ 98 files changed, 1450 insertions(+), 64 deletions(-)
 
+saying "it's just a few lightweight tracepoints" misses two points: it's 
+not just a few, and it's not lightweight.
 
--- 
-You never change things by fighting the existing reality.
-		R. Buckminster Fuller
+and the set of tracepoints never gets smaller. People who start to rely 
+on a tracepoint will scream bloody murder if it goes away or breaks. 
+Static tracepoints are a maintainance PITA that will rarely get smaller, 
+and will easily grow ...
+
+> [...] - see blktrace and schedstats, for instance.
+
+yes, i do want to remove the 34 schedstats tracepoints too, once a 
+feasible alternative is present. I already have to do two compilations 
+when changing something substantial in the scheduler - once with and 
+once without schedstats.
+
+same for blktrace: once SystemTap can provide a compatible replacement, 
+it should.
+
+> It amuses me that we're so opposed to external patches to the tree 
+> (for perfectly understandable reasons), but we somehow think 
+> tracepoints are magically different and should be maintained out of 
+> tree somehow.
+
+i think you misunderstood what i meant. SystemTap should very much be 
+integrated into the kernel proper, but i dont think the _rules_ (and 
+scripts) should become part of the _source code files themselves_. So 
+yes, there's advantage to kernel integration, but there's disadvantage 
+to littering the kernel source with countless static tracepoints, if 
+dynamic tracepoints can offer the same benefits (or more).
+
+the question is: what is more maintainance, hundreds of static 
+tracepoints (with long parameter lists) all around the (core) kernel, or 
+hundreds of detached dynamic rules that need an update every now and 
+then? [but of which most would still be usable even if some of them 
+"broke"] To me the answer is clear: having hundreds of tracepoints 
+_within_ the source code is higher cost. But please prove me wrong :-)
+
+	Ingo

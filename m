@@ -1,108 +1,127 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750958AbWINUzu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750972AbWINUzr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750958AbWINUzu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Sep 2006 16:55:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750984AbWINUzu
+	id S1750972AbWINUzr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Sep 2006 16:55:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750984AbWINUzr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Sep 2006 16:55:50 -0400
-Received: from iolanthe.rowland.org ([192.131.102.54]:46096 "HELO
-	iolanthe.rowland.org") by vger.kernel.org with SMTP
-	id S1750958AbWINUzt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Sep 2006 16:55:49 -0400
-Date: Thu, 14 Sep 2006 16:55:48 -0400 (EDT)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@iolanthe.rowland.org
-To: "Rafael J. Wysocki" <rjw@sisk.pl>, David Brownell <david-b@pacbell.net>
-cc: Andrew Morton <akpm@osdl.org>, Mattia Dongili <malattia@linux.it>,
-       Robert Hancock <hancockr@shaw.ca>,
-       Kernel development list <linux-kernel@vger.kernel.org>,
-       USB development list <linux-usb-devel@lists.sourceforge.net>
-Subject: Re: [linux-usb-devel] 2.6.18-rc6-mm1 (-mm2): ohci resume problem
-In-Reply-To: <200609142137.52066.rjw@sisk.pl>
-Message-ID: <Pine.LNX.4.44L0.0609141618450.6982-100000@iolanthe.rowland.org>
+	Thu, 14 Sep 2006 16:55:47 -0400
+Received: from dvhart.com ([64.146.134.43]:62433 "EHLO dvhart.com")
+	by vger.kernel.org with ESMTP id S1750958AbWINUzq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Sep 2006 16:55:46 -0400
+Message-ID: <4509C1D0.6080208@mbligh.org>
+Date: Thu, 14 Sep 2006 13:55:44 -0700
+From: Martin Bligh <mbligh@mbligh.org>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051011)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Roman Zippel <zippel@linux-m68k.org>,
+       Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
+       linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
+       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@redhat.com>,
+       Greg Kroah-Hartman <gregkh@suse.de>,
+       Thomas Gleixner <tglx@linutronix.de>, Tom Zanussi <zanussi@us.ibm.com>,
+       ltt-dev@shafik.org, Michel Dagenais <michel.dagenais@polymtl.ca>,
+       fche@redhat.com
+Subject: Re: [PATCH 0/11] LTTng-core (basic tracing infrastructure) 0.5.108
+References: <20060914033826.GA2194@Krystal> <20060914112718.GA7065@elte.hu> <Pine.LNX.4.64.0609141537120.6762@scrub.home> <20060914135548.GA24393@elte.hu> <Pine.LNX.4.64.0609141623570.6761@scrub.home> <20060914171320.GB1105@elte.hu> <4509BAD4.8010206@mbligh.org> <20060914203430.GB9252@elte.hu>
+In-Reply-To: <20060914203430.GB9252@elte.hu>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 14 Sep 2006, Rafael J. Wysocki wrote:
-
-> Well, sorry.  This test has been passed, but after a reboot it refused to
-> suspend just once giving the same messages that I've got from the kernel
-> with USB_SUSPEND set (the relevant dmesg output is attached).
+Ingo Molnar wrote:
+> * Martin Bligh <mbligh@mbligh.org> wrote:
 > 
-> > Then for the next stage, repeat the same tests but with  
-> > USB_SUSPEND set.
+> 
+>>>if there are lots of tracepoints (and the union of _all_ useful 
+>>>tracepoints that i ever encountered in my life goes into the thousands) 
+>>>then the overhead is not zero at all.
+>>>
+>>>also, the other disadvantages i listed very much count too. Static 
+>>>tracepoints are fundamentally limited because:
+>>>
+>>> - they can only be added at the source code level
+>>>
+>>> - modifying them requires a reboot which is not practical in a
+>>>   production environment
+>>>
+>>> - there can only be a limited set of them, while many problems need
+>>>   finegrained tracepoints tailored to the problem at hand
+>>>
+>>> - conditional tracepoints are typically either nonexistent or very
+>>>   limited.
+>>>
+>>>for me these are all _independent_ grounds for rejection, as a generic 
+>>>kernel infrastructure.
+>>
+>>I don't think anyone is saying that static tracepoints do not have 
+>>their limitations, or that dynamic tracepointing is useless. But 
+>>that's not the point ... why can't we have one infrastructure that 
+>>supports both? Preferably in a fairly simple, consistent way.
+> 
+> 
+> primarily because i fail to see any property of static tracers that are 
+> not met by dynamic tracers. So to me dynamic tracers like SystemTap are 
+> a superset of static tracers.
 
-Okay, hang on, let's try to solve this first.
+1. They're harder to maintain out of tree.
+2. they're written in some jibberish awk crap
+3. They're slower. If you're doing thousands of tracepoints a second,
+	into a circular 8GB log buffer, that *does* matter. You want
+	to peturb what you're measuring as little as possible.
 
-This actually is a completely different problem from what I've been
-attacking up to now, and we definitely should resolve it.  It's purely a
-question of the ohci-hcd driver, nothing (or very little) to do with
-usbcore or ehci-hcd or uhci-hcd.
+If you're running across thousands of systems, in live production, in
+order to catch a rare race condition, the performance does matter.
 
-I'm asking David to chime in, because this is his code and his driver.
+> So my position is that what we should concentrate on is to make the life 
+> of dynamic tracers easier (be that a handful of generic, parametric 
+> hooks that gather debuginfo information and add NOPs for easy patching), 
+> while realizing that static tracers have no advantage over dynamic 
+> tracers.
 
-Here's an explanation of the problem.  Basically it boils down to the way 
-ohci-hcd rolls its own root-hub autosuspend.  I'm referring to the call to 
-ohci_bus_suspend() near the end of ohci-hub.c:ohci_hub_status_data().
-Things go wrong because that call totally bypasses usbcore.  It's a 
-layering violation.
+I'm confused. You're saying that the dynamic tracers need help by
+adding some static data to the kernel, and yet at the same time
+rejecting static additions to the kernel on the grounds they have
+no value???
 
-The corresponding root-hub autoresume code, i.e., the call to
-usb_hcd_resume_root_hub() in ohci-hcd.c:ohci_irq(), _does_ go through
-usbcore.  It fails for two reasons.  First, resume_root_hub does its job
-by queuing a call to usb_autoresume_device(), and when CONFIG_USB_SUSPEND
-isn't set that routine is a no-op.  Second, since usbcore was never
-notified when the root hub was suspended, the root hub's device state
-isn't USB_STATE_SUSPENED and the interface is still marked as active -- so
-even if usb_autoresume_device() did get called it wouldn't do anything.
+Perhaps we're just meaning different things by static tracing. To me,
+what is important is that there is a well-defined place in the source
+code where the data needed to be logged, and the exact place to log
+it at, is defined. If all that macro does to the compilation is add
+a couple of nops, and make an entry in a symbol data, or other debug
+data, for something to hook into later that's *fine*. The point is
+to maintain the location and intelligence about *what* to trace.
 
-As I see it, there are two ways to resolve the problem.  The easiest is to
-rip out the autosuspend stuff from ohci-hcd entirely.  When my generic
-autosuspend patches are accepted, the HCD-specific stuff won't be needed
-so much.  This has the disadvantage that the root hub will never get
-suspended if CONFIG_USB_SUSPEND isn't set.  On the other hand, this is how 
-ehci_hcd works already.
+Perhaps I'm calling that static, and you're calling it dynamic? Would
+explain why we're disagreeing ;-) Seems to be exactly what you're
+suggesting above?
 
-The second way is to copy what I did in uhci-hcd.  There is a special
-"root hub is stopped" mode which kicks in only when no ports are
-connected.  It isn't a full-fledged suspend, in the sense that usbcore
-isn't notified -- just like what happens in ohci-hcd.  The difference is,
-since we know no devices are attached, the driver can go back to normal
-operation while in interrupt context.  It doesn't have to sleep because no
-attached devices means no TRSMRCY delay is needed and the controller's
-hardware can be reset directly.  As a result, the corresponding
-"auto-restart" code doesn't need to go through usbcore either and so
-usb_autoresume_device() never enters the picture.
+If we want it to be superfast, we could compile with a different config 
+option to insert some tracing statically in there or something, but I
+agree it should not be the default.
 
-I don't know if this is feasible with OHCI.  For now, I'll include a patch 
-that takes the first approach and disables the ohci-hcd autosuspend 
-entirely.  I think it will solve your problem above.
+> i.e. why add infrastructure for the sake of something that is clearly 
+> inferior? I have no problem with adding infrastructure for SystemTap, 
+> but i am asking the question: is it worth adding a static tracer?
 
-Alan Stern
+Yes ;-) Realise that your usage model is not exactly the same as
+everyone else's, and I don't give a damn if I have to recompile. I
+realise other people do, but ....
 
+> I would of course accept static tracers too if someone proved it that 
+> they offer something that dynamic tracers cannot do.
 
-Index: mm/drivers/usb/host/ohci-hub.c
-===================================================================
---- mm.orig/drivers/usb/host/ohci-hub.c
-+++ mm/drivers/usb/host/ohci-hub.c
-@@ -391,17 +391,6 @@ ohci_hub_status_data (struct usb_hcd *hc
- done:
- 	spin_unlock_irqrestore (&ohci->lock, flags);
- 
--#ifdef	CONFIG_PM
--	/* save power by autosuspending idle root hubs;
--	 * INTR_RD wakes us when there's work
--	 */
--	if (can_suspend && usb_trylock_device (hcd->self.root_hub) == 0) {
--		ohci_vdbg (ohci, "autosuspend\n");
--		(void) ohci_bus_suspend (hcd);
--		usb_unlock_device (hcd->self.root_hub);
--	}
--#endif
--
- 	return changed ? length : 0;
- }
- 
+Can you *really* trace *any* variable (stack variables, etc) at *any*
+point within *any* function with kprobes? It didn't do that before,
+and I find it hard to see how it could, given compiler optimizations,
+etc.
 
+> (Just like i would accept the reintroduction of the Big Kernel Lock too, 
+> if someone proved it that it's the right thing to do.)
+
+Surely it's still there at the moment? ;-)
+
+M.

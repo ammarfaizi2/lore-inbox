@@ -1,236 +1,239 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750751AbWINKUe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750786AbWINKVF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750751AbWINKUe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Sep 2006 06:20:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750769AbWINKUe
+	id S1750786AbWINKVF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Sep 2006 06:21:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750810AbWINKU7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Sep 2006 06:20:34 -0400
-Received: from ns.miraclelinux.com ([219.118.163.66]:844 "EHLO
+	Thu, 14 Sep 2006 06:20:59 -0400
+Received: from ns.miraclelinux.com ([219.118.163.66]:17484 "EHLO
 	mail01.miraclelinux.com") by vger.kernel.org with ESMTP
-	id S1750751AbWINKUd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Sep 2006 06:20:33 -0400
-Message-Id: <20060914102029.642906830@localhost.localdomain>
+	id S1750786AbWINKUf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Sep 2006 06:20:35 -0400
+Message-Id: <20060914102033.462112306@localhost.localdomain>
 References: <20060914102012.251231177@localhost.localdomain>
-Date: Thu, 14 Sep 2006 18:20:13 +0800
+Date: Thu, 14 Sep 2006 18:20:20 +0800
 From: Akinobu Mita <mita@miraclelinux.com>
 To: linux-kernel@vger.kernel.org
 Cc: ak@suse.de, akpm@osdl.org, Don Mullis <dwm@meer.net>,
-       Akinobu Mita <mita@miraclelinux.com>
-Subject: [patch 1/8] documentation and scripts
-Content-Disposition: inline; filename=doc.patch
+       Valdis.Kletnieks@vt.edu, Akinobu Mita <mita@miraclelinux.com>
+Subject: [patch 8/8] stacktrace filtering for fault-injection capabilities
+Content-Disposition: inline; filename=module-filter.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch provides the documentation and helper/testing scripts for
-fault-injection capabilities.
+This patch provides stacktrace filtering feature.
+The stacktrace filter allows failing only for the caller you are
+interested in.
 
+stacktrace filter is enabled by setting the value of
+/debugfs/*/stacktrace-depth more than 0.
+and specify the range of the virtual address
+by the /debugfs/*/address-start and /debugfs/*/address-end
+
+Please see the example that demostrates how to inject slab allocation
+failures only for a specific module
+in Documentation/fault-injection/fault-injection.txt
+
+Cc: Valdis.Kletnieks@vt.edu
 Signed-off-by: Akinobu Mita <mita@miraclelinux.com>
 
- Documentation/fault-injection/failcmd.sh          |    4 
- Documentation/fault-injection/failmodule.sh       |   32 ++++
- Documentation/fault-injection/fault-injection.txt |  150 ++++++++++++++++++++++
- 3 files changed, 186 insertions(+)
+ include/linux/fault-inject.h |   15 +++++++++
+ lib/Kconfig.debug            |    2 +
+ lib/fault-inject-debugfs.c   |   32 +++++++++++++++++++
+ lib/fault-inject.c           |   71 +++++++++++++++++++++++++++++++++++++++++++
+ 4 files changed, 120 insertions(+)
 
-Index: work-shouldfail/Documentation/fault-injection/failcmd.sh
+Index: work-shouldfail/lib/fault-inject.c
 ===================================================================
---- /dev/null
-+++ work-shouldfail/Documentation/fault-injection/failcmd.sh
-@@ -0,0 +1,4 @@
-+#!/bin/bash
+--- work-shouldfail.orig/lib/fault-inject.c
++++ work-shouldfail/lib/fault-inject.c
+@@ -6,6 +6,9 @@
+ #include <linux/fs.h>
+ #include <linux/module.h>
+ #include <linux/interrupt.h>
++#include <linux/unwind.h>
++#include <linux/stacktrace.h>
++#include <linux/kallsyms.h>
+ #include <linux/fault-inject.h>
+ 
+ int setup_fault_attr(struct fault_attr *attr, char *str)
+@@ -59,6 +62,72 @@ static int fail_process(struct fault_att
+ 	return !in_interrupt() && task->make_it_fail;
+ }
+ 
++#ifdef CONFIG_STACK_UNWIND
 +
-+echo 1 > /proc/self/make-it-fail
-+exec $*
-Index: work-shouldfail/Documentation/fault-injection/failmodule.sh
++static asmlinkage int fail_stacktrace_callback(struct unwind_frame_info *info,
++						void *arg)
++{
++	int depth;
++	struct fault_attr *attr = arg;
++
++	for (depth = 0; depth < attr->stacktrace_depth
++			&& unwind(info) == 0 && UNW_PC(info); depth++) {
++		if (arch_unw_user_mode(info))
++			break;
++		if (attr->address_start <= UNW_PC(info) &&
++			       UNW_PC(info) < attr->address_end)
++			return 1;
++	}
++	return 0;
++}
++
++static int fail_stacktrace(struct fault_attr *attr)
++{
++	struct unwind_frame_info info;
++
++	/* stacktrace filter is disabled */
++	if (attr->stacktrace_depth == 0)
++		return 1;
++
++	return unwind_init_running(&info, fail_stacktrace_callback, attr);
++}
++
++#elif defined(CONFIG_STACKTRACE)
++
++#include <linux/stacktrace.h>
++
++#define MAX_STACK_TRACE_DEPTH 10
++
++static int fail_stacktrace(struct fault_attr *attr)
++{
++	struct stack_trace trace;
++	int depth = attr->stacktrace_depth;
++	unsigned long entries[MAX_STACK_TRACE_DEPTH];
++	int n;
++
++	/* stacktrace filter is disabled */
++	if (depth == 0)
++		return 1;
++
++	trace.nr_entries = 0;
++	trace.entries = entries;
++	trace.max_entries = (depth < MAX_STACK_TRACE_DEPTH) ?
++				depth : MAX_STACK_TRACE_DEPTH;
++
++	save_stack_trace(&trace, NULL, 0, 1);
++	for (n = 0; n < trace.nr_entries; n++)
++		if (attr->address_start <= entries[n] &&
++			       entries[n] < attr->address_end)
++			return 1;
++	return 0;
++}
++
++#else
++
++#define fail_stacktrace(attr)	(0)
++
++#endif
++
+ /*
+  * This code is stolen from failmalloc-1.0
+  * http://www.nongnu.org/failmalloc/
+@@ -68,6 +137,8 @@ int should_fail(struct fault_attr *attr,
+ {
+ 	if (!fail_process(attr, current))
+ 		return 0;
++	if (!fail_stacktrace(attr))
++		return 0;
+ 
+ 	if (atomic_read(&max_failures(attr)) == 0)
+ 		return 0;
+Index: work-shouldfail/include/linux/fault-inject.h
 ===================================================================
---- /dev/null
-+++ work-shouldfail/Documentation/fault-injection/failmodule.sh
-@@ -0,0 +1,32 @@
-+#!/bin/bash
-+#
-+# Usage: failmodule <failname> <modulename> [stacktrace-depth]
-+#
-+#	<failname>: "failslab", "fail_alloc_page", or "fail_make_request"
-+#
-+#	<modulename>: module name that you want to inject faults.
-+#
-+#	[stacktrace-depth]: the maximum number of stacktrace walking allowed
-+#
+--- work-shouldfail.orig/include/linux/fault-inject.h
++++ work-shouldfail/include/linux/fault-inject.h
+@@ -30,6 +30,21 @@ struct fault_attr {
+ 
+ 	/* A value of '0' means process filter is disabled. */
+ 	u32 process_filter;
 +
-+STACKTRACE_DEPTH=5
-+if [ $# -gt 2 ]; then
-+	STACKTRACE_DEPTH=$3
-+fi
++	/*
++	 * maximam number of stacktrace depth walking allowed
++	 * A value of '0' means stacktrace filter is disabled.
++	 */
++	unsigned long stacktrace_depth;
 +
-+if [ ! -d /debug/$1 ]; then
-+	echo "Fault-injection $1 does not exist" >&2
-+	exit 1
-+fi
-+if [ ! -d /sys/module/$2 ]; then
-+	echo "Module $2 does not exist" >&2
-+	exit 1
-+fi
++	/*
++	 * If stacktrace_depth is enabled, it allows failing only when it
++	 * has been called from the virtual addresses in the range
++	 * 'address_start' to 'address_end-1'
++	 */ 
++	unsigned long address_start;
++	unsigned long address_end;
 +
-+# Disable stacktrace filter at first
-+echo 0 > /debug/$1/address-end
-+echo 1 > /debug/$1/stacktrace-depth
-+
-+echo `cat /sys/module/$2/sections/.text` > /debug/$1/address-start
-+echo `cat /sys/module/$2/sections/.exit.text` > /debug/$1/address-end
-+echo $STACKTRACE_DEPTH > /debug/$1/stacktrace-depth
-Index: work-shouldfail/Documentation/fault-injection/fault-injection.txt
+ };
+ 
+ #define DEFINE_FAULT_ATTR(name) \
+Index: work-shouldfail/lib/fault-inject-debugfs.c
 ===================================================================
---- /dev/null
-+++ work-shouldfail/Documentation/fault-injection/fault-injection.txt
-@@ -0,0 +1,150 @@
-+Fault injection capabilities infrastructure
-+===========================================
+--- work-shouldfail.orig/lib/fault-inject-debugfs.c
++++ work-shouldfail/lib/fault-inject-debugfs.c
+@@ -9,6 +9,9 @@ struct fault_attr_entries {
+ 	struct dentry *times_file;
+ 	struct dentry *space_file;
+ 	struct dentry *process_filter_file;
++	struct dentry *stacktrace_depth_file;
++	struct dentry *address_start_file;
++	struct dentry *address_end_file;
+ };
+ 
+ static void debugfs_ul_set(void *data, u64 val)
+@@ -71,6 +74,18 @@ static void cleanup_fault_attr_entries(s
+ 			debugfs_remove(entries->process_filter_file);
+ 			entries->process_filter_file = NULL;
+ 		}
++		if (entries->stacktrace_depth_file) {
++			debugfs_remove(entries->stacktrace_depth_file);
++			entries->stacktrace_depth_file = NULL;
++		}
++		if (entries->address_start_file) {
++			debugfs_remove(entries->address_start_file);
++			entries->address_start_file = NULL;
++		}
++		if (entries->address_end_file) {
++			debugfs_remove(entries->address_end_file);
++			entries->address_end_file = NULL;
++		}
+ 		debugfs_remove(entries->dir);
+ 		entries->dir = NULL;
+ 	}
+@@ -116,6 +131,23 @@ static int init_fault_attr_entries(struc
+ 		goto fail;
+ 	entries->process_filter_file = file;
+ 
++	file = debugfs_create_ul("stacktrace-depth", mode, dir,
++				   &attr->stacktrace_depth);
++	if (!file)
++		goto fail;
++	entries->stacktrace_depth_file = file;
 +
-+Available fault injection capabilities
-+--------------------------------------
++	file = debugfs_create_ul("address-start", mode, dir,
++				   &attr->address_start);
++	if (!file)
++		goto fail;
++	entries->address_start_file = file;
 +
-+o failslab
++	file = debugfs_create_ul("address-end", mode, dir, &attr->address_end);
++	if (!file)
++		goto fail;
++	entries->address_end_file = file;
 +
-+  injects slab allocation failures. (kmalloc(), kmem_cache_alloc(), ...)
-+
-+o fail_page_alloc
-+
-+  injects page allocation failures. (alloc_pages(), get_free_pages(), ...)
-+
-+o fail_make_request
-+
-+  injects disk IO errors on permitted devices by /sys/block/<device>/make-it-fail
-+  or /sys/block/<device>/<partition>/make-it-fail. (generic_make_request())
-+
-+Configure fault-injection capabilities behavior
-+-----------------------------------------------
-+
-+Example for failslab:
-+
-+o debugfs entries
-+
-+fault-inject-debugfs kernel module provides some debugfs entries for runtime
-+configuration for fault-injection capabilities.
-+
-+- /debug/failslab/probability:
-+
-+	specifies how often it should fail in percent.
-+
-+- /debug/failslab/interval:
-+
-+	specifies the interval of failures.
-+
-+- /debug/failslab/times:
-+
-+	specifies how many times failures may happen at most.
-+
-+- /debug/failslab/space:
-+
-+	specifies the size of free space where memory can be allocated
-+	safely in bytes.
-+
-+- /debug/failslab/process-filter:
-+
-+	specifies whether the process filter is enabled or not.
-+	It allows failing only permitted processes by /proc/<pid>/make-it-fail
-+
-+- /debug/failslab/stacktrace-depth:
-+
-+	specifies the maximum stacktrace depth walking allowed.
-+	A value '0' means stacktrace filter is disabled.
-+
-+- /debug/failslab/address-start:
-+- /debug/failslab/address-end:
-+
-+	specifies the range of virtual address.
-+	It allows failing only if the stacktrace hits in this range.
-+
-+o Boot option
-+
-+In order to inject faults while debugfs is not available (early boot time),
-+We can use boot option.
-+
-+- failslab=<interval>,<probability>,<space>,<times>
-+
-+How to add new fault injection capability
-+-----------------------------------------
-+
-+o #include <linux/fault-inject.h>
-+
-+o define the fault attributes
-+
-+  DEFINE_FAULT_INJECTION(name);
-+
-+  Please see the definition of struct fault_attr in fault-inject.h
-+  for the detail.
-+
-+o provide the way to configure fault attributes
-+
-+- boot option
-+
-+  If you need to enable the fault injection capability ealier boot time,
-+  you can provide boot option to configure it. There is a helper function for it.
-+
-+  setup_fault_attr(attr, str);
-+
-+- module parameters
-+
-+  If the scope of the fault injection capability is limited by a kernel module,
-+  It is better to provide module parameters to configure the member of fault
-+  attributes.
-+
-+- debugfs entries
-+
-+  failslab, fail_page_alloc, and fail_make_request use this way.
-+
-+  But now there is no helper functions to provides debugfs entries for
-+  fault injection capabilities. Please refer to lib/fault-inject-debugfs.c
-+  to know how to do. And please try not to add new one into
-+  fault-inject-debugfs module.
-+
-+  Because failslab, fail_page_alloc, and fail_make_request are used ealier
-+  boot time before debugfs is available and the slab allocator,
-+  the page allocator, and the block layer cannot be built as module.
-+
-+o add a hook to insert failures
-+
-+  should_fail() returns 1 when failures should happen.
-+
-+  should_fail(attr);
-+
-+Tests
-+-----
-+
-+o inject slab allocation failures into module init/cleanup code
-+
-+------------------------------------------------------------------------------
-+#!/bin/bash
-+
-+FAILCMD=Documentation/fault-injection/failcmd.sh
-+
-+modprobe fault-inject-debugfs
-+echo Y > /debug/failslab/process-filter
-+echo 25 > /debug/failslab/probability
-+
-+find /lib/modules/`uname -r` -name '*.ko' -exec basename {} .ko \; \
-+	| while read i; do bash $FAILCMD modprobe $i;done
-+
-+lsmod | awk '{ if ($3 == 0) { system("bash $FAILCMD modprobe -r " $1) } }'
-+
-+------------------------------------------------------------------------------
-+
-+o inject slab allocation failures only for a specific module
-+
-+------------------------------------------------------------------------------
-+#!/bin/bash
-+
-+FAILMOD=Documentation/fault-injection/failmodule.sh
-+
-+modprobe fault-inject-debugfs
-+modprobe your-test-module
-+bash $FAILMOD failslab your-test-module 10
-+echo 25 > /debug/failslab/probability
-+
-+------------------------------------------------------------------------------
-+
+ 	return 0;
+ fail:
+ 	cleanup_fault_attr_entries(entries);
+Index: work-shouldfail/lib/Kconfig.debug
+===================================================================
+--- work-shouldfail.orig/lib/Kconfig.debug
++++ work-shouldfail/lib/Kconfig.debug
+@@ -371,6 +371,8 @@ config RCU_TORTURE_TEST
+ 
+ config FAULT_INJECTION
+ 	bool
++	select STACKTRACE
++	select FRAME_POINTER
+ 
+ config FAILSLAB
+ 	bool "fault-injection capabilitiy for kmalloc"
 
 --

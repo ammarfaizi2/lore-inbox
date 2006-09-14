@@ -1,53 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751140AbWINUZ3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751135AbWINUZ7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751140AbWINUZ3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Sep 2006 16:25:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751139AbWINUZ3
+	id S1751135AbWINUZ7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Sep 2006 16:25:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751143AbWINUZ7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Sep 2006 16:25:29 -0400
-Received: from iolanthe.rowland.org ([192.131.102.54]:41487 "HELO
-	iolanthe.rowland.org") by vger.kernel.org with SMTP
-	id S1751138AbWINUZ2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Sep 2006 16:25:28 -0400
-Date: Thu, 14 Sep 2006 16:25:26 -0400 (EDT)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@iolanthe.rowland.org
-To: Mattia Dongili <malattia@linux.it>
-cc: "Rafael J. Wysocki" <rjw@sisk.pl>, Andrew Morton <akpm@osdl.org>,
-       Kernel development list <linux-kernel@vger.kernel.org>,
-       USB development list <linux-usb-devel@lists.sourceforge.net>
-Subject: Re: [linux-usb-devel] 2.6.18-rc6-mm1 (-mm2): ohci resume problem
-In-Reply-To: <20060914201919.GB3963@inferi.kami.home>
-Message-ID: <Pine.LNX.4.44L0.0609141622030.6982-100000@iolanthe.rowland.org>
+	Thu, 14 Sep 2006 16:25:59 -0400
+Received: from dvhart.com ([64.146.134.43]:55265 "EHLO dvhart.com")
+	by vger.kernel.org with ESMTP id S1751135AbWINUZ6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Sep 2006 16:25:58 -0400
+Message-ID: <4509BAD4.8010206@mbligh.org>
+Date: Thu, 14 Sep 2006 13:25:56 -0700
+From: Martin Bligh <mbligh@mbligh.org>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051011)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Roman Zippel <zippel@linux-m68k.org>,
+       Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
+       linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
+       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@redhat.com>,
+       Greg Kroah-Hartman <gregkh@suse.de>,
+       Thomas Gleixner <tglx@linutronix.de>, Tom Zanussi <zanussi@us.ibm.com>,
+       ltt-dev@shafik.org, Michel Dagenais <michel.dagenais@polymtl.ca>
+Subject: Re: [PATCH 0/11] LTTng-core (basic tracing infrastructure) 0.5.108
+References: <20060914033826.GA2194@Krystal> <20060914112718.GA7065@elte.hu> <Pine.LNX.4.64.0609141537120.6762@scrub.home> <20060914135548.GA24393@elte.hu> <Pine.LNX.4.64.0609141623570.6761@scrub.home> <20060914171320.GB1105@elte.hu>
+In-Reply-To: <20060914171320.GB1105@elte.hu>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 14 Sep 2006, Mattia Dongili wrote:
-
-> > No.  But this log doesn't include the debugging output in the patch from 
-> > my previous message.
+> if there are lots of tracepoints (and the union of _all_ useful 
+> tracepoints that i ever encountered in my life goes into the thousands) 
+> then the overhead is not zero at all.
 > 
-> doh! I'm pretty sure the patch is applied...
-> $ patch -p1 --dry-run < ../add_usb_debug.patch
-> patching file drivers/usb/core/driver.c
-> Reversed (or previously applied) patch detected!  Assume -R? [n]
+> also, the other disadvantages i listed very much count too. Static 
+> tracepoints are fundamentally limited because:
+> 
+>   - they can only be added at the source code level
+> 
+>   - modifying them requires a reboot which is not practical in a
+>     production environment
+> 
+>   - there can only be a limited set of them, while many problems need
+>     finegrained tracepoints tailored to the problem at hand
+> 
+>   - conditional tracepoints are typically either nonexistent or very
+>     limited.
+> 
+> for me these are all _independent_ grounds for rejection, as a generic 
+> kernel infrastructure.
 
-Actually I was wrong to think the patch wasn't in there just because it
-didn't produce any output.
+I don't think anyone is saying that static tracepoints do not have their
+limitations, or that dynamic tracepointing is useless. But that's not
+the point ... why can't we have one infrastructure that supports both?
+Preferably in a fairly simple, consistent way.
 
-> Will try again with USB_SUSPEND=y, tomorrow I'll try to find some time
-> to test all the other things you suggested  (if still necessary) :)
-
-No, don't do that.  Keep USB_SUSPEND=n, and try only the most recent patch
-I sent to Rafael:
-
-http://marc.theaimsgroup.com/?l=linux-kernel&m=115825076000987&w=2
-
-I know for certain that some of Rafael's problems are different from 
-yours, because his involve ehci-hcd and ohci-hcd whereas you have only 
-UHCI controllers.
-
-Alan Stern
-
+M.

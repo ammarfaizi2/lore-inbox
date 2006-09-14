@@ -1,147 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751196AbWINVqe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751188AbWINVqd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751196AbWINVqe (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Sep 2006 17:46:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751218AbWINVqe
+	id S1751188AbWINVqd (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Sep 2006 17:46:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751196AbWINVqc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Sep 2006 17:46:34 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:2519 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751194AbWINVqc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
 	Thu, 14 Sep 2006 17:46:32 -0400
-Date: Thu, 14 Sep 2006 22:46:24 +0100
-From: Alasdair G Kergon <agk@redhat.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org,
-       =?iso-8859-1?Q?Micha=B3_Miros=B3aw?= <mirq-linux@rere.qmqm.pl>
-Subject: [PATCH 13/25] dm mpath: tidy ctr
-Message-ID: <20060914214624.GU3928@agk.surrey.redhat.com>
-Mail-Followup-To: Alasdair G Kergon <agk@redhat.com>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-	=?iso-8859-1?Q?Micha=B3_Miros=B3aw?= <mirq-linux@rere.qmqm.pl>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Received: from mail.kroah.org ([69.55.234.183]:17053 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1751188AbWINVqa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Sep 2006 17:46:30 -0400
+Date: Thu, 14 Sep 2006 14:40:39 -0700
+From: Greg KH <gregkh@suse.de>
+To: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-usb-devel@lists.sourceforge.net
+Subject: Re: 2.6.18-rc6-mm2
+Message-ID: <20060914214038.GA32352@suse.de>
+References: <20060912000618.a2e2afc0.akpm@osdl.org> <6bffcb0e0609140411j46c20757r6eced82b53266e0f@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <6bffcb0e0609140411j46c20757r6eced82b53266e0f@mail.gmail.com>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Micha³ Miros³aw <mirq-linux@rere.qmqm.pl>
+On Thu, Sep 14, 2006 at 01:11:49PM +0200, Michal Piotrowski wrote:
+> On 12/09/06, Andrew Morton <akpm@osdl.org> wrote:
+> >
+> >ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc6/2.6.18-rc6-mm2/
+> >
+> 
+> Kernel 2.6.18-rc6-mm2 - xfs-rename-uio_read.patch
+> Built with gcc 3.4
+> Reading specs from /usr/local/bin/../lib/gcc/i686-pc-linux-gnu/3.4.6/specs
+> Configured with: ./configure --prefix=/usr/local/ --disable-nls
+> --enable-shared --enable-languages=c --program-suffix=-3.4
+> Thread model: posix
+> gcc version 3.4.6
+> 
+> ACPI: PCI Interrupt 0000:00:1d.2[C] -> GSI 18 (level, low) -> IRQ 17
+> BUG: unable to handle kernel paging request at virtual address 5a5a5aaa
+> usb usb2: configuration #1 chosen from 1 choice
+> hub 2-0:1.0: USB hub found
+> printing eip:
+> c01f596a
+> *pde = 00000000
+> Oops: 0000 [#1]
+> 4K_STACKS PREEMPT SMP
+> last sysfs file:
+> Modules linked in:
+> CPU:    0
+> EIP:    0060:[<c01f596a>]    Not tainted VLI
+> EFLAGS: 00010202   (2.6.18-rc6-mm2 #122)
+> EIP is at kref_get+0x7/0x55
+> eax: 5a5a5aaa   ebx: 5a5a5aaa   ecx: c75cfe54   edx: c75cfe54
+> esi: c033152f   edi: c75cfe5e   ebp: c755be20   esp: c755be18
+> ds: 007b   es: 007b   ss: 0068
+> Process usb-probe-<NULL (pid: 291, ti=c755b000 task=c759aab0 
+> task.ti=c755b000)
 
-After initialising m->ti, there's no need to pass it in subsequent calls
-to static functions used for parsing parameters.
+You have the USB multi-threaded device probing config option
+(CONFIG_USB_MULTITHREAD_PROBE) enabled, right?
 
-Signed-off-by: Micha³ Miros³aw <mirq-linux@rere.qmqm.pl>
-Signed-off-by: Alasdair G Kergon <agk@redhat.com>
+Does disabling it fix this problem?
 
-Index: linux-2.6.18-rc7/drivers/md/dm-mpath.c
-===================================================================
---- linux-2.6.18-rc7.orig/drivers/md/dm-mpath.c	2006-09-14 20:20:55.000000000 +0100
-+++ linux-2.6.18-rc7/drivers/md/dm-mpath.c	2006-09-14 20:54:49.000000000 +0100
-@@ -168,7 +168,7 @@ static void free_priority_group(struct p
- 	kfree(pg);
- }
- 
--static struct multipath *alloc_multipath(void)
-+static struct multipath *alloc_multipath(struct dm_target *ti)
- {
- 	struct multipath *m;
- 
-@@ -185,6 +185,8 @@ static struct multipath *alloc_multipath
- 			kfree(m);
- 			return NULL;
- 		}
-+		m->ti = ti;
-+		ti->private = m;
- 	}
- 
- 	return m;
-@@ -557,8 +559,7 @@ static struct pgpath *parse_path(struct 
- }
- 
- static struct priority_group *parse_priority_group(struct arg_set *as,
--						   struct multipath *m,
--						   struct dm_target *ti)
-+						   struct multipath *m)
- {
- 	static struct param _params[] = {
- 		{1, 1024, "invalid number of paths"},
-@@ -568,6 +569,7 @@ static struct priority_group *parse_prio
- 	int r;
- 	unsigned i, nr_selector_args, nr_params;
- 	struct priority_group *pg;
-+	struct dm_target *ti = m->ti;
- 
- 	if (as->argc < 2) {
- 		as->argc = 0;
-@@ -624,12 +626,12 @@ static struct priority_group *parse_prio
- 	return NULL;
- }
- 
--static int parse_hw_handler(struct arg_set *as, struct multipath *m,
--			    struct dm_target *ti)
-+static int parse_hw_handler(struct arg_set *as, struct multipath *m)
- {
- 	int r;
- 	struct hw_handler_type *hwht;
- 	unsigned hw_argc;
-+	struct dm_target *ti = m->ti;
- 
- 	static struct param _params[] = {
- 		{0, 1024, "invalid number of hardware handler args"},
-@@ -661,11 +663,11 @@ static int parse_hw_handler(struct arg_s
- 	return 0;
- }
- 
--static int parse_features(struct arg_set *as, struct multipath *m,
--			  struct dm_target *ti)
-+static int parse_features(struct arg_set *as, struct multipath *m)
- {
- 	int r;
- 	unsigned argc;
-+	struct dm_target *ti = m->ti;
- 
- 	static struct param _params[] = {
- 		{0, 1, "invalid number of feature args"},
-@@ -704,19 +706,17 @@ static int multipath_ctr(struct dm_targe
- 	as.argc = argc;
- 	as.argv = argv;
- 
--	m = alloc_multipath();
-+	m = alloc_multipath(ti);
- 	if (!m) {
- 		ti->error = "can't allocate multipath";
- 		return -EINVAL;
- 	}
- 
--	m->ti = ti;
--
--	r = parse_features(&as, m, ti);
-+	r = parse_features(&as, m);
- 	if (r)
- 		goto bad;
- 
--	r = parse_hw_handler(&as, m, ti);
-+	r = parse_hw_handler(&as, m);
- 	if (r)
- 		goto bad;
- 
-@@ -732,7 +732,7 @@ static int multipath_ctr(struct dm_targe
- 	while (as.argc) {
- 		struct priority_group *pg;
- 
--		pg = parse_priority_group(&as, m, ti);
-+		pg = parse_priority_group(&as, m);
- 		if (!pg) {
- 			r = -EINVAL;
- 			goto bad;
-@@ -752,8 +752,6 @@ static int multipath_ctr(struct dm_targe
- 		goto bad;
- 	}
- 
--	ti->private = m;
--
- 	return 0;
- 
-  bad:
+That option has been reworked by Alan Stern, and I need to intregate it
+into my tree soon.  This is the first report of a problem with the
+current stuff, I wonder why.
+
+Can you send the output of /sys/proc/bus/usb/devices with the same
+devices plugged in on a different, no oopsing kernel?
+
+thanks,
+
+greg k-h

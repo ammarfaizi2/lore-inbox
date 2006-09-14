@@ -1,102 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750834AbWINRvs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750844AbWINRzO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750834AbWINRvs (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Sep 2006 13:51:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750837AbWINRvs
+	id S1750844AbWINRzO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Sep 2006 13:55:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750850AbWINRzN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Sep 2006 13:51:48 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:60889 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1750834AbWINRvr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Sep 2006 13:51:47 -0400
-Date: Thu, 14 Sep 2006 19:43:06 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: "Martin J. Bligh" <mbligh@mbligh.org>
-Cc: Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
-       linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
-       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@redhat.com>,
-       Greg Kroah-Hartman <gregkh@suse.de>,
-       Thomas Gleixner <tglx@linutronix.de>, Tom Zanussi <zanussi@us.ibm.com>,
-       ltt-dev@shafik.org, Michel Dagenais <michel.dagenais@polymtl.ca>
-Subject: Re: [PATCH 0/11] LTTng-core (basic tracing infrastructure) 0.5.108
-Message-ID: <20060914174306.GA18890@elte.hu>
-References: <20060914033826.GA2194@Krystal> <20060914112718.GA7065@elte.hu> <450971CB.6030601@mbligh.org>
+	Thu, 14 Sep 2006 13:55:13 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.149]:11686 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750840AbWINRzL
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Sep 2006 13:55:11 -0400
+Subject: Re: one more ACPI Error (utglobal-0125): Unknown exception 
+	code:0xFFFFFFEA [Re: 2.6.18-rc4-mm3]
+From: keith mannthey <kmannth@us.ibm.com>
+Reply-To: kmannth@us.ibm.com
+To: Shaohua Li <shaohua.li@intel.com>
+Cc: Bjorn Helgaas <bjorn.helgaas@hp.com>,
+       "Moore, Robert" <robert.moore@intel.com>, Len Brown <lenb@kernel.org>,
+       Mattia Dongili <malattia@linux.it>, Andrew Morton <akpm@osdl.org>,
+       lkml <linux-kernel@vger.kernel.org>,
+       linux acpi <linux-acpi@vger.kernel.org>,
+       KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+In-Reply-To: <1158202876.20560.14.camel@sli10-conroe.sh.intel.com>
+References: <B28E9812BAF6E2498B7EC5C427F293A4E38B52@orsmsx415.amr.corp.intel.com>
+	 <4132.24.9.204.52.1157682479.squirrel@mail.cce.hp.com>
+	 <1158110859.6047.27.camel@keithlap>
+	 <200609130851.16028.bjorn.helgaas@hp.com>
+	 <1158202876.20560.14.camel@sli10-conroe.sh.intel.com>
+Content-Type: text/plain
+Organization: Linux Technology Center IBM
+Date: Thu, 14 Sep 2006 10:55:05 -0700
+Message-Id: <1158256505.5660.22.camel@keithlap>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <450971CB.6030601@mbligh.org>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -2.9
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.9 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5000]
-	-0.1 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 2006-09-14 at 11:01 +0800, Shaohua Li wrote:
+> On Wed, 2006-09-13 at 22:51 +0800, Bjorn Helgaas wrote:
+> > On Tuesday 12 September 2006 19:27, keith mannthey wrote:
+> > > On Thu, 2006-09-07 at 20:27 -0600, Bjorn Helgaas wrote:
+> > > > > On Thu, 2006-09-07 at 09:25 -0600, Bjorn Helgaas wrote:
 
-* Martin J. Bligh <mbligh@mbligh.org> wrote:
+> > I think that your SSDT is valid.  I can't point to a specific
+> > reference in the spec, but I think the "try _HID first, then try
+> > _CID" strategy is clearly the intent.  Otherwise, there would be
+> > no reason to separate _HID from _CID.
+> The spec actually doesn't mention PNP0C01/PNP0C02. It's hard to say this
+> is valid or invalid. 
 
-> >>Comments and reviews are very welcome.
-> >
-> > i have one very fundamental question: why should we do this 
-> > source-intrusive method of adding tracepoints instead of the 
-> > dynamic, unintrusive (and thus zero-overhead) KProbes+SystemTap 
-> > method?
-> 
-> Because:
-> 
-> 1. Kprobes are more overhead when they *are* being used.
+Lets work on the assumption it is valid until someone points out in a
+spec that says it isn't. 
 
-minimally so - at least on i386 and x86_64. In that sense tracing is a 
-_slowpath_, and it _will_ slow things down if done excessively. I dont 
-care about the tracepoint being slower by a few instructions as long as 
-it has _zero effect_ on normal code, be that source code or binary code.
+> The 'try _HID first then _CID' has another downside. It highly depends
+> on the driver is loaded first and then load the device. See motherboard
+> driver loads first and the mem hotplug driver isn't loaded, in this
+> situation if you scan the mem hotplug device, the mechanism will fail as
+> the two pass search will still bind motherboard driver to the device.
+Any solution depends on the mem hotplug device being loaded.  This
+doesn't appear to be _HID before _CID specific issue .  
 
-> 2. You can get zero overhead by CONFIG'ing things out.
+> If you take the two pass search, I have a feeling this will make acpi
+> never be able to convert Linux driver model.
 
-but that's not how a fair chunk of people want to use tracing. People 
-(enterprise customers trying to figure out performance problems, 
-engineers trying to debug things on a live, production system) want to 
-be able to insert a tracepoint anywhere and anytime - and also they want 
-to have zero overhead from tracing if no tracepoints are used on a 
-system.
+I am not trying to break forward work but what I do want is a solution
+to my problem. 
 
-> 3. (most importantly) it's a bitch to maintain tracepoints out
->    of-tree on a rapidly moving kernel
+> If you really want to workaround the issue, I prefer have a blacklist or
+> something to let ACPI not use the _CID for your device, but please don't
+> mess the ACPI core itself.
 
-wrong: the original demo tracepoints that came with SystemTap still work 
-on the current kernel, because the 'coupling' is loose: based on 
-function names.
+My fist pass to fix the problem was I guess a hack of sorts that caused
+others problems (motherboard add return != 0 on unknown devices).  I
+don't want another Keith grown hack that breaks other people. 
 
-Static tracepoints on the other hand, if added via an external patch, do 
-depend on the target function not moving around and the context of the 
-tracepoint not being changed. (and static tracepoints if in the source 
-all the time are a constant hindrance to development and code 
-readability.)
+Can you elaborate on what you think would be safe way to do what you
+propose since the ACPI core (can't/won't?) be fixed? I can imagine a
+couple of different ways to fix this but I would like some feedback
+before I go off and work on the 3rd pass of this fix. 
 
-and of course the big advantage of dynamic probing is its flexibility: 
-you can add add-hoc tracepoints to thousands of functions, instead of 
-having to maintain hundreds (or thousands) of static tracepoints all the 
-time. (and if we wont end up with hundreds/thousands of static 
-tracepoints then it wont be usable enough as a generic solution.)
+1.  Make the memory device get scanned before the motherboard device
+somehow.  Implicitly reorder the devices in the list. Perhaps a priority
+sorted of sorts to have _HID device always before _CID devices during
+the scan? 
 
-> 4. I believe kprobes still doesn't have full access to local 
-> variables.
+2.  Have the motherboard device (if it finds the right acpi device type)
+hook into the memory device somehow. 
 
-wrong: with SystemTap you can probe local variables too (via 
-jprobes/kretprobes, all in the upstream kernel already).
+3.  Some special blacklist of the motherboard device on my specific
+system. 
 
-> Now (3) is possibly solvable by putting the points in as no-ops 
-> (either insert a few nops or just a marker entry in the symbol 
-> table?), but full dynamic just isn't sustainable. [...]
 
-i'm not sure i follow. Could you explain where SystemTap has this 
-difficulty?
+Thanks,
+  Keith 
 
-	Ingo

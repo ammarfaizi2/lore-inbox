@@ -1,148 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750913AbWINUDx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751105AbWINUEi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750913AbWINUDx (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Sep 2006 16:03:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751105AbWINUDw
+	id S1751105AbWINUEi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Sep 2006 16:04:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751112AbWINUEh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Sep 2006 16:03:52 -0400
-Received: from dvhart.com ([64.146.134.43]:51681 "EHLO dvhart.com")
-	by vger.kernel.org with ESMTP id S1750913AbWINUDw (ORCPT
+	Thu, 14 Sep 2006 16:04:37 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:38307 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1751105AbWINUEg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Sep 2006 16:03:52 -0400
-Message-ID: <4509B5A4.2070508@mbligh.org>
-Date: Thu, 14 Sep 2006 13:03:48 -0700
-From: Martin Bligh <mbligh@mbligh.org>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051011)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
-       linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
-       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@redhat.com>,
-       Greg Kroah-Hartman <gregkh@suse.de>,
-       Thomas Gleixner <tglx@linutronix.de>, Tom Zanussi <zanussi@us.ibm.com>,
-       ltt-dev@shafik.org, Michel Dagenais <michel.dagenais@polymtl.ca>
-Subject: Re: [PATCH 0/11] LTTng-core (basic tracing infrastructure) 0.5.108
-References: <20060914033826.GA2194@Krystal> <20060914112718.GA7065@elte.hu> <450971CB.6030601@mbligh.org> <20060914174306.GA18890@elte.hu>
-In-Reply-To: <20060914174306.GA18890@elte.hu>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 14 Sep 2006 16:04:36 -0400
+Date: Thu, 14 Sep 2006 21:56:41 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Jiri Kosina <jikos@jikos.cz>, lkml <linux-kernel@vger.kernel.org>,
+       Arjan van de Ven <arjan@infradead.org>
+Subject: Re: [PATCH 0/3] Synaptics - fix lockdep warnings
+Message-ID: <20060914195641.GA5812@elte.hu>
+References: <Pine.LNX.4.64.0609141028540.22181@twin.jikos.cz> <d120d5000609140618h6e929883u2ed82d1cab677e57@mail.gmail.com> <Pine.LNX.4.64.0609141635040.2721@twin.jikos.cz> <d120d5000609140758w7ba5cfdbs399d6831082e7cb4@mail.gmail.com> <Pine.LNX.4.64.0609141700250.2721@twin.jikos.cz> <d120d5000609140851r2299c64cv8b0a365be795a1bc@mail.gmail.com> <Pine.LNX.4.64.0609141754480.2721@twin.jikos.cz> <d120d5000609140918j18d68a4dmd9d9e1e72d2fd718@mail.gmail.com> <Pine.LNX.4.64.0609142037110.2721@twin.jikos.cz> <d120d5000609141156h5e06eb68k87a6fe072a701dab@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <d120d5000609141156h5e06eb68k87a6fe072a701dab@mail.gmail.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -2.9
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.9 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5000]
+	-0.1 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
-> * Martin J. Bligh <mbligh@mbligh.org> wrote:
-> 
-> 
->>>>Comments and reviews are very welcome.
->>>
->>>i have one very fundamental question: why should we do this 
->>>source-intrusive method of adding tracepoints instead of the 
->>>dynamic, unintrusive (and thus zero-overhead) KProbes+SystemTap 
->>>method?
->>
->>Because:
->>
->>1. Kprobes are more overhead when they *are* being used.
-> 
-> 
-> minimally so - at least on i386 and x86_64. In that sense tracing is a 
-> _slowpath_, and it _will_ slow things down if done excessively. I dont 
-> care about the tracepoint being slower by a few instructions as long as 
-> it has _zero effect_ on normal code, be that source code or binary code.
 
-Would be interesting to see some measurements. But jumping is slower
-than a simple branch (or noops to skip over that can be overwritten).
+* Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
 
->>2. You can get zero overhead by CONFIG'ing things out.
-> 
-> but that's not how a fair chunk of people want to use tracing. People 
-> (enterprise customers trying to figure out performance problems, 
-> engineers trying to debug things on a live, production system) want to 
-> be able to insert a tracepoint anywhere and anytime - and also they want 
-> to have zero overhead from tracing if no tracepoints are used on a 
-> system.
+> I think it is - as far as I understand the reason for not tracking 
+> every lock individually is just that it is too expensive to do by 
+> default.
 
-I'm fine with that ... "a fair chunk of people" - but it's not everyone,
-by any means. We need both static and dynamic tracepoints, in one
-infrastructure.
+that is not at all the reason! The reason is that we want to find 
+deadlocks _as early as mathematically possible_ (in a running system, 
+where locking patterns are observed). That is we want to gather the 
+_most generic_ locking rules.
 
->>3. (most importantly) it's a bitch to maintain tracepoints out
->>   of-tree on a rapidly moving kernel
-> 
-> wrong: the original demo tracepoints that came with SystemTap still work 
-> on the current kernel, because the 'coupling' is loose: based on 
-> function names.
+For example, if there are lock_1A, lock_1B of the same lock class, and 
+lock_2A and lock_2B of another lock class. If we observed the following 
+usage patterns:
 
-And what do those trace? I bet not half the stuff we want to do.
-I've been migrating Google's tracepoints around between different
-kernel versions, and it's not a mechanical port. Just stupid things
-like renaming of functions inside memory reclaim creates pain, for
-starters. (shrink_cache/shrink_list, refill_inactive_zone, etc).
+	acquire(lock_1A);
+	acquire(lock_2A);
+	release(lock_2A);
+	release(lock_1A);
 
-> Static tracepoints on the other hand, if added via an external patch, do 
-> depend on the target function not moving around and the context of the 
-> tracepoint not being changed. (and static tracepoints if in the source 
-> all the time are a constant hindrance to development and code 
-> readability.)
+and another piece of kernel code did:
 
-an external patch is, indeed, pretty useless. Merging a few simple
-tracepoints should not be a problem - see blktrace and schedstats,
-for instance.
+	acquire(lock_2B);
+	acquire(lock_1B);
+	release(lock_1B);
+	release(lock_1B);
 
-> and of course the big advantage of dynamic probing is its flexibility: 
-> you can add add-hoc tracepoints to thousands of functions, instead of 
-> having to maintain hundreds (or thousands) of static tracepoints all the 
-> time. (and if we wont end up with hundreds/thousands of static 
-> tracepoints then it wont be usable enough as a generic solution.)
+with per-lock rules there's no problem detected, because the 4 locks are 
+independent and we only observed a 1A->2A and a 2B->1B dependency.
 
-I wasn't saying that dynamic tracepoints are useless - I agree it's
-valuable to add stuff on the fly. But some things are better done
-statically.
+But with per-class rule gather we'd observe the 1->2 and the 2->1 
+dependency, and we'd warn that there's a deadlock.
 
->>4. I believe kprobes still doesn't have full access to local 
->>variables. 
-> 
-> wrong: with SystemTap you can probe local variables too (via 
-> jprobes/kretprobes, all in the upstream kernel already).
+So we want to create as broad, as generic rules as possible, to catch 
+deadlocks as soon as it's _provable_ that they could occur. In that 
+sense lockdep wants to have a '100% proof' of correctness: the first 
+time a bad even happens we flag it.
 
-I'll look again, but last time I looked it didn't do this, and
-when I spoke to the kprobes/systemtap people at OLS, IIRC they
-said it still couldn't.
-
->>Now (3) is possibly solvable by putting the points in as no-ops 
->>(either insert a few nops or just a marker entry in the symbol 
->>table?), but full dynamic just isn't sustainable. [...]
-> 
-> i'm not sure i follow. Could you explain where SystemTap has this 
-> difficulty?
-
-If you have an extremely limited set of probes, on a static area
-of the kernel, then yes, they may work for a long time. But try
-tracing something like the scheduler, which people seem to delight
-in rewriting every month or two ...
-
-It amuses me that we're so opposed to external patches to the tree
-(for perfectly understandable reasons), but we somehow think tracepoints
-are magically different and should be maintained out of tree somehow.
-You yourself made the argument that it's a maintainance burden to
-keep the trace points *in* the tree ... if that's true, how is it
-any easier to keep them outside of the tree?
-
-If we really want to, we can still keep the hooks inside the code,
-and have them do absolutely nothing at all - putting markers into
-the symbol table is pretty much free. It also reuses the well
-structured code-sharing mechanism we already have in place - the
-linux kernel tree.
-
-I really don't want to deal with all the systemtap crap - I just
-want something that works, and I don't particularly care if I have
-to recompile the kernel to get it. I know that doesn't suit everyone,
-but there are requirements on both sides, and we should not dismiss
-each other's requirements out of hand.
-
-Having one consistent consistent collection mechanism for all these
-different types of tracing data seems both logical and very important
-to me ...
-
-M.
+	Ingo

@@ -1,30 +1,30 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750960AbWINDqj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751259AbWINDrc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750960AbWINDqj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Sep 2006 23:46:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750797AbWINDqj
+	id S1751259AbWINDrc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Sep 2006 23:47:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751293AbWINDrc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Sep 2006 23:46:39 -0400
-Received: from tomts13-srv.bellnexxia.net ([209.226.175.34]:3285 "EHLO
+	Wed, 13 Sep 2006 23:47:32 -0400
+Received: from tomts13.bellnexxia.net ([209.226.175.34]:20949 "EHLO
 	tomts13-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id S1750960AbWINDqh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Sep 2006 23:46:37 -0400
-Date: Wed, 13 Sep 2006 23:46:36 -0400
+	id S1751259AbWINDrb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Sep 2006 23:47:31 -0400
+Date: Wed, 13 Sep 2006 23:47:30 -0400
 From: Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>
 To: linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
        Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@redhat.com>,
        Greg Kroah-Hartman <gregkh@suse.de>,
        Thomas Gleixner <tglx@linutronix.de>, Tom Zanussi <zanussi@us.ibm.com>
 Cc: ltt-dev@shafik.org, Michel Dagenais <michel.dagenais@polymtl.ca>
-Subject: [PATCH 7/11] LTTng-core 0.5.108 : facilities-loader
-Message-ID: <20060914034636.GH2194@Krystal>
+Subject: [PATCH 8/11] LTTng-core 0.5.108 : netlink-control
+Message-ID: <20060914034730.GI2194@Krystal>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="=_Krystal-32689-1158205596-0001-2"
+Content-Type: multipart/mixed; boundary="=_Krystal-27224-1158205650-0001-2"
 Content-Disposition: inline
 X-Editor: vi
 X-Info: http://krystal.dyndns.org:8080
 X-Operating-System: Linux/2.4.32-grsec (i686)
-X-Uptime: 23:45:45 up 22 days, 54 min,  6 users,  load average: 1.28, 0.68, 0.34
+X-Uptime: 23:46:37 up 22 days, 55 min,  6 users,  load average: 1.00, 0.69, 0.36
 User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
@@ -32,114 +32,187 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 This is a MIME-formatted message.  If you see this text it means that your
 E-mail software does not support MIME-formatted messages.
 
---=_Krystal-32689-1158205596-0001-2
+--=_Krystal-27224-1158205650-0001-2
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
 
-7 - Core tracer facility loader
-patch-2.6.17-lttng-core-0.5.108-facilities-loader.diff
-
+8 - Module : Netlink tracing control
+patch-2.6.17-lttng-core-0.5.108-netlink-control.diff
 
 OpenPGP public key:              http://krystal.dyndns.org:8080/key/compudj.gpg
 Key fingerprint:     8CD5 52C3 8E3C 4140 715F  BA06 3F25 A8FE 3BAE 9A68 
 
---=_Krystal-32689-1158205596-0001-2
+--=_Krystal-27224-1158205650-0001-2
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename="patch-2.6.17-lttng-core-0.5.108-facilities-loader.diff"
+Content-Disposition: attachment; filename="patch-2.6.17-lttng-core-0.5.108-netlink-control.diff"
 
 --- /dev/null
-+++ b/ltt/ltt-facility-loader-core.c
-@@ -0,0 +1,66 @@
-+/*
-+ * ltt-facility-loader-core.c
++++ b/ltt/ltt-control.c
+@@ -0,0 +1,119 @@
++/* ltt-control.c
 + *
-+ * (C) Copyright  2005 - 
-+ *          Mathieu Desnoyers (mathieu.desnoyers@polymtl.ca)
++ * LTT control module over a netlink socket.
 + *
-+ * Contains the LTT facility loader.
++ * Inspired from Relay Apps, by Tom Zanussi and iptables
 + *
++ * Copyright 2005 -
++ * 	Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>
 + */
 +
-+
-+#include <linux/ltt-facilities.h>
-+#include <linux/module.h>
 +#include <linux/init.h>
-+#include <linux/config.h>
-+#include "ltt-facility-loader-core.h"
++#include <linux/module.h>
++#include <linux/ltt-core.h>
++#include <linux/netlink.h>
++#include <linux/inet.h>
++#include <linux/ip.h>
++#include <linux/security.h>
++#include <linux/skbuff.h>
++#include <linux/types.h>
++#include <net/sock.h>
++#include "ltt-control.h"
 +
++#define LTTCTLM_BASE	0x10
++#define LTTCTLM_CONTROL	(LTTCTLM_BASE + 1)	/* LTT control message */
 +
-+#ifdef CONFIG_LTT
++static struct sock *socket;
 +
-+EXPORT_SYMBOL(LTT_FACILITY_SYMBOL);
-+EXPORT_SYMBOL(LTT_FACILITY_CHECKSUM_SYMBOL);
-+
-+static const char ltt_facility_name[] = LTT_FACILITY_NAME;
-+
-+#define SYMBOL_STRING(sym) #sym
-+
-+static struct ltt_facility facility = {
-+	.name = ltt_facility_name,
-+	.num_events = LTT_FACILITY_NUM_EVENTS,
-+	.checksum = LTT_FACILITY_CHECKSUM,
-+	.symbol = SYMBOL_STRING(LTT_FACILITY_SYMBOL),
-+};
-+
-+static int __init facility_init(void)
++void ltt_control_input(struct sock *sk, int len)
 +{
-+	printk(KERN_INFO "LTT : ltt-facility-core init in kernel\n");
-+
-+	LTT_FACILITY_SYMBOL = ltt_facility_kernel_register(&facility);
-+	LTT_FACILITY_CHECKSUM_SYMBOL = LTT_FACILITY_SYMBOL;
-+	
-+	return LTT_FACILITY_SYMBOL;
-+}
-+
-+#ifndef MODULE
-+__initcall(facility_init);
-+#else
-+module_init(facility_init);
-+static void __exit facility_exit(void)
-+{
++	struct sk_buff *skb;
++	struct nlmsghdr *nlh = NULL;
++	u8 *payload = NULL;
++	lttctl_peer_msg_t *msg;
 +	int err;
 +
-+	err = ltt_facility_unregister(LTT_FACILITY_SYMBOL);
-+	if(err != 0)
-+		printk(KERN_ERR "LTT : Error in unregistering facility.\n");
++	printk(KERN_DEBUG "ltt-control ltt_control_input\n");
 +
++	while ((skb = skb_dequeue(&sk->sk_receive_queue)) != NULL) {
++
++		nlh = (struct nlmsghdr *)skb->data;
++		if(security_netlink_recv(skb)) {
++			netlink_ack(skb, nlh, EPERM);
++			kfree_skb(skb);
++			continue;
++		}
++		/* process netlink message pointed by skb->data */
++		err = EINVAL;
++		payload = NLMSG_DATA(nlh);
++		/* process netlink message with header pointed by 
++		 * nlh and payload pointed by payload
++		 */
++		if(nlh->nlmsg_len !=
++				sizeof(lttctl_peer_msg_t) +
++				sizeof(struct nlmsghdr)) {
++			printk(KERN_ALERT "ltt-control bad message length %d vs. %zu\n",
++				nlh->nlmsg_len, sizeof(lttctl_peer_msg_t) +
++				sizeof(struct nlmsghdr));
++			netlink_ack(skb, nlh, EINVAL);
++			kfree_skb(skb);
++			continue;
++		}
++		msg = (lttctl_peer_msg_t*)payload;
++
++		switch(msg->op) {
++			case OP_CREATE:
++				err = ltt_control(LTT_CONTROL_CREATE_TRACE,
++						msg->trace_name,
++						msg->trace_type, msg->args);
++				break;
++			case OP_DESTROY:
++				err = ltt_control(LTT_CONTROL_DESTROY_TRACE,
++						msg->trace_name,
++						msg->trace_type, msg->args);
++				break;
++			case OP_START:
++				err = ltt_control(LTT_CONTROL_START,
++						msg->trace_name,
++						msg->trace_type, msg->args);
++				break;
++			case OP_STOP:
++				err = ltt_control(LTT_CONTROL_STOP,
++						msg->trace_name,
++						msg->trace_type, msg->args);
++				break;
++			default:
++				err = EBADRQC;
++				printk(KERN_INFO 
++					"ltt-control invalid operation\n");
++		}
++		netlink_ack(skb, nlh, err);
++		kfree_skb(skb);
++	}
 +}
-+module_exit(facility_exit)
++
++
++static int ltt_control_init(void)
++{
++	printk(KERN_INFO "ltt-control init\n");
++
++	socket = netlink_kernel_create(NETLINK_LTT, 1,
++			ltt_control_input, THIS_MODULE);
++	if(socket == NULL) return -EPERM;
++	else return 0;
++}
++
++static void ltt_control_exit(void)
++{
++	printk(KERN_INFO "ltt-control exit\n");
++	sock_release(socket->sk_socket);
++}
++
++
++module_init(ltt_control_init)
++module_exit(ltt_control_exit)
 +
 +MODULE_LICENSE("GPL");
 +MODULE_AUTHOR("Mathieu Desnoyers");
-+MODULE_DESCRIPTION("Linux Trace Toolkit Facility");
++MODULE_DESCRIPTION("Linux Trace Toolkit Controller");
 +
-+#endif //MODULE
-+
-+#endif //CONFIG_LTT
 --- /dev/null
-+++ b/ltt/ltt-facility-loader-core.h
-@@ -0,0 +1,20 @@
-+#ifndef _LTT_FACILITY_LOADER_CORE_H_
-+#define _LTT_FACILITY_LOADER_CORE_H_
++++ b/ltt/ltt-control.h
+@@ -0,0 +1,31 @@
++/* ltt-control.h
++ *
++ * LTT control module over a netlink socket.
++ *
++ * Inspired from Relay Apps, by Tom Zanussi and iptables
++ *
++ * Copyright 2005 -
++ * 	Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>
++ */
 +
-+#ifdef CONFIG_LTT
++#ifndef _LTT_CONTROL_H
++#define _LTT_CONTROL_H
 +
-+#include <linux/ltt-facilities.h>
-+#include <linux/ltt/ltt-facility-id-core.h>
++enum trace_op {
++	OP_CREATE,
++	OP_DESTROY,
++	OP_START,
++	OP_STOP,
++	OP_ALIGN,
++	OP_NONE
++};
 +
-+ltt_facility_t	ltt_facility_core;
-+ltt_facility_t	ltt_facility_core_1A8DE486;
++typedef struct lttctl_peer_msg {
++	char trace_name[NAME_MAX];
++	char trace_type[NAME_MAX];
++	enum trace_op op;
++	union ltt_control_args args;
++} lttctl_peer_msg_t;
 +
-+#define LTT_FACILITY_SYMBOL		ltt_facility_core
-+#define LTT_FACILITY_CHECKSUM_SYMBOL	ltt_facility_core_1A8DE486
-+#define LTT_FACILITY_CHECKSUM		0x1A8DE486
-+#define LTT_FACILITY_NAME		"core"
-+#define LTT_FACILITY_NUM_EVENTS	facility_core_num_events
++#endif //_LTT_CONTROL_H
 +
-+#endif //CONFIG_LTT
-+
-+#endif //_LTT_FACILITY_LOADER_CORE_H_
+--- a/include/linux/netlink.h
++++ b/include/linux/netlink.h
+@@ -21,6 +21,7 @@ #define NETLINK_IP6_FW		13
+ #define NETLINK_DNRTMSG		14	/* DECnet routing messages */
+ #define NETLINK_KOBJECT_UEVENT	15	/* Kernel messages to userspace */
+ #define NETLINK_GENERIC		16
++#define NETLINK_LTT		31 	/* Linux Trace Toolkit FIXME */
+ 
+ #define MAX_LINKS 32		
+ 
 
---=_Krystal-32689-1158205596-0001-2--
+--=_Krystal-27224-1158205650-0001-2--

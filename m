@@ -1,102 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932106AbWINW7W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932103AbWINW7t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932106AbWINW7W (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Sep 2006 18:59:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932107AbWINW7W
+	id S932103AbWINW7t (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Sep 2006 18:59:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932111AbWINW7t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Sep 2006 18:59:22 -0400
-Received: from dvhart.com ([64.146.134.43]:11746 "EHLO dvhart.com")
-	by vger.kernel.org with ESMTP id S932106AbWINW7W (ORCPT
+	Thu, 14 Sep 2006 18:59:49 -0400
+Received: from mail.tmr.com ([64.65.253.246]:9419 "EHLO pixels.tmr.com")
+	by vger.kernel.org with ESMTP id S932103AbWINW7s (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Sep 2006 18:59:22 -0400
-Message-ID: <4509DEC3.70806@mbligh.org>
-Date: Thu, 14 Sep 2006 15:59:15 -0700
-From: Martin Bligh <mbligh@mbligh.org>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051011)
-X-Accept-Language: en-us, en
+	Thu, 14 Sep 2006 18:59:48 -0400
+Message-ID: <4509DFF0.4040309@tmr.com>
+Date: Thu, 14 Sep 2006 19:04:16 -0400
+From: Bill Davidsen <davidsen@tmr.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.5) Gecko/20060720 SeaMonkey/1.0.3
 MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Roman Zippel <zippel@linux-m68k.org>,
-       Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
-       linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
-       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@redhat.com>,
-       Greg Kroah-Hartman <gregkh@suse.de>,
-       Thomas Gleixner <tglx@linutronix.de>, Tom Zanussi <zanussi@us.ibm.com>,
-       ltt-dev@shafik.org, Michel Dagenais <michel.dagenais@polymtl.ca>,
-       fche@redhat.com
-Subject: Re: [PATCH 0/11] LTTng-core (basic tracing infrastructure) 0.5.108
-References: <20060914112718.GA7065@elte.hu> <Pine.LNX.4.64.0609141537120.6762@scrub.home> <20060914135548.GA24393@elte.hu> <Pine.LNX.4.64.0609141623570.6761@scrub.home> <20060914171320.GB1105@elte.hu> <4509BAD4.8010206@mbligh.org> <20060914203430.GB9252@elte.hu> <4509C1D0.6080208@mbligh.org> <20060914213113.GA16989@elte.hu> <4509D6E6.5030409@mbligh.org> <20060914223607.GB25004@elte.hu>
-In-Reply-To: <20060914223607.GB25004@elte.hu>
+To: David Wagner <daw-usenet@taverner.cs.berkeley.edu>
+CC: Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: R: Linux kernel source archive vulnerable
+References: <20060907182304.GA10686@danisch.de> <Pine.LNX.4.61.0609121619470.19976@chaos.analogic.com> <ee796o$vue$1@taverner.cs.berkeley.edu> <45073B2B.4090906@lsrfire.ath.cx> <ee7m7r$6qr$1@taverner.cs.berkeley.edu>
+In-Reply-To: <ee7m7r$6qr$1@taverner.cs.berkeley.edu>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
-> * Martin Bligh <mbligh@mbligh.org> wrote:
+
+ > Chris
+David Wagner wrote:
+> Rene Scharfe  wrote:
+>> [details on how GNU tar works, snipped]
 > 
->>>i very much agree that they should become as fast as possible. So to 
->>>rephrase the question: can we make dynamic tracepoints as fast (or 
->>>nearly as fast) as static tracepoints? If yes, should we care about 
->>>static tracers at all?
->>
->>Depends how many nops you're willing to add, I guess. Anything, even 
->>the static tracepoints really needs at least a branch to be useful, 
->>IMHO. At least for what I've been doing with it, you need to stop the 
->>data flow after a while (when the event you're interested in happens, 
->>I'm using it like a flight data recorder, so we can go back and do 
->>postmortem on what went wrong). I should imagine branch prediction 
->>makes it very cheap on most modern CPUs, but don't have hard data to 
->>hand.
+> Again, you miss my point.  I already know how tar works, but that's not
+> my point.  Why is it that people are so unwilling to address the real
+> issue here?  Let's try a few facts:
+
+Okay:
+- you have been told told read the old posts on this topic
+- you read but didn't understand
+- the problem is YOU ARE DOING IT WRONG and untarring as root
+
+The time to discuss where to put the umask was "back when," and I might 
+have agreed then, but now I can't see any justification to change, 
+because someone else would then have a problem. You want it to do 
+something else on your system, so do it. You shouldn't untar as root anyway.
+
+You have not only beaten a dead horse, but dragged the carcass through 
+the streets.
 > 
-> only 5 bytes of NOP are needed by default, so that a kprobe can insert a 
-> call/callq instruction. The easiest way in practice is to insert a 
-> _single_, unconditional function call that is patched out to NOPs upon 
-> its first occurance (doing this is not a performance issue at all). That 
-> way the only cost is the NOP and the function parameter preparation 
-> side-effects. (which might or might not be significant - with register 
-> calling conventions and most parameters being readily available it 
-> should be small.)
+>     (a) The Linux kernel tar archive contains files with world-writeable
+>     permissions.
 > 
-> note that such a limited, minimally invasive 'data extraction point' 
-> infrastructure is not actually what the LTT patches are doing. It's not 
-> even close, and i think you'll be surprised. Let me quote from the 
-> latest LTT patch (patch-2.6.17-lttng-0.5.108, which is the same version 
-> submitted to lkml - although no specific tracepoints were submitted):
-
-OK, I grant you that's pretty scary ;-) However, it's not the only way
-to do it. Most things we're using write a statically sized 64-bit event
-into a relayfs buffer, with a timestamp, a minor and major event type,
-and a byte of data payload.
-
-> believe it or not, this is inlined into: kernel/sched.c ...
+>     (b) There is no need for those files to have world-writeable
+>     permissions.  It doesn't serve any particular purpose.  If the
+>     permissions in the tar archive were changed to be not world-writeable,
+>     no harm would be done.
 > 
-> 'enuff said. LTT is so far from being even considerable that it's not 
-> even funny.
+>     (c) Some users may get screwed over by virtue of the fact that those
+>     files are listed in the tar archive with world-writeable permissions.
+>     (Sure, if every user was an expert on "tar" and on security, then
+>     maybe no one would get screwed over.  But in the real world, that's
+>     not the case.)
+> 
+>     (d) Consequently, the format of the Linux kernel tar archive is
+>     exposing some users to unnecessary riskis.
+> 
+>     (e) The Linux kernel folks could take a quick and easy step that
+>     would eliminate this risk.  That step would involve storing the
+>     files in the tar archive with permissions that were more reasonable
+>     (not world-writeable would be a good start!).  This step wouldn't
+>     hurt anyone.  There's no downside.
+> 
+>     (f) Yet the Linux kernel folks refuse to take this step, and any
+>     time someone mentions that there is something the Linux kernel folks
+>     could do about the problem, someone tries to change the topic to
+>     something else (e.g., complaints about bugs in GNU tar, suggestions
+>     that the user should invoke tar with some other option, claims that
+>     this question has been addressed before, you name it).
+> 
+> So why is it that the tar archive is structured this way?  Why are
+> the Linux kernel folks unnecessarily exposing their users to risk?
+> What purpose, exactly, does it serve to have these files stored with
+> world-writeable permissions?
+> 
+> Folks on the Linux kernel mailing list seem to be reluctant to admit these
+> facts forthrightly.  The posts I've seen mostly seem to have little or
+> no sympathy for users who get screwed over.  The attitude seems to be:
+> if you get screwed over, it's your fault and your problem.  Why is that?
+> If there is a simple step that Linux developers can take to eliminate
+> this risk, why is there such reluctance to take it, and why is there
+> such eagerness to point the finger at someone else?
+> 
+> The way I see it, storing files in a tar archive with world-writeable
+> permissions is senseless.  Why do such a strange thing on purpose?
+> 
+> It all seems thoroughly mysterious to me.
 
-Particularly if we're doing more complex things like that, I'd agree
-that the overhead of doing the out of line jump is non-existant by
-comparison. Even with the relayfs logging alone, perhaps the jump is
-not that heavy ... hmmm.
 
-If we put the NOPs in (at least as an option on some architectures)
-from a macro, you don't really need the full kprobes implemented to
-to tracing, even ... just overwrite the nops with a jump, so presumably
-would be easier to port. However, not sure how local variable data
-is specified in that case ... perhaps the kprobes guys know better.
-Most of the complexity seemed to be with relocating existing code
-because you didn't have nops.
-
-To me, the main thing is to have hooks for the at least some of the
-basic needs maintained in-kernel - from the dtrace paper Val pointed
-me to, that seems to be exactly what they do too, and it integrates
-with the newly added dynamic ones where necessary. Plus I hate the
-whole awk thing, and general complexity of systemtap, but we can
-probably avoid that easily enough - either the embedded C option
-you mentioned, or just a different definiton for the same hook macros
-under a config option.
-
-So perhaps it'll all work. Still need a little bit of data maintained
-in tree though.
-
-M.
+-- 
+Bill Davidsen <davidsen@tmr.com>
+   Obscure bug of 2004: BASH BUFFER OVERFLOW - if bash is being run by a
+normal user and is setuid root, with the "vi" line edit mode selected,
+and the character set is "big5," an off-by-one errors occurs during
+wildcard (glob) expansion.

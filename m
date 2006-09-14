@@ -1,53 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751031AbWINTDd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751038AbWINTFu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751031AbWINTDd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Sep 2006 15:03:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751034AbWINTDd
+	id S1751038AbWINTFu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Sep 2006 15:05:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751039AbWINTFu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Sep 2006 15:03:33 -0400
-Received: from mailhost.terra.es ([213.4.149.12]:37199 "EHLO
-	csmtpout4.frontal.correo") by vger.kernel.org with ESMTP
-	id S1751031AbWINTDc convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Sep 2006 15:03:32 -0400
-Date: Thu, 14 Sep 2006 21:03:12 +0200 (added by postmaster@terra.es)
-From: grundig <grundig@teleline.es>
-To: "Martin J. Bligh" <mbligh@mbligh.org>
-Cc: mingo@elte.hu, mathieu.desnoyers@polymtl.ca, linux-kernel@vger.kernel.org,
-       hch@infradead.org, akpm@osdl.org, mingo@redhat.com, gregkh@suse.de,
-       tglx@linutronix.de, zanussi@us.ibm.com, ltt-dev@shafik.org,
-       michel.dagenais@polymtl.ca
-Subject: Re: [PATCH 0/11] LTTng-core (basic tracing infrastructure) 0.5.108
-Message-Id: <20060914210307.2cd10da4.grundig@teleline.es>
-In-Reply-To: <450971CB.6030601@mbligh.org>
-References: <20060914033826.GA2194@Krystal>
-	<20060914112718.GA7065@elte.hu>
-	<450971CB.6030601@mbligh.org>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.20; i486-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	Thu, 14 Sep 2006 15:05:50 -0400
+Received: from chain.digitalkingdom.org ([64.81.49.134]:23704 "EHLO
+	chain.digitalkingdom.org") by vger.kernel.org with ESMTP
+	id S1751035AbWINTFt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Sep 2006 15:05:49 -0400
+Date: Thu, 14 Sep 2006 12:05:48 -0700
+To: linux-kernel@vger.kernel.org
+Subject: Same MCE on 4 working machines (was Re: Early boot hang on recent 2.6 kernels (> 2.6.3), on x86-64 with 16gb of RAM)
+Message-ID: <20060914190548.GI4610@chain.digitalkingdom.org>
+References: <20060912223258.GM4612@chain.digitalkingdom.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060912223258.GM4612@chain.digitalkingdom.org>
+User-Agent: Mutt/1.5.12-2006-07-14
+From: Robin Lee Powell <rlpowell@digitalkingdom.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-El Thu, 14 Sep 2006 08:14:19 -0700,
-"Martin J. Bligh" <mbligh@mbligh.org> escribió:
+On Tue, Sep 12, 2006 at 03:32:58PM -0700,  wrote:
+> 
+> Please cc me on replies, as I'm not on the list.
 
-> 2. You can get zero overhead by CONFIG'ing things out.
+Nevermind; I'm watching the thread at
+http://lkml.org/lkml/2006/9/12/300
 
-IOW, no distro will enable it by default to avoid the overhead,
-making it useless for lots of real-world working systems where
-you need to guess what's hapenning to software running real
-workloads that can't just be stopped.
+> I have some moderately old hosts that hang on boot, very early on,
+> with any kernel newer than 2.6.3.  Important basic facts about the
+> box are dual opteron 244s, 16gb of RAM, and it's a 64-bit build of
+> the kernel.
 
-I guess there's no problem in having both LTT and Kprobes merged in 
-the main tree at the same time. But Kprobes + systemtap will get
-enabled and used by distros massively just because users can start
-using it inmediately, without recompiling or installing extra
-kernels and rebooting. There're cases where distros may want to
-enable automatic tracing in every boot and only on boot but that
-don't like to suffer from an extra performance hit after booting...
+This isn't just me.  All the Debian kernels hang too.  I've tried
+all of the following:
 
-I'm not meaning that LTT sucks and doesn't have advantages and that 
-doesn't deserve being merged/used, it just looks like kprobes+systemtap
-will get way more real-world users no matter how much you discuss here
+Linux version 2.6.8-12-amd64-generic (buildd@bester) (gcc version 3.4.4 20050314 (prerelease) (Debian 3.4.3-13)) #1 Mon Jul 17 01:12:05 UTC 2006
+
+Linux version 2.6.8-12-amd64-k8 (buildd@bester) (gcc version 3.4.4 20050314 (prerelease) (Debian 3.4.3-13)) #1 Mon Jul 17 01:39:03 UTC 2006
+
+Linux version 2.6.8-12-amd64-k8-smp (buildd@bester) (gcc version 3.4.4 20050314 (prerelease) (Debian 3.4.3-13)) #1 SMP Mon Jul 17 00:17:20 UTC 2006
+
+The boot messages differ only in trivial ways, and they all end
+with:
+
+- ----------
+
+NET: Registered protocol family 16
+CPU 0: Machine Check Exception:                7 Bank 3: b40000000000083b
+RIP 10:<ffffffff8023a44c> {pci_conf1_read+0xac/0xe0}
+TSC d189cea ADDR fdfc000cfe
+CPU 0: Machine Check Exception:                7 Bank 0: b40000000000083b
+RIP 10:<ffffffff8023a44c> {pci_conf1_read+0xac/0xe0}
+TSC 0
+Kernel panic: Uncorrected machine check
+
+
+- ----------
+
+This happens on 4 different machine!  The only way to get them to
+boot to a kernel later than 2.6.3 is "nomce".
+
+I assert that an MCE on multiple machines that have been running
+successfully on 2.6.2 for *years* is bad kernel behaviour; we have
+no reason to believe that 4 different machines that happen to have
+identical hardware have all developed the same hardware failure at
+the same time.
+
+Is there anything I can do here besides nomce?
+
+Boot messages on Debian kernels from the primary host:
+
+    amd64 generic:
+    http://teddyb.org/~rlpowell/media/regular/lkml/amd64-generic-boot.txt
+
+    amd64 k8:
+    http://teddyb.org/~rlpowell/media/regular/lkml/amd64-k8-boot.txt
+
+    amd64 k8 smp:
+    http://teddyb.org/~rlpowell/media/regular/lkml/amd64-k8-smp-boot.txt
+
+Boot messages from two other hosts booting Debian's 2.6.8-11 amd64
+generic kernel; these hosts are used for massive report jobs in
+production on a 2.6.2 kernel, so we *know* they work:
+
+    http://teddyb.org/~rlpowell/media/regular/lkml/prodbing3-boot.txt
+
+    http://teddyb.org/~rlpowell/media/regular/lkml/prodbing4-boot.txt
+
+-Robin

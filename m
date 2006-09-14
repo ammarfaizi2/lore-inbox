@@ -1,56 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751292AbWINMef@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932066AbWINMlI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751292AbWINMef (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Sep 2006 08:34:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751290AbWINMef
+	id S932066AbWINMlI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Sep 2006 08:41:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751302AbWINMlI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Sep 2006 08:34:35 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:30126 "EHLO
+	Thu, 14 Sep 2006 08:41:08 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:53906 "EHLO
 	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1751292AbWINMee (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Sep 2006 08:34:34 -0400
-Subject: [PATCH] v4l: Extend bttv and saa7134 to check for both AGP and PCI
-	PCI failure case
+	id S1751290AbWINMlF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Sep 2006 08:41:05 -0400
+Subject: Re: Assignment of GDT entries
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: mchehab@infradead.org, linux-kernel@vger.kernel.org
+To: Zachary Amsden <zach@vmware.com>
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Linus Torvalds <torvalds@osdl.org>, Ingo Molnar <mingo@elte.hu>,
+       Andi Kleen <ak@suse.de>, "Eric W. Biederman" <ebiederm@xmission.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Michael A Fetterman <Michael.Fetterman@cl.cam.ac.uk>
+In-Reply-To: <4508A191.1060203@vmware.com>
+References: <450854F3.20603@goop.org>
+	 <1158175001.3054.7.camel@laptopd505.fenrus.org> <4508681E.3070708@goop.org>
+	 <4508711B.6060905@vmware.com>
+	 <1158183322.16902.8.camel@localhost.localdomain>
+	 <4508A191.1060203@vmware.com>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Date: Thu, 14 Sep 2006 13:58:14 +0100
-Message-Id: <1158238694.21860.37.camel@localhost.localdomain>
+Date: Thu, 14 Sep 2006 14:03:53 +0100
+Message-Id: <1158239034.21860.40.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We could go and work out if the target object is AGP or PCI but the
-corner case of an Athlon 64 era box with PCI video is sufficiently
-unusual it doesn't seem worth the extra work, at least until other cases
-if any pop up.
+Ar Mer, 2006-09-13 am 17:25 -0700, ysgrifennodd Zachary Amsden:
+> that makes use of APM or PnP facilities.  There is the possibility 
+> however, that such a program could sleep, run the idle thread, which 
+> makes a call into some of these BIOS facilities, and then reschedules 
+> the same program thread - which means FS/GS never get reloaded, thus 
+> maintaining their corrupted values.  It is worth fixing, just not a high 
+> priority.  I had a patch that fixed both APM and PnP at one time, but it 
+> is covered with mold and now looks like a science experiment.  Shall I 
+> apply disinfectant?
 
-Signed-off-by: Alan Cox <alan@redhat.com>
-
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.18-rc6-mm1/drivers/media/video/bt8xx/bttv-cards.c linux-2.6.18-rc6-mm1/drivers/media/video/bt8xx/bttv-cards.c
---- linux.vanilla-2.6.18-rc6-mm1/drivers/media/video/bt8xx/bttv-cards.c	2006-09-11 11:02:17.000000000 +0100
-+++ linux-2.6.18-rc6-mm1/drivers/media/video/bt8xx/bttv-cards.c	2006-09-13 11:57:33.000000000 +0100
-@@ -4991,7 +4991,7 @@
- 	int pcipci_fail = 0;
- 	struct pci_dev *dev = NULL;
- 
--	if (pci_pci_problems & PCIPCI_FAIL)
-+	if (pci_pci_problems & (PCIPCI_FAIL|PCIAGP_FAIL)) 	/* should check if target is AGP */
- 		pcipci_fail = 1;
- 	if (pci_pci_problems & (PCIPCI_TRITON|PCIPCI_NATOMA|PCIPCI_VIAETBF))
- 		triton1 = 1;
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.18-rc6-mm1/drivers/media/video/saa7134/saa7134-core.c linux-2.6.18-rc6-mm1/drivers/media/video/saa7134/saa7134-core.c
---- linux.vanilla-2.6.18-rc6-mm1/drivers/media/video/saa7134/saa7134-core.c	2006-09-11 11:02:17.000000000 +0100
-+++ linux-2.6.18-rc6-mm1/drivers/media/video/saa7134/saa7134-core.c	2006-09-11 17:20:16.000000000 +0100
-@@ -843,7 +843,7 @@
- 			latency = 0x0A;
- 		}
- #endif
--		if (pci_pci_problems & PCIPCI_FAIL) {
-+		if (pci_pci_problems & (PCIPCI_FAIL|PCIAGP_FAIL)) {
- 			printk(KERN_INFO "%s: quirk: this driver and your "
- 					"chipset may not work together"
- 					" in overlay mode.\n",dev->name);
+I think that would be useful, or just post up the mouldy one for someone
+else to rework. If someone is hitting that kind of bug its going to be
+pretty horrible to track down.
 

@@ -1,93 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750717AbWINRAp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750706AbWINRBk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750717AbWINRAp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Sep 2006 13:00:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750706AbWINRAp
+	id S1750706AbWINRBk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Sep 2006 13:01:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750753AbWINRBk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Sep 2006 13:00:45 -0400
-Received: from mail.kingsoft.net ([211.152.52.46]:42949 "HELO
-	mail.kingsoft.net") by vger.kernel.org with SMTP id S1750717AbWINP4U
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Sep 2006 11:56:20 -0400
-From: =?gb2312?B?TGltZW5nIFvA7sPIXQ==?= <avlimeng@kingsoft.net>
-To: <linux-kernel@vger.kernel.org>
-Cc: =?gb2312?B?J73wyb25+dChu6gn?= <guoxiaohua@kingsoft.com>,
-       <limeng@kingsoft.com>
-Subject: UDP Questions
-Date: Thu, 14 Sep 2006 23:56:02 +0800
-Message-ID: <000f01c6d816$4e9cb210$c953fea9@liibook>
+	Thu, 14 Sep 2006 13:01:40 -0400
+Received: from wx-out-0506.google.com ([66.249.82.228]:5280 "EHLO
+	wx-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1750706AbWINRBj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Sep 2006 13:01:39 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=JixAEBJAJaPJ/eD5B7V7/WxWW1s3cpvSN9be/DLn2yHYz1RvnoKyA1G2MVheRGlhr4/y5ZXh0PegLliN2tVwbB8C0ymtQzGVEgI/mfK910KraKeWHVvbUFuBXa2PyStEGuUrZZq0nGJelxrfr+1LlkL3q3FUSnOOYVLKHWgEIZs=
+Message-ID: <6bffcb0e0609141001ic137201p6a2413f5ca915234@mail.gmail.com>
+Date: Thu, 14 Sep 2006 19:01:38 +0200
+From: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
+To: "David Chinner" <dgc@sgi.com>
+Subject: Re: [xfs-masters] Re: 2.6.18-rc6-mm2
+Cc: linux-kernel@vger.kernel.org, xfs-masters@oss.sgi.com,
+       "Andrew Morton" <akpm@osdl.org>, "Linus Torvalds" <torvalds@osdl.org>
+In-Reply-To: <6bffcb0e0609140303n72a73867qb308f5068733161c@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="gb2312"
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook 11
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2962
-Thread-Index: AcbYFkcpLqVxzLBNRkCSRXJ8injAuw==
+Content-Disposition: inline
+References: <6bffcb0e0609120842s6a38b326u4e1fff2e562a6832@mail.gmail.com>
+	 <20060913015850.GB3034@melbourne.sgi.com>
+	 <20060913042627.GE3024@melbourne.sgi.com>
+	 <6bffcb0e0609130243y776492c7g78f4d3902dc3c72c@mail.gmail.com>
+	 <20060914035904.GF3034@melbourne.sgi.com> <450914C4.2080607@gmail.com>
+	 <6bffcb0e0609140150n7499bf54k86e2b7da47766005@mail.gmail.com>
+	 <20060914090808.GS3024@melbourne.sgi.com>
+	 <6bffcb0e0609140229r59691de5i58d2d81f839d744e@mail.gmail.com>
+	 <6bffcb0e0609140303n72a73867qb308f5068733161c@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi:
-	I have a very puzzled question. When I test the limits of my network
-adapters, I send many small UDP packets and compute the average packets sent
-per second. Use those codes, I get the result: 75000 packets per second.
-(All my sockets has set to unblock)
-	//////
-	socket = socket(AF_INET, SOCK_DGRAM, .....)
-	bind....
-	time = time(NULL);
-	while (1)
-	{
-	sendto(socket, "", 1, 0, dstaddr, addrlen);
-	count++;
-}
-time = time(NULL) - time;
-avg = count / time; // here, I get avg = 75000
-//////
+On 14/09/06, Michal Piotrowski <michal.k.k.piotrowski@gmail.com> wrote:
+> On 14/09/06, Michal Piotrowski <michal.k.k.piotrowski@gmail.com> wrote:
+> > On 14/09/06, David Chinner <dgc@sgi.com> wrote:
+> > >
+> > > What arch are you running on and what compiler are you using?
+> >
+> > gcc -v
+> > Using built-in specs.
+> > Target: i386-redhat-linux
+> > Configured with: ../configure --prefix=/usr --mandir=/usr/share/man
+> > --infodir=/usr/share/info --enable-shared --enable-threads=posix
+> > --enable-checking=release --with-system-zlib --enable-__cxa_atexit
+> > --disable-libunwind-exceptions --enable-libgcj-multifile
+> > --enable-languages=c,c++,objc,obj-c++,java,fortran,ada
+> > --enable-java-awt=gtk --disable-dssi
+> > --with-java-home=/usr/lib/jvm/java-1.4.2-gcj-1.4.2.0/jre
+> > --with-cpu=generic --host=i386-redhat-linux
+> > Thread model: posix
+> > gcc version 4.1.1 20060525 (Red Hat 4.1.1-1)
+> >
+> > I'll build system with gcc 3.4
+>
+> It's not a compiler issue.
+>
+> Binary search should solve this mystery.
 
-This result can't satisfy me, so I add another network adapter, and try the
-code blow:
+I was wrong - it's in vanilla tree
+(http://www.stardust.webpages.pl/files/mm/2.6.18-rc6-mm2/mm-dmesg1).
 
-//////
-	socket1 = socket(AF_INET, SOCK_DGRAM, .....)
-	socket2 = socket(AF_INET, SOCK_DGRAM, .....)
-	bind socket1.network adapter1...
-	bind socket2 network adapter2
-	time = time(NULL);
-	while (1)
-	{
-	sendto(socket1, "", 1, 0, dstaddr1, addrlen);
-	sendto(socket2, "", 1, 0, dstaddr2, addrlen);
-	count += 2;
-}
-time = time(NULL) - time;
-avg = count / time; 
-///////////////////
+cat hunt | head -n 3
+origin.patch
+BAD
+libata-ignore-cfa-signature-while-sanity-checking-an-atapi-device.patch
 
-But I get the result is also 75000 packet per second, WHY?
+I can reproduce this bug with all CONFIG_DEBUG_*=y.
+(only
+CONFIG_DEBUG_SYNCHRO_TEST=m
+CONFIG_RCU_TORTURE_TEST=m
+as modules)
 
-Then I find a technique name bond, and then I configure my server's two
-network adapters into a dev bond0. And then I test again with the first
-paragraph of the code, then I get result 150000 packets per second. So I
-want to know how bond can increate the speed of network adapters (use my own
-code to send with the two network adapters at the same time is not helpful),
-then I open the kernel code, and then find such code:
-bond_main.c  L3861:
-		if (IS_UP(slave->dev) &&
-		    (slave->link == BOND_LINK_UP) &&
-		    (slave->state == BOND_STATE_ACTIVE)) {
-			res = bond_dev_queue_xmit(bond, skb, slave->dev);
+I have checked memory
+http://www.stardust.webpages.pl/files/crap/memtest.jpg and everything
+seems to be fine.
 
-			write_lock(&bond->curr_slave_lock);
-			bond->curr_active_slave = slave->next;
-			write_unlock(&bond->curr_slave_lock);
+Regards,
+Michal
 
-			break;
-		}
-It look like that when send a packet to bond dev, bond use current slave and
-send packet, then change current slave to next. What is the essence
-different between the bond and my code (use two network adapters)?
-
-Any suggestions?
-
-xixi
-
+-- 
+Michal K. K. Piotrowski
+LTG - Linux Testers Group
+(http://www.stardust.webpages.pl/ltg/)

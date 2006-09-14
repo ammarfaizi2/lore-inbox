@@ -1,103 +1,141 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751225AbWINVsV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751233AbWINVs6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751225AbWINVsV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Sep 2006 17:48:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751199AbWINVsU
+	id S1751233AbWINVs6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Sep 2006 17:48:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751235AbWINVs6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Sep 2006 17:48:20 -0400
-Received: from ogre.sisk.pl ([217.79.144.158]:25819 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S1751225AbWINVsR (ORCPT
+	Thu, 14 Sep 2006 17:48:58 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:31192 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751233AbWINVs5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Sep 2006 17:48:17 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Alan Stern <stern@rowland.harvard.edu>
-Subject: Re: [linux-usb-devel] 2.6.18-rc6-mm1 (-mm2): ohci resume problem
-Date: Thu, 14 Sep 2006 23:47:15 +0200
-User-Agent: KMail/1.9.1
-Cc: David Brownell <david-b@pacbell.net>, Andrew Morton <akpm@osdl.org>,
-       Mattia Dongili <malattia@linux.it>, Robert Hancock <hancockr@shaw.ca>,
-       Kernel development list <linux-kernel@vger.kernel.org>,
-       USB development list <linux-usb-devel@lists.sourceforge.net>
-References: <Pine.LNX.4.44L0.0609141618450.6982-100000@iolanthe.rowland.org>
-In-Reply-To: <Pine.LNX.4.44L0.0609141618450.6982-100000@iolanthe.rowland.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Thu, 14 Sep 2006 17:48:57 -0400
+Date: Thu, 14 Sep 2006 22:48:49 +0100
+From: Alasdair G Kergon <agk@redhat.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, Milan Broz <mbroz@redhat.com>
+Subject: [PATCH 17/25] dm table: add target preresume
+Message-ID: <20060914214849.GY3928@agk.surrey.redhat.com>
+Mail-Followup-To: Alasdair G Kergon <agk@redhat.com>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+	Milan Broz <mbroz@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200609142347.16578.rjw@sisk.pl>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday, 14 September 2006 22:55, Alan Stern wrote:
-> On Thu, 14 Sep 2006, Rafael J. Wysocki wrote:
-> 
-> > Well, sorry.  This test has been passed, but after a reboot it refused to
-> > suspend just once giving the same messages that I've got from the kernel
-> > with USB_SUSPEND set (the relevant dmesg output is attached).
-> > 
-> > > Then for the next stage, repeat the same tests but with  
-> > > USB_SUSPEND set.
-> 
-> Okay, hang on, let's try to solve this first.
-> 
-> This actually is a completely different problem from what I've been
-> attacking up to now, and we definitely should resolve it.  It's purely a
-> question of the ohci-hcd driver, nothing (or very little) to do with
-> usbcore or ehci-hcd or uhci-hcd.
-> 
-> I'm asking David to chime in, because this is his code and his driver.
-> 
-> Here's an explanation of the problem.  Basically it boils down to the way 
-> ohci-hcd rolls its own root-hub autosuspend.  I'm referring to the call to 
-> ohci_bus_suspend() near the end of ohci-hub.c:ohci_hub_status_data().
-> Things go wrong because that call totally bypasses usbcore.  It's a 
-> layering violation.
-> 
-> The corresponding root-hub autoresume code, i.e., the call to
-> usb_hcd_resume_root_hub() in ohci-hcd.c:ohci_irq(), _does_ go through
-> usbcore.  It fails for two reasons.  First, resume_root_hub does its job
-> by queuing a call to usb_autoresume_device(), and when CONFIG_USB_SUSPEND
-> isn't set that routine is a no-op.  Second, since usbcore was never
-> notified when the root hub was suspended, the root hub's device state
-> isn't USB_STATE_SUSPENED and the interface is still marked as active -- so
-> even if usb_autoresume_device() did get called it wouldn't do anything.
-> 
-> As I see it, there are two ways to resolve the problem.  The easiest is to
-> rip out the autosuspend stuff from ohci-hcd entirely.  When my generic
-> autosuspend patches are accepted, the HCD-specific stuff won't be needed
-> so much.  This has the disadvantage that the root hub will never get
-> suspended if CONFIG_USB_SUSPEND isn't set.  On the other hand, this is how 
-> ehci_hcd works already.
+From: Milan Broz <mbroz@redhat.com>
 
-This isn't a big deal as far as I'm concerned, but I think that dependancy
-will have to be reflected by some Kconfig rules (eg. if CONFIG_USB_SUSPEND
-gets selected automatically if CONFIG_PM is set).
+This patch adds a target preresume hook.
 
-> The second way is to copy what I did in uhci-hcd.  There is a special
-> "root hub is stopped" mode which kicks in only when no ports are
-> connected.  It isn't a full-fledged suspend, in the sense that usbcore
-> isn't notified -- just like what happens in ohci-hcd.  The difference is,
-> since we know no devices are attached, the driver can go back to normal
-> operation while in interrupt context.  It doesn't have to sleep because no
-> attached devices means no TRSMRCY delay is needed and the controller's
-> hardware can be reset directly.  As a result, the corresponding
-> "auto-restart" code doesn't need to go through usbcore either and so
-> usb_autoresume_device() never enters the picture.
-> 
-> I don't know if this is feasible with OHCI.  For now, I'll include a patch 
-> that takes the first approach and disables the ohci-hcd autosuspend 
-> entirely.  I think it will solve your problem above.
+It is called before the targets are resumed and if it returns
+an error the resume gets cancelled.
 
-Yes it does.
+The crypt target will use this to indicate that it is
+unable to process I/O because no encryption key has been supplied.
 
-Now I'm able to suspend/resume several times in a row with both
-ohci and ehci hcds loaded all the time.  Thanks a lot!
+Signed-off-by: Milan Broz <mbroz@redhat.com>
+Signed-off-by: Alasdair G Kergon <agk@redhat.com>
+Cc: Christophe Saout <christophe@saout.de>
 
-Greetings,
-Rafael
-
-
--- 
-You never change things by fighting the existing reality.
-		R. Buckminster Fuller
+Index: linux-2.6.18-rc7/include/linux/device-mapper.h
+===================================================================
+--- linux-2.6.18-rc7.orig/include/linux/device-mapper.h	2006-09-14 20:20:55.000000000 +0100
++++ linux-2.6.18-rc7/include/linux/device-mapper.h	2006-09-14 21:03:16.000000000 +0100
+@@ -57,6 +57,7 @@ typedef int (*dm_endio_fn) (struct dm_ta
+ 
+ typedef void (*dm_presuspend_fn) (struct dm_target *ti);
+ typedef void (*dm_postsuspend_fn) (struct dm_target *ti);
++typedef int (*dm_preresume_fn) (struct dm_target *ti);
+ typedef void (*dm_resume_fn) (struct dm_target *ti);
+ 
+ typedef int (*dm_status_fn) (struct dm_target *ti, status_type_t status_type,
+@@ -92,6 +93,7 @@ struct target_type {
+ 	dm_endio_fn end_io;
+ 	dm_presuspend_fn presuspend;
+ 	dm_postsuspend_fn postsuspend;
++	dm_preresume_fn preresume;
+ 	dm_resume_fn resume;
+ 	dm_status_fn status;
+ 	dm_message_fn message;
+Index: linux-2.6.18-rc7/drivers/md/dm-table.c
+===================================================================
+--- linux-2.6.18-rc7.orig/drivers/md/dm-table.c	2006-09-14 20:20:55.000000000 +0100
++++ linux-2.6.18-rc7/drivers/md/dm-table.c	2006-09-14 21:03:16.000000000 +0100
+@@ -939,9 +939,20 @@ void dm_table_postsuspend_targets(struct
+ 	return suspend_targets(t, 1);
+ }
+ 
+-void dm_table_resume_targets(struct dm_table *t)
++int dm_table_resume_targets(struct dm_table *t)
+ {
+-	int i;
++	int i, r = 0;
++
++	for (i = 0; i < t->num_targets; i++) {
++		struct dm_target *ti = t->targets + i;
++
++		if (!ti->type->preresume)
++			continue;
++
++		r = ti->type->preresume(ti);
++		if (r)
++			return r;
++	}
+ 
+ 	for (i = 0; i < t->num_targets; i++) {
+ 		struct dm_target *ti = t->targets + i;
+@@ -949,6 +960,8 @@ void dm_table_resume_targets(struct dm_t
+ 		if (ti->type->resume)
+ 			ti->type->resume(ti);
+ 	}
++
++	return 0;
+ }
+ 
+ int dm_table_any_congested(struct dm_table *t, int bdi_bits)
+Index: linux-2.6.18-rc7/drivers/md/dm.c
+===================================================================
+--- linux-2.6.18-rc7.orig/drivers/md/dm.c	2006-09-14 20:55:52.000000000 +0100
++++ linux-2.6.18-rc7/drivers/md/dm.c	2006-09-14 21:03:16.000000000 +0100
+@@ -1360,7 +1360,9 @@ int dm_resume(struct mapped_device *md)
+ 	if (!map || !dm_table_get_size(map))
+ 		goto out;
+ 
+-	dm_table_resume_targets(map);
++	r = dm_table_resume_targets(map);
++	if (r)
++		goto out;
+ 
+ 	down_write(&md->io_lock);
+ 	clear_bit(DMF_BLOCK_IO, &md->flags);
+Index: linux-2.6.18-rc7/drivers/md/dm.h
+===================================================================
+--- linux-2.6.18-rc7.orig/drivers/md/dm.h	2006-09-14 21:00:46.000000000 +0100
++++ linux-2.6.18-rc7/drivers/md/dm.h	2006-09-14 21:03:16.000000000 +0100
+@@ -57,7 +57,7 @@ void dm_table_set_restrictions(struct dm
+ struct list_head *dm_table_get_devices(struct dm_table *t);
+ void dm_table_presuspend_targets(struct dm_table *t);
+ void dm_table_postsuspend_targets(struct dm_table *t);
+-void dm_table_resume_targets(struct dm_table *t);
++int dm_table_resume_targets(struct dm_table *t);
+ int dm_table_any_congested(struct dm_table *t, int bdi_bits);
+ void dm_table_unplug_all(struct dm_table *t);
+ int dm_table_flush_all(struct dm_table *t);
+Index: linux-2.6.18-rc7/include/linux/dm-ioctl.h
+===================================================================
+--- linux-2.6.18-rc7.orig/include/linux/dm-ioctl.h	2006-09-14 18:07:58.000000000 +0100
++++ linux-2.6.18-rc7/include/linux/dm-ioctl.h	2006-09-14 21:05:03.000000000 +0100
+@@ -285,9 +285,9 @@ typedef char ioctl_struct[308];
+ #define DM_DEV_SET_GEOMETRY	_IOWR(DM_IOCTL, DM_DEV_SET_GEOMETRY_CMD, struct dm_ioctl)
+ 
+ #define DM_VERSION_MAJOR	4
+-#define DM_VERSION_MINOR	8
++#define DM_VERSION_MINOR	9
+ #define DM_VERSION_PATCHLEVEL	0
+-#define DM_VERSION_EXTRA	"-ioctl (2006-06-24)"
++#define DM_VERSION_EXTRA	"-ioctl (2006-09-14)"
+ 
+ /* Status bits */
+ #define DM_READONLY_FLAG	(1 << 0) /* In/Out */

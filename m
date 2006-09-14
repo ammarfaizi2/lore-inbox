@@ -1,226 +1,119 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751076AbWINTgb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751075AbWINTij@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751076AbWINTgb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Sep 2006 15:36:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751078AbWINTga
+	id S1751075AbWINTij (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Sep 2006 15:38:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751081AbWINTii
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Sep 2006 15:36:30 -0400
-Received: from web31515.mail.mud.yahoo.com ([68.142.198.144]:21335 "HELO
-	web31515.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1751076AbWINTga (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Sep 2006 15:36:30 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=x0nRMrc3LCQcMjjMdhnSX0bbtMuMadXJKbGz09oQJQWUJOK8J/CG0EB4uwJXbRq6NRDB0bLai2OG4/FUy6hicqacb0pvR2cZTtI6AzYJXjcn6kaGE1PqTKYJ41aiFv535aDmv60UJqO8uWct2YXk2VTb2utTOmMTbWER0IlrpGA=  ;
-Message-ID: <20060914193624.41856.qmail@web31515.mail.mud.yahoo.com>
-Date: Thu, 14 Sep 2006 12:36:24 -0700 (PDT)
-From: Jonathan Day <imipak@yahoo.com>
-Subject: Re: Sharing memory between kernelspace and userspace
-To: ray-gmail@madrabbit.org
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <2c0942db0609141105q63883747sc1f40c1a33ffce3c@mail.gmail.com>
+	Thu, 14 Sep 2006 15:38:38 -0400
+Received: from outbound-cpk.frontbridge.com ([207.46.163.16]:27580 "EHLO
+	outbound2-cpk-R.bigfish.com") by vger.kernel.org with ESMTP
+	id S1751075AbWINTih (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Sep 2006 15:38:37 -0400
+X-BigFish: V
+Message-ID: <4509B03A.3070504@am.sony.com>
+Date: Thu, 14 Sep 2006 12:40:42 -0700
+From: Tim Bird <tim.bird@am.sony.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+To: Ingo Molnar <mingo@elte.hu>
+CC: Roman Zippel <zippel@linux-m68k.org>,
+       Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
+       linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
+       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@redhat.com>,
+       Greg Kroah-Hartman <gregkh@suse.de>,
+       Thomas Gleixner <tglx@linutronix.de>, Tom Zanussi <zanussi@us.ibm.com>,
+       ltt-dev@shafik.org, Michel Dagenais <michel.dagenais@polymtl.ca>
+Subject: Re: [PATCH 0/11] LTTng-core (basic tracing infrastructure) 0.5.108
+References: <20060914033826.GA2194@Krystal> <20060914112718.GA7065@elte.hu> <Pine.LNX.4.64.0609141537120.6762@scrub.home> <20060914135548.GA24393@elte.hu> <Pine.LNX.4.64.0609141623570.6761@scrub.home> <20060914171320.GB1105@elte.hu> <Pine.LNX.4.64.0609141935080.6761@scrub.home> <20060914181557.GA22469@elte.hu>
+In-Reply-To: <20060914181557.GA22469@elte.hu>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks for some absolutely wonderful suggestions.
-
---- Ray Lee <madrabbit@gmail.com> wrote:
-
-> On 9/13/06, Jonathan Day <imipak@yahoo.com> wrote:
-> > 1. I need a kernel driver to be able to allocate
-> and
-> > deallocate, on a totally dynamic basis, userspace
-> > memory that is reachable by multiple applications.
+Ingo Molnar wrote:
+> * Roman Zippel <zippel@linux-m68k.org> wrote:
 > 
-> Is there no possible way you can do the memory
-> allocation fully in
-> userspace? Let userspace allocate shared memory
-> visible to multiple
-> processes, and pass that into the kernel for it to
-> write to.
-
-I guess I could - I'd need a userspace program that
-was guaranteed to be running to handle the memory
-management, but that's really no different than any of
-the other daemons.
-
-> If this is as high-speed as you imply, then you
-> *really* don't want to
-> be doing this on the fly (let alone from inside the
-> kernel). All the
-> high-bandwidth stuff I've worked on preallocated its
-> buffers, as later
-> on in the processing there are no hard guarantees as
-> to either how
-> much memory one can acquire *or* how long it will
-> take to do so.
-> Either one of those is a deal-breaker when dealing
-> with fast data
-> rates.
-
-You are absolutely right and preallocation is
-definitely best. The problem lies in not knowing how
-much to pre-allocate, which either means using
-discontiguous chunks of memory or lots of copying -
-neither of which is good.
-
-One hack-around I played with was to go right ahead
-and pre-allocate reasonable fixed-sized buffers, which
-would be physically discontiguous, and then massage
-the virtual memory tables so that anything outside of
-the kernel would see a single, continuous block.
-(Massaging an index is much faster than manipulating
-data.) As far as I can tell, though, the VMM is simply
-not designed for Evil Geeks to go re-organizing the
-virtual layout in any kind of sane way.
-
-An alternative would be to have a generic
-pre-allocated dumping zone, where anything larger than
-the zone would get space allocated on-the-fly, but
-where initial data would be dumped as normal (giving
-the kernel time to do the allocation) and copied into
-the start of the final buffer in the CPU's spare time.
-
-Beyond that, I'm stumped for ideas.
-
-> > 3. I would truly value some suggestions on which
-> of
-> > the many ways of communicating with the kernel
-> would
-> > offer the best way to handle a truly horrible
-> number
-> > of very simple signals. Speed, here, is an
-> absolute
-> > must. According to my boss, residual sanity on my
-> part
-> > is not.
+>>> for me these are all _independent_ grounds for rejection, as a generic 
+>>> kernel infrastructure.
+>> Tracepoints of course need to be managed, but that's true for both 
+>> dynamic and static tracepoints. [...]
 > 
-> Just send a message down an fd? The
-> wakeup/context-switch is the
-> expensive part of that, I think, at least when
-> dealing with only a few
-> dozen fds. Or change it to be level- rather than
-> edge-triggered, to
-> coalesce the horrific number of events getting
-> crammed down the
-> processing side.
+> that's not true, and this is the important thing that i believe you are 
+> missing. A dynamic tracepoint is _detached_ from the normal source code 
+> and thus is zero maintainance overhead. You dont have to maintain it
+> during normal development - only if you need it. You dont see the
+> dynamic tracepoints in the source code.
 
-Good ideas.
+It's only zero maintenance overhead for you.  Someone has to
+maintain it. The party line for years has been that in-tree
+maintenance is easier than out-of-tree maintenance.
 
-> It sounds like this is the cheapest part of the
-> process, so not worth
-> the effort of optimizing it as much as finding
-> better ways to do the
-> rest of it.
-
-I would concur completely with that.
-
-> > I'm having what is probably the world's
-> second-dumbest
-> > problem. What I want to do is have a driver in
-> > kernelspace be able to allocate multiple chunks of
-> > memory that can be shared with userspace without
-> > having to do copies.
 > 
-> Have userspace ask the driver if anyone has
-> allocated it yet, if not,
-> userspace allocates it and hands the pointer to it
-> back to the driver
-> so that it can hand it back out to the other calling
-> processes who
-> also want to subscribe to that data stream.
+> a static tracepoint, once it's in the mainline kernel, is a nonzero 
+> maintainance overhead _until eternity_. It is a constant visual 
+> hindrance and a constant build-correctness and boot-correctness problem 
+> if you happen to change the code that is being traced by a static 
+> tracepoint. Again, I am talking out of actual experience with static 
+> tracepoints: i frequently break my kernel via static tracepoints and i 
+> have constant maintainance cost from them. So what i do is that i try to 
+> minimize the number of static tracepoints to _zero_. I.e. i only add 
+> them when i need them for a given bug.
 
-As good as done. That's going to be relatively easy to
-implement.
+Ingo - I'm sure you are doing things at a level where static tracepoints
+impose a significant perturbation to the code.  However, if you look
+historically at the set of static tracepoints that people have used
+with Linux (with LTT or LKST), they are really not too bad to maintain.  I'm
+repeating what others have said, but I've been working with LTT and
+LTTng for several years, and the tracepoints haven't changed very much
+in that time.   Heck, I've even brought LTTng up on new kernel versions
+and new architectures.  How hard could it be if I can do it? ;-)
+(Of course, who knows if I did it right? - since it's out-of-tree it
+doesn't get as much testing.)
 
-> If another userspace process races with the first
-> trying to ask if a
-> buffer is available (first asked already, but hasn't
-> yet given the
-> driver the info), then the driver puts the second
-> process to sleep
-> until it's ready to hand back the buffer.
+The set of static tracepoints (or markers) that is envisioned is in the
+range of about 30 to 40 key kernel events.  Dynamic tracepoints would
+be used for other stuff.
 
-Ok. That should be doable. All requestees would need
-to be slept, as the time to malloc is unknown. The
-driver, on getting the data back, would need to finish
-any sleepifying it was doing before jumping to the
-unsleep    & deliver.
+I don't want to offend you, but I suspect your usage model for tracepoints
+is different from what the expected (and historical) usage model
+would be for LTTng-style static tracepoints.
 
-> > There are several problems, however, that make
-> this
-> > nasty. First, since the time before the kernel
-> driver
-> > or user application can start (and therefore
-> finish)
-> > processing a block of data is non-deterministic
-> and
-> > there is a requirement the mechanism be as close
-> to
-> > non-blocking as possible, so I need to be able to
-> > create and destroy chunks entirely on-the-fly with
-> the
-> > least risk of either the driver or the application
-> > ending up with unexpectedly invalid pointers.
 > 
-> Creating chunks on the fly is, I think, an operation
-> that can take an
-> arbitrary amount of time. If you *really* want to do
-> that, you should
-> instead just allocate as much as possible in the
-> first place, and then
-> you do your own memory management on blocks inside
-> of that, never
-> invoking the kernel's memory services after the
-> initial allocation.
-
-You covered a few possibilities earlier and I've added
-a few to the list, so I think we can eliminate the
-kernel memory allocation. Which is a BIG relief.
-
-> > The second problem is that the interface between
-> > kernelspace and userspace is handling messages
-> rather
-> > than packets, so I've absolutely no idea in
-> advance
-> > how big a chunk is going to be. That is only known
-> > just prior to the data being put in the chunk
-> > allocated for it. Messages can be big (the specs
-> > require the ability to send a message up to 2Gb in
-> > size) which - if I'm reading the docs correctly -
-> > means I can't create the chunks in kernelspace.
+> static tracepoints are inferior to dynamic tracepoints in almost every 
+> way.
+>
+>> [...]  Both have their advantages and disadvantages and just hammering 
+>> on the possible problems of static ones [...]
 > 
-> Surely this is just an issue of writing the chunk to
-> free memory?
-> Either you have the memory available or you don't.
-> If you do, no
-> problem. If you don't, then you're screwed
-> regardless, as allocating
-> on the fly is not guaranteed to help you out.
+> how about giving a line by line rebuttal to the very real problems of 
+> static tracepoints i listed (twice already), instead of calling them 
+> "possible problems"?
 
-It's all down to how fast free memory can be reserved,
-how to avoid blocking small messages when a large
-message is inbound but takes excessive time to
-deliver, and how to minimise memory fragmentation.
+I respect your experience, but I think it would be more productive
+to have this debate when a patch is submitted with a static tracepoint (or marker)
+implementation.  The patch in question, if I understand correctly, provides
+infrastructure for tracing activities and should hopefully be useful for
+either static or dynamic tracepoints.  I'm hoping someone from the SystemTAP
+camp can speak up and give their opinion on whether this is useful.  If it is,
+then the whole debate about static vs. dynamic tracepoints is less important.
+If not, then that's a different debate.
 
-There are going to be options which - to someone less
-experienced in the heavy fine-tuning like myself -
-would seem inefficient but which (in practice) provide
-overall much better performance than alternatives.
-Further, in a parallel architecture, what is efficient
-at one scale may or may not be at another.
+I maintain Kernel Function Trace (KFT) out-of-tree.  This is a system which
+uses compiler flags to instrument every kernel function entry and exit.  For obvious
+reasons this type of instrumentation is used only during development, but it has
+proven quite handy for certain development tasks (finding long-duration routines and
+finding bloated call sequences).   I can imagine KFT using the infrastructure
+that is provided by the LTTng-core patch (and relinquishing my own infrastructure
+for activation, trace control, event handling etc.)
 
-Thanks for your help - it is greatly appreciated - and
-please feel free to forward any other thoughts you
-might have.
+Regards,
+ -- Tim
 
-Jonathan Day
+=============================
+Tim Bird
+Architecture Group Chair, CE Linux Forum
+Senior Staff Engineer, Sony Electronics
+=============================
 
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 

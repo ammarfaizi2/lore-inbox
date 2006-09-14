@@ -1,70 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751056AbWINTP6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751059AbWINTTP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751056AbWINTP6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Sep 2006 15:15:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751058AbWINTP6
+	id S1751059AbWINTTP (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Sep 2006 15:19:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751061AbWINTTO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Sep 2006 15:15:58 -0400
-Received: from chain.digitalkingdom.org ([64.81.49.134]:19432 "EHLO
-	chain.digitalkingdom.org") by vger.kernel.org with ESMTP
-	id S1751054AbWINTP5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Sep 2006 15:15:57 -0400
-Date: Thu, 14 Sep 2006 12:15:55 -0700
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Same MCE on 4 working machines (was Re: Early boot hang on recent 2.6 kernels (> 2.6.3), on x86-64 with 16gb of RAM)
-Message-ID: <20060914191555.GJ4610@chain.digitalkingdom.org>
-References: <20060912223258.GM4612@chain.digitalkingdom.org> <20060914190548.GI4610@chain.digitalkingdom.org> <1158261249.7948.111.camel@mindpipe>
+	Thu, 14 Sep 2006 15:19:14 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:52684 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1751059AbWINTTO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Sep 2006 15:19:14 -0400
+Message-ID: <4509AB2E.1030800@garzik.org>
+Date: Thu, 14 Sep 2006 15:19:10 -0400
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060808)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1158261249.7948.111.camel@mindpipe>
-User-Agent: Mutt/1.5.12-2006-07-14
-From: Robin Lee Powell <rlpowell@digitalkingdom.org>
+To: "Robin H. Johnson" <robbat2@gentoo.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.18-rc7-git1: AHCI not seeing devices on ICH8 mobo (DG965RY)
+References: <20060914200500.GD27531@curie-int.orbis-terrarum.net>
+In-Reply-To: <20060914200500.GD27531@curie-int.orbis-terrarum.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.3 (----)
+X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 14, 2006 at 03:14:08PM -0400, Lee Revell wrote:
-> On Thu, 2006-09-14 at 12:05 -0700, Robin Lee Powell wrote:
-> > This isn't just me.  All the Debian kernels hang too.  I've tried
-> > all of the following:
-> > 
-> > Linux version 2.6.8-12-amd64-generic (buildd@bester) (gcc version
-> > 3.4.4 20050314 (prerelease) (Debian 3.4.3-13)) #1 Mon Jul 17 01:12:05
-> > UTC 2006
-> > 
-> > Linux version 2.6.8-12-amd64-k8 (buildd@bester) (gcc version 3.4.4
-> > 20050314 (prerelease) (Debian 3.4.3-13)) #1 Mon Jul 17 01:39:03 UTC
-> > 2006
-> > 
-> > Linux version 2.6.8-12-amd64-k8-smp (buildd@bester) (gcc version 3.4.4
-> > 20050314 (prerelease) (Debian 3.4.3-13)) #1 SMP Mon Jul 17 00:17:20
-> > UTC 2006 
+Robin H. Johnson wrote:
+> [Please CC me, I'm not subscribed.]
 > 
-> Have you tried a *recent* 2.6 kernel like 2.6.17 or 2.6.18-rc*?
-> 
-> 2.6.8 is way too old to debug.
+> Recently picked up some new hardware (without sufficiently researching
+> it), and I have found that the AHCI driver does NOT see my SATA optical
+> device at all.
 
-Yes; that's what my previous post was about.  See
-http://lkml.org/lkml/2006/9/12/300
+> scsi1 : ahci
+> ata1: SATA link down (SStatus 0 SControl 300)
+> scsi2 : ahci
+> ata2: SATA link down (SStatus 0 SControl 300)
+> scsi3 : ahci
+> ata3: SATA link down (SStatus 0 SControl 0)
+> scsi4 : ahci
+> ata4: SATA link down (SStatus 0 SControl 0)
 
-I was doing 2.6.17.11, which was kernel.org's latest stable at the
-time I started all this.
 
-I tried the Debian kernels just to show that it wasn't just me
-screwing up my kernel configs.
+Unfortunately the SATA phy isn't showing that a SATA device (hd or cdrom 
+or anything) is connected.  So can't do anything much at all, if that is 
+the case.
 
-These machines will not boot an any kernel > 2.6.3 that I have
-tried, and I've tried about 8 different ones at this point.
+Perhaps re-check all the power connections, cables, etc.
 
-I noted in the release notes for 2.6.4 that the mce code was
-entirely replaced; I'm suspecting that's the problem, but I have no
-idea how to debug it.  Whether the problem is the kernel or the
-motherboard is also certainly open to debate.
+	Jeff
 
--Robin
 
--- 
-http://www.digitalkingdom.org/~rlpowell/ *** http://www.lojban.org/
-Reason #237 To Learn Lojban: "Homonyms: Their Grate!"
-Proud Supporter of the Singularity Institute - http://singinst.org/

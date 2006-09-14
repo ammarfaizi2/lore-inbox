@@ -1,86 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751476AbWINJIW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751496AbWINJSk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751476AbWINJIW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Sep 2006 05:08:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751484AbWINJIW
+	id S1751496AbWINJSk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Sep 2006 05:18:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751495AbWINJSk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Sep 2006 05:08:22 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:10371 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1751476AbWINJIW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Sep 2006 05:08:22 -0400
-Date: Thu, 14 Sep 2006 19:08:08 +1000
-From: David Chinner <dgc@sgi.com>
-To: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
-Cc: linux-kernel@vger.kernel.org, xfs-masters@oss.sgi.com
-Subject: Re: [xfs-masters] Re: 2.6.18-rc6-mm2
-Message-ID: <20060914090808.GS3024@melbourne.sgi.com>
-References: <6bffcb0e0609120842s6a38b326u4e1fff2e562a6832@mail.gmail.com> <20060912162555.d71af631.akpm@osdl.org> <6bffcb0e0609121634l7db1808cwa33601a6628ee7eb@mail.gmail.com> <20060912163749.27c1e0db.akpm@osdl.org> <20060913015850.GB3034@melbourne.sgi.com> <20060913042627.GE3024@melbourne.sgi.com> <6bffcb0e0609130243y776492c7g78f4d3902dc3c72c@mail.gmail.com> <20060914035904.GF3034@melbourne.sgi.com> <450914C4.2080607@gmail.com> <6bffcb0e0609140150n7499bf54k86e2b7da47766005@mail.gmail.com>
-Mime-Version: 1.0
+	Thu, 14 Sep 2006 05:18:40 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:7622 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S1751493AbWINJSj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Sep 2006 05:18:39 -0400
+Date: Thu, 14 Sep 2006 11:18:49 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Jim Gettys <jg@laptop.org>
+Cc: Jordan Crouse <jordan.crouse@amd.com>, "Brown, Len" <len.brown@intel.com>,
+       Linux Kernel ML <linux-kernel@vger.kernel.org>,
+       Dominik Brodowski <linux@dominikbrodowski.net>,
+       ACPI ML <linux-acpi@vger.kernel.org>, Adam Belay <abelay@novell.com>,
+       "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
+       Arjan van de Ven <arjan@linux.intel.com>, devel@laptop.org,
+       Bjorn Helgaas <bjorn.helgaas@hp.com>
+Subject: Re: ACPI: Idle Processor PM Improvements
+Message-ID: <20060914091849.GA15102@elf.ucw.cz>
+References: <EB12A50964762B4D8111D55B764A845484D316@scsmsx413.amr.corp.intel.com> <20060830194317.GA9116@srcf.ucam.org> <200608311713.21618.bjorn.helgaas@hp.com> <1157070616.7974.232.camel@localhost.localdomain> <20060904130933.GC6279@ucw.cz> <1157466710.6011.262.camel@localhost.localdomain> <20060906103725.GA4987@atrey.karlin.mff.cuni.cz> <20060906145849.GE2623@cosmic.amd.com> <20060912092100.GC19482@elf.ucw.cz> <1158084871.28991.489.camel@localhost.localdomain>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <6bffcb0e0609140150n7499bf54k86e2b7da47766005@mail.gmail.com>
-User-Agent: Mutt/1.4.2.1i
+In-Reply-To: <1158084871.28991.489.camel@localhost.localdomain>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 14, 2006 at 10:50:42AM +0200, Michal Piotrowski wrote:
-> On 14/09/06, Michal Piotrowski <michal.k.k.piotrowski@gmail.com> wrote:
-> >David Chinner wrote:
-> >> On Wed, Sep 13, 2006 at 11:43:32AM +0200, Michal Piotrowski wrote:
-> >>> On 13/09/06, David Chinner <dgc@sgi.com> wrote:
-> >>>> I've booted 2.6.18-rc6-mm2 and mounted and unmounted several xfs
-> >>>> filesystems. I'm currently running xfsqa on it, and I haven't seen
-> >>>> any failures on unmount yet.
-> >>>>
-> >>>> That test case would be really handy, Michal.
-> >>> http://www.stardust.webpages.pl/files/mm/2.6.18-rc6-mm2/test_mount_fs.sh
-> >>>
-> >>> ls -hs /home/fs-farm/
-> >>> total 3.6G
-> >>> 513M ext2.img  513M ext4.img  513M reiser3.img  513M xfs.img
-> >>> 513M ext3.img  513M jfs.img   513M reiser4.img
-> >>
-> >> Ok, so you're using loopback and mounting one of each filesystem, then
-> >> unmounting them in the same order. I have mounted and unmounted an
-> >> XFS filesystem in isolation in exactly the same way you have been, but
-> >> I haven't seen any failures.
-> >>
-> >> Can you rerun the test with just XFS in your script and see if you
-> >> see any failures? If you don't see any failures, can you add each
-> >> filesystem back in one at a time until you see failures again?
-> >
-> >
-> >I still get an oops (with xfs only). Maybe it's file system image problem.
-> >
-> >xfs_info /mnt/fs-farm/xfs/
-> >meta-data=/dev/loop1             isize=256    agcount=8, agsize=16384 blks
-> >         =                       sectsz=512
-> >data     =                       bsize=4096   blocks=131072, imaxpct=25
-> >         =                       sunit=0      swidth=0 blks, unwritten=1
-> >naming   =version 2              bsize=4096
-> >log      =internal               bsize=4096   blocks=1200, version=1
-> >         =                       sectsz=512   sunit=0 blks
-> >realtime =none                   extsz=65536  blocks=0, rtextents=0
+On Tue 2006-09-12 14:14:30, Jim Gettys wrote:
+> On Tue, 2006-09-12 at 11:21 +0200, Pavel Machek wrote:
 > 
-> Can I send to you this fs image? It's only 246KB bz2 file.
+> > Ok, so what is needed is message to X "we are suspending", and X needs
+> > to respond "okay, I'm ready, no need for console switch".
+> 
+> This presumes an external agent to X controlling the fast
+> suspend/resume, with messages having to flow to and from X, and to and
+> from the kernel, with the kernel in the middle.
+> 
+> Another simpler option is X itself just telling the kernel to suspend
+> without console switch, as the handoff of the display to the DCON chip
+> has to be done with X and with an interrupt signaling completion of the
+> handoff.  This would be triggered by an inactivity timeout in the X
+> server.
 
-I've downloaded it, and I don't see a panic on that fs at all.
-I've got it sitting in a tight loop mounting and unmounting the
-image you sent me, and nothing has gone wrong. I don't think it's
-a corrupted filesystem problem - it seems more like a memory corruption
-problem to me.
+Whoa... that's a hack.. but yes, you can probably do that, and I think
+kernel even has neccessary interfaces already. (They were needed for
+uswsusp).
 
-What arch are you running on and what compiler are you using?
-Can you try 2.6.18-rc6 and see if it panics like this on your
-machine? there is little difference in xfs between -rc6 and -rc6-mm2
-so it would be good to know if this is a problem isolated to
-the -mm tree or not....
+> > Alternatively, hack kernel to take control from X without actually
+> > switching consoles. That should be possible even with current
+> > interface.
+> 
+> This would require saving/restoring all graphics state in the kernel
+> (and X already has that state internally).  Feasible, but seems like
 
-Cheers,
+Hmm, save/restore graphics state from the kernel would of course be
+clean solution, but you should have that anyway... what if someone
+suspends without X running?
 
-Dave.
+And of course you can just cheat, and not do kernel save-state on your
+system.
+
+									Pavel
 -- 
-Dave Chinner
-Principal Engineer
-SGI Australian Software Group
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

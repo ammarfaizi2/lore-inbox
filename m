@@ -1,52 +1,113 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751185AbWINLUb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751141AbWINLVE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751185AbWINLUb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Sep 2006 07:20:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751147AbWINLUb
+	id S1751141AbWINLVE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Sep 2006 07:21:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751145AbWINLVD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Sep 2006 07:20:31 -0400
-Received: from ogre.sisk.pl ([217.79.144.158]:20182 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S1751141AbWINLUa (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Sep 2006 07:20:30 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Pete Zaitcev <zaitcev@redhat.com>
-Subject: Re: 2.6.18-rc6-mm2: rmmod ohci_hcd oopses on HPC 6325
-Date: Thu, 14 Sep 2006 13:19:53 +0200
-User-Agent: KMail/1.9.1
-Cc: Alan Stern <stern@rowland.harvard.edu>, Andrew Morton <akpm@osdl.org>,
-       Kernel development list <linux-kernel@vger.kernel.org>,
-       USB development list <linux-usb-devel@lists.sourceforge.net>
-References: <200609131558.03391.rjw@sisk.pl> <Pine.LNX.4.44L0.0609131441080.6684-100000@iolanthe.rowland.org> <20060913153158.612ef473.zaitcev@redhat.com>
-In-Reply-To: <20060913153158.612ef473.zaitcev@redhat.com>
+	Thu, 14 Sep 2006 07:21:03 -0400
+Received: from fiberbit.xs4all.nl ([213.84.224.214]:27565 "EHLO
+	fiberbit.xs4all.nl") by vger.kernel.org with ESMTP id S1751141AbWINLVA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Sep 2006 07:21:00 -0400
+Date: Thu, 14 Sep 2006 13:20:58 +0200
+From: Marco Roeland <marco.roeland@xs4all.nl>
+To: Jan Dinger <jan.dinger@arcor.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Kernel 2.6.18-rc7 Debian
+Message-ID: <20060914112058.GA28548@fiberbit.xs4all.nl>
+References: <45092AB8.2050401@arcor.de>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-Message-Id: <200609141319.53942.rjw@sisk.pl>
+In-Reply-To: <45092AB8.2050401@arcor.de>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday, 14 September 2006 00:31, Pete Zaitcev wrote:
-> On Wed, 13 Sep 2006 14:44:48 -0400 (EDT), Alan Stern <stern@rowland.harvard.edu> wrote:
+On Thursday September 14th 2006 at 12:11 Jan Dinger wrote:
+
+> [mostly Debian specific]
+
+> Ill compiling my own kernel. i?ve downloaded the archive and unpacked 
+> the archive.
 > 
-> > This problem has already been identified by Pete Zaitcev in this thread:
-> > 
-> > 	http://marc.theaimsgroup.com/?t=115769512800001&r=1&w=2
-> > 
-> > Perhaps Pete has an updated patch to fix the problem.  If not, I could 
-> > write one.
+> ...
 > 
-> No, not yet. I am working on getting David's approach with irq = -1
-> tested at Stratus. Since it was the only reproducer known to me, I wanted
-> to test. Now that Rafael has a fault case, I'll expedite.
+> #make menuconfug
+> success
 
-In fact I can reproduce it on two different boxes now.
+In general please do not compile the kernel (or anything else) as root,
+but under a normal user account. If you, or some scripts, make a mistake
+it will be rather costly! Strictly speaking it is not an error, and will
+work, but it is a rather dangerous practice.
 
-Rafael
+Under Debian you normally run the "make-kpkg" script with the help of
+the "fakeroot" package:
 
+$ fakeroot make-kpkg ...
 
+Only the final install of the generated .deb package needs you to become
+root or use "sudo".
+
+> Next i will create my debian-package and will include the new patch.
+> 
+> # make-kpkg kernel_image --revision=jan-1.0 --append_to_version jan-1.0 
+> --added-patches=patch-2.6.18-rc7
+
+Specifying a revision can indeed be very handy. Do note however that the
+revision here has to have a dot (.) but normally absolutely _not_ a dash
+(-) in it as you unfortunately did. This will most often lead to problems!
+
+No need for the "--added-patches=" here. You seem to have downloaded
+linux-2.6.18-rc7.tar.gz which is a complete version by itself, no need
+for additional patches here. If you regularly want or have to try
+different kernel versions please check http://www.kernelnewbies.org/FAQ
+on information on how to use patches, or try "git", http://git.or.cz .
+There are Debian packages for git in 'etch' and for 'sarge' on
+http://backports.org.
+
+> The Error: debian/ruleset/misc/patches.mk:104: *** Could not find patch 
+> for patch-2.6.18-rc7.  Stop.
+
+Ok, it could not find the patches. That's because of the superfluous
+"--added-patches" in this case.
+
+> My patch is under /usr/src/kernel-patches/patch-2.6.18-rc7.
+> 
+> If i run the process without --added-patches, then i become this error:
+> 
+> ====== making target configure-indep [new prereqs: 
+> stamp-configure-indep]======
+> ====== making target stamp-configure [new prereqs: configure-arch 
+> configure-indep]======
+> Problems ecountered with the version number jan-1.0.
+> The upstream version jan does not contain a digit
+
+This is because of the dash (-) in the version number.
+
+> Please re-read the README file and try again.
+> exit 2
+> make: *** [sanity_check] Error 2
+
+After any error and indeed after succesfully making your .deb package,
+please use the 'clean' target before trying again or building a new
+package as the README and the man page for make-kpkg could have told
+you! ;-)
+
+$ fakeroot make-kpkg clean
+
+> Ich habe read the README and man pages again, but i cannt locate my 
+> mistake.
+
+So please try, optionally as user 'jan' or something and first using
+chown -R jan:jan /usr/src/linux. There is also no need to have this
+under /usr/src. You can also have the kernel source files somewhere
+under your home directory.
+
+$ fakeroot make-kpkg clean
+$ make oldconfig
+$ fakeroot make-kpkg --revision jan.1 kernel_image
+
+and it will probably just work.
 -- 
-You never change things by fighting the existing reality.
-		R. Buckminster Fuller
+Marco Roeland

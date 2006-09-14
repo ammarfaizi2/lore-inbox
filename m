@@ -1,82 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750858AbWINRz4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750866AbWINR4e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750858AbWINRz4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Sep 2006 13:55:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750861AbWINRz4
+	id S1750866AbWINR4e (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Sep 2006 13:56:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750871AbWINR4e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Sep 2006 13:55:56 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:40348 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S1750855AbWINRzz (ORCPT
+	Thu, 14 Sep 2006 13:56:34 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:51936 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1750856AbWINR4d (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Sep 2006 13:55:55 -0400
-Date: Thu, 14 Sep 2006 19:55:21 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Ingo Molnar <mingo@elte.hu>
-cc: Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
+	Thu, 14 Sep 2006 13:56:33 -0400
+Date: Thu, 14 Sep 2006 19:48:30 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Michel Dagenais <michel.dagenais@polymtl.ca>
+Cc: Roman Zippel <zippel@linux-m68k.org>,
+       Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
        linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
        Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@redhat.com>,
        Greg Kroah-Hartman <gregkh@suse.de>,
        Thomas Gleixner <tglx@linutronix.de>, Tom Zanussi <zanussi@us.ibm.com>,
-       ltt-dev@shafik.org, Michel Dagenais <michel.dagenais@polymtl.ca>
+       ltt-dev@shafik.org
 Subject: Re: [PATCH 0/11] LTTng-core (basic tracing infrastructure) 0.5.108
-In-Reply-To: <20060914171320.GB1105@elte.hu>
-Message-ID: <Pine.LNX.4.64.0609141935080.6761@scrub.home>
-References: <20060914033826.GA2194@Krystal> <20060914112718.GA7065@elte.hu>
- <Pine.LNX.4.64.0609141537120.6762@scrub.home> <20060914135548.GA24393@elte.hu>
- <Pine.LNX.4.64.0609141623570.6761@scrub.home> <20060914171320.GB1105@elte.hu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Message-ID: <20060914174830.GA19720@elte.hu>
+References: <20060914033826.GA2194@Krystal> <20060914112718.GA7065@elte.hu> <Pine.LNX.4.64.0609141537120.6762@scrub.home> <20060914135548.GA24393@elte.hu> <Pine.LNX.4.64.0609141623570.6761@scrub.home> <1158247596.5068.19.camel@localhost>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1158247596.5068.19.camel@localhost>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -2.9
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.9 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.4819]
+	-0.1 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-On Thu, 14 Sep 2006, Ingo Molnar wrote:
+* Michel Dagenais <michel.dagenais@polymtl.ca> wrote:
 
-> also, the other disadvantages i listed very much count too. Static 
-> tracepoints are fundamentally limited because:
-> 
->   - they can only be added at the source code level
-> 
->   - modifying them requires a reboot which is not practical in a
->     production environment
-> 
->   - there can only be a limited set of them, while many problems need
->     finegrained tracepoints tailored to the problem at hand
-> 
->   - conditional tracepoints are typically either nonexistent or very
->     limited.
-> 
-> for me these are all _independent_ grounds for rejection, as a generic 
-> kernel infrastructure.
+> This is the crucial point. Using an INT3 at each dynamic tracepoint is 
+> both costly and is a larger perturbation on the system under study. 
+> [...]
 
-Tracepoints of course need to be managed, but that's true for both dynamic 
-and static tracepoints. Both have their advantages and disadvantages and 
-just hammering on the possible problems of static ones (which are not much 
-of a problem for other people) is highly unfair and not a reason for 
-rejection. If you don't like them, don't use them, nobody forces you, it's 
-that simple...
+have you measured this?
 
-> > You didn't address my main issue at all - kprobes is only available 
-> > for a few archs...
-> 
-> the kprobes infrastructure, despite being fairly young, is widely 
-> available: powerpc, i386, x86_64, ia64 and sparc64. The other 
-> architectures are free to implement them too, there's nothing 
-> hardware-specific about kprobes and the "porting overhead" is in essence 
-> a one-time cost - while for static tracepoints the maintainance overhead 
-> goes on forever and scales linearly with the number of tracepoints 
-> added.
-
-kprobes are not trivial to implement (especially to reach the level of 
-perfomance and flexibility of static tracepoints) and until then you deny 
-their users/developers a useful tool? 
-I also think you highly exaggerate the maintaince overhead of static 
-tracepoints, once added they hardly need any maintainance, most of the 
-time you can just ignore them. Only if the code drastically changes they 
-need to be adjusted, but at that point this should be the smallest 
-problem. The kernel is full debug prints, do you seriously suggest to 
-throw them out because of their "high maintainance"?
-
-bye, Roman
+	Ingo

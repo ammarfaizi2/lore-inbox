@@ -1,57 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751007AbWINXVm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932115AbWINX2I@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751007AbWINXVm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Sep 2006 19:21:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751381AbWINXVm
+	id S932115AbWINX2I (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Sep 2006 19:28:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932128AbWINX2I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Sep 2006 19:21:42 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:21664 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751007AbWINXVl (ORCPT
+	Thu, 14 Sep 2006 19:28:08 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:23497 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932115AbWINX2F (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Sep 2006 19:21:41 -0400
-Subject: Re: [Bug] 2.6.18-rc6-mm2 i386 trouble finding RSDT in
-	get_memcfg_from_srat
-From: Dave Hansen <haveblue@us.ibm.com>
-To: vgoyal@in.ibm.com
-Cc: keith mannthey <kmannth@us.ibm.com>, lkml <linux-kernel@vger.kernel.org>,
-       ebiederm@xmission.com, andrew <akpm@osdl.org>
-In-Reply-To: <20060914230442.GE25044@in.ibm.com>
-References: <1158113895.9562.13.camel@keithlap>
-	 <1158269696.15745.5.camel@keithlap>
-	 <1158271274.24414.6.camel@localhost.localdomain>
-	 <1158273830.15745.14.camel@keithlap>  <20060914230442.GE25044@in.ibm.com>
-Content-Type: text/plain
-Date: Thu, 14 Sep 2006 16:21:33 -0700
-Message-Id: <1158276093.24414.14.camel@localhost.localdomain>
+	Thu, 14 Sep 2006 19:28:05 -0400
+Date: Fri, 15 Sep 2006 01:19:56 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Martin Bligh <mbligh@mbligh.org>
+Cc: Roman Zippel <zippel@linux-m68k.org>,
+       Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
+       linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
+       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@redhat.com>,
+       Greg Kroah-Hartman <gregkh@suse.de>,
+       Thomas Gleixner <tglx@linutronix.de>, Tom Zanussi <zanussi@us.ibm.com>,
+       ltt-dev@shafik.org, Michel Dagenais <michel.dagenais@polymtl.ca>,
+       fche@redhat.com
+Subject: Re: [PATCH 0/11] LTTng-core (basic tracing infrastructure) 0.5.108
+Message-ID: <20060914231956.GB29229@elte.hu>
+References: <20060914135548.GA24393@elte.hu> <Pine.LNX.4.64.0609141623570.6761@scrub.home> <20060914171320.GB1105@elte.hu> <4509BAD4.8010206@mbligh.org> <20060914203430.GB9252@elte.hu> <4509C1D0.6080208@mbligh.org> <20060914213113.GA16989@elte.hu> <4509D6E6.5030409@mbligh.org> <20060914223607.GB25004@elte.hu> <4509DEC3.70806@mbligh.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4509DEC3.70806@mbligh.org>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -2.9
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.9 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5000]
+	-0.1 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-09-14 at 19:04 -0400, Vivek Goyal wrote:
-> I think I know what is going on wrong here. boot_ioremap() is assuming 
-> that only first 8MB of physical memory is being mapped and while
-> calculating the index into page table (boot_pte_index) we will truncate
-> any higher address bits. 
 
-Vivek, are those pte pages still all contiguous?
+* Martin Bligh <mbligh@mbligh.org> wrote:
 
-Yeah, that's probably it.  Keith, I'm trying to think of reasons why we
-need the mask here:
+> > note that such a limited, minimally invasive 'data extraction point' 
+> > infrastructure is not actually what the LTT patches are doing. It's 
+> > not even close, and i think you'll be surprised. Let me quote from 
+> > the latest LTT patch (patch-2.6.17-lttng-0.5.108, which is the same 
+> > version submitted to lkml - although no specific tracepoints were 
+> > submitted):
+> 
+> OK, I grant you that's pretty scary ;-) However, it's not the only way 
+> to do it. Most things we're using write a statically sized 64-bit 
+> event into a relayfs buffer, with a timestamp, a minor and major event 
+> type, and a byte of data payload.
 
-#define boot_pte_index(address) \
-             (((address) >> PAGE_SHIFT) & (BOOT_PTE_PTRS - 1))
+oh, no need to tell me. I wrote ktrace 10 years ago, iotrace 8 years ago 
+and latency-trace 2 years ago. (The latter even does extensive mcount 
+based tracing, which is as demanding on the ringbuffer as it gets - on 
+my testbox i routinely get 10-20 million trace events per second, where 
+each trace entry includes: type, cpu, flags, preempt_count, pid, 
+timestamp and 4 words of arbitrary payload, all fit into 32 bytes. It 
+has static tracepoints too, in addition to the 20,000-40,000 mcount 
+tracepoints a typical kernel has.)
 
-and I can't think of any other than just masking out the top of the
-virtual address.  You could do this a bunch of other ways, like __pa().
+So i think i know the advantages and disadvantages of static tracers, 
+their maintainance and performance impact.
 
-This might just work:
+but i think (and i think now you'll be surprised) the way to go is to do 
+all this in SystemTap ;-) If we add any static points to the kernel then 
+it should have a pure 'local data preparation for extraction' purpose - 
+nothing more. Static tracing can be built around that too, but at that 
+point it will be unnecessary because SystemTap will be able to do that 
+too, with the same (or better, considering the LTT mess) performance.
 
-static unsigned long boot_pte_index(unsigned long vaddr)
-{
-	return __pa(vaddr) >> PAGE_SHIFT;
-}
+i.e. we should have macros to prepare local information, with macro 
+arities of 2, 3, 4 and 5:
 
--- Dave
+    _(name, data1);
+   __(name, data1, data2);
+  ___(name, data1, data2, data3);
+ ____(name, data1, data2, data3, data4);
 
+that and nothing more. But no guarantees that these trace points will 
+always be there and usable for static tracers: for example about 50% of 
+all tracepoints can be eliminated via a function attribute. (which 
+function attribute tells GCC to generate a 5-byte NOP as the first 
+instruction of the function prologue.) That will be invariant to things 
+like function renames, etc.
+
+> So perhaps it'll all work. Still need a little bit of data maintained 
+> in tree though.
+
+ok. And i think SystemTap itself should be in tree too, with a couple of 
+examples and helper scripts all around tracing and probing - and of 
+course an LTT-compatible trace output so that all the nice LTT userspace 
+code and visualization can live on.
+
+	Ingo

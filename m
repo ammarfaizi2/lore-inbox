@@ -1,70 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750779AbWINOLl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750791AbWINOXU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750779AbWINOLl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Sep 2006 10:11:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750781AbWINOLl
+	id S1750791AbWINOXU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Sep 2006 10:23:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750794AbWINOXU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Sep 2006 10:11:41 -0400
-Received: from jaguar.mkp.net ([192.139.46.146]:52866 "EHLO jaguar.mkp.net")
-	by vger.kernel.org with ESMTP id S1750779AbWINOLk (ORCPT
+	Thu, 14 Sep 2006 10:23:20 -0400
+Received: from us.cactii.net ([66.160.141.151]:44552 "EHLO us.cactii.net")
+	by vger.kernel.org with ESMTP id S1750791AbWINOXT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Sep 2006 10:11:40 -0400
-To: Dimitri Sivanich <sivanich@sgi.com>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, Andi Kleen <ak@suse.de>
-Subject: Re: [PATCH] Migration of standard timers
-References: <20060914132917.GA9898@sgi.com>
-From: Jes Sorensen <jes@sgi.com>
-Date: 14 Sep 2006 10:11:39 -0400
-In-Reply-To: <20060914132917.GA9898@sgi.com>
-Message-ID: <yq0irjqedwk.fsf@jaguar.mkp.net>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.4
+	Thu, 14 Sep 2006 10:23:19 -0400
+Date: Thu, 14 Sep 2006 16:22:42 +0200
+From: Ben B <kernel@bb.cactii.net>
+To: Almonas Petrasevicius <draugaz@diedas.soften.ktu.lt>
+Cc: linux-kernel@vger.kernel.org, venkatesh.pallipadi@intel.com,
+       davej@codemonkey.org.uk
+Subject: Re: speedstep-centrino broke
+Message-ID: <20060914142242.GA28040@cactii.net>
+References: <Pine.LNX.4.62.0609141558090.22822@diedas.soften.ktu.lt>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.62.0609141558090.22822@diedas.soften.ktu.lt>
+X-PGP-Key: 3CD061AD
+X-PGP-Fingerprint: E092 32CA 6196 7C11 0692  BE43 AEDA 4D47 3CD0 61AD
+Jabber-ID: bb@cactii.net
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Dimitri" == Dimitri Sivanich <sivanich@sgi.com> writes:
+Almonas Petrasevicius <draugaz@diedas.soften.ktu.lt> uttered the following thing:
+> Hi,
+> 
+> I experience the same speedstep problem on my HP nc6320 (CoreDuo T2400) 
+> since yesterday's BIOS update (F06 to F08).
+> 
+> According to the release notes this BIOS update should introduce support 
+> for the new CPU's (Core2 "Merom" I suppose).
+> 
+> I did verify both kernels 2.6.16 and 2.6.17 (both vanilla), there is 
+> _no_ difference, both have the same speedstep problem.
 
-Dimitri> This patch allows the user to migrate currently queued
-Dimitri> standard timers from one cpu to another, thereby reducing
-Dimitri> timer induced latency on the chosen cpu.  Timers that were
-Dimitri> placed with add_timer_on() are considered to have 'cpu
-Dimitri> affinity' and are not moved.
+At the suggestion of Venki, I opened a bugzilla ticket on it:
 
-Dimitri> The changes in drivers/base/cpu.c provide a clean and
-Dimitri> convenient interface for triggering the migration through
-Dimitri> sysfs, via writing the destination cpu number to a file
-Dimitri> associated with the source cpu.
+http://bugzilla.kernel.org/show_bug.cgi?id=7157
 
-Hi Dimitri,
+And the lowdown is that it seems the newer BIOS no longer exports the
+correct ACPI symbols which are required for speedstep, thus no longer
+supporting it (at least via the official methods). Hence it seems not a
+Linux kernel bug.
 
-I just took a quick look at your patch, and at least on the surface it
-looks pretty nice to me.
+I opened a support ticket with HP, hopefully they address the issue. In
+the meantime I rolled back my bios and have cpufreq working again.
+Interesting that you also see the problem on an nc6320, it could be that
+they use the same BIOS codebase for various models.
 
-One minor nit, why choose short for the affinity field in struct
-timer_list, it seems a strange size to pick for something which is
-either 0 or 1. Wouldn't int or char be better?  I don't know if all
-CPUs have 16 bit stores, but they should have 8 and 32 bit.
+Ben
 
-The name 'aff' for affinity might not be good either, since we tend to
-refer to affinity as a mask specifying where it's locked to, maybe
-'locked' would be better?
-
-All in the nit-picking department though.
-
-Cheers,
-Jes
-
-
-Index: linux/include/linux/timer.h
-===================================================================
---- linux.orig/include/linux/timer.h
-+++ linux/include/linux/timer.h
-@@ -15,6 +15,8 @@ struct timer_list {
- 	unsigned long data;
- 
- 	struct tvec_t_base_s *base;
-+
-+	short aff;
- };
- 

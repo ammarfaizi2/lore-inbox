@@ -1,76 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751101AbWINTnP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751073AbWINTof@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751101AbWINTnP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Sep 2006 15:43:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751099AbWINTnO
+	id S1751073AbWINTof (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Sep 2006 15:44:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751099AbWINTof
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Sep 2006 15:43:14 -0400
-Received: from mga09.intel.com ([134.134.136.24]:25915 "EHLO mga09.intel.com")
-	by vger.kernel.org with ESMTP id S1751098AbWINTnN convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Sep 2006 15:43:13 -0400
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.09,166,1157353200"; 
-   d="scan'208"; a="127117651:sNHT19660130"
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
+	Thu, 14 Sep 2006 15:44:35 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:19464 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1751073AbWINToe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Sep 2006 15:44:34 -0400
+Date: Thu, 14 Sep 2006 21:44:11 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Jim Cromie <jim.cromie@gmail.com>
+Cc: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [RFC patch] MAINTAINERS:  encourage testers to volunteer
+Message-ID: <20060914194411.GA669@stusta.de>
+References: <4509AA10.4050907@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: speedstep-centrino broke
-Date: Thu, 14 Sep 2006 12:43:12 -0700
-Message-ID: <EB12A50964762B4D8111D55B764A8454988ACA@scsmsx413.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: speedstep-centrino broke
-Thread-Index: AcbYNZUe964DP80sT36ogCquirhgEAAACJuw
-From: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
-To: "Almonas Petrasevicius" <draugaz@diedas.soften.ktu.lt>,
-       "Ben B" <kernel@bb.cactii.net>
-Cc: <linux-kernel@vger.kernel.org>, <davej@codemonkey.org.uk>
-X-OriginalArrivalTime: 14 Sep 2006 19:43:12.0314 (UTC) FILETIME=[0360B1A0:01C6D836]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4509AA10.4050907@gmail.com>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 
+On Thu, Sep 14, 2006 at 01:14:24PM -0600, Jim Cromie wrote:
+> 
+> Add a new entry-type into MAINTAINERS whereby folks with hardware can 
+> volunteer to
+> test patches to the driver.  It should encourage folks to put themselves 
+> "on the hook"
+> in trade for a little bit of notoriety.
+> 
+> Hopefully this will help improve:
+> - support for rare hardware
+> - QA on that hardware
+> - connections between hackers & testers
+> - would-be hackers can find new things to do, esp in less visited parts 
+> of the dist.
+> 
+> Additions should be approved by maintainers etc, but thats no different 
+> than is currently done.
 
->-----Original Message-----
->From: Almonas Petrasevicius [mailto:draugaz@diedas.soften.ktu.lt] 
->Sent: Thursday, September 14, 2006 12:43 PM
->To: Ben B
->Cc: linux-kernel@vger.kernel.org; Pallipadi, Venkatesh; 
->davej@codemonkey.org.uk
->Subject: Re: speedstep-centrino broke
->
->
->On Thu, 14 Sep 2006, Ben B wrote:
->
->>> I did verify both kernels 2.6.16 and 2.6.17 (both vanilla), there is
->>> _no_ difference, both have the same speedstep problem.
->>
->> At the suggestion of Venki, I opened a bugzilla ticket on it:
->>
->> http://bugzilla.kernel.org/show_bug.cgi?id=7157
->>
->> And the lowdown is that it seems the newer BIOS no longer exports the
->> correct ACPI symbols which are required for speedstep, thus no longer
->> supporting it (at least via the official methods). Hence it 
->seems not a
->> Linux kernel bug.
->
->Could be. But I am still somehow puzzled, since neither of the 
->previous versions (F04 & F06 in my case) contain any reference to the 
->mentioned methods (_PSS & _PCT). But those versions were 
->speedsteping just 
->fine. 
->Or maybe I don't know how to look.
->Could You dump your "working" ACPI table and look for those 
->two methods?
+There are currently 97 different saa7134 card types supported by the 
+kernel. Do we need an entry for each of them (each card type has it's 
+own specific support)?
 
-As you mentioned in your earlier mail, CpuPm object is missing after
-BIOS update. That table, most probably, will contain these ACPI _PSS etc
-methods internally.
+And this information will become outdated much faster than updated
+(even the maintainers entries are sometimes outdated).
 
-Thanks,
-Venki
+> --- doc-touches/MAINTAINERS~	2006-09-14 11:50:03.000000000 -0600
+> +++ doc-touches/MAINTAINERS	2006-09-14 12:19:13.000000000 -0600
+> @@ -80,6 +80,12 @@
+> 			it has been replaced by a better system and you
+> 			should be using that.
+> 
+> +V: Validation/Test contact and hardware they can test.
+> +
+> +	Identifies folks who are willing to test driver patches, etc.
+> +	Also can identify lack of hardware for otherwize maintained drivers
+> +	by using 'none'
+> +
+> 3C359 NETWORK DRIVER
+> P:	Mike Phillips
+> M:	mikep@linuxtr.net
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

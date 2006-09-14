@@ -1,101 +1,115 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750785AbWINSCJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750780AbWINSHF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750785AbWINSCJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Sep 2006 14:02:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750870AbWINSCJ
+	id S1750780AbWINSHF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Sep 2006 14:07:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750788AbWINSHE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Sep 2006 14:02:09 -0400
-Received: from opersys.com ([64.40.108.71]:36879 "EHLO www.opersys.com")
-	by vger.kernel.org with ESMTP id S1750785AbWINSCG (ORCPT
+	Thu, 14 Sep 2006 14:07:04 -0400
+Received: from zeus1.kernel.org ([204.152.191.4]:43473 "EHLO zeus1.kernel.org")
+	by vger.kernel.org with ESMTP id S1750780AbWINSHB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Sep 2006 14:02:06 -0400
-Message-ID: <45099B7E.3040505@opersys.com>
-Date: Thu, 14 Sep 2006 14:12:14 -0400
-From: Karim Yaghmour <karim@opersys.com>
-Reply-To: karim@opersys.com
-Organization: Opersys inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.8.0.6) Gecko/20060804 Fedora/1.0.4-0.5.1.fc5 SeaMonkey/1.0.4
+	Thu, 14 Sep 2006 14:07:01 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:reply-to:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=qChAOjZLg8YrmYG6UmsmgfJBnJ18+QRyrvizzQyI4UPqQHeFX5vlTM8cm9IQUh25Ciojz5FwnkxjkzK7h4AprYea+sMGItabn47aany7TuJ1KNs4GOXo0KrhWOX4h+spgDmOce88WojIpur1ln9iR617r4nEt7GHkieQshPa7sE=
+Message-ID: <2c0942db0609141105q63883747sc1f40c1a33ffce3c@mail.gmail.com>
+Date: Thu, 14 Sep 2006 11:05:39 -0700
+From: "Ray Lee" <madrabbit@gmail.com>
+Reply-To: ray-gmail@madrabbit.org
+To: "Jonathan Day" <imipak@yahoo.com>
+Subject: Re: Sharing memory between kernelspace and userspace
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20060914052157.97020.qmail@web31510.mail.mud.yahoo.com>
 MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: Roman Zippel <zippel@linux-m68k.org>,
-       Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
-       linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
-       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@redhat.com>,
-       Greg Kroah-Hartman <gregkh@suse.de>,
-       Thomas Gleixner <tglx@linutronix.de>, Tom Zanussi <zanussi@us.ibm.com>,
-       ltt-dev@shafik.org, Michel Dagenais <michel.dagenais@polymtl.ca>
-Subject: Re: [PATCH 0/11] LTTng-core (basic tracing infrastructure) 0.5.108
-References: <20060914033826.GA2194@Krystal> <20060914112718.GA7065@elte.hu> <Pine.LNX.4.64.0609141537120.6762@scrub.home> <20060914135548.GA24393@elte.hu> <Pine.LNX.4.64.0609141623570.6761@scrub.home> <20060914171320.GB1105@elte.hu>
-In-Reply-To: <20060914171320.GB1105@elte.hu>
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <20060914052157.97020.qmail@web31510.mail.mud.yahoo.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 9/13/06, Jonathan Day <imipak@yahoo.com> wrote:
+> 1. I need a kernel driver to be able to allocate and
+> deallocate, on a totally dynamic basis, userspace
+> memory that is reachable by multiple applications.
 
-Ingo Molnar wrote:
-> also, the other disadvantages i listed very much count too. Static 
-> tracepoints are fundamentally limited because:
-> 
->   - they can only be added at the source code level
+Is there no possible way you can do the memory allocation fully in
+userspace? Let userspace allocate shared memory visible to multiple
+processes, and pass that into the kernel for it to write to.
 
-Non-issue. See below. This is actually a feature, as can be seen
-by browsing the source code of various subsystems/filesystems/etc.
-who's authors saw fit to include their own static tracepoints.
-Darn, they must've been all misguided, so too were those who
-reviewed the code and let it in.
+If this is as high-speed as you imply, then you *really* don't want to
+be doing this on the fly (let alone from inside the kernel). All the
+high-bandwidth stuff I've worked on preallocated its buffers, as later
+on in the processing there are no hard guarantees as to either how
+much memory one can acquire *or* how long it will take to do so.
+Either one of those is a deal-breaker when dealing with fast data
+rates.
 
->   - modifying them requires a reboot which is not practical in a
->     production environment
+> 3. I would truly value some suggestions on which of
+> the many ways of communicating with the kernel would
+> offer the best way to handle a truly horrible number
+> of very simple signals. Speed, here, is an absolute
+> must. According to my boss, residual sanity on my part
+> is not.
 
-Non-issue. See below.
+Just send a message down an fd? The wakeup/context-switch is the
+expensive part of that, I think, at least when dealing with only a few
+dozen fds. Or change it to be level- rather than edge-triggered, to
+coalesce the horrific number of events getting crammed down the
+processing side.
 
->   - there can only be a limited set of them, while many problems need
->     finegrained tracepoints tailored to the problem at hand
+It sounds like this is the cheapest part of the process, so not worth
+the effort of optimizing it as much as finding better ways to do the
+rest of it.
 
-Non-issue. See below.
+> I'm having what is probably the world's second-dumbest
+> problem. What I want to do is have a driver in
+> kernelspace be able to allocate multiple chunks of
+> memory that can be shared with userspace without
+> having to do copies.
 
->   - conditional tracepoints are typically either nonexistent or very
->     limited.
+Have userspace ask the driver if anyone has allocated it yet, if not,
+userspace allocates it and hands the pointer to it back to the driver
+so that it can hand it back out to the other calling processes who
+also want to subscribe to that data stream.
 
-I don't get this one. What's a "conditional tracepoint" for you?
+If another userspace process races with the first trying to ask if a
+buffer is available (first asked already, but hasn't yet given the
+driver the info), then the driver puts the second process to sleep
+until it's ready to hand back the buffer.
 
-> for me these are all _independent_ grounds for rejection, as a generic 
-> kernel infrastructure.
+> There are several problems, however, that make this
+> nasty. First, since the time before the kernel driver
+> or user application can start (and therefore finish)
+> processing a block of data is non-deterministic and
+> there is a requirement the mechanism be as close to
+> non-blocking as possible, so I need to be able to
+> create and destroy chunks entirely on-the-fly with the
+> least risk of either the driver or the application
+> ending up with unexpectedly invalid pointers.
 
-I've addressed other issues in another posting, but I want to
-reiterate something here that Roman said that keeps getting
-forgotten:
+Creating chunks on the fly is, I think, an operation that can take an
+arbitrary amount of time. If you *really* want to do that, you should
+instead just allocate as much as possible in the first place, and then
+you do your own memory management on blocks inside of that, never
+invoking the kernel's memory services after the initial allocation.
 
-There is no competition between static and dynamic trace points.
-They are both useful and complementary. If some set of existing
-static trace points are insufficient at runtime for you to
-resolve an issue, nothing precludes you from using the dynamic
-mechanisms for adding more localized instrumentation.
+> The second problem is that the interface between
+> kernelspace and userspace is handling messages rather
+> than packets, so I've absolutely no idea in advance
+> how big a chunk is going to be. That is only known
+> just prior to the data being put in the chunk
+> allocated for it. Messages can be big (the specs
+> require the ability to send a message up to 2Gb in
+> size) which - if I'm reading the docs correctly -
+> means I can't create the chunks in kernelspace.
 
-Side point: you may be a kernel god, but there are mere mortals
-out there who use Linux. The point I've been making for years
-now is that there are legitimate reasons why normal non-kernel-
-developer users who would benefit greatly from being able to
-have access to tools that generate digested information
-regarding key kernel events. You can argue all you want about
-maintainability, and I continue to think you're wrong, but
-you should know that the development and usefulness of any such
-tools is gated by the continued inability to have a standard
-set of known-to-be-good source of key kernel events. And I
-repeat, the use of dynamic tracing does *not* solve this
-issue.
+Surely this is just an issue of writing the chunk to free memory?
+Either you have the memory available or you don't. If you do, no
+problem. If you don't, then you're screwed regardless, as allocating
+on the fly is not guaranteed to help you out.
 
-At OLS2005 I had suggested a development of a markers infrastructure
-who's users could use just to mark-up their code, the decision
-for tying such markers to a given type of instrumentation not
-actually being tied to the markers themselves. At OLS this
-year a very good talk was given on this topic by Frank from the
-systemtap team and it was very well received by the jam-packed
-audience. IOW, while there used to be a time when people pitted
-static instrumentation against dynamic instrumentation, there's
-been an ever growing consensus that no such choice need be made.
+Good luck,
 
-Thanks,
-
-Karim
+Ray

@@ -1,173 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750874AbWINOjq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750865AbWINOmT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750874AbWINOjq (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Sep 2006 10:39:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750865AbWINOjq
+	id S1750865AbWINOmT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Sep 2006 10:42:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750879AbWINOmT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Sep 2006 10:39:46 -0400
-Received: from twin.jikos.cz ([213.151.79.26]:41622 "EHLO twin.jikos.cz")
-	by vger.kernel.org with ESMTP id S1750808AbWINOjp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Sep 2006 10:39:45 -0400
-Date: Thu, 14 Sep 2006 16:39:21 +0200 (CEST)
-From: Jiri Kosina <jikos@jikos.cz>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-cc: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
-       Arjan van de Ven <arjan@infradead.org>, Dave Jones <davej@redhat.com>
-Subject: Re: [PATCH 0/3] Synaptics - fix lockdep warnings
-In-Reply-To: <d120d5000609140618h6e929883u2ed82d1cab677e57@mail.gmail.com>
-Message-ID: <Pine.LNX.4.64.0609141635040.2721@twin.jikos.cz>
-References: <Pine.LNX.4.64.0609140227500.22181@twin.jikos.cz> 
- <200609132200.51342.dtor@insightbb.com>  <Pine.LNX.4.64.0609141028540.22181@twin.jikos.cz>
- <d120d5000609140618h6e929883u2ed82d1cab677e57@mail.gmail.com>
+	Thu, 14 Sep 2006 10:42:19 -0400
+Received: from nf-out-0910.google.com ([64.233.182.187]:3728 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1750865AbWINOmS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Sep 2006 10:42:18 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:content-type:content-transfer-encoding;
+        b=n7huy75gG2jQJkNpIF8iQ4esTvaqeXhRI1osr5O0HIaHE+z/k4bMh9hyg/GvFMPYlYtBA+GQXxQmGarkwwkaLz6LvpedokE/967WuexI5Kp293rbgPYRj7r47Zhj1/4Y+vq0GyqiX1IQiYqI0J412uwVk664CuL+z5UdRy7srf0=
+Message-ID: <45096A52.40706@gmail.com>
+Date: Thu, 14 Sep 2006 18:42:26 +0400
+From: "Eugeny S. Mints" <eugeny.mints@gmail.com>
+User-Agent: Thunderbird 1.5 (X11/20060313)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: pm list <linux-pm@lists.osdl.org>
+CC: Matthew Locke <matt@nomadgs.com>, Amit Kucheria <amit.kucheria@nokia.com>,
+       Igor Stoppa <igor.stoppa@nokia.com>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: [RFC] CPUFreq PowerOP integration, Intro 0/3
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 14 Sep 2006, Dmitry Torokhov wrote:
+Integrating CPUFreq and PowerOP was discussed at the Linux PM summit
+and in recent emails exchanges.  Some say keep them separate and some
+say they must be integrated.  There is actually a very natural point
+where integration makes sense - cpufreq_driver. This patchset presents
+that integration point and is submitted for discussion.
 
-> Can we add lock_class_key to the struct psmouse and use it to define
-> per-device mutex class regardless of whether it is a child, grandchild
-> or a parent?
+The patches do not change the functionality of the cpufreq core.
+Instead the idea is to redesign the tightly coupled interfaces of
+cpufreq to clearly separate the arch dependent and independent pieces
+layers.  This enables cpufreq to become arch independent and can start
+to use the named operating points in all its layers.
 
-Hi Dmitry,
+PowerOP  replaces cpufreq driver as the h/w independent interface for
+operating points.  PM core handles the h/w specific details for
+defining the power parameters and setting the power parameters in h/w
+registers.  Operating point definition/registration is now independent
+of cpufreq.
 
-what do you think about the patches below? I have used a slightly 
-different approach, as we also need to get rid of the spurious lockdep 
-warning in case of recursive call of serio_interrupt(), which can't be 
-handled well with lock subclass stored in struct psmouse. What do you 
-think about this? It shuts up the lockdep, and seems much cleaner to me.
+Please note, that all userspace/kernel governor concepts, legacy sysfs cpufreq
+interface remain untouched and SMP case is accounted in the resulting code as
+well.
 
-The first patch implements spin_lock_irqsave_nested(), which is needed by 
-the second one:
+Highlights:
 
-Signed-off-by: Jiri Kosina <jikos@jikos.cz>
+cpufreq.c
+- get rid of cpufreq driver calls. the calls are replaced be calls to arch
+independent freq_helpers (freq_helpers.c)
+- available frequencies sysfs interface now can be handled in arch independent
+way
+- cpufreq_sysdev_driver now serves only cpufreq core internal needs upon cpu
+add/remove events (since all hw related is handled by PM Core)
+- cpufreq_powerop_call() is added to handle operating point registration in the
+kernel by an independent module at arbitrary moment
 
-diff -rup linux-2.6.18-rc6-mm2.orig/include/linux/spinlock_api_smp.h linux-2.6.18-rc6-mm2/include/linux/spinlock_api_smp.h
---- linux-2.6.18-rc6-mm2.orig/include/linux/spinlock_api_smp.h	2006-09-14 00:49:35.000000000 +0200
-+++ linux-2.6.18-rc6-mm2/include/linux/spinlock_api_smp.h	2006-09-14 01:24:08.000000000 +0200
-@@ -32,6 +32,8 @@ void __lockfunc _read_lock_irq(rwlock_t 
- void __lockfunc _write_lock_irq(rwlock_t *lock)		__acquires(lock);
- unsigned long __lockfunc _spin_lock_irqsave(spinlock_t *lock)
- 							__acquires(lock);
-+unsigned long __lockfunc _spin_lock_irqsave_nested(spinlock_t *lock, int subclass)
-+							__acquires(spinlock_t);
- unsigned long __lockfunc _read_lock_irqsave(rwlock_t *lock)
- 							__acquires(lock);
- unsigned long __lockfunc _write_lock_irqsave(rwlock_t *lock)
-diff -rup linux-2.6.18-rc6-mm2.orig/include/linux/spinlock_api_up.h linux-2.6.18-rc6-mm2/include/linux/spinlock_api_up.h
---- linux-2.6.18-rc6-mm2.orig/include/linux/spinlock_api_up.h	2006-09-04 04:19:48.000000000 +0200
-+++ linux-2.6.18-rc6-mm2/include/linux/spinlock_api_up.h	2006-09-14 01:24:05.000000000 +0200
-@@ -59,6 +59,7 @@
- #define _read_lock_irq(lock)			__LOCK_IRQ(lock)
- #define _write_lock_irq(lock)			__LOCK_IRQ(lock)
- #define _spin_lock_irqsave(lock, flags)		__LOCK_IRQSAVE(lock, flags)
-+#define _spin_lock_irqsave_nested(lock, flags, subclass) __LOCK_IRQSAVE(lock, flags, subclass)
- #define _read_lock_irqsave(lock, flags)		__LOCK_IRQSAVE(lock, flags)
- #define _write_lock_irqsave(lock, flags)	__LOCK_IRQSAVE(lock, flags)
- #define _spin_trylock(lock)			({ __LOCK(lock); 1; })
-diff -rup linux-2.6.18-rc6-mm2.orig/include/linux/spinlock.h linux-2.6.18-rc6-mm2/include/linux/spinlock.h
---- linux-2.6.18-rc6-mm2.orig/include/linux/spinlock.h	2006-09-14 00:49:35.000000000 +0200
-+++ linux-2.6.18-rc6-mm2/include/linux/spinlock.h	2006-09-14 01:24:12.000000000 +0200
-@@ -186,6 +186,11 @@ do {								\
- #define spin_lock_irqsave(lock, flags)	flags = _spin_lock_irqsave(lock)
- #define read_lock_irqsave(lock, flags)	flags = _read_lock_irqsave(lock)
- #define write_lock_irqsave(lock, flags)	flags = _write_lock_irqsave(lock)
-+#ifdef CONFIG_DEBUG_LOCK_ALLOC
-+#define spin_lock_irqsave_nested(lock, flags, subclass)	flags = _spin_lock_irqsave_nested(lock, subclass)
-+#else
-+#define spin_lock_irqsave_nested(lock, flags, subclass)	flags = _spin_lock_irqsave(lock)
-+#endif
- #else
- #define spin_lock_irqsave(lock, flags)	_spin_lock_irqsave(lock, flags)
- #define read_lock_irqsave(lock, flags)	_read_lock_irqsave(lock, flags)
-diff -rup linux-2.6.18-rc6-mm2.orig/kernel/spinlock.c linux-2.6.18-rc6-mm2/kernel/spinlock.c
---- linux-2.6.18-rc6-mm2.orig/kernel/spinlock.c	2006-09-14 00:49:35.000000000 +0200
-+++ linux-2.6.18-rc6-mm2/kernel/spinlock.c	2006-09-14 01:27:17.000000000 +0200
-@@ -304,6 +304,27 @@ void __lockfunc _spin_lock_nested(spinlo
- }
- 
- EXPORT_SYMBOL(_spin_lock_nested);
-+unsigned long __lockfunc _spin_lock_irqsave_nested(spinlock_t *lock, int subclass)
-+{
-+	unsigned long flags;
-+
-+	local_irq_save(flags);
-+	preempt_disable();
-+	spin_acquire(&lock->dep_map, subclass, 0, _RET_IP_);
-+	/*
-+	 * On lockdep we dont want the hand-coded irq-enable of
-+	 * _raw_spin_lock_flags() code, because lockdep assumes
-+	 * that interrupts are not re-enabled during lock-acquire:
-+	 */
-+#ifdef CONFIG_PROVE_SPIN_LOCKING
-+	_raw_spin_lock(lock);
-+#else
-+	_raw_spin_lock_flags(lock, &flags);
-+#endif
-+	return flags;
-+}
-+
-+EXPORT_SYMBOL(_spin_lock_irqsave_nested);
- 
- #endif
+freq_table.c (now freq_helpers.c)
+- get rid of cpufreq_frequency_table structures as input parameter and made the
+code arch independent by leveraging PowerOP interface
+- routine remain the same but are no longer used by arch dependent code but by
+cpufreq core arch independent code instead
+- all routines are arch independent; the only shared knowledge is platform
+power parameter names (string)
+- target() method expects power parameter names "freqN", "vN" are supported by
+PM Core for cpu N
+- setpolisy() method expects power parameter names "hfreqN", "lfreqN", "vN" are
+supported by PM Core for cpu N
 
-And this second one actually fixes the locking with respect to lockdep 
-validator:
-
-Signed-off-by: Jiri Kosina <jikos@jikos.cz>
-
-diff -rup linux-2.6.18-rc6-mm2.orig/drivers/input/serio/libps2.c linux-2.6.18-rc6-mm2/drivers/input/serio/libps2.c
---- linux-2.6.18-rc6-mm2.orig/drivers/input/serio/libps2.c	2006-09-04 04:19:48.000000000 +0200
-+++ linux-2.6.18-rc6-mm2/drivers/input/serio/libps2.c	2006-09-14 16:16:06.000000000 +0200
-@@ -182,7 +182,7 @@ int ps2_command(struct ps2dev *ps2dev, u
- 		return -1;
- 	}
- 
--	mutex_lock_nested(&ps2dev->cmd_mutex, SINGLE_DEPTH_NESTING);
-+	mutex_lock_nested(&ps2dev->cmd_mutex, ps2dev->serio->depth);
- 
- 	serio_pause_rx(ps2dev->serio);
- 	ps2dev->flags = command == PS2_CMD_GETID ? PS2_FLAG_WAITID : 0;
-diff -rup linux-2.6.18-rc6-mm2.orig/drivers/input/serio/serio.c linux-2.6.18-rc6-mm2/drivers/input/serio/serio.c
---- linux-2.6.18-rc6-mm2.orig/drivers/input/serio/serio.c	2006-09-04 04:19:48.000000000 +0200
-+++ linux-2.6.18-rc6-mm2/drivers/input/serio/serio.c	2006-09-14 16:16:00.000000000 +0200
-@@ -553,9 +553,11 @@ static void serio_add_port(struct serio 
- 	if (serio->parent) {
- 		serio_pause_rx(serio->parent);
- 		serio->parent->child = serio;
-+		serio->depth = serio->parent->depth + 1;
- 		serio_continue_rx(serio->parent);
--	}
--
-+	} else
-+		serio->depth = 0;
-+	
- 	list_add_tail(&serio->node, &serio_list);
- 	if (serio->start)
- 		serio->start(serio);
-@@ -916,7 +918,7 @@ irqreturn_t serio_interrupt(struct serio
- 	unsigned long flags;
- 	irqreturn_t ret = IRQ_NONE;
- 
--	spin_lock_irqsave(&serio->lock, flags);
-+	spin_lock_irqsave_nested(&serio->lock, flags, serio->depth);
- 
-         if (likely(serio->drv)) {
-                 ret = serio->drv->interrupt(serio, data, dfl, regs);
-diff -rup linux-2.6.18-rc6-mm2.orig/include/linux/serio.h linux-2.6.18-rc6-mm2/include/linux/serio.h
---- linux-2.6.18-rc6-mm2.orig/include/linux/serio.h	2006-09-14 16:20:56.000000000 +0200
-+++ linux-2.6.18-rc6-mm2/include/linux/serio.h	2006-09-14 15:15:41.000000000 +0200
-@@ -41,6 +41,7 @@ struct serio {
- 	void (*stop)(struct serio *);
- 
- 	struct serio *parent, *child;
-+	unsigned int depth;		/* level of nesting in parent-child hierarichy of serios */
- 
- 	struct serio_driver *drv;	/* accessed from interrupt, must be protected by serio->lock and serio->sem */
- 	struct mutex drv_mutex;		/* protects serio->drv so attributes can pin driver */
- 
-
--- 
-JiKos.

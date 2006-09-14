@@ -1,90 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751238AbWINLn7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751266AbWINLwk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751238AbWINLn7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Sep 2006 07:43:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751223AbWINLn7
+	id S1751266AbWINLwk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Sep 2006 07:52:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751263AbWINLwk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Sep 2006 07:43:59 -0400
-Received: from mail.telecasystems.de ([217.111.48.251]:10985 "EHLO
-	mail.telecasystems.de") by vger.kernel.org with ESMTP
-	id S1751226AbWINLn6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Sep 2006 07:43:58 -0400
-Message-ID: <4509407B.6050201@gmail.com>
-Date: Thu, 14 Sep 2006 13:43:55 +0200
-From: Metathronius Galabant <m.galabant@gmail.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417 Mnenhy/0.7.4.666
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH]: remove unneeded spaces in cciss output for attached volumes
-Content-Type: multipart/mixed;
- boundary="------------080403080401020001010804"
-X-OriginalArrivalTime: 14 Sep 2006 11:43:56.0532 (UTC) FILETIME=[0F989340:01C6D7F3]
+	Thu, 14 Sep 2006 07:52:40 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:13012 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751254AbWINLwj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Sep 2006 07:52:39 -0400
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <20060914112435.4ce28290.sfr@canb.auug.org.au> 
+References: <20060914112435.4ce28290.sfr@canb.auug.org.au>  <20060913183522.22109.10565.stgit@warthog.cambridge.redhat.com> <20060913183531.22109.85723.stgit@warthog.cambridge.redhat.com> 
+To: Stephen Rothwell <sfr@canb.auug.org.au>
+Cc: David Howells <dhowells@redhat.com>, torvalds@osdl.org, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
+Subject: Re: [PATCH 5/7] Alter get_order() so that it can make use of ilog2() on a constant [try #3] 
+X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
+Date: Thu, 14 Sep 2006 12:52:04 +0100
+Message-ID: <21308.1158234724@warthog.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------080403080401020001010804
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Stephen Rothwell <sfr@canb.auug.org.au> wrote:
 
-Hi,
+> After this patch, you don't need to include <linux/compiler.h> any more
+> (and, in fact, the file ends up essentially empty).
 
-please see the following patch against the CCISS driver (HP/Compaq
-SmartArray Controllers).
-It removes the awkward spaces after the "=" when displaying the
-geometry of the attached volumes (and saves 5 bytes of kernel ;)
+True.  I could possibly delete the whole file, depending on who else has
+designs on it.
 
-Before:
-cciss: using DAC cycles
-     blocks= 286734240 block_size= 512
-     heads= 255, sectors= 32, cylinders= 35139
+> Is there a good reason to move this function out of asm-generic/page.h?
 
-After:
-cciss: using DAC cycles
-     blocks=286734240 block_size=512
-     heads=255, sectors=32, cylinders=35139
+So that all the general log2-based functions are grouped together was what I
+was thinking (at least their primary interfaces).
 
-
-The following is against 2.6.18-rc6.
-Cheers,
-M.
-
-
---------------080403080401020001010804
-Content-Type: text/plain;
- name="cciss-space-patch.diff"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="cciss-space-patch.diff"
-
-Signed-off by: Metathronius Galabant <m.galabant@gmail.com>
-
-
-diff -ru linux-2.6.18-rc6/drivers/block/cciss.c linux-2.6.18-rc6-f/drivers/block/cciss.c
---- linux-2.6.18-rc6/drivers/block/cciss.c	2006-09-11 15:57:54.000000000 +0200
-+++ linux-2.6.18-rc6-f/drivers/block/cciss.c	2006-09-11 16:32:42.000000000 +0200
-@@ -1934,7 +1934,7 @@
- 	} else {		/* Get geometry failed */
- 		printk(KERN_WARNING "cciss: reading geometry failed\n");
- 	}
--	printk(KERN_INFO "      heads= %d, sectors= %d, cylinders= %d\n\n",
-+	printk(KERN_INFO "      heads=%d, sectors=%d, cylinders=%d\n\n",
- 	       drv->heads, drv->sectors, drv->cylinders);
- }
- 
-@@ -1962,7 +1962,7 @@
- 		*total_size = 0;
- 		*block_size = BLOCK_SIZE;
- 	}
--	printk(KERN_INFO "      blocks= %u block_size= %d\n",
-+	printk(KERN_INFO "      blocks=%u block_size=%d\n",
- 	       *total_size, *block_size);
- 	return;
- }
-
-
-
-
-
---------------080403080401020001010804--
+David

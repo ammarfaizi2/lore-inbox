@@ -1,116 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932134AbWINXmu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932137AbWINXnh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932134AbWINXmu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Sep 2006 19:42:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932136AbWINXmu
+	id S932137AbWINXnh (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Sep 2006 19:43:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932139AbWINXnh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Sep 2006 19:42:50 -0400
-Received: from e36.co.us.ibm.com ([32.97.110.154]:38560 "EHLO
-	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S932134AbWINXmt
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Sep 2006 19:42:49 -0400
-Subject: Re: [ckrm-tech] [PATCH] BC: resource beancounters (v4) (added	user
-	memory)
-From: Chandra Seetharaman <sekharan@us.ibm.com>
-Reply-To: sekharan@us.ibm.com
-To: Pavel Emelianov <xemul@openvz.org>
-Cc: balbir@in.ibm.com, Srivatsa <vatsa@in.ibm.com>,
-       Rik van Riel <riel@redhat.com>,
-       CKRM-Tech <ckrm-tech@lists.sourceforge.net>,
-       Dave Hansen <haveblue@us.ibm.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andi Kleen <ak@suse.de>, Christoph Hellwig <hch@infradead.org>,
-       Andrey Savochkin <saw@sw.ru>, devel@openvz.org,
-       Matt Helsley <matthltc@us.ibm.com>, Hugh Dickins <hugh@veritas.com>,
-       Alexey Dobriyan <adobriyan@mail.ru>, Kirill Korotaev <dev@sw.ru>,
-       Oleg Nesterov <oleg@tv-sign.ru>, Alan Cox <alan@lxorguk.ukuu.org.uk>
-In-Reply-To: <45090A6E.1040206@openvz.org>
-References: <44FD918A.7050501@sw.ru>	<44FDAB81.5050608@in.ibm.com>
-	 <44FEC7E4.7030708@sw.ru>	<44FF1EE4.3060005@in.ibm.com>
-	 <1157580371.31893.36.camel@linuxchandra>	<45011CAC.2040502@openvz.org>
-	 <1157730221.26324.52.camel@localhost.localdomain>
-	 <4501B5F0.9050802@in.ibm.com> <450508BB.7020609@openvz.org>
-	 <4505161E.1040401@in.ibm.com> <45051AC7.2000607@openvz.org>
-	 <1158000590.6029.33.camel@linuxchandra> <45069072.4010007@openvz.org>
-	 <1158105488.4800.23.camel@linuxchandra> <4507BC11.6080203@openvz.org>
-	 <1158186664.18927.17.camel@linuxchandra>  <45090A6E.1040206@openvz.org>
+	Thu, 14 Sep 2006 19:43:37 -0400
+Received: from e36.co.us.ibm.com ([32.97.110.154]:3747 "EHLO e36.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932138AbWINXng (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Sep 2006 19:43:36 -0400
+Subject: Re: [Bug] 2.6.18-rc6-mm2 i386 trouble finding RSDT in
+	get_memcfg_from_srat
+From: keith mannthey <kmannth@us.ibm.com>
+Reply-To: kmannth@us.ibm.com
+To: dave hansen <haveblue@us.ibm.com>
+Cc: Vivek goyal <vgoyal@in.ibm.com>, lkml <linux-kernel@vger.kernel.org>,
+       ebiederm@xmission.com, andrew <akpm@osdl.org>
+In-Reply-To: <1158276093.24414.14.camel@localhost.localdomain>
+References: <1158113895.9562.13.camel@keithlap>
+	 <1158269696.15745.5.camel@keithlap>
+	 <1158271274.24414.6.camel@localhost.localdomain>
+	 <1158273830.15745.14.camel@keithlap>  <20060914230442.GE25044@in.ibm.com>
+	 <1158276093.24414.14.camel@localhost.localdomain>
 Content-Type: text/plain
-Organization: IBM
-Date: Thu, 14 Sep 2006 16:42:44 -0700
-Message-Id: <1158277364.6357.33.camel@linuxchandra>
+Organization: Linux Technology Center IBM
+Date: Thu, 14 Sep 2006 16:43:33 -0700
+Message-Id: <1158277414.15745.26.camel@keithlap>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-7) 
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-09-14 at 11:53 +0400, Pavel Emelianov wrote:
-
-<snip>
-
-> > What if I have 40 containers each with 2% guarantee ? what do we do
-> > then ? and many other different combinations (what I gave was not the
-> > _only_ scenario).
-> >   
-> Then you need to solve a set of 40 equations. This sounds weird, but
-> don't afraid - sets like these are solved lightly.
-
-extrapolate that to a varying # of permutations and real time changes in
-the system workload. Won't it be complex ?
-
-Wouldn't it be a lot simpler if we have the guarantee support instead ?
-Why you do not like guarantee ? :)
-
-<snip>
-
-> >> Then how do you make sure that memory WILL be available when the group needs
-> >> it without limiting the others in a proper way?
-> >>     
-> >
-> > You could limit others only if you _know_ somebody is not getting what
-> > they are supposed to get (based on guarantee).
-> >   
-> I don't understand your idea. Limit does _not_ imply anything - it's
-> just a limit.
-
-I didn't mean "limit" as defined in BC. I meant it in the generic sense.
-IOW, if we have to provide guarantees then it would limit other RGs from
-getting that (amount of guaranteed) resource.
- 
-> You may limit anything to anyone w/o bothering the consequences.
-> Guarantee implies that the resource you guarantee will be available and
-> this "will be" is something not that easy.
+On Thu, 2006-09-14 at 16:21 -0700, Dave Hansen wrote:
+> On Thu, 2006-09-14 at 19:04 -0400, Vivek Goyal wrote:
+> > I think I know what is going on wrong here. boot_ioremap() is assuming 
+> > that only first 8MB of physical memory is being mapped and while
+> > calculating the index into page table (boot_pte_index) we will truncate
+> > any higher address bits. 
 > 
-> So I repeat my question - how can you be sure that these X megabytes you
-> guarantee to some group won't be used by others so that you won't be able
-> to reclaim them?
-
-It depends on how the memory controller is implemented. It could be
-implemented in different ways:
- - reclamation path will _not_ free pages belonging to a RG that is 
-   below its guarantee.
- - allocation from a "over guarantee" RG can succeed iff there is
-   memory after satisfying all guarantees (or will free pages from the
-   requesting RG before it will succeed).
- - ...
-
-BTW, my point is to have guarantees for _all_ resources not just memory.
-
+> Vivek, are those pte pages still all contiguous?
 > 
+> Yeah, that's probably it.  Keith, I'm trying to think of reasons why we
+> need the mask here:
 > 
-> -------------------------------------------------------------------------
-> Using Tomcat but need to do more? Need to support web services, security?
-> Get stuff done quickly with pre-integrated technology to make your job easier
-> Download IBM WebSphere Application Server v.1.0.1 based on Apache Geronimo
-> http://sel.as-us.falkag.net/sel?cmd=lnk&kid=120709&bid=263057&dat=121642
-> _______________________________________________
-> ckrm-tech mailing list
-> https://lists.sourceforge.net/lists/listinfo/ckrm-tech
--- 
+> #define boot_pte_index(address) \
+>              (((address) >> PAGE_SHIFT) & (BOOT_PTE_PTRS - 1))
+> 
+> and I can't think of any other than just masking out the top of the
+> virtual address.  You could do this a bunch of other ways, like __pa().
+> 
+> This might just work:
+> 
+> static unsigned long boot_pte_index(unsigned long vaddr)
+> {
+> 	return __pa(vaddr) >> PAGE_SHIFT;
+> }
+With 
+CONFIG_KEXEC=y
+CONFIG_CRASH_DUMP=y
+CONFIG_PHYSICAL_START=0x1000000
+and the above __pa(vaddr) >> PAGE_SHIFT changed things worked for me but
+I am still confused as to why the pte we set is c1686f6c and we flush
+and return c13db000. 
 
-----------------------------------------------------------------------
-    Chandra Seetharaman               | Be careful what you choose....
-              - sekharan@us.ibm.com   |      .......you may get it.
-----------------------------------------------------------------------
+get_memcfg_from_srat: assigning address to rsdp fdfc0
+RSD PTR  v0 [IBM   ]
+rsdp->rsdt_address eff9c2c0
+boot_ioremap phys_addr = eff9c2c0 long = 44
+__boot_ioremap phys_addr = eff9c000 pages = 1 source c13db000
+setting pte  c1686f6c to eff9c063
+just flushed c13db000
+boot_ioremap and I return c13db2c0
+rsdt = c13db2c0 header is RSDT4
+Begin SRAT table scan....
+
+thanks,
+  Keith 
 
 

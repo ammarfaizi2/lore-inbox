@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751173AbWINVnw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751177AbWINVpp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751173AbWINVnw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Sep 2006 17:43:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751177AbWINVnw
+	id S1751177AbWINVpp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Sep 2006 17:45:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751187AbWINVpp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Sep 2006 17:43:52 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:49621 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751173AbWINVnv (ORCPT
+	Thu, 14 Sep 2006 17:45:45 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:39382 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751177AbWINVpo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Sep 2006 17:43:51 -0400
-Date: Thu, 14 Sep 2006 22:43:40 +0100
+	Thu, 14 Sep 2006 17:45:44 -0400
+Date: Thu, 14 Sep 2006 22:45:34 +0100
 From: Alasdair G Kergon <agk@redhat.com>
 To: Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org, Mark McLoughlin <markmc@redhat.com>
-Subject: [PATCH 10/25] dm snapshot: tidy pe ref counting
-Message-ID: <20060914214340.GR3928@agk.surrey.redhat.com>
+Subject: [PATCH 11/25] dm snapshot: fix freeing pending exception
+Message-ID: <20060914214534.GS3928@agk.surrey.redhat.com>
 Mail-Followup-To: Alasdair G Kergon <agk@redhat.com>,
 	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
 	Mark McLoughlin <markmc@redhat.com>
@@ -25,178 +25,84 @@ User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rename sibling_count to ref_count and introduce get and put functions.
+If a snapshot became invalid while there are outstanding pending_exceptions,
+when pending_complete() processes each one it forgets to remove the
+corresponding exception from its exception table before freeing it.
+
+Fix this by moving the 'out:' label up one statement so that
+remove_exception() is always called.  Then __invalidate_exception() no
+longer needs to call it and its 'pe' argument become superfluous.
 
 Signed-off-by: Alasdair G Kergon <agk@redhat.com>
 
 Index: linux-2.6.18-rc7/drivers/md/dm-snap.c
 ===================================================================
---- linux-2.6.18-rc7.orig/drivers/md/dm-snap.c	2006-09-14 20:44:39.000000000 +0100
-+++ linux-2.6.18-rc7/drivers/md/dm-snap.c	2006-09-14 20:47:13.000000000 +0100
-@@ -59,7 +59,7 @@ struct pending_exception {
- 
- 	/*
- 	 * The primary pending_exception is the one that holds
--	 * the sibling_count and the list of origin_bios for a
-+	 * the ref_count and the list of origin_bios for a
- 	 * group of pending_exceptions.  It is always last to get freed.
- 	 * These fields get set up when writing to the origin.
- 	 */
-@@ -72,7 +72,7 @@ struct pending_exception {
- 	 * the sibling concerned and not pe->primary_pe->snap->lock unless
- 	 * they are the same.
- 	 */
--	atomic_t sibling_count;
-+	atomic_t ref_count;
- 
- 	/* Pointer back to snapshot context */
- 	struct dm_snapshot *snap;
-@@ -653,10 +653,46 @@ static void __invalidate_snapshot(struct
- 	dm_table_event(s->table);
+--- linux-2.6.18-rc7.orig/drivers/md/dm-snap.c	2006-09-14 20:20:11.000000000 +0100
++++ linux-2.6.18-rc7/drivers/md/dm-snap.c	2006-09-14 20:20:12.000000000 +0100
+@@ -631,8 +631,7 @@ static void error_bios(struct bio *bio)
+ 	}
  }
  
-+static void get_pending_exception(struct pending_exception *pe)
-+{
-+	atomic_inc(&pe->ref_count);
-+}
-+
-+static struct bio *put_pending_exception(struct pending_exception *pe)
-+{
-+	struct pending_exception *primary_pe;
-+	struct bio *origin_bios = NULL;
-+
-+	primary_pe = pe->primary_pe;
-+
-+	/*
-+	 * If this pe is involved in a write to the origin and
-+	 * it is the last sibling to complete then release
-+	 * the bios for the original write to the origin.
-+	 */
-+	if (primary_pe &&
-+	    atomic_dec_and_test(&primary_pe->ref_count))
-+		origin_bios = bio_list_get(&primary_pe->origin_bios);
-+
-+	/*
-+	 * Free the pe if it's not linked to an origin write or if
-+	 * it's not itself a primary pe.
-+	 */
-+	if (!primary_pe || primary_pe != pe)
-+		free_pending_exception(pe);
-+
-+	/*
-+	 * Free the primary pe if nothing references it.
-+	 */
-+	if (primary_pe && !atomic_read(&primary_pe->ref_count))
-+		free_pending_exception(primary_pe);
-+
-+	return origin_bios;
-+}
-+
- static void pending_complete(struct pending_exception *pe, int success)
+-static void __invalidate_snapshot(struct dm_snapshot *s,
+-				struct pending_exception *pe, int err)
++static void __invalidate_snapshot(struct dm_snapshot *s, int err)
  {
- 	struct exception *e;
--	struct pending_exception *primary_pe;
- 	struct dm_snapshot *s = pe->snap;
- 	struct bio *origin_bios = NULL;
- 	struct bio *snapshot_bios = NULL;
-@@ -695,30 +731,7 @@ static void pending_complete(struct pend
+ 	if (!s->valid)
+ 		return;
+@@ -642,9 +641,6 @@ static void __invalidate_snapshot(struct
+ 	else if (err == -ENOMEM)
+ 		DMERR("Invalidating snapshot: Unable to allocate exception.");
  
-  out:
- 	snapshot_bios = bio_list_get(&pe->snapshot_bios);
+-	if (pe)
+-		remove_exception(&pe->e);
 -
--	primary_pe = pe->primary_pe;
--
--	/*
--	 * If this pe is involved in a write to the origin and
--	 * it is the last sibling to complete then release
--	 * the bios for the original write to the origin.
--	 */
--	if (primary_pe &&
--	    atomic_dec_and_test(&primary_pe->sibling_count))
--		origin_bios = bio_list_get(&primary_pe->origin_bios);
--
--	/*
--	 * Free the pe if it's not linked to an origin write or if
--	 * it's not itself a primary pe.
--	 */
--	if (!primary_pe || primary_pe != pe)
--		free_pending_exception(pe);
--
--	/*
--	 * Free the primary pe if nothing references it.
--	 */
--	if (primary_pe && !atomic_read(&primary_pe->sibling_count))
--		free_pending_exception(primary_pe);
-+	origin_bios = put_pending_exception(pe);
+ 	if (s->store.drop_snapshot)
+ 		s->store.drop_snapshot(&s->store);
  
- 	up_write(&s->lock);
- 
-@@ -829,7 +842,7 @@ __find_pending_exception(struct dm_snaps
- 	bio_list_init(&pe->origin_bios);
- 	bio_list_init(&pe->snapshot_bios);
- 	pe->primary_pe = NULL;
--	atomic_set(&pe->sibling_count, 1);
-+	atomic_set(&pe->ref_count, 0);
- 	pe->snap = s;
- 	pe->started = 0;
- 
-@@ -838,6 +851,7 @@ __find_pending_exception(struct dm_snaps
- 		return NULL;
+@@ -701,7 +697,7 @@ static void pending_complete(struct pend
+ 	if (!success) {
+ 		/* Read/write error - snapshot is unusable */
+ 		down_write(&s->lock);
+-		__invalidate_snapshot(s, pe, -EIO);
++		__invalidate_snapshot(s, -EIO);
+ 		error = 1;
+ 		goto out;
  	}
- 
-+	get_pending_exception(pe);
- 	insert_exception(&s->pending, &pe->e);
- 
-  out:
-@@ -1012,7 +1026,7 @@ static int __origin_write(struct list_he
- 		 * is already remapped in this snapshot
- 		 * and trigger an exception if not.
- 		 *
--		 * sibling_count is initialised to 1 so pending_complete()
-+		 * ref_count is initialised to 1 so pending_complete()
- 		 * won't destroy the primary_pe while we're inside this loop.
- 		 */
- 		e = lookup_exception(&snap->complete, chunk);
-@@ -1043,8 +1057,8 @@ static int __origin_write(struct list_he
- 		}
- 
- 		if (!pe->primary_pe) {
--			atomic_inc(&primary_pe->sibling_count);
- 			pe->primary_pe = primary_pe;
-+			get_pending_exception(primary_pe);
- 		}
- 
- 		if (!pe->started) {
-@@ -1057,20 +1071,20 @@ static int __origin_write(struct list_he
+@@ -709,7 +705,7 @@ static void pending_complete(struct pend
+ 	e = alloc_exception();
+ 	if (!e) {
+ 		down_write(&s->lock);
+-		__invalidate_snapshot(s, pe, -ENOMEM);
++		__invalidate_snapshot(s, -ENOMEM);
+ 		error = 1;
+ 		goto out;
  	}
- 
- 	if (!primary_pe)
--		goto out;
-+		return r;
- 
- 	/*
- 	 * If this is the first time we're processing this chunk and
--	 * sibling_count is now 1 it means all the pending exceptions
-+	 * ref_count is now 1 it means all the pending exceptions
- 	 * got completed while we were in the loop above, so it falls to
- 	 * us here to remove the primary_pe and submit any origin_bios.
+@@ -727,9 +723,9 @@ static void pending_complete(struct pend
+ 	 * in-flight exception from the list.
  	 */
+ 	insert_exception(&s->complete, e);
+-	remove_exception(&pe->e);
  
--	if (first && atomic_dec_and_test(&primary_pe->sibling_count)) {
-+	if (first && atomic_dec_and_test(&primary_pe->ref_count)) {
- 		flush_bios(bio_list_get(&primary_pe->origin_bios));
- 		free_pending_exception(primary_pe);
- 		/* If we got here, pe_queue is necessarily empty. */
--		goto out;
-+		return r;
- 	}
+  out:
++	remove_exception(&pe->e);
+ 	snapshot_bios = bio_list_get(&pe->snapshot_bios);
+ 	origin_bios = put_pending_exception(pe);
  
- 	/*
-@@ -1079,7 +1093,6 @@ static int __origin_write(struct list_he
- 	list_for_each_entry_safe(pe, next_pe, &pe_queue, list)
- 		start_copy(pe);
+@@ -909,7 +905,7 @@ static int snapshot_map(struct dm_target
+ 	if (bio_rw(bio) == WRITE) {
+ 		pe = __find_pending_exception(s, bio);
+ 		if (!pe) {
+-			__invalidate_snapshot(s, pe, -ENOMEM);
++			__invalidate_snapshot(s, -ENOMEM);
+ 			r = -EIO;
+ 			goto out_unlock;
+ 		}
+@@ -1035,7 +1031,7 @@ static int __origin_write(struct list_he
  
-- out:
- 	return r;
- }
+ 		pe = __find_pending_exception(snap, bio);
+ 		if (!pe) {
+-			__invalidate_snapshot(snap, pe, -ENOMEM);
++			__invalidate_snapshot(snap, -ENOMEM);
+ 			goto next_snapshot;
+ 		}
  

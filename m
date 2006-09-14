@@ -1,24 +1,24 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750916AbWINSP6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750886AbWINSRm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750916AbWINSP6 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Sep 2006 14:15:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750904AbWINSP6
+	id S1750886AbWINSRm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Sep 2006 14:17:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750891AbWINSRm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Sep 2006 14:15:58 -0400
-Received: from wx-out-0506.google.com ([66.249.82.232]:43561 "EHLO
-	wx-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1750893AbWINSP4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Sep 2006 14:15:56 -0400
+	Thu, 14 Sep 2006 14:17:42 -0400
+Received: from nz-out-0102.google.com ([64.233.162.202]:17611 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1750886AbWINSRl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Sep 2006 14:17:41 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=V87HLZUrLT3QjS/g4qznHHSxvXoo2KZ+b0su3ccK1eNIIW0cm0Yoz8sWuY35fbZaicLpwQgOn5DhM7GcaSSleTGaNjJ8r74rs6ecGvpspMjcxsZgxwrizBzOuxjJOmLdb36sRiLpJeZ3m6op85zTmgL6LgQcoNLTB3F3sTK0BIU=
-Message-ID: <acd2a5930609141115u67c3fdcaqc304e0fbf5d8b04f@mail.gmail.com>
-Date: Thu, 14 Sep 2006 22:15:55 +0400
-From: "Vitaly Wool" <vitalywool@gmail.com>
+        b=MGSn5DQM+nIdkkgTtskYd8jFKvPG9v94hFuFwjEZpbsp/kO47s2m8oL43w9SsqUcZU8BRL88PPAgLzYmjqToTc9kLgzRwdwmYOXAJ7XSbJ17GILp1HbC++lxcPxHc5FRNdo2S7BBXgjHlG3TDMsrKS8em9NaAV6XgFGy1p+t3V4=
+Message-ID: <b324b5ad0609141117p5e67633o776871f80f2529c2@mail.gmail.com>
+Date: Thu, 14 Sep 2006 11:17:40 -0700
+From: "David Singleton" <daviado@gmail.com>
 To: "Auke Kok" <auke-jan.h.kok@intel.com>
-Subject: Re: [linux-pm] OpPoint summary
-Cc: "David Singleton" <daviado@gmail.com>, linux-pm@lists.osdl.org,
+Subject: Re: OpPoint summary
+Cc: "Greg KH" <greg@kroah.com>, linux-pm@lists.osdl.org,
        "kernel list" <linux-kernel@vger.kernel.org>
 In-Reply-To: <45099095.3020303@intel.com>
 MIME-Version: 1.0
@@ -62,7 +62,16 @@ On 9/14/06, Auke Kok <auke-jan.h.kok@intel.com> wrote:
 > I'm not sure a Dothan B1 exists, but some postings suggest even C0 and C1 are
 > valid steppings. I'm sure OpPoint could work with those as well.
 
-Heh, that shows pretty much that the approach itself is not good...
-And this is only beginning.
+Yes it could.  The centrino was the first platform I tested on and I used the
+existing speedstep-centrino code from cpufreq.  The 1.86Ghz  was not in
+the cpufreq base.    But you can see how easy it is to add new operating points
+for a new cpu.
 
-Vitaly
+Adding new platform support is quite straight forward.  It basically requires
+a function to transition to the new operating point and the parameters needed
+for the transition.
+
+David
+>
+> Auke
+>

@@ -1,239 +1,262 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750786AbWINKVF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750785AbWINKVx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750786AbWINKVF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Sep 2006 06:21:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750810AbWINKU7
+	id S1750785AbWINKVx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Sep 2006 06:21:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750822AbWINKVx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Sep 2006 06:20:59 -0400
-Received: from ns.miraclelinux.com ([219.118.163.66]:17484 "EHLO
+	Thu, 14 Sep 2006 06:21:53 -0400
+Received: from ns.miraclelinux.com ([219.118.163.66]:16204 "EHLO
 	mail01.miraclelinux.com") by vger.kernel.org with ESMTP
-	id S1750786AbWINKUf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	id S1750785AbWINKUf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Thu, 14 Sep 2006 06:20:35 -0400
-Message-Id: <20060914102033.462112306@localhost.localdomain>
+Message-Id: <20060914102032.069051543@localhost.localdomain>
 References: <20060914102012.251231177@localhost.localdomain>
-Date: Thu, 14 Sep 2006 18:20:20 +0800
+Date: Thu, 14 Sep 2006 18:20:17 +0800
 From: Akinobu Mita <mita@miraclelinux.com>
 To: linux-kernel@vger.kernel.org
 Cc: ak@suse.de, akpm@osdl.org, Don Mullis <dwm@meer.net>,
-       Valdis.Kletnieks@vt.edu, Akinobu Mita <mita@miraclelinux.com>
-Subject: [patch 8/8] stacktrace filtering for fault-injection capabilities
-Content-Disposition: inline; filename=module-filter.patch
+       Jens Axboe <axboe@suse.de>, Akinobu Mita <mita@miraclelinux.com>
+Subject: [patch 5/8] fault-injection capability for disk IO
+Content-Disposition: inline; filename=fail_make_request.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch provides stacktrace filtering feature.
-The stacktrace filter allows failing only for the caller you are
-interested in.
+This patch provides fault-injection capability for disk IO.
 
-stacktrace filter is enabled by setting the value of
-/debugfs/*/stacktrace-depth more than 0.
-and specify the range of the virtual address
-by the /debugfs/*/address-start and /debugfs/*/address-end
+Boot option:
 
-Please see the example that demostrates how to inject slab allocation
-failures only for a specific module
-in Documentation/fault-injection/fault-injection.txt
+fail_make_request=<probability>,<interval>,<space>,<times>
 
-Cc: Valdis.Kletnieks@vt.edu
+	<interval> -- specifies the interval of failures.
+
+	<probability> -- specifies how often it should fail in percent.
+
+	<space> -- specifies the size of free space where disk IO can be issued
+		   safely in bytes.
+
+	<times> -- specifies how many times failures may happen at most.
+
+Example:
+
+	fail_make_request=10,100,0,-1
+	echo 1 > /sys/blocks/hda/hda1/make-it-fail
+
+generic_make_request() on /dev/hda1 fails once per 10 times.
+
+Cc: Jens Axboe <axboe@suse.de>
 Signed-off-by: Akinobu Mita <mita@miraclelinux.com>
 
- include/linux/fault-inject.h |   15 +++++++++
- lib/Kconfig.debug            |    2 +
- lib/fault-inject-debugfs.c   |   32 +++++++++++++++++++
- lib/fault-inject.c           |   71 +++++++++++++++++++++++++++++++++++++++++++
- 4 files changed, 120 insertions(+)
+ block/genhd.c                |   31 +++++++++++++++++++++++++++++++
+ block/ll_rw_blk.c            |   35 +++++++++++++++++++++++++++++++++++
+ fs/partitions/check.c        |   27 +++++++++++++++++++++++++++
+ include/linux/fault-inject.h |    3 +++
+ include/linux/genhd.h        |    4 ++++
+ lib/Kconfig.debug            |    7 +++++++
+ 6 files changed, 107 insertions(+)
 
-Index: work-shouldfail/lib/fault-inject.c
+Index: work-shouldfail/block/ll_rw_blk.c
 ===================================================================
---- work-shouldfail.orig/lib/fault-inject.c
-+++ work-shouldfail/lib/fault-inject.c
-@@ -6,6 +6,9 @@
- #include <linux/fs.h>
- #include <linux/module.h>
+--- work-shouldfail.orig/block/ll_rw_blk.c
++++ work-shouldfail/block/ll_rw_blk.c
+@@ -28,6 +28,7 @@
  #include <linux/interrupt.h>
-+#include <linux/unwind.h>
-+#include <linux/stacktrace.h>
-+#include <linux/kallsyms.h>
- #include <linux/fault-inject.h>
+ #include <linux/cpu.h>
+ #include <linux/blktrace_api.h>
++#include <linux/fault-inject.h>
  
- int setup_fault_attr(struct fault_attr *attr, char *str)
-@@ -59,6 +62,72 @@ static int fail_process(struct fault_att
- 	return !in_interrupt() && task->make_it_fail;
+ /*
+  * for max sense size
+@@ -2993,6 +2994,37 @@ static void handle_bad_sector(struct bio
+ 	set_bit(BIO_EOF, &bio->bi_flags);
  }
  
-+#ifdef CONFIG_STACK_UNWIND
++#ifdef CONFIG_FAIL_MAKE_REQUEST
 +
-+static asmlinkage int fail_stacktrace_callback(struct unwind_frame_info *info,
-+						void *arg)
++static DEFINE_FAULT_ATTR(fail_make_request_attr);
++
++static int __init setup_fail_make_request(char *str)
 +{
-+	int depth;
-+	struct fault_attr *attr = arg;
++	should_fail_srandom(jiffies);
++	return setup_fault_attr(&fail_make_request_attr, str);
++}
++__setup("fail_make_request=", setup_fail_make_request);
 +
-+	for (depth = 0; depth < attr->stacktrace_depth
-+			&& unwind(info) == 0 && UNW_PC(info); depth++) {
-+		if (arch_unw_user_mode(info))
-+			break;
-+		if (attr->address_start <= UNW_PC(info) &&
-+			       UNW_PC(info) < attr->address_end)
-+			return 1;
-+	}
++struct fault_attr *fail_make_request = &fail_make_request_attr;
++EXPORT_SYMBOL_GPL(fail_make_request);
++
++static int should_fail_request(struct bio *bio)
++{
++	if ((bio->bi_bdev->bd_disk->flags & GENHD_FL_FAIL) ||
++	    (bio->bi_bdev->bd_part && bio->bi_bdev->bd_part->make_it_fail))
++		return should_fail(fail_make_request, bio->bi_size);
++
 +	return 0;
 +}
-+
-+static int fail_stacktrace(struct fault_attr *attr)
-+{
-+	struct unwind_frame_info info;
-+
-+	/* stacktrace filter is disabled */
-+	if (attr->stacktrace_depth == 0)
-+		return 1;
-+
-+	return unwind_init_running(&info, fail_stacktrace_callback, attr);
-+}
-+
-+#elif defined(CONFIG_STACKTRACE)
-+
-+#include <linux/stacktrace.h>
-+
-+#define MAX_STACK_TRACE_DEPTH 10
-+
-+static int fail_stacktrace(struct fault_attr *attr)
-+{
-+	struct stack_trace trace;
-+	int depth = attr->stacktrace_depth;
-+	unsigned long entries[MAX_STACK_TRACE_DEPTH];
-+	int n;
-+
-+	/* stacktrace filter is disabled */
-+	if (depth == 0)
-+		return 1;
-+
-+	trace.nr_entries = 0;
-+	trace.entries = entries;
-+	trace.max_entries = (depth < MAX_STACK_TRACE_DEPTH) ?
-+				depth : MAX_STACK_TRACE_DEPTH;
-+
-+	save_stack_trace(&trace, NULL, 0, 1);
-+	for (n = 0; n < trace.nr_entries; n++)
-+		if (attr->address_start <= entries[n] &&
-+			       entries[n] < attr->address_end)
-+			return 1;
-+	return 0;
-+}
-+
 +#else
 +
-+#define fail_stacktrace(attr)	(0)
++static inline int should_fail_request(struct bio *bio)
++{
++	return 0;
++}
 +
 +#endif
 +
- /*
-  * This code is stolen from failmalloc-1.0
-  * http://www.nongnu.org/failmalloc/
-@@ -68,6 +137,8 @@ int should_fail(struct fault_attr *attr,
- {
- 	if (!fail_process(attr, current))
- 		return 0;
-+	if (!fail_stacktrace(attr))
-+		return 0;
+ /**
+  * generic_make_request: hand a buffer to its device driver for I/O
+  * @bio:  The bio describing the location in memory and on the device.
+@@ -3077,6 +3109,9 @@ end_io:
+ 		if (unlikely(test_bit(QUEUE_FLAG_DEAD, &q->queue_flags)))
+ 			goto end_io;
  
- 	if (atomic_read(&max_failures(attr)) == 0)
- 		return 0;
-Index: work-shouldfail/include/linux/fault-inject.h
-===================================================================
---- work-shouldfail.orig/include/linux/fault-inject.h
-+++ work-shouldfail/include/linux/fault-inject.h
-@@ -30,6 +30,21 @@ struct fault_attr {
- 
- 	/* A value of '0' means process filter is disabled. */
- 	u32 process_filter;
++		if (should_fail_request(bio))
++			goto end_io;
 +
-+	/*
-+	 * maximam number of stacktrace depth walking allowed
-+	 * A value of '0' means stacktrace filter is disabled.
-+	 */
-+	unsigned long stacktrace_depth;
-+
-+	/*
-+	 * If stacktrace_depth is enabled, it allows failing only when it
-+	 * has been called from the virtual addresses in the range
-+	 * 'address_start' to 'address_end-1'
-+	 */ 
-+	unsigned long address_start;
-+	unsigned long address_end;
-+
- };
- 
- #define DEFINE_FAULT_ATTR(name) \
-Index: work-shouldfail/lib/fault-inject-debugfs.c
-===================================================================
---- work-shouldfail.orig/lib/fault-inject-debugfs.c
-+++ work-shouldfail/lib/fault-inject-debugfs.c
-@@ -9,6 +9,9 @@ struct fault_attr_entries {
- 	struct dentry *times_file;
- 	struct dentry *space_file;
- 	struct dentry *process_filter_file;
-+	struct dentry *stacktrace_depth_file;
-+	struct dentry *address_start_file;
-+	struct dentry *address_end_file;
- };
- 
- static void debugfs_ul_set(void *data, u64 val)
-@@ -71,6 +74,18 @@ static void cleanup_fault_attr_entries(s
- 			debugfs_remove(entries->process_filter_file);
- 			entries->process_filter_file = NULL;
- 		}
-+		if (entries->stacktrace_depth_file) {
-+			debugfs_remove(entries->stacktrace_depth_file);
-+			entries->stacktrace_depth_file = NULL;
-+		}
-+		if (entries->address_start_file) {
-+			debugfs_remove(entries->address_start_file);
-+			entries->address_start_file = NULL;
-+		}
-+		if (entries->address_end_file) {
-+			debugfs_remove(entries->address_end_file);
-+			entries->address_end_file = NULL;
-+		}
- 		debugfs_remove(entries->dir);
- 		entries->dir = NULL;
- 	}
-@@ -116,6 +131,23 @@ static int init_fault_attr_entries(struc
- 		goto fail;
- 	entries->process_filter_file = file;
- 
-+	file = debugfs_create_ul("stacktrace-depth", mode, dir,
-+				   &attr->stacktrace_depth);
-+	if (!file)
-+		goto fail;
-+	entries->stacktrace_depth_file = file;
-+
-+	file = debugfs_create_ul("address-start", mode, dir,
-+				   &attr->address_start);
-+	if (!file)
-+		goto fail;
-+	entries->address_start_file = file;
-+
-+	file = debugfs_create_ul("address-end", mode, dir, &attr->address_end);
-+	if (!file)
-+		goto fail;
-+	entries->address_end_file = file;
-+
- 	return 0;
- fail:
- 	cleanup_fault_attr_entries(entries);
+ 		/*
+ 		 * If this device has partitions, remap block n
+ 		 * of partition p to block n+start(p) of the disk.
 Index: work-shouldfail/lib/Kconfig.debug
 ===================================================================
 --- work-shouldfail.orig/lib/Kconfig.debug
 +++ work-shouldfail/lib/Kconfig.debug
-@@ -371,6 +371,8 @@ config RCU_TORTURE_TEST
+@@ -386,3 +386,10 @@ config FAIL_PAGE_ALLOC
+ 	help
+ 	  This option provides fault-injection capabilitiy for alloc_pages().
  
- config FAULT_INJECTION
- 	bool
-+	select STACKTRACE
-+	select FRAME_POINTER
++config FAIL_MAKE_REQUEST
++	bool "fault-injection capabilitiy for disk IO"
++	depends on DEBUG_KERNEL
++	select FAULT_INJECTION 
++	help
++	  This option provides fault-injection capabilitiy to disk IO.
++
+Index: work-shouldfail/block/genhd.c
+===================================================================
+--- work-shouldfail.orig/block/genhd.c
++++ work-shouldfail/block/genhd.c
+@@ -412,6 +412,34 @@ static struct disk_attribute disk_attr_s
+ 	.show	= disk_stats_read
+ };
  
- config FAILSLAB
- 	bool "fault-injection capabilitiy for kmalloc"
++#ifdef CONFIG_FAIL_MAKE_REQUEST
++
++static ssize_t disk_fail_store(struct gendisk * disk,
++			       const char *buf, size_t count)
++{
++	int i;
++
++	if (count > 0 && sscanf(buf, "%d", &i) > 0) {
++		if (i == 0)
++			disk->flags &= ~GENHD_FL_FAIL;
++		else
++			disk->flags |= GENHD_FL_FAIL;
++	}
++
++	return count;
++}
++static ssize_t disk_fail_read(struct gendisk * disk, char *page)
++{
++	return sprintf(page, "%d\n", disk->flags & GENHD_FL_FAIL ? 1 : 0);
++}
++static struct disk_attribute disk_attr_fail = {
++	.attr = {.name = "make-it-fail", .mode = S_IRUGO | S_IWUSR },
++	.store	= disk_fail_store,
++	.show	= disk_fail_read
++};
++
++#endif
++
+ static struct attribute * default_attrs[] = {
+ 	&disk_attr_uevent.attr,
+ 	&disk_attr_dev.attr,
+@@ -419,6 +447,9 @@ static struct attribute * default_attrs[
+ 	&disk_attr_removable.attr,
+ 	&disk_attr_size.attr,
+ 	&disk_attr_stat.attr,
++#ifdef CONFIG_FAIL_MAKE_REQUEST
++	&disk_attr_fail.attr,
++#endif
+ 	NULL,
+ };
+ 
+Index: work-shouldfail/include/linux/genhd.h
+===================================================================
+--- work-shouldfail.orig/include/linux/genhd.h
++++ work-shouldfail/include/linux/genhd.h
+@@ -81,6 +81,9 @@ struct hd_struct {
+ 	struct kobject *holder_dir;
+ 	unsigned ios[2], sectors[2];	/* READs and WRITEs */
+ 	int policy, partno;
++#ifdef CONFIG_FAIL_MAKE_REQUEST
++	int make_it_fail;
++#endif
+ };
+ 
+ #define GENHD_FL_REMOVABLE			1
+@@ -88,6 +91,7 @@ struct hd_struct {
+ #define GENHD_FL_CD				8
+ #define GENHD_FL_UP				16
+ #define GENHD_FL_SUPPRESS_PARTITION_INFO	32
++#define GENHD_FL_FAIL				64
+ 
+ struct disk_stats {
+ 	unsigned long sectors[2];	/* READs and WRITEs */
+Index: work-shouldfail/fs/partitions/check.c
+===================================================================
+--- work-shouldfail.orig/fs/partitions/check.c
++++ work-shouldfail/fs/partitions/check.c
+@@ -265,12 +265,39 @@ static struct part_attribute part_attr_s
+ 	.show	= part_stat_read
+ };
+ 
++#ifdef CONFIG_FAIL_MAKE_REQUEST
++
++static ssize_t part_fail_store(struct hd_struct * p,
++			       const char *buf, size_t count)
++{
++	int i;
++
++	if (count > 0 && sscanf(buf, "%d", &i) > 0)
++		p->make_it_fail = (i == 0) ? 0 : 1;
++
++	return count;
++}
++static ssize_t part_fail_read(struct hd_struct * p, char *page)
++{
++	return sprintf(page, "%d\n", p->make_it_fail);
++}
++static struct part_attribute part_attr_fail = {
++	.attr = {.name = "make-it-fail", .mode = S_IRUGO | S_IWUSR },
++	.store	= part_fail_store,
++	.show	= part_fail_read
++};
++
++#endif
++
+ static struct attribute * default_attrs[] = {
+ 	&part_attr_uevent.attr,
+ 	&part_attr_dev.attr,
+ 	&part_attr_start.attr,
+ 	&part_attr_size.attr,
+ 	&part_attr_stat.attr,
++#ifdef CONFIG_FAIL_MAKE_REQUEST
++	&part_attr_fail.attr,
++#endif
+ 	NULL,
+ };
+ 
+Index: work-shouldfail/include/linux/fault-inject.h
+===================================================================
+--- work-shouldfail.orig/include/linux/fault-inject.h
++++ work-shouldfail/include/linux/fault-inject.h
+@@ -42,6 +42,9 @@ extern struct fault_attr *failslab;
+ #ifdef CONFIG_FAIL_PAGE_ALLOC
+ extern struct fault_attr *fail_page_alloc;
+ #endif
++#ifdef CONFIG_FAIL_MAKE_REQUEST
++extern struct fault_attr *fail_make_request;
++#endif
+ 
+ #endif /* CONFIG_FAULT_INJECTION */
+ 
 
 --

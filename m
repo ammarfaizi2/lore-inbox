@@ -1,77 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751105AbWINUEi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751113AbWINUHo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751105AbWINUEi (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Sep 2006 16:04:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751112AbWINUEh
+	id S1751113AbWINUHo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Sep 2006 16:07:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751114AbWINUHo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Sep 2006 16:04:37 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:38307 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751105AbWINUEg (ORCPT
+	Thu, 14 Sep 2006 16:07:44 -0400
+Received: from ns1.coraid.com ([65.14.39.133]:12372 "EHLO coraid.com")
+	by vger.kernel.org with ESMTP id S1751113AbWINUHn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Sep 2006 16:04:36 -0400
-Date: Thu, 14 Sep 2006 21:56:41 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Jiri Kosina <jikos@jikos.cz>, lkml <linux-kernel@vger.kernel.org>,
-       Arjan van de Ven <arjan@infradead.org>
-Subject: Re: [PATCH 0/3] Synaptics - fix lockdep warnings
-Message-ID: <20060914195641.GA5812@elte.hu>
-References: <Pine.LNX.4.64.0609141028540.22181@twin.jikos.cz> <d120d5000609140618h6e929883u2ed82d1cab677e57@mail.gmail.com> <Pine.LNX.4.64.0609141635040.2721@twin.jikos.cz> <d120d5000609140758w7ba5cfdbs399d6831082e7cb4@mail.gmail.com> <Pine.LNX.4.64.0609141700250.2721@twin.jikos.cz> <d120d5000609140851r2299c64cv8b0a365be795a1bc@mail.gmail.com> <Pine.LNX.4.64.0609141754480.2721@twin.jikos.cz> <d120d5000609140918j18d68a4dmd9d9e1e72d2fd718@mail.gmail.com> <Pine.LNX.4.64.0609142037110.2721@twin.jikos.cz> <d120d5000609141156h5e06eb68k87a6fe072a701dab@mail.gmail.com>
-Mime-Version: 1.0
+	Thu, 14 Sep 2006 16:07:43 -0400
+Date: Thu, 14 Sep 2006 15:50:55 -0400
+From: "Ed L. Cashin" <ecashin@coraid.com>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org, Greg K-H <greg@kroah.com>
+Subject: Re: [PATCH 2.6.18-rc4] aoe [04/13]: zero copy write 1 of 2
+Message-ID: <20060914195054.GL697@coraid.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <d120d5000609141156h5e06eb68k87a6fe072a701dab@mail.gmail.com>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -2.9
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.9 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5000]
-	-0.1 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+f5d@coraid.com> <1155982692.4051.9.camel@localhost.localdomain> <20060822212150.
+GQ6196@coraid.com> <1156345386.3007.24.camel@localhost.localdomain>
+In-Reply-To: <1156345386.3007.24.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.11+cvs20060126
 
-* Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
+Hi.  Back in August I sent out some patches for the aoe driver, and
+Alan objected to the direct setting of skb->len in one of them.  I
+asked whether he was suggesting that we use something like this
+instead of setting skb->len:
 
-> I think it is - as far as I understand the reason for not tracking 
-> every lock individually is just that it is too expensive to do by 
-> default.
+	skb->data_len = 0;
+	skb_trim(skb, 0);
+	skb_put(skb, sizeof *h + sizeof *ah + DEFAULTBCNT);
 
-that is not at all the reason! The reason is that we want to find 
-deadlocks _as early as mathematically possible_ (in a running system, 
-where locking patterns are observed). That is we want to gather the 
-_most generic_ locking rules.
+... and Alan said that was acceptible because it takes care of
+skb->tail, checks for overflow, and is more future proof.
 
-For example, if there are lock_1A, lock_1B of the same lock class, and 
-lock_2A and lock_2B of another lock class. If we observed the following 
-usage patterns:
+So I took some time to implement the necessary changes, but then it
+became apparent that there was a problem.
 
-	acquire(lock_1A);
-	acquire(lock_2A);
-	release(lock_2A);
-	release(lock_1A);
+The skb_trim and skb_put macros are only for non-linear skbuffs, but
+we are only using the area inside the skbuff itself for packet
+headers, not data.
 
-and another piece of kernel code did:
+When we do something like this:
 
-	acquire(lock_2B);
-	acquire(lock_1B);
-	release(lock_1B);
-	release(lock_1B);
+	if (bio_data_dir(buf->bio) == WRITE) {
+		skb_fill_page_desc(skb, 0, bv->bv_page, buf->bv_off, bcnt);
+		ah.aflags |= AOEAFL_WRITE;
+		skb->len += bcnt;
+		skb->data_len = bcnt;
+		t->wpkts++;
 
-with per-lock rules there's no problem detected, because the 4 locks are 
-independent and we only observed a 1A->2A and a 2B->1B dependency.
+... skb->tail isn't really relevant, because we are only using the
+pre-allocated part of the skbuff for headers, and the headers aren't
+expanding here.  Other parts of the kernel that aren't putting data in
+the skbuff itself set the skb->len directly.
 
-But with per-class rule gather we'd observe the 1->2 and the 2->1 
-dependency, and we'd warn that there's a deadlock.
+  e1000_main.c
+  ip_output.c
+  tcp.c
+  ip6_output.c
 
-So we want to create as broad, as generic rules as possible, to catch 
-deadlocks as soon as it's _provable_ that they could occur. In that 
-sense lockdep wants to have a '100% proof' of correctness: the first 
-time a bad even happens we flag it.
+So is it correct for the callers of skb_fill_page_desc to set skb->len
+or is another interface needed besides skb_put/skb_trim?  Such a new
+interface would be able to maintain the consistency of the skbuff
+fields without assuming that the data is in the skbuff itself.
 
-	Ingo
+If a new interface is needed, then it seems like we should set
+skb->len in this patch until the new interface is ready.
+
+-- 
+  Ed L Cashin <ecashin@coraid.com>

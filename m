@@ -1,42 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750912AbWINP41@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750918AbWINQA3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750912AbWINP41 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Sep 2006 11:56:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750913AbWINP41
+	id S1750918AbWINQA3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Sep 2006 12:00:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750922AbWINQA2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Sep 2006 11:56:27 -0400
-Received: from tomts22.bellnexxia.net ([209.226.175.184]:6615 "EHLO
-	tomts22-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id S1750910AbWINP40 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Sep 2006 11:56:26 -0400
-Date: Thu, 14 Sep 2006 11:56:25 -0400
-From: Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>
-To: Paul Mundt <lethal@linux-sh.org>
-Cc: linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
-       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@redhat.com>,
-       Greg Kroah-Hartman <gregkh@suse.de>,
-       Thomas Gleixner <tglx@linutronix.de>, Tom Zanussi <zanussi@us.ibm.com>,
-       ltt-dev@shafik.org, Michel Dagenais <michel.dagenais@polymtl.ca>
-Subject: Re: [PATCH 10/11] LTTng-core 0.5.108 : relayfs
-Message-ID: <20060914155625.GG29906@Krystal>
-References: <20060914034940.GK2194@Krystal> <20060914095850.GB6780@localhost.usen.ad.jp>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-In-Reply-To: <20060914095850.GB6780@localhost.usen.ad.jp>
-X-Editor: vi
-X-Info: http://krystal.dyndns.org:8080
-X-Operating-System: Linux/2.4.32-grsec (i686)
-X-Uptime: 11:56:10 up 22 days, 13:04,  9 users,  load average: 0.21, 0.38, 0.28
-User-Agent: Mutt/1.5.13 (2006-08-11)
+	Thu, 14 Sep 2006 12:00:28 -0400
+Received: from twin.jikos.cz ([213.151.79.26]:57249 "EHLO twin.jikos.cz")
+	by vger.kernel.org with ESMTP id S1750917AbWINQA2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Sep 2006 12:00:28 -0400
+Date: Thu, 14 Sep 2006 18:00:21 +0200 (CEST)
+From: Jiri Kosina <jikos@jikos.cz>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+cc: lkml <linux-kernel@vger.kernel.org>,
+       Arjan van de Ven <arjan@infradead.org>
+Subject: Re: [PATCH 0/3] Synaptics - fix lockdep warnings
+In-Reply-To: <d120d5000609140851r2299c64cv8b0a365be795a1bc@mail.gmail.com>
+Message-ID: <Pine.LNX.4.64.0609141754480.2721@twin.jikos.cz>
+References: <Pine.LNX.4.64.0609140227500.22181@twin.jikos.cz> 
+ <200609132200.51342.dtor@insightbb.com>  <Pine.LNX.4.64.0609141028540.22181@twin.jikos.cz>
+  <d120d5000609140618h6e929883u2ed82d1cab677e57@mail.gmail.com> 
+ <Pine.LNX.4.64.0609141635040.2721@twin.jikos.cz> 
+ <d120d5000609140758w7ba5cfdbs399d6831082e7cb4@mail.gmail.com> 
+ <Pine.LNX.4.64.0609141700250.2721@twin.jikos.cz>
+ <d120d5000609140851r2299c64cv8b0a365be795a1bc@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Paul Mundt (lethal@linux-sh.org) wrote:
-> None of this matters, use debugfs, it already does it for you.
+On Thu, 14 Sep 2006, Dmitry Torokhov wrote:
 
-Yes, this is what I plan to do. :)
+> Not yet ;) Is there a way to hide the depth in the spinlock/mutex 
+> structure itself so that initialization code could do 
+> spin_lock_init_nested() and spare the rest of the code from that 
+> knowledge?
 
-OpenPGP public key:              http://krystal.dyndns.org:8080/key/compudj.gpg
-Key fingerprint:     8CD5 52C3 8E3C 4140 715F  BA06 3F25 A8FE 3BAE 9A68 
+(shortened CC list a bit)
+
+In fact I am not sure what you mean. On every lock and unlock operation, 
+in case of recursive locking (which our case is), you have to provide 
+class identifier, which is used to distinguish if the lock is of the same 
+instance, or a different one (deeper or higher in the locking hierarchy). 
+There is no way how spin_lock() or mutex_lock() can know this 
+"automatically", you always have to provide the nesting level from 
+outside, as it depends on the ordering hierarchy, which locking primitives 
+are totally unaware of.
+
+Or did I misunderstand you?
+
+Thanks,
+
+-- 
+JiKos.

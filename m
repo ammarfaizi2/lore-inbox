@@ -1,30 +1,30 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751039AbWINDle@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751068AbWINDmZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751039AbWINDle (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 13 Sep 2006 23:41:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751047AbWINDle
+	id S1751068AbWINDmZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 13 Sep 2006 23:42:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751065AbWINDmZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 13 Sep 2006 23:41:34 -0400
-Received: from tomts43-srv.bellnexxia.net ([209.226.175.110]:26797 "EHLO
+	Wed, 13 Sep 2006 23:42:25 -0400
+Received: from tomts43.bellnexxia.net ([209.226.175.110]:46253 "EHLO
 	tomts43-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id S1751010AbWINDld (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 13 Sep 2006 23:41:33 -0400
-Date: Wed, 13 Sep 2006 23:41:29 -0400
+	id S1751047AbWINDmX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 13 Sep 2006 23:42:23 -0400
+Date: Wed, 13 Sep 2006 23:42:20 -0400
 From: Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>
 To: linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
        Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@redhat.com>,
        Greg Kroah-Hartman <gregkh@suse.de>,
        Thomas Gleixner <tglx@linutronix.de>, Tom Zanussi <zanussi@us.ibm.com>
 Cc: ltt-dev@shafik.org, Michel Dagenais <michel.dagenais@polymtl.ca>
-Subject: [PATCH 2/11] LTTng-core 0.5.108 : core-header
-Message-ID: <20060914034129.GC2194@Krystal>
+Subject: [PATCH 3/11] LTTng-core 0.5.108 : core-timestamp
+Message-ID: <20060914034220.GD2194@Krystal>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="=_Krystal-9689-1158205289-0001-2"
+Content-Type: multipart/mixed; boundary="=_Krystal-21163-1158205340-0001-2"
 Content-Disposition: inline
 X-Editor: vi
 X-Info: http://krystal.dyndns.org:8080
 X-Operating-System: Linux/2.4.32-grsec (i686)
-X-Uptime: 23:40:32 up 22 days, 49 min,  6 users,  load average: 0.56, 0.31, 0.16
+X-Uptime: 23:41:30 up 22 days, 50 min,  6 users,  load average: 0.72, 0.39, 0.19
 User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
@@ -32,652 +32,895 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 This is a MIME-formatted message.  If you see this text it means that your
 E-mail software does not support MIME-formatted messages.
 
---=_Krystal-9689-1158205289-0001-2
+--=_Krystal-21163-1158205340-0001-2
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
 
-2 - Core tracer header
-patch-2.6.17-lttng-core-0.5.108-core-header.diff
-
+3 - Architecture dependant headers for precise timestamps
+patch-2.6.17-lttng-core-0.5.108-core-timestamp.diff
 
 OpenPGP public key:              http://krystal.dyndns.org:8080/key/compudj.gpg
 Key fingerprint:     8CD5 52C3 8E3C 4140 715F  BA06 3F25 A8FE 3BAE 9A68 
 
---=_Krystal-9689-1158205289-0001-2
+--=_Krystal-21163-1158205340-0001-2
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename="patch-2.6.17-lttng-core-0.5.108-core-header.diff"
+Content-Disposition: attachment; filename="patch-2.6.17-lttng-core-0.5.108-core-timestamp.diff"
 
 --- /dev/null
-+++ b/include/linux/ltt-core.h
-@@ -0,0 +1,627 @@
++++ b/include/asm-alpha/ltt.h
+@@ -0,0 +1,15 @@
++#ifndef _ASM_ALPHA_LTT_H
++#define _ASM_ALPHA_LTT_H
 +/*
-+ * linux/include/linux/ltt-core.h
++ * linux/include/asm-alpha/ltt.h
 + *
-+ * Copyright (C) 2005,2006 Mathieu Desnoyers (mathieu.desnoyers@polymtl.ca)
++ * Copyright (C) 2005 - Mathieu Desnoyers (mathieu.desnoyers@polymtl.ca)
++ * Copyright (C) 2002, 2003 - Tom Zanussi (zanussi@us.ibm.com), IBM Corp
++ * Copyright (C) 2002 - Karim Yaghmour (karim@opersys.com)
 + *
-+ * This contains the core definitions for the Linux Trace Toolkit.
++ * alpha architecture specific definitions for ltt
 + */
 +
-+#ifndef _LTT_CORE_H
-+#define _LTT_CORE_H
++#define LTT_HAS_TSC
++
++#endif
+--- /dev/null
++++ b/include/asm-arm26/ltt.h
+@@ -0,0 +1,5 @@
++#ifndef _ASM_ARM26_LTT_H
++#define _ASM_ARM26_LTT_H
++
++#include <asm-generic/ltt.h>
++#endif
+--- /dev/null
++++ b/include/asm-arm/ltt.h
+@@ -0,0 +1,82 @@
++/*
++ * linux/include/asm-arm/ltt.h
++ *
++ * Copyright (C) 2005, Mathieu Desnoyers
++ *
++ * ARM definitions for tracing system
++ */
++
++#ifndef _ASM_ARM_LTT_H
++#define _ASM_ARM_LTT_H
++
++#include <linux/jiffies.h>
++#include <linux/seqlock.h>
++
++#define LTT_ARCH_TYPE LTT_ARCH_TYPE_ARM
++#define LTT_ARCH_VARIANT LTT_ARCH_VARIANT_NONE
++
++#undef LTT_HAS_TSC
++
++#define LTTNG_LOGICAL_SHIFT 13
++
++extern atomic_t lttng_logical_clock;
++
++static inline u32 ltt_get_timestamp32(void)
++{
++	unsigned long seq;
++	unsigned long try = 5;
++	u32 ret;
++
++	do {
++		seq = read_seqbegin(&xtime_lock);
++		ret = (jiffies << LTTNG_LOGICAL_SHIFT) 
++			| (atomic_add_return(1, &lttng_logical_clock));
++	} while(read_seqretry(&xtime_lock, seq) && (--try) > 0);
++
++	if(try == 0)
++		return 0;
++	else
++		return ret;
++}
++
++
++/* The shift overflow doesn't matter */
++static inline u64 ltt_get_timestamp64(void)
++{
++	unsigned long seq;
++	unsigned long try = 5;
++	u64 ret;
++
++	do {
++		seq = read_seqbegin(&xtime_lock);
++		ret = (jiffies_64 << LTTNG_LOGICAL_SHIFT) 
++			| (atomic_add_return(1, &lttng_logical_clock));
++	} while(read_seqretry(&xtime_lock, seq) && (--try) > 0);
++
++	if(try == 0)
++		return 0;
++	else
++		return ret;
++}
++
++/* this has to be called with the write seqlock held */
++static inline void ltt_reset_timestamp(void)
++{
++	atomic_set(&lttng_logical_clock, 0);
++}
++
++
++static inline unsigned int ltt_frequency(void)
++{
++  return HZ << LTTNG_LOGICAL_SHIFT;
++}
++
++
++static inline u32 ltt_freq_scale(void)
++{
++  return 1;
++}
++
++
++
++#endif
+--- /dev/null
++++ b/include/asm-cris/ltt.h
+@@ -0,0 +1,5 @@
++#ifndef _ASM_CRIS_LTT_H
++#define _ASM_CRIS_LTT_H
++
++#include <asm-generic/ltt.h>
++#endif
+--- /dev/null
++++ b/include/asm-frv/ltt.h
+@@ -0,0 +1,5 @@
++#ifndef _ASM_FRV_LTT_H
++#define _ASM_FRV_LTT_H
++
++#include <asm-generic/ltt.h>
++#endif
+--- /dev/null
++++ b/include/asm-generic/ltt.h
+@@ -0,0 +1,12 @@
++#ifndef _ASM_GENERIC_LTT_H
++#define _ASM_GENERIC_LTT_H
++/*
++ * linux/include/asm-generic/ltt.h
++ *
++ * Copyright (C) 2005 - Mathieu Desnoyers (mathieu.desnoyers@polymtl.ca)
++ *
++ * Architecture dependent definitions for ltt
++ * Architecture without TSC
++ */
++
++#endif
+--- /dev/null
++++ b/include/asm-h8300/ltt.h
+@@ -0,0 +1,5 @@
++#ifndef _ASM_H8300_LTT_H
++#define _ASM_H8300_LTT_H
++
++#include <asm-generic/ltt.h>
++#endif
+--- /dev/null
++++ b/include/asm-i386/ltt.h
+@@ -0,0 +1,150 @@
++#ifndef _ASM_I386_LTT_H
++#define _ASM_I386_LTT_H
++/*
++ * linux/include/asm-i386/ltt.h
++ *
++ * Copyright (C) 2005,2006 - Mathieu Desnoyers (mathieu.desnoyers@polymtl.ca)
++ *
++ * i386 time and TSC definitions for ltt
++ */
++
++#include <linux/jiffies.h>
++#include <linux/seqlock.h>
++
++#include <asm/timex.h>
++#include <asm/processor.h>
++
++#define LTT_ARCH_TYPE LTT_ARCH_TYPE_I386
++#define LTT_ARCH_VARIANT LTT_ARCH_VARIANT_NONE
++
++#define LTTNG_LOGICAL_SHIFT 13
++
++extern atomic_t lttng_logical_clock;
++
++/* The shift overflow doesn't matter
++ * We use the xtime seq_lock to protect 64 bits clock and
++ * 32 bits ltt logical clock coherency.
++ *
++ * try 5 times. If it still fails, we are cleary in a NMI nested over
++ * the seq_lock. Return 0 -> error.
++ *
++ * 0 is considered an erroneous value.
++ */
++
++static inline u32 ltt_timestamp_no_tsc_32(void)
++{
++	unsigned long seq;
++	unsigned long try = 5;
++	u32 ret;
++
++	do {
++		seq = read_seqbegin(&xtime_lock);
++		ret = (jiffies << LTTNG_LOGICAL_SHIFT) 
++			| (atomic_add_return(1, &lttng_logical_clock));
++	} while(read_seqretry(&xtime_lock, seq) && (--try) > 0);
++
++	if(try == 0) return 0;
++	else return ret;
++}
++
++
++static inline u64 ltt_timestamp_no_tsc(void)
++{
++	unsigned long seq;
++	unsigned long try = 5;
++	u64 ret;
++
++	do {
++		seq = read_seqbegin(&xtime_lock);
++		ret = (jiffies_64 << LTTNG_LOGICAL_SHIFT) 
++			| (atomic_add_return(1, &lttng_logical_clock));
++	} while(read_seqretry(&xtime_lock, seq) && (--try) > 0);
++
++	if(try == 0) return 0;
++	else return ret;
++}
++
++#ifdef CONFIG_LTT_SYNTHETIC_TSC
++u64 ltt_heartbeat_read_synthetic_tsc(void);
++#endif //CONFIG_LTT_SYNTHETIC_TSC
++
++static inline u32 ltt_get_timestamp32(void)
++{
++#ifndef CONFIG_X86_TSC
++	if (!cpu_has_tsc)
++		return ltt_timestamp_no_tsc32();
++#endif
++
++#if defined(CONFIG_X86_GENERIC) || defined(CONFIG_X86_TSC)
++	return get_cycles(); /* only need the 32 LSB */
++#else
++	return ltt_timestamp_no_tsc32();
++#endif
++}
++
++static inline u64 ltt_get_timestamp64(void)
++{
++#ifndef CONFIG_X86_TSC
++	if (!cpu_has_tsc)
++		return ltt_timestamp_no_tsc64();
++#endif
++
++#if defined(CONFIG_X86_GENERIC) || defined(CONFIG_X86_TSC)
++#ifdef CONFIG_LTT_SYNTHETIC_TSC
++	return ltt_heartbeat_read_synthetic_tsc();
++#else
++	return get_cycles();
++#endif //CONFIG_LTT_SYNTHETIC_TSC
++#else
++	return ltt_timestamp_no_tsc64();
++#endif
++}
++
++/* this has to be called with the write seqlock held */
++static inline void ltt_reset_timestamp(void)
++{
++#ifndef CONFIG_X86_TSC
++	if (!cpu_has_tsc) {
++		atomic_set(&lttng_logical_clock, 0);
++		return;
++	}
++#endif
++
++#if defined(CONFIG_X86_GENERIC) || defined(CONFIG_X86_TSC)
++	return;
++#else
++	atomic_set(&lttng_logical_clock, 0);
++	return;
++#endif
++}
++
++static inline unsigned int ltt_frequency(void)
++{
++#ifndef CONFIG_X86_TSC
++	if (!cpu_has_tsc)
++  	return HZ << LTTNG_LOGICAL_SHIFT;
++#endif
++
++#if defined(CONFIG_X86_GENERIC) || defined(CONFIG_X86_TSC)
++	return cpu_khz;
++#else
++	return HZ << LTTNG_LOGICAL_SHIFT;
++#endif
++}
++
++static inline u32 ltt_freq_scale(void)
++{
++#ifndef CONFIG_X86_TSC
++	if (!cpu_has_tsc)
++  	return 1;
++#endif
++
++#if defined(CONFIG_X86_GENERIC) || defined(CONFIG_X86_TSC)
++	return 1000;
++#else
++	return 1;
++#endif
++
++}
++
++#endif //_ASM_I386_LTT_H
+--- /dev/null
++++ b/include/asm-ia64/ltt.h
+@@ -0,0 +1,6 @@
++#ifndef _ASM_IA64_LTT_H
++#define _ASM_IA64_LTT_H
++
++#define LTT_HAS_TSC
++
++#endif
+--- /dev/null
++++ b/include/asm-m32r/ltt.h
+@@ -0,0 +1,5 @@
++#ifndef _ASM_M32R_LTT_H
++#define _ASM_M32R_LTT_H
++
++#include <asm-generic/ltt.h>
++#endif
+--- /dev/null
++++ b/include/asm-m68k/ltt.h
+@@ -0,0 +1,5 @@
++#ifndef _ASM_M68K_LTT_H
++#define _ASM_M68K_LTT_H
++
++#include <asm-generic/ltt.h>
++#endif
+--- /dev/null
++++ b/include/asm-m68knommu/ltt.h
+@@ -0,0 +1,5 @@
++#ifndef _ASM_M68KNOMMU_LTT_H
++#define _ASM_M68KNOMMU_LTT_H
++
++#include <asm-generic/ltt.h>
++#endif
+--- /dev/null
++++ b/include/asm-mips/ltt.h
+@@ -0,0 +1,50 @@
++/*
++ * linux/include/asm-mips/ltt.h
++ *
++ * Copyright (C) 2005, Mathieu Desnoyers
++ *
++ * MIPS definitions for tracing system
++ */
++
++#ifndef _ASM_MIPS_LTT_H
++#define _ASM_MIPS_LTT_H
++
++#define LTT_HAS_TSC
++
++/* Current arch type */
++#define LTT_ARCH_TYPE LTT_ARCH_TYPE_MIPS
++
++/* Current variant type */
++#define LTT_ARCH_VARIANT LTT_ARCH_VARIANT_NONE
++
++#include <linux/ltt-core.h>
++#include <asm/timex.h>
++#include <asm/processor.h>
++
++u64 ltt_heartbeat_read_synthetic_tsc(void);
++
++/* MIPS get_cycles only returns a 32 bits TSC (see timex.h). The assumption
++ * there is that the reschedule is done every 8 seconds or so, so we must
++ * make sure there is at least an event (heartbeat) between  each TSC wrap
++ * around. We use the LTT synthetic TSC exactly for this. */
++static inline u32 ltt_get_timestamp32(void)
++{
++	return get_cycles();
++}
++
++static inline u64 ltt_get_timestamp64(void)
++{
++	return ltt_heartbeat_read_synthetic_tsc();
++}
++
++static inline unsigned int ltt_frequency(void)
++{
++	return mips_hpt_frequency;
++}
++
++static inline u32 ltt_freq_scale(void)
++{
++	return 1;
++}
++
++#endif //_ASM_MIPS_LTT_H
+--- a/include/asm-mips/mipsregs.h
++++ b/include/asm-mips/mipsregs.h
+@@ -384,6 +384,7 @@ #define ST0_XX			0x80000000	/* MIPS IV n
+  */
+ #define  CAUSEB_EXCCODE		2
+ #define  CAUSEF_EXCCODE		(_ULCAST_(31)  <<  2)
++#define  CAUSE_EXCCODE(cause)	(((cause) & CAUSEF_EXCCODE) >> CAUSEB_EXCCODE)
+ #define  CAUSEB_IP		8
+ #define  CAUSEF_IP		(_ULCAST_(255) <<  8)
+ #define  CAUSEB_IP0		8
+--- a/include/asm-mips/timex.h
++++ b/include/asm-mips/timex.h
+@@ -51,4 +51,6 @@ static inline cycles_t get_cycles (void)
+ 	return read_c0_count();
+ }
+ 
++extern unsigned int mips_hpt_frequency;
++
+ #endif /*  _ASM_TIMEX_H */
+--- a/arch/mips/kernel/time.c
++++ b/arch/mips/kernel/time.c
+@@ -773,6 +773,7 @@ EXPORT_SYMBOL(rtc_lock);
+ EXPORT_SYMBOL(to_tm);
+ EXPORT_SYMBOL(rtc_mips_set_time);
+ EXPORT_SYMBOL(rtc_mips_get_time);
++EXPORT_SYMBOL(mips_hpt_frequency);
+ 
+ unsigned long long sched_clock(void)
+ {
+--- /dev/null
++++ b/include/asm-parisc/ltt.h
+@@ -0,0 +1,6 @@
++#ifndef _ASM_PARISC_LTT_H
++#define _ASM_PARISC_LTT_H
++
++#define LTT_HAS_TSC
++
++#endif
+--- /dev/null
++++ b/include/asm-powerpc/ltt.h
+@@ -0,0 +1,47 @@
++/*
++ * linux/include/asm-powerpc/ltt.h
++ *
++ * Copyright (C) 2005, Mathieu Desnoyers
++ *
++ * POWERPC definitions for tracing system
++ */
++
++#ifndef _ASM_POWERPC_LTT_H
++#define _ASM_POWERPC_LTT_H
++
++#define LTT_HAS_TSC
++
++/* Current arch type */
++#define LTT_ARCH_TYPE LTT_ARCH_TYPE_POWERPC
++
++/* Current variant type */
++#define LTT_ARCH_VARIANT LTT_ARCH_VARIANT_NONE
++
++#include <linux/ltt-core.h>
++#include <asm/timex.h>
++#include <asm/time.h>
++#include <asm/processor.h>
++
++u64 ltt_heartbeat_read_synthetic_tsc(void);
++
++static inline u32 ltt_get_timestamp32(void)
++{
++	return get_tbl();
++}
++
++static inline u64 ltt_get_timestamp64(void)
++{
++	return get_tb();
++}
++
++static inline unsigned int ltt_frequency(void)
++{
++	return tb_ticks_per_sec;
++}
++
++static inline u32 ltt_freq_scale(void)
++{
++	return 1;
++}
++
++#endif //_ASM_POWERPC_LTT_H
+--- /dev/null
++++ b/include/asm-ppc/ltt.h
+@@ -0,0 +1,139 @@
++/*
++ * linux/include/asm-ppc/ltt.h
++ *
++ * Copyright (C)	2002, Karim Yaghmour
++ *		 	2005, Mathieu Desnoyers
++ *
++ * PowerPC definitions for tracing system
++ */
++
++#ifndef _ASM_PPC_LTT_H
++#define _ASM_PPC_LTT_H
 +
 +#include <linux/config.h>
-+#include <linux/types.h>
-+#include <linux/limits.h>
-+#include <linux/list.h>
-+#include <linux/cache.h>
-+#include <linux/kernel.h>
-+#include <linux/timex.h>
-+#include <linux/wait.h>
-+#include <linux/relay.h>
-+#include <linux/ltt-facilities.h>
-+#include <linux/ltt/ltt-facility-id-core.h>
++#include <linux/jiffies.h>
 +
-+#include <asm/semaphore.h>
-+#include <asm/atomic.h>
-+#include <asm/ltt.h>
++/* Current arch type */
++#define LTT_ARCH_TYPE LTT_ARCH_TYPE_PPC
 +
-+/* Number of bytes to log with a read/write event */
-+#define LTT_LOG_RW_SIZE			32
++/* PowerPC variants */
++#define LTT_ARCH_VARIANT_PPC_4xx 1	/* 4xx systems (IBM embedded series) */
++#define LTT_ARCH_VARIANT_PPC_6xx 2	/* 6xx/7xx/74xx/8260/POWER3 systems
++					   (desktop flavor) */
++#define LTT_ARCH_VARIANT_PPC_8xx 3	/* 8xx system (Motoral embedded series)
++					 */
++#define LTT_ARCH_VARIANT_PPC_ISERIES 4	/* 8xx system (iSeries) */
 +
-+#ifdef CONFIG_LTT_ALIGNMENT
-+
-+/* Calculate the offset needed to align the type */
-+static inline unsigned int ltt_align(size_t align_drift,
-+		 size_t size_of_type)
-+{
-+	size_t alignment = min(sizeof(void*), size_of_type);
-+	return ((alignment - align_drift) & (alignment-1));
-+}
-+/* Default arch alignment */
-+#define LTT_ALIGN
-+
++/* Current variant type */
++#if defined(CONFIG_4xx)
++#define LTT_ARCH_VARIANT LTT_ARCH_VARIANT_PPC_4xx
++#elif defined(CONFIG_6xx)
++#define LTT_ARCH_VARIANT LTT_ARCH_VARIANT_PPC_6xx
++#elif defined(CONFIG_8xx)
++#define LTT_ARCH_VARIANT LTT_ARCH_VARIANT_PPC_8xx
++#elif defined(CONFIG_PPC_ISERIES)
++#define LTT_ARCH_VARIANT LTT_ARCH_VARIANT_PPC_ISERIES
 +#else
-+static inline unsigned int ltt_align(size_t align_drift,
-+		 size_t size_of_type)
-+{
-+	return 0;
++#define LTT_ARCH_VARIANT LTT_ARCH_VARIANT_NONE
++#endif
++
++#define LTTNG_LOGICAL_SHIFT 13
++
++extern atomic_t lttng_logical_clock;
++
++
++/* The shift overflow doesn't matter */
++static inline u32 _ltt_get_timestamp32(void)
++{	
++	unsigned long seq;
++	unsigned long try = 5;
++	u32 ret;
++
++	do {
++		seq = read_seqbegin(&xtime_lock);
++		ret = (jiffies << LTTNG_LOGICAL_SHIFT) 
++			| (atomic_add_return(1, &lttng_logical_clock));
++	} while(read_seqretry(&xtime_lock, seq) && (--try) > 0);
++
++	if(try == 0) return 0;
++	else return ret;
 +}
 +
-+#define LTT_ALIGN __attribute__((packed))
++static inline _ltt_get_tb32(u32 *p)
++{
++	unsigned lo;
++	asm volatile("mftb %0"
++		 : "=r" (lo));
++	p[0] = lo;
++}
 +
-+#endif //CONFIG_LTT_ALIGNMENT
++static inline u32 ltt_get_timestamp32(void)
++{
++	u32 ret;
++	if ((get_pvr() >> 16) == 1) ret = _ltt_get_timestamp32();
++	else _ltt_get_tb32((u32*)&ret);
++	return ret;
++}
 +
-+#ifdef CONFIG_LTT
++/* The shift overflow doesn't matter */
++static inline u64 _ltt_get_timestamp64(void)
++{	
++	unsigned long seq;
++	unsigned long try = 5;
++	u64 ret;
 +
++	do {
++		seq = read_seqbegin(&xtime_lock);
++		ret = (jiffies_64 << LTTNG_LOGICAL_SHIFT) 
++			| (atomic_add_return(1, &lttng_logical_clock));
++	} while(read_seqretry(&xtime_lock, seq) && (--try) > 0);
 +
-+extern void ltt_init(void);
++	if(try == 0) return 0;
++	else return ret;
++}
 +
-+/* All modifications of ltt_traces must be done by ltt-core.c, while holding the
-+ * semaphore. Only reading of this information can be done elsewhere, with the
-+ * RCU mechanism : the preemption must be disabled while reading the list. */
-+struct ltt_traces {
-+	struct list_head head;		/* Traces list */
-+	unsigned int num_active_traces;	/* Number of active traces */
-+} ____cacheline_aligned;
++#ifdef SMP
++#define pvr_ver (PVR_VER(current_cpu_data.pvr))
++#else
++#define pvr_ver (PVR_VER(mfspr(SPRN_PVR)))
++#endif
 +
-+extern struct ltt_traces ltt_traces;
-+/* Keep track of traps nesting inside LTT */
-+extern volatile unsigned int ltt_nesting[];
-+struct ltt_trace_struct;
++/* from arch/ppc/xmon/xmon.c */
++static inline void _ltt_get_tb64(unsigned *p)
++{
++	unsigned hi, lo, hiagain;
 +
-+/* LTTng lockless logging buffer info */
-+struct ltt_channel_buf_struct {
-+	/* Use the relayfs void *start as buffer start pointer */
-+	atomic_t offset;		/* Current offset in the buffer */
-+	atomic_t consumed;		/* Current offset in the buffer */
-+	atomic_t active_readers;	/* Active readers count */
-+	atomic_t wakeup_readers;	/* Boolean : wakeup readers waiting ? */
-+	atomic_t *reserve_count;	/* Final per sub-buffer reserve count */
-+	atomic_t *commit_count;		/* Commit count per sub-buffer */
-+	spinlock_t full_lock;		/* buffer full condition spinlock, only
-+					 * for userspace tracing blocking mode
-+					 * synchronisation with reader. */
-+	atomic_t events_lost;
-+	atomic_t corrupted_subbuffers;
-+	struct timeval	current_subbuffer_start_time;
-+	wait_queue_head_t write_wait;	/* Wait queue for blocking user space
-+					 * writers */
-+	struct work_struct wake_writers;/* Writers wake-up work struct */
-+} ____cacheline_aligned;
++	do {
++		asm volatile("mftbu %0; mftb %1; mftbu %2"
++			 : "=r" (hi), "=r" (lo), "=r" (hiagain));
++	} while (hi != hiagain);
++	p[0] = hi;
++	p[1] = lo;
++}
 +
-+struct ltt_channel_struct {
-+	char channel_name[PATH_MAX];
-+	struct ltt_trace_struct	*trace;
-+	struct ltt_channel_buf_struct buf[NR_CPUS];
++static inline u64 ltt_get_timestamp64(void)
++{
++	u64 ret;
++  if (pvr_ver == 1) ret = _ltt_get_timestamp64();
++	else _ltt_get_tb64((unsigned*)&ret);
++	return ret;
++}
 +
-+	void *trans_channel_data;
++/* this has to be called with the write seqlock held */
++static inline void ltt_reset_timestamp(void)
++{
++	if (pvr_ver == 1) atomic_set(&lttng_logical_clock, 0);
++}
 +
-+	/*
-+	 * buffer_begin - called on buffer-switch to a new sub-buffer
-+	 * @buf: the channel buffer containing the new sub-buffer
-+	 */
-+	void (*buffer_begin) (struct rchan_buf *buf,
-+			u64 tsc, unsigned int subbuf_idx);
-+	/*
-+	 * buffer_end - called on buffer-switch to a new sub-buffer
-+	 * @buf: the channel buffer containing the previous sub-buffer
-+	 */
-+	void (*buffer_end) (struct rchan_buf *buf,
-+			u64 tsc, unsigned int offset, unsigned int subbuf_idx);
-+};
++static inline unsigned int ltt_frequency(void)
++{
++	if (pvr_ver == 1) return HZ << LTTNG_LOGICAL_SHIFT;
++	else return (tb_ticks_per_jiffy * HZ);
++}
 +
-+struct user_dbg_data {
-+	unsigned long avail_size;
-+	unsigned long write;
-+	unsigned long read;
-+};
++static inline u32 ltt_freq_scale(void)
++{
++	return 1;
++}
 +
-+struct ltt_trace_ops {
-+	int (*create_dirs) (struct ltt_trace_struct *new_trace);
-+	void (*remove_dirs) (struct ltt_trace_struct *new_trace);
-+	int (*create_channel) (char *trace_name, struct ltt_trace_struct *trace,
-+				struct dentry *dir, char *channel_name,
-+				struct ltt_channel_struct **ltt_chan,
-+				unsigned int subbuf_size,
-+				unsigned int n_subbufs, int overwrite);
-+	void (*wakeup_channel) (struct ltt_channel_struct *ltt_channel);
-+	void (*finish_channel) (struct ltt_channel_struct *channel);
-+	void (*remove_channel) (struct ltt_channel_struct *channel);
-+	void *(*reserve_slot) (struct ltt_trace_struct *trace,
-+				struct ltt_channel_struct *channel,
-+				void **transport_data, unsigned int data_size,
-+				size_t *slot_size, u64 *tsc,
-+				size_t *before_hdr_pad, size_t *after_hdr_pad,
-+				size_t *header_size);
-+	void (*commit_slot) (struct ltt_channel_struct *channel,
-+				void **transport_data, void *reserved,
-+				size_t slot_size);
-+	void (*print_errors)(struct ltt_trace_struct *trace,
-+				struct ltt_channel_struct *ltt_chan, int cpu);
-+	int (*user_blocking) (struct ltt_trace_struct *trace,
-+				unsigned int index, size_t data_size,
-+				struct user_dbg_data *dbg);
-+	void (*user_errors) (struct ltt_trace_struct *trace,
-+				unsigned int index, size_t data_size,
-+				struct user_dbg_data *dbg);
-+};
-+
-+struct ltt_transport {
-+	char *name;
-+	struct module *owner;
-+	struct list_head node;
-+	struct ltt_trace_ops ops;
-+};
-+
-+
-+enum trace_mode { LTT_TRACE_NORMAL, LTT_TRACE_FLIGHT, LTT_TRACE_HYBRID };
-+
-+/* Per-trace information - each trace/flight recorder represented by one */
-+struct ltt_trace_struct {
-+	struct list_head list;
-+	int active;
-+	char trace_name[NAME_MAX];
-+	int paused;
-+	enum trace_mode mode;
-+	struct ltt_transport *transport;
-+	struct ltt_trace_ops *ops;
-+	u32 freq_scale;
-+	u64 start_freq;
-+	u64 start_tsc;
-+	unsigned long long start_monotonic;
-+	struct timeval		start_time;
-+	struct {
-+		struct dentry			*trace_root;
-+		struct dentry			*control_root;
-+	} dentry;
-+	struct {
-+		struct ltt_channel_struct	*facilities;
-+		struct ltt_channel_struct	*interrupts;
-+		struct ltt_channel_struct	*processes;
-+		struct ltt_channel_struct	*modules;
-+		struct ltt_channel_struct	*cpu;
-+		struct ltt_channel_struct	*network;
-+	} channel;
-+	struct rchan_callbacks callbacks;
-+	struct kref kref; /* Each channel has a kref of the trace struct */
-+} ____cacheline_aligned;
-+
-+enum ltt_channels { LTT_CHANNEL_FACILITIES, LTT_CHANNEL_INTERRUPTS,
-+	LTT_CHANNEL_PROCESSES, LTT_CHANNEL_MODULES, LTT_CHANNEL_CPU,
-+	LTT_CHANNEL_NETWORK };
-+
-+/* Hardcoded event headers */
-+
-+/* event header for a trace with active heartbeat : 32 bits timestamps */
-+
-+/* headers are 8 bytes aligned : that means members are aligned on memory
-+ * boundaries *if* structure starts on a 8 bytes boundary. In order to insure
-+ * such alignment, a dynamic per trace alignment value must be set.
-+ *
-+ * Remeber that the C compiler does align each member on the boundary equivalent
-+ * to their own size.
-+ *
-+ * As relayfs subbuffers are aligned on pages, we are sure that they are 8 bytes
-+ * aligned, so the buffer header and trace header are aligned.
-+ *
-+ * Event headers are aligned depending on the trace alignment option. */
-+
-+struct ltt_event_header_hb {
-+	uint32_t timestamp;
-+	unsigned char facility_id;
-+	unsigned char event_id;
-+	uint16_t event_size;
-+} __attribute((packed));
-+
-+struct ltt_event_header_nohb {
-+	uint64_t timestamp;
-+	unsigned char facility_id;
-+	unsigned char event_id;
-+	uint16_t event_size;
-+} __attribute((packed));
-+
-+struct ltt_trace_header {
-+	uint32_t magic_number;
-+	uint32_t arch_type;
-+	uint32_t arch_variant;
-+	uint32_t float_word_order;	 /* Only useful for user space traces */
-+	uint8_t arch_size;
-+	uint8_t major_version;
-+	uint8_t minor_version;
-+	uint8_t flight_recorder;
-+	uint8_t has_heartbeat;
-+	uint8_t has_alignment;		/* Event header alignment */
-+	uint32_t freq_scale;
-+	uint64_t start_freq;
-+	uint64_t start_tsc;
-+	uint64_t start_monotonic;
-+	uint64_t start_time_sec;
-+	uint64_t start_time_usec;
-+} __attribute((packed));
-+
-+
-+/* We use asm/timex.h : cpu_khz/HZ variable in here : we might have to deal
-+ * specifically with CPU frequency scaling someday, so using an interpolation
-+ * between the start and end of buffer values is not flexible enough. Using an
-+ * immediate frequency value permits to calculate directly the times for parts
-+ * of a buffer that would be before a frequency change. */
-+struct ltt_block_start_header {
-+	struct { 
-+		uint64_t cycle_count;
-+		uint64_t freq; /* khz */
-+	} begin;
-+	struct { 
-+		uint64_t cycle_count;
-+		uint64_t freq; /* khz */
-+	} end;
-+	uint32_t lost_size;	/* Size unused at the end of the buffer */
-+	uint32_t buf_size;	/* The size of this sub-buffer */
-+	struct ltt_trace_header	trace;
-+} __attribute((packed));
-+
++#endif //_ASM_PPC_LTT_H
+--- /dev/null
++++ b/include/asm-s390/ltt.h
+@@ -0,0 +1,20 @@
 +/*
-+ * ltt_subbuf_header_len - called on buffer-switch to a new sub-buffer
++ * linux/include/asm-s390/ltt.h
 + *
-+ * returns the client header size at the beginning of the buffer.
++ * Copyright (C) 2002, Karim Yaghmour
++ *
++ * S/390 definitions for tracing system
 + */
-+static inline unsigned int ltt_subbuf_header_len(void)
-+{
-+	return sizeof(struct ltt_block_start_header);
-+}
 +
-+/* Get the offset of the channel in the ltt_trace_struct */
-+#define GET_CHANNEL_INDEX(chan)	\
-+	(unsigned int)&((struct ltt_trace_struct*)NULL)->channel.chan
++#ifndef _ASM_S390_LTT_H
++#define _ASM_S390_LTT_H
 +
-+/* ltt_get_index_from_facility
++#define LTT_HAS_TSC
++
++/* Current arch type */
++#define LTT_ARCH_TYPE LTT_ARCH_TYPE_S390
++
++/* Current variant type */
++#define LTT_ARCH_VARIANT LTT_ARCH_VARIANT_NONE
++
++#endif//_ASM_S390_LTT_H
+--- /dev/null
++++ b/include/asm-sh64/ltt.h
+@@ -0,0 +1,14 @@
++/*
++ * linux/include/asm-sh64/ltt.h
 + *
-+ * Get channel index from facility and event id.
++ * Copyright (C) 2002, Karim Yaghmour
++ *
++ * SuperH definitions for tracing system
++ */
++
++#ifndef _ASM_SH_LTT_H
++#define _ASM_SH_LTT_H
++
++#include <asm-generic/ltt.h>
++
++#endif
+--- /dev/null
++++ b/include/asm-sh/ltt.h
+@@ -0,0 +1,14 @@
++/*
++ * linux/include/asm-sh/ltt.h
++ *
++ * Copyright (C) 2002, Karim Yaghmour
++ *
++ * SuperH definitions for tracing system
++ */
++
++#ifndef _ASM_SH_LTT_H
++#define _ASM_SH_LTT_H
++
++#include <asm-generic/ltt.h>
++
++#endif
+--- /dev/null
++++ b/include/asm-sparc64/ltt.h
+@@ -0,0 +1,15 @@
++#ifndef _ASM_SPARC64_LTT_H
++#define _ASM_SPARC64_LTT_H
++/*
++ * linux/include/asm-sparc64/ltt.h
++ *
++ * Copyright (C) 2005 - Mathieu Desnoyers (mathieu.desnoyers@polymtl.ca)
++ * Copyright (C) 2002, 2003 - Tom Zanussi (zanussi@us.ibm.com), IBM Corp
++ * Copyright (C) 2002 - Karim Yaghmour (karim@opersys.com)
++ *
++ * sparc64 time and TSC definitions for ltt
++ */
++
++#define LTT_HAS_TSC
++
++#endif
+--- /dev/null
++++ b/include/asm-sparc/ltt.h
+@@ -0,0 +1,5 @@
++#ifndef _ASM_SPARC_LTT_H
++#define _ASM_SPARC_LTT_H
++
++#include <asm-generic/ltt.h>
++#endif
+--- /dev/null
++++ b/include/asm-um/ltt.h
+@@ -0,0 +1,13 @@
++/*
++ * linux/include/asm-um/ltt.h
++ *
++ * Copyright (C) 2002, Karim Yaghmour
 + * 
-+ * @fID : facility ID
-+ * @eID : event number
-+ *
-+ * Get the channel index into which events must be written for the given
-+ * facility and event number. We get this structure offset as soon as possible
-+ * and remember it so we pass through this logic only once per trace call (not
-+ * for every trace).
 + */
-+static inline unsigned int ltt_get_index_from_facility(ltt_facility_t fID,
-+		u8 eID)
-+{
-+	if(fID == ltt_facility_core) {
-+		switch(eID) {
-+			case event_core_facility_load:
-+			case event_core_facility_unload:
-+			case event_core_state_dump_facility_load:
-+				return GET_CHANNEL_INDEX(facilities);
-+			default:
-+				return GET_CHANNEL_INDEX(cpu);
-+		}
-+	}
-+	
-+	/* Default channel */
-+	return GET_CHANNEL_INDEX(cpu);
-+}
 +
-+static inline struct ltt_channel_struct *ltt_get_channel_from_index(
-+		struct ltt_trace_struct *trace, unsigned int index)
-+{
-+	return *(struct ltt_channel_struct **)((void*)trace+index);
-+}
++#ifndef _ASM_SH_LTT_H
++#define _ASM_SH_LTT_H
 +
++#include <asm-generic/ltt.h>
 +
++#endif
+--- /dev/null
++++ b/include/asm-v850/ltt.h
+@@ -0,0 +1,5 @@
++#ifndef _ASM_V850_LTT_H
++#define _ASM_V850_LTT_H
++
++#include <asm-generic/ltt.h>
++#endif
+--- /dev/null
++++ b/include/asm-x86_64/ltt.h
+@@ -0,0 +1,145 @@
++#ifndef _ASM_X86_64_LTT_H
++#define _ASM_X86_64_LTT_H
 +/*
-+ * ltt_get_header_size
+++ * linux/include/asm-x86_64/ltt.h
+++ *
+++ * x86_64 time and TSC definitions for ltt
+++ */
++
++#include <asm/timex.h>
++#include <asm/processor.h>
++
++#define LTT_ARCH_TYPE LTT_ARCH_TYPE_X86_64
++#define LTT_ARCH_VARIANT LTT_ARCH_VARIANT_NONE
++
++#define LTTNG_LOGICAL_SHIFT 13
++
++extern atomic_t lttng_logical_clock;
++
++/* The shift overflow doesn't matter
++ * We use the xtime seq_lock to protect 64 bits clock and
++ * 32 bits ltt logical clock coherency.
 + *
-+ * Calculate alignment offset for arch size void*. This is the
-+ * alignment offset of the event header.
++ * try 5 times. If it still fails, we are cleary in a NMI nested over
++ * the seq_lock. Return 0 -> error.
 + *
-+ * Important note :
-+ * The event header must be a size multiple of the void* size. This is necessary
-+ * to be able to calculate statically the alignment offset of the variable
-+ * length data fields that follows. The total offset calculated here :
-+ *
-+ *	 Alignment of header struct on arch size
-+ * + sizeof(header struct)
-+ * + padding added to end of struct to align on arch size.
-+ * */
-+static inline unsigned char ltt_get_header_size(struct ltt_trace_struct *trace,
-+		void *address,
-+		size_t *before_hdr_pad,
-+		size_t *after_hdr_pad,
-+		size_t *header_size)
++ * 0 is considered an erroneous value.
++ */
++
++static inline u32 ltt_timestamp_no_tsc_32(void)
 +{
-+	unsigned int padding;
-+	unsigned int header;
-+	
-+#ifdef CONFIG_LTT_HEARTBEAT_EVENT
-+	header = sizeof(struct ltt_event_header_hb);
++	unsigned long seq;
++	unsigned long try = 5;
++	u32 ret;
++
++	do {
++		seq = read_seqbegin(&xtime_lock);
++		ret = (jiffies << LTTNG_LOGICAL_SHIFT) 
++			| (atomic_add_return(1, &lttng_logical_clock));
++	} while(read_seqretry(&xtime_lock, seq) && (--try) > 0);
++
++	if(try == 0) return 0;
++	else return ret;
++}
++
++
++static inline u64 ltt_timestamp_no_tsc(void)
++{
++	unsigned long seq;
++	unsigned long try = 5;
++	u64 ret;
++
++	do {
++		seq = read_seqbegin(&xtime_lock);
++		ret = (jiffies_64 << LTTNG_LOGICAL_SHIFT) 
++			| (atomic_add_return(1, &lttng_logical_clock));
++	} while(read_seqretry(&xtime_lock, seq) && (--try) > 0);
++
++	if(try == 0) return 0;
++	else return ret;
++}
++
++#ifdef CONFIG_LTT_SYNTHETIC_TSC
++u64 ltt_heartbeat_read_synthetic_tsc(void);
++#endif //CONFIG_LTT_SYNTHETIC_TSC
++
++static inline u32 ltt_get_timestamp32(void)
++{
++#ifndef CONFIG_X86_TSC
++	if (!cpu_has_tsc)
++		return ltt_timestamp_no_tsc32();
++#endif
++
++#if defined(CONFIG_X86_GENERIC) || defined(CONFIG_X86_TSC)
++	return get_cycles(); /* only need the 32 LSB */
 +#else
-+	header = sizeof(struct ltt_event_header_nohb);
-+#endif // CONFIG_LTT_HEARTBEAT_EVENT
-+
-+	/* Padding before the header. Calculated dynamically */
-+	*before_hdr_pad = ltt_align((unsigned long)address, header);
-+	padding = *before_hdr_pad;
-+
-+	/* Padding after header, considering header aligned on ltt_align.
-+	 * Calculated statically if header size if known. */
-+	*after_hdr_pad = ltt_align(header, sizeof(void*));
-+	padding += *after_hdr_pad;
-+
-+	*header_size = header;
-+
-+	return header+padding;
++	return ltt_timestamp_no_tsc32();
++#endif
 +}
 +
-+
-+/* ltt_write_event_header
-+ *
-+ * Writes the event header to the pointer.
-+ *
-+ * @channel : pointer to the channel structure
-+ * @ptr : buffer pointer
-+ * @fID : facility ID
-+ * @eID : event ID
-+ * @event_size : size of the event, excluding the event header.
-+ * @offset : offset of the beginning of the header, for alignment.
-+ *           Calculated by ltt_get_event_header_size.
-+ * @tsc : time stamp counter.
-+ */
-+static inline void ltt_write_event_header(struct ltt_trace_struct *trace,
-+		struct ltt_channel_struct *channel,
-+		void *ptr, ltt_facility_t fID,
-+		uint32_t eID, size_t event_size,
-+		size_t offset, u64 tsc)
++static inline u64 ltt_get_timestamp64(void)
 +{
-+#ifdef CONFIG_LTT_HEARTBEAT_EVENT
-+	struct ltt_event_header_hb *hb;
++#ifndef CONFIG_X86_TSC
++	if (!cpu_has_tsc)
++		return ltt_timestamp_no_tsc64();
++#endif
 +
-+	event_size = min(event_size, (size_t)0xFFFFU);
-+	hb = (struct ltt_event_header_hb *)(ptr+offset);
-+	hb->timestamp = (u32)tsc;
-+	hb->facility_id = fID;
-+	hb->event_id = eID;
-+	hb->event_size = (uint16_t)event_size;
++#if defined(CONFIG_X86_GENERIC) || defined(CONFIG_X86_TSC)
++#ifdef CONFIG_LTT_SYNTHETIC_TSC
++	return ltt_heartbeat_read_synthetic_tsc();
 +#else
-+	struct ltt_event_header_nohb *nohb;
-+	
-+	event_size = min(event_size, (size_t)0xFFFFU);
-+	nohb = (struct ltt_event_header_nohb *)(ptr+offset);
-+	nohb->timestamp = (u64)tsc;
-+	nohb->facility_id = fID;
-+	nohb->event_id = eID;
-+	nohb->event_size = (uint16_t)event_size;
-+#endif //CONFIG_LTT_HEARTBEAT_EVENT
++	return get_cycles();
++#endif //CONFIG_LTT_SYNTHETIC_TSC
++#else
++	return ltt_timestamp_no_tsc64();
++#endif
 +}
 +
-+/* for flight recording. must be called after relay_commit.
-+ * This function does not protect from corruption resulting from writing non
-+ * sequentially in the buffer (and trying to read this buffer after a crash
-+ * which occured at the wrong moment).
-+ * That's why sequential writes are good!
-+ *
-+ * This function does nothing if trace is in normal mode. */
-+#if 0
-+static inline void ltt_write_commit_counter(struct rchan_buf *buf,
-+		void *reserved)
++/* this has to be called with the write seqlock held */
++static inline void ltt_reset_timestamp(void)
 +{
-+	struct ltt_channel_struct *channel = 
-+		(struct ltt_channel_struct*)buf->chan->client_data;
-+	struct ltt_block_start_header *header =
-+		(struct ltt_block_start_header*)buf->data;
-+	unsigned offset, subbuf_idx;
-+	
-+	offset = reserved - buf->start;
-+	subbuf_idx = offset / buf->chan->subbuf_size;
++#ifndef CONFIG_X86_TSC
++	if (!cpu_has_tsc) {
++		atomic_set(&lttng_logical_clock, 0);
++		return;
++	}
++#endif
 +
-+	if(channel->trace->mode == LTT_TRACE_FLIGHT)
-+		header->lost_size = buf->chan->subbuf_size - 
-+			buf->commit[subbuf_idx];
-+
++#if defined(CONFIG_X86_GENERIC) || defined(CONFIG_X86_TSC)
++	return;
++#else
++	atomic_set(&lttng_logical_clock, 0);
++	return;
++#endif
 +}
-+#endif //0
 +
-+/* Lockless LTTng */
-+
-+/* Buffer offset macros */
-+
-+#define BUFFER_OFFSET(offset, chan) (offset & (chan->alloc_size-1))
-+#define SUBBUF_OFFSET(offset, chan) (offset & (chan->subbuf_size-1))
-+#define SUBBUF_ALIGN(offset, chan) \
-+	(((offset) + chan->subbuf_size) & (~(chan->subbuf_size-1)))
-+#define SUBBUF_TRUNC(offset, chan) \
-+	((offset) & (~(chan->subbuf_size-1)))
-+#define SUBBUF_INDEX(offset, chan) \
-+	(BUFFER_OFFSET(offset,chan)/chan->subbuf_size)
-+
-+/* ltt_reserve_slot
-+ *
-+ * Atomic slot reservation in a LTTng buffer. It will take care of
-+ * sub-buffer switching.
-+ *
-+ * Parameters:
-+ *
-+ * @trace : the trace structure to log to.
-+ * @buf : the buffer to reserve space into.
-+ * @data_size : size of the variable length data to log.
-+ * @slot_size : pointer to total size of the slot (out)
-+ * @tsc : pointer to the tsc at the slot reservation (out)
-+ * @before_hdr_pad : dynamic padding before the event header.
-+ * @after_hdr_pad : dynamic padding after the event header.
-+ *
-+ * Return : NULL if not enough space, else returns the pointer
-+ * 					to the beginning of the reserved slot. */
-+static inline void *ltt_reserve_slot(
-+		struct ltt_trace_struct *trace,
-+		struct ltt_channel_struct *channel,
-+		void **transport_data,
-+		size_t data_size,
-+		size_t *slot_size,
-+		u64 *tsc,
-+		size_t *before_hdr_pad,
-+		size_t *after_hdr_pad,
-+		size_t *header_size)
++static inline unsigned int ltt_frequency(void)
 +{
-+	return trace->ops->reserve_slot(trace, channel, transport_data,
-+			data_size, slot_size, tsc, before_hdr_pad,
-+			after_hdr_pad, header_size);
++#ifndef CONFIG_X86_TSC
++	if (!cpu_has_tsc)
++  	return HZ << LTTNG_LOGICAL_SHIFT;
++#endif
++
++#if defined(CONFIG_X86_GENERIC) || defined(CONFIG_X86_TSC)
++	return cpu_khz;
++#else
++	return HZ << LTTNG_LOGICAL_SHIFT;
++#endif
 +}
-+	
-+	
-+/* ltt_commit_slot
-+ *
-+ * Atomic unordered slot commit. Increments the commit count in the
-+ * specified sub-buffer, and delivers it if necessary.
-+ *
-+ * Parameters:
-+ *
-+ * @buf : the buffer to commit to.
-+ * @reserved : address of the beginnig of the reserved slot.
-+ * @slot_size : size of the reserved slot.
-+ *
-+ */
-+static inline void ltt_commit_slot(
-+		struct ltt_channel_struct *channel,
-+		void **transport_data,
-+		void *reserved,
-+		size_t slot_size)
++
++static inline u32 ltt_freq_scale(void)
 +{
-+	struct ltt_trace_struct *trace = channel->trace;
++#ifndef CONFIG_X86_TSC
++	if (!cpu_has_tsc)
++  	return 1;
++#endif
 +
-+	trace->ops->commit_slot(channel, transport_data, reserved, slot_size);
++#if defined(CONFIG_X86_GENERIC) || defined(CONFIG_X86_TSC)
++	return 1000;
++#else
++	return 1;
++#endif
++
 +}
 +
-+#endif //CONFIG_LTT
-+
-+/* Is kernel tracer enabled */
-+#if defined(CONFIG_LTT_TRACER) || defined(CONFIG_LTT_TRACER_MODULE)
-+
-+/* 4 control channels :
-+ * ltt/control/facilities
-+ * ltt/control/interrupts
-+ * ltt/control/processes
-+ * ltt/control/network
-+ *
-+ * 1 cpu channel :
-+ * ltt/cpu
-+ */
-+#define LTT_RELAYFS_ROOT	"ltt"
-+#define LTT_CONTROL_ROOT	"control"
-+#define LTT_FACILITIES_CHANNEL	"facilities"
-+#define LTT_INTERRUPTS_CHANNEL	"interrupts"
-+#define LTT_PROCESSES_CHANNEL	"processes"
-+#define LTT_MODULES_CHANNEL	"modules"
-+#define LTT_NETWORK_CHANNEL	"network"
-+#define LTT_CPU_CHANNEL		"cpu"
-+#define LTT_FLIGHT_PREFIX	"flight-"
-+
-+/* System types */
-+#define LTT_SYS_TYPE_VANILLA_LINUX	1
-+
-+/* Architecture types */
-+#define LTT_ARCH_TYPE_I386		1
-+#define LTT_ARCH_TYPE_PPC		2
-+#define LTT_ARCH_TYPE_SH		3
-+#define LTT_ARCH_TYPE_S390		4
-+#define LTT_ARCH_TYPE_MIPS		5
-+#define LTT_ARCH_TYPE_ARM		6
-+#define LTT_ARCH_TYPE_PPC64		7
-+#define LTT_ARCH_TYPE_X86_64		8
-+#define LTT_ARCH_TYPE_C2		9
-+#define LTT_ARCH_TYPE_POWERPC		10
-+
-+/* Standard definitions for variants */
-+#define LTT_ARCH_VARIANT_NONE		0
-+
-+/* Tracer properties */
-+#define LTT_DEFAULT_SUBBUF_SIZE_LOW	65536
-+#define LTT_DEFAULT_N_SUBBUFS_LOW	2
-+#define LTT_DEFAULT_SUBBUF_SIZE_MED	262144
-+#define LTT_DEFAULT_N_SUBBUFS_MED	2
-+#define LTT_DEFAULT_SUBBUF_SIZE_HIGH	1048576
-+#define LTT_DEFAULT_N_SUBBUFS_HIGH	2
-+#define LTT_TRACER_MAGIC_NUMBER		0x00D6B7ED
-+#define LTT_TRACER_VERSION_MAJOR	0
-+#define LTT_TRACER_VERSION_MINOR	7
-+
-+/* Size reserved for high priority events (interrupts, NMI, BH) at the end of a
-+ * nearly full buffer. User space won't use this last amount of space when in
-+ * blocking mode. This space also includes the event header that would be
-+ * written by this user space event. */
-+#define LTT_RESERVE_CRITICAL		4096
-+
-+/* Register and unregister function pointers */
-+
-+enum ltt_module_function {
-+	LTT_FUNCTION_RUN_FILTER,
-+	LTT_FUNCTION_FILTER_CONTROL,
-+	LTT_FUNCTION_STATEDUMP
-+};
-+
-+extern int ltt_module_register(enum ltt_module_function name, void *function,
-+		struct module *owner);
-+extern void ltt_module_unregister(enum ltt_module_function name);
-+
-+void ltt_transport_register(struct ltt_transport *transport);
-+void ltt_transport_unregister(struct ltt_transport *transport);
-+
-+/* Exported control function */
-+
-+enum ltt_heartbeat_functor_msg { LTT_HEARTBEAT_START, LTT_HEARTBEAT_STOP };
-+
-+enum ltt_control_msg {
-+	LTT_CONTROL_START,
-+	LTT_CONTROL_STOP,
-+	LTT_CONTROL_CREATE_TRACE,
-+	LTT_CONTROL_DESTROY_TRACE
-+};
-+
-+union ltt_control_args {
-+	struct {
-+		enum trace_mode mode;
-+		unsigned subbuf_size_low;
-+		unsigned n_subbufs_low;
-+		unsigned subbuf_size_med;
-+		unsigned n_subbufs_med;
-+		unsigned subbuf_size_high;
-+		unsigned n_subbufs_high;
-+	} new_trace;
-+};
-+
-+extern int ltt_control(enum ltt_control_msg msg, char *trace_name,
-+		char *trace_type, union ltt_control_args args);
-+
-+enum ltt_filter_control_msg { 
-+	LTT_FILTER_DEFAULT_ACCEPT,
-+	LTT_FILTER_DEFAULT_REJECT };
-+
-+extern int ltt_filter_control(enum ltt_filter_control_msg msg,
-+		char *trace_name);
-+
-+void ltt_write_trace_header(struct ltt_trace_struct *trace,
-+		struct ltt_trace_header *header);
-+extern void ltt_channel_destroy(void *object);
-+extern void ltt_wakeup_writers(void *private);
-+
-+void ltt_core_register(int (*function)(u8, void*));
-+
-+void ltt_core_unregister(void);
-+
-+#ifdef CONFIG_LTT_HEARTBEAT
-+int ltt_heartbeat_trigger(enum ltt_heartbeat_functor_msg msg);
-+#endif //CONFIG_LTT_HEARTBEAT
-+
-+/* Relayfs IOCTL */
-+
-+/* Get the next sub buffer that can be read. */
-+#define RELAYFS_GET_SUBBUF		_IOR(0xF4, 0x00,__u32)
-+/* Release the oldest reserved (by "get") sub buffer. */
-+#define RELAYFS_PUT_SUBBUF		_IOW(0xF4, 0x01,__u32)
-+/* returns the number of sub buffers in the per cpu channel. */
-+#define RELAYFS_GET_N_SUBBUFS		_IOR(0xF4, 0x02,__u32)
-+/* returns the size of the sub buffers. */
-+#define RELAYFS_GET_SUBBUF_SIZE		_IOR(0xF4, 0x03,__u32)
-+
-+#endif /* defined(CONFIG_LTT_TRACER) || defined(CONFIG_LTT_TRACER_MODULE) */
-+#endif /* _LTT_CORE_H */
++#endif //_ASM_X86_64_LTT_H
 
---=_Krystal-9689-1158205289-0001-2--
+--=_Krystal-21163-1158205340-0001-2--

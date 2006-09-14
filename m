@@ -1,190 +1,163 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751351AbWINWFJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751363AbWINWK0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751351AbWINWFJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Sep 2006 18:05:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751352AbWINWFJ
+	id S1751363AbWINWK0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Sep 2006 18:10:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751362AbWINWK0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Sep 2006 18:05:09 -0400
-Received: from stat9.steeleye.com ([209.192.50.41]:47850 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S1751351AbWINWFH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Sep 2006 18:05:07 -0400
-Subject: Re: [GIT PATCH] (hopefully) final SCSI fixes for 2.6.19
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Alex Davis <alex14641@yahoo.com>, Linus Torvalds <torvalds@osdl.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       linux-scsi <linux-scsi@vger.kernel.org>
-In-Reply-To: <20060914144703.ade9b00b.akpm@osdl.org>
-References: <1158268378.3514.61.camel@mulgrave.il.steeleye.com>
-	 <20060914142044.4272fc56.akpm@osdl.org>
-	 <1158269859.3514.74.camel@mulgrave.il.steeleye.com>
-	 <20060914144703.ade9b00b.akpm@osdl.org>
-Content-Type: text/plain
-Date: Thu, 14 Sep 2006 17:04:58 -0500
-Message-Id: <1158271498.3514.76.camel@mulgrave.il.steeleye.com>
+	Thu, 14 Sep 2006 18:10:26 -0400
+Received: from MAIL.13thfloor.at ([213.145.232.33]:53418 "EHLO
+	MAIL.13thfloor.at") by vger.kernel.org with ESMTP id S1751361AbWINWKZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Sep 2006 18:10:25 -0400
+Date: Fri, 15 Sep 2006 00:10:24 +0200
+From: Herbert Poetzl <herbert@13thfloor.at>
+To: Cedric Le Goater <clg@fr.ibm.com>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>, containers@lists.osdl.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       v4l-dvb-maintainer@linuxtv.org, Andrew Morton <akpm@osdl.org>,
+       Andrew de Quincey <adq_dvb@lidskialf.net>
+Subject: Re: [PATCH/RFC] kthread API conversion for dvb_frontend and av7110
+Message-ID: <20060914221024.GB26916@MAIL.13thfloor.at>
+Mail-Followup-To: Cedric Le Goater <clg@fr.ibm.com>,
+	"Eric W. Biederman" <ebiederm@xmission.com>,
+	containers@lists.osdl.org,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	v4l-dvb-maintainer@linuxtv.org, Andrew Morton <akpm@osdl.org>,
+	Andrew de Quincey <adq_dvb@lidskialf.net>
+References: <45019CC3.2030709@fr.ibm.com> <m18xktkbli.fsf@ebiederm.dsl.xmission.com> <450537B6.1020509@fr.ibm.com> <m1u03eacdc.fsf@ebiederm.dsl.xmission.com> <45056D3E.6040702@fr.ibm.com> <m14pve9qip.fsf@ebiederm.dsl.xmission.com> <20060912110559.GD23808@MAIL.13thfloor.at> <20060914200103.GA8448@MAIL.13thfloor.at> <4509C4A5.5030600@fr.ibm.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4509C4A5.5030600@fr.ibm.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-09-14 at 14:47 -0700, Andrew Morton wrote:
-> <lachrymose>If we'd been told that on July 8 and/or August 14, this might
-> be fixed by now</>
+On Thu, Sep 14, 2006 at 11:07:49PM +0200, Cedric Le Goater wrote:
+> Herbert Poetzl wrote:
+> > Okay, as I promised, I had a first shot at the
+> > dvb kernel_thread to kthread API port, and here
+> > is the result, which is running fine here since
+> > yesterday, including module load/unload and
+> > software suspend (which doesn't work as expected
+> > with or without this patch :),
+> 
+> So you have such an hardware ? 
 
-OK, so mea culpa, I'll make amends
+yes, I do .. that's how I tested it :)
 
-> Perhaps Alex might like to take a look into doing this (please)?
+> [ ...  ]
+> 
+> > @@ -600,7 +595,6 @@ static int dvb_frontend_thread(void *dat
+> >  
+> >  static void dvb_frontend_stop(struct dvb_frontend *fe)
+> >  {
+> > -	unsigned long ret;
+> >  	struct dvb_frontend_private *fepriv = fe->frontend_priv;
+> >  
+> >  	dprintk ("%s\n", __FUNCTION__);
+> > @@ -608,33 +602,17 @@ static void dvb_frontend_stop(struct dvb
+> >  	fepriv->exit = 1;
+> 
+> do we still need the ->exit flag now that we are using kthread_stop() ? 
+> same question for ->wakeup ? 
 
-Just test out this patch, please ...
+probably not, but I didn't want to change too
+much on the first try, especially I'd appreciate
+some feedback to this from the maintainer(s)
 
-James
+> >  	mb();
+> >  
+> > -	if (!fepriv->thread_pid)
+> > -		return;
+> > -
+> > -	/* check if the thread is really alive */
+> > -	if (kill_proc(fepriv->thread_pid, 0, 1) == -ESRCH) {
+> > -		printk("dvb_frontend_stop: thread PID %d already died\n",
+> > -				fepriv->thread_pid);
+> > -		/* make sure the mutex was not held by the thread */
+> > -		init_MUTEX (&fepriv->sem);
+> > +	if (!fepriv->thread)
+> >  		return;
+> > -	}
+> > -
+> > -	/* wake up the frontend thread, so it notices that fe->exit == 1 */
+> > -	dvb_frontend_wakeup(fe);
+> >  
+> > -	/* wait until the frontend thread has exited */
+> > -	ret = wait_event_interruptible(fepriv->wait_queue,0 == fepriv->thread_pid);
+> > -	if (-ERESTARTSYS != ret) {
+> > -		fepriv->state = FESTATE_IDLE;
+> > -		return;
+> > -	}
+> > +	kthread_stop(fepriv->thread);
+> > +	init_MUTEX (&fepriv->sem);
+> 
+> the use of the semaphore to synchronise the thread is complex. It will
+> require extra care to avoid deadlocks.
 
-diff --git a/drivers/scsi/aha152x.c b/drivers/scsi/aha152x.c
-index f974869..7fd56b8 100644
---- a/drivers/scsi/aha152x.c
-+++ b/drivers/scsi/aha152x.c
-@@ -253,6 +253,7 @@ #include <linux/kernel.h>
- #include <linux/isapnp.h>
- #include <linux/spinlock.h>
- #include <linux/workqueue.h>
-+#include <linux/list.h>
- #include <asm/semaphore.h>
- #include <scsi/scsicam.h>
- 
-@@ -262,6 +263,8 @@ #include <scsi/scsi_host.h>
- #include <scsi/scsi_transport_spi.h>
- #include "aha152x.h"
- 
-+static LIST_HEAD(aha152x_host_list);
-+
- 
- /* DEFINES */
- 
-@@ -423,8 +426,6 @@ #endif /* ISAPNP */
- 
- #endif /* !PCMCIA */
- 
--static int registered_count=0;
--static struct Scsi_Host *aha152x_host[2];
- static struct scsi_host_template aha152x_driver_template;
- 
- /*
-@@ -541,6 +542,7 @@ #endif
- #ifdef __ISAPNP__
- 	struct pnp_dev *pnpdev;
- #endif
-+	struct list_head host_list;
- };
- 
- 
-@@ -755,20 +757,9 @@ static inline Scsi_Cmnd *remove_SC(Scsi_
- 	return ptr;
- }
- 
--static inline struct Scsi_Host *lookup_irq(int irqno)
--{
--	int i;
--
--	for(i=0; i<ARRAY_SIZE(aha152x_host); i++)
--		if(aha152x_host[i] && aha152x_host[i]->irq==irqno)
--			return aha152x_host[i];
--
--	return NULL;
--}
--
- static irqreturn_t swintr(int irqno, void *dev_id, struct pt_regs *regs)
- {
--	struct Scsi_Host *shpnt = lookup_irq(irqno);
-+	struct Scsi_Host *shpnt = (struct Scsi_Host *)dev_id;
- 
- 	if (!shpnt) {
-         	printk(KERN_ERR "aha152x: catched software interrupt %d for unknown controller.\n", irqno);
-@@ -791,10 +782,11 @@ struct Scsi_Host *aha152x_probe_one(stru
- 		return NULL;
- 	}
- 
--	/* need to have host registered before triggering any interrupt */
--	aha152x_host[registered_count] = shpnt;
--
- 	memset(HOSTDATA(shpnt), 0, sizeof *HOSTDATA(shpnt));
-+	INIT_LIST_HEAD(&HOSTDATA(shpnt)->host_list);
-+
-+	/* need to have host registered before triggering any interrupt */
-+	list_add_tail(&HOSTDATA(shpnt)->host_list, &aha152x_host_list);
- 
- 	shpnt->io_port   = setup->io_port;
- 	shpnt->n_io_port = IO_RANGE;
-@@ -907,12 +899,10 @@ #endif
- 
- 	scsi_scan_host(shpnt);
- 
--	registered_count++;
--
- 	return shpnt;
- 
- out_host_put:
--	aha152x_host[registered_count]=NULL;
-+	list_del(&HOSTDATA(shpnt)->host_list);
- 	scsi_host_put(shpnt);
- 
- 	return NULL;
-@@ -937,6 +927,7 @@ #ifdef __ISAPNP__
- #endif
- 
- 	scsi_remove_host(shpnt);
-+	list_del(&HOSTDATA(shpnt)->host_list);
- 	scsi_host_put(shpnt);
- }
- 
-@@ -1459,9 +1450,12 @@ static struct work_struct aha152x_tq;
-  */
- static void run(void)
- {
--	int i;
--	for (i = 0; i<ARRAY_SIZE(aha152x_host); i++) {
--		is_complete(aha152x_host[i]);
-+	struct aha152x_hostdata *hd;
-+
-+	list_for_each_entry(hd, &aha152x_host_list, host_list) {
-+		struct Scsi_Host *shost = container_of((void *)hd, struct Scsi_Host, hostdata);
-+		
-+		is_complete(shost);
- 	}
- }
- 
-@@ -1471,7 +1465,7 @@ static void run(void)
-  */
- static irqreturn_t intr(int irqno, void *dev_id, struct pt_regs *regs)
- {
--	struct Scsi_Host *shpnt = lookup_irq(irqno);
-+	struct Scsi_Host *shpnt = (struct Scsi_Host *)dev_id;
- 	unsigned long flags;
- 	unsigned char rev, dmacntrl0;
- 
-@@ -3953,16 +3947,17 @@ #if defined(__ISAPNP__)
- #endif
- 	}
- 
--	return registered_count>0;
-+	return 1;
- }
- 
- static void __exit aha152x_exit(void)
- {
--	int i;
-+	struct aha152x_hostdata *hd;
- 
--	for(i=0; i<ARRAY_SIZE(setup); i++) {
--		aha152x_release(aha152x_host[i]);
--		aha152x_host[i]=NULL;
-+	list_for_each_entry(hd, &aha152x_host_list, host_list) {
-+		struct Scsi_Host *shost = container_of((void *)hd, struct Scsi_Host, hostdata);
-+		
-+		aha152x_release(shost);
- 	}
- }
- 
+well, it 'works' quite fine for now, but yeah, I
+thought about completely removing the additional
+synchronization and 'jsut' go with the kthread
+one, if that is sufficient ...
 
+> >  	fepriv->state = FESTATE_IDLE;
+> >  
+> >  	/* paranoia check in case a signal arrived */
+> > -	if (fepriv->thread_pid)
+> > -		printk("dvb_frontend_stop: warning: thread PID %d won't exit\n",
+> > -				fepriv->thread_pid);
+> > +	if (fepriv->thread)
+> > +		printk("dvb_frontend_stop: warning: thread %p won't exit\n",
+> > +				fepriv->thread);
+> 
+> kthread_stop uses a completion already. so the above is real paranoia :)
 
+again, I think this will go away soon :)
+
+> >  }
+> >  
+> >  s32 timeval_usec_diff(struct timeval lasttime, struct timeval curtime)
+> > @@ -684,10 +662,11 @@ static int dvb_frontend_start(struct dvb
+> >  {
+> >  	int ret;
+> >  	struct dvb_frontend_private *fepriv = fe->frontend_priv;
+> > +	struct task_struct *fe_thread;
+> >  
+> >  	dprintk ("%s\n", __FUNCTION__);
+> >  
+> > -	if (fepriv->thread_pid) {
+> > +	if (fepriv->thread) {
+> >  		if (!fepriv->exit)
+> >  			return 0;
+> >  		else
+> > @@ -701,18 +680,18 @@ static int dvb_frontend_start(struct dvb
+> >  
+> >  	fepriv->state = FESTATE_IDLE;
+> >  	fepriv->exit = 0;
+> > -	fepriv->thread_pid = 0;
+> > +	fepriv->thread = NULL;
+> >  	mb();
+> >  
+> > -	ret = kernel_thread (dvb_frontend_thread, fe, 0);
+> > -
+> > -	if (ret < 0) {
+> > -		printk("dvb_frontend_start: failed to start kernel_thread (%d)\n", ret);
+> > +	fe_thread = kthread_run(dvb_frontend_thread, fe,
+> > +		"kdvb-fe-%i", fe->dvb->num);
+> > +	if (IS_ERR(fe_thread)) {
+> > +		ret = PTR_ERR(fe_thread);
+> 
+> ret could be local.
+
+correct, will fix that up in the next round
+
+thanks for the feedback,
+Herbert
+
+> [ ... ] 
+> 
+> _______________________________________________
+> Containers mailing list
+> Containers@lists.osdl.org
+> https://lists.osdl.org/mailman/listinfo/containers

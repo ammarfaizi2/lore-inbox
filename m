@@ -1,60 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751135AbWINUZ7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751145AbWINUbz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751135AbWINUZ7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Sep 2006 16:25:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751143AbWINUZ7
+	id S1751145AbWINUbz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Sep 2006 16:31:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751146AbWINUbz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Sep 2006 16:25:59 -0400
-Received: from dvhart.com ([64.146.134.43]:55265 "EHLO dvhart.com")
-	by vger.kernel.org with ESMTP id S1751135AbWINUZ6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Sep 2006 16:25:58 -0400
-Message-ID: <4509BAD4.8010206@mbligh.org>
-Date: Thu, 14 Sep 2006 13:25:56 -0700
-From: Martin Bligh <mbligh@mbligh.org>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051011)
-X-Accept-Language: en-us, en
+	Thu, 14 Sep 2006 16:31:55 -0400
+Received: from aa003msr.fastwebnet.it ([85.18.95.66]:6797 "EHLO
+	aa003msr.fastwebnet.it") by vger.kernel.org with ESMTP
+	id S1751145AbWINUbz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Sep 2006 16:31:55 -0400
+Date: Thu, 14 Sep 2006 22:30:36 +0200
+From: Mattia Dongili <malattia@linux.it>
+To: Jeff Mahoney <jeffm@suse.com>
+Cc: Dave Kleikamp <shaggy@austin.ibm.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>, akpm@osdl.org,
+       reiserfs-dev@namesys.com, reiserfs-list@namesys.com
+Subject: Re: argh! it's reiserfs deadlocking! [was: Re: JFS - real deadlock and lockdep warning (2.6.18-rc5-mm1)]
+Message-ID: <20060914203036.GC3963@inferi.kami.home>
+Mail-Followup-To: Jeff Mahoney <jeffm@suse.com>,
+	Dave Kleikamp <shaggy@austin.ibm.com>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	akpm@osdl.org, reiserfs-dev@namesys.com, reiserfs-list@namesys.com
+References: <20060905203309.GA3981@inferi.kami.home> <1157580028.8200.72.camel@kleikamp.austin.ibm.com> <20060907184930.GA13380@inferi.kami.home> <45095C58.5020106@suse.com>
 MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Roman Zippel <zippel@linux-m68k.org>,
-       Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
-       linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
-       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@redhat.com>,
-       Greg Kroah-Hartman <gregkh@suse.de>,
-       Thomas Gleixner <tglx@linutronix.de>, Tom Zanussi <zanussi@us.ibm.com>,
-       ltt-dev@shafik.org, Michel Dagenais <michel.dagenais@polymtl.ca>
-Subject: Re: [PATCH 0/11] LTTng-core (basic tracing infrastructure) 0.5.108
-References: <20060914033826.GA2194@Krystal> <20060914112718.GA7065@elte.hu> <Pine.LNX.4.64.0609141537120.6762@scrub.home> <20060914135548.GA24393@elte.hu> <Pine.LNX.4.64.0609141623570.6761@scrub.home> <20060914171320.GB1105@elte.hu>
-In-Reply-To: <20060914171320.GB1105@elte.hu>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <45095C58.5020106@suse.com>
+X-Message-Flag: Cranky? Try Free Software instead!
+X-Operating-System: Linux 2.6.18-rc5-mm1-3 i686
+X-Editor: Vim http://www.vim.org/
+X-Disclaimer: Buh!
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> if there are lots of tracepoints (and the union of _all_ useful 
-> tracepoints that i ever encountered in my life goes into the thousands) 
-> then the overhead is not zero at all.
+n Thu, Sep 14, 2006 at 09:42:48AM -0400, Jeff Mahoney wrote:
+> Mattia Dongili wrote:
+> > On Wed, Sep 06, 2006 at 05:00:28PM -0500, Dave Kleikamp wrote:
+> >> I meant to reply to this earlier.  I've had a lot of distractions.
+> >>
+> >> On Tue, 2006-09-05 at 22:33 +0200, Mattia Dongili wrote:
+> >>> Hello,
+> >>>
+> >>> as the subject says it's some time[0] I'm experiencing deadlocks[1] (I'm
+> >>> only tracking -mm, and sporadically using the stable series). I have a
+> >>> couple of use cases that seem to reliably trigger the deadlock, namely
+> >>> using Eclipse and Firefox.
+> > [...]
+> >>> /dev/hda1 on / type reiserfs (rw)
+> >>> /dev/hda3 on /usr type reiserfs (rw)
+> >>> /dev/hda5 on /home type jfs (rw)
+> >>>
+> >>> bootlog: http://oioio.altervista.org/linux/dmesg-2.6.18-rc5-mm1-lockdep
+> >>> config: http://oioio.altervista.org/linux/config-2.6.18-rc5-mm1-lockdep
+> > 
+> > Dave,
+> > 
+> > I have to apologize. Reiser3 seem to be the one deadlocking here
+> > actually. Changing /home to reiser4 still deadlocks.
+> > 
+> > Now, reiserfs-developers:
+> > would you want me to keep the filesystem around to try to test patches
+> > or potential fixes or can I wipe it out?
+> > The good thing is that the deadlock is 100% repeatable, the bad thing is
+> > that this laptop has a broken cdrom and I have to take the drive out and
+> > fsck it via usb1.1 each time. :)
+> > 
+> > Thanks
 > 
-> also, the other disadvantages i listed very much count too. Static 
-> tracepoints are fundamentally limited because:
 > 
->   - they can only be added at the source code level
-> 
->   - modifying them requires a reboot which is not practical in a
->     production environment
-> 
->   - there can only be a limited set of them, while many problems need
->     finegrained tracepoints tailored to the problem at hand
-> 
->   - conditional tracepoints are typically either nonexistent or very
->     limited.
-> 
-> for me these are all _independent_ grounds for rejection, as a generic 
-> kernel infrastructure.
+> How is it that you arrived on reiser3 and reiser4 deadlocking here?
 
-I don't think anyone is saying that static tracepoints do not have their
-limitations, or that dynamic tracepointing is useless. But that's not
-the point ... why can't we have one infrastructure that supports both?
-Preferably in a fairly simple, consistent way.
+oh, no that's not what I said.
 
-M.
+I had:
+
+/dev/hda1 on / type reiserfs (rw)
+/dev/hda3 on /usr type reiserfs (rw)
+/dev/hda5 on /home type jfs (rw)
+
+the deadlock was there. I then changed to
+
+/dev/hda1 on / type reiserfs (rw)
+/dev/hda3 on /usr type reiserfs (rw)
+/dev/hda5 on /home type reiser4 (rw)
+
+still deadlocking, so it wasn't jfs but reiserfs.
+
+Anyway I wiped out the reiserfs partitions, it was starting to become
+really annoying sorry.
+
+-- 
+mattia
+:wq!

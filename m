@@ -1,274 +1,184 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750769AbWINKWg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750753AbWINKX6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750769AbWINKWg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Sep 2006 06:22:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750819AbWINKV6
+	id S1750753AbWINKX6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Sep 2006 06:23:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750810AbWINKX5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Sep 2006 06:21:58 -0400
-Received: from ns.miraclelinux.com ([219.118.163.66]:14924 "EHLO
+	Thu, 14 Sep 2006 06:23:57 -0400
+Received: from ns.miraclelinux.com ([219.118.163.66]:44883 "EHLO
 	mail01.miraclelinux.com") by vger.kernel.org with ESMTP
-	id S1750769AbWINKUf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Sep 2006 06:20:35 -0400
-Message-Id: <20060914102032.633059366@localhost.localdomain>
-References: <20060914102012.251231177@localhost.localdomain>
-Date: Thu, 14 Sep 2006 18:20:18 +0800
+	id S1750753AbWINKX4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Sep 2006 06:23:56 -0400
+Date: Thu, 14 Sep 2006 17:52:27 +0800
 From: Akinobu Mita <mita@miraclelinux.com>
 To: linux-kernel@vger.kernel.org
-Cc: ak@suse.de, akpm@osdl.org, Don Mullis <dwm@meer.net>,
-       Akinobu Mita <mita@miraclelinux.com>
-Subject: [patch 6/8] debugfs entries for configuration
-Content-Disposition: inline; filename=knobs.patch
+Cc: Dave Kleikamp <shaggy@austin.ibm.com>
+Subject: [PATCH] JFS: return correct error when i-node allocation failed
+Message-ID: <20060914095227.GA4186@miraclelinux.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This kernel module provides debugfs entries to enable to configure
-fault-injection capabilities for failslab, fail_page_alloc, and
-fail_make_request.
+I have seen confusing behavior on JFS when I injected many intentional
+slab allocation errors. The cp command failed with no disk space error
+with enough disk space.
 
-The slab allocator, the page allocator, and the block layer are initalized
-before debugfs is available. and failslab, fail_page_alloc, and
-fail_make_request are also enabled at the same time.
-So I put the initalization and cleanup for these debugfs entries into
-this kernel module.
+This patch makes:
 
-This module provides the following entries so that we can configure
-by writing these files.
+- change the return value in case slab allocation failures happen
+  from -ENOSPC to -ENOMEM
 
-/debug/
-|-- fail_make_request
-|   |-- interval
-|   |-- probability
-|   |-- space
-|   `-- times
-|-- fail_page_alloc
-|   |-- interval
-|   |-- probability
-|   |-- space
-|   `-- times
-`-- failslab
-    |-- interval
-    |-- probability
-    |-- space
-    `-- times
+- ialloc() return error code so that the caller can know the reason
+  of failures
 
+Cc: Dave Kleikamp <shaggy@austin.ibm.com>
 Signed-off-by: Akinobu Mita <mita@miraclelinux.com>
 
- lib/Kconfig.debug          |    8 ++
- lib/Makefile               |    1 
- lib/fault-inject-debugfs.c |  179 +++++++++++++++++++++++++++++++++++++++++++++
- 3 files changed, 188 insertions(+)
+ fs/jfs/jfs_dtree.c   |    4 ++--
+ fs/jfs/jfs_inode.c   |    9 +++++----
+ fs/jfs/jfs_unicode.c |    2 +-
+ fs/jfs/namei.c       |   18 +++++++++---------
+ fs/jfs/super.c       |    2 +-
+ 5 files changed, 18 insertions(+), 17 deletions(-)
 
-Index: work-shouldfail/lib/Kconfig.debug
+Index: work-shouldfail/fs/jfs/jfs_inode.c
 ===================================================================
---- work-shouldfail.orig/lib/Kconfig.debug
-+++ work-shouldfail/lib/Kconfig.debug
-@@ -393,3 +393,11 @@ config FAIL_MAKE_REQUEST
- 	help
- 	  This option provides fault-injection capabilitiy to disk IO.
+--- work-shouldfail.orig/fs/jfs/jfs_inode.c
++++ work-shouldfail/fs/jfs/jfs_inode.c
+@@ -61,7 +61,7 @@ struct inode *ialloc(struct inode *paren
+ 	inode = new_inode(sb);
+ 	if (!inode) {
+ 		jfs_warn("ialloc: new_inode returned NULL!");
+-		return inode;
++		return ERR_PTR(-ENOMEM);
+ 	}
  
-+config FAULT_INJECTION_DEBUGFS 
-+	tristate "runtime configuration for fault-injection capabilities"
-+	depends on DEBUG_KERNEL && SYSFS && FAULT_INJECTION
-+	select DEBUG_FS
-+	help
-+	  This option provides kernel module that provides runtime
-+	  configuration interface by debugfs.
-+
-Index: work-shouldfail/lib/fault-inject-debugfs.c
+ 	jfs_inode = JFS_IP(inode);
+@@ -69,9 +69,10 @@ struct inode *ialloc(struct inode *paren
+ 	rc = diAlloc(parent, S_ISDIR(mode), inode);
+ 	if (rc) {
+ 		jfs_warn("ialloc: diAlloc returned %d!", rc);
+-		make_bad_inode(inode);
++		if (rc == -EIO)
++			make_bad_inode(inode);
+ 		iput(inode);
+-		return NULL;
++		return ERR_PTR(rc);
+ 	}
+ 
+ 	inode->i_uid = current->fsuid;
+@@ -97,7 +98,7 @@ struct inode *ialloc(struct inode *paren
+ 		inode->i_flags |= S_NOQUOTA;
+ 		inode->i_nlink = 0;
+ 		iput(inode);
+-		return NULL;
++		return ERR_PTR(-EDQUOT);
+ 	}
+ 
+ 	inode->i_mode = mode;
+Index: work-shouldfail/fs/jfs/namei.c
 ===================================================================
---- /dev/null
-+++ work-shouldfail/lib/fault-inject-debugfs.c
-@@ -0,0 +1,179 @@
-+#include <linux/module.h>
-+#include <linux/fault-inject.h>
-+#include <linux/debugfs.h>
-+
-+struct fault_attr_entries {
-+	struct dentry *dir;
-+	struct dentry *probability_file;
-+	struct dentry *interval_file;
-+	struct dentry *times_file;
-+	struct dentry *space_file;
-+	struct dentry *process_filter_file;
-+};
-+
-+static void debugfs_ul_set(void *data, u64 val)
-+{
-+	*(unsigned long *)data = val;
-+}
-+
-+static u64 debugfs_ul_get(void *data)
-+{
-+	return *(unsigned long *)data;
-+}
-+
-+DEFINE_SIMPLE_ATTRIBUTE(fops_ul, debugfs_ul_get, debugfs_ul_set, "%llu\n");
-+
-+static struct dentry *debugfs_create_ul(const char *name, mode_t mode,
-+				struct dentry *parent, unsigned long *value)
-+{
-+	return debugfs_create_file(name, mode, parent, value, &fops_ul);
-+}
-+
-+static void debugfs_atomic_t_set(void *data, u64 val)
-+{
-+	atomic_set((atomic_t *)data, val);
-+}
-+
-+static u64 debugfs_atomic_t_get(void *data)
-+{
-+	return atomic_read((atomic_t *)data);
-+}
-+
-+DEFINE_SIMPLE_ATTRIBUTE(fops_atomic_t, debugfs_atomic_t_get,
-+			debugfs_atomic_t_set, "%lld\n");
-+
-+static struct dentry *debugfs_create_atomic_t(const char *name, mode_t mode,
-+				struct dentry *parent, atomic_t *value)
-+{
-+	return debugfs_create_file(name, mode, parent, value, &fops_atomic_t);
-+}
-+
-+static void cleanup_fault_attr_entries(struct fault_attr_entries *entries)
-+{
-+	if (entries->dir) {
-+		if (entries->probability_file) {
-+			debugfs_remove(entries->probability_file);
-+			entries->probability_file = NULL;
-+		}
-+		if (entries->interval_file) {
-+			debugfs_remove(entries->interval_file);
-+			entries->interval_file = NULL;
-+		}
-+		if (entries->times_file) {
-+			debugfs_remove(entries->times_file);
-+			entries->times_file = NULL;
-+		}
-+		if (entries->space_file) {
-+			debugfs_remove(entries->space_file);
-+			entries->space_file = NULL;
-+		}
-+		if (entries->process_filter_file) {
-+			debugfs_remove(entries->process_filter_file);
-+			entries->process_filter_file = NULL;
-+		}
-+		debugfs_remove(entries->dir);
-+		entries->dir = NULL;
-+	}
-+}
-+
-+static int init_fault_attr_entries(struct fault_attr_entries *entries,
-+				struct fault_attr *attr, const char *name)
-+{
-+	mode_t mode = S_IFREG | S_IRUSR | S_IWUSR;
-+	struct dentry *dir;
-+	struct dentry *file;
-+
-+	memset(entries, 0, sizeof(*entries));
-+
-+	dir = debugfs_create_dir(name, NULL);
-+	if (!dir)
-+		goto fail;
-+	entries->dir = dir;
-+
-+	file = debugfs_create_ul("probability", mode, dir, &attr->probability);
-+	if (!file)
-+		goto fail;
-+	entries->probability_file = file;
-+
-+	file = debugfs_create_ul("interval", mode, dir, &attr->interval);
-+	if (!file)
-+		goto fail;
-+	entries->interval_file = file;
-+
-+	file = debugfs_create_atomic_t("times", mode, dir, &attr->times);
-+	if (!file)
-+		goto fail;
-+	entries->times_file = file;
-+
-+	file = debugfs_create_atomic_t("space", mode, dir, &attr->space);
-+	if (!file)
-+		goto fail;
-+	entries->space_file = file;
-+
-+	file = debugfs_create_bool("process-filter", mode, dir,
-+				   &attr->process_filter);
-+	if (!file)
-+		goto fail;
-+	entries->process_filter_file = file;
-+
-+	return 0;
-+fail:
-+	cleanup_fault_attr_entries(entries);
-+	return -ENOMEM;
-+}
-+
-+#ifdef CONFIG_FAILSLAB
-+static struct fault_attr_entries failslab_entries;
-+#endif
-+#ifdef CONFIG_FAIL_PAGE_ALLOC
-+static struct fault_attr_entries fail_page_alloc_entries;
-+#endif
-+#ifdef CONFIG_FAIL_MAKE_REQUEST
-+static struct fault_attr_entries fail_make_request_entries;
-+#endif
-+
-+static void cleanup_entries(void)
-+{
-+#ifdef CONFIG_FAILSLAB
-+	cleanup_fault_attr_entries(&failslab_entries);
-+#endif
-+#ifdef CONFIG_FAIL_PAGE_ALLOC
-+	cleanup_fault_attr_entries(&fail_page_alloc_entries);
-+#endif
-+#ifdef CONFIG_FAIL_MAKE_REQUEST
-+	cleanup_fault_attr_entries(&fail_make_request_entries);
-+#endif
-+}
-+
-+static int init_entries(void)
-+{
-+	int err;
-+
-+#ifdef CONFIG_FAILSLAB
-+	err = init_fault_attr_entries(&failslab_entries, failslab, "failslab");
-+	if (err)
-+		goto fail;
-+#endif
-+#ifdef CONFIG_FAIL_PAGE_ALLOC
-+	err = init_fault_attr_entries(&fail_page_alloc_entries, fail_page_alloc,
-+				     "fail_page_alloc");
-+	if (err)
-+		goto fail;
-+#endif
-+#ifdef CONFIG_FAIL_MAKE_REQUEST
-+	err = init_fault_attr_entries(&fail_make_request_entries,
-+				     fail_make_request, "fail_make_request");
-+	if (err)
-+		goto fail;
-+#endif
-+
-+	return 0;
-+fail:
-+	cleanup_entries();
-+
-+	return err;
-+}
-+
-+module_init(init_entries);
-+module_exit(cleanup_entries);
-+MODULE_LICENSE("GPL");
-Index: work-shouldfail/lib/Makefile
+--- work-shouldfail.orig/fs/jfs/namei.c
++++ work-shouldfail/fs/jfs/namei.c
+@@ -97,8 +97,8 @@ static int jfs_create(struct inode *dip,
+ 	 * begin the transaction before we search the directory.
+ 	 */
+ 	ip = ialloc(dip, mode);
+-	if (ip == NULL) {
+-		rc = -ENOSPC;
++	if (IS_ERR(ip)) {
++		rc = PTR_ERR(ip);
+ 		goto out2;
+ 	}
+ 
+@@ -231,8 +231,8 @@ static int jfs_mkdir(struct inode *dip, 
+ 	 * begin the transaction before we search the directory.
+ 	 */
+ 	ip = ialloc(dip, S_IFDIR | mode);
+-	if (ip == NULL) {
+-		rc = -ENOSPC;
++	if (IS_ERR(ip)) {
++		rc = PTR_ERR(ip);
+ 		goto out2;
+ 	}
+ 
+@@ -908,8 +908,8 @@ static int jfs_symlink(struct inode *dip
+ 	 * (iAlloc() returns new, locked inode)
+ 	 */
+ 	ip = ialloc(dip, S_IFLNK | 0777);
+-	if (ip == NULL) {
+-		rc = -ENOSPC;
++	if (IS_ERR(ip)) {
++		rc = PTR_ERR(ip);
+ 		goto out2;
+ 	}
+ 
+@@ -980,7 +980,7 @@ static int jfs_symlink(struct inode *dip
+ 		xlen = xsize >> JFS_SBI(sb)->l2bsize;
+ 		if ((rc = xtInsert(tid, ip, 0, 0, xlen, &xaddr, 0))) {
+ 			txAbort(tid, 0);
+-			rc = -ENOSPC;
++			rc = ERR_PTR(rc);
+ 			goto out3;
+ 		}
+ 		extent = xaddr;
+@@ -1352,8 +1352,8 @@ static int jfs_mknod(struct inode *dir, 
+ 		goto out;
+ 
+ 	ip = ialloc(dir, mode);
+-	if (ip == NULL) {
+-		rc = -ENOSPC;
++	if (IS_ERR(ip)) {
++		rc = PTR_ERR(ip);
+ 		goto out1;
+ 	}
+ 	jfs_ip = JFS_IP(ip);
+Index: work-shouldfail/fs/jfs/jfs_dtree.c
 ===================================================================
---- work-shouldfail.orig/lib/Makefile
-+++ work-shouldfail/lib/Makefile
-@@ -53,6 +53,7 @@ obj-$(CONFIG_AUDIT_GENERIC) += audit.o
+--- work-shouldfail.orig/fs/jfs/jfs_dtree.c
++++ work-shouldfail/fs/jfs/jfs_dtree.c
+@@ -3780,13 +3780,13 @@ static int ciGetLeafPrefixKey(dtpage_t *
+ 	lkey.name = (wchar_t *) kmalloc((JFS_NAME_MAX + 1) * sizeof(wchar_t),
+ 					GFP_KERNEL);
+ 	if (lkey.name == NULL)
+-		return -ENOSPC;
++		return -ENOMEM;
  
- obj-$(CONFIG_SWIOTLB) += swiotlb.o
- obj-$(CONFIG_FAULT_INJECTION) += fault-inject.o
-+obj-$(CONFIG_FAULT_INJECTION_DEBUGFS) += fault-inject-debugfs.o
+ 	rkey.name = (wchar_t *) kmalloc((JFS_NAME_MAX + 1) * sizeof(wchar_t),
+ 					GFP_KERNEL);
+ 	if (rkey.name == NULL) {
+ 		kfree(lkey.name);
+-		return -ENOSPC;
++		return -ENOMEM;
+ 	}
  
- hostprogs-y	:= gen_crc32table
- clean-files	:= crc32table.h
-
---
+ 	/* get left and right key */
+Index: work-shouldfail/fs/jfs/super.c
+===================================================================
+--- work-shouldfail.orig/fs/jfs/super.c
++++ work-shouldfail/fs/jfs/super.c
+@@ -422,7 +422,7 @@ static int jfs_fill_super(struct super_b
+ 
+ 	sbi = kzalloc(sizeof (struct jfs_sb_info), GFP_KERNEL);
+ 	if (!sbi)
+-		return -ENOSPC;
++		return -ENOMEM;
+ 	sb->s_fs_info = sbi;
+ 	sbi->sb = sb;
+ 	sbi->uid = sbi->gid = sbi->umask = -1;
+Index: work-shouldfail/fs/jfs/jfs_unicode.c
+===================================================================
+--- work-shouldfail.orig/fs/jfs/jfs_unicode.c
++++ work-shouldfail/fs/jfs/jfs_unicode.c
+@@ -124,7 +124,7 @@ int get_UCSname(struct component_name * 
+ 	    kmalloc((length + 1) * sizeof(wchar_t), GFP_NOFS);
+ 
+ 	if (uniName->name == NULL)
+-		return -ENOSPC;
++		return -ENOMEM;
+ 
+ 	uniName->namlen = jfs_strtoUCS(uniName->name, dentry->d_name.name,
+ 				       length, nls_tab);

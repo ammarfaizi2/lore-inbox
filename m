@@ -1,49 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751636AbWIOPTR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751493AbWIOPYO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751636AbWIOPTR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Sep 2006 11:19:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751637AbWIOPTR
+	id S1751493AbWIOPYO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Sep 2006 11:24:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751494AbWIOPYO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Sep 2006 11:19:17 -0400
-Received: from nat-132.atmel.no ([80.232.32.132]:10701 "EHLO relay.atmel.no")
-	by vger.kernel.org with ESMTP id S1751636AbWIOPTQ (ORCPT
+	Fri, 15 Sep 2006 11:24:14 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:65427 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751493AbWIOPYN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Sep 2006 11:19:16 -0400
-Date: Fri, 15 Sep 2006 17:19:31 +0200
-From: Haavard Skinnemoen <hskinnemoen@atmel.com>
-To: linux-mtd@lists.infradead.org
-Cc: linux-kernel@vger.kernel.org, Josh Boyer <jwboyer@gmail.com>
-Subject: [PATCH] MTD: Fix bug in fixup_convert_atmel_pri
-Message-ID: <20060915171931.2f38bca6@cad-250-152.norway.atmel.com>
-Organization: Atmel Norway
-X-Mailer: Sylpheed-Claws 2.5.0-rc2 (GTK+ 2.8.20; i486-pc-linux-gnu)
+	Fri, 15 Sep 2006 11:24:13 -0400
+Date: Fri, 15 Sep 2006 11:23:49 -0400
+From: Dave Jones <davej@redhat.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Jarek Poplawski <jarkao2@o2.pl>, Andi Kleen <ak@muc.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] mpparse.c:231: warning: comparison is always false
+Message-ID: <20060915152349.GA22233@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Andrew Morton <akpm@osdl.org>, Jarek Poplawski <jarkao2@o2.pl>,
+	Andi Kleen <ak@muc.de>, linux-kernel@vger.kernel.org
+References: <20060913065010.GA2110@ff.dom.local> <20060914181754.bd963f6d.akpm@osdl.org> <20060915081123.GA2572@ff.dom.local> <20060915012302.d459c2dc.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060915012302.d459c2dc.akpm@osdl.org>
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The memset() in fixup_convert_atmel_pri is supposed to zero out
-everything except the first 5 bytes in *extp, but it ends up zeroing
-out something way outside the struct instead. Fix this potentially
-dangerous code by casting the pointer to char * before doing
-arithmetic.
+On Fri, Sep 15, 2006 at 01:23:02AM -0700, Andrew Morton wrote:
 
-Signed-off-by: Haavard Skinnemoen <hskinnemoen@atmel.com>
----
- drivers/mtd/chips/cfi_cmdset_0002.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
+ > > > Thanks.   Andi has already queued a similar patch.
+ > > > 
+ > > > Andi, you might as well scoot that upstream, otherwise we'll get lots of
+ > > > emails about it.
+ > > ...
+ > > > > +#if 0xFF >= MAX_MP_BUSSES
+ > > > >  	if (m->mpc_busid >= MAX_MP_BUSSES) {
+ > > I don't know how Andi has fixed it,
+ > Same thing.  (He has `#if MAX_MP_BUSSES < 256').
 
-Index: linux-2.6.18-rc6-mm2/drivers/mtd/chips/cfi_cmdset_0002.c
-===================================================================
---- linux-2.6.18-rc6-mm2.orig/drivers/mtd/chips/cfi_cmdset_0002.c	2006-09-15 14:39:22.000000000 +0200
-+++ linux-2.6.18-rc6-mm2/drivers/mtd/chips/cfi_cmdset_0002.c	2006-09-15 14:39:40.000000000 +0200
-@@ -175,7 +175,7 @@ static void fixup_convert_atmel_pri(stru
- 	struct cfi_pri_atmel atmel_pri;
+How can this be the right the right thing to do ?
+It should *never* be >=256. mach-summit/mach-generic need fixing
+to be 255, not this ridiculous band-aid.  Where did 260 come from anyway?
  
- 	memcpy(&atmel_pri, extp, sizeof(atmel_pri));
--	memset(extp + 5, 0, sizeof(*extp) - 5);
-+	memset((char *)extp + 5, 0, sizeof(*extp) - 5);
- 
- 	if (atmel_pri.Features & 0x02)
- 		extp->EraseSuspend = 2;
+	Dave 

@@ -1,43 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751287AbWIOR7R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751296AbWIOR7U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751287AbWIOR7R (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Sep 2006 13:59:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751290AbWIOR7R
+	id S1751296AbWIOR7U (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Sep 2006 13:59:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751290AbWIOR7U
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Sep 2006 13:59:17 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:27352 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1751287AbWIOR7Q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Sep 2006 13:59:16 -0400
-Subject: Re: Same MCE on 4 working machines (was Re: Early boot hang on
-	recent 2.6 kernels (> 2.6.3), on x86-64 with 16gb of RAM)
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Robin Lee Powell <rlpowell@digitalkingdom.org>
-Cc: Bharath Ramesh <krosswindz@gmail.com>, Lee Revell <rlrevell@joe-job.com>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20060915174701.GN4610@chain.digitalkingdom.org>
-References: <20060912223258.GM4612@chain.digitalkingdom.org>
-	 <20060914190548.GI4610@chain.digitalkingdom.org>
-	 <1158261249.7948.111.camel@mindpipe>
-	 <20060914191555.GJ4610@chain.digitalkingdom.org>
-	 <c775eb9b0609142242r45d184d2h8d7edd7dd5bc2a26@mail.gmail.com>
-	 <20060915174701.GN4610@chain.digitalkingdom.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Fri, 15 Sep 2006 19:22:53 +0100
-Message-Id: <1158344573.29932.111.camel@localhost.localdomain>
+	Fri, 15 Sep 2006 13:59:20 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:8648 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751296AbWIOR7S (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Sep 2006 13:59:18 -0400
+Date: Fri, 15 Sep 2006 10:57:17 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: fche@redhat.com (Frank Ch. Eigler)
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, karim@opersys.com,
+       Roman Zippel <zippel@linux-m68k.org>, Tim Bird <tim.bird@am.sony.com>,
+       Ingo Molnar <mingo@elte.hu>,
+       Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
+       linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
+       Ingo Molnar <mingo@redhat.com>, Greg Kroah-Hartman <gregkh@suse.de>,
+       Thomas Gleixner <tglx@linutronix.de>, Tom Zanussi <zanussi@us.ibm.com>,
+       ltt-dev@shafik.org, Michel Dagenais <michel.dagenais@polymtl.ca>
+Subject: Re: [PATCH 0/11] LTTng-core (basic tracing infrastructure) 0.5.108
+Message-Id: <20060915105717.b8e35cd6.akpm@osdl.org>
+In-Reply-To: <y0mmz91f46q.fsf@ton.toronto.redhat.com>
+References: <20060914033826.GA2194@Krystal>
+	<20060914112718.GA7065@elte.hu>
+	<Pine.LNX.4.64.0609141537120.6762@scrub.home>
+	<20060914135548.GA24393@elte.hu>
+	<Pine.LNX.4.64.0609141623570.6761@scrub.home>
+	<20060914171320.GB1105@elte.hu>
+	<Pine.LNX.4.64.0609141935080.6761@scrub.home>
+	<20060914181557.GA22469@elte.hu>
+	<4509B03A.3070504@am.sony.com>
+	<1158320406.29932.16.camel@localhost.localdomain>
+	<Pine.LNX.4.64.0609151339190.6761@scrub.home>
+	<1158323938.29932.23.camel@localhost.localdomain>
+	<Pine.LNX.4.64.0609151425180.6761@scrub.home>
+	<1158327696.29932.29.camel@localhost.localdomain>
+	<Pine.LNX.4.64.0609151523050.6761@scrub.home>
+	<1158331277.29932.66.camel@localhost.localdomain>
+	<450ABA2A.9060406@opersys.com>
+	<1158332324.29932.82.camel@localhost.localdomain>
+	<y0mmz91f46q.fsf@ton.toronto.redhat.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Gwe, 2006-09-15 am 10:47 -0700, ysgrifennodd Robin Lee Powell:
-> I didn't know about mce=bootlog.  Neat.  It doesn't change anything,
-> though.  I've tried noacpi and many variants thereon; no change.
-> 
-> The most severe set of options I have record of trying is:
-> 
-> nosmp noapic mem=512M ide=nodma apm=off acpi=off desktop showopts
+On 15 Sep 2006 13:08:29 -0400
+fche@redhat.com (Frank Ch. Eigler) wrote:
 
-What did the various pci= options I suggested do - anything ?
+> Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
+> 
+> > [...]
+> > > 
+> > >    		prepare_arch_switch(rq, next);
+> > > +		TRACE_SCHEDCHANGE(prev, next);
+> > >    		prev = context_switch(rq, prev, next);
+> > >    		barrier();
+> > 
+> > The gdb debug data lets you find each line and also the variable
+> > assignments (except when highly optimised in some cases). [...]
+> 
+> Unfortunately, variables and even control flow are quite regularly
+> made non-probe-capable by modern gcc.  Statement boundaries and
+> variables are not preserved.  There is an arms race within gcc to both
+> improve code optimization and its own "reverse-engineering" debugging
+> data generation, and the former is always ahead.
+> 
+> The end result is that there are many spots that we'd like to probe in
+> systemtap, but can't place exactly or extract all the data we'd like.
+> Really.
 
+Useful info, thanks.
+
+> There are also spots that for other reasons cannot tolerate a fully
+> dynamic kprobes-style probe:
+> 
+> - where 1000-cycle int3-dispatching overheads too high
+
+Is that still true of the recent kprobes "boosting" changes?
+
+> - in low-level code such as fault handling or locking, that, if probed
+>   dynamically, could entail infinite regress
+> - debugging information may not be available
+> 
+> This is the reason why I'm in favour of some lightweight event-marking
+> facility: a way of catching those points where dynamic probing is not
+> sufficiently fast or dependable.
+
+OK.
+
+> > [...]
+> > All we appear to lack is systemtap ability to parse debug data so it can
+> > be told "trace on line 9 of sched.c and record rq and next"
+> 
+> Actually:
+> 
+> #! stap
+> probe kernel.function("*@kernel/sched.c:9") { printf("%p %p", $rq, $next) }
+> 
+
+Really.  That's impressive progress.

@@ -1,43 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751318AbWIOMGR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751333AbWIOMQX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751318AbWIOMGR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Sep 2006 08:06:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751323AbWIOMGQ
+	id S1751333AbWIOMQX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Sep 2006 08:16:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751336AbWIOMQX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Sep 2006 08:06:16 -0400
-Received: from tinc.cathedrallabs.org ([72.9.252.66]:10126 "EHLO
-	tinc.cathedrallabs.org") by vger.kernel.org with ESMTP
-	id S1751318AbWIOMGQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Sep 2006 08:06:16 -0400
-Date: Fri, 15 Sep 2006 09:03:57 -0300
-From: Aristeu Sergio Rozanski Filho <aris@cathedrallabs.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH -mm] 8250: remove not needed NMI watchdog tickle in serial8250_console_write()
-Message-ID: <20060915120357.GB6642@cathedrallabs.org>
-References: <20060913205203.GC4787@cathedrallabs.org> <20060914214210.9128e032.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060914214210.9128e032.akpm@osdl.org>
-User-Agent: Mutt/1.5.13 (2006-08-11)
-X-Spam-Pyzor-Results: Reported 0 times.
+	Fri, 15 Sep 2006 08:16:23 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:63696 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1751333AbWIOMQW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Sep 2006 08:16:22 -0400
+Subject: Re: [PATCH 0/11] LTTng-core (basic tracing infrastructure) 0.5.108
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Tim Bird <tim.bird@am.sony.com>, Ingo Molnar <mingo@elte.hu>,
+       Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
+       linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
+       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@redhat.com>,
+       Greg Kroah-Hartman <gregkh@suse.de>,
+       Thomas Gleixner <tglx@linutronix.de>, Tom Zanussi <zanussi@us.ibm.com>,
+       ltt-dev@shafik.org, Michel Dagenais <michel.dagenais@polymtl.ca>
+In-Reply-To: <Pine.LNX.4.64.0609151339190.6761@scrub.home>
+References: <20060914033826.GA2194@Krystal> <20060914112718.GA7065@elte.hu>
+	 <Pine.LNX.4.64.0609141537120.6762@scrub.home>
+	 <20060914135548.GA24393@elte.hu>
+	 <Pine.LNX.4.64.0609141623570.6761@scrub.home>
+	 <20060914171320.GB1105@elte.hu>
+	 <Pine.LNX.4.64.0609141935080.6761@scrub.home>
+	 <20060914181557.GA22469@elte.hu> <4509B03A.3070504@am.sony.com>
+	 <1158320406.29932.16.camel@localhost.localdomain>
+	 <Pine.LNX.4.64.0609151339190.6761@scrub.home>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Fri, 15 Sep 2006 13:38:58 +0100
+Message-Id: <1158323938.29932.23.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I disagree.
+Ar Gwe, 2006-09-15 am 13:46 +0200, ysgrifennodd Roman Zippel:
+> > That misses the entire point. If you have dynamic tracepoints you don't
+> > have any static tracepoints to maintain because you don't need them.
 > 
-> If characters are flowing out at a rate which consistently exceeds
-> one-per-ten-milliseconds, the touch_nmi_watchdog() in wait_for_xmitr() will
-> never be called.
-> 
-> Consequently a large interrupt-time write to the serial port (ie: sysrq-T
-> with serial-console enabled) will cause the NMI watchdog to trigger.
-> 
-> No?
-gah, you're right. please drop this one.
-Thanks,
+> This assumes dynamic tracepoints are generally available, which is wrong.
 
--- 
-Aristeu
+Wrong in what sense, you don't have them implemented or your
+architecture is mindbogglingly braindead you can't implement them ?
+
+> This assumes that dynamic tracepoints can't benefit from static source 
+> annotations, which is also wrong.
+
+gcc -g produces extensive annotations which are then usably by many
+tools other than gdb.
+
+Alan
 

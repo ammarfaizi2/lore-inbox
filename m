@@ -1,118 +1,205 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751701AbWIOUOM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751713AbWIOUP4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751701AbWIOUOM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Sep 2006 16:14:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751698AbWIOUOM
+	id S1751713AbWIOUP4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Sep 2006 16:15:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751702AbWIOUP4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Sep 2006 16:14:12 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:32461 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751676AbWIOUOK (ORCPT
+	Fri, 15 Sep 2006 16:15:56 -0400
+Received: from mail.windriver.com ([147.11.1.11]:30431 "EHLO mail.wrs.com")
+	by vger.kernel.org with ESMTP id S1751138AbWIOUPz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Sep 2006 16:14:10 -0400
-Date: Fri, 15 Sep 2006 22:05:59 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Andrew Morton <akpm@osdl.org>, tglx@linutronix.de, karim@opersys.com,
-       Paul Mundt <lethal@linux-sh.org>, Jes Sorensen <jes@sgi.com>,
-       Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
-       linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
-       Ingo Molnar <mingo@redhat.com>, Greg Kroah-Hartman <gregkh@suse.de>,
-       Tom Zanussi <zanussi@us.ibm.com>, ltt-dev@shafik.org,
-       Michel Dagenais <michel.dagenais@polymtl.ca>
-Subject: Re: [PATCH 0/11] LTTng-core (basic tracing infrastructure) 0.5.108
-Message-ID: <20060915200559.GB30459@elte.hu>
-References: <20060915135709.GB8723@localhost.usen.ad.jp> <450AB5F9.8040501@opersys.com> <450AB506.30802@sgi.com> <450AB957.2050206@opersys.com> <20060915142836.GA9288@localhost.usen.ad.jp> <450ABE08.2060107@opersys.com> <1158332447.5724.423.camel@localhost.localdomain> <20060915111644.c857b2cf.akpm@osdl.org> <20060915181907.GB17581@elte.hu> <Pine.LNX.4.64.0609152111030.6761@scrub.home>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 15 Sep 2006 16:15:55 -0400
+Date: Fri, 15 Sep 2006 16:15:38 -0400
+To: linux-kernel@vger.kernel.org
+Cc: netdev@vger.kernel.org, jeff@garzik.org
+Subject: [PATCH] Add Broadcom PHY support
+Message-ID: <20060915201538.GA28483@lucciola.windriver.com>
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="VbJkn9YxBvnuCH5J"
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0609152111030.6761@scrub.home>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -2.9
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.9 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5000]
-	-0.1 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+User-Agent: Mutt/1.5.13 (2006-08-11)
+From: Amy Fong <amy.fong@windriver.com>
+X-OriginalArrivalTime: 15 Sep 2006 20:15:39.0366 (UTC) FILETIME=[B6530060:01C6D903]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* Roman Zippel <zippel@linux-m68k.org> wrote:
+--VbJkn9YxBvnuCH5J
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-> Hi,
-> 
-> On Fri, 15 Sep 2006, Ingo Molnar wrote:
-> 
-> > > What Karim is sharing with us here (yet again) is the real in-field 
-> > > experience of real users (ie: not kernel developers).
-> > 
-> > well, Jes has that experience and Thomas too.
-> > 
-> > > I mean, on one hand we have people explaining what they think a 
-> > > tracing facility should and shouldn't do, and on the other hand we 
-> > > have a guy who has been maintaining and shipping exactly that thing to 
-> > > (paying!) customers for many years.
-> > 
-> > so does Thomas and Jes. So what's the point?
-> 
-> That only Karim's experience is being in question here?
+[PATCH] Add Broadcom PHY support
 
-i think you misunderstood, please read the paragraphs above. They 
-suggest that there's "real in-field experience of real users" against 
-"people explaining what they think a tracing facility should and 
-shouldn't do". I only pointed out that those people (Thomas, Jes) dont 
-just randomly express their opinion but have actual in-field experience 
-too (of paying customers), about the very topic at hand.
+This patch adds a driver to support the bcm5421s and bcm5461s PHY
 
-> > i judge LTT by its current code quality, not by its proponents shouting 
-> > volume - and that quality is still quite poor at the moment. (and then 
-> > there are the conceptual problems too, outlined numerous times) I have 
-> > quoted specific example(s) for that in this thread. Furthermore, LTT 
-> > does this:
-> > 
-> >  246 files changed, 26207 insertions(+), 71 deletions(-)
-> > 
-> > and this gives me the shivers, for all the reasons i outlined.
-> 
-> Well, I'm first to admit that LTT needs improvement, but that has 
-> never been the point.
+Kernel version:  linux-2.6.18-rc6
 
-that might not be your point, but that very much is my point. I do claim 
-that LTT's problems arise out of its fundamental mistake on the kernel 
-side: that it is a static tracer that tries to be too many things to too 
-many people. SystemTap is available here and today on an unmodified 
-upstream kernel. LTT has been in this shape for the past ~8 years. But 
-if you wish you can certainly prove me wrong via for example cleaning up 
-and shrinking LTT down to a size and impact that is not scary anymore, 
-with the same functionality, and the clear future path for the removal 
-of its dependencies. I tried to argue that in the abstract, but please 
-by all means feel free to prove me wrong. (or argue against my specific 
-points)
+Signed-off-by: Amy Fong <amy.fong@windriver.com>
 
-> We need to get to some kind of agreement what level of tracing Linux 
-> should support in general, preferably something that is easy to 
-> integrate and usable by everyone. Especially the latter means that 
-> there is not one true solution, [...]
+--VbJkn9YxBvnuCH5J
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: attachment; filename="broadcom-phy.diff"
 
-sorry, but i disagree. There _is_ a solution that is superior in every 
-aspect: kprobes + SystemTap. (or any other equivalent dynamic tracer)
+Index: linux-2.6.18-rc6/drivers/net/phy/broadcom.c
+===================================================================
+--- /dev/null
++++ linux-2.6.18-rc6/drivers/net/phy/broadcom.c
+@@ -0,0 +1,129 @@
++/*
++ * drivers/net/phy/broadcom.c, Driver for Broadcom PHYs
++ *
++ * Copyright (c) 2006 Wind River Systems, Inc.
++ * Written by Amy Fong
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or
++ * (at your option) any later version.
++ *
++ * This program is distributed in the hope that it will be useful,
++ * but WITHOUT ANY WARRANTY; without even the implied warranty of
++ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
++ * See the GNU General Public License for more details.
++ *
++ * You should have received a copy of the GNU General Public License
++ * along with this program; if not, write to the Free Software
++ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
++ *
++ */
++
++#include <linux/kernel.h>
++#include <linux/sched.h>
++#include <linux/string.h>
++#include <linux/errno.h>
++#include <linux/unistd.h>
++#include <linux/slab.h>
++#include <linux/interrupt.h>
++#include <linux/init.h>
++#include <linux/delay.h>
++#include <linux/netdevice.h>
++#include <linux/etherdevice.h>
++#include <linux/skbuff.h>
++#include <linux/spinlock.h>
++#include <linux/mm.h>
++#include <linux/module.h>
++#include <linux/mii.h>
++#include <linux/ethtool.h>
++#include <linux/phy.h>
++
++#include <asm/io.h>
++#include <asm/irq.h>
++#include <asm/uaccess.h>
++
++/* BCM5421S control register */
++#define MII_BCM5421S_CONTROL           0x00
++#define MII_BCM5421S_CONTROL_RESET     0x00008000
++#define MII_BCM5421S_CONTROL_INIT      0x00001140
++#define MII_BCM5421S_ANEN              0x00001000
++#define MII_BCM5421S_CR                 0x00
++#define MII_BCM5421S_CR_RST            0x00008000
++#define MII_BCM5421S_CR_INIT           0x00001000
++#define MII_BCM5421S_STATUS            0x1
++#define MII_BCM5421S_STATUS_AN_DONE    0x00000020
++#define MII_BCM5421S_STATUS_LINK       0x0004
++#define MII_BCM5421S_PHYIR1            0x2
++#define MII_BCM5421S_PHYIR2            0x3
++#define MII_BCM5421S_ANLPBPA           0x5
++#define MII_BCM5421S_ANLPBPA_HALF      0x00000040
++#define MII_BCM5421S_ANLPBPA_FULL      0x00000020
++#define MII_BCM5421S_ANEX              0x6
++#define MII_BCM5421S_ANEX_NP           0x00000004
++#define MII_BCM5421S_ANEX_PRX          0x00000002
++
++MODULE_DESCRIPTION("Broadcom PHY driver");
++MODULE_AUTHOR("Amy Fong");
++MODULE_LICENSE("GPL");
++
++static int bcm5421s_config_aneg(struct phy_device *phydev)
++{
++	int err;
++
++       /* Write the appropriate value to the PHY reg */
++	if (phydev->supported & SUPPORTED_1000baseT_Full)
++               err = phy_write(phydev, MII_BCM5421S_CONTROL, MII_BCM5421S_CONTROL_INIT);
++       else
++               err = phy_write(phydev, MII_BCM5421S_CONTROL, MII_BCM5421S_CR_INIT);
++
++	if (err < 0) return err;
++
++       /* doesn't have phy interrupt */
++       phydev->interrupts = PHY_INTERRUPT_DISABLED;
++
++	return 0;
++}
++
++static struct phy_driver bcm5421s_driver = {
++	.phy_id         = 0x002060e1,
++	.phy_id_mask    = 0x00ffffff,
++	.name           = "Broadcom BCM5421S",
++	.features       = PHY_GBIT_FEATURES,
++	.config_aneg    = bcm5421s_config_aneg,
++	.read_status    = genphy_read_status,
++	.driver 	= { .owner = THIS_MODULE,},
++};
++
++/* Glossy description on Broadcom's site seems to hint that the 5461
++   should be a drop-in for the 5421.... */
++static struct phy_driver bcm5461s_driver = {
++	.phy_id         = 0x002060c1,
++	.phy_id_mask    = 0x00ffffff,
++	.name           = "Broadcom BCM5461S",
++	.features       = PHY_GBIT_FEATURES,
++	.config_aneg    = bcm5421s_config_aneg,
++	.read_status    = genphy_read_status,
++	.driver 	= { .owner = THIS_MODULE,},
++};
++
++static int __init broadcom_init(void)
++{
++	int ret;
++
++	ret = phy_driver_register(&bcm5421s_driver);
++	if (!ret) {
++		ret = phy_driver_register(&bcm5461s_driver);
++		if (ret) phy_driver_unregister(&bcm5421s_driver);
++	}
++	return ret;
++}
++
++static void __exit broadcom_exit(void)
++{
++	phy_driver_unregister(&bcm5421s_driver);
++	phy_driver_unregister(&bcm5461s_driver);
++}
++
++module_init(broadcom_init);
++module_exit(broadcom_exit);
+Index: linux-2.6.18-rc6/drivers/net/phy/Kconfig
+===================================================================
+--- linux-2.6.18-rc6.orig/drivers/net/phy/Kconfig
++++ linux-2.6.18-rc6/drivers/net/phy/Kconfig
+@@ -56,6 +56,12 @@
+ 	---help---
+ 	  Currently supports the LAN83C185 PHY
+ 
++config BROADCOM_PHY
++	tristate "Drivers for Broadcom PHYs"
++	depends on PHYLIB
++	---help---
++	  Currently supports bcm5421s and bcm5461s
++
+ config FIXED_PHY
+ 	tristate "Drivers for PHY emulation on fixed speed/link"
+ 	depends on PHYLIB
+Index: linux-2.6.18-rc6/drivers/net/phy/Makefile
+===================================================================
+--- linux-2.6.18-rc6.orig/drivers/net/phy/Makefile
++++ linux-2.6.18-rc6/drivers/net/phy/Makefile
+@@ -10,4 +10,5 @@
+ obj-$(CONFIG_QSEMI_PHY)		+= qsemi.o
+ obj-$(CONFIG_SMSC_PHY)		+= smsc.o
+ obj-$(CONFIG_VITESSE_PHY)	+= vitesse.o
++obj-$(CONFIG_BROADCOM_PHY)	+= broadcom.o
+ obj-$(CONFIG_FIXED_PHY)		+= fixed.o
 
-> At this point you've been rather uncompromising [...]
-
-yes, i'm rather uncompromising when i sense attempts to push inferior 
-concepts into the core kernel _when_ a better concept exists here and 
-today. Especially if the concept being pushed adds more than 350 
-tracepoints that expose something to user-space that amounts to a 
-complex external API, which tracepoints we have little chance of ever 
-getting rid of under a static tracing concept.
-
-i'm also looking at it this way too: you already seem to be quite 
-reluctant to add kprobes to your architecture today. How reluctant would 
-you be tomorrow if you had static tracepoints, which would remove a fair 
-chunk of incentive to implement kprobes?
-
-	Ingo
+--VbJkn9YxBvnuCH5J--

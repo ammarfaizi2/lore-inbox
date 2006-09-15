@@ -1,82 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932188AbWIODsN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751364AbWIODxR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932188AbWIODsN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Sep 2006 23:48:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932189AbWIODsN
+	id S1751364AbWIODxR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Sep 2006 23:53:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751378AbWIODxR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Sep 2006 23:48:13 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:3288 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932188AbWIODsM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Sep 2006 23:48:12 -0400
-Date: Thu, 14 Sep 2006 20:48:01 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: David Chinner <dgc@sgi.com>
-Cc: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>,
-       linux-kernel@vger.kernel.org, xfs-masters@oss.sgi.com,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [xfs-masters] Re: 2.6.18-rc6-mm2
-Message-Id: <20060914204801.e37a112b.akpm@osdl.org>
-In-Reply-To: <20060915025745.GM3034@melbourne.sgi.com>
-References: <20060913015850.GB3034@melbourne.sgi.com>
-	<20060913042627.GE3024@melbourne.sgi.com>
-	<6bffcb0e0609130243y776492c7g78f4d3902dc3c72c@mail.gmail.com>
-	<20060914035904.GF3034@melbourne.sgi.com>
-	<450914C4.2080607@gmail.com>
-	<6bffcb0e0609140150n7499bf54k86e2b7da47766005@mail.gmail.com>
-	<20060914090808.GS3024@melbourne.sgi.com>
-	<6bffcb0e0609140229r59691de5i58d2d81f839d744e@mail.gmail.com>
-	<6bffcb0e0609140303n72a73867qb308f5068733161c@mail.gmail.com>
-	<6bffcb0e0609141001ic137201p6a2413f5ca915234@mail.gmail.com>
-	<20060915025745.GM3034@melbourne.sgi.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 14 Sep 2006 23:53:17 -0400
+Received: from wx-out-0506.google.com ([66.249.82.224]:38631 "EHLO
+	wx-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1751364AbWIODxQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Sep 2006 23:53:16 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=o377+nf7jkZAYk3woTsYMdb5L3HTjTvGRaEf2AxRE38lg+06/HTOiIGp7RrA5a4k1404eaiP8ALEm4UNwMHZVTuV63sU2645Mc9bhAXi4nqz5WaSDl80NBDSJL0wjtZgpKpM3YcY6A4e85KhezcMdRo7wiCAfNZN18AHlqWnQcQ=
+Message-ID: <b263e5900609142053r12fbb71ep6ea3e1d63a722d4e@mail.gmail.com>
+Date: Thu, 14 Sep 2006 20:53:16 -0700
+From: "Dan Carpenter" <error27.lkml@gmail.com>
+To: "Matt Domsch" <Matt_Domsch@dell.com>
+Subject: Re: [PATCH 2.6.18-rc5] PCI: sort device lists breadth-first
+Cc: linux-pci@atrey.karlin.mff.cuni.cz, "Greg KH" <greg@kroah.com>,
+       linux-kernel@vger.kernel.org, error27@gmail.com,
+       ppokorny@penguincomputing.com
+In-Reply-To: <20060908031422.GA4549@lists.us.dell.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <20060908031422.GA4549@lists.us.dell.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 15 Sep 2006 12:57:45 +1000
-David Chinner <dgc@sgi.com> wrote:
+On 9/7/06, Matt Domsch <Matt_Domsch@dell.com> wrote:
+> Problem:
+> Many people have come to expect this naming.  Linux 2.6
+> kernels name these eth1 and eth0 respectively (backwards from
+> expectations).  I also have reports that various Sun and HP servers
+> have similar behavior.
+>
 
-> On Thu, Sep 14, 2006 at 07:01:38PM +0200, Michal Piotrowski wrote:
-> > >>
-> > >> I'll build system with gcc 3.4
-> > >
-> > >It's not a compiler issue.
-> > >
-> > >Binary search should solve this mystery.
-> > 
-> > I was wrong - it's in vanilla tree
-> > (http://www.stardust.webpages.pl/files/mm/2.6.18-rc6-mm2/mm-dmesg1).
-> > 
-> > cat hunt | head -n 3
-> > origin.patch
-> > BAD
-> > libata-ignore-cfa-signature-while-sanity-checking-an-atapi-device.patch
-> 
-> Not sure what this means....
+On RHEL3 the 32bit and 64bit versions order the NICs differently.
+64bit RHEL3 orders it the same as 2.6.
 
-"BAD" is a bisection point, as per
-http://www.zip.com.au/~akpm/linux/patches/stuff/bisecting-mm-trees.txt.  So
-just 2.6.18-rc6+origin.patch exhibits the failure.  That is mainline.
+I've got a lot of systems where the NIC LEDs are labelled.  The labels
+are correct for 2.6 but not for 2.4 32 bit.  I'm suspect the labels
+were designed for Windows originally.
 
-> > I can reproduce this bug with all CONFIG_DEBUG_*=y.
-> > (only
-> > CONFIG_DEBUG_SYNCHRO_TEST=m
-> > CONFIG_RCU_TORTURE_TEST=m
-> > as modules)
-> 
-> I notice you're running i386 with 4k stacks - I wonder if you're blowing the
-> stack by running xfs on loopback. I've been testing on x86_64 and ia64
-> which don't have those issues. Can you try with 8K stacks instead of
-> 4k stacks?
+My boss pointed out that this patch.  It was supposed to make PCI bus
+ordering match 2.4.
+http://kernel.org/git/?p=linux/kernel/git/torvalds/old-2.6-bkcvs.git;a=commitdiff;h=ffdd6e8f870ca6dd0d9b9169b8c2e0fdbae99549
+It's still there, why did it stop working?
 
-hm, that wouldn't be good.
+Couldn't we just use the labelling from the DMI data to order the NICs?
 
-Enabling CONFIG_DEBUG_STACK_USAGE will make the fourth column in the
-sysrq-T output display the minimum-ever free stack space for each task.
-
-sleep         S ffff810100f0bea8     0 18893  22372                     (NOTLB)
-
-                                     ^ this number.
+regards,
+dan carpenter

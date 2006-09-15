@@ -1,70 +1,121 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750796AbWIOJ30@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750813AbWIOJqP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750796AbWIOJ30 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Sep 2006 05:29:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750801AbWIOJ30
+	id S1750813AbWIOJqP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Sep 2006 05:46:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750808AbWIOJqP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Sep 2006 05:29:26 -0400
-Received: from jaguar.mkp.net ([192.139.46.146]:56475 "EHLO jaguar.mkp.net")
-	by vger.kernel.org with ESMTP id S1750796AbWIOJ3Z (ORCPT
+	Fri, 15 Sep 2006 05:46:15 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:13007 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1750763AbWIOJqO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Sep 2006 05:29:25 -0400
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Martin Bligh <mbligh@mbligh.org>, Roman Zippel <zippel@linux-m68k.org>,
-       Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
-       linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
-       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@redhat.com>,
-       Greg Kroah-Hartman <gregkh@suse.de>,
-       Thomas Gleixner <tglx@linutronix.de>, Tom Zanussi <zanussi@us.ibm.com>,
-       ltt-dev@shafik.org, Michel Dagenais <michel.dagenais@polymtl.ca>,
-       fche@redhat.com
-Subject: Re: [PATCH 0/11] LTTng-core (basic tracing infrastructure) 0.5.108
-References: <20060914033826.GA2194@Krystal> <20060914112718.GA7065@elte.hu>
-	<Pine.LNX.4.64.0609141537120.6762@scrub.home>
-	<20060914135548.GA24393@elte.hu>
-	<Pine.LNX.4.64.0609141623570.6761@scrub.home>
-	<20060914171320.GB1105@elte.hu> <4509BAD4.8010206@mbligh.org>
-	<20060914203430.GB9252@elte.hu>
+	Fri, 15 Sep 2006 05:46:14 -0400
+Message-ID: <450A7657.8030108@sgi.com>
+Date: Fri, 15 Sep 2006 11:45:59 +0200
 From: Jes Sorensen <jes@sgi.com>
-Date: 15 Sep 2006 05:29:24 -0400
-In-Reply-To: <20060914203430.GB9252@elte.hu>
-Message-ID: <yq03bateavf.fsf@jaguar.mkp.net>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.4
+User-Agent: Thunderbird 1.5.0.4 (X11/20060527)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-mm@kvack.org, linux-kernel@vger.kernel.org,
+       linux-ia64@vger.kernel.org
+Subject: Re: [RFC - Patch] Condense output of show_free_areas()
+References: <yq0mz92efsd.fsf@jaguar.mkp.net> <20060914230837.e8c53801.akpm@osdl.org>
+In-Reply-To: <20060914230837.e8c53801.akpm@osdl.org>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: multipart/mixed;
+ boundary="------------090001090600040703070702"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Ingo" == Ingo Molnar <mingo@elte.hu> writes:
+This is a multi-part message in MIME format.
+--------------090001090600040703070702
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 
-Ingo> * Martin Bligh <mbligh@mbligh.org> wrote:
+Andrew Morton wrote:
+> On 14 Sep 2006 09:30:58 -0400 Jes Sorensen <jes@sgi.com> wrote:
+>> While this is a bigger problem on large NUMA systems, it is also
+>> applicable to smaller desktop sized and mid range NUMA systems.
+> 
+> Could you please send us an example of the new output for review,
+> and for me to include in the changelog?  Thanks.
 
->> I don't think anyone is saying that static tracepoints do not have
->> their limitations, or that dynamic tracepointing is useless. But
->> that's not the point ... why can't we have one infrastructure that
->> supports both? Preferably in a fairly simple, consistent way.
+Whoops, should have thought of that. Note the output is formatted for
+80 columns, so it may look a little dodgy in 72 columns - attached it
+instead.
 
-Ingo> primarily because i fail to see any property of static tracers
-Ingo> that are not met by dynamic tracers. So to me dynamic tracers
-Ingo> like SystemTap are a superset of static tracers.
+Sorry it's a bit large, but needed to show the difference, but feel free
+to clip out the middle CPUs or something. This is from a 4-node 8-cpu
+box.
 
-Ingo> So my position is that what we should concentrate on is to make
-Ingo> the life of dynamic tracers easier (be that a handful of
-Ingo> generic, parametric hooks that gather debuginfo information and
-Ingo> add NOPs for easy patching), while realizing that static tracers
-Ingo> have no advantage over dynamic tracers.
-
-The parallel that springs to mind here is C++ kernel components 'I
-promise to only use the good parts', then next week someone else adds
-another pile in a worse place. Once the points are in we will never
-get rid of them, look at how long it took to get rid of devfs :( In
-addition it is guaranteed that people will not be able to agree on
-which points to put where, despite the claim that there will be only
-30 points - sorry, I am not buying that, we have plenty of evidence to
-show the opposite.
-
-I looked at the old LTT code a while ago and it was pretty appalling,
-maybe LTTng is better, but I can't say the old code gave me a warm
-fuzzy feeling.
-
+Cheers,
 Jes
+
+
+--------------090001090600040703070702
+Content-Type: text/plain;
+ name="format-compare.txt"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="format-compare.txt"
+
+Old format:
+
+Mem-info:
+Node 0 DMA per-cpu:
+cpu 0 hot: high 42, batch 7 used:24
+cpu 0 cold: high 14, batch 3 used:1
+cpu 1 hot: high 42, batch 7 used:34
+cpu 1 cold: high 14, batch 3 used:0
+cpu 2 hot: high 42, batch 7 used:0
+cpu 2 cold: high 14, batch 3 used:0
+cpu 3 hot: high 42, batch 7 used:0
+cpu 3 cold: high 14, batch 3 used:0
+cpu 4 hot: high 42, batch 7 used:0
+cpu 4 cold: high 14, batch 3 used:0
+cpu 5 hot: high 42, batch 7 used:0
+cpu 5 cold: high 14, batch 3 used:0
+cpu 6 hot: high 42, batch 7 used:0
+cpu 6 cold: high 14, batch 3 used:0
+cpu 7 hot: high 42, batch 7 used:0
+cpu 7 cold: high 14, batch 3 used:0
+Node 0 DMA32 per-cpu: empty
+Node 0 Normal per-cpu: empty
+Node 0 HighMem per-cpu: empty
+Node 1 DMA per-cpu:
+[snip]
+Free pages:     5410688kB (0kB HighMem)
+Active:9536 inactive:4261 dirty:6 writeback:0 unstable:0 free:338168 slab:1931 mapped:1900 pagetables:208
+Node 0 DMA free:1676304kB min:3264kB low:4080kB high:4896kB active:128048kB inactive:61568kB present:1970880kB pages_scanned:0 all_unreclaimable? no
+lowmem_reserve[]: 0 0 0 0
+Node 0 DMA32 free:0kB min:0kB low:0kB high:0kB active:0kB inactive:0kB present:0kB pages_scanned:0 all_unreclaimable? no
+lowmem_reserve[]: 0 0 0 0
+Node 0 Normal free:0kB min:0kB low:0kB high:0kB active:0kB inactive:0kB present:0kB pages_scanned:0 all_unreclaimable? no
+lowmem_reserve[]: 0 0 0 0
+Node 0 HighMem free:0kB min:512kB low:512kB high:512kB active:0kB inactive:0kB present:0kB pages_scanned:0 all_unreclaimable? no
+lowmem_reserve[]: 0 0 0 0
+Node 1 DMA free:1951728kB min:3280kB low:4096kB high:4912kB active:5632kB inactive:1504kB present:1982464kB pages_scanned:0 all_unreclaimable? no
+lowmem_reserve[]: 0 0 0 0
+....
+
+New format:
+
+Mem-info:
+Node 0 DMA per-cpu:
+CPU    0: Hot: hi:   42, btch:   7 usd:  41   Cold: hi:   14, btch:   3 usd:   2
+CPU    1: Hot: hi:   42, btch:   7 usd:  40   Cold: hi:   14, btch:   3 usd:   1
+CPU    2: Hot: hi:   42, btch:   7 usd:   0   Cold: hi:   14, btch:   3 usd:   0
+CPU    3: Hot: hi:   42, btch:   7 usd:   0   Cold: hi:   14, btch:   3 usd:   0
+CPU    4: Hot: hi:   42, btch:   7 usd:   0   Cold: hi:   14, btch:   3 usd:   0
+CPU    5: Hot: hi:   42, btch:   7 usd:   0   Cold: hi:   14, btch:   3 usd:   0
+CPU    6: Hot: hi:   42, btch:   7 usd:   0   Cold: hi:   14, btch:   3 usd:   0
+CPU    7: Hot: hi:   42, btch:   7 usd:   0   Cold: hi:   14, btch:   3 usd:   0
+Node 1 DMA per-cpu:
+[snip]
+Free pages:     5411088kB (0kB HighMem)
+Active:9558 inactive:4233 dirty:6 writeback:0 unstable:0 free:338193 slab:1942 mapped:1918 pagetables:208
+Node 0 DMA free:1677648kB min:3264kB low:4080kB high:4896kB active:129296kB inactive:58864kB present:1970880kB pages_scanned:0 all_unreclaimable? no
+lowmem_reserve[]: 0 0 0 0
+Node 1 DMA free:1948448kB min:3280kB low:4096kB high:4912kB active:6864kB inactive:3536kB present:1982464kB pages_scanned:0 all_unreclaimable? no
+lowmem_reserve[]: 0 0 0 0
+
+--------------090001090600040703070702--

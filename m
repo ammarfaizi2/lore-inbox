@@ -1,96 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751620AbWIOTtk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751638AbWIOTyv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751620AbWIOTtk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Sep 2006 15:49:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751637AbWIOTtk
+	id S1751638AbWIOTyv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Sep 2006 15:54:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751643AbWIOTyv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Sep 2006 15:49:40 -0400
-Received: from natreg.rzone.de ([81.169.145.183]:5550 "EHLO natreg.rzone.de")
-	by vger.kernel.org with ESMTP id S1751618AbWIOTtj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Sep 2006 15:49:39 -0400
-Date: Fri, 15 Sep 2006 21:48:40 +0200
-From: Olaf Hering <olaf@aepfle.de>
-To: David Lang <dlang@digitalinsight.com>
-Cc: Michael Buesch <mb@bu3sch.de>, Greg KH <greg@kroah.com>,
-       Oleg Verych <olecom@flower.upol.cz>,
-       James Bottomley <James.Bottomley@steeleye.com>,
-       Sven Luther <sven.luther@wanadoo.fr>, debian-kernel@lists.debian.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] MODULE_FIRMWARE for binary firmware(s)
-Message-ID: <20060915194839.GA32654@aepfle.de>
-References: <1156802900.3465.30.camel@mulgrave.il.steeleye.com> <Pine.LNX.4.63.0608290844240.30381@qynat.qvtvafvgr.pbz> <20060829183208.GA11468@kroah.com> <200608292104.24645.mb@bu3sch.de> <20060829201314.GA28680@aepfle.de> <Pine.LNX.4.63.0608291341060.30381@qynat.qvtvafvgr.pbz> <20060830054433.GA31375@aepfle.de> <Pine.LNX.4.63.0608301048180.31356@qynat.qvtvafvgr.pbz>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+	Fri, 15 Sep 2006 15:54:51 -0400
+Received: from tomts40.bellnexxia.net ([209.226.175.97]:30635 "EHLO
+	tomts40-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id S1751626AbWIOTyu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Sep 2006 15:54:50 -0400
+Date: Fri, 15 Sep 2006 15:49:37 -0400
+From: Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>
+To: "Jose R. Santos" <jrs@us.ibm.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Roman Zippel <zippel@linux-m68k.org>,
+       Tim Bird <tim.bird@am.sony.com>, Ingo Molnar <mingo@elte.hu>,
+       linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
+       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@redhat.com>,
+       Greg Kroah-Hartman <gregkh@suse.de>,
+       Thomas Gleixner <tglx@linutronix.de>, Tom Zanussi <zanussi@us.ibm.com>,
+       ltt-dev@shafik.org, Michel Dagenais <michel.dagenais@polymtl.ca>
+Subject: Re: [PATCH 0/11] LTTng-core (basic tracing infrastructure) 0.5.108
+Message-ID: <20060915194937.GA7133@Krystal>
+References: <20060914171320.GB1105@elte.hu> <Pine.LNX.4.64.0609141935080.6761@scrub.home> <20060914181557.GA22469@elte.hu> <4509B03A.3070504@am.sony.com> <1158320406.29932.16.camel@localhost.localdomain> <Pine.LNX.4.64.0609151339190.6761@scrub.home> <1158323938.29932.23.camel@localhost.localdomain> <Pine.LNX.4.64.0609151425180.6761@scrub.home> <1158327696.29932.29.camel@localhost.localdomain> <450AEC92.7090409@us.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.63.0608301048180.31356@qynat.qvtvafvgr.pbz>
+In-Reply-To: <450AEC92.7090409@us.ibm.com>
+X-Editor: vi
+X-Info: http://krystal.dyndns.org:8080
+X-Operating-System: Linux/2.4.32-grsec (i686)
+X-Uptime: 15:39:11 up 23 days, 16:47,  2 users,  load average: 0.45, 1.25, 0.89
 User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Aug 30, David Lang wrote:
-
-> >initramfs is always in use.
+* Jose R. Santos (jrs@us.ibm.com) wrote:
+> Alan Cox wrote:
 > 
-> not on my machines.
+> With several other trace tools being implemented for the kernel, there 
+> is a great problem with consistencies among these tool.  It is my 
+> opinion that trace are of very little use to _most_ people with out the 
+> availability of post-processing tools to analyses these trace.  While I 
+> wont say that we need one all powerful solution, it would be good if all 
+> solutions would at least be able to talk to the same post-processing 
+> facilities in user-space.  Before LTTng is even considered into the 
+> kernel, there need to be discussion to determine if the trace mechanism 
+> being propose is suitable for all people interested in doing trace 
+> analysis.  The fact the there also exist tool like LKET and LKST seem to 
+> suggest that there other things to be considered when it comes to 
+> implementing a trace mechanism that everyone would be happy with.
+> 
+> It would also be useful for all the trace tool to implement the same 
+> probe points so that post-processing tools can be interchanged between 
+> the various trace implementations.
+> 
+> 
 
-klibc can be build like:
+Hi Jose,
 
-        cd linux-2.6.*
-        make headers_install INSTALL_HDR_PATH=/dev/shm/$$
-        cd ..
-        wget http://www.kernel.org/pub/linux/libs/klibc/Testing/klibc-1.4.29.tar.bz2
-        tar xfj klibc-*.tar.bz2
-        cd klibc-*
-        ln -sfvbn /dev/shm/$$ linux
-        make
+I completely agree that there is a crying need for standardisation there. The
+reason why I propose the LTTng infrastructure as a tracing core in the Linux
+kernel is this : the fundamental problem I have found with kernel tracers so
+far is that they perturb the system too much or do not offer enough fine
+grained protection against reentrancy. Ingo's post about tracing statement
+breaking the kernel all the time seems to me like a sufficient proof that this
+is a real problem.
 
-Every other libc will do it as well, adjust the filelist as needed.
-Try this as CONFIG_INITRAMFS_SOURCE= :
+My goal with LTTng is to provide a reentrant data serialisation mechanism that
+can be called from anywhere in the kernel (ok, the vmalloc path of the page
+fault handler is _the_ exception) that does not use any lock and can therefore
+trace code paths like NMI handlers.
 
-# A simple initramfs
-dir /dev 0755 0 0
-nod /dev/console 0600 0 0 c 5 1
-nod /dev/kmsg 0600 0 0 c 1 11
-dir /sbin 0755 0 0
-dir /lib 0755 0 0
-dir /lib/firmware 0755 0 0
-file /lib/firmware/name.ext /tmp/foofirmware.bin 0755 0 0
-file /sbin/hotplug /home/olaf/kernel/hotplug.sh 0755 0 0
-file /sbin/cat /home/olaf/kernel/klibc-1.4.29/usr/utils/static/cat 0755 0 0
-file /sbin/mount /home/olaf/kernel/klibc-1.4.29/usr/utils/static/mount 0755 0 0
-file /sbin/mkdir /home/olaf/kernel/klibc-1.4.29/usr/utils/static/mkdir 0755 0 0
-file /sbin/mknod /home/olaf/kernel/klibc-1.4.29/usr/utils/static/mknod 0755 0 0
-file /sbin/minips /home/olaf/kernel/klibc-1.4.29/usr/utils/static/minips 0755 0 0
-file /sbin/umount /home/olaf/kernel/klibc-1.4.29/usr/utils/static/umount 0755 0 0
-file /sbin/uname /home/olaf/kernel/klibc-1.4.29/usr/utils/static/uname 0755 0 0
-file /sh /home/olaf/kernel/klibc-1.4.29/usr/dash/sh 0755 0 0
-#optional:
-file /init /home/olaf/kernel/init.sh 0755 0 0
+I also implemented code that would serialize any type of data structure I could
+think of. If it is too much, well, we can use part of it.
 
-Try this as hotplug.sh:
+LTTng trace format is explained there. Your comments on it are very welcome.
 
-#!/sh
-if test "$SEQNUM" -lt 42 ; then
-echo "$1 SEQNUM=$SEQNUM ACTION=$ACTION DEVPATH=$DEVPATH" > /dev/kmsg
-fi
-if test "$SEQNUM" = 1 ; then
-        mkdir /sys
-        mkdir /proc
-        mount -t sysfs sysfs /sys
-        mount -t proc proc /proc
-        set > /1.env
-        echo "$*" > /1.arg
-        cat /proc/cpuinfo > /cpuinfo
-        cat /sys/power/state > /state
-        umount /proc
-        umount /sys
-fi
+http://ltt.polymtl.ca/ > LTTV and LTTng developer documentation > format.html
+(http://ltt.polymtl.ca/svn/ltt/branches/poly/doc/developer/format.html)
+
+Regards,
+
+Mathieu
 
 
-Try this as init.sh:
-#!/sh
-/sh
-
-
-I assume you can adjust hotplug.sh for your ipw needs.
+OpenPGP public key:              http://krystal.dyndns.org:8080/key/compudj.gpg
+Key fingerprint:     8CD5 52C3 8E3C 4140 715F  BA06 3F25 A8FE 3BAE 9A68 

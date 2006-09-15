@@ -1,42 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932158AbWIOSef@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932183AbWIOSrT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932158AbWIOSef (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Sep 2006 14:34:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932167AbWIOSef
+	id S932183AbWIOSrT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Sep 2006 14:47:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932184AbWIOSrT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Sep 2006 14:34:35 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:18614 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932158AbWIOSee (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Sep 2006 14:34:34 -0400
-Date: Fri, 15 Sep 2006 14:34:32 -0400
-From: "Frank Ch. Eigler" <fche@redhat.com>
+	Fri, 15 Sep 2006 14:47:19 -0400
+Received: from wr-out-0506.google.com ([64.233.184.230]:2242 "EHLO
+	wr-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S932183AbWIOSrT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Sep 2006 14:47:19 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=LxYoC0jKAjRkupsuc89WC9uHdS2RCCBx4ElSLIK1U1uZ2yJoFL3Tz9DTDJ4wvKcAK/gmU6XYa5ze82QD3BlUU8Lp/QaUgzE1Eo9VlX5/j5ZKeTsfo8WEPWJvoAG0zzkrZ5kkvFGY0QcLn/lzE+PAy0EZ4StRxATkYYfpEkp6QdI=
+Message-ID: <35a82d00609151147q1157343bg1e3ddbdf264119b7@mail.gmail.com>
+Date: Fri, 15 Sep 2006 11:47:15 -0700
+From: "Scott Baker" <smbaker@gmail.com>
 To: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 0/11] LTTng-core (basic tracing infrastructure) 0.5.108]
-Message-ID: <20060915183432.GJ4577@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Subject: Questions about Exportfs / kernel nfs server / dentrys (2.6.9)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi -
+Hello,
 
-On Fri, Sep 15, 2006 at 07:31:48PM +0100, Alan Cox wrote:
-> Ar Gwe, 2006-09-15 am 13:08 -0400, ysgrifennodd Frank Ch. Eigler:
-Yeah, or something. :-)
+I'm trying to understand some code in exportfs. The particular code is
+in find_exported_dentry. Here is some pseudocode from
+find_exported_dentry. I've stripped out the error-checking code and
+included invariants that describe what I believe is going on.
 
-> > Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
-> > - where 1000-cycle int3-dispatching overheads too high
-> 
-> Why are your despatching overheads 1000 cycles ? (and if its due to int3
-> why are you using int 3 8))
+INPUT: struct dentry *pd
+/* struct dentry *pd is a disconnected dentry that we want to connect.
+* it was probably created with d_alloc_anon. Note that IS_ROOT(pd)
+* is TRUE.
+*/
 
-Smart teams from IBM and Hitachi have been hammering away at this code
-for a year or two now, and yet (roughly) here we are.  There have been
-experiments involving plopping branches instead of int3's at probe
-locations, but this is self-modifying code involving multiple
-instructions, and appears to be tricky on SMP/preempt boxes.
+/* call export ops to get parent of pd */
+ppd = CALL(nops, get_parent)(pd);
 
-- FChE
+/* call export ops to get name of pd */
+CALL(nops, get_name)(ppd, nbuf, pd)
+
+/* perform a lookup using the name we received. We know that pd is a
+* child of ppd, and we know that pd's name is 'nbuf', so the lookup
+* should succeed and return us a non-anonymous dentry.
+*/
+npd = lookup_one_len(nbuf, ppd, strlen(nbuf));
+/* In my test run, pd != ndp. This is because pd is an anonymous dentry
+* and npd is a non-anonymous one, containing a name. Code comments
+* say this is alright.
+*/
+
+if (IS_ROOT(pd)) {
+     /* something went wrong, we have to give up */
+    break;
+}
+
+The function is failing for me on that last IS_ROOT check in the if
+statement. What I'm confused about is when was pd supposed to have
+gone from unconnected to connected? In my test runs, npd is connected
+but pd is not. They both have the same inode number. They both point
+to the same inode.
+
+Thanks,
+Scott

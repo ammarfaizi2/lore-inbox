@@ -1,59 +1,119 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750699AbWIOIxT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750713AbWIOI7A@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750699AbWIOIxT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Sep 2006 04:53:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750703AbWIOIxT
+	id S1750713AbWIOI7A (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Sep 2006 04:59:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750748AbWIOI7A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Sep 2006 04:53:19 -0400
-Received: from mailhub.sw.ru ([195.214.233.200]:13745 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S1750699AbWIOIxS (ORCPT
+	Fri, 15 Sep 2006 04:59:00 -0400
+Received: from aun.it.uu.se ([130.238.12.36]:30183 "EHLO aun.it.uu.se")
+	by vger.kernel.org with ESMTP id S1750720AbWIOI67 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Sep 2006 04:53:18 -0400
-Message-ID: <450A6B06.1050308@sw.ru>
-Date: Fri, 15 Sep 2006 12:57:42 +0400
-From: Kirill Korotaev <dev@sw.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
-X-Accept-Language: en-us, en, ru
+	Fri, 15 Sep 2006 04:58:59 -0400
 MIME-Version: 1.0
-To: sekharan@us.ibm.com
-CC: Pavel Emelianov <xemul@openvz.org>, balbir@in.ibm.com,
-       Dave Hansen <haveblue@us.ibm.com>, Rik van Riel <riel@redhat.com>,
-       Srivatsa <vatsa@in.ibm.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       CKRM-Tech <ckrm-tech@lists.sourceforge.net>, Andi Kleen <ak@suse.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Christoph Hellwig <hch@infradead.org>, Andrey Savochkin <saw@sw.ru>,
-       Matt Helsley <matthltc@us.ibm.com>, Hugh Dickins <hugh@veritas.com>,
-       Alexey Dobriyan <adobriyan@mail.ru>, Oleg Nesterov <oleg@tv-sign.ru>,
-       devel@openvz.org
-Subject: Re: [ckrm-tech] [PATCH] BC: resource beancounters (v4) (added	user
- memory)
-References: <44FD918A.7050501@sw.ru> <44FDAB81.5050608@in.ibm.com>	 <44FEC7E4.7030708@sw.ru> <44FF1EE4.3060005@in.ibm.com>	 <1157580371.31893.36.camel@linuxchandra> <45011CAC.2040502@openvz.org>	 <1157730221.26324.52.camel@localhost.localdomain>	 <4501B5F0.9050802@in.ibm.com>  <450508BB.7020609@openvz.org> <1158000262.6029.26.camel@linuxchandra>
-In-Reply-To: <1158000262.6029.26.camel@linuxchandra>
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <17674.27416.420259.744117@alkaid.it.uu.se>
+Date: Fri, 15 Sep 2006 10:58:00 +0200
+From: Mikael Pettersson <mikpe@it.uu.se>
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: Mikael Pettersson <mikpe@it.uu.se>, acahalan@gmail.com, ak@suse.de,
+       arjan@infradead.org, ebiederm@xmission.com,
+       linux-kernel@vger.kernel.org, mingo@elte.hu, torvalds@osdl.org,
+       zach@vmware.com
+Subject: Re: Assignment of GDT entries
+In-Reply-To: <450A6238.9050404@goop.org>
+References: <200609150755.k8F7tKUD005518@alkaid.it.uu.se>
+	<450A6238.9050404@goop.org>
+X-Mailer: VM 7.17 under Emacs 20.7.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> CKRM/RG handles it this way:
-> 
-> Amount of a resource a child RG gets is the ratio of its share value to
-> the parent's total # of shares. Children's resource allocation can be
-> changed just by changing the parent's total # of shares.
-> 
-> If you case about initial situation would be:
->   Total memory in the system 100MB 
->   parent's total # of shares: 100 (1 share == 1MB)
->   10 children with # of shares: 10 (i.e each children has 10MB)
-> 
-> When I want to add another child, just change parent's total # of shares
-> to be say 125:
->   Total memory in the system 100MB
->   parent's total # of shares: 125 (1 share == 0.8MB)
->   10 children with # of shares: 10 (i.e each children has 8MB)
-> Now you are left with 25 shares (or 20MB) that you can assign to new
-> child(ren) as you please.
+Jeremy Fitzhardinge writes:
+ > Mikael Pettersson wrote:
+ > > The i386 TLS API has three components:
+ > >
+ > > (1) set_thread_area(entry_number == -1):
+ > >     allocates and sets up the first available TLS entry and
+ > >     copies the chosen GDT index back to user-space
+ > > (2) set_thread_area(6 <= entry_number && entry_number <= 8):
+ > >     allocates and sets up the indicated GDT entry
+ > > (3) get_thread_area(6 <= entry_number && entry_number <= 8):
+ > >     retrieves the contents of the indicated GDT entry
+ > >
+ > > Only (1) works in x86-64's ia32 emulation, the other two fail
+ > > with EINVAL because x86-64 only accepts GDT indices 12 to 14
+ > > for TLS entries. glibc only uses (1).
+ > >
+ > > If you move the i386 TLS GDT entries to other indices then you
+ > > break (2) and (3) also on i386.
+ > >   
+ > 
+ > (2) and (3) are always OK if you pass it the result of (1) - ie to 
+ > update or readback a previously allocated descriptor.  Neither is useful 
+ > without having done (1) first.
 
-setting memory in "shares" doesn't look user friendly at all...
+In the real world a process' state is influenced by code I have little
+control over, usually glibc and other libraries, and fork(). Using (3)
+I can inspect parts of my process' state that I did not initialize myself.
 
-Kirill
+ >  The fact that 32-on-32 and 32-on-64 
+ > differ here means that nothing can (an apparently nothing does) depend 
+ > on hardcoded knowledge of the TLS descriptor indicies anyway.
 
+No, it means that x86-64's ia32 emulation was implemented by someone
+who either didn't realize the difference, or didn't care (because
+"only glibc matters").
+
+ > > It's not difficult to design a better i386 TLS API that avoids
+ > > requiring user-space to know the actual GDT indices (just use
+ > > logical TLS indices and always copy the GDT index to user-space).
+ > > but unfortunately that doesn't help us
+ > >   
+ > 
+ > You still need the real indicies to construct a selector to put into a 
+ > segment register - ie, actually do something useful.
+
+Sure.
+
+ >  Changing the API 
+ > to use abstract "TLS indicies" would also require a call to return the 
+ > "TLS base", which hardly seems like an improvement.
+
+The TLS base can obviously be zero.
+
+User-space asks to access TLS #n (for allocs #n can be -1).
+The kernel maps that to GDT index #m.
+The kernel stores #m in the user-space buffer.
+User-space maps #m to a selector.
+
+ > Also, there's no inherent reason why the TLS indicies should be 
+ > contigious; it happens to be true, but there's nothing useful userspace 
+ > can do with that knowledge.  Allowing them to be discontigious may be 
+ > helpful, for example, in packing the most used TLS entries (ie #1) into 
+ > a hot cache line, while putting the lesser-used ones elsewhere.  The 
+ > current API could deal with this without needing to change.
+
+I have said nothing that would prevent the use of sparse TLS GDT indices.
+
+Look, I'm not saying the current API is perfect, far from it. But it does
+have valid usage modes which are broken in x86-64's ia32 emulation, and
+will break on i386 of you reallocate the TLS GDT indices. This is a fact.
+
+This is why I'm asking that if you change things (thus breaking binary
+compatibility even more), that a corrected API be placed in new syscalls.
+
+That is, instead of forcing user-space to do
+
+   uname
+   if (version >= 2.6.N)
+      call {set,get}_thread_area with new-style parameters
+   else
+      call {set,get}_thread_area with old-style parameters
+
+it should do
+
+   call new_{set,get}_thread_area with new-style parameters
+   if (ENOSYS)
+     call old_{set,get}_thread_area with old-style parameters
+
+/Mikael

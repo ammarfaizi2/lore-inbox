@@ -1,62 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932074AbWIOPBf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751631AbWIOPCs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932074AbWIOPBf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Sep 2006 11:01:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932079AbWIOPBe
+	id S1751631AbWIOPCs (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Sep 2006 11:02:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751632AbWIOPCs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Sep 2006 11:01:34 -0400
-Received: from [81.2.110.250] ([81.2.110.250]:46983 "EHLO lxorguk.ukuu.org.uk")
-	by vger.kernel.org with ESMTP id S932074AbWIOPBe (ORCPT
+	Fri, 15 Sep 2006 11:02:48 -0400
+Received: from opersys.com ([64.40.108.71]:53255 "EHLO www.opersys.com")
+	by vger.kernel.org with ESMTP id S1751628AbWIOPCs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Sep 2006 11:01:34 -0400
-Subject: Re: [PATCH 0/11] LTTng-core (basic tracing infrastructure) 0.5.108
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: karim@opersys.com
-Cc: Paul Mundt <lethal@linux-sh.org>, Jes Sorensen <jes@sgi.com>,
-       Roman Zippel <zippel@linux-m68k.org>, Ingo Molnar <mingo@elte.hu>,
+	Fri, 15 Sep 2006 11:02:48 -0400
+Message-ID: <450AC2FA.70203@opersys.com>
+Date: Fri, 15 Sep 2006 11:12:58 -0400
+From: Karim Yaghmour <karim@opersys.com>
+Reply-To: karim@opersys.com
+Organization: Opersys inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.8.0.6) Gecko/20060804 Fedora/1.0.4-0.5.1.fc5 SeaMonkey/1.0.4
+MIME-Version: 1.0
+To: Jes Sorensen <jes@sgi.com>
+CC: Ingo Molnar <mingo@elte.hu>, Roman Zippel <zippel@linux-m68k.org>,
        Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
        linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
        Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@redhat.com>,
        Greg Kroah-Hartman <gregkh@suse.de>,
        Thomas Gleixner <tglx@linutronix.de>, Tom Zanussi <zanussi@us.ibm.com>,
        ltt-dev@shafik.org, Michel Dagenais <michel.dagenais@polymtl.ca>
-In-Reply-To: <450ABE08.2060107@opersys.com>
-References: <20060914181557.GA22469@elte.hu> <4509A54C.1050905@opersys.com>
-	 <yq08xkleb9h.fsf@jaguar.mkp.net> <450A9EC9.9080307@opersys.com>
-	 <20060915132052.GA7843@localhost.usen.ad.jp>
-	 <Pine.LNX.4.64.0609151535030.6761@scrub.home>
-	 <20060915135709.GB8723@localhost.usen.ad.jp> <450AB5F9.8040501@opersys.com>
-	 <450AB506.30802@sgi.com> <450AB957.2050206@opersys.com>
-	 <20060915142836.GA9288@localhost.usen.ad.jp> <450ABE08.2060107@opersys.com>
-Content-Type: text/plain
+Subject: Re: [PATCH 0/11] LTTng-core (basic tracing infrastructure) 0.5.108
+References: <20060914033826.GA2194@Krystal> <20060914112718.GA7065@elte.hu>	<Pine.LNX.4.64.0609141537120.6762@scrub.home>	<20060914135548.GA24393@elte.hu>	<Pine.LNX.4.64.0609141623570.6761@scrub.home>	<20060914171320.GB1105@elte.hu>	<Pine.LNX.4.64.0609141935080.6761@scrub.home>	<20060914181557.GA22469@elte.hu> <4509A54C.1050905@opersys.com> <yq08xkleb9h.fsf@jaguar.mkp.net> <450A9EC9.9080307@opersys.com> <450A9D4B.1030901@sgi.com> <450AB408.8020904@opersys.com> <450AB90C.9000403@sgi.com>
+In-Reply-To: <450AB90C.9000403@sgi.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Date: Fri, 15 Sep 2006 16:24:23 +0100
-Message-Id: <1158333863.29932.91.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Gwe, 2006-09-15 am 10:51 -0400, ysgrifennodd Karim Yaghmour:
-> The static tracepoints we maintained were *the* solution for a great
 
-I think you mean "a" solution. You've not proved there are no others.
+Jes Sorensen wrote:
+> There very few tracepoints in this category,
 
-> deal many people. As a maintainer I had two choices with those who
-> were not content:
-> a- Maintain their tracepoints for them -- not happening.
-> b- Suggest they contribute to helping getting a generic tracing
->   infrastructure into the kernel and then make their case on the
->   lkml as to the pertinence of their instrumentation.
+Wow, that's progress.
 
-b has been done, its called kprobes. We just need better tools for the
-dynamic probes.
+> the only things you can
+> claim are more or less generic are syscalls, and tracing syscall
+> handling is tricky.
 
-> choice of tracepoints. Those who were using ltt for its designated
-> purpose -- allowing normal users and developers to get an accurate
-> view of the behavior of their system -- were very happy with it.
+If there are implementation issue, I trust an adequate solution can be
+found by using the tested-and-proven method of posting stuff on the
+lkml for review.
 
-and you can maintain "Karim's probe list" which is the dynamic probe set
-which matches your old static probes, only of course its now much more
-flexible.
+> This is grossly over simplifying things and why the whole things doesn't
+> hold water. There is no such thing as 'the place' to put a specific
+> tracepoint.
+> 
+> Especially when we start talking about things like tracepoints in the
+> scheduler.
+
+I do not underestimate the difficulty of selecting such tracepoints.
+This is why I chose not to maintain other people's specific tracepoints.
+I realize this is a tough problem, but I also trust subsystem maintainers
+are smart enough to make the appropriate decision. Obviously for such
+things like the scheduler, any fine-grained instrumentation will draw
+a barrage of criticism from anyone since a lot of stuff depends on it.
+Either the lkml process works or it doesn't, but it isn't for me to
+decide.
+
+> Note that I haven't been referring to debug tracepoints at any point in
+> this debate.
+
+You're right, but others have happily intermingled the whole lot, and
+I just wanted to document my personal categorization on lkml for all
+to see.
+
+> You seem to think that it's fine to add instrumentation in the syscall
+> path as an example as long as it's compiled out. Well on some
+> architectures, the syscall path is very sensitive to alignment and there
+> may be restrictions on how large the stub of code is allowed to be, like
+> a few hundred bytes. Just because things work one way on x86, doesn't
+> mean they work like that everywhere.
+
+If ltt failed to implement such things appropriately, then we apologize.
+That fact doesn't preclude proper implementation in the future, however.
+
+Karim
 

@@ -1,58 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751433AbWIONi7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751437AbWIONmY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751433AbWIONi7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Sep 2006 09:38:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751437AbWIONi7
+	id S1751437AbWIONmY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Sep 2006 09:42:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751439AbWIONmY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Sep 2006 09:38:59 -0400
-Received: from twin.jikos.cz ([213.151.79.26]:42454 "EHLO twin.jikos.cz")
-	by vger.kernel.org with ESMTP id S1751433AbWIONi6 (ORCPT
+	Fri, 15 Sep 2006 09:42:24 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:12709 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S1751437AbWIONmX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Sep 2006 09:38:58 -0400
-Date: Fri, 15 Sep 2006 15:38:51 +0200 (CEST)
-From: Jiri Kosina <jikos@jikos.cz>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-cc: Arjan van de Ven <arjan@infradead.org>,
-       lkml <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>
-Subject: Re: [PATCH 0/3] Synaptics - fix lockdep warnings
-In-Reply-To: <d120d5000609150620p15b17debo9ace17836d788958@mail.gmail.com>
-Message-ID: <Pine.LNX.4.64.0609151535190.2721@twin.jikos.cz>
-References: <Pine.LNX.4.64.0609140227500.22181@twin.jikos.cz> 
- <Pine.LNX.4.64.0609141700250.2721@twin.jikos.cz> 
- <d120d5000609140851r2299c64cv8b0a365be795a1bc@mail.gmail.com> 
- <Pine.LNX.4.64.0609141754480.2721@twin.jikos.cz> 
- <d120d5000609140918j18d68a4dmd9d9e1e72d2fd718@mail.gmail.com> 
- <Pine.LNX.4.64.0609142037110.2721@twin.jikos.cz> 
- <d120d5000609141156h5e06eb68k87a6fe072a701dab@mail.gmail.com> 
- <1158260584.4200.3.camel@laptopd505.fenrus.org> 
- <d120d5000609141211o76432bd3l82582ef3896e3be@mail.gmail.com> 
- <1158298404.4332.18.camel@laptopd505.fenrus.org>
- <d120d5000609150620p15b17debo9ace17836d788958@mail.gmail.com>
+	Fri, 15 Sep 2006 09:42:23 -0400
+Date: Fri, 15 Sep 2006 15:41:03 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Paul Mundt <lethal@linux-sh.org>
+cc: Karim Yaghmour <karim@opersys.com>, Jes Sorensen <jes@sgi.com>,
+       Ingo Molnar <mingo@elte.hu>,
+       Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
+       linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
+       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@redhat.com>,
+       Greg Kroah-Hartman <gregkh@suse.de>,
+       Thomas Gleixner <tglx@linutronix.de>, Tom Zanussi <zanussi@us.ibm.com>,
+       ltt-dev@shafik.org, Michel Dagenais <michel.dagenais@polymtl.ca>
+Subject: Re: [PATCH 0/11] LTTng-core (basic tracing infrastructure) 0.5.108
+In-Reply-To: <20060915132052.GA7843@localhost.usen.ad.jp>
+Message-ID: <Pine.LNX.4.64.0609151535030.6761@scrub.home>
+References: <20060914112718.GA7065@elte.hu> <Pine.LNX.4.64.0609141537120.6762@scrub.home>
+ <20060914135548.GA24393@elte.hu> <Pine.LNX.4.64.0609141623570.6761@scrub.home>
+ <20060914171320.GB1105@elte.hu> <Pine.LNX.4.64.0609141935080.6761@scrub.home>
+ <20060914181557.GA22469@elte.hu> <4509A54C.1050905@opersys.com>
+ <yq08xkleb9h.fsf@jaguar.mkp.net> <450A9EC9.9080307@opersys.com>
+ <20060915132052.GA7843@localhost.usen.ad.jp>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 15 Sep 2006, Dmitry Torokhov wrote:
+Hi,
 
-> I understand what Ingo is saying about detecting deadlocks across the 
-> pool of locks of the same class not waiting till they really clash, it 
-> is really useful. I also want to make my code as independent of lockdep 
-> as possible. Having a speciall marking on the locks themselves (done 
-> upon creation) instead of altering call sites is the cleanest way IMHO. 
-> Can we have a flag in the lock structure that would tell lockdep that it 
-> is OK for the given lock to be taken several times (i.e. the locks are 
-> really on the different objects)? This would still allow to detect 
-> incorrect locking across different classes.
+On Fri, 15 Sep 2006, Paul Mundt wrote:
 
-Yes, but unfortunately marking the lock as 'can-be-taken-multiple-times' 
-is weaker than using the nested locking provided by lockdep.
+> On Fri, Sep 15, 2006 at 08:38:33AM -0400, Karim Yaghmour wrote:
+> > If you'd care to read through the thread you'd notice I've demonstrated
+> > time and again that those static trace points we're mostly interested
+> > in a never-changing. Lest something fundamentally changes with the
+> > kernel, there will always be a scheduling change; etc. This
+> > "instrumentation is evil" mantra is only substantiated if you view
+> > it from the point of view of someone who's only used it to debug code.
+> > Yet, and I repeat this again, instrumentation for in-source debugging
+> > is but a corner case of instrumentation in general.
+> > 
+> I didn't get the "instrumentation is evil" mantra from this thread,
+> rather "static tracepoints are good, so long as someone else is
+> maintaining them". The issue comes down to who ends up maintaining the
+> trace points,
 
-i.e. if you mark a lock this way, it opens door for having deadlock, which 
-won't be detected by lockdep. This will happen if the code, by mistake, 
-really takes the _very same_ lock twice. lockdep will not be able to 
-detect this, when the lock is marked in a way you propose, but is able to 
-detect this when using the nested semantics.
+The claim that these tracepoints would be maintainance burden is pretty 
+much unproven so far. The static tracepoint haters just assume the kernel 
+will be littered with thousands of unrelated tracepoints, where a good 
+tracepoint would only document what already happens in that function, so 
+that the tracepoint would be far from something obscure, which only few 
+people could understand and maintain.
 
--- 
-JiKos.
+bye, Roman

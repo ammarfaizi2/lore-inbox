@@ -1,54 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751687AbWIOQif@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751688AbWIOQid@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751687AbWIOQif (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Sep 2006 12:38:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751690AbWIOQif
+	id S1751688AbWIOQid (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Sep 2006 12:38:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751689AbWIOQid
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Sep 2006 12:38:35 -0400
-Received: from www.osadl.org ([213.239.205.134]:9954 "EHLO mail.tglx.de")
-	by vger.kernel.org with ESMTP id S1751687AbWIOQie (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Sep 2006 12:38:34 -0400
-Subject: Re: [PATCH] Migration of standard timers
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: Dimitri Sivanich <sivanich@sgi.com>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, Andi Kleen <ak@suse.de>
-In-Reply-To: <20060914132917.GA9898@sgi.com>
-References: <20060914132917.GA9898@sgi.com>
+	Fri, 15 Sep 2006 12:38:33 -0400
+Received: from coyote.holtmann.net ([217.160.111.169]:15007 "EHLO
+	mail.holtmann.net") by vger.kernel.org with ESMTP id S1751687AbWIOQid
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Sep 2006 12:38:33 -0400
+Subject: Re: [patch 29/37] dvb-core: Proper handling ULE SNDU length of 0
+From: Marcel Holtmann <marcel@holtmann.org>
+To: Michael Krufky <mkrufky@linuxtv.org>
+Cc: Greg KH <gregkh@suse.de>, linux-kernel@vger.kernel.org, stable@kernel.org,
+       Justin Forbes <jmforbes@linuxtx.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
+       Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
+       Chris Wedgwood <reviews@ml.cw.f00f.org>, torvalds@osdl.org,
+       akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
+       Ang Way Chuang <wcang@nrg.cs.usm.my>,
+       v4l-dvb maintainer list <v4l-dvb-maintainer@linuxtv.org>,
+       Marcel Siegert <mws@linuxtv.org>
+In-Reply-To: <450AD0CA.7080800@linuxtv.org>
+References: <20060906224631.999046890@quad.kroah.org>
+	 <20060906225740.GD15922@kroah.com> <45016909.4080908@linuxtv.org>
+	 <20060908172944.GA1254@suse.de>  <450AD0CA.7080800@linuxtv.org>
 Content-Type: text/plain
-Date: Fri, 15 Sep 2006 18:39:19 +0200
-Message-Id: <1158338360.5724.442.camel@localhost.localdomain>
+Date: Fri, 15 Sep 2006 18:36:01 +0200
+Message-Id: <1158338161.5233.47.camel@localhost>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+X-Mailer: Evolution 2.8.0 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-09-14 at 08:29 -0500, Dimitri Sivanich wrote:
-> This patch allows the user to migrate currently queued
-> standard timers from one cpu to another, thereby reducing
-> timer induced latency on the chosen cpu.  Timers that
-> were placed with add_timer_on() are considered to have 
-> 'cpu affinity' and are not moved.
-> 
-> The changes in drivers/base/cpu.c provide a clean and
-> convenient interface for triggering the migration through
-> sysfs, via writing the destination cpu number to a file
-> associated with the source cpu.
-> 
-> Note that migrating timers will not, by itself, keep new
-> timers off of the chosen cpu.  But with careful control of
-> thread affinity, one can control the affinity of new timers
-> and keep timer induced latencies off of the chosen cpu.
-> 
-> This particular patch does not affect the hrtimers.  That
-> could be addressed later.
+Hi Michael,
 
-Are you trying to work around the latencies caused by long running timer
-callbacks ? I'm not convinced that this is not curing the symptoms
-instead of the root cause.
+> >> Can we hold off on this until the 2.6.17.13 review cycle?  This patch
+> >> has not been sent to the linux-dvb mailing list, it has not been
+> >> reviewed or tested except for the Author and Marcel.
+> > 
+> > Yes, I've now moved it, thanks.
+> 
+> Marcel Siegert and I spoke about this today --  We are doing things a
+> bit differently for 2.6.18 and later, but this patch is appropriate for
+> 2.6.17.y
 
-	tglx
+so this means it is fixed in 2.6.18 or is it still vulnerable. If it is
+still vulnerable, then we need a fix. And we need it now.
+
+Regards
+
+Marcel
 
 

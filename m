@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932220AbWIOX5p@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932231AbWIOX7E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932220AbWIOX5p (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Sep 2006 19:57:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932231AbWIOX5p
+	id S932231AbWIOX7E (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Sep 2006 19:59:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932234AbWIOX7E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Sep 2006 19:57:45 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:43157 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932220AbWIOX5o (ORCPT
+	Fri, 15 Sep 2006 19:59:04 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.152]:6797 "EHLO e34.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932231AbWIOX7B (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Sep 2006 19:57:44 -0400
-Date: Fri, 15 Sep 2006 18:57:42 -0500
+	Fri, 15 Sep 2006 19:59:01 -0400
+Date: Fri, 15 Sep 2006 18:58:59 -0500
 To: Paul Mackerras <paulus@samba.org>
 Cc: linuxppc-dev@ozlabs.org, linux-kernel@vger.kernel.org, anton@samba.org
-Subject: [PATCH 3/4]: PowerPC: EEH: enable MMIO/DMA on frozen slot
-Message-ID: <20060915235742.GT29167@austin.ibm.com>
+Subject: [PATCH 4/4]: PowerPC: EEH: support MMIO enable recovery step
+Message-ID: <20060915235859.GU29167@austin.ibm.com>
 References: <20060915235025.GQ29167@austin.ibm.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -25,76 +25,145 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+Update to te PowerPC PCI error recovery code.
 
-Add wrapper around the rtas call to enable MMIO or DMA
-on a frozen pci slot.
+Add code to enable MMIO if a device driver reports 
+that it is capable of recovering on its own. One
+anticipated use of this having a device driver 
+enable MMIO so that it can take a register dump, 
+which might then be followed by the device driver 
+requesting a full reset.
 
 Signed-off-by: Linas Vepstas <linas@austin.ibm.com>
 
 ----
- arch/powerpc/platforms/pseries/eeh.c |   29 +++++++++++++++++++++++++++++
- include/asm-powerpc/ppc-pci.h        |   11 +++++++++++
- 2 files changed, 40 insertions(+)
+ arch/powerpc/platforms/pseries/eeh_driver.c |   81 ++++++++++++++++++++++------
+ 1 file changed, 64 insertions(+), 17 deletions(-)
 
-Index: linux-2.6.18-rc7-git1/arch/powerpc/platforms/pseries/eeh.c
+Index: linux-2.6.18-rc7-git1/arch/powerpc/platforms/pseries/eeh_driver.c
 ===================================================================
---- linux-2.6.18-rc7-git1.orig/arch/powerpc/platforms/pseries/eeh.c	2006-09-14 14:44:40.000000000 -0500
-+++ linux-2.6.18-rc7-git1/arch/powerpc/platforms/pseries/eeh.c	2006-09-14 15:22:23.000000000 -0500
-@@ -482,6 +482,35 @@ eeh_slot_availability(struct pci_dn *pdn
- }
+--- linux-2.6.18-rc7-git1.orig/arch/powerpc/platforms/pseries/eeh_driver.c	2006-09-14 15:17:15.000000000 -0500
++++ linux-2.6.18-rc7-git1/arch/powerpc/platforms/pseries/eeh_driver.c	2006-09-14 17:54:15.000000000 -0500
+@@ -100,14 +100,38 @@ static void eeh_report_error(struct pci_
+ 		PCI_DN(dn)->eeh_mode |= EEH_MODE_IRQ_DISABLED;
+ 		disable_irq_nosync(dev->irq);
+ 	}
+-	if (!driver->err_handler)
+-		return;
+-	if (!driver->err_handler->error_detected)
++	if (!driver->err_handler ||
++	    !driver->err_handler->error_detected)
+ 		return;
  
- /**
-+ * rtas_pci_enable - enable MMIO or DMA transfers for this slot
-+ * @pdn pci device node
-+ */
-+
-+int
-+rtas_pci_enable(struct pci_dn *pdn, int function)
-+{
-+	int config_addr;
-+	int rc;
-+
-+	/* Use PE configuration address, if present */
-+	config_addr = pdn->eeh_config_addr;
-+	if (pdn->eeh_pe_config_addr)
-+		config_addr = pdn->eeh_pe_config_addr;
-+
-+	rc = rtas_call(ibm_set_eeh_option, 4, 1, NULL,
-+	               config_addr,
-+	               BUID_HI(pdn->phb->buid),
-+	               BUID_LO(pdn->phb->buid),
-+		            function);
-+
-+	if (rc)
-+		printk(KERN_WARNING "EEH: Cannot enable function %d, err=%d dn=%s\n",
-+		        function, rc, pdn->node->full_name);
-+
-+	return rc;
+ 	rc = driver->err_handler->error_detected (dev, pci_channel_io_frozen);
+ 	if (*res == PCI_ERS_RESULT_NONE) *res = rc;
+-	if (*res == PCI_ERS_RESULT_NEED_RESET) return;
++	if (*res == PCI_ERS_RESULT_DISCONNECT &&
++	     rc == PCI_ERS_RESULT_NEED_RESET) *res = rc;
 +}
 +
 +/**
-  * rtas_pci_slot_reset - raises/lowers the pci #RST line
-  * @pdn pci device node
-  * @state: 1/0 to raise/lower the #RST
-Index: linux-2.6.18-rc7-git1/include/asm-powerpc/ppc-pci.h
-===================================================================
---- linux-2.6.18-rc7-git1.orig/include/asm-powerpc/ppc-pci.h	2006-09-14 14:44:40.000000000 -0500
-+++ linux-2.6.18-rc7-git1/include/asm-powerpc/ppc-pci.h	2006-09-14 15:25:14.000000000 -0500
-@@ -69,6 +69,17 @@ struct pci_dev *pci_get_device_by_addr(u
- void eeh_slot_error_detail (struct pci_dn *pdn, int severity);
++ * eeh_report_mmio_enabled - tell drivers that MMIO has been enabled
++ *
++ * Report an EEH error to each device driver, collect up and
++ * merge the device driver responses. Cumulative response
++ * passed back in "userdata".
++ */
++
++static void eeh_report_mmio_enabled(struct pci_dev *dev, void *userdata)
++{
++	enum pci_ers_result rc, *res = userdata;
++	struct pci_driver *driver = dev->driver;
++
++	// dev->error_state = pci_channel_mmio_enabled;
++
++	if (!driver ||
++	    !driver->err_handler ||
++	    !driver->err_handler->mmio_enabled)
++		return;
++
++	rc = driver->err_handler->mmio_enabled (dev);
++	if (*res == PCI_ERS_RESULT_NONE) *res = rc;
+ 	if (*res == PCI_ERS_RESULT_DISCONNECT &&
+ 	     rc == PCI_ERS_RESULT_NEED_RESET) *res = rc;
+ }
+@@ -118,6 +142,7 @@ static void eeh_report_error(struct pci_
+ 
+ static void eeh_report_reset(struct pci_dev *dev, void *userdata)
+ {
++	enum pci_ers_result rc, *res = userdata;
+ 	struct pci_driver *driver = dev->driver;
+ 	struct device_node *dn = pci_device_to_OF_node(dev);
+ 
+@@ -128,12 +153,14 @@ static void eeh_report_reset(struct pci_
+ 		PCI_DN(dn)->eeh_mode &= ~EEH_MODE_IRQ_DISABLED;
+ 		enable_irq(dev->irq);
+ 	}
+-	if (!driver->err_handler)
+-		return;
+-	if (!driver->err_handler->slot_reset)
++	if (!driver->err_handler ||
++	    !driver->err_handler->slot_reset)
+ 		return;
+ 
+-	driver->err_handler->slot_reset(dev);
++	rc = driver->err_handler->slot_reset(dev);
++	if (*res == PCI_ERS_RESULT_NONE) *res = rc;
++	if (*res == PCI_ERS_RESULT_DISCONNECT &&
++	     rc == PCI_ERS_RESULT_NEED_RESET) *res = rc;
+ }
  
  /**
-+ * rtas_pci_enableo - enable IO transfers for this slot
-+ * @pdn:       pci device node
-+ * @function:  either EEH_THAW_MMIO or EEH_THAW_DMA 
-+ *
-+ * Enable I/O transfers to this slot 
-+ */
-+#define EEH_THAW_MMIO 2
-+#define EEH_THAW_DMA  3
-+int rtas_pci_enable(struct pci_dn *pdn, int function);
+@@ -362,23 +389,43 @@ struct pci_dn * handle_eeh_events (struc
+ 			goto hard_fail;
+ 	}
+ 
+-	/* If any device called out for a reset, then reset the slot */
+-	if (result == PCI_ERS_RESULT_NEED_RESET) {
+-		rc = eeh_reset_device(frozen_pdn, NULL);
+-		if (rc)
+-			goto hard_fail;
+-		pci_walk_bus(frozen_bus, eeh_report_reset, NULL);
++	/* If all devices reported they can proceed, then re-enable MMIO */
++	if (result == PCI_ERS_RESULT_CAN_RECOVER) {
++		rc = rtas_pci_enable(frozen_pdn, EEH_THAW_MMIO);
 +
-+/**
-  * rtas_set_slot_reset -- unfreeze a frozen slot
-  *
-  * Clear the EEH-frozen condition on a slot.  This routine
++		if (rc) {
++			result = PCI_ERS_RESULT_NEED_RESET;
++		} else {
++			result = PCI_ERS_RESULT_NONE;
++			pci_walk_bus(frozen_bus, eeh_report_mmio_enabled, &result);
++		}
+ 	}
+ 
+-	/* If all devices reported they can proceed, the re-enable PIO */
++	/* If all devices reported they can proceed, then re-enable DMA */
+ 	if (result == PCI_ERS_RESULT_CAN_RECOVER) {
+-		/* XXX Not supported; we brute-force reset the device */
++		rc = rtas_pci_enable(frozen_pdn, EEH_THAW_DMA);
++
++		if (rc)
++			result = PCI_ERS_RESULT_NEED_RESET;
++	}
++
++	/* If any device has a hard failure, then shut off everything. */
++	if (result == PCI_ERS_RESULT_DISCONNECT)
++		goto hard_fail;
++
++	/* If any device called out for a reset, then reset the slot */
++	if (result == PCI_ERS_RESULT_NEED_RESET) {
+ 		rc = eeh_reset_device(frozen_pdn, NULL);
+ 		if (rc)
+ 			goto hard_fail;
+-		pci_walk_bus(frozen_bus, eeh_report_reset, NULL);
++		result = PCI_ERS_RESULT_NONE;
++		pci_walk_bus(frozen_bus, eeh_report_reset, &result);
+ 	}
+ 
++	/* All devices should claim they have recovered by now. */
++	if (result != PCI_ERS_RESULT_RECOVERED)
++		goto hard_fail;
++
+ 	/* Tell all device drivers that they can resume operations */
+ 	pci_walk_bus(frozen_bus, eeh_report_resume, NULL);
+ 

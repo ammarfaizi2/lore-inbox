@@ -1,72 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751366AbWIONCd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751402AbWIONUt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751366AbWIONCd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Sep 2006 09:02:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751371AbWIONCd
+	id S1751402AbWIONUt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Sep 2006 09:20:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751407AbWIONUt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Sep 2006 09:02:33 -0400
-Received: from ausc60pc101.us.dell.com ([143.166.85.206]:49179 "EHLO
-	ausc60pc101.us.dell.com") by vger.kernel.org with ESMTP
-	id S1751366AbWIONCc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Sep 2006 09:02:32 -0400
-DomainKey-Signature: s=smtpout; d=dell.com; c=nofws; q=dns; b=AaiTIuiynPJ/AZOnTFtlN9ClPJUIV25WTXclErOTL0FmDoUuV+nrnhYhX77z/xZvg0uDY44P4ojcVxbK/+4Sh2TBXyriiIt8+r+/zmXIpzWz1Ar1Yjsdwm79e6fwllPf;
-X-IronPort-AV: i="4.09,170,1157346000"; 
-   d="scan'208"; a="80778282:sNHT17257806"
-Date: Fri, 15 Sep 2006 08:02:26 -0500
-From: Matt Domsch <Matt_Domsch@dell.com>
-To: Dan Carpenter <error27.lkml@gmail.com>
-Cc: linux-pci@atrey.karlin.mff.cuni.cz, Greg KH <greg@kroah.com>,
-       linux-kernel@vger.kernel.org, error27@gmail.com,
-       ppokorny@penguincomputing.com
-Subject: Re: [PATCH 2.6.18-rc5] PCI: sort device lists breadth-first
-Message-ID: <20060915130226.GA2291@lists.us.dell.com>
-References: <20060908031422.GA4549@lists.us.dell.com> <b263e5900609142053r12fbb71ep6ea3e1d63a722d4e@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 15 Sep 2006 09:20:49 -0400
+Received: from nf-out-0910.google.com ([64.233.182.191]:42416 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1751402AbWIONUs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Sep 2006 09:20:48 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=ZydtjDiF9M6nKm04N6i0tLJqDBO+8FeCjX+QfUZdbfh7/M9Ozx1smUuRIHcHFdHWCuoHJIzQzOWDANeURex5VjYCEBTyTymkDND70UoO04qTzg9d0ey8LKf2BWTgPLBvBR78VJ4QaVEpvyiDnxW1PwZs5CfYjLRfiU2z+u8NTGs=
+Message-ID: <d120d5000609150620p15b17debo9ace17836d788958@mail.gmail.com>
+Date: Fri, 15 Sep 2006 09:20:47 -0400
+From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
+To: "Arjan van de Ven" <arjan@infradead.org>
+Subject: Re: [PATCH 0/3] Synaptics - fix lockdep warnings
+Cc: "Jiri Kosina" <jikos@jikos.cz>, lkml <linux-kernel@vger.kernel.org>,
+       "Ingo Molnar" <mingo@elte.hu>
+In-Reply-To: <1158298404.4332.18.camel@laptopd505.fenrus.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <b263e5900609142053r12fbb71ep6ea3e1d63a722d4e@mail.gmail.com>
-User-Agent: Mutt/1.5.11
+References: <Pine.LNX.4.64.0609140227500.22181@twin.jikos.cz>
+	 <Pine.LNX.4.64.0609141700250.2721@twin.jikos.cz>
+	 <d120d5000609140851r2299c64cv8b0a365be795a1bc@mail.gmail.com>
+	 <Pine.LNX.4.64.0609141754480.2721@twin.jikos.cz>
+	 <d120d5000609140918j18d68a4dmd9d9e1e72d2fd718@mail.gmail.com>
+	 <Pine.LNX.4.64.0609142037110.2721@twin.jikos.cz>
+	 <d120d5000609141156h5e06eb68k87a6fe072a701dab@mail.gmail.com>
+	 <1158260584.4200.3.camel@laptopd505.fenrus.org>
+	 <d120d5000609141211o76432bd3l82582ef3896e3be@mail.gmail.com>
+	 <1158298404.4332.18.camel@laptopd505.fenrus.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 14, 2006 at 08:53:16PM -0700, Dan Carpenter wrote:
-> On 9/7/06, Matt Domsch <Matt_Domsch@dell.com> wrote:
-> >Problem:
-> >Many people have come to expect this naming.  Linux 2.6
-> >kernels name these eth1 and eth0 respectively (backwards from
-> >expectations).  I also have reports that various Sun and HP servers
-> >have similar behavior.
+On 9/15/06, Arjan van de Ven <arjan@infradead.org> wrote:
+> On Thu, 2006-09-14 at 15:11 -0400, Dmitry Torokhov wrote:
+> > On 9/14/06, Arjan van de Ven <arjan@infradead.org> wrote:
+> > >
+> > > >
+> > > > I think it is - as far as I understand the reason for not tracking
+> > > > every lock individually is just that it is too expensive to do by
+> > > > default.
+> > >
+> > > that is not correct. While it certainly plays a role,
+> > > the other reason is that you can find out "class" level locking rules
+> > > (such as inode->i_mutex comes before <other lock>) for all inodes at a
+> > > time; eg no need to see every inode do this before you can find the
+> > > deadlock.
+> > >
 > >
-> 
-> On RHEL3 the 32bit and 64bit versions order the NICs differently.
-> 64bit RHEL3 orders it the same as 2.6.
+> > OK, I can see that. However you must agree that for certain locks we
+> > do want to track them individually, right?
 >
-> I've got a lot of systems where the NIC LEDs are labelled.  The labels
-> are correct for 2.6 but not for 2.4 32 bit.  I'm suspect the labels
-> were designed for Windows originally.
+> I agree that if locks really represent different objects with different
+> locking semantics they should not share the class. Lockdep provides a
+> mechanism for that; however I'm very afraid that for the input layer,
+> they really are not that, they are not different objects with different
+> semantics; they are the same objects with nesting semantics! In that
+> case the "separate lock class" stuff has only disadvantages.
 
-2.4 i386 by default resorts the list by what BIOS reports the order
-should be.  No other arches do this.  So I'd expect it to be opposite
-of what you say.
+I'd say they are different objects with the same semantics...
 
-Care to send the output of 'lspci -tv' and the first 80 or so lines of
-dmidecode?  This is curious.
+> The worst thing is that as I understand it this separate class is
+> *dynamic*. Eg it's not even "one class per driver" ;(
+>
 
- 
-> My boss pointed out that this patch.  It was supposed to make PCI bus
-> ordering match 2.4.
-> http://kernel.org/git/?p=linux/kernel/git/torvalds/old-2.6-bkcvs.git;a=commitdiff;h=ffdd6e8f870ca6dd0d9b9169b8c2e0fdbae99549
-> It's still there, why did it stop working?
-> 
-> Couldn't we just use the labelling from the DMI data to order the NICs?
+You are saying this as if was a bad thing. Pass-through ports just
+implement PS/2 over PS/2 protocols and as such it is very natural that
+the same driver that serves parent serves the child as well. That was
+the goal - to reuse psmouse module instead of re-implementing all
+re-probing and protocol decoding in synaptics driver. And trackpint
+driver. And maybe somethng else down the road.
 
-Unfortunately, DMI data doesn't include enough information.  It says
-"there's a port called NIC1", but doesn't say where to find it in PCI
-space. :-(  I'm looking at ACPI 3.0 extensions, but am not finding
-what I'm needing here either yet.
+I also wonder that even if we had several drivers lockdep would still
+complain about nestiness just because all PS/2 devices are initialized
+via ps2_init (which initializes command mutex) and end up in the same
+lock class.
+
+I suspect that other driver implementing X-over-X or X-over-Y-over-X
+may get hit the same way by lockdep.
+
+I understand what Ingo is saying about detecting deadlocks across the
+pool of locks of the same class not waiting till they really clash, it
+is really useful. I also want to make my code as independent of
+lockdep as possible. Having a speciall marking on the locks themselves
+(done upon creation) instead of altering call sites is the cleanest
+way IMHO. Can we have a flag in the lock structure that would tell
+lockdep that it is OK for the given lock to be taken several times
+(i.e. the locks are really on the different objects)? This would still
+allow to detect incorrect locking across different classes.
 
 -- 
-Matt Domsch
-Software Architect
-Dell Linux Solutions linux.dell.com & www.dell.com/linux
-Linux on Dell mailing lists @ http://lists.us.dell.com
+Dmitry

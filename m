@@ -1,76 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751461AbWION4v@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751478AbWION5X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751461AbWION4v (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Sep 2006 09:56:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751475AbWION4v
+	id S1751478AbWION5X (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Sep 2006 09:57:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751475AbWION5X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Sep 2006 09:56:51 -0400
-Received: from nf-out-0910.google.com ([64.233.182.190]:42073 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1751461AbWION4t (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Sep 2006 09:56:49 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=plqyqTRFKfLRCkjQKa7qBqOq7Nla77xVZpYJHaZRo5L4RFY/ylmXTkyH6rLUJotl6TRyqQfbvgf6sIgztIaevfga7jH7ZMmv5B371OdA+aG1yFxXWUq01o5QOYGtGXPeSXnS0u66tTHxuthlZXm77h8ucGlrZFJonZdclJaQHM0=
-Message-ID: <d120d5000609150656v544ca0d6vcf93e349508dedd8@mail.gmail.com>
-Date: Fri, 15 Sep 2006 09:56:46 -0400
-From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
-To: "Jiri Kosina" <jikos@jikos.cz>
-Subject: Re: [PATCH 0/3] Synaptics - fix lockdep warnings
-Cc: "Arjan van de Ven" <arjan@infradead.org>,
-       lkml <linux-kernel@vger.kernel.org>, "Ingo Molnar" <mingo@elte.hu>
-In-Reply-To: <d120d5000609150651m4b7e739bv7afc0683071911a1@mail.gmail.com>
+	Fri, 15 Sep 2006 09:57:23 -0400
+Received: from smtp.ocgnet.org ([64.20.243.3]:746 "EHLO smtp.ocgnet.org")
+	by vger.kernel.org with ESMTP id S1751469AbWION5W (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Sep 2006 09:57:22 -0400
+Date: Fri, 15 Sep 2006 22:57:09 +0900
+From: Paul Mundt <lethal@linux-sh.org>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Karim Yaghmour <karim@opersys.com>, Jes Sorensen <jes@sgi.com>,
+       Ingo Molnar <mingo@elte.hu>,
+       Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
+       linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
+       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@redhat.com>,
+       Greg Kroah-Hartman <gregkh@suse.de>,
+       Thomas Gleixner <tglx@linutronix.de>, Tom Zanussi <zanussi@us.ibm.com>,
+       ltt-dev@shafik.org, Michel Dagenais <michel.dagenais@polymtl.ca>
+Subject: Re: [PATCH 0/11] LTTng-core (basic tracing infrastructure) 0.5.108
+Message-ID: <20060915135709.GB8723@localhost.usen.ad.jp>
+References: <20060914135548.GA24393@elte.hu> <Pine.LNX.4.64.0609141623570.6761@scrub.home> <20060914171320.GB1105@elte.hu> <Pine.LNX.4.64.0609141935080.6761@scrub.home> <20060914181557.GA22469@elte.hu> <4509A54C.1050905@opersys.com> <yq08xkleb9h.fsf@jaguar.mkp.net> <450A9EC9.9080307@opersys.com> <20060915132052.GA7843@localhost.usen.ad.jp> <Pine.LNX.4.64.0609151535030.6761@scrub.home>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <Pine.LNX.4.64.0609140227500.22181@twin.jikos.cz>
-	 <d120d5000609140918j18d68a4dmd9d9e1e72d2fd718@mail.gmail.com>
-	 <Pine.LNX.4.64.0609142037110.2721@twin.jikos.cz>
-	 <d120d5000609141156h5e06eb68k87a6fe072a701dab@mail.gmail.com>
-	 <1158260584.4200.3.camel@laptopd505.fenrus.org>
-	 <d120d5000609141211o76432bd3l82582ef3896e3be@mail.gmail.com>
-	 <1158298404.4332.18.camel@laptopd505.fenrus.org>
-	 <d120d5000609150620p15b17debo9ace17836d788958@mail.gmail.com>
-	 <Pine.LNX.4.64.0609151535190.2721@twin.jikos.cz>
-	 <d120d5000609150651m4b7e739bv7afc0683071911a1@mail.gmail.com>
+In-Reply-To: <Pine.LNX.4.64.0609151535030.6761@scrub.home>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 9/15/06, Dmitry Torokhov <dmitry.torokhov@gmail.com> wrote:
-> On 9/15/06, Jiri Kosina <jikos@jikos.cz> wrote:
-> > On Fri, 15 Sep 2006, Dmitry Torokhov wrote:
-> >
-> > > I understand what Ingo is saying about detecting deadlocks across the
-> > > pool of locks of the same class not waiting till they really clash, it
-> > > is really useful. I also want to make my code as independent of lockdep
-> > > as possible. Having a speciall marking on the locks themselves (done
-> > > upon creation) instead of altering call sites is the cleanest way IMHO.
-> > > Can we have a flag in the lock structure that would tell lockdep that it
-> > > is OK for the given lock to be taken several times (i.e. the locks are
-> > > really on the different objects)? This would still allow to detect
-> > > incorrect locking across different classes.
-> >
-> > Yes, but unfortunately marking the lock as 'can-be-taken-multiple-times'
-> > is weaker than using the nested locking provided by lockdep.
-> >
-> > i.e. if you mark a lock this way, it opens door for having deadlock, which
-> > won't be detected by lockdep. This will happen if the code, by mistake,
-> > really takes the _very same_ lock twice. lockdep will not be able to
-> > detect this, when the lock is marked in a way you propose, but is able to
-> > detect this when using the nested semantics.
-> >
->
-> But nested semantics breaks the notion of the locks belonging to the
-> same pool so both solutions have tradeoffs. I could use either one of
-> these as long as details are hidden and callers do not have to care.
->
+On Fri, Sep 15, 2006 at 03:41:03PM +0200, Roman Zippel wrote:
+> > On Fri, Sep 15, 2006 at 08:38:33AM -0400, Karim Yaghmour wrote:
+> > I didn't get the "instrumentation is evil" mantra from this thread,
+> > rather "static tracepoints are good, so long as someone else is
+> > maintaining them". The issue comes down to who ends up maintaining the
+> > trace points,
+> 
+> The claim that these tracepoints would be maintainance burden is pretty 
+> much unproven so far. The static tracepoint haters just assume the kernel 
+> will be littered with thousands of unrelated tracepoints, where a good 
+> tracepoint would only document what already happens in that function, so 
+> that the tracepoint would be far from something obscure, which only few 
+> people could understand and maintain.
+> 
+Again, this works fine so long as the number of static tracepoints is
+small and manageable, but it seems like there's a division between what
+the subsystem developer deems as meaningful and what someone doing the
+tracing might want to look at. Static tracepoints are completely
+subjective, LTT proved that this was a problem regarding general
+code-level intrusiveness when the number of tracepoints in relatively
+close locality started piling up based on what people considered
+arbitrarily useful, and LTTng doesn't appear to do anything to address
+this.
 
-One more thing I forgot to add - how will we deal with lockdep in
-cases when we have X-over-Y-over-X protocol, when there is no tight
-coupling between the X parts so it is impossible to know when to apply
-special marking on the lock or callers?
-
--- 
-Dmitry
+This doesn't really match my definition of a neglible maintenance
+burden..

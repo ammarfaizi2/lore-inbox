@@ -1,53 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750794AbWIOJE2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750774AbWIOJRd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750794AbWIOJE2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Sep 2006 05:04:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750809AbWIOJE2
+	id S1750774AbWIOJRd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Sep 2006 05:17:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750776AbWIOJRc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Sep 2006 05:04:28 -0400
-Received: from mx2.go2.pl ([193.17.41.42]:37603 "EHLO poczta.o2.pl")
-	by vger.kernel.org with ESMTP id S1750794AbWIOJE1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Sep 2006 05:04:27 -0400
-Date: Fri, 15 Sep 2006 11:08:19 +0200
-From: Jarek Poplawski <jarkao2@o2.pl>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Andi Kleen <ak@muc.de>, Dave Jones <davej@redhat.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] mpparse.c:231: warning: comparison is always false
-Message-ID: <20060915090819.GB2572@ff.dom.local>
-References: <20060913065010.GA2110@ff.dom.local> <20060914181754.bd963f6d.akpm@osdl.org> <20060915081123.GA2572@ff.dom.local> <20060915012302.d459c2dc.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060915012302.d459c2dc.akpm@osdl.org>
-User-Agent: Mutt/1.4.2.2i
+	Fri, 15 Sep 2006 05:17:32 -0400
+Received: from mtagate5.uk.ibm.com ([195.212.29.138]:15347 "EHLO
+	mtagate5.uk.ibm.com") by vger.kernel.org with ESMTP
+	id S1750774AbWIOJRc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Sep 2006 05:17:32 -0400
+Subject: Re: [PATCH 0/11] LTTng-core (basic tracing infrastructure) 0.5.108
+To: linux-kernel@vger.kernel.org
+X-Mailer: Lotus Notes Release 7.0.1 July 07, 2006
+Message-ID: <OFA90286D9.9C068080-ON802571EA.00322217-802571EA.00330817@uk.ibm.com>
+From: Richard J Moore <richardj_moore@uk.ibm.com>
+Date: Fri, 15 Sep 2006 10:17:24 +0100
+X-MIMETrack: Serialize by Router on D06ML065/06/M/IBM(Release 6.5.5HF607 | June 26, 2006) at
+ 15/09/2006 10:19:41
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 15, 2006 at 01:23:02AM -0700, Andrew Morton wrote:
-> On Fri, 15 Sep 2006 10:11:23 +0200
-> Jarek Poplawski <jarkao2@o2.pl> wrote:
-> > As a matter of fact today I think my patch is wrong.
-... 
-> No, I think it's OK.  Well, you had an off-by-one...
 
-just like the source:
+Ingo Molnar wrote:
 
- > +#if 0xFF >= MAX_MP_BUSSES
- >  	if (m->mpc_busid >= MAX_MP_BUSSES) {
+> > I don't think anyone is saying that static tracepoints do not have
+> > their limitations, or that dynamic tracepointing is useless. But
+> > that's not the point ... why can't we have one infrastructure that
+> > supports both? Preferably in a fairly simple, consistent way.
+>
+> primarily because i fail to see any property of static tracers that are
+> not met by dynamic tracers. So to me dynamic tracers like SystemTap are
+> a superset of static tracers.
 
-...
-> > but after rethinking
-> > the question of Dave Jones I see it's fixing the result
-> > instead of the source of a problem (char or not char).
-> 
-> The mpc_busid field is set to eight-bits by BIOS; there's nothing we can do
-> about that...
- 
-So IMHO maybe: if we can know this only by BIOS it should be
-eight-bits - if there is another way to get this: shouln't
-you add second constant? Now it's unlogical for me (and it
-induces this strange #ifs in the code instead of headers).
+There is one example whethere dynamic tracing is difficult or very messy to
+implement and that's for tracepoints needed during system and device
+initialization. In this sense dynamic is not a practical superset of
+static. However I believe the tooling, for dynamic trace should work for
+static as well.
 
-Jarek P.  
+- -
+Richard J Moore
+IBM Advanced Linux Response Team - Linux Technology Centre
+MOBEX: 264807; Mobile (+44) (0)7739-875237
+Office: (+44) (0)1962-817072
+

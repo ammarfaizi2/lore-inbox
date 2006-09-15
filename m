@@ -1,53 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750765AbWIOIup@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750699AbWIOIxT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750765AbWIOIup (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Sep 2006 04:50:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750768AbWIOIup
+	id S1750699AbWIOIxT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Sep 2006 04:53:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750703AbWIOIxT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Sep 2006 04:50:45 -0400
-Received: from ug-out-1314.google.com ([66.249.92.169]:34380 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1750765AbWIOIup (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Sep 2006 04:50:45 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=SMYLuppG4QJYdK+zXXjKLGoHvkJU1InOVaQcGtPu+ZD4/GIMGKopkzkRbjmpOZNU/lu+DeMvTQsu+7L/Yfqt2REIfW+ukt9sm2TPYQcEyBmaCvk8IuzgtGG8rTZvci1G0HMAiCbsZMh4ddeWea7kNb+YAPX0G9/TPZQUa6Ujwxg=
-Message-ID: <37d33d830609150150v30dc32en57f8c5e43c30aef3@mail.gmail.com>
-Date: Fri, 15 Sep 2006 01:50:43 -0700
-From: "Sandeep Kumar" <sandeepksinha@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Efficient Use of the Page Cache with 64 KB Pages
+	Fri, 15 Sep 2006 04:53:19 -0400
+Received: from mailhub.sw.ru ([195.214.233.200]:13745 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S1750699AbWIOIxS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Sep 2006 04:53:18 -0400
+Message-ID: <450A6B06.1050308@sw.ru>
+Date: Fri, 15 Sep 2006 12:57:42 +0400
+From: Kirill Korotaev <dev@sw.ru>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
+X-Accept-Language: en-us, en, ru
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: sekharan@us.ibm.com
+CC: Pavel Emelianov <xemul@openvz.org>, balbir@in.ibm.com,
+       Dave Hansen <haveblue@us.ibm.com>, Rik van Riel <riel@redhat.com>,
+       Srivatsa <vatsa@in.ibm.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       CKRM-Tech <ckrm-tech@lists.sourceforge.net>, Andi Kleen <ak@suse.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Christoph Hellwig <hch@infradead.org>, Andrey Savochkin <saw@sw.ru>,
+       Matt Helsley <matthltc@us.ibm.com>, Hugh Dickins <hugh@veritas.com>,
+       Alexey Dobriyan <adobriyan@mail.ru>, Oleg Nesterov <oleg@tv-sign.ru>,
+       devel@openvz.org
+Subject: Re: [ckrm-tech] [PATCH] BC: resource beancounters (v4) (added	user
+ memory)
+References: <44FD918A.7050501@sw.ru> <44FDAB81.5050608@in.ibm.com>	 <44FEC7E4.7030708@sw.ru> <44FF1EE4.3060005@in.ibm.com>	 <1157580371.31893.36.camel@linuxchandra> <45011CAC.2040502@openvz.org>	 <1157730221.26324.52.camel@localhost.localdomain>	 <4501B5F0.9050802@in.ibm.com>  <450508BB.7020609@openvz.org> <1158000262.6029.26.camel@linuxchandra>
+In-Reply-To: <1158000262.6029.26.camel@linuxchandra>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hey all,
-I am a newbie and I just read a document with the idea for changes in
-page cache management for 64 Bit machines. This has been taken from
-Linux symposium 2006, ottawa.
+> CKRM/RG handles it this way:
+> 
+> Amount of a resource a child RG gets is the ratio of its share value to
+> the parent's total # of shares. Children's resource allocation can be
+> changed just by changing the parent's total # of shares.
+> 
+> If you case about initial situation would be:
+>   Total memory in the system 100MB 
+>   parent's total # of shares: 100 (1 share == 1MB)
+>   10 children with # of shares: 10 (i.e each children has 10MB)
+> 
+> When I want to add another child, just change parent's total # of shares
+> to be say 125:
+>   Total memory in the system 100MB
+>   parent's total # of shares: 125 (1 share == 0.8MB)
+>   10 children with # of shares: 10 (i.e each children has 8MB)
+> Now you are left with 25 shares (or 20MB) that you can assign to new
+> child(ren) as you please.
 
-In order for 64-bit processors to efficiently use large address spaces
-while maintaining lower TLB miss rates, the Linux kernel can be
-configured with base page sizes up to 64 KB. While this benefits
-access to large memory segments and files, it greatly reduces the
-number of smaller files that can be resident in memory at one time.
-The idea proposes a change to the Linux kernel to allow file data to
-be more efficiently stored in memory when the size of the file, or the
-data at the end of a file, is significantly smaller than the page
-size.
+setting memory in "shares" doesn't look user friendly at all...
 
-So, how far is this feature feasible for the linux main line kernel ?
-Is, this feature already supported ?
--- 
-Regards,
-Sandeep
+Kirill
 
-
-
-
-
-Winners expect to win in advance. Life is a self-fulfilling prophecy.

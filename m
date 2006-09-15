@@ -1,69 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751456AbWIONvt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751460AbWIONxN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751456AbWIONvt (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Sep 2006 09:51:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751461AbWIONvt
+	id S1751460AbWIONxN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Sep 2006 09:53:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751461AbWIONxM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Sep 2006 09:51:49 -0400
-Received: from nf-out-0910.google.com ([64.233.182.190]:57411 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1751456AbWIONvr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Sep 2006 09:51:47 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=KznHuGlZhZmxqjx6SMXRuM3Y3Y6XWS6PxS32Rnv03FBkdBbIpjabp2cV25vJf8TLr2nuRFAx72pfnD7zFUBDLl/VSoottVAOz2Q4f2PTG2iis/PiWOMDVAKMpgNYnrBUjrcVQG8EWrTqX9DjNm8trPd7EAlK1I9emcVntcNm3hQ=
-Message-ID: <d120d5000609150651m4b7e739bv7afc0683071911a1@mail.gmail.com>
-Date: Fri, 15 Sep 2006 09:51:46 -0400
-From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
-To: "Jiri Kosina" <jikos@jikos.cz>
-Subject: Re: [PATCH 0/3] Synaptics - fix lockdep warnings
-Cc: "Arjan van de Ven" <arjan@infradead.org>,
-       lkml <linux-kernel@vger.kernel.org>, "Ingo Molnar" <mingo@elte.hu>
-In-Reply-To: <Pine.LNX.4.64.0609151535190.2721@twin.jikos.cz>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Fri, 15 Sep 2006 09:53:12 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:46793 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1751460AbWIONxK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Sep 2006 09:53:10 -0400
+Subject: [PATCH] serverworks: Switch to pci refcounted interfaces
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: akpm@osdl.org, linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <Pine.LNX.4.64.0609140227500.22181@twin.jikos.cz>
-	 <Pine.LNX.4.64.0609141754480.2721@twin.jikos.cz>
-	 <d120d5000609140918j18d68a4dmd9d9e1e72d2fd718@mail.gmail.com>
-	 <Pine.LNX.4.64.0609142037110.2721@twin.jikos.cz>
-	 <d120d5000609141156h5e06eb68k87a6fe072a701dab@mail.gmail.com>
-	 <1158260584.4200.3.camel@laptopd505.fenrus.org>
-	 <d120d5000609141211o76432bd3l82582ef3896e3be@mail.gmail.com>
-	 <1158298404.4332.18.camel@laptopd505.fenrus.org>
-	 <d120d5000609150620p15b17debo9ace17836d788958@mail.gmail.com>
-	 <Pine.LNX.4.64.0609151535190.2721@twin.jikos.cz>
+Date: Fri, 15 Sep 2006 15:16:53 +0100
+Message-Id: <1158329813.29932.43.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 9/15/06, Jiri Kosina <jikos@jikos.cz> wrote:
-> On Fri, 15 Sep 2006, Dmitry Torokhov wrote:
->
-> > I understand what Ingo is saying about detecting deadlocks across the
-> > pool of locks of the same class not waiting till they really clash, it
-> > is really useful. I also want to make my code as independent of lockdep
-> > as possible. Having a speciall marking on the locks themselves (done
-> > upon creation) instead of altering call sites is the cleanest way IMHO.
-> > Can we have a flag in the lock structure that would tell lockdep that it
-> > is OK for the given lock to be taken several times (i.e. the locks are
-> > really on the different objects)? This would still allow to detect
-> > incorrect locking across different classes.
->
-> Yes, but unfortunately marking the lock as 'can-be-taken-multiple-times'
-> is weaker than using the nested locking provided by lockdep.
->
-> i.e. if you mark a lock this way, it opens door for having deadlock, which
-> won't be detected by lockdep. This will happen if the code, by mistake,
-> really takes the _very same_ lock twice. lockdep will not be able to
-> detect this, when the lock is marked in a way you propose, but is able to
-> detect this when using the nested semantics.
->
+As we don't support hotplug we end up leaking an isa_dev reference which
+if unload was ever added we would drop at the end of unloading. This is
+fine because we do genuinely need the isa_dev pointer until unload.
 
-But nested semantics breaks the notion of the locks belonging to the
-same pool so both solutions have tradeoffs. I could use either one of
-these as long as details are hidden and callers do not have to care.
+Signed-off-by: Alan Cox <alan@redhat.com>
 
--- 
-Dmitry
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.18-rc6-mm1/drivers/ide/pci/serverworks.c linux-2.6.18-rc6-mm1/drivers/ide/pci/serverworks.c
+--- linux.vanilla-2.6.18-rc6-mm1/drivers/ide/pci/serverworks.c	2006-09-11 11:02:12.000000000 +0100
++++ linux-2.6.18-rc6-mm1/drivers/ide/pci/serverworks.c	2006-09-14 17:22:11.000000000 +0100
+@@ -359,7 +359,7 @@
+ 
+ 	/* OSB4 : South Bridge and IDE */
+ 	if (dev->device == PCI_DEVICE_ID_SERVERWORKS_OSB4IDE) {
+-		isa_dev = pci_find_device(PCI_VENDOR_ID_SERVERWORKS,
++		isa_dev = pci_get_device(PCI_VENDOR_ID_SERVERWORKS,
+ 			  PCI_DEVICE_ID_SERVERWORKS_OSB4, NULL);
+ 		if (isa_dev) {
+ 			pci_read_config_dword(isa_dev, 0x64, &reg);
+@@ -380,7 +380,7 @@
+ 		if (!(PCI_FUNC(dev->devfn) & 1)) {
+ 			struct pci_dev * findev = NULL;
+ 			u32 reg4c = 0;
+-			findev = pci_find_device(PCI_VENDOR_ID_SERVERWORKS,
++			findev = pci_get_device(PCI_VENDOR_ID_SERVERWORKS,
+ 				PCI_DEVICE_ID_SERVERWORKS_CSB5, NULL);
+ 			if (findev) {
+ 				pci_read_config_dword(findev, 0x4C, &reg4c);
+@@ -388,6 +388,7 @@
+ 				reg4c |=  0x00000040;
+ 				reg4c |=  0x00000020;
+ 				pci_write_config_dword(findev, 0x4C, reg4c);
++				pci_dev_put(findev);
+ 			}
+ 			outb_p(0x06, 0x0c00);
+ 			dev->irq = inb_p(0x0c01);
+@@ -395,12 +396,13 @@
+ 			struct pci_dev * findev = NULL;
+ 			u8 reg41 = 0;
+ 
+-			findev = pci_find_device(PCI_VENDOR_ID_SERVERWORKS,
++			findev = pci_get_device(PCI_VENDOR_ID_SERVERWORKS,
+ 					PCI_DEVICE_ID_SERVERWORKS_CSB6, NULL);
+ 			if (findev) {
+ 				pci_read_config_byte(findev, 0x41, &reg41);
+ 				reg41 &= ~0x40;
+ 				pci_write_config_byte(findev, 0x41, reg41);
++				pci_dev_put(findev);
+ 			}
+ 			/*
+ 			 * This is a device pin issue on CSB6.
+

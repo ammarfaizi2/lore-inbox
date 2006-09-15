@@ -1,67 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932337AbWIOW3x@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932338AbWIOWfX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932337AbWIOW3x (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Sep 2006 18:29:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932335AbWIOW3w
+	id S932338AbWIOWfX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Sep 2006 18:35:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932339AbWIOWfX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Sep 2006 18:29:52 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:13987 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932334AbWIOW3v (ORCPT
+	Fri, 15 Sep 2006 18:35:23 -0400
+Received: from opersys.com ([64.40.108.71]:64012 "EHLO www.opersys.com")
+	by vger.kernel.org with ESMTP id S932338AbWIOWfW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Sep 2006 18:29:51 -0400
-Date: Fri, 15 Sep 2006 15:29:32 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Tejun Heo <htejun@gmail.com>
-Cc: Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org,
-       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>,
-       alan@lxorguk.ukuu.org.uk, "Nelson A. de Oliveira" <naoliv@gmail.com>
-Subject: Re: [PATCH] libata: fix non-uniform ports handling
-Message-Id: <20060915152932.6aafff8e.akpm@osdl.org>
-In-Reply-To: <20060915180415.GB25800@htj.dyndns.org>
-References: <20060915180415.GB25800@htj.dyndns.org>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 15 Sep 2006 18:35:22 -0400
+Message-ID: <450B2D00.9@opersys.com>
+Date: Fri, 15 Sep 2006 18:45:20 -0400
+From: Karim Yaghmour <karim@opersys.com>
+Reply-To: karim@opersys.com
+Organization: Opersys inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.8.0.6) Gecko/20060804 Fedora/1.0.4-0.5.1.fc5 SeaMonkey/1.0.4
+MIME-Version: 1.0
+To: Ingo Molnar <mingo@elte.hu>
+CC: Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
+       Roman Zippel <zippel@linux-m68k.org>, Andrew Morton <akpm@osdl.org>,
+       tglx@linutronix.de, Paul Mundt <lethal@linux-sh.org>,
+       Jes Sorensen <jes@sgi.com>, linux-kernel@vger.kernel.org,
+       Christoph Hellwig <hch@infradead.org>, Ingo Molnar <mingo@redhat.com>,
+       Greg Kroah-Hartman <gregkh@suse.de>, Tom Zanussi <zanussi@us.ibm.com>,
+       ltt-dev@shafik.org, Michel Dagenais <michel.dagenais@polymtl.ca>
+Subject: Re: [PATCH 0/11] LTTng-core (basic tracing infrastructure) 0.5.108
+References: <20060915142836.GA9288@localhost.usen.ad.jp> <450ABE08.2060107@opersys.com> <1158332447.5724.423.camel@localhost.localdomain> <20060915111644.c857b2cf.akpm@osdl.org> <20060915181907.GB17581@elte.hu> <Pine.LNX.4.64.0609152111030.6761@scrub.home> <20060915200559.GB30459@elte.hu> <20060915202233.GA23318@Krystal> <20060915213213.GA12789@elte.hu> <20060915215852.GC18958@Krystal> <20060915221926.GD12789@elte.hu>
+In-Reply-To: <20060915221926.GD12789@elte.hu>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 16 Sep 2006 03:04:15 +0900
-Tejun Heo <htejun@gmail.com> wrote:
 
-> @@ -5269,11 +5269,19 @@ void ata_port_init(struct ata_port *ap, 
->  	ap->host = host;
->  	ap->dev = ent->dev;
->  	ap->port_no = port_no;
-> -	ap->pio_mask = ent->pio_mask;
-> -	ap->mwdma_mask = ent->mwdma_mask;
-> -	ap->udma_mask = ent->udma_mask;
-> -	ap->flags |= ent->port_flags;
-> -	ap->ops = ent->port_ops;
-> +	if (port_no == 1 && ent->pinfo2) {
-> +		ap->pio_mask = ent->pinfo2->pio_mask;
-> +		ap->mwdma_mask = ent->pinfo2->mwdma_mask;
-> +		ap->udma_mask = ent->pinfo2->udma_mask;
-> +		ap->flags |= ent->pinfo2->flags;
-> +		ap->ops = ent->pinfo2->port_ops;
-> +	} else {
-> +		ap->pio_mask = ent->pio_mask;
-> +		ap->mwdma_mask = ent->mwdma_mask;
-> +		ap->udma_mask = ent->udma_mask;
-> +		ap->flags |= ent->port_flags;
-> +		ap->ops = ent->port_ops;
-> +	}
+Ingo Molnar wrote:
+> btw., an observation: that's 6 LTT architectures in 7 years, while 
+> kprobes are now on 5 architectures in 2 years.
 
+Actually much of ltt underwent a complete rewrite since Mathieu took
+over maintainership. Let's, according to this email, Mathieu became
+the maintainer in November 2005:
+http://www.listserv.shafik.org/pipermail/ltt-dev/2005-November/001092.html
 
-Same problem: the git-libata-all which I pulled 30 seconds ago
-has:
+[ Karim takes out calculator and punches: 10/12 = 0.83 ]
 
-	ap->flags |= ent->port_flags | ent->_port_flags[port_no];
+So that's 7 architectures in 0.83 years, compared to 5 in 2 years.
 
-and not
+Joke's on you pall.
 
-	ap->flags |= ent->port_flags;
+Karim
 
-which is what your patch expects.
-
-Oh well, hopefully Jeff will sort it out.

@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751432AbWIOBlh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751434AbWIOBmr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751432AbWIOBlh (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Sep 2006 21:41:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751435AbWIOBlh
+	id S1751434AbWIOBmr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Sep 2006 21:42:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751435AbWIOBmr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Sep 2006 21:41:37 -0400
-Received: from smtp-out.google.com ([216.239.45.12]:22915 "EHLO
+	Thu, 14 Sep 2006 21:42:47 -0400
+Received: from smtp-out.google.com ([216.239.45.12]:41603 "EHLO
 	smtp-out.google.com") by vger.kernel.org with ESMTP
-	id S1751432AbWIOBlf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Sep 2006 21:41:35 -0400
+	id S1751434AbWIOBmq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Sep 2006 21:42:46 -0400
 DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
 	h=received:subject:from:reply-to:to:cc:content-type:
 	organization:date:message-id:mime-version:x-mailer:content-transfer-encoding;
-	b=FE4nGuh7VncsK1s9IvOjbO2WoBIoKvmaF9QCpSRFYgNcZzyzjBCom+HR3WwmDXBxb
-	6GKtbNz0Tymjj4uFv5CkQ==
-Subject: [Patch03/05]- Containers: Initialization and Configfs interface
+	b=TIuf7JaE7Bkn+KOE0FMdD/n+xUgfM1cJIwHIbeI5M2tNg2JTpsgDoeHlZhndzOTlV
+	d6gHUjFqI9QfzB/GtkrXA==
+Subject: [Patch04/05]- Containers: Core Container support
 From: Rohit Seth <rohitseth@google.com>
 Reply-To: rohitseth@google.com
 To: Andrew Morton <akpm@osdl.org>
@@ -22,452 +22,812 @@ Cc: devel@openvz.org, CKRM-Tech <ckrm-tech@lists.sourceforge.net>,
        linux-kernel <linux-kernel@vger.kernel.org>
 Content-Type: text/plain
 Organization: Google Inc
-Date: Thu, 14 Sep 2006 18:41:26 -0700
-Message-Id: <1158284486.5408.154.camel@galaxy.corp.google.com>
+Date: Thu, 14 Sep 2006 18:42:30 -0700
+Message-Id: <1158284550.5408.156.camel@galaxy.corp.google.com>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.2.1.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch contains containers interface with configfs.  This patch
-defines config group for containers underneath which different
-containers can be created.  This patch also contains initialization code
-for creating work queue.
+This patch has the definitions and other core part of container support
+implementing all the counters for different resources (like tasks, anon
+memory etc.).
 
 Signed-off-by: Rohit Seth <rohitseth@google.com>
 
-kernel/container_configfs.c |  426 +++++++++++++++++++++++++++++++++++++++++++++++++++
- 1 files changed, 426 insertions(+)
+ include/linux/container.h |  163 ++++++++++++
+ mm/container.c            |  620 ++++++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 783 insertions(+)
 
---- linux-2.6.18-rc6-mm2.org/kernel/container_configfs.c	1969-12-31 16:00:00.000000000 -0800
-+++ linux-2.6.18-rc6-mm2.ctn/kernel/container_configfs.c	2006-09-14 16:18:45.000000000 -0700
-@@ -0,0 +1,426 @@
+--- linux-2.6.18-rc6-mm2.org/include/linux/container.h	1969-12-31 16:00:00.000000000 -0800
++++ linux-2.6.18-rc6-mm2.ctn/include/linux/container.h	2006-09-14 16:22:30.000000000 -0700
+@@ -0,0 +1,163 @@
 +/*
++ * include/linux/container.h
++ * 	container header definitions for containers.
 + * Copyright (c) 2006 Rohit Seth <rohitseth@google.com>
-+ *
-+ * Container initialization code and configfs registration code.
 + */
 +
-+#include <linux/init.h>
-+#include <linux/module.h>
-+#include <linux/slab.h>
-+#include <linux/container.h>
++#ifndef _LINUX_CONTAINER_H
++#define _LINUX_CONTAINER_H
++
++#ifdef CONFIG_CONTAINERS
++
++#include <linux/kernel.h>
++#include <linux/types.h>
++#include <linux/mm.h>
++#include <linux/errno.h>
++#include <linux/nodemask.h>
++#include <linux/mutex.h>
 +#include <linux/configfs.h>
 +#include <linux/workqueue.h>
 +
-+/*
-+ * Per processor worker thread for handling over the limits scenarios.
-+ */
-+struct workqueue_struct *container_wq;
++#include <asm/system.h>
++#include <asm/page.h>
++#include <asm/atomic.h>
++
++struct task_struct;
++struct address_space;
++struct page;
 +
 +/*
-+ * Default limit for physical memory for a newly created container.  Can
-+ * be changed through /configfs/container/<container_name>/page_limit
++ * num_files is just a number indicating how many files are currently opened by 
++ * task(s) belonging to this container.
 + */
-+#define DEFAULT_PAGE_LIMIT ((900*1024*1024) >> PAGE_SHIFT)
++struct container_struct {
++	char *name; /* Container name */
++	int id; /* System wide container id */
++	int freeing; /* Used for marking a freeing container. */
++	unsigned long flags; /* See different bits below. */
++	atomic_t wait_on_mutex; /* Number of threads waiting to grab
++				 * container mutex.  Used to make sure
++				 * we don't free the container while there is
++				 * someone waiting for mutex.
++				 */
 +
-+/*
-+ * Default limit for number of tasks that can be created with in a container.  Can
-+ * be changed through /configfs/container/<container_name>/task_limit
-+ */
-+#define DEFAULT_TASK_LIMIT 100
++	/* Accoutning fields. */
++	atomic_t num_tasks; /* Total number of threads. */
++	atomic_t num_files; /* See comment above. */
++	atomic_long_t num_anon_pages; /* Anonymous pages. */
++	atomic_long_t num_mapped_pages; /* File pages that are mapped. */
++	atomic_long_t num_file_pages; /* Pagecache pages. */
++	atomic_long_t num_active_pages; /* Pages on active list. */
 +
-+/*
-+ * Following attributes are defined as the interface mechanism between configfs
-+ * and containers.  
-+ * ca_name is the name as it gets shown in configfs
-+ * ca_mode is the mode of that attribute
-+ * idx is index of the attribute in the container.  This is used to find out
-+ * what specific operation is requested.
-+ */
-+static struct simple_containerfs_attr simple_containerfs_attr_id = {
-+	.attr = { .ca_owner = THIS_MODULE, .ca_name = "id", .ca_mode = S_IRUGO },
-+	.idx = CONFIGFS_CTN_ATTR_ID,
-+};
++	/* Limits */
++	ssize_t page_limit; /* Max pages */
++	int	task_limit; /* Max number of tasks */
 +
-+static struct simple_containerfs_attr simple_containerfs_attr_num_tasks = {
-+	.attr = { .ca_owner = THIS_MODULE, .ca_name = "num_tasks", .ca_mode = S_IRUGO },
-+	.idx = CONFIGFS_CTN_ATTR_NUM_TASKS,
-+};
++	/* Stats */
++	atomic_long_t page_limit_hits; /* Num times page limit is hit */
++	atomic_long_t task_limit_hits; /* Num times proc limit is hit. */
 +
-+static struct simple_containerfs_attr simple_containerfs_attr_num_files = {
-+	.attr = { .ca_owner = THIS_MODULE, .ca_name = "num_files", .ca_mode = S_IRUGO },
-+	.idx = CONFIGFS_CTN_ATTR_NUM_FILES,
-+};
++	/* Mutex for resource list management. Also used while freeing. */
++	struct mutex mutex;
 +
-+static struct simple_containerfs_attr simple_containerfs_attr_num_anon_pages = {
-+	.attr = { .ca_owner = THIS_MODULE, .ca_name = "num_anon_pages", .ca_mode = S_IRUGO },
-+	.idx = CONFIGFS_CTN_ATTR_NUM_ANON_PAGES,
-+};
++	/* Various resource lists */
++	struct list_head tasks; /* List of tasks belonging to container */
++	struct list_head mappings; /* List of files belonging to container*/
 +
-+static struct simple_containerfs_attr simple_containerfs_attr_num_mapped_pages = {
-+	.attr = { .ca_owner = THIS_MODULE, .ca_name = "num_mapped_pages", .ca_mode = S_IRUGO },
-+	.idx = CONFIGFS_CTN_ATTR_NUM_MAPPED_PAGES,
-+};
-+
-+static struct simple_containerfs_attr simple_containerfs_attr_num_file_pages = {
-+	.attr = { .ca_owner = THIS_MODULE, .ca_name = "num_file_pages", .ca_mode = S_IRUGO },
-+	.idx = CONFIGFS_CTN_ATTR_NUM_FILE_PAGES,
-+};
-+
-+static struct simple_containerfs_attr simple_containerfs_attr_num_active_pages = {
-+	.attr = { .ca_owner = THIS_MODULE, .ca_name = "num_active_pages", .ca_mode = S_IRUGO },
-+	.idx = CONFIGFS_CTN_ATTR_NUM_ACTIVE_PAGES,
-+};
-+
-+static struct simple_containerfs_attr simple_containerfs_attr_page_limit = {
-+	.attr = { .ca_owner = THIS_MODULE, .ca_name = "page_limit", .ca_mode = S_IRUGO | S_IWUSR },
-+	.idx = CONFIGFS_CTN_ATTR_PAGE_LIMIT,
-+};
-+
-+static struct simple_containerfs_attr simple_containerfs_attr_task_limit = {
-+	.attr = { .ca_owner = THIS_MODULE, .ca_name = "task_limit", .ca_mode = S_IRUGO | S_IWUSR },
-+	.idx = CONFIGFS_CTN_ATTR_TASK_LIMIT,
-+};
-+
-+static struct simple_containerfs_attr simple_containerfs_attr_page_limit_hits = {
-+	.attr = { .ca_owner = THIS_MODULE, .ca_name = "page_limit_hits", .ca_mode = S_IRUGO },
-+	.idx = CONFIGFS_CTN_ATTR_PAGE_LIMIT_HITS,
-+};
-+
-+static struct simple_containerfs_attr simple_containerfs_attr_task_limit_hits = {
-+	.attr = { .ca_owner = THIS_MODULE, .ca_name = "task_limit_hits", .ca_mode = S_IRUGO },
-+	.idx = CONFIGFS_CTN_ATTR_TASK_LIMIT_HITS,
-+};
-+
-+static struct simple_containerfs_attr simple_containerfs_attr_freeing = {
-+	.attr = { .ca_owner = THIS_MODULE, .ca_name = "freeing", .ca_mode = S_IRUGO | S_IWUSR },
-+	.idx = CONFIGFS_CTN_ATTR_FREEING,
-+};
-+
-+static struct simple_containerfs_attr simple_containerfs_attr_addtask = {
-+	.attr = { .ca_owner = THIS_MODULE, .ca_name = "addtask", .ca_mode = S_IRUGO | S_IWUSR },
-+	.idx = CONFIGFS_CTN_ATTR_ADD_TASK,
-+};
-+
-+static struct simple_containerfs_attr simple_containerfs_attr_rmtask = {
-+	.attr = { .ca_owner = THIS_MODULE, .ca_name = "rmtask", .ca_mode = S_IRUGO | S_IWUSR },
-+	.idx = CONFIGFS_CTN_ATTR_RM_TASK,
-+};
-+
-+static struct simple_containerfs_attr simple_containerfs_attr_addfile = {
-+	.attr = { .ca_owner = THIS_MODULE, .ca_name = "addfile", .ca_mode = S_IRUGO | S_IWUSR },
-+	.idx = CONFIGFS_CTN_ATTR_ADD_FILE,
-+};
-+
-+static struct simple_containerfs_attr simple_containerfs_attr_rmfile = {
-+	.attr = { .ca_owner = THIS_MODULE, .ca_name = "rmfile", .ca_mode = S_IRUGO | S_IWUSR },
-+	.idx = CONFIGFS_CTN_ATTR_RM_FILE,
++	u64 last_jiffies; /* Jiffy value when limits were hit last*/
++	struct work_struct work; /* Work structure for work_queues */
++	wait_queue_head_t mm_waitq; /* Wait queue when it goes over limit */
 +};
 +
 +/*
-+ * Array of all the attributes defined for containers. Used at the time when
-+ * container is created.
++ * Container Flags here.
 + */
-+static struct configfs_attribute *simple_containerfs_attrs[] = {
-+	&simple_containerfs_attr_id.attr,
-+	&simple_containerfs_attr_num_tasks.attr,
-+	&simple_containerfs_attr_num_files.attr,
-+	&simple_containerfs_attr_num_anon_pages.attr,
-+	&simple_containerfs_attr_num_mapped_pages.attr,
-+	&simple_containerfs_attr_num_file_pages.attr,
-+	&simple_containerfs_attr_num_active_pages.attr,
-+	&simple_containerfs_attr_page_limit.attr,
-+	&simple_containerfs_attr_task_limit.attr,
-+	&simple_containerfs_attr_page_limit_hits.attr,
-+	&simple_containerfs_attr_task_limit_hits.attr,
-+	&simple_containerfs_attr_freeing.attr,
-+	&simple_containerfs_attr_addtask.attr,
-+	&simple_containerfs_attr_rmtask.attr,
-+	&simple_containerfs_attr_addfile.attr,
-+	&simple_containerfs_attr_rmfile.attr,
-+	NULL,
-+};
++#define CTN_OVER_MM_LIM 0 /* Container is over its memory limit. */
 +
-+static inline struct simple_containerfs *to_simple_containerfs(struct config_item *item)
++extern int setup_container(struct container_struct *);
++extern int free_container(struct container_struct *);
++extern int container_add_task(struct task_struct *, struct task_struct *,
++		struct container_struct *);
++extern int container_add_file(struct address_space *, struct container_struct *);
++extern ssize_t set_container_page_limit(struct container_struct *, ssize_t);
++extern ssize_t set_container_task_limit(struct container_struct *, ssize_t);
++extern void container_remove_task(struct task_struct *, struct container_struct *);
++extern void container_remove_file(struct address_space *);
++extern void container_inc_page_count(struct page *);
++extern void container_dec_page_count(struct page *);
++extern void container_inc_filepage_count(struct address_space *, struct page *);
++extern void container_dec_filepage_count(struct page *);
++extern void container_inc_activepage_count(struct page *);
++extern void container_dec_activepage_count(struct page *);
++extern int freeing_container(struct container_struct  *);
++extern void container_over_pagelimit(struct container_struct *);
++extern void container_overlimit_handler(void *);
++extern long filepages_to_new_container(struct address_space *, struct container_struct *);
++extern long anonpages_sub(struct task_struct *, struct container_struct *);
++
++static inline void container_init_page_ptr(struct page *page, 
++		struct task_struct *task)
 +{
-+	return item ? container_of(item, struct simple_containerfs, item) : NULL;
++	if (task == NULL)
++		page->ctn = NULL;
++	else
++		page->ctn = task->ctn;
++}
++
++static inline void container_init_task_ptr(struct task_struct *task)
++{
++	task->ctn = NULL;
 +}
 +
 +/*
-+ * simple_containerfs_attr_show operation is executed when ever there is a 
-+ * read operation on any of container's attribute.
++ * Following is for CONFIGFS
 + */
-+static ssize_t simple_containerfs_attr_show(struct config_item *item,
-+		struct configfs_attribute *attr,
-+		char *page)
-+{
-+	ssize_t tmp;
-+	struct simple_containerfs *sc = to_simple_containerfs(item);
-+	struct simple_containerfs_attr  *ctfs_attr =
-+		container_of(attr, struct simple_containerfs_attr, attr);
++struct simple_containerfs {
++	struct config_item item;
++	struct container_struct ctn;
++};
 +
-+	/* Attributes's index tells us what operation is requested. */
-+	switch (ctfs_attr->idx) {
-+	case CONFIGFS_CTN_ATTR_ID:
-+		tmp = sc->ctn.id;
-+		break;
-+	case CONFIGFS_CTN_ATTR_NUM_TASKS:
-+		tmp = (ssize_t)atomic_read(&sc->ctn.num_tasks);
-+		break;
-+	case CONFIGFS_CTN_ATTR_NUM_FILES:
-+		tmp = (ssize_t)atomic_read(&sc->ctn.num_files);
-+		break;
-+	case CONFIGFS_CTN_ATTR_NUM_ANON_PAGES:
-+		tmp = atomic_long_read(&sc->ctn.num_anon_pages);
-+		break;
-+	case CONFIGFS_CTN_ATTR_NUM_MAPPED_PAGES:
-+		tmp = atomic_long_read(&sc->ctn.num_mapped_pages);
-+		break;
-+	case CONFIGFS_CTN_ATTR_NUM_FILE_PAGES:
-+		tmp = atomic_long_read(&sc->ctn.num_file_pages);
-+		break;
-+	case CONFIGFS_CTN_ATTR_NUM_ACTIVE_PAGES:
-+		tmp = atomic_long_read(&sc->ctn.num_active_pages);
-+		break;
-+	case CONFIGFS_CTN_ATTR_PAGE_LIMIT:
-+		tmp = sc->ctn.page_limit;
-+		break;
-+	case CONFIGFS_CTN_ATTR_TASK_LIMIT:
-+		tmp = sc->ctn.task_limit;
-+		break;
-+	case CONFIGFS_CTN_ATTR_PAGE_LIMIT_HITS:
-+		tmp = atomic_long_read(&sc->ctn.page_limit_hits);
-+		break;
-+	case CONFIGFS_CTN_ATTR_TASK_LIMIT_HITS:
-+		tmp = atomic_long_read(&sc->ctn.task_limit_hits);
-+		break;
-+	case CONFIGFS_CTN_ATTR_FREEING:
-+		tmp = sc->ctn.freeing;
-+		break;
-+	default: 
-+		tmp = -1;
++struct simple_containerfs_attr {
++	struct configfs_attribute attr;
++	int idx; /* Indices defined below. */
++};
++
++/* Indices in configs directory.
++ */
++#define CONFIGFS_CTN_ATTR_ID 			1
++#define CONFIGFS_CTN_ATTR_NUM_TASKS 		2
++#define CONFIGFS_CTN_ATTR_NUM_FILES 		3
++#define CONFIGFS_CTN_ATTR_NUM_ANON_PAGES 	4
++#define CONFIGFS_CTN_ATTR_NUM_MAPPED_PAGES	5
++#define CONFIGFS_CTN_ATTR_NUM_FILE_PAGES 	6
++#define CONFIGFS_CTN_ATTR_NUM_ACTIVE_PAGES 	7
++#define CONFIGFS_CTN_ATTR_PAGE_LIMIT 		8
++#define CONFIGFS_CTN_ATTR_TASK_LIMIT 		9
++#define CONFIGFS_CTN_ATTR_PAGE_LIMIT_HITS	10
++#define CONFIGFS_CTN_ATTR_TASK_LIMIT_HITS	11
++#define CONFIGFS_CTN_ATTR_FREEING		12
++#define CONFIGFS_CTN_ATTR_ADD_TASK		13
++#define CONFIGFS_CTN_ATTR_RM_TASK		14
++#define CONFIGFS_CTN_ATTR_ADD_FILE		15
++#define CONFIGFS_CTN_ATTR_RM_FILE		16
++
++extern struct workqueue_struct *container_wq;
++
++#else /* CONFIG_CONTAINERS */
++
++#define container_add_task(t0, t1, container) 0
++#define container_add_file(mapping, container)	do { } while(0)
++#define container_remove_task(task, container)	do { } while(0)
++#define container_remove_file(address_space)	do { } while(0)
++#define container_inc_page_count(page)	do { } while(0)
++#define container_dec_page_count(page)	do { } while(0)
++#define container_inc_filepage_count(address_space, page)	do { } while(0)
++#define container_dec_filepage_count(page)	do { } while(0)
++#define container_inc_activepage_count(page)	do { } while(0)
++#define container_dec_activepage_count(page)	do { } while(0)
++#define container_init_page_ptr(page, task)	do { } while(0)
++#define container_init_task_ptr(task)	do { } while(0)
++
++#endif  /* CONFIG_CONTAINERS */
++
++#endif /* LINUX_CONTAINER_H */
+--- linux-2.6.18-rc6-mm2.org/mm/container.c	1969-12-31 16:00:00.000000000 -0800
++++ linux-2.6.18-rc6-mm2.ctn/mm/container.c	2006-09-14 16:45:20.000000000 -0700
+@@ -0,0 +1,620 @@
++/*
++ * mm/coontainer.c
++ * 	
++ * Copyright (c) 2006 Rohit Seth <rohitseth@google.com>
++ */
++
++#include <linux/mm.h>
++#include <linux/rmap.h>
++#include <linux/container.h>
++
++/*
++ * If we hit some resource limit more often then MIN_JIFFY_INTERVAL
++ * then the wait time is doubled.
++ */
++#define MIN_JIFFY_INTERVAL 5
++
++/*
++ * Maximum number of contatiners allowed in a system.  Later 
++ * make it configurable. Keep it multiple of BITS_PER_LONG
++ */
++#define MAX_CONTAINERS	512
++
++static int num_containers;
++/*
++ * Bit map array for container ids.
++ */
++DECLARE_BITMAP(ctn_bit_array, MAX_CONTAINERS);
++
++/*
++ * Protects container list updates.  This is only used 
++ * when a container is getting created or destroyed.
++ */
++
++static DEFINE_SPINLOCK(container_lock);
++
++void wakeup_container_mm(struct container_struct *ctn);
++
++/*
++ * This function is called as part of creating a new container when a
++ * mkdir command is executed.  Container is already allocated as part 
++ * of initialization in configfs directory.  Look at 
++ * kernel/container_configfs.c
++ */
++int setup_container(struct container_struct *ctn)
++{
++	int idx;
++
++	spin_lock(&container_lock);
++
++	if (num_containers == (MAX_CONTAINERS -1)) {
++		idx = -EBUSY;
++		goto out;
 +	}
-+
-+	return sprintf(page, "%ld\n", tmp);
++	idx = find_first_zero_bit(ctn_bit_array, MAX_CONTAINERS);
++	set_bit(idx, ctn_bit_array);
++	num_containers++;
++out:
++	spin_unlock(&container_lock);
++	ctn->id = idx;
++	
++	return idx;
 +
 +}
 +
-+static ssize_t simple_containerfs_attr_store(struct config_item *item,
-+				       struct configfs_attribute *attr,
-+				       const char *buf, size_t count)
++/*
++ * This function is reached when user executes 
++ * echo <pid> > /configfs/container/<container>/addtask command.  It is also
++ * called at fork time.  If a task is  not already a part of another 
++ * container, it is allowed to move into this container.  
++ * The two fields in task_struct,
++ * 1- ctn: is initialized to point to this container.
++ * 2- ctn_list: task is added to the head of tasks list for the container.
++ * XXX: Not adding any existing pages belonging to task to this container.
++ * If we are getting called from fork path then parent is non-NULL task
++ * pointer and ctn could be NULL.  
++ * If we are getting called from configfs interface then parent is
++ * NULL but ctn will point to the non-NULL container.
++ */
++int container_add_task(struct task_struct *task, struct task_struct *parent,
++		struct container_struct *ctn)
 +{
-+	struct simple_containerfs *sc = to_simple_containerfs(item);
-+	struct simple_containerfs_attr  *ctfs_attr =
-+		container_of(attr, struct simple_containerfs_attr, attr);
-+	ssize_t tmp = 0;
-+	char *p = (char *)buf;
++	int ret = 0;
++
++	/* First take care of processes running out side of container.
++	 */
++	if (parent && (parent->ctn == NULL))
++		return 0;
++
++	if (ctn == NULL) {
++		/*
++		 * We do this here so that parent's container pointer is not
++		 * replaced underneath us.
++		 */
++		task_lock(parent);
++		if (parent->ctn) {
++			atomic_inc(&ctn->wait_on_mutex);
++			ctn = parent->ctn;
++		}
++		task_unlock(parent);
++		/*
++		 * If some one else removed parent from a container then we
++		 * just return as in this case task will not be added to any
++		 * container.
++		 */
++		if (ctn == NULL)
++			return 0;
++	} else
++		atomic_inc(&ctn->wait_on_mutex);
 +
 +	/*
-+	 * For now it is only a simple operation.  Expected input is
-+	 * integer for the attributes that are less than or equal to 
-+	 * CONFIGFS_CTN_ATTR_RM_TASK defined in include/linux/container.h 
-+	 * But update this code later as different types are expected.
++	 * Easy check first outside of mutex if the container is getting freed.
 +	 */
-+	if (ctfs_attr->idx <= CONFIGFS_CTN_ATTR_RM_TASK) {
-+		tmp = simple_strtoul(p, &p, 10);
-+		if (!p || (*p && (*p != '\n')))
-+			return -EINVAL;
++	if (ctn->freeing) {
++		ret = -ENOENT;
++		goto out_no_mutex;
 +	}
 +
-+	if (tmp > INT_MAX)
-+		return -ERANGE;
++	mutex_lock(&ctn->mutex);
++	/*
++	 * First check if the container is not already marked for freeing.
++	 */
++	if (ctn->freeing) {
++		ret = -ENOENT;
++		goto out_no_lock;
++	}
 +
-+	switch (ctfs_attr->idx) {
-+	case CONFIGFS_CTN_ATTR_PAGE_LIMIT:
-+		tmp = set_container_page_limit(&sc->ctn, tmp);
-+		break;
-+	case CONFIGFS_CTN_ATTR_TASK_LIMIT:
-+		tmp = set_container_task_limit(&sc->ctn, tmp);
-+		break;
-+	case CONFIGFS_CTN_ATTR_FREEING:
-+		break;
-+	case CONFIGFS_CTN_ATTR_ADD_TASK:
-+	case CONFIGFS_CTN_ATTR_RM_TASK:
-+		{
-+			struct task_struct *t;
++	task_lock(task);
 +
-+			read_lock(&tasklist_lock);
-+			t = find_task_by_pid(tmp);
-+			if (t) {
-+				get_task_struct(t);
-+				read_unlock(&tasklist_lock);
-+				if (ctfs_attr->idx == CONFIGFS_CTN_ATTR_ADD_TASK)
-+					tmp = container_add_task(t, NULL, &sc->ctn);
-+				else
-+					container_remove_task(t, &sc->ctn);
-+				put_task_struct(t);
-+			}
-+			else 
-+				read_unlock(&tasklist_lock);
-+			break;
++	if (task->ctn) {
++		/* 
++		 * Can not move a process from one container to another
++		 */
++		ret = -EINVAL;
++		goto out;
++	}
++
++	if (atomic_read(&ctn->num_tasks) >= ctn->task_limit) {
++		ret =  -ENOSPC;
++		goto out;
++	}
++	atomic_inc(&ctn->num_tasks);
++	task->ctn = ctn;
++
++	/*
++	 * Add the process to link list of tasks belonging to this container
++	 */
++	list_add(&task->ctn_task_list, &ctn->tasks);
++	
++out:
++	task_unlock(task);
++out_no_lock:
++	mutex_unlock(&ctn->mutex);
++out_no_mutex:
++	atomic_dec(&ctn->wait_on_mutex);
++
++	return ret;
++}
++
++/*
++ * This function checks if the count is greater than container's page_limit.
++ * If so then it wakes up memory controller.  If the container is gone
++ * way over its limit (currently set at about 12% of page_limit) then we
++ * schedule the current process out.  And if the limit is happening too often
++ * then increase the timeout.
++ */
++int check_page_limit(struct container_struct *ctn, long count)
++{
++	int ret = 0;
++	int limit = ctn->page_limit;
++
++	/*
++	 * Don't wake the over the limit memory handler if there are not
++	 * enough pages on the active list.  This will allow the containers
++	 * to have more inactive pages.
++	 */
++	if ((count > limit) && 
++			(atomic_long_read(&ctn->num_active_pages) > limit)) {
++
++		wakeup_container_mm(ctn);
++		ret = 1;
++		/* If we are way over the limit then schedule out.
++		 */
++		if (count > (limit + (limit >> 3))) {
++			int wait = HZ;
++			u64 temp;
++
++			/* No lock here and only one process may wait longer in case
++		 	* multiple processes are banging too hard.
++		 	*/
++			temp = ctn->last_jiffies;
++			ctn->last_jiffies = get_jiffies_64();
++			if ((ctn->last_jiffies - temp) < MIN_JIFFY_INTERVAL)
++				wait *= 2;
++			wait_event_interruptible_timeout(ctn->mm_waitq, 
++					(ctn->flags & CTN_OVER_MM_LIM) == 0, wait);
 +		}
-+	default: 
-+		printk("Invalid set attr option %d\n", ctfs_attr->idx);
 +	}
 +
++	return ret;
++}
++
++/*
++ * This function is called whenever an anonymous or file backed page is getting
++ * mapped for the first time.  We first check if the
++ * page belongs to any container (which is already set at the time when page's
++ * association was made with either anon_vma or mapping).
++ * 
++ * This function updates number of anonymous pages OR mapped pages belonging
++ * to this container.  If the total memory (anon + file backed) usage has
++ * exceeded the page_limit for the container, we put this container on the work
++ * queue for the memory controller.
++ *
++ * We also increment the number of times page limit is hit for this
++ * container.
++ */ 
++void container_inc_page_count(struct page *page)
++{
++	struct container_struct *ctn = page->ctn;
++	long tmp;
++
++	if (ctn == NULL)
++		return;
++
++	if (PageAnon(page))
++		atomic_long_inc(&ctn->num_anon_pages);
++	else
++		atomic_long_inc(&ctn->num_mapped_pages);
++
++	/*
++	 * We check the limits against the total pages present in page cache
++	 * and not only the ones that are mapped.
++	 */
++	tmp = atomic_long_read(&ctn->num_anon_pages) +
++		atomic_long_read(&ctn->num_file_pages);
++	if (check_page_limit(ctn, tmp))
++		atomic_long_inc(&ctn->page_limit_hits);
++}
++
++/*
++ * This function is called whenever user (both anonymous or file backed) page
++ * is getting freed.  First we check if this page belongs to any container or
++ * not.  It decrements the number of anonymous OR File backed pages belonging
++ * to this container.
++ * It is not possible for container to have empty task list but non-zero
++ * num_anon_pages or num_mapped_pages count.
++ */ 
++void container_dec_page_count(struct page  *page)
++{
++	struct container_struct *ctn = page->ctn;
++
++	if (ctn == NULL)
++		return;
++	if (PageAnon(page)) {
++		if (atomic_long_read(&ctn->num_anon_pages) > 0)
++			atomic_long_dec(&ctn->num_anon_pages);
++		else 
++			printk(KERN_WARNING"Container: Wrong Anon page count\n");
++	} else {
++		if (atomic_long_read(&ctn->num_mapped_pages) > 0)
++			atomic_long_dec(&ctn->num_mapped_pages);
++		else 
++			printk(KERN_WARNING"Container: Wrong Mapped page count\n");
++	}
++}
++
++/*
++ * This function is called whenever a pagecache page is allocated to 
++ * address space.  This function  updates 
++ * 1- the per page container field and 
++ * 2- number of pagecache(num_file_pages) pages belonging to this container.
++ * If the total memory (anon + file backed) usage has exceeded the
++ * page_limit for the container, we put this container on the work
++ * queue for the memory controller.
++ * We also increment the number of times page limit is hit for this
++ * container.
++ */ 
++void container_inc_filepage_count(struct address_space *map, struct page *page)
++{
++	struct container_struct *ctn = map->ctn;
++	long tmp;
++
++	if (ctn == NULL)
++		return;
++	page->ctn = ctn;
++	atomic_long_inc(&ctn->num_file_pages);
++	tmp = atomic_long_read(&ctn->num_anon_pages) + atomic_long_read(&ctn->num_file_pages);
++	if (check_page_limit(ctn, tmp))
++		atomic_long_inc(&ctn->page_limit_hits);
++}
++
++/*
++ * This function is called whenever a page is getting removed from
++ * pagecache.  This function decrements the number of pagecache pages 
++ * belonging to this container.
++ */ 
++void container_dec_filepage_count(struct page *page)
++{
++	struct container_struct *ctn = page->ctn;
++
++	if (ctn == NULL)
++		return;
++	if (atomic_long_read(&ctn->num_file_pages) > 0)
++		atomic_long_dec(&ctn->num_file_pages);
++}
++
++/*
++ * This function is called whenever a page is getting added to
++ * zone's active list.  This information is used
++ * by mm controller to see if more pages need to be put
++ * on inactive list. This function updates increments the number of active 
++ * pages belonging to * this container.
++ * zone's lock is already held, so do absolutely minimal and return fast.
++ */ 
++void container_inc_activepage_count(struct page *page)
++{
++	struct container_struct *ctn = page->ctn;
++
++	if (ctn == NULL)
++		return;
++	atomic_long_inc(&ctn->num_active_pages);
++	if (atomic_long_read(&ctn->num_active_pages) > ctn->page_limit)
++		wakeup_container_mm(ctn);
++}
++
++/*
++ * This function is called whenever a page is getting removed from
++ * zone's active list.  
++ */
++void container_dec_activepage_count(struct page *page)
++{
++	struct container_struct *ctn = page->ctn;
++
++	if (ctn)
++		atomic_long_dec(&ctn->num_active_pages);
++}
++
++/*
++ * This function is called:
++ * 1- When a file is getting assigned to a different container.
++ * 2- When file's inode is getting removed.
++ * It grabs the container's mutex and updates the mapping list of the container.
++ */
++void container_remove_file(struct address_space *map)
++{
++	struct container_struct *ctn = map->ctn;
++
++	if (ctn == NULL)
++		return;
++	mutex_lock(&ctn->mutex);
++	atomic_dec(&ctn->num_files);
++	list_del(&map->ctn_mapping_list);
++	map->ctn = NULL;
++	mutex_unlock(&ctn->mutex);
++}
++
++/*
++ * This function is reached when user executes 
++ * echo <file_name> > /configfs/container/test_container/addfile command
++ * (not yet implemented).  It is also called when a new inode is created as a
++ * result of some filesystem related operation.  
++ * If the file already belongs to another container (when configfs interface
++ * works), then it is removed from that container first. All
++ * existing pages are migrated to new container.
++ * The two fields in address_space:
++ * 1- ctn: is initialized to point to this container.
++ * 2- ctn_mapping_list: address_space is added to the head of address_space 
++ * list for the container.
++ */
++int container_add_file(struct address_space *map, struct container_struct *ctn)
++{
++	int ret = 0;
++	long count = 0;
++
++	/*
++	 * If it is dur to new inode allocation.
++	 */
++	if (ctn == NULL)
++		ctn = current->ctn;
++	if (map->ctn == ctn)
++		return ret;
++	count = map->nrpages;
++	if (map->ctn)  {/* Already belonging to a container. */
++		container_remove_file(map);
++		/* Now initialize the per page pointer to point to
++		 * new container.
++		 */
++		count = filepages_to_new_container(map, ctn);
++		atomic_long_sub(count, &map->ctn->num_file_pages);
++	}
++
++	mutex_lock(&ctn->mutex);
++	if (map->ctn != ctn) {
++		atomic_inc(&ctn->num_files);
++		map->ctn = ctn;
++		atomic_long_add(count, &ctn->num_file_pages);
++		list_add(&map->ctn_mapping_list, &ctn->mappings);
++	}
++	mutex_unlock(&ctn->mutex);
++
++	return ret; 
++}
++
++/*
++ * This function is reached when user executes 
++ * echo number > /configfs/container/test_container/page_limit command. It
++ * updates the page_limit field of container.  If the current consumption of
++ * memory is above the new page_limit then memory controller is called
++ * in the same way as if the original page limit is hit.  It is possible that
++ * controller may not be able to bring the consumption below the limits
++ * immediately.
++ */
++ssize_t set_container_page_limit(struct container_struct *ctn, ssize_t count)
++{
++	
++	ctn->page_limit =  count; 
++	if (count < (atomic_long_read(&ctn->num_anon_pages) 
++				+ atomic_long_read(&ctn->num_file_pages))) {
++		wakeup_container_mm(ctn);
++		atomic_long_inc(&ctn->page_limit_hits);
++	}
 +	return count;
 +}
 +
 +/*
-+ * This is where the release operation of container will come when a 
-+ * container is getting removed from container directory.  We will just release 
-+ * the memory allocated for the container.
++ * This function is reached when user executes 
++ * echo number > /configfs/container/test_container/task_limit command. It
++ * updates the task_limit field of container.  No effort is made to see if
++ * the current consumption is above the new limits. Though we do update the
++ * number of task limit_hits.
++ * XXX: Adding killing of tasks.
 + */
-+static void simple_containerfs_release(struct config_item *item)
++ssize_t set_container_task_limit(struct container_struct *ctn, ssize_t count)
 +{
-+	struct simple_containerfs *sc = to_simple_containerfs(item);
-+
-+	sc->ctn.freeing = 1;
-+	smp_mb();
-+	free_container(&sc->ctn);
-+	kfree(to_simple_containerfs(item));
-+}
-+
-+static struct configfs_item_operations container_item_ops = {
-+	.release = simple_containerfs_release,
-+	.show_attribute = simple_containerfs_attr_show,
-+	.store_attribute = simple_containerfs_attr_store,
-+};
-+
-+static struct config_item_type simple_containerfs_type = {
-+	.ct_attrs	= simple_containerfs_attrs,
-+	.ct_item_ops	= &container_item_ops,
-+	.ct_owner	= THIS_MODULE,
-+};
-+
-+struct containerfs {
-+	struct config_group group;
-+};
-+
-+static inline struct containerfs *to_containerfs(struct config_item *item)
-+{
-+	return container_of(to_config_group(item), struct containerfs, group);
++	ctn->task_limit = (int)count;
++	if (count < atomic_read(&ctn->num_tasks)) {
++		atomic_long_inc(&ctn->task_limit_hits);
++	}
++	return count;
 +}
 +
 +/*
-+ * Containers are initialized here.  mkdir command underneath /configfs/container
-+ * will get here. name is the pointer to the container name (given as part of 
-+ * mkdir command.
++ * This function can be called in two ways:
++ * 1- At the time of task's exit (PF_EXITING is set)
++ * 2- Through /configfs/containers/<container_name>/rmtask interface
++ *
++ * We grab the container mutex and task lock to
++ * 1- initialize the task's container pointer
++ * 2- If PF_EXITIING is not set then move the anon pages belonging to 
++ * this container out (uncharge this container).
 + */
-+
-+static struct config_item *containerfs_make_item(struct config_group *group, const char *name)
++void container_remove_task(struct task_struct *task, 
++		struct container_struct *ctn)
 +{
-+	struct simple_containerfs *sc;
++	struct container_struct *temp;
++	int count;
 +
-+	sc = kzalloc(sizeof(struct simple_containerfs) + strlen(name) + 1,
-+			GFP_KERNEL);
-+	if (!sc)
-+		return NULL;
 +
-+	mutex_init(&sc->ctn.mutex);
-+	sc->ctn.name = (char *) sc + sizeof(struct simple_containerfs);
-+	strcpy(sc->ctn.name, name);
-+	sc->ctn.page_limit = DEFAULT_PAGE_LIMIT;
-+	sc->ctn.task_limit = DEFAULT_TASK_LIMIT;
++	/* 
++	 * This quick check for cases where task does not belong to any 
++	 * container.  It is okay for this check to race with task->ctn
++	 * modifications that might be happening under task lock.
++	 */
++	if (task->ctn == NULL)
++		return;
++	/*
++	 * This time we are acquiring the task lock only.  We acquire the task
++	 * lock and check if there is any other parallel remove_task operation
++	 * going on at this time on task's container.  We want this operation 
++	 * to be serial as it
++	 * could be racing with free_container operation.  If we don't avoid
++	 * this race then it is possible that we might end up holding a
++	 * container mutex here which has already been freed.
++	 * ...Cost of providing asynchronous task removal from containers.
++	 */
++	task_lock(task);
++	temp = task->ctn;
++	if (temp == NULL)
++		/*
++		 * Someone else won the race and removed the task from
++		 * its container.
++		 */
++		goto out;
 +
-+	INIT_WORK(&sc->ctn.work, container_overlimit_handler, (void *)&sc->ctn);
-+	init_waitqueue_head(&sc->ctn.mm_waitq);
-+	INIT_LIST_HEAD(&sc->ctn.tasks);
-+	INIT_LIST_HEAD(&sc->ctn.mappings);
++	/*
++	 * ctn will be NULL for the exit cases only.  We set the 
++	 * CTN_TASK_PENDING flag only if it is in exit path (and task belongs
++	 * to some container) OR if the task is contained in ctn.
++	 */
++	if ((ctn == NULL) || (temp == ctn))
++		atomic_inc(&temp->wait_on_mutex);
++	else 
++		/*
++		 * Task does not belong to ctn any more.
++		 */
++		goto out;
++	task_unlock(task);
 +
-+	if (setup_container(&sc->ctn) < 0) {
-+		kfree(sc);
-+		return NULL;
++	mutex_lock(&temp->mutex);
++	task_lock(task);
++	if (task->ctn != temp) {
++		mutex_unlock(&temp->mutex);
++		atomic_dec(&temp->wait_on_mutex);
++		goto out;
 +	}
++	task->ctn = NULL; 
++	list_del(&task->ctn_task_list);
++	task_unlock(task);
++	atomic_dec(&temp->num_tasks);
++	mutex_unlock(&temp->mutex);
++	atomic_dec(&temp->wait_on_mutex);
 +
-+	config_item_init_type_name(&sc->item, name, &simple_containerfs_type);
-+
-+	return &sc->item;
++	if (!(task->flags & PF_EXITING))
++		/* Don't need this count at this point.
++		 */
++		count = anonpages_sub(task, temp);
++	return;
++out:
++	task_unlock(task);
++	return;
 +}
 +
-+static struct configfs_attribute containerfs_attr_description = {
-+	.ca_owner = THIS_MODULE, 
-+	.ca_name = "description", 
-+	.ca_mode = S_IRUGO ,
-+};
++void container_remove_tasks(struct container_struct *ctn)
++{
++	struct task_struct *tsk;
 +
-+static struct configfs_attribute *containerfs_attrs[] = {
-+	&containerfs_attr_description,
-+	NULL,
-+};
++	list_for_each_entry(tsk, &ctn->tasks, ctn_task_list)
++		container_remove_task(tsk, ctn);
++}
 +
++void container_remove_files(struct container_struct *ctn)
++{
++	struct address_space *mapping;
++	long count;
 +
-+/* This is the read operation on the top level /configfs/containers/description.
-+ * A general description about containers ...
++	list_for_each_entry(mapping, &ctn->mappings, ctn_mapping_list) {
++		container_remove_file(mapping);
++		count = filepages_to_new_container(mapping, NULL);
++		atomic_long_sub(count, &ctn->num_file_pages);
++	}
++}
++
++/*
++ * This function is called as part of deleting a container when a
++ * rmdir command is executed in configfs.  Container is already 
++ * marked getting freed (ctn->freeing).  Look at  kernel/container_configfs.c
++ * Once we get in here, no new object can be added to this container.
++ * Actual container also gets freed at the same place in configfs support.
++ * We will move any existing resources like task out of container and wait
++ * for all the pending operations to complete before returning.
 + */
-+
-+static ssize_t containerfs_attr_show(struct config_item *item,
-+		struct configfs_attribute *attr,
-+		char *page)
++int free_container(struct container_struct *ctn)
 +{
-+	return sprintf(page, "Containers provide grouping of resources in a "
-+			"platform.  It also provides limits and accounting of"
-+			"resources\nas they are used by processes belonging to"
-+			"those containers\n");
-+}
-+
-+static void containerfs_release(struct config_item *item)
-+{
-+	kfree(to_containerfs(item));
-+}
-+
-+static struct configfs_item_operations containerfs_item_ops = {
-+	.release = containerfs_release,
-+	.show_attribute = containerfs_attr_show,
-+};
-+
-+
-+static struct configfs_group_operations containerfs_group_ops = {
-+	.make_item = containerfs_make_item,
-+};
-+
-+static struct config_item_type containerfs_type = {
-+	.ct_item_ops = &containerfs_item_ops,
-+	.ct_group_ops = &containerfs_group_ops,
-+	.ct_attrs = containerfs_attrs,
-+	.ct_owner = THIS_MODULE,
-+};
-+
-+struct containerfs_group {
-+	struct configfs_subsystem cs_subsys;
-+};
-+
-+static struct containerfs_group containerfs_group = {
-+	.cs_subsys = {
-+		.su_group = {
-+			.cg_item = {
-+				.ci_namebuf = "containers",
-+				.ci_type = &containerfs_type,
-+			},
-+		},
-+	},
-+};
-+
-+static int __init configfs_container_init(void)
-+{
++	int idx;
 +	int ret;
 +
-+	config_group_init(&containerfs_group.cs_subsys.su_group);
-+	init_MUTEX(&containerfs_group.cs_subsys.su_sem);
-+	ret = configfs_register_subsystem(&containerfs_group.cs_subsys);
++	idx = ctn->id;
 +
-+	if (ret) 
-+		printk(KERN_ERR "Error %d while registering container subsystem\n", ret);
-+	else {
-+		container_wq = create_workqueue("Kcontainerd");
-+		if (container_wq == NULL) {
-+			ret = -ENOMEM;
-+			printk(KERN_ERR "Unable to create Container controllers");
-+		}
++again:
++	if (atomic_read(&ctn->num_tasks))
++		container_remove_tasks(ctn);
++	if (atomic_read(&ctn->num_files))
++		container_remove_files(ctn);
++	mutex_lock(&ctn->mutex);
++
++	/*
++	 * The check for num_anon_pages is there because when a task
++	 * is removed from container using rmtask attribute, we reinitialize
++	 * page's container pointer outside the container mutex.
++	 */
++	if (atomic_read(&ctn->num_tasks) || ctn->flags ||
++			(atomic_read(&ctn->wait_on_mutex)) ||
++			atomic_read(&ctn->num_files) ||
++			atomic_long_read(&ctn->num_anon_pages)) {
++		mutex_unlock(&ctn->mutex);
++		schedule();
++		goto again;
 +	}
++	spin_lock(&container_lock);
++	num_containers--;
++	clear_bit(idx, ctn_bit_array);
++	spin_unlock(&container_lock);
++
++	ctn->id = -1;
++	ret = 0;
++	mutex_unlock(&ctn->mutex);
++
 +	return ret;
 +}
 +
-+/* Depends on configfs inititalization.
++/*
++ * This function wakes up mm controller (if it is not already active).  It
++ * sets container's CTN_OVER_MM_LIM flag to indicate this container has
++ * hit the page limit and needs controller's action.
 + */
-+late_initcall(configfs_container_init);
++void wakeup_container_mm(struct container_struct *ctn)
++{
++	if (test_and_set_bit(CTN_OVER_MM_LIM, &ctn->flags))
++			return;
++	queue_work(container_wq, &ctn->work);
++}
 +
++/*
++ * Container over the limit controller/handler...implemented as kernel thread.
++ * It picks up its work from workqueue and calls the core controller routine
++ * container_over_pagelimit (in file  mm/container_mm.c when page_limit is hit).
++ */
++
++void container_overlimit_handler(void *p)
++{
++	struct container_struct *ctn = (struct container_struct *)p;
++
++	if (test_bit(CTN_OVER_MM_LIM, &ctn->flags)) { /* Mem handler */
++		mutex_lock(&ctn->mutex);
++		container_over_pagelimit(ctn);
++		clear_bit(CTN_OVER_MM_LIM, &ctn->flags);
++		if (ctn->page_limit < atomic_read(&ctn->num_active_pages))
++			wake_up_interruptible_all(&ctn->mm_waitq);
++		mutex_unlock(&ctn->mutex);
++	}
++}
 
 

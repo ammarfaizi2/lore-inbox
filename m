@@ -1,59 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751404AbWIONTA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751407AbWIONVG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751404AbWIONTA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Sep 2006 09:19:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751405AbWIONTA
+	id S1751407AbWIONVG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Sep 2006 09:21:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751409AbWIONVG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Sep 2006 09:19:00 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:49297 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1751404AbWIONS7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Sep 2006 09:18:59 -0400
-Subject: Re: [PATCH 0/11] LTTng-core (basic tracing infrastructure) 0.5.108
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Tim Bird <tim.bird@am.sony.com>, Ingo Molnar <mingo@elte.hu>,
+	Fri, 15 Sep 2006 09:21:06 -0400
+Received: from smtp.ocgnet.org ([64.20.243.3]:24195 "EHLO smtp.ocgnet.org")
+	by vger.kernel.org with ESMTP id S1751407AbWIONVE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Sep 2006 09:21:04 -0400
+Date: Fri, 15 Sep 2006 22:20:53 +0900
+From: Paul Mundt <lethal@linux-sh.org>
+To: Karim Yaghmour <karim@opersys.com>
+Cc: Jes Sorensen <jes@sgi.com>, Ingo Molnar <mingo@elte.hu>,
+       Roman Zippel <zippel@linux-m68k.org>,
        Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
        linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
        Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@redhat.com>,
        Greg Kroah-Hartman <gregkh@suse.de>,
        Thomas Gleixner <tglx@linutronix.de>, Tom Zanussi <zanussi@us.ibm.com>,
        ltt-dev@shafik.org, Michel Dagenais <michel.dagenais@polymtl.ca>
-In-Reply-To: <Pine.LNX.4.64.0609151425180.6761@scrub.home>
-References: <20060914033826.GA2194@Krystal> <20060914112718.GA7065@elte.hu>
-	 <Pine.LNX.4.64.0609141537120.6762@scrub.home>
-	 <20060914135548.GA24393@elte.hu>
-	 <Pine.LNX.4.64.0609141623570.6761@scrub.home>
-	 <20060914171320.GB1105@elte.hu>
-	 <Pine.LNX.4.64.0609141935080.6761@scrub.home>
-	 <20060914181557.GA22469@elte.hu> <4509B03A.3070504@am.sony.com>
-	 <1158320406.29932.16.camel@localhost.localdomain>
-	 <Pine.LNX.4.64.0609151339190.6761@scrub.home>
-	 <1158323938.29932.23.camel@localhost.localdomain>
-	 <Pine.LNX.4.64.0609151425180.6761@scrub.home>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Fri, 15 Sep 2006 14:41:36 +0100
-Message-Id: <1158327696.29932.29.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+Subject: Re: [PATCH 0/11] LTTng-core (basic tracing infrastructure) 0.5.108
+Message-ID: <20060915132052.GA7843@localhost.usen.ad.jp>
+References: <20060914112718.GA7065@elte.hu> <Pine.LNX.4.64.0609141537120.6762@scrub.home> <20060914135548.GA24393@elte.hu> <Pine.LNX.4.64.0609141623570.6761@scrub.home> <20060914171320.GB1105@elte.hu> <Pine.LNX.4.64.0609141935080.6761@scrub.home> <20060914181557.GA22469@elte.hu> <4509A54C.1050905@opersys.com> <yq08xkleb9h.fsf@jaguar.mkp.net> <450A9EC9.9080307@opersys.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <450A9EC9.9080307@opersys.com>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Gwe, 2006-09-15 am 14:39 +0200, ysgrifennodd Roman Zippel:
-> Both points have very strong consequences regarding complexity. Why do you 
-> want to deny me the choice to use something simple, especially since both 
-> solutions are not mutually exclusive and can even complement each other? 
+On Fri, Sep 15, 2006 at 08:38:33AM -0400, Karim Yaghmour wrote:
+> If you'd care to read through the thread you'd notice I've demonstrated
+> time and again that those static trace points we're mostly interested
+> in a never-changing. Lest something fundamentally changes with the
+> kernel, there will always be a scheduling change; etc. This
+> "instrumentation is evil" mantra is only substantiated if you view
+> it from the point of view of someone who's only used it to debug code.
+> Yet, and I repeat this again, instrumentation for in-source debugging
+> is but a corner case of instrumentation in general.
+> 
+I didn't get the "instrumentation is evil" mantra from this thread,
+rather "static tracepoints are good, so long as someone else is
+maintaining them". The issue comes down to who ends up maintaining the
+trace points, and given with how intrusive LTT was in the past, I can't
+see anyone wanting to suddenly start littering them around the kernel
+now (at least in the areas that they're responsible for, particularly if
+it's not something that's going to be useful to most people). Admittedly
+LTTng is not as bad at this as LTT was in this regard, though.
 
-I don't want to deny you the choice, I just don't want to see
-unneccessary garbage in the base kernel. What you put in your own toilet
-is a private matter. What you leave out in a public place is different.
+If static tracepoints are something that's useful for you, then you
+can continue maintaining them out of tree.
 
-> What's the point in forcing everyone to use a single solution?
+> Yes, Mr. Scrub, I mean kprobes is your answer. The only reason you can
+> get away with this argument is if you view it exclusively from the
+> point of view of kernel development. And that's why you're wrong.
+> 
+kprobes may not be the answer to all lifes problems, but it is
+non-intrusive once the initial implementation pains are out of the way..
 
-Maintainability ? common good over individual weirdnesses ? Ability for
-people to concentrate on getting one good set of interfaces not twelve
-bad ones ? Consistency for user space ?
+> Please explain, honestly, why the following instrumentation point is
+> going to be a maintenance drag on the person modifying the scheduler:
+> @@ -1709,6 +1712,7 @@ switch_tasks:
+>    		++*switch_count;
+> 
+>    		prepare_arch_switch(rq, next);
+> +		TRACE_SCHEDCHANGE(prev, next);
+>    		prev = context_switch(rq, prev, next);
+>    		barrier();
+> 
+> And please, don't bother complaining about the semantics, they can
+> be changed. I'm just arguing about location/meaning/content.
+> 
+For someone complaining about meaningless posturing on the list, posting
+this as a representation for the isolated changes involved is rather
+interesting. If it were down to a small handful of critical static
+tracepoints in-tree and the rest left up to the people that really want
+them in out-of-tree patches, I doubt LTT would have ever had half of the
+resistance towards it.
 
-Alan
+It's the intrusiveness that becomes the maintenance burden, and if you
+whittle it down to a point where the intrusiveness is not that big of a
+deal, then I'm not sure I see what static points would buy you over
+dynamic instrumentation.
 
+It's easy to write off the maintenance overhead when you aren't the one
+maintaining the code..

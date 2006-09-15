@@ -1,18 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751697AbWIOUQF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751307AbWIOUWN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751697AbWIOUQF (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Sep 2006 16:16:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751703AbWIOUQE
+	id S1751307AbWIOUWN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Sep 2006 16:22:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751310AbWIOUWN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Sep 2006 16:16:04 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:31697 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1751697AbWIOUQB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Sep 2006 16:16:01 -0400
+	Fri, 15 Sep 2006 16:22:13 -0400
+Received: from www.osadl.org ([213.239.205.134]:32229 "EHLO mail.tglx.de")
+	by vger.kernel.org with ESMTP id S1751307AbWIOUWM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Sep 2006 16:22:12 -0400
 Subject: Re: [PATCH 0/11] LTTng-core (basic tracing infrastructure) 0.5.108
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Andrew Morton <akpm@osdl.org>
-Cc: tglx@linutronix.de, karim@opersys.com, Paul Mundt <lethal@linux-sh.org>,
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: karim@opersys.com
+Cc: Andrew Morton <akpm@osdl.org>, Paul Mundt <lethal@linux-sh.org>,
        Jes Sorensen <jes@sgi.com>, Roman Zippel <zippel@linux-m68k.org>,
        Ingo Molnar <mingo@elte.hu>,
        Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
@@ -20,72 +21,86 @@ Cc: tglx@linutronix.de, karim@opersys.com, Paul Mundt <lethal@linux-sh.org>,
        Ingo Molnar <mingo@redhat.com>, Greg Kroah-Hartman <gregkh@suse.de>,
        Tom Zanussi <zanussi@us.ibm.com>, ltt-dev@shafik.org,
        Michel Dagenais <michel.dagenais@polymtl.ca>
-In-Reply-To: <20060915111644.c857b2cf.akpm@osdl.org>
+In-Reply-To: <450B0585.5070700@opersys.com>
 References: <20060914181557.GA22469@elte.hu> <4509A54C.1050905@opersys.com>
 	 <yq08xkleb9h.fsf@jaguar.mkp.net> <450A9EC9.9080307@opersys.com>
 	 <20060915132052.GA7843@localhost.usen.ad.jp>
 	 <Pine.LNX.4.64.0609151535030.6761@scrub.home>
 	 <20060915135709.GB8723@localhost.usen.ad.jp> <450AB5F9.8040501@opersys.com>
-	 <450AB506.30802@sgi.com> <450AB957.2050206@opersys.com>
+		 <450AB506.30802@sgi.com> <450AB957.2050206@opersys.com>
 	 <20060915142836.GA9288@localhost.usen.ad.jp> <450ABE08.2060107@opersys.com>
 	 <1158332447.5724.423.camel@localhost.localdomain>
 	 <20060915111644.c857b2cf.akpm@osdl.org>
+	 <1158348954.5724.481.camel@localhost.localdomain>
+	 <450B0585.5070700@opersys.com>
 Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Fri, 15 Sep 2006 21:37:13 +0100
-Message-Id: <1158352633.29932.141.camel@localhost.localdomain>
+Date: Fri, 15 Sep 2006 22:23:00 +0200
+Message-Id: <1158351780.5724.507.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Gwe, 2006-09-15 am 11:16 -0700, ysgrifennodd Andrew Morton:
-> What Karim is sharing with us here (yet again) is the real in-field
-> experience of real users (ie: not kernel developers).
+On Fri, 2006-09-15 at 15:56 -0400, Karim Yaghmour wrote:
+> Thomas Gleixner wrote:
+> > One thing which is much more important IMHO is the availablity of
+> > _USEFUL_ postprocessing tools to give users a real value of
+> > instrumentation. This is a much more complex task than this whole kernel
+> > instrumentation business. This also includes the ability to coordinate
+> > user space _and_ kernel space instrumentation, which is necessary to
+> > analyse complex kernel / application code interactions. 
+> 
+> And of course the usefulness of such postprocessing tools is gated
+> by the ability of users to use them on _any_ kernel they get their
+> hands on. Up to this point, this has not been for *any* of the
+> existing toolsets, simply because they require the user to either
+> recompile his kernel or modify his probe points to match his kernel.
 
-A lot of us have plenty of experience helping customers and end users
-trace bugs. Thats a good part of why we get paid in the first place.
+So this has to be changed. And requiring to recompile the kernel is the
+wrong answer. Having some nifty tool, which allows you to define the set
+of dynamic trace points or use a predefined one is the way to go.
 
-> What I _am_ concerned about with this patchset is all the infrastructural
-> goop which backs up those tracepoints.  I'd have thought that a better
-> approach would be to make those explicit tracepoints be "helpers" for the
-> existing kprobe code.
+> Until users can actually do without either of these steps (which is
+> only possible with static markup) 
 
-If you put explicit tracepoints in they will be compiled out for end
-users. If you have a script which hits the standard tracepoint set it'll
-be usable by end users.
+Generalization like that are simply wrong. Static markup is not a
+panacea. It might help for some things in the first place, but it is not
+flexible enough in the long run. It is an engineering challenge to make
+the "static" trace rules autogenerated by some means as Andrew pointed
+out several times in this thread (see patch(1)), so we can provide a
+useful ad hoc set for the users.
 
-> Of course, it they are properly designed, the one set of tracepoints could
-> be used by different tracing backends - that allows us to separate the
-> concepts of "tracepoints" and "tracing backends".
+> We don't need separate popstprocessing tool teams. The only reasons
+> there are separate project teams is because managers in key
+> positions made the decision that they'd rather break from existing
+> projects which had had little success mainlining and instead use
+> their corporate bodyweight to pressure/seduce kernel developers
+> working for them into pushing their new great which-aboslutely-
+> has-nothing-to-do-with-this-ltt-crap-(no,no, we actually agree
+> with you kernel developers that this is crap, this is why we're
+> developing this new amazing thing). That's the truth plain and
+> simple.
 
-There are more than two layers. The first question is "how do I trace
-event XYZ" which seems to be the big debate. The second is "how do I
-find XYZ" which seems to have some commonality. The third is "what do I
-do when the event is hit", which kprobes provides to all the existing
-consumers such as systemtap and can field into arrays for graph plotting
-and the like.
+Stop whining! LTT did not manage to solve the problem in a generic,
+mainline acceptable way. If you really believe that Kprobes / Systemtap
+is just a $corporate maliciousness to kick you out of business, then I
+really start to doubt your sanity.
 
-Ignoring the question of static compiled in trace points kprobes appears
-to have solved the problem space. Everyone else can use the kprobes
-interfaces to do pretty much anything computationally viable.
+This has nothing to do with postprocessing and tracepoint creation
+tools. The postprocessing stuff is not in the scope of mainlining. Once
+a halfways future proof interface is available, tools will come up
+within no time. There are a lot of companies out there who have the
+interest and the capabilites to do an intergration into Eclipse to name
+one example. They will not start to spend a second of work time until
+there is a consolidated instrumentation core in the kernel.
 
-I am sceptical about static tracepoints in critical spots because if
-they make the variable easy to access they will reduce optimisations and
-that will cost a lot more than 5 or 6 clocks.
+> When I started involving myself in Linux development a decade ago,
+> I honestly did not think I'd ever see this kind of stuff happen,
+> but, hey, that's life.
 
-In addition ideally we want a mechanism that is also sufficient that
-printk can be mangled into so that you can pull all the printk text
-strings _out_ of the kernel and into the debug traces for embedded work.
+- ENOPARSE
 
-[ie you want printk("Oh dear %s exploded.\n", foo->bar); to end up with
-"Oh dear %s exploded.\n" out of kernel and in kernel
+	tglx
 
-		tracepoint_printk(foo->bar);
-
-maybe with minimal type info (although that can be pulled at debug time
-from the string spat into the debug data).]
-
- 
-Alan
 

@@ -1,106 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932252AbWIOUyp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932260AbWIOUzw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932252AbWIOUyp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Sep 2006 16:54:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932260AbWIOUyo
+	id S932260AbWIOUzw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Sep 2006 16:55:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932262AbWIOUzw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Sep 2006 16:54:44 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.152]:54691 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S932252AbWIOUyo
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Sep 2006 16:54:44 -0400
-Message-ID: <450B1309.9020800@us.ibm.com>
-Date: Fri, 15 Sep 2006 15:54:33 -0500
-From: "Jose R. Santos" <jrs@us.ibm.com>
-Reply-To: jrs@us.ibm.com
-Organization: IBM
-User-Agent: Thunderbird 1.5.0.5 (X11/20060728)
+	Fri, 15 Sep 2006 16:55:52 -0400
+Received: from opersys.com ([64.40.108.71]:30219 "EHLO www.opersys.com")
+	by vger.kernel.org with ESMTP id S932260AbWIOUzv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Sep 2006 16:55:51 -0400
+Message-ID: <450B15B0.3060200@opersys.com>
+Date: Fri, 15 Sep 2006 17:05:52 -0400
+From: Karim Yaghmour <karim@opersys.com>
+Reply-To: karim@opersys.com
+Organization: Opersys inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.8.0.6) Gecko/20060804 Fedora/1.0.4-0.5.1.fc5 SeaMonkey/1.0.4
 MIME-Version: 1.0
-To: Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, Roman Zippel <zippel@linux-m68k.org>,
-       Tim Bird <tim.bird@am.sony.com>, Ingo Molnar <mingo@elte.hu>,
+To: tglx@linutronix.de
+CC: Andrew Morton <akpm@osdl.org>, Paul Mundt <lethal@linux-sh.org>,
+       Jes Sorensen <jes@sgi.com>, Roman Zippel <zippel@linux-m68k.org>,
+       Ingo Molnar <mingo@elte.hu>,
+       Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
        linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
-       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@redhat.com>,
-       Greg Kroah-Hartman <gregkh@suse.de>,
-       Thomas Gleixner <tglx@linutronix.de>, Tom Zanussi <zanussi@us.ibm.com>,
-       ltt-dev@shafik.org, Michel Dagenais <michel.dagenais@polymtl.ca>
+       Ingo Molnar <mingo@redhat.com>, Greg Kroah-Hartman <gregkh@suse.de>,
+       Tom Zanussi <zanussi@us.ibm.com>, ltt-dev@shafik.org,
+       Michel Dagenais <michel.dagenais@polymtl.ca>
 Subject: Re: [PATCH 0/11] LTTng-core (basic tracing infrastructure) 0.5.108
-References: <20060914171320.GB1105@elte.hu> <Pine.LNX.4.64.0609141935080.6761@scrub.home> <20060914181557.GA22469@elte.hu> <4509B03A.3070504@am.sony.com> <1158320406.29932.16.camel@localhost.localdomain> <Pine.LNX.4.64.0609151339190.6761@scrub.home> <1158323938.29932.23.camel@localhost.localdomain> <Pine.LNX.4.64.0609151425180.6761@scrub.home> <1158327696.29932.29.camel@localhost.localdomain> <450AEC92.7090409@us.ibm.com> <20060915194937.GA7133@Krystal>
-In-Reply-To: <20060915194937.GA7133@Krystal>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+References: <20060914181557.GA22469@elte.hu> <4509A54C.1050905@opersys.com>	 <yq08xkleb9h.fsf@jaguar.mkp.net> <450A9EC9.9080307@opersys.com>	 <20060915132052.GA7843@localhost.usen.ad.jp>	 <Pine.LNX.4.64.0609151535030.6761@scrub.home>	 <20060915135709.GB8723@localhost.usen.ad.jp> <450AB5F9.8040501@opersys.com>		 <450AB506.30802@sgi.com> <450AB957.2050206@opersys.com>	 <20060915142836.GA9288@localhost.usen.ad.jp> <450ABE08.2060107@opersys.com>	 <1158332447.5724.423.camel@localhost.localdomain>	 <20060915111644.c857b2cf.akpm@osdl.org>	 <1158348954.5724.481.camel@localhost.localdomain>	 <450B0585.5070700@opersys.com> <1158351780.5724.507.camel@localhost.localdomain>
+In-Reply-To: <1158351780.5724.507.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mathieu Desnoyers wrote:
-> * Jose R. Santos (jrs@us.ibm.com) wrote:
-> > Alan Cox wrote:
-> > 
-> > With several other trace tools being implemented for the kernel, there 
-> > is a great problem with consistencies among these tool.  It is my 
-> > opinion that trace are of very little use to _most_ people with out the 
-> > availability of post-processing tools to analyses these trace.  While I 
-> > wont say that we need one all powerful solution, it would be good if all 
-> > solutions would at least be able to talk to the same post-processing 
-> > facilities in user-space.  Before LTTng is even considered into the 
-> > kernel, there need to be discussion to determine if the trace mechanism 
-> > being propose is suitable for all people interested in doing trace 
-> > analysis.  The fact the there also exist tool like LKET and LKST seem to 
-> > suggest that there other things to be considered when it comes to 
-> > implementing a trace mechanism that everyone would be happy with.
-> > 
-> > It would also be useful for all the trace tool to implement the same 
-> > probe points so that post-processing tools can be interchanged between 
-> > the various trace implementations.
-> > 
-> > 
->
-> Hi Jose,
->
-> I completely agree that there is a crying need for standardisation there. The
-> reason why I propose the LTTng infrastructure as a tracing core in the Linux
-> kernel is this : the fundamental problem I have found with kernel tracers so
-> far is that they perturb the system too much or do not offer enough fine
-> grained protection against reentrancy. Ingo's post about tracing statement
-> breaking the kernel all the time seems to me like a sufficient proof that this
-> is a real problem.
->
->   
-I agree with your goal for ltt.
 
-> My goal with LTTng is to provide a reentrant data serialisation mechanism that
-> can be called from anywhere in the kernel (ok, the vmalloc path of the page
-> fault handler is _the_ exception) that does not use any lock and can therefore
-> trace code paths like NMI handlers.
->   
+Thomas Gleixner wrote:
+> Stop whining!
 
-One of the things that I've notice from this thread that neither you or 
-Karim sees to have answer is why is LTTng needed if a suitable 
-replacement can be developed using SystemTap with static markers.  I am 
-personally interested in this answer as well.  If all the things that 
-LTT is proposing can be implemented in SystemTap, what then is the 
-advantage of accenting such an interface into the kernel.
+I resent that. If your efforts in working on popular kernel topics
+met rapid reward then I'm happy for you. The fact that others tackle
+unpopular topics and persist despite constant personal attacks should
+nevertheless be recognized for what it is.
 
-I don't really care which method is used as long as its the right tool 
-for the job.  I see several idea from LTT that could be integrated into 
-SystemTap in order to make it a one stop solution for both dynamic and 
-static tracing.  Would you care to elaborate why you think having 
-separate projects is a better solution?
-> I also implemented code that would serialize any type of data structure I could
-> think of. If it is too much, well, we can use part of it.
->
-> LTTng trace format is explained there. Your comments on it are very welcome.
->
-> http://ltt.polymtl.ca/ > LTTV and LTTng developer documentation > format.html
-> (http://ltt.polymtl.ca/svn/ltt/branches/poly/doc/developer/format.html)
->   
+> LTT did not manage to solve the problem in a generic,
 
-Trace event headers are very similar between both LTT and LKET which is 
-good in other to get some synergy between our projects.  One thing that 
-LKET has on each trace event that LTT doesn't is the tid and CPU id of 
-each event.  We find this extremely useful for post-processing.  Also, 
-why have the event_size on every event taken?  Why not describe the 
-event during the trace header and remove this redundant information from 
-the event header and save some trace file space.
+You're entirely correct. I never claimed it to be perfect, that's why I
+had approached others early on to try to bridge things together and
+that's why I used to post ltt patches to the lkml.
 
--JRS
+> mainline acceptable way. If you really believe that Kprobes / Systemtap
+> is just a $corporate maliciousness to kick you out of business, then I
+> really start to doubt your sanity.
+
+If that's how it was read, then it wasn't written right. ltt was never
+really a profit center for me, embedded Linux training was -- you
+wouldn't believe how much more profitable training is than pure
+consulting. But my own business is just beside the point. My point
+was that the high barrier to entry for tracing fragmented efforts
+around it. As for corporate decisions which culminated from such
+resistance, they probably were the sanest decision to take at the
+time. Heck if I was a manager at any of those companies I would have
+likely taken the same decision. It was, and still is, though,
+counterproductive. Fully justifiable, but counterproductive.
+
+Karim

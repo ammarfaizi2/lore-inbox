@@ -1,47 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751493AbWIOPYO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932071AbWIOPcj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751493AbWIOPYO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Sep 2006 11:24:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751494AbWIOPYO
+	id S932071AbWIOPcj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Sep 2006 11:32:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932076AbWIOPcj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Sep 2006 11:24:14 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:65427 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751493AbWIOPYN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Sep 2006 11:24:13 -0400
-Date: Fri, 15 Sep 2006 11:23:49 -0400
-From: Dave Jones <davej@redhat.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Jarek Poplawski <jarkao2@o2.pl>, Andi Kleen <ak@muc.de>,
+	Fri, 15 Sep 2006 11:32:39 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:53172 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S932071AbWIOPcj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Sep 2006 11:32:39 -0400
+Subject: Re: [-mm patch 2/3] AVR32 MTD: Unlock flash if necessary (try 2)
+From: David Woodhouse <dwmw2@infradead.org>
+To: Haavard Skinnemoen <hskinnemoen@atmel.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-mtd@lists.infradead.org,
        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] mpparse.c:231: warning: comparison is always false
-Message-ID: <20060915152349.GA22233@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Andrew Morton <akpm@osdl.org>, Jarek Poplawski <jarkao2@o2.pl>,
-	Andi Kleen <ak@muc.de>, linux-kernel@vger.kernel.org
-References: <20060913065010.GA2110@ff.dom.local> <20060914181754.bd963f6d.akpm@osdl.org> <20060915081123.GA2572@ff.dom.local> <20060915012302.d459c2dc.akpm@osdl.org>
+In-Reply-To: <20060915163711.10d19763@cad-250-152.norway.atmel.com>
+References: <20060915163102.73bf171d@cad-250-152.norway.atmel.com>
+	 <20060915163554.4f326bf6@cad-250-152.norway.atmel.com>
+	 <20060915163711.10d19763@cad-250-152.norway.atmel.com>
+Content-Type: text/plain
+Date: Fri, 15 Sep 2006 16:32:26 +0100
+Message-Id: <1158334346.24527.94.camel@pmac.infradead.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060915012302.d459c2dc.akpm@osdl.org>
-User-Agent: Mutt/1.4.2.2i
+X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5.dwmw2.1) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 15, 2006 at 01:23:02AM -0700, Andrew Morton wrote:
+On Fri, 2006-09-15 at 16:37 +0200, Haavard Skinnemoen wrote:
+> If a cfi_cmdset_0002 fixup installs an unlock() operation, use it
+> to unlock the whole flash after the erase regions have been set up.
 
- > > > Thanks.   Andi has already queued a similar patch.
- > > > 
- > > > Andi, you might as well scoot that upstream, otherwise we'll get lots of
- > > > emails about it.
- > > ...
- > > > > +#if 0xFF >= MAX_MP_BUSSES
- > > > >  	if (m->mpc_busid >= MAX_MP_BUSSES) {
- > > I don't know how Andi has fixed it,
- > Same thing.  (He has `#if MAX_MP_BUSSES < 256').
+There are cmdset_0001 chips which have this affliction too. I was
+thinking of having a flag MTD_STUPID_LOCK which you set when you
+determine that it's one of these chips, then add_mtd_device() can do the
+unlocking... or add_mtd_partitions() can do it but _only_ for writable
+partitions.
 
-How can this be the right the right thing to do ?
-It should *never* be >=256. mach-summit/mach-generic need fixing
-to be 255, not this ridiculous band-aid.  Where did 260 come from anyway?
- 
-	Dave 
+-- 
+dwmw2
+

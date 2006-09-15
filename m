@@ -1,67 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751393AbWIOTT0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751395AbWIOTUY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751393AbWIOTT0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Sep 2006 15:19:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751395AbWIOTT0
+	id S1751395AbWIOTUY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Sep 2006 15:20:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751409AbWIOTUX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Sep 2006 15:19:26 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:53387 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751393AbWIOTTZ (ORCPT
+	Fri, 15 Sep 2006 15:20:23 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:58079 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751395AbWIOTUW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Sep 2006 15:19:25 -0400
-Date: Fri, 15 Sep 2006 21:10:31 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, "Frank Ch. Eigler" <fche@redhat.com>,
-       karim@opersys.com, Tim Bird <tim.bird@am.sony.com>,
+	Fri, 15 Sep 2006 15:20:22 -0400
+Message-ID: <450AFCF0.3040503@us.ibm.com>
+Date: Fri, 15 Sep 2006 14:20:16 -0500
+From: "Jose R. Santos" <jrs@us.ibm.com>
+Reply-To: jrs@us.ibm.com
+Organization: IBM
+User-Agent: Thunderbird 1.5.0.5 (X11/20060728)
+MIME-Version: 1.0
+To: karim@opersys.com
+CC: Andrew Morton <akpm@osdl.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Roman Zippel <zippel@linux-m68k.org>, Tim Bird <tim.bird@am.sony.com>,
+       Ingo Molnar <mingo@elte.hu>,
        Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
        linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
-       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@redhat.com>,
-       Greg Kroah-Hartman <gregkh@suse.de>,
+       Ingo Molnar <mingo@redhat.com>, Greg Kroah-Hartman <gregkh@suse.de>,
        Thomas Gleixner <tglx@linutronix.de>, Tom Zanussi <zanussi@us.ibm.com>,
        ltt-dev@shafik.org, Michel Dagenais <michel.dagenais@polymtl.ca>
 Subject: Re: [PATCH 0/11] LTTng-core (basic tracing infrastructure) 0.5.108
-Message-ID: <20060915191031.GA26754@elte.hu>
-References: <Pine.LNX.4.64.0609151425180.6761@scrub.home> <1158327696.29932.29.camel@localhost.localdomain> <Pine.LNX.4.64.0609151523050.6761@scrub.home> <1158331277.29932.66.camel@localhost.localdomain> <450ABA2A.9060406@opersys.com> <1158332324.29932.82.camel@localhost.localdomain> <y0mmz91f46q.fsf@ton.toronto.redhat.com> <1158345108.29932.120.camel@localhost.localdomain> <20060915181208.GA17581@elte.hu> <Pine.LNX.4.64.0609152046350.6761@scrub.home>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0609152046350.6761@scrub.home>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -2.9
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.9 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.4750]
-	-0.1 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+References: <20060914033826.GA2194@Krystal>	<20060914112718.GA7065@elte.hu>	<Pine.LNX.4.64.0609141537120.6762@scrub.home>	<20060914135548.GA24393@elte.hu>	<Pine.LNX.4.64.0609141623570.6761@scrub.home>	<20060914171320.GB1105@elte.hu>	<Pine.LNX.4.64.0609141935080.6761@scrub.home>	<20060914181557.GA22469@elte.hu>	<4509B03A.3070504@am.sony.com>	<1158320406.29932.16.camel@localhost.localdomain>	<Pine.LNX.4.64.0609151339190.6761@scrub.home>	<1158323938.29932.23.camel@localhost.localdomain> <20060915104527.89396eaf.akpm@osdl.org> <450AEDF2.3070504@opersys.com>
+In-Reply-To: <450AEDF2.3070504@opersys.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Karim Yaghmour wrote:
+> > Although IMO this is a bit lame - it is quite possible to go into
+> > SexySystemTapGUI, click on a particular kernel file-n-line and have
+> > systemtap userspace keep track of that place in the kernel source across
+> > many kernel versions: all it needs to do is to remember the file+line and a
+> > snippet of the surrounding text, for readjustment purposes.
+>
+> Sure, if you're a kernel developer, but as I've explained numberous
+> times in this thread, there are far more many users of tracing than
+> kernel developers.
+>   
 
-* Roman Zippel <zippel@linux-m68k.org> wrote:
+This is so true (and the main reason we implemented a trace utility in 
+SystemTap).
 
-> On Fri, 15 Sep 2006, Ingo Molnar wrote:
-> 
-> > this is being worked on actively: there's the "djprobes" patchset, 
-> > which includes a simplified disassembler to analyze common target 
-> > code and can thus insert much faster, call-a-trampoline-function 
-> > based tracepoints that are just as fast as (or faster than) 
-> > compile-time, static tracepoints.
-> 
-> Who is going to implement this for every arch?
+Several of the people that work with in my team are _not_ kernel 
+developers.  They do not necessarily know the Linux kernel code enough 
+to insert their own instrumentation.  On the other had, they do posses 
+other very good knowledges about things specific to a particular 
+software stack or a HW subsystem.  Structured predefined probe points 
+(dynamic or static) allow people with limited  kernel hacking skills to 
+feedback useful information back to developers of the kernel.
 
-someone who is interested enough in that arch growing that capability?
+I agree with Karim that a trace tool (while useful to developers) is 
+mostly targeted at a non kernel developer audience.  They are mostly 
+meant to enhance the communication between developers and regular 
+users.  Any solution that is intended to be dynamic replacement for 
+LTTng needs to take these kinds of users into account.
 
-> Is this now the official party line that only archs, which implement 
-> all of this, can make use of efficient tracing?
-
-that's certainly my preference - kprobes have lots of other advantages 
-besides tracing. Whether that becomes the "official party line" depends 
-on the technological analysis of the situation which will ultimately 
-shape the outcome of this discussion.
-
-	Ingo
+-JRS

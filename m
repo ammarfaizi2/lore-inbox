@@ -1,69 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932183AbWIOSrT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750801AbWIOTCR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932183AbWIOSrT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Sep 2006 14:47:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932184AbWIOSrT
+	id S1750801AbWIOTCR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Sep 2006 15:02:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750839AbWIOTCR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Sep 2006 14:47:19 -0400
-Received: from wr-out-0506.google.com ([64.233.184.230]:2242 "EHLO
-	wr-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S932183AbWIOSrT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Sep 2006 14:47:19 -0400
+	Fri, 15 Sep 2006 15:02:17 -0400
+Received: from nz-out-0102.google.com ([64.233.162.198]:33371 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1750801AbWIOTCQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Sep 2006 15:02:16 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=LxYoC0jKAjRkupsuc89WC9uHdS2RCCBx4ElSLIK1U1uZ2yJoFL3Tz9DTDJ4wvKcAK/gmU6XYa5ze82QD3BlUU8Lp/QaUgzE1Eo9VlX5/j5ZKeTsfo8WEPWJvoAG0zzkrZ5kkvFGY0QcLn/lzE+PAy0EZ4StRxATkYYfpEkp6QdI=
-Message-ID: <35a82d00609151147q1157343bg1e3ddbdf264119b7@mail.gmail.com>
-Date: Fri, 15 Sep 2006 11:47:15 -0700
-From: "Scott Baker" <smbaker@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Questions about Exportfs / kernel nfs server / dentrys (2.6.9)
+        h=received:message-id:date:from:user-agent:mime-version:to:subject:content-type:content-transfer-encoding;
+        b=iKflg1hg8DDz6PIPxz/wSrmj581Gk/QCzTucD8ef0GiJME2GYDTABgG9bhTF3jmRpROmgSlV/e7IafNLAHSztYPZYzelBbLPrGuotDhFLXcx8qO302u+4pHxUhvgGZW4x2Wc8g8Ml51H3MkvgSIwA+ty0mdj05bSP9tRwU+OOMY=
+Message-ID: <450AF8D6.8090208@gmail.com>
+Date: Fri, 15 Sep 2006 13:02:46 -0600
+From: Jim Cromie <jim.cromie@gmail.com>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060909)
 MIME-Version: 1.0
+To: Linux kernel <linux-kernel@vger.kernel.org>
+Subject: [RFC-patch] Doc/lockdep-design:  explain display of {state-bits}
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
 
-I'm trying to understand some code in exportfs. The particular code is
-in find_exported_dentry. Here is some pseudocode from
-find_exported_dentry. I've stripped out the error-checking code and
-included invariants that describe what I believe is going on.
+Please offer corrections / wording improvements as appropriate.
+In particular, the ".+-? " table could be more illuminating - I lack the
+knowledge to make the right inferences..
 
-INPUT: struct dentry *pd
-/* struct dentry *pd is a disconnected dentry that we want to connect.
-* it was probably created with d_alloc_anon. Note that IS_ROOT(pd)
-* is TRUE.
-*/
+(or just take it, and run with it ;-)
 
-/* call export ops to get parent of pd */
-ppd = CALL(nops, get_parent)(pd);
+Signed-off-by:  Jim Cromie <jim.cromie@gmail.com>
 
-/* call export ops to get name of pd */
-CALL(nops, get_name)(ppd, nbuf, pd)
+--- doc-touches/Documentation/lockdep-design.txt~	2006-09-14 11:49:47.000000000 -0600
++++ doc-touches/Documentation/lockdep-design.txt	2006-09-15 12:46:34.000000000 -0600
+@@ -36,6 +36,28 @@
+ 
+ - 'ever used'                                       [ == !unused        ]
+ 
++When mutex rules are violated, these 4 state bits are presented in the
++mutex error messages, inside curlies.  A contrived example:
++
++   modprobe/2287 is trying to acquire lock:
++    (&sio_locks[i].lock){--..}, at: [<c02867fd>] mutex_lock+0x21/0x24
++
++   but task is already holding lock:
++    (&sio_locks[i].lock){--..}, at: [<c02867fd>] mutex_lock+0x21/0x24
++
++
++The bit position indicates hardirq, softirq, hardirq-read,
++softirq-read respectively, and the character displayed in each
++indicates:
++
++   '.'	 used
++   '+'  used in irqs
++   '-'  enabled in irqs
++   '?'  used and enabled (bits 3,4)
++
++Unused mutexes cannot be part of the cause of an error.
++
++
+ Single-lock state rules:
+ ------------------------
+ 
 
-/* perform a lookup using the name we received. We know that pd is a
-* child of ppd, and we know that pd's name is 'nbuf', so the lookup
-* should succeed and return us a non-anonymous dentry.
-*/
-npd = lookup_one_len(nbuf, ppd, strlen(nbuf));
-/* In my test run, pd != ndp. This is because pd is an anonymous dentry
-* and npd is a non-anonymous one, containing a name. Code comments
-* say this is alright.
-*/
 
-if (IS_ROOT(pd)) {
-     /* something went wrong, we have to give up */
-    break;
-}
-
-The function is failing for me on that last IS_ROOT check in the if
-statement. What I'm confused about is when was pd supposed to have
-gone from unconnected to connected? In my test runs, npd is connected
-but pd is not. They both have the same inode number. They both point
-to the same inode.
-
-Thanks,
-Scott

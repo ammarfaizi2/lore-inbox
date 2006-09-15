@@ -1,66 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751365AbWIONAX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751366AbWIONCd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751365AbWIONAX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Sep 2006 09:00:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751366AbWIONAX
+	id S1751366AbWIONCd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Sep 2006 09:02:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751371AbWIONCd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Sep 2006 09:00:23 -0400
-Received: from ausc60ps301.us.dell.com ([143.166.148.206]:47008 "EHLO
-	ausc60ps301.us.dell.com") by vger.kernel.org with ESMTP
-	id S1751365AbWIONAW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Sep 2006 09:00:22 -0400
-DomainKey-Signature: s=smtpout; d=dell.com; c=nofws; q=dns; b=onj6V6ha/Q49nUw5Ku8Hjd10SclycFxYXZjaqVVdYJrsPfh3IUgW+Flpz6UBt1ydNIv5tGPmG1rEG6I49L/MxBLMqs9nUNtCcV6z6bE5FycoF8VyH71ps5WH2j4X2jOH;
+	Fri, 15 Sep 2006 09:02:33 -0400
+Received: from ausc60pc101.us.dell.com ([143.166.85.206]:49179 "EHLO
+	ausc60pc101.us.dell.com") by vger.kernel.org with ESMTP
+	id S1751366AbWIONCc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Sep 2006 09:02:32 -0400
+DomainKey-Signature: s=smtpout; d=dell.com; c=nofws; q=dns; b=AaiTIuiynPJ/AZOnTFtlN9ClPJUIV25WTXclErOTL0FmDoUuV+nrnhYhX77z/xZvg0uDY44P4ojcVxbK/+4Sh2TBXyriiIt8+r+/zmXIpzWz1Ar1Yjsdwm79e6fwllPf;
 X-IronPort-AV: i="4.09,170,1157346000"; 
-   d="scan'208"; a="80803624:sNHT16909857"
-Date: Fri, 15 Sep 2006 07:59:14 -0500
+   d="scan'208"; a="80778282:sNHT17257806"
+Date: Fri, 15 Sep 2006 08:02:26 -0500
 From: Matt Domsch <Matt_Domsch@dell.com>
-To: Pierre Peiffer <pierre.peiffer@bull.net>
-Cc: linux-kernel@vger.kernel.org, gregkh@suse.de,
-       linux-pci@atrey.karlin.mff.cuni.cz
-Subject: Re: [Bug ??] 2.6.18-rc6-mm2 - PCI ethernet board does not seem to work
-Message-ID: <20060915125914.GA1201@lists.us.dell.com>
-References: <450A7EC5.2090909@bull.net>
+To: Dan Carpenter <error27.lkml@gmail.com>
+Cc: linux-pci@atrey.karlin.mff.cuni.cz, Greg KH <greg@kroah.com>,
+       linux-kernel@vger.kernel.org, error27@gmail.com,
+       ppokorny@penguincomputing.com
+Subject: Re: [PATCH 2.6.18-rc5] PCI: sort device lists breadth-first
+Message-ID: <20060915130226.GA2291@lists.us.dell.com>
+References: <20060908031422.GA4549@lists.us.dell.com> <b263e5900609142053r12fbb71ep6ea3e1d63a722d4e@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <450A7EC5.2090909@bull.net>
+In-Reply-To: <b263e5900609142053r12fbb71ep6ea3e1d63a722d4e@mail.gmail.com>
 User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 15, 2006 at 12:21:57PM +0200, Pierre Peiffer wrote:
-> Hi,
+On Thu, Sep 14, 2006 at 08:53:16PM -0700, Dan Carpenter wrote:
+> On 9/7/06, Matt Domsch <Matt_Domsch@dell.com> wrote:
+> >Problem:
+> >Many people have come to expect this naming.  Linux 2.6
+> >kernels name these eth1 and eth0 respectively (backwards from
+> >expectations).  I also have reports that various Sun and HP servers
+> >have similar behavior.
+> >
 > 
-> My Ethernet board (Intel(R) PRO/1000) "doesn't seems" to work any more
-> with this kernel, but all is ok with kernel 2.6.18-rc6-mm1.
+> On RHEL3 the 32bit and 64bit versions order the NICs differently.
+> 64bit RHEL3 orders it the same as 2.6.
+>
+> I've got a lot of systems where the NIC LEDs are labelled.  The labels
+> are correct for 2.6 but not for 2.4 32 bit.  I'm suspect the labels
+> were designed for Windows originally.
+
+2.4 i386 by default resorts the list by what BIOS reports the order
+should be.  No other arches do this.  So I'd expect it to be opposite
+of what you say.
+
+Care to send the output of 'lspci -tv' and the first 80 or so lines of
+dmidecode?  This is curious.
+
+ 
+> My boss pointed out that this patch.  It was supposed to make PCI bus
+> ordering match 2.4.
+> http://kernel.org/git/?p=linux/kernel/git/torvalds/old-2.6-bkcvs.git;a=commitdiff;h=ffdd6e8f870ca6dd0d9b9169b8c2e0fdbae99549
+> It's still there, why did it stop working?
 > 
-> A bisection search show this patch:
-> gregkh-pci-pci-sort-device-lists-breadth-first.patch
-> as being the faulty one...
-> 
-> But after reading the content of this patch, I understood that the order
-> of the ethernet boards had changed. In fact,  I have four ethernet
-> boards and now, my eth0 does not point on the same card...
-> So all is now ok by changing my cable to the right board.
-> 
-> But is this really the expected behavior ?
+> Couldn't we just use the labelling from the DMI data to order the NICs?
 
-Yes, it's expected, but no, I agree it would be nice to not break
-existing setups.
-
-Care to send me an output of 'lspci -tv' and dmidecode (the first 80
-or so lines)?
-
-I think I'll redo this patch to keep the 2.6 depth-first sort order as
-default, with command line options "pci=bfsort" and "pci=nobfsort" to
-force it one way or the other, and DMI table entries for Dell's newest
-systems that should default to bfsort.
-
-Pierre, thank you for you report and your time to do the bisect.  I
-apologize for any inconvenience this caused you.
-
-Thanks,
-Matt
+Unfortunately, DMI data doesn't include enough information.  It says
+"there's a port called NIC1", but doesn't say where to find it in PCI
+space. :-(  I'm looking at ACPI 3.0 extensions, but am not finding
+what I'm needing here either yet.
 
 -- 
 Matt Domsch

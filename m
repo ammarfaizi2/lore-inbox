@@ -1,74 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932124AbWIOSZE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932138AbWIOS1N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932124AbWIOSZE (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Sep 2006 14:25:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932143AbWIOSZE
+	id S932138AbWIOS1N (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Sep 2006 14:27:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932145AbWIOS1M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Sep 2006 14:25:04 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:6832 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932124AbWIOSZC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Sep 2006 14:25:02 -0400
-Date: Fri, 15 Sep 2006 14:24:28 -0400
-From: "Frank Ch. Eigler" <fche@redhat.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: karim@opersys.com, Roman Zippel <zippel@linux-m68k.org>,
-       Tim Bird <tim.bird@am.sony.com>, Ingo Molnar <mingo@elte.hu>,
-       Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
-       linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
-       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@redhat.com>,
-       Greg Kroah-Hartman <gregkh@suse.de>,
-       Thomas Gleixner <tglx@linutronix.de>, Tom Zanussi <zanussi@us.ibm.com>,
-       ltt-dev@shafik.org, Michel Dagenais <michel.dagenais@polymtl.ca>
-Subject: Re: [PATCH 0/11] LTTng-core (basic tracing infrastructure) 0.5.108
-Message-ID: <20060915182428.GI4577@redhat.com>
-References: <Pine.LNX.4.64.0609151339190.6761@scrub.home> <1158323938.29932.23.camel@localhost.localdomain> <Pine.LNX.4.64.0609151425180.6761@scrub.home> <1158327696.29932.29.camel@localhost.localdomain> <Pine.LNX.4.64.0609151523050.6761@scrub.home> <1158331277.29932.66.camel@localhost.localdomain> <450ABA2A.9060406@opersys.com> <1158332324.29932.82.camel@localhost.localdomain> <y0mmz91f46q.fsf@ton.toronto.redhat.com> <1158345108.29932.120.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="yrj/dFKFPuw6o+aM"
-Content-Disposition: inline
-In-Reply-To: <1158345108.29932.120.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.1i
+	Fri, 15 Sep 2006 14:27:12 -0400
+Received: from mail0.lsil.com ([147.145.40.20]:56716 "EHLO mail0.lsil.com")
+	by vger.kernel.org with ESMTP id S932138AbWIOS1L convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Sep 2006 14:27:11 -0400
+x-mimeole: Produced By Microsoft Exchange V6.5
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Subject: RE: [PATCH] SCSI: Make megaraid_ioctl() check copy_to_user() return value
+Date: Fri, 15 Sep 2006 12:26:43 -0600
+Message-ID: <890BF3111FB9484E9526987D912B261932E37D@NAMAIL3.ad.lsil.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH] SCSI: Make megaraid_ioctl() check copy_to_user() return value
+Thread-Index: AcbYxJBfTZmDOS0aRXWK+i4XMl8fVgAL7CSg
+From: "Ju, Seokmann" <Seokmann.Ju@lsil.com>
+To: "Jesper Juhl" <jesper.juhl@gmail.com>, <linux-kernel@vger.kernel.org>
+Cc: "Kolli, Neela" <Neela.Kolli@engenio.com>, <linux-scsi@vger.kernel.org>,
+       <akpm@osdl.org>, <James.Bottomley@steeleye.com>
+X-OriginalArrivalTime: 15 Sep 2006 18:26:44.0224 (UTC) FILETIME=[7F137800:01C6D8F4]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
---yrj/dFKFPuw6o+aM
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+On Friday, September 15, 2006 8:43 AM, Jesper Juhl wrote:
+> Check copy_to_user() return value in 
+> drivers/scsi/megaraid.c::megadev_ioctl()
+> This gets rid of this little warning:
+>   drivers/scsi/megaraid.c:3661: warning: ignoring return 
+> value of 'copy_to_user', declared with attribute warn_unused_result
+ACK - Thank you for correction, Jesper. 
 
-Hi -
+Seokmann
 
-On Fri, Sep 15, 2006 at 07:31:48PM +0100, Alan Cox wrote:
-
-> Ar Gwe, 2006-09-15 am 13:08 -0400, ysgrifennodd Frank Ch. Eigler:
-Yeah, or something. :-)
-
-> > Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
-> > - where 1000-cycle int3-dispatching overheads too high
->=20
-> Why are your despatching overheads 1000 cycles ? (and if its due to int3
-> why are you using int 3 8))
-
-Smart teams from IBM and Hitachi have been hammering away at this code
-for a year or two now, and yet (roughly) here we are.  There have been
-experiments involving plopping branches instead of int3's at probe
-locations, but this is self-modifying code involving multiple
-instructions, and appears to be tricky on SMP/preempt boxes.
-
-- FChE
-
---yrj/dFKFPuw6o+aM
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-
-iD8DBQFFCu/cVZbdDOm/ZT0RAjCcAJ9YUWyw2EKQj0lPiE/PeIzPYLt2owCcDRO7
-bDRstmo9RrHGBkvnyk8x0HU=
-=QuLZ
------END PGP SIGNATURE-----
-
---yrj/dFKFPuw6o+aM--
+> -----Original Message-----
+> From: Jesper Juhl [mailto:jesper.juhl@gmail.com] 
+> Sent: Friday, September 15, 2006 8:43 AM
+> To: linux-kernel@vger.kernel.org
+> Cc: Ju, Seokmann; Kolli, Neela; linux-scsi@vger.kernel.org; 
+> akpm@osdl.org; James.Bottomley@steeleye.com; jesper.juhl@gmail.com
+> Subject: [PATCH] SCSI: Make megaraid_ioctl() check 
+> copy_to_user() return value
+> 
+> 
+> Check copy_to_user() return value in 
+> drivers/scsi/megaraid.c::megadev_ioctl()
+> This gets rid of this little warning:
+>   drivers/scsi/megaraid.c:3661: warning: ignoring return 
+> value of 'copy_to_user', declared with attribute warn_unused_result
+> 
+> 
+> Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
+> ---
+> 
+>  drivers/scsi/megaraid.c |    5 +++--
+>  1 file changed, 3 insertions(+), 2 deletions(-)
+> 
+> --- linux-2.6.18-rc7-git1-orig/drivers/scsi/megaraid.c	
+> 2006-09-15 13:51:15.121774000 +0200
+> +++ linux-2.6.18-rc7-git1/drivers/scsi/megaraid.c	
+> 2006-09-15 14:27:32.377407763 +0200
+> @@ -3658,8 +3658,9 @@ megadev_ioctl(struct inode *inode, struc
+>  			 * Send the request sense data also, 
+> irrespective of
+>  			 * whether the user has asked for it or not.
+>  			 */
+> -			copy_to_user(upthru->reqsensearea,
+> -					pthru->reqsensearea, 14);
+> +			if (copy_to_user(upthru->reqsensearea,
+> +					pthru->reqsensearea, 14))
+> +				rval = -EFAULT;
+>  
+>  freemem_and_return:
+>  			if( pthru->dataxferlen ) {
+> 
+> 
+> 
+> 

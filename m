@@ -1,99 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751402AbWIONUt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751404AbWIONTA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751402AbWIONUt (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Sep 2006 09:20:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751407AbWIONUt
+	id S1751404AbWIONTA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Sep 2006 09:19:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751405AbWIONTA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Sep 2006 09:20:49 -0400
-Received: from nf-out-0910.google.com ([64.233.182.191]:42416 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1751402AbWIONUs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Sep 2006 09:20:48 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=ZydtjDiF9M6nKm04N6i0tLJqDBO+8FeCjX+QfUZdbfh7/M9Ozx1smUuRIHcHFdHWCuoHJIzQzOWDANeURex5VjYCEBTyTymkDND70UoO04qTzg9d0ey8LKf2BWTgPLBvBR78VJ4QaVEpvyiDnxW1PwZs5CfYjLRfiU2z+u8NTGs=
-Message-ID: <d120d5000609150620p15b17debo9ace17836d788958@mail.gmail.com>
-Date: Fri, 15 Sep 2006 09:20:47 -0400
-From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
-To: "Arjan van de Ven" <arjan@infradead.org>
-Subject: Re: [PATCH 0/3] Synaptics - fix lockdep warnings
-Cc: "Jiri Kosina" <jikos@jikos.cz>, lkml <linux-kernel@vger.kernel.org>,
-       "Ingo Molnar" <mingo@elte.hu>
-In-Reply-To: <1158298404.4332.18.camel@laptopd505.fenrus.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Fri, 15 Sep 2006 09:19:00 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:49297 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1751404AbWIONS7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Sep 2006 09:18:59 -0400
+Subject: Re: [PATCH 0/11] LTTng-core (basic tracing infrastructure) 0.5.108
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Tim Bird <tim.bird@am.sony.com>, Ingo Molnar <mingo@elte.hu>,
+       Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
+       linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
+       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@redhat.com>,
+       Greg Kroah-Hartman <gregkh@suse.de>,
+       Thomas Gleixner <tglx@linutronix.de>, Tom Zanussi <zanussi@us.ibm.com>,
+       ltt-dev@shafik.org, Michel Dagenais <michel.dagenais@polymtl.ca>
+In-Reply-To: <Pine.LNX.4.64.0609151425180.6761@scrub.home>
+References: <20060914033826.GA2194@Krystal> <20060914112718.GA7065@elte.hu>
+	 <Pine.LNX.4.64.0609141537120.6762@scrub.home>
+	 <20060914135548.GA24393@elte.hu>
+	 <Pine.LNX.4.64.0609141623570.6761@scrub.home>
+	 <20060914171320.GB1105@elte.hu>
+	 <Pine.LNX.4.64.0609141935080.6761@scrub.home>
+	 <20060914181557.GA22469@elte.hu> <4509B03A.3070504@am.sony.com>
+	 <1158320406.29932.16.camel@localhost.localdomain>
+	 <Pine.LNX.4.64.0609151339190.6761@scrub.home>
+	 <1158323938.29932.23.camel@localhost.localdomain>
+	 <Pine.LNX.4.64.0609151425180.6761@scrub.home>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <Pine.LNX.4.64.0609140227500.22181@twin.jikos.cz>
-	 <Pine.LNX.4.64.0609141700250.2721@twin.jikos.cz>
-	 <d120d5000609140851r2299c64cv8b0a365be795a1bc@mail.gmail.com>
-	 <Pine.LNX.4.64.0609141754480.2721@twin.jikos.cz>
-	 <d120d5000609140918j18d68a4dmd9d9e1e72d2fd718@mail.gmail.com>
-	 <Pine.LNX.4.64.0609142037110.2721@twin.jikos.cz>
-	 <d120d5000609141156h5e06eb68k87a6fe072a701dab@mail.gmail.com>
-	 <1158260584.4200.3.camel@laptopd505.fenrus.org>
-	 <d120d5000609141211o76432bd3l82582ef3896e3be@mail.gmail.com>
-	 <1158298404.4332.18.camel@laptopd505.fenrus.org>
+Date: Fri, 15 Sep 2006 14:41:36 +0100
+Message-Id: <1158327696.29932.29.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 9/15/06, Arjan van de Ven <arjan@infradead.org> wrote:
-> On Thu, 2006-09-14 at 15:11 -0400, Dmitry Torokhov wrote:
-> > On 9/14/06, Arjan van de Ven <arjan@infradead.org> wrote:
-> > >
-> > > >
-> > > > I think it is - as far as I understand the reason for not tracking
-> > > > every lock individually is just that it is too expensive to do by
-> > > > default.
-> > >
-> > > that is not correct. While it certainly plays a role,
-> > > the other reason is that you can find out "class" level locking rules
-> > > (such as inode->i_mutex comes before <other lock>) for all inodes at a
-> > > time; eg no need to see every inode do this before you can find the
-> > > deadlock.
-> > >
-> >
-> > OK, I can see that. However you must agree that for certain locks we
-> > do want to track them individually, right?
->
-> I agree that if locks really represent different objects with different
-> locking semantics they should not share the class. Lockdep provides a
-> mechanism for that; however I'm very afraid that for the input layer,
-> they really are not that, they are not different objects with different
-> semantics; they are the same objects with nesting semantics! In that
-> case the "separate lock class" stuff has only disadvantages.
+Ar Gwe, 2006-09-15 am 14:39 +0200, ysgrifennodd Roman Zippel:
+> Both points have very strong consequences regarding complexity. Why do you 
+> want to deny me the choice to use something simple, especially since both 
+> solutions are not mutually exclusive and can even complement each other? 
 
-I'd say they are different objects with the same semantics...
+I don't want to deny you the choice, I just don't want to see
+unneccessary garbage in the base kernel. What you put in your own toilet
+is a private matter. What you leave out in a public place is different.
 
-> The worst thing is that as I understand it this separate class is
-> *dynamic*. Eg it's not even "one class per driver" ;(
->
+> What's the point in forcing everyone to use a single solution?
 
-You are saying this as if was a bad thing. Pass-through ports just
-implement PS/2 over PS/2 protocols and as such it is very natural that
-the same driver that serves parent serves the child as well. That was
-the goal - to reuse psmouse module instead of re-implementing all
-re-probing and protocol decoding in synaptics driver. And trackpint
-driver. And maybe somethng else down the road.
+Maintainability ? common good over individual weirdnesses ? Ability for
+people to concentrate on getting one good set of interfaces not twelve
+bad ones ? Consistency for user space ?
 
-I also wonder that even if we had several drivers lockdep would still
-complain about nestiness just because all PS/2 devices are initialized
-via ps2_init (which initializes command mutex) and end up in the same
-lock class.
+Alan
 
-I suspect that other driver implementing X-over-X or X-over-Y-over-X
-may get hit the same way by lockdep.
-
-I understand what Ingo is saying about detecting deadlocks across the
-pool of locks of the same class not waiting till they really clash, it
-is really useful. I also want to make my code as independent of
-lockdep as possible. Having a speciall marking on the locks themselves
-(done upon creation) instead of altering call sites is the cleanest
-way IMHO. Can we have a flag in the lock structure that would tell
-lockdep that it is OK for the given lock to be taken several times
-(i.e. the locks are really on the different objects)? This would still
-allow to detect incorrect locking across different classes.
-
--- 
-Dmitry

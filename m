@@ -1,64 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932177AbWIOC6J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932182AbWIODKp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932177AbWIOC6J (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Sep 2006 22:58:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751467AbWIOC6J
+	id S932182AbWIODKp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Sep 2006 23:10:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751482AbWIODKp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Sep 2006 22:58:09 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:63905 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1751463AbWIOC6I (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Sep 2006 22:58:08 -0400
-Date: Fri, 15 Sep 2006 12:57:45 +1000
-From: David Chinner <dgc@sgi.com>
-To: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
-Cc: David Chinner <dgc@sgi.com>, linux-kernel@vger.kernel.org,
-       xfs-masters@oss.sgi.com, Andrew Morton <akpm@osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [xfs-masters] Re: 2.6.18-rc6-mm2
-Message-ID: <20060915025745.GM3034@melbourne.sgi.com>
-References: <20060913015850.GB3034@melbourne.sgi.com> <20060913042627.GE3024@melbourne.sgi.com> <6bffcb0e0609130243y776492c7g78f4d3902dc3c72c@mail.gmail.com> <20060914035904.GF3034@melbourne.sgi.com> <450914C4.2080607@gmail.com> <6bffcb0e0609140150n7499bf54k86e2b7da47766005@mail.gmail.com> <20060914090808.GS3024@melbourne.sgi.com> <6bffcb0e0609140229r59691de5i58d2d81f839d744e@mail.gmail.com> <6bffcb0e0609140303n72a73867qb308f5068733161c@mail.gmail.com> <6bffcb0e0609141001ic137201p6a2413f5ca915234@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 14 Sep 2006 23:10:45 -0400
+Received: from wx-out-0506.google.com ([66.249.82.229]:25510 "EHLO
+	wx-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1751480AbWIODKo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 14 Sep 2006 23:10:44 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=OPHu9q80AIbPC/wADZhyDN708Np5NHVz4ov+QfzjJeXn1zuMrI7M09/eT7wFjJFzvWJ/mnrv9tC7wrQyX+F0ZLH0IoqDaM5nuLEs9Bv7Uqzy/mslW9y73Y3Yvp2FP6FxeMNIwwaMSlzq88vMY/mHDrip7SsmasT77GWB1cFJ7mY=
+Message-ID: <cd09bdd10609142010j2ce007d4j8feb6f7de871a1b1@mail.gmail.com>
+Date: Thu, 14 Sep 2006 22:10:43 -0500
+From: "James Dickens" <jamesd.wi@gmail.com>
+To: lkml <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 0/11] LTTng-core (basic tracing infrastructure) 0.5.108
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <6bffcb0e0609141001ic137201p6a2413f5ca915234@mail.gmail.com>
-User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 14, 2006 at 07:01:38PM +0200, Michal Piotrowski wrote:
-> >>
-> >> I'll build system with gcc 3.4
-> >
-> >It's not a compiler issue.
-> >
-> >Binary search should solve this mystery.
-> 
-> I was wrong - it's in vanilla tree
-> (http://www.stardust.webpages.pl/files/mm/2.6.18-rc6-mm2/mm-dmesg1).
-> 
-> cat hunt | head -n 3
-> origin.patch
-> BAD
-> libata-ignore-cfa-signature-while-sanity-checking-an-atapi-device.patch
+Static probe points in the mainline kernel should not be there for
+kernel programmers. Any kernel programmer that is interested in an
+event that a static probe would trace, could with a little work use
+kprobes, Systemtap, printk,  statements or numerous other methods and
+accomplish the same thing most likely with less impact on the kernel.
 
-Not sure what this means....
+If you allow static probe points, do them for the people that use your
+code,  If static probing is to work in the mainline kernel, its
+necessary for everyone to see the value of them.
 
-> I can reproduce this bug with all CONFIG_DEBUG_*=y.
-> (only
-> CONFIG_DEBUG_SYNCHRO_TEST=m
-> CONFIG_RCU_TORTURE_TEST=m
-> as modules)
+I came up with some simple rules that may help the adoption of static
+probe points in the kernel. They answer a lot of issues I read in
+other reads.
 
-I notice you're running i386 with 4k stacks - I wonder if you're blowing the
-stack by running xfs on loopback. I've been testing on x86_64 and ia64
-which don't have those issues. Can you try with 8K stacks instead of
-4k stacks?
+Some simple rules for Static Probing:
 
-Cheers,
+- If the probe is not enabled, it turns into a NOP. No probes are
+enabled by default
+- Each programmer should provide this as a service to the user.
+- There should be at most a 1000 static probe points in the entire
+kernel including modules, drivers, etc.
+- Probes should not pass out any more information than what a user
+would need. If the user needs more he needs to find another way to get
+it, perhaps dynamic probing.
+- If any part of the kernel has more than a dozen probe points there
+are too many.
+- If a probe would be of little use to a user/sysadmin it should be
+removed from the mainline kernel.
+- Yes, if a probe point is in the code you are working on, the role of
+maintaining it falls on you.
+- If you notice your code is doing something that matches a statically
+probed event (.i.e. your network driver dropped a packet), it's your
+responsibility to add the necessary probe in your code.
+- If "you" need a probe that would not be needed except for debugging
+your code, use one of the other methods mentioned above, or remove it
+before your code is submitted to the mainline kernel.
 
-Dave.
--- 
-Dave Chinner
-Principal Engineer
-SGI Australian Software Group
+
+Some example static probe points
+
+Task going is being moved on to a cpu.
+Task moving off a cpu
+
+Start of an IO
+End of an IO
+
+Network packet received
+Packet dropped.
+
+Various lock activities
+Lock taken
+Spin lock taken
+
+
+James Dickens
+uadmin.blogspot.com

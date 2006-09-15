@@ -1,205 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751713AbWIOUP4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751697AbWIOUQF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751713AbWIOUP4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Sep 2006 16:15:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751702AbWIOUP4
+	id S1751697AbWIOUQF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Sep 2006 16:16:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751703AbWIOUQE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Sep 2006 16:15:56 -0400
-Received: from mail.windriver.com ([147.11.1.11]:30431 "EHLO mail.wrs.com")
-	by vger.kernel.org with ESMTP id S1751138AbWIOUPz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Sep 2006 16:15:55 -0400
-Date: Fri, 15 Sep 2006 16:15:38 -0400
-To: linux-kernel@vger.kernel.org
-Cc: netdev@vger.kernel.org, jeff@garzik.org
-Subject: [PATCH] Add Broadcom PHY support
-Message-ID: <20060915201538.GA28483@lucciola.windriver.com>
-MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="VbJkn9YxBvnuCH5J"
-Content-Disposition: inline
-User-Agent: Mutt/1.5.13 (2006-08-11)
-From: Amy Fong <amy.fong@windriver.com>
-X-OriginalArrivalTime: 15 Sep 2006 20:15:39.0366 (UTC) FILETIME=[B6530060:01C6D903]
+	Fri, 15 Sep 2006 16:16:04 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:31697 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1751697AbWIOUQB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Sep 2006 16:16:01 -0400
+Subject: Re: [PATCH 0/11] LTTng-core (basic tracing infrastructure) 0.5.108
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Andrew Morton <akpm@osdl.org>
+Cc: tglx@linutronix.de, karim@opersys.com, Paul Mundt <lethal@linux-sh.org>,
+       Jes Sorensen <jes@sgi.com>, Roman Zippel <zippel@linux-m68k.org>,
+       Ingo Molnar <mingo@elte.hu>,
+       Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
+       linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
+       Ingo Molnar <mingo@redhat.com>, Greg Kroah-Hartman <gregkh@suse.de>,
+       Tom Zanussi <zanussi@us.ibm.com>, ltt-dev@shafik.org,
+       Michel Dagenais <michel.dagenais@polymtl.ca>
+In-Reply-To: <20060915111644.c857b2cf.akpm@osdl.org>
+References: <20060914181557.GA22469@elte.hu> <4509A54C.1050905@opersys.com>
+	 <yq08xkleb9h.fsf@jaguar.mkp.net> <450A9EC9.9080307@opersys.com>
+	 <20060915132052.GA7843@localhost.usen.ad.jp>
+	 <Pine.LNX.4.64.0609151535030.6761@scrub.home>
+	 <20060915135709.GB8723@localhost.usen.ad.jp> <450AB5F9.8040501@opersys.com>
+	 <450AB506.30802@sgi.com> <450AB957.2050206@opersys.com>
+	 <20060915142836.GA9288@localhost.usen.ad.jp> <450ABE08.2060107@opersys.com>
+	 <1158332447.5724.423.camel@localhost.localdomain>
+	 <20060915111644.c857b2cf.akpm@osdl.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Fri, 15 Sep 2006 21:37:13 +0100
+Message-Id: <1158352633.29932.141.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Ar Gwe, 2006-09-15 am 11:16 -0700, ysgrifennodd Andrew Morton:
+> What Karim is sharing with us here (yet again) is the real in-field
+> experience of real users (ie: not kernel developers).
 
---VbJkn9YxBvnuCH5J
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+A lot of us have plenty of experience helping customers and end users
+trace bugs. Thats a good part of why we get paid in the first place.
 
-[PATCH] Add Broadcom PHY support
+> What I _am_ concerned about with this patchset is all the infrastructural
+> goop which backs up those tracepoints.  I'd have thought that a better
+> approach would be to make those explicit tracepoints be "helpers" for the
+> existing kprobe code.
 
-This patch adds a driver to support the bcm5421s and bcm5461s PHY
+If you put explicit tracepoints in they will be compiled out for end
+users. If you have a script which hits the standard tracepoint set it'll
+be usable by end users.
 
-Kernel version:  linux-2.6.18-rc6
+> Of course, it they are properly designed, the one set of tracepoints could
+> be used by different tracing backends - that allows us to separate the
+> concepts of "tracepoints" and "tracing backends".
 
-Signed-off-by: Amy Fong <amy.fong@windriver.com>
+There are more than two layers. The first question is "how do I trace
+event XYZ" which seems to be the big debate. The second is "how do I
+find XYZ" which seems to have some commonality. The third is "what do I
+do when the event is hit", which kprobes provides to all the existing
+consumers such as systemtap and can field into arrays for graph plotting
+and the like.
 
---VbJkn9YxBvnuCH5J
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="broadcom-phy.diff"
+Ignoring the question of static compiled in trace points kprobes appears
+to have solved the problem space. Everyone else can use the kprobes
+interfaces to do pretty much anything computationally viable.
 
-Index: linux-2.6.18-rc6/drivers/net/phy/broadcom.c
-===================================================================
---- /dev/null
-+++ linux-2.6.18-rc6/drivers/net/phy/broadcom.c
-@@ -0,0 +1,129 @@
-+/*
-+ * drivers/net/phy/broadcom.c, Driver for Broadcom PHYs
-+ *
-+ * Copyright (c) 2006 Wind River Systems, Inc.
-+ * Written by Amy Fong
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-+ * See the GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
-+ *
-+ */
-+
-+#include <linux/kernel.h>
-+#include <linux/sched.h>
-+#include <linux/string.h>
-+#include <linux/errno.h>
-+#include <linux/unistd.h>
-+#include <linux/slab.h>
-+#include <linux/interrupt.h>
-+#include <linux/init.h>
-+#include <linux/delay.h>
-+#include <linux/netdevice.h>
-+#include <linux/etherdevice.h>
-+#include <linux/skbuff.h>
-+#include <linux/spinlock.h>
-+#include <linux/mm.h>
-+#include <linux/module.h>
-+#include <linux/mii.h>
-+#include <linux/ethtool.h>
-+#include <linux/phy.h>
-+
-+#include <asm/io.h>
-+#include <asm/irq.h>
-+#include <asm/uaccess.h>
-+
-+/* BCM5421S control register */
-+#define MII_BCM5421S_CONTROL           0x00
-+#define MII_BCM5421S_CONTROL_RESET     0x00008000
-+#define MII_BCM5421S_CONTROL_INIT      0x00001140
-+#define MII_BCM5421S_ANEN              0x00001000
-+#define MII_BCM5421S_CR                 0x00
-+#define MII_BCM5421S_CR_RST            0x00008000
-+#define MII_BCM5421S_CR_INIT           0x00001000
-+#define MII_BCM5421S_STATUS            0x1
-+#define MII_BCM5421S_STATUS_AN_DONE    0x00000020
-+#define MII_BCM5421S_STATUS_LINK       0x0004
-+#define MII_BCM5421S_PHYIR1            0x2
-+#define MII_BCM5421S_PHYIR2            0x3
-+#define MII_BCM5421S_ANLPBPA           0x5
-+#define MII_BCM5421S_ANLPBPA_HALF      0x00000040
-+#define MII_BCM5421S_ANLPBPA_FULL      0x00000020
-+#define MII_BCM5421S_ANEX              0x6
-+#define MII_BCM5421S_ANEX_NP           0x00000004
-+#define MII_BCM5421S_ANEX_PRX          0x00000002
-+
-+MODULE_DESCRIPTION("Broadcom PHY driver");
-+MODULE_AUTHOR("Amy Fong");
-+MODULE_LICENSE("GPL");
-+
-+static int bcm5421s_config_aneg(struct phy_device *phydev)
-+{
-+	int err;
-+
-+       /* Write the appropriate value to the PHY reg */
-+	if (phydev->supported & SUPPORTED_1000baseT_Full)
-+               err = phy_write(phydev, MII_BCM5421S_CONTROL, MII_BCM5421S_CONTROL_INIT);
-+       else
-+               err = phy_write(phydev, MII_BCM5421S_CONTROL, MII_BCM5421S_CR_INIT);
-+
-+	if (err < 0) return err;
-+
-+       /* doesn't have phy interrupt */
-+       phydev->interrupts = PHY_INTERRUPT_DISABLED;
-+
-+	return 0;
-+}
-+
-+static struct phy_driver bcm5421s_driver = {
-+	.phy_id         = 0x002060e1,
-+	.phy_id_mask    = 0x00ffffff,
-+	.name           = "Broadcom BCM5421S",
-+	.features       = PHY_GBIT_FEATURES,
-+	.config_aneg    = bcm5421s_config_aneg,
-+	.read_status    = genphy_read_status,
-+	.driver 	= { .owner = THIS_MODULE,},
-+};
-+
-+/* Glossy description on Broadcom's site seems to hint that the 5461
-+   should be a drop-in for the 5421.... */
-+static struct phy_driver bcm5461s_driver = {
-+	.phy_id         = 0x002060c1,
-+	.phy_id_mask    = 0x00ffffff,
-+	.name           = "Broadcom BCM5461S",
-+	.features       = PHY_GBIT_FEATURES,
-+	.config_aneg    = bcm5421s_config_aneg,
-+	.read_status    = genphy_read_status,
-+	.driver 	= { .owner = THIS_MODULE,},
-+};
-+
-+static int __init broadcom_init(void)
-+{
-+	int ret;
-+
-+	ret = phy_driver_register(&bcm5421s_driver);
-+	if (!ret) {
-+		ret = phy_driver_register(&bcm5461s_driver);
-+		if (ret) phy_driver_unregister(&bcm5421s_driver);
-+	}
-+	return ret;
-+}
-+
-+static void __exit broadcom_exit(void)
-+{
-+	phy_driver_unregister(&bcm5421s_driver);
-+	phy_driver_unregister(&bcm5461s_driver);
-+}
-+
-+module_init(broadcom_init);
-+module_exit(broadcom_exit);
-Index: linux-2.6.18-rc6/drivers/net/phy/Kconfig
-===================================================================
---- linux-2.6.18-rc6.orig/drivers/net/phy/Kconfig
-+++ linux-2.6.18-rc6/drivers/net/phy/Kconfig
-@@ -56,6 +56,12 @@
- 	---help---
- 	  Currently supports the LAN83C185 PHY
+I am sceptical about static tracepoints in critical spots because if
+they make the variable easy to access they will reduce optimisations and
+that will cost a lot more than 5 or 6 clocks.
+
+In addition ideally we want a mechanism that is also sufficient that
+printk can be mangled into so that you can pull all the printk text
+strings _out_ of the kernel and into the debug traces for embedded work.
+
+[ie you want printk("Oh dear %s exploded.\n", foo->bar); to end up with
+"Oh dear %s exploded.\n" out of kernel and in kernel
+
+		tracepoint_printk(foo->bar);
+
+maybe with minimal type info (although that can be pulled at debug time
+from the string spat into the debug data).]
+
  
-+config BROADCOM_PHY
-+	tristate "Drivers for Broadcom PHYs"
-+	depends on PHYLIB
-+	---help---
-+	  Currently supports bcm5421s and bcm5461s
-+
- config FIXED_PHY
- 	tristate "Drivers for PHY emulation on fixed speed/link"
- 	depends on PHYLIB
-Index: linux-2.6.18-rc6/drivers/net/phy/Makefile
-===================================================================
---- linux-2.6.18-rc6.orig/drivers/net/phy/Makefile
-+++ linux-2.6.18-rc6/drivers/net/phy/Makefile
-@@ -10,4 +10,5 @@
- obj-$(CONFIG_QSEMI_PHY)		+= qsemi.o
- obj-$(CONFIG_SMSC_PHY)		+= smsc.o
- obj-$(CONFIG_VITESSE_PHY)	+= vitesse.o
-+obj-$(CONFIG_BROADCOM_PHY)	+= broadcom.o
- obj-$(CONFIG_FIXED_PHY)		+= fixed.o
+Alan
 
---VbJkn9YxBvnuCH5J--

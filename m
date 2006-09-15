@@ -1,75 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932116AbWIOP7z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751633AbWIOQDw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932116AbWIOP7z (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Sep 2006 11:59:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932122AbWIOP7z
+	id S1751633AbWIOQDw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Sep 2006 12:03:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751648AbWIOQDw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Sep 2006 11:59:55 -0400
-Received: from nf-out-0910.google.com ([64.233.182.186]:5774 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S932116AbWIOP7y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Sep 2006 11:59:54 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent:sender;
-        b=SjK1MXk62+RWWOD0e9nEYc8li17TFK6sgovz/rDDWO4k++x3St0iPBYYq/y3P+wjEiStdgyMN6cH/cVsfLW8YkXSChCtqq9kLDS/ZtniEl65QmNiSbaKkV392hZTGq3cawyhw1iZCrqGC7hahtWYdhHIJUhFHc4ACf6TGW2A9G0=
-Date: Fri, 15 Sep 2006 17:58:56 +0000
-From: Frederik Deweerdt <deweerdt@free.fr>
-To: David Howells <dhowells@redhat.com>
-Cc: Aristeu Sergio Rozanski Filho <aris@cathedrallabs.org>,
-       linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: [-mm patch] add missing page_copy export for ppc and powerpc (was Re: cachefiles on latest -mm fails to build on powerpc)
-Message-ID: <20060915175856.GF2876@slug>
-References: <20060915173546.GE2876@slug> <20060915123132.GA4817@cathedrallabs.org> <20060915155023.GC2876@slug> <20060915151724.GA8098@cathedrallabs.org> <5069.1158334773@warthog.cambridge.redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <5069.1158334773@warthog.cambridge.redhat.com>
-User-Agent: mutt-ng/devel-r804 (Linux)
+	Fri, 15 Sep 2006 12:03:52 -0400
+Received: from e36.co.us.ibm.com ([32.97.110.154]:47034 "EHLO
+	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751532AbWIOQDv
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Sep 2006 12:03:51 -0400
+Subject: [PATCH] ext3 sequential read regression fix
+From: Badari Pulavarty <pbadari@us.ibm.com>
+To: akpm@osdl.org
+Cc: ext4 <linux-ext4@vger.kernel.org>, lkml <linux-kernel@vger.kernel.org>,
+       stable@kernel.org
+Content-Type: text/plain
+Date: Fri, 15 Sep 2006 09:07:18 -0700
+Message-Id: <1158336439.31501.6.camel@dyn9047017100.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 15, 2006 at 04:39:33PM +0100, David Howells wrote:
-> Frederik Deweerdt <deweerdt@free.fr> wrote:
-> 
-> > +EXPORT_SYMBOL(copy_page);
-> 
-> But only if !__powerpc64__.  Otherwise you need copy_4K_page to be exported
-> instead.
-> 
-Oops, thanks, here's a corrected patch. From a quick look, it seems that
-the ppc needs the same kind of export.
-This adds a missing copy_page export for the powerpc and ppc arches.
+ext3-get-blocks support caused ~20% degrade in Sequential read
+performance (tiobench). Problem is with marking the buffer boundary
+so IO can be submitted right away. Here is the patch to fix it.
 
-Signed-off-by: Frederik Deweerdt <frederik.deweerdt@gmail.com>
+2.6.18-rc6:
+-----------
+# ./iotest
+1048576+0 records in
+1048576+0 records out
+4294967296 bytes (4.3 GB) copied, 75.2726 seconds, 57.1 MB/s
 
-diff --git a/arch/powerpc/kernel/ppc_ksyms.c b/arch/powerpc/kernel/ppc_ksyms.c
-index 39d3bfc..23ccd5d 100644
---- a/arch/powerpc/kernel/ppc_ksyms.c
-+++ b/arch/powerpc/kernel/ppc_ksyms.c
-@@ -93,6 +93,12 @@ EXPORT_SYMBOL(__strncpy_from_user);
- EXPORT_SYMBOL(__strnlen_user);
- 
- #ifndef  __powerpc64__
-+EXPORT_SYMBOL(copy_page);
-+#else
-+EXPORT_SYMBOL(copy_4K_page);
-+#endif
-+
-+#ifndef  __powerpc64__
- EXPORT_SYMBOL(__ide_mm_insl);
- EXPORT_SYMBOL(__ide_mm_outsw);
- EXPORT_SYMBOL(__ide_mm_insw);
-diff --git a/arch/ppc/kernel/ppc_ksyms.c b/arch/ppc/kernel/ppc_ksyms.c
-index d173540..3045cc3 100644
---- a/arch/ppc/kernel/ppc_ksyms.c
-+++ b/arch/ppc/kernel/ppc_ksyms.c
-@@ -106,6 +106,8 @@ EXPORT_SYMBOL(__clear_user);
- EXPORT_SYMBOL(__strncpy_from_user);
- EXPORT_SYMBOL(__strnlen_user);
- 
-+EXPORT_SYMBOL(copy_page);
-+
- /*
- EXPORT_SYMBOL(inb);
- EXPORT_SYMBOL(inw);
+real    1m15.285s
+user    0m0.276s
+sys     0m3.884s
+
+
+2.6.18-rc6 + fix:
+-----------------
+[root@elm3a241 ~]# ./iotest
+1048576+0 records in
+1048576+0 records out
+4294967296 bytes (4.3 GB) copied, 62.9356 seconds, 68.2 MB/s
+
+
+The boundary block check in ext3_get_blocks_handle needs to be adjusted
+against the count of blocks mapped in this call, now that it can map
+more than one block.
+
+Signed-off-by: Suparna Bhattacharya <suparna@in.ibm.com>
+Tested-by: Badari Pulavarty <pbadari@us.ibm.com>
+
+ linux-2.6.18-rc5-suparna/fs/ext3/inode.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
+
+diff -puN fs/ext3/inode.c~ext3-multiblock-boundary-fix fs/ext3/inode.c
+--- linux-2.6.18-rc5/fs/ext3/inode.c~ext3-multiblock-boundary-fix	2006-09-15 10:53:12.000000000 +0530
++++ linux-2.6.18-rc5-suparna/fs/ext3/inode.c	2006-09-15 10:54:30.000000000 +0530
+@@ -925,7 +925,7 @@ int ext3_get_blocks_handle(handle_t *han
+ 	set_buffer_new(bh_result);
+ got_it:
+ 	map_bh(bh_result, inode->i_sb, le32_to_cpu(chain[depth-1].key));
+-	if (blocks_to_boundary == 0)
++	if (count > blocks_to_boundary)
+ 		set_buffer_boundary(bh_result);
+ 	err = count;
+ 	/* Clean up and exit */
+
+
+

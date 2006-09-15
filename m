@@ -1,50 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751370AbWIOSKX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751356AbWIOSK3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751370AbWIOSKX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Sep 2006 14:10:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751356AbWIOSKW
+	id S1751356AbWIOSK3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Sep 2006 14:10:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751371AbWIOSK2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Sep 2006 14:10:22 -0400
-Received: from opersys.com ([64.40.108.71]:58121 "EHLO www.opersys.com")
-	by vger.kernel.org with ESMTP id S1751344AbWIOSKU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Sep 2006 14:10:20 -0400
-Message-ID: <450AEEEB.6040005@opersys.com>
-Date: Fri, 15 Sep 2006 14:20:27 -0400
-From: Karim Yaghmour <karim@opersys.com>
-Reply-To: karim@opersys.com
-Organization: Opersys inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.8.0.6) Gecko/20060804 Fedora/1.0.4-0.5.1.fc5 SeaMonkey/1.0.4
+	Fri, 15 Sep 2006 14:10:28 -0400
+Received: from kurby.webscope.com ([204.141.84.54]:2237 "EHLO
+	kirby.webscope.com") by vger.kernel.org with ESMTP id S1751344AbWIOSK0
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Sep 2006 14:10:26 -0400
+Message-ID: <450AEBFD.2070106@linuxtv.org>
+Date: Fri, 15 Sep 2006 14:07:57 -0400
+From: Michael Krufky <mkrufky@linuxtv.org>
+User-Agent: Thunderbird 1.5.0.5 (Windows/20060719)
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, Roman Zippel <zippel@linux-m68k.org>,
-       Tim Bird <tim.bird@am.sony.com>, Ingo Molnar <mingo@elte.hu>,
-       Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
-       linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
-       Ingo Molnar <mingo@redhat.com>, Greg Kroah-Hartman <gregkh@suse.de>,
-       Thomas Gleixner <tglx@linutronix.de>, Tom Zanussi <zanussi@us.ibm.com>,
-       ltt-dev@shafik.org, Michel Dagenais <michel.dagenais@polymtl.ca>
-Subject: Re: [PATCH 0/11] LTTng-core (basic tracing infrastructure) 0.5.108
-References: <20060914033826.GA2194@Krystal>	<20060914112718.GA7065@elte.hu>	<Pine.LNX.4.64.0609141537120.6762@scrub.home>	<20060914135548.GA24393@elte.hu>	<Pine.LNX.4.64.0609141623570.6761@scrub.home>	<20060914171320.GB1105@elte.hu>	<Pine.LNX.4.64.0609141935080.6761@scrub.home>	<20060914181557.GA22469@elte.hu>	<4509B03A.3070504@am.sony.com>	<1158320406.29932.16.camel@localhost.localdomain>	<Pine.LNX.4.64.0609151339190.6761@scrub.home>	<1158323938.29932.23.camel@localhost.localdomain>	<Pine.LNX.4.64.0609151425180.6761@scrub.home>	<1158327696.29932.29.camel@localhost.localdomain>	<Pine.LNX.4.64.0609151523050.6761@scrub.home>	<1158331277.29932.66.camel@localhost.localdomain>	<450ABA2A.9060406@opersys.com>	<1158332324.29932.82.camel@localhost.localdomain>	<450ABF59.4010301@opersys.com> <20060915104955.ad6c3622.akpm@osdl.org>
-In-Reply-To: <20060915104955.ad6c3622.akpm@osdl.org>
-Content-Type: text/plain; charset=US-ASCII
+To: Marcel Holtmann <marcel@holtmann.org>
+CC: Greg KH <gregkh@suse.de>, linux-kernel@vger.kernel.org, stable@kernel.org,
+       Justin Forbes <jmforbes@linuxtx.org>,
+       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
+       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
+       Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
+       Chris Wedgwood <reviews@ml.cw.f00f.org>, torvalds@osdl.org,
+       akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
+       Ang Way Chuang <wcang@nrg.cs.usm.my>,
+       v4l-dvb maintainer list <v4l-dvb-maintainer@linuxtv.org>,
+       Marcel Siegert <mws@linuxtv.org>
+Subject: Re: [patch 29/37] dvb-core: Proper handling ULE SNDU length of 0
+References: <20060906224631.999046890@quad.kroah.org>	 <20060906225740.GD15922@kroah.com> <45016909.4080908@linuxtv.org>	 <20060908172944.GA1254@suse.de>  <450AD0CA.7080800@linuxtv.org> <1158338161.5233.47.camel@localhost>
+In-Reply-To: <1158338161.5233.47.camel@localhost>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Marcel Holtmann wrote:
+> Hi Michael,
+> 
+>>>> Can we hold off on this until the 2.6.17.13 review cycle?  This patch
+>>>> has not been sent to the linux-dvb mailing list, it has not been
+>>>> reviewed or tested except for the Author and Marcel.
+>>> Yes, I've now moved it, thanks.
+>> Marcel Siegert and I spoke about this today --  We are doing things a
+>> bit differently for 2.6.18 and later, but this patch is appropriate for
+>> 2.6.17.y
+> 
+> so this means it is fixed in 2.6.18 or is it still vulnerable. If it is
+> still vulnerable, then we need a fix. And we need it now.
 
+2.6.18 should not be vulnerable.  See the following changeset in Linus'
+tree:
 
-Andrew Morton wrote:
-> Again, I don't see this as a huge problem.  patch(1) is able to keep track
-> of specific places within source code even in the presence of quite violent
-> changes to that source code.  There's no reason why systemtap support code
-> cannot do the same.
+http://www.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=blobdiff;h=8859ab74f0fe4c65c8e75b9350a2a0b138615525;hp=9fd87521a1639bd3dae51dcdce48545614d41a85;hb=18232ca61b4c73b849850200a5e6ec40517f35ab;f=drivers/media/dvb/dvb-core/dvb_net.c
 
-If you don't want to listen to my part of the argument then consider
-the point of view of those who have maintained systems entirely based
-on binary editing, namely systemtap and LKET. It's indicative that
-all those who have been involved in tracing, be it by static
-instrumentation of code or the use of binary editing, all favor some
-form of static markup mechanism of the code.
+Quoting MWS from irc:
 
-Karim
+if the len is smaller than 4 or if dbit set smaller than 4+ealen, just
+get rid of that packet and interpret as error. the 2.6.18 is not letting
+them through if they are < sizeof(5), so 4 byte packets would be ignored.
+
+Regards,
+
+Michael Krufky
+

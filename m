@@ -1,46 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751412AbWIONa5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751420AbWIONdW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751412AbWIONa5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Sep 2006 09:30:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751420AbWIONa5
+	id S1751420AbWIONdW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Sep 2006 09:33:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751430AbWIONdW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Sep 2006 09:30:57 -0400
-Received: from excu-mxob-1.symantec.com ([198.6.49.12]:40599 "EHLO
-	excu-mxob-1.symantec.com") by vger.kernel.org with ESMTP
-	id S1751412AbWIONa5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Sep 2006 09:30:57 -0400
-Date: Fri, 15 Sep 2006 14:30:24 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@blonde.wat.veritas.com
-To: Andrew Morton <akpm@osdl.org>
-cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>, linux-mm@kvack.org,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>, Mike Waychison <mikew@google.com>
-Subject: Re: [RFC] page fault retry with NOPAGE_RETRY
-In-Reply-To: <20060915003529.8a59c542.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.64.0609151425050.22674@blonde.wat.veritas.com>
-References: <1158274508.14473.88.camel@localhost.localdomain>
- <20060915001151.75f9a71b.akpm@osdl.org> <20060915003529.8a59c542.akpm@osdl.org>
+	Fri, 15 Sep 2006 09:33:22 -0400
+Received: from mail.kroah.org ([69.55.234.183]:65162 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S1751420AbWIONdV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Sep 2006 09:33:21 -0400
+Date: Fri, 15 Sep 2006 03:29:54 -0700
+From: Greg KH <gregkh@suse.de>
+To: Pierre Peiffer <pierre.peiffer@bull.net>
+Cc: linux-kernel@vger.kernel.org, Matt_Domsch@dell.com
+Subject: Re: [Bug ??] 2.6.18-rc6-mm2 - PCI ethernet board does not seem to work
+Message-ID: <20060915102954.GA7014@suse.de>
+References: <450A7EC5.2090909@bull.net>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 15 Sep 2006 13:30:21.0740 (UTC) FILETIME=[17E3BEC0:01C6D8CB]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <450A7EC5.2090909@bull.net>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 15 Sep 2006, Andrew Morton wrote:
+On Fri, Sep 15, 2006 at 12:21:57PM +0200, Pierre Peiffer wrote:
+> Hi,
 > 
-> This assumes that no other heavyweight process will try to modify this
-> single-threaded process's mm.  I don't _think_ that happens anywhere, does
-> it?  access_process_vm() is the only case I can think of,
+> My Ethernet board (Intel(R) PRO/1000) "doesn't seems" to work any more
+> with this kernel, but all is ok with kernel 2.6.18-rc6-mm1.
+> 
+> A bisection search show this patch:
+> gregkh-pci-pci-sort-device-lists-breadth-first.patch
+> as being the faulty one...
+> 
+> But after reading the content of this patch, I understood that the order
+> of the ethernet boards had changed. In fact,  I have four ethernet
+> boards and now, my eth0 does not point on the same card...
+> So all is now ok by changing my cable to the right board.
+> 
+> But is this really the expected behavior ?
 
-"Modify" in the sense of fault into.
-Yes, access_process_vm() is all I can think of too.
+Yes.  You should use a persistent name for your network devices to
+prevent this from happening.
 
-> and it does down_read(other process's mmap_sem).
+That being said, I think we need to reverse the order of this patch,
+keeping the current scheme as default, and allowing it to be overridden
+on the command line for those few machines where it matters to be
+compatible with the old, 2.4 ordering scheme.
 
-If there were anything else, it'd have to do so too (if not down_write).
+Matt, care to rework the patch in this manner?
 
-I too like NOPAGE_RETRY: as you've both observed, it can help to solve
-several different problems.
+thanks,
 
-Hugh
+greg k-h

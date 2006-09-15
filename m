@@ -1,63 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750979AbWIOEZM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751565AbWIOEdu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750979AbWIOEZM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Sep 2006 00:25:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751565AbWIOEZM
+	id S1751565AbWIOEdu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Sep 2006 00:33:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751566AbWIOEdu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Sep 2006 00:25:12 -0400
-Received: from main.gmane.org ([80.91.229.2]:36583 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S1750979AbWIOEZK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Sep 2006 00:25:10 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Bhavani <bhavani11@rediffmail.com>
-Subject: Re: SDIO card support in Linux
-Date: Thu, 14 Sep 2006 12:01:00 +0000 (UTC)
-Message-ID: <loom.20060914T135039-642@post.gmane.org>
-References: <f71aedf40608310804w75728559ma5fd317e16e94b56@mail.gmail.com>  <44F73E37.6030602@drzeus.cx> <f71aedf40609051651k5d36d4fdkb6020685fc366983@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: main.gmane.org
-User-Agent: Loom/3.14 (http://gmane.org/)
-X-Loom-IP: 203.187.132.50 (Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.10) Gecko/20050716 Firefox/1.0.6)
+	Fri, 15 Sep 2006 00:33:50 -0400
+Received: from extu-mxob-1.symantec.com ([216.10.194.28]:6575 "EHLO
+	extu-mxob-1.symantec.com") by vger.kernel.org with ESMTP
+	id S1750996AbWIOEdt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Sep 2006 00:33:49 -0400
+X-AuditID: 7f000001-a5fcabb0000063f4-62-450a2c6abee7 
+Date: Fri, 15 Sep 2006 05:30:18 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@blonde.wat.veritas.com
+To: Yingchao Zhou <yc_zhou@ncic.ac.cn>
+cc: linux-kernel <linux-kernel@vger.kernel.org>, akpm <akpm@osdl.org>,
+       alan <alan@redhat.com>, zxc <zxc@ncic.ac.cn>
+Subject: Re: Re: Re: [RFC] PAGE_RW Should be added to PAGE_COPY ?
+In-Reply-To: <20060915033842.C205FFB045@ncic.ac.cn>
+Message-ID: <Pine.LNX.4.64.0609150514190.7397@blonde.wat.veritas.com>
+References: <20060915033842.C205FFB045@ncic.ac.cn>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 15 Sep 2006 04:30:13.0394 (UTC) FILETIME=[A3029720:01C6D87F]
+X-Brightmail-Tracker: AAAAAA==
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 15 Sep 2006, Yingchao Zhou wrote:
+> >On Fri, 15 Sep 2006, Yingchao Zhou wrote:
+> >> It's ok to mmap MAP_SHARED. But is it not a normal way to malloc() a space and
+> >> then registered to NIC ?
+> >
+> >Not that I know of.  How would one register malloc()ed space to a NIC?
+> >Sorry, I may well be misunderstanding you.
+> The user-level NIC does this, eg. Myrinet...
 
+Okay, thanks, I know nothing of that, and must defer to those who do.
 
-madhu chikkature <crmadhu210 <at> gmail.com> writes:
+But it sounds broken to me, in the way that you have described.
 
-> 
-> Hi Pierre,
-> 
-> Here is some piece of code that i wrote for SDIO. I use 2.6.10 kernel
-> and hence i can not really take a diff between the latest kernel
-> version. But this is not really a patch. So, You can just comment on
-> my code. I might later on work on the latest kernel versions based on
-> your comment.I see that there are more discussions happening. Please
-> pont to me if you have some code already written.
-> 
-> After your previous mail, i see that i can remove the support for CMD3
-> seperately for SDIO and do it the SD way. But i am not sure how to
-> maintain the list of SDIO cards seperately.Also some hardware as our
-> omap does, can support multiple MMC slots, in such cases one slot can
-> have SDIO and the other MMC. The core needs to cliam the cards from
-> different lists. So you may see some not so correct parts in my code.
-> 
-> I am on the Texas Instruments MMC/SD/SDIO controller on the omap2 platform.
-> 
-> Regards,
-> Madhu
+And the fix would not be to change the kernel's semantics for private
+mappings, but for the app to use a shared mapping instead of a private.
 
-Hi Madhu,
-I hve omap2420,Tsunami board n i'm trying to bring up stack for sdio card.
-Once i give IO_RW_EXTENDED the system gets hanged. I find it bit difficult to
-fix it. Is there anything i'hve to change in host driver code. Please help me.
+Which would indeed be more work for the app than just using malloc,
+since it needs some memory object (e.g. tmpfs file?) to map shared.
 
-Thanks,
-Bhavani
-
-
+Hugh

@@ -1,96 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751500AbWIOTfJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751543AbWIOTn5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751500AbWIOTfJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Sep 2006 15:35:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751501AbWIOTfI
+	id S1751543AbWIOTn5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Sep 2006 15:43:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751585AbWIOTn5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Sep 2006 15:35:08 -0400
-Received: from www.osadl.org ([213.239.205.134]:40420 "EHLO mail.tglx.de")
-	by vger.kernel.org with ESMTP id S1751500AbWIOTfG (ORCPT
+	Fri, 15 Sep 2006 15:43:57 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:26791 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S1751532AbWIOTn4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Sep 2006 15:35:06 -0400
-Subject: Re: [PATCH 0/11] LTTng-core (basic tracing infrastructure) 0.5.108
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: Andrew Morton <akpm@osdl.org>
-Cc: karim@opersys.com, Paul Mundt <lethal@linux-sh.org>,
-       Jes Sorensen <jes@sgi.com>, Roman Zippel <zippel@linux-m68k.org>,
-       Ingo Molnar <mingo@elte.hu>,
+	Fri, 15 Sep 2006 15:43:56 -0400
+Date: Fri, 15 Sep 2006 21:43:20 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Ingo Molnar <mingo@elte.hu>
+cc: Andrew Morton <akpm@osdl.org>, tglx@linutronix.de, karim@opersys.com,
+       Paul Mundt <lethal@linux-sh.org>, Jes Sorensen <jes@sgi.com>,
        Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
        linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
        Ingo Molnar <mingo@redhat.com>, Greg Kroah-Hartman <gregkh@suse.de>,
        Tom Zanussi <zanussi@us.ibm.com>, ltt-dev@shafik.org,
        Michel Dagenais <michel.dagenais@polymtl.ca>
-In-Reply-To: <20060915111644.c857b2cf.akpm@osdl.org>
-References: <20060914181557.GA22469@elte.hu> <4509A54C.1050905@opersys.com>
-	 <yq08xkleb9h.fsf@jaguar.mkp.net> <450A9EC9.9080307@opersys.com>
-	 <20060915132052.GA7843@localhost.usen.ad.jp>
-	 <Pine.LNX.4.64.0609151535030.6761@scrub.home>
-	 <20060915135709.GB8723@localhost.usen.ad.jp> <450AB5F9.8040501@opersys.com>
-	 <450AB506.30802@sgi.com> <450AB957.2050206@opersys.com>
-	 <20060915142836.GA9288@localhost.usen.ad.jp> <450ABE08.2060107@opersys.com>
-	 <1158332447.5724.423.camel@localhost.localdomain>
-	 <20060915111644.c857b2cf.akpm@osdl.org>
-Content-Type: text/plain
-Date: Fri, 15 Sep 2006 21:35:54 +0200
-Message-Id: <1158348954.5724.481.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
+Subject: Re: [PATCH 0/11] LTTng-core (basic tracing infrastructure) 0.5.108
+In-Reply-To: <20060915181907.GB17581@elte.hu>
+Message-ID: <Pine.LNX.4.64.0609152111030.6761@scrub.home>
+References: <20060915132052.GA7843@localhost.usen.ad.jp>
+ <Pine.LNX.4.64.0609151535030.6761@scrub.home> <20060915135709.GB8723@localhost.usen.ad.jp>
+ <450AB5F9.8040501@opersys.com> <450AB506.30802@sgi.com> <450AB957.2050206@opersys.com>
+ <20060915142836.GA9288@localhost.usen.ad.jp> <450ABE08.2060107@opersys.com>
+ <1158332447.5724.423.camel@localhost.localdomain> <20060915111644.c857b2cf.akpm@osdl.org>
+ <20060915181907.GB17581@elte.hu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-09-15 at 11:16 -0700, Andrew Morton wrote:
-> Me thinks our time would be best spent trying to benefit from his
-> experience..
+Hi,
 
-I was involved in tracer development for quite a while and I have used
-them in $paying customer projects too.
+On Fri, 15 Sep 2006, Ingo Molnar wrote:
 
-> Me, I'm not particularly averse to some 50-100 static tracepoints if
-> experience tells us that we need such things.  And both Karim's and Frank's
-> experience does indicate that such things are needed, which carries weight.
+> > What Karim is sharing with us here (yet again) is the real in-field 
+> > experience of real users (ie: not kernel developers).
+> 
+> well, Jes has that experience and Thomas too.
+> 
+> > I mean, on one hand we have people explaining what they think a 
+> > tracing facility should and shouldn't do, and on the other hand we 
+> > have a guy who has been maintaining and shipping exactly that thing to 
+> > (paying!) customers for many years.
+> 
+> so does Thomas and Jes. So what's the point?
 
->From my experience the tracepoints usually are not at the place where
-you need them to track down a particular problem or analyse a particular
-usage scenario in detail. This has been true from a kernel and from an
-application programmer POV. Also many of the LTT customer I'm aware of
-used their own homebrewed set of trace points.
+That only Karim's experience is being in question here?
 
-What I always hated on static tracers is the requirement to recompile /
-reboot the kernel in order to gather information. Kprobes / systemtap is
-really a conveniant way to avoid this.
+> i judge LTT by its current code quality, not by its proponents shouting 
+> volume - and that quality is still quite poor at the moment. (and then 
+> there are the conceptual problems too, outlined numerous times) I have 
+> quoted specific example(s) for that in this thread. Furthermore, LTT 
+> does this:
+> 
+>  246 files changed, 26207 insertions(+), 71 deletions(-)
+> 
+> and this gives me the shivers, for all the reasons i outlined.
 
-I completely agree that the maintenance of the "out of code" trace
-scripts is a task which needs a lot of effort, but it does not offload
-the maintenance effort to those modifying the code and we have not yet
-another pseudo instruction/function set which is interfering with the
-goal to have clear and understandable code. Hell, the code in those code
-paths which are of common interest for instrumentation is already
-complex enough. We really can do without adding some more obfuscated
-macro constructs.
+Well, I'm first to admit that LTT needs improvement, but that has never 
+been the point.
 
-When we can maintain a basic set of tracescripts in the kernel tree and
-once the necessary infrastructure is in place, I'm quite sure that quite
-a lot of kernel developers would keep those fundamental trace scripts in
-shape out of their own interest. It might take a while to get this going
-but once it is established, distros will ship the scripts along with
-dynamic tracing enabled in the kernels.
+We need to get to some kind of agreement what level of tracing Linux 
+should support in general, preferably something that is easy to 
+integrate and usable by everyone. Especially the latter means that there 
+is not one true solution, so we need to figure out what kind of common
+infrastructure can be implemented, from which all of them can benefit.
 
-I see a major advantage over static tracing in that:
+At this point you've been rather uncompromising contrary to every single 
+argument from either side.
 
-Static tracing is usually not enabled in production kernels, but the
-dynamic tracing infrastructure can be enabled without costs. So you
-can actually request traces (at least for the standard set of
-tracepoints) from Joe User to track down complex problems.
-
-One thing which is much more important IMHO is the availablity of
-_USEFUL_ postprocessing tools to give users a real value of
-instrumentation. This is a much more complex task than this whole kernel
-instrumentation business. This also includes the ability to coordinate
-user space _and_ kernel space instrumentation, which is necessary to
-analyse complex kernel / application code interactions. 
-
-	tglx
-
-
+bye, Roman

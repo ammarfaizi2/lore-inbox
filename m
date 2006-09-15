@@ -1,69 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751336AbWIOU14@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751371AbWIOU2I@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751336AbWIOU14 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Sep 2006 16:27:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751371AbWIOU14
+	id S1751371AbWIOU2I (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Sep 2006 16:28:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751376AbWIOU2I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Sep 2006 16:27:56 -0400
-Received: from e6.ny.us.ibm.com ([32.97.182.146]:20383 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751336AbWIOU1z (ORCPT
+	Fri, 15 Sep 2006 16:28:08 -0400
+Received: from [209.226.175.184] ([209.226.175.184]:45281 "EHLO
+	tomts22-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id S1751371AbWIOU2E convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Sep 2006 16:27:55 -0400
-Message-ID: <450B0CC3.9060303@us.ibm.com>
-Date: Fri, 15 Sep 2006 15:27:47 -0500
-From: "Jose R. Santos" <jrs@us.ibm.com>
-Reply-To: jrs@us.ibm.com
-Organization: IBM
-User-Agent: Thunderbird 1.5.0.5 (X11/20060728)
-MIME-Version: 1.0
-To: Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>
-CC: Andrew Morton <akpm@osdl.org>, tglx@linutronix.de, karim@opersys.com,
-       Paul Mundt <lethal@linux-sh.org>, Jes Sorensen <jes@sgi.com>,
-       Roman Zippel <zippel@linux-m68k.org>, Ingo Molnar <mingo@elte.hu>,
-       linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
-       Ingo Molnar <mingo@redhat.com>, Greg Kroah-Hartman <gregkh@suse.de>,
-       Tom Zanussi <zanussi@us.ibm.com>, ltt-dev@shafik.org,
-       Michel Dagenais <michel.dagenais@polymtl.ca>
+	Fri, 15 Sep 2006 16:28:04 -0400
+Date: Fri, 15 Sep 2006 16:22:34 -0400
+From: Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Roman Zippel <zippel@linux-m68k.org>, Andrew Morton <akpm@osdl.org>,
+       tglx@linutronix.de, karim@opersys.com, Paul Mundt <lethal@linux-sh.org>,
+       Jes Sorensen <jes@sgi.com>, linux-kernel@vger.kernel.org,
+       Christoph Hellwig <hch@infradead.org>, Ingo Molnar <mingo@redhat.com>,
+       Greg Kroah-Hartman <gregkh@suse.de>, Tom Zanussi <zanussi@us.ibm.com>,
+       ltt-dev@shafik.org, Michel Dagenais <michel.dagenais@polymtl.ca>
 Subject: Re: [PATCH 0/11] LTTng-core (basic tracing infrastructure) 0.5.108
-References: <20060915132052.GA7843@localhost.usen.ad.jp> <Pine.LNX.4.64.0609151535030.6761@scrub.home> <20060915135709.GB8723@localhost.usen.ad.jp> <450AB5F9.8040501@opersys.com> <450AB506.30802@sgi.com> <450AB957.2050206@opersys.com> <20060915142836.GA9288@localhost.usen.ad.jp> <450ABE08.2060107@opersys.com> <1158332447.5724.423.camel@localhost.localdomain> <20060915111644.c857b2cf.akpm@osdl.org> <20060915200009.GB7133@Krystal>
-In-Reply-To: <20060915200009.GB7133@Krystal>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Message-ID: <20060915202233.GA23318@Krystal>
+References: <450AB5F9.8040501@opersys.com> <450AB506.30802@sgi.com> <450AB957.2050206@opersys.com> <20060915142836.GA9288@localhost.usen.ad.jp> <450ABE08.2060107@opersys.com> <1158332447.5724.423.camel@localhost.localdomain> <20060915111644.c857b2cf.akpm@osdl.org> <20060915181907.GB17581@elte.hu> <Pine.LNX.4.64.0609152111030.6761@scrub.home> <20060915200559.GB30459@elte.hu>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: 8BIT
+In-Reply-To: <20060915200559.GB30459@elte.hu>
+X-Editor: vi
+X-Info: http://krystal.dyndns.org:8080
+X-Operating-System: Linux/2.4.32-grsec (i686)
+X-Uptime: 16:19:38 up 23 days, 17:28,  2 users,  load average: 0.24, 0.51, 0.42
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mathieu Desnoyers wrote:
-> * Andrew Morton (akpm@osdl.org) wrote:
-> > Of course, it they are properly designed, the one set of tracepoints could
-> > be used by different tracing backends - that allows us to separate the
-> > concepts of "tracepoints" and "tracing backends".
->
-> If I try to develop your idea a little further, we could this of dividing the
-> tracing problem into four layers :
->
-> - tracepoints (where the code is instrumented)
->   - identifying code
->   - accessing data surrounding the code
-> - tracing backend (how to add the tracepoints)
-> - tracing infrastructure (what code will serialize the information)
-> - data extraction (getting the data out to disk, network, ...)
->   
+Please Ingo, stop repeating false argument without taking in account people's
+corrections :
 
-I think you missing user-space post processing which should be also 
-considered part of the problem since the capabilities of post-processing 
-will be limited by the "tracepoints" available.  Tracepoints and 
-post-processing are also the problems which need to be address first 
-between the other established tracing projects before going forward with 
-in-kernel solutions.
+* Ingo Molnar (mingo@elte.hu) wrote:
+> sorry, but i disagree. There _is_ a solution that is superior in every 
+> aspect: kprobes + SystemTap. (or any other equivalent dynamic tracer)
+> 
 
-> I think that, if we agree on this segmentation of the problem, this thread is
-> generally debating on the tracing backends and their respective limitations.
-> I just want to point out that the patch I have submitted adresses mainly the
-> "tracing infrastructure" and "data extraction" topics.
->   
+I am sorry to have to repeat myself, but this is not true for heavy loads.
 
-This seem like a good idea to dissect the problem since it seem like 
-other important issues relevant to general tracing are being ignore 
-simply because of a dislike of the way LTTng has chosen to implement trace.
+> > At this point you've been rather uncompromising [...]
+> 
+> yes, i'm rather uncompromising when i sense attempts to push inferior 
+> concepts into the core kernel _when_ a better concept exists here and 
+> today. Especially if the concept being pushed adds more than 350 
+> tracepoints that expose something to user-space that amounts to a 
+> complex external API, which tracepoints we have little chance of ever 
+> getting rid of under a static tracing concept.
+> 
+>From an earlier email from Tim bird :
 
--JRS
+"I still think that this is off-topic for the patch posted.  I think we
+should debate the implementation of tracepoints/markers when someone posts a
+patch for some.  I think it's rather scurrilous to complain about
+code NOT submitted.  Ingo has even mis-characterized the not-submitted
+instrumentation patch, by saying it has 350 tracepoints when it has no
+such thing.  I counted 58 for one architecture (with only 8 being
+arch-specific)."
+
+Mathieu
+
+OpenPGP public key:              http://krystal.dyndns.org:8080/key/compudj.gpg
+Key fingerprint:     8CD5 52C3 8E3C 4140 715F  BA06 3F25 A8FE 3BAE 9A68 

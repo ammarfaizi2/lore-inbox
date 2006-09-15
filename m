@@ -1,95 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751535AbWIOOfC@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751538AbWIOOfx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751535AbWIOOfC (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Sep 2006 10:35:02 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751537AbWIOOfB
+	id S1751538AbWIOOfx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Sep 2006 10:35:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751539AbWIOOfx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Sep 2006 10:35:01 -0400
-Received: from extu-mxob-1.symantec.com ([216.10.194.28]:31679 "EHLO
-	extu-mxob-1.symantec.com") by vger.kernel.org with ESMTP
-	id S1751535AbWIOOe7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Sep 2006 10:34:59 -0400
-X-AuditID: 7f000001-a2073bb000000c39-17-450ab6806f2a 
-Date: Fri, 15 Sep 2006 15:19:34 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@blonde.wat.veritas.com
-To: Yingchao Zhou <yc_zhou@ncic.ac.cn>
-cc: linux-kernel <linux-kernel@vger.kernel.org>, akpm <akpm@osdl.org>,
-       alan <alan@redhat.com>, zxc <zxc@ncic.ac.cn>
-Subject: Re: Re: Re: [RFC] PAGE_RW Should be added to PAGE_COPY ?
-In-Reply-To: <Pine.LNX.4.64.0609150514190.7397@blonde.wat.veritas.com>
-Message-ID: <Pine.LNX.4.64.0609151431320.22674@blonde.wat.veritas.com>
-References: <20060915033842.C205FFB045@ncic.ac.cn>
- <Pine.LNX.4.64.0609150514190.7397@blonde.wat.veritas.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 15 Sep 2006 14:19:31.0724 (UTC) FILETIME=[F63794C0:01C6D8D1]
-X-Brightmail-Tracker: AAAAAA==
+	Fri, 15 Sep 2006 10:35:53 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:56290 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1751537AbWIOOfw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Sep 2006 10:35:52 -0400
+Subject: Re: [PATCH 0/11] LTTng-core (basic tracing infrastructure) 0.5.108
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: karim@opersys.com
+Cc: Roman Zippel <zippel@linux-m68k.org>, Tim Bird <tim.bird@am.sony.com>,
+       Ingo Molnar <mingo@elte.hu>,
+       Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
+       linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
+       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@redhat.com>,
+       Greg Kroah-Hartman <gregkh@suse.de>,
+       Thomas Gleixner <tglx@linutronix.de>, Tom Zanussi <zanussi@us.ibm.com>,
+       ltt-dev@shafik.org, Michel Dagenais <michel.dagenais@polymtl.ca>
+In-Reply-To: <450ABA2A.9060406@opersys.com>
+References: <20060914033826.GA2194@Krystal> <20060914112718.GA7065@elte.hu>
+	 <Pine.LNX.4.64.0609141537120.6762@scrub.home>
+	 <20060914135548.GA24393@elte.hu>
+	 <Pine.LNX.4.64.0609141623570.6761@scrub.home>
+	 <20060914171320.GB1105@elte.hu>
+	 <Pine.LNX.4.64.0609141935080.6761@scrub.home>
+	 <20060914181557.GA22469@elte.hu> <4509B03A.3070504@am.sony.com>
+	 <1158320406.29932.16.camel@localhost.localdomain>
+	 <Pine.LNX.4.64.0609151339190.6761@scrub.home>
+	 <1158323938.29932.23.camel@localhost.localdomain>
+	 <Pine.LNX.4.64.0609151425180.6761@scrub.home>
+	 <1158327696.29932.29.camel@localhost.localdomain>
+	 <Pine.LNX.4.64.0609151523050.6761@scrub.home>
+	 <1158331277.29932.66.camel@localhost.localdomain>
+	 <450ABA2A.9060406@opersys.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Fri, 15 Sep 2006 15:58:44 +0100
+Message-Id: <1158332324.29932.82.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 15 Sep 2006, Hugh Dickins wrote:
-> On Fri, 15 Sep 2006, Yingchao Zhou wrote:
-> > >On Fri, 15 Sep 2006, Yingchao Zhou wrote:
-> > >> It's ok to mmap MAP_SHARED. But is it not a normal way to malloc()
-> > >> a space and then registered to NIC ?
-> > >
-> > >Not that I know of.  How would one register malloc()ed space to a NIC?
-> > >Sorry, I may well be misunderstanding you.
-> > The user-level NIC does this, eg. Myrinet...
+Ar Gwe, 2006-09-15 am 10:35 -0400, ysgrifennodd Karim Yaghmour:
+> Care to explain how I can use to implement the equivalent of this:
 > 
-> Okay, thanks, I know nothing of that, and must defer to those who do.
+> @@ -1709,6 +1712,7 @@ switch_tasks:
+>    		++*switch_count;
 > 
-> But it sounds broken to me, in the way that you have described.
+>    		prepare_arch_switch(rq, next);
+> +		TRACE_SCHEDCHANGE(prev, next);
+>    		prev = context_switch(rq, prev, next);
+>    		barrier();
 
-I replied too hastily.  I've since looked back to your original mail
-(in which you do mention Infiniband as an example, which has now
-helped to jog my brain), and realized that I was misinterpreting
-what you meant by "user-level network driver".
+The gdb debug data lets you find each line and also the variable
+assignments (except when highly optimised in some cases). Try
+breakpointing there with kgdb and using "where"... A kgdb script is the
+wrong way to do instrumentation but it does demonstrate the information
+is already out there, automatically generated and self maintaining.
 
-The model I had in my head was a driver exporting, say, a ringbuffer
-for userspace to mmap via device node, the pages being allocated by
-the driver.  But that's not what you meant at all, and many of my
-comments may therefore have been hard to understand, because they
-were quite wrong in your scenario - for example, when I said the
-page coming to do_wp_page is not PageAnon: in my model it wasn't,
-but in your model it is, or may well be, PageAnon.
+You do need the gdb -g debug data, but equally if it was static you'd
+need to recompile with the tracepoint because it would be off by
+default, and there is a very small risk in both cases you'll disturb or
+change the code behaviour/flow.
 
-Sorry for that.
+> Also, care to explain how kprobes can be used to access same data
+> without having to actually customize a probe point for every binary?
 
-This mprotect'ing back and forth: that's something you'd like your
-userspace to be able to do safely on these areas?  Infiniband had a
-similar problem when the process fork()s, which write-protects private
-ptes in both parent and child, danger of incoherency if either then
-writes to the area.  It's an awkward problem, and in the end we
-side-stepped it by adding madvise(,,MADV_DONTFORK) to help exempt
-a particular area from propagation into the child.
+Thats why we have things like systemtap.
 
-> 
-> And the fix would not be to change the kernel's semantics for private
-> mappings,
+All we appear to lack is systemtap ability to parse debug data so it can
+be told "trace on line 9 of sched.c and record rq and next"
 
-That I do stand by: your idea to include PAGE_RW in PAGE_COPY
-would be very wrong.
+Alan
 
-> but for the app to use a shared mapping instead of a private.
-
-But that suggestion wasn't helpful: you'd much prefer not to
-restrict what areas of userspace are used in this way.
-
-The problem, as I now see it, is precisely with do_wp_page()'s
-TestSetPageLocked, as you first said.  There is indeed a small
-but real chance that will fail.  At some time in the past I did
-realize that, but pushed it to the back of my mind, waiting for
-someone actually to complain: now you have.
-
-Yes, it would be good if we could do that check in some other,
-reliable way.  The problem is that can_share_swap_page has to
-check page_mapcount (and PageSwapCache) and page_swapcount in
-an atomic way: the page lock is what we have used to guard the
-movement between mapcount and swapcount.
-
-I'll try to think whether we can do that better,
-but not until next week.
-
-Hugh

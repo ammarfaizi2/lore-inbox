@@ -1,84 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751397AbWIOBFR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751416AbWIOBfT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751397AbWIOBFR (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 14 Sep 2006 21:05:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751395AbWIOBFR
+	id S1751416AbWIOBfT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 14 Sep 2006 21:35:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751419AbWIOBfS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 14 Sep 2006 21:05:17 -0400
-Received: from dvhart.com ([64.146.134.43]:21474 "EHLO dvhart.com")
-	by vger.kernel.org with ESMTP id S1751397AbWIOBFP (ORCPT
+	Thu, 14 Sep 2006 21:35:18 -0400
+Received: from chilli.pcug.org.au ([203.10.76.44]:52948 "EHLO smtps.tip.net.au")
+	by vger.kernel.org with ESMTP id S1751416AbWIOBfR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 14 Sep 2006 21:05:15 -0400
-Message-ID: <4509FC15.6020407@mbligh.org>
-Date: Thu, 14 Sep 2006 18:04:21 -0700
-From: "Martin J. Bligh" <mbligh@mbligh.org>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060728)
-MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Roman Zippel <zippel@linux-m68k.org>,
-       Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
-       linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
-       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@redhat.com>,
-       Greg Kroah-Hartman <gregkh@suse.de>,
-       Thomas Gleixner <tglx@linutronix.de>, Tom Zanussi <zanussi@us.ibm.com>,
-       ltt-dev@shafik.org, Michel Dagenais <michel.dagenais@polymtl.ca>,
-       fche@redhat.com
-Subject: Re: [PATCH 0/11] LTTng-core (basic tracing infrastructure) 0.5.108
-References: <20060914135548.GA24393@elte.hu> <Pine.LNX.4.64.0609141623570.6761@scrub.home> <20060914171320.GB1105@elte.hu> <4509BAD4.8010206@mbligh.org> <20060914203430.GB9252@elte.hu> <4509C1D0.6080208@mbligh.org> <20060914213113.GA16989@elte.hu> <4509D6E6.5030409@mbligh.org> <20060914223607.GB25004@elte.hu> <4509DEC3.70806@mbligh.org> <20060914231956.GB29229@elte.hu>
-In-Reply-To: <20060914231956.GB29229@elte.hu>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Thu, 14 Sep 2006 21:35:17 -0400
+Date: Fri, 15 Sep 2006 11:35:16 +1000
+From: Stephen Rothwell <sfr@canb.auug.org.au>
+To: David Howells <dhowells@redhat.com>
+Cc: torvalds@osdl.org, akpm@osdl.org, linux-kernel@vger.kernel.org,
+       linux-arch@vger.kernel.org
+Subject: Re: [PATCH 5/7] Alter get_order() so that it can make use of
+ ilog2() on a constant [try #3]
+Message-Id: <20060915113516.ae2c788c.sfr@canb.auug.org.au>
+In-Reply-To: <21308.1158234724@warthog.cambridge.redhat.com>
+References: <20060914112435.4ce28290.sfr@canb.auug.org.au>
+	<20060913183522.22109.10565.stgit@warthog.cambridge.redhat.com>
+	<20060913183531.22109.85723.stgit@warthog.cambridge.redhat.com>
+	<21308.1158234724@warthog.cambridge.redhat.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.20; i486-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> i.e. we should have macros to prepare local information, with macro 
-> arities of 2, 3, 4 and 5:
+Hi David,
+
+On Thu, 14 Sep 2006 12:52:04 +0100 David Howells <dhowells@redhat.com> wrote:
+>
+> Stephen Rothwell <sfr@canb.auug.org.au> wrote:
 > 
->     _(name, data1);
->    __(name, data1, data2);
->   ___(name, data1, data2, data3);
->  ____(name, data1, data2, data3, data4);
-
-Personally I think that's way more visually offensive that something
-that looks like a function call, but still ;-) We do it as a caps macro
-
-KTRACE(foo, bar)
-
-internally, which I suppose makes it not look like a function call.
-But at the end of the day, it's all just a matter of visual taste,
-what's actually in there is way more important.
-
-> that and nothing more. But no guarantees that these trace points will 
-> always be there and usable for static tracers: for example about 50% of 
-> all tracepoints can be eliminated via a function attribute. (which 
-> function attribute tells GCC to generate a 5-byte NOP as the first 
-> instruction of the function prologue.) That will be invariant to things 
-> like function renames, etc.
-
-Yup, sometimes you just want to know when a function is called, and
-there's no real need to add that. The hook for system calls should be
-pretty generic too. But things like instrumenting the reclaim code need
-more work - I ended up incrementing some counters for each type of page
-recovery failure in shrink_list() and then just logging one compound
-event on the stats structure at the end. That's pretty specific, but
-does give you a lot of useful data when the box is dying from mem
-pressure.
-
->> So perhaps it'll all work. Still need a little bit of data maintained 
->> in tree though.
+> > After this patch, you don't need to include <linux/compiler.h> any more
+> > (and, in fact, the file ends up essentially empty).
 > 
-> ok. And i think SystemTap itself should be in tree too, with a couple of 
-> examples and helper scripts all around tracing and probing - and of 
-> course an LTT-compatible trace output so that all the nice LTT userspace 
-> code and visualization can live on.
+> True.  I could possibly delete the whole file, depending on who else has
+> designs on it.
 
-I have to figure out how to graft the internal Google stuff onto the
-same mechanism ... I definitely want to be able to combine the static
-points with dynamic ones. And then add schedstats and blktrace into
-the same thing so it interleaves properly ... seeing the blktrace type
-data interact with memory reclaim debugging was very useful to me, for
-instance. All these little fragmented tools are way more difficult to
-deal with.
+I think the patch consolidating PAGE_SIZE may want it.
 
-M.
+> > Is there a good reason to move this function out of asm-generic/page.h?
+> 
+> So that all the general log2-based functions are grouped together was what I
+> was thinking (at least their primary interfaces).
 
+Except the get_order() interface is purely related to pages (the fact
+that you have reimplemented it using the log2-based functions is just an
+implementation detail.
+
+-- 
+Cheers,
+Stephen Rothwell                    sfr@canb.auug.org.au
+http://www.canb.auug.org.au/~sfr/

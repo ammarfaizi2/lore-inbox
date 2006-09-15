@@ -1,52 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932136AbWIOSSv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932144AbWIOSTv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932136AbWIOSSv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Sep 2006 14:18:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932138AbWIOSSv
+	id S932144AbWIOSTv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Sep 2006 14:19:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932124AbWIOSTu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Sep 2006 14:18:51 -0400
-Received: from dvhart.com ([64.146.134.43]:3811 "EHLO dvhart.com")
-	by vger.kernel.org with ESMTP id S932136AbWIOSSu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Sep 2006 14:18:50 -0400
-Message-ID: <450AEE87.4080101@mbligh.org>
-Date: Fri, 15 Sep 2006 11:18:47 -0700
-From: Martin Bligh <mbligh@mbligh.org>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051011)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: karim@opersys.com, Roman Zippel <zippel@linux-m68k.org>,
-       Tim Bird <tim.bird@am.sony.com>, Ingo Molnar <mingo@elte.hu>,
-       Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
-       linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
-       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@redhat.com>,
-       Greg Kroah-Hartman <gregkh@suse.de>,
-       Thomas Gleixner <tglx@linutronix.de>, Tom Zanussi <zanussi@us.ibm.com>,
-       ltt-dev@shafik.org, Michel Dagenais <michel.dagenais@polymtl.ca>
-Subject: Re: [PATCH 0/11] LTTng-core (basic tracing infrastructure) 0.5.108
-References: <20060914033826.GA2194@Krystal> <20060914112718.GA7065@elte.hu>	 <Pine.LNX.4.64.0609141537120.6762@scrub.home>	 <20060914135548.GA24393@elte.hu>	 <Pine.LNX.4.64.0609141623570.6761@scrub.home>	 <20060914171320.GB1105@elte.hu>	 <Pine.LNX.4.64.0609141935080.6761@scrub.home>	 <20060914181557.GA22469@elte.hu> <4509B03A.3070504@am.sony.com>	 <1158320406.29932.16.camel@localhost.localdomain>	 <Pine.LNX.4.64.0609151339190.6761@scrub.home>	 <1158323938.29932.23.camel@localhost.localdomain>	 <Pine.LNX.4.64.0609151425180.6761@scrub.home>	 <1158327696.29932.29.camel@localhost.localdomain>	 <Pine.LNX.4.64.0609151523050.6761@scrub.home>	 <1158331277.29932.66.camel@localhost.localdomain>	 <450ABA2A.9060406@opersys.com> <1158332324.29932.82.camel@localhost.localdomain>
-In-Reply-To: <1158332324.29932.82.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 15 Sep 2006 14:19:50 -0400
+Received: from smtp-out.google.com ([216.239.45.12]:41092 "EHLO
+	smtp-out.google.com") by vger.kernel.org with ESMTP id S932144AbWIOSTt
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Sep 2006 14:19:49 -0400
+DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
+	h=received:subject:from:reply-to:to:cc:in-reply-to:references:
+	content-type:organization:date:message-id:mime-version:x-mailer:content-transfer-encoding;
+	b=e/cuR4iwIMVa4d0yVRLYCEruNvxHNh8on0ExHEEi9AlQKktbebmEFZx0TrD8VDcg/
+	Vvix/UCY2/KIxrK7f1QCQ==
+Subject: Re: [Patch 01/05]- Containers: Documentation on using containers
+From: Rohit Seth <rohitseth@google.com>
+Reply-To: rohitseth@google.com
+To: =?ISO-8859-1?Q?Bj=F6rn?= Steinbrink <B.Steinbrink@gmx.de>
+Cc: Rolf Eike Beer <eike-kernel@sf-tec.de>, Andrew Morton <akpm@osdl.org>,
+       devel@openvz.org, CKRM-Tech <ckrm-tech@lists.sourceforge.net>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <20060915174412.GB5285@atjola.homenet>
+References: <1158284314.5408.146.camel@galaxy.corp.google.com>
+	 <200609150815.19917.eike-kernel@sf-tec.de>
+	 <1158338725.12311.25.camel@galaxy.corp.google.com>
+	 <20060915174412.GB5285@atjola.homenet>
+Content-Type: text/plain; charset=utf-8
+Organization: Google Inc
+Date: Fri, 15 Sep 2006 11:19:14 -0700
+Message-Id: <1158344354.12311.71.camel@galaxy.corp.google.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.1.1 
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>Also, care to explain how kprobes can be used to access same data
->>without having to actually customize a probe point for every binary?
+On Fri, 2006-09-15 at 19:44 +0200, Björn Steinbrink wrote:
+> On 2006.09.15 09:45:25 -0700, Rohit Seth wrote:
+> > On Fri, 2006-09-15 at 08:15 +0200, Rolf Eike Beer wrote:
+> > > Rohit Seth wrote:
+> > > > This patch contains the Documentation for using containers.
+> > > 
+> > > > +5- Remove a task from container
+> > > > +	echo <pid> rmtask
+> > > 
+> > > echo <pid> > rmtask?
+> > > 
+> > 
+> > rmtask is an attribute defined in test_container directory.  So, first
+> > you have to cd into container directory
+> > (cd /mnt/configfs/containers/test_container and then execute this
+> > command)
 > 
+> The > is missing in the patch though, guess that's what Rolf wanted to
+> point out ;)
 > 
-> Thats why we have things like systemtap.
+Aha. Will fix it.
+
+> > 
+> > > Please also give a short description what containers are for. From what I read 
+> > > here I can only guess it's about gettings some statistics about a group of 
+> > > tasks.
+> > 
+> > Containers allow different workloads to be run on the same platform with
+> > limits defined on per container basis.  This basically allows a single
+> > platform to be (soft) partitioned among different workloads (each of
+> > which could be running many tasks).  The limits could be amount of
+> > memory, number of tasks among other features.  These two features are
+> > already implemented in the patch set that I posted.  But it is possible
+> > to add other controllers like CPU that allows only finite amount of time
+> > to the processes belonging to a container.
+> > 
+> > Currently this patch set is only tracking user memory (both file based
+> > and anonymous).  The memory handler is currently deactivating pages
+> > belonging to a container that has gone over the limit. Even though this
+> > allows containers to go over board their limits but 1- once they are
+> > over the limit then they run in degraded manner and 2- if there is any
+> > memory pressure then the (extra) pages belonging to this container are
+> > the prime candidates for swapping (for example).  The statistics that
+> > are shown in each container directory are the current values of each
+> > resource consumption.
+> > 
+> > Please let me know if you need any more specific information about the
+> > patch set.
 > 
-> All we appear to lack is systemtap ability to parse debug data so it can
-> be told "trace on line 9 of sched.c and record rq and next"
+> A general description for the containers needs to go into Documentation/
+> along with the usage example, so that potential users know what to do
+> with it. The above seems fine, just remove the "this patch" references.
+> 
 
-But that's the whole point - if it's not integrated into a marker as
-source code, it requires manual intervention for every bloody release
-to do. "line 9 of sched.c" is a farcically stupid way of doing tags
-on a dynamically moving project like the linux kernel.
+Okay.
 
-Yes, that may work OK for something that is very static, like a distro
-snapshot, but as a general mechanism, it's unsustainable and broken.
+Thanks,
+-rohit
 
-M.

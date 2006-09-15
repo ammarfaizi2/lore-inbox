@@ -1,43 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932102AbWIORTY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932122AbWIORVd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932102AbWIORTY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Sep 2006 13:19:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932122AbWIORTY
+	id S932122AbWIORVd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Sep 2006 13:21:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932123AbWIORVc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Sep 2006 13:19:24 -0400
-Received: from emailer.gwdg.de ([134.76.10.24]:2507 "EHLO emailer.gwdg.de")
-	by vger.kernel.org with ESMTP id S932102AbWIORTX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Sep 2006 13:19:23 -0400
-Date: Fri, 15 Sep 2006 19:17:48 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Oleg Verych <olecom@flower.upol.cz>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, "Travis H." <solinym@gmail.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: design of screen-locks for text-mode sessions
-In-Reply-To: <450ABA41.2090203@flower.upol.cz>
-Message-ID: <Pine.LNX.4.61.0609151917430.10464@yvahk01.tjqt.qr>
-References: <d4f1333a0609110240n3904e5a9g4359c338004008ae@mail.gmail.com>
- <Pine.LNX.4.61.0609111259000.14498@yvahk01.tjqt.qr> <450ABA41.2090203@flower.upol.cz>
+	Fri, 15 Sep 2006 13:21:32 -0400
+Received: from liaag2af.mx.compuserve.com ([149.174.40.157]:8909 "EHLO
+	liaag2af.mx.compuserve.com") by vger.kernel.org with ESMTP
+	id S932122AbWIORVc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Sep 2006 13:21:32 -0400
+Date: Fri, 15 Sep 2006 13:14:47 -0400
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Re: [PATCH 0/11] LTTng-core (basic tracing infrastructure)
+  0.5.108
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Greg Kroah-Hartman <gregkh@suse.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Roman Zippel <zippel@linux-m68k.org>, Jes Sorensen <jes@sgi.com>,
+       Paul Mundt <lethal@linux-sh.org>, Karim Yaghmour <karim@opersys.com>,
+       Ingo Molnar <mingo@elte.hu>,
+       Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
+       Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       Thomas Gleixner <tglx@linutronix.de>, Tom Zanussi <zanussi@us.ibm.com>,
+       ltt-dev <ltt-dev@shafik.org>,
+       Michel Dagenais <michel.dagenais@polymtl.ca>
+Message-ID: <200609151316_MC3-1-CB57-4BE@compuserve.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Report: Content analysis: 0.0 points, 6.0 required
-	_SUMMARY_
+Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	 charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In-Reply-To: <1158331071.29932.63.camel@localhost.localdomain>
+
+On Fri, 15 Sep 2006 15:37:51 +0100, Alan Cox wrote:
+
+> > $ grep KPROBES arch/*/Kconf*
+> > arch/i386/Kconfig:config KPROBES
+> > arch/ia64/Kconfig:config KPROBES
+> > arch/powerpc/Kconfig:config KPROBES
+> > arch/sparc64/Kconfig:config KPROBES
+> > arch/x86_64/Kconfig:config KPROBES
 >
-> Hallo, Jan Engelhardt
-> who wrote:
->> 
->> screen. Start it. Hit ^A^X. Does not support autolocking though.
->> 
-> Wrong:
->
-> "idle N lockscreen" in your ~/.screenrc or in cmdline (C-a, C-z i have)
+> Send patches. The fact nobody has them implemented on your platform
+> isn't a reason to implement something else, quite the reverse in fact.
 
-But what password will it use if you have not set one before?
+Yes, but the point is: until that's done you can't claim kprobes is a
+valid tracing tool for everyone.
 
+And things like net/ipv4/tcp_probe.c shouldn't be generally implemented
+until every arch is supported.
 
-Jan Engelhardt
 -- 
+Chuck

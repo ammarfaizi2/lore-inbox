@@ -1,72 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750732AbWIOIUQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750725AbWIOIW0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750732AbWIOIUQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Sep 2006 04:20:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750733AbWIOIUQ
+	id S1750725AbWIOIW0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Sep 2006 04:22:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750733AbWIOIW0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Sep 2006 04:20:16 -0400
-Received: from gw.goop.org ([64.81.55.164]:33004 "EHLO mail.goop.org")
-	by vger.kernel.org with ESMTP id S1750732AbWIOIUO (ORCPT
+	Fri, 15 Sep 2006 04:22:26 -0400
+Received: from nat-132.atmel.no ([80.232.32.132]:24562 "EHLO relay.atmel.no")
+	by vger.kernel.org with ESMTP id S1750725AbWIOIWZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Sep 2006 04:20:14 -0400
-Message-ID: <450A6238.9050404@goop.org>
-Date: Fri, 15 Sep 2006 01:20:08 -0700
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060907)
-MIME-Version: 1.0
-To: Mikael Pettersson <mikpe@it.uu.se>
-CC: acahalan@gmail.com, ak@suse.de, arjan@infradead.org, ebiederm@xmission.com,
-       linux-kernel@vger.kernel.org, mingo@elte.hu, torvalds@osdl.org,
-       zach@vmware.com
-Subject: Re: Assignment of GDT entries
-References: <200609150755.k8F7tKUD005518@alkaid.it.uu.se>
-In-Reply-To: <200609150755.k8F7tKUD005518@alkaid.it.uu.se>
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+	Fri, 15 Sep 2006 04:22:25 -0400
+Date: Fri, 15 Sep 2006 10:22:32 +0200
+From: Haavard Skinnemoen <hskinnemoen@atmel.com>
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: Andrew Morton <akpm@osdl.org>, linux-mtd@lists.infradead.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [-mm patch 3/4] AVR32 MTD: Mapping driver for theATSTK1000board
+Message-ID: <20060915102232.29909340@cad-250-152.norway.atmel.com>
+In-Reply-To: <1158307230.24527.36.camel@pmac.infradead.org>
+References: <20060914162926.6c117b36@cad-250-152.norway.atmel.com>
+	<20060914163026.49766346@cad-250-152.norway.atmel.com>
+	<20060914163121.241dec3e@cad-250-152.norway.atmel.com>
+	<20060914163259.068abe6d@cad-250-152.norway.atmel.com>
+	<1158264688.4312.82.camel@pmac.infradead.org>
+	<20060915095629.22cf01f4@cad-250-152.norway.atmel.com>
+	<1158307230.24527.36.camel@pmac.infradead.org>
+Organization: Atmel Norway
+X-Mailer: Sylpheed-Claws 2.5.0-rc2 (GTK+ 2.8.20; i486-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mikael Pettersson wrote:
-> The i386 TLS API has three components:
->
-> (1) set_thread_area(entry_number == -1):
->     allocates and sets up the first available TLS entry and
->     copies the chosen GDT index back to user-space
-> (2) set_thread_area(6 <= entry_number && entry_number <= 8):
->     allocates and sets up the indicated GDT entry
-> (3) get_thread_area(6 <= entry_number && entry_number <= 8):
->     retrieves the contents of the indicated GDT entry
->
-> Only (1) works in x86-64's ia32 emulation, the other two fail
-> with EINVAL because x86-64 only accepts GDT indices 12 to 14
-> for TLS entries. glibc only uses (1).
->
-> If you move the i386 TLS GDT entries to other indices then you
-> break (2) and (3) also on i386.
->   
+On Fri, 15 Sep 2006 09:00:30 +0100
+David Woodhouse <dwmw2@infradead.org> wrote:
 
-(2) and (3) are always OK if you pass it the result of (1) - ie to 
-update or readback a previously allocated descriptor.  Neither is useful 
-without having done (1) first.  The fact that 32-on-32 and 32-on-64 
-differ here means that nothing can (an apparently nothing does) depend 
-on hardcoded knowledge of the TLS descriptor indicies anyway.
+> I'm coming to the conclusion that if there are flash chips which
+> inherit the Intel insanity of automatically locking themselves on
+> every power cycle, thus rendering the 'locked' status meaningless, we
+> should just automatically unlock the whole chip at boot time, from
+> the _chip_ driver.
 
-> It's not difficult to design a better i386 TLS API that avoids
-> requiring user-space to know the actual GDT indices (just use
-> logical TLS indices and always copy the GDT index to user-space).
-> but unfortunately that doesn't help us
->   
+Yeah, there really is no reason to keep anything "soft locked". I'll
+unlock the chip from the fixup I submitted earlier so that it comes up
+unlocked by default.
 
-You still need the real indicies to construct a selector to put into a 
-segment register - ie, actually do something useful.  Changing the API 
-to use abstract "TLS indicies" would also require a call to return the 
-"TLS base", which hardly seems like an improvement.
+> So it's trapped for moderation and I
+> get to look at it and manually approve it.
 
-Also, there's no inherent reason why the TLS indicies should be 
-contigious; it happens to be true, but there's nothing useful userspace 
-can do with that knowledge.  Allowing them to be discontigious may be 
-helpful, for example, in packing the most used TLS entries (ie #1) into 
-a hot cache line, while putting the lesser-used ones elsewhere.  The 
-current API could deal with this without needing to change.
+I'll keep doing it, then. That way, I can be sure that you'll notice my
+patches, too ;)
 
-    J
+Thanks,
+
+Haavard

@@ -1,41 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750862AbWIOKNI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750899AbWIOKUM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750862AbWIOKNI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Sep 2006 06:13:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750895AbWIOKNI
+	id S1750899AbWIOKUM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Sep 2006 06:20:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750907AbWIOKUM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Sep 2006 06:13:08 -0400
-Received: from mailhub.sw.ru ([195.214.233.200]:362 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S1750862AbWIOKNF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Sep 2006 06:13:05 -0400
-Message-ID: <450A7C98.3060106@openvz.org>
-Date: Fri, 15 Sep 2006 14:12:40 +0400
-From: Kir Kolyshkin <kir@openvz.org>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060808)
-MIME-Version: 1.0
-To: devel@openvz.org
-CC: rohitseth@google.com, Andrew Morton <akpm@osdl.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       CKRM-Tech <ckrm-tech@lists.sourceforge.net>
-Subject: Re: [Devel] Re: [Patch 01/05]- Containers: Documentation on using
- containers
-References: <1158284314.5408.146.camel@galaxy.corp.google.com> <200609150815.19917.eike-kernel@sf-tec.de>
-In-Reply-To: <200609150815.19917.eike-kernel@sf-tec.de>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 15 Sep 2006 06:20:12 -0400
+Received: from nf-out-0910.google.com ([64.233.182.188]:33768 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1750899AbWIOKUK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Sep 2006 06:20:10 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
+        b=Awb8uZpSprcJDNaD15SPpk2HC9aTtlz8oo1govc8RkPlXIqh5F6PYALPZwyp3091C6PEzTYympRmrHlIXxynSbBSEdZLVuMhVvTJdCUro7qLcpiF51nEP6Tt2t3UDdb0jG4cXXgTQVV/6Rnb2MF482m3x1HLYSJPtzLVXRN+pbU=
+Date: Fri, 15 Sep 2006 14:20:14 +0400
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Cc: Madhav Bhamidipati <madhavb@gmail.com>, linux-kernel@vger.kernel.org
+Subject: Re: Question on compiling a kernel Module
+Message-ID: <20060915102014.GA5286@martell.zuzino.mipt.ru>
+References: <50b2ce660609150302s4f3de2afwf573b40f02a8d111@mail.gmail.com> <Pine.LNX.4.61.0609151206440.26659@yvahk01.tjqt.qr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0609151206440.26659@yvahk01.tjqt.qr>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rolf Eike Beer wrote:
-> Please also give a short description what containers are for. From 
-> what I read
-> here I can only guess it's about gettings some statistics about a group of 
-> tasks.
->   
-Container is like FreeBSD Jail on steroids (and Jail is chroot() on 
-steroids).
+On Fri, Sep 15, 2006 at 12:10:14PM +0200, Jan Engelhardt wrote:
+> >
+> > module/
+> > module/sub-module1
+> > module/sub-module2
+> > module/include
+> > module/objs/
+>
+>
+> obj-m += my.o
+> my-objs := sub1/foo.o sub1/bar.o sub2/abc.o sub2/xyz.o
+> EXTRA_CFLAGS += -I$(src)/include
+>
+>
+> Should be straightforward.
 
-As a nice intro, I suggest you to read
- http://en.wikipedia.org/wiki/Operating-system_level_virtualization
- http://en.wikipedia.org/wiki/OpenVZ
+XFS does this and makes
+
+	make fs/xfs/linux-2.6/xfs_stats.i
+
+impossible.
+
+>
+> > module folder has a Makefile, it may or may not have *.c files, it
+> > invokes sub-* Makefiles
+> > which build respective objects, these objects need to go into objs
+> > folder, finally makefile in 'objs'
+> > builds the module.ko linking all sub-module *.o.
+> >
+> > I could not find much information for my requirement in the file
+> > linux/Documentation/kbuild/makefiles.txt
+> >
+> > any information with an example for my requirement is greatly
+> > appreciated. Also let me know
+> > how do I expose module/include in sub-module/ c files, looks like
+> > -I../include is not working
+

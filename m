@@ -1,43 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751281AbWIORyU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751286AbWIOR4J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751281AbWIORyU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Sep 2006 13:54:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751283AbWIORyU
+	id S1751286AbWIOR4J (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Sep 2006 13:56:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751290AbWIOR4J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Sep 2006 13:54:20 -0400
-Received: from liaag1ad.mx.compuserve.com ([149.174.40.30]:41426 "EHLO
-	liaag1ad.mx.compuserve.com") by vger.kernel.org with ESMTP
-	id S1751281AbWIORyT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Sep 2006 13:54:19 -0400
-Date: Fri, 15 Sep 2006 13:50:55 -0400
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: [patch 3/9] Guest page hinting: volatile page cache.
-To: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: Zachary Amsden <zach@vmware.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       virtualization <virtualization@lists.osdl.org>,
-       Andrew Morton <akpm@osdl.org>, Nick Piggin <nickpiggin@yahoo.com.au>
-Message-ID: <200609151352_MC3-1-CB54-526A@compuserve.com>
-MIME-Version: 1.0
+	Fri, 15 Sep 2006 13:56:09 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.149]:26306 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751286AbWIOR4H
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Sep 2006 13:56:07 -0400
+Subject: Re: 2.6.18-rc7 Unable to handle kernel paging request
+From: Badari Pulavarty <pbadari@gmail.com>
+To: Markus Trippelsdorf <markus@trippelsdorf.de>
+Cc: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <20060913210307.GA6915@gentoox2.trippelsdorf.de>
+References: <20060913210307.GA6915@gentoox2.trippelsdorf.de>
+Content-Type: text/plain
+Date: Fri, 15 Sep 2006 10:59:33 -0700
+Message-Id: <1158343173.31501.26.camel@dyn9047017100.beaverton.ibm.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In-Reply-To: <1158309400.23993.9.camel@localhost>
+On Wed, 2006-09-13 at 23:03 +0200, Markus Trippelsdorf wrote:
+> Don't know what to make of these kernel error messages.
+> This happened an hour ago and the system kept running until I rebooted.
+> 
+> Unable to handle kernel paging request at ffffffff004c82c8 RIP:
+>  [<ffffffff80222a24>] generic_file_mmap+0x14/0x50
+> PGD 203027 PUD 0
+> CPU 0
+> Modules linked in: tuner bttv video_buf ir_common compat_ioctl32 btcx_risc tveeprom videodev v4l1_compat v4l2_common
+> Pid: 24497, comm: emake Not tainted 2.6.18-rc7 #1
+> RIP: 0010:[<ffffffff80222a24>]  [<ffffffff80222a24>] generic_file_mmap+0x14/0x50
+> RSP: 0018:ffff81005db69e98  EFLAGS: 00010206
+> RAX: ffffffff004c82c0 RBX: ffff810010252528 RCX: 0000000000000000
+> RDX: 00000000fffffff8 RSI: ffff810010252528 RDI: ffff810023234bc0
+> RBP: ffff810023234bc0 R08: 0000000000000000 R09: ffff810010252528
+> R10: ffff810023c1fde0 R11: ffff810023c1fde0 R12: 00000000ffffffea
+> R13: ffff81007eb04840 R14: 0000000000000000 R15: 00000000000d7000
+> FS:  00002acdf4b126d0(0000) GS:ffffffff80610000(0000) knlGS:00000000f73456b0
+> CS:  0010 DS: 0000 ES: 0000 CR0: 000000008005003b
+> CR2: ffffffff004c82c8 CR3: 0000000063292000 CR4: 00000000000006e0
+> Process emake (pid: 24497, threadinfo ffff81005db68000, task ffff81001b7f6040)
+> Stack:  ffff810010252528 ffffffff8020de0b 0000000000000000 0000000044fc8613
+>  0000000000000000 0000000000000071 0000000000000002 ffff8100167b2a70
+>  0000000000000071 0000000000000000 00000000000000d7 ffffffff8022ca5e
+> Call Trace:
+>  [<ffffffff8020de0b>] do_mmap_pgoff+0x4bb/0x790
+>  [<ffffffff8022ca5e>] sys_newfstat+0x2e/0x50
+>  [<ffffffff80224965>] sys_mmap+0xa5/0x100
+>  [<ffffffff8026255e>] system_call+0x7e/0x83
+> Code: 48 83 78 08 00 74 22 f6 47 2e 04 75 0f 48 8b 77 10 48 8b 7f
 
-On Fri, 15 Sep 2006 10:36:39 +0200, Martin Schwidefsky wrote:
+Are you able to reproduce this problem again ?
 
-> I wonder which trick you use, since there is only one page table one
-> i386 I can only imagine that you are tracking all page tables of the
-> guest.
+It looks like the problem is due to bogus a_ops ..
 
-AMD K8 with the SVM feature has host and guest page tables and
-address-space identifiers for the guests so their global TLB flushes
-can be limited to their own address space...
+        if (!mapping->a_ops->readpage)
+                         ^^^^^^
+failing instruction is:
 
--- 
-Chuck
+     37c:       48 83 78 08 00          cmpq   $0x0,0x8(%rax)
+
+(a_ops->readpage) derefence.
+
+> RAX: ffffffff004c82c0 
+
+> Unable to handle kernel paging request at ffffffff004c82c8 RIP:
+>  [<ffffffff80222a24>] generic_file_mmap+0x14/0x50
+
+
+Thanks,
+Badari
 

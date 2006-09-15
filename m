@@ -1,68 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750719AbWIOFds@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750721AbWIOFmu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750719AbWIOFds (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Sep 2006 01:33:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750722AbWIOFds
+	id S1750721AbWIOFmu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Sep 2006 01:42:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750722AbWIOFmu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Sep 2006 01:33:48 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:37584 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1750719AbWIOFdr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Sep 2006 01:33:47 -0400
-Subject: Re: [PATCH 0/3] Synaptics - fix lockdep warnings
-From: Arjan van de Ven <arjan@infradead.org>
-To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Cc: Jiri Kosina <jikos@jikos.cz>, lkml <linux-kernel@vger.kernel.org>,
-       Ingo Molnar <mingo@elte.hu>
-In-Reply-To: <d120d5000609141211o76432bd3l82582ef3896e3be@mail.gmail.com>
-References: <Pine.LNX.4.64.0609140227500.22181@twin.jikos.cz>
-	 <Pine.LNX.4.64.0609141635040.2721@twin.jikos.cz>
-	 <d120d5000609140758w7ba5cfdbs399d6831082e7cb4@mail.gmail.com>
-	 <Pine.LNX.4.64.0609141700250.2721@twin.jikos.cz>
-	 <d120d5000609140851r2299c64cv8b0a365be795a1bc@mail.gmail.com>
-	 <Pine.LNX.4.64.0609141754480.2721@twin.jikos.cz>
-	 <d120d5000609140918j18d68a4dmd9d9e1e72d2fd718@mail.gmail.com>
-	 <Pine.LNX.4.64.0609142037110.2721@twin.jikos.cz>
-	 <d120d5000609141156h5e06eb68k87a6fe072a701dab@mail.gmail.com>
-	 <1158260584.4200.3.camel@laptopd505.fenrus.org>
-	 <d120d5000609141211o76432bd3l82582ef3896e3be@mail.gmail.com>
-Content-Type: text/plain
-Organization: Intel International BV
-Date: Fri, 15 Sep 2006 07:33:24 +0200
-Message-Id: <1158298404.4332.18.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+	Fri, 15 Sep 2006 01:42:50 -0400
+Received: from wx-out-0506.google.com ([66.249.82.224]:61849 "EHLO
+	wx-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1750721AbWIOFmu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Sep 2006 01:42:50 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=euuwZJbTD3qHs00/zOEtIhTHWcuMf1stCdX75ZTMBssWpXMIr/hrJxlLnfCpk+qcnsk9pSGRY4x6EjcyLmurnnmLOAFHoN4ufsnJ9F3jdYwCUYTP8BHdqLMyF9k8szgt8XXTa17Bng8y6oDb1FMhTuPQs8SN6WSE4qdcKLXqkgQ=
+Message-ID: <c775eb9b0609142242r45d184d2h8d7edd7dd5bc2a26@mail.gmail.com>
+Date: Fri, 15 Sep 2006 01:42:49 -0400
+From: "Bharath Ramesh" <krosswindz@gmail.com>
+To: "Robin Lee Powell" <rlpowell@digitalkingdom.org>
+Subject: Re: Same MCE on 4 working machines (was Re: Early boot hang on recent 2.6 kernels (> 2.6.3), on x86-64 with 16gb of RAM)
+Cc: "Lee Revell" <rlrevell@joe-job.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <20060914191555.GJ4610@chain.digitalkingdom.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Disposition: inline
+References: <20060912223258.GM4612@chain.digitalkingdom.org>
+	 <20060914190548.GI4610@chain.digitalkingdom.org>
+	 <1158261249.7948.111.camel@mindpipe>
+	 <20060914191555.GJ4610@chain.digitalkingdom.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-09-14 at 15:11 -0400, Dmitry Torokhov wrote:
-> On 9/14/06, Arjan van de Ven <arjan@infradead.org> wrote:
-> >
+Have you tried booting newer kernel post 2.6.13 with the boot option
+mce=bootlog and see if it goes past the current failure. Try the same
+with with noacpi.
+
+Bharath
+
+On 9/14/06, Robin Lee Powell <rlpowell@digitalkingdom.org> wrote:
+> On Thu, Sep 14, 2006 at 03:14:08PM -0400, Lee Revell wrote:
+> > On Thu, 2006-09-14 at 12:05 -0700, Robin Lee Powell wrote:
+> > > This isn't just me.  All the Debian kernels hang too.  I've tried
+> > > all of the following:
 > > >
-> > > I think it is - as far as I understand the reason for not tracking
-> > > every lock individually is just that it is too expensive to do by
-> > > default.
+> > > Linux version 2.6.8-12-amd64-generic (buildd@bester) (gcc version
+> > > 3.4.4 20050314 (prerelease) (Debian 3.4.3-13)) #1 Mon Jul 17 01:12:05
+> > > UTC 2006
+> > >
+> > > Linux version 2.6.8-12-amd64-k8 (buildd@bester) (gcc version 3.4.4
+> > > 20050314 (prerelease) (Debian 3.4.3-13)) #1 Mon Jul 17 01:39:03 UTC
+> > > 2006
+> > >
+> > > Linux version 2.6.8-12-amd64-k8-smp (buildd@bester) (gcc version 3.4.4
+> > > 20050314 (prerelease) (Debian 3.4.3-13)) #1 SMP Mon Jul 17 00:17:20
+> > > UTC 2006
 > >
-> > that is not correct. While it certainly plays a role,
-> > the other reason is that you can find out "class" level locking rules
-> > (such as inode->i_mutex comes before <other lock>) for all inodes at a
-> > time; eg no need to see every inode do this before you can find the
-> > deadlock.
+> > Have you tried a *recent* 2.6 kernel like 2.6.17 or 2.6.18-rc*?
 > >
-> 
-> OK, I can see that. However you must agree that for certain locks we
-> do want to track them individually, right?
-
-I agree that if locks really represent different objects with different
-locking semantics they should not share the class. Lockdep provides a
-mechanism for that; however I'm very afraid that for the input layer,
-they really are not that, they are not different objects with different
-semantics; they are the same objects with nesting semantics! In that
-case the "separate lock class" stuff has only disadvantages.
-The worst thing is that as I understand it this separate class is
-*dynamic*. Eg it's not even "one class per driver" ;(
-
-
+> > 2.6.8 is way too old to debug.
+>
+> Yes; that's what my previous post was about.  See
+> http://lkml.org/lkml/2006/9/12/300
+>
+> I was doing 2.6.17.11, which was kernel.org's latest stable at the
+> time I started all this.
+>
+> I tried the Debian kernels just to show that it wasn't just me
+> screwing up my kernel configs.
+>
+> These machines will not boot an any kernel > 2.6.3 that I have
+> tried, and I've tried about 8 different ones at this point.
+>
+> I noted in the release notes for 2.6.4 that the mce code was
+> entirely replaced; I'm suspecting that's the problem, but I have no
+> idea how to debug it.  Whether the problem is the kernel or the
+> motherboard is also certainly open to debate.
+>
+> -Robin
+>
+> --
+> http://www.digitalkingdom.org/~rlpowell/ *** http://www.lojban.org/
+> Reason #237 To Learn Lojban: "Homonyms: Their Grate!"
+> Proud Supporter of the Singularity Institute - http://singinst.org/
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>

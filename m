@@ -1,44 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750704AbWIOJAI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750794AbWIOJE2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750704AbWIOJAI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Sep 2006 05:00:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750748AbWIOJAH
+	id S1750794AbWIOJE2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Sep 2006 05:04:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750809AbWIOJE2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Sep 2006 05:00:07 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:7125 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1750704AbWIOJAF (ORCPT
+	Fri, 15 Sep 2006 05:04:28 -0400
+Received: from mx2.go2.pl ([193.17.41.42]:37603 "EHLO poczta.o2.pl")
+	by vger.kernel.org with ESMTP id S1750794AbWIOJE1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Sep 2006 05:00:05 -0400
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <450974F2.1020104@yahoo.com.au> 
-References: <450974F2.1020104@yahoo.com.au>  <45085B31.3080504@yahoo.com.au> <45084833.4040602@yahoo.com.au> <44F395DE.10804@yahoo.com.au> <a2ebde260608271222x2b51693fnaa600965fcfaa6d2@mail.gmail.com> <1156750249.3034.155.camel@laptopd505.fenrus.org> <11861.1156845927@warthog.cambridge.redhat.com> <22461.1158173455@warthog.cambridge.redhat.com> <21102.1158234082@warthog.cambridge.redhat.com> 
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: David Howells <dhowells@redhat.com>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Dong Feng <middle.fengdong@gmail.com>, ak@suse.de,
-       Paul Mackerras <paulus@samba.org>, Christoph Lameter <clameter@sgi.com>,
-       linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
-Subject: Re: Why Semaphore Hardware-Dependent? 
-X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
-Date: Fri, 15 Sep 2006 09:59:44 +0100
-Message-ID: <30414.1158310784@warthog.cambridge.redhat.com>
+	Fri, 15 Sep 2006 05:04:27 -0400
+Date: Fri, 15 Sep 2006 11:08:19 +0200
+From: Jarek Poplawski <jarkao2@o2.pl>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Andi Kleen <ak@muc.de>, Dave Jones <davej@redhat.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] mpparse.c:231: warning: comparison is always false
+Message-ID: <20060915090819.GB2572@ff.dom.local>
+References: <20060913065010.GA2110@ff.dom.local> <20060914181754.bd963f6d.akpm@osdl.org> <20060915081123.GA2572@ff.dom.local> <20060915012302.d459c2dc.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060915012302.d459c2dc.akpm@osdl.org>
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+On Fri, Sep 15, 2006 at 01:23:02AM -0700, Andrew Morton wrote:
+> On Fri, 15 Sep 2006 10:11:23 +0200
+> Jarek Poplawski <jarkao2@o2.pl> wrote:
+> > As a matter of fact today I think my patch is wrong.
+... 
+> No, I think it's OK.  Well, you had an off-by-one...
 
-> It is actually larger here.
+just like the source:
+
+ > +#if 0xFF >= MAX_MP_BUSSES
+ >  	if (m->mpc_busid >= MAX_MP_BUSSES) {
+
+...
+> > but after rethinking
+> > the question of Dave Jones I see it's fixing the result
+> > instead of the source of a problem (char or not char).
 > 
->    text    data     bss     dec     hex filename
->     970       0       0     970     3ca lib/rwsem-spinlock.o
->     576       0       0     576     240 kernel/spinlock.o
->   =1546
-> 
->    text    data     bss     dec     hex filename
->    1310       0       0    1310     51e lib/rwsem.o
->     193       0       0     193      c1 kernel/rwsem.o
->   =1503
+> The mpc_busid field is set to eight-bits by BIOS; there's nothing we can do
+> about that...
+ 
+So IMHO maybe: if we can know this only by BIOS it should be
+eight-bits - if there is another way to get this: shouln't
+you add second constant? Now it's unlogical for me (and it
+induces this strange #ifs in the code instead of headers).
 
-What arch? FRV?
-
-David
+Jarek P.  

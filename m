@@ -1,89 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751638AbWIOTyv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751649AbWIOT4b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751638AbWIOTyv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Sep 2006 15:54:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751643AbWIOTyv
+	id S1751649AbWIOT4b (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Sep 2006 15:56:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751650AbWIOT4b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Sep 2006 15:54:51 -0400
-Received: from tomts40.bellnexxia.net ([209.226.175.97]:30635 "EHLO
-	tomts40-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id S1751626AbWIOTyu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Sep 2006 15:54:50 -0400
-Date: Fri, 15 Sep 2006 15:49:37 -0400
-From: Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>
-To: "Jose R. Santos" <jrs@us.ibm.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Roman Zippel <zippel@linux-m68k.org>,
-       Tim Bird <tim.bird@am.sony.com>, Ingo Molnar <mingo@elte.hu>,
-       linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
-       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@redhat.com>,
-       Greg Kroah-Hartman <gregkh@suse.de>,
-       Thomas Gleixner <tglx@linutronix.de>, Tom Zanussi <zanussi@us.ibm.com>,
-       ltt-dev@shafik.org, Michel Dagenais <michel.dagenais@polymtl.ca>
-Subject: Re: [PATCH 0/11] LTTng-core (basic tracing infrastructure) 0.5.108
-Message-ID: <20060915194937.GA7133@Krystal>
-References: <20060914171320.GB1105@elte.hu> <Pine.LNX.4.64.0609141935080.6761@scrub.home> <20060914181557.GA22469@elte.hu> <4509B03A.3070504@am.sony.com> <1158320406.29932.16.camel@localhost.localdomain> <Pine.LNX.4.64.0609151339190.6761@scrub.home> <1158323938.29932.23.camel@localhost.localdomain> <Pine.LNX.4.64.0609151425180.6761@scrub.home> <1158327696.29932.29.camel@localhost.localdomain> <450AEC92.7090409@us.ibm.com>
+	Fri, 15 Sep 2006 15:56:31 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:21477 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751645AbWIOT4a (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Sep 2006 15:56:30 -0400
+Date: Fri, 15 Sep 2006 12:52:45 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: schwidefsky@de.ibm.com
+Cc: torvalds@osdl.org, gregkh@suse.de, bunk@stusta.de,
+       linux-kernel@vger.kernel.org
+Subject: Re: [patch] Race condition in usermodehelper.
+Message-Id: <20060915125245.63e395bb.akpm@osdl.org>
+In-Reply-To: <1158340136.23993.25.camel@localhost>
+References: <20060915104654.GA31548@skybase>
+	<20060915092600.3046c511.akpm@osdl.org>
+	<1158340136.23993.25.camel@localhost>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-In-Reply-To: <450AEC92.7090409@us.ibm.com>
-X-Editor: vi
-X-Info: http://krystal.dyndns.org:8080
-X-Operating-System: Linux/2.4.32-grsec (i686)
-X-Uptime: 15:39:11 up 23 days, 16:47,  2 users,  load average: 0.45, 1.25, 0.89
-User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Jose R. Santos (jrs@us.ibm.com) wrote:
-> Alan Cox wrote:
+On Fri, 15 Sep 2006 19:08:56 +0200
+Martin Schwidefsky <schwidefsky@de.ibm.com> wrote:
+
+> On Fri, 2006-09-15 at 09:26 -0700, Andrew Morton wrote:
+> > > [patch] Race condition in usermodehelper.
+> >
+> > You mean three days work?
 > 
-> With several other trace tools being implemented for the kernel, there 
-> is a great problem with consistencies among these tool.  It is my 
-> opinion that trace are of very little use to _most_ people with out the 
-> availability of post-processing tools to analyses these trace.  While I 
-> wont say that we need one all powerful solution, it would be good if all 
-> solutions would at least be able to talk to the same post-processing 
-> facilities in user-space.  Before LTTng is even considered into the 
-> kernel, there need to be discussion to determine if the trace mechanism 
-> being propose is suitable for all people interested in doing trace 
-> analysis.  The fact the there also exist tool like LKET and LKST seem to 
-> suggest that there other things to be considered when it comes to 
-> implementing a trace mechanism that everyone would be happy with.
+> Unfortunately yes. You really have to hit the machine hard to provoke
+> this oops. All I had to work with was a dump that showed me the content
+> of the memory after it crashed.
+
+Sigh.  Sorry.
+
+> > If so, I owe you a big apology, because an identical patch has been in -mm
+> > for over a month.  I guess I didn't appreciate its significance.
 > 
-> It would also be useful for all the trace tool to implement the same 
-> probe points so that post-processing tools can be interchanged between 
-> the various trace implementations.
-> 
-> 
+> Well, I could have looked in -mm after the first suspicion that there is
+> something wrong with the kernel module loader. It would have saved me 2
+> of the 3 days.. will remember for the next debug session.
 
-Hi Jose,
+No, you have absolutely no reason to expect that an oops fix is languishing
+in -mm when we're at -rc6.  I reviewed the patch, agreed with it, queued it
+in the wrong place in the series file and promptly forgot about it.  That's
+literally three seconds inattention here costing three days over there.  I hate
+me.
 
-I completely agree that there is a crying need for standardisation there. The
-reason why I propose the LTTng infrastructure as a tracing core in the Linux
-kernel is this : the fundamental problem I have found with kernel tracers so
-far is that they perturb the system too much or do not offer enough fine
-grained protection against reentrancy. Ingo's post about tracing statement
-breaking the kernel all the time seems to me like a sufficient proof that this
-is a real problem.
-
-My goal with LTTng is to provide a reentrant data serialisation mechanism that
-can be called from anywhere in the kernel (ok, the vmalloc path of the page
-fault handler is _the_ exception) that does not use any lock and can therefore
-trace code paths like NMI handlers.
-
-I also implemented code that would serialize any type of data structure I could
-think of. If it is too much, well, we can use part of it.
-
-LTTng trace format is explained there. Your comments on it are very welcome.
-
-http://ltt.polymtl.ca/ > LTTV and LTTng developer documentation > format.html
-(http://ltt.polymtl.ca/svn/ltt/branches/poly/doc/developer/format.html)
-
-Regards,
-
-Mathieu
-
-
-OpenPGP public key:              http://krystal.dyndns.org:8080/key/compudj.gpg
-Key fingerprint:     8CD5 52C3 8E3C 4140 715F  BA06 3F25 A8FE 3BAE 9A68 
+At least I got to do it to someone else for once.  But three days!!

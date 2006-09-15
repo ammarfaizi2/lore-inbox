@@ -1,57 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932122AbWIORVd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932126AbWIOR2b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932122AbWIORVd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Sep 2006 13:21:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932123AbWIORVc
+	id S932126AbWIOR2b (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Sep 2006 13:28:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932127AbWIOR2b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Sep 2006 13:21:32 -0400
-Received: from liaag2af.mx.compuserve.com ([149.174.40.157]:8909 "EHLO
-	liaag2af.mx.compuserve.com") by vger.kernel.org with ESMTP
-	id S932122AbWIORVc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Sep 2006 13:21:32 -0400
-Date: Fri, 15 Sep 2006 13:14:47 -0400
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: [PATCH 0/11] LTTng-core (basic tracing infrastructure)
-  0.5.108
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Greg Kroah-Hartman <gregkh@suse.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Roman Zippel <zippel@linux-m68k.org>, Jes Sorensen <jes@sgi.com>,
-       Paul Mundt <lethal@linux-sh.org>, Karim Yaghmour <karim@opersys.com>,
-       Ingo Molnar <mingo@elte.hu>,
-       Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
-       Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       Thomas Gleixner <tglx@linutronix.de>, Tom Zanussi <zanussi@us.ibm.com>,
-       ltt-dev <ltt-dev@shafik.org>,
-       Michel Dagenais <michel.dagenais@polymtl.ca>
-Message-ID: <200609151316_MC3-1-CB57-4BE@compuserve.com>
+	Fri, 15 Sep 2006 13:28:31 -0400
+Received: from smarthost1.sentex.ca ([64.7.153.18]:33222 "EHLO
+	smarthost1.sentex.ca") by vger.kernel.org with ESMTP
+	id S932126AbWIOR2b (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Sep 2006 13:28:31 -0400
+From: "Stuart MacDonald" <stuartm@connecttech.com>
+To: "LKML" <linux-kernel@vger.kernel.org>
+Subject: TCP stack behaviour question
+Date: Fri, 15 Sep 2006 13:28:04 -0400
+Organization: Connect Tech Inc.
+Message-ID: <057a01c6d8ec$4d52c7b0$294b82ce@stuartm>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
 Content-Type: text/plain;
-	 charset=us-ascii
-Content-Disposition: inline
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.6626
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In-Reply-To: <1158331071.29932.63.camel@localhost.localdomain>
+I'm having some trouble with a network application I've written. I've
+done a lot of research the last few days; man 7 ip, man 7 tcp, kernel
+2.4.31 source code, Stevens' Illustrated TCP/IP Vol 1 & 3 (for some
+reason we don't have Vol 2), Usenet, websites. I'm hoping someone here
+can help me out, or point me in the correct direction.
 
-On Fri, 15 Sep 2006 15:37:51 +0100, Alan Cox wrote:
+Distro: Debian 3.0 r2
+Kernel: Stock 2.4.24
 
-> > $ grep KPROBES arch/*/Kconf*
-> > arch/i386/Kconfig:config KPROBES
-> > arch/ia64/Kconfig:config KPROBES
-> > arch/powerpc/Kconfig:config KPROBES
-> > arch/sparc64/Kconfig:config KPROBES
-> > arch/x86_64/Kconfig:config KPROBES
->
-> Send patches. The fact nobody has them implemented on your platform
-> isn't a reason to implement something else, quite the reverse in fact.
+tcp_retries1 == 3
+tcp_retries2 == 15
 
-Yes, but the point is: until that's done you can't claim kprobes is a
-valid tracing tool for everyone.
+I have an application that setups up a TCP connection to a server. If
+the server has a power failure, TCP starts retransmitting the packet
+that wasn't ACKed. I see the exponential backoff.
 
-And things like net/ipv4/tcp_probe.c shouldn't be generally implemented
-until every arch is supported.
+Question 1: There's the original packet, plus 7 retransmitted packets
+for a total of 8, then TCP gives up. How is 7 (or 8) derived from the
+tcp_retries[12] settings?
 
--- 
-Chuck
+Question 1a: The time between last and second-last retransmit packets
+is only about 27 seconds. I've read there's a maximum time, but also
+that it's usually 100 or 120 seconds. Where can I find that setting in
+/proc?
+
+Question 1b: If RTO is that high, why is retransmit stopping?
+
+Question 2: After the retransmit has given up, the app is still
+making an occasional write(), which succeeds! However, tearing down
+and attemting a new connection results in an immediate EHOSTUNREACH
+error. Why is the write() succeeding?
+
+Question 2a: How can my app find out the EHOSTUNREACH error
+immediately? IP_RECVERR is not implemented on TCP, and SO_ERROR always
+reports no error (0).
+
+..Stu
+

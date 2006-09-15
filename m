@@ -1,124 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751297AbWIOSEX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932067AbWIOSGX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751297AbWIOSEX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Sep 2006 14:04:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751307AbWIOSEX
+	id S932067AbWIOSGX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Sep 2006 14:06:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751320AbWIOSGX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Sep 2006 14:04:23 -0400
-Received: from nz-out-0102.google.com ([64.233.162.195]:29813 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S1751290AbWIOSEV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Sep 2006 14:04:21 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:mime-version:content-type:content-disposition:user-agent;
-        b=I/p+IdQZFQn67NmmJLY/gPKPPJS7+V0tN9YYe0nnaAPFXKPWIgO6IN0C+6cNDK37Rn21JZXSuQSCMP7bsao48jYIoUYJl7o5+IKg7QFmCIoGqvpobEv6+waeaR1RJPosiqgFsQLNQ+W6zJcdi4bnpTZHyXMUMJxO0liiGeYR8BI=
-Date: Sat, 16 Sep 2006 03:04:15 +0900
-From: Tejun Heo <htejun@gmail.com>
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>,
-       alan@lxorguk.ukuu.org.uk, "Nelson A. de Oliveira" <naoliv@gmail.com>
-Subject: [PATCH] libata: fix non-uniform ports handling
-Message-ID: <20060915180415.GB25800@htj.dyndns.org>
+	Fri, 15 Sep 2006 14:06:23 -0400
+Received: from opersys.com ([64.40.108.71]:49929 "EHLO www.opersys.com")
+	by vger.kernel.org with ESMTP id S1751312AbWIOSGW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Sep 2006 14:06:22 -0400
+Message-ID: <450AEDF2.3070504@opersys.com>
+Date: Fri, 15 Sep 2006 14:16:18 -0400
+From: Karim Yaghmour <karim@opersys.com>
+Reply-To: karim@opersys.com
+Organization: Opersys inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.8.0.6) Gecko/20060804 Fedora/1.0.4-0.5.1.fc5 SeaMonkey/1.0.4
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.13 (2006-08-11)
+To: Andrew Morton <akpm@osdl.org>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, Roman Zippel <zippel@linux-m68k.org>,
+       Tim Bird <tim.bird@am.sony.com>, Ingo Molnar <mingo@elte.hu>,
+       Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
+       linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
+       Ingo Molnar <mingo@redhat.com>, Greg Kroah-Hartman <gregkh@suse.de>,
+       Thomas Gleixner <tglx@linutronix.de>, Tom Zanussi <zanussi@us.ibm.com>,
+       ltt-dev@shafik.org, Michel Dagenais <michel.dagenais@polymtl.ca>
+Subject: Re: [PATCH 0/11] LTTng-core (basic tracing infrastructure) 0.5.108
+References: <20060914033826.GA2194@Krystal>	<20060914112718.GA7065@elte.hu>	<Pine.LNX.4.64.0609141537120.6762@scrub.home>	<20060914135548.GA24393@elte.hu>	<Pine.LNX.4.64.0609141623570.6761@scrub.home>	<20060914171320.GB1105@elte.hu>	<Pine.LNX.4.64.0609141935080.6761@scrub.home>	<20060914181557.GA22469@elte.hu>	<4509B03A.3070504@am.sony.com>	<1158320406.29932.16.camel@localhost.localdomain>	<Pine.LNX.4.64.0609151339190.6761@scrub.home>	<1158323938.29932.23.camel@localhost.localdomain> <20060915104527.89396eaf.akpm@osdl.org>
+In-Reply-To: <20060915104527.89396eaf.akpm@osdl.org>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Non-uniform ports handling got broken while updating libata to handle
-those in the same host.  Only separate irq for the non-uniform
-secondary port was implemented while all other fields (host flags,
-transfer mode...) of the secondary port simply shared those of the
-first.
 
-For ata_piix combined mode, which ATM is the only user of non-uniform
-ports, this causes the secondary port assume the wrong type.  This can
-cause PATA port to use SATA ops, which results in bogus check on PCS
-and detection failure.
+Andrew Morton wrote:
+> This is something I'm curious about.  AFAICT there are two(*) reasons for
+> wanting static tracepoints:
+> 
+> a) to be able to get at local variables and
+> 
+> b) as a "marker" somewhere within the body of a function - the
+>    expectation here is that identifiying that particular spot in the
+>    function would be hard without some marker which moves around as the
+>    functions itself is modified over time.
+> 
+> 
+> If a) is true, then isn't this simply a feature request against the
+> systemtap infrastructure?  There's no reason per-se why a kprobe point
+> cannot access locals, using the dwarf debug info.  It'll be somewhat
+> unreliable, because stack slots and registers go out of scope and get
+> reused for other things.  But as any gdb user will know, it's still
+> useful.
 
-This patch adds ata_probe_ent->pinfo2 which points to optional
-port_info for the secondary port.  For the time being, this seems to
-be the simplest solution.  This workaround will be removed together
-with ata_probe_ent itself after init model is updated to allow more
-flexibility.
+I believe this has been addressed by Frank in his other email, so I'll
+skip.
 
-Signed-off-by: Tejun Heo <htejun@gmail.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Nelson A. de Oliveira <naoliv@gmail.com>
----
- drivers/ata/libata-core.c |   18 +++++++++++++-----
- drivers/ata/libata-sff.c  |    2 ++
- include/linux/libata.h    |    8 ++++++++
- 3 files changed, 23 insertions(+), 5 deletions(-)
+> As for b), if it was _really_ an advantage to be able to identify
+> particular places within the body of a function then one could concoct a
+> macro which inserts some info into a separate elf section and which adds no
+> code at all to actual .text.
 
-diff --git a/drivers/ata/libata-core.c b/drivers/ata/libata-core.c
-index 1c93154..bb66a12 100644
---- a/drivers/ata/libata-core.c
-+++ b/drivers/ata/libata-core.c
-@@ -5269,11 +5269,19 @@ void ata_port_init(struct ata_port *ap, 
- 	ap->host = host;
- 	ap->dev = ent->dev;
- 	ap->port_no = port_no;
--	ap->pio_mask = ent->pio_mask;
--	ap->mwdma_mask = ent->mwdma_mask;
--	ap->udma_mask = ent->udma_mask;
--	ap->flags |= ent->port_flags;
--	ap->ops = ent->port_ops;
-+	if (port_no == 1 && ent->pinfo2) {
-+		ap->pio_mask = ent->pinfo2->pio_mask;
-+		ap->mwdma_mask = ent->pinfo2->mwdma_mask;
-+		ap->udma_mask = ent->pinfo2->udma_mask;
-+		ap->flags |= ent->pinfo2->flags;
-+		ap->ops = ent->pinfo2->port_ops;
-+	} else {
-+		ap->pio_mask = ent->pio_mask;
-+		ap->mwdma_mask = ent->mwdma_mask;
-+		ap->udma_mask = ent->udma_mask;
-+		ap->flags |= ent->port_flags;
-+		ap->ops = ent->port_ops;
-+	}
- 	ap->hw_sata_spd_limit = UINT_MAX;
- 	ap->active_tag = ATA_TAG_POISON;
- 	ap->last_ctl = 0xFF;
-diff --git a/drivers/ata/libata-sff.c b/drivers/ata/libata-sff.c
-index 7605028..e72ed8d 100644
---- a/drivers/ata/libata-sff.c
-+++ b/drivers/ata/libata-sff.c
-@@ -858,6 +858,7 @@ ata_pci_init_native_mode(struct pci_dev 
- 			probe_ent->port[p].bmdma_addr = bmdma;
- 		}
- 		ata_std_ports(&probe_ent->port[p]);
-+		probe_ent->pinfo2 = port[1];
- 		p++;
- 	}
- 
-@@ -907,6 +908,7 @@ static struct ata_probe_ent *ata_pci_ini
- 				probe_ent->_host_flags |= ATA_HOST_SIMPLEX;
- 		}
- 		ata_std_ports(&probe_ent->port[1]);
-+		probe_ent->pinfo2 = port[1];
- 	} else
- 		probe_ent->dummy_port_mask |= ATA_PORT_SECONDARY;
- 
-diff --git a/include/linux/libata.h b/include/linux/libata.h
-index 8715305..ff67e75 100644
---- a/include/linux/libata.h
-+++ b/include/linux/libata.h
-@@ -361,6 +361,14 @@ struct ata_probe_ent {
- 	unsigned long		_host_flags;
- 	void __iomem		*mmio_base;
- 	void			*private_data;
-+
-+	/* port_info for the secondary port.  Together with irq2, it's
-+	 * used to implement non-uniform secondary port.  Currently,
-+	 * the only user is ata_piix combined mode.  This workaround
-+	 * will be removed together with ata_probe_ent when init model
-+	 * is updated.
-+	 */
-+	const struct ata_port_info *pinfo2;
- };
- 
- struct ata_host {
+Yes, and this specific suggestion has been made a number of times.
+Though, then, this is an implementation debate and there are number
+of things which could be made available as build-time options. The
+emerging consensus in this thread, however, that there is a clear
+need for a way for statically marking up important events, and this
+point has been emphasized both by those who have maintained
+infrastructure based on "static" tracepoints and those maintaining
+such infrastructure based on "dynamic" tracepoints.
+
+> Although IMO this is a bit lame - it is quite possible to go into
+> SexySystemTapGUI, click on a particular kernel file-n-line and have
+> systemtap userspace keep track of that place in the kernel source across
+> many kernel versions: all it needs to do is to remember the file+line and a
+> snippet of the surrounding text, for readjustment purposes.
+
+Sure, if you're a kernel developer, but as I've explained numberous
+times in this thread, there are far more many users of tracing than
+kernel developers.
+
+> (*) I don't buy the performance arguments: kprobes are quick, and I'd
+> expect that the CPU consumption of the destination of the probe is
+> comparable to or higher than the cost of taking the initial trap.
+
+Please see Mathieu's earlier posting of numbers comparing kprobes to
+static points. Nevertheless, I do not believe that the use of kprobes
+should be pitted against static instrumentation, the two are
+orthogonal.
+
+Karim
+

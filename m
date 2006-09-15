@@ -1,77 +1,119 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932236AbWIOUlu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932186AbWIOUmt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932236AbWIOUlu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Sep 2006 16:41:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932237AbWIOUlu
+	id S932186AbWIOUmt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Sep 2006 16:42:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932238AbWIOUmt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Sep 2006 16:41:50 -0400
-Received: from opersys.com ([64.40.108.71]:22795 "EHLO www.opersys.com")
-	by vger.kernel.org with ESMTP id S932236AbWIOUls (ORCPT
+	Fri, 15 Sep 2006 16:42:49 -0400
+Received: from zeus1.kernel.org ([204.152.191.4]:26347 "EHLO zeus1.kernel.org")
+	by vger.kernel.org with ESMTP id S932186AbWIOUmr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Sep 2006 16:41:48 -0400
-Message-ID: <450B1263.4060702@opersys.com>
-Date: Fri, 15 Sep 2006 16:51:47 -0400
-From: Karim Yaghmour <karim@opersys.com>
-Reply-To: karim@opersys.com
-Organization: Opersys inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.8.0.6) Gecko/20060804 Fedora/1.0.4-0.5.1.fc5 SeaMonkey/1.0.4
+	Fri, 15 Sep 2006 16:42:47 -0400
+X-IronPort-AV: i="4.09,171,1157342400"; 
+   d="scan'208"; a="818577941:sNHT31628734"
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Andrew Morton <akpm@osdl.org>, tglx@linutronix.de,
-       Paul Mundt <lethal@linux-sh.org>, Jes Sorensen <jes@sgi.com>,
-       Roman Zippel <zippel@linux-m68k.org>, Ingo Molnar <mingo@elte.hu>,
-       Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
-       linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
-       Ingo Molnar <mingo@redhat.com>, Greg Kroah-Hartman <gregkh@suse.de>,
-       Tom Zanussi <zanussi@us.ibm.com>, ltt-dev@shafik.org,
-       Michel Dagenais <michel.dagenais@polymtl.ca>
-Subject: Re: [PATCH 0/11] LTTng-core (basic tracing infrastructure) 0.5.108
-References: <20060914181557.GA22469@elte.hu> <4509A54C.1050905@opersys.com>	 <yq08xkleb9h.fsf@jaguar.mkp.net> <450A9EC9.9080307@opersys.com>	 <20060915132052.GA7843@localhost.usen.ad.jp>	 <Pine.LNX.4.64.0609151535030.6761@scrub.home>	 <20060915135709.GB8723@localhost.usen.ad.jp> <450AB5F9.8040501@opersys.com>	 <450AB506.30802@sgi.com> <450AB957.2050206@opersys.com>	 <20060915142836.GA9288@localhost.usen.ad.jp> <450ABE08.2060107@opersys.com>	 <1158332447.5724.423.camel@localhost.localdomain>	 <20060915111644.c857b2cf.akpm@osdl.org> <1158352633.29932.141.camel@localhost.localdomain>
-In-Reply-To: <1158352633.29932.141.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <17675.4091.70128.82346@smtp.charter.net>
+Date: Fri, 15 Sep 2006 16:41:31 -0400
+From: "John Stoffel" <john@stoffel.org>
+To: "John Stoffel" <john@stoffel.org>
+Cc: linux-kernel@vger.kernel.org, linux-lvm@redhat.com,
+       linux-raid@vger.kernel.org
+Subject: Re: 2.6.18-rc5-mm1 - bd_claim_by_disk oops
+In-Reply-To: <17665.30996.679000.180156@smtp.charter.net>
+References: <17665.30996.679000.180156@smtp.charter.net>
+X-Mailer: VM 7.19 under Emacs 21.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Alan Cox wrote:
-> A lot of us have plenty of experience helping customers and end users
-> trace bugs. Thats a good part of why we get paid in the first place.
 
-But of course, and I wouldn't dare compare my experience with yours.
+John> I got the following on 2.6.18-rc5-mm1 when trying to lvextend a
+John> test logical volume that I had just created.  This came about
+John> because I have been trying to expand some LVs on my system,
+John> which are based on a VG ontop of an MD mirror pair.  It's an SMP
+John> box too if that means anything.
 
-FWIW, though, I submit to you that there is a difference in between
-helping a customer trace something and actually attempting to create
-a tool which standard users can use to trace their own stuff.
+John> device-mapper: table: 253:3: linear: dm-linear: Device lookup failed
+John> device-mapper: ioctl: error adding target to table
+John> device-mapper: table: 253:3: linear: dm-linear: Device lookup failed
+John> device-mapper: ioctl: error adding target to table
+John> device-mapper: table: 253:2: linear: dm-linear: Device lookup failed
+John> device-mapper: ioctl: error adding target to table
 
-Then, again, my experience may just be lacking.
+There error I got was:
 
-Here's an example just for the fun of it: I was giving a class at
-a customer's site. It so happened they scheduled this class right
-after product delivery (advice: this is a mistake.) And, predictably,
-in came the technician asking for Joe, out went Joe, in came Joe,
-repeat. They spent quite some time after hours trying to figure
-this one out. Midweek, they asked if I could help, they were
-having some odd behavior in user-space on a custom-developed board.
-Try as I may, none of the standard user-space stuff was effective.
-Ok, time to try ltt. Now this was a "vendor" kernel, with
-preemption (ok, I'm not telling who, but this was definitely
-before Ingo's work) -- the sort of which I hadn't dabbled in
-before. I spent the evening trying to figure out how the heck the
-thing worked to no avail -- the locking mechanisms were just
-wrong for what ltt needed at the time. Last day I asked him if
-they could get a *normal* kernel on there and someone somewhere
-found an odd-port stable enough to run. So got an ltt patch,
-customized it for said kernel (would have had to do something
-similar if it were probe points instead of static traces), got a
-trace, and within 5 minutes we had found a bug in their custom
-hardware (and no, their drivers were just fine). This customer
-would not have even needed me or needed to waste their time if he
-had been able to get a trace for his bastardized kernel. But
-the way the anti-static-instrumentation creed goes this
-customer would still have needed me ... or someone else ...
-<conspiracy> wait a minute, maybe that's not a coincidence ...
-</conspiracy> ;)
+  # lvextend -v -L +1g /dev/data_vg/home_lv
+    Finding volume group data_vg
+    Archiving volume group "data_vg" metadata (seqno 16).
+    Extending logical volume home_lv to 52.00 GB
+    Creating volume group backup "/etc/lvm/backup/data_vg" (seqno 17).
+    Found volume group "data_vg"
+    Found volume group "data_vg"
+    Loading data_vg-home_lv table
+    device-mapper: reload ioctl failed: Invalid argument
+    Failed to suspend home_lv
 
-Karim
+I've found a solution to this problem of NOT being able to use
+'lvextend' on some LVM2 Logical Volumes (LV).  Basically, I had to
+apply the following patch to 2.6.18-rc6-mm2 to get it to work
+properly.  I don't know why this wasn't reported here to the kernel
+people.
 
+Thanks,
+John
+
+----------------------------------------------------------------------
+
+If a matching bd_holder is found in bd_holder_list,
+add_bd_holder() completes its job by just incrementing the reference count.
+In this case, it should be considered as success but it used to return 'fail'
+to let the caller free temporary bd_holder.
+Fixed it to return success and free given object by itself.
+
+Also, if either one of symlinking fails, the bd_holder should not
+be added to the list so that it can be discarded later.
+Otherwise, the caller will free bd_holder which is in the list.
+
+This patch is neccessary only for -mm (later than 2.6.18-rc1-mm1).
+
+ fs/block_dev.c |   11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
+
+Signed-off-by: Jun'ichi Nomura <j-nomura@ce.jp.nec.com>
+
+diff -urp linux-2.6.18-rc5-mm1.orig/fs/block_dev.c linux-2.6.18-rc5-mm1/fs/block_dev.c
+--- linux-2.6.18-rc5-mm1.orig/fs/block_dev.c	2006-09-11 19:33:35.000000000 -0400
++++ linux-2.6.18-rc5-mm1/fs/block_dev.c	2006-09-11 19:21:46.000000000 -0400
+@@ -655,8 +655,8 @@ static void free_bd_holder(struct bd_hol
+  * If there is no matching entry with @bo in @bdev->bd_holder_list,
+  * add @bo to the list, create symlinks.
+  *
+- * Returns 0 if @bo was added to the list.
+- * Returns -ve if @bo wasn't used by any reason and should be freed.
++ * Returns 0 if symlinks are created or already there.
++ * Returns -ve if something fails and @bo can be freed.
+  */
+ static int add_bd_holder(struct block_device *bdev, struct bd_holder *bo)
+ {
+@@ -669,7 +669,9 @@ static int add_bd_holder(struct block_de
+ 	list_for_each_entry(tmp, &bdev->bd_holder_list, list) {
+ 		if (tmp->sdir == bo->sdir) {
+ 			tmp->count++;
+-			return -EEXIST;
++			/* We've already done what we need to do here. */
++			free_bd_holder(bo);
++			return 0;
+ 		}
+ 	}
+ 
+@@ -682,7 +684,8 @@ static int add_bd_holder(struct block_de
+ 		if (ret)
+ 			del_symlink(bo->sdir, bo->sdev);
+ 	}
+-	list_add_tail(&bo->list, &bdev->bd_holder_list);
++	if (ret == 0)
++		list_add_tail(&bo->list, &bdev->bd_holder_list);
+ 	return ret;
+ }

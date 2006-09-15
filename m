@@ -1,69 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932298AbWIOVpz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932302AbWIOVtZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932298AbWIOVpz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Sep 2006 17:45:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932301AbWIOVpz
+	id S932302AbWIOVtZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Sep 2006 17:49:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932304AbWIOVtZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Sep 2006 17:45:55 -0400
-Received: from opersys.com ([64.40.108.71]:5900 "EHLO www.opersys.com")
-	by vger.kernel.org with ESMTP id S932298AbWIOVpy (ORCPT
+	Fri, 15 Sep 2006 17:49:25 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:8585 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932302AbWIOVtY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Sep 2006 17:45:54 -0400
-Message-ID: <450B2170.5040508@opersys.com>
-Date: Fri, 15 Sep 2006 17:56:00 -0400
-From: Karim Yaghmour <karim@opersys.com>
-Reply-To: karim@opersys.com
-Organization: Opersys inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.8.0.6) Gecko/20060804 Fedora/1.0.4-0.5.1.fc5 SeaMonkey/1.0.4
+	Fri, 15 Sep 2006 17:49:24 -0400
+Message-ID: <450B1FDD.1050803@us.ibm.com>
+Date: Fri, 15 Sep 2006 16:49:17 -0500
+From: "Jose R. Santos" <jrs@us.ibm.com>
+Reply-To: jrs@us.ibm.com
+Organization: IBM
+User-Agent: Thunderbird 1.5.0.5 (X11/20060728)
 MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: Roman Zippel <zippel@linux-m68k.org>, Thomas Gleixner <tglx@linutronix.de>,
-       Andrew Morton <akpm@osdl.org>, Paul Mundt <lethal@linux-sh.org>,
-       Jes Sorensen <jes@sgi.com>,
+To: Andrew Morton <akpm@osdl.org>
+CC: Ingo Molnar <mingo@elte.hu>, tglx@linutronix.de, karim@opersys.com,
+       Paul Mundt <lethal@linux-sh.org>, Jes Sorensen <jes@sgi.com>,
+       Roman Zippel <zippel@linux-m68k.org>,
        Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
        linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
        Ingo Molnar <mingo@redhat.com>, Greg Kroah-Hartman <gregkh@suse.de>,
        Tom Zanussi <zanussi@us.ibm.com>, ltt-dev@shafik.org,
        Michel Dagenais <michel.dagenais@polymtl.ca>
 Subject: Re: [PATCH 0/11] LTTng-core (basic tracing infrastructure) 0.5.108
-References: <20060915142836.GA9288@localhost.usen.ad.jp> <450ABE08.2060107@opersys.com> <1158332447.5724.423.camel@localhost.localdomain> <20060915111644.c857b2cf.akpm@osdl.org> <1158348954.5724.481.camel@localhost.localdomain> <450B0585.5070700@opersys.com> <1158351780.5724.507.camel@localhost.localdomain> <Pine.LNX.4.64.0609152236010.6761@scrub.home> <20060915204812.GA6909@elte.hu> <450B1864.5060401@opersys.com> <20060915211550.GB11291@elte.hu>
-In-Reply-To: <20060915211550.GB11291@elte.hu>
-Content-Type: text/plain; charset=us-ascii
+References: <20060915132052.GA7843@localhost.usen.ad.jp>	<Pine.LNX.4.64.0609151535030.6761@scrub.home>	<20060915135709.GB8723@localhost.usen.ad.jp>	<450AB5F9.8040501@opersys.com>	<450AB506.30802@sgi.com>	<450AB957.2050206@opersys.com>	<20060915142836.GA9288@localhost.usen.ad.jp>	<450ABE08.2060107@opersys.com>	<1158332447.5724.423.camel@localhost.localdomain>	<20060915111644.c857b2cf.akpm@osdl.org>	<20060915181907.GB17581@elte.hu> <20060915131317.aaadf568.akpm@osdl.org>
+In-Reply-To: <20060915131317.aaadf568.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andrew Morton wrote:
+> On Fri, 15 Sep 2006 20:19:07 +0200
+> Ingo Molnar <mingo@elte.hu> wrote:
+>
+> > 
+> > * Andrew Morton <akpm@osdl.org> wrote:
+> > 
+> > > What Karim is sharing with us here (yet again) is the real in-field 
+> > > experience of real users (ie: not kernel developers).
+> > 
+> > well, Jes has that experience and Thomas too.
+>
+> systemtap and ltt are the only full-scale tracing tools which target
+> sysadmins and applciation developers of which I am aware..
+>   
 
-Ingo Molnar wrote:
-> with all due respect, do you realize the possibility that this 
-> resistance might be a genuine technical opinion on my part that is 
-> driven by the quality of the code being offered and by the conceptual 
-> problems static tracing introduces in the future, as i see them?
+IMO, I think SystemTap is to generic of a tool to be considered a 
+tracing tool.  LKET and LKST are more comparable with the functionality 
+that LTT provides.  LKET is implemented using SystemTap while LKST has 
+both a SystemTap and static kernel patch implementation.
 
-Wait. What I said could not possibly apply to comments you, or anybody
-else for that matter, made within this thread. What I said refers to
-events and threads which have long since passed. The "resistance" I
-allude to is that faced by ltt early on and for as long as several
-parties were actively involved in trying to standardize on it. I'm
-merely trying to explain the current status of this: several teams
-in "apparent" competition one another.
 
-> " and instead use their corporate bodyweight to pressure/seduce kernel
->   developers working for them into pushing their new great [...] "
-> 
-> could possibly be total, utter nonsense?
+> In the bit of text which you snipped I was agreeing with this...
+>
+> Look, if Karim and Frank (who I assume is a systemtap developer) think that
+> we need static tracepoints then I have no reason to disagree with them. 
+> What I would propose is that:
+>
+> a) Those tracepoints be integrated one at a time on well-understood
+>    grounds of necessity.  Tracepoints _should_ be added dynamically.  But
+>    if there are instances where that's not working and cannot be made to
+>    work then OK, in we go.
+>   
+Agree.  What would be the criteria that justifies having static probe vs 
+a dynamic one?
 
-Please read this in the above context -- passed events. In as far as
-my understanding of events as I was part of them, this was the
-best I made of the decision-making thought process at a managerial
-level. And I do not wish to substantiate that nor was this meant as
-a personal attack against any person or organization. Everyone acted
-to the best of their knowledge of the facts at the time and I cannot
-fault them for that. I disagreed and was disappointed, obviously,
-but that's mine to bear.
-
-Put simply: all parties involved would actually wish things were
-different.
-
-Karim
+-JRS
 

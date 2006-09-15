@@ -1,106 +1,124 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751296AbWIOR7U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751297AbWIOSEX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751296AbWIOR7U (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Sep 2006 13:59:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751290AbWIOR7U
+	id S1751297AbWIOSEX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Sep 2006 14:04:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751307AbWIOSEX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Sep 2006 13:59:20 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:8648 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751296AbWIOR7S (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Sep 2006 13:59:18 -0400
-Date: Fri, 15 Sep 2006 10:57:17 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: fche@redhat.com (Frank Ch. Eigler)
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, karim@opersys.com,
-       Roman Zippel <zippel@linux-m68k.org>, Tim Bird <tim.bird@am.sony.com>,
-       Ingo Molnar <mingo@elte.hu>,
-       Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
-       linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
-       Ingo Molnar <mingo@redhat.com>, Greg Kroah-Hartman <gregkh@suse.de>,
-       Thomas Gleixner <tglx@linutronix.de>, Tom Zanussi <zanussi@us.ibm.com>,
-       ltt-dev@shafik.org, Michel Dagenais <michel.dagenais@polymtl.ca>
-Subject: Re: [PATCH 0/11] LTTng-core (basic tracing infrastructure) 0.5.108
-Message-Id: <20060915105717.b8e35cd6.akpm@osdl.org>
-In-Reply-To: <y0mmz91f46q.fsf@ton.toronto.redhat.com>
-References: <20060914033826.GA2194@Krystal>
-	<20060914112718.GA7065@elte.hu>
-	<Pine.LNX.4.64.0609141537120.6762@scrub.home>
-	<20060914135548.GA24393@elte.hu>
-	<Pine.LNX.4.64.0609141623570.6761@scrub.home>
-	<20060914171320.GB1105@elte.hu>
-	<Pine.LNX.4.64.0609141935080.6761@scrub.home>
-	<20060914181557.GA22469@elte.hu>
-	<4509B03A.3070504@am.sony.com>
-	<1158320406.29932.16.camel@localhost.localdomain>
-	<Pine.LNX.4.64.0609151339190.6761@scrub.home>
-	<1158323938.29932.23.camel@localhost.localdomain>
-	<Pine.LNX.4.64.0609151425180.6761@scrub.home>
-	<1158327696.29932.29.camel@localhost.localdomain>
-	<Pine.LNX.4.64.0609151523050.6761@scrub.home>
-	<1158331277.29932.66.camel@localhost.localdomain>
-	<450ABA2A.9060406@opersys.com>
-	<1158332324.29932.82.camel@localhost.localdomain>
-	<y0mmz91f46q.fsf@ton.toronto.redhat.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 15 Sep 2006 14:04:23 -0400
+Received: from nz-out-0102.google.com ([64.233.162.195]:29813 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1751290AbWIOSEV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Sep 2006 14:04:21 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:mime-version:content-type:content-disposition:user-agent;
+        b=I/p+IdQZFQn67NmmJLY/gPKPPJS7+V0tN9YYe0nnaAPFXKPWIgO6IN0C+6cNDK37Rn21JZXSuQSCMP7bsao48jYIoUYJl7o5+IKg7QFmCIoGqvpobEv6+waeaR1RJPosiqgFsQLNQ+W6zJcdi4bnpTZHyXMUMJxO0liiGeYR8BI=
+Date: Sat, 16 Sep 2006 03:04:15 +0900
+From: Tejun Heo <htejun@gmail.com>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>,
+       alan@lxorguk.ukuu.org.uk, "Nelson A. de Oliveira" <naoliv@gmail.com>
+Subject: [PATCH] libata: fix non-uniform ports handling
+Message-ID: <20060915180415.GB25800@htj.dyndns.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 15 Sep 2006 13:08:29 -0400
-fche@redhat.com (Frank Ch. Eigler) wrote:
+Non-uniform ports handling got broken while updating libata to handle
+those in the same host.  Only separate irq for the non-uniform
+secondary port was implemented while all other fields (host flags,
+transfer mode...) of the secondary port simply shared those of the
+first.
 
-> Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
-> 
-> > [...]
-> > > 
-> > >    		prepare_arch_switch(rq, next);
-> > > +		TRACE_SCHEDCHANGE(prev, next);
-> > >    		prev = context_switch(rq, prev, next);
-> > >    		barrier();
-> > 
-> > The gdb debug data lets you find each line and also the variable
-> > assignments (except when highly optimised in some cases). [...]
-> 
-> Unfortunately, variables and even control flow are quite regularly
-> made non-probe-capable by modern gcc.  Statement boundaries and
-> variables are not preserved.  There is an arms race within gcc to both
-> improve code optimization and its own "reverse-engineering" debugging
-> data generation, and the former is always ahead.
-> 
-> The end result is that there are many spots that we'd like to probe in
-> systemtap, but can't place exactly or extract all the data we'd like.
-> Really.
+For ata_piix combined mode, which ATM is the only user of non-uniform
+ports, this causes the secondary port assume the wrong type.  This can
+cause PATA port to use SATA ops, which results in bogus check on PCS
+and detection failure.
 
-Useful info, thanks.
+This patch adds ata_probe_ent->pinfo2 which points to optional
+port_info for the secondary port.  For the time being, this seems to
+be the simplest solution.  This workaround will be removed together
+with ata_probe_ent itself after init model is updated to allow more
+flexibility.
 
-> There are also spots that for other reasons cannot tolerate a fully
-> dynamic kprobes-style probe:
-> 
-> - where 1000-cycle int3-dispatching overheads too high
+Signed-off-by: Tejun Heo <htejun@gmail.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Nelson A. de Oliveira <naoliv@gmail.com>
+---
+ drivers/ata/libata-core.c |   18 +++++++++++++-----
+ drivers/ata/libata-sff.c  |    2 ++
+ include/linux/libata.h    |    8 ++++++++
+ 3 files changed, 23 insertions(+), 5 deletions(-)
 
-Is that still true of the recent kprobes "boosting" changes?
-
-> - in low-level code such as fault handling or locking, that, if probed
->   dynamically, could entail infinite regress
-> - debugging information may not be available
-> 
-> This is the reason why I'm in favour of some lightweight event-marking
-> facility: a way of catching those points where dynamic probing is not
-> sufficiently fast or dependable.
-
-OK.
-
-> > [...]
-> > All we appear to lack is systemtap ability to parse debug data so it can
-> > be told "trace on line 9 of sched.c and record rq and next"
-> 
-> Actually:
-> 
-> #! stap
-> probe kernel.function("*@kernel/sched.c:9") { printf("%p %p", $rq, $next) }
-> 
-
-Really.  That's impressive progress.
+diff --git a/drivers/ata/libata-core.c b/drivers/ata/libata-core.c
+index 1c93154..bb66a12 100644
+--- a/drivers/ata/libata-core.c
++++ b/drivers/ata/libata-core.c
+@@ -5269,11 +5269,19 @@ void ata_port_init(struct ata_port *ap, 
+ 	ap->host = host;
+ 	ap->dev = ent->dev;
+ 	ap->port_no = port_no;
+-	ap->pio_mask = ent->pio_mask;
+-	ap->mwdma_mask = ent->mwdma_mask;
+-	ap->udma_mask = ent->udma_mask;
+-	ap->flags |= ent->port_flags;
+-	ap->ops = ent->port_ops;
++	if (port_no == 1 && ent->pinfo2) {
++		ap->pio_mask = ent->pinfo2->pio_mask;
++		ap->mwdma_mask = ent->pinfo2->mwdma_mask;
++		ap->udma_mask = ent->pinfo2->udma_mask;
++		ap->flags |= ent->pinfo2->flags;
++		ap->ops = ent->pinfo2->port_ops;
++	} else {
++		ap->pio_mask = ent->pio_mask;
++		ap->mwdma_mask = ent->mwdma_mask;
++		ap->udma_mask = ent->udma_mask;
++		ap->flags |= ent->port_flags;
++		ap->ops = ent->port_ops;
++	}
+ 	ap->hw_sata_spd_limit = UINT_MAX;
+ 	ap->active_tag = ATA_TAG_POISON;
+ 	ap->last_ctl = 0xFF;
+diff --git a/drivers/ata/libata-sff.c b/drivers/ata/libata-sff.c
+index 7605028..e72ed8d 100644
+--- a/drivers/ata/libata-sff.c
++++ b/drivers/ata/libata-sff.c
+@@ -858,6 +858,7 @@ ata_pci_init_native_mode(struct pci_dev 
+ 			probe_ent->port[p].bmdma_addr = bmdma;
+ 		}
+ 		ata_std_ports(&probe_ent->port[p]);
++		probe_ent->pinfo2 = port[1];
+ 		p++;
+ 	}
+ 
+@@ -907,6 +908,7 @@ static struct ata_probe_ent *ata_pci_ini
+ 				probe_ent->_host_flags |= ATA_HOST_SIMPLEX;
+ 		}
+ 		ata_std_ports(&probe_ent->port[1]);
++		probe_ent->pinfo2 = port[1];
+ 	} else
+ 		probe_ent->dummy_port_mask |= ATA_PORT_SECONDARY;
+ 
+diff --git a/include/linux/libata.h b/include/linux/libata.h
+index 8715305..ff67e75 100644
+--- a/include/linux/libata.h
++++ b/include/linux/libata.h
+@@ -361,6 +361,14 @@ struct ata_probe_ent {
+ 	unsigned long		_host_flags;
+ 	void __iomem		*mmio_base;
+ 	void			*private_data;
++
++	/* port_info for the secondary port.  Together with irq2, it's
++	 * used to implement non-uniform secondary port.  Currently,
++	 * the only user is ata_piix combined mode.  This workaround
++	 * will be removed together with ata_probe_ent when init model
++	 * is updated.
++	 */
++	const struct ata_port_info *pinfo2;
+ };
+ 
+ struct ata_host {

@@ -1,79 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750768AbWIOIvA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750765AbWIOIup@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750768AbWIOIvA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Sep 2006 04:51:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750772AbWIOIvA
+	id S1750765AbWIOIup (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Sep 2006 04:50:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750768AbWIOIup
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Sep 2006 04:51:00 -0400
-Received: from mailhub.sw.ru ([195.214.233.200]:43150 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S1750768AbWIOIu7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Sep 2006 04:50:59 -0400
-Message-ID: <450A6A7A.8010102@sw.ru>
-Date: Fri, 15 Sep 2006 12:55:22 +0400
-From: Kirill Korotaev <dev@sw.ru>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060417
-X-Accept-Language: en-us, en, ru
+	Fri, 15 Sep 2006 04:50:45 -0400
+Received: from ug-out-1314.google.com ([66.249.92.169]:34380 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1750765AbWIOIup (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Sep 2006 04:50:45 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=SMYLuppG4QJYdK+zXXjKLGoHvkJU1InOVaQcGtPu+ZD4/GIMGKopkzkRbjmpOZNU/lu+DeMvTQsu+7L/Yfqt2REIfW+ukt9sm2TPYQcEyBmaCvk8IuzgtGG8rTZvci1G0HMAiCbsZMh4ddeWea7kNb+YAPX0G9/TPZQUa6Ujwxg=
+Message-ID: <37d33d830609150150v30dc32en57f8c5e43c30aef3@mail.gmail.com>
+Date: Fri, 15 Sep 2006 01:50:43 -0700
+From: "Sandeep Kumar" <sandeepksinha@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Efficient Use of the Page Cache with 64 KB Pages
 MIME-Version: 1.0
-To: Pavel Emelianov <xemul@openvz.org>
-CC: sekharan@us.ibm.com, balbir@in.ibm.com, Srivatsa <vatsa@in.ibm.com>,
-       Rik van Riel <riel@redhat.com>,
-       CKRM-Tech <ckrm-tech@lists.sourceforge.net>,
-       Dave Hansen <haveblue@us.ibm.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andi Kleen <ak@suse.de>, Christoph Hellwig <hch@infradead.org>,
-       Andrey Savochkin <saw@sw.ru>, devel@openvz.org,
-       Matt Helsley <matthltc@us.ibm.com>, Hugh Dickins <hugh@veritas.com>,
-       Alexey Dobriyan <adobriyan@mail.ru>, Oleg Nesterov <oleg@tv-sign.ru>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [ckrm-tech] [PATCH] BC: resource beancounters (v4) (added	user
- memory)
-References: <44FD918A.7050501@sw.ru>	<44FDAB81.5050608@in.ibm.com>	 <44FEC7E4.7030708@sw.ru>	<44FF1EE4.3060005@in.ibm.com>	 <1157580371.31893.36.camel@linuxchandra>	<45011CAC.2040502@openvz.org>	 <1157730221.26324.52.camel@localhost.localdomain>	 <4501B5F0.9050802@in.ibm.com> <450508BB.7020609@openvz.org>	 <4505161E.1040401@in.ibm.com> <45051AC7.2000607@openvz.org>	 <1158000590.6029.33.camel@linuxchandra> <45069072.4010007@openvz.org>	 <1158105488.4800.23.camel@linuxchandra> <4507BC11.6080203@openvz.org>	 <1158186664.18927.17.camel@linuxchandra>  <45090A6E.1040206@openvz.org> <1158277364.6357.33.camel@linuxchandra> <450A5325.6090803@openvz.org>
-In-Reply-To: <450A5325.6090803@openvz.org>
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chandra,
+Hey all,
+I am a newbie and I just read a document with the idea for changes in
+page cache management for 64 Bit machines. This has been taken from
+Linux symposium 2006, ottawa.
 
->>>>What if I have 40 containers each with 2% guarantee ? what do we do
->>>>then ? and many other different combinations (what I gave was not the
->>>>_only_ scenario).
->>>>  
->>>>      
->>>
->>>Then you need to solve a set of 40 equations. This sounds weird, but
->>>don't afraid - sets like these are solved lightly.
->>>    
->>
->>extrapolate that to a varying # of permutations and real time changes in
->>the system workload. Won't it be complex ?
->>  
-> 
-> I have a C program that computes limits to obtain desired guarantees
-> in a single 'for (i = 0; i < n; n++)' loop for any given set of guarantees.
-> With all error handling, beautifull output, nice formatting etc it weights
-> only 60 lines.
-> 
->>Wouldn't it be a lot simpler if we have the guarantee support instead ?
-the calculation above doesn't seem hard :)
+In order for 64-bit processors to efficiently use large address spaces
+while maintaining lower TLB miss rates, the Linux kernel can be
+configured with base page sizes up to 64 KB. While this benefits
+access to large memory segments and files, it greatly reduces the
+number of smaller files that can be resident in memory at one time.
+The idea proposes a change to the Linux kernel to allow file data to
+be more efficiently stored in memory when the size of the file, or the
+data at the end of a file, is significantly smaller than the page
+size.
 
->>Why you do not like guarantee ? :)
+So, how far is this feature feasible for the linux main line kernel ?
+Is, this feature already supported ?
+-- 
+Regards,
+Sandeep
 
-> I do not 'do not like guarantee'. I'm just sure that there are two ways
-> for providing guarantee (for unreclaimable resorces):
-> 1. reserving resource for group in advance
-> 2. limit resource for others
-> Reserving is worse as it is essentially limiting (you cut off 100Mb from
-> 1Gb RAM thus limiting the other groups by 900Mb RAM), but this limiting
-> is too strict - you _have_ to reserve less than RAM size. Limiting in
-> run-time is more flexible (you may create an overcommited BC if you
-> want to) and leads to the same result - guarantee.
-I think this deserves putting on Wiki.
-It is very good clear point.
 
-Chanrda, do you propose some 3rd way (we are unaware of) of implementing guarantees?
 
-Thanks,
-Kirill
+
+
+Winners expect to win in advance. Life is a self-fulfilling prophecy.

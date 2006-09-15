@@ -1,92 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932297AbWIOVnz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932298AbWIOVpz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932297AbWIOVnz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Sep 2006 17:43:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932298AbWIOVnz
+	id S932298AbWIOVpz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Sep 2006 17:45:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932301AbWIOVpz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Sep 2006 17:43:55 -0400
-Received: from ausc60ps301.us.dell.com ([143.166.148.206]:33171 "EHLO
-	ausc60ps301.us.dell.com") by vger.kernel.org with ESMTP
-	id S932297AbWIOVny (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Sep 2006 17:43:54 -0400
-DomainKey-Signature: s=smtpout; d=dell.com; c=nofws; q=dns; b=ZDzvLKu3xecygnutYNAqJPkXOwMGpQVhXAY8s94pZG/hWLeAJPpawIG/FyKJ7toBsvswcZTt7R66B//C2/eNdMzhG/L3WK2yfSjVmeQHC4Wm6VysIiX62r5ndQzesVQB;
-X-IronPort-AV: i="4.09,172,1157346000"; 
-   d="scan'208"; a="81180341:sNHT19639071"
-Date: Fri, 15 Sep 2006 16:43:54 -0500
-From: Matt Domsch <Matt_Domsch@dell.com>
-To: Greg KH <gregkh@suse.de>, akpm@osdl.org
-Cc: Pierre Peiffer <pierre.peiffer@bull.net>, linux-kernel@vger.kernel.org,
-       linux-pci@atrey.karlin.mff.cuni.cz
-Subject: Re: [Bug ??] 2.6.18-rc6-mm2 - PCI ethernet board does not seem to work
-Message-ID: <20060915214354.GB24399@lists.us.dell.com>
-References: <450A7EC5.2090909@bull.net> <20060915102954.GA7014@suse.de>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="KsGdsel6WgEHnImy"
-Content-Disposition: inline
-In-Reply-To: <20060915102954.GA7014@suse.de>
-User-Agent: Mutt/1.5.11
+	Fri, 15 Sep 2006 17:45:55 -0400
+Received: from opersys.com ([64.40.108.71]:5900 "EHLO www.opersys.com")
+	by vger.kernel.org with ESMTP id S932298AbWIOVpy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Sep 2006 17:45:54 -0400
+Message-ID: <450B2170.5040508@opersys.com>
+Date: Fri, 15 Sep 2006 17:56:00 -0400
+From: Karim Yaghmour <karim@opersys.com>
+Reply-To: karim@opersys.com
+Organization: Opersys inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.8.0.6) Gecko/20060804 Fedora/1.0.4-0.5.1.fc5 SeaMonkey/1.0.4
+MIME-Version: 1.0
+To: Ingo Molnar <mingo@elte.hu>
+CC: Roman Zippel <zippel@linux-m68k.org>, Thomas Gleixner <tglx@linutronix.de>,
+       Andrew Morton <akpm@osdl.org>, Paul Mundt <lethal@linux-sh.org>,
+       Jes Sorensen <jes@sgi.com>,
+       Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
+       linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
+       Ingo Molnar <mingo@redhat.com>, Greg Kroah-Hartman <gregkh@suse.de>,
+       Tom Zanussi <zanussi@us.ibm.com>, ltt-dev@shafik.org,
+       Michel Dagenais <michel.dagenais@polymtl.ca>
+Subject: Re: [PATCH 0/11] LTTng-core (basic tracing infrastructure) 0.5.108
+References: <20060915142836.GA9288@localhost.usen.ad.jp> <450ABE08.2060107@opersys.com> <1158332447.5724.423.camel@localhost.localdomain> <20060915111644.c857b2cf.akpm@osdl.org> <1158348954.5724.481.camel@localhost.localdomain> <450B0585.5070700@opersys.com> <1158351780.5724.507.camel@localhost.localdomain> <Pine.LNX.4.64.0609152236010.6761@scrub.home> <20060915204812.GA6909@elte.hu> <450B1864.5060401@opersys.com> <20060915211550.GB11291@elte.hu>
+In-Reply-To: <20060915211550.GB11291@elte.hu>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---KsGdsel6WgEHnImy
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Ingo Molnar wrote:
+> with all due respect, do you realize the possibility that this 
+> resistance might be a genuine technical opinion on my part that is 
+> driven by the quality of the code being offered and by the conceptual 
+> problems static tracing introduces in the future, as i see them?
 
-On Fri, Sep 15, 2006 at 03:29:54AM -0700, Greg KH wrote:
-> That being said, I think we need to reverse the order of this patch,
-> keeping the current scheme as default, and allowing it to be overridden
-> on the command line for those few machines where it matters to be
-> compatible with the old, 2.4 ordering scheme.
->=20
-> Matt, care to rework the patch in this manner?
+Wait. What I said could not possibly apply to comments you, or anybody
+else for that matter, made within this thread. What I said refers to
+events and threads which have long since passed. The "resistance" I
+allude to is that faced by ltt early on and for as long as several
+parties were actively involved in trying to standardize on it. I'm
+merely trying to explain the current status of this: several teams
+in "apparent" competition one another.
 
-Greg, Andrew,
+> " and instead use their corporate bodyweight to pressure/seduce kernel
+>   developers working for them into pushing their new great [...] "
+> 
+> could possibly be total, utter nonsense?
 
-I'd really like to rework this patch in a different direction.  As
-such, please drop the patch:
+Please read this in the above context -- passed events. In as far as
+my understanding of events as I was part of them, this was the
+best I made of the decision-making thought process at a managerial
+level. And I do not wish to substantiate that nor was this meant as
+a personal attack against any person or organization. Everyone acted
+to the best of their knowledge of the facts at the time and I cannot
+fault them for that. I disagreed and was disappointed, obviously,
+but that's mine to bear.
 
-gregkh-pci-pci-sort-device-lists-breadth-first.patch
+Put simply: all parties involved would actually wish things were
+different.
 
-=66rom your trees, and I'll provide a new one next week.
+Karim
 
-Breadth-first vs depth-first is really only part of the problem.  More
-fundamental is the expectation that embedded devices get discovered
-before add-in devices in physical slots.  From there, breadth-first vs
-depth-first is interesting again.  I'd like to sort the list to put
-the embedded devices first, subsort those breadth-first, then list the
-add-in devices in ascending slot number order, subsort breadth-first.
-I'll default this sorting routine off, enabled/disabled via a command
-line option, and enabled by default for some systems based on DMI
-strings.
-
-arch/i386/pci/irq.c already has the PCI IRQ Routing Table available,
-=66rom which we can get embedded vs slotN information.  It's not
-currently being used in this manner, so I'm massaging that.
-
-How does this sound?
-
-Thanks,
-Matt
-
---=20
-Matt Domsch
-Software Architect
-Dell Linux Solutions linux.dell.com & www.dell.com/linux
-Linux on Dell mailing lists @ http://lists.us.dell.com
-
---KsGdsel6WgEHnImy
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.1 (GNU/Linux)
-
-iD8DBQFFCx6aIavu95Lw/AkRAj55AJ9wvqhRGSNK2Ct/NE+LK/S5kbm8TwCfX5OP
-bbkKKoCPWFHa8v/L/qN1ATs=
-=6W3C
------END PGP SIGNATURE-----
-
---KsGdsel6WgEHnImy--

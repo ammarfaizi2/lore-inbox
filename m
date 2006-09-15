@@ -1,169 +1,145 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932231AbWIOX7E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932234AbWIPAA6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932231AbWIOX7E (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Sep 2006 19:59:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932234AbWIOX7E
+	id S932234AbWIPAA6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Sep 2006 20:00:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932235AbWIPAA5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Sep 2006 19:59:04 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.152]:6797 "EHLO e34.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S932231AbWIOX7B (ORCPT
+	Fri, 15 Sep 2006 20:00:57 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:10642 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932234AbWIPAA4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Sep 2006 19:59:01 -0400
-Date: Fri, 15 Sep 2006 18:58:59 -0500
-To: Paul Mackerras <paulus@samba.org>
-Cc: linuxppc-dev@ozlabs.org, linux-kernel@vger.kernel.org, anton@samba.org
-Subject: [PATCH 4/4]: PowerPC: EEH: support MMIO enable recovery step
-Message-ID: <20060915235859.GU29167@austin.ibm.com>
-References: <20060915235025.GQ29167@austin.ibm.com>
-MIME-Version: 1.0
+	Fri, 15 Sep 2006 20:00:56 -0400
+Date: Sat, 16 Sep 2006 01:52:24 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Karim Yaghmour <karim@opersys.com>
+Cc: "Jose R. Santos" <jrs@us.ibm.com>,
+       Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
+       Roman Zippel <zippel@linux-m68k.org>, Andrew Morton <akpm@osdl.org>,
+       tglx@linutronix.de, Paul Mundt <lethal@linux-sh.org>,
+       Jes Sorensen <jes@sgi.com>, linux-kernel@vger.kernel.org,
+       Christoph Hellwig <hch@infradead.org>, Ingo Molnar <mingo@redhat.com>,
+       Greg Kroah-Hartman <gregkh@suse.de>, Tom Zanussi <zanussi@us.ibm.com>,
+       ltt-dev@shafik.org, Michel Dagenais <michel.dagenais@polymtl.ca>
+Subject: Re: [PATCH 0/11] LTTng-core (basic tracing infrastructure) 0.5.108
+Message-ID: <20060915235224.GA30473@elte.hu>
+References: <20060915111644.c857b2cf.akpm@osdl.org> <20060915181907.GB17581@elte.hu> <Pine.LNX.4.64.0609152111030.6761@scrub.home> <20060915200559.GB30459@elte.hu> <20060915202233.GA23318@Krystal> <450B164B.7090404@us.ibm.com> <20060915220345.GC12789@elte.hu> <450B29FB.7000301@opersys.com> <20060915224338.GA22126@elte.hu> <450B382C.9070202@opersys.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060915235025.GQ29167@austin.ibm.com>
-User-Agent: Mutt/1.5.11
-From: linas@austin.ibm.com (Linas Vepstas)
+In-Reply-To: <450B382C.9070202@opersys.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -2.9
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.9 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5000]
+	-0.1 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Update to te PowerPC PCI error recovery code.
+* Karim Yaghmour <karim@opersys.com> wrote:
 
-Add code to enable MMIO if a device driver reports 
-that it is capable of recovering on its own. One
-anticipated use of this having a device driver 
-enable MMIO so that it can take a register dump, 
-which might then be followed by the device driver 
-requesting a full reset.
+> > So you dispute that markups for dynamic tracing will be more 
+> > flexible and you dispute that they will be less intrusive than 
+> > markups for static tracing?
+> 
+> No, I'm saying that the flexibility of the markup is not tied to the 
+> instrumentation "grab" mechanism (direct call or binary editing.) 
+> That's the "arbitrary" I'm talking about.
 
-Signed-off-by: Linas Vepstas <linas@austin.ibm.com>
+ok, then i'd like to dispute your point. Contrary to your statement 
+there is a very fundamental difference between "static tracing" (static 
+call, which relies on compile-time insertion of trace points) and 
+"dynamic tracing" (which can insert trace points almost anywhere) - 
+_even if both use in-source markers_.
 
-----
- arch/powerpc/platforms/pseries/eeh_driver.c |   81 ++++++++++++++++++++++------
- 1 file changed, 64 insertions(+), 17 deletions(-)
+The fundamental difference is this: dynamic tracing has full access to 
+the full environment of the code that it taps into _at the time of 
+tracepoint activation_, while static tracing has to get all its context 
+during compilation.
 
-Index: linux-2.6.18-rc7-git1/arch/powerpc/platforms/pseries/eeh_driver.c
-===================================================================
---- linux-2.6.18-rc7-git1.orig/arch/powerpc/platforms/pseries/eeh_driver.c	2006-09-14 15:17:15.000000000 -0500
-+++ linux-2.6.18-rc7-git1/arch/powerpc/platforms/pseries/eeh_driver.c	2006-09-14 17:54:15.000000000 -0500
-@@ -100,14 +100,38 @@ static void eeh_report_error(struct pci_
- 		PCI_DN(dn)->eeh_mode |= EEH_MODE_IRQ_DISABLED;
- 		disable_irq_nosync(dev->irq);
- 	}
--	if (!driver->err_handler)
--		return;
--	if (!driver->err_handler->error_detected)
-+	if (!driver->err_handler ||
-+	    !driver->err_handler->error_detected)
- 		return;
- 
- 	rc = driver->err_handler->error_detected (dev, pci_channel_io_frozen);
- 	if (*res == PCI_ERS_RESULT_NONE) *res = rc;
--	if (*res == PCI_ERS_RESULT_NEED_RESET) return;
-+	if (*res == PCI_ERS_RESULT_DISCONNECT &&
-+	     rc == PCI_ERS_RESULT_NEED_RESET) *res = rc;
-+}
-+
-+/**
-+ * eeh_report_mmio_enabled - tell drivers that MMIO has been enabled
-+ *
-+ * Report an EEH error to each device driver, collect up and
-+ * merge the device driver responses. Cumulative response
-+ * passed back in "userdata".
-+ */
-+
-+static void eeh_report_mmio_enabled(struct pci_dev *dev, void *userdata)
-+{
-+	enum pci_ers_result rc, *res = userdata;
-+	struct pci_driver *driver = dev->driver;
-+
-+	// dev->error_state = pci_channel_mmio_enabled;
-+
-+	if (!driver ||
-+	    !driver->err_handler ||
-+	    !driver->err_handler->mmio_enabled)
-+		return;
-+
-+	rc = driver->err_handler->mmio_enabled (dev);
-+	if (*res == PCI_ERS_RESULT_NONE) *res = rc;
- 	if (*res == PCI_ERS_RESULT_DISCONNECT &&
- 	     rc == PCI_ERS_RESULT_NEED_RESET) *res = rc;
- }
-@@ -118,6 +142,7 @@ static void eeh_report_error(struct pci_
- 
- static void eeh_report_reset(struct pci_dev *dev, void *userdata)
+To make my point easier to understand, consider the following example: 
+we want to tap into the middle of a global_function():
+
+ int global_function(int arg1, int arg2, int arg3)
  {
-+	enum pci_ers_result rc, *res = userdata;
- 	struct pci_driver *driver = dev->driver;
- 	struct device_node *dn = pci_device_to_OF_node(dev);
- 
-@@ -128,12 +153,14 @@ static void eeh_report_reset(struct pci_
- 		PCI_DN(dn)->eeh_mode &= ~EEH_MODE_IRQ_DISABLED;
- 		enable_irq(dev->irq);
- 	}
--	if (!driver->err_handler)
--		return;
--	if (!driver->err_handler->slot_reset)
-+	if (!driver->err_handler ||
-+	    !driver->err_handler->slot_reset)
- 		return;
- 
--	driver->err_handler->slot_reset(dev);
-+	rc = driver->err_handler->slot_reset(dev);
-+	if (*res == PCI_ERS_RESULT_NONE) *res = rc;
-+	if (*res == PCI_ERS_RESULT_DISCONNECT &&
-+	     rc == PCI_ERS_RESULT_NEED_RESET) *res = rc;
+         ... [lots of code] ...
+
+         x = func2();
+
+         ... [lots of code] ...
  }
- 
- /**
-@@ -362,23 +389,43 @@ struct pci_dn * handle_eeh_events (struc
- 			goto hard_fail;
- 	}
- 
--	/* If any device called out for a reset, then reset the slot */
--	if (result == PCI_ERS_RESULT_NEED_RESET) {
--		rc = eeh_reset_device(frozen_pdn, NULL);
--		if (rc)
--			goto hard_fail;
--		pci_walk_bus(frozen_bus, eeh_report_reset, NULL);
-+	/* If all devices reported they can proceed, then re-enable MMIO */
-+	if (result == PCI_ERS_RESULT_CAN_RECOVER) {
-+		rc = rtas_pci_enable(frozen_pdn, EEH_THAW_MMIO);
-+
-+		if (rc) {
-+			result = PCI_ERS_RESULT_NEED_RESET;
-+		} else {
-+			result = PCI_ERS_RESULT_NONE;
-+			pci_walk_bus(frozen_bus, eeh_report_mmio_enabled, &result);
-+		}
- 	}
- 
--	/* If all devices reported they can proceed, the re-enable PIO */
-+	/* If all devices reported they can proceed, then re-enable DMA */
- 	if (result == PCI_ERS_RESULT_CAN_RECOVER) {
--		/* XXX Not supported; we brute-force reset the device */
-+		rc = rtas_pci_enable(frozen_pdn, EEH_THAW_DMA);
-+
-+		if (rc)
-+			result = PCI_ERS_RESULT_NEED_RESET;
-+	}
-+
-+	/* If any device has a hard failure, then shut off everything. */
-+	if (result == PCI_ERS_RESULT_DISCONNECT)
-+		goto hard_fail;
-+
-+	/* If any device called out for a reset, then reset the slot */
-+	if (result == PCI_ERS_RESULT_NEED_RESET) {
- 		rc = eeh_reset_device(frozen_pdn, NULL);
- 		if (rc)
- 			goto hard_fail;
--		pci_walk_bus(frozen_bus, eeh_report_reset, NULL);
-+		result = PCI_ERS_RESULT_NONE;
-+		pci_walk_bus(frozen_bus, eeh_report_reset, &result);
- 	}
- 
-+	/* All devices should claim they have recovered by now. */
-+	if (result != PCI_ERS_RESULT_RECOVERED)
-+		goto hard_fail;
-+
- 	/* Tell all device drivers that they can resume operations */
- 	pci_walk_bus(frozen_bus, eeh_report_resume, NULL);
- 
+
+We want to trace the function right after 'x' has been assigned, and we 
+want to trace an event_A, with parameters: arg1, arg2, arg3 and x. This 
+is a pretty common scenario. Ok so far?
+
+here is how the markup looks like under static tracing:
+
+ int global_function(int arg1, int arg2, int arg3)
+ {
+         ... [lots of code] ...
+
+         x = func2();
+         D(event_A, arg1, arg2, arg3, x);
+
+         ... [lots of code] ...
+ }
+
+that's what you'd expect, right? This is pretty common too, up to this 
+point.
+
+now how could the markup look like for a dynamic tracepoint:
+
+ int global_function(int arg1, int arg2, int arg3)
+ {
+         ... [lots of code] ...
+
+         x = func2();
+         D(event_A, x);
+
+         ... [lots of code] ...
+ }
+
+Note: there's no (arg1, arg2, arg3) passed to the markup! Why? Because 
+SystemTap has full access to the function's arguments and in this 
+particular case it's simply not necessary to reference them explicitly.
+So the markup has less of an overhead because it does not 'touch' arg1,
+arg2, arg3 if the tracepoint is not active [which is the common case we
+optimize for].
+
+Furthermore, the markup is also visually less intrusive.
+
+But better than that, the markup could look like this as well:
+
+ int global_function(int arg1, int arg2, int arg3)
+ {
+         ... [lots of code] ...
+
+         x = func2();
+
+         ... [lots of code] ...
+ }
+
+right, no markup at all, but in a script somewhere we'd have:
+
+  insert.trace(global_function: "x = func2();", after);
+
+or maybe even in a script, annotated in patch format, so that the 
+context of the tapped code is captured too.
+
+so, as a result: the dynamic markup() does the same, but has less impact 
+on the compiled code (less parameters touched), and is more flexible in 
+terms of attachment to the source code.
+
+Can we do any of this with the static tracepoint? We cannot, 
+fundamentally! So if we allowed static tracers to access that tracepoint 
+anytime, we could never make things more intelligent there in the 
+future!
+
+	Ingo

@@ -1,88 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750848AbWIORoR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932127AbWIORrH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750848AbWIORoR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Sep 2006 13:44:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751257AbWIORoR
+	id S932127AbWIORrH (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Sep 2006 13:47:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932124AbWIORrH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Sep 2006 13:44:17 -0400
-Received: from mail.gmx.de ([213.165.64.20]:20138 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1750848AbWIORoQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Sep 2006 13:44:16 -0400
-X-Authenticated: #5039886
-Date: Fri, 15 Sep 2006 19:44:12 +0200
-From: =?iso-8859-1?Q?Bj=F6rn?= Steinbrink <B.Steinbrink@gmx.de>
-To: Rohit Seth <rohitseth@google.com>
-Cc: Rolf Eike Beer <eike-kernel@sf-tec.de>, Andrew Morton <akpm@osdl.org>,
-       devel@openvz.org, CKRM-Tech <ckrm-tech@lists.sourceforge.net>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [Patch 01/05]- Containers: Documentation on using containers
-Message-ID: <20060915174412.GB5285@atjola.homenet>
-Mail-Followup-To: =?iso-8859-1?Q?Bj=F6rn?= Steinbrink <B.Steinbrink@gmx.de>,
-	Rohit Seth <rohitseth@google.com>,
-	Rolf Eike Beer <eike-kernel@sf-tec.de>,
-	Andrew Morton <akpm@osdl.org>, devel@openvz.org,
-	CKRM-Tech <ckrm-tech@lists.sourceforge.net>,
-	linux-kernel <linux-kernel@vger.kernel.org>
-References: <1158284314.5408.146.camel@galaxy.corp.google.com> <200609150815.19917.eike-kernel@sf-tec.de> <1158338725.12311.25.camel@galaxy.corp.google.com>
+	Fri, 15 Sep 2006 13:47:07 -0400
+Received: from chain.digitalkingdom.org ([64.81.49.134]:32132 "EHLO
+	chain.digitalkingdom.org") by vger.kernel.org with ESMTP
+	id S932127AbWIORrF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Sep 2006 13:47:05 -0400
+Date: Fri, 15 Sep 2006 10:47:01 -0700
+To: Bharath Ramesh <krosswindz@gmail.com>
+Cc: Lee Revell <rlrevell@joe-job.com>, linux-kernel@vger.kernel.org
+Subject: Re: Same MCE on 4 working machines (was Re: Early boot hang on recent 2.6 kernels (> 2.6.3), on x86-64 with 16gb of RAM)
+Message-ID: <20060915174701.GN4610@chain.digitalkingdom.org>
+References: <20060912223258.GM4612@chain.digitalkingdom.org> <20060914190548.GI4610@chain.digitalkingdom.org> <1158261249.7948.111.camel@mindpipe> <20060914191555.GJ4610@chain.digitalkingdom.org> <c775eb9b0609142242r45d184d2h8d7edd7dd5bc2a26@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <1158338725.12311.25.camel@galaxy.corp.google.com>
-User-Agent: Mutt/1.5.13 (2006-08-11)
-X-Y-GMX-Trusted: 0
+In-Reply-To: <c775eb9b0609142242r45d184d2h8d7edd7dd5bc2a26@mail.gmail.com>
+User-Agent: Mutt/1.5.12-2006-07-14
+From: Robin Lee Powell <rlpowell@digitalkingdom.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2006.09.15 09:45:25 -0700, Rohit Seth wrote:
-> On Fri, 2006-09-15 at 08:15 +0200, Rolf Eike Beer wrote:
-> > Rohit Seth wrote:
-> > > This patch contains the Documentation for using containers.
-> > 
-> > > +5- Remove a task from container
-> > > +	echo <pid> rmtask
-> > 
-> > echo <pid> > rmtask?
-> > 
-> 
-> rmtask is an attribute defined in test_container directory.  So, first
-> you have to cd into container directory
-> (cd /mnt/configfs/containers/test_container and then execute this
-> command)
+I didn't know about mce=bootlog.  Neat.  It doesn't change anything,
+though.  I've tried noacpi and many variants thereon; no change.
 
-The > is missing in the patch though, guess that's what Rolf wanted to
-point out ;)
+The most severe set of options I have record of trying is:
 
-> 
-> > Please also give a short description what containers are for. From what I read 
-> > here I can only guess it's about gettings some statistics about a group of 
-> > tasks.
-> 
-> Containers allow different workloads to be run on the same platform with
-> limits defined on per container basis.  This basically allows a single
-> platform to be (soft) partitioned among different workloads (each of
-> which could be running many tasks).  The limits could be amount of
-> memory, number of tasks among other features.  These two features are
-> already implemented in the patch set that I posted.  But it is possible
-> to add other controllers like CPU that allows only finite amount of time
-> to the processes belonging to a container.
-> 
-> Currently this patch set is only tracking user memory (both file based
-> and anonymous).  The memory handler is currently deactivating pages
-> belonging to a container that has gone over the limit. Even though this
-> allows containers to go over board their limits but 1- once they are
-> over the limit then they run in degraded manner and 2- if there is any
-> memory pressure then the (extra) pages belonging to this container are
-> the prime candidates for swapping (for example).  The statistics that
-> are shown in each container directory are the current values of each
-> resource consumption.
-> 
-> Please let me know if you need any more specific information about the
-> patch set.
+nosmp noapic mem=512M ide=nodma apm=off acpi=off desktop showopts
 
-A general description for the containers needs to go into Documentation/
-along with the usage example, so that potential users know what to do
-with it. The above seems fine, just remove the "this patch" references.
+but there were lots of others.
 
-Björn
+mce=nobootlog doesn't help either, for the record.
+
+If mce=bootlog actually sticks logs somewhere I should retrieve and
+show to you, please tell me; ./Documentation/x86_64/boot-options.txt
+doesn't say anything about it.
+
+-Robin
+
+On Fri, Sep 15, 2006 at 01:42:49AM -0400, Bharath Ramesh wrote:
+> Have you tried booting newer kernel post 2.6.13 with the boot
+> option mce=bootlog and see if it goes past the current failure.
+> Try the same with with noacpi.
+> 
+> Bharath
+> 
+> On 9/14/06, Robin Lee Powell <rlpowell@digitalkingdom.org> wrote:
+> >On Thu, Sep 14, 2006 at 03:14:08PM -0400, Lee Revell wrote:
+> >> On Thu, 2006-09-14 at 12:05 -0700, Robin Lee Powell wrote:
+> >> > This isn't just me.  All the Debian kernels hang too.  I've tried
+> >> > all of the following:
+> >> >
+> >> > Linux version 2.6.8-12-amd64-generic (buildd@bester) (gcc version
+> >> > 3.4.4 20050314 (prerelease) (Debian 3.4.3-13)) #1 Mon Jul 17 01:12:05
+> >> > UTC 2006
+> >> >
+> >> > Linux version 2.6.8-12-amd64-k8 (buildd@bester) (gcc version 3.4.4
+> >> > 20050314 (prerelease) (Debian 3.4.3-13)) #1 Mon Jul 17 01:39:03 UTC
+> >> > 2006
+> >> >
+> >> > Linux version 2.6.8-12-amd64-k8-smp (buildd@bester) (gcc version 3.4.4
+> >> > 20050314 (prerelease) (Debian 3.4.3-13)) #1 SMP Mon Jul 17 00:17:20
+> >> > UTC 2006
+> >>
+> >> Have you tried a *recent* 2.6 kernel like 2.6.17 or 2.6.18-rc*?
+> >>
+> >> 2.6.8 is way too old to debug.
+> >
+> >Yes; that's what my previous post was about.  See
+> >http://lkml.org/lkml/2006/9/12/300
+> >
+> >I was doing 2.6.17.11, which was kernel.org's latest stable at the
+> >time I started all this.
+> >
+> >I tried the Debian kernels just to show that it wasn't just me
+> >screwing up my kernel configs.
+> >
+> >These machines will not boot an any kernel > 2.6.3 that I have
+> >tried, and I've tried about 8 different ones at this point.
+> >
+> >I noted in the release notes for 2.6.4 that the mce code was
+> >entirely replaced; I'm suspecting that's the problem, but I have no
+> >idea how to debug it.  Whether the problem is the kernel or the
+> >motherboard is also certainly open to debate.
+> >
+> >-Robin
+> >
+> >--
+> >http://www.digitalkingdom.org/~rlpowell/ *** http://www.lojban.org/
+> >Reason #237 To Learn Lojban: "Homonyms: Their Grate!"
+> >Proud Supporter of the Singularity Institute - http://singinst.org/
+> >-
+> >To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> >the body of a message to majordomo@vger.kernel.org
+> >More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> >Please read the FAQ at  http://www.tux.org/lkml/
+> >
+
+-- 
+http://www.digitalkingdom.org/~rlpowell/ *** http://www.lojban.org/
+Reason #237 To Learn Lojban: "Homonyms: Their Grate!"
+Proud Supporter of the Singularity Institute - http://singinst.org/

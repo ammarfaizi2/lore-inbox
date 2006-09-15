@@ -1,60 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932350AbWIOXA0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932351AbWIOXDM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932350AbWIOXA0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Sep 2006 19:00:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932351AbWIOXAZ
+	id S932351AbWIOXDM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Sep 2006 19:03:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932352AbWIOXDM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Sep 2006 19:00:25 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:44519 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932350AbWIOXAY (ORCPT
+	Fri, 15 Sep 2006 19:03:12 -0400
+Received: from mail.kroah.org ([69.55.234.183]:49627 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S932351AbWIOXDL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Sep 2006 19:00:24 -0400
-To: Ingo Molnar <mingo@elte.hu>
-Cc: "Jose R. Santos" <jrs@us.ibm.com>,
-       Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
-       Roman Zippel <zippel@linux-m68k.org>, Andrew Morton <akpm@osdl.org>,
-       tglx@linutronix.de, karim@opersys.com, Paul Mundt <lethal@linux-sh.org>,
-       Jes Sorensen <jes@sgi.com>, linux-kernel@vger.kernel.org,
-       Christoph Hellwig <hch@infradead.org>, Ingo Molnar <mingo@redhat.com>,
-       Greg Kroah-Hartman <gregkh@suse.de>, Tom Zanussi <zanussi@us.ibm.com>,
-       ltt-dev@shafik.org, Michel Dagenais <michel.dagenais@polymtl.ca>
-Subject: Re: [PATCH 0/11] LTTng-core (basic tracing infrastructure) 0.5.108
-References: <450AB957.2050206@opersys.com>
-	<20060915142836.GA9288@localhost.usen.ad.jp>
-	<450ABE08.2060107@opersys.com>
-	<1158332447.5724.423.camel@localhost.localdomain>
-	<20060915111644.c857b2cf.akpm@osdl.org>
-	<20060915181907.GB17581@elte.hu>
-	<Pine.LNX.4.64.0609152111030.6761@scrub.home>
-	<20060915200559.GB30459@elte.hu> <20060915202233.GA23318@Krystal>
-	<450B164B.7090404@us.ibm.com> <20060915220345.GC12789@elte.hu>
-From: fche@redhat.com (Frank Ch. Eigler)
-Date: 15 Sep 2006 18:59:19 -0400
-In-Reply-To: <20060915220345.GC12789@elte.hu>
-Message-ID: <y0m3basg2ig.fsf@ton.toronto.redhat.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.3
+	Fri, 15 Sep 2006 19:03:11 -0400
+Date: Fri, 15 Sep 2006 15:57:34 -0700
+From: Greg KH <greg@kroah.com>
+To: Alasdair G Kergon <agk@redhat.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, Hannes Reinecke <hare@suse.de>,
+       Kay Sievers <kay.sievers@vrfy.org>
+Subject: Re: [PATCH 15/25] dm: add uevent change event on resume
+Message-ID: <20060915225734.GA15816@kroah.com>
+References: <20060914214729.GW3928@agk.surrey.redhat.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060914214729.GW3928@agk.surrey.redhat.com>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Sep 14, 2006 at 10:47:29PM +0100, Alasdair G Kergon wrote:
+> From: Hannes Reinecke <hare@suse.de>
+> 
+> Device-mapper devices are not accessible until a 'resume' ioctl has been
+> issued.  For userspace to find out when this happens we need to generate an
+> uevent for udev to take appropriate action.
+> 
+> As discussed at OLS we should send 'change' events for 'resume'.
+> We can think of no useful purpose served by also having 'suspend' events.
+> 
+> Signed-off-by: Hannes Reinecke <hare@suse.de>
+> Signed-off-by: Kay Sievers <kay.sievers@vrfy.org>
+> Signed-off-by: Alasdair G Kergon <agk@redhat.com>
 
-Ingo Molnar <mingo@elte.hu> writes:
+I was at that meeting for a bit (had to chase after my son...) so feel
+free to add:
+	Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 
-> [...]  NOTE: i still accept the temporary (or non-temporary)
-> introduction of static markers, to help dynamic tracing. But my
-> expectation is that these markers will be less intrusive than static
-> tracepoints, and a lot more flexible.
+from me to this patch.
 
-It seems like an agreement on this is coming together.  You and Karim
-may be in violent agreement, even if others haven't quite come around:
+thanks,
 
-Let us design a static marker mechanism that can be coupled at run
-time either to a dynamic system such as systemtap, or by a specialized
-tracing system such as lttnng (!).  Then "markers" === "static
-instrumentation", for purposes of the kernel developer.  If the
-markers are lightweight enough, then a distribution kernel can afford
-keeping them compiled in.
-
-
-- FChE
+greg k-h

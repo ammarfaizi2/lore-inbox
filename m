@@ -1,63 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751643AbWIOUAN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751664AbWIOUBG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751643AbWIOUAN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Sep 2006 16:00:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751654AbWIOUAN
+	id S1751664AbWIOUBG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Sep 2006 16:01:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751675AbWIOUBG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Sep 2006 16:00:13 -0400
-Received: from tomts36-srv.bellnexxia.net ([209.226.175.93]:40404 "EHLO
-	tomts36-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id S1751643AbWIOUAL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Sep 2006 16:00:11 -0400
-Date: Fri, 15 Sep 2006 16:00:09 -0400
-From: Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>
-To: Andrew Morton <akpm@osdl.org>
-Cc: tglx@linutronix.de, karim@opersys.com, Paul Mundt <lethal@linux-sh.org>,
-       Jes Sorensen <jes@sgi.com>, Roman Zippel <zippel@linux-m68k.org>,
-       Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
-       Christoph Hellwig <hch@infradead.org>, Ingo Molnar <mingo@redhat.com>,
-       Greg Kroah-Hartman <gregkh@suse.de>, Tom Zanussi <zanussi@us.ibm.com>,
+	Fri, 15 Sep 2006 16:01:06 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:49638 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751664AbWIOUBE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Sep 2006 16:01:04 -0400
+Date: Fri, 15 Sep 2006 12:59:34 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: karim@opersys.com
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Roman Zippel <zippel@linux-m68k.org>,
+       Tim Bird <tim.bird@am.sony.com>, Ingo Molnar <mingo@elte.hu>,
+       Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
+       linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
+       Ingo Molnar <mingo@redhat.com>, Greg Kroah-Hartman <gregkh@suse.de>,
+       Thomas Gleixner <tglx@linutronix.de>, Tom Zanussi <zanussi@us.ibm.com>,
        ltt-dev@shafik.org, Michel Dagenais <michel.dagenais@polymtl.ca>
 Subject: Re: [PATCH 0/11] LTTng-core (basic tracing infrastructure) 0.5.108
-Message-ID: <20060915200009.GB7133@Krystal>
-References: <20060915132052.GA7843@localhost.usen.ad.jp> <Pine.LNX.4.64.0609151535030.6761@scrub.home> <20060915135709.GB8723@localhost.usen.ad.jp> <450AB5F9.8040501@opersys.com> <450AB506.30802@sgi.com> <450AB957.2050206@opersys.com> <20060915142836.GA9288@localhost.usen.ad.jp> <450ABE08.2060107@opersys.com> <1158332447.5724.423.camel@localhost.localdomain> <20060915111644.c857b2cf.akpm@osdl.org>
+Message-Id: <20060915125934.6c82b625.akpm@osdl.org>
+In-Reply-To: <450AEDF2.3070504@opersys.com>
+References: <20060914033826.GA2194@Krystal>
+	<20060914112718.GA7065@elte.hu>
+	<Pine.LNX.4.64.0609141537120.6762@scrub.home>
+	<20060914135548.GA24393@elte.hu>
+	<Pine.LNX.4.64.0609141623570.6761@scrub.home>
+	<20060914171320.GB1105@elte.hu>
+	<Pine.LNX.4.64.0609141935080.6761@scrub.home>
+	<20060914181557.GA22469@elte.hu>
+	<4509B03A.3070504@am.sony.com>
+	<1158320406.29932.16.camel@localhost.localdomain>
+	<Pine.LNX.4.64.0609151339190.6761@scrub.home>
+	<1158323938.29932.23.camel@localhost.localdomain>
+	<20060915104527.89396eaf.akpm@osdl.org>
+	<450AEDF2.3070504@opersys.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-In-Reply-To: <20060915111644.c857b2cf.akpm@osdl.org>
-X-Editor: vi
-X-Info: http://krystal.dyndns.org:8080
-X-Operating-System: Linux/2.4.32-grsec (i686)
-X-Uptime: 15:50:30 up 23 days, 16:59,  2 users,  load average: 0.38, 0.41, 0.55
-User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Andrew Morton (akpm@osdl.org) wrote:
-> Of course, it they are properly designed, the one set of tracepoints could
-> be used by different tracing backends - that allows us to separate the
-> concepts of "tracepoints" and "tracing backends".
+On Fri, 15 Sep 2006 14:16:18 -0400
+Karim Yaghmour <karim@opersys.com> wrote:
 
-If I try to develop your idea a little further, we could this of dividing the
-tracing problem into four layers :
+> > Although IMO this is a bit lame - it is quite possible to go into
+> > SexySystemTapGUI, click on a particular kernel file-n-line and have
+> > systemtap userspace keep track of that place in the kernel source across
+> > many kernel versions: all it needs to do is to remember the file+line and a
+> > snippet of the surrounding text, for readjustment purposes.
+> 
+> Sure, if you're a kernel developer, but as I've explained numberous
+> times in this thread, there are far more many users of tracing than
+> kernel developers.
 
-- tracepoints (where the code is instrumented)
-  - identifying code
-  - accessing data surrounding the code
-- tracing backend (how to add the tracepoints)
-- tracing infrastructure (what code will serialize the information)
-- data extraction (getting the data out to disk, network, ...)
+Disagree.  I was describing a means by which a set of systemtap trace
+points could be described.  A means which would allow those tracepoints to
+be maintained without human intervention as the kernel source changes. 
+(ie: use a similar algorithm and representation as patch(1)).
 
-I think that, if we agree on this segmentation of the problem, this thread is
-generally debating on the tracing backends and their respective limitations.
-I just want to point out that the patch I have submitted adresses mainly the
-"tracing infrastructure" and "data extraction" topics.
+Presumably those tracepoints would have been provided by a kernel developer
+and delivered to non-developers, just like static tracepoints.
 
-Regards,
+> > (*) I don't buy the performance arguments: kprobes are quick, and I'd
+> > expect that the CPU consumption of the destination of the probe is
+> > comparable to or higher than the cost of taking the initial trap.
+> 
+> Please see Mathieu's earlier posting of numbers comparing kprobes to
+> static points. Nevertheless, I do not believe that the use of kprobes
+> should be pitted against static instrumentation, the two are
+> orthogonal.
 
-Mathieu
-
-
-OpenPGP public key:              http://krystal.dyndns.org:8080/key/compudj.gpg
-Key fingerprint:     8CD5 52C3 8E3C 4140 715F  BA06 3F25 A8FE 3BAE 9A68 
+People have been speeding up kprobes in recent kernels, to avoid the int3
+overhead.  I don't recall seeing how effective that has been.

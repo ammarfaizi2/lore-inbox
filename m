@@ -1,81 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932108AbWIOTdZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751497AbWIOTeT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932108AbWIOTdZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Sep 2006 15:33:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751500AbWIOTdZ
+	id S1751497AbWIOTeT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Sep 2006 15:34:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751501AbWIOTeT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Sep 2006 15:33:25 -0400
-Received: from mail.windriver.com ([147.11.1.11]:25520 "EHLO mail.wrs.com")
-	by vger.kernel.org with ESMTP id S1751497AbWIOTdY (ORCPT
+	Fri, 15 Sep 2006 15:34:19 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:15839 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751497AbWIOTeS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Sep 2006 15:33:24 -0400
-Date: Fri, 15 Sep 2006 15:33:23 -0400
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] sbc8560 fixes
-Message-ID: <20060915193323.GA25614@lucciola.windriver.com>
-MIME-Version: 1.0
-Content-Type: multipart/mixed; boundary="wRRV7LY7NUeQGEoC"
-Content-Disposition: inline
-User-Agent: Mutt/1.5.13 (2006-08-11)
-From: Amy Fong <amy.fong@windriver.com>
-X-OriginalArrivalTime: 15 Sep 2006 19:33:24.0397 (UTC) FILETIME=[CF5D6DD0:01C6D8FD]
+	Fri, 15 Sep 2006 15:34:18 -0400
+Date: Fri, 15 Sep 2006 12:33:40 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Dave Jones <davej@redhat.com>
+Cc: Jarek Poplawski <jarkao2@o2.pl>, Andi Kleen <ak@muc.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] mpparse.c:231: warning: comparison is always false
+Message-Id: <20060915123340.fd01fec4.akpm@osdl.org>
+In-Reply-To: <20060915152349.GA22233@redhat.com>
+References: <20060913065010.GA2110@ff.dom.local>
+	<20060914181754.bd963f6d.akpm@osdl.org>
+	<20060915081123.GA2572@ff.dom.local>
+	<20060915012302.d459c2dc.akpm@osdl.org>
+	<20060915152349.GA22233@redhat.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 15 Sep 2006 11:23:49 -0400
+Dave Jones <davej@redhat.com> wrote:
 
---wRRV7LY7NUeQGEoC
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+> On Fri, Sep 15, 2006 at 01:23:02AM -0700, Andrew Morton wrote:
+> 
+>  > > > Thanks.   Andi has already queued a similar patch.
+>  > > > 
+>  > > > Andi, you might as well scoot that upstream, otherwise we'll get lots of
+>  > > > emails about it.
+>  > > ...
+>  > > > > +#if 0xFF >= MAX_MP_BUSSES
+>  > > > >  	if (m->mpc_busid >= MAX_MP_BUSSES) {
+>  > > I don't know how Andi has fixed it,
+>  > Same thing.  (He has `#if MAX_MP_BUSSES < 256').
+> 
+> How can this be the right the right thing to do ?
+> It should *never* be >=256. mach-summit/mach-generic need fixing
+> to be 255, not this ridiculous band-aid.  Where did 260 come from anyway?
+>  
 
-[PATCH] sbc8560 fixes
+commit f0bacaf5cec4e677a00b5ab06d95664d03a30f7a
+Author: akpm <akpm>
+Date:   Mon Apr 12 20:06:32 2004 +0000
 
-This patch makes changes required to fix compile errors in the sbc8560 target.
+    [PATCH] summmit: increase MAX_MP_BUSSES
+    
+    From: James Cleverdon <jamesclv@us.ibm.com>
+    
+    Bump up MAX_MP_BUSSES for summit/generic subarch to cope with big IBM x440
+    systems.
+    
+    BKrev: 407af6c8l8rvwRmEU-JHTS98MurIZA
 
-Kernel version:  linux-2.6.18-rc6
-
-
---wRRV7LY7NUeQGEoC
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: attachment; filename="sbc8560.diff"
-
-Index: linux-2.6.18-rc6/arch/ppc/platforms/85xx/sbc8560.h
-===================================================================
---- linux-2.6.18-rc6.orig/arch/ppc/platforms/85xx/sbc8560.h
-+++ linux-2.6.18-rc6/arch/ppc/platforms/85xx/sbc8560.h
-@@ -14,6 +14,7 @@
- #define __MACH_SBC8560_H__
-  
- #include <platforms/85xx/sbc85xx.h>
-+#include <asm/irq.h>
+diff --git a/include/asm-i386/mach-generic/mach_mpspec.h b/include/asm-i386/mach-generic/mach_mpspec.h
+index ef10cd2..fbb6a40 100644
+--- a/include/asm-i386/mach-generic/mach_mpspec.h
++++ b/include/asm-i386/mach-generic/mach_mpspec.h
+@@ -8,6 +8,8 @@ #define MAX_APICS 256
  
- #define CPM_MAP_ADDR    (CCSRBAR + MPC85xx_CPM_OFFSET)
-  
-Index: linux-2.6.18-rc6/arch/ppc/platforms/85xx/sbc85xx.h
-===================================================================
---- linux-2.6.18-rc6.orig/arch/ppc/platforms/85xx/sbc85xx.h
-+++ linux-2.6.18-rc6/arch/ppc/platforms/85xx/sbc85xx.h
-@@ -49,4 +49,22 @@
+ #define MAX_IRQ_SOURCES 256
  
- #define MPC85XX_PCI1_IO_SIZE	0x01000000
+-#define MAX_MP_BUSSES 32
++/* Summit or generic (i.e. installer) kernels need lots of bus entries. */
++/* Maximum 256 PCI busses, plus 1 ISA bus in each of 4 cabinets. */
++#define MAX_MP_BUSSES 260
  
-+/* FCC1 Clock Source Configuration.  These can be
-+ * redefined in the board specific file.
-+ *    Can only choose from CLK9-12 */
-+#define F1_RXCLK       12
-+#define F1_TXCLK       11
-+
-+/* FCC2 Clock Source Configuration.  These can be
-+ * redefined in the board specific file.
-+ *    Can only choose from CLK13-16 */
-+#define F2_RXCLK       13
-+#define F2_TXCLK       14
-+
-+/* FCC3 Clock Source Configuration.  These can be
-+ * redefined in the board specific file.
-+ *    Can only choose from CLK13-16 */
-+#define F3_RXCLK       15
-+#define F3_TXCLK       16
-+
- #endif /* __PLATFORMS_85XX_SBC85XX_H__ */
+ #endif /* __ASM_MACH_MPSPEC_H */
+diff --git a/include/asm-i386/mach-summit/mach_mpspec.h b/include/asm-i386/mach-summit/mach_mpspec.h
+index ef10cd2..bc8f717 100644
+--- a/include/asm-i386/mach-summit/mach_mpspec.h
++++ b/include/asm-i386/mach-summit/mach_mpspec.h
+@@ -8,6 +8,7 @@ #define MAX_APICS 256
+ 
+ #define MAX_IRQ_SOURCES 256
+ 
+-#define MAX_MP_BUSSES 32
++/* Maximum 256 PCI busses, plus 1 ISA bus in each of 4 cabinets. */
++#define MAX_MP_BUSSES 260
+ 
+ #endif /* __ASM_MACH_MPSPEC_H */
 
---wRRV7LY7NUeQGEoC--

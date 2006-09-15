@@ -1,79 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932275AbWIOVVY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932276AbWIOVYb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932275AbWIOVVY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Sep 2006 17:21:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932276AbWIOVVY
+	id S932276AbWIOVYb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Sep 2006 17:24:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932277AbWIOVYb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Sep 2006 17:21:24 -0400
-Received: from [62.205.161.221] ([62.205.161.221]:56279 "EHLO kir.sacred.ru")
-	by vger.kernel.org with ESMTP id S932275AbWIOVVX (ORCPT
+	Fri, 15 Sep 2006 17:24:31 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:14991 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932276AbWIOVYa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Sep 2006 17:21:23 -0400
-Message-ID: <450B1958.3020309@openvz.org>
-Date: Sat, 16 Sep 2006 01:21:28 +0400
-From: Kir Kolyshkin <kir@openvz.org>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060905)
-MIME-Version: 1.0
-To: rohitseth@google.com, devel@openvz.org
-CC: Kirill Korotaev <dev@sw.ru>, Rik van Riel <riel@redhat.com>,
-       vatsa@in.ibm.com, sekharan@us.ibm.com,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       CKRM-Tech <ckrm-tech@lists.sourceforge.net>, balbir@in.ibm.com,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andi Kleen <ak@suse.de>, Christoph Hellwig <hch@infradead.org>,
-       Andrey Savochkin <saw@sw.ru>, Matt Helsley <matthltc@us.ibm.com>,
-       Hugh Dickins <hugh@veritas.com>, Alexey Dobriyan <adobriyan@mail.ru>,
-       Oleg Nesterov <oleg@tv-sign.ru>
-Subject: Re: [Devel] Re: [ckrm-tech] [PATCH] BC:	resource	beancounters	(v4)
- (added	user memory)
-References: <44FD918A.7050501@sw.ru> <44FDAB81.5050608@in.ibm.com>	<44FEC7E4.7030708@sw.ru> <44FF1EE4.3060005@in.ibm.com>	<1157580371.31893.36.camel@linuxchandra> <45011CAC.2040502@openvz.org>	<1157743424.19884.65.camel@linuxchandra>	<1157751834.1214.112.camel@galaxy.corp.google.com>	<1157999107.6029.7.camel@linuxchandra>	<1158001831.12947.16.camel@galaxy.corp.google.com>	<20060912104410.GA28444@in.ibm.com>	<1158081752.20211.12.camel@galaxy.corp.google.com>	<1158105732.4800.26.camel@linuxchandra>	<1158108203.20211.52.camel@galaxy.corp.google.com>	<1158109991.4800.43.camel@linuxchandra>	<1158111218.20211.69.camel@galaxy.corp.google.com>	<1158186247.18927.11.camel@linuxchandra>  <450A71B1.8020009@sw.ru> <1158339160.12311.35.camel@galaxy.corp.google.com>
-In-Reply-To: <1158339160.12311.35.camel@galaxy.corp.google.com>
-Content-Type: text/plain; charset=KOI8-R
-Content-Transfer-Encoding: 7bit
-X-Greylist: Sender succeeded SMTP AUTH authentication, not delayed by milter-greylist-2.0.2 (kir.sacred.ru [62.205.161.221]); Sat, 16 Sep 2006 01:19:31 +0400 (MSD)
+	Fri, 15 Sep 2006 17:24:30 -0400
+Date: Fri, 15 Sep 2006 23:15:50 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Karim Yaghmour <karim@opersys.com>
+Cc: Roman Zippel <zippel@linux-m68k.org>, Thomas Gleixner <tglx@linutronix.de>,
+       Andrew Morton <akpm@osdl.org>, Paul Mundt <lethal@linux-sh.org>,
+       Jes Sorensen <jes@sgi.com>,
+       Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
+       linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
+       Ingo Molnar <mingo@redhat.com>, Greg Kroah-Hartman <gregkh@suse.de>,
+       Tom Zanussi <zanussi@us.ibm.com>, ltt-dev@shafik.org,
+       Michel Dagenais <michel.dagenais@polymtl.ca>
+Subject: Re: [PATCH 0/11] LTTng-core (basic tracing infrastructure) 0.5.108
+Message-ID: <20060915211550.GB11291@elte.hu>
+References: <20060915142836.GA9288@localhost.usen.ad.jp> <450ABE08.2060107@opersys.com> <1158332447.5724.423.camel@localhost.localdomain> <20060915111644.c857b2cf.akpm@osdl.org> <1158348954.5724.481.camel@localhost.localdomain> <450B0585.5070700@opersys.com> <1158351780.5724.507.camel@localhost.localdomain> <Pine.LNX.4.64.0609152236010.6761@scrub.home> <20060915204812.GA6909@elte.hu> <450B1864.5060401@opersys.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <450B1864.5060401@opersys.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -2.9
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.9 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.4990]
+	-0.1 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rohit Seth wrote:
-> On Fri, 2006-09-15 at 13:26 +0400, Kirill Korotaev wrote:
->   
-> <...skipped...>
->   
->> for VMware which can reserve required amount of RAM for VM.
->>     
->
-> It is much easier to provide guarantees in complete virtual
-> environments.  But then you pay the cost in terms of performance.
->   
-"Complete virtual environments" vs. "contaners" is not [only] about
-performance! In the end, given a proper set of dirty and no-so-dirty
-hacks in software and hardware, their performance will be close to native.
 
-Containers vs. other virtualization types is more about utilization,
-density, scalability, portability.
+* Karim Yaghmour <karim@opersys.com> wrote:
 
-Speaking of guarantees, yes, guarantees is easy, you just reserve such
-amount of RAM for your VM and that is all. But the fact is usually some
-part of that RAM will not be utilized by this particular VM. But since
-it is reserved, it can not be utilized by other VMs -- and we end up
-just wasting some resources. Containers, given a proper resource
-management and configuration, can have some guarantees and still be able
-to utilize all the RAM available in the system. This difference can be
-metaphorically expressed as a house divided into rooms. Dividing walls
-can either be hard or flexible. With flexible walls, room (container)
-owner have a guarantee of minimal space in your room, but if a few
-guests come for a moment, the walls can move to make more space (up to
-the limit). So the flexibility is measured as the delta between a
-guarantee and a limit.
+> [...] Consider, though, that I'm factually explaining the real-life 
+> result of resistance to static instrumentation. [...]
 
-This flexibility leads to higher utilization, and this flexibility is
-one of the reasons for better density (a few times higher than that of a
-paravirtualization solution).
+with all due respect, do you realize the possibility that this 
+resistance might be a genuine technical opinion on my part that is 
+driven by the quality of the code being offered and by the conceptual 
+problems static tracing introduces in the future, as i see them? And 
+thus, maybe, what you wrote:
 
-I will not touch scalability and portability topics here to make things
-simpler.
-> I think we should punt on hard guarantees and fractions for the first
-> draft.  Keep the implementation simple.
->   
-Do I understand it right that with hard guarantees we loose the
-flexibility I have just described? If this is the case, I do not like it.
+" and instead use their corporate bodyweight to pressure/seduce kernel
+  developers working for them into pushing their new great [...] "
+
+could possibly be total, utter nonsense?
+
+	Ingo

@@ -1,63 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750926AbWIOHHT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750953AbWIOHMA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750926AbWIOHHT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Sep 2006 03:07:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750952AbWIOHHT
+	id S1750953AbWIOHMA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Sep 2006 03:12:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750960AbWIOHMA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Sep 2006 03:07:19 -0400
-Received: from hu-out-0506.google.com ([72.14.214.230]:24909 "EHLO
-	hu-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1750926AbWIOHHR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Sep 2006 03:07:17 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=jVb/2sDx1AS7VyFPfOJYe57G4HeY3eGh4Qq6VReSGyd49PEcMraSCVeqSll/nWFYXDKc4oqUNhYCZa5xCNrB6wHEqxkt6W0V8SY0Blpc5KSvom4JKAERstkKVyeH05d68ZJuCE/cRZ+K2urffaXTZp0HsEKpYknx2Mo5gcQRlx0=
-Message-ID: <a885b78b0609150007u239cf363l40dd122165f7b516@mail.gmail.com>
-Date: Fri, 15 Sep 2006 15:07:15 +0800
-From: "xixi lii" <xixi.limeng@gmail.com>
-To: "Jan Engelhardt" <jengelh@linux01.gwdg.de>
-Subject: Re: UDP question.
-Cc: "Sven-Haegar Koch" <haegar@sdinet.de>,
-       Linux-Kernel-Mailinglist <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.61.0609150833170.19096@yvahk01.tjqt.qr>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Fri, 15 Sep 2006 03:12:00 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:25240 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750921AbWIOHL7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Sep 2006 03:11:59 -0400
+Date: Fri, 15 Sep 2006 00:11:51 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: linux-mm@kvack.org, Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>, Mike Waychison <mikew@google.com>
+Subject: Re: [RFC] page fault retry with NOPAGE_RETRY
+Message-Id: <20060915001151.75f9a71b.akpm@osdl.org>
+In-Reply-To: <1158274508.14473.88.camel@localhost.localdomain>
+References: <1158274508.14473.88.camel@localhost.localdomain>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <a885b78b0609140900x385c9453n9ef25a936524dff7@mail.gmail.com>
-	 <Pine.LNX.4.64.0609150129150.21941@mercury.sdinet.de>
-	 <Pine.LNX.4.61.0609150833170.19096@yvahk01.tjqt.qr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2006/9/15, Jan Engelhardt <jengelh@linux01.gwdg.de>:
->
-> >> bind socket1.network adapter1...
-> >> bind socket2 network adapter2
->
-> > I am not really sure, but I think the bind to an adapter under linux only
-> > chooses the source ip, not really the adapter used to send the packets.
->
-> To explicitly send things through a specific interface, you need to use
-> some magic, like PF_RAW. ping for example is one program that will do
-> this (-I option).
->
-> > Did you check that the two destination ips have routes through different
-> > interfaces, and not go out through the same one?
->
-> One cannot have the same subnet on multiple interfaces, because ARP
-> queries will only be sent through the first one. You need br0 (or bond0
-> - depending on how you plan to plan your network) to make them one
-> interface.
->
->
-> Jan Engelhardt
-> --
+On Fri, 15 Sep 2006 08:55:08 +1000
+Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
 
-My two adapters has two different IP address, and I bind one IP on one socket,
-do you mean that I alloc two socket and bind different IP is not
-helpful? In fact, all the packet sent from two socket is go out by one
-network adapter?
+> in mm.h:
+> 
+>  #define NOPAGE_SIGBUS   (NULL)
+>  #define NOPAGE_OOM      ((struct page *) (-1))
+> +#define NOPAGE_RETRY	((struct page *) (-2))
+> 
+> and in memory.c, in do_no_page():
+> 
+> 
+>         /* no page was available -- either SIGBUS or OOM */
+>         if (new_page == NOPAGE_SIGBUS)
+>                 return VM_FAULT_SIGBUS;
+>         if (new_page == NOPAGE_OOM)
+>                 return VM_FAULT_OOM;
+> +       if (new_page == NOPAGE_RETRY)
+> +               return VM_FAULT_MINOR;
 
-xixi
+Google are using such a patch (Mike owns it).
+
+It is to reduce mmap_sem contention with threaded apps.  If one thread
+takes a major pagefault, it will perform a synchronous disk read while
+holding down_read(mmap_sem).  This causes any other thread which wishes to
+perform any mmap/munmap/mprotect/etc (which does down_write(mmap_sem)) to
+block behind that disk IO.  As you can understand, that can be pretty bad
+in the right circumstances.
+
+The patch modifies filemap_nopage() to look to see if it needs to block on
+the page coming uptodate and if so, it does up_read(mmap_sem);
+wait_on_page_locked(); return NOPAGE_RETRY.  That causes the top-level
+do_page_fault() code to rerun the entire pagefault.
+
+It hasn't been submitted for upstream yet because
+
+a) To avoid livelock possibilities (page reclaim, looping FADV_DONTNEED,
+   etc) it only does the retry a single time.  After that it falls back to
+   the traditional synchronous-read-inside-mmap_sem approach.  A flag in
+   current->flags is used to detect the second attempt.  It keeps the patch
+   simple, but is a bit hacky.
+
+   To resolve this cleanly I'm thinking we change all the pagefault code
+   everywhere: instantiate a new `struct pagefault_args' in do_page_fault()
+   and pass that all around the place.  So all the pagefault code, all the
+   ->nopage handlers etc will take a single argument.
+
+   This will, I hope, result in less code, faster code and less stack
+   consumption.  It could also be used for things like the
+   lock-the-page-in-filemap_nopage() proposal: the ->nopage()
+   implementation could set a boolean in pagefault_args indicating whether
+   the page has been locked.
+
+   And, of course, fielmap_nopage could set another boolean in
+   pagefault_args to indicate that it has already tried to rerun the
+   pagefault once.
+
+b) It could be more efficient.  Most of the time, there's no need to
+   back all the way out of the pagefault handler and rerun the whole thing.
+   Because most of the time, nobody changed anything in the mm_struct.  We
+   _could_ just retake the mmap_sem after the page comes uptodate and, if
+   nothing has changed, proceed.  I see two ways of doing this:
+
+   - The simple way: look to see if any other processes are sharing
+     this mm_struct.  If not, just do the synchronous read inside mmap_sem.
+
+   - The better way: put a sequence counter in the mm_struct,
+     increment that in every place where down_write(mmap_sem) is performed.
+      The pagefault code then can re-take the mmap_sem for reading and look
+     to see if the sequence counter is unchanged.  If it is, proceed.  If
+     it _has_ changed then drop mmap_sem again and return NOPAGE_RETRY.
+
+otoh, maybe using another bit in page->flags is a good compromise ;)
+
+Mike, could you whip that patch out please?

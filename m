@@ -1,111 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932194AbWIOUfj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932203AbWIOUgV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932194AbWIOUfj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Sep 2006 16:35:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932203AbWIOUfj
+	id S932203AbWIOUgV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Sep 2006 16:36:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932221AbWIOUgU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Sep 2006 16:35:39 -0400
-Received: from wx-out-0506.google.com ([66.249.82.224]:37076 "EHLO
-	wx-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S932194AbWIOUfi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Sep 2006 16:35:38 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=dcsRfa3eEYujuUYJay+PZ74fpOkuXAuPlKgbTX9djpT9pe8M8IqI3DPQ0ncD7ZMb0Ntpa0Sv3WdFVVwdHQuv2jktaD+eUBOQqBjyrs9m7AkuEnAzSgsmRjGNIO8aO+dln5SbnsPq8fInvss6xi6At6559LOEKhjaWBR9vCajNYA=
-Message-ID: <6bffcb0e0609151335wce499b0nb3e39bdc26b4b433@mail.gmail.com>
-Date: Fri, 15 Sep 2006 22:35:37 +0200
-From: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
-To: "Greg KH" <gregkh@suse.de>
-Subject: Re: 2.6.18-rc6-mm2
-Cc: "Andrew Morton" <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-usb-devel@lists.sourceforge.net
-In-Reply-To: <20060914223638.GA547@suse.de>
+	Fri, 15 Sep 2006 16:36:20 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:53415 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S932203AbWIOUgT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Sep 2006 16:36:19 -0400
+Date: Fri, 15 Sep 2006 22:35:30 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Thomas Gleixner <tglx@linutronix.de>
+cc: Ingo Molnar <mingo@elte.hu>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       "Frank Ch. Eigler" <fche@redhat.com>, karim@opersys.com,
+       Tim Bird <tim.bird@am.sony.com>,
+       Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
+       linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
+       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@redhat.com>,
+       Greg Kroah-Hartman <gregkh@suse.de>, Tom Zanussi <zanussi@us.ibm.com>,
+       ltt-dev@shafik.org, Michel Dagenais <michel.dagenais@polymtl.ca>
+Subject: Re: [PATCH 0/11] LTTng-core (basic tracing infrastructure) 0.5.108
+In-Reply-To: <1158350716.5724.488.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.64.0609152227080.6761@scrub.home>
+References: <Pine.LNX.4.64.0609151339190.6761@scrub.home> 
+ <1158323938.29932.23.camel@localhost.localdomain>  <Pine.LNX.4.64.0609151425180.6761@scrub.home>
+  <1158327696.29932.29.camel@localhost.localdomain> 
+ <Pine.LNX.4.64.0609151523050.6761@scrub.home>  <1158331277.29932.66.camel@localhost.localdomain>
+  <450ABA2A.9060406@opersys.com>  <1158332324.29932.82.camel@localhost.localdomain>
+  <y0mmz91f46q.fsf@ton.toronto.redhat.com>  <1158345108.29932.120.camel@localhost.localdomain>
+  <20060915181208.GA17581@elte.hu>  <Pine.LNX.4.64.0609152046350.6761@scrub.home>
+ <1158350716.5724.488.camel@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <20060912000618.a2e2afc0.akpm@osdl.org>
-	 <6bffcb0e0609140411j46c20757r6eced82b53266e0f@mail.gmail.com>
-	 <20060914214038.GA32352@suse.de>
-	 <6bffcb0e0609141517j4128dd41n1cd21599c51541a2@mail.gmail.com>
-	 <20060914223638.GA547@suse.de>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 15/09/06, Greg KH <gregkh@suse.de> wrote:
-> On Fri, Sep 15, 2006 at 12:17:33AM +0200, Michal Piotrowski wrote:
-> > On 14/09/06, Greg KH <gregkh@suse.de> wrote:
-> > >On Thu, Sep 14, 2006 at 01:11:49PM +0200, Michal Piotrowski wrote:
-> > >> On 12/09/06, Andrew Morton <akpm@osdl.org> wrote:
-> > >> >
-> > >>
-> > >>ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc6/2.6.18-rc6-mm2/
-> > >> >
-> > >>
-> > >> Kernel 2.6.18-rc6-mm2 - xfs-rename-uio_read.patch
-> > >> Built with gcc 3.4
-> > >> Reading specs from
-> > >/usr/local/bin/../lib/gcc/i686-pc-linux-gnu/3.4.6/specs
-> > >> Configured with: ./configure --prefix=/usr/local/ --disable-nls
-> > >> --enable-shared --enable-languages=c --program-suffix=-3.4
-> > >> Thread model: posix
-> > >> gcc version 3.4.6
-> > >>
-> > >> ACPI: PCI Interrupt 0000:00:1d.2[C] -> GSI 18 (level, low) -> IRQ 17
-> > >> BUG: unable to handle kernel paging request at virtual address 5a5a5aaa
-> > >> usb usb2: configuration #1 chosen from 1 choice
-> > >> hub 2-0:1.0: USB hub found
-> > >> printing eip:
-> > >> c01f596a
-> > >> *pde = 00000000
-> > >> Oops: 0000 [#1]
-> > >> 4K_STACKS PREEMPT SMP
-> > >> last sysfs file:
-> > >> Modules linked in:
-> > >> CPU:    0
-> > >> EIP:    0060:[<c01f596a>]    Not tainted VLI
-> > >> EFLAGS: 00010202   (2.6.18-rc6-mm2 #122)
-> > >> EIP is at kref_get+0x7/0x55
-> > >> eax: 5a5a5aaa   ebx: 5a5a5aaa   ecx: c75cfe54   edx: c75cfe54
-> > >> esi: c033152f   edi: c75cfe5e   ebp: c755be20   esp: c755be18
-> > >> ds: 007b   es: 007b   ss: 0068
-> > >> Process usb-probe-<NULL (pid: 291, ti=c755b000 task=c759aab0
-> > >> task.ti=c755b000)
-> > >
-> > >You have the USB multi-threaded device probing config option
-> > >(CONFIG_USB_MULTITHREAD_PROBE) enabled, right?
-> >
-> > Yes, I have.
-> >
-> > >
-> > >Does disabling it fix this problem?
-> >
-> > I'll disable it and try to reproduce the problem.
->
-> Great, please let us know.
+Hi,
 
-Good news, I can't reproduce this bug with CONFIG_USB_MULTITHREAD_PROBE=n.
+On Fri, 15 Sep 2006, Thomas Gleixner wrote:
 
-BTW. This might be a problem with CONFIG_PCI_MULTITHREAD_PROBE=y
-http://www.stardust.webpages.pl/files/mm/2.6.18-rc6-mm2/bug.jpg
+> > Who is going to implement this for every arch?
+> > Is this now the official party line that only archs, which implement all 
+> > of this, can make use of efficient tracing?
+> 
+> In the reverse you are enforcing an ugly - but available for all archs -
+> solution due to the fact that there is nobody interested enough to
+> implement it ?
 
->  Your device list looks simple, I don't see
-> why this would happen (no confusing devices).  In fact, this is getting
-> triggered by the root hub, which Alan's update specifically addresses by
-> not making that be multithreaded, as it's not needed.
->
-> I'll work on intergrating that patch update.
->
-> thanks,
->
-> greg k-h
->
+Where is the proof that such solution is inherently ugly? (Note that 
+just picking some example from LTT doesn't make a general proof.)
+I am also not the one who wants to enforce a single solution onto 
+everyone.
 
-Regards,
-Michal
-
--- 
-Michal K. K. Piotrowski
-LTG - Linux Testers Group
-(http://www.stardust.webpages.pl/ltg/)
+bye, Roman

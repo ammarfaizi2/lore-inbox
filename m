@@ -1,61 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751661AbWIOQP7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751680AbWIOQac@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751661AbWIOQP7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Sep 2006 12:15:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751662AbWIOQP7
+	id S1751680AbWIOQac (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Sep 2006 12:30:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751684AbWIOQab
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Sep 2006 12:15:59 -0400
-Received: from nijmegen.renzel.net ([195.243.213.130]:35563 "EHLO
-	mx1.renzel.net") by vger.kernel.org with ESMTP id S1751658AbWIOQP6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Sep 2006 12:15:58 -0400
-From: Marcel Siegert <mws@linuxtv.org>
-To: Michael Krufky <mkrufky@linuxtv.org>
-Subject: Re: [patch 29/37] dvb-core: Proper handling ULE SNDU length of 0
-Date: Fri, 15 Sep 2006 18:15:42 +0200
-User-Agent: KMail/1.9.4
-Cc: Greg KH <gregkh@suse.de>, linux-kernel@vger.kernel.org, stable@kernel.org,
-       Justin Forbes <jmforbes@linuxtx.org>,
-       Zwane Mwaikambo <zwane@arm.linux.org.uk>,
-       "Theodore Ts'o" <tytso@mit.edu>, Randy Dunlap <rdunlap@xenotime.net>,
-       Dave Jones <davej@redhat.com>, Chuck Wolber <chuckw@quantumlinux.com>,
-       Chris Wedgwood <reviews@ml.cw.f00f.org>, torvalds@osdl.org,
-       akpm@osdl.org, alan@lxorguk.ukuu.org.uk,
-       Ang Way Chuang <wcang@nrg.cs.usm.my>,
-       v4l-dvb maintainer list <v4l-dvb-maintainer@linuxtv.org>
-References: <20060906224631.999046890@quad.kroah.org> <20060908172944.GA1254@suse.de> <450AD0CA.7080800@linuxtv.org>
-In-Reply-To: <450AD0CA.7080800@linuxtv.org>
+	Fri, 15 Sep 2006 12:30:31 -0400
+Received: from mail.gmx.net ([213.165.64.20]:1942 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1751678AbWIOQaa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Sep 2006 12:30:30 -0400
+X-Authenticated: #5039886
+Date: Fri, 15 Sep 2006 18:30:27 +0200
+From: =?iso-8859-1?Q?Bj=F6rn?= Steinbrink <B.Steinbrink@gmx.de>
+To: Rohit Seth <rohitseth@google.com>
+Cc: Andrew Morton <akpm@osdl.org>, devel@openvz.org,
+       CKRM-Tech <ckrm-tech@lists.sourceforge.net>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [Patch03/05]- Containers: Initialization and Configfs interface
+Message-ID: <20060915163027.GA5285@atjola.homenet>
+Mail-Followup-To: =?iso-8859-1?Q?Bj=F6rn?= Steinbrink <B.Steinbrink@gmx.de>,
+	Rohit Seth <rohitseth@google.com>, Andrew Morton <akpm@osdl.org>,
+	devel@openvz.org, CKRM-Tech <ckrm-tech@lists.sourceforge.net>,
+	linux-kernel <linux-kernel@vger.kernel.org>
+References: <1158284486.5408.154.camel@galaxy.corp.google.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-Message-Id: <200609151815.46517.mws@linuxtv.org>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <1158284486.5408.154.camel@galaxy.corp.google.com>
+User-Agent: Mutt/1.5.13 (2006-08-11)
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 15 September 2006 18:11, Michael Krufky wrote:
-> Greg KH wrote:
-> > On Fri, Sep 08, 2006 at 08:58:49AM -0400, Michael Krufky wrote:
-> >> Greg KH wrote:
-> >>> -stable review patch.  If anyone has any objections, please let us know.
-> >> Greg,
-> >>
-> >> Can we hold off on this until the 2.6.17.13 review cycle?  This patch
-> >> has not been sent to the linux-dvb mailing list, it has not been
-> >> reviewed or tested except for the Author and Marcel.
-> > 
-> > Yes, I've now moved it, thanks.
-> 
-> Marcel Siegert and I spoke about this today --  We are doing things a
-> bit differently for 2.6.18 and later, but this patch is appropriate for
-> 2.6.17.y
-> 
-> Please apply it for the next -stable kernel release.
-> 
-> Signed-off-by: Michael Krufky <mkrufky@linuxtv.org>
-> 
-> 
-> 
-Signed-off-by: Marcel Siegert <mws@linuxtv.org>
+On 2006.09.14 18:41:26 -0700, Rohit Seth wrote:
+> +static int __init configfs_container_init(void)
+> +{
+> +	int ret;
+> +
+> +	config_group_init(&containerfs_group.cs_subsys.su_group);
+> +	init_MUTEX(&containerfs_group.cs_subsys.su_sem);
+> +	ret = configfs_register_subsystem(&containerfs_group.cs_subsys);
+> +
+> +	if (ret) 
+> +		printk(KERN_ERR "Error %d while registering container subsystem\n", ret);
+> +	else {
+> +		container_wq = create_workqueue("Kcontainerd");
+> +		if (container_wq == NULL) {
+> +			ret = -ENOMEM;
+> +			printk(KERN_ERR "Unable to create Container controllers");
 
+Shouldn't the subsystem be unregistered here?
+
+> +		}
+> +	}
+> +	return ret;
+> +}
+
+Regards,
+Björn

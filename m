@@ -1,52 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932338AbWIOWfX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932343AbWIOWr2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932338AbWIOWfX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Sep 2006 18:35:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932339AbWIOWfX
+	id S932343AbWIOWr2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Sep 2006 18:47:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932342AbWIOWr2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Sep 2006 18:35:23 -0400
-Received: from opersys.com ([64.40.108.71]:64012 "EHLO www.opersys.com")
-	by vger.kernel.org with ESMTP id S932338AbWIOWfW (ORCPT
+	Fri, 15 Sep 2006 18:47:28 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:38881 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932343AbWIOWr1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Sep 2006 18:35:22 -0400
-Message-ID: <450B2D00.9@opersys.com>
-Date: Fri, 15 Sep 2006 18:45:20 -0400
-From: Karim Yaghmour <karim@opersys.com>
-Reply-To: karim@opersys.com
-Organization: Opersys inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.8.0.6) Gecko/20060804 Fedora/1.0.4-0.5.1.fc5 SeaMonkey/1.0.4
-MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
-       Roman Zippel <zippel@linux-m68k.org>, Andrew Morton <akpm@osdl.org>,
-       tglx@linutronix.de, Paul Mundt <lethal@linux-sh.org>,
-       Jes Sorensen <jes@sgi.com>, linux-kernel@vger.kernel.org,
-       Christoph Hellwig <hch@infradead.org>, Ingo Molnar <mingo@redhat.com>,
-       Greg Kroah-Hartman <gregkh@suse.de>, Tom Zanussi <zanussi@us.ibm.com>,
-       ltt-dev@shafik.org, Michel Dagenais <michel.dagenais@polymtl.ca>
-Subject: Re: [PATCH 0/11] LTTng-core (basic tracing infrastructure) 0.5.108
-References: <20060915142836.GA9288@localhost.usen.ad.jp> <450ABE08.2060107@opersys.com> <1158332447.5724.423.camel@localhost.localdomain> <20060915111644.c857b2cf.akpm@osdl.org> <20060915181907.GB17581@elte.hu> <Pine.LNX.4.64.0609152111030.6761@scrub.home> <20060915200559.GB30459@elte.hu> <20060915202233.GA23318@Krystal> <20060915213213.GA12789@elte.hu> <20060915215852.GC18958@Krystal> <20060915221926.GD12789@elte.hu>
-In-Reply-To: <20060915221926.GD12789@elte.hu>
-Content-Type: text/plain; charset=us-ascii
+	Fri, 15 Sep 2006 18:47:27 -0400
+Date: Fri, 15 Sep 2006 15:45:15 -0700
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: Alan Stern <stern@rowland.harvard.edu>,
+       Kernel development list <linux-kernel@vger.kernel.org>,
+       USB development list <linux-usb-devel@lists.sourceforge.net>,
+       zaitcev@redhat.com, <david-b@pacbell.net>
+Subject: Re: 2.6.18-rc6-mm2: rmmod ohci_hcd oopses on HPC 6325
+Message-Id: <20060915154515.ae14372c.zaitcev@redhat.com>
+In-Reply-To: <200609141319.53942.rjw@sisk.pl>
+References: <200609131558.03391.rjw@sisk.pl>
+	<Pine.LNX.4.44L0.0609131441080.6684-100000@iolanthe.rowland.org>
+	<20060913153158.612ef473.zaitcev@redhat.com>
+	<200609141319.53942.rjw@sisk.pl>
+Organization: Red Hat, Inc.
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.10.2; i386-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 14 Sep 2006 13:19:53 +0200, "Rafael J. Wysocki" <rjw@sisk.pl> wrote:
 
-Ingo Molnar wrote:
-> btw., an observation: that's 6 LTT architectures in 7 years, while 
-> kprobes are now on 5 architectures in 2 years.
+> In fact I can reproduce it on two different boxes now.
 
-Actually much of ltt underwent a complete rewrite since Mathieu took
-over maintainership. Let's, according to this email, Mathieu became
-the maintainer in November 2005:
-http://www.listserv.shafik.org/pipermail/ltt-dev/2005-November/001092.html
+How about the attached?
 
-[ Karim takes out calculator and punches: 10/12 = 0.83 ]
+-- Pete
 
-So that's 7 architectures in 0.83 years, compared to 5 in 2 years.
-
-Joke's on you pall.
-
-Karim
-
+diff -urp -X dontdiff linux-2.6.18-rc6/drivers/usb/host/ohci-hcd.c linux-2.6.18-rc6-lem/drivers/usb/host/ohci-hcd.c
+--- linux-2.6.18-rc6/drivers/usb/host/ohci-hcd.c	2006-09-06 21:56:32.000000000 -0700
++++ linux-2.6.18-rc6-lem/drivers/usb/host/ohci-hcd.c	2006-09-14 22:48:15.000000000 -0700
+@@ -775,7 +775,9 @@ static void ohci_stop (struct usb_hcd *h
+ 
+ 	ohci_usb_reset (ohci);
+ 	ohci_writel (ohci, OHCI_INTR_MIE, &ohci->regs->intrdisable);
+-	
++	free_irq(hcd->irq, hcd);
++	hcd->irq = -1;
++
+ 	remove_debug_files (ohci);
+ 	unregister_reboot_notifier (&ohci->reboot_notifier);
+ 	ohci_mem_cleanup (ohci);

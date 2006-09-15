@@ -1,50 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932279AbWIOVVk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932275AbWIOVVY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932279AbWIOVVk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Sep 2006 17:21:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932278AbWIOVVk
+	id S932275AbWIOVVY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Sep 2006 17:21:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932276AbWIOVVY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Sep 2006 17:21:40 -0400
-Received: from opersys.com ([64.40.108.71]:54027 "EHLO www.opersys.com")
-	by vger.kernel.org with ESMTP id S932277AbWIOVVj (ORCPT
+	Fri, 15 Sep 2006 17:21:24 -0400
+Received: from [62.205.161.221] ([62.205.161.221]:56279 "EHLO kir.sacred.ru")
+	by vger.kernel.org with ESMTP id S932275AbWIOVVX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Sep 2006 17:21:39 -0400
-Message-ID: <450B1BBE.6040700@opersys.com>
-Date: Fri, 15 Sep 2006 17:31:42 -0400
-From: Karim Yaghmour <karim@opersys.com>
-Reply-To: karim@opersys.com
-Organization: Opersys inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.8.0.6) Gecko/20060804 Fedora/1.0.4-0.5.1.fc5 SeaMonkey/1.0.4
+	Fri, 15 Sep 2006 17:21:23 -0400
+Message-ID: <450B1958.3020309@openvz.org>
+Date: Sat, 16 Sep 2006 01:21:28 +0400
+From: Kir Kolyshkin <kir@openvz.org>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060905)
 MIME-Version: 1.0
-To: tglx@linutronix.de
-CC: Andrew Morton <akpm@osdl.org>, Paul Mundt <lethal@linux-sh.org>,
-       Jes Sorensen <jes@sgi.com>, Roman Zippel <zippel@linux-m68k.org>,
-       Ingo Molnar <mingo@elte.hu>,
-       Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
-       linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
-       Ingo Molnar <mingo@redhat.com>, Greg Kroah-Hartman <gregkh@suse.de>,
-       Tom Zanussi <zanussi@us.ibm.com>, ltt-dev@shafik.org,
-       Michel Dagenais <michel.dagenais@polymtl.ca>
-Subject: Re: [PATCH 0/11] LTTng-core (basic tracing infrastructure) 0.5.108
-References: <20060914181557.GA22469@elte.hu> <4509A54C.1050905@opersys.com>	 <yq08xkleb9h.fsf@jaguar.mkp.net> <450A9EC9.9080307@opersys.com>	 <20060915132052.GA7843@localhost.usen.ad.jp>	 <Pine.LNX.4.64.0609151535030.6761@scrub.home>	 <20060915135709.GB8723@localhost.usen.ad.jp> <450AB5F9.8040501@opersys.com>			 <450AB506.30802@sgi.com> <450AB957.2050206@opersys.com>	 <20060915142836.GA9288@localhost.usen.ad.jp> <450ABE08.2060107@opersys.com>	 <1158332447.5724.423.camel@localhost.localdomain>	 <20060915111644.c857b2cf.akpm@osdl.org>	 <1158348954.5724.481.camel@localhost.localdomain>	 <450B0585.5070700@opersys.com>	 <1158351780.5724.507.camel@localhost.localdomain>	 <450B15B0.3060200@opersys.com> <1158355070.5724.524.camel@localhost.localdomain>
-In-Reply-To: <1158355070.5724.524.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1
+To: rohitseth@google.com, devel@openvz.org
+CC: Kirill Korotaev <dev@sw.ru>, Rik van Riel <riel@redhat.com>,
+       vatsa@in.ibm.com, sekharan@us.ibm.com,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       CKRM-Tech <ckrm-tech@lists.sourceforge.net>, balbir@in.ibm.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andi Kleen <ak@suse.de>, Christoph Hellwig <hch@infradead.org>,
+       Andrey Savochkin <saw@sw.ru>, Matt Helsley <matthltc@us.ibm.com>,
+       Hugh Dickins <hugh@veritas.com>, Alexey Dobriyan <adobriyan@mail.ru>,
+       Oleg Nesterov <oleg@tv-sign.ru>
+Subject: Re: [Devel] Re: [ckrm-tech] [PATCH] BC:	resource	beancounters	(v4)
+ (added	user memory)
+References: <44FD918A.7050501@sw.ru> <44FDAB81.5050608@in.ibm.com>	<44FEC7E4.7030708@sw.ru> <44FF1EE4.3060005@in.ibm.com>	<1157580371.31893.36.camel@linuxchandra> <45011CAC.2040502@openvz.org>	<1157743424.19884.65.camel@linuxchandra>	<1157751834.1214.112.camel@galaxy.corp.google.com>	<1157999107.6029.7.camel@linuxchandra>	<1158001831.12947.16.camel@galaxy.corp.google.com>	<20060912104410.GA28444@in.ibm.com>	<1158081752.20211.12.camel@galaxy.corp.google.com>	<1158105732.4800.26.camel@linuxchandra>	<1158108203.20211.52.camel@galaxy.corp.google.com>	<1158109991.4800.43.camel@linuxchandra>	<1158111218.20211.69.camel@galaxy.corp.google.com>	<1158186247.18927.11.camel@linuxchandra>  <450A71B1.8020009@sw.ru> <1158339160.12311.35.camel@galaxy.corp.google.com>
+In-Reply-To: <1158339160.12311.35.camel@galaxy.corp.google.com>
+Content-Type: text/plain; charset=KOI8-R
 Content-Transfer-Encoding: 7bit
+X-Greylist: Sender succeeded SMTP AUTH authentication, not delayed by milter-greylist-2.0.2 (kir.sacred.ru [62.205.161.221]); Sat, 16 Sep 2006 01:19:31 +0400 (MSD)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Rohit Seth wrote:
+> On Fri, 2006-09-15 at 13:26 +0400, Kirill Korotaev wrote:
+>   
+> <...skipped...>
+>   
+>> for VMware which can reserve required amount of RAM for VM.
+>>     
+>
+> It is much easier to provide guarantees in complete virtual
+> environments.  But then you pay the cost in terms of performance.
+>   
+"Complete virtual environments" vs. "contaners" is not [only] about
+performance! In the end, given a proper set of dirty and no-so-dirty
+hacks in software and hardware, their performance will be close to native.
 
-Thomas Gleixner wrote:
-> Oh well. I'm working on unpopular and intrusive stuff as long as you do.
+Containers vs. other virtualization types is more about utilization,
+density, scalability, portability.
 
-Well, I won't debate that shall I :)
+Speaking of guarantees, yes, guarantees is easy, you just reserve such
+amount of RAM for your VM and that is all. But the fact is usually some
+part of that RAM will not be utilized by this particular VM. But since
+it is reserved, it can not be utilized by other VMs -- and we end up
+just wasting some resources. Containers, given a proper resource
+management and configuration, can have some guarantees and still be able
+to utilize all the RAM available in the system. This difference can be
+metaphorically expressed as a house divided into rooms. Dividing walls
+can either be hard or flexible. With flexible walls, room (container)
+owner have a guarantee of minimal space in your room, but if a few
+guests come for a moment, the walls can move to make more space (up to
+the limit). So the flexibility is measured as the delta between a
+guarantee and a limit.
 
-> Just our ways to work and communicate differ slightly.
+This flexibility leads to higher utilization, and this flexibility is
+one of the reasons for better density (a few times higher than that of a
+paravirtualization solution).
 
-Maybe so. Any wisdom would be greatly appreciated.
-
-> Sorry, I have not found a way to interpret it usefully.
-
-See my response to Ingo on this topic.
-
-Karim
+I will not touch scalability and portability topics here to make things
+simpler.
+> I think we should punt on hard guarantees and fractions for the first
+> draft.  Keep the implementation simple.
+>   
+Do I understand it right that with hard guarantees we loose the
+flexibility I have just described? If this is the case, I do not like it.

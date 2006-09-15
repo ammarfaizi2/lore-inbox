@@ -1,83 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751352AbWIOMr2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751365AbWIONAX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751352AbWIOMr2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Sep 2006 08:47:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751355AbWIOMr2
+	id S1751365AbWIONAX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Sep 2006 09:00:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751366AbWIONAX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Sep 2006 08:47:28 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:61642 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751352AbWIOMr1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Sep 2006 08:47:27 -0400
-Date: Fri, 15 Sep 2006 14:38:56 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: "Martin J. Bligh" <mbligh@mbligh.org>
-Cc: Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
-       linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
-       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@redhat.com>,
-       Greg Kroah-Hartman <gregkh@suse.de>,
-       Thomas Gleixner <tglx@linutronix.de>, Tom Zanussi <zanussi@us.ibm.com>,
-       ltt-dev@shafik.org, Michel Dagenais <michel.dagenais@polymtl.ca>,
-       fche@redhat.com
-Subject: Re: [PATCH 0/11] LTTng-core (basic tracing infrastructure) 0.5.108
-Message-ID: <20060915123856.GA32076@elte.hu>
-References: <20060914171320.GB1105@elte.hu> <4509BAD4.8010206@mbligh.org> <20060914203430.GB9252@elte.hu> <4509C1D0.6080208@mbligh.org> <20060914213113.GA16989@elte.hu> <4509D6E6.5030409@mbligh.org> <20060914223607.GB25004@elte.hu> <4509DEC3.70806@mbligh.org> <20060914231956.GB29229@elte.hu> <4509FC15.6020407@mbligh.org>
+	Fri, 15 Sep 2006 09:00:23 -0400
+Received: from ausc60ps301.us.dell.com ([143.166.148.206]:47008 "EHLO
+	ausc60ps301.us.dell.com") by vger.kernel.org with ESMTP
+	id S1751365AbWIONAW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Sep 2006 09:00:22 -0400
+DomainKey-Signature: s=smtpout; d=dell.com; c=nofws; q=dns; b=onj6V6ha/Q49nUw5Ku8Hjd10SclycFxYXZjaqVVdYJrsPfh3IUgW+Flpz6UBt1ydNIv5tGPmG1rEG6I49L/MxBLMqs9nUNtCcV6z6bE5FycoF8VyH71ps5WH2j4X2jOH;
+X-IronPort-AV: i="4.09,170,1157346000"; 
+   d="scan'208"; a="80803624:sNHT16909857"
+Date: Fri, 15 Sep 2006 07:59:14 -0500
+From: Matt Domsch <Matt_Domsch@dell.com>
+To: Pierre Peiffer <pierre.peiffer@bull.net>
+Cc: linux-kernel@vger.kernel.org, gregkh@suse.de,
+       linux-pci@atrey.karlin.mff.cuni.cz
+Subject: Re: [Bug ??] 2.6.18-rc6-mm2 - PCI ethernet board does not seem to work
+Message-ID: <20060915125914.GA1201@lists.us.dell.com>
+References: <450A7EC5.2090909@bull.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4509FC15.6020407@mbligh.org>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -2.9
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.9 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5000]
-	-0.1 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+In-Reply-To: <450A7EC5.2090909@bull.net>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Martin J. Bligh <mbligh@mbligh.org> wrote:
-
-> >i.e. we should have macros to prepare local information, with macro 
-> >arities of 2, 3, 4 and 5:
-> >
-> >    _(name, data1);
-> >   __(name, data1, data2);
-> >  ___(name, data1, data2, data3);
-> > ____(name, data1, data2, data3, data4);
+On Fri, Sep 15, 2006 at 12:21:57PM +0200, Pierre Peiffer wrote:
+> Hi,
 > 
-> Personally I think that's way more visually offensive that something 
-> that looks like a function call, but still ;-) We do it as a caps 
-> macro
+> My Ethernet board (Intel(R) PRO/1000) "doesn't seems" to work any more
+> with this kernel, but all is ok with kernel 2.6.18-rc6-mm1.
 > 
-> KTRACE(foo, bar)
+> A bisection search show this patch:
+> gregkh-pci-pci-sort-device-lists-breadth-first.patch
+> as being the faulty one...
 > 
-> internally, which I suppose makes it not look like a function call. 
-> But at the end of the day, it's all just a matter of visual taste, 
-> what's actually in there is way more important.
+> But after reading the content of this patch, I understood that the order
+> of the ethernet boards had changed. In fact,  I have four ethernet
+> boards and now, my eth0 does not point on the same card...
+> So all is now ok by changing my cable to the right board.
+> 
+> But is this really the expected behavior ?
 
-i disagree with the naming, for the reasons stated before: if we add any 
-static info to the kernel, it's a "easier data extraction" thing (for 
-the purposes of speeding up dynamic tracing), not a tracepoint. That way 
-there's no dispute whether what i remove is a tracepoint (on which 
-static tracers might rely in a hard way), or just a speedup for 
-SystemTap. So a better name would be what SystemTap has implemented 
-today:
+Yes, it's expected, but no, I agree it would be nice to not break
+existing setups.
 
-  STAP_MARK_NN(kernel_context_switch, prev, next);
+Care to send me an output of 'lspci -tv' and dmidecode (the first 80
+or so lines)?
 
-or what makes this even more explicit:
+I think I'll redo this patch to keep the 2.6 depth-first sort order as
+default, with command line options "pci=bfsort" and "pci=nobfsort" to
+force it one way or the other, and DMI table entries for Dell's newest
+systems that should default to bfsort.
 
-  DEBUG_DATA(kernel_context_switch, prev, next);
+Pierre, thank you for you report and your time to do the bisect.  I
+apologize for any inconvenience this caused you.
 
-(but i'm flexible about the naming - as long as it doesnt say 'trace' 
-and as long as there are no guarantees at all that those points remain, 
-when a better method of accessing the same data for dynamic tracers is 
-implemented.)
+Thanks,
+Matt
 
-	Ingo
+-- 
+Matt Domsch
+Software Architect
+Dell Linux Solutions linux.dell.com & www.dell.com/linux
+Linux on Dell mailing lists @ http://lists.us.dell.com

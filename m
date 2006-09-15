@@ -1,55 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932343AbWIOWr2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932344AbWIOWqj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932343AbWIOWr2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Sep 2006 18:47:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932342AbWIOWr2
+	id S932344AbWIOWqj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Sep 2006 18:46:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932342AbWIOWqj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Sep 2006 18:47:28 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:38881 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932343AbWIOWr1 (ORCPT
+	Fri, 15 Sep 2006 18:46:39 -0400
+Received: from xenotime.net ([66.160.160.81]:40365 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S932344AbWIOWqi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Sep 2006 18:47:27 -0400
-Date: Fri, 15 Sep 2006 15:45:15 -0700
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: Alan Stern <stern@rowland.harvard.edu>,
-       Kernel development list <linux-kernel@vger.kernel.org>,
-       USB development list <linux-usb-devel@lists.sourceforge.net>,
-       zaitcev@redhat.com, <david-b@pacbell.net>
-Subject: Re: 2.6.18-rc6-mm2: rmmod ohci_hcd oopses on HPC 6325
-Message-Id: <20060915154515.ae14372c.zaitcev@redhat.com>
-In-Reply-To: <200609141319.53942.rjw@sisk.pl>
-References: <200609131558.03391.rjw@sisk.pl>
-	<Pine.LNX.4.44L0.0609131441080.6684-100000@iolanthe.rowland.org>
-	<20060913153158.612ef473.zaitcev@redhat.com>
-	<200609141319.53942.rjw@sisk.pl>
-Organization: Red Hat, Inc.
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.10.2; i386-redhat-linux-gnu)
+	Fri, 15 Sep 2006 18:46:38 -0400
+Date: Fri, 15 Sep 2006 15:47:52 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: linux-kernel@vger.kernel.org
+Cc: akpm@osdl.org, mm-commits@vger.kernel.org, rossb@google.com,
+       akpm@google.com, sam@ravnborg.org
+Subject: Re: + allow-proc-configgz-to-be-built-as-a-module.patch added to
+ -mm tree
+Message-Id: <20060915154752.d7bdb8a0.rdunlap@xenotime.net>
+In-Reply-To: <200609152158.k8FLw7ud018089@shell0.pdx.osdl.net>
+References: <200609152158.k8FLw7ud018089@shell0.pdx.osdl.net>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 14 Sep 2006 13:19:53 +0200, "Rafael J. Wysocki" <rjw@sisk.pl> wrote:
+On Fri, 15 Sep 2006 14:58:06 -0700 akpm@osdl.org wrote:
 
-> In fact I can reproduce it on two different boxes now.
+> 
+> The patch titled
+> 
+>      allow /proc/config.gz to be built as a module
+> 
+> has been added to the -mm tree.  Its filename is
+> 
+>      allow-proc-configgz-to-be-built-as-a-module.patch
+> 
+> See http://www.zip.com.au/~akpm/linux/patches/stuff/added-to-mm.txt to find
+> out what to do about this
+> 
+> ------------------------------------------------------
+> Subject: allow /proc/config.gz to be built as a module
+> From: Ross Biro <rossb@google.com>
 
-How about the attached?
+When/where was this patch submitted?  I seem to have missed it
+(or it was so long ago that I forgot about it).
 
--- Pete
+> The driver for /proc/config.gz consumes rather a lot of memory and it is in
+> fact possible to build it as a module.
 
-diff -urp -X dontdiff linux-2.6.18-rc6/drivers/usb/host/ohci-hcd.c linux-2.6.18-rc6-lem/drivers/usb/host/ohci-hcd.c
---- linux-2.6.18-rc6/drivers/usb/host/ohci-hcd.c	2006-09-06 21:56:32.000000000 -0700
-+++ linux-2.6.18-rc6-lem/drivers/usb/host/ohci-hcd.c	2006-09-14 22:48:15.000000000 -0700
-@@ -775,7 +775,9 @@ static void ohci_stop (struct usb_hcd *h
- 
- 	ohci_usb_reset (ohci);
- 	ohci_writel (ohci, OHCI_INTR_MIE, &ohci->regs->intrdisable);
--	
-+	free_irq(hcd->irq, hcd);
-+	hcd->irq = -1;
-+
- 	remove_debug_files (ohci);
- 	unregister_reboot_notifier (&ohci->reboot_notifier);
- 	ohci_mem_cleanup (ohci);
+Can you try to quantify "rather a lot of memory"?
+
+> In some ways this is a bit risky, because the .config which is used for
+> compiling kernel/configs.c isn't necessarily the same as the .config which was
+> used to build vmlinux.
+
+and that's why a module wasn't allowed.
+It's not worth the risk IMO.
+
+> But OTOH the potential memory savings are decent, and it'd be fairly dumb to
+> build your configs.o with a different .config.
+> 
+> Signed-off-by: Andrew Morton <akpm@google.com>
+> Cc: "Randy.Dunlap" <rdunlap@xenotime.net>
+> Cc: Sam Ravnborg <sam@ravnborg.org>
+> Signed-off-by: Andrew Morton <akpm@osdl.org>
+> ---
+> 
+>  init/Kconfig |    2 +-
+>  1 files changed, 1 insertion(+), 1 deletion(-)
+> 
+> diff -puN init/Kconfig~allow-proc-configgz-to-be-built-as-a-module init/Kconfig
+> --- a/init/Kconfig~allow-proc-configgz-to-be-built-as-a-module
+> +++ a/init/Kconfig
+> @@ -241,7 +241,7 @@ config AUDITSYSCALL
+>  	  ensure that INOTIFY is configured.
+>  
+>  config IKCONFIG
+> -	bool "Kernel .config support"
+> +	tristate "Kernel .config support"
+>  	---help---
+>  	  This option enables the complete Linux kernel ".config" file
+>  	  contents to be saved in the kernel. It provides documentation
+> _
+
+---
+~Randy

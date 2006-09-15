@@ -1,37 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932203AbWIOUgV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932232AbWIOUkz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932203AbWIOUgV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Sep 2006 16:36:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932221AbWIOUgU
+	id S932232AbWIOUkz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Sep 2006 16:40:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932233AbWIOUkz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Sep 2006 16:36:20 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:53415 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S932203AbWIOUgT (ORCPT
+	Fri, 15 Sep 2006 16:40:55 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:58023 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S932232AbWIOUky (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Sep 2006 16:36:19 -0400
-Date: Fri, 15 Sep 2006 22:35:30 +0200 (CEST)
+	Fri, 15 Sep 2006 16:40:54 -0400
+Date: Fri, 15 Sep 2006 22:40:37 +0200 (CEST)
 From: Roman Zippel <zippel@linux-m68k.org>
 X-X-Sender: roman@scrub.home
 To: Thomas Gleixner <tglx@linutronix.de>
-cc: Ingo Molnar <mingo@elte.hu>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       "Frank Ch. Eigler" <fche@redhat.com>, karim@opersys.com,
-       Tim Bird <tim.bird@am.sony.com>,
+cc: karim@opersys.com, Andrew Morton <akpm@osdl.org>,
+       Paul Mundt <lethal@linux-sh.org>, Jes Sorensen <jes@sgi.com>,
+       Ingo Molnar <mingo@elte.hu>,
        Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
        linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
-       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@redhat.com>,
-       Greg Kroah-Hartman <gregkh@suse.de>, Tom Zanussi <zanussi@us.ibm.com>,
-       ltt-dev@shafik.org, Michel Dagenais <michel.dagenais@polymtl.ca>
+       Ingo Molnar <mingo@redhat.com>, Greg Kroah-Hartman <gregkh@suse.de>,
+       Tom Zanussi <zanussi@us.ibm.com>, ltt-dev@shafik.org,
+       Michel Dagenais <michel.dagenais@polymtl.ca>
 Subject: Re: [PATCH 0/11] LTTng-core (basic tracing infrastructure) 0.5.108
-In-Reply-To: <1158350716.5724.488.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.64.0609152227080.6761@scrub.home>
-References: <Pine.LNX.4.64.0609151339190.6761@scrub.home> 
- <1158323938.29932.23.camel@localhost.localdomain>  <Pine.LNX.4.64.0609151425180.6761@scrub.home>
-  <1158327696.29932.29.camel@localhost.localdomain> 
- <Pine.LNX.4.64.0609151523050.6761@scrub.home>  <1158331277.29932.66.camel@localhost.localdomain>
-  <450ABA2A.9060406@opersys.com>  <1158332324.29932.82.camel@localhost.localdomain>
-  <y0mmz91f46q.fsf@ton.toronto.redhat.com>  <1158345108.29932.120.camel@localhost.localdomain>
-  <20060915181208.GA17581@elte.hu>  <Pine.LNX.4.64.0609152046350.6761@scrub.home>
- <1158350716.5724.488.camel@localhost.localdomain>
+In-Reply-To: <1158351780.5724.507.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.64.0609152236010.6761@scrub.home>
+References: <20060914181557.GA22469@elte.hu> <4509A54C.1050905@opersys.com>
+  <yq08xkleb9h.fsf@jaguar.mkp.net> <450A9EC9.9080307@opersys.com> 
+ <20060915132052.GA7843@localhost.usen.ad.jp>  <Pine.LNX.4.64.0609151535030.6761@scrub.home>
+  <20060915135709.GB8723@localhost.usen.ad.jp> <450AB5F9.8040501@opersys.com>
+   <450AB506.30802@sgi.com> <450AB957.2050206@opersys.com> 
+ <20060915142836.GA9288@localhost.usen.ad.jp> <450ABE08.2060107@opersys.com>
+  <1158332447.5724.423.camel@localhost.localdomain>  <20060915111644.c857b2cf.akpm@osdl.org>
+  <1158348954.5724.481.camel@localhost.localdomain>  <450B0585.5070700@opersys.com>
+ <1158351780.5724.507.camel@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -41,17 +42,16 @@ Hi,
 
 On Fri, 15 Sep 2006, Thomas Gleixner wrote:
 
-> > Who is going to implement this for every arch?
-> > Is this now the official party line that only archs, which implement all 
-> > of this, can make use of efficient tracing?
-> 
-> In the reverse you are enforcing an ugly - but available for all archs -
-> solution due to the fact that there is nobody interested enough to
-> implement it ?
+> So this has to be changed. And requiring to recompile the kernel is the
+> wrong answer. Having some nifty tool, which allows you to define the set
+> of dynamic trace points or use a predefined one is the way to go.
 
-Where is the proof that such solution is inherently ugly? (Note that 
-just picking some example from LTT doesn't make a general proof.)
-I am also not the one who wants to enforce a single solution onto 
-everyone.
+Nobody is taking dynamic tracing away!
+You make it sound that tracing is only possible via dynamic traces.
+If I want to use static tracepoints, why shouldn't I?
+
+> Stop whining!
+
+So we're back to personal attacks now. :-(
 
 bye, Roman

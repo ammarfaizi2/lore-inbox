@@ -1,56 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751674AbWIOQ3p@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751681AbWIOQdK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751674AbWIOQ3p (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Sep 2006 12:29:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751678AbWIOQ3p
+	id S1751681AbWIOQdK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Sep 2006 12:33:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751682AbWIOQdJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Sep 2006 12:29:45 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:40623 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751674AbWIOQ3o (ORCPT
+	Fri, 15 Sep 2006 12:33:09 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:60883 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751681AbWIOQdG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Sep 2006 12:29:44 -0400
-Date: Fri, 15 Sep 2006 09:26:00 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: torvalds@osdl.org, gregkh@suse.de, bunk@stusta.de,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch] Race condition in usermodehelper.
-Message-Id: <20060915092600.3046c511.akpm@osdl.org>
-In-Reply-To: <20060915104654.GA31548@skybase>
-References: <20060915104654.GA31548@skybase>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 15 Sep 2006 12:33:06 -0400
+Message-ID: <450AD5BA.10003@us.ibm.com>
+Date: Fri, 15 Sep 2006 11:32:58 -0500
+From: "Jose R. Santos" <jrs@us.ibm.com>
+Reply-To: jrs@us.ibm.com
+Organization: IBM
+User-Agent: Thunderbird 1.5.0.5 (X11/20060728)
+MIME-Version: 1.0
+To: "Martin J. Bligh" <mbligh@mbligh.org>
+CC: "Frank Ch. Eigler" <fche@redhat.com>, Ingo Molnar <mingo@elte.hu>,
+       Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
+       linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
+       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@redhat.com>,
+       Greg Kroah-Hartman <gregkh@suse.de>,
+       Thomas Gleixner <tglx@linutronix.de>, Tom Zanussi <zanussi@us.ibm.com>,
+       ltt-dev@shafik.org, Michel Dagenais <michel.dagenais@polymtl.ca>
+Subject: Re: [PATCH 0/11] LTTng-core (basic tracing infrastructure) 0.5.108
+References: <20060914033826.GA2194@Krystal> <20060914112718.GA7065@elte.hu>	<450971CB.6030601@mbligh.org> <y0mmz92cjr2.fsf@ton.toronto.redhat.com>
+In-Reply-To: <y0mmz92cjr2.fsf@ton.toronto.redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 15 Sep 2006 12:46:54 +0200
-Martin Schwidefsky <schwidefsky@de.ibm.com> wrote:
+Frank Ch. Eigler wrote:
+> "Martin J. Bligh" <mbligh@mbligh.org> writes:
+>
+> > without all the awk-style language crap that seems to come with
+> > systemtap.
+>
+> I'm sorry to hear you dislike the scripting language.  But that's
+> okay, you Real Men can embed literal C code inside systemtap scripts
+> to do the Real Work, and leave to systemtap only sundry duties such as
+> probe placement and removal.
+>   
 
-> From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-> 
-> [patch] Race condition in usermodehelper.
-> 
-> There is a race between call_usermodehelper_keys, __call_usermodehelper
-> and wait_for_helper. It should only happen if preemption is enabled or
-> on a virtualized system.
-> 
-> If the cpu is preempted or put to sleep by the hypervisor in
-> __call_usermodehelper between the creation of the wait_for_helper
-> thread and the second check on sub_info->wait, the whole execution
-> of wait_for_helper including the complete call and the continuation
-> after the wait_for_completion in call_usermodehelper_keys can have
-> happened before __call_usermodehelper checks sub_info->wait for the
-> second time. Since sub_info can already have been clobbered,
-> sub_info->wait could be zero and complete is called a second time
-> with an invalid argument. This has happened on s390. It took me only
-> three days to find out ..
+There are also a couple of projects within SystemTap that provide trace 
+like functionality without the need to use the SystemTap language.  In 
+the case of LKET, we've tried to make this as simple as possible by 
+predefining probe points using the SystemTap language and embedded C 
+code, but from a users perspective all he really need to do is just 
+invoke a simple script like:
 
-You mean three days work?
+#! stap
+process_snapshot() {}
+addevent.tskdispatch.cpuidle {}
+addevent.process {}
+addevent.syscall.entry { printf ("%4b", $flags) }
+addevent.syscall.exit {}
+addevent.tskdispatch.cpuidle {}
 
-If so, I owe you a big apology, because an identical patch has been in -mm
-for over a month.  I guess I didn't appreciate its significance.
+The data can later be analyses in user-space with what ever method you like.  The developer instrumenting the probe point needs to know the Systemtap language, but the user of the trace just need to know which events are available to him.
 
-Shall expedite.
+We also plan to do static tracing once SystemTap supports static markers.  This may not be the perfect solution, but I'm interested in knowing how we can get there.
 
+-JRS

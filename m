@@ -1,99 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932282AbWIOV2Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932293AbWIOVcv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932282AbWIOV2Z (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Sep 2006 17:28:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932281AbWIOV2Z
+	id S932293AbWIOVcv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Sep 2006 17:32:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932294AbWIOVcv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Sep 2006 17:28:25 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:57256 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S932282AbWIOV2Y (ORCPT
+	Fri, 15 Sep 2006 17:32:51 -0400
+Received: from opersys.com ([64.40.108.71]:63243 "EHLO www.opersys.com")
+	by vger.kernel.org with ESMTP id S932293AbWIOVcu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Sep 2006 17:28:24 -0400
-Date: Fri, 15 Sep 2006 23:27:58 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Ingo Molnar <mingo@elte.hu>
-cc: Thomas Gleixner <tglx@linutronix.de>, karim@opersys.com,
-       Andrew Morton <akpm@osdl.org>, Paul Mundt <lethal@linux-sh.org>,
-       Jes Sorensen <jes@sgi.com>,
-       Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
-       linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
-       Ingo Molnar <mingo@redhat.com>, Greg Kroah-Hartman <gregkh@suse.de>,
-       Tom Zanussi <zanussi@us.ibm.com>, ltt-dev@shafik.org,
-       Michel Dagenais <michel.dagenais@polymtl.ca>
-Subject: Re: [PATCH 0/11] LTTng-core (basic tracing infrastructure) 0.5.108
-In-Reply-To: <20060915204812.GA6909@elte.hu>
-Message-ID: <Pine.LNX.4.64.0609152314250.6761@scrub.home>
-References: <450AB506.30802@sgi.com> <450AB957.2050206@opersys.com>
- <20060915142836.GA9288@localhost.usen.ad.jp> <450ABE08.2060107@opersys.com>
- <1158332447.5724.423.camel@localhost.localdomain> <20060915111644.c857b2cf.akpm@osdl.org>
- <1158348954.5724.481.camel@localhost.localdomain> <450B0585.5070700@opersys.com>
- <1158351780.5724.507.camel@localhost.localdomain> <Pine.LNX.4.64.0609152236010.6761@scrub.home>
- <20060915204812.GA6909@elte.hu>
+	Fri, 15 Sep 2006 17:32:50 -0400
+Message-ID: <450B1E60.7030303@opersys.com>
+Date: Fri, 15 Sep 2006 17:42:56 -0400
+From: Karim Yaghmour <karim@opersys.com>
+Reply-To: karim@opersys.com
+Organization: Opersys inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.8.0.6) Gecko/20060804 Fedora/1.0.4-0.5.1.fc5 SeaMonkey/1.0.4
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: jrs@us.ibm.com
+CC: Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Roman Zippel <zippel@linux-m68k.org>, Tim Bird <tim.bird@am.sony.com>,
+       Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
+       Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       Ingo Molnar <mingo@redhat.com>, Greg Kroah-Hartman <gregkh@suse.de>,
+       Thomas Gleixner <tglx@linutronix.de>, Tom Zanussi <zanussi@us.ibm.com>,
+       ltt-dev@shafik.org, Michel Dagenais <michel.dagenais@polymtl.ca>
+Subject: Re: [PATCH 0/11] LTTng-core (basic tracing infrastructure) 0.5.108
+References: <20060914171320.GB1105@elte.hu> <Pine.LNX.4.64.0609141935080.6761@scrub.home> <20060914181557.GA22469@elte.hu> <4509B03A.3070504@am.sony.com> <1158320406.29932.16.camel@localhost.localdomain> <Pine.LNX.4.64.0609151339190.6761@scrub.home> <1158323938.29932.23.camel@localhost.localdomain> <Pine.LNX.4.64.0609151425180.6761@scrub.home> <1158327696.29932.29.camel@localhost.localdomain> <450AEC92.7090409@us.ibm.com> <20060915194937.GA7133@Krystal> <450B1309.9020800@us.ibm.com>
+In-Reply-To: <450B1309.9020800@us.ibm.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-On Fri, 15 Sep 2006, Ingo Molnar wrote:
+Jose R. Santos wrote:
+> I don't really care which method is used as long as its the right tool 
+> for the job.  I see several idea from LTT that could be integrated into 
+> SystemTap in order to make it a one stop solution for both dynamic and 
+> static tracing.  Would you care to elaborate why you think having 
+> separate projects is a better solution?
 
-> > Nobody is taking dynamic tracing away!
-> > You make it sound that tracing is only possible via dynamic traces.
-> > If I want to use static tracepoints, why shouldn't I?
-> 
-> because:
-> 
->  - static tracepoints, once added, are very hard to remove - up until
->    eternity. (On the other hand, markers for dynamic tracers are easily 
->    removed, either via making the dynamic tracer smarter, or by 
->    detaching the marker via the patch(1) method. In any case, if a 
->    marker goes away then hell does not break loose in dynamic tracing 
->    land - but it does in static tracing land.
+We don't -- at least *I* wouldn't care, but I'm not the current
+maintainer. ltt's usefulness has always been in the digested information
+it can present to the user. The kernel patching part was a necessary
+evil. What I object to is the depiction of dynamic tracing as solving
+the need for static markup. I doesn't, and, therefore, does not
+currently constitute an adequate substitute for ltt's patches. If
+someone else can actually provide ltt with the events and surround
+detail (timestamping and all) it needs while still providing the same
+performance we currently get out of the current ltt patches, then I'd
+say more power to them -- the current developers may how more relevant
+things to say.
 
-This is simply not true, at the source level you can remove a static 
-tracepoint as easily as a dynamic tracepoint, the effect of the missing 
-trace information is the same either way.
+Karim
 
->  - the markers needed for dynamic tracing are different from the LTT
->    static tracepoints.
-
-What makes the requirements so different? I would actually think it 
-depends on the user independent of the tracing is done.
-
->  - a marker for dynamic tracing has lower performance impact than a 
->    static tracepoint, on systems that are not being traced. (but which 
->    have the tracing infrastructure enabled otherwise)
-
-Anyone using static tracing intents to use, which makes this point moot.
-
->  - having static tracepoints dillutes the incentive for architectures to
->    implement proper kprobes support.
-
-Considering the level of work needed to support efficient dynamic tracing 
-it only withholds archs from tracing support for no good reason.
-
-> > > > there are separate project teams is because managers in key 
-> > > > positions made the decision that they'd rather break from existing 
-> > > > projects which had had little success mainlining and instead use 
-> > > > their corporate bodyweight to pressure/seduce kernel developers 
-> > > > working for them into pushing their new great which-aboslutely- 
-> > > > has-nothing-to-do-with-this-ltt-crap-(no,no, we actually agree 
-> > > > with you kernel developers that this is crap, this is why we're 
-> > > > developing this new amazing thing). That's the truth plain and 
-> > > > simple.
-> > >
-> > > Stop whining!
-> > 
-> > So we're back to personal attacks now. :-(
-> 
-> hm, so you dont consider the above paragraph a whine. How would you 
-> characterize it then? A measured, balanced, on-topic technical comment? 
-> I'm truly curious.
-
-It's sarcastic, but considering the disrespect towards Karim, I don't 
-blame him. At some point the "whining" argument was funny, but lately it's 
-only used to descredit people.
-
-bye, Roman

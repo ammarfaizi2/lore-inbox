@@ -1,148 +1,130 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932306AbWIOV7v@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932310AbWIOWAc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932306AbWIOV7v (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Sep 2006 17:59:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932307AbWIOV7v
+	id S932310AbWIOWAc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Sep 2006 18:00:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932307AbWIOWAb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Sep 2006 17:59:51 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:55452 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932306AbWIOV7u (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Sep 2006 17:59:50 -0400
-Date: Fri, 15 Sep 2006 23:51:12 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>, karim@opersys.com,
-       Andrew Morton <akpm@osdl.org>, Paul Mundt <lethal@linux-sh.org>,
-       Jes Sorensen <jes@sgi.com>,
-       Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
-       linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
-       Ingo Molnar <mingo@redhat.com>, Greg Kroah-Hartman <gregkh@suse.de>,
-       Tom Zanussi <zanussi@us.ibm.com>, ltt-dev@shafik.org,
-       Michel Dagenais <michel.dagenais@polymtl.ca>
-Subject: Re: [PATCH 0/11] LTTng-core (basic tracing infrastructure) 0.5.108
-Message-ID: <20060915215112.GB12789@elte.hu>
-References: <20060915142836.GA9288@localhost.usen.ad.jp> <450ABE08.2060107@opersys.com> <1158332447.5724.423.camel@localhost.localdomain> <20060915111644.c857b2cf.akpm@osdl.org> <1158348954.5724.481.camel@localhost.localdomain> <450B0585.5070700@opersys.com> <1158351780.5724.507.camel@localhost.localdomain> <Pine.LNX.4.64.0609152236010.6761@scrub.home> <20060915204812.GA6909@elte.hu> <Pine.LNX.4.64.0609152314250.6761@scrub.home>
+	Fri, 15 Sep 2006 18:00:31 -0400
+Received: from smtp-out.google.com ([216.239.45.12]:31452 "EHLO
+	smtp-out.google.com") by vger.kernel.org with ESMTP id S932310AbWIOWAa
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Sep 2006 18:00:30 -0400
+DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
+	h=received:subject:from:reply-to:to:cc:in-reply-to:references:
+	content-type:organization:date:message-id:mime-version:x-mailer:content-transfer-encoding;
+	b=bYFmuZkP85DRypgBYeujJ/u3OQKq423Z+JopNK08a7b4NCDiygYaBzigM6bGe5CVc
+	hBGnvDonR8lxOWA6dz05A==
+Subject: Re: [Devel] Re: [ckrm-tech] [PATCH] BC:	resource	beancounters	(v4)
+	(added	user memory)
+From: Rohit Seth <rohitseth@google.com>
+Reply-To: rohitseth@google.com
+To: Kir Kolyshkin <kir@openvz.org>
+Cc: devel@openvz.org, Kirill Korotaev <dev@sw.ru>,
+       Rik van Riel <riel@redhat.com>, vatsa@in.ibm.com, sekharan@us.ibm.com,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       CKRM-Tech <ckrm-tech@lists.sourceforge.net>, balbir@in.ibm.com,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andi Kleen <ak@suse.de>, Christoph Hellwig <hch@infradead.org>,
+       Andrey Savochkin <saw@sw.ru>, Matt Helsley <matthltc@us.ibm.com>,
+       Hugh Dickins <hugh@veritas.com>, Alexey Dobriyan <adobriyan@mail.ru>,
+       Oleg Nesterov <oleg@tv-sign.ru>
+In-Reply-To: <450B1958.3020309@openvz.org>
+References: <44FD918A.7050501@sw.ru> <44FDAB81.5050608@in.ibm.com>
+	 <44FEC7E4.7030708@sw.ru> <44FF1EE4.3060005@in.ibm.com>
+	 <1157580371.31893.36.camel@linuxchandra> <45011CAC.2040502@openvz.org>
+	 <1157743424.19884.65.camel@linuxchandra>
+	 <1157751834.1214.112.camel@galaxy.corp.google.com>
+	 <1157999107.6029.7.camel@linuxchandra>
+	 <1158001831.12947.16.camel@galaxy.corp.google.com>
+	 <20060912104410.GA28444@in.ibm.com>
+	 <1158081752.20211.12.camel@galaxy.corp.google.com>
+	 <1158105732.4800.26.camel@linuxchandra>
+	 <1158108203.20211.52.camel@galaxy.corp.google.com>
+	 <1158109991.4800.43.camel@linuxchandra>
+	 <1158111218.20211.69.camel@galaxy.corp.google.com>
+	 <1158186247.18927.11.camel@linuxchandra>  <450A71B1.8020009@sw.ru>
+	 <1158339160.12311.35.camel@galaxy.corp.google.com>
+	 <450B1958.3020309@openvz.org>
+Content-Type: text/plain
+Organization: Google Inc
+Date: Fri, 15 Sep 2006 14:58:53 -0700
+Message-Id: <1158357533.12311.110.camel@galaxy.corp.google.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0609152314250.6761@scrub.home>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -2.9
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.9 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5000]
-	-0.1 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+X-Mailer: Evolution 2.2.1.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Roman Zippel <zippel@linux-m68k.org> wrote:
-
-> > because:
-> > 
-> >  - static tracepoints, once added, are very hard to remove - up until
-> >    eternity. (On the other hand, markers for dynamic tracers are easily 
-> >    removed, either via making the dynamic tracer smarter, or by 
-> >    detaching the marker via the patch(1) method. In any case, if a 
-> >    marker goes away then hell does not break loose in dynamic tracing 
-> >    land - but it does in static tracing land.
+On Sat, 2006-09-16 at 01:21 +0400, Kir Kolyshkin wrote:
+> Rohit Seth wrote:
+> > On Fri, 2006-09-15 at 13:26 +0400, Kirill Korotaev wrote:
+> >   
+> > <...skipped...>
+> >   
+> >> for VMware which can reserve required amount of RAM for VM.
+> >>     
+> >
+> > It is much easier to provide guarantees in complete virtual
+> > environments.  But then you pay the cost in terms of performance.
+> >   
+> "Complete virtual environments" vs. "contaners" is not [only] about
+> performance! In the end, given a proper set of dirty and no-so-dirty
+> hacks in software and hardware, their performance will be close to native.
 > 
-> This is simply not true, at the source level you can remove a static 
-> tracepoint as easily as a dynamic tracepoint, the effect of the 
-> missing trace information is the same either way.
 
-this is not true. I gave you one example already a few mails ago (which 
-you did not reply to, neither did you reply the previous time when i 
-first mentioned this - perhaps you missed it in the high volume of 
-emails):
+I don't think there is current generation of Virtualization HW/SW that
+can live with o-2% performance loss for all workloads (like the way
+containers do).
 
-" i outlined one such specific "removal of static tracepoint" example 
-  already: static trace points at the head/prologue of functions (half 
-  of the existing tracepoints are such). The sock_sendmsg() example i 
-  quoted before is such a case. Those trace points can be replaced with 
-  a simple GCC function attribute, which would cause a 5-byte (or 
-  whatever necessary) NOP to be inserted at the function prologue. The 
-  attribute would be alot less invasive than an explicit tracepoint (and 
-  thus easier to maintain) "
-
-> >  - the markers needed for dynamic tracing are different from the LTT
-> >    static tracepoints.
+> Containers vs. other virtualization types is more about utilization,
+> density, scalability, portability.
 > 
-> What makes the requirements so different? I would actually think it 
-> depends on the user independent of the tracing is done.
 
-yes, and i mentioned before that they can be merged (i even outlined a 
-few APIs for it), but still that is not being offered by LTT today.
+I agree with most of it (except portability as using latest HW
+technologies you can run unmodified guests in virtualized environment).
 
-> >  - a marker for dynamic tracing has lower performance impact than a 
-> >    static tracepoint, on systems that are not being traced. (but which 
-> >    have the tracing infrastructure enabled otherwise)
+> Speaking of guarantees, yes, guarantees is easy, you just reserve such
+> amount of RAM for your VM and that is all. But the fact is usually some
+> part of that RAM will not be utilized by this particular VM. But since
+> it is reserved, it can not be utilized by other VMs -- and we end up
+> just wasting some resources. Containers, given a proper resource
+> management and configuration, can have some guarantees and still be able
+> to utilize all the RAM available in the system. This difference can be
+> metaphorically expressed as a house divided into rooms. Dividing walls
+> can either be hard or flexible. With flexible walls, room (container)
+> owner have a guarantee of minimal space in your room, but if a few
+> guests come for a moment, the walls can move to make more space (up to
+> the limit). So the flexibility is measured as the delta between a
+> guarantee and a limit.
 > 
-> Anyone using static tracing intents to use, which makes this point 
-> moot.
-
-that's not at all true, on multiple grounds:
-
-Firstly, many people use distro kernels. A Linux distribution typically 
-wants to offer as few kernel rpms as possible (one per arch to be 
-precise), but it also wants to offer as many features as possible. So if 
-there was a static tracer in there, a distro would enable it - but 99.9% 
-of the users would never use it - still they would see the overhead. 
-Hence the user would have it enabled, but does not intend to use it - 
-which contradicts your statement.
-
-Secondly, even people who intend to _eventually_ make use of tracing, 
-dont use it most of the time. So why should they have more overhead when 
-they are not tracing? Again: the point is not moot because even though 
-the user intends to use tracing, but does not always want to trace.
-
-> >  - having static tracepoints dillutes the incentive for architectures to
-> >    implement proper kprobes support.
+> This flexibility leads to higher utilization, and this flexibility is
+> one of the reasons for better density (a few times higher than that of a
+> paravirtualization solution).
 > 
-> Considering the level of work needed to support efficient dynamic 
-> tracing it only withholds archs from tracing support for no good 
-> reason.
 
-5 major architectures (both RISC and CISC) already support kprobes, so 
-fortunately this point is largely moot - but you are right to a certain 
-degree, it's not totally solved. But the examples are there. It's still 
-not trivial to implement a feature like this, but kernel programming 
-never is. I far more prefer the harder but more intelligent solution 
-than the easier but less intelligent solution - even if that means a 
-temporary unavailability of a feature for some rarer arch.
+I guess as far as memory is concerned, virtualized solutions can also
+techniques like ballooning to oversubscribe memory.  But I agree that we
+will almost always be able to pack things tighter in container
+environment.
 
-> > > > > there are separate project teams is because managers in key 
-> > > > > positions made the decision that they'd rather break from existing 
-> > > > > projects which had had little success mainlining and instead use 
-> > > > > their corporate bodyweight to pressure/seduce kernel developers 
-> > > > > working for them into pushing their new great which-aboslutely- 
-> > > > > has-nothing-to-do-with-this-ltt-crap-(no,no, we actually agree 
-> > > > > with you kernel developers that this is crap, this is why we're 
-> > > > > developing this new amazing thing). That's the truth plain and 
-> > > > > simple.
-> > > >
-> > > > Stop whining!
-> > > 
-> > > So we're back to personal attacks now. :-(
-> > 
-> > hm, so you dont consider the above paragraph a whine. How would you 
-> > characterize it then? A measured, balanced, on-topic technical 
-> > comment? I'm truly curious.
-> 
-> It's sarcastic, [...]
+> I will not touch scalability and portability topics here to make things
+> simpler.
+> > I think we should punt on hard guarantees and fractions for the first
+> > draft.  Keep the implementation simple.
+> >   
+> Do I understand it right that with hard guarantees we loose the
+> flexibility I have just described? If this is the case, I do not like it.
 
-oh, really? Karim's characterization was:
+With hard guarantees, you will also end up making hooks in generic part
+of kernel which could be considered invasive.  And yes, if you are
+making a hard guarantee then you will some how make sure that amount of
+resource is available all the time for that container.  As you mentioned
+this is not the most optimal use of resources.  And that is why I don't
+want to incorporate that in at least the first draft.  Please look at
+the container kernel patches that I sent out yesterday.  They allow the
+containers to go over board with memory as long as there is no pressure.
+But the moment there is any pressure on memory, pages belonging to over
+the limit containers get freed or swapped first.
 
- " I'm factually explaining the real-life result of resistance to static
-   instrumentation. "
+-rohit
 
-so whose interpretation of Karim's comments should i accept, yours or 
-Karim's? I'm really torn on that issue. (_that_ was sarcastic)
-
-	Ingo

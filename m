@@ -1,105 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751307AbWIOUWN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751310AbWIOUZL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751307AbWIOUWN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Sep 2006 16:22:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751310AbWIOUWN
+	id S1751310AbWIOUZL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Sep 2006 16:25:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751315AbWIOUZL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Sep 2006 16:22:13 -0400
-Received: from www.osadl.org ([213.239.205.134]:32229 "EHLO mail.tglx.de")
-	by vger.kernel.org with ESMTP id S1751307AbWIOUWM (ORCPT
+	Fri, 15 Sep 2006 16:25:11 -0400
+Received: from www.osadl.org ([213.239.205.134]:39653 "EHLO mail.tglx.de")
+	by vger.kernel.org with ESMTP id S1751310AbWIOUZJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Sep 2006 16:22:12 -0400
+	Fri, 15 Sep 2006 16:25:09 -0400
 Subject: Re: [PATCH 0/11] LTTng-core (basic tracing infrastructure) 0.5.108
 From: Thomas Gleixner <tglx@linutronix.de>
 Reply-To: tglx@linutronix.de
 To: karim@opersys.com
-Cc: Andrew Morton <akpm@osdl.org>, Paul Mundt <lethal@linux-sh.org>,
-       Jes Sorensen <jes@sgi.com>, Roman Zippel <zippel@linux-m68k.org>,
+Cc: Andrew Morton <akpm@osdl.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Roman Zippel <zippel@linux-m68k.org>, Tim Bird <tim.bird@am.sony.com>,
        Ingo Molnar <mingo@elte.hu>,
        Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
        linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
        Ingo Molnar <mingo@redhat.com>, Greg Kroah-Hartman <gregkh@suse.de>,
        Tom Zanussi <zanussi@us.ibm.com>, ltt-dev@shafik.org,
        Michel Dagenais <michel.dagenais@polymtl.ca>
-In-Reply-To: <450B0585.5070700@opersys.com>
-References: <20060914181557.GA22469@elte.hu> <4509A54C.1050905@opersys.com>
-	 <yq08xkleb9h.fsf@jaguar.mkp.net> <450A9EC9.9080307@opersys.com>
-	 <20060915132052.GA7843@localhost.usen.ad.jp>
-	 <Pine.LNX.4.64.0609151535030.6761@scrub.home>
-	 <20060915135709.GB8723@localhost.usen.ad.jp> <450AB5F9.8040501@opersys.com>
-		 <450AB506.30802@sgi.com> <450AB957.2050206@opersys.com>
-	 <20060915142836.GA9288@localhost.usen.ad.jp> <450ABE08.2060107@opersys.com>
-	 <1158332447.5724.423.camel@localhost.localdomain>
-	 <20060915111644.c857b2cf.akpm@osdl.org>
-	 <1158348954.5724.481.camel@localhost.localdomain>
-	 <450B0585.5070700@opersys.com>
+In-Reply-To: <450B0BF9.8090407@opersys.com>
+References: <20060914033826.GA2194@Krystal>	<20060914112718.GA7065@elte.hu>
+	 <Pine.LNX.4.64.0609141537120.6762@scrub.home>
+	 <20060914135548.GA24393@elte.hu>
+	 <Pine.LNX.4.64.0609141623570.6761@scrub.home>
+	 <20060914171320.GB1105@elte.hu>
+	 <Pine.LNX.4.64.0609141935080.6761@scrub.home>
+	 <20060914181557.GA22469@elte.hu>	<4509B03A.3070504@am.sony.com>
+	 <1158320406.29932.16.camel@localhost.localdomain>
+	 <Pine.LNX.4.64.0609151339190.6761@scrub.home>
+	 <1158323938.29932.23.camel@localhost.localdomain>
+	 <20060915104527.89396eaf.akpm@osdl.org>	<450AEDF2.3070504@opersys.com>
+	 <20060915125934.6c82b625.akpm@osdl.org>  <450B0BF9.8090407@opersys.com>
 Content-Type: text/plain
-Date: Fri, 15 Sep 2006 22:23:00 +0200
-Message-Id: <1158351780.5724.507.camel@localhost.localdomain>
+Date: Fri, 15 Sep 2006 22:25:58 +0200
+Message-Id: <1158351958.5724.510.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-09-15 at 15:56 -0400, Karim Yaghmour wrote:
-> Thomas Gleixner wrote:
-> > One thing which is much more important IMHO is the availablity of
-> > _USEFUL_ postprocessing tools to give users a real value of
-> > instrumentation. This is a much more complex task than this whole kernel
-> > instrumentation business. This also includes the ability to coordinate
-> > user space _and_ kernel space instrumentation, which is necessary to
-> > analyse complex kernel / application code interactions. 
-> 
-> And of course the usefulness of such postprocessing tools is gated
-> by the ability of users to use them on _any_ kernel they get their
-> hands on. Up to this point, this has not been for *any* of the
-> existing toolsets, simply because they require the user to either
-> recompile his kernel or modify his probe points to match his kernel.
+On Fri, 2006-09-15 at 16:24 -0400, Karim Yaghmour wrote:
+> Should this mechanism ever be made to work, the need for static
+> markup would still be felt however.
 
-So this has to be changed. And requiring to recompile the kernel is the
-wrong answer. Having some nifty tool, which allows you to define the set
-of dynamic trace points or use a predefined one is the way to go.
-
-> Until users can actually do without either of these steps (which is
-> only possible with static markup) 
-
-Generalization like that are simply wrong. Static markup is not a
-panacea. It might help for some things in the first place, but it is not
-flexible enough in the long run. It is an engineering challenge to make
-the "static" trace rules autogenerated by some means as Andrew pointed
-out several times in this thread (see patch(1)), so we can provide a
-useful ad hoc set for the users.
-
-> We don't need separate popstprocessing tool teams. The only reasons
-> there are separate project teams is because managers in key
-> positions made the decision that they'd rather break from existing
-> projects which had had little success mainlining and instead use
-> their corporate bodyweight to pressure/seduce kernel developers
-> working for them into pushing their new great which-aboslutely-
-> has-nothing-to-do-with-this-ltt-crap-(no,no, we actually agree
-> with you kernel developers that this is crap, this is why we're
-> developing this new amazing thing). That's the truth plain and
-> simple.
-
-Stop whining! LTT did not manage to solve the problem in a generic,
-mainline acceptable way. If you really believe that Kprobes / Systemtap
-is just a $corporate maliciousness to kick you out of business, then I
-really start to doubt your sanity.
-
-This has nothing to do with postprocessing and tracepoint creation
-tools. The postprocessing stuff is not in the scope of mainlining. Once
-a halfways future proof interface is available, tools will come up
-within no time. There are a lot of companies out there who have the
-interest and the capabilites to do an intergration into Eclipse to name
-one example. They will not start to spend a second of work time until
-there is a consolidated instrumentation core in the kernel.
-
-> When I started involving myself in Linux development a decade ago,
-> I honestly did not think I'd ever see this kind of stuff happen,
-> but, hey, that's life.
-
-- ENOPARSE
+This might apply to some exotic points, but for 98% of the
+instrumentation scenarios static markup is not necessary.
 
 	tglx
 

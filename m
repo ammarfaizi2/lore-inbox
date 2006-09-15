@@ -1,49 +1,116 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750912AbWIOKWJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751091AbWIOK1e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750912AbWIOKWJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Sep 2006 06:22:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750925AbWIOKWJ
+	id S1751091AbWIOK1e (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Sep 2006 06:27:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750990AbWIOK1e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Sep 2006 06:22:09 -0400
-Received: from ecfrec.frec.bull.fr ([129.183.4.8]:51117 "EHLO
-	ecfrec.frec.bull.fr") by vger.kernel.org with ESMTP
-	id S1750912AbWIOKWG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Sep 2006 06:22:06 -0400
-Message-ID: <450A7EC5.2090909@bull.net>
-Date: Fri, 15 Sep 2006 12:21:57 +0200
-From: Pierre Peiffer <pierre.peiffer@bull.net>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060808)
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Cc: gregkh@suse.de, Matt_Domsch@dell.com
-Subject: [Bug ??] 2.6.18-rc6-mm2 - PCI ethernet board does not seem to work
-X-MIMETrack: Itemize by SMTP Server on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 15/09/2006 12:27:47,
-	Serialize by Router on ECN002/FR/BULL(Release 5.0.12  |February 13, 2003) at
- 15/09/2006 12:27:48,
-	Serialize complete at 15/09/2006 12:27:48
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+	Fri, 15 Sep 2006 06:27:34 -0400
+Received: from wohnheim.fh-wedel.de ([213.39.233.138]:47012 "EHLO
+	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S1750982AbWIOK1d (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Sep 2006 06:27:33 -0400
+Date: Fri, 15 Sep 2006 12:27:36 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [RFC] Alignment of fields in struct dentry
+Message-ID: <20060915102736.GA767@wohnheim.fh-wedel.de>
+References: <20060914093123.GA10431@wohnheim.fh-wedel.de> <20060914105029.GA1702@wohnheim.fh-wedel.de> <20060914183325.GU6441@schatzie.adilger.int> <20060914210235.GA10548@wohnheim.fh-wedel.de> <20060914215545.GC6441@schatzie.adilger.int>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20060914215545.GC6441@schatzie.adilger.int>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Thu, 14 September 2006 15:55:45 -0600, Andreas Dilger wrote:
+> On Sep 14, 2006  23:02 +0200, J???rn Engel wrote:
+> > 
+> > Using your scheme (slightly reduced) we now have:
+> > 		size32	size64	funky?
+> > d_count	4	4
+> > d_flags	4	4
+> > d_lock	4	4_	y
+> > d_inode	4_	8
+> > d_hash	8	16--
+> > d_parent	4	8_
+> > d_name	12--	16___
+> > d_lru		8_	16_
+> > d_rcu/d_child	8	16__
+> > d_subdirs	8___	16_
+> > d_alias	8	16____
+> > d_time	4	8
+> > d_op		4_	8_
+> > d_sb		4	8
+> > d_fsdata	4	8__
+> > d_cookie	0	0	y
+> > d_mounted	4	4
+> > d_iname	36____	36
+> > 
+> > With the two funky fields possibly growing, depending on kernel
+> > config.  [_-] mark 16-, 32- 64- and 128-byte boundaries, depending on
+> > len.  What really frightens me is that a 32-byte boundary goes right
+> > through d_name on 32bit machines.
+> 
+> Actually, splitting d_name like this is not so bad (as long as the
+> compiler doesn't add padding) because the important fields (hash
+> and len) are first and are compared for all non-matching dentries
+> in __d_lookup().
 
-My Ethernet board (Intel(R) PRO/1000) "doesn't seems" to work any more
-with this kernel, but all is ok with kernel 2.6.18-rc6-mm1.
+Except that d_name is split between hash and len, not between len and
+name.  You said d_lock was added later?  Looks like it broke careful
+tuning for 32-byte cacheline machines.  And it could also have caused
+the misalignment on 64bit.
 
-A bisection search show this patch:
-gregkh-pci-pci-sort-device-lists-breadth-first.patch
-as being the faulty one...
+> > Now d_lookup() should use a single cacheline, even on my aged
+> > notebook, and the other hot fields remain at the top.  d_mounted is
+> > also moved up to remove the misalignment on 64bit.  Might be worth
+> > a benchmark or two to see whether it makes a difference...
+> 
+> Might not be too hard (even if it temporarily kills performance)
+> to add atomic counters for each of these fields where they are
+> referenced in dcache.c, namei.c and e.g. fs/ext3/*.c (which is
+> only using d_inode, d_name, and d_parent).  Run a find and a
+> kernel compile and dump the counters at shutdown.
 
-But after reading the content of this patch, I understood that the order
-of the ethernet boards had changed. In fact,  I have four ethernet
-boards and now, my eth0 does not point on the same card...
-So all is now ok by changing my cable to the right board.
+Might be even simpler by running gcov/lcov.  That would not show which
+fields are used at similar times, but it is a start.
 
-But is this really the expected behavior ?
+Btw, I already mentioned how reducing the d_iname fields by a few
+bytes could save a cacheline.  And whenever I have a good idea, Arnd
+usually comes up with a better one.  How about the patch below to fix
+dentries to 128/192 bytes on 32/64 bit machines, independently of
+config options?  It would shrink them from 132 bytes to 128 bytes in
+my current config (although I don't quite remember why I turned
+CONFIG_PROFILING on).
 
+Jörn
 
 -- 
-Pierre Peiffer
+Joern's library part 14:
+http://www.sandpile.org/
 
+--- slab/include/linux/dcache.h~dentry_size	2006-09-14 22:19:51.000000000 +0200
++++ slab/include/linux/dcache.h	2006-09-15 12:25:27.000000000 +0200
+@@ -77,7 +77,7 @@ full_name_hash(const unsigned char *name
+ 
+ struct dcookie_struct;
+ 
+-#define DNAME_INLINE_LEN_MIN 36
++#define DNAME_INLINE_LEN_MIN 16
+ 
+ struct dentry {
+ 	atomic_t d_count;
+@@ -112,7 +112,10 @@ struct dentry {
+ #endif
+ 	int d_mounted;
+ 	unsigned char d_iname[DNAME_INLINE_LEN_MIN];	/* small names */
+-};
++}__attribute__((aligned(64)));	/* make sure the dentry is 128/192 bytes
++				   on 32/64 bit independently of config
++				   options.  d_iname will vary in length
++				   a bit. */
+ 
+ /*
+  * dentry->d_lock spinlock nesting subclasses:

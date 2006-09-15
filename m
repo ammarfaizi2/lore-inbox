@@ -1,70 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751371AbWIOU2I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751399AbWIOUcF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751371AbWIOU2I (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Sep 2006 16:28:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751376AbWIOU2I
+	id S1751399AbWIOUcF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Sep 2006 16:32:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751409AbWIOUcE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Sep 2006 16:28:08 -0400
-Received: from [209.226.175.184] ([209.226.175.184]:45281 "EHLO
-	tomts22-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id S1751371AbWIOU2E convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Sep 2006 16:28:04 -0400
-Date: Fri, 15 Sep 2006 16:22:34 -0400
-From: Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Roman Zippel <zippel@linux-m68k.org>, Andrew Morton <akpm@osdl.org>,
-       tglx@linutronix.de, karim@opersys.com, Paul Mundt <lethal@linux-sh.org>,
-       Jes Sorensen <jes@sgi.com>, linux-kernel@vger.kernel.org,
-       Christoph Hellwig <hch@infradead.org>, Ingo Molnar <mingo@redhat.com>,
-       Greg Kroah-Hartman <gregkh@suse.de>, Tom Zanussi <zanussi@us.ibm.com>,
-       ltt-dev@shafik.org, Michel Dagenais <michel.dagenais@polymtl.ca>
-Subject: Re: [PATCH 0/11] LTTng-core (basic tracing infrastructure) 0.5.108
-Message-ID: <20060915202233.GA23318@Krystal>
-References: <450AB5F9.8040501@opersys.com> <450AB506.30802@sgi.com> <450AB957.2050206@opersys.com> <20060915142836.GA9288@localhost.usen.ad.jp> <450ABE08.2060107@opersys.com> <1158332447.5724.423.camel@localhost.localdomain> <20060915111644.c857b2cf.akpm@osdl.org> <20060915181907.GB17581@elte.hu> <Pine.LNX.4.64.0609152111030.6761@scrub.home> <20060915200559.GB30459@elte.hu>
+	Fri, 15 Sep 2006 16:32:04 -0400
+Received: from chain.digitalkingdom.org ([64.81.49.134]:47317 "EHLO
+	chain.digitalkingdom.org") by vger.kernel.org with ESMTP
+	id S1751399AbWIOUcC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Sep 2006 16:32:02 -0400
+Date: Fri, 15 Sep 2006 13:31:59 -0700
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Same MCE on 4 working machines (was Re: Early boot hang on recent 2.6 kernels (> 2.6.3), on x86-64 with 16gb of RAM)
+Message-ID: <20060915203159.GS4610@chain.digitalkingdom.org>
+References: <20060912223258.GM4612@chain.digitalkingdom.org> <20060914190548.GI4610@chain.digitalkingdom.org> <1158320742.29932.20.camel@localhost.localdomain> <20060915182915.GR4610@chain.digitalkingdom.org> <1158353439.29932.146.camel@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8BIT
-In-Reply-To: <20060915200559.GB30459@elte.hu>
-X-Editor: vi
-X-Info: http://krystal.dyndns.org:8080
-X-Operating-System: Linux/2.4.32-grsec (i686)
-X-Uptime: 16:19:38 up 23 days, 17:28,  2 users,  load average: 0.24, 0.51, 0.42
-User-Agent: Mutt/1.5.13 (2006-08-11)
+In-Reply-To: <1158353439.29932.146.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.12-2006-07-14
+From: Robin Lee Powell <rlpowell@digitalkingdom.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Please Ingo, stop repeating false argument without taking in account people's
-corrections :
-
-* Ingo Molnar (mingo@elte.hu) wrote:
-> sorry, but i disagree. There _is_ a solution that is superior in every 
-> aspect: kprobes + SystemTap. (or any other equivalent dynamic tracer)
+On Fri, Sep 15, 2006 at 09:50:39PM +0100, Alan Cox wrote:
+> Ar Gwe, 2006-09-15 am 11:29 -0700, ysgrifennodd Robin Lee Powell:
+> > > 	pci=conf2
+> > 
+> > No effect without acpi=off.
+> > 
+> > With acpi=off, it gets rather farther before apparently failing to
+> > talk the 3-ware card:
 > 
-
-I am sorry to have to repeat myself, but this is not true for heavy loads.
-
-> > At this point you've been rather uncompromising [...]
+> Thats helpful. The conf2 cycles are the wrong type for the board
+> so with acpi=off pci=conf2 it doesn't see any PCI devices and
+> doesn't explode. I see nothing odd in the lspci data at all
+> however.
 > 
-> yes, i'm rather uncompromising when i sense attempts to push inferior 
-> concepts into the core kernel _when_ a better concept exists here and 
-> today. Especially if the concept being pushed adds more than 350 
-> tracepoints that expose something to user-space that amounts to a 
-> complex external API, which tracepoints we have little chance of ever 
-> getting rid of under a static tracing concept.
-> 
->From an earlier email from Tim bird :
+> You also have a lot of RAM, that shouldn't matter but it means you
+> hit code paths most users don't. If you boot with mem limited to
+> 1GB I assume it still blows up ?
 
-"I still think that this is off-topic for the patch posted.  I think we
-should debate the implementation of tracepoints/markers when someone posts a
-patch for some.  I think it's rather scurrilous to complain about
-code NOT submitted.  Ingo has even mis-characterized the not-submitted
-instrumentation patch, by saying it has 350 tracepoints when it has no
-such thing.  I counted 58 for one architecture (with only 8 being
-arch-specific)."
+I've tried mem=1023M, yes, and it still blows up.  Just did acpi=off
+mem=1023M to check.
 
-Mathieu
-
-OpenPGP public key:              http://krystal.dyndns.org:8080/key/compudj.gpg
-Key fingerprint:     8CD5 52C3 8E3C 4140 715F  BA06 3F25 A8FE 3BAE 9A68 
+-Robin

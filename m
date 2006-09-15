@@ -1,55 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751310AbWIOUZL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751323AbWIOU1K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751310AbWIOUZL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Sep 2006 16:25:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751315AbWIOUZL
+	id S1751323AbWIOU1K (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Sep 2006 16:27:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751336AbWIOU1J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Sep 2006 16:25:11 -0400
-Received: from www.osadl.org ([213.239.205.134]:39653 "EHLO mail.tglx.de")
-	by vger.kernel.org with ESMTP id S1751310AbWIOUZJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Sep 2006 16:25:09 -0400
-Subject: Re: [PATCH 0/11] LTTng-core (basic tracing infrastructure) 0.5.108
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: karim@opersys.com
-Cc: Andrew Morton <akpm@osdl.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Roman Zippel <zippel@linux-m68k.org>, Tim Bird <tim.bird@am.sony.com>,
-       Ingo Molnar <mingo@elte.hu>,
-       Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
-       linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
-       Ingo Molnar <mingo@redhat.com>, Greg Kroah-Hartman <gregkh@suse.de>,
-       Tom Zanussi <zanussi@us.ibm.com>, ltt-dev@shafik.org,
-       Michel Dagenais <michel.dagenais@polymtl.ca>
-In-Reply-To: <450B0BF9.8090407@opersys.com>
-References: <20060914033826.GA2194@Krystal>	<20060914112718.GA7065@elte.hu>
-	 <Pine.LNX.4.64.0609141537120.6762@scrub.home>
-	 <20060914135548.GA24393@elte.hu>
-	 <Pine.LNX.4.64.0609141623570.6761@scrub.home>
-	 <20060914171320.GB1105@elte.hu>
-	 <Pine.LNX.4.64.0609141935080.6761@scrub.home>
-	 <20060914181557.GA22469@elte.hu>	<4509B03A.3070504@am.sony.com>
-	 <1158320406.29932.16.camel@localhost.localdomain>
-	 <Pine.LNX.4.64.0609151339190.6761@scrub.home>
-	 <1158323938.29932.23.camel@localhost.localdomain>
-	 <20060915104527.89396eaf.akpm@osdl.org>	<450AEDF2.3070504@opersys.com>
-	 <20060915125934.6c82b625.akpm@osdl.org>  <450B0BF9.8090407@opersys.com>
+	Fri, 15 Sep 2006 16:27:09 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:41604 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1751323AbWIOU1I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Sep 2006 16:27:08 -0400
+Subject: Re: Same MCE on 4 working machines (was Re: Early boot hang on
+	recent 2.6 kernels (> 2.6.3), on x86-64 with 16gb of RAM)
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Robin Lee Powell <rlpowell@digitalkingdom.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20060915182915.GR4610@chain.digitalkingdom.org>
+References: <20060912223258.GM4612@chain.digitalkingdom.org>
+	 <20060914190548.GI4610@chain.digitalkingdom.org>
+	 <1158320742.29932.20.camel@localhost.localdomain>
+	 <20060915182915.GR4610@chain.digitalkingdom.org>
 Content-Type: text/plain
-Date: Fri, 15 Sep 2006 22:25:58 +0200
-Message-Id: <1158351958.5724.510.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
+Date: Fri, 15 Sep 2006 21:50:39 +0100
+Message-Id: <1158353439.29932.146.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-09-15 at 16:24 -0400, Karim Yaghmour wrote:
-> Should this mechanism ever be made to work, the need for static
-> markup would still be felt however.
+Ar Gwe, 2006-09-15 am 11:29 -0700, ysgrifennodd Robin Lee Powell:
+> > 	pci=conf2
+> 
+> No effect without acpi=off.
+> 
+> With acpi=off, it gets rather farther before apparently failing to
+> talk the 3-ware card:
 
-This might apply to some exotic points, but for 98% of the
-instrumentation scenarios static markup is not necessary.
+Thats helpful. The conf2 cycles are the wrong type for the board so with
+acpi=off pci=conf2 it doesn't see any PCI devices and doesn't explode. I
+see nothing odd in the lspci data at all however.
 
-	tglx
-
+You also have a lot of RAM, that shouldn't matter but it means you hit
+code paths most users don't. If you boot with mem limited to 1GB I
+assume it still blows up ?
 

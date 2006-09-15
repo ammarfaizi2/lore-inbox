@@ -1,41 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751280AbWIOLdR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750787AbWIOLrN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751280AbWIOLdR (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Sep 2006 07:33:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751282AbWIOLdR
+	id S1750787AbWIOLrN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Sep 2006 07:47:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751290AbWIOLrN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Sep 2006 07:33:17 -0400
-Received: from wx-out-0506.google.com ([66.249.82.230]:53236 "EHLO
-	wx-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1751280AbWIOLdQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Sep 2006 07:33:16 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
-        b=iHddRyTDopNE3QgTZAtfrNczXWCQ550SwwZ9ZS5GtThlF1oE7yIqg/B9+UZIrPjNcfCC/JVkSJNiFF02oIbrdEcZ6DOps0U1McmW31AYvBixRH78zhRxjLuziIXrN6wtkTNR3KW/rzSbnRSrSC/yWoI4gG/Yaj4M7XKK9cHiIx0=
-Message-ID: <e6ec3ad10609150433x19803d2dw4dbfc604a672d42a@mail.gmail.com>
-Date: Fri, 15 Sep 2006 13:33:16 +0200
-From: "Marcin Juszkiewicz" <openembedded@hrw.one.pl>
-To: "John Shillinglaw" <ianchas@sc.rr.com>, linux-kernel@vger.kernel.org
-Subject: Re: Sharp Zaurus SL-5500 SD reader in 2.6.18-rc6
-In-Reply-To: <1158108895.12680.2.camel@Pippin.home>
+	Fri, 15 Sep 2006 07:47:13 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:49571 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S1750787AbWIOLrM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Sep 2006 07:47:12 -0400
+Date: Fri, 15 Sep 2006 13:46:34 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Tim Bird <tim.bird@am.sony.com>, Ingo Molnar <mingo@elte.hu>,
+       Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
+       linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
+       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@redhat.com>,
+       Greg Kroah-Hartman <gregkh@suse.de>,
+       Thomas Gleixner <tglx@linutronix.de>, Tom Zanussi <zanussi@us.ibm.com>,
+       ltt-dev@shafik.org, Michel Dagenais <michel.dagenais@polymtl.ca>
+Subject: Re: [PATCH 0/11] LTTng-core (basic tracing infrastructure) 0.5.108
+In-Reply-To: <1158320406.29932.16.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.64.0609151339190.6761@scrub.home>
+References: <20060914033826.GA2194@Krystal> <20060914112718.GA7065@elte.hu>
+  <Pine.LNX.4.64.0609141537120.6762@scrub.home>  <20060914135548.GA24393@elte.hu>
+  <Pine.LNX.4.64.0609141623570.6761@scrub.home>  <20060914171320.GB1105@elte.hu>
+  <Pine.LNX.4.64.0609141935080.6761@scrub.home>  <20060914181557.GA22469@elte.hu>
+  <4509B03A.3070504@am.sony.com> <1158320406.29932.16.camel@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <1158108895.12680.2.camel@Pippin.home>
-X-Google-Sender-Auth: bcef41ae7db00bd4
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 9/13/06, John Shillinglaw <ianchas@sc.rr.com> wrote:
+Hi,
 
-> Can anyone tell me the status of support for the locomo based sd/mmc
-> reader in the Sharp Zaurus sl-5500 for either the 2.6.18-rc6 kernel or
-> in 2.6.18-rc6-mm2 ?
+On Fri, 15 Sep 2006, Alan Cox wrote:
 
-No one has documentation for chipset used to drive SD/MMC controler.
-All we know is that it use some kind of SPI interface through the
-LOCOMO chip (as far as I know) which we have no documentation on.
+> Ar Iau, 2006-09-14 am 12:40 -0700, ysgrifennodd Tim Bird:
+> > It's only zero maintenance overhead for you.  Someone has to
+> > maintain it. The party line for years has been that in-tree
+> > maintenance is easier than out-of-tree maintenance.
+> 
+> That misses the entire point. If you have dynamic tracepoints you don't
+> have any static tracepoints to maintain because you don't need them.
 
-There was discussion about it few weeks ago on lkml.
+This assumes dynamic tracepoints are generally available, which is wrong.
+This assumes that dynamic tracepoints can't benefit from static source 
+annotations, which is also wrong.
+He doesn't miss the point at all, dynamic tracepoints don't imply zero 
+maintenance overhead.
+
+bye, Roman

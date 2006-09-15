@@ -1,46 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751323AbWIOU1K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751194AbWIOU0n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751323AbWIOU1K (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Sep 2006 16:27:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751336AbWIOU1J
+	id S1751194AbWIOU0n (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Sep 2006 16:26:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751323AbWIOU0n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Sep 2006 16:27:09 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:41604 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1751323AbWIOU1I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Sep 2006 16:27:08 -0400
-Subject: Re: Same MCE on 4 working machines (was Re: Early boot hang on
-	recent 2.6 kernels (> 2.6.3), on x86-64 with 16gb of RAM)
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Robin Lee Powell <rlpowell@digitalkingdom.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20060915182915.GR4610@chain.digitalkingdom.org>
-References: <20060912223258.GM4612@chain.digitalkingdom.org>
-	 <20060914190548.GI4610@chain.digitalkingdom.org>
-	 <1158320742.29932.20.camel@localhost.localdomain>
-	 <20060915182915.GR4610@chain.digitalkingdom.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Fri, 15 Sep 2006 21:50:39 +0100
-Message-Id: <1158353439.29932.146.camel@localhost.localdomain>
+	Fri, 15 Sep 2006 16:26:43 -0400
+Received: from tomts36-srv.bellnexxia.net ([209.226.175.93]:2021 "EHLO
+	tomts36-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id S1751194AbWIOU0m (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Sep 2006 16:26:42 -0400
+Date: Fri, 15 Sep 2006 16:26:40 -0400
+From: Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Andrew Morton <akpm@osdl.org>, tglx@linutronix.de, karim@opersys.com,
+       Paul Mundt <lethal@linux-sh.org>, Jes Sorensen <jes@sgi.com>,
+       Roman Zippel <zippel@linux-m68k.org>, Ingo Molnar <mingo@elte.hu>,
+       linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
+       Ingo Molnar <mingo@redhat.com>, Greg Kroah-Hartman <gregkh@suse.de>,
+       Tom Zanussi <zanussi@us.ibm.com>, ltt-dev@shafik.org,
+       Michel Dagenais <michel.dagenais@polymtl.ca>
+Subject: Re: [PATCH 0/11] LTTng-core (basic tracing infrastructure) 0.5.108
+Message-ID: <20060915202640.GB23318@Krystal>
+References: <Pine.LNX.4.64.0609151535030.6761@scrub.home> <20060915135709.GB8723@localhost.usen.ad.jp> <450AB5F9.8040501@opersys.com> <450AB506.30802@sgi.com> <450AB957.2050206@opersys.com> <20060915142836.GA9288@localhost.usen.ad.jp> <450ABE08.2060107@opersys.com> <1158332447.5724.423.camel@localhost.localdomain> <20060915111644.c857b2cf.akpm@osdl.org> <1158352633.29932.141.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <1158352633.29932.141.camel@localhost.localdomain>
+X-Editor: vi
+X-Info: http://krystal.dyndns.org:8080
+X-Operating-System: Linux/2.4.32-grsec (i686)
+X-Uptime: 16:25:28 up 23 days, 17:34,  2 users,  load average: 0.18, 0.28, 0.34
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Gwe, 2006-09-15 am 11:29 -0700, ysgrifennodd Robin Lee Powell:
-> > 	pci=conf2
+Hi,
+
+* Alan Cox (alan@lxorguk.ukuu.org.uk) wrote:
+> In addition ideally we want a mechanism that is also sufficient that
+> printk can be mangled into so that you can pull all the printk text
+> strings _out_ of the kernel and into the debug traces for embedded work.
 > 
-> No effect without acpi=off.
+> [ie you want printk("Oh dear %s exploded.\n", foo->bar); to end up with
+> "Oh dear %s exploded.\n" out of kernel and in kernel
 > 
-> With acpi=off, it gets rather farther before apparently failing to
-> talk the 3-ware card:
+> 		tracepoint_printk(foo->bar);
+> 
 
-Thats helpful. The conf2 cycles are the wrong type for the board so with
-acpi=off pci=conf2 it doesn't see any PCI devices and doesn't explode. I
-see nothing odd in the lspci data at all however.
+Good idea, trivial to implement on top of LTTng. When seeing printk's reentrancy
+limitations, I have though about doing it a couple of times.
 
-You also have a lot of RAM, that shouldn't matter but it means you hit
-code paths most users don't. If you boot with mem limited to 1GB I
-assume it still blows up ?
+Mathieu
 
+OpenPGP public key:              http://krystal.dyndns.org:8080/key/compudj.gpg
+Key fingerprint:     8CD5 52C3 8E3C 4140 715F  BA06 3F25 A8FE 3BAE 9A68 

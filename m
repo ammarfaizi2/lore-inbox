@@ -1,115 +1,250 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751340AbWIOMRy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751319AbWIOMb5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751340AbWIOMRy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Sep 2006 08:17:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751338AbWIOMRy
+	id S1751319AbWIOMb5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Sep 2006 08:31:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751329AbWIOMb4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Sep 2006 08:17:54 -0400
-Received: from opersys.com ([64.40.108.71]:18438 "EHLO www.opersys.com")
-	by vger.kernel.org with ESMTP id S1751340AbWIOMRx (ORCPT
+	Fri, 15 Sep 2006 08:31:56 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:63461 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751319AbWIOMbz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Sep 2006 08:17:53 -0400
-Message-ID: <450A9EC9.9080307@opersys.com>
-Date: Fri, 15 Sep 2006 08:38:33 -0400
-From: Karim Yaghmour <karim@opersys.com>
-Reply-To: karim@opersys.com
-Organization: Opersys inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.6) Gecko/20060804 Fedora/1.0.4-0.5.1.fc5 SeaMonkey/1.0.4
-MIME-Version: 1.0
-To: Jes Sorensen <jes@sgi.com>
-CC: Ingo Molnar <mingo@elte.hu>, Roman Zippel <zippel@linux-m68k.org>,
-       Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
-       linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
-       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@redhat.com>,
-       Greg Kroah-Hartman <gregkh@suse.de>,
-       Thomas Gleixner <tglx@linutronix.de>, Tom Zanussi <zanussi@us.ibm.com>,
-       ltt-dev@shafik.org, Michel Dagenais <michel.dagenais@polymtl.ca>
-Subject: Re: [PATCH 0/11] LTTng-core (basic tracing infrastructure) 0.5.108
-References: <20060914033826.GA2194@Krystal> <20060914112718.GA7065@elte.hu>	<Pine.LNX.4.64.0609141537120.6762@scrub.home>	<20060914135548.GA24393@elte.hu>	<Pine.LNX.4.64.0609141623570.6761@scrub.home>	<20060914171320.GB1105@elte.hu>	<Pine.LNX.4.64.0609141935080.6761@scrub.home>	<20060914181557.GA22469@elte.hu> <4509A54C.1050905@opersys.com> <yq08xkleb9h.fsf@jaguar.mkp.net>
-In-Reply-To: <yq08xkleb9h.fsf@jaguar.mkp.net>
+	Fri, 15 Sep 2006 08:31:55 -0400
+Date: Fri, 15 Sep 2006 13:31:37 +0100
+From: Alasdair G Kergon <agk@redhat.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, Milan Broz <mbroz@redhat.com>,
+       Christophe Saout <christophe@saout.de>
+Subject: [PATCH 20/25] dm crypt: restructure write processing
+Message-ID: <20060915123137.GG3928@agk.surrey.redhat.com>
+Mail-Followup-To: Alasdair G Kergon <agk@redhat.com>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+	Milan Broz <mbroz@redhat.com>,
+	Christophe Saout <christophe@saout.de>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+From: Milan Broz <mbroz@redhat.com>
+ 
+Restructure the dm-crypt write processing in preparation
+for workqueue changes in the next patches.
 
-Jes Sorensen wrote:
-> Karim> And that's actually a problem for those who maintain such
-> Karim> dynamic trace points.
-> 
-> And who should pay here? The people who want the tracepoints or the
-> people who are not interested in them?
+Signed-off-by: Milan Broz <mbroz@redhat.com>
+Signed-off-by: Alasdair G Kergon <agk@redhat.com>
+Cc: Christophe Saout <christophe@saout.de>
 
-If you'd care to read through the thread you'd notice I've demonstrated
-time and again that those static trace points we're mostly interested
-in a never-changing. Lest something fundamentally changes with the
-kernel, there will always be a scheduling change; etc. This
-"instrumentation is evil" mantra is only substantiated if you view
-it from the point of view of someone who's only used it to debug code.
-Yet, and I repeat this again, instrumentation for in-source debugging
-is but a corner case of instrumentation in general.
-
-> You have obviously never tried to maintain a codebase for a long
-> time.
-
-Please, this is not constructive. I've never really grasped the need
-for posturing on LKML. Jes, I'm not going to fight a war of resumes
-with you. If you think I'm incompetent then there's very little I can
-do to change your mind.
-
-> Not to mention that some of the classical places people wish to add
-> those static tracepoints are in performance sensitive codepaths,
-> syscalls for example.
-
-And this argument ignores everything I said on how there does not need
-be the limitation currently known to previous static tracing mechanisms.
-
-> You can do pretty much everything you want to do with dynamic
-> tracepoints, it's just a matter of whether you want to dump the burden
-> of maintenance on someone else. Been there done that, had to show
-> people in the past how to do with dynamic points what they insisted
-> had to be done with static points.
-
-Yes, Mr. Scrub, I mean kprobes is your answer. The only reason you can
-get away with this argument is if you view it exclusively from the
-point of view of kernel development. And that's why you're wrong.
-
-> So you maintain the tracepoints in the kernel and you are offering to
-> take over maintenance of all code that now contain these tracepoints?
-
-Please explain, honestly, why the following instrumentation point is
-going to be a maintenance drag on the person modifying the scheduler:
-@@ -1709,6 +1712,7 @@ switch_tasks:
-   		++*switch_count;
-
-   		prepare_arch_switch(rq, next);
-+		TRACE_SCHEDCHANGE(prev, next);
-   		prev = context_switch(rq, prev, next);
-   		barrier();
-
-And please, don't bother complaining about the semantics, they can
-be changed. I'm just arguing about location/meaning/content.
-
-> You add your static tracepoints, next week someone else wants some
-> very similar but slightly different points, the following week it's
-> someone else. Thanks, but no thanks.
-
-Obviously there's no point in me spelling any code of conduct to
-anyone, Martin has already pointed out that it's up to the subsystem
-maintainers to decide what's appropriate and what's not, as is
-customary anyway. But the issue I'm putting forth here is that there
-is value for allowing outsiders to understand the dynamic behavior of
-your code and the only person who can do that best is the person
-writing the code. It is then that person's responsibility to
-distinguish between instrumentation they may find important to debug
-their code and instrumentation that would be relevant to those using
-their code. And if you've maintained code long enough, and I trust
-you do, you would see that there is a clear difference between both.
-
-Thanks,
-
-Karim
--- 
-President  / Opersys Inc.
-Embedded Linux Training and Expertise
-www.opersys.com  /  1.866.677.4546
+Index: linux-2.6.18-rc7/drivers/md/dm-crypt.c
+===================================================================
+--- linux-2.6.18-rc7.orig/drivers/md/dm-crypt.c	2006-09-14 20:20:21.000000000 +0100
++++ linux-2.6.18-rc7/drivers/md/dm-crypt.c	2006-09-14 20:20:23.000000000 +0100
+@@ -500,12 +500,14 @@ static void clone_init(struct crypt_io *
+ 	clone->bi_rw      = io->base_bio->bi_rw;
+ }
+ 
+-static struct bio *clone_read(struct crypt_io *io,
+-			      sector_t sector)
++static int process_read(struct crypt_io *io)
+ {
+ 	struct crypt_config *cc = io->target->private;
+ 	struct bio *base_bio = io->base_bio;
+ 	struct bio *clone;
++	sector_t sector = base_bio->bi_sector - io->target->begin;
++
++	atomic_inc(&io->pending);
+ 
+ 	/*
+ 	 * The block layer might modify the bvec array, so always
+@@ -513,47 +515,94 @@ static struct bio *clone_read(struct cry
+ 	 * one in order to decrypt the whole bio data *afterwards*.
+ 	 */
+ 	clone = bio_alloc(GFP_NOIO, bio_segments(base_bio));
+-	if (unlikely(!clone))
+-		return NULL;
++	if (unlikely(!clone)) {
++		dec_pending(io, -ENOMEM);
++		return 0;
++	}
+ 
+ 	clone_init(io, clone);
+ 	clone->bi_idx = 0;
+ 	clone->bi_vcnt = bio_segments(base_bio);
+ 	clone->bi_size = base_bio->bi_size;
++	clone->bi_sector = cc->start + sector;
+ 	memcpy(clone->bi_io_vec, bio_iovec(base_bio),
+ 	       sizeof(struct bio_vec) * clone->bi_vcnt);
+-	clone->bi_sector = cc->start + sector;
+ 
+-	return clone;
++	generic_make_request(clone);
++
++	return 0;
+ }
+ 
+-static struct bio *clone_write(struct crypt_io *io,
+-			       sector_t sector,
+-			       unsigned *bvec_idx,
+-			       struct convert_context *ctx)
++static int process_write(struct crypt_io *io)
+ {
+ 	struct crypt_config *cc = io->target->private;
+ 	struct bio *base_bio = io->base_bio;
+ 	struct bio *clone;
++	struct convert_context ctx;
++	unsigned remaining = base_bio->bi_size;
++	sector_t sector = base_bio->bi_sector - io->target->begin;
++	unsigned bvec_idx = 0;
++
++	atomic_inc(&io->pending);
++
++	crypt_convert_init(cc, &ctx, NULL, base_bio, sector, 1);
++
++	/*
++	 * The allocated buffers can be smaller than the whole bio,
++	 * so repeat the whole process until all the data can be handled.
++	 */
++	while (remaining) {
++		clone = crypt_alloc_buffer(cc, base_bio->bi_size,
++					   io->first_clone, &bvec_idx);
++		if (unlikely(!clone))
++			goto cleanup;
++
++		ctx.bio_out = clone;
++
++		if (unlikely(crypt_convert(cc, &ctx) < 0)) {
++			crypt_free_buffer_pages(cc, clone, clone->bi_size);
++			bio_put(clone);
++			goto cleanup;
++		}
++
++		clone_init(io, clone);
++		clone->bi_sector = cc->start + sector;
++
++		if (!io->first_clone) {
++			/*
++			 * hold a reference to the first clone, because it
++			 * holds the bio_vec array and that can't be freed
++			 * before all other clones are released
++			 */
++			bio_get(clone);
++			io->first_clone = clone;
++		}
++
++		atomic_inc(&io->pending);
++
++		remaining -= clone->bi_size;
++		sector += bio_sectors(clone);
+ 
+-	clone = crypt_alloc_buffer(cc, base_bio->bi_size,
+-				   io->first_clone, bvec_idx);
+-	if (!clone)
+-		return NULL;
+-
+-	ctx->bio_out = clone;
+-
+-	if (unlikely(crypt_convert(cc, ctx) < 0)) {
+-		crypt_free_buffer_pages(cc, clone,
+-		                        clone->bi_size);
+-		bio_put(clone);
+-		return NULL;
++		generic_make_request(clone);
++
++		/* out of memory -> run queues */
++		if (remaining)
++			blk_congestion_wait(bio_data_dir(clone), HZ/100);
+ 	}
+ 
+-	clone_init(io, clone);
+-	clone->bi_sector = cc->start + sector;
++	/* drop reference, clones could have returned before we reach this */
++	dec_pending(io, 0);
++	return 0;
++
++cleanup:
++	if (io->first_clone) {
++		dec_pending(io, -ENOMEM);
++		return 0;
++	}
+ 
+-	return clone;
++	 /* if no bio has been dispatched yet, we can directly return the error */
++	mempool_free(io, cc->io_pool);
++	return -ENOMEM;
+ }
+ 
+ static void process_read_endio(struct crypt_io *io)
+@@ -841,68 +890,19 @@ static int crypt_map(struct dm_target *t
+ {
+ 	struct crypt_config *cc = ti->private;
+ 	struct crypt_io *io;
+-	struct convert_context ctx;
+-	struct bio *clone;
+-	unsigned int remaining = bio->bi_size;
+-	sector_t sector = bio->bi_sector - ti->begin;
+-	unsigned int bvec_idx = 0;
+ 
+ 	io = mempool_alloc(cc->io_pool, GFP_NOIO);
++
+ 	io->target = ti;
+ 	io->base_bio = bio;
+ 	io->first_clone = NULL;
+ 	io->error = 0;
+-	atomic_set(&io->pending, 1); /* hold a reference */
++	atomic_set(&io->pending, 0);
+ 
+ 	if (bio_data_dir(bio) == WRITE)
+-		crypt_convert_init(cc, &ctx, NULL, bio, sector, 1);
+-
+-	/*
+-	 * The allocated buffers can be smaller than the whole bio,
+-	 * so repeat the whole process until all the data can be handled.
+-	 */
+-	while (remaining) {
+-		if (bio_data_dir(bio) == WRITE)
+-			clone = clone_write(io, sector, &bvec_idx, &ctx);
+-		else
+-			clone = clone_read(io, sector);
+-		if (!clone)
+-			goto cleanup;
+-
+-		if (!io->first_clone) {
+-			/*
+-			 * hold a reference to the first clone, because it
+-			 * holds the bio_vec array and that can't be freed
+-			 * before all other clones are released
+-			 */
+-			bio_get(clone);
+-			io->first_clone = clone;
+-		}
+-		atomic_inc(&io->pending);
+-
+-		remaining -= clone->bi_size;
+-		sector += bio_sectors(clone);
+-
+-		generic_make_request(clone);
+-
+-		/* out of memory -> run queues */
+-		if (remaining)
+-			blk_congestion_wait(bio_data_dir(clone), HZ/100);
+-	}
++		return process_write(io);
+ 
+-	/* drop reference, clones could have returned before we reach this */
+-	dec_pending(io, 0);
+-	return 0;
+-
+-cleanup:
+-	if (io->first_clone) {
+-		dec_pending(io, -ENOMEM);
+-		return 0;
+-	}
+-
+-	/* if no bio has been dispatched yet, we can directly return the error */
+-	mempool_free(io, cc->io_pool);
+-	return -ENOMEM;
++	return process_read(io);
+ }
+ 
+ static int crypt_status(struct dm_target *ti, status_type_t type,

@@ -1,44 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932071AbWIOPcj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932076AbWIOPen@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932071AbWIOPcj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Sep 2006 11:32:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932076AbWIOPcj
+	id S932076AbWIOPen (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Sep 2006 11:34:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751415AbWIOPen
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Sep 2006 11:32:39 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:53172 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932071AbWIOPcj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Sep 2006 11:32:39 -0400
-Subject: Re: [-mm patch 2/3] AVR32 MTD: Unlock flash if necessary (try 2)
-From: David Woodhouse <dwmw2@infradead.org>
-To: Haavard Skinnemoen <hskinnemoen@atmel.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-mtd@lists.infradead.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20060915163711.10d19763@cad-250-152.norway.atmel.com>
-References: <20060915163102.73bf171d@cad-250-152.norway.atmel.com>
-	 <20060915163554.4f326bf6@cad-250-152.norway.atmel.com>
-	 <20060915163711.10d19763@cad-250-152.norway.atmel.com>
+	Fri, 15 Sep 2006 11:34:43 -0400
+Received: from outbound-blu.frontbridge.com ([65.55.251.16]:27532 "EHLO
+	outbound2-blu-R.bigfish.com") by vger.kernel.org with ESMTP
+	id S1751408AbWIOPem (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Sep 2006 11:34:42 -0400
+X-BigFish: V
+Subject: [PATCH]i386: fix overflow in vmap on an x86 system which has more
+	than 4GB memory.
+From: Anatoli Antonovitch <antonovi@ati.com>
+Reply-To: antonovi@ati.com
+To: linux-kernel@vger.kernel.org
 Content-Type: text/plain
-Date: Fri, 15 Sep 2006 16:32:26 +0100
-Message-Id: <1158334346.24527.94.camel@pmac.infradead.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5.dwmw2.1) 
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Organization: ATI Technologies Inc.
+Date: Fri, 15 Sep 2006 11:34:37 -0400
+Message-Id: <1158334477.5219.1.camel@antonovi-desktop>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
+X-OriginalArrivalTime: 15 Sep 2006 15:34:41.0910 (UTC) FILETIME=[767F5960:01C6D8DC]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-09-15 at 16:37 +0200, Haavard Skinnemoen wrote:
-> If a cfi_cmdset_0002 fixup installs an unlock() operation, use it
-> to unlock the whole flash after the erase regions have been set up.
+Description
+(max_mapnr << PAGE_SHIFT) would overflow on an x86 system which has more
+than 4GB memory, and hence cause vmap to fail every time.
 
-There are cmdset_0001 chips which have this affliction too. I was
-thinking of having a flag MTD_STUPID_LOCK which you set when you
-determine that it's one of these chips, then add_mtd_device() can do the
-unlocking... or add_mtd_partitions() can do it but _only_ for writable
-partitions.
 
--- 
-dwmw2
+Signed-off-by: Michael Chen <micche@ati.com>
+
+Patch
+diff -Nur linux-2.4.21-40.EL/mm/vmalloc.c
+linux-2.4.21-40.EL.diff/mm/vmalloc.c
+--- linux-2.4.21-40.EL/mm/vmalloc.c     2006-02-02 21:13:20.000000000
+-0600
++++ linux-2.4.21-40.EL.diff/mm/vmalloc.c        2006-09-04
+11:29:33.000000000 -0500
+@@ -298,8 +298,8 @@
+        struct vm_struct *area;
+        unsigned long size = count << PAGE_SHIFT;
+ 
+-       if (!size || size > (max_mapnr << PAGE_SHIFT))
+-               return NULL;
++    if (!count || count > max_mapnr)
++        return NULL;
+        area = get_vm_area(size, flags);
+        if (!area) {
+                return NULL;
+
 

@@ -1,64 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751257AbWIORv0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751281AbWIORyU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751257AbWIORv0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Sep 2006 13:51:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751278AbWIORv0
+	id S1751281AbWIORyU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Sep 2006 13:54:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751283AbWIORyU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Sep 2006 13:51:26 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:14534 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751257AbWIORvY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Sep 2006 13:51:24 -0400
-Date: Fri, 15 Sep 2006 10:49:55 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: karim@opersys.com
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Roman Zippel <zippel@linux-m68k.org>,
-       Tim Bird <tim.bird@am.sony.com>, Ingo Molnar <mingo@elte.hu>,
-       Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
-       linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
-       Ingo Molnar <mingo@redhat.com>, Greg Kroah-Hartman <gregkh@suse.de>,
-       Thomas Gleixner <tglx@linutronix.de>, Tom Zanussi <zanussi@us.ibm.com>,
-       ltt-dev@shafik.org, Michel Dagenais <michel.dagenais@polymtl.ca>
-Subject: Re: [PATCH 0/11] LTTng-core (basic tracing infrastructure) 0.5.108
-Message-Id: <20060915104955.ad6c3622.akpm@osdl.org>
-In-Reply-To: <450ABF59.4010301@opersys.com>
-References: <20060914033826.GA2194@Krystal>
-	<20060914112718.GA7065@elte.hu>
-	<Pine.LNX.4.64.0609141537120.6762@scrub.home>
-	<20060914135548.GA24393@elte.hu>
-	<Pine.LNX.4.64.0609141623570.6761@scrub.home>
-	<20060914171320.GB1105@elte.hu>
-	<Pine.LNX.4.64.0609141935080.6761@scrub.home>
-	<20060914181557.GA22469@elte.hu>
-	<4509B03A.3070504@am.sony.com>
-	<1158320406.29932.16.camel@localhost.localdomain>
-	<Pine.LNX.4.64.0609151339190.6761@scrub.home>
-	<1158323938.29932.23.camel@localhost.localdomain>
-	<Pine.LNX.4.64.0609151425180.6761@scrub.home>
-	<1158327696.29932.29.camel@localhost.localdomain>
-	<Pine.LNX.4.64.0609151523050.6761@scrub.home>
-	<1158331277.29932.66.camel@localhost.localdomain>
-	<450ABA2A.9060406@opersys.com>
-	<1158332324.29932.82.camel@localhost.localdomain>
-	<450ABF59.4010301@opersys.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 15 Sep 2006 13:54:20 -0400
+Received: from liaag1ad.mx.compuserve.com ([149.174.40.30]:41426 "EHLO
+	liaag1ad.mx.compuserve.com") by vger.kernel.org with ESMTP
+	id S1751281AbWIORyT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Sep 2006 13:54:19 -0400
+Date: Fri, 15 Sep 2006 13:50:55 -0400
+From: Chuck Ebbert <76306.1226@compuserve.com>
+Subject: Re: [patch 3/9] Guest page hinting: volatile page cache.
+To: Martin Schwidefsky <schwidefsky@de.ibm.com>
+Cc: Zachary Amsden <zach@vmware.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       virtualization <virtualization@lists.osdl.org>,
+       Andrew Morton <akpm@osdl.org>, Nick Piggin <nickpiggin@yahoo.com.au>
+Message-ID: <200609151352_MC3-1-CB54-526A@compuserve.com>
+MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
+Content-Type: text/plain;
+	 charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 15 Sep 2006 10:57:29 -0400
-Karim Yaghmour <karim@opersys.com> wrote:
+In-Reply-To: <1158309400.23993.9.camel@localhost>
 
-> But I submit to you that both explanations
-> actually highlight the argument I was making earlier with regards to
-> dynamic tracing (and gdb info in this case) actually require a non-
-> expert to chase kernel versions and create appropriate appropriate
-> scripts/config-info for the post-insertion of instrumentation
-> ...
+On Fri, 15 Sep 2006 10:36:39 +0200, Martin Schwidefsky wrote:
 
-Again, I don't see this as a huge problem.  patch(1) is able to keep track
-of specific places within source code even in the presence of quite violent
-changes to that source code.  There's no reason why systemtap support code
-cannot do the same.
+> I wonder which trick you use, since there is only one page table one
+> i386 I can only imagine that you are tracking all page tables of the
+> guest.
+
+AMD K8 with the SVM feature has host and guest page tables and
+address-space identifiers for the guests so their global TLB flushes
+can be limited to their own address space...
+
+-- 
+Chuck
+

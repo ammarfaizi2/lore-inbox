@@ -1,87 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932138AbWIOS1N@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932154AbWIOS16@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932138AbWIOS1N (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Sep 2006 14:27:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932145AbWIOS1M
+	id S932154AbWIOS16 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Sep 2006 14:27:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932153AbWIOS16
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Sep 2006 14:27:12 -0400
-Received: from mail0.lsil.com ([147.145.40.20]:56716 "EHLO mail0.lsil.com")
-	by vger.kernel.org with ESMTP id S932138AbWIOS1L convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Sep 2006 14:27:11 -0400
-x-mimeole: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
+	Fri, 15 Sep 2006 14:27:58 -0400
+Received: from gw.goop.org ([64.81.55.164]:64674 "EHLO mail.goop.org")
+	by vger.kernel.org with ESMTP id S932154AbWIOS15 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Sep 2006 14:27:57 -0400
+Message-ID: <450AF0A1.60803@goop.org>
+Date: Fri, 15 Sep 2006 11:27:45 -0700
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060907)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-Subject: RE: [PATCH] SCSI: Make megaraid_ioctl() check copy_to_user() return value
-Date: Fri, 15 Sep 2006 12:26:43 -0600
-Message-ID: <890BF3111FB9484E9526987D912B261932E37D@NAMAIL3.ad.lsil.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [PATCH] SCSI: Make megaraid_ioctl() check copy_to_user() return value
-Thread-Index: AcbYxJBfTZmDOS0aRXWK+i4XMl8fVgAL7CSg
-From: "Ju, Seokmann" <Seokmann.Ju@lsil.com>
-To: "Jesper Juhl" <jesper.juhl@gmail.com>, <linux-kernel@vger.kernel.org>
-Cc: "Kolli, Neela" <Neela.Kolli@engenio.com>, <linux-scsi@vger.kernel.org>,
-       <akpm@osdl.org>, <James.Bottomley@steeleye.com>
-X-OriginalArrivalTime: 15 Sep 2006 18:26:44.0224 (UTC) FILETIME=[7F137800:01C6D8F4]
+To: Mikael Pettersson <mikpe@it.uu.se>
+CC: acahalan@gmail.com, ak@suse.de, arjan@infradead.org, ebiederm@xmission.com,
+       linux-kernel@vger.kernel.org, mingo@elte.hu, torvalds@osdl.org,
+       zach@vmware.com
+Subject: Re: Assignment of GDT entries
+References: <200609150755.k8F7tKUD005518@alkaid.it.uu.se>	<450A6238.9050404@goop.org> <17674.27416.420259.744117@alkaid.it.uu.se>
+In-Reply-To: <17674.27416.420259.744117@alkaid.it.uu.se>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Mikael Pettersson wrote:
+>  >  Changing the API 
+>  > to use abstract "TLS indicies" would also require a call to return the 
+>  > "TLS base", which hardly seems like an improvement.
+>
+> The TLS base can obviously be zero.
+>
+> User-space asks to access TLS #n (for allocs #n can be -1).
+> The kernel maps that to GDT index #m.
+> The kernel stores #m in the user-space buffer.
+> User-space maps #m to a selector.
+>   
 
-On Friday, September 15, 2006 8:43 AM, Jesper Juhl wrote:
-> Check copy_to_user() return value in 
-> drivers/scsi/megaraid.c::megadev_ioctl()
-> This gets rid of this little warning:
->   drivers/scsi/megaraid.c:3661: warning: ignoring return 
-> value of 'copy_to_user', declared with attribute warn_unused_result
-ACK - Thank you for correction, Jesper. 
+I'm missing why this is a substantial improvement over the current 
+interface (or functionally different at all).  What does this proposal 
+let you do that the current one doesn't?
 
-Seokmann
+> Look, I'm not saying the current API is perfect, far from it. But it does
+> have valid usage modes which are broken in x86-64's ia32 emulation, and
+> will break on i386 of you reallocate the TLS GDT indices. This is a fact.
+>   
 
-> -----Original Message-----
-> From: Jesper Juhl [mailto:jesper.juhl@gmail.com] 
-> Sent: Friday, September 15, 2006 8:43 AM
-> To: linux-kernel@vger.kernel.org
-> Cc: Ju, Seokmann; Kolli, Neela; linux-scsi@vger.kernel.org; 
-> akpm@osdl.org; James.Bottomley@steeleye.com; jesper.juhl@gmail.com
-> Subject: [PATCH] SCSI: Make megaraid_ioctl() check 
-> copy_to_user() return value
-> 
-> 
-> Check copy_to_user() return value in 
-> drivers/scsi/megaraid.c::megadev_ioctl()
-> This gets rid of this little warning:
->   drivers/scsi/megaraid.c:3661: warning: ignoring return 
-> value of 'copy_to_user', declared with attribute warn_unused_result
-> 
-> 
-> Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
-> ---
-> 
->  drivers/scsi/megaraid.c |    5 +++--
->  1 file changed, 3 insertions(+), 2 deletions(-)
-> 
-> --- linux-2.6.18-rc7-git1-orig/drivers/scsi/megaraid.c	
-> 2006-09-15 13:51:15.121774000 +0200
-> +++ linux-2.6.18-rc7-git1/drivers/scsi/megaraid.c	
-> 2006-09-15 14:27:32.377407763 +0200
-> @@ -3658,8 +3658,9 @@ megadev_ioctl(struct inode *inode, struc
->  			 * Send the request sense data also, 
-> irrespective of
->  			 * whether the user has asked for it or not.
->  			 */
-> -			copy_to_user(upthru->reqsensearea,
-> -					pthru->reqsensearea, 14);
-> +			if (copy_to_user(upthru->reqsensearea,
-> +					pthru->reqsensearea, 14))
-> +				rval = -EFAULT;
->  
->  freemem_and_return:
->  			if( pthru->dataxferlen ) {
-> 
-> 
-> 
-> 
+Hm, well its a "fact" in that they use different segment descriptors, 
+but you'd be hard pressed to say that was a breakage.  set_thread_area 
+was added in 2.5.29 (Jul 2002), and x86-64 added support in 2.5.43 (Oct 
+2002), so the current behaviour is pretty much as it has always been.  
+If you have a program that expects something different, you either wrote 
+it in Jul-Oct 2002, or you made an unsustainable assumption about how 
+set_thread_area() works.
+
+> Look, I'm not saying the current API is perfect, far from it. But it does
+> have valid usage modes which are broken in x86-64's ia32 emulation, and
+> will break on i386 of you reallocate the TLS GDT indices. This is a fact.
+>   
+
+You seem to have a specific use-case in mind; do you have a program 
+which would like to use a new interface?  Would you mind spelling it 
+out, and describe why the current interface doesn't work for you?
+
+    J

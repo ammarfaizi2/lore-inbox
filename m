@@ -1,47 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932081AbWIOTN7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750842AbWIOTL1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932081AbWIOTN7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Sep 2006 15:13:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751371AbWIOTN6
+	id S1750842AbWIOTL1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Sep 2006 15:11:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750840AbWIOTL1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Sep 2006 15:13:58 -0400
-Received: from iriserv.iradimed.com ([69.44.168.233]:10966 "EHLO iradimed.com")
-	by vger.kernel.org with ESMTP id S1751376AbWIOTN6 (ORCPT
+	Fri, 15 Sep 2006 15:11:27 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:13991 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S1750729AbWIOTL0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Sep 2006 15:13:58 -0400
-Message-ID: <450AFB8A.3070307@cfl.rr.com>
-Date: Fri, 15 Sep 2006 15:14:18 -0400
-From: Phillip Susi <psusi@cfl.rr.com>
-User-Agent: Thunderbird 1.5.0.5 (Windows/20060719)
+	Fri, 15 Sep 2006 15:11:26 -0400
+Date: Fri, 15 Sep 2006 21:10:44 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Ingo Molnar <mingo@elte.hu>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, "Frank Ch. Eigler" <fche@redhat.com>,
+       karim@opersys.com, Tim Bird <tim.bird@am.sony.com>,
+       Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
+       linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
+       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@redhat.com>,
+       Greg Kroah-Hartman <gregkh@suse.de>,
+       Thomas Gleixner <tglx@linutronix.de>, Tom Zanussi <zanussi@us.ibm.com>,
+       ltt-dev@shafik.org, Michel Dagenais <michel.dagenais@polymtl.ca>
+Subject: Re: [PATCH 0/11] LTTng-core (basic tracing infrastructure) 0.5.108
+In-Reply-To: <20060915181208.GA17581@elte.hu>
+Message-ID: <Pine.LNX.4.64.0609152046350.6761@scrub.home>
+References: <Pine.LNX.4.64.0609151339190.6761@scrub.home>
+ <1158323938.29932.23.camel@localhost.localdomain> <Pine.LNX.4.64.0609151425180.6761@scrub.home>
+ <1158327696.29932.29.camel@localhost.localdomain> <Pine.LNX.4.64.0609151523050.6761@scrub.home>
+ <1158331277.29932.66.camel@localhost.localdomain> <450ABA2A.9060406@opersys.com>
+ <1158332324.29932.82.camel@localhost.localdomain> <y0mmz91f46q.fsf@ton.toronto.redhat.com>
+ <1158345108.29932.120.camel@localhost.localdomain> <20060915181208.GA17581@elte.hu>
 MIME-Version: 1.0
-To: xixi lii <xixi.limeng@gmail.com>
-CC: Jan Engelhardt <jengelh@linux01.gwdg.de>,
-       Sven-Haegar Koch <haegar@sdinet.de>,
-       Linux-Kernel-Mailinglist <linux-kernel@vger.kernel.org>
-Subject: Re: UDP question.
-References: <a885b78b0609140900x385c9453n9ef25a936524dff7@mail.gmail.com>  <Pine.LNX.4.64.0609150129150.21941@mercury.sdinet.de>  <Pine.LNX.4.61.0609150833170.19096@yvahk01.tjqt.qr> <a885b78b0609150007u239cf363l40dd122165f7b516@mail.gmail.com>
-In-Reply-To: <a885b78b0609150007u239cf363l40dd122165f7b516@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 15 Sep 2006 19:14:07.0012 (UTC) FILETIME=[1D827E40:01C6D8FB]
-X-TM-AS-Product-Ver: SMEX-7.2.0.1122-3.6.1039-14694.000
-X-TM-AS-Result: No--17.866900-5.000000-4
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It is a question of where you are sending the packets TO, not from.  It 
-is the destination address that is used to route the packet, not the 
-source.  If you were sending the packets to the same destination 
-address, then they will go out the same interface since the routing 
-table identifies that interface as the way to reach the destination 
-address.
+Hi,
 
-xixi lii wrote:
-> My two adapters has two different IP address, and I bind one IP on one 
-> socket,
-> do you mean that I alloc two socket and bind different IP is not
-> helpful? In fact, all the packet sent from two socket is go out by one
-> network adapter?
+On Fri, 15 Sep 2006, Ingo Molnar wrote:
+
+> > Ar Gwe, 2006-09-15 am 13:08 -0400, ysgrifennodd Frank Ch. Eigler:
+> > > Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
+> > > - where 1000-cycle int3-dispatching overheads too high
+> > 
+> > Why are your despatching overheads 1000 cycles ? (and if its due to 
+> > int3 why are you using int 3 8))
 > 
-> xixi
+> this is being worked on actively: there's the "djprobes" patchset, which 
+> includes a simplified disassembler to analyze common target code and can 
+> thus insert much faster, call-a-trampoline-function based tracepoints 
+> that are just as fast as (or faster than) compile-time, static 
+> tracepoints.
 
+Who is going to implement this for every arch?
+Is this now the official party line that only archs, which implement all 
+of this, can make use of efficient tracing?
+
+bye, Roman

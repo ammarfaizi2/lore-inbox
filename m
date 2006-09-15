@@ -1,56 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751271AbWIOL1e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751280AbWIOLdR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751271AbWIOL1e (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Sep 2006 07:27:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751278AbWIOL1e
+	id S1751280AbWIOLdR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Sep 2006 07:33:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751282AbWIOLdR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Sep 2006 07:27:34 -0400
-Received: from mtagate3.de.ibm.com ([195.212.29.152]:58457 "EHLO
-	mtagate3.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1751272AbWIOL1b (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Sep 2006 07:27:31 -0400
-Date: Fri, 15 Sep 2006 13:27:28 +0200
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-To: linux-kernel@vger.kernel.org, peter.oberparleiter@de.ibm.com
-Subject: [S390] Replace nopav-message on VM.
-Message-ID: <20060915112728.GC23134@skybase>
+	Fri, 15 Sep 2006 07:33:17 -0400
+Received: from wx-out-0506.google.com ([66.249.82.230]:53236 "EHLO
+	wx-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1751280AbWIOLdQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Sep 2006 07:33:16 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
+        b=iHddRyTDopNE3QgTZAtfrNczXWCQ550SwwZ9ZS5GtThlF1oE7yIqg/B9+UZIrPjNcfCC/JVkSJNiFF02oIbrdEcZ6DOps0U1McmW31AYvBixRH78zhRxjLuziIXrN6wtkTNR3KW/rzSbnRSrSC/yWoI4gG/Yaj4M7XKK9cHiIx0=
+Message-ID: <e6ec3ad10609150433x19803d2dw4dbfc604a672d42a@mail.gmail.com>
+Date: Fri, 15 Sep 2006 13:33:16 +0200
+From: "Marcin Juszkiewicz" <openembedded@hrw.one.pl>
+To: "John Shillinglaw" <ianchas@sc.rr.com>, linux-kernel@vger.kernel.org
+Subject: Re: Sharp Zaurus SL-5500 SD reader in 2.6.18-rc6
+In-Reply-To: <1158108895.12680.2.camel@Pippin.home>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.5.13 (2006-08-11)
+References: <1158108895.12680.2.camel@Pippin.home>
+X-Google-Sender-Auth: bcef41ae7db00bd4
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Peter Oberparleiter <peter.oberparleiter@de.ibm.com>
+On 9/13/06, John Shillinglaw <ianchas@sc.rr.com> wrote:
 
-[S390] Replace nopav-message on VM.
+> Can anyone tell me the status of support for the locomo based sd/mmc
+> reader in the Sharp Zaurus sl-5500 for either the 2.6.18-rc6 kernel or
+> in 2.6.18-rc6-mm2 ?
 
-Specifying kernel parameter "dasd=nopav" on systems running under VM
-has no function but results in message "disable PAV mode". Correct
-message is "'nopav' not supported on VM".
+No one has documentation for chipset used to drive SD/MMC controler.
+All we know is that it use some kind of SPI interface through the
+LOCOMO chip (as far as I know) which we have no documentation on.
 
-Signed-off-by: Peter Oberparleiter <peter.oberparleiter@de.ibm.com>
-Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
----
-
- drivers/s390/block/dasd_devmap.c |    8 ++++++--
- 1 files changed, 6 insertions(+), 2 deletions(-)
-
-diff -urpN linux-2.6/drivers/s390/block/dasd_devmap.c linux-2.6-patched/drivers/s390/block/dasd_devmap.c
---- linux-2.6/drivers/s390/block/dasd_devmap.c	2006-09-15 12:18:24.000000000 +0200
-+++ linux-2.6-patched/drivers/s390/block/dasd_devmap.c	2006-09-15 12:18:44.000000000 +0200
-@@ -258,8 +258,12 @@ dasd_parse_keyword( char *parsestring ) 
-                 return residual_str;
-         }
- 	if (strncmp("nopav", parsestring, length) == 0) {
--		dasd_nopav = 1;
--		MESSAGE(KERN_INFO, "%s", "disable PAV mode");
-+		if (MACHINE_IS_VM)
-+			MESSAGE(KERN_INFO, "%s", "'nopav' not supported on VM");
-+		else {
-+			dasd_nopav = 1;
-+			MESSAGE(KERN_INFO, "%s", "disable PAV mode");
-+		}
- 		return residual_str;
- 	}
- 	if (strncmp("fixedbuffers", parsestring, length) == 0) {
+There was discussion about it few weeks ago on lkml.

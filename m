@@ -1,78 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751286AbWIOR4J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751287AbWIOR7R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751286AbWIOR4J (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Sep 2006 13:56:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751290AbWIOR4J
+	id S1751287AbWIOR7R (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Sep 2006 13:59:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751290AbWIOR7R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Sep 2006 13:56:09 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.149]:26306 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751286AbWIOR4H
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Sep 2006 13:56:07 -0400
-Subject: Re: 2.6.18-rc7 Unable to handle kernel paging request
-From: Badari Pulavarty <pbadari@gmail.com>
-To: Markus Trippelsdorf <markus@trippelsdorf.de>
-Cc: lkml <linux-kernel@vger.kernel.org>
-In-Reply-To: <20060913210307.GA6915@gentoox2.trippelsdorf.de>
-References: <20060913210307.GA6915@gentoox2.trippelsdorf.de>
+	Fri, 15 Sep 2006 13:59:17 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:27352 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1751287AbWIOR7Q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Sep 2006 13:59:16 -0400
+Subject: Re: Same MCE on 4 working machines (was Re: Early boot hang on
+	recent 2.6 kernels (> 2.6.3), on x86-64 with 16gb of RAM)
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Robin Lee Powell <rlpowell@digitalkingdom.org>
+Cc: Bharath Ramesh <krosswindz@gmail.com>, Lee Revell <rlrevell@joe-job.com>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20060915174701.GN4610@chain.digitalkingdom.org>
+References: <20060912223258.GM4612@chain.digitalkingdom.org>
+	 <20060914190548.GI4610@chain.digitalkingdom.org>
+	 <1158261249.7948.111.camel@mindpipe>
+	 <20060914191555.GJ4610@chain.digitalkingdom.org>
+	 <c775eb9b0609142242r45d184d2h8d7edd7dd5bc2a26@mail.gmail.com>
+	 <20060915174701.GN4610@chain.digitalkingdom.org>
 Content-Type: text/plain
-Date: Fri, 15 Sep 2006 10:59:33 -0700
-Message-Id: <1158343173.31501.26.camel@dyn9047017100.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
 Content-Transfer-Encoding: 7bit
+Date: Fri, 15 Sep 2006 19:22:53 +0100
+Message-Id: <1158344573.29932.111.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-09-13 at 23:03 +0200, Markus Trippelsdorf wrote:
-> Don't know what to make of these kernel error messages.
-> This happened an hour ago and the system kept running until I rebooted.
+Ar Gwe, 2006-09-15 am 10:47 -0700, ysgrifennodd Robin Lee Powell:
+> I didn't know about mce=bootlog.  Neat.  It doesn't change anything,
+> though.  I've tried noacpi and many variants thereon; no change.
 > 
-> Unable to handle kernel paging request at ffffffff004c82c8 RIP:
->  [<ffffffff80222a24>] generic_file_mmap+0x14/0x50
-> PGD 203027 PUD 0
-> CPU 0
-> Modules linked in: tuner bttv video_buf ir_common compat_ioctl32 btcx_risc tveeprom videodev v4l1_compat v4l2_common
-> Pid: 24497, comm: emake Not tainted 2.6.18-rc7 #1
-> RIP: 0010:[<ffffffff80222a24>]  [<ffffffff80222a24>] generic_file_mmap+0x14/0x50
-> RSP: 0018:ffff81005db69e98  EFLAGS: 00010206
-> RAX: ffffffff004c82c0 RBX: ffff810010252528 RCX: 0000000000000000
-> RDX: 00000000fffffff8 RSI: ffff810010252528 RDI: ffff810023234bc0
-> RBP: ffff810023234bc0 R08: 0000000000000000 R09: ffff810010252528
-> R10: ffff810023c1fde0 R11: ffff810023c1fde0 R12: 00000000ffffffea
-> R13: ffff81007eb04840 R14: 0000000000000000 R15: 00000000000d7000
-> FS:  00002acdf4b126d0(0000) GS:ffffffff80610000(0000) knlGS:00000000f73456b0
-> CS:  0010 DS: 0000 ES: 0000 CR0: 000000008005003b
-> CR2: ffffffff004c82c8 CR3: 0000000063292000 CR4: 00000000000006e0
-> Process emake (pid: 24497, threadinfo ffff81005db68000, task ffff81001b7f6040)
-> Stack:  ffff810010252528 ffffffff8020de0b 0000000000000000 0000000044fc8613
->  0000000000000000 0000000000000071 0000000000000002 ffff8100167b2a70
->  0000000000000071 0000000000000000 00000000000000d7 ffffffff8022ca5e
-> Call Trace:
->  [<ffffffff8020de0b>] do_mmap_pgoff+0x4bb/0x790
->  [<ffffffff8022ca5e>] sys_newfstat+0x2e/0x50
->  [<ffffffff80224965>] sys_mmap+0xa5/0x100
->  [<ffffffff8026255e>] system_call+0x7e/0x83
-> Code: 48 83 78 08 00 74 22 f6 47 2e 04 75 0f 48 8b 77 10 48 8b 7f
+> The most severe set of options I have record of trying is:
+> 
+> nosmp noapic mem=512M ide=nodma apm=off acpi=off desktop showopts
 
-Are you able to reproduce this problem again ?
-
-It looks like the problem is due to bogus a_ops ..
-
-        if (!mapping->a_ops->readpage)
-                         ^^^^^^
-failing instruction is:
-
-     37c:       48 83 78 08 00          cmpq   $0x0,0x8(%rax)
-
-(a_ops->readpage) derefence.
-
-> RAX: ffffffff004c82c0 
-
-> Unable to handle kernel paging request at ffffffff004c82c8 RIP:
->  [<ffffffff80222a24>] generic_file_mmap+0x14/0x50
-
-
-Thanks,
-Badari
+What did the various pci= options I suggested do - anything ?
 

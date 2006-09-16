@@ -1,99 +1,110 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964842AbWIPRQp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964849AbWIPRYX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964842AbWIPRQp (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Sep 2006 13:16:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964846AbWIPRQp
+	id S964849AbWIPRYX (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Sep 2006 13:24:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964848AbWIPRYX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Sep 2006 13:16:45 -0400
-Received: from py-out-1112.google.com ([64.233.166.176]:38712 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S964842AbWIPRQo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Sep 2006 13:16:44 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=V/TmxC4ihxC4vhvcbk5FffCl/Q1Mu1yMD7fCbBPy9yha53sYVomnt1l8dEuBFjEq22MZ7sCRB8Bqt7Mlw1M1wypReJH5iyIIMaWY7UdBqw6BPxBWv/gjEMkQOJySJeenf9x/riJQA2/Yw2L/zRB5B5tp1izjB9hr+7jlYivdQO0=
-Message-ID: <450C3199.5030405@gmail.com>
-Date: Sat, 16 Sep 2006 11:17:13 -0600
-From: Jim Cromie <jim.cromie@gmail.com>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060909)
-MIME-Version: 1.0
-To: David Hubbard <david.c.hubbard@gmail.com>
-CC: LM Sensors <lm-sensors@lm-sensors.org>,
-       Linux kernel <linux-kernel@vger.kernel.org>, Greg KH <greg@kroah.com>
-Subject: Re: [lm-sensors] [RFC-patch 0/3] SuperIO locks coordinator
-References: <87fyf5jnkj.fsf@willow.rfc1149.net>	 <1157815525.6877.43.camel@localhost.localdomain>	 <20060909220256.d4486a4f.vsu@altlinux.ru> <4508FF2F.5020504@gmail.com>	 <4509D08C.7020901@gmail.com>	 <4dfa50520609141753h34e54fdayba62f1b127d58036@mail.gmail.com>	 <450A54EB.1020305@gmail.com> <4dfa50520609151118s65a980b4td143a9fbbfeb1798@mail.gmail.com>
-In-Reply-To: <4dfa50520609151118s65a980b4td143a9fbbfeb1798@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Sat, 16 Sep 2006 13:24:23 -0400
+Received: from tomts10.bellnexxia.net ([209.226.175.54]:25055 "EHLO
+	tomts10-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id S964849AbWIPRYW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 16 Sep 2006 13:24:22 -0400
+Date: Sat, 16 Sep 2006 13:24:19 -0400
+From: Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>
+To: Jes Sorensen <jes@sgi.com>
+Cc: Ingo Molnar <mingo@elte.hu>, Roman Zippel <zippel@linux-m68k.org>,
+       Andrew Morton <akpm@osdl.org>, tglx@linutronix.de, karim@opersys.com,
+       Paul Mundt <lethal@linux-sh.org>, linux-kernel@vger.kernel.org,
+       Christoph Hellwig <hch@infradead.org>, Ingo Molnar <mingo@redhat.com>,
+       Greg Kroah-Hartman <gregkh@suse.de>, Tom Zanussi <zanussi@us.ibm.com>,
+       ltt-dev@shafik.org, Michel Dagenais <michel.dagenais@polymtl.ca>
+Subject: Re: [PATCH 0/11] LTTng-core (basic tracing infrastructure) 0.5.108
+Message-ID: <20060916172419.GA15427@Krystal>
+References: <450AB957.2050206@opersys.com> <20060915142836.GA9288@localhost.usen.ad.jp> <450ABE08.2060107@opersys.com> <1158332447.5724.423.camel@localhost.localdomain> <20060915111644.c857b2cf.akpm@osdl.org> <20060915181907.GB17581@elte.hu> <Pine.LNX.4.64.0609152111030.6761@scrub.home> <20060915200559.GB30459@elte.hu> <20060915202233.GA23318@Krystal> <450BCAF1.2030205@sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <450BCAF1.2030205@sgi.com>
+X-Editor: vi
+X-Info: http://krystal.dyndns.org:8080
+X-Operating-System: Linux/2.4.32-grsec (i686)
+X-Uptime: 13:11:53 up 24 days, 14:20,  2 users,  load average: 0.32, 0.18, 0.37
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Hubbard wrote:
-> Hi Jim,
->
->> BTW, are the idle/activate sequences doc'd in your datasheet ?
->> I ask this cuz pc87360 has a superio-exit defined (and used), but no
->> superio-enter(),
->> and I couldnt find the idle/activate sequences docd in my datasheet.
->> With the long history of copy & modify in these drivers, its possible
->> that some cargo-cult features were inadvertently carried forward,
->> esp when drivers are written w/o actually having the hardare.
->>
->> Could you disable your superio-enter(), and see if that breaks the
->> functionality ?
->
-> I'll do that and let you know how it goes. I suspect that the BIOS
-> initializes the w83627ehf correctly, 
-yes. very likely
-> and so the superio-enter and
-> -exit that are used may not be required...except during detection. 
+* Jes Sorensen (jes@sgi.com) wrote:
+> Mathieu Desnoyers wrote:
+> >Please Ingo, stop repeating false argument without taking in account 
+> >people's
+> >corrections :
+> >
+> >* Ingo Molnar (mingo@elte.hu) wrote:
+> >>sorry, but i disagree. There _is_ a solution that is superior in every 
+> >>aspect: kprobes + SystemTap. (or any other equivalent dynamic tracer)
+> >>
+> >I am sorry to have to repeat myself, but this is not true for heavy loads.
+> 
+> Alan pointed out earlier in the thread that the actual kprobe is noise
+> in this context, and I have seen similar issues on real workloads. Yes
+> kprobes are probably a little higher overhead in real life, but you have
+> to way that up against the rest of the system load.
+> 
+> If you want to prove people wrong, I suggest you do some real life
+> implementation and measure some real workloads with a predefined set of
+> tracepoints implemented using kprobes and LTT and show us that the
+> benchmark of the user application suffers in a way that can actually be
+> measured. Argueing that a syscall takes an extra 50 instructions
+> because it's traced using kprobes rather than LTT doesn't mean it
+> actually has any real impact.
+> 
+> "The 'kprobes' are too high overhead that makes them unusable" is one of
+> these classic myths that the static tracepoint advocates so far have
+> only been backing up with rhetoric. Give us some hard evidence or stop
+> repeating this argument please. Just because something is repeated
+> constantly doesn't transform it into truth.
+> 
 
-Also likely/possible.  Some chips can be told to map their logical 
-devices (LDs)
-to specific ISA address ranges, then those devices can be largely or 
-completely
-operated using vanilla IO operations, w/o the superio-port overheads,
-and the BIOS often takes care of this, and enables devices that the mobo
-is designed to use.
+Hi,
 
-Forex:
-6600-660f : pc8736x_gpio
-6620-662f : pc87360
-6640-664f : pc87360
+Here we go. I made a test that we can consider a lower bound for kprobes impact.
+Two tests per run.
 
-To complicate things, some LDs have features that are only controllable
-via superio, pc8736x GPIO has runtime regs and configuration regs, the 
-latter
-are only available via superio.  These LDs are much more dependent upon
-proper superio locking, vs hwmon/pc87360, which uses vanilla IO after 
-detection,
-and thus releases the superio-reservation once detection/initialization 
-is complete.
+Simulation of high speed network traffic :
 
-FYI - GregKH said this on LKML, re 2.6.19
-http://marc.theaimsgroup.com/?l=linux-kernel&m=115778993800623&w=2
+time ping -f localhost
 
-	- The driver core was changed to allow multi-threaded device
-	  probing.  This means that every device added to the system
-	  gets a new kernel thread in which to do the probe sequence.
-	  The PCI subsystem was modified to allow PCI drivers to do this
-	  (this is made a configuration option, as it breaks numerous
-	  boxes if enabled).  It does have the potential to speed up the
-	  boot sequence a lot for some machines, and is even measurable
-	  on single processor laptops.
+First run : without any tracing activated, LTTng probes compiled in :
+
+39457 packets received in 2.021 seconds : 19523.50 packets/s
+142672 packets received in 7.237 seconds : 19714.24 packets/s
+
+Second run : LTTng tracing activated (traces system calls, interrupts and
+packet in/out...) :
+
+93051 packets received in 7.395 seconds : 12582.96 packets/s
+121585 packets received in 9.703 seconds : 12530.66 packets/s
 
 
-This appears to increase the potential of problems related to current 
-lack of superio locking,
+Third run : same LTTng instrumentation, with a kprobe handler triggered by each
+event traced.
+
+56643 packets received in 11.152 seconds : 5079.17 packets/s
+50150 packets received in 9.593 seconds : 5227.77 packets/s
 
 
-> The
-> w83627ehf is mapped into ISA I/O space (probably by the BIOS). So I'll
-> test my theory and get back to you soon.
->
-thanks.
+The bottom line is :
 
-> David
->
-jimc
+LTTng impact on the studied phenomenon : 35% slower
+
+LTTng+kprobes impact on the studied phenomenon : 73% slower
+
+Therefore, I conclude that on this type of high event rate workload, kprobes
+doubles the tracer impact on the system.
+
+Mathieu
+
+
+OpenPGP public key:              http://krystal.dyndns.org:8080/key/compudj.gpg
+Key fingerprint:     8CD5 52C3 8E3C 4140 715F  BA06 3F25 A8FE 3BAE 9A68 

@@ -1,78 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751294AbWIPKSp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751376AbWIPK0E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751294AbWIPKSp (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Sep 2006 06:18:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751321AbWIPKSp
+	id S1751376AbWIPK0E (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Sep 2006 06:26:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751417AbWIPK0D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Sep 2006 06:18:45 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:5537 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1751294AbWIPKSo (ORCPT
+	Sat, 16 Sep 2006 06:26:03 -0400
+Received: from fmmailgate09.web.de ([217.72.192.184]:34250 "EHLO
+	fmmailgate09.web.de") by vger.kernel.org with ESMTP
+	id S1751376AbWIPK0B convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Sep 2006 06:18:44 -0400
-Message-ID: <450BCF97.3000901@sgi.com>
-Date: Sat, 16 Sep 2006 12:19:03 +0200
-From: Jes Sorensen <jes@sgi.com>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060907)
+	Sat, 16 Sep 2006 06:26:01 -0400
+Reveived: from web.de 
+	by fmmailgate09.web.de (Postfix) with SMTP id 747471C15E0
+	for <linux-kernel@vger.kernel.org>; Sat, 16 Sep 2006 12:26:00 +0200 (CEST)
+Date: Sat, 16 Sep 2006 12:25:58 +0200
+Message-Id: <1312458165@web.de>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-Cc: Ingo Molnar <mingo@elte.hu>, tglx@linutronix.de, karim@opersys.com,
-       Paul Mundt <lethal@linux-sh.org>, Roman Zippel <zippel@linux-m68k.org>,
-       Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
-       linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
-       Ingo Molnar <mingo@redhat.com>, Greg Kroah-Hartman <gregkh@suse.de>,
-       Tom Zanussi <zanussi@us.ibm.com>, ltt-dev@shafik.org,
-       Michel Dagenais <michel.dagenais@polymtl.ca>
-Subject: Re: [PATCH 0/11] LTTng-core (basic tracing infrastructure) 0.5.108
-References: <20060915132052.GA7843@localhost.usen.ad.jp>	<Pine.LNX.4.64.0609151535030.6761@scrub.home>	<20060915135709.GB8723@localhost.usen.ad.jp>	<450AB5F9.8040501@opersys.com>	<450AB506.30802@sgi.com>	<450AB957.2050206@opersys.com>	<20060915142836.GA9288@localhost.usen.ad.jp>	<450ABE08.2060107@opersys.com>	<1158332447.5724.423.camel@localhost.localdomain>	<20060915111644.c857b2cf.akpm@osdl.org>	<20060915181907.GB17581@elte.hu> <20060915131317.aaadf568.akpm@osdl.org>
-In-Reply-To: <20060915131317.aaadf568.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+From: devzero@web.de
+To: linux-kernel@vger.kernel.org
+Subject: show all modules which taint the kernel ?
+Organization: http://freemail.web.de/
+Content-Type: text/plain; charset=iso-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> On Fri, 15 Sep 2006 20:19:07 +0200
-> Ingo Molnar <mingo@elte.hu> wrote:
-> 
->> * Andrew Morton <akpm@osdl.org> wrote:
->>
->>> What Karim is sharing with us here (yet again) is the real in-field 
->>> experience of real users (ie: not kernel developers).
->> well, Jes has that experience and Thomas too.
-> 
-> systemtap and ltt are the only full-scale tracing tools which target
-> sysadmins and applciation developers of which I am aware..
+Hello !
 
-Just to clarify, the stuff I have looked at in the field was based on
-LTT, but not part of the official LTT. It simply goes to show that end
-users cannot agree on a small set of fixed tracepoints because someone
-always wants a slightly different view of things, like in the cases I
-looked at. Not to mention that the changes LTT users make, at times, to
-shoehorn their stuff in, especially in sensitive codepaths such as the
-syscall path, have side effects which clearly weren't considered.
+i wonder if there is a command which lets me determine at runtime, if there is any module loaded which taints the kernel. (not from dmesg)
 
-In one case I ended up doing an alternative implementation using kprobes
-to prove that similar results could be achieved in that manner.
-Strangely enough I was right :)
+i would have expected a special option to lsmod which shows this information with every module.
 
-I don't have any objections to markers as Ingo suggested. I just don't
-buy the repeated argument that LTT has been around for years and barely
-changed. It's simply a case of the LTT team not being aware (or deciding
-to ignore, I cannot say which) what users have actually done with the
-LTT codebase, but it seems obvious they are not aware what everyone is
-doing with it. But we have seen before how if an infrastructure like LTT
-goes into the kernel, many more users will pop up and want to have their
-stuff added.
+ok, there is modinfo which will tell me "supported : yes" for single modules , but output is somewhat inconsistent and i would need to write a little script which combines lsmod and modinfo to show appropriate information.
 
-The other part is the constantly repeated performance claim, which to
-this point hasn't been backed up by any hard evidence. If we are to take
-that argument serious, then I strongly encourage the LTT community to
-present some real numbers, but until then it can be classified as
-nothing but FUD.
+e.g. - this is a module delivered with the kernel package:
 
-I shall be the first to point out that kprobes are less than ideal,
-especially the current ia64 implementation suffers from some tricky
-limitations, but thats an implementation issue.
+vserver2:/proc # modinfo ac
+filename:       /lib/modules/2.6.8-24.24-default/kernel/drivers/acpi/ac.ko
+author:         Paul Diefenbaugh
+description:    ACPI AC Adapter Driver
+license:        GPL
+vermagic:       2.6.8-24.24-default 586 REGPARM gcc-3.3
+supported:      yes  <- (!)
+depends:
 
-Cheers,
-Jes
+
+this is a module  compiled and installed afterwards:
+
+vserver2:/proc # modinfo fuse
+filename:       /lib/modules/2.6.8-24.24-default/kernel/fs/fuse/fuse.ko
+alias:          char-major-10-229
+author:         Miklos Szeredi <miklos@szeredi.hu>
+description:    Filesystem in Userspace
+license:        GPL
+vermagic:       2.6.8-24.24-default 586 REGPARM gcc-3.3
+depends:
+
+i would have expected "supported:   no" or "attention, this module taints the kernel!", because when loading it gave:
+
+"Sep 15 20:02:46 vserver2 kernel: fuse: module not supported by Novell, setting U taint flag."
+
+how can i read that information "U taint"  AFTER loading a (binary...) module ?
+
+i think it would be useful to have an easy way to list all modules which taint the kernel, so we can see quick, which crappy binary module is running inside a user`s kernel.
+
+furthermore -  i came across a strange posting on the vmware forum:
+
+a user complains about a kernel panic and there is a discussion if it`s due to bug in vmware kernel module or aacraid driver.
+
+whoever is the evil one -  the kernel panic message shows every module with an "(U)" flag:
+
+List corruption. next->prev should be f7481858, but was f748313c
+------------[ cut here ]------------
+kernel BUG at include/linux/list.h:185!
+invalid opcode: 0000 [#1]
+SMP
+last sysfs file: /class/scsi_host/host0/proc_name
+Modules linked in: radeon(U) drm(U) ipv6(U) autofs4(U) ppdev(U) lm85(U) w83781d
+(U) hwmon_vid(U) hwmon(U) i2c_isa(U) vmnet(U) vmmon(U) sunrpc(U) vfat(U) fat
+(U) dm_mirror(U) dm_mod(U) video(U) button(U) battery(U) ac(U) lp(U) parport_pc
+(U) parport(U) snd_intel8x0(U) snd_ac97_codec(U) snd_ac97_bus(U) ftdi_sio(U)
+snd_seq_dummy(U) usbserial(U) snd_seq_oss(U) snd_seq_midi_event(U) snd_seq(U)
+snd_seq_device(U) snd_pcm_oss(U) snd_mixer_oss(U) 3c59x(U) snd_pcm(U) e1000(U)
+mii(U) ohci1394(U) ieee1394(U) snd_timer(U) sg(U) snd(U) uhci_hcd(U) ehci_hcd
+(U) i2c_i801(U) serio_raw(U) soundcore(U) e7xxx_edac(U) snd_page_alloc(U)
+floppy(U) i2c_core(U) edac_mc(U) ext3(U) jbd(U) aacraid(U) sd_mod(U) scsi_mod
+(U)
+CPU: 1
+EIP: 0060:[<f88704ce>] Tainted: P VLI
+EFLAGS: 00013096 (2.6.17-vmhost #1)
+EIP is at aac_intr_normal+0x1cc/0x267 [aacraid] 
+
+i wonder how someone can have so many tainted modules loaded at the same time, so i`m unsure if (U) means "tainted" in this context.
+
+can someone probably explain ?
+
+regards
+roland
+
+__________________________________________________________________________
+Erweitern Sie FreeMail zu einem noch leistungsstärkeren E-Mail-Postfach!		
+Mehr Infos unter http://freemail.web.de/home/landingpad/?mc=021131
+

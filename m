@@ -1,61 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751835AbWIPWMP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751501AbWIPUiK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751835AbWIPWMP (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Sep 2006 18:12:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751833AbWIPWMP
+	id S1751501AbWIPUiK (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Sep 2006 16:38:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751505AbWIPUiJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Sep 2006 18:12:15 -0400
-Received: from zeus2.kernel.org ([204.152.191.36]:3761 "EHLO zeus2.kernel.org")
-	by vger.kernel.org with ESMTP id S1751832AbWIPWMN (ORCPT
+	Sat, 16 Sep 2006 16:38:09 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:16315 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1751501AbWIPUiH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Sep 2006 18:12:13 -0400
-Date: Sat, 16 Sep 2006 23:33:56 +0200
-From: Willy Tarreau <w@1wt.eu>
-To: "Jurzitza, Dieter" <DJurzitza@harmanbecker.com>
-Cc: linux-kernel@vger.kernel.org, Jeff Mahoney <jeffm@suse.com>,
-       sparclinux@vger.kernel.org, davem@davemloft.net, aeb@cwi.nl
-Subject: Re: fix 2.4.33.3 / sun partition size
-Message-ID: <20060916213356.GA1420@1wt.eu>
-References: <DA6197CAE190A847B662079EF7631C06015692C6@OEKAW2EXVS03.hbi.ad.harman.com>
+	Sat, 16 Sep 2006 16:38:07 -0400
+Date: Sat, 16 Sep 2006 22:29:39 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>
+Cc: Jes Sorensen <jes@sgi.com>, Roman Zippel <zippel@linux-m68k.org>,
+       Andrew Morton <akpm@osdl.org>, tglx@linutronix.de, karim@opersys.com,
+       Paul Mundt <lethal@linux-sh.org>, linux-kernel@vger.kernel.org,
+       Christoph Hellwig <hch@infradead.org>, Ingo Molnar <mingo@redhat.com>,
+       Greg Kroah-Hartman <gregkh@suse.de>, Tom Zanussi <zanussi@us.ibm.com>,
+       ltt-dev@shafik.org, Michel Dagenais <michel.dagenais@polymtl.ca>
+Subject: [patch] kprobes: optimize branch placement
+Message-ID: <20060916202939.GA4520@elte.hu>
+References: <20060915181907.GB17581@elte.hu> <Pine.LNX.4.64.0609152111030.6761@scrub.home> <20060915200559.GB30459@elte.hu> <20060915202233.GA23318@Krystal> <450BCAF1.2030205@sgi.com> <20060916172419.GA15427@Krystal> <20060916173552.GA7362@elte.hu> <20060916175606.GA2837@Krystal> <20060916191043.GA22558@elte.hu> <20060916193745.GA29022@elte.hu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <DA6197CAE190A847B662079EF7631C06015692C6@OEKAW2EXVS03.hbi.ad.harman.com>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <20060916193745.GA29022@elte.hu>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -2.9
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.9 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5000]
+	-0.1 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-[Andries CCed since he's the partition maintainer]
+* Ingo Molnar <mingo@elte.hu> wrote:
 
-Hi Dieter,
-
-On Wed, Sep 13, 2006 at 07:40:26AM +0200, Jurzitza, Dieter wrote:
-> Dear Willy,
-> one final thougth here: ist there any real reason to *not* make
-> add_gd_partition (struct gendisk, int minor, unsigned long start, unsigned long size){...}
-> (see fs/partitions/check.c)
-> as:
+> * Ingo Molnar <mingo@elte.hu> wrote:
 > 
-> - within add_gd_partition the two values start and size are assigned to a field of type unsigned long,
-> - we both agree that there is no reason to use signed ints in this case,
-> - any byte size conversion issue would be covered by the fact that it does not hurt assigning too small numbers to oversized ones.
+> > and have measured the overhead of an unmodified, kprobes-probed and 
+> > djprobes-probed sys_getpid() system-call:
+> > 
+> >  sys_getpid() unmodified latency:    317 cycles   [ 0.146 usecs ]
+> >  sys_getpid() kprobes latency:       815 cycles   [ 0.377 usecs ]
+> >  sys_getpid() djprobes latency:      380 cycles   [ 0.176 usecs ]
 > 
-> Just my two cents here ...
+> i have taken a look at the kprobes fastpath, and there are a few things 
+> we can do to speed it up. The patch below shaves off 75 cycles from the 
+> kprobes overhead:
+> 
+>    sys_getpid() kprobes-speedup:       740 cycles   [ 0.342 usecs ]
+> 
+> that reduces the kprobes overhead to 423 cycles.
 
-I agree with your analysis here. I've checked the code right now, and using signed
-ints in add_gd_partition() makes no sense to me as the hd_struct uses unsigned longs.
-So a cast is performed within add_gd_partition() anyway.
+the patch below  brings the overhead down to 420 cycles:
 
-We should make add_gd_partition() accept unsigned longs so that only its users will
-have to cast to unsigned long if needed, and this way it will be easier to track
-invalid signedness use.
+     sys_getpid() kprobes-speedup:       737 cycles   [ 0.341 usecs ]
 
-I've quickly checked if 2.6 needs a fix, but 2.6 declares add_partition() with
-sector_t values which are unsigned longs. So 2.6 is safe right now. I will add
-the fix and check at least on x86 and sparc64 that I do not see any regression
-nor warnings (I don't have 1TB to check larger partitions!).
+	Ingo
 
-Thanks,
-Willy
+---------->
+Subject: [patch] kprobes: optimize branch placement
+From: Ingo Molnar <mingo@elte.hu>
 
+optimize gcc's code generation by hinting branch probabilities.
+
+Signed-off-by: Ingo Molnar <mingo@elte.hu>
+---
+ arch/i386/kernel/kprobes.c |    2 +-
+ arch/i386/kernel/traps.c   |    2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
+
+Index: linux/arch/i386/kernel/kprobes.c
+===================================================================
+--- linux.orig/arch/i386/kernel/kprobes.c
++++ linux/arch/i386/kernel/kprobes.c
+@@ -220,7 +220,7 @@ int __kprobes kprobe_handler(struct pt_r
+ 	kcb = get_kprobe_ctlblk();
+ 
+ 	/* Check we're not actually recursing */
+-	if (kprobe_running()) {
++	if (unlikely(kprobe_running())) {
+ 		p = get_kprobe(addr);
+ 		if (p) {
+ 			if (kcb->kprobe_status == KPROBE_HIT_SS &&
+Index: linux/arch/i386/kernel/traps.c
+===================================================================
+--- linux.orig/arch/i386/kernel/traps.c
++++ linux/arch/i386/kernel/traps.c
+@@ -806,7 +806,7 @@ fastcall void __kprobes do_int3(struct p
+ 	 * kernel-mode INT3s are likely kprobes:
+ 	 */
+         if (!user_mode(regs)) {
+-                if (kprobe_handler(regs))
++                if (likely(kprobe_handler(regs)))
+ 			return;
+ 		/* This is an interrupt gate, because kprobes wants interrupts
+ 		disabled.  Normal trap handlers don't. */

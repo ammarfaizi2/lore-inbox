@@ -1,347 +1,275 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932418AbWIPEIx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932415AbWIPEIw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932418AbWIPEIx (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Sep 2006 00:08:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932417AbWIPEIx
+	id S932415AbWIPEIw (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Sep 2006 00:08:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932417AbWIPEIw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Sep 2006 00:08:53 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:48784 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932416AbWIPEIv (ORCPT
+	Sat, 16 Sep 2006 00:08:52 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:48272 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932415AbWIPEIu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Sep 2006 00:08:51 -0400
+	Sat, 16 Sep 2006 00:08:50 -0400
 From: michaelc@cs.wisc.edu
 To: axboe@kernel.dk
 Cc: linux-kernel@vger.kernel.org, Mike Christie <michaelc@cs.wisc.edu>
-Subject: [PATCH 1/2] block: support larger block pc requests take 2
+Subject: [PATCH 2/2] block: convert blk_rq_map_users take 2
 Reply-To: michaelc@cs.wisc.edu
-Date: Fri, 15 Sep 2006 23:08:35 -0400
-Message-Id: <11583761161108-git-send-email-michaelc@cs.wisc.edu>
+Date: Fri, 15 Sep 2006 23:08:36 -0400
+Message-Id: <11583761182381-git-send-email-michaelc@cs.wisc.edu>
 X-Mailer: git-send-email 1.4.1.1
+In-Reply-To: <11583761161108-git-send-email-michaelc@cs.wisc.edu>
+References: <11583761161108-git-send-email-michaelc@cs.wisc.edu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Mike Christie <michaelc@cs.wisc.edu>
 
-This patch modifies blk_rq_map/unmap_user() so that it supports
-requests larger than bio by chaning them together.
+This patch converts cdrom, scsi_ioctl and bsg to use the modified
+blk_rq_map_usr.
 
-Changes since v1.
-1. Removed blk_get_bounced_bio() function. blk_rq_unmap_user
-checks the bounced flag and if set access bi_private.
-
-2. Removed biohead_orig field from request.
+Changes:
+1. Have caller track bio head.
+2. Fix bug in bsg.c multiple iovec mapping. We were resetting the head
+everytime we call blk_rq_map_usr and so new calls where leaking the
+previously mapped iovec.
 Signed-off-by: Mike Christie <michaelc@cs.wisc.edu>
 ---
- block/ll_rw_blk.c      |  166 ++++++++++++++++++++++++++++++++++++------------
- fs/bio.c               |   18 +----
- include/linux/blkdev.h |    7 +-
- 3 files changed, 132 insertions(+), 59 deletions(-)
+ block/bsg.c           |   78 +++++++------------------------------------------
+ block/scsi_ioctl.c    |   30 +++++++------------
+ drivers/cdrom/cdrom.c |    6 +---
+ 3 files changed, 24 insertions(+), 90 deletions(-)
 
-diff --git a/block/ll_rw_blk.c b/block/ll_rw_blk.c
-index 5c8c7d7..e7de1ee 100644
---- a/block/ll_rw_blk.c
-+++ b/block/ll_rw_blk.c
-@@ -2278,6 +2278,84 @@ void blk_insert_request(request_queue_t 
+diff --git a/block/bsg.c b/block/bsg.c
+index cf48a81..5d23f97 100644
+--- a/block/bsg.c
++++ b/block/bsg.c
+@@ -70,11 +70,6 @@ #define BSG_CMDS_MASK		(BSG_CMDS_PER_LON
+ #define BSG_CMDS_BYTES		(PAGE_SIZE * (1 << BSG_CMDS_PAGE_ORDER))
+ #define BSG_CMDS		(BSG_CMDS_BYTES / sizeof(struct bsg_command))
  
- EXPORT_SYMBOL(blk_insert_request);
- 
-+static int __blk_rq_unmap_user(struct bio *bio)
-+{
-+	int ret = 0;
-+
-+	if (bio) {
-+		if (bio_flagged(bio, BIO_USER_MAPPED))
-+			bio_unmap_user(bio);
-+		else
-+			ret = bio_uncopy_user(bio);
-+	}
-+
-+	return ret;
-+}
-+
-+static int __blk_rq_map_user(request_queue_t *q, struct request *rq,
-+			     void __user *ubuf, unsigned int len)
-+{
-+	unsigned long uaddr;
-+	struct bio *bio, *orig_bio;
-+	int reading, ret;
-+
-+	reading = rq_data_dir(rq) == READ;
-+
-+	/*
-+	 * if alignment requirement is satisfied, map in user pages for
-+	 * direct dma. else, set up kernel bounce buffers
-+	 */
-+	uaddr = (unsigned long) ubuf;
-+	if (!(uaddr & queue_dma_alignment(q)) && !(len & queue_dma_alignment(q)))
-+		bio = bio_map_user(q, NULL, uaddr, len, reading);
-+	else
-+		bio = bio_copy_user(q, uaddr, len, reading);
-+
-+	if (IS_ERR(bio)) {
-+		return PTR_ERR(bio);
-+	}
-+
-+	orig_bio = bio;
-+	blk_queue_bounce(q, &bio);
-+	/*
-+	 * We link the bounce buffer in and could have to traverse it
-+	 * later so we have to get a ref to prevent it from being freed
-+	 */
-+	bio_get(bio);
-+
-+	/*
-+	 * for most (all? don't know of any) queues we could
-+	 * skip grabbing the queue lock here. only drivers with
-+	 * funky private ->back_merge_fn() function could be
-+	 * problematic.
-+	 */
-+	spin_lock_irq(q->queue_lock);
-+	if (!rq->bio)
-+		blk_rq_bio_prep(q, rq, bio);
-+	else if (!q->back_merge_fn(q, rq, bio)) {
-+		ret = -EINVAL;
-+		spin_unlock_irq(q->queue_lock);
-+		goto unmap_bio;
-+	} else {
-+		rq->biotail->bi_next = bio;
-+		rq->biotail = bio;
-+
-+		rq->nr_sectors += bio_sectors(bio);
-+		rq->hard_nr_sectors = rq->nr_sectors;
-+		rq->data_len += bio->bi_size;
-+	}
-+	spin_unlock_irq(q->queue_lock);
-+
-+	return bio->bi_size;
-+
-+unmap_bio:
-+	/* if it was boucned we must call the end io function */
-+	bio_endio(bio, bio->bi_size, 0);
-+	__blk_rq_unmap_user(orig_bio);
-+	bio_put(bio);
-+	return ret;
-+}
-+
- /**
-  * blk_rq_map_user - map user data to a request, for REQ_BLOCK_PC usage
-  * @q:		request queue where request should be inserted
-@@ -2299,42 +2377,44 @@ EXPORT_SYMBOL(blk_insert_request);
-  *    unmapping.
-  */
- int blk_rq_map_user(request_queue_t *q, struct request *rq, void __user *ubuf,
--		    unsigned int len)
-+		    unsigned long len)
- {
--	unsigned long uaddr;
--	struct bio *bio;
--	int reading;
-+	unsigned long bytes_read = 0;
-+	int ret;
- 
- 	if (len > (q->max_hw_sectors << 9))
- 		return -EINVAL;
- 	if (!len || !ubuf)
- 		return -EINVAL;
- 
--	reading = rq_data_dir(rq) == READ;
-+	while (bytes_read != len) {
-+		unsigned long map_len, end, start;
- 
--	/*
--	 * if alignment requirement is satisfied, map in user pages for
--	 * direct dma. else, set up kernel bounce buffers
--	 */
--	uaddr = (unsigned long) ubuf;
--	if (!(uaddr & queue_dma_alignment(q)) && !(len & queue_dma_alignment(q)))
--		bio = bio_map_user(q, NULL, uaddr, len, reading);
--	else
--		bio = bio_copy_user(q, uaddr, len, reading);
-+		map_len = min_t(unsigned long, len - bytes_read, BIO_MAX_SIZE);
-+		end = ((unsigned long)ubuf + map_len + PAGE_SIZE - 1)
-+								>> PAGE_SHIFT;
-+		start = (unsigned long)ubuf >> PAGE_SHIFT;
- 
--	if (!IS_ERR(bio)) {
--		rq->bio = rq->biotail = bio;
--		blk_rq_bio_prep(q, rq, bio);
-+		/*
-+		 * A bad offset could cause us to require BIO_MAX_PAGES + 1
-+		 * pages. If this happens we just lower the requested
-+		 * mapping len by a page so that we can fit
-+		 */
-+		if (end - start > BIO_MAX_PAGES)
-+			map_len -= PAGE_SIZE;
- 
--		rq->buffer = rq->data = NULL;
--		rq->data_len = len;
--		return 0;
-+		ret = __blk_rq_map_user(q, rq, ubuf, map_len);
-+		if (ret < 0)
-+			goto unmap_rq;
-+		bytes_read += ret;
-+		ubuf += ret;
- 	}
- 
--	/*
--	 * bio is the err-ptr
--	 */
--	return PTR_ERR(bio);
-+	rq->buffer = rq->data = NULL;
-+	return 0;
-+unmap_rq:
-+	blk_rq_unmap_user(rq);
-+	return ret;
- }
- 
- EXPORT_SYMBOL(blk_rq_map_user);
-@@ -2360,7 +2440,7 @@ EXPORT_SYMBOL(blk_rq_map_user);
-  *    unmapping.
-  */
- int blk_rq_map_user_iov(request_queue_t *q, struct request *rq,
--			struct sg_iovec *iov, int iov_count)
-+			struct sg_iovec *iov, int iov_count, unsigned int len)
- {
- 	struct bio *bio;
- 
-@@ -2374,10 +2454,15 @@ int blk_rq_map_user_iov(request_queue_t 
- 	if (IS_ERR(bio))
- 		return PTR_ERR(bio);
- 
--	rq->bio = rq->biotail = bio;
-+	if (bio->bi_size != len) {
-+		bio_endio(bio, bio->bi_size, 0);
-+		bio_unmap_user(bio);
-+		return -EINVAL;
-+	}
-+
-+	bio_get(bio);
- 	blk_rq_bio_prep(q, rq, bio);
- 	rq->buffer = rq->data = NULL;
--	rq->data_len = bio->bi_size;
- 	return 0;
- }
- 
-@@ -2385,23 +2470,26 @@ EXPORT_SYMBOL(blk_rq_map_user_iov);
- 
- /**
-  * blk_rq_unmap_user - unmap a request with user data
-- * @bio:	bio to be unmapped
-- * @ulen:	length of user buffer
-+ * @rq:		rq to be unmapped
-  *
-  * Description:
-- *    Unmap a bio previously mapped by blk_rq_map_user().
-+ *    Unmap a rq previously mapped by blk_rq_map_user().
-+ *    rq->bio must be set to the original head of the request.
-  */
--int blk_rq_unmap_user(struct bio *bio, unsigned int ulen)
-+int blk_rq_unmap_user(struct request *rq)
- {
--	int ret = 0;
-+	struct bio *bio, *mapped_bio;
- 
--	if (bio) {
--		if (bio_flagged(bio, BIO_USER_MAPPED))
--			bio_unmap_user(bio);
-+	while ((bio = rq->bio)) {
-+		if (bio_flagged(bio, BIO_BOUNCED))
-+			mapped_bio = bio->bi_private;
- 		else
--			ret = bio_uncopy_user(bio);
--	}
-+			mapped_bio = bio;
- 
-+		__blk_rq_unmap_user(mapped_bio);
-+		rq->bio = bio->bi_next;
-+		bio_put(bio);
-+	}
- 	return 0;
- }
- 
-@@ -2432,11 +2520,8 @@ int blk_rq_map_kern(request_queue_t *q, 
- 	if (rq_data_dir(rq) == WRITE)
- 		bio->bi_rw |= (1 << BIO_RW);
- 
--	rq->bio = rq->biotail = bio;
- 	blk_rq_bio_prep(q, rq, bio);
+-/*
+- * arbitrary limit, mapping bio's will reveal true device limit
+- */
+-#define BSG_MAX_VECS		(128)
 -
- 	rq->buffer = rq->data = NULL;
--	rq->data_len = len;
- 	return 0;
- }
+ #undef BSG_DEBUG
  
-@@ -3469,6 +3554,7 @@ void blk_rq_bio_prep(request_queue_t *q,
- 	rq->hard_cur_sectors = rq->current_nr_sectors;
- 	rq->hard_nr_sectors = rq->nr_sectors = bio_sectors(bio);
- 	rq->buffer = bio_data(bio);
-+	rq->data_len = bio->bi_size;
+ #ifdef BSG_DEBUG
+@@ -251,8 +246,6 @@ bsg_validate_sghdr(request_queue_t *q, s
+ 		return -EINVAL;
+ 	if (hdr->cmd_len > BLK_MAX_CDB)
+ 		return -EINVAL;
+-	if (hdr->iovec_count > BSG_MAX_VECS)
+-		return -EINVAL;
+ 	if (hdr->dxfer_len > (q->max_sectors << 9))
+ 		return -EIO;
  
- 	rq->bio = rq->biotail = bio;
- }
-diff --git a/fs/bio.c b/fs/bio.c
-index 6a0b9ad..9abf256 100644
---- a/fs/bio.c
-+++ b/fs/bio.c
-@@ -559,10 +559,8 @@ struct bio *bio_copy_user(request_queue_
+@@ -282,12 +275,12 @@ bsg_validate_sghdr(request_queue_t *q, s
+  * each segment to a bio and string multiple bio's to the request
+  */
+ static struct request *
+-bsg_map_hdr(request_queue_t *q, int rw, struct sg_io_hdr *hdr)
++bsg_map_hdr(struct bsg_device *bd, int rw, struct sg_io_hdr *hdr)
+ {
++	request_queue_t *q = bd->queue;
+ 	struct sg_iovec iov;
+ 	struct sg_iovec __user *u_iov;
+ 	struct request *rq;
+-	struct bio *bio;
+ 	int ret, i = 0;
+ 
+ 	dprintk("map hdr %p/%d/%d\n", hdr->dxferp, hdr->dxfer_len,
+@@ -301,6 +294,12 @@ bsg_map_hdr(request_queue_t *q, int rw, 
+ 	 * map scatter-gather elements seperately and string them to request
+ 	 */
+ 	rq = blk_get_request(q, rw, GFP_KERNEL);
++	ret = blk_fill_sghdr_rq(q, rq, hdr, test_bit(BSG_F_WRITE_PERM,
++				&bd->flags));
++	if (ret) {
++		blk_put_request(rq);
++		return ERR_PTR(ret);
++	}
+ 
+ 	if (!hdr->iovec_count) {
+ 		ret = blk_rq_map_user(q, rq, hdr->dxferp, hdr->dxfer_len);
+@@ -310,9 +309,6 @@ bsg_map_hdr(request_queue_t *q, int rw, 
+ 
+ 	u_iov = hdr->dxferp;
+ 	for (ret = 0, i = 0; i < hdr->iovec_count; i++, u_iov++) {
+-		int to_vm = rw == READ;
+-		unsigned long uaddr;
+-
+ 		if (copy_from_user(&iov, u_iov, sizeof(iov))) {
+ 			ret = -EFAULT;
+ 			break;
+@@ -323,57 +319,9 @@ bsg_map_hdr(request_queue_t *q, int rw, 
  			break;
  		}
  
--		if (bio_add_pc_page(q, bio, page, bytes, 0) < bytes) {
--			ret = -EINVAL;
-+		if (bio_add_pc_page(q, bio, page, bytes, 0) < bytes)
+-		uaddr = (unsigned long) iov.iov_base;
+-		if (!(uaddr & queue_dma_alignment(q))
+-		    && !(iov.iov_len & queue_dma_alignment(q)))
+-			bio = bio_map_user(q, NULL, uaddr, iov.iov_len, to_vm);
+-		else
+-			bio = bio_copy_user(q, uaddr, iov.iov_len, to_vm);
+-
+-		if (IS_ERR(bio)) {
+-			ret = PTR_ERR(bio);
+-			bio = NULL;
++		ret = blk_rq_map_user(q, rq, iov.iov_base, iov.iov_len);
++		if (ret)
  			break;
 -		}
- 
- 		len -= bytes;
+-
+-		dprintk("bsg: adding segment %d\n", i);
+-
+-		if (rq->bio) {
+-			/*
+-			 * for most (all? don't know of any) queues we could
+-			 * skip grabbing the queue lock here. only drivers with
+-			 * funky private ->back_merge_fn() function could be
+-			 * problematic.
+-			 */
+-			spin_lock_irq(q->queue_lock);
+-			ret = q->back_merge_fn(q, rq, bio);
+-			spin_unlock_irq(q->queue_lock);
+-
+-			rq->biotail->bi_next = bio;
+-			rq->biotail = bio;
+-
+-			/*
+-			 * break after adding bio, so we don't have to special
+-			 * case the cleanup too much
+-			 */
+-			if (!ret) {
+-				ret = -EINVAL;
+-				break;
+-			}
+-
+-			/*
+-			 * merged ok, update state
+-			 */
+-			rq->nr_sectors += bio_sectors(bio);
+-			rq->hard_nr_sectors = rq->nr_sectors;
+-			rq->data_len += bio->bi_size;
+-		} else {
+-			/*
+-			 * first bio, setup rq state
+-			 */
+-			blk_rq_bio_prep(q, rq, bio);
+-		}
+-		ret = 0;
  	}
-@@ -750,7 +748,6 @@ struct bio *bio_map_user_iov(request_que
- 			     int write_to_vm)
+ 
+ 	/*
+@@ -767,17 +715,13 @@ static ssize_t __bsg_write(struct bsg_de
+ 		/*
+ 		 * get a request, fill in the blanks, and add to request queue
+ 		 */
+-		rq = bsg_map_hdr(q, rw, &bc->hdr);
++		rq = bsg_map_hdr(bd, rw, &bc->hdr);
+ 		if (IS_ERR(rq)) {
+ 			ret = PTR_ERR(rq);
+ 			rq = NULL;
+ 			break;
+ 		}
+ 
+-		ret = blk_fill_sghdr_rq(q, rq, &bc->hdr, test_bit(BSG_F_WRITE_PERM, &bd->flags));
+-		if (ret)
+-			break;
+-
+ 		bsg_add_command(bd, q, bc, rq);
+ 		bc = NULL;
+ 		rq = NULL;
+diff --git a/block/scsi_ioctl.c b/block/scsi_ioctl.c
+index 9426b54..bbc2925 100644
+--- a/block/scsi_ioctl.c
++++ b/block/scsi_ioctl.c
+@@ -246,17 +246,10 @@ EXPORT_SYMBOL_GPL(blk_fill_sghdr_rq);
+  */
+ int blk_unmap_sghdr_rq(struct request *rq, struct sg_io_hdr *hdr)
  {
- 	struct bio *bio;
--	int len = 0, i;
- 
- 	bio = __bio_map_user_iov(q, bdev, iov, iov_count, write_to_vm);
- 
-@@ -765,18 +762,7 @@ struct bio *bio_map_user_iov(request_que
+-	struct bio *bio = rq->bio;
+-
+ 	/*
+ 	 * also releases request
  	 */
- 	bio_get(bio);
- 
--	for (i = 0; i < iov_count; i++)
--		len += iov[i].iov_len;
+-	if (!hdr->iovec_count)
+-		return blk_rq_unmap_user(bio, hdr->dxfer_len);
 -
--	if (bio->bi_size == len)
--		return bio;
+-	rq_for_each_bio(bio, rq)
+-		bio_unmap_user(bio);
 -
--	/*
--	 * don't support partial mappings
--	 */
--	bio_endio(bio, bio->bi_size, 0);
--	bio_unmap_user(bio);
--	return ERR_PTR(-EINVAL);
-+	return bio;
++	blk_rq_unmap_user(rq);
+ 	blk_put_request(rq);
+ 	return 0;
  }
+@@ -332,6 +325,14 @@ static int sg_io(struct file *file, requ
+ 	if (!rq)
+ 		return -ENOMEM;
  
- static void __bio_unmap_user(struct bio *bio)
-diff --git a/include/linux/blkdev.h b/include/linux/blkdev.h
-index f38ad35..17d3f68 100644
---- a/include/linux/blkdev.h
-+++ b/include/linux/blkdev.h
-@@ -638,10 +638,11 @@ extern void blk_sync_queue(struct reques
- extern void __blk_stop_queue(request_queue_t *q);
- extern void blk_run_queue(request_queue_t *);
- extern void blk_queue_activity_fn(request_queue_t *, activity_fn *, void *);
--extern int blk_rq_map_user(request_queue_t *, struct request *, void __user *, unsigned int);
--extern int blk_rq_unmap_user(struct bio *, unsigned int);
-+extern int blk_rq_map_user(request_queue_t *, struct request *, void __user *, unsigned long);
-+extern int blk_rq_unmap_user(struct request *);
- extern int blk_rq_map_kern(request_queue_t *, struct request *, void *, unsigned int, gfp_t);
--extern int blk_rq_map_user_iov(request_queue_t *, struct request *, struct sg_iovec *, int);
-+extern int blk_rq_map_user_iov(request_queue_t *, struct request *,
-+			       struct sg_iovec *, int, unsigned int);
- extern int blk_execute_rq(request_queue_t *, struct gendisk *,
- 			  struct request *, int);
- extern void blk_execute_rq_nowait(request_queue_t *, struct gendisk *,
++	if (file)
++		has_write_perm = file->f_mode & FMODE_WRITE;
++
++	if (blk_fill_sghdr_rq(q, rq, hdr, has_write_perm)) {
++		blk_put_request(rq);
++		return -EFAULT;
++	}
++
+ 	if (hdr->iovec_count) {
+ 		const int size = sizeof(struct sg_iovec) * hdr->iovec_count;
+ 		struct sg_iovec *iov;
+@@ -348,7 +349,8 @@ static int sg_io(struct file *file, requ
+ 			goto out;
+ 		}
+ 
+-		ret = blk_rq_map_user_iov(q, rq, iov, hdr->iovec_count);
++		ret = blk_rq_map_user_iov(q, rq, iov, hdr->iovec_count,
++					  hdr->dxfer_len);
+ 		kfree(iov);
+ 	} else if (hdr->dxfer_len)
+ 		ret = blk_rq_map_user(q, rq, hdr->dxferp, hdr->dxfer_len);
+@@ -356,17 +358,7 @@ static int sg_io(struct file *file, requ
+ 	if (ret)
+ 		goto out;
+ 
+-	if (file)
+-		has_write_perm = file->f_mode & FMODE_WRITE;
+-
+ 	bio = rq->bio;
+-
+-	if (blk_fill_sghdr_rq(q, rq, hdr, has_write_perm)) {
+-		blk_rq_unmap_user(bio, hdr->dxfer_len);
+-		blk_put_request(rq);
+-		return -EFAULT;
+-	}
+-
+ 	memset(sense, 0, sizeof(sense));
+ 	rq->sense = sense;
+ 	rq->sense_len = 0;
+diff --git a/drivers/cdrom/cdrom.c b/drivers/cdrom/cdrom.c
+index b38c84a..b7f16fa 100644
+--- a/drivers/cdrom/cdrom.c
++++ b/drivers/cdrom/cdrom.c
+@@ -2133,16 +2133,14 @@ static int cdrom_read_cdda_bpc(struct cd
+ 		rq->timeout = 60 * HZ;
+ 		bio = rq->bio;
+ 
+-		if (rq->bio)
+-			blk_queue_bounce(q, &rq->bio);
+-
+ 		if (blk_execute_rq(q, cdi->disk, rq, 0)) {
+ 			struct request_sense *s = rq->sense;
+ 			ret = -EIO;
+ 			cdi->last_sense = s->sense_key;
+ 		}
+ 
+-		if (blk_rq_unmap_user(bio, len))
++		rq->bio = bio;
++		if (blk_rq_unmap_user(rq))
+ 			ret = -EFAULT;
+ 
+ 		if (ret)
 -- 
 1.4.1
 

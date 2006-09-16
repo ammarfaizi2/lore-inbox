@@ -1,65 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964784AbWIPMAk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964787AbWIPMIs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964784AbWIPMAk (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Sep 2006 08:00:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964785AbWIPMAk
+	id S964787AbWIPMIs (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Sep 2006 08:08:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964782AbWIPMIs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Sep 2006 08:00:40 -0400
-Received: from aa002msr.fastwebnet.it ([85.18.95.65]:37096 "EHLO
-	aa002msr.fastwebnet.it") by vger.kernel.org with ESMTP
-	id S964784AbWIPMAj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Sep 2006 08:00:39 -0400
-Date: Sat, 16 Sep 2006 13:58:47 +0200
-From: Mattia Dongili <malattia@linux.it>
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, Andrew Morton <akpm@osdl.org>,
-       Kernel development list <linux-kernel@vger.kernel.org>,
-       USB development list <linux-usb-devel@lists.sourceforge.net>
-Subject: Re: [linux-usb-devel] 2.6.18-rc6-mm1 (-mm2): ohci resume problem
-Message-ID: <20060916115846.GA6608@inferi.kami.home>
-Mail-Followup-To: Alan Stern <stern@rowland.harvard.edu>,
-	"Rafael J. Wysocki" <rjw@sisk.pl>, Andrew Morton <akpm@osdl.org>,
-	Kernel development list <linux-kernel@vger.kernel.org>,
-	USB development list <linux-usb-devel@lists.sourceforge.net>
-References: <20060914201919.GB3963@inferi.kami.home> <Pine.LNX.4.44L0.0609141622030.6982-100000@iolanthe.rowland.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 16 Sep 2006 08:08:48 -0400
+Received: from tentacle.s2s.msu.ru ([193.232.119.109]:6115 "EHLO
+	tentacle.sectorb.msk.ru") by vger.kernel.org with ESMTP
+	id S964780AbWIPMIr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 16 Sep 2006 08:08:47 -0400
+Date: Sat, 16 Sep 2006 16:08:46 +0400
+From: "Vladimir B. Savkin" <master@sectorb.msk.ru>
+To: Andi Kleen <ak@suse.de>
+Cc: Jesper Dangaard Brouer <hawk@diku.dk>,
+       Harry Edmon <harry@atmos.washington.edu>, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org
+Subject: Re: Network performance degradation from 2.6.11.12 to 2.6.16.20
+Message-ID: <20060916120845.GA18912@tentacle.sectorb.msk.ru>
+References: <4492D5D3.4000303@atmos.washington.edu> <44948EF6.1060201@atmos.washington.edu> <Pine.LNX.4.61.0606191638550.23553@ask.diku.dk> <200606191724.31305.ak@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=koi8-r
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44L0.0609141622030.6982-100000@iolanthe.rowland.org>
-X-Message-Flag: Cranky? Try Free Software instead!
-X-Operating-System: Linux 2.6.18-rc6-mm1-3 i686
-X-Editor: Vim http://www.vim.org/
-X-Disclaimer: Buh!
-User-Agent: Mutt/1.5.13 (2006-08-11)
+In-Reply-To: <200606191724.31305.ak@suse.de>
+X-Organization: Moscow State Univ., Institute of Mechanics
+X-Operating-System: Linux 2.6.17-rc6-64
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 14, 2006 at 04:25:26PM -0400, Alan Stern wrote:
-> On Thu, 14 Sep 2006, Mattia Dongili wrote:
-[...]
-> > Will try again with USB_SUSPEND=y, tomorrow I'll try to find some time
-> > to test all the other things you suggested  (if still necessary) :)
+On Mon, Jun 19, 2006 at 05:24:31PM +0200, Andi Kleen wrote:
 > 
-> No, don't do that.  Keep USB_SUSPEND=n, and try only the most recent patch
-> I sent to Rafael:
+> > If you use "pmtmr" try to reboot with kernel option "clock=tsc".
 > 
-> http://marc.theaimsgroup.com/?l=linux-kernel&m=115825076000987&w=2
+> That's dangerous advice - when the system choses not to use
+> TSC it often has a reason.
+
+I just found out that TSC clocksource is not implemented on x86-64.
+Kernel version 2.6.18-rc7, is it true?
+
+I've also had experience of unsychronized TSC on dual-core Athlon,
+but it was cured by idle=poll.
+
 > 
-> I know for certain that some of Rafael's problems are different from 
-> yours, because his involve ehci-hcd and ohci-hcd whereas you have only 
-> UHCI controllers.
+> > 
+> > On my Opteron AMD system i normally can route 400 kpps, but with 
+> > timesource "pmtmr" i could only route around 83 kpps.  (I found the timer 
+> > to be the issue by using oprofile).
+> 
+> Unless you're using packet sniffing or any other application
+> that requests time stamps on a socket then the timer shouldn't 
+> make much difference. Incoming packets are only time stamped
+> when someone asks for the timestamps.
+> 
+It seems that dhcpd3 makes the box timestamping incoming packets,
+killing the performance. I think that combining router and DHCP server
+on a same box is a legitimate situation, isn't it?
 
-Yay! this patch fixes the issue. It already survived 3 susp/resume
-cycles.
-Log is here:
-http://oioio.altervista.org/linux/dmesg-2.6.18-rc6-mm1-usb-susp
+~
+:wq
+                                        With best regards, 
+                                           Vladimir Savkin. 
 
-Do you want to see a test run with USB_SUSPEND=y? (well I'll try it out
-anyway)
-
-Thanks again
-PS: sadly spamcop has my provider in its blacklists, linux-usb-devel
-didn't receive any of my mails...
--- 
-mattia
-:wq!

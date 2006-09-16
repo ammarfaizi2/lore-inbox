@@ -1,71 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932235AbWIPABv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932240AbWIPACI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932235AbWIPABv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Sep 2006 20:01:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932240AbWIPABv
+	id S932240AbWIPACI (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Sep 2006 20:02:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932241AbWIPACI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Sep 2006 20:01:51 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:37045 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932235AbWIPABu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Sep 2006 20:01:50 -0400
-Date: Sat, 16 Sep 2006 01:53:17 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Karim Yaghmour <karim@opersys.com>
-Cc: "Jose R. Santos" <jrs@us.ibm.com>,
-       Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
-       Roman Zippel <zippel@linux-m68k.org>, Andrew Morton <akpm@osdl.org>,
-       tglx@linutronix.de, Paul Mundt <lethal@linux-sh.org>,
-       Jes Sorensen <jes@sgi.com>, linux-kernel@vger.kernel.org,
-       Christoph Hellwig <hch@infradead.org>, Ingo Molnar <mingo@redhat.com>,
-       Greg Kroah-Hartman <gregkh@suse.de>, Tom Zanussi <zanussi@us.ibm.com>,
-       ltt-dev@shafik.org, Michel Dagenais <michel.dagenais@polymtl.ca>
-Subject: Re: [PATCH 0/11] LTTng-core (basic tracing infrastructure) 0.5.108
-Message-ID: <20060915235317.GA29929@elte.hu>
-References: <20060915111644.c857b2cf.akpm@osdl.org> <20060915181907.GB17581@elte.hu> <Pine.LNX.4.64.0609152111030.6761@scrub.home> <20060915200559.GB30459@elte.hu> <20060915202233.GA23318@Krystal> <450B164B.7090404@us.ibm.com> <20060915220345.GC12789@elte.hu> <450B29FB.7000301@opersys.com> <20060915224338.GA22126@elte.hu> <450B382C.9070202@opersys.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 15 Sep 2006 20:02:08 -0400
+Received: from ug-out-1314.google.com ([66.249.92.168]:15006 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S932240AbWIPACG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 15 Sep 2006 20:02:06 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=qpTJt7xioJy+XHfB3gPH8SMgrS5u3H0SFem0SgRxy2+jXgJLaV/dsBs0EhRewmfRDmjvxtjGV8EM10TTKb3jVWo1e1Di2K3sqRVQCVGKIse9YPwiR2bJxA8x4OuRjVCJo+HB0LbdBLomuCaW3j3o4OeK34lqdQQkNWbvA/hYRmQ=
+Message-ID: <a885b78b0609151702r3b4086c4l3bb79c2e5c9ddf4a@mail.gmail.com>
+Date: Sat, 16 Sep 2006 08:02:04 +0800
+From: "xixi lii" <xixi.limeng@gmail.com>
+To: davids@webmaster.com
+Subject: Re: UDP question.
+Cc: "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
+In-Reply-To: <MDEHLPKNGKAHNMBLJOLKGECFOHAB.davids@webmaster.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <450B382C.9070202@opersys.com>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -2.9
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.9 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5000]
-	-0.1 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+References: <a885b78b0609150007u239cf363l40dd122165f7b516@mail.gmail.com>
+	 <MDEHLPKNGKAHNMBLJOLKGECFOHAB.davids@webmaster.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+2006/9/16, David Schwartz <davids@webmaster.com>:
+>
+> > My two adapters has two different IP address, and I bind one IP
+> > on one socket,
+> > do you mean that I alloc two socket and bind different IP is not
+> > helpful?
+>
+>        Correct. You are still sending all the packets *to* the same place.
+>
+> > In fact, all the packet sent from two socket is go out by one
+> > network adapter?
+>
+>        Yes, of course. Why would the kernel send traffic to a destination out an
+> interface that doesn't go to that destination?
+>
+>        Suppose you have two interfaces, 1.2.3.4/8 and 10.2.3.4/8, if you are
+> sending a packet *to* 1.2.4.5, it will go out the first interface. This
+> applies whether the source address is 1.2.3.4 or 10.2.3.4.
+>
+>        By default, the kernel routes traffic based on where it is going, not which
+> interface address it came from.
+>
+>        DS
+>
 
-* Karim Yaghmour <karim@opersys.com> wrote:
+Let me explain my network environment, My program is running on a two
+adapters machine, whose IP is 192.168.0.1/8 and 192.168.0.2/8, then,
+my destination is two machine, whose IP is 192.168.0.3/8 and
+192.168.0.4/8. I use four 100M exchange and a 1000M exchange cennected
+them to ensure the choke point is not at network  equipment.
 
-> > the tracebuffer management portion of LTT is better than the hacks 
-> > in SystemTap, and that LTT's visualization tools are better (for 
-> > example they do exist :-) - so clearly there's synergy possible.
-> 
-> Great, because I believe all those involved would like to see this 
-> happen. I personally am convinced that none of those involved want to 
-> continue wasting their time in parallel.
+when I use two socket without bonding, one socket is bind
+192.168.0.1/8 and sendto 192.168.0.3/8, the other is bind
+192.168.0.2/8 and sendto 192.168.0.4/8, but, as you see, I get a
+result that the speed of send by two adapters is equal to the only one
+adapter's.
 
-a reasonable compromise for me would be what i suggested a few mails 
-ago:
+yesterday. I got an uncertain idea, is the problem that IP layer is
+separate with Eth layer ? when I bind src IP, it just do helpful to IP
+layer, not real bind the adapter? when I send, the real ethreal
+adapter is select by IP route? If the two interface can go
+destinnation both, IP layer will choose the frist, not use both? Am I
+right?
 
- nor do i reject all of LTT: as i said before i like the tools, and i
- think its collection of trace events should be turned into systemtap
- markups and scripts. Furthermore, it's ringbuffer implementation looks
- better. So as far as the user is concerned, LTT could (and should) live
- on with full capabilities, but with this crutial difference in how it
- interfaces to the kernel source code.
+If so, when I use bonding, the adapter's physical address is the frist
+one, Do this means that all of the packet come to my machine will go
+through in the frist one adapter?
 
-i.e. could you try to just give SystemTap a chance and attempt to 
-integrate a portion of LTT with it ... that shares more of the 
-infrastructure and we'd obviously only need "one" markup variant, and 
-would have full markup (removal-) flexibility. I'll try to help djprobes 
-as much as possible. Hm?
+Thx all.
+Best Regard.
 
-	Ingo
+xixi

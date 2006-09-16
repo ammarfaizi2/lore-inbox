@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751730AbWIPHy4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751735AbWIPH4N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751730AbWIPHy4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Sep 2006 03:54:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751731AbWIPHy4
+	id S1751735AbWIPH4N (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Sep 2006 03:56:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751736AbWIPH4M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Sep 2006 03:54:56 -0400
-Received: from tomts40.bellnexxia.net ([209.226.175.97]:25218 "EHLO
+	Sat, 16 Sep 2006 03:56:12 -0400
+Received: from tomts40.bellnexxia.net ([209.226.175.97]:36994 "EHLO
 	tomts40-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id S1751730AbWIPHyy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Sep 2006 03:54:54 -0400
-Date: Sat, 16 Sep 2006 03:54:49 -0400
+	id S1751732AbWIPH4K (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 16 Sep 2006 03:56:10 -0400
+Date: Sat, 16 Sep 2006 03:56:09 -0400
 From: Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>
 To: linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
        Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@redhat.com>,
@@ -17,15 +17,15 @@ To: linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
        Thomas Gleixner <tglx@linutronix.de>, Tom Zanussi <zanussi@us.ibm.com>
 Cc: ltt-dev@shafik.org, Michel Dagenais <michel.dagenais@polymtl.ca>,
        Douglas Niehaus <niehaus@eecs.ku.edu>
-Subject: [PATCH 6/11] LTTng-core 0.5.111 : Relay+DebugFS
-Message-ID: <20060916075449.GG29360@Krystal>
+Subject: [PATCH 8/11] LTTng-core 0.5.111 : Relay+DebugFS
+Message-ID: <20060916075609.GI29360@Krystal>
 Mime-Version: 1.0
-Content-Type: multipart/mixed; boundary="=_Krystal-17099-1158393289-0001-2"
+Content-Type: multipart/mixed; boundary="=_Krystal-16951-1158393369-0001-2"
 Content-Disposition: inline
 X-Editor: vi
 X-Info: http://krystal.dyndns.org:8080
 X-Operating-System: Linux/2.4.32-grsec (i686)
-X-Uptime: 03:54:13 up 24 days,  5:02,  4 users,  load average: 0.88, 0.38, 0.18
+X-Uptime: 03:55:30 up 24 days,  5:04,  4 users,  load average: 0.50, 0.37, 0.19
 User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
@@ -33,901 +33,187 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 This is a MIME-formatted message.  If you see this text it means that your
 E-mail software does not support MIME-formatted messages.
 
---=_Krystal-17099-1158393289-0001-2
+--=_Krystal-16951-1158393369-0001-2
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
 
-6 - Core tracer facility headers
-patch-2.6.17-lttng-core-0.5.111-facilities-headers.diff
+8 - Module : Netlink tracing control
+patch-2.6.17-lttng-core-0.5.111-netlink-control.diff
 
 OpenPGP public key:              http://krystal.dyndns.org:8080/key/compudj.gpg
 Key fingerprint:     8CD5 52C3 8E3C 4140 715F  BA06 3F25 A8FE 3BAE 9A68 
 
---=_Krystal-17099-1158393289-0001-2
+--=_Krystal-16951-1158393369-0001-2
 Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment; filename="patch-2.6.17-lttng-core-0.5.111-facilities-headers.diff"
+Content-Disposition: attachment; filename="patch-2.6.17-lttng-core-0.5.111-netlink-control.diff"
 
 --- /dev/null
-+++ b/include/linux/ltt/ltt-facility-core.h
-@@ -0,0 +1,850 @@
-+#ifndef _LTT_FACILITY_CORE_H_
-+#define _LTT_FACILITY_CORE_H_
++++ b/ltt/ltt-control.c
+@@ -0,0 +1,119 @@
++/* ltt-control.c
++ *
++ * LTT control module over a netlink socket.
++ *
++ * Inspired from Relay Apps, by Tom Zanussi and iptables
++ *
++ * Copyright 2005 -
++ * 	Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>
++ */
 +
-+#include <linux/types.h>
-+#include <linux/ltt/ltt-facility-id-core.h>
++#include <linux/init.h>
++#include <linux/module.h>
 +#include <linux/ltt-core.h>
++#include <linux/netlink.h>
++#include <linux/inet.h>
++#include <linux/ip.h>
++#include <linux/security.h>
++#include <linux/skbuff.h>
++#include <linux/types.h>
++#include <net/sock.h>
++#include "ltt-control.h"
 +
-+/* Named types */
++#define LTTCTLM_BASE	0x10
++#define LTTCTLM_CONTROL	(LTTCTLM_BASE + 1)	/* LTT control message */
 +
-+/* Event facility_load structures */
-+static inline void lttng_write_string_core_facility_load_name(
-+		char *buffer,
-+		size_t *to_base,
-+		size_t *to,
-+		const char **from,
-+		size_t *len,
-+		const char * obj)
++static struct sock *socket;
++
++void ltt_control_input(struct sock *sk, int len)
 +{
-+	size_t size;
-+	size_t align;
++	struct sk_buff *skb;
++	struct nlmsghdr *nlh = NULL;
++	u8 *payload = NULL;
++	lttctl_peer_msg_t *msg;
++	int err;
 +
-+	/* Flush pending memcpy */
-+	if(*len != 0) {
-+		if(buffer != NULL)
-+			memcpy(buffer+*to_base+*to, *from, *len);
++	printk(KERN_DEBUG "ltt-control ltt_control_input\n");
++
++	while ((skb = skb_dequeue(&sk->sk_receive_queue)) != NULL) {
++
++		nlh = (struct nlmsghdr *)skb->data;
++		if(security_netlink_recv(skb)) {
++			netlink_ack(skb, nlh, EPERM);
++			kfree_skb(skb);
++			continue;
++		}
++		/* process netlink message pointed by skb->data */
++		err = EINVAL;
++		payload = NLMSG_DATA(nlh);
++		/* process netlink message with header pointed by 
++		 * nlh and payload pointed by payload
++		 */
++		if(nlh->nlmsg_len !=
++				sizeof(lttctl_peer_msg_t) +
++				sizeof(struct nlmsghdr)) {
++			printk(KERN_ALERT "ltt-control bad message length %d vs. %zu\n",
++				nlh->nlmsg_len, sizeof(lttctl_peer_msg_t) +
++				sizeof(struct nlmsghdr));
++			netlink_ack(skb, nlh, EINVAL);
++			kfree_skb(skb);
++			continue;
++		}
++		msg = (lttctl_peer_msg_t*)payload;
++
++		switch(msg->op) {
++			case OP_CREATE:
++				err = ltt_control(LTT_CONTROL_CREATE_TRACE,
++						msg->trace_name,
++						msg->trace_type, msg->args);
++				break;
++			case OP_DESTROY:
++				err = ltt_control(LTT_CONTROL_DESTROY_TRACE,
++						msg->trace_name,
++						msg->trace_type, msg->args);
++				break;
++			case OP_START:
++				err = ltt_control(LTT_CONTROL_START,
++						msg->trace_name,
++						msg->trace_type, msg->args);
++				break;
++			case OP_STOP:
++				err = ltt_control(LTT_CONTROL_STOP,
++						msg->trace_name,
++						msg->trace_type, msg->args);
++				break;
++			default:
++				err = EBADRQC;
++				printk(KERN_INFO 
++					"ltt-control invalid operation\n");
++		}
++		netlink_ack(skb, nlh, err);
++		kfree_skb(skb);
 +	}
-+	*to += *len;
-+	*len = 0;
-+
-+	align = sizeof(char);
-+
-+	if(*len == 0) {
-+		*to += ltt_align(*to, align); /* align output */
-+	} else {
-+		*len += ltt_align(*to+*len, align); /* alignment, ok to do a memcpy of it */
-+	}
-+
-+	/* Contains variable sized fields : must explode the structure */
-+
-+	size = strlen(obj) + 1; /* Include final NULL char. */
-+	if(buffer != NULL)
-+		memcpy(buffer+*to_base+*to, obj, size);
-+	*to += size;
-+
-+	/* Realign the *to_base on arch size, set *to to 0 */
-+	*to += ltt_align(*to, sizeof(void *));
-+	*to_base = *to_base+*to;
-+	*to = 0;
-+
-+	/* Put source *from just after the C string */
-+	*from += size;
 +}
 +
 +
-+/* Event facility_load logging function */
-+static inline void trace_core_facility_load(
-+		const char * lttng_param_name,
-+		unsigned int lttng_param_checksum,
-+		unsigned int lttng_param_id,
-+		unsigned int lttng_param_int_size,
-+		unsigned int lttng_param_long_size,
-+		unsigned int lttng_param_pointer_size,
-+		unsigned int lttng_param_size_t_size,
-+		unsigned int lttng_param_has_alignment)
-+#if (!defined(CONFIG_LTT) || !defined(CONFIG_LTT_FACILITY_CORE))
++static int ltt_control_init(void)
 +{
++	printk(KERN_INFO "ltt-control init\n");
++
++	socket = netlink_kernel_create(NETLINK_LTT, 1,
++			ltt_control_input, THIS_MODULE);
++	if(socket == NULL) return -EPERM;
++	else return 0;
 +}
-+#else
++
++static void ltt_control_exit(void)
 +{
-+	unsigned int index;
-+	struct ltt_channel_struct *channel;
-+	struct ltt_trace_struct *trace;
-+	void *transport_data;
-+	char *buffer = NULL;
-+	size_t real_to_base = 0; /* The buffer is allocated on arch_size alignment */
-+	size_t *to_base = &real_to_base;
-+	size_t real_to = 0;
-+	size_t *to = &real_to;
-+	size_t real_len = 0;
-+	size_t *len = &real_len;
-+	size_t reserve_size;
-+	size_t slot_size;
-+	size_t align;
-+	const char *real_from;
-+	const char **from = &real_from;
-+	u64 tsc;
-+	size_t before_hdr_pad, after_hdr_pad, header_size;
-+
-+	if(ltt_traces.num_active_traces == 0) return;
-+
-+	/* For each field, calculate the field size. */
-+	/* size = *to_base + *to + *len */
-+	/* Assume that the padding for alignment starts at a
-+	 * sizeof(void *) address. */
-+
-+	*from = (const char*)lttng_param_name;
-+	lttng_write_string_core_facility_load_name(buffer, to_base, to, from, len, lttng_param_name);
-+
-+	*from = (const char*)&lttng_param_checksum;
-+	align = sizeof(unsigned int);
-+
-+	if(*len == 0) {
-+		*to += ltt_align(*to, align); /* align output */
-+	} else {
-+		*len += ltt_align(*to+*len, align); /* alignment, ok to do a memcpy of it */
-+	}
-+
-+	*len += sizeof(unsigned int);
-+
-+	*from = (const char*)&lttng_param_id;
-+	align = sizeof(unsigned int);
-+
-+	if(*len == 0) {
-+		*to += ltt_align(*to, align); /* align output */
-+	} else {
-+		*len += ltt_align(*to+*len, align); /* alignment, ok to do a memcpy of it */
-+	}
-+
-+	*len += sizeof(unsigned int);
-+
-+	*from = (const char*)&lttng_param_int_size;
-+	align = sizeof(unsigned int);
-+
-+	if(*len == 0) {
-+		*to += ltt_align(*to, align); /* align output */
-+	} else {
-+		*len += ltt_align(*to+*len, align); /* alignment, ok to do a memcpy of it */
-+	}
-+
-+	*len += sizeof(unsigned int);
-+
-+	*from = (const char*)&lttng_param_long_size;
-+	align = sizeof(unsigned int);
-+
-+	if(*len == 0) {
-+		*to += ltt_align(*to, align); /* align output */
-+	} else {
-+		*len += ltt_align(*to+*len, align); /* alignment, ok to do a memcpy of it */
-+	}
-+
-+	*len += sizeof(unsigned int);
-+
-+	*from = (const char*)&lttng_param_pointer_size;
-+	align = sizeof(unsigned int);
-+
-+	if(*len == 0) {
-+		*to += ltt_align(*to, align); /* align output */
-+	} else {
-+		*len += ltt_align(*to+*len, align); /* alignment, ok to do a memcpy of it */
-+	}
-+
-+	*len += sizeof(unsigned int);
-+
-+	*from = (const char*)&lttng_param_size_t_size;
-+	align = sizeof(unsigned int);
-+
-+	if(*len == 0) {
-+		*to += ltt_align(*to, align); /* align output */
-+	} else {
-+		*len += ltt_align(*to+*len, align); /* alignment, ok to do a memcpy of it */
-+	}
-+
-+	*len += sizeof(unsigned int);
-+
-+	*from = (const char*)&lttng_param_has_alignment;
-+	align = sizeof(unsigned int);
-+
-+	if(*len == 0) {
-+		*to += ltt_align(*to, align); /* align output */
-+	} else {
-+		*len += ltt_align(*to+*len, align); /* alignment, ok to do a memcpy of it */
-+	}
-+
-+	*len += sizeof(unsigned int);
-+
-+	reserve_size = *to_base + *to + *len;
-+	preempt_disable();
-+	ltt_nesting[smp_processor_id()]++;
-+	index = ltt_get_index_from_facility(ltt_facility_core_1A8DE486,
-+						event_core_facility_load);
-+
-+	list_for_each_entry_rcu(trace, &ltt_traces.head, list) {
-+		if(!trace->active) continue;
-+
-+		channel = ltt_get_channel_from_index(trace, index);
-+
-+		slot_size = 0;
-+		buffer = ltt_reserve_slot(trace, channel, &transport_data,
-+			reserve_size, &slot_size, &tsc,
-+			&before_hdr_pad, &after_hdr_pad, &header_size);
-+		if(!buffer) continue; /* buffer full */
-+
-+		*to_base = *to = *len = 0;
-+
-+		ltt_write_event_header(trace, channel, buffer,
-+			ltt_facility_core_1A8DE486, event_core_facility_load,
-+			reserve_size, before_hdr_pad, tsc);
-+		*to_base += before_hdr_pad + after_hdr_pad + header_size;
-+
-+		*from = (const char*)lttng_param_name;
-+		lttng_write_string_core_facility_load_name(buffer, to_base, to, from, len, lttng_param_name);
-+
-+		/* Flush pending memcpy */
-+		if(*len != 0) {
-+			memcpy(buffer+*to_base+*to, *from, *len);
-+			*to += *len;
-+			*len = 0;
-+		}
-+
-+		*from = (const char*)&lttng_param_checksum;
-+		align = sizeof(unsigned int);
-+
-+		if(*len == 0) {
-+			*to += ltt_align(*to, align); /* align output */
-+		} else {
-+			*len += ltt_align(*to+*len, align); /* alignment, ok to do a memcpy of it */
-+		}
-+
-+		*len += sizeof(unsigned int);
-+
-+		/* Flush pending memcpy */
-+		if(*len != 0) {
-+			memcpy(buffer+*to_base+*to, *from, *len);
-+			*to += *len;
-+			*len = 0;
-+		}
-+
-+		*from = (const char*)&lttng_param_id;
-+		align = sizeof(unsigned int);
-+
-+		if(*len == 0) {
-+			*to += ltt_align(*to, align); /* align output */
-+		} else {
-+			*len += ltt_align(*to+*len, align); /* alignment, ok to do a memcpy of it */
-+		}
-+
-+		*len += sizeof(unsigned int);
-+
-+		/* Flush pending memcpy */
-+		if(*len != 0) {
-+			memcpy(buffer+*to_base+*to, *from, *len);
-+			*to += *len;
-+			*len = 0;
-+		}
-+
-+		*from = (const char*)&lttng_param_int_size;
-+		align = sizeof(unsigned int);
-+
-+		if(*len == 0) {
-+			*to += ltt_align(*to, align); /* align output */
-+		} else {
-+			*len += ltt_align(*to+*len, align); /* alignment, ok to do a memcpy of it */
-+		}
-+
-+		*len += sizeof(unsigned int);
-+
-+		/* Flush pending memcpy */
-+		if(*len != 0) {
-+			memcpy(buffer+*to_base+*to, *from, *len);
-+			*to += *len;
-+			*len = 0;
-+		}
-+
-+		*from = (const char*)&lttng_param_long_size;
-+		align = sizeof(unsigned int);
-+
-+		if(*len == 0) {
-+			*to += ltt_align(*to, align); /* align output */
-+		} else {
-+			*len += ltt_align(*to+*len, align); /* alignment, ok to do a memcpy of it */
-+		}
-+
-+		*len += sizeof(unsigned int);
-+
-+		/* Flush pending memcpy */
-+		if(*len != 0) {
-+			memcpy(buffer+*to_base+*to, *from, *len);
-+			*to += *len;
-+			*len = 0;
-+		}
-+
-+		*from = (const char*)&lttng_param_pointer_size;
-+		align = sizeof(unsigned int);
-+
-+		if(*len == 0) {
-+			*to += ltt_align(*to, align); /* align output */
-+		} else {
-+			*len += ltt_align(*to+*len, align); /* alignment, ok to do a memcpy of it */
-+		}
-+
-+		*len += sizeof(unsigned int);
-+
-+		/* Flush pending memcpy */
-+		if(*len != 0) {
-+			memcpy(buffer+*to_base+*to, *from, *len);
-+			*to += *len;
-+			*len = 0;
-+		}
-+
-+		*from = (const char*)&lttng_param_size_t_size;
-+		align = sizeof(unsigned int);
-+
-+		if(*len == 0) {
-+			*to += ltt_align(*to, align); /* align output */
-+		} else {
-+			*len += ltt_align(*to+*len, align); /* alignment, ok to do a memcpy of it */
-+		}
-+
-+		*len += sizeof(unsigned int);
-+
-+		/* Flush pending memcpy */
-+		if(*len != 0) {
-+			memcpy(buffer+*to_base+*to, *from, *len);
-+			*to += *len;
-+			*len = 0;
-+		}
-+
-+		*from = (const char*)&lttng_param_has_alignment;
-+		align = sizeof(unsigned int);
-+
-+		if(*len == 0) {
-+			*to += ltt_align(*to, align); /* align output */
-+		} else {
-+			*len += ltt_align(*to+*len, align); /* alignment, ok to do a memcpy of it */
-+		}
-+
-+		*len += sizeof(unsigned int);
-+
-+		/* Flush pending memcpy */
-+		if(*len != 0) {
-+			memcpy(buffer+*to_base+*to, *from, *len);
-+			*to += *len;
-+			*len = 0;
-+		}
-+
-+		ltt_commit_slot(channel, &transport_data, buffer, slot_size);
-+
-+	}
-+
-+	ltt_nesting[smp_processor_id()]--;
-+	preempt_enable_no_resched();
-+}
-+#endif //(!defined(CONFIG_LTT) || !defined(CONFIG_LTT_FACILITY_CORE))
-+
-+
-+/* Event facility_unload structures */
-+
-+/* Event facility_unload logging function */
-+static inline void trace_core_facility_unload(
-+		unsigned int lttng_param_id)
-+#if (!defined(CONFIG_LTT) || !defined(CONFIG_LTT_FACILITY_CORE))
-+{
-+}
-+#else
-+{
-+	unsigned int index;
-+	struct ltt_channel_struct *channel;
-+	struct ltt_trace_struct *trace;
-+	void *transport_data;
-+	char *buffer = NULL;
-+	size_t real_to_base = 0; /* The buffer is allocated on arch_size alignment */
-+	size_t *to_base = &real_to_base;
-+	size_t real_to = 0;
-+	size_t *to = &real_to;
-+	size_t real_len = 0;
-+	size_t *len = &real_len;
-+	size_t reserve_size;
-+	size_t slot_size;
-+	size_t align;
-+	const char *real_from;
-+	const char **from = &real_from;
-+	u64 tsc;
-+	size_t before_hdr_pad, after_hdr_pad, header_size;
-+
-+	if(ltt_traces.num_active_traces == 0) return;
-+
-+	/* For each field, calculate the field size. */
-+	/* size = *to_base + *to + *len */
-+	/* Assume that the padding for alignment starts at a
-+	 * sizeof(void *) address. */
-+
-+	*from = (const char*)&lttng_param_id;
-+	align = sizeof(unsigned int);
-+
-+	if(*len == 0) {
-+		*to += ltt_align(*to, align); /* align output */
-+	} else {
-+		*len += ltt_align(*to+*len, align); /* alignment, ok to do a memcpy of it */
-+	}
-+
-+	*len += sizeof(unsigned int);
-+
-+	reserve_size = *to_base + *to + *len;
-+	preempt_disable();
-+	ltt_nesting[smp_processor_id()]++;
-+	index = ltt_get_index_from_facility(ltt_facility_core_1A8DE486,
-+						event_core_facility_unload);
-+
-+	list_for_each_entry_rcu(trace, &ltt_traces.head, list) {
-+		if(!trace->active) continue;
-+
-+		channel = ltt_get_channel_from_index(trace, index);
-+
-+		slot_size = 0;
-+		buffer = ltt_reserve_slot(trace, channel, &transport_data,
-+			reserve_size, &slot_size, &tsc,
-+			&before_hdr_pad, &after_hdr_pad, &header_size);
-+		if(!buffer) continue; /* buffer full */
-+
-+		*to_base = *to = *len = 0;
-+
-+		ltt_write_event_header(trace, channel, buffer,
-+			ltt_facility_core_1A8DE486, event_core_facility_unload,
-+			reserve_size, before_hdr_pad, tsc);
-+		*to_base += before_hdr_pad + after_hdr_pad + header_size;
-+
-+		*from = (const char*)&lttng_param_id;
-+		align = sizeof(unsigned int);
-+
-+		if(*len == 0) {
-+			*to += ltt_align(*to, align); /* align output */
-+		} else {
-+			*len += ltt_align(*to+*len, align); /* alignment, ok to do a memcpy of it */
-+		}
-+
-+		*len += sizeof(unsigned int);
-+
-+		/* Flush pending memcpy */
-+		if(*len != 0) {
-+			memcpy(buffer+*to_base+*to, *from, *len);
-+			*to += *len;
-+			*len = 0;
-+		}
-+
-+		ltt_commit_slot(channel, &transport_data, buffer, slot_size);
-+
-+	}
-+
-+	ltt_nesting[smp_processor_id()]--;
-+	preempt_enable_no_resched();
-+}
-+#endif //(!defined(CONFIG_LTT) || !defined(CONFIG_LTT_FACILITY_CORE))
-+
-+
-+/* Event time_heartbeat structures */
-+
-+/* Event time_heartbeat logging function */
-+static inline void trace_core_time_heartbeat(
-+unsigned int tracefile_index)
-+#if (!defined(CONFIG_LTT) || !defined(CONFIG_LTT_FACILITY_CORE))
-+{
-+}
-+#else
-+{
-+	unsigned int index;
-+	struct ltt_channel_struct *channel;
-+	struct ltt_trace_struct *trace;
-+	void *transport_data;
-+	char *buffer = NULL;
-+	size_t real_to_base = 0; /* The buffer is allocated on arch_size alignment */
-+	size_t *to_base = &real_to_base;
-+	size_t real_to = 0;
-+	size_t *to = &real_to;
-+	size_t real_len = 0;
-+	size_t *len = &real_len;
-+	size_t reserve_size;
-+	size_t slot_size;
-+	u64 tsc;
-+	size_t before_hdr_pad, after_hdr_pad, header_size;
-+
-+	if(ltt_traces.num_active_traces == 0) return;
-+
-+	/* For each field, calculate the field size. */
-+	/* size = *to_base + *to + *len */
-+	/* Assume that the padding for alignment starts at a
-+	 * sizeof(void *) address. */
-+
-+	reserve_size = *to_base + *to + *len;
-+	preempt_disable();
-+	ltt_nesting[smp_processor_id()]++;
-+	index = tracefile_index;
-+
-+	list_for_each_entry_rcu(trace, &ltt_traces.head, list) {
-+		if(!trace->active) continue;
-+
-+		channel = ltt_get_channel_from_index(trace, index);
-+
-+		slot_size = 0;
-+		buffer = ltt_reserve_slot(trace, channel, &transport_data,
-+			reserve_size, &slot_size, &tsc,
-+			&before_hdr_pad, &after_hdr_pad, &header_size);
-+		if(!buffer) continue; /* buffer full */
-+
-+		*to_base = *to = *len = 0;
-+
-+		ltt_write_event_header(trace, channel, buffer,
-+			ltt_facility_core_1A8DE486, event_core_time_heartbeat,
-+			reserve_size, before_hdr_pad, tsc);
-+		*to_base += before_hdr_pad + after_hdr_pad + header_size;
-+
-+		ltt_commit_slot(channel, &transport_data, buffer, slot_size);
-+
-+	}
-+
-+	ltt_nesting[smp_processor_id()]--;
-+	preempt_enable_no_resched();
-+}
-+#endif //(!defined(CONFIG_LTT) || !defined(CONFIG_LTT_FACILITY_CORE))
-+
-+
-+/* Event state_dump_facility_load structures */
-+static inline void lttng_write_string_core_state_dump_facility_load_name(
-+		char *buffer,
-+		size_t *to_base,
-+		size_t *to,
-+		const char **from,
-+		size_t *len,
-+		const char * obj)
-+{
-+	size_t size;
-+	size_t align;
-+
-+	/* Flush pending memcpy */
-+	if(*len != 0) {
-+		if(buffer != NULL)
-+			memcpy(buffer+*to_base+*to, *from, *len);
-+	}
-+	*to += *len;
-+	*len = 0;
-+
-+	align = sizeof(char);
-+
-+	if(*len == 0) {
-+		*to += ltt_align(*to, align); /* align output */
-+	} else {
-+		*len += ltt_align(*to+*len, align); /* alignment, ok to do a memcpy of it */
-+	}
-+
-+	/* Contains variable sized fields : must explode the structure */
-+
-+	size = strlen(obj) + 1; /* Include final NULL char. */
-+	if(buffer != NULL)
-+		memcpy(buffer+*to_base+*to, obj, size);
-+	*to += size;
-+
-+	/* Realign the *to_base on arch size, set *to to 0 */
-+	*to += ltt_align(*to, sizeof(void *));
-+	*to_base = *to_base+*to;
-+	*to = 0;
-+
-+	/* Put source *from just after the C string */
-+	*from += size;
++	printk(KERN_INFO "ltt-control exit\n");
++	sock_release(socket->sk_socket);
 +}
 +
 +
-+/* Event state_dump_facility_load logging function */
-+static inline void trace_core_state_dump_facility_load(
-+		struct ltt_trace_struct *dest_trace,
-+		const char * lttng_param_name,
-+		unsigned int lttng_param_checksum,
-+		unsigned int lttng_param_id,
-+		unsigned int lttng_param_int_size,
-+		unsigned int lttng_param_long_size,
-+		unsigned int lttng_param_pointer_size,
-+		unsigned int lttng_param_size_t_size,
-+		unsigned int lttng_param_has_alignment)
-+#if (!defined(CONFIG_LTT) || !defined(CONFIG_LTT_FACILITY_CORE))
-+{
-+}
-+#else
-+{
-+	unsigned int index;
-+	struct ltt_channel_struct *channel;
-+	struct ltt_trace_struct *trace;
-+	void *transport_data;
-+	char *buffer = NULL;
-+	size_t real_to_base = 0; /* The buffer is allocated on arch_size alignment */
-+	size_t *to_base = &real_to_base;
-+	size_t real_to = 0;
-+	size_t *to = &real_to;
-+	size_t real_len = 0;
-+	size_t *len = &real_len;
-+	size_t reserve_size;
-+	size_t slot_size;
-+	size_t align;
-+	const char *real_from;
-+	const char **from = &real_from;
-+	u64 tsc;
-+	size_t before_hdr_pad, after_hdr_pad, header_size;
++module_init(ltt_control_init)
++module_exit(ltt_control_exit)
 +
-+	if(ltt_traces.num_active_traces == 0) return;
++MODULE_LICENSE("GPL");
++MODULE_AUTHOR("Mathieu Desnoyers");
++MODULE_DESCRIPTION("Linux Trace Toolkit Controller");
 +
-+	/* For each field, calculate the field size. */
-+	/* size = *to_base + *to + *len */
-+	/* Assume that the padding for alignment starts at a
-+	 * sizeof(void *) address. */
-+
-+	*from = (const char*)lttng_param_name;
-+	lttng_write_string_core_state_dump_facility_load_name(buffer, to_base, to, from, len, lttng_param_name);
-+
-+	*from = (const char*)&lttng_param_checksum;
-+	align = sizeof(unsigned int);
-+
-+	if(*len == 0) {
-+		*to += ltt_align(*to, align); /* align output */
-+	} else {
-+		*len += ltt_align(*to+*len, align); /* alignment, ok to do a memcpy of it */
-+	}
-+
-+	*len += sizeof(unsigned int);
-+
-+	*from = (const char*)&lttng_param_id;
-+	align = sizeof(unsigned int);
-+
-+	if(*len == 0) {
-+		*to += ltt_align(*to, align); /* align output */
-+	} else {
-+		*len += ltt_align(*to+*len, align); /* alignment, ok to do a memcpy of it */
-+	}
-+
-+	*len += sizeof(unsigned int);
-+
-+	*from = (const char*)&lttng_param_int_size;
-+	align = sizeof(unsigned int);
-+
-+	if(*len == 0) {
-+		*to += ltt_align(*to, align); /* align output */
-+	} else {
-+		*len += ltt_align(*to+*len, align); /* alignment, ok to do a memcpy of it */
-+	}
-+
-+	*len += sizeof(unsigned int);
-+
-+	*from = (const char*)&lttng_param_long_size;
-+	align = sizeof(unsigned int);
-+
-+	if(*len == 0) {
-+		*to += ltt_align(*to, align); /* align output */
-+	} else {
-+		*len += ltt_align(*to+*len, align); /* alignment, ok to do a memcpy of it */
-+	}
-+
-+	*len += sizeof(unsigned int);
-+
-+	*from = (const char*)&lttng_param_pointer_size;
-+	align = sizeof(unsigned int);
-+
-+	if(*len == 0) {
-+		*to += ltt_align(*to, align); /* align output */
-+	} else {
-+		*len += ltt_align(*to+*len, align); /* alignment, ok to do a memcpy of it */
-+	}
-+
-+	*len += sizeof(unsigned int);
-+
-+	*from = (const char*)&lttng_param_size_t_size;
-+	align = sizeof(unsigned int);
-+
-+	if(*len == 0) {
-+		*to += ltt_align(*to, align); /* align output */
-+	} else {
-+		*len += ltt_align(*to+*len, align); /* alignment, ok to do a memcpy of it */
-+	}
-+
-+	*len += sizeof(unsigned int);
-+
-+	*from = (const char*)&lttng_param_has_alignment;
-+	align = sizeof(unsigned int);
-+
-+	if(*len == 0) {
-+		*to += ltt_align(*to, align); /* align output */
-+	} else {
-+		*len += ltt_align(*to+*len, align); /* alignment, ok to do a memcpy of it */
-+	}
-+
-+	*len += sizeof(unsigned int);
-+
-+	reserve_size = *to_base + *to + *len;
-+	preempt_disable();
-+	ltt_nesting[smp_processor_id()]++;
-+	index = ltt_get_index_from_facility(ltt_facility_core_1A8DE486,
-+						event_core_state_dump_facility_load);
-+
-+	list_for_each_entry_rcu(trace, &ltt_traces.head, list) {
-+		if(!trace->active) continue;
-+
-+		if(dest_trace != trace) continue;
-+
-+		channel = ltt_get_channel_from_index(trace, index);
-+
-+		slot_size = 0;
-+		buffer = ltt_reserve_slot(trace, channel, &transport_data,
-+			reserve_size, &slot_size, &tsc,
-+			&before_hdr_pad, &after_hdr_pad, &header_size);
-+		if(!buffer) continue; /* buffer full */
-+
-+		*to_base = *to = *len = 0;
-+
-+		ltt_write_event_header(trace, channel, buffer,
-+			ltt_facility_core_1A8DE486, event_core_state_dump_facility_load,
-+			reserve_size, before_hdr_pad, tsc);
-+		*to_base += before_hdr_pad + after_hdr_pad + header_size;
-+
-+		*from = (const char*)lttng_param_name;
-+		lttng_write_string_core_state_dump_facility_load_name(buffer, to_base, to, from, len, lttng_param_name);
-+
-+		/* Flush pending memcpy */
-+		if(*len != 0) {
-+			memcpy(buffer+*to_base+*to, *from, *len);
-+			*to += *len;
-+			*len = 0;
-+		}
-+
-+		*from = (const char*)&lttng_param_checksum;
-+		align = sizeof(unsigned int);
-+
-+		if(*len == 0) {
-+			*to += ltt_align(*to, align); /* align output */
-+		} else {
-+			*len += ltt_align(*to+*len, align); /* alignment, ok to do a memcpy of it */
-+		}
-+
-+		*len += sizeof(unsigned int);
-+
-+		/* Flush pending memcpy */
-+		if(*len != 0) {
-+			memcpy(buffer+*to_base+*to, *from, *len);
-+			*to += *len;
-+			*len = 0;
-+		}
-+
-+		*from = (const char*)&lttng_param_id;
-+		align = sizeof(unsigned int);
-+
-+		if(*len == 0) {
-+			*to += ltt_align(*to, align); /* align output */
-+		} else {
-+			*len += ltt_align(*to+*len, align); /* alignment, ok to do a memcpy of it */
-+		}
-+
-+		*len += sizeof(unsigned int);
-+
-+		/* Flush pending memcpy */
-+		if(*len != 0) {
-+			memcpy(buffer+*to_base+*to, *from, *len);
-+			*to += *len;
-+			*len = 0;
-+		}
-+
-+		*from = (const char*)&lttng_param_int_size;
-+		align = sizeof(unsigned int);
-+
-+		if(*len == 0) {
-+			*to += ltt_align(*to, align); /* align output */
-+		} else {
-+			*len += ltt_align(*to+*len, align); /* alignment, ok to do a memcpy of it */
-+		}
-+
-+		*len += sizeof(unsigned int);
-+
-+		/* Flush pending memcpy */
-+		if(*len != 0) {
-+			memcpy(buffer+*to_base+*to, *from, *len);
-+			*to += *len;
-+			*len = 0;
-+		}
-+
-+		*from = (const char*)&lttng_param_long_size;
-+		align = sizeof(unsigned int);
-+
-+		if(*len == 0) {
-+			*to += ltt_align(*to, align); /* align output */
-+		} else {
-+			*len += ltt_align(*to+*len, align); /* alignment, ok to do a memcpy of it */
-+		}
-+
-+		*len += sizeof(unsigned int);
-+
-+		/* Flush pending memcpy */
-+		if(*len != 0) {
-+			memcpy(buffer+*to_base+*to, *from, *len);
-+			*to += *len;
-+			*len = 0;
-+		}
-+
-+		*from = (const char*)&lttng_param_pointer_size;
-+		align = sizeof(unsigned int);
-+
-+		if(*len == 0) {
-+			*to += ltt_align(*to, align); /* align output */
-+		} else {
-+			*len += ltt_align(*to+*len, align); /* alignment, ok to do a memcpy of it */
-+		}
-+
-+		*len += sizeof(unsigned int);
-+
-+		/* Flush pending memcpy */
-+		if(*len != 0) {
-+			memcpy(buffer+*to_base+*to, *from, *len);
-+			*to += *len;
-+			*len = 0;
-+		}
-+
-+		*from = (const char*)&lttng_param_size_t_size;
-+		align = sizeof(unsigned int);
-+
-+		if(*len == 0) {
-+			*to += ltt_align(*to, align); /* align output */
-+		} else {
-+			*len += ltt_align(*to+*len, align); /* alignment, ok to do a memcpy of it */
-+		}
-+
-+		*len += sizeof(unsigned int);
-+
-+		/* Flush pending memcpy */
-+		if(*len != 0) {
-+			memcpy(buffer+*to_base+*to, *from, *len);
-+			*to += *len;
-+			*len = 0;
-+		}
-+
-+		*from = (const char*)&lttng_param_has_alignment;
-+		align = sizeof(unsigned int);
-+
-+		if(*len == 0) {
-+			*to += ltt_align(*to, align); /* align output */
-+		} else {
-+			*len += ltt_align(*to+*len, align); /* alignment, ok to do a memcpy of it */
-+		}
-+
-+		*len += sizeof(unsigned int);
-+
-+		/* Flush pending memcpy */
-+		if(*len != 0) {
-+			memcpy(buffer+*to_base+*to, *from, *len);
-+			*to += *len;
-+			*len = 0;
-+		}
-+
-+		ltt_commit_slot(channel, &transport_data, buffer, slot_size);
-+
-+	}
-+
-+	ltt_nesting[smp_processor_id()]--;
-+	preempt_enable_no_resched();
-+}
-+#endif //(!defined(CONFIG_LTT) || !defined(CONFIG_LTT_FACILITY_CORE))
-+
-+
-+#endif //_LTT_FACILITY_CORE_H_
 --- /dev/null
-+++ b/include/linux/ltt/ltt-facility-id-core.h
-@@ -0,0 +1,24 @@
-+#ifndef _LTT_FACILITY_ID_CORE_H_
-+#define _LTT_FACILITY_ID_CORE_H_
++++ b/ltt/ltt-control.h
+@@ -0,0 +1,31 @@
++/* ltt-control.h
++ *
++ * LTT control module over a netlink socket.
++ *
++ * Inspired from Relay Apps, by Tom Zanussi and iptables
++ *
++ * Copyright 2005 -
++ * 	Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>
++ */
 +
-+#ifdef CONFIG_LTT
-+#include <linux/ltt-facilities.h>
++#ifndef _LTT_CONTROL_H
++#define _LTT_CONTROL_H
 +
-+/****  facility handle  ****/
-+
-+extern ltt_facility_t ltt_facility_core_1A8DE486;
-+extern ltt_facility_t ltt_facility_core;
-+
-+
-+/****  event index  ****/
-+
-+enum core_event {
-+	event_core_facility_load,
-+	event_core_facility_unload,
-+	event_core_time_heartbeat,
-+	event_core_state_dump_facility_load,
-+	facility_core_num_events
++enum trace_op {
++	OP_CREATE,
++	OP_DESTROY,
++	OP_START,
++	OP_STOP,
++	OP_ALIGN,
++	OP_NONE
 +};
 +
-+#endif //CONFIG_LTT
-+#endif //_LTT_FACILITY_ID_CORE_H_
++typedef struct lttctl_peer_msg {
++	char trace_name[NAME_MAX];
++	char trace_type[NAME_MAX];
++	enum trace_op op;
++	union ltt_control_args args;
++} lttctl_peer_msg_t;
++
++#endif //_LTT_CONTROL_H
++
+--- a/include/linux/netlink.h
++++ b/include/linux/netlink.h
+@@ -21,6 +21,7 @@ #define NETLINK_IP6_FW		13
+ #define NETLINK_DNRTMSG		14	/* DECnet routing messages */
+ #define NETLINK_KOBJECT_UEVENT	15	/* Kernel messages to userspace */
+ #define NETLINK_GENERIC		16
++#define NETLINK_LTT		31 	/* Linux Trace Toolkit FIXME */
+ 
+ #define MAX_LINKS 32		
+ 
 
---=_Krystal-17099-1158393289-0001-2--
+--=_Krystal-16951-1158393369-0001-2--

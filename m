@@ -1,100 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964794AbWIPMnk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964800AbWIPMs3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964794AbWIPMnk (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Sep 2006 08:43:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964799AbWIPMnj
+	id S964800AbWIPMs3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Sep 2006 08:48:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964803AbWIPMs3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Sep 2006 08:43:39 -0400
-Received: from out1.smtp.messagingengine.com ([66.111.4.25]:33460 "EHLO
-	out1.smtp.messagingengine.com") by vger.kernel.org with ESMTP
-	id S964794AbWIPMnj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Sep 2006 08:43:39 -0400
-X-Sasl-enc: X357r4RGpybjSbXkR30ZhinSjhFFqWU4OSRuH4qJdpxh 1158410617
-Message-ID: <450BF1CC.2070309@imap.cc>
-Date: Sat, 16 Sep 2006 14:45:00 +0200
-From: Tilman Schmidt <tilman@imap.cc>
-Organization: me - organized??
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; de-AT; rv:1.8.0.6) Gecko/20060729 SeaMonkey/1.0.4 Mnenhy/0.7.4.666
+	Sat, 16 Sep 2006 08:48:29 -0400
+Received: from ug-out-1314.google.com ([66.249.92.170]:6124 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S964800AbWIPMs2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 16 Sep 2006 08:48:28 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=VSws575/ZD5eeIYS0Cy71H5wJITBX/cK0YMfh3ErVNZAEQL7xUpfGI8CrRt1WGd8OOg+du0Mkebadq5zKCaFYQTK4VQmYO7DUUyyQklGgVT1xJGTvPQAjpILhrp6D9eraTK9YNh305H1uohWSiF63KHfpKjpj7ybV/Q0ZDVaZvQ=
+Message-ID: <450BF28D.7010807@gmail.com>
+Date: Sat, 16 Sep 2006 14:47:50 +0159
+From: Jiri Slaby <jirislaby@gmail.com>
+User-Agent: Thunderbird 2.0a1 (X11/20060724)
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: john stultz <johnstul@us.ibm.com>
-Subject: [2.6.18-rc7] printk output delay in syslog wrt dmesg still unfixed
-X-Enigmail-Version: 0.94.1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig7D86609D75735AB27014FF6B"
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+CC: jgarzik@pobox.com, linux-kernel@vger.kernel.org, source@mvista.com
+Subject: Re: [PATCH] gt96100: move to pci_get_device API
+References: <1158330426.29932.53.camel@localhost.localdomain>
+In-Reply-To: <1158330426.29932.53.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig7D86609D75735AB27014FF6B
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: quoted-printable
+Alan Cox wrote:
+> Signed-off-by: Alan Cox <alan@redhat.com>
+> 
+> diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.18-rc6-mm1/drivers/net/gt96100eth.c linux-2.6.18-rc6-mm1/drivers/net/gt96100eth.c
+> --- linux.vanilla-2.6.18-rc6-mm1/drivers/net/gt96100eth.c	2006-09-11 11:02:17.000000000 +0100
+> +++ linux-2.6.18-rc6-mm1/drivers/net/gt96100eth.c	2006-09-14 16:45:30.000000000 +0100
+> @@ -613,9 +613,9 @@
+>  	/*
+>  	 * Stupid probe because this really isn't a PCI device
+>  	 */
+> -	if (!(pci = pci_find_device(PCI_VENDOR_ID_MARVELL,
+> +	if (!(pci = pci_get_device(PCI_VENDOR_ID_MARVELL,
+>  	                            PCI_DEVICE_ID_MARVELL_GT96100, NULL)) &&
+> -	    !(pci = pci_find_device(PCI_VENDOR_ID_MARVELL,
+> +	    !(pci = pci_get_device(PCI_VENDOR_ID_MARVELL,
+>  		                    PCI_DEVICE_ID_MARVELL_GT96100A, NULL))) {
 
-The following problem, which I reported for kernel 2.6.18-rc1 on my
-development machine
-  Dell OptiPlex GX110
-  uname -a =3D Linux gx110 2.6.18-rc7-noinitrd #1 PREEMPT Thu Sep 14
-15:13:38 CEST 2006 i686 i686 i386 GNU/Linux
-  933 MHz Pentium III processor, i810 chipset, 512 MB RAM
-  distribution SuSE 10.0, syslog-ng 1.6.8, klogd 1.4.1, Xorg X11 6.8.2
-still exists with 2.6.18-rc7:
+They wanted pci_device_table with for_each_pci_dev+pci_match_id here...
 
-While X is running, output from printk() appears in syslog (eg.
-/var/log/messages) only after a key is pressed on the system keyboard,
-even though it is visible with dmesg immediately.
+>  		printk(KERN_ERR __FILE__ ": GT96100 not found!\n");
+>  		return -ENODEV;
+> @@ -630,6 +630,8 @@
+>  
+>  	for (i=0; i < NUM_INTERFACES; i++)
+>  		retval |= gt96100_probe1(pci, i);
+> +		
+> +	pci_dev_put(pci);
+>  
+>  	return retval;
+>  }
 
-Additional observations:
-- The problem is *not* present with 2.6.17.* or earlier kernels.
-- The problem *is* present with 2.6.18-rc*-mm* kernels.
-- The problem disappears if the X server is terminated (telinit 3) and
-  reappears if the X server is started again (telinit 5).
-- Syslog messages from userspace programs are not affected by the delay.
-- No messages are lost, all appear eventually, though possibly hours
-  or days later, depending on how long nobody touches the keyboard.
-- It doesn't matter which key is pressed; even pressing a shift key all
-  by its own is sufficient to make the missing messages appear.
-- I couldn't find any other action that would release the messages;
-  neither mouse movements or clicks, nor waiting up to 24 hours, not
-  even logging in via ssh from another machine and compiling a Linux
-  kernel. ;-)
-- The effect can be clearly observed by the difference between the
-  kernel's own timestamps and those by syslogd; an extreme example:
+BTW. I posted something similar a while ago, but it wasn't applied (however, I 
+had problems with mail-posting)
+See this:
+http://lkml.org/lkml/2006/5/25/304
+http://lkml.org/lkml/2006/6/5/268
 
-Sep 16 14:11:16 gx110 kernel: [18729.057746] gigaset: unblocking all
-channels
-Sep 16 14:11:16 gx110 kernel: [18729.057765] gigaset: searching
-scheduled commands
-Sep 16 14:11:16 gx110 kernel: [86033.298803] gigaset: received response
-(8 bytes): ^M^JZLOG^M^J
-Sep 16 14:11:16 gx110 kernel: [86033.298898] bas_gigaset: cmd_loop: End
-of Command (0 Bytes)
-
-Please let me know if I can help in any way with locating the cause of
-this annoying phenomenon.
-
-Thanks
-Tilman
-
---=20
-Tilman Schmidt                          E-Mail: tilman@imap.cc
-Bonn, Germany
-Diese Nachricht besteht zu 100% aus wiederverwerteten Bits.
-Ungeoeffnet mindestens haltbar bis: (siehe Rueckseite)
-
-
---------------enig7D86609D75735AB27014FF6B
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.3rc1 (MingW32)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
-
-iD8DBQFFC/HSMdB4Whm86/kRAufiAJ9pOjHfS8KUzW58MXKt7h0IHv+AJQCfZ27U
-Y0b3M3eozoa5Mc2WjChjZ0A=
-=V9z5
------END PGP SIGNATURE-----
-
---------------enig7D86609D75735AB27014FF6B--
+regards,
+-- 
+http://www.fi.muni.cz/~xslaby/            Jiri Slaby
+faculty of informatics, masaryk university, brno, cz
+e-mail: jirislaby gmail com, gpg pubkey fingerprint:
+B674 9967 0407 CE62 ACC8  22A0 32CC 55C3 39D4 7A7E

@@ -1,39 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964804AbWIPIou@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964818AbWIPIxZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964804AbWIPIou (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Sep 2006 04:44:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964803AbWIPIou
+	id S964818AbWIPIxZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Sep 2006 04:53:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964819AbWIPIxZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Sep 2006 04:44:50 -0400
-Received: from natsmtp00.rzone.de ([81.169.145.165]:1670 "EHLO
-	natsmtp00.rzone.de") by vger.kernel.org with ESMTP id S964802AbWIPIot
+	Sat, 16 Sep 2006 04:53:25 -0400
+Received: from charon.hkfree.org ([212.71.131.229]:59346 "EHLO
+	charon.hkfree.org") by vger.kernel.org with ESMTP id S964818AbWIPIxY
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Sep 2006 04:44:49 -0400
-Date: Sat, 16 Sep 2006 10:44:34 +0200
-From: Olaf Hering <olaf@aepfle.de>
-To: Doug Ledford <dledford@redhat.com>
-Cc: James Bottomley <James.Bottomley@SteelEye.com>,
-       Linus Torvalds <torvalds@osdl.org>, linux-scsi@vger.kernel.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Linux 2.6.18-rc6
-Message-ID: <20060916084434.GA5161@aepfle.de>
-References: <Pine.LNX.4.64.0609031939100.27779@g5.osdl.org> <20060905122656.GA3650@aepfle.de> <1157490066.3463.73.camel@mulgrave.il.steeleye.com> <20060906110147.GA12101@aepfle.de> <1157551480.3469.8.camel@mulgrave.il.steeleye.com> <20060907091517.GA21728@aepfle.de> <1157637874.3462.8.camel@mulgrave.il.steeleye.com> <1158378424.2661.150.camel@fc6.xsintricity.com>
+	Sat, 16 Sep 2006 04:53:24 -0400
+From: Martin Kourim <martink@hkfree.org>
+To: linux-kernel@vger.kernel.org
+Subject: sluggish system with 2.6.17 and dm-crypt
+Date: Sat, 16 Sep 2006 10:53:19 +0200
+User-Agent: KMail/1.9.3
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1158378424.2661.150.camel@fc6.xsintricity.com>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+Message-Id: <200609161053.20317.martink@hkfree.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 15, Doug Ledford wrote:
+Hi,
 
-> Sorry for my belated response, but this usually happens when you access
-> an aic chipset too soon after a chip reset.  Try putting a delay before
-> whatever access is causing this to see if it make s difference.  Common
-> problems include after a chip reset, touching any register will cause
-> the card to reset, etc.
+I've got this problem with linux 2.6.17 and dm-crypt.
 
-I put a ssleep(1) before the ahc_inb(ahc, SBLKCTL);
-Does not help. Is it possible that the card loses some of its features
-during reset and something needs to be done to reenable them?
+I've got 320GB PATA hdd with one partition with dm-crypt and ext3. I've set it 
+up with cryptsetup.
+When I copy some data to this encrypted partition, system is very sluggish. It  
+freezes for about half a second every about 10-15 seconds.
+This problem appears only when copying data to that encrypted partition. There 
+is no problem copying data to other unencrypted partitions or from encrypted 
+partition.
+
+I've thought that maybe it is problem with just Debian kernels (tried 
+linux-image-2.6.17-2-vserver-k7_2.6.17-8 and 
+linux-image-2.6.17-2-k7_2.6.17-8), but I've got the same problem with vanilla 
+2.6.17.13.
+But... there is no problem with linux v2.6.16 (compiled from Debian sources).
+
+I've tried different io schedulers too (cfq, anticipatory and deadline) with 
+no difference.
+
+This system is AthlonXP 2600+, 1gb ram, 2x SATA hdd and 2x PATA hdd, mb asus 
+A7N8X-E deluxe.
+
+What other information should I provide?
+
+Thanks,
+Martin Kourim
+
+(please CC me)

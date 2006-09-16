@@ -1,93 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964811AbWIPXTc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964840AbWIPXWo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964811AbWIPXTc (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Sep 2006 19:19:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964841AbWIPXTc
+	id S964840AbWIPXWo (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Sep 2006 19:22:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964841AbWIPXWo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Sep 2006 19:19:32 -0400
-Received: from rwcrmhc13.comcast.net ([216.148.227.153]:3776 "EHLO
-	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S964811AbWIPXTb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Sep 2006 19:19:31 -0400
-Message-ID: <450C8680.6050904@comcast.net>
-Date: Sat, 16 Sep 2006 19:19:28 -0400
-From: John Richard Moser <nigelenki@comcast.net>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060728)
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Scheduler tunables?
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+	Sat, 16 Sep 2006 19:22:44 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:39348 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S964840AbWIPXWn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 16 Sep 2006 19:22:43 -0400
+Date: Sun, 17 Sep 2006 01:14:07 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>, karim@opersys.com,
+       Andrew Morton <akpm@osdl.org>, Paul Mundt <lethal@linux-sh.org>,
+       Jes Sorensen <jes@sgi.com>,
+       Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
+       linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
+       Ingo Molnar <mingo@redhat.com>, Greg Kroah-Hartman <gregkh@suse.de>,
+       Tom Zanussi <zanussi@us.ibm.com>, ltt-dev@shafik.org,
+       Michel Dagenais <michel.dagenais@polymtl.ca>
+Subject: Re: [PATCH 0/11] LTTng-core (basic tracing infrastructure) 0.5.108
+Message-ID: <20060916231407.GA23132@elte.hu>
+References: <1158351780.5724.507.camel@localhost.localdomain> <Pine.LNX.4.64.0609152236010.6761@scrub.home> <20060915204812.GA6909@elte.hu> <Pine.LNX.4.64.0609152314250.6761@scrub.home> <20060915215112.GB12789@elte.hu> <Pine.LNX.4.64.0609160018110.6761@scrub.home> <20060915231419.GA24731@elte.hu> <Pine.LNX.4.64.0609160139130.6761@scrub.home> <20060916082214.GD6317@elte.hu> <Pine.LNX.4.64.0609161831270.6761@scrub.home>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0609161831270.6761@scrub.home>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -2.9
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.9 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.4989]
+	-0.1 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
 
-It looks like the scheduler tunables have been removed from 2.6
-somewhere before 2.6.17.  I'm looking at these because I am considering
-increasing the minimum timeslice to at least 80msec.
+* Roman Zippel <zippel@linux-m68k.org> wrote:
 
-I'm considering also either a geometric or algebraic transform (multiply
-or add) to timeslices, letting them get calculated as-is but then
-applying the transformation after the base timeslice size is figured
-out.  The reason for this is to try and tweak certain embedded systems
-which seem to suffer from CPU cache issues... low L1 cache, cache isn't
-stored/restored across task switches like registers (that would be
-dumb...), and a cache miss costs 25 cycles while a cache hit costs 1.
+> [...] instead of delving further into secondary issues, please let me 
+> get back to the primary issues [...]
 
-I took a look at this in cachegrind (profile is I1 and D1 are both 16384
-byte 4-way set associative with 32-byte cache lines; there is no L2
-cache, feed it 64,2,32 and ignore the stats for I2/D2) and came up with
-something like a 44.5% performance hit if we assume that context
-switches and multitasking never happen based ONLY on the D1 stats (1.9%
-D1 cache miss).  For comparision, my Athlon 64 misses 0.9% of the time
-but only misses L2 cache 0.2% of the time and would suffer a 5%
-performance hit from this (assuming L2 cache takes 1 extra cycle and an
-L2 cache miss takes 25 extra).
+here's a list of some of those "secondary issues" that we were 
+discussing, and which you opted not to "further dvelve into":
 
-My worry is that 44.5% is based on idiotic assumptions, namely that the
-process is never scheduled away from, not for interrupts or multitasking
-or syscalls.  When scheduling or syscalls happens, the cache will start
-to have entries replaced by entries in other tasks; by the time we come
-back to the current task, we'll have a few areas of the working set no
-longer cached, and get more cache misses.  The only thing I can do for
-this is prevent scheduling as long as is feasible.
+firstly, a factually wrong statement of yours:
 
-If anyone wants to correct me on anything I've gotten wrong here feel
-free, I'm still digging around looking for ways to improve the
-situation.  Reducing code executed is a good way (i.e. make programs not
-do a lot of excess junk), but is case by case; finding a way to knock
-out even 5% of the overhead here globally would be helpful.
+> [...] any tracepoints have an maintainance overhead, which is barely 
+> different between dynamic and static tracing [...]
 
-- --
-All content of all messages exchanged herein are left in the
-Public Domain, unless otherwise explicitly stated.
+secondly, a factually wrong statement of yours:
 
-    Creative brains are a valuable, limited resource. They shouldn't be
-    wasted on re-inventing the wheel when there are so many fascinating
-    new problems waiting out there.
-                                                 -- Eric Steven Raymond
+> [...] at the source level you can remove a static tracepoint as easily 
+> as a dynamic tracepoint, [...]
 
-    We will enslave their women, eat their children and rape their
-    cattle!
-                  -- Bosc, Evil alien overlord from the fifth dimension
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.3 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+thirdly, a factually wrong statement of yours:
 
-iQIVAwUBRQyGfgs1xW0HCTEFAQLTxw//cWJ2Ep473TqC9KmuiM1Lr189gKs9sfgk
-Aacrt10nSGBlLmjH6dR51By8kpjGasMH3Wr4l2/TdeMhWx+ME+uWM8jYTclX5Cei
-LcJamzCoMQGmqFvDe4iGbh66zFhUnJFX+UhQ2zvPhAd1RVBad1sCvb8YJC5M892d
-abSBPWO3FmP2JsDdfcq82Th0kxi7xHfib3QBMoVD+3nRiAgOCMkXle7yb3G7M375
-j2F7etKqDnd1Iv0Rm7VuWvG/gA8hoMtgYR5q/sibZGAk3BwPCNTg1T0D/LSIKoat
-v+5monnYUMN2X491zF0JPONqTh0KtpBURGfWPQ59OODkVBcJQqPelHsZXuUBzdGz
-STyNIvCKMZkjFDJ7VMxopfxneG76DEbyd9MlllNhWqbLT5OREJZm62MOWP1nfInT
-/LkuyOe5GvEtPTy1DT13upSkxAppPfpqmkNwOXAlgrEuriTp6mOep32v+/XoWoFB
-oYSATThDN7vaZFbw3V5+wQFbaA7uzAzfyvptXstFhDtM9791WoRZWRJArqQJnCcr
-nayqJvEH/H4oOhtFIwCpICOu1upcuN6s34R7ROZ+5OpajduXRa/ejIEaW3TEecyY
-nteQLmy+gYvzISOf8ynK3JV5tEcSOS8uNWJFX9dSsw2/HK0GDJCpMNDFrCbZi6ou
-JgytxT3qAiE=
-=K8DM
------END PGP SIGNATURE-----
+> [...] It would also add virtually no maintainance overhead [...]
+
+[see the previous mails for the full context on these items.]
+
+	Ingo

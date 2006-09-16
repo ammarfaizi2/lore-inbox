@@ -1,36 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964871AbWIPR7S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751129AbWIPS6X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964871AbWIPR7S (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Sep 2006 13:59:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964872AbWIPR7S
+	id S1751129AbWIPS6X (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Sep 2006 14:58:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751154AbWIPS6X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Sep 2006 13:59:18 -0400
-Received: from nz-out-0102.google.com ([64.233.162.195]:29303 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S964871AbWIPR7R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Sep 2006 13:59:17 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:subject:content-type:content-transfer-encoding;
-        b=BqnOB6/9IpDbRE5sMQfxdjwcPDOPSh+8TF/ZBzK5o5ABcSumjeWpUMDfnOC3+8KKUcsKSYv/L4aXi7FfZVBQ9xZpDY0MYrb1XA9vyPFCCacwQRDy87I2nTSFUUouh1SDqDONMqPpI/QdRJLGcNqj+DbpiiEdjYndIYE2kcCEx+I=
-Message-ID: <450C3B95.7060808@gmail.com>
-Date: Sat, 16 Sep 2006 11:59:49 -0600
-From: Jim Cromie <jim.cromie@gmail.com>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060909)
+	Sat, 16 Sep 2006 14:58:23 -0400
+Received: from fmmailgate09.web.de ([217.72.192.184]:5268 "EHLO
+	fmmailgate09.web.de") by vger.kernel.org with ESMTP
+	id S1751129AbWIPS6X convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 16 Sep 2006 14:58:23 -0400
+Reveived: from web.de 
+	by fmmailgate09.web.de (Postfix) with SMTP id 5AE0A1C1A74;
+	Sat, 16 Sep 2006 20:58:21 +0200 (CEST)
+Date: Sat, 16 Sep 2006 20:58:20 +0200
+Message-Id: <1313042030@web.de>
 MIME-Version: 1.0
-To: Linux kernel <linux-kernel@vger.kernel.org>
-Subject: schedule check_region for removal ?
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+From: devzero@web.de
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: show all modules which taint the kernel ?
+Organization: http://freemail.web.de/
+Content-Type: text/plain; charset=iso-8859-15
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+but that "Modules linked in: radeon(U) drm(U) ipv6(U) autofs4(U)...." message has been reported to originate from a fc5 (fedora) kernel. fedora probably also using that novell/suse extension ?
 
-its apparently been deprecated for a long time
-http://lkml.org/lkml/2003/6/12/100
 
-But its still used, notably in drivers/scsi/BusLogic.c
+> -----Ursprüngliche Nachricht-----
+> Von: Lee Revell <rlrevell@joe-job.com>
+> Gesendet: 16.09.06 18:26:52
+> An: devzero@web.de
+> CC: linux-kernel@vger.kernel.org
+> Betreff: Re: show all modules which taint the kernel ?
 
-And jumping the gun a bit, theres a number of "got rid of check_region" 
-comments,
-which now belong in the changelog. Do these also get deleted ?
+
+> On Sat, 2006-09-16 at 12:25 +0200, devzero@web.de wrote:
+> > i wonder how someone can have so many tainted modules loaded at the
+> > same time, so i`m unsure if (U) means "tainted" in this context.
+> > 
+> > can someone probably explain ?
+> > 
+> 
+> The (U) thing is a Novell/SuSE extension.  Problems with vendor kernels
+> should be reported to the vendor rather than LKML.
+> 
+> Lee
+> 
+
+
+_______________________________________________________________________
+Viren-Scan für Ihren PC! Jetzt für jeden. Sofort, online und kostenlos.
+Gleich testen! http://www.pc-sicherheit.web.de/freescan/?mc=022222
+

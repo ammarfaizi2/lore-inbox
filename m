@@ -1,17 +1,17 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964824AbWIPJLR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964822AbWIPJLA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964824AbWIPJLR (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Sep 2006 05:11:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964825AbWIPJLQ
+	id S964822AbWIPJLA (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Sep 2006 05:11:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964824AbWIPJLA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Sep 2006 05:11:16 -0400
-Received: from sargon.lncsa.com ([212.99.8.251]:43409 "EHLO sargon.lncsa.com")
-	by vger.kernel.org with ESMTP id S964824AbWIPJLO (ORCPT
+	Sat, 16 Sep 2006 05:11:00 -0400
+Received: from sargon.lncsa.com ([212.99.8.251]:37777 "EHLO sargon.lncsa.com")
+	by vger.kernel.org with ESMTP id S964822AbWIPJK7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Sep 2006 05:11:14 -0400
-Message-ID: <450BBFAF.10305@lncsa.com>
-Date: Sat, 16 Sep 2006 11:11:11 +0200
-From: Laurent CARON <lcaron@lncsa.com>
+	Sat, 16 Sep 2006 05:10:59 -0400
+Message-ID: <450BBFA0.7080307@apartia.fr>
+Date: Sat, 16 Sep 2006 11:10:56 +0200
+From: Laurent CARON <lcaron@apartia.fr>
 User-Agent: Thunderbird 1.5.0.5 (X11/20060812)
 MIME-Version: 1.0
 To: linux-kernel@vger.kernel.org

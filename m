@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964775AbWIPI35@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932319AbWIPI3X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964775AbWIPI35 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Sep 2006 04:29:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932322AbWIPI35
+	id S932319AbWIPI3X (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Sep 2006 04:29:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932321AbWIPI3W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Sep 2006 04:29:57 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:56198 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932321AbWIPI3z (ORCPT
+	Sat, 16 Sep 2006 04:29:22 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:49286 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932319AbWIPI3V (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Sep 2006 04:29:55 -0400
-Date: Sat, 16 Sep 2006 10:21:54 +0200
+	Sat, 16 Sep 2006 04:29:21 -0400
+Date: Sat, 16 Sep 2006 10:20:54 +0200
 From: Ingo Molnar <mingo@elte.hu>
 To: Roman Zippel <zippel@linux-m68k.org>
 Cc: Thomas Gleixner <tglx@linutronix.de>, karim@opersys.com,
@@ -21,7 +21,7 @@ Cc: Thomas Gleixner <tglx@linutronix.de>, karim@opersys.com,
        Tom Zanussi <zanussi@us.ibm.com>, ltt-dev@shafik.org,
        Michel Dagenais <michel.dagenais@polymtl.ca>
 Subject: Re: [PATCH 0/11] LTTng-core (basic tracing infrastructure) 0.5.108
-Message-ID: <20060916082154.GC6317@elte.hu>
+Message-ID: <20060916082054.GA6317@elte.hu>
 References: <1158348954.5724.481.camel@localhost.localdomain> <450B0585.5070700@opersys.com> <1158351780.5724.507.camel@localhost.localdomain> <Pine.LNX.4.64.0609152236010.6761@scrub.home> <20060915204812.GA6909@elte.hu> <Pine.LNX.4.64.0609152314250.6761@scrub.home> <20060915215112.GB12789@elte.hu> <Pine.LNX.4.64.0609160018110.6761@scrub.home> <20060915231419.GA24731@elte.hu> <Pine.LNX.4.64.0609160139130.6761@scrub.home>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -44,46 +44,40 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 * Roman Zippel <zippel@linux-m68k.org> wrote:
 
-> > > > > This is simply not true, at the source level you can remove a 
-> > > > > static tracepoint as easily as a dynamic tracepoint, the 
-> > > > > effect of the missing trace information is the same either way.
-> > > >
-> > > > this is not true. I gave you one example already a few mails ago
-> > > > [...]
-> > >
-> > > Function attributes also doesn't provide information local to the 
-> > > function.
+> > this tracepoint, under a dynamic tracing concept, can be replaced with:
 > > 
-> > of course, but where does the above tracepoint i quoted use 
-> > information local to the function? A fair number of markups use 
-> > global functions because, surprise, alot of interesting activity 
-> > happens along global functions. So a healthy reduction in markups 
-> > can be achieved.
-> 
-> But not completely, which is the whole point.
+> >  int __trace sock_sendmsg(struct socket *sock, struct msghdr *msg, size_t size)
+>
+> A nice example where you make life more difficult for static tracers 
+> for no reason, [...]
 
-the point was what you said above, which i claimed and still claim to be 
-false: "at the source level you can remove a static tracepoint as easily 
-as a dynamic tracepoint, the effect of the missing trace information is 
-the same either way."
+No, it's simply a clever feature: "halve the impact of static markups".
 
-Your point is still incorrect. I gave you an example of how half of the 
-tracepoints could be removed under a dynamic scheme - while they couldnt 
-be removed under a static scheme. Hence that directly contradicts your 
-contention that "you can remove a static tracepoint as easily as a 
-dynamic tracepoint". Nothing more, nothing less. I just pointed out the 
-point in your thinking that i believe to be incorrect.
+What you say will be _precisely_ the kind of situations that make me 
+very wary of static tracers. Someone does something smart that enables 
+us to remove half of the tracepoints from the kernel source code, while 
+you will go on and complain: "why do you make the life harder for static 
+tracers". You, perhaps inwillingly, are giving the perfect demonstration 
+of why static tracepoints are a maintainance problem: once added _they 
+can not be removed without breaking static tracers_.
 
-Reality is that you can remove a dynamic tracepoint much easier, due to 
-the fundamental flexibility of dynamic tracers. While with static 
-tracers, every tracepoint has to be _somewhere_ in the source code, 
-otherwise people like you will complain just like you did in this mail: 
-"you make life more difficult for static tracers for no reason".
+And i see you didnt reply to (and you didnt even quote) the paragraph 
+that i believe answers your point:
 
-You can concede my point or you can dispute that argument - but what you 
-did above was neither: you snipped all the quotations and you claimed a 
-totally new point. (which new point i never argued with: _of course_ i 
-never claimed that __trace function attributes can remove _all_ markups. 
-They can "only" remove half of them.)
+> > the user of course does not care about kernel internal design and 
+> > maintainance issues. Think about the many reasons why STREAMS was 
+> > rejected - users wanted that too. And note that users dont want 
+> > "static tracers" or any design detail of LTT in particular: what 
+> > they want is the _functionality_ of LTT.
+
+The kernel tree is not there to make it easier for inferior approaches. 
+How hard is it for the static tracer folks to take a look at dynamic 
+tracers and realize that it's the fundamentally better approach, for the 
+reasons above and for other reasons, and pick the concept up and 
+integrate it with their code? Just like the STREAMS folks had a chance 
+to look at the existing TCP/IP implementation in the Linux kernel and 
+had the chance to realize that it's the better approach. Yet they 
+insisted on just adding a few hooks here and there, to "make the life 
+easier for STREAMS".
 
 	Ingo

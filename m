@@ -1,77 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964790AbWIPMNm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964782AbWIPMOy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964790AbWIPMNm (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Sep 2006 08:13:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964791AbWIPMNm
+	id S964782AbWIPMOy (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Sep 2006 08:14:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964791AbWIPMOy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Sep 2006 08:13:42 -0400
-Received: from ug-out-1314.google.com ([66.249.92.174]:31918 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S964790AbWIPMNm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Sep 2006 08:13:42 -0400
+	Sat, 16 Sep 2006 08:14:54 -0400
+Received: from wx-out-0506.google.com ([66.249.82.238]:10416 "EHLO
+	wx-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S964782AbWIPMOx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 16 Sep 2006 08:14:53 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=mFy7FeLT+fmVWFF2D8ael7vEIJHwk9Tu8FOJXcZ6BsOmbAo3IoisoIvYe1SC5PqU4nyL+qLrAPo3Nja8WnKDilpN9TDxfirqXFXjB/Zdb1zrU8/QNDFTnoGmX9N//0YtSrflCpxPgNg2039MKzz+C+aHd+tY4gOZWPgx3wIrZZw=
-Message-ID: <a885b78b0609160513y39adbd72nf9502da7a96e59ce@mail.gmail.com>
-Date: Sat, 16 Sep 2006 20:13:40 +0800
-From: "xixi lii" <xixi.limeng@gmail.com>
-To: davids@webmaster.com
-Subject: Re: UDP question.
-Cc: "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <MDEHLPKNGKAHNMBLJOLKAEDAOHAB.davids@webmaster.com>
+        b=SqZUs2G9FXxjN0ZYYrLaOlkcTiqTxoyVyLRQefwIthfI2XgJkeYudpBuG7VnwbXGYrfytE/FLwzaYIqhlq96rLSeOXzZ0m7KY21OLmbqANpb2j3BPtQ+7wV11Xk4/qDZH1PmJHhsskiZfTEk9bO3MDzZXMJaWewBOc6Z3p46i5U=
+Message-ID: <6bffcb0e0609160514t6a57b98fw478c7438df970c21@mail.gmail.com>
+Date: Sat, 16 Sep 2006 14:14:52 +0200
+From: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
+To: "Greg KH" <gregkh@suse.de>
+Subject: Re: 2.6.18-rc6-mm2
+Cc: "Andrew Morton" <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-usb-devel@lists.sourceforge.net
+In-Reply-To: <20060915215042.GA15175@suse.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <a885b78b0609151702r3b4086c4l3bb79c2e5c9ddf4a@mail.gmail.com>
-	 <MDEHLPKNGKAHNMBLJOLKAEDAOHAB.davids@webmaster.com>
+References: <20060912000618.a2e2afc0.akpm@osdl.org>
+	 <6bffcb0e0609140411j46c20757r6eced82b53266e0f@mail.gmail.com>
+	 <20060914214038.GA32352@suse.de>
+	 <6bffcb0e0609141517j4128dd41n1cd21599c51541a2@mail.gmail.com>
+	 <20060914223638.GA547@suse.de>
+	 <6bffcb0e0609151335wce499b0nb3e39bdc26b4b433@mail.gmail.com>
+	 <20060915215042.GA15175@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-2006/9/16, David Schwartz <davids@webmaster.com>:
+On 15/09/06, Greg KH <gregkh@suse.de> wrote:
+> On Fri, Sep 15, 2006 at 10:35:37PM +0200, Michal Piotrowski wrote:
+> > Good news, I can't reproduce this bug with CONFIG_USB_MULTITHREAD_PROBE=n.
 >
-> > Let me explain my network environment, My program is running on a two
-> > adapters machine, whose IP is 192.168.0.1/8 and 192.168.0.2/8, then,
-> > my destination is two machine, whose IP is 192.168.0.3/8 and
-> > 192.168.0.4/8. I use four 100M exchange and a 1000M exchange cennected
-> > them to ensure the choke point is not at network  equipment.
+> Great, thanks for letting me know.
 >
-> So both interfaces are part of the same network, and the machines are not
-> connected to the Internet? (The host ns4.bbn.com is 192.1.122.13, for
-> example.)
+> > BTW. This might be a problem with CONFIG_PCI_MULTITHREAD_PROBE=y
+> > http://www.stardust.webpages.pl/files/mm/2.6.18-rc6-mm2/bug.jpg
 >
-> > when I use two socket without bonding, one socket is bind
-> > 192.168.0.1/8 and sendto 192.168.0.3/8, the other is bind
-> > 192.168.0.2/8 and sendto 192.168.0.4/8, but, as you see, I get a
-> > result that the speed of send by two adapters is equal to the only one
-> > adapter's.
->
-> None of your code gives the kernel any reason to prefer one interface over
-> the other. Why would an interface bound to 192.168.0.1 be better than one
-> for 192.168.0.2 if you're sending to 192.168.0.3?
->
-> > yesterday. I got an uncertain idea, is the problem that IP layer is
-> > separate with Eth layer ? when I bind src IP, it just do helpful to IP
-> > layer, not real bind the adapter? when I send, the real ethreal
-> > adapter is select by IP route? If the two interface can go
-> > destinnation both, IP layer will choose the frist, not use both? Am I
-> > right?
->
-> Correct, you are binding to the adapter's address, not to the adapter. The
-> IP routing layer still determines which interface a packet is transmitted
-> on.
->
-> > If so, when I use bonding, the adapter's physical address is the frist
-> > one, Do this means that all of the packet come to my machine will go
-> > through in the frist one adapter?
->
-> It depends how you have the IP routing layer configured. You can configure
-> it to select the adapter based on the source address if you want to.
+> That looks odd.  What device is your root partition on?
 
-then how do I configure this?
+SATA HDD.
+
+>  And what is the
+> "switchroot" stuff being printed out, is that in an initramfs?
+
+Yes, it's initrd generated by new-kernel-pkg (Fedora).
+
 >
-> DS
+> thanks,
 >
+> greg k-h
 >
->
+
+Regards,
+Michal
+
+-- 
+Michal K. K. Piotrowski
+LTG - Linux Testers Group
+(http://www.stardust.webpages.pl/ltg/)

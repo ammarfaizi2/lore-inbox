@@ -1,86 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932069AbWIPUA0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751827AbWIPVXw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932069AbWIPUA0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Sep 2006 16:00:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932174AbWIPUA0
+	id S1751827AbWIPVXw (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Sep 2006 17:23:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751811AbWIPVXw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Sep 2006 16:00:26 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:55985 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S932069AbWIPUAZ (ORCPT
+	Sat, 16 Sep 2006 17:23:52 -0400
+Received: from opersys.com ([64.40.108.71]:11015 "EHLO www.opersys.com")
+	by vger.kernel.org with ESMTP id S1751813AbWIPVXv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Sep 2006 16:00:25 -0400
-Date: Sat, 16 Sep 2006 21:58:51 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Ingo Molnar <mingo@elte.hu>
-cc: Thomas Gleixner <tglx@linutronix.de>, karim@opersys.com,
-       Andrew Morton <akpm@osdl.org>, Paul Mundt <lethal@linux-sh.org>,
-       Jes Sorensen <jes@sgi.com>,
-       Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
-       linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
-       Ingo Molnar <mingo@redhat.com>, Greg Kroah-Hartman <gregkh@suse.de>,
-       Tom Zanussi <zanussi@us.ibm.com>, ltt-dev@shafik.org,
-       Michel Dagenais <michel.dagenais@polymtl.ca>
-Subject: Re: [PATCH 0/11] LTTng-core (basic tracing infrastructure) 0.5.108
-In-Reply-To: <20060916082214.GD6317@elte.hu>
-Message-ID: <Pine.LNX.4.64.0609161831270.6761@scrub.home>
-References: <1158348954.5724.481.camel@localhost.localdomain>
- <450B0585.5070700@opersys.com> <1158351780.5724.507.camel@localhost.localdomain>
- <Pine.LNX.4.64.0609152236010.6761@scrub.home> <20060915204812.GA6909@elte.hu>
- <Pine.LNX.4.64.0609152314250.6761@scrub.home> <20060915215112.GB12789@elte.hu>
- <Pine.LNX.4.64.0609160018110.6761@scrub.home> <20060915231419.GA24731@elte.hu>
- <Pine.LNX.4.64.0609160139130.6761@scrub.home> <20060916082214.GD6317@elte.hu>
+	Sat, 16 Sep 2006 17:23:51 -0400
+Message-ID: <450C7039.20208@opersys.com>
+Date: Sat, 16 Sep 2006 17:44:25 -0400
+From: Karim Yaghmour <karim@opersys.com>
+Reply-To: karim@opersys.com
+Organization: Opersys inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.6) Gecko/20060804 Fedora/1.0.4-0.5.1.fc5 SeaMonkey/1.0.4
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Ingo Molnar <mingo@elte.hu>
+CC: Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
+       Jes Sorensen <jes@sgi.com>, Roman Zippel <zippel@linux-m68k.org>,
+       Andrew Morton <akpm@osdl.org>, tglx@linutronix.de,
+       Paul Mundt <lethal@linux-sh.org>, linux-kernel@vger.kernel.org,
+       Christoph Hellwig <hch@infradead.org>, Ingo Molnar <mingo@redhat.com>,
+       Greg Kroah-Hartman <gregkh@suse.de>, Tom Zanussi <zanussi@us.ibm.com>,
+       ltt-dev@shafik.org, Michel Dagenais <michel.dagenais@polymtl.ca>,
+       fche@redhat.com
+Subject: Re: [patch] kprobes: optimize branch placement
+References: <Pine.LNX.4.64.0609152111030.6761@scrub.home> <20060915200559.GB30459@elte.hu> <20060915202233.GA23318@Krystal> <450BCAF1.2030205@sgi.com> <20060916172419.GA15427@Krystal> <20060916173552.GA7362@elte.hu> <20060916175606.GA2837@Krystal> <20060916191043.GA22558@elte.hu> <20060916193745.GA29022@elte.hu> <20060916202939.GA4520@elte.hu> <20060916204342.GA5208@elte.hu>
+In-Reply-To: <20060916204342.GA5208@elte.hu>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-I don't know why you split this into multiple subthreads and instead of 
-delving further into secondary issues, please let me get back to the 
-primary issues to put everything a little into perspective.
+Ingo Molnar wrote:
+> the 3 speedups i did today eliminated 63% of the kprobes overhead in 
+> this test.
+> 
+> this too shows that there's lots of performance potential even in 
+> INT3-based kprobes.
 
-The foremost issue is still that there is only limited kprobes support. 
-The way you ignore this and try to make this a non-issue makes it appear 
-to me rather arrogant, I appreciate it that you want to push technology 
-forward, but it's rather ignorant how you leave people behind in the dust 
-who can't keep up, by making it very hard for them to easily get access to 
-tracing in the kernel.
-Since I have a quite good idea of the amount of work needed to implement 
-second rate kprobes hack, first rate kprobes support and first rate 
-ltt(ng) support, it's a quite simple decision what I'm going to do. Since 
-your "incentive" to add kprobes support is not very high, it's more likely 
-to backfire in making you the jerk denying me easy access to tracing 
-technologies.
+So now you're resorting to your uber-talents as a kernel guru to bury
+the other side? This attitude, if you permit, I find cowardly and
+hypocritical. It renders a huge disservice to kernel developers at
+large by making it clear to outside observers that if they do not
+curry the favors of key kernel developers or submit material which is
+consensual to a given line of thought then they are not welcome.
 
-Since my options are right now limited to a static tracer in first place, 
-most of the issues you mentioned over the various mails become really 
-moot, e.g. why should I care about the overhead of inactive traces? We can 
-happily discuss the merits of dynamic tracers forever, but it does _not_ 
-change my current situation, that I have no access to one on some machines 
-I care about.
+Keep on at it. The writing is on the wall for those kernel developers
+who genuinely wish that outside contributors make an effort in
+pushing stuff back into mainline. Keep on at it Ingo. Hack this one
+to death. I know of very few people who have your clout or
+understanding of the kernel intricacies to match you in such an
+arms race.
 
-The main issue in supporting static tracers are the tracepoints and so far 
-I haven't seen any convincing proof that the maintainance overhead of 
-dynamic and static tracepoints has to be significantly different. What you 
-did is constructing a worst case scenario, which only proves that it's 
-possible, what it doesn't prove is that there are no measures to prevent 
-this from happining. This means nobody proved so far that it's not 
-possible to create and enforce a set of rules to keep the amount and 
-effect of tracepoints under control.
-Let's take your example of a tracepoint in an area of high development 
-activity, since such development should happen in -mm, it would be no 
-problem to drop the trace and add it back once development calmed down, 
-exactly like you would do for a dynamic trace. OTOH it's very well 
-possible some people might find the trace useful during development.
-So the problem here is now that you simply work from the unproven premiss, 
-that static tracepoints automatically lead to uncontrolled chaos. This 
-makes a reasonable discussion about managing tracepoints impossible, since 
-you don't want to support static tracepoints at all.
+Go Ingo, Go.
 
-Ingo, as long as you don't give up this zero tolerance strategy, it 
-doesn't make much sense to discuss details and I can only hope there are 
-other people who are more reasonable...
-
-bye, Roman
+Karim
+-- 
+President  / Opersys Inc.
+Embedded Linux Training and Expertise
+www.opersys.com  /  1.866.677.4546

@@ -1,38 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932111AbWIPVhg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751178AbWIPUUH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932111AbWIPVhg (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Sep 2006 17:37:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751828AbWIPVhg
+	id S1751178AbWIPUUH (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Sep 2006 16:20:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751189AbWIPUUH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Sep 2006 17:37:36 -0400
-Received: from igw1.zrnko.cz ([81.31.45.161]:48107 "EHLO anubis.fi.muni.cz")
-	by vger.kernel.org with ESMTP id S1751811AbWIPVhf (ORCPT
+	Sat, 16 Sep 2006 16:20:07 -0400
+Received: from main.gmane.org ([80.91.229.2]:26081 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S1751178AbWIPUUG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Sep 2006 17:37:35 -0400
-Date: Sat, 16 Sep 2006 23:38:49 +0200
-From: Lukas Hejtmanek <xhejtman@mail.muni.cz>
+	Sat, 16 Sep 2006 16:20:06 -0400
+X-Injected-Via-Gmane: http://gmane.org/
 To: linux-kernel@vger.kernel.org
-Subject: System restart
-Message-ID: <20060916213849.GJ3051@mail.muni.cz>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-X-echelon: NSA, CIA, CI5, MI5, FBI, KGB, BIS, Plutonium, Bin Laden, bomb
-User-Agent: Mutt/1.5.13 (2006-08-11)
+From: Markus Layr <tuxian@yahoo.de>
+Subject: Re: [PATCH] unusual device Sony Ericsson M600i
+Date: Sat, 16 Sep 2006 20:13:16 +0000 (UTC)
+Message-ID: <loom.20060916T220501-329@post.gmane.org>
+References: <200608290913.13875.rene@exactcode.de> <44F506FD.1000608@ipom.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: main.gmane.org
+User-Agent: Loom/3.14 (http://gmane.org/)
+X-Loom-IP: 193.46.41.12 (Mozilla/4.0 (compatible; MSIE 6.0; Windows NT 5.2; SV1; .NET CLR 1.1.4322; InfoPath.1))
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Hi,
 
-after upgrading BIOS to the latest version on my Intel Core 2 Duo with DP965LT 
-board kernel is unable to restart system. (Kernel 2.6.18-rc6.) With older BIOS
-the same kernel restarts OK. The last message printed on console is: Restarting
-system and system hangs.
+for which kernel version is this patch usable?
 
-I wonder, why "machine restart" message does not appear.
+I'm using gentoo-sources-2.6.17-gentoo-r8 (Linux 2.6.17.13).
 
-I tried kernel parameter reboot=t reboot=f reboot=t,w,f nothing helps.
+My phone is a P990i and not a M600i but they are very similar.
 
--- 
-Luká¹ Hejtmánek
+I changed the Vendor ID from 0xe031 to 0xe030 and "M600i" to "P990i" and 
+inserted the lines starting with "+" to my unusual_devs.h but I still can't see 
+partitions on /dev/sda.
+
+Maybe the problem is that I don't have this section:
+
+       US_SC_DEVICE, US_PR_DEVICE, NULL, 
+       US_FL_NO_WP_DETECT ),
+
+in line 1257?
+
+

@@ -1,51 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964791AbWIPW7E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964826AbWIPXBY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964791AbWIPW7E (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Sep 2006 18:59:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964826AbWIPW7D
+	id S964826AbWIPXBY (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Sep 2006 19:01:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964830AbWIPXBY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Sep 2006 18:59:03 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:43498 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S964791AbWIPW7A (ORCPT
+	Sat, 16 Sep 2006 19:01:24 -0400
+Received: from mail.aiken.cz ([82.208.4.206]:687 "EHLO mail.aiken.cz")
+	by vger.kernel.org with ESMTP id S964826AbWIPXBX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Sep 2006 18:59:00 -0400
-Date: Sun, 17 Sep 2006 00:50:03 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>, karim@opersys.com,
-       Andrew Morton <akpm@osdl.org>, Paul Mundt <lethal@linux-sh.org>,
-       Jes Sorensen <jes@sgi.com>,
-       Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
-       linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
-       Ingo Molnar <mingo@redhat.com>, Greg Kroah-Hartman <gregkh@suse.de>,
-       Tom Zanussi <zanussi@us.ibm.com>, ltt-dev@shafik.org,
-       Michel Dagenais <michel.dagenais@polymtl.ca>
-Subject: Re: [PATCH 0/11] LTTng-core (basic tracing infrastructure) 0.5.108
-Message-ID: <20060916225003.GA20180@elte.hu>
-References: <1158351780.5724.507.camel@localhost.localdomain> <Pine.LNX.4.64.0609152236010.6761@scrub.home> <20060915204812.GA6909@elte.hu> <Pine.LNX.4.64.0609152314250.6761@scrub.home> <20060915215112.GB12789@elte.hu> <Pine.LNX.4.64.0609160018110.6761@scrub.home> <20060915231419.GA24731@elte.hu> <Pine.LNX.4.64.0609160139130.6761@scrub.home> <20060916082214.GD6317@elte.hu> <Pine.LNX.4.64.0609161831270.6761@scrub.home>
-Mime-Version: 1.0
+	Sat, 16 Sep 2006 19:01:23 -0400
+Message-ID: <450C8243.60406@kernel-api.org>
+Date: Sun, 17 Sep 2006 01:01:23 +0200
+From: Lukas Jelinek <info@kernel-api.org>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; cs-CZ; rv:1.7.12) Gecko/20050915
+X-Accept-Language: cs, en-us, en
+MIME-Version: 1.0
+To: Lukas Hejtmanek <xhejtman@mail.muni.cz>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: System restart
+References: <20060916213849.GJ3051@mail.muni.cz>
+In-Reply-To: <20060916213849.GJ3051@mail.muni.cz>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0609161831270.6761@scrub.home>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -2.9
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.9 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.4364]
-	-0.1 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> Hello,
+> 
+> after upgrading BIOS to the latest version on my Intel Core 2 Duo with DP965LT 
+> board kernel is unable to restart system. (Kernel 2.6.18-rc6.) With older BIOS
+> the same kernel restarts OK. The last message printed on console is: Restarting
+> system and system hangs.
+> 
+> I wonder, why "machine restart" message does not appear.
+> 
+> I tried kernel parameter reboot=t reboot=f reboot=t,w,f nothing helps.
+> 
 
-* Roman Zippel <zippel@linux-m68k.org> wrote:
+This is probably not a kernel problem but a BIOS-related one. Since only
+a few boards/BIOSes need specific fixups it looks like your new BIOS is
+buggy. Try to contact the BIOS vendor and report this problem.
 
-> I don't know why you split this into multiple subthreads [...]
-
-huh? Maybe because the mail got ... too big?
-
-	Ingo
+Lukas Jelinek

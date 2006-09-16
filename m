@@ -1,63 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964787AbWIPMIs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964790AbWIPMNm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964787AbWIPMIs (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Sep 2006 08:08:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964782AbWIPMIs
+	id S964790AbWIPMNm (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Sep 2006 08:13:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964791AbWIPMNm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Sep 2006 08:08:48 -0400
-Received: from tentacle.s2s.msu.ru ([193.232.119.109]:6115 "EHLO
-	tentacle.sectorb.msk.ru") by vger.kernel.org with ESMTP
-	id S964780AbWIPMIr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Sep 2006 08:08:47 -0400
-Date: Sat, 16 Sep 2006 16:08:46 +0400
-From: "Vladimir B. Savkin" <master@sectorb.msk.ru>
-To: Andi Kleen <ak@suse.de>
-Cc: Jesper Dangaard Brouer <hawk@diku.dk>,
-       Harry Edmon <harry@atmos.washington.edu>, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org
-Subject: Re: Network performance degradation from 2.6.11.12 to 2.6.16.20
-Message-ID: <20060916120845.GA18912@tentacle.sectorb.msk.ru>
-References: <4492D5D3.4000303@atmos.washington.edu> <44948EF6.1060201@atmos.washington.edu> <Pine.LNX.4.61.0606191638550.23553@ask.diku.dk> <200606191724.31305.ak@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
+	Sat, 16 Sep 2006 08:13:42 -0400
+Received: from ug-out-1314.google.com ([66.249.92.174]:31918 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S964790AbWIPMNm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 16 Sep 2006 08:13:42 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=mFy7FeLT+fmVWFF2D8ael7vEIJHwk9Tu8FOJXcZ6BsOmbAo3IoisoIvYe1SC5PqU4nyL+qLrAPo3Nja8WnKDilpN9TDxfirqXFXjB/Zdb1zrU8/QNDFTnoGmX9N//0YtSrflCpxPgNg2039MKzz+C+aHd+tY4gOZWPgx3wIrZZw=
+Message-ID: <a885b78b0609160513y39adbd72nf9502da7a96e59ce@mail.gmail.com>
+Date: Sat, 16 Sep 2006 20:13:40 +0800
+From: "xixi lii" <xixi.limeng@gmail.com>
+To: davids@webmaster.com
+Subject: Re: UDP question.
+Cc: "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
+In-Reply-To: <MDEHLPKNGKAHNMBLJOLKAEDAOHAB.davids@webmaster.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <200606191724.31305.ak@suse.de>
-X-Organization: Moscow State Univ., Institute of Mechanics
-X-Operating-System: Linux 2.6.17-rc6-64
-User-Agent: Mutt/1.5.9i
+References: <a885b78b0609151702r3b4086c4l3bb79c2e5c9ddf4a@mail.gmail.com>
+	 <MDEHLPKNGKAHNMBLJOLKAEDAOHAB.davids@webmaster.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Jun 19, 2006 at 05:24:31PM +0200, Andi Kleen wrote:
-> 
-> > If you use "pmtmr" try to reboot with kernel option "clock=tsc".
-> 
-> That's dangerous advice - when the system choses not to use
-> TSC it often has a reason.
+2006/9/16, David Schwartz <davids@webmaster.com>:
+>
+> > Let me explain my network environment, My program is running on a two
+> > adapters machine, whose IP is 192.168.0.1/8 and 192.168.0.2/8, then,
+> > my destination is two machine, whose IP is 192.168.0.3/8 and
+> > 192.168.0.4/8. I use four 100M exchange and a 1000M exchange cennected
+> > them to ensure the choke point is not at network  equipment.
+>
+> So both interfaces are part of the same network, and the machines are not
+> connected to the Internet? (The host ns4.bbn.com is 192.1.122.13, for
+> example.)
+>
+> > when I use two socket without bonding, one socket is bind
+> > 192.168.0.1/8 and sendto 192.168.0.3/8, the other is bind
+> > 192.168.0.2/8 and sendto 192.168.0.4/8, but, as you see, I get a
+> > result that the speed of send by two adapters is equal to the only one
+> > adapter's.
+>
+> None of your code gives the kernel any reason to prefer one interface over
+> the other. Why would an interface bound to 192.168.0.1 be better than one
+> for 192.168.0.2 if you're sending to 192.168.0.3?
+>
+> > yesterday. I got an uncertain idea, is the problem that IP layer is
+> > separate with Eth layer ? when I bind src IP, it just do helpful to IP
+> > layer, not real bind the adapter? when I send, the real ethreal
+> > adapter is select by IP route? If the two interface can go
+> > destinnation both, IP layer will choose the frist, not use both? Am I
+> > right?
+>
+> Correct, you are binding to the adapter's address, not to the adapter. The
+> IP routing layer still determines which interface a packet is transmitted
+> on.
+>
+> > If so, when I use bonding, the adapter's physical address is the frist
+> > one, Do this means that all of the packet come to my machine will go
+> > through in the frist one adapter?
+>
+> It depends how you have the IP routing layer configured. You can configure
+> it to select the adapter based on the source address if you want to.
 
-I just found out that TSC clocksource is not implemented on x86-64.
-Kernel version 2.6.18-rc7, is it true?
-
-I've also had experience of unsychronized TSC on dual-core Athlon,
-but it was cured by idle=poll.
-
-> 
-> > 
-> > On my Opteron AMD system i normally can route 400 kpps, but with 
-> > timesource "pmtmr" i could only route around 83 kpps.  (I found the timer 
-> > to be the issue by using oprofile).
-> 
-> Unless you're using packet sniffing or any other application
-> that requests time stamps on a socket then the timer shouldn't 
-> make much difference. Incoming packets are only time stamped
-> when someone asks for the timestamps.
-> 
-It seems that dhcpd3 makes the box timestamping incoming packets,
-killing the performance. I think that combining router and DHCP server
-on a same box is a legitimate situation, isn't it?
-
-~
-:wq
-                                        With best regards, 
-                                           Vladimir Savkin. 
-
+then how do I configure this?
+>
+> DS
+>
+>
+>

@@ -1,63 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964808AbWIPW5q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964791AbWIPW7E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964808AbWIPW5q (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Sep 2006 18:57:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964809AbWIPW5q
+	id S964791AbWIPW7E (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Sep 2006 18:59:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964826AbWIPW7D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Sep 2006 18:57:46 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:9868 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S964808AbWIPW5p (ORCPT
+	Sat, 16 Sep 2006 18:59:03 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:43498 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S964791AbWIPW7A (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Sep 2006 18:57:45 -0400
-Date: Sat, 16 Sep 2006 15:56:57 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
-       Jes Sorensen <jes@sgi.com>, Roman Zippel <zippel@linux-m68k.org>,
-       tglx@linutronix.de, karim@opersys.com, Paul Mundt <lethal@linux-sh.org>,
+	Sat, 16 Sep 2006 18:59:00 -0400
+Date: Sun, 17 Sep 2006 00:50:03 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>, karim@opersys.com,
+       Andrew Morton <akpm@osdl.org>, Paul Mundt <lethal@linux-sh.org>,
+       Jes Sorensen <jes@sgi.com>,
+       Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
        linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
        Ingo Molnar <mingo@redhat.com>, Greg Kroah-Hartman <gregkh@suse.de>,
        Tom Zanussi <zanussi@us.ibm.com>, ltt-dev@shafik.org,
-       Michel Dagenais <michel.dagenais@polymtl.ca>, fche@redhat.com
-Subject: Re: [patch] kprobes: optimize branch placement
-Message-Id: <20060916155657.a233b54d.akpm@osdl.org>
-In-Reply-To: <20060916204342.GA5208@elte.hu>
-References: <Pine.LNX.4.64.0609152111030.6761@scrub.home>
-	<20060915200559.GB30459@elte.hu>
-	<20060915202233.GA23318@Krystal>
-	<450BCAF1.2030205@sgi.com>
-	<20060916172419.GA15427@Krystal>
-	<20060916173552.GA7362@elte.hu>
-	<20060916175606.GA2837@Krystal>
-	<20060916191043.GA22558@elte.hu>
-	<20060916193745.GA29022@elte.hu>
-	<20060916202939.GA4520@elte.hu>
-	<20060916204342.GA5208@elte.hu>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+       Michel Dagenais <michel.dagenais@polymtl.ca>
+Subject: Re: [PATCH 0/11] LTTng-core (basic tracing infrastructure) 0.5.108
+Message-ID: <20060916225003.GA20180@elte.hu>
+References: <1158351780.5724.507.camel@localhost.localdomain> <Pine.LNX.4.64.0609152236010.6761@scrub.home> <20060915204812.GA6909@elte.hu> <Pine.LNX.4.64.0609152314250.6761@scrub.home> <20060915215112.GB12789@elte.hu> <Pine.LNX.4.64.0609160018110.6761@scrub.home> <20060915231419.GA24731@elte.hu> <Pine.LNX.4.64.0609160139130.6761@scrub.home> <20060916082214.GD6317@elte.hu> <Pine.LNX.4.64.0609161831270.6761@scrub.home>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0609161831270.6761@scrub.home>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -2.9
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.9 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.4364]
+	-0.1 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 16 Sep 2006 22:43:42 +0200
-Ingo Molnar <mingo@elte.hu> wrote:
 
-> --- linux.orig/arch/i386/kernel/kprobes.c
-> +++ linux/arch/i386/kernel/kprobes.c
-> @@ -354,9 +354,8 @@ no_kprobe:
->   */
->  fastcall void *__kprobes trampoline_handler(struct pt_regs *regs)
->  {
-> -        struct kretprobe_instance *ri = NULL;
-> -        struct hlist_head *head;
-> -        struct hlist_node *node, *tmp;
-> +        struct kretprobe_instance *ri = NULL, *tmp;
-> +        struct list_head *head;
->  	unsigned long flags, orig_ret_address = 0;
->  	unsigned long trampoline_address =(unsigned long)&kretprobe_trampoline;
+* Roman Zippel <zippel@linux-m68k.org> wrote:
 
-Wanna fix the whitespace wreckage while you're there??
+> I don't know why you split this into multiple subthreads [...]
 
-i386's kprobe_handler() appears to forget to reenable preemption in the
-if (p->pre_handler && p->pre_handler(p, regs)) case?
+huh? Maybe because the mail got ... too big?
+
+	Ingo

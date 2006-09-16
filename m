@@ -1,54 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964865AbWIPR4L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964867AbWIPR4M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964865AbWIPR4L (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Sep 2006 13:56:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964866AbWIPR4K
+	id S964867AbWIPR4M (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Sep 2006 13:56:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964866AbWIPR4M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Sat, 16 Sep 2006 13:56:12 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:36023 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S964867AbWIPR4K (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
 	Sat, 16 Sep 2006 13:56:10 -0400
-Received: from tomts10.bellnexxia.net ([209.226.175.54]:47335 "EHLO
-	tomts10-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id S964865AbWIPR4J (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Sep 2006 13:56:09 -0400
-Date: Sat, 16 Sep 2006 13:56:07 -0400
-From: Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Jes Sorensen <jes@sgi.com>, Roman Zippel <zippel@linux-m68k.org>,
-       Andrew Morton <akpm@osdl.org>, tglx@linutronix.de, karim@opersys.com,
-       Paul Mundt <lethal@linux-sh.org>, linux-kernel@vger.kernel.org,
-       Christoph Hellwig <hch@infradead.org>, Ingo Molnar <mingo@redhat.com>,
-       Greg Kroah-Hartman <gregkh@suse.de>, Tom Zanussi <zanussi@us.ibm.com>,
-       ltt-dev@shafik.org, Michel Dagenais <michel.dagenais@polymtl.ca>
-Subject: Re: [PATCH 0/11] LTTng-core (basic tracing infrastructure) 0.5.108
-Message-ID: <20060916175606.GA2837@Krystal>
-References: <450ABE08.2060107@opersys.com> <1158332447.5724.423.camel@localhost.localdomain> <20060915111644.c857b2cf.akpm@osdl.org> <20060915181907.GB17581@elte.hu> <Pine.LNX.4.64.0609152111030.6761@scrub.home> <20060915200559.GB30459@elte.hu> <20060915202233.GA23318@Krystal> <450BCAF1.2030205@sgi.com> <20060916172419.GA15427@Krystal> <20060916173552.GA7362@elte.hu>
+Date: Sat, 16 Sep 2006 10:54:01 -0700
+From: Pete Zaitcev <zaitcev@redhat.com>
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: Rene Rebe <rene@exactcode.de>, Greg KH <greg@kroah.com>,
+       linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
+Subject: Re: [linux-usb-devel] USB device stopped working - can't set config
+ #1, error -71
+Message-Id: <20060916105401.d7f3a1b2.zaitcev@redhat.com>
+In-Reply-To: <Pine.LNX.4.44L0.0609161033550.7454-100000@netrider.rowland.org>
+References: <200609161137.14307.rene@exactcode.de>
+	<Pine.LNX.4.44L0.0609161033550.7454-100000@netrider.rowland.org>
+Organization: Red Hat, Inc.
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.10.2; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-In-Reply-To: <20060916173552.GA7362@elte.hu>
-X-Editor: vi
-X-Info: http://krystal.dyndns.org:8080
-X-Operating-System: Linux/2.4.32-grsec (i686)
-X-Uptime: 13:52:51 up 24 days, 15:01,  2 users,  load average: 0.24, 0.21, 0.18
-User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Ingo Molnar (mingo@elte.hu) wrote:
-> 
-> * Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca> wrote:
-> 
-> > Third run : same LTTng instrumentation, with a kprobe handler 
-> > triggered by each event traced.
-> 
-> where exactly did you put the kprobe handler?
+On Sat, 16 Sep 2006 10:39:33 -0400 (EDT), Alan Stern <stern@rowland.harvard.edu> wrote:
 
-ltt_relay_reserve_slot.
+> with the latest kernels (definetly 2.6.17 and 1.6.8-rc*, I do now know off 
+> hand when this started) I can not access some (I think all USB 1) scanners 
+> via my SANE/Avision backend:
+>[...]
+> Try using usbmon to watch what happens when you plug in your scanner.  
+> Instructions are in the kernel source file Documentation/usb/usbmon.txt.
 
-See http://ltt.polymtl.ca/svn/tests/kernel/test-kprobes.c to insert the kprobe.
-Tests done on LTTng 0.5.111, on a x86 3GHz with hyperthreading.
+I second that. But it would also help a lot to find a kernel which
+worked, even if it's relatively old, so we'd try to diff the hub.c.
 
-Mathieu
-
-OpenPGP public key:              http://krystal.dyndns.org:8080/key/compudj.gpg
-Key fingerprint:     8CD5 52C3 8E3C 4140 715F  BA06 3F25 A8FE 3BAE 9A68 
+-- Pete

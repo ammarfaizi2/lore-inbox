@@ -1,88 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964843AbWIPQ7y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964842AbWIPRQp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964843AbWIPQ7y (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Sep 2006 12:59:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964845AbWIPQ7y
+	id S964842AbWIPRQp (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Sep 2006 13:16:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964846AbWIPRQp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Sep 2006 12:59:54 -0400
-Received: from fmmailgate01.web.de ([217.72.192.221]:2247 "EHLO
-	fmmailgate01.web.de") by vger.kernel.org with ESMTP id S964843AbWIPQ7x
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Sep 2006 12:59:53 -0400
-Message-ID: <450C2DD8.7090107@web.de>
-Date: Sat, 16 Sep 2006 19:01:12 +0200
-From: "jens m. noedler" <noedler@web.de>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060812)
+	Sat, 16 Sep 2006 13:16:45 -0400
+Received: from py-out-1112.google.com ([64.233.166.176]:38712 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S964842AbWIPRQo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 16 Sep 2006 13:16:44 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=V/TmxC4ihxC4vhvcbk5FffCl/Q1Mu1yMD7fCbBPy9yha53sYVomnt1l8dEuBFjEq22MZ7sCRB8Bqt7Mlw1M1wypReJH5iyIIMaWY7UdBqw6BPxBWv/gjEMkQOJySJeenf9x/riJQA2/Yw2L/zRB5B5tp1izjB9hr+7jlYivdQO0=
+Message-ID: <450C3199.5030405@gmail.com>
+Date: Sat, 16 Sep 2006 11:17:13 -0600
+From: Jim Cromie <jim.cromie@gmail.com>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060909)
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-CC: gregkh@suse.de, torvalds@osdl.org
-Subject: [PATCH -rc7] 3rd try: Documentation/ABI: devfs is not obsolete, but
- removed!
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
+To: David Hubbard <david.c.hubbard@gmail.com>
+CC: LM Sensors <lm-sensors@lm-sensors.org>,
+       Linux kernel <linux-kernel@vger.kernel.org>, Greg KH <greg@kroah.com>
+Subject: Re: [lm-sensors] [RFC-patch 0/3] SuperIO locks coordinator
+References: <87fyf5jnkj.fsf@willow.rfc1149.net>	 <1157815525.6877.43.camel@localhost.localdomain>	 <20060909220256.d4486a4f.vsu@altlinux.ru> <4508FF2F.5020504@gmail.com>	 <4509D08C.7020901@gmail.com>	 <4dfa50520609141753h34e54fdayba62f1b127d58036@mail.gmail.com>	 <450A54EB.1020305@gmail.com> <4dfa50520609151118s65a980b4td143a9fbbfeb1798@mail.gmail.com>
+In-Reply-To: <4dfa50520609151118s65a980b4td143a9fbbfeb1798@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi everybody, Greg, Linus,
+David Hubbard wrote:
+> Hi Jim,
+>
+>> BTW, are the idle/activate sequences doc'd in your datasheet ?
+>> I ask this cuz pc87360 has a superio-exit defined (and used), but no
+>> superio-enter(),
+>> and I couldnt find the idle/activate sequences docd in my datasheet.
+>> With the long history of copy & modify in these drivers, its possible
+>> that some cargo-cult features were inadvertently carried forward,
+>> esp when drivers are written w/o actually having the hardare.
+>>
+>> Could you disable your superio-enter(), and see if that breaks the
+>> functionality ?
+>
+> I'll do that and let you know how it goes. I suspect that the BIOS
+> initializes the w83627ehf correctly, 
+yes. very likely
+> and so the superio-enter and
+> -exit that are used may not be required...except during detection. 
 
-This little patch just moves the devfs entry from ABI/obsolete to
-ABI/removed, and adds the comment, that devfs was removed in 2.6.18.
+Also likely/possible.  Some chips can be told to map their logical 
+devices (LDs)
+to specific ISA address ranges, then those devices can be largely or 
+completely
+operated using vanilla IO operations, w/o the superio-port overheads,
+and the BIOS often takes care of this, and enables devices that the mobo
+is designed to use.
 
-The patch was send on 3. Sep and 9. Sep 2006 to the LKML but nobody 
-picked it up, so here is another chance. :-) 
+Forex:
+6600-660f : pc8736x_gpio
+6620-662f : pc87360
+6640-664f : pc87360
 
-The patch is against linus' current git tree and it would be nice to 
-see it in the final 2.6.18 kernel.
+To complicate things, some LDs have features that are only controllable
+via superio, pc8736x GPIO has runtime regs and configuration regs, the 
+latter
+are only available via superio.  These LDs are much more dependent upon
+proper superio locking, vs hwmon/pc87360, which uses vanilla IO after 
+detection,
+and thus releases the superio-reservation once detection/initialization 
+is complete.
 
-Please cc: me!  Kind regards, Jens
+FYI - GregKH said this on LKML, re 2.6.19
+http://marc.theaimsgroup.com/?l=linux-kernel&m=115778993800623&w=2
 
-
-Signed-off-by: jens m. noedler <noedler@web.de>
-
----
-
-diff --git a/Documentation/ABI/obsolete/devfs b/Documentation/ABI/obsolete/devfs
-deleted file mode 100644
-index b8b8739..0000000
---- a/Documentation/ABI/obsolete/devfs
-+++ /dev/null
-@@ -1,13 +0,0 @@
--What:		devfs
--Date:		July 2005
--Contact:	Greg Kroah-Hartman <gregkh@suse.de>
--Description:
--	devfs has been unmaintained for a number of years, has unfixable
--	races, contains a naming policy within the kernel that is
--	against the LSB, and can be replaced by using udev.
--	The files fs/devfs/*, include/linux/devfs_fs*.h will be removed,
--	along with the the assorted devfs function calls throughout the
--	kernel tree.
--
--Users:
--
-diff --git a/Documentation/ABI/removed/devfs b/Documentation/ABI/removed/devfs
-new file mode 100644
-index 0000000..8195c4e
---- /dev/null
-+++ b/Documentation/ABI/removed/devfs
-@@ -0,0 +1,12 @@
-+What:		devfs
-+Date:		July 2005 (scheduled), finally removed in kernel v2.6.18
-+Contact:	Greg Kroah-Hartman <gregkh@suse.de>
-+Description:
-+	devfs has been unmaintained for a number of years, has unfixable
-+	races, contains a naming policy within the kernel that is
-+	against the LSB, and can be replaced by using udev.
-+	The files fs/devfs/*, include/linux/devfs_fs*.h were removed,
-+	along with the the assorted devfs function calls throughout the
-+	kernel tree.
-+
-+Users:
+	- The driver core was changed to allow multi-threaded device
+	  probing.  This means that every device added to the system
+	  gets a new kernel thread in which to do the probe sequence.
+	  The PCI subsystem was modified to allow PCI drivers to do this
+	  (this is made a configuration option, as it breaks numerous
+	  boxes if enabled).  It does have the potential to speed up the
+	  boot sequence a lot for some machines, and is even measurable
+	  on single processor laptops.
 
 
--- 
-jens m. noedler
-  noedler@web.de
-  pgp: 0x9f0920bb
-  http://noedler.de
+This appears to increase the potential of problems related to current 
+lack of superio locking,
+
+
+> The
+> w83627ehf is mapped into ISA I/O space (probably by the BIOS). So I'll
+> test my theory and get back to you soon.
+>
+thanks.
+
+> David
+>
+jimc

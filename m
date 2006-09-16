@@ -1,54 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964793AbWIPM6e@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751332AbWIPNkO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964793AbWIPM6e (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Sep 2006 08:58:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964799AbWIPM6e
+	id S1751332AbWIPNkO (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Sep 2006 09:40:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751337AbWIPNkO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Sep 2006 08:58:34 -0400
-Received: from ug-out-1314.google.com ([66.249.92.169]:59656 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S964793AbWIPM6e (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Sep 2006 08:58:34 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=Xes8MobtaG5YAdbuHyYwN5z5I0p6wQ3eeIS07XwAxf1hBL7ssf3L/myYJPF51sz1Dw+LFMxhA+12zoReoToCSn2njsofhR7U5xjPU2F6IXRf7YVNQhHcihLylM/IP0R684UdEMQeJVhhYPlZ/RTRUQj3+c7301F+coF6icmnHSQ=
-Message-ID: <450BF4E9.2040407@gmail.com>
-Date: Sat, 16 Sep 2006 14:57:54 +0159
-From: Jiri Slaby <jirislaby@gmail.com>
-User-Agent: Thunderbird 2.0a1 (X11/20060724)
-MIME-Version: 1.0
-To: Jiri Slaby <jirislaby@gmail.com>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] mxser: PCI refcounts
-References: <1158329578.29932.38.camel@localhost.localdomain> <450BF0A1.4040807@gmail.com>
-In-Reply-To: <450BF0A1.4040807@gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 16 Sep 2006 09:40:14 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:23480 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1751332AbWIPNkN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 16 Sep 2006 09:40:13 -0400
+Date: Sat, 16 Sep 2006 14:39:47 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Cc: Steven Whitehouse <swhiteho@redhat.com>, linux-kernel@vger.kernel.org,
+       Russell Cattelan <cattelan@redhat.com>,
+       David Teigland <teigland@redhat.com>, Ingo Molnar <mingo@elte.hu>,
+       hch@infradead.org
+Subject: Re: [PATCH 05/16] GFS2: File and inode operations
+Message-ID: <20060916133947.GA1498@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Jan Engelhardt <jengelh@linux01.gwdg.de>,
+	Steven Whitehouse <swhiteho@redhat.com>,
+	linux-kernel@vger.kernel.org,
+	Russell Cattelan <cattelan@redhat.com>,
+	David Teigland <teigland@redhat.com>, Ingo Molnar <mingo@elte.hu>
+References: <1157031183.3384.793.camel@quoit.chygwyn.com> <Pine.LNX.4.61.0609040824290.9108@yvahk01.tjqt.qr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0609040824290.9108@yvahk01.tjqt.qr>
+User-Agent: Mutt/1.4.2.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jiri Slaby wrote:
-> Alan Cox wrote:
->> Switch to pci ref counts for mxser when handling PCI devices. Use
->> pci_get_device and drop the reference when we finish and unload.
 > 
-> Please, don't do that. These all drivers need to be rewritten to pci 
-> probing (for this one I have a patch, but I waited for confirmation of 
-> previous patchset, but nothing has come, so perhaps I will clone it as 
-> NEW/EXPERIMENTAL 1.9.1-with-pci-probing-driver) and when pci_find_device 
-> is there, we can `grep -r` it to know, which drivers need that. The same 
+> >+struct file gfs2_internal_file_sentinal = {
+> >+	.f_flags = O_NOATIME|O_RDONLY,
+> >+};
 
-Just a note. I tried to do all this work, but it was nacked:
-http://www.fi.muni.cz/~xslaby/unpr/linux_patches/pci_find/
+Statically allocation a struct file is not allowed.  Where do you use
+gfs2_internal_read?  It really shouldn't be needed.
 
-You can pick up from there some patches for non-device drivers (such as buses or 
-so), if you want to not do the work yourself again...
+> >+static int gfs2_readdir(struct file *file, void *dirent, filldir_t filldir)
+> >+{
+> >+	int error;
+> >+
+> >+	if (strcmp(current->comm, "nfsd") != 0)
+> 
+> Is not there a better way to do this? Note that there is also a "nfsd4" process
 
-regards,
--- 
-http://www.fi.muni.cz/~xslaby/            Jiri Slaby
-faculty of informatics, masaryk university, brno, cz
-e-mail: jirislaby gmail com, gpg pubkey fingerprint:
-B674 9967 0407 CE62 ACC8  22A0 32CC 55C3 39D4 7A7E
+This is in fact not allowed at at all.  Please fix you readdir code not to
+need special cases for nfsd.
+

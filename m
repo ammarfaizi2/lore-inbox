@@ -1,75 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932241AbWIPAFP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932247AbWIPANO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932241AbWIPAFP (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 15 Sep 2006 20:05:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932243AbWIPAFP
+	id S932247AbWIPANO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 15 Sep 2006 20:13:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932249AbWIPANO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 15 Sep 2006 20:05:15 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:4534 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932241AbWIPAFN (ORCPT
+	Fri, 15 Sep 2006 20:13:14 -0400
+Received: from xenotime.net ([66.160.160.81]:24969 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S932247AbWIPANN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 15 Sep 2006 20:05:13 -0400
-Date: Sat, 16 Sep 2006 01:57:07 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Nicholas Miell <nmiell@comcast.net>
-Cc: Roman Zippel <zippel@linux-m68k.org>, Thomas Gleixner <tglx@linutronix.de>,
-       karim@opersys.com, Andrew Morton <akpm@osdl.org>,
-       Paul Mundt <lethal@linux-sh.org>, Jes Sorensen <jes@sgi.com>,
-       Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
-       linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
-       Ingo Molnar <mingo@redhat.com>, Greg Kroah-Hartman <gregkh@suse.de>,
-       Tom Zanussi <zanussi@us.ibm.com>, ltt-dev@shafik.org,
-       Michel Dagenais <michel.dagenais@polymtl.ca>
-Subject: Re: [PATCH 0/11] LTTng-core (basic tracing infrastructure) 0.5.108
-Message-ID: <20060915235707.GB29929@elte.hu>
-References: <1158348954.5724.481.camel@localhost.localdomain> <450B0585.5070700@opersys.com> <1158351780.5724.507.camel@localhost.localdomain> <Pine.LNX.4.64.0609152236010.6761@scrub.home> <20060915204812.GA6909@elte.hu> <Pine.LNX.4.64.0609152314250.6761@scrub.home> <20060915215112.GB12789@elte.hu> <Pine.LNX.4.64.0609160018110.6761@scrub.home> <20060915231419.GA24731@elte.hu> <1158364161.2352.9.camel@entropy>
+	Fri, 15 Sep 2006 20:13:13 -0400
+Date: Fri, 15 Sep 2006 17:14:27 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, rossb@google.com, sam@ravnborg.org
+Subject: Re: + allow-proc-configgz-to-be-built-as-a-module.patch added to
+ -mm tree
+Message-Id: <20060915171427.1054e78d.rdunlap@xenotime.net>
+In-Reply-To: <20060915164135.34adb303.akpm@osdl.org>
+References: <200609152158.k8FLw7ud018089@shell0.pdx.osdl.net>
+	<20060915154752.d7bdb8a0.rdunlap@xenotime.net>
+	<20060915164135.34adb303.akpm@osdl.org>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1158364161.2352.9.camel@entropy>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -2.9
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.9 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5000]
-	-0.1 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 15 Sep 2006 16:41:35 -0700 Andrew Morton wrote:
 
-* Nicholas Miell <nmiell@comcast.net> wrote:
+> On Fri, 15 Sep 2006 15:47:52 -0700
+> "Randy.Dunlap" <rdunlap@xenotime.net> wrote:
+> 
+> > On Fri, 15 Sep 2006 14:58:06 -0700 akpm@osdl.org wrote:
+> > 
+> > > 
+> > > The patch titled
+> > > 
+> > >      allow /proc/config.gz to be built as a module
+> > > 
+> > > has been added to the -mm tree.  Its filename is
+> > > 
+> > >      allow-proc-configgz-to-be-built-as-a-module.patch
+> > > 
+> > > See http://www.zip.com.au/~akpm/linux/patches/stuff/added-to-mm.txt to find
+> > > out what to do about this
+> > > 
+> > > ------------------------------------------------------
+> > > Subject: allow /proc/config.gz to be built as a module
+> > > From: Ross Biro <rossb@google.com>
+> > 
+> > When/where was this patch submitted?  I seem to have missed it
+> > (or it was so long ago that I forgot about it).
+> 
+> Ross wrote it today and I stole it.
+> 
+> > > The driver for /proc/config.gz consumes rather a lot of memory and it is in
+> > > fact possible to build it as a module.
+> > 
+> > Can you try to quantify "rather a lot of memory"?
+> 
+> I confused it with /proc/kallsyms.  No, /proc/config.gz doesn't use much
+> memory.
+> 
+> > > In some ways this is a bit risky, because the .config which is used for
+> > > compiling kernel/configs.c isn't necessarily the same as the .config which was
+> > > used to build vmlinux.
+> > 
+> > and that's why a module wasn't allowed.
+> > It's not worth the risk IMO.
+> 
+> I'd want to be hearing from distro people on that - I'd expect that the
+> .config which is used to build configs.ko would not differ from that which
+> is used to build vmlinux.
+> 
+> Plus it's configurable.
+> 
+> Am not particularly fussed either way, really.  It would be better if
+> treading on /proc/config.gz were to cause a modprobe of the driver for it,
+> but procfs doesn't work that way.
 
-> You're going to want to be able to trace every function in the kernel, 
-> which means they'd all need a __trace -- and in that case, a 
-> -fpad-functions-for-tracing gcc option would make more sense then 
-> per-function attributes.
+I'm not terribly fussed either way either.  We have just about
+hit my quota/limit for discussion of this patch.  :)
 
-the __trace attribute would be a _specific_ replacement for a _specific_ 
-static markup at the entry of a function. So no, we would not want to 
-add __trace to _every_ function in the kernel: only those which get 
-commonly traced. And note that SystemTap can trace the rest too, just 
-with slighly higher overhead.
+If memory is an issue, one should just build the .config file
+into the kernel image and use scripts/extract-ikconfig to
+read it back (IMHO).
 
-In that sense __trace is not an enabling infrastructure, it's a 
-performance tuning infrastructure.
-
-> The option could also insert NOPs before RETs, not just before the 
-> prologue so that function returns are equally easy to trace. (It might 
-> also inhibit tail calls, assuming being able to trace all function 
-> returns is more important than that optimization.)
-
-yeah. __trace_entry and __trace_exit [or both] attributes. Makes sense.
-
-> And SystemTap can already hook into sock_sendmsg() (or any other 
-> function) and examine it's arguments -- all of this GCC extension talk 
-> is just performance enhancement.
-
-yes, yes, yes, exactly!!! Finally someone reads my mails and understands 
-my points. There's hope! ;)
-
-	Ingo
+---
+~Randy

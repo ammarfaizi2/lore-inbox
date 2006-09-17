@@ -1,54 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964896AbWIQBP4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964897AbWIQBO0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964896AbWIQBP4 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Sep 2006 21:15:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964898AbWIQBP4
+	id S964897AbWIQBO0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Sep 2006 21:14:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964898AbWIQBO0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Sep 2006 21:15:56 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:13492 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S964896AbWIQBP4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Sep 2006 21:15:56 -0400
-Date: Sun, 17 Sep 2006 03:15:17 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Ingo Molnar <mingo@elte.hu>
-cc: Thomas Gleixner <tglx@linutronix.de>, karim@opersys.com,
-       Andrew Morton <akpm@osdl.org>, Paul Mundt <lethal@linux-sh.org>,
-       Jes Sorensen <jes@sgi.com>,
-       Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
-       linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
-       Ingo Molnar <mingo@redhat.com>, Greg Kroah-Hartman <gregkh@suse.de>,
-       Tom Zanussi <zanussi@us.ibm.com>, ltt-dev@shafik.org,
-       Michel Dagenais <michel.dagenais@polymtl.ca>
-Subject: Re: [PATCH 0/11] LTTng-core (basic tracing infrastructure) 0.5.108
-In-Reply-To: <20060916230031.GB20180@elte.hu>
-Message-ID: <Pine.LNX.4.64.0609170310580.6761@scrub.home>
-References: <1158351780.5724.507.camel@localhost.localdomain>
- <Pine.LNX.4.64.0609152236010.6761@scrub.home> <20060915204812.GA6909@elte.hu>
- <Pine.LNX.4.64.0609152314250.6761@scrub.home> <20060915215112.GB12789@elte.hu>
- <Pine.LNX.4.64.0609160018110.6761@scrub.home> <20060915231419.GA24731@elte.hu>
- <Pine.LNX.4.64.0609160139130.6761@scrub.home> <20060916082214.GD6317@elte.hu>
- <Pine.LNX.4.64.0609161831270.6761@scrub.home> <20060916230031.GB20180@elte.hu>
+	Sat, 16 Sep 2006 21:14:26 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:59154 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S964896AbWIQBOZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 16 Sep 2006 21:14:25 -0400
+Date: Sun, 17 Sep 2006 03:13:52 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: rossb <rossb@google.com>
+Cc: Arjan van de Ven <arjan@infradead.org>,
+       "Randy.Dunlap" <rdunlap@xenotime.net>, linux-kernel@vger.kernel.org,
+       akpm@osdl.org, mm-commits@vger.kernel.org, akpm@google.com,
+       sam@ravnborg.org
+Subject: Re: + allow-proc-configgz-to-be-built-as-a-module.patch added to -mm tree
+Message-ID: <20060917011352.GM669@stusta.de>
+References: <200609152158.k8FLw7ud018089@shell0.pdx.osdl.net> <20060915154752.d7bdb8a0.rdunlap@xenotime.net> <1158407250.5152.60.camel@laptopd505.fenrus.org> <d43160c70609161748n2af1c88cx33344e7da3e2b302@mail.google.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <d43160c70609161748n2af1c88cx33344e7da3e2b302@mail.google.com>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sat, Sep 16, 2006 at 08:48:26PM -0400, rossb wrote:
+> On 9/16/06, Arjan van de Ven <arjan@infradead.org> wrote:
+> >> > In some ways this is a bit risky, because the .config which is used for
+> >> > compiling kernel/configs.c isn't necessarily the same as the .config 
+> >which was
+> >> > used to build vmlinux.
+> >>
+> >> and that's why a module wasn't allowed.
+> >> It's not worth the risk IMO.
+> 
+> The problem is, the patch is basically s/bool/tristate/ so you can't
+> really count on /proc/config.gz anyway.  It's a lot like security
+> through obscurity.
+> 
+> >One hack we could do is make an md5sum or similar of the config and
+> >stick that somewhere which is built in and always available (proc or
+> >sysfs or something like that); that can be used to validate any config
+> >basically to be "correct matching". In fact we could even make it
+> >(optionally) part of the VERMAGIC to avoid any kind of mismatch at all.
+> 
+> Not a bad idea, but I think you want to be able to edit your config
+> before compiling modules.  In particular, you might want to turn
+> something from off to module.
+> 
+> How about we embed the md5sum of the config in the kernel, make it
+> available via /proc or /sysfs and then have /proc/config.gz return an
+> error in the event the md5sum doesn't match?
 
-On Sun, 17 Sep 2006, Ingo Molnar wrote:
+IMHO this all sounds like overdesigning something that is only a quick 
+hack that is sometimes handy:
 
-> Lets see the equation of the current situation. On one side you want 
-> static tracing but you dont want to implement kprobes on m68k - although 
-> you probably could.
+If you don't want to waste kernel memory, set CONFIG_IKCONFIG=n.
 
-You would have a point if would it be just about m68k.
+If you are building a kernel for a distribution kernel, set 
+CONFIG_IKCONFIG=n and place the .config in /boot/config-*
+(or a similar place).
 
-> On the other side there is the main kernel, which, 
-> if it ever accepted static tracepoints, could probably never get rid of 
-> them.
+We don't need a sophisticated well-defined semantics for the case when 
+the .config changes due to additional modules selected or other special 
+cases.
 
-If they are useful and not hurting anyone, why should we?
+>    Ross
 
-bye, Roman
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

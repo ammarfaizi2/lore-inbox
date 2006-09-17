@@ -1,38 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964876AbWIQAGs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964879AbWIQAMm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964876AbWIQAGs (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Sep 2006 20:06:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964878AbWIQAGs
+	id S964879AbWIQAMm (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Sep 2006 20:12:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964880AbWIQAMm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Sep 2006 20:06:48 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:45025 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S964876AbWIQAGr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Sep 2006 20:06:47 -0400
-Subject: Re: show all modules which taint the kernel ?
-From: Lee Revell <rlrevell@joe-job.com>
-To: Dave Jones <davej@redhat.com>
-Cc: devzero@web.de, linux-kernel@vger.kernel.org
-In-Reply-To: <20060916234622.GA28649@redhat.com>
-References: <1313042030@web.de>  <20060916234622.GA28649@redhat.com>
-Content-Type: text/plain
-Date: Sat, 16 Sep 2006 20:07:49 -0400
-Message-Id: <1158451669.27690.10.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+	Sat, 16 Sep 2006 20:12:42 -0400
+Received: from relay02.mail-hub.dodo.com.au ([202.136.32.45]:47036 "EHLO
+	relay02.mail-hub.dodo.com.au") by vger.kernel.org with ESMTP
+	id S964879AbWIQAMl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 16 Sep 2006 20:12:41 -0400
+From: Grant Coady <grant_lkml@dodo.com.au>
+To: Chris Frost <chris@frostnet.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: PROBLEM: 2.4 oops: proc_pid_stat()
+Date: Sun, 17 Sep 2006 10:12:38 +1000
+Organization: http://bugsplatter.mine.nu/
+Reply-To: Grant Coady <gcoady.lk@gmail.com>
+Message-ID: <7m4pg21bp6a1vci4jnql4r33rcg893q5is@4ax.com>
+References: <20060916232402.GW13465@pooh.cs.ucla.edu>
+In-Reply-To: <20060916232402.GW13465@pooh.cs.ucla.edu>
+X-Mailer: Forte Agent 2.0/32.652
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-09-16 at 19:46 -0400, Dave Jones wrote:
-> On Sat, Sep 16, 2006 at 08:58:20PM +0200, devzero@web.de wrote:
->  > but that "Modules linked in: radeon(U) drm(U) ipv6(U) autofs4(U)...." message has been reported to originate from a fc5 (fedora) kernel. fedora probably also using that novell/suse extension ?
-> 
-> Different. The Fedora kernel reports U for modules that weren't shipped with
-> the Fedora kernel. (It uses gpg signed modules).
+On Sat, 16 Sep 2006 16:24:02 -0700, Chris Frost <chris@frostnet.net> wrote:
 
-Vendor kernels aside, would it be useful for mainline to report this
-information - something like nvidia(P) in the module list?
+>[1.] One line summary of the problem:
+>2.4.32 proc_pid_stat() repeatedly segfaults.
+>
+>[2.] Full description of the problem/report:
+>2.4.32 kernel, after being up for a few days to a few weeks, repeatedly
+>segfaults in proc_pid_stat(), triggered by w, ps, and other programs.
 
-Lee
+Problem not seen here, try 2.4.33.3 kernel?
 
+Grant.

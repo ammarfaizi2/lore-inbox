@@ -1,98 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964914AbWIQPgi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964857AbWIQPeF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964914AbWIQPgi (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Sep 2006 11:36:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964915AbWIQPgi
+	id S964857AbWIQPeF (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Sep 2006 11:34:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964819AbWIQPeF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Sep 2006 11:36:38 -0400
-Received: from tomts43-srv.bellnexxia.net ([209.226.175.110]:35223 "EHLO
-	tomts43-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id S964914AbWIQPgh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Sep 2006 11:36:37 -0400
-Date: Sun, 17 Sep 2006 11:36:33 -0400
-From: Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Paul Mundt <lethal@linux-sh.org>, Karim Yaghmour <karim@opersys.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Ingo Molnar <mingo@redhat.com>, Jes Sorensen <jes@sgi.com>,
-       Andrew Morton <akpm@osdl.org>, Roman Zippel <zippel@linux-m68k.org>,
-       Tom Zanussi <zanussi@us.ibm.com>,
-       Richard J Moore <richardj_moore@uk.ibm.com>,
-       "Frank Ch. Eigler" <fche@redhat.com>,
-       Michel Dagenais <michel.dagenais@polymtl.ca>,
-       Christoph Hellwig <hch@infradead.org>,
-       Greg Kroah-Hartman <gregkh@suse.de>,
-       Thomas Gleixner <tglx@linutronix.de>, William Cohen <wcohen@redhat.com>,
-       "Martin J. Bligh" <mbligh@mbligh.org>
-Subject: Re: tracepoint maintainance models
-Message-ID: <20060917153633.GA29987@Krystal>
-References: <450D182B.9060300@opersys.com> <20060917112128.GA3170@localhost.usen.ad.jp> <20060917143623.GB15534@elte.hu>
+	Sun, 17 Sep 2006 11:34:05 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:33430 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S964857AbWIQPeE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Sep 2006 11:34:04 -0400
+Date: Sun, 17 Sep 2006 17:25:27 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>, karim@opersys.com,
+       Andrew Morton <akpm@osdl.org>, Paul Mundt <lethal@linux-sh.org>,
+       Jes Sorensen <jes@sgi.com>,
+       Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
+       linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
+       Ingo Molnar <mingo@redhat.com>, Greg Kroah-Hartman <gregkh@suse.de>,
+       Tom Zanussi <zanussi@us.ibm.com>, ltt-dev@shafik.org,
+       Michel Dagenais <michel.dagenais@polymtl.ca>
+Subject: Re: [PATCH 0/11] LTTng-core (basic tracing infrastructure) 0.5.108
+Message-ID: <20060917152527.GC20225@elte.hu>
+References: <20060915215112.GB12789@elte.hu> <Pine.LNX.4.64.0609160018110.6761@scrub.home> <20060915231419.GA24731@elte.hu> <Pine.LNX.4.64.0609160139130.6761@scrub.home> <20060916082214.GD6317@elte.hu> <Pine.LNX.4.64.0609161831270.6761@scrub.home> <20060916230031.GB20180@elte.hu> <Pine.LNX.4.64.0609170310580.6761@scrub.home> <20060917084207.GA8738@elte.hu> <Pine.LNX.4.64.0609171627400.6761@scrub.home>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060917143623.GB15534@elte.hu>
-X-Editor: vi
-X-Info: http://krystal.dyndns.org:8080
-X-Operating-System: Linux/2.4.32-grsec (i686)
-X-Uptime: 11:06:25 up 25 days, 12:15,  3 users,  load average: 1.75, 1.68, 1.51
-User-Agent: Mutt/1.5.13 (2006-08-11)
+In-Reply-To: <Pine.LNX.4.64.0609171627400.6761@scrub.home>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -2.9
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.9 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5000]
+	-0.1 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-* Ingo Molnar (mingo@elte.hu) wrote:
->   - model #2: we could have the least intrusive markers in the main
->     kernel source, while the more intrusive ones would still be in the
->     upstream kernel, but in scripts/instrumentation/.
-> 
+* Roman Zippel <zippel@linux-m68k.org> wrote:
 
-Please define : marker intrusiveness. I think that this is not a sole concept.
-First, I think we have to look at intrusiveness under three different angles :
+> Ingo, you happily still ignore my primary issues, how serious do you 
+> expect me to take this?
 
-- Visual intrusiveness (hurts visually in the code)
-- Compiled-in, but inactive intrusiveness
-  - Modifies compiler optimisations when the marker is compiled in but no
-    tracing is active.
-  - Wastes a few cycles because it adds NOPs, jump, etc in a critical path
-    when tracing is not active.
-- Active tracing intrusiveness
-  - Wastes too many cycles in a critical path when tracing is active.
+I did not ignore your new "primary issues", to the contrary. Please read 
+my replies. To recap, your "primary issues" are:
 
-The problem is that a static marker will speed up the active tracing while a
-dynamic probe will speed up the case where tracing is inactive. The problem is
-that the dynamic probe cost can get so big that it modifies the traced system
-often more than acceptable. Under this angle, I would be tempted to say that the
-most intrusive instrumentation should be helped by marker, which means accepting
-a very small performance impact (NOPs on modern CPUs are quite fast) when
-tracing is not active in order to enable fast tracing of some very high event
-rate kernel code paths.
+> The foremost issue is still that there is only limited kprobes 
+> support.
 
+> The main issue in supporting static tracers are the tracepoints and so 
+> far I haven't seen any convincing proof that the maintainance overhead 
+> of dynamic and static tracepoints has to be significantly different.
 
->   - model #3: we could have the 'hardest' markups in the source, and the 
->     'easy' ones as dynamic markups in scripts/instrumentation/.
-> 
-By "hardest", do you mean : where the data that is to be extracted is not easily
-available due to compiler optimisations ?
+to both points i (and others) already replied in great detail - please 
+follow up on them. (I can quote message-IDs if you cannot find them.)
 
-> So my argument isnt "dynamic markup vs. static markup", my argument is: 
-> "we shouldnt force the kernel to carry a 100% set of static markups 
-> forever". We should allow maintainers to decide the 'mix' of static vs. 
-> dynamic markups that they prefer in their subsystem.
-> 
-We completely agree on this last paragraph.
+[ Or if it's not these two then let me know if i missed some important 
+  point - it's easy to miss a valid point in a sea of of replies. 
+  For example yesterday i have replied to 7 different issues _you_ 
+  raised, partly issues where you have questioned my credibility and 
+  competence, so i felt compelled to reply - but still you replied to 
+  none of those mails, only declaring them "secondary" in a passing 
+  reference. If they were secondary then why did you raise them in the 
+  first place? Or do you summarily concede all those points by not 
+  replying to them? And is there any guarantee that you will reply to
+  any mails i write to you now? Will you declare them "secondary" too 
+  once the argument appears to turn unfavorable to your position? ]
 
-> i agree, as long as it's lightweight markers for _dynamic tracers_, so 
-> that we keep our options open - as per the arguments above.
+	Ingo
 
-But I also think that a marker mechanism should not only mark the code location
-where the instrumentation is to be made, but also the information the probe is
-interested into (provide compile-time data type verification and address at
-runtime). Doing otherwise would limit what could be provided to static markup
-users.
-
-Mathieu
-
-OpenPGP public key:              http://krystal.dyndns.org:8080/key/compudj.gpg
-Key fingerprint:     8CD5 52C3 8E3C 4140 715F  BA06 3F25 A8FE 3BAE 9A68 

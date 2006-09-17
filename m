@@ -1,66 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965143AbWIQWnT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965141AbWIQXCP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965143AbWIQWnT (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Sep 2006 18:43:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965144AbWIQWnT
+	id S965141AbWIQXCP (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Sep 2006 19:02:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965148AbWIQXCP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Sep 2006 18:43:19 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:10177 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S965143AbWIQWnS (ORCPT
+	Sun, 17 Sep 2006 19:02:15 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:43746 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S965141AbWIQXCO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Sep 2006 18:43:18 -0400
-Date: Mon, 18 Sep 2006 00:34:55 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Paul Mundt <lethal@linux-sh.org>, Karim Yaghmour <karim@opersys.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Ingo Molnar <mingo@redhat.com>, Jes Sorensen <jes@sgi.com>,
-       Andrew Morton <akpm@osdl.org>, Tom Zanussi <zanussi@us.ibm.com>,
-       Richard J Moore <richardj_moore@uk.ibm.com>,
-       "Frank Ch. Eigler" <fche@redhat.com>,
-       Michel Dagenais <michel.dagenais@polymtl.ca>,
-       Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
-       Christoph Hellwig <hch@infradead.org>,
-       Greg Kroah-Hartman <gregkh@suse.de>,
-       Thomas Gleixner <tglx@linutronix.de>, William Cohen <wcohen@redhat.com>,
-       "Martin J. Bligh" <mbligh@mbligh.org>
-Subject: Re: tracepoint maintainance models
-Message-ID: <20060917223455.GC8791@elte.hu>
-References: <450D182B.9060300@opersys.com> <20060917112128.GA3170@localhost.usen.ad.jp> <20060917143623.GB15534@elte.hu> <Pine.LNX.4.64.0609171651370.6761@scrub.home> <20060917150953.GB20225@elte.hu> <Pine.LNX.4.64.0609171935070.6761@scrub.home>
+	Sun, 17 Sep 2006 19:02:14 -0400
+Date: Mon, 18 Sep 2006 09:01:52 +1000
+From: David Chinner <dgc@sgi.com>
+To: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
+Cc: David Chinner <dgc@sgi.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, xfs-masters@oss.sgi.com,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [xfs-masters] Re: 2.6.18-rc6-mm2
+Message-ID: <20060917230152.GS3034@melbourne.sgi.com>
+References: <450914C4.2080607@gmail.com> <6bffcb0e0609140150n7499bf54k86e2b7da47766005@mail.gmail.com> <20060914090808.GS3024@melbourne.sgi.com> <6bffcb0e0609140229r59691de5i58d2d81f839d744e@mail.gmail.com> <6bffcb0e0609140303n72a73867qb308f5068733161c@mail.gmail.com> <6bffcb0e0609141001ic137201p6a2413f5ca915234@mail.gmail.com> <20060915025745.GM3034@melbourne.sgi.com> <20060914204801.e37a112b.akpm@osdl.org> <20060915055831.GP3034@melbourne.sgi.com> <6bffcb0e0609150106u1e97020bn5788f864e68ff045@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0609171935070.6761@scrub.home>
+In-Reply-To: <6bffcb0e0609150106u1e97020bn5788f864e68ff045@mail.gmail.com>
 User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -2.9
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.9 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.4375]
-	-0.1 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Roman Zippel <zippel@linux-m68k.org> wrote:
-
-> Hi,
+On Fri, Sep 15, 2006 at 10:06:48AM +0200, Michal Piotrowski wrote:
+> On 15/09/06, David Chinner <dgc@sgi.com> wrote:
+> >On Thu, Sep 14, 2006 at 08:48:01PM -0700, Andrew Morton wrote:
+> >> "BAD" is a bisection point, as per
+> >> http://www.zip.com.au/~akpm/linux/patches/stuff/bisecting-mm-trees.txt.  
+> >So
+> >> just 2.6.18-rc6+origin.patch exhibits the failure.  That is mainline.
+> >
+> >Ah - thanks for explaining that for me, Andrew.
+> >
+> >Michal, there were several XFS fixes (4, I think) that went into -rc7.  If
+> >-rc6 fails and -rc7 doesn't then we need to check if one of those fixes is
+> >responsible.
 > 
-> On Sun, 17 Sep 2006, Ingo Molnar wrote:
+> As I said before "I was wrong" (I use lockdep only with -mm kernels).
 > 
-> > Static tracers also need the 
-> > guarantee of a _full set_ of static markups. It is that _guarantee_ of a 
-> > full set that i'm arguing against primarily.
+> >The crash doesn't match any of the symptoms we've seen from them,
+> >but it's worth checking.
 > 
-> To those who are still reading this, let's fill this with a bit of 
-> meaning (Ingo is unfortunately rather unspecific here):
+> http://www.ussg.iu.edu/hypermail/linux/kernel/0608.1/1202.html
+> 
+> The problem with this bug is "bad interaction" between lockdep and
+> XFS. (I forgot about this probably because lockdep was broken for me
+> in 2.6.18-rc5-mm* - and previous bug appeared while mounting XFS, not
+> umounting).
 
-Please make your own points instead of positing to "fill in" my points 
-with "a bit of meaning". My words can certainly speak for themselves, 
-and they do so in extensive specificity.
+According to the above link, unmount was the problem as well.
 
-	Ingo
+I know little about lockdep, but if this really is the superblock
+lock that we are oopsing on then I cannot see how XFS is involved
+at all seeing as it does not ever touch the superblock lock.
+
+I'd say the first step is to get a lockdep expert to explain why
+we are oopsing here....
+
+> 2006-07-03 locdep was merged
+> 2006-07-28 - 2006-08-10 a few XFS fixes
+> 
+> So I guess that binary search won't solve this mystery.
+
+Don't use lockdep with XFS yet. XFS hasn't been instrumented
+with lockdep notations, so nothing good will come from using
+it right now. There is work in progress to fix this, but it's not
+ready yet.
+
+Cheers,
+
+Dave.
+-- 
+Dave Chinner
+Principal Engineer
+SGI Australian Software Group

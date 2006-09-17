@@ -1,44 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964952AbWIQDqa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932123AbWIQFB0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964952AbWIQDqa (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Sep 2006 23:46:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964955AbWIQDqa
+	id S932123AbWIQFB0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Sep 2006 01:01:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932161AbWIQFB0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Sep 2006 23:46:30 -0400
-Received: from smtp106.mail.mud.yahoo.com ([209.191.85.216]:9864 "HELO
-	smtp106.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S964952AbWIQDqa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Sep 2006 23:46:30 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=3gQKGSVD92jGVpsSMxo7jAmvBaIT54fXgSSR0KjABaSfHBO39LnQNqyDhtwVvivj6eCPyWOBlmhhvGSlxdH73+FcyNeWpaS5b48nWeHqrtkPsJPdU2ZhPxKtMkKdMoCMIc4tPx5BB/QUCzDWSLOJlVLKxU+225QxLysUOCeIfC0=  ;
-Message-ID: <450CC50F.2090501@yahoo.com.au>
-Date: Sun, 17 Sep 2006 13:46:23 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: "Josef 'Jeff' Sipek" <jeffpc@josefsipek.net>
-CC: linux-kernel@vger.kernel.org, akpm@osdl.org, dhowells@redhat.com
-Subject: Re: [PATCH 0 of 11] Use SEEK_{SET,CUR,END} instead of hardcoded values
-References: <patchbomb.1158455366@turing.ams.sunysb.edu>
-In-Reply-To: <patchbomb.1158455366@turing.ams.sunysb.edu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 17 Sep 2006 01:01:26 -0400
+Received: from main.gmane.org ([80.91.229.2]:40408 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S932123AbWIQFBZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Sep 2006 01:01:25 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Ganesan Rajagopal <rganesan@myrealbox.com>
+Subject: Re: [PATCH 0/11] LTTng-core (basic tracing infrastructure) 0.5.108
+Date: Sun, 17 Sep 2006 10:24:23 +0530
+Message-ID: <xkvh64fn6qkg.fsf@grajagop-lnx.cisco.com>
+References: <Pine.LNX.4.64.0609151535030.6761@scrub.home> <20060915135709.GB8723@localhost.usen.ad.jp> <450AB5F9.8040501@opersys.com> <450AB506.30802@sgi.com> <450AB957.2050206@opersys.com> <20060915142836.GA9288@localhost.usen.ad.jp> <450ABE08.2060107@opersys.com> <1158332447.5724.423.camel@localhost.localdomain> <20060915111644.c857b2cf.akpm@osdl.org> <20060915181907.GB17581@elte.hu> <20060915131317.aaadf568.akpm@osdl.org> <450BCF97.3000901@sgi.com> <450C20C7.30604@opersys.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: grajagop-lnx.cisco.com
+User-Agent: Gnus/5.11 (Gnus v5.11) Emacs/22.0.51 (gnu/linux)
+Cancel-Lock: sha1:WmWAgF8aVLcV1wIaesnd3MsgBGc=
+Cc: ltt-dev@shafik.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Josef 'Jeff' Sipek wrote:
-> In July, David Howells added SEEK_{SET,CUR,END} definitions to include/linux/fs.h
-> 
-> The following patches convert offenders which were found by grep'ing the source
-> tree.
+>>>>> Karim Yaghmour <karim@opersys.com> writes:
 
-Looks like a good change to me.
+> And I submit to you an idea which I submitted to Ingo yesterday and have
+> not yet received feedback on. Here's static markup as it could be
+> implemented:
+>
+> The plain function:
+>  int global_function(int arg1, int arg2, int arg3)
+>  {
+>          ... [lots of code] ...
+>
+>          x = func2();
+>
+>          ... [lots of code] ...
+>  }
+>
+> The function with static markup:
+>  int global_function(int arg1, int arg2, int arg3)
+>  {
+>          ... [lots of code] ...
+>
+>          x = func2(); /*T* @here:arg1,arg2,arg3 */
+>
+>          ... [lots of code] ...
+>  }
+>
+> The semantics are primitive at this stage, and they could definitely
+> benefit from lkml input, but essentially we have a build-time parser
+> that goes around the code and automagically does one of two things:
+> a) create information for binary editors to use
+> b) generate an alternative C file (foo-trace.c) with inlined static
+>    function calls.
 
-Nitpick, do you need 11 patches to do it? 1 would be fine, I think?
+This makes sense to me, when combined with kprobes. I refer to the dtrace
+Usenix http://www.sun.com/bigadmin/content/dtrace/dtrace_usenix.pdf. They
+argue (Section 4.2 Statically-defined Tracing):
+
+"While FBT (Function Boundary Tracing) allows for comprehensive probe
+coverage, one must be familar with the kernel implementation to use it
+effectively. To have probes with semantic meaning, one must allow probes to
+be statically declared in the implementation. The mechanism for implemting
+this is typically a macro that expands to a conditional call into a tracing
+framework if tracing is enabled. While the probe effect of this mechanism is
+small, it is observable: even when disabled, the expanded macro introduces a
+load, a compare and a taken branch.
+
+In keeping with our philosophy of zero probe effect when disabled, we have
+implemnted a statically defined tracing (SDT) provider by defining a C macro
+that expands to a call to a non-existent function with a well-defined prefix
+("__dtrace_probe_"). When the kernel linker sees a relocation against a
+function with this prefix, it replaces the call instruction with a
+no-operation and records the full name of the bogus function along with the
+location of the call site. Wehn the SDT provider loads, it queries the
+auxiliary structure and creates a probe with a name specified by the
+function name. When a SDT probe is enabled, teh no-operation at the call
+site is patched to be a call into an SDT-controlled trampoline that
+transfers control into DTrace."
+
+
+
+
+
 
 -- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+Ganesan Rajagopal
+

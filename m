@@ -1,80 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964898AbWIQPTi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964914AbWIQPgi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964898AbWIQPTi (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Sep 2006 11:19:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964857AbWIQPTi
+	id S964914AbWIQPgi (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Sep 2006 11:36:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964915AbWIQPgi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Sep 2006 11:19:38 -0400
-Received: from rwcrmhc15.comcast.net ([204.127.192.85]:3033 "EHLO
-	rwcrmhc15.comcast.net") by vger.kernel.org with ESMTP
-	id S964819AbWIQPTh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Sep 2006 11:19:37 -0400
-Message-ID: <450D6786.7010404@comcast.net>
-Date: Sun, 17 Sep 2006 11:19:34 -0400
-From: John Richard Moser <nigelenki@comcast.net>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060728)
-MIME-Version: 1.0
-To: Mike Galbraith <efault@gmx.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Scheduler tunables?
-References: <450C8680.6050904@comcast.net> <1158483845.6025.22.camel@Homer.simpson.net>
-In-Reply-To: <1158483845.6025.22.camel@Homer.simpson.net>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=UTF-8
+	Sun, 17 Sep 2006 11:36:38 -0400
+Received: from tomts43-srv.bellnexxia.net ([209.226.175.110]:35223 "EHLO
+	tomts43-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id S964914AbWIQPgh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Sep 2006 11:36:37 -0400
+Date: Sun, 17 Sep 2006 11:36:33 -0400
+From: Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Paul Mundt <lethal@linux-sh.org>, Karim Yaghmour <karim@opersys.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Ingo Molnar <mingo@redhat.com>, Jes Sorensen <jes@sgi.com>,
+       Andrew Morton <akpm@osdl.org>, Roman Zippel <zippel@linux-m68k.org>,
+       Tom Zanussi <zanussi@us.ibm.com>,
+       Richard J Moore <richardj_moore@uk.ibm.com>,
+       "Frank Ch. Eigler" <fche@redhat.com>,
+       Michel Dagenais <michel.dagenais@polymtl.ca>,
+       Christoph Hellwig <hch@infradead.org>,
+       Greg Kroah-Hartman <gregkh@suse.de>,
+       Thomas Gleixner <tglx@linutronix.de>, William Cohen <wcohen@redhat.com>,
+       "Martin J. Bligh" <mbligh@mbligh.org>
+Subject: Re: tracepoint maintainance models
+Message-ID: <20060917153633.GA29987@Krystal>
+References: <450D182B.9060300@opersys.com> <20060917112128.GA3170@localhost.usen.ad.jp> <20060917143623.GB15534@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20060917143623.GB15534@elte.hu>
+X-Editor: vi
+X-Info: http://krystal.dyndns.org:8080
+X-Operating-System: Linux/2.4.32-grsec (i686)
+X-Uptime: 11:06:25 up 25 days, 12:15,  3 users,  load average: 1.75, 1.68, 1.51
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Hi,
 
-
-
-Mike Galbraith wrote:
-> On Sat, 2006-09-16 at 19:19 -0400, John Richard Moser wrote:
->> -----BEGIN PGP SIGNED MESSAGE-----
->> Hash: SHA1
->>
->> It looks like the scheduler tunables have been removed from 2.6
->> somewhere before 2.6.17. 
-> 
-> Which tunables are you referring to?
-> 
+* Ingo Molnar (mingo@elte.hu) wrote:
+>   - model #2: we could have the least intrusive markers in the main
+>     kernel source, while the more intrusive ones would still be in the
+>     upstream kernel, but in scripts/instrumentation/.
 > 
 
-http://kerneltrap.org/node/525
+Please define : marker intrusiveness. I think that this is not a sole concept.
+First, I think we have to look at intrusiveness under three different angles :
 
-The relevant code changes in sysctl.h and sched.c seem to be undone.  Of
-course I'm assuming my distribution didn't just add a side patch in at
-the time when I noticed these existed so long ago.
+- Visual intrusiveness (hurts visually in the code)
+- Compiled-in, but inactive intrusiveness
+  - Modifies compiler optimisations when the marker is compiled in but no
+    tracing is active.
+  - Wastes a few cycles because it adds NOPs, jump, etc in a critical path
+    when tracing is not active.
+- Active tracing intrusiveness
+  - Wastes too many cycles in a critical path when tracing is active.
 
-- --
-All content of all messages exchanged herein are left in the
-Public Domain, unless otherwise explicitly stated.
+The problem is that a static marker will speed up the active tracing while a
+dynamic probe will speed up the case where tracing is inactive. The problem is
+that the dynamic probe cost can get so big that it modifies the traced system
+often more than acceptable. Under this angle, I would be tempted to say that the
+most intrusive instrumentation should be helped by marker, which means accepting
+a very small performance impact (NOPs on modern CPUs are quite fast) when
+tracing is not active in order to enable fast tracing of some very high event
+rate kernel code paths.
 
-    Creative brains are a valuable, limited resource. They shouldn't be
-    wasted on re-inventing the wheel when there are so many fascinating
-    new problems waiting out there.
-                                                 -- Eric Steven Raymond
 
-    We will enslave their women, eat their children and rape their
-    cattle!
-                  -- Bosc, Evil alien overlord from the fifth dimension
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.3 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+>   - model #3: we could have the 'hardest' markups in the source, and the 
+>     'easy' ones as dynamic markups in scripts/instrumentation/.
+> 
+By "hardest", do you mean : where the data that is to be extracted is not easily
+available due to compiler optimisations ?
 
-iQIVAwUBRQ1nhAs1xW0HCTEFAQJ9ow/9FJGsdk/7QT6oQxZpvHgyu7x25VBN94EG
-AVEP8LUGY8YHj51wRlJiBz03gBAukoW6ZHFjgSKhria/4L4pA1XluOvU9zA/1epk
-MXi9m84NiL7Jxf1tWadD/APuXGpGoyhDWbMC5CDZWv8Pm6ypQz4hyEQfxHKJSVke
-v09RnO1OHneJQgmOEC8zBnP7900uu+xFcoNjY+fgUi58QS18vWrySTrnrRlfTXSC
-8SULfavvsnAL5ErSzC9pyhCREl8XKsyX8LrbK7Je8hRnuhwnNdFN2TZSIKqG+kLQ
-aMYj+Dadqw4QivBjipgwSQ7rTcawBPZzkR6qIeITZ6SyNg10PGn9Bj+D1eiFpCU6
-0tUEfdhefWToXMMTYFyGr8yZP13UzPg6ND1NWwTeuEflObTlkwXEc2zIkn0EzjEK
-ETxQRq7E7v2L+eGxnddf6kPQl69BtrCfwkpapJ6YK8dV0eeRLsncvDd2XYr4/000
-aUsoh3dTqnV0s2TW4rnzRTmgTE0/U5tNsFAoVeYRKxfTGzdTE2dRrGIXyGjW+C2D
-YBLEzdkq20UMVfjGLSw0vHdr14wjnCFQwM9kK1RSgOKi31J/AHfI0bPIL4Em1a87
-8KLOV5Fk/Ri+s2+sJOSf6WE6TAkrjS+CnYm40FuROvzyKCCmNj7gMl4DDtxzvjUi
-oD/Li5Yn5Bw=
-=qLt2
------END PGP SIGNATURE-----
+> So my argument isnt "dynamic markup vs. static markup", my argument is: 
+> "we shouldnt force the kernel to carry a 100% set of static markups 
+> forever". We should allow maintainers to decide the 'mix' of static vs. 
+> dynamic markups that they prefer in their subsystem.
+> 
+We completely agree on this last paragraph.
+
+> i agree, as long as it's lightweight markers for _dynamic tracers_, so 
+> that we keep our options open - as per the arguments above.
+
+But I also think that a marker mechanism should not only mark the code location
+where the instrumentation is to be made, but also the information the probe is
+interested into (provide compile-time data type verification and address at
+runtime). Doing otherwise would limit what could be provided to static markup
+users.
+
+Mathieu
+
+OpenPGP public key:              http://krystal.dyndns.org:8080/key/compudj.gpg
+Key fingerprint:     8CD5 52C3 8E3C 4140 715F  BA06 3F25 A8FE 3BAE 9A68 

@@ -1,40 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964879AbWIQAMm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964890AbWIQAst@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964879AbWIQAMm (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Sep 2006 20:12:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964880AbWIQAMm
+	id S964890AbWIQAst (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Sep 2006 20:48:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964896AbWIQAst
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Sep 2006 20:12:42 -0400
-Received: from relay02.mail-hub.dodo.com.au ([202.136.32.45]:47036 "EHLO
-	relay02.mail-hub.dodo.com.au") by vger.kernel.org with ESMTP
-	id S964879AbWIQAMl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Sep 2006 20:12:41 -0400
-From: Grant Coady <grant_lkml@dodo.com.au>
-To: Chris Frost <chris@frostnet.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: PROBLEM: 2.4 oops: proc_pid_stat()
-Date: Sun, 17 Sep 2006 10:12:38 +1000
-Organization: http://bugsplatter.mine.nu/
-Reply-To: Grant Coady <gcoady.lk@gmail.com>
-Message-ID: <7m4pg21bp6a1vci4jnql4r33rcg893q5is@4ax.com>
-References: <20060916232402.GW13465@pooh.cs.ucla.edu>
-In-Reply-To: <20060916232402.GW13465@pooh.cs.ucla.edu>
-X-Mailer: Forte Agent 2.0/32.652
+	Sat, 16 Sep 2006 20:48:49 -0400
+Received: from smtp-out.google.com ([216.239.45.12]:4809 "EHLO
+	smtp-out.google.com") by vger.kernel.org with ESMTP id S964890AbWIQAss
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 16 Sep 2006 20:48:48 -0400
+DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
+	h=received:message-id:date:from:to:subject:cc:in-reply-to:
+	mime-version:content-type:content-transfer-encoding:
+	content-disposition:references;
+	b=PJ988aMxCvdKbpcb/DbktXWhO+qK0VvSqp38LcxipftRqiKyMyAWLF0WBdR99cj0G
+	gsDDj6wSlgM5r2FdrFzgQ==
+Message-ID: <d43160c70609161748n2af1c88cx33344e7da3e2b302@mail.google.com>
+Date: Sat, 16 Sep 2006 20:48:26 -0400
+From: rossb <rossb@google.com>
+To: "Arjan van de Ven" <arjan@infradead.org>
+Subject: Re: + allow-proc-configgz-to-be-built-as-a-module.patch added to -mm tree
+Cc: "Randy.Dunlap" <rdunlap@xenotime.net>, linux-kernel@vger.kernel.org,
+       akpm@osdl.org, mm-commits@vger.kernel.org, akpm@google.com,
+       sam@ravnborg.org
+In-Reply-To: <1158407250.5152.60.camel@laptopd505.fenrus.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <200609152158.k8FLw7ud018089@shell0.pdx.osdl.net>
+	 <20060915154752.d7bdb8a0.rdunlap@xenotime.net>
+	 <1158407250.5152.60.camel@laptopd505.fenrus.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 16 Sep 2006 16:24:02 -0700, Chris Frost <chris@frostnet.net> wrote:
+On 9/16/06, Arjan van de Ven <arjan@infradead.org> wrote:
+> > > In some ways this is a bit risky, because the .config which is used for
+> > > compiling kernel/configs.c isn't necessarily the same as the .config which was
+> > > used to build vmlinux.
+> >
+> > and that's why a module wasn't allowed.
+> > It's not worth the risk IMO.
 
->[1.] One line summary of the problem:
->2.4.32 proc_pid_stat() repeatedly segfaults.
->
->[2.] Full description of the problem/report:
->2.4.32 kernel, after being up for a few days to a few weeks, repeatedly
->segfaults in proc_pid_stat(), triggered by w, ps, and other programs.
+The problem is, the patch is basically s/bool/tristate/ so you can't
+really count on /proc/config.gz anyway.  It's a lot like security
+through obscurity.
 
-Problem not seen here, try 2.4.33.3 kernel?
+> One hack we could do is make an md5sum or similar of the config and
+> stick that somewhere which is built in and always available (proc or
+> sysfs or something like that); that can be used to validate any config
+> basically to be "correct matching". In fact we could even make it
+> (optionally) part of the VERMAGIC to avoid any kind of mismatch at all.
 
-Grant.
+Not a bad idea, but I think you want to be able to edit your config
+before compiling modules.  In particular, you might want to turn
+something from off to module.
+
+How about we embed the md5sum of the config in the kernel, make it
+available via /proc or /sysfs and then have /proc/config.gz return an
+error in the event the md5sum doesn't match?
+
+    Ross

@@ -1,48 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932369AbWIQTVu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932371AbWIQTcV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932369AbWIQTVu (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Sep 2006 15:21:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932372AbWIQTVu
+	id S932371AbWIQTcV (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Sep 2006 15:32:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932372AbWIQTcV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Sep 2006 15:21:50 -0400
-Received: from re01.intra2net.com ([82.165.28.202]:39186 "EHLO
-	re01.intra2net.com") by vger.kernel.org with ESMTP id S932369AbWIQTVu
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Sep 2006 15:21:50 -0400
-From: "Gerd v. Egidy" <lists@egidy.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: APIC on Asus M2N SLI Deluxe
-Date: Sun, 17 Sep 2006 21:21:44 +0200
-User-Agent: KMail/1.9.4
-References: <200609141017.k8EAHdL9017691@mersenne.math.TU-Berlin.DE>
-In-Reply-To: <200609141017.k8EAHdL9017691@mersenne.math.TU-Berlin.DE>
-Cc: Thomas Richter <thor@mail.math.tu-berlin.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Sun, 17 Sep 2006 15:32:21 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:3541 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932371AbWIQTcU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Sep 2006 15:32:20 -0400
+Date: Sun, 17 Sep 2006 21:23:59 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Nick Piggin <nickpiggin@yahoo.com.au>,
+       Thomas Gleixner <tglx@linutronix.de>, karim@opersys.com,
+       Andrew Morton <akpm@osdl.org>, Paul Mundt <lethal@linux-sh.org>,
+       Jes Sorensen <jes@sgi.com>,
+       Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
+       linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
+       Ingo Molnar <mingo@redhat.com>, Greg Kroah-Hartman <gregkh@suse.de>,
+       Tom Zanussi <zanussi@us.ibm.com>, ltt-dev@shafik.org,
+       Michel Dagenais <michel.dagenais@polymtl.ca>
+Subject: Re: [PATCH 0/11] LTTng-core (basic tracing infrastructure) 0.5.108
+Message-ID: <20060917192359.GA24016@elte.hu>
+References: <20060916082214.GD6317@elte.hu> <Pine.LNX.4.64.0609161831270.6761@scrub.home> <20060916230031.GB20180@elte.hu> <Pine.LNX.4.64.0609170310580.6761@scrub.home> <20060917084207.GA8738@elte.hu> <Pine.LNX.4.64.0609171627400.6761@scrub.home> <20060917152527.GC20225@elte.hu> <Pine.LNX.4.64.0609171744570.6761@scrub.home> <450D7EF0.3020805@yahoo.com.au> <Pine.LNX.4.64.0609171918430.6761@scrub.home>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200609172121.44566.lists@egidy.de>
+In-Reply-To: <Pine.LNX.4.64.0609171918430.6761@scrub.home>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -2.9
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.9 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.4999]
+	-0.1 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Thomas,
 
-> recently, I tried to upgrade the bios of the ASUS M2N SLI Deluxe
-> board from release 0202 to 0307. With the 0307 bios, I get a kernel
-> panic that the APIC cannot be found. Concerning this, I've two
-> explanations, could possibly confirm someone here this:
+* Roman Zippel <zippel@linux-m68k.org> wrote:
 
-I can confim this problem.
+> > [...] I think Ingo said that some "static tracepoints" (eg. 
+> > annotation) could be acceptable.
+> 
+> No, he made it rather clear, that as far as possible he only wants 
+> dynamic annotations (e.g. via function attributes).
 
-I think Asus screwed up the bios...
+what you say is totally and utterly nonsensical misrepresentation of 
+what i have said. I always said: i support in-source annotations too (I 
+even suggested APIs how to do them), as long as they are not a total 
+_guaranteed_ set destined for static tracers, i.e. as long as they are 
+there for the purpose of dynamic tracers. I dont _care_ about static 
+annotations as long as they are there for dynamic tracers, because they 
+can be moved into scripts if they cause problems. But static annotations 
+for static tracers are much, much harder to remove. Please go on and 
+read my "tracepoint maintainance models" email:
 
-> It's not a major problem for me right now, the 0202 bios works like
-> a charm with the 2.6.17.8 kernel. I'm just curious.
+ Message-ID: <20060917143623.GB15534@elte.hu>
 
-I need Wake-On-LAN and that doesn't work with 0202 and is fixed with 0307. I 
-boot the system with the noapic option.
-
-Kind regards,
-
-Gerd
+	Ingo

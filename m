@@ -1,98 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932340AbWIQSrR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932367AbWIQTFw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932340AbWIQSrR (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Sep 2006 14:47:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932349AbWIQSrR
+	id S932367AbWIQTFw (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Sep 2006 15:05:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932368AbWIQTFw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Sep 2006 14:47:17 -0400
-Received: from rwcrmhc15.comcast.net ([216.148.227.155]:1699 "EHLO
-	rwcrmhc15.comcast.net") by vger.kernel.org with ESMTP
-	id S932340AbWIQSrR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Sep 2006 14:47:17 -0400
-Message-ID: <450D9831.20205@comcast.net>
-Date: Sun, 17 Sep 2006 14:47:13 -0400
-From: John Richard Moser <nigelenki@comcast.net>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060728)
+	Sun, 17 Sep 2006 15:05:52 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:46779 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S932367AbWIQTFv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Sep 2006 15:05:51 -0400
+Date: Sun, 17 Sep 2006 20:59:56 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+cc: Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>,
+       karim@opersys.com, Andrew Morton <akpm@osdl.org>,
+       Paul Mundt <lethal@linux-sh.org>, Jes Sorensen <jes@sgi.com>,
+       Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
+       linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
+       Ingo Molnar <mingo@redhat.com>, Greg Kroah-Hartman <gregkh@suse.de>,
+       Tom Zanussi <zanussi@us.ibm.com>, ltt-dev@shafik.org,
+       Michel Dagenais <michel.dagenais@polymtl.ca>
+Subject: Re: [PATCH 0/11] LTTng-core (basic tracing infrastructure) 0.5.108
+In-Reply-To: <450D8C58.5000506@yahoo.com.au>
+Message-ID: <Pine.LNX.4.64.0609172027120.6761@scrub.home>
+References: <20060915215112.GB12789@elte.hu> <Pine.LNX.4.64.0609160018110.6761@scrub.home>
+ <20060915231419.GA24731@elte.hu> <Pine.LNX.4.64.0609160139130.6761@scrub.home>
+ <20060916082214.GD6317@elte.hu> <Pine.LNX.4.64.0609161831270.6761@scrub.home>
+ <20060916230031.GB20180@elte.hu> <Pine.LNX.4.64.0609170310580.6761@scrub.home>
+ <20060917084207.GA8738@elte.hu> <Pine.LNX.4.64.0609171627400.6761@scrub.home>
+ <20060917152527.GC20225@elte.hu> <Pine.LNX.4.64.0609171744570.6761@scrub.home>
+ <450D7EF0.3020805@yahoo.com.au> <Pine.LNX.4.64.0609171918430.6761@scrub.home>
+ <450D8C58.5000506@yahoo.com.au>
 MIME-Version: 1.0
-To: Mike Galbraith <efault@gmx.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Scheduler tunables?
-References: <450C8680.6050904@comcast.net>	 <1158483845.6025.22.camel@Homer.simpson.net> <450D6786.7010404@comcast.net> <1158520745.6086.6.camel@Homer.simpson.net>
-In-Reply-To: <1158520745.6086.6.camel@Homer.simpson.net>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+Hi,
 
+On Mon, 18 Sep 2006, Nick Piggin wrote:
 
+> But equally nobody can demand that a feature go into the upstream
+> kernel. Especially not if there is a more flexible alternative
+> already available that just requires implementing for their arch.
 
-Mike Galbraith wrote:
-> On Sun, 2006-09-17 at 11:19 -0400, John Richard Moser wrote:
->> -----BEGIN PGP SIGNED MESSAGE-----
->> Hash: SHA1
->>
->>
->>
->> Mike Galbraith wrote:
->>> On Sat, 2006-09-16 at 19:19 -0400, John Richard Moser wrote:
->>>> -----BEGIN PGP SIGNED MESSAGE-----
->>>> Hash: SHA1
->>>>
->>>> It looks like the scheduler tunables have been removed from 2.6
->>>> somewhere before 2.6.17. 
->>> Which tunables are you referring to?
->>>
->>>
->> http://kerneltrap.org/node/525
->>
->> The relevant code changes in sysctl.h and sched.c seem to be undone.  Of
->> course I'm assuming my distribution didn't just add a side patch in at
->> the time when I noticed these existed so long ago.
-> 
-> Ah.  These knobs were never exported in a standard kernel.  I believe
-> there was a patch recently (couple weeks ago?) posted to export them
-> again for experimentation.  A search of the archives should turn it up.
-> 
+I completely agree with you under the condition that these alternatives 
+were mutually exclusive or conflicting with each other.
 
-Nods.  May be good in environments where longer time slices could be a
-significant performance enhancement.
+> This shouldn't be surprising, the kernel doesn't have a doctrine of
+> unlimited choice or merge features because they exist.
 
+Do we have a doctrine which forces us to design a feature in such way 
+that has to be as difficult as possible to make it available to our users?
+In this case it would be very easy to provide some basic functionality via 
+static tracing and the full functionality via dynamic tracing. Where is 
+the law that forbids this?
 
-> 	-Mike
-> 
-> 
+> For example
+> people wanted pluggable (runtime and/or compile time CPU scheduler
+> in the kernel. This was rejected (IIRC by Linus, Andrew, Ingo, and
+> myself). No doubt it would have been useful for a small number of
+> people but it was decided that it would split testing and development
+> resources. The STREAMS example is another one.
 
-- --
-All content of all messages exchanged herein are left in the
-Public Domain, unless otherwise explicitly stated.
+Comparing it to STREAMS is an insult and Ingo should be aware of this. :-(
 
-    Creative brains are a valuable, limited resource. They shouldn't be
-    wasted on re-inventing the wheel when there are so many fascinating
-    new problems waiting out there.
-                                                 -- Eric Steven Raymond
+> As an aside, there are quite a number of different types of tracing
+> things (mostly static, compile out) in the kernel. Everything from
+> blktrace to various userspace notifiers to lots of /proc/stuff could
+> be considered a type of static event tracing. I don't know what my
+> point is other than all these big, disjoint frameworks trying to be
+> pushed into the kernel. Are there any plans for working some things
+> together, or is that somebody else's problem?
 
-    We will enslave their women, eat their children and rape their
-    cattle!
-                  -- Bosc, Evil alien overlord from the fifth dimension
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.3 (GNU/Linux)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+All the controversy around static tracing in general and LTT in specific 
+has prevented this so far...
 
-iQIVAwUBRQ2YLgs1xW0HCTEFAQJO8hAAm/ycdiOe4oEY0kUwf6irUj9FHQ/zOhJe
-jLIvBqE60GnyP7Ry8Xk1vA9CM009xrbY2uYPyFmlSaiydPqkaganaCkAIS3deg1z
-EIT85MQCY6YHkUxOnjNScIkylSjr0jy3aDQtz0aNU1TAbnyYPwZyAAKU1N3ouwMG
-M0PPZqQTUiRM6IKbNgFENpx83VopovFmBLtWRXFGj4n6dPx1SjB7gSRbUlJ4oKNl
-4wHb06uZgV4pCJaKJv3h8yLmtepVleRMVA4QwIvTql4UizaX8XQt6hfhxtpoIAbD
-fBDZ/wtD4rqUiMFiB9Y0nb2OQmQLS1bWwfXjXU/ZsJdz+zSe1qC3TLfwkL4Sjhxo
-cC8HjOJyjo1vU0GT/Pq11JY2jvbbPlkbmk8VTV7g7+E602wfg+BLjcmKlN6scl6T
-rkCy824HFnxCXlldvHXqxq2My/Ys7HQFK92QuMdRrQF3AkPKKtLwAEJHZh+hW1oB
-N15XFXXN6SgP69UiRGBo6+QyZHTjmHlw+nNgBBBFrRwvr10NYVCV/el+e7eGY8hC
-YWy+wIqMEN51F6NEPsdSUg0od94mlc6waER6gMgxnFZMVR4TzTfKtDogqW28dRSp
-AoaXY7TynFt2K1d3iOlk7OtiX9R+U1WxDrAeNlPm/meeJjbSD8ClsqhNPbzunO0E
-/GeJOByK/o8=
-=zYrn
------END PGP SIGNATURE-----
+bye, Roman

@@ -1,39 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932417AbWIQJhy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964783AbWIQJnJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932417AbWIQJhy (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Sep 2006 05:37:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932419AbWIQJhy
+	id S964783AbWIQJnJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Sep 2006 05:43:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964786AbWIQJnJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Sep 2006 05:37:54 -0400
-Received: from ns2.g-housing.de ([81.169.133.75]:24797 "EHLO mail.g-house.de")
-	by vger.kernel.org with ESMTP id S932417AbWIQJhx (ORCPT
+	Sun, 17 Sep 2006 05:43:09 -0400
+Received: from emailer.gwdg.de ([134.76.10.24]:44959 "EHLO emailer.gwdg.de")
+	by vger.kernel.org with ESMTP id S964783AbWIQJnH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Sep 2006 05:37:53 -0400
-Date: Sun, 17 Sep 2006 10:37:53 +0100 (BST)
-From: Christian Kujau <evil@g-house.de>
-X-X-Sender: evil@sheep.housecafe.de
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.18-rc6-mm2: __fscache_register_netfs compile error
-In-Reply-To: <Pine.LNX.4.64.0609171022160.27242@sheep.housecafe.de>
-Message-ID: <Pine.LNX.4.64.0609171031370.27242@sheep.housecafe.de>
-References: <20060912000618.a2e2afc0.akpm@osdl.org>
- <Pine.LNX.4.64.0609171022160.27242@sheep.housecafe.de>
+	Sun, 17 Sep 2006 05:43:07 -0400
+Date: Sun, 17 Sep 2006 11:41:20 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Greg KH <gregkh@suse.de>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, akpm@osdl.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Industrial device driver uio/uio_*
+In-Reply-To: <20060912014341.GB23582@suse.de>
+Message-ID: <Pine.LNX.4.61.0609171136190.4473@yvahk01.tjqt.qr>
+References: <1157995334.23085.188.camel@localhost.localdomain>
+ <Pine.LNX.4.61.0609112121400.19997@yvahk01.tjqt.qr> <20060912014341.GB23582@suse.de>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Report: Content analysis: 0.0 points, 6.0 required
+	_SUMMARY_
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 17 Sep 2006, Christian Kujau wrote:
-> when is enabled, gcc-4.0.3 (ubuntu/dapper, x86_64) gives:
-------^ uh, that should read:
 
-"when CONFIG_NFS_FSCACHE is enabled..."
+>> Hm has this now been named uio? iio may have seem strange to some, but 
+>> uio also resembles BSD/Solaris (uio_copyin, uio_copyout, uiomove, etc.)
+>
+>Yes, I am aware of uio, we have include/linux/uio.h :)
+>
+>Do you have a better name for this code?  If you don't like uio, I'm
+>open to new suggestions.
 
-The diff to the old-and-working-config is here:
-http://nerdbynature.de/bits/2.6.18-rc6-mm2/config.diff
+- I was fine with iio
+- udio, for userspace-driven IO (my favorite should iio not make it)
+- idd, since it's called "Industrial device driver"
+  (don't go about calling it iddqd)
 
-Christian.
+more artistic ones:
+- iofu, for IO From Userspace, or, on 2nd thought, simply IO-fu (as in Kung-fu)
+- something else that's not related at all? /methinks of squid,
+  which, from the name, does not suggest it would be a web proxy.
+
+
+Jan Engelhardt
 -- 
-BOFH excuse #50:
-
-Change in Earth's rotational speed

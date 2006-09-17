@@ -1,73 +1,215 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964894AbWIQR1V@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965038AbWIQRxq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964894AbWIQR1V (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Sep 2006 13:27:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965029AbWIQR1V
+	id S965038AbWIQRxq (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Sep 2006 13:53:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965040AbWIQRxp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Sep 2006 13:27:21 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:17339 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S964894AbWIQR1U (ORCPT
+	Sun, 17 Sep 2006 13:53:45 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:52201 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S965038AbWIQRxi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Sep 2006 13:27:20 -0400
-Date: Sun, 17 Sep 2006 19:26:34 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-cc: Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>,
-       karim@opersys.com, Andrew Morton <akpm@osdl.org>,
-       Paul Mundt <lethal@linux-sh.org>, Jes Sorensen <jes@sgi.com>,
-       Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
-       linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
-       Ingo Molnar <mingo@redhat.com>, Greg Kroah-Hartman <gregkh@suse.de>,
-       Tom Zanussi <zanussi@us.ibm.com>, ltt-dev@shafik.org,
-       Michel Dagenais <michel.dagenais@polymtl.ca>
-Subject: Re: [PATCH 0/11] LTTng-core (basic tracing infrastructure) 0.5.108
-In-Reply-To: <450D7EF0.3020805@yahoo.com.au>
-Message-ID: <Pine.LNX.4.64.0609171918430.6761@scrub.home>
-References: <20060915215112.GB12789@elte.hu> <Pine.LNX.4.64.0609160018110.6761@scrub.home>
- <20060915231419.GA24731@elte.hu> <Pine.LNX.4.64.0609160139130.6761@scrub.home>
- <20060916082214.GD6317@elte.hu> <Pine.LNX.4.64.0609161831270.6761@scrub.home>
- <20060916230031.GB20180@elte.hu> <Pine.LNX.4.64.0609170310580.6761@scrub.home>
- <20060917084207.GA8738@elte.hu> <Pine.LNX.4.64.0609171627400.6761@scrub.home>
- <20060917152527.GC20225@elte.hu> <Pine.LNX.4.64.0609171744570.6761@scrub.home>
- <450D7EF0.3020805@yahoo.com.au>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 17 Sep 2006 13:53:38 -0400
+X-Mozilla-Status: 0001
+X-Mozilla-Status2: 00000000
+X-Sieve: CMU Sieve 2.3
+X-Spam-TestScore: none
+X-Spam-TokenSummary: Bayes not run.
+X-Spam-Relay-Country: US ** US US ** US US ** US
+From: Balbir Singh <balbir@in.ibm.com>
+To: Kirill Korotaev <dev@sw.ru>
+Cc: Rik van Riel <riel@redhat.com>, Srivatsa <vatsa@in.ibm.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       CKRM-Tech <ckrm-tech@lists.sourceforge.net>,
+       Dave Hansen <haveblue@us.ibm.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andi Kleen <ak@suse.de>, Christoph Hellwig <hch@infradead.org>,
+       Andrey Savochkin <saw@sw.ru>, Matt Helsley <matthltc@us.ibm.com>,
+       Hugh Dickins <hugh@veritas.com>, Alexey Dobriyan <adobriyan@mail.ru>,
+       Oleg Nesterov <oleg@tv-sign.ru>, devel@openvz.org,
+       Pavel Emelianov <xemul@openvz.org>, Balbir Singh <balbir@in.ibm.com>
+Date: Sun, 17 Sep 2006 20:42:40 +0530
+Message-Id: <20060917151240.11160.86828.sendpatchset@localhost.localdomain>
+In-Reply-To: <20060917151212.11160.2513.sendpatchset@localhost.localdomain>
+References: <20060917151212.11160.2513.sendpatchset@localhost.localdomain>
+Subject: [RFC][PATCH 3/4] Aggregated beancounters syscall support
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-On Mon, 18 Sep 2006, Nick Piggin wrote:
 
-> > > > The foremost issue is still that there is only limited kprobes support.
-> > > 
-> > > > The main issue in supporting static tracers are the tracepoints and so
-> > > > far I haven't seen any convincing proof that the maintainance overhead
-> > > > of dynamic and static tracepoints has to be significantly different.
-> 
-> Above, weren't you asking about static vs dynamic trace-*points*, rather
-> than the implementation of the tracer itself. I think Ingo said that
-> some "static tracepoints" (eg. annotation) could be acceptable.
+Change the system calls to operate with aggregated beancounters instead
+of beancounters.
 
-No, he made it rather clear, that as far as possible he only wants dynamic 
-annotations (e.g. via function attributes).
+Signed-off-by: Balbir Singh <balbir@in.ibm.com>
+---
 
-> > What you basically tell me is (rephrased to make it more clear): Implement
-> > kprobes support or fuck off! You make it very clear, that you're unwilling
-> > to support static tracers even to point to make _any_ static trace support 
-> 
-> Now it seems you are talking about compiled vs runtime inserted traces,
-> which is different. And so far I have to agree with Ingo: dynamic seems
-> to be better in almost every way. Implementation may be more complex,
-> but that's never stood in the way of a better solution before, and I
-> don't think anybody has shown it to be prohibitive ("I won't implement
-> it" notwithstanding)
+ kernel/bc/sys.c |   91 ++++++++++++++++++++++++++++++++++++++------------------
+ 1 files changed, 63 insertions(+), 28 deletions(-)
 
-I don't deny that dynamic tracer are more flexible, but I simply don't 
-have the resources to implement one. If those who demand I use a dynamic 
-tracer, would also provide the appropriate funding, it would change the 
-situation completely, but without that I have to live with the tools 
-available to me.
+diff -puN kernel/bc/sys.c~aggr-bc-syscalls kernel/bc/sys.c
+--- linux-2.6.18-rc5/kernel/bc/sys.c~aggr-bc-syscalls	2006-09-17 20:34:02.000000000 +0530
++++ linux-2.6.18-rc5-balbir/kernel/bc/sys.c	2006-09-17 20:34:02.000000000 +0530
+@@ -10,39 +10,60 @@
+ 
+ #include <bc/beancounter.h>
+ #include <bc/task.h>
++#include <bc/vmpages.h>
+ 
+ asmlinkage long sys_get_bcid(void)
+ {
+ 	struct beancounter *bc;
+ 
+ 	bc = get_exec_bc();
+-	return bc->bc_id;
++	return bc->ab->ab_id;
+ }
+ 
+-asmlinkage long sys_set_bcid(bcid_t id)
++asmlinkage long sys_set_bcid(bcid_t id, pid_t pid)
+ {
+ 	int error;
+-	struct beancounter *bc;
+-	struct task_beancounter *task_bc;
+-
+-	task_bc = &current->task_bc;
++	struct beancounter *bc, *new_bc;
++	struct aggr_beancounter *ab;
++	struct task_struct *tsk;
+ 
+ 	/* You may only set an bc as root */
+ 	error = -EPERM;
+ 	if (!capable(CAP_SETUID))
++		return error;
++
++	read_lock(&tasklist_lock);
++	tsk = find_task_by_pid(pid);
++	if (!tsk) {
++		read_unlock(&tasklist_lock);
++		error = -ESRCH;
+ 		goto out;
++	}
++	read_unlock(&tasklist_lock);
++
++	error = -EINVAL;
++	if (id == tsk->task_bc.exec_bc->ab->ab_id)
++		return error;
+ 
+ 	/* Ok - set up a beancounter entry for this user */
+ 	error = -ENOMEM;
+-	bc = beancounter_findcreate(id, BC_ALLOC);
+-	if (bc == NULL)
++	ab = ab_findcreate(id, BC_ALLOC);
++	if (ab == NULL)
+ 		goto out;
+ 
+-	/* install bc */
+-	put_beancounter(task_bc->exec_bc);
+-	task_bc->exec_bc = bc;
+-	put_beancounter(task_bc->fork_bc);
+-	task_bc->fork_bc = get_beancounter(bc);
++	/*
++	 * Check if limits allow the move - or reclaim if required
++	 * TODO:
++	 */
++
++	get_task_struct(tsk);
++	bc = tsk->task_bc.exec_bc;
++	new_bc = beancounter_relocate(ab, bc->ab, tsk->tgid);
++	put_task_struct(tsk);
++	if (new_bc == NULL) {
++		put_aggr_beancounter(ab);
++		error = -ESRCH;
++	}
+ 	error = 0;
+ out:
+ 	return error;
+@@ -53,7 +74,7 @@ asmlinkage long sys_set_bclimit(bcid_t i
+ {
+ 	int error;
+ 	unsigned long flags;
+-	struct beancounter *bc;
++	struct aggr_beancounter *ab;
+ 	unsigned long new_limits[2];
+ 
+ 	error = -EPERM;
+@@ -74,45 +95,59 @@ asmlinkage long sys_set_bclimit(bcid_t i
+ 		goto out;
+ 
+ 	error = -ENOENT;
+-	bc = beancounter_findcreate(id, BC_LOOKUP);
+-	if (bc == NULL)
++	ab = ab_findcreate(id, BC_LOOKUP);
++	if (ab == NULL)
+ 		goto out;
+ 
+-	spin_lock_irqsave(&bc->bc_lock, flags);
+-	bc->bc_parms[resource].barrier = new_limits[0];
+-	bc->bc_parms[resource].limit = new_limits[1];
+-	spin_unlock_irqrestore(&bc->bc_lock, flags);
++	spin_lock_irqsave(&ab->ab_lock, flags);
++	ab->ab_parms[resource].barrier = new_limits[0];
++	ab->ab_parms[resource].limit = new_limits[1];
++	spin_unlock_irqrestore(&ab->ab_lock, flags);
+ 
+-	put_beancounter(bc);
++	put_aggr_beancounter(ab);
+ 	error = 0;
+ out:
+ 	return error;
+ }
+ 
+-int sys_get_bcstat(bcid_t id, unsigned long resource,
+-		struct bc_resource_parm __user *uparm)
++int sys_get_bcstat(bcid_t bc_id, bcid_t ab_id, unsigned long resource,
++			struct bc_resource_parm __user *bc_uparm,
++			struct ab_resource_parm __user *ab_uparm)
+ {
+ 	int error;
+ 	unsigned long flags;
+ 	struct beancounter *bc;
+-	struct bc_resource_parm parm;
++	struct aggr_beancounter *ab;
++	struct bc_resource_parm bc_parm;
++	struct ab_resource_parm ab_parm;
+ 
+ 	error = -EINVAL;
+ 	if (resource >= BC_RESOURCES)
+ 		goto out;
+ 
+ 	error = -ENOENT;
+-	bc = beancounter_findcreate(id, BC_LOOKUP);
+-	if (bc == NULL)
++	ab = ab_findcreate(ab_id, BC_LOOKUP);
++	if (ab == NULL)
+ 		goto out;
++	spin_lock_irqsave(&ab->ab_lock, flags);
++	bc = beancounter_find_locked(ab, bc_id);
++	if (bc == NULL) {
++		spin_unlock_irqrestore(&ab->ab_lock, flags);
++		goto out;
++	}
+ 
+ 	spin_lock_irqsave(&bc->bc_lock, flags);
+-	parm = bc->bc_parms[resource];
++	bc_parm = bc->bc_parms[resource];
+ 	spin_unlock_irqrestore(&bc->bc_lock, flags);
++	ab_parm = ab->ab_parms[resource];
++	spin_unlock_irqrestore(&ab->ab_lock, flags);
+ 	put_beancounter(bc);
++	put_aggr_beancounter(ab);
+ 
+ 	error = 0;
+-	if (copy_to_user(uparm, &parm, sizeof(parm)))
++	if (copy_to_user(bc_uparm, &bc_parm, sizeof(bc_parm)))
++		error = -EFAULT;
++	if (copy_to_user(ab_uparm, &ab_parm, sizeof(ab_parm)))
+ 		error = -EFAULT;
+ 
+ out:
+_
 
-bye, Roman
+-- 
+
+	Balbir Singh,
+	Linux Technology Center,
+	IBM Software Labs

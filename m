@@ -1,84 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965033AbWIQRPP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965034AbWIQRSy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965033AbWIQRPP (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Sep 2006 13:15:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965034AbWIQRPO
+	id S965034AbWIQRSy (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Sep 2006 13:18:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965035AbWIQRSy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Sep 2006 13:15:14 -0400
-Received: from tomts5.bellnexxia.net ([209.226.175.25]:3535 "EHLO
-	tomts5-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id S965033AbWIQRPM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Sep 2006 13:15:12 -0400
-Date: Sun, 17 Sep 2006 13:15:10 -0400
-From: Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>
+	Sun, 17 Sep 2006 13:18:54 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:10683 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S965034AbWIQRSx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Sep 2006 13:18:53 -0400
+Date: Sun, 17 Sep 2006 19:18:22 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
 To: Ingo Molnar <mingo@elte.hu>
-Cc: "Frank Ch. Eigler" <fche@redhat.com>, Roman Zippel <zippel@linux-m68k.org>,
-       Thomas Gleixner <tglx@linutronix.de>, karim@opersys.com,
-       Andrew Morton <akpm@osdl.org>, Paul Mundt <lethal@linux-sh.org>,
-       Jes Sorensen <jes@sgi.com>, linux-kernel@vger.kernel.org,
-       Christoph Hellwig <hch@infradead.org>, Ingo Molnar <mingo@redhat.com>,
-       Greg Kroah-Hartman <gregkh@suse.de>, Tom Zanussi <zanussi@us.ibm.com>,
-       ltt-dev@shafik.org, Michel Dagenais <michel.dagenais@polymtl.ca>
-Subject: Re: [PATCH 0/11] LTTng-core (basic tracing infrastructure) 0.5.108
-Message-ID: <20060917171509.GA31658@Krystal>
-References: <Pine.LNX.4.64.0609152314250.6761@scrub.home> <20060915215112.GB12789@elte.hu> <Pine.LNX.4.64.0609160018110.6761@scrub.home> <20060915231419.GA24731@elte.hu> <Pine.LNX.4.64.0609160139130.6761@scrub.home> <20060916082214.GD6317@elte.hu> <Pine.LNX.4.64.0609161831270.6761@scrub.home> <20060916231407.GA23132@elte.hu> <y0mr6yaefts.fsf@ton.toronto.redhat.com> <20060917153156.GA26209@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-In-Reply-To: <20060917153156.GA26209@elte.hu>
-X-Editor: vi
-X-Info: http://krystal.dyndns.org:8080
-X-Operating-System: Linux/2.4.32-grsec (i686)
-X-Uptime: 13:00:53 up 25 days, 14:09,  3 users,  load average: 0.53, 0.37, 0.23
-User-Agent: Mutt/1.5.13 (2006-08-11)
+cc: Paul Mundt <lethal@linux-sh.org>, Karim Yaghmour <karim@opersys.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Ingo Molnar <mingo@redhat.com>, Jes Sorensen <jes@sgi.com>,
+       Andrew Morton <akpm@osdl.org>, Tom Zanussi <zanussi@us.ibm.com>,
+       Richard J Moore <richardj_moore@uk.ibm.com>,
+       "Frank Ch. Eigler" <fche@redhat.com>,
+       Michel Dagenais <michel.dagenais@polymtl.ca>,
+       Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
+       Christoph Hellwig <hch@infradead.org>,
+       Greg Kroah-Hartman <gregkh@suse.de>,
+       Thomas Gleixner <tglx@linutronix.de>, William Cohen <wcohen@redhat.com>,
+       "Martin J. Bligh" <mbligh@mbligh.org>
+Subject: Re: tracepoint maintainance models
+In-Reply-To: <20060917150953.GB20225@elte.hu>
+Message-ID: <Pine.LNX.4.64.0609171816390.6761@scrub.home>
+References: <450D182B.9060300@opersys.com> <20060917112128.GA3170@localhost.usen.ad.jp>
+ <20060917143623.GB15534@elte.hu> <Pine.LNX.4.64.0609171651370.6761@scrub.home>
+ <20060917150953.GB20225@elte.hu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
 
-* Ingo Molnar (mingo@elte.hu) wrote:
-> 
-> * Frank Ch. Eigler <fche@redhat.com> wrote:
-> 
-> > As for Karim's proposed comment-based markers, I don't have a strong 
-> > opinion, not being one whose kernel-side code would be marked up one 
-> > way or the other. [...]
-> 
-> What makes the difference isnt just the format of markup (although i 
-> fully agree that the least visually intrusive markup format should be 
-> used for static markers, and the range of possibilities includes 
-> comment-based markers too), but what makes the differen is:
-> 
->  the /guarantee/ of a full (comprehensive) set to /static tracers/
-> 
-> The moment we allow a static tracer into the upstream kernel, we make 
-> that guarantee, implicitly and explicitly. (I've expanded on this line 
-> of argument in the previous few mails, extensively.)
-> 
+On Sun, 17 Sep 2006, Ingo Molnar wrote:
 
-Ingo, your definition of a static tracer seems to be slightly off from LTTng's
-reality in two ways :
+> of course it's easy to have static markup that is usable for both types 
+> of tracers - but that is of little use. Static tracers also need the 
+> guarantee of a _full set_ of static markups. It is that _guarantee_ of a 
+> full set that i'm arguing against primarily. Without that guarantee it's 
+> useless to have markups that can be used by static tracers as well: you 
+> wont get a full set of tracepoints and the end-user will complain. 
+> (partial static markups are of course still very useful to dynamic 
+> tracers)
 
-First, the kernel tracer supports dynamically loadable "event types", which
-makes it quite more flexible than a static tracer that would have to guarantee
-a full set of trace points. There is a clear difference between statically
-adding instrumentation and statically adding new event types in that forcing a
-static set of events would indeed break the user space tools when an event is
-added or removed.
+And yet again, you offer no prove at all and just work from assumptions.
+You throw in some magic "_full set_" of marker and just assume any change 
+in that will completely break static tracers.
+You just assume that we absolutely must make this "guarantee" for static 
+tracers, as if static tracer can't be updated at all.
+You completely ignore that it might be possible to create some rules and 
+educate users that the amount of exported events can't be completely 
+static.
+What is so special between users of dynamic and static tracers, that the 
+former will never complain, if some tracepoint doesn't work anymore?
 
-Second, the user space analysis tools are built so that they can handle missing
-information. So, if they lack things like scheduler change or irq entry/exit
-events, they will still show the available information. No "breakage" would
-result from a missing probe. Moreover, the LTTV trace analysis tool being
-modular and plugin-based, developers can choose to load or not analysis on the
-data based on the instrumentation present in the traced kernel.
+Do you really think that users of static tracers are that stupid, that 
+they are not aware of its limitations? Of course they sometimes have to 
+maintain their own set of tracepoints (especially in the area of kernel 
+development). That still doesn't change the fact that _any_ trace user 
+will benefit from a base set of tracepoints, which you seem to think 
+can't exist.
 
-So there is no guarantee of any full instrumentation set : both instrumentation
-and analysis tools are extensible by the users when needed.
-
-Mathieu
-
-
-OpenPGP public key:              http://krystal.dyndns.org:8080/key/compudj.gpg
-Key fingerprint:     8CD5 52C3 8E3C 4140 715F  BA06 3F25 A8FE 3BAE 9A68 
+bye, Roman

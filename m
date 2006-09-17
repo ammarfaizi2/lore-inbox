@@ -1,100 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751153AbWIQWBj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965136AbWIQWVw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751153AbWIQWBj (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Sep 2006 18:01:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751254AbWIQWBj
+	id S965136AbWIQWVw (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Sep 2006 18:21:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965137AbWIQWVw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Sep 2006 18:01:39 -0400
-Received: from alnrmhc14.comcast.net ([206.18.177.54]:42958 "EHLO
-	alnrmhc14.comcast.net") by vger.kernel.org with ESMTP
-	id S1751153AbWIQWBi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Sep 2006 18:01:38 -0400
-Message-ID: <450DC8A5.80703@elegant-software.com>
-Date: Sun, 17 Sep 2006 18:13:57 -0400
-From: Russell Leighton <russ@elegant-software.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.6) Gecko/20040113
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: BUG: soft lockup detected on CPU + cifs_getattr
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 17 Sep 2006 18:21:52 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:12509 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S965136AbWIQWVv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Sep 2006 18:21:51 -0400
+Date: Mon, 18 Sep 2006 00:13:28 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Nick Piggin <nickpiggin@yahoo.com.au>,
+       Thomas Gleixner <tglx@linutronix.de>, karim@opersys.com,
+       Andrew Morton <akpm@osdl.org>, Paul Mundt <lethal@linux-sh.org>,
+       Jes Sorensen <jes@sgi.com>,
+       Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
+       linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
+       Ingo Molnar <mingo@redhat.com>, Greg Kroah-Hartman <gregkh@suse.de>,
+       Tom Zanussi <zanussi@us.ibm.com>, ltt-dev@shafik.org,
+       Michel Dagenais <michel.dagenais@polymtl.ca>
+Subject: Re: [PATCH 0/11] LTTng-core (basic tracing infrastructure) 0.5.108
+Message-ID: <20060917221328.GA8791@elte.hu>
+References: <20060917084207.GA8738@elte.hu> <Pine.LNX.4.64.0609171627400.6761@scrub.home> <20060917152527.GC20225@elte.hu> <Pine.LNX.4.64.0609171744570.6761@scrub.home> <450D7EF0.3020805@yahoo.com.au> <Pine.LNX.4.64.0609171918430.6761@scrub.home> <20060917192359.GA24016@elte.hu> <Pine.LNX.4.64.0609172144200.6761@scrub.home> <20060917205628.GA2145@elte.hu> <Pine.LNX.4.64.0609172319370.6761@scrub.home>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0609172319370.6761@scrub.home>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -2.9
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.9 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5000]
+	-0.1 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-For the last few months we have had "hangs" where the machine
-will respond to pings , but nothing else. After upgrading the kernel
-we now get a useful message when it hangs, so I thought that
-with the message and an example program perhaps someone can track this down.
+* Roman Zippel <zippel@linux-m68k.org> wrote:
 
-The nature of the issue is with a program that execs many processes
-quickly in succession on an SMP machine and these processes read the 
-some of the same
-files over a CIFS share. At random times the machine hangs under this load.
-I created a shell script (below) that does a similar thing and can 
-reliably cause the
-machine to hang.
+> > I am really sorry that you were able to misunderstand and 
+> > misrepresent such a simple sentence.
+> 
+> Considering the context, which is not exactly full of support for 
+> static tracer, I think my understanding was and still is quite 
+> correct.
 
-We are running:
+this thought of you is still false. Nick said:
 
-    Linux prodeng2 2.6.17-1.2142_FC4smp #1 SMP Tue Jul 11 22:57:02 EDT
-    2006 i686 i686 i386 GNU/Linux
+ ' I think Ingo said that some "static tracepoints" (eg. annotation) 
+   could be acceptable. '
 
-we get the following error:
+to which you replied:
 
-Sep 16 00:04:30 prodeng2 kernel: BUG: soft lockup detected on CPU#2!
-Sep 16 00:04:30 prodeng2 kernel:  <c0447823> softlockup_tick+0x9f/0xb2  <c042b497> update_process_times+0x39/0x5c
-Sep 16 00:04:30 prodeng2 kernel:  <c041737d> smp_apic_timer_interrupt+0x54/0x5a  <c0404800> apic_timer_interrupt+0x1c/0x24
-Sep 16 00:04:30 prodeng2 kernel:  <c046eed9> generic_fillattr+0x71/0x9f  <f8ff18db> cifs_getattr+0x1e/0x27 [cifs]
-Sep 16 00:04:30 prodeng2 kernel:  <f8ff18bd> cifs_getattr+0x0/0x27 [cifs]  <c046ef45> vfs_getattr+0x3e/0x97
-Sep 16 00:04:30 prodeng2 kernel:  <c046f051> vfs_fstat+0x22/0x31  <c046f724> sys_fstat64+0xf/0x23
-Sep 16 00:04:30 prodeng2 kernel:  <c0403d2f> syscall_call+0x7/0xb 
-Sep 16 00:04:30 prodeng2 kernel: BUG: soft lockup detected on CPU#1!
-Sep 16 00:04:30 prodeng2 kernel:  <c0447823> softlockup_tick+0x9f/0xb2  <c042b497> update_process_times+0x39/0x5c
-Sep 16 00:04:30 prodeng2 kernel:  <c041737d> smp_apic_timer_interrupt+0x54/0x5a  <c0404800> apic_timer_interrupt+0x1c/0x24
-Sep 16 00:04:30 prodeng2 kernel:  <c046eecd> generic_fillattr+0x65/0x9f  <f8ff18db> cifs_getattr+0x1e/0x27 [cifs]
-Sep 16 00:04:30 prodeng2 kernel:  <f8ff18bd> cifs_getattr+0x0/0x27 [cifs]  <c046ef45> vfs_getattr+0x3e/0x97
-Sep 16 00:04:30 prodeng2 kernel:  <c046f051> vfs_fstat+0x22/0x31  <c046f724> sys_fstat64+0xf/0x23
-Sep 16 00:04:30 prodeng2 kernel:  <c0403d2f> syscall_call+0x7/0xb 
+  ' No, he made it rather clear, that as far as possible he only wants 
+    dynamic annotations (e.g. via function attributes). '
 
-  
+That "No" word at the beginning of your sentence, by its plain meaning, 
+falsely questions Nick's correct interpretation of what I said. I ask 
+you to retract or correct this false statement.
 
-...after googling a little, the closest similar report I find is:
+Nick is of course correct: i said before that some static markups could 
+be acceptable. In fact, i even outlined a possible API for such static 
+markups in 20060914231956.GB29229@elte.hu. Would I want to reduce the 
+number of such static markups: of course, not wanting to reduce the 
+number of subsystem-functionality unrelated source code lines would be 
+foolish.
 
-    http://blog.gmane.org/gmane.comp.emulators.xen.devel/day=20060916
+> > this makes it clear that i disagree with adding static markups for 
+> > static tracers - but i of course still agree with static markups for 
+> > _dynamic tracers_. The markups would be totally unusable for static 
+> > tracers because there is no guarantee for the existence of static 
+> > markups _everywhere_: the static markups would come and go, as per 
+> > the "tracepoint maintainance model". Do you understand that or 
+> > should i explain it in more detail?
+> 
+> Well, I rather just wait for the real patch, where you can show your 
+> support for all possible users.
 
-To tickle this bug do:
+this answer of yours does not rectify the false statement you did.
 
-   1. Create a CIFS  share, ideally on a  real Windows server since that
-      is the current context of the issue I am reporting
-   2. Run this shell script using a path to a file on the share:
+Your sentence also introduces a new misrepresentation of my intentions: 
+my intention with partial static markups (which intention i've written 
+to you about before, so it was known to you when you wrote this 
+stentence) is not to support "all possible users", but to support 
+dynamic tracers. Static tracers cannot use static markups that go away 
+into dynamic tracing scripts.
 
-file_on_cifs_mnt=$1
-
-while true
-do
-# limited fork bomb...repeat until hang
-c=1;
-while [ $c -lt 10000 ]
-do
- # cif mounted file will cause hang
- (cat $file_on_cifs_mnt > /dev/null ; ) &
- # local file won't hang me
- # (cat /etc/passwd > /dev/null ; ) &
- let c=c+1
-done
-wait
-done
-
-NOTE: sometimes it would hang immediately, sometimes after a time, 
-sometimes I had to run 2 instances of the script concurrently to get the 
-BUG.
-
-If anyone has a fix OR a work around I would very much appreciate the help.
-
-Thx.
-
-Russ
-
-
+	Ingo

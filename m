@@ -1,57 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965027AbWIQRGo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965030AbWIQRHi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965027AbWIQRGo (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Sep 2006 13:06:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965028AbWIQRGo
+	id S965030AbWIQRHi (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Sep 2006 13:07:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965031AbWIQRHi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Sep 2006 13:06:44 -0400
-Received: from mcr-smtp-002.bulldogdsl.com ([212.158.248.8]:20750 "EHLO
-	mcr-smtp-002.bulldogdsl.com") by vger.kernel.org with ESMTP
-	id S965027AbWIQRGo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Sep 2006 13:06:44 -0400
-X-Spam-Abuse: Please report all spam/abuse matters to abuse@bulldogdsl.com
-From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-To: devzero@web.de
-Subject: Re: show all modules which taint the kernel ?
-Date: Sun, 17 Sep 2006 18:06:45 +0100
-User-Agent: KMail/1.9.4
-Cc: Dave Jones <davej@redhat.com>, Lee Revell <rlrevell@joe-job.com>,
-       linux-kernel@vger.kernel.org
-References: <1313891898@web.de>
-In-Reply-To: <1313891898@web.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
+	Sun, 17 Sep 2006 13:07:38 -0400
+Received: from mail.gmx.de ([213.165.64.20]:46828 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S965029AbWIQRHh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Sep 2006 13:07:37 -0400
+X-Authenticated: #14349625
+Subject: Re: Scheduler tunables?
+From: Mike Galbraith <efault@gmx.de>
+To: John Richard Moser <nigelenki@comcast.net>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <450D6786.7010404@comcast.net>
+References: <450C8680.6050904@comcast.net>
+	 <1158483845.6025.22.camel@Homer.simpson.net> <450D6786.7010404@comcast.net>
+Content-Type: text/plain
+Date: Sun, 17 Sep 2006 19:19:05 +0000
+Message-Id: <1158520745.6086.6.camel@Homer.simpson.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.0 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200609171806.45215.s0348365@sms.ed.ac.uk>
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 17 September 2006 10:34, devzero@web.de wrote:
-> if there is a "contaminant" inside the kernel, why should one see this only
-> when it`s being inserted (i.e. usually at boot time) ?
->
-> i don`t know about the "nvidia(P)..." thing, but i would find it really
-> useful to be able to easily distinguish between the "good" and the "not
-> belonging to this kernel" modules.
->
-> i have seem several discussions about "modules which taint the kernel are
-> evil" - so why not pillory them by listing appropriate information with
-> lsmod ?
+On Sun, 2006-09-17 at 11:19 -0400, John Richard Moser wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
+> 
+> 
+> 
+> Mike Galbraith wrote:
+> > On Sat, 2006-09-16 at 19:19 -0400, John Richard Moser wrote:
+> >> -----BEGIN PGP SIGNED MESSAGE-----
+> >> Hash: SHA1
+> >>
+> >> It looks like the scheduler tunables have been removed from 2.6
+> >> somewhere before 2.6.17. 
+> > 
+> > Which tunables are you referring to?
+> > 
+> > 
+> 
+> http://kerneltrap.org/node/525
+> 
+> The relevant code changes in sysctl.h and sched.c seem to be undone.  Of
+> course I'm assuming my distribution didn't just add a side patch in at
+> the time when I noticed these existed so long ago.
 
-I think the point being made is that we don't want to confuse this with 
-vendors disclaiming support for non-shipped kernel modules. Vanilla kernels 
-shouldn't consider GPL modules to be "unsupported" just because they aren't 
-shipped or "digitally signed"; however we certainly should be highlighting 
-the use of proprietary modules (which are obviously impossible to debug).
+Ah.  These knobs were never exported in a standard kernel.  I believe
+there was a patch recently (couple weeks ago?) posted to export them
+again for experimentation.  A search of the archives should turn it up.
 
-I agree with Lee, there should be some more black marks on proprietary drivers 
-than there are currently.
+	-Mike
 
--- 
-Cheers,
-Alistair.
-
-Final year Computer Science undergraduate.
-1F2 55 South Clerk Street, Edinburgh, UK.

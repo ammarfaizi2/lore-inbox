@@ -1,53 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932119AbWIQBih@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932171AbWIQBrx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932119AbWIQBih (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 16 Sep 2006 21:38:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932120AbWIQBih
+	id S932171AbWIQBrx (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 16 Sep 2006 21:47:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932174AbWIQBrx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 16 Sep 2006 21:38:37 -0400
-Received: from opersys.com ([64.40.108.71]:58887 "EHLO www.opersys.com")
-	by vger.kernel.org with ESMTP id S932119AbWIQBig (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 16 Sep 2006 21:38:36 -0400
-Message-ID: <450CABE8.9050106@opersys.com>
-Date: Sat, 16 Sep 2006 21:59:04 -0400
-From: Karim Yaghmour <karim@opersys.com>
-Reply-To: karim@opersys.com
-Organization: Opersys inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.6) Gecko/20060804 Fedora/1.0.4-0.5.1.fc5 SeaMonkey/1.0.4
+	Sat, 16 Sep 2006 21:47:53 -0400
+Received: from mrs.stonybrook.edu ([129.49.1.206]:49349 "EHLO
+	mrs.stonybrook.edu") by vger.kernel.org with ESMTP id S932171AbWIQBrq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 16 Sep 2006 21:47:46 -0400
+Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Ingo Molnar <mingo@elte.hu>,
-       Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
-       Jes Sorensen <jes@sgi.com>, Roman Zippel <zippel@linux-m68k.org>,
-       tglx@linutronix.de, Paul Mundt <lethal@linux-sh.org>,
-       linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
-       Ingo Molnar <mingo@redhat.com>, Greg Kroah-Hartman <gregkh@suse.de>,
-       Tom Zanussi <zanussi@us.ibm.com>, ltt-dev@shafik.org,
-       Michel Dagenais <michel.dagenais@polymtl.ca>, fche@redhat.com
-Subject: Re: [patch] kprobes: optimize branch placement
-References: <Pine.LNX.4.64.0609152111030.6761@scrub.home>	<20060915200559.GB30459@elte.hu>	<20060915202233.GA23318@Krystal>	<450BCAF1.2030205@sgi.com>	<20060916172419.GA15427@Krystal>	<20060916173552.GA7362@elte.hu>	<20060916175606.GA2837@Krystal>	<20060916191043.GA22558@elte.hu>	<20060916193745.GA29022@elte.hu>	<20060916202939.GA4520@elte.hu>	<20060916204342.GA5208@elte.hu>	<450C7039.20208@opersys.com> <20060916155704.ef425542.akpm@osdl.org>
-In-Reply-To: <20060916155704.ef425542.akpm@osdl.org>
-Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+Subject: [PATCH 8 of 11] sound core: Use SEEK_{SET, CUR,
+	END} instead of hardcoded values
+X-Mercurial-Node: 7e68f25a3e0ce32d102c9342a8b0a4d890303d0a
+Message-Id: <7e68f25a3e0ce32d102c.1158455374@turing.ams.sunysb.edu>
+In-Reply-To: <patchbomb.1158455366@turing.ams.sunysb.edu>
+Date: Sat, 16 Sep 2006 21:09:34 -0400
+From: "Josef 'Jeff' Sipek" <jeffpc@josefsipek.net>
+To: linux-kernel@vger.kernel.org
+Cc: perex@suse.cz, akpm@osdl.org, dhowells@redhat.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+sound core: Use SEEK_{SET,CUR,END} instead of hardcoded values
 
-Andrew Morton wrote:
-> It's hardly rocket science - it appears that nobody has ever bothered.
+Signed-off-by: Josef 'Jeff' Sipek <jeffpc@josefsipek.net>
 
-Hmm, that's one explanation. The other explanation, which in my view is
-the likelier -- but I've been shown wrong before, is that most of those
-who went through that code before just didn't have Ingo's insight and
-abilities. Which goes to show what can be achieved when "interesting"
-ideas are given a hand by those having appropriate insight and
-abilities -- and, of course, what fate awaits those other ideas which
-are less so fortunate in the eyes of the talented. Praise the lord for
-the chosen ones.
+--
 
-Karim
--- 
-President  / Opersys Inc.
-Embedded Linux Training and Expertise
-www.opersys.com  /  1.866.677.4546
+diff -r 1622a39ffb54 -r 7e68f25a3e0c sound/core/info.c
+--- a/sound/core/info.c	Sat Sep 16 21:00:45 2006 -0400
++++ b/sound/core/info.c	Sat Sep 16 21:00:45 2006 -0400
+@@ -174,15 +174,15 @@ static loff_t snd_info_entry_llseek(stru
+ 	switch (entry->content) {
+ 	case SNDRV_INFO_CONTENT_TEXT:
+ 		switch (orig) {
+-		case 0:	/* SEEK_SET */
++		case SEEK_SET:
+ 			file->f_pos = offset;
+ 			ret = file->f_pos;
+ 			goto out;
+-		case 1:	/* SEEK_CUR */
++		case SEEK_CUR:
+ 			file->f_pos += offset;
+ 			ret = file->f_pos;
+ 			goto out;
+-		case 2:	/* SEEK_END */
++		case SEEK_END:
+ 		default:
+ 			ret = -EINVAL;
+ 			goto out;
+
+

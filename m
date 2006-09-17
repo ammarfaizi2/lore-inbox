@@ -1,82 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965098AbWIQVE6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965108AbWIQVQT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965098AbWIQVE6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Sep 2006 17:04:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965100AbWIQVE6
+	id S965108AbWIQVQT (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Sep 2006 17:16:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965106AbWIQVQT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Sep 2006 17:04:58 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:63391 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S965098AbWIQVE5 (ORCPT
+	Sun, 17 Sep 2006 17:16:19 -0400
+Received: from nef2.ens.fr ([129.199.96.40]:53511 "EHLO nef2.ens.fr")
+	by vger.kernel.org with ESMTP id S965105AbWIQVQS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Sep 2006 17:04:57 -0400
-Date: Sun, 17 Sep 2006 22:56:28 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>,
-       Thomas Gleixner <tglx@linutronix.de>, karim@opersys.com,
-       Andrew Morton <akpm@osdl.org>, Paul Mundt <lethal@linux-sh.org>,
-       Jes Sorensen <jes@sgi.com>,
-       Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
-       linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
-       Ingo Molnar <mingo@redhat.com>, Greg Kroah-Hartman <gregkh@suse.de>,
-       Tom Zanussi <zanussi@us.ibm.com>, ltt-dev@shafik.org,
-       Michel Dagenais <michel.dagenais@polymtl.ca>
-Subject: Re: [PATCH 0/11] LTTng-core (basic tracing infrastructure) 0.5.108
-Message-ID: <20060917205628.GA2145@elte.hu>
-References: <20060916230031.GB20180@elte.hu> <Pine.LNX.4.64.0609170310580.6761@scrub.home> <20060917084207.GA8738@elte.hu> <Pine.LNX.4.64.0609171627400.6761@scrub.home> <20060917152527.GC20225@elte.hu> <Pine.LNX.4.64.0609171744570.6761@scrub.home> <450D7EF0.3020805@yahoo.com.au> <Pine.LNX.4.64.0609171918430.6761@scrub.home> <20060917192359.GA24016@elte.hu> <Pine.LNX.4.64.0609172144200.6761@scrub.home>
+	Sun, 17 Sep 2006 17:16:18 -0400
+Date: Sun, 17 Sep 2006 23:16:02 +0200
+From: David Madore <david.madore@ens.fr>
+To: Joshua Brindle <method@gentoo.org>
+Cc: Pavel Machek <pavel@ucw.cz>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel mailing-list <linux-kernel@vger.kernel.org>,
+       LSM mailing-list <linux-security-module@vger.kernel.org>
+Subject: Re: [PATCH 3/4] security: capabilities patch (version 0.4.4), part 3/4: introduce new capabilities
+Message-ID: <20060917211602.GA6215@clipper.ens.fr>
+References: <20060910133759.GA12086@clipper.ens.fr> <20060910134257.GC12086@clipper.ens.fr> <1157905393.23085.5.camel@localhost.localdomain> <450451DB.5040104@gentoo.org> <20060917181422.GC2225@elf.ucw.cz> <450DB274.1010404@gentoo.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0609172144200.6761@scrub.home>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -2.9
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.9 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.4998]
-	-0.1 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+In-Reply-To: <450DB274.1010404@gentoo.org>
+User-Agent: Mutt/1.5.9i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.5.10 (nef2.ens.fr [129.199.96.32]); Sun, 17 Sep 2006 23:16:03 +0200 (CEST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sun, Sep 17, 2006 at 04:39:16PM -0400, Joshua Brindle wrote:
+> The benefits of this are so minuscule and the cost is so high if you are 
+> ever to use it that it simply won't happen..
 
-* Roman Zippel <zippel@linux-m68k.org> wrote:
+I'm withdrawing that patch anyway, in favor of a LSM-style approach,
+the "cuppabilities" module (cf. the patch I posted a couple of hours
+ago with that word in the title, and I'll be posting a new version in
+a day or so, or cf. <URL:
+http://www.madore.org/~david/linux/cuppabilities/
+ >).  In this case, the relative cost will be lower since the
+security_ops->inode_permission() hook is called no matter what.
 
-> Hi,
-> 
-> On Sun, 17 Sep 2006, Ingo Molnar wrote:
-> 
-> > > > [...] I think Ingo said that some "static tracepoints" (eg. 
-> > > > annotation) could be acceptable.
-> > > 
-> > > No, he made it rather clear, that as far as possible he only wants 
-> > > dynamic annotations (e.g. via function attributes).
-> > 
-> > what you say is totally and utterly nonsensical misrepresentation of 
-> > what i have said. I always said: i support in-source annotations too (I 
-> > even suggested APIs how to do them),
-> 
-> Some consistency would certainly help: 'my suggested API is not 
-> "barely usable" for static tracers but "totally unusable".'
+But I agree that the value of restricting open() is very dubious and
+it was intended mostly as a demonstration.  So if there is strong
+opposition to this sort of thing, I'll remove it.
 
-I am really sorry that you were able to misunderstand and misrepresent 
-such a simple sentence. Let me quote the full paragraph of what i said:
+Happy hacking,
 
-> you raise a new point again (without conceding or disputing the point 
-> we were discussing, which point you snipped from your reply) but i'm 
-> happy to reply to this new point too: my suggested API is not "barely 
-> usable" for static tracers but "totally unusable". Did i tell you yet 
-> that i disagree with the addition of markups for static tracers?
-
-this makes it clear that i disagree with adding static markups for 
-static tracers - but i of course still agree with static markups for 
-_dynamic tracers_. The markups would be totally unusable for static 
-tracers because there is no guarantee for the existence of static 
-markups _everywhere_: the static markups would come and go, as per the 
-"tracepoint maintainance model". Do you understand that or should i 
-explain it in more detail?
-
-	Ingo
+-- 
+     David A. Madore
+    (david.madore@ens.fr,
+     http://www.madore.org/~david/ )

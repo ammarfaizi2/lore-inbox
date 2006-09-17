@@ -1,278 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965041AbWIQRxy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965037AbWIQR4w@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965041AbWIQRxy (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Sep 2006 13:53:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965043AbWIQRxs
+	id S965037AbWIQR4w (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Sep 2006 13:56:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965040AbWIQR4w
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Sep 2006 13:53:48 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.149]:50567 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S965039AbWIQRxm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Sep 2006 13:53:42 -0400
-X-Mozilla-Status: 0001
-X-Mozilla-Status2: 00000000
-X-Sieve: CMU Sieve 2.3
-X-Spam-TestScore: none
-X-Spam-TokenSummary: Bayes not run.
-X-Spam-Relay-Country: US ** US US ** US US ** US
-From: Balbir Singh <balbir@in.ibm.com>
-To: Kirill Korotaev <dev@sw.ru>
-Cc: Rik van Riel <riel@redhat.com>, Srivatsa <vatsa@in.ibm.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       CKRM-Tech <ckrm-tech@lists.sourceforge.net>,
-       Dave Hansen <haveblue@us.ibm.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andi Kleen <ak@suse.de>, Christoph Hellwig <hch@infradead.org>,
-       Andrey Savochkin <saw@sw.ru>, Matt Helsley <matthltc@us.ibm.com>,
-       Hugh Dickins <hugh@veritas.com>, Alexey Dobriyan <adobriyan@mail.ru>,
-       Oleg Nesterov <oleg@tv-sign.ru>, devel@openvz.org,
-       Pavel Emelianov <xemul@openvz.org>, Balbir Singh <balbir@in.ibm.com>
-Date: Sun, 17 Sep 2006 20:42:49 +0530
-Message-Id: <20060917151249.11160.30762.sendpatchset@localhost.localdomain>
-In-Reply-To: <20060917151212.11160.2513.sendpatchset@localhost.localdomain>
-References: <20060917151212.11160.2513.sendpatchset@localhost.localdomain>
-Subject: [RFC][PATCH 4/4] Aggregated beancounters syscall support
+	Sun, 17 Sep 2006 13:56:52 -0400
+Received: from smtp105.mail.mud.yahoo.com ([209.191.85.215]:52881 "HELO
+	smtp105.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S965037AbWIQR4v (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Sep 2006 13:56:51 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=ji9XnHf248B9lq9rhNMgZuxUhzHb8g10mBszLp4cgtGJdr53Ac2+yGrZ8tdCPTcNe42SXcek0xAwjsZS7NjKNffYQ9aN6Krp2YA6QplGnU2204TDaGN8tn8vT935QXaa5jC+JHPWKyOCryk4/BoHRtkgHaFFmRrpp6r/pzbTWTw=  ;
+Message-ID: <450D8C58.5000506@yahoo.com.au>
+Date: Mon, 18 Sep 2006 03:56:40 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Roman Zippel <zippel@linux-m68k.org>
+CC: Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>,
+       karim@opersys.com, Andrew Morton <akpm@osdl.org>,
+       Paul Mundt <lethal@linux-sh.org>, Jes Sorensen <jes@sgi.com>,
+       Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
+       linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
+       Ingo Molnar <mingo@redhat.com>, Greg Kroah-Hartman <gregkh@suse.de>,
+       Tom Zanussi <zanussi@us.ibm.com>, ltt-dev@shafik.org,
+       Michel Dagenais <michel.dagenais@polymtl.ca>
+Subject: Re: [PATCH 0/11] LTTng-core (basic tracing infrastructure) 0.5.108
+References: <20060915215112.GB12789@elte.hu> <Pine.LNX.4.64.0609160018110.6761@scrub.home> <20060915231419.GA24731@elte.hu> <Pine.LNX.4.64.0609160139130.6761@scrub.home> <20060916082214.GD6317@elte.hu> <Pine.LNX.4.64.0609161831270.6761@scrub.home> <20060916230031.GB20180@elte.hu> <Pine.LNX.4.64.0609170310580.6761@scrub.home> <20060917084207.GA8738@elte.hu> <Pine.LNX.4.64.0609171627400.6761@scrub.home> <20060917152527.GC20225@elte.hu> <Pine.LNX.4.64.0609171744570.6761@scrub.home> <450D7EF0.3020805@yahoo.com.au> <Pine.LNX.4.64.0609171918430.6761@scrub.home>
+In-Reply-To: <Pine.LNX.4.64.0609171918430.6761@scrub.home>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Roman Zippel wrote:
+> Hi,
+> 
+> On Mon, 18 Sep 2006, Nick Piggin wrote:
+> 
+> 
+>>Above, weren't you asking about static vs dynamic trace-*points*, rather
+>>than the implementation of the tracer itself. I think Ingo said that
+>>some "static tracepoints" (eg. annotation) could be acceptable.
+> 
+> 
+> No, he made it rather clear, that as far as possible he only wants dynamic 
+> annotations (e.g. via function attributes).
 
+OK we must have him interpreted differently. I won't speak for Ingo,
+but he can respond if he likes.
 
-Add support for charging aggregated beancounters along with the beancounters
-they contain. Limit checks are also done at the aggregated beancounter level.
+>>Now it seems you are talking about compiled vs runtime inserted traces,
+>>which is different. And so far I have to agree with Ingo: dynamic seems
+>>to be better in almost every way. Implementation may be more complex,
+>>but that's never stood in the way of a better solution before, and I
+>>don't think anybody has shown it to be prohibitive ("I won't implement
+>>it" notwithstanding)
+> 
+> 
+> I don't deny that dynamic tracer are more flexible, but I simply don't 
+> have the resources to implement one. If those who demand I use a dynamic 
+> tracer, would also provide the appropriate funding, it would change the 
+> situation completely, but without that I have to live with the tools 
+> available to me.
 
-Signed-off-by: Balbir Singh <balbir@in.ibm.com>
----
+You definitely don't have to use a dynamic tracer, nor even implement
+one on m68k (that will presumably happen if/when somebody does want a
+dynamic tracer enough).
 
- include/bc/beancounter.h |    4 +++
- kernel/bc/beancounter.c  |   51 +++++++++++++++++++++++++++++++++++++++++++----
- kernel/bc/vmpages.c      |   23 +++++++++++++++++++--
- kernel/bc/vmrss.c        |   13 +++++++++++
- 4 files changed, 84 insertions(+), 7 deletions(-)
+But equally nobody can demand that a feature go into the upstream
+kernel. Especially not if there is a more flexible alternative
+already available that just requires implementing for their arch.
 
-diff -puN kernel/bc/beancounter.c~aggr-bc-charging-support kernel/bc/beancounter.c
---- linux-2.6.18-rc5/kernel/bc/beancounter.c~aggr-bc-charging-support	2006-09-17 20:34:48.000000000 +0530
-+++ linux-2.6.18-rc5-balbir/kernel/bc/beancounter.c	2006-09-17 20:34:48.000000000 +0530
-@@ -199,6 +199,7 @@ struct beancounter *beancounter_relocate
- 	unsigned long flags;
- 	struct beancounter *bc = NULL, *new_bc;
- 	struct hlist_head *slot;
-+	int i;
- 
- 	double_ab_lock(dst_ab, src_ab, &flags);
- 	bc = beancounter_find_locked(src_ab, id);
-@@ -217,10 +218,26 @@ struct beancounter *beancounter_relocate
- 	}
- 
- 	spin_lock(&bc->bc_lock);
-+
-+	/*
-+	 * TODO: Support limit checking before relocation
-+	 */
-+	for (i = 0; i < BC_RESOURCES; i++)
-+		src_ab->ab_parms[i].held -= bc->bc_parms[i].held;
-+	src_ab->unused_privvmpages -= bc->unused_privvmpages;
-+	src_ab->rss_pages -= bc->rss_pages;
-+
- 	hlist_del(&bc->hash);
- 	slot = &dst_ab->ab_bucket[bc_hash_fn(id)];
- 	hlist_add_head(&bc->hash, slot);
- 	bc->ab = dst_ab;
-+
-+	for (i = 0; i < BC_RESOURCES; i++)
-+		dst_ab->ab_parms[i].held += bc->bc_parms[i].held;
-+
-+	dst_ab->unused_privvmpages += bc->unused_privvmpages;
-+	dst_ab->rss_pages += bc->rss_pages;
-+
- 	spin_unlock(&bc->bc_lock);
- 
- out:
-@@ -243,6 +260,14 @@ void put_aggr_beancounter(struct aggr_be
- 			printk("AB: %d has %lu of %s held on put", ab->ab_id,
- 				ab->ab_parms[i].held, bc_rnames[i]);
- 
-+	if (ab->unused_privvmpages != 0)
-+		printk("AB: %d has %lu of unused pages held on put", ab->ab_id,
-+			ab->unused_privvmpages);
-+#ifdef CONFIG_BEANCOUNTERS_RSS
-+	if (ab->rss_pages != 0)
-+		printk("AB: %d hash %llu of rss pages held on put", ab->ab_id,
-+			ab->rss_pages);
-+#endif
- 	hlist_del(&ab->hash);
- 	nr_beancounters--;
- 	spin_unlock_irqrestore(&ab_hash_lock, flags);
-@@ -294,6 +319,7 @@ int bc_charge_locked(struct beancounter 
- 		enum bc_severity strict)
- {
- 	unsigned long new_held;
-+	struct aggr_beancounter *ab = bc->ab;
- 
- 	/*
- 	 * bc_value <= BC_MAXVALUE, value <= BC_MAXVALUE, and only one addition
-@@ -303,17 +329,18 @@ int bc_charge_locked(struct beancounter 
- 
- 	switch (strict) {
- 	case BC_BARRIER:
--		if (bc->bc_parms[resource].held >
--				bc->bc_parms[resource].barrier)
-+		if (ab->ab_parms[resource].held >
-+				ab->ab_parms[resource].barrier)
- 			break;
- 		/* fallthrough */
- 	case BC_LIMIT:
--		if (bc->bc_parms[resource].held >
--				bc->bc_parms[resource].limit)
-+		if (ab->ab_parms[resource].held >
-+				ab->ab_parms[resource].limit)
- 			break;
- 		/* fallthrough */
- 	case BC_FORCE:
- 		bc->bc_parms[resource].held = new_held;
-+		ab->ab_parms[resource].held += val;
- 		bc_adjust_maxheld(bc, resource);
- 		return 0;
- 
-@@ -344,6 +371,19 @@ EXPORT_SYMBOL_GPL(bc_charge);
- /* called with bc->bc_lock held and interrupts disabled */
- void bc_uncharge_locked(struct beancounter *bc, int resource, unsigned long val)
- {
-+	struct aggr_beancounter *ab = bc->ab;
-+	unsigned long val2 = val;
-+
-+	if (unlikely(ab->ab_parms[resource].held < val)) {
-+		if (printk_ratelimit()) {
-+			printk("AB: overuncharging ab %d %s: val %lu, holds "
-+				"%lu\n", ab->ab_id, bc_rnames[resource], val,
-+				ab->ab_parms[resource].held);
-+			dump_stack();
-+		}
-+		val2 = ab->ab_parms[resource].held;
-+	}
-+
- 	if (unlikely(bc->bc_parms[resource].held < val)) {
- 		if (printk_ratelimit()) {
- 			printk("BC: overuncharging bc %d %s: val %lu, holds "
-@@ -355,6 +395,7 @@ void bc_uncharge_locked(struct beancount
- 	}
- 
- 	bc->bc_parms[resource].held -= val;
-+	ab->ab_parms[resource].held -= val2;
- 	bc_adjust_minheld(bc, resource);
- }
- EXPORT_SYMBOL_GPL(bc_uncharge_locked);
-@@ -404,6 +445,8 @@ static void init_aggr_beancounter_struct
- 	for (i = 0; i < AB_HASH_SIZE; i++)
- 		INIT_HLIST_HEAD(&ab->ab_bucket[i]);
- 	INIT_HLIST_NODE(&ab->hash);
-+	ab->unused_privvmpages = 0;
-+	ab->rss_pages = 0;
- }
- 
- static void init_aggr_beancounter_parm_nolimits(struct aggr_beancounter *ab)
-diff -puN kernel/bc/vmpages.c~aggr-bc-charging-support kernel/bc/vmpages.c
---- linux-2.6.18-rc5/kernel/bc/vmpages.c~aggr-bc-charging-support	2006-09-17 20:34:48.000000000 +0530
-+++ linux-2.6.18-rc5-balbir/kernel/bc/vmpages.c	2006-09-17 20:34:48.000000000 +0530
-@@ -17,6 +17,13 @@
- 
- void bc_update_privvmpages(struct beancounter *bc)
- {
-+	struct aggr_beancounter *ab = bc->ab;
-+
-+	ab->ab_parms[BC_PRIVVMPAGES].held = ab->unused_privvmpages
-+#ifdef CONFIG_BEANCOUNTERS_RSS
-+		+ (ab->rss_pages >> PB_PAGE_WEIGHT_SHIFT)
-+#endif
-+		;
- 	bc->bc_parms[BC_PRIVVMPAGES].held = bc->unused_privvmpages
- #ifdef CONFIG_BEANCOUNTERS_RSS
- 		+ (bc->rss_pages >> PB_PAGE_WEIGHT_SHIFT)
-@@ -33,17 +40,29 @@ static inline int privvm_charge(struct b
- 		return -ENOMEM;
- 
- 	bc->unused_privvmpages += sz;
-+	bc->ab->unused_privvmpages += sz;
- 	return 0;
- }
- 
- static inline void privvm_uncharge(struct beancounter *bc, unsigned long sz)
- {
-+	unsigned long sz2 = sz;
-+	struct aggr_beancounter *ab = bc->ab;
-+
- 	if (unlikely(bc->unused_privvmpages < sz)) {
--		printk("BC: overuncharging %d unused pages: val %lu held %lu\n",
--				bc->bc_id, sz, bc->unused_privvmpages);
-+		printk("privvm_uncharge: BC: overuncharging %d unused pages: "
-+			" val %lu held %lu\n", bc->bc_id, sz,
-+			bc->unused_privvmpages);
- 		sz = bc->unused_privvmpages;
- 	}
-+	if (unlikely(ab->unused_privvmpages < sz2)) {
-+		printk("privvm_uncharge: AB: overuncharging %d unused pages: "
-+			"val %lu held %lu\n", ab->ab_id, sz,
-+			ab->unused_privvmpages);
-+		sz2 = ab->unused_privvmpages;
-+	}
- 	bc->unused_privvmpages -= sz;
-+	ab->unused_privvmpages -= sz;
- 	bc_update_privvmpages(bc);
- }
- 
-diff -puN include/bc/beancounter.h~aggr-bc-charging-support include/bc/beancounter.h
---- linux-2.6.18-rc5/include/bc/beancounter.h~aggr-bc-charging-support	2006-09-17 20:34:48.000000000 +0530
-+++ linux-2.6.18-rc5-balbir/include/bc/beancounter.h	2006-09-17 20:34:48.000000000 +0530
-@@ -77,6 +77,10 @@ struct aggr_beancounter {
- 	spinlock_t 		ab_lock;
- 	struct hlist_node	hash;
- 	bcid_t			ab_id;
-+	unsigned long		unused_privvmpages;
-+#ifdef CONFIG_BEANCOUNTERS_RSS
-+	unsigned long long	rss_pages;
-+#endif
- };
- 
- /*
-diff -puN kernel/bc/vmrss.c~aggr-bc-charging-support kernel/bc/vmrss.c
---- linux-2.6.18-rc5/kernel/bc/vmrss.c~aggr-bc-charging-support	2006-09-17 20:34:48.000000000 +0530
-+++ linux-2.6.18-rc5-balbir/kernel/bc/vmrss.c	2006-09-17 20:34:48.000000000 +0530
-@@ -154,19 +154,30 @@ static void mod_rss_pages(struct beancou
- 		struct vm_area_struct *vma, int unused)
- {
- 	unsigned long flags;
-+	int unused2 = unused;
- 
- 	spin_lock_irqsave(&bc->bc_lock, flags);
- 	if (vma && BC_VM_PRIVATE(vma->vm_flags, vma->vm_file)) {
- 		if (unused < 0 && unlikely(bc->unused_privvmpages < -unused)) {
--			printk("BC: overuncharging %d unused pages: "
-+			printk("mod_rss: BC: overuncharging %d unused pages: "
- 					"val %i, held %lu\n",
- 					bc->bc_id, unused,
- 					bc->unused_privvmpages);
- 			unused = -bc->unused_privvmpages;
- 		}
-+		if (unused < 0 && unlikely(bc->ab->unused_privvmpages <
-+						-unused)) {
-+			printk("mod_rss: AB: overuncharging %d unused pages: "
-+					"val %i, held %lu\n",
-+					bc->ab->ab_id, unused,
-+					bc->ab->unused_privvmpages);
-+			unused2 = -bc->ab->unused_privvmpages;
-+		}
- 		bc->unused_privvmpages += unused;
-+		bc->ab->unused_privvmpages += unused2;
- 	}
- 	bc->rss_pages += val;
-+	bc->ab->rss_pages += val;
- 	bc_update_privvmpages(bc);
- 	spin_unlock_irqrestore(&bc->bc_lock, flags);
- }
-_
+This shouldn't be surprising, the kernel doesn't have a doctrine of
+unlimited choice or merge features because they exist. For example
+people wanted pluggable (runtime and/or compile time CPU scheduler
+in the kernel. This was rejected (IIRC by Linus, Andrew, Ingo, and
+myself). No doubt it would have been useful for a small number of
+people but it was decided that it would split testing and development
+resources. The STREAMS example is another one.
+
+As an aside, there are quite a number of different types of tracing
+things (mostly static, compile out) in the kernel. Everything from
+blktrace to various userspace notifiers to lots of /proc/stuff could
+be considered a type of static event tracing. I don't know what my
+point is other than all these big, disjoint frameworks trying to be
+pushed into the kernel. Are there any plans for working some things
+together, or is that somebody else's problem?
+
+Nick
 
 -- 
-
-	Balbir Singh,
-	Linux Technology Center,
-	IBM Software Labs
-
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

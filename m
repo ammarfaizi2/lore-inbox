@@ -1,65 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964972AbWIQNpU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932207AbWIQOFg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964972AbWIQNpU (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Sep 2006 09:45:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964973AbWIQNpU
+	id S932207AbWIQOFg (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Sep 2006 10:05:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751138AbWIQOFg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Sep 2006 09:45:20 -0400
-Received: from sun.schedom-europe.net ([193.109.184.70]:25038 "HELO
-	sun.schedom-europe.net") by vger.kernel.org with SMTP
-	id S964972AbWIQNpT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Sep 2006 09:45:19 -0400
-From: Jan De Luyck <ml_linuxkernel_20060528@kcore.org>
-To: linux-kernel@vger.kernel.org
-Subject: [2.6.17.13] nforce 57 MP-BIOS bug: 8254 timer not connected to IO-APIC
-Date: Sun, 17 Sep 2006 15:45:14 +0200
-User-Agent: KMail/1.9.4
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+	Sun, 17 Sep 2006 10:05:36 -0400
+Received: from stat9.steeleye.com ([209.192.50.41]:48525 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S1750989AbWIQOFf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Sep 2006 10:05:35 -0400
+Subject: Re: Linux 2.6.18-rc6
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: Olaf Hering <olaf@aepfle.de>
+Cc: Doug Ledford <dledford@redhat.com>, Linus Torvalds <torvalds@osdl.org>,
+       linux-scsi@vger.kernel.org,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20060917053815.GA10918@aepfle.de>
+References: <Pine.LNX.4.64.0609031939100.27779@g5.osdl.org>
+	 <20060905122656.GA3650@aepfle.de>
+	 <1157490066.3463.73.camel@mulgrave.il.steeleye.com>
+	 <20060906110147.GA12101@aepfle.de>
+	 <1157551480.3469.8.camel@mulgrave.il.steeleye.com>
+	 <20060907091517.GA21728@aepfle.de>
+	 <1157637874.3462.8.camel@mulgrave.il.steeleye.com>
+	 <1158378424.2661.150.camel@fc6.xsintricity.com>
+	 <20060917053815.GA10918@aepfle.de>
+Content-Type: text/plain
+Date: Sun, 17 Sep 2006 09:05:09 -0500
+Message-Id: <1158501909.3485.1.camel@mulgrave.il.steeleye.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200609171545.14701.ml_linuxkernel_20060528@kcore.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello list,
+On Sun, 2006-09-17 at 07:38 +0200, Olaf Hering wrote:
+> As pointed out in private mail, this patch fixes the machine check for
+> me. Thanks Doug.
+> 
+> Maybe the AHC_ULTRA2 feature check is needed as well for other cards.
 
-Using kernel 2.6.17.13 on an AMD M2 64x2, motherboard ABIT KN9-SLI. Chipset
-on this board is an nForce 570 SLI MCP.
+It is ... the non ULTRA2 non twin cards might not have this register
+(and if they do, it doesn't reflect the LVD/SE bus setting).
 
-Today I bumped into this, after upgrading my BIOS to fix a boot issue that I
-was having (sometimes it wouldn't go past the POST screen):
+This is a pretty significant alteration, so it's not a -rc candidate,
+but I'll put it in scsi-misc and see how it works out.
 
----
-MP-BIOS Bug: 8254 timer not connected to IO-APIC
-Kernel panic - not syncing: IO-APIC + timer doesn't work! Try using the 'noapic' 
- kernel parameter
----
+James
 
-Prior to the BIOS upgrade I didn't have this problem - the system booted 
-fine with the IO-APIC enabled. 
 
-Using apic=debug, I see this:
---- SNIP ---
-ENABLING IO-APIC IRQs
-Synchronizing Arb IDs.
-..TIMER: vector=0x31 apic1=0 pin1=- apic2=-1 pin2=-1
-..MP-BIOS bug: 8245 timer not connected to IO-APIC
-...trying to set up timer (IRQ0) through the 8259A ...  failed.
-...trying to set up timer as Virtual Wire IRQ ... failed.
-...trying to set up tijmer as ExtINT IRQ... failed :(.
-Kernel panic - not syncing: IO-APIC + timer doesn't work! try using the 'noapic' 
- kernel parameter
---- SNIP ---
-
-Using noapic, the system boots. Is there any performance impact that might be
-occurring when using noapic? Anything else I can try?
-
-Thanks,
-
-Jan
--- 
-The brotherhood of man is not a mere poet's dream; it is a most depressing
-and humiliating reality.
-		-- Oscar Wilde

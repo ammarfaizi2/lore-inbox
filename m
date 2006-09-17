@@ -1,66 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932371AbWIQTcV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932377AbWIQTgB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932371AbWIQTcV (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Sep 2006 15:32:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932372AbWIQTcV
+	id S932377AbWIQTgB (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Sep 2006 15:36:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932375AbWIQTgB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Sep 2006 15:32:21 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:3541 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932371AbWIQTcU (ORCPT
+	Sun, 17 Sep 2006 15:36:01 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:57216 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S932374AbWIQTgA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Sep 2006 15:32:20 -0400
-Date: Sun, 17 Sep 2006 21:23:59 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>,
-       Thomas Gleixner <tglx@linutronix.de>, karim@opersys.com,
-       Andrew Morton <akpm@osdl.org>, Paul Mundt <lethal@linux-sh.org>,
-       Jes Sorensen <jes@sgi.com>,
-       Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
-       linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
-       Ingo Molnar <mingo@redhat.com>, Greg Kroah-Hartman <gregkh@suse.de>,
-       Tom Zanussi <zanussi@us.ibm.com>, ltt-dev@shafik.org,
-       Michel Dagenais <michel.dagenais@polymtl.ca>
-Subject: Re: [PATCH 0/11] LTTng-core (basic tracing infrastructure) 0.5.108
-Message-ID: <20060917192359.GA24016@elte.hu>
-References: <20060916082214.GD6317@elte.hu> <Pine.LNX.4.64.0609161831270.6761@scrub.home> <20060916230031.GB20180@elte.hu> <Pine.LNX.4.64.0609170310580.6761@scrub.home> <20060917084207.GA8738@elte.hu> <Pine.LNX.4.64.0609171627400.6761@scrub.home> <20060917152527.GC20225@elte.hu> <Pine.LNX.4.64.0609171744570.6761@scrub.home> <450D7EF0.3020805@yahoo.com.au> <Pine.LNX.4.64.0609171918430.6761@scrub.home>
-Mime-Version: 1.0
+	Sun, 17 Sep 2006 15:36:00 -0400
+Date: Sun, 17 Sep 2006 20:14:22 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Joshua Brindle <method@gentoo.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, David Madore <david.madore@ens.fr>,
+       Linux Kernel mailing-list <linux-kernel@vger.kernel.org>,
+       LSM mailing-list <linux-security-module@vger.kernel.org>
+Subject: Re: [PATCH 3/4] security: capabilities patch (version 0.4.4), part 3/4: introduce new capabilities
+Message-ID: <20060917181422.GC2225@elf.ucw.cz>
+References: <20060910133759.GA12086@clipper.ens.fr> <20060910134257.GC12086@clipper.ens.fr> <1157905393.23085.5.camel@localhost.localdomain> <450451DB.5040104@gentoo.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0609171918430.6761@scrub.home>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -2.9
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.9 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.4999]
-	-0.1 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+In-Reply-To: <450451DB.5040104@gentoo.org>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi!
 
-* Roman Zippel <zippel@linux-m68k.org> wrote:
+> >>Introduce six new "regular" (=on-by-default) capabilities:
+> >>
+> >> * CAP_REG_FORK, CAP_REG_OPEN, CAP_REG_EXEC allow access to the
+> >>   fork(), open() and exec() syscalls,
+> >>    
+> >
+> >CAP_REG_EXEC seems meaningless, I can do the same with mmap by hand for
+> >most types of binary execution except setuid (which is separate it
+> >seems)
+> >
+> >Given the capability model is accepted as inferior to things like
+> >SELinux policies why do we actually want to fix this anyway. It's
+> >unfortunate we can't discard the existing capabilities model (which has
+> >flaws) as well really.
 
-> > [...] I think Ingo said that some "static tracepoints" (eg. 
-> > annotation) could be acceptable.
-> 
-> No, he made it rather clear, that as far as possible he only wants 
-> dynamic annotations (e.g. via function attributes).
+> To expand on this a little, some of the capabilities you are looking to 
+> add are of very little if any use without being able to specify objects. 
+> For example, CAP_REG_OPEN is whether the process can open any file 
+> instead of specific ones. How many applications open no files whatsoever 
+> in practice? 
 
-what you say is totally and utterly nonsensical misrepresentation of 
-what i have said. I always said: i support in-source annotations too (I 
-even suggested APIs how to do them), as long as they are not a total 
-_guaranteed_ set destined for static tracers, i.e. as long as they are 
-there for the purpose of dynamic tracers. I dont _care_ about static 
-annotations as long as they are there for dynamic tracers, because they 
-can be moved into scripts if they cause problems. But static annotations 
-for static tracers are much, much harder to remove. Please go on and 
-read my "tracepoint maintainance models" email:
+Filters, for example. gzip -9 - and such stuff does not need to open
+any files. These should be easy to lock down, and still very useful.
 
- Message-ID: <20060917143623.GB15534@elte.hu>
+More applications could be made lock-down-aware, and for example ask
+master daemon to open files for them over a (already opened) socket.
 
-	Ingo
+								Pavel
+
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

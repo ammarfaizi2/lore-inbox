@@ -1,61 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932184AbWIQFKK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750733AbWIQFYP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932184AbWIQFKK (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Sep 2006 01:10:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932185AbWIQFKK
+	id S1750733AbWIQFYP (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Sep 2006 01:24:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750864AbWIQFYP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Sep 2006 01:10:10 -0400
-Received: from xenotime.net ([66.160.160.81]:38846 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S932184AbWIQFKJ (ORCPT
+	Sun, 17 Sep 2006 01:24:15 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:41194 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750733AbWIQFYO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Sep 2006 01:10:09 -0400
-Date: Sat, 16 Sep 2006 15:11:22 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: lkml <linux-kernel@vger.kernel.org>, akpm <akpm@osdl.org>
-Cc: adobriyan@gmail.com, rossb@google.com
-Subject: [PATCH] config.gz doesn't need module_exit
-Message-Id: <20060916151122.7d57eeb8.rdunlap@xenotime.net>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
+	Sun, 17 Sep 2006 01:24:14 -0400
+Date: Sat, 16 Sep 2006 22:24:08 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+Cc: lkml <linux-kernel@vger.kernel.org>, adobriyan@gmail.com, rossb@google.com
+Subject: Re: [PATCH] config.gz doesn't need module_exit
+Message-Id: <20060916222408.c3268a89.akpm@osdl.org>
+In-Reply-To: <20060916151122.7d57eeb8.rdunlap@xenotime.net>
+References: <20060916151122.7d57eeb8.rdunlap@xenotime.net>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@xenotime.net>
+On Sat, 16 Sep 2006 15:11:22 -0700
+"Randy.Dunlap" <rdunlap@xenotime.net> wrote:
 
-This is an alternative patch to the current /proc/config.gz
-'module' patch from Ross.  Pointed out by Alexey.
+> From: Randy Dunlap <rdunlap@xenotime.net>
+> 
+> This is an alternative patch to the current /proc/config.gz
+> 'module' patch from Ross.  Pointed out by Alexey.
+> 
+> /proc/config.gz handler doesn't need module_exit() since it
+> isn't built as a module and the exit function won't be used
+> when the code is built into the kernel.
 
-/proc/config.gz handler doesn't need module_exit() since it
-isn't built as a module and the exit function won't be used
-when the code is built into the kernel.
+It doesn't buy us much though - the __exit code is all freed up
+at runtime.
 
-Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
----
- kernel/configs.c |    9 ---------
- 1 files changed, 9 deletions(-)
+Or it should be. arch/i386/kernel/vmlinux.lds.S says
 
---- linux-2618-rc7work.orig/kernel/configs.c
-+++ linux-2618-rc7work/kernel/configs.c
-@@ -99,16 +99,7 @@ static int __init ikconfig_init(void)
- 	return 0;
- }
- 
--/***************************************************/
--/* ikconfig_cleanup: clean up our mess           */
--
--static void __exit ikconfig_cleanup(void)
--{
--	remove_proc_entry("config.gz", &proc_root);
--}
--
- module_init(ikconfig_init);
--module_exit(ikconfig_cleanup);
- 
- MODULE_LICENSE("GPL");
- MODULE_AUTHOR("Randy Dunlap");
+  /* .exit.text is discard at runtime, not link time, to deal with references
+     from .altinstructions and .eh_frame */
 
-
----
+but free_initmem() doesn't free it.

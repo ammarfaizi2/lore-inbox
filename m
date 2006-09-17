@@ -1,125 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932180AbWIQSVA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932340AbWIQSrR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932180AbWIQSVA (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Sep 2006 14:21:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932174AbWIQSVA
+	id S932340AbWIQSrR (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Sep 2006 14:47:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932349AbWIQSrR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Sep 2006 14:21:00 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:59528 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932163AbWIQSU7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Sep 2006 14:20:59 -0400
-Subject: Re: Linux 2.6.18-rc6
-From: Doug Ledford <dledford@redhat.com>
-To: Olaf Hering <olaf@aepfle.de>
-Cc: James Bottomley <James.Bottomley@SteelEye.com>,
-       Linus Torvalds <torvalds@osdl.org>, linux-scsi@vger.kernel.org,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <20060917053815.GA10918@aepfle.de>
-References: <Pine.LNX.4.64.0609031939100.27779@g5.osdl.org>
-	 <20060905122656.GA3650@aepfle.de>
-	 <1157490066.3463.73.camel@mulgrave.il.steeleye.com>
-	 <20060906110147.GA12101@aepfle.de>
-	 <1157551480.3469.8.camel@mulgrave.il.steeleye.com>
-	 <20060907091517.GA21728@aepfle.de>
-	 <1157637874.3462.8.camel@mulgrave.il.steeleye.com>
-	 <1158378424.2661.150.camel@fc6.xsintricity.com>
-	 <20060917053815.GA10918@aepfle.de>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-Y3/Nzo1eUZqO/PyoqrhJ"
-Organization: Red Hat, Inc.
-Date: Sun, 17 Sep 2006 14:20:37 -0400
-Message-Id: <1158517237.17671.77.camel@fc6.xsintricity.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.0 (2.8.0-1.fc6) 
+	Sun, 17 Sep 2006 14:47:17 -0400
+Received: from rwcrmhc15.comcast.net ([216.148.227.155]:1699 "EHLO
+	rwcrmhc15.comcast.net") by vger.kernel.org with ESMTP
+	id S932340AbWIQSrR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Sep 2006 14:47:17 -0400
+Message-ID: <450D9831.20205@comcast.net>
+Date: Sun, 17 Sep 2006 14:47:13 -0400
+From: John Richard Moser <nigelenki@comcast.net>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060728)
+MIME-Version: 1.0
+To: Mike Galbraith <efault@gmx.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Scheduler tunables?
+References: <450C8680.6050904@comcast.net>	 <1158483845.6025.22.camel@Homer.simpson.net> <450D6786.7010404@comcast.net> <1158520745.6086.6.camel@Homer.simpson.net>
+In-Reply-To: <1158520745.6086.6.camel@Homer.simpson.net>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
---=-Y3/Nzo1eUZqO/PyoqrhJ
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
 
-On Sun, 2006-09-17 at 07:38 +0200, Olaf Hering wrote:
-> On Fri, Sep 15, Doug Ledford wrote:
->=20
-> > On Thu, 2006-09-07 at 09:04 -0500, James Bottomley wrote:
-> > > On Thu, 2006-09-07 at 11:15 +0200, Olaf Hering wrote:
-> > > > This does not work: ahc_linux_get_signalling: f 56f6
-> > > >=20
-> > > > echo $(( 0x56f6 & 0x00002 )) gives 2, and the ahc_inb is called.
-> > >=20
-> > > Erm, there's something else going on then:  An ultra 2 card has to ha=
-ve
-> > > this register.  It's used to signal mode changes in
-> > > ahc_handle_scsiint().  The piece of code in there will trigger and re=
-ad
-> > > this register for any ultra 2 + controller every time there's an erro=
-r
-> > > (just to see if the bus mode changed).
-> >=20
-> > Sorry for my belated response, but this usually happens when you access
-> > an aic chipset too soon after a chip reset.  Try putting a delay before
-> > whatever access is causing this to see if it make s difference.  Common
-> > problems include after a chip reset, touching any register will cause
-> > the card to reset, etc.
->=20
-> As pointed out in private mail, this patch fixes the machine check for
-> me. Thanks Doug.
 
-Hehehe, everyone ignore my last email, I hadn't seen this one ;-)
-You're welcome.
+Mike Galbraith wrote:
+> On Sun, 2006-09-17 at 11:19 -0400, John Richard Moser wrote:
+>> -----BEGIN PGP SIGNED MESSAGE-----
+>> Hash: SHA1
+>>
+>>
+>>
+>> Mike Galbraith wrote:
+>>> On Sat, 2006-09-16 at 19:19 -0400, John Richard Moser wrote:
+>>>> -----BEGIN PGP SIGNED MESSAGE-----
+>>>> Hash: SHA1
+>>>>
+>>>> It looks like the scheduler tunables have been removed from 2.6
+>>>> somewhere before 2.6.17. 
+>>> Which tunables are you referring to?
+>>>
+>>>
+>> http://kerneltrap.org/node/525
+>>
+>> The relevant code changes in sysctl.h and sched.c seem to be undone.  Of
+>> course I'm assuming my distribution didn't just add a side patch in at
+>> the time when I noticed these existed so long ago.
+> 
+> Ah.  These knobs were never exported in a standard kernel.  I believe
+> there was a patch recently (couple weeks ago?) posted to export them
+> again for experimentation.  A search of the archives should turn it up.
+> 
 
-> Maybe the AHC_ULTRA2 feature check is needed as well for other cards.
->=20
-> ---
->  drivers/scsi/aic7xxx/aic7xxx_osm.c |    9 ++++++++-
->  1 file changed, 8 insertions(+), 1 deletion(-)
->=20
-> Index: linux-2.6.18-rc7/drivers/scsi/aic7xxx/aic7xxx_osm.c
-> =3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
-=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
-> --- linux-2.6.18-rc7.orig/drivers/scsi/aic7xxx/aic7xxx_osm.c
-> +++ linux-2.6.18-rc7/drivers/scsi/aic7xxx/aic7xxx_osm.c
-> @@ -2539,7 +2539,14 @@ static void ahc_linux_set_iu(struct scsi
->  static void ahc_linux_get_signalling(struct Scsi_Host *shost)
->  {
->  	struct ahc_softc *ahc =3D *(struct ahc_softc **)shost->hostdata;
-> -	u8 mode =3D ahc_inb(ahc, SBLKCTL);
-> +	unsigned long flags;
-> +	u8 mode;
-> +
-> +	ahc_lock(ahc, &flags);
-> +	ahc_pause(ahc);
-> +	mode =3D ahc_inb(ahc, SBLKCTL);
-> +	ahc_unpause(ahc);
-> +	ahc_unlock(ahc, &flags);
-> =20
->  	if (mode & ENAB40)
->  		spi_signalling(shost) =3D SPI_SIGNAL_LVD;
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-scsi" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
---=20
-Doug Ledford <dledford@redhat.com>
-              GPG KeyID: CFBFF194
-              http://people.redhat.com/dledford
+Nods.  May be good in environments where longer time slices could be a
+significant performance enhancement.
 
-Infiniband specific RPMs available at
-              http://people.redhat.com/dledford/Infiniband
 
---=-Y3/Nzo1eUZqO/PyoqrhJ
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+> 	-Mike
+> 
+> 
 
+- --
+All content of all messages exchanged herein are left in the
+Public Domain, unless otherwise explicitly stated.
+
+    Creative brains are a valuable, limited resource. They shouldn't be
+    wasted on re-inventing the wheel when there are so many fascinating
+    new problems waiting out there.
+                                                 -- Eric Steven Raymond
+
+    We will enslave their women, eat their children and rape their
+    cattle!
+                  -- Bosc, Evil alien overlord from the fifth dimension
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
+Version: GnuPG v1.4.3 (GNU/Linux)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
 
-iD8DBQBFDZH1g6WylM+/8ZQRAmgyAJ9Jggw+8m+foH4ValhBFSwGuai/EgCfUamT
-83u1zs/oE5qtHzUfwN6b1E8=
-=sudm
+iQIVAwUBRQ2YLgs1xW0HCTEFAQJO8hAAm/ycdiOe4oEY0kUwf6irUj9FHQ/zOhJe
+jLIvBqE60GnyP7Ry8Xk1vA9CM009xrbY2uYPyFmlSaiydPqkaganaCkAIS3deg1z
+EIT85MQCY6YHkUxOnjNScIkylSjr0jy3aDQtz0aNU1TAbnyYPwZyAAKU1N3ouwMG
+M0PPZqQTUiRM6IKbNgFENpx83VopovFmBLtWRXFGj4n6dPx1SjB7gSRbUlJ4oKNl
+4wHb06uZgV4pCJaKJv3h8yLmtepVleRMVA4QwIvTql4UizaX8XQt6hfhxtpoIAbD
+fBDZ/wtD4rqUiMFiB9Y0nb2OQmQLS1bWwfXjXU/ZsJdz+zSe1qC3TLfwkL4Sjhxo
+cC8HjOJyjo1vU0GT/Pq11JY2jvbbPlkbmk8VTV7g7+E602wfg+BLjcmKlN6scl6T
+rkCy824HFnxCXlldvHXqxq2My/Ys7HQFK92QuMdRrQF3AkPKKtLwAEJHZh+hW1oB
+N15XFXXN6SgP69UiRGBo6+QyZHTjmHlw+nNgBBBFrRwvr10NYVCV/el+e7eGY8hC
+YWy+wIqMEN51F6NEPsdSUg0od94mlc6waER6gMgxnFZMVR4TzTfKtDogqW28dRSp
+AoaXY7TynFt2K1d3iOlk7OtiX9R+U1WxDrAeNlPm/meeJjbSD8ClsqhNPbzunO0E
+/GeJOByK/o8=
+=zYrn
 -----END PGP SIGNATURE-----
-
---=-Y3/Nzo1eUZqO/PyoqrhJ--
-

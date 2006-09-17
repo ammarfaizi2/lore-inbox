@@ -1,59 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932375AbWIQThG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932376AbWIQTkS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932375AbWIQThG (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Sep 2006 15:37:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932376AbWIQThG
+	id S932376AbWIQTkS (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Sep 2006 15:40:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932383AbWIQTkS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Sep 2006 15:37:06 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:58240 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S932375AbWIQThF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Sep 2006 15:37:05 -0400
-Date: Sun, 17 Sep 2006 21:36:59 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Marcel Holtmann <marcel@holtmann.org>
-Cc: kernel list <linux-kernel@vger.kernel.org>, maxk@qualcomm.com,
-       bluez-devel@lists.sourceforge.net
-Subject: Re: bluetooth oops during resume from ram
-Message-ID: <20060917193659.GB2973@elf.ucw.cz>
-References: <20060917140952.GA3349@elf.ucw.cz> <1158511979.24941.1.camel@localhost>
-MIME-Version: 1.0
+	Sun, 17 Sep 2006 15:40:18 -0400
+Received: from tomts10.bellnexxia.net ([209.226.175.54]:48099 "EHLO
+	tomts10-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id S932376AbWIQTkQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Sep 2006 15:40:16 -0400
+Date: Sun, 17 Sep 2006 15:35:01 -0400
+From: Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Andrew Morton <akpm@osdl.org>, tglx@linutronix.de, karim@opersys.com,
+       Paul Mundt <lethal@linux-sh.org>, Jes Sorensen <jes@sgi.com>,
+       Roman Zippel <zippel@linux-m68k.org>, Ingo Molnar <mingo@elte.hu>,
+       linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
+       Ingo Molnar <mingo@redhat.com>, Greg Kroah-Hartman <gregkh@suse.de>,
+       Tom Zanussi <zanussi@us.ibm.com>, ltt-dev@shafik.org,
+       Michel Dagenais <michel.dagenais@polymtl.ca>
+Subject: printk instrumentation with LTTng
+Message-ID: <20060917193500.GA10332@Krystal>
+References: <Pine.LNX.4.64.0609151535030.6761@scrub.home> <20060915135709.GB8723@localhost.usen.ad.jp> <450AB5F9.8040501@opersys.com> <450AB506.30802@sgi.com> <450AB957.2050206@opersys.com> <20060915142836.GA9288@localhost.usen.ad.jp> <450ABE08.2060107@opersys.com> <1158332447.5724.423.camel@localhost.localdomain> <20060915111644.c857b2cf.akpm@osdl.org> <1158352633.29932.141.camel@localhost.localdomain>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1158511979.24941.1.camel@localhost>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+In-Reply-To: <1158352633.29932.141.camel@localhost.localdomain>
+X-Editor: vi
+X-Info: http://krystal.dyndns.org:8080
+X-Operating-System: Linux/2.4.32-grsec (i686)
+X-Uptime: 15:29:05 up 25 days, 16:37,  3 users,  load average: 0.18, 0.18, 0.17
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun 2006-09-17 18:52:59, Marcel Holtmann wrote:
-> Hi Pavel,
+* Alan Cox (alan@lxorguk.ukuu.org.uk) wrote:
+> In addition ideally we want a mechanism that is also sufficient that
+> printk can be mangled into so that you can pull all the printk text
+> strings _out_ of the kernel and into the debug traces for embedded work.
 > 
-> > If I suspend-to-RAM with usb active on thinkpad x60, I get an
-> > oops. Machine works okay after that, but...
-> > 
-> > it seems bluetooth is scribbling over more memory than was allocated
-> > (?)
-> 
-> not that I am aware of. Is this a plain 2.6.18-rc6 or did you apply
-> additional patches that might have caused this behavior?
 
-I have some additional changes, but they should not affect this...
+Further on, in LTTng 0.5.113, I added the possibility to trace the location
+where the printk happened. Within a huge amount of information, this kind of
+data identification can be very useful.
 
-OTOH, I probably used this script:
+Example of a printk as shown from the text dump of a trace :
+
+kernel.printk_locate: 181.713815470 (/tmp/trace2/cpu_0),
+  4357, 0, insmod, UNBRANDED, 4234, 0x0, SYSCALL,
+  { file = "/home/compudj/repository/tests/kernel/test-printk.c",
+    function = "init_module", line = 14, address = 0xf88eb000 }
+
+kernel.printk: 181.713817590 (/tmp/trace2/cpu_0),
+  4357, 0, insmod, UNBRANDED, 4234, 0x0, SYSCALL,
+  { loglevel = 0, text = { printk message } }
+
+Regards,
 
 
-killall hciattach
-sleep .1
-setserial /dev/ttyBT baud_base 921600
-hciattach -s 921600 /dev/ttyS0 bcsp
-hciconfig hci0 up
-hciconfig hci0 name billionton
-hciconfig /dev/ttyUB1
+Mathieu
 
-...even through there's no bluetooth at ttyS0 (as this machine has
-bluetooth on usb).
-								Pavel
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+
+
+OpenPGP public key:              http://krystal.dyndns.org:8080/key/compudj.gpg
+Key fingerprint:     8CD5 52C3 8E3C 4140 715F  BA06 3F25 A8FE 3BAE 9A68 

@@ -1,51 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965104AbWIQVRf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965110AbWIQVTT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965104AbWIQVRf (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Sep 2006 17:17:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965107AbWIQVRf
+	id S965110AbWIQVTT (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Sep 2006 17:19:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965107AbWIQVTT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Sep 2006 17:17:35 -0400
-Received: from smtp-vbr14.xs4all.nl ([194.109.24.34]:42763 "EHLO
-	smtp-vbr14.xs4all.nl") by vger.kernel.org with ESMTP
-	id S965104AbWIQVRe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Sep 2006 17:17:34 -0400
-Date: Sun, 17 Sep 2006 23:17:31 +0200
-From: Folkert van Heusden <folkert@vanheusden.com>
-To: linux-kernel@vger.kernel.org
-Subject: vger being silly
-Message-ID: <20060917211731.GQ24822@vanheusden.com>
+	Sun, 17 Sep 2006 17:19:19 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:43663 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S965111AbWIQVTS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Sep 2006 17:19:18 -0400
+Date: Sun, 17 Sep 2006 19:48:35 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: David Singleton <daviado@gmail.com>
+Cc: Greg KH <greg@kroah.com>, linux-pm@lists.osdl.org,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: OpPoint summary
+Message-ID: <20060917174835.GA2225@elf.ucw.cz>
+References: <20060911195546.GB11901@elf.ucw.cz> <4505CCDA.8020501@gmail.com> <20060911210026.GG11901@elf.ucw.cz> <4505DDA6.8080603@gmail.com> <20060911225617.GB13474@elf.ucw.cz> <20060912001701.GC14234@linux.intel.com> <20060912033700.GD27397@kroah.com> <b324b5ad0609131650q1b7a78cfsa90e3fbe8d7b4093@mail.gmail.com> <20060914055529.GA18031@kroah.com> <b324b5ad0609141007i2a26cf60r45ebf1175c7bcc7d@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Organization: www.unixexpert.nl
-X-Chameleon-Return-To: folkert@vanheusden.com
-X-Xfmail-Return-To: folkert@vanheusden.com
-X-Phonenumber: +31-6-41278122
-X-URL: http://www.vanheusden.com/
-X-PGP-KeyID: 1F28D8AE
-X-GPG-fingerprint: AC89 09CE 41F2 00B4 FCF2  B174 3019 0E8C 1F28 D8AE
-X-Key: http://pgp.surfnet.nl:11371/pks/lookup?op=get&search=0x1F28D8AE
-Read-Receipt-To: <folkert@vanheusden.com>
-Reply-By: Mon Sep 18 04:28:00 CEST 2006
-X-Message-Flag: Want to extend your PGP web-of-trust? Coordinate a key-signing
-	at www.biglumber.com
-User-Agent: Mutt/1.5.13 (2006-08-11)
+In-Reply-To: <b324b5ad0609141007i2a26cf60r45ebf1175c7bcc7d@mail.gmail.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi!
 
-Vger is sending e-mails with a negative size:
- In:  MAIL
-     From:<linux-kernel-owner+folkert=40vanheusden.com-S1750900AbWIQODP@vger.kernel.org>
-     BODY=8BITMIME SIZE=-428652
- Out: 401 Bad message size syntax
+> >Care to resend your patches in the proper format, through email so that
+> >we can see them, and possibly get some testing in -mm if they look sane?
+> 
+> Greg,
+>   here's the patch that implements operating points for different 
+>   frequencies
+> for the speedstep-centrino line of processors.  Operating points are created
+> in much the same manner that cpufreq tables are.  This works for both
+> simple implementations like the centrino and more complex SoC systems
+> like the arm-pxa72x which has several clocks to control, and different clock
+> divisors and multipliers.
 
+> +static struct oppoint lowest = {
+> +       .name = "lowest",
+> +       .type = PM_FREQ_CHANGE,
+> +       .frequency = 0,
+> +       .voltage = 0,
+> +       .latency = 15,
+> +       .prepare_transition  = cpufreq_prepare_transition,
+> +       .transition = centrino_transition,
+> +       .finish_transition = cpufreq_finish_transition,
+> +};
 
-Folkert van Heusden
+We had nice, descriptive interface... with numbers. Now you want to
+introduce english state names... looks like a step back to me.
 
+									Pavel
 -- 
-Ever wonder what is out there? Any alien races? Then please support
-the seti@home project: setiathome.ssl.berkeley.edu
-----------------------------------------------------------------------
-Phone: +31-6-41278122, PGP-key: 1F28D8AE, www.vanheusden.com
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

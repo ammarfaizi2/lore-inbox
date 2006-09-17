@@ -1,67 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932376AbWIQTkS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932373AbWIQTlS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932376AbWIQTkS (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Sep 2006 15:40:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932383AbWIQTkS
+	id S932373AbWIQTlS (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Sep 2006 15:41:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932383AbWIQTlS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Sep 2006 15:40:18 -0400
-Received: from tomts10.bellnexxia.net ([209.226.175.54]:48099 "EHLO
-	tomts10-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id S932376AbWIQTkQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Sep 2006 15:40:16 -0400
-Date: Sun, 17 Sep 2006 15:35:01 -0400
-From: Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Andrew Morton <akpm@osdl.org>, tglx@linutronix.de, karim@opersys.com,
-       Paul Mundt <lethal@linux-sh.org>, Jes Sorensen <jes@sgi.com>,
-       Roman Zippel <zippel@linux-m68k.org>, Ingo Molnar <mingo@elte.hu>,
-       linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
-       Ingo Molnar <mingo@redhat.com>, Greg Kroah-Hartman <gregkh@suse.de>,
-       Tom Zanussi <zanussi@us.ibm.com>, ltt-dev@shafik.org,
-       Michel Dagenais <michel.dagenais@polymtl.ca>
-Subject: printk instrumentation with LTTng
-Message-ID: <20060917193500.GA10332@Krystal>
-References: <Pine.LNX.4.64.0609151535030.6761@scrub.home> <20060915135709.GB8723@localhost.usen.ad.jp> <450AB5F9.8040501@opersys.com> <450AB506.30802@sgi.com> <450AB957.2050206@opersys.com> <20060915142836.GA9288@localhost.usen.ad.jp> <450ABE08.2060107@opersys.com> <1158332447.5724.423.camel@localhost.localdomain> <20060915111644.c857b2cf.akpm@osdl.org> <1158352633.29932.141.camel@localhost.localdomain>
-Mime-Version: 1.0
+	Sun, 17 Sep 2006 15:41:18 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:23692 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S932373AbWIQTlS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Sep 2006 15:41:18 -0400
+Date: Sun, 17 Sep 2006 21:41:18 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: kernel list <linux-kernel@vger.kernel.org>
+Subject: 8 hours of battery life on thinkpad x60
+Message-ID: <20060917194118.GA3477@elf.ucw.cz>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1158352633.29932.141.camel@localhost.localdomain>
-X-Editor: vi
-X-Info: http://krystal.dyndns.org:8080
-X-Operating-System: Linux/2.4.32-grsec (i686)
-X-Uptime: 15:29:05 up 25 days, 16:37,  3 users,  load average: 0.18, 0.18, 0.17
-User-Agent: Mutt/1.5.13 (2006-08-11)
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Alan Cox (alan@lxorguk.ukuu.org.uk) wrote:
-> In addition ideally we want a mechanism that is also sufficient that
-> printk can be mangled into so that you can pull all the printk text
-> strings _out_ of the kernel and into the debug traces for embedded work.
-> 
+hi!
 
-Further on, in LTTng 0.5.113, I added the possibility to trace the location
-where the printk happened. Within a huge amount of information, this kind of
-data identification can be very useful.
-
-Example of a printk as shown from the text dump of a trace :
-
-kernel.printk_locate: 181.713815470 (/tmp/trace2/cpu_0),
-  4357, 0, insmod, UNBRANDED, 4234, 0x0, SYSCALL,
-  { file = "/home/compudj/repository/tests/kernel/test-printk.c",
-    function = "init_module", line = 14, address = 0xf88eb000 }
-
-kernel.printk: 181.713817590 (/tmp/trace2/cpu_0),
-  4357, 0, insmod, UNBRANDED, 4234, 0x0, SYSCALL,
-  { loglevel = 0, text = { printk message } }
-
-Regards,
-
-
-Mathieu
-
-
-
-OpenPGP public key:              http://krystal.dyndns.org:8080/key/compudj.gpg
-Key fingerprint:     8CD5 52C3 8E3C 4140 715F  BA06 3F25 A8FE 3BAE 9A68 
+I did a presentation about getting 8 hours of runtime out of common
+notebooks. You can get it at
+http://atrey.karlin.mff.cuni.cz/~pavel/swsusp/8hours.odp . Biggest
+offenders are USB (being worked on) and SATA (controller eats 1W --
+more than spinning disk, strange!).
+								Pavel
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

@@ -1,51 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965108AbWIQVQT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965104AbWIQVRf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965108AbWIQVQT (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Sep 2006 17:16:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965106AbWIQVQT
+	id S965104AbWIQVRf (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Sep 2006 17:17:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965107AbWIQVRf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Sep 2006 17:16:19 -0400
-Received: from nef2.ens.fr ([129.199.96.40]:53511 "EHLO nef2.ens.fr")
-	by vger.kernel.org with ESMTP id S965105AbWIQVQS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Sep 2006 17:16:18 -0400
-Date: Sun, 17 Sep 2006 23:16:02 +0200
-From: David Madore <david.madore@ens.fr>
-To: Joshua Brindle <method@gentoo.org>
-Cc: Pavel Machek <pavel@ucw.cz>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel mailing-list <linux-kernel@vger.kernel.org>,
-       LSM mailing-list <linux-security-module@vger.kernel.org>
-Subject: Re: [PATCH 3/4] security: capabilities patch (version 0.4.4), part 3/4: introduce new capabilities
-Message-ID: <20060917211602.GA6215@clipper.ens.fr>
-References: <20060910133759.GA12086@clipper.ens.fr> <20060910134257.GC12086@clipper.ens.fr> <1157905393.23085.5.camel@localhost.localdomain> <450451DB.5040104@gentoo.org> <20060917181422.GC2225@elf.ucw.cz> <450DB274.1010404@gentoo.org>
-Mime-Version: 1.0
+	Sun, 17 Sep 2006 17:17:35 -0400
+Received: from smtp-vbr14.xs4all.nl ([194.109.24.34]:42763 "EHLO
+	smtp-vbr14.xs4all.nl") by vger.kernel.org with ESMTP
+	id S965104AbWIQVRe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Sep 2006 17:17:34 -0400
+Date: Sun, 17 Sep 2006 23:17:31 +0200
+From: Folkert van Heusden <folkert@vanheusden.com>
+To: linux-kernel@vger.kernel.org
+Subject: vger being silly
+Message-ID: <20060917211731.GQ24822@vanheusden.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <450DB274.1010404@gentoo.org>
-User-Agent: Mutt/1.5.9i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.5.10 (nef2.ens.fr [129.199.96.32]); Sun, 17 Sep 2006 23:16:03 +0200 (CEST)
+Organization: www.unixexpert.nl
+X-Chameleon-Return-To: folkert@vanheusden.com
+X-Xfmail-Return-To: folkert@vanheusden.com
+X-Phonenumber: +31-6-41278122
+X-URL: http://www.vanheusden.com/
+X-PGP-KeyID: 1F28D8AE
+X-GPG-fingerprint: AC89 09CE 41F2 00B4 FCF2  B174 3019 0E8C 1F28 D8AE
+X-Key: http://pgp.surfnet.nl:11371/pks/lookup?op=get&search=0x1F28D8AE
+Read-Receipt-To: <folkert@vanheusden.com>
+Reply-By: Mon Sep 18 04:28:00 CEST 2006
+X-Message-Flag: Want to extend your PGP web-of-trust? Coordinate a key-signing
+	at www.biglumber.com
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Sep 17, 2006 at 04:39:16PM -0400, Joshua Brindle wrote:
-> The benefits of this are so minuscule and the cost is so high if you are 
-> ever to use it that it simply won't happen..
+Hi,
 
-I'm withdrawing that patch anyway, in favor of a LSM-style approach,
-the "cuppabilities" module (cf. the patch I posted a couple of hours
-ago with that word in the title, and I'll be posting a new version in
-a day or so, or cf. <URL:
-http://www.madore.org/~david/linux/cuppabilities/
- >).  In this case, the relative cost will be lower since the
-security_ops->inode_permission() hook is called no matter what.
+Vger is sending e-mails with a negative size:
+ In:  MAIL
+     From:<linux-kernel-owner+folkert=40vanheusden.com-S1750900AbWIQODP@vger.kernel.org>
+     BODY=8BITMIME SIZE=-428652
+ Out: 401 Bad message size syntax
 
-But I agree that the value of restricting open() is very dubious and
-it was intended mostly as a demonstration.  So if there is strong
-opposition to this sort of thing, I'll remove it.
 
-Happy hacking,
+Folkert van Heusden
 
 -- 
-     David A. Madore
-    (david.madore@ens.fr,
-     http://www.madore.org/~david/ )
+Ever wonder what is out there? Any alien races? Then please support
+the seti@home project: setiathome.ssl.berkeley.edu
+----------------------------------------------------------------------
+Phone: +31-6-41278122, PGP-key: 1F28D8AE, www.vanheusden.com

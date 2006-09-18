@@ -1,78 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751510AbWIRL2G@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750852AbWIRL1q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751510AbWIRL2G (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Sep 2006 07:28:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751508AbWIRL2F
+	id S1750852AbWIRL1q (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Sep 2006 07:27:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751490AbWIRL1q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Sep 2006 07:28:05 -0400
-Received: from mx1.suse.de ([195.135.220.2]:30859 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751490AbWIRL2C (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Sep 2006 07:28:02 -0400
-To: "Vladimir B. Savkin" <master@sectorb.msk.ru>
-Cc: Jesper Dangaard Brouer <hawk@diku.dk>,
-       Harry Edmon <harry@atmos.washington.edu>, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org
-Subject: Re: Network performance degradation from 2.6.11.12 to 2.6.16.20
-References: <4492D5D3.4000303@atmos.washington.edu>
-	<44948EF6.1060201@atmos.washington.edu>
-	<Pine.LNX.4.61.0606191638550.23553@ask.diku.dk>
-	<200606191724.31305.ak@suse.de>
-	<20060916120845.GA18912@tentacle.sectorb.msk.ru>
-	<p73k6414lnp.fsf@verdi.suse.de>
-	<20060918090330.GA9850@tentacle.sectorb.msk.ru>
-	<p73eju94htu.fsf@verdi.suse.de>
-	<20060918102918.GA23261@tentacle.sectorb.msk.ru>
-From: Andi Kleen <ak@suse.de>
-Date: 18 Sep 2006 13:27:57 +0200
-In-Reply-To: <20060918102918.GA23261@tentacle.sectorb.msk.ru>
-Message-ID: <p73ac4x4doi.fsf@verdi.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+	Mon, 18 Sep 2006 07:27:46 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.149]:26807 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750852AbWIRL1p
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Sep 2006 07:27:45 -0400
+Message-ID: <450E828B.2000901@in.ibm.com>
+Date: Mon, 18 Sep 2006 16:57:07 +0530
+From: Balbir Singh <balbir@in.ibm.com>
+Reply-To: balbir@in.ibm.com
+User-Agent: Thunderbird 1.5.0.7 (X11/20060909)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Pavel Emelianov <xemul@openvz.org>
+Cc: sekharan@us.ibm.com, Srivatsa <vatsa@in.ibm.com>,
+       Rik van Riel <riel@redhat.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       CKRM-Tech <ckrm-tech@lists.sourceforge.net>,
+       Dave Hansen <haveblue@us.ibm.com>, Andi Kleen <ak@suse.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Christoph Hellwig <hch@infradead.org>, Andrey Savochkin <saw@sw.ru>,
+       Matt Helsley <matthltc@us.ibm.com>, Hugh Dickins <hugh@veritas.com>,
+       Alexey Dobriyan <adobriyan@mail.ru>, Kirill Korotaev <dev@sw.ru>,
+       Oleg Nesterov <oleg@tv-sign.ru>, devel@openvz.org
+Subject: Re: [ckrm-tech] [PATCH] BC: resource beancounters (v4) (added	user
+ memory)
+References: <44FD918A.7050501@sw.ru>	<44FDAB81.5050608@in.ibm.com>		<44FEC7E4.7030708@sw.ru>	<44FF1EE4.3060005@in.ibm.com>		<1157580371.31893.36.camel@linuxchandra>	<45011CAC.2040502@openvz.org>		<1157730221.26324.52.camel@localhost.localdomain>		<4501B5F0.9050802@in.ibm.com> <450508BB.7020609@openvz.org>		<4505161E.1040401@in.ibm.com> <45051AC7.2000607@openvz.org>		<1158000590.6029.33.camel@linuxchandra>	<45069072.4010007@openvz.org>		<1158105488.4800.23.camel@linuxchandra>	<4507BC11.6080203@openvz.org>		<1158186664.18927.17.camel@linuxchandra>	<45090A6E.1040206@openvz.org>	<1158277364.6357.33.camel@linuxchandra>	<450A5325.6090803@openvz.org> <450A6A7A.8010102@sw.ru> <450A8B61.7040905@openvz.org>
+In-Reply-To: <450A8B61.7040905@openvz.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Vladimir B. Savkin" <master@sectorb.msk.ru> writes:
-
-[you seem to send your emails in a strange way that doesn't keep me in cc.
-Please stop doing that.]
-
-> On Mon, Sep 18, 2006 at 11:58:21AM +0200, Andi Kleen wrote:
-> > > > The x86-64 timer subsystems currently doesn't have clocksources
-> > > > at all, but it supports TSC and some other timers.
-> > > 
-> > 
-> > > until I hacked arch/i386/kernel/tsc.c
-> > 
-> > Then you don't use x86-64. 
-> > 
-> Oh. I mean I made arch/i386/kernel/tsc.c compile on x86-64
-> by hacking some Makefiles and headers. 
-
-The codebase for timing (and lots of other things) is quite different
-between 32bit and 64bit. You're really surprised it doesn't work if you do such things?
-
-> But the question is, why stock 2.6.18-rc7 could not use TSC on its own?
-
-x86-64 doesn't use the TSC when it deems it to not be reliable, which
-is the case on your system.
- 
-> > > > > I've also had experience of unsychronized TSC on dual-core Athlon,
-> > > > > but it was cured by idle=poll.
-> > > > 
-> > > > You can use that, but it will make your system run quite hot 
-> > > > and cost you a lot of powe^wmoney.
-> > > 
-> > > Here in Russia electric power is cheap compared with hardware upgrade.
-> > 
-> > It's not just electrical power - the hardware is more stressed and will
-> > likely fail earlier too.  As a rule of thumb the hotter your hardware runs
-> > the earlier it will fail.
+Pavel Emelianov wrote:
+> Kirill Korotaev wrote:
 > 
-> What hardware exactly. Doesn't it affect only CPU? And they are not
-> know to fail before any other components.
+> [snip]
+>>> I have a C program that computes limits to obtain desired guarantees
+>>> in a single 'for (i = 0; i < n; n++)' loop for any given set of guarantees.
+>>> With all error handling, beautifull output, nice formatting etc it weights
+>>> only 60 lines.
+> 
+> Look at http://wiki.openvz.org/Containers/Guarantees_for_resources
+> I've described there how a guarantee can be get with limiting in details.
+> 
+> [snip]
+> 
+>>> I do not 'do not like guarantee'. I'm just sure that there are two ways
+>>> for providing guarantee (for unreclaimable resorces):
+>>> 1. reserving resource for group in advance
+>>> 2. limit resource for others
+>>> Reserving is worse as it is essentially limiting (you cut off 100Mb from
+>>> 1Gb RAM thus limiting the other groups by 900Mb RAM), but this limiting
+>>> is too strict - you _have_ to reserve less than RAM size. Limiting in
+>>> run-time is more flexible (you may create an overcommited BC if you
+>>> want to) and leads to the same result - guarantee.
+>> I think this deserves putting on Wiki.
+>> It is very good clear point.
+> 
+> This is also on the page I gave link at.
 
-All hardware. It's basic physics.
 
--Andi
+The program (calculate_limits()) listed on the website does not work for
+the following case
+
+N=2;
+R=100;
+g[2] = {30, 30};
+
+
+The output is -10 and -10 for the limits
+
+For
+
+N=3;
+R=100;
+g[3] = {30, 30, 10};
+
+I get -70, -70 and -110 as the limits
+
+Am I interpreting the parameters correctly? Or the program is broken?
+
+-- 
+
+	Balbir Singh,
+	Linux Technology Center,
+	IBM Software Labs

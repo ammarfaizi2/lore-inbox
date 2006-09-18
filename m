@@ -1,51 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751183AbWIRVJs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751168AbWIRVQd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751183AbWIRVJs (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Sep 2006 17:09:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751186AbWIRVJs
+	id S1751168AbWIRVQd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Sep 2006 17:16:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751192AbWIRVQd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Sep 2006 17:09:48 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.150]:29352 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751183AbWIRVJq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Sep 2006 17:09:46 -0400
-Date: Mon, 18 Sep 2006 16:09:45 -0500
-To: Andrew Morton <akpm@osdl.org>
-Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org,
-       linux-pci@atrey.karlin.mff.cuni.cz, netdev@vger.kernel.org,
-       Jesse Brandeburg <jesse.brandeburg@intel.com>,
-       Rajesh Shah <rajesh.shah@intel.com>,
-       "Ronciak, John" <john.ronciak@intel.com>,
-       "bibo,mao" <bibo.mao@intel.com>, Auke Kok <sofar@foo-projects.org>,
-       Auke Kok <auke-jan.h.kok@intel.com>
-Subject: Re: [PATCH] please include in 2.6.18: e100 disable device on PCI error
-Message-ID: <20060918210945.GF29167@austin.ibm.com>
-References: <20060918200122.GD29167@austin.ibm.com> <20060918132102.d850c1c2.akpm@osdl.org>
+	Mon, 18 Sep 2006 17:16:33 -0400
+Received: from iolanthe.rowland.org ([192.131.102.54]:4882 "HELO
+	iolanthe.rowland.org") by vger.kernel.org with SMTP
+	id S1751168AbWIRVQc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Sep 2006 17:16:32 -0400
+Date: Mon, 18 Sep 2006 17:16:32 -0400 (EDT)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@iolanthe.rowland.org
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+cc: Andrew Morton <akpm@osdl.org>, David Brownell <david-b@pacbell.net>,
+       LKML <linux-kernel@vger.kernel.org>,
+       USB development list <linux-usb-devel@lists.sourceforge.net>,
+       Greg KH <greg@kroah.com>
+Subject: Re: 2.6.18-rc6-mm2 (-mm1): ohci_hcd does not recognize new devices
+In-Reply-To: <200609182251.09318.rjw@sisk.pl>
+Message-ID: <Pine.LNX.4.44L0.0609181715200.7192-100000@iolanthe.rowland.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060918132102.d850c1c2.akpm@osdl.org>
-User-Agent: Mutt/1.5.11
-From: linas@austin.ibm.com (Linas Vepstas)
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 18 Sep 2006, Rafael J. Wysocki wrote:
 
-It seems our mails crossed.
-
-On Mon, Sep 18, 2006 at 01:21:02PM -0700, Andrew Morton wrote:
+> > > I have carried out a binary search and found that the problem is caused by
+> > > 
+> > > gregkh-usb-usbcore-remove-usb_suspend_root_hub.patch
+> > 
+> > Tell me, what happens if you leave that patch installed, and you use 
+> > the patch I sent last week (the one that removes a chunk of code from 
+> > ohci-hub.c), and you also set CONFIG_USB_SUSPEND?
 > 
-> hm.  I don't have this patch queued, but I _do_ have an equivalent patch
-> for e1000 queued; what's up with that?  Nobody seems to have paid much
-> attention to the e1000 fix.
+> The problem continues to happen.
+> 
+> Moreover, if I revert the above patch and apply the patch removing code
+> from ohci-hub.c, the problem reappears.
 
-I spotted the e100 patch in your "broken-out" patches earlier today, 
-as a part of "git-netdev-all.patch" (where it had the right changelog 
-and old acks)
+Very strange.
 
-> If we can gather the appropriate acks quickly then I expect we can get both
-> of these into 2.6.18.
+> > I think the real underlying problem here is that David's implementation of 
+> > root-hub suspend in ohci-hcd is incompatible with the overall scheme I've 
+> > been working on.  In the end I'll probably have to rewrite the ohci-hcd 
+> > code.
+> 
+> Well, at this point I can only help you by testing some code. ;-)
+> 
+> Seriously, if you have any new patches to test, please let me know.
 
-That would be great! Thanks.
+I definitely will.  However they won't be ready for a few days...
 
---linas
+Alan Stern
+

@@ -1,47 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751934AbWIRVl2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751923AbWIRVqR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751934AbWIRVl2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Sep 2006 17:41:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751936AbWIRVl2
+	id S1751923AbWIRVqR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Sep 2006 17:46:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751936AbWIRVqR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Sep 2006 17:41:28 -0400
-Received: from wx-out-0506.google.com ([66.249.82.229]:55163 "EHLO
-	wx-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1751934AbWIRVl1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Sep 2006 17:41:27 -0400
+	Mon, 18 Sep 2006 17:46:17 -0400
+Received: from minus.inr.ac.ru ([194.67.69.97]:11440 "HELO ms2.inr.ac.ru")
+	by vger.kernel.org with SMTP id S1751923AbWIRVqQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Sep 2006 17:46:16 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=l6CTSP94mCR4RwV4FlCuw9sd6DAtskvCAQyIHDredTTSHatmu5ztEIIF6YMdfC+Wz9jL87V4OCXI5l8cacGzz/yssW93YJX4IEC8A/UK/VoVrRXExpFf8b8jB7PaYi94P0Gtue79HzUC1jM0Stjq8a5Wvhm2T7c06p1NSyFgebA=
-Message-ID: <9a8748490609181441w3741621do2d161567ca390373@mail.gmail.com>
-Date: Mon, 18 Sep 2006 23:41:26 +0200
-From: "Jesper Juhl" <jesper.juhl@gmail.com>
-To: "Anuj Tripathi" <anujt@it.iitb.ac.in>
-Subject: Re: Problems in compiling the module "/net/ieee80211"
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <450F0515.3040002@it.iitb.ac.in>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+  s=s1024; d=ms2.inr.ac.ru;
+  b=WSkwUIPhl2soh1tyygv7bQyjlkuw+EdQDNP6PYyrBteF60J/b/AJqobGN+JgTS2N6J4BBQXr/ZI5fANdP5Rfm2ndAWwVdQDDw7dED3gFci1TjZll58gJeUbxjW7AydH/S/KOQviCoRS8p0rCNt3yTiEIoHW93AT6K15k0dsBG1k=;
+Date: Tue, 19 Sep 2006 01:46:01 +0400
+From: Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>
+To: David Miller <davem@davemloft.net>
+Cc: ak@suse.de, master@sectorb.msk.ru, hawk@diku.dk,
+       harry@atmos.washington.edu, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org
+Subject: Re: Network performance degradation from 2.6.11.12 to 2.6.16.20
+Message-ID: <20060918214601.GA14322@ms2.inr.ac.ru>
+References: <20060918162847.GA4863@ms2.inr.ac.ru> <200609181850.22851.ak@suse.de> <20060918210321.GA4780@ms2.inr.ac.ru> <20060918.142247.14844785.davem@davemloft.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <450F0515.3040002@it.iitb.ac.in>
+In-Reply-To: <20060918.142247.14844785.davem@davemloft.net>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 18/09/06, Anuj Tripathi <anujt@it.iitb.ac.in> wrote:
-> Hi
->
-> I am trying to compile the kernel source code of .c files in
-> /linux-2.6.17.11/net/ieee80211 in  a standalone manner.
+Hello!
 
-What's wrong with :
+> Ok, ok, but don't we have queueing disciplines that need the timestamp
+> even on ingress?
 
-$ make allyesconfig
-$ make net/ieee80211/
+I cannot find.
 
- ???
+ip_queue does. But it is just another user, not different of sockets.
 
--- 
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+BTW in any case, any user of timestamp who sees 0, because skb was received
+before timestamping was enabled, has to calculate timestamp itself right
+in the place where Andi suggested. Seems, preparation to the change
+makes sense even without the change. :-)
+
+Alexey
+

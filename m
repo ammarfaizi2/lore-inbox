@@ -1,70 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751802AbWIRQH1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751016AbWIRQLD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751802AbWIRQH1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Sep 2006 12:07:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751821AbWIRQH1
+	id S1751016AbWIRQLD (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Sep 2006 12:11:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751822AbWIRQLD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Sep 2006 12:07:27 -0400
-Received: from smtp-out.google.com ([216.239.33.17]:44335 "EHLO
-	smtp-out.google.com") by vger.kernel.org with ESMTP
-	id S1751802AbWIRQH0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Sep 2006 12:07:26 -0400
-DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
-	h=received:subject:from:reply-to:to:cc:in-reply-to:references:
-	content-type:organization:date:message-id:mime-version:x-mailer:content-transfer-encoding;
-	b=atnsbYo0JHIQR1QzFT4c9Haztd651mTg8V/Ko6/nSi3C73DUSI41RPeXc8tdH84If
-	xifgdbb+NcJcdHyYQtpNQ==
-Subject: Re: [ckrm-tech] [patch 0/5]-Containers: Introduction
-From: Rohit Seth <rohitseth@google.com>
-Reply-To: rohitseth@google.com
-To: balbir@in.ibm.com
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel <linux-kernel@vger.kernel.org>,
-       devel@openvz.org, CKRM-Tech <ckrm-tech@lists.sourceforge.net>
-In-Reply-To: <450E9ED9.2060306@in.ibm.com>
-References: <1158284264.5408.144.camel@galaxy.corp.google.com>
-	 <450E9ED9.2060306@in.ibm.com>
-Content-Type: text/plain
-Organization: Google Inc
-Date: Mon, 18 Sep 2006 09:06:10 -0700
-Message-Id: <1158595571.18533.5.camel@galaxy.corp.google.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
-Content-Transfer-Encoding: 7bit
+	Mon, 18 Sep 2006 12:11:03 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:9900 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751016AbWIRQLB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Sep 2006 12:11:01 -0400
+Date: Mon, 18 Sep 2006 09:10:29 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Andi Kleen <ak@suse.de>
+cc: Andrew Morton <akpm@osdl.org>, Chuck Ebbert <76306.1226@compuserve.com>,
+       In Cognito <defend.the.world@gmail.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Ingo Molnar <mingo@elte.hu>, bcrl@kvack.org,
+       Zachary Amsden <zach@vmware.com>
+Subject: Re: Sysenter crash with Nested Task Bit set
+In-Reply-To: <Pine.LNX.4.64.0609180841520.4388@g5.osdl.org>
+Message-ID: <Pine.LNX.4.64.0609180904360.4388@g5.osdl.org>
+References: <200609172354_MC3-1-CB7A-58ED@compuserve.com>
+ <20060917222537.55241d19.akpm@osdl.org> <Pine.LNX.4.64.0609180741520.4388@g5.osdl.org>
+ <200609181729.23934.ak@suse.de> <Pine.LNX.4.64.0609180841520.4388@g5.osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-09-18 at 18:57 +0530, Balbir Singh wrote:
-> Rohit Seth wrote:
-> 
-> > Below is a one line description for patches that will follow:
-> > 
-> > [patch01]: Documentation on how to use containers
-> > (Documentation/container.txt)
-> > 
-> > [patch02]: Changes in the generic part of kernel code
-> > 
-> > [patch03]: Container's interface with configfs
-> > 
-> > [patch04]: Core container support
-> > 
-> > [patch05]: Over the limit memory handler.
-> >
-> 
-> Hi, Rohit,
-> 
-> The patches are hard to follow - are they diff'ed with Naurp?
-> At certain places I cannot figure out which function has changed.
-> 
 
-They are without p option so the function name is not there. Though
-there is only one patch 02 of 05 that modifies existing code.  And that
-too almost all single line changes are starting with container API
-container_*  Please let me know if there is something specific that is
-not clear.
 
-I will send the next version of patches and I will include -p option as
-well.
+On Mon, 18 Sep 2006, Linus Torvalds wrote:
+> 
+> The addition is fairly obvious, but maybe I screwed something up, so buyer 
+> beware...
 
-thanks,
--rohit
+Final note (I promise): now that we save/restore eflags again, we 
+should probably revert the set_iopl_mask() in task switching too. However, 
+that apparently has some para-virtualization issues, so I'm going to 
+ignore that part from now.
 
+However, I'd really like people who know and care about the 
+paravirtualization to take a good long look at it: because right now, with 
+the addition of the eflags save/restore, the set_iopl_mask() in 
+__switch_to() is entirely useless for non-virtualized environments, afaik.
+
+Zack added to the cc. Who else needs to know?
+
+		Linus

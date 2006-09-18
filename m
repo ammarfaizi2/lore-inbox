@@ -1,22 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750852AbWIRL1q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932253AbWIRLcj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750852AbWIRL1q (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Sep 2006 07:27:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751490AbWIRL1q
+	id S932253AbWIRLcj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Sep 2006 07:32:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932273AbWIRLcj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Sep 2006 07:27:46 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.149]:26807 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750852AbWIRL1p
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Sep 2006 07:27:45 -0400
-Message-ID: <450E828B.2000901@in.ibm.com>
-Date: Mon, 18 Sep 2006 16:57:07 +0530
-From: Balbir Singh <balbir@in.ibm.com>
-Reply-To: balbir@in.ibm.com
-User-Agent: Thunderbird 1.5.0.7 (X11/20060909)
+	Mon, 18 Sep 2006 07:32:39 -0400
+Received: from mailhub.sw.ru ([195.214.233.200]:1846 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S932253AbWIRLci (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Sep 2006 07:32:38 -0400
+Message-ID: <450E83D0.6080205@openvz.org>
+Date: Mon, 18 Sep 2006 15:32:32 +0400
+From: Pavel Emelianov <xemul@openvz.org>
+User-Agent: Thunderbird 1.5 (X11/20060317)
 MIME-Version: 1.0
-To: Pavel Emelianov <xemul@openvz.org>
-Cc: sekharan@us.ibm.com, Srivatsa <vatsa@in.ibm.com>,
+To: balbir@in.ibm.com
+CC: sekharan@us.ibm.com, Srivatsa <vatsa@in.ibm.com>,
        Rik van Riel <riel@redhat.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
        CKRM-Tech <ckrm-tech@lists.sourceforge.net>,
        Dave Hansen <haveblue@us.ibm.com>, Andi Kleen <ak@suse.de>,
@@ -27,64 +26,91 @@ Cc: sekharan@us.ibm.com, Srivatsa <vatsa@in.ibm.com>,
        Oleg Nesterov <oleg@tv-sign.ru>, devel@openvz.org
 Subject: Re: [ckrm-tech] [PATCH] BC: resource beancounters (v4) (added	user
  memory)
-References: <44FD918A.7050501@sw.ru>	<44FDAB81.5050608@in.ibm.com>		<44FEC7E4.7030708@sw.ru>	<44FF1EE4.3060005@in.ibm.com>		<1157580371.31893.36.camel@linuxchandra>	<45011CAC.2040502@openvz.org>		<1157730221.26324.52.camel@localhost.localdomain>		<4501B5F0.9050802@in.ibm.com> <450508BB.7020609@openvz.org>		<4505161E.1040401@in.ibm.com> <45051AC7.2000607@openvz.org>		<1158000590.6029.33.camel@linuxchandra>	<45069072.4010007@openvz.org>		<1158105488.4800.23.camel@linuxchandra>	<4507BC11.6080203@openvz.org>		<1158186664.18927.17.camel@linuxchandra>	<45090A6E.1040206@openvz.org>	<1158277364.6357.33.camel@linuxchandra>	<450A5325.6090803@openvz.org> <450A6A7A.8010102@sw.ru> <450A8B61.7040905@openvz.org>
-In-Reply-To: <450A8B61.7040905@openvz.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+References: <44FD918A.7050501@sw.ru>	<44FDAB81.5050608@in.ibm.com>		<44FEC7E4.7030708@sw.ru>	<44FF1EE4.3060005@in.ibm.com>		<1157580371.31893.36.camel@linuxchandra>	<45011CAC.2040502@openvz.org>		<1157730221.26324.52.camel@localhost.localdomain>		<4501B5F0.9050802@in.ibm.com> <450508BB.7020609@openvz.org>		<4505161E.1040401@in.ibm.com> <45051AC7.2000607@openvz.org>		<1158000590.6029.33.camel@linuxchandra>	<45069072.4010007@openvz.org>		<1158105488.4800.23.camel@linuxchandra>	<4507BC11.6080203@openvz.org>		<1158186664.18927.17.camel@linuxchandra>	<45090A6E.1040206@openvz.org>	<1158277364.6357.33.camel@linuxchandra>	<450A5325.6090803@openvz.org> <450A6A7A.8010102@sw.ru> <450A8B61.7040905@openvz.org> <450E5813.2040804@in.ibm.com> <450E5F2E.2070809@openvz.org> <450E8113.30602@in.ibm.com>
+In-Reply-To: <450E8113.30602@in.ibm.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Emelianov wrote:
-> Kirill Korotaev wrote:
-> 
-> [snip]
->>> I have a C program that computes limits to obtain desired guarantees
->>> in a single 'for (i = 0; i < n; n++)' loop for any given set of guarantees.
->>> With all error handling, beautifull output, nice formatting etc it weights
->>> only 60 lines.
-> 
-> Look at http://wiki.openvz.org/Containers/Guarantees_for_resources
-> I've described there how a guarantee can be get with limiting in details.
-> 
-> [snip]
-> 
->>> I do not 'do not like guarantee'. I'm just sure that there are two ways
->>> for providing guarantee (for unreclaimable resorces):
->>> 1. reserving resource for group in advance
->>> 2. limit resource for others
->>> Reserving is worse as it is essentially limiting (you cut off 100Mb from
->>> 1Gb RAM thus limiting the other groups by 900Mb RAM), but this limiting
->>> is too strict - you _have_ to reserve less than RAM size. Limiting in
->>> run-time is more flexible (you may create an overcommited BC if you
->>> want to) and leads to the same result - guarantee.
->> I think this deserves putting on Wiki.
->> It is very good clear point.
-> 
-> This is also on the page I gave link at.
+Balbir Singh wrote:
+> Pavel Emelianov wrote:
+>> Balbir Singh wrote:
+>>
+>> [snip]
+>>
+>>> This approach has the following disadvantages
+>>>  1. Lets consider initialization - When we create 'n' groups
+>>> initially, we need
+>>>     to spend O(n^2) time to assign guarantees.
+>>
+>> 1. Not guarantees - limits. If you do not need guarantees - assign
+>>    overcommited limits. Most of OpenVZ users do so and nobody claims.
+>> 2. If you start n groups at once then limits are calculated in O(n)
+>>    time, not O(n^2).
+>
+> Yes.. if you start them at once, but if they are incrementally
+> added and started it is O(n^2)
 
+See my comment below.
 
-The program (calculate_limits()) listed on the website does not work for
-the following case
+>
+>>
+>>>  2. Every time a limit or a guarantee changes, we need to recalculate
+>>> guarantees
+>>>     and ensure that the change will not break any guarantees
+>>
+>> The same.
+>>
+>>>  3. The same thing as stated above, when a resource group is created
+>>> or deleted
+>>>
+>>> This can lead to some instability; a change in one group propagates to
+>>> all other groups.
+>>
+>> Let me cite a part of your answer on my letter from 11.09.2006:
+>> "...
+>>   xemul> I have a node with 1Gb of ram and 10 containers with 100Mb
+>>   xemul> guarantee each. I want to start one more.
+>>   xemul> What shall I do not to break guarantees?
+>>
+>>  Don't start the new container or change the guarantees of the
+>>  existing ones to accommodate this one ... It would be perfectly
+>>  ok to have a container that does not care about guarantees to
+>>  set their guarantee to 0 and set their limit to the desired value
+>> ..."
+>>
+>> The same for the limiting - either do not start new container, or
+>> recalculate limits to meet new requirements. You may not take care of
+>> guarantees as weel and create an overcommited configuration.
 
-N=2;
-R=100;
-g[2] = {30, 30};
+As I do not see any reply on this I consider "O(n^2) disadvantage" to
+be irrelevant.
 
+>>
+>> And one more thing. We've asked it many times and I ask it again -
+>> please, show us the other way for providing guarantee rather than
+>> limiting or reserving.
+>
+> There are some other options, I am sure Chandra will probably have
+> more.
+>
+> 1. Reclaim resources from other containers. This can be done well for
+>    user-pages, if we ensure that each container does not mlock more
+>    than its guaranteed share of memory.
 
-The output is -10 and -10 for the limits
+We've already agreed to consider unreclaimable resources only.
+If we provide reclaimable memory *only* then we can provide any
+guarantee with a single page available for user-space.
+Unreclaimable resource is the most interesting one.
 
-For
+> 2. Provide best effort guarantees for non-reclaimable memory
 
-N=3;
-R=100;
-g[3] = {30, 30, 10};
+That's the question - how?
 
-I get -70, -70 and -110 as the limits
+> 3. oom-kill a container or a task within a resource group that has
+>    exceeded its guarantee and some other container is unable to meet its
+>    guarantee
 
-Am I interpreting the parameters correctly? Or the program is broken?
-
--- 
-
-	Balbir Singh,
-	Linux Technology Center,
-	IBM Software Labs
+Oom-killer must start only when there are no other ways to find memory.
+This must be a "last argument", not the regular solution.

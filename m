@@ -1,86 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965573AbWIRIYE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965574AbWIRI00@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965573AbWIRIYE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Sep 2006 04:24:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965581AbWIRIYE
+	id S965574AbWIRI00 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Sep 2006 04:26:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965575AbWIRI00
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Sep 2006 04:24:04 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:21172 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S965577AbWIRIYA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Sep 2006 04:24:00 -0400
-Subject: Re: [PATCH 05/16] GFS2: File and inode operations
-From: Steven Whitehouse <swhiteho@redhat.com>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>, linux-kernel@vger.kernel.org,
-       Russell Cattelan <cattelan@redhat.com>,
-       David Teigland <teigland@redhat.com>, Ingo Molnar <mingo@elte.hu>
-In-Reply-To: <20060916133947.GA1498@infradead.org>
-References: <1157031183.3384.793.camel@quoit.chygwyn.com>
-	 <Pine.LNX.4.61.0609040824290.9108@yvahk01.tjqt.qr>
-	 <20060916133947.GA1498@infradead.org>
-Content-Type: text/plain
-Organization: Red Hat (UK) Ltd
-Date: Mon, 18 Sep 2006 09:27:22 +0100
-Message-Id: <1158568042.11901.267.camel@quoit.chygwyn.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+	Mon, 18 Sep 2006 04:26:26 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.152]:20932 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S965574AbWIRI0Z
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Sep 2006 04:26:25 -0400
+Message-ID: <450E5813.2040804@in.ibm.com>
+Date: Mon, 18 Sep 2006 13:55:55 +0530
+From: Balbir Singh <balbir@in.ibm.com>
+Reply-To: balbir@in.ibm.com
+User-Agent: Thunderbird 1.5.0.7 (X11/20060909)
+MIME-Version: 1.0
+To: Pavel Emelianov <xemul@openvz.org>
+Cc: sekharan@us.ibm.com, Srivatsa <vatsa@in.ibm.com>,
+       Rik van Riel <riel@redhat.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       CKRM-Tech <ckrm-tech@lists.sourceforge.net>,
+       Dave Hansen <haveblue@us.ibm.com>, Andi Kleen <ak@suse.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Christoph Hellwig <hch@infradead.org>, Andrey Savochkin <saw@sw.ru>,
+       Matt Helsley <matthltc@us.ibm.com>, Hugh Dickins <hugh@veritas.com>,
+       Alexey Dobriyan <adobriyan@mail.ru>, Kirill Korotaev <dev@sw.ru>,
+       Oleg Nesterov <oleg@tv-sign.ru>, devel@openvz.org
+Subject: Re: [ckrm-tech] [PATCH] BC: resource beancounters (v4) (added	user
+ memory)
+References: <44FD918A.7050501@sw.ru>	<44FDAB81.5050608@in.ibm.com>		<44FEC7E4.7030708@sw.ru>	<44FF1EE4.3060005@in.ibm.com>		<1157580371.31893.36.camel@linuxchandra>	<45011CAC.2040502@openvz.org>		<1157730221.26324.52.camel@localhost.localdomain>		<4501B5F0.9050802@in.ibm.com> <450508BB.7020609@openvz.org>		<4505161E.1040401@in.ibm.com> <45051AC7.2000607@openvz.org>		<1158000590.6029.33.camel@linuxchandra>	<45069072.4010007@openvz.org>		<1158105488.4800.23.camel@linuxchandra>	<4507BC11.6080203@openvz.org>		<1158186664.18927.17.camel@linuxchandra>	<45090A6E.1040206@openvz.org>	<1158277364.6357.33.camel@linuxchandra>	<450A5325.6090803@openvz.org> <450A6A7A.8010102@sw.ru> <450A8B61.7040905@openvz.org>
+In-Reply-To: <450A8B61.7040905@openvz.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Sat, 2006-09-16 at 14:39 +0100, Christoph Hellwig wrote:
-> > 
-> > >+struct file gfs2_internal_file_sentinal = {
-> > >+	.f_flags = O_NOATIME|O_RDONLY,
-> > >+};
+Pavel Emelianov wrote:
+> Kirill Korotaev wrote:
 > 
-> Statically allocation a struct file is not allowed.  Where do you use
-> gfs2_internal_read?  It really shouldn't be needed.
+> [snip]
+>>> I have a C program that computes limits to obtain desired guarantees
+>>> in a single 'for (i = 0; i < n; n++)' loop for any given set of guarantees.
+>>> With all error handling, beautifull output, nice formatting etc it weights
+>>> only 60 lines.
 > 
-The sentinel is used as a flag value only. Its passed through to the
-underlying address space operations of readpage(s) to indicate that the
-glock for the inode is already held and therefore locking isn't required
-at the address space operations level. The glock is used to ensure
-consistancy when reading certain "internal" files.
-
-For example, the resource index contains a list of all the resource
-groups on disk and is written through the gfs2meta filesystem when the
-filesystem is expanded. We need a way to read the resource index in, in
-such a way as to ensure its not being updated in the middle of the read.
-So we use gfs2_internal_read to do that, holding the glock for the
-entire operation.
-
-It has a similar use for some of the other internal files as well.
-
-> > >+static int gfs2_readdir(struct file *file, void *dirent, filldir_t filldir)
-> > >+{
-> > >+	int error;
-> > >+
-> > >+	if (strcmp(current->comm, "nfsd") != 0)
-> > 
-> > Is not there a better way to do this? Note that there is also a "nfsd4" process
+> Look at http://wiki.openvz.org/Containers/Guarantees_for_resources
+> I've described there how a guarantee can be get with limiting in details.
 > 
-> This is in fact not allowed at at all.  Please fix you readdir code not to
-> need special cases for nfsd.
+> [snip]
 > 
-Perhaps you can suggest a solution to the problem.... We have a bz
-#201015 (in bugzilla.redhat.com) tracking this.
+>>> I do not 'do not like guarantee'. I'm just sure that there are two ways
+>>> for providing guarantee (for unreclaimable resorces):
+>>> 1. reserving resource for group in advance
+>>> 2. limit resource for others
+>>> Reserving is worse as it is essentially limiting (you cut off 100Mb from
+>>> 1Gb RAM thus limiting the other groups by 900Mb RAM), but this limiting
+>>> is too strict - you _have_ to reserve less than RAM size. Limiting in
+>>> run-time is more flexible (you may create an overcommited BC if you
+>>> want to) and leads to the same result - guarantee.
+>> I think this deserves putting on Wiki.
+>> It is very good clear point.
+> 
+> This is also on the page I gave link at.
+> 
 
-The problem is caused by the way in which nfsd does a stat from
-readdir's filldir routine. We have to acquire and drop the directory
-glock in filldir otherwise it may deadlock with the glocks which are
-taken by stat. As a result of this, we then have to revalidate the
-position in the directory on each call to filldir, rather than locking
-the whole readdir call as the "normal" version does, so the current nfs
-variant of readdir is much slower than the "normal" one even though it
-could otherwise potentially be used for both cases.
+This approach has the following disadvantages
+  1. Lets consider initialization - When we create 'n' groups initially, we need
+     to spend O(n^2) time to assign guarantees.
+  2. Every time a limit or a guarantee changes, we need to recalculate guarantees
+     and ensure that the change will not break any guarantees
+  3. The same thing as stated above, when a resource group is created or deleted
 
-I will try and have a look at this problem in more detail some time this
-week,
-
-Steve.
+This can lead to some instability; a change in one group propagates to all other groups.
 
 
+-- 
+
+	Balbir Singh,
+	Linux Technology Center,
+	IBM Software Labs

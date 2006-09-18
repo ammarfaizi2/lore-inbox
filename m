@@ -1,41 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965511AbWIRHGk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751384AbWIRHXJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965511AbWIRHGk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Sep 2006 03:06:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965512AbWIRHGk
+	id S1751384AbWIRHXJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Sep 2006 03:23:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751309AbWIRHXJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Sep 2006 03:06:40 -0400
-Received: from mail.gmx.de ([213.165.64.20]:53177 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S965511AbWIRHGk (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Sep 2006 03:06:40 -0400
-X-Authenticated: #14349625
-Subject: Re: sluggish system with 2.6.17 and dm-crypt - PARTLY SOLVED
-From: Mike Galbraith <efault@gmx.de>
-To: Martin Kourim <martink@hkfree.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200609171422.46629.martink@hkfree.org>
-References: <200609161053.20317.martink@hkfree.org>
-	 <200609171422.46629.martink@hkfree.org>
-Content-Type: text/plain
-Date: Mon, 18 Sep 2006 09:18:13 +0000
-Message-Id: <1158571093.6376.19.camel@Homer.simpson.net>
+	Mon, 18 Sep 2006 03:23:09 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:7359
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1751278AbWIRHXI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Sep 2006 03:23:08 -0400
+Date: Mon, 18 Sep 2006 00:22:56 -0700 (PDT)
+Message-Id: <20060918.002256.31639200.davem@davemloft.net>
+To: herbert@gondor.apana.org.au
+Cc: kuznet@ms2.inr.ac.ru, khc@pm.waw.pl, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org
+Subject: Re: 2.6.18-rc5 with GRE, iptables and Speedtouch ADSL, PPP over ATM
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <20060903111507.GA12580@gondor.apana.org.au>
+References: <m3odty57gf.fsf@defiant.localdomain>
+	<20060903111507.GA12580@gondor.apana.org.au>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.0 
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-09-17 at 14:22 +0200, Martin Kourim wrote:
-> Hi,
+From: Herbert Xu <herbert@gondor.apana.org.au>
+Date: Sun, 3 Sep 2006 21:15:07 +1000
+
+> So here is a simple patch to remove the tx lock from dev_watchdog_up.
+> In 2.6.19 we can eliminate the unnecessary __dev_watchdog_up and
+> replace it with dev_watchdog_up.
 > 
-> yesterday, I've send mail below to this list. Today I've noticed that on 
-> 2.6.17, kjournald is running with nice level -5. On 2.6.16, kjournald is 
-> running with nice level 0. I did "renice 0 `pgrep kjournald`" and it 
-> have "solved" my problem.
+> Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
 
-How much cpu is kjournald using in both 16 and 17 kernels?
-
-	-Mike
-
+Applied, thanks Herbert.

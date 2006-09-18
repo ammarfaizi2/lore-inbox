@@ -1,18 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965324AbWIRCnr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965349AbWIRDGZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965324AbWIRCnr (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Sep 2006 22:43:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965325AbWIRCnr
+	id S965349AbWIRDGZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Sep 2006 23:06:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965345AbWIRDGZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Sep 2006 22:43:47 -0400
-Received: from tomts20.bellnexxia.net ([209.226.175.74]:19948 "EHLO
-	tomts20-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id S965324AbWIRCnq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Sep 2006 22:43:46 -0400
-Date: Sun, 17 Sep 2006 22:43:43 -0400
-From: Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Karim Yaghmour <karim@opersys.com>, Paul Mundt <lethal@linux-sh.org>,
+	Sun, 17 Sep 2006 23:06:25 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:46008 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S965344AbWIRDGY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Sep 2006 23:06:24 -0400
+Date: Mon, 18 Sep 2006 04:57:22 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Karim Yaghmour <karim@opersys.com>
+Cc: Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
+       Paul Mundt <lethal@linux-sh.org>,
        linux-kernel <linux-kernel@vger.kernel.org>,
        Ingo Molnar <mingo@redhat.com>, Jes Sorensen <jes@sgi.com>,
        Andrew Morton <akpm@osdl.org>, Roman Zippel <zippel@linux-m68k.org>,
@@ -25,59 +26,53 @@ Cc: Karim Yaghmour <karim@opersys.com>, Paul Mundt <lethal@linux-sh.org>,
        Thomas Gleixner <tglx@linutronix.de>, William Cohen <wcohen@redhat.com>,
        "Martin J. Bligh" <mbligh@mbligh.org>
 Subject: Re: tracepoint maintainance models
-Message-ID: <20060918024343.GA23149@Krystal>
-References: <450D182B.9060300@opersys.com> <20060917112128.GA3170@localhost.usen.ad.jp> <20060917143623.GB15534@elte.hu> <20060917153633.GA29987@Krystal> <20060918000703.GA22752@elte.hu> <450DF28E.3050101@opersys.com> <20060918011352.GB30835@elte.hu>
+Message-ID: <20060918025722.GA11894@elte.hu>
+References: <450D182B.9060300@opersys.com> <20060917112128.GA3170@localhost.usen.ad.jp> <20060917143623.GB15534@elte.hu> <20060917153633.GA29987@Krystal> <20060918000703.GA22752@elte.hu> <450DF28E.3050101@opersys.com> <20060918011352.GB30835@elte.hu> <450E053B.1070908@opersys.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060918011352.GB30835@elte.hu>
-X-Editor: vi
-X-Info: http://krystal.dyndns.org:8080
-X-Operating-System: Linux/2.4.32-grsec (i686)
-X-Uptime: 22:37:21 up 25 days, 23:46,  2 users,  load average: 0.31, 0.20, 0.19
-User-Agent: Mutt/1.5.13 (2006-08-11)
+In-Reply-To: <450E053B.1070908@opersys.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -2.9
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.9 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5000]
+	-0.1 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Ingo Molnar (mingo@elte.hu) wrote:
-> Karim, i dont usually reply if you insult me (and you've grown a habit 
-> of that lately ), but this one is almost parodic. To understand my 
-> point, please consider this simple example of a static in-source markup, 
-> to be used by a dynamic tracer:
-> 
->   static int x;
-> 
->   void func(int a)
->   {
->        ...
->        MARK(event, a);
->        ...
->   }
-> 
-> if a dynamic tracer installs a probe into that MARK() spot, it will have 
-> access to 'a', but it can also have access to 'x'. While a static 
-> in-source markup for _static tracers_, if it also wanted to have the 'x' 
-> information, would also have to add 'x' as a parameter:
-> 
-> 	MARK(event, a, x);
-> 
+* Karim Yaghmour <karim@opersys.com> wrote:
 
-Hi,
+> >        MARK(event, a);
+> ...
+> > 	MARK(event, a, x);
+> 
+> You assume these are mutually exclusive. [...]
 
-If I may, if nothing marks the interest of the tracer in the "x" variable, what
-happens when a kernel guru changes it for y (because it looks a lot better). The
-code will not compile anymore when the markup marks the interest for x, when
-your "dynamic tracer" markup will simply fail to find the information. My point
-is that the markup of the interesting variables should follow code changes,
-otherwise it will have to be constantly updated elsewhere (hmm ? Documentation/
-someone ?)
+Plese dont put words into my mouth. No, i dont assume they are mutually 
+exclusive, did i ever claim that? But i very much still claim what my 
+point was, and which point you disputed (at the same time also insulting 
+me): that even if hell freezes over, a static tracer wont be able to 
+extract 'x' from the MARK(event, a) markup. You accused me unfairly, you 
+insulted me and i defended my point. In case you forgot, here again is 
+the incident, in its entirety, where i make this point and you falsely 
+dispute it:
 
-I would say that not marking a static variable just because it is less visually
-intrusive is a not such a good thing to do. That's not because we *can* that we
-*should*.
+> > There can be differences though to 'static tracepoints used by 
+> > static tracers': for example there's no need to 'mark' a static 
+> > variable, because dynamic tracers have access to it - while a static 
+> > tracer would have to pass it into its trace-event function call.
+>
+> That has been your own personal experience of such things. Fortunately 
+> by now you've provided to casual readers ample proof that such 
+> experience is but limited and therefore misleading. The fact of the 
+> matter is that *mechanisms* do not "magically" know what detail is 
+> necessary for a given event or how to interpret it: only *markup* does 
+> that.
 
-Mathieu
-
-OpenPGP public key:              http://krystal.dyndns.org:8080/key/compudj.gpg
-Key fingerprint:     8CD5 52C3 8E3C 4140 715F  BA06 3F25 A8FE 3BAE 9A68 
+	Ingo

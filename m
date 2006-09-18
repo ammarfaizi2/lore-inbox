@@ -1,64 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751853AbWIRRGa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751849AbWIRRS1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751853AbWIRRGa (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Sep 2006 13:06:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751854AbWIRRGa
+	id S1751849AbWIRRS1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Sep 2006 13:18:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751834AbWIRRS1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Sep 2006 13:06:30 -0400
-Received: from dvhart.com ([64.146.134.43]:11493 "EHLO dvhart.com")
-	by vger.kernel.org with ESMTP id S1751853AbWIRRG3 (ORCPT
+	Mon, 18 Sep 2006 13:18:27 -0400
+Received: from opersys.com ([64.40.108.71]:26630 "EHLO www.opersys.com")
+	by vger.kernel.org with ESMTP id S1751819AbWIRRS0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Sep 2006 13:06:29 -0400
-Message-ID: <450ED213.9000603@mbligh.org>
-Date: Mon, 18 Sep 2006 10:06:27 -0700
-From: Martin Bligh <mbligh@mbligh.org>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051011)
-X-Accept-Language: en-us, en
+	Mon, 18 Sep 2006 13:18:26 -0400
+Message-ID: <450ED746.9030507@opersys.com>
+Date: Mon, 18 Sep 2006 13:28:38 -0400
+From: Karim Yaghmour <karim@opersys.com>
+Reply-To: karim@opersys.com
+Organization: Opersys inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.8.0.6) Gecko/20060804 Fedora/1.0.4-0.5.1.fc5 SeaMonkey/1.0.4
 MIME-Version: 1.0
-To: Jes Sorensen <jes@sgi.com>
-Cc: karim@opersys.com, Andrew Morton <akpm@osdl.org>,
-       Ingo Molnar <mingo@elte.hu>, tglx@linutronix.de,
-       Paul Mundt <lethal@linux-sh.org>, Roman Zippel <zippel@linux-m68k.org>,
+To: jrs@us.ibm.com
+CC: linux-kernel <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>,
+       Ingo Molnar <mingo@redhat.com>, Jes Sorensen <jes@sgi.com>,
+       Andrew Morton <akpm@osdl.org>, Roman Zippel <zippel@linux-m68k.org>,
+       Tom Zanussi <zanussi@us.ibm.com>,
+       Richard J Moore <richardj_moore@uk.ibm.com>,
+       "Frank Ch. Eigler" <fche@redhat.com>,
+       Michel Dagenais <michel.dagenais@polymtl.ca>,
        Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
-       linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
-       Ingo Molnar <mingo@redhat.com>, Greg Kroah-Hartman <gregkh@suse.de>,
-       Tom Zanussi <zanussi@us.ibm.com>, ltt-dev@shafik.org,
-       Michel Dagenais <michel.dagenais@polymtl.ca>
-Subject: Re: [PATCH 0/11] LTTng-core (basic tracing infrastructure) 0.5.108
-References: <20060915132052.GA7843@localhost.usen.ad.jp>	<Pine.LNX.4.64.0609151535030.6761@scrub.home>	<20060915135709.GB8723@localhost.usen.ad.jp>	<450AB5F9.8040501@opersys.com>	<450AB506.30802@sgi.com>	<450AB957.2050206@opersys.com>	<20060915142836.GA9288@localhost.usen.ad.jp>	<450ABE08.2060107@opersys.com>	<1158332447.5724.423.camel@localhost.localdomain>	<20060915111644.c857b2cf.akpm@osdl.org>	<20060915181907.GB17581@elte.hu> <20060915131317.aaadf568.akpm@osdl.org> <450BCF97.3000901@sgi.com> <450C20C7.30604@opersys.com> <450E5540.4080205@sgi.com>
-In-Reply-To: <450E5540.4080205@sgi.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+       Paul Mundt <lethal@linux-sh.org>, Christoph Hellwig <hch@infradead.org>,
+       Greg Kroah-Hartman <gregkh@suse.de>,
+       Thomas Gleixner <tglx@linutronix.de>, William Cohen <wcohen@redhat.com>,
+       "Martin J. Bligh" <mbligh@mbligh.org>,
+       Guanglei Li <guanglei@cn.ibm.com>,
+       Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>
+Subject: Re: The emperor is naked: why *comprehensive* static markup belongs
+ in mainline
+References: <450D182B.9060300@opersys.com> <450EC102.3020402@us.ibm.com>
+In-Reply-To: <450EC102.3020402@us.ibm.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> And it doesn't address the following issues:
-> 
-> a) The static community providing actual evidence that dynamic tracing
->    is noticably slower.
 
-...
+Just one factual correction, the rest of your post I don't wish
+to contest. In fact, your support for a unified tool is exactly
+where I think things should go.
 
-> Everything has performance limitations, you keep running around touting
-> that static is the only thing thats not a problem. Now show us the
-> numbers!
+Jose R. Santos wrote:
+> The fact that tracepoint did not vary in a 5 year timespan just proves 
+> that the users of LTTng are very few.
 
-When comparing two different approaches to a problem, it is unreasonable
-and disingenuous to try to force the onus on the proponents of one
-particular approach to do all the benchmarking for both sides. Everybody
-has to help try to find the correct solution.
+A rapid lookup will demonstrate that the *old* ltt, for which the
+5 year mark was presented, was actually shipped by many distributions,
+especially embedded ones.
 
-Furthermore, Mathieu already did provide numbers, if you go back and
-look.
+Thanks,
 
-> The problems pointed out with LTT are *conceptual*, but of course you
-> keep ignoring the facts and refusing to provide real numbers.
+Karim
 
-This is getting very silly, and unnecessarily abusive. Real problems
-exist on both sides of the fence, which have been discussed ad nauseam.
-If you don't recall them, then go back and read the thread again. The
-question is how to strike a comprimise between two different set of
-problems, which Ingo and Karim actually seemed to be making progress
-on towards the end of the thread.
-
-M.

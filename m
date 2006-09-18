@@ -1,74 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965130AbWIRPQf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751767AbWIRPSW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965130AbWIRPQf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Sep 2006 11:16:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751767AbWIRPQf
+	id S1751767AbWIRPSW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Sep 2006 11:18:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751768AbWIRPSW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Sep 2006 11:16:35 -0400
-Received: from opersys.com ([64.40.108.71]:56836 "EHLO www.opersys.com")
-	by vger.kernel.org with ESMTP id S1751764AbWIRPQe (ORCPT
+	Mon, 18 Sep 2006 11:18:22 -0400
+Received: from mail.sf-mail.de ([62.27.20.61]:18892 "EHLO mail.sf-mail.de")
+	by vger.kernel.org with ESMTP id S1751767AbWIRPSV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Sep 2006 11:16:34 -0400
-Message-ID: <450EBD33.7050202@opersys.com>
-Date: Mon, 18 Sep 2006 11:37:23 -0400
-From: Karim Yaghmour <karim@opersys.com>
-Reply-To: karim@opersys.com
-Organization: Opersys inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.6) Gecko/20060804 Fedora/1.0.4-0.5.1.fc5 SeaMonkey/1.0.4
+	Mon, 18 Sep 2006 11:18:21 -0400
+From: Rolf Eike Beer <eike-kernel@sf-tec.de>
+To: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
+Subject: Re: Exporting array data in sysfs
+Date: Mon, 18 Sep 2006 17:18:35 +0200
+User-Agent: KMail/1.9.4
+Cc: "Greg KH" <greg@kroah.com>, linux-kernel@vger.kernel.org
+References: <200609181359.31489.eike-kernel@sf-tec.de> <200609181622.07681.eike-kernel@sf-tec.de> <d120d5000609180759t42945f0bi496b3840818c218b@mail.gmail.com>
+In-Reply-To: <d120d5000609180759t42945f0bi496b3840818c218b@mail.gmail.com>
 MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: Jes Sorensen <jes@sgi.com>,
-       Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
-       linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
-       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@redhat.com>,
-       Greg Kroah-Hartman <gregkh@suse.de>,
-       Thomas Gleixner <tglx@linutronix.de>, Tom Zanussi <zanussi@us.ibm.com>,
-       ltt-dev@shafik.org, Michel Dagenais <michel.dagenais@polymtl.ca>
-Subject: Re: [PATCH 0/11] LTTng-core (basic tracing infrastructure) 0.5.108
-References: <4509A54C.1050905@opersys.com> <yq08xkleb9h.fsf@jaguar.mkp.net> <450A9EC9.9080307@opersys.com> <450A9D4B.1030901@sgi.com> <450AB408.8020904@opersys.com> <450AB90C.9000403@sgi.com> <450AC2FA.70203@opersys.com> <450BD4C7.8030000@sgi.com> <450C1821.5010709@opersys.com> <450E5F6D.8070000@sgi.com> <20060918144846.GA32122@elte.hu>
-In-Reply-To: <20060918144846.GA32122@elte.hu>
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed;
+  boundary="nextPart1323811.OON701K3UF";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
+Message-Id: <200609181718.35491.eike-kernel@sf-tec.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--nextPart1323811.OON701K3UF
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-Trust me, I don't intend to drag this any longer. I just want to make
-sure this issue of "respect" is cleared up.
+Dmitry Torokhov wrote:
+> On 9/18/06, Rolf Eike Beer <eike-kernel@sf-tec.de> wrote:
+>>Dmitry Torokhov wrote:
 
-Ingo Molnar wrote:
-> i'm giving up on Karim too. I did apologize to Karim for the mistake i 
-> did in this thread-of-200-mails, but it's revolting to see that Karim 
-> still goes on and attacks top Linux contributors like you, without 
-> looking back, without apologizing for anything and without feeling any 
-> remorse.
+>>> http://www.ussg.iu.edu/hypermail/linux/kernel/0503.2/1155.html
 
-If there exists a cult where top contributors are to be venerated, then
-I'm not part of it. If my calling individuals to account on their supposed
-expertise on tracing, which they use as justification for continued
-marginalization of such related projects, has generated so much backlash,
-then it is for me but a sign of how entrenched arrogance can be in some
-quarters.
+>> The limitation to 999 entries should go.
+>
+> It is not really a limitation but rather a safeguard. Do you really
+> expect to have arrays with that many attributes?
 
-Don't get wrong, I have immense respect for the collective talent of
-kernel developers. But no matter how broad collective talent can be, it
-cannot be omniscient.
+At least I don't know how much they will be. If the user wants to do crazy=
+=20
+things... :) I'm currently hacking on a store_n implementation, perhaps I'l=
+l=20
+be able to show some code tomorrow.
 
-> Karim patronized, attacked and insulted various people dozens 
-> of times in this thread alone. I just dont see any value in trying to 
-> "work with" Karim anymore, because it's apparently not something he is 
-> interested in doing. I feel a bit sorry for him too, because at heart he 
-> must be a deeply lonely person.
+Eike
 
-Ditto.
+--nextPart1323811.OON701K3UF
+Content-Type: application/pgp-signature
 
-> single patch, not a oneliner fix, nothing. So if someone needs to prove 
-> his experience in embedded Linux matters on this forum then it's Karim.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
 
-http://www.oreilly.com/catalog/belinuxsys/
+iD8DBQBFDrjLXKSJPmm5/E4RAvtFAJ4z3lsWHlpzkaxRNBK00BdHAkYDagCaA8f4
+nzIEwRzeYoRF4wovg8vcM4s=
+=8OaZ
+-----END PGP SIGNATURE-----
 
-Karim
--- 
-President  / Opersys Inc.
-Embedded Linux Training and Expertise
-www.opersys.com  /  1.866.677.4546
+--nextPart1323811.OON701K3UF--

@@ -1,69 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965586AbWIRIoK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965595AbWIRI4R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965586AbWIRIoK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Sep 2006 04:44:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965588AbWIRIoJ
+	id S965595AbWIRI4R (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Sep 2006 04:56:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965594AbWIRI4R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Sep 2006 04:44:09 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:26602 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S965586AbWIRIoI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Sep 2006 04:44:08 -0400
-Message-ID: <450E5C2F.8030808@sgi.com>
-Date: Mon, 18 Sep 2006 10:43:27 +0200
-From: Jes Sorensen <jes@sgi.com>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060527)
+	Mon, 18 Sep 2006 04:56:17 -0400
+Received: from mailhub.sw.ru ([195.214.233.200]:8884 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S965593AbWIRI4R (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Sep 2006 04:56:17 -0400
+Message-ID: <450E5F2E.2070809@openvz.org>
+Date: Mon, 18 Sep 2006 12:56:14 +0400
+From: Pavel Emelianov <xemul@openvz.org>
+User-Agent: Thunderbird 1.5 (X11/20060317)
 MIME-Version: 1.0
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>, Ingo Molnar <mingo@elte.hu>,
-       Thomas Gleixner <tglx@linutronix.de>, karim@opersys.com,
-       Andrew Morton <akpm@osdl.org>, Paul Mundt <lethal@linux-sh.org>,
-       Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
-       linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
-       Ingo Molnar <mingo@redhat.com>, Greg Kroah-Hartman <gregkh@suse.de>,
-       Tom Zanussi <zanussi@us.ibm.com>, ltt-dev@shafik.org,
-       Michel Dagenais <michel.dagenais@polymtl.ca>
-Subject: Re: [PATCH 0/11] LTTng-core (basic tracing infrastructure) 0.5.108
-References: <20060915215112.GB12789@elte.hu> <Pine.LNX.4.64.0609160018110.6761@scrub.home> <20060915231419.GA24731@elte.hu> <Pine.LNX.4.64.0609160139130.6761@scrub.home> <20060916082214.GD6317@elte.hu> <Pine.LNX.4.64.0609161831270.6761@scrub.home> <20060916230031.GB20180@elte.hu> <Pine.LNX.4.64.0609170310580.6761@scrub.home> <20060917084207.GA8738@elte.hu> <Pine.LNX.4.64.0609171627400.6761@scrub.home> <20060917152527.GC20225@elte.hu> <Pine.LNX.4.64.0609171744570.6761@scrub.home> <450D7EF0.3020805@yahoo.com.au> <Pine.LNX.4.64.0609171918430.6761@scrub.home> <450D8C58.5000506@yahoo.com.au> <Pine.LNX.4.64.0609172027120.6761@scrub.home>
-In-Reply-To: <Pine.LNX.4.64.0609172027120.6761@scrub.home>
-X-Enigmail-Version: 0.94.0.0
+To: balbir@in.ibm.com
+CC: sekharan@us.ibm.com, Srivatsa <vatsa@in.ibm.com>,
+       Rik van Riel <riel@redhat.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       CKRM-Tech <ckrm-tech@lists.sourceforge.net>,
+       Dave Hansen <haveblue@us.ibm.com>, Andi Kleen <ak@suse.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Christoph Hellwig <hch@infradead.org>, Andrey Savochkin <saw@sw.ru>,
+       Matt Helsley <matthltc@us.ibm.com>, Hugh Dickins <hugh@veritas.com>,
+       Alexey Dobriyan <adobriyan@mail.ru>, Kirill Korotaev <dev@sw.ru>,
+       Oleg Nesterov <oleg@tv-sign.ru>, devel@openvz.org
+Subject: Re: [ckrm-tech] [PATCH] BC: resource beancounters (v4) (added	user
+ memory)
+References: <44FD918A.7050501@sw.ru>	<44FDAB81.5050608@in.ibm.com>		<44FEC7E4.7030708@sw.ru>	<44FF1EE4.3060005@in.ibm.com>		<1157580371.31893.36.camel@linuxchandra>	<45011CAC.2040502@openvz.org>		<1157730221.26324.52.camel@localhost.localdomain>		<4501B5F0.9050802@in.ibm.com> <450508BB.7020609@openvz.org>		<4505161E.1040401@in.ibm.com> <45051AC7.2000607@openvz.org>		<1158000590.6029.33.camel@linuxchandra>	<45069072.4010007@openvz.org>		<1158105488.4800.23.camel@linuxchandra>	<4507BC11.6080203@openvz.org>		<1158186664.18927.17.camel@linuxchandra>	<45090A6E.1040206@openvz.org>	<1158277364.6357.33.camel@linuxchandra>	<450A5325.6090803@openvz.org> <450A6A7A.8010102@sw.ru> <450A8B61.7040905@openvz.org> <450E5813.2040804@in.ibm.com>
+In-Reply-To: <450E5813.2040804@in.ibm.com>
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Roman Zippel wrote:
-> Hi,
-> 
-> On Mon, 18 Sep 2006, Nick Piggin wrote:
-> 
->> But equally nobody can demand that a feature go into the upstream
->> kernel. Especially not if there is a more flexible alternative
->> already available that just requires implementing for their arch.
-> 
-> I completely agree with you under the condition that these alternatives 
-> were mutually exclusive or conflicting with each other.
+Balbir Singh wrote:
 
-Roman,
+[snip]
 
-I don't get this, you are arguing that we should put it in because it
-doesn't do any damage. First of all it does, by adding a lot of clutter
-all over the place. Second, if we take that argument, then we should
-allow anybody to put in anything they want, are you also suggesting we
-put devfs back in?
+> This approach has the following disadvantages
+>  1. Lets consider initialization - When we create 'n' groups
+> initially, we need
+>     to spend O(n^2) time to assign guarantees.
 
-Point is that the Linux kernel gets so many proposals, some are good
-some are bad and some while maybe looking like a good idea at the
-beginning, show out later to be a bad idea - LTT falls into this
-category. *However*, it doesn't mean the knowledge and tools that were
-developed with LTT are bad or useless.
+1. Not guarantees - limits. If you do not need guarantees - assign
+   overcommited limits. Most of OpenVZ users do so and nobody claims.
+2. If you start n groups at once then limits are calculated in O(n)
+   time, not O(n^2).
 
-To take another related project, look at relayfs. There was so much
-noise about it when it was initially pushed, yuck I even remember how it
-was suggested that printk should be implemented via relayfs. But look at
-it now, there is no fs/relayfs/* these days. The kernel moved on, used
-the knowledge optained and provided the feature in a better way -
-exactly like it is being proposed to do for trace points, by using
-dynamic probes.
+>  2. Every time a limit or a guarantee changes, we need to recalculate
+> guarantees
+>     and ensure that the change will not break any guarantees
 
-Jes
+The same.
+
+>  3. The same thing as stated above, when a resource group is created
+> or deleted
+>
+> This can lead to some instability; a change in one group propagates to
+> all other groups.
+
+Let me cite a part of your answer on my letter from 11.09.2006:
+"...
+  xemul> I have a node with 1Gb of ram and 10 containers with 100Mb
+  xemul> guarantee each. I want to start one more.
+  xemul> What shall I do not to break guarantees?
+
+ Don't start the new container or change the guarantees of the
+ existing ones to accommodate this one ... It would be perfectly
+ ok to have a container that does not care about guarantees to
+ set their guarantee to 0 and set their limit to the desired value
+..."
+
+The same for the limiting - either do not start new container, or
+recalculate limits to meet new requirements. You may not take care of
+guarantees as weel and create an overcommited configuration.
+
+And one more thing. We've asked it many times and I ask it again -
+please, show us the other way for providing guarantee rather than
+limiting or reserving.

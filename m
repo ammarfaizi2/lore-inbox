@@ -1,59 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932246AbWIRLQl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932263AbWIRLRG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932246AbWIRLQl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Sep 2006 07:16:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932251AbWIRLQl
+	id S932263AbWIRLRG (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Sep 2006 07:17:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932251AbWIRLRG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Sep 2006 07:16:41 -0400
-Received: from nf-out-0910.google.com ([64.233.182.184]:16750 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S932246AbWIRLQk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Sep 2006 07:16:40 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=OQ5L+GOaFpfgrtYQikGz+lNSPrlwJDcpidICr9YFBZCPkMLOTqJ7DRsU4wV6PVlGqkH0RvqdXDXsumRc4Ko/frqAWFtWHhsrBC0GnDTDCzM5JVbXXLJee+502PXGLaW8QpZ7fSUQtDcloHfUBf9LRGsoLrfNrfJpYKU2aJMJytY=
-Message-ID: <450E802B.800@gmail.com>
-Date: Mon, 18 Sep 2006 15:16:59 +0400
-From: "Eugeny S. Mints" <eugeny.mints@gmail.com>
-User-Agent: Thunderbird 1.5 (X11/20060313)
+	Mon, 18 Sep 2006 07:17:06 -0400
+Received: from ogre.sisk.pl ([217.79.144.158]:6536 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S932265AbWIRLRD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Sep 2006 07:17:03 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Jan De Luyck <ml_linuxkernel_20060528@kcore.org>
+Subject: Re: 2.6.18-rc6-mm2 (-mm1): ohci_hcd does not recognize new devices
+Date: Mon, 18 Sep 2006 13:20:31 +0200
+User-Agent: KMail/1.9.1
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       David Brownell <david-b@pacbell.net>,
+       USB development list <linux-usb-devel@lists.sourceforge.net>,
+       Greg KH <greg@kroah.com>, Alan Stern <stern@rowland.harvard.edu>
+References: <200609160013.16014.rjw@sisk.pl> <200609180827.53626.rjw@sisk.pl> <200609180850.43815.ml_linuxkernel_20060528@kcore.org>
+In-Reply-To: <200609180850.43815.ml_linuxkernel_20060528@kcore.org>
 MIME-Version: 1.0
-To: Pavel Machek <pavel@ucw.cz>
-CC: pm list <linux-pm@lists.osdl.org>,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [linux-pm] [RFC] CPUFreq PowerOP integration, Centrino PM Core
- and OPs registration 2/3
-References: <45096C1A.7010008@gmail.com> <20060918104624.GB4973@elf.ucw.cz>
-In-Reply-To: <20060918104624.GB4973@elf.ucw.cz>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-15"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200609181320.32049.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek wrote:
-> Hi!
+On Monday, 18 September 2006 08:50, Jan De Luyck wrote:
+> On Monday 18 September 2006 08:27, Rafael J. Wysocki wrote:
+> > On Saturday, 16 September 2006 10:13, Rafael J. Wysocki wrote:
+> > > On Saturday, 16 September 2006 00:13, Rafael J. Wysocki wrote:
+> > > > It looks like the ohci_hcd driver sometimes has problems with the
+> > > > initialization (eg. USB mouse doesn't work after a fresh boot and
+> > > > reloading of the driver helps).
+> > > >
+> > > > I have observed this on two different x86_64 boxes (HPC 6325, Asus
+> > > > L5D), but it is not readily reproducible.  Anyway I've got a dmesg
+> > > > output from a failing case which is attached.
+> > >
+> > > Actually, the problem is ohci_hcd doesn't seem to recognize devices
+> > > plugged into the USB ports.
+> > >
+> > > For example, if I unplug and replug a mouse (that worked before
+> > > unplugging), it doesn't work any more.  I have to reload ohci_hcd to make
+> > > it work again.
+> > >
+> > > This is 100% reproducible and occurs on the two boxes above.
 > 
->> +/* 
->> + * FIXME: very temporary implementation, just to prove the concept !! 
->> + */
->> +static int 
->> +process_pwr_param(struct pm_core_point *opt, int op, char *param_name,
->> +		  int va_arg)
+> I can confirm this behaviour. I've also seen that sometimes my USB 
+> keyboard/mouse doesn't work after booting up. Reloading the module solves the 
+> problem.
 > 
-> Ok, so can we get final implementation? Parsing strings in drivers is
-> evil...
-ok, i saw this your comment when you mentioned it for the first time and I 
-explicitly put it in TODO letter sent along with the patchset.
+> This is on an amd64 box, ABIT kn9-sli, nForce 550.
+> 
+> This is with 2.6.17.13.
+> 
+> > I have carried out a binary search and found that the problem is caused by
+> >
+> > gregkh-usb-usbcore-remove-usb_suspend_root_hub.patch
+> 
+> Will this work against 2.6.17.13 vanilla?
 
-Can you instead of such implementation details try to review and give us your 
-comments if any on interfaces approach and namely on cpufreq/PowerOP integration 
-at cpufreq_driver layer; comments _based_ on the code. The issue with string 
-parsing does not affect cpufreq/PowerOP integration interfaces since currently I 
-keep going with parameter names(strings) interface for PowerOP Core regardless 
-of whether parsing will eventually occur - at PM Core or POwerOP Core.
+No, this patch is not present in vanilla.
 
-	Eugeny
-> 
-> 									Pavel
-> 
+Rafael
 
+
+-- 
+You never change things by fighting the existing reality.
+		R. Buckminster Fuller

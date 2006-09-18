@@ -1,86 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751092AbWIRVFN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751922AbWIRVI4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751092AbWIRVFN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Sep 2006 17:05:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751168AbWIRVFN
+	id S1751922AbWIRVI4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Sep 2006 17:08:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751920AbWIRVIz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Sep 2006 17:05:13 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.150]:40093 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751092AbWIRVFM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Sep 2006 17:05:12 -0400
-Subject: Re: [ckrm-tech] [patch 0/5]-Containers: Introduction
-From: Badari Pulavarty <pbadari@gmail.com>
-To: rohitseth@google.com
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel <linux-kernel@vger.kernel.org>,
-       devel@openvz.org, CKRM-Tech <ckrm-tech@lists.sourceforge.net>
-In-Reply-To: <1158284264.5408.144.camel@galaxy.corp.google.com>
-References: <1158284264.5408.144.camel@galaxy.corp.google.com>
-Content-Type: text/plain
-Date: Mon, 18 Sep 2006 14:08:42 -0700
-Message-Id: <1158613722.18300.3.camel@dyn9047017100.beaverton.ibm.com>
+	Mon, 18 Sep 2006 17:08:55 -0400
+Received: from tentacle.snto-msu.net ([194.88.210.4]:27117 "EHLO
+	tentacle.sectorb.msk.ru") by vger.kernel.org with ESMTP
+	id S1751183AbWIRVIy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Sep 2006 17:08:54 -0400
+Date: Tue, 19 Sep 2006 01:08:49 +0400
+From: "Vladimir B. Savkin" <master@sectorb.msk.ru>
+To: Andi Kleen <ak@suse.de>
+Cc: Jesper Dangaard Brouer <hawk@diku.dk>,
+       Harry Edmon <harry@atmos.washington.edu>, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org, Andi Kleen <ak@suse.de>
+Subject: Re: Network performance degradation from 2.6.11.12 to 2.6.16.20
+Message-ID: <20060918210849.GA31746@tentacle.sectorb.msk.ru>
+References: <4492D5D3.4000303@atmos.washington.edu> <44948EF6.1060201@atmos.washington.edu> <Pine.LNX.4.61.0606191638550.23553@ask.diku.dk> <200606191724.31305.ak@suse.de> <20060916120845.GA18912@tentacle.sectorb.msk.ru> <p73k6414lnp.fsf@verdi.suse.de> <20060918090330.GA9850@tentacle.sectorb.msk.ru> <p73eju94htu.fsf@verdi.suse.de> <20060918102918.GA23261@tentacle.sectorb.msk.ru> <p73ac4x4doi.fsf@verdi.suse.de>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=koi8-r
+Content-Disposition: inline
+In-Reply-To: <p73ac4x4doi.fsf@verdi.suse.de>
+X-Organization: Moscow State Univ., Institute of Mechanics
+X-Operating-System: Linux 2.6.17-rc6-64
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-09-14 at 18:37 -0700, Rohit Seth wrote:
-> Containers:
+On Mon, Sep 18, 2006 at 01:27:57PM +0200, Andi Kleen wrote:
+> The codebase for timing (and lots of other things) is quite different
+> between 32bit and 64bit. You're really surprised it doesn't work if you do such things?
 > 
+It works, and after your remark above, I'm surprised.
+Dunno about slow TSC drift though, there was not enough time passed to
+detect it, and I hope we will have this problem soved in a better way
+before the drift becomes visible :)
 
-I was just trying out your patches and ran into
-following Oops.
+> > But the question is, why stock 2.6.18-rc7 could not use TSC on its own?
+> 
+> x86-64 doesn't use the TSC when it deems it to not be reliable, which
+> is the case on your system.
+>  
+Could it at least print something so that I know that using TSC  was
+considered, but rejected?
 
-(Created a container, assigned a pid (shell) to it,
-set page limit and started a kernel compile in the shell).
+> > What hardware exactly. Doesn't it affect only CPU? And they are not
+> > know to fail before any other components.
+> 
+> All hardware. It's basic physics.
 
-Thanks,
-Badari
-
-elm3b29 login: ----------- [cut here ] --------- [please bite here ]
----------
-Kernel BUG at include/linux/list.h:173
-invalid opcode: 0000 [1] SMP
-last sysfs file: /devices/pci0000:00/0000:00:06.0/irq
-CPU 3
-Modules linked in: acpi_cpufreq ipv6 thermal processor fan button
-battery ac dm_mod floppy parport_pc lp parport
-Pid: 4780, comm: sh Not tainted 2.6.18-rc6-mm2 #3
-RIP: 0010:[<ffffffff802807b1>]  [<ffffffff802807b1>]
-container_remove_task+0xd1/0x150
-RSP: 0018:ffff8101de5d9e98  EFLAGS: 00010283
-RAX: ffff8101de410ea8 RBX: ffff81019f624450 RCX: ffff8101de410ea8
-RDX: ffff8101de5f0e68 RSI: 0000000000000000 RDI: ffff8101de410dac
-RBP: ffff8101de5d9eb8 R08: 0000000000000000 R09: 0000000000000000
-R10: 00000000000012ac R11: 0000000000000246 R12: ffff8101de4107a0
-R13: ffff81019f6244b8 R14: ffff8101de410dac R15: ffff8101de4108c8
-FS:  00002b1d43e3fae0(0000) GS:ffff8101c00c9f40(0000)
-knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 000000008005003b
-CR2: 0000000000424613 CR3: 0000000000201000 CR4: 00000000000006e0
-Process sh (pid: 4780, threadinfo ffff8101de5d8000, task
-ffff8101de4107a0)
-Stack:  ffff8101de5d9ee8 ffff8101de4107a0 0000000000000010
-ffff8101de410850
- ffff8101de5d9f38 ffffffff802337d9 ffff8101de5d9f08 ffff8101de5d9ee8
- ffff8101de410938 ffff8101dd91a680 ffff8101de5d9ee8 ffff8101de5d9ee8
-Call Trace:
- [<ffffffff802337d9>] do_exit+0x8d9/0x900
- [<ffffffff80233898>] do_group_exit+0x98/0xa0
-DWARF2 unwinder stuck at do_group_exit+0x98/0xa0
-
-Leftover inexact backtrace:
-
- [<ffffffff802338b2>] sys_exit_group+0x12/0x20
- [<ffffffff80209c4e>] system_call+0x7e/0x83
-
-
-Code: 0f 0b 68 d1 f8 50 80 c2 ad 00 48 89 50 08 48 89 02 48 c7 41
-RIP  [<ffffffff802807b1>] container_remove_task+0xd1/0x150
- RSP <ffff8101de5d9e98>
- <1>Fixing recursive fault but reboot is needed!
-
-
-
+Hm, what other hardware is affected by idle=poll? Does this option ear
+out HDDs?
+~
+:wq
+                                        With best regards, 
+                                           Vladimir Savkin. 
 

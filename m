@@ -1,37 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965643AbWIRKcm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965649AbWIRKiu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965643AbWIRKcm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Sep 2006 06:32:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965644AbWIRKcm
+	id S965649AbWIRKiu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Sep 2006 06:38:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965648AbWIRKiu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Sep 2006 06:32:42 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:35991 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S965643AbWIRKcl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Sep 2006 06:32:41 -0400
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <patchbomb.1158455366@turing.ams.sunysb.edu> 
-References: <patchbomb.1158455366@turing.ams.sunysb.edu> 
-To: "Josef 'Jeff' Sipek" <jeffpc@josefsipek.net>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, dhowells@redhat.com
-Subject: Re: [PATCH 0 of 11] Use SEEK_{SET,CUR,END} instead of hardcoded values 
-X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
-Date: Mon, 18 Sep 2006 11:32:36 +0100
-Message-ID: <2504.1158575556@warthog.cambridge.redhat.com>
+	Mon, 18 Sep 2006 06:38:50 -0400
+Received: from wx-out-0506.google.com ([66.249.82.238]:51839 "EHLO
+	wx-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S965649AbWIRKis (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Sep 2006 06:38:48 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=ImvbeAuF9HJeak91D/tXmZW/r034FKhtHtvHQF9wcj4E6D19eNpYofp/rzTp3JINsmgifTjyeEPL9nsovtodhLM5zgvAt1W3epF9TetJ0g1CwNcl0XzdMnHeFouycthRLrhK8zIwgd1RKEtvUaERT6jdxkCvMfFpqY9BUqDtN4w=
+Message-ID: <450E771E.1070207@gmail.com>
+Date: Mon, 18 Sep 2006 19:38:22 +0900
+From: Tejun Heo <htejun@gmail.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060713)
+MIME-Version: 1.0
+To: Pavel Machek <pavel@ucw.cz>
+CC: kernel list <linux-kernel@vger.kernel.org>, axboe@suse.de
+Subject: Re: SATA powersave patches
+References: <20060908110346.GC920@elf.ucw.cz> <45015767.1090002@gmail.com> <20060908123537.GB17640@elf.ucw.cz> <4501655F.5000103@gmail.com> <20060910224815.GC1691@elf.ucw.cz> <4505394F.6060806@gmail.com> <20060918100548.GJ3746@elf.ucw.cz>
+In-Reply-To: <20060918100548.GJ3746@elf.ucw.cz>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Josef 'Jeff' Sipek <jeffpc@josefsipek.net> wrote:
+Hello,
 
-> In July, David Howells added SEEK_{SET,CUR,END} definitions to
-> include/linux/fs.h
+Pavel Machek wrote:
+>> Can you check if there is any difference between [D/H]IPS and static? 
+>> ICH6M on my notebook can't do DIPS/HIPS, so I couldn't compare them 
+>> against static.
 > 
-> The following patches convert offenders which were found by grep'ing the
-> source tree.
+> What is D/HIPS? I could not find anything relevant..
 
-Looks good, though I think you do have to drop the XFS portion of the patch,
-though you could strip the comments from the case statements there.
+D/HIPS stand for device/host initiated power saving.  These modes use 
+two SATA link powersaving state (partial and slumber).  Static mode 
+simply turns off PHY on unoccupied port using SControl register.  So, if 
+you have an access to a notebook which has a SATA dock which support 
+link powersaving, you can test it by...
 
-So NAK for the XFS patch, but for the rest:
+* set link powersaving mode to HIPS/static. (mode 4)
 
-Acked-By: David Howells <dhowells@redhat.com>
+* w/ device inserted, leave it idle for 15 seconds and record power 
+consumption level (link should be in slumber state).
+
+* pull out the device, wait for libata to detach the device and record 
+power consumption level (libata should have turned off PHY after 
+detaching the device).
+
+I wanna know whether there is any difference in the amount of power 
+saved between slumber and off states.
+
+>>> It would be great to be able to power SATA
+>>> controller down, then power it back up when it is needed... I tried
+>>> following hack, but could not get it to work. Any ideas?
+>> 1. One way to do it would be by dynamic power management.  It would be 
+>> nice to have wake-up mechanism at the block layer.  Idle timer can run 
+>> in the block layer or it can be implemented in the userland.
+>>
+>> ATM, this implies that the attached devices are powered down too 
+>> (spindown).  As spinning up takes quite some time, we can implement 
+> 
+> For now, powering down controller when disks are spinned down would be
+> very nice first step.
+
+Yeap.
+
+> When I forced disk to be spinned down (with power/state file)
+> controller actually survived power down/power up... unfortunately with
+> so long delay (~30 sec) that it is not usable in practice.
+
+Can you describe what you've done in more detail?  Do you have dmesg of 
+the 30sec wait?
+
+>> So, I think option #1 is the way to go - implementing leveled dynamic 
+>> power management infrastructure and adding support in the block layer. 
+>> What do you think?
+> 
+> Would be nice :-).
+
+So, do you think we're ready for another PM infrastructure update?  :-P
+
+-- 
+tejun

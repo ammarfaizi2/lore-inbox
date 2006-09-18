@@ -1,60 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964855AbWIRNbG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964951AbWIRNfW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964855AbWIRNbG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Sep 2006 09:31:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964916AbWIRNbG
+	id S964951AbWIRNfW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Sep 2006 09:35:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964959AbWIRNfW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Sep 2006 09:31:06 -0400
-Received: from smtpout.mac.com ([17.250.248.173]:16125 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S964855AbWIRNbE (ORCPT
+	Mon, 18 Sep 2006 09:35:22 -0400
+Received: from mail.kroah.org ([69.55.234.183]:19416 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S964951AbWIRNfV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Sep 2006 09:31:04 -0400
-In-Reply-To: <Pine.LNX.4.61.0609181430530.30064@yvahk01.tjqt.qr>
-References: <b681c62b0609160434g6ccbbaa0vd0cd68958696726e@mail.gmail.com> <450DE3DE.50301@redhat.com> <Pine.LNX.4.61.0609181033350.27566@yvahk01.tjqt.qr> <450E914C.90203@redhat.com> <Pine.LNX.4.61.0609181430530.30064@yvahk01.tjqt.qr>
-Mime-Version: 1.0 (Apple Message framework v752.2)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <A01B0745-4715-452E-847E-28F28C6EE34F@mac.com>
-Cc: Rik van Riel <riel@redhat.com>, yogeshwar sonawane <yogyas@gmail.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Content-Transfer-Encoding: 7bit
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: How much kernel memory is in 64-bit OS ?
-Date: Mon, 18 Sep 2006 09:30:43 -0400
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-X-Mailer: Apple Mail (2.752.2)
-X-Brightmail-Tracker: AAAAAQAAA+k=
-X-Language-Identified: TRUE
+	Mon, 18 Sep 2006 09:35:21 -0400
+Date: Mon, 18 Sep 2006 06:23:41 -0700
+From: Greg KH <greg@kroah.com>
+To: "Eugeny S. Mints" <eugeny.mints@gmail.com>
+Cc: pm list <linux-pm@lists.osdl.org>, Matthew Locke <matt@nomadgs.com>,
+       Amit Kucheria <amit.kucheria@nokia.com>,
+       Igor Stoppa <igor.stoppa@nokia.com>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] PowerOP, PowerOP Core, 1/2
+Message-ID: <20060918132341.GA8854@kroah.com>
+References: <45096933.4070405@gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <45096933.4070405@gmail.com>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sep 18, 2006, at 08:34:25, Jan Engelhardt wrote:
->>>> Sure, people said that too when going from 16 bits to 32 bits,  
->>>> but that was only a factor 2^16 difference.  This time it's the  
->>>> square of the previous difference.
->>>
->>> Not quite the square :)
->>
->> 2^32 is the square of 2^16 :)
->
-> As mentioned above, "the square of the previos" [16 to 32]  
-> "difference".  Call me nitpicky, but:
->
-> (2^32 - 2^16)^2  !=  (2^64 - 2^32)
+On Thu, Sep 14, 2006 at 06:37:39PM +0400, Eugeny S. Mints wrote:
+> The PowerOP Core provides completely arch independent interface
+> to create and control operating points which consist of arbitrary
+> subset of power parameters available on a certain platform.
+> Also, PowerOP Core provides optional SysFS interface to access
+> operating point from userspace.
 
-Well into the nitpicking territory... I think you missed where he  
-said "factor 2^16 difference".  So these:
+module reference count issues have still not been addressed.
 
-> Going from 32 to 64:   (2^64 - 2^32)
-> Going from 16 to 32:   (2^32 - 2^16)
+thanks,
 
-Should actually be these:
-
-Going from 32 to 64:	(2^64 / 2^32)
-Going from 16 to 32:	(2^32 / 2^16)
-
-And:
-
-(2^32 / 2^16)^2 = (2^64 / 2^32) => (2^16)^2 = (2^32)
-
-Cheers,
-Kyle Moffett
+greg k-h

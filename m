@@ -1,40 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932265AbWIRTBG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932243AbWIRTA7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932265AbWIRTBG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Sep 2006 15:01:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932272AbWIRTBG
+	id S932243AbWIRTA7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Sep 2006 15:00:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751808AbWIRTA6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Sep 2006 15:01:06 -0400
-Received: from gw.goop.org ([64.81.55.164]:59309 "EHLO mail.goop.org")
-	by vger.kernel.org with ESMTP id S932265AbWIRTBE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Sep 2006 15:01:04 -0400
-Message-ID: <450EECEC.207@goop.org>
-Date: Mon, 18 Sep 2006 12:01:00 -0700
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
-MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>
-CC: Benjamin LaHaise <bcrl@kvack.org>, Linus Torvalds <torvalds@osdl.org>,
-       Andrew Morton <akpm@osdl.org>, Chuck Ebbert <76306.1226@compuserve.com>,
-       In Cognito <defend.the.world@gmail.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Ingo Molnar <mingo@elte.hu>
-Subject: Re: Sysenter crash with Nested Task Bit set
-References: <200609172354_MC3-1-CB7A-58ED@compuserve.com> <200609181729.23934.ak@suse.de> <20060918161251.GC19815@kvack.org> <200609181839.45546.ak@suse.de>
-In-Reply-To: <200609181839.45546.ak@suse.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 18 Sep 2006 15:00:58 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:13261 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1751799AbWIRTA4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Sep 2006 15:00:56 -0400
+Date: Mon, 18 Sep 2006 20:00:33 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: "Darrick J. Wong" <djwong@us.ibm.com>
+Cc: Jeff Garzik <jeff@garzik.org>, linux-ide <linux-ide@vger.kernel.org>,
+       linux-scsi <linux-scsi@vger.kernel.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Alexis Bruemmer <alexisb@us.ibm.com>,
+       Mike Anderson <andmike@us.ibm.com>
+Subject: Re: [PATCH v3] libsas: move ATA bits into a separate module
+Message-ID: <20060918190033.GD17670@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	"Darrick J. Wong" <djwong@us.ibm.com>,
+	Jeff Garzik <jeff@garzik.org>,
+	linux-ide <linux-ide@vger.kernel.org>,
+	linux-scsi <linux-scsi@vger.kernel.org>,
+	Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+	Alexis Bruemmer <alexisb@us.ibm.com>,
+	Mike Anderson <andmike@us.ibm.com>
+References: <4508A0A2.2080605@us.ibm.com> <450971D3.2040405@garzik.org> <4509DA77.7000508@us.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4509DA77.7000508@us.ibm.com>
+User-Agent: Mutt/1.4.2.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
-> Yes it's never fast, but on basically all non P4 CPUs it is still fast enough
-> to not be a problem. I suppose it causes a trace cache flush or something like
-> that there.
+On Thu, Sep 14, 2006 at 03:40:55PM -0700, Darrick J. Wong wrote:
+> Jeff Garzik wrote:
+> 
+> > I disagree completely with this approach.
+> > 
+> > You don't need a table of hooks for the case where libata is disabled in
+> > .config.  Thus, it's only useful for the case where libsas is loaded as
+> > a module, but libata is not.
+> 
+> Indeed, I misunderstood what James Bottomley wanted, so I reworked the
+> patch.  It has the same functionality as before, but this module uses
+> the module loader/symbol resolver for all the functions in libata, and
+> allows libsas to (optionally) call into sas_ata with weak references by
+> pushing a table of the necessary function pointers into libsas at
+> sas_ata load time.  Thus, libsas doesn't need to load libata/sas_ata
+> unless it actually finds a SATA device.
 
-I don't think it's that bad, but it might cause a full pipeline flush.  
-I seem to remember measuring its cost at about 50 cycles.
-
-    J
+NACK again.  Week references are bad.  Please change it back to normal
+hard references so that it works like everything else in the kernel.
 

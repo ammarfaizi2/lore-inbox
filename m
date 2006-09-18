@@ -1,52 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965265AbWIROTe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964880AbWIROWA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965265AbWIROTe (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Sep 2006 10:19:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965269AbWIROTe
+	id S964880AbWIROWA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Sep 2006 10:22:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964978AbWIROWA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Sep 2006 10:19:34 -0400
-Received: from smarthost1.sentex.ca ([64.7.153.18]:47057 "EHLO
-	smarthost1.sentex.ca") by vger.kernel.org with ESMTP
-	id S965265AbWIROTd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Sep 2006 10:19:33 -0400
-From: "Stuart MacDonald" <stuartm@connecttech.com>
-To: "'Andi Kleen'" <ak@suse.de>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: RE: TCP stack behaviour question
-Date: Mon, 18 Sep 2006 10:19:08 -0400
-Organization: Connect Tech Inc.
-Message-ID: <002801c6db2d$67d8a3a0$294b82ce@stuartm>
+	Mon, 18 Sep 2006 10:22:00 -0400
+Received: from mail.sf-mail.de ([62.27.20.61]:19639 "EHLO mail.sf-mail.de")
+	by vger.kernel.org with ESMTP id S964880AbWIROV7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Sep 2006 10:21:59 -0400
+From: Rolf Eike Beer <eike-kernel@sf-tec.de>
+To: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
+Subject: Re: Exporting array data in sysfs
+Date: Mon, 18 Sep 2006 16:22:07 +0200
+User-Agent: KMail/1.9.4
+Cc: "Greg KH" <greg@kroah.com>, linux-kernel@vger.kernel.org
+References: <200609181359.31489.eike-kernel@sf-tec.de> <200609181541.57164.eike-kernel@sf-tec.de> <d120d5000609180656t2c6be385r4ad21d52313ac187@mail.gmail.com>
+In-Reply-To: <d120d5000609180656t2c6be385r4ad21d52313ac187@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
+Content-Type: multipart/signed;
+  boundary="nextPart8115209.RsmrdoQtL3";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook, Build 10.0.6626
-Importance: Normal
-In-Reply-To: <200609181554.15820.ak@suse.de>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+Message-Id: <200609181622.07681.eike-kernel@sf-tec.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Andi Kleen [mailto:ak@suse.de] 
-> > # man 7 ip
-> > ..
-> >                Note that TCP has no error queue; MSG_ERRQUEUE is
-> > illegal on SOCK_STREAM sockets.  Thus all errors are returned by
-> > socket function return or SO_ERROR only.
-> > 
-> > Maybe the man page is wrong? That's from my FC 3 install.
-> 
-> The sentence is correct, but TCP has a IP_RECVERR that works
-> differently without a queue. Basically it doesn't delay the error 
-> reporting for incoming ICMPs to the last retransmit, but reports
-> them immediately. This is documented in tcp(7)
+--nextPart8115209.RsmrdoQtL3
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-I read that too, but didn't know which one was correct, so I erred on
-the side of caution and believed ip(7).
+Dmitry Torokhov wrote:
+> On 9/18/06, Rolf Eike Beer <eike-kernel@sf-tec.de> wrote:
+> > Greg KH wrote:
+> > > On Mon, Sep 18, 2006 at 01:59:17PM +0200, Rolf Eike Beer wrote:
+> > > > Hi,
+> > > >
+> > > > I would like to put the contents of an array in sysfs files. I found
+> > > > no simple way to do this, so here are my thoughts in hope someone c=
+an
+> > > > hand me a light.
+> > >
+> > > What is wrong with using an attribute group for this kind of
+> > > information?
+> >
+> > Missing documentation. Yes, this looks like I could use this at least f=
+or
+> > the simple interfaces (which would be enough).
+>
+> I imoplemented sysfs arrays and array groups once:
+>
+> http://www.ussg.iu.edu/hypermail/linux/kernel/0503.2/1155.html
+>
+> Not sure if it still appliers. Maybe Greg will consider taking it in
+> if there is a user of this code.
 
-Good to know, I'll look into that. Thanks.
+I guess we can add some once it is in :)
 
-..Stu
+It looks good, but I would change some minor things. If there is no read=20
+function given I would return -EIO instead of 0, this is how other places d=
+o=20
+it. The limitation to 999 entries should go. But otherwise it looks very=20
+similar to what I had in mind.
 
+Thanks.
+
+Eike
+
+--nextPart8115209.RsmrdoQtL3
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+
+iD8DBQBFDquPXKSJPmm5/E4RAoFYAKCe11dqLB6eZgiE2u3HXrMRf0OzZACgo8dk
+WVw3klkE9RLT6trVmDXJtGA=
+=w42P
+-----END PGP SIGNATURE-----
+
+--nextPart8115209.RsmrdoQtL3--

@@ -1,51 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751192AbWIRVSF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751927AbWIRVXQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751192AbWIRVSF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Sep 2006 17:18:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751197AbWIRVSE
+	id S1751927AbWIRVXQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Sep 2006 17:23:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751926AbWIRVXP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Sep 2006 17:18:04 -0400
-Received: from tentacle.snto-msu.net ([194.88.210.4]:45718 "EHLO
-	tentacle.sectorb.msk.ru") by vger.kernel.org with ESMTP
-	id S1751192AbWIRVSC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Sep 2006 17:18:02 -0400
-Date: Tue, 19 Sep 2006 01:18:00 +0400
-From: "Vladimir B. Savkin" <master@sectorb.msk.ru>
-To: Andi Kleen <ak@suse.de>
-Cc: Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>,
-       Jesper Dangaard Brouer <hawk@diku.dk>,
-       Harry Edmon <harry@atmos.washington.edu>, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org, Andi Kleen <ak@suse.de>
+	Mon, 18 Sep 2006 17:23:15 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:21392
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1751924AbWIRVXP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Sep 2006 17:23:15 -0400
+Date: Mon, 18 Sep 2006 14:22:47 -0700 (PDT)
+Message-Id: <20060918.142247.14844785.davem@davemloft.net>
+To: kuznet@ms2.inr.ac.ru
+Cc: ak@suse.de, master@sectorb.msk.ru, hawk@diku.dk,
+       harry@atmos.washington.edu, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org
 Subject: Re: Network performance degradation from 2.6.11.12 to 2.6.16.20
-Message-ID: <20060918211759.GB31746@tentacle.sectorb.msk.ru>
-References: <4492D5D3.4000303@atmos.washington.edu> <200609181754.37623.ak@suse.de> <20060918162847.GA4863@ms2.inr.ac.ru> <200609181850.22851.ak@suse.de>
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <20060918210321.GA4780@ms2.inr.ac.ru>
+References: <20060918162847.GA4863@ms2.inr.ac.ru>
+	<200609181850.22851.ak@suse.de>
+	<20060918210321.GA4780@ms2.inr.ac.ru>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
-Content-Disposition: inline
-In-Reply-To: <200609181850.22851.ak@suse.de>
-X-Organization: Moscow State Univ., Institute of Mechanics
-X-Operating-System: Linux 2.6.17-rc6-64
-User-Agent: Mutt/1.5.9i
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 18, 2006 at 06:50:22PM +0200, Andi Kleen wrote:
-> 
-> I suppose in the worst case a sysctl like Vladimir asked for could be added,
-> but it would seem somewhat lame.
-> 
-Please think about it this way:
-suppose you haave a heavily loaded router and some network problem is to
-be diagnosed. You run tcpdump and suddenly router becomes overloaded (by
-switching to timestamp-it-all mode), drops OSPF adjancecies etc. Users
-are angry, and you can't diagnose anything. But with impresise
-timestamps and maybe even with reordered packets you still have some
-traces to analyze.
-So, in this particular corner case it's not that lame.
+From: Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>
+Date: Tue, 19 Sep 2006 01:03:21 +0400
 
-Or maybe patching tcpdump will do better?
-~
-:wq
-                                        With best regards, 
-                                           Vladimir Savkin. 
+> 1. It even does not disable possibility to record timestamp inside
+>    driver, which Alan was afraid of. The sequence is:
+> 
+> 	if (!skb->tstamp.off_sec)
+>                 net_timestamp(skb);
+> 
+> 2. Maybe, netif_rx() should continue to get timestamp in netif_rx().
+> 
+> 3. NAPI already introduced almost the same inaccuracy. And it is really
+>    silly to waste time getting timestamp in netif_receive_skb() a few
+>    moments before the packet is delivered to a socket.
+> 
+> 4. ...but clock source, which takes one of top lines in profiles
+>    must be repaired yet. :-)
 
+Ok, ok, but don't we have queueing disciplines that need the timestamp
+even on ingress?

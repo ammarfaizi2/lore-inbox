@@ -1,17 +1,17 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965165AbWIRAKY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965166AbWIRAPi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965165AbWIRAKY (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Sep 2006 20:10:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965166AbWIRAKY
+	id S965166AbWIRAPi (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Sep 2006 20:15:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965167AbWIRAPi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Sep 2006 20:10:24 -0400
-Received: from rwcrmhc13.comcast.net ([216.148.227.153]:21969 "EHLO
-	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S965165AbWIRAKW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Sep 2006 20:10:22 -0400
-Subject: Re: tracepoint maintainance models
-From: Nicholas Miell <nmiell@comcast.net>
-To: Ingo Molnar <mingo@elte.hu>
+	Sun, 17 Sep 2006 20:15:38 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:1432 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S965166AbWIRAPh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Sep 2006 20:15:37 -0400
+Date: Mon, 18 Sep 2006 02:07:03 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>
 Cc: Paul Mundt <lethal@linux-sh.org>, Karim Yaghmour <karim@opersys.com>,
        linux-kernel <linux-kernel@vger.kernel.org>,
        Ingo Molnar <mingo@redhat.com>, Jes Sorensen <jes@sgi.com>,
@@ -20,111 +20,107 @@ Cc: Paul Mundt <lethal@linux-sh.org>, Karim Yaghmour <karim@opersys.com>,
        Richard J Moore <richardj_moore@uk.ibm.com>,
        "Frank Ch. Eigler" <fche@redhat.com>,
        Michel Dagenais <michel.dagenais@polymtl.ca>,
-       Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
        Christoph Hellwig <hch@infradead.org>,
        Greg Kroah-Hartman <gregkh@suse.de>,
        Thomas Gleixner <tglx@linutronix.de>, William Cohen <wcohen@redhat.com>,
        "Martin J. Bligh" <mbligh@mbligh.org>
-In-Reply-To: <20060917230623.GD8791@elte.hu>
-References: <450D182B.9060300@opersys.com>
-	 <20060917112128.GA3170@localhost.usen.ad.jp>
-	 <20060917143623.GB15534@elte.hu> <1158524390.2471.49.camel@entropy>
-	 <20060917230623.GD8791@elte.hu>
-Content-Type: text/plain
-Date: Sun, 17 Sep 2006 17:10:13 -0700
-Message-Id: <1158538213.2471.73.camel@entropy>
+Subject: Re: tracepoint maintainance models
+Message-ID: <20060918000703.GA22752@elte.hu>
+References: <450D182B.9060300@opersys.com> <20060917112128.GA3170@localhost.usen.ad.jp> <20060917143623.GB15534@elte.hu> <20060917153633.GA29987@Krystal>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5.0.njm.1) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060917153633.GA29987@Krystal>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -2.9
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.9 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5000]
+	-0.1 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-09-18 at 01:06 +0200, Ingo Molnar wrote:
-> * Nicholas Miell <nmiell@comcast.net> wrote:
+
+* Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca> wrote:
+
+> * Ingo Molnar (mingo@elte.hu) wrote:
+> >   - model #2: we could have the least intrusive markers in the main
+> >     kernel source, while the more intrusive ones would still be in the
+> >     upstream kernel, but in scripts/instrumentation/.
+> > 
 > 
-> > On my system, Solaris has 49 "real" static probes (with actual 
-> > documentation[1]). They are as follows:
+> Please define : marker intrusiveness. I think that this is not a sole 
+> concept. First, I think we have to look at intrusiveness under three 
+> different angles :
 > 
-> yeah, _some_ static markers are OK, as long as they are within a dynamic 
-> tracing framework! (and are thus constantly "kept in check" by the easy 
-> availability of dynamic probes)
+> - Visual intrusiveness (hurts visually in the code)
+> - Compiled-in, but inactive intrusiveness
+>   - Modifies compiler optimisations when the marker is compiled in but no
+>     tracing is active.
+>   - Wastes a few cycles because it adds NOPs, jump, etc in a critical path
+>     when tracing is not active.
+> - Active tracing intrusiveness
+>   - Wastes too many cycles in a critical path when tracing is active.
+
+as the primary factor i'd add:
+
+  - Maintainance intrusiveness
+
+but yes, agreed - with that addition this is a good summary of the 
+intrusiveness factors.
+
+> The problem is that a static marker will speed up the active tracing 
+> while a dynamic probe will speed up the case where tracing is 
+> inactive. The problem is that the dynamic probe cost can get so big 
+> that it modifies the traced system often more than acceptable. [...]
+
+do you base this opinion of yours on the kprobes+LTT experiment you did 
+yesterday? If yes then would it be possible for you to try the 3 patches 
+that i sent, and re-measure the impact of kprobes? The kprobes overhead 
+should go down a bit, it would be interesting to see by how much.
+
+Also, when forming your opinion do you consider djprobes - which in 
+essence inserts a function call (and not an INT3) into the probed code?
+
+> [...] Under this angle, I would be tempted to say that the most 
+> intrusive instrumentation should be helped by marker, which means 
+> accepting a very small performance impact (NOPs on modern CPUs are 
+> quite fast) when tracing is not active in order to enable fast tracing 
+> of some very high event rate kernel code paths.
+
+i'm not fundamentally worried about the runtime impact of static probes, 
+as long as the impact is unmeasurable. I'm more worried about their 
+maintainance impact - so i want the option to move them to a dynamic 
+script, if the tracepoint is for example not frequent. (but being a 
+perfectionist i cannot completely forget about their runtime overhead 
+either)
+
+> >   - model #3: we could have the 'hardest' markups in the source, and the 
+> >     'easy' ones as dynamic markups in scripts/instrumentation/.
+> > 
+> By "hardest", do you mean : where the data that is to be extracted is 
+> not easily available due to compiler optimisations ?
+
+yeah - hard in the sense of dynamic probing.
+
+> > i agree, as long as it's lightweight markers for _dynamic tracers_, 
+> > so that we keep our options open - as per the arguments above.
 > 
-> what is being proposed here is entirely different from dprobes though: 
-> Roman suggests that he doesnt want to implement kprobes on his arch, and 
-> he wants LTT to remain an _all-static_ tracer. That's the point where i 
-> beg to differ: static markers are fine (but they should be kept to a 
-> minimum), but generic static /tracers/ need alot more than just a few 
-> static markers to be meaningful.
+> But I also think that a marker mechanism should not only mark the code 
+> location where the instrumentation is to be made, but also the 
+> information the probe is interested into (provide compile-time data 
+> type verification and address at runtime). Doing otherwise would limit 
+> what could be provided to static markup users.
 
-Anyone know what's hard about kprobes on m68k? Roman?
+yeah. If you look at the API suggestions i made, they are such. There 
+can be differences though to 'static tracepoints used by static 
+tracers': for example there's no need to 'mark' a static variable, 
+because dynamic tracers have access to it - while a static tracer would 
+have to pass it into its trace-event function call.
 
-> So if we accepted static tracers into the kernel, we'd automatically 
-> commit (for a long period of time) to a much larger body of static 
-> markers - and i'm highly uncomfortable about that. (for the many reasons 
-> outlined before)
-> 
-> Even if the LTT folks proposed to "compromise" to 50 tracepoints - users 
-> of static tracers would likely _not_ be willing to compromise, so there 
-> would be a constant (and I say unnecessary) battle going on for the 
-> increase of the number of static markers. Static markers, if done for 
-> static tracers, have "viral" (Roman: here i mean "auto-spreading", not 
-> "disease") properties in that sense - they want to spread to alot larger 
-> area of code than they start out from.
-> 
-> While if we only have a dynamic tracing framework (which is a mix of 
-> static markers and dynamic probes) then pretty much the only user 
-> pressure would be: "implement kprobes!". (which is already implemented 
-> for 5 major arches and takes only between 500 and 1000 lines of per-arch 
-> code for most of them.)
-> 
-> ( furthermore, from what you've described it seems to me that 
->   kprobes/kretprobes/djprobes+SystemTap is already more capable than 
->   dprobes is - hence the number of static markes needed in Linux might 
->   in fact be lower in the end than in Solaris. )
-
-Most of what makes dtrace better than SystemTap right now is the polish
-of the userspace tools, the extra features (pre-userspace tracing,
-post-mortem trace buffer extraction, speculative tracing, userspace
-tracing, ABI stability notations, etc.), the better runtime library for
-scripts, and the fact that they've found everything that can't be traced
-without crashing the kernel and marked it untracable.
-
-The D language itself may be quite limited (and hated because of that),
-but it is clean and complete, which is something I can't say about
-stap's language.
-
-The existence of documentation really helps, too.
-
-The actual probing mechanism itself is a very small part of what makes
-dtrace good and SystemTap not there yet.
-
-> > This is the important part: In a dynamic tracing system, the number of 
-> > static probes necessary for the tracing system to be useful is 
-> > drastically, dramatically, absurdly lower than in a purely static 
-> > tracing system. Hell, you don't even need the static probes for it to 
-> > be useful, they're just a convenience for events which happen in 
-> > multiple places or a high-level name for a low-level implementation 
-> > detail.
-> 
-> yeah, precisely my point.
->
-
-I should note that, despite being unneeded in a dynamic trace system, I
-think the addition of static probe points is actually useful, and the
-convenience they provide shouldn't be minimized. Obviously you're not
-going to want to add static probe points for implementation-details that
-are likely to change in the future (without noting that they're
-implementation-specific and prone to change, anyway).
-
-> > In order for the static tracing system to be as useful as the dynamic 
-> > system, all of those dynamically generated probe points would have to 
-> > be manually added to the kernel. The maintenance burden of this number 
-> > of probes is stupidly high. In reality, no static system would ever 
-> > reach that level of coverage.
-> 
-> yeah, agreed.
-> 
-> 	Ingo
--- 
-Nicholas Miell <nmiell@comcast.net>
-
+	Ingo

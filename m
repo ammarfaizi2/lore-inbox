@@ -1,19 +1,18 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751863AbWIRRoJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751861AbWIRRrr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751863AbWIRRoJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Sep 2006 13:44:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751864AbWIRRoJ
+	id S1751861AbWIRRrr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Sep 2006 13:47:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751864AbWIRRrr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Sep 2006 13:44:09 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:33180 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1751863AbWIRRoG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Sep 2006 13:44:06 -0400
-Subject: Re: tracepoint maintainance models
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: "Frank Ch. Eigler" <fche@redhat.com>
-Cc: Ingo Molnar <mingo@elte.hu>, Paul Mundt <lethal@linux-sh.org>,
-       Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
+	Mon, 18 Sep 2006 13:47:47 -0400
+Received: from tomts20-srv.bellnexxia.net ([209.226.175.74]:21446 "EHLO
+	tomts20-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id S1751861AbWIRRrq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Sep 2006 13:47:46 -0400
+Date: Mon, 18 Sep 2006 13:47:42 -0400
+From: Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: "Frank Ch. Eigler" <fche@redhat.com>, Paul Mundt <lethal@linux-sh.org>,
        linux-kernel <linux-kernel@vger.kernel.org>, Jes Sorensen <jes@sgi.com>,
        Andrew Morton <akpm@osdl.org>, Tom Zanussi <zanussi@us.ibm.com>,
        Richard J Moore <richardj_moore@uk.ibm.com>,
@@ -22,41 +21,82 @@ Cc: Ingo Molnar <mingo@elte.hu>, Paul Mundt <lethal@linux-sh.org>,
        Greg Kroah-Hartman <gregkh@suse.de>,
        Thomas Gleixner <tglx@linutronix.de>, William Cohen <wcohen@redhat.com>,
        "Martin J. Bligh" <mbligh@mbligh.org>
-In-Reply-To: <20060918172705.GN3951@redhat.com>
-References: <20060918000703.GA22752@elte.hu> <450DF28E.3050101@opersys.com>
-	 <20060918011352.GB30835@elte.hu> <20060918122527.GC3951@redhat.com>
-	 <20060918150231.GA8197@elte.hu>
-	 <1158594491.6069.125.camel@localhost.localdomain>
-	 <20060918152230.GA12631@elte.hu>
-	 <1158596341.6069.130.camel@localhost.localdomain>
-	 <20060918161526.GL3951@redhat.com>
-	 <1158598927.6069.141.camel@localhost.localdomain>
-	 <20060918172705.GN3951@redhat.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Mon, 18 Sep 2006 19:04:22 +0100
-Message-Id: <1158602662.6069.147.camel@localhost.localdomain>
+Subject: Re: MARKER mechanism, try 2
+Message-ID: <20060918174742.GA27398@Krystal>
+References: <20060917112128.GA3170@localhost.usen.ad.jp> <20060917143623.GB15534@elte.hu> <20060917153633.GA29987@Krystal> <20060918000703.GA22752@elte.hu> <450DF28E.3050101@opersys.com> <20060918011352.GB30835@elte.hu> <20060918122527.GC3951@redhat.com> <20060918150231.GA8197@elte.hu> <20060918163042.GA15192@Krystal> <20060918162828.GA22910@elte.hu>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20060918162828.GA22910@elte.hu>
+X-Editor: vi
+X-Info: http://krystal.dyndns.org:8080
+X-Operating-System: Linux/2.4.32-grsec (i686)
+X-Uptime: 13:28:55 up 26 days, 14:37,  4 users,  load average: 0.52, 0.44, 0.36
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Llu, 2006-09-18 am 13:27 -0400, ysgrifennodd Frank Ch. Eigler:
-> Unless one's worried about planetary-scale energy use, I see no point
-> in multiplying overheads by "every box on the planet".
+* Ingo Molnar (mingo@elte.hu) wrote:
+> 
+> * Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca> wrote:
+> 
+> > It supports 5 modes :
+> > 
+> > - marker becomes nothing
+> > - marker calls printk
+> > - marker calls a tracer
+> > - marker puts a symbol (for kprobe)
+> > - marker puts a symbol and 5 NOPS for a jump probe.
+> 
+> just go for 'nothing' and the 5-NOP variant, and please implement 
+> support for it from within LTT, via a kprobe - if you want me to support 
+> this stuff for upstream inclusion. If we support any static tracer mode 
+> and LTT does not support the kprobe mode then we are back to square 1 
+> wrt. dependencies ...
+> 
 
-Because we are all paying for your debug stuff we aren't using. Systems
-get slow and sucky by the death of a million cuts not by one stupid
-action.
+I am open to make LTTng support kprobes as a commodity (in fact, this point has
+been on the LTTng project roadmap for almost a year). But in no way does it
+solve the entire tracing problem. As an example, LTTng traces the page fault
+handler, when kprobes just can't instrument it.
 
-> Unfortunately, cases in which this sort of out-of-band markup would be
-> sufficient are pretty much those exact same cases where it is not
-> necessary.  Remember, the complex cases occur when the compiler munges
-> up control flow and data accessability, so debuginfo cannot or does
-> not correctly place the probes and their data gathering compatriots.
+I keep thinking that a complete marker mechanism must have the ability to be
+turned into function calls or inline functions when necessary.
 
-Which if understand you right you'd end up unmunging and reducing
-performance for by reducing the options gcc has to make that critical
-code go fast just so you know what register something is living in.
+Going further, we could think of a marker mechanism that would be aware of the
+"difficulty" level of the probe, so that even if CONFIG_KPROBELOG is selected,
+it would use a direct call or inlined function for probing the page fault
+handler.
 
-Alan
+i.e. :
+
+"normal" (nothing, kprobe, jumpprobe, printk or tracer)
+MARK(eventname, "%d %s", myint, mystring);
+
+"cannot be probed dynamically" (used in kprobes itself, page fault handler)
+                               (only nothing or tracer)
+MARK_NOPROBE(eventname, "%d %s", myint, mystring);
+
+"cannot use printk" (used in scheduler, NMIs, wakeup, printk itself)
+                    (nothing, kprobe, jumpprobe or tracer)
+MARK_NOPRINT(eventname, "%d %s", myint, mystring);
+
+Using the following table to select the mechanism :
+
+Config/probe declaration     |   normal      |    noprobe    |     noprint
+------------------------------------------------------------------------------
+nothing                      |   nothing      |   nothing     |    nothing
+kprobe                       |   kprobe       |   tracer      |    kprobe
+jumpprobe                    |   jumpprobe    |   tracer      |    jumpprobe
+printk                       |   printk       |   tracer      |    kprobe
+tracer                       |   tracer       |   tracer      |    tracer
+
+Therefore, selecting the "kprobe" configuration option would still let people
+instrument the hardest paths while having mostly dynamic probes.
+
+Mathieu
+
+
+OpenPGP public key:              http://krystal.dyndns.org:8080/key/compudj.gpg
+Key fingerprint:     8CD5 52C3 8E3C 4140 715F  BA06 3F25 A8FE 3BAE 9A68 

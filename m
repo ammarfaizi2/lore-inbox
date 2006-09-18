@@ -1,235 +1,269 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965531AbWIRIFv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965528AbWIRIFs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965531AbWIRIFv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Sep 2006 04:05:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965532AbWIRIFu
+	id S965528AbWIRIFs (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Sep 2006 04:05:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965532AbWIRIFs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Sep 2006 04:05:50 -0400
-Received: from moutng.kundenserver.de ([212.227.126.171]:38135 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S965530AbWIRIFr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Sep 2006 04:05:47 -0400
-From: Arnd Bergmann <arnd@arndb.de>
-To: Sam Ravnborg <sam@ravnborg.org>
-Subject: Re: [patch 1/8] extend make headers_check to detect more problems
-Date: Mon, 18 Sep 2006 10:05:36 +0200
-User-Agent: KMail/1.9.1
-Cc: David Woodhouse <dwmw2@infradead.org>, linux-arch@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-References: <20060918012740.407846000@klappe.arndb.de> <20060918013216.335200000@klappe.arndb.de> <20060918062152.GA7088@uranus.ravnborg.org>
-In-Reply-To: <20060918062152.GA7088@uranus.ravnborg.org>
+	Mon, 18 Sep 2006 04:05:48 -0400
+Received: from mail.sf-mail.de ([62.27.20.61]:31410 "EHLO mail.sf-mail.de")
+	by vger.kernel.org with ESMTP id S965528AbWIRIFq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Sep 2006 04:05:46 -0400
+From: Rolf Eike Beer <eike-kernel@sf-tec.de>
+To: "Om Narasimhan" <om.turyx@gmail.com>
+Subject: Re: acpi kmalloc to kzalloc conversion and a memory leak fix.
+Date: Mon, 18 Sep 2006 10:05:18 +0200
+User-Agent: KMail/1.9.4
+Cc: linux-acpi@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <6b4e42d10609171754m3361c805teda7fae032f8e756@mail.gmail.com>
+In-Reply-To: <6b4e42d10609171754m3361c805teda7fae032f8e756@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Content-Type: multipart/signed;
+  boundary="nextPart44573444.J4FjkBNa0n";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200609181005.36817.arnd@arndb.de>
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:c48f057754fc1b1a557605ab9fa6da41
+Message-Id: <200609181005.19033.eike-kernel@sf-tec.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 18 September 2006 08:21, Sam Ravnborg wrote:
-> > --- linux-cg.orig/scripts/hdrcheck.sh	2006-09-18 02:04:44.000000000 +0200
-> > +++ linux-cg/scripts/hdrcheck.sh	2006-09-18 02:04:45.000000000 +0200
-> > @@ -1,8 +1,28 @@
-> >  #!/bin/sh
-> >  
-> > +# check if all included files exist
-> >  for FILE in `grep '^[ \t]*#[ \t]*include[ \t]*<' $2 | cut -f2 -d\< | cut -f1 -d\> | egrep ^linux\|^asm` ; do
-> >      if [ ! -r $1/$FILE ]; then
-> >  	echo $2 requires $FILE, which does not exist in exported headers
-> >  	exit 1
-> >      fi
-> >  done
-> > +
-> > +# try to compile in order to see CC warnings, show only the first few
-> > +CHECK_CFLAGS=`grep @headercheck: $2 | sed -e 's/^.*@headercheck:\([^@]*\)@.*$/\1/'`
-> 
-> The purpose of @headercheck: should be documented sonewhere.
-> A simple way to do so would be to paste the content of the changelog that
-> describe it in the top of this file.
+--nextPart44573444.J4FjkBNa0n
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-ok. I've ended up writing more than that now, since the headers_install
-target also wasn't documented well.
+Om Narasimhan wrote:
+> Hi,
+> I had submitted this patch sometime earlier. Submitting again after
+> fixing a bug in the patch.
+> I have not subscribed to linux-acpi. please CC me in replies.
 
-> > +CFLAGS="-Wall -std=gnu99 -xc -O2 -I$1 ${CHECK_CFLAGS}"
-> > +tmpfile=`mktemp`
-> Can't we do this with a hdrchk$$$ filename to avoid using
-> random entropy for each compile?
+Please add a description here what you do in your patch. Especially if you'=
+re=20
+going to fix a bug it would be good if you shortly describe where it was an=
+d=20
+how it was wrong, e.g. "foo() was freeing struct bar on error, but nobody=20
+ever cared for the children of bar".
 
-For now, I've hacked something up in the script below. I suppose
-that can be improved with Dave's proposal by doing it from the
-Makefile.
+> Signed Off by : Om Narasimhan <om.turyx@gmail.com>
+>
+> --
+>
+>  drivers/acpi/ac.c              |    4 +---
+>  drivers/acpi/acpi_memhotplug.c |   14 ++++----------
+>  drivers/acpi/asus_acpi.c       |    3 +--
+>  drivers/acpi/battery.c         |   13 +++----------
+>  drivers/acpi/bus.c             |    3 +--
+>  drivers/acpi/button.c          |    4 +---
+>  drivers/acpi/container.c       |    4 +---
+>  drivers/acpi/ec.c              |   20 +++++---------------
+>  drivers/acpi/fan.c             |    3 +--
+>  drivers/acpi/i2c_ec.c          |    8 ++------
+>  drivers/acpi/osl.c             |    2 +-
+>  drivers/acpi/pci_bind.c        |   21 +++++----------------
+>  drivers/acpi/pci_irq.c         |   16 +++-------------
+>  drivers/acpi/pci_link.c        |    6 ++----
+>  drivers/acpi/pci_root.c        |    3 +--
+>  drivers/acpi/power.c           |    4 +---
+>  drivers/acpi/processor_core.c  |    4 +---
+>  drivers/acpi/sbs.c             |    4 +---
+>  drivers/acpi/thermal.c         |   13 +++----------
+>  drivers/acpi/utils.c           |    2 --
+>  20 files changed, 38 insertions(+), 113 deletions(-)
+>
+> diff --git a/drivers/acpi/ac.c b/drivers/acpi/ac.c
+> index 11abc7b..0d05d36 100644
+> --- a/drivers/acpi/ac.c
+> +++ b/drivers/acpi/ac.c
+> @@ -221,11 +221,9 @@ static int acpi_ac_add(struct acpi_devic
+>  	if (!device)
+>  		return -EINVAL;
+>
+> -	ac =3D kmalloc(sizeof(struct acpi_ac), GFP_KERNEL);
+> +	ac =3D kzalloc(sizeof(struct acpi_ac), GFP_KERNEL);
+>  	if (!ac)
+>  		return -ENOMEM;
+> -	memset(ac, 0, sizeof(struct acpi_ac));
+> -
+>  	ac->device =3D device;
+>  	strcpy(acpi_device_name(device), ACPI_AC_DEVICE_NAME);
+>  	strcpy(acpi_device_class(device), ACPI_AC_CLASS);
+> diff --git a/drivers/acpi/acpi_memhotplug.c
+> b/drivers/acpi/acpi_memhotplug.c index 1dda370..4b1a77d 100644
+> --- a/drivers/acpi/acpi_memhotplug.c
+> +++ b/drivers/acpi/acpi_memhotplug.c
+> @@ -292,7 +292,6 @@ static int acpi_memory_disable_device(st
+>  	int result;
+>  	struct acpi_memory_info *info, *n;
+>
+> -
+>  	/*
+>  	 * Ask the VM to offline this memory range.
+>  	 * Note: Assume that this function returns zero on success
 
-> > +${CC:-gcc} ${CFLAGS} -c $2 -o $tmpfile 2>&1 | sed -e "s:$1:include:g" >&2
-> > +
-> > +# check if object file is empty
-> > +if [ "`nm $tmpfile`" ] ; then
-> Replace nm with {NM:-nm} to obtain correct NM when cross compiling.
-> 
-> > +    echo include${2#$1}: warning: non-empty output >&2
-> Paste output of nm so one can see what is defined?
-> 
+Depends on the maintainer, but usually it is preferred to do whitespace=20
+cleanups in their own patch. Now I have to dig through >600 lines of patch =
+to=20
+find the bug you fixed. I would have split this one into 3 seperate pieces:=
+=20
+whitespace, k[mz]alloc and the bug fix. This depends on the whishes of the=
+=20
+maintainer, but usually this makes tracking of changes much easier as the=20
+first two can later be ignored more or less if someones trying to nail down=
+ a=20
+change in behaviour to a specific patch.
 
-ok
+> @@ -418,14 +412,14 @@ static int acpi_memory_device_add(struct
+>  static int acpi_memory_device_remove(struct acpi_device *device, int typ=
+e)
+>  {
+>  	struct acpi_memory_device *mem_device =3D NULL;
+> -
+> +	struct acpi_memory_info *info, *n;
+>
+>  	if (!device || !acpi_driver_data(device))
+>  		return -EINVAL;
+> -
+>  	mem_device =3D (struct acpi_memory_device *)acpi_driver_data(device);
+> +	list_for_each_entry_safe(info, n, &mem_device->res_list, list)
+> +		kfree(info);
+>  	kfree(mem_device);
+> -
+>  	return 0;
+>  }
 
-	Arnd <><
----
-In addition to the problem of including non-existant header
-files, a number of other things can go wrong with header
-files exported to user space. This adds checks for some
-common problems:
+This has nothing to do with your patch, but isn't this check here a bit=20
+superfluous? Also the check in acpi_memory_device_add() to check for device=
+?=20
+These functions should never be called if device is NULL. If it is this is =
+a=20
+bug and it's better to BUG() or just oops here instead of hiding this bug.=
+=20
+Also acpi_memory_device_remove() should never be called if=20
+acpi_memory_device_add() fails. But if this succeeded=20
+acpi_driver_data(device) will always be valid. If it is deleted later by=20
+anyone else this is also a bug and shouldn't be "ignored" silently. Opinion=
+s?
 
-- The header fails to include the files it needs, which
-  results in build errors when a program tries to include
-  it. Check this by doing a dummy compile.
+> @@ -277,15 +274,12 @@ int acpi_pci_unbind(struct acpi_device *
+>  	char *pathname =3D NULL;
+>  	struct acpi_buffer buffer =3D { 0, NULL };
+>
+> -
+>  	if (!device || !device->parent)
+>  		return -EINVAL;
+>
+> -	pathname =3D (char *)kmalloc(ACPI_PATHNAME_MAX, GFP_KERNEL);
+> +	pathname =3D (char *)kzalloc(ACPI_PATHNAME_MAX, GFP_KERNEL);
+>  	if (!pathname)
+>  		return -ENOMEM;
+> -	memset(pathname, 0, ACPI_PATHNAME_MAX);
+> -
+>  	buffer.length =3D ACPI_PATHNAME_MAX;
+>  	buffer.pointer =3D pathname;
+>  	acpi_get_name(device->handle, ACPI_FULL_PATHNAME, &buffer);
 
-- There is a declarations of a static variable or non-inline
-  function in the header, which results in object code
-  in every file including it. Check for symbols in the object
-  with 'nm'.
+This btw. is an example where I would also do a whitespace change in a "rea=
+l"=20
+patch. It doesn't matter here as this area is touched anyway. Not 100%=20
+correct, but who is? :)
 
-- Part of the header is subject to conditional compilation
-  based on CONFIG_*. Add a regex search for this.
+> @@ -332,11 +326,9 @@ acpi_pci_bind_root(struct acpi_device *d
+>  	struct acpi_buffer buffer =3D { 0, NULL };
+>
+>
+> -	pathname =3D (char *)kmalloc(ACPI_PATHNAME_MAX, GFP_KERNEL);
+> +	pathname =3D (char *)kzalloc(ACPI_PATHNAME_MAX, GFP_KERNEL);
+>  	if (!pathname)
+>  		return -ENOMEM;
+> -	memset(pathname, 0, ACPI_PATHNAME_MAX);
+> -
+>  	buffer.length =3D ACPI_PATHNAME_MAX;
+>  	buffer.pointer =3D pathname;
+>
 
-I found many problems with this, which I then fixed for
-powerpc, s390 and i386, in subsequent patches.
+Kill that cast. kzalloc() returns void* which is assignement compatible wit=
+h=20
+any pointer.
 
-Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+> diff --git a/drivers/acpi/pci_irq.c b/drivers/acpi/pci_irq.c
+> index feda034..b64c50a 100644
+> --- a/drivers/acpi/pci_irq.c
+> +++ b/drivers/acpi/pci_irq.c
+> @@ -85,21 +85,14 @@ acpi_pci_irq_add_entry(acpi_handle handl
+>  {
+>  	struct acpi_prt_entry *entry =3D NULL;
+>
+> -
+> -	if (!prt)
+> -		return -EINVAL;
+> -
+> -	entry =3D kmalloc(sizeof(struct acpi_prt_entry), GFP_KERNEL);
+> +	entry =3D kzalloc(sizeof(struct acpi_prt_entry), GFP_KERNEL);
+>  	if (!entry)
+>  		return -ENOMEM;
+> -	memset(entry, 0, sizeof(struct acpi_prt_entry));
+> -
+>  	entry->id.segment =3D segment;
+>  	entry->id.bus =3D bus;
+>  	entry->id.device =3D (prt->address >> 16) & 0xFFFF;
+>  	entry->id.function =3D prt->address & 0xFFFF;
+>  	entry->pin =3D prt->pin;
+> -
+>  	/*
+>  	 * Type 1: Dynamic
+>  	 * ---------------
 
----
+You are changing the way how this code works here as you removed the check =
+for=20
+prt. Another good example why to split up this patch as this might sometime=
+=20
+really byte someone (haven't checked the code).
 
-Index: linux-cg/scripts/hdrcheck.sh
-===================================================================
---- linux-cg.orig/scripts/hdrcheck.sh	2006-09-18 08:44:08.000000000 +0200
-+++ linux-cg/scripts/hdrcheck.sh	2006-09-18 09:59:13.000000000 +0200
-@@ -1,8 +1,28 @@
- #!/bin/sh
- 
-+# check if all included files exist
- for FILE in `grep '^[ \t]*#[ \t]*include[ \t]*<' $2 | cut -f2 -d\< | cut -f1 -d\> | egrep ^linux\|^asm` ; do
-     if [ ! -r $1/$FILE ]; then
- 	echo $2 requires $FILE, which does not exist in exported headers
- 	exit 1
-     fi
- done
-+
-+# try to compile in order to see CC warnings, show only the first few
-+CHECK_CFLAGS=`grep @headercheck: $2 | sed -e 's/^.*@headercheck:\([^@]*\)@.*$/\1/'`
-+CFLAGS="-Wall -std=gnu99 -xc -O2 -I$1 ${CHECK_CFLAGS}"
-+mkdir -p ${3%/*}
-+${CC:-gcc} ${CFLAGS} -c $2 -o $3 2>&1 | sed -e "s:$1:include:g" >&2
-+
-+# check if object file is empty
-+if [ "`${NM:-nm} $3`" ] ; then
-+    echo include${2#$1}: warning: non-empty output >&2
-+    ${NM:-nm} $3 >&2
-+fi
-+
-+# check if we use a CONFIG_ symbol, which is not allowed in installed headers
-+grep '^[ \t]*#[ \t]*if.*\<CONFIG_[[:alnum:]_]*\>' -n $2 |
-+while read i ; do
-+    echo include${2#$1}:${i%%:*}: warning: invalid use of `echo $i |
-+	sed -e 's/.*\(\<CONFIG_[[:alnum:]_]*\>\).*/\1/g'` >&2
-+done
-Index: linux-cg/Documentation/headers.txt
-===================================================================
---- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-cg/Documentation/headers.txt	2006-09-18 09:45:17.000000000 +0200
-@@ -0,0 +1,96 @@
-+		Exporting data structures to user space
-+
-+
-+===  Background
-+
-+Traditionally, headers in include/asm and include/linux symlinked to
-+/usr/include [1]. This has always been a bad idea and stopped working
-+well a few years ago. The next step was that distributions shipped
-+their own copy of sometimes heavily modified headers to have
-+something usable. Mariusz Mazur was maintaining pre-packaged
-+linux-libc-headers [2] that were picked up by some distros but
-+in the end that turned out too much work to keep up with.
-+
-+In 2.6.18, the current mechanism was merged, which uses Makefile
-+in the include directory to install a minimal set of user space
-+headers that can be used in /usr/include.
-+
-+
-+===  Installing headers
-+
-+The 'make headers_install' command is used to install headers
-+into the location specified with the 'INSTALL_HDR_PATH' environment
-+variable. The default location for this is ${OBJDIR}/usr/include.
-+
-+Which headers get installed is specified in the 'Kbuild' file in
-+the source directory containing each headers. The variables used
-+in Kbuild to designate these files are:
-+
-+headers-y    Files that are installed verbatim from the source
-+	     directory, as well subdirectories that also contain
-+	     installable header files.
-+objhdr-y     Files that are installed from the object directory,
-+	     having been generated during the kernel build.
-+unifdef-y    Files that have both parts for installations and
-+	     parts that are private to the kernel. These files
-+	     are run through the 'unifdef'(1) program that will
-+	     strip all parts inside of '#ifdef __KERNEL__'.
-+
-+Apart from unifdef, all files are also run through a sed script
-+that strips the usage of '#include <linux/compiler.h' [5].
-+
-+
-+===  What should be in installed headers
-+
-+The contents of /usr/include/linux define the binary interface
-+to the kernel. It should ideally only contain data structures
-+and definitions of constants used on the kernel ABI. In particular,
-+it is not a general helper library. While some applications
-+are attempting to e.g. spinlocks or linked lists from the kernel
-+in user space, such uses are usually subtly broken and should
-+not be encouraged.
-+
-+The set of installed headers is supposed to be usable without
-+dependencies on other files, so none of them can #include headers
-+that are not also installed nor use types or macros defined
-+elsewhere. Typically, this requires enclosing parts of the header
-+inside of #ifdef __KERNEL__, or (preferred) splitting the header
-+file into a file that can be included in user space and another
-+one that contains the kernel-only parts and is not installed.
-+
-+
-+===  Checking header files
-+
-+The 'make headers_check' target is used to perform a sanity
-+check on the contents of the installed headers[6]. It checks for
-+a number of common problems:
-+
-+- The header file includes another header that is not also
-+  present in the set of installed headers.
-+
-+- The header fails to include the files it needs, which
-+  results in build errors when a program tries to include
-+  it. Check this by doing a dummy compile.
-+
-+- There is a declarations of a static variable or non-inline
-+  function in the header, which results in object code
-+  in every file including it. Check for symbols in the object
-+  with 'nm'.
-+
-+- Part of the header is subject to conditional compilation
-+  based on CONFIG_*. Add a regex search for this.
-+
-+Since the headers are different on each architectures, and
-+at least the compile step of headers_check requires a compiler
-+for the target architectures, only one architecture can be
-+checked at a time.
-+
-+
-+===  References
-+
-+[1] http://linuxmafia.com/faq/Kernel/usr-src-olinux-symlink.html
-+[2] http://ep09.pld-linux.org/~mmazur/linux-libc-headers/
-+[3] http://lkml.org/lkml/2006/3/14/144
-+[4] http://kerneltrap.org/node/6536
-+[5] file:../scripts/Makefile.headersinst
-+[6] file:../scripts/hdrcheck.sh
+> diff --git a/drivers/acpi/thermal.c b/drivers/acpi/thermal.c
+> index 5753d06..bdb0353 100644
+> --- a/drivers/acpi/thermal.c
+> +++ b/drivers/acpi/thermal.c
+> @@ -902,13 +902,11 @@ acpi_thermal_write_trip_points(struct fi
+>  	int i =3D 0;
+>
+>
+> -	limit_string =3D kmalloc(ACPI_THERMAL_MAX_LIMIT_STR_LEN, GFP_KERNEL);
+> +	limit_string =3D kzalloc(ACPI_THERMAL_MAX_LIMIT_STR_LEN, GFP_KERNEL);
+>  	if (!limit_string)
+>  		return -ENOMEM;
+>
+> -	memset(limit_string, 0, ACPI_THERMAL_MAX_LIMIT_STR_LEN);
+> -
+> -	active =3D kmalloc(ACPI_THERMAL_MAX_ACTIVE * sizeof(int), GFP_KERNEL);
+> +	active =3D kzalloc(ACPI_THERMAL_MAX_ACTIVE * sizeof(int), GFP_KERNEL);
+>  	if (!active) {
+>  		kfree(limit_string);
+>  		return -ENOMEM;
+
+*looking in the file*
+
+Eeks, what's that?
+
+       if (!tz || (count > ACPI_THERMAL_MAX_LIMIT_STR_LEN - 1)) {
+
+What about
+
+       if (!tz || (count >=3D ACPI_THERMAL_MAX_LIMIT_STR_LEN)) {
+
+
+Eike
+
+--nextPart44573444.J4FjkBNa0n
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+
+iD8DBQBFDlM/XKSJPmm5/E4RAhVvAJ4zmScdhW+QY3RBNOM/HTb4uJy8YQCfXHvu
+A0CfQbbaqZjk8Ces2um2DaQ=
+=LGsG
+-----END PGP SIGNATURE-----
+
+--nextPart44573444.J4FjkBNa0n--

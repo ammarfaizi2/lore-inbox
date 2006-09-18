@@ -1,83 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965279AbWIRO7T@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965219AbWIRO6v@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965279AbWIRO7T (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Sep 2006 10:59:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965278AbWIRO7T
+	id S965219AbWIRO6v (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Sep 2006 10:58:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965279AbWIRO6u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Sep 2006 10:59:19 -0400
-Received: from ug-out-1314.google.com ([66.249.92.172]:61596 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S965279AbWIRO7S (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Sep 2006 10:59:18 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=U8xOfjWSV41ysO/yWm+uDyeYybhDmdrYp9BhGL7oE0/4iQRmqTVFnOcfDc9oiOPuYlw/9OQbBt9RjII+wJENaFjSIT3/JaOZkF3ePbGF0MdIAUzZEnNLATZfS1oeYJ4gUJAysGvuqXcoBW/ASX4cVJztfiH5MXwwNoN48ZomL34=
-Message-ID: <d120d5000609180759t42945f0bi496b3840818c218b@mail.gmail.com>
-Date: Mon, 18 Sep 2006 10:59:16 -0400
-From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
-To: "Rolf Eike Beer" <eike-kernel@sf-tec.de>
-Subject: Re: Exporting array data in sysfs
-Cc: "Greg KH" <greg@kroah.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <200609181622.07681.eike-kernel@sf-tec.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Mon, 18 Sep 2006 10:58:50 -0400
+Received: from tomts16-srv.bellnexxia.net ([209.226.175.4]:31425 "EHLO
+	tomts16-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id S965219AbWIRO6t (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Sep 2006 10:58:49 -0400
+Date: Mon, 18 Sep 2006 10:53:35 -0400
+From: Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>
+To: Jes Sorensen <jes@sgi.com>
+Cc: Ingo Molnar <mingo@elte.hu>, Roman Zippel <zippel@linux-m68k.org>,
+       Andrew Morton <akpm@osdl.org>, tglx@linutronix.de, karim@opersys.com,
+       Paul Mundt <lethal@linux-sh.org>, linux-kernel@vger.kernel.org,
+       Christoph Hellwig <hch@infradead.org>, Ingo Molnar <mingo@redhat.com>,
+       Greg Kroah-Hartman <gregkh@suse.de>, Tom Zanussi <zanussi@us.ibm.com>,
+       ltt-dev@shafik.org, Michel Dagenais <michel.dagenais@polymtl.ca>
+Subject: Re: [PATCH 0/11] LTTng-core (basic tracing infrastructure) 0.5.108
+Message-ID: <20060918145335.GD15605@Krystal>
+References: <450ABE08.2060107@opersys.com> <1158332447.5724.423.camel@localhost.localdomain> <20060915111644.c857b2cf.akpm@osdl.org> <20060915181907.GB17581@elte.hu> <Pine.LNX.4.64.0609152111030.6761@scrub.home> <20060915200559.GB30459@elte.hu> <20060915202233.GA23318@Krystal> <450BCAF1.2030205@sgi.com> <20060916173035.GA705@Krystal> <450E55BB.80208@sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <200609181359.31489.eike-kernel@sf-tec.de>
-	 <200609181541.57164.eike-kernel@sf-tec.de>
-	 <d120d5000609180656t2c6be385r4ad21d52313ac187@mail.gmail.com>
-	 <200609181622.07681.eike-kernel@sf-tec.de>
+In-Reply-To: <450E55BB.80208@sgi.com>
+X-Editor: vi
+X-Info: http://krystal.dyndns.org:8080
+X-Operating-System: Linux/2.4.32-grsec (i686)
+X-Uptime: 10:47:22 up 26 days, 11:56,  4 users,  load average: 2.42, 1.66, 1.48
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 9/18/06, Rolf Eike Beer <eike-kernel@sf-tec.de> wrote:
-> Dmitry Torokhov wrote:
-> > On 9/18/06, Rolf Eike Beer <eike-kernel@sf-tec.de> wrote:
-> > > Greg KH wrote:
-> > > > On Mon, Sep 18, 2006 at 01:59:17PM +0200, Rolf Eike Beer wrote:
-> > > > > Hi,
-> > > > >
-> > > > > I would like to put the contents of an array in sysfs files. I found
-> > > > > no simple way to do this, so here are my thoughts in hope someone can
-> > > > > hand me a light.
-> > > >
-> > > > What is wrong with using an attribute group for this kind of
-> > > > information?
-> > >
-> > > Missing documentation. Yes, this looks like I could use this at least for
-> > > the simple interfaces (which would be enough).
-> >
-> > I imoplemented sysfs arrays and array groups once:
-> >
-> > http://www.ussg.iu.edu/hypermail/linux/kernel/0503.2/1155.html
-> >
-> > Not sure if it still appliers. Maybe Greg will consider taking it in
-> > if there is a user of this code.
->
-> I guess we can add some once it is in :)
->
-> It looks good, but I would change some minor things. If there is no read
-> function given I would return -EIO instead of 0, this is how other places do
-> it.
+* Jes Sorensen (jes@sgi.com) wrote:
+> Mathieu Desnoyers wrote:
+> > And about those extra cycles.. according to :
+> > Documentation/kprobes.txt
+> > "6. Probe Overhead
+> > 
+> > On a typical CPU in use in 2005, a kprobe hit takes 0.5 to 1.0
+> > microseconds to process.  Specifically, a benchmark that hits the same
+> > probepoint repeatedly, firing a simple handler each time, reports 1-2
+> > million hits per second, depending on the architecture.  A jprobe or
+> > return-probe hit typically takes 50-75% longer than a kprobe hit.
+> > When you have a return probe set on a function, adding a kprobe at
+> > the entry to that function adds essentially no overhead.
+> [snip]
+> > So, 1 microsecond seems more like 1500-2000 cycles to me, not 50.
+> 
+> So call it 2000 cycles, now go measure it in *real* life benchmarks
+> and not some artificial I call this one syscall that hits the probe
+> every time in a tight loop, kinda thing.
+> 
+> Show us some *real* numbers please.
+> 
 
-Yes, the patch was done when everyone returned 0 instead of -EIO. Also
-there is kmalloc->kzalloc conversion, etc.
+You are late (I don't blame you about it, considering the size of this thread).
+It has been posted in the following email :
 
-> The limitation to 999 entries should go.
+http://linux.derkeiler.com/Mailing-Lists/Kernel/2006-09/msg04492.html
 
-It is not really a limitation but rather a safeguard. Do you really
-expect to have arrays with that many attributes?
+Mathieu
 
-> But otherwise it looks very
-> similar to what I had in mind.
->
-> Thanks.
->
-> Eike
->
->
->
 
--- 
-Dmitry
+OpenPGP public key:              http://krystal.dyndns.org:8080/key/compudj.gpg
+Key fingerprint:     8CD5 52C3 8E3C 4140 715F  BA06 3F25 A8FE 3BAE 9A68 

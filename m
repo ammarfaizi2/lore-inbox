@@ -1,113 +1,124 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964881AbWIRU2I@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964916AbWIRU3T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964881AbWIRU2I (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Sep 2006 16:28:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964884AbWIRU2I
+	id S964916AbWIRU3T (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Sep 2006 16:29:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964918AbWIRU3T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Sep 2006 16:28:08 -0400
-Received: from iolanthe.rowland.org ([192.131.102.54]:17938 "HELO
-	iolanthe.rowland.org") by vger.kernel.org with SMTP id S964881AbWIRU2H
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Sep 2006 16:28:07 -0400
-Date: Mon, 18 Sep 2006 16:28:06 -0400 (EDT)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@iolanthe.rowland.org
-To: Greg KH <greg@kroah.com>
-cc: Kernel development list <linux-kernel@vger.kernel.org>
-Subject: [PATCH 3/3] Don't call put methods while holding a spinlock
-Message-ID: <Pine.LNX.4.44L0.0609181624290.7192-100000@iolanthe.rowland.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 18 Sep 2006 16:29:19 -0400
+Received: from mummy.ncsc.mil ([144.51.88.129]:61064 "EHLO jazzhorn.ncsc.mil")
+	by vger.kernel.org with ESMTP id S964915AbWIRU3R (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Sep 2006 16:29:17 -0400
+Subject: Re: [PATCH 4/7] SLIM: secfs patch
+From: Stephen Smalley <sds@tycho.nsa.gov>
+To: Kylene Jo Hall <kjhall@us.ibm.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       LSM ML <linux-security-module@vger.kernel.org>,
+       Dave Safford <safford@us.ibm.com>, Mimi Zohar <zohar@us.ibm.com>,
+       Serge Hallyn <sergeh@us.ibm.com>, akpm@osdl.org
+In-Reply-To: <1158083873.18137.14.camel@localhost.localdomain>
+References: <1158083873.18137.14.camel@localhost.localdomain>
+Content-Type: text/plain
+Organization: National Security Agency
+Date: Mon, 18 Sep 2006 16:30:18 -0400
+Message-Id: <1158611418.14194.70.camel@moss-spartans.epoch.ncsc.mil>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The klist utility routines currently call _put methods while holding a
-spinlock.  This is of course illegal; a put routine could try to
-unregister a device and hence need to sleep.
+On Tue, 2006-09-12 at 10:57 -0700, Kylene Jo Hall wrote:
+> This patch provides the securityfs used by SLIM.
+> 
+> Signed-off-by: Mimi Zohar <zohar@us.ibm.com>
+> Signed-off-by: Kylene Hall <kjhall@us.ibm.com>
+> --- 
+>  security/slim/slm_secfs.c |   73 ++++++++++++++++++++++++++++++++++++
+>  1 files changed, 73 insertions(+)
+> 
+> --- linux-2.6.18/security/slim/slm_secfs.c	1969-12-31 16:00:00.000000000 -0800
+> +++ linux-2.6.17-working/security/slim/slm_secfs.c	2006-09-06 11:49:09.000000000 -0700
+> @@ -0,0 +1,73 @@
+> +/*
+> + * SLIM securityfs support: debugging control files
+> + *
+> + * Copyright (C) 2005, 2006 IBM Corporation
+> + * Author: Mimi Zohar <zohar@us.ibm.com>
+> + *	   Kylene Hall <kjhall@us.ibm.com>
+> + *
+> + *      This program is free software; you can redistribute it and/or modify
+> + *      it under the terms of the GNU General Public License as published by
+> + *      the Free Software Foundation, version 2 of the License.
+> + */
+> +
+> +#include <asm/uaccess.h>
+> +#include <linux/config.h>
+> +#include <linux/module.h>
+> +#include <linux/kernel.h>
+> +#include <linux/security.h>
+> +#include <linux/debugfs.h>
+> +#include "slim.h"
+> +
+> +static struct dentry *slim_sec_dir, *slim_level;
+> +
+> +static ssize_t slm_read_level(struct file *file, char __user *buf,
+> +			      size_t buflen, loff_t *ppos)
+> +{
+> +	struct slm_tsec_data *cur_tsec = current->security;
+> +	ssize_t len;
+> +	char data[28]; 
+> +	if (is_kernel_thread(current))
+> +		len = snprintf(data, sizeof(data), "KERNEL\n");
+> +	else if (!cur_tsec)
+> +		len = snprintf(data, sizeof(data), "UNKNOWN\n");
+> +	else {
+> +		if (cur_tsec->iac_wx != cur_tsec->iac_r)
+> +			len = snprintf(data, sizeof(data), "GUARD wx:%s r:%s\n",
+> +				      slm_iac_str[cur_tsec->iac_wx],
+> +				      slm_iac_str[cur_tsec->iac_r]);
+> +		else
+> +			len = snprintf(data, sizeof(data), "%s\n",
+> +				      slm_iac_str[cur_tsec->iac_wx]);
+> +	}
+> +	return simple_read_from_buffer(buf, buflen, ppos, data, len);
+> +}
 
-No problems have arisen until now because in many cases klist removals
-were done synchronously, so the _put methods were never actually used.
-In other cases we may simply have been lucky.
+Why do you need this when you implement getprocattr and return the same
+data that way?
 
-This patch (as784) reworks the klist routines so that _put methods are
-called only _after_ the klist's spinlock has been released.
+> +
+> +static struct file_operations slm_level_ops = {
+> +	.read = slm_read_level,
+> +};
+> +
+> +int __init slm_init_secfs(void)
+> +{
+> +	if (!slim_enabled)
+> +		return 0;
+> +
+> +	slim_sec_dir = securityfs_create_dir("slim", NULL);
+> +	if (!slim_sec_dir || IS_ERR(slim_sec_dir))
+> +		return -EFAULT;
+> +	slim_level = securityfs_create_file("level", S_IRUGO,
+> +					    slim_sec_dir, NULL, &slm_level_ops);
+> +	if (!slim_level || IS_ERR(slim_level)) {
+> +		securityfs_remove(slim_sec_dir);
+> +		return -EFAULT;
+> +	}
+> +	return 0;
+> +}
+> +
+> +__initcall(slm_init_secfs);
+> +
+> +void __exit slm_cleanup_secfs(void)
+> +{
+> +	securityfs_remove(slim_level);
+> +	securityfs_remove(slim_sec_dir);
+> +}
+> +
 
-Signed-off-by: Alan Stern <stern@rowland.harvard.edu>
-
----
-
-Index: mm2/lib/klist.c
-===================================================================
---- mm2.orig/lib/klist.c
-+++ mm2/lib/klist.c
-@@ -123,12 +123,10 @@ EXPORT_SYMBOL_GPL(klist_add_tail);
- static void klist_release(struct kref * kref)
- {
- 	struct klist_node * n = container_of(kref, struct klist_node, n_ref);
--	void (*put)(struct klist_node *) = n->n_klist->put;
-+
- 	list_del(&n->n_node);
- 	complete(&n->n_removed);
- 	n->n_klist = NULL;
--	if (put)
--		put(n);
- }
- 
- static int klist_dec_and_del(struct klist_node * n)
-@@ -145,10 +143,14 @@ static int klist_dec_and_del(struct klis
- void klist_del(struct klist_node * n)
- {
- 	struct klist * k = n->n_klist;
-+	void (*put)(struct klist_node *) = k->put;
- 
- 	spin_lock(&k->k_lock);
--	klist_dec_and_del(n);
-+	if (!klist_dec_and_del(n))
-+		put = NULL;
- 	spin_unlock(&k->k_lock);
-+	if (put)
-+		put(n);
- }
- 
- EXPORT_SYMBOL_GPL(klist_del);
-@@ -161,10 +163,7 @@ EXPORT_SYMBOL_GPL(klist_del);
- 
- void klist_remove(struct klist_node * n)
- {
--	struct klist * k = n->n_klist;
--	spin_lock(&k->k_lock);
--	klist_dec_and_del(n);
--	spin_unlock(&k->k_lock);
-+	klist_del(n);
- 	wait_for_completion(&n->n_removed);
- }
- 
-@@ -260,12 +259,15 @@ static struct klist_node * to_klist_node
- struct klist_node * klist_next(struct klist_iter * i)
- {
- 	struct list_head * next;
-+	struct klist_node * lnode = i->i_cur;
- 	struct klist_node * knode = NULL;
-+	void (*put)(struct klist_node *) = i->i_klist->put;
- 
- 	spin_lock(&i->i_klist->k_lock);
--	if (i->i_cur) {
--		next = i->i_cur->n_node.next;
--		klist_dec_and_del(i->i_cur);
-+	if (lnode) {
-+		next = lnode->n_node.next;
-+		if (!klist_dec_and_del(lnode))
-+			put = NULL;
- 	} else
- 		next = i->i_head->next;
- 
-@@ -275,6 +277,8 @@ struct klist_node * klist_next(struct kl
- 	}
- 	i->i_cur = knode;
- 	spin_unlock(&i->i_klist->k_lock);
-+	if (put && lnode)
-+		put(lnode);
- 	return knode;
- }
- 
+-- 
+Stephen Smalley
+National Security Agency
 

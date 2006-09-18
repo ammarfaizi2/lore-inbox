@@ -1,92 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965331AbWIRFYD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965394AbWIRFZq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965331AbWIRFYD (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Sep 2006 01:24:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965393AbWIRFYD
+	id S965394AbWIRFZq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Sep 2006 01:25:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965396AbWIRFZq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Sep 2006 01:24:03 -0400
-Received: from exprod6og53.obsmtp.com ([64.18.1.187]:38632 "HELO
-	exprod6og53.obsmtp.com") by vger.kernel.org with SMTP
-	id S965331AbWIRFYA convert rfc822-to-8bit (ORCPT
+	Mon, 18 Sep 2006 01:25:46 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:49083 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S965394AbWIRFZp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Sep 2006 01:24:00 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6603.0
-content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain; charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Subject: Patch 2.4 kernel / allow to read more than 2048 (1821) Symbols from
-    /boot/System.map
-Date: Mon, 18 Sep 2006 07:23:58 +0200
-Message-ID: <DA6197CAE190A847B662079EF7631C06015692C9@OEKAW2EXVS03.hbi.ad.harman.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Patch 2.4 kernel / allow to read more than 2048 (1821) Symbols 
-    from /boot/System.map
-Thread-Index: Acba4qRumahXl3MASd6sI+n2FrxOCg==
-From: "Jurzitza, Dieter" <DJurzitza@harmanbecker.com>
-To: <linux-kernel@vger.kernel.org>, <sparclinux@vger.kernel.org>
-Cc: "Willy Tarreau" <w@1wt.eu>
-X-OriginalArrivalTime: 18 Sep 2006 05:23:58.0614 (UTC) 
-    FILETIME=[A4A15B60:01C6DAE2]
+	Mon, 18 Sep 2006 01:25:45 -0400
+Date: Sun, 17 Sep 2006 22:25:37 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Chuck Ebbert <76306.1226@compuserve.com>
+Cc: "In Cognito" <defend.the.world@gmail.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: Sysenter crash with Nested Task Bit set
+Message-Id: <20060917222537.55241d19.akpm@osdl.org>
+In-Reply-To: <200609172354_MC3-1-CB7A-58ED@compuserve.com>
+References: <200609172354_MC3-1-CB7A-58ED@compuserve.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Problem:
-The 2.4 kernel series uses sys32_get_kernel_syms(struct kernel_sym32 *table) for reading the kernel symbols (on sparc64). The size of struct kernel_sym is 64 byte on "normal" arches, but 72 byte on sparc64.
-The memory for the table holding all the structs is currently kmalloc'd, giving a limitation of 2048*sizeof(struct kernel_sym) for "normal" and 1820*sizeof(struct kernel_sym) for "sparc64" arches, the latter being caused by different sizes of unsigned longs and the need for alingnment bytes. This causes an "error reading System.map" message for no reason.
+On Sun, 17 Sep 2006 23:51:45 -0400
+Chuck Ebbert <76306.1226@compuserve.com> wrote:
 
-Solution (significantly helped by Dave Miller):
-replace kmalloc() by vmalloc() to circumvent the size limit of 2^17 for kmalloc.
+> In-Reply-To: <5a20704e0609171608o7ee45fdbxb94aa897c1776153@mail.gmail.com>
+> 
+> On Sun, 17 Sep 2006 19:08:24 -0400, "In Cognito" wrote:
+> 
+> > Here's a way to heat up your cpu and crash the rest of the system too:
+> >
+> > main(){
+> > asm("pushf\n"
+> >         "popl %eax\n"
+> > /* enable the NT bit */
+> >         "orl $0x4000, %eax\n"
+> >         "pushl %eax\n"
+> >         "popf\n"
+> >
+> >         "sysenter\n"
+> >        );
+> > return 0;
+> > }
+> 
+> I'll take your word that it crashes.
 
-Other arches:
-ppc64 defines value in struct kernel_sym as u32 in contrast to sparc, so we have the 2048 units limit here, but this would profit from using vmalloc(), too, since the limitation to 2048 is neither helpful nor neccessary. I lack sufficient understanding of the details to predict the impact on other arches. This patch refers to sparc64 but someone with deeper insight might want to look into this for other arches, too.
+It doesn't for me - I get a segfault.
 
-Signed off by: Dieter Jurzitza <DJurzitza@HarmanBecker.com>
+That's on a PIII.  Are recenter CPUs different in this regard?
 
---- linux/arch/sparc64/kernel/sys_sparc32.c     2006-08-11 06:18:20.000000000 +
-+++ linux/arch/sparc64/kernel/sys_sparc32.c     2006-08-25 12:37:42.000000000 +
-@@ -3730,7 +3730,7 @@
-        
-        len = sys_get_kernel_syms(NULL);
-        if (!table) return len;
--       tbl = kmalloc (len * sizeof (struct kernel_sym), GFP_KERNEL);
-+       tbl = vmalloc (len * sizeof (struct kernel_sym));
-        if (!tbl) return -ENOMEM;
-        old_fs = get_fs(); 
-        set_fs (KERNEL_DS);
-@@ -3741,7 +3741,7 @@
-                    copy_to_user (table->name, tbl[i].name, 60))
-                        break;
-        }
--       kfree (tbl);
-+       vfree (tbl);
-        return i;
- }
-
--- 
-________________________________________________
-
-HARMAN BECKER AUTOMOTIVE SYSTEMS
-
-Dr.-Ing. Dieter Jurzitza
-Manager Hardware Systems
-   System Development
-
-Industriegebiet Ittersbach
-Becker-Göring Str. 16
-D-76307 Karlsbad / Germany
-
-Phone: +49 (0)7248 71-1577
-Fax:   +49 (0)7248 71-1216
-eMail: DJurzitza@harmanbecker.com
-Internet: http://www.becker.de
- 
-
-
-*******************************************
-Diese E-Mail enthaelt vertrauliche und/oder rechtlich geschuetzte Informationen. Wenn Sie nicht der richtige Adressat sind oder diese E-Mail irrtuemlich erhalten haben, informieren Sie bitte sofort den Absender und loeschen Sie diese Mail. Das unerlaubte Kopieren sowie die unbefugte Weitergabe dieser Mail ist nicht gestattet.
- 
-This e-mail may contain confidential and/or privileged information. If you are not the intended recipient (or have received this e-mail in error) please notify the sender immediately and delete this e-mail. Any unauthorized copying, disclosure or distribution of the contents in this e-mail is strictly forbidden.
-*******************************************
-
+> 2.6.9 is fine.  I'd guess the iret fixups from 2.6.12 are the problem.
+> 
+> This doesn't crash for me, but it's probably not quite the right fix:
+> 
+> Signed-off-by: Chuck Ebbert <76306.1226@compuserve.com>
+> ---
+>  arch/i386/kernel/traps.c |   12 +++++++++++-
+>  1 files changed, 11 insertions(+), 1 deletion(-)
+> 
+> --- 2.6.18-rc6-nb.orig/arch/i386/kernel/traps.c
+> +++ 2.6.18-rc6-nb/arch/i386/kernel/traps.c
+> @@ -516,6 +516,16 @@ fastcall void do_##name(struct pt_regs *
+>  	do_trap(trapnr, signr, str, 0, regs, error_code, NULL); \
+>  }
+>  
+> +#define DO_TSS_ERROR(trapnr, signr, str, name) \
+> +fastcall void do_##name(struct pt_regs * regs, long error_code) \
+> +{ \
+> +	if (notify_die(DIE_TRAP, str, regs, error_code, trapnr, signr) \
+> +						== NOTIFY_STOP) \
+> +		return; \
+> +	regs->eflags &= ~X86_EFLAGS_NT; \
+> +	do_trap(trapnr, signr, str, 0, regs, error_code, NULL); \
+> +}
+> +
+>  #define DO_ERROR_INFO(trapnr, signr, str, name, sicode, siaddr) \
+>  fastcall void do_##name(struct pt_regs * regs, long error_code) \
+>  { \
+> @@ -561,7 +571,7 @@ DO_VM86_ERROR( 4, SIGSEGV, "overflow", o
+>  DO_VM86_ERROR( 5, SIGSEGV, "bounds", bounds)
+>  DO_ERROR_INFO( 6, SIGILL,  "invalid opcode", invalid_op, ILL_ILLOPN, regs->eip)
+>  DO_ERROR( 9, SIGFPE,  "coprocessor segment overrun", coprocessor_segment_overrun)
+> -DO_ERROR(10, SIGSEGV, "invalid TSS", invalid_TSS)
+> +DO_TSS_ERROR(10, SIGSEGV, "invalid TSS", invalid_TSS)
+>  DO_ERROR(11, SIGBUS,  "segment not present", segment_not_present)
+>  DO_ERROR(12, SIGBUS,  "stack segment", stack_segment)
+>  DO_ERROR_INFO(17, SIGBUS, "alignment check", alignment_check, BUS_ADRALN, 0)
+> -- 
+> Chuck

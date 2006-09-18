@@ -1,62 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751630AbWIRJyb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965627AbWIRJ6b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751630AbWIRJyb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Sep 2006 05:54:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751640AbWIRJyb
+	id S965627AbWIRJ6b (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Sep 2006 05:58:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965626AbWIRJ6b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Sep 2006 05:54:31 -0400
-Received: from nf-out-0910.google.com ([64.233.182.186]:3399 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1751629AbWIRJya (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Sep 2006 05:54:30 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=googlemail.com;
-        h=received:from:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=a83mYxE+LfTS3RjzlZRcftylFrHMoCKwywQHbJkO1G5nEJwAAfFoRGV9sQpiG4UZa0fgiI7MONk2G2gpW9tlezFq2/7KJEM7PS/wzSFCS1uh71FYilm9hluCcXtUeEW0Jvbu2X3iO/IoCy9LyPPjZgEGQIa6oUBGpXcKQENIq+k=
-From: Denis Vlasenko <vda.linux@googlemail.com>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Subject: Re: Raid 0 Swap?
-Date: Mon, 18 Sep 2006 11:50:22 +0200
-User-Agent: KMail/1.8.2
-Cc: Michael Tokarev <mjt@tls.msk.ru>,
-       Helge Hafting <helge.hafting@aitel.hist.no>,
-       Marc Perkel <marc@perkel.com>, linux-kernel@vger.kernel.org
-References: <44FB5AAD.7020307@perkel.com> <44FBFFFC.90309@tls.msk.ru> <Pine.LNX.4.61.0609041242350.17115@yvahk01.tjqt.qr>
-In-Reply-To: <Pine.LNX.4.61.0609041242350.17115@yvahk01.tjqt.qr>
+	Mon, 18 Sep 2006 05:58:31 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:27105 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S965625AbWIRJ6a (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Sep 2006 05:58:30 -0400
+To: "Vladimir B. Savkin" <master@sectorb.msk.ru>
+Cc: Jesper Dangaard Brouer <hawk@diku.dk>,
+       Harry Edmon <harry@atmos.washington.edu>, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org
+Subject: Re: Network performance degradation from 2.6.11.12 to 2.6.16.20
+References: <4492D5D3.4000303@atmos.washington.edu>
+	<44948EF6.1060201@atmos.washington.edu>
+	<Pine.LNX.4.61.0606191638550.23553@ask.diku.dk>
+	<200606191724.31305.ak@suse.de>
+	<20060916120845.GA18912@tentacle.sectorb.msk.ru>
+	<p73k6414lnp.fsf@verdi.suse.de>
+	<20060918090330.GA9850@tentacle.sectorb.msk.ru>
+From: Andi Kleen <ak@suse.de>
+Date: 18 Sep 2006 11:58:21 +0200
+In-Reply-To: <20060918090330.GA9850@tentacle.sectorb.msk.ru>
+Message-ID: <p73eju94htu.fsf@verdi.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200609181150.23091.vda.linux@googlemail.com>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 04 September 2006 12:46, Jan Engelhardt wrote:
-> >> I thought kernel data weren't swapped at all?
-> 
-> If the swap code was swapped, who would swap it in again?
-> 
-> >Well, it's not that simple.  Kernel uses both swappable and
-> >non-swappable memory internally.  For some things, it's
-> >unswappable, for some, it's swappable.  In general, it's
-> >impossible to say which parts of kernel will break (and
-> >in wich ways) if swap goes havoc.
-> 
-> In general, everything you type in as C code (.bss, .data, .text) should be 
-> unswappable. kmalloc()ed areas are resident too, and kmalloc has a 
-> parameter which defines whether the allocation can/cannot push userspace 
-> pages into the swap (GFP_ATOMIC/GFP_IO). So if there is some 
-> kernel-allocation swapped out, it is most likely to be marked as 
-> 'userspace' so that the same algorithms can be used for swapin and -out.
+"Vladimir B. Savkin" <master@sectorb.msk.ru> writes:
 
-What are you guys talking about? IIRC kernel doesn't use
-swap for its vital data structures. I recall only one
-kernel thing which goes into swap: tmpfs data. Caching network
-filesystems may also use swappable data, but currently grep
-catches only cifs.
+> On Mon, Sep 18, 2006 at 10:35:38AM +0200, Andi Kleen wrote:
+> > > I just found out that TSC clocksource is not implemented on x86-64.
+> > > Kernel version 2.6.18-rc7, is it true?
+> > 
+> > The x86-64 timer subsystems currently doesn't have clocksources
+> > at all, but it supports TSC and some other timers.
+> 
 
-IOW swap is for dirtied userspace data. Please correct me
-if I am wrong here.
---
-vda
+> until I hacked arch/i386/kernel/tsc.c
+
+Then you don't use x86-64. 
+
+
+> 
+> > > I've also had experience of unsychronized TSC on dual-core Athlon,
+> > > but it was cured by idle=poll.
+> > 
+> > You can use that, but it will make your system run quite hot 
+> > and cost you a lot of powe^wmoney.
+> 
+> Here in Russia electric power is cheap compared with hardware upgrade.
+
+It's not just electrical power - the hardware is more stressed and will
+likely fail earlier too.  As a rule of thumb the hotter your hardware runs
+the earlier it will fail.
+
+> 
+> > > It seems that dhcpd3 makes the box timestamping incoming packets,
+> > > killing the performance. I think that combining router and DHCP server
+> > > on a same box is a legitimate situation, isn't it?
+> > 
+> > Yes.  Good point. DHCP is broken and needs to be fixed. Can you
+> > send a bug report to the DHCP maintainers? 
+> > 
+> > iirc the problem used to be that RAW sockets didn't do something
+> > they need them to do. Maybe we can fix that now.
+> 
+> Will try some days later.
+> 
+> Oh, and pppoe-server uses some kind of packet socket too, doesn't it?
+
+The problem is not really using a packet socket, but using the SIOCGSTAMP
+ioctl on it. As soon as someone issues it the system will take accurate 
+time stamps for each incoming packet until the respective socket is closed.
+
+Quick fix is to change user space to use gettimeofday() when it reads
+the packet instead.
+
+For netdev: I'm more and more thinking we should just avoid the problem
+completely and switch to "true end2end" timestamps. This means don't
+time stamp when a packet is received, but only when it is delivered
+to a socket. The timestamp at receiving is a lie anyways because
+the network hardware can add an arbitary long delay before the driver interrupt
+handler runs. Then the problem above would completely disappear. 
+Comments? Opinions? 
+
+-Andi

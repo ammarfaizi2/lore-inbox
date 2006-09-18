@@ -1,18 +1,23 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965330AbWIRDjG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751418AbWIRDxp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965330AbWIRDjG (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Sep 2006 23:39:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751379AbWIRDjG
+	id S1751418AbWIRDxp (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Sep 2006 23:53:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751447AbWIRDxp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Sep 2006 23:39:06 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:42927 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751327AbWIRDjD (ORCPT
+	Sun, 17 Sep 2006 23:53:45 -0400
+Received: from opersys.com ([64.40.108.71]:16913 "EHLO www.opersys.com")
+	by vger.kernel.org with ESMTP id S1751418AbWIRDxo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Sep 2006 23:39:03 -0400
-Date: Mon, 18 Sep 2006 05:30:27 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Karim Yaghmour <karim@opersys.com>
-Cc: Nicholas Miell <nmiell@comcast.net>, Paul Mundt <lethal@linux-sh.org>,
+	Sun, 17 Sep 2006 23:53:44 -0400
+Message-ID: <450E1D2E.3080705@opersys.com>
+Date: Mon, 18 Sep 2006 00:14:38 -0400
+From: Karim Yaghmour <karim@opersys.com>
+Reply-To: karim@opersys.com
+Organization: Opersys inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.6) Gecko/20060804 Fedora/1.0.4-0.5.1.fc5 SeaMonkey/1.0.4
+MIME-Version: 1.0
+To: Ingo Molnar <mingo@elte.hu>
+CC: Nicholas Miell <nmiell@comcast.net>, Paul Mundt <lethal@linux-sh.org>,
        linux-kernel <linux-kernel@vger.kernel.org>,
        Ingo Molnar <mingo@redhat.com>, Jes Sorensen <jes@sgi.com>,
        Andrew Morton <akpm@osdl.org>, Roman Zippel <zippel@linux-m68k.org>,
@@ -26,41 +31,49 @@ Cc: Nicholas Miell <nmiell@comcast.net>, Paul Mundt <lethal@linux-sh.org>,
        Thomas Gleixner <tglx@linutronix.de>, William Cohen <wcohen@redhat.com>,
        "Martin J. Bligh" <mbligh@mbligh.org>
 Subject: Re: tracepoint maintainance models
-Message-ID: <20060918033027.GB11894@elte.hu>
-References: <450D182B.9060300@opersys.com> <20060917112128.GA3170@localhost.usen.ad.jp> <20060917143623.GB15534@elte.hu> <1158524390.2471.49.camel@entropy> <20060917230623.GD8791@elte.hu> <450DEEA5.7080808@opersys.com> <20060918005624.GA30835@elte.hu> <450DFFC8.5080005@opersys.com>
-Mime-Version: 1.0
+References: <450D182B.9060300@opersys.com> <20060917112128.GA3170@localhost.usen.ad.jp> <20060917143623.GB15534@elte.hu> <1158524390.2471.49.camel@entropy> <20060917230623.GD8791@elte.hu> <450DEEA5.7080808@opersys.com> <20060918005624.GA30835@elte.hu> <450DFFC8.5080005@opersys.com> <20060918033027.GB11894@elte.hu>
+In-Reply-To: <20060918033027.GB11894@elte.hu>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <450DFFC8.5080005@opersys.com>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -2.9
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.9 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.4999]
-	-0.1 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* Karim Yaghmour <karim@opersys.com> wrote:
+Ingo Molnar wrote:
+> Amazing! So the trace data provided by those removed static markups 
+> (which were moved into dynamic scripts and are thus still fully 
+> available to dynamic tracers) are still available to LTT users? How is 
+> that possible, via quantum tunneling perhaps? ;-)
 
-> > [...] if i removed a few dozen static markups with dynamic scripts 
-> > (which change too would be transparent to users of dynamic tracers), 
-> > that in this case users of static tracers would /not/ claim that 
-> > tracing broke?
+Please run it one more time Mr. DJ:
+> What is sufficient for tracing a given set of events by means
+> of binary editing *that-does-not-require-out-of-tree-maintenance*
+> can be made to be sufficient for the tracing of events using
+  ^^^^^^^^^^^^^^
+> direct inlined static calls.
 
-> 2- removed markups are not transparent to "static" tracers:
-> 
-> False. LTTng couldn't care less. [...]
+Do I really need to explain this one to you? Do I?
 
-Amazing! So the trace data provided by those removed static markups 
-(which were moved into dynamic scripts and are thus still fully 
-available to dynamic tracers) are still available to LTT users? How is 
-that possible, via quantum tunneling perhaps? ;-)
+Bahhh, ok, here we go:
 
-	Ingo
+Previously alluded to script can easily be made to read mainlined
+dynamic scripts and generate alternate build files for the
+designate source. Let me know if I need to expand on this.
+
+You know what, let's cut through the chase. Go ahead an mainline
+any infrastructure you think will be sufficient to make it
+possible to maintain SystemTap's essential _in the tree_. *Anything*
+that you insert in there to make it possible to make *any*
+dynamic tracer mainline can and likely will be used to obtain direct
+static calls. The only way this doesn't work is if the dynamic
+tracer folks have to continue maintaining their stuff out of tree.
+
+See, this not only is Karim evil, but so too are the facts. Even
+when manipulated by Ingo, *mechanism* continues to be orthogonal
+to *markup*. Now that's evil.
+
+Karim
+-- 
+President  / Opersys Inc.
+Embedded Linux Training and Expertise
+www.opersys.com  /  1.866.677.4546

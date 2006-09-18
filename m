@@ -1,54 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751566AbWIRP0y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750940AbWIRP3c@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751566AbWIRP0y (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Sep 2006 11:26:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751773AbWIRP0x
+	id S1750940AbWIRP3c (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Sep 2006 11:29:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751775AbWIRP3c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Sep 2006 11:26:53 -0400
-Received: from smtp.andrew.cmu.edu ([128.2.10.81]:25543 "EHLO
-	smtp.andrew.cmu.edu") by vger.kernel.org with ESMTP
-	id S1751566AbWIRP0w (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Sep 2006 11:26:52 -0400
-Message-ID: <450EBABA.7040401@cmu.edu>
-Date: Mon, 18 Sep 2006 11:26:50 -0400
-From: George Nychis <gnychis@cmu.edu>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060818)
+	Mon, 18 Sep 2006 11:29:32 -0400
+Received: from ns2.suse.de ([195.135.220.15]:24485 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1750940AbWIRP3b (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Sep 2006 11:29:31 -0400
+From: Andi Kleen <ak@suse.de>
+To: Linus Torvalds <torvalds@osdl.org>
+Subject: Re: Sysenter crash with Nested Task Bit set
+Date: Mon, 18 Sep 2006 17:29:23 +0200
+User-Agent: KMail/1.9.3
+Cc: Andrew Morton <akpm@osdl.org>, Chuck Ebbert <76306.1226@compuserve.com>,
+       In Cognito <defend.the.world@gmail.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Ingo Molnar <mingo@elte.hu>, bcrl@kvack.org
+References: <200609172354_MC3-1-CB7A-58ED@compuserve.com> <20060917222537.55241d19.akpm@osdl.org> <Pine.LNX.4.64.0609180741520.4388@g5.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0609180741520.4388@g5.osdl.org>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: memory suspension resume broken on thinkpad x60s
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200609181729.23934.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hey guys,
 
-At one point, I had memory suspension and disk suspension working 
-beautifully on my x60s with the 6 patch set from Forrest Zhao:
+> If we fix it in the task-switch code, we shouldn't need any other changes 
+> (ie Chuck's change is unnecessary too), because then the process that sets 
+> NT will happily die (with NT set), but switch away to something else and 
+> nobody else will be affected.
 
-x60s patches # md5sum ahci-patch*
-71d9cfb75eb93c441e582b345fe48d83  ahci-patch1
-372d229a5ef4e89d9e96f61391f72f4d  ahci-patch2
-e867b2f28e3d144fae000083d83da24d  ahci-patch3
-5d16c9e54606fbd1a29966351ed32a9b  ahci-patch4
-f40a8c2993d0b8cb164c224ceda4e2f9  ahci-patch5
-27676e415cc928d640287c00fbad6652  ahci-patch6
+Won't it die in the kernel with an oops on the next interrupt?
+ 
+> So if I'm right, then this patch _should_ fix it. UNTESTED (and the 
+> "ref_from_fork" special case doesn't clear NT, so it's strictly incompete, 
+> but maybe somebody can test this?)
 
-So anyways, I hadn't used it in a month, after several kernel changes, 
-however I have applied the patches to every kernel.
+Are you sure this handles interrupts or nested syscalls 
+before the context switch correctly?
 
-Suspend to disk works beautifully, no problems at all.
+I think it really needs to be handled in the sysenter path.
 
-Suspend to memory seems to work, it quickly brings up the "moon" symbol 
-on the x60s control board, and powers down everything else.
+> 
+> Hmm? Ingo? Comments?
+> 
+> Andi? I don't know if x86-64 honors NT in 64-bit mode, but if it does, it 
+> needs something similar (assuming this works).
 
-Then I shut the lid, and when I reopen it, it seems as though the disk 
-resumes, and everything else resumes, however my screen never resumes. 
-I cannot get the screen to light up at all.  I am not sure if the OS has 
-completely resumed or not because I can't see anything.  However there 
-is hard disk activity.
+It doesn't task switch, but you would get a #GP in IRET at least.
+Leaking that to another process is definitely not good.
 
-Any ideas?
 
-Thanks!
-George
+>  #define switch_to(prev,next,last) do {					\
+>  	unsigned long esi,edi;						\
+> -	asm volatile("pushl %%ebp\n\t"					\
+> +	asm volatile("pushfl\n\t"		/* Save flags */	\
+> +		     "pushl %%ebp\n\t"					\
+
+We used to do that pushfl/popfl some time ago, but Ben removed it because
+it was slow on P4.  Ok, nobody thought of that case back then.
+
+-Andi

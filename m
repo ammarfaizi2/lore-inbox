@@ -1,90 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751875AbWIRSGF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751870AbWIRSJM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751875AbWIRSGF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Sep 2006 14:06:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751876AbWIRSGF
+	id S1751870AbWIRSJM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Sep 2006 14:09:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750845AbWIRSJM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Sep 2006 14:06:05 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:25802 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751875AbWIRSGC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Sep 2006 14:06:02 -0400
-Date: Mon, 18 Sep 2006 14:05:10 -0400
-From: "Frank Ch. Eigler" <fche@redhat.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Ingo Molnar <mingo@elte.hu>, Paul Mundt <lethal@linux-sh.org>,
-       Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
-       linux-kernel <linux-kernel@vger.kernel.org>, Jes Sorensen <jes@sgi.com>,
-       Andrew Morton <akpm@osdl.org>, Tom Zanussi <zanussi@us.ibm.com>,
-       Richard J Moore <richardj_moore@uk.ibm.com>,
-       Michel Dagenais <michel.dagenais@polymtl.ca>,
-       Christoph Hellwig <hch@infradead.org>,
-       Greg Kroah-Hartman <gregkh@suse.de>,
-       Thomas Gleixner <tglx@linutronix.de>, William Cohen <wcohen@redhat.com>,
-       "Martin J. Bligh" <mbligh@mbligh.org>
-Subject: Re: tracepoint maintainance models
-Message-ID: <20060918180510.GP3951@redhat.com>
-References: <20060918011352.GB30835@elte.hu> <20060918122527.GC3951@redhat.com> <20060918150231.GA8197@elte.hu> <1158594491.6069.125.camel@localhost.localdomain> <20060918152230.GA12631@elte.hu> <1158596341.6069.130.camel@localhost.localdomain> <20060918161526.GL3951@redhat.com> <1158598927.6069.141.camel@localhost.localdomain> <20060918172705.GN3951@redhat.com> <1158602662.6069.147.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="3MHXEHrrXKLGx71o"
-Content-Disposition: inline
-In-Reply-To: <1158602662.6069.147.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.1i
+	Mon, 18 Sep 2006 14:09:12 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.153]:36313 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750838AbWIRSJK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Sep 2006 14:09:10 -0400
+Message-ID: <450EE085.5000704@in.ibm.com>
+Date: Mon, 18 Sep 2006 23:38:05 +0530
+From: Balbir Singh <balbir@in.ibm.com>
+Reply-To: balbir@in.ibm.com
+User-Agent: Thunderbird 1.5.0.7 (X11/20060909)
+MIME-Version: 1.0
+To: rohitseth@google.com
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, devel@openvz.org,
+       CKRM-Tech <ckrm-tech@lists.sourceforge.net>
+Subject: Re: [ckrm-tech] [patch 0/5]-Containers: Introduction
+References: <1158284264.5408.144.camel@galaxy.corp.google.com>	<450E9ED9.2060306@in.ibm.com> <1158595571.18533.5.camel@galaxy.corp.google.com>
+In-Reply-To: <1158595571.18533.5.camel@galaxy.corp.google.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Rohit Seth wrote:
+> On Mon, 2006-09-18 at 18:57 +0530, Balbir Singh wrote:
+>> Rohit Seth wrote:
+>>
+>>> Below is a one line description for patches that will follow:
+>>>
+>>> [patch01]: Documentation on how to use containers
+>>> (Documentation/container.txt)
+>>>
+>>> [patch02]: Changes in the generic part of kernel code
+>>>
+>>> [patch03]: Container's interface with configfs
+>>>
+>>> [patch04]: Core container support
+>>>
+>>> [patch05]: Over the limit memory handler.
+>>>
+>> Hi, Rohit,
+>>
+>> The patches are hard to follow - are they diff'ed with Naurp?
+>> At certain places I cannot figure out which function has changed.
+>>
+> 
+> They are without p option so the function name is not there. Though
+> there is only one patch 02 of 05 that modifies existing code.  And that
+> too almost all single line changes are starting with container API
+> container_*  Please let me know if there is something specific that is
+> not clear.
+> 
 
---3MHXEHrrXKLGx71o
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Patch 02 is hard to read. I was trying to understand the changes made
+in the patch. Patch 01 is trivial, I got stuck at 02.
 
-Hi -
+> I will send the next version of patches and I will include -p option as
+> well.
+> 
+> thanks,
+> -rohit
+> 
 
-alan wrote:
-
-> > Unless one's worried about planetary-scale energy use, I see no point
-> > in multiplying overheads by "every box on the planet".
->
-> Because we are all paying for your debug stuff we aren't
-> using. Systems get slow and sucky by the death of a million cuts not
-> by one stupid action.
-
-"slow and sucky" happens one machine at a time.  One doesn't perceive
-time that is "lost" by a random machine sitting in a hut somewhere
-running a bit slower.
-
-
-> > Unfortunately, cases in which this sort of out-of-band markup would be
-> > sufficient are pretty much those exact same cases where it is not
-> > necessary.  Remember, the complex cases occur when the compiler munges
-> > up control flow and data accessability, so debuginfo cannot or does
-> > not correctly place the probes and their data gathering compatriots.
->=20
-> Which if understand you right you'd end up unmunging and reducing
-> performance for by reducing the options gcc has to make that critical
-> code go fast just so you know what register something is living in.
-
-Something like that, but not as drastic.  The effect of a marker would
-be to force the compiler to preserve a statement boundary and or
-preserve or recreate the values when the marker is active.  It may
-interfere with the otherwise optimized code somewhat, but the amount
-depends on the details.  For the most time-critical probes, we could
-opt for the least powerful/disruptive markers.
-
-- FChE
-
---3MHXEHrrXKLGx71o
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-
-iD8DBQFFDt/WVZbdDOm/ZT0RAsC7AJ9k9fGzz27FyaQgSGlBJFFofxHhlQCggZtA
-T1K6LJaC27YwEWdmfnDdYf8=
-=6xyF
------END PGP SIGNATURE-----
-
---3MHXEHrrXKLGx71o--
+-- 
+	Warm Regards,
+	Balbir Singh,
+	Linux Technology Center,
+	IBM Software Labs

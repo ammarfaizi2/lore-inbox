@@ -1,66 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964988AbWIRUy3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030190AbWIRVCO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964988AbWIRUy3 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Sep 2006 16:54:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965003AbWIRUy3
+	id S1030190AbWIRVCO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Sep 2006 17:02:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030191AbWIRVCO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Sep 2006 16:54:29 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:5605 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S964988AbWIRUy2 (ORCPT
+	Mon, 18 Sep 2006 17:02:14 -0400
+Received: from av2.karneval.cz ([81.27.192.122]:46702 "EHLO av2.karneval.cz")
+	by vger.kernel.org with ESMTP id S1030190AbWIRVCO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Sep 2006 16:54:28 -0400
-Date: Mon, 18 Sep 2006 16:54:12 -0400
-From: Dave Jones <davej@redhat.com>
-To: Kylene Jo Hall <kjhall@us.ibm.com>
-Cc: Stephen Smalley <sds@tycho.nsa.gov>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       LSM ML <linux-security-module@vger.kernel.org>,
-       Dave Safford <safford@us.ibm.com>, Mimi Zohar <zohar@us.ibm.com>,
-       Serge Hallyn <sergeh@us.ibm.com>, akpm@osdl.org
-Subject: Re: [PATCH 4/7] SLIM: secfs patch
-Message-ID: <20060918205412.GA2640@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Kylene Jo Hall <kjhall@us.ibm.com>,
-	Stephen Smalley <sds@tycho.nsa.gov>,
-	linux-kernel <linux-kernel@vger.kernel.org>,
-	LSM ML <linux-security-module@vger.kernel.org>,
-	Dave Safford <safford@us.ibm.com>, Mimi Zohar <zohar@us.ibm.com>,
-	Serge Hallyn <sergeh@us.ibm.com>, akpm@osdl.org
-References: <1158083873.18137.14.camel@localhost.localdomain> <1158611418.14194.70.camel@moss-spartans.epoch.ncsc.mil> <1158612642.16727.53.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1158612642.16727.53.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.2.2i
+	Mon, 18 Sep 2006 17:02:14 -0400
+Message-id: <912929121291221@karneval.cz>
+Subject: [PATCH] isicom: correct firmware loading
+From: Jiri Slaby <jirislaby@gmail.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: <linux-kernel@vger.kernel.org>
+Date: Mon, 18 Sep 2006 23:02:08 +0200 (CEST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 18, 2006 at 01:50:42PM -0700, Kylene Jo Hall wrote:
+isicom: correct firmware loading
 
- > > > This patch provides the securityfs used by SLIM.
+Loading of firmware didn't fail when something went wrong (returned 0). Pointer to
+frame was incremented only by sizeof(frame) excluding it's data contents -- bad
+idea. Tell the card we're ready just after checking is complete, not before.
 
-nitpick. (I never reviewed this when it was posted, but this followup
-caught my eye..)
+Signed-off-by: Jiri Slaby <jirislaby@gmail.com>
 
- > > > --- linux-2.6.18/security/slim/slm_secfs.c	1969-12-31 16:00:00.000000000 -0800
- > > > +++ linux-2.6.17-working/security/slim/slm_secfs.c	2006-09-06 11:49:09.000000000 -0700
- > > > @@ -0,0 +1,73 @@
- > > > +/*
- > > > + * SLIM securityfs support: debugging control files
- > > > + *
- > > > + * Copyright (C) 2005, 2006 IBM Corporation
- > > > + * Author: Mimi Zohar <zohar@us.ibm.com>
- > > > + *	   Kylene Hall <kjhall@us.ibm.com>
- > > > + *
- > > > + *      This program is free software; you can redistribute it and/or modify
- > > > + *      it under the terms of the GNU General Public License as published by
- > > > + *      the Free Software Foundation, version 2 of the License.
- > > > + */
- > > > +
- > > > +#include <asm/uaccess.h>
- > > > +#include <linux/config.h>
+---
+commit 7fa7a3e6bcd181bb25adacfc71dc8a386e347e9d
+tree 00758e71b46c5de09d98c79cf00f187012b9ba35
+parent ca8b00296c6ff25faf9db7fe4b11d1460b64c7d7
+author Jiri Slaby <xslaby@anemoi.localdomain> Mon, 18 Sep 2006 22:57:06 +0200
+committer Jiri Slaby <xslaby@anemoi.localdomain> Mon, 18 Sep 2006 22:57:06 +0200
 
-You don't need to include config.h any more, kbuild does it for you.
-(Might want to check the other files for the same thing).
+ drivers/char/isicom.c |   35 +++++++++++++++++++----------------
+ 1 files changed, 19 insertions(+), 16 deletions(-)
 
-	Dave
+diff --git a/drivers/char/isicom.c b/drivers/char/isicom.c
+index 6cca4b2..ea2bbf8 100644
+--- a/drivers/char/isicom.c
++++ b/drivers/char/isicom.c
+@@ -1756,9 +1756,12 @@ static int __devinit load_firmware(struc
+ 	if (retval)
+ 		goto end;
+ 
++	retval = -EIO;
++
+ 	for (frame = (struct stframe *)fw->data;
+ 			frame < (struct stframe *)(fw->data + fw->size);
+-			frame++) {
++			frame = (struct stframe *)((u8 *)(frame + 1) +
++				frame->count)) {
+ 		if (WaitTillCardIsFree(base))
+ 			goto errrelfw;
+ 
+@@ -1797,23 +1800,12 @@ static int __devinit load_firmware(struc
+ 		}
+  	}
+ 
+-	retval = -EIO;
+-
+-	if (WaitTillCardIsFree(base))
+-		goto errrelfw;
+-
+-	outw(0xf2, base);
+-	outw(0x800, base);
+-	outw(0x0, base);
+-	outw(0x0, base);
+-	InterruptTheCard(base);
+-	outw(0x0, base + 0x4); /* for ISI4608 cards */
+-
+ /* XXX: should we test it by reading it back and comparing with original like
+  * in load firmware package? */
+-	for (frame = (struct stframe*)fw->data;
+-			frame < (struct stframe*)(fw->data + fw->size);
+-			frame++) {
++	for (frame = (struct stframe *)fw->data;
++			frame < (struct stframe *)(fw->data + fw->size);
++			frame = (struct stframe *)((u8 *)(frame + 1) +
++				frame->count)) {
+ 		if (WaitTillCardIsFree(base))
+ 			goto errrelfw;
+ 
+@@ -1863,6 +1855,17 @@ static int __devinit load_firmware(struc
+ 		}
+ 	}
+ 
++	/* xfer ctrl */
++	if (WaitTillCardIsFree(base))
++		goto errrelfw;
++
++	outw(0xf2, base);
++	outw(0x800, base);
++	outw(0x0, base);
++	outw(0x0, base);
++	InterruptTheCard(base);
++	outw(0x0, base + 0x4); /* for ISI4608 cards */
++
+ 	board->status |= FIRMWARE_LOADED;
+ 	retval = 0;
+ 

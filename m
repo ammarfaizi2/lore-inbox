@@ -1,55 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965539AbWIRIIW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965541AbWIRIIS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965539AbWIRIIW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Sep 2006 04:08:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965542AbWIRIIW
+	id S965541AbWIRIIS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Sep 2006 04:08:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965539AbWIRIIS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Sep 2006 04:08:22 -0400
-Received: from mtagate6.de.ibm.com ([195.212.29.155]:10130 "EHLO
-	mtagate6.de.ibm.com") by vger.kernel.org with ESMTP id S965539AbWIRIIU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Sep 2006 04:08:20 -0400
-Subject: Re: [patch 3/9] Guest page hinting: volatile page cache.
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Reply-To: schwidefsky@de.ibm.com
-To: Chuck Ebbert <76306.1226@compuserve.com>
-Cc: Zachary Amsden <zach@vmware.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       virtualization <virtualization@lists.osdl.org>,
-       Andrew Morton <akpm@osdl.org>, Nick Piggin <nickpiggin@yahoo.com.au>
-In-Reply-To: <200609151352_MC3-1-CB54-526A@compuserve.com>
-References: <200609151352_MC3-1-CB54-526A@compuserve.com>
-Content-Type: text/plain
-Organization: IBM Corporation
-Date: Mon, 18 Sep 2006 10:08:17 +0200
-Message-Id: <1158566897.5728.2.camel@localhost>
+	Mon, 18 Sep 2006 04:08:18 -0400
+Received: from systemlinux.org ([83.151.29.59]:21904 "EHLO m18s25.vlinux.de")
+	by vger.kernel.org with ESMTP id S965541AbWIRIIR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Sep 2006 04:08:17 -0400
+Date: Mon, 18 Sep 2006 10:07:44 +0200
+From: Andre Noll <maan@systemlinux.org>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: nfs@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [NFS] 2.6.18-rc5 page_to_pfn: Unable to handle kernel NULL	pointer dereference
+Message-ID: <20060918080744.GC20462@skl-net.de>
+References: <20060908073125.GA23642@skl-net.de> <20060915124043.GA20462@skl-net.de> <1158350827.5501.4.camel@lade.trondhjem.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="bKyqfOwhbdpXa4YI"
+Content-Disposition: inline
+In-Reply-To: <1158350827.5501.4.camel@lade.trondhjem.org>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-09-15 at 13:50 -0400, Chuck Ebbert wrote:
-> > I wonder which trick you use, since there is only one page table one
-> > i386 I can only imagine that you are tracking all page tables of the
-> > guest.
-> 
-> AMD K8 with the SVM feature has host and guest page tables and
-> address-space identifiers for the guests so their global TLB flushes
-> can be limited to their own address space...
 
-Yeah, I know about the nested page tables on K8. But VMware will not
-restrict themselves to K8 only, so they need a clever way to implement
-shadow page tables on i386 chips without this feature.
+--bKyqfOwhbdpXa4YI
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
--- 
-blue skies,
-  Martin.
+On 16:07, Trond Myklebust wrote:
 
-Martin Schwidefsky
-Linux for zSeries Development & Services
-IBM Deutschland Entwicklung GmbH
+> Does the attached patch fix it?
 
-"Reality continues to ruin my life." - Calvin.
+Patch applied and rebooted with no problems so far. I'll let you know
+if it oopses again.
 
+Thanks
+Andre
+--=20
+The only person who always got his work done by Friday was Robinson Crusoe
 
+--bKyqfOwhbdpXa4YI
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQFFDlPQWto1QDEAkw8RApm6AKCajoLl/wtardDt4E9cBqT9ePKchQCeKvW/
+yaLltvS/JL7LBLcud7MQRjg=
+=erNu
+-----END PGP SIGNATURE-----
+
+--bKyqfOwhbdpXa4YI--

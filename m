@@ -1,65 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751842AbWIRQkm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751844AbWIRQue@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751842AbWIRQkm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Sep 2006 12:40:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751844AbWIRQkl
+	id S1751844AbWIRQue (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Sep 2006 12:50:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751845AbWIRQue
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Sep 2006 12:40:41 -0400
-Received: from [81.2.110.250] ([81.2.110.250]:28316 "EHLO lxorguk.ukuu.org.uk")
-	by vger.kernel.org with ESMTP id S1751842AbWIRQkk (ORCPT
+	Mon, 18 Sep 2006 12:50:34 -0400
+Received: from cantor.suse.de ([195.135.220.2]:47305 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751844AbWIRQub (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Sep 2006 12:40:40 -0400
-Subject: Re: tracepoint maintainance models
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: "Frank Ch. Eigler" <fche@redhat.com>, Paul Mundt <lethal@linux-sh.org>,
-       Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
-       linux-kernel <linux-kernel@vger.kernel.org>, Jes Sorensen <jes@sgi.com>,
-       Andrew Morton <akpm@osdl.org>, Tom Zanussi <zanussi@us.ibm.com>,
-       Richard J Moore <richardj_moore@uk.ibm.com>,
-       Michel Dagenais <michel.dagenais@polymtl.ca>,
-       Christoph Hellwig <hch@infradead.org>,
-       Greg Kroah-Hartman <gregkh@suse.de>,
-       Thomas Gleixner <tglx@linutronix.de>, William Cohen <wcohen@redhat.com>,
-       "Martin J. Bligh" <mbligh@mbligh.org>
-In-Reply-To: <20060918161511.GA21204@elte.hu>
-References: <20060917143623.GB15534@elte.hu>
-	 <20060917153633.GA29987@Krystal> <20060918000703.GA22752@elte.hu>
-	 <450DF28E.3050101@opersys.com> <20060918011352.GB30835@elte.hu>
-	 <20060918122527.GC3951@redhat.com> <20060918150231.GA8197@elte.hu>
-	 <1158594491.6069.125.camel@localhost.localdomain>
-	 <20060918152230.GA12631@elte.hu>
-	 <1158596341.6069.130.camel@localhost.localdomain>
-	 <20060918161511.GA21204@elte.hu>
-Content-Type: text/plain
+	Mon, 18 Sep 2006 12:50:31 -0400
+From: Andi Kleen <ak@suse.de>
+To: Benjamin LaHaise <bcrl@kvack.org>
+Subject: Re: Sysenter crash with Nested Task Bit set
+Date: Mon, 18 Sep 2006 18:39:45 +0200
+User-Agent: KMail/1.9.3
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Chuck Ebbert <76306.1226@compuserve.com>,
+       In Cognito <defend.the.world@gmail.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Ingo Molnar <mingo@elte.hu>
+References: <200609172354_MC3-1-CB7A-58ED@compuserve.com> <200609181729.23934.ak@suse.de> <20060918161251.GC19815@kvack.org>
+In-Reply-To: <20060918161251.GC19815@kvack.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Date: Mon, 18 Sep 2006 18:02:10 +0100
-Message-Id: <1158598930.6069.143.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+Content-Disposition: inline
+Message-Id: <200609181839.45546.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Llu, 2006-09-18 am 18:15 +0200, ysgrifennodd Ingo Molnar:
-> Do you consider a single 5-byte NOP for a judiciously chosen 50 places 
-> in the kernel unacceptable? Note that the argument has shifted from 
+On Monday 18 September 2006 18:12, Benjamin LaHaise wrote:
+> On Mon, Sep 18, 2006 at 05:29:23PM +0200, Andi Kleen wrote:
+> > > -	asm volatile("pushl %%ebp\n\t"					\
+> > > +	asm volatile("pushfl\n\t"		/* Save flags */	\
+> > > +		     "pushl %%ebp\n\t"					\
+> > 
+> > We used to do that pushfl/popfl some time ago, but Ben removed it because
+> > it was slow on P4.  Ok, nobody thought of that case back then.
+> 
+> It's the pushfl that will be slow on any OoO CPU, as it has dependancies on  
+> any previous instructions that modified the flags, which ends up bringing 
+> all of the memory ordering dependancies into play.  Doing a popfl to set the 
+> flags to some known value is much less expensive.
 
-Its not neccessary. The question about acceptability doesn't come up.
+Yes it's never fast, but on basically all non P4 CPUs it is still fast enough
+to not be a problem. I suppose it causes a trace cache flush or something like
+that there.
 
-> static tracers to dynamic tracers: this _is_ about SystemTap: it adds 
-> points to the kernel where we can _guarantee_ that a dynamic probe can 
-> be inserted. 
-
-That already exists. You don't always know the address of the point.
-Knowing where to stick the probe is out of line, shoving nops in the
-code is an ugly unneccessary hack.
-
-You can't really have it both ways - you argued that the performance
-improvement for LTT static traces wasn't justification and pointed out
-jprobes then optimised int3. Now if you want to do markup for awkward
-tracepoints for kprobe use then the same rules seem to apply - jprobes
-and the int3 optimisation mean you don't need to go shoving nops in code
-paths that are used all the time.
-
-Alan
-
+-Andi

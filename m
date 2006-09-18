@@ -1,68 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030281AbWIRX65@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030293AbWIRX7U@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030281AbWIRX65 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Sep 2006 19:58:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030282AbWIRX65
+	id S1030293AbWIRX7U (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Sep 2006 19:59:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030288AbWIRX7T
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Sep 2006 19:58:57 -0400
-Received: from chain.digitalkingdom.org ([64.81.49.134]:3999 "EHLO
-	chain.digitalkingdom.org") by vger.kernel.org with ESMTP
-	id S1030281AbWIRX64 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Sep 2006 19:58:56 -0400
-Date: Mon, 18 Sep 2006 16:58:54 -0700
-To: Andi Kleen <ak@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Early boot hang on recent 2.6 kernels (> 2.6.3), on x86-64 with 16gb of RAM
-Message-ID: <20060918235854.GL4610@chain.digitalkingdom.org>
-References: <20060912223258.GM4612@chain.digitalkingdom.org> <p73bqpd62b2.fsf@verdi.suse.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <p73bqpd62b2.fsf@verdi.suse.de>
-User-Agent: Mutt/1.5.12-2006-07-14
-From: Robin Lee Powell <rlpowell@digitalkingdom.org>
+	Mon, 18 Sep 2006 19:59:19 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.152]:40102 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S1030292AbWIRX7Q
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Sep 2006 19:59:16 -0400
+Subject: Re: [ckrm-tech] [PATCH] BC: resource	beancounters	(v4)	(added	user
+	memory)
+From: Chandra Seetharaman <sekharan@us.ibm.com>
+Reply-To: sekharan@us.ibm.com
+To: Kirill Korotaev <dev@sw.ru>
+Cc: Rik van Riel <riel@redhat.com>, vatsa@in.ibm.com,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       CKRM-Tech <ckrm-tech@lists.sourceforge.net>, balbir@in.ibm.com,
+       Dave Hansen <haveblue@us.ibm.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andi Kleen <ak@suse.de>, Christoph Hellwig <hch@infradead.org>,
+       Andrey Savochkin <saw@sw.ru>, Matt Helsley <matthltc@us.ibm.com>,
+       rohitseth@google.com, Hugh Dickins <hugh@veritas.com>,
+       Alexey Dobriyan <adobriyan@mail.ru>, Oleg Nesterov <oleg@tv-sign.ru>,
+       devel@openvz.org, Pavel Emelianov <xemul@openvz.org>
+In-Reply-To: <450A71B1.8020009@sw.ru>
+References: <44FD918A.7050501@sw.ru> <44FDAB81.5050608@in.ibm.com>
+	 <44FEC7E4.7030708@sw.ru> <44FF1EE4.3060005@in.ibm.com>
+	 <1157580371.31893.36.camel@linuxchandra> <45011CAC.2040502@openvz.org>
+	 <1157743424.19884.65.camel@linuxchandra>
+	 <1157751834.1214.112.camel@galaxy.corp.google.com>
+	 <1157999107.6029.7.camel@linuxchandra>
+	 <1158001831.12947.16.camel@galaxy.corp.google.com>
+	 <20060912104410.GA28444@in.ibm.com>
+	 <1158081752.20211.12.camel@galaxy.corp.google.com>
+	 <1158105732.4800.26.camel@linuxchandra>
+	 <1158108203.20211.52.camel@galaxy.corp.google.com>
+	 <1158109991.4800.43.camel@linuxchandra>
+	 <1158111218.20211.69.camel@galaxy.corp.google.com>
+	 <1158186247.18927.11.camel@linuxchandra>  <450A71B1.8020009@sw.ru>
+Content-Type: text/plain
+Organization: IBM
+Date: Mon, 18 Sep 2006 16:59:11 -0700
+Message-Id: <1158623951.6536.10.camel@linuxchandra>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-7) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 18, 2006 at 09:50:41AM +0200, Andi Kleen wrote:
-> Robin Lee Powell <rlpowell@digitalkingdom.org> writes:
+On Fri, 2006-09-15 at 13:26 +0400, Kirill Korotaev wrote:
+> Chandra Seetharaman wrote:
+> 
+> > esoteric ?! Please look at the different operating system that provide
+> > resource management and other resource management capability providers.
+> > All of them have both guarantees and limits (they might call them
+> > differently).
 > > 
-> > This version is rather different, as it ends in:
-> > 
-> >     HARDWARE ERROR
-> >     CPU 0: Machine Check Exception:                7 Bank 3: b40000000000083b
-> >     RIP 10:<ffffffff80446e3e> {pci_conf1_read+0xbe/0xf0}
-> >     TSC 2e7932dbf8 ADDR fdfc000cfc
-> >     This is not a software problem!
-> >     Run through mcelog --ascii to decode and contact your hardware vendor
-> >     Kernel panic - not syncing: Uncorrected machine check
-> 
-> Decoded it gives
-> 
-> ..
->   bus error 'local node origin, request didn't time out
->       data read mem transaction
->       i/o access, level generic'
-> ..
-> 
-> It will probably boot with mce=off acpi=off pci=conf1 
-> 
-> You got some buggy device that causes a bus timeout when its config space
-> is read. The old kernel most likely didn't touch it by luck.
-> 
-> Please add the following patch and send the whole log.
-> This will tell us which device has this problem.
+> > Here are a few:
+> > http://www.hp.com/go/prm
+> > http://www.sun.com/software/resourcemgr/
+> > http://www.redbooks.ibm.com/redbooks/pdfs/sg245977.pdf
+> > http://www.vmware.com/pdf/vmware_drs_wp.pdf
+> > http://www.aurema.com
+> have you ever tested any of these?!
+> there is no _memory_ guarantees AFAIK in all of them except
+> for VMware which can reserve required amount of RAM for VM.
 
-Done; it's at
-http://teddyb.org/~rlpowell/media/regular/lkml/hacked-boot.txt
-
-Note that I had to us "mce=off acpi=off pci=conf1" to get any of
-that hack's output to show up at all; I wasn't clear whether you
-intended that or not.
-
--Robin
-
+I have tried VMware but no others. Nevertheless, I was not talking only
+in the context of memory, I was talking about the features
+infrastructure should provide (for different resource controllers).
+> 
+> Kirill
+> 
+> 
+> -------------------------------------------------------------------------
+> Using Tomcat but need to do more? Need to support web services, security?
+> Get stuff done quickly with pre-integrated technology to make your job easier
+> Download IBM WebSphere Application Server v.1.0.1 based on Apache Geronimo
+> http://sel.as-us.falkag.net/sel?cmd=lnk&kid=120709&bid=263057&dat=121642
+> _______________________________________________
+> ckrm-tech mailing list
+> https://lists.sourceforge.net/lists/listinfo/ckrm-tech
 -- 
-http://www.digitalkingdom.org/~rlpowell/ *** http://www.lojban.org/
-Reason #237 To Learn Lojban: "Homonyms: Their Grate!"
-Proud Supporter of the Singularity Institute - http://singinst.org/
+
+----------------------------------------------------------------------
+    Chandra Seetharaman               | Be careful what you choose....
+              - sekharan@us.ibm.com   |      .......you may get it.
+----------------------------------------------------------------------
+
+

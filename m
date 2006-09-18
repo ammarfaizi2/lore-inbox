@@ -1,18 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965160AbWIQXuE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965161AbWIRAGM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965160AbWIQXuE (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Sep 2006 19:50:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932360AbWIQXuE
+	id S965161AbWIRAGM (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Sep 2006 20:06:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965163AbWIRAGL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Sep 2006 19:50:04 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:43675 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932149AbWIQXuB (ORCPT
+	Sun, 17 Sep 2006 20:06:11 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:32446 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S965161AbWIRAGK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Sep 2006 19:50:01 -0400
-Date: Mon, 18 Sep 2006 01:41:53 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: Paul Mundt <lethal@linux-sh.org>, Karim Yaghmour <karim@opersys.com>,
+	Sun, 17 Sep 2006 20:06:10 -0400
+Date: Mon, 18 Sep 2006 02:05:19 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Ingo Molnar <mingo@elte.hu>
+cc: Nicholas Miell <nmiell@comcast.net>, Paul Mundt <lethal@linux-sh.org>,
+       Karim Yaghmour <karim@opersys.com>,
        linux-kernel <linux-kernel@vger.kernel.org>,
        Ingo Molnar <mingo@redhat.com>, Jes Sorensen <jes@sgi.com>,
        Andrew Morton <akpm@osdl.org>, Tom Zanussi <zanussi@us.ibm.com>,
@@ -25,59 +27,39 @@ Cc: Paul Mundt <lethal@linux-sh.org>, Karim Yaghmour <karim@opersys.com>,
        Thomas Gleixner <tglx@linutronix.de>, William Cohen <wcohen@redhat.com>,
        "Martin J. Bligh" <mbligh@mbligh.org>
 Subject: Re: tracepoint maintainance models
-Message-ID: <20060917234152.GA20374@elte.hu>
-References: <450D182B.9060300@opersys.com> <20060917112128.GA3170@localhost.usen.ad.jp> <20060917143623.GB15534@elte.hu> <Pine.LNX.4.64.0609171651370.6761@scrub.home> <20060917150953.GB20225@elte.hu> <Pine.LNX.4.64.0609171816390.6761@scrub.home>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0609171816390.6761@scrub.home>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -2.9
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.9 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5000]
-	-0.1 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+In-Reply-To: <20060917230623.GD8791@elte.hu>
+Message-ID: <Pine.LNX.4.64.0609180136340.6761@scrub.home>
+References: <450D182B.9060300@opersys.com> <20060917112128.GA3170@localhost.usen.ad.jp>
+ <20060917143623.GB15534@elte.hu> <1158524390.2471.49.camel@entropy>
+ <20060917230623.GD8791@elte.hu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-* Roman Zippel <zippel@linux-m68k.org> wrote:
+On Mon, 18 Sep 2006, Ingo Molnar wrote:
 
-> And yet again, you offer no prove at all and just work from 
-> assumptions. You throw in some magic "_full set_" of marker and just 
-> assume any change in that will completely break static tracers. [...]
+> what is being proposed here is entirely different from dprobes though: 
+> Roman suggests that he doesnt want to implement kprobes on his arch, and 
+> he wants LTT to remain an _all-static_ tracer. [...]
+> 
+> Even if the LTT folks proposed to "compromise" to 50 tracepoints - users 
+> of static tracers would likely _not_ be willing to compromise, so there 
+> would be a constant (and I say unnecessary) battle going on for the 
+> increase of the number of static markers. Static markers, if done for 
+> static tracers, have "viral" (Roman: here i mean "auto-spreading", not 
+> "disease") properties in that sense - they want to spread to alot larger 
+> area of code than they start out from.
 
-i'm not sure i understand what you are trying to say here. Are you 
-saying that if i replaced half of the static markups with function 
-attributes (which would still provide equivalent functionality for 
-dynamic tracers), or if i removed a few dozen static markups with 
-dynamic scripts (which change too would be transparent to users of 
-dynamic tracers), that in this case static tracers would /not/ break? 
-[if yes then that would be the most puzzling suggestion ever posed in 
-this thread]
+1. It's not that I don't want to, but I _can't_ implement kprobes and not 
+due to lack of skills, but lack of resources. (There is a subtle but 
+important difference.)
+2. I don't want LTT to be "all static tracer" at all, I want it to be 
+usable as a static tracer, so that on archs where kprobes are available it 
+can use them of course. This puts your second paragraph in a new 
+perspective, since the userbase and thus the pressure for more and more 
+static tracepoints would be different.
 
-> You completely ignore that it might be possible to create some rules 
-> and educate users that the amount of exported events can't be 
-> completely static.
-
-no serious trace user would accept it if for example half of their 
-static tracepoints would go away, because for example they were made 
-dynamic (or they were made function attributes).
-
-that's the plain meaning of what i said. Were we to accept static 
-tracers, we'd be stuck with the full set of static tracepoints for a 
-long time, because users of static tracers would not accept a 
-significant reduction in the number of tracepoints. (even if those 
-"reduced" tracepoints were in fact just moved over to dynamic probes)
-
-Was it truly confusing to you what i said? (in words that i thought were 
-more than clear) Please let me know and i'll try to formulate more 
-verbosely and more clearly when replying to you. This must be some 
-fundamental communication issue between you and me.
-
-	Ingo
+bye, Roman

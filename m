@@ -1,74 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932263AbWIRLRG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932251AbWIRLVa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932263AbWIRLRG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Sep 2006 07:17:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932251AbWIRLRG
+	id S932251AbWIRLVa (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Sep 2006 07:21:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932253AbWIRLVa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Sep 2006 07:17:06 -0400
-Received: from ogre.sisk.pl ([217.79.144.158]:6536 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S932265AbWIRLRD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Sep 2006 07:17:03 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Jan De Luyck <ml_linuxkernel_20060528@kcore.org>
-Subject: Re: 2.6.18-rc6-mm2 (-mm1): ohci_hcd does not recognize new devices
-Date: Mon, 18 Sep 2006 13:20:31 +0200
-User-Agent: KMail/1.9.1
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       David Brownell <david-b@pacbell.net>,
-       USB development list <linux-usb-devel@lists.sourceforge.net>,
-       Greg KH <greg@kroah.com>, Alan Stern <stern@rowland.harvard.edu>
-References: <200609160013.16014.rjw@sisk.pl> <200609180827.53626.rjw@sisk.pl> <200609180850.43815.ml_linuxkernel_20060528@kcore.org>
-In-Reply-To: <200609180850.43815.ml_linuxkernel_20060528@kcore.org>
+	Mon, 18 Sep 2006 07:21:30 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.152]:28319 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S932251AbWIRLV3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Sep 2006 07:21:29 -0400
+Message-ID: <450E8113.30602@in.ibm.com>
+Date: Mon, 18 Sep 2006 16:50:51 +0530
+From: Balbir Singh <balbir@in.ibm.com>
+Reply-To: balbir@in.ibm.com
+User-Agent: Thunderbird 1.5.0.7 (X11/20060909)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
+To: Pavel Emelianov <xemul@openvz.org>
+Cc: sekharan@us.ibm.com, Srivatsa <vatsa@in.ibm.com>,
+       Rik van Riel <riel@redhat.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       CKRM-Tech <ckrm-tech@lists.sourceforge.net>,
+       Dave Hansen <haveblue@us.ibm.com>, Andi Kleen <ak@suse.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Christoph Hellwig <hch@infradead.org>, Andrey Savochkin <saw@sw.ru>,
+       Matt Helsley <matthltc@us.ibm.com>, Hugh Dickins <hugh@veritas.com>,
+       Alexey Dobriyan <adobriyan@mail.ru>, Kirill Korotaev <dev@sw.ru>,
+       Oleg Nesterov <oleg@tv-sign.ru>, devel@openvz.org
+Subject: Re: [ckrm-tech] [PATCH] BC: resource beancounters (v4) (added	user
+ memory)
+References: <44FD918A.7050501@sw.ru>	<44FDAB81.5050608@in.ibm.com>		<44FEC7E4.7030708@sw.ru>	<44FF1EE4.3060005@in.ibm.com>		<1157580371.31893.36.camel@linuxchandra>	<45011CAC.2040502@openvz.org>		<1157730221.26324.52.camel@localhost.localdomain>		<4501B5F0.9050802@in.ibm.com> <450508BB.7020609@openvz.org>		<4505161E.1040401@in.ibm.com> <45051AC7.2000607@openvz.org>		<1158000590.6029.33.camel@linuxchandra>	<45069072.4010007@openvz.org>		<1158105488.4800.23.camel@linuxchandra>	<4507BC11.6080203@openvz.org>		<1158186664.18927.17.camel@linuxchandra>	<45090A6E.1040206@openvz.org>	<1158277364.6357.33.camel@linuxchandra>	<450A5325.6090803@openvz.org> <450A6A7A.8010102@sw.ru> <450A8B61.7040905@openvz.org> <450E5813.2040804@in.ibm.com> <450E5F2E.2070809@openvz.org>
+In-Reply-To: <450E5F2E.2070809@openvz.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200609181320.32049.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday, 18 September 2006 08:50, Jan De Luyck wrote:
-> On Monday 18 September 2006 08:27, Rafael J. Wysocki wrote:
-> > On Saturday, 16 September 2006 10:13, Rafael J. Wysocki wrote:
-> > > On Saturday, 16 September 2006 00:13, Rafael J. Wysocki wrote:
-> > > > It looks like the ohci_hcd driver sometimes has problems with the
-> > > > initialization (eg. USB mouse doesn't work after a fresh boot and
-> > > > reloading of the driver helps).
-> > > >
-> > > > I have observed this on two different x86_64 boxes (HPC 6325, Asus
-> > > > L5D), but it is not readily reproducible.  Anyway I've got a dmesg
-> > > > output from a failing case which is attached.
-> > >
-> > > Actually, the problem is ohci_hcd doesn't seem to recognize devices
-> > > plugged into the USB ports.
-> > >
-> > > For example, if I unplug and replug a mouse (that worked before
-> > > unplugging), it doesn't work any more.  I have to reload ohci_hcd to make
-> > > it work again.
-> > >
-> > > This is 100% reproducible and occurs on the two boxes above.
+Pavel Emelianov wrote:
+> Balbir Singh wrote:
 > 
-> I can confirm this behaviour. I've also seen that sometimes my USB 
-> keyboard/mouse doesn't work after booting up. Reloading the module solves the 
-> problem.
+> [snip]
 > 
-> This is on an amd64 box, ABIT kn9-sli, nForce 550.
+>> This approach has the following disadvantages
+>>  1. Lets consider initialization - When we create 'n' groups
+>> initially, we need
+>>     to spend O(n^2) time to assign guarantees.
 > 
-> This is with 2.6.17.13.
-> 
-> > I have carried out a binary search and found that the problem is caused by
-> >
-> > gregkh-usb-usbcore-remove-usb_suspend_root_hub.patch
-> 
-> Will this work against 2.6.17.13 vanilla?
+> 1. Not guarantees - limits. If you do not need guarantees - assign
+>    overcommited limits. Most of OpenVZ users do so and nobody claims.
+> 2. If you start n groups at once then limits are calculated in O(n)
+>    time, not O(n^2).
 
-No, this patch is not present in vanilla.
+Yes.. if you start them at once, but if they are incrementally
+added and started it is O(n^2)
 
-Rafael
+> 
+>>  2. Every time a limit or a guarantee changes, we need to recalculate
+>> guarantees
+>>     and ensure that the change will not break any guarantees
+> 
+> The same.
+> 
+>>  3. The same thing as stated above, when a resource group is created
+>> or deleted
+>>
+>> This can lead to some instability; a change in one group propagates to
+>> all other groups.
+> 
+> Let me cite a part of your answer on my letter from 11.09.2006:
+> "...
+>   xemul> I have a node with 1Gb of ram and 10 containers with 100Mb
+>   xemul> guarantee each. I want to start one more.
+>   xemul> What shall I do not to break guarantees?
+> 
+>  Don't start the new container or change the guarantees of the
+>  existing ones to accommodate this one ... It would be perfectly
+>  ok to have a container that does not care about guarantees to
+>  set their guarantee to 0 and set their limit to the desired value
+> ..."
+> 
+> The same for the limiting - either do not start new container, or
+> recalculate limits to meet new requirements. You may not take care of
+> guarantees as weel and create an overcommited configuration.
+> 
+> And one more thing. We've asked it many times and I ask it again -
+> please, show us the other way for providing guarantee rather than
+> limiting or reserving.
 
+There are some other options, I am sure Chandra will probably have
+more.
+
+1. Reclaim resources from other containers. This can be done well for
+    user-pages, if we ensure that each container does not mlock more
+    than its guaranteed share of memory.
+2. Provide best effort guarantees for non-reclaimable memory
+3. oom-kill a container or a task within a resource group that has
+    exceeded its guarantee and some other container is unable to meet its
+    guarantee
 
 -- 
-You never change things by fighting the existing reality.
-		R. Buckminster Fuller
+
+	Balbir Singh,
+	Linux Technology Center,
+	IBM Software Labs

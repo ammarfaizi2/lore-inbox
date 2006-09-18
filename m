@@ -1,52 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965152AbWIRMf0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965168AbWIRMiD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965152AbWIRMf0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Sep 2006 08:35:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965155AbWIRMf0
+	id S965168AbWIRMiD (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Sep 2006 08:38:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965182AbWIRMiD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Sep 2006 08:35:26 -0400
-Received: from emailer.gwdg.de ([134.76.10.24]:35531 "EHLO emailer.gwdg.de")
-	by vger.kernel.org with ESMTP id S965152AbWIRMfZ (ORCPT
+	Mon, 18 Sep 2006 08:38:03 -0400
+Received: from mailhub.sw.ru ([195.214.233.200]:62640 "EHLO relay.sw.ru")
+	by vger.kernel.org with ESMTP id S965168AbWIRMiA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Sep 2006 08:35:25 -0400
-Date: Mon, 18 Sep 2006 14:34:25 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Rik van Riel <riel@redhat.com>
-cc: yogeshwar sonawane <yogyas@gmail.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: How much kernel memory is in 64-bit OS ?
-In-Reply-To: <450E914C.90203@redhat.com>
-Message-ID: <Pine.LNX.4.61.0609181430530.30064@yvahk01.tjqt.qr>
-References: <b681c62b0609160434g6ccbbaa0vd0cd68958696726e@mail.gmail.com>
- <450DE3DE.50301@redhat.com> <Pine.LNX.4.61.0609181033350.27566@yvahk01.tjqt.qr>
- <450E914C.90203@redhat.com>
+	Mon, 18 Sep 2006 08:38:00 -0400
+Message-ID: <450E9327.8020004@openvz.org>
+Date: Mon, 18 Sep 2006 16:37:59 +0400
+From: Pavel Emelianov <xemul@openvz.org>
+User-Agent: Thunderbird 1.5 (X11/20060317)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Report: Content analysis: 0.0 points, 6.0 required
-	_SUMMARY_
+To: balbir@in.ibm.com
+CC: sekharan@us.ibm.com, Srivatsa <vatsa@in.ibm.com>,
+       Rik van Riel <riel@redhat.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       CKRM-Tech <ckrm-tech@lists.sourceforge.net>,
+       Dave Hansen <haveblue@us.ibm.com>, Andi Kleen <ak@suse.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Christoph Hellwig <hch@infradead.org>, Andrey Savochkin <saw@sw.ru>,
+       Matt Helsley <matthltc@us.ibm.com>, Hugh Dickins <hugh@veritas.com>,
+       Alexey Dobriyan <adobriyan@mail.ru>, Kirill Korotaev <dev@sw.ru>,
+       Oleg Nesterov <oleg@tv-sign.ru>, devel@openvz.org
+Subject: Re: [ckrm-tech] [PATCH] BC: resource beancounters (v4) (added	user
+ memory)
+References: <44FD918A.7050501@sw.ru>	<44FDAB81.5050608@in.ibm.com>		<44FEC7E4.7030708@sw.ru>	<44FF1EE4.3060005@in.ibm.com>		<1157580371.31893.36.camel@linuxchandra>	<45011CAC.2040502@openvz.org>		<1157730221.26324.52.camel@localhost.localdomain>		<4501B5F0.9050802@in.ibm.com> <450508BB.7020609@openvz.org>		<4505161E.1040401@in.ibm.com> <45051AC7.2000607@openvz.org>		<1158000590.6029.33.camel@linuxchandra>	<45069072.4010007@openvz.org>		<1158105488.4800.23.camel@linuxchandra>	<4507BC11.6080203@openvz.org>		<1158186664.18927.17.camel@linuxchandra>	<45090A6E.1040206@openvz.org>	<1158277364.6357.33.camel@linuxchandra>	<450A5325.6090803@openvz.org> <450A6A7A.8010102@sw.ru> <450A8B61.7040905@openvz.org> <450E828B.2000901@in.ibm.com>
+In-Reply-To: <450E828B.2000901@in.ibm.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Balbir Singh wrote:
 
->> > Sure, people said that too when going from 16 bits to 32 bits,
->> > but that was only a factor 2^16 difference.  This time it's the
->> > square of the previous difference.
->> 
->> Not quite the square :)
+[snip]
 >
-> 2^32 is the square of 2^16 :)
+> The program (calculate_limits()) listed on the website does not work for
+> the following case
+>
+> N=2;
+> R=100;
+> g[2] = {30, 30};
+>
+>
+> The output is -10 and -10 for the limits
+>
+> For
+>
+> N=3;
+> R=100;
+> g[3] = {30, 30, 10};
+>
+> I get -70, -70 and -110 as the limits
+>
+> Am I interpreting the parameters correctly? Or the program is broken?
+>
 
-Going from 32 to 64:   (2^64 - 2^32)
-Going from 16 to 32:   (2^32 - 2^16)
+Program on site is broken. Thanks for noticing:
 
-As mentioned above, "the square of the previos" [16 to 32] "difference". 
-Call me nitpicky, but:
+$ gcc guar.c -o guar
+$ ./guar 30 30
+guar lim
+  30  70 ( 70/1)
+  30  70 ( 70/1)
+$ ./guar 30 30 10
+guar lim
+  30  45 ( 90/2)
+  30  45 ( 90/2)
+  10  25 ( 50/2)
 
-(2^32 - 2^16)^2  !=  (2^64 - 2^32)
 
->-- 
-> What is important?  What you want to be true, or what is true?
-
-
-Jan Engelhardt
--- 
+To stop future "errors" remember that this is a simplified program that
+considers guarantees to be <= 100%, sum of guarantees to be <= 100% etc.

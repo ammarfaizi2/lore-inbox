@@ -1,47 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932185AbWIRSxt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932227AbWIRS7p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932185AbWIRSxt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Sep 2006 14:53:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932174AbWIRSxs
+	id S932227AbWIRS7p (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Sep 2006 14:59:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932218AbWIRS7p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Sep 2006 14:53:48 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:54980 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932093AbWIRSxr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Sep 2006 14:53:47 -0400
-Date: Mon, 18 Sep 2006 19:53:21 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Henne <henne@nachtwindheim.de>
-Cc: Andrew Morton <akpm@osdl.org>, James.Bottomley@SteelEye.com,
-       linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] scsi-driver ultrastore replace Scsi_Cmnd with struct scsi_cmnd
-Message-ID: <20060918185321.GB17670@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Henne <henne@nachtwindheim.de>, Andrew Morton <akpm@osdl.org>,
-	James.Bottomley@SteelEye.com, linux-scsi@vger.kernel.org,
-	linux-kernel@vger.kernel.org
-References: <44FE8BAC.1030004@nachtwindheim.de>
-Mime-Version: 1.0
+	Mon, 18 Sep 2006 14:59:45 -0400
+Received: from chain.digitalkingdom.org ([64.81.49.134]:28057 "EHLO
+	chain.digitalkingdom.org") by vger.kernel.org with ESMTP
+	id S932227AbWIRS7o (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Sep 2006 14:59:44 -0400
+Date: Mon, 18 Sep 2006 11:59:38 -0700
+To: Andi Kleen <ak@suse.de>
+Cc: Bharath Ramesh <krosswindz@gmail.com>, Lee Revell <rlrevell@joe-job.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Same MCE on 4 working machines (was Re: Early boot hang on recent 2.6 kernels (> 2.6.3), on x86-64 with 16gb of RAM)
+Message-ID: <20060918185938.GD4610@chain.digitalkingdom.org>
+References: <20060912223258.GM4612@chain.digitalkingdom.org> <20060914190548.GI4610@chain.digitalkingdom.org> <1158261249.7948.111.camel@mindpipe> <20060914191555.GJ4610@chain.digitalkingdom.org> <c775eb9b0609142242r45d184d2h8d7edd7dd5bc2a26@mail.gmail.com> <p737j01628d.fsf@verdi.suse.de>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <44FE8BAC.1030004@nachtwindheim.de>
-User-Agent: Mutt/1.4.2.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+In-Reply-To: <p737j01628d.fsf@verdi.suse.de>
+User-Agent: Mutt/1.5.12-2006-07-14
+From: Robin Lee Powell <rlpowell@digitalkingdom.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 06, 2006 at 10:49:48AM +0200, Henne wrote:
-> From: Henrik Kretzschmar <henne@nachtwindheim.de>
+On Mon, Sep 18, 2006 at 09:52:18AM +0200, Andi Kleen wrote:
+> "Bharath Ramesh" <krosswindz@gmail.com> writes:
 > 
-> Replaces the typedef'd Scsi_Cmnd with struct scsi_cmnd.
-> Signed-off-by: Henrik Kretzschmar <henne@nachtwindheim.de>
+> > Have you tried booting newer kernel post 2.6.13 with the boot
+> > option mce=bootlog and see if it goes past the current failure.
+> > Try the same with with noacpi.
+> 
+> Did you mean mce=off? mce=bootlog will just log the leftover MCEs
+> from the previous boot, but that shouldn't change anything.
 
-Looks good to me.  It would be even better if you could update the
-driver to not require
+mce=off allows some of the kernels with this problem (those that get
+as far as an MCE) to boot.  The ones with less than 16GiB of RAM
+never get an MCE, though.
 
-	#include "scsi.h"
+-Robin
 
-anymore and get rid of ultrastor.h.  Also your mailer unfortunately
-damages tabs.
-
+-- 
+http://www.digitalkingdom.org/~rlpowell/ *** http://www.lojban.org/
+Reason #237 To Learn Lojban: "Homonyms: Their Grate!"
+Proud Supporter of the Singularity Institute - http://singinst.org/

@@ -1,53 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751560AbWIRP0R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751566AbWIRP0y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751560AbWIRP0R (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Sep 2006 11:26:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751494AbWIRP0R
+	id S1751566AbWIRP0y (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Sep 2006 11:26:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751773AbWIRP0x
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Sep 2006 11:26:17 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:16336 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1751560AbWIRP0R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Sep 2006 11:26:17 -0400
-Subject: Re: tracepoint maintainance models
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: "Frank Ch. Eigler" <fche@redhat.com>, Paul Mundt <lethal@linux-sh.org>,
-       Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
-       linux-kernel <linux-kernel@vger.kernel.org>, Jes Sorensen <jes@sgi.com>,
-       Andrew Morton <akpm@osdl.org>, Tom Zanussi <zanussi@us.ibm.com>,
-       Richard J Moore <richardj_moore@uk.ibm.com>,
-       Michel Dagenais <michel.dagenais@polymtl.ca>,
-       Christoph Hellwig <hch@infradead.org>,
-       Greg Kroah-Hartman <gregkh@suse.de>,
-       Thomas Gleixner <tglx@linutronix.de>, William Cohen <wcohen@redhat.com>,
-       "Martin J. Bligh" <mbligh@mbligh.org>
-In-Reply-To: <20060918150231.GA8197@elte.hu>
-References: <450D182B.9060300@opersys.com>
-	 <20060917112128.GA3170@localhost.usen.ad.jp>
-	 <20060917143623.GB15534@elte.hu> <20060917153633.GA29987@Krystal>
-	 <20060918000703.GA22752@elte.hu> <450DF28E.3050101@opersys.com>
-	 <20060918011352.GB30835@elte.hu> <20060918122527.GC3951@redhat.com>
-	 <20060918150231.GA8197@elte.hu>
-Content-Type: text/plain
+	Mon, 18 Sep 2006 11:26:53 -0400
+Received: from smtp.andrew.cmu.edu ([128.2.10.81]:25543 "EHLO
+	smtp.andrew.cmu.edu") by vger.kernel.org with ESMTP
+	id S1751566AbWIRP0w (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Sep 2006 11:26:52 -0400
+Message-ID: <450EBABA.7040401@cmu.edu>
+Date: Mon, 18 Sep 2006 11:26:50 -0400
+From: George Nychis <gnychis@cmu.edu>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060818)
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: memory suspension resume broken on thinkpad x60s
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Date: Mon, 18 Sep 2006 16:48:10 +0100
-Message-Id: <1158594491.6069.125.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Llu, 2006-09-18 am 17:02 +0200, ysgrifennodd Ingo Molnar:
-> also, there should be only a single switch for markups: either all of 
-> them are compiled in or none of them. That simplifies the support 
-> picture and gets rid of some ugly #ifdefs. Distro kernels will likely 
-> enable all of thems, so there will be nice uniformity all across.
+Hey guys,
 
-I think your implementation is questionable if it causes any kind of
-jumps and conditions, even marked unlikely. Just put the needed data in
-a seperate section which can be used by the debugging tools. No need to
-actually mess with the code for the usual cases.
+At one point, I had memory suspension and disk suspension working 
+beautifully on my x60s with the 6 patch set from Forrest Zhao:
 
-Alan
+x60s patches # md5sum ahci-patch*
+71d9cfb75eb93c441e582b345fe48d83  ahci-patch1
+372d229a5ef4e89d9e96f61391f72f4d  ahci-patch2
+e867b2f28e3d144fae000083d83da24d  ahci-patch3
+5d16c9e54606fbd1a29966351ed32a9b  ahci-patch4
+f40a8c2993d0b8cb164c224ceda4e2f9  ahci-patch5
+27676e415cc928d640287c00fbad6652  ahci-patch6
 
+So anyways, I hadn't used it in a month, after several kernel changes, 
+however I have applied the patches to every kernel.
+
+Suspend to disk works beautifully, no problems at all.
+
+Suspend to memory seems to work, it quickly brings up the "moon" symbol 
+on the x60s control board, and powers down everything else.
+
+Then I shut the lid, and when I reopen it, it seems as though the disk 
+resumes, and everything else resumes, however my screen never resumes. 
+I cannot get the screen to light up at all.  I am not sure if the OS has 
+completely resumed or not because I can't see anything.  However there 
+is hard disk activity.
+
+Any ideas?
+
+Thanks!
+George

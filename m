@@ -1,56 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965328AbWIRDfL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965330AbWIRDjG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965328AbWIRDfL (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Sep 2006 23:35:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751359AbWIRDfI
+	id S965330AbWIRDjG (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Sep 2006 23:39:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751379AbWIRDjG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Sep 2006 23:35:08 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:61845 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1751354AbWIRDfD (ORCPT
+	Sun, 17 Sep 2006 23:39:06 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:42927 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1751327AbWIRDjD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Sep 2006 23:35:03 -0400
-Date: Mon, 18 Sep 2006 13:34:31 +1000
-From: David Chinner <dgc@sgi.com>
-To: "Josef 'Jeff' Sipek" <jeffpc@josefsipek.net>
-Cc: linux-kernel@vger.kernel.org, xfs-masters@oss.sgi.com, akpm@osdl.org,
-       dhowells@redhat.com
-Subject: Re: [PATCH 5 of 11] XFS: Use SEEK_{SET, CUR, END} instead of hardcoded values
-Message-ID: <20060918033431.GV3034@melbourne.sgi.com>
-References: <patchbomb.1158455366@turing.ams.sunysb.edu> <4cdee5980dad9980ec8f.1158455371@turing.ams.sunysb.edu>
+	Sun, 17 Sep 2006 23:39:03 -0400
+Date: Mon, 18 Sep 2006 05:30:27 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Karim Yaghmour <karim@opersys.com>
+Cc: Nicholas Miell <nmiell@comcast.net>, Paul Mundt <lethal@linux-sh.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Ingo Molnar <mingo@redhat.com>, Jes Sorensen <jes@sgi.com>,
+       Andrew Morton <akpm@osdl.org>, Roman Zippel <zippel@linux-m68k.org>,
+       Tom Zanussi <zanussi@us.ibm.com>,
+       Richard J Moore <richardj_moore@uk.ibm.com>,
+       "Frank Ch. Eigler" <fche@redhat.com>,
+       Michel Dagenais <michel.dagenais@polymtl.ca>,
+       Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
+       Christoph Hellwig <hch@infradead.org>,
+       Greg Kroah-Hartman <gregkh@suse.de>,
+       Thomas Gleixner <tglx@linutronix.de>, William Cohen <wcohen@redhat.com>,
+       "Martin J. Bligh" <mbligh@mbligh.org>
+Subject: Re: tracepoint maintainance models
+Message-ID: <20060918033027.GB11894@elte.hu>
+References: <450D182B.9060300@opersys.com> <20060917112128.GA3170@localhost.usen.ad.jp> <20060917143623.GB15534@elte.hu> <1158524390.2471.49.camel@entropy> <20060917230623.GD8791@elte.hu> <450DEEA5.7080808@opersys.com> <20060918005624.GA30835@elte.hu> <450DFFC8.5080005@opersys.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4cdee5980dad9980ec8f.1158455371@turing.ams.sunysb.edu>
+In-Reply-To: <450DFFC8.5080005@opersys.com>
 User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -2.9
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.9 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.4999]
+	-0.1 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Sep 16, 2006 at 09:09:31PM -0400, Josef 'Jeff' Sipek wrote:
-> XFS: Use SEEK_{SET,CUR,END} instead of hardcoded values
 
-The hard coded values  used in xfs_change_file_space() are documented as part
-of the API to the userspace functions that use this interface in xfsctl(3).
-That is:
+* Karim Yaghmour <karim@opersys.com> wrote:
 
-  XFS_IOC_FREESP
-  XFS_IOC_FREESP64
-  XFS_IOC_ALLOCSP
-  XFS_IOC_ALLOCSP64
+> > [...] if i removed a few dozen static markups with dynamic scripts 
+> > (which change too would be transparent to users of dynamic tracers), 
+> > that in this case users of static tracers would /not/ claim that 
+> > tracing broke?
 
-  Alter storage space associated with a section of the ordinary file specified.
-  The section is specified by a variable of type  xfs_flock64_t,  pointed  to  by
-  the  final argument.  The data type xfs_flock64_t contains the following
-  members: l_whence is 0, 1, or 2 to indicate that the relative offset l_start
-  will be measured from the start  of  the  file,  the current  position, or the
-  end of the file, respectively.
+> 2- removed markups are not transparent to "static" tracers:
+> 
+> False. LTTng couldn't care less. [...]
 
-Hence I think that the hard coded values should not be changed to something
-that is defined outside of XFS's API.
+Amazing! So the trace data provided by those removed static markups 
+(which were moved into dynamic scripts and are thus still fully 
+available to dynamic tracers) are still available to LTT users? How is 
+that possible, via quantum tunneling perhaps? ;-)
 
-Cheers,
-
-Dave.
--- 
-Dave Chinner
-Principal Engineer
-SGI Australian Software Group
+	Ingo

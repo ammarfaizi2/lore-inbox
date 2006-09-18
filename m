@@ -1,81 +1,143 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964893AbWIRU3E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964943AbWIRUgW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964893AbWIRU3E (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Sep 2006 16:29:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964904AbWIRU3E
+	id S964943AbWIRUgW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Sep 2006 16:36:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964948AbWIRUgW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Sep 2006 16:29:04 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.149]:7644 "EHLO e31.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S964893AbWIRU3B (ORCPT
+	Mon, 18 Sep 2006 16:36:22 -0400
+Received: from smtp1.iitb.ac.in ([202.68.145.249]:37018 "HELO smtp1.iitb.ac.in")
+	by vger.kernel.org with SMTP id S964943AbWIRUgV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Sep 2006 16:29:01 -0400
-Message-ID: <450F0180.1040606@us.ibm.com>
-Date: Mon, 18 Sep 2006 13:28:48 -0700
-From: Vara Prasad <prasadav@us.ibm.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.2) Gecko/20040804 Netscape/7.2 (ax)
-X-Accept-Language: en-us, en
+	Mon, 18 Sep 2006 16:36:21 -0400
+Message-ID: <450F0515.3040002@it.iitb.ac.in>
+Date: Tue, 19 Sep 2006 02:14:05 +0530
+From: Anuj Tripathi <anujt@it.iitb.ac.in>
+User-Agent: Thunderbird 1.5.0.2 (X11/20060516)
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: "Frank Ch. Eigler" <fche@redhat.com>, Ingo Molnar <mingo@elte.hu>,
-       Paul Mundt <lethal@linux-sh.org>,
-       Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
-       linux-kernel <linux-kernel@vger.kernel.org>, Jes Sorensen <jes@sgi.com>,
-       Andrew Morton <akpm@osdl.org>, Tom Zanussi <zanussi@us.ibm.com>,
-       Richard J Moore <richardj_moore@uk.ibm.com>,
-       Michel Dagenais <michel.dagenais@polymtl.ca>,
-       Christoph Hellwig <hch@infradead.org>,
-       Greg Kroah-Hartman <gregkh@suse.de>,
-       Thomas Gleixner <tglx@linutronix.de>, William Cohen <wcohen@redhat.com>,
-       "Martin J. Bligh" <mbligh@mbligh.org>,
-       systemtap <systemtap@sourceware.org>
-Subject: Re: tracepoint maintainance models
-References: <20060917143623.GB15534@elte.hu>	 <20060917153633.GA29987@Krystal> <20060918000703.GA22752@elte.hu>	 <450DF28E.3050101@opersys.com> <20060918011352.GB30835@elte.hu>	 <20060918122527.GC3951@redhat.com> <20060918150231.GA8197@elte.hu>	 <1158594491.6069.125.camel@localhost.localdomain>	 <20060918152230.GA12631@elte.hu>	 <1158596341.6069.130.camel@localhost.localdomain>	 <20060918161526.GL3951@redhat.com>	 <1158598927.6069.141.camel@localhost.localdomain>	 <450EEF2E.3090302@us.ibm.com> <1158608981.6069.167.camel@localhost.localdomain>
-In-Reply-To: <1158608981.6069.167.camel@localhost.localdomain>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Problems in compiling the module "/net/ieee80211"
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
+Hi
 
->Ar Llu, 2006-09-18 am 12:10 -0700, ysgrifennodd Vara Prasad:
->  
->
->>I am not sure i quiet understand your line number part of the proposal. 
->>Does this proposal assume we have access to source code while generating 
->>dynamic probes?
->>    
->>
->
->Its one route - or we dump it into an ELF section in the binary.
->  
->
-Source code access is not a good solution but ELF section could work.
+I am trying to compile the kernel source code of .c files in 
+/linux-2.6.17.11/net/ieee80211 in  a standalone manner. My aim is to 
+profile these files, especially the security functions, and to find the 
+bottlenecks in the implementation and then to fine tune it.
 
->  
->
->>This still doesn't solve the problem of compiler optimizing such that a 
->>variable i would like to read in my probe not being available at the 
->>probe point.
->>    
->>
->
->Then what we really need by the sound of it is enough gcc smarts to do
->something of the form
->
->	.section "debugbits"
->	
->	.asciiz 'hook_sched'
->	.dword l1	# Address to probe
->	.word 1		# Argument count
->	.dword gcc_magic_whatregister("next"); [ reg num or memory ]
->	.dword gcc_magic_whataddress("next"); [ address if exists]
->
->
->Can gcc do any of that for us today ?
->
->  
->
-No, gcc doesn't do that today.
+While compiling them as
+
+ gcc -D__KERNEL__ -I ../../kernel2/linux-2.6.17.11/include ieee80211_crypt.c
+
+I initially got error with KBUILD but was able to remove it. Now 
+following are the errors I am getting.
+
+
+In file included from ../../kernel2/linux-2.6.17.11/include/asm/smp.h:18,
+                 from ../../kernel2/linux-2.6.17.11/include/linux/smp.h:19,
+                 from 
+../../kernel2/linux-2.6.17.11/include/linux/sched.h:26,
+                 from 
+../../kernel2/linux-2.6.17.11/include/linux/module.h:12,
+                 from ieee80211_crypt.c:15:
+../../kernel2/linux-2.6.17.11/include/asm/mpspec.h:6:25: error: 
+mach_mpspec.h: No such file or directory
+In file included from ../../kernel2/linux-2.6.17.11/include/asm/smp.h:18,
+                 from ../../kernel2/linux-2.6.17.11/include/linux/smp.h:19,
+                 from 
+../../kernel2/linux-2.6.17.11/include/linux/sched.h:26,
+                 from 
+../../kernel2/linux-2.6.17.11/include/linux/module.h:12,
+                 from ieee80211_crypt.c:15:
+../../kernel2/linux-2.6.17.11/include/asm/mpspec.h:8: error: 
+'MAX_MP_BUSSES' undeclared here (not in a function)
+../../kernel2/linux-2.6.17.11/include/asm/mpspec.h:22: error: 
+'MAX_IRQ_SOURCES' undeclared here (not in a function)
+In file included from ../../kernel2/linux-2.6.17.11/include/linux/smp.h:19,
+                 from 
+../../kernel2/linux-2.6.17.11/include/linux/sched.h:26,
+                 from 
+../../kernel2/linux-2.6.17.11/include/linux/module.h:12,
+                 from ieee80211_crypt.c:15:
+../../kernel2/linux-2.6.17.11/include/asm/smp.h:77:26: error: 
+mach_apicdef.h: No such file or directory
+In file included from ../../kernel2/linux-2.6.17.11/include/linux/irq.h:22,
+                 from ../../kernel2/linux-2.6.17.11/include/asm/hardirq.h:6,
+                 from 
+../../kernel2/linux-2.6.17.11/include/linux/hardirq.h:7,
+                 from 
+../../kernel2/linux-2.6.17.11/include/linux/interrupt.h:11,
+                 from 
+../../kernel2/linux-2.6.17.11/include/asm/highmem.h:24,
+                 from 
+../../kernel2/linux-2.6.17.11/include/linux/highmem.h:24,
+                 from 
+../../kernel2/linux-2.6.17.11/include/linux/skbuff.h:27,
+                 from 
+../../kernel2/linux-2.6.17.11/include/linux/if_ether.h:111,
+                 from 
+../../kernel2/linux-2.6.17.11/include/net/ieee80211.h:28,
+                 from ieee80211_crypt.c:19:
+../../kernel2/linux-2.6.17.11/include/asm/irq.h:16:25: error: 
+irq_vectors.h: No such file or directory
+In file included from ../../kernel2/linux-2.6.17.11/include/asm/hardirq.h:6,
+                 from 
+../../kernel2/linux-2.6.17.11/include/linux/hardirq.h:7,
+                 from 
+../../kernel2/linux-2.6.17.11/include/linux/interrupt.h:11,
+                 from 
+../../kernel2/linux-2.6.17.11/include/asm/highmem.h:24,
+                 from 
+../../kernel2/linux-2.6.17.11/include/linux/highmem.h:24,
+                 from 
+../../kernel2/linux-2.6.17.11/include/linux/skbuff.h:27,
+                 from 
+../../kernel2/linux-2.6.17.11/include/linux/if_ether.h:111,
+                 from 
+../../kernel2/linux-2.6.17.11/include/net/ieee80211.h:28,
+                 from ieee80211_crypt.c:19:
+../../kernel2/linux-2.6.17.11/include/linux/irq.h:85: error: 'NR_IRQS' 
+undeclared here (not in a function)
+In file included from ../../kernel2/linux-2.6.17.11/include/linux/irq.h:94,
+                 from ../../kernel2/linux-2.6.17.11/include/asm/hardirq.h:6,
+                 from 
+../../kernel2/linux-2.6.17.11/include/linux/hardirq.h:7,
+                 from 
+../../kernel2/linux-2.6.17.11/include/linux/interrupt.h:11,
+                 from 
+../../kernel2/linux-2.6.17.11/include/asm/highmem.h:24,
+                 from 
+../../kernel2/linux-2.6.17.11/include/linux/highmem.h:24,
+                 from 
+../../kernel2/linux-2.6.17.11/include/linux/skbuff.h:27,
+                 from 
+../../kernel2/linux-2.6.17.11/include/linux/if_ether.h:111,
+                 from 
+../../kernel2/linux-2.6.17.11/include/net/ieee80211.h:28,
+                 from ieee80211_crypt.c:19:
+../../kernel2/linux-2.6.17.11/include/asm/hw_irq.h:30: error: 
+'NR_IRQ_VECTORS' undeclared here (not in a function)
+In file included from 
+../../kernel2/linux-2.6.17.11/include/linux/if_ether.h:111,
+                 from 
+../../kernel2/linux-2.6.17.11/include/net/ieee80211.h:28,
+                 from ieee80211_crypt.c:19:
+../../kernel2/linux-2.6.17.11/include/linux/skbuff.h: In function 
+'skb_add_data':
+../../kernel2/linux-2.6.17.11/include/linux/skbuff.h:1140: warning: 
+pointer targets in passing argument 1 of 'csum_and_copy_from_user' 
+differ in signedness
+
+
+can someone tell me how can i get over with these errors ? Moreover is 
+there any other way of profiling the specific module (/net/ieee802.11) 
+through which i can find out the bottleneck ???
+
+ThanX
+-Anuj Tripathi
+Mtech 05, IIT Bombay
 
 

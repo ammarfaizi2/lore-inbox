@@ -1,89 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965649AbWIRKiu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751647AbWIRKog@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965649AbWIRKiu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Sep 2006 06:38:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965648AbWIRKiu
+	id S1751647AbWIRKog (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Sep 2006 06:44:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751640AbWIRKog
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Sep 2006 06:38:50 -0400
-Received: from wx-out-0506.google.com ([66.249.82.238]:51839 "EHLO
-	wx-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S965649AbWIRKis (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Sep 2006 06:38:48 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=ImvbeAuF9HJeak91D/tXmZW/r034FKhtHtvHQF9wcj4E6D19eNpYofp/rzTp3JINsmgifTjyeEPL9nsovtodhLM5zgvAt1W3epF9TetJ0g1CwNcl0XzdMnHeFouycthRLrhK8zIwgd1RKEtvUaERT6jdxkCvMfFpqY9BUqDtN4w=
-Message-ID: <450E771E.1070207@gmail.com>
-Date: Mon, 18 Sep 2006 19:38:22 +0900
-From: Tejun Heo <htejun@gmail.com>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060713)
+	Mon, 18 Sep 2006 06:44:36 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:32136 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1751406AbWIRKof (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Sep 2006 06:44:35 -0400
+Date: Mon, 18 Sep 2006 12:44:37 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: "Eugeny S. Mints" <eugeny.mints@gmail.com>
+Cc: pm list <linux-pm@lists.osdl.org>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [linux-pm] [PATCH] PowerOP, PowerOP Core, 1/2
+Message-ID: <20060918104437.GA4973@elf.ucw.cz>
+References: <45096933.4070405@gmail.com>
 MIME-Version: 1.0
-To: Pavel Machek <pavel@ucw.cz>
-CC: kernel list <linux-kernel@vger.kernel.org>, axboe@suse.de
-Subject: Re: SATA powersave patches
-References: <20060908110346.GC920@elf.ucw.cz> <45015767.1090002@gmail.com> <20060908123537.GB17640@elf.ucw.cz> <4501655F.5000103@gmail.com> <20060910224815.GC1691@elf.ucw.cz> <4505394F.6060806@gmail.com> <20060918100548.GJ3746@elf.ucw.cz>
-In-Reply-To: <20060918100548.GJ3746@elf.ucw.cz>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <45096933.4070405@gmail.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+Hi!
 
-Pavel Machek wrote:
->> Can you check if there is any difference between [D/H]IPS and static? 
->> ICH6M on my notebook can't do DIPS/HIPS, so I couldn't compare them 
->> against static.
-> 
-> What is D/HIPS? I could not find anything relevant..
+> The PowerOP Core provides completely arch independent interface
+> to create and control operating points which consist of arbitrary
+> subset of power parameters available on a certain platform.
+> Also, PowerOP Core provides optional SysFS interface to access
+> operating point from userspace.
 
-D/HIPS stand for device/host initiated power saving.  These modes use 
-two SATA link powersaving state (partial and slumber).  Static mode 
-simply turns off PHY on unoccupied port using SControl register.  So, if 
-you have an access to a notebook which has a SATA dock which support 
-link powersaving, you can test it by...
+Please inline patches and sign them off.
 
-* set link powersaving mode to HIPS/static. (mode 4)
+Also if you are providing new userland interface, describe it... in
+Documentation/ABI.
 
-* w/ device inserted, leave it idle for 15 seconds and record power 
-consumption level (link should be in slumber state).
+> +struct powerop_driver {
+> +	char *name;
+> +	void *(*create_point) (const char *pwr_params, va_list args);
+> +	int (*set_point) (void *md_opt);
+> +	int (*get_point) (void *md_opt, const char *pwr_params, va_list args);
+> +};
 
-* pull out the device, wait for libata to detach the device and record 
-power consumption level (libata should have turned off PHY after 
-detaching the device).
+We can certainly get better interface than va_list, right?
 
-I wanna know whether there is any difference in the amount of power 
-saved between slumber and off states.
+> +
+> +#
+> +# powerop
+> +#
+> +
+> +menu "PowerOP (Power Management)"
+> +
+> +config POWEROP
+> +	tristate "PowerOP Core"
+> +	help
 
->>> It would be great to be able to power SATA
->>> controller down, then power it back up when it is needed... I tried
->>> following hack, but could not get it to work. Any ideas?
->> 1. One way to do it would be by dynamic power management.  It would be 
->> nice to have wake-up mechanism at the block layer.  Idle timer can run 
->> in the block layer or it can be implemented in the userland.
->>
->> ATM, this implies that the attached devices are powered down too 
->> (spindown).  As spinning up takes quite some time, we can implement 
-> 
-> For now, powering down controller when disks are spinned down would be
-> very nice first step.
+Hohum, this is certainly going to be clear to confused user...
 
-Yeap.
+> +	list_add_tail(&opt->node, &named_opt_list);
+> +	strcpy(registered_names[registered_opt_number], id);
+> +	registered_opt_number++;
+> +	up(&named_opt_list_mutex);
+> +
+> +	blocking_notifier_call_chain(&powerop_notifier_list,
+> +				     POWEROP_REGISTER_EVENT, id);
+> +	return 0;
+> +
+> +      fail_set_name:
+> +	kfree(opt->md_opt);
+> +
+> +      fail_opt_create:
+> +	kfree(registered_names[registered_opt_number]);
+> +
+> +      fail_name_nomem:
+> +	kfree(opt);
+> +	return err;
+> +}
 
-> When I forced disk to be spinned down (with power/state file)
-> controller actually survived power down/power up... unfortunately with
-> so long delay (~30 sec) that it is not usable in practice.
+Careful about spaces vs. tabs...
 
-Can you describe what you've done in more detail?  Do you have dmesg of 
-the 30sec wait?
+...so, you got support for 20 operating points... And this should
+include devices, too, right? How is it going to work on 8cpu box? will
+you have states like cpu1_800MHz_cpu2_1600MHz_cpu3_800MHz_... ?
 
->> So, I think option #1 is the way to go - implementing leveled dynamic 
->> power management infrastructure and adding support in the block layer. 
->> What do you think?
-> 
-> Would be nice :-).
-
-So, do you think we're ready for another PM infrastructure update?  :-P
-
+								Pavel
 -- 
-tejun
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

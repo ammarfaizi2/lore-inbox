@@ -1,71 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751623AbWIRIgH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965586AbWIRIoK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751623AbWIRIgH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Sep 2006 04:36:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751624AbWIRIgH
+	id S965586AbWIRIoK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Sep 2006 04:44:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965588AbWIRIoJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Sep 2006 04:36:07 -0400
-Received: from ns1.suse.de ([195.135.220.2]:46558 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751621AbWIRIgE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Sep 2006 04:36:04 -0400
-To: "Vladimir B. Savkin" <master@sectorb.msk.ru>
-Cc: Jesper Dangaard Brouer <hawk@diku.dk>,
-       Harry Edmon <harry@atmos.washington.edu>, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org
-Subject: Re: Network performance degradation from 2.6.11.12 to 2.6.16.20
-References: <4492D5D3.4000303@atmos.washington.edu>
-	<44948EF6.1060201@atmos.washington.edu>
-	<Pine.LNX.4.61.0606191638550.23553@ask.diku.dk>
-	<200606191724.31305.ak@suse.de>
-	<20060916120845.GA18912@tentacle.sectorb.msk.ru>
-From: Andi Kleen <ak@suse.de>
-Date: 18 Sep 2006 10:35:38 +0200
-In-Reply-To: <20060916120845.GA18912@tentacle.sectorb.msk.ru>
-Message-ID: <p73k6414lnp.fsf@verdi.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+	Mon, 18 Sep 2006 04:44:09 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:26602 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S965586AbWIRIoI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Sep 2006 04:44:08 -0400
+Message-ID: <450E5C2F.8030808@sgi.com>
+Date: Mon, 18 Sep 2006 10:43:27 +0200
+From: Jes Sorensen <jes@sgi.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060527)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Nick Piggin <nickpiggin@yahoo.com.au>, Ingo Molnar <mingo@elte.hu>,
+       Thomas Gleixner <tglx@linutronix.de>, karim@opersys.com,
+       Andrew Morton <akpm@osdl.org>, Paul Mundt <lethal@linux-sh.org>,
+       Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
+       linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
+       Ingo Molnar <mingo@redhat.com>, Greg Kroah-Hartman <gregkh@suse.de>,
+       Tom Zanussi <zanussi@us.ibm.com>, ltt-dev@shafik.org,
+       Michel Dagenais <michel.dagenais@polymtl.ca>
+Subject: Re: [PATCH 0/11] LTTng-core (basic tracing infrastructure) 0.5.108
+References: <20060915215112.GB12789@elte.hu> <Pine.LNX.4.64.0609160018110.6761@scrub.home> <20060915231419.GA24731@elte.hu> <Pine.LNX.4.64.0609160139130.6761@scrub.home> <20060916082214.GD6317@elte.hu> <Pine.LNX.4.64.0609161831270.6761@scrub.home> <20060916230031.GB20180@elte.hu> <Pine.LNX.4.64.0609170310580.6761@scrub.home> <20060917084207.GA8738@elte.hu> <Pine.LNX.4.64.0609171627400.6761@scrub.home> <20060917152527.GC20225@elte.hu> <Pine.LNX.4.64.0609171744570.6761@scrub.home> <450D7EF0.3020805@yahoo.com.au> <Pine.LNX.4.64.0609171918430.6761@scrub.home> <450D8C58.5000506@yahoo.com.au> <Pine.LNX.4.64.0609172027120.6761@scrub.home>
+In-Reply-To: <Pine.LNX.4.64.0609172027120.6761@scrub.home>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Vladimir B. Savkin" <master@sectorb.msk.ru> writes:
-
-> On Mon, Jun 19, 2006 at 05:24:31PM +0200, Andi Kleen wrote:
-> > 
-> > > If you use "pmtmr" try to reboot with kernel option "clock=tsc".
-> > 
-> > That's dangerous advice - when the system choses not to use
-> > TSC it often has a reason.
+Roman Zippel wrote:
+> Hi,
 > 
-> I just found out that TSC clocksource is not implemented on x86-64.
-> Kernel version 2.6.18-rc7, is it true?
-
-The x86-64 timer subsystems currently doesn't have clocksources
-at all, but it supports TSC and some other timers.
-
+> On Mon, 18 Sep 2006, Nick Piggin wrote:
 > 
-> I've also had experience of unsychronized TSC on dual-core Athlon,
-> but it was cured by idle=poll.
+>> But equally nobody can demand that a feature go into the upstream
+>> kernel. Especially not if there is a more flexible alternative
+>> already available that just requires implementing for their arch.
+> 
+> I completely agree with you under the condition that these alternatives 
+> were mutually exclusive or conflicting with each other.
 
-You can use that, but it will make your system run quite hot 
-and cost you a lot of powe^wmoney.
+Roman,
 
-> It seems that dhcpd3 makes the box timestamping incoming packets,
-> killing the performance. I think that combining router and DHCP server
-> on a same box is a legitimate situation, isn't it?
+I don't get this, you are arguing that we should put it in because it
+doesn't do any damage. First of all it does, by adding a lot of clutter
+all over the place. Second, if we take that argument, then we should
+allow anybody to put in anything they want, are you also suggesting we
+put devfs back in?
 
+Point is that the Linux kernel gets so many proposals, some are good
+some are bad and some while maybe looking like a good idea at the
+beginning, show out later to be a bad idea - LTT falls into this
+category. *However*, it doesn't mean the knowledge and tools that were
+developed with LTT are bad or useless.
 
-Yes.  Good point. DHCP is broken and needs to be fixed. Can you
-send a bug report to the DHCP maintainers? 
+To take another related project, look at relayfs. There was so much
+noise about it when it was initially pushed, yuck I even remember how it
+was suggested that printk should be implemented via relayfs. But look at
+it now, there is no fs/relayfs/* these days. The kernel moved on, used
+the knowledge optained and provided the feature in a better way -
+exactly like it is being proposed to do for trace points, by using
+dynamic probes.
 
-iirc the problem used to be that RAW sockets didn't do something
-they need them to do. Maybe we can fix that now.
-
-If that's not possible we can probably add a ioctl or similar
-to disable time stamping for packet sockets (DHCP shouldn't really
-need a fine grained time stamp). dhcpcd would need to use that then.
-
-Keep me updated what they say.
-
--Andi
+Jes

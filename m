@@ -1,66 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751594AbWIRNnB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751629AbWIRNqw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751594AbWIRNnB (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Sep 2006 09:43:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751595AbWIRNnB
+	id S1751629AbWIRNqw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Sep 2006 09:46:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751640AbWIRNqw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Sep 2006 09:43:01 -0400
-Received: from embla.aitel.hist.no ([158.38.50.22]:6825 "HELO
-	embla.aitel.hist.no") by vger.kernel.org with SMTP id S1751570AbWIRNnA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Sep 2006 09:43:00 -0400
-Message-ID: <450EA198.5060302@aitel.hist.no>
-Date: Mon, 18 Sep 2006 15:39:36 +0200
-From: Helge Hafting <helge.hafting@aitel.hist.no>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060812)
+	Mon, 18 Sep 2006 09:46:52 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:31197 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1751624AbWIRNqw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Sep 2006 09:46:52 -0400
+Date: Mon, 18 Sep 2006 15:46:46 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: "Scott E. Preece" <preece@motorola.com>
+Cc: daviado@gmail.com, linux-pm@lists.osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [linux-pm] OpPoint summary
+Message-ID: <20060918134646.GF5370@elf.ucw.cz>
+References: <200609181336.k8IDa7xp025747@olwen.urbana.css.mot.com>
 MIME-Version: 1.0
-To: yogeshwar sonawane <yogyas@gmail.com>
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: How much kernel memory is in 64-bit OS ?
-References: <b681c62b0609160434g6ccbbaa0vd0cd68958696726e@mail.gmail.com> <b681c62b0609180251m79071e59oe212b1133bf6944c@mail.gmail.com>
-In-Reply-To: <b681c62b0609180251m79071e59oe212b1133bf6944c@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200609181336.k8IDa7xp025747@olwen.urbana.css.mot.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-yogeshwar sonawane wrote:
-> On 9/16/06, yogeshwar sonawane <yogyas@gmail.com> wrote:
->> Hi all,
->>
->> We all know that in 32-bit OS, total 4GB memory space is divided in
->> 3(user) + 1(kernel) space.
->>
->> Similarly, what is the division/scenario in case of 64-bit OS ?
->>
->> Any reference/explanation will be helpful.
->>
->> thanks in advance.
->>
->>
->> Yogeshwar
->>
->
-> On similar lines, some time back, i read that, to accomodate large
-> physical memory ,
-> the 3G/1G layout is modified to have 4G/4G partition. But if somebody
-> can focus the light on following things, it will be helpful.
-> 1) what was the requirement of 4G/4G layout ?
-It offers more memory than 3G/1G.  This is an improvement, so of
-course it is the chosen way. It was not required - you sure can use
-a 3G/1G split on a 64-bit processor - but why introduce an artifical
-limitation?
+H!
 
-The requirement for using a 4G/4G split is to have a processor
-that support 64-bit adressing as well as 32-bit backward compatibility.
-> 2) how it is managed ?
-The kernel runs in 64-bit mode, offering the 4G/4G stuff for 32-bit 
-processes.
+> | > +static struct oppoint lowest = {
+> | > +       .name = "lowest",
+> | > +       .type = PM_FREQ_CHANGE,
+> | > +       .frequency = 0,
+> | > +       .voltage = 0,
+> | > +       .latency = 15,
+> | > +       .prepare_transition  = cpufreq_prepare_transition,
+> | > +       .transition = centrino_transition,
+> | > +       .finish_transition = cpufreq_finish_transition,
+> | > +};
+> | 
+> | We had nice, descriptive interface... with numbers. Now you want to
+> | introduce english state names... looks like a step back to me.
+> ---
+> 
+> Well, a single number is fine if you're describing a scalar abstraction,
+> but an operating point is a vector. You can't assume that "399" is three
+> times "133" in performance or energy cost, so its "numberness" is simply
+> misleading.
 
-> 3) how HIGH_MEMORY concept is related here.
-high memory is a quirky way of supporting more than 4G on a 32-bit
-processor.  A 64-bit processor support much more than 4G, so no need
-for tricks that work around the limitations of 32-bit processors.
+"lowest" can simply be mapped to "0", with "low" mapped to "1",
+etc.
 
+I believe, using english names is wrong in this case. If you want to
+provide vectors... well provide the vectors. Is "medium" operating
+point 1GHz on cpu 0 and 2GHz on cpu 1, or is it 1.5 ghz on cpu 0 and
+1.5 ghz on cpu 1?
+								Pavel
 
-Helge Hafting
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

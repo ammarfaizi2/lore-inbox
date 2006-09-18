@@ -1,93 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030249AbWIRW4k@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751969AbWIRXOd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030249AbWIRW4k (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Sep 2006 18:56:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030251AbWIRW4j
+	id S1751969AbWIRXOd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Sep 2006 19:14:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030252AbWIRXOd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Sep 2006 18:56:39 -0400
-Received: from ug-out-1314.google.com ([66.249.92.174]:33980 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1030249AbWIRW4i (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Sep 2006 18:56:38 -0400
+	Mon, 18 Sep 2006 19:14:33 -0400
+Received: from wr-out-0506.google.com ([64.233.184.226]:2720 "EHLO
+	wr-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1751968AbWIRXOc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Sep 2006 19:14:32 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=ruH5rlp8pI6SaM3MK/dOTbEo9UeDhoOebgmH2nCXmwBgiF1yIKy/ShKynU69m/lmBc0sLiskCvgYjDClEuDuyiMHKznAD5km37cQd8eOAuQoKDrpiDnMv5XMuhFJ0ookLTOXE+MhHUQHfarM1EpxKOjy//1w5OtFDXaGGyQ93Qk=
-Message-ID: <e9c3a7c20609181556n235d650eg16e5296f192bd2d5@mail.gmail.com>
-Date: Mon, 18 Sep 2006 15:56:37 -0700
-From: "Dan Williams" <dan.j.williams@gmail.com>
-To: "Olof Johansson" <olof@lixom.net>
-Subject: Re: [PATCH] dmaengine: clean up and abstract function types (was Re: [PATCH 08/19] dmaengine: enable multiple clients and operations)
-Cc: christopher.leech@intel.com, "Jeff Garzik" <jeff@garzik.org>,
-       neilb@suse.de, linux-raid@vger.kernel.org, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20060915144423.500b529d@localhost.localdomain>
+        b=daNizltbQed8tIMz6+mXkd9kXCRMnB0gMphek2PukziGUic8sBfK78lXM2y732TV1aidFRvQh6xVnoLtE7BDhiW6XggU2pnWZt6XTr2FCSO4bGoEQk7WD0r7YpFy7qu9OUVJfs2Hnk3okVed0X0M1yHiBmHt4JdHdKNNCYKMGAI=
+Message-ID: <9a8748490609181614r55178f1djab68eb48bd36f7de@mail.gmail.com>
+Date: Tue, 19 Sep 2006 01:14:31 +0200
+From: "Jesper Juhl" <jesper.juhl@gmail.com>
+To: "Linus Torvalds" <torvalds@osdl.org>
+Subject: Re: Math-emu kills the kernel on Athlon64 X2
+Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
+       billm@melbpc.org.au, billm@suburbia.net
+In-Reply-To: <Pine.LNX.4.64.0609181549200.4388@g5.osdl.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <1158015632.4241.31.camel@dwillia2-linux.ch.intel.com>
-	 <20060911231817.4737.49381.stgit@dwillia2-linux.ch.intel.com>
-	 <4505F4D0.7010901@garzik.org>
-	 <20060915113817.6154aa67@localhost.localdomain>
-	 <20060915144423.500b529d@localhost.localdomain>
+References: <9a8748490609181518j2d12e4f0l2c55e755e40d38c2@mail.gmail.com>
+	 <Pine.LNX.4.64.0609181549200.4388@g5.osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 9/15/06, Olof Johansson <olof@lixom.net> wrote:
-> On Fri, 15 Sep 2006 11:38:17 -0500 Olof Johansson <olof@lixom.net> wrote:
+On 19/09/06, Linus Torvalds <torvalds@osdl.org> wrote:
 >
-> > On Mon, 11 Sep 2006 19:44:16 -0400 Jeff Garzik <jeff@garzik.org> wrote:
 >
-> > > Are we really going to add a set of hooks for each DMA engine whizbang
-> > > feature?
-> > >
-> > > That will get ugly when DMA engines support memcpy, xor, crc32, sha1,
-> > > aes, and a dozen other transforms.
+> On Tue, 19 Sep 2006, Jesper Juhl wrote:
 > >
-> >
-> > Yes, it will be unmaintainable. We need some sort of multiplexing with
-> > per-function registrations.
-> >
-> > Here's a first cut at it, just very quick. It could be improved further
-> > but it shows that we could exorcise most of the hardcoded things pretty
-> > easily.
+> > If I enable the math emulator in 2.6.18-rc7-git2 (only version I've
+> > tried this with) and then boot the kernel with "no387" then I only get
+> > as far as lilo's "...Booting the kernel." message and then the system
+> > hangs.
 >
-> Ok, that was obviously a naive and not so nice first attempt, but I
-> figured it was worth it to show how it can be done.
+> I'm wondering if it tries to use the MMX/XMM stuff for memcpy and friends.
 >
-> This is a little more proper: Specify at client registration time what
-> the function the client will use is, and make the channel use it. This
-> way most of the error checking per call can be removed too.
+> I'm also wondering why you'd be doing what you seem to try to be doing in
+> the first place ;)
 >
-> Chris/Dan: Please consider picking this up as a base for the added
-> functionality and cleanups.
->
-Thanks for this Olof it has sparked some ideas about how to redo
-support for multiple operations.
+Simply to try and find bugs. If we have a math emulator and it's
+selectable for my CPU type, then it should damn well work ;-)
 
+> Basically, "no387" doesn't seem to disable any of the fancier FPU
+> features, even though it obviously should. If you ask for math emulation,
+> you'll get emulation faults for _all_ of the modern MMX stuff too (which
+> we don't do).
 >
->
->
->
-> Clean up dmaengine a bit. Make the client registration specify which
-> channel functions ("type") the client will use. Also, make devices
-> register which functions they will provide.
->
-> Also exorcise most of the memcpy-specific references from the generic
-> dma engine code. There's still some left in the iov stuff.
-I think we should keep the operation type in the function name but
-drop all the [buf|pg|dma]_to_[buf|pg|dma] permutations.  The buffer
-type can be handled generically across all operation types.  Something
-like the following for a pg_to_buf memcpy.
+Hmm, I guess that could be the problem. The emulator should disable
+any stuff which it's not able to handle. I've not actually looked very
+much at the emulator code yet, so I didn't realize it didn't disable
+what it couldn't handle, but getting it to do that sounds like a
+sensible first step.
 
-struct dma_async_op_memcpy *op;
-struct page *pg;
-void *buf;
-size_t len;
+> It's entirely possible that nobody has ever tested this combination.
+>
+That was my thought as well, which is exactely why I chose to try it -
+thinking that it might expose some bugs in math-emu or elsewhere.
 
-dma_async_op_init_src_pg(op, pg);
-dma_async_op_init_dest_buf(op, buf);
-dma_async_memcpy(chan, op, len);
 
--Dan
+-- 
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

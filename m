@@ -1,61 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751629AbWIRNqw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751653AbWIRNsH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751629AbWIRNqw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Sep 2006 09:46:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751640AbWIRNqw
+	id S1751653AbWIRNsH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Sep 2006 09:48:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751660AbWIRNsH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Sep 2006 09:46:52 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:31197 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1751624AbWIRNqw (ORCPT
+	Mon, 18 Sep 2006 09:48:07 -0400
+Received: from nat-132.atmel.no ([80.232.32.132]:33990 "EHLO relay.atmel.no")
+	by vger.kernel.org with ESMTP id S1751653AbWIRNsG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Sep 2006 09:46:52 -0400
-Date: Mon, 18 Sep 2006 15:46:46 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: "Scott E. Preece" <preece@motorola.com>
-Cc: daviado@gmail.com, linux-pm@lists.osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [linux-pm] OpPoint summary
-Message-ID: <20060918134646.GF5370@elf.ucw.cz>
-References: <200609181336.k8IDa7xp025747@olwen.urbana.css.mot.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200609181336.k8IDa7xp025747@olwen.urbana.css.mot.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+	Mon, 18 Sep 2006 09:48:06 -0400
+Date: Mon, 18 Sep 2006 15:49:50 +0200
+From: Haavard Skinnemoen <hskinnemoen@atmel.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [-mm patch] AVR32: Fix __const_udelay overflow bug
+Message-ID: <20060918154950.5ee9509e@cad-250-152.norway.atmel.com>
+Organization: Atmel Norway
+X-Mailer: Sylpheed-Claws 2.5.0-rc2 (GTK+ 2.8.20; i486-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-H!
+During testing it was discovered that mdelay() didn't provide as long
+delay as it should. The reason is that __const_udelay() should have
+stored the result of (loops_per_jiffy * HZ * xloops) in a 64-bit
+register pair but didn't.
 
-> | > +static struct oppoint lowest = {
-> | > +       .name = "lowest",
-> | > +       .type = PM_FREQ_CHANGE,
-> | > +       .frequency = 0,
-> | > +       .voltage = 0,
-> | > +       .latency = 15,
-> | > +       .prepare_transition  = cpufreq_prepare_transition,
-> | > +       .transition = centrino_transition,
-> | > +       .finish_transition = cpufreq_finish_transition,
-> | > +};
-> | 
-> | We had nice, descriptive interface... with numbers. Now you want to
-> | introduce english state names... looks like a step back to me.
-> ---
-> 
-> Well, a single number is fine if you're describing a scalar abstraction,
-> but an operating point is a vector. You can't assume that "399" is three
-> times "133" in performance or energy cost, so its "numberness" is simply
-> misleading.
+Fix the problem by doing a 32 x 32 => 64 bit multiplication in inline
+assembly. This could probably have been solved by some casting, but IMO
+the inline asm makes the intention more clear. As an added bonus, the
+new code looks more like the i386 code.
 
-"lowest" can simply be mapped to "0", with "low" mapped to "1",
-etc.
+Signed-off-by: Haavard Skinnemoen <hskinnemoen@atmel.com>
+---
+ arch/avr32/lib/delay.c |    4 +++-
+ 1 file changed, 3 insertions(+), 1 deletion(-)
 
-I believe, using english names is wrong in this case. If you want to
-provide vectors... well provide the vectors. Is "medium" operating
-point 1GHz on cpu 0 and 2GHz on cpu 1, or is it 1.5 ghz on cpu 0 and
-1.5 ghz on cpu 1?
-								Pavel
-
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+Index: linux-2.6.18-avr32/arch/avr32/lib/delay.c
+===================================================================
+--- linux-2.6.18-avr32.orig/arch/avr32/lib/delay.c	2006-09-15 10:27:02.000000000 +0200
++++ linux-2.6.18-avr32/arch/avr32/lib/delay.c	2006-09-15 10:33:08.000000000 +0200
+@@ -37,7 +37,9 @@ inline void __const_udelay(unsigned long
+ {
+ 	unsigned long long loops;
+ 
+-	loops = (current_cpu_data.loops_per_jiffy * HZ) * xloops;
++	asm("mulu.d %0, %1, %2"
++	    : "=r"(loops)
++	    : "r"(current_cpu_data.loops_per_jiffy * HZ), "r"(xloops));
+ 	__delay(loops >> 32);
+ }
+ 

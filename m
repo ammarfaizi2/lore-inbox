@@ -1,55 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964998AbWIRMEY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964991AbWIRMHV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964998AbWIRMEY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Sep 2006 08:04:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964997AbWIRMEY
+	id S964991AbWIRMHV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Sep 2006 08:07:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964997AbWIRMHU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Sep 2006 08:04:24 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:26025 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S964992AbWIRMEX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Sep 2006 08:04:23 -0400
-Date: Mon, 18 Sep 2006 14:04:24 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Joshua Brindle <method@gentoo.org>
-Cc: David Madore <david.madore@ens.fr>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel mailing-list <linux-kernel@vger.kernel.org>,
-       LSM mailing-list <linux-security-module@vger.kernel.org>
-Subject: Re: [PATCH 3/4] security: capabilities patch (version 0.4.4), part 3/4: introduce new capabilities
-Message-ID: <20060918120424.GA5370@elf.ucw.cz>
-References: <20060910133759.GA12086@clipper.ens.fr> <20060910134257.GC12086@clipper.ens.fr> <1157905393.23085.5.camel@localhost.localdomain> <450451DB.5040104@gentoo.org> <20060917181422.GC2225@elf.ucw.cz> <450DB274.1010404@gentoo.org> <20060917211602.GA6215@clipper.ens.fr> <1158579966.8680.24.camel@twoface.columbia.tresys.com>
+	Mon, 18 Sep 2006 08:07:20 -0400
+Received: from nf-out-0910.google.com ([64.233.182.191]:1846 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S964991AbWIRMHT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Sep 2006 08:07:19 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
+        b=JQP7Ke8u5bsXDuMSxk6ZXQE2xD7/ydVk+sozqKHIPPrg/Xy5CJ6N/3n81iLFa+4hCBREdZacng6dVdtRLanG7C5eKKHvT1DGUDQoEMRGN1RIm2SYbwPInejGO64oWMf9vqrNtnGOccyZ8NvLR1LfcRlKXEDQcXCGUScqaBpMZm8=
+Message-ID: <84144f020609180507s540c9d74o5b433b514097267a@mail.gmail.com>
+Date: Mon, 18 Sep 2006 15:07:17 +0300
+From: "Pekka Enberg" <penberg@cs.helsinki.fi>
+To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
+Subject: Re: kmalloc to kzalloc patches for drivers/atm
+Cc: "Om Narasimhan" <om.turyx@gmail.com>, linux-kernel@vger.kernel.org,
+       kernel-janitors@lists.osdl.org, linux-atm-general@lists.sourceforge.net
+In-Reply-To: <1158572567.6069.87.camel@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1158579966.8680.24.camel@twoface.columbia.tresys.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+References: <6b4e42d10609171753i63697c8et3e6e1c5706b60d5f@mail.gmail.com>
+	 <1158572567.6069.87.camel@localhost.localdomain>
+X-Google-Sender-Auth: e3fcf6632af20034
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On 9/18/06, Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+> NAK - again changes some that don't need to clear the memory they
+> allocate
 
-> > > The benefits of this are so minuscule and the cost is so high if you are 
-> > > ever to use it that it simply won't happen..
-> > 
-> > I'm withdrawing that patch anyway, in favor of a LSM-style approach,
-> > the "cuppabilities" module (cf. the patch I posted a couple of hours
-> > ago with that word in the title, and I'll be posting a new version in
-> > a day or so, or cf. <URL:
-> > http://www.madore.org/~david/linux/cuppabilities/
-> >  >).  In this case, the relative cost will be lower since the
-> > security_ops->inode_permission() hook is called no matter what.
-> > 
-> 
-> You misunderstand. I don't mean the performance cost is high, I mean the
-> cost of an application to actually be able to run without open() (what I
-> was saying before, static built, no glibc, no conf files, no name
-> lookups, etc). I never see this being used in the real world because of
-> the extreme limitations.
-
-It is already being used. See config_seccomp.
-								Pavel
-
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+Yeah, and you really should drop the redundant casts while you're there...

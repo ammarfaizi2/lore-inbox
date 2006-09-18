@@ -1,98 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965210AbWIRBWa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965218AbWIRBiU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965210AbWIRBWa (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Sep 2006 21:22:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965211AbWIRBWa
+	id S965218AbWIRBiU (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Sep 2006 21:38:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965214AbWIRBiU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Sep 2006 21:22:30 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:48797 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S965210AbWIRBW3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Sep 2006 21:22:29 -0400
-Date: Mon, 18 Sep 2006 03:13:52 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Karim Yaghmour <karim@opersys.com>
-Cc: Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
-       Paul Mundt <lethal@linux-sh.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Ingo Molnar <mingo@redhat.com>, Jes Sorensen <jes@sgi.com>,
-       Andrew Morton <akpm@osdl.org>, Roman Zippel <zippel@linux-m68k.org>,
-       Tom Zanussi <zanussi@us.ibm.com>,
-       Richard J Moore <richardj_moore@uk.ibm.com>,
-       "Frank Ch. Eigler" <fche@redhat.com>,
-       Michel Dagenais <michel.dagenais@polymtl.ca>,
-       Christoph Hellwig <hch@infradead.org>,
-       Greg Kroah-Hartman <gregkh@suse.de>,
-       Thomas Gleixner <tglx@linutronix.de>, William Cohen <wcohen@redhat.com>,
-       "Martin J. Bligh" <mbligh@mbligh.org>
-Subject: Re: tracepoint maintainance models
-Message-ID: <20060918011352.GB30835@elte.hu>
-References: <450D182B.9060300@opersys.com> <20060917112128.GA3170@localhost.usen.ad.jp> <20060917143623.GB15534@elte.hu> <20060917153633.GA29987@Krystal> <20060918000703.GA22752@elte.hu> <450DF28E.3050101@opersys.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <450DF28E.3050101@opersys.com>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -2.9
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.9 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5000]
-	-0.1 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Sun, 17 Sep 2006 21:38:20 -0400
+Received: from moutng.kundenserver.de ([212.227.126.177]:13787 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S965212AbWIRBiS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Sep 2006 21:38:18 -0400
+Message-Id: <20060918013216.335200000@klappe.arndb.de>
+References: <20060918012740.407846000@klappe.arndb.de>
+In-Reply-To: <1158079495.9189.125.camel@hades.cambridge.redhat.com>
+Date: Mon, 18 Sep 2006 03:27:41 +0200
+From: Arnd Bergmann <arnd@arndb.de>
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: [patch 1/8] extend make headers_check to detect more problems
+Content-Disposition: inline; filename=headercheck-base.diff
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:c48f057754fc1b1a557605ab9fa6da41
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+In addition to the problem of including non-existant header
+files, a number of other things can go wrong with header
+files exported to user space. This adds checks for some
+common problems:
 
-* Karim Yaghmour <karim@opersys.com> wrote:
+- The header fails to include the files it needs, which
+  results in build errors when a program tries to include
+  it. Check this by doing a dummy compile.
 
-> Ingo Molnar wrote:
-> > yeah. If you look at the API suggestions i made, they are such. There 
-> > can be differences though to 'static tracepoints used by static 
-> > tracers': for example there's no need to 'mark' a static variable, 
-> > because dynamic tracers have access to it - while a static tracer would 
-> > have to pass it into its trace-event function call.
-> 
-> That has been your own personal experience of such things. Fortunately 
-> by now you've provided to casual readers ample proof that such 
-> experience is but limited and therefore misleading. The fact of the 
-> matter is that *mechanisms* do not "magically" know what detail is 
-> necessary for a given event or how to interpret it: only *markup* does 
-> that.
+- There is a declarations of a static variable or non-inline
+  function in the header, which results in object code
+  in every file including it. Check for symbols in the object
+  with 'nm'.
 
-Karim, i dont usually reply if you insult me (and you've grown a habit 
-of that lately ), but this one is almost parodic. To understand my 
-point, please consider this simple example of a static in-source markup, 
-to be used by a dynamic tracer:
+- Part of the header is subject to conditional compilation
+  based on CONFIG_*. Add a regex search for this.
 
-  static int x;
+I found many problems with this, which I then fixed for
+powerpc, s390 and i386, in subsequent patches.
 
-  void func(int a)
-  {
-       ...
-       MARK(event, a);
-       ...
-  }
+Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Index: linux-cg/scripts/hdrcheck.sh
+===================================================================
+--- linux-cg.orig/scripts/hdrcheck.sh	2006-09-18 02:04:44.000000000 +0200
++++ linux-cg/scripts/hdrcheck.sh	2006-09-18 02:04:45.000000000 +0200
+@@ -1,8 +1,28 @@
+ #!/bin/sh
+ 
++# check if all included files exist
+ for FILE in `grep '^[ \t]*#[ \t]*include[ \t]*<' $2 | cut -f2 -d\< | cut -f1 -d\> | egrep ^linux\|^asm` ; do
+     if [ ! -r $1/$FILE ]; then
+ 	echo $2 requires $FILE, which does not exist in exported headers
+ 	exit 1
+     fi
+ done
++
++# try to compile in order to see CC warnings, show only the first few
++CHECK_CFLAGS=`grep @headercheck: $2 | sed -e 's/^.*@headercheck:\([^@]*\)@.*$/\1/'`
++CFLAGS="-Wall -std=gnu99 -xc -O2 -I$1 ${CHECK_CFLAGS}"
++tmpfile=`mktemp`
++${CC:-gcc} ${CFLAGS} -c $2 -o $tmpfile 2>&1 | sed -e "s:$1:include:g" >&2
++
++# check if object file is empty
++if [ "`nm $tmpfile`" ] ; then
++    echo include${2#$1}: warning: non-empty output >&2
++fi
++rm $tmpfile
++
++# check if we use a CONFIG_ symbol, which is not allowed in installed headers
++grep '^[ \t]*#[ \t]*if.*\<CONFIG_[[:alnum:]_]*\>' -n $2 |
++while read i ; do
++    echo include${2#$1}:${i%%:*}: warning: invalid use of `echo $i |
++	sed -e 's/.*\(\<CONFIG_[[:alnum:]_]*\>\).*/\1/g'` >&2
++done
 
-if a dynamic tracer installs a probe into that MARK() spot, it will have 
-access to 'a', but it can also have access to 'x'. While a static 
-in-source markup for _static tracers_, if it also wanted to have the 'x' 
-information, would also have to add 'x' as a parameter:
+--
 
-	MARK(event, a, x);
-
-thus for example value of the variable 'x' would be passed to the 
-function that does the static tracing. For dynamic tracers no such 
-'parameter preparation' instructions would need to be generated by gcc. 
-(thus for example the runtime overhead would be lower for inactive 
-tracepoints)
-
-hence, in this specific example, there is a real difference between the 
-markup needed for dynamic tracers, compared to the markup needed for 
-static tracers - to achieve the same end-result of passing (event,a,x) 
-to the tracer.
-
-	Ingo

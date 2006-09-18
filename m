@@ -1,56 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965314AbWIRCZ1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965313AbWIRCYm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965314AbWIRCZ1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Sep 2006 22:25:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965315AbWIRCZ1
+	id S965313AbWIRCYm (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Sep 2006 22:24:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965314AbWIRCYm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Sep 2006 22:25:27 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:51598 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S965314AbWIRCZ0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Sep 2006 22:25:26 -0400
-Date: Sun, 17 Sep 2006 19:24:31 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Jesse Barnes <jbarnes@virtuousgeek.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       "David S. Miller" <davem@davemloft.net>,
-       Jeff Garzik <jgarzik@pobox.com>, Paul Mackerras <paulus@samba.org>,
-       "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: Re: [RFC] MMIO accessors & barriers documentation #2
-In-Reply-To: <1158534913.14473.276.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.64.0609171919030.4388@g5.osdl.org>
-References: <1158534913.14473.276.camel@localhost.localdomain>
+	Sun, 17 Sep 2006 22:24:42 -0400
+Received: from ug-out-1314.google.com ([66.249.92.172]:59592 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S965313AbWIRCYl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Sep 2006 22:24:41 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=rznmOY0haASjcmr2wg1JpTOiItsoVoq1w90nGarhTr2ef5ybmVtYTCUL/PZFs/9Db9/3kOE10E+UpX4S0j6p0eRs7K48/kHdTaXvPKTY8K9kxyWiOnoxYSDBqZkYuAzG8lDRTXtaf6ywBoGT2Vop+1eauOHvfUZAcCpDsl4i2jc=
+Message-ID: <6b4e42d10609171924v1bb5d238l597fae8a21641a4d@mail.gmail.com>
+Date: Sun, 17 Sep 2006 19:24:39 -0700
+From: "Om Narasimhan" <om.turyx@gmail.com>
+To: "Dmitry Torokhov" <dtor@insightbb.com>
+Subject: Re: bluetooth drivers : kmalloc to kzalloc conversion
+Cc: linux-kernel@vger.kernel.org, kernel-janitors@lists.osdl.org,
+       bluez-devel@lists.sourceforge.net
+In-Reply-To: <200609172121.36247.dtor@insightbb.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <6b4e42d10609171754q7c7335f9pfab703d6b746236b@mail.gmail.com>
+	 <200609172121.36247.dtor@insightbb.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 9/17/06, Dmitry Torokhov <dtor@insightbb.com> wrote:
+> On Sunday 17 September 2006 20:54, Om Narasimhan wrote:
+> > --- a/drivers/bluetooth/hci_usb.c
+> > +++ b/drivers/bluetooth/hci_usb.c
+> > @@ -147,10 +147,9 @@ static struct usb_device_id blacklist_id
+> >
+> > static struct _urb *_urb_alloc(int isoc, gfp_t gfp)
+> > {
+> > -struct _urb *_urb = kmalloc(sizeof(struct _urb) +
+> > +struct _urb *_urb = kzalloc(sizeof(struct _urb) +
+> > sizeof(struct usb_iso_packet_descriptor) * isoc, gfp);
+> > if (_urb) {
+> > -memset(_urb, 0, sizeof(*_urb));
+> > usb_init_urb(&_urb->urb);
+> > }
+> > return _urb;
+> >
+>
+> Note that only beginning if the aloocated memory was zeroed in original
+> code; your patch may introduce slowdowns.
+Would it? I thought memset() uses block move operation which doesn't
+scale linearly.
+And, usb_init_urb() calls memset() anyway, so the previously existed
+memset() was superfluous.
 
-
-On Mon, 18 Sep 2006, Benjamin Herrenschmidt wrote:
-> 
-> Class 1: Ordered accessors
-> --------------------------
-> 
->  1- {read,write}{b,w,l,q} : MMIO accessors. Those accessors provide
-> all MMIO ordering requirements. They are thus called "fully ordered".
-> That is #1, #2 and #4 for writes and #1 and #3 for reads. 
-
-Well, it's already not defined to be #4 right now on SGI boxes, and we 
-have that (badly named) mmiowb() thing to enforce #4, so I think we should 
-just accept that write[bwl]() it's _that_ ordered.
-
-And on x86, we _already_ depend on "wmb()" to be a "normal write to MMIO 
-write" barrier, which is technically wrong and bad. Again, thanks to 
-mmiowb(), normal memory accesses and MMIO accesses have already been 
-defined to not be in the same "ordering domain", so "wmb()" is technically 
-wrong and may not order a regular write wrt a MMIO (because it doesn't do 
-so for the other order: MMIO->spin_unlock).
-
-So I think we should just admit that at least MMIO _stores_ are already 
-not entirely ordered, and not try to strengthen the rules for the current 
-setup (and just try to clarify the currently accepted semantics).
-
-		Linus
+Thanks for the comment.
+Regards,
+Om.

@@ -1,60 +1,114 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965466AbWIRGY0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965450AbWIRGc7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965466AbWIRGY0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Sep 2006 02:24:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965467AbWIRGY0
+	id S965450AbWIRGc7 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Sep 2006 02:32:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965474AbWIRGc7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Sep 2006 02:24:26 -0400
-Received: from ogre.sisk.pl ([217.79.144.158]:59525 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S965466AbWIRGYZ (ORCPT
+	Mon, 18 Sep 2006 02:32:59 -0400
+Received: from mail.gmx.net ([213.165.64.20]:47754 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S965450AbWIRGc6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Sep 2006 02:24:25 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
+	Mon, 18 Sep 2006 02:32:58 -0400
+X-Authenticated: #14349625
+Subject: Re: Sysenter crash with Nested Task Bit set
+From: Mike Galbraith <efault@gmx.de>
 To: Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.18-rc6-mm2 (-mm1): ohci_hcd does not recognize new devices
-Date: Mon, 18 Sep 2006 08:27:50 +0200
-User-Agent: KMail/1.9.1
-Cc: David Brownell <david-b@pacbell.net>, LKML <linux-kernel@vger.kernel.org>,
-       USB development list <linux-usb-devel@lists.sourceforge.net>,
-       Greg KH <greg@kroah.com>, Alan Stern <stern@rowland.harvard.edu>
-References: <200609160013.16014.rjw@sisk.pl> <200609161013.45800.rjw@sisk.pl>
-In-Reply-To: <200609161013.45800.rjw@sisk.pl>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
+Cc: Chuck Ebbert <76306.1226@compuserve.com>,
+       In Cognito <defend.the.world@gmail.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>
+In-Reply-To: <20060917222537.55241d19.akpm@osdl.org>
+References: <200609172354_MC3-1-CB7A-58ED@compuserve.com>
+	 <20060917222537.55241d19.akpm@osdl.org>
+Content-Type: text/plain
+Date: Mon, 18 Sep 2006 08:44:27 +0000
+Message-Id: <1158569067.6376.8.camel@Homer.simpson.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.0 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200609180827.53626.rjw@sisk.pl>
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday, 16 September 2006 10:13, Rafael J. Wysocki wrote:
-> On Saturday, 16 September 2006 00:13, Rafael J. Wysocki wrote:
->
-> > It looks like the ohci_hcd driver sometimes has problems with the
-> > initialization (eg. USB mouse doesn't work after a fresh boot and reloading
-> > of the driver helps).
+On Sun, 2006-09-17 at 22:25 -0700, Andrew Morton wrote:
+> On Sun, 17 Sep 2006 23:51:45 -0400
+> Chuck Ebbert <76306.1226@compuserve.com> wrote:
+> 
+> > In-Reply-To: <5a20704e0609171608o7ee45fdbxb94aa897c1776153@mail.gmail.com>
 > > 
-> > I have observed this on two different x86_64 boxes (HPC 6325, Asus L5D),
-> > but it is not readily reproducible.  Anyway I've got a dmesg output from a
-> > failing case which is attached.
+> > On Sun, 17 Sep 2006 19:08:24 -0400, "In Cognito" wrote:
+> > 
+> > > Here's a way to heat up your cpu and crash the rest of the system too:
+> > >
+> > > main(){
+> > > asm("pushf\n"
+> > >         "popl %eax\n"
+> > > /* enable the NT bit */
+> > >         "orl $0x4000, %eax\n"
+> > >         "pushl %eax\n"
+> > >         "popf\n"
+> > >
+> > >         "sysenter\n"
+> > >        );
+> > > return 0;
+> > > }
+> > 
+> > I'll take your word that it crashes.
 > 
-> Actually, the problem is ohci_hcd doesn't seem to recognize devices plugged
-> into the USB ports.
+> It doesn't for me - I get a segfault.
 > 
-> For example, if I unplug and replug a mouse (that worked before unplugging),
-> it doesn't work any more.  I have to reload ohci_hcd to make it work again.
+> That's on a PIII.  Are recenter CPUs different in this regard?
+
+I guess so.  That proglet does very bad things to my P4/HT.  I too get a
+segfault, but then init goes insane and may reap the proglet's parent
+shell, but then again, it may decide to reap the shell next door.
+Thereafter, init is running/gaga.  (18-rc7)
+
+Chuck's patch did indeed make it stop doing that.
+
+> > 2.6.9 is fine.  I'd guess the iret fixups from 2.6.12 are the problem.
+> > 
+> > This doesn't crash for me, but it's probably not quite the right fix:
+> > 
+> > Signed-off-by: Chuck Ebbert <76306.1226@compuserve.com>
+> > ---
+> >  arch/i386/kernel/traps.c |   12 +++++++++++-
+> >  1 files changed, 11 insertions(+), 1 deletion(-)
+> > 
+> > --- 2.6.18-rc6-nb.orig/arch/i386/kernel/traps.c
+> > +++ 2.6.18-rc6-nb/arch/i386/kernel/traps.c
+> > @@ -516,6 +516,16 @@ fastcall void do_##name(struct pt_regs *
+> >  	do_trap(trapnr, signr, str, 0, regs, error_code, NULL); \
+> >  }
+> >  
+> > +#define DO_TSS_ERROR(trapnr, signr, str, name) \
+> > +fastcall void do_##name(struct pt_regs * regs, long error_code) \
+> > +{ \
+> > +	if (notify_die(DIE_TRAP, str, regs, error_code, trapnr, signr) \
+> > +						== NOTIFY_STOP) \
+> > +		return; \
+> > +	regs->eflags &= ~X86_EFLAGS_NT; \
+> > +	do_trap(trapnr, signr, str, 0, regs, error_code, NULL); \
+> > +}
+> > +
+> >  #define DO_ERROR_INFO(trapnr, signr, str, name, sicode, siaddr) \
+> >  fastcall void do_##name(struct pt_regs * regs, long error_code) \
+> >  { \
+> > @@ -561,7 +571,7 @@ DO_VM86_ERROR( 4, SIGSEGV, "overflow", o
+> >  DO_VM86_ERROR( 5, SIGSEGV, "bounds", bounds)
+> >  DO_ERROR_INFO( 6, SIGILL,  "invalid opcode", invalid_op, ILL_ILLOPN, regs->eip)
+> >  DO_ERROR( 9, SIGFPE,  "coprocessor segment overrun", coprocessor_segment_overrun)
+> > -DO_ERROR(10, SIGSEGV, "invalid TSS", invalid_TSS)
+> > +DO_TSS_ERROR(10, SIGSEGV, "invalid TSS", invalid_TSS)
+> >  DO_ERROR(11, SIGBUS,  "segment not present", segment_not_present)
+> >  DO_ERROR(12, SIGBUS,  "stack segment", stack_segment)
+> >  DO_ERROR_INFO(17, SIGBUS, "alignment check", alignment_check, BUS_ADRALN, 0)
+> > -- 
+> > Chuck
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 > 
-> This is 100% reproducible and occurs on the two boxes above.
 
-I have carried out a binary search and found that the problem is caused by
-
-gregkh-usb-usbcore-remove-usb_suspend_root_hub.patch
-
-Greetings,
-Rafael
-
-
--- 
-You never change things by fighting the existing reality.
-		R. Buckminster Fuller

@@ -1,75 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932173AbWIVQTI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932396AbWIVQXW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932173AbWIVQTI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Sep 2006 12:19:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932295AbWIVQTI
+	id S932396AbWIVQXW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Sep 2006 12:23:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932400AbWIVQXW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Sep 2006 12:19:08 -0400
-Received: from tomts16-srv.bellnexxia.net ([209.226.175.4]:49655 "EHLO
-	tomts16-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id S932173AbWIVQTG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Sep 2006 12:19:06 -0400
-Date: Fri, 22 Sep 2006 12:13:53 -0400
-From: Mathieu Desnoyers <compudj@krystal.dyndns.org>
-To: Karim Yaghmour <karim@opersys.com>
-Cc: Ingo Molnar <mingo@elte.hu>, Martin Bligh <mbligh@google.com>,
-       "Frank Ch. Eigler" <fche@redhat.com>,
-       Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>, prasanna@in.ibm.com,
-       Andrew Morton <akpm@osdl.org>, Paul Mundt <lethal@linux-sh.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>, Jes Sorensen <jes@sgi.com>,
-       Tom Zanussi <zanussi@us.ibm.com>,
-       Richard J Moore <richardj_moore@uk.ibm.com>,
-       Michel Dagenais <michel.dagenais@polymtl.ca>,
-       Christoph Hellwig <hch@infradead.org>,
-       Greg Kroah-Hartman <gregkh@suse.de>,
-       Thomas Gleixner <tglx@linutronix.de>, William Cohen <wcohen@redhat.com>,
-       ltt-dev@shafik.org, systemtap@sources.redhat.com,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCH] Linux Kernel Markers 0.5 for Linux 2.6.17 (with probe management)
-Message-ID: <20060922161353.GA1569@Krystal>
-References: <20060921160009.GA30115@Krystal> <20060921160656.GA24774@elte.hu> <20060921214248.GA10097@Krystal> <20060922070714.GB4167@elte.hu> <20060922150810.GB20839@Krystal> <45140E33.9030509@opersys.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 22 Sep 2006 12:23:22 -0400
+Received: from smtp131.iad.emailsrvr.com ([207.97.245.131]:14814 "EHLO
+	smtp131.iad.emailsrvr.com") by vger.kernel.org with ESMTP
+	id S932396AbWIVQXV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Sep 2006 12:23:21 -0400
+Message-ID: <450E4C25.9030206@gentoo.org>
+Date: Mon, 18 Sep 2006 03:35:01 -0400
+From: Daniel Drake <dsd@gentoo.org>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060917)
+MIME-Version: 1.0
+To: Tom St Denis <tomstdenis@gmail.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: sky2 eth device with Gigabyte 965P-S3 motherboard
+References: <bd0cb7950609200635qae3e0c6p3f7d776d33b50542@mail.gmail.com>	 <4513D362.8030804@gentoo.org> <bd0cb7950609220629i191683bq7b21fca3e04fafb1@mail.gmail.com>
+In-Reply-To: <bd0cb7950609220629i191683bq7b21fca3e04fafb1@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-In-Reply-To: <45140E33.9030509@opersys.com>
-X-Editor: vi
-X-Info: http://krystal.dyndns.org:8080
-X-Operating-System: Linux/2.4.32-grsec (i686)
-X-Uptime: 12:05:31 up 30 days, 13:14,  4 users,  load average: 0.60, 0.44, 0.27
-User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Karim Yaghmour (karim@opersys.com) wrote:
-> So if your proposal is to amend the markup to use the short-jmp+nops
-> at every marker site instead of my earlier suggestion for the bprobes
-> thing, I'm all with you.
-> 
+Tom St Denis wrote:
+> This won't be fixed as part of 2.6.18.x? 
 
-First of all, I think that specific architecture-specific optimisations can and
-should be integrated in a more generic portable framework.
+Probably not.
 
-Hrm, your comment makes me think of an interesting idea :
+> So why is it detected and
+> working there but not in 2.6.18?
 
-.align
-jump_address:
-  near jump to end
-setup_stack_address:
-  setup stack
-  call empty function
-end:
+It wasn't detected under 2.6.17. Either your kernel is modified, or you 
+were using the vendor sk98lin driver or something like that. If you have 
+2.6.17 still bootable you could boot it and check the dmesg output to 
+make sense of things.
 
-So, instead of putting nops in the target area, we fill it with a useful
-function call. Near jump being 2 bytes, it might be much easier to modify.
-If necessary, making sure the instruction is aligned would help to change it
-atomically. If we mark the jump address, the setup stack address and the end
-tag address with symbols, we can easily calculate (portably) the offset of the
-near jump to activate either the setup_stack_address or end tags.
-
-Mathieu
-
-
-
-OpenPGP public key:              http://krystal.dyndns.org:8080/key/compudj.gpg
-Key fingerprint:     8CD5 52C3 8E3C 4140 715F  BA06 3F25 A8FE 3BAE 9A68 
+Daniel

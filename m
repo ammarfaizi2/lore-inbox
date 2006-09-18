@@ -1,59 +1,143 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965554AbWIRIO0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965555AbWIRIOt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965554AbWIRIO0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Sep 2006 04:14:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965555AbWIRIO0
+	id S965555AbWIRIOt (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Sep 2006 04:14:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965556AbWIRIOt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Sep 2006 04:14:26 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:60869 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S965554AbWIRIOZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Sep 2006 04:14:25 -0400
-Subject: Re: [-mm patch 2/3] AVR32 MTD: Unlock flash if necessary (try 2)
-From: David Woodhouse <dwmw2@infradead.org>
-To: Haavard Skinnemoen <hskinnemoen@atmel.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-mtd@lists.infradead.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20060918101224.12508491@cad-250-152.norway.atmel.com>
-References: <20060915163102.73bf171d@cad-250-152.norway.atmel.com>
-	 <20060915163554.4f326bf6@cad-250-152.norway.atmel.com>
-	 <20060915163711.10d19763@cad-250-152.norway.atmel.com>
-	 <1158334346.24527.94.camel@pmac.infradead.org>
-	 <20060918101224.12508491@cad-250-152.norway.atmel.com>
-Content-Type: text/plain
-Date: Mon, 18 Sep 2006 09:14:20 +0100
-Message-Id: <1158567260.24527.313.camel@pmac.infradead.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5.dwmw2.1) 
+	Mon, 18 Sep 2006 04:14:49 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:39096 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S965555AbWIRIOs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Sep 2006 04:14:48 -0400
+Message-ID: <450E5540.4080205@sgi.com>
+Date: Mon, 18 Sep 2006 10:13:52 +0200
+From: Jes Sorensen <jes@sgi.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060527)
+MIME-Version: 1.0
+To: karim@opersys.com
+Cc: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
+       tglx@linutronix.de, Paul Mundt <lethal@linux-sh.org>,
+       Roman Zippel <zippel@linux-m68k.org>,
+       Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
+       linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
+       Ingo Molnar <mingo@redhat.com>, Greg Kroah-Hartman <gregkh@suse.de>,
+       Tom Zanussi <zanussi@us.ibm.com>, ltt-dev@shafik.org,
+       Michel Dagenais <michel.dagenais@polymtl.ca>
+Subject: Re: [PATCH 0/11] LTTng-core (basic tracing infrastructure) 0.5.108
+References: <20060915132052.GA7843@localhost.usen.ad.jp>	<Pine.LNX.4.64.0609151535030.6761@scrub.home>	<20060915135709.GB8723@localhost.usen.ad.jp>	<450AB5F9.8040501@opersys.com>	<450AB506.30802@sgi.com>	<450AB957.2050206@opersys.com>	<20060915142836.GA9288@localhost.usen.ad.jp>	<450ABE08.2060107@opersys.com>	<1158332447.5724.423.camel@localhost.localdomain>	<20060915111644.c857b2cf.akpm@osdl.org>	<20060915181907.GB17581@elte.hu> <20060915131317.aaadf568.akpm@osdl.org> <450BCF97.3000901@sgi.com> <450C20C7.30604@opersys.com>
+In-Reply-To: <450C20C7.30604@opersys.com>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-09-18 at 10:12 +0200, Haavard Skinnemoen wrote:
-> On Fri, 15 Sep 2006 16:32:26 +0100
-> David Woodhouse <dwmw2@infradead.org> wrote:
+Karim Yaghmour wrote:
+> Jes Sorensen wrote:
+> Good. So give me concrete examples of those cases that you saw and tell
+> me exactly what those people you were working with were attempting to
+> achieve.
+
+I don't have all the details at hand, but it included syscalls and
+scheduler points amongst others.
+
+> Either ltt had a userbase or it didn't. To say that all its users went
+> out and added their own tracepoints is to not know enough about the project
+> and so too is it to say that none of its users could actually just use
+> it out of the box without modifying it. Now, as an outsider, trying to
+> measure how many users were using it without modifying it is like
+> trying to figure out how many Linux users there are out there. There's
+> a silent majority and there's those that need customization. Guess
+> who you've been talking to?
+
+Or maybe people start looking at it not knowing whether the want to
+pursue it to the end for their product.
+
+> Strange, come to think of it I don't remember *ever* getting an
+> email from you while being the maintainer or seing *any* emails by you
+> on the ltt lists -- that's indicative of mindset, namely that you
+> personally assumed you knew all about tracing and didn't need us to make
+> suggestions to help you AND that you personally never found it relevant
+> to contribute back.
+
+There's a word for that: *plonk*
+
+Maybe the code was used to evaluate it as an option, maybe they realized
+it wasn't worth using in the end, maybe they decided they could make it
+work. Maybe the LTT mailing list had been *dead* for 18 months by the
+time? You know, reading C code isn't that hard, and it didn't state
+anywhere in the LTT license that one is required to take out a paying
+contract with a certain Mr. Yaghmour just to be allowed to compile the
+code.
+
+> The semantics are primitive at this stage, and they could definitely
+> benefit from lkml input, but essentially we have a build-time parser
+> that goes around the code and automagically does one of two things:
+> a) create information for binary editors to use
+> b) generate an alternative C file (foo-trace.c) with inlined static
+>    function calls.
+
+You intend to handle inline assembly how? You plan to handle the issue
+of debugging the code when the markup is present how?
+
+> And there might be other possibilities I haven't thought of.
 > 
-> > On Fri, 2006-09-15 at 16:37 +0200, Haavard Skinnemoen wrote:
-> > > If a cfi_cmdset_0002 fixup installs an unlock() operation, use it
-> > > to unlock the whole flash after the erase regions have been set up.
-> > 
-> > There are cmdset_0001 chips which have this affliction too. I was
-> > thinking of having a flag MTD_STUPID_LOCK which you set when you
-> > determine that it's one of these chips, then add_mtd_device() can do
-> > the unlocking... or add_mtd_partitions() can do it but _only_ for
-> > writable partitions.
+> This beats every argument I've seen to date on static instrumentation.
+> Namely:
+> - It isn't visually offensive: it's a comment.
+> - It's not a maintenance drag: outdated comments are not alien.
+> - It doesn't use weird function names or caps: it's a comment.
+> - There is precedent: kerneldoc.
+> And it does preserve most of the key things those who've asked for
+> static markup are looking for. Namely:
+> - Static instrumentation
+> - Mainline maintainability
+> - Contextualized variables
+
+And it doesn't address the following issues:
+
+a) The static community providing actual evidence that dynamic tracing
+   is noticably slower.
+b) It will not be enabled per default in vendor kernels so in practice
+   the information will not be available anywhere, only in debug
+   kernels.
+c) The point that we will end up with markups all over the place to
+   satisfy everybody's needs.
+
+>> The other part is the constantly repeated performance claim, which to
+>> this point hasn't been backed up by any hard evidence. If we are to take
+>> that argument serious, then I strongly encourage the LTT community to
+>> present some real numbers, but until then it can be classified as
+>> nothing but FUD.
 > 
-> Ok, so how about something like this? Which other chips should be marked?
+> Hmm... beats me why even the systemtap folks would themselves admit
+> to performance limitations.
 
-Looks good; thanks. There's some Intel chips which need to be so marked
-but I'll let the Intel folks deal with that.
+Everything has performance limitations, you keep running around touting
+that static is the only thing thats not a problem. Now show us the
+numbers!
 
-I'll apply it to my git tree, but only _after_ Linus has pulled from it
-as requested a couple of days ago -- I think this should wait for 2.6.19
-rather than being slipped in at the last moment.
+>> I shall be the first to point out that kprobes are less than ideal,
+>> especially the current ia64 implementation suffers from some tricky
+>> limitations, but thats an implementation issue.
+> 
+> Ah, so it's ok for kprobes to have implementation issues, but not ltt.
+> Somehow there's this magic thought recurring throughout this thread
+> that the limitations of dynamic instrumentation are trivial to fix,
+> but those of static instrumentation are unrecoverable. *That* is a
+> fallacy if I ever saw one. I'm willing to admit that a combination of
+> dynamic editing and static instrumentation is a good balance, but Jes
+> please drop this discourse, it's not constructive.
 
--- 
-dwmw2
+Oh so bringing fact into a discussion is not allowed. Karim, maybe you
+should try using some real arguments. What I am saying about the ia64
+implementation is that there are limitations but I am also saying they
+can be fixed, it's an implementation issue, not a problem with the
+concept.
 
+The problems pointed out with LTT are *conceptual*, but of course you
+keep ignoring the facts and refusing to provide real numbers.
+
+Says it all really ....
+
+Jes

@@ -1,74 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751902AbWIRUBh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751901AbWIRUHY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751902AbWIRUBh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Sep 2006 16:01:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751900AbWIRUBh
+	id S1751901AbWIRUHY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Sep 2006 16:07:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751899AbWIRUHY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Sep 2006 16:01:37 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.153]:46722 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751893AbWIRUBg
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Sep 2006 16:01:36 -0400
-Date: Mon, 18 Sep 2006 15:01:22 -0500
-To: akpm@osdl.org, Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz,
-       netdev@vger.kernel.org, Jesse Brandeburg <jesse.brandeburg@intel.com>,
-       Rajesh Shah <rajesh.shah@intel.com>,
-       "Ronciak, John" <john.ronciak@intel.com>,
-       "bibo,mao" <bibo.mao@intel.com>, Auke Kok <sofar@foo-projects.org>,
-       Auke Kok <auke-jan.h.kok@intel.com>
-Subject: [PATCH] please include in 2.6.18: e100 disable device on PCI error
-Message-ID: <20060918200122.GD29167@austin.ibm.com>
+	Mon, 18 Sep 2006 16:07:24 -0400
+Received: from wx-out-0506.google.com ([66.249.82.230]:58057 "EHLO
+	wx-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1751901AbWIRUHX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Sep 2006 16:07:23 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=H+U6bN/5ILTLsRO4WIkTLBgfizhbBaqHKJM2i3+EQmQkP0B2vxMFcnXmfof1EyNQ+O7mkafQaesiBT+r5OM3A5Sot5zuqEMKEn3+n+DVzfZWGKEVas8nx/u7aVZwouIIJlnCVQKbWX5h1P3cqEJwi6EcpL0kiniJLuMucA2gw9Y=
+Message-ID: <acd2a5930609181307y793242f3sef5d59487bc7dad@mail.gmail.com>
+Date: Tue, 19 Sep 2006 00:07:22 +0400
+From: "Vitaly Wool" <vitalywool@gmail.com>
+To: "Eugeny S. Mints" <eugeny.mints@gmail.com>
+Subject: Re: [linux-pm] [PATCH] PowerOP, PowerOP Core, 1/2
+Cc: "Pavel Machek" <pavel@ucw.cz>, "pm list" <linux-pm@lists.osdl.org>,
+       "kernel list" <linux-kernel@vger.kernel.org>
+In-Reply-To: <450EFA4C.1070004@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.5.11
-From: linas@austin.ibm.com (Linas Vepstas)
+References: <45096933.4070405@gmail.com> <20060918104437.GA4973@elf.ucw.cz>
+	 <450E83DC.4050503@gmail.com> <450EFA4C.1070004@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Eugeny,
 
-Hi,
+On 9/18/06, Eugeny S. Mints <eugeny.mints@gmail.com> wrote:
 
-Please apply the following one-liner patch to  
-what will become the stable 2.6.18.  This patch is 
-low-risk because it affects only the PCI error 
-recovery code, which dosn't run on most platforms
-(in particular, isn't invoked on current x86/ia64).
+> With such approach a policy manger may compare operating points at runtime and
+> should not rely on compile time knowledge about what name corresponds to  what
+> set of power parameter values. It uses name as a handle.
 
-This patch was originally sent on 29 June 2006
-to fix a bug that showed up in an -mm build.
-The code from -mm made it into mainline, but 
-this patch did not, and so we're unhappy. :-(
+I suggest that you supply a meaningful yet simple example for SMP case.
 
-Here's the original patch description:
-
-A recent patch in -mm3 titled 
-gregkh-pci-pci-don-t-enable-device-if-already-enabled.patch
-causes pci_enable_device() to be a no-op if the kernel thinks
-that the device is already enabled.  This change breaks the
-PCI error recovery mechanism in the e100 device driver, since, 
-after PCI slot reset, the card is no longer enabled. This is 
-a trivial fix for this problem. Tested.
-
-Signed-off-by: Linas Vepstas <linas@austin.ibm.com>
-Signed-off-by: Andrew Morton <akpm@osdl.org>
-Signed-off-by: Auke Kok <auke-jan.h.kok@intel.com>
-
-----
- drivers/net/e100.c |    1 +
- 1 file changed, 1 insertion(+)
-
-Index: linux-2.6.18-rc7-git1/drivers/net/e100.c
-===================================================================
---- linux-2.6.18-rc7-git1.orig/drivers/net/e100.c	2006-09-18 14:21:49.000000000 -0500
-+++ linux-2.6.18-rc7-git1/drivers/net/e100.c	2006-09-18 14:24:50.000000000 -0500
-@@ -2799,6 +2799,7 @@ static pci_ers_result_t e100_io_error_de
- 	/* Detach; put netif into state similar to hotplug unplug. */
- 	netif_poll_enable(netdev);
- 	netif_device_detach(netdev);
-+	pci_disable_device(pdev);
- 
- 	/* Request a slot reset. */
- 	return PCI_ERS_RESULT_NEED_RESET;
-
+Thanks,
+   Vitaly

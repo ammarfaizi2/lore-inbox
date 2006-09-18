@@ -1,194 +1,251 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030263AbWIRXiU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751973AbWIRXpH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030263AbWIRXiU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Sep 2006 19:38:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030262AbWIRXiU
+	id S1751973AbWIRXpH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Sep 2006 19:45:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030271AbWIRXpH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Sep 2006 19:38:20 -0400
-Received: from e36.co.us.ibm.com ([32.97.110.154]:49334 "EHLO
-	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S1030260AbWIRXiT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Sep 2006 19:38:19 -0400
-Subject: Re: [PATCH] EXT2: Remove superblock lock contention in ext2_statfs
-From: Dave Kleikamp <shaggy@austin.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Valerie Henson <val_henson@linux.intel.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       ext4 development <linux-ext4@vger.kernel.org>
-In-Reply-To: <1158611794.11940.40.camel@kleikamp.austin.ibm.com>
-References: <1158611794.11940.40.camel@kleikamp.austin.ibm.com>
-Content-Type: text/plain
-Date: Mon, 18 Sep 2006 18:38:05 -0500
-Message-Id: <1158622685.11940.52.camel@kleikamp.austin.ibm.com>
+	Mon, 18 Sep 2006 19:45:07 -0400
+Received: from tomts22.bellnexxia.net ([209.226.175.184]:57786 "EHLO
+	tomts22-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id S1030270AbWIRXpF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Sep 2006 19:45:05 -0400
+Date: Mon, 18 Sep 2006 19:45:02 -0400
+From: Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>
+To: "Frank Ch. Eigler" <fche@redhat.com>, Paul Mundt <lethal@linux-sh.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>, Jes Sorensen <jes@sgi.com>,
+       Andrew Morton <akpm@osdl.org>, Tom Zanussi <zanussi@us.ibm.com>,
+       Richard J Moore <richardj_moore@uk.ibm.com>,
+       Michel Dagenais <michel.dagenais@polymtl.ca>,
+       Christoph Hellwig <hch@infradead.org>,
+       Greg Kroah-Hartman <gregkh@suse.de>,
+       Thomas Gleixner <tglx@linutronix.de>, William Cohen <wcohen@redhat.com>,
+       "Martin J. Bligh" <mbligh@mbligh.org>, Ingo Molnar <mingo@elte.hu>,
+       ltt-dev@shafik.org, systemtap@sources.redhat.com
+Subject: [PATCH] Linux Kernel Markers
+Message-ID: <20060918234502.GA197@Krystal>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+User-Agent: Mutt/1.4.2.1i
+X-Editor: vi
+X-Info: http://krystal.dyndns.org:8080
+X-Operating-System: Linux/2.4.32-grsec (i686)
+X-Uptime: 19:27:13 up 26 days, 20:35,  5 users,  load average: 0.54, 0.44, 0.37
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-09-18 at 15:36 -0500, Dave Kleikamp wrote:
-> EXT2: Remove superblock lock contention in ext2_statfs
-> 
-> Fix a performance degradation introduced in 2.6.17.  (30% degradation running
-> dbench with 16 threads)
-> 
-> Patch 21730eed11de42f22afcbd43f450a1872a0b5ea1, which claims to make
-> EXT2_DEBUG work again, moves the taking of the kernel lock out of debug-only
-> code in ext2_count_free_inodes and ext2_count_free_blocks and into
-> ext2_statfs.  This patch reverses that part of the patch.
-> 
-> Signed-off-by: Dave Kleikamp <shaggy@austin.ibm.com>
+Hello,
 
-Eric Sandeen pointed out to me that taking the superblock lock in
-ext2_count_free_* will cause a deadlock when EXT2FS_DEBUG is enabled,
-since the superblock is locked in write_super().
+Following this huge discussion thread, I tried to come with a marker mechanism
+(which is something everyone seems to agree that is a necessity) that would be
+useful to each kind of tracing (dynamic and static) (concerned projects :
+SystemTAP, LKET, LKST, LTTng) and even combinations of those. Religious
+considerations aside, I really think that this kind of generic markup is
+necessary to fill *everybody*'s need. If I forgot about a specific genericity
+aspect, please tell me.
 
-We found that the same problem was fixed in ext3 with this patch
-(forgive the long link):
-http://git.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff;h=5b11687924e40790deb0d5f959247ade82196665;hp=2384f55f8aa520172c995965bd2f8a9740d53095
+I take for agreed that both static and dynamic tracing are useful for different
+needs and that a full markup must support both and combinations, letting the
+user or the distribution choose.
 
-The patch below just removes the use of the superblock lock in the debug
-code.
+If you like it, please add the right menuconfig lines in arch/*/Kconfig and a
+NOPS macro in include/asm-*/marker.h.
 
-> diff --git a/fs/ext2/balloc.c b/fs/ext2/balloc.c
-> index d487043..fddefff 100644
-> --- a/fs/ext2/balloc.c
-> +++ b/fs/ext2/balloc.c
-> @@ -539,7 +539,6 @@ unsigned long ext2_count_free (struct bu
->  
->  #endif  /*  EXT2FS_DEBUG  */
->  
-> -/* Superblock must be locked */
->  unsigned long ext2_count_free_blocks (struct super_block * sb)
->  {
->  	struct ext2_group_desc * desc;
-> @@ -549,6 +548,7 @@ #ifdef EXT2FS_DEBUG
->  	unsigned long bitmap_count, x;
->  	struct ext2_super_block *es;
->  
-> +	lock_super(sb);
->  	es = EXT2_SB(sb)->s_es;
->  	desc_count = 0;
->  	bitmap_count = 0;
-> @@ -572,6 +572,7 @@ #ifdef EXT2FS_DEBUG
->  	printk("ext2_count_free_blocks: stored = %lu, computed = %lu, %lu\n",
->  		(long)le32_to_cpu(es->s_free_blocks_count),
->  		desc_count, bitmap_count);
-> +	unlock_super(sb);
->  	return bitmap_count;
->  #else
->          for (i = 0; i < EXT2_SB(sb)->s_groups_count; i++) {
-> diff --git a/fs/ext2/ialloc.c b/fs/ext2/ialloc.c
-> index de85c61..5d1d1c9 100644
-> --- a/fs/ext2/ialloc.c
-> +++ b/fs/ext2/ialloc.c
-> @@ -637,7 +637,6 @@ fail:
->  	return ERR_PTR(err);
->  }
->  
-> -/* Superblock must be locked */
->  unsigned long ext2_count_free_inodes (struct super_block * sb)
->  {
->  	struct ext2_group_desc *desc;
-> @@ -649,6 +648,7 @@ #ifdef EXT2FS_DEBUG
->  	unsigned long bitmap_count = 0;
->  	struct buffer_head *bitmap_bh = NULL;
->  
-> +	lock_super(sb);
->  	es = EXT2_SB(sb)->s_es;
->  	for (i = 0; i < EXT2_SB(sb)->s_groups_count; i++) {
->  		unsigned x;
-> @@ -671,6 +671,7 @@ #ifdef EXT2FS_DEBUG
->  	printk("ext2_count_free_inodes: stored = %lu, computed = %lu, %lu\n",
->  		percpu_counter_read(&EXT2_SB(sb)->s_freeinodes_counter),
->  		desc_count, bitmap_count);
-> +	unlock_super(sb);
->  	return desc_count;
->  #else
->  	for (i = 0; i < EXT2_SB(sb)->s_groups_count; i++) {
-> diff --git a/fs/ext2/super.c b/fs/ext2/super.c
-> index ca5bfb6..4286ff6 100644
-> --- a/fs/ext2/super.c
-> +++ b/fs/ext2/super.c
-> @@ -1083,7 +1083,6 @@ static int ext2_statfs (struct dentry * 
->  	unsigned long overhead;
->  	int i;
->  
-> -	lock_super(sb);
->  	if (test_opt (sb, MINIX_DF))
->  		overhead = 0;
->  	else {
-> @@ -1124,7 +1123,6 @@ static int ext2_statfs (struct dentry * 
->  	buf->f_files = le32_to_cpu(sbi->s_es->s_inodes_count);
->  	buf->f_ffree = ext2_count_free_inodes (sb);
->  	buf->f_namelen = EXT2_NAME_LEN;
-> -	unlock_super(sb);
->  	return 0;
->  }
->  
-EXT2: Remove superblock lock contention in ext2_statfs
+Comments are, as always, welcome.
 
-Fix a performance degradation introduced in 2.6.17.  (30% degradation
-running
-dbench with 16 threads)
+Mathieu
 
-Patch 21730eed11de42f22afcbd43f450a1872a0b5ea1, which claims to make
-EXT2_DEBUG work again, moves the taking of the kernel lock out of
-debug-only
-code in ext2_count_free_inodes and ext2_count_free_blocks and into
-ext2_statfs.
+--- BEGIN ---
 
-The same problem was fixed in ext3 by removing the lock completely
-(patch 5b11687924e40790deb0d5f959247ade82196665)
-
-Signed-off-by: Dave Kleikamp <shaggy@austin.ibm.com>
-
-diff --git a/fs/ext2/balloc.c b/fs/ext2/balloc.c
-index d487043..b1981d0 100644
---- a/fs/ext2/balloc.c
-+++ b/fs/ext2/balloc.c
-@@ -539,7 +539,6 @@ unsigned long ext2_count_free (struct bu
+--- a/arch/i386/Kconfig
++++ b/arch/i386/Kconfig
+@@ -1082,6 +1082,8 @@ config KPROBES
+ 	  for kernel debugging, non-intrusive instrumentation and testing.
+ 	  If in doubt, say "N".
  
- #endif  /*  EXT2FS_DEBUG  */
++source "kernel/Kconfig.marker"
++
+ source "ltt/Kconfig"
  
--/* Superblock must be locked */
- unsigned long ext2_count_free_blocks (struct super_block * sb)
- {
- 	struct ext2_group_desc * desc;
-diff --git a/fs/ext2/ialloc.c b/fs/ext2/ialloc.c
-index de85c61..695f69c 100644
---- a/fs/ext2/ialloc.c
-+++ b/fs/ext2/ialloc.c
-@@ -637,7 +637,6 @@ fail:
- 	return ERR_PTR(err);
- }
- 
--/* Superblock must be locked */
- unsigned long ext2_count_free_inodes (struct super_block * sb)
- {
- 	struct ext2_group_desc *desc;
-diff --git a/fs/ext2/super.c b/fs/ext2/super.c
-index ca5bfb6..4286ff6 100644
---- a/fs/ext2/super.c
-+++ b/fs/ext2/super.c
-@@ -1083,7 +1083,6 @@ static int ext2_statfs (struct dentry * 
- 	unsigned long overhead;
- 	int i;
- 
--	lock_super(sb);
- 	if (test_opt (sb, MINIX_DF))
- 		overhead = 0;
- 	else {
-@@ -1124,7 +1123,6 @@ static int ext2_statfs (struct dentry * 
- 	buf->f_files = le32_to_cpu(sbi->s_es->s_inodes_count);
- 	buf->f_ffree = ext2_count_free_inodes (sb);
- 	buf->f_namelen = EXT2_NAME_LEN;
--	unlock_super(sb);
- 	return 0;
- }
- 
+ endmenu
+--- /dev/null
++++ b/include/asm-i386/marker.h
+@@ -0,0 +1,12 @@
++/*****************************************************************************
++ * marker.h
++ *
++ * Code markup for dynamic and static tracing. i386 support.
++ *
++ * Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>
++ *
++ * September 2006
++ */
++
++#define JPROBE_TARGET \
++	__asm__ ( GENERIC_NOP5 )
+--- /dev/null
++++ b/include/linux/marker.h
+@@ -0,0 +1,77 @@
++/*****************************************************************************
++ * marker.h
++ *
++ * Code markup for dynamic and static tracing.
++ *
++ * Use either :
++ * MARK
++ * MARK_NOPRINT (will never call printk)
++ * MARK_STATIC (not dynamically instrumentable, will never call printk)
++ *
++ * Example :
++ *
++ * MARK(subsystem_event, "Event happened %d %s", someint, somestring);
++ * Where :
++ * - Subsystem is the name of your subsystem.
++ * - event is the name of the event to mark.
++ * - "Event happened %d %s" is the formatted string for printk.
++ * - someint is an integer.
++ * - somestring is a char *.
++ *
++ * Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>
++ *
++ * September 2006
++ */
++
++#include <linux/config.h>
++#include <linux/kernel.h>
++
++#include <asm/marker.h>
++
++#define MARK_SYM(event) \
++	__asm__ ( "__mark_" KBUILD_BASENAME "_" #event ":" )
++
++#define MARK_INACTIVE(event, format, args...)
++
++#define MARK_PRINT(event, format, args...)	printk(format, ##args);
++
++#define MARK_FPROBE(event, format, args...) 	fprobe_##event(args);
++
++#define MARK_KPROBE(event, format, args...)	MARK_SYM(event);
++
++#define MARK_JPROBE(event, format, args...) \
++	do { \
++		MARK_SYM(event); \
++		JPROBE_TARGET; \
++	} while(0)
++
++/* Menu configured markers */
++#ifndef CONFIG_MARK
++#define MARK	MARK_INACTIVE
++#elif defined(CONFIG_MARK_PRINT)
++#define MARK	MARK_PRINT
++#elif defined(CONFIG_MARK_FPROBE)
++#define MARK	MARK_FPROBE
++#elif defined(CONFIG_MARK_KPROBE)
++#define MARK	MARK_KPROBE
++#elif defined(CONFIG_MARK_JPROBE)
++#define MARK	MARK_JPROBE
++#endif
++
++#ifndef CONFIG_MARK_NOPRINT
++#define MARK_NOPRINT	MARK_INACTIVE
++#elif defined(CONFIG_MARK_NOPRINT_FPROBE)
++#define MARK_NOPRINT	MARK_FPROBE
++#elif defined(CONFIG_MARK_NOPRINT_KPROBE)
++#define MARK_NOPRINT	MARK_KPROBE
++#elif defined(CONFIG_MARK_NOPRINT_JPROBE)
++#define MARK_NOPRINT	MARK_JPROBE
++#endif
++
++#ifndef CONFIG_MARK_STATIC
++#define MARK_STATIC	MARK_INACTIVE
++#else
++#define MARK_STATIC	MARK_FPROBE
++#endif
++
++
+--- /dev/null
++++ b/kernel/Kconfig.marker
+@@ -0,0 +1,75 @@
++# Code markers configuration
++
++menu "Marker configuration"
++
++
++config MARK
++	bool "Enable MARK code markers"
++	default y
++	help
++	  Activate markers that can call printk or can be instrumented
++	  dynamically.
++
++choice
++	prompt "MARK code marker behavior"
++	default MARK_KPROBE
++	depends on MARK
++	help
++	  Configuration of markers that can call printk or can be
++	  instrumented dynamically.
++
++config MARK_KPROBE
++	bool "KPROBE"
++	---help---
++	Change markers for a symbol "__mark_modulename_event".
++config MARK_JPROBE
++	bool "JPROBE"
++	---help---
++	Change markers for a symbol "__mark_modulename_event"
++	and create a target for a high speed dynamic probe.
++config MARK_FPROBE
++	bool "FPROBE"
++	---help---
++	Change markers for a function call.
++config MARK_PRINT
++	bool "PRINT"
++	---help---
++	Call printk from the marker.
++endchoice
++
++config MARK_NOPRINT
++	bool "Enable MARK_NOPRINT code markers"
++	default y
++	help
++	  Activate markers that cannot call printk.
++ 
++choice
++	prompt "MARK_NOPRINT code marker behavior"
++	default MARK_NOPRINT_KPROBE
++	depends on MARK_NOPRINT
++	help
++	  Configuration of markers that cannot call printk.
++
++config MARK_NOPRINT_KPROBE
++	bool "KPROBE"
++	---help---
++	Change markers for a symbol "__mark_modulename_event".
++config MARK_NOPRINT_JPROBE
++	bool "JPROBE"
++	---help---
++	Change markers for a symbol "__mark_modulename_event"
++	and create a target for a high speed dynamic probe.
++config MARK_NOPRINT_FPROBE
++	bool "FPROBE"
++	---help---
++	Change markers for a function call.
++endchoice
++
++config MARK_STATIC
++	bool "Enable MARK_STATIC code markers"
++	default y
++	help
++	  Activate markers that cannot be instrumented dynamically. They will
++	  generate function calls to each function-style probe.
++
++endmenu
 
--- 
-David Kleikamp
-IBM Linux Technology Center
 
+--- END ---
+
+
+OpenPGP public key:              http://krystal.dyndns.org:8080/key/compudj.gpg
+Key fingerprint:     8CD5 52C3 8E3C 4140 715F  BA06 3F25 A8FE 3BAE 9A68 

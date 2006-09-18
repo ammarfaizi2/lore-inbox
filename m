@@ -1,51 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965209AbWIRBTZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965210AbWIRBWa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965209AbWIRBTZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Sep 2006 21:19:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965210AbWIRBTZ
+	id S965210AbWIRBWa (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Sep 2006 21:22:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965211AbWIRBWa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Sep 2006 21:19:25 -0400
-Received: from gateway.insightbb.com ([74.128.0.19]:13072 "EHLO
-	asav07.insightbb.com") by vger.kernel.org with ESMTP
-	id S965209AbWIRBTY convert rfc822-to-8bit (ORCPT
+	Sun, 17 Sep 2006 21:22:30 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:48797 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S965210AbWIRBW3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Sep 2006 21:19:24 -0400
-X-IronPort-Anti-Spam-Filtered: true
-X-IronPort-Anti-Spam-Result: AR4FAL6PDUWBT4oRLA
-From: Dmitry Torokhov <dtor@insightbb.com>
-To: Om Narasimhan <om.turyx@gmail.com>
-Subject: Re: kmalloc to kzalloc patches for drivers/atm
-Date: Sun, 17 Sep 2006 21:19:19 -0400
-User-Agent: KMail/1.9.3
-Cc: linux-kernel@vger.kernel.org, kernel-janitors@lists.osdl.org,
-       linux-atm-general@lists.sourceforge.net
-References: <6b4e42d10609171753i63697c8et3e6e1c5706b60d5f@mail.gmail.com>
-In-Reply-To: <6b4e42d10609171753i63697c8et3e6e1c5706b60d5f@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
+	Sun, 17 Sep 2006 21:22:29 -0400
+Date: Mon, 18 Sep 2006 03:13:52 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Karim Yaghmour <karim@opersys.com>
+Cc: Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
+       Paul Mundt <lethal@linux-sh.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Ingo Molnar <mingo@redhat.com>, Jes Sorensen <jes@sgi.com>,
+       Andrew Morton <akpm@osdl.org>, Roman Zippel <zippel@linux-m68k.org>,
+       Tom Zanussi <zanussi@us.ibm.com>,
+       Richard J Moore <richardj_moore@uk.ibm.com>,
+       "Frank Ch. Eigler" <fche@redhat.com>,
+       Michel Dagenais <michel.dagenais@polymtl.ca>,
+       Christoph Hellwig <hch@infradead.org>,
+       Greg Kroah-Hartman <gregkh@suse.de>,
+       Thomas Gleixner <tglx@linutronix.de>, William Cohen <wcohen@redhat.com>,
+       "Martin J. Bligh" <mbligh@mbligh.org>
+Subject: Re: tracepoint maintainance models
+Message-ID: <20060918011352.GB30835@elte.hu>
+References: <450D182B.9060300@opersys.com> <20060917112128.GA3170@localhost.usen.ad.jp> <20060917143623.GB15534@elte.hu> <20060917153633.GA29987@Krystal> <20060918000703.GA22752@elte.hu> <450DF28E.3050101@opersys.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200609172119.20555.dtor@insightbb.com>
+In-Reply-To: <450DF28E.3050101@opersys.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -2.9
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.9 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5000]
+	-0.1 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 17 September 2006 20:53, Om Narasimhan wrote:
-> --- a/drivers/atm/firestream.c
-> +++ b/drivers/atm/firestream.c
-> @@ -1784,7 +1784,7 @@ static int __devinit fs_init (struct fs_
->                 write_fs (dev, RAM, (1 << (28 - FS155_VPI_BITS - FS155_VCI_BITS)) - 1);
->                 dev->nchannels = FS155_NR_CHANNELS;
->         }
-> -       dev->atm_vccs = kmalloc (dev->nchannels * sizeof (struct atm_vcc *),
-> +       dev->atm_vccs = kzalloc (dev->nchannels * sizeof (struct atm_vcc *),
->                                  GFP_KERNEL);
->         fs_dprintk (FS_DEBUG_ALLOC, "Alloc atmvccs: %p(%Zd)\n",
->                     dev->atm_vccs, dev->nchannels * sizeof (struct atm_vcc *));
+
+* Karim Yaghmour <karim@opersys.com> wrote:
+
+> Ingo Molnar wrote:
+> > yeah. If you look at the API suggestions i made, they are such. There 
+> > can be differences though to 'static tracepoints used by static 
+> > tracers': for example there's no need to 'mark' a static variable, 
+> > because dynamic tracers have access to it - while a static tracer would 
+> > have to pass it into its trace-event function call.
 > 
+> That has been your own personal experience of such things. Fortunately 
+> by now you've provided to casual readers ample proof that such 
+> experience is but limited and therefore misleading. The fact of the 
+> matter is that *mechanisms* do not "magically" know what detail is 
+> necessary for a given event or how to interpret it: only *markup* does 
+> that.
 
-kcalloc would be better here because you are allocating several objects
-at once.
+Karim, i dont usually reply if you insult me (and you've grown a habit 
+of that lately ), but this one is almost parodic. To understand my 
+point, please consider this simple example of a static in-source markup, 
+to be used by a dynamic tracer:
 
--- 
-Dmitry
+  static int x;
+
+  void func(int a)
+  {
+       ...
+       MARK(event, a);
+       ...
+  }
+
+if a dynamic tracer installs a probe into that MARK() spot, it will have 
+access to 'a', but it can also have access to 'x'. While a static 
+in-source markup for _static tracers_, if it also wanted to have the 'x' 
+information, would also have to add 'x' as a parameter:
+
+	MARK(event, a, x);
+
+thus for example value of the variable 'x' would be passed to the 
+function that does the static tracing. For dynamic tracers no such 
+'parameter preparation' instructions would need to be generated by gcc. 
+(thus for example the runtime overhead would be lower for inactive 
+tracepoints)
+
+hence, in this specific example, there is a real difference between the 
+markup needed for dynamic tracers, compared to the markup needed for 
+static tracers - to achieve the same end-result of passing (event,a,x) 
+to the tracer.
+
+	Ingo

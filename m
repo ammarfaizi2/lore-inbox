@@ -1,98 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964984AbWIRUxl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964988AbWIRUy3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964984AbWIRUxl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Sep 2006 16:53:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964990AbWIRUxl
+	id S964988AbWIRUy3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Sep 2006 16:54:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965003AbWIRUy3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Sep 2006 16:53:41 -0400
-Received: from mga09.intel.com ([134.134.136.24]:58528 "EHLO mga09.intel.com")
-	by vger.kernel.org with ESMTP id S964984AbWIRUxk (ORCPT
+	Mon, 18 Sep 2006 16:54:29 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:5605 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S964988AbWIRUy2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Sep 2006 16:53:40 -0400
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.09,180,1157353200"; 
-   d="scan'208"; a="129548996:sNHT97732320"
-Message-ID: <450F06F2.8020907@intel.com>
-Date: Mon, 18 Sep 2006 13:52:02 -0700
-From: Auke Kok <auke-jan.h.kok@intel.com>
-User-Agent: Mail/News 1.5.0.5 (X11/20060728)
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Linas Vepstas <linas@austin.ibm.com>, Greg KH <greg@kroah.com>,
-       linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz,
-       netdev@vger.kernel.org, Jesse Brandeburg <jesse.brandeburg@intel.com>,
-       Rajesh Shah <rajesh.shah@intel.com>,
-       "Ronciak, John" <john.ronciak@intel.com>,
-       "bibo,mao" <bibo.mao@intel.com>, Auke Kok <sofar@foo-projects.org>
-Subject: Re: [PATCH] please include in 2.6.18: e100 disable device on PCI
- error
-References: <20060918200122.GD29167@austin.ibm.com> <20060918132102.d850c1c2.akpm@osdl.org>
-In-Reply-To: <20060918132102.d850c1c2.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 18 Sep 2006 20:53:37.0006 (UTC) FILETIME=[832488E0:01C6DB64]
+	Mon, 18 Sep 2006 16:54:28 -0400
+Date: Mon, 18 Sep 2006 16:54:12 -0400
+From: Dave Jones <davej@redhat.com>
+To: Kylene Jo Hall <kjhall@us.ibm.com>
+Cc: Stephen Smalley <sds@tycho.nsa.gov>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       LSM ML <linux-security-module@vger.kernel.org>,
+       Dave Safford <safford@us.ibm.com>, Mimi Zohar <zohar@us.ibm.com>,
+       Serge Hallyn <sergeh@us.ibm.com>, akpm@osdl.org
+Subject: Re: [PATCH 4/7] SLIM: secfs patch
+Message-ID: <20060918205412.GA2640@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Kylene Jo Hall <kjhall@us.ibm.com>,
+	Stephen Smalley <sds@tycho.nsa.gov>,
+	linux-kernel <linux-kernel@vger.kernel.org>,
+	LSM ML <linux-security-module@vger.kernel.org>,
+	Dave Safford <safford@us.ibm.com>, Mimi Zohar <zohar@us.ibm.com>,
+	Serge Hallyn <sergeh@us.ibm.com>, akpm@osdl.org
+References: <1158083873.18137.14.camel@localhost.localdomain> <1158611418.14194.70.camel@moss-spartans.epoch.ncsc.mil> <1158612642.16727.53.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1158612642.16727.53.camel@localhost.localdomain>
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> On Mon, 18 Sep 2006 15:01:22 -0500
-> linas@austin.ibm.com (Linas Vepstas) wrote:
-> 
->> Hi,
->>
->> Please apply the following one-liner patch to  
->> what will become the stable 2.6.18.  This patch is 
->> low-risk because it affects only the PCI error 
->> recovery code, which dosn't run on most platforms
->> (in particular, isn't invoked on current x86/ia64).
->>
->> This patch was originally sent on 29 June 2006
->> to fix a bug that showed up in an -mm build.
->> The code from -mm made it into mainline, but 
->> this patch did not, and so we're unhappy. :-(
->>
->> Here's the original patch description:
->>
->> A recent patch in -mm3 titled 
->> gregkh-pci-pci-don-t-enable-device-if-already-enabled.patch
->> causes pci_enable_device() to be a no-op if the kernel thinks
->> that the device is already enabled.  This change breaks the
->> PCI error recovery mechanism in the e100 device driver, since, 
->> after PCI slot reset, the card is no longer enabled. This is 
->> a trivial fix for this problem. Tested.
->>
->> Signed-off-by: Linas Vepstas <linas@austin.ibm.com>
->> Signed-off-by: Andrew Morton <akpm@osdl.org>
->> Signed-off-by: Auke Kok <auke-jan.h.kok@intel.com>
->>
->> ----
->>  drivers/net/e100.c |    1 +
->>  1 file changed, 1 insertion(+)
->>
->> Index: linux-2.6.18-rc7-git1/drivers/net/e100.c
->> ===================================================================
->> --- linux-2.6.18-rc7-git1.orig/drivers/net/e100.c	2006-09-18 14:21:49.000000000 -0500
->> +++ linux-2.6.18-rc7-git1/drivers/net/e100.c	2006-09-18 14:24:50.000000000 -0500
->> @@ -2799,6 +2799,7 @@ static pci_ers_result_t e100_io_error_de
->>  	/* Detach; put netif into state similar to hotplug unplug. */
->>  	netif_poll_enable(netdev);
->>  	netif_device_detach(netdev);
->> +	pci_disable_device(pdev);
->>  
->>  	/* Request a slot reset. */
->>  	return PCI_ERS_RESULT_NEED_RESET;
-> 
-> hm.  I don't have this patch queued, but I _do_ have an equivalent patch
-> for e1000 queued; what's up with that?  Nobody seems to have paid much
-> attention to the e1000 fix.
-> 
-> If we can gather the appropriate acks quickly then I expect we can get both
-> of these into 2.6.18.
+On Mon, Sep 18, 2006 at 01:50:42PM -0700, Kylene Jo Hall wrote:
 
-Ack! for both, of course.
+ > > > This patch provides the securityfs used by SLIM.
 
-I'm unsure what happened here, as I have this patch in my local tree. I suspect 
-that it got merged into jeff's #upstream only somehow.
+nitpick. (I never reviewed this when it was posted, but this followup
+caught my eye..)
 
-Auke
+ > > > --- linux-2.6.18/security/slim/slm_secfs.c	1969-12-31 16:00:00.000000000 -0800
+ > > > +++ linux-2.6.17-working/security/slim/slm_secfs.c	2006-09-06 11:49:09.000000000 -0700
+ > > > @@ -0,0 +1,73 @@
+ > > > +/*
+ > > > + * SLIM securityfs support: debugging control files
+ > > > + *
+ > > > + * Copyright (C) 2005, 2006 IBM Corporation
+ > > > + * Author: Mimi Zohar <zohar@us.ibm.com>
+ > > > + *	   Kylene Hall <kjhall@us.ibm.com>
+ > > > + *
+ > > > + *      This program is free software; you can redistribute it and/or modify
+ > > > + *      it under the terms of the GNU General Public License as published by
+ > > > + *      the Free Software Foundation, version 2 of the License.
+ > > > + */
+ > > > +
+ > > > +#include <asm/uaccess.h>
+ > > > +#include <linux/config.h>
 
+You don't need to include config.h any more, kbuild does it for you.
+(Might want to check the other files for the same thing).
+
+	Dave

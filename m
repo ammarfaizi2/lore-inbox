@@ -1,89 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751305AbWIRDd0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751321AbWIRDev@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751305AbWIRDd0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Sep 2006 23:33:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751321AbWIRDd0
+	id S1751321AbWIRDev (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Sep 2006 23:34:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751354AbWIRDev
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Sep 2006 23:33:26 -0400
-Received: from opersys.com ([64.40.108.71]:4625 "EHLO www.opersys.com")
-	by vger.kernel.org with ESMTP id S1751305AbWIRDdZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Sep 2006 23:33:25 -0400
-Message-ID: <450E1860.8010301@opersys.com>
-Date: Sun, 17 Sep 2006 23:54:08 -0400
-From: Karim Yaghmour <karim@opersys.com>
-Reply-To: karim@opersys.com
-Organization: Opersys inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.6) Gecko/20060804 Fedora/1.0.4-0.5.1.fc5 SeaMonkey/1.0.4
+	Sun, 17 Sep 2006 23:34:51 -0400
+Received: from wx-out-0506.google.com ([66.249.82.231]:53680 "EHLO
+	wx-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1751321AbWIRDeu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Sep 2006 23:34:50 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=ZANZX1puCw6wROhPEZLbiU3TlyqCxuTy3XpGRSX28oI0AHMpddiQzm8aVkAjcLA1ELB3q/Qgxtx0eFRZFMoRrznaTHu3Kfpx67P0b9XJDzSE4SK5pjE279t8RDyCwmVgVgQPCYylLC0FpGOtJmFBk85CQrs8ZwE/2nlDY8zHKpo=
+Message-ID: <450E13D4.10200@gmail.com>
+Date: Mon, 18 Sep 2006 12:34:44 +0900
+From: Tejun Heo <htejun@gmail.com>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060915)
 MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
-       Paul Mundt <lethal@linux-sh.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Ingo Molnar <mingo@redhat.com>, Jes Sorensen <jes@sgi.com>,
-       Andrew Morton <akpm@osdl.org>, Roman Zippel <zippel@linux-m68k.org>,
-       Tom Zanussi <zanussi@us.ibm.com>,
-       Richard J Moore <richardj_moore@uk.ibm.com>,
-       "Frank Ch. Eigler" <fche@redhat.com>,
-       Michel Dagenais <michel.dagenais@polymtl.ca>,
-       Christoph Hellwig <hch@infradead.org>,
-       Greg Kroah-Hartman <gregkh@suse.de>,
-       Thomas Gleixner <tglx@linutronix.de>, William Cohen <wcohen@redhat.com>,
-       "Martin J. Bligh" <mbligh@mbligh.org>
-Subject: Re: tracepoint maintainance models
-References: <450D182B.9060300@opersys.com> <20060917112128.GA3170@localhost.usen.ad.jp> <20060917143623.GB15534@elte.hu> <20060917153633.GA29987@Krystal> <20060918000703.GA22752@elte.hu> <450DF28E.3050101@opersys.com> <20060918011352.GB30835@elte.hu> <450E053B.1070908@opersys.com> <20060918025722.GA11894@elte.hu>
-In-Reply-To: <20060918025722.GA11894@elte.hu>
-Content-Type: text/plain; charset=us-ascii
+To: "Robin H. Johnson" <robbat2@gentoo.org>
+CC: Jeff Garzik <jeff@garzik.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.18-rc7-git1: AHCI not seeing devices on ICH8 mobo (DG965RY)
+References: <20060914200500.GD27531@curie-int.orbis-terrarum.net> <4509AB2E.1030800@garzik.org> <20060914205050.GE27531@curie-int.orbis-terrarum.net> <20060916203812.GC30391@curie-int.orbis-terrarum.net> <20060916210857.GD30391@curie-int.orbis-terrarum.net> <20060917074929.GD25800@htj.dyndns.org> <20060918034826.GA10116@curie-int.orbis-terrarum.net>
+In-Reply-To: <20060918034826.GA10116@curie-int.orbis-terrarum.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Robin H. Johnson wrote:
+> Yes your patch fixes it perfectly - it's a better version of an almost
+> working fix I hacked up after my previous email.
+> 
+> Some patch review comments below as well.
+> 
+> Signed-off-by: Robin H. Johnson <robbat2@gentoo.org>
+> 
+>> @@ -186,9 +187,11 @@ struct ahci_host_priv {
+>>  	unsigned long		flags;
+>>  	u32			cap;	/* cache of HOST_CAP register */
+>>  	u32			port_map; /* cache of HOST_PORTS_IMPL reg */
+>> +	int			port_tbl[AHCI_MAX_PORTS];
+>>  };
+> maybe u8 instead of int?
 
-Ingo Molnar wrote:
-> Plese dont put words into my mouth. No, i dont assume they are mutually 
-> exclusive, did i ever claim that? But i very much still claim what my 
-> point was, and which point you disputed (at the same time also insulting 
-> me): that even if hell freezes over, a static tracer wont be able to 
-> extract 'x' from the MARK(event, a) markup. You accused me unfairly, you 
-> insulted me and i defended my point. In case you forgot, here again is 
-> the incident, in its entirety, where i make this point and you falsely 
-> dispute it:
+Yeah, I like that.
 
-Is this a recursive thread? Because if it is, I might as well point to
-my follow-up to your answer, and that's not going to get us anywhere.
+> also a comment - /* mapping of port_idx to the implemented port */
 
-By no stretch of the english language did I insult you. This is a
-convenient fabrication which *I* could take as an insult. Calling
-into question a person's expertise on a given topic is by no
-means unheard of in the scientific discourse if said person
-insists on pushing an agenda using said "expertise" as the
-founding basis. So no, the emperor has no cloths in this case:
-you have de-facto proven your own expertise in this field is
-but very limited. Historically, and maybe you're an exception
-to this, individuals in the scientific community that took insult
-when their "expertise" was questioned, as I did in the snippet
-you so conveniently highlight, were usually wrong. Real experts
-don't need status to prove their point: they use facts.
+Okay.
 
-The fact that X cannot be extracted from a statically defined
-set containing (K,P,F,Y,Z) is high school mathematics at best.
-Your insistence on such a theoretical example is, for me, but
-further proof of your actual lack of *practical* experience.
-Because those with actual *practical* experience, have presented
-us with *facts* and empirical *results*, both highly prized in
-the scientific discourse, that in-real-life, contrary to
-Ingo's strawman constructions, users would benefit from having
-access to events collected using a variety of *mechanisms*.
+>> +	if (n_ports == 0) {
+>> +		dev_printk(KERN_ERR, &pdev->dev, "0 port implemented\n");
+>> +		return -EINVAL;
+>> +	}
+> Use plural form (0 ports), or negative (No ports) instead.
 
-So, yes Ingo, you "wont be able to  extract 'x' from the
-MARK(event, a) markup" using just a "static" tracer. What such
-emphasis on this statement on your part and utter refusal
-to respond to very solidly constructed arguments on my part
-while instead choosing to emphasize "moral" tort entails,
-however, is an entirely separate issue altogether.
+And, okay.
 
-Karim
+Jeff, we've been ignoring PI in ahci_host_init()...
+
+	for (i = 0; i < probe_ent->n_ports; i++) {
+#if 0 /* BIOSen initialize this incorrectly */
+		if (!(hpriv->port_map & (1 << i)))
+			continue;
+#endif
+
+The comment suggests that some BIOSen initialize PI incorrectly which 
+will probably result in undetected ports.  Is this true?  Would it be 
+dangerous to honor PI on some controllers?  If so, PI should be used 
+only for controllers which does non-linear port mapping.
+
+Thanks.
+
 -- 
-President  / Opersys Inc.
-Embedded Linux Training and Expertise
-www.opersys.com  /  1.866.677.4546
+tejun

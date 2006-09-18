@@ -1,115 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965391AbWIRFQq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965331AbWIRFYD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965391AbWIRFQq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Sep 2006 01:16:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965392AbWIRFQq
+	id S965331AbWIRFYD (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Sep 2006 01:24:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965393AbWIRFYD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Sep 2006 01:16:46 -0400
-Received: from opersys.com ([64.40.108.71]:5138 "EHLO www.opersys.com")
-	by vger.kernel.org with ESMTP id S965391AbWIRFQp (ORCPT
+	Mon, 18 Sep 2006 01:24:03 -0400
+Received: from exprod6og53.obsmtp.com ([64.18.1.187]:38632 "HELO
+	exprod6og53.obsmtp.com") by vger.kernel.org with SMTP
+	id S965331AbWIRFYA convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Sep 2006 01:16:45 -0400
-Message-ID: <450E3099.20409@opersys.com>
-Date: Mon, 18 Sep 2006 01:37:29 -0400
-From: Karim Yaghmour <karim@opersys.com>
-Reply-To: karim@opersys.com
-Organization: Opersys inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.6) Gecko/20060804 Fedora/1.0.4-0.5.1.fc5 SeaMonkey/1.0.4
+	Mon, 18 Sep 2006 01:24:00 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6603.0
+content-class: urn:content-classes:message
 MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: Theodore Tso <tytso@mit.edu>, Nicholas Miell <nmiell@comcast.net>,
-       Paul Mundt <lethal@linux-sh.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Ingo Molnar <mingo@redhat.com>, Jes Sorensen <jes@sgi.com>,
-       Andrew Morton <akpm@osdl.org>, Roman Zippel <zippel@linux-m68k.org>,
-       Tom Zanussi <zanussi@us.ibm.com>,
-       Richard J Moore <richardj_moore@uk.ibm.com>,
-       "Frank Ch. Eigler" <fche@redhat.com>,
-       Michel Dagenais <michel.dagenais@polymtl.ca>,
-       Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
-       Christoph Hellwig <hch@infradead.org>,
-       Greg Kroah-Hartman <gregkh@suse.de>,
-       Thomas Gleixner <tglx@linutronix.de>, William Cohen <wcohen@redhat.com>,
-       "Martin J. Bligh" <mbligh@mbligh.org>
-Subject: Re: tracepoint maintainance models
-References: <20060917112128.GA3170@localhost.usen.ad.jp> <20060917143623.GB15534@elte.hu> <1158524390.2471.49.camel@entropy> <20060917230623.GD8791@elte.hu> <450DEEA5.7080808@opersys.com> <20060918005624.GA30835@elte.hu> <450DFFC8.5080005@opersys.com> <20060918033027.GB11894@elte.hu> <20060918035216.GF9049@thunk.org> <450E1F6F.7040401@opersys.com> <20060918043248.GB19843@elte.hu>
-In-Reply-To: <20060918043248.GB19843@elte.hu>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Subject: Patch 2.4 kernel / allow to read more than 2048 (1821) Symbols from
+    /boot/System.map
+Date: Mon, 18 Sep 2006 07:23:58 +0200
+Message-ID: <DA6197CAE190A847B662079EF7631C06015692C9@OEKAW2EXVS03.hbi.ad.harman.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Patch 2.4 kernel / allow to read more than 2048 (1821) Symbols 
+    from /boot/System.map
+Thread-Index: Acba4qRumahXl3MASd6sI+n2FrxOCg==
+From: "Jurzitza, Dieter" <DJurzitza@harmanbecker.com>
+To: <linux-kernel@vger.kernel.org>, <sparclinux@vger.kernel.org>
+Cc: "Willy Tarreau" <w@1wt.eu>
+X-OriginalArrivalTime: 18 Sep 2006 05:23:58.0614 (UTC) 
+    FILETIME=[A4A15B60:01C6DAE2]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Problem:
+The 2.4 kernel series uses sys32_get_kernel_syms(struct kernel_sym32 *table) for reading the kernel symbols (on sparc64). The size of struct kernel_sym is 64 byte on "normal" arches, but 72 byte on sparc64.
+The memory for the table holding all the structs is currently kmalloc'd, giving a limitation of 2048*sizeof(struct kernel_sym) for "normal" and 1820*sizeof(struct kernel_sym) for "sparc64" arches, the latter being caused by different sizes of unsigned longs and the need for alingnment bytes. This causes an "error reading System.map" message for no reason.
 
-Ingo Molnar wrote:
-> and now i'm red faced - i was wrong about this fundamental aspect of 
-> your position. Please accept my apologies!
+Solution (significantly helped by Dave Miller):
+replace kmalloc() by vmalloc() to circumvent the size limit of 2^17 for kmalloc.
 
-Apologies accepted. Hopefully we can tone this thread down and
-move on to more constructive implementation discussions.
+Other arches:
+ppc64 defines value in struct kernel_sym as u32 in contrast to sparc, so we have the 2048 units limit here, but this would profit from using vmalloc(), too, since the limitation to 2048 is neither helpful nor neccessary. I lack sufficient understanding of the details to predict the impact on other arches. This patch refers to sparc64 but someone with deeper insight might want to look into this for other arches, too.
 
-> so regarding the big picture we are largely on the same page in essence 
-> i think - sub-issues non-withstanding :-) As long as LTT comes with a 
-> facility that allows the painless moving of a static LTT markup to a 
-> SystemTap script, that would come quite a bit closer to being acceptable 
-> for upstream acceptance in my opinion.
+Signed off by: Dieter Jurzitza <DJurzitza@HarmanBecker.com>
 
-I don't think there's any impediment for that. In fact, the value
-is not in the markup, but in the tools.
+--- linux/arch/sparc64/kernel/sys_sparc32.c     2006-08-11 06:18:20.000000000 +
++++ linux/arch/sparc64/kernel/sys_sparc32.c     2006-08-25 12:37:42.000000000 +
+@@ -3730,7 +3730,7 @@
+        
+        len = sys_get_kernel_syms(NULL);
+        if (!table) return len;
+-       tbl = kmalloc (len * sizeof (struct kernel_sym), GFP_KERNEL);
++       tbl = vmalloc (len * sizeof (struct kernel_sym));
+        if (!tbl) return -ENOMEM;
+        old_fs = get_fs(); 
+        set_fs (KERNEL_DS);
+@@ -3741,7 +3741,7 @@
+                    copy_to_user (table->name, tbl[i].name, 60))
+                        break;
+        }
+-       kfree (tbl);
++       vfree (tbl);
+        return i;
+ }
 
-> The curious bit is: why doesnt LTT integrate SystemTap yet?
-
-Performance aside, this is due to historic reasons which cannot,
-unfortunately, be succinctly explained. The best I can do is refer
-you to the topmost parent of this thread, lengthy as it may be. As I
-told Ted, if the signal *and* endorsement is that LTT and SystemTap
-should be complementary, then that is exactly what will happen.
-
-It doesn't solve the performance problem, but even the SystemTap
-folks are concerned by performance and would like to see some form
-of static markup, so I think the LTTng and SystemTap efforts are
-on the same page here.
-
-> Is it the 
-> performance aspect? Some of the extensive hooking you do in LTT could be 
-> aleviated to a great degree if you used dynamic probes. For example the 
-> syscall entry hackery in LTT looks truly scary. I cannot understand that 
-> someone who does tracing doesnt see the fundamental strength of 
-> SystemTap - i think that in part must have lead to my mistake of 
-> assuming that you opposed SystemTap.
-
-I am not opposed to SystemTap and neither do I fail to see its
-fundamental strength. It's just a matter that a decision was made
-at some point in time that SystemTap be developed separately *and*
-independently from any existing tracing effort. Again, that
-decision was based on what appeared to be good reasons for the
-people in charge, and there's no point in further highlighting
-differences.
-
-I think what is important at this stage is that now that we have
-an agreement on the need for some form of static markup, that
-the developers of the various teams work together to come up
-with an acceptable framework for all to use. And, ideally, this
-effort should be spearheaded by someone who has enough knowledge
-of the kernel's intricacies as to avoid any obvious pitfalls.
-In that regard, you're likely the best person to take charge of
-this.
-
-Once markup is in place, much of the mechanics of either of
-the existing *mechanisms* can then simply disappear in the
-background without *any* impact on the rest of the developers.
-
-Only then will there start to be constructive discussion as
-to where best markup should be located and what mechanism
-is typically most appropriate for that specific location.
-
-All that being said, I would like to thank you for acknowledging
-a misunderstanding on your part. Hopefully we can all set this
-aside, and move forward on common goals.
-
-Thanks,
-
-Karim
 -- 
-President  / Opersys Inc.
-Embedded Linux Training and Expertise
-www.opersys.com  /  1.866.677.4546
+________________________________________________
+
+HARMAN BECKER AUTOMOTIVE SYSTEMS
+
+Dr.-Ing. Dieter Jurzitza
+Manager Hardware Systems
+   System Development
+
+Industriegebiet Ittersbach
+Becker-Göring Str. 16
+D-76307 Karlsbad / Germany
+
+Phone: +49 (0)7248 71-1577
+Fax:   +49 (0)7248 71-1216
+eMail: DJurzitza@harmanbecker.com
+Internet: http://www.becker.de
+ 
+
+
+*******************************************
+Diese E-Mail enthaelt vertrauliche und/oder rechtlich geschuetzte Informationen. Wenn Sie nicht der richtige Adressat sind oder diese E-Mail irrtuemlich erhalten haben, informieren Sie bitte sofort den Absender und loeschen Sie diese Mail. Das unerlaubte Kopieren sowie die unbefugte Weitergabe dieser Mail ist nicht gestattet.
+ 
+This e-mail may contain confidential and/or privileged information. If you are not the intended recipient (or have received this e-mail in error) please notify the sender immediately and delete this e-mail. Any unauthorized copying, disclosure or distribution of the contents in this e-mail is strictly forbidden.
+*******************************************
+

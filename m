@@ -1,59 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751826AbWIRQY4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751000AbWIRQ3B@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751826AbWIRQY4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Sep 2006 12:24:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751829AbWIRQY4
+	id S1751000AbWIRQ3B (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Sep 2006 12:29:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751831AbWIRQ3B
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Sep 2006 12:24:56 -0400
-Received: from gw.goop.org ([64.81.55.164]:57771 "EHLO mail.goop.org")
-	by vger.kernel.org with ESMTP id S1751826AbWIRQYz (ORCPT
+	Mon, 18 Sep 2006 12:29:01 -0400
+Received: from minus.inr.ac.ru ([194.67.69.97]:23942 "HELO ms2.inr.ac.ru")
+	by vger.kernel.org with SMTP id S1750977AbWIRQ3A (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Sep 2006 12:24:55 -0400
-Message-ID: <450EC855.6020200@goop.org>
-Date: Mon, 18 Sep 2006 09:24:53 -0700
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
-MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>,
-       Chuck Ebbert <76306.1226@compuserve.com>,
-       In Cognito <defend.the.world@gmail.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Ingo Molnar <mingo@elte.hu>, bcrl@kvack.org,
-       Zachary Amsden <zach@vmware.com>, Rusty Russell <rusty@rustcorp.com.au>,
-       Chris Wright <chrisw@sous-sol.org>,
-       Jeremy Fitzhardinge <jeremy@xensource.com>
-Subject: Re: Sysenter crash with Nested Task Bit set
-References: <200609172354_MC3-1-CB7A-58ED@compuserve.com> <20060917222537.55241d19.akpm@osdl.org> <Pine.LNX.4.64.0609180741520.4388@g5.osdl.org> <200609181729.23934.ak@suse.de> <Pine.LNX.4.64.0609180841520.4388@g5.osdl.org> <Pine.LNX.4.64.0609180904360.4388@g5.osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0609180904360.4388@g5.osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 18 Sep 2006 12:29:00 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=ms2.inr.ac.ru;
+  b=r7oMrGGWk4KCoJtOj/1La4e4/MNAcsQGlC6M/A2i5dAZpEiOejMel8/5NktRJXXo1tDhMf5D97/1ind5/05vGhg0chGJxwnSJ5rxAO3WSVSjW+uCQGnHZUgWUVWp9KdUslhoxp4OZk+YeFuW61btNhD55kIllxxrYE9aR2DtD9E=;
+Date: Mon, 18 Sep 2006 20:28:47 +0400
+From: Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>
+To: Andi Kleen <ak@suse.de>
+Cc: "Vladimir B. Savkin" <master@sectorb.msk.ru>,
+       Jesper Dangaard Brouer <hawk@diku.dk>,
+       Harry Edmon <harry@atmos.washington.edu>, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org
+Subject: Re: Network performance degradation from 2.6.11.12 to 2.6.16.20
+Message-ID: <20060918162847.GA4863@ms2.inr.ac.ru>
+References: <4492D5D3.4000303@atmos.washington.edu> <p73ac4x4doi.fsf@verdi.suse.de> <20060918153822.GA805@ms2.inr.ac.ru> <200609181754.37623.ak@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200609181754.37623.ak@suse.de>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
-> Final note (I promise): now that we save/restore eflags again, we 
-> should probably revert the set_iopl_mask() in task switching too. However, 
-> that apparently has some para-virtualization issues, so I'm going to 
-> ignore that part from now.
->   
+Hello!
 
-I'm wondering if we shouldn't have a (__)switch_to paravirt hook, so we 
-can wrap the context switch in whatever we like.
+> Hmm, not sure how that could happen. Also is it a real problem
+> even if it could?
 
-> However, I'd really like people who know and care about the 
-> paravirtualization to take a good long look at it: because right now, with 
-> the addition of the eflags save/restore, the set_iopl_mask() in 
-> __switch_to() is entirely useless for non-virtualized environments, afaik.
->   
+As I said, the problem is _occasionally_ theoretical.
 
-Hm.  Zach removed the pushf/popf in switch_to this last Sept, with the 
-comment "The pushf/popf in switch_to are ONLY used to switch IOPL. 
-Making this explicit in C code is more clear.  This pushf/popf pair was 
-added as a bugfix for leaking IOPL to unprivileged processes when using 
-sysenter/sysexit based system calls (sysexit does not restore flags)."
+This would happen f.e. if packet socket handler was installed
+after IP handler. Then tcpdump would get packet after it is processed
+(acked/replied/forwarded). This would be disasterous, the results
+are unparsable.
+
+I recall, the issue was discussed, and that time it looked more
+reasonable to solve problems of this kind taking timestamp once
+before it is seen by all the rest of stack. Who could expect that
+PIT nightmare is going to return? :-)
 
 
-> Zack added to the cc. Who else needs to know?
-Rusty, Chris Wright and me.
+> Then it has to use the ACPI pmtmr which is really really slow.
+> The overhead of that thing is so large that you can clearly see it in
+> the network benchmark.
 
+I see. Thank you.
+
+Alexey

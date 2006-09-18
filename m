@@ -1,26 +1,23 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965176AbWIRAmd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965172AbWIRAne@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965176AbWIRAmd (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Sep 2006 20:42:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965178AbWIRAmc
+	id S965172AbWIRAne (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Sep 2006 20:43:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965179AbWIRAne
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Sep 2006 20:42:32 -0400
-Received: from opersys.com ([64.40.108.71]:57359 "EHLO www.opersys.com")
-	by vger.kernel.org with ESMTP id S965176AbWIRAmb (ORCPT
+	Sun, 17 Sep 2006 20:43:34 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:4543 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S965172AbWIRAnd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Sep 2006 20:42:31 -0400
-Message-ID: <450DF05E.50807@opersys.com>
-Date: Sun, 17 Sep 2006 21:03:26 -0400
-From: Karim Yaghmour <karim@opersys.com>
-Reply-To: karim@opersys.com
-Organization: Opersys inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.6) Gecko/20060804 Fedora/1.0.4-0.5.1.fc5 SeaMonkey/1.0.4
-MIME-Version: 1.0
-To: Paul Mundt <lethal@linux-sh.org>
-CC: linux-kernel <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>,
+	Sun, 17 Sep 2006 20:43:33 -0400
+Date: Mon, 18 Sep 2006 02:43:09 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Nicholas Miell <nmiell@comcast.net>
+cc: Ingo Molnar <mingo@elte.hu>, Paul Mundt <lethal@linux-sh.org>,
+       Karim Yaghmour <karim@opersys.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
        Ingo Molnar <mingo@redhat.com>, Jes Sorensen <jes@sgi.com>,
-       Andrew Morton <akpm@osdl.org>, Roman Zippel <zippel@linux-m68k.org>,
-       Tom Zanussi <zanussi@us.ibm.com>,
+       Andrew Morton <akpm@osdl.org>, Tom Zanussi <zanussi@us.ibm.com>,
        Richard J Moore <richardj_moore@uk.ibm.com>,
        "Frank Ch. Eigler" <fche@redhat.com>,
        Michel Dagenais <michel.dagenais@polymtl.ca>,
@@ -29,27 +26,27 @@ CC: linux-kernel <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>,
        Greg Kroah-Hartman <gregkh@suse.de>,
        Thomas Gleixner <tglx@linutronix.de>, William Cohen <wcohen@redhat.com>,
        "Martin J. Bligh" <mbligh@mbligh.org>
-Subject: Re: The emperor is naked: why *comprehensive* static markup belongs
- in mainline
-References: <450D182B.9060300@opersys.com> <20060917112128.GA3170@localhost.usen.ad.jp>
-In-Reply-To: <20060917112128.GA3170@localhost.usen.ad.jp>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Subject: Re: tracepoint maintainance models
+In-Reply-To: <1158538213.2471.73.camel@entropy>
+Message-ID: <Pine.LNX.4.64.0609180231110.6761@scrub.home>
+References: <450D182B.9060300@opersys.com>  <20060917112128.GA3170@localhost.usen.ad.jp>
+  <20060917143623.GB15534@elte.hu> <1158524390.2471.49.camel@entropy> 
+ <20060917230623.GD8791@elte.hu> <1158538213.2471.73.camel@entropy>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-Paul Mundt wrote:
-> The only issue with this is that the argument list has to be maintained
-> in two places.
+On Sun, 17 Sep 2006, Nicholas Miell wrote:
 
-Not necessarily. LTTng's genevent stuff could be intelligently used here.
-Ideally markup is self-contained: it provides code location and context,
-and provides any additional information required for postmortem
-"rendering" of the event (i.e. how the event is displayed/analyzed).
+> Anyone know what's hard about kprobes on m68k? Roman?
 
-Karim
--- 
-President  / Opersys Inc.
-Embedded Linux Training and Expertise
-www.opersys.com  /  1.866.677.4546
+A limited kprobes hack wouldn't be that difficult (but would still 
+require more time than I have right now), although it would be barely 
+usable with a large number of traces.
+Ingo might be able to optimize kprobes on his machine to nothing, but that 
+doesn't help me very much.
+
+bye, Roman

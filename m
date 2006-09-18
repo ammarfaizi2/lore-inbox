@@ -1,41 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965629AbWIRKBS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965633AbWIRKGL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965629AbWIRKBS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Sep 2006 06:01:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965630AbWIRKBS
+	id S965633AbWIRKGL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Sep 2006 06:06:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965634AbWIRKGL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Sep 2006 06:01:18 -0400
-Received: from z2.cat.iki.fi ([212.16.98.133]:44012 "EHLO z2.cat.iki.fi")
-	by vger.kernel.org with ESMTP id S965629AbWIRKBS (ORCPT
+	Mon, 18 Sep 2006 06:06:11 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:35714 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S965633AbWIRKGJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Sep 2006 06:01:18 -0400
-Date: Mon, 18 Sep 2006 13:01:16 +0300
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: Folkert van Heusden <folkert@vanheusden.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: vger being silly
-Message-ID: <20060918100116.GF16047@mea-ext.zmailer.org>
-References: <20060917211731.GQ24822@vanheusden.com>
-Mime-Version: 1.0
+	Mon, 18 Sep 2006 06:06:09 -0400
+Date: Mon, 18 Sep 2006 12:05:48 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Tejun Heo <htejun@gmail.com>
+Cc: kernel list <linux-kernel@vger.kernel.org>, axboe@suse.de
+Subject: Re: SATA powersave patches
+Message-ID: <20060918100548.GJ3746@elf.ucw.cz>
+References: <20060908110346.GC920@elf.ucw.cz> <45015767.1090002@gmail.com> <20060908123537.GB17640@elf.ucw.cz> <4501655F.5000103@gmail.com> <20060910224815.GC1691@elf.ucw.cz> <4505394F.6060806@gmail.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060917211731.GQ24822@vanheusden.com>
+In-Reply-To: <4505394F.6060806@gmail.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Sep 17, 2006 at 11:17:31PM +0200, Folkert van Heusden wrote:
-> Hi,
+Hi!
+
+> >Thanks... I got it to work (on 2 the old tree, I was not able to
+> >forward-port it), but power savings were not too big (~0.1W, maybe).
+> >
+> >I'm getting huge (~1W) savings by powering down SATA controller, as in
+> >ahci_pci_device_suspend().
 > 
-> Vger is sending e-mails with a negative size:
->  In:  MAIL
->      From:<linux-kernel-owner+folkert=40vanheusden.com-S1750900AbWIQODP@vger.kernel.org>
->      BODY=8BITMIME SIZE=-428652
->  Out: 401 Bad message size syntax
+> Yeah, it only turns off SATA PHY, so it doesn't result in huge saving. 
+> IIRC, it was somewhere around 5 percent on my notebook w/ static 
+> linksave mode (turning PHY off on empty port).  But link powersaving 
+> introduces virtually no recognizable delay, so it's nice to have.
+
+Yes, any powersavings without cost are a good idea. 
+
+> Can you check if there is any difference between [D/H]IPS and static? 
+> ICH6M on my notebook can't do DIPS/HIPS, so I couldn't compare them 
+> against static.
+
+What is D/HIPS? I could not find anything relevant..
+
+> >It would be great to be able to power SATA
+> >controller down, then power it back up when it is needed... I tried
+> >following hack, but could not get it to work. Any ideas?
 > 
-> Folkert van Heusden
+> 1. One way to do it would be by dynamic power management.  It would be 
+> nice to have wake-up mechanism at the block layer.  Idle timer can run 
+> in the block layer or it can be implemented in the userland.
+> 
+> ATM, this implies that the attached devices are powered down too 
+> (spindown).  As spinning up takes quite some time, we can implement 
 
-  I was very surprised myself -- and I was the reason it happened.
-  A manual goofup during junk-filter cleanup.
+For now, powering down controller when disks are spinned down would be
+very nice first step.
 
+When I forced disk to be spinned down (with power/state file)
+controller actually survived power down/power up... unfortunately with
+so long delay (~30 sec) that it is not usable in practice.
 
-/Matti Aarnio -- one of  <postmaster@vger.kernel.org>
+> So, I think option #1 is the way to go - implementing leveled dynamic 
+> power management infrastructure and adding support in the block layer. 
+> What do you think?
+
+Would be nice :-).
+								Pavel
+
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

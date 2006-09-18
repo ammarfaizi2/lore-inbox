@@ -1,48 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965249AbWIROaA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965248AbWIRObQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965249AbWIROaA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Sep 2006 10:30:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965248AbWIROaA
+	id S965248AbWIRObQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Sep 2006 10:31:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965269AbWIRObQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Sep 2006 10:30:00 -0400
-Received: from ns2.suse.de ([195.135.220.15]:62619 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S965229AbWIRO37 (ORCPT
+	Mon, 18 Sep 2006 10:31:16 -0400
+Received: from mail.suse.de ([195.135.220.2]:5807 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S965248AbWIRObP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Sep 2006 10:29:59 -0400
+	Mon, 18 Sep 2006 10:31:15 -0400
 From: Andi Kleen <ak@suse.de>
-To: David Miller <davem@davemloft.net>
-Subject: Re: Network performance degradation from 2.6.11.12 to 2.6.16.20
-Date: Mon, 18 Sep 2006 16:29:53 +0200
+To: "Stuart MacDonald" <stuartm@connecttech.com>
+Subject: Re: TCP stack behaviour question
+Date: Mon, 18 Sep 2006 16:31:10 +0200
 User-Agent: KMail/1.9.3
-Cc: master@sectorb.msk.ru, hawk@diku.dk, harry@atmos.washington.edu,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-References: <p73k6414lnp.fsf@verdi.suse.de> <p73eju94htu.fsf@verdi.suse.de> <20060918.070905.98863400.davem@davemloft.net>
-In-Reply-To: <20060918.070905.98863400.davem@davemloft.net>
+Cc: linux-kernel@vger.kernel.org, "Michael Kerrisk" <mtk-manpages@gmx.net>
+References: <002801c6db2d$67d8a3a0$294b82ce@stuartm>
+In-Reply-To: <002801c6db2d$67d8a3a0$294b82ce@stuartm>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200609181629.53949.ak@suse.de>
+Message-Id: <200609181631.10625.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
+On Monday 18 September 2006 16:19, Stuart MacDonald wrote:
+> From: Andi Kleen [mailto:ak@suse.de] 
+> > > # man 7 ip
+> > > ..
+> > >                Note that TCP has no error queue; MSG_ERRQUEUE is
+> > > illegal on SOCK_STREAM sockets.  Thus all errors are returned by
+> > > socket function return or SO_ERROR only.
+> > > 
+> > > Maybe the man page is wrong? That's from my FC 3 install.
+> > 
+> > The sentence is correct, but TCP has a IP_RECVERR that works
+> > differently without a queue. Basically it doesn't delay the error 
+> > reporting for incoming ICMPs to the last retransmit, but reports
+> > them immediately. This is documented in tcp(7)
 > 
-> People who run tcpdump want "wire" timestamps as close as possible.
-> Yes, things get delayed with the IRQ path, DMA delays, IRQ
-> mitigation and whatnot, but it's an order of magnitude worse if
-> you delay to user read() since that introduces also the delay of
-> the packet copies to userspace which are significantly larger than
-> these hardware level delays.  If tcpdump gets swapped out, the
-> timestamp delay can be on the order of several seconds making it
-> totally useless.
+> I read that too, but didn't know which one was correct, so I erred on
+> the side of caution and believed ip(7).
 
-My proposal wasn't to delay to user read, just to do the time stamp in socket 
-context. This means as soon as packet or RAW/UDP have looked up the socket and can 
-check a per socket flag do the time stamp.
-
-The only delay this would add would be the queueing time from the NIC
-to the softirq. Do you really think that is that bad?
+Ok maybe it's a bit misleading. Michael, you might want to clarify.
 
 -Andi

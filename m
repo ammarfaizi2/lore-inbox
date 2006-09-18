@@ -1,65 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751550AbWIRNlm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751594AbWIRNnB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751550AbWIRNlm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Sep 2006 09:41:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751592AbWIRNlm
+	id S1751594AbWIRNnB (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Sep 2006 09:43:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751595AbWIRNnB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Sep 2006 09:41:42 -0400
-Received: from mail.sf-mail.de ([62.27.20.61]:62678 "EHLO mail.sf-mail.de")
-	by vger.kernel.org with ESMTP id S1751550AbWIRNlm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Sep 2006 09:41:42 -0400
-From: Rolf Eike Beer <eike-kernel@sf-tec.de>
-To: Greg KH <greg@kroah.com>
-Subject: Re: Exporting array data in sysfs
-Date: Mon, 18 Sep 2006 15:41:45 +0200
-User-Agent: KMail/1.9.4
-Cc: linux-kernel@vger.kernel.org
-References: <200609181359.31489.eike-kernel@sf-tec.de> <20060918124425.GA8304@kroah.com>
-In-Reply-To: <20060918124425.GA8304@kroah.com>
+	Mon, 18 Sep 2006 09:43:01 -0400
+Received: from embla.aitel.hist.no ([158.38.50.22]:6825 "HELO
+	embla.aitel.hist.no") by vger.kernel.org with SMTP id S1751570AbWIRNnA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Sep 2006 09:43:00 -0400
+Message-ID: <450EA198.5060302@aitel.hist.no>
+Date: Mon, 18 Sep 2006 15:39:36 +0200
+From: Helge Hafting <helge.hafting@aitel.hist.no>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060812)
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart2670495.kQ6Aykhtfi";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+To: yogeshwar sonawane <yogyas@gmail.com>
+CC: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: How much kernel memory is in 64-bit OS ?
+References: <b681c62b0609160434g6ccbbaa0vd0cd68958696726e@mail.gmail.com> <b681c62b0609180251m79071e59oe212b1133bf6944c@mail.gmail.com>
+In-Reply-To: <b681c62b0609180251m79071e59oe212b1133bf6944c@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <200609181541.57164.eike-kernel@sf-tec.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart2670495.kQ6Aykhtfi
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
-
-Greg KH wrote:
-> On Mon, Sep 18, 2006 at 01:59:17PM +0200, Rolf Eike Beer wrote:
-> > Hi,
-> >
-> > I would like to put the contents of an array in sysfs files. I found no
-> > simple way to do this, so here are my thoughts in hope someone can hand
-> > me a light.
+yogeshwar sonawane wrote:
+> On 9/16/06, yogeshwar sonawane <yogyas@gmail.com> wrote:
+>> Hi all,
+>>
+>> We all know that in 32-bit OS, total 4GB memory space is divided in
+>> 3(user) + 1(kernel) space.
+>>
+>> Similarly, what is the division/scenario in case of 64-bit OS ?
+>>
+>> Any reference/explanation will be helpful.
+>>
+>> thanks in advance.
+>>
+>>
+>> Yogeshwar
+>>
 >
-> What is wrong with using an attribute group for this kind of
-> information?
+> On similar lines, some time back, i read that, to accomodate large
+> physical memory ,
+> the 3G/1G layout is modified to have 4G/4G partition. But if somebody
+> can focus the light on following things, it will be helpful.
+> 1) what was the requirement of 4G/4G layout ?
+It offers more memory than 3G/1G.  This is an improvement, so of
+course it is the chosen way. It was not required - you sure can use
+a 3G/1G split on a 64-bit processor - but why introduce an artifical
+limitation?
 
-Missing documentation. Yes, this looks like I could use this at least for t=
-he=20
-simple interfaces (which would be enough).
+The requirement for using a 4G/4G split is to have a processor
+that support 64-bit adressing as well as 32-bit backward compatibility.
+> 2) how it is managed ?
+The kernel runs in 64-bit mode, offering the 4G/4G stuff for 32-bit 
+processes.
 
-Eike
+> 3) how HIGH_MEMORY concept is related here.
+high memory is a quirky way of supporting more than 4G on a 32-bit
+processor.  A 64-bit processor support much more than 4G, so no need
+for tricks that work around the limitations of 32-bit processors.
 
 
---nextPart2670495.kQ6Aykhtfi
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-
-iD8DBQBFDqIlXKSJPmm5/E4RAqWuAKCL9pbSf46ZXsA6ewvy0tDck0x34ACfVZLs
-5xHGDzMzifO3f5M1+cDN0Z4=
-=C+cO
------END PGP SIGNATURE-----
-
---nextPart2670495.kQ6Aykhtfi--
+Helge Hafting

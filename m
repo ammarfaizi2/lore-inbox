@@ -1,116 +1,117 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932253AbWIRLcj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751508AbWIRLcP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932253AbWIRLcj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Sep 2006 07:32:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932273AbWIRLcj
+	id S1751508AbWIRLcP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Sep 2006 07:32:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751514AbWIRLcP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Sep 2006 07:32:39 -0400
-Received: from mailhub.sw.ru ([195.214.233.200]:1846 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S932253AbWIRLci (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Sep 2006 07:32:38 -0400
-Message-ID: <450E83D0.6080205@openvz.org>
-Date: Mon, 18 Sep 2006 15:32:32 +0400
-From: Pavel Emelianov <xemul@openvz.org>
-User-Agent: Thunderbird 1.5 (X11/20060317)
+	Mon, 18 Sep 2006 07:32:15 -0400
+Received: from nf-out-0910.google.com ([64.233.182.190]:57000 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1751508AbWIRLcO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Sep 2006 07:32:14 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=U4n06nBwdz9xQP9EiqqYPaZUNM7/FM2b/f00zSjEoUrWDTeMcdhiccFh992vDYk1ieJFHrNxw0BDbXndY2QoJEOvB/ogKhUoEAOUy6iXCs7G9zGzh/nCx5xHn/YK3OLle09tU0x3UHecbvn3kSopReDsC4SnZ1O2FSeTkORuLgM=
+Message-ID: <450E83DC.4050503@gmail.com>
+Date: Mon, 18 Sep 2006 15:32:44 +0400
+From: "Eugeny S. Mints" <eugeny.mints@gmail.com>
+User-Agent: Thunderbird 1.5 (X11/20060313)
 MIME-Version: 1.0
-To: balbir@in.ibm.com
-CC: sekharan@us.ibm.com, Srivatsa <vatsa@in.ibm.com>,
-       Rik van Riel <riel@redhat.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       CKRM-Tech <ckrm-tech@lists.sourceforge.net>,
-       Dave Hansen <haveblue@us.ibm.com>, Andi Kleen <ak@suse.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Christoph Hellwig <hch@infradead.org>, Andrey Savochkin <saw@sw.ru>,
-       Matt Helsley <matthltc@us.ibm.com>, Hugh Dickins <hugh@veritas.com>,
-       Alexey Dobriyan <adobriyan@mail.ru>, Kirill Korotaev <dev@sw.ru>,
-       Oleg Nesterov <oleg@tv-sign.ru>, devel@openvz.org
-Subject: Re: [ckrm-tech] [PATCH] BC: resource beancounters (v4) (added	user
- memory)
-References: <44FD918A.7050501@sw.ru>	<44FDAB81.5050608@in.ibm.com>		<44FEC7E4.7030708@sw.ru>	<44FF1EE4.3060005@in.ibm.com>		<1157580371.31893.36.camel@linuxchandra>	<45011CAC.2040502@openvz.org>		<1157730221.26324.52.camel@localhost.localdomain>		<4501B5F0.9050802@in.ibm.com> <450508BB.7020609@openvz.org>		<4505161E.1040401@in.ibm.com> <45051AC7.2000607@openvz.org>		<1158000590.6029.33.camel@linuxchandra>	<45069072.4010007@openvz.org>		<1158105488.4800.23.camel@linuxchandra>	<4507BC11.6080203@openvz.org>		<1158186664.18927.17.camel@linuxchandra>	<45090A6E.1040206@openvz.org>	<1158277364.6357.33.camel@linuxchandra>	<450A5325.6090803@openvz.org> <450A6A7A.8010102@sw.ru> <450A8B61.7040905@openvz.org> <450E5813.2040804@in.ibm.com> <450E5F2E.2070809@openvz.org> <450E8113.30602@in.ibm.com>
-In-Reply-To: <450E8113.30602@in.ibm.com>
-Content-Type: text/plain; charset=ISO-8859-1
+To: Pavel Machek <pavel@ucw.cz>
+CC: pm list <linux-pm@lists.osdl.org>,
+       kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [linux-pm] [PATCH] PowerOP, PowerOP Core, 1/2
+References: <45096933.4070405@gmail.com> <20060918104437.GA4973@elf.ucw.cz>
+In-Reply-To: <20060918104437.GA4973@elf.ucw.cz>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Balbir Singh wrote:
-> Pavel Emelianov wrote:
->> Balbir Singh wrote:
->>
->> [snip]
->>
->>> This approach has the following disadvantages
->>>  1. Lets consider initialization - When we create 'n' groups
->>> initially, we need
->>>     to spend O(n^2) time to assign guarantees.
->>
->> 1. Not guarantees - limits. If you do not need guarantees - assign
->>    overcommited limits. Most of OpenVZ users do so and nobody claims.
->> 2. If you start n groups at once then limits are calculated in O(n)
->>    time, not O(n^2).
->
-> Yes.. if you start them at once, but if they are incrementally
-> added and started it is O(n^2)
+Pavel Machek wrote:
+> Hi!
+> 
+>> The PowerOP Core provides completely arch independent interface
+>> to create and control operating points which consist of arbitrary
+>> subset of power parameters available on a certain platform.
+>> Also, PowerOP Core provides optional SysFS interface to access
+>> operating point from userspace.
+> 
+> Please inline patches and sign them off.
 
-See my comment below.
+hmm, seems my bad. will double check.
 
->
->>
->>>  2. Every time a limit or a guarantee changes, we need to recalculate
->>> guarantees
->>>     and ensure that the change will not break any guarantees
->>
->> The same.
->>
->>>  3. The same thing as stated above, when a resource group is created
->>> or deleted
->>>
->>> This can lead to some instability; a change in one group propagates to
->>> all other groups.
->>
->> Let me cite a part of your answer on my letter from 11.09.2006:
->> "...
->>   xemul> I have a node with 1Gb of ram and 10 containers with 100Mb
->>   xemul> guarantee each. I want to start one more.
->>   xemul> What shall I do not to break guarantees?
->>
->>  Don't start the new container or change the guarantees of the
->>  existing ones to accommodate this one ... It would be perfectly
->>  ok to have a container that does not care about guarantees to
->>  set their guarantee to 0 and set their limit to the desired value
->> ..."
->>
->> The same for the limiting - either do not start new container, or
->> recalculate limits to meet new requirements. You may not take care of
->> guarantees as weel and create an overcommited configuration.
+> 
+> Also if you are providing new userland interface, describe it... in
+> Documentation/ABI.
 
-As I do not see any reply on this I consider "O(n^2) disadvantage" to
-be irrelevant.
+seems already discussed
 
->>
->> And one more thing. We've asked it many times and I ask it again -
->> please, show us the other way for providing guarantee rather than
->> limiting or reserving.
->
-> There are some other options, I am sure Chandra will probably have
-> more.
->
-> 1. Reclaim resources from other containers. This can be done well for
->    user-pages, if we ensure that each container does not mlock more
->    than its guaranteed share of memory.
+>> +struct powerop_driver {
+>> +	char *name;
+>> +	void *(*create_point) (const char *pwr_params, va_list args);
+>> +	int (*set_point) (void *md_opt);
+>> +	int (*get_point) (void *md_opt, const char *pwr_params, va_list args);
+>> +};
+> 
+> We can certainly get better interface than va_list, right?
 
-We've already agreed to consider unreclaimable resources only.
-If we provide reclaimable memory *only* then we can provide any
-guarantee with a single page available for user-space.
-Unreclaimable resource is the most interesting one.
+Please elaborate.
 
-> 2. Provide best effort guarantees for non-reclaimable memory
+> 
+>> +
+>> +#
+>> +# powerop
+>> +#
+>> +
+>> +menu "PowerOP (Power Management)"
+>> +
+>> +config POWEROP
+>> +	tristate "PowerOP Core"
+>> +	help
+> 
+> Hohum, this is certainly going to be clear to confused user...
 
-That's the question - how?
+please elaborate.
 
-> 3. oom-kill a container or a task within a resource group that has
->    exceeded its guarantee and some other container is unable to meet its
->    guarantee
+>> +	list_add_tail(&opt->node, &named_opt_list);
+>> +	strcpy(registered_names[registered_opt_number], id);
+>> +	registered_opt_number++;
+>> +	up(&named_opt_list_mutex);
+>> +
+>> +	blocking_notifier_call_chain(&powerop_notifier_list,
+>> +				     POWEROP_REGISTER_EVENT, id);
+>> +	return 0;
+>> +
+>> +      fail_set_name:
+>> +	kfree(opt->md_opt);
+>> +
+>> +      fail_opt_create:
+>> +	kfree(registered_names[registered_opt_number]);
+>> +
+>> +      fail_name_nomem:
+>> +	kfree(opt);
+>> +	return err;
+>> +}
+> 
+> Careful about spaces vs. tabs...
 
-Oom-killer must start only when there are no other ways to find memory.
-This must be a "last argument", not the regular solution.
+will double check but I'm pretty sure I ran all files thru lindent.
+
+
+> ...so, you got support for 20 operating points... And this should
+> include devices, too, right? 
+
+sorry, don't understand the question. an operating point is a set of platform 
+power parameters.
+
+>How is it going to work on 8cpu box? will
+> you have states like cpu1_800MHz_cpu2_1600MHz_cpu3_800MHz_... ?
+
+i do not operate with term 'state' so I don't understand what it means here.
+
+	Eugeny
+
+> 								Pavel
+

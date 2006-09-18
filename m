@@ -1,40 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965243AbWIROHW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965251AbWIROJN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965243AbWIROHW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Sep 2006 10:07:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965245AbWIROHW
+	id S965251AbWIROJN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Sep 2006 10:09:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965248AbWIROJN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Sep 2006 10:07:22 -0400
-Received: from wilbur.contactoffice.net ([212.3.242.68]:14765 "EHLO
-	wilbur.contactoffice.net") by vger.kernel.org with ESMTP
-	id S965243AbWIROHV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Sep 2006 10:07:21 -0400
-Message-ID: <33504170.1158588444597.JavaMail.root@pumbaa>
-Date: Mon, 18 Sep 2006 16:07:24 +0200 (CEST)
-From: Ierland 100procent <ierland@mail.be>
-Reply-To: Ierland 100procent <ierland@mail.be>
-To: linux-kernel@vger.kernel.org
-Subject: dell USB mouse and keyboard needs to be plugged out/in at every
- reboot
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+	Mon, 18 Sep 2006 10:09:13 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:49868
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S965246AbWIROJM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Sep 2006 10:09:12 -0400
+Date: Mon, 18 Sep 2006 07:09:05 -0700 (PDT)
+Message-Id: <20060918.070905.98863400.davem@davemloft.net>
+To: ak@suse.de
+Cc: master@sectorb.msk.ru, hawk@diku.dk, harry@atmos.washington.edu,
+       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: Re: Network performance degradation from 2.6.11.12 to 2.6.16.20
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <p73eju94htu.fsf@verdi.suse.de>
+References: <p73k6414lnp.fsf@verdi.suse.de>
+	<20060918090330.GA9850@tentacle.sectorb.msk.ru>
+	<p73eju94htu.fsf@verdi.suse.de>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-Origin-IP: 194.78.89.210
-X-Mailer: ContactOffice Mail
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Env.
+From: Andi Kleen <ak@suse.de>
+Date: 18 Sep 2006 11:58:21 +0200
 
-Kernel 2.6.15
-Mepis 6.0
+> For netdev: I'm more and more thinking we should just avoid the
+> problem completely and switch to "true end2end" timestamps. This
+> means don't time stamp when a packet is received, but only when it
+> is delivered to a socket. The timestamp at receiving is a lie
+> anyways because the network hardware can add an arbitary long delay
+> before the driver interrupt handler runs. Then the problem above
+> would completely disappear.
 
-I need to replug the USB mouse and keyboard at every reboot.
-Any solution or reason why?
+I don't think this is wise.
 
-Jo
------------------------------------------------------
-Mail.be, WebMail and Virtual Office
-http://www.mail.be
+People who run tcpdump want "wire" timestamps as close as possible.
+Yes, things get delayed with the IRQ path, DMA delays, IRQ
+mitigation and whatnot, but it's an order of magnitude worse if
+you delay to user read() since that introduces also the delay of
+the packet copies to userspace which are significantly larger than
+these hardware level delays.  If tcpdump gets swapped out, the
+timestamp delay can be on the order of several seconds making it
+totally useless.
+
+Andi, you will need to find another solution to this problem :-)
 

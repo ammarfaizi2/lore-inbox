@@ -1,93 +1,280 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965377AbWIREmo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965380AbWIREn4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965377AbWIREmo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Sep 2006 00:42:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965378AbWIREmo
+	id S965380AbWIREn4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Sep 2006 00:43:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965383AbWIREnz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Sep 2006 00:42:44 -0400
-Received: from gate.crashing.org ([63.228.1.57]:14767 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S965377AbWIREmn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Sep 2006 00:42:43 -0400
-Subject: Re: [RFC] MMIO accessors & barriers documentation #2
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Jesse Barnes <jbarnes@virtuousgeek.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       "David S. Miller" <davem@davemloft.net>,
-       Jeff Garzik <jgarzik@pobox.com>, Paul Mackerras <paulus@samba.org>,
-       "Eric W. Biederman" <ebiederm@xmission.com>
-In-Reply-To: <Pine.LNX.4.64.0609171919030.4388@g5.osdl.org>
-References: <1158534913.14473.276.camel@localhost.localdomain>
-	 <Pine.LNX.4.64.0609171919030.4388@g5.osdl.org>
-Content-Type: text/plain
-Date: Mon, 18 Sep 2006 14:42:19 +1000
-Message-Id: <1158554539.6002.10.camel@localhost.localdomain>
+	Mon, 18 Sep 2006 00:43:55 -0400
+Received: from nf-out-0910.google.com ([64.233.182.188]:36884 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S965378AbWIREnx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Sep 2006 00:43:53 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:mime-version:content-type:content-disposition:user-agent;
+        b=GwaFr1bNtAgagIzVwogKtwFnkapMr3PX866Oth/buwygmMtdvUfpaEetDD3byWMtOI3e5RBG2OgGUGG2OH5LEG9U2UKxXQalcmdM/d1u22pJESlM1incaRydML6cu4e8Adk0TVDOSuW9C7Uciyr6jXRNt7I48Xacfj/Zjlll/YA=
+Date: Mon, 18 Sep 2006 08:43:48 +0400
+From: Alexey Dobriyan <adobriyan@gmail.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
+Subject: [PATCH] proper flags type of spin_lock_irqsave()
+Message-ID: <20060918044348.GA5364@martell.zuzino.mipt.ru>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-09-17 at 19:24 -0700, Linus Torvalds wrote:
+Signed-off-by: Alexey Dobriyan <adobriyan@gmail.com>
+---
 
-> >  1- {read,write}{b,w,l,q} : MMIO accessors. Those accessors provide
-> > all MMIO ordering requirements. They are thus called "fully ordered".
-> > That is #1, #2 and #4 for writes and #1 and #3 for reads. 
-> 
-> Well, it's already not defined to be #4 right now on SGI boxes, and we 
-> have that (badly named) mmiowb() thing to enforce #4, so I think we should 
-> just accept that write[bwl]() it's _that_ ordered.
->
-> And on x86, we _already_ depend on "wmb()" to be a "normal write to MMIO 
-> write" barrier, which is technically wrong and bad. Again, thanks to 
-> mmiowb(), normal memory accesses and MMIO accesses have already been 
-> defined to not be in the same "ordering domain", so "wmb()" is technically 
-> wrong and may not order a regular write wrt a MMIO (because it doesn't do 
-> so for the other order: MMIO->spin_unlock).
-> 
-> So I think we should just admit that at least MMIO _stores_ are already 
-> not entirely ordered, and not try to strengthen the rules for the current 
-> setup (and just try to clarify the currently accepted semantics).
+ So far results of incomplete spin_lock_irqsave audit, and there is also
+ local_irq_save()... I'll eventually add
 
-I'm a little bit confused as Alan seemed to imply that memory store vs.
-MMIO were fully ordered on x86 and thus no barrier was needed (which was
-the start of the discussion in the first place since on PowerPC, they
-were not ordered until Paul's latest patch).
+	typedef unsigned long __bitwise__ lock_flags_t;
 
-I tend to agree with Alan and others though that non-ordered accessors
-will be a problem with driver writers who don't understand what it's all
-about. David Miller even said that assuming anything else but strongly
-ordered accessor was basically shooting ourselves in the foot :)
+ so sparse could find future offenders. name OK?
 
-There have been two main cases biting us so far out of my list of 4,
-which is #2 and #4 in my list of ordering requirements: memory store vs.
-mmio (read or store) and mmio vs. spinlock. The former was/is handled in
-some drivers with wmb() (which I dislike as wmb() should really only be
-defined for the coherency domain) and not in others. The later was/is
-handled in some drivers with mmiowb() (which I agree is badly named).
+ arch/ia64/kernel/mca.c             |    2 +-
+ arch/ia64/sn/pci/pcibr/pcibr_ate.c |    2 +-
+ arch/ia64/sn/pci/pcibr/pcibr_dma.c |    2 +-
+ arch/parisc/kernel/firmware.c      |    7 ++++---
+ arch/v850/kernel/memcons.c         |    2 +-
+ arch/v850/kernel/rte_cb_leds.c     |    2 +-
+ arch/v850/kernel/rte_mb_a_pci.c    |   12 ++++++------
+ drivers/char/ds1286.c              |   15 ++++++++-------
+ drivers/i2c/busses/i2c-ite.c       |    2 +-
+ sound/oss/swarm_cs4297a.c          |    2 +-
+ 10 files changed, 25 insertions(+), 23 deletions(-)
 
-Thus we though it might be a more reasonable path to simply define
-existing accessors as strongly ordered (and make them so on archs where
-they aren't yet) and add some partially relaxed ones with semantics
-precise enough to make them useful for drivers in non-arch specific
-ways.
-
-Now, you seem to say (unless I misunderstood) that x86 -does- have the
-problem of storing to memory followed by an MMIO write not being in
-order (wich means that tg3 would have been broken on x86 as well) which
-I though wasn't the case.
-
-So what do you recommend we do now ? Go back to step #1 and simply
-define readl,writel and friends as not being ordered vs. memory loads
-and then define a bunch of explicit barriers, which basically boils down
-to using the semantics I defined in my document for class 2, partially
-relaxed accessors (__readl/__writel/...) ? Or do we consider that it's
-too much of a risk vs. driver writers and do implement my proposal,
-making the current accessors slower on some archs but safer, and
-starting to convert some drivers hot path to use the relaxed ones ?
-
-Ben.
-
+--- a/arch/ia64/kernel/mca.c
++++ b/arch/ia64/kernel/mca.c
+@@ -221,7 +221,7 @@ ia64_log_get(int sal_info_type, u8 **buf
+ {
+ 	sal_log_record_header_t     *log_buffer;
+ 	u64                         total_len = 0;
+-	int                         s;
++	unsigned long               s;
+ 
+ 	IA64_LOG_LOCK(sal_info_type);
+ 
+--- a/arch/ia64/sn/pci/pcibr/pcibr_ate.c
++++ b/arch/ia64/sn/pci/pcibr/pcibr_ate.c
+@@ -160,7 +160,7 @@ void pcibr_ate_free(struct pcibus_info *
+ 
+ 	volatile u64 ate;
+ 	int count;
+-	u64 flags;
++	unsigned long flags;
+ 
+ 	if (pcibr_invalidate_ate) {
+ 		/* For debugging purposes, clear the valid bit in the ATE */
+--- a/arch/ia64/sn/pci/pcibr/pcibr_dma.c
++++ b/arch/ia64/sn/pci/pcibr/pcibr_dma.c
+@@ -237,7 +237,7 @@ void sn_dma_flush(u64 addr)
+ 	int is_tio;
+ 	int wid_num;
+ 	int i, j;
+-	u64 flags;
++	unsigned long flags;
+ 	u64 itte;
+ 	struct hubdev_info *hubinfo;
+ 	struct sn_flush_device_kernel *p;
+--- a/arch/parisc/kernel/firmware.c
++++ b/arch/parisc/kernel/firmware.c
+@@ -1049,7 +1049,7 @@ void pdc_iodc_putc(unsigned char c)
+         static int __attribute__((aligned(8)))   iodc_retbuf[32];
+         static char __attribute__((aligned(64))) iodc_dbuf[4096];
+         unsigned int n;
+-	unsigned int flags;
++	unsigned long flags;
+ 
+         switch (c) {
+         case '\n':
+@@ -1088,7 +1088,8 @@ void pdc_iodc_putc(unsigned char c)
+  */
+ void pdc_iodc_outc(unsigned char c)
+ {
+-	unsigned int n, flags;
++	unsigned int n;
++	unsigned long flags;
+ 
+ 	/* fill buffer with one caracter and print it */
+         static int __attribute__((aligned(8)))   iodc_retbuf[32];
+@@ -1113,7 +1114,7 @@ void pdc_iodc_outc(unsigned char c)
+  */
+ int pdc_iodc_getc(void)
+ {
+-	unsigned int flags;
++	unsigned long flags;
+         static int __attribute__((aligned(8)))   iodc_retbuf[32];
+         static char __attribute__((aligned(64))) iodc_dbuf[4096];
+ 	int ch;
+--- a/arch/v850/kernel/memcons.c
++++ b/arch/v850/kernel/memcons.c
+@@ -30,7 +30,7 @@ static DEFINE_SPINLOCK(memcons_lock);
+ 
+ static size_t write (const char *buf, size_t len)
+ {
+-	int flags;
++	unsigned long flags;
+ 	char *point;
+ 
+ 	spin_lock_irqsave (memcons_lock, flags);
+--- a/arch/v850/kernel/rte_cb_leds.c
++++ b/arch/v850/kernel/rte_cb_leds.c
+@@ -42,7 +42,7 @@ do {									\
+ 			len = LED_NUM_DIGITS - pos;			\
+ 									\
+ 		if (len > 0) {						\
+-			int _flags;					\
++			unsigned long _flags;				\
+ 			const char *_end = buf + len;			\
+ 			img_decl = &leds_image[pos];			\
+ 									\
+--- a/arch/v850/kernel/rte_mb_a_pci.c
++++ b/arch/v850/kernel/rte_mb_a_pci.c
+@@ -365,7 +365,7 @@ static DEFINE_SPINLOCK(mb_sram_lock);
+ static void *alloc_mb_sram (size_t size)
+ {
+ 	struct mb_sram_free_area *prev, *fa;
+-	int flags;
++	unsigned long flags;
+ 	void *mem = 0;
+ 
+ 	spin_lock_irqsave (mb_sram_lock, flags);
+@@ -406,7 +406,7 @@ static void *alloc_mb_sram (size_t size)
+ static void free_mb_sram (void *mem, size_t size)
+ {
+ 	struct mb_sram_free_area *prev, *fa, *new_fa;
+-	int flags;
++	unsigned long flags;
+ 	void *end = mem + size;
+ 
+ 	spin_lock_irqsave (mb_sram_lock, flags);
+@@ -517,7 +517,7 @@ static DEFINE_SPINLOCK(dma_mappings_lock
+ 
+ static struct dma_mapping *new_dma_mapping (size_t size)
+ {
+-	int flags;
++	unsigned long flags;
+ 	struct dma_mapping *mapping;
+ 	void *mb_sram_block = alloc_mb_sram (size);
+ 
+@@ -575,7 +575,7 @@ static struct dma_mapping *new_dma_mappi
+ 
+ static struct dma_mapping *find_dma_mapping (void *mb_sram_addr)
+ {
+-	int flags;
++	unsigned long flags;
+ 	struct dma_mapping *mapping;
+ 
+ 	spin_lock_irqsave (dma_mappings_lock, flags);
+@@ -592,7 +592,7 @@ static struct dma_mapping *find_dma_mapp
+ 
+ static struct dma_mapping *deactivate_dma_mapping (void *mb_sram_addr)
+ {
+-	int flags;
++	unsigned long flags;
+ 	struct dma_mapping *mapping, *prev;
+ 
+ 	spin_lock_irqsave (dma_mappings_lock, flags);
+@@ -622,7 +622,7 @@ static struct dma_mapping *deactivate_dm
+ static inline void
+ free_dma_mapping (struct dma_mapping *mapping)
+ {
+-	int flags;
++	unsigned long flags;
+ 
+ 	free_mb_sram (mapping->mb_sram_addr, mapping->size);
+ 
+--- a/drivers/char/ds1286.c
++++ b/drivers/char/ds1286.c
+@@ -104,7 +104,7 @@ static int ds1286_ioctl(struct inode *in
+ 	switch (cmd) {
+ 	case RTC_AIE_OFF:	/* Mask alarm int. enab. bit	*/
+ 	{
+-		unsigned int flags;
++		unsigned long flags;
+ 		unsigned char val;
+ 
+ 		if (!capable(CAP_SYS_TIME))
+@@ -120,7 +120,7 @@ static int ds1286_ioctl(struct inode *in
+ 	}
+ 	case RTC_AIE_ON:	/* Allow alarm interrupts.	*/
+ 	{
+-		unsigned int flags;
++		unsigned long flags;
+ 		unsigned char val;
+ 
+ 		if (!capable(CAP_SYS_TIME))
+@@ -136,7 +136,7 @@ static int ds1286_ioctl(struct inode *in
+ 	}
+ 	case RTC_WIE_OFF:	/* Mask watchdog int. enab. bit	*/
+ 	{
+-		unsigned int flags;
++		unsigned long flags;
+ 		unsigned char val;
+ 
+ 		if (!capable(CAP_SYS_TIME))
+@@ -152,7 +152,7 @@ static int ds1286_ioctl(struct inode *in
+ 	}
+ 	case RTC_WIE_ON:	/* Allow watchdog interrupts.	*/
+ 	{
+-		unsigned int flags;
++		unsigned long flags;
+ 		unsigned char val;
+ 
+ 		if (!capable(CAP_SYS_TIME))
+@@ -434,7 +434,7 @@ static inline unsigned char ds1286_is_up
+ static void ds1286_get_time(struct rtc_time *rtc_tm)
+ {
+ 	unsigned char save_control;
+-	unsigned int flags;
++	unsigned long flags;
+ 	unsigned long uip_watchdog = jiffies;
+ 
+ 	/*
+@@ -494,7 +494,8 @@ static int ds1286_set_time(struct rtc_ti
+ {
+ 	unsigned char mon, day, hrs, min, sec, leap_yr;
+ 	unsigned char save_control;
+-	unsigned int yrs, flags;
++	unsigned int yrs;
++	unsigned long flags;
+ 
+ 
+ 	yrs = rtc_tm->tm_year + 1900;
+@@ -552,7 +553,7 @@ static int ds1286_set_time(struct rtc_ti
+ static void ds1286_get_alm_time(struct rtc_time *alm_tm)
+ {
+ 	unsigned char cmd;
+-	unsigned int flags;
++	unsigned long flags;
+ 
+ 	/*
+ 	 * Only the values that we read from the RTC are set. That
+--- a/drivers/i2c/busses/i2c-ite.c
++++ b/drivers/i2c/busses/i2c-ite.c
+@@ -109,7 +109,7 @@ static int iic_ite_getclock(void *data)
+ static void iic_ite_waitforpin(void) {
+    DEFINE_WAIT(wait);
+    int timeout = 2;
+-   long flags;
++   unsigned long flags;
+ 
+    /* If interrupts are enabled (which they are), then put the process to
+     * sleep.  This process will be awakened by two events -- either the
+--- a/sound/oss/swarm_cs4297a.c
++++ b/sound/oss/swarm_cs4297a.c
+@@ -725,7 +725,7 @@ static int serdma_reg_access(struct cs42
+         serdma_t *d = &s->dma_dac;
+         u64 *data_p;
+         unsigned swptr;
+-        int flags;
++        unsigned long flags;
+         serdma_descr_t *descr;
+ 
+         if (s->reg_request) {
 

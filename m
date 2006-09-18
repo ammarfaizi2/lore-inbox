@@ -1,63 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030205AbWIRWJe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751214AbWIRWSw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030205AbWIRWJe (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Sep 2006 18:09:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030203AbWIRWJe
+	id S1751214AbWIRWSw (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Sep 2006 18:18:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751936AbWIRWSw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Sep 2006 18:09:34 -0400
-Received: from warden-p.diginsite.com ([208.29.163.248]:26499 "HELO
-	warden.diginsite.com") by vger.kernel.org with SMTP
-	id S1030200AbWIRWJd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Sep 2006 18:09:33 -0400
-Date: Mon, 18 Sep 2006 14:57:04 -0700 (PDT)
-From: David Lang <dlang@digitalinsight.com>
-X-X-Sender: dlang@dlang.diginsite.com
-To: Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>
-cc: "Vladimir B. Savkin" <master@sectorb.msk.ru>, Andi Kleen <ak@suse.de>,
-       Jesper Dangaard Brouer <hawk@diku.dk>,
-       Harry Edmon <harry@atmos.washington.edu>, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org
-Subject: Re: Network performance degradation from 2.6.11.12 to 2.6.16.20
-In-Reply-To: <20060918220038.GB14322@ms2.inr.ac.ru>
-Message-ID: <Pine.LNX.4.63.0609181452470.14338@qynat.qvtvafvgr.pbz>
-References: <4492D5D3.4000303@atmos.washington.edu>  <200609181754.37623.ak@suse.de>
- <20060918162847.GA4863@ms2.inr.ac.ru>  <200609181850.22851.ak@suse.de> 
- <20060918211759.GB31746@tentacle.sectorb.msk.ru> <20060918220038.GB14322@ms2.inr.ac.ru>
+	Mon, 18 Sep 2006 18:18:52 -0400
+Received: from wx-out-0506.google.com ([66.249.82.228]:46268 "EHLO
+	wx-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1751214AbWIRWSw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Sep 2006 18:18:52 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=gcfurgsjTPu0Nb2dZPDHnkwgipB6VaMbTf3lsZfGJQMkgBtiJsXIBNuQxC2QxTKJbvdl0tPFktl5YYOaRykrhQ6HIMBzsJJ81B4dVzcbGYQFMrG1YAMaM6FfK0VWMk3CYQgQ9XrOGBGor7URR6MCs26EimRg/WBWPQRH+rojDQ0=
+Message-ID: <9a8748490609181518j2d12e4f0l2c55e755e40d38c2@mail.gmail.com>
+Date: Tue, 19 Sep 2006 00:18:51 +0200
+From: "Jesper Juhl" <jesper.juhl@gmail.com>
+To: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+Subject: Math-emu kills the kernel on Athlon64 X2
+Cc: billm@melbpc.org.au, billm@suburbia.net,
+       "Linus Torvalds" <torvalds@osdl.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 19 Sep 2006, Alexey Kuznetsov wrote:
+Hi,
 
-> Hello!
->
->> Please think about it this way:
->> suppose you haave a heavily loaded router and some network problem is to
->> be diagnosed. You run tcpdump and suddenly router becomes overloaded (by
->> switching to timestamp-it-all mode
->
-> I am sorry. I cannot think that way. :-)
->
-> Instead of attempts to scare, better resend original report,
-> where you said how much performance degraded, I cannot find it.
->
-> * I do see get_offset_pmtmr() in top lines of profile. That's scary enough.
-> * I do not undestand what the hell dhcp needs timestamps for.
-> * I do not listen any suggestions to screw up tcpdump with a sysctl.
->  Kernel already implements much better thing then a sysctl.
->  Do not want timestamps? Fix tcpdump, add an options, submit the
->  patch to tcpdump maintainers. Not a big deal.
+If I enable the math emulator in 2.6.18-rc7-git2 (only version I've
+tried this with) and then boot the kernel with "no387" then I only get
+as far as lilo's "...Booting the kernel." message and then the system
+hangs.
 
-if fireing up one program (however minor) can cause network performance to drop 
-by >50% (based on the numbers reported earlier in this thread) that is a 
-significant problem for sysadmins.
+The kernel is a 32bit kernel build for K8 and my CPU is a Athlon64 X2 4400+
 
-yes tcpdump may be wrong in requesting timestamps (in most cases it probably is, 
-but in some cases it's doing exactly what the sysadmin wants it to do), but I 
-don't think that many sysadmins would expect this much of a performance hit. 
-there should be some way to tell the system to ignore requests for timestamps so 
-that a badly behaved program cannot cripple the system this way (and preferably 
-something that doesn't require a full SELinux/capabilities implementation)
+If I boot the same kernel without the "no387" option, then it boots
+and runs just fine, so it seems the math emulator code is lethal on
+newer CPU's :-(
 
-David Lang
+Now, I need some help debugging this. The crash happens very early and
+doesn't result in anything printed to the screen (I guess it's too
+early to call printk()) - How on earth can I get a lead on what's
+going wrong?  Any help would be appreciated.
+
+-- 
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

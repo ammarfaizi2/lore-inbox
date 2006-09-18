@@ -1,55 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965624AbWIRJv6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751630AbWIRJyb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965624AbWIRJv6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Sep 2006 05:51:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751630AbWIRJv6
+	id S1751630AbWIRJyb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Sep 2006 05:54:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751640AbWIRJyb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Sep 2006 05:51:58 -0400
-Received: from wx-out-0506.google.com ([66.249.82.235]:40745 "EHLO
-	wx-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1750744AbWIRJv6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Sep 2006 05:51:58 -0400
+	Mon, 18 Sep 2006 05:54:31 -0400
+Received: from nf-out-0910.google.com ([64.233.182.186]:3399 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1751629AbWIRJya (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Sep 2006 05:54:30 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=WieM21qbn3UDK5xTv8hVb7k/9sm0raIEPRQXv+k/k62RVL5qNdTycclwlBS3VG1ZXb+0Bqs5prfz9xG+6rKbd9GiDiQhgXfgoLYvzTaBPSPyzoEWZSuIafQ8IcYUo1vQJ0BNYwqtjtRt49wmK7KxbGTVWY8P9fQ1ma7oMbmPR4E=
-Message-ID: <b681c62b0609180251m79071e59oe212b1133bf6944c@mail.gmail.com>
-Date: Mon, 18 Sep 2006 15:21:57 +0530
-From: "yogeshwar sonawane" <yogyas@gmail.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: How much kernel memory is in 64-bit OS ?
-In-Reply-To: <b681c62b0609160434g6ccbbaa0vd0cd68958696726e@mail.gmail.com>
+        s=beta; d=googlemail.com;
+        h=received:from:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
+        b=a83mYxE+LfTS3RjzlZRcftylFrHMoCKwywQHbJkO1G5nEJwAAfFoRGV9sQpiG4UZa0fgiI7MONk2G2gpW9tlezFq2/7KJEM7PS/wzSFCS1uh71FYilm9hluCcXtUeEW0Jvbu2X3iO/IoCy9LyPPjZgEGQIa6oUBGpXcKQENIq+k=
+From: Denis Vlasenko <vda.linux@googlemail.com>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Subject: Re: Raid 0 Swap?
+Date: Mon, 18 Sep 2006 11:50:22 +0200
+User-Agent: KMail/1.8.2
+Cc: Michael Tokarev <mjt@tls.msk.ru>,
+       Helge Hafting <helge.hafting@aitel.hist.no>,
+       Marc Perkel <marc@perkel.com>, linux-kernel@vger.kernel.org
+References: <44FB5AAD.7020307@perkel.com> <44FBFFFC.90309@tls.msk.ru> <Pine.LNX.4.61.0609041242350.17115@yvahk01.tjqt.qr>
+In-Reply-To: <Pine.LNX.4.61.0609041242350.17115@yvahk01.tjqt.qr>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <b681c62b0609160434g6ccbbaa0vd0cd68958696726e@mail.gmail.com>
+Message-Id: <200609181150.23091.vda.linux@googlemail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 9/16/06, yogeshwar sonawane <yogyas@gmail.com> wrote:
-> Hi all,
->
-> We all know that in 32-bit OS, total 4GB memory space is divided in
-> 3(user) + 1(kernel) space.
->
-> Similarly, what is the division/scenario in case of 64-bit OS ?
->
-> Any reference/explanation will be helpful.
->
-> thanks in advance.
->
->
-> Yogeshwar
->
+On Monday 04 September 2006 12:46, Jan Engelhardt wrote:
+> >> I thought kernel data weren't swapped at all?
+> 
+> If the swap code was swapped, who would swap it in again?
+> 
+> >Well, it's not that simple.  Kernel uses both swappable and
+> >non-swappable memory internally.  For some things, it's
+> >unswappable, for some, it's swappable.  In general, it's
+> >impossible to say which parts of kernel will break (and
+> >in wich ways) if swap goes havoc.
+> 
+> In general, everything you type in as C code (.bss, .data, .text) should be 
+> unswappable. kmalloc()ed areas are resident too, and kmalloc has a 
+> parameter which defines whether the allocation can/cannot push userspace 
+> pages into the swap (GFP_ATOMIC/GFP_IO). So if there is some 
+> kernel-allocation swapped out, it is most likely to be marked as 
+> 'userspace' so that the same algorithms can be used for swapin and -out.
 
-On similar lines, some time back, i read that, to accomodate large
-physical memory ,
-the 3G/1G layout is modified to have 4G/4G partition. But if somebody
-can focus the light on following things, it will be helpful.
-1) what was the requirement of 4G/4G layout ?
-2) how it is managed ?
-3) how HIGH_MEMORY concept is related here.
+What are you guys talking about? IIRC kernel doesn't use
+swap for its vital data structures. I recall only one
+kernel thing which goes into swap: tmpfs data. Caching network
+filesystems may also use swappable data, but currently grep
+catches only cifs.
 
-Thanks in advance,
-Yogeshwar
+IOW swap is for dirtied userspace data. Please correct me
+if I am wrong here.
+--
+vda

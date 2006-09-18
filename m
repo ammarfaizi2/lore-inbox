@@ -1,103 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932251AbWIRLVa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751510AbWIRL2G@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932251AbWIRLVa (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Sep 2006 07:21:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932253AbWIRLVa
+	id S1751510AbWIRL2G (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Sep 2006 07:28:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751508AbWIRL2F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Sep 2006 07:21:30 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.152]:28319 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S932251AbWIRLV3
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Sep 2006 07:21:29 -0400
-Message-ID: <450E8113.30602@in.ibm.com>
-Date: Mon, 18 Sep 2006 16:50:51 +0530
-From: Balbir Singh <balbir@in.ibm.com>
-Reply-To: balbir@in.ibm.com
-User-Agent: Thunderbird 1.5.0.7 (X11/20060909)
+	Mon, 18 Sep 2006 07:28:05 -0400
+Received: from mx1.suse.de ([195.135.220.2]:30859 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751490AbWIRL2C (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Sep 2006 07:28:02 -0400
+To: "Vladimir B. Savkin" <master@sectorb.msk.ru>
+Cc: Jesper Dangaard Brouer <hawk@diku.dk>,
+       Harry Edmon <harry@atmos.washington.edu>, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org
+Subject: Re: Network performance degradation from 2.6.11.12 to 2.6.16.20
+References: <4492D5D3.4000303@atmos.washington.edu>
+	<44948EF6.1060201@atmos.washington.edu>
+	<Pine.LNX.4.61.0606191638550.23553@ask.diku.dk>
+	<200606191724.31305.ak@suse.de>
+	<20060916120845.GA18912@tentacle.sectorb.msk.ru>
+	<p73k6414lnp.fsf@verdi.suse.de>
+	<20060918090330.GA9850@tentacle.sectorb.msk.ru>
+	<p73eju94htu.fsf@verdi.suse.de>
+	<20060918102918.GA23261@tentacle.sectorb.msk.ru>
+From: Andi Kleen <ak@suse.de>
+Date: 18 Sep 2006 13:27:57 +0200
+In-Reply-To: <20060918102918.GA23261@tentacle.sectorb.msk.ru>
+Message-ID: <p73ac4x4doi.fsf@verdi.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
 MIME-Version: 1.0
-To: Pavel Emelianov <xemul@openvz.org>
-Cc: sekharan@us.ibm.com, Srivatsa <vatsa@in.ibm.com>,
-       Rik van Riel <riel@redhat.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       CKRM-Tech <ckrm-tech@lists.sourceforge.net>,
-       Dave Hansen <haveblue@us.ibm.com>, Andi Kleen <ak@suse.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Christoph Hellwig <hch@infradead.org>, Andrey Savochkin <saw@sw.ru>,
-       Matt Helsley <matthltc@us.ibm.com>, Hugh Dickins <hugh@veritas.com>,
-       Alexey Dobriyan <adobriyan@mail.ru>, Kirill Korotaev <dev@sw.ru>,
-       Oleg Nesterov <oleg@tv-sign.ru>, devel@openvz.org
-Subject: Re: [ckrm-tech] [PATCH] BC: resource beancounters (v4) (added	user
- memory)
-References: <44FD918A.7050501@sw.ru>	<44FDAB81.5050608@in.ibm.com>		<44FEC7E4.7030708@sw.ru>	<44FF1EE4.3060005@in.ibm.com>		<1157580371.31893.36.camel@linuxchandra>	<45011CAC.2040502@openvz.org>		<1157730221.26324.52.camel@localhost.localdomain>		<4501B5F0.9050802@in.ibm.com> <450508BB.7020609@openvz.org>		<4505161E.1040401@in.ibm.com> <45051AC7.2000607@openvz.org>		<1158000590.6029.33.camel@linuxchandra>	<45069072.4010007@openvz.org>		<1158105488.4800.23.camel@linuxchandra>	<4507BC11.6080203@openvz.org>		<1158186664.18927.17.camel@linuxchandra>	<45090A6E.1040206@openvz.org>	<1158277364.6357.33.camel@linuxchandra>	<450A5325.6090803@openvz.org> <450A6A7A.8010102@sw.ru> <450A8B61.7040905@openvz.org> <450E5813.2040804@in.ibm.com> <450E5F2E.2070809@openvz.org>
-In-Reply-To: <450E5F2E.2070809@openvz.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Emelianov wrote:
-> Balbir Singh wrote:
-> 
-> [snip]
-> 
->> This approach has the following disadvantages
->>  1. Lets consider initialization - When we create 'n' groups
->> initially, we need
->>     to spend O(n^2) time to assign guarantees.
-> 
-> 1. Not guarantees - limits. If you do not need guarantees - assign
->    overcommited limits. Most of OpenVZ users do so and nobody claims.
-> 2. If you start n groups at once then limits are calculated in O(n)
->    time, not O(n^2).
+"Vladimir B. Savkin" <master@sectorb.msk.ru> writes:
 
-Yes.. if you start them at once, but if they are incrementally
-added and started it is O(n^2)
+[you seem to send your emails in a strange way that doesn't keep me in cc.
+Please stop doing that.]
 
-> 
->>  2. Every time a limit or a guarantee changes, we need to recalculate
->> guarantees
->>     and ensure that the change will not break any guarantees
-> 
-> The same.
-> 
->>  3. The same thing as stated above, when a resource group is created
->> or deleted
->>
->> This can lead to some instability; a change in one group propagates to
->> all other groups.
-> 
-> Let me cite a part of your answer on my letter from 11.09.2006:
-> "...
->   xemul> I have a node with 1Gb of ram and 10 containers with 100Mb
->   xemul> guarantee each. I want to start one more.
->   xemul> What shall I do not to break guarantees?
-> 
->  Don't start the new container or change the guarantees of the
->  existing ones to accommodate this one ... It would be perfectly
->  ok to have a container that does not care about guarantees to
->  set their guarantee to 0 and set their limit to the desired value
-> ..."
-> 
-> The same for the limiting - either do not start new container, or
-> recalculate limits to meet new requirements. You may not take care of
-> guarantees as weel and create an overcommited configuration.
-> 
-> And one more thing. We've asked it many times and I ask it again -
-> please, show us the other way for providing guarantee rather than
-> limiting or reserving.
+> On Mon, Sep 18, 2006 at 11:58:21AM +0200, Andi Kleen wrote:
+> > > > The x86-64 timer subsystems currently doesn't have clocksources
+> > > > at all, but it supports TSC and some other timers.
+> > > 
+> > 
+> > > until I hacked arch/i386/kernel/tsc.c
+> > 
+> > Then you don't use x86-64. 
+> > 
+> Oh. I mean I made arch/i386/kernel/tsc.c compile on x86-64
+> by hacking some Makefiles and headers. 
 
-There are some other options, I am sure Chandra will probably have
-more.
+The codebase for timing (and lots of other things) is quite different
+between 32bit and 64bit. You're really surprised it doesn't work if you do such things?
 
-1. Reclaim resources from other containers. This can be done well for
-    user-pages, if we ensure that each container does not mlock more
-    than its guaranteed share of memory.
-2. Provide best effort guarantees for non-reclaimable memory
-3. oom-kill a container or a task within a resource group that has
-    exceeded its guarantee and some other container is unable to meet its
-    guarantee
+> But the question is, why stock 2.6.18-rc7 could not use TSC on its own?
 
--- 
+x86-64 doesn't use the TSC when it deems it to not be reliable, which
+is the case on your system.
+ 
+> > > > > I've also had experience of unsychronized TSC on dual-core Athlon,
+> > > > > but it was cured by idle=poll.
+> > > > 
+> > > > You can use that, but it will make your system run quite hot 
+> > > > and cost you a lot of powe^wmoney.
+> > > 
+> > > Here in Russia electric power is cheap compared with hardware upgrade.
+> > 
+> > It's not just electrical power - the hardware is more stressed and will
+> > likely fail earlier too.  As a rule of thumb the hotter your hardware runs
+> > the earlier it will fail.
+> 
+> What hardware exactly. Doesn't it affect only CPU? And they are not
+> know to fail before any other components.
 
-	Balbir Singh,
-	Linux Technology Center,
-	IBM Software Labs
+All hardware. It's basic physics.
+
+-Andi

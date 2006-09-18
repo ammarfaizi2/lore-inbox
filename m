@@ -1,77 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751321AbWIRDev@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965328AbWIRDfL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751321AbWIRDev (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Sep 2006 23:34:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751354AbWIRDev
+	id S965328AbWIRDfL (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Sep 2006 23:35:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751359AbWIRDfI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Sep 2006 23:34:51 -0400
-Received: from wx-out-0506.google.com ([66.249.82.231]:53680 "EHLO
-	wx-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1751321AbWIRDeu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Sep 2006 23:34:50 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=ZANZX1puCw6wROhPEZLbiU3TlyqCxuTy3XpGRSX28oI0AHMpddiQzm8aVkAjcLA1ELB3q/Qgxtx0eFRZFMoRrznaTHu3Kfpx67P0b9XJDzSE4SK5pjE279t8RDyCwmVgVgQPCYylLC0FpGOtJmFBk85CQrs8ZwE/2nlDY8zHKpo=
-Message-ID: <450E13D4.10200@gmail.com>
-Date: Mon, 18 Sep 2006 12:34:44 +0900
-From: Tejun Heo <htejun@gmail.com>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060915)
-MIME-Version: 1.0
-To: "Robin H. Johnson" <robbat2@gentoo.org>
-CC: Jeff Garzik <jeff@garzik.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.18-rc7-git1: AHCI not seeing devices on ICH8 mobo (DG965RY)
-References: <20060914200500.GD27531@curie-int.orbis-terrarum.net> <4509AB2E.1030800@garzik.org> <20060914205050.GE27531@curie-int.orbis-terrarum.net> <20060916203812.GC30391@curie-int.orbis-terrarum.net> <20060916210857.GD30391@curie-int.orbis-terrarum.net> <20060917074929.GD25800@htj.dyndns.org> <20060918034826.GA10116@curie-int.orbis-terrarum.net>
-In-Reply-To: <20060918034826.GA10116@curie-int.orbis-terrarum.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 17 Sep 2006 23:35:08 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:61845 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1751354AbWIRDfD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Sep 2006 23:35:03 -0400
+Date: Mon, 18 Sep 2006 13:34:31 +1000
+From: David Chinner <dgc@sgi.com>
+To: "Josef 'Jeff' Sipek" <jeffpc@josefsipek.net>
+Cc: linux-kernel@vger.kernel.org, xfs-masters@oss.sgi.com, akpm@osdl.org,
+       dhowells@redhat.com
+Subject: Re: [PATCH 5 of 11] XFS: Use SEEK_{SET, CUR, END} instead of hardcoded values
+Message-ID: <20060918033431.GV3034@melbourne.sgi.com>
+References: <patchbomb.1158455366@turing.ams.sunysb.edu> <4cdee5980dad9980ec8f.1158455371@turing.ams.sunysb.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4cdee5980dad9980ec8f.1158455371@turing.ams.sunysb.edu>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robin H. Johnson wrote:
-> Yes your patch fixes it perfectly - it's a better version of an almost
-> working fix I hacked up after my previous email.
-> 
-> Some patch review comments below as well.
-> 
-> Signed-off-by: Robin H. Johnson <robbat2@gentoo.org>
-> 
->> @@ -186,9 +187,11 @@ struct ahci_host_priv {
->>  	unsigned long		flags;
->>  	u32			cap;	/* cache of HOST_CAP register */
->>  	u32			port_map; /* cache of HOST_PORTS_IMPL reg */
->> +	int			port_tbl[AHCI_MAX_PORTS];
->>  };
-> maybe u8 instead of int?
+On Sat, Sep 16, 2006 at 09:09:31PM -0400, Josef 'Jeff' Sipek wrote:
+> XFS: Use SEEK_{SET,CUR,END} instead of hardcoded values
 
-Yeah, I like that.
+The hard coded values  used in xfs_change_file_space() are documented as part
+of the API to the userspace functions that use this interface in xfsctl(3).
+That is:
 
-> also a comment - /* mapping of port_idx to the implemented port */
+  XFS_IOC_FREESP
+  XFS_IOC_FREESP64
+  XFS_IOC_ALLOCSP
+  XFS_IOC_ALLOCSP64
 
-Okay.
+  Alter storage space associated with a section of the ordinary file specified.
+  The section is specified by a variable of type  xfs_flock64_t,  pointed  to  by
+  the  final argument.  The data type xfs_flock64_t contains the following
+  members: l_whence is 0, 1, or 2 to indicate that the relative offset l_start
+  will be measured from the start  of  the  file,  the current  position, or the
+  end of the file, respectively.
 
->> +	if (n_ports == 0) {
->> +		dev_printk(KERN_ERR, &pdev->dev, "0 port implemented\n");
->> +		return -EINVAL;
->> +	}
-> Use plural form (0 ports), or negative (No ports) instead.
+Hence I think that the hard coded values should not be changed to something
+that is defined outside of XFS's API.
 
-And, okay.
+Cheers,
 
-Jeff, we've been ignoring PI in ahci_host_init()...
-
-	for (i = 0; i < probe_ent->n_ports; i++) {
-#if 0 /* BIOSen initialize this incorrectly */
-		if (!(hpriv->port_map & (1 << i)))
-			continue;
-#endif
-
-The comment suggests that some BIOSen initialize PI incorrectly which 
-will probably result in undetected ports.  Is this true?  Would it be 
-dangerous to honor PI on some controllers?  If so, PI should be used 
-only for controllers which does non-linear port mapping.
-
-Thanks.
-
+Dave.
 -- 
-tejun
+Dave Chinner
+Principal Engineer
+SGI Australian Software Group

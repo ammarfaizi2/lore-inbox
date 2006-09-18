@@ -1,117 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751508AbWIRLcP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964777AbWIRLoi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751508AbWIRLcP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Sep 2006 07:32:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751514AbWIRLcP
+	id S964777AbWIRLoi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Sep 2006 07:44:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964860AbWIRLoi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Sep 2006 07:32:15 -0400
-Received: from nf-out-0910.google.com ([64.233.182.190]:57000 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1751508AbWIRLcO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Sep 2006 07:32:14 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=U4n06nBwdz9xQP9EiqqYPaZUNM7/FM2b/f00zSjEoUrWDTeMcdhiccFh992vDYk1ieJFHrNxw0BDbXndY2QoJEOvB/ogKhUoEAOUy6iXCs7G9zGzh/nCx5xHn/YK3OLle09tU0x3UHecbvn3kSopReDsC4SnZ1O2FSeTkORuLgM=
-Message-ID: <450E83DC.4050503@gmail.com>
-Date: Mon, 18 Sep 2006 15:32:44 +0400
-From: "Eugeny S. Mints" <eugeny.mints@gmail.com>
-User-Agent: Thunderbird 1.5 (X11/20060313)
-MIME-Version: 1.0
-To: Pavel Machek <pavel@ucw.cz>
-CC: pm list <linux-pm@lists.osdl.org>,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [linux-pm] [PATCH] PowerOP, PowerOP Core, 1/2
-References: <45096933.4070405@gmail.com> <20060918104437.GA4973@elf.ucw.cz>
-In-Reply-To: <20060918104437.GA4973@elf.ucw.cz>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Mon, 18 Sep 2006 07:44:38 -0400
+Received: from stanford.columbia.tresys.com ([209.60.7.66]:26458 "EHLO
+	twoface.columbia.tresys.com") by vger.kernel.org with ESMTP
+	id S964777AbWIRLoh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Sep 2006 07:44:37 -0400
+Subject: Re: [PATCH 3/4] security: capabilities patch (version 0.4.4), part
+	3/4: introduce new capabilities
+From: Joshua Brindle <method@gentoo.org>
+To: David Madore <david.madore@ens.fr>
+Cc: Pavel Machek <pavel@ucw.cz>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel mailing-list <linux-kernel@vger.kernel.org>,
+       LSM mailing-list <linux-security-module@vger.kernel.org>
+In-Reply-To: <20060917211602.GA6215@clipper.ens.fr>
+References: <20060910133759.GA12086@clipper.ens.fr>
+	 <20060910134257.GC12086@clipper.ens.fr>
+	 <1157905393.23085.5.camel@localhost.localdomain>
+	 <450451DB.5040104@gentoo.org> <20060917181422.GC2225@elf.ucw.cz>
+	 <450DB274.1010404@gentoo.org>  <20060917211602.GA6215@clipper.ens.fr>
+Content-Type: text/plain
+Date: Mon, 18 Sep 2006 07:46:06 -0400
+Message-Id: <1158579966.8680.24.camel@twoface.columbia.tresys.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek wrote:
-> Hi!
+On Sun, 2006-09-17 at 23:16 +0200, David Madore wrote:
+> On Sun, Sep 17, 2006 at 04:39:16PM -0400, Joshua Brindle wrote:
+> > The benefits of this are so minuscule and the cost is so high if you are 
+> > ever to use it that it simply won't happen..
 > 
->> The PowerOP Core provides completely arch independent interface
->> to create and control operating points which consist of arbitrary
->> subset of power parameters available on a certain platform.
->> Also, PowerOP Core provides optional SysFS interface to access
->> operating point from userspace.
+> I'm withdrawing that patch anyway, in favor of a LSM-style approach,
+> the "cuppabilities" module (cf. the patch I posted a couple of hours
+> ago with that word in the title, and I'll be posting a new version in
+> a day or so, or cf. <URL:
+> http://www.madore.org/~david/linux/cuppabilities/
+>  >).  In this case, the relative cost will be lower since the
+> security_ops->inode_permission() hook is called no matter what.
 > 
-> Please inline patches and sign them off.
 
-hmm, seems my bad. will double check.
+You misunderstand. I don't mean the performance cost is high, I mean the
+cost of an application to actually be able to run without open() (what I
+was saying before, static built, no glibc, no conf files, no name
+lookups, etc). I never see this being used in the real world because of
+the extreme limitations.
 
+And that is just practical stuff, there are still problems with
+embedding policy into binaries all over the system in an entirely
+non-analyzable way, and this extends to all capabilities, not just the
+open() one.
+
+> But I agree that the value of restricting open() is very dubious and
+> it was intended mostly as a demonstration.  So if there is strong
+> opposition to this sort of thing, I'll remove it.
 > 
-> Also if you are providing new userland interface, describe it... in
-> Documentation/ABI.
-
-seems already discussed
-
->> +struct powerop_driver {
->> +	char *name;
->> +	void *(*create_point) (const char *pwr_params, va_list args);
->> +	int (*set_point) (void *md_opt);
->> +	int (*get_point) (void *md_opt, const char *pwr_params, va_list args);
->> +};
+> Happy hacking,
 > 
-> We can certainly get better interface than va_list, right?
-
-Please elaborate.
-
-> 
->> +
->> +#
->> +# powerop
->> +#
->> +
->> +menu "PowerOP (Power Management)"
->> +
->> +config POWEROP
->> +	tristate "PowerOP Core"
->> +	help
-> 
-> Hohum, this is certainly going to be clear to confused user...
-
-please elaborate.
-
->> +	list_add_tail(&opt->node, &named_opt_list);
->> +	strcpy(registered_names[registered_opt_number], id);
->> +	registered_opt_number++;
->> +	up(&named_opt_list_mutex);
->> +
->> +	blocking_notifier_call_chain(&powerop_notifier_list,
->> +				     POWEROP_REGISTER_EVENT, id);
->> +	return 0;
->> +
->> +      fail_set_name:
->> +	kfree(opt->md_opt);
->> +
->> +      fail_opt_create:
->> +	kfree(registered_names[registered_opt_number]);
->> +
->> +      fail_name_nomem:
->> +	kfree(opt);
->> +	return err;
->> +}
-> 
-> Careful about spaces vs. tabs...
-
-will double check but I'm pretty sure I ran all files thru lindent.
-
-
-> ...so, you got support for 20 operating points... And this should
-> include devices, too, right? 
-
-sorry, don't understand the question. an operating point is a set of platform 
-power parameters.
-
->How is it going to work on 8cpu box? will
-> you have states like cpu1_800MHz_cpu2_1600MHz_cpu3_800MHz_... ?
-
-i do not operate with term 'state' so I don't understand what it means here.
-
-	Eugeny
-
-> 								Pavel
 

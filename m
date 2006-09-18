@@ -1,60 +1,143 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751797AbWIRQCT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751812AbWIRQD2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751797AbWIRQCT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Sep 2006 12:02:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751803AbWIRQCT
+	id S1751812AbWIRQD2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Sep 2006 12:03:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751814AbWIRQD1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Sep 2006 12:02:19 -0400
-Received: from web36601.mail.mud.yahoo.com ([209.191.85.18]:21940 "HELO
-	web36601.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1751797AbWIRQCS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Sep 2006 12:02:18 -0400
-Message-ID: <20060918160217.97076.qmail@web36601.mail.mud.yahoo.com>
-X-RocketYMMF: rancidfat
-Date: Mon, 18 Sep 2006 09:02:17 -0700 (PDT)
-From: Casey Schaufler <casey@schaufler-ca.com>
-Reply-To: casey@schaufler-ca.com
-Subject: Re: [PATCH 3/4] security: capabilities patch (version 0.4.4), part 3/4: introduce new capabilities
-To: Joshua Brindle <method@gentoo.org>, David Madore <david.madore@ens.fr>
-Cc: Pavel Machek <pavel@ucw.cz>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel mailing-list <linux-kernel@vger.kernel.org>,
-       LSM mailing-list <linux-security-module@vger.kernel.org>
-In-Reply-To: <1158579966.8680.24.camel@twoface.columbia.tresys.com>
+	Mon, 18 Sep 2006 12:03:27 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:36009 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751812AbWIRQD1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Sep 2006 12:03:27 -0400
+Date: Mon, 18 Sep 2006 09:02:51 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Andi Kleen <ak@suse.de>
+cc: Andrew Morton <akpm@osdl.org>, Chuck Ebbert <76306.1226@compuserve.com>,
+       In Cognito <defend.the.world@gmail.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Ingo Molnar <mingo@elte.hu>, bcrl@kvack.org
+Subject: Re: Sysenter crash with Nested Task Bit set
+In-Reply-To: <200609181729.23934.ak@suse.de>
+Message-ID: <Pine.LNX.4.64.0609180841520.4388@g5.osdl.org>
+References: <200609172354_MC3-1-CB7A-58ED@compuserve.com>
+ <20060917222537.55241d19.akpm@osdl.org> <Pine.LNX.4.64.0609180741520.4388@g5.osdl.org>
+ <200609181729.23934.ak@suse.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---- Joshua Brindle <method@gentoo.org> wrote:
 
-> And that is just practical stuff, there are still
-> problems with
-> embedding policy into binaries all over the system
-> in an entirely
-> non-analyzable way, and this extends to all
-> capabilities, not just the
-> open() one.
+On Mon, 18 Sep 2006, Andi Kleen wrote:
+> 
+> > If we fix it in the task-switch code, we shouldn't need any other changes 
+> > (ie Chuck's change is unnecessary too), because then the process that sets 
+> > NT will happily die (with NT set), but switch away to something else and 
+> > nobody else will be affected.
+> 
+> Won't it die in the kernel with an oops on the next interrupt?
 
-Your assertion that directly associating
-the capabilities with the binary cannot
-be analysed is demonstrably incorrect,
-reference Common Criteria validation
-reports CCEVS-VR-02-0019 and CCEVS-VR-02-0020.
+No. As mentioned, "sysenter" is really special. It should really be the 
+_only_ entry into the kernel that doesn't change eflags. Everything else 
+clears NT (and most of them do other things too).
+
+So if a process already runs in kernel mode (or used mode, for that 
+matter) with NT set, and an interrupt happens, the act of taking the 
+interrupt will clear NT, and nothing bad happens at all. In fact, we very 
+much depend on this, exactly because otherwise user mode could just set NT 
+and just wait for an interrupt, and bad things would happen. They 
+obviously don't.
+
+So it's literally _only_ the path of
+
+	set NT
+	sysenter
+	...
+	iret
+
+that causes problems, because all other paths will clear NT on entry into 
+the kernel.
+
+> > So if I'm right, then this patch _should_ fix it. UNTESTED (and the 
+> > "ref_from_fork" special case doesn't clear NT, so it's strictly incompete, 
+> > but maybe somebody can test this?)
+> 
+> Are you sure this handles interrupts or nested syscalls 
+> before the context switch correctly?
+
+Yeah, see above. And I have now even tested it slightly (ie I ran one of 
+my x86 machines with that patch).
+
+> I think it really needs to be handled in the sysenter path.
+
+It really would be much more expensive there (well, the expense would be 
+the same, but any load that have any amount of either would tend to have 
+many more system calls than context switches).
+
+The only way to have more context switches than system calls is to run 
+entirely in user space all the time, and then we don't care - the context 
+switches will also be so rare that the extra cycles simply don't matter.
+
+> > Andi? I don't know if x86-64 honors NT in 64-bit mode, but if it does, it 
+> > needs something similar (assuming this works).
+> 
+> It doesn't task switch, but you would get a #GP in IRET at least.
+> Leaking that to another process is definitely not good.
+
+Right. Then you need that exact same thing on x86-64 too.
+
+One final note: as I already mentioned, this isn't actually entirely 
+sufficient. There's the magic special case of "switch to a newly created 
+thread", which jumps to "ret_from_fork" rather than staying within that 
+small area. We'll need to add "clear NT" there.
+
+So this (UNTESTED - I tested the previous version, and it works, but this 
+extends on it) second patch should be more complete. It handles the case 
+where the NT-dirty task context switches to a newly created task, by just 
+forcing "eflags" to a known value in the newly created task, rather than 
+whatever value it had at the time of the context switch.
+
+The addition is fairly obvious, but maybe I screwed something up, so buyer 
+beware...
+
+		Linus
+
+---
+diff --git a/arch/i386/kernel/entry.S b/arch/i386/kernel/entry.S
+index 37a7d2e..87f9f60 100644
+--- a/arch/i386/kernel/entry.S
++++ b/arch/i386/kernel/entry.S
+@@ -209,6 +209,10 @@ ENTRY(ret_from_fork)
+ 	GET_THREAD_INFO(%ebp)
+ 	popl %eax
+ 	CFI_ADJUST_CFA_OFFSET -4
++	pushl $0x0202			# Reset kernel eflags
++	CFI_ADJUST_CFA_OFFSET 4
++	popfl
++	CFI_ADJUST_CFA_OFFSET -4
+ 	jmp syscall_exit
+ 	CFI_ENDPROC
  
-The first system I took through evaluation
-(that is, independent 3rd party analysis) stored
-security attributes in a file while the second
-and third systems attached the attributes
-directly (XFS). The 1st evaluation required
-5 years, the 2nd 1 year. It is possible that
-I just got a lot smarter with age, but I
-ascribe a significant amount of the improvement
-to the direct association of the attributes
-to the file.
-
-
-
-Casey Schaufler
-casey@schaufler-ca.com
+diff --git a/include/asm-i386/system.h b/include/asm-i386/system.h
+index 49928eb..defbf12 100644
+--- a/include/asm-i386/system.h
++++ b/include/asm-i386/system.h
+@@ -13,7 +13,8 @@ extern struct task_struct * FASTCALL(__s
+ 
+ #define switch_to(prev,next,last) do {					\
+ 	unsigned long esi,edi;						\
+-	asm volatile("pushl %%ebp\n\t"					\
++	asm volatile("pushfl\n\t"		/* Save flags */	\
++		     "pushl %%ebp\n\t"					\
+ 		     "movl %%esp,%0\n\t"	/* save ESP */		\
+ 		     "movl %5,%%esp\n\t"	/* restore ESP */	\
+ 		     "movl $1f,%1\n\t"		/* save EIP */		\
+@@ -21,6 +22,7 @@ #define switch_to(prev,next,last) do {		
+ 		     "jmp __switch_to\n"				\
+ 		     "1:\t"						\
+ 		     "popl %%ebp\n\t"					\
++		     "popfl"						\
+ 		     :"=m" (prev->thread.esp),"=m" (prev->thread.eip),	\
+ 		      "=a" (last),"=S" (esi),"=D" (edi)			\
+ 		     :"m" (next->thread.esp),"m" (next->thread.eip),	\

@@ -1,52 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751212AbWIRVyM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751941AbWIRWAp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751212AbWIRVyM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Sep 2006 17:54:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751200AbWIRVyL
+	id S1751941AbWIRWAp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Sep 2006 18:00:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751940AbWIRWAo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Sep 2006 17:54:11 -0400
-Received: from moutng.kundenserver.de ([212.227.126.171]:52207 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S1751117AbWIRVyK convert rfc822-to-8bit (ORCPT
+	Mon, 18 Sep 2006 18:00:44 -0400
+Received: from minus.inr.ac.ru ([194.67.69.97]:5043 "HELO ms2.inr.ac.ru")
+	by vger.kernel.org with SMTP id S1751211AbWIRWAn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Sep 2006 17:54:10 -0400
-From: Arnd Bergmann <arnd@arndb.de>
-To: =?iso-8859-1?q?J=F6rn_Engel?= <joern@wohnheim.fh-wedel.de>
-Subject: Re: [RFC] Alignment of fields in struct dentry
-Date: Mon, 18 Sep 2006 23:54:04 +0200
-User-Agent: KMail/1.9.1
-Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-References: <20060914093123.GA10431@wohnheim.fh-wedel.de> <200609152244.07889.arnd@arndb.de> <20060918212423.GB6899@wohnheim.fh-wedel.de>
-In-Reply-To: <20060918212423.GB6899@wohnheim.fh-wedel.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
+	Mon, 18 Sep 2006 18:00:43 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=ms2.inr.ac.ru;
+  b=KQCPtub6uEeYTotiMuwvZ3ITu47S61eqIpOGVzPAxziaYjgG9Vvhpn2VgbWymtiJWqkvhT0FmOc2q/1a2MuseDeN8FYv2cXDFrtAuDBinoVUAB28Qz7s/sBm2HqlDa/8FMNoqiuIPmvj27KyYPMNyxTJivv2iNWf4xlDrAxX+UQ=;
+Date: Tue, 19 Sep 2006 02:00:38 +0400
+From: Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>
+To: "Vladimir B. Savkin" <master@sectorb.msk.ru>
+Cc: Andi Kleen <ak@suse.de>, Jesper Dangaard Brouer <hawk@diku.dk>,
+       Harry Edmon <harry@atmos.washington.edu>, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org
+Subject: Re: Network performance degradation from 2.6.11.12 to 2.6.16.20
+Message-ID: <20060918220038.GB14322@ms2.inr.ac.ru>
+References: <4492D5D3.4000303@atmos.washington.edu> <200609181754.37623.ak@suse.de> <20060918162847.GA4863@ms2.inr.ac.ru> <200609181850.22851.ak@suse.de> <20060918211759.GB31746@tentacle.sectorb.msk.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200609182354.04781.arnd@arndb.de>
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:c48f057754fc1b1a557605ab9fa6da41
+In-Reply-To: <20060918211759.GB31746@tentacle.sectorb.msk.ru>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 18 September 2006 23:24, Jörn Engel wrote:
-> On Fri, 15 September 2006 22:44:07 +0200, Arnd Bergmann wrote:
-> >
-> > I'd guess that a 32 byte alignment is much better here, 64 byte sounds
-> > excessive. It should have the same effect with the current dentry layout
-> > and default config options, but would keep the d_iname length in the
-> > 16-44 byte range instead of 16-76 byte as your patch does.
-> > 
-> > Since all important fields are supposed to be kept in 32 bytes anyway,
-> > they are still either at the start or the end of a given cache line,
-> > but never cross two.
-> 
-> Another take would be to use a cacheline.  But I guess the difference
-> between 32/64/cacheline is mostly academic, given the rate of changes
-> to struct dentry.
+Hello!
 
-There have been so many optimizations and misoptimizations regarding
-the dentry struct over the years. See http://lkml.org/lkml/2004/5/8/117
-for the almost exact opposite of this patch, along with the same discussion
-that we're having now.
+> Please think about it this way:
+> suppose you haave a heavily loaded router and some network problem is to
+> be diagnosed. You run tcpdump and suddenly router becomes overloaded (by
+> switching to timestamp-it-all mode
 
-	Arnd <><
+I am sorry. I cannot think that way. :-)
+
+Instead of attempts to scare, better resend original report,
+where you said how much performance degraded, I cannot find it.
+
+* I do see get_offset_pmtmr() in top lines of profile. That's scary enough.
+* I do not undestand what the hell dhcp needs timestamps for.
+* I do not listen any suggestions to screw up tcpdump with a sysctl.
+  Kernel already implements much better thing then a sysctl.
+  Do not want timestamps? Fix tcpdump, add an options, submit the
+  patch to tcpdump maintainers. Not a big deal. 
+
+Alexey

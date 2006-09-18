@@ -1,350 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965232AbWIRCFs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965233AbWIRCLl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965232AbWIRCFs (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Sep 2006 22:05:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965236AbWIRCFs
+	id S965233AbWIRCLl (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Sep 2006 22:11:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965237AbWIRCLl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Sep 2006 22:05:48 -0400
-Received: from [211.100.8.50] ([211.100.8.50]:31883 "EHLO
-	mail.venustech.com.cn") by vger.kernel.org with ESMTP
-	id S965232AbWIRCFr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Sep 2006 22:05:47 -0400
-Message-ID: <450DFEEC.1090304@venustech.com.cn>
-Date: Mon, 18 Sep 2006 10:05:32 +0800
-From: ADLab <adlab@venustech.com.cn>
-User-Agent: Thunderbird 1.5.0.7 (Windows/20060909)
+	Sun, 17 Sep 2006 22:11:41 -0400
+Received: from opersys.com ([64.40.108.71]:38672 "EHLO www.opersys.com")
+	by vger.kernel.org with ESMTP id S965233AbWIRCLk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Sep 2006 22:11:40 -0400
+Message-ID: <450E053B.1070908@opersys.com>
+Date: Sun, 17 Sep 2006 22:32:27 -0400
+From: Karim Yaghmour <karim@opersys.com>
+Reply-To: karim@opersys.com
+Organization: Opersys inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.6) Gecko/20060804 Fedora/1.0.4-0.5.1.fc5 SeaMonkey/1.0.4
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org, mjc@redhat.com, zhangkai@venustech.com.cn
-Subject: Two vulnerabilities are founded,please confirm.
-Content-Type: text/plain; charset=GB2312
-Content-Transfer-Encoding: 8bit
+To: Ingo Molnar <mingo@elte.hu>
+CC: Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
+       Paul Mundt <lethal@linux-sh.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Ingo Molnar <mingo@redhat.com>, Jes Sorensen <jes@sgi.com>,
+       Andrew Morton <akpm@osdl.org>, Roman Zippel <zippel@linux-m68k.org>,
+       Tom Zanussi <zanussi@us.ibm.com>,
+       Richard J Moore <richardj_moore@uk.ibm.com>,
+       "Frank Ch. Eigler" <fche@redhat.com>,
+       Michel Dagenais <michel.dagenais@polymtl.ca>,
+       Christoph Hellwig <hch@infradead.org>,
+       Greg Kroah-Hartman <gregkh@suse.de>,
+       Thomas Gleixner <tglx@linutronix.de>, William Cohen <wcohen@redhat.com>,
+       "Martin J. Bligh" <mbligh@mbligh.org>
+Subject: Re: tracepoint maintainance models
+References: <450D182B.9060300@opersys.com> <20060917112128.GA3170@localhost.usen.ad.jp> <20060917143623.GB15534@elte.hu> <20060917153633.GA29987@Krystal> <20060918000703.GA22752@elte.hu> <450DF28E.3050101@opersys.com> <20060918011352.GB30835@elte.hu>
+In-Reply-To: <20060918011352.GB30835@elte.hu>
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear sir,
 
-We are the ADLab, Venustech info Ltd CHINA. We have found two
-vulnerabilities within linux kernel. The first one is Linux kernel IP
-over ATM clip_mkip dereference freed pointer,and the second is Linux
-kernel Filesystem Mount Dead Loop.Please check out the detailes about
-the vulnerabilities at the end of this Email.
+Ingo Molnar wrote:
+> Karim, i dont usually reply if you insult me (and you've grown a habit 
+> of that lately ), but this one is almost parodic.
 
-We are looking forward to hearing from you as soon as possible. If you
-need any more information, please do not hesitate to contact us. Thank
-you very much.
+FWIW, Ingo, my own appreciation of events is that I've shown much
+restraint and patience with you than you'll ever acknowledge.
 
-Best regards,
-ADLab
+FWIW, Ingo, I have nothing against you personally. I've said it
+before in unrelated threads and I'll say it again: I have a lot
+of respect for your abilities, as a Linux user on a daily basis
+I silently profit from immense contributions you have made time
+and again.
 
-Details:
-*********************************************************
-Linux kernel IP over ATM clip_mkip dereference freed pointer
-[Security Advisory]
+FWIW, Ingo, I've been more than a good sport on other issues
+where we've disagreed. Case-in-point: while I disagreed with you
+on your choice to pursue preemption, I made it a point to
+personally go out of my way to congratulate every single
+preemption supporter I had disagreed with in the past at this
+year's OLS: Thomas, Steven, Sven, Manas, etc. I didn't see you
+personally, so here's a belated congratulations.
 
-Advisory:[AD_LAB-06009] Linux kernel IP over ATM clip_mkip dereference
-freed pointer
-Class: Design Error
-DATE:5/9/2006
-CVEID:
-Vulnerable:
-    <=Linux-2.6.*
-Vendor:
-	http://www.kernel.org/
+>        MARK(event, a);
+...
+> 	MARK(event, a, x);
 
-I.DESCRIPTION:
--------------
-	Linux kernel is a open source operating system.
-	The Linux kernel is prone to a denial-of-service vulnerability. This
-issue is
-due to a design error in the 'clip_mkip()' function.
+You assume these are mutually exclusive. Your argument can only
+be made to be believable if people promoting direct inline
+instrumentation were fascists -- which may be convenient for
+some to believe. There is no reason why if the *default* inline
+marker is insufficient that a user or developer cannot
+circumvent it at runtime using a dynamic probe mechanism.
 
-II.DETAILS:
-----------
-	There is a vulnerability in function clip_mkip(). When re-processing
-received data,
-a struct sk_buff pointer skb may be dereferenced after a free operation.
-It will lead to a
-kernel panic and denying further service.
+But if you look at the *facts*, you'll see that once a given
+set of events is identified as being interesting, they usually
+remain unchanged. Which is, in fact, the feedback given by
+Jose's experience with LKET -- which, again, is based on
+Systemtap.
 
-clip_mkip (clip.c):
+For a given known-to-be-useful valid marker, information deficit
+is the exception, not the rule.
 
-502         while ((skb = skb_dequeue(&copy)) != NULL)
-503                 if (!clip_devs) {
-504                         atm_return(vcc,skb->truesize);
-505                         kfree_skb(skb);
-506                 }
-507                 else {
-508                         unsigned int len = skb->len;
-509
-510                         clip_push(vcc,skb);
-511                         PRIV(skb->dev)->stats.rx_packets--;
-512                         PRIV(skb->dev)->stats.rx_bytes -= len;
-513                 }
+> hence, in this specific example, there is a real difference between the 
+> markup needed for dynamic tracers, compared to the markup needed for 
+> static tracers - to achieve the same end-result of passing (event,a,x) 
+> to the tracer.
 
-	At line 511, PRIV(skb->dev) reference skb->dev; but after call
-clip_push at line 510,
-skb may be freed.
+No. This is true only if you conceive that tool engineers
+actually want to restrict themselves to obtaining events
+from a given *mechanism*. And *that* is not substantiated
+by any historical record. In fact, quite the opposite.
+Even if you were to consider but the *old* ltt, here's
+from previous correspondence:
 
-clip_push (clip.c):
+> Subsequently, I initiated discussions with the IBM DProbes
+> team back in 2000 and thereafter implemented facilities for
+> enabling dynamically-inserted probes to route their events
+> through ltt -- all of which was functional as of November
+> 2000.
 
-198 static void clip_push(struct atm_vcc *vcc,struct sk_buff *skb)
-199 {
-
-	......
-
-234         memset(ATM_SKB(skb), 0, sizeof(struct atm_skb_data));
-235         netif_rx(skb);
-236 }
-
-netif_rx (dev.c):
-
-1392 int netif_rx(struct sk_buff *skb)
-1393 {
-
-	......
-
-1428         kfree_skb(skb);	//drop skb
-1429         return NET_RX_DROP;
-1430 }
-
-	In netif_rx(), skb may be dropped during processing for congestion
-control or by the
-protocol layers; the return value NET_RX_DROP is used to identify skb
-pointer arg is dropped(freed).
-	
-III.CREDIT:
-----------
-    Venustech AD-LAB discovery this vuln.Thank to all Venustech AD-Lab guys.
-
-V.DISCLAIMS:
------------
-
-The information in this bulletin is provided "AS IS" without warranty of any
-kind. In no event shall we be liable for any damages whatsoever
-including direct,
-indirect, incidental, consequential, loss of business profits or special
-damages.
-
-Copyright 1996-2006 VENUSTECH. All Rights Reserved. Terms of use.
-
-VENUSTECH Security Lab
-VENUSTECH INFORMATION TECHNOLOGY CO.,LTD(http://www.venustech.com.cn)
-
-Security
-Trusted {Solution} Provider
-Service
-
-*********************************************************
-Linux kernel Filesystem Mount Dead Loop
-[Security Advisory]
-
-Advisory: [AD_LAB-06011] Linux kernel Filesystem Mount Dead Loop
-Class: Design Error
-DATE:5/9/2006
-CVEID:
-Vulnerable:
-	Linux-2.6.*
-Vendor:
-	http://www.kernel.org/
-
-I.DESCRIPTION:
--------------
-	Linux kernel is an open source operating system.
-	The Linux kernel is prone to a denial-of-service vulnerability. This
-issue is
-due to a design error in the '__getblk()' function.
-
-II.DETAILS:
-----------
-	There is a vulnerability in function __getblk(). When mount a file
-system image
-with malformed block value, Linux kernel will fall in a dead loop. It
-will lead to a
-kernel hang and denying further service.
-
-	Function __getblk() is used to seek a corresponding buffer_head of a
-block in
-a specific block device. When processing a block with a block number
-more than
-4G and not to be mapped to buffer pages (__find_get_block will return
-NULL),
-__getblk_slow will always run and never return.
-
-1478 struct buffer_head *
-1479 __getblk(struct block_device *bdev, sector_t block, int size)
-1480 {
-1481         struct buffer_head *bh = __find_get_block(bdev, block, size);
-1482
-1483         might_sleep();
-1484         if (bh == NULL)
-1485                 bh = __getblk_slow(bdev, block, size);
-1486         return bh;
-1487 }
-
-	The endless for loop only has a exit point (at line 1213). It terminate
-only when
-__find_get_block return a non-NULL value. If the block is not mapped to
-buffer pages,
-the first __find_get_block calling will return a NULL bh and the
-function grow_buffers()
-will be called subsequently.
-
-1194 __getblk_slow(struct block_device *bdev, sector_t block, int size)
-1195 {
-1196         /* Size must be multiple of hard sectorsize */
-1197         if (unlikely(size & (bdev_hardsect_size(bdev)-1) ||
-1198                         (size < 512 || size > PAGE_SIZE))) {
-1199                 printk(KERN_ERR "getblk(): invalid block size %d
-requested\n",
-1200                                         size);
-1201                 printk(KERN_ERR "hardsect size: %d\n",
-1202                                         bdev_hardsect_size(bdev));
-1203
-1204                 dump_stack();
-1205                 return NULL;
-1206         }
-1207
-1208         for (;;) {
-1209                 struct buffer_head * bh;
-1210
-1211                 bh = __find_get_block(bdev, block, size);	
-1212                 if (bh)
-1213                         return bh;
-1214
-1215                 if (!grow_buffers(bdev, block, size))		
-1216                         free_more_memory();
-1217         }
-1218 }
-
-	The function grow_buffers() is responsible for construct the
-relationships among
-page, buffer_head and block.
-	On the 32-bit platform, the length of block and index are 64-bit and
-32-bit respectively.
-After the operations at line 1201 and 1202, the high 32 bits of block
-will lost. Consequently, when
-the block number is beyond 4G, new block number would be differently
-with the original.
-
-1189 static inline int
-1190 grow_buffers(struct block_device *bdev, sector_t block, int size)
-1191 {
-1192         struct page *page;
-1193         pgoff_t index;
-1194         int sizebits;
-1195
-1196         sizebits = -1;
-1197         do {
-1198                 sizebits++;
-1199         } while ((size << sizebits) < PAGE_SIZE);
-1200
-1201         index = block >> sizebits;
-1202         block = index << sizebits;
-1203
-1204         /* Create a page with the proper size buffers.. */
-1205         page = grow_dev_page(bdev, block, index, size);
-1206         if (!page)
-1207                 return 0;
-1208         unlock_page(page);
-1209         page_cache_release(page);
-1210         return 1;
-1211 }
-
-
-	Follow the call sequence (grow_dev_page ==> init_page_buffers ==>
-init_page_buffers).
-In init_page_buffers(), a new buffer_head will be initialized, it's
-block number (bh->b_blocknr)
-corresponding to mapped block is assigned with the new block number.
-
-static void
-init_page_buffers(struct page *page, struct block_device *bdev,
-                        sector_t block, int size)
-{
-	...
-	...
-
-        do {
-                if (!buffer_mapped(bh)) {		
-                        init_buffer(bh, NULL, NULL);
-                        bh->b_bdev = bdev;
-                        bh->b_blocknr = block;
-                        if (uptodate)
-                                set_buffer_uptodate(bh);
-                        set_buffer_mapped(bh);
-                }
-                block++;
-                bh = bh->b_this_page;
-        } while (bh != head);
-}
-
-	However, __find_get_block seeks buffer head base on the original block
-number in __getblk_slow ().
-Because of wrong block number argument, __find_get_block will always
-return NULL. As results,
-system will fall in a dead loop and consume resource endlessly.
-
-1194 __getblk_slow(struct block_device *bdev, sector_t block, int size)
-1195 {
-	...
-	...
-1207
-1208         for (;;) {
-1209                 struct buffer_head * bh;
-1210
-1211                 bh = __find_get_block(bdev, block, size);	
-1212                 if (bh)
-1213                         return bh;
-1214
-1215                 if (!grow_buffers(bdev, block, size))		
-1216                         free_more_memory();
-1217         }
-1218 }
-
-
-example£º
-	The vulnerability can be triggered by mount a malformed Reiser
-filesystem image, the arguments of
-__getblk() are:
-	__getblk(0xcd0ed0c0, 0xffffffffa10020d9, 0x1000)
-
-    call stack:
-	sys_mount ->
-	do_mount ->
-	do_kern_mount ->
-	get_super_block ->
-	get_sb_bdev  ->
-	reiserfs_fill_super ->
-	reiserfs_read_locked_inode ->
-	search_by_key ->
-	__getblk ->
-	__find_get_block
-
-III.CREDIT:
-----------
-    Venustech AD-LAB discovery this vuln. Thank to all Venustech AD-Lab
-guys.
-
-V.DISCLAIMS:
------------
-
-The information in this bulletin is provided "AS IS" without warranty of any
-kind. In no event shall we be liable for any damages whatsoever
-including direct,
-indirect, incidental, consequential, loss of business profits or special
-damages.
-
-Copyright 1996-2006 VENUSTECH. All Rights Reserved. Terms of use.
-
-VENUSTECH Security Lab
-VENUSTECH INFORMATION TECHNOLOGY CO.,LTD(http://www.venustech.com.cn)
-
-Security
-Trusted {Solution} Provider
-Service
-
-*********************************************************
-
-
-
-
+Karim
+-- 
+President  / Opersys Inc.
+Embedded Linux Training and Expertise
+www.opersys.com  /  1.866.677.4546

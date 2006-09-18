@@ -1,155 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751793AbWIRPus@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751800AbWIRPyv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751793AbWIRPus (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Sep 2006 11:50:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751797AbWIRPus
+	id S1751800AbWIRPyv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Sep 2006 11:54:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751801AbWIRPyu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Sep 2006 11:50:48 -0400
-Received: from tomts36-srv.bellnexxia.net ([209.226.175.93]:23950 "EHLO
-	tomts36-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id S1751793AbWIRPur (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Sep 2006 11:50:47 -0400
-Date: Mon, 18 Sep 2006 11:45:32 -0400
-From: Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: "Frank Ch. Eigler" <fche@redhat.com>, Paul Mundt <lethal@linux-sh.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>, Jes Sorensen <jes@sgi.com>,
-       Andrew Morton <akpm@osdl.org>, Tom Zanussi <zanussi@us.ibm.com>,
-       Richard J Moore <richardj_moore@uk.ibm.com>,
-       Michel Dagenais <michel.dagenais@polymtl.ca>,
-       Christoph Hellwig <hch@infradead.org>,
-       Greg Kroah-Hartman <gregkh@suse.de>,
-       Thomas Gleixner <tglx@linutronix.de>, William Cohen <wcohen@redhat.com>,
-       "Martin J. Bligh" <mbligh@mbligh.org>
-Subject: Re: tracepoint maintainance models
-Message-ID: <20060918154532.GF15605@Krystal>
-References: <450D182B.9060300@opersys.com> <20060917112128.GA3170@localhost.usen.ad.jp> <20060917143623.GB15534@elte.hu> <20060917153633.GA29987@Krystal> <20060918000703.GA22752@elte.hu> <450DF28E.3050101@opersys.com> <20060918011352.GB30835@elte.hu> <20060918122527.GC3951@redhat.com> <20060918150231.GA8197@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Mon, 18 Sep 2006 11:54:50 -0400
+Received: from mail.suse.de ([195.135.220.2]:38591 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751800AbWIRPyt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Sep 2006 11:54:49 -0400
+From: Andi Kleen <ak@suse.de>
+To: Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>
+Subject: Re: Network performance degradation from 2.6.11.12 to 2.6.16.20
+Date: Mon, 18 Sep 2006 17:54:37 +0200
+User-Agent: KMail/1.9.3
+Cc: "Vladimir B. Savkin" <master@sectorb.msk.ru>,
+       Jesper Dangaard Brouer <hawk@diku.dk>,
+       Harry Edmon <harry@atmos.washington.edu>, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org
+References: <4492D5D3.4000303@atmos.washington.edu> <p73ac4x4doi.fsf@verdi.suse.de> <20060918153822.GA805@ms2.inr.ac.ru>
+In-Reply-To: <20060918153822.GA805@ms2.inr.ac.ru>
+MIME-Version: 1.0
 Content-Disposition: inline
-In-Reply-To: <20060918150231.GA8197@elte.hu>
-X-Editor: vi
-X-Info: http://krystal.dyndns.org:8080
-X-Operating-System: Linux/2.4.32-grsec (i686)
-X-Uptime: 11:23:41 up 26 days, 12:32,  5 users,  load average: 0.74, 0.60, 0.57
-User-Agent: Mutt/1.5.13 (2006-08-11)
+Message-Id: <200609181754.37623.ak@suse.de>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Ingo,
+On Monday 18 September 2006 17:38, Alexey Kuznetsov wrote:
+> Hello!
+> 
+> > For netdev: I'm more and more thinking we should just avoid the problem
+> > completely and switch to "true end2end" timestamps. This means don't
+> > time stamp when a packet is received, but only when it is delivered
+> > to a socket.
+> 
+> This will work.
+> 
+> From viewpoint of existing uses of timestamp by packet socket
+> this time is not worse. The only danger is violation of casuality
+> (when forwarded packet or reply packet gets timestamp earlier than
+> original packet). 
 
-If it is less visually intrusive to declare markers as a macro, let's do it this
-way. I have no preference : as long as both dynamic probes and static ones can
-be hooked and that it does imply so much black magic that kernel developers
-won't know what code will be called from the marker when tracing is enabled.
+Hmm, not sure how that could happen. Also is it a real problem
+even if it could?
 
-Back in 2005, I made a quick macro example that would benefit to everybody. It
-changes following config options to either :
+> > handler runs. Then the problem above would completely disappear. 
+> 
+> Well, not completely. Too slow clock source remains too slow clock source.
+> If it is so slow, that it results in "performance degradation", it just
+> should not be used at all, even such pariah as tcpdump wants to be fast.
+> 
+> Actually, I have a question. Why the subject is
+> "Network performance degradation from 2.6.11.12 to 2.6.16.20"?
+> I do not see beginning of the thread and cannot guess
+> why clock source degraded. :-)
 
-- nothing
-- a call to printk
-- a call to a static tracer (either inline function or a real call)
-- no operations (a 5 bytes site for an enhanced kprobe)
+It's a long and sad story.
 
-The 5 bytes of NOOP used here is absolutely not the way to go : djprobes guys
-has much better alternatives.
+Old kernels didn't disable the TSC on those boxes (multi core K8) and assumed
+they were synchronized for timing purposes. 
 
-Note that this example is a userspace program that can be trivially moved to a
-kernel header (printf->printk, etc).
+This initially mostly worked  if you don't use cpufreq, 
+but over a longer uptime the TSCs would drift against each other and timing
+would jump more and more between CPUs.
 
-I also wanted to identify the trace point by a symbol, so it could be easily
-found dynamically, but this part is not completed.
+On older versions of K8 this drift happened much slower (more
+aggressive power saving in HLT in newer steppings made it worse; that is why
+idle=poll helps) and could be often ignored. But technically it was still a 
+bug there because it would could break timing after long uptimes.
 
-What are your thoughts about it ? (think of it as a proof of concept, and
-search+replace MAGIC_TRACE for MARK). :)
+New multi socket K8 boxes are generally 
+totally unusable with TSC because they use cpufreq and the TSCs can run
+at completely differently frequencies, which obviously doesn't give very 
+good timing information if you assume the TSC is globally synchronized.
 
+That is why later kernels default to TSC off.  The original plan 
+was to use HPET then, which is slower than TSC, but still not that bad.
+But while most modern systems have a HPET timer somewhere in the chipset 
+nearly all BIOS vendors "forgot" to describe it in the BIOS because Windows
+didn't use it and Linux can't find it because of that. 
 
-Mathieu
+Then it has to use the ACPI pmtmr which is really really slow.
+The overhead of that thing is so large that you can clearly see it in
+the network benchmark.
 
+The real fix long term is to change the timer subsystem to keep all TSC
+state per CPU, then it'll work on the K8s too. Unfortunately it's a moderately 
+hard problem  to make the result still fully monotonic. But people are working 
+on it.
 
------ BEGIN -----
-
-
-/* ltt-macro.c
- *
- * Macro example for instrumentation
- *
- * Version 0.0.1
- * 
- * Mathieu Desnoyers mathieu.desnoyers@polymtl.ca
- *
- * This is released under the GPL v2 (or better) license.
- */
-
-
-
-/* This is an example of noop, get this from the current arch header */
-#define GENERIC_NOP1    ".byte 0x90\n"
-
-
-/* PUT THIS IN A INCLUDE/LINUX HEADER */
-
-#define __stringify_1(x) #x //see include/linux/stringify.h
-#define __stringify(x) __stringify_1(x)
-
-#define KBUILD_BASENAME basename
-#define KBUILD_MODNAME modulename
-
-#define MAGIC_TRACE_SYM(event)	\
-	char * __trace_symbol_##event =__stringify(KBUILD_MODNAME) "_" \
-					__stringify(KBUILD_BASENAME) "_" \
-					#event ;
-
-/* With config menu mutual exclusion of choice */
-#ifdef CONFIG_NOLOG
-#define MAGIC_TRACE(event, format, args...)
-#endif
-
-#ifdef CONFIG_PRINTLOG
-#define MAGIC_TRACE(event, format, args...) \
-	printf(format, ##args);
-#endif
-
-#ifdef CONFIG_TRACELOG
-#define MAGIC_TRACE(event, format, args...) \
-	trace_##event( args );
-#endif
-
-#ifdef CONFIG_KPROBELOG
-#define MAGIC_TRACE(event, format, args...) \
-	__asm__ ( GENERIC_NOP1 GENERIC_NOP1 GENERIC_NOP1 GENERIC_NOP1 GENERIC_NOP1 )
-#endif
-
-/* PUT THIS IN A HEADER NEAR THE .C FILE */
-#ifdef CONFIG_TRACELOG
-static inline void trace_eventname(int a, char *b)
-{
-	/* log.... */
-	printf("Tracing event : first arg %d, second arg %s", a, b);
-}
-#endif
-
-/* PUT THIS IN THE .C FILE */
-
-MAGIC_TRACE_SYM(eventname);
-
-int main()
-{
-	int myint = 55;
-	char * mystring = "blah";
-	
-	MAGIC_TRACE(eventname, "%d %s", myint, mystring);
-	
-	printf("\n");
-
-	return 0;
-}
-
------- END  -----
-
-
-
-
-OpenPGP public key:              http://krystal.dyndns.org:8080/key/compudj.gpg
-Key fingerprint:     8CD5 52C3 8E3C 4140 715F  BA06 3F25 A8FE 3BAE 9A68 
+-Andi

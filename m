@@ -1,18 +1,24 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965392AbWIRFRV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965391AbWIRFQq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965392AbWIRFRV (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Sep 2006 01:17:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965394AbWIRFRV
+	id S965391AbWIRFQq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Sep 2006 01:16:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965392AbWIRFQq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Sep 2006 01:17:21 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:58763 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S965392AbWIRFRU (ORCPT
+	Mon, 18 Sep 2006 01:16:46 -0400
+Received: from opersys.com ([64.40.108.71]:5138 "EHLO www.opersys.com")
+	by vger.kernel.org with ESMTP id S965391AbWIRFQp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Sep 2006 01:17:20 -0400
-Date: Mon, 18 Sep 2006 07:08:43 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>
-Cc: Karim Yaghmour <karim@opersys.com>, Paul Mundt <lethal@linux-sh.org>,
+	Mon, 18 Sep 2006 01:16:45 -0400
+Message-ID: <450E3099.20409@opersys.com>
+Date: Mon, 18 Sep 2006 01:37:29 -0400
+From: Karim Yaghmour <karim@opersys.com>
+Reply-To: karim@opersys.com
+Organization: Opersys inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.6) Gecko/20060804 Fedora/1.0.4-0.5.1.fc5 SeaMonkey/1.0.4
+MIME-Version: 1.0
+To: Ingo Molnar <mingo@elte.hu>
+CC: Theodore Tso <tytso@mit.edu>, Nicholas Miell <nmiell@comcast.net>,
+       Paul Mundt <lethal@linux-sh.org>,
        linux-kernel <linux-kernel@vger.kernel.org>,
        Ingo Molnar <mingo@redhat.com>, Jes Sorensen <jes@sgi.com>,
        Andrew Morton <akpm@osdl.org>, Roman Zippel <zippel@linux-m68k.org>,
@@ -20,47 +26,90 @@ Cc: Karim Yaghmour <karim@opersys.com>, Paul Mundt <lethal@linux-sh.org>,
        Richard J Moore <richardj_moore@uk.ibm.com>,
        "Frank Ch. Eigler" <fche@redhat.com>,
        Michel Dagenais <michel.dagenais@polymtl.ca>,
+       Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
        Christoph Hellwig <hch@infradead.org>,
        Greg Kroah-Hartman <gregkh@suse.de>,
        Thomas Gleixner <tglx@linutronix.de>, William Cohen <wcohen@redhat.com>,
        "Martin J. Bligh" <mbligh@mbligh.org>
 Subject: Re: tracepoint maintainance models
-Message-ID: <20060918050843.GA28459@elte.hu>
-References: <450D182B.9060300@opersys.com> <20060917112128.GA3170@localhost.usen.ad.jp> <20060917143623.GB15534@elte.hu> <20060917153633.GA29987@Krystal> <20060918000703.GA22752@elte.hu> <450DF28E.3050101@opersys.com> <20060918011352.GB30835@elte.hu> <20060918024343.GA23149@Krystal> <20060918032120.GA13076@elte.hu> <20060918042652.GB15930@Krystal>
-Mime-Version: 1.0
+References: <20060917112128.GA3170@localhost.usen.ad.jp> <20060917143623.GB15534@elte.hu> <1158524390.2471.49.camel@entropy> <20060917230623.GD8791@elte.hu> <450DEEA5.7080808@opersys.com> <20060918005624.GA30835@elte.hu> <450DFFC8.5080005@opersys.com> <20060918033027.GB11894@elte.hu> <20060918035216.GF9049@thunk.org> <450E1F6F.7040401@opersys.com> <20060918043248.GB19843@elte.hu>
+In-Reply-To: <20060918043248.GB19843@elte.hu>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060918042652.GB15930@Krystal>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -2.9
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.9 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.4997]
-	-0.1 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca> wrote:
+Ingo Molnar wrote:
+> and now i'm red faced - i was wrong about this fundamental aspect of 
+> your position. Please accept my apologies!
 
-> The following example voids your example : there are ways to implement 
-> static markers that *could* have access to those variables. 
-> (implementation detail)
-> 
-> int x = 5;
-> 
-> #define MARK(a) printk(a, x)
+Apologies accepted. Hopefully we can tone this thread down and
+move on to more constructive implementation discussions.
 
-but this is only hiding it syntactically, hence the same 
-parameter-access side-effect remains - while in the dynamic probe case 
-the variable is accessed within the probe - so the true effect on the 
-callsite is different. But, in terms of having access to the 
-information, you (and Karim) are right that the static tracer can access 
-it too.
+> so regarding the big picture we are largely on the same page in essence 
+> i think - sub-issues non-withstanding :-) As long as LTT comes with a 
+> facility that allows the painless moving of a static LTT markup to a 
+> SystemTap script, that would come quite a bit closer to being acceptable 
+> for upstream acceptance in my opinion.
 
-	Ingo
+I don't think there's any impediment for that. In fact, the value
+is not in the markup, but in the tools.
+
+> The curious bit is: why doesnt LTT integrate SystemTap yet?
+
+Performance aside, this is due to historic reasons which cannot,
+unfortunately, be succinctly explained. The best I can do is refer
+you to the topmost parent of this thread, lengthy as it may be. As I
+told Ted, if the signal *and* endorsement is that LTT and SystemTap
+should be complementary, then that is exactly what will happen.
+
+It doesn't solve the performance problem, but even the SystemTap
+folks are concerned by performance and would like to see some form
+of static markup, so I think the LTTng and SystemTap efforts are
+on the same page here.
+
+> Is it the 
+> performance aspect? Some of the extensive hooking you do in LTT could be 
+> aleviated to a great degree if you used dynamic probes. For example the 
+> syscall entry hackery in LTT looks truly scary. I cannot understand that 
+> someone who does tracing doesnt see the fundamental strength of 
+> SystemTap - i think that in part must have lead to my mistake of 
+> assuming that you opposed SystemTap.
+
+I am not opposed to SystemTap and neither do I fail to see its
+fundamental strength. It's just a matter that a decision was made
+at some point in time that SystemTap be developed separately *and*
+independently from any existing tracing effort. Again, that
+decision was based on what appeared to be good reasons for the
+people in charge, and there's no point in further highlighting
+differences.
+
+I think what is important at this stage is that now that we have
+an agreement on the need for some form of static markup, that
+the developers of the various teams work together to come up
+with an acceptable framework for all to use. And, ideally, this
+effort should be spearheaded by someone who has enough knowledge
+of the kernel's intricacies as to avoid any obvious pitfalls.
+In that regard, you're likely the best person to take charge of
+this.
+
+Once markup is in place, much of the mechanics of either of
+the existing *mechanisms* can then simply disappear in the
+background without *any* impact on the rest of the developers.
+
+Only then will there start to be constructive discussion as
+to where best markup should be located and what mechanism
+is typically most appropriate for that specific location.
+
+All that being said, I would like to thank you for acknowledging
+a misunderstanding on your part. Hopefully we can all set this
+aside, and move forward on common goals.
+
+Thanks,
+
+Karim
+-- 
+President  / Opersys Inc.
+Embedded Linux Training and Expertise
+www.opersys.com  /  1.866.677.4546

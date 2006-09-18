@@ -1,69 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965005AbWIRMJc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965025AbWIRMKl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965005AbWIRMJc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Sep 2006 08:09:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965012AbWIRMJT
+	id S965025AbWIRMKl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Sep 2006 08:10:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964986AbWIRMKl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Sep 2006 08:09:19 -0400
-Received: from mail.kroah.org ([69.55.234.183]:1473 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S965005AbWIRMJR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Sep 2006 08:09:17 -0400
-Date: Sun, 17 Sep 2006 09:07:05 -0700
-From: Greg KH <gregkh@suse.de>
-To: Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>
-Cc: linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
-       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@redhat.com>,
-       Thomas Gleixner <tglx@linutronix.de>, Tom Zanussi <zanussi@us.ibm.com>,
-       ltt-dev@shafik.org, Michel Dagenais <michel.dagenais@polymtl.ca>,
-       Douglas Niehaus <niehaus@eecs.ku.edu>
-Subject: Re: [PATCH 1/11] LTTng-core 0.5.111 : Relay+DebugFS (DebugFS fix)
-Message-ID: <20060917160705.GB6326@suse.de>
-References: <20060916075103.GB29360@Krystal>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060916075103.GB29360@Krystal>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+	Mon, 18 Sep 2006 08:10:41 -0400
+Received: from stanford.columbia.tresys.com ([209.60.7.66]:51294 "EHLO
+	twoface.columbia.tresys.com") by vger.kernel.org with ESMTP
+	id S965010AbWIRMKk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Sep 2006 08:10:40 -0400
+Subject: Re: [PATCH 3/4] security: capabilities patch (version 0.4.4), part
+	3/4: introduce new capabilities
+From: Joshua Brindle <method@gentoo.org>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: David Madore <david.madore@ens.fr>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel mailing-list <linux-kernel@vger.kernel.org>,
+       LSM mailing-list <linux-security-module@vger.kernel.org>
+In-Reply-To: <20060918120424.GA5370@elf.ucw.cz>
+References: <20060910133759.GA12086@clipper.ens.fr>
+	 <20060910134257.GC12086@clipper.ens.fr>
+	 <1157905393.23085.5.camel@localhost.localdomain>
+	 <450451DB.5040104@gentoo.org> <20060917181422.GC2225@elf.ucw.cz>
+	 <450DB274.1010404@gentoo.org> <20060917211602.GA6215@clipper.ens.fr>
+	 <1158579966.8680.24.camel@twoface.columbia.tresys.com>
+	 <20060918120424.GA5370@elf.ucw.cz>
+Content-Type: text/plain
+Date: Mon, 18 Sep 2006 08:12:16 -0400
+Message-Id: <1158581536.8680.26.camel@twoface.columbia.tresys.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Sep 16, 2006 at 03:51:03AM -0400, Mathieu Desnoyers wrote:
-> 1 - DebugFS stalled dentry patch
-> DebugFS seems to keep a stalled dentry when a process is in a directory that is
-> being removed. Force a differed deletion.
-> patch-2.6.17-lttng-core-0.5.111-debugfs.diff
+On Mon, 2006-09-18 at 14:04 +0200, Pavel Machek wrote:
+> Hi!
 > 
+> > > > The benefits of this are so minuscule and the cost is so high if you are 
+> > > > ever to use it that it simply won't happen..
+> > > 
+> > > I'm withdrawing that patch anyway, in favor of a LSM-style approach,
+> > > the "cuppabilities" module (cf. the patch I posted a couple of hours
+> > > ago with that word in the title, and I'll be posting a new version in
+> > > a day or so, or cf. <URL:
+> > > http://www.madore.org/~david/linux/cuppabilities/
+> > >  >).  In this case, the relative cost will be lower since the
+> > > security_ops->inode_permission() hook is called no matter what.
+> > > 
+> > 
+> > You misunderstand. I don't mean the performance cost is high, I mean the
+> > cost of an application to actually be able to run without open() (what I
+> > was saying before, static built, no glibc, no conf files, no name
+> > lookups, etc). I never see this being used in the real world because of
+> > the extreme limitations.
 > 
-> OpenPGP public key:              http://krystal.dyndns.org:8080/key/compudj.gpg
-> Key fingerprint:     8CD5 52C3 8E3C 4140 715F  BA06 3F25 A8FE 3BAE 9A68 
+> It is already being used. See config_seccomp.
 
-> --- a/fs/debugfs/inode.c
-> +++ b/fs/debugfs/inode.c
-> @@ -266,6 +266,7 @@ EXPORT_SYMBOL_GPL(debugfs_create_dir);
->  void debugfs_remove(struct dentry *dentry)
->  {
->  	struct dentry *parent;
-> +	int ret = 0;
->  	
->  	if (!dentry)
->  		return;
-> @@ -278,9 +279,10 @@ void debugfs_remove(struct dentry *dentr
->  	if (debugfs_positive(dentry)) {
->  		if (dentry->d_inode) {
->  			if (S_ISDIR(dentry->d_inode->i_mode))
-> -				simple_rmdir(parent->d_inode, dentry);
-> +				ret = simple_rmdir(parent->d_inode, dentry);
->  			else
-> -				simple_unlink(parent->d_inode, dentry);
-> +				ret = simple_unlink(parent->d_inode, dentry);
-> +			if(ret) d_delete(dentry);
+Where are the users?
 
-Are you saying that perhaps all other users of simple_unlink() are also
-broken like this?  If so, why not just fix simple_unlink()?
-
-Also, wrong coding style used :(
-
-thanks,
-
-greg k-h

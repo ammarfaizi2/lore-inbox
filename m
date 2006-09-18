@@ -1,46 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965568AbWIRIWG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965572AbWIRIWH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965568AbWIRIWG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Sep 2006 04:22:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965573AbWIRIWF
+	id S965572AbWIRIWH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Sep 2006 04:22:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965569AbWIRIWH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Mon, 18 Sep 2006 04:22:07 -0400
+Received: from mx1.suse.de ([195.135.220.2]:23004 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S965572AbWIRIWF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
 	Mon, 18 Sep 2006 04:22:05 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:56451 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S965569AbWIRIWC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Sep 2006 04:22:02 -0400
-Subject: Re: [-mm patch 2/3] AVR32 MTD: Unlock flash if necessary (try 2)
-From: David Woodhouse <dwmw2@infradead.org>
-To: Haavard Skinnemoen <hskinnemoen@atmel.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-mtd@lists.infradead.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20060918102131.1e210276@cad-250-152.norway.atmel.com>
-References: <20060915163102.73bf171d@cad-250-152.norway.atmel.com>
-	 <20060915163554.4f326bf6@cad-250-152.norway.atmel.com>
-	 <20060915163711.10d19763@cad-250-152.norway.atmel.com>
-	 <1158334346.24527.94.camel@pmac.infradead.org>
-	 <20060918101224.12508491@cad-250-152.norway.atmel.com>
-	 <1158567260.24527.313.camel@pmac.infradead.org>
-	 <20060918102131.1e210276@cad-250-152.norway.atmel.com>
-Content-Type: text/plain
-Date: Mon, 18 Sep 2006 09:21:37 +0100
-Message-Id: <1158567697.24527.314.camel@pmac.infradead.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5.dwmw2.1) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+To: "Robin H. Johnson" <robbat2@gentoo.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: x86_64 (EM64T Core2 Duo, DG965RY) PCI mmconfig regression - complete hangs on boot - ACPI interaction?
+References: <20060914195344.GC27531@curie-int.orbis-terrarum.net>
+From: Andi Kleen <ak@suse.de>
+Date: 18 Sep 2006 10:22:03 +0200
+In-Reply-To: <20060914195344.GC27531@curie-int.orbis-terrarum.net>
+Message-ID: <p73wt814mac.fsf@verdi.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-09-18 at 10:21 +0200, Haavard Skinnemoen wrote:
-> Fine with me. The stuff that depends on this (and that I care about)
-> is definitely not 2.6.18 material. There could of course be other
-> boards where this matters, but they have to speak up for themselves. 
+"Robin H. Johnson" <robbat2@gentoo.org> writes:
 
-Largely, they have hacks in their own board drivers (or userspace) to
-deal with the problem.
+> [Please CC me, I'm not subscribed to LKML.]
+> 
+> I recently picked up a new server of really new hardware, and I've run
+> into a number of issues with the latest git HEAD kernels. I'll make
+> separate posts for each of the issues.
+> 
+> CPU: Intel Core 2 Duo E6400
+> Motherboard: Intel DG965RY
+> BIOS revisions: July/07/2006 AND September/06/2006 (tried both)
+> 
+> The most significant of them - is that somewhere between 2.6.17.11 and
+> 2.6.18-rc6-git4, MMCONFIG is now being used, but leads to a complete
+> hardware hang (SYSRQ does not respond).
 
--- 
-dwmw2
+Known issue. I've already sent Linus fixes for that, but he hasn't merged them 
+yet.
 
+-Andi

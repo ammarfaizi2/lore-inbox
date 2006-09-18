@@ -1,68 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965318AbWIRC1H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965314AbWIRCZ1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965318AbWIRC1H (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 17 Sep 2006 22:27:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965316AbWIRC1H
+	id S965314AbWIRCZ1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 17 Sep 2006 22:25:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965315AbWIRCZ1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 17 Sep 2006 22:27:07 -0400
-Received: from ug-out-1314.google.com ([66.249.92.168]:12493 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S965318AbWIRC1F (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 17 Sep 2006 22:27:05 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=JROHrgdLP0eOpHOrkeKy3D+GB5ZmquHH9r4HZtS2oko/6ZeTYFtJZmntX7HtknPs5D1H5R2Ggc6G5YWqosrdysJWJDvHZtPctz0JIFyXQeMvV5d5dbTsFxE8KRokE1LO0h/u+W8sZ0N111By5q3gr7NkZS6ZU6qlMnv/7YLOgOY=
-Message-ID: <6b4e42d10609171927m6c2b6b84qb7708cfd2149b9e7@mail.gmail.com>
-Date: Sun, 17 Sep 2006 19:27:03 -0700
-From: "Om Narasimhan" <om.turyx@gmail.com>
-To: "Dmitry Torokhov" <dtor@insightbb.com>
-Subject: Re: kmalloc to kzalloc patches for drivers/base
-Cc: linux-kernel@vger.kernel.org, kernel-janitors@lists.osdl.org
-In-Reply-To: <200609172108.37707.dtor@insightbb.com>
+	Sun, 17 Sep 2006 22:25:27 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:51598 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S965314AbWIRCZ0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 17 Sep 2006 22:25:26 -0400
+Date: Sun, 17 Sep 2006 19:24:31 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Jesse Barnes <jbarnes@virtuousgeek.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       "David S. Miller" <davem@davemloft.net>,
+       Jeff Garzik <jgarzik@pobox.com>, Paul Mackerras <paulus@samba.org>,
+       "Eric W. Biederman" <ebiederm@xmission.com>
+Subject: Re: [RFC] MMIO accessors & barriers documentation #2
+In-Reply-To: <1158534913.14473.276.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.64.0609171919030.4388@g5.osdl.org>
+References: <1158534913.14473.276.camel@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <6b4e42d10609171753m2a047081qc2982bf4a693a044@mail.gmail.com>
-	 <200609172108.37707.dtor@insightbb.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 9/17/06, Dmitry Torokhov <dtor@insightbb.com> wrote:
-> On Sunday 17 September 2006 20:53, Om Narasimhan wrote:
-> > diff --git a/drivers/base/platform.c b/drivers/base/platform.c
-> > index 2b8755d..e08950b 100644
-> > --- a/drivers/base/platform.c
-> > +++ b/drivers/base/platform.c
-> > @@ -192,7 +192,7 @@ int platform_device_add_resources(struct
-> > {
-> > struct resource *r;
-> >
-> > -r = kmalloc(sizeof(struct resource) * num, GFP_KERNEL);
-> > +r = kzalloc(sizeof(struct resource) * num, GFP_KERNEL);
-> > if (r) {
-> > memcpy(r, res, sizeof(struct resource) * num);
-> > pdev->resource = r;
->
-> Just out of curiosity could you tell me what is the benefit of
-> zeroing allocated memory here?
-My mistake. :-D
->
-> > @@ -216,7 +216,7 @@ int platform_device_add_data(struct plat
-> > {
-> > void *d;
-> >
-> > -d = kmalloc(size, GFP_KERNEL);
-> > +d = kzalloc(size, GFP_KERNEL);
-> > if (d) {
-> > memcpy(d, data, size);
-> > pdev->dev.platform_data = d;
-> >
->
-> And here?
-Mea Culpa :-D
 
-Thanks for the comment.
-Regards,
-Om.
+
+On Mon, 18 Sep 2006, Benjamin Herrenschmidt wrote:
+> 
+> Class 1: Ordered accessors
+> --------------------------
+> 
+>  1- {read,write}{b,w,l,q} : MMIO accessors. Those accessors provide
+> all MMIO ordering requirements. They are thus called "fully ordered".
+> That is #1, #2 and #4 for writes and #1 and #3 for reads. 
+
+Well, it's already not defined to be #4 right now on SGI boxes, and we 
+have that (badly named) mmiowb() thing to enforce #4, so I think we should 
+just accept that write[bwl]() it's _that_ ordered.
+
+And on x86, we _already_ depend on "wmb()" to be a "normal write to MMIO 
+write" barrier, which is technically wrong and bad. Again, thanks to 
+mmiowb(), normal memory accesses and MMIO accesses have already been 
+defined to not be in the same "ordering domain", so "wmb()" is technically 
+wrong and may not order a regular write wrt a MMIO (because it doesn't do 
+so for the other order: MMIO->spin_unlock).
+
+So I think we should just admit that at least MMIO _stores_ are already 
+not entirely ordered, and not try to strengthen the rules for the current 
+setup (and just try to clarify the currently accepted semantics).
+
+		Linus

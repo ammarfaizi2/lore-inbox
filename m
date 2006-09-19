@@ -1,66 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750816AbWISPI6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750869AbWISPNa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750816AbWISPI6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Sep 2006 11:08:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751161AbWISPI5
+	id S1750869AbWISPNa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Sep 2006 11:13:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750840AbWISPN3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Sep 2006 11:08:57 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:30115 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1750816AbWISPI4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Sep 2006 11:08:56 -0400
-Date: Tue, 19 Sep 2006 16:08:31 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: David Howells <dhowells@redhat.com>, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
-Subject: Re: [PATCH 5/7] Alter get_order() so that it can make use of ilog2() on a constant [try #3]
-Message-ID: <20060919150831.GA28570@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Andrew Morton <akpm@osdl.org>, David Howells <dhowells@redhat.com>,
-	torvalds@osdl.org, linux-kernel@vger.kernel.org,
-	linux-arch@vger.kernel.org
-References: <20060919003031.166d08a4.akpm@osdl.org> <20060913183522.22109.10565.stgit@warthog.cambridge.redhat.com> <20060913183531.22109.85723.stgit@warthog.cambridge.redhat.com> <23843.1158656897@warthog.cambridge.redhat.com> <20060919080324.601e50f9.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060919080324.601e50f9.akpm@osdl.org>
-User-Agent: Mutt/1.4.2.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Tue, 19 Sep 2006 11:13:29 -0400
+Received: from smtp-out.google.com ([216.239.33.17]:39558 "EHLO
+	smtp-out.google.com") by vger.kernel.org with ESMTP
+	id S1750832AbWISPN3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Sep 2006 11:13:29 -0400
+DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
+	h=received:message-id:date:from:user-agent:mime-version:to:cc:
+	subject:references:in-reply-to:content-type:content-transfer-encoding;
+	b=mYVAvoW9HrvAVJ/DGmclkwswNx8Cx+bRh/awtXO5nQOYCbagkEOVghq3YeVM1JKvX
+	gwAhGLW4HesiJx6qli+5g==
+Message-ID: <451008AC.6030006@google.com>
+Date: Tue, 19 Sep 2006 08:11:40 -0700
+From: "Martin J. Bligh" <mbligh@google.com>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060728)
+MIME-Version: 1.0
+To: Ingo Molnar <mingo@elte.hu>
+CC: Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
+       "Frank Ch. Eigler" <fche@redhat.com>, Paul Mundt <lethal@linux-sh.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>, Jes Sorensen <jes@sgi.com>,
+       Andrew Morton <akpm@osdl.org>, Tom Zanussi <zanussi@us.ibm.com>,
+       Richard J Moore <richardj_moore@uk.ibm.com>,
+       Michel Dagenais <michel.dagenais@polymtl.ca>,
+       Christoph Hellwig <hch@infradead.org>,
+       Greg Kroah-Hartman <gregkh@suse.de>,
+       Thomas Gleixner <tglx@linutronix.de>, William Cohen <wcohen@redhat.com>,
+       ltt-dev@shafik.org, systemtap@sources.redhat.com,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH] Linux Kernel Markers
+References: <20060918234502.GA197@Krystal> <20060919081124.GA30394@elte.hu>
+In-Reply-To: <20060919081124.GA30394@elte.hu>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 19, 2006 at 08:03:24AM -0700, Andrew Morton wrote:
-> On Tue, 19 Sep 2006 10:08:17 +0100
-> David Howells <dhowells@redhat.com> wrote:
+Ingo Molnar wrote:
+> * Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca> wrote:
 > 
-> > > I didn't pursue it further, because sprinkling ARCH_HAS_FOO things into
-> > > bitops.h(!) is all rather hacky.  Better to use CONFIG_* so they're always
-> > > visible and one knows where to go to find things.
-> > 
-> > But (1) they're not config options,
+>> +choice
+>> +	prompt "MARK code marker behavior"
 > 
-> Well they are, really.  "This architecture has its own get_order()".  It's
-> not *user* configurable, but neither is, say CONFIG_GENERIC_HARDIRQS.
+>> +config MARK_KPROBE
+>> +config MARK_JPROBE
+>> +config MARK_FPROBE
+>> +	Change markers for a function call.
+>> +config MARK_PRINT
 > 
-> The problem we have with the ARCH_HAS_FOO things is that there's never been
-> an include/asm/arch_has_foo.h in which to define them, so stuff gets
-> sprinkled all over the place.
+> as indicated before in great detail, NACK on this profileration of 
+> marker options, especially the function call one. I'd like to see _one_ 
+> marker mechanism that distros could enable, preferably with zero (or at 
+> most one NOP) in-code overhead. (You can of course patch whatever 
+> extension ontop of it, in out-of-tree code, to gain further performance 
+> advantage by generating direct system-calls.)
 > 
-> > and (2) there's plenty of precedent for
-> > this sort of thing (ARCH_HAS_PREFETCH for example).
+> There might be a hodgepodge of methods and tools in userspace to do 
+> debugging, but in the kernel we should get our act together and only 
+> take _one_ (or none at all), and then spend all our efforts on improving 
+> that primary method of debug instrumentation. As kprobes/SystemTap has 
+> proven, it is possible to have zero-overhead inactive probes.
 > 
-> There's precedent both ways.  The advantages of doing it in config are
-> 
-> a) You know where to go to find it: arch/foo/Kconfig
-> 
-> b) It's always available, due to forced inclusion of config.h.
-> 
-> (I think I actually would prefer include/asm/arch_has_foo.h if we had it,
-> because it's lighter-weight.  But we don't)
+> Furthermore, for such a patch to make sense in the upstream kernel, 
+> downstream tracing code has to make actual use of that NOP-marker. I.e. 
+> a necessary (but not sufficient) requirement for upstream inclusion (in 
+> my view) would be for this mechanism to be used by LTT and LKST. (again, 
+> you can patch LTT for your own purposes in your own patchset if you 
+> think the performance overhead of probes is too much)
 
-That approach has the problem of not beeing available in the Kconfig
-language and thus the Makefiles, so we can't compile files conditionally
-on it.   Otherwise I'd say just add asm/config.h, include it automatically
-and go ahead.
+You know ... it strikes me that there's another way to do this, that's
+zero overhead when not enabled, and gets rid of the inflexibility in
+kprobes. It might not work well in all cases, but at least for simple
+non-inlined functions, it'd seem to.
+
+Why don't we just copy the whole damned function somewhere else, and
+make an instrumented copy (as a kernel module)? Then reroute all the
+function calls through it, instead of the original version. OK, it's
+not completely trivial to do, but simpler than kprobes (probably
+doing the switchover atomically is the hard part, but not impossible).
+There's NO overhead when not using, and much lower than probes when
+you are.
+
+That way we can do whatever the hell we please with internal variables,
+however GCC optimises it, can write flexible instrumenting code to just
+about anything, program in C as God intended, etc, etc. No, it probably
+won't fix every case under the sun, but hopefully most of them, and we
+can still use kprobes/djprobes/bodilyprobes for the rest of the cases.
+
+M.

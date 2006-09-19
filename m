@@ -1,70 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752026AbWISDxo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752024AbWISD53@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752026AbWISDxo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Sep 2006 23:53:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752025AbWISDxo
+	id S1752024AbWISD53 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Sep 2006 23:57:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752025AbWISD53
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Sep 2006 23:53:44 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:41115 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1752023AbWISDxn (ORCPT
+	Mon, 18 Sep 2006 23:57:29 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:41634 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1752024AbWISD52 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Sep 2006 23:53:43 -0400
-Message-ID: <450F69C3.8060603@garzik.org>
-Date: Mon, 18 Sep 2006 23:53:39 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
-MIME-Version: 1.0
-To: Tejun Heo <htejun@gmail.com>
-CC: "Robin H. Johnson" <robbat2@gentoo.org>, linux-kernel@vger.kernel.org,
-       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>
-Subject: Re: 2.6.18-rc7-git1: AHCI not seeing devices on ICH8 mobo (DG965RY)
-References: <20060914200500.GD27531@curie-int.orbis-terrarum.net> <4509AB2E.1030800@garzik.org> <20060914205050.GE27531@curie-int.orbis-terrarum.net> <20060916203812.GC30391@curie-int.orbis-terrarum.net> <20060916210857.GD30391@curie-int.orbis-terrarum.net> <20060917074929.GD25800@htj.dyndns.org> <20060918034826.GA10116@curie-int.orbis-terrarum.net> <450E13D4.10200@gmail.com>
-In-Reply-To: <450E13D4.10200@gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Mon, 18 Sep 2006 23:57:28 -0400
+Date: Mon, 18 Sep 2006 20:57:16 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Dmitry Torokhov <dtor@insightbb.com>
+Cc: Steve Smith <tarka@internode.on.net>, linux-kernel@vger.kernel.org,
+       Dominik Brodowski <linux@dominikbrodowski.net>
+Subject: Re: Repeatable hang on boot with PCMCIA card present
+Message-Id: <20060918205716.3773f0a7.akpm@osdl.org>
+In-Reply-To: <200609182337.52990.dtor@insightbb.com>
+References: <20060916050331.GA6685@lucretia.remote.isay.com.au>
+	<20060918190902.d5b6a698.akpm@osdl.org>
+	<200609182337.52990.dtor@insightbb.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.3 (----)
-X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Tejun Heo wrote:
-> Jeff, we've been ignoring PI in ahci_host_init()...
+On Mon, 18 Sep 2006 23:37:52 -0400
+Dmitry Torokhov <dtor@insightbb.com> wrote:
+
+> On Monday 18 September 2006 22:09, Andrew Morton wrote:
+> > On Sat, 16 Sep 2006 15:03:31 +1000
+> > tarka@internode.on.net (Steve Smith) wrote:
+> > 
+> > > [I sent the following to the person responsible for the patch but
+> > > haven't heard anything so I assume he's unavailable...]
+> > > 
+> > > Hi,
+> > > 
+> > > With recent kernel releases I have started seeing consistent hangs
+> > > during boot when a PCMCIA card is present in the slot (the card in
+> > > question is a Linksys wireless-B card).  The symptoms are:
+> > > 
+> > >     If the card is present during boot an error of "Unknown interrupt
+> > >     or fault at EIP ..." appears.
+> > > 
+> > >     If the card is not present there is no error.
+> > > 
+> > >     The card can be plugged-in post-boot without problems.
+> > > 
+> > > Using git-bisect I have narrowed down the error to one commit, namely
+> > > "use bitfield instead of p_state and state".  The commit# is
+> > > 
+> > >     e2d4096365e06b9a3799afbadc28b4519c0b3526
+> > >
+> > > However I am still seeing this problem with the latest -RC releases.
+> > 
+> > Thanks for doing that.
+> > 
+> > Damn, that was a huge patch.  Have you been able to grab
+> > a copy of the oops output?  It would really help.  Even a photo of
+> > the screen..
+> > 
 > 
->     for (i = 0; i < probe_ent->n_ports; i++) {
-> #if 0 /* BIOSen initialize this incorrectly */
->         if (!(hpriv->port_map & (1 << i)))
->             continue;
-> #endif
-> 
-> The comment suggests that some BIOSen initialize PI incorrectly which 
-> will probably result in undetected ports.  Is this true?  Would it be 
-> dangerous to honor PI on some controllers?  If so, PI should be used 
-> only for controllers which does non-linear port mapping.
+> Hmm, not sure why you CCed me unless you remembered I have Inspiron 8100.
 
+oop, I get my Dominiks and Dmitrys mixed up for some reason, sorry.
 
-The core problem is that this register is write-once after reset, i.e. 
-BIOS-initialized.  And my experience with pre-production machines has 
-been that after reset _by the driver_, the register was useless until 
-initialized to a value... _by the driver_.  Which defeats the purpose of 
-the register.
-
-So the info contained in the register is quite useful -- when info is 
-contained in the register.  :)
-
-Now, granted, I have only seen this on pre-production machines, hence 
-the #if 0.  But also, since the code has been disabled in production, we 
-don't know how effective it is across all platforms, and we _do_ know 
-that it is ineffective if used directly after a reset.  The write-once 
-behavior is documented, and normal.
-
-We can't really know which controllers have a non-linear port mapping, 
-because that is dependent on both the silicon and whether or not the 
-chip is connected to port X[0-31].  The BIOS knows this, of course :)
-
-We can try to enable the code, but I worry that it will fail in 
-situations such as kexec.
-
-	Jeff
-
-
+> What chipset does that Linksys card use? I just tried one of my PCMCIA
+> cards with orinoco_cs and it booted fine on today's pull from Linus...
+>  
+> -- 
+> Dmitry

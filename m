@@ -1,106 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030298AbWISRAu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030314AbWISRC6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030298AbWISRAu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Sep 2006 13:00:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030307AbWISRAu
+	id S1030314AbWISRC6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Sep 2006 13:02:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030315AbWISRC6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Sep 2006 13:00:50 -0400
-Received: from dvhart.com ([64.146.134.43]:14310 "EHLO dvhart.com")
-	by vger.kernel.org with ESMTP id S1030298AbWISRAt (ORCPT
+	Tue, 19 Sep 2006 13:02:58 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:28582 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1030309AbWISRC5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Sep 2006 13:00:49 -0400
-Message-ID: <45102240.7040100@mbligh.org>
-Date: Tue, 19 Sep 2006 10:00:48 -0700
-From: Martin Bligh <mbligh@mbligh.org>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051011)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, Andy Whitcroft <apw@shadowen.org>
-Subject: Re: 2.6.18-rc7-mm1
-References: <20060919012848.4482666d.akpm@osdl.org>	<45100272.505@mbligh.org> <20060919093122.d8923263.akpm@osdl.org>
-In-Reply-To: <20060919093122.d8923263.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 19 Sep 2006 13:02:57 -0400
+Date: Tue, 19 Sep 2006 13:02:17 -0400
+From: "Frank Ch. Eigler" <fche@redhat.com>
+To: Martin Bligh <mbligh@google.com>
+Cc: Ingo Molnar <mingo@elte.hu>,
+       Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
+       Paul Mundt <lethal@linux-sh.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>, Jes Sorensen <jes@sgi.com>,
+       Andrew Morton <akpm@osdl.org>, Tom Zanussi <zanussi@us.ibm.com>,
+       Richard J Moore <richardj_moore@uk.ibm.com>,
+       Michel Dagenais <michel.dagenais@polymtl.ca>,
+       Christoph Hellwig <hch@infradead.org>,
+       Greg Kroah-Hartman <gregkh@suse.de>,
+       Thomas Gleixner <tglx@linutronix.de>, William Cohen <wcohen@redhat.com>,
+       ltt-dev@shafik.org, systemtap@sources.redhat.com,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH] Linux Kernel Markers
+Message-ID: <20060919170217.GA18646@redhat.com>
+References: <20060918234502.GA197@Krystal> <20060919081124.GA30394@elte.hu> <451008AC.6030006@google.com> <20060919154612.GU3951@redhat.com> <4510151B.5070304@google.com> <y0m8xkfer8v.fsf@ton.toronto.redhat.com> <45102067.20601@google.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="wac7ysb48OaltWcw"
+Content-Disposition: inline
+In-Reply-To: <45102067.20601@google.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> On Tue, 19 Sep 2006 07:45:06 -0700
-> "Martin J. Bligh" <mbligh@mbligh.org> wrote:
-> 
-> 
->>>- It took maybe ten hours solid work to get this dogpile vaguely
->>>  compiling and limping to a login prompt on x86, x86_64 and powerpc. 
->>>  I guess it's worth briefly testing if you're keen.
->>
->>PPC64 blades shit themselves in a strange way. Possibly the udev
->>breakage you mentioned? Hard to tell really if people are going to
->>go around breaking userspace compatibility ;-(
-> 
-> 
-> What version of udev is it running?
-> 
-> 
->>http://test.kernel.org/abat/48127/debug/console.log
->>
->>..
->>
->>sda: Write Protect is off
->>sda: cache data unavailable
->>sda: assuming drive cache: write through
->>SCSI device sda: 143374000 512-byte hdwr sectors (73407 MB)
->>sda: Write Protect is off
->>sda: cache data unavailable
->>sda: assuming drive cache: write through
->>  sda: sda1 sda2 sda3 sda4 < sda5 sda6 sda7 sda8 >
->>sd 0:0:1:0: Attached scsi disk sda
->>creating device nodes .[: [0-9]*: bad number
->>0:0:1:0: sg_io failed status 0x8 0x0 0x0 0x2
->>0:0:1:0: sense key 0x5 ASC 0x24 ASCQ 0x0
->>[: [0-9]*: bad number
->>0:0:1:0: sg_io failed status 0x8 0x0 0x0 0x2
->>0:0:1:0: sense key 0x5 ASC 0x24 ASCQ 0x0
->>[: [0-9]*: bad number
->>0:0:1:0: sg_io failed status 0x8 0x0 0x0 0x2
->>0:0:1:0: sense key 0x5 ASC 0x24 ASCQ 0x0
->>[: [0-9]*: bad number
->>0:0:1:0: sg_io failed status 0x8 0x0 0x0 0x2
->>0:0:1:0: sense key 0x5 ASC 0x24 ASCQ 0x0
->>[: [0-9]*: bad number
->>
->>
-> 
-> 
-> That all looks rather bad.
-> 
-> 
->>ReiserFS: sda2: Using r5 hash to sort names
->>looking for init ...
->>found /sbin/init
->>/init: cannot open .//dev//console: no such file
-> 
-> 
-> Bizarrely-formed pathname.  Does it always do that?
+
+--wac7ysb48OaltWcw
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+Hi -
+
+On Tue, Sep 19, 2006 at 09:52:55AM -0700, Martin Bligh wrote:
+
+> >[...]  (How many distributions keep around compilable source
+> >trees?)
+>
+> ???? Boggle. Any distro that cannot find the source code for it's kernel
+> deserves a swift kick to the head, plus a red hot poker somewhere else.
+
+My question is more whether they package up such a buildable
+configured patched source tree (/usr/src/redhat/BUILD/* in RH-speak),
+or just some extract like the .c/.h files.
+
+> >>[...] It seems like all we'd need to do is "list all references to
+> >>function, freeze kernel, update all references, continue", [...]
+> >
+> >One additional problem are external references made *by* the function.
+> >Those too would all have to be relocated to the live data.
+>=20
+> Not sure what you mean ... could you give a quick example?
+
+Think about stuff that any function does.  It calls other functions,
+and manipulates global data, which all show up as external references
+in the object code.  All those references would have to be patched to
+refer to the live running copy of the original compilation unit.
 
 
-Working one (-git3): http://test.kernel.org/abat/48064/debug/console.log
+- FChE
 
-Same sgio shit. no mention of /dev/console, but it's an error message,
-so not unexpected.
+--wac7ysb48OaltWcw
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
-> Has udev actually attempted to do anything by this stage?
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
 
-Buggered if I know. I always just turn it off on my machines.
+iD8DBQFFECKZVZbdDOm/ZT0RArhFAJ9xm0/pw2YJgAPMOq+RutrK50imKACeOXzf
+Dvnxfeixfz/jTcPYblrvJjo=
+=HeVC
+-----END PGP SIGNATURE-----
 
-> I wasn't seeing anything that spectacular.  It used to be the case that
-> udev simply hung.  But in rc7-mm1 the symptoms are that incoming ssh
-> sessions hang, but most other things work OK.
-> 
-> Oh well - Greg has split that tree apart and I shall not be pulling the
-> more problematic bits henceforth.
-
-OK, may not be that at all ... could be something entirely different.
-Just seemed co-incicental to your comments.
-
-M.
+--wac7ysb48OaltWcw--

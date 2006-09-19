@@ -1,80 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751671AbWISUK2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751100AbWISUNG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751671AbWISUK2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Sep 2006 16:10:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751666AbWISUK2
+	id S1751100AbWISUNG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Sep 2006 16:13:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751102AbWISUNG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Sep 2006 16:10:28 -0400
-Received: from tomts43.bellnexxia.net ([209.226.175.110]:46495 "EHLO
-	tomts43-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id S1751339AbWISUK1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Sep 2006 16:10:27 -0400
-Date: Tue, 19 Sep 2006 16:05:14 -0400
-From: Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>
-To: "S. P. Prasanna" <prasanna@in.ibm.com>
-Cc: linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
-       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@redhat.com>,
-       Greg Kroah-Hartman <gregkh@suse.de>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Douglas Niehaus <niehaus@eecs.ku.edu>, Tom Zanussi <zanussi@us.ibm.com>,
-       Paul Mundt <lethal@linux-sh.org>, Jes Sorensen <jes@sgi.com>,
-       Richard J Moore <richardj_moore@uk.ibm.com>,
-       William Cohen <wcohen@redhat.com>,
-       "Martin J. Bligh" <mbligh@mbligh.org>,
-       Michel Dagenais <michel.dagenais@polymtl.ca>,
-       systemtap@sources.redhat.com, ltt-dev@shafik.org
-Subject: Re: [PATCH] Linux Kernel Markers 0.2 for Linux 2.6.17
-Message-ID: <20060919200514.GB9459@Krystal>
-References: <20060919183447.GA16095@Krystal> <20060919083900.GE23836@in.ibm.com>
+	Tue, 19 Sep 2006 16:13:06 -0400
+Received: from cavan.codon.org.uk ([217.147.92.49]:31373 "EHLO
+	vavatch.codon.org.uk") by vger.kernel.org with ESMTP
+	id S1751100AbWISUNF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Sep 2006 16:13:05 -0400
+Date: Tue, 19 Sep 2006 21:12:31 +0100
+From: Matthew Garrett <mjg59@srcf.ucam.org>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: Greg KH <greg@kroah.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Daniel Drake <dsd@gentoo.org>, akpm@osdl.org, torvalds@osdl.org,
+       sergio@sergiomb.no-ip.org, jeff@garzik.org, cw@f00f.org,
+       bjorn.helgaas@hp.com, linux-kernel@vger.kernel.org, harmon@ksu.edu,
+       len.brown@intel.com, vsu@altlinux.ru, liste@jordet.net
+Subject: Re: [PATCH V3] VIA IRQ quirk behaviour change
+Message-ID: <20060919201231.GA7560@srcf.ucam.org>
+References: <20060907223313.1770B7B40A0@zog.reactivated.net> <1157811641.6877.5.camel@localhost.localdomain> <4502D35E.8020802@gentoo.org> <1157817836.6877.52.camel@localhost.localdomain> <45033370.8040005@gentoo.org> <1157848272.6877.108.camel@localhost.localdomain> <20060910002112.GA20672@kroah.com> <1157913647.5076.174.camel@mindpipe> <20060910204516.GA9036@srcf.ucam.org> <1158696268.13845.9.camel@mindpipe>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060919083900.GE23836@in.ibm.com>
-X-Editor: vi
-X-Info: http://krystal.dyndns.org:8080
-X-Operating-System: Linux/2.4.32-grsec (i686)
-X-Uptime: 15:39:20 up 27 days, 16:48,  6 users,  load average: 0.51, 1.43, 1.03
-User-Agent: Mutt/1.5.13 (2006-08-11)
+In-Reply-To: <1158696268.13845.9.camel@mindpipe>
+User-Agent: Mutt/1.5.9i
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: mjg59@codon.org.uk
+X-SA-Exim-Scanned: No (on vavatch.codon.org.uk); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-* S. P. Prasanna (prasanna@in.ibm.com) wrote:
-> I think having so many config options is not a good idea, you can group them
-> and reduce the number of config options.
+On Tue, Sep 19, 2006 at 04:04:27PM -0400, Lee Revell wrote:
+> On Sun, 2006-09-10 at 21:45 +0100, Matthew Garrett wrote:
+> > On Sun, Sep 10, 2006 at 02:40:46PM -0400, Lee Revell wrote:
+> > 
+> > > Some applications such as realtime audio and probably gaming require
+> > > ACPI to be disabled, as it causes horrible latency problems.  This
+> > > applies equally to Linux and Windows.
+> > 
+> > How, and on what hardware?
 > 
+> Here's a case where the kernel does not see a user's sound card at all
+> unless ACPI is disabled (second to last comment):
 
-Then we would have to determine what the scenarios are. The problem is to cover
-all interesting instrumentation mixes efficiently.
+That's more likely to be an interrupt routing issue than anything 
+intrinsically awkward with ACPI.
 
-I think it could be a good enough list :
-
-Fprobes only
-Dynamic + Fprobes (supports dynamic probes and uses fprobes for non probable
-                   code)
-Dynamic only
-Printk only
-
-Which would be expressed in the following menu :
-
-choice Marker behavior
-  * Inactive
-  * Dynamic probes
-  * Function probes (Fprobes)
-  * Dynamic probes complemented with Fprobes
-  * Printk
-
-if selected "Dynamic probes" or "Dynamic probes complemented with Fprobes"
-  choice2 Dynamic probes behavior
-    * Kprobes
-    * Jprobes
-
-Any thoughts ?
-
-Mathieu
-
-
-OpenPGP public key:              http://krystal.dyndns.org:8080/key/compudj.gpg
-Key fingerprint:     8CD5 52C3 8E3C 4140 715F  BA06 3F25 A8FE 3BAE 9A68 
+-- 
+Matthew Garrett | mjg59@srcf.ucam.org

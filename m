@@ -1,119 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751202AbWISWIY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751225AbWISWRA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751202AbWISWIY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Sep 2006 18:08:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751222AbWISWIY
+	id S1751225AbWISWRA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Sep 2006 18:17:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751229AbWISWQ7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Sep 2006 18:08:24 -0400
-Received: from py-out-1112.google.com ([64.233.166.176]:42154 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S1751202AbWISWIX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Sep 2006 18:08:23 -0400
+	Tue, 19 Sep 2006 18:16:59 -0400
+Received: from wx-out-0506.google.com ([66.249.82.228]:6219 "EHLO
+	wx-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1751225AbWISWQ6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Sep 2006 18:16:58 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=m0WgrxtHcoVREah1UK6AKLd9llOOR+kaYz0+1vd8YW9f9R+f2lYQOdtiDRZU/sCz02ATGz0iXhdJL4yGNKuKZj3p1sGSqzdykgUrPp07HTBciq+Q+TqSfkd+eC2GLcuYu48g7bDPqd7jRzRmgzCzR1ggOS47AW5Pv7LLqF6+F9M=
-Message-ID: <653402b90609191508yff445d4ybf3ee33afb85838d@mail.gmail.com>
-Date: Wed, 20 Sep 2006 00:08:22 +0200
-From: "Miguel Ojeda" <maxextreme@gmail.com>
-To: "Pavel Machek" <pavel@ucw.cz>
-Subject: Re: [PATCH 1/1 Re] drivers: add lcd display support
-Cc: torvalds@osdl.org, akpm@osdl.org, alan@lxorguk.ukuu.org.uk, greg@kroah.com,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20060919200224.GD7246@elf.ucw.cz>
+        b=erA5CA9kUrExHFptB8rnhxL4kp1FD5AZFC9Um53kozUIavCKVX+tO7By97mmss4PkL0jdNrQkzVLrx/aHM2tr2uCol1UyFXaqqwHkJ2kI9TMVGMzCTlUHPz5epwY2g36StAsKAF25QK3GGtuZpWvjWpOKX+6Wyx6s3KqGBLn+HU=
+Message-ID: <9a8748490609191516x4305c67dy76ac742e92f08ced@mail.gmail.com>
+Date: Wed, 20 Sep 2006 00:16:57 +0200
+From: "Jesper Juhl" <jesper.juhl@gmail.com>
+To: "Linus Torvalds" <torvalds@osdl.org>
+Subject: Re: Math-emu kills the kernel on Athlon64 X2
+Cc: "Andi Kleen" <ak@suse.de>,
+       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.64.0609191453310.4388@g5.osdl.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <20060915030508.2900b9dd.maxextreme@gmail.com>
-	 <20060919200224.GD7246@elf.ucw.cz>
+References: <9a8748490609181518j2d12e4f0l2c55e755e40d38c2@mail.gmail.com>
+	 <p73venk2sjw.fsf@verdi.suse.de>
+	 <9a8748490609191414m6748f2fu521637df29ef9e8e@mail.gmail.com>
+	 <Pine.LNX.4.64.0609191453310.4388@g5.osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ack, thank you for your review!
+On 20/09/06, Linus Torvalds <torvalds@osdl.org> wrote:
+>
+>
+> On Tue, 19 Sep 2006, Jesper Juhl wrote:
+> >
+> > The config is attached.
+>
+> Can you try without SMP, and with CONFIG_X86_GENERIC
 
-On 9/19/06, Pavel Machek <pavel@ucw.cz> wrote:
-> Hi!
->
-> > Please tell me if you agree.
-> >
-> > Adds LCD Display support.
-> > Adds ks0108 LCD controller support.
-> > Adds cfag12864b LCD display support.
-> >
-> > Signed-off-by: Miguel Ojeda Sandonis <maxextreme@gmail.com>
->
->
-> > diff -uprN -X linux-2.6.18-rc7/Documentation/dontdiff linux-2.6.18-rc7-vanilla/drivers/lcddisplay/cfag12864b.c linux-2.6.18-rc7/drivers/lcddisplay/cfag12864b.c
-> > --- linux-2.6.18-rc7-vanilla/drivers/lcddisplay/cfag12864b.c  1970-01-01 01:00:00.000000000 +0100
-> > +++ linux-2.6.18-rc7/drivers/lcddisplay/cfag12864b.c  2006-09-13 05:03:29.000000000 +0200
-> > @@ -0,0 +1,558 @@
-> > +/*
-> > + *    Filename: cfag12864b.c
-> > + *     Version: 0.1.0
-> > + * Description: cfag12864b LCD Display Driver
-> > + *     License: GPL
->
-> v2 or v2 and later?
->
-> > +static const unsigned int cfag12864b_firstminor = 0;
->
-> No need to initialize to zero.
->
-> > +static const unsigned int cfag12864b_ndevices = 1;
-> > +static const char * cfag12864b_name = NAME;
->                       ~- kill this space.
->
-> > +#define bit(n) ((unsigned char)(1<<(n)))
-> > +#define nobit(n) ((unsigned char)(~bit(n)))
->
-> Uh? We have generic functions for this.
->
-> > +static unsigned char cfag12864b_state = 0;
->
-> No zeros.
->
-> > +static void cfag12864b_e(unsigned char state)
-> > +{
-> > +     if(state)
->           ~ missing space.
->
-> > +             cfag12864b_state |= bit(0);
-> > +     else
-> > +             cfag12864b_state &= nobit(0);
-> > +     cfag12864b_set();
->
-> This repeats few times, perhaps you could create helper for that?
-> > +static void cfag12864b_secondcontroller(unsigned char state)
-> > +{
-> > +     if(state)
-> > +             cfag12864b_cs2(0);
-> > +     else
-> > +             cfag12864b_cs2(1);
-> > +}
->
-> Is this needed?
->
-> > +             /*if(address != tmpaddress) {
-> > +                     address = tmpaddress;
-> > +                     cfag12864b_address(address);
-> > +                     cfag12864b_nop();
-> > +             }*/
-> > +
-> > +             /*if(tmpcontroller == 0) {
-> > +                     if(address != tmpaddress) {
-> > +                             address = tmpaddress;
-> > +                             cfag12864b_address(address);
-> > +                     }
-> > +             }
-> > +             else {
-> > +                     cfag12864b_address(tmpaddress);
-> > +                     cfag12864b_nop();
-> > +             }*/
->
-> Remove unused code, do not comment it out.
->                                                                 Pavel
-> --
-> (english) http://www.livejournal.com/~pavelmachek
-> (cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
->
+Done. The result is exactely the same as before. The kernel boots and
+runs just fine except when I add "no387" to the boot options, then it
+hangs.
+
+
+-- 
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

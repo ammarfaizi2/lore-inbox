@@ -1,35 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752008AbWISTqi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752006AbWISTq1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752008AbWISTqi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Sep 2006 15:46:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752010AbWISTqi
+	id S1752006AbWISTq1 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Sep 2006 15:46:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752008AbWISTq1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Sep 2006 15:46:38 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:28803 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1752004AbWISTqg (ORCPT
+	Tue, 19 Sep 2006 15:46:27 -0400
+Received: from ftpbox.mot.com ([129.188.136.9]:36012 "EHLO ftpbox.mot.com")
+	by vger.kernel.org with ESMTP id S1752004AbWISTq0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Sep 2006 15:46:36 -0400
-Date: Tue, 19 Sep 2006 12:44:42 -0700
-From: Stephen Hemminger <shemminger@osdl.org>
-To: David Miller <davem@davemloft.net>
-Cc: dlang@digitalinsight.com, kuznet@ms2.inr.ac.ru, master@sectorb.msk.ru,
-       ak@suse.de, hawk@diku.dk, harry@atmos.washington.edu,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Subject: Re: Network performance degradation from 2.6.11.12 to 2.6.16.20
-Message-ID: <20060919124442.0b1127c0@localhost.localdomain>
-In-Reply-To: <20060919.124034.78165098.davem@davemloft.net>
-References: <20060918211759.GB31746@tentacle.sectorb.msk.ru>
-	<20060918220038.GB14322@ms2.inr.ac.ru>
-	<Pine.LNX.4.63.0609181452470.14338@qynat.qvtvafvgr.pbz>
-	<20060919.124034.78165098.davem@davemloft.net>
-Organization: OSDL
-X-Mailer: Sylpheed-Claws 2.1.0 (GTK+ 2.8.20; i486-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 19 Sep 2006 15:46:26 -0400
+X-POPI: The contents of this message are Motorola Internal Use Only (MIUO)
+       unless indicated otherwise in the message.
+Date: Tue, 19 Sep 2006 14:46:19 -0500 (CDT)
+Message-Id: <200609191946.k8JJkJmx028840@olwen.urbana.css.mot.com>
+From: "Scott E. Preece" <preece@motorola.com>
+To: pavel@ucw.cz
+CC: eugeny.mints@gmail.com, linux-pm@lists.osdl.org,
+       linux-kernel@vger.kernel.org
+In-reply-to: Pavel Machek's message of Tue, 19 Sep 2006 20:22:20 +0200
+Subject: Re: [linux-pm] [PATCH] PowerOP, PowerOP Core, 1/2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The sky2 hardware (and others) can timestamp in hardware, but trying
-to keep device ticks and system clock in sync looked too nasty
-to contemplate actually using it.
+
+
+| From: Pavel Machek<pavel@ucw.cz>
+| 
+| > >>+struct powerop_driver {
+| > >>+	char *name;
+| > >>+	void *(*create_point) (const char *pwr_params, va_list args);
+| > >>+	int (*set_point) (void *md_opt);
+| > >>+	int (*get_point) (void *md_opt, const char *pwr_params, va_list 
+| > >>args);
+| > >>+};
+| > >
+| > >We can certainly get better interface than va_list, right?
+| > 
+| > Please elaborate.
+| 
+| va_list does not provide adequate type checking. I do not think it
+| suitable in driver<->core interface.
+---
+
+Well, in this particular case the typing probably has to be weak, one
+way or another. The meaning of the parameters is arguably opaque at
+the interface - the attributes may be meaningful to specific components
+of the system, but are not defined in the standardized interface (which
+would otherwise have to know about all possible kinds of power
+attributes and be changed every time a new one is added).
+
+So, if you'd rather have an array of char* or void* values, that would
+probably also meet the need, but my guess is that the typing is
+intentionally opaque.
+
+---
+| ...
+| > >How is it going to work on 8cpu box? will
+| > >you have states like cpu1_800MHz_cpu2_1600MHz_cpu3_800MHz_... ?
+| > 
+| > i do not operate with term 'state' so I don't understand what it means here.
+| 
+| Okay, state here means "operating point". How will operating points
+| look on 8cpu box? That's 256 states if cpus only support "low" and
+| "high". How do you name them?
+---
+
+I don't think you would name the compounded states. Each CPU would need
+to have its own defined set of operating points (since the capabilities
+of the CPUs can reasonably be different).
+
+scott
+-- 
+scott preece
+motorola mobile devices, il67, 1800 s. oak st., champaign, il  61820  
+e-mail:	preece@motorola.com	fax:	+1-217-384-8550
+phone:	+1-217-384-8589	cell: +1-217-433-6114	pager: 2174336114@vtext.com
+
+

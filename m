@@ -1,58 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751948AbWISMIz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030212AbWISM2M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751948AbWISMIz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Sep 2006 08:08:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751952AbWISMIz
+	id S1030212AbWISM2M (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Sep 2006 08:28:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030213AbWISM2M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Sep 2006 08:08:55 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:5263 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751948AbWISMIz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Sep 2006 08:08:55 -0400
-Date: Tue, 19 Sep 2006 13:08:25 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Martin Bligh <mbligh@mbligh.org>
-Cc: Ingo Molnar <mingo@elte.hu>, Roman Zippel <zippel@linux-m68k.org>,
-       Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
-       linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
-       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@redhat.com>,
-       Greg Kroah-Hartman <gregkh@suse.de>,
-       Thomas Gleixner <tglx@linutronix.de>, Tom Zanussi <zanussi@us.ibm.com>,
-       ltt-dev@shafik.org, Michel Dagenais <michel.dagenais@polymtl.ca>,
-       fche@redhat.com
-Subject: Re: [PATCH 0/11] LTTng-core (basic tracing infrastructure) 0.5.108
-Message-ID: <20060919120825.GC4965@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Martin Bligh <mbligh@mbligh.org>, Ingo Molnar <mingo@elte.hu>,
-	Roman Zippel <zippel@linux-m68k.org>,
-	Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
-	linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-	Ingo Molnar <mingo@redhat.com>, Greg Kroah-Hartman <gregkh@suse.de>,
-	Thomas Gleixner <tglx@linutronix.de>,
-	Tom Zanussi <zanussi@us.ibm.com>, ltt-dev@shafik.org,
-	Michel Dagenais <michel.dagenais@polymtl.ca>, fche@redhat.com
-References: <20060914033826.GA2194@Krystal> <20060914112718.GA7065@elte.hu> <Pine.LNX.4.64.0609141537120.6762@scrub.home> <20060914135548.GA24393@elte.hu> <Pine.LNX.4.64.0609141623570.6761@scrub.home> <20060914171320.GB1105@elte.hu> <4509BAD4.8010206@mbligh.org> <20060914203430.GB9252@elte.hu> <4509C1D0.6080208@mbligh.org>
-Mime-Version: 1.0
+	Tue, 19 Sep 2006 08:28:12 -0400
+Received: from khc.piap.pl ([195.187.100.11]:38547 "EHLO khc.piap.pl")
+	by vger.kernel.org with ESMTP id S1030212AbWISM2L (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Sep 2006 08:28:11 -0400
+To: sergio@sergiomb.no-ip.org
+Cc: Jesper Juhl <jesper.juhl@gmail.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       billm@melbpc.org.au, billm@suburbia.net
+Subject: Re: Math-emu kills the kernel on Athlon64 X2
+References: <9a8748490609181518j2d12e4f0l2c55e755e40d38c2@mail.gmail.com>
+	<1158623391.13821.4.camel@localhost.portugal>
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Date: Tue, 19 Sep 2006 14:28:08 +0200
+In-Reply-To: <1158623391.13821.4.camel@localhost.portugal> (Sergio Monteiro Basto's message of "Tue, 19 Sep 2006 00:49:51 +0100")
+Message-ID: <m3fyeof3c7.fsf@defiant.localdomain>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4509C1D0.6080208@mbligh.org>
-User-Agent: Mutt/1.4.2.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 14, 2006 at 01:55:44PM -0700, Martin Bligh wrote:
-> 1. They're harder to maintain out of tree.
-> 2. they're written in some jibberish awk crap
-> 3. They're slower. If you're doing thousands of tracepoints a second,
-> 	into a circular 8GB log buffer, that *does* matter. You want
-> 	to peturb what you're measuring as little as possible.
+Sergio Monteiro Basto <sergio@sergiomb.no-ip.org> writes:
+> I think, math emulation is for 486 and older. 486 DX2 was the first one
+> who have math co processor, on earlier processor it should be disable .
 
-agreed to all these and I'd like to add:
+Actually, 486 DX had built-in FPU as well. It was missing from 486SX
+(486SX + optional 487 FPU = 486DX).
 
- 4.  If you merge proper dynamic tracing infrastructure you get static
-     traces for free.  It's just a bunch of macros directly calling
-     the trace function also used by the dynamic tracing code, maybe
-     keyed of an enable variable.
+For 386(DX|SX) there were 387(DX|SX) (386SX used 16-bit bus).
 
+Many 32-bit motherboards had a socket for Weitek (3167 for 386DX or 4167
+for 486). I think I remember a board with 386DX and 287 socket as well.
+
+486DX2 meant the external clock was half the internal.
+-- 
+Krzysztof Halasa

@@ -1,53 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752089AbWISVr0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751151AbWISWBc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752089AbWISVr0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Sep 2006 17:47:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752090AbWISVr0
+	id S1751151AbWISWBc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Sep 2006 18:01:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751160AbWISWBc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Sep 2006 17:47:26 -0400
-Received: from dada.panelnet.cz ([213.220.233.243]:61571 "EHLO
-	dada.panelnet.cz") by vger.kernel.org with ESMTP id S1752089AbWISVr0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Sep 2006 17:47:26 -0400
-Date: Tue, 19 Sep 2006 23:47:24 +0200
-From: Dalibor Straka <dast@panelnet.cz>
-To: linux-kernel@vger.kernel.org
-Subject: Possible bug in ACPI
-Message-ID: <20060919214724.GB2073@panelnet.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-2
-Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
+	Tue, 19 Sep 2006 18:01:32 -0400
+Received: from opersys.com ([64.40.108.71]:53513 "EHLO www.opersys.com")
+	by vger.kernel.org with ESMTP id S1751151AbWISWBa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Sep 2006 18:01:30 -0400
+Message-ID: <45106B20.6020600@opersys.com>
+Date: Tue, 19 Sep 2006 18:11:44 -0400
+From: Karim Yaghmour <karim@opersys.com>
+Reply-To: karim@opersys.com
+Organization: Opersys inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.8.0.6) Gecko/20060804 Fedora/1.0.4-0.5.1.fc5 SeaMonkey/1.0.4
+MIME-Version: 1.0
+To: "Frank Ch. Eigler" <fche@redhat.com>
+CC: Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
+       linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
+       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@redhat.com>,
+       Greg Kroah-Hartman <gregkh@suse.de>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Douglas Niehaus <niehaus@eecs.ku.edu>, Tom Zanussi <zanussi@us.ibm.com>,
+       Paul Mundt <lethal@linux-sh.org>, Jes Sorensen <jes@sgi.com>,
+       Richard J Moore <richardj_moore@uk.ibm.com>,
+       William Cohen <wcohen@redhat.com>,
+       "Martin J. Bligh" <mbligh@mbligh.org>,
+       Michel Dagenais <michel.dagenais@polymtl.ca>,
+       systemtap@sources.redhat.com, ltt-dev@shafik.org
+Subject: Re: [PATCH] Linux Kernel Markers 0.2 for Linux 2.6.17
+References: <20060919183447.GA16095@Krystal> <y0m4pv3ek49.fsf@ton.toronto.redhat.com> <20060919193623.GA9459@Krystal> <20060919194515.GB18646@redhat.com> <20060919202802.GB552@Krystal> <20060919210703.GD18646@redhat.com>
+In-Reply-To: <20060919210703.GD18646@redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
 
-I am often running out of memory. It looks like an ACPI code is guilty:
-dast@lili:~$ grep -i acpi /proc/slabinfo 
-Acpi-Operand        3076   3127     64   59    1 : tunables  120   60 8 : slabdata     53     53      0
-Acpi-ParseExt         16     59     64   59    1 : tunables  120   60 8 : slabdata      1      1      0
-Acpi-Parse            76     92     40   92    1 : tunables  120   60 8 : slabdata      1      1      0
-Acpi-State        1644960 1644960     80   48    1 : tunables  120   60 8 : slabdata  34270  34270      0
-Acpi-Namespace      1177   1232     32  112    1 : tunables  120   60 8 : slabdata     11     11      0
-dast@lili:~$ free
-Mem:        899280     892472       6808          0      82212 77936
--/+ buffers/cache:     732324     166956
-Swap:      2634620     243052    2404568
-dast@lili:~$ uname -a
-Linux lili 2.6.18-rc7 #1 SMP Sun Sep 17 15:01:00 CEST 2006 x86_64
+Frank Ch. Eigler wrote:
+> If the decision you're talking about is whether all markers in the
+> system should behave one way or another, then this is a degree of
+> central control that we have not contemplated during the entire
+> thread, until now.
+> 
+> It is an end-user such as an administrator who will figure out which
+> probes/markers/tracing elements need what kind of processing attached.
+> They don't want to recompile the kernel to switch.  They will want
+> different types of processing, or none at all, for different markers
+> during a system lifetime.
 
+Sure. I'm sure there's just a slight miscommunication here because
+my understanding of Mathieu's attempts goes in the direction of
+what you're saying here. He might not have gotten it right, but
+that can be worked on.
 
-Actualy the Acpi-State's memory is increasing slowly in minutes:
-Acpi-State         16176  16176     80   48    1 : tunables  120   60 8 : slabdata    337    337      0
-Acpi-State         18816  18816     80   48    1 : tunables  120   60 8 : slabdata    392    392      0
-Acpi-State         19200  19200     80   48    1 : tunables  120   60 8 : slabdata    400    400      0
-Acpi-State         20160  20160     80   48    1 : tunables  120   60 8 : slabdata    420    420      0
+> This line of thinking makes me worry that we've forgotten all that we
+> learned during the weekend.  Amongst the insights apparently agreed
+> was that on *any given system*, a mixture of static an dynamic probing
+> was likely necessary.  For the static part of the instrumentation, a
+> marker that could be hooked up to either type of probing system was
+> desirable, which implies some sort of run-time changeability.
 
-I am not familiar with kernel sources, but i can do c pretty well.
-BTW: Bios says i have 1024MB, but kernel sees 899MB :-?. The system is
-pure HP nx6325. It happens with all the recent kernels .18-rc* .17.* and
-debian's distribution 2.6.17-1-amd64-k8-smp.
+Ok. So if I get what you're saying here, you'd like to be able to
+overload a marker? Can you suggest a macro that can do what you'd
+like. I'm sure Mathieu would gladly take a close look at it.
 
-Please Cc: to me, I read lkml only when I have a good mood.
--- Dalibor Straka
+> That's if it works, if it can be implemented, if it does not create
+> conflicts between multiple tracing/probing systems, if ...  
+> 
+> Yes, in theory it might bridge the gulf between compile-time and
+> run-time configuration, but aren't these all big "if"s right now?
+
+Lots of "if"s in this thread, and this weekend does teach us that
+highlighting the problems with other peoples' "if"s is dangerous.
+I'm sure you'd agree that concentrating on the areas where there
+is agreement would be best.
+
+> I don't understand how this new compile-time configured style of
+> marker is to serve anyone who wants to use something other than a
+> single distribution-picked tracing/probing tool.  I though we had
+> abandoned that model some time ago.
+
+We did, and I'm sure there's a fundamental misunderstanding here.
+It would likely help if you could give a concrete example of how
+you would like Mathieu's proposal be changed or, if you don't
+like it at all, what you would like to see. Anything purely
+technical that will avoid any of the pitfalls generated by
+differences in perspective.
+
+Thanks,
+
+Karim
+

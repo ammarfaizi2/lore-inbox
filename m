@@ -1,76 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752037AbWISEJx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752036AbWISELl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752037AbWISEJx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Sep 2006 00:09:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752035AbWISEJx
+	id S1752036AbWISELl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Sep 2006 00:11:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752038AbWISELl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Sep 2006 00:09:53 -0400
-Received: from tresys.irides.com ([216.250.243.126]:36117 "HELO
-	exchange.columbia.tresys.com") by vger.kernel.org with SMTP
-	id S1752033AbWISEJv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Sep 2006 00:09:51 -0400
-Message-ID: <450F6D87.7090604@gentoo.org>
-Date: Tue, 19 Sep 2006 00:09:43 -0400
-From: Joshua Brindle <method@gentoo.org>
-User-Agent: Thunderbird 1.5.0.7 (Windows/20060909)
+	Tue, 19 Sep 2006 00:11:41 -0400
+Received: from mail.isohunt.com ([69.64.61.20]:38531 "EHLO mail.isohunt.com")
+	by vger.kernel.org with ESMTP id S1752036AbWISELl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Sep 2006 00:11:41 -0400
+X-Spam-Check-By: mail.isohunt.com
+Date: Mon, 18 Sep 2006 21:49:13 -0700
+From: "Robin H. Johnson" <robbat2@gentoo.org>
+To: Jeff Garzik <jeff@garzik.org>
+Cc: Tejun Heo <htejun@gmail.com>, "Robin H. Johnson" <robbat2@gentoo.org>,
+       linux-kernel@vger.kernel.org,
+       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>
+Subject: Re: 2.6.18-rc7-git1: AHCI not seeing devices on ICH8 mobo (DG965RY)
+Message-ID: <20060919044913.GD569@curie-int.orbis-terrarum.net>
+References: <20060914200500.GD27531@curie-int.orbis-terrarum.net> <4509AB2E.1030800@garzik.org> <20060914205050.GE27531@curie-int.orbis-terrarum.net> <20060916203812.GC30391@curie-int.orbis-terrarum.net> <20060916210857.GD30391@curie-int.orbis-terrarum.net> <20060917074929.GD25800@htj.dyndns.org> <20060918034826.GA10116@curie-int.orbis-terrarum.net> <450E13D4.10200@gmail.com> <450F69C3.8060603@garzik.org>
 MIME-Version: 1.0
-To: casey@schaufler-ca.com
-CC: David Madore <david.madore@ens.fr>,
-       Linux Kernel mailing-list <linux-kernel@vger.kernel.org>,
-       LSM mailing-list <linux-security-module@vger.kernel.org>
-Subject: Re: [PATCH 3/4] security: capabilities patch (version 0.4.4), part
- 3/4: introduce new capabilities
-References: <20060919034601.97733.qmail@web36610.mail.mud.yahoo.com>
-In-Reply-To: <20060919034601.97733.qmail@web36610.mail.mud.yahoo.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Antivirus: avast! (VPS 0637-2, 09/15/2006), Outbound message
-X-Antivirus-Status: Clean
-X-OriginalArrivalTime: 19 Sep 2006 04:09:51.0065 (UTC) FILETIME=[7418FC90:01C6DBA1]
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="z4+8/lEcDcG5Ke9S"
+Content-Disposition: inline
+In-Reply-To: <450F69C3.8060603@garzik.org>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Casey Schaufler wrote:
-> --- Joshua Brindle <method@gentoo.org> wrote:
->   
->>> The first system I took through evaluation
->>> (that is, independent 3rd party analysis) stored
->>> security attributes in a file while the second
->>> and third systems attached the attributes
->>> directly (XFS). The 1st evaluation required
->>> 5 years, the 2nd 1 year. It is possible that
->>> I just got a lot smarter with age, but I
->>> ascribe a significant amount of the improvement
->>> to the direct association of the attributes
->>> to the file.
->>>       
->> Thats great but entirely irrelevant in this context.
->> The patch and caps 
->> in question are not attached to the file via some
->> externally observable 
->> property (eg., xattr) but instead are embedded in
->> the source code so 
->> that it can drop caps at certain points during the
->> execution or before 
->> executing another app, thus unanalyzable.
->>     
->
-> Oh that. Sure, we used capability bracketing
-> in the code, too. That makes it easy to
-> determine when a capability is active. What,
-> you don't think that it's possible to analyze
-> source code? Of course it is. Refer to the
-> evaluation reports if you don't believe me.
->
->   
-When I see an analysis of every line of source code on an average Linux 
-machine then I might believe you (if you'll grant that no software can 
-ever be installed on it afterward without being analyzed) but until then 
-I'll stick with a centralized policy. I doubt many others will be 
-satisfied with that limitation.
 
-Bracketing hardly makes it analyzable, how can you possibly know if the 
-bracketing happened? You *believe* it will and therefore you say that 
-the bracketed code is safe but in reality this is a discretionary 
-mechanism and you have zero assurance that there is any security 
-whatsoever, no thanks, I'll pass.
+--z4+8/lEcDcG5Ke9S
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
+
+On Mon, Sep 18, 2006 at 11:53:39PM -0400, Jeff Garzik wrote:
+> We can't really know which controllers have a non-linear port mapping,=20
+> because that is dependent on both the silicon and whether or not the=20
+> chip is connected to port X[0-31].  The BIOS knows this, of course :)
+I noticed that in my case, when the wrong ioports were probed (base +
+port_idx*offset) for port_idx being 2/3 - all of the return values were
+zero, instead of the expected values.
+
+You could probably use this to detect cases where PI claims a port is
+not present, but it really is.
+
+--=20
+Robin Hugh Johnson
+E-Mail     : robbat2@gentoo.org
+GnuPG FP   : 11AC BA4F 4778 E3F6 E4ED  F38E B27B 944E 3488 4E85
+
+--z4+8/lEcDcG5Ke9S
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
+Comment: Robbat2 @ Orbis-Terrarum Networks
+
+iD8DBQFFD3bJPpIsIjIzwiwRAkG8AKC5T6rNZJXnVf6asL188fPmq8/WxgCfVTZ1
+7GRmlAcnffO49QBBdgwTNJk=
+=u5n6
+-----END PGP SIGNATURE-----
+
+--z4+8/lEcDcG5Ke9S--

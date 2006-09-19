@@ -1,85 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751208AbWISVhV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752089AbWISVr0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751208AbWISVhV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Sep 2006 17:37:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751185AbWISVhV
+	id S1752089AbWISVr0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Sep 2006 17:47:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752090AbWISVr0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Sep 2006 17:37:21 -0400
-Received: from motgate3.mot.com ([144.189.100.103]:51410 "EHLO
-	motgate3.mot.com") by vger.kernel.org with ESMTP id S1750769AbWISVhT
+	Tue, 19 Sep 2006 17:47:26 -0400
+Received: from dada.panelnet.cz ([213.220.233.243]:61571 "EHLO
+	dada.panelnet.cz") by vger.kernel.org with ESMTP id S1752089AbWISVr0
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Sep 2006 17:37:19 -0400
-X-POPI: The contents of this message are Motorola Internal Use Only (MIUO)
-       unless indicated otherwise in the message.
-Date: Tue, 19 Sep 2006 16:37:04 -0500 (CDT)
-Message-Id: <200609192137.k8JLb4NX029061@olwen.urbana.css.mot.com>
-From: "Scott E. Preece" <preece@motorola.com>
-To: eugeny.mints@gmail.com
-CC: pavel@ucw.cz, linux-pm@lists.osdl.org, linux-kernel@vger.kernel.org
-In-reply-to: "Eugeny S. Mints"'s message of Mon, 18 Sep 2006 23:58:04 +0400
-Subject: Re: [linux-pm] [PATCH] PowerOP, PowerOP Core, 1/2
+	Tue, 19 Sep 2006 17:47:26 -0400
+Date: Tue, 19 Sep 2006 23:47:24 +0200
+From: Dalibor Straka <dast@panelnet.cz>
+To: linux-kernel@vger.kernel.org
+Subject: Possible bug in ACPI
+Message-ID: <20060919214724.GB2073@panelnet.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-2
+Content-Disposition: inline
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: "Eugeny S. Mints" <eugeny.mints@gmail.com>
+Hello,
 
-| Eugeny S. Mints wrote:
-| > Pavel Machek wrote:
-| >> Hi!
-| >>
-| [skip]
-| >> How is it going to work on 8cpu box? will
-| >> you have states like cpu1_800MHz_cpu2_1600MHz_cpu3_800MHz_... ?
-| 
-| basically I guess you are asking about what the names of operating
-| points are and how to distinguish between operating points from
-| userspace on 8cpu box.
-| 
-| An advantage of PowerOP approach is that operating point name is used as
-| a _handle_ and may or may not be meaningful. The idea is that if a
-| policy manager needs to make a decision and needs to distinguish between
-| operating points it can check value of any power parameters of operating
-| points in question. Power parameter values may be obtained under
-| <op_name> dir name.
-| 
-| With such approach a policy manger may compare operating points at
-| runtime and should not rely on compile time knowledge about what name
-| corresponds to what set of power parameter values. It uses name as a
-| handle.
----
-
-Hmm. If you assume the CPUs in an SMP system can be in different
-operating points, this would (as Pavel pointed out) result in an
-explosion of operating points.
-
-I see several possible responses to this problem:
-
-(1) Make operating points a CPU-level abstraction, rather than a
-system-level abstraction, with the set of OPs for each CPU defined
-individually. This allows for non-symmetric CPUs. Each CPU would have
-its own policy manager driving OP selection for that CPU (the set of
-policy managers could be shared, as I believe cpufreq shares governors
-among CPU).
-
-(2) Create CPU-group operating points that captured the power
-parameters for each of a set of CPUs (that is, a group OP would be a
-vector of CPU OPs).
-
-(3) Create CPU-group operating points that varied a group of CPUs
-symetrically (that is, one set of CPU-level power parameters shared
-across a set of CPUs), with group-level policy managers that control
-transitions for the group in lockstep. 
-
-(4) Create CPU-group operating points that varied a group of CPUs
-symetrically (as in (3)), and have both group-level policy managers and
-a system-level policy manager that moves CPUs from one group to
-another.
-
-scott
--- 
-scott preece
-motorola mobile devices, il67, 1800 s. oak st., champaign, il  61820  
-e-mail:	preece@motorola.com	fax:	+1-217-384-8550
-phone:	+1-217-384-8589	cell: +1-217-433-6114	pager: 2174336114@vtext.com
+I am often running out of memory. It looks like an ACPI code is guilty:
+dast@lili:~$ grep -i acpi /proc/slabinfo 
+Acpi-Operand        3076   3127     64   59    1 : tunables  120   60 8 : slabdata     53     53      0
+Acpi-ParseExt         16     59     64   59    1 : tunables  120   60 8 : slabdata      1      1      0
+Acpi-Parse            76     92     40   92    1 : tunables  120   60 8 : slabdata      1      1      0
+Acpi-State        1644960 1644960     80   48    1 : tunables  120   60 8 : slabdata  34270  34270      0
+Acpi-Namespace      1177   1232     32  112    1 : tunables  120   60 8 : slabdata     11     11      0
+dast@lili:~$ free
+Mem:        899280     892472       6808          0      82212 77936
+-/+ buffers/cache:     732324     166956
+Swap:      2634620     243052    2404568
+dast@lili:~$ uname -a
+Linux lili 2.6.18-rc7 #1 SMP Sun Sep 17 15:01:00 CEST 2006 x86_64
 
 
+Actualy the Acpi-State's memory is increasing slowly in minutes:
+Acpi-State         16176  16176     80   48    1 : tunables  120   60 8 : slabdata    337    337      0
+Acpi-State         18816  18816     80   48    1 : tunables  120   60 8 : slabdata    392    392      0
+Acpi-State         19200  19200     80   48    1 : tunables  120   60 8 : slabdata    400    400      0
+Acpi-State         20160  20160     80   48    1 : tunables  120   60 8 : slabdata    420    420      0
+
+I am not familiar with kernel sources, but i can do c pretty well.
+BTW: Bios says i have 1024MB, but kernel sees 899MB :-?. The system is
+pure HP nx6325. It happens with all the recent kernels .18-rc* .17.* and
+debian's distribution 2.6.17-1-amd64-k8-smp.
+
+Please Cc: to me, I read lkml only when I have a good mood.
+-- Dalibor Straka

@@ -1,105 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751326AbWISIGj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751368AbWISIUK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751326AbWISIGj (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Sep 2006 04:06:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751330AbWISIGj
+	id S1751368AbWISIUK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Sep 2006 04:20:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751379AbWISIUK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Sep 2006 04:06:39 -0400
-Received: from mailhub.sw.ru ([195.214.233.200]:24099 "EHLO relay.sw.ru")
-	by vger.kernel.org with ESMTP id S1751326AbWISIGi (ORCPT
+	Tue, 19 Sep 2006 04:20:10 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:37272 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1751385AbWISIUI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Sep 2006 04:06:38 -0400
-Message-ID: <450FA50F.1010207@openvz.org>
-Date: Tue, 19 Sep 2006 12:06:39 +0400
-From: Pavel Emelianov <xemul@openvz.org>
-User-Agent: Thunderbird 1.5 (X11/20060317)
-MIME-Version: 1.0
-To: sekharan@us.ibm.com
-CC: balbir@in.ibm.com, Rik van Riel <riel@redhat.com>,
-       Srivatsa <vatsa@in.ibm.com>,
-       CKRM-Tech <ckrm-tech@lists.sourceforge.net>,
-       Dave Hansen <haveblue@us.ibm.com>, Andi Kleen <ak@suse.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Christoph Hellwig <hch@infradead.org>, Andrey Savochkin <saw@sw.ru>,
-       devel@openvz.org, Matt Helsley <matthltc@us.ibm.com>,
-       Hugh Dickins <hugh@veritas.com>, Alexey Dobriyan <adobriyan@mail.ru>,
-       Kirill Korotaev <dev@sw.ru>, Oleg Nesterov <oleg@tv-sign.ru>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [ckrm-tech] [PATCH] BC: resource beancounters (v4) (added	user
- memory)
-References: <44FD918A.7050501@sw.ru>	<44FDAB81.5050608@in.ibm.com>	 <44FEC7E4.7030708@sw.ru>	<44FF1EE4.3060005@in.ibm.com>	 <1157580371.31893.36.camel@linuxchandra>	<45011CAC.2040502@openvz.org>	 <1157730221.26324.52.camel@localhost.localdomain>	 <4501B5F0.9050802@in.ibm.com> <450508BB.7020609@openvz.org>	 <4505161E.1040401@in.ibm.com> <45051AC7.2000607@openvz.org>	 <1158000590.6029.33.camel@linuxchandra>	<45069072.4010007@openvz.org>	 <1158105488.4800.23.camel@linuxchandra>	<4507BC11.6080203@openvz.org>	 <1158186664.18927.17.camel@linuxchandra>	<45090A6E.1040206@openvz.org>	 <1158277364.6357.33.camel@linuxchandra>	<450A5325.6090803@openvz.org>	 <450A6A7A.8010102@sw.ru> <450A8B61.7040905@openvz.org>	 <450E828B.2000901@in.ibm.com>  <450E9327.8020004@openvz.org> <1158624500.6536.20.camel@linuxchandra>
-In-Reply-To: <1158624500.6536.20.camel@linuxchandra>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Tue, 19 Sep 2006 04:20:08 -0400
+Date: Tue, 19 Sep 2006 10:11:24 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>
+Cc: "Frank Ch. Eigler" <fche@redhat.com>, Paul Mundt <lethal@linux-sh.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>, Jes Sorensen <jes@sgi.com>,
+       Andrew Morton <akpm@osdl.org>, Tom Zanussi <zanussi@us.ibm.com>,
+       Richard J Moore <richardj_moore@uk.ibm.com>,
+       Michel Dagenais <michel.dagenais@polymtl.ca>,
+       Christoph Hellwig <hch@infradead.org>,
+       Greg Kroah-Hartman <gregkh@suse.de>,
+       Thomas Gleixner <tglx@linutronix.de>, William Cohen <wcohen@redhat.com>,
+       "Martin J. Bligh" <mbligh@mbligh.org>, ltt-dev@shafik.org,
+       systemtap@sources.redhat.com, Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH] Linux Kernel Markers
+Message-ID: <20060919081124.GA30394@elte.hu>
+References: <20060918234502.GA197@Krystal>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060918234502.GA197@Krystal>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -2.9
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.9 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5000]
+	-0.1 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chandra Seetharaman wrote:
-> On Mon, 2006-09-18 at 16:37 +0400, Pavel Emelianov wrote:
->   
->> Balbir Singh wrote:
->>
->> [snip]
->>     
->>> The program (calculate_limits()) listed on the website does not work for
->>> the following case
->>>
->>> N=2;
->>> R=100;
->>> g[2] = {30, 30};
->>>
->>>
->>> The output is -10 and -10 for the limits
->>>
->>> For
->>>
->>> N=3;
->>> R=100;
->>> g[3] = {30, 30, 10};
->>>
->>> I get -70, -70 and -110 as the limits
->>>
->>> Am I interpreting the parameters correctly? Or the program is broken?
->>>
->>>       
->> Program on site is broken. Thanks for noticing:
->>
->> $ gcc guar.c -o guar
->> $ ./guar 30 30
->> guar lim
->>   30  70 ( 70/1)
->>   30  70 ( 70/1)
->> $ ./guar 30 30 10
->> guar lim
->>   30  45 ( 90/2)
->>   30  45 ( 90/2)
->>   10  25 ( 50/2)
->>     
->
-> I am confused. Are you changing the parameters on how the user want the
-> groups to be controlled.
->   
 
-Nope. I just calculate some auxiliary values to acheive the goal.
+* Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca> wrote:
 
-> They want the resource usage to be between 30 and 70, but you change it
-> to be 30-45. 
->   
+> +choice
+> +	prompt "MARK code marker behavior"
 
-User wants group to consume _at_least_ 30%. I do provide it, but do not
-prevent it from consuming more.
+> +config MARK_KPROBE
+> +config MARK_JPROBE
+> +config MARK_FPROBE
+> +	Change markers for a function call.
+> +config MARK_PRINT
 
->   
->> To stop future "errors" remember that this is a simplified program that
->> considers guarantees to be <= 100%, sum of guarantees to be <= 100% etc.
->>
->> -------------------------------------------------------------------------
->> Using Tomcat but need to do more? Need to support web services, security?
->> Get stuff done quickly with pre-integrated technology to make your job easier
->> Download IBM WebSphere Application Server v.1.0.1 based on Apache Geronimo
->> http://sel.as-us.falkag.net/sel?cmd=lnk&kid=120709&bid=263057&dat=121642
->> _______________________________________________
->> ckrm-tech mailing list
->> https://lists.sourceforge.net/lists/listinfo/ckrm-tech
->>     
+as indicated before in great detail, NACK on this profileration of 
+marker options, especially the function call one. I'd like to see _one_ 
+marker mechanism that distros could enable, preferably with zero (or at 
+most one NOP) in-code overhead. (You can of course patch whatever 
+extension ontop of it, in out-of-tree code, to gain further performance 
+advantage by generating direct system-calls.)
 
+There might be a hodgepodge of methods and tools in userspace to do 
+debugging, but in the kernel we should get our act together and only 
+take _one_ (or none at all), and then spend all our efforts on improving 
+that primary method of debug instrumentation. As kprobes/SystemTap has 
+proven, it is possible to have zero-overhead inactive probes.
+
+Furthermore, for such a patch to make sense in the upstream kernel, 
+downstream tracing code has to make actual use of that NOP-marker. I.e. 
+a necessary (but not sufficient) requirement for upstream inclusion (in 
+my view) would be for this mechanism to be used by LTT and LKST. (again, 
+you can patch LTT for your own purposes in your own patchset if you 
+think the performance overhead of probes is too much)
+
+	Ingo

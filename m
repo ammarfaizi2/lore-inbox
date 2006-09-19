@@ -1,54 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751659AbWISJD2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751716AbWISJIY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751659AbWISJD2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Sep 2006 05:03:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751595AbWISJD2
+	id S1751716AbWISJIY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Sep 2006 05:08:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751707AbWISJIY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Sep 2006 05:03:28 -0400
-Received: from az33egw02.freescale.net ([192.88.158.103]:34282 "EHLO
-	az33egw02.freescale.net") by vger.kernel.org with ESMTP
-	id S1751505AbWISJD1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Sep 2006 05:03:27 -0400
-Subject: Re: patch blocked
-From: Zang Roy-r61911 <tie-fei.zang@freescale.com>
-To: Matti Aarnio <matti.aarnio@zmailer.org>
-Cc: netdev <netdev@vger.kernel.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20060919085052.GI16047@mea-ext.zmailer.org>
-References: <1158654797.3526.14.camel@localhost.localdomain>
-	 <20060919085052.GI16047@mea-ext.zmailer.org>
-Content-Type: text/plain
-Organization: 
-Message-Id: <1158656597.3817.2.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
-Date: 19 Sep 2006 17:03:17 +0800
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 19 Sep 2006 09:03:24.0135 (UTC) FILETIME=[764E2F70:01C6DBCA]
+	Tue, 19 Sep 2006 05:08:24 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:56024 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751666AbWISJIX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Sep 2006 05:08:23 -0400
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <20060919003031.166d08a4.akpm@osdl.org> 
+References: <20060919003031.166d08a4.akpm@osdl.org>  <20060913183522.22109.10565.stgit@warthog.cambridge.redhat.com> <20060913183531.22109.85723.stgit@warthog.cambridge.redhat.com> 
+To: Andrew Morton <akpm@osdl.org>
+Cc: David Howells <dhowells@redhat.com>, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
+Subject: Re: [PATCH 5/7] Alter get_order() so that it can make use of ilog2() on a constant [try #3] 
+X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
+Date: Tue, 19 Sep 2006 10:08:17 +0100
+Message-ID: <23843.1158656897@warthog.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-09-19 at 16:50, Matti Aarnio wrote:
-> On Tue, Sep 19, 2006 at 04:33:17PM +0800, Zang Roy-r61911 wrote:
-> > Hi,
-> >       Does anyone can tell me why some of my patches were blocked in
-> the
-> > mailing list.
-> >       I do not use attachment. The body of the mail is not exceed
-> 40KB in
-> > size.
-> > Roy
-> 
-> We are filtering by means of "bogofilter", and we are training it
-> with all messages gone thru the list as "ham" -- but words that it
-> does not know are neutral to the statistics so entirely new kind
-> of message will easily receive "that is junk" treatment.
-> 
-> The rejection message does tell couple technical details, including
-> where to contact to ask advice.
+Andrew Morton <akpm@osdl.org> wrote:
 
-Well, I do not receive any rejection message. I sent out four patches.
-Three of them reached the mailing list. One seemed to disappear. I was
-informed nothing.
-Roy
+> This breaks ia64:
 
+Okay, drop it for now.
+
+> But for some reason putting ARCH_HAS_GET_ORDER into
+> include/asm-ia64/bitops.h and including linux/log2.h in
+> include/asm-ia64/page.h doesn't fix it.
+
+Seems I need to get an IA64 cross-compiler.
+
+> I didn't pursue it further, because sprinkling ARCH_HAS_FOO things into
+> bitops.h(!) is all rather hacky.  Better to use CONFIG_* so they're always
+> visible and one knows where to go to find things.
+
+But (1) they're not config options, and (2) there's plenty of precedent for
+this sort of thing (ARCH_HAS_PREFETCH for example).
+
+David

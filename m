@@ -1,57 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964973AbWISGNi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964976AbWISGVv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964973AbWISGNi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Sep 2006 02:13:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964976AbWISGNi
+	id S964976AbWISGVv (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Sep 2006 02:21:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964977AbWISGVv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Sep 2006 02:13:38 -0400
-Received: from mail.gmx.de ([213.165.64.20]:47062 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S964973AbWISGNh (ORCPT
+	Tue, 19 Sep 2006 02:21:51 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:6826 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S964976AbWISGVu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Sep 2006 02:13:37 -0400
+	Tue, 19 Sep 2006 02:21:50 -0400
+From: Andi Kleen <ak@suse.de>
+To: Robin Lee Powell <rlpowell@digitalkingdom.org>
+Subject: Re: Early boot hang on recent 2.6 kernels (> 2.6.3), on x86-64 with 16gb of RAM
+Date: Tue, 19 Sep 2006 08:04:14 +0200
+User-Agent: KMail/1.9.3
 Cc: linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="us-ascii"
-Date: Tue, 19 Sep 2006 08:13:35 +0200
-From: "Michael Kerrisk" <mtk-manpages@gmx.net>
-In-Reply-To: <005501c6db44$102b73a0$294b82ce@stuartm>
-Message-ID: <20060919061335.113810@gmx.net>
+References: <20060912223258.GM4612@chain.digitalkingdom.org> <p73bqpd62b2.fsf@verdi.suse.de> <20060918235854.GL4610@chain.digitalkingdom.org>
+In-Reply-To: <20060918235854.GL4610@chain.digitalkingdom.org>
 MIME-Version: 1.0
-References: <005501c6db44$102b73a0$294b82ce@stuartm>
-Subject: Re: RE: TCP stack behaviour question
-To: "Stuart MacDonald" <stuartm@connecttech.com>, ak@suse.de
-X-Authenticated: #24879014
-X-Flags: 0001
-X-Mailer: WWW-Mail 6100 (Global Message Exchange)
-X-Priority: 3
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200609190804.14786.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Von: "Stuart MacDonald" <stuartm@connecttech.com>
 
-> > > Ok maybe it's a bit misleading. Michael, you might want to clarify.
-> > 
-> > Can some one of you propose a better text please?
+> Done; it's at
+> http://teddyb.org/~rlpowell/media/regular/lkml/hacked-boot.txt
 > 
-> Perhaps
-> 
-> Note that TCP has no error queue; MSG_ERRQUEUE is illegal on
-> SOCK_STREAM sockets.  IP_RECVERR is valid for TCP, but all errors are
-> returned by socket function return or SO_ERROR only.
-> 
-> ?
+> Note that I had to us "mce=off acpi=off pci=conf1" to get any of
+> that hack's output to show up at all; I wasn't clear whether you
+> intended that or not.
 
-Sound okay to you Andi?
+Unfortunately with mce=off we can't see which device breaks.
+Can you please boot with the patch and just 
 
-Cheers,
+acpi=off pci=conf1 ? 
 
-Michael
--- 
-Michael Kerrisk
-maintainer of Linux man pages Sections 2, 3, 4, 5, and 7 
+and send the full output?
 
-Want to help with man page maintenance?  
-Grab the latest tarball at
-ftp://ftp.win.tue.nl/pub/linux-local/manpages/, 
-read the HOWTOHELP file and grep the source 
-files for 'FIXME'.
+-Andi
+

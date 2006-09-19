@@ -1,59 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751531AbWISQTo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751859AbWISQbi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751531AbWISQTo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Sep 2006 12:19:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751856AbWISQTo
+	id S1751859AbWISQbi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Sep 2006 12:31:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751860AbWISQbh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Sep 2006 12:19:44 -0400
-Received: from opersys.com ([64.40.108.71]:44560 "EHLO www.opersys.com")
-	by vger.kernel.org with ESMTP id S1751531AbWISQTo (ORCPT
+	Tue, 19 Sep 2006 12:31:37 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:65454 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751859AbWISQbg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Sep 2006 12:19:44 -0400
-Message-ID: <45101AFA.9080006@opersys.com>
-Date: Tue, 19 Sep 2006 12:29:46 -0400
-From: Karim Yaghmour <karim@opersys.com>
-Reply-To: karim@opersys.com
-Organization: Opersys inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.8.0.6) Gecko/20060804 Fedora/1.0.4-0.5.1.fc5 SeaMonkey/1.0.4
-MIME-Version: 1.0
-To: Martin Bligh <mbligh@google.com>
-CC: Ingo Molnar <mingo@elte.hu>,
-       Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
-       "Frank Ch. Eigler" <fche@redhat.com>, Paul Mundt <lethal@linux-sh.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>, Jes Sorensen <jes@sgi.com>,
-       Andrew Morton <akpm@osdl.org>, Tom Zanussi <zanussi@us.ibm.com>,
-       Richard J Moore <richardj_moore@uk.ibm.com>,
-       Michel Dagenais <michel.dagenais@polymtl.ca>,
-       Christoph Hellwig <hch@infradead.org>,
-       Greg Kroah-Hartman <gregkh@suse.de>,
-       Thomas Gleixner <tglx@linutronix.de>, William Cohen <wcohen@redhat.com>,
-       ltt-dev@shafik.org, systemtap@sources.redhat.com,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCH] Linux Kernel Markers
-References: <20060918234502.GA197@Krystal> <20060919081124.GA30394@elte.hu> <451008AC.6030006@google.com> <45101965.3050509@opersys.com> <45101809.5030906@google.com>
-In-Reply-To: <45101809.5030906@google.com>
-Content-Type: text/plain; charset=ISO-8859-1
+	Tue, 19 Sep 2006 12:31:36 -0400
+Date: Tue, 19 Sep 2006 09:31:22 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "Martin J. Bligh" <mbligh@mbligh.org>
+Cc: linux-kernel@vger.kernel.org, Andy Whitcroft <apw@shadowen.org>
+Subject: Re: 2.6.18-rc7-mm1
+Message-Id: <20060919093122.d8923263.akpm@osdl.org>
+In-Reply-To: <45100272.505@mbligh.org>
+References: <20060919012848.4482666d.akpm@osdl.org>
+	<45100272.505@mbligh.org>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 19 Sep 2006 07:45:06 -0700
+"Martin J. Bligh" <mbligh@mbligh.org> wrote:
 
-Martin Bligh wrote:
-> That was always the intent, or codebase + flat patch if really 
-> necessary. Sorry if that wasn't clear.
+> 
+> > - It took maybe ten hours solid work to get this dogpile vaguely
+> >   compiling and limping to a login prompt on x86, x86_64 and powerpc. 
+> >   I guess it's worth briefly testing if you're keen.
+> 
+> PPC64 blades shit themselves in a strange way. Possibly the udev
+> breakage you mentioned? Hard to tell really if people are going to
+> go around breaking userspace compatibility ;-(
 
-Ah, ok.
+What version of udev is it running?
 
-> Not sure we need scripts, just a normal patch diff would do. I'm not
-> sure any of this alters the markup debate much ...
+> http://test.kernel.org/abat/48127/debug/console.log
+> 
+> ..
+>
+> sda: Write Protect is off
+> sda: cache data unavailable
+> sda: assuming drive cache: write through
+> SCSI device sda: 143374000 512-byte hdwr sectors (73407 MB)
+> sda: Write Protect is off
+> sda: cache data unavailable
+> sda: assuming drive cache: write through
+>   sda: sda1 sda2 sda3 sda4 < sda5 sda6 sda7 sda8 >
+> sd 0:0:1:0: Attached scsi disk sda
+> creating device nodes .[: [0-9]*: bad number
+> 0:0:1:0: sg_io failed status 0x8 0x0 0x0 0x2
+> 0:0:1:0: sense key 0x5 ASC 0x24 ASCQ 0x0
+> [: [0-9]*: bad number
+> 0:0:1:0: sg_io failed status 0x8 0x0 0x0 0x2
+> 0:0:1:0: sense key 0x5 ASC 0x24 ASCQ 0x0
+> [: [0-9]*: bad number
+> 0:0:1:0: sg_io failed status 0x8 0x0 0x0 0x2
+> 0:0:1:0: sense key 0x5 ASC 0x24 ASCQ 0x0
+> [: [0-9]*: bad number
+> 0:0:1:0: sg_io failed status 0x8 0x0 0x0 0x2
+> 0:0:1:0: sense key 0x5 ASC 0x24 ASCQ 0x0
+> [: [0-9]*: bad number
+> 
+>
 
-It doesn't, just wasn't clear on the function duplication part.
+That all looks rather bad.
 
-> it just would seem
-> to provide a simpler, faster, and more flexible way of hooking in than
-> kprobes.
+> ReiserFS: sda2: Using r5 hash to sort names
+> looking for init ...
+> found /sbin/init
+> /init: cannot open .//dev//console: no such file
 
-Sure.
+Bizarrely-formed pathname.  Does it always do that?
 
-Karim
+> Kernel panic - not syncing: Attempted to kill init!
+>   <0>Rebooting in 180 seconds..-- 0:conmux-control -- time-stamp -- 
+> Sep/19/06  4:18:52 --
+> (bot:conmon-payload) disconnected
 
+Has udev actually attempted to do anything by this stage?
+
+I wasn't seeing anything that spectacular.  It used to be the case that
+udev simply hung.  But in rc7-mm1 the symptoms are that incoming ssh
+sessions hang, but most other things work OK.
+
+Oh well - Greg has split that tree apart and I shall not be pulling the
+more problematic bits henceforth.

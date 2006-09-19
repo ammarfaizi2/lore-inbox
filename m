@@ -1,79 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752006AbWISTq1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751082AbWISTqJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752006AbWISTq1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Sep 2006 15:46:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752008AbWISTq1
+	id S1751082AbWISTqJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Sep 2006 15:46:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752006AbWISTqJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Sep 2006 15:46:27 -0400
-Received: from ftpbox.mot.com ([129.188.136.9]:36012 "EHLO ftpbox.mot.com")
-	by vger.kernel.org with ESMTP id S1752004AbWISTq0 (ORCPT
+	Tue, 19 Sep 2006 15:46:09 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:28088 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751082AbWISTqH (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Sep 2006 15:46:26 -0400
-X-POPI: The contents of this message are Motorola Internal Use Only (MIUO)
-       unless indicated otherwise in the message.
-Date: Tue, 19 Sep 2006 14:46:19 -0500 (CDT)
-Message-Id: <200609191946.k8JJkJmx028840@olwen.urbana.css.mot.com>
-From: "Scott E. Preece" <preece@motorola.com>
-To: pavel@ucw.cz
-CC: eugeny.mints@gmail.com, linux-pm@lists.osdl.org,
-       linux-kernel@vger.kernel.org
-In-reply-to: Pavel Machek's message of Tue, 19 Sep 2006 20:22:20 +0200
-Subject: Re: [linux-pm] [PATCH] PowerOP, PowerOP Core, 1/2
+	Tue, 19 Sep 2006 15:46:07 -0400
+Date: Tue, 19 Sep 2006 15:45:15 -0400
+From: "Frank Ch. Eigler" <fche@redhat.com>
+To: Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>
+Cc: linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
+       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@redhat.com>,
+       Greg Kroah-Hartman <gregkh@suse.de>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Douglas Niehaus <niehaus@eecs.ku.edu>, Tom Zanussi <zanussi@us.ibm.com>,
+       Paul Mundt <lethal@linux-sh.org>, Jes Sorensen <jes@sgi.com>,
+       Richard J Moore <richardj_moore@uk.ibm.com>,
+       William Cohen <wcohen@redhat.com>,
+       "Martin J. Bligh" <mbligh@mbligh.org>,
+       Michel Dagenais <michel.dagenais@polymtl.ca>,
+       systemtap@sources.redhat.com, ltt-dev@shafik.org
+Subject: Re: [PATCH] Linux Kernel Markers 0.2 for Linux 2.6.17
+Message-ID: <20060919194515.GB18646@redhat.com>
+References: <20060919183447.GA16095@Krystal> <y0m4pv3ek49.fsf@ton.toronto.redhat.com> <20060919193623.GA9459@Krystal>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="Fba/0zbH8Xs+Fj9o"
+Content-Disposition: inline
+In-Reply-To: <20060919193623.GA9459@Krystal>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+--Fba/0zbH8Xs+Fj9o
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-| From: Pavel Machek<pavel@ucw.cz>
-| 
-| > >>+struct powerop_driver {
-| > >>+	char *name;
-| > >>+	void *(*create_point) (const char *pwr_params, va_list args);
-| > >>+	int (*set_point) (void *md_opt);
-| > >>+	int (*get_point) (void *md_opt, const char *pwr_params, va_list 
-| > >>args);
-| > >>+};
-| > >
-| > >We can certainly get better interface than va_list, right?
-| > 
-| > Please elaborate.
-| 
-| va_list does not provide adequate type checking. I do not think it
-| suitable in driver<->core interface.
----
+Hi -
 
-Well, in this particular case the typing probably has to be weak, one
-way or another. The meaning of the parameters is arguably opaque at
-the interface - the attributes may be meaningful to specific components
-of the system, but are not defined in the standardized interface (which
-would otherwise have to know about all possible kinds of power
-attributes and be changed every time a new one is added).
+On Tue, Sep 19, 2006 at 03:36:24PM -0400, Mathieu Desnoyers wrote:
+> [...]
+> > If you don't allow yourself to presume on-the-fly function
+> > recompilation, then these markers would need to be made run-time
+> > rather than compile-time configurable.  That is, not like this:
+> > [...]
 
-So, if you'd rather have an array of char* or void* values, that would
-probably also meet the need, but my guess is that the typing is
-intentionally opaque.
+> By making them run-time configurable, I don't see any whay not to bloat the
+> kernel. How can be embed calls to printk+function+kprobe+djprobe without
+> having some kind of performance impact ?
 
----
-| ...
-| > >How is it going to work on 8cpu box? will
-| > >you have states like cpu1_800MHz_cpu2_1600MHz_cpu3_800MHz_... ?
-| > 
-| > i do not operate with term 'state' so I don't understand what it means here.
-| 
-| Okay, state here means "operating point". How will operating points
-| look on 8cpu box? That's 256 states if cpus only support "low" and
-| "high". How do you name them?
----
+In order to have what we appear to need, we cannot avoid having some
+impact.  (Even NOPs have impact.)
 
-I don't think you would name the compounded states. Each CPU would need
-to have its own defined set of operating points (since the capabilities
-of the CPUs can reasonably be different).
+Suppose that mbligh's clever but speculative idea has some nasty flaw,
+once someone tried to reduce it to code.  Do you see that markers
+along the lines you've posted would be unsatisfactory?  With that in
+mind, is there point adding such markers now?
 
-scott
--- 
-scott preece
-motorola mobile devices, il67, 1800 s. oak st., champaign, il  61820  
-e-mail:	preece@motorola.com	fax:	+1-217-384-8550
-phone:	+1-217-384-8589	cell: +1-217-433-6114	pager: 2174336114@vtext.com
+- FChE
 
+--Fba/0zbH8Xs+Fj9o
+Content-Type: application/pgp-signature
+Content-Disposition: inline
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+
+iD8DBQFFEEjLVZbdDOm/ZT0RAhd3AJ0Rqu08opLvHdPQtnzUBBAwFlTcEQCdFPj9
+hUggBYuqRXZ5Ito8qf83eEM=
+=in9L
+-----END PGP SIGNATURE-----
+
+--Fba/0zbH8Xs+Fj9o--

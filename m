@@ -1,128 +1,207 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751665AbWISPyn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751815AbWISQER@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751665AbWISPyn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Sep 2006 11:54:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751675AbWISPyn
+	id S1751815AbWISQER (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Sep 2006 12:04:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751819AbWISQER
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Sep 2006 11:54:43 -0400
-Received: from web36607.mail.mud.yahoo.com ([209.191.85.24]:49504 "HELO
-	web36607.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1751512AbWISPym (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Sep 2006 11:54:42 -0400
-Message-ID: <20060919155441.27211.qmail@web36607.mail.mud.yahoo.com>
-X-RocketYMMF: rancidfat
-Date: Tue, 19 Sep 2006 08:54:41 -0700 (PDT)
-From: Casey Schaufler <casey@schaufler-ca.com>
-Reply-To: casey@schaufler-ca.com
-Subject: Re: [PATCH 3/4] security: capabilities patch (version 0.4.4), part 3/4: introduce new capabilities
-To: Joshua Brindle <method@gentoo.org>
-Cc: David Madore <david.madore@ens.fr>,
-       Linux Kernel mailing-list <linux-kernel@vger.kernel.org>,
-       LSM mailing-list <linux-security-module@vger.kernel.org>
-In-Reply-To: <450F6D87.7090604@gentoo.org>
+	Tue, 19 Sep 2006 12:04:17 -0400
+Received: from iolanthe.rowland.org ([192.131.102.54]:38664 "HELO
+	iolanthe.rowland.org") by vger.kernel.org with SMTP
+	id S1751815AbWISQEQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Sep 2006 12:04:16 -0400
+Date: Tue, 19 Sep 2006 12:04:15 -0400 (EDT)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@iolanthe.rowland.org
+To: "Paul E. McKenney" <paulmck@us.ibm.com>
+cc: David Howells <dhowells@redhat.com>,
+       Kernel development list <linux-kernel@vger.kernel.org>
+Subject: Re: Uses for memory barriers
+In-Reply-To: <20060919004750.GJ1294@us.ibm.com>
+Message-ID: <Pine.LNX.4.44L0.0609191131140.22042-100000@iolanthe.rowland.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 18 Sep 2006, Paul E. McKenney wrote:
 
+> Restating (and renumbering) the principles, all assuming no other stores
+> than those mentioned, assuming no aliasing among variables, and assuming
+> that each store changes the value of the target variable:
+> 
+> (P0):	Each CPU sees its own stores and loads as occurring in program
+> 	order.
+> 
+> (P1):	If each CPU performs a series of stores to a single shared variable,
+> 	then the series of values obtained by the a given CPUs stores and
+> 	loads must be consistent with that obtained by each of the other
+> 	CPUs.  It may or may not be possible to deduce a single global
+> 	order from the full set of such series.
 
---- Joshua Brindle <method@gentoo.org> wrote:
+Suppose three CPUs respectively write the values 1, 2, and 3 to a single 
+variable.  Are you saying that some CPU A might see the values 1,2 (in 
+that order), CPU B might see 2,3 (in that order), and CPU C might see 3,1 
+(in that order)?  Each CPU's view would be consistent with each of the 
+others but there would not be any global order.
 
-> Casey Schaufler wrote:
-> > --- Joshua Brindle <method@gentoo.org> wrote:
-> >   
-> >>> The first system I took through evaluation
-> >>> (that is, independent 3rd party analysis) stored
-> >>> security attributes in a file while the second
-> >>> and third systems attached the attributes
-> >>> directly (XFS). The 1st evaluation required
-> >>> 5 years, the 2nd 1 year. It is possible that
-> >>> I just got a lot smarter with age, but I
-> >>> ascribe a significant amount of the improvement
-> >>> to the direct association of the attributes
-> >>> to the file.
-> >>>       
-> >> Thats great but entirely irrelevant in this
-> context.
-> >> The patch and caps 
-> >> in question are not attached to the file via some
-> >> externally observable 
-> >> property (eg., xattr) but instead are embedded in
-> >> the source code so 
-> >> that it can drop caps at certain points during
-> the
-> >> execution or before 
-> >> executing another app, thus unanalyzable.
-> >>     
-> >
-> > Oh that. Sure, we used capability bracketing
-> > in the code, too. That makes it easy to
-> > determine when a capability is active. What,
-> > you don't think that it's possible to analyze
-> > source code? Of course it is. Refer to the
-> > evaluation reports if you don't believe me.
-> >
-> >   
-> When I see an analysis of every line of source code
-> on an average Linux 
-> machine then I might believe you
+Somehow I don't think that's what you intended.  In general the actual
+situation is much messier, with some writes masking others for some CPUs 
+in such a way that whenever two CPUs both see the same two writes, they 
+see them in the same order.  Is that all you meant to say?
 
-Would an above average Unix system suffice?
-How about MULTICS?
+> (P2a):	If two stores to A and B are ordered on CPU 0, and two loads from
+> 	B and A are ordered on CPU 1, and if CPU 1's load from B sees
+> 	CPU 0's store to B, then CPU 1's load from A must see CPU 0's
+> 	store to A.
+> 
+> (P2b):	If a load from A is ordered before a store to B on CPU 0, and a
+> 	load from B is ordered before a store to A on CPU 1, then if
+> 	CPU 1's load from B sees CPU 0's store to B, then CPU 0's load
+> 	from A cannot see CPU 1's store to A.
+> 
+> (P2c):	If a load from A is ordered before a store to B on CPU 0, and a
+> 	store to B is ordered before a store to A on CPU 1, and if CPU 0's
+> 	load from A gives the value stored to A by CPU 1, then CPU 1's
+> 	store to B must be ordered before CPU 0's store to B, so that
+> 	the final value of B is that stored by CPU 0.
 
-It's been done for:
-    Irix and Trusted Irix
-    Solaris and Trusted Solaris
-    UNICOS
-    HP/UX
-    AIX
-    SystemV
-    Xenix
+Implicit in P2a and P2b is that events can be ordered only if they all
+take place on the same CPU.  Now P2c introduces the idea of ordering two 
+events that occur on different CPUs.  This sounds to me like it's heading 
+for trouble.
 
-> (if you'll grant
-> that no software can 
-> ever be installed on it afterward without being
-> analyzed)
+You probably could revise P2c slightly and then be happy with P2[a-c].  
+They wouldn't be complete, although they might be adequate for all normal
+uses of memory barriers.
 
-Rubbish. No privileged software can be installed.
-Software that runs as a user without capabilities
-can be installed freely. It only requires analysis
-if it violates policy, which on a system with
-POSIX capabilities means running in possession
-of capabilities. 
+> > You only considered actions by two CPUs, and you only considered orderings
+> > induced by the memory barriers.  What about interactions among multiple
+> > CPUs or orderings caused by control dependencies?  Two examples:
+> > 
+> > 	CPU 0		CPU 1		CPU 2
+> > 	-----		-----		-----
+> 
+> As always, assuming all variables initially zero.  ;-)
+> 
+> > 	x = a;		y = b;		z = c;
+> > 	mb();		mb();		mb();
+> > 	b = 1;		c = 1;		a = 1;
+> > 	assert(x==0 || y==0 || z==0);
+> 
+> 1.	On CPU 0, either x=a sees CPU 2's a=1 (and by P2b sees z=c and sets
+> 	x==1) or does not (and thus might see either z=1 or z=0, but
+> 	sets x==0).
+> 
+> 2.	On CPU 2, z=c might see CPU 1's c=1 (and would by P2b also see
+> 	y=b, but it does not look).
+> 
+> 3.	CPU 1's situation is similar to that of CPU 2.
+> 
+> So, yes, some other principle would be required if we wanted to prove that
+> the assertion always succeeded.  Do we need this assertion to succeed?
+> (Sure, it would be a bit mind-bending if it were permitted to fail,
+> but that would not be unheard of when dealing with memory barriers.)
+> One litmus test is "would assertion failure break normal locking?".
+> So, let's apply that test.
+> 
+> However, note that the locking sequence differs significantly from the
+> locking scenario that drove memory ordering on many CPUs -- in the locking
+> scenario, the lock variable itself would be able to make use of P1.
+> To properly use locking, we end up with something like the following,
+> all variables initially zero:
+> 
+> 	CPU 0		CPU 1		CPU 2
+> 	-----		-----		-----
+> 	testandset(l)	testandset(l)	testandset(l)
+> 	mb()		mb()		mb()
+> 	x = a;		y = b;		z = c;
+> 	mb()		mb()		mb()
+> 	clear(l)	clear(l)	clear(l)
+> 	testandset(l)	testandset(l)	testandset(l)
+> 	mb()		mb()		mb()
+> 	b = 1;		c = 1;		a = 1;
+> 	mb()		mb()		mb()
+> 	clear(l)	clear(l)	clear(l)
+> 	assert(x==0 || y==0 || z==0);
+> 
+> The key additional point is that all CPUs see the series of values
+> taken on by the lockword "l".  The load implied by a given testandtest(),
+> other than the first one, must see the store implied by the prior clear().
+> So far, nothing different.  But let's take a look at the ordering 1, 2, 0.
+> 
+> At the handoff from CPU 1 to CPU 2, CPU 2 has seen CPU 1's clear(l), and
+> thus must see CPU 1's assignment to y (by P2b).  At the handoff from
+> CPU 2 to CPU 0, again, CPU 0 has seen CPU 2's clear(l), thus CPU 2's
+> assignment to z.  However, because "l" is a single variable, we can
+> now use P1, so that CPU 0 has also seen the effect of CPU 1's earlier
+> clear(l), and thus also CPU 1's y=b.  Continuing this analysis shows that
+> the assertion always succeeds in this case.
+> 
+> A simpler sequence illustrating this is as follows:
+> 
+> 	CPU 0		CPU 1		CPU 2		CPU 3
+> 	-----		-----		-----		-----
+> 	a = 1		while (b < 1);	while (b < 2);	y = c;
+> 	mb()		mb()		mb();		mb();
+> 	b = 1		b = 2;		c = 1;		x = a;
+> 							assert(y == 0 || x == 1)
+> 
+> The fact that we have the single variable "b" tracing through this
+> sequence allows P1 to be applied.
 
-> but until then 
-> I'll stick with a centralized policy.
+Isn't it possible that the write to c become visible on CPU 3 before the
+write to a?  In fact, isn't this essentially the same as one of the 
+examples in your manuscript?
 
-OK. There is value in containment.
+> So, is there a burning need for the assertion in your original example
+> to succeed?  If not, fewer principles allows Linux to deal with a larger
+> variety of CPUs.
+> 
+> > 	CPU 0		CPU 1
+> > 	-----		-----
+> 
+> Just to be obnoxious, again noting all variables initially zero.  ;-)
+> 
+> > 	x = a;		while (b == 0) ;
+> > 	mb();		a = 1;
+> > 	b = 1;
+> > 	assert(x==0);
+> 
+> Yep, here you are relying on a control dependency, and control dependencies
+> are not recognized by the principles.  And, possibly, also not by some
+> CPUs...
 
-> I doubt many others will be 
-> satisfied with that limitation.
+Not recognizing a control dependency like this would be tantamount to 
+doing a speculative write.  Any CPU indulging in such fancies isn't likely 
+to survive very long.
 
-It's been selling in the marketplace for
-the past 20 years.
+> The fix would be to insert an mb() just after CPU 1's "while" loop.
+> 
+> > I suspect your scheme can't handle either of these.  In fact, I rather
+> > suspect that the "partial ordering" approach is fundamentally incapable of
+> > generating all possible correct deductions about memory access
+> > requirements, and that something more like my "every action happens at a
+> > specific time" approach is necessary.  That is, after all, what led me to
+> > consider it in the first place.
+> 
+> Agreed, these assertions cannot be proven using the principles outlined
+> above.  Is this necessarily bad?  In other words, are there real situations
+> where we need these assertions to hold, and do all CPUs really meet them?
 
-> Bracketing hardly makes it analyzable, how can you
-> possibly know if the 
-> bracketing happened?
+As far as real situations are concerned, you could probably get away with 
+nothing more than P2a and P2b, maybe also P2c.  Gaining a clear and 
+precise understanding is a different story, though.
 
-Err, read the code?
+For instance, it's not clear to what extent the "ordering" in your scheme 
+is transitive.  Part of the problem is that the events you order are 
+individual loads and stores.  There's no acknowledgement of the fact that 
+a single store can become visible to different CPUs at different times (or 
+not at all).
 
-> You *believe* it will and
-> therefore you say that 
-> the bracketed code is safe but in reality this is a
-> discretionary 
-> mechanism and you have zero assurance that there is
-> any security whatsoever,
+I would much prefer to see an analysis where the primitive notions include 
+things like "This store becomes visible to that CPU before this load 
+occurs".  It would bear a closer correspondence to what actually happens 
+in the hardware.
 
-Ah, no. You don't seem to understand the concept.
+Alan
 
-> no thanks, I'll pass.
-
-Probably just as well, all things considered.
-
-
-Casey Schaufler
-casey@schaufler-ca.com

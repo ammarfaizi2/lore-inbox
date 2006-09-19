@@ -1,75 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752024AbWISD53@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752028AbWISEAG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752024AbWISD53 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Sep 2006 23:57:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752025AbWISD53
+	id S1752028AbWISEAG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Sep 2006 00:00:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752030AbWISEAG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Sep 2006 23:57:29 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:41634 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1752024AbWISD52 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Sep 2006 23:57:28 -0400
-Date: Mon, 18 Sep 2006 20:57:16 -0700
-From: Andrew Morton <akpm@osdl.org>
+	Tue, 19 Sep 2006 00:00:06 -0400
+Received: from ppp1-149.lns1.syd7.internode.on.net ([59.167.1.149]:30220 "EHLO
+	lucretia.isay.com.au") by vger.kernel.org with ESMTP
+	id S1752028AbWISEAC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Sep 2006 00:00:02 -0400
+Date: Tue, 19 Sep 2006 14:00:00 +1000
 To: Dmitry Torokhov <dtor@insightbb.com>
-Cc: Steve Smith <tarka@internode.on.net>, linux-kernel@vger.kernel.org,
-       Dominik Brodowski <linux@dominikbrodowski.net>
+Cc: Andrew Morton <akpm@osdl.org>, Steve Smith <tarka@internode.on.net>,
+       linux-kernel@vger.kernel.org
 Subject: Re: Repeatable hang on boot with PCMCIA card present
-Message-Id: <20060918205716.3773f0a7.akpm@osdl.org>
+Message-ID: <20060919040000.GB27338@lucretia.remote.isay.com.au>
+References: <20060916050331.GA6685@lucretia.remote.isay.com.au> <20060918190902.d5b6a698.akpm@osdl.org> <200609182337.52990.dtor@insightbb.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 In-Reply-To: <200609182337.52990.dtor@insightbb.com>
-References: <20060916050331.GA6685@lucretia.remote.isay.com.au>
-	<20060918190902.d5b6a698.akpm@osdl.org>
-	<200609182337.52990.dtor@insightbb.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+User-Agent: Mutt/1.5.13 (2006-08-11)
+From: tarka@internode.on.net (Steve Smith)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 18 Sep 2006 23:37:52 -0400
-Dmitry Torokhov <dtor@insightbb.com> wrote:
-
-> On Monday 18 September 2006 22:09, Andrew Morton wrote:
-> > On Sat, 16 Sep 2006 15:03:31 +1000
-> > tarka@internode.on.net (Steve Smith) wrote:
-> > 
-> > > [I sent the following to the person responsible for the patch but
-> > > haven't heard anything so I assume he's unavailable...]
-> > > 
-> > > Hi,
-> > > 
-> > > With recent kernel releases I have started seeing consistent hangs
-> > > during boot when a PCMCIA card is present in the slot (the card in
-> > > question is a Linksys wireless-B card).  The symptoms are:
-> > > 
-> > >     If the card is present during boot an error of "Unknown interrupt
-> > >     or fault at EIP ..." appears.
-> > > 
-> > >     If the card is not present there is no error.
-> > > 
-> > >     The card can be plugged-in post-boot without problems.
-> > > 
-> > > Using git-bisect I have narrowed down the error to one commit, namely
-> > > "use bitfield instead of p_state and state".  The commit# is
-> > > 
-> > >     e2d4096365e06b9a3799afbadc28b4519c0b3526
-> > >
-> > > However I am still seeing this problem with the latest -RC releases.
-> > 
-> > Thanks for doing that.
-> > 
-> > Damn, that was a huge patch.  Have you been able to grab
-> > a copy of the oops output?  It would really help.  Even a photo of
-> > the screen..
-> > 
-> 
+On Mon, Sep 18, 2006 at 11:37:52PM -0400, Dmitry Torokhov wrote:
 > Hmm, not sure why you CCed me unless you remembered I have Inspiron 8100.
+> What chipset does that Linksys card use?
 
-oop, I get my Dominiks and Dmitrys mixed up for some reason, sorry.
+It's a WPC11, one of the prism family ones.  It's using the HostAP
+driver.
 
-> What chipset does that Linksys card use? I just tried one of my PCMCIA
-> cards with orinoco_cs and it booted fine on today's pull from Linus...
->  
-> -- 
-> Dmitry
+> I just tried one of my PCMCIA cards with orinoco_cs and it booted
+> fine on today's pull from Linus...
+
+OK, I'll try it with the orinoco driver when I get a chance.
+
+Cheers,
+Steve
+

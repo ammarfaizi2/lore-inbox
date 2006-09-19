@@ -1,30 +1,24 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751825AbWISQGN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751829AbWISQHN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751825AbWISQGN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Sep 2006 12:06:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751829AbWISQGN
+	id S1751829AbWISQHN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Sep 2006 12:07:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751852AbWISQHN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Sep 2006 12:06:13 -0400
-Received: from smtp-out.google.com ([216.239.33.17]:39065 "EHLO
-	smtp-out.google.com") by vger.kernel.org with ESMTP
-	id S1751825AbWISQGM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Sep 2006 12:06:12 -0400
-DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
-	h=received:message-id:date:from:user-agent:
-	x-accept-language:mime-version:to:cc:subject:references:in-reply-to:
-	content-type:content-transfer-encoding;
-	b=cbK93MdXJC0ym5fXXDL/Rv06CRe8I3zsDQFRD1CkdtksCJMx2yDcJmxKa4LY2i2OA
-	xNz+ewUVl+upp8eAGcrPA==
-Message-ID: <4510151B.5070304@google.com>
-Date: Tue, 19 Sep 2006 09:04:43 -0700
-From: Martin Bligh <mbligh@google.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051011)
+	Tue, 19 Sep 2006 12:07:13 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:40087 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751829AbWISQHL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Sep 2006 12:07:11 -0400
+Message-ID: <45101598.7050309@us.ibm.com>
+Date: Tue, 19 Sep 2006 09:06:48 -0700
+From: Vara Prasad <prasadav@us.ibm.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.2) Gecko/20040804 Netscape/7.2 (ax)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: "Frank Ch. Eigler" <fche@redhat.com>
+To: "Martin J. Bligh" <mbligh@google.com>
 CC: Ingo Molnar <mingo@elte.hu>,
        Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
-       Paul Mundt <lethal@linux-sh.org>,
+       "Frank Ch. Eigler" <fche@redhat.com>, Paul Mundt <lethal@linux-sh.org>,
        linux-kernel <linux-kernel@vger.kernel.org>, Jes Sorensen <jes@sgi.com>,
        Andrew Morton <akpm@osdl.org>, Tom Zanussi <zanussi@us.ibm.com>,
        Richard J Moore <richardj_moore@uk.ibm.com>,
@@ -35,64 +29,85 @@ CC: Ingo Molnar <mingo@elte.hu>,
        ltt-dev@shafik.org, systemtap@sources.redhat.com,
        Alan Cox <alan@lxorguk.ukuu.org.uk>
 Subject: Re: [PATCH] Linux Kernel Markers
-References: <20060918234502.GA197@Krystal> <20060919081124.GA30394@elte.hu> <451008AC.6030006@google.com> <20060919154612.GU3951@redhat.com>
-In-Reply-To: <20060919154612.GU3951@redhat.com>
+References: <20060918234502.GA197@Krystal> <20060919081124.GA30394@elte.hu> <451008AC.6030006@google.com>
+In-Reply-To: <451008AC.6030006@google.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Frank Ch. Eigler wrote:
-> Hi -
-> 
-> On Tue, Sep 19, 2006 at 08:11:40AM -0700, Martin J. Bligh wrote:
-> 
-> 
->>[...]  Why don't we just copy the whole damned function somewhere
->>else, and make an instrumented copy (as a kernel module)? Then
->>reroute all the function calls through it [...]
-> 
-> 
-> Interesting idea.  Are you imagining this instrumented copy being
-> built at kernel compile time (something like building a "-g -O0"
-> parallel)?  Or compiled anew from original sources after deployment?
-> Or on-the-fly binary-level rewriting a la SPIN?
+Martin J. Bligh wrote:
 
-"compiled anew from original sources after deployment" seems the most
-practical to do to me. From second hand info on using systemtap, you
-seem to need the same compiler and source tree to work from anyway, so
-this doesn't seem much of a burden.
+> Ingo Molnar wrote:
+>
+>> * Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca> wrote:
+>>
+>>> +choice
+>>> +    prompt "MARK code marker behavior"
+>>
+>>
+>>> +config MARK_KPROBE
+>>> +config MARK_JPROBE
+>>> +config MARK_FPROBE
+>>> +    Change markers for a function call.
+>>> +config MARK_PRINT
+>>
+>>
+>> as indicated before in great detail, NACK on this profileration of 
+>> marker options, especially the function call one. I'd like to see 
+>> _one_ marker mechanism that distros could enable, preferably with 
+>> zero (or at most one NOP) in-code overhead. (You can of course patch 
+>> whatever extension ontop of it, in out-of-tree code, to gain further 
+>> performance advantage by generating direct system-calls.)
+>>
+>> There might be a hodgepodge of methods and tools in userspace to do 
+>> debugging, but in the kernel we should get our act together and only 
+>> take _one_ (or none at all), and then spend all our efforts on 
+>> improving that primary method of debug instrumentation. As 
+>> kprobes/SystemTap has proven, it is possible to have zero-overhead 
+>> inactive probes.
+>>
+>> Furthermore, for such a patch to make sense in the upstream kernel, 
+>> downstream tracing code has to make actual use of that NOP-marker. 
+>> I.e. a necessary (but not sufficient) requirement for upstream 
+>> inclusion (in my view) would be for this mechanism to be used by LTT 
+>> and LKST. (again, you can patch LTT for your own purposes in your own 
+>> patchset if you think the performance overhead of probes is too much)
+>
+>
+> You know ... it strikes me that there's another way to do this, that's
+> zero overhead when not enabled, and gets rid of the inflexibility in
+> kprobes. It might not work well in all cases, but at least for simple
+> non-inlined functions, it'd seem to.
+>
+> Why don't we just copy the whole damned function somewhere else, and
+> make an instrumented copy (as a kernel module)? Then reroute all the
+> function calls through it, instead of the original version. OK, it's
+> not completely trivial to do, but simpler than kprobes (probably
+> doing the switchover atomically is the hard part, but not impossible).
+> There's NO overhead when not using, and much lower than probes when
+> you are.
+>
+> That way we can do whatever the hell we please with internal variables,
+> however GCC optimises it, can write flexible instrumenting code to just
+> about anything, program in C as God intended, etc, etc. No, it probably
+> won't fix every case under the sun, but hopefully most of them, and we
+> can still use kprobes/djprobes/bodilyprobes for the rest of the cases.
+>
+> M.
 
->>OK, it's not completely trivial to do, but simpler than kprobes [...]
-> 
-> None of the three above are that easy.  Do you have an implementation
-> idea?
+It is an interesting idea but there appears to be following hard issues 
+(some of which you have already listed) i am not able to see how we can 
+overcome them
 
-not in detail, but given the problems that the other probe technologies
-solved, it seems easy in comparison. It seems like all we'd need to do
-is "list all references to function, freeze kernel, update all
-references, continue", but perhaps I'm oversimplifying it ... if it's
-all just straight calls, it'd seem easy. The freeze would be very short,
-it's just poking a few addresses.
+1) We are going to have a duplicate of the whole function which means 
+any significant changes in the original function needs to be done on the 
+copy as well, you think maintainers would like this double work idea.
 
-Having multiple hooks inside the same function pieced in at different
-times, etc gets tricky, but you can always fall back on one of the other
-methods if you get something complicated (or enforce some self-dicipline
-in userspace on how to compound them together).
+2) Inline functions is often the place where we need a fast path to 
+overcome the current kprobes overhead.
 
-Ingo Molnar wrote:
- > yeah, this would be nice - if it werent it for function pointers,
- > and if all kernel functions were relocatable. But if you can think of
- > a method to do this, it would be nice.
+3) As you said it is not trivial across all the platforms to do a switch 
+to the instrumented function from the original during the execution.  
+This problem is similar to the issue we are dealing with djprobes.
 
-Well, it doesn't have to work for everything. But would be much nicer
-for when it does work, it seems to me. Which functions are not
-relocatable? Function pointers are indeed a problem, for the functions
-they're used on, but they're not common. Some simple markup for these
-types of functions would fix it easily enough, I'd think.
-
-A more common problem would seem to me to be instrumenting a inlined
-function that was pulled into multiple places, but even that doesn't
-seem particularly difficult.
-
-M.

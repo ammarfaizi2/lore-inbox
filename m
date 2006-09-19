@@ -1,59 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752013AbWISCJS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752005AbWISCSZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752013AbWISCJS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Sep 2006 22:09:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752014AbWISCJR
+	id S1752005AbWISCSZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Sep 2006 22:18:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752011AbWISCSZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Sep 2006 22:09:17 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:36489 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1752013AbWISCJR (ORCPT
+	Mon, 18 Sep 2006 22:18:25 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:38283 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1752005AbWISCSZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Sep 2006 22:09:17 -0400
-Date: Mon, 18 Sep 2006 19:09:02 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: tarka@internode.on.net (Steve Smith)
-Cc: linux-kernel@vger.kernel.org, Dmitry Torokhov <dtor@mail.ru>
-Subject: Re: Repeatable hang on boot with PCMCIA card present
-Message-Id: <20060918190902.d5b6a698.akpm@osdl.org>
-In-Reply-To: <20060916050331.GA6685@lucretia.remote.isay.com.au>
-References: <20060916050331.GA6685@lucretia.remote.isay.com.au>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 18 Sep 2006 22:18:25 -0400
+Date: Mon, 18 Sep 2006 19:18:19 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Jesper Juhl <jesper.juhl@gmail.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       billm@melbpc.org.au
+Subject: Re: Math-emu kills the kernel on Athlon64 X2
+In-Reply-To: <9a8748490609181747i9da3107q593ab99ced48bced@mail.gmail.com>
+Message-ID: <Pine.LNX.4.64.0609181909090.4388@g5.osdl.org>
+References: <9a8748490609181518j2d12e4f0l2c55e755e40d38c2@mail.gmail.com> 
+ <Pine.LNX.4.64.0609181549200.4388@g5.osdl.org> 
+ <9a8748490609181614r55178f1djab68eb48bd36f7de@mail.gmail.com> 
+ <Pine.LNX.4.64.0609181642200.4388@g5.osdl.org>
+ <9a8748490609181747i9da3107q593ab99ced48bced@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 16 Sep 2006 15:03:31 +1000
-tarka@internode.on.net (Steve Smith) wrote:
-
-> [I sent the following to the person responsible for the patch but
-> haven't heard anything so I assume he's unavailable...]
-> 
-> Hi,
-> 
-> With recent kernel releases I have started seeing consistent hangs
-> during boot when a PCMCIA card is present in the slot (the card in
-> question is a Linksys wireless-B card).  The symptoms are:
-> 
->     If the card is present during boot an error of "Unknown interrupt
->     or fault at EIP ..." appears.
-> 
->     If the card is not present there is no error.
-> 
->     The card can be plugged-in post-boot without problems.
-> 
-> Using git-bisect I have narrowed down the error to one commit, namely
-> "use bitfield instead of p_state and state".  The commit# is
-> 
->     e2d4096365e06b9a3799afbadc28b4519c0b3526
->
-> However I am still seeing this problem with the latest -RC releases.
-
-Thanks for doing that.
-
-Damn, that was a huge patch.  Have you been able to grab
-a copy of the oops output?  It would really help.  Even a photo of
-the screen..
 
 
+On Tue, 19 Sep 2006, Jesper Juhl wrote:
+> 
+> Booting with: vga=normal no387 nofxsr
+> gets me no forther.   These are all the messages I get:
+> 
+> boot: 2.6.18rc7git2 vga=normal no387 nofxsr
+> Loading 2.6.18rc7git2...................................
+> BIOS data check successful
+> Uncompressing Linux... Ok, booting the kernel.
+> 
+> And then the system hangs and requires a power cycle.
+> 
+> So unfortunately that does't help much :-(
+
+Ok. The next phase is to try to figure out where it hangs, and since it 
+happens very early, that's most often most easily done the hard way: add 
+some code that reboots the machine, and if the machine hangs, you didn't 
+reach it.
+
+These days there's a slightly easier approach: if you enable PM_TRACE 
+support (you need to enable PM and PM_DEBUG and EXPERIMENTAL to get it), 
+you can do
+
+	#include <resume-trace.h>
+
+at the top of a file, and add a sprinkling of "TRACE_RESUME(x)" calls 
+(where "x" is some integer in the range 0-15 that you can use to save off 
+the iteration count in a loop, for example - leave at 0 if you're not 
+interested).
+
+And then, when it hangs, once you reboot into the same kernel (without the 
+"no387", so that it works ;), it should tell you where the last 
+trace-point was fairly early in the bootup dmesg's.
+
+(It _will_ screw up your time-of-day clock in the process, though, which 
+is why tracing is so hard to enable on purpose ;)
+
+		Linus

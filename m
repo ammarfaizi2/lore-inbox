@@ -1,46 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751206AbWISCYf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751211AbWISCZp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751206AbWISCYf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Sep 2006 22:24:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751211AbWISCYf
+	id S1751211AbWISCZp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Sep 2006 22:25:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751330AbWISCZo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Sep 2006 22:24:35 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:56204 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751206AbWISCYe convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Sep 2006 22:24:34 -0400
-Date: Mon, 18 Sep 2006 19:24:31 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Alejandro Riveira =?ISO-8859-1?B?RmVybuFuZGV6?= 
-	<ariveira@gmail.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: "set_rtc_mmss: can't update from m to n" cluttering my logs
-Message-Id: <20060918192431.42ec5df5.akpm@osdl.org>
-In-Reply-To: <20060918131303.2aed4dc4@localhost.localdomain>
-References: <20060918131303.2aed4dc4@localhost.localdomain>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+	Mon, 18 Sep 2006 22:25:44 -0400
+Received: from ppp1-149.lns1.syd7.internode.on.net ([59.167.1.149]:782 "EHLO
+	lucretia.isay.com.au") by vger.kernel.org with ESMTP
+	id S1751211AbWISCZo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Sep 2006 22:25:44 -0400
+Date: Tue, 19 Sep 2006 12:25:41 +1000
+To: Andrew Morton <akpm@osdl.org>
+Cc: Steve Smith <tarka@internode.on.net>, linux-kernel@vger.kernel.org,
+       Dmitry Torokhov <dtor@mail.ru>
+Subject: Re: Repeatable hang on boot with PCMCIA card present
+Message-ID: <20060919022541.GA25830@lucretia.remote.isay.com.au>
+References: <20060916050331.GA6685@lucretia.remote.isay.com.au> <20060918190902.d5b6a698.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060918190902.d5b6a698.akpm@osdl.org>
+User-Agent: Mutt/1.5.13 (2006-08-11)
+From: tarka@internode.on.net (Steve Smith)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 18 Sep 2006 13:13:03 +0200
-Alejandro Riveira Fernández  <ariveira@gmail.com> wrote:
+On Mon, Sep 18, 2006 at 07:09:02PM -0700, Andrew Morton wrote:
+> Damn, that was a huge patch.  Have you been able to grab
+> a copy of the oops output?  It would really help.  Even a photo of
+> the screen..
 
-> Hi, i'm using a 2.6.18-rc7 in an 3880+ X2 AM2 with an uli 1697 chipset
-> and i'm seeing this on the logs
-> 
-> Sep 18 12:49:34 localhost last message repeated 17 times
-> Sep 18 12:49:40 localhost last message repeated 3 times
-> Sep 18 12:49:44 localhost kernel: set_rtc_mmss: can't update from 110 to 49
-> Sep 18 12:49:57 localhost last message repeated 8 times
-> Sep 18 12:50:01 localhost kernel: set_rtc_mmss: can't update from 110 to 50
-> Sep 18 12:50:32 localhost last message repeated 17 times
-> Sep 18 12:50:41 localhost last message repeated 4 times
-> Sep 18 12:50:42 localhost kernel: set_rtc_mmss: can't update from 111 to 50
+No oops I'm afraid, just the hang and EIP message.  The numbers
+with the message change each time but I can send them when I get to
+the machine later.  Is there another way to coax more information out
+of the kernel?
 
-That code hasn't really changed in a long time.  Are you able to determine
-approximately which kernel version introduced this problem?
-
-Thanks.  
+Thanks,
+Steve

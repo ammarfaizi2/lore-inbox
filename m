@@ -1,74 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751270AbWISWeq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751351AbWISWfK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751270AbWISWeq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Sep 2006 18:34:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751345AbWISWep
+	id S1751351AbWISWfK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Sep 2006 18:35:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751367AbWISWfK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Sep 2006 18:34:45 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:19396 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751270AbWISWep (ORCPT
+	Tue, 19 Sep 2006 18:35:10 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:33226 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1751351AbWISWfF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Sep 2006 18:34:45 -0400
-Message-ID: <45106ED7.7010603@redhat.com>
-Date: Tue, 19 Sep 2006 18:27:35 -0400
-From: Satoshi Oshima <soshima@redhat.com>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
+	Tue, 19 Sep 2006 18:35:05 -0400
+Date: Tue, 19 Sep 2006 21:04:23 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Kylene Jo Hall <kjhall@us.ibm.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       LSM ML <linux-security-module@vger.kernel.org>,
+       Dave Safford <safford@us.ibm.com>, Mimi Zohar <zohar@us.ibm.com>,
+       Serge Hallyn <sergeh@us.ibm.com>
+Subject: Re: [PATCH 5/7] SLIM: make and config stuff
+Message-ID: <20060919190423.GB7210@elf.ucw.cz>
+References: <1158083876.18137.15.camel@localhost.localdomain>
 MIME-Version: 1.0
-To: Mathieu Desnoyers <compudj@krystal.dyndns.org>
-CC: Vara Prasad <prasadav@us.ibm.com>, Martin Bligh <mbligh@google.com>,
-       prasanna@in.ibm.com, Andrew Morton <akpm@osdl.org>,
-       "Frank Ch. Eigler" <fche@redhat.com>, Ingo Molnar <mingo@elte.hu>,
-       Paul Mundt <lethal@linux-sh.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>, Jes Sorensen <jes@sgi.com>,
-       Tom Zanussi <zanussi@us.ibm.com>,
-       Richard J Moore <richardj_moore@uk.ibm.com>,
-       Michel Dagenais <michel.dagenais@polymtl.ca>,
-       Christoph Hellwig <hch@infradead.org>,
-       Greg Kroah-Hartman <gregkh@suse.de>,
-       Thomas Gleixner <tglx@linutronix.de>, William Cohen <wcohen@redhat.com>,
-       ltt-dev@shafik.org, systemtap@sources.redhat.com,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCH] Linux Kernel Markers
-References: <20060918234502.GA197@Krystal> <20060919081124.GA30394@elte.hu> <451008AC.6030006@google.com> <20060919154612.GU3951@redhat.com> <4510151B.5070304@google.com> <20060919093935.4ddcefc3.akpm@osdl.org> <45101DBA.7000901@google.com> <20060919063821.GB23836@in.ibm.com> <45102641.7000101@google.com> <4510413F.2030200@us.ibm.com> <20060919191652.GC30556@Krystal>
-In-Reply-To: <20060919191652.GC30556@Krystal>
-Content-Type: text/plain; charset=ISO-2022-JP
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1158083876.18137.15.camel@localhost.localdomain>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mathieu Desnoyers wrote:
-> * Vara Prasad (prasadav@us.ibm.com) wrote:
->> Martin Bligh wrote:
->>
->>> [...]
->>> Depends what we're trying to fix. I was trying to fix two things:
->>>
->>> 1. Flexibility - kprobes seem unable to access all local variables etc
->>> easily, and go anywhere inside the function. Plus keeping low overhead
->>> for doing things like keeping counters in a function (see previous
->>> example I mentioned for counting pages in shrink_list).
->>>
->> Using tools like systemtap on can consult DWARF information and put 
->> probes in the middle of the function and access local variables as well, 
->> that is not the real problem. The issue here is compiler doesn't seem to 
->> generate required DWARF information in some cases due to optimizations.  
->> The other related problem is when there exists debug information, the 
->> way to specify the breakpoint location is using line number which is not 
->> maintainable, having a marker solves this problem as well. Your proposal 
->> still doesn't solve the need for markers if i understood correctly.
->>
-> 
-> His implementation makes a heavy use of a marker mechanism : this is exactly
-> what permits to create the instrumented objects from the same source code, but
-> with different #defines.
+Hi!
 
-Djprobes don't depend on markers. Actually, markers help to find the
-safe place to probe, but they are not necessary. At least, instructions
-that are more than 4 byte are probable.
+> This patch contains the Makefile, Kconfig and .h files for SLIM.
 
-As Vara pointed out, we are developing the tools that find the
-safe place for djprobes. 
+> +config SECURITY_SLIM_BOOTPARAM_VALUE
+> +	int "SLIM boot parameter default value"
+> +	depends on SECURITY_SLIM_BOOTPARAM
+> +	range 0 1
+> +	default 1
+> +	help
+> +	  This option sets the default value for the kernel parameter
+> +	  'slim', which allows SLIM to be disabled at boot.  If this
+> +	  option is set to 0 (zero), the SLIM kernel parameter will
+> +	  default to 0, disabling SLIM at bootup.  If this option is
+> +	  set to 1 (one), the SLIM kernel parameter will default to 1,
+> +	  enabling SLIM at bootup.
+> +
+> +	  If you are unsure how to answer this question, answer 1.
+> +
 
-
-Satoshi OSHIMA
-
+Do we really need this option? Seems like anyone wanting slim can just
+pass the boot argument...?
+								Pavel
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

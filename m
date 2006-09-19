@@ -1,62 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752030AbWISEB7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752037AbWISEJx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752030AbWISEB7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Sep 2006 00:01:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752032AbWISEB7
+	id S1752037AbWISEJx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Sep 2006 00:09:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752035AbWISEJx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Sep 2006 00:01:59 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:6787 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1752030AbWISEB6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Sep 2006 00:01:58 -0400
-Date: Tue, 19 Sep 2006 14:01:32 +1000
-From: David Chinner <dgc@sgi.com>
-To: David Howells <dhowells@redhat.com>
-Cc: David Chinner <dgc@sgi.com>, "Josef 'Jeff' Sipek" <jeffpc@josefsipek.net>,
-       linux-kernel@vger.kernel.org, xfs-masters@oss.sgi.com, akpm@osdl.org
-Subject: Re: [PATCH 5 of 11] XFS: Use SEEK_{SET, CUR, END} instead of hardcoded values
-Message-ID: <20060919040132.GI3034@melbourne.sgi.com>
-References: <20060918033431.GV3034@melbourne.sgi.com> <patchbomb.1158455366@turing.ams.sunysb.edu> <4cdee5980dad9980ec8f.1158455371@turing.ams.sunysb.edu> <2442.1158575435@warthog.cambridge.redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <2442.1158575435@warthog.cambridge.redhat.com>
-User-Agent: Mutt/1.4.2.1i
+	Tue, 19 Sep 2006 00:09:53 -0400
+Received: from tresys.irides.com ([216.250.243.126]:36117 "HELO
+	exchange.columbia.tresys.com") by vger.kernel.org with SMTP
+	id S1752033AbWISEJv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Sep 2006 00:09:51 -0400
+Message-ID: <450F6D87.7090604@gentoo.org>
+Date: Tue, 19 Sep 2006 00:09:43 -0400
+From: Joshua Brindle <method@gentoo.org>
+User-Agent: Thunderbird 1.5.0.7 (Windows/20060909)
+MIME-Version: 1.0
+To: casey@schaufler-ca.com
+CC: David Madore <david.madore@ens.fr>,
+       Linux Kernel mailing-list <linux-kernel@vger.kernel.org>,
+       LSM mailing-list <linux-security-module@vger.kernel.org>
+Subject: Re: [PATCH 3/4] security: capabilities patch (version 0.4.4), part
+ 3/4: introduce new capabilities
+References: <20060919034601.97733.qmail@web36610.mail.mud.yahoo.com>
+In-Reply-To: <20060919034601.97733.qmail@web36610.mail.mud.yahoo.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Antivirus: avast! (VPS 0637-2, 09/15/2006), Outbound message
+X-Antivirus-Status: Clean
+X-OriginalArrivalTime: 19 Sep 2006 04:09:51.0065 (UTC) FILETIME=[7418FC90:01C6DBA1]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 18, 2006 at 11:30:35AM +0100, David Howells wrote:
-> David Chinner <dgc@sgi.com> wrote:
-> 
-> > The hard coded values  used in xfs_change_file_space() are documented as part
-> > of the API to the userspace functions that use this interface in xfsctl(3).
-> 
-> Hmmm... that's a good point.  I think you're right on this account, and so the
-> comments in:
-> 
-> 		case 0: /*SEEK_SET*/
-> 			break;
-> 		case 1: /*SEEK_CUR*/
-> 			bf->l_start += offset;
-> 			break;
-> 		case 2: /*SEEK_END*/
-> 			bf->l_start += ip->i_d.di_size;
-> 			break;
-> 
-> should be stripped off as they are not exactly correct.
+Casey Schaufler wrote:
+> --- Joshua Brindle <method@gentoo.org> wrote:
+>   
+>>> The first system I took through evaluation
+>>> (that is, independent 3rd party analysis) stored
+>>> security attributes in a file while the second
+>>> and third systems attached the attributes
+>>> directly (XFS). The 1st evaluation required
+>>> 5 years, the 2nd 1 year. It is possible that
+>>> I just got a lot smarter with age, but I
+>>> ascribe a significant amount of the improvement
+>>> to the direct association of the attributes
+>>> to the file.
+>>>       
+>> Thats great but entirely irrelevant in this context.
+>> The patch and caps 
+>> in question are not attached to the file via some
+>> externally observable 
+>> property (eg., xattr) but instead are embedded in
+>> the source code so 
+>> that it can drop caps at certain points during the
+>> execution or before 
+>> executing another app, thus unanalyzable.
+>>     
+>
+> Oh that. Sure, we used capability bracketing
+> in the code, too. That makes it easy to
+> determine when a capability is active. What,
+> you don't think that it's possible to analyze
+> source code? Of course it is. Refer to the
+> evaluation reports if you don't believe me.
+>
+>   
+When I see an analysis of every line of source code on an average Linux 
+machine then I might believe you (if you'll grant that no software can 
+ever be installed on it afterward without being analyzed) but until then 
+I'll stick with a centralized policy. I doubt many others will be 
+satisfied with that limitation.
 
-Sure, they're not _exactly_ the same as seek semantics, but the
-comment is informative enough to tell you what the magic numbers
-are supposed to mean as you read the code.
-
-If you really want to strip these out these comments, can you please
-replace them with a new comment that documents the magic number
-behaviour?
-
-Cheers,
-
-Dave.
--- 
-Dave Chinner
-Principal Engineer
-SGI Australian Software Group
+Bracketing hardly makes it analyzable, how can you possibly know if the 
+bracketing happened? You *believe* it will and therefore you say that 
+the bracketed code is safe but in reality this is a discretionary 
+mechanism and you have zero assurance that there is any security 
+whatsoever, no thanks, I'll pass.

@@ -1,41 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752049AbWISUgX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751073AbWISUhG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752049AbWISUgX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Sep 2006 16:36:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750915AbWISUgX
+	id S1751073AbWISUhG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Sep 2006 16:37:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752061AbWISUhG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Sep 2006 16:36:23 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:30359 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751278AbWISUgW (ORCPT
+	Tue, 19 Sep 2006 16:37:06 -0400
+Received: from 1wt.eu ([62.212.114.60]:3091 "EHLO 1wt.eu") by vger.kernel.org
+	with ESMTP id S1751073AbWISUhE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Sep 2006 16:36:22 -0400
-Date: Tue, 19 Sep 2006 13:36:06 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Subject: Re: 2.6.18-rc7-mm1
-Message-Id: <20060919133606.f0c92e66.akpm@osdl.org>
-In-Reply-To: <200609192225.21801.rjw@sisk.pl>
-References: <20060919012848.4482666d.akpm@osdl.org>
-	<200609192225.21801.rjw@sisk.pl>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+	Tue, 19 Sep 2006 16:37:04 -0400
+Date: Tue, 19 Sep 2006 22:20:29 +0200
+From: Willy Tarreau <w@1wt.eu>
+To: Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
+       Marcelo Tosatti <mtosatti@redhat.com>
+Subject: Re: Linux 2.4.34-pre3
+Message-ID: <20060919202029.GA4017@1wt.eu>
+References: <20060919173253.GA25470@hera.kernel.org> <45102BEE.9000501@yahoo.com.au> <20060919181738.GA3467@1wt.eu> <45103D1D.20702@yahoo.com.au>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <45103D1D.20702@yahoo.com.au>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 19 Sep 2006 22:25:21 +0200
-"Rafael J. Wysocki" <rjw@sisk.pl> wrote:
-
-> > - It took maybe ten hours solid work to get this dogpile vaguely
-> >   compiling and limping to a login prompt on x86, x86_64 and powerpc. 
-> >   I guess it's worth briefly testing if you're keen.
+On Wed, Sep 20, 2006 at 04:55:25AM +1000, Nick Piggin wrote:
+> Willy Tarreau wrote:
+> >Hi Nick,
+> >
+> >On Wed, Sep 20, 2006 at 03:42:06AM +1000, Nick Piggin wrote:
+> >
+> >[cut -pre3 advertisement]
+> >
+> >
+> >>I wonder if 2.4 doesn't need the memory ordering fix to prevent pagecache
+> >>corruption in reclaim? (http://www.gatago.com/linux/kernel/14682626.html)
+> >>
+> >>What would need to be done is to test page_count before testing PageDirty,
+> >>and putting an smp_rmb between the two.
+> >
+> >
+> >I've read the thread, and Linus proposed to add an smp_wmb() in
+> >set_page_dirty() too.
 > 
-> It's not that bad, but unfortunately the networking doesn't work on my system
-> (HPC nx6325 + SUSE 10.1 w/ updates, 64-bit).  Apparently, the interfaces don't
-> get configured (both tg3 and bcm43xx are affected).
+> I think that isn't needed because put_page is a RMW, which is defined
+> to order memory. And presumably you wouldn't set the page dirty without
+> a reference to the page.
 
-Is there anything interesting in the dmesg output?
+OK, thanks for the explanation.
 
-Perhaps an `strace -f ifup' or whatever would tell us what's failing.
+> >I see that an smp_rmb() is already present
+> >in shrink_cache() with the adequate comment.
+> 
+> So there is! My mistake then, I was confused and looking at
+> try_to_swap_out, but I see that doesn't actually free the page. Fine,
+> I think 2.4 is OK then.
+
+Perfect !
+
+Thanks,
+Willy
+

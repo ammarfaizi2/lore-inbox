@@ -1,95 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751151AbWISWBc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751140AbWISWBQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751151AbWISWBc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Sep 2006 18:01:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751160AbWISWBc
+	id S1751140AbWISWBQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Sep 2006 18:01:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751151AbWISWBP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Sep 2006 18:01:32 -0400
-Received: from opersys.com ([64.40.108.71]:53513 "EHLO www.opersys.com")
-	by vger.kernel.org with ESMTP id S1751151AbWISWBa (ORCPT
+	Tue, 19 Sep 2006 18:01:15 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:63932 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751140AbWISWBP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Sep 2006 18:01:30 -0400
-Message-ID: <45106B20.6020600@opersys.com>
-Date: Tue, 19 Sep 2006 18:11:44 -0400
-From: Karim Yaghmour <karim@opersys.com>
-Reply-To: karim@opersys.com
-Organization: Opersys inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.8.0.6) Gecko/20060804 Fedora/1.0.4-0.5.1.fc5 SeaMonkey/1.0.4
+	Tue, 19 Sep 2006 18:01:15 -0400
+Date: Tue, 19 Sep 2006 15:01:08 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Jesper Juhl <jesper.juhl@gmail.com>
+cc: Andi Kleen <ak@suse.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Math-emu kills the kernel on Athlon64 X2
+In-Reply-To: <9a8748490609191414m6748f2fu521637df29ef9e8e@mail.gmail.com>
+Message-ID: <Pine.LNX.4.64.0609191453310.4388@g5.osdl.org>
+References: <9a8748490609181518j2d12e4f0l2c55e755e40d38c2@mail.gmail.com> 
+ <p73venk2sjw.fsf@verdi.suse.de> <9a8748490609191414m6748f2fu521637df29ef9e8e@mail.gmail.com>
 MIME-Version: 1.0
-To: "Frank Ch. Eigler" <fche@redhat.com>
-CC: Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
-       linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
-       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@redhat.com>,
-       Greg Kroah-Hartman <gregkh@suse.de>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Douglas Niehaus <niehaus@eecs.ku.edu>, Tom Zanussi <zanussi@us.ibm.com>,
-       Paul Mundt <lethal@linux-sh.org>, Jes Sorensen <jes@sgi.com>,
-       Richard J Moore <richardj_moore@uk.ibm.com>,
-       William Cohen <wcohen@redhat.com>,
-       "Martin J. Bligh" <mbligh@mbligh.org>,
-       Michel Dagenais <michel.dagenais@polymtl.ca>,
-       systemtap@sources.redhat.com, ltt-dev@shafik.org
-Subject: Re: [PATCH] Linux Kernel Markers 0.2 for Linux 2.6.17
-References: <20060919183447.GA16095@Krystal> <y0m4pv3ek49.fsf@ton.toronto.redhat.com> <20060919193623.GA9459@Krystal> <20060919194515.GB18646@redhat.com> <20060919202802.GB552@Krystal> <20060919210703.GD18646@redhat.com>
-In-Reply-To: <20060919210703.GD18646@redhat.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Frank Ch. Eigler wrote:
-> If the decision you're talking about is whether all markers in the
-> system should behave one way or another, then this is a degree of
-> central control that we have not contemplated during the entire
-> thread, until now.
+
+On Tue, 19 Sep 2006, Jesper Juhl wrote:
 > 
-> It is an end-user such as an administrator who will figure out which
-> probes/markers/tracing elements need what kind of processing attached.
-> They don't want to recompile the kernel to switch.  They will want
-> different types of processing, or none at all, for different markers
-> during a system lifetime.
+> The config is attached.
 
-Sure. I'm sure there's just a slight miscommunication here because
-my understanding of Mathieu's attempts goes in the direction of
-what you're saying here. He might not have gotten it right, but
-that can be worked on.
-
-> This line of thinking makes me worry that we've forgotten all that we
-> learned during the weekend.  Amongst the insights apparently agreed
-> was that on *any given system*, a mixture of static an dynamic probing
-> was likely necessary.  For the static part of the instrumentation, a
-> marker that could be hooked up to either type of probing system was
-> desirable, which implies some sort of run-time changeability.
-
-Ok. So if I get what you're saying here, you'd like to be able to
-overload a marker? Can you suggest a macro that can do what you'd
-like. I'm sure Mathieu would gladly take a close look at it.
-
-> That's if it works, if it can be implemented, if it does not create
-> conflicts between multiple tracing/probing systems, if ...  
-> 
-> Yes, in theory it might bridge the gulf between compile-time and
-> run-time configuration, but aren't these all big "if"s right now?
-
-Lots of "if"s in this thread, and this weekend does teach us that
-highlighting the problems with other peoples' "if"s is dangerous.
-I'm sure you'd agree that concentrating on the areas where there
-is agreement would be best.
-
-> I don't understand how this new compile-time configured style of
-> marker is to serve anyone who wants to use something other than a
-> single distribution-picked tracing/probing tool.  I though we had
-> abandoned that model some time ago.
-
-We did, and I'm sure there's a fundamental misunderstanding here.
-It would likely help if you could give a concrete example of how
-you would like Mathieu's proposal be changed or, if you don't
-like it at all, what you would like to see. Anything purely
-technical that will avoid any of the pitfalls generated by
-differences in perspective.
-
-Thanks,
-
-Karim
-
+Can you try without SMP, and with CONFIG_X86_GENERIC (the latter to make 
+sure that we don't do any static optimizations: right now you've told the 
+compile system that you're compiling for an Opteron, and while I _think_ 
+all the SSE optimizations are dynamic at run-time, I haven't checked 
+extensively.

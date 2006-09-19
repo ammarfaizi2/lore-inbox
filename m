@@ -1,79 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750987AbWISSxH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751009AbWISSzb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750987AbWISSxH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Sep 2006 14:53:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751006AbWISSxH
+	id S1751009AbWISSzb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Sep 2006 14:55:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751933AbWISSza
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Sep 2006 14:53:07 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.153]:4329 "EHLO e35.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1750987AbWISSxF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Sep 2006 14:53:05 -0400
-Subject: Re: [2.6.18-rc7] printk output delay in syslog wrt dmesg still
-	unfixed
-From: john stultz <johnstul@us.ibm.com>
-To: Tilman Schmidt <tilman@imap.cc>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <450BF1CC.2070309@imap.cc>
-References: <450BF1CC.2070309@imap.cc>
-Content-Type: text/plain
-Date: Tue, 19 Sep 2006 11:52:12 -0700
-Message-Id: <1158691933.18546.3.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+	Tue, 19 Sep 2006 14:55:30 -0400
+Received: from smtp107.mail.mud.yahoo.com ([209.191.85.217]:8593 "HELO
+	smtp107.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1751009AbWISSza (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Sep 2006 14:55:30 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=j4mOjZtJLfx6qNNzDvhh6h/is4TfzyNOFE4ObCzz986ww2xyxebb+GeJiH4193JTB/LaJMLrKO5ZSgPkoVADKxAorLnpOs+PiXvusxR7YxJ56l5tL9FR5Z0WlDKiFDwGkzRvlSKNf5X2Qa9LNv+hI56LEZT0aWWJSxj8yXf7814=  ;
+Message-ID: <45103D1D.20702@yahoo.com.au>
+Date: Wed, 20 Sep 2006 04:55:25 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Willy Tarreau <w@1wt.eu>
+CC: Linux Kernel <linux-kernel@vger.kernel.org>,
+       Marcelo Tosatti <mtosatti@redhat.com>
+Subject: Re: Linux 2.4.34-pre3
+References: <20060919173253.GA25470@hera.kernel.org> <45102BEE.9000501@yahoo.com.au> <20060919181738.GA3467@1wt.eu>
+In-Reply-To: <20060919181738.GA3467@1wt.eu>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-09-16 at 14:45 +0200, Tilman Schmidt wrote:
-> The following problem, which I reported for kernel 2.6.18-rc1 on my
-> development machine
->   Dell OptiPlex GX110
->   uname -a = Linux gx110 2.6.18-rc7-noinitrd #1 PREEMPT Thu Sep 14
-> 15:13:38 CEST 2006 i686 i686 i386 GNU/Linux
->   933 MHz Pentium III processor, i810 chipset, 512 MB RAM
->   distribution SuSE 10.0, syslog-ng 1.6.8, klogd 1.4.1, Xorg X11 6.8.2
-> still exists with 2.6.18-rc7:
+Willy Tarreau wrote:
+> Hi Nick,
 > 
-> While X is running, output from printk() appears in syslog (eg.
-> /var/log/messages) only after a key is pressed on the system keyboard,
-> even though it is visible with dmesg immediately.
+> On Wed, Sep 20, 2006 at 03:42:06AM +1000, Nick Piggin wrote:
 > 
-> Additional observations:
-> - The problem is *not* present with 2.6.17.* or earlier kernels.
-> - The problem *is* present with 2.6.18-rc*-mm* kernels.
-> - The problem disappears if the X server is terminated (telinit 3) and
->   reappears if the X server is started again (telinit 5).
-> - Syslog messages from userspace programs are not affected by the delay.
-> - No messages are lost, all appear eventually, though possibly hours
->   or days later, depending on how long nobody touches the keyboard.
-> - It doesn't matter which key is pressed; even pressing a shift key all
->   by its own is sufficient to make the missing messages appear.
-> - I couldn't find any other action that would release the messages;
->   neither mouse movements or clicks, nor waiting up to 24 hours, not
->   even logging in via ssh from another machine and compiling a Linux
->   kernel. ;-)
-> - The effect can be clearly observed by the difference between the
->   kernel's own timestamps and those by syslogd; an extreme example:
+> [cut -pre3 advertisement]
 > 
-> Sep 16 14:11:16 gx110 kernel: [18729.057746] gigaset: unblocking all
-> channels
-> Sep 16 14:11:16 gx110 kernel: [18729.057765] gigaset: searching
-> scheduled commands
-> Sep 16 14:11:16 gx110 kernel: [86033.298803] gigaset: received response
-> (8 bytes): ^M^JZLOG^M^J
-> Sep 16 14:11:16 gx110 kernel: [86033.298898] bas_gigaset: cmd_loop: End
-> of Command (0 Bytes)
 > 
-> Please let me know if I can help in any way with locating the cause of
-> this annoying phenomenon.
+>>I wonder if 2.4 doesn't need the memory ordering fix to prevent pagecache
+>>corruption in reclaim? (http://www.gatago.com/linux/kernel/14682626.html)
+>>
+>>What would need to be done is to test page_count before testing PageDirty,
+>>and putting an smp_rmb between the two.
+> 
+> 
+> I've read the thread, and Linus proposed to add an smp_wmb() in
+> set_page_dirty() too.
 
-Unfortunately I don't know what would be the cause. 
+I think that isn't needed because put_page is a RMW, which is defined
+to order memory. And presumably you wouldn't set the page dirty without
+a reference to the page.
 
-You might try git-bisect to find the offending patch.
-http://www.kernel.org/pub/software/scm/git/docs/howto/isolate-bugs-with-bisect.txt
+> I see that an smp_rmb() is already present
+> in shrink_cache() with the adequate comment.
 
+So there is! My mistake then, I was confused and looking at
+try_to_swap_out, but I see that doesn't actually free the page. Fine,
+I think 2.4 is OK then.
 
-thanks
--john
-
+-- 
+SUSE Labs, Novell Inc.
+Send instant messages to your online friends http://au.messenger.yahoo.com 

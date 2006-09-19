@@ -1,42 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751057AbWISTl1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752008AbWISTqi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751057AbWISTl1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Sep 2006 15:41:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751061AbWISTl1
+	id S1752008AbWISTqi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Sep 2006 15:46:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752010AbWISTqi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Sep 2006 15:41:27 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:26280
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1751037AbWISTl0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Sep 2006 15:41:26 -0400
-Date: Tue, 19 Sep 2006 12:41:31 -0700 (PDT)
-Message-Id: <20060919.124131.130617144.davem@davemloft.net>
-To: master@sectorb.msk.ru
-Cc: kuznet@ms2.inr.ac.ru, ak@suse.de, hawk@diku.dk, harry@atmos.washington.edu,
+	Tue, 19 Sep 2006 15:46:38 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:28803 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1752004AbWISTqg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Sep 2006 15:46:36 -0400
+Date: Tue, 19 Sep 2006 12:44:42 -0700
+From: Stephen Hemminger <shemminger@osdl.org>
+To: David Miller <davem@davemloft.net>
+Cc: dlang@digitalinsight.com, kuznet@ms2.inr.ac.ru, master@sectorb.msk.ru,
+       ak@suse.de, hawk@diku.dk, harry@atmos.washington.edu,
        linux-kernel@vger.kernel.org, netdev@vger.kernel.org
 Subject: Re: Network performance degradation from 2.6.11.12 to 2.6.16.20
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <20060918220331.GB32520@tentacle.sectorb.msk.ru>
+Message-ID: <20060919124442.0b1127c0@localhost.localdomain>
+In-Reply-To: <20060919.124034.78165098.davem@davemloft.net>
 References: <20060918211759.GB31746@tentacle.sectorb.msk.ru>
 	<20060918220038.GB14322@ms2.inr.ac.ru>
-	<20060918220331.GB32520@tentacle.sectorb.msk.ru>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	<Pine.LNX.4.63.0609181452470.14338@qynat.qvtvafvgr.pbz>
+	<20060919.124034.78165098.davem@davemloft.net>
+Organization: OSDL
+X-Mailer: Sylpheed-Claws 2.1.0 (GTK+ 2.8.20; i486-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: "Vladimir B. Savkin" <master@sectorb.msk.ru>
-Date: Tue, 19 Sep 2006 02:03:31 +0400
-
-> On Tue, Sep 19, 2006 at 02:00:38AM +0400, Alexey Kuznetsov wrote:
-> > * I do see get_offset_pmtmr() in top lines of profile. That's scary enough.
-> 
-> I had it at the very top line.
-
-That is just rediculious.
-
-You can "fix" the networking by making it timestamp less but what
-about things like just normal X11 clients that call gettimeofday()
-at very high rates?
+The sky2 hardware (and others) can timestamp in hardware, but trying
+to keep device ticks and system clock in sync looked too nasty
+to contemplate actually using it.

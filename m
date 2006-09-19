@@ -1,50 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751249AbWISHkA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751246AbWISHqm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751249AbWISHkA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Sep 2006 03:40:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751246AbWISHkA
+	id S1751246AbWISHqm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Sep 2006 03:46:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751265AbWISHqm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Sep 2006 03:40:00 -0400
-Received: from az33egw02.freescale.net ([192.88.158.103]:3757 "EHLO
-	az33egw02.freescale.net") by vger.kernel.org with ESMTP
-	id S1751142AbWISHj6 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Sep 2006 03:39:58 -0400
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Subject: RE: [patch 3/3] Add tsi108 On Chip Ethernet device driver support
-Date: Tue, 19 Sep 2006 15:39:54 +0800
-Message-ID: <7EA18FDD2DC2154AA3BD6D2F22A62A0E2FB214@zch01exm23.fsl.freescale.net>
-In-Reply-To: <1158055669.3032.11.camel@laptopd505.fenrus.org>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [patch 3/3] Add tsi108 On Chip Ethernet device driver support
-Thread-Index: AcbWU1RaBNfamkOISuunBgRjHs96SwFayShw
-From: "Zang Roy-r61911" <tie-fei.zang@freescale.com>
-To: "Arjan van de Ven" <arjan@infradead.org>
-Cc: "Andrew Morton" <akpm@osdl.org>, "jgarzik" <jgarzik@pobox.com>,
-       <netdev@vger.kernel.org>, <linux-kernel@vger.kernel.org>
+	Tue, 19 Sep 2006 03:46:42 -0400
+Received: from mgw-ext11.nokia.com ([131.228.20.170]:56131 "EHLO
+	mgw-ext11.nokia.com") by vger.kernel.org with ESMTP
+	id S1751246AbWISHql (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Sep 2006 03:46:41 -0400
+Subject: Re: [linux-pm] PowerOP vs OPpoint
+From: Amit Kucheria <amit.kucheria@nokia.com>
+To: ext Jon Loeliger <jdl@freescale.com>
+Cc: Matthew Locke <matthew.a.locke@comcast.net>,
+       pm list <linux-pm@lists.osdl.org>,
+       kernel list <linux-kernel@vger.kernel.org>
+In-Reply-To: <1158610046.6962.186.camel@cashmere.sps.mot.com>
+References: <ff355e0e9a7ba8350241ffe483c664ab@comcast.net>
+	 <1158610046.6962.186.camel@cashmere.sps.mot.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Organization: Nokia
+Date: Tue, 19 Sep 2006 10:44:05 +0300
+Message-Id: <1158651846.14353.8.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
+X-OriginalArrivalTime: 19 Sep 2006 07:46:31.0687 (UTC) FILETIME=[B9127970:01C6DBBF]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 2006-09-18 at 15:07 -0500, ext Jon Loeliger wrote:
+> On Thu, 2006-09-14 at 04:22, Matthew Locke wrote:
+> > Unfortunately, there are two efforts underway that makes this confusing 
+> > and I think require a bit more than the short summary requested.  A one 
+> > paragraph summary can't address the why and how.  This email briefly 
+> > describes the why and the differences.
+> > 
+> > There are two main reasons for both these efforts:
+> > - existing power management interfaces do not enable the power 
+> > management features on the latest SOC's used in embedded mobile  
+> > devices
+> > - existing power management interfaces do not provide the API necessary 
+> > to build power managers (userspace and/or kernel space) that optimize 
+> > power consumption to level required by embedded mobile devices
 > 
-> I have some review comments about your driver; please 
-> consider them for
-> fixing....
-> 
-Thanks.
-> 
-> > +		spin_unlock_irq(&phy_lock);
-> > +		msleep(10);
-> > +		spin_lock_irq(&phy_lock);
-> > +	}
-> 
-> hmm some places take phy_lock with disabling interrupts, while others
-> don't. I sort of fear "the others" may be buggy.... are you sure those
-> are ok?
-Could you interpret your comments in detail?
-Roy
+> So does it make sense to re-unify these two patch-sets
+> into one common, more general patch-set first?  Might
+> it make sense to do so in small, incremental steps that
+> everyone can agree on as we go along?
+
+That has been the idea. Maybe if you have better way to 'communicate'
+with David Singleton (oppoint) since he refuses to be drawn into the
+merge discussions.
+
+> For example, maybe the very first thing to do is define
+> some notion of general "operating point" that is a super-set
+> of the cpufreq definition.   If we can define that structure
+> maybe we can progress towards introducing and using it.
+
+Yes, it is a good first step. Please comment on the PowerOP patches to
+see if there is something in the OP notion that is missing in your
+opinion.
+
+> Totally side-step the kernel-user level stuff for a bit...
+> Totally side-step the suspend/resume issues for a bit...
+
+I believe the PowerOP patches from Eugeny and Matt do not touch
+suspend-resume issues and make the kernel-userspace interface to define
+OP as an optional patch.
+
+Oppoing patches on the other hand touch those issues.
+
+Regards,
+Amit
+
+-- 
+Amit Kucheria <amit.kucheria@nokia.com>
+Nokia

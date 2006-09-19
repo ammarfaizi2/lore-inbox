@@ -1,184 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030226AbWISMx2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030237AbWISM7A@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030226AbWISMx2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Sep 2006 08:53:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030229AbWISMx2
+	id S1030237AbWISM7A (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Sep 2006 08:59:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030239AbWISM7A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Sep 2006 08:53:28 -0400
-Received: from amsfep17-int.chello.nl ([213.46.243.15]:24086 "EHLO
-	amsfep18-int.chello.nl") by vger.kernel.org with ESMTP
-	id S1030226AbWISMx1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Sep 2006 08:53:27 -0400
-Subject: [PATCH] forcedeth: hardirq lockdep warning
-From: Peter Zijlstra <a.p.zijlstra@chello.nl>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Cc: Jeff Garzik <jeff@garzik.org>, Ingo Molnar <mingo@elte.hu>,
-       Arjan van de Ven <arjan@linux.intel.com>, Dave Jones <davej@redhat.com>,
-       Andrew Morton <akpm@osdl.org>
-Content-Type: text/plain
-Date: Tue, 19 Sep 2006 14:55:22 +0200
-Message-Id: <1158670522.3278.13.camel@taijtu>
+	Tue, 19 Sep 2006 08:59:00 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:46493 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1030237AbWISM67 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Sep 2006 08:58:59 -0400
+Date: Tue, 19 Sep 2006 13:58:01 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: Ingo Molnar <mingo@elte.hu>, Nicholas Miell <nmiell@comcast.net>,
+       Paul Mundt <lethal@linux-sh.org>, Karim Yaghmour <karim@opersys.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Ingo Molnar <mingo@redhat.com>, Jes Sorensen <jes@sgi.com>,
+       Andrew Morton <akpm@osdl.org>, Tom Zanussi <zanussi@us.ibm.com>,
+       Richard J Moore <richardj_moore@uk.ibm.com>,
+       "Frank Ch. Eigler" <fche@redhat.com>,
+       Michel Dagenais <michel.dagenais@polymtl.ca>,
+       Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
+       Christoph Hellwig <hch@infradead.org>,
+       Greg Kroah-Hartman <gregkh@suse.de>,
+       Thomas Gleixner <tglx@linutronix.de>, William Cohen <wcohen@redhat.com>,
+       "Martin J. Bligh" <mbligh@mbligh.org>
+Subject: tracing - consensus building insteat of dogfights
+Message-ID: <20060919125801.GA12815@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Roman Zippel <zippel@linux-m68k.org>, Ingo Molnar <mingo@elte.hu>,
+	Nicholas Miell <nmiell@comcast.net>,
+	Paul Mundt <lethal@linux-sh.org>,
+	Karim Yaghmour <karim@opersys.com>,
+	linux-kernel <linux-kernel@vger.kernel.org>,
+	Ingo Molnar <mingo@redhat.com>, Jes Sorensen <jes@sgi.com>,
+	Andrew Morton <akpm@osdl.org>, Tom Zanussi <zanussi@us.ibm.com>,
+	Richard J Moore <richardj_moore@uk.ibm.com>,
+	"Frank Ch. Eigler" <fche@redhat.com>,
+	Michel Dagenais <michel.dagenais@polymtl.ca>,
+	Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
+	Greg Kroah-Hartman <gregkh@suse.de>,
+	Thomas Gleixner <tglx@linutronix.de>,
+	William Cohen <wcohen@redhat.com>,
+	"Martin J. Bligh" <mbligh@mbligh.org>
+References: <450D182B.9060300@opersys.com> <20060917112128.GA3170@localhost.usen.ad.jp> <20060917143623.GB15534@elte.hu> <1158524390.2471.49.camel@entropy> <20060917230623.GD8791@elte.hu> <Pine.LNX.4.64.0609180136340.6761@scrub.home>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0609180136340.6761@scrub.home>
+User-Agent: Mutt/1.4.2.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-BUG: warning at kernel/lockdep.c:1816/trace_hardirqs_on() (Not tainted)
+I've been half-way through reading this thread after returning, and I must
+say I'm rather annoyed that 80% of it is just Roman vs Ingo and Karim vs
+Jes dogfights that run in circles.  Let's try to find some majority optinion
+and plans to move forward:
 
-Call Trace:
- show_trace
- dump_stack
- trace_hardirqs_on
- :forcedeth:nv_nic_irq_other
- handle_IRQ_event
- __do_IRQ
- do_IRQ
- ret_from_intr
-DWARF2 barf
- default_idle
- cpu_idle
- rest_init
- start_kernel
- _sinittext
- 
-These 3 functions nv_nic_irq_tx(), nv_nic_irq_rx() and nv_nic_irq_other()
-are reachable from IRQ context and process context. Make use of the 
-irq-save/restore spinlock variant.
+  *) so far everyone but Roman seems to agree we want to support dynamic
+     tracing as an integral part of the tracing framework
+  *) most people seem to agree that we want some form of in-source annotation
+     instead of just external probes
 
-(Compile tested only, since I do not have the hardware)
+so let's build on this rough consensus and decide on the next steps before
+fighting the hard battels.  I think those important steps are:
 
-Signed-off-by: Peter Zijlstra <a.p.zijlstra@chello.nl>
-Cc: Jeff Garzik <jeff@garzik.org>
-Cc: Ingo Molnar <mingo@elte.hu>
-Cc: Arjan van de Ven <arjan@linux.intel.com>
-Cc: Dave Jones <davej@redhat.com>
-Cc: Andrew Morton <akpm@osdl.org>
----
- drivers/net/forcedeth.c |   31 +++++++++++++++++--------------
- 1 file changed, 17 insertions(+), 14 deletions(-)
+  1) review and improve the lttng core tracing engine (without static traces
+     so far) and get it into mergeable shape.  Make sure it works nicely
+     from *probe dynamic tracing handlers.
+  2) find a nice syntax for in-source tracing annotations, and implement a
+     backend for it using lttng and *probes.
 
-Index: linux-2.6-mm/drivers/net/forcedeth.c
-===================================================================
---- linux-2.6-mm.orig/drivers/net/forcedeth.c
-+++ linux-2.6-mm/drivers/net/forcedeth.c
-@@ -2497,6 +2497,7 @@ static irqreturn_t nv_nic_irq_tx(int foo
- 	u8 __iomem *base = get_hwbase(dev);
- 	u32 events;
- 	int i;
-+	unsigned long flags;
- 
- 	dprintk(KERN_DEBUG "%s: nv_nic_irq_tx\n", dev->name);
- 
-@@ -2508,16 +2509,16 @@ static irqreturn_t nv_nic_irq_tx(int foo
- 		if (!(events & np->irqmask))
- 			break;
- 
--		spin_lock_irq(&np->lock);
-+		spin_lock_irqsave(&np->lock, flags);
- 		nv_tx_done(dev);
--		spin_unlock_irq(&np->lock);
-+		spin_unlock_irqrestore(&np->lock, flags);
- 
- 		if (events & (NVREG_IRQ_TX_ERR)) {
- 			dprintk(KERN_DEBUG "%s: received irq with events 0x%x. Probably TX fail.\n",
- 						dev->name, events);
- 		}
- 		if (i > max_interrupt_work) {
--			spin_lock_irq(&np->lock);
-+			spin_lock_irqsave(&np->lock, flags);
- 			/* disable interrupts on the nic */
- 			writel(NVREG_IRQ_TX_ALL, base + NvRegIrqMask);
- 			pci_push(base);
-@@ -2527,7 +2528,7 @@ static irqreturn_t nv_nic_irq_tx(int foo
- 				mod_timer(&np->nic_poll, jiffies + POLL_WAIT);
- 			}
- 			printk(KERN_DEBUG "%s: too many iterations (%d) in nv_nic_irq_tx.\n", dev->name, i);
--			spin_unlock_irq(&np->lock);
-+			spin_unlock_irqrestore(&np->lock, flags);
- 			break;
- 		}
- 
-@@ -2601,6 +2602,7 @@ static irqreturn_t nv_nic_irq_rx(int foo
- 	u8 __iomem *base = get_hwbase(dev);
- 	u32 events;
- 	int i;
-+	unsigned long flags;
- 
- 	dprintk(KERN_DEBUG "%s: nv_nic_irq_rx\n", dev->name);
- 
-@@ -2614,14 +2616,14 @@ static irqreturn_t nv_nic_irq_rx(int foo
- 
- 		nv_rx_process(dev, dev->weight);
- 		if (nv_alloc_rx(dev)) {
--			spin_lock_irq(&np->lock);
-+			spin_lock_irqsave(&np->lock, flags);
- 			if (!np->in_shutdown)
- 				mod_timer(&np->oom_kick, jiffies + OOM_REFILL);
--			spin_unlock_irq(&np->lock);
-+			spin_unlock_irqrestore(&np->lock, flags);
- 		}
- 
- 		if (i > max_interrupt_work) {
--			spin_lock_irq(&np->lock);
-+			spin_lock_irqsave(&np->lock, flags);
- 			/* disable interrupts on the nic */
- 			writel(NVREG_IRQ_RX_ALL, base + NvRegIrqMask);
- 			pci_push(base);
-@@ -2631,7 +2633,7 @@ static irqreturn_t nv_nic_irq_rx(int foo
- 				mod_timer(&np->nic_poll, jiffies + POLL_WAIT);
- 			}
- 			printk(KERN_DEBUG "%s: too many iterations (%d) in nv_nic_irq_rx.\n", dev->name, i);
--			spin_unlock_irq(&np->lock);
-+			spin_unlock_irqrestore(&np->lock, flags);
- 			break;
- 		}
- 	}
-@@ -2648,6 +2650,7 @@ static irqreturn_t nv_nic_irq_other(int 
- 	u8 __iomem *base = get_hwbase(dev);
- 	u32 events;
- 	int i;
-+	unsigned long flags;
- 
- 	dprintk(KERN_DEBUG "%s: nv_nic_irq_other\n", dev->name);
- 
-@@ -2660,14 +2663,14 @@ static irqreturn_t nv_nic_irq_other(int 
- 			break;
- 
- 		if (events & NVREG_IRQ_LINK) {
--			spin_lock_irq(&np->lock);
-+			spin_lock_irqsave(&np->lock, flags);
- 			nv_link_irq(dev);
--			spin_unlock_irq(&np->lock);
-+			spin_unlock_irqrestore(&np->lock, flags);
- 		}
- 		if (np->need_linktimer && time_after(jiffies, np->link_timeout)) {
--			spin_lock_irq(&np->lock);
-+			spin_lock_irqsave(&np->lock, flags);
- 			nv_linkchange(dev);
--			spin_unlock_irq(&np->lock);
-+			spin_unlock_irqrestore(&np->lock, flags);
- 			np->link_timeout = jiffies + LINK_TIMEOUT;
- 		}
- 		if (events & (NVREG_IRQ_UNKNOWN)) {
-@@ -2675,7 +2678,7 @@ static irqreturn_t nv_nic_irq_other(int 
- 						dev->name, events);
- 		}
- 		if (i > max_interrupt_work) {
--			spin_lock_irq(&np->lock);
-+			spin_lock_irqsave(&np->lock, flags);
- 			/* disable interrupts on the nic */
- 			writel(NVREG_IRQ_OTHER, base + NvRegIrqMask);
- 			pci_push(base);
-@@ -2685,7 +2688,7 @@ static irqreturn_t nv_nic_irq_other(int 
- 				mod_timer(&np->nic_poll, jiffies + POLL_WAIT);
- 			}
- 			printk(KERN_DEBUG "%s: too many iterations (%d) in nv_nic_irq_other.\n", dev->name, i);
--			spin_unlock_irq(&np->lock);
-+			spin_unlock_irqrestore(&np->lock, flags);
- 			break;
- 		}
- 
-
-
+We can fight the hard fight whether we want real static tracing and how
+many annotations of what form were after we have those important building
+blocks.

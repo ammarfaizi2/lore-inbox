@@ -1,92 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751859AbWISQbi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751512AbWISQav@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751859AbWISQbi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Sep 2006 12:31:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751860AbWISQbh
+	id S1751512AbWISQav (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Sep 2006 12:30:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751860AbWISQav
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Sep 2006 12:31:37 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:65454 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751859AbWISQbg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Sep 2006 12:31:36 -0400
-Date: Tue, 19 Sep 2006 09:31:22 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "Martin J. Bligh" <mbligh@mbligh.org>
-Cc: linux-kernel@vger.kernel.org, Andy Whitcroft <apw@shadowen.org>
-Subject: Re: 2.6.18-rc7-mm1
-Message-Id: <20060919093122.d8923263.akpm@osdl.org>
-In-Reply-To: <45100272.505@mbligh.org>
-References: <20060919012848.4482666d.akpm@osdl.org>
-	<45100272.505@mbligh.org>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+	Tue, 19 Sep 2006 12:30:51 -0400
+Received: from smtp-out.google.com ([216.239.33.17]:18339 "EHLO
+	smtp-out.google.com") by vger.kernel.org with ESMTP
+	id S1751512AbWISQau (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Sep 2006 12:30:50 -0400
+DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
+	h=received:subject:from:reply-to:to:cc:in-reply-to:references:
+	content-type:organization:date:message-id:mime-version:x-mailer:content-transfer-encoding;
+	b=csRYkdLWyQymvj19jmam9k467kPYD7c0EJgPmwauFgiqGnDsgfaU7XQ4kn+JUmXWw
+	HiLWgvKrzKIJjLiE+se6w==
+Subject: Re: [Patch 01/05]- Containers: Documentation on using containers
+From: Rohit Seth <rohitseth@google.com>
+Reply-To: rohitseth@google.com
+To: Valdis.Kletnieks@vt.edu
+Cc: Andrew Morton <akpm@osdl.org>, devel@openvz.org,
+       CKRM-Tech <ckrm-tech@lists.sourceforge.net>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <200609191532.k8JFWJfE022222@turing-police.cc.vt.edu>
+References: <1158284314.5408.146.camel@galaxy.corp.google.com>
+	 <200609191532.k8JFWJfE022222@turing-police.cc.vt.edu>
+Content-Type: text/plain
+Organization: Google Inc
+Date: Tue, 19 Sep 2006 09:30:24 -0700
+Message-Id: <1158683424.18533.51.camel@galaxy.corp.google.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.2.1.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 19 Sep 2006 07:45:06 -0700
-"Martin J. Bligh" <mbligh@mbligh.org> wrote:
-
+On Tue, 2006-09-19 at 11:32 -0400, Valdis.Kletnieks@vt.edu wrote:
+> On Thu, 14 Sep 2006 18:38:33 PDT, Rohit Seth said:
 > 
-> > - It took maybe ten hours solid work to get this dogpile vaguely
-> >   compiling and limping to a login prompt on x86, x86_64 and powerpc. 
-> >   I guess it's worth briefly testing if you're keen.
+> (Sorry for the late reply...)
 > 
-> PPC64 blades shit themselves in a strange way. Possibly the udev
-> breakage you mentioned? Hard to tell really if people are going to
-> go around breaking userspace compatibility ;-(
-
-What version of udev is it running?
-
-> http://test.kernel.org/abat/48127/debug/console.log
 > 
-> ..
->
-> sda: Write Protect is off
-> sda: cache data unavailable
-> sda: assuming drive cache: write through
-> SCSI device sda: 143374000 512-byte hdwr sectors (73407 MB)
-> sda: Write Protect is off
-> sda: cache data unavailable
-> sda: assuming drive cache: write through
->   sda: sda1 sda2 sda3 sda4 < sda5 sda6 sda7 sda8 >
-> sd 0:0:1:0: Attached scsi disk sda
-> creating device nodes .[: [0-9]*: bad number
-> 0:0:1:0: sg_io failed status 0x8 0x0 0x0 0x2
-> 0:0:1:0: sense key 0x5 ASC 0x24 ASCQ 0x0
-> [: [0-9]*: bad number
-> 0:0:1:0: sg_io failed status 0x8 0x0 0x0 0x2
-> 0:0:1:0: sense key 0x5 ASC 0x24 ASCQ 0x0
-> [: [0-9]*: bad number
-> 0:0:1:0: sg_io failed status 0x8 0x0 0x0 0x2
-> 0:0:1:0: sense key 0x5 ASC 0x24 ASCQ 0x0
-> [: [0-9]*: bad number
-> 0:0:1:0: sg_io failed status 0x8 0x0 0x0 0x2
-> 0:0:1:0: sense key 0x5 ASC 0x24 ASCQ 0x0
-> [: [0-9]*: bad number
+> > --- linux-2.6.18-rc6-mm2.org/Documentation/containers.txt	1969-12-31 16:00:00.000000000 -0800
+> > +++ linux-2.6.18-rc6-mm2.ctn/Documentation/containers.txt	2006-09-14 17:13:48.000000000 -0700
 > 
->
+> > +5- Remove a task from container
+> > +	echo <pid> rmtask
+> 
+> echo <pid> > rmtask
+> 
+> is what I think was intended.  Also, I'm not sure <pid> is the best
+> meta-syntax - anybody got a better idea?
+> 
 
-That all looks rather bad.
+Fixed that.
 
-> ReiserFS: sda2: Using r5 hash to sort names
-> looking for init ...
-> found /sbin/init
-> /init: cannot open .//dev//console: no such file
+> > +9- Freeing a container
+> > +	cd /mnt/configfs/containers/
+> > +	rmdir test_container
+> 
+> What happens if you try to remove a container that still has active tasks? Are
+> you relying on the VFS to catch the 'non-empty directory'? (of course, 'rm -r'
+> has predictable semantics here).
+> 
 
-Bizarrely-formed pathname.  Does it always do that?
+When a rmdir operation is done on a directory, then all tasks have to
+move out of container (before we the rmdir operation is complete).  This
+removal of tasks from a container is done as part of
+container_remove_tasks.
 
-> Kernel panic - not syncing: Attempted to kill init!
->   <0>Rebooting in 180 seconds..-- 0:conmux-control -- time-stamp -- 
-> Sep/19/06  4:18:52 --
-> (bot:conmon-payload) disconnected
+> I see support for "add a task" and "remove a task", but none for listing
+> the current tasks in the container?
 
-Has udev actually attempted to do anything by this stage?
+This is one of the TODO items that I've listed.  Will be there soon.
 
-I wasn't seeing anything that spectacular.  It used to be the case that
-udev simply hung.  But in rc7-mm1 the symptoms are that incoming ssh
-sessions hang, but most other things work OK.
+thanks,
+-rohit
 
-Oh well - Greg has split that tree apart and I shall not be pulling the
-more problematic bits henceforth.

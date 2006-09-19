@@ -1,79 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751246AbWISHqm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751301AbWISICH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751246AbWISHqm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Sep 2006 03:46:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751265AbWISHqm
+	id S1751301AbWISICH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Sep 2006 04:02:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751303AbWISICG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Sep 2006 03:46:42 -0400
-Received: from mgw-ext11.nokia.com ([131.228.20.170]:56131 "EHLO
-	mgw-ext11.nokia.com") by vger.kernel.org with ESMTP
-	id S1751246AbWISHql (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Sep 2006 03:46:41 -0400
-Subject: Re: [linux-pm] PowerOP vs OPpoint
-From: Amit Kucheria <amit.kucheria@nokia.com>
-To: ext Jon Loeliger <jdl@freescale.com>
-Cc: Matthew Locke <matthew.a.locke@comcast.net>,
-       pm list <linux-pm@lists.osdl.org>,
-       kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <1158610046.6962.186.camel@cashmere.sps.mot.com>
-References: <ff355e0e9a7ba8350241ffe483c664ab@comcast.net>
-	 <1158610046.6962.186.camel@cashmere.sps.mot.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Organization: Nokia
-Date: Tue, 19 Sep 2006 10:44:05 +0300
-Message-Id: <1158651846.14353.8.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-X-OriginalArrivalTime: 19 Sep 2006 07:46:31.0687 (UTC) FILETIME=[B9127970:01C6DBBF]
+	Tue, 19 Sep 2006 04:02:06 -0400
+Received: from mail.suse.de ([195.135.220.2]:42469 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751301AbWISICE (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Sep 2006 04:02:04 -0400
+To: "Jesper Juhl" <jesper.juhl@gmail.com>
+Cc: billm@melbpc.org.au, billm@suburbia.net,
+       "Linus Torvalds" <torvalds@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: Math-emu kills the kernel on Athlon64 X2
+References: <9a8748490609181518j2d12e4f0l2c55e755e40d38c2@mail.gmail.com>
+From: Andi Kleen <ak@suse.de>
+Date: 19 Sep 2006 10:01:55 +0200
+In-Reply-To: <9a8748490609181518j2d12e4f0l2c55e755e40d38c2@mail.gmail.com>
+Message-ID: <p73venk2sjw.fsf@verdi.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-09-18 at 15:07 -0500, ext Jon Loeliger wrote:
-> On Thu, 2006-09-14 at 04:22, Matthew Locke wrote:
-> > Unfortunately, there are two efforts underway that makes this confusing 
-> > and I think require a bit more than the short summary requested.  A one 
-> > paragraph summary can't address the why and how.  This email briefly 
-> > describes the why and the differences.
-> > 
-> > There are two main reasons for both these efforts:
-> > - existing power management interfaces do not enable the power 
-> > management features on the latest SOC's used in embedded mobile  
-> > devices
-> > - existing power management interfaces do not provide the API necessary 
-> > to build power managers (userspace and/or kernel space) that optimize 
-> > power consumption to level required by embedded mobile devices
+"Jesper Juhl" <jesper.juhl@gmail.com> writes:
+
+> Hi,
 > 
-> So does it make sense to re-unify these two patch-sets
-> into one common, more general patch-set first?  Might
-> it make sense to do so in small, incremental steps that
-> everyone can agree on as we go along?
+> If I enable the math emulator in 2.6.18-rc7-git2 (only version I've
+> tried this with) and then boot the kernel with "no387" then I only get
+> as far as lilo's "...Booting the kernel." message and then the system
+> hangs.
+> 
+> The kernel is a 32bit kernel build for K8 and my CPU is a Athlon64 X2 4400+
 
-That has been the idea. Maybe if you have better way to 'communicate'
-with David Singleton (oppoint) since he refuses to be drawn into the
-merge discussions.
+Do you have a .config? I tried it and it booted until mounting root.
 
-> For example, maybe the very first thing to do is define
-> some notion of general "operating point" that is a super-set
-> of the cpufreq definition.   If we can define that structure
-> maybe we can progress towards introducing and using it.
-
-Yes, it is a good first step. Please comment on the PowerOP patches to
-see if there is something in the OP notion that is missing in your
-opinion.
-
-> Totally side-step the kernel-user level stuff for a bit...
-> Totally side-step the suspend/resume issues for a bit...
-
-I believe the PowerOP patches from Eugeny and Matt do not touch
-suspend-resume issues and make the kernel-userspace interface to define
-OP as an optional patch.
-
-Oppoing patches on the other hand touch those issues.
-
-Regards,
-Amit
-
--- 
-Amit Kucheria <amit.kucheria@nokia.com>
-Nokia
+-Andi

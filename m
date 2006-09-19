@@ -1,75 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030256AbWISQyU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751864AbWISQ4k@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030256AbWISQyU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Sep 2006 12:54:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751872AbWISQyT
+	id S1751864AbWISQ4k (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Sep 2006 12:56:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751871AbWISQ4k
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Sep 2006 12:54:19 -0400
-Received: from smtp-out.google.com ([216.239.33.17]:42156 "EHLO
-	smtp-out.google.com") by vger.kernel.org with ESMTP
-	id S1750985AbWISQyT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Sep 2006 12:54:19 -0400
-DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
-	h=received:message-id:date:from:user-agent:
-	x-accept-language:mime-version:to:cc:subject:references:in-reply-to:
-	content-type:content-transfer-encoding;
-	b=OGM6OmK0FjjcrvNtJ8/NPWCx6Wf7P51XQejTUZ7h9g5CNMKamvB/VePQBqe1mciTj
-	sf+SXfvhuUMl8Vp6rr/Bg==
-Message-ID: <45102067.20601@google.com>
-Date: Tue, 19 Sep 2006 09:52:55 -0700
-From: Martin Bligh <mbligh@google.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051011)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: "Frank Ch. Eigler" <fche@redhat.com>
-CC: Ingo Molnar <mingo@elte.hu>,
-       Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
-       Paul Mundt <lethal@linux-sh.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>, Jes Sorensen <jes@sgi.com>,
-       Andrew Morton <akpm@osdl.org>, Tom Zanussi <zanussi@us.ibm.com>,
-       Richard J Moore <richardj_moore@uk.ibm.com>,
-       Michel Dagenais <michel.dagenais@polymtl.ca>,
-       Christoph Hellwig <hch@infradead.org>,
-       Greg Kroah-Hartman <gregkh@suse.de>,
-       Thomas Gleixner <tglx@linutronix.de>, William Cohen <wcohen@redhat.com>,
-       ltt-dev@shafik.org, systemtap@sources.redhat.com,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCH] Linux Kernel Markers
-References: <20060918234502.GA197@Krystal> <20060919081124.GA30394@elte.hu>	<451008AC.6030006@google.com> <20060919154612.GU3951@redhat.com>	<4510151B.5070304@google.com> <y0m8xkfer8v.fsf@ton.toronto.redhat.com>
-In-Reply-To: <y0m8xkfer8v.fsf@ton.toronto.redhat.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 19 Sep 2006 12:56:40 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:53446 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S1751864AbWISQ4j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Sep 2006 12:56:39 -0400
+Subject: Re: [PATCH] Migration of Standard Timers
+From: Lee Revell <rlrevell@joe-job.com>
+To: Dimitri Sivanich <sivanich@sgi.com>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org,
+       Thomas Gleixner <tglx@linutronix.de>, Andi Kleen <ak@suse.de>,
+       Jes Sorensen <jes@sgi.com>, Eric Dumazet <dada1@cosmosbay.com>
+In-Reply-To: <20060919164159.GC26863@sgi.com>
+References: <20060919152942.GA26863@sgi.com>
+	 <1158683617.11682.14.camel@mindpipe>  <20060919164159.GC26863@sgi.com>
+Content-Type: text/plain
+Date: Tue, 19 Sep 2006 12:57:53 -0400
+Message-Id: <1158685073.11682.25.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Frank Ch. Eigler wrote:
-> Martin Bligh <mbligh@google.com> writes:
+On Tue, 2006-09-19 at 11:41 -0500, Dimitri Sivanich wrote:
+> On Tue, Sep 19, 2006 at 12:33:37PM -0400, Lee Revell wrote:
+> > Which driver or subsystem is doing 100s of usecs of work in a timer?
 > 
+> The longest one I've captured so far results from:
 > 
->>[...]  "compiled anew from original sources after deployment" seems
->>the most practical to do to me.  From second hand info on using
->>systemtap, you seem to need the same compiler and source tree to
->>work from anyway [...]
+> rsp                rip                Function (args)
+>  ======================= <nmi>
+> 0xffff810257822fd8 0xffffffff803a0e94 rt_check_expire+0x8c
+>  ======================= <interrupt>  
+> 0xffff81025781fee8 0xffffffff803a0e08 rt_check_expire
+> 0xffff81025781ff08 0xffffffff802386b3 run_timer_softirq+0x133
+> 0xffff81025781ff38 0xffffffff80235262 __do_softirq+0x5e
+> 0xffff81025781ff68 0xffffffff8020a958 call_softirq+0x1c
+> 0xffff81025781ff80 0xffffffff8020bea7 do_softirq+0x2c
+> 0xffff81025781ff90 0xffffffff80235142 irq_exit+0x48
 > 
-> 
-> Not quite.  Systemtap does not look at sources, only object code and
-> its embedded debugging information.  (How many distributions keep
-> around compilable source trees?)
 
-???? Boggle. Any distro that cannot find the source code for it's kernel
-deserves a swift kick to the head, plus a red hot poker somewhere else.
+Ah, I remember that one.  Eric Dumazet had some suggestions to fix it
+6-12 months ago which never went anywhere - the thread was called "RCU
+latency regression in 2.6.16-rc1".
 
->>[...] It seems like all we'd need to do is "list all references to
->>function, freeze kernel, update all references, continue", [...]
-> 
-> One additional problem are external references made *by* the function.
-> Those too would all have to be relocated to the live data.
+That one is especially annoying as there's no workaround (shrinking the
+route cache or reducing the GC interval via net.ipv4.route.* sysctls has
+no effect)
 
-Not sure what you mean ... could you give a quick example?
+Lee
 
-> Live code patching is theoretically useful for all kinds of things,
-> but I've never heard it described as relatively simple before! :-)
-
-well, on a whole-function basis, it seems somewhat simpler.
-
-M.

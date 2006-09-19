@@ -1,56 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751895AbWISKoE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750978AbWISK51@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751895AbWISKoE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Sep 2006 06:44:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751892AbWISKoD
+	id S1750978AbWISK51 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Sep 2006 06:57:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750900AbWISK50
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Sep 2006 06:44:03 -0400
-Received: from twin.jikos.cz ([213.151.79.26]:13004 "EHLO twin.jikos.cz")
-	by vger.kernel.org with ESMTP id S1751895AbWISKoC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Sep 2006 06:44:02 -0400
-Date: Tue, 19 Sep 2006 12:43:29 +0200 (CEST)
-From: Jiri Kosina <jikos@jikos.cz>
-To: David Brownell <david-b@pacbell.net>
-cc: linux-usb-devel@lists.sourceforge.net, dbrownell@users.sourceforge.net,
-       weissg@vienna.at, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: [linux-usb-devel] [PATCH] USB: consolidate error values from
- EHCI, UHCI and OHCI _suspend()
-In-Reply-To: <200609181909.53498.david-b@pacbell.net>
-Message-ID: <Pine.LNX.4.64.0609191238030.26418@twin.jikos.cz>
-References: <Pine.LNX.4.64.0609190340310.9787@twin.jikos.cz>
- <200609181909.53498.david-b@pacbell.net>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 19 Sep 2006 06:57:26 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:56988 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1750812AbWISK5Z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Sep 2006 06:57:25 -0400
+Subject: Re: [PATCH] dmaengine: clean up and abstract function types (was
+	Re: [PATCH 08/19] dmaengine: enable multiple clients and operations)
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Olof Johansson <olof@lixom.net>
+Cc: Dan Williams <dan.j.williams@gmail.com>, christopher.leech@intel.com,
+       Jeff Garzik <jeff@garzik.org>, neilb@suse.de,
+       linux-raid@vger.kernel.org, akpm@osdl.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20060918200555.74aedeae@localhost.localdomain>
+References: <1158015632.4241.31.camel@dwillia2-linux.ch.intel.com>
+	 <20060911231817.4737.49381.stgit@dwillia2-linux.ch.intel.com>
+	 <4505F4D0.7010901@garzik.org>
+	 <20060915113817.6154aa67@localhost.localdomain>
+	 <20060915144423.500b529d@localhost.localdomain>
+	 <e9c3a7c20609181556n235d650eg16e5296f192bd2d5@mail.gmail.com>
+	 <20060918200555.74aedeae@localhost.localdomain>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Tue, 19 Sep 2006 12:20:09 +0100
+Message-Id: <1158664809.32598.4.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 18 Sep 2006, David Brownell wrote:
+Ar Llu, 2006-09-18 am 20:05 -0500, ysgrifennodd Olof Johansson:
+> On Mon, 18 Sep 2006 15:56:37 -0700 "Dan Williams" <dan.j.williams@gmail.com> wrote:
 
-> > EHCI, UHCI and OHCI USB host drivers are not consistent when returining 
-> > error values from their _suspend() functions, in case that the device is 
-> > not in suspended state. This could confuse users, so let all three of them 
-> > return -EBUSY.
-> Shouldn't you also update uhci_suspend()?  Currently it just ignores 
-> hcd->state ...
+> op.src_type = PG; op.src = pg;
+> op.dest_type = BUF; op.dest = buf;
+> op.len = len;
+> dma_async_commit(chan, op);
 
-You are right that the patch is possibly not fully correct. I was trying 
-to fix the situation I was getting into with the bug in usb_resume_both() 
-(see my "[PATCH] 2.6.18-rc6-mm2 - usb_resume_both() - fix suspend/resume" 
-mail from yesterday), but now it is obvious that the EINVAL from UHCI is 
-of a "different kind" than EBUSY from OHCI and UHCI (though they are 
-triggered in the same situations -- when the previous resume was not done 
-correctly).
+At OLS Linus suggested it should distinguish between sync and async
+events for locking reasons.
 
-As far as I can see, the UHCI driver is, strangely enough, not using 
-hcd->state at all. 
+	if(dma_async_commit(foo) == SYNC_COMPLETE) {
+		finalise_stuff();
+	}
 
-(by the way, EHCI and OHCI seem to have broken (read: missing) locking 
-when accessing the hcd->state. Should I fix it by per-hcd spinlock, or 
-does the patch already exist somewhere?)
+	else		/* will call foo->callback(foo->dev_id) */
 
-Thanks,
+because otherwise you have locking complexities - the callback wants to
+take locks to guard the object it works on but if it is called
+synchronously - eg if hardware is busy and we fall back - it might
+deadlock with the caller of dmaa_async_foo() who also needs to hold the
+lock.
 
--- 
-Jiri Kosina
+Alan
+

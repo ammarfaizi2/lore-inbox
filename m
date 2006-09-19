@@ -1,67 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751385AbWISOu0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751186AbWISPDo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751385AbWISOu0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Sep 2006 10:50:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751396AbWISOu0
+	id S1751186AbWISPDo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Sep 2006 11:03:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750869AbWISPDo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Sep 2006 10:50:26 -0400
-Received: from mail.gmx.net ([213.165.64.20]:28357 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1751385AbWISOuZ (ORCPT
+	Tue, 19 Sep 2006 11:03:44 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:53644 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750781AbWISPDn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Sep 2006 10:50:25 -0400
-Cc: linux-kernel@vger.kernel.org
-Content-Type: text/plain; charset="us-ascii"
-Date: Tue, 19 Sep 2006 16:50:24 +0200
-From: "Michael Kerrisk" <mtk-manpages@gmx.net>
-In-Reply-To: <005501c6db44$102b73a0$294b82ce@stuartm>
-Message-ID: <20060919145024.46580@gmx.net>
-MIME-Version: 1.0
-References: <005501c6db44$102b73a0$294b82ce@stuartm>
-Subject: Re: TCP stack behaviour question
-To: "Stuart MacDonald" <stuartm@connecttech.com>, ak@suse.de
-X-Authenticated: #24879014
-X-Flags: 0001
-X-Mailer: WWW-Mail 6100 (Global Message Exchange)
-X-Priority: 3
+	Tue, 19 Sep 2006 11:03:43 -0400
+Date: Tue, 19 Sep 2006 08:03:24 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: David Howells <dhowells@redhat.com>
+Cc: torvalds@osdl.org, linux-kernel@vger.kernel.org,
+       linux-arch@vger.kernel.org
+Subject: Re: [PATCH 5/7] Alter get_order() so that it can make use of
+ ilog2() on a constant [try #3]
+Message-Id: <20060919080324.601e50f9.akpm@osdl.org>
+In-Reply-To: <23843.1158656897@warthog.cambridge.redhat.com>
+References: <20060919003031.166d08a4.akpm@osdl.org>
+	<20060913183522.22109.10565.stgit@warthog.cambridge.redhat.com>
+	<20060913183531.22109.85723.stgit@warthog.cambridge.redhat.com>
+	<23843.1158656897@warthog.cambridge.redhat.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Perhaps
+On Tue, 19 Sep 2006 10:08:17 +0100
+David Howells <dhowells@redhat.com> wrote:
+
+> > I didn't pursue it further, because sprinkling ARCH_HAS_FOO things into
+> > bitops.h(!) is all rather hacky.  Better to use CONFIG_* so they're always
+> > visible and one knows where to go to find things.
 > 
-> Note that TCP has no error queue; MSG_ERRQUEUE is illegal on
-> SOCK_STREAM sockets.  IP_RECVERR is valid for TCP, but all errors are
-> returned by socket function return or SO_ERROR only.
+> But (1) they're not config options,
 
-Stuart -- thanks, added for man-pages-2.41.
+Well they are, really.  "This architecture has its own get_order()".  It's
+not *user* configurable, but neither is, say CONFIG_GENERIC_HARDIRQS.
 
-Interestingly, at this point in the man pages source there
-is the following commented out text:
+The problem we have with the ARCH_HAS_FOO things is that there's never been
+an include/asm/arch_has_foo.h in which to define them, so stuff gets
+sprinkled all over the place.
 
-.\" FIXME . Is it a good idea to document that? It is a dubious feature.
-.\" On
-.\" .B SOCK_STREAM
-.\" sockets,
-.\" .I IP_RECVERR
-.\" has slightly different semantics. Instead of
-.\" saving the errors for the next timeout, it passes all incoming
-.\" errors immediately to the user.
-.\" This might be useful for very short-lived TCP connections which
-.\" need fast error handling. Use this option with care:
-.\" it makes TCP unreliable
-.\" by not allowing it to recover properly from routing
-.\" shifts and other normal
-.\" conditions and breaks the protocol specification.
+> and (2) there's plenty of precedent for
+> this sort of thing (ARCH_HAS_PREFETCH for example).
 
-Cheers,
+There's precedent both ways.  The advantages of doing it in config are
 
-Michael
--- 
-Michael Kerrisk
-maintainer of Linux man pages Sections 2, 3, 4, 5, and 7 
+a) You know where to go to find it: arch/foo/Kconfig
 
-Want to help with man page maintenance?  
-Grab the latest tarball at
-ftp://ftp.win.tue.nl/pub/linux-local/manpages/, 
-read the HOWTOHELP file and grep the source 
-files for 'FIXME'.
+b) It's always available, due to forced inclusion of config.h.
+
+(I think I actually would prefer include/asm/arch_has_foo.h if we had it,
+because it's lighter-weight.  But we don't)

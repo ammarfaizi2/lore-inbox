@@ -1,27 +1,27 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750901AbWISQP2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750929AbWISQST@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750901AbWISQP2 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Sep 2006 12:15:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750905AbWISQP2
+	id S1750929AbWISQST (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Sep 2006 12:18:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750943AbWISQST
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Sep 2006 12:15:28 -0400
-Received: from smtp-out.google.com ([216.239.33.17]:23453 "EHLO
+	Tue, 19 Sep 2006 12:18:19 -0400
+Received: from smtp-out.google.com ([216.239.33.17]:21918 "EHLO
 	smtp-out.google.com") by vger.kernel.org with ESMTP
-	id S1750885AbWISQP1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Sep 2006 12:15:27 -0400
+	id S1750905AbWISQSS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Sep 2006 12:18:18 -0400
 DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
 	h=received:message-id:date:from:user-agent:
 	x-accept-language:mime-version:to:cc:subject:references:in-reply-to:
 	content-type:content-transfer-encoding;
-	b=c8guur0E/TlTatm5+/66176HmiArjh+6ru71VyCEmONgQavlodS/D6UHrB+3fFWRY
-	vYiREvUNWb/0cEHbD3PfQ==
-Message-ID: <4510175B.7000200@google.com>
-Date: Tue, 19 Sep 2006 09:14:19 -0700
+	b=VQIeBqvBILvkHP51WcUKltB0q3A+9d2eBBvkQSFTODsf87vLo8iRwC0mD4q44sNZ5
+	rhalZodVx9O8P8oDzB67g==
+Message-ID: <45101809.5030906@google.com>
+Date: Tue, 19 Sep 2006 09:17:13 -0700
 From: Martin Bligh <mbligh@google.com>
 User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051011)
 X-Accept-Language: en-us, en
 MIME-Version: 1.0
-To: Vara Prasad <prasadav@us.ibm.com>
+To: karim@opersys.com
 CC: Ingo Molnar <mingo@elte.hu>,
        Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
        "Frank Ch. Eigler" <fche@redhat.com>, Paul Mundt <lethal@linux-sh.org>,
@@ -35,43 +35,40 @@ CC: Ingo Molnar <mingo@elte.hu>,
        ltt-dev@shafik.org, systemtap@sources.redhat.com,
        Alan Cox <alan@lxorguk.ukuu.org.uk>
 Subject: Re: [PATCH] Linux Kernel Markers
-References: <20060918234502.GA197@Krystal> <20060919081124.GA30394@elte.hu> <451008AC.6030006@google.com> <45101598.7050309@us.ibm.com>
-In-Reply-To: <45101598.7050309@us.ibm.com>
+References: <20060918234502.GA197@Krystal> <20060919081124.GA30394@elte.hu> <451008AC.6030006@google.com> <45101965.3050509@opersys.com>
+In-Reply-To: <45101965.3050509@opersys.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> It is an interesting idea but there appears to be following hard issues 
-> (some of which you have already listed) i am not able to see how we can 
-> overcome them
+Karim Yaghmour wrote:
+> Martin J. Bligh wrote:
 > 
-> 1) We are going to have a duplicate of the whole function which means 
-> any significant changes in the original function needs to be done on the 
-> copy as well, you think maintainers would like this double work idea.
+>>Why don't we just copy the whole damned function somewhere else, and
+>>make an instrumented copy (as a kernel module)?
+> 
+> 
+> If you're going to go with that, then why not just use a comment-based
+> markup? 
 
-No, no ... the duplicate function isn't duplicated source code, only
-object code. Either a config option via the markup macros that we've
-been discussing, or something I hack up on the fly to debug a problem
-dynamically. In terms of how the debugging-type source code is kept,
-it's no different than something like systemtap or LTT (either would
-work, and a normal diff could be used to keep out of tree stuff),
-it's just how it hooks in is different to kprobes.
+Comment, marker macro, flat patch, don't care much. all would work.
 
-> 2) Inline functions is often the place where we need a fast path to 
-> overcome the current kprobes overhead.
+> Then your alternate copy gets to be generated from the same codebase.
 
-You can still instrument inline functions, you just need to hook all
-the callers, not the inline itself.
+That was always the intent, or codebase + flat patch if really 
+necessary. Sorry if that wasn't clear.
 
-> 3) As you said it is not trivial across all the platforms to do a switch 
-> to the instrumented function from the original during the execution.  
-> This problem is similar to the issue we are dealing with djprobes.
+> It also solves the inherent problem of decided on whether
+> a macro-based markup is far too intrusive, since you can mildly allow
+> yourself more verbosity in a comment. Not only that, but if it's
+> comment-based, it's even forseable, though maybe not desirable, than
+> *everything* that deals with this type of markup be maintained out
+> of tree (i.e. scripts generating alternate functions and all.)
 
-If we just freeze all kernel operations for a split second whilst we do
-this, does it matter? Or even if we don't ... there's a brief race where
-some calls are traced, and some are not ... does that even matter?
-Doesn't seem like most usages would care.
+Not sure we need scripts, just a normal patch diff would do. I'm not
+sure any of this alters the markup debate much ... it just would seem
+to provide a simpler, faster, and more flexible way of hooking in than
+kprobes.
 
 M.
-

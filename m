@@ -1,70 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751080AbWISDh4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751938AbWISDqF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751080AbWISDh4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Sep 2006 23:37:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751197AbWISDh4
+	id S1751938AbWISDqF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Sep 2006 23:46:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751947AbWISDqF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Sep 2006 23:37:56 -0400
-Received: from gateway.insightbb.com ([74.128.0.19]:60826 "EHLO
-	asav11.insightbb.com") by vger.kernel.org with ESMTP
-	id S1751080AbWISDhz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Sep 2006 23:37:55 -0400
-X-IronPort-Anti-Spam-Filtered: true
-X-IronPort-Anti-Spam-Result: AR4FABUCD0WBT4oSLA
-From: Dmitry Torokhov <dtor@insightbb.com>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: Repeatable hang on boot with PCMCIA card present
-Date: Mon, 18 Sep 2006 23:37:52 -0400
-User-Agent: KMail/1.9.3
-Cc: Steve Smith <tarka@internode.on.net>, linux-kernel@vger.kernel.org
-References: <20060916050331.GA6685@lucretia.remote.isay.com.au> <20060918190902.d5b6a698.akpm@osdl.org>
-In-Reply-To: <20060918190902.d5b6a698.akpm@osdl.org>
+	Mon, 18 Sep 2006 23:46:05 -0400
+Received: from web36610.mail.mud.yahoo.com ([209.191.85.27]:56479 "HELO
+	web36610.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1751945AbWISDqC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Sep 2006 23:46:02 -0400
+Message-ID: <20060919034601.97733.qmail@web36610.mail.mud.yahoo.com>
+X-RocketYMMF: rancidfat
+Date: Mon, 18 Sep 2006 20:46:01 -0700 (PDT)
+From: Casey Schaufler <casey@schaufler-ca.com>
+Reply-To: casey@schaufler-ca.com
+Subject: Re: [PATCH 3/4] security: capabilities patch (version 0.4.4), part 3/4: introduce new capabilities
+To: Joshua Brindle <method@gentoo.org>
+Cc: David Madore <david.madore@ens.fr>,
+       Linux Kernel mailing-list <linux-kernel@vger.kernel.org>,
+       LSM mailing-list <linux-security-module@vger.kernel.org>
+In-Reply-To: <450F38F7.6080006@gentoo.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200609182337.52990.dtor@insightbb.com>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 18 September 2006 22:09, Andrew Morton wrote:
-> On Sat, 16 Sep 2006 15:03:31 +1000
-> tarka@internode.on.net (Steve Smith) wrote:
-> 
-> > [I sent the following to the person responsible for the patch but
-> > haven't heard anything so I assume he's unavailable...]
-> > 
-> > Hi,
-> > 
-> > With recent kernel releases I have started seeing consistent hangs
-> > during boot when a PCMCIA card is present in the slot (the card in
-> > question is a Linksys wireless-B card).  The symptoms are:
-> > 
-> >     If the card is present during boot an error of "Unknown interrupt
-> >     or fault at EIP ..." appears.
-> > 
-> >     If the card is not present there is no error.
-> > 
-> >     The card can be plugged-in post-boot without problems.
-> > 
-> > Using git-bisect I have narrowed down the error to one commit, namely
-> > "use bitfield instead of p_state and state".  The commit# is
-> > 
-> >     e2d4096365e06b9a3799afbadc28b4519c0b3526
-> >
-> > However I am still seeing this problem with the latest -RC releases.
-> 
-> Thanks for doing that.
-> 
-> Damn, that was a huge patch.  Have you been able to grab
-> a copy of the oops output?  It would really help.  Even a photo of
-> the screen..
-> 
 
-Hmm, not sure why you CCed me unless you remembered I have Inspiron 8100.
-What chipset does that Linksys card use? I just tried one of my PCMCIA
-cards with orinoco_cs and it booted fine on today's pull from Linus...
- 
--- 
-Dmitry
+
+--- Joshua Brindle <method@gentoo.org> wrote:
+
+
+> > The first system I took through evaluation
+> > (that is, independent 3rd party analysis) stored
+> > security attributes in a file while the second
+> > and third systems attached the attributes
+> > directly (XFS). The 1st evaluation required
+> > 5 years, the 2nd 1 year. It is possible that
+> > I just got a lot smarter with age, but I
+> > ascribe a significant amount of the improvement
+> > to the direct association of the attributes
+> > to the file.
+> Thats great but entirely irrelevant in this context.
+> The patch and caps 
+> in question are not attached to the file via some
+> externally observable 
+> property (eg., xattr) but instead are embedded in
+> the source code so 
+> that it can drop caps at certain points during the
+> execution or before 
+> executing another app, thus unanalyzable.
+
+Oh that. Sure, we used capability bracketing
+in the code, too. That makes it easy to
+determine when a capability is active. What,
+you don't think that it's possible to analyze
+source code? Of course it is. Refer to the
+evaluation reports if you don't believe me.
+
+
+Casey Schaufler
+casey@schaufler-ca.com

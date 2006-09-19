@@ -1,68 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030239AbWISQlw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030240AbWISQmJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030239AbWISQlw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Sep 2006 12:41:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030240AbWISQlw
+	id S1030240AbWISQmJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Sep 2006 12:42:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030242AbWISQmJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Sep 2006 12:41:52 -0400
-Received: from mtagate6.uk.ibm.com ([195.212.29.139]:9620 "EHLO
-	mtagate6.uk.ibm.com") by vger.kernel.org with ESMTP
-	id S1030239AbWISQlv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Sep 2006 12:41:51 -0400
-In-Reply-To: <4510151B.5070304@google.com>
-Subject: Re: [PATCH] Linux Kernel Markers
-To: Martin Bligh <mbligh@google.com>
-Cc: Andrew Morton <akpm@osdl.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       "Frank Ch. Eigler" <fche@redhat.com>,
-       Greg Kroah-Hartman <gregkh@suse.de>,
-       Christoph Hellwig <hch@infradead.org>, Jes Sorensen <jes@sgi.com>,
-       Paul Mundt <lethal@linux-sh.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>, ltt-dev@shafik.org,
-       Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
-       Michel Dagenais <michel.dagenais@polymtl.ca>,
-       Ingo Molnar <mingo@elte.hu>, systemtap@sources.redhat.com,
-       Thomas Gleixner <tglx@linutronix.de>, William Cohen <wcohen@redhat.com>,
-       Tom Zanussi <zanussi@us.ibm.com>
-X-Mailer: Lotus Notes Release 7.0.1 July 07, 2006
-Message-ID: <OFAEBEF5BB.1D00BC3E-ON802571EE.005B7AF8-802571EE.005BB61E@uk.ibm.com>
-From: Richard J Moore <richardj_moore@uk.ibm.com>
-Date: Tue, 19 Sep 2006 17:41:43 +0100
-X-MIMETrack: Serialize by Router on D06ML065/06/M/IBM(Release 6.5.5HF607 | June 26, 2006) at
- 19/09/2006 17:44:01
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
+	Tue, 19 Sep 2006 12:42:09 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:30647 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1030240AbWISQmG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Sep 2006 12:42:06 -0400
+Date: Tue, 19 Sep 2006 11:41:59 -0500
+From: Dimitri Sivanich <sivanich@sgi.com>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org,
+       Thomas Gleixner <tglx@linutronix.de>, Andi Kleen <ak@suse.de>,
+       Jes Sorensen <jes@sgi.com>
+Subject: Re: [PATCH] Migration of Standard Timers
+Message-ID: <20060919164159.GC26863@sgi.com>
+References: <20060919152942.GA26863@sgi.com> <1158683617.11682.14.camel@mindpipe>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1158683617.11682.14.camel@mindpipe>
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Sep 19, 2006 at 12:33:37PM -0400, Lee Revell wrote:
+> Which driver or subsystem is doing 100s of usecs of work in a timer?
 
+The longest one I've captured so far results from:
 
-Martin Bligh <mbligh@google.com> wrote on 19/09/2006 17:04:43:
+rsp                rip                Function (args)
+ ======================= <nmi>
+0xffff810257822fd8 0xffffffff803a0e94 rt_check_expire+0x8c
+ ======================= <interrupt>  
+0xffff81025781fee8 0xffffffff803a0e08 rt_check_expire
+0xffff81025781ff08 0xffffffff802386b3 run_timer_softirq+0x133
+0xffff81025781ff38 0xffffffff80235262 __do_softirq+0x5e
+0xffff81025781ff68 0xffffffff8020a958 call_softirq+0x1c
+0xffff81025781ff80 0xffffffff8020bea7 do_softirq+0x2c
+0xffff81025781ff90 0xffffffff80235142 irq_exit+0x48
 
-> Frank Ch. Eigler wrote:
-> > Hi -
-> >
-> > On Tue, Sep 19, 2006 at 08:11:40AM -0700, Martin J. Bligh wrote:
-> >
-> >
-> >>[...]  Why don't we just copy the whole damned function somewhere
-> >>else, and make an instrumented copy (as a kernel module)? Then
-> >>reroute all the function calls through it [...]
-> >
-> >
-> > Interesting idea.  Are you imagining this instrumented copy being
-> > built at kernel compile time (something like building a "-g -O0"
-> > parallel)?  Or compiled anew from original sources after deployment?
-> > Or on-the-fly binary-level rewriting a la SPIN?
->
-> "compiled anew from original sources after deployment" seems the most
-> practical to do to me. From second hand info on using systemtap, you
-> seem to need the same compiler and source tree to work from anyway, so
-> this doesn't seem much of a burden.
->
+> Shouldn't another mechanism like a workqueue be used instead?
 
-If I'm not mistaken, this has been done before under the guise of dynamic
-patch. Doesn't Solaris have the capability? I'm certain that some UNIXes do
-as well as non-UNIX O/Ss.
-
-Richard
-
+Not quite sure what you're asking here.

@@ -1,106 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750962AbWISTNW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751951AbWISTNX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750962AbWISTNW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Sep 2006 15:13:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751953AbWISTNW
+	id S1751951AbWISTNX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Sep 2006 15:13:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751953AbWISTNX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Tue, 19 Sep 2006 15:13:23 -0400
+Received: from tomts40.bellnexxia.net ([209.226.175.97]:55990 "EHLO
+	tomts40-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id S1751951AbWISTNW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 19 Sep 2006 15:13:22 -0400
-Received: from e36.co.us.ibm.com ([32.97.110.154]:63718 "EHLO
-	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750962AbWISTNV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Sep 2006 15:13:21 -0400
-Message-ID: <4510413F.2030200@us.ibm.com>
-Date: Tue, 19 Sep 2006 12:13:03 -0700
-From: Vara Prasad <prasadav@us.ibm.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.7.2) Gecko/20040804 Netscape/7.2 (ax)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Martin Bligh <mbligh@google.com>
-CC: prasanna@in.ibm.com, Andrew Morton <akpm@osdl.org>,
-       "Frank Ch. Eigler" <fche@redhat.com>, Ingo Molnar <mingo@elte.hu>,
-       Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
-       Paul Mundt <lethal@linux-sh.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>, Jes Sorensen <jes@sgi.com>,
-       Tom Zanussi <zanussi@us.ibm.com>,
-       Richard J Moore <richardj_moore@uk.ibm.com>,
-       Michel Dagenais <michel.dagenais@polymtl.ca>,
-       Christoph Hellwig <hch@infradead.org>,
+Date: Tue, 19 Sep 2006 15:13:20 -0400
+From: Mathieu Desnoyers <compudj@krystal.dyndns.org>
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+Cc: linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
+       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@redhat.com>,
        Greg Kroah-Hartman <gregkh@suse.de>,
-       Thomas Gleixner <tglx@linutronix.de>, William Cohen <wcohen@redhat.com>,
-       ltt-dev@shafik.org, systemtap@sources.redhat.com,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCH] Linux Kernel Markers
-References: <20060918234502.GA197@Krystal> <20060919081124.GA30394@elte.hu> <451008AC.6030006@google.com> <20060919154612.GU3951@redhat.com> <4510151B.5070304@google.com> <20060919093935.4ddcefc3.akpm@osdl.org> <45101DBA.7000901@google.com> <20060919063821.GB23836@in.ibm.com> <45102641.7000101@google.com>
-In-Reply-To: <45102641.7000101@google.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+       Thomas Gleixner <tglx@linutronix.de>,
+       Douglas Niehaus <niehaus@eecs.ku.edu>, Tom Zanussi <zanussi@us.ibm.com>,
+       Paul Mundt <lethal@linux-sh.org>, Jes Sorensen <jes@sgi.com>,
+       Richard J Moore <richardj_moore@uk.ibm.com>,
+       William Cohen <wcohen@redhat.com>,
+       "Martin J. Bligh" <mbligh@mbligh.org>,
+       Michel Dagenais <michel.dagenais@polymtl.ca>,
+       systemtap@sources.redhat.com, ltt-dev@shafik.org
+Subject: Re: [PATCH] Linux Kernel Markers 0.2 for Linux 2.6.17
+Message-ID: <20060919191320.GB30556@Krystal>
+References: <20060919183447.GA16095@Krystal> <Pine.LNX.4.58.0609191140370.5184@shark.he.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.58.0609191140370.5184@shark.he.net>
+X-Editor: vi
+X-Info: http://krystal.dyndns.org:8080
+X-Operating-System: Linux/2.4.32-grsec (i686)
+X-Uptime: 15:00:03 up 27 days, 16:08,  7 users,  load average: 0.28, 0.20, 0.19
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin Bligh wrote:
+Hi Randy,
 
-> [...]
-> Depends what we're trying to fix. I was trying to fix two things:
->
-> 1. Flexibility - kprobes seem unable to access all local variables etc
-> easily, and go anywhere inside the function. Plus keeping low overhead
-> for doing things like keeping counters in a function (see previous
-> example I mentioned for counting pages in shrink_list).
->
-Using tools like systemtap on can consult DWARF information and put 
-probes in the middle of the function and access local variables as well, 
-that is not the real problem. The issue here is compiler doesn't seem to 
-generate required DWARF information in some cases due to optimizations.  
-The other related problem is when there exists debug information, the 
-way to specify the breakpoint location is using line number which is not 
-maintainable, having a marker solves this problem as well. Your proposal 
-still doesn't solve the need for markers if i understood correctly.
+Thanks for the comments, see below :
 
-> 2. Overhead of the int3, which was allegedly 1000 cycles or so, though
-> faster after Ingo had played with it, it's still significant.
+* Randy.Dunlap (rdunlap@xenotime.net) wrote:
+> > +static inline void __mark_check_format(const char *fmt, ...)
+> > +	__attribute__ ((format (printf, 1, 2)));
+> > +void __mark_check_format(const char *fmt, ...) {  }
+> 
+> That last line is confusing (to me).  What's it for?
+> Is it just an empty (inline) function definition?
+> If so, why repeat the void + function name?
+> 
 
-The reason Kprobes use breakpoint instruction as pointed out by Prasanna 
-is, it is atomic on most platforms. We are already working on an 
-improved idea using jump instruction with which overhead is less than 
-100 cycles on modern CPU's but it has some limitations and issues 
-related to preemption and SMP.
+The goal of this "empty" function is just to have to compiler check the string
+format consistency.
 
-You can get a glimpse of some of the issues here
-http://sourceware.org/ml/systemtap/2006-q3/msg00507.html
-http://sourceware.org/ml/systemtap/2005-q4/msg00117.html
-For more details do a search for djprobe in the systemtap mailing list 
-(sorry i am not able to find few threads to summarize all the issues).
+I separated the function declaration and implementation because I have seen some
+compilers complain about having the two merged together.
 
-Here is the algorithm djprobes uses to
+I will change it to
 
-        IA
-         | 
-[-2][-1][0][1][2][3][4][5][6][7]
-        [ins1][ins2][  ins3 ]
-        [<-     DCR       ->]
-           [<- JTPR ->]
+static inline __attribute__ ((format (printf, 1, 2)))
+void __mark_check_format(const char *fmt, ...)
+{ }
 
-ins1: 1st Instruction
-ins2: 2nd Instruction
-ins3: 3rd Instruction
-IA:  Insertion Address
-JTPR: Jump Target Prohibition Region
-DCR: Detoured Code Region
+And hope every compiler will like it.
 
+The empty implementation is because the function is called (must therefore be
+implemented), but I expect the compiler to completely optimize it away.
 
-The replacement procedure of djpopbes is the following (i have simplified for readability the actual steps djprobes uses)
+> > --- /dev/null
+> > +++ b/kernel/Kconfig.marker
+> > @@ -0,0 +1,75 @@
+> > +# Code markers configuration
+> > +
+> > +menu "Marker configuration"
+> > +
+> > +
+> > +config MARK
+> > +	bool "Enable MARK code markers"
+> > +	default y
+> 
+> Please justify using 'y' as the default value.
+> 
 
-(1) copying instruction(s) in DCR
-(2) putting break point instruction at IA
-(3) make sure no cpu's have replacing instructions in the cache to avoid jump to the middle of jmp instruction
-(4) replacing original instruction(s) with jump instruction 
+It has to be debated. The default for markers will put a symbol for all the
+markers, so that kprobe can easily attach to it. It has no impact that I am
+aware of except to boost the number of symbols.
 
+Mathieu
 
-As you can see from the above your suggestion is very similar to the 
-djprobes hence i believe all the issues related to djprobes will be 
-valid for yours as well.
-
-> M.
-
-
-
+OpenPGP public key:              http://krystal.dyndns.org:8080/key/compudj.gpg
+Key fingerprint:     8CD5 52C3 8E3C 4140 715F  BA06 3F25 A8FE 3BAE 9A68 

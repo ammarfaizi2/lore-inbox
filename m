@@ -1,56 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751932AbWISSii@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750785AbWISSiQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751932AbWISSii (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Sep 2006 14:38:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751915AbWISSii
+	id S1750785AbWISSiQ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Sep 2006 14:38:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751915AbWISSiQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Sep 2006 14:38:38 -0400
-Received: from ns2.suse.de ([195.135.220.15]:49315 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751920AbWISSig (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Sep 2006 14:38:36 -0400
-Date: Tue, 19 Sep 2006 11:36:26 -0700
-From: Greg KH <greg@kroah.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.18-rc7-mm1
-Message-ID: <20060919183626.GA9727@kroah.com>
-References: <20060919012848.4482666d.akpm@osdl.org> <20060919142116.GA29190@kroah.com> <20060919093641.734f8120.akpm@osdl.org>
+	Tue, 19 Sep 2006 14:38:16 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:37064 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1750785AbWISSiP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Sep 2006 14:38:15 -0400
+Date: Tue, 19 Sep 2006 11:38:12 -0700 (PDT)
+From: Christoph Lameter <clameter@sgi.com>
+To: Sandeep Kumar <sandeepksinha@gmail.com>
+cc: linux-kernel@vger.kernel.org
+Subject: Re: Efficient Use of the Page Cache with 64 KB Pages
+In-Reply-To: <37d33d830609150150v30dc32en57f8c5e43c30aef3@mail.gmail.com>
+Message-ID: <Pine.LNX.4.64.0609191136580.6460@schroedinger.engr.sgi.com>
+References: <37d33d830609150150v30dc32en57f8c5e43c30aef3@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060919093641.734f8120.akpm@osdl.org>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 19, 2006 at 09:36:41AM -0700, Andrew Morton wrote:
-> On Tue, 19 Sep 2006 07:21:16 -0700
-> Greg KH <greg@kroah.com> wrote:
-> 
-> > Although the ia64 one should not be due to anything in the driver tree,
-> > I don't know what caused that, the pci tree is pretty tiny right now.
-> 
-> drivers/pci/probe.c: In function `pci_create_legacy_files':
-> drivers/pci/probe.c:45: warning: implicit declaration of function `device_create_bin_file'
-> drivers/pci/probe.c: In function `pci_remove_legacy_files':
-> drivers/pci/probe.c:61: warning: implicit declaration of function `device_remove_bin_file'
-> drivers/pci/probe.c: In function `pci_create_bus':
-> drivers/pci/probe.c:1033: warning: label `sys_create_link_err' defined but not used
-> 
-> The changes inside HAVE_PCI_LEGACY broke.
-> 
-> gregkh-pci-pci_bridge-device.patch
-> gregkh-pci-pci-sort-device-lists-breadth-first.patch and
-> gregkh-pci-pci-must_check-fixes.patch
-> 
-> touch that file.
+On Fri, 15 Sep 2006, Sandeep Kumar wrote:
 
-Ok, thanks, only ia64 has HAVE_PCI_LEGACY still enabled and I missed
-that.
+> So, how far is this feature feasible for the linux main line kernel ?
+> Is, this feature already supported ?
 
-It should now be fixed, sorry for the noise.
+IA64 has supported 64k page size from the beginning. Since some 
+years before the end of the last decade. It is only the hardware 
+limitations on IA32 that hold us back.
 
-thanks,
 
-greg k-h

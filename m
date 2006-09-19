@@ -1,87 +1,117 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750712AbWISPF6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750861AbWISPI2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750712AbWISPF6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Sep 2006 11:05:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750730AbWISPF6
+	id S1750861AbWISPI2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Sep 2006 11:08:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750847AbWISPI2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Sep 2006 11:05:58 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.149]:11933 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750712AbWISPF5
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Sep 2006 11:05:57 -0400
-Message-ID: <4510072C.7020100@us.ibm.com>
-Date: Tue, 19 Sep 2006 10:05:16 -0500
-From: "Jose R. Santos" <jrs@us.ibm.com>
-Reply-To: jrs@us.ibm.com
-Organization: IBM
-User-Agent: Thunderbird 1.5.0.5 (X11/20060728)
+	Tue, 19 Sep 2006 11:08:28 -0400
+Received: from iolanthe.rowland.org ([192.131.102.54]:49678 "HELO
+	iolanthe.rowland.org") by vger.kernel.org with SMTP
+	id S1750832AbWISPI1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Sep 2006 11:08:27 -0400
+Date: Tue, 19 Sep 2006 11:08:26 -0400 (EDT)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@iolanthe.rowland.org
+To: Eric Buddington <ebuddington@verizon.net>
+cc: Greg KH <greg@kroah.com>, David Brownell <david-b@pacbell.net>,
+       Andrew Morton <akpm@osdl.org>,
+       Kernel development list <linux-kernel@vger.kernel.org>
+Subject: Re: Fw: 2.6.18-rc5-mm1 USB BUG: atomic counter underflow
+In-Reply-To: <20060918190438.c6b7f2b8.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.44L0.0609191106080.6671-100000@iolanthe.rowland.org>
 MIME-Version: 1.0
-To: Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>
-CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, Roman Zippel <zippel@linux-m68k.org>,
-       Tim Bird <tim.bird@am.sony.com>, Ingo Molnar <mingo@elte.hu>,
-       linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
-       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@redhat.com>,
-       Greg Kroah-Hartman <gregkh@suse.de>,
-       Thomas Gleixner <tglx@linutronix.de>, Tom Zanussi <zanussi@us.ibm.com>,
-       ltt-dev@shafik.org, Michel Dagenais <michel.dagenais@polymtl.ca>
-Subject: Re: [PATCH 0/11] LTTng-core (basic tracing infrastructure) 0.5.108
-References: <20060914181557.GA22469@elte.hu> <4509B03A.3070504@am.sony.com> <1158320406.29932.16.camel@localhost.localdomain> <Pine.LNX.4.64.0609151339190.6761@scrub.home> <1158323938.29932.23.camel@localhost.localdomain> <Pine.LNX.4.64.0609151425180.6761@scrub.home> <1158327696.29932.29.camel@localhost.localdomain> <450AEC92.7090409@us.ibm.com> <20060915194937.GA7133@Krystal> <450B1309.9020800@us.ibm.com> <20060915214604.GB18958@Krystal>
-In-Reply-To: <20060915214604.GB18958@Krystal>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mathieu Desnoyers wrote:
-> > Trace event headers are very similar between both LTT and LKET which is 
-> > good in other to get some synergy between our projects.  One thing that 
-> > LKET has on each trace event that LTT doesn't is the tid and CPU id of 
-> > each event.  We find this extremely useful for post-processing.  Also, 
-> > why have the event_size on every event taken?  Why not describe the 
-> > event during the trace header and remove this redundant information from 
-> > the event header and save some trace file space.
-> > 
->
-> A standard event header has to have only crucial information, nothing more, or
-> it becomes bloated and quickly grow trace size. We decided not to put tid and
-> CPU id in the event header because tid is already available with the schedchange
-> events at post-processing time and CPU id is already available too, as we have
-> per CPU buffers.
->   
+On Mon, 18 Sep 2006, Andrew Morton wrote:
 
-We still keep the CPU id because LKET still support ASCII tracing which 
-mixes the output of all the CPUs together.  It is still debatable 
-whether this is a useful feature or not though.  If we remove ASCII 
-event tracing from LKET, we could remove CPU id from the event header as 
-well.
+> Dunno if this is still relevant...
+> 
+> Begin forwarded message:
+> 
+> Date: Fri, 15 Sep 2006 18:07:47 -0400
+> From: Eric Buddington <ebuddington@verizon.net>
+> To: linux-kernel@vger.kernel.org
+> Subject: 2.6.18-rc5-mm1 USB BUG: atomic counter underflow
+> 
+> 
+> I've been having lots of USB problems, mainly failure to recognize,
+> and sometimes a hard krenel freeze. I'm using one active extension and
+> an external hub at the moment, though I've used a variety of setups.
+> 
+> My procsesor is an Athlon XP, and uname says: 2.6.18-rc5-mm1 #1
+> PREEMPT Wed Sep 6 13:46:26 EDT 2006 i686 unknown
+> 
+> While powering-cycling two devices simultaneously, I got the following
+> in dmesg. Since the system's still up, here it is for your reading
+> pleasure. I'll be happy to provide more information or experiment.
+> 
+> -Eric
+> 
+> --------------------------------------------------------------
+> [520695.301449] usb 2-4.4.1: USB disconnect, address 12
+> [520695.803888] usb 2-4.4.1: new high speed USB device using ehci_hcd and address 14
+> [520695.916563] usb 2-4.4.1: device descriptor read/all, error -71
+> [520696.003759] usb 2-4.4.1: new high speed USB device using ehci_hcd and address 15
+> [520696.122290] usb 2-4.4.2: USB disconnect, address 13
+> [520696.160162] usb 2-4.4.1: new device found, idVendor=0c0b, idProduct=b001
+> [520696.160170] usb 2-4.4.1: new device strings: Mfr=73, Product=77, SerialNumber=101
+> [520696.160174] usb 2-4.4.1: Product: USB 2.0 Storage Adaptor
+> [520696.160177] usb 2-4.4.1: Manufacturer: DMI
+> [520696.160180] usb 2-4.4.1: SerialNumber: 0B02014205299A98
+> [520696.268447] usb 2-4.4.1: configuration #2 chosen from 1 choice
+> [520696.291317] scsi11 : SCSI emulation for USB Mass Storage devices
+> [520696.307889] usb-storage: device found at 15
+> [520696.307894] usb-storage: waiting for device to settle before scanning
+> [520696.763543] usb 2-4.4.2: new high speed USB device using ehci_hcd and address 16
+> [520696.872051] usb 2-4.4.2: new device found, idVendor=04b4, idProduct=6830
+> [520696.872059] usb 2-4.4.2: new device strings: Mfr=56, Product=78, SerialNumber=100
+> [520696.872063] usb 2-4.4.2: Product: USB2.0 Storage Device
+> [520696.872066] usb 2-4.4.2: Manufacturer: Cypress Semiconductor
+> [520696.872069] usb 2-4.4.2: SerialNumber: DEF1073973FF
+> [520696.987428] usb 2-4.4.2: configuration #1 chosen from 1 choice
+> [520696.987845] scsi12 : SCSI emulation for USB Mass Storage devices
+> [520697.013028] usb-storage: device found at 16
+> [520697.013033] usb-storage: waiting for device to settle before scanning
+> [520702.009762] scsi 12:0:0:0: CD-ROM            _NEC     DVD_RW ND-3540A  1.01 PQ: 0 ANSI: 0
+> [520702.024233] sr0: scsi3-mmc drive: 40x/48x writer cd/rw xa/form2 cdda tray
+> [520702.043783] sr 12:0:0:0: Attached scsi CD-ROM sr0
+> [520702.081526] sr 12:0:0:0: Attached scsi generic sg0 type 5
+> [520702.082790] usb-storage: device scan complete
+> [520706.889684] usb 2-4.4.1: reset high speed USB device using ehci_hcd and address 15
+> [520717.207982] usb 2-4.4.1: reset high speed USB device using ehci_hcd and address 15
+> [520722.501044] usb 2-4.4.1: reset high speed USB device using ehci_hcd and address 15
+> [520728.093909] usb 2-4.4.1: reset high speed USB device using ehci_hcd and address 15
+> [520728.181851] usb 2-4.4.1: device descriptor read/64, error -71
+> [520728.409439] usb 2-4.4.1: device firmware changed
+> [520728.409593] scsi 11:0:0:0: scsi: Device offlined - not ready after error recovery
+> [520728.409932] usb 2-4.4.1: USB disconnect, address 15
+> [520728.412043] usb-storage: device scan complete
+> [520728.617566] usb 2-4.4.1: new high speed USB device using ehci_hcd and address 17
+> [520728.742596] usb 2-4.4.1: unable to read config index 0 descriptor/all
+> [520728.742605] usb 2-4.4.1: can't read configurations, error -71
+> [520800.449134] usb 2-4.4.1: USB disconnect, address 17
+> [520800.449147] BUG: atomic counter underflow at:
+> [520800.449362]  [<c0103b7c>] dump_trace+0x64/0x1a8
+> [520800.449394]  [<c0103cd2>] show_trace_log_lvl+0x12/0x25
+> [520800.449414]  [<c01042a1>] show_trace+0xd/0x10
+> [520800.449433]  [<c01042e8>] dump_stack+0x19/0x1b
+> [520800.449452]  [<c026a5ca>] kref_put+0x56/0x74
+> [520800.450284]  [<c03c5b9f>] klist_dec_and_del+0x10/0x12
+> [520800.451799]  [<c03c5c16>] klist_del+0x13/0x2b
+> [520800.453813]  [<c02ba723>] device_del+0x1d/0x15f
+> [520800.454930]  [<f89b7f19>] usb_disconnect+0x9b/0xe1 [usbcore]
+> [520800.455006]  [<f89b8945>] hub_thread+0x35f/0x9be [usbcore]
+> [520800.455032]  [<c0127266>] kthread+0xb0/0xde
+> [520800.455186]  [<c010389f>] kernel_thread_helper+0x7/0x10
 
-The tid we still include because LKET supports turning on individual 
-tracepoints unlike LTT, which if I remember correctly turns on all the 
-tracepoint that are compiled into the running kernel.  Since the user is 
-free to chose which tracepoints he wants to use for his workload, we can 
-not guarantee that scheduler tracepoints are going to be available.  We 
-consider taking the tid as one of those absolute minimum pieces of data 
-required to do meaningful analysis.
+I just posted a series of 3 patches which ought to address this problem.  
+Try them out:
 
-We chose to control performance and trace output size by letting users 
-have control of number of tracepoint he can activate at any given time.  
-This is important to us since we plan to add many dynamic tracepoints to 
-different sub-systems (filesystem, device drivers, core kernel 
-facilities, etc...).  Turning on all of these tracepoint at the same 
-time would slow down the system to much and change the performance 
-characteristics of the environment being studied.
-> The event size is completely unnecessary, but in reality very, very useful to
-> authenticate the correspondance between the size of the data recorded by the
-> kernel and the size of data the viewer thinks it is reading. Think of it as a
-> consistency check between kernel and viewer algorithms.
->   
+http://marc.theaimsgroup.com/?l=linux-kernel&m=115861119505737&w=2
+http://marc.theaimsgroup.com/?l=linux-kernel&m=115861119512433&w=2
+http://marc.theaimsgroup.com/?l=linux-kernel&m=115861154413429&w=2
 
-I understand.  But if the size of each event is fixed, why would you 
-expect the data sizes that the tool reports in the trace header for each 
-event to change over the course of a trace.  If the data on the per-CPU 
-buffers is serialized, a similar authentication could be done using the 
-timestamp by checking the timestamps of the events before and after the 
-current event, thus validating the current timestamp as well as the size 
-offset of the previous event.  Just a thought.
+Alan Stern
 
--JRS

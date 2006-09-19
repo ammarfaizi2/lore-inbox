@@ -1,51 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751141AbWISUcF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752060AbWISUct@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751141AbWISUcF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Sep 2006 16:32:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752059AbWISUcE
+	id S1752060AbWISUct (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Sep 2006 16:32:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752062AbWISUct
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Sep 2006 16:32:04 -0400
-Received: from mail0.lsil.com ([147.145.40.20]:64746 "EHLO mail0.lsil.com")
-	by vger.kernel.org with ESMTP id S1751141AbWISUcB convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Sep 2006 16:32:01 -0400
-x-mimeole: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
+	Tue, 19 Sep 2006 16:32:49 -0400
+Received: from iolanthe.rowland.org ([192.131.102.54]:28431 "HELO
+	iolanthe.rowland.org") by vger.kernel.org with SMTP
+	id S1752060AbWISUcs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Sep 2006 16:32:48 -0400
+Date: Tue, 19 Sep 2006 16:32:47 -0400 (EDT)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@iolanthe.rowland.org
+To: David Brownell <david-b@pacbell.net>
+cc: Jiri Kosina <jikos@jikos.cz>, Andrew Morton <akpm@osdl.org>,
+       <dbrownell@users.sourceforge.net>, <weissg@vienna.at>,
+       <linux-usb-devel@lists.sourceforge.net>, <linux-kernel@vger.kernel.org>
+Subject: Re: [linux-usb-devel] [PATCH] USB: consolidate error values from
+ EHCI, UHCI and OHCI _suspend()
+In-Reply-To: <200609190913.12563.david-b@pacbell.net>
+Message-ID: <Pine.LNX.4.44L0.0609191630470.4631-100000@iolanthe.rowland.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: Multi-Initiator SAS
-Date: Tue, 19 Sep 2006 14:31:57 -0600
-Message-ID: <664A4EBB07F29743873A87CF62C26D7032CDD4@NAMAIL4.ad.lsil.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Multi-Initiator SAS
-Thread-Index: AcbcJ60Mi3VyC2VLRHSYXy4TWv+poQAAlfvg
-From: "Moore, Eric" <Eric.Moore@lsil.com>
-To: "Darrick J. Wong" <djwong@us.ibm.com>, <dougg@torque.net>
-Cc: <linux-scsi@vger.kernel.org>,
-       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 19 Sep 2006 20:31:58.0244 (UTC) FILETIME=[A76EEE40:01C6DC2A]
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Darrick J. Wong wrote:
+On Tue, 19 Sep 2006, David Brownell wrote:
 
-> Douglas Gilbert wrote:
-> 
-> > With the mptsas driver you can use smp_utils to look
-> > at that expander via /dev/mptctl ('modprobe mptctl' first).
-> > To get an overview of what the expander sees, try:
-> >  # smp_discover -mb /dev/mptctl
-> 
-> Unfortunately, I see this:
-> 
+> Eventually we want hcd->state to vanish, but until it does it sure seems
+> like a problem if usbcore can't rely on all HCDs to treat it the same.
 
+uhci-hcd sets hcd->state wherever needed by usbcore, just as the other 
+HCDs do.  (At least that was my intention -- if I missed setting it 
+somewhere then the driver should be fixed.)
 
-You need to pass the sas address of the expander.
+But uhci-hcd never reads hcd->state or tests its value.  I think that's 
+what Jiri meant.
 
-./smp_discover --sa=sas_address /dev/mptctl
+Alan Stern
 
-where sas_address can be found in
-/sys/class/sas_device/expander-X:0/sas_address

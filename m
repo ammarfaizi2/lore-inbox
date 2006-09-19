@@ -1,55 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751018AbWISTNp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751965AbWISTOz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751018AbWISTNp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Sep 2006 15:13:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751963AbWISTNo
+	id S1751965AbWISTOz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Sep 2006 15:14:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751970AbWISTOz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Sep 2006 15:13:44 -0400
-Received: from sj-iport-6.cisco.com ([171.71.176.117]:53119 "EHLO
-	sj-iport-6.cisco.com") by vger.kernel.org with ESMTP
-	id S1751953AbWISTNi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Sep 2006 15:13:38 -0400
-To: torvalds@osdl.org
-Cc: openib-general@openib.org, linux-kernel@vger.kernel.org
-Subject: [GIT PULL] please pull infiniband.git (one-liner fix for 2.6.18)
-X-Message-Flag: Warning: May contain useful information
-From: Roland Dreier <rdreier@cisco.com>
-Date: Tue, 19 Sep 2006 12:13:36 -0700
-Message-ID: <adaeju7llen.fsf@cisco.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
+	Tue, 19 Sep 2006 15:14:55 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:29057 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751965AbWISTOy convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Sep 2006 15:14:54 -0400
+Message-ID: <451041AA.4060702@us.ibm.com>
+Date: Tue, 19 Sep 2006 12:14:50 -0700
+From: "Darrick J. Wong" <djwong@us.ibm.com>
+Reply-To: "Darrick J. Wong" <djwong@us.ibm.com>
+Organization: IBM LTC
+User-Agent: Thunderbird 1.5.0.5 (X11/20060728)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 19 Sep 2006 19:13:37.0463 (UTC) FILETIME=[B58CAC70:01C6DC1F]
-Authentication-Results: sj-dkim-1.cisco.com; header.From=rdreier@cisco.com; dkim=pass (
-	sig from cisco.com verified; ); 
+To: linux-scsi@vger.kernel.org
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Multi-Initiator SAS
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus, please pull from
+Hi everybody!
 
-    master.kernel.org:/pub/scm/linux/kernel/git/roland/infiniband.git for-linus
+Alexis and I connected both a Adaptec 9410 and a LSI 1064E SAS initiator
+to an expander.  Both machines saw the disks attached to the expander,
+and both could send I/Os to the disks.  So far, so good.
 
-This tree is also available from kernel.org mirrors at:
+We then connected a SATA disk to the expander.  libsas BUGd up in
+sas_ex_discover_end_dev (sas_expander.c:636):
 
-    git://git.kernel.org/pub/scm/linux/kernel/git/roland/infiniband.git for-linus
+BUG_ON(sas_port_add(phy->port) != 0);
 
-This contains another one-liner that fixes a regression from 2.6.17:
+mptsas didn't seem to do anything with the SATA device at all, though
+when we disconnected the SATA disk it recognized that a SATA device went
+away.  We'll have a look at the libsas problem in a jiffy.
 
-Jack Morgenstein:
-      IB/mthca: Fix lid used for sending traps
+--D
 
- drivers/infiniband/hw/mthca/mthca_mad.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
-diff --git a/drivers/infiniband/hw/mthca/mthca_mad.c b/drivers/infiniband/hw/mthca/mthca_mad.c
-index d9bc030..45e106f 100644
---- a/drivers/infiniband/hw/mthca/mthca_mad.c
-+++ b/drivers/infiniband/hw/mthca/mthca_mad.c
-@@ -119,7 +119,7 @@ static void smp_snoop(struct ib_device *
- 
- 			mthca_update_rate(to_mdev(ibdev), port_num);
- 			update_sm_ah(to_mdev(ibdev), port_num,
--				     be16_to_cpu(pinfo->lid),
-+				     be16_to_cpu(pinfo->sm_lid),
- 				     pinfo->neighbormtu_mastersmsl & 0xf);
- 
- 			event.device           = ibdev;

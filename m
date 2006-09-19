@@ -1,78 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751109AbWISFzv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751013AbWISF4f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751109AbWISFzv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Sep 2006 01:55:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751215AbWISFzv
+	id S1751013AbWISF4f (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Sep 2006 01:56:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932189AbWISF4f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Sep 2006 01:55:51 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:54693 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751109AbWISFzu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Sep 2006 01:55:50 -0400
-From: Andi Kleen <ak@suse.de>
-To: Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>
-Subject: Re: Network performance degradation from 2.6.11.12 to 2.6.16.20
-Date: Tue, 19 Sep 2006 07:52:36 +0200
-User-Agent: KMail/1.9.3
-Cc: "Vladimir B. Savkin" <master@sectorb.msk.ru>,
-       Jesper Dangaard Brouer <hawk@diku.dk>,
-       Harry Edmon <harry@atmos.washington.edu>, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org
-References: <4492D5D3.4000303@atmos.washington.edu> <200609181850.22851.ak@suse.de> <20060918210321.GA4780@ms2.inr.ac.ru>
-In-Reply-To: <20060918210321.GA4780@ms2.inr.ac.ru>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Tue, 19 Sep 2006 01:56:35 -0400
+Received: from outbound0.mx.meer.net ([209.157.153.23]:50951 "EHLO
+	outbound0.sv.meer.net") by vger.kernel.org with ESMTP
+	id S1751013AbWISF4e (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Sep 2006 01:56:34 -0400
+Subject: Re: [patch 2/8] fault-injection capabilities infrastructure
+From: Don Mullis <dwm@meer.net>
+To: Akinobu Mita <mita@miraclelinux.com>
+Cc: linux-kernel@vger.kernel.org, ak@suse.de, akpm@osdl.org, okuji@enbug.org
+In-Reply-To: <20060914102030.721230898@localhost.localdomain>
+References: <20060914102012.251231177@localhost.localdomain>
+	 <20060914102030.721230898@localhost.localdomain>
+Content-Type: text/plain
+Date: Mon, 18 Sep 2006 22:50:54 -0700
+Message-Id: <1158645054.2419.3.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5) 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200609190752.36072.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 18 September 2006 23:03, Alexey Kuznetsov wrote:
+Replace individual structure element comments with reference
+to Documentation/fault-injection/fault-injection.txt
 
-> 
-> > And do you have some other prefered way to solve this? Even if the timer
-> > was fast it would be still good to avoid it in the fast path when DHCPD
-> > is running.
-> 
-> No. The way, which you suggested, seems to be the best.
-
-Ok. I also checked my desktop and for some reason I got a timestamp counter
-of 7 (and it doesn't even run client dhcp). Haven't investigated why yet, and I am 
-still hoping it's not a leak. 
-
-But that hints that trying to fix all of user space to not use the ioctl 
-would have been probably too much work.
+Init "interval" to 1 (smallest useful value).
+Init "times" to 1 rather than -1 (infinity), for fewer 
+accidental system lockups.
 
 
-> 1. It even does not disable possibility to record timestamp inside
->    driver, which Alan was afraid of. The sequence is:
-> 
-> 	if (!skb->tstamp.off_sec)
->                 net_timestamp(skb);
-> 
-> 2. Maybe, netif_rx() should continue to get timestamp in netif_rx().
+Signed-off-by: Don Mullis <dwm@meer.net>
 
-Hmm, there are still quite a lot users and even with netif_rx() you
-can have long delays from interrupt mitigation etc.
+---
+ include/linux/fault-inject.h |   20 +++++---------------
+ 1 file changed, 5 insertions(+), 15 deletions(-)
 
-% grep -rw netif_rx drivers/net/*  | wc -l
-253
+Index: linux-2.6.17/include/linux/fault-inject.h
+===================================================================
+--- linux-2.6.17.orig/include/linux/fault-inject.h
++++ linux-2.6.17/include/linux/fault-inject.h
+@@ -6,31 +6,21 @@
+ #include <linux/types.h>
+ #include <asm/atomic.h>
+ 
++/*
++ * For explanation of the elements of this struct, see
++ * Documentation/fault-injection/fault-injection.txt
++ */
+ struct fault_attr {
+-
+-	/* how often it should fail in percent. */
+ 	unsigned long probability;
+-
+-	/* the interval of failures. */
+ 	unsigned long interval;
+-
+-	/*
+-	 * how many times failures may happen at most.
+-	 * A value of '-1' means infinity.
+-	 */
+ 	atomic_t times;
+-
+-	/*
+-	 * the size of free space where memory can be allocated safely.
+-	 * A value of '0' means infinity.
+-	 */
+ 	atomic_t space;
+ 
+ 	unsigned long count;
+ };
+ 
+ #define DEFINE_FAULT_ATTR(name) \
+-	struct fault_attr name = { .times = ATOMIC_INIT(-1), }
++	struct fault_attr name = { .interval=1, .times = ATOMIC_INIT(1), }
+ 
+ int setup_fault_attr(struct fault_attr *attr, char *str);
+ void should_fail_srandom(unsigned long entropy);
 
-> 3. NAPI already introduced almost the same inaccuracy. And it is really
->    silly to waste time getting timestamp in netif_receive_skb() a few
->    moments before the packet is delivered to a socket.
-> 
-> 4. ...but clock source, which takes one of top lines in profiles
->    must be repaired yet. :-)
-
-It's being worked on, but it'll take some time. But even when TSC 
-can be used it's still a good idea to not call gtod unnecessarily 
-because it can be still relatively slow (e.g. on P4 RDTSC takes
-hundreds of cycles because it synchronizes the CPU). Also on some 
-other non x86 platforms it is also relatively slow because they have 
-to reach out to the chipset and every time you do that things get slow.
-
--Andi
 

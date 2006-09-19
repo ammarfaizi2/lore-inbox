@@ -1,64 +1,130 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751009AbWISSzb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751942AbWISTIx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751009AbWISSzb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Sep 2006 14:55:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751933AbWISSza
+	id S1751942AbWISTIx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Sep 2006 15:08:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751943AbWISTIx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Sep 2006 14:55:30 -0400
-Received: from smtp107.mail.mud.yahoo.com ([209.191.85.217]:8593 "HELO
-	smtp107.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1751009AbWISSza (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Sep 2006 14:55:30 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=j4mOjZtJLfx6qNNzDvhh6h/is4TfzyNOFE4ObCzz986ww2xyxebb+GeJiH4193JTB/LaJMLrKO5ZSgPkoVADKxAorLnpOs+PiXvusxR7YxJ56l5tL9FR5Z0WlDKiFDwGkzRvlSKNf5X2Qa9LNv+hI56LEZT0aWWJSxj8yXf7814=  ;
-Message-ID: <45103D1D.20702@yahoo.com.au>
-Date: Wed, 20 Sep 2006 04:55:25 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Willy Tarreau <w@1wt.eu>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>,
-       Marcelo Tosatti <mtosatti@redhat.com>
-Subject: Re: Linux 2.4.34-pre3
-References: <20060919173253.GA25470@hera.kernel.org> <45102BEE.9000501@yahoo.com.au> <20060919181738.GA3467@1wt.eu>
-In-Reply-To: <20060919181738.GA3467@1wt.eu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 19 Sep 2006 15:08:53 -0400
+Received: from e6.ny.us.ibm.com ([32.97.182.146]:49299 "EHLO e6.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751942AbWISTIw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Sep 2006 15:08:52 -0400
+Date: Tue, 19 Sep 2006 14:09:00 +0530
+From: "S. P. Prasanna" <prasanna@in.ibm.com>
+To: Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>
+Cc: linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
+       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@redhat.com>,
+       Greg Kroah-Hartman <gregkh@suse.de>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Douglas Niehaus <niehaus@eecs.ku.edu>, Tom Zanussi <zanussi@us.ibm.com>,
+       Paul Mundt <lethal@linux-sh.org>, Jes Sorensen <jes@sgi.com>,
+       Richard J Moore <richardj_moore@uk.ibm.com>,
+       William Cohen <wcohen@redhat.com>,
+       "Martin J. Bligh" <mbligh@mbligh.org>,
+       Michel Dagenais <michel.dagenais@polymtl.ca>,
+       systemtap@sources.redhat.com, ltt-dev@shafik.org
+Subject: Re: [PATCH] Linux Kernel Markers 0.2 for Linux 2.6.17
+Message-ID: <20060919083900.GE23836@in.ibm.com>
+Reply-To: prasanna@in.ibm.com
+References: <20060919183447.GA16095@Krystal>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060919183447.GA16095@Krystal>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Willy Tarreau wrote:
-> Hi Nick,
-> 
-> On Wed, Sep 20, 2006 at 03:42:06AM +1000, Nick Piggin wrote:
-> 
-> [cut -pre3 advertisement]
-> 
-> 
->>I wonder if 2.4 doesn't need the memory ordering fix to prevent pagecache
->>corruption in reclaim? (http://www.gatago.com/linux/kernel/14682626.html)
->>
->>What would need to be done is to test page_count before testing PageDirty,
->>and putting an smp_rmb between the two.
-> 
-> 
-> I've read the thread, and Linus proposed to add an smp_wmb() in
-> set_page_dirty() too.
+On Tue, Sep 19, 2006 at 02:34:47PM -0400, Mathieu Desnoyers wrote:
+[....]
+> --- /dev/null
+> +++ b/kernel/Kconfig.marker
+> @@ -0,0 +1,75 @@
+> +# Code markers configuration
+> +
+> +menu "Marker configuration"
+> +
+> +
+> +config MARK
+> +	bool "Enable MARK code markers"
+> +	default y
+> +	help
+> +	  Activate markers that can call printk or can be instrumented
+> +	  dynamically.
+> +
+> +choice
+> +	prompt "MARK code marker behavior"
+> +	default MARK_KPROBE
+> +	depends on MARK
+> +	help
+> +	  Configuration of markers that can call printk or can be
+> +	  instrumented dynamically.
+> +
+> +config MARK_KPROBE
+> +	bool "KPROBE"
+> +	---help---
+> +	Change markers for a symbol "__mark_modulename_event".
+> +config MARK_JPROBE
+> +	bool "JPROBE"
+> +	---help---
+> +	Change markers for a symbol "__mark_modulename_event"
+> +	and create a target for a high speed dynamic probe.
+> +config MARK_FPROBE
+> +	bool "FPROBE"
+> +	---help---
+> +	Change markers for a function call.
+> +config MARK_PRINT
+> +	bool "PRINT"
+> +	---help---
+> +	Call printk from the marker.
+> +endchoice
+> +
+> +config MARK_NOPRINT
+> +	bool "Enable MARK_NOPRINT code markers"
+> +	default y
+> +	help
+> +	  Activate markers that cannot call printk.
+> + 
+> +choice
+> +	prompt "MARK_NOPRINT code marker behavior"
+> +	default MARK_NOPRINT_KPROBE
+> +	depends on MARK_NOPRINT
+> +	help
+> +	  Configuration of markers that cannot call printk.
+> +
+> +config MARK_NOPRINT_KPROBE
+> +	bool "KPROBE"
+> +	---help---
+> +	Change markers for a symbol "__mark_modulename_event".
+> +config MARK_NOPRINT_JPROBE
+> +	bool "JPROBE"
+> +	---help---
+> +	Change markers for a symbol "__mark_modulename_event"
+> +	and create a target for a high speed dynamic probe.
+> +config MARK_NOPRINT_FPROBE
+> +	bool "FPROBE"
+> +	---help---
+> +	Change markers for a function call.
+> +endchoice
+> +
+> +config MARK_STATIC
+> +	bool "Enable MARK_STATIC code markers"
+> +	default n
+> +	help
+> +	  Activate markers that cannot be instrumented dynamically. They will
+> +	  generate function calls to each function-style probe.
+> +
+> +endmenu
 
-I think that isn't needed because put_page is a RMW, which is defined
-to order memory. And presumably you wouldn't set the page dirty without
-a reference to the page.
+I think having so many config options is not a good idea, you can group them
+and reduce the number of config options.
 
-> I see that an smp_rmb() is already present
-> in shrink_cache() with the adequate comment.
-
-So there is! My mistake then, I was confused and looking at
-try_to_swap_out, but I see that doesn't actually free the page. Fine,
-I think 2.4 is OK then.
+Thanks
+Prasanna
 
 -- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+Prasanna S.P.
+Linux Technology Center
+India Software Labs, IBM Bangalore
+Email: prasanna@in.ibm.com
+Ph: 91-80-41776329

@@ -1,51 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751604AbWISDUF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751700AbWISDVY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751604AbWISDUF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 18 Sep 2006 23:20:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751694AbWISDUF
+	id S1751700AbWISDVY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 18 Sep 2006 23:21:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751707AbWISDVY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 18 Sep 2006 23:20:05 -0400
-Received: from web36702.mail.mud.yahoo.com ([209.191.85.36]:17315 "HELO
-	web36702.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1751604AbWISDUE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 18 Sep 2006 23:20:04 -0400
+	Mon, 18 Sep 2006 23:21:24 -0400
+Received: from smtp109.sbc.mail.mud.yahoo.com ([68.142.198.208]:14181 "HELO
+	smtp109.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1751700AbWISDVX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 18 Sep 2006 23:21:23 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=DaJ1Y01RYZF0IHWMx18Ksnoul946Xfbrupkk4n4gug2LgqMcd89sAaeI2NxVGnklU58tvypybCfPAHBsA8g6PH4BVFIT43RaxxYFxA1VyZ126rih70LZ0Lsli1vDNTp9FHIiDKL+0oXlbmbXfbGC1c2Wm2hJ2wvcJFX8N/asSyU=  ;
-Message-ID: <20060919032003.77685.qmail@web36702.mail.mud.yahoo.com>
-Date: Mon, 18 Sep 2006 20:20:03 -0700 (PDT)
-From: Alex Dubov <oakad@yahoo.com>
-Subject: Re: Support for TI FlashMedia (pci id 104c:8033, 104c:803b) flash card readers
-To: linux-kernel@vger.kernel.org
-Cc: rmk+lkml@arm.linux.org.uk, drzeus-list@drzeus.cx
-In-Reply-To: <450A4BA4.9050409@drzeus.cx>
+  s=s1024; d=pacbell.net;
+  h=Received:Received:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
+  b=SMdt90Oi1z8FprcnR6i0/aI7EXVdsi5AkXsQoonjg4721OU/muxwy9kAPT+HQi6VBjAxCdReWbB1vRZ/rKck6vSFexe0FFxGVQvvC1r02j1ivkh7XLcWaRMVZVkCKkDhjKQd3myTqi3i3qxrFHF831Q8aP2xdw4cWk1VHLXTRlE=  ;
+From: David Brownell <david-b@pacbell.net>
+To: Pete Zaitcev <zaitcev@redhat.com>
+Subject: Re: 2.6.18-rc6-mm2: rmmod ohci_hcd oopses on HPC 6325
+Date: Mon, 18 Sep 2006 20:21:19 -0700
+User-Agent: KMail/1.7.1
+Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, Alan Stern <stern@rowland.harvard.edu>,
+       Kernel development list <linux-kernel@vger.kernel.org>,
+       USB development list <linux-usb-devel@lists.sourceforge.net>
+References: <200609131558.03391.rjw@sisk.pl> <200609141319.53942.rjw@sisk.pl> <20060915154515.ae14372c.zaitcev@redhat.com>
+In-Reply-To: <20060915154515.ae14372c.zaitcev@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200609182021.19624.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Friday 15 September 2006 3:45 pm, Pete Zaitcev wrote:
+> On Thu, 14 Sep 2006 13:19:53 +0200, "Rafael J. Wysocki" <rjw@sisk.pl> wrote:
+> 
+> > In fact I can reproduce it on two different boxes now.
+> 
+> How about the attached?
+> 
+> -- Pete
 
-I was looking at the way to put my driver into the kernel and currently have three ways of doing
-it (all of them came up in the thread, already):
-1.
-Put everything in drivers/misc
-
-2.
-Put tifm_core, tifm_7xx1 and tifm_ms (in progress) in drivers/misc, tifm_sd in drivers/mmc
-
-3.
-Put everything in drivers/mmc
-
-I'm favoring everything in drivers/mmc, especially if it can be renamed into drivers/flashcards or
-something. This way, all flash card drivers will be nicely localized. In this respect, I also
-wonder where the MemoryStick driver for Winbond card readers is supposed to go when it enters the
-kernel? (Winbond driver is written by people with access to the MemoryStick spec and I'm using it
-as reference for my own work, with great utility).
+Signed-off-by: David Brownell <dbrownell@users.sourceforge.net>
 
 
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 
+> diff -urp -X dontdiff linux-2.6.18-rc6/drivers/usb/host/ohci-hcd.c linux-2.6.18-rc6-lem/drivers/usb/host/ohci-hcd.c
+> --- linux-2.6.18-rc6/drivers/usb/host/ohci-hcd.c	2006-09-06 21:56:32.000000000 -0700
+> +++ linux-2.6.18-rc6-lem/drivers/usb/host/ohci-hcd.c	2006-09-14 22:48:15.000000000 -0700
+> @@ -775,7 +775,9 @@ static void ohci_stop (struct usb_hcd *h
+>  
+>  	ohci_usb_reset (ohci);
+>  	ohci_writel (ohci, OHCI_INTR_MIE, &ohci->regs->intrdisable);
+> -	
+> +	free_irq(hcd->irq, hcd);
+> +	hcd->irq = -1;
+> +
+>  	remove_debug_files (ohci);
+>  	unregister_reboot_notifier (&ohci->reboot_notifier);
+>  	ohci_mem_cleanup (ohci);
+> 

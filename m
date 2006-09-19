@@ -1,59 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750811AbWISXqq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750883AbWISXu7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750811AbWISXqq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Sep 2006 19:46:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750819AbWISXqq
+	id S1750883AbWISXu7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Sep 2006 19:50:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750886AbWISXu7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Sep 2006 19:46:46 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:54167 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1750811AbWISXqp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Sep 2006 19:46:45 -0400
-Subject: Re: [PATCH] Linux Kernel Markers
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Mathieu Desnoyers <compudj@krystal.dyndns.org>
-Cc: Martin Bligh <mbligh@google.com>, prasanna@in.ibm.com,
-       Andrew Morton <akpm@osdl.org>, "Frank Ch. Eigler" <fche@redhat.com>,
-       Ingo Molnar <mingo@elte.hu>, Paul Mundt <lethal@linux-sh.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>, Jes Sorensen <jes@sgi.com>,
-       Tom Zanussi <zanussi@us.ibm.com>,
-       Richard J Moore <richardj_moore@uk.ibm.com>,
-       Michel Dagenais <michel.dagenais@polymtl.ca>,
-       Christoph Hellwig <hch@infradead.org>,
-       Greg Kroah-Hartman <gregkh@suse.de>,
-       Thomas Gleixner <tglx@linutronix.de>, William Cohen <wcohen@redhat.com>,
-       ltt-dev@shafik.org, systemtap@sources.redhat.com
-In-Reply-To: <20060919175405.GC26339@Krystal>
-References: <20060918234502.GA197@Krystal> <20060919081124.GA30394@elte.hu>
-	 <451008AC.6030006@google.com> <20060919154612.GU3951@redhat.com>
-	 <4510151B.5070304@google.com> <20060919093935.4ddcefc3.akpm@osdl.org>
-	 <45101DBA.7000901@google.com> <20060919063821.GB23836@in.ibm.com>
-	 <45102641.7000101@google.com>  <20060919175405.GC26339@Krystal>
+	Tue, 19 Sep 2006 19:50:59 -0400
+Received: from gate.crashing.org ([63.228.1.57]:4310 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S1750877AbWISXu6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Sep 2006 19:50:58 -0400
+Subject: Re: [RFC] page fault retry with NOPAGE_RETRY
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Mike Waychison <mikew@google.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-mm@kvack.org,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>
+In-Reply-To: <45107ECE.5040603@google.com>
+References: <1158274508.14473.88.camel@localhost.localdomain>
+	 <20060915001151.75f9a71b.akpm@osdl.org>  <45107ECE.5040603@google.com>
 Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Wed, 20 Sep 2006 01:08:45 +0100
-Message-Id: <1158710925.32598.120.camel@localhost.localdomain>
+Date: Wed, 20 Sep 2006 09:50:35 +1000
+Message-Id: <1158709835.6002.203.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Maw, 2006-09-19 am 13:54 -0400, ysgrifennodd Mathieu Desnoyers:
-> Very good idea.. However, overwriting the second instruction with a jump could
-> be dangerous on preemptible and SMP kernels, because we never know if a thread
-> has an IP in any of its contexts that would return exactly at the middle of the
-> jump. 
+On Tue, 2006-09-19 at 16:35 -0700, Mike Waychison wrote:
+> Patch attached.
+> 
+> As Andrew points out, the logic is a bit hacky and using a flag in 
+> current->flags to determine whether we have done the retry or not already.
+> 
+> I too think the right approach to being able to handle these kinds of 
+> retries in a more general fashion is to introduce a struct 
+> pagefault_args along the page faulting path.  Within it, we could 
+> introduce a reason for the retry so the higher levels would be able to 
+> better understand what to do.
 
-No: on x86 it is the *same* case for all of these even writing an int3.
-One byte or a megabyte,
+ .../...
 
-You MUST ensure that every CPU executes a serializing instruction before
-it hits code that was modified by another processor. Otherwise you get
-CPU errata and the CPU produces results which vendors like to describe
-as "undefined".
+I need to re-read your mail and Andrew as at this point, I don't quite
+see why we need that args and/or that current->flags bit instead of
+always returning all the way to userland and let the faulting
+instruction happen again (which means you don't block in the kernel, can
+take signals etc... thus do you actually need to prevent multiple
+retries ?)
 
-Thus you have to serialize, and if you are serializing it really doesn't
-matter if you write a byte, a paragraph or a page.
+Ben.
 
-Alan
 

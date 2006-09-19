@@ -1,207 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751815AbWISQER@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751825AbWISQGN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751815AbWISQER (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Sep 2006 12:04:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751819AbWISQER
+	id S1751825AbWISQGN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Sep 2006 12:06:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751829AbWISQGN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Sep 2006 12:04:17 -0400
-Received: from iolanthe.rowland.org ([192.131.102.54]:38664 "HELO
-	iolanthe.rowland.org") by vger.kernel.org with SMTP
-	id S1751815AbWISQEQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Sep 2006 12:04:16 -0400
-Date: Tue, 19 Sep 2006 12:04:15 -0400 (EDT)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@iolanthe.rowland.org
-To: "Paul E. McKenney" <paulmck@us.ibm.com>
-cc: David Howells <dhowells@redhat.com>,
-       Kernel development list <linux-kernel@vger.kernel.org>
-Subject: Re: Uses for memory barriers
-In-Reply-To: <20060919004750.GJ1294@us.ibm.com>
-Message-ID: <Pine.LNX.4.44L0.0609191131140.22042-100000@iolanthe.rowland.org>
+	Tue, 19 Sep 2006 12:06:13 -0400
+Received: from smtp-out.google.com ([216.239.33.17]:39065 "EHLO
+	smtp-out.google.com") by vger.kernel.org with ESMTP
+	id S1751825AbWISQGM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Sep 2006 12:06:12 -0400
+DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
+	h=received:message-id:date:from:user-agent:
+	x-accept-language:mime-version:to:cc:subject:references:in-reply-to:
+	content-type:content-transfer-encoding;
+	b=cbK93MdXJC0ym5fXXDL/Rv06CRe8I3zsDQFRD1CkdtksCJMx2yDcJmxKa4LY2i2OA
+	xNz+ewUVl+upp8eAGcrPA==
+Message-ID: <4510151B.5070304@google.com>
+Date: Tue, 19 Sep 2006 09:04:43 -0700
+From: Martin Bligh <mbligh@google.com>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051011)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: "Frank Ch. Eigler" <fche@redhat.com>
+CC: Ingo Molnar <mingo@elte.hu>,
+       Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
+       Paul Mundt <lethal@linux-sh.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>, Jes Sorensen <jes@sgi.com>,
+       Andrew Morton <akpm@osdl.org>, Tom Zanussi <zanussi@us.ibm.com>,
+       Richard J Moore <richardj_moore@uk.ibm.com>,
+       Michel Dagenais <michel.dagenais@polymtl.ca>,
+       Christoph Hellwig <hch@infradead.org>,
+       Greg Kroah-Hartman <gregkh@suse.de>,
+       Thomas Gleixner <tglx@linutronix.de>, William Cohen <wcohen@redhat.com>,
+       ltt-dev@shafik.org, systemtap@sources.redhat.com,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH] Linux Kernel Markers
+References: <20060918234502.GA197@Krystal> <20060919081124.GA30394@elte.hu> <451008AC.6030006@google.com> <20060919154612.GU3951@redhat.com>
+In-Reply-To: <20060919154612.GU3951@redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 18 Sep 2006, Paul E. McKenney wrote:
+Frank Ch. Eigler wrote:
+> Hi -
+> 
+> On Tue, Sep 19, 2006 at 08:11:40AM -0700, Martin J. Bligh wrote:
+> 
+> 
+>>[...]  Why don't we just copy the whole damned function somewhere
+>>else, and make an instrumented copy (as a kernel module)? Then
+>>reroute all the function calls through it [...]
+> 
+> 
+> Interesting idea.  Are you imagining this instrumented copy being
+> built at kernel compile time (something like building a "-g -O0"
+> parallel)?  Or compiled anew from original sources after deployment?
+> Or on-the-fly binary-level rewriting a la SPIN?
 
-> Restating (and renumbering) the principles, all assuming no other stores
-> than those mentioned, assuming no aliasing among variables, and assuming
-> that each store changes the value of the target variable:
-> 
-> (P0):	Each CPU sees its own stores and loads as occurring in program
-> 	order.
-> 
-> (P1):	If each CPU performs a series of stores to a single shared variable,
-> 	then the series of values obtained by the a given CPUs stores and
-> 	loads must be consistent with that obtained by each of the other
-> 	CPUs.  It may or may not be possible to deduce a single global
-> 	order from the full set of such series.
+"compiled anew from original sources after deployment" seems the most
+practical to do to me. From second hand info on using systemtap, you
+seem to need the same compiler and source tree to work from anyway, so
+this doesn't seem much of a burden.
 
-Suppose three CPUs respectively write the values 1, 2, and 3 to a single 
-variable.  Are you saying that some CPU A might see the values 1,2 (in 
-that order), CPU B might see 2,3 (in that order), and CPU C might see 3,1 
-(in that order)?  Each CPU's view would be consistent with each of the 
-others but there would not be any global order.
+>>OK, it's not completely trivial to do, but simpler than kprobes [...]
+> 
+> None of the three above are that easy.  Do you have an implementation
+> idea?
 
-Somehow I don't think that's what you intended.  In general the actual
-situation is much messier, with some writes masking others for some CPUs 
-in such a way that whenever two CPUs both see the same two writes, they 
-see them in the same order.  Is that all you meant to say?
+not in detail, but given the problems that the other probe technologies
+solved, it seems easy in comparison. It seems like all we'd need to do
+is "list all references to function, freeze kernel, update all
+references, continue", but perhaps I'm oversimplifying it ... if it's
+all just straight calls, it'd seem easy. The freeze would be very short,
+it's just poking a few addresses.
 
-> (P2a):	If two stores to A and B are ordered on CPU 0, and two loads from
-> 	B and A are ordered on CPU 1, and if CPU 1's load from B sees
-> 	CPU 0's store to B, then CPU 1's load from A must see CPU 0's
-> 	store to A.
-> 
-> (P2b):	If a load from A is ordered before a store to B on CPU 0, and a
-> 	load from B is ordered before a store to A on CPU 1, then if
-> 	CPU 1's load from B sees CPU 0's store to B, then CPU 0's load
-> 	from A cannot see CPU 1's store to A.
-> 
-> (P2c):	If a load from A is ordered before a store to B on CPU 0, and a
-> 	store to B is ordered before a store to A on CPU 1, and if CPU 0's
-> 	load from A gives the value stored to A by CPU 1, then CPU 1's
-> 	store to B must be ordered before CPU 0's store to B, so that
-> 	the final value of B is that stored by CPU 0.
+Having multiple hooks inside the same function pieced in at different
+times, etc gets tricky, but you can always fall back on one of the other
+methods if you get something complicated (or enforce some self-dicipline
+in userspace on how to compound them together).
 
-Implicit in P2a and P2b is that events can be ordered only if they all
-take place on the same CPU.  Now P2c introduces the idea of ordering two 
-events that occur on different CPUs.  This sounds to me like it's heading 
-for trouble.
+Ingo Molnar wrote:
+ > yeah, this would be nice - if it werent it for function pointers,
+ > and if all kernel functions were relocatable. But if you can think of
+ > a method to do this, it would be nice.
 
-You probably could revise P2c slightly and then be happy with P2[a-c].  
-They wouldn't be complete, although they might be adequate for all normal
-uses of memory barriers.
+Well, it doesn't have to work for everything. But would be much nicer
+for when it does work, it seems to me. Which functions are not
+relocatable? Function pointers are indeed a problem, for the functions
+they're used on, but they're not common. Some simple markup for these
+types of functions would fix it easily enough, I'd think.
 
-> > You only considered actions by two CPUs, and you only considered orderings
-> > induced by the memory barriers.  What about interactions among multiple
-> > CPUs or orderings caused by control dependencies?  Two examples:
-> > 
-> > 	CPU 0		CPU 1		CPU 2
-> > 	-----		-----		-----
-> 
-> As always, assuming all variables initially zero.  ;-)
-> 
-> > 	x = a;		y = b;		z = c;
-> > 	mb();		mb();		mb();
-> > 	b = 1;		c = 1;		a = 1;
-> > 	assert(x==0 || y==0 || z==0);
-> 
-> 1.	On CPU 0, either x=a sees CPU 2's a=1 (and by P2b sees z=c and sets
-> 	x==1) or does not (and thus might see either z=1 or z=0, but
-> 	sets x==0).
-> 
-> 2.	On CPU 2, z=c might see CPU 1's c=1 (and would by P2b also see
-> 	y=b, but it does not look).
-> 
-> 3.	CPU 1's situation is similar to that of CPU 2.
-> 
-> So, yes, some other principle would be required if we wanted to prove that
-> the assertion always succeeded.  Do we need this assertion to succeed?
-> (Sure, it would be a bit mind-bending if it were permitted to fail,
-> but that would not be unheard of when dealing with memory barriers.)
-> One litmus test is "would assertion failure break normal locking?".
-> So, let's apply that test.
-> 
-> However, note that the locking sequence differs significantly from the
-> locking scenario that drove memory ordering on many CPUs -- in the locking
-> scenario, the lock variable itself would be able to make use of P1.
-> To properly use locking, we end up with something like the following,
-> all variables initially zero:
-> 
-> 	CPU 0		CPU 1		CPU 2
-> 	-----		-----		-----
-> 	testandset(l)	testandset(l)	testandset(l)
-> 	mb()		mb()		mb()
-> 	x = a;		y = b;		z = c;
-> 	mb()		mb()		mb()
-> 	clear(l)	clear(l)	clear(l)
-> 	testandset(l)	testandset(l)	testandset(l)
-> 	mb()		mb()		mb()
-> 	b = 1;		c = 1;		a = 1;
-> 	mb()		mb()		mb()
-> 	clear(l)	clear(l)	clear(l)
-> 	assert(x==0 || y==0 || z==0);
-> 
-> The key additional point is that all CPUs see the series of values
-> taken on by the lockword "l".  The load implied by a given testandtest(),
-> other than the first one, must see the store implied by the prior clear().
-> So far, nothing different.  But let's take a look at the ordering 1, 2, 0.
-> 
-> At the handoff from CPU 1 to CPU 2, CPU 2 has seen CPU 1's clear(l), and
-> thus must see CPU 1's assignment to y (by P2b).  At the handoff from
-> CPU 2 to CPU 0, again, CPU 0 has seen CPU 2's clear(l), thus CPU 2's
-> assignment to z.  However, because "l" is a single variable, we can
-> now use P1, so that CPU 0 has also seen the effect of CPU 1's earlier
-> clear(l), and thus also CPU 1's y=b.  Continuing this analysis shows that
-> the assertion always succeeds in this case.
-> 
-> A simpler sequence illustrating this is as follows:
-> 
-> 	CPU 0		CPU 1		CPU 2		CPU 3
-> 	-----		-----		-----		-----
-> 	a = 1		while (b < 1);	while (b < 2);	y = c;
-> 	mb()		mb()		mb();		mb();
-> 	b = 1		b = 2;		c = 1;		x = a;
-> 							assert(y == 0 || x == 1)
-> 
-> The fact that we have the single variable "b" tracing through this
-> sequence allows P1 to be applied.
+A more common problem would seem to me to be instrumenting a inlined
+function that was pulled into multiple places, but even that doesn't
+seem particularly difficult.
 
-Isn't it possible that the write to c become visible on CPU 3 before the
-write to a?  In fact, isn't this essentially the same as one of the 
-examples in your manuscript?
-
-> So, is there a burning need for the assertion in your original example
-> to succeed?  If not, fewer principles allows Linux to deal with a larger
-> variety of CPUs.
-> 
-> > 	CPU 0		CPU 1
-> > 	-----		-----
-> 
-> Just to be obnoxious, again noting all variables initially zero.  ;-)
-> 
-> > 	x = a;		while (b == 0) ;
-> > 	mb();		a = 1;
-> > 	b = 1;
-> > 	assert(x==0);
-> 
-> Yep, here you are relying on a control dependency, and control dependencies
-> are not recognized by the principles.  And, possibly, also not by some
-> CPUs...
-
-Not recognizing a control dependency like this would be tantamount to 
-doing a speculative write.  Any CPU indulging in such fancies isn't likely 
-to survive very long.
-
-> The fix would be to insert an mb() just after CPU 1's "while" loop.
-> 
-> > I suspect your scheme can't handle either of these.  In fact, I rather
-> > suspect that the "partial ordering" approach is fundamentally incapable of
-> > generating all possible correct deductions about memory access
-> > requirements, and that something more like my "every action happens at a
-> > specific time" approach is necessary.  That is, after all, what led me to
-> > consider it in the first place.
-> 
-> Agreed, these assertions cannot be proven using the principles outlined
-> above.  Is this necessarily bad?  In other words, are there real situations
-> where we need these assertions to hold, and do all CPUs really meet them?
-
-As far as real situations are concerned, you could probably get away with 
-nothing more than P2a and P2b, maybe also P2c.  Gaining a clear and 
-precise understanding is a different story, though.
-
-For instance, it's not clear to what extent the "ordering" in your scheme 
-is transitive.  Part of the problem is that the events you order are 
-individual loads and stores.  There's no acknowledgement of the fact that 
-a single store can become visible to different CPUs at different times (or 
-not at all).
-
-I would much prefer to see an analysis where the primitive notions include 
-things like "This store becomes visible to that CPU before this load 
-occurs".  It would bear a closer correspondence to what actually happens 
-in the hardware.
-
-Alan
-
+M.

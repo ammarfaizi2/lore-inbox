@@ -1,43 +1,119 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751213AbWISWG0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751202AbWISWIY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751213AbWISWG0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Sep 2006 18:06:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751202AbWISWG0
+	id S1751202AbWISWIY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Sep 2006 18:08:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751222AbWISWIY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Sep 2006 18:06:26 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:36776
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1751188AbWISWGY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Sep 2006 18:06:24 -0400
-Date: Tue, 19 Sep 2006 15:06:29 -0700 (PDT)
-Message-Id: <20060919.150629.109607267.davem@davemloft.net>
-To: rjw@sisk.pl
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-       greg@kroah.com
-Subject: Re: 2.6.18-rc7-mm1: networking breakage on HPC nx6325 + SUSE 10.1
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <200609200006.53138.rjw@sisk.pl>
-References: <20060919133606.f0c92e66.akpm@osdl.org>
-	<200609192330.34769.rjw@sisk.pl>
-	<200609200006.53138.rjw@sisk.pl>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+	Tue, 19 Sep 2006 18:08:24 -0400
+Received: from py-out-1112.google.com ([64.233.166.176]:42154 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S1751202AbWISWIX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Sep 2006 18:08:23 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=m0WgrxtHcoVREah1UK6AKLd9llOOR+kaYz0+1vd8YW9f9R+f2lYQOdtiDRZU/sCz02ATGz0iXhdJL4yGNKuKZj3p1sGSqzdykgUrPp07HTBciq+Q+TqSfkd+eC2GLcuYu48g7bDPqd7jRzRmgzCzR1ggOS47AW5Pv7LLqF6+F9M=
+Message-ID: <653402b90609191508yff445d4ybf3ee33afb85838d@mail.gmail.com>
+Date: Wed, 20 Sep 2006 00:08:22 +0200
+From: "Miguel Ojeda" <maxextreme@gmail.com>
+To: "Pavel Machek" <pavel@ucw.cz>
+Subject: Re: [PATCH 1/1 Re] drivers: add lcd display support
+Cc: torvalds@osdl.org, akpm@osdl.org, alan@lxorguk.ukuu.org.uk, greg@kroah.com,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20060919200224.GD7246@elf.ucw.cz>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <20060915030508.2900b9dd.maxextreme@gmail.com>
+	 <20060919200224.GD7246@elf.ucw.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-Date: Wed, 20 Sep 2006 00:06:52 +0200
+Ack, thank you for your review!
 
-> I _guess_ the problem is caused by
-> gregkh-driver-network-class_device-to-device.patch, but I can't verify this,
-> because the kernel (obviously) doesn't compile if I revert it.
-
-Indeed.
-
-I thought we threw this patch out because we knew it would cause
-problems for existing systems?  I do remember Greg making an argument
-as to why we needed the change, but that doesn't make breaking people's
-systems legitimate in any way.
-
+On 9/19/06, Pavel Machek <pavel@ucw.cz> wrote:
+> Hi!
+>
+> > Please tell me if you agree.
+> >
+> > Adds LCD Display support.
+> > Adds ks0108 LCD controller support.
+> > Adds cfag12864b LCD display support.
+> >
+> > Signed-off-by: Miguel Ojeda Sandonis <maxextreme@gmail.com>
+>
+>
+> > diff -uprN -X linux-2.6.18-rc7/Documentation/dontdiff linux-2.6.18-rc7-vanilla/drivers/lcddisplay/cfag12864b.c linux-2.6.18-rc7/drivers/lcddisplay/cfag12864b.c
+> > --- linux-2.6.18-rc7-vanilla/drivers/lcddisplay/cfag12864b.c  1970-01-01 01:00:00.000000000 +0100
+> > +++ linux-2.6.18-rc7/drivers/lcddisplay/cfag12864b.c  2006-09-13 05:03:29.000000000 +0200
+> > @@ -0,0 +1,558 @@
+> > +/*
+> > + *    Filename: cfag12864b.c
+> > + *     Version: 0.1.0
+> > + * Description: cfag12864b LCD Display Driver
+> > + *     License: GPL
+>
+> v2 or v2 and later?
+>
+> > +static const unsigned int cfag12864b_firstminor = 0;
+>
+> No need to initialize to zero.
+>
+> > +static const unsigned int cfag12864b_ndevices = 1;
+> > +static const char * cfag12864b_name = NAME;
+>                       ~- kill this space.
+>
+> > +#define bit(n) ((unsigned char)(1<<(n)))
+> > +#define nobit(n) ((unsigned char)(~bit(n)))
+>
+> Uh? We have generic functions for this.
+>
+> > +static unsigned char cfag12864b_state = 0;
+>
+> No zeros.
+>
+> > +static void cfag12864b_e(unsigned char state)
+> > +{
+> > +     if(state)
+>           ~ missing space.
+>
+> > +             cfag12864b_state |= bit(0);
+> > +     else
+> > +             cfag12864b_state &= nobit(0);
+> > +     cfag12864b_set();
+>
+> This repeats few times, perhaps you could create helper for that?
+> > +static void cfag12864b_secondcontroller(unsigned char state)
+> > +{
+> > +     if(state)
+> > +             cfag12864b_cs2(0);
+> > +     else
+> > +             cfag12864b_cs2(1);
+> > +}
+>
+> Is this needed?
+>
+> > +             /*if(address != tmpaddress) {
+> > +                     address = tmpaddress;
+> > +                     cfag12864b_address(address);
+> > +                     cfag12864b_nop();
+> > +             }*/
+> > +
+> > +             /*if(tmpcontroller == 0) {
+> > +                     if(address != tmpaddress) {
+> > +                             address = tmpaddress;
+> > +                             cfag12864b_address(address);
+> > +                     }
+> > +             }
+> > +             else {
+> > +                     cfag12864b_address(tmpaddress);
+> > +                     cfag12864b_nop();
+> > +             }*/
+>
+> Remove unused code, do not comment it out.
+>                                                                 Pavel
+> --
+> (english) http://www.livejournal.com/~pavelmachek
+> (cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+>

@@ -1,46 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752087AbWISW4D@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752105AbWISXIW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752087AbWISW4D (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Sep 2006 18:56:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752094AbWISW4D
+	id S1752105AbWISXIW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Sep 2006 19:08:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752104AbWISXIW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Sep 2006 18:56:03 -0400
-Received: from nf-out-0910.google.com ([64.233.182.186]:33118 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1752087AbWISW4B (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Sep 2006 18:56:01 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
-        b=J9KqF0d0PGw9yD7IOjSkh1miMwrlNRlVzpzSKYtYRCpAEgeKBAniRKJ92BYTdkzTCl1EHgB/zpsHDo7lGzPJgGkxnrg6BO8cJzdsZzQ6soH+4HhsCcCmbmFQrkUIMvNf/1Qf42EHyQWM3+BSHzhAfJpU+lhpKO5Zyi+lSv+ESGc=
-Message-ID: <12c511ca0609191555q2bfb934aha4cfc0068c1ccd9a@mail.gmail.com>
-Date: Tue, 19 Sep 2006 15:55:58 -0700
-From: "Tony Luck" <tony.luck@intel.com>
-To: "Christoph Lameter" <clameter@sgi.com>
-Subject: Re: Efficient Use of the Page Cache with 64 KB Pages
-Cc: "Sandeep Kumar" <sandeepksinha@gmail.com>, linux-kernel@vger.kernel.org,
-       shaggy@austin.ibm.com
-In-Reply-To: <Pine.LNX.4.64.0609191136580.6460@schroedinger.engr.sgi.com>
+	Tue, 19 Sep 2006 19:08:22 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:18339 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1752102AbWISXIV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Sep 2006 19:08:21 -0400
+Date: Tue, 19 Sep 2006 21:46:06 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: David Madore <david.madore@ens.fr>
+Cc: Linux Kernel mailing-list <linux-kernel@vger.kernel.org>,
+       LSM mailing-list <linux-security-module@vger.kernel.org>
+Subject: Re: capabilities patch: trying a more "consensual" approach
+Message-ID: <20060919194606.GB7246@elf.ucw.cz>
+References: <20060911212826.GA9606@clipper.ens.fr>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <37d33d830609150150v30dc32en57f8c5e43c30aef3@mail.gmail.com>
-	 <Pine.LNX.4.64.0609191136580.6460@schroedinger.engr.sgi.com>
-X-Google-Sender-Auth: b63fc36d3523d946
+In-Reply-To: <20060911212826.GA9606@clipper.ens.fr>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 9/19/06, Christoph Lameter <clameter@sgi.com> wrote:
-> IA64 has supported 64k page size from the beginning. Since some
-> years before the end of the last decade. It is only the hardware
-> limitations on IA32 that hold us back.
+Hi!
 
-But memory usage with a 64K page size can get out of hand (especially
-if you have an application that uses a lot of small files).  Dave Kleikamp's
-tail pages would help make 64K page size more generally palatable.
+> Is there some objection to this scheme?  I should start coding it in a
+> couple of weeks.
 
--Tony
+Looks okay to me.
+								Pavel
 
-----
-New yarn store in Sunnyvale opens October 14th. http://www.purlescenceyarns.com
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

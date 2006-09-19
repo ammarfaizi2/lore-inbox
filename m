@@ -1,62 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751195AbWISHIw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751204AbWISHJh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751195AbWISHIw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Sep 2006 03:08:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751200AbWISHIw
+	id S1751204AbWISHJh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Sep 2006 03:09:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751215AbWISHJh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Sep 2006 03:08:52 -0400
-Received: from ironport-c10.fh-zwickau.de ([141.32.72.200]:2985 "EHLO
-	ironport-c10.fh-zwickau.de") by vger.kernel.org with ESMTP
-	id S1751195AbWISHIv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Sep 2006 03:08:51 -0400
-X-IronPort-Anti-Spam-Filtered: true
-X-IronPort-Anti-Spam-Result: AQAAAEEzD0WLawEBDQ
-X-IronPort-AV: i="4.09,184,1157320800"; 
-   d="scan'208"; a="3227810:sNHT32418128"
-Date: Tue, 19 Sep 2006 09:08:48 +0200
-From: Joerg Roedel <joro-lkml@zlug.org>
-To: Lennert Buytenhek <buytenh@wantstofly.org>
-Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org, davem@davemloft.net
-Subject: Re: [PATCH] EtherIP tunnel driver (RFC 3378)
-Message-ID: <20060919070848.GA11567@zlug.org>
-References: <20060911204129.GA28929@zlug.org> <20060918205252.GA6830@xi.wantstofly.org>
-Mime-Version: 1.0
+	Tue, 19 Sep 2006 03:09:37 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:50095 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751204AbWISHJg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Sep 2006 03:09:36 -0400
+To: Jon Mason <jdmason@kudzu.us>
+Cc: linux-kernel@vger.kernel.org, kautzy@kautzy.com
+Subject: Re: Dual Core Opteron hangs, iommu Entries (x86_64)
+References: <450E9B49.4030203@kautzy.com> <20060918183234.GA24163@kudzu.us>
+From: Andi Kleen <ak@suse.de>
+Date: 19 Sep 2006 09:09:26 +0200
+In-Reply-To: <20060918183234.GA24163@kudzu.us>
+Message-ID: <p73zmcw2uzd.fsf@verdi.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060918205252.GA6830@xi.wantstofly.org>
-User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 18, 2006 at 10:52:52PM +0200, Lennert Buytenhek wrote:
-
-> Check out the thread "[PATCH][RFC] etherip: Ethernet-in-IPv4 tunneling"
-> that was on netdev in January of 2005 -- a number of arguments against
-> etherip (and for tunneling ethernet in GRE) were raised back then.
-
-I read this thread some weeks ago.  I think there are reasons to have
-both variants in the kernel. Since both versions are implemented in
-different operatins systems and devices, having both will Linux make
-interoperable with all of them.  In fact, the only implementers for
-EtherIP I found were various BSD derivates. I actually implemented this
-driver upon request of a BSD user who wanted interoperability of the
-NetBSD EtherIP implementation with Linux.
-
+Jon Mason <jdmason@kudzu.us> writes:
 > 
-> One of the most significant ones, IMHO:
-> 
-> > Another argument against etherip would be that OpenBSD apparently
-> > mis-implemented etherip by putting the etherip version nibble in the
-> > second nibble of the etherip header instead of the first, which would
-> > probably prevent the linux and OpenBSD versions from interoperating,
-> > negating the advantage of using etherip in the first place.
+> Your problem is that you have more than 4GB of RAM and not enough room
+> in your IOMMU aperature to handle all of the pending DMA requests.
+> Dmesg suggests you go into your BIOS and increase your AGP aperature
+> from 32M to 64M, did you try that?  
 
-I think this is not really a mistake in the OpenBSD implementation. In
-my opinion, the RFC is unclear at this point. I focused on
-interoperability in my implementation and did it the same way as OpenBSD
-(as NetBSD does also, AFAIK FreeBSD has also an EtherIP implementation,
- but I don't tested it). This is the reason why my driver does not check
-the value of the incoming EtherIP header too.
+The kernel ignores 32MB apertures anyways and creates its own 64MB aperture.
 
-Regards,
-	Joerg Roedel
+Normally IOMMU overflow should be handled without a hang though, assuming
+you don't have a buggy driver. If you don't trust it you can
+boot with iommu=panic panic=30 -- then the kernel will always panic
+and reboot when this happens. The aperture can be also increased
+with iommu=memaper=3 or 4
+
+But it could be a lot of other things. So far you don't seem to have
+any evidence that it's the IOMMU except for some likely misguided googling.
+
+The usual way to check for unknown hangs is to just configure
+serial console and see if there is some output during the hang.
+
+Also do a memtest86 for at least 12hours.
+
+-Andi
+

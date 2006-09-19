@@ -1,26 +1,28 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750780AbWISSWU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750866AbWISS1h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750780AbWISSWU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Sep 2006 14:22:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750785AbWISSWU
+	id S1750866AbWISS1h (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Sep 2006 14:27:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750850AbWISS1h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Sep 2006 14:22:20 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:19126 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1750780AbWISSWT (ORCPT
+	Tue, 19 Sep 2006 14:27:37 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:27576 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1750834AbWISS1g (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Sep 2006 14:22:19 -0400
-Date: Tue, 19 Sep 2006 20:22:20 +0200
+	Tue, 19 Sep 2006 14:27:36 -0400
+Date: Tue, 19 Sep 2006 20:27:36 +0200
 From: Pavel Machek <pavel@ucw.cz>
-To: "Eugeny S. Mints" <eugeny.mints@gmail.com>
-Cc: pm list <linux-pm@lists.osdl.org>,
-       kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [linux-pm] [PATCH] PowerOP, PowerOP Core, 1/2
-Message-ID: <20060919182220.GD7099@elf.ucw.cz>
-References: <45096933.4070405@gmail.com> <20060918104437.GA4973@elf.ucw.cz> <450E83DC.4050503@gmail.com>
+To: Joshua Brindle <method@gentoo.org>
+Cc: casey@schaufler-ca.com, David Madore <david.madore@ens.fr>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel mailing-list <linux-kernel@vger.kernel.org>,
+       LSM mailing-list <linux-security-module@vger.kernel.org>
+Subject: Re: [PATCH 3/4] security: capabilities patch (version 0.4.4), part 3/4: introduce new capabilities
+Message-ID: <20060919182736.GF7099@elf.ucw.cz>
+References: <20060918160217.97076.qmail@web36601.mail.mud.yahoo.com> <450F38F7.6080006@gentoo.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <450E83DC.4050503@gmail.com>
+In-Reply-To: <450F38F7.6080006@gentoo.org>
 X-Warning: Reading this can be dangerous to your mental health.
 User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
@@ -28,45 +30,29 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> >>+struct powerop_driver {
-> >>+	char *name;
-> >>+	void *(*create_point) (const char *pwr_params, va_list args);
-> >>+	int (*set_point) (void *md_opt);
-> >>+	int (*get_point) (void *md_opt, const char *pwr_params, va_list 
-> >>args);
-> >>+};
-> >
-> >We can certainly get better interface than va_list, right?
-> 
-> Please elaborate.
+> >The first system I took through evaluation
+> >(that is, independent 3rd party analysis) stored
+> >security attributes in a file while the second
+> >and third systems attached the attributes
+> >directly (XFS). The 1st evaluation required
+> >5 years, the 2nd 1 year. It is possible that
+> >I just got a lot smarter with age, but I
+> >ascribe a significant amount of the improvement
+> >to the direct association of the attributes
+> >to the file.
+> Thats great but entirely irrelevant in this context. The patch and caps 
+> in question are not attached to the file via some externally observable 
+> property (eg., xattr) but instead are embedded in the source code so 
+> that it can drop caps at certain points during the execution or before 
+> executing another app, thus unanalyzable.
 
-va_list does not provide adequate type checking. I do not think it
-suitable in driver<->core interface.
+I do not know why this is unanalyzable... It seems very analyzable
+when reading the source code... and actually priviledge
+operations in source code mean that you can't get them wrong with
+wrong xattrs.
 
-> >>+#
-> >>+# powerop
-> >>+#
-> >>+
-> >>+menu "PowerOP (Power Management)"
-> >>+
-> >>+config POWEROP
-> >>+	tristate "PowerOP Core"
-> >>+	help
-> >
-> >Hohum, this is certainly going to be clear to confused user...
-> 
-> please elaborate.
+Plus systems like qmail already use setuid() in source this way.
 
-You probably want to include some help text.
-
-> >How is it going to work on 8cpu box? will
-> >you have states like cpu1_800MHz_cpu2_1600MHz_cpu3_800MHz_... ?
-> 
-> i do not operate with term 'state' so I don't understand what it means here.
-
-Okay, state here means "operating point". How will operating points
-look on 8cpu box? That's 256 states if cpus only support "low" and
-"high". How do you name them?
 								Pavel
 -- 
 (english) http://www.livejournal.com/~pavelmachek

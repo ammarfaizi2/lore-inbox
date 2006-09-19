@@ -1,47 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030255AbWISQqA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750880AbWISQpg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030255AbWISQqA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Sep 2006 12:46:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030256AbWISQp7
+	id S1750880AbWISQpg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Sep 2006 12:45:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750985AbWISQpg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Sep 2006 12:45:59 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:25780 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1030254AbWISQp6 (ORCPT
+	Tue, 19 Sep 2006 12:45:36 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:1234 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1750880AbWISQpf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Sep 2006 12:45:58 -0400
-Message-ID: <45101EC1.7040407@garzik.org>
-Date: Tue, 19 Sep 2006 12:45:53 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
-MIME-Version: 1.0
-To: "Maciej W. Rozycki" <macro@linux-mips.org>
-CC: Amy Fong <amy.fong@windriver.com>, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org
-Subject: Re: [PATCH] Add Broadcom PHY support
-References: <E1GPflG-0000n7-2o@lucciola> <Pine.LNX.4.64N.0609191441260.24069@blysk.ds.pg.gda.pl>
-In-Reply-To: <Pine.LNX.4.64N.0609191441260.24069@blysk.ds.pg.gda.pl>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.3 (----)
-X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.3 points, 5.0 required)
+	Tue, 19 Sep 2006 12:45:35 -0400
+Date: Tue, 19 Sep 2006 18:36:56 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Martin Bligh <mbligh@google.com>
+Cc: Andrew Morton <akpm@osdl.org>, "Frank Ch. Eigler" <fche@redhat.com>,
+       Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
+       Paul Mundt <lethal@linux-sh.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>, Jes Sorensen <jes@sgi.com>,
+       Tom Zanussi <zanussi@us.ibm.com>,
+       Richard J Moore <richardj_moore@uk.ibm.com>,
+       Michel Dagenais <michel.dagenais@polymtl.ca>,
+       Christoph Hellwig <hch@infradead.org>,
+       Greg Kroah-Hartman <gregkh@suse.de>,
+       Thomas Gleixner <tglx@linutronix.de>, William Cohen <wcohen@redhat.com>,
+       ltt-dev@shafik.org, systemtap@sources.redhat.com,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH] Linux Kernel Markers
+Message-ID: <20060919163655.GA28735@elte.hu>
+References: <20060918234502.GA197@Krystal> <20060919081124.GA30394@elte.hu> <451008AC.6030006@google.com> <20060919154612.GU3951@redhat.com> <4510151B.5070304@google.com> <20060919093935.4ddcefc3.akpm@osdl.org> <45101DBA.7000901@google.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <45101DBA.7000901@google.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -2.9
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.9 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5000]
+	-0.1 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Maciej W. Rozycki wrote:
-> On Tue, 19 Sep 2006, Amy Fong wrote:
+
+* Martin Bligh <mbligh@google.com> wrote:
+
+> Andrew Morton wrote:
+> >On Tue, 19 Sep 2006 09:04:43 -0700
+> >Martin Bligh <mbligh@google.com> wrote:
+> >
+> >
+> >>It seems like all we'd need to do
+> >>is "list all references to function, freeze kernel, update all
+> >>references, continue"
+> >
+> >
+> >"overwrite first 5 bytes of old function with `jmp new_function'".
 > 
->>> And... where are the users of this phy driver?
-> [...]
->> This phy driver is used by the WRS's sbc8560 (bcm5421s) and sbc843x 
->> (bcm5461s) via the gianfar driver.
-> 
->  And sb1250-mac.c would be happy to use it too.
+> Yes, that's simple. but slower, as you have a double jump. Probably a 
+> damned sight faster than int3 though.
 
-"would be happy to" != "is using".   I don't want to add a phy driver 
-until there are already active users in the kernel.
+modern CPUs will probably even optimize that intermediate jump away in 
+their BTB-ish caches. But in any case this would solve the function 
+pointer problem too.
 
-	Jeff
-
-
-
+	Ingo

@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751368AbWISIUK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751331AbWISIVu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751368AbWISIUK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Sep 2006 04:20:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751379AbWISIUK
+	id S1751331AbWISIVu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Sep 2006 04:21:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751379AbWISIVu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Sep 2006 04:20:10 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:37272 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751385AbWISIUI (ORCPT
+	Tue, 19 Sep 2006 04:21:50 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:16537 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1751331AbWISIVt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Sep 2006 04:20:08 -0400
-Date: Tue, 19 Sep 2006 10:11:24 +0200
+	Tue, 19 Sep 2006 04:21:49 -0400
+Date: Tue, 19 Sep 2006 10:13:07 +0200
 From: Ingo Molnar <mingo@elte.hu>
 To: Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>
 Cc: "Frank Ch. Eigler" <fche@redhat.com>, Paul Mundt <lethal@linux-sh.org>,
@@ -23,12 +23,12 @@ Cc: "Frank Ch. Eigler" <fche@redhat.com>, Paul Mundt <lethal@linux-sh.org>,
        "Martin J. Bligh" <mbligh@mbligh.org>, ltt-dev@shafik.org,
        systemtap@sources.redhat.com, Alan Cox <alan@lxorguk.ukuu.org.uk>
 Subject: Re: [PATCH] Linux Kernel Markers
-Message-ID: <20060919081124.GA30394@elte.hu>
-References: <20060918234502.GA197@Krystal>
+Message-ID: <20060919081307.GA32108@elte.hu>
+References: <20060918234502.GA197@Krystal> <20060919081124.GA30394@elte.hu>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060918234502.GA197@Krystal>
+In-Reply-To: <20060919081124.GA30394@elte.hu>
 User-Agent: Mutt/1.4.2.1i
 X-ELTE-SpamScore: -2.9
 X-ELTE-SpamLevel: 
@@ -44,35 +44,23 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca> wrote:
+* Ingo Molnar <mingo@elte.hu> wrote:
 
-> +choice
-> +	prompt "MARK code marker behavior"
-
-> +config MARK_KPROBE
-> +config MARK_JPROBE
-> +config MARK_FPROBE
-> +	Change markers for a function call.
-> +config MARK_PRINT
-
-as indicated before in great detail, NACK on this profileration of 
-marker options, especially the function call one. I'd like to see _one_ 
-marker mechanism that distros could enable, preferably with zero (or at 
-most one NOP) in-code overhead. (You can of course patch whatever 
-extension ontop of it, in out-of-tree code, to gain further performance 
-advantage by generating direct system-calls.)
-
-There might be a hodgepodge of methods and tools in userspace to do 
-debugging, but in the kernel we should get our act together and only 
-take _one_ (or none at all), and then spend all our efforts on improving 
-that primary method of debug instrumentation. As kprobes/SystemTap has 
-proven, it is possible to have zero-overhead inactive probes.
-
-Furthermore, for such a patch to make sense in the upstream kernel, 
-downstream tracing code has to make actual use of that NOP-marker. I.e. 
-a necessary (but not sufficient) requirement for upstream inclusion (in 
-my view) would be for this mechanism to be used by LTT and LKST. (again, 
-you can patch LTT for your own purposes in your own patchset if you 
-think the performance overhead of probes is too much)
+> > +choice
+> > +	prompt "MARK code marker behavior"
+> 
+> > +config MARK_KPROBE
+> > +config MARK_JPROBE
+> > +config MARK_FPROBE
+> > +	Change markers for a function call.
+> > +config MARK_PRINT
+> 
+> as indicated before in great detail, NACK on this profileration of 
+> marker options, especially the function call one. I'd like to see _one_ 
+> marker mechanism that distros could enable, preferably with zero (or at 
+> most one NOP) in-code overhead. (You can of course patch whatever 
+> extension ontop of it, in out-of-tree code, to gain further performance 
+> advantage by generating direct system-calls.)
+                                    ^---function
 
 	Ingo

@@ -1,60 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750978AbWISK51@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751906AbWISLTW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750978AbWISK51 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Sep 2006 06:57:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750900AbWISK50
+	id S1751906AbWISLTW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Sep 2006 07:19:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751900AbWISLTW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Sep 2006 06:57:26 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:56988 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1750812AbWISK5Z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Sep 2006 06:57:25 -0400
-Subject: Re: [PATCH] dmaengine: clean up and abstract function types (was
-	Re: [PATCH 08/19] dmaengine: enable multiple clients and operations)
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Olof Johansson <olof@lixom.net>
-Cc: Dan Williams <dan.j.williams@gmail.com>, christopher.leech@intel.com,
-       Jeff Garzik <jeff@garzik.org>, neilb@suse.de,
-       linux-raid@vger.kernel.org, akpm@osdl.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20060918200555.74aedeae@localhost.localdomain>
-References: <1158015632.4241.31.camel@dwillia2-linux.ch.intel.com>
-	 <20060911231817.4737.49381.stgit@dwillia2-linux.ch.intel.com>
-	 <4505F4D0.7010901@garzik.org>
-	 <20060915113817.6154aa67@localhost.localdomain>
-	 <20060915144423.500b529d@localhost.localdomain>
-	 <e9c3a7c20609181556n235d650eg16e5296f192bd2d5@mail.gmail.com>
-	 <20060918200555.74aedeae@localhost.localdomain>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Tue, 19 Sep 2006 12:20:09 +0100
-Message-Id: <1158664809.32598.4.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+	Tue, 19 Sep 2006 07:19:22 -0400
+Received: from mtagate6.de.ibm.com ([195.212.29.155]:34945 "EHLO
+	mtagate6.de.ibm.com") by vger.kernel.org with ESMTP
+	id S1751899AbWISLTV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Sep 2006 07:19:21 -0400
+Date: Tue, 19 Sep 2006 13:19:17 +0200
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+To: linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org, akpm@osdl.org
+Cc: mingo@elte.hu, paulus@samba.org
+Subject: [patch 0/3] Directed yield take 3.
+Message-ID: <20060919111917.GB21713@skybase>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Llu, 2006-09-18 am 20:05 -0500, ysgrifennodd Olof Johansson:
-> On Mon, 18 Sep 2006 15:56:37 -0700 "Dan Williams" <dan.j.williams@gmail.com> wrote:
+On Mon, 2006-09-18 at 10:53 -0700, Andrew Morton wrote:
+> > nobody has complained about my spinlock yield patches.
+> 
+> Complain.
+> 
+> I had to hunt around a bit to discover that this functionality has
+> something to do with "giving up the timeslice of a virtual cpu in favour of
+> a specific cpu".  And also that it is expected to be of some
+> briefly-alluded-to benefit on powerpc.
+> 
+> So...  Could you please flesh out the description/rationale rather a lot
+> and cc linux-kernel on the patches?
 
-> op.src_type = PG; op.src = pg;
-> op.dest_type = BUF; op.dest = buf;
-> op.len = len;
-> dma_async_commit(chan, op);
+Ok here we go, 
+added some more beef to the description of patch #1 and replaced the
+description of patch #2. Good enough now?
+ 
+-- 
+blue skies,
+  Martin.
 
-At OLS Linus suggested it should distinguish between sync and async
-events for locking reasons.
+Martin Schwidefsky
+Linux for zSeries Development & Services
+IBM Deutschland Entwicklung GmbH
 
-	if(dma_async_commit(foo) == SYNC_COMPLETE) {
-		finalise_stuff();
-	}
-
-	else		/* will call foo->callback(foo->dev_id) */
-
-because otherwise you have locking complexities - the callback wants to
-take locks to guard the object it works on but if it is called
-synchronously - eg if hardware is busy and we fall back - it might
-deadlock with the caller of dmaa_async_foo() who also needs to hold the
-lock.
-
-Alan
-
+"Reality continues to ruin my life." - Calvin.

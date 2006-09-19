@@ -1,315 +1,143 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751912AbWISUWI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752050AbWISUZV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751912AbWISUWI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Sep 2006 16:22:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752020AbWISUWH
+	id S1752050AbWISUZV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Sep 2006 16:25:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752051AbWISUZV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Sep 2006 16:22:07 -0400
-Received: from ogre.sisk.pl ([217.79.144.158]:53144 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S1751912AbWISUWE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Sep 2006 16:22:04 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.18-rc7-mm1
-Date: Tue, 19 Sep 2006 22:25:21 +0200
-User-Agent: KMail/1.9.1
-Cc: linux-kernel@vger.kernel.org
-References: <20060919012848.4482666d.akpm@osdl.org>
-In-Reply-To: <20060919012848.4482666d.akpm@osdl.org>
+	Tue, 19 Sep 2006 16:25:21 -0400
+Received: from iolanthe.rowland.org ([192.131.102.54]:21508 "HELO
+	iolanthe.rowland.org") by vger.kernel.org with SMTP
+	id S1752050AbWISUZU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Sep 2006 16:25:20 -0400
+Date: Tue, 19 Sep 2006 16:25:19 -0400 (EDT)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@iolanthe.rowland.org
+To: David Brownell <david-b@pacbell.net>
+cc: linux-usb-devel@lists.sourceforge.net,
+       Linux-pm mailing list <linux-pm@lists.osdl.org>,
+       Kernel development list <linux-kernel@vger.kernel.org>
+Subject: Re: [linux-usb-devel] [RFC] USB device persistence across suspend-to-disk
+In-Reply-To: <200609191052.58196.david-b@pacbell.net>
+Message-ID: <Pine.LNX.4.44L0.0609191604080.4631-100000@iolanthe.rowland.org>
 MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_xIFEFpGzGLB7fZO"
-Message-Id: <200609192225.21801.rjw@sisk.pl>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Boundary-00=_xIFEFpGzGLB7fZO
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+On Tue, 19 Sep 2006, David Brownell wrote:
 
-On Tuesday, 19 September 2006 10:28, Andrew Morton wrote:
+> > what matters is that people have been forced to unmount all 
+> > filesystems on USB devices before doing suspend-to-disk.  On some systems
+> > this is necessary even for suspend-to-RAM.
 > 
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc7/2.6.18-rc7-mm1/
-> 
-> 
-> - git-input.patch has been dropped due to major mismatches between it
->   and the driver tree.
-> 
-> - git-alsa.patch has been dropped due to similar mismatches.
-> 
-> - ia64 doesn't build due to bugs in the PCI tree.
-> 
-> - The kernel doesn't work properly on RH FC3 or pretty much anything
->   which uses old udev, due to improvements in the driver tree.
-> 
-> - `make headers_check' is busted due to various bugs in various trees
->   and due to collisions between git-magic.patch and git-gfs2.patch
->   which I couldn't be bothered fixing.
-> 
-> - CONFIG_BLOCK=n is still busted due to mismatches between the NFS
->   and block trees.  Will fix later.
-> 
-> - NFS automounts of subdirectories remain unfixed.
-> 
-> - The large-NR_IRQS-exhausts-per_cpu-memory problem remains unfixed. 
->   I won't merge the genirq changes until it is.
-> 
-> - The i386 genirq MSI bugs have been "fixed" by disabling 4k stacks.
-> 
-> - It took maybe ten hours solid work to get this dogpile vaguely
->   compiling and limping to a login prompt on x86, x86_64 and powerpc. 
->   I guess it's worth briefly testing if you're keen.
+> Most PCs maintain the USB connections during suspend-to-RAM; ISTR seeing
+> some hardware design guidelines from SFT saying to do it that way, so that
+> remote wakeup works.  (E.g. on systems with only USB keyboards and mice,
+> you want wakeup to be natural.)
 
-It's not that bad, but unfortunately the networking doesn't work on my system
-(HPC nx6325 + SUSE 10.1 w/ updates, 64-bit).  Apparently, the interfaces don't
-get configured (both tg3 and bcm43xx are affected).
+I also saw some guidelines from Microsoft, perhaps the very same ones.  
+They described the tasks the BIOS was supposed to undertake with regard to 
+USB controllers.  However they didn't address the (IMO) really important 
+issues.  And the vendor in question at the time interpreted the document 
+to mean exactly the opposite of what you're saying!  (Of course, that's 
+not saying much...)
 
-The .config is attached.
+> A mechanism that's this dangerous deserves to be discouraged much more
+> strongly, if it's even merged.  (I'm not a big fan of giving people
+> quite that much rope.)  Having it depend on CONFIG_EMBEDDED as well as
+> CONFIG_EXPERIMENTAL (or better yet CONFIG_DANGEROUS) seems a better route...
 
-Greetings,
-Rafael
+I'll be happy to change the enabling mechanism from a module parameter to 
+a config option -- or even both.
 
+How dangerous would this turn out to be in the real world?  It's hard to 
+say.  No doubt there would be occasional instances of crashes, but just 
+how occasional is impossible to estimate.  My guess is pretty infrequent.
 
--- 
-You never change things by fighting the existing reality.
-		R. Buckminster Fuller
+> > + * changed.  If the user replaces a flash memory card while the system is
+> > + * asleep, he will have only himself to blame when the filesystem on the
+> > + * new card is corrupted and the system crashes.
+> 
+> I'll disagree on the "only himself to blame".  If this mechanism is trivial
+> to kick in, it will be kicked in even by (or on behalf of) users that have
+> no reason to understand how dangerous this is.
 
---Boundary-00=_xIFEFpGzGLB7fZO
-Content-Type: application/x-gzip;
-  name="kernel-config.gz"
-Content-Transfer-Encoding: base64
-Content-Disposition: attachment;
-	filename="kernel-config.gz"
+This is the flip side of the argument.  How easy should it be to invoke 
+this feature?  Most users at the level of ignorance you're assuming don't 
+ever set up nontrivial module parameters.  Even fewer users bother to 
+recompile kernels with config options different from those used by their 
+distribution.
 
-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
-OXWcQ/CwtMIJ9VLTwD4gSv0Pl6oMtZfBAAA=
+> > +			WARNING!!  If a USB mass-storage device or its media
+> > +			are changed while the system is suspended, the kernel
+> > +			may not realize what has happened.  If this option is
+> > +			enabled then filesystem corruption and a system crash
+> > +			may result.
+>                         ^^^
+>                         File system corruption ** WILL ** result...
 
---Boundary-00=_xIFEFpGzGLB7fZO--
+Not necessarily.  The example that provoked this was an embedded system 
+with its root fs on a non-accessible USB flash device.
+
+> > +According to the USB specification, when a USB bus is suspended the
+> > +bus must continue to supply suspend current (around 1-5 mA).  This
+> 
+> No ... it's normally 500 uA, or for high powered devices up to 2500 uA.
+> The specification is a per-device average over 1 second, not per bus.
+
+Okay, so I wrote that from memory and I was off by a factor of 2 (it does
+say "around"!).  Since I didn't say whether the figure was per-device or
+per-bus, you can't criticize that aspect.  :-)
+
+> > +Loss of power isn't the only mechanism to worry about.  Anything that
+> > +interrupts a power session will have the same effect.  For example,
+> > +even though suspend current may have been maintained while the system
+> > +was asleep, on many systems during the initial stages of wakeup the
+> > +firmware (i.e., the BIOS) resets the motherboard's USB host
+> > +controllers. 
+> 
+> That's called a BUG ... firmware shouldn't have reset any device
+> that the OS was managing.  And in fact during true system suspend
+> states, I've not heard any reports of a BIOS resetting a USB host
+> controller.  Do you have examples of these "many" systems??
+
+I don't have statistics.  But I have run across quite a few examples of
+systems where this happens.  Lots of bug reports, plus at least one of my
+own machines.  (I think -- haven't checked it recently.)
+
+> > +On many systems the USB host controllers will get reset after a
+>       ^^^^
+>       "some" ... by numbers, not very many since ISTR it's against
+> the hardware design guidelines from MSFT.
+
+I wouldn't go so far as to say that, unless you can actually produce the
+relevant quite from the guidelines document.  In any case, even if the
+percentage of machines where this happens is relatively low it can still
+amount to a lot of systems.
+
+> > +suspend-to-RAM.  On almost all systems, no suspend current is
+> > +available during suspend-to-disk (also known as swsusp).  You can
+> > +check the kernel log after resuming to see if either of these has
+> > +happened; look for lines saying "root hub lost power or was reset".
+> > +
+> > +In practice, people are forced to unmount any filesystems on a USB
+> > +device before suspending.  
+> 
+> Just like for ** ALL ** other kinds of removable media, on any system
+> where userspace isn't facilitating data corruption.
+
+What about floppy disks?
+
+> > +	WARNING: Using "persist=y" can be dangerous!!
+> 
+> You're understating this.  I really think that such a mechanism would
+> need to be explicitly configured into the kernel.  Distros that want
+> to cope with all the end-user "your kernel trashed my disk!!" service
+> calls could do so ... others would keep that option off, and save lots
+> of customer support and end user pain.
+
+Would you prefer just a config option or a config option plus a module
+parameter (both must be set to enable the feature)?
+
+Alan Stern
+

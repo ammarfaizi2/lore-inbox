@@ -1,41 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752060AbWISUct@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752049AbWISUgX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752060AbWISUct (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Sep 2006 16:32:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752062AbWISUct
+	id S1752049AbWISUgX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Sep 2006 16:36:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750915AbWISUgX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Sep 2006 16:32:49 -0400
-Received: from iolanthe.rowland.org ([192.131.102.54]:28431 "HELO
-	iolanthe.rowland.org") by vger.kernel.org with SMTP
-	id S1752060AbWISUcs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Sep 2006 16:32:48 -0400
-Date: Tue, 19 Sep 2006 16:32:47 -0400 (EDT)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@iolanthe.rowland.org
-To: David Brownell <david-b@pacbell.net>
-cc: Jiri Kosina <jikos@jikos.cz>, Andrew Morton <akpm@osdl.org>,
-       <dbrownell@users.sourceforge.net>, <weissg@vienna.at>,
-       <linux-usb-devel@lists.sourceforge.net>, <linux-kernel@vger.kernel.org>
-Subject: Re: [linux-usb-devel] [PATCH] USB: consolidate error values from
- EHCI, UHCI and OHCI _suspend()
-In-Reply-To: <200609190913.12563.david-b@pacbell.net>
-Message-ID: <Pine.LNX.4.44L0.0609191630470.4631-100000@iolanthe.rowland.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 19 Sep 2006 16:36:23 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:30359 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751278AbWISUgW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Sep 2006 16:36:22 -0400
+Date: Tue, 19 Sep 2006 13:36:06 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: Re: 2.6.18-rc7-mm1
+Message-Id: <20060919133606.f0c92e66.akpm@osdl.org>
+In-Reply-To: <200609192225.21801.rjw@sisk.pl>
+References: <20060919012848.4482666d.akpm@osdl.org>
+	<200609192225.21801.rjw@sisk.pl>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 19 Sep 2006, David Brownell wrote:
+On Tue, 19 Sep 2006 22:25:21 +0200
+"Rafael J. Wysocki" <rjw@sisk.pl> wrote:
 
-> Eventually we want hcd->state to vanish, but until it does it sure seems
-> like a problem if usbcore can't rely on all HCDs to treat it the same.
+> > - It took maybe ten hours solid work to get this dogpile vaguely
+> >   compiling and limping to a login prompt on x86, x86_64 and powerpc. 
+> >   I guess it's worth briefly testing if you're keen.
+> 
+> It's not that bad, but unfortunately the networking doesn't work on my system
+> (HPC nx6325 + SUSE 10.1 w/ updates, 64-bit).  Apparently, the interfaces don't
+> get configured (both tg3 and bcm43xx are affected).
 
-uhci-hcd sets hcd->state wherever needed by usbcore, just as the other 
-HCDs do.  (At least that was my intention -- if I missed setting it 
-somewhere then the driver should be fixed.)
+Is there anything interesting in the dmesg output?
 
-But uhci-hcd never reads hcd->state or tests its value.  I think that's 
-what Jiri meant.
-
-Alan Stern
-
+Perhaps an `strace -f ifup' or whatever would tell us what's failing.

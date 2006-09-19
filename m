@@ -1,35 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030275AbWISNn5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932287AbWISNrj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030275AbWISNn5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Sep 2006 09:43:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751866AbWISNn5
+	id S932287AbWISNrj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Sep 2006 09:47:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751950AbWISNrj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Sep 2006 09:43:57 -0400
-Received: from pollux.ds.pg.gda.pl ([153.19.208.7]:46343 "EHLO
-	pollux.ds.pg.gda.pl") by vger.kernel.org with ESMTP
-	id S1751243AbWISNn4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Sep 2006 09:43:56 -0400
-Date: Tue, 19 Sep 2006 14:43:55 +0100 (BST)
-From: "Maciej W. Rozycki" <macro@linux-mips.org>
-To: Amy Fong <amy.fong@windriver.com>
-cc: Jeff Garzik <jeff@garzik.org>, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org
-Subject: Re: [PATCH] Add Broadcom PHY support
-In-Reply-To: <E1GPflG-0000n7-2o@lucciola>
-Message-ID: <Pine.LNX.4.64N.0609191441260.24069@blysk.ds.pg.gda.pl>
-References: <E1GPflG-0000n7-2o@lucciola>
+	Tue, 19 Sep 2006 09:47:39 -0400
+Received: from mail3.sea5.speakeasy.net ([69.17.117.5]:41178 "EHLO
+	mail3.sea5.speakeasy.net") by vger.kernel.org with ESMTP
+	id S1751866AbWISNri (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Sep 2006 09:47:38 -0400
+Date: Tue, 19 Sep 2006 09:47:35 -0400 (EDT)
+From: James Morris <jmorris@namei.org>
+X-X-Sender: jmorris@d.namei
+To: Andrew Morton <akpm@osdl.org>
+cc: Stephen Smalley <sds@tycho.nsa.gov>, linux-kernel@vger.kernel.org,
+       Venkat Yekkirala <vyekkirala@TrustedCS.com>
+Subject: [PATCH] SELinux: Fix bug in security_sid_mls_copy
+Message-ID: <Pine.LNX.4.64.0609190945180.17323@d.namei>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 19 Sep 2006, Amy Fong wrote:
+From: Venkat Yekkirala <vyekkirala@TrustedCS.com>
 
-> > And... where are the users of this phy driver?
-[...]
-> This phy driver is used by the WRS's sbc8560 (bcm5421s) and sbc843x 
-> (bcm5461s) via the gianfar driver.
+The following fixes a bug where random mem is being tampered with in the 
+non-mls case; encountered by Jashua Brindle on a gentoo box.
 
- And sb1250-mac.c would be happy to use it too.
+Please apply.
 
-  Maciej
+Signed-off-by: Venkat Yekkirala <vyekkirala@TrustedCS.com>
+Acked-by:  Stephen Smalley <sds@tycho.nsa.gov>
+Signed-off-by: James Morris <jmorris@namei.org>
+
+---
+
+ security/selinux/ss/services.c |    3 +--
+ 1 file changed, 1 insertion(+), 2 deletions(-)
+
+diff --git a/security/selinux/ss/services.c b/security/selinux/ss/services.c
+index 27ee28c..7eb69a6 100644
+--- a/security/selinux/ss/services.c
++++ b/security/selinux/ss/services.c
+@@ -1841,7 +1841,7 @@ int security_sid_mls_copy(u32 sid, u32 m
+ 	u32 len;
+ 	int rc = 0;
+ 
+-	if (!ss_initialized) {
++	if (!ss_initialized || !selinux_mls_enabled) {
+ 		*new_sid = sid;
+ 		goto out;
+ 	}
+

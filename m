@@ -1,102 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750795AbWISGuJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750807AbWISGuk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750795AbWISGuJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Sep 2006 02:50:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750806AbWISGuI
+	id S1750807AbWISGuk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Sep 2006 02:50:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750936AbWISGuk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Sep 2006 02:50:08 -0400
-Received: from mail.sf-mail.de ([62.27.20.61]:40630 "EHLO mail.sf-mail.de")
-	by vger.kernel.org with ESMTP id S1750795AbWISGuG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Sep 2006 02:50:06 -0400
-From: Rolf Eike Beer <eike-kernel@sf-tec.de>
-To: Jiri Slaby <jirislaby@gmail.com>
-Subject: Re: [PATCH 4/4] pmc551 pci cleanup
-Date: Tue, 19 Sep 2006 08:50:15 +0200
-User-Agent: KMail/1.9.4
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Mark Ferrell <mferrell@mvista.com>, linux-mtd@lists.infradead.org
-References: <91292449121291221@karneval.cz>
-In-Reply-To: <91292449121291221@karneval.cz>
+	Tue, 19 Sep 2006 02:50:40 -0400
+Received: from 85.8.24.16.se.wasadata.net ([85.8.24.16]:7821 "EHLO
+	smtp.drzeus.cx") by vger.kernel.org with ESMTP id S1750807AbWISGuj
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Sep 2006 02:50:39 -0400
+Message-ID: <450F8833.3050200@drzeus.cx>
+Date: Tue, 19 Sep 2006 08:03:31 +0200
+From: Pierre Ossman <drzeus-list@drzeus.cx>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart2135272.YWNQ9TQiSA";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+To: Alex Dubov <oakad@yahoo.com>
+CC: linux-kernel@vger.kernel.org, rmk+lkml@arm.linux.org.uk
+Subject: Re: Support for TI FlashMedia (pci id 104c:8033, 104c:803b) flash
+ card readers
+References: <20060919032003.77685.qmail@web36702.mail.mud.yahoo.com>
+In-Reply-To: <20060919032003.77685.qmail@web36702.mail.mud.yahoo.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Message-Id: <200609190850.20778.eike-kernel@sf-tec.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart2135272.YWNQ9TQiSA
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
-
-Am Dienstag, 19. September 2006 00:47 schrieb Jiri Slaby:
-> pmc551 pci cleanup
+Alex Dubov wrote:
+> I was looking at the way to put my driver into the kernel and currently have three ways of doing
+> it (all of them came up in the thread, already):
+> 1.
+> Put everything in drivers/misc
 >
-> use pci_get_device -- refcounting, release it by pci_dev_put. Use
-> pci_resource_start for getting start of regions.
+> 2.
+> Put tifm_core, tifm_7xx1 and tifm_ms (in progress) in drivers/misc, tifm_sd in drivers/mmc
 >
-> Signed-off-by: Jiri Slaby <jirislaby@gmail.com>
+> 3.
+> Put everything in drivers/mmc
 >
-> ---
-> commit 6fe18c54c93d38eec34ca0776da60fc355968f6b
-> tree 5bf3cf8fe213de770c7c7a1279eafb3937f4c386
-> parent 912ff3e53f760cb166988fcd46fc173f8e4c22e7
-> author Jiri Slaby <xslaby@anemoi.localdomain> Tue, 19 Sep 2006 00:39:08
-> +0200 committer Jiri Slaby <xslaby@anemoi.localdomain> Tue, 19 Sep 2006
-> 00:39:08 +0200
-
-You should change your .git/config and add a user section to get the mail=20
-address correct I think.
-
->  drivers/mtd/devices/pmc551.c |   21 +++++++++++++--------
->  1 files changed, 13 insertions(+), 8 deletions(-)
+> I'm favoring everything in drivers/mmc, especially if it can be renamed into drivers/flashcards or
+> something. This way, all flash card drivers will be nicely localized. In this respect, I also
+> wonder where the MemoryStick driver for Winbond card readers is supposed to go when it enters the
+> kernel? (Winbond driver is written by people with access to the MemoryStick spec and I'm using it
+> as reference for my own work, with great utility).
 >
-> diff --git a/drivers/mtd/devices/pmc551.c b/drivers/mtd/devices/pmc551.c
-> index 5f5de9c..d1ba4b9 100644
-> --- a/drivers/mtd/devices/pmc551.c
-> +++ b/drivers/mtd/devices/pmc551.c
-> @@ -563,7 +563,7 @@ #ifdef CONFIG_MTD_PMC551_DEBUG
->  		size >> 10 : size >> 20,
->  		(size < 1024) ? 'B' : (size < 1048576) ? 'K' : 'M', size,
->  		((dcmd & (0x1 << 3)) =3D=3D 0) ? "non-" : "",
-> -		(unsigned long long)((dev->resource[0].start) &
-> +		(unsigned long long)(pci_resource_start(dev, 0) &
->  				    PCI_BASE_ADDRESS_MEM_MASK));
->
->  	/*
+>   
 
-The last part is unneeded in both versions, when resource[n].start is set t=
-he=20
-PCI core already does the masking.
+I prefer 2, where only tifm_sd (and tifm_ms) show up in Kconfig. The
+other modules will be "Select":ed via Kconfig.
 
-> @@ -755,14 +758,14 @@ static int __init init_pmc551(void)
->  				"size %dM\n", asize >> 20);
->  			priv->asize =3D asize;
->  		}
-> -		priv->start =3D ioremap(((PCI_Device->resource[0].start)
-> -					& PCI_BASE_ADDRESS_MEM_MASK),
-> -				      priv->asize);
-> +		priv->start =3D ioremap(pci_resource_start(PCI_Device, 0) &
-> +				PCI_BASE_ADDRESS_MEM_MASK, priv->asize);
+1 can be a bit confusing for users as they expect a MMC/SD driver to be
+in drivers/mmc, but it could be acceptable if it's considered more
+important to keep all files in a common place.
 
-pci_iomap(PCI_Device, 0, priv->asize);
+3 is out as drivers/mmc isn't for "any flashcard technology". It is
+intended to grow with SDIO drivers, so we do not want to clutter it up
+with other systems.
 
-Eike
+Until your (and Winbond's) driver has a generic MemoryStick layer, then
+the fact that you use MemoryStick is just an implementation detail. From
+the kernel's point of view you're just some odd-ball block driver. When
+we have a generic MS layer, we should probably move these to a "ms"
+directory, possibly creating a common tree structure for mmc and ms.
 
---nextPart2135272.YWNQ9TQiSA
-Content-Type: application/pgp-signature
+Rgds
+Pierre
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
-
-iD8DBQBFD5MsXKSJPmm5/E4RAtNsAJ9Pq/lJ+fzcCDqZxlJWSf4PFLV67gCgidwZ
-iF3+wiVTfv0cCmqrfLRIk/E=
-=k4im
------END PGP SIGNATURE-----
-
---nextPart2135272.YWNQ9TQiSA--

@@ -1,76 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751372AbWISWxt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752087AbWISW4D@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751372AbWISWxt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Sep 2006 18:53:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751353AbWISWxt
+	id S1752087AbWISW4D (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Sep 2006 18:56:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752094AbWISW4D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Sep 2006 18:53:49 -0400
-Received: from ogre.sisk.pl ([217.79.144.158]:53145 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S1750715AbWISWxs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Sep 2006 18:53:48 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Greg KH <greg@kroah.com>
-Subject: Re: 2.6.18-rc7-mm1: networking breakage on HPC nx6325 + SUSE 10.1
-Date: Wed, 20 Sep 2006 00:56:57 +0200
-User-Agent: KMail/1.9.1
-Cc: David Miller <davem@davemloft.net>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-References: <20060919133606.f0c92e66.akpm@osdl.org> <20060919.150629.109607267.davem@davemloft.net> <20060919223015.GA23088@kroah.com>
-In-Reply-To: <20060919223015.GA23088@kroah.com>
+	Tue, 19 Sep 2006 18:56:03 -0400
+Received: from nf-out-0910.google.com ([64.233.182.186]:33118 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1752087AbWISW4B (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Sep 2006 18:56:01 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
+        b=J9KqF0d0PGw9yD7IOjSkh1miMwrlNRlVzpzSKYtYRCpAEgeKBAniRKJ92BYTdkzTCl1EHgB/zpsHDo7lGzPJgGkxnrg6BO8cJzdsZzQ6soH+4HhsCcCmbmFQrkUIMvNf/1Qf42EHyQWM3+BSHzhAfJpU+lhpKO5Zyi+lSv+ESGc=
+Message-ID: <12c511ca0609191555q2bfb934aha4cfc0068c1ccd9a@mail.gmail.com>
+Date: Tue, 19 Sep 2006 15:55:58 -0700
+From: "Tony Luck" <tony.luck@intel.com>
+To: "Christoph Lameter" <clameter@sgi.com>
+Subject: Re: Efficient Use of the Page Cache with 64 KB Pages
+Cc: "Sandeep Kumar" <sandeepksinha@gmail.com>, linux-kernel@vger.kernel.org,
+       shaggy@austin.ibm.com
+In-Reply-To: <Pine.LNX.4.64.0609191136580.6460@schroedinger.engr.sgi.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200609200056.57858.rjw@sisk.pl>
+References: <37d33d830609150150v30dc32en57f8c5e43c30aef3@mail.gmail.com>
+	 <Pine.LNX.4.64.0609191136580.6460@schroedinger.engr.sgi.com>
+X-Google-Sender-Auth: b63fc36d3523d946
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday, 20 September 2006 00:30, Greg KH wrote:
-> On Tue, Sep 19, 2006 at 03:06:29PM -0700, David Miller wrote:
-> > From: "Rafael J. Wysocki" <rjw@sisk.pl>
-> > Date: Wed, 20 Sep 2006 00:06:52 +0200
-> > 
-> > > I _guess_ the problem is caused by
-> > > gregkh-driver-network-class_device-to-device.patch, but I can't verify this,
-> > > because the kernel (obviously) doesn't compile if I revert it.
-> > 
-> > Indeed.
-> > 
-> > I thought we threw this patch out because we knew it would cause
-> > problems for existing systems?  I do remember Greg making an argument
-> > as to why we needed the change, but that doesn't make breaking people's
-> > systems legitimate in any way.
-> 
-> It's now thrown out, and I think Andrew already had a patch in his tree
-> that reverted this.
-> 
-> I'll be bringing it back eventually, but first we are going to work out
-> all the kinks by probably putting these changes in the next few SuSE
-> alpha releases to see what shakes out in userspace that we need to go
-> fix.
-> 
-> It's not 2.6.19 material at all, so don't worry :)
+On 9/19/06, Christoph Lameter <clameter@sgi.com> wrote:
+> IA64 has supported 64k page size from the beginning. Since some
+> years before the end of the last decade. It is only the hardware
+> limitations on IA32 that hold us back.
 
-Please note, however, that by including such changes in -mm we make _other_
-things be not tested.
+But memory usage with a 64K page size can get out of hand (especially
+if you have an application that uses a lot of small files).  Dave Kleikamp's
+tail pages would help make 64K page size more generally palatable.
 
-For example, if I can't install a new kernel and use it on my system without
-replacing some other pieces of software, I just won't be using it, because I
-have no time for playing with udev, hal, powersaved, acpid, ...
-Then, if there are any bugs in it that would have shown up on my system,
-we won't know about them unless they show up on someone else's system,
-which may not happen.
+-Tony
 
-The more changes that break existing setups are there in -mm, the less
-people will acutally try to use -mm kernels and that will result in buggier
--rc kernels and more bugs propagating to the "stable" ones.  Do we really
-want that to happen?
-
-Rafael
-
-
--- 
-You never change things by fighting the existing reality.
-		R. Buckminster Fuller
+----
+New yarn store in Sunnyvale opens October 14th. http://www.purlescenceyarns.com

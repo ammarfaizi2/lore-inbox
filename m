@@ -1,43 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030286AbWISNPn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030291AbWISNS4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030286AbWISNPn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Sep 2006 09:15:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030287AbWISNPn
+	id S1030291AbWISNS4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Sep 2006 09:18:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030292AbWISNS4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Sep 2006 09:15:43 -0400
-Received: from main.gmane.org ([80.91.229.2]:49042 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S1030286AbWISNPm (ORCPT
+	Tue, 19 Sep 2006 09:18:56 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:27599 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S1030291AbWISNSz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Sep 2006 09:15:42 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Samuel Tardieu <sam@rfc1149.net>
-Subject: Re: [RFC-patch 0/3] SuperIO locks coordinator
-Date: 19 Sep 2006 15:11:17 +0200
-Message-ID: <87k6402e8a.fsf_-_@willow.rfc1149.net>
-References: <87fyf5jnkj.fsf@willow.rfc1149.net> <1157815525.6877.43.camel@localhost.localdomain> <20060909220256.d4486a4f.vsu@altlinux.ru> <4508FF2F.5020504@gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: zaphod.rfc1149.net
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.4
-X-Leafnode-NNTP-Posting-Host: 2001:6f8:37a:2::2
-Cc: lm-sensors@lm-sensors.org
+	Tue, 19 Sep 2006 09:18:55 -0400
+Date: Tue, 19 Sep 2006 15:17:18 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Christoph Hellwig <hch@infradead.org>
+cc: Ingo Molnar <mingo@elte.hu>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       "Frank Ch. Eigler" <fche@redhat.com>, karim@opersys.com,
+       Tim Bird <tim.bird@am.sony.com>,
+       Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
+       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Ingo Molnar <mingo@redhat.com>, Greg Kroah-Hartman <gregkh@suse.de>,
+       Thomas Gleixner <tglx@linutronix.de>, Tom Zanussi <zanussi@us.ibm.com>,
+       ltt-dev@shafik.org, Michel Dagenais <michel.dagenais@polymtl.ca>
+Subject: Re: [PATCH 0/11] LTTng-core (basic tracing infrastructure) 0.5.108
+In-Reply-To: <20060919122933.GA11337@infradead.org>
+Message-ID: <Pine.LNX.4.64.0609191444060.6761@scrub.home>
+References: <Pine.LNX.4.64.0609151425180.6761@scrub.home>
+ <1158327696.29932.29.camel@localhost.localdomain> <Pine.LNX.4.64.0609151523050.6761@scrub.home>
+ <1158331277.29932.66.camel@localhost.localdomain> <450ABA2A.9060406@opersys.com>
+ <1158332324.29932.82.camel@localhost.localdomain> <y0mmz91f46q.fsf@ton.toronto.redhat.com>
+ <1158345108.29932.120.camel@localhost.localdomain> <20060915181208.GA17581@elte.hu>
+ <Pine.LNX.4.64.0609152046350.6761@scrub.home> <20060919122933.GA11337@infradead.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Jim" == Jim Cromie <jim.cromie@gmail.com> writes:
+Hi,
 
-Jim> The module does *not* guarantee anything, it offers no protection
-Jim> against rogue (existing) modules which dont use the superio-locks
-Jim> coordinator.  (is anti-rogue protection even possible?  Perhaps,
-Jim> IFF modules reserve the 2 superio addresses - semi-rogue?)
+On Tue, 19 Sep 2006, Christoph Hellwig wrote:
 
-I don't think we can prevent bad things from happening if someone
-doesn't play the game and uses the device using IO ports directly on a
-SMP.
+> > Who is going to implement this for every arch?
+> > Is this now the official party line that only archs, which implement all 
+> > of this, can make use of efficient tracing?
+> 
+> Come on, stop trying to be an asshole.  It's always been the case that to
+> use new functionality you have to add arch code where nessecary.
 
-  Sam
--- 
-Samuel Tardieu -- sam@rfc1149.net -- http://www.rfc1149.net/
+On the contrary I'm really trying my best to be reasonable.
+If there were no way around implementing kprobes, I would completely agree 
+with you.
 
+Let's take an item from todo list: TLS support for m68k. This a language 
+feature becoming more and more important and increasingly difficult to 
+work around it. Considering the complexities of this feature it will take 
+quite a bit of the time available to me and somehow I doubt someone will 
+beat me to it. I'm not complaining about it, I even enjoy hacking on it, 
+but I also have to take no shit on how I have to spend my time.
+
+Considering this I hope you understand how important kprobes are to me, I 
+admit it's a nice a feature, but it's far from being essential.
+
+bye, Roman

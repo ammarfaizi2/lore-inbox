@@ -1,53 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751278AbWISUiV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752067AbWISUnq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751278AbWISUiV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Sep 2006 16:38:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752062AbWISUiU
+	id S1752067AbWISUnq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Sep 2006 16:43:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752069AbWISUnp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Sep 2006 16:38:20 -0400
-Received: from iolanthe.rowland.org ([192.131.102.54]:6157 "HELO
-	iolanthe.rowland.org") by vger.kernel.org with SMTP
-	id S1751278AbWISUiU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Sep 2006 16:38:20 -0400
-Date: Tue, 19 Sep 2006 16:38:19 -0400 (EDT)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@iolanthe.rowland.org
-To: "Paul E. McKenney" <paulmck@us.ibm.com>
-cc: Nick Piggin <nickpiggin@yahoo.com.au>, David Howells <dhowells@redhat.com>,
-       Kernel development list <linux-kernel@vger.kernel.org>
-Subject: Re: Uses for memory barriers
-In-Reply-To: <20060919200116.GJ1310@us.ibm.com>
-Message-ID: <Pine.LNX.4.44L0.0609191634480.4631-100000@iolanthe.rowland.org>
+	Tue, 19 Sep 2006 16:43:45 -0400
+Received: from ns2.suse.de ([195.135.220.15]:32180 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1752067AbWISUno (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Sep 2006 16:43:44 -0400
+From: Andi Kleen <ak@suse.de>
+To: Thomas Graf <tgraf@suug.ch>
+Subject: Re: Network performance degradation from 2.6.11.12 to 2.6.16.20
+Date: Tue, 19 Sep 2006 22:43:27 +0200
+User-Agent: KMail/1.9.3
+Cc: David Miller <davem@davemloft.net>, kuznet@ms2.inr.ac.ru,
+       master@sectorb.msk.ru, hawk@diku.dk, harry@atmos.washington.edu,
+       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+References: <20060918162847.GA4863@ms2.inr.ac.ru> <20060918.142247.14844785.davem@davemloft.net> <20060919203105.GF18349@postel.suug.ch>
+In-Reply-To: <20060919203105.GF18349@postel.suug.ch>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200609192243.27511.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 19 Sep 2006, Paul E. McKenney wrote:
 
-> > Maybe I'm missing something. But if the same CPU loads the value
-> > before the store becomes visible to cache coherency, it might see
-> > the value out of any order any of the other CPUs sees.
-> 
-> Agreed.  But the CPUs would have to refer to a fine-grained synchronized
-> timebase or to some other variable in order to detect the fact that there
-> were in fact multiple different values for the same variable at the same
-> time (held in the different store queues).
+> It seems only natural to me that the real problem is the slow
+> clock source which needs to be resolved regardless of the
+> outcome of this discussion. I believe that updating the stamp
+> at socket enqueue time is the right thing to do but it shouldn't
+> be considered as a solution to the performance problem.
 
-Even that wouldn't be illegal.  No one ever said that any particular write 
-becomes visible to all CPUs at the same time.
+While I agree it would be nice to fix that particular issue 
+(it's unfortunately hard) slow clock sources in general won't go
+away. They are also in lots of other platforms.
 
-> If the CPUs looked only at that one single variable being stored to,
-> could they have inconsistent opinions about the order of values that
-> this single variable took on?  My belief is that they could not.
+And even if you have a fast clock source not using it when you
+don't need to is better. For example some x86s can be quite
+slow even reading TSCs. It's much better than pmtmr
+it's still is a expensive operations that is best avoided.
 
-Yes, I think this must be right.  If a store is hung up in a CPU's store 
-buffer, it will mask later stores by other CPUs (i.e., prevent them from 
-becoming visible to the CPU that owns the store buffer).  Hence all stores 
-that _do_ become visible will appear in a consistent order.
-
-But my knowledge of outlandish hardware is extremely limited, so don't 
-take my word as gospel.
-
-Alan
+-Andi
 

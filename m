@@ -1,19 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751298AbWISLQf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030189AbWISLUN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751298AbWISLQf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Sep 2006 07:16:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751704AbWISLQf
+	id S1030189AbWISLUN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Sep 2006 07:20:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030196AbWISLUN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Sep 2006 07:16:35 -0400
-Received: from mtagate5.de.ibm.com ([195.212.29.154]:25883 "EHLO
-	mtagate5.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1751298AbWISLQe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Sep 2006 07:16:34 -0400
-Date: Tue, 19 Sep 2006 13:16:31 +0200
+	Tue, 19 Sep 2006 07:20:13 -0400
+Received: from mtagate3.de.ibm.com ([195.212.29.152]:43829 "EHLO
+	mtagate3.de.ibm.com") by vger.kernel.org with ESMTP
+	id S1030192AbWISLUI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Sep 2006 07:20:08 -0400
+Date: Tue, 19 Sep 2006 13:20:04 +0200
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-To: linux-kernel@vger.kernel.org, peter.oberparleiter@de.ibm.com
-Subject: [S390] cio: subchannel evaluation function operates without lock
-Message-ID: <20060919111631.GA21713@skybase>
+To: linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org, akpm@osdl.org
+Cc: mingo@elte.hu, paulus@samba.org
+Subject: [patch 3/3] Directed yield: direct yield of spinlocks for s390.
+Message-ID: <20060919112004.GE21713@skybase>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -21,262 +22,314 @@ User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Peter Oberparleiter <peter.oberparleiter@de.ibm.com>
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
 
-[S390] cio: subchannel evaluation function operates without lock
+[patch 3/3] Directed yield: direct yield of spinlocks for s390.
 
-css_evaluate_subchannel() operates subchannel without lock which can
-lead to erratic behavior caused by concurrent device access. Also
-split evaluation function to make it more readable.
+Use the new diagnose 0x9c in the spinlock implementation for s390.
+It yields the remaining timeslice of the virtual cpu that tries to
+acquire a lock to the virtual cpu that is the current holder of the
+lock.
 
-Signed-off-by: Peter Oberparleiter <peter.oberparleiter@de.ibm.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- drivers/s390/cio/css.c |  203 +++++++++++++++++++++++++------------------------
- 1 files changed, 104 insertions(+), 99 deletions(-)
+ arch/s390/kernel/head31.S         |   11 ++++++
+ arch/s390/kernel/head64.S         |   11 ++++++
+ arch/s390/lib/spinlock.c          |   62 +++++++++++++++++++++++---------------
+ include/asm-s390/setup.h          |    1 
+ include/asm-s390/spinlock.h       |   31 +++++++++++++------
+ include/asm-s390/spinlock_types.h |    6 +--
+ 6 files changed, 87 insertions(+), 35 deletions(-)
 
-diff -urpN linux-2.6/drivers/s390/cio/css.c linux-2.6-patched/drivers/s390/cio/css.c
---- linux-2.6/drivers/s390/cio/css.c	2006-09-19 12:58:32.000000000 +0200
-+++ linux-2.6-patched/drivers/s390/cio/css.c	2006-09-19 12:59:33.000000000 +0200
-@@ -182,136 +182,141 @@ get_subchannel_by_schid(struct subchanne
- 	return dev ? to_subchannel(dev) : NULL;
+diff -urpN linux-2.6/arch/s390/kernel/head31.S linux-2.6-patched/arch/s390/kernel/head31.S
+--- linux-2.6/arch/s390/kernel/head31.S	2006-09-19 12:59:13.000000000 +0200
++++ linux-2.6-patched/arch/s390/kernel/head31.S	2006-09-19 12:59:36.000000000 +0200
+@@ -254,6 +254,16 @@ startup_continue:
+ 	oi	3(%r12),0x80		# set IDTE flag
+ .Lchkidte:
+ 
++#
++# find out if the diag 0x9c is available
++#
++	mvc	__LC_PGM_NEW_PSW(8),.Lpcdiag9c-.LPG1(%r13)
++	stap   __LC_CPUID+4		# store cpu address
++	lh     %r1,__LC_CPUID+4
++	diag   %r1,0,0x9c		# test diag 0x9c
++	oi     2(%r12),1		# set diag9c flag
++.Lchkdiag9c:
++
+ 	lpsw  .Lentry-.LPG1(13)		# jump to _stext in primary-space,
+ 					# virtual and never return ...
+ 	.align	8
+@@ -281,6 +291,7 @@ startup_continue:
+ .Lpccsp:.long	0x00080000,0x80000000 + .Lchkcsp
+ .Lpcmvpg:.long	0x00080000,0x80000000 + .Lchkmvpg
+ .Lpcidte:.long	0x00080000,0x80000000 + .Lchkidte
++.Lpcdiag9c:.long 0x00080000,0x80000000 + .Lchkdiag9c
+ .Lmemsize:.long memory_size
+ .Lmchunk:.long	memory_chunk
+ .Lmflags:.long	machine_flags
+diff -urpN linux-2.6/arch/s390/kernel/head64.S linux-2.6-patched/arch/s390/kernel/head64.S
+--- linux-2.6/arch/s390/kernel/head64.S	2006-09-19 12:59:27.000000000 +0200
++++ linux-2.6-patched/arch/s390/kernel/head64.S	2006-09-19 12:59:36.000000000 +0200
+@@ -251,6 +251,17 @@ startup_continue:
+ 0:
+ 
+ #
++# find out if the diag 0x9c is available
++#
++	la     %r1,0f-.LPG1(%r13)	# set program check address
++	stg    %r1,__LC_PGM_NEW_PSW+8
++	stap   __LC_CPUID+4		# store cpu address
++	lh     %r1,__LC_CPUID+4
++	diag   %r1,0,0x9c		# test diag 0x9c
++	oi     6(%r12),1		# set diag9c flag
++0:
++
++#
+ # find out if we have the MVCOS instruction
+ #
+ 	la	%r1,0f-.LPG1(%r13)	# set program check address
+diff -urpN linux-2.6/arch/s390/lib/spinlock.c linux-2.6-patched/arch/s390/lib/spinlock.c
+--- linux-2.6/arch/s390/lib/spinlock.c	2006-06-18 03:49:35.000000000 +0200
++++ linux-2.6-patched/arch/s390/lib/spinlock.c	2006-09-19 12:59:36.000000000 +0200
+@@ -24,57 +24,76 @@ static int __init spin_retry_setup(char 
+ }
+ __setup("spin_retry=", spin_retry_setup);
+ 
+-static inline void
+-_diag44(void)
++static inline void _raw_yield(void)
+ {
+-#ifdef CONFIG_64BIT
+ 	if (MACHINE_HAS_DIAG44)
+-#endif
+ 		asm volatile("diag 0,0,0x44");
  }
  
--
--static inline int
--css_get_subchannel_status(struct subchannel *sch, struct subchannel_id schid)
-+static inline int css_get_subchannel_status(struct subchannel *sch)
- {
- 	struct schib schib;
--	int cc;
- 
--	cc = stsch(schid, &schib);
--	if (cc)
--		return CIO_GONE;
--	if (!schib.pmcw.dnv)
-+	if (stsch(sch->schid, &schib) || !schib.pmcw.dnv)
- 		return CIO_GONE;
--	if (sch && sch->schib.pmcw.dnv &&
--	    (schib.pmcw.dev != sch->schib.pmcw.dev))
-+	if (sch->schib.pmcw.dnv && (schib.pmcw.dev != sch->schib.pmcw.dev))
- 		return CIO_REVALIDATE;
--	if (sch && !sch->lpm)
-+	if (!sch->lpm)
- 		return CIO_NO_PATH;
- 	return CIO_OPER;
- }
--	
--static int
--css_evaluate_subchannel(struct subchannel_id schid, int slow)
-+
-+static int css_evaluate_known_subchannel(struct subchannel *sch, int slow)
- {
- 	int event, ret, disc;
--	struct subchannel *sch;
- 	unsigned long flags;
-+	enum { NONE, UNREGISTER, UNREGISTER_PROBE, REPROBE } action;
- 
--	sch = get_subchannel_by_schid(schid);
--	disc = sch ? device_is_disconnected(sch) : 0;
-+	spin_lock_irqsave(&sch->lock, flags);
-+	disc = device_is_disconnected(sch);
- 	if (disc && slow) {
--		if (sch)
--			put_device(&sch->dev);
--		return 0; /* Already processed. */
-+		/* Disconnected devices are evaluated directly only.*/
-+		spin_unlock_irqrestore(&sch->lock, flags);
-+		return 0;
- 	}
--	/*
--	 * We've got a machine check, so running I/O won't get an interrupt.
--	 * Kill any pending timers.
--	 */
--	if (sch)
--		device_kill_pending_timer(sch);
-+	/* No interrupt after machine check - kill pending timers. */
-+	device_kill_pending_timer(sch);
- 	if (!disc && !slow) {
--		if (sch)
--			put_device(&sch->dev);
--		return -EAGAIN; /* Will be done on the slow path. */
-+		/* Non-disconnected devices are evaluated on the slow path. */
-+		spin_unlock_irqrestore(&sch->lock, flags);
-+		return -EAGAIN;
- 	}
--	event = css_get_subchannel_status(sch, schid);
-+	event = css_get_subchannel_status(sch);
- 	CIO_MSG_EVENT(4, "Evaluating schid 0.%x.%04x, event %d, %s, %s path.\n",
--		      schid.ssid, schid.sch_no, event,
--		      sch?(disc?"disconnected":"normal"):"unknown",
--		      slow?"slow":"fast");
-+		      sch->schid.ssid, sch->schid.sch_no, event,
-+		      disc ? "disconnected" : "normal",
-+		      slow ? "slow" : "fast");
-+	/* Analyze subchannel status. */
-+	action = NONE;
- 	switch (event) {
- 	case CIO_NO_PATH:
--	case CIO_GONE:
--		if (!sch) {
--			/* Never used this subchannel. Ignore. */
--			ret = 0;
-+		if (disc) {
-+			/* Check if paths have become available. */
-+			action = REPROBE;
- 			break;
- 		}
--		if (disc && (event == CIO_NO_PATH)) {
--			/*
--			 * Uargh, hack again. Because we don't get a machine
--			 * check on configure on, our path bookkeeping can
--			 * be out of date here (it's fine while we only do
--			 * logical varying or get chsc machine checks). We
--			 * need to force reprobing or we might miss devices
--			 * coming operational again. It won't do harm in real
--			 * no path situations.
--			 */
--			spin_lock_irqsave(&sch->lock, flags);
--			device_trigger_reprobe(sch);
-+		/* fall through */
-+	case CIO_GONE:
-+		/* Prevent unwanted effects when opening lock. */
-+		cio_disable_subchannel(sch);
-+		device_set_disconnected(sch);
-+		/* Ask driver what to do with device. */
-+		action = UNREGISTER;
-+		if (sch->driver && sch->driver->notify) {
- 			spin_unlock_irqrestore(&sch->lock, flags);
--			ret = 0;
--			break;
--		}
--		if (sch->driver && sch->driver->notify &&
--		    sch->driver->notify(&sch->dev, event)) {
--			cio_disable_subchannel(sch);
--			device_set_disconnected(sch);
--			ret = 0;
--			break;
-+			ret = sch->driver->notify(&sch->dev, event);
-+			spin_lock_irqsave(&sch->lock, flags);
-+			if (ret)
-+				action = NONE;
- 		}
--		/*
--		 * Unregister subchannel.
--		 * The device will be killed automatically.
--		 */
--		cio_disable_subchannel(sch);
--		css_sch_device_unregister(sch);
--		/* Reset intparm to zeroes. */
--		sch->schib.pmcw.intparm = 0;
--		cio_modify(sch);
--		put_device(&sch->dev);
--		ret = 0;
- 		break;
- 	case CIO_REVALIDATE:
--		/* 
--		 * Revalidation machine check. Sick.
--		 * We don't notify the driver since we have to throw the device
--		 * away in any case.
--		 */
--		if (!disc) {
--			css_sch_device_unregister(sch);
--			/* Reset intparm to zeroes. */
--			sch->schib.pmcw.intparm = 0;
--			cio_modify(sch);
--			put_device(&sch->dev);
--			ret = css_probe_device(schid);
--		} else {
--			/*
--			 * We can't immediately deregister the disconnected
--			 * device since it might block.
--			 */
--			spin_lock_irqsave(&sch->lock, flags);
--			device_trigger_reprobe(sch);
--			spin_unlock_irqrestore(&sch->lock, flags);
--			ret = 0;
--		}
-+		/* Device will be removed, so no notify necessary. */
-+		if (disc)
-+			/* Reprobe because immediate unregister might block. */
-+			action = REPROBE;
-+		else
-+			action = UNREGISTER_PROBE;
- 		break;
- 	case CIO_OPER:
--		if (disc) {
--			spin_lock_irqsave(&sch->lock, flags);
-+		if (disc)
- 			/* Get device operational again. */
--			device_trigger_reprobe(sch);
--			spin_unlock_irqrestore(&sch->lock, flags);
--		}
--		ret = sch ? 0 : css_probe_device(schid);
-+			action = REPROBE;
-+		break;
-+	}
-+	/* Perform action. */
-+	ret = 0;
-+	switch (action) {
-+	case UNREGISTER:
-+	case UNREGISTER_PROBE:
-+		/* Unregister device (will use subchannel lock). */
-+		spin_unlock_irqrestore(&sch->lock, flags);
-+		css_sch_device_unregister(sch);
-+		spin_lock_irqsave(&sch->lock, flags);
-+
-+		/* Reset intparm to zeroes. */
-+		sch->schib.pmcw.intparm = 0;
-+		cio_modify(sch);
-+
-+		/* Probe if necessary. */
-+		if (action == UNREGISTER_PROBE)
-+			ret = css_probe_device(sch->schid);
-+		break;
-+	case REPROBE:
-+		device_trigger_reprobe(sch);
- 		break;
- 	default:
--		BUG();
--		ret = 0;
-+		break;
-+	}
-+	spin_unlock_irqrestore(&sch->lock, flags);
-+
-+	return ret;
+-void
+-_raw_spin_lock_wait(raw_spinlock_t *lp, unsigned int pc)
++static inline void _raw_yield_cpu(int cpu)
++{
++	if (MACHINE_HAS_DIAG9C)
++		asm volatile("diag %0,0,0x9c"
++			     : : "d" (__cpu_logical_map[cpu]));
++	else
++		_raw_yield();
 +}
 +
-+static int css_evaluate_new_subchannel(struct subchannel_id schid, int slow)
-+{
-+	struct schib schib;
-+
-+	if (!slow) {
-+		/* Will be done on the slow path. */
-+		return -EAGAIN;
++void _raw_spin_lock_wait(raw_spinlock_t *lp, unsigned int pc)
+ {
+ 	int count = spin_retry;
++	unsigned int cpu = ~smp_processor_id();
+ 
+ 	while (1) {
+ 		if (count-- <= 0) {
+-			_diag44();
++			unsigned int owner = lp->owner_cpu;
++			if (owner != 0)
++				_raw_yield_cpu(~owner);
+ 			count = spin_retry;
+ 		}
+ 		if (__raw_spin_is_locked(lp))
+ 			continue;
+-		if (_raw_compare_and_swap(&lp->lock, 0, pc) == 0)
++		if (_raw_compare_and_swap(&lp->owner_cpu, 0, cpu) == 0) {
++			lp->owner_pc = pc;
+ 			return;
++		}
  	}
-+	if (stsch(schid, &schib) || !schib.pmcw.dnv) {
-+		/* Unusable - ignore. */
-+		return 0;
-+	}
-+	CIO_MSG_EVENT(4, "Evaluating schid 0.%x.%04x, event %d, unknown, "
-+			 "slow path.\n", schid.ssid, schid.sch_no, CIO_OPER);
-+
-+	return css_probe_device(schid);
-+}
-+
-+static int css_evaluate_subchannel(struct subchannel_id schid, int slow)
+ }
+ EXPORT_SYMBOL(_raw_spin_lock_wait);
+ 
+-int
+-_raw_spin_trylock_retry(raw_spinlock_t *lp, unsigned int pc)
++int _raw_spin_trylock_retry(raw_spinlock_t *lp, unsigned int pc)
+ {
+-	int count = spin_retry;
++	unsigned int cpu = ~smp_processor_id();
++	int count;
+ 
+-	while (count-- > 0) {
++	for (count = spin_retry; count > 0; count--) {
+ 		if (__raw_spin_is_locked(lp))
+ 			continue;
+-		if (_raw_compare_and_swap(&lp->lock, 0, pc) == 0)
++		if (_raw_compare_and_swap(&lp->owner_cpu, 0, cpu) == 0) {
++			lp->owner_pc = pc;
+ 			return 1;
++		}
+ 	}
+ 	return 0;
+ }
+ EXPORT_SYMBOL(_raw_spin_trylock_retry);
+ 
+-void
+-_raw_read_lock_wait(raw_rwlock_t *rw)
++void _raw_spin_relax(raw_spinlock_t *lock)
 +{
-+	struct subchannel *sch;
-+	int ret;
++	unsigned int cpu = lock->owner_cpu;
++	if (cpu != 0)
++		_raw_yield_cpu(~cpu);
++}
++EXPORT_SYMBOL(_raw_spin_relax);
 +
-+	sch = get_subchannel_by_schid(schid);
-+	if (sch) {
-+		ret = css_evaluate_known_subchannel(sch, slow);
-+		put_device(&sch->dev);
-+	} else
-+		ret = css_evaluate_new_subchannel(schid, slow);
++void _raw_read_lock_wait(raw_rwlock_t *rw)
+ {
+ 	unsigned int old;
+ 	int count = spin_retry;
+ 
+ 	while (1) {
+ 		if (count-- <= 0) {
+-			_diag44();
++			_raw_yield();
+ 			count = spin_retry;
+ 		}
+ 		if (!__raw_read_can_lock(rw))
+@@ -86,8 +105,7 @@ _raw_read_lock_wait(raw_rwlock_t *rw)
+ }
+ EXPORT_SYMBOL(_raw_read_lock_wait);
+ 
+-int
+-_raw_read_trylock_retry(raw_rwlock_t *rw)
++int _raw_read_trylock_retry(raw_rwlock_t *rw)
+ {
+ 	unsigned int old;
+ 	int count = spin_retry;
+@@ -103,14 +121,13 @@ _raw_read_trylock_retry(raw_rwlock_t *rw
+ }
+ EXPORT_SYMBOL(_raw_read_trylock_retry);
+ 
+-void
+-_raw_write_lock_wait(raw_rwlock_t *rw)
++void _raw_write_lock_wait(raw_rwlock_t *rw)
+ {
+ 	int count = spin_retry;
+ 
+ 	while (1) {
+ 		if (count-- <= 0) {
+-			_diag44();
++			_raw_yield();
+ 			count = spin_retry;
+ 		}
+ 		if (!__raw_write_can_lock(rw))
+@@ -121,8 +138,7 @@ _raw_write_lock_wait(raw_rwlock_t *rw)
+ }
+ EXPORT_SYMBOL(_raw_write_lock_wait);
+ 
+-int
+-_raw_write_trylock_retry(raw_rwlock_t *rw)
++int _raw_write_trylock_retry(raw_rwlock_t *rw)
+ {
+ 	int count = spin_retry;
+ 
+diff -urpN linux-2.6/include/asm-s390/setup.h linux-2.6-patched/include/asm-s390/setup.h
+--- linux-2.6/include/asm-s390/setup.h	2006-09-19 12:59:27.000000000 +0200
++++ linux-2.6-patched/include/asm-s390/setup.h	2006-09-19 12:59:36.000000000 +0200
+@@ -39,6 +39,7 @@ extern unsigned long machine_flags;
+ #define MACHINE_IS_P390		(machine_flags & 4)
+ #define MACHINE_HAS_MVPG	(machine_flags & 16)
+ #define MACHINE_HAS_IDTE	(machine_flags & 128)
++#define MACHINE_HAS_DIAG9C	(machine_flags & 256)
+ 
+ #ifndef __s390x__
+ #define MACHINE_HAS_IEEE	(machine_flags & 2)
+diff -urpN linux-2.6/include/asm-s390/spinlock.h linux-2.6-patched/include/asm-s390/spinlock.h
+--- linux-2.6/include/asm-s390/spinlock.h	2006-09-19 12:59:35.000000000 +0200
++++ linux-2.6-patched/include/asm-s390/spinlock.h	2006-09-19 12:59:36.000000000 +0200
+@@ -11,6 +11,8 @@
+ #ifndef __ASM_SPINLOCK_H
+ #define __ASM_SPINLOCK_H
+ 
++#include <linux/smp.h>
 +
- 	return ret;
+ static inline int
+ _raw_compare_and_swap(volatile unsigned int *lock,
+ 		      unsigned int old, unsigned int new)
+@@ -31,34 +33,46 @@ _raw_compare_and_swap(volatile unsigned 
+  * (the type definitions are in asm/spinlock_types.h)
+  */
+ 
+-#define __raw_spin_is_locked(x) ((x)->lock != 0)
++#define __raw_spin_is_locked(x) ((x)->owner_cpu != 0)
+ #define __raw_spin_lock_flags(lock, flags) __raw_spin_lock(lock)
+ #define __raw_spin_unlock_wait(lock) \
+-	do { while (__raw_spin_is_locked(lock)) cpu_relax(); } while (0)
++	do { while (__raw_spin_is_locked(lock)) \
++		 _raw_spin_relax(lock); } while (0)
+ 
+-extern void _raw_spin_lock_wait(raw_spinlock_t *lp, unsigned int pc);
+-extern int _raw_spin_trylock_retry(raw_spinlock_t *lp, unsigned int pc);
++extern void _raw_spin_lock_wait(raw_spinlock_t *, unsigned int pc);
++extern int _raw_spin_trylock_retry(raw_spinlock_t *, unsigned int pc);
++extern void _raw_spin_relax(raw_spinlock_t *lock);
+ 
+ static inline void __raw_spin_lock(raw_spinlock_t *lp)
+ {
+ 	unsigned long pc = 1 | (unsigned long) __builtin_return_address(0);
++	int old;
+ 
+-	if (unlikely(_raw_compare_and_swap(&lp->lock, 0, pc) != 0))
+-		_raw_spin_lock_wait(lp, pc);
++	old = _raw_compare_and_swap(&lp->owner_cpu, 0, ~smp_processor_id());
++	if (likely(old == 0)) {
++		lp->owner_pc = pc;
++		return;
++	}
++	_raw_spin_lock_wait(lp, pc);
  }
  
+ static inline int __raw_spin_trylock(raw_spinlock_t *lp)
+ {
+ 	unsigned long pc = 1 | (unsigned long) __builtin_return_address(0);
++	int old;
+ 
+-	if (likely(_raw_compare_and_swap(&lp->lock, 0, pc) == 0))
++	old = _raw_compare_and_swap(&lp->owner_cpu, 0, ~smp_processor_id());
++	if (likely(old == 0)) {
++		lp->owner_pc = pc;
+ 		return 1;
++	}
+ 	return _raw_spin_trylock_retry(lp, pc);
+ }
+ 
+ static inline void __raw_spin_unlock(raw_spinlock_t *lp)
+ {
+-	_raw_compare_and_swap(&lp->lock, lp->lock, 0);
++	lp->owner_pc = 0;
++	_raw_compare_and_swap(&lp->owner_cpu, lp->owner_cpu, 0);
+ }
+ 		
+ /*
+@@ -135,7 +149,6 @@ static inline int __raw_write_trylock(ra
+ 	return _raw_write_trylock_retry(rw);
+ }
+ 
+-#define _raw_spin_relax(lock)	cpu_relax()
+ #define _raw_read_relax(lock)	cpu_relax()
+ #define _raw_write_relax(lock)	cpu_relax()
+ 
+diff -urpN linux-2.6/include/asm-s390/spinlock_types.h linux-2.6-patched/include/asm-s390/spinlock_types.h
+--- linux-2.6/include/asm-s390/spinlock_types.h	2006-06-18 03:49:35.000000000 +0200
++++ linux-2.6-patched/include/asm-s390/spinlock_types.h	2006-09-19 12:59:36.000000000 +0200
+@@ -6,16 +6,16 @@
+ #endif
+ 
+ typedef struct {
+-	volatile unsigned int lock;
++	volatile unsigned int owner_cpu;
++	volatile unsigned int owner_pc;
+ } __attribute__ ((aligned (4))) raw_spinlock_t;
+ 
+ #define __RAW_SPIN_LOCK_UNLOCKED	{ 0 }
+ 
+ typedef struct {
+ 	volatile unsigned int lock;
+-	volatile unsigned int owner_pc;
+ } raw_rwlock_t;
+ 
+-#define __RAW_RW_LOCK_UNLOCKED		{ 0, 0 }
++#define __RAW_RW_LOCK_UNLOCKED		{ 0 }
+ 
+ #endif

@@ -1,69 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964921AbWISOZR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752007AbWISOp7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964921AbWISOZR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Sep 2006 10:25:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964999AbWISOZR
+	id S1752007AbWISOp7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Sep 2006 10:45:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752009AbWISOp7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Sep 2006 10:25:17 -0400
-Received: from iolanthe.rowland.org ([192.131.102.54]:6926 "HELO
-	iolanthe.rowland.org") by vger.kernel.org with SMTP id S964921AbWISOZQ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Sep 2006 10:25:16 -0400
-Date: Tue, 19 Sep 2006 10:25:15 -0400 (EDT)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@iolanthe.rowland.org
-To: Jiri Kosina <jikos@jikos.cz>
-cc: David Brownell <david-b@pacbell.net>, Andrew Morton <akpm@osdl.org>,
-       <dbrownell@users.sourceforge.net>, <weissg@vienna.at>,
-       <linux-usb-devel@lists.sourceforge.net>, <linux-kernel@vger.kernel.org>
-Subject: Re: [linux-usb-devel] [PATCH] USB: consolidate error values from
- EHCI, UHCI and OHCI _suspend()
-In-Reply-To: <Pine.LNX.4.64.0609191238030.26418@twin.jikos.cz>
-Message-ID: <Pine.LNX.4.44L0.0609191021140.6555-100000@iolanthe.rowland.org>
+	Tue, 19 Sep 2006 10:45:59 -0400
+Received: from dvhart.com ([64.146.134.43]:3558 "EHLO dvhart.com")
+	by vger.kernel.org with ESMTP id S1752007AbWISOp6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Sep 2006 10:45:58 -0400
+Message-ID: <45100272.505@mbligh.org>
+Date: Tue, 19 Sep 2006 07:45:06 -0700
+From: "Martin J. Bligh" <mbligh@mbligh.org>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060728)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, Andy Whitcroft <apw@shadowen.org>
+Subject: Re: 2.6.18-rc7-mm1
+References: <20060919012848.4482666d.akpm@osdl.org>
+In-Reply-To: <20060919012848.4482666d.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 19 Sep 2006, Jiri Kosina wrote:
 
-> On Mon, 18 Sep 2006, David Brownell wrote:
-> 
-> > > EHCI, UHCI and OHCI USB host drivers are not consistent when returining 
-> > > error values from their _suspend() functions, in case that the device is 
-> > > not in suspended state. This could confuse users, so let all three of them 
-> > > return -EBUSY.
-> > Shouldn't you also update uhci_suspend()?  Currently it just ignores 
-> > hcd->state ...
-> 
-> You are right that the patch is possibly not fully correct. I was trying 
-> to fix the situation I was getting into with the bug in usb_resume_both() 
-> (see my "[PATCH] 2.6.18-rc6-mm2 - usb_resume_both() - fix suspend/resume" 
-> mail from yesterday), but now it is obvious that the EINVAL from UHCI is 
-> of a "different kind" than EBUSY from OHCI and UHCI (though they are 
-> triggered in the same situations -- when the previous resume was not done 
-> correctly).
+> - It took maybe ten hours solid work to get this dogpile vaguely
+>   compiling and limping to a login prompt on x86, x86_64 and powerpc. 
+>   I guess it's worth briefly testing if you're keen.
 
-Sort of.  The real trigger is that the PM core tries to suspend the 
-upper-level PCI device but the lower-level root-hub device has not been 
-suspended.  You saw this occurring because during the previous resume, the 
-root-hub device's power.power_state.event was not updated, causing the PM 
-core to think the root hub was still suspended when in fact it wasn't.
+PPC64 blades shit themselves in a strange way. Possibly the udev
+breakage you mentioned? Hard to tell really if people are going to
+go around breaking userspace compatibility ;-(
 
-> As far as I can see, the UHCI driver is, strangely enough, not using 
-> hcd->state at all. 
-> 
-> (by the way, EHCI and OHCI seem to have broken (read: missing) locking 
-> when accessing the hcd->state. Should I fix it by per-hcd spinlock, or 
-> does the patch already exist somewhere?)
+http://test.kernel.org/abat/48127/debug/console.log
 
-Believe it or not, these two paragraphs are closely connected.  The reason 
-uhci-hcd doesn't use hcd->state at all is because there is no locking to 
-protect it!
-
-My feeling has long been that hcd->state deserves to disappear.  It tries 
-to serve too many functions.  Please don't add any code in a futile 
-attempt to preserve it.
-
-Alan Stern
-
+rpa_vscsi: SPR_VERSION: 16.a
+scsi0 : IBM POWER Virtual SCSI Adapter 1.5.8
+ibmvscsi: partner initialization complete
+ibmvscsic: sent SRP login
+ibmvscsi: SRP_LOGIN succeeded
+ibmvscsi: host srp version: 16.a, host partition gekko-vios (4), OS 3, 
+max io 262144
+scsi 0:0:1:0: Direct-Access     AIX      VDASD                 PQ: 0 ANSI: 3
+SCSI device sda: 143374000 512-byte hdwr sectors (73407 MB)
+sda: Write Protect is off
+sda: cache data unavailable
+sda: assuming drive cache: write through
+SCSI device sda: 143374000 512-byte hdwr sectors (73407 MB)
+sda: Write Protect is off
+sda: cache data unavailable
+sda: assuming drive cache: write through
+  sda: sda1 sda2 sda3 sda4 < sda5 sda6 sda7 sda8 >
+sd 0:0:1:0: Attached scsi disk sda
+creating device nodes .[: [0-9]*: bad number
+0:0:1:0: sg_io failed status 0x8 0x0 0x0 0x2
+0:0:1:0: sense key 0x5 ASC 0x24 ASCQ 0x0
+[: [0-9]*: bad number
+0:0:1:0: sg_io failed status 0x8 0x0 0x0 0x2
+0:0:1:0: sense key 0x5 ASC 0x24 ASCQ 0x0
+[: [0-9]*: bad number
+0:0:1:0: sg_io failed status 0x8 0x0 0x0 0x2
+0:0:1:0: sense key 0x5 ASC 0x24 ASCQ 0x0
+[: [0-9]*: bad number
+0:0:1:0: sg_io failed status 0x8 0x0 0x0 0x2
+0:0:1:0: sense key 0x5 ASC 0x24 ASCQ 0x0
+[: [0-9]*: bad number
+0:0:1:0: sg_io failed status 0x8 0x0 0x0 0x2
+0:0:1:0: sense key 0x5 ASC 0x24 ASCQ 0x0
+[: [0-9]*: bad number
+0:0:1:0: sg_io failed status 0x8 0x0 0x0 0x2
+0:0:1:0: sense key 0x5 ASC 0x24 ASCQ 0x0
+[: [0-9]*: bad number
+0:0:1:0: sg_io failed status 0x8 0x0 0x0 0x2
+0:0:1:0: sense key 0x5 ASC 0x24 ASCQ 0x0
+[: [0-9]*: bad number
+0:0:1:0: sg_io failed status 0x8 0x0 0x0 0x2
+0:0:1:0: sense key 0x5 ASC 0x24 ASCQ 0x0
+[: [0-9]*: bad number
+0:0:1:0: sg_io failed status 0x8 0x0 0x0 0x2
+0:0:1:0: sense key 0x5 ASC 0x24 ASCQ 0x0
+..
+mount  -o ro /dev/sda2
+ReiserFS: sda2: found reiserfs format "3.6" with standard journal
+ReiserFS: sda2: using ordered data mode
+reiserfs: using flush barriers
+ReiserFS: sda2: journal params: device sda2, size 8192, journal first 
+block 18, max trans len 1024, max batch 900, max commit age 30, max 
+trans age 30
+ReiserFS: sda2: checking transaction log (sda2)
+ReiserFS: sda2: Using r5 hash to sort names
+looking for init ...
+found /sbin/init
+/init: cannot open .//dev//console: no such file
+Kernel panic - not syncing: Attempted to kill init!
+  <0>Rebooting in 180 seconds..-- 0:conmux-control -- time-stamp -- 
+Sep/19/06  4:18:52 --
+(bot:conmon-payload) disconnected

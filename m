@@ -1,58 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751363AbWISWfI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751171AbWISWoR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751363AbWISWfI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Sep 2006 18:35:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751367AbWISWfH
+	id S1751171AbWISWoR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Sep 2006 18:44:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751174AbWISWoR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Sep 2006 18:35:07 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:32970 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1751345AbWISWfF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Sep 2006 18:35:05 -0400
-Date: Tue, 19 Sep 2006 21:02:14 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Kylene Jo Hall <kjhall@us.ibm.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       LSM ML <linux-security-module@vger.kernel.org>,
-       Dave Safford <safford@us.ibm.com>, Mimi Zohar <zohar@us.ibm.com>,
-       Serge Hallyn <sergeh@us.ibm.com>
-Subject: Re: [PATCH 0/7] Integrity Service and SLIM
-Message-ID: <20060919190214.GA7210@elf.ucw.cz>
-References: <1158083845.18137.10.camel@localhost.localdomain> <20060914165113.3067c4b0.akpm@osdl.org>
+	Tue, 19 Sep 2006 18:44:17 -0400
+Received: from wx-out-0506.google.com ([66.249.82.238]:25209 "EHLO
+	wx-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1751171AbWISWoQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Sep 2006 18:44:16 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=cWmaKaB1ht7RF5c0oHpoboS/Zf/tyxoeWk65rxiD3xIAKTiJeymDzWqW2BHy70R3Sfq4CE7RgJuam5Y3azRRRIB6Ep4gIsQTvdfKJgG4iuhaA429KeeZFlRIHXTlk91YnWD73AqUyvVQ14KL5y/3N3LSf9QEI1Uhj1PjF5CU0IA=
+Message-ID: <9a8748490609191544r6f05ca27wd383356ce36cf465@mail.gmail.com>
+Date: Wed, 20 Sep 2006 00:44:15 +0200
+From: "Jesper Juhl" <jesper.juhl@gmail.com>
+To: "Linus Torvalds" <torvalds@osdl.org>
+Subject: Re: Math-emu kills the kernel on Athlon64 X2
+Cc: "Andi Kleen" <ak@suse.de>,
+       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+In-Reply-To: <9a8748490609191516x4305c67dy76ac742e92f08ced@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060914165113.3067c4b0.akpm@osdl.org>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+References: <9a8748490609181518j2d12e4f0l2c55e755e40d38c2@mail.gmail.com>
+	 <p73venk2sjw.fsf@verdi.suse.de>
+	 <9a8748490609191414m6748f2fu521637df29ef9e8e@mail.gmail.com>
+	 <Pine.LNX.4.64.0609191453310.4388@g5.osdl.org>
+	 <9a8748490609191516x4305c67dy76ac742e92f08ced@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu 2006-09-14 16:51:13, Andrew Morton wrote:
-> On Tue, 12 Sep 2006 10:57:25 -0700
-> Kylene Jo Hall <kjhall@us.ibm.com> wrote:
-> 
-> > This is an updated request for comments on a proposed integrity 
-> > service framework and dummy provider, along with SLIM, a low 
-> > water-mark mandatory access control LSM module which utilizes the 
-> > integrity services as additional input to the access control decisions.
-> 
-> Having carefully reviewed your code I have come to the firm conclusion that
-> it is written in C.  The next step is to put it all in -mm and see if
-> anyone shouts at me.
-
-Hmmm, "it is written in C" does not seem like good enough reason to
-merge it... right?
-
-I tried to understand what it is good for, but it seems that in
-current state it is not much good for anything.
-
-Will IBM work at splitting ssh so that trusted/untrusted portions are
-separated?
-
-								Pavel
+On 20/09/06, Jesper Juhl <jesper.juhl@gmail.com> wrote:
+> On 20/09/06, Linus Torvalds <torvalds@osdl.org> wrote:
+> >
+> >
+> > On Tue, 19 Sep 2006, Jesper Juhl wrote:
+> > >
+> > > The config is attached.
+> >
+> > Can you try without SMP, and with CONFIG_X86_GENERIC
+>
+> Done. The result is exactely the same as before. The kernel boots and
+> runs just fine except when I add "no387" to the boot options, then it
+> hangs.
+>
+I just tried building the kernel for 486 as well - no luck with
+"no387" with that one either.
 
 -- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

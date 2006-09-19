@@ -1,40 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752042AbWISEL6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752052AbWISE3g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752042AbWISEL6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Sep 2006 00:11:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752038AbWISEL6
+	id S1752052AbWISE3g (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Sep 2006 00:29:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752051AbWISE3g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Sep 2006 00:11:58 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:21158 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1752041AbWISEL4 (ORCPT
+	Tue, 19 Sep 2006 00:29:36 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:61852 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1750789AbWISE3f (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Sep 2006 00:11:56 -0400
-Date: Mon, 18 Sep 2006 21:11:23 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Ian Kent <raven@themaw.net>
-Cc: autofs mailing list <autofs@linux.kernel.org>,
-       Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       linux-fsdevel <linux-fsdevel@vger.kernel.org>
-Subject: Re: [PATCH] autofs4 - zero timeout prevents shutdown
-Message-Id: <20060918211123.84e583cf.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0609191126080.11565@raven.themaw.net>
-References: <Pine.LNX.4.64.0609191126080.11565@raven.themaw.net>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 19 Sep 2006 00:29:35 -0400
+Message-ID: <450F722C.9020902@pobox.com>
+Date: Tue, 19 Sep 2006 00:29:32 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
+MIME-Version: 1.0
+To: Tejun Heo <htejun@gmail.com>
+CC: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>,
+       alan@lxorguk.ukuu.org.uk, "Nelson A. de Oliveira" <naoliv@gmail.com>
+Subject: Re: [PATCH] libata: fix non-uniform ports handling
+References: <20060915180415.GB25800@htj.dyndns.org>
+In-Reply-To: <20060915180415.GB25800@htj.dyndns.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.2 (----)
+X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.2 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 19 Sep 2006 11:48:15 +0800 (WST)
-Ian Kent <raven@themaw.net> wrote:
+applied
 
-> If the timeout of an autofs mount is set to zero then umounts
-> are disabled. This works fine, however the kernel module checks
-> the expire timeout and goes no further if it is zero. This is
-> not the right thing to do at shutdown as the module is passed
-> an option to expire mounts regardless of their timeout setting.
-
-Is this a new feature, or a regression since <when>?
-
-Thanks.

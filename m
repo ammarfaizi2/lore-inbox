@@ -1,58 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030290AbWISSLE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030383AbWISSPu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030290AbWISSLE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Sep 2006 14:11:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030292AbWISSLD
+	id S1030383AbWISSPu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Sep 2006 14:15:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030377AbWISSPt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Sep 2006 14:11:03 -0400
-Received: from smtp105.sbc.mail.mud.yahoo.com ([68.142.198.204]:12950 "HELO
-	smtp105.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1030290AbWISSLA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Sep 2006 14:11:00 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=pacbell.net;
-  h=Received:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
-  b=vDwk2jf4li7Rv5Jg8DHrHmJP1qnanmx4fypUyQouXJZAwLKP/ooEAvHsejniRGAMUZF4SkijxTfvOJ1UjNQT5NvXZpAhKAhsmGkqtGCx5Hiy1wyjque8U8mHQu+AzEevxFs0I6OSx4Sp3uo++DzwoLfGaTm2Xn/YwS+5ZxBVvlE=  ;
-From: David Brownell <david-b@pacbell.net>
-To: Jiri Kosina <jikos@jikos.cz>
-Subject: Re: [linux-usb-devel] [PATCH] USB: consolidate error values from EHCI, UHCI and OHCI _suspend()
-Date: Tue, 19 Sep 2006 09:13:11 -0700
-User-Agent: KMail/1.7.1
-Cc: linux-usb-devel@lists.sourceforge.net, dbrownell@users.sourceforge.net,
-       weissg@vienna.at, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>
-References: <Pine.LNX.4.64.0609190340310.9787@twin.jikos.cz> <200609181909.53498.david-b@pacbell.net> <Pine.LNX.4.64.0609191238030.26418@twin.jikos.cz>
-In-Reply-To: <Pine.LNX.4.64.0609191238030.26418@twin.jikos.cz>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+	Tue, 19 Sep 2006 14:15:49 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:38612 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030311AbWISSPs (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Sep 2006 14:15:48 -0400
+Date: Tue, 19 Sep 2006 11:14:48 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Peter Zijlstra <a.p.zijlstra@chello.nl>,
+       Ayaz Abdulla <aabdulla@nvidia.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, Jeff Garzik <jeff@garzik.org>,
+       Ingo Molnar <mingo@elte.hu>, Arjan van de Ven <arjan@linux.intel.com>,
+       Dave Jones <davej@redhat.com>
+Subject: Re: [PATCH] forcedeth: hardirq lockdep warning
+Message-Id: <20060919111448.9274c699.akpm@osdl.org>
+In-Reply-To: <1158670522.3278.13.camel@taijtu>
+References: <1158670522.3278.13.camel@taijtu>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200609190913.12563.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 19 September 2006 3:43 am, Jiri Kosina wrote:
+On Tue, 19 Sep 2006 14:55:22 +0200
+Peter Zijlstra <a.p.zijlstra@chello.nl> wrote:
 
-> (by the way, EHCI and OHCI seem to have broken (read: missing) locking 
-> when accessing the hcd->state. Should I fix it by per-hcd spinlock, or 
-> does the patch already exist somewhere?)
+> BUG: warning at kernel/lockdep.c:1816/trace_hardirqs_on() (Not tainted)
 
-They should only ever access it while holding their internal spinlocks;
-which are held during most driver operations, easy to miss.  And except
-for hardware faults, the HCD state changes only when usbcore pushes an
-HCD through driver model state transitions like probe(), suspend(), and
-their inverses.  I see some dodgey code in the OHCI IRQ handler, but
-even that shouldn't make trouble.
+I wonder what line that was.  DEBUG_LOCKS_WARN_ON(current->hardirq_context),
+I suppose.
 
-Admittedly the usbcore access to that field is a bit problematic, since
-it doesn't handle the hardware faulting cases very cleanly.  For those
-cases, other problems are more severe ... like basic cleanup of all the
-pending transactions, and removal of the usb devices, didn't work the
-last time I tripped over such cases.
+> Call Trace:
+>  show_trace
+>  dump_stack
+>  trace_hardirqs_on
+>  :forcedeth:nv_nic_irq_other
+>  handle_IRQ_event
+>  __do_IRQ
+>  do_IRQ
+>  ret_from_intr
+> DWARF2 barf
 
+It's good, isn't it?
 
-Eventually we want hcd->state to vanish, but until it does it sure seems
-like a problem if usbcore can't rely on all HCDs to treat it the same.
+>  default_idle
+>  cpu_idle
+>  rest_init
+>  start_kernel
+>  _sinittext
+>  
+> These 3 functions nv_nic_irq_tx(), nv_nic_irq_rx() and nv_nic_irq_other()
+> are reachable from IRQ context and process context.
 
-- Dave
+That's "fix deadlock", not "fix lockdep warning".  However it's often the
+case that it's not really deadlockable because (often) the card's IRQ line
+has been disabled.  That appears to be the case in nv_do_nic_poll()'s call
+to nv_nic_irq_tx, for example.
+
+> Make use of the 
+> irq-save/restore spinlock variant.
+
+So this perhaps is another lockdep workaround..

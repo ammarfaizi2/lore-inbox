@@ -1,146 +1,122 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030384AbWISRdm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030334AbWISRfJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030384AbWISRdm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Sep 2006 13:33:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030385AbWISRdm
+	id S1030334AbWISRfJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Sep 2006 13:35:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030377AbWISRfJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Sep 2006 13:33:42 -0400
-Received: from hera.kernel.org ([140.211.167.34]:27840 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S1030384AbWISRdl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Sep 2006 13:33:41 -0400
-Date: Tue, 19 Sep 2006 17:32:53 +0000
-From: Willy Tarreau <wtarreau@hera.kernel.org>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Cc: Marcelo Tosatti <mtosatti@redhat.com>, Mikael Pettersson <mikpe@it.uu.se>,
-       David Miller <davem@davemloft.net>
-Subject: Linux 2.4.34-pre3
-Message-ID: <20060919173253.GA25470@hera.kernel.org>
-Reply-To: w@1wt.eu
+	Tue, 19 Sep 2006 13:35:09 -0400
+Received: from e35.co.us.ibm.com ([32.97.110.153]:62154 "EHLO
+	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S1030334AbWISRfH
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Sep 2006 13:35:07 -0400
+Date: Tue, 19 Sep 2006 12:35:16 +0530
+From: "S. P. Prasanna" <prasanna@in.ibm.com>
+To: Martin Bligh <mbligh@google.com>
+Cc: Andrew Morton <akpm@osdl.org>, "Frank Ch. Eigler" <fche@redhat.com>,
+       Ingo Molnar <mingo@elte.hu>,
+       Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
+       Paul Mundt <lethal@linux-sh.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>, Jes Sorensen <jes@sgi.com>,
+       Tom Zanussi <zanussi@us.ibm.com>,
+       Richard J Moore <richardj_moore@uk.ibm.com>,
+       Michel Dagenais <michel.dagenais@polymtl.ca>,
+       Christoph Hellwig <hch@infradead.org>,
+       Greg Kroah-Hartman <gregkh@suse.de>,
+       Thomas Gleixner <tglx@linutronix.de>, William Cohen <wcohen@redhat.com>,
+       ltt-dev@shafik.org, systemtap@sources.redhat.com,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH] Linux Kernel Markers
+Message-ID: <20060919070516.GD23836@in.ibm.com>
+Reply-To: prasanna@in.ibm.com
+References: <20060918234502.GA197@Krystal> <20060919081124.GA30394@elte.hu> <451008AC.6030006@google.com> <20060919154612.GU3951@redhat.com> <4510151B.5070304@google.com> <20060919093935.4ddcefc3.akpm@osdl.org> <45101DBA.7000901@google.com> <20060919063821.GB23836@in.ibm.com> <45102641.7000101@google.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
+In-Reply-To: <45102641.7000101@google.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello !
+On Tue, Sep 19, 2006 at 10:17:53AM -0700, Martin Bligh wrote:
+> >>>>It seems like all we'd need to do
+> >>>>is "list all references to function, freeze kernel, update all
+> >>>>references, continue"
+> >>>
+> >>>
+> >>>"overwrite first 5 bytes of old function with `jmp new_function'".
+> >>
+> >>Yes, that's simple. but slower, as you have a double jump. Probably
+> >>a damned sight faster than int3 though.
+> >
+> >
+> >The advantage of using int3 over jmp to launch the instrumented
+> >module is that int3 (or breakpoint in most architectures) is an
+> >atomic operation to insert.
+> 
+> Ah, good point. Though ... how much do we care what the speed of
+> insertion/removal actually is? If we can tolerate it being slow,
+> then just sync everyone up in an IPI to freeze them out whilst
+> doing the insert.
+> 
+I guess using IPI occasionally would be acceptable. But I think
+using IPI for each probes will lots of overhead.
 
-I've been a little bit silent and quite busy too. As announced with -pre2,
-here comes -pre3 with only GCC4 fixes. Other fixes I received are minor
-and can wait for -pre4. I really want people to test -pre3 without adding
-any noise to the test. There should be *no* regression at all with existing
-compilers.
+> 
+> Surely this still carries the overhead of doing the breakpoint,
+> which was part of what we were trying to get away from? I suppose
+> we get more flexibility this way. Or does the slowness not actually
+> come from the int3, but only the single-stepping?
+Yes, it comes from int3 as well.
+> 
+> How about we combine all three ideas together ...
+> 
+> 1. Load modified copy of the function in question.
+> 2. overwrite the first instruction of the routine with an int3 that
+> does what you say (atomically)
+> 3. Then overwrite the second instruction with a jump that's faster
+> 4. Now atomically overwrite the int3 with a nop, and let the jump
+> take over.
+> 
 
-Gcc 4.1 is known to build x86, x86_64, ppc, sparc64, and sparc. Only sparc
-has received no testing yet, while sparc64 is OK. It is possible that some
-sparc/sparc64 drivers have not been caught because of undetected options
-combinations (Davem CC'd for any possible advice on this mater). Status
-for other archs is unknown but at least must not be affected for existing
-setups.
+That's a good solution.
 
-You will notice that most of the changes below appear under my name while
-I do not deserve any credit for the changes. It is just because I've cut
-all the fixes to sort them, and committed them myself individually. But
-the real work has been done by Mikael.
+Thanks
+Prasanna
 
-We have worked *very* carefully on this merge, and we hope to get all
-possible feedback. People who encounter build problems on archs listed
-above are free to report them, possibly with the fix. When providing a
-fix, *please* provide the whole error output in the commit message so
-that we can track what has been fixed. People who want to include support
-for other archs will have to provide patches, as (at least for me) we
-are not equipped to build on other archs (except for alpha when my RAM
-arrives).
+> >Adv:
+> >Can be enabled/disabled dynamically by inserting/removing
+> >breakpoints.  No overhead of single stepping.
+> >No restriction of running the handler in interrupt context.
+> >You can have pre-compiled instrumented routines.
+> >This mechanism can be used for pre-defined set of routines and for
+> >arbiratory probe points, you can use kprobes/jprobes/systemtap.
+> >No need to be super-user for predefined breakpoints.
+> >                                                                                                                                               
+> >Dis:
+> >Maintainence of the code, since it can code base need to be
+> >duplicated and instrumented.
+> 
+> CONFIG_FOO_BAR .... turn it on or off to turn on the instrumentation.
+> compiled out by default. Compiled in when making the tracing functions.
+> 
+> >The above idea is similar to runtime or dynamic patching, but here we
+> >use int3(breakpoint) rather than jump instruction.
+> 
+> Depends what we're trying to fix. I was trying to fix two things:
+> 
+> 1. Flexibility - kprobes seem unable to access all local variables etc
+> easily, and go anywhere inside the function. Plus keeping low overhead
+> for doing things like keeping counters in a function (see previous
+> example I mentioned for counting pages in shrink_list).
+> 
+> 2. Overhead of the int3, which was allegedly 1000 cycles or so, though
+> faster after Ingo had played with it, it's still significant.
+> 
+> M.
 
-I plan to wait up to the end of this month before providing -pre4 if there
-is no feedback. Important fixes will be subject to another -stable release
-anyway, so it's safe to wait for feedback here.
-
-Now I've fixed my release scripts, so the changelog and patch should be
-OK ;-)
-
-Best regards,
-Willy
-
-
-Summary of changes from v2.4.34-pre2 to v2.4.34-pre3
-============================================
-
-Mikael Pettersson:
-      [GCC4] SPARC64: fix UP build error in arch/sparc64/mm/init.c
-
-Willy Tarreau:
-      [GCC4] add preliminary support for GCC 4 (Mikael Pettersson)
-      [GCC4] fix build error in include/linux/generic_serial.h
-      [GCC4] fix build error in include/net/irda/qos.h
-      [GCC4] fix build error in include/linux/fsfilter.h
-      [GCC4] fix build error in include/linux/intermezzo_fs.h
-      [GCC4] fix build error in include/net/udp.h
-      [GCC4] fix build error in include/net/irda/irttp.h
-      [GCC4] fix build error in include/net/irda/irlan_event.h
-      [GCC4] fix build error in include/asm-ppc/spinlock.h
-      [GCC4] fix build error in fs/intermezzo/presto.c
-      [GCC4] fix build error in net/ipv6/ip6_fib.c
-      [GCC4] fix build error in net/ipv6/sysctl_net_ipv6.c
-      [GCC4] fix build error in net/khttpd/prototypes.h
-      [GCC4] fix build error in drivers/block/nbd.c
-      [GCC4] fix build error in drivers/block/xd.c
-      [GCC4] fix build error in drivers/block/paride/pd.c
-      [GCC4] fix build error in drivers/char/sonypi.h
-      [GCC4] fix build error in drivers/char/sonypi.h
-      [GCC4] fix build error in drivers/char/tpqic02.c
-      [GCC4] fix build error in drivers/char/drm-4.0/drmP.h
-      [GCC4] fix build error in drivers/char/rio/rio_linux.c
-      [GCC4] fix build error in drivers/net/acenic.c
-      [GCC4] fix build error in drivers/net/wan/comx.h
-      [GCC4] fix build error in drivers/net/3c507.c
-      [GCC4] fix build error in drivers/net/arlan.c
-      [GCC4] fix build error in drivers/net/irda/donauboe.c
-      [GCC4] fix build error in drivers/net/sk98lin/skvpd.c
-      [GCC4] fix build error in drivers/net/wan/comx-hw-comx.c
-      [GCC4] fix build error in drivers/net/wan/sdladrv.c
-      [GCC4] fix build error in drivers/net/wan/sdlamain.c
-      [GCC4] fix build error in drivers/net/wan/sdla_fr.c
-      [GCC4] fix build error in drivers/net/hamradio/baycom_epp.c
-      [GCC4] fix build error in drivers/net/hamradio/soundmodem/sm.h
-      [GCC4] fix build error in drivers/scsi/advansys.c
-      [GCC4] fix build error in drivers/scsi/atp870u.c
-      [GCC4] fix build error in drivers/scsi/cpqfcTS*
-      [GCC4] fix build error in drivers/ide/legacy/hd.c
-      [GCC4] fix build error in drivers/cdrom/sbpcd.c
-      [GCC4] fix build error in drivers/md/lvm-internal.h
-      [GCC4] fix build error in drivers/atm/iphase.c
-      [GCC4] fix build error in drivers/atm/fore200e.c
-      [GCC4] fix build error in drivers/isdn/eicon/eicon.h
-      [GCC4] fix build error in drivers/isdn/hisax/hfc_pci.c
-      [GCC4] fix build error in drivers/i2c/i2c-core.c
-      [GCC4] fix build error in drivers/i2c/i2c-proc.c
-      [GCC4] fix build error in drivers/media/video/videodev.c
-      [GCC4] fix build error in drivers/usb/audio.c
-      [GCC4] fix build error in drivers/ieee1394/highlevel.c
-      [GCC4] fix build error in drivers/media/video/bttvp.h
-      [GCC4] fix build error in drivers/sound/wavfront.c
-      [GCC4] fix warning in include/linux/atalk.h
-      [GCC4] fix warnings in include/linux/isdnif.h
-      [GCC4] fix warnings in include/net/dn_dev.h
-      [GCC4] fix warnings in include/net/dn_nsp.h
-      [GCC4] fix warnings in sdla.h and if_frad.h
-      [GCC4] fix warnings in sdla_x25.c and sdla_x25.h
-      [GCC4] fix warnings in include/linux/wanpipe.h
-      [GCC4] fix warnings in drivers/char/sx.c
-      [GCC4] fix warning in drivers/char/ip2/i2lib.c
-      [GCC4] fix warnings in drivers/net/de4x5,depca,arcnet
-      [GCC4] fix warnings in drivers/isdn/eicon/eicon*.h
-      [GCC4] fix warnings in drivers/isdn/hisax/hisax.h
-      [GCC4] fix build in drivers/atm/horizon.c
-      [GCC4] fix build error in drivers/net/rrunner.c
-      [GCC4] SPARC64: fix build error in arch/sparc64/kernel/smp.c
-      [GCC4] SPARC64: fix build error in arch/sparc64/kernel/time.c
-      [GCC4] SPARC64: fix build error in drivers/sbus/char/pcikbd.c
-      [GCC4] SPARC: fix build error in arch/sparc/kernel/signal.c
-      [GCC4] SPARC: fix build error in arch/sparc/kernel/time.c
-      [GCC4] SPARC: fix build error in drivers/fc4/soc.c
-      Merge branch 'gcc4'
-      Change VERSION to 2.4.34-pre3
-
+-- 
+Prasanna S.P.
+Linux Technology Center
+India Software Labs, IBM Bangalore
+Email: prasanna@in.ibm.com
+Ph: 91-80-41776329

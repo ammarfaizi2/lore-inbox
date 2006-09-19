@@ -1,57 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751864AbWISQ4k@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751872AbWISQ6W@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751864AbWISQ4k (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Sep 2006 12:56:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751871AbWISQ4k
+	id S1751872AbWISQ6W (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Sep 2006 12:58:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030267AbWISQ6W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Sep 2006 12:56:40 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:53446 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1751864AbWISQ4j (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Sep 2006 12:56:39 -0400
-Subject: Re: [PATCH] Migration of Standard Timers
-From: Lee Revell <rlrevell@joe-job.com>
-To: Dimitri Sivanich <sivanich@sgi.com>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org,
-       Thomas Gleixner <tglx@linutronix.de>, Andi Kleen <ak@suse.de>,
-       Jes Sorensen <jes@sgi.com>, Eric Dumazet <dada1@cosmosbay.com>
-In-Reply-To: <20060919164159.GC26863@sgi.com>
-References: <20060919152942.GA26863@sgi.com>
-	 <1158683617.11682.14.camel@mindpipe>  <20060919164159.GC26863@sgi.com>
-Content-Type: text/plain
-Date: Tue, 19 Sep 2006 12:57:53 -0400
-Message-Id: <1158685073.11682.25.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
+	Tue, 19 Sep 2006 12:58:22 -0400
+Received: from natklopstock.rzone.de ([81.169.145.174]:7364 "EHLO
+	natklopstock.rzone.de") by vger.kernel.org with ESMTP
+	id S1751001AbWISQ6V (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Sep 2006 12:58:21 -0400
+Date: Tue, 19 Sep 2006 18:57:34 +0200
+From: Olaf Hering <olaf@aepfle.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: "Martin J. Bligh" <mbligh@mbligh.org>, linux-kernel@vger.kernel.org,
+       Andy Whitcroft <apw@shadowen.org>
+Subject: Re: 2.6.18-rc7-mm1
+Message-ID: <20060919165734.GA30378@aepfle.de>
+References: <20060919012848.4482666d.akpm@osdl.org> <45100272.505@mbligh.org> <20060919093122.d8923263.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+In-Reply-To: <20060919093122.d8923263.akpm@osdl.org>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-09-19 at 11:41 -0500, Dimitri Sivanich wrote:
-> On Tue, Sep 19, 2006 at 12:33:37PM -0400, Lee Revell wrote:
-> > Which driver or subsystem is doing 100s of usecs of work in a timer?
+On Tue, Sep 19, Andrew Morton wrote:
+
+
+> What version of udev is it running?
+
+021 likely, a simple udevstart that looks for 'dev' entries.
+Where do they hide now in -mm?
+
+> > [: [0-9]*: bad number
+> > 
+> >
 > 
-> The longest one I've captured so far results from:
+> That all looks rather bad.
+
+'bad number' is harmless, affects only the persistant /dev/disk/ symlinks,
+happens since the SCSI target patches in 2.6.9.
+
+> > ReiserFS: sda2: Using r5 hash to sort names
+> > looking for init ...
+> > found /sbin/init
+> > /init: cannot open .//dev//console: no such file
 > 
-> rsp                rip                Function (args)
->  ======================= <nmi>
-> 0xffff810257822fd8 0xffffffff803a0e94 rt_check_expire+0x8c
->  ======================= <interrupt>  
-> 0xffff81025781fee8 0xffffffff803a0e08 rt_check_expire
-> 0xffff81025781ff08 0xffffffff802386b3 run_timer_softirq+0x133
-> 0xffff81025781ff38 0xffffffff80235262 __do_softirq+0x5e
-> 0xffff81025781ff68 0xffffffff8020a958 call_softirq+0x1c
-> 0xffff81025781ff80 0xffffffff8020bea7 do_softirq+0x2c
-> 0xffff81025781ff90 0xffffffff80235142 irq_exit+0x48
-> 
+> Bizarrely-formed pathname.  Does it always do that?
 
-Ah, I remember that one.  Eric Dumazet had some suggestions to fix it
-6-12 months ago which never went anywhere - the thread was called "RCU
-latency regression in 2.6.16-rc1".
+Yes, I wonder why /dev/console got lost in the first place.
 
-That one is especially annoying as there's no workaround (shrinking the
-route cache or reducing the GC interval via net.ipv4.route.* sysctls has
-no effect)
+/lib/mkinitrd/kinit.sh
+...
+rm -rf /bin /lib*
+#
+exec /run_init "$@" < "./$udev_root/console" > "./$udev_root/console" 2>&1
+...
 
-Lee
+> Has udev actually attempted to do anything by this stage?
 
+udevstart spawns alot /sbin/udev processes to propagate /dev

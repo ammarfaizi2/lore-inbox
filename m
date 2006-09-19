@@ -1,70 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751027AbWISJow@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751515AbWISJxX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751027AbWISJow (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Sep 2006 05:44:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751839AbWISJow
+	id S1751515AbWISJxX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Sep 2006 05:53:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750924AbWISJxX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Sep 2006 05:44:52 -0400
-Received: from usea-naimss1.unisys.com ([192.61.61.103]:39940 "EHLO
-	usea-naimss1.unisys.com") by vger.kernel.org with ESMTP
-	id S1751027AbWISJow convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Sep 2006 05:44:52 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
+	Tue, 19 Sep 2006 05:53:23 -0400
+Received: from ns.miraclelinux.com ([219.118.163.66]:55404 "EHLO
+	mail01.miraclelinux.com") by vger.kernel.org with ESMTP
+	id S1750792AbWISJxW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Sep 2006 05:53:22 -0400
+Date: Tue, 19 Sep 2006 17:01:17 +0800
+From: Akinobu Mita <mita@miraclelinux.com>
+To: Don Mullis <dwm@meer.net>
+Cc: linux-kernel@vger.kernel.org, ak@suse.de, akpm@osdl.org
+Subject: Re: [patch 1/8] documentation and scripts
+Message-ID: <20060919090117.GA24271@miraclelinux.com>
+References: <20060914102012.251231177@localhost.localdomain> <20060914102029.642906830@localhost.localdomain> <1158645051.2419.2.camel@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: FW: FW:  [PATCH 2.6.17.3] Memory Management: High-Memory Scalability Issue
-Date: Tue, 19 Sep 2006 15:13:53 +0530
-Message-ID: <88299102B8C1F54BB5C8E47F30B2FBE2047C19A9@inblr-exch1.eu.uis.unisys.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: FW:  [PATCH 2.6.17.3] Memory Management: High-Memory Scalability Issue
-Thread-Index: AcbV7aZyXkO3CuSNQsSJ31EIhVDvjAF4lwGw
-From: "Satapathy, Soumendu Sekhar" <Soumendu.Satapathy@in.unisys.com>
-To: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 19 Sep 2006 09:44:38.0987 (UTC) FILETIME=[396EA1B0:01C6DBD0]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1158645051.2419.2.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Sep 18, 2006 at 10:50:51PM -0700, Don Mullis wrote:
+> Add reference to similar functionality in drivers/md/faulty.c .
+> 
+> Clarify debugfs descriptions.
+> 
+> Add an entry for fault-injection to 
+> Documentation/kernel-parameters.txt .
 
-
- 
------Original Message-----
-From: Andi Kleen [mailto:ak@suse.de] 
-Sent: Tuesday, September 12, 2006 2:31 AM
-To: Satapathy, Soumendu Sekhar
-Cc: akpm@osdl.org; torvalds@osdl.org
-Subject: Re: FW: [PATCH 2.6.17.3] Memory Management: High-Memory
-Scalability Issue
-
-On Monday 11 September 2006 08:24, Satapathy, Soumendu Sekhar wrote:
-> Hi,
->
-> http://lkml.org/lkml/2006/7/5/74
->
-> This patch was tested successfully in a system with 4GB, 32GB and 64GB
-RAM.
-> Can it be considered for inclusion in the kernel.
-
-Thanks for your contribution to Linux.
-
-I'm not really deep enough into the high level swapping algorithm to
-evaluate
-your patch competently, but your result looks promising. Normally this
-code is considered pretty fragile unfortunately so some more testing
-would be definitely needed. It's good that you gave a clear rationale
-on what you changed at least.
-
-I would recommend to do perhaps do some benchmarks on smaller machines
-with 
-the patch too (just to make sure there are no regressions on them)  and 
-possible try
-a few more different workloads and then post on linux-mm@kvack.org.
-There is 
-where all the VM hackers tend to hang out.
-
--Andi
-
+Thank you for fixing my poor English and good description.
+I merged this patch.

@@ -1,46 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751914AbWITRD5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751871AbWITRGf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751914AbWITRD5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Sep 2006 13:03:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751958AbWITRD4
+	id S1751871AbWITRGf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Sep 2006 13:06:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751887AbWITRGf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Sep 2006 13:03:56 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:32211 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1751914AbWITRDz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Sep 2006 13:03:55 -0400
-Subject: Re: [PATCH] Adds kernel parameter to ignore pci devices
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Luiz Angelo Daros de Luca <luizluca@gmail.com>
-Cc: Jarek Poplawski <jarkao2@o2.pl>, linux-kernel@vger.kernel.org,
-       torvalds@osdl.org
-In-Reply-To: <8b96e3d20609200951h6b70c261odff1db1913d13d10@mail.gmail.com>
-References: <20060920064114.GA1697@ff.dom.local>
-	 <1158748734.7705.4.camel@localhost.localdomain>
-	 <20060920112559.GC1697@ff.dom.local>
-	 <8b96e3d20609200951h6b70c261odff1db1913d13d10@mail.gmail.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Wed, 20 Sep 2006 18:27:46 +0100
-Message-Id: <1158773267.7705.13.camel@localhost.localdomain>
+	Wed, 20 Sep 2006 13:06:35 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:33261 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1751871AbWITRGf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Sep 2006 13:06:35 -0400
+Date: Wed, 20 Sep 2006 18:58:46 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Gene Heskett <gene.heskett@verizon.net>
+Cc: linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>
+Subject: Re: 2.6.18-rt1
+Message-ID: <20060920165846.GA31522@elte.hu>
+References: <20060920141907.GA30765@elte.hu> <200609201250.03750.gene.heskett@verizon.net>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200609201250.03750.gene.heskett@verizon.net>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -2.9
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.9 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5000]
+	-0.1 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Mer, 2006-09-20 am 13:51 -0300, ysgrifennodd Luiz Angelo Daros de
-Luca:
-> Allan, disabling EHCI in kernel won't solve it cause the kernel
-> freezes when linux is setting up pci. This is before any device
-> specific driver and it is done even without any driver for that
-> device.
-> 
-> I was going to implement a way to ignore using bus+board+function but
-> not at this time. BTW, are the parameters name, format and debug
-> messages adequated to kernel's principels?
 
-I think so yes. The actual names used are a minor detail to worry about
-once the code is working, neat and being submitted.
+* Gene Heskett <gene.heskett@verizon.net> wrote:
 
-Alan
+>   LD      .tmp_vmlinux1
+> kernel/built-in.o(.text+0x16f25): In function `hrtimer_start':
+> : undefined reference to `hrtimer_update_timer_prio'
+> make: *** [.tmp_vmlinux1] Error 1
 
+yeah, the !hrt build broke in the last minute, i've uploaded -rt2 with 
+the fix.
+
+	Ingo

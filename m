@@ -1,120 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751447AbWITNvU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751495AbWITNzJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751447AbWITNvU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Sep 2006 09:51:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751448AbWITNvU
+	id S1751495AbWITNzJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Sep 2006 09:55:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751496AbWITNzJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Sep 2006 09:51:20 -0400
-Received: from tomts13.bellnexxia.net ([209.226.175.34]:16072 "EHLO
-	tomts13-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id S1751447AbWITNvT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Sep 2006 09:51:19 -0400
-Date: Wed, 20 Sep 2006 09:46:06 -0400
-From: Mathieu Desnoyers <compudj@krystal.dyndns.org>
-To: "Frank Ch. Eigler" <fche@redhat.com>
-Cc: Karim Yaghmour <karim@opersys.com>, linux-kernel@vger.kernel.org,
-       Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       Ingo Molnar <mingo@redhat.com>, Greg Kroah-Hartman <gregkh@suse.de>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Douglas Niehaus <niehaus@eecs.ku.edu>, Tom Zanussi <zanussi@us.ibm.com>,
-       Paul Mundt <lethal@linux-sh.org>, Jes Sorensen <jes@sgi.com>,
-       Richard J Moore <richardj_moore@uk.ibm.com>,
-       William Cohen <wcohen@redhat.com>,
-       "Martin J. Bligh" <mbligh@mbligh.org>,
-       Michel Dagenais <michel.dagenais@polymtl.ca>,
-       systemtap@sources.redhat.com, ltt-dev@shafik.org
-Subject: Re: [PATCH] Linux Kernel Markers 0.2 for Linux 2.6.17
-Message-ID: <20060920134606.GA9770@Krystal>
-References: <20060919183447.GA16095@Krystal> <y0m4pv3ek49.fsf@ton.toronto.redhat.com> <20060919193623.GA9459@Krystal> <20060919194515.GB18646@redhat.com> <20060919202802.GB552@Krystal> <20060919210703.GD18646@redhat.com> <45106B20.6020600@opersys.com> <20060920132008.GF18646@redhat.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=_Krystal-23260-1158759966-0001-2"
+	Wed, 20 Sep 2006 09:55:09 -0400
+Received: from 85-210-218-110.dsl.pipex.com ([85.210.218.110]:60372 "EHLO
+	localhost.localdomain") by vger.kernel.org with ESMTP
+	id S1751495AbWITNzH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Sep 2006 09:55:07 -0400
+Date: Wed, 20 Sep 2006 14:54:13 +0100
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] count defined zones to size ZONE_SHIFT
+Message-ID: <20060920135413.GA7369@shadowen.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060920132008.GF18646@redhat.com>
-X-Editor: vi
-X-Info: http://krystal.dyndns.org:8080
-X-Operating-System: Linux/2.4.32-grsec (i686)
-X-Uptime: 09:44:48 up 28 days, 10:53,  2 users,  load average: 0.50, 0.23, 0.17
 User-Agent: Mutt/1.5.13 (2006-08-11)
+From: Andy Whitcroft <apw@shadowen.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a MIME-formatted message.  If you see this text it means that your
-E-mail software does not support MIME-formatted messages.
+With the recent changes allowing ZONE_DMA etc to all be optional,
+the ZONE_SHIFT calculation is very hard to follow.  Playing with
+the compiler, it seems that the following is portable and IMO
+much easier to read and understand.
 
---=_Krystal-23260-1158759966-0001-2
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+-apw
 
-Thinking about it, I would leave a choice of two options :
+=== 8< ===
+count defined zones to size ZONE_SHIFT
 
-1 - the probe mechanism you described at OLS + passing arguments
-2 - a simple symbol for kprobe
+Simplify calculation of the number of bits we need for ZONES_SHIFT
+by adding up the definitions of the defined zones.  We make use of
+the property of defined(X) that its value is one when X is defined
+and zero otherwise.  From the GCC manuals:
 
-Any thoughts ?
+  "defined name and defined (name) are both expressions whose
+   value is 1 if name is defined as a macro at the current point
+   in the program, and 0 otherwise."
 
-Mathieu
-
-* Frank Ch. Eigler (fche@redhat.com) wrote:
-> Hi -
->=20
-> > > [...]  For the static part of the instrumentation, a
-> > > marker that could be hooked up to either type of probing system was
-> > > desirable, which implies some sort of run-time changeability.
-> >=20
-> > Ok. So if I get what you're saying here, you'd like to be able to
-> > overload a marker?=20
->=20
-> Sort of.  Remember, we discussed markers as *marking* places and
-> things, with the intent that they be decoupled from the actual
-> *action* that is taken when the marker is hit.
->=20
-> > Can you suggest a macro that can do what you'd like. [...]
->=20
-> Compare the kind of marker I showed at OLS and presently supported by
-> systemtap.  Its unparametrized version looks like this:
->=20
-> #define STAP_MARK(name) do { \
->    static void (*__mark_##name##_)(); \
->    if (unlikely (__mark_##name##_)) \
->    (void) (__mark_##name##_()); \
-> } while (0)
->=20
-> A tracing/probing tool would hook up to a particular and specific
-> marker at run time by locating the __mark_NAME static variable (a
-> function pointer) in the data segment, for example using the ordinary
-> symbol table, and swapping into it the address of a compatible
-> back-end handler function.  When a particular tracing/probing session
-> ends, the function pointer is reset to null.
->=20
-> Note that this technique:
->=20
-> - operates at run time
-> - is portable
-> - in its parametrized variants, is type-safe
-> - does not require any future technology
-> - does impose some overhead even when a marker is not active
->=20
->=20
-> - FChE
-
-
-OpenPGP public key:              http://krystal.dyndns.org:8080/key/compudj=
-=2Egpg
-Key fingerprint:     8CD5 52C3 8E3C 4140 715F  BA06 3F25 A8FE 3BAE 9A68=20
-
---=_Krystal-23260-1158759966-0001-2
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Transfer-Encoding: 7bit
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
-
-iD8DBQFFEUYePyWo/juummgRAu8KAKCppscAWG2sdixHB2BqPX93Q1PcggCfV1Z4
-3Rl3jsQlOZapZDL/C5hpc7w=
-=s6zu
------END PGP SIGNATURE-----
-
---=_Krystal-23260-1158759966-0001-2--
+Signed-off-by: Andy Whitcroft <apw@shadowen.org>
+---
+diff --git a/include/linux/mmzone.h b/include/linux/mmzone.h
+index b7836c5..9e339da 100644
+--- a/include/linux/mmzone.h
++++ b/include/linux/mmzone.h
+@@ -149,15 +149,27 @@ #endif
+  * match the requested limits. See gfp_zone() in include/linux/gfp.h
+  */
+ 
+-#if !defined(CONFIG_ZONE_DMA32) && !defined(CONFIG_HIGHMEM)
+-#if !defined(CONFIG_ZONE_DMA)
++/*
++ * Count the active zones.  Note that the use of defined(X) outside
++ * #if and family is not necessarily defined so ensure we cannot use
++ * it later.  Use __ZONE_COUNT to work out how many shift bits we need.
++ */
++#define __ZONE_COUNT (			\
++	  defined(CONFIG_ZONE_DMA)	\
++	+ defined(CONFIG_ZONE_DMA32)	\
++	+ 1				\
++	+ defined(CONFIG_HIGHMEM)	\
++)
++#if __ZONE_COUNT < 2
+ #define ZONES_SHIFT 0
+-#else
++#elif __ZONE_COUNT <= 2
+ #define ZONES_SHIFT 1
+-#endif
+-#else
++#elif __ZONE_COUNT <= 4
+ #define ZONES_SHIFT 2
++#else
++#error ZONES_SHIFT -- too many zones configured adjust calculation
+ #endif
++#undef __ZONE_COUNT
+ 
+ struct zone {
+ 	/* Fields commonly accessed by the page allocator */

@@ -1,26 +1,27 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932268AbWITS5h@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932275AbWITS7E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932268AbWITS5h (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Sep 2006 14:57:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932260AbWITS5f
+	id S932275AbWITS7E (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Sep 2006 14:59:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932255AbWITS5Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Sep 2006 14:57:35 -0400
-Received: from ns1.coraid.com ([65.14.39.133]:45944 "EHLO coraid.com")
-	by vger.kernel.org with ESMTP id S932256AbWITS5B (ORCPT
+	Wed, 20 Sep 2006 14:57:24 -0400
+Received: from ns1.coraid.com ([65.14.39.133]:48760 "EHLO coraid.com")
+	by vger.kernel.org with ESMTP id S932268AbWITS5Q (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Sep 2006 14:57:01 -0400
-Message-ID: <bf84958f2deeb334e91bc062527da7ee@coraid.com>
-Date: Wed, 20 Sep 2006 14:36:49 -0400
+	Wed, 20 Sep 2006 14:57:16 -0400
+Message-ID: <e7d6387dd0793109580ef5fc86cb5f9b@coraid.com>
+Date: Wed, 20 Sep 2006 14:36:51 -0400
 To: linux-kernel@vger.kernel.org
 Cc: ecashin@coraid.com, Greg K-H <greg@kroah.com>
-Subject: [PATCH 2.6.18-rc4] aoe [09/14]: zero copy write 2 of 2
+Subject: [PATCH 2.6.18-rc4] aoe [14/14]: revert printk macros
 References: <E1GQ6uv-0001qi-00@kokone>
 From: "Ed L. Cashin" <ecashin@coraid.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Avoid memory copy on writes.
-(This patch follows patch 4.)
+This patch addresses the concern that the aoe driver should
+not introduce unecessary conventions that must be learned by
+the reader.  It reverts patch 6.
 
 Signed-off-by: "Ed L. Cashin" <ecashin@coraid.com>
 ---
@@ -28,221 +29,326 @@ Signed-off-by: "Ed L. Cashin" <ecashin@coraid.com>
 diff -upr 2.6.18-rc4-orig/drivers/block/aoe/aoe.h 2.6.18-rc4-aoe/drivers/block/aoe/aoe.h
 --- 2.6.18-rc4-orig/drivers/block/aoe/aoe.h	2006-09-20 14:29:36.000000000 -0400
 +++ 2.6.18-rc4-aoe/drivers/block/aoe/aoe.h	2006-09-20 14:29:36.000000000 -0400
-@@ -84,6 +84,7 @@ enum {
- 	DEVFL_PAUSE = (1<<5),
- 	DEVFL_NEWSIZE = (1<<6),	/* need to update dev size in block layer */
- 	DEVFL_MAXBCNT = (1<<7), /* d->maxbcnt is not changeable */
-+	DEVFL_KICKME = (1<<8),
+@@ -10,11 +10,6 @@
+ #define AOE_PARTITIONS (16)
+ #endif
  
- 	BUFFL_FAIL = 1,
- };
+-#define xprintk(L, fmt, arg...) printk(L "aoe: " "%s: " fmt, __func__, ## arg) 
+-#define iprintk(fmt, arg...) xprintk(KERN_INFO, fmt, ## arg)
+-#define eprintk(fmt, arg...) xprintk(KERN_ERR, fmt, ## arg)
+-#define dprintk(fmt, arg...) xprintk(KERN_DEBUG, fmt, ## arg)
+-
+ #define SYSMINOR(aoemajor, aoeminor) ((aoemajor) * NPERSHELF + (aoeminor))
+ #define AOEMAJOR(sysminor) ((sysminor) / NPERSHELF)
+ #define AOEMINOR(sysminor) ((sysminor) % NPERSHELF)
+diff -upr 2.6.18-rc4-orig/drivers/block/aoe/aoeblk.c 2.6.18-rc4-aoe/drivers/block/aoe/aoeblk.c
+--- 2.6.18-rc4-orig/drivers/block/aoe/aoeblk.c	2006-09-20 14:29:36.000000000 -0400
++++ 2.6.18-rc4-aoe/drivers/block/aoe/aoeblk.c	2006-09-20 14:29:36.000000000 -0400
+@@ -131,7 +131,7 @@ aoeblk_make_request(request_queue_t *q, 
+ 	d = bio->bi_bdev->bd_disk->private_data;
+ 	buf = mempool_alloc(d->bufpool, GFP_NOIO);
+ 	if (buf == NULL) {
+-		iprintk("buf allocation failure\n");
++		printk(KERN_INFO "aoe: buf allocation failure\n");
+ 		bio_endio(bio, bio->bi_size, -ENOMEM);
+ 		return 0;
+ 	}
+@@ -149,7 +149,8 @@ aoeblk_make_request(request_queue_t *q, 
+ 	spin_lock_irqsave(&d->lock, flags);
+ 
+ 	if ((d->flags & DEVFL_UP) == 0) {
+-		iprintk("device %ld.%ld is not up\n", d->aoemajor, d->aoeminor);
++		printk(KERN_INFO "aoe: device %ld.%ld is not up\n",
++			d->aoemajor, d->aoeminor);
+ 		spin_unlock_irqrestore(&d->lock, flags);
+ 		mempool_free(buf, d->bufpool);
+ 		bio_endio(bio, bio->bi_size, -ENXIO);
+@@ -174,7 +175,7 @@ aoeblk_getgeo(struct block_device *bdev,
+ 	struct aoedev *d = bdev->bd_disk->private_data;
+ 
+ 	if ((d->flags & DEVFL_UP) == 0) {
+-		eprintk("disk not up\n");
++		printk(KERN_ERR "aoe: disk not up\n");
+ 		return -ENODEV;
+ 	}
+ 
+@@ -201,7 +202,7 @@ aoeblk_gdalloc(void *vp)
+ 
+ 	gd = alloc_disk(AOE_PARTITIONS);
+ 	if (gd == NULL) {
+-		eprintk("cannot allocate disk structure for %ld.%ld\n",
++		printk(KERN_ERR "aoe: cannot allocate disk structure for %ld.%ld\n",
+ 			d->aoemajor, d->aoeminor);
+ 		spin_lock_irqsave(&d->lock, flags);
+ 		d->flags &= ~DEVFL_GDALLOC;
+@@ -211,7 +212,7 @@ aoeblk_gdalloc(void *vp)
+ 
+ 	d->bufpool = mempool_create_slab_pool(MIN_BUFS, buf_pool_cache);
+ 	if (d->bufpool == NULL) {
+-		eprintk("cannot allocate bufpool for %ld.%ld\n",
++		printk(KERN_ERR "aoe: cannot allocate bufpool for %ld.%ld\n",
+ 			d->aoemajor, d->aoeminor);
+ 		put_disk(gd);
+ 		spin_lock_irqsave(&d->lock, flags);
+diff -upr 2.6.18-rc4-orig/drivers/block/aoe/aoechr.c 2.6.18-rc4-aoe/drivers/block/aoe/aoechr.c
+--- 2.6.18-rc4-orig/drivers/block/aoe/aoechr.c	2006-09-20 14:29:35.000000000 -0400
++++ 2.6.18-rc4-aoe/drivers/block/aoe/aoechr.c	2006-09-20 14:29:36.000000000 -0400
+@@ -55,7 +55,8 @@ static int
+ interfaces(const char __user *str, size_t size)
+ {
+ 	if (set_aoe_iflist(str, size)) {
+-		eprintk("could not set interface list: too many interfaces\n");
++		printk(KERN_ERR
++			"aoe: could not set interface list: too many interfaces\n");
+ 		return -EINVAL;
+ 	}
+ 	return 0;
+@@ -78,7 +79,7 @@ revalidate(const char __user *str, size_
+ 	/* should be e%d.%d format */
+ 	n = sscanf(buf, "e%d.%d", &major, &minor);
+ 	if (n != 2) {
+-		eprintk("invalid device specification\n");
++		printk(KERN_ERR "aoe: invalid device specification\n");
+ 		return -EINVAL;
+ 	}
+ 	d = aoedev_by_aoeaddr(major, minor);
+@@ -113,7 +114,7 @@ bail:		spin_unlock_irqrestore(&emsgs_loc
+ 
+ 	mp = kmalloc(n, GFP_ATOMIC);
+ 	if (mp == NULL) {
+-		eprintk("allocation failure, len=%ld\n", n);
++		printk(KERN_ERR "aoe: allocation failure, len=%ld\n", n);
+ 		goto bail;
+ 	}
+ 
+@@ -138,7 +139,7 @@ aoechr_write(struct file *filp, const ch
+ 
+ 	switch ((unsigned long) filp->private_data) {
+ 	default:
+-		iprintk("can't write to that file.\n");
++		printk(KERN_INFO "aoe: can't write to that file.\n");
+ 		break;
+ 	case MINOR_DISCOVER:
+ 		ret = discover();
+@@ -247,7 +248,7 @@ aoechr_init(void)
+ 
+ 	n = register_chrdev(AOE_MAJOR, "aoechr", &aoe_fops);
+ 	if (n < 0) { 
+-		eprintk("can't register char device\n");
++		printk(KERN_ERR "aoe: can't register char device\n");
+ 		return n;
+ 	}
+ 	sema_init(&emsgs_sema, 0);
 diff -upr 2.6.18-rc4-orig/drivers/block/aoe/aoecmd.c 2.6.18-rc4-aoe/drivers/block/aoe/aoecmd.c
 --- 2.6.18-rc4-orig/drivers/block/aoe/aoecmd.c	2006-09-20 14:29:36.000000000 -0400
 +++ 2.6.18-rc4-aoe/drivers/block/aoe/aoecmd.c	2006-09-20 14:29:36.000000000 -0400
-@@ -120,7 +120,7 @@ aoecmd_ata_rw(struct aoedev *d, struct f
- 	h = (struct aoe_hdr *) skb->mac.raw;
- 	ah = (struct aoe_atahdr *) (h+1);
- 	skb->len = sizeof *h + sizeof *ah;
--	memset(h, 0, skb->len);
-+	memset(h, 0, ETH_ZLEN);
- 	f->tag = aoehdr_atainit(d, h);
- 	f->waited = 0;
- 	f->buf = buf;
-@@ -143,8 +143,9 @@ aoecmd_ata_rw(struct aoedev *d, struct f
- 		skb_fill_page_desc(skb, 0, virt_to_page(f->bufaddr),
- 			offset_in_page(f->bufaddr), bcnt);
- 		ah->aflags |= AOEAFL_WRITE;
-+		skb->len += bcnt;
-+		skb->data_len = bcnt;
- 	} else {
--		skb_shinfo(skb)->nr_frags = 0;
- 		skb->len = ETH_ZLEN;
- 		writebit = 0;
- 	}
-@@ -167,8 +168,9 @@ aoecmd_ata_rw(struct aoedev *d, struct f
- 	}
+@@ -159,7 +159,7 @@ aoecmd_ata_rw(struct aoedev *d, struct f
+ 	buf->nframesout += 1;
+ 	buf->bufaddr += bcnt;
+ 	buf->bv_resid -= bcnt;
+-/* dprintk("bv_resid=%ld\n", buf->bv_resid); */
++/* printk(KERN_DEBUG "aoe: bv_resid=%ld\n", buf->bv_resid); */
+ 	buf->resid -= bcnt;
+ 	buf->sector += bcnt >> 9;
+ 	if (buf->resid == 0) {
+@@ -203,7 +203,7 @@ aoecmd_cfg_pkts(ushort aoemajor, unsigne
  
- 	skb->dev = d->ifp;
--	skb_get(skb);
--	skb->next = NULL;
-+	skb = skb_clone(skb, GFP_ATOMIC);
-+	if (skb == NULL)	
-+		return;
- 	if (d->sendq_hd)
- 		d->sendq_tl->next = skb;
- 	else
-@@ -224,6 +226,29 @@ aoecmd_cfg_pkts(ushort aoemajor, unsigne
- 	return sl;
- }
- 
-+static struct frame *
-+freeframe(struct aoedev *d)
-+{
-+	struct frame *f, *e;
-+	int n = 0;
-+
-+	f = d->frames;
-+	e = f + d->nframes;
-+	for (; f<e; f++) {
-+		if (f->tag != FREETAG)
-+			continue;
-+		if (atomic_read(&skb_shinfo(f->skb)->dataref) == 1) {
-+			skb_shinfo(f->skb)->nr_frags = f->skb->data_len = 0;
-+			return f;
-+		}
-+		n++;
-+	}
-+	if (n == d->nframes)	/* wait for network layer */
-+		d->flags |= DEVFL_KICKME;
-+
-+	return NULL;
-+}
-+
- /* enters with d->lock held */
- void
- aoecmd_work(struct aoedev *d)
-@@ -239,7 +264,7 @@ aoecmd_work(struct aoedev *d)
+ 		skb = new_skb(sizeof *h + sizeof *ch);
+ 		if (skb == NULL) {
+-			iprintk("skb alloc failure\n");
++			printk(KERN_INFO "aoe: skb alloc failure\n");
+ 			continue;
+ 		}
+ 		skb->dev = ifp;
+@@ -276,7 +276,7 @@ loop:
+ 			return;
+ 		buf = container_of(d->bufq.next, struct buf, bufs);
+ 		list_del(d->bufq.next);
+-/*dprintk("bi_size=%ld\n", buf->bio->bi_size); */
++/*printk(KERN_DEBUG "aoe: bi_size=%ld\n", buf->bio->bi_size); */
+ 		d->inprocess = buf;
  	}
- 
- loop:
--	f = getframe(d, FREETAG);
-+	f = freeframe(d);
- 	if (f == NULL)
- 		return;
- 	if (d->inprocess == NULL) {
-@@ -282,20 +307,25 @@ rexmit(struct aoedev *d, struct frame *f
- 	n = DEFAULTBCNT / 512;
- 	if (ah->scnt > n) {
- 		ah->scnt = n;
--		if (ah->aflags & AOEAFL_WRITE)
-+		if (ah->aflags & AOEAFL_WRITE) {
- 			skb_fill_page_desc(skb, 0, virt_to_page(f->bufaddr),
- 				offset_in_page(f->bufaddr), DEFAULTBCNT);
-+			skb->len = sizeof *h + sizeof *ah + DEFAULTBCNT;
-+			skb->data_len = DEFAULTBCNT;
-+		}
+ 	aoecmd_ata_rw(d, f);
+@@ -319,7 +319,7 @@ rexmit(struct aoedev *d, struct frame *f
+ 		}
  		if (++d->lostjumbo > (d->nframes << 1))
  		if (d->maxbcnt != DEFAULTBCNT) {
--			iprintk("too many lost jumbo - using 1KB frames.\n");
-+			iprintk("e%ld.%ld: too many lost jumbo on %s - using 1KB frames.\n",
-+				d->aoemajor, d->aoeminor, d->ifp->name);
+-			iprintk("e%ld.%ld: too many lost jumbo on %s - using 1KB frames.\n",
++			printk(KERN_INFO "aoe: e%ld.%ld: too many lost jumbo on %s - using 1KB frames.\n",
+ 				d->aoemajor, d->aoeminor, d->ifp->name);
  			d->maxbcnt = DEFAULTBCNT;
  			d->flags |= DEVFL_MAXBCNT;
- 		}
+@@ -472,7 +472,7 @@ ataid_complete(struct aoedev *d, unsigne
  	}
  
- 	skb->dev = d->ifp;
--	skb_get(skb);
--	skb->next = NULL;
-+	skb = skb_clone(skb, GFP_ATOMIC);
-+	if (skb == NULL)
-+		return;
- 	if (d->sendq_hd)
- 		d->sendq_tl->next = skb;
- 	else
-@@ -350,6 +380,10 @@ rexmit_timer(ulong vp)
- 			rexmit(d, f);
- 		}
- 	}
-+	if (d->flags & DEVFL_KICKME) {
-+		d->flags &= ~DEVFL_KICKME;
-+		aoecmd_work(d);
-+	}
- 
- 	sl = d->sendq_hd;
- 	d->sendq_hd = d->sendq_tl = NULL;
-@@ -552,23 +586,27 @@ aoecmd_ata_rsp(struct sk_buff *skb)
- 		case WIN_WRITE:
- 		case WIN_WRITE_EXT:
- 			if (f->bcnt -= n) {
-+				skb = f->skb;
- 				f->bufaddr += n;
- 				put_lba(ahout, f->lba += ahout->scnt);
- 				n = f->bcnt;
- 				if (n > DEFAULTBCNT)
- 					n = DEFAULTBCNT;
- 				ahout->scnt = n >> 9;
--				if (ahout->aflags & AOEAFL_WRITE)
--					skb_fill_page_desc(f->skb, 0, 
-+				if (ahout->aflags & AOEAFL_WRITE) {
-+					skb_fill_page_desc(skb, 0, 
- 						virt_to_page(f->bufaddr),
- 						offset_in_page(f->bufaddr), n);
-+					skb->len = sizeof *hout + sizeof *ahout + n;
-+					skb->data_len = n;
-+				}
- 				f->tag = newtag(d);
- 				hout->tag = cpu_to_be32(f->tag);
- 				skb->dev = d->ifp;
--				skb_get(f->skb);
--				f->skb->next = NULL;
-+				skb = skb_clone(skb, GFP_ATOMIC);
+ 	if (d->ssize != ssize)
+-		iprintk("%012llx e%lu.%lu v%04x has %llu sectors\n",
++		printk(KERN_INFO "aoe: %012llx e%lu.%lu v%04x has %llu sectors\n",
+ 			(unsigned long long)mac_addr(d->addr),
+ 			d->aoemajor, d->aoeminor,
+ 			d->fw_ver, (long long)ssize);
+@@ -483,7 +483,7 @@ ataid_complete(struct aoedev *d, unsigne
+ 		d->flags |= DEVFL_NEWSIZE;
+ 	} else {
+ 		if (d->flags & DEVFL_GDALLOC) {
+-			eprintk("can't schedule work for e%lu.%lu, %s\n",
++			printk(KERN_ERR "aoe: can't schedule work for e%lu.%lu, %s\n",
+ 			       d->aoemajor, d->aoeminor,
+ 			       "it's already on!  This shouldn't happen.\n");
+ 			return;
+@@ -569,7 +569,8 @@ aoecmd_ata_rsp(struct sk_buff *skb)
+ 	if (ahout->cmdstat == WIN_IDENTIFY)
+ 		d->flags &= ~DEVFL_PAUSE;
+ 	if (ahin->cmdstat & 0xa9) {	/* these bits cleared on success */
+-		eprintk("ata error cmd=%2.2Xh stat=%2.2Xh from e%ld.%ld\n", 
++		printk(KERN_ERR
++			"aoe: ata error cmd=%2.2Xh stat=%2.2Xh from e%ld.%ld\n", 
+ 			ahout->cmdstat, ahin->cmdstat,
+ 			d->aoemajor, d->aoeminor);
+ 		if (buf)
+@@ -580,7 +581,8 @@ aoecmd_ata_rsp(struct sk_buff *skb)
+ 		case WIN_READ:
+ 		case WIN_READ_EXT:
+ 			if (skb->len - sizeof *hin - sizeof *ahin < n) {
+-				eprintk("runt data size in read.  skb->len=%d\n",
++				printk(KERN_ERR
++					"aoe: runt data size in read.  skb->len=%d\n",
+ 					skb->len);
+ 				/* fail frame f?  just returning will rexmit. */
  				spin_unlock_irqrestore(&d->lock, flags);
--				aoenet_xmit(f->skb);
-+				if (skb)
-+					aoenet_xmit(skb);
+@@ -618,7 +620,8 @@ aoecmd_ata_rsp(struct sk_buff *skb)
+ 			break;
+ 		case WIN_IDENTIFY:
+ 			if (skb->len - sizeof *hin - sizeof *ahin < 512) {
+-				iprintk("runt data size in ataid.  skb->len=%d\n",
++				printk(KERN_INFO
++					"aoe: runt data size in ataid.  skb->len=%d\n",
+ 					skb->len);
+ 				spin_unlock_irqrestore(&d->lock, flags);
  				return;
- 			}
- 			if (n > DEFAULTBCNT)
-@@ -642,7 +680,7 @@ aoecmd_ata_id(struct aoedev *d)
- 	struct frame *f;
- 	struct sk_buff *skb;
+@@ -626,7 +629,8 @@ aoecmd_ata_rsp(struct sk_buff *skb)
+ 			ataid_complete(d, (char *) (ahin+1));
+ 			break;
+ 		default:
+-			iprintk("unrecognized ata command %2.2Xh for %d.%d\n",
++			printk(KERN_INFO
++				"aoe: unrecognized ata command %2.2Xh for %d.%d\n",
+ 				ahout->cmdstat,
+ 				be16_to_cpu(hin->major),
+ 				hin->minor);
+@@ -686,7 +690,7 @@ aoecmd_ata_id(struct aoedev *d)
  
--	f = getframe(d, FREETAG);
-+	f = freeframe(d);
+ 	f = freeframe(d);
  	if (f == NULL) {
- 		eprintk("can't get a frame. This shouldn't happen.\n");
+-		eprintk("can't get a frame. This shouldn't happen.\n");
++		printk(KERN_ERR "aoe: can't get a frame. This shouldn't happen.\n");
  		return NULL;
-@@ -652,8 +690,8 @@ aoecmd_ata_id(struct aoedev *d)
- 	skb = f->skb;
- 	h = (struct aoe_hdr *) skb->mac.raw;
- 	ah = (struct aoe_atahdr *) (h+1);
--	skb->len = sizeof *h + sizeof *ah;
--	memset(h, 0, skb->len);
-+	skb->len = ETH_ZLEN;
-+	memset(h, 0, ETH_ZLEN);
- 	f->tag = aoehdr_atainit(d, h);
- 	f->waited = 0;
+ 	}
  
-@@ -663,12 +701,11 @@ aoecmd_ata_id(struct aoedev *d)
- 	ah->lba3 = 0xa0;
+@@ -732,14 +736,14 @@ aoecmd_cfg_rsp(struct sk_buff *skb)
+ 	 */
+ 	aoemajor = be16_to_cpu(h->major);
+ 	if (aoemajor == 0xfff) {
+-		eprintk("Warning: shelf address is all ones.  "
++		printk(KERN_ERR "aoe: Warning: shelf address is all ones.  "
+ 			"Check shelf dip switches.\n");
+ 		return;
+ 	}
  
- 	skb->dev = d->ifp;
--	skb_get(skb);
+ 	sysminor = SYSMINOR(aoemajor, h->minor);
+ 	if (sysminor * AOE_PARTITIONS + AOE_PARTITIONS > MINORMASK) {
+-		iprintk("e%ld.%d: minor number too large\n", 
++		printk(KERN_INFO "aoe: e%ld.%d: minor number too large\n", 
+ 			aoemajor, (int) h->minor);
+ 		return;
+ 	}
+@@ -750,7 +754,7 @@ aoecmd_cfg_rsp(struct sk_buff *skb)
  
- 	d->rttavg = MAXTIMER;
- 	d->timer.function = rexmit_timer;
+ 	d = aoedev_by_sysminor_m(sysminor, n);
+ 	if (d == NULL) {
+-		iprintk("device sysminor_m failure\n");
++		printk(KERN_INFO "aoe: device sysminor_m failure\n");
+ 		return;
+ 	}
  
--	return skb;
-+	return skb_clone(skb, GFP_ATOMIC);
- }
-  
- void
-@@ -724,7 +761,12 @@ aoecmd_cfg_rsp(struct sk_buff *skb)
- 		n /= 512;
- 		if (n > ch->scnt)
+@@ -767,7 +771,8 @@ aoecmd_cfg_rsp(struct sk_buff *skb)
  			n = ch->scnt;
--		d->maxbcnt = n ? n * 512 : DEFAULTBCNT;
-+		n = n ? n * 512 : DEFAULTBCNT;
-+		if (n != d->maxbcnt) {
-+			iprintk("e%ld.%ld: setting %d byte data frames on %s\n",
-+				d->aoemajor, d->aoeminor, n, d->ifp->name);
-+			d->maxbcnt = n;
-+		}
- 	}
- 
- 	/* don't change users' perspective */
-diff -upr 2.6.18-rc4-orig/drivers/block/aoe/aoedev.c 2.6.18-rc4-aoe/drivers/block/aoe/aoedev.c
---- 2.6.18-rc4-orig/drivers/block/aoe/aoedev.c	2006-09-20 14:29:35.000000000 -0400
-+++ 2.6.18-rc4-aoe/drivers/block/aoe/aoedev.c	2006-09-20 14:29:36.000000000 -0400
-@@ -121,6 +121,7 @@ aoedev_downdev(struct aoedev *d)
- 			mempool_free(buf, d->bufpool);
- 			bio_endio(bio, bio->bi_size, -EIO);
+ 		n = n ? n * 512 : DEFAULTBCNT;
+ 		if (n != d->maxbcnt) {
+-			iprintk("e%ld.%ld: setting %d byte data frames on %s\n",
++			printk(KERN_INFO
++				"aoe: e%ld.%ld: setting %d byte data frames on %s\n",
+ 				d->aoemajor, d->aoeminor, n, d->ifp->name);
+ 			d->maxbcnt = n;
  		}
-+		skb_shinfo(f->skb)->nr_frags = f->skb->data_len = 0;
+diff -upr 2.6.18-rc4-orig/drivers/block/aoe/aoedev.c 2.6.18-rc4-aoe/drivers/block/aoe/aoedev.c
+--- 2.6.18-rc4-orig/drivers/block/aoe/aoedev.c	2006-09-20 14:29:36.000000000 -0400
++++ 2.6.18-rc4-aoe/drivers/block/aoe/aoedev.c	2006-09-20 14:29:36.000000000 -0400
+@@ -156,7 +156,7 @@ aoedev_by_sysminor_m(ulong sysminor, ulo
+ 		d = aoedev_newdev(bufcnt);
+ 	 	if (d == NULL) {
+ 			spin_unlock_irqrestore(&devlist_lock, flags);
+-			iprintk("aoedev_newdev failure.\n");
++			printk(KERN_INFO "aoe: aoedev_newdev failure.\n");
+ 			return NULL;
+ 		}
+ 		d->sysminor = sysminor;
+diff -upr 2.6.18-rc4-orig/drivers/block/aoe/aoemain.c 2.6.18-rc4-aoe/drivers/block/aoe/aoemain.c
+--- 2.6.18-rc4-orig/drivers/block/aoe/aoemain.c	2006-09-20 14:29:35.000000000 -0400
++++ 2.6.18-rc4-aoe/drivers/block/aoe/aoemain.c	2006-09-20 14:29:36.000000000 -0400
+@@ -84,11 +84,11 @@ aoe_init(void)
+ 		goto net_fail;
+ 	ret = register_blkdev(AOE_MAJOR, DEVICE_NAME);
+ 	if (ret < 0) {
+-		eprintk("can't register major\n");
++		printk(KERN_ERR "aoe: can't register major\n");
+ 		goto blkreg_fail;
  	}
- 	d->inprocess = NULL;
  
+-	iprintk("AoE v%s initialised.\n", VERSION);
++	printk(KERN_INFO "aoe: AoE v%s initialised.\n", VERSION);
+ 	discover_timer(TINIT);
+ 	return 0;
+ 
+@@ -101,7 +101,7 @@ aoe_init(void)
+  chr_fail:
+ 	aoedev_exit();
+ 	
+-	iprintk("initialisation failure.\n");
++	printk(KERN_INFO "aoe: initialisation failure.\n");
+ 	return ret;
+ }
+ 
+diff -upr 2.6.18-rc4-orig/drivers/block/aoe/aoenet.c 2.6.18-rc4-aoe/drivers/block/aoe/aoenet.c
+--- 2.6.18-rc4-orig/drivers/block/aoe/aoenet.c	2006-09-20 14:29:35.000000000 -0400
++++ 2.6.18-rc4-aoe/drivers/block/aoe/aoenet.c	2006-09-20 14:29:36.000000000 -0400
+@@ -74,7 +74,7 @@ set_aoe_iflist(const char __user *user_s
+ 		return -EINVAL;
+ 
+ 	if (copy_from_user(aoe_iflist, user_str, size)) {
+-		iprintk("copy from user failed\n");
++		printk(KERN_INFO "aoe: copy from user failed\n");
+ 		return -EFAULT;
+ 	}
+ 	aoe_iflist[size] = 0x00;
+@@ -132,7 +132,7 @@ aoenet_rcv(struct sk_buff *skb, struct n
+ 		if (n > NECODES)
+ 			n = 0;
+ 		if (net_ratelimit())
+-			eprintk("error packet from %d.%d; ecode=%d '%s'\n",
++			printk(KERN_ERR "aoe: error packet from %d.%d; ecode=%d '%s'\n",
+ 			       be16_to_cpu(h->major), h->minor, 
+ 			       h->err, aoe_errlist[n]);
+ 		goto exit;
+@@ -146,7 +146,7 @@ aoenet_rcv(struct sk_buff *skb, struct n
+ 		aoecmd_cfg_rsp(skb);
+ 		break;
+ 	default:
+-		iprintk("unknown cmd %d\n", h->cmd);
++		printk(KERN_INFO "aoe: unknown cmd %d\n", h->cmd);
+ 	}
+ exit:
+ 	dev_kfree_skb(skb);
 
 
 -- 

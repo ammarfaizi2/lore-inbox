@@ -1,93 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751374AbWITNpi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751414AbWITNsF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751374AbWITNpi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Sep 2006 09:45:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751376AbWITNpi
+	id S1751414AbWITNsF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Sep 2006 09:48:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751415AbWITNsF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Sep 2006 09:45:38 -0400
-Received: from mtagate1.uk.ibm.com ([195.212.29.134]:45933 "EHLO
-	mtagate1.uk.ibm.com") by vger.kernel.org with ESMTP
-	id S1751374AbWITNph (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Sep 2006 09:45:37 -0400
-In-Reply-To: <1158748327.7705.3.camel@localhost.localdomain>
-Subject: Re: [PATCH] Linux Kernel Markers
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Mathieu Desnoyers <compudj@krystal.dyndns.org>,
-       "Frank Ch. Eigler" <fche@redhat.com>,
-       Greg Kroah-Hartman <gregkh@suse.de>,
-       Christoph Hellwig <hch@infradead.org>, Jes Sorensen <jes@sgi.com>,
-       Paul Mundt <lethal@linux-sh.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>, ltt-dev@shafik.org,
-       Martin Bligh <mbligh@google.com>,
-       Michel Dagenais <michel.dagenais@polymtl.ca>,
-       Ingo Molnar <mingo@elte.hu>, prasanna@in.ibm.com,
-       systemtap@sources.redhat.com, Thomas Gleixner <tglx@linutronix.de>,
-       William Cohen <wcohen@redhat.com>, Tom Zanussi <zanussi@us.ibm.com>
-X-Mailer: Lotus Notes Release 7.0.1 July 07, 2006
-Message-ID: <OF826E70C6.D56C9D09-ON802571EF.004A94C0-802571EF.004B91DA@uk.ibm.com>
-From: Richard J Moore <richardj_moore@uk.ibm.com>
-Date: Wed, 20 Sep 2006 14:45:25 +0100
-X-MIMETrack: Serialize by Router on D06ML065/06/M/IBM(Release 6.5.5HF607 | June 26, 2006) at
- 20/09/2006 14:47:48
+	Wed, 20 Sep 2006 09:48:05 -0400
+Received: from ccerelbas01.cce.hp.com ([161.114.21.104]:25036 "EHLO
+	ccerelbas01.cce.hp.com") by vger.kernel.org with ESMTP
+	id S1751414AbWITNsC convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Sep 2006 09:48:02 -0400
+X-MIMEOLE: Produced By Microsoft Exchange V6.5
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
+Content-Type: text/plain;
+	charset="US-ASCII"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [PATCH]: cciss - remove unneeded spaces in output for attached volumes (resend)
+Date: Wed, 20 Sep 2006 08:47:57 -0500
+Message-ID: <E717642AF17E744CA95C070CA815AE558354B5@cceexc23.americas.cpqcorp.net>
+In-Reply-To: <1b270aae0609200422h511d1169na201cdeaee05a24a@mail.gmail.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH]: cciss - remove unneeded spaces in output for attached volumes (resend)
+Thread-Index: Acbcpwk35K22AJZ2QveUvEKTnQByAQAFDwvw
+From: "Miller, Mike (OS Dev)" <Mike.Miller@hp.com>
+To: "Metathronius Galabant" <m.galabant@googlemail.com>,
+       "ISS StorageDev" <iss_storagedev@hp.com>
+Cc: <linux-kernel@vger.kernel.org>, <linux-scsi@vger.kernel.org>,
+       "Jens Axboe" <axboe@suse.de>
+X-OriginalArrivalTime: 20 Sep 2006 13:47:58.0623 (UTC) FILETIME=[61E80AF0:01C6DCBB]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+ 
 
+> -----Original Message-----
+> From: Metathronius Galabant [mailto:m.galabant@googlemail.com] 
+> Sent: Wednesday, September 20, 2006 6:22 AM
+> To: ISS StorageDev
+> Cc: linux-kernel@vger.kernel.org; linux-scsi@vger.kernel.org
+> Subject: [PATCH]: cciss - remove unneeded spaces in output 
+> for attached volumes (resend)
+> 
+> Hi,
+> 
+> please see the following patch against the cciss driver 
+> (HP/Compaq SmartArray Controllers).
+> It removes the awkwards spaces after the "=" when displaying 
+> the geometry of the attached volumes.
+> 
+> Before:
+> cciss: using DAC cycles
+>      blocks= 286734240 block_size= 512
+>      heads= 255, sectors= 32, cylinders= 35139
+> 
+> After:
+> cciss: using DAC cycles
+>      blocks=286734240 block_size=512
+>      heads=255, sectors=32, cylinders=35139
+> 
+> 
+> The following is against 2.6.18-rc6 (and I hope gmail doesn't 
+> corrupt the inline patch).
+> Cheers,
+> M.
+> 
+> 
+> Signed-off-by: Metathronius Galabant <m.galabant@gmail.com>
 
-Alan Cox <alan@lxorguk.ukuu.org.uk> wrote on 20/09/2006 11:32:07:
+Acked-by: Mike Miller <mike.miller@hp.com>
 
-> Ar Mer, 2006-09-20 am 09:18 +0100, ysgrifennodd Richard J Moore:
-> > > Are you referring to Intel erratum "unsynchronized cross-modifying
-code"
-> > > - where it refers to the practice of modifying code on one processor
-> > > where another has prefetched the unmodified version of the code.
->
-> > In the special case of replacing an opcode with int3 that erratum
-doesn't
-> > apply. I know that's not in the manuals but it has been confirmed by
-the
-> > Intel microarchitecture group. And it's not reasonable to it to be any
-> > other way.
->
-> Ok thats cool to know and I wish they'd documented it. Is the same true
-> for AMD ?
->
-> Alan
->
-
-Not sure probably - I can ask.
-
-Intel explained it to me thus:
-
-When the i-fetch has been done and the micro-ops are in the trace cache
-then there's no longer a direct correlation between the original machine
-instruction boundaries and the micro ops. This is due to optimization. For
-example (artificial one for illustrative purposes):
-
-mov eax,ebx
-mov memory,eax
-mov eax,1
-
-(using intel notation not ATT - force of habit)
-
-In the trace cache there would be no micro ops to update eax with ebx.
-
-Altering the "mov eax,ebx" to "mov ecx,ebx" on the fly invalidates the
-optimized trace cache, hence the onlhy recourse is a GPF.
-If the modification doens't invalidate the trace cache then no GPF. The
-question is: "can we predict th circumstances when the trace cache has not
-been invalidated", and the answer in general is no since the
-microarchtecture is not public. But one can guess that modifying the single
-byte opcode with in interrupting instruction  - int3 - doesn't cause an
-inconsistency that can't be handled. And that's what Intel confirmed. Go
-ahead and store int3 without the need to synchronise (i.e. force the trace
-cache to be flushed).
-
-My guess is that AMD behaves exactly the same way. But I'll check.
-
-
-Richard
-
+> 
+> diff -ru linux-2.6.18-rc6/drivers/block/cciss.c
+> linux-2.6.18-rc6-f/drivers/block/cciss.c
+> --- linux-2.6.18-rc6/drivers/block/cciss.c      2006-09-11
+> 15:57:54.000000000 +0200
+> +++ linux-2.6.18-rc6-f/drivers/block/cciss.c    2006-09-11
+> 16:32:42.000000000 +0200
+> @@ -1934,7 +1934,7 @@
+>         } else {                /* Get geometry failed */
+>                 printk(KERN_WARNING "cciss: reading geometry 
+> failed\n");
+>         }
+> -       printk(KERN_INFO "      heads= %d, sectors= %d, 
+> cylinders= %d\n\n",
+> +       printk(KERN_INFO "      heads=%d, sectors=%d, 
+> cylinders=%d\n\n",
+>                drv->heads, drv->sectors, drv->cylinders);  }
+> 
+> @@ -1962,7 +1962,7 @@
+>                 *total_size = 0;
+>                 *block_size = BLOCK_SIZE;
+>         }
+> -       printk(KERN_INFO "      blocks= %u block_size= %d\n",
+> +       printk(KERN_INFO "      blocks=%u block_size=%d\n",
+>                *total_size, *block_size);
+>         return;
+>  }
+> 

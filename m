@@ -1,84 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750754AbWITAcS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750772AbWITAtR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750754AbWITAcS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Sep 2006 20:32:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750755AbWITAcS
+	id S1750772AbWITAtR (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Sep 2006 20:49:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750776AbWITAtR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Sep 2006 20:32:18 -0400
-Received: from opersys.com ([64.40.108.71]:59659 "EHLO www.opersys.com")
-	by vger.kernel.org with ESMTP id S1750754AbWITAcR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Sep 2006 20:32:17 -0400
-Message-ID: <451090E7.603@opersys.com>
-Date: Tue, 19 Sep 2006 20:52:55 -0400
-From: Karim Yaghmour <karim@opersys.com>
-Reply-To: karim@opersys.com
-Organization: Opersys inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.6) Gecko/20060804 Fedora/1.0.4-0.5.1.fc5 SeaMonkey/1.0.4
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Mathieu Desnoyers <compudj@krystal.dyndns.org>,
-       Martin Bligh <mbligh@google.com>, prasanna@in.ibm.com,
-       Andrew Morton <akpm@osdl.org>, "Frank Ch. Eigler" <fche@redhat.com>,
-       Ingo Molnar <mingo@elte.hu>, Paul Mundt <lethal@linux-sh.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>, Jes Sorensen <jes@sgi.com>,
-       Tom Zanussi <zanussi@us.ibm.com>,
-       Richard J Moore <richardj_moore@uk.ibm.com>,
-       Michel Dagenais <michel.dagenais@polymtl.ca>,
-       Christoph Hellwig <hch@infradead.org>,
-       Greg Kroah-Hartman <gregkh@suse.de>,
-       Thomas Gleixner <tglx@linutronix.de>, William Cohen <wcohen@redhat.com>,
-       ltt-dev@shafik.org, systemtap@sources.redhat.com
-Subject: Re: [PATCH] Linux Kernel Markers
-References: <20060918234502.GA197@Krystal> <20060919081124.GA30394@elte.hu> 	 <451008AC.6030006@google.com> <20060919154612.GU3951@redhat.com> 	 <4510151B.5070304@google.com> <20060919093935.4ddcefc3.akpm@osdl.org> 	 <45101DBA.7000901@google.com> <20060919063821.GB23836@in.ibm.com> 	 <45102641.7000101@google.com>  <20060919175405.GC26339@Krystal> <1158710925.32598.120.camel@localhost.localdomain>
-In-Reply-To: <1158710925.32598.120.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Tue, 19 Sep 2006 20:49:17 -0400
+Received: from a83-132-128-147.cpe.netcabo.pt ([83.132.128.147]:5313 "EHLO
+	localhost.portugal") by vger.kernel.org with ESMTP id S1750772AbWITAtQ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Sep 2006 20:49:16 -0400
+Subject: Re: Math-emu kills the kernel on Athlon64 X2
+From: Sergio Monteiro Basto <sergio@sergiomb.no-ip.org>
+Reply-To: sergio@sergiomb.no-ip.org
+To: Krzysztof Halasa <khc@pm.waw.pl>
+Cc: Jesper Juhl <jesper.juhl@gmail.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       billm@melbpc.org.au, billm@suburbia.net
+In-Reply-To: <m3fyeof3c7.fsf@defiant.localdomain>
+References: <9a8748490609181518j2d12e4f0l2c55e755e40d38c2@mail.gmail.com>
+	 <1158623391.13821.4.camel@localhost.portugal>
+	 <m3fyeof3c7.fsf@defiant.localdomain>
+Content-Type: multipart/signed; micalg=sha1; protocol="application/x-pkcs7-signature"; boundary="=-BXRSNryns0KGoH3z8FhX"
+Date: Wed, 20 Sep 2006 01:48:40 +0100
+Message-Id: <1158713320.3098.15.camel@localhost.portugal>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Alan Cox wrote:
-> Ar Maw, 2006-09-19 am 13:54 -0400, ysgrifennodd Mathieu Desnoyers:
->> Very good idea.. However, overwriting the second instruction with a jump could
->> be dangerous on preemptible and SMP kernels, because we never know if a thread
->> has an IP in any of its contexts that would return exactly at the middle of the
->> jump. 
-> 
-> No: on x86 it is the *same* case for all of these even writing an int3.
-> One byte or a megabyte,
-> 
-> You MUST ensure that every CPU executes a serializing instruction before
-> it hits code that was modified by another processor. Otherwise you get
-> CPU errata and the CPU produces results which vendors like to describe
-> as "undefined".
+--=-BXRSNryns0KGoH3z8FhX
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: quoted-printable
 
-I was aware of that this errata existed, but never actually knew the
-actual specifics of it. Are these two separate problems or just
-one?
-a) the errata & a possible thread having an IP leading back within (not
-   at the start of) the range to be replaced.
-b) the errata & replacing single instruction with single instruction of
-   same size.
+On Tue, 2006-09-19 at 14:28 +0200, Krzysztof Halasa wrote:
+> Sergio Monteiro Basto <sergio@sergiomb.no-ip.org> writes:
+> > I think, math emulation is for 486 and older. 486 DX2 was the first one
+> > who have math co processor, on earlier processor it should be disable .
+>=20
+> Actually, 486 DX had built-in FPU as well. It was missing from 486SX
+> (486SX + optional 487 FPU =3D 486DX).
+>=20
+> For 386(DX|SX) there were 387(DX|SX) (386SX used 16-bit bus).
+>=20
+> Many 32-bit motherboards had a socket for Weitek (3167 for 386DX or 4167
+> for 486). I think I remember a board with 386DX and 287 socket as well.
+>=20
+> 486DX2 meant the external clock was half the internal.
 
-In a), there's almost an intractable problem of making sure no IP leads
-back within the range to be replaced. In b) we still have to take care
-of the errata part, but no worry about the stalled thread with invalid
-IP.
+Fine :),  My (12 year old) 486DX2 already don't need Math-emu. I just
+don't see how in a computer like that will be installed a kernel 2.6 .
+So why code of math-emu isn't dropped ?=20
 
-> Thus you have to serialize, and if you are serializing it really doesn't
-> matter if you write a byte, a paragraph or a page.
+Btw I try install a kernel 2.4 in my DX2 and works but very very slow .
+I think in this type of computer should be install a kernel 2.2 .=20
 
-I was vaguely aware of the issue on x86. Do you know if this applies the
-same on other achitectures?
+Thanks,
+--=20
+S=E9rgio M.B.
 
-Also, this is SMP-only, right? (Not that single UP matters for desktop
-anymore, but just checking.)
+--=-BXRSNryns0KGoH3z8FhX
+Content-Type: application/x-pkcs7-signature; name=smime.p7s
+Content-Disposition: attachment; filename=smime.p7s
+Content-Transfer-Encoding: base64
 
-Any pointers to the errata?
+MIAGCSqGSIb3DQEHAqCAMIACAQExCzAJBgUrDgMCGgUAMIAGCSqGSIb3DQEHAQAAoIIGSTCCAwIw
+ggJroAMCAQICAw/vkjANBgkqhkiG9w0BAQQFADBiMQswCQYDVQQGEwJaQTElMCMGA1UEChMcVGhh
+d3RlIENvbnN1bHRpbmcgKFB0eSkgTHRkLjEsMCoGA1UEAxMjVGhhd3RlIFBlcnNvbmFsIEZyZWVt
+YWlsIElzc3VpbmcgQ0EwHhcNMDUxMTI4MjIyODU2WhcNMDYxMTI4MjIyODU2WjBLMR8wHQYDVQQD
+ExZUaGF3dGUgRnJlZW1haWwgTWVtYmVyMSgwJgYJKoZIhvcNAQkBFhlzZXJnaW9Ac2VyZ2lvbWIu
+bm8taXAub3JnMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEApCNuKD3pz8GRKd1q+36r
+m0z7z+TBsbTrVa45UQsEeh9OQGZIASJMH5erC0u6KbKJ+km97RLOdsgSlKG6+5xuzsk+aqU7A0Gp
+kMjzIJT7UH/bbPnIFMQNnWJxluuYq1u+v8iIbfezQy1+SXyAyBv+OC7LnCOiOar/L9AD9zDy2fPX
+EqEDlbO3CJsoaR4Va8sgtoV0NmKnAt7DA0iZ2dmlsw6Qh+4euI+FgZ2WHPBQnfJ7PfSH5GIWl/Nx
+eUqnYpDaJafk/l94nX71UifdPXDMxJJlEOGqV9l4omhNlPmsZ/zrGXgLdBv9JuPjJ9mxhgwZsZbz
+VBc8emB0i3A7E6D6rwIDAQABo1kwVzAOBgNVHQ8BAf8EBAMCBJAwEQYJYIZIAYb4QgEBBAQDAgUg
+MCQGA1UdEQQdMBuBGXNlcmdpb0BzZXJnaW9tYi5uby1pcC5vcmcwDAYDVR0TAQH/BAIwADANBgkq
+hkiG9w0BAQQFAAOBgQBIVheRn3oHTU5rgIFHcBRxkIhOYPQHKk/oX4KakCrDCxp33XAqTG3aIG/v
+dsUT/OuFm5w0GlrUTrPaKYYxxfQ00+3d8y87aX22sUdj8oXJRYiPgQiE6lqu9no8axH6UXCCbKTi
+8383JcxReoXyuP000eUggq3tWr6fE/QmONUARzCCAz8wggKooAMCAQICAQ0wDQYJKoZIhvcNAQEF
+BQAwgdExCzAJBgNVBAYTAlpBMRUwEwYDVQQIEwxXZXN0ZXJuIENhcGUxEjAQBgNVBAcTCUNhcGUg
+VG93bjEaMBgGA1UEChMRVGhhd3RlIENvbnN1bHRpbmcxKDAmBgNVBAsTH0NlcnRpZmljYXRpb24g
+U2VydmljZXMgRGl2aXNpb24xJDAiBgNVBAMTG1RoYXd0ZSBQZXJzb25hbCBGcmVlbWFpbCBDQTEr
+MCkGCSqGSIb3DQEJARYccGVyc29uYWwtZnJlZW1haWxAdGhhd3RlLmNvbTAeFw0wMzA3MTcwMDAw
+MDBaFw0xMzA3MTYyMzU5NTlaMGIxCzAJBgNVBAYTAlpBMSUwIwYDVQQKExxUaGF3dGUgQ29uc3Vs
+dGluZyAoUHR5KSBMdGQuMSwwKgYDVQQDEyNUaGF3dGUgUGVyc29uYWwgRnJlZW1haWwgSXNzdWlu
+ZyBDQTCBnzANBgkqhkiG9w0BAQEFAAOBjQAwgYkCgYEAxKY8VXNV+065yplaHmjAdQRwnd/p/6Me
+7L3N9VvyGna9fww6YfK/Uc4B1OVQCjDXAmNaLIkVcI7dyfArhVqqP3FWy688Cwfn8R+RNiQqE88r
+1fOCdz0Dviv+uxg+B79AgAJk16emu59l0cUqVIUPSAR/p7bRPGEEQB5kGXJgt/sCAwEAAaOBlDCB
+kTASBgNVHRMBAf8ECDAGAQH/AgEAMEMGA1UdHwQ8MDowOKA2oDSGMmh0dHA6Ly9jcmwudGhhd3Rl
+LmNvbS9UaGF3dGVQZXJzb25hbEZyZWVtYWlsQ0EuY3JsMAsGA1UdDwQEAwIBBjApBgNVHREEIjAg
+pB4wHDEaMBgGA1UEAxMRUHJpdmF0ZUxhYmVsMi0xMzgwDQYJKoZIhvcNAQEFBQADgYEASIzRUIPq
+Cy7MDaNmrGcPf6+svsIXoUOWlJ1/TCG4+DYfqi2fNi/A9BxQIJNwPP2t4WFiw9k6GX6EsZkbAMUa
+C4J0niVQlGLH2ydxVyWN3amcOY6MIE9lX5Xa9/eH1sYITq726jTlEBpbNU1341YheILcIRk13iSx
+0x1G/11fZU8xggHvMIIB6wIBATBpMGIxCzAJBgNVBAYTAlpBMSUwIwYDVQQKExxUaGF3dGUgQ29u
+c3VsdGluZyAoUHR5KSBMdGQuMSwwKgYDVQQDEyNUaGF3dGUgUGVyc29uYWwgRnJlZW1haWwgSXNz
+dWluZyBDQQIDD++SMAkGBSsOAwIaBQCgXTAYBgkqhkiG9w0BCQMxCwYJKoZIhvcNAQcBMBwGCSqG
+SIb3DQEJBTEPFw0wNjA5MjAwMDQ4MzZaMCMGCSqGSIb3DQEJBDEWBBRjkFGEvt3EWytKc2pNVlm8
+FoSdRDANBgkqhkiG9w0BAQEFAASCAQCKkYq6qAwlB8gakaHSb5+G14A+VVYX25907Xoer2J6mPCe
+buxE9z+2walEoxhXWRCMBqw3DPBIai6Smyr9e9TJD0L4symjyX2kbe1c3jxLhDE/Ru+ld+6c1fYn
+uEtT2Fa3vneHEqJLnRjCqpZJgvVeqHJxu2+5hVRIxH6sZOZwMuV12XHkXGGUX6Fc1mp3f9DAS3wK
+Oj9j8ZBKme2t6S+FIQgHELP5GdIyHkX6J9aQ2RDXTH3tk71d5KIM+MTXIoCfWZYJN/dUlCWiFkGD
+Z78WsJ4HoW0+f+yajdpCTLA4E/OT/bv6kyUZjzx8D4YnSjwVtRYYPIqqJgjqsplV5UvNAAAAAAAA
 
-Karim
--- 
-President  / Opersys Inc.
-Embedded Linux Training and Expertise
-www.opersys.com  /  1.866.677.4546
+
+
+--=-BXRSNryns0KGoH3z8FhX--
+

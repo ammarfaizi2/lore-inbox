@@ -1,58 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751858AbWITQo0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751874AbWITQpH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751858AbWITQo0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Sep 2006 12:44:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751865AbWITQo0
+	id S1751874AbWITQpH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Sep 2006 12:45:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751557AbWITQpH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Sep 2006 12:44:26 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:43224 "EHLO
+	Wed, 20 Sep 2006 12:45:07 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:49624 "EHLO
 	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1751858AbWITQoX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Sep 2006 12:44:23 -0400
-Date: Wed, 20 Sep 2006 09:43:48 -0700 (PDT)
-From: Christoph Lameter <clameter@sgi.com>
-To: Rohit Seth <rohitseth@google.com>
-cc: Andrew Morton <akpm@osdl.org>, CKRM-Tech <ckrm-tech@lists.sourceforge.net>,
-       devel@openvz.org, linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [patch01/05]:Containers(V2): Documentation
-In-Reply-To: <1158718655.29000.47.camel@galaxy.corp.google.com>
-Message-ID: <Pine.LNX.4.64.0609200940550.30754@schroedinger.engr.sgi.com>
-References: <1158718655.29000.47.camel@galaxy.corp.google.com>
+	id S1751874AbWITQpB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Sep 2006 12:45:01 -0400
+Message-ID: <45117047.60701@sgi.com>
+Date: Wed, 20 Sep 2006 18:45:59 +0200
+From: Jes Sorensen <jes@sgi.com>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060907)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       bjorn_helgaas@hp.com, Nick Piggin <nickpiggin@yahoo.com.au>,
+       Andrew Morton <akpm@osdl.org>, Robin Holt <holt@sgi.com>,
+       Dean Nelson <dcn@sgi.com>, Hugh Dickins <hugh@veritas.com>
+Subject: Re: [patch] mspec driver
+References: <yq0psdrc81u.fsf@jaguar.mkp.net> <20060920085939.47b753d9.rdunlap@xenotime.net>
+In-Reply-To: <20060920085939.47b753d9.rdunlap@xenotime.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 19 Sep 2006, Rohit Seth wrote:
+Randy.Dunlap wrote:
+> On 20 Sep 2006 03:26:53 -0400 Jes Sorensen wrote:
+>> @@ -439,6 +439,14 @@ config SGI_MBCS
+>>           If you have an SGI Altix with an attached SABrick
+>>           say Y or M here, otherwise say N.
+>>  
+>> +config MSPEC
+>> +	tristate "Memory special operations driver"
+>> +	depends on IA64
+>> +	help
+>> +	  If you have an ia64 and you want to enable memory special
+>> +	  operations support (formerly known as fetchop), say Y here,
+>> +	  otherwise say N.
+> 
+> If the answers are {Y, N}, then it should be bool instead of tristate.
+> If tristate, M can be an answer....
 
-> +Currently we are tracking user memory (both file based
-> +and anonymous).  The memory handler is currently deactivating pages
-> +belonging to a container that has gone over the limit. Even though this
-> +allows containers to go over board their limits but 1- once they are
-> +over the limit then they run in degraded manner and 2- if there is any
-> +memory pressure then the (extra) pages belonging to this container are
-> +the prime candidates for swapping (for example).  The statistics that
-> +are shown in each container directory are the current values of each
-> +resource consumption.
+True, will look into that.
 
-Containers via cpusets allow a clean implementation of a restricted memory 
-area. The system will swap and generate an OOM message if no memory can be 
-recovered.
+>> +#include <linux/config.h>
+> 
+> Don't need to include config.h (it's done by build system).
+> (well, actually autoconf.h is)
 
-> +4- Add a task to container
-> +	cd /mnt/configfs/cotnainers/test_container
-> +	echo <pid> > addtask
-> +
-> +Now the <pid> and its subsequently forked children will belong to container
-> +test_container.
-> +
-> +5- Remove a task from container
-> +	echo <pid> > rmtask
+True, I remember that changing - what happens when the code sits around
+for too long. Personally I prefer it is included explicitly, but I'll
+change it anyway.
 
-Could you make that compatible with the way cpusets do it?
+>> +static struct vm_operations_struct mspec_vm_ops = {
+>> +	.open = mspec_open,
+>> +	.close = mspec_close,
+>> +	.nopfn = mspec_nopfn
+>> +};
+> 
+> These interfaces create a userspace interface, eh?
+> So those 3 functions could stand to have kernel-doc function
+> comments and have documentation in Documentation/ABI/ (see its
+> README file for more details).  Maybe check all of
+> Documentation/SubmitChecklist for other items...
 
-> +9- Freeing a container
-> +	cd /mnt/configfs/containers/
-> +	rmdir test_container
+Mmmmmmm, I'd need someone else to write that up, might take a little
+longer to get done. Robin know any volunteers?
 
-Adding and removal is the same way as cpusets.
+>> +/*
+>> + * mspec_init
+>> + *
+>> + * Called at boot time to initialize the mspec facility.
+>> + */
+>> +static int __init
+>> +mspec_init(void)
+> 
+> ugh, matey.  All on one line.
+
+Sorry, but I think that one falls under personal preference. It's short
+than 80, which is what really matters.
+
+Cheers,
+Jes

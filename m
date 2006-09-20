@@ -1,46 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750705AbWITF7D@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750909AbWITGUh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750705AbWITF7D (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Sep 2006 01:59:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750718AbWITF7C
+	id S1750909AbWITGUh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Sep 2006 02:20:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750946AbWITGUh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Sep 2006 01:59:02 -0400
-Received: from usea-naimss2.unisys.com ([192.61.61.104]:27655 "EHLO
-	usea-naimss2.unisys.com") by vger.kernel.org with ESMTP
-	id S1750705AbWITF7A convert rfc822-to-8bit (ORCPT
+	Wed, 20 Sep 2006 02:20:37 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:25065 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750896AbWITGUg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Sep 2006 01:59:00 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: FW:  [PATCH 2.6.17.3] Memory Management: High-MemoryScalability Issue
-Date: Wed, 20 Sep 2006 11:28:53 +0530
-Message-ID: <88299102B8C1F54BB5C8E47F30B2FBE2047E547C@inblr-exch1.eu.uis.unisys.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: FW:  [PATCH 2.6.17.3] Memory Management: High-MemoryScalability Issue
-Thread-Index: AcbV8tRBzZyutpoASiWjXyUua4ZPVwF3U9zQACpXZ9A=
-From: "Satapathy, Soumendu Sekhar" <Soumendu.Satapathy@in.unisys.com>
-To: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 20 Sep 2006 05:58:57.0196 (UTC) FILETIME=[DC4F0EC0:01C6DC79]
+	Wed, 20 Sep 2006 02:20:36 -0400
+Date: Tue, 19 Sep 2006 23:20:16 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Alex Dubov <oakad@yahoo.com>
+Cc: linux-kernel@vger.kernel.org, drzeus-list@drzeus.cx,
+       rmk+lkml@arm.linux.org.uk
+Subject: Re: [PATCH 1/2] [MMC] Driver for TI FlashMedia card reader - source
+Message-Id: <20060919232016.68a02e0e.akpm@osdl.org>
+In-Reply-To: <20060920060212.7327.qmail@web36712.mail.mud.yahoo.com>
+References: <20060920060212.7327.qmail@web36712.mail.mud.yahoo.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 19 Sep 2006 23:02:11 -0700 (PDT)
+Alex Dubov <oakad@yahoo.com> wrote:
+
+> Driver for TI Flash Media card reader. At present, only MMC/SD
+> cards are supported.
+
+Could I ask where the information which permitted this (nice-looking) driver to
+be written came from?
 
 
+Trivia:
 
------Original Message-----
-From: Andrew Morton [mailto:akpm@osdl.org] 
-Sent: Tuesday, September 12, 2006 4:07 AM
-To: Andi Kleen
-Cc: Satapathy, Soumendu Sekhar; torvalds@osdl.org
-Subject: Re: FW: [PATCH 2.6.17.3] Memory Management:
-High-MemoryScalability Issue
+There's some whitespace damage in there.  Please search the diff for "^ "
+and fix it up.
 
+We indent the body of switch statements one tab stop less than this driver
+does.
 
-Yes, I've tucked this patch away to take a closer look at, probably late
-this week.
+The driver has lots of really big inlined functions.  It's best to uninline
+these.  If the function has a single callsite, gcc will inline it anyway. 
+If the function has multiple callsites (now, or in the future), inlining it
+is undesirable.
+
+The driver has a lot of things like
+
+	static inline void* tifm_get_drvdata(struct tifm_dev *dev)
+
+whereas we prefer
+
+	static inline void *tifm_get_drvdata(struct tifm_dev *dev)
 

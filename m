@@ -1,92 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932090AbWITR1H@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932097AbWITR3J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932090AbWITR1H (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Sep 2006 13:27:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932092AbWITR1G
+	id S932097AbWITR3J (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Sep 2006 13:29:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932092AbWITR3I
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Sep 2006 13:27:06 -0400
-Received: from smtp-out.google.com ([216.239.45.12]:31160 "EHLO
-	smtp-out.google.com") by vger.kernel.org with ESMTP id S932090AbWITR1D
+	Wed, 20 Sep 2006 13:29:08 -0400
+Received: from smtp-out.google.com ([216.239.45.12]:18105 "EHLO
+	smtp-out.google.com") by vger.kernel.org with ESMTP id S932097AbWITR3F
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Sep 2006 13:27:03 -0400
+	Wed, 20 Sep 2006 13:29:05 -0400
 DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
 	h=received:subject:from:reply-to:to:cc:in-reply-to:references:
 	content-type:organization:date:message-id:mime-version:x-mailer:content-transfer-encoding;
-	b=sBymhg2rs2b0uan6WAZA/X0eweQUJfjE2HvyPcI9q+LoqhhCb5nBUzRpec/g3QS54
-	WVRVCmxV31aX36eBpkG4w==
-Subject: Re: [patch00/05]: Containers(V2)- Introduction
+	b=LejJKwf6yU0Ytgdjrei8SCVffbLka9xTffL3i0gn8Am2WzZ6RU0731XHPoNbmqD8M
+	c5n3wYRzcz9+uhWrg5twA==
+Subject: Re: [patch01/05]:Containers(V2): Documentation
 From: Rohit Seth <rohitseth@google.com>
 Reply-To: rohitseth@google.com
 To: Christoph Lameter <clameter@sgi.com>
-Cc: CKRM-Tech <ckrm-tech@lists.sourceforge.net>, devel@openvz.org, pj@sgi.com,
-       npiggin@suse.de, linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.64.0609200916140.30572@schroedinger.engr.sgi.com>
-References: <1158718568.29000.44.camel@galaxy.corp.google.com>
-	 <Pine.LNX.4.64.0609200916140.30572@schroedinger.engr.sgi.com>
+Cc: Andrew Morton <akpm@osdl.org>, CKRM-Tech <ckrm-tech@lists.sourceforge.net>,
+       devel@openvz.org, linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.64.0609200940550.30754@schroedinger.engr.sgi.com>
+References: <1158718655.29000.47.camel@galaxy.corp.google.com>
+	 <Pine.LNX.4.64.0609200940550.30754@schroedinger.engr.sgi.com>
 Content-Type: text/plain
 Organization: Google Inc
-Date: Wed, 20 Sep 2006 10:26:47 -0700
-Message-Id: <1158773208.8574.53.camel@galaxy.corp.google.com>
+Date: Wed, 20 Sep 2006 10:28:47 -0700
+Message-Id: <1158773327.8574.55.camel@galaxy.corp.google.com>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.2.1.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-09-20 at 09:25 -0700, Christoph Lameter wrote:
+On Wed, 2006-09-20 at 09:43 -0700, Christoph Lameter wrote:
 > On Tue, 19 Sep 2006, Rohit Seth wrote:
 > 
-> > For example, a user can run a batch job like backup inside containers.
-> > This job if run unconstrained could step over most of the memory present
-> > in system thus impacting other workloads running on the system at that
-> > time.  But when the same job is run inside containers then the backup
-> > job is run within container limits.
+> > +Currently we are tracking user memory (both file based
+> > +and anonymous).  The memory handler is currently deactivating pages
+> > +belonging to a container that has gone over the limit. Even though this
+> > +allows containers to go over board their limits but 1- once they are
+> > +over the limit then they run in degraded manner and 2- if there is any
+> > +memory pressure then the (extra) pages belonging to this container are
+> > +the prime candidates for swapping (for example).  The statistics that
+> > +are shown in each container directory are the current values of each
+> > +resource consumption.
 > 
-> I just saw this for the first time since linux-mm was not cced. We have 
-> discussed a similar mechanism on linux-mm.
+> Containers via cpusets allow a clean implementation of a restricted memory 
+> area. The system will swap and generate an OOM message if no memory can be 
+> recovered.
 > 
-> We already have such a functionality in the kernel its called a cpuset. A 
-> container could be created simply by creating a fake node that then 
-> allows constraining applications to this node. We already track the 
-> types of pages per node. The statistics you want are already existing. 
-> See /proc/zoneinfo and /sys/devices/system/node/node*/*.
+> > +4- Add a task to container
+> > +	cd /mnt/configfs/cotnainers/test_container
+> > +	echo <pid> > addtask
+> > +
+> > +Now the <pid> and its subsequently forked children will belong to container
+> > +test_container.
+> > +
+> > +5- Remove a task from container
+> > +	echo <pid> > rmtask
 > 
-> > We use the term container to indicate a structure against which we track
-> > and charge utilization of system resources like memory, tasks etc for a
-> > workload. Containers will allow system admins to customize the
-> > underlying platform for different applications based on their
-> > performance and HW resource utilization needs.  Containers contain
-> > enough infrastructure to allow optimal resource utilization without
-> > bogging down rest of the kernel.  A system admin should be able to
-> > create, manage and free containers easily.
+> Could you make that compatible with the way cpusets do it?
 > 
-> Right thats what cpusets do and it has been working fine for years. Maybe 
-> Paul can help you if you find anything missing in the existing means to 
-> control resources.
+> > +9- Freeing a container
+> > +	cd /mnt/configfs/containers/
+> > +	rmdir test_container
+> 
+> Adding and removal is the same way as cpusets.
 
-cpusets provides cpu and memory NODES binding to tasks.  And I think it
-works great for NUMA machines where you have different nodes with its
-own set of CPUs and memory.  The number of those nodes on a commodity HW
-is still 1.  And they can have 8-16 CPUs and in access of 100G of
-memory.  You may start using fake nodes (untested territory) to
-translate a single node machine into N different nodes.  But am not sure
-if this number of nodes can change dynamically on the running machine or
-a reboot is required to change the number of nodes.
-
-Though when you want to have in access of 100 containers then the cpuset
-function starts popping up on the oprofile chart very aggressively.  And
-this is the cost that shouldn't have to be paid (particularly) for a
-single node machine.
-
-And what happens when you want to have cpuset with memory that needs to
-be even further fine grained than each node.
-
-Containers also provide a mechanism to move files to containers. Any
-further references to this file come from the same container rather than
-the container which is bringing in a new page.
-
-In future there will be more handlers like CPU and disk that can be
-easily embeded into this container infrastructure.
+Most of the syntax of cpuset is in terms of nodes and CPU numbers.  That
+is not the case here in containers.
 
 -rohit
 

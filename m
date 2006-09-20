@@ -1,75 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750750AbWITU0Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750758AbWITU1r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750750AbWITU0Q (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Sep 2006 16:26:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750752AbWITU0Q
+	id S1750758AbWITU1r (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Sep 2006 16:27:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750763AbWITU1r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Sep 2006 16:26:16 -0400
-Received: from free-electrons.com ([88.191.23.47]:6855 "EHLO
-	sd-2511.dedibox.fr") by vger.kernel.org with ESMTP id S1750750AbWITU0P
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Sep 2006 16:26:15 -0400
-From: Michael Opdenacker <michael-lists@free-electrons.com>
-Organization: Free Electrons
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH 2.6.18] [TRIVIAL] Simplify tosh_get_info() in drivers/char/toshiba.c
-Date: Wed, 20 Sep 2006 22:25:39 +0200
-User-Agent: KMail/1.9.1
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+	Wed, 20 Sep 2006 16:27:47 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:40834 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1750758AbWITU1q (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Sep 2006 16:27:46 -0400
+Date: Wed, 20 Sep 2006 13:27:34 -0700
+From: Paul Jackson <pj@sgi.com>
+To: sekharan@us.ibm.com
+Cc: menage@google.com, npiggin@suse.de, ckrm-tech@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org, rohitseth@google.com, devel@openvz.org,
+       clameter@sgi.com
+Subject: Re: [ckrm-tech] [patch00/05]: Containers(V2)- Introduction
+Message-Id: <20060920132734.69ab4f57.pj@sgi.com>
+In-Reply-To: <1158778496.6536.95.camel@linuxchandra>
+References: <1158718568.29000.44.camel@galaxy.corp.google.com>
+	<Pine.LNX.4.64.0609200916140.30572@schroedinger.engr.sgi.com>
+	<1158777240.6536.89.camel@linuxchandra>
+	<6599ad830609201143h19f6883wb388666e27913308@mail.google.com>
+	<1158778496.6536.95.camel@linuxchandra>
+Organization: SGI
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200609202225.40136.michael-lists@free-electrons.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch against 2.6.18 is just a trivial simplification of tosh_get_info() 
-in drivers/char/toshiba.c.
-It was doing something like: b=a; b+=c; return b-a;
-Replaced by: return c;
-Also removed an unnecessary local variable.
+Chandra wrote:
+> We had this discussion more than 18 months back and concluded that it is
+> not the right thing to do. Here is the link to the thread:
 
-Signed-off-by: Michael Opdenacker <michael@free-electrons.com>
+Because it is easy enough to carve memory up into nice little nameable
+chunks, it might be the case that we can manage the percentage of
+memory used by the expedient of something like cpusets and fake nodes.
 
---- linux-2.6.18/drivers/char/toshiba.c	2006-09-20 05:42:06.000000000 +0200
-+++ linux-2.6.18-toshiba/drivers/char/toshiba.c	2006-09-20 21:53:31.000000000 
-+0200
-@@ -299,12 +299,6 @@ static int tosh_ioctl(struct inode *ip, 
- #ifdef CONFIG_PROC_FS
- static int tosh_get_info(char *buffer, char **start, off_t fpos, int length)
- {
--	char *temp;
--	int key;
--
--	temp = buffer;
--	key = tosh_fn_status();
--
- 	/* Arguments
- 	     0) Linux driver version (this will change if format changes)
- 	     1) Machine ID
-@@ -314,16 +308,14 @@ static int tosh_get_info(char *buffer, c
- 	     5) Fn Key status
- 	*/
- 
--	temp += sprintf(temp, "1.1 0x%04x %d.%d %d.%d 0x%04x 0x%02x\n",
-+	return sprintf(buffer, "1.1 0x%04x %d.%d %d.%d 0x%04x 0x%02x\n",
- 		tosh_id,
- 		(tosh_sci & 0xff00)>>8,
- 		tosh_sci & 0xff,
- 		(tosh_bios & 0xff00)>>8,
- 		tosh_bios & 0xff,
- 		tosh_date,
--		key);
--
--	return temp-buffer;
-+		tosh_fn_status());
- }
- #endif
- 
+Indeed, that seems to be doable, based on this latest work of Andrew
+and others (David, some_bright_spark@jp, Magnus, ...).  There are
+still a bunch of wrinkles that remain to be ironed out.
+
+For other resources, such as CPU cycles and network bandwidth, unless
+another bright spark comes up with an insight, I don't see how to
+express the "percentage used" semantics provided by something such
+as CKRM, using anything resembling cpusets.
+
+... Can one imagine having the scheduler subdivide each second of
+time available on a CPU into several fake-CPUs, each one of which
+speaks for one of those sub-second fake-CPU slices?  Sounds too
+weird to me, and a bit too rigid to be a servicable CKRM substitute.
 
 -- 
-Michael Opdenacker, Free Electrons
-Free Embedded Linux Training Materials
-on http://free-electrons.com/training
-(More than 1000 pages!)
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

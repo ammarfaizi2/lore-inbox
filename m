@@ -1,123 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751350AbWITNns@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751374AbWITNpi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751350AbWITNns (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Sep 2006 09:43:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751352AbWITNns
+	id S1751374AbWITNpi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Sep 2006 09:45:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751376AbWITNpi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Sep 2006 09:43:48 -0400
-Received: from tomts36.bellnexxia.net ([209.226.175.93]:63413 "EHLO
-	tomts36-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id S1751350AbWITNnr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Sep 2006 09:43:47 -0400
-Date: Wed, 20 Sep 2006 09:38:34 -0400
-From: Mathieu Desnoyers <compudj@krystal.dyndns.org>
-To: "Frank Ch. Eigler" <fche@redhat.com>
-Cc: Karim Yaghmour <karim@opersys.com>, linux-kernel@vger.kernel.org,
-       Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       Ingo Molnar <mingo@redhat.com>, Greg Kroah-Hartman <gregkh@suse.de>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Douglas Niehaus <niehaus@eecs.ku.edu>, Tom Zanussi <zanussi@us.ibm.com>,
-       Paul Mundt <lethal@linux-sh.org>, Jes Sorensen <jes@sgi.com>,
-       Richard J Moore <richardj_moore@uk.ibm.com>,
-       William Cohen <wcohen@redhat.com>,
-       "Martin J. Bligh" <mbligh@mbligh.org>,
+	Wed, 20 Sep 2006 09:45:38 -0400
+Received: from mtagate1.uk.ibm.com ([195.212.29.134]:45933 "EHLO
+	mtagate1.uk.ibm.com") by vger.kernel.org with ESMTP
+	id S1751374AbWITNph (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Sep 2006 09:45:37 -0400
+In-Reply-To: <1158748327.7705.3.camel@localhost.localdomain>
+Subject: Re: [PATCH] Linux Kernel Markers
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Mathieu Desnoyers <compudj@krystal.dyndns.org>,
+       "Frank Ch. Eigler" <fche@redhat.com>,
+       Greg Kroah-Hartman <gregkh@suse.de>,
+       Christoph Hellwig <hch@infradead.org>, Jes Sorensen <jes@sgi.com>,
+       Paul Mundt <lethal@linux-sh.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>, ltt-dev@shafik.org,
+       Martin Bligh <mbligh@google.com>,
        Michel Dagenais <michel.dagenais@polymtl.ca>,
-       systemtap@sources.redhat.com, ltt-dev@shafik.org
-Subject: Re: [PATCH] Linux Kernel Markers 0.2 for Linux 2.6.17
-Message-ID: <20060920133834.GB17032@Krystal>
-References: <20060919183447.GA16095@Krystal> <y0m4pv3ek49.fsf@ton.toronto.redhat.com> <20060919193623.GA9459@Krystal> <20060919194515.GB18646@redhat.com> <20060919202802.GB552@Krystal> <20060919210703.GD18646@redhat.com> <45106B20.6020600@opersys.com> <20060920132008.GF18646@redhat.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=_Krystal-9116-1158759514-0001-2"
-Content-Disposition: inline
-In-Reply-To: <20060920132008.GF18646@redhat.com>
-X-Editor: vi
-X-Info: http://krystal.dyndns.org:8080
-X-Operating-System: Linux/2.4.32-grsec (i686)
-X-Uptime: 09:33:57 up 28 days, 10:42,  2 users,  load average: 0.15, 0.20, 0.18
-User-Agent: Mutt/1.5.13 (2006-08-11)
+       Ingo Molnar <mingo@elte.hu>, prasanna@in.ibm.com,
+       systemtap@sources.redhat.com, Thomas Gleixner <tglx@linutronix.de>,
+       William Cohen <wcohen@redhat.com>, Tom Zanussi <zanussi@us.ibm.com>
+X-Mailer: Lotus Notes Release 7.0.1 July 07, 2006
+Message-ID: <OF826E70C6.D56C9D09-ON802571EF.004A94C0-802571EF.004B91DA@uk.ibm.com>
+From: Richard J Moore <richardj_moore@uk.ibm.com>
+Date: Wed, 20 Sep 2006 14:45:25 +0100
+X-MIMETrack: Serialize by Router on D06ML065/06/M/IBM(Release 6.5.5HF607 | June 26, 2006) at
+ 20/09/2006 14:47:48
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a MIME-formatted message.  If you see this text it means that your
-E-mail software does not support MIME-formatted messages.
-
---=_Krystal-9116-1158759514-0001-2
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
-
-* Frank Ch. Eigler (fche@redhat.com) wrote:
-> Hi -
->=20
-> > > [...]  For the static part of the instrumentation, a
-> > > marker that could be hooked up to either type of probing system was
-> > > desirable, which implies some sort of run-time changeability.
-> >=20
-> > Ok. So if I get what you're saying here, you'd like to be able to
-> > overload a marker?=20
->=20
-> Sort of.  Remember, we discussed markers as *marking* places and
-> things, with the intent that they be decoupled from the actual
-> *action* that is taken when the marker is hit.
->=20
-> > Can you suggest a macro that can do what you'd like. [...]
->=20
-> Compare the kind of marker I showed at OLS and presently supported by
-> systemtap.  Its unparametrized version looks like this:
->=20
-> #define STAP_MARK(name) do { \
->    static void (*__mark_##name##_)(); \
->    if (unlikely (__mark_##name##_)) \
->    (void) (__mark_##name##_()); \
-> } while (0)
->=20
-> A tracing/probing tool would hook up to a particular and specific
-> marker at run time by locating the __mark_NAME static variable (a
-> function pointer) in the data segment, for example using the ordinary
-> symbol table, and swapping into it the address of a compatible
-> back-end handler function.  When a particular tracing/probing session
-> ends, the function pointer is reset to null.
->=20
-> Note that this technique:
->=20
-> - operates at run time
-> - is portable
-> - in its parametrized variants, is type-safe
-> - does not require any future technology
-> - does impose some overhead even when a marker is not active
->=20
->=20
-Hi Frank,
-
-Yes, I think there is much to gain to switch from the 5 nops "jumpprobe" to
-this scheme. In its parametrized variant, the jump will probably jump over a
-stack setup and function call. Do you think I should simply switch from the
-5 nops marker to this technique ? I guess the performance impact of a
-predicted branch will be similar to 5 nops anyway...
-
-The clear advantage I see in the parametrized variant is that the parameters
-will be ready for the called function : it makes it trivial to access any
-variable from the traced function.
-
-Mathieu
 
 
-OpenPGP public key:              http://krystal.dyndns.org:8080/key/compudj=
-=2Egpg
-Key fingerprint:     8CD5 52C3 8E3C 4140 715F  BA06 3F25 A8FE 3BAE 9A68=20
+Alan Cox <alan@lxorguk.ukuu.org.uk> wrote on 20/09/2006 11:32:07:
 
---=_Krystal-9116-1158759514-0001-2
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Transfer-Encoding: 7bit
-Content-Description: Digital signature
-Content-Disposition: inline
+> Ar Mer, 2006-09-20 am 09:18 +0100, ysgrifennodd Richard J Moore:
+> > > Are you referring to Intel erratum "unsynchronized cross-modifying
+code"
+> > > - where it refers to the practice of modifying code on one processor
+> > > where another has prefetched the unmodified version of the code.
+>
+> > In the special case of replacing an opcode with int3 that erratum
+doesn't
+> > apply. I know that's not in the manuals but it has been confirmed by
+the
+> > Intel microarchitecture group. And it's not reasonable to it to be any
+> > other way.
+>
+> Ok thats cool to know and I wish they'd documented it. Is the same true
+> for AMD ?
+>
+> Alan
+>
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
+Not sure probably - I can ask.
 
-iD8DBQFFEURaPyWo/juummgRAoxiAJ4mv6Rg7p3PWj2ut6WpMEHOd8Ym8wCfZ18Y
-9h0xeyROhRFowmjV4Saq70o=
-=1C8v
------END PGP SIGNATURE-----
+Intel explained it to me thus:
 
---=_Krystal-9116-1158759514-0001-2--
+When the i-fetch has been done and the micro-ops are in the trace cache
+then there's no longer a direct correlation between the original machine
+instruction boundaries and the micro ops. This is due to optimization. For
+example (artificial one for illustrative purposes):
+
+mov eax,ebx
+mov memory,eax
+mov eax,1
+
+(using intel notation not ATT - force of habit)
+
+In the trace cache there would be no micro ops to update eax with ebx.
+
+Altering the "mov eax,ebx" to "mov ecx,ebx" on the fly invalidates the
+optimized trace cache, hence the onlhy recourse is a GPF.
+If the modification doens't invalidate the trace cache then no GPF. The
+question is: "can we predict th circumstances when the trace cache has not
+been invalidated", and the answer in general is no since the
+microarchtecture is not public. But one can guess that modifying the single
+byte opcode with in interrupting instruction  - int3 - doesn't cause an
+inconsistency that can't be handled. And that's what Intel confirmed. Go
+ahead and store int3 without the need to synchronise (i.e. force the trace
+cache to be flushed).
+
+My guess is that AMD behaves exactly the same way. But I'll check.
+
+
+Richard
+

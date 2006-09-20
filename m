@@ -1,293 +1,139 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932107AbWITVUa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932116AbWITVVZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932107AbWITVUa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Sep 2006 17:20:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932114AbWITVUa
+	id S932116AbWITVVZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Sep 2006 17:21:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932115AbWITVU5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Sep 2006 17:20:30 -0400
-Received: from ogre.sisk.pl ([217.79.144.158]:18341 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S932107AbWITVU3 (ORCPT
+	Wed, 20 Sep 2006 17:20:57 -0400
+Received: from ogre.sisk.pl ([217.79.144.158]:20389 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S932116AbWITVUo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Sep 2006 17:20:29 -0400
+	Wed, 20 Sep 2006 17:20:44 -0400
 From: "Rafael J. Wysocki" <rjw@sisk.pl>
 To: Pavel Machek <pavel@ucw.cz>
-Subject: [PATCH -mm 2/6] swsusp: Rearrange swap-handling code
-Date: Wed, 20 Sep 2006 21:34:38 +0200
+Subject: [PATCH -mm 4/6] swsusp: Add resume_offset command line parameter
+Date: Wed, 20 Sep 2006 21:46:58 +0200
 User-Agent: KMail/1.9.1
 Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
 References: <200609202120.58082.rjw@sisk.pl>
 In-Reply-To: <200609202120.58082.rjw@sisk.pl>
 MIME-Version: 1.0
-Content-Disposition: inline
-Message-Id: <200609202134.38989.rjw@sisk.pl>
 Content-Type: text/plain;
   charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200609202146.59105.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rearrange the code in kernel/power/swap.c so that the next patch is more
-readable.
-
-[This patch only moves the existing code.]
+Add the kernel command line parameter "resume_offset=" allowing us to specify
+the offset, in <PAGE_SIZE> units, from the beginning of the partition pointed
+to by the "resume=" parameter at which the swap header is located.
 
 Signed-off-by: Rafael J. Wysocki <rjw@sisk.pl>
 ---
- kernel/power/swap.c |  219 ++++++++++++++++++++++++++--------------------------
- 1 file changed, 111 insertions(+), 108 deletions(-)
+kernel/power/disk.c  |   15 +++++++++++++++
+ kernel/power/power.h |    1 +
+ kernel/power/swap.c  |   15 ++++++++++-----
+ 3 files changed, 26 insertions(+), 5 deletions(-)
 
+Index: linux-2.6.18-rc7-mm1/kernel/power/disk.c
+===================================================================
+--- linux-2.6.18-rc7-mm1.orig/kernel/power/disk.c
++++ linux-2.6.18-rc7-mm1/kernel/power/disk.c
+@@ -27,6 +27,7 @@
+ static int noresume = 0;
+ char resume_file[256] = CONFIG_PM_STD_PARTITION;
+ dev_t swsusp_resume_device;
++sector_t swsusp_resume_block;
+ 
+ /**
+  *	power_down - Shut machine down for hibernate.
+@@ -404,6 +405,19 @@ static int __init resume_setup(char *str
+ 	return 1;
+ }
+ 
++static int __init resume_offset_setup(char *str)
++{
++	loff_t offset;
++
++	if (noresume)
++		return 1;
++
++	if (sscanf(str, "%llu", &offset) == 1)
++		swsusp_resume_block = offset;
++
++	return 1;
++}
++
+ static int __init noresume_setup(char *str)
+ {
+ 	noresume = 1;
+@@ -411,4 +425,5 @@ static int __init noresume_setup(char *s
+ }
+ 
+ __setup("noresume", noresume_setup);
++__setup("resume_offset=", resume_offset_setup);
+ __setup("resume=", resume_setup);
+Index: linux-2.6.18-rc7-mm1/kernel/power/power.h
+===================================================================
+--- linux-2.6.18-rc7-mm1.orig/kernel/power/power.h
++++ linux-2.6.18-rc7-mm1/kernel/power/power.h
+@@ -42,6 +42,7 @@ extern const void __nosave_begin, __nosa
+ extern unsigned long image_size;
+ extern int in_suspend;
+ extern dev_t swsusp_resume_device;
++extern sector_t swsusp_resume_block;
+ 
+ extern asmlinkage int swsusp_arch_suspend(void);
+ extern asmlinkage int swsusp_arch_resume(void);
 Index: linux-2.6.18-rc7-mm1/kernel/power/swap.c
 ===================================================================
 --- linux-2.6.18-rc7-mm1.orig/kernel/power/swap.c
 +++ linux-2.6.18-rc7-mm1/kernel/power/swap.c
-@@ -41,10 +41,120 @@ static struct swsusp_header {
- } __attribute__((packed, aligned(PAGE_SIZE))) swsusp_header;
- 
- /*
-- * Saving part...
-+ * General things
-  */
- 
- static unsigned short root_swap = 0xffff;
-+static struct block_device *resume_bdev;
-+
-+/**
-+ *	submit - submit BIO request.
-+ *	@rw:	READ or WRITE.
-+ *	@off	physical offset of page.
-+ *	@page:	page we're reading or writing.
-+ *	@bio_chain: list of pending biod (for async reading)
-+ *
-+ *	Straight from the textbook - allocate and initialize the bio.
-+ *	If we're reading, make sure the page is marked as dirty.
-+ *	Then submit it and, if @bio_chain == NULL, wait.
-+ */
-+static int submit(int rw, pgoff_t page_off, struct page *page,
-+			struct bio **bio_chain)
-+{
-+	struct bio *bio;
-+
-+	bio = bio_alloc(GFP_ATOMIC, 1);
-+	if (!bio)
-+		return -ENOMEM;
-+	bio->bi_sector = page_off * (PAGE_SIZE >> 9);
-+	bio->bi_bdev = resume_bdev;
-+	bio->bi_end_io = end_swap_bio_read;
-+
-+	if (bio_add_page(bio, page, PAGE_SIZE, 0) < PAGE_SIZE) {
-+		printk("swsusp: ERROR: adding page to bio at %ld\n", page_off);
-+		bio_put(bio);
-+		return -EFAULT;
-+	}
-+
-+	lock_page(page);
-+	bio_get(bio);
-+
-+	if (bio_chain == NULL) {
-+		submit_bio(rw | (1 << BIO_RW_SYNC), bio);
-+		wait_on_page_locked(page);
-+		if (rw == READ)
-+			bio_set_pages_dirty(bio);
-+		bio_put(bio);
-+	} else {
-+		get_page(page);
-+		bio->bi_private = *bio_chain;
-+		*bio_chain = bio;
-+		submit_bio(rw | (1 << BIO_RW_SYNC), bio);
-+	}
-+	return 0;
-+}
-+
-+static int bio_read_page(pgoff_t page_off, void *addr, struct bio **bio_chain)
-+{
-+	return submit(READ, page_off, virt_to_page(addr), bio_chain);
-+}
-+
-+static int bio_write_page(pgoff_t page_off, void *addr)
-+{
-+	return submit(WRITE, page_off, virt_to_page(addr), NULL);
-+}
-+
-+static int wait_on_bio_chain(struct bio **bio_chain)
-+{
-+	struct bio *bio;
-+	struct bio *next_bio;
-+	int ret = 0;
-+
-+	if (bio_chain == NULL)
-+		return 0;
-+
-+	bio = *bio_chain;
-+	if (bio == NULL)
-+		return 0;
-+	while (bio) {
-+		struct page *page;
-+
-+		next_bio = bio->bi_private;
-+		page = bio->bi_io_vec[0].bv_page;
-+		wait_on_page_locked(page);
-+		if (!PageUptodate(page) || PageError(page))
-+			ret = -EIO;
-+		put_page(page);
-+		bio_put(bio);
-+		bio = next_bio;
-+	}
-+	*bio_chain = NULL;
-+	return ret;
-+}
-+
-+static void show_speed(struct timeval *start, struct timeval *stop,
-+			unsigned nr_pages, char *msg)
-+{
-+	s64 elapsed_centisecs64;
-+	int centisecs;
-+	int k;
-+	int kps;
-+
-+	elapsed_centisecs64 = timeval_to_ns(stop) - timeval_to_ns(start);
-+	do_div(elapsed_centisecs64, NSEC_PER_SEC / 100);
-+	centisecs = elapsed_centisecs64;
-+	if (centisecs == 0)
-+		centisecs = 1;	/* avoid div-by-zero */
-+	k = nr_pages * (PAGE_SIZE / 1024);
-+	kps = (k * 100) / centisecs;
-+	printk("%s %d kbytes in %d.%02d seconds (%d.%02d MB/s)\n", msg, k,
-+			centisecs / 100, centisecs % 100,
-+			kps / 1000, (kps % 1000) / 10);
-+}
-+
-+/*
-+ * Saving part
-+ */
- 
- static int mark_swapfiles(swp_entry_t start)
+@@ -160,13 +160,14 @@ static int mark_swapfiles(loff_t start)
  {
-@@ -166,26 +276,6 @@ static void release_swap_writer(struct s
- 	handle->bitmap = NULL;
- }
+ 	int error;
  
--static void show_speed(struct timeval *start, struct timeval *stop,
--			unsigned nr_pages, char *msg)
--{
--	s64 elapsed_centisecs64;
--	int centisecs;
--	int k;
--	int kps;
--
--	elapsed_centisecs64 = timeval_to_ns(stop) - timeval_to_ns(start);
--	do_div(elapsed_centisecs64, NSEC_PER_SEC / 100);
--	centisecs = elapsed_centisecs64;
--	if (centisecs == 0)
--		centisecs = 1;	/* avoid div-by-zero */
--	k = nr_pages * (PAGE_SIZE / 1024);
--	kps = (k * 100) / centisecs;
--	printk("%s %d kbytes in %d.%02d seconds (%d.%02d MB/s)\n", msg, k,
--			centisecs / 100, centisecs % 100,
--			kps / 1000, (kps % 1000) / 10);
--}
--
- static int get_swap_writer(struct swap_map_handle *handle)
+-	bio_read_page(0, &swsusp_header, NULL);
++	bio_read_page(swsusp_resume_block, &swsusp_header, NULL);
+ 	if (!memcmp("SWAP-SPACE",swsusp_header.sig, 10) ||
+ 	    !memcmp("SWAPSPACE2",swsusp_header.sig, 10)) {
+ 		memcpy(swsusp_header.orig_sig,swsusp_header.sig, 10);
+ 		memcpy(swsusp_header.sig,SWSUSP_SIG, 10);
+ 		swsusp_header.image = start;
+-		error = bio_write_page(0, &swsusp_header, NULL);
++		error = bio_write_page(swsusp_resume_block,
++					&swsusp_header, NULL);
+ 	} else {
+ 		printk(KERN_ERR "swsusp: Swap header not found!\n");
+ 		error = -ENODEV;
+@@ -183,7 +184,7 @@ static int swsusp_swap_check(void) /* Th
  {
- 	handle->cur = (struct swap_map_page *)get_zeroed_page(GFP_KERNEL);
-@@ -205,34 +295,6 @@ static int get_swap_writer(struct swap_m
- 	return 0;
- }
+ 	int res;
  
--static int wait_on_bio_chain(struct bio **bio_chain)
--{
--	struct bio *bio;
--	struct bio *next_bio;
--	int ret = 0;
--
--	if (bio_chain == NULL)
--		return 0;
--
--	bio = *bio_chain;
--	if (bio == NULL)
--		return 0;
--	while (bio) {
--		struct page *page;
--
--		next_bio = bio->bi_private;
--		page = bio->bi_io_vec[0].bv_page;
--		wait_on_page_locked(page);
--		if (!PageUptodate(page) || PageError(page))
--			ret = -EIO;
--		put_page(page);
--		bio_put(bio);
--		bio = next_bio;
--	}
--	*bio_chain = NULL;
--	return ret;
--}
--
- static int swap_write_page(struct swap_map_handle *handle, void *buf,
- 				struct bio **bio_chain)
- {
-@@ -384,65 +446,6 @@ int swsusp_write(void)
- 	return error;
- }
+-	res = swap_type_of(swsusp_resume_device, 0);
++	res = swap_type_of(swsusp_resume_device, swsusp_resume_block);
+ 	if (res < 0)
+ 		return res;
  
--static struct block_device *resume_bdev;
--
--/**
-- *	submit - submit BIO request.
-- *	@rw:	READ or WRITE.
-- *	@off	physical offset of page.
-- *	@page:	page we're reading or writing.
-- *	@bio_chain: list of pending biod (for async reading)
-- *
-- *	Straight from the textbook - allocate and initialize the bio.
-- *	If we're reading, make sure the page is marked as dirty.
-- *	Then submit it and, if @bio_chain == NULL, wait.
-- */
--static int submit(int rw, pgoff_t page_off, struct page *page,
--			struct bio **bio_chain)
--{
--	struct bio *bio;
--
--	bio = bio_alloc(GFP_ATOMIC, 1);
--	if (!bio)
--		return -ENOMEM;
--	bio->bi_sector = page_off * (PAGE_SIZE >> 9);
--	bio->bi_bdev = resume_bdev;
--	bio->bi_end_io = end_swap_bio_read;
--
--	if (bio_add_page(bio, page, PAGE_SIZE, 0) < PAGE_SIZE) {
--		printk("swsusp: ERROR: adding page to bio at %ld\n", page_off);
--		bio_put(bio);
--		return -EFAULT;
--	}
--
--	lock_page(page);
--	bio_get(bio);
--
--	if (bio_chain == NULL) {
--		submit_bio(rw | (1 << BIO_RW_SYNC), bio);
--		wait_on_page_locked(page);
--		if (rw == READ)
--			bio_set_pages_dirty(bio);
--		bio_put(bio);
--	} else {
--		get_page(page);
--		bio->bi_private = *bio_chain;
--		*bio_chain = bio;
--		submit_bio(rw | (1 << BIO_RW_SYNC), bio);
--	}
--	return 0;
--}
--
--static int bio_read_page(pgoff_t page_off, void *addr, struct bio **bio_chain)
--{
--	return submit(READ, page_off, virt_to_page(addr), bio_chain);
--}
--
--static int bio_write_page(pgoff_t page_off, void *addr)
--{
--	return submit(WRITE, page_off, virt_to_page(addr), NULL);
--}
--
- /**
-  *	The following functions allow us to read data using a swap map
-  *	in a file-alike way
+@@ -606,12 +607,16 @@ int swsusp_check(void)
+ 	if (!IS_ERR(resume_bdev)) {
+ 		set_blocksize(resume_bdev, PAGE_SIZE);
+ 		memset(&swsusp_header, 0, sizeof(swsusp_header));
+-		if ((error = bio_read_page(0, &swsusp_header, NULL)))
++		error = bio_read_page(swsusp_resume_block,
++					&swsusp_header, NULL);
++		if (error)
+ 			return error;
++
+ 		if (!memcmp(SWSUSP_SIG, swsusp_header.sig, 10)) {
+ 			memcpy(swsusp_header.sig, swsusp_header.orig_sig, 10);
+ 			/* Reset swap signature now */
+-			error = bio_write_page(0, &swsusp_header, NULL);
++			error = bio_write_page(swsusp_resume_block,
++						&swsusp_header, NULL);
+ 		} else {
+ 			return -EINVAL;
+ 		}
 

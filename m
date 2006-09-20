@@ -1,74 +1,206 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751920AbWITQvb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751894AbWITQus@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751920AbWITQvb (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Sep 2006 12:51:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751939AbWITQvb
+	id S1751894AbWITQus (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Sep 2006 12:50:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751893AbWITQtj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Sep 2006 12:51:31 -0400
-Received: from nf-out-0910.google.com ([64.233.182.191]:51959 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1751920AbWITQv3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Sep 2006 12:51:29 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=MqA6BFOx17+bSRY7wUNwL2Gg1dNNT3WpX+jm1Z3i4tFVuYg+ath6xdpP1C3PvdOP02gVCrhEXSL3U3wsNf75G7jFpvpNIz4lwh5Gnj5OQ3QbG07Cv2WdnZJZ9kYBaVI45mViIHgVueg5vJQaM3+A3eFAoa3b3CNEO8x9DkZbLZY=
-Message-ID: <8b96e3d20609200951h6b70c261odff1db1913d13d10@mail.gmail.com>
-Date: Wed, 20 Sep 2006 13:51:28 -0300
-From: "Luiz Angelo Daros de Luca" <luizluca@gmail.com>
-To: "Jarek Poplawski" <jarkao2@o2.pl>
-Subject: Re: [PATCH] Adds kernel parameter to ignore pci devices
-Cc: "Alan Cox" <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
-       torvalds@osdl.org
-In-Reply-To: <20060920112559.GC1697@ff.dom.local>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Wed, 20 Sep 2006 12:49:39 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:63692 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751925AbWITQtK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Sep 2006 12:49:10 -0400
+Subject: [PATCH] slim: misc cleanups requested at inclusion time.
+From: Kylene Jo Hall <kjhall@us.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>,
+       LSM ML <linux-security-module@vger.kernel.org>,
+       Dave Safford <safford@us.ibm.com>, Mimi Zohar <zohar@us.ibm.com>,
+       Serge Hallyn <sergeh@us.ibm.com>
+In-Reply-To: <20060914165205.c56365e7.akpm@osdl.org>
+References: <1158083865.18137.13.camel@localhost.localdomain>
+	 <20060914165205.c56365e7.akpm@osdl.org>
+Content-Type: text/plain
+Date: Wed, 20 Sep 2006 09:49:00 -0700
+Message-Id: <1158770940.16727.115.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-7) 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <20060920064114.GA1697@ff.dom.local>
-	 <1158748734.7705.4.camel@localhost.localdomain>
-	 <20060920112559.GC1697@ff.dom.local>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Allan, disabling EHCI in kernel won't solve it cause the kernel
-freezes when linux is setting up pci. This is before any device
-specific driver and it is done even without any driver for that
-device.
-
-I was going to implement a way to ignore using bus+board+function but
-not at this time. BTW, are the parameters name, format and debug
-messages adequated to kernel's principels?
+Miscellaneous fixes requested when the intial patches were pulled in
+last week.  This patch addresses the following comments.
 
 
-2006/9/20, Jarek Poplawski <jarkao2@o2.pl>:
-> On Wed, Sep 20, 2006 at 11:38:53AM +0100, Alan Cox wrote:
-> > Ar Mer, 2006-09-20 am 08:41 +0200, ysgrifennodd Jarek Poplawski:
-> > > On 20-09-2006 02:01, Alan Cox wrote:
-> > > > Not sure its the way I'd approach it - in your specific case it should
-> > > > be easier to just not compile in EHCI (USB 2.0) support.
-> > >
-> > > I'd dare to vote for this idea: it's good for testing
-> > > and very practical eg. for comparing performance of similar
-> > > devices like network or sound cards. Besides: ehci could
-> > > work for other devices.
+On Thu, 2006-09-14 at 16:52 -0700, Andrew Morton wrote: 
+> trivial things:
+> > +char *slm_iac_str[] = {
+> > +	ZERO_STR,
+> > +	UNTRUSTED_STR,
+> > +	USER_STR,
+> > +	SYSTEM_STR
+> > +};
+> 
+> Could this be made static?
+> 
+No because it is used in slm_secfs.c.
+
+> > +		case '#':
+> > +			while ((*bufp != '\n') && (bufp++ < buf_end)) ;
+> 
+> newline needed here.
+Added in the patch.
+
+> > +static int has_file_wperm(struct slm_file_xattr *cur_level)
+> > +{
+> > +	int i, j = 0;
+> > +	struct files_struct *files = current->files;
+> > +	unsigned long fd = 0;
+> > +	struct fdtable *fdt;
+> > +	struct file *file;
+> > +	int rc = 0;
+> > +
+> > +	if (is_kernel_thread(current))
+> > +		return 0;
+> > +
+> > +	if (!files || !cur_level)
+> > +		return 0;
+> > +
+> > +	spin_lock(&files->file_lock);
+> > +	fdt = files_fdtable(files);
+> > +
+> > +	for (;;) {
+> > +		i = j * __NFDBITS;
+> > +		if (i >= fdt->max_fdset || i >= fdt->max_fds)
+> > +			break;
+> > +		fd = fdt->open_fds->fds_bits[j++];
+> > +		while (fd) {
+> > +			if (fd & 1) {
+> > +				file = fdt->fd[i++];
+> > +				if (file)
+> > +					rc = mark_has_file_wperm(file,
+> > +						cur_level);
+> > +			}
+> > +			fd >>= 1;
+> > +		}
+> > +	}
+> > +	spin_unlock(&files->file_lock);
+> > +	return rc;
+> > +}
+> 
+> Could we use a more meaningful identifier than `j' here?  Perhaps `i' too?
+This function has been cleaned up with the use of find_next_bit and i
+and j are no longer used in the patch below.
+
+> > +	for (iac = 0; iac < sizeof(slm_iac_str) / sizeof(char *); iac++) {
+> 
+> ARRAY_SIZE()
+Fixed below.
+
+
+> > +		if (strncmp(token, slm_iac_str[iac], strlen(slm_iac_str[iac]))
+> > +		    == 0)
+> > +			return iac;
+> > +	}
+> > +	return SLM_IAC_ERROR;
+> > +}
+> > +
 > >
-> > In which case you'd need to specify the device to ignore by its PCI bus
-> > address so could ignore one device but not another of the same type. Eg
-> > pci=ignore=0:4.5
->
-> If I correctly understand this as a doubt I mean doing this in grub
-> or lilo as boot variants.
->
-> Jarek P.
->
+> > ...
+> >
+> > +
+> > +static inline int slm_getprocattr(struct task_struct *tsk,
+> > +				  char *name, void *value, size_t size)
+> It's rather pointless to declare a function inline and to then only refer to
+> it via a pointer-to-function.  Please review all inlinings.
+All inlines have been reviewed and fixed if necessary in the patch
+below.  3 hooks were affected.
+
+Signed-off-by: Kylene Hall <kjhall@us.ibm.com>
+Signed-off-by: Mimi Zohar <zohar@us.ibm.com>
+---
+security/slim/slm_main.c |   29 ++++++++++-------------------
+1 files changed, 10 insertions(+), 19 deletions(-) 
+--- linux-2.6.18-rc6-orig/security/slim/slm_main.c	2006-09-18 16:41:51.000000000 -0500
++++ linux-2.6.18-rc6/security/slim/slm_main.c	2006-09-19 16:45:34.000000000 -0500
+@@ -61,6 +60,7 @@ static char *get_token(char *buf_start, 
+ 			break;
+ 		case '#':
+ 			while ((*bufp != '\n') && (bufp++ < buf_end)) ;
++
+ 			bufp++;
+ 			break;
+ 		default:
+@@ -141,7 +141,6 @@ static inline int mark_has_file_wperm(st
+  */
+ static int has_file_wperm(struct slm_file_xattr *cur_level)
+ {
+-	int i, j = 0;
+ 	struct files_struct *files = current->files;
+ 	unsigned long fd = 0;
+ 	struct fdtable *fdt;
+@@ -157,21 +156,12 @@ static int has_file_wperm(struct slm_fil
+ 	spin_lock(&files->file_lock);
+ 	fdt = files_fdtable(files);
+ 
+-	for (;;) {
+-		i = j * __NFDBITS;
+-		if (i >= fdt->max_fdset || i >= fdt->max_fds)
+-			break;
+-		fd = fdt->open_fds->fds_bits[j++];
+-		while (fd) {
+-			if (fd & 1) {
+-				file = fdt->fd[i++];
+-				if (file)
+-					rc = mark_has_file_wperm(file,
+-						cur_level);
+-			}
+-			fd >>= 1;
+-		}
++	while((fd=find_next_bit(fdt->open_fds->fds_bits, fdt->max_fdset, fd)) < fdt->max_fdset) {
++		file = fdt->fd[fd++];
++		if (file)
++			rc = mark_has_file_wperm(file, cur_level);
+ 	}
++
+ 	spin_unlock(&files->file_lock);
+ 	return rc;
+ }
+@@ -241,7 +231,7 @@ static enum slm_iac_level parse_iac(char
+ 
+ 	if (strncmp(token, EXEMPT_STR, strlen(EXEMPT_STR)) == 0)
+ 		return SLM_IAC_EXEMPT;
+-	for (iac = 0; iac < sizeof(slm_iac_str) / sizeof(char *); iac++) {
++	for (iac = 0; iac < ARRAY_SIZE(slm_iac_str); iac++) {
+ 		if (strncmp(token, slm_iac_str[iac], strlen(slm_iac_str[iac]))
+ 		    == 0)
+ 			return iac;
+@@ -1243,7 +1233,7 @@ static int slm_task_post_setuid(uid_t ol
+ 	return rc;
+ }
+ 
+-static inline int slm_setprocattr(struct task_struct *tsk,
++static int slm_setprocattr(struct task_struct *tsk,
+ 				  char *name, void *value, size_t size)
+ {
+ 	dprintk(SLM_BASE, "%s: %s \n", __FUNCTION__, name);
+@@ -1251,7 +1241,7 @@ static inline int slm_setprocattr(struct
+ 
+ }
+ 
+-static inline int slm_getprocattr(struct task_struct *tsk,
++static int slm_getprocattr(struct task_struct *tsk,
+ 				  char *name, void *value, size_t size)
+ {
+ 	struct slm_tsec_data *tsec = tsk->security;
+@@ -1473,7 +1463,7 @@ static int slm_inode_setattr(struct dent
+ 	return rc;
+ }
+ 
+-static inline int slm_capable(struct task_struct *tsk, int cap)
++static int slm_capable(struct task_struct *tsk, int cap)
+ {
+ 	struct slm_tsec_data *tsec = tsk->security;
+ 	int rc = 0;
 
 
--- 
-      Luiz Angelo Daros de Luca
-            luizluca@gmail.com
-              ICQ: 19290419
-
- I Know, "Where you wanted to go today",
-    but I decided to stop here instead!
-                        MS Windows

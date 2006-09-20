@@ -1,47 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750888AbWITJyv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750891AbWITJ4G@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750888AbWITJyv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Sep 2006 05:54:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750891AbWITJyv
+	id S1750891AbWITJ4G (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Sep 2006 05:56:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750899AbWITJ4G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Sep 2006 05:54:51 -0400
-Received: from mx1.suse.de ([195.135.220.2]:56709 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1750886AbWITJyv (ORCPT
+	Wed, 20 Sep 2006 05:56:06 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:50593 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1750891AbWITJ4D (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Sep 2006 05:54:51 -0400
-To: "Stuart MacDonald" <stuartm@connecttech.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: TCP stack behaviour question
-References: <87wt802hd9.fsf@willow.rfc1149.net>
-	<006301c6dbf4$035a71c0$294b82ce@stuartm>
+	Wed, 20 Sep 2006 05:56:03 -0400
 From: Andi Kleen <ak@suse.de>
-Date: 20 Sep 2006 11:54:44 +0200
-In-Reply-To: <006301c6dbf4$035a71c0$294b82ce@stuartm>
-Message-ID: <p73eju6kgm3.fsf@verdi.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+To: "Michael Kerrisk" <mtk-manpages@gmx.net>
+Subject: Re: TCP stack behaviour question
+Date: Wed, 20 Sep 2006 11:55:58 +0200
+User-Agent: KMail/1.9.3
+Cc: "Stuart MacDonald" <stuartm@connecttech.com>, linux-kernel@vger.kernel.org
+References: <005501c6db44$102b73a0$294b82ce@stuartm> <20060919145024.46580@gmx.net>
+In-Reply-To: <20060919145024.46580@gmx.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200609201155.58197.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-"Stuart MacDonald" <stuartm@connecttech.com> writes:
-> 
-> 
-> *** I found arp(7) and read up on it while I was typing. And now I see
-> something interesting in the tcpdump; my app is actually talking on
-> two TCP connections at the same time. Both are in retransmit phase,
-> and the first arp is 5 seconds (delay_first_probe_time) after an
-> _aggregate total_ of 15 retransmits (being the two original unanswered
-> packets and 7 and 6 retransmits of each).
-> 
-> My reading of tcp(7)'s documentation of tcp_retries2 is that
-> tcp_retries2 is a per-TCP packet count. My tcpdump seems to show that
-> it is in fact a global count. Which is correct?
 
-The ARP layer keeps track of what neighbours are reachable and doesn't
-transmit packets to unreachable ones before they answer unicast or 
-broadcast ARP. This is a state machine borrowed from IPv6.
+> Interestingly, at this point in the man pages source there
+> is the following commented out text:
 
-There is nothing global.
+Yes that was me. On second thought I suppose I was right back then that this 
+feature is too dubious to be documented. So better keep it
+undocumented and drop the change.
 
 -Andi
+
+> 
+> .\" FIXME . Is it a good idea to document that? It is a dubious feature.
+> .\" On
+> .\" .B SOCK_STREAM
+> .\" sockets,
+> .\" .I IP_RECVERR
+> .\" has slightly different semantics. Instead of
+> .\" saving the errors for the next timeout, it passes all incoming
+> .\" errors immediately to the user.
+> .\" This might be useful for very short-lived TCP connections which
+> .\" need fast error handling. Use this option with care:
+> .\" it makes TCP unreliable
+> .\" by not allowing it to recover properly from routing
+> .\" shifts and other normal
+> .\" conditions and breaks the protocol specification.
+> 
+> Cheers,
+> 
+> Michael

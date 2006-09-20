@@ -1,67 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932351AbWITT5S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932357AbWITT5u@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932351AbWITT5S (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Sep 2006 15:57:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932353AbWITT5S
+	id S932357AbWITT5u (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Sep 2006 15:57:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932353AbWITT5t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Sep 2006 15:57:18 -0400
-Received: from smtp-out.google.com ([216.239.45.12]:39655 "EHLO
-	smtp-out.google.com") by vger.kernel.org with ESMTP id S932351AbWITT5R
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Sep 2006 15:57:17 -0400
-DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
-	h=received:message-id:date:from:to:subject:cc:in-reply-to:
-	mime-version:content-type:content-transfer-encoding:
-	content-disposition:references;
-	b=G3l10ZOxqTv96n9dtECrPadPnZEfaGyeYD6wW9kBXRt8ImPKwsrxBi85o2tseO2GN
-	pboDhMtsYxGkmQAf2EU+A==
-Message-ID: <6599ad830609201257m22605deei25ae6a0eadb6c516@mail.google.com>
-Date: Wed, 20 Sep 2006 12:57:10 -0700
-From: "Paul Menage" <menage@google.com>
-To: sekharan@us.ibm.com
-Subject: Re: [ckrm-tech] [patch00/05]: Containers(V2)- Introduction
-Cc: npiggin@suse.de, CKRM-Tech <ckrm-tech@lists.sourceforge.net>,
-       linux-kernel <linux-kernel@vger.kernel.org>, pj@sgi.com,
-       "Rohit Seth" <rohitseth@google.com>, devel@openvz.org,
-       "Christoph Lameter" <clameter@sgi.com>
-In-Reply-To: <1158780923.6536.110.camel@linuxchandra>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 20 Sep 2006 15:57:49 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:55685 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932352AbWITT5s (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Sep 2006 15:57:48 -0400
+Date: Wed, 20 Sep 2006 21:49:58 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: "K.R. Foley" <kr@cybsft.com>
+Cc: linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+       John Stultz <johnstul@us.ibm.com>,
+       "Paul E. McKenney" <paulmck@us.ibm.com>,
+       Dipankar Sarma <dipankar@in.ibm.com>,
+       Arjan van de Ven <arjan@infradead.org>
+Subject: Re: 2.6.18-rt1
+Message-ID: <20060920194958.GA24691@elte.hu>
+References: <20060920141907.GA30765@elte.hu> <45118EEC.2080700@cybsft.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <1158718568.29000.44.camel@galaxy.corp.google.com>
-	 <Pine.LNX.4.64.0609200916140.30572@schroedinger.engr.sgi.com>
-	 <1158777240.6536.89.camel@linuxchandra>
-	 <6599ad830609201143h19f6883wb388666e27913308@mail.google.com>
-	 <1158778496.6536.95.camel@linuxchandra>
-	 <6599ad830609201225k3d38afe2gea7adc2fa8067e0@mail.google.com>
-	 <1158780923.6536.110.camel@linuxchandra>
+In-Reply-To: <45118EEC.2080700@cybsft.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -2.9
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.9 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.4984]
+	-0.1 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 9/20/06, Chandra Seetharaman <sekharan@us.ibm.com> wrote:
-> > At its most crude, this could be something like:
-> >
-> > struct container {
-> > #ifdef CONFIG_CPUSETS
-> >   struct cpuset cs;
-> > #endif
-> > #ifdef CONFIG_RES_GROUPS
-> >   struct resource_group rg;
-> > #endif
-> > };
->
-> Won't it restrict the user to choose one of these, and not both.
 
-Not necessarily - you could have both compiled in, and each would only
-worry about the resource management that they cared about - e.g. you
-could use the memory node isolation portion of cpusets (in conjunction
-with fake numa nodes/zones) for memory containment, but give every
-cpuset access to all CPUs and control CPU usage via the resource
-groups CPU controller.
+* K.R. Foley <kr@cybsft.com> wrote:
 
-The generic code would take care of details like container
-creation/destruction (with appropriate callbacks into cpuset and/or
-res_group code, tracking task membership of containers, etc.
+> Ingo Molnar wrote:
+> > I'm pleased to announce the 2.6.18-rt1 tree, which can be downloaded 
+> > from the usual place:
+> > 
+> >    http://redhat.com/~mingo/realtime-preempt/
+> > 
+> 
+> I got the following oops when trying to boot the above. Config is attached.
 
-Paul
+maybe it's not the right kernel image (2.6.17):
+
+> EFLAGS: 00010297   (2.6.17-rt8 #4)
+
+mixed with 2.6.18 modules?
+
+	Ingo

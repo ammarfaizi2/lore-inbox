@@ -1,109 +1,138 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750772AbWITAtR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750797AbWITBFF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750772AbWITAtR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Sep 2006 20:49:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750776AbWITAtR
+	id S1750797AbWITBFF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Sep 2006 21:05:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750803AbWITBFB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Sep 2006 20:49:17 -0400
-Received: from a83-132-128-147.cpe.netcabo.pt ([83.132.128.147]:5313 "EHLO
-	localhost.portugal") by vger.kernel.org with ESMTP id S1750772AbWITAtQ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Sep 2006 20:49:16 -0400
-Subject: Re: Math-emu kills the kernel on Athlon64 X2
-From: Sergio Monteiro Basto <sergio@sergiomb.no-ip.org>
-Reply-To: sergio@sergiomb.no-ip.org
-To: Krzysztof Halasa <khc@pm.waw.pl>
-Cc: Jesper Juhl <jesper.juhl@gmail.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       billm@melbpc.org.au, billm@suburbia.net
-In-Reply-To: <m3fyeof3c7.fsf@defiant.localdomain>
-References: <9a8748490609181518j2d12e4f0l2c55e755e40d38c2@mail.gmail.com>
-	 <1158623391.13821.4.camel@localhost.portugal>
-	 <m3fyeof3c7.fsf@defiant.localdomain>
-Content-Type: multipart/signed; micalg=sha1; protocol="application/x-pkcs7-signature"; boundary="=-BXRSNryns0KGoH3z8FhX"
-Date: Wed, 20 Sep 2006 01:48:40 +0100
-Message-Id: <1158713320.3098.15.camel@localhost.portugal>
+	Tue, 19 Sep 2006 21:05:01 -0400
+Received: from pool-71-254-65-206.ronkva.east.verizon.net ([71.254.65.206]:38595
+	"EHLO turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S1750797AbWITBFA (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Sep 2006 21:05:00 -0400
+Message-Id: <200609200103.k8K13uWa006107@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org, Greg KH <greg@kroah.com>
+Subject: Re: 2.6.18-rc7-mm1: networking breakage on HPC nx6325 + SUSE 10.1
+In-Reply-To: Your message of "Tue, 19 Sep 2006 23:30:34 +0200."
+             <200609192330.34769.rjw@sisk.pl>
+From: Valdis.Kletnieks@vt.edu
+References: <20060919012848.4482666d.akpm@osdl.org> <200609192225.21801.rjw@sisk.pl> <20060919133606.f0c92e66.akpm@osdl.org>
+            <200609192330.34769.rjw@sisk.pl>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5) 
+Content-Type: multipart/signed; boundary="==_Exmh_1158714236_3580P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Tue, 19 Sep 2006 21:03:56 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--==_Exmh_1158714236_3580P
+Content-Type: text/plain; charset=us-ascii
 
---=-BXRSNryns0KGoH3z8FhX
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: quoted-printable
+On Tue, 19 Sep 2006 23:30:34 +0200, "Rafael J. Wysocki" said:
 
-On Tue, 2006-09-19 at 14:28 +0200, Krzysztof Halasa wrote:
-> Sergio Monteiro Basto <sergio@sergiomb.no-ip.org> writes:
-> > I think, math emulation is for 486 and older. 486 DX2 was the first one
-> > who have math co processor, on earlier processor it should be disable .
->=20
-> Actually, 486 DX had built-in FPU as well. It was missing from 486SX
-> (486SX + optional 487 FPU =3D 486DX).
->=20
-> For 386(DX|SX) there were 387(DX|SX) (386SX used 16-bit bus).
->=20
-> Many 32-bit motherboards had a socket for Weitek (3167 for 386DX or 4167
-> for 486). I think I remember a board with 386DX and 287 socket as well.
->=20
-> 486DX2 meant the external clock was half the internal.
+> Well, I can configure the interfaces manually, with ifconfig, but the SUSE's
+> configuration tools don't work.  For example, "ifup eth0" tells me that
+> "No configuration found for eth0" and that's all.
 
-Fine :),  My (12 year old) 486DX2 already don't need Math-emu. I just
-don't see how in a computer like that will be installed a kernel 2.6 .
-So why code of math-emu isn't dropped ?=20
+I'm seeing issues on a Dell Latitude C840 as well, but I'm not positive
+it's the same bug(s).  The problem I'm seeing is that device renaming is
+failing (I have up to 5 different ethernet-ish interfaces that can be
+connected, so I abuse /sbin/nameif extensively. There seem to be some
+other issues with pcmcia, but it's not clear what the problem is - it
+manages to find the (normally down) ethernet on my Xircom card, but the
+orinoco driver seems unable to find my wireless card....
 
-Btw I try install a kernel 2.4 in my DX2 and works but very very slow .
-I think in this type of computer should be install a kernel 2.2 .=20
+For instance, under 2.6.18-rc6-mm2, I see:
 
-Thanks,
---=20
-S=E9rgio M.B.
+pccard: CardBus card inserted into slot 0
+PCI: Enabling device 0000:03:00.0 (0000 -> 0003)
+ACPI: PCI Interrupt 0000:03:00.0[A] -> Link [LNKD] -> GSI 11 (level, low) -> IRQ 11
+PCI: Setting latency timer of device 0000:03:00.0 to 64
+eth2: Xircom cardbus revision 3 at irq 11
+PCI: Enabling device 0000:03:00.1 (0000 -> 0003)
+ACPI: PCI Interrupt 0000:03:00.1[A] -> Link [LNKD] -> GSI 11 (level, low) -> IRQ 11
+0000:03:00.1: ttyS1 at I/O 0xe080 (irq = 11) is a 16550A
+pccard: PCMCIA card inserted into slot 2
+[rename_device:851]: Changing netdevice name from [eth1] to [eth3]
+ohci1394: fw-host0: AT dma reset ctx=0, aborting transmission
+ieee1394: Current remote IRM is not 1394a-2000 compliant, resetting...
+ieee1394: Host added: ID:BUS[0-00:1023]  GUID[374fc0002a71c021]
+[rename_device:1237]: Changing netdevice name from [eth2] to [eth1]
+cs: memory probe 0xf4000000-0xfbffffff: excluding 0xf4000000-0xf8ffffff 0xfa000000-0xfbffffff
+pcmcia: registering new device pcmcia2.0
+orinoco 0.15 (David Gibson <hermes@gibson.dropbear.id.au>, Pavel Roskin <proski@gnu.org>, et al)
+orinoco_cs 0.15 (David Gibson <hermes@gibson.dropbear.id.au>, Pavel Roskin <proski@gnu.org>, et al)
+pcmcia: request for exclusive IRQ could not be fulfilled.
+pcmcia: the driver needs updating to supported shared IRQ lines.
+cs: IO port probe 0x100-0x3af: excluding 0x370-0x37f
+cs: IO port probe 0x3e0-0x4ff: clean.
+cs: IO port probe 0x820-0x8ff: clean.
+cs: IO port probe 0xc00-0xcf7: clean.
+cs: IO port probe 0xa00-0xaff: clean.
+cs: IO port probe 0x100-0x3af: excluding 0x370-0x37f
+cs: IO port probe 0x3e0-0x4ff: clean.
+cs: IO port probe 0x820-0x8ff: clean.
+cs: IO port probe 0xc00-0xcf7: clean.
+cs: IO port probe 0xa00-0xaff: clean.
+cs: IO port probe 0x100-0x3af: excluding 0x370-0x37f
+cs: IO port probe 0x3e0-0x4ff: clean.
+cs: IO port probe 0x820-0x8ff: clean.
+cs: IO port probe 0xc00-0xcf7: clean.
+cs: IO port probe 0xa00-0xaff: clean.
+eth2: Hardware identity 0005:0004:0005:0000
+eth2: Station identity  001f:0001:0008:000a
+eth2: Firmware determined as Lucent/Agere 8.10
+eth2: Ad-hoc demo mode supported
+eth2: IEEE standard IBSS ad-hoc mode supported
+eth2: WEP supported, 104-bit key
+eth2: MAC address 00:02:2D:5C:11:48
+eth2: Station name "HERMES I"
+eth2: ready
+eth2: orinoco_cs at 2.0, irq 11, io 0xe100-0xe13f
+[rename_device:1295]: Changing netdevice name from [eth2] to [eth5]
+Non-volatile memory driver v1.2
 
---=-BXRSNryns0KGoH3z8FhX
-Content-Type: application/x-pkcs7-signature; name=smime.p7s
-Content-Disposition: attachment; filename=smime.p7s
-Content-Transfer-Encoding: base64
+and under -rc7-mm1, I see:
 
-MIAGCSqGSIb3DQEHAqCAMIACAQExCzAJBgUrDgMCGgUAMIAGCSqGSIb3DQEHAQAAoIIGSTCCAwIw
-ggJroAMCAQICAw/vkjANBgkqhkiG9w0BAQQFADBiMQswCQYDVQQGEwJaQTElMCMGA1UEChMcVGhh
-d3RlIENvbnN1bHRpbmcgKFB0eSkgTHRkLjEsMCoGA1UEAxMjVGhhd3RlIFBlcnNvbmFsIEZyZWVt
-YWlsIElzc3VpbmcgQ0EwHhcNMDUxMTI4MjIyODU2WhcNMDYxMTI4MjIyODU2WjBLMR8wHQYDVQQD
-ExZUaGF3dGUgRnJlZW1haWwgTWVtYmVyMSgwJgYJKoZIhvcNAQkBFhlzZXJnaW9Ac2VyZ2lvbWIu
-bm8taXAub3JnMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEApCNuKD3pz8GRKd1q+36r
-m0z7z+TBsbTrVa45UQsEeh9OQGZIASJMH5erC0u6KbKJ+km97RLOdsgSlKG6+5xuzsk+aqU7A0Gp
-kMjzIJT7UH/bbPnIFMQNnWJxluuYq1u+v8iIbfezQy1+SXyAyBv+OC7LnCOiOar/L9AD9zDy2fPX
-EqEDlbO3CJsoaR4Va8sgtoV0NmKnAt7DA0iZ2dmlsw6Qh+4euI+FgZ2WHPBQnfJ7PfSH5GIWl/Nx
-eUqnYpDaJafk/l94nX71UifdPXDMxJJlEOGqV9l4omhNlPmsZ/zrGXgLdBv9JuPjJ9mxhgwZsZbz
-VBc8emB0i3A7E6D6rwIDAQABo1kwVzAOBgNVHQ8BAf8EBAMCBJAwEQYJYIZIAYb4QgEBBAQDAgUg
-MCQGA1UdEQQdMBuBGXNlcmdpb0BzZXJnaW9tYi5uby1pcC5vcmcwDAYDVR0TAQH/BAIwADANBgkq
-hkiG9w0BAQQFAAOBgQBIVheRn3oHTU5rgIFHcBRxkIhOYPQHKk/oX4KakCrDCxp33XAqTG3aIG/v
-dsUT/OuFm5w0GlrUTrPaKYYxxfQ00+3d8y87aX22sUdj8oXJRYiPgQiE6lqu9no8axH6UXCCbKTi
-8383JcxReoXyuP000eUggq3tWr6fE/QmONUARzCCAz8wggKooAMCAQICAQ0wDQYJKoZIhvcNAQEF
-BQAwgdExCzAJBgNVBAYTAlpBMRUwEwYDVQQIEwxXZXN0ZXJuIENhcGUxEjAQBgNVBAcTCUNhcGUg
-VG93bjEaMBgGA1UEChMRVGhhd3RlIENvbnN1bHRpbmcxKDAmBgNVBAsTH0NlcnRpZmljYXRpb24g
-U2VydmljZXMgRGl2aXNpb24xJDAiBgNVBAMTG1RoYXd0ZSBQZXJzb25hbCBGcmVlbWFpbCBDQTEr
-MCkGCSqGSIb3DQEJARYccGVyc29uYWwtZnJlZW1haWxAdGhhd3RlLmNvbTAeFw0wMzA3MTcwMDAw
-MDBaFw0xMzA3MTYyMzU5NTlaMGIxCzAJBgNVBAYTAlpBMSUwIwYDVQQKExxUaGF3dGUgQ29uc3Vs
-dGluZyAoUHR5KSBMdGQuMSwwKgYDVQQDEyNUaGF3dGUgUGVyc29uYWwgRnJlZW1haWwgSXNzdWlu
-ZyBDQTCBnzANBgkqhkiG9w0BAQEFAAOBjQAwgYkCgYEAxKY8VXNV+065yplaHmjAdQRwnd/p/6Me
-7L3N9VvyGna9fww6YfK/Uc4B1OVQCjDXAmNaLIkVcI7dyfArhVqqP3FWy688Cwfn8R+RNiQqE88r
-1fOCdz0Dviv+uxg+B79AgAJk16emu59l0cUqVIUPSAR/p7bRPGEEQB5kGXJgt/sCAwEAAaOBlDCB
-kTASBgNVHRMBAf8ECDAGAQH/AgEAMEMGA1UdHwQ8MDowOKA2oDSGMmh0dHA6Ly9jcmwudGhhd3Rl
-LmNvbS9UaGF3dGVQZXJzb25hbEZyZWVtYWlsQ0EuY3JsMAsGA1UdDwQEAwIBBjApBgNVHREEIjAg
-pB4wHDEaMBgGA1UEAxMRUHJpdmF0ZUxhYmVsMi0xMzgwDQYJKoZIhvcNAQEFBQADgYEASIzRUIPq
-Cy7MDaNmrGcPf6+svsIXoUOWlJ1/TCG4+DYfqi2fNi/A9BxQIJNwPP2t4WFiw9k6GX6EsZkbAMUa
-C4J0niVQlGLH2ydxVyWN3amcOY6MIE9lX5Xa9/eH1sYITq726jTlEBpbNU1341YheILcIRk13iSx
-0x1G/11fZU8xggHvMIIB6wIBATBpMGIxCzAJBgNVBAYTAlpBMSUwIwYDVQQKExxUaGF3dGUgQ29u
-c3VsdGluZyAoUHR5KSBMdGQuMSwwKgYDVQQDEyNUaGF3dGUgUGVyc29uYWwgRnJlZW1haWwgSXNz
-dWluZyBDQQIDD++SMAkGBSsOAwIaBQCgXTAYBgkqhkiG9w0BCQMxCwYJKoZIhvcNAQcBMBwGCSqG
-SIb3DQEJBTEPFw0wNjA5MjAwMDQ4MzZaMCMGCSqGSIb3DQEJBDEWBBRjkFGEvt3EWytKc2pNVlm8
-FoSdRDANBgkqhkiG9w0BAQEFAASCAQCKkYq6qAwlB8gakaHSb5+G14A+VVYX25907Xoer2J6mPCe
-buxE9z+2walEoxhXWRCMBqw3DPBIai6Smyr9e9TJD0L4symjyX2kbe1c3jxLhDE/Ru+ld+6c1fYn
-uEtT2Fa3vneHEqJLnRjCqpZJgvVeqHJxu2+5hVRIxH6sZOZwMuV12XHkXGGUX6Fc1mp3f9DAS3wK
-Oj9j8ZBKme2t6S+FIQgHELP5GdIyHkX6J9aQ2RDXTH3tk71d5KIM+MTXIoCfWZYJN/dUlCWiFkGD
-Z78WsJ4HoW0+f+yajdpCTLA4E/OT/bv6kyUZjzx8D4YnSjwVtRYYPIqqJgjqsplV5UvNAAAAAAAA
+pccard: CardBus card inserted into slot 0
+PCI: Enabling device 0000:03:00.0 (0000 -> 0003)
+ACPI: PCI Interrupt 0000:03:00.0[A] -> Link [LNKD] -> GSI 11 (level, low) -> IRQ 11
+PCI: Setting latency timer of device 0000:03:00.0 to 64
+eth1: Xircom cardbus revision 3 at irq 11 
+PCI: Enabling device 0000:03:00.1 (0000 -> 0003)
+ACPI: PCI Interrupt 0000:03:00.1[A] -> Link [LNKD] -> GSI 11 (level, low) -> IRQ 11
+0000:03:00.1: ttyS1 at I/O 0xe080 (irq = 11) is a 16550A
+pccard: PCMCIA card inserted into slot 2
+ohci1394: fw-host0: AT dma reset ctx=0, aborting transmission
+ieee1394: Current remote IRM is not 1394a-2000 compliant, resetting...
+ieee1394: Host added: ID:BUS[0-00:1023]  GUID[374fc0002a71c021]
+Non-volatile memory driver v1.2
+
+Amazingly less chatty.  Much later, when /etc/rc5.d/S10network runs, we finally
+see:
+
+orinoco 0.15 (David Gibson <hermes@gibson.dropbear.id.au>, Pavel Roskin <proski@gnu.org>, et al)
+orinoco_cs 0.15 (David Gibson <hermes@gibson.dropbear.id.au>, Pavel Roskin <proski@gnu.org>, et al)
+
+but no output for the wireless configuring.
+
+Unless somebody has a better idea overnight, I'll start a bisect of -rc7-mm1
+in the morning...
 
 
+--==_Exmh_1158714236_3580P
+Content-Type: application/pgp-signature
 
---=-BXRSNryns0KGoH3z8FhX--
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
 
+iD8DBQFFEJN8cC3lWbTT17ARApQFAKCl2mCHnTSrnozbBOrkm+VDkd9TzACggh/T
+CZIxVHs1kFj7m450UK4s0do=
+=waL/
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1158714236_3580P--

@@ -1,69 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932277AbWITS6b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932260AbWITS5i@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932277AbWITS6b (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Sep 2006 14:58:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932275AbWITS6O
+	id S932260AbWITS5i (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Sep 2006 14:57:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932258AbWITS5c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Sep 2006 14:58:14 -0400
-Received: from max.feld.cvut.cz ([147.32.192.36]:37019 "EHLO max.feld.cvut.cz")
-	by vger.kernel.org with ESMTP id S932263AbWITS6G (ORCPT
+	Wed, 20 Sep 2006 14:57:32 -0400
+Received: from ns1.coraid.com ([65.14.39.133]:46456 "EHLO coraid.com")
+	by vger.kernel.org with ESMTP id S932260AbWITS5E (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Sep 2006 14:58:06 -0400
-From: CIJOML <cijoml@volny.cz>
+	Wed, 20 Sep 2006 14:57:04 -0400
+Message-ID: <c74a505f0ee8714dd6aecc33f7188caf@coraid.com>
+Date: Wed, 20 Sep 2006 14:36:50 -0400
 To: linux-kernel@vger.kernel.org
-Subject: Very slow write on flash drive in sync mode???
-Date: Wed, 20 Sep 2006 20:58:05 +0200
-User-Agent: KMail/1.9.3
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200609202058.05816.cijoml@volny.cz>
+Cc: ecashin@coraid.com, Greg K-H <greg@kroah.com>
+Subject: [PATCH 2.6.18-rc4] aoe [10/14]: module parameter for device timeout
+References: <E1GQ6uv-0001qi-00@kokone>
+From: "Ed L. Cashin" <ecashin@coraid.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+The aoe_deadsecs module parameter sets the number of seconds that
+elapse before a nonresponsive AoE device is marked as dead.
 
-I use SanDisk cruzer Titanium 2 GB mounted as sync in fstab
+This is runtime settable in sysfs or settable with a module load or
+kernel boot parameter.
 
-usb 4-2: new high speed USB device using ehci_hcd and address 5
-usb 4-2: configuration #1 chosen from 1 choice
-scsi1 : SCSI emulation for USB Mass Storage devices
-usb-storage: device found at 5
-usb-storage: waiting for device to settle before scanning
-  Vendor: SanDisk   Model: U3 Titanium       Rev: 2.16
-  Type:   Direct-Access                      ANSI SCSI revision: 02
-SCSI device sda: 4001425 512-byte hdwr sectors (2049 MB)
-sda: Write Protect is off
-sda: Mode Sense: 03 00 00 00
-sda: assuming drive cache: write through
-SCSI device sda: 4001425 512-byte hdwr sectors (2049 MB)
-sda: Write Protect is off
-sda: Mode Sense: 03 00 00 00
-sda: assuming drive cache: write through
- sda: sda1
-sd 1:0:0:0: Attached scsi removable disk sda
-sd 1:0:0:0: Attached scsi generic sg0 type 0
-  Vendor: SanDisk   Model: U3 Titanium       Rev: 2.16
-  Type:   CD-ROM                             ANSI SCSI revision: 02
-sr0: scsi3-mmc drive: 8x/40x writer xa/form2 cdda tray
-sr 1:0:0:1: Attached scsi CD-ROM sr0
-sr 1:0:0:1: Attached scsi generic sg1 type 5
-usb-storage: device scan complete
+Signed-off-by: "Ed L. Cashin" <ecashin@coraid.com>
+---
 
-/dev/sda1       /mnt/cruzer_sync      vfat    user,noauto,sync                
-0       0
-/dev/sda1       /mnt/cruzer     auto    user,noauto             0       0
+diff -upr 2.6.18-rc4-orig/drivers/block/aoe/aoecmd.c 2.6.18-rc4-aoe/drivers/block/aoe/aoecmd.c
+--- 2.6.18-rc4-orig/drivers/block/aoe/aoecmd.c	2006-09-20 14:29:36.000000000 -0400
++++ 2.6.18-rc4-aoe/drivers/block/aoe/aoecmd.c	2006-09-20 14:29:36.000000000 -0400
+@@ -15,7 +15,10 @@
+ #define TIMERTICK (HZ / 10)
+ #define MINTIMER (2 * TIMERTICK)
+ #define MAXTIMER (HZ << 1)
+-#define MAXWAIT (60 * 3)	/* After MAXWAIT seconds, give up and fail dev */
++
++static int aoe_deadsecs = 60 * 3;
++module_param(aoe_deadsecs, int, 0644);
++MODULE_PARM_DESC(aoe_deadsecs, "After aoe_deadsecs seconds, give up and fail dev.");
+ 
+ struct sk_buff *
+ new_skb(ulong len)
+@@ -373,7 +376,7 @@ rexmit_timer(ulong vp)
+ 		if (f->tag != FREETAG && tsince(f->tag) >= timeout) {
+ 			n = f->waited += timeout;
+ 			n /= HZ;
+-			if (n > MAXWAIT) { /* waited too long.  device failure. */
++			if (n > aoe_deadsecs) { /* waited too long for response */
+ 				aoedev_downdev(d);
+ 				break;
+ 			}
 
 
-When I use flash drive in sync mode, it writes on it only 64kB/s. When I 
-umount it and mount it in not sync mode but do sync manually after it writes 
-into memory, kernel writes on flash drive 11 MB/s!!! What is wrong in my 
-configuration?
-
-Kernel 2.6.18, Debian testing
-
-Thanks for help
-
-Michal
+-- 
+  "Ed L. Cashin" <ecashin@coraid.com>

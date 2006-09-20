@@ -1,18 +1,18 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932114AbWITVUx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932096AbWITVU3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932114AbWITVUx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Sep 2006 17:20:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932122AbWITVUx
+	id S932096AbWITVU3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Sep 2006 17:20:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932113AbWITVU3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Sep 2006 17:20:53 -0400
-Received: from ogre.sisk.pl ([217.79.144.158]:19109 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S932114AbWITVUe (ORCPT
+	Wed, 20 Sep 2006 17:20:29 -0400
+Received: from ogre.sisk.pl ([217.79.144.158]:18085 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S932096AbWITVU2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Sep 2006 17:20:34 -0400
+	Wed, 20 Sep 2006 17:20:28 -0400
 From: "Rafael J. Wysocki" <rjw@sisk.pl>
 To: Pavel Machek <pavel@ucw.cz>
-Subject: [PATCH -mm 5/6] mm: Print first block offset for swap areas
-Date: Wed, 20 Sep 2006 21:54:38 +0200
+Subject: [PATCH -mm 1/6] swsusp: Use device and offset to intentify swap areas
+Date: Wed, 20 Sep 2006 21:31:37 +0200
 User-Agent: KMail/1.9.1
 Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
 References: <200609202120.58082.rjw@sisk.pl>
@@ -22,80 +22,153 @@ Content-Type: text/plain;
   charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200609202154.39377.rjw@sisk.pl>
+Message-Id: <200609202131.38206.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In order to use a swap file with swsusp we need to know the offset at which
-its swap header is located.  However, the swap header is always located in the
-first block of the swap file and it's quite easy to make sys_swapon() print
-the offset of the swap file's (or swap partition's) first block.
+The Linux kernel handles swap files almost in the same way as it handles swap
+partitions and there are only two differences between these two types of swap
+areas:
+(1) swap files need not be contiguous,
+(2) the header of a swap file is not in the first block of the partition that
+holds it.  From the swsusp's point of view (1) is not a problem, because it is
+already taken care of by the swap-handling code, but (2) has to be taken into
+consideration.
+
+In principle the location of a swap file's header may be determined with the
+help of appropriate filesystem driver.  Unfortunately, however, it requires the
+filesystem holding the swap file to be mounted, and if this filesystem is
+journaled, it cannot be mounted during a resume from disk.  For this reason
+we need some other means by which swap areas can be identified.
+
+For example, to identify a swap area we can use the partition that holds the
+area and the offset from the beginning of this partition at which the swap
+header is located.
+
+The following patch allows swsusp to identify swap areas this way.  It changes
+swap_type_of() so that it takes an additional argument representing an offset
+of the swap header within the partition represented by its first argument.
 
 Signed-off-by: Rafael J. Wysocki <rjw@sisk.pl>
 ---
- mm/swapfile.c |   15 ++++++++++-----
- 1 file changed, 10 insertions(+), 5 deletions(-)
+ include/linux/swap.h |    2 +-
+ kernel/power/swap.c  |    2 +-
+ kernel/power/user.c  |    5 +++--
+ mm/swapfile.c        |   38 ++++++++++++++++++++++++++------------
+ 4 files changed, 31 insertions(+), 16 deletions(-)
 
 Index: linux-2.6.18-rc7-mm1/mm/swapfile.c
 ===================================================================
 --- linux-2.6.18-rc7-mm1.orig/mm/swapfile.c
 +++ linux-2.6.18-rc7-mm1/mm/swapfile.c
-@@ -1047,7 +1047,8 @@ add_swap_extent(struct swap_info_struct 
-  * This is extremely effective.  The average number of iterations in
-  * map_swap_page() has been measured at about 0.3 per page.  - akpm.
+@@ -427,34 +427,48 @@ void free_swap_and_cache(swp_entry_t ent
+ 
+ #ifdef CONFIG_SOFTWARE_SUSPEND
+ /*
+- * Find the swap type that corresponds to given device (if any)
++ * Find the swap type that corresponds to given device (if any).
+  *
+- * This is needed for software suspend and is done in such a way that inode
+- * aliasing is allowed.
++ * @offset - number of the PAGE_SIZE-sized block of the device, starting
++ * from 0, in which the swap header is expected to be located.
++ *
++ * This is needed for the suspend to disk (aka swsusp).
   */
--static int setup_swap_extents(struct swap_info_struct *sis, sector_t *span)
-+static int setup_swap_extents(struct swap_info_struct *sis, sector_t *span,
-+                              sector_t *start)
+-int swap_type_of(dev_t device)
++int swap_type_of(dev_t device, sector_t offset)
  {
- 	struct inode *inode;
- 	unsigned blocks_per_page;
-@@ -1060,6 +1061,7 @@ static int setup_swap_extents(struct swa
- 	int nr_extents = 0;
- 	int ret;
++	struct block_device *bdev = NULL;
+ 	int i;
  
-+	*start = 0;
- 	inode = sis->swap_file->f_mapping->host;
- 	if (S_ISBLK(inode->i_mode)) {
- 		ret = add_swap_extent(sis, 0, sis->max, 0);
-@@ -1114,6 +1116,8 @@ static int setup_swap_extents(struct swa
- 				lowest_block = first_block;
- 			if (first_block > highest_block)
- 				highest_block = first_block;
-+		} else {
-+			*start = first_block;
++	if (device)
++		bdev = bdget(device);
++
+ 	spin_lock(&swap_lock);
+ 	for (i = 0; i < nr_swapfiles; i++) {
+-		struct inode *inode;
++		struct swap_info_struct *sis = swap_info + i;
+ 
+-		if (!(swap_info[i].flags & SWP_WRITEOK))
++		if (!(sis->flags & SWP_WRITEOK))
+ 			continue;
+ 
+-		if (!device) {
++		if (!bdev) {
+ 			spin_unlock(&swap_lock);
+ 			return i;
  		}
+-		inode = swap_info[i].swap_file->f_dentry->d_inode;
+-		if (S_ISBLK(inode->i_mode) &&
+-		    device == MKDEV(imajor(inode), iminor(inode))) {
+-			spin_unlock(&swap_lock);
+-			return i;
++		if (bdev == sis->bdev) {
++			struct swap_extent *se;
++
++			se = list_entry(sis->extent_list.next,
++					struct swap_extent, list);
++			if (se->start_block == offset) {
++				spin_unlock(&swap_lock);
++				bdput(bdev);
++				return i;
++			}
+ 		}
+ 	}
+ 	spin_unlock(&swap_lock);
++	if (bdev)
++		bdput(bdev);
++
+ 	return -ENODEV;
+ }
  
- 		/*
-@@ -1407,7 +1411,7 @@ asmlinkage long sys_swapon(const char __
- 	int swap_header_version;
- 	unsigned int nr_good_pages = 0;
- 	int nr_extents = 0;
--	sector_t span;
-+	sector_t span, start;
- 	unsigned long maxpages = 1;
- 	int swapfilesize;
- 	unsigned short *swap_map;
-@@ -1608,7 +1612,7 @@ asmlinkage long sys_swapon(const char __
- 		p->swap_map[0] = SWAP_MAP_BAD;
- 		p->max = maxpages;
- 		p->pages = nr_good_pages;
--		nr_extents = setup_swap_extents(p, &span);
-+		nr_extents = setup_swap_extents(p, &span, &start);
- 		if (nr_extents < 0) {
- 			error = nr_extents;
- 			goto bad_swap;
-@@ -1628,9 +1632,10 @@ asmlinkage long sys_swapon(const char __
- 	total_swap_pages += nr_good_pages;
+Index: linux-2.6.18-rc7-mm1/include/linux/swap.h
+===================================================================
+--- linux-2.6.18-rc7-mm1.orig/include/linux/swap.h
++++ linux-2.6.18-rc7-mm1/include/linux/swap.h
+@@ -249,7 +249,7 @@ extern int swap_duplicate(swp_entry_t);
+ extern int valid_swaphandles(swp_entry_t, unsigned long *);
+ extern void swap_free(swp_entry_t);
+ extern void free_swap_and_cache(swp_entry_t);
+-extern int swap_type_of(dev_t);
++extern int swap_type_of(dev_t, sector_t);
+ extern unsigned int count_swap_pages(int, int);
+ extern sector_t map_swap_page(struct swap_info_struct *, pgoff_t);
+ extern struct swap_info_struct *get_swap_info_struct(unsigned);
+Index: linux-2.6.18-rc7-mm1/kernel/power/swap.c
+===================================================================
+--- linux-2.6.18-rc7-mm1.orig/kernel/power/swap.c
++++ linux-2.6.18-rc7-mm1/kernel/power/swap.c
+@@ -74,7 +74,7 @@ static int mark_swapfiles(swp_entry_t st
  
- 	printk(KERN_INFO "Adding %uk swap on %s.  "
--			"Priority:%d extents:%d across:%lluk\n",
-+			"Priority:%d extents:%d across:%lluk offset:%llu\n",
- 		nr_good_pages<<(PAGE_SHIFT-10), name, p->prio,
--		nr_extents, (unsigned long long)span<<(PAGE_SHIFT-10));
-+		nr_extents, (unsigned long long)span<<(PAGE_SHIFT-10),
-+		(unsigned long long)start);
+ static int swsusp_swap_check(void) /* This is called before saving image */
+ {
+-	int res = swap_type_of(swsusp_resume_device);
++	int res = swap_type_of(swsusp_resume_device, 0);
  
- 	/* insert swap space into swap_list: */
- 	prev = -1;
+ 	if (res >= 0) {
+ 		root_swap = res;
+Index: linux-2.6.18-rc7-mm1/kernel/power/user.c
+===================================================================
+--- linux-2.6.18-rc7-mm1.orig/kernel/power/user.c
++++ linux-2.6.18-rc7-mm1/kernel/power/user.c
+@@ -54,7 +54,8 @@ static int snapshot_open(struct inode *i
+ 	filp->private_data = data;
+ 	memset(&data->handle, 0, sizeof(struct snapshot_handle));
+ 	if ((filp->f_flags & O_ACCMODE) == O_RDONLY) {
+-		data->swap = swsusp_resume_device ? swap_type_of(swsusp_resume_device) : -1;
++		data->swap = swsusp_resume_device ?
++				swap_type_of(swsusp_resume_device, 0) : -1;
+ 		data->mode = O_RDONLY;
+ 	} else {
+ 		data->swap = -1;
+@@ -264,7 +265,7 @@ static int snapshot_ioctl(struct inode *
+ 			 * so we need to recode them
+ 			 */
+ 			if (old_decode_dev(arg)) {
+-				data->swap = swap_type_of(old_decode_dev(arg));
++				data->swap = swap_type_of(old_decode_dev(arg), 0);
+ 				if (data->swap < 0)
+ 					error = -ENODEV;
+ 			} else {
 

@@ -1,71 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932284AbWITTK2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932289AbWITTM0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932284AbWITTK2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Sep 2006 15:10:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932279AbWITTK2
+	id S932289AbWITTM0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Sep 2006 15:12:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932293AbWITTMZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Sep 2006 15:10:28 -0400
-Received: from odyssey.analogic.com ([204.178.40.5]:43527 "EHLO
-	odyssey.analogic.com") by vger.kernel.org with ESMTP
-	id S932284AbWITTK1 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Sep 2006 15:10:27 -0400
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-X-OriginalArrivalTime: 20 Sep 2006 19:10:25.0605 (UTC) FILETIME=[6D9B3750:01C6DCE8]
-Content-class: urn:content-classes:message
-Subject: Re: Flushing writes to PCI devices
-Date: Wed, 20 Sep 2006 15:10:25 -0400
-Message-ID: <Pine.LNX.4.61.0609201503160.25965@chaos.analogic.com>
-In-Reply-To: <Pine.LNX.4.44L0.0609201423480.7265-100000@iolanthe.rowland.org>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Flushing writes to PCI devices
-thread-index: Acbc6G21O9Dc/lK5SfmeT+/FimHKGw==
-References: <Pine.LNX.4.44L0.0609201423480.7265-100000@iolanthe.rowland.org>
-From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-To: "Alan Stern" <stern@rowland.harvard.edu>
-Cc: "Kernel development list" <linux-kernel@vger.kernel.org>
-Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+	Wed, 20 Sep 2006 15:12:25 -0400
+Received: from gateway-1237.mvista.com ([63.81.120.158]:47989 "EHLO
+	dwalker1.mvista.com") by vger.kernel.org with ESMTP id S932289AbWITTMZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Sep 2006 15:12:25 -0400
+Message-Id: <20060920191134.934555000@mvista.com>
+User-Agent: quilt/0.45-1
+Date: Wed, 20 Sep 2006 12:11:34 -0700
+From: dwalker@mvista.com
+To: mingo@elte.hu
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH -rt] serial: scheduling with irqs disabled
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Saw this during bootup ..
 
-On Wed, 20 Sep 2006, Alan Stern wrote:
+BUG: scheduling with irqs disabled: insmod/0x00000000/1110
+caller is rt_spin_lock_slowlock+0x89/0x190
+ [<c0104c3b>] show_trace+0x1b/0x20
+ [<c0104d44>] dump_stack+0x24/0x30
+ [<c040ff9e>] schedule+0x10e/0x120
+ [<c0410d99>] rt_spin_lock_slowlock+0x89/0x190
+ [<c0411502>] rt_spin_lock+0x22/0x30
+ [<c0291669>] serial8250_console_write+0x49/0x170
+ [<c011fa8d>] __call_console_drivers+0x6d/0x80
+ [<c011fae3>] _call_console_drivers+0x43/0x90
+ [<c0120265>] release_console_sem+0xe5/0x240
+ [<c011fe4e>] vprintk+0x20e/0x380
+ [<c011ffdb>] printk+0x1b/0x20
+ [<c0140345>] sys_init_module+0xba5/0x1a30
+ [<c01034d7>] syscall_call+0x7/0xb
+---------------------------
+| preempt count: 00000000 ]
+| 0-level deep critical section nesting:
+----------------------------------------
 
-> I've heard that to insure proper synchronization it's necessary to flush
-> MMIO writes (writel, writew, writeb) to PCI devices by reading from the
-> same area.  Is this equally true for I/O-space writes (inl, inw, inb)?
-> What about configuration space writes (pci_write_config_dword etc.)?
->
-> Alan Stern
+Signed-Off-By: Daniel Walker <dwalker@mvista.com>
 
-Writes to I/O space are not queued through a FIFO so there is
-no need to flush the FIFO. Configuration space uses special
-configuration cycles which are handshakes with the devices. They
-cannot be queued, therefore don't need to be flushed either.
+---
+ drivers/serial/8250.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
 
-Flushing PCI space writes shouldn't be done until you want
-whatever you've been planning to happen __now__. Otherwise
-the advantages of queued writes go away. In other words, one
-should NOT attach a read to every PCI space write! Typically
-use of the flushing read might be in the case of setting up
-hardware for a DMA transfer. You write all the data, source
-address, destination address, byte-count, DMA type, etc., then
-after the last instruction, the one should should start the DMA,
-you issue a read.
-
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.16.24 on an i686 machine (5592.66 BogoMips).
-New book: http://www.AbominableFirebug.com/
-_
-
-
-****************************************************************
-The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
-
-Thank you.
+Index: linux-2.6.18/drivers/serial/8250.c
+===================================================================
+--- linux-2.6.18.orig/drivers/serial/8250.c
++++ linux-2.6.18/drivers/serial/8250.c
+@@ -2252,7 +2252,7 @@ serial8250_console_write(struct console 
+ 
+ 	touch_nmi_watchdog();
+ 
+-	local_irq_save(flags);
++	local_irq_save_nort(flags);
+ 	if (up->port.sysrq) {
+ 		/* serial8250_handle_port() already took the lock */
+ 		locked = 0;
+@@ -2282,7 +2282,7 @@ serial8250_console_write(struct console 
+ 
+ 	if (locked)
+ 		spin_unlock(&up->port.lock);
+-	local_irq_restore(flags);
++	local_irq_restore_nort(flags);
+ }
+ 
+ static int serial8250_console_setup(struct console *co, char *options)
+--

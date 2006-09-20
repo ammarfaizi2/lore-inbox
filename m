@@ -1,41 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750711AbWITUH5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750715AbWITUME@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750711AbWITUH5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Sep 2006 16:07:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750715AbWITUH5
+	id S1750715AbWITUME (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Sep 2006 16:12:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750718AbWITUMD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Sep 2006 16:07:57 -0400
-Received: from outbound0.mx.meer.net ([209.157.153.23]:778 "EHLO
-	outbound0.sv.meer.net") by vger.kernel.org with ESMTP
-	id S1750711AbWITUH4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Sep 2006 16:07:56 -0400
-Subject: Re: [patch 8/8] stacktrace filtering for fault-injection
-	capabilities
-From: Don Mullis <dwm@meer.net>
-To: Akinobu Mita <mita@miraclelinux.com>
-Cc: linux-kernel@vger.kernel.org, ak@suse.de, akpm@osdl.org,
-       Valdis.Kletnieks@vt.edu
-In-Reply-To: <20060920133927.GA4030@miraclelinux.com>
-References: <20060914102012.251231177@localhost.localdomain>
-	 <20060914102033.462112306@localhost.localdomain>
-	 <1158645471.2419.13.camel@localhost.localdomain>
-	 <20060919090945.GE24271@miraclelinux.com>
-	 <1158687327.2509.13.camel@localhost.localdomain>
-	 <20060920133927.GA4030@miraclelinux.com>
-Content-Type: text/plain
-Date: Wed, 20 Sep 2006 13:02:09 -0700
-Message-Id: <1158782530.2509.25.camel@localhost.localdomain>
+	Wed, 20 Sep 2006 16:12:03 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:938 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1750715AbWITUMB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Sep 2006 16:12:01 -0400
+Date: Wed, 20 Sep 2006 13:11:51 -0700
+From: Paul Jackson <pj@sgi.com>
+To: "Paul Menage" <menage@google.com>
+Cc: sekharan@us.ibm.com, clameter@sgi.com, npiggin@suse.de,
+       ckrm-tech@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       rohitseth@google.com, devel@openvz.org
+Subject: Re: [ckrm-tech] [patch00/05]: Containers(V2)- Introduction
+Message-Id: <20060920131151.4a810be2.pj@sgi.com>
+In-Reply-To: <6599ad830609201143h19f6883wb388666e27913308@mail.google.com>
+References: <1158718568.29000.44.camel@galaxy.corp.google.com>
+	<Pine.LNX.4.64.0609200916140.30572@schroedinger.engr.sgi.com>
+	<1158777240.6536.89.camel@linuxchandra>
+	<6599ad830609201143h19f6883wb388666e27913308@mail.google.com>
+Organization: SGI
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5) 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-09-20 at 21:39 +0800, Akinobu Mita wrote:
-> Perhaps you can move UNWIND_INFO, STACK_UNWIND, and DEBUG_FS
-> entries ealier in the list. It improves improve appearance for
-> other DEBUG_KERNEL dependent config options like (DEBUG_VM,
-> FRAME_POINTER, ...).
+Paul M. wrote:
+> Rather than adding a new process container abstraction, wouldn't it
+> make more sense to change cpuset to make it more extensible (more
+> separation between resource controllers), possibly rename it to
+> "containers",
 
-Okay, I will prepare such a janitorial patch.
+Without commenting one way or the other on the overall advisability
+of this (for lack of sufficient clues), if we did this and renamed
+"cpusets" to "containers", we would still want to export the /dev/cpuset
+interface to just the CPU/Memory controllers.  Perhaps the "container"
+pseudo-filesystem could optionally be mounted with a "cpuset" option,
+that just exposed the cpuset relevant interface, or some such thing.
 
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

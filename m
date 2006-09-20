@@ -1,64 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751852AbWITQoM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751858AbWITQo0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751852AbWITQoM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Sep 2006 12:44:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751858AbWITQoL
+	id S1751858AbWITQo0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Sep 2006 12:44:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751865AbWITQo0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Sep 2006 12:44:11 -0400
-Received: from mx1.suse.de ([195.135.220.2]:3026 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751852AbWITQoK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Sep 2006 12:44:10 -0400
-Date: Wed, 20 Sep 2006 18:44:04 +0200
-From: Nick Piggin <npiggin@suse.de>
-To: Christoph Lameter <clameter@sgi.com>
-Cc: Rohit Seth <rohitseth@google.com>,
-       CKRM-Tech <ckrm-tech@lists.sourceforge.net>, devel@openvz.org,
-       pj@sgi.com, linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [patch00/05]: Containers(V2)- Introduction
-Message-ID: <20060920164404.GA22913@wotan.suse.de>
-References: <1158718568.29000.44.camel@galaxy.corp.google.com> <Pine.LNX.4.64.0609200916140.30572@schroedinger.engr.sgi.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0609200916140.30572@schroedinger.engr.sgi.com>
-User-Agent: Mutt/1.5.9i
+	Wed, 20 Sep 2006 12:44:26 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:43224 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1751858AbWITQoX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Sep 2006 12:44:23 -0400
+Date: Wed, 20 Sep 2006 09:43:48 -0700 (PDT)
+From: Christoph Lameter <clameter@sgi.com>
+To: Rohit Seth <rohitseth@google.com>
+cc: Andrew Morton <akpm@osdl.org>, CKRM-Tech <ckrm-tech@lists.sourceforge.net>,
+       devel@openvz.org, linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [patch01/05]:Containers(V2): Documentation
+In-Reply-To: <1158718655.29000.47.camel@galaxy.corp.google.com>
+Message-ID: <Pine.LNX.4.64.0609200940550.30754@schroedinger.engr.sgi.com>
+References: <1158718655.29000.47.camel@galaxy.corp.google.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 20, 2006 at 09:25:03AM -0700, Christoph Lameter wrote:
-> On Tue, 19 Sep 2006, Rohit Seth wrote:
-> 
-> > For example, a user can run a batch job like backup inside containers.
-> > This job if run unconstrained could step over most of the memory present
-> > in system thus impacting other workloads running on the system at that
-> > time.  But when the same job is run inside containers then the backup
-> > job is run within container limits.
-> 
-> I just saw this for the first time since linux-mm was not cced. We have 
-> discussed a similar mechanism on linux-mm.
-> 
-> We already have such a functionality in the kernel its called a cpuset. A 
-> container could be created simply by creating a fake node that then 
-> allows constraining applications to this node. We already track the 
-> types of pages per node. The statistics you want are already existing. 
-> See /proc/zoneinfo and /sys/devices/system/node/node*/*.
-> 
-> > We use the term container to indicate a structure against which we track
-> > and charge utilization of system resources like memory, tasks etc for a
-> > workload. Containers will allow system admins to customize the
-> > underlying platform for different applications based on their
-> > performance and HW resource utilization needs.  Containers contain
-> > enough infrastructure to allow optimal resource utilization without
-> > bogging down rest of the kernel.  A system admin should be able to
-> > create, manage and free containers easily.
-> 
-> Right thats what cpusets do and it has been working fine for years. Maybe 
-> Paul can help you if you find anything missing in the existing means to 
-> control resources.
+On Tue, 19 Sep 2006, Rohit Seth wrote:
 
-What I like about Rohit's patches is the page tracking stuff which 
-seems quite simple but capable.
+> +Currently we are tracking user memory (both file based
+> +and anonymous).  The memory handler is currently deactivating pages
+> +belonging to a container that has gone over the limit. Even though this
+> +allows containers to go over board their limits but 1- once they are
+> +over the limit then they run in degraded manner and 2- if there is any
+> +memory pressure then the (extra) pages belonging to this container are
+> +the prime candidates for swapping (for example).  The statistics that
+> +are shown in each container directory are the current values of each
+> +resource consumption.
 
-I suspect cpusets don't quite provide enough features for non-exclusive 
-use of memory (eg. page tracking for directed reclaim).
+Containers via cpusets allow a clean implementation of a restricted memory 
+area. The system will swap and generate an OOM message if no memory can be 
+recovered.
+
+> +4- Add a task to container
+> +	cd /mnt/configfs/cotnainers/test_container
+> +	echo <pid> > addtask
+> +
+> +Now the <pid> and its subsequently forked children will belong to container
+> +test_container.
+> +
+> +5- Remove a task from container
+> +	echo <pid> > rmtask
+
+Could you make that compatible with the way cpusets do it?
+
+> +9- Freeing a container
+> +	cd /mnt/configfs/containers/
+> +	rmdir test_container
+
+Adding and removal is the same way as cpusets.

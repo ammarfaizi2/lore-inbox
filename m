@@ -1,43 +1,123 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751282AbWITNfW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751350AbWITNns@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751282AbWITNfW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Sep 2006 09:35:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751289AbWITNfW
+	id S1751350AbWITNns (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Sep 2006 09:43:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751352AbWITNns
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Sep 2006 09:35:22 -0400
-Received: from wx-out-0506.google.com ([66.249.82.230]:1449 "EHLO
-	wx-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1751282AbWITNfU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Sep 2006 09:35:20 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=iGhov4cYaigTYKvuNFA6KixwzPVyVx4mPfhMwxgNLKOhhKuRiWhK52tlTA6t4z06PhdRiSccN3WkiPdmzrWdnh8l71ja7NzoWcBeBNut6OrWa0ua44vVpjdrHcwXHNbFfm4H9PUSVdbw2XpU6da5VKiieMjf6RXPhZw1kLZNE54=
-Message-ID: <bd0cb7950609200635qae3e0c6p3f7d776d33b50542@mail.gmail.com>
-Date: Wed, 20 Sep 2006 09:35:18 -0400
-From: "Tom St Denis" <tomstdenis@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: sky2 eth device with Gigabyte 965P-S3 motherboard
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 20 Sep 2006 09:43:48 -0400
+Received: from tomts36.bellnexxia.net ([209.226.175.93]:63413 "EHLO
+	tomts36-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id S1751350AbWITNnr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Sep 2006 09:43:47 -0400
+Date: Wed, 20 Sep 2006 09:38:34 -0400
+From: Mathieu Desnoyers <compudj@krystal.dyndns.org>
+To: "Frank Ch. Eigler" <fche@redhat.com>
+Cc: Karim Yaghmour <karim@opersys.com>, linux-kernel@vger.kernel.org,
+       Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
+       Ingo Molnar <mingo@redhat.com>, Greg Kroah-Hartman <gregkh@suse.de>,
+       Thomas Gleixner <tglx@linutronix.de>,
+       Douglas Niehaus <niehaus@eecs.ku.edu>, Tom Zanussi <zanussi@us.ibm.com>,
+       Paul Mundt <lethal@linux-sh.org>, Jes Sorensen <jes@sgi.com>,
+       Richard J Moore <richardj_moore@uk.ibm.com>,
+       William Cohen <wcohen@redhat.com>,
+       "Martin J. Bligh" <mbligh@mbligh.org>,
+       Michel Dagenais <michel.dagenais@polymtl.ca>,
+       systemtap@sources.redhat.com, ltt-dev@shafik.org
+Subject: Re: [PATCH] Linux Kernel Markers 0.2 for Linux 2.6.17
+Message-ID: <20060920133834.GB17032@Krystal>
+References: <20060919183447.GA16095@Krystal> <y0m4pv3ek49.fsf@ton.toronto.redhat.com> <20060919193623.GA9459@Krystal> <20060919194515.GB18646@redhat.com> <20060919202802.GB552@Krystal> <20060919210703.GD18646@redhat.com> <45106B20.6020600@opersys.com> <20060920132008.GF18646@redhat.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=_Krystal-9116-1158759514-0001-2"
 Content-Disposition: inline
+In-Reply-To: <20060920132008.GF18646@redhat.com>
+X-Editor: vi
+X-Info: http://krystal.dyndns.org:8080
+X-Operating-System: Linux/2.4.32-grsec (i686)
+X-Uptime: 09:33:57 up 28 days, 10:42,  2 users,  load average: 0.15, 0.20, 0.18
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I've been using the 2.6.17 series with "all-generic-ide irqpoll" on a
-Gigabyte 965P-S3 motherboard [using the ICH8 chipset].
+This is a MIME-formatted message.  If you see this text it means that your
+E-mail software does not support MIME-formatted messages.
 
-It worked semi decent [other than random interrupt 177 hehehe].
+--=_Krystal-9116-1158759514-0001-2
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-However, this morning I took the same .config and applied it to 2.6.18
-with some nasties.  It compiled fine, the disks work now (my SATA
-drives also show up as /dev/sd* finally) but now the sky2 device
-disappeared.
+* Frank Ch. Eigler (fche@redhat.com) wrote:
+> Hi -
+>=20
+> > > [...]  For the static part of the instrumentation, a
+> > > marker that could be hooked up to either type of probing system was
+> > > desirable, which implies some sort of run-time changeability.
+> >=20
+> > Ok. So if I get what you're saying here, you'd like to be able to
+> > overload a marker?=20
+>=20
+> Sort of.  Remember, we discussed markers as *marking* places and
+> things, with the intent that they be decoupled from the actual
+> *action* that is taken when the marker is hit.
+>=20
+> > Can you suggest a macro that can do what you'd like. [...]
+>=20
+> Compare the kind of marker I showed at OLS and presently supported by
+> systemtap.  Its unparametrized version looks like this:
+>=20
+> #define STAP_MARK(name) do { \
+>    static void (*__mark_##name##_)(); \
+>    if (unlikely (__mark_##name##_)) \
+>    (void) (__mark_##name##_()); \
+> } while (0)
+>=20
+> A tracing/probing tool would hook up to a particular and specific
+> marker at run time by locating the __mark_NAME static variable (a
+> function pointer) in the data segment, for example using the ordinary
+> symbol table, and swapping into it the address of a compatible
+> back-end handler function.  When a particular tracing/probing session
+> ends, the function pointer is reset to null.
+>=20
+> Note that this technique:
+>=20
+> - operates at run time
+> - is portable
+> - in its parametrized variants, is type-safe
+> - does not require any future technology
+> - does impose some overhead even when a marker is not active
+>=20
+>=20
+Hi Frank,
 
-lspci can still see it, it's a Marvell "Uknown Device 4364, rev 12"
-sitting off the PCI-E bus.
+Yes, I think there is much to gain to switch from the 5 nops "jumpprobe" to
+this scheme. In its parametrized variant, the jump will probably jump over a
+stack setup and function call. Do you think I should simply switch from the
+5 nops marker to this technique ? I guess the performance impact of a
+predicted branch will be similar to 5 nops anyway...
 
-Odd...
+The clear advantage I see in the parametrized variant is that the parameters
+will be ready for the called function : it makes it trivial to access any
+variable from the traced function.
 
-Tom
+Mathieu
+
+
+OpenPGP public key:              http://krystal.dyndns.org:8080/key/compudj=
+=2Egpg
+Key fingerprint:     8CD5 52C3 8E3C 4140 715F  BA06 3F25 A8FE 3BAE 9A68=20
+
+--=_Krystal-9116-1158759514-0001-2
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Transfer-Encoding: 7bit
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
+
+iD8DBQFFEURaPyWo/juummgRAoxiAJ4mv6Rg7p3PWj2ut6WpMEHOd8Ym8wCfZ18Y
+9h0xeyROhRFowmjV4Saq70o=
+=1C8v
+-----END PGP SIGNATURE-----
+
+--=_Krystal-9116-1158759514-0001-2--

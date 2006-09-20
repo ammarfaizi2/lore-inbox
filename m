@@ -1,57 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932085AbWITRYO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932088AbWITRZ0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932085AbWITRYO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Sep 2006 13:24:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932088AbWITRYO
+	id S932088AbWITRZ0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Sep 2006 13:25:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932087AbWITRZ0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Sep 2006 13:24:14 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:29914 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932085AbWITRYM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Sep 2006 13:24:12 -0400
-Subject: Re: [patch00/05]: Containers(V2)- Introduction
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Christoph Lameter <clameter@sgi.com>
-Cc: Rohit Seth <rohitseth@google.com>,
-       CKRM-Tech <ckrm-tech@lists.sourceforge.net>, devel@openvz.org,
-       pj@sgi.com, npiggin@suse.de,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.64.0609201012310.30793@schroedinger.engr.sgi.com>
-References: <1158718568.29000.44.camel@galaxy.corp.google.com>
-	 <Pine.LNX.4.64.0609200916140.30572@schroedinger.engr.sgi.com>
-	 <1158773699.7705.19.camel@localhost.localdomain>
-	 <Pine.LNX.4.64.0609201012310.30793@schroedinger.engr.sgi.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Wed, 20 Sep 2006 18:48:11 +0100
-Message-Id: <1158774491.7705.32.camel@localhost.localdomain>
+	Wed, 20 Sep 2006 13:25:26 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:37851 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S932088AbWITRZY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Sep 2006 13:25:24 -0400
+Date: Wed, 20 Sep 2006 12:24:50 -0500
+From: Robin Holt <holt@sgi.com>
+To: Jes Sorensen <jes@sgi.com>
+Cc: "Randy.Dunlap" <rdunlap@xenotime.net>, Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       bjorn_helgaas@hp.com, Nick Piggin <nickpiggin@yahoo.com.au>,
+       Andrew Morton <akpm@osdl.org>, Robin Holt <holt@sgi.com>,
+       Dean Nelson <dcn@sgi.com>, Hugh Dickins <hugh@veritas.com>
+Subject: Re: [patch] mspec driver
+Message-ID: <20060920172450.GA32042@lnx-holt.americas.sgi.com>
+References: <yq0psdrc81u.fsf@jaguar.mkp.net> <20060920085939.47b753d9.rdunlap@xenotime.net> <45117047.60701@sgi.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <45117047.60701@sgi.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Mer, 2006-09-20 am 10:15 -0700, ysgrifennodd Christoph Lameter:
-> The scalability issues can certainly be managed. See the discussions on 
-> linux-mm.
+> >These interfaces create a userspace interface, eh?
+> >So those 3 functions could stand to have kernel-doc function
+> >comments and have documentation in Documentation/ABI/ (see its
+> >README file for more details).  Maybe check all of
+> >Documentation/SubmitChecklist for other items...
+> 
+> Mmmmmmm, I'd need someone else to write that up, might take a little
+> longer to get done. Robin know any volunteers?
 
-I'll take a look at a web archive of it, I don't follow -mm.
+Am I reading this right?  Jes, are you looking for a volunteer or a
+"volunteer" :)
 
->  Kernel side resource objects? slab pages? Those are tracked.
+Sure, I can grab this and see about the documentation.  I assume you
+want me to give you the blurb and your will add it to your patch?
+If that assumption is wrong, please let me know.
 
-Slab pages isn't a useful tracking tool for two reasons. The first is
-that some resources are genuinely a shared kernel managed pool and
-should be treated that way - thats obviously easy to sort out.
-
-The second is that slab pages are not the granularity of allocations so
-it becomes possible (and deliberately influencable) to make someone else
-allocate the pages all the time so you don't pay the cost. Hence the
-beancounters track the real objects.
-
-> Cpusets can share nodes. I am not sure what the problem would be? Paul may 
-> be able to give you more details.
-
-If it can do it in a human understandable way, configured at runtime
-with dynamic sharing, overcommit and reconfiguration of sizes then
-great. Lets see what Paul has to say.
-
-Alan
+Thanks,
+Robin

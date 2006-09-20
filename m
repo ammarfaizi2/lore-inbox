@@ -1,80 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750822AbWITBJr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750829AbWITBOg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750822AbWITBJr (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Sep 2006 21:09:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750825AbWITBJr
+	id S1750829AbWITBOg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Sep 2006 21:14:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750831AbWITBOg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Sep 2006 21:09:47 -0400
-Received: from tomts25-srv.bellnexxia.net ([209.226.175.188]:51892 "EHLO
-	tomts25-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id S1750822AbWITBJq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Sep 2006 21:09:46 -0400
-Date: Tue, 19 Sep 2006 21:09:43 -0400
-From: Mathieu Desnoyers <compudj@krystal.dyndns.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Martin Bligh <mbligh@google.com>, prasanna@in.ibm.com,
-       Andrew Morton <akpm@osdl.org>, "Frank Ch. Eigler" <fche@redhat.com>,
-       Ingo Molnar <mingo@elte.hu>, Paul Mundt <lethal@linux-sh.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>, Jes Sorensen <jes@sgi.com>,
-       Tom Zanussi <zanussi@us.ibm.com>,
-       Richard J Moore <richardj_moore@uk.ibm.com>,
-       Michel Dagenais <michel.dagenais@polymtl.ca>,
-       Christoph Hellwig <hch@infradead.org>,
-       Greg Kroah-Hartman <gregkh@suse.de>,
-       Thomas Gleixner <tglx@linutronix.de>, William Cohen <wcohen@redhat.com>,
-       ltt-dev@shafik.org, systemtap@sources.redhat.com
-Subject: Re: [PATCH] Linux Kernel Markers
-Message-ID: <20060920010943.GA28097@Krystal>
-References: <20060919081124.GA30394@elte.hu> <451008AC.6030006@google.com> <20060919154612.GU3951@redhat.com> <4510151B.5070304@google.com> <20060919093935.4ddcefc3.akpm@osdl.org> <45101DBA.7000901@google.com> <20060919063821.GB23836@in.ibm.com> <45102641.7000101@google.com> <20060919175405.GC26339@Krystal> <1158710925.32598.120.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 19 Sep 2006 21:14:36 -0400
+Received: from smtp-out.google.com ([216.239.45.12]:45071 "EHLO
+	smtp-out.google.com") by vger.kernel.org with ESMTP
+	id S1750829AbWITBOg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Sep 2006 21:14:36 -0400
+DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
+	h=received:message-id:date:from:user-agent:
+	x-accept-language:mime-version:to:cc:subject:references:in-reply-to:
+	content-type:content-transfer-encoding;
+	b=ZXBRT8isuXdRuq72PJz2q+If3LjZPQIlF25MHedB1WxrF1pjkUnxzbYjd2L5/m9uF
+	IwOW5B/4qb/fFxRi/Syzw==
+Message-ID: <451095F1.3000304@google.com>
+Date: Tue, 19 Sep 2006 18:14:25 -0700
+From: Mike Waychison <mikew@google.com>
+User-Agent: Mozilla Thunderbird 1.0 (X11/20050207)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+CC: Andrew Morton <akpm@osdl.org>, linux-mm@kvack.org,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [RFC] page fault retry with NOPAGE_RETRY
+References: <1158274508.14473.88.camel@localhost.localdomain>	 <20060915001151.75f9a71b.akpm@osdl.org>  <45107ECE.5040603@google.com> <1158709835.6002.203.camel@localhost.localdomain>
+In-Reply-To: <1158709835.6002.203.camel@localhost.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-In-Reply-To: <1158710925.32598.120.camel@localhost.localdomain>
-X-Editor: vi
-X-Info: http://krystal.dyndns.org:8080
-X-Operating-System: Linux/2.4.32-grsec (i686)
-X-Uptime: 21:03:17 up 27 days, 22:11,  2 users,  load average: 0.13, 0.17, 0.09
-User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Alan Cox (alan@lxorguk.ukuu.org.uk) wrote:
-> Ar Maw, 2006-09-19 am 13:54 -0400, ysgrifennodd Mathieu Desnoyers:
-> > Very good idea.. However, overwriting the second instruction with a jump could
-> > be dangerous on preemptible and SMP kernels, because we never know if a thread
-> > has an IP in any of its contexts that would return exactly at the middle of the
-> > jump. 
+Benjamin Herrenschmidt wrote:
+> On Tue, 2006-09-19 at 16:35 -0700, Mike Waychison wrote:
 > 
-> No: on x86 it is the *same* case for all of these even writing an int3.
-> One byte or a megabyte,
+>>Patch attached.
+>>
+>>As Andrew points out, the logic is a bit hacky and using a flag in 
+>>current->flags to determine whether we have done the retry or not already.
+>>
+>>I too think the right approach to being able to handle these kinds of 
+>>retries in a more general fashion is to introduce a struct 
+>>pagefault_args along the page faulting path.  Within it, we could 
+>>introduce a reason for the retry so the higher levels would be able to 
+>>better understand what to do.
 > 
-> You MUST ensure that every CPU executes a serializing instruction before
-> it hits code that was modified by another processor. Otherwise you get
-> CPU errata and the CPU produces results which vendors like to describe
-> as "undefined".
 > 
-> Thus you have to serialize, and if you are serializing it really doesn't
-> matter if you write a byte, a paragraph or a page.
+>  .../...
 > 
-Hi Alan,
+> I need to re-read your mail and Andrew as at this point, I don't quite
+> see why we need that args and/or that current->flags bit instead of
+> always returning all the way to userland and let the faulting
+> instruction happen again (which means you don't block in the kernel, can
+> take signals etc... thus do you actually need to prevent multiple
+> retries ?)
+> 
+> Ben.
+> 
+> 
 
-What I am trying to address is not "code patching with INT3", but "code patching
-with a 5 bytes JMP". The errata you point to applies to both and kprobes
-mechanism already takes care of this with the serialization method you describe.
+I think the disconnect here is that the retries in the mmap_sem case and 
+the returning short for a signal are two different beasts, but they 
+would both want to use a NOPAGE_RETRY return code.
 
-However, there is a supplemental problem with the fact that a JMP is 5 bytes,
-not 1. You are right about saying that overwriting code with any amount of
-*int3* does not matter, but what happens when you put one or more 5 bytes long
-jumps instead ?
+In the case of a signal, we definitely want to return back to userspace 
+and deliver it.  However, for dropping the mmap_sem while waiting for 
+the synchronous IO, it's a lot easier to directly rerun the fault 
+handler so that we can make another pass without allowing the for the 
+drop (avoiding livelock).
 
-Think about it : if you are replacing 1-2-3 or 4 bytes long instruction and,
-unluckily, on any stack of any thread preempted from any CPU, you have a
-current instruction pointer pointing at the middle of the region where you want
-to put the 5 bytes JMP, the processor will likely trigger an illegal
-instruction fault when this particular thread is scheduled back.
+If we were to return to userspace after having dropped mmap_sem (without 
+updating pte, because mm/vmas may change) we would lose major vs minor 
+fault accounting as well.
 
-Mathieu
-
-OpenPGP public key:              http://krystal.dyndns.org:8080/key/compudj.gpg
-Key fingerprint:     8CD5 52C3 8E3C 4140 715F  BA06 3F25 A8FE 3BAE 9A68 
+Mike Waychison

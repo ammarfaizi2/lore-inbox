@@ -1,63 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932230AbWITSeJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932222AbWITSef@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932230AbWITSeJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Sep 2006 14:34:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932223AbWITSeJ
+	id S932222AbWITSef (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Sep 2006 14:34:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932225AbWITSef
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Sep 2006 14:34:09 -0400
-Received: from gateway-1237.mvista.com ([63.81.120.158]:21839 "EHLO
-	gateway-1237.mvista.com") by vger.kernel.org with ESMTP
-	id S932225AbWITSeE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Sep 2006 14:34:04 -0400
+	Wed, 20 Sep 2006 14:34:35 -0400
+Received: from vms046pub.verizon.net ([206.46.252.46]:41143 "EHLO
+	vms046pub.verizon.net") by vger.kernel.org with ESMTP
+	id S932223AbWITSe0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Sep 2006 14:34:26 -0400
+Date: Wed, 20 Sep 2006 14:34:19 -0400
+From: Gene Heskett <gene.heskett@verizon.net>
 Subject: Re: 2.6.18-rt1
-From: Daniel Walker <dwalker@mvista.com>
-To: paulmck@us.ibm.com
-Cc: Gene Heskett <gene.heskett@verizon.net>, linux-kernel@vger.kernel.org,
-       Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>,
-       John Stultz <johnstul@us.ibm.com>, Dipankar Sarma <dipankar@in.ibm.com>,
-       Arjan van de Ven <arjan@infradead.org>
-In-Reply-To: <20060920182553.GC1292@us.ibm.com>
+In-reply-to: <20060920165846.GA31522@elte.hu>
+To: linux-kernel@vger.kernel.org
+Cc: Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>
+Message-id: <200609201434.19177.gene.heskett@verizon.net>
+Organization: Organization? Absolutely zip.
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+Content-disposition: inline
 References: <20060920141907.GA30765@elte.hu>
-	 <200609201250.03750.gene.heskett@verizon.net>
-	 <1158771639.29177.5.camel@c-67-180-230-165.hsd1.ca.comcast.net>
-	 <20060920173858.GB1292@us.ibm.com>
-	 <1158774118.29177.13.camel@c-67-180-230-165.hsd1.ca.comcast.net>
-	 <20060920182553.GC1292@us.ibm.com>
-Content-Type: text/plain
-Date: Wed, 20 Sep 2006 11:34:00 -0700
-Message-Id: <1158777240.29177.16.camel@c-67-180-230-165.hsd1.ca.comcast.net>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
+ <200609201250.03750.gene.heskett@verizon.net> <20060920165846.GA31522@elte.hu>
+User-Agent: KMail/1.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-09-20 at 11:25 -0700, Paul E. McKenney wrote:
+On Wednesday 20 September 2006 12:58, Ingo Molnar wrote:
+>* Gene Heskett <gene.heskett@verizon.net> wrote:
+>>   LD      .tmp_vmlinux1
+>>
+>> kernel/built-in.o(.text+0x16f25): In function `hrtimer_start':
+>> : undefined reference to `hrtimer_update_timer_prio'
+>>
+>> make: *** [.tmp_vmlinux1] Error 1
+>
+>yeah, the !hrt build broke in the last minute, i've uploaded -rt2 with
+>the fix.
+>
+And that one does an Opps during boot & freezes.  The first line says 
+something about being unable to handle a dereference of $00000000, and 
+goes on from there.  Its about 2 screens full, so I'd have to take a pix 
+to get any more really accurate data.
 
-> OK, using that instead.
-> 
-> I get the following at startup, which probably means that I need to use
-> some machine other than a NUMA-Q.  Trying a different machine...
-> 
-> 						Thanx, Paul
-> 
-> BUG: unable to handle kernel NULL pointer dereference at virtual address 00000000
->  printing eip:
-> c01151ff
-> *pde = 34d21001
-> *pte = 00000000
-> stopped custom tracer.
-> Oops: 0000 [#1]
-> PREEMPT SMP 
-> Modules linked in:
-> CPU:    2
-> EIP:    0060:[<c01151ff>]    Not tainted VLI
-> EFLAGS: 00010246   (2.6.18-rt2-autokern1 #1) 
-> EIP is at __wake_up_common+0x10/0x55
+I guess we could say the "can an old fart build it" test failed :)
 
-I get this too, it happens when HRT is off.. If you turn HRT on it will
-boot .. I haven't found a fix for it, but I imagine Thomas will find it
-soon.
+> Ingo
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel"
+> in the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
 
-Daniel
-
+-- 
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+Yahoo.com and AOL/TW attorneys please note, additions to the above
+message by Gene Heskett are:
+Copyright 2006 by Maurice Eugene Heskett, all rights reserved.

@@ -1,104 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932282AbWITTJU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932284AbWITTK2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932282AbWITTJU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Sep 2006 15:09:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932284AbWITTJU
+	id S932284AbWITTK2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Sep 2006 15:10:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932279AbWITTK2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Sep 2006 15:09:20 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.153]:36283 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S932282AbWITTJT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Sep 2006 15:09:19 -0400
-Subject: Re: [ckrm-tech] [patch00/05]: Containers(V2)- Introduction
-From: Chandra Seetharaman <sekharan@us.ibm.com>
-Reply-To: sekharan@us.ibm.com
-To: Christoph Lameter <clameter@sgi.com>
-Cc: Rohit Seth <rohitseth@google.com>, npiggin@suse.de, pj@sgi.com,
-       linux-kernel <linux-kernel@vger.kernel.org>, devel@openvz.org,
-       CKRM-Tech <ckrm-tech@lists.sourceforge.net>
-In-Reply-To: <Pine.LNX.4.64.0609200916140.30572@schroedinger.engr.sgi.com>
-References: <1158718568.29000.44.camel@galaxy.corp.google.com>
-	 <Pine.LNX.4.64.0609200916140.30572@schroedinger.engr.sgi.com>
-Content-Type: text/plain
-Organization: IBM
-Date: Wed, 20 Sep 2006 12:09:14 -0700
-Message-Id: <1158779354.6536.98.camel@linuxchandra>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-7) 
-Content-Transfer-Encoding: 7bit
+	Wed, 20 Sep 2006 15:10:28 -0400
+Received: from odyssey.analogic.com ([204.178.40.5]:43527 "EHLO
+	odyssey.analogic.com") by vger.kernel.org with ESMTP
+	id S932284AbWITTK1 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Sep 2006 15:10:27 -0400
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+X-OriginalArrivalTime: 20 Sep 2006 19:10:25.0605 (UTC) FILETIME=[6D9B3750:01C6DCE8]
+Content-class: urn:content-classes:message
+Subject: Re: Flushing writes to PCI devices
+Date: Wed, 20 Sep 2006 15:10:25 -0400
+Message-ID: <Pine.LNX.4.61.0609201503160.25965@chaos.analogic.com>
+In-Reply-To: <Pine.LNX.4.44L0.0609201423480.7265-100000@iolanthe.rowland.org>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Flushing writes to PCI devices
+thread-index: Acbc6G21O9Dc/lK5SfmeT+/FimHKGw==
+References: <Pine.LNX.4.44L0.0609201423480.7265-100000@iolanthe.rowland.org>
+From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+To: "Alan Stern" <stern@rowland.harvard.edu>
+Cc: "Kernel development list" <linux-kernel@vger.kernel.org>
+Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-09-20 at 09:25 -0700, Christoph Lameter wrote:
 
-For some reason the email i sent about 30 mins back didn't make it...
-her is a resend.
+On Wed, 20 Sep 2006, Alan Stern wrote:
 
-> On Tue, 19 Sep 2006, Rohit Seth wrote:
-> 
-> > For example, a user can run a batch job like backup inside containers.
-> > This job if run unconstrained could step over most of the memory present
-> > in system thus impacting other workloads running on the system at that
-> > time.  But when the same job is run inside containers then the backup
-> > job is run within container limits.
-> 
-> I just saw this for the first time since linux-mm was not cced. We have 
-> discussed a similar mechanism on linux-mm.
-> 
-> We already have such a functionality in the kernel its called a cpuset. A 
+> I've heard that to insure proper synchronization it's necessary to flush
+> MMIO writes (writel, writew, writeb) to PCI devices by reading from the
+> same area.  Is this equally true for I/O-space writes (inl, inw, inb)?
+> What about configuration space writes (pci_write_config_dword etc.)?
+>
+> Alan Stern
 
-Christoph,
+Writes to I/O space are not queued through a FIFO so there is
+no need to flush the FIFO. Configuration space uses special
+configuration cycles which are handshakes with the devices. They
+cannot be queued, therefore don't need to be flushed either.
 
-There had been multiple discussions in the past (as recent as Aug 18,
-2006), where we (Paul and CKRM/RG folks) have concluded that cpuset and
-resource management are orthogonal features.
-
-cpuset provides "resource isolation", and what we, the resource
-management guys want is work-conserving resource control.
-
-cpuset partitions resource and hence the resource that are assigned to a
-node is not available for other cpuset, which is not good for "resource
-management".
-
-chandra
-PS:
-Aug 18 link: http://marc.theaimsgroup.com/?l=linux-
-kernel&m=115593114408336&w=2
-
-Feb 2005 thread: http://marc.theaimsgroup.com/?l=ckrm-
-tech&m=110790400330617&w=2 
-
-> container could be created simply by creating a fake node that then 
-> allows constraining applications to this node. We already track the 
-> types of pages per node. The statistics you want are already existing. 
-> See /proc/zoneinfo and /sys/devices/system/node/node*/*.
-> 
-> > We use the term container to indicate a structure against which we track
-> > and charge utilization of system resources like memory, tasks etc for a
-> > workload. Containers will allow system admins to customize the
-> > underlying platform for different applications based on their
-> > performance and HW resource utilization needs.  Containers contain
-> > enough infrastructure to allow optimal resource utilization without
-> > bogging down rest of the kernel.  A system admin should be able to
-> > create, manage and free containers easily.
-> 
-> Right thats what cpusets do and it has been working fine for years. Maybe 
-> Paul can help you if you find anything missing in the existing means to 
-> control resources.
-> 
-> -------------------------------------------------------------------------
-> Take Surveys. Earn Cash. Influence the Future of IT
-> Join SourceForge.net's Techsay panel and you'll get the chance to share your
-> opinions on IT & business topics through brief surveys -- and earn cash
-> http://www.techsay.com/default.php?page=join.php&p=sourceforge&CID=DEVDEV
-> _______________________________________________
-> ckrm-tech mailing list
-> https://lists.sourceforge.net/lists/listinfo/ckrm-tech
--- 
-
-----------------------------------------------------------------------
-    Chandra Seetharaman               | Be careful what you choose....
-              - sekharan@us.ibm.com   |      .......you may get it.
-----------------------------------------------------------------------
+Flushing PCI space writes shouldn't be done until you want
+whatever you've been planning to happen __now__. Otherwise
+the advantages of queued writes go away. In other words, one
+should NOT attach a read to every PCI space write! Typically
+use of the flushing read might be in the case of setting up
+hardware for a DMA transfer. You write all the data, source
+address, destination address, byte-count, DMA type, etc., then
+after the last instruction, the one should should start the DMA,
+you issue a read.
 
 
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.16.24 on an i686 machine (5592.66 BogoMips).
+New book: http://www.AbominableFirebug.com/
+_
+
+
+****************************************************************
+The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
+
+Thank you.

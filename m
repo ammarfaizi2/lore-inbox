@@ -1,58 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750938AbWITKIc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750974AbWITKK2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750938AbWITKIc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Sep 2006 06:08:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750952AbWITKIc
+	id S1750974AbWITKK2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Sep 2006 06:10:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750971AbWITKK2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Sep 2006 06:08:32 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:59349 "EHLO
+	Wed, 20 Sep 2006 06:10:28 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:63701 "EHLO
 	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1750933AbWITKIb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Sep 2006 06:08:31 -0400
+	id S1750956AbWITKK1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Sep 2006 06:10:27 -0400
 Subject: Re: [PATCH] Linux Kernel Markers
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Helge Hafting <helge.hafting@aitel.hist.no>
-Cc: prasanna@in.ibm.com, Martin Bligh <mbligh@google.com>,
-       Andrew Morton <akpm@osdl.org>, "Frank Ch. Eigler" <fche@redhat.com>,
-       Ingo Molnar <mingo@elte.hu>,
-       Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
-       Paul Mundt <lethal@linux-sh.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>, Jes Sorensen <jes@sgi.com>,
-       Tom Zanussi <zanussi@us.ibm.com>,
-       Richard J Moore <richardj_moore@uk.ibm.com>,
-       Michel Dagenais <michel.dagenais@polymtl.ca>,
-       Christoph Hellwig <hch@infradead.org>,
+To: Richard J Moore <richardj_moore@uk.ibm.com>
+Cc: prasanna@in.ibm.com, Andrew Morton <akpm@osdl.org>,
+       Mathieu Desnoyers <compudj@krystal.dyndns.org>,
+       "Frank Ch. Eigler" <fche@redhat.com>,
        Greg Kroah-Hartman <gregkh@suse.de>,
-       Thomas Gleixner <tglx@linutronix.de>, William Cohen <wcohen@redhat.com>,
-       ltt-dev@shafik.org, systemtap@sources.redhat.com
-In-Reply-To: <45110C6B.6010909@aitel.hist.no>
-References: <20060918234502.GA197@Krystal> <20060919081124.GA30394@elte.hu>
-	 <451008AC.6030006@google.com> <20060919154612.GU3951@redhat.com>
-	 <4510151B.5070304@google.com> <20060919093935.4ddcefc3.akpm@osdl.org>
-	 <45101DBA.7000901@google.com> <20060919063821.GB23836@in.ibm.com>
-	 <45110C6B.6010909@aitel.hist.no>
+       Christoph Hellwig <hch@infradead.org>, Jes Sorensen <jes@sgi.com>,
+       Paul Mundt <lethal@linux-sh.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>, ltt-dev@shafik.org,
+       Martin Bligh <mbligh@google.com>,
+       Michel Dagenais <michel.dagenais@polymtl.ca>,
+       Ingo Molnar <mingo@elte.hu>, systemtap@sources.redhat.com,
+       systemtap-owner@sourceware.org, Thomas Gleixner <tglx@linutronix.de>,
+       William Cohen <wcohen@redhat.com>, Tom Zanussi <zanussi@us.ibm.com>
+In-Reply-To: <OFD1A61531.0E2D11C4-ON802571EF.002D4111-802571EF.002DA3BC@uk.ibm.com>
+References: <OFD1A61531.0E2D11C4-ON802571EF.002D4111-802571EF.002DA3BC@uk.ibm.com>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Date: Wed, 20 Sep 2006 11:30:26 +0100
-Message-Id: <1158748226.7705.0.camel@localhost.localdomain>
+Date: Wed, 20 Sep 2006 11:32:07 +0100
+Message-Id: <1158748327.7705.3.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Mer, 2006-09-20 am 11:39 +0200, ysgrifennodd Helge Hafting:
-> Yes, 5 bytes is not an atomic write except on 64-bit. So a race is possible.
+Ar Mer, 2006-09-20 am 09:18 +0100, ysgrifennodd Richard J Moore:
+> > Are you referring to Intel erratum "unsynchronized cross-modifying code"
+> > - where it refers to the practice of modifying code on one processor
+> > where another has prefetched the unmodified version of the code.
 
-Untrue as well. Pentium and later have CMPXCHG8.
+> In the special case of replacing an opcode with int3 that erratum doesn't
+> apply. I know that's not in the manuals but it has been confirmed by the
+> Intel microarchitecture group. And it's not reasonable to it to be any
+> other way.
 
-> How about this workaround:
-> 1. Overwrite the start of the function with a hlt, which is atomic.
-> 2. Write that 5-byte jump after the hlt.
-> 3. Overwrite the hlt with nop so things will work
-> 4. interrupt any cpus that got stuck on the hlt - or just wait for the 
-> timer.
-
-CPU errata time again. You have to synchronize.
+Ok thats cool to know and I wish they'd documented it. Is the same true
+for AMD ?
 
 Alan
 

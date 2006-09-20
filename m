@@ -1,61 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751190AbWITFGk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751203AbWITF1H@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751190AbWITFGk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Sep 2006 01:06:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751193AbWITFGk
+	id S1751203AbWITF1H (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Sep 2006 01:27:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751205AbWITF1G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Sep 2006 01:06:40 -0400
-Received: from gate.crashing.org ([63.228.1.57]:63961 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S1751190AbWITFGj (ORCPT
+	Wed, 20 Sep 2006 01:27:06 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:4569 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751203AbWITF1F (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Sep 2006 01:06:39 -0400
-Subject: Re: [RFC] page fault retry with NOPAGE_RETRY
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Andrew Morton <akpm@osdl.org>
+	Wed, 20 Sep 2006 01:27:05 -0400
+Date: Tue, 19 Sep 2006 22:26:56 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
 Cc: Mike Waychison <mikew@google.com>, linux-mm@kvack.org,
        Linux Kernel list <linux-kernel@vger.kernel.org>,
        Linus Torvalds <torvalds@osdl.org>
-In-Reply-To: <20060919200533.2874ce36.akpm@osdl.org>
+Subject: Re: [RFC] page fault retry with NOPAGE_RETRY
+Message-Id: <20060919222656.52fadf3c.akpm@osdl.org>
+In-Reply-To: <1158728665.6002.262.camel@localhost.localdomain>
 References: <1158274508.14473.88.camel@localhost.localdomain>
-	 <20060915001151.75f9a71b.akpm@osdl.org> <45107ECE.5040603@google.com>
-	 <1158709835.6002.203.camel@localhost.localdomain>
-	 <1158710712.6002.216.camel@localhost.localdomain>
-	 <20060919172105.bad4a89e.akpm@osdl.org>
-	 <1158717429.6002.231.camel@localhost.localdomain>
-	 <20060919200533.2874ce36.akpm@osdl.org>
-Content-Type: text/plain
-Date: Wed, 20 Sep 2006 15:06:19 +1000
-Message-Id: <1158728779.6002.265.camel@localhost.localdomain>
+	<20060915001151.75f9a71b.akpm@osdl.org>
+	<45107ECE.5040603@google.com>
+	<1158709835.6002.203.camel@localhost.localdomain>
+	<1158710712.6002.216.camel@localhost.localdomain>
+	<20060919172105.bad4a89e.akpm@osdl.org>
+	<1158717429.6002.231.camel@localhost.localdomain>
+	<20060919200533.2874ce36.akpm@osdl.org>
+	<1158728665.6002.262.camel@localhost.localdomain>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-09-19 at 20:05 -0700, Andrew Morton wrote:
-> On Wed, 20 Sep 2006 11:57:09 +1000
-> Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
+On Wed, 20 Sep 2006 15:04:24 +1000
+Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
+
+> On Tue, 2006-09-19 at 20:05 -0700, Andrew Morton wrote:
 > 
-> > > You forget that the point of this optimisation is to undo mmap_sem while
-> > > waiting on the disk IO.  Once we've done that we cannot go looking at ptes
-> > > or vmas: another thread could have munapped the whole lot or anything. 
-> > > (And we always need to be afraid of use_mm()..)
+> > resides in a pagetable page.  Once we've dropped mmap_sem, that
+> > pagetable page might not be there any more: munmap() might have freed it. 
+> > We have to retake mmap_sem, do a find_vma() and a new pagetable walk.
 > > 
-> > Wait wait .. .we don't need to have the mmap sem to -look- at a PTE.
+> > There are some optimisations we could make to avoid all of that in the
+> > common case, but this is the conceptual behaviour.
 > 
-> The pte resides in a pagetable page.  Once we've dropped mmap_sem, that
-> pagetable page might not be there any more: munmap() might have freed it. 
-> We have to retake mmap_sem, do a find_vma() and a new pagetable walk.
+> It's a non-issue anyway the no_page handler in Mike's patch _does_
+> re-take mmap_sem before returning RETRY thus my whole idea still stands
+> perfectly fine unless I've missed something, which means we can make it
+> without changing no_page arguments. Let me re-describe it:
+> 
+>  - somebody->no_page() returns RETRY. It may have dropped the mmap sem,
+> but if it did, like in Mike's patch, it will have re-taken it before
+> returning.
+> 
+>  - upon return (in handle_pte_fault typically) if we get something else
+> than that retry, we return 
+> as usual.
+> 
+>  - if we got RETRY we do something like
+> 
+> 	if (signal_pending(current) || need_resched() || pte_present(*pte))
+> 		return VM_FAULT_MINOR;
+> 	else
+> 		return VM_FAULT_RETRY;
+> 
+> Thus we still have to change arch to test for VM_FAULT_RETRY and loop on
+> it (or return to userland if they want but that's less optimal) but we
+> don't have to carry around a "MAY_RETRY" thing nor change no_page()
+> arguments.
+> 
+> The idea is that we can't livelock since we'll always schedule and we
+> can take signals so the process can always be killed.
+> 
+> We'll also avoid the loop and coming back if the PTE has been filled up
+> in the meantime (just a cheap optimisation avoiding a new find_vma()
+> etc...).
+> 
+> And it's simpler :)
+> 
+> Now, I may have missed something of course, but I'd like to know what.
+> So far, I don't see what won't work with the above. 
+> 
 
-Ok, see my other email, we have the mmap_sem anyway so it's fine. Note
-that I got a little bit mislead on that "we can wlak the page table
-without mmap_sem" because we can on powerpc :) but possibly not on
-x86.... we use RCU to free pagetable pages to make that possible because
-our hash refill code (equivalent to our TLB miss if you want to see it
-that way) has to be able to do that. I think the x86 MMU has some way to
-atomically do the walking which is why you don't need that on x86 but I
-don't know x86 so ...
+It's a choice between two behaviours:
 
-Ben.
+a) get stuck in the kernel until someone kills you and
 
+b) fault the page in and proceed as expected.
 
+Option b) is better, no?

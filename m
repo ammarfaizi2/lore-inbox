@@ -1,59 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932332AbWITWNw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932314AbWITWMZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932332AbWITWNw (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Sep 2006 18:13:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932335AbWITWNv
+	id S932314AbWITWMZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Sep 2006 18:12:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932323AbWITWMZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Sep 2006 18:13:51 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:20111 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932332AbWITWNu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Sep 2006 18:13:50 -0400
-Date: Wed, 20 Sep 2006 15:13:31 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Autofs4 breakage (was 2.6.19 -mm merge plans)
-Message-Id: <20060920151331.388130e9.akpm@osdl.org>
-In-Reply-To: <1158789333.5639.37.camel@lade.trondhjem.org>
-References: <20060920135438.d7dd362b.akpm@osdl.org>
-	<1158789333.5639.37.camel@lade.trondhjem.org>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 20 Sep 2006 18:12:25 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:31715 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932314AbWITWMY
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Sep 2006 18:12:24 -0400
+Subject: Re: [PATCH 2.6.18-rc4] aoe [01/14]: eliminate isbusy message
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: "Ed L. Cashin" <ecashin@coraid.com>
+Cc: linux-kernel@vger.kernel.org, Greg K-H <greg@kroah.com>
+In-Reply-To: <ae75439bf257165c7114df7e33d328e2@coraid.com>
+References: <ae75439bf257165c7114df7e33d328e2@coraid.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Date: Wed, 20 Sep 2006 23:36:37 +0100
+Message-Id: <1158791797.11109.36.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 20 Sep 2006 17:55:33 -0400
-Trond Myklebust <trond.myklebust@fys.uio.no> wrote:
+Ar Mer, 2006-09-20 am 14:34 -0400, ysgrifennodd Ed L. Cashin:
+> This message doesn't help users because the circumstance isn't problematic.
+> 
+> Signed-off-by: "Ed L. Cashin" <ecashin@coraid.com>
+> ---
 
-> On Wed, 2006-09-20 at 13:54 -0700, Andrew Morton wrote:
-> 
-> > add-newline-to-nfs-dprintk.patch
-> > fs-nfs-make-code-static.patch
-> > 
-> >  NFS queue -> Trond.
-> > 
-> >  The NFS git tree breaks autofs4 submounts.  Still.
-> 
-> I still suspect that is due to a misconfigured selinux setup on your
-> machine.
+Acked-by: Alan Cox <alan@redhat.com>
 
-"still"?  I don't recall being told that.  Perhaps I was asleep.
+[All 14]
 
-It's an up-to-date-a-few-weeks-ago FC5 machine.  So if I'm busted then lots
-of people are.
-
-> If autofs4 expects to be able to do mkdir() on your NFS
-> partition (something which in itself is wrong), then selinux should be
-> configured to allow it to do so.
-> 
-> Anyhow, does reverting the patch
-> 
-> http://kernel.org/git/gitweb.cgi?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff;h=a634904a7de0d3a0bc606f608007a34e8c05bfee;hp=ddeff520f02b92128132c282c350fa72afffb84a
-> 
-> 'fix' the issue for you?
-> 
-
-I'll take a look this evening.

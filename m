@@ -1,63 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751621AbWITSDh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932183AbWITSGe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751621AbWITSDh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Sep 2006 14:03:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751622AbWITSDh
+	id S932183AbWITSGe (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Sep 2006 14:06:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932184AbWITSGe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Sep 2006 14:03:37 -0400
-Received: from smtp109.mail.mud.yahoo.com ([209.191.85.219]:7530 "HELO
-	smtp109.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1750854AbWITSDg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Sep 2006 14:03:36 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=hSZgmY1C2X8S5Dx8KNGhpPjEjzp0krjxeTsyviewcLyyRKWznBGIvVnaOOkgbSVUD9cXnjVG1AEBfsKyuuVilIXJdhBxrg9cYqS9vqsVWY+zOxpd8L3VxsgaF4Z3TOCZxi2LdtHBt6n8xBT2qhB8WsTbqh085fYbvgZuZjXNoIo=  ;
-Message-ID: <45118270.60901@yahoo.com.au>
-Date: Thu, 21 Sep 2006 04:03:28 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
-MIME-Version: 1.0
+	Wed, 20 Sep 2006 14:06:34 -0400
+Received: from amsfep17-int.chello.nl ([213.46.243.15]:59444 "EHLO
+	amsfep14-int.chello.nl") by vger.kernel.org with ESMTP
+	id S932179AbWITSGd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Sep 2006 14:06:33 -0400
+Subject: Re: [patch00/05]: Containers(V2)- Introduction
+From: Peter Zijlstra <a.p.zijlstra@chello.nl>
 To: Christoph Lameter <clameter@sgi.com>
-CC: rohitseth@google.com, pj@sgi.com,
+Cc: Rohit Seth <rohitseth@google.com>, Nick Piggin <nickpiggin@yahoo.com.au>,
        CKRM-Tech <ckrm-tech@lists.sourceforge.net>, devel@openvz.org,
        linux-kernel <linux-kernel@vger.kernel.org>,
        Linux Memory Management <linux-mm@kvack.org>
-Subject: Re: [patch00/05]: Containers(V2)- Introduction
-References: <1158718568.29000.44.camel@galaxy.corp.google.com> <4510D3F4.1040009@yahoo.com.au> <Pine.LNX.4.64.0609200925280.30572@schroedinger.engr.sgi.com> <451172AB.2070103@yahoo.com.au> <Pine.LNX.4.64.0609201006420.30793@schroedinger.engr.sgi.com> <45117830.3080909@yahoo.com.au> <Pine.LNX.4.64.0609201024310.31178@schroedinger.engr.sgi.com>
-In-Reply-To: <Pine.LNX.4.64.0609201024310.31178@schroedinger.engr.sgi.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+In-Reply-To: <Pine.LNX.4.64.0609201051550.31636@schroedinger.engr.sgi.com>
+References: <1158718568.29000.44.camel@galaxy.corp.google.com>
+	 <4510D3F4.1040009@yahoo.com.au> <1158751720.8970.67.camel@twins>
+	 <4511626B.9000106@yahoo.com.au> <1158767787.3278.103.camel@taijtu>
+	 <451173B5.1000805@yahoo.com.au>
+	 <1158774657.8574.65.camel@galaxy.corp.google.com>
+	 <Pine.LNX.4.64.0609201051550.31636@schroedinger.engr.sgi.com>
+Content-Type: text/plain
+Date: Wed, 20 Sep 2006 20:06:26 +0200
+Message-Id: <1158775586.28174.27.camel@lappy>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Lameter wrote:
-> On Thu, 21 Sep 2006, Nick Piggin wrote:
+On Wed, 2006-09-20 at 10:52 -0700, Christoph Lameter wrote:
+> On Wed, 20 Sep 2006, Rohit Seth wrote:
 > 
+> > Right now the memory handler in this container subsystem is written in
+> > such a way that when existing kernel reclaimer kicks in, it will first
+> > operate on those (container with pages over the limit) pages first.  But
+> > in general I like the notion of containerizing the whole reclaim code.
 > 
->>Patch 2/5 in this series provides hooks, and they are pretty unintrusive.
-> 
-> 
-> Ok. We shadow existing vm counters add stuff to the adress_space 
-> structure. The task add / remove is duplicating what some of the cpuset 
-> hooks do. That clearly shows that we are just duplicating functionality.
+> Which comes naturally with cpusets.
 
-I don't think so. To start with, the point about containers is they are
-not per address_space.
+How are shared mappings dealt with, are pages charged to the set that
+first faults them in?
 
-But secondly, these are hooks from the container subsystem into the mm
-subsystem. As such, they might do something a bit more or different
-than simple statistics, and we don't want to teach the core mm/ about
-what that might be. You also want to be able to configure them out
-entirely.
-
-I think it is fine to add some new hooks in fundamental (ie mm agnostic)
-points. Without getting to the fine details about exactly how the hooks
-are implemented, or what information needs to be tracked, I think we can
-say that they are not much burden for mm/ to bear (if they turn out to
-be usable).
-
--- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 

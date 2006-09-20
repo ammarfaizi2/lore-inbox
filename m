@@ -1,48 +1,32 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751272AbWITHqm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751079AbWITIPv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751272AbWITHqm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Sep 2006 03:46:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751286AbWITHql
+	id S1751079AbWITIPv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Sep 2006 04:15:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750999AbWITIPu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Sep 2006 03:46:41 -0400
-Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:18119 "EHLO
-	fgwmail7.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S1751272AbWITHqk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Sep 2006 03:46:40 -0400
-Message-ID: <4510F26E.2070706@jp.fujitsu.com>
-Date: Wed, 20 Sep 2006 16:49:02 +0900
-From: Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>
-User-Agent: Thunderbird 1.5.0.7 (Windows/20060909)
-MIME-Version: 1.0
-To: Greg KH <gregkh@suse.de>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 2.6.18] sysfs: update obsolete comment in sysfs_update_file
-References: <4510EFD8.2050608@jp.fujitsu.com>
-In-Reply-To: <4510EFD8.2050608@jp.fujitsu.com>
-Content-Type: text/plain; charset=ISO-2022-JP
-Content-Transfer-Encoding: 7bit
+	Wed, 20 Sep 2006 04:15:50 -0400
+Received: from science.horizon.com ([192.35.100.1]:40514 "HELO
+	science.horizon.com") by vger.kernel.org with SMTP id S1750710AbWITIPu
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Sep 2006 04:15:50 -0400
+Date: 20 Sep 2006 04:15:41 -0400
+Message-ID: <20060920081541.23336.qmail@science.horizon.com>
+From: linux@horizon.com
+To: sergio@sergiomb.no-ip.org
+Subject: Re: Math-emu kills the kernel on Athlon64 X2
+Cc: linux@horizon.com, linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-And the obsolete comment should be updated (or totally removed).
+> Fine :),  My (12 year old) 486DX2 already don't need Math-emu. I just
+> don't see how in a computer like that will be installed a kernel 2.6 .
+> So why code of math-emu isn't dropped ? 
 
-Signed-off-by: Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>
----
- fs/sysfs/file.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
+Google for "386EX".  There are any number of embedded boards
+based on an this FPU-less 386 which people like to run Linux on.
 
-Index: linux-2.6.18/fs/sysfs/file.c
-===================================================================
---- linux-2.6.18.orig/fs/sysfs/file.c
-+++ linux-2.6.18/fs/sysfs/file.c
-@@ -488,7 +488,7 @@
- 			d_drop(victim);
- 		
- 		/**
--		 * Drop the reference acquired from sysfs_get_dentry() above.
-+		 * Drop the reference acquired from lookup_one_len() above.
- 		 */
- 		dput(victim);
- 	}
-
-
+There's more to the world than personal computers; the fact that the
+Linux kernel runs almost unmodified on most of the largest computers in
+the world (http://www.top500.org/stats/27/os/) and some of the dinkiest
+(http://www.research.ibm.com/WearableComputing/linuxwatch/linuxwatch.html)
+is a source of considerable pride.

@@ -1,26 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932261AbWITSxr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932253AbWITSxH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932261AbWITSxr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Sep 2006 14:53:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932244AbWITSxB
+	id S932253AbWITSxH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Sep 2006 14:53:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932246AbWITSxF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Sep 2006 14:53:01 -0400
-Received: from ns1.coraid.com ([65.14.39.133]:42616 "EHLO coraid.com")
-	by vger.kernel.org with ESMTP id S932255AbWITSwm (ORCPT
+	Wed, 20 Sep 2006 14:53:05 -0400
+Received: from ns1.coraid.com ([65.14.39.133]:42104 "EHLO coraid.com")
+	by vger.kernel.org with ESMTP id S932253AbWITSwk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Sep 2006 14:52:42 -0400
-Message-ID: <a3458ba0e65d19fb791aa99bea5af0ec@coraid.com>
+	Wed, 20 Sep 2006 14:52:40 -0400
+Message-ID: <fadd212730bf5e3c7c5c0cf594698caf@coraid.com>
 Date: Wed, 20 Sep 2006 14:36:49 -0400
 To: linux-kernel@vger.kernel.org
 Cc: ecashin@coraid.com, Greg K-H <greg@kroah.com>
-Subject: [PATCH 2.6.18-rc4] aoe [05/14]: jumbo frame support 1 of 2
+Subject: [PATCH 2.6.18-rc4] aoe [04/14]: zero copy write 1 of 2
 References: <E1GQ6uv-0001qi-00@kokone>
 From: "Ed L. Cashin" <ecashin@coraid.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add support for jumbo ethernet frames.
-(This patch depends on patch 7 to follow.)
+Avoid memory copy on writes.
+(This patch depends on fixes in patch 9 to follow.)
+
+Although skb->len should not be set when working with linear skbuffs,
+the skb->tail pointer maintained by skb_put/skb_trim is not relevant
+to what happens when the skb_fill_page_desc function is called.  This
+issue was raised without comment in linux-kernel and netdev earlier
+this month:
+
+  http://thread.gmane.org/gmane.linux.kernel/446474/
+  http://thread.gmane.org/gmane.linux.network/45444/
+
+So until there is something analogous to skb_put that works for
+zero-copy write skbuffs, we will do what the other callers of
+skb_fill_page_desc are doing.
 
 Signed-off-by: "Ed L. Cashin" <ecashin@coraid.com>
 ---
@@ -28,234 +41,283 @@ Signed-off-by: "Ed L. Cashin" <ecashin@coraid.com>
 diff -upr 2.6.18-rc4-orig/drivers/block/aoe/aoe.h 2.6.18-rc4-aoe/drivers/block/aoe/aoe.h
 --- 2.6.18-rc4-orig/drivers/block/aoe/aoe.h	2006-09-20 14:29:35.000000000 -0400
 +++ 2.6.18-rc4-aoe/drivers/block/aoe/aoe.h	2006-09-20 14:29:35.000000000 -0400
-@@ -65,7 +65,7 @@ struct aoe_atahdr {
- struct aoe_cfghdr {
- 	__be16 bufcnt;
- 	__be16 fwver;
--	unsigned char res;
-+	unsigned char scnt;
- 	unsigned char aoeccmd;
- 	unsigned char cslen[2];
- };
-@@ -78,12 +78,13 @@ enum {
- 	DEVFL_GDALLOC = (1<<4),	/* need to alloc gendisk */
- 	DEVFL_PAUSE = (1<<5),
- 	DEVFL_NEWSIZE = (1<<6),	/* need to update dev size in block layer */
-+	DEVFL_MAXBCNT = (1<<7), /* d->maxbcnt is not changeable */
- 
- 	BUFFL_FAIL = 1,
- };
- 
- enum {
--	MAXATADATA = 1024,
-+	DEFAULTBCNT = 2 * 512,	/* 2 sectors */
- 	NPERSHELF = 16,		/* number of slots per shelf address */
- 	FREETAG = -1,
- 	MIN_BUFS = 8,
-@@ -107,6 +108,8 @@ struct frame {
+@@ -107,11 +107,7 @@ struct frame {
  	ulong waited;
  	struct buf *buf;
  	char *bufaddr;
-+	ulong bcnt;
-+	sector_t lba;
- 	struct sk_buff *skb;
+-	int writedatalen;
+-	int ndata;
+-
+-	/* largest possible */
+-	unsigned char data[sizeof(struct aoe_hdr) + sizeof(struct aoe_atahdr)];
++	struct sk_buff *skb;
  };
  
-@@ -120,6 +123,7 @@ struct aoedev {
- 	ulong nopen;		/* (bd_openers isn't available without sleeping) */
- 	ulong rttavg;		/* round trip average of requests/responses */
- 	u16 fw_ver;		/* version of blade's firmware */
-+	u16 maxbcnt;
- 	struct work_struct work;/* disk create work struct */
- 	struct gendisk *gd;
- 	request_queue_t blkq;
-@@ -134,7 +138,8 @@ struct aoedev {
- 	struct list_head bufq;	/* queue of bios to work on */
- 	struct buf *inprocess;	/* the one we're currently working on */
- 	ulong lasttag;		/* last tag sent */
--	ulong nframes;		/* number of frames below */
-+	ushort lostjumbo;
-+	ushort nframes;		/* number of frames below */
- 	struct frame *frames;
- };
+ struct aoedev {
+@@ -157,6 +153,7 @@ void aoecmd_cfg(ushort aoemajor, unsigne
+ void aoecmd_ata_rsp(struct sk_buff *);
+ void aoecmd_cfg_rsp(struct sk_buff *);
+ void aoecmd_sleepwork(void *vp);
++struct sk_buff *new_skb(ulong);
  
-diff -upr 2.6.18-rc4-orig/drivers/block/aoe/aoechr.c 2.6.18-rc4-aoe/drivers/block/aoe/aoechr.c
---- 2.6.18-rc4-orig/drivers/block/aoe/aoechr.c	2006-09-20 14:29:35.000000000 -0400
-+++ 2.6.18-rc4-aoe/drivers/block/aoe/aoechr.c	2006-09-20 14:29:35.000000000 -0400
-@@ -89,6 +89,7 @@ revalidate(const char __user *str, size_
- 		return -EINVAL;
- 
- 	spin_lock_irqsave(&d->lock, flags);
-+	d->flags &= ~DEVFL_MAXBCNT;
- 	d->flags |= DEVFL_PAUSE;
- 	spin_unlock_irqrestore(&d->lock, flags);
- 	aoecmd_cfg(major, minor);
+ int aoedev_init(void);
+ void aoedev_exit(void);
 diff -upr 2.6.18-rc4-orig/drivers/block/aoe/aoecmd.c 2.6.18-rc4-aoe/drivers/block/aoe/aoecmd.c
 --- 2.6.18-rc4-orig/drivers/block/aoe/aoecmd.c	2006-09-20 14:29:35.000000000 -0400
 +++ 2.6.18-rc4-aoe/drivers/block/aoe/aoecmd.c	2006-09-20 14:29:35.000000000 -0400
-@@ -83,6 +83,17 @@ aoehdr_atainit(struct aoedev *d, struct 
- 	return host_tag;
- }
+@@ -17,15 +17,14 @@
+ #define MAXTIMER (HZ << 1)
+ #define MAXWAIT (60 * 3)	/* After MAXWAIT seconds, give up and fail dev */
  
-+static inline void
-+put_lba(struct aoe_atahdr *ah, sector_t lba)
-+{
-+	ah->lba0 = lba;
-+	ah->lba1 = lba >>= 8;
-+	ah->lba2 = lba >>= 8;
-+	ah->lba3 = lba >>= 8;
-+	ah->lba4 = lba >>= 8;
-+	ah->lba5 = lba >>= 8;
-+}
-+
- static void
- aoecmd_ata_rw(struct aoedev *d, struct frame *f)
- {
-@@ -101,8 +112,8 @@ aoecmd_ata_rw(struct aoedev *d, struct f
- 
- 	sector = buf->sector;
- 	bcnt = buf->bv_resid;
--	if (bcnt > MAXATADATA)
--		bcnt = MAXATADATA;
-+	if (bcnt > d->maxbcnt)
-+		bcnt = d->maxbcnt;
- 
- 	/* initialize the headers & frame */
- 	skb = f->skb;
-@@ -114,17 +125,14 @@ aoecmd_ata_rw(struct aoedev *d, struct f
- 	f->waited = 0;
- 	f->buf = buf;
- 	f->bufaddr = buf->bufaddr;
-+	f->bcnt = bcnt;
-+	f->lba = sector;
- 
- 	/* set up ata header */
- 	ah->scnt = bcnt >> 9;
--	ah->lba0 = sector;
--	ah->lba1 = sector >>= 8;
--	ah->lba2 = sector >>= 8;
--	ah->lba3 = sector >>= 8;
-+	put_lba(ah, sector);
- 	if (d->flags & DEVFL_EXT) {
- 		ah->aflags |= AOEAFL_EXT;
--		ah->lba4 = sector >>= 8;
--		ah->lba5 = sector >>= 8;
- 	} else {
- 		extbit = 0;
- 		ah->lba3 &= 0x0f;
-@@ -251,6 +259,7 @@ rexmit(struct aoedev *d, struct frame *f
+-static struct sk_buff *
+-new_skb(struct net_device *if_dev, ulong len)
++struct sk_buff *
++new_skb(ulong len)
  {
  	struct sk_buff *skb;
- 	struct aoe_hdr *h;
-+	struct aoe_atahdr *ah;
- 	char buf[128];
- 	u32 n;
  
-@@ -264,11 +273,27 @@ rexmit(struct aoedev *d, struct frame *f
+ 	skb = alloc_skb(len, GFP_ATOMIC);
+ 	if (skb) {
+ 		skb->nh.raw = skb->mac.raw = skb->data;
+-		skb->dev = if_dev;
+ 		skb->protocol = __constant_htons(ETH_P_AOE);
+ 		skb->priority = 0;
+ 		skb_put(skb, len);
+@@ -40,29 +39,6 @@ new_skb(struct net_device *if_dev, ulong
+ 	return skb;
+ }
  
- 	skb = f->skb;
- 	h = (struct aoe_hdr *) skb->mac.raw;
-+	ah = (struct aoe_atahdr *) (h+1);
+-static struct sk_buff *
+-skb_prepare(struct aoedev *d, struct frame *f)
+-{
+-	struct sk_buff *skb;
+-	char *p;
+-
+-	skb = new_skb(d->ifp, f->ndata + f->writedatalen);
+-	if (!skb) {
+-		printk(KERN_INFO "aoe: skb_prepare: failure to allocate skb\n");
+-		return NULL;
+-	}
+-
+-	p = skb->mac.raw;
+-	memcpy(p, f->data, f->ndata);
+-
+-	if (f->writedatalen) {
+-		p += sizeof(struct aoe_hdr) + sizeof(struct aoe_atahdr);
+-		memcpy(p, f->bufaddr, f->writedatalen);
+-	}
+-
+-	return skb;
+-}
+-
+ static struct frame *
+ getframe(struct aoedev *d, int tag)
+ {
+@@ -129,10 +105,11 @@ aoecmd_ata_rw(struct aoedev *d, struct f
+ 		bcnt = MAXATADATA;
+ 
+ 	/* initialize the headers & frame */
+-	h = (struct aoe_hdr *) f->data;
++	skb = f->skb;
++	h = (struct aoe_hdr *) skb->mac.raw;
+ 	ah = (struct aoe_atahdr *) (h+1);
+-	f->ndata = sizeof *h + sizeof *ah;
+-	memset(h, 0, f->ndata);
++	skb->len = sizeof *h + sizeof *ah;
++	memset(h, 0, skb->len);
+ 	f->tag = aoehdr_atainit(d, h);
+ 	f->waited = 0;
+ 	f->buf = buf;
+@@ -155,11 +132,13 @@ aoecmd_ata_rw(struct aoedev *d, struct f
+ 	}
+ 
+ 	if (bio_data_dir(buf->bio) == WRITE) {
++		skb_fill_page_desc(skb, 0, virt_to_page(f->bufaddr),
++			offset_in_page(f->bufaddr), bcnt);
+ 		ah->aflags |= AOEAFL_WRITE;
+-		f->writedatalen = bcnt;
+ 	} else {
++		skb_shinfo(skb)->nr_frags = 0;
++		skb->len = ETH_ZLEN;
+ 		writebit = 0;
+-		f->writedatalen = 0;
+ 	}
+ 
+ 	ah->cmdstat = WIN_READ | writebit | extbit;
+@@ -179,15 +158,14 @@ aoecmd_ata_rw(struct aoedev *d, struct f
+ 		buf->bufaddr = page_address(buf->bv->bv_page) + buf->bv->bv_offset;
+ 	}
+ 
+-	skb = skb_prepare(d, f);
+-	if (skb) {
+-		skb->next = NULL;
+-		if (d->sendq_hd)
+-			d->sendq_tl->next = skb;
+-		else
+-			d->sendq_hd = skb;
+-		d->sendq_tl = skb;
+-	}
++	skb->dev = d->ifp;
++	skb_get(skb);
++	skb->next = NULL;
++	if (d->sendq_hd)
++		d->sendq_tl->next = skb;
++	else
++		d->sendq_hd = skb;
++	d->sendq_tl = skb;
+ }
+ 
+ /* some callers cannot sleep, and they can call this function,
+@@ -209,11 +187,12 @@ aoecmd_cfg_pkts(ushort aoemajor, unsigne
+ 		if (!is_aoe_netif(ifp))
+ 			continue;
+ 
+-		skb = new_skb(ifp, sizeof *h + sizeof *ch);
++		skb = new_skb(sizeof *h + sizeof *ch);
+ 		if (skb == NULL) {
+ 			printk(KERN_INFO "aoe: aoecmd_cfg: skb alloc failure\n");
+ 			continue;
+ 		}
++		skb->dev = ifp;
+ 		if (sl_tail == NULL)
+ 			sl_tail = skb;
+ 		h = (struct aoe_hdr *) skb->mac.raw;
+@@ -283,21 +262,21 @@ rexmit(struct aoedev *d, struct frame *f
+ 		d->aoemajor, d->aoeminor, f->tag, jiffies, n);
+ 	aoechr_error(buf);
+ 
+-	h = (struct aoe_hdr *) f->data;
++	skb = f->skb;
++	h = (struct aoe_hdr *) skb->mac.raw;
  	f->tag = n;
  	h->tag = cpu_to_be32(n);
  	memcpy(h->dst, d->addr, sizeof h->dst);
  	memcpy(h->src, d->ifp->dev_addr, sizeof h->src);
  
-+	n = DEFAULTBCNT / 512;
-+	if (ah->scnt > n) {
-+		ah->scnt = n;
-+		if (ah->aflags & AOEAFL_WRITE)
-+			skb_fill_page_desc(skb, 0, virt_to_page(f->bufaddr),
-+				offset_in_page(f->bufaddr), DEFAULTBCNT);
-+		if (++d->lostjumbo > (d->nframes << 1))
-+		if (d->maxbcnt != DEFAULTBCNT) {
-+			printk(KERN_INFO "aoe: rexmit: too many lost jumbo.  "
-+				"dropping back to 1KB frames.\n");
-+			d->maxbcnt = DEFAULTBCNT;
-+			d->flags |= DEVFL_MAXBCNT;
-+		}
-+	}
-+
- 	skb->dev = d->ifp;
- 	skb_get(skb);
- 	skb->next = NULL;
-@@ -506,10 +531,10 @@ aoecmd_ata_rsp(struct sk_buff *skb)
- 		if (buf)
- 			buf->flags |= BUFFL_FAIL;
- 	} else {
-+		n = ahout->scnt << 9;
- 		switch (ahout->cmdstat) {
- 		case WIN_READ:
- 		case WIN_READ_EXT:
--			n = ahout->scnt << 9;
- 			if (skb->len - sizeof *hin - sizeof *ahin < n) {
- 				printk(KERN_CRIT "aoe: aoecmd_ata_rsp: runt "
- 					"ata data size in read.  skb->len=%d\n",
-@@ -521,6 +546,22 @@ aoecmd_ata_rsp(struct sk_buff *skb)
- 			memcpy(f->bufaddr, ahin+1, n);
- 		case WIN_WRITE:
- 		case WIN_WRITE_EXT:
-+			if (f->bcnt -= n) {
-+				f->bufaddr += n;
-+				put_lba(ahout, f->lba += ahout->scnt);
-+				n = f->bcnt > DEFAULTBCNT ? DEFAULTBCNT : f->bcnt;
-+				ahout->scnt = n >> 9;
-+				if (ahout->aflags & AOEAFL_WRITE)
-+					skb_fill_page_desc(f->skb, 0, virt_to_page(f->bufaddr),
-+						offset_in_page(f->bufaddr), n);
-+				skb_get(f->skb);
-+				f->skb->next = NULL;
-+				spin_unlock_irqrestore(&d->lock, flags);
-+				aoenet_xmit(f->skb);
-+				return;
-+			}
-+			if (n > DEFAULTBCNT)
-+				d->lostjumbo = 0;
- 			break;
- 		case WIN_IDENTIFY:
- 			if (skb->len - sizeof *hin - sizeof *ahin < 512) {
-@@ -628,9 +669,9 @@ aoecmd_cfg_rsp(struct sk_buff *skb)
- 	struct aoe_hdr *h;
- 	struct aoe_cfghdr *ch;
- 	ulong flags, sysminor, aoemajor;
--	u16 bufcnt;
- 	struct sk_buff *sl;
- 	enum { MAXFRAMES = 16 };
-+	u16 n;
+-	skb = skb_prepare(d, f);
+-	if (skb) {
+-		skb->next = NULL;
+-		if (d->sendq_hd)
+-			d->sendq_tl->next = skb;
+-		else
+-			d->sendq_hd = skb;
+-		d->sendq_tl = skb;
+-	}
++	skb->dev = d->ifp;
++	skb_get(skb);
++	skb->next = NULL;
++	if (d->sendq_hd)
++		d->sendq_tl->next = skb;
++	else
++		d->sendq_hd = skb;
++	d->sendq_tl = skb;
+ }
  
- 	h = (struct aoe_hdr *) skb->mac.raw;
- 	ch = (struct aoe_cfghdr *) (h+1);
-@@ -654,11 +695,11 @@ aoecmd_cfg_rsp(struct sk_buff *skb)
- 		return;
+ static int
+@@ -514,7 +493,7 @@ aoecmd_ata_rsp(struct sk_buff *skb)
+ 	calc_rttavg(d, tsince(f->tag));
+ 
+ 	ahin = (struct aoe_atahdr *) (hin+1);
+-	ahout = (struct aoe_atahdr *) (f->data + sizeof(struct aoe_hdr));
++	ahout = (struct aoe_atahdr *) (f->skb->mac.raw + sizeof(struct aoe_hdr));
+ 	buf = f->buf;
+ 
+ 	if (ahout->cmdstat == WIN_IDENTIFY)
+@@ -620,20 +599,21 @@ aoecmd_ata_id(struct aoedev *d)
  	}
  
--	bufcnt = be16_to_cpu(ch->bufcnt);
--	if (bufcnt > MAXFRAMES)	/* keep it reasonable */
--		bufcnt = MAXFRAMES;
-+	n = be16_to_cpu(ch->bufcnt);
-+	if (n > MAXFRAMES)	/* keep it reasonable */
-+		n = MAXFRAMES;
+ 	/* initialize the headers & frame */
+-	h = (struct aoe_hdr *) f->data;
++	skb = f->skb;
++	h = (struct aoe_hdr *) skb->mac.raw;
+ 	ah = (struct aoe_atahdr *) (h+1);
+-	f->ndata = sizeof *h + sizeof *ah;
+-	memset(h, 0, f->ndata);
++	skb->len = sizeof *h + sizeof *ah;
++	memset(h, 0, skb->len);
+ 	f->tag = aoehdr_atainit(d, h);
+ 	f->waited = 0;
+-	f->writedatalen = 0;
  
--	d = aoedev_by_sysminor_m(sysminor, bufcnt);
-+	d = aoedev_by_sysminor_m(sysminor, n);
- 	if (d == NULL) {
- 		printk(KERN_INFO "aoe: aoecmd_cfg_rsp: device sysminor_m failure\n");
- 		return;
-@@ -669,6 +710,14 @@ aoecmd_cfg_rsp(struct sk_buff *skb)
- 	/* permit device to migrate mac and network interface */
- 	d->ifp = skb->dev;
- 	memcpy(d->addr, h->src, sizeof d->addr);
-+	if (!(d->flags & DEVFL_MAXBCNT)) {
-+		n = d->ifp->mtu;
-+		n -= sizeof (struct aoe_hdr) + sizeof (struct aoe_atahdr);
-+		n /= 512;
-+		if (n > ch->scnt)
-+			n = ch->scnt;
-+		d->maxbcnt = n ? n * 512 : DEFAULTBCNT;
+ 	/* set up ata header */
+ 	ah->scnt = 1;
+ 	ah->cmdstat = WIN_IDENTIFY;
+ 	ah->lba3 = 0xa0;
+ 
+-	skb = skb_prepare(d, f);
++	skb->dev = d->ifp;
++	skb_get(skb);
+ 
+ 	d->rttavg = MAXTIMER;
+ 	d->timer.function = rexmit_timer;
+diff -upr 2.6.18-rc4-orig/drivers/block/aoe/aoedev.c 2.6.18-rc4-aoe/drivers/block/aoe/aoedev.c
+--- 2.6.18-rc4-orig/drivers/block/aoe/aoedev.c	2006-09-20 14:29:35.000000000 -0400
++++ 2.6.18-rc4-aoe/drivers/block/aoe/aoedev.c	2006-09-20 14:29:35.000000000 -0400
+@@ -63,22 +63,32 @@ aoedev_newdev(ulong nframes)
+ 	struct frame *f, *e;
+ 
+ 	d = kzalloc(sizeof *d, GFP_ATOMIC);
+-	if (d == NULL)
+-		return NULL;
+ 	f = kcalloc(nframes, sizeof *f, GFP_ATOMIC);
+-	if (f == NULL) {
+-		kfree(d);
++ 	switch (!d || !f) {
++ 	case 0:
++ 		d->nframes = nframes;
++ 		d->frames = f;
++ 		e = f + nframes;
++ 		for (; f<e; f++) {
++ 			f->tag = FREETAG;
++ 			f->skb = new_skb(ETH_ZLEN);
++ 			if (!f->skb)
++ 				break;
++ 		}
++ 		if (f == e)
++ 			break;
++ 		while (f > d->frames) {
++ 			f--;
++ 			dev_kfree_skb(f->skb);
++ 		}
++ 	default:
++ 		if (f)
++ 			kfree(f);
++ 		if (d)
++ 			kfree(d);
+ 		return NULL;
+ 	}
+-
+ 	INIT_WORK(&d->work, aoecmd_sleepwork, d);
+-
+-	d->nframes = nframes;
+-	d->frames = f;
+-	e = f + nframes;
+-	for (; f<e; f++)
+-		f->tag = FREETAG;
+-
+ 	spin_lock_init(&d->lock);
+ 	init_timer(&d->timer);
+ 	d->timer.data = (ulong) d;
+@@ -160,11 +170,19 @@ aoedev_by_sysminor_m(ulong sysminor, ulo
+ static void
+ aoedev_freedev(struct aoedev *d)
+ {
++	struct frame *f, *e;
++
+ 	if (d->gd) {
+ 		aoedisk_rm_sysfs(d);
+ 		del_gendisk(d->gd);
+ 		put_disk(d->gd);
+ 	}
++	f = d->frames;
++	e = f + d->nframes;
++	for (; f<e; f++) {
++		skb_shinfo(f->skb)->nr_frags = 0;
++		dev_kfree_skb(f->skb);
 +	}
- 
- 	/* don't change users' perspective */
- 	if (d->nopen && !(d->flags & DEVFL_PAUSE)) {
+ 	kfree(d->frames);
+ 	if (d->bufpool)
+ 		mempool_destroy(d->bufpool);
 
 
 -- 

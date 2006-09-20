@@ -1,54 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750894AbWITGzd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751245AbWITHH3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750894AbWITGzd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Sep 2006 02:55:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751245AbWITGzc
+	id S1751245AbWITHH3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Sep 2006 03:07:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751254AbWITHH3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Sep 2006 02:55:32 -0400
-Received: from gate.crashing.org ([63.228.1.57]:2523 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S1750894AbWITGzc (ORCPT
+	Wed, 20 Sep 2006 03:07:29 -0400
+Received: from mx10.go2.pl ([193.17.41.74]:33715 "EHLO poczta.o2.pl")
+	by vger.kernel.org with ESMTP id S1751245AbWITHH2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Sep 2006 02:55:32 -0400
-Subject: Re: [RFC] page fault retry with NOPAGE_RETRY
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Mike Waychison <mikew@google.com>, linux-mm@kvack.org,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>
-In-Reply-To: <20060919222656.52fadf3c.akpm@osdl.org>
-References: <1158274508.14473.88.camel@localhost.localdomain>
-	 <20060915001151.75f9a71b.akpm@osdl.org> <45107ECE.5040603@google.com>
-	 <1158709835.6002.203.camel@localhost.localdomain>
-	 <1158710712.6002.216.camel@localhost.localdomain>
-	 <20060919172105.bad4a89e.akpm@osdl.org>
-	 <1158717429.6002.231.camel@localhost.localdomain>
-	 <20060919200533.2874ce36.akpm@osdl.org>
-	 <1158728665.6002.262.camel@localhost.localdomain>
-	 <20060919222656.52fadf3c.akpm@osdl.org>
-Content-Type: text/plain
-Date: Wed, 20 Sep 2006 16:54:59 +1000
-Message-Id: <1158735299.6002.273.camel@localhost.localdomain>
+	Wed, 20 Sep 2006 03:07:28 -0400
+Date: Wed, 20 Sep 2006 09:11:32 +0200
+From: Jarek Poplawski <jarkao2@o2.pl>
+To: Dalibor Straka <dast@panelnet.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Possible bug in ACPI
+Message-ID: <20060920071131.GB1697@ff.dom.local>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060919214724.GB2073@panelnet.cz>
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> It's a choice between two behaviours:
-> 
-> a) get stuck in the kernel until someone kills you and
-> 
-> b) fault the page in and proceed as expected.
-> 
-> Option b) is better, no?
+On 19-09-2006 23:47, Dalibor Straka wrote:
+...
+> Please Cc: to me, I read lkml only when I have a good mood.
+> -- Dalibor Straka
 
-That's what I don't understand... where is the actual race that can
-cause the livelock you are mentioning. Is this that TryLock always
-fails, we wait, the lock gets available but since we have dropped the
-semaphore around the wait, it might get stolen again by the time we are
-taking the mmap_sem back and that going on ever and ever again while
-lock_page() would get precedence since we have the mmap_sem ?
+How can you have a good mood if you don't read lkml?
 
-Ben.
-
-
+Jarek P.

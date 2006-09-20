@@ -1,75 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751900AbWITQti@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751911AbWITQs4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751900AbWITQti (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Sep 2006 12:49:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751949AbWITQtg
+	id S1751911AbWITQs4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Sep 2006 12:48:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751935AbWITQsz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Sep 2006 12:49:36 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:22733 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751939AbWITQtO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Sep 2006 12:49:14 -0400
-Subject: [PATCH] slim: cleanup use of config.h
-From: Kylene Jo Hall <kjhall@us.ibm.com>
-To: Dave Jones <davej@redhat.com>
-Cc: Stephen Smalley <sds@tycho.nsa.gov>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       LSM ML <linux-security-module@vger.kernel.org>,
-       Dave Safford <safford@us.ibm.com>, Mimi Zohar <zohar@us.ibm.com>,
-       Serge Hallyn <sergeh@us.ibm.com>, akpm@osdl.org
-In-Reply-To: <20060918205412.GA2640@redhat.com>
-References: <1158083873.18137.14.camel@localhost.localdomain>
-	 <1158611418.14194.70.camel@moss-spartans.epoch.ncsc.mil>
-	 <1158612642.16727.53.camel@localhost.localdomain>
-	 <20060918205412.GA2640@redhat.com>
-Content-Type: text/plain
-Date: Wed, 20 Sep 2006 09:49:04 -0700
-Message-Id: <1158770944.16727.116.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-7) 
+	Wed, 20 Sep 2006 12:48:55 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:60889 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1751925AbWITQsx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Sep 2006 12:48:53 -0400
+Message-ID: <451170B9.4010101@sgi.com>
+Date: Wed, 20 Sep 2006 18:47:53 +0200
+From: Jes Sorensen <jes@sgi.com>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060907)
+MIME-Version: 1.0
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       bjorn_helgaas@hp.com, Nick Piggin <nickpiggin@yahoo.com.au>,
+       Andrew Morton <akpm@osdl.org>, Robin Holt <holt@sgi.com>,
+       Dean Nelson <dcn@sgi.com>, Hugh Dickins <hugh@veritas.com>
+Subject: Re: [patch] do_no_pfn()
+References: <Pine.LNX.4.64.0609192126070.4388@g5.osdl.org>	<yq0u033c84a.fsf@jaguar.mkp.net> <20060920084638.900c9a69.rdunlap@xenotime.net>
+In-Reply-To: <20060920084638.900c9a69.rdunlap@xenotime.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The following patch addresses this comment to clean up the use of
-config.h in the slim .c files.
-
-On Mon, 2006-09-18 at 16:54 -0400, Dave Jones wrote: 
->  > > > +
->  > > > +#include <asm/uaccess.h>
->  > > > +#include <linux/config.h>
+Randy.Dunlap wrote:
+> On 20 Sep 2006 03:25:25 -0400 Jes Sorensen wrote:
+>> +#define NOPFN_SIGBUS	((unsigned long) -1)
+>> +#define NOPFN_OOM	((unsigned long) -2)
 > 
-> You don't need to include config.h any more, kbuild does it for you.
-> (Might want to check the other files for the same thing).
+> Is there any difference in the above and
 > 
-> 	Dave
+> #define NOPFN_SIGBUS		-1UL
+> #define NOPFN_OOM		-2UL
 
-Signed-off-by: Kylene Hall <kjhall@us.ibm.com>
-Signed-off-by: Mimi Zohar <zohar@us.ibm.com>
----
-security/slim/slm_main.c  |    1 -
-security/slim/slm_secfs.c |    1 -
-2 files changed, 2 deletions(-)
+I don't think there is, but I was trying to keep it consistent with the
+NOPAGE_foo versions - the way it's done is more explicit so less likely
+anyone will get confused over it.
 
---- linux-2.6.18-rc6-orig/security/slim/slm_main.c	2006-09-18 16:41:51.000000000 -0500
-+++ linux-2.6.18-rc6/security/slim/slm_main.c	2006-09-19 14:50:35.000000000 -0500
-@@ -11,7 +11,6 @@
-  */
- 
- #include <linux/mman.h>
--#include <linux/config.h>
- #include <linux/kernel.h>
- #include <linux/security.h>
- #include <linux/integrity.h>
---- linux-2.6.18-rc6-orig/security/slim/slm_secfs.c	2006-09-18 16:41:48.000000000 -0500
-+++ linux-2.6.18-rc6/security/slim/slm_secfs.c	2006-09-19 14:50:50.000000000 -0500
-@@ -11,7 +11,6 @@
-  */
- 
- #include <asm/uaccess.h>
--#include <linux/config.h>
- #include <linux/module.h>
- #include <linux/kernel.h>
- #include <linux/security.h>
+I can change it if it's a sticking point, but I'd claim thats more noise
+than it's worth.
 
+Thanks,
+Jes
 

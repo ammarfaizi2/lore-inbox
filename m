@@ -1,66 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750912AbWITJ5j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750922AbWITKAg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750912AbWITJ5j (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Sep 2006 05:57:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750922AbWITJ5i
+	id S1750922AbWITKAg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Sep 2006 06:00:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750865AbWITKAg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Sep 2006 05:57:38 -0400
-Received: from server6.greatnet.de ([83.133.96.26]:7828 "EHLO
-	server6.greatnet.de") by vger.kernel.org with ESMTP
-	id S1750908AbWITJ5h (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Sep 2006 05:57:37 -0400
-Message-ID: <4511109E.4050103@nachtwindheim.de>
-Date: Wed, 20 Sep 2006 11:57:50 +0200
-From: Henne <henne@nachtwindheim.de>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060911)
+	Wed, 20 Sep 2006 06:00:36 -0400
+Received: from out1.smtp.messagingengine.com ([66.111.4.25]:57262 "EHLO
+	out1.smtp.messagingengine.com") by vger.kernel.org with ESMTP
+	id S1750813AbWITKAf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Sep 2006 06:00:35 -0400
+X-Sasl-enc: T2mNXDglNguoOt6JoFGq4NPa6G6u7MPaKTOgmmEbYXSC 1158746434
+Message-ID: <45111197.6020801@imap.cc>
+Date: Wed, 20 Sep 2006 12:01:59 +0200
+From: Tilman Schmidt <tilman@imap.cc>
+Organization: me - organized??
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; de-AT; rv:1.8.0.6) Gecko/20060729 SeaMonkey/1.0.4 Mnenhy/0.7.4.666
 MIME-Version: 1.0
-To: Christoph Hellwig <hch@infradead.org>, Henne <henne@nachtwindheim.de>
-Cc: Andrew Morton <akpm@osdl.org>, James.Bottomley@SteelEye.com,
-       linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] scsi-driver ultrastore replace Scsi_Cmnd with struct
- scsi_cmnd
-References: <44FE8BAC.1030004@nachtwindheim.de> <20060918185321.GB17670@infradead.org>
-In-Reply-To: <20060918185321.GB17670@infradead.org>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+To: john stultz <johnstul@us.ibm.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: [2.6.18-rc7] printk output delay in syslog wrt dmesg still	unfixed
+References: <450BF1CC.2070309@imap.cc> <1158691933.18546.3.camel@localhost>
+In-Reply-To: <1158691933.18546.3.camel@localhost>
+X-Enigmail-Version: 0.94.1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enig624EBE06D61C1BD7EA8E00BE"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>On Wed, Sept 06, 2006 at 10:49:48AM +0200, Henne wrote:From: Henrik Kretzschmar <henne@nachtwindheim.de>
->>
->>Replaces the typedef'd Scsi_Cmnd with struct scsi_cmnd.
->>Signed-off-by: Henrik Kretzschmar <henne@nachtwindheim.de>
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig624EBE06D61C1BD7EA8E00BE
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: quoted-printable
 
->Looks good to me.  It would be even better if you could update the
->driver to not require
->
->	#include "scsi.h"
->
->anymore and get rid of ultrastor.h.  Also your mailer unfortunately
->damages tabs.
+On 19.09.2006 20:52, john stultz wrote:
+> Unfortunately I don't know what would be the cause.=20
+>=20
+> You might try git-bisect to find the offending patch.
+> http://www.kernel.org/pub/software/scm/git/docs/howto/isolate-bugs-with=
+-bisect.txt
 
-Sure, thats the big goal for all scsi drivers,but I decided to do one step after another.
-I think it would be better to remove Scsi_Cmnd first to remove drivers/scsi/scsi_typedefs.h
-first and then make the drivers use the headers in include/scsi/.
-This is imho clearer to have one target per patch.
-1. -	change Scsi_Cmnd to struct scsi_cmnd
-	remove scsi_typedefs.h from drivers/scsi/scsi.h
-	remove scsi_typedefs.h from the tree
-2. -	put the local headers into c files if only used
-	by the driver itself (maybe delete unneeded prototypes or reorder the functions that no prototypes are needed)
-3. -	switch over to include/scsi/
+Um, ok, I'll try. But I've never used git before, so I'll need some time
+reading all the docs, installing git and finding my way around it. I'll
+report back as soon as I have a result, but I wouldn't expect it to be
+in time for the problem to be fixed in 2.6.18 release.
 
-Thats is my opinion.
+Thanks
+Tilman
 
->Also your mailer unfortunately damages tabs.
-
-No, it doesn't. Even if it thunderbird. :)
-ultrastor.h uses 4 spaces as intention and I just forgot to replace the with a tab.
-Thanks. 
-But I'm still looking for an easy standalone commandline smtp-engine to send my patches. Any suggestions?
-
-Greets,
-Henne
+--=20
+Tilman Schmidt                          E-Mail: tilman@imap.cc
+Bonn, Germany
+Diese Nachricht besteht zu 100% aus wiederverwerteten Bits.
+Unge=F6ffnet mindestens haltbar bis: (siehe R=FCckseite)
 
 
+--------------enig624EBE06D61C1BD7EA8E00BE
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.3rc1 (MingW32)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
+
+iD8DBQFFERGeMdB4Whm86/kRAkCXAJ9vIdf2kkes8OP2texnvnBtU6TOUACfaYJU
+1OKlHMwVimVcroi1qCb52y8=
+=pcIB
+-----END PGP SIGNATURE-----
+
+--------------enig624EBE06D61C1BD7EA8E00BE--

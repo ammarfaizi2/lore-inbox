@@ -1,72 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750922AbWITKAg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750938AbWITKIc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750922AbWITKAg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Sep 2006 06:00:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750865AbWITKAg
+	id S1750938AbWITKIc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Sep 2006 06:08:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750952AbWITKIc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Sep 2006 06:00:36 -0400
-Received: from out1.smtp.messagingengine.com ([66.111.4.25]:57262 "EHLO
-	out1.smtp.messagingengine.com") by vger.kernel.org with ESMTP
-	id S1750813AbWITKAf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Sep 2006 06:00:35 -0400
-X-Sasl-enc: T2mNXDglNguoOt6JoFGq4NPa6G6u7MPaKTOgmmEbYXSC 1158746434
-Message-ID: <45111197.6020801@imap.cc>
-Date: Wed, 20 Sep 2006 12:01:59 +0200
-From: Tilman Schmidt <tilman@imap.cc>
-Organization: me - organized??
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; de-AT; rv:1.8.0.6) Gecko/20060729 SeaMonkey/1.0.4 Mnenhy/0.7.4.666
-MIME-Version: 1.0
-To: john stultz <johnstul@us.ibm.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [2.6.18-rc7] printk output delay in syslog wrt dmesg still	unfixed
-References: <450BF1CC.2070309@imap.cc> <1158691933.18546.3.camel@localhost>
-In-Reply-To: <1158691933.18546.3.camel@localhost>
-X-Enigmail-Version: 0.94.1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enig624EBE06D61C1BD7EA8E00BE"
+	Wed, 20 Sep 2006 06:08:32 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:59349 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1750933AbWITKIb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Sep 2006 06:08:31 -0400
+Subject: Re: [PATCH] Linux Kernel Markers
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Helge Hafting <helge.hafting@aitel.hist.no>
+Cc: prasanna@in.ibm.com, Martin Bligh <mbligh@google.com>,
+       Andrew Morton <akpm@osdl.org>, "Frank Ch. Eigler" <fche@redhat.com>,
+       Ingo Molnar <mingo@elte.hu>,
+       Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
+       Paul Mundt <lethal@linux-sh.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>, Jes Sorensen <jes@sgi.com>,
+       Tom Zanussi <zanussi@us.ibm.com>,
+       Richard J Moore <richardj_moore@uk.ibm.com>,
+       Michel Dagenais <michel.dagenais@polymtl.ca>,
+       Christoph Hellwig <hch@infradead.org>,
+       Greg Kroah-Hartman <gregkh@suse.de>,
+       Thomas Gleixner <tglx@linutronix.de>, William Cohen <wcohen@redhat.com>,
+       ltt-dev@shafik.org, systemtap@sources.redhat.com
+In-Reply-To: <45110C6B.6010909@aitel.hist.no>
+References: <20060918234502.GA197@Krystal> <20060919081124.GA30394@elte.hu>
+	 <451008AC.6030006@google.com> <20060919154612.GU3951@redhat.com>
+	 <4510151B.5070304@google.com> <20060919093935.4ddcefc3.akpm@osdl.org>
+	 <45101DBA.7000901@google.com> <20060919063821.GB23836@in.ibm.com>
+	 <45110C6B.6010909@aitel.hist.no>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Wed, 20 Sep 2006 11:30:26 +0100
+Message-Id: <1158748226.7705.0.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enig624EBE06D61C1BD7EA8E00BE
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: quoted-printable
+Ar Mer, 2006-09-20 am 11:39 +0200, ysgrifennodd Helge Hafting:
+> Yes, 5 bytes is not an atomic write except on 64-bit. So a race is possible.
 
-On 19.09.2006 20:52, john stultz wrote:
-> Unfortunately I don't know what would be the cause.=20
->=20
-> You might try git-bisect to find the offending patch.
-> http://www.kernel.org/pub/software/scm/git/docs/howto/isolate-bugs-with=
--bisect.txt
+Untrue as well. Pentium and later have CMPXCHG8.
 
-Um, ok, I'll try. But I've never used git before, so I'll need some time
-reading all the docs, installing git and finding my way around it. I'll
-report back as soon as I have a result, but I wouldn't expect it to be
-in time for the problem to be fixed in 2.6.18 release.
+> How about this workaround:
+> 1. Overwrite the start of the function with a hlt, which is atomic.
+> 2. Write that 5-byte jump after the hlt.
+> 3. Overwrite the hlt with nop so things will work
+> 4. interrupt any cpus that got stuck on the hlt - or just wait for the 
+> timer.
 
-Thanks
-Tilman
+CPU errata time again. You have to synchronize.
 
---=20
-Tilman Schmidt                          E-Mail: tilman@imap.cc
-Bonn, Germany
-Diese Nachricht besteht zu 100% aus wiederverwerteten Bits.
-Unge=F6ffnet mindestens haltbar bis: (siehe R=FCckseite)
+Alan
 
-
---------------enig624EBE06D61C1BD7EA8E00BE
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.3rc1 (MingW32)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
-
-iD8DBQFFERGeMdB4Whm86/kRAkCXAJ9vIdf2kkes8OP2texnvnBtU6TOUACfaYJU
-1OKlHMwVimVcroi1qCb52y8=
-=pcIB
------END PGP SIGNATURE-----
-
---------------enig624EBE06D61C1BD7EA8E00BE--

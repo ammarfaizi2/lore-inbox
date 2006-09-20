@@ -1,39 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932105AbWITRa6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932120AbWITRdt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932105AbWITRa6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Sep 2006 13:30:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932107AbWITRa6
+	id S932120AbWITRdt (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Sep 2006 13:33:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932122AbWITRdt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Sep 2006 13:30:58 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:33513 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S932105AbWITRav (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Sep 2006 13:30:51 -0400
-Date: Wed, 20 Sep 2006 10:30:36 -0700 (PDT)
-From: Christoph Lameter <clameter@sgi.com>
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-cc: rohitseth@google.com, pj@sgi.com,
-       CKRM-Tech <ckrm-tech@lists.sourceforge.net>, devel@openvz.org,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Linux Memory Management <linux-mm@kvack.org>
-Subject: Re: [patch00/05]: Containers(V2)- Introduction
-In-Reply-To: <45117830.3080909@yahoo.com.au>
-Message-ID: <Pine.LNX.4.64.0609201024310.31178@schroedinger.engr.sgi.com>
-References: <1158718568.29000.44.camel@galaxy.corp.google.com>
- <4510D3F4.1040009@yahoo.com.au> <Pine.LNX.4.64.0609200925280.30572@schroedinger.engr.sgi.com>
- <451172AB.2070103@yahoo.com.au> <Pine.LNX.4.64.0609201006420.30793@schroedinger.engr.sgi.com>
- <45117830.3080909@yahoo.com.au>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 20 Sep 2006 13:33:49 -0400
+Received: from vms048pub.verizon.net ([206.46.252.48]:62460 "EHLO
+	vms048pub.verizon.net") by vger.kernel.org with ESMTP
+	id S932120AbWITRds (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Sep 2006 13:33:48 -0400
+Date: Wed, 20 Sep 2006 13:33:30 -0400
+From: Gene Heskett <gene.heskett@verizon.net>
+Subject: Re: 2.6.18-rt1
+In-reply-to: <20060920165846.GA31522@elte.hu>
+To: linux-kernel@vger.kernel.org
+Message-id: <200609201333.30532.gene.heskett@verizon.net>
+Organization: Organization? Absolutely zip.
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+Content-disposition: inline
+References: <20060920141907.GA30765@elte.hu>
+ <200609201250.03750.gene.heskett@verizon.net> <20060920165846.GA31522@elte.hu>
+User-Agent: KMail/1.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 21 Sep 2006, Nick Piggin wrote:
+On Wednesday 20 September 2006 12:58, Ingo Molnar wrote:
+>* Gene Heskett <gene.heskett@verizon.net> wrote:
+>>   LD      .tmp_vmlinux1
+>>
+>> kernel/built-in.o(.text+0x16f25): In function `hrtimer_start':
+>> : undefined reference to `hrtimer_update_timer_prio'
+>>
+>> make: *** [.tmp_vmlinux1] Error 1
+>
+>yeah, the !hrt build broke in the last minute, i've uploaded -rt2 with
+>the fix.
+>
+> Ingo
+Link?
 
-> Patch 2/5 in this series provides hooks, and they are pretty unintrusive.
-
-Ok. We shadow existing vm counters add stuff to the adress_space 
-structure. The task add / remove is duplicating what some of the cpuset 
-hooks do. That clearly shows that we are just duplicating functionality.
-
-The mapping things are new.
+-- 
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+Yahoo.com and AOL/TW attorneys please note, additions to the above
+message by Gene Heskett are:
+Copyright 2006 by Maurice Eugene Heskett, all rights reserved.

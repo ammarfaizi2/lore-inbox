@@ -1,42 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750788AbWITXv4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750777AbWITXxm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750788AbWITXv4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Sep 2006 19:51:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750789AbWITXv4
+	id S1750777AbWITXxm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Sep 2006 19:53:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750790AbWITXxl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Sep 2006 19:51:56 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:40598 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1750788AbWITXvz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Sep 2006 19:51:55 -0400
-Date: Wed, 20 Sep 2006 16:51:45 -0700 (PDT)
-From: Christoph Lameter <clameter@sgi.com>
-To: Rohit Seth <rohitseth@google.com>
-cc: Paul Jackson <pj@sgi.com>, ckrm-tech@lists.sourceforge.net,
-       devel@openvz.org, npiggin@suse.de, linux-kernel@vger.kernel.org
-Subject: Re: [patch00/05]: Containers(V2)- Introduction
-In-Reply-To: <1158795569.7207.23.camel@galaxy.corp.google.com>
-Message-ID: <Pine.LNX.4.64.0609201651001.2055@schroedinger.engr.sgi.com>
-References: <1158718568.29000.44.camel@galaxy.corp.google.com> 
- <Pine.LNX.4.64.0609200916140.30572@schroedinger.engr.sgi.com> 
- <1158773208.8574.53.camel@galaxy.corp.google.com> 
- <Pine.LNX.4.64.0609201035240.31464@schroedinger.engr.sgi.com> 
- <1158775678.8574.81.camel@galaxy.corp.google.com>  <20060920155815.33b03991.pj@sgi.com>
-  <Pine.LNX.4.64.0609201601450.1026@schroedinger.engr.sgi.com> 
- <1158795231.7207.21.camel@galaxy.corp.google.com> 
- <Pine.LNX.4.64.0609201634450.1955@schroedinger.engr.sgi.com>
- <1158795569.7207.23.camel@galaxy.corp.google.com>
+	Wed, 20 Sep 2006 19:53:41 -0400
+Received: from smtp-out.google.com ([216.239.45.12]:44332 "EHLO
+	smtp-out.google.com") by vger.kernel.org with ESMTP
+	id S1750777AbWITXxk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Sep 2006 19:53:40 -0400
+DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
+	h=received:message-id:date:from:to:subject:cc:in-reply-to:
+	mime-version:content-type:content-transfer-encoding:
+	content-disposition:references;
+	b=CrDpLvqmVrhJsBO5Ako3LtR6HO3uEY6ysFuXkEvV/VaJA7zbtVir+5Ne1zafw52lz
+	KIWZat0IYj/dgVBhYTNgA==
+Message-ID: <6599ad830609201653g4f44a4frb308eaeb63f83d2a@mail.google.com>
+Date: Wed, 20 Sep 2006 16:53:30 -0700
+From: "Paul Menage" <menage@google.com>
+To: "Paul Jackson" <pj@sgi.com>
+Subject: Re: [ckrm-tech] [patch00/05]: Containers(V2)- Introduction
+Cc: alan@lxorguk.ukuu.org.uk, clameter@sgi.com, npiggin@suse.de,
+       ckrm-tech@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       rohitseth@google.com, devel@openvz.org
+In-Reply-To: <20060920163722.1442c5c1.pj@sgi.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <1158718568.29000.44.camel@galaxy.corp.google.com>
+	 <Pine.LNX.4.64.0609200916140.30572@schroedinger.engr.sgi.com>
+	 <1158773699.7705.19.camel@localhost.localdomain>
+	 <6599ad830609201030w38b6ae59ia0d4a4ccabb47054@mail.google.com>
+	 <20060920163722.1442c5c1.pj@sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 20 Sep 2006, Rohit Seth wrote:
+On 9/20/06, Paul Jackson <pj@sgi.com> wrote:
+>
+> The way you "associate" a file with a cpuset is to have some task in
+> that cpuset open that file and touch its pages -- where that task does
+> so before any other would be user of the file.
 
-> > Could we equip containers with restrictions on processors and nodes for 
-> > NUMA?
-> Yes.  That is something we will have to do (I think part of CPU
-> handler-TBD).
+An alternative would be a way of binding files (or directory
+hierarchies) to a particular set of memory nodes. Then you wouldn't
+need to pre-fault the data. Extended attributes might be one way of
+doing it.
 
-Paul: Will we still need cpusets if that is there?
+>
+> Such pre-touching of files is common occurrence on the HPC (High Perf
+> Comp.) apps that run on the big honkin NUMA iron where cpusets were
+> born.  I'm guessing that someone hosting 5000 web servers would rather
+> not deal with that particular hastle.
 
+I'm looking at it from the perspective of job control systems that
+need to have a good idea what big datasets the jobs running under them
+are touching/sharing.
+
+Paul

@@ -1,58 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751218AbWITMtr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751185AbWITNAL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751218AbWITMtr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Sep 2006 08:49:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751227AbWITMtr
+	id S1751185AbWITNAL (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Sep 2006 09:00:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751228AbWITNAL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Sep 2006 08:49:47 -0400
-Received: from sorrow.cyrius.com ([65.19.161.204]:59922 "EHLO
-	sorrow.cyrius.com") by vger.kernel.org with ESMTP id S1751218AbWITMtq
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Sep 2006 08:49:46 -0400
-Date: Wed, 20 Sep 2006 14:49:08 +0200
-From: Martin Michlmayr <tbm@cyrius.com>
-To: linux-kernel@vger.kernel.org, linux-arm-kernel@lists.arm.linux.org.uk
-Subject: AUDIT=y build failure on ARM
-Message-ID: <20060920124908.GA30389@deprecation.cyrius.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11+cvs20060403
+	Wed, 20 Sep 2006 09:00:11 -0400
+Received: from nat-132.atmel.no ([80.232.32.132]:3298 "EHLO relay.atmel.no")
+	by vger.kernel.org with ESMTP id S1751185AbWITNAK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Sep 2006 09:00:10 -0400
+Date: Wed, 20 Sep 2006 14:59:52 +0200
+From: Haavard Skinnemoen <hskinnemoen@atmel.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, Christoph Lameter <clameter@sgi.com>
+Subject: [-mm patch] Remove ZONE_DMA remains from avr32
+Message-ID: <20060920145952.2ea78f17@cad-250-152.norway.atmel.com>
+Organization: Atmel Norway
+X-Mailer: Sylpheed-Claws 2.5.0-rc2 (GTK+ 2.8.20; i486-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I get the build failure below with AUDIT=y on ARM.  The problem is
-that lib/audit.c includes asm-generic/audit_dir_write.h which lists a
-number of syscalls that are not defined on ARM (and some other platforms).
+Put all available lowmem in ZONE_NORMAL now that ZONE_DMA can be
+disabled (which is the right thing to do on AVR32.)
 
-What's the right fix for this?  I don't think I saw this problem with
-2.6.18-rc7 but on the other hand I cannot see any relevant changes
-since then.
+Signed-off-by: Haavard Skinnemoen <hskinnemoen@atmel.com>
+---
 
-The failure is:
+Btw, 2.6.18-rc7-mm1 seems to boot on my board, but mdev (busybox's udev
+replacement) seems to have a problem with symlinks so I don't have any
+tty devices to log into. Using static /dev solves the problem for
+now.
 
-  CC      lib/audit.o
-In file included from lib/audit.c:7:
-include/asm-generic/audit_dir_write.h:9: error: '__NR_mkdirat' undeclared here (not in a function)
-include/asm-generic/audit_dir_write.h:10: error: '__NR_mknodat' undeclared here (not in a function)
-include/asm-generic/audit_dir_write.h:11: error: '__NR_unlinkat' undeclared here (not in a function)
-include/asm-generic/audit_dir_write.h:12: error: '__NR_renameat' undeclared here (not in a function)
-include/asm-generic/audit_dir_write.h:13: error: '__NR_linkat' undeclared here (not in a function)
-include/asm-generic/audit_dir_write.h:14: error: '__NR_symlinkat' undeclared here (not in a function)
-...
-In file included from lib/audit.c:22:
-include/asm-generic/audit_change_attr.h:12: error: '__NR_fchownat' undeclared here (not in a function)
-include/asm-generic/audit_change_attr.h:12: error: initializer element is not constant
-include/asm-generic/audit_change_attr.h:12: error: (near initialization for 'chattr_class[11]')
-include/asm-generic/audit_change_attr.h:13: error: '__NR_fchmodat' undeclared here (not in a function)
-include/asm-generic/audit_change_attr.h:13: error: initializer element is not constant
-include/asm-generic/audit_change_attr.h:13: error: (near initialization for 'chattr_class[12]')
-lib/audit.c: In function 'audit_classify_syscall':
-lib/audit.c:31: error: '__NR_openat' undeclared (first use in this function)
-lib/audit.c:31: error: (Each undeclared identifier is reported only once
-lib/audit.c:31: error: for each function it appears in.)
-make[5]: *** [lib/audit.o] Error 1
+ arch/avr32/Kconfig   |    3 ---
+ arch/avr32/mm/init.c |    3 +--
+ 2 files changed, 1 insertion(+), 5 deletions(-)
 
--- 
-Martin Michlmayr
-http://www.cyrius.com/
+Index: linux-2.6.18-rc7-mm1/arch/avr32/mm/init.c
+===================================================================
+--- linux-2.6.18-rc7-mm1.orig/arch/avr32/mm/init.c	2006-09-20
+14:07:17.000000000 +0200 +++
+linux-2.6.18-rc7-mm1/arch/avr32/mm/init.c	2006-09-20
+14:07:45.000000000 +0200 @@ -370,9 +370,8 @@ void __init
+paging_init(void) start_pfn >>= PAGE_SHIFT; low =
+pgdat->bdata->node_low_pfn; 
+-		/* All memory is DMA-able */
+ 		memset(zones_size, 0, sizeof(zones_size));
+-		zones_size[ZONE_DMA] = low - start_pfn;
++		zones_size[ZONE_NORMAL] = low - start_pfn;
+ 
+ 		printk("Node %u: start_pfn = 0x%lx, low = 0x%lx\n",
+ 		       nid, start_pfn, low);
+Index: linux-2.6.18-rc7-mm1/arch/avr32/Kconfig
+===================================================================
+--- linux-2.6.18-rc7-mm1.orig/arch/avr32/Kconfig	2006-09-20
+14:47:04.000000000 +0200 +++
+linux-2.6.18-rc7-mm1/arch/avr32/Kconfig	2006-09-20
+14:47:09.000000000 +0200 @@ -48,9 +48,6 @@ config
+RWSEM_XCHGADD_ALGORITHM config GENERIC_BUST_SPINLOCK bool
+ 
+-config GENERIC_ISA_DMA
+-	bool
+-
+ config GENERIC_HWEIGHT
+ 	bool
+ 	default y

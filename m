@@ -1,102 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932176AbWITSZI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932213AbWITS1N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932176AbWITSZI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Sep 2006 14:25:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932213AbWITSZH
+	id S932213AbWITS1N (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Sep 2006 14:27:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932210AbWITS1N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Sep 2006 14:25:07 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.153]:19669 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S932176AbWITSZF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Sep 2006 14:25:05 -0400
-Date: Wed, 20 Sep 2006 11:25:53 -0700
-From: "Paul E. McKenney" <paulmck@us.ibm.com>
-To: Daniel Walker <dwalker@mvista.com>
-Cc: Gene Heskett <gene.heskett@verizon.net>, linux-kernel@vger.kernel.org,
-       Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>,
-       John Stultz <johnstul@us.ibm.com>, Dipankar Sarma <dipankar@in.ibm.com>,
-       Arjan van de Ven <arjan@infradead.org>
-Subject: Re: 2.6.18-rt1
-Message-ID: <20060920182553.GC1292@us.ibm.com>
-Reply-To: paulmck@us.ibm.com
-References: <20060920141907.GA30765@elte.hu> <200609201250.03750.gene.heskett@verizon.net> <1158771639.29177.5.camel@c-67-180-230-165.hsd1.ca.comcast.net> <20060920173858.GB1292@us.ibm.com> <1158774118.29177.13.camel@c-67-180-230-165.hsd1.ca.comcast.net>
+	Wed, 20 Sep 2006 14:27:13 -0400
+Received: from amsfep17-int.chello.nl ([213.46.243.15]:13814 "EHLO
+	amsfep15-int.chello.nl") by vger.kernel.org with ESMTP
+	id S932213AbWITS1M (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Sep 2006 14:27:12 -0400
+Subject: Re: [patch00/05]: Containers(V2)- Introduction
+From: Peter Zijlstra <a.p.zijlstra@chello.nl>
+To: rohitseth@google.com
+Cc: Christoph Lameter <clameter@sgi.com>,
+       Nick Piggin <nickpiggin@yahoo.com.au>,
+       CKRM-Tech <ckrm-tech@lists.sourceforge.net>, devel@openvz.org,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Linux Memory Management <linux-mm@kvack.org>
+In-Reply-To: <1158776099.8574.89.camel@galaxy.corp.google.com>
+References: <1158718568.29000.44.camel@galaxy.corp.google.com>
+	 <4510D3F4.1040009@yahoo.com.au> <1158751720.8970.67.camel@twins>
+	 <4511626B.9000106@yahoo.com.au> <1158767787.3278.103.camel@taijtu>
+	 <451173B5.1000805@yahoo.com.au>
+	 <1158774657.8574.65.camel@galaxy.corp.google.com>
+	 <Pine.LNX.4.64.0609201051550.31636@schroedinger.engr.sgi.com>
+	 <1158775586.28174.27.camel@lappy>
+	 <1158776099.8574.89.camel@galaxy.corp.google.com>
+Content-Type: text/plain
+Date: Wed, 20 Sep 2006 20:27:04 +0200
+Message-Id: <1158776824.28174.29.camel@lappy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1158774118.29177.13.camel@c-67-180-230-165.hsd1.ca.comcast.net>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 20, 2006 at 10:41:58AM -0700, Daniel Walker wrote:
-> On Wed, 2006-09-20 at 10:38 -0700, Paul E. McKenney wrote:
-> > On Wed, Sep 20, 2006 at 10:00:38AM -0700, Daniel Walker wrote:
-> > > On Wed, 2006-09-20 at 12:50 -0400, Gene Heskett wrote:
+On Wed, 2006-09-20 at 11:14 -0700, Rohit Seth wrote:
+> On Wed, 2006-09-20 at 20:06 +0200, Peter Zijlstra wrote:
+> > On Wed, 2006-09-20 at 10:52 -0700, Christoph Lameter wrote:
+> > > On Wed, 20 Sep 2006, Rohit Seth wrote:
 > > > 
-> > > >   LD      .tmp_vmlinux1
-> > > > kernel/built-in.o(.text+0x16f25): In function `hrtimer_start':
-> > > > : undefined reference to `hrtimer_update_timer_prio'
-> > > > make: *** [.tmp_vmlinux1] Error 1
-> > > > 
-> > > > about half way thru the normal time.  config attached.  I don't think hires 
-> > > > timers are enabled.
-> > > > 
-> > > > Comments?
-> > > > 
+> > > > Right now the memory handler in this container subsystem is written in
+> > > > such a way that when existing kernel reclaimer kicks in, it will first
+> > > > operate on those (container with pages over the limit) pages first.  But
+> > > > in general I like the notion of containerizing the whole reclaim code.
 > > > 
-> > > Fix attached.
-> > > 
-> > > Daniel
+> > > Which comes naturally with cpusets.
 > > 
-> > Compiles for me with this patch.  Will try it out on a couple of machines.
+> > How are shared mappings dealt with, are pages charged to the set that
+> > first faults them in?
 > > 
 > 
-> Ingo actually updated with a similar fix , in
+> For anonymous pages (simpler case), they get charged to the faulting
+> task's container.
 > 
-> http://people.redhat.com/~mingo/realtime-preempt/patch-2.6.18-rt2
+> For filesystem pages (could be shared across tasks running different
+> containers): Every time a new file mapping is created, it is bound to a
+> container of the process creating that mapping.  All subsequent pages
+> belonging to this mapping will belong to this container, irrespective of
+> different tasks running in different containers accessing these pages.
+> Currently, I've not implemented a mechanism to allow a file to be
+> specifically moved into or out of container. But when that gets
+> implemented then all pages belonging to a mapping will also move out of
+> container (or into a new container).
 
-OK, using that instead.
+Yes, I read that in your patches, I was wondering how the cpuset
+approach would handle this.
 
-I get the following at startup, which probably means that I need to use
-some machine other than a NUMA-Q.  Trying a different machine...
+Neither are really satisfactory for shared mappings.
 
-						Thanx, Paul
-
-BUG: unable to handle kernel NULL pointer dereference at virtual address 00000000
- printing eip:
-c01151ff
-*pde = 34d21001
-*pte = 00000000
-stopped custom tracer.
-Oops: 0000 [#1]
-PREEMPT SMP 
-Modules linked in:
-CPU:    2
-EIP:    0060:[<c01151ff>]    Not tainted VLI
-EFLAGS: 00010246   (2.6.18-rt2-autokern1 #1) 
-EIP is at __wake_up_common+0x10/0x55
-eax: 00000000   ebx: 00000001   ecx: c113629c   edx: 00000000
-esi: c113629c   edi: c113629c   ebp: dff25f34   esp: dff25f24
-ds: 007b   es: 007b   ss: 0068   preempt: 00000001
-Process softirq-timer/2 (pid: 27, ti=dff24000 task=dff20e30 task.ti=dff24000)
-Stack: 00000000 00000000 c113629c 00000001 dff25f60 c0115267 c113629c 00000006 
-       00000001 00000001 00000000 00000006 00000007 dffd5e40 c1136270 c1136240 
-       c012ecf6 00000000 00000001 c11360e4 00000001 00000000 dff12000 c043b2c0 
-Call Trace:
- [<c0115267>] __wake_up+0x23/0x52
- [<c012ecf6>] hrtimer_run_queues+0xf6/0x10f
- [<c0123db3>] run_timer_softirq+0x13b/0x31b
- [<c011fba0>] ksoftirqd+0xff/0x194
- [<c011faa1>] ksoftirqd+0x0/0x194
- [<c012beee>] kthread+0x82/0xa7
- [<c012be6c>] kthread+0x0/0xa7
- [<c0101031>] kernel_thread_helper+0x5/0xb
----------------------------
-| preempt count: 00000001 ]
-| 1-level deep critical section nesting:
-----------------------------------------
-.. [<c02fd493>] .... __spin_lock_irqsave+0xe/0x35
-.....[<00000000>] ..   ( <= _stext+0x3feffd68/0x41)
-
-Code: 45 14 00 00 00 00 8b 45 08 83 ca 01 89 55 0c 8b 40 04 89 45 08 5d e9 62 e2 ff ff 55 89 e5 57 56 53 50 8b 7d 08 8b 5d 10 8b 57 20 <8b> 02 89 45 f0 8d 47 20 39 c2 74 31 8b 72 f4 8d 42 f4 ff 75 18 
-EIP: [<c01151ff>] __wake_up_common+0x10/0x55 SS:ESP 0068:dff25f24

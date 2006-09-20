@@ -1,122 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932237AbWITSjz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932236AbWITSkK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932237AbWITSjz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Sep 2006 14:39:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932236AbWITSjy
+	id S932236AbWITSkK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Sep 2006 14:40:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932233AbWITSkJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Sep 2006 14:39:54 -0400
-Received: from vms040pub.verizon.net ([206.46.252.40]:10710 "EHLO
-	vms040pub.verizon.net") by vger.kernel.org with ESMTP
-	id S932233AbWITSjx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Sep 2006 14:39:53 -0400
-Date: Wed, 20 Sep 2006 14:36:46 -0400
-From: Gene Heskett <gene.heskett@verizon.net>
-Subject: Re: 2.6.18-rt1
-In-reply-to: <20060920182553.GC1292@us.ibm.com>
-To: linux-kernel@vger.kernel.org, paulmck@us.ibm.com
-Cc: Daniel Walker <dwalker@mvista.com>, Ingo Molnar <mingo@elte.hu>,
-       Thomas Gleixner <tglx@linutronix.de>, John Stultz <johnstul@us.ibm.com>,
-       Dipankar Sarma <dipankar@in.ibm.com>,
-       Arjan van de Ven <arjan@infradead.org>
-Message-id: <200609201436.47042.gene.heskett@verizon.net>
-Organization: Organization? Absolutely zip.
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-Content-disposition: inline
-References: <20060920141907.GA30765@elte.hu>
- <1158774118.29177.13.camel@c-67-180-230-165.hsd1.ca.comcast.net>
- <20060920182553.GC1292@us.ibm.com>
-User-Agent: KMail/1.7
+	Wed, 20 Sep 2006 14:40:09 -0400
+Received: from opersys.com ([64.40.108.71]:24836 "EHLO www.opersys.com")
+	by vger.kernel.org with ESMTP id S932236AbWITSkH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Sep 2006 14:40:07 -0400
+Message-ID: <45118D63.8070604@opersys.com>
+Date: Wed, 20 Sep 2006 14:50:11 -0400
+From: Karim Yaghmour <karim@opersys.com>
+Reply-To: karim@opersys.com
+Organization: Opersys inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.8.0.6) Gecko/20060804 Fedora/1.0.4-0.5.1.fc5 SeaMonkey/1.0.4
+MIME-Version: 1.0
+To: Martin Bligh <mbligh@google.com>
+CC: "Frank Ch. Eigler" <fche@redhat.com>,
+       Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>, prasanna@in.ibm.com,
+       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
+       Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
+       Paul Mundt <lethal@linux-sh.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>, Jes Sorensen <jes@sgi.com>,
+       Tom Zanussi <zanussi@us.ibm.com>,
+       Richard J Moore <richardj_moore@uk.ibm.com>,
+       Michel Dagenais <michel.dagenais@polymtl.ca>,
+       Christoph Hellwig <hch@infradead.org>,
+       Greg Kroah-Hartman <gregkh@suse.de>,
+       Thomas Gleixner <tglx@linutronix.de>, William Cohen <wcohen@redhat.com>,
+       ltt-dev@shafik.org, systemtap@sources.redhat.com,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH] Linux Kernel Markers
+References: <4510151B.5070304@google.com> <20060919093935.4ddcefc3.akpm@osdl.org> <45101DBA.7000901@google.com> <20060919063821.GB23836@in.ibm.com> <45102641.7000101@google.com> <20060919070516.GD23836@in.ibm.com> <451030A6.6040801@google.com> <45105B5E.9080107@opersys.com> <451141B1.40803@hitachi.com> <451178B0.9030205@opersys.com> <20060920180808.GI18646@redhat.com> <451186F2.3060702@google.com>
+In-Reply-To: <451186F2.3060702@google.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 20 September 2006 14:25, Paul E. McKenney wrote:
->On Wed, Sep 20, 2006 at 10:41:58AM -0700, Daniel Walker wrote:
->> On Wed, 2006-09-20 at 10:38 -0700, Paul E. McKenney wrote:
->> > On Wed, Sep 20, 2006 at 10:00:38AM -0700, Daniel Walker wrote:
->> > > On Wed, 2006-09-20 at 12:50 -0400, Gene Heskett wrote:
->> > > >   LD      .tmp_vmlinux1
->> > > >
->> > > > kernel/built-in.o(.text+0x16f25): In function `hrtimer_start':
->> > > > : undefined reference to `hrtimer_update_timer_prio'
->> > > >
->> > > > make: *** [.tmp_vmlinux1] Error 1
->> > > >
->> > > > about half way thru the normal time.  config attached.  I don't
->> > > > think hires timers are enabled.
->> > > >
->> > > > Comments?
->> > >
->> > > Fix attached.
->> > >
->> > > Daniel
->> >
->> > Compiles for me with this patch.  Will try it out on a couple of
->> > machines.
->>
->> Ingo actually updated with a similar fix , in
->>
->> http://people.redhat.com/~mingo/realtime-preempt/patch-2.6.18-rt2
->
->OK, using that instead.
->
->I get the following at startup, which probably means that I need to use
->some machine other than a NUMA-Q.  Trying a different machine...
->
->      Thanx, Paul
->
->BUG: unable to handle kernel NULL pointer dereference at virtual address
-> 00000000 printing eip:
->c01151ff
->*pde = 34d21001
->*pte = 00000000
->stopped custom tracer.
->Oops: 0000 [#1]
->PREEMPT SMP
->Modules linked in:
->CPU:    2
->EIP:    0060:[<c01151ff>]    Not tainted VLI
->EFLAGS: 00010246   (2.6.18-rt2-autokern1 #1)
->EIP is at __wake_up_common+0x10/0x55
->eax: 00000000   ebx: 00000001   ecx: c113629c   edx: 00000000
->esi: c113629c   edi: c113629c   ebp: dff25f34   esp: dff25f24
->ds: 007b   es: 007b   ss: 0068   preempt: 00000001
->Process softirq-timer/2 (pid: 27, ti=dff24000 task=dff20e30
-> task.ti=dff24000) Stack: 00000000 00000000 c113629c 00000001 dff25f60
-> c0115267 c113629c 00000006 00000001 00000001 00000000 00000006 00000007
-> dffd5e40 c1136270 c1136240 c012ecf6 00000000 00000001 c11360e4 00000001
-> 00000000 dff12000 c043b2c0 Call Trace:
-> [<c0115267>] __wake_up+0x23/0x52
-> [<c012ecf6>] hrtimer_run_queues+0xf6/0x10f
-> [<c0123db3>] run_timer_softirq+0x13b/0x31b
-> [<c011fba0>] ksoftirqd+0xff/0x194
-> [<c011faa1>] ksoftirqd+0x0/0x194
-> [<c012beee>] kthread+0x82/0xa7
-> [<c012be6c>] kthread+0x0/0xa7
-> [<c0101031>] kernel_thread_helper+0x5/0xb
->---------------------------
->
->| preempt count: 00000001 ]
->| 1-level deep critical section nesting:
->
->----------------------------------------
->.. [<c02fd493>] .... __spin_lock_irqsave+0xe/0x35
->.....[<00000000>] ..   ( <= _stext+0x3feffd68/0x41)
->
->Code: 45 14 00 00 00 00 8b 45 08 83 ca 01 89 55 0c 8b 40 04 89 45 08 5d
-> e9 62 e2 ff ff 55 89 e5 57 56 53 50 8b 7d 08 8b 5d 10 8b 57 20 <8b> 02
-> 89 45 f0 8d 47 20 39 c2 74 31 8b 72 f4 8d 42 f4 ff 75 18 EIP:
-> [<c01151ff>] __wake_up_common+0x10/0x55 SS:ESP 0068:dff25f24
 
-That looks like the chorus of the song I saw when it crashed on boot, 
-pretty darned close to identical.
+Martin Bligh wrote:
+> It's looking to me like it might still need djprobes to implement, in
+> order to get the atomic and safe switchover from the original function
+> into the traced one. All rather sad, but seems to be true from all the
+> CPU errata, etc. If anyone can see a way round that, I'd love to hear
+> it.
 
--- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-Yahoo.com and AOL/TW attorneys please note, additions to the above
-message by Gene Heskett are:
-Copyright 2006 by Maurice Eugene Heskett, all rights reserved.
+But we don't need to fight the errata, there are fortunately solutions
+that take care of it where it does exist (x86: djprobes/kprobes.)
+What's more interesting, though, is that the method as it is proposed
+at this stage *seems* to be easily portable to other archs. And where
+such binary trickery is difficult to pull off, nothing precludes
+having a universally "portable" mechanism including something akin to
+switching between instrumented vs. normal function at function entry.
+Even such conditional ifs can be optimized by the CPU nowadays.
+
+The picture is, nevertheless, very bright at the moment (I think).
+Just have a 5byte filler at function entry such as Hiramatsu-san
+suggested, and use djprobes to fork to instrumented function. The
+unconditional jump in the filler will most likely be utterly
+unmeasurable, and benchmarks should confirm this.
+
+So:
+On x86: use 5byte filler and djprobes.
+On "sane" archs: use filler and override as explained earlier.
+Elsewhere: use standard "if" or function pointer at function entry.
+
+> What it would give you above and beyond djprobes is an easier and more
+> flexible way to actually do the instrumentation itself.
+
+Absolutely agree.
+
+Karim
+

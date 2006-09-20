@@ -1,87 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932089AbWITRYF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932085AbWITRYO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932089AbWITRYF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Sep 2006 13:24:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932088AbWITRYE
+	id S932085AbWITRYO (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Sep 2006 13:24:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932088AbWITRYO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Sep 2006 13:24:04 -0400
-Received: from smtp-out.google.com ([216.239.45.12]:22455 "EHLO
-	smtp-out.google.com") by vger.kernel.org with ESMTP id S932085AbWITRYB
+	Wed, 20 Sep 2006 13:24:14 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:29914 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932085AbWITRYM
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Sep 2006 13:24:01 -0400
-DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
-	h=received:message-id:date:from:to:subject:cc:in-reply-to:
-	mime-version:content-type:content-transfer-encoding:
-	content-disposition:references;
-	b=a4kX+FNa+60mmK3eovs5pFE+N349KbVqjinPdrxKmCD72KJQmCjRzuA9TVZ3sS1Sr
-	LXp2UuifrbQOYhLGGrYRg==
-Message-ID: <6599ad830609201023y4efcc82fjda76df872fce907d@mail.google.com>
-Date: Wed, 20 Sep 2006 10:23:54 -0700
-From: "Paul Menage" <menage@google.com>
-To: "Nick Piggin" <nickpiggin@yahoo.com.au>
-Subject: Re: [ckrm-tech] [patch00/05]: Containers(V2)- Introduction
-Cc: "Peter Zijlstra" <a.p.zijlstra@chello.nl>,
-       CKRM-Tech <ckrm-tech@lists.sourceforge.net>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       "Linux Memory Management" <linux-mm@kvack.org>, rohitseth@google.com,
-       devel@openvz.org, "Christoph Lameter" <clameter@sgi.com>
-In-Reply-To: <451173B5.1000805@yahoo.com.au>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+	Wed, 20 Sep 2006 13:24:12 -0400
+Subject: Re: [patch00/05]: Containers(V2)- Introduction
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Christoph Lameter <clameter@sgi.com>
+Cc: Rohit Seth <rohitseth@google.com>,
+       CKRM-Tech <ckrm-tech@lists.sourceforge.net>, devel@openvz.org,
+       pj@sgi.com, npiggin@suse.de,
+       linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.64.0609201012310.30793@schroedinger.engr.sgi.com>
 References: <1158718568.29000.44.camel@galaxy.corp.google.com>
-	 <4510D3F4.1040009@yahoo.com.au> <1158751720.8970.67.camel@twins>
-	 <4511626B.9000106@yahoo.com.au> <1158767787.3278.103.camel@taijtu>
-	 <451173B5.1000805@yahoo.com.au>
+	 <Pine.LNX.4.64.0609200916140.30572@schroedinger.engr.sgi.com>
+	 <1158773699.7705.19.camel@localhost.localdomain>
+	 <Pine.LNX.4.64.0609201012310.30793@schroedinger.engr.sgi.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Wed, 20 Sep 2006 18:48:11 +0100
+Message-Id: <1158774491.7705.32.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 9/20/06, Nick Piggin <nickpiggin@yahoo.com.au> wrote:
+Ar Mer, 2006-09-20 am 10:15 -0700, ysgrifennodd Christoph Lameter:
+> The scalability issues can certainly be managed. See the discussions on 
+> linux-mm.
 
-> Yeah, I'm not sure about that. I don't think really complex schemes
-> are needed... but again I might need more knowledge of their workloads
-> and problems.
->
+I'll take a look at a web archive of it, I don't follow -mm.
 
-The basic need for separating files into containers distinct from the
-tasks that are using them arises when you have several "jobs" all
-working with the same large data set. (Possibly read-only data files,
-or possibly one job is updating a dataset that's being used by other
-jobs).
-For automated job-tracking and scheduling, it's important to be able
-to distinguish shared usage from individual usage (e.g. to be able to
-answer questions "if I kill job X, how much memory do I get back?" and
-"how do I recover 1G of memory on this machine")
+>  Kernel side resource objects? slab pages? Those are tracked.
 
-As an example, assume two jobs each with 100M of anonymous memory both
-mapping the same 1G file, for a total usage of 1.2G.
+Slab pages isn't a useful tracking tool for two reasons. The first is
+that some resources are genuinely a shared kernel managed pool and
+should be treated that way - thats obviously easy to sort out.
 
-Any setup that doesn't let you distinguish shared and private usage
-makes it hard to answer that kind of scheduling questions. E.g.:
+The second is that slab pages are not the granularity of allocations so
+it becomes possible (and deliberately influencable) to make someone else
+allocate the pages all the time so you don't pay the cost. Hence the
+beancounters track the real objects.
 
-- first user gets charged for the page -> first job reported as 1.1G,
-and the second as 0.1G.
+> Cpusets can share nodes. I am not sure what the problem would be? Paul may 
+> be able to give you more details.
 
-- page charges get shared between all users of the page -> two tasks
-using 0.6G each.
+If it can do it in a human understandable way, configured at runtime
+with dynamic sharing, overcommit and reconfiguration of sizes then
+great. Lets see what Paul has to say.
 
-- all users get charged for the page -> two tasks using 1.1G each.
-
-But in fact killing either one of these jobs individually would only
-free up 100M
-
-By explicitly letting userspace see that there are two jobs each with
-a private usage of 100M, and they're sharing a dataset of 1G, it's
-possible to make more informed decisions.
-
-The issue of telling the kernel exactly which files/directories need
-to be accounted separately can be handled by userspace.
-
-It could be done by per-page accounting, or by constraining particular
-files to particular memory zones, or by just tracking/limiting the
-number of pages from each address_space in the pagecache, but I think
-that it's important that the kernel at least provide the primitive
-support for this.
-
-Paul
+Alan

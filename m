@@ -1,72 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932289AbWITTM0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932294AbWITTNv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932289AbWITTM0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Sep 2006 15:12:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932293AbWITTMZ
+	id S932294AbWITTNv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Sep 2006 15:13:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932295AbWITTNv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Sep 2006 15:12:25 -0400
-Received: from gateway-1237.mvista.com ([63.81.120.158]:47989 "EHLO
-	dwalker1.mvista.com") by vger.kernel.org with ESMTP id S932289AbWITTMZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Sep 2006 15:12:25 -0400
-Message-Id: <20060920191134.934555000@mvista.com>
-User-Agent: quilt/0.45-1
-Date: Wed, 20 Sep 2006 12:11:34 -0700
-From: dwalker@mvista.com
-To: mingo@elte.hu
+	Wed, 20 Sep 2006 15:13:51 -0400
+Received: from nsm.pl ([195.34.211.229]:530 "EHLO nsm.pl") by vger.kernel.org
+	with ESMTP id S932294AbWITTNu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Sep 2006 15:13:50 -0400
+Date: Wed, 20 Sep 2006 21:13:44 +0200
+From: Tomasz Torcz <zdzichu@irc.pl>
+To: CIJOML <cijoml@volny.cz>
 Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH -rt] serial: scheduling with irqs disabled
+Subject: Re: Very slow write on flash drive in sync mode???
+Message-ID: <20060920191343.GA15386@irc.pl>
+Mail-Followup-To: CIJOML <cijoml@volny.cz>,
+	linux-kernel@vger.kernel.org
+References: <200609202058.05816.cijoml@volny.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200609202058.05816.cijoml@volny.cz>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Saw this during bootup ..
+On Wed, Sep 20, 2006 at 08:58:05PM +0200, CIJOML wrote:
+> Hi,
+> 
+> I use SanDisk cruzer Titanium 2 GB mounted as sync in fstab
+> /dev/sda1       /mnt/cruzer_sync      vfat    user,noauto,sync                
+> 
+> When I use flash drive in sync mode, it writes on it only 64kB/s. When I 
+> umount it and mount it in not sync mode but do sync manually after it writes 
+> into memory, kernel writes on flash drive 11 MB/s!!! What is wrong in my 
+> configuration?
 
-BUG: scheduling with irqs disabled: insmod/0x00000000/1110
-caller is rt_spin_lock_slowlock+0x89/0x190
- [<c0104c3b>] show_trace+0x1b/0x20
- [<c0104d44>] dump_stack+0x24/0x30
- [<c040ff9e>] schedule+0x10e/0x120
- [<c0410d99>] rt_spin_lock_slowlock+0x89/0x190
- [<c0411502>] rt_spin_lock+0x22/0x30
- [<c0291669>] serial8250_console_write+0x49/0x170
- [<c011fa8d>] __call_console_drivers+0x6d/0x80
- [<c011fae3>] _call_console_drivers+0x43/0x90
- [<c0120265>] release_console_sem+0xe5/0x240
- [<c011fe4e>] vprintk+0x20e/0x380
- [<c011ffdb>] printk+0x1b/0x20
- [<c0140345>] sys_init_module+0xba5/0x1a30
- [<c01034d7>] syscall_call+0x7/0xb
----------------------------
-| preempt count: 00000000 ]
-| 0-level deep critical section nesting:
-----------------------------------------
+  That's expected with sync vfat mount. Use other filesystem or async.
 
-Signed-Off-By: Daniel Walker <dwalker@mvista.com>
+-- 
+Tomasz Torcz                "Funeral in the morning, IDE hacking
+zdzichu@irc.-nie.spam-.pl    in the afternoon and evening." - Alan Cox
 
----
- drivers/serial/8250.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
-
-Index: linux-2.6.18/drivers/serial/8250.c
-===================================================================
---- linux-2.6.18.orig/drivers/serial/8250.c
-+++ linux-2.6.18/drivers/serial/8250.c
-@@ -2252,7 +2252,7 @@ serial8250_console_write(struct console 
- 
- 	touch_nmi_watchdog();
- 
--	local_irq_save(flags);
-+	local_irq_save_nort(flags);
- 	if (up->port.sysrq) {
- 		/* serial8250_handle_port() already took the lock */
- 		locked = 0;
-@@ -2282,7 +2282,7 @@ serial8250_console_write(struct console 
- 
- 	if (locked)
- 		spin_unlock(&up->port.lock);
--	local_irq_restore(flags);
-+	local_irq_restore_nort(flags);
- }
- 
- static int serial8250_console_setup(struct console *co, char *options)
---

@@ -1,59 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750746AbWITUXH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750750AbWITU0Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750746AbWITUXH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Sep 2006 16:23:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750734AbWITUXG
+	id S1750750AbWITU0Q (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Sep 2006 16:26:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750752AbWITU0Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Sep 2006 16:23:06 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:16259 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1750746AbWITUXF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Sep 2006 16:23:05 -0400
-Date: Wed, 20 Sep 2006 22:14:50 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Daniel Walker <dwalker@mvista.com>
-Cc: Gene Heskett <gene.heskett@verizon.net>, linux-kernel@vger.kernel.org,
-       paulmck@us.ibm.com, Thomas Gleixner <tglx@linutronix.de>,
-       John Stultz <johnstul@us.ibm.com>, Dipankar Sarma <dipankar@in.ibm.com>,
-       Arjan van de Ven <arjan@infradead.org>
-Subject: Re: 2.6.18-rt1
-Message-ID: <20060920201450.GA22482@elte.hu>
-References: <20060920141907.GA30765@elte.hu> <1158774118.29177.13.camel@c-67-180-230-165.hsd1.ca.comcast.net> <20060920182553.GC1292@us.ibm.com> <200609201436.47042.gene.heskett@verizon.net> <20060920194650.GA21037@elte.hu> <1158783590.29177.19.camel@c-67-180-230-165.hsd1.ca.comcast.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 20 Sep 2006 16:26:16 -0400
+Received: from free-electrons.com ([88.191.23.47]:6855 "EHLO
+	sd-2511.dedibox.fr") by vger.kernel.org with ESMTP id S1750750AbWITU0P
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Sep 2006 16:26:15 -0400
+From: Michael Opdenacker <michael-lists@free-electrons.com>
+Organization: Free Electrons
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH 2.6.18] [TRIVIAL] Simplify tosh_get_info() in drivers/char/toshiba.c
+Date: Wed, 20 Sep 2006 22:25:39 +0200
+User-Agent: KMail/1.9.1
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1158783590.29177.19.camel@c-67-180-230-165.hsd1.ca.comcast.net>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -2.9
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.9 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.4998]
-	-0.1 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+Message-Id: <200609202225.40136.michael-lists@free-electrons.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+This patch against 2.6.18 is just a trivial simplification of tosh_get_info() 
+in drivers/char/toshiba.c.
+It was doing something like: b=a; b+=c; return b-a;
+Replaced by: return c;
+Also removed an unnecessary local variable.
 
-* Daniel Walker <dwalker@mvista.com> wrote:
+Signed-off-by: Michael Opdenacker <michael@free-electrons.com>
 
-> What about the !PREEMPT_RT case.. It still wouldn't disable interrupts 
-> in the below..
->
-> -       local_irq_save(flags);
->         if (up->port.sysrq) {
->                 /* serial8250_handle_port() already took the lock */
->                 locked = 0;
->         } else if (oops_in_progress) {
-> -               locked = spin_trylock(&up->port.lock);
-> +               locked = spin_trylock_irqsave(&up->port.lock, flags);
->         } else
-> -               spin_lock(&up->port.lock);
-> +               spin_lock_irqsave(&up->port.lock, flags);
+--- linux-2.6.18/drivers/char/toshiba.c	2006-09-20 05:42:06.000000000 +0200
++++ linux-2.6.18-toshiba/drivers/char/toshiba.c	2006-09-20 21:53:31.000000000 
++0200
+@@ -299,12 +299,6 @@ static int tosh_ioctl(struct inode *ip, 
+ #ifdef CONFIG_PROC_FS
+ static int tosh_get_info(char *buffer, char **start, off_t fpos, int length)
+ {
+-	char *temp;
+-	int key;
+-
+-	temp = buffer;
+-	key = tosh_fn_status();
+-
+ 	/* Arguments
+ 	     0) Linux driver version (this will change if format changes)
+ 	     1) Machine ID
+@@ -314,16 +308,14 @@ static int tosh_get_info(char *buffer, c
+ 	     5) Fn Key status
+ 	*/
+ 
+-	temp += sprintf(temp, "1.1 0x%04x %d.%d %d.%d 0x%04x 0x%02x\n",
++	return sprintf(buffer, "1.1 0x%04x %d.%d %d.%d 0x%04x 0x%02x\n",
+ 		tosh_id,
+ 		(tosh_sci & 0xff00)>>8,
+ 		tosh_sci & 0xff,
+ 		(tosh_bios & 0xff00)>>8,
+ 		tosh_bios & 0xff,
+ 		tosh_date,
+-		key);
+-
+-	return temp-buffer;
++		tosh_fn_status());
+ }
+ #endif
+ 
 
-_irqsave disables interrupts, always did.
-
-	Ingo
+-- 
+Michael Opdenacker, Free Electrons
+Free Embedded Linux Training Materials
+on http://free-electrons.com/training
+(More than 1000 pages!)

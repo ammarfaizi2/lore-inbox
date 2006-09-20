@@ -1,99 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751241AbWITNVQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751257AbWITNWm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751241AbWITNVQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Sep 2006 09:21:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751253AbWITNVQ
+	id S1751257AbWITNWm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Sep 2006 09:22:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751253AbWITNWm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Sep 2006 09:21:16 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:26291 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751241AbWITNVO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Sep 2006 09:21:14 -0400
-Date: Wed, 20 Sep 2006 09:20:08 -0400
-From: "Frank Ch. Eigler" <fche@redhat.com>
-To: Karim Yaghmour <karim@opersys.com>
-Cc: Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
-       linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
-       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@redhat.com>,
-       Greg Kroah-Hartman <gregkh@suse.de>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Douglas Niehaus <niehaus@eecs.ku.edu>, Tom Zanussi <zanussi@us.ibm.com>,
-       Paul Mundt <lethal@linux-sh.org>, Jes Sorensen <jes@sgi.com>,
-       Richard J Moore <richardj_moore@uk.ibm.com>,
-       William Cohen <wcohen@redhat.com>,
-       "Martin J. Bligh" <mbligh@mbligh.org>,
-       Michel Dagenais <michel.dagenais@polymtl.ca>,
-       systemtap@sources.redhat.com, ltt-dev@shafik.org
-Subject: Re: [PATCH] Linux Kernel Markers 0.2 for Linux 2.6.17
-Message-ID: <20060920132008.GF18646@redhat.com>
-References: <20060919183447.GA16095@Krystal> <y0m4pv3ek49.fsf@ton.toronto.redhat.com> <20060919193623.GA9459@Krystal> <20060919194515.GB18646@redhat.com> <20060919202802.GB552@Krystal> <20060919210703.GD18646@redhat.com> <45106B20.6020600@opersys.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="Pgaa2uWPnPrfixyx"
+	Wed, 20 Sep 2006 09:22:42 -0400
+Received: from nf-out-0910.google.com ([64.233.182.189]:55774 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1751257AbWITNWl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Sep 2006 09:22:41 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=tH6kGwm0aNRIVmRet4YUfY+0WAnGJD0kbGEc+ztSafSVHs1BtoLox2d/bWYaosabKt/Ltxyjc1X25HFp3Ho9ipNMogXIzLVTo19XEPXlYexAkNSOKc8CeXKUWL1S1ts5xuUz9bAr812BaYOW4tVv2Elks0ki4EPlEw8si1/Bj9A=
+Message-ID: <d120d5000609200622g333f2767y27e529d81333e7b7@mail.gmail.com>
+Date: Wed, 20 Sep 2006 09:22:39 -0400
+From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
+To: "Lennart Poettering" <mzxreary@0pointer.de>
+Subject: Re: [PATCH] input: A few new KEY_xxx definitions
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20060808100744.GA16201@tango.0pointer.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <45106B20.6020600@opersys.com>
-User-Agent: Mutt/1.4.1i
+References: <20060808000925.GA6220@curacao>
+	 <200608072219.02315.dtor@insightbb.com>
+	 <20060808100744.GA16201@tango.0pointer.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 8/8/06, Lennart Poettering <mzxreary@0pointer.de> wrote:
+> On Mon, 07.08.06 22:19, Dmitry Torokhov (dtor@insightbb.com) wrote:
+>
+> > > KEY_POWERPLUG, KEY_POWERUNPLUG:
+> > >
+> > >     Some laptops generate a fake key event when the power cord is
+> > >     plugged or unplugged. (Notably MSI laptops, such as S270)
+> > >
+> >
+> > How do these events get delivered? Are you saying that atkbd reports
+> > key presses when pulling out AC cord?
+>
+> Yes, exactly.
+>
 
---Pgaa2uWPnPrfixyx
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Lennart,
 
-Hi -
+I applied part of the patch defining KEY_BLUETOOTH and KEY_WLAN, but I
+did not apply KEY_POWER[UN]PLUG. I feel that these should not be
+defined as KEY_* events but (if we decide that they should be reported
+through input layer) as EV_PWR events.
 
-> > [...]  For the static part of the instrumentation, a
-> > marker that could be hooked up to either type of probing system was
-> > desirable, which implies some sort of run-time changeability.
->=20
-> Ok. So if I get what you're saying here, you'd like to be able to
-> overload a marker?=20
-
-Sort of.  Remember, we discussed markers as *marking* places and
-things, with the intent that they be decoupled from the actual
-*action* that is taken when the marker is hit.
-
-> Can you suggest a macro that can do what you'd like. [...]
-
-Compare the kind of marker I showed at OLS and presently supported by
-systemtap.  Its unparametrized version looks like this:
-
-#define STAP_MARK(name) do { \
-   static void (*__mark_##name##_)(); \
-   if (unlikely (__mark_##name##_)) \
-   (void) (__mark_##name##_()); \
-} while (0)
-
-A tracing/probing tool would hook up to a particular and specific
-marker at run time by locating the __mark_NAME static variable (a
-function pointer) in the data segment, for example using the ordinary
-symbol table, and swapping into it the address of a compatible
-back-end handler function.  When a particular tracing/probing session
-ends, the function pointer is reset to null.
-
-Note that this technique:
-
-- operates at run time
-- is portable
-- in its parametrized variants, is type-safe
-- does not require any future technology
-- does impose some overhead even when a marker is not active
-
-
-- FChE
-
---Pgaa2uWPnPrfixyx
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-
-iD8DBQFFEUAIVZbdDOm/ZT0RArLyAJ9ruOE2k/y0zeRlhhbNhdPSDi/VfgCfbQwT
-Arhx3URz498QyTFNvs47zX4=
-=4hPy
------END PGP SIGNATURE-----
-
---Pgaa2uWPnPrfixyx--
+-- 
+Dmitry

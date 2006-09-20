@@ -1,99 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932220AbWITSeI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932229AbWITShw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932220AbWITSeI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Sep 2006 14:34:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932226AbWITSeH
+	id S932229AbWITShw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Sep 2006 14:37:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932232AbWITShw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Sep 2006 14:34:07 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.150]:65209 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S932220AbWITSeD
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Sep 2006 14:34:03 -0400
-Subject: Re: [ckrm-tech] [patch00/05]: Containers(V2)- Introduction
-From: Chandra Seetharaman <sekharan@us.ibm.com>
-Reply-To: sekharan@us.ibm.com
-To: Christoph Lameter <clameter@sgi.com>
-Cc: Rohit Seth <rohitseth@google.com>, npiggin@suse.de, pj@sgi.com,
-       linux-kernel <linux-kernel@vger.kernel.org>, devel@openvz.org,
-       CKRM-Tech <ckrm-tech@lists.sourceforge.net>
-In-Reply-To: <Pine.LNX.4.64.0609200916140.30572@schroedinger.engr.sgi.com>
+	Wed, 20 Sep 2006 14:37:52 -0400
+Received: from amsfep17-int.chello.nl ([213.46.243.15]:28516 "EHLO
+	amsfep13-int.chello.nl") by vger.kernel.org with ESMTP
+	id S932229AbWITShu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Sep 2006 14:37:50 -0400
+Subject: Re: [patch00/05]: Containers(V2)- Introduction
+From: Peter Zijlstra <a.p.zijlstra@chello.nl>
+To: rohitseth@google.com
+Cc: Nick Piggin <nickpiggin@yahoo.com.au>,
+       CKRM-Tech <ckrm-tech@lists.sourceforge.net>, devel@openvz.org,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Linux Memory Management <linux-mm@kvack.org>,
+       Christoph Lameter <clameter@sgi.com>
+In-Reply-To: <1158774657.8574.65.camel@galaxy.corp.google.com>
 References: <1158718568.29000.44.camel@galaxy.corp.google.com>
-	 <Pine.LNX.4.64.0609200916140.30572@schroedinger.engr.sgi.com>
+	 <4510D3F4.1040009@yahoo.com.au> <1158751720.8970.67.camel@twins>
+	 <4511626B.9000106@yahoo.com.au> <1158767787.3278.103.camel@taijtu>
+	 <451173B5.1000805@yahoo.com.au>
+	 <1158774657.8574.65.camel@galaxy.corp.google.com>
 Content-Type: text/plain
-Organization: IBM
-Date: Wed, 20 Sep 2006 11:34:00 -0700
-Message-Id: <1158777240.6536.89.camel@linuxchandra>
+Date: Wed, 20 Sep 2006 20:37:42 +0200
+Message-Id: <1158777463.28174.37.camel@lappy>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-7) 
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-09-20 at 09:25 -0700, Christoph Lameter wrote:
-> On Tue, 19 Sep 2006, Rohit Seth wrote:
+On Wed, 2006-09-20 at 10:50 -0700, Rohit Seth wrote:
+> On Thu, 2006-09-21 at 03:00 +1000, Nick Piggin wrote:
+> > (this time to the lists as well)
+> > 
+> > Peter Zijlstra wrote:
+> > 
+> >  > I'd much rather containterize the whole reclaim code, which should not
+> >  > be too hard since he already adds a container pointer to struct page.
+> > 
+> > 
 > 
-> > For example, a user can run a batch job like backup inside containers.
-> > This job if run unconstrained could step over most of the memory present
-> > in system thus impacting other workloads running on the system at that
-> > time.  But when the same job is run inside containers then the backup
-> > job is run within container limits.
+> Right now the memory handler in this container subsystem is written in
+> such a way that when existing kernel reclaimer kicks in, it will first
+> operate on those (container with pages over the limit) pages first.  But
+> in general I like the notion of containerizing the whole reclaim code.
+
+Patch 5/5 seems to have a horrid deactivation scheme.
+
+> >  > I still have to reread what Rohit does for file backed pages, that gave
+> >  > my head a spin.
 > 
-> I just saw this for the first time since linux-mm was not cced. We have 
-> discussed a similar mechanism on linux-mm.
-> 
-> We already have such a functionality in the kernel its called a cpuset. A 
+> Please let me know if there is any specific part that isn't making much
+> sense.
 
-Christoph,
+Well, the whole over the limit handler is quite painfull, having taken a
+second reading it isn't all that complex after all, just odd.
 
-There had been multiple discussions in the past (as recent as Aug 18,
-2006), where we (Paul and CKRM/RG folks) have concluded that cpuset and
-resource management are orthogonal features.
+You just start invalidating whole files for file backed pages. Granted,
+this will get you below the threshold. but you might just have destroyed
+your working set.
 
-cpuset provides "resource isolation", and what we, the resource
-management guys want is work-conserving resource control.
+Pretty much the same for you anonymous memory handler, you scan through
+the pages in linear fashion and demote the first that you encounter.
 
-cpuset partitions resource and hence the resource that are assigned to a
-node is not available for other cpuset, which is not good for "resource
-management".
-
-chandra
-PS:
-Aug 18 link: http://marc.theaimsgroup.com/?l=linux-
-kernel&m=115593114408336&w=2
-
-Feb 2005 thread: http://marc.theaimsgroup.com/?l=ckrm-
-tech&m=110790400330617&w=2 
-> container could be created simply by creating a fake node that then 
-> allows constraining applications to this node. We already track the 
-> types of pages per node. The statistics you want are already existing. 
-> See /proc/zoneinfo and /sys/devices/system/node/node*/*.
-> 
-> > We use the term container to indicate a structure against which we track
-> > and charge utilization of system resources like memory, tasks etc for a
-> > workload. Containers will allow system admins to customize the
-> > underlying platform for different applications based on their
-> > performance and HW resource utilization needs.  Containers contain
-> > enough infrastructure to allow optimal resource utilization without
-> > bogging down rest of the kernel.  A system admin should be able to
-> > create, manage and free containers easily.
-> 
-> Right thats what cpusets do and it has been working fine for years. Maybe 
-> Paul can help you if you find anything missing in the existing means to 
-> control resources.
-> 
-> -------------------------------------------------------------------------
-> Take Surveys. Earn Cash. Influence the Future of IT
-> Join SourceForge.net's Techsay panel and you'll get the chance to share your
-> opinions on IT & business topics through brief surveys -- and earn cash
-> http://www.techsay.com/default.php?page=join.php&p=sourceforge&CID=DEVDEV
-> _______________________________________________
-> ckrm-tech mailing list
-> https://lists.sourceforge.net/lists/listinfo/ckrm-tech
--- 
-
-----------------------------------------------------------------------
-    Chandra Seetharaman               | Be careful what you choose....
-              - sekharan@us.ibm.com   |      .......you may get it.
-----------------------------------------------------------------------
-
+Both things pretty thoroughly destroy the existing kernel reclaim.
 

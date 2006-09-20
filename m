@@ -1,185 +1,134 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751588AbWITO5m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751591AbWITPDd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751588AbWITO5m (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Sep 2006 10:57:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751589AbWITO5m
+	id S1751591AbWITPDd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Sep 2006 11:03:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751596AbWITPDd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Sep 2006 10:57:42 -0400
-Received: from tomts22.bellnexxia.net ([209.226.175.184]:29945 "EHLO
-	tomts22-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id S1751588AbWITO5l (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Sep 2006 10:57:41 -0400
-Date: Wed, 20 Sep 2006 10:57:39 -0400
-From: Mathieu Desnoyers <compudj@krystal.dyndns.org>
-To: "Frank Ch. Eigler" <fche@redhat.com>
-Cc: Karim Yaghmour <karim@opersys.com>, linux-kernel@vger.kernel.org,
-       Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       Ingo Molnar <mingo@redhat.com>, Greg Kroah-Hartman <gregkh@suse.de>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Douglas Niehaus <niehaus@eecs.ku.edu>, Tom Zanussi <zanussi@us.ibm.com>,
-       Paul Mundt <lethal@linux-sh.org>, Jes Sorensen <jes@sgi.com>,
-       Richard J Moore <richardj_moore@uk.ibm.com>,
-       William Cohen <wcohen@redhat.com>,
-       "Martin J. Bligh" <mbligh@mbligh.org>,
-       Michel Dagenais <michel.dagenais@polymtl.ca>,
-       systemtap@sources.redhat.com, ltt-dev@shafik.org
-Subject: Re: [PATCH] Linux Kernel Markers 0.2 for Linux 2.6.17
-Message-ID: <20060920145739.GA8502@Krystal>
-References: <20060919183447.GA16095@Krystal> <y0m4pv3ek49.fsf@ton.toronto.redhat.com> <20060919193623.GA9459@Krystal> <20060919194515.GB18646@redhat.com> <20060919202802.GB552@Krystal> <20060919210703.GD18646@redhat.com> <45106B20.6020600@opersys.com> <20060920132008.GF18646@redhat.com> <20060920133834.GB17032@Krystal>
+	Wed, 20 Sep 2006 11:03:33 -0400
+Received: from mail.suse.de ([195.135.220.2]:2751 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751584AbWITPDc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Sep 2006 11:03:32 -0400
+Date: Wed, 20 Sep 2006 17:03:31 +0200
+From: Nick Piggin <npiggin@suse.de>
+To: Nate Diller <nate.diller@gmail.com>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Jens Axboe <axboe@kernel.dk>
+Subject: Re: [rfc][patch 2.6.18-rc7] block: explicit plugging
+Message-ID: <20060920150331.GC27347@wotan.suse.de>
+References: <20060916115607.GA16971@wotan.suse.de> <5c49b0ed0609181310n409a64c2i172e07044802751a@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=_Krystal-25586-1158764259-0001-2"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060920133834.GB17032@Krystal>
-X-Editor: vi
-X-Info: http://krystal.dyndns.org:8080
-X-Operating-System: Linux/2.4.32-grsec (i686)
-X-Uptime: 10:56:07 up 28 days, 12:04,  2 users,  load average: 0.33, 0.21, 0.12
-User-Agent: Mutt/1.5.13 (2006-08-11)
+In-Reply-To: <5c49b0ed0609181310n409a64c2i172e07044802751a@mail.gmail.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a MIME-formatted message.  If you see this text it means that your
-E-mail software does not support MIME-formatted messages.
+On Mon, Sep 18, 2006 at 01:10:13PM -0700, Nate Diller wrote:
+> On 9/16/06, Nick Piggin <npiggin@suse.de> wrote:
+> >Hi,
+> >
+> >I've been tinkering with this idea for a while, and I'd be interested
+> >in seeing what people think about it. The patch isn't in a great state
+> >of commenting or splitting ;) but I'd be interested feelings about the
+> >general approach, and whether I'm going to hit any bad problems (eg.
+> >with SCSI or IDE).
+> 
+> I *really* like this idea, and I would like to help get it merged.  I
+> can even run some benchmarks for you once I get my test rig running
+> again.
 
---=_Krystal-25586-1158764259-0001-2
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Thanks, that would be handy.
 
-Hi Frank,
+> I had a related idea that I have not been able to work on yet.  I
+> called it "kernel anticipation", and it explicitly instructs the
+> scheduler when a function is submitting I/O that subsequent I/O is
+> dependent on.  In other words, when we are composing a bio and get the
+> "BH_Boundary" flag in a buffer head, mark the bio for mandatory
+> anticipation, since we know we'll have a hit.  This would enable the
+> anticipation code to act in some cases even for processes with very
+> high thinktimes.
 
-Here is a revised proposal (just the marker.h). Do you have ideas on how we=
- can
-export the function symbol ? (is it necessary ?)
+This patch gives you the mechanism to do that for independent IOs,
+but not for dependent ones (ie. where you actually want to forcefully
+idle the queue).
 
-Any thoughts ?
+But do remember that if your thinktime is potentially very high, then
+it can quickly get to the point where it is cheaper to eat the cost
+of moving the heads. So even if we *know* we'll have a subsequent
+request very close to the last, it may not be the best idea to wait.
 
------ BEGIN -----
+> >On a parallel tiobench benchmark, of the 800 000 calls to __make_request
+> >performed, this patch avoids 490 000 (62%) of queue_lock aquisitions by
+> >early merging on the private plugged list.
+> 
+> Have you run any FS performance benchmorks to check for regressions in
+> performance?  Who knows, you might even see be able to show a visible
+> increase :)
 
+I haven't done anything interesting/intensive yet. I imagine the
+queue_lock savings won't be measurable on 2-way systems with only
+one or two disks. I do hope the actual request patterns will be
+improved when under parallel and asynch IO, though.
 
-#include <asm/marker.h>
+> 
+> >@@ -2865,68 +2762,48 @@ static int __make_request(request_queue_
+> >         */
+> >        blk_queue_bounce(q, &bio);
+> >
+> >-       spin_lock_prefetch(q->queue_lock);
+> >-
+> >        barrier = bio_barrier(bio);
+> >        if (unlikely(barrier) && (q->next_ordered == QUEUE_ORDERED_NONE)) {
+> >                err = -EOPNOTSUPP;
+> >                goto end_io;
+> >        }
+> >
+> >+       /* Attempt merging with the plugged list before taking locks */
+> >+       ioc = current->io_context;
+> >+       if (ioc && ioc->plugged && !list_empty(&ioc->plugged_list)) {
+> >+               struct request *rq;
+> >+               rq = list_entry_rq(ioc->plugged_list.prev);
+> >+
+> >+               el_ret = elv_try_merge(rq, bio);
+> >+               if (el_ret == ELEVATOR_BACK_MERGE) {
+> >+                       if (bio_attempt_back_merge(q, rq, nr_sectors, bio))
+> >+                               goto out;
+> >+               } else if (el_ret == ELEVATOR_FRONT_MERGE) {
+> >+                       if (bio_attempt_front_merge(q, rq, nr_sectors, 
+> >bio))
+> >+                               goto out;
+> >+               }
+> >+       }
+> >+
+> >        spin_lock_irq(q->queue_lock);
+> >
+> >-       if (unlikely(barrier) || elv_queue_empty(q))
+> >+       if (elv_queue_empty(q))
+> >                goto get_rq;
+> >
+> >        el_ret = elv_merge(q, &req, bio);
+> >-       switch (el_ret) {
+> 
+> Have you considered skipping the queue merge entirely, if there is not
+> a hit in the plugged_list?  I would be interested to see a "hit rate"
+> of how many queue merge attempts are successful here.  I bet it's
+> pretty low.  The difference froim just skipping these entirely might
+> not even be visible in a benchmark.  It'd be pretty cool to be able to
+> eliminate the queue merging interface altogether.
 
-#ifdef CONFIG_MARK_SYMBOL
-#define MARK_SYM(name) \
-        do  { \
-                __asm__ ( "__mark_kprobe_" #name ":" ); \
-        } while(0)
-#else=20
-#define MARK_SYM(name)
-#endif
+On the tiobench workload above, of the 310 000 requests that hit the
+queue, 290 000 were merged, leaving about 20 000 actual requests going
+to the block device. So it is not insignificant. Definitely it could
+be less if the private queue merging was a bit smarter, but I think
+classes of parallel IO workloads will want to merge on the public queue.
 
+Given that we need to maintain the queue for sorting purposes anyway,
+I don't think merging ends up being too costly .
 
-#ifdef CONFIG_MARK_CALL
-#define MARK_CALL(name, format, args...) \
-        do {\
-                static void (*__mark_call_##name##_)(const char *fmt, ...) \
-                        asm ("__mark_call_"#name); \
-                if (unlikely (__mark_call_##name##_)) \
-                        (void) (__mark_call_##name##_(format, ## args)); \
-        } while(0)
-#else
-#define MARK_CALL(name, format, args...)
-#endif
+> 
+> Thanks for doing this work, it looks really promising.
 
-#define MARK(name, format, args...) \
-        do { \
-                __mark_check_format(format, ## args); \
-                MARK_SYM(name); \
-                MARK_CALL(name, format, ## args); \
-        } while(0)
+I appreciate the interest, thanks.
 
-static inline __attribute__ ((format (printf, 1, 2)))
-void __mark_check_format(const char *fmt, ...)
-{ }
-
-
----- END ----
-
-
-
-* Mathieu Desnoyers (compudj@krystal.dyndns.org) wrote:
-> * Frank Ch. Eigler (fche@redhat.com) wrote:
-> > Hi -
-> >=20
-> > > > [...]  For the static part of the instrumentation, a
-> > > > marker that could be hooked up to either type of probing system was
-> > > > desirable, which implies some sort of run-time changeability.
-> > >=20
-> > > Ok. So if I get what you're saying here, you'd like to be able to
-> > > overload a marker?=20
-> >=20
-> > Sort of.  Remember, we discussed markers as *marking* places and
-> > things, with the intent that they be decoupled from the actual
-> > *action* that is taken when the marker is hit.
-> >=20
-> > > Can you suggest a macro that can do what you'd like. [...]
-> >=20
-> > Compare the kind of marker I showed at OLS and presently supported by
-> > systemtap.  Its unparametrized version looks like this:
-> >=20
-> > #define STAP_MARK(name) do { \
-> >    static void (*__mark_##name##_)(); \
-> >    if (unlikely (__mark_##name##_)) \
-> >    (void) (__mark_##name##_()); \
-> > } while (0)
-> >=20
-> > A tracing/probing tool would hook up to a particular and specific
-> > marker at run time by locating the __mark_NAME static variable (a
-> > function pointer) in the data segment, for example using the ordinary
-> > symbol table, and swapping into it the address of a compatible
-> > back-end handler function.  When a particular tracing/probing session
-> > ends, the function pointer is reset to null.
-> >=20
-> > Note that this technique:
-> >=20
-> > - operates at run time
-> > - is portable
-> > - in its parametrized variants, is type-safe
-> > - does not require any future technology
-> > - does impose some overhead even when a marker is not active
-> >=20
-> >=20
-> Hi Frank,
->=20
-> Yes, I think there is much to gain to switch from the 5 nops "jumpprobe" =
-to
-> this scheme. In its parametrized variant, the jump will probably jump ove=
-r a
-> stack setup and function call. Do you think I should simply switch from t=
-he
-> 5 nops marker to this technique ? I guess the performance impact of a
-> predicted branch will be similar to 5 nops anyway...
->=20
-> The clear advantage I see in the parametrized variant is that the paramet=
-ers
-> will be ready for the called function : it makes it trivial to access any
-> variable from the traced function.
->=20
-> Mathieu
->=20
->=20
-> OpenPGP public key:              http://krystal.dyndns.org:8080/key/compu=
-dj.gpg
-> Key fingerprint:     8CD5 52C3 8E3C 4140 715F  BA06 3F25 A8FE 3BAE 9A68=
-=20
-
-
-OpenPGP public key:              http://krystal.dyndns.org:8080/key/compudj=
-=2Egpg
-Key fingerprint:     8CD5 52C3 8E3C 4140 715F  BA06 3F25 A8FE 3BAE 9A68=20
-
---=_Krystal-25586-1158764259-0001-2
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Transfer-Encoding: 7bit
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
-
-iD8DBQFFEVbjPyWo/juummgRAl0sAKCrL24wZwt1Dp/3zEXvFxLj1SmG/ACgn37z
-qlSddrYODkzFKWJ0+OBIeIM=
-=YhF2
------END PGP SIGNATURE-----
-
---=_Krystal-25586-1158764259-0001-2--

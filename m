@@ -1,195 +1,374 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750890AbWITCQT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750925AbWITCS6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750890AbWITCQT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Sep 2006 22:16:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750892AbWITCQT
+	id S1750925AbWITCS6 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Sep 2006 22:18:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750926AbWITCS6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Sep 2006 22:16:19 -0400
-Received: from smtp-out.google.com ([216.239.45.12]:20760 "EHLO
+	Tue, 19 Sep 2006 22:18:58 -0400
+Received: from smtp-out.google.com ([216.239.45.12]:42264 "EHLO
 	smtp-out.google.com") by vger.kernel.org with ESMTP
-	id S1750888AbWITCQS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Sep 2006 22:16:18 -0400
+	id S1750921AbWITCS4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Sep 2006 22:18:56 -0400
 DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
-	h=received:subject:from:reply-to:cc:content-type:
+	h=received:subject:from:reply-to:to:cc:content-type:
 	organization:date:message-id:mime-version:x-mailer:content-transfer-encoding;
-	b=gSWPDn2m/FMgpNQ9VLENshGMGWZ55Xt93KuaJqa2rK40ioLPoQU6sxY+Dpm8SBDM4
-	odPhGkAdxOZ0XJnSbxZiw==
-Subject: [patch00/05]: Containers(V2)- Introduction
+	b=AZy2w9iBOpe4IsT4bkqGyzDKU3vn/WFE/aDEtxw+Q066m8VcUkO0UkTKvnyyhawpy
+	M+cOZ2126L8N9OODM52QQ==
+Subject: [patch02/05]: Containers(V2)- Generic Linux kernel changes
 From: Rohit Seth <rohitseth@google.com>
 Reply-To: rohitseth@google.com
+To: Andrew Morton <akpm@osdl.org>
 Cc: CKRM-Tech <ckrm-tech@lists.sourceforge.net>, devel@openvz.org,
        linux-kernel <linux-kernel@vger.kernel.org>
 Content-Type: text/plain
 Organization: Google Inc
-Date: Tue, 19 Sep 2006 19:16:08 -0700
-Message-Id: <1158718568.29000.44.camel@galaxy.corp.google.com>
+Date: Tue, 19 Sep 2006 19:18:42 -0700
+Message-Id: <1158718722.29000.50.camel@galaxy.corp.google.com>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.2.1.1 
 Content-Transfer-Encoding: 7bit
-To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Containers:
-
-Commodity HW is becoming more powerful.  This is giving opportunity to
-run different workloads on the same platform for better HW resource
-utilization.  To run different workloads efficiently on the same
-platform, it is critical that we have a notion of limits for each
-workload in Linux kernel.  Current cpuset feature in Linux kernel
-provides grouping of CPU and memory support to some extent (for NUMA
-machines).  
-
-For example, a user can run a batch job like backup inside containers.
-This job if run unconstrained could step over most of the memory present
-in system thus impacting other workloads running on the system at that
-time.  But when the same job is run inside containers then the backup
-job is run within container limits.
-
-We use the term container to indicate a structure against which we track
-and charge utilization of system resources like memory, tasks etc for a
-workload. Containers will allow system admins to customize the
-underlying platform for different applications based on their
-performance and HW resource utilization needs.  Containers contain
-enough infrastructure to allow optimal resource utilization without
-bogging down rest of the kernel.  A system admin should be able to
-create, manage and free containers easily.
-
-At the same time, changes in kernel are minimized so as this support can
-be easily integrated with mainline kernel.
-
-The user interface for containers is through configfs.  Appropriate file
-system privileges are required to do operations on each container.
-Currently implemented container resources are automatically visible to
-user space through /configfs/container/<container_name> after a
-container is created.
+This patch contains changes to generic part of kernel code.  These
+changes tracks events like new task creating, task's exit, new page
+allocation (both file and anonymous) etc.
 
 Signed-off-by: Rohit Seth <rohitseth@google.com>
 
-Diffstat for the patch set (against linux-2.6.18-rc6-mm2_:
-
- Documentation/containers.txt |   65 ++++
- fs/inode.c                   |    3
- include/linux/container.h    |  167 ++++++++++
- include/linux/fs.h           |    5
- include/linux/mm_inline.h    |    4
- include/linux/mm_types.h     |    4
- include/linux/sched.h        |    6
- init/Kconfig                 |    8
- kernel/Makefile              |    1
- kernel/container_configfs.c  |  440 ++++++++++++++++++++++++++++
- kernel/exit.c                |    2
- kernel/fork.c                |    9
- mm/Makefile                  |    2
- mm/container.c               |  658 +++++++++++++++++++++++++++++++++++++++++++
- mm/container_mm.c            |  512 +++++++++++++++++++++++++++++++++
- mm/filemap.c                 |    4
- mm/page_alloc.c              |    3
- mm/rmap.c                    |    8
- mm/swap.c                    |    1
- mm/vmscan.c                  |    1
- 20 files changed, 1902 insertions(+), 1 deletion(-)
-
-Changes from version 1:
-Fixed the Documentation error
-Fixed the corruption in container task list
-Added the support for showing all the tasks belonging to a container
-through showtask attribute
-moved the Kconfig changes to init directory (from mm)
-Fixed the bug of unregistering container subsystem if we are not able to
-create workqueue
-Better support for handling limits for file pages.  This now includes
-support for flushing and invalidating page cache pages.
-Minor other changes.
-
-*****************************************************************
-This patch set has basic container support that includes:
-
-- Create a container using mkdir command in configfs
-
-- Free a container using rmdir command
-
-- Dynamically adjust memory and task limits for container.
-
-- Add/Remove a task to container (given a pid)
-
-- Files are currently added as part of open from a task that already
-belongs to a container.
-
-- Keep track of active, anonymous, mapped and pagecache usage of
-container memory
-
-- Does not allow more than task_limit number of tasks to be created in
-the container.
-
-- Over the limit memory handler is called when number of pages (anon +
-pagecache) exceed the limit.  It is also called when number of active
-pages exceed the page limit.  Currently, this memory handler scans the
-mappings and tasks belonging to container (file and anonymous) and tries
-to deactivate pages.  If the number of page cache pages is also high
-then it also invalidate mappings.  The thought behind this scheme is, it
-is okay for containers to go over limit as long they run in degraded
-manner when they are over their limit. Also, if there is any memory
-pressure then pages belonging to over the limit container(s) become
-prime candidates for kernel reclaimer.  Container mutex is also held
-during the time this handler is working its way through to prevent any
-further addition of resources (like tasks or mappings) to this
-container.  Though it also blocks removal of same resources from the
-container for the same time. It is possible that over the limit page
-handler takes lot of time if memory pressure on a container is
-continuously very high.  The limits, like how long a task should
-schedule out when it hits memory limit, is also on the lower side at
-present (particularly when it is memory hogger).  But should be easy to
-change if need be.
-
-- Indicate the number of times the page limit and task limit is hit
-
-- Indicate the tasks (pids) belonging to container.
-
-Below is a one line description for patches that will follow:
-
-[patch01]: Documentation on how to use containers
-(Documentation/container.txt)
-
-[patch02]: Changes in the generic part of kernel code
-
-[patch03]: Container's interface with configfs
-
-[patch04]: Core container support
-
-[patch05]: Over the limit memory handler.
-
-TODO: 
-
-- some code(like container_add_task) in mm/container.c should go
-elsewhere.
-- Support adding/removing a file name to container through configfs
-- /proc/pid/container to show the container id (or name)
-- More testing for memory controller.  Currently it is possible that
-limits are exceeded.  See if a call to reclaim can be easily integrated.
-- Kernel memory tracking (based on patches from BC)
-- Limit on user locked memory
-- Huge memory support
-- Stress testing with containers
-- One shot view of all containers
-- CKRM folks are interested in seeing all processes belonging to a
-container.  Add the attribute show_tasks to container.
-- Add logic so that the sum of limits are not exceeding appropriate
-system requirements.
-- Extend it with other controllers (CPU and Disk I/O)
-- Add flags bits for supporting different actions (like in some cases
-provide a hard memory limit and in some cases it could be soft).
-- Capability to kill processes for the extreme cases.
- ...
-
-This is based on lot of discussions over last month or so.  I hope this
-patch set is something that we can agree and more support can be added
-on top of this.  Please provide feedback and add other extensions that
-are useful in the TODO list.
-
-Thanks,
--rohit
+ fs/inode.c                |    3 +++
+ include/linux/fs.h        |    5 +++++
+ include/linux/mm_inline.h |    4 ++++
+ include/linux/mm_types.h  |    4 ++++
+ include/linux/sched.h     |    6 ++++++
+ init/Kconfig              |    8 ++++++++
+ kernel/Makefile           |    1 +
+ kernel/exit.c             |    2 ++
+ kernel/fork.c             |    9 +++++++++
+ mm/Makefile               |    2 ++
+ mm/filemap.c              |    4 ++++
+ mm/page_alloc.c           |    3 +++
+ mm/rmap.c                 |    8 +++++++-
+ mm/swap.c                 |    1 +
+ mm/vmscan.c               |    1 +
+ 15 files changed, 60 insertions(+), 1 deletion(-)
 
 
+--- linux-2.6.18-rc6-mm2.org/include/linux/mm_inline.h	2006-09-14 15:28:33.000000000 -0700
++++ linux-2.6.18-rc6-mm2.ctn/include/linux/mm_inline.h	2006-09-14 15:09:08.000000000 -0700
+@@ -1,9 +1,11 @@
++#include <linux/container.h>
+ 
+ static inline void
+ add_page_to_active_list(struct zone *zone, struct page *page)
+ {
+ 	list_add(&page->lru, &zone->active_list);
+ 	zone->nr_active++;
++	container_inc_activepage_count(page);
+ }
+ 
+ static inline void
+@@ -23,6 +25,7 @@ add_page_to_inactive_list_tail(struct zo
+ static inline void
+ del_page_from_active_list(struct zone *zone, struct page *page)
+ {
++	container_dec_activepage_count(page);
+ 	list_del(&page->lru);
+ 	zone->nr_active--;
+ }
+@@ -41,6 +44,7 @@ del_page_from_lru(struct zone *zone, str
+ 	if (PageActive(page)) {
+ 		__ClearPageActive(page);
+ 		zone->nr_active--;
++		container_dec_activepage_count(page);
+ 	} else {
+ 		zone->nr_inactive--;
+ 	}
+--- linux-2.6.18-rc6-mm2.org/include/linux/fs.h	2006-09-14 15:28:33.000000000 -0700
++++ linux-2.6.18-rc6-mm2.ctn/include/linux/fs.h	2006-09-14 15:09:08.000000000 -0700
+@@ -449,6 +449,7 @@ struct address_space_operations {
+ };
+ 
+ struct backing_dev_info;
++struct container_struct;
+ struct address_space {
+ 	struct inode		*host;		/* owner: inode, block_device */
+ 	struct radix_tree_root	page_tree;	/* radix tree of all pages */
+@@ -465,6 +466,10 @@ struct address_space {
+ 	struct backing_dev_info *backing_dev_info; /* device readahead, etc */
+ 	spinlock_t		private_lock;	/* for use by the address_space */
+ 	struct list_head	private_list;	/* ditto */
++#ifdef CONFIG_CONTAINERS
++	struct container_struct *ctn; /* Pointer to container */
++	struct list_head	ctn_mapping_list; /* List of files belonging to same container*/
++#endif
+ 	struct address_space	*assoc_mapping;	/* ditto */
+ } __attribute__((aligned(sizeof(long))));
+ 	/*
+--- linux-2.6.18-rc6-mm2.org/include/linux/sched.h	2006-09-14 15:28:33.000000000 -0700
++++ linux-2.6.18-rc6-mm2.ctn/include/linux/sched.h	2006-09-14 15:09:08.000000000 -0700
+@@ -298,6 +298,8 @@ typedef unsigned long mm_counter_t;
+ 		(mm)->hiwater_vm = (mm)->total_vm;	\
+ } while (0)
+ 
++struct container_struct;
++
+ struct mm_struct {
+ 	struct vm_area_struct * mmap;		/* list of VMAs */
+ 	struct rb_root mm_rb;
+@@ -1046,6 +1048,10 @@ struct task_struct {
+ #ifdef	CONFIG_TASK_DELAY_ACCT
+ 	struct task_delay_info *delays;
+ #endif
++#ifdef CONFIG_CONTAINERS
++	struct container_struct *ctn;
++	struct list_head ctn_task_list; /*List of processes belonging to container */
++#endif
+ };
+ 
+ static inline pid_t process_group(struct task_struct *tsk)
+--- linux-2.6.18-rc6-mm2.org/include/linux/mm_types.h	2006-09-14 15:28:33.000000000 -0700
++++ linux-2.6.18-rc6-mm2.ctn/include/linux/mm_types.h	2006-09-14 15:15:30.000000000 -0700
+@@ -6,6 +6,7 @@
+ #include <linux/list.h>
+ #include <linux/spinlock.h>
+ 
++struct container_struct;
+ struct address_space;
+ 
+ /*
+@@ -48,6 +49,9 @@ struct page {
+ 	struct list_head lru;		/* Pageout list, eg. active_list
+ 					 * protected by zone->lru_lock !
+ 					 */
++#ifdef CONFIG_CONTAINERS
++	struct container_struct *ctn; /* Pointer to container, may be NULL */
++#endif
+ 	/*
+ 	 * On machines where all RAM is mapped into kernel address space,
+ 	 * we can simply calculate the virtual address. On machines with
+--- linux-2.6.18-rc6-mm2.org/mm/filemap.c	2006-09-14 15:28:33.000000000 -0700
++++ linux-2.6.18-rc6-mm2.ctn/mm/filemap.c	2006-09-14 15:09:08.000000000 -0700
+@@ -30,6 +30,7 @@
+ #include <linux/security.h>
+ #include <linux/syscalls.h>
+ #include <linux/cpuset.h>
++#include <linux/container.h>
+ #include "filemap.h"
+ #include "internal.h"
+ 
+@@ -126,6 +127,7 @@ void __remove_from_page_cache(struct pag
+ 	page->mapping = NULL;
+ 	mapping->nrpages--;
+ 	__dec_zone_page_state(page, NR_FILE_PAGES);
++	container_dec_filepage_count(page);
+ }
+ EXPORT_SYMBOL(__remove_from_page_cache);
+ 
+@@ -461,6 +463,8 @@ int add_to_page_cache(struct page *page,
+ 		}
+ 		write_unlock_irq(&mapping->tree_lock);
+ 		radix_tree_preload_end();
++		if (!error)
++			container_inc_filepage_count(mapping, page);
+ 	}
+ 	return error;
+ }
+--- linux-2.6.18-rc6-mm2.org/init/Kconfig	2006-09-14 15:28:33.000000000 -0700
++++ linux-2.6.18-rc6-mm2.ctn/init/Kconfig	2006-09-18 10:48:08.000000000 -0700
+@@ -560,6 +560,14 @@ config STOP_MACHINE
+ 	depends on (SMP && MODULE_UNLOAD) || HOTPLUG_CPU
+ 	help
+ 	  Need stop_machine() primitive.
++
++config CONTAINERS
++	bool "Containers"
++	def_bool y
++	depends on CONFIGFS_FS
++	help
++	  This option allows grouping of resources like memory and tasks. It 
++	  depends on CONFIGFS_FS support in psuedo filesystem.
+ endmenu
+ 
+ menu "Block layer"
+--- linux-2.6.18-rc6-mm2.org/mm/Makefile	2006-09-14 15:28:33.000000000 -0700
++++ linux-2.6.18-rc6-mm2.ctn/mm/Makefile	2006-09-14 15:09:08.000000000 -0700
+@@ -29,3 +29,5 @@ obj-$(CONFIG_MEMORY_HOTPLUG) += memory_h
+ obj-$(CONFIG_FS_XIP) += filemap_xip.o
+ obj-$(CONFIG_MIGRATION) += migrate.o
+ obj-$(CONFIG_SMP) += allocpercpu.o
++obj-$(CONFIG_CONTAINERS) += container.o container_mm.o
++
+--- linux-2.6.18-rc6-mm2.org/mm/page_alloc.c	2006-09-14 15:28:33.000000000 -0700
++++ linux-2.6.18-rc6-mm2.ctn/mm/page_alloc.c	2006-09-14 15:09:08.000000000 -0700
+@@ -39,6 +39,7 @@
+ #include <linux/stop_machine.h>
+ #include <linux/sort.h>
+ #include <linux/pfn.h>
++#include <linux/container.h>
+ 
+ #include <asm/tlbflush.h>
+ #include <asm/div64.h>
+@@ -502,6 +503,7 @@ static void free_one_page(struct zone *z
+ 	zone->pages_scanned = 0;
+ 	__free_one_page(page, zone ,order);
+ 	spin_unlock(&zone->lock);
++	container_init_page_ptr(page, NULL);
+ }
+ 
+ static void __free_pages_ok(struct page *page, unsigned int order)
+@@ -798,6 +800,7 @@ static void fastcall free_hot_cold_page(
+ 
+ 	arch_free_page(page, 0);
+ 
++	container_init_page_ptr(page, NULL);
+ 	if (PageAnon(page))
+ 		page->mapping = NULL;
+ 	if (free_pages_check(page))
+--- linux-2.6.18-rc6-mm2.org/mm/rmap.c	2006-09-14 15:28:33.000000000 -0700
++++ linux-2.6.18-rc6-mm2.ctn/mm/rmap.c	2006-09-14 15:09:08.000000000 -0700
+@@ -53,6 +53,7 @@
+ #include <linux/rmap.h>
+ #include <linux/rcupdate.h>
+ #include <linux/module.h>
++#include <linux/container.h>
+ 
+ #include <asm/tlbflush.h>
+ 
+@@ -521,6 +522,7 @@ static void __page_set_anon_rmap(struct 
+ 	 * interrupts because it is not modified via interrupt.
+ 	 */
+ 	__inc_zone_page_state(page, NR_ANON_PAGES);
++	container_inc_page_count(page);
+ }
+ 
+ /**
+@@ -563,8 +565,10 @@ void page_add_new_anon_rmap(struct page 
+  */
+ void page_add_file_rmap(struct page *page)
+ {
+-	if (atomic_inc_and_test(&page->_mapcount))
++	if (atomic_inc_and_test(&page->_mapcount)) {
+ 		__inc_zone_page_state(page, NR_FILE_MAPPED);
++		container_inc_page_count(page);
++	}
+ }
+ 
+ /**
+@@ -598,6 +602,8 @@ void page_remove_rmap(struct page *page)
+ 			set_page_dirty(page);
+ 		__dec_zone_page_state(page,
+ 				PageAnon(page) ? NR_ANON_PAGES : NR_FILE_MAPPED);
++		container_dec_page_count(page);
++				
+ 	}
+ }
+ 
+--- linux-2.6.18-rc6-mm2.org/mm/swap.c	2006-09-14 15:28:33.000000000 -0700
++++ linux-2.6.18-rc6-mm2.ctn/mm/swap.c	2006-09-14 15:09:08.000000000 -0700
+@@ -196,6 +196,7 @@ void fastcall lru_cache_add_active(struc
+ 	struct pagevec *pvec = &get_cpu_var(lru_add_active_pvecs);
+ 
+ 	page_cache_get(page);
++	container_init_page_ptr(page, current);
+ 	if (!pagevec_add(pvec, page))
+ 		__pagevec_lru_add_active(pvec);
+ 	put_cpu_var(lru_add_active_pvecs);
+--- linux-2.6.18-rc6-mm2.org/mm/vmscan.c	2006-09-14 15:28:33.000000000 -0700
++++ linux-2.6.18-rc6-mm2.ctn/mm/vmscan.c	2006-09-14 15:09:08.000000000 -0700
+@@ -818,6 +818,7 @@ force_reclaim_mapped:
+ 		SetPageLRU(page);
+ 		VM_BUG_ON(!PageActive(page));
+ 		ClearPageActive(page);
++		container_dec_activepage_count(page);
+ 
+ 		list_move(&page->lru, &zone->inactive_list);
+ 		pgmoved++;
+--- linux-2.6.18-rc6-mm2.org/kernel/exit.c	2006-09-14 15:28:33.000000000 -0700
++++ linux-2.6.18-rc6-mm2.ctn/kernel/exit.c	2006-09-18 18:18:22.000000000 -0700
+@@ -41,6 +41,7 @@
+ #include <linux/audit.h> /* for audit_free() */
+ #include <linux/resource.h>
+ #include <linux/blkdev.h>
++#include <linux/container.h>
+ 
+ #include <asm/uaccess.h>
+ #include <asm/unistd.h>
+@@ -171,6 +172,7 @@ repeat:
+ 
+ 	sched_exit(p);
+ 	write_unlock_irq(&tasklist_lock);
++	container_remove_task(p, NULL);
+ 	proc_flush_task(p);
+ 	release_thread(p);
+ 	call_rcu(&p->rcu, delayed_put_task_struct);
+--- linux-2.6.18-rc6-mm2.org/kernel/fork.c	2006-09-14 15:28:33.000000000 -0700
++++ linux-2.6.18-rc6-mm2.ctn/kernel/fork.c	2006-09-19 10:36:20.000000000 -0700
+@@ -47,6 +47,7 @@
+ #include <linux/cn_proc.h>
+ #include <linux/delayacct.h>
+ #include <linux/taskstats_kern.h>
++#include <linux/container.h>
+ #include <linux/random.h>
+ 
+ #include <asm/pgtable.h>
+@@ -175,6 +176,13 @@ static struct task_struct *dup_task_stru
+ 	}
+ 
+ 	*tsk = *orig;
++
++	container_init_task_ptr(tsk);
++	if (container_add_task(tsk, orig, NULL) == -ENOSPC) {
++		free_task_struct(tsk);
++		free_thread_info(ti);
++		return NULL;
++	}
+ 	tsk->thread_info = ti;
+ 	setup_thread_stack(tsk, orig);
+ 
+@@ -1295,6 +1303,7 @@ bad_fork_cleanup_count:
+ 	atomic_dec(&p->user->processes);
+ 	free_uid(p->user);
+ bad_fork_free:
++	container_remove_task(p, NULL);
+ 	free_task(p);
+ fork_out:
+ 	return ERR_PTR(retval);
+--- linux-2.6.18-rc6-mm2.org/kernel/Makefile	2006-09-14 15:28:33.000000000 -0700
++++ linux-2.6.18-rc6-mm2.ctn/kernel/Makefile	2006-09-14 15:09:08.000000000 -0700
+@@ -52,6 +52,7 @@ obj-$(CONFIG_RELAY) += relay.o
+ obj-$(CONFIG_UTS_NS) += utsname.o
+ obj-$(CONFIG_TASK_DELAY_ACCT) += delayacct.o
+ obj-$(CONFIG_TASKSTATS) += taskstats.o tsacct.o
++obj-$(CONFIG_CONTAINERS) += container_configfs.o
+ 
+ ifneq ($(CONFIG_SCHED_NO_NO_OMIT_FRAME_POINTER),y)
+ # According to Alan Modra <alan@linuxcare.com.au>, the -fno-omit-frame-pointer is
+--- linux-2.6.18-rc6-mm2.org/fs/inode.c	2006-09-14 15:28:31.000000000 -0700
++++ linux-2.6.18-rc6-mm2.ctn/fs/inode.c	2006-09-14 15:09:08.000000000 -0700
+@@ -22,6 +22,7 @@
+ #include <linux/bootmem.h>
+ #include <linux/inotify.h>
+ #include <linux/mount.h>
++#include <linux/container.h>
+ 
+ /*
+  * This is needed for the following functions:
+@@ -164,6 +165,7 @@ static struct inode *alloc_inode(struct 
+ 		}
+ 		inode->i_private = 0;
+ 		inode->i_mapping = mapping;
++		container_add_file(mapping, NULL);
+ 	}
+ 	return inode;
+ }
+@@ -172,6 +174,7 @@ void destroy_inode(struct inode *inode) 
+ {
+ 	BUG_ON(inode_has_buffers(inode));
+ 	security_inode_free(inode);
++	container_remove_file(inode->i_mapping);
+ 	if (inode->i_sb->s_op->destroy_inode)
+ 		inode->i_sb->s_op->destroy_inode(inode);
+ 	else
 
 

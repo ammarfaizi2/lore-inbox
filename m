@@ -1,67 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932133AbWITVaz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932141AbWITViV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932133AbWITVaz (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Sep 2006 17:30:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932136AbWITVaz
+	id S932141AbWITViV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Sep 2006 17:38:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932144AbWITViV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Sep 2006 17:30:55 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:24192 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932133AbWITVay (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Sep 2006 17:30:54 -0400
-Date: Wed, 20 Sep 2006 14:30:28 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Cedric Le Goater <clg@fr.ibm.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       "Eric W. Biederman" <ebiederm@xmission.com>,
-       Martin Schwidefsky <schwidefsky@de.ibm.com>,
-       Paul Mackerras <paulus@samba.org>
-Subject: Re: [RFC][PATCH -mm] replace cad_pid by a struct pid
-Message-Id: <20060920143028.fd446145.akpm@osdl.org>
-In-Reply-To: <45110C1B.7020304@fr.ibm.com>
-References: <45110C1B.7020304@fr.ibm.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 20 Sep 2006 17:38:21 -0400
+Received: from vms044pub.verizon.net ([206.46.252.44]:56575 "EHLO
+	vms044pub.verizon.net") by vger.kernel.org with ESMTP
+	id S932141AbWITViU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Sep 2006 17:38:20 -0400
+Date: Wed, 20 Sep 2006 17:38:07 -0400
+From: Gene Heskett <gene.heskett@verizon.net>
+Subject: Re: 2.6.18-rt1
+In-reply-to: <20060920200627.GE1292@us.ibm.com>
+To: linux-kernel@vger.kernel.org, paulmck@us.ibm.com
+Cc: Daniel Walker <dwalker@mvista.com>, Ingo Molnar <mingo@elte.hu>,
+       Thomas Gleixner <tglx@linutronix.de>, John Stultz <johnstul@us.ibm.com>,
+       Dipankar Sarma <dipankar@in.ibm.com>,
+       Arjan van de Ven <arjan@infradead.org>
+Message-id: <200609201738.07519.gene.heskett@verizon.net>
+Organization: Organization? Absolutely zip.
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+Content-disposition: inline
+References: <20060920141907.GA30765@elte.hu>
+ <1158777240.29177.16.camel@c-67-180-230-165.hsd1.ca.comcast.net>
+ <20060920200627.GE1292@us.ibm.com>
+User-Agent: KMail/1.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 20 Sep 2006 11:38:35 +0200
-Cedric Le Goater <clg@fr.ibm.com> wrote:
+On Wednesday 20 September 2006 16:06, Paul E. McKenney wrote:
+>On Wed, Sep 20, 2006 at 11:34:00AM -0700, Daniel Walker wrote:
+>> On Wed, 2006-09-20 at 11:25 -0700, Paul E. McKenney wrote:
+>> > BUG: unable to handle kernel NULL pointer dereference at virtual
+>> > address 00000000 printing eip:
+>> > c01151ff
+>> > *pde = 34d21001
+>> > *pte = 00000000
+>> > stopped custom tracer.
+>> > Oops: 0000 [#1]
+>> > PREEMPT SMP
+>> > Modules linked in:
+>> > CPU:    2
+>> > EIP:    0060:[<c01151ff>]    Not tainted VLI
+>> > EFLAGS: 00010246   (2.6.18-rt2-autokern1 #1)
+>> > EIP is at __wake_up_common+0x10/0x55
+>>
+>> I get this too, it happens when HRT is off.. If you turn HRT on it will
+>> boot .. I haven't found a fix for it, but I imagine Thomas will find it
+>> soon.
+>
+>Enabling HRT works for me too -- thanks to you and Thomas for the hint!
+>
+>       Thanx, Paul
 
-> There are a few places in the kernel where the init task is
-> signaled. The ctrl+alt+del sequence is one them. It kills a task,
-> usually init, using a cached pid (cad_pid).
-> 
-> This patch replaces the pid_t by a struct pid to avoid pid wrap around
-> problem. The struct pid is initialized at boot time in init() and can
-> be modified through systctl with
-> 
-> 	/proc/sys/kernel/cad_pid
+Well, enabling HRT allowed it to boot, but there are several casualties.  
 
-hm.  Is there any sane scenario in which C-A-D would be directed to any
-other process?
+For some reason, "heyu turn a14 off" which works with non-rt kernels, seems 
+to hang forever, or until its ctl-c'd.  And all my control scripts that 
+use heyu fail.  I killed the background processes that my startup script 
+starts, re-ran them by hand and now its working.  Shakes head in 
+puzzlement...
 
-What happens if/when the process which is identifier by
-/proc/sys/kernel/cad_pid exits?  User error, I guess...
+Tvtime is still dead, sits in a blue screen & no sound.  I have a cx88 
+tvaudio process running at -5 nice that I can't kill, if I do its back on 
+the next htop refresh.
 
-> +extern struct pid* cad_pid;
+/usr/local/bin/upsd (the belkin supplied version) is using up to half the 
+cpu.  The cpu of course is running 10F warmer.  And a SIGHUP from htop 
+killed it.  And restarting it via an "sh ./S99bulldog" causes a repeat of 
+its cpu hogging.
 
-Whitespace violation detected!
+Audacity-1.2.4 takes 30 seconds to clear the busy icon when started with no 
+arguments from the icon.  I don't recall observing that before, but its 
+been a while since I ran it for any reason too, so my memory could be hazy 
+on that.
 
-> -	if (shuting_down || kill_proc(1, SIGINT, 1)) {
-> +	if (shuting_down || kill_cad_pid(SIGINT, 1)) {
+Hot-babe, (a debian toy) when running, looks normal, but uses 20% of the 
+cpu, which contributes to the strip job. :)
 
-So your patch actually makes functional changes: lots of random
-init-signallers gain extra functionality: the process which they signal can
-now be configured via /proc/sys/kernel/cad_pid.  But by default, things
-remain unchanged.  Fair enough.
+All in all, it could be worse.  Now I have to shut down and replace the 
+ailing battery in my ups, it just walked in the door.  And that has 
+nothing to do with this kernel 2.6.18-rt2.
 
-
-> --- 2.6.18-rc7-mm1.orig/drivers/char/nwbutton.c
-> +++ 2.6.18-rc7-mm1/drivers/char/nwbutton.c
-
-This driver can be compiled as a module.  I shall add the missing export...
-
-(And I'll fix the parisc build too)
+-- 
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+Yahoo.com and AOL/TW attorneys please note, additions to the above
+message by Gene Heskett are:
+Copyright 2006 by Maurice Eugene Heskett, all rights reserved.

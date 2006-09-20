@@ -1,59 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751696AbWITQUG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751629AbWITQZT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751696AbWITQUG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Sep 2006 12:20:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751733AbWITQUG
+	id S1751629AbWITQZT (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Sep 2006 12:25:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751738AbWITQZT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Sep 2006 12:20:06 -0400
-Received: from smtp-out.google.com ([216.239.45.12]:53919 "EHLO
-	smtp-out.google.com") by vger.kernel.org with ESMTP
-	id S1751696AbWITQUE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Sep 2006 12:20:04 -0400
-DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
-	h=received:subject:from:reply-to:to:cc:in-reply-to:references:
-	content-type:organization:date:message-id:mime-version:x-mailer:content-transfer-encoding;
-	b=RzXrN3LGRPv/21yrVSNxDFIDjScg/MdHHSc1xRR8pu3KdV7u5pxDQEk3TDVEekpvA
-	RQSZQV8jotGAFynaRwT4w==
-Subject: Re: [Patch04/05]- Containers: Core Container support
-From: Rohit Seth <rohitseth@google.com>
-Reply-To: rohitseth@google.com
-To: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-Cc: akpm@osdl.org, devel@openvz.org, ckrm-tech@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20060920113238.29745a4b.kamezawa.hiroyu@jp.fujitsu.com>
-References: <1158284550.5408.156.camel@galaxy.corp.google.com>
-	 <20060920113238.29745a4b.kamezawa.hiroyu@jp.fujitsu.com>
-Content-Type: text/plain
-Organization: Google Inc
-Date: Wed, 20 Sep 2006 09:19:35 -0700
-Message-Id: <1158769175.8574.1.camel@galaxy.corp.google.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
-Content-Transfer-Encoding: 7bit
+	Wed, 20 Sep 2006 12:25:19 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:9938 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1751629AbWITQZR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Sep 2006 12:25:17 -0400
+Date: Wed, 20 Sep 2006 09:25:03 -0700 (PDT)
+From: Christoph Lameter <clameter@sgi.com>
+To: Rohit Seth <rohitseth@google.com>
+cc: CKRM-Tech <ckrm-tech@lists.sourceforge.net>, devel@openvz.org, pj@sgi.com,
+       npiggin@suse.de, linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [patch00/05]: Containers(V2)- Introduction
+In-Reply-To: <1158718568.29000.44.camel@galaxy.corp.google.com>
+Message-ID: <Pine.LNX.4.64.0609200916140.30572@schroedinger.engr.sgi.com>
+References: <1158718568.29000.44.camel@galaxy.corp.google.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-09-20 at 11:32 +0900, KAMEZAWA Hiroyuki wrote:
-> On Thu, 14 Sep 2006 18:42:30 -0700
-> Rohit Seth <rohitseth@google.com> wrote:
-> 
-> > This patch has the definitions and other core part of container support
-> > implementing all the counters for different resources (like tasks, anon
-> > memory etc.).
-> > 
-> 
-> > +int container_add_task(struct task_struct *task, struct task_struct *parent,
-> > +		struct container_struct *ctn)
-> > +{
-> 
-> What should happen if a process of thread-group is newly added/removed ?
-> (I think only thread-group-leader can be added/removed)
-> 
+On Tue, 19 Sep 2006, Rohit Seth wrote:
 
+> For example, a user can run a batch job like backup inside containers.
+> This job if run unconstrained could step over most of the memory present
+> in system thus impacting other workloads running on the system at that
+> time.  But when the same job is run inside containers then the backup
+> job is run within container limits.
 
-If there are multiple threads then each thread will need to be
-individually added into the container.  This keeps the semantics clean
-and implementation simple.
+I just saw this for the first time since linux-mm was not cced. We have 
+discussed a similar mechanism on linux-mm.
 
--rohit
+We already have such a functionality in the kernel its called a cpuset. A 
+container could be created simply by creating a fake node that then 
+allows constraining applications to this node. We already track the 
+types of pages per node. The statistics you want are already existing. 
+See /proc/zoneinfo and /sys/devices/system/node/node*/*.
 
+> We use the term container to indicate a structure against which we track
+> and charge utilization of system resources like memory, tasks etc for a
+> workload. Containers will allow system admins to customize the
+> underlying platform for different applications based on their
+> performance and HW resource utilization needs.  Containers contain
+> enough infrastructure to allow optimal resource utilization without
+> bogging down rest of the kernel.  A system admin should be able to
+> create, manage and free containers easily.
+
+Right thats what cpusets do and it has been working fine for years. Maybe 
+Paul can help you if you find anything missing in the existing means to 
+control resources.

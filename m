@@ -1,71 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751752AbWITQ2B@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751758AbWITQ20@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751752AbWITQ2B (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Sep 2006 12:28:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751757AbWITQ2B
+	id S1751758AbWITQ20 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Sep 2006 12:28:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751751AbWITQ20
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Sep 2006 12:28:01 -0400
-Received: from smtp-out.google.com ([216.239.45.12]:36002 "EHLO
-	smtp-out.google.com") by vger.kernel.org with ESMTP
-	id S1751752AbWITQ2A (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Sep 2006 12:28:00 -0400
-DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
-	h=received:subject:from:reply-to:to:cc:in-reply-to:references:
-	content-type:organization:date:message-id:mime-version:x-mailer:content-transfer-encoding;
-	b=fbELe13BNi6gF9rHLwQWFWiJD1hsZy8gKVj/qUCWSOPihVxs5nuNgZ04HHHx9fca3
-	Ldr4L8Q/EgfP8tglF0OoA==
-Subject: Re: [patch00/05]: Containers(V2)- Introduction
-From: Rohit Seth <rohitseth@google.com>
-Reply-To: rohitseth@google.com
-To: Nick Piggin <nickpiggin@yahoo.com.au>
-Cc: CKRM-Tech <ckrm-tech@lists.sourceforge.net>, devel@openvz.org,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Linux Memory Management <linux-mm@kvack.org>
-In-Reply-To: <4510D3F4.1040009@yahoo.com.au>
-References: <1158718568.29000.44.camel@galaxy.corp.google.com>
-	 <4510D3F4.1040009@yahoo.com.au>
-Content-Type: text/plain
-Organization: Google Inc
-Date: Wed, 20 Sep 2006 09:27:46 -0700
-Message-Id: <1158769666.8574.10.camel@galaxy.corp.google.com>
+	Wed, 20 Sep 2006 12:28:26 -0400
+Received: from main.gmane.org ([80.91.229.2]:35002 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S1751755AbWITQ2Z (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Sep 2006 12:28:25 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Ludovic Drolez <ldrolez@linbox.com>
+Subject: Poor scheduling when not loaded at 100% (Was: [PATCH] sched.c: Be a bit more conservative in SMP)
+Date: Wed, 20 Sep 2006 16:26:19 +0000 (UTC)
+Message-ID: <loom.20060920T181245-877@post.gmane.org>
+References: <200609031541.39984.subdino2004@yahoo.fr>	 <200609031910.57259.vincent.plr@wanadoo.fr>	 <200609070130.53995.vincent.plr@wanadoo.fr>	 <loom.20060919T155900-330@post.gmane.org> <69304d110609191050w777a5c48ibe84bc0e3ce65df3@mail.gmail.com> <4510F0FD.4060602@linbox.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: main.gmane.org
+User-Agent: Loom/3.14 (http://gmane.org/)
+X-Loom-IP: 81.56.128.63 (Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.8) Gecko/20060628 Debian/1.7.8-1sarge7.1)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-09-20 at 15:39 +1000, Nick Piggin wrote:
+Ludovic Drolez <ldrolez <at> linbox.com> writes:
+> In fact, I tested the 1st patch on our cluster (Finite elements computing on 8 
+> CPUs):
+> - Under Windows: 875 seconds
+> - Linux 2.6.16 : 1019 s
+> - Linux 2.6.16 + manual taskset : 842 s
+> - Linux 2.6.16 + Vincent's patch : 1373 s  
+
+Anyone has an idea why the scheduling is poor when processes don't use all CPU ?
+
+In the above example, we have 4 processes on 4 processors which use about 40% of
+the CPU (computing and waiting for network packets).
+1- If taskset is not used : CPU0 is used at 80%, and the 3 others at 30%. The
+tasks are constantly migrated between cores -> poor performance (1019s), Windows
+does better :-(
+2- If taskset is used : All CPUs have 1 process and are used at 40%. No
+migration -> high performance (842s), better than Windows :-)
+
+I tried to play with the 'migration_cost' kernel parameter but it did not help.
+By default, on the Bi-Xeon Dual Core MB (Dell 1855), migration_cost=1600, and
+trying values up to 200000, did not improve performance...
+
+Any Ideas ?
+
+  Ludovic Drolez.
 
 
-> Anyway I don't think I have much to say other than: this is almost
-> exactly as I had imagined the memory resource tracking should look
-> like. Just a small number of hooks and a very simple set of rules for
-> tracking allocations. Also, the possibility to track kernel
-> allocations as a whole rather than at individual callsites (which
-> shouldn't be too difficult to implement).
-> 
 
-I've started looking in that direction.  First shot could just be
-tracking kernel memory consumption w/o worrying about whether it is slab
-or PT etc.  Hopefully next patchset will have that support integrated.
-
-> If anything I would perhaps even argue for further cutting down the
-> number of hooks and add them back as they prove to be needed.
-> 
-
-I think the current set of changes (and tracking of different
-components) is necessary for memory handler to do the right thing.  Plus
-it is possible that user land management tools can also make use of this
-information.
-
-> I'm not sure about containers & workload management people, but from
-> a core mm/ perspective I see no reason why this couldn't get in,
-> given review and testing. Great!
-> 
-
-That is great to know. Thanks.  Hopefully it is getting enough coverage
-to get there.
-
--rohit
 
 

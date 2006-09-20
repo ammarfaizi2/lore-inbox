@@ -1,63 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932342AbWITTsP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932345AbWITTsy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932342AbWITTsP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Sep 2006 15:48:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932344AbWITTsP
+	id S932345AbWITTsy (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Sep 2006 15:48:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932338AbWITTsx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Sep 2006 15:48:15 -0400
-Received: from opersys.com ([64.40.108.71]:33797 "EHLO www.opersys.com")
-	by vger.kernel.org with ESMTP id S932342AbWITTsN (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Sep 2006 15:48:13 -0400
-Message-ID: <45119D49.2040607@opersys.com>
-Date: Wed, 20 Sep 2006 15:58:01 -0400
-From: Karim Yaghmour <karim@opersys.com>
-Reply-To: karim@opersys.com
-Organization: Opersys inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.8.0.6) Gecko/20060804 Fedora/1.0.4-0.5.1.fc5 SeaMonkey/1.0.4
+	Wed, 20 Sep 2006 15:48:53 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:49570 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S932345AbWITTsw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Sep 2006 15:48:52 -0400
+Date: Wed, 20 Sep 2006 12:48:41 -0700 (PDT)
+From: Christoph Lameter <clameter@sgi.com>
+To: Peter Zijlstra <a.p.zijlstra@chello.nl>
+cc: Rohit Seth <rohitseth@google.com>, Nick Piggin <nickpiggin@yahoo.com.au>,
+       CKRM-Tech <ckrm-tech@lists.sourceforge.net>, devel@openvz.org,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Linux Memory Management <linux-mm@kvack.org>
+Subject: Re: [patch00/05]: Containers(V2)- Introduction
+In-Reply-To: <1158775586.28174.27.camel@lappy>
+Message-ID: <Pine.LNX.4.64.0609201247300.32409@schroedinger.engr.sgi.com>
+References: <1158718568.29000.44.camel@galaxy.corp.google.com> 
+ <4510D3F4.1040009@yahoo.com.au> <1158751720.8970.67.camel@twins> 
+ <4511626B.9000106@yahoo.com.au> <1158767787.3278.103.camel@taijtu> 
+ <451173B5.1000805@yahoo.com.au>  <1158774657.8574.65.camel@galaxy.corp.google.com>
+  <Pine.LNX.4.64.0609201051550.31636@schroedinger.engr.sgi.com>
+ <1158775586.28174.27.camel@lappy>
 MIME-Version: 1.0
-To: Martin Bligh <mbligh@google.com>
-CC: "Frank Ch. Eigler" <fche@redhat.com>,
-       Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>, prasanna@in.ibm.com,
-       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-       Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
-       Paul Mundt <lethal@linux-sh.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>, Jes Sorensen <jes@sgi.com>,
-       Tom Zanussi <zanussi@us.ibm.com>,
-       Richard J Moore <richardj_moore@uk.ibm.com>,
-       Michel Dagenais <michel.dagenais@polymtl.ca>,
-       Christoph Hellwig <hch@infradead.org>,
-       Greg Kroah-Hartman <gregkh@suse.de>,
-       Thomas Gleixner <tglx@linutronix.de>, William Cohen <wcohen@redhat.com>,
-       ltt-dev@shafik.org, systemtap@sources.redhat.com,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Michael Davidson <md@google.com>
-Subject: Re: [PATCH] Linux Kernel Markers
-References: <4510151B.5070304@google.com> <20060919093935.4ddcefc3.akpm@osdl.org> <45101DBA.7000901@google.com> <20060919063821.GB23836@in.ibm.com> <45102641.7000101@google.com> <20060919070516.GD23836@in.ibm.com> <451030A6.6040801@google.com> <45105B5E.9080107@opersys.com> <451141B1.40803@hitachi.com> <451178B0.9030205@opersys.com> <20060920180808.GI18646@redhat.com> <451186F2.3060702@google.com> <45118D63.8070604@opersys.com> <451194DA.40300@google.com> <451199F4.3000006@opersys.com> <45119934.8080001@google.com>
-In-Reply-To: <45119934.8080001@google.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 20 Sep 2006, Peter Zijlstra wrote:
 
-Martin Bligh wrote:
-> You mean using the jump-over thing that was posted earlier?
-> I thought the CPU erratas prevented doing that atomically
-> properly. From my understanding of the last 24 hours discussion,
-> it seemed like the ONLY thing we could do safely atomically was
-> insert an int3. Which sucks, frankly, but still.
+> > Which comes naturally with cpusets.
+> 
+> How are shared mappings dealt with, are pages charged to the set that
+> first faults them in?
 
-No. djprobes already does safely insert other stuff than just
-int3, that's the whole point.
-
-Here are the relevant postings by Hiramatsu-san:
-http://marc.theaimsgroup.com/?l=linux-kernel&m=115875912510827&w=2
-http://marc.theaimsgroup.com/?l=linux-kernel&m=115875867519302&w=2
-
-Unless there's something *I* fundamentally misunderstood from
-Hiramatsu-san's implementation and input, djprobes can replace
-the 5-byte filler with a 5-byte unconditional jump. IOW your
-mechanism works, no int3s involved.
-
-Karim
+They are charged to the node from which they were allocated. If the 
+process is restricted to the node (container) then all pages allocated 
+are are charged to the container regardless if they are shared or not.
 

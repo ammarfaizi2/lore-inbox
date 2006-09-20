@@ -1,56 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932219AbWITSdd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932230AbWITSeJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932219AbWITSdd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Sep 2006 14:33:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932224AbWITSdd
+	id S932230AbWITSeJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Sep 2006 14:34:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932223AbWITSeJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Sep 2006 14:33:33 -0400
-Received: from smtp-out.google.com ([216.239.45.12]:29648 "EHLO
-	smtp-out.google.com") by vger.kernel.org with ESMTP id S932219AbWITSdc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Sep 2006 14:33:32 -0400
-DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
-	h=received:message-id:date:from:to:subject:cc:in-reply-to:
-	mime-version:content-type:content-transfer-encoding:
-	content-disposition:references;
-	b=anj3qtm5TVh3RX/OPsioeb+qLAS/HXCNC4pG4IhxFN8qVwYrY/jYP9/pvEkuBRCvc
-	+IUWeGERo/k3o8oJtRNvg==
-Message-ID: <6599ad830609201133k68cc1a0dr683137baa4e9be30@mail.google.com>
-Date: Wed, 20 Sep 2006 11:33:25 -0700
-From: "Paul Menage" <menage@google.com>
-To: "Peter Zijlstra" <a.p.zijlstra@chello.nl>
-Subject: Re: [ckrm-tech] [patch00/05]: Containers(V2)- Introduction
-Cc: rohitseth@google.com, "Nick Piggin" <nickpiggin@yahoo.com.au>,
-       CKRM-Tech <ckrm-tech@lists.sourceforge.net>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       "Linux Memory Management" <linux-mm@kvack.org>, devel@openvz.org,
-       "Christoph Lameter" <clameter@sgi.com>
-In-Reply-To: <1158776824.28174.29.camel@lappy>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Wed, 20 Sep 2006 14:34:09 -0400
+Received: from gateway-1237.mvista.com ([63.81.120.158]:21839 "EHLO
+	gateway-1237.mvista.com") by vger.kernel.org with ESMTP
+	id S932225AbWITSeE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Sep 2006 14:34:04 -0400
+Subject: Re: 2.6.18-rt1
+From: Daniel Walker <dwalker@mvista.com>
+To: paulmck@us.ibm.com
+Cc: Gene Heskett <gene.heskett@verizon.net>, linux-kernel@vger.kernel.org,
+       Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>,
+       John Stultz <johnstul@us.ibm.com>, Dipankar Sarma <dipankar@in.ibm.com>,
+       Arjan van de Ven <arjan@infradead.org>
+In-Reply-To: <20060920182553.GC1292@us.ibm.com>
+References: <20060920141907.GA30765@elte.hu>
+	 <200609201250.03750.gene.heskett@verizon.net>
+	 <1158771639.29177.5.camel@c-67-180-230-165.hsd1.ca.comcast.net>
+	 <20060920173858.GB1292@us.ibm.com>
+	 <1158774118.29177.13.camel@c-67-180-230-165.hsd1.ca.comcast.net>
+	 <20060920182553.GC1292@us.ibm.com>
+Content-Type: text/plain
+Date: Wed, 20 Sep 2006 11:34:00 -0700
+Message-Id: <1158777240.29177.16.camel@c-67-180-230-165.hsd1.ca.comcast.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <1158718568.29000.44.camel@galaxy.corp.google.com>
-	 <1158751720.8970.67.camel@twins> <4511626B.9000106@yahoo.com.au>
-	 <1158767787.3278.103.camel@taijtu> <451173B5.1000805@yahoo.com.au>
-	 <1158774657.8574.65.camel@galaxy.corp.google.com>
-	 <Pine.LNX.4.64.0609201051550.31636@schroedinger.engr.sgi.com>
-	 <1158775586.28174.27.camel@lappy>
-	 <1158776099.8574.89.camel@galaxy.corp.google.com>
-	 <1158776824.28174.29.camel@lappy>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 9/20/06, Peter Zijlstra <a.p.zijlstra@chello.nl> wrote:
->
-> Yes, I read that in your patches, I was wondering how the cpuset
-> approach would handle this.
+On Wed, 2006-09-20 at 11:25 -0700, Paul E. McKenney wrote:
 
-The VM currently has support for letting vmas define their own memory
-policies - so specifying that a file-backed vma gets its memory from a
-particular set of memory nodes would accomplish that for the fake-node
-approach. The mechanism for setting up the per-file/per-vma policies
-would probably involve something originating in struct inode or struct
-address_space.
+> OK, using that instead.
+> 
+> I get the following at startup, which probably means that I need to use
+> some machine other than a NUMA-Q.  Trying a different machine...
+> 
+> 						Thanx, Paul
+> 
+> BUG: unable to handle kernel NULL pointer dereference at virtual address 00000000
+>  printing eip:
+> c01151ff
+> *pde = 34d21001
+> *pte = 00000000
+> stopped custom tracer.
+> Oops: 0000 [#1]
+> PREEMPT SMP 
+> Modules linked in:
+> CPU:    2
+> EIP:    0060:[<c01151ff>]    Not tainted VLI
+> EFLAGS: 00010246   (2.6.18-rt2-autokern1 #1) 
+> EIP is at __wake_up_common+0x10/0x55
 
-Paul
+I get this too, it happens when HRT is off.. If you turn HRT on it will
+boot .. I haven't found a fix for it, but I imagine Thomas will find it
+soon.
+
+Daniel
+

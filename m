@@ -1,48 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932207AbWITSX2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932204AbWITSYh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932207AbWITSX2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Sep 2006 14:23:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932202AbWITSX2
+	id S932204AbWITSYh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Sep 2006 14:24:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932210AbWITSYh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Sep 2006 14:23:28 -0400
-Received: from vms048pub.verizon.net ([206.46.252.48]:24261 "EHLO
-	vms048pub.verizon.net") by vger.kernel.org with ESMTP
-	id S932204AbWITSX1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Sep 2006 14:23:27 -0400
-Date: Wed, 20 Sep 2006 14:23:18 -0400
-From: Gene Heskett <gene.heskett@verizon.net>
-Subject: Re: 2.6.18-rt1
-In-reply-to: <1158774118.29177.13.camel@c-67-180-230-165.hsd1.ca.comcast.net>
-To: linux-kernel@vger.kernel.org
-Message-id: <200609201423.18915.gene.heskett@verizon.net>
-Organization: Organization? Absolutely zip.
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-Content-disposition: inline
-References: <20060920141907.GA30765@elte.hu> <20060920173858.GB1292@us.ibm.com>
- <1158774118.29177.13.camel@c-67-180-230-165.hsd1.ca.comcast.net>
-User-Agent: KMail/1.7
+	Wed, 20 Sep 2006 14:24:37 -0400
+Received: from smtp-out.google.com ([216.239.45.12]:63692 "EHLO
+	smtp-out.google.com") by vger.kernel.org with ESMTP id S932204AbWITSYf
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Sep 2006 14:24:35 -0400
+DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
+	h=received:message-id:date:from:user-agent:
+	x-accept-language:mime-version:to:cc:subject:references:in-reply-to:
+	content-type:content-transfer-encoding;
+	b=NC2VIvIixoBtXgEYt8DUHJ6Dxb2k6OXLZTMDZ35DS/lhlIcX/qtinh8tf1eHIBcGk
+	Q8dPDsJQAS5HnTgMWtRfA==
+Message-ID: <451186F2.3060702@google.com>
+Date: Wed, 20 Sep 2006 11:22:42 -0700
+From: Martin Bligh <mbligh@google.com>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051011)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: "Frank Ch. Eigler" <fche@redhat.com>
+CC: Karim Yaghmour <karim@opersys.com>,
+       Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>, prasanna@in.ibm.com,
+       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
+       Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
+       Paul Mundt <lethal@linux-sh.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>, Jes Sorensen <jes@sgi.com>,
+       Tom Zanussi <zanussi@us.ibm.com>,
+       Richard J Moore <richardj_moore@uk.ibm.com>,
+       Michel Dagenais <michel.dagenais@polymtl.ca>,
+       Christoph Hellwig <hch@infradead.org>,
+       Greg Kroah-Hartman <gregkh@suse.de>,
+       Thomas Gleixner <tglx@linutronix.de>, William Cohen <wcohen@redhat.com>,
+       ltt-dev@shafik.org, systemtap@sources.redhat.com,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH] Linux Kernel Markers
+References: <4510151B.5070304@google.com> <20060919093935.4ddcefc3.akpm@osdl.org> <45101DBA.7000901@google.com> <20060919063821.GB23836@in.ibm.com> <45102641.7000101@google.com> <20060919070516.GD23836@in.ibm.com> <451030A6.6040801@google.com> <45105B5E.9080107@opersys.com> <451141B1.40803@hitachi.com> <451178B0.9030205@opersys.com> <20060920180808.GI18646@redhat.com>
+In-Reply-To: <20060920180808.GI18646@redhat.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 20 September 2006 13:41, Daniel Walker wrote:
+Frank Ch. Eigler wrote:
+> Hi -
+> 
+> On Wed, Sep 20, 2006 at 01:21:52PM -0400, Karim Yaghmour wrote:
+> 
+> 
+>>[...]  IOW, we should be able to do what Martin suggests fairly
+>>easily (if we agree on a 5-byte "null" jump at the entry of
+>>functions of interest). Right? [...]
+> 
+> 
+> My interpretation of Martin's Monday proposal is that, if implemented,
+> we wouldn't need any of this nop/int3 stuff.  If function being
+> instrumented were recompiled on-the-fly, then it could sport plain &
+> direct C-level calls to the instrumentation handlers.
 
-[...]
+It's looking to me like it might still need djprobes to implement, in
+order to get the atomic and safe switchover from the original function
+into the traced one. All rather sad, but seems to be true from all the
+CPU errata, etc. If anyone can see a way round that, I'd love to hear
+it.
 
->Ingo actually updated with a similar fix , in
->
->http://people.redhat.com/~mingo/realtime-preempt/patch-2.6.18-rt2
->
->Daniel
+What it would give you above and beyond djprobes is an easier and more
+flexible way to actually do the instrumentation itself.
 
-And that built, but I haven't rebooted yet, thats next.
-
--- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-Yahoo.com and AOL/TW attorneys please note, additions to the above
-message by Gene Heskett are:
-Copyright 2006 by Maurice Eugene Heskett, all rights reserved.
+M.

@@ -1,36 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751142AbWITE3X@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751181AbWITE7j@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751142AbWITE3X (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Sep 2006 00:29:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751143AbWITE3X
+	id S1751181AbWITE7j (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Sep 2006 00:59:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751182AbWITE7j
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Sep 2006 00:29:23 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:65245 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1751142AbWITE3X (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Sep 2006 00:29:23 -0400
-Date: Tue, 19 Sep 2006 21:29:17 -0700 (PDT)
-From: Christoph Lameter <clameter@sgi.com>
-To: Tony Luck <tony.luck@intel.com>
-cc: Sandeep Kumar <sandeepksinha@gmail.com>, linux-kernel@vger.kernel.org,
-       shaggy@austin.ibm.com
-Subject: Re: Efficient Use of the Page Cache with 64 KB Pages
-In-Reply-To: <12c511ca0609191555q2bfb934aha4cfc0068c1ccd9a@mail.gmail.com>
-Message-ID: <Pine.LNX.4.64.0609192128480.25473@schroedinger.engr.sgi.com>
-References: <37d33d830609150150v30dc32en57f8c5e43c30aef3@mail.gmail.com> 
- <Pine.LNX.4.64.0609191136580.6460@schroedinger.engr.sgi.com>
- <12c511ca0609191555q2bfb934aha4cfc0068c1ccd9a@mail.gmail.com>
+	Wed, 20 Sep 2006 00:59:39 -0400
+Received: from wx-out-0506.google.com ([66.249.82.239]:42990 "EHLO
+	wx-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1751181AbWITE7i (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Sep 2006 00:59:38 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=CQaCQFyPLjKHKuYbdV+d3OJXZvQBawQ9ZaZPf0+3MF4v1iO9H9tiJ21Dia7FkHQQnEzxUiA7lyGmR7kXMaYOr1/ZoEWxUGgkVuZyTfLY2ZLxeQCQISGBo4dTyk+hUbHNhiqGukVsi8WYxsw+q9RZqkJx8d4iS/mDaPRqvOJmf/U=
+Message-ID: <6bffcb0e0609192159n64860fc3g99b91df41d41f241@mail.gmail.com>
+Date: Wed, 20 Sep 2006 06:59:37 +0200
+From: "Michal Piotrowski" <michal.k.k.piotrowski@gmail.com>
+To: "Linus Torvalds" <torvalds@osdl.org>
+Subject: Re: Arrr! Linux 2.6.18
+Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.64.0609192126070.4388@g5.osdl.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <Pine.LNX.4.64.0609192126070.4388@g5.osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 19 Sep 2006, Tony Luck wrote:
+Ahoy!
 
-> But memory usage with a 64K page size can get out of hand (especially
-> if you have an application that uses a lot of small files).  Dave Kleikamp's
-> tail pages would help make 64K page size more generally palatable.
+On 20/09/06, Linus Torvalds <torvalds@osdl.org> wrote:
+>
+> Ahoy!
+>
+> She's good to go, hoist anchor!
+>
+> Here's some real booty for all you land-lubbers.
+>
+> There's not too many changes, with t'bulk of the patch bein' defconfig
+> updates, but the shortlog at the aft of this here email describes the
+> details if you care, you scurvy dogs.
 
-Sure but there is no need for something like that on IA32 since the 
-hardware does not support more than 4k.
+You have improved your piratish :)
 
+>
+> Header cleanups, various one-liners, and random other fixes.
+>
+>                 Linus "but you can call me Cap'n"
+>
+
+Michal "landlubber"
+
+-- 
+Michal K. K. Piotrowski
+LTG - Linux Testers Group
+(http://www.stardust.webpages.pl/ltg/)

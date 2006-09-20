@@ -1,102 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932272AbWITS63@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932277AbWITS6b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932272AbWITS63 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Sep 2006 14:58:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932258AbWITS6S
+	id S932277AbWITS6b (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Sep 2006 14:58:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932275AbWITS6O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Sep 2006 14:58:18 -0400
-Received: from smtp-out.google.com ([216.239.45.12]:11224 "EHLO
-	smtp-out.google.com") by vger.kernel.org with ESMTP id S932270AbWITS55
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Sep 2006 14:57:57 -0400
-DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
-	h=received:subject:from:reply-to:to:cc:in-reply-to:references:
-	content-type:organization:date:message-id:mime-version:x-mailer:content-transfer-encoding;
-	b=m5YVifOylmppp/+1hmbQo8azLtr/6FO9iOuZgvA6aNWj/TaFahb60KVxZy0+0ba2m
-	2zwzuOxL2XDbxaFOpVu0w==
-Subject: Re: [patch00/05]: Containers(V2)- Introduction
-From: Rohit Seth <rohitseth@google.com>
-Reply-To: rohitseth@google.com
-To: Peter Zijlstra <a.p.zijlstra@chello.nl>
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>,
-       CKRM-Tech <ckrm-tech@lists.sourceforge.net>, devel@openvz.org,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Linux Memory Management <linux-mm@kvack.org>,
-       Christoph Lameter <clameter@sgi.com>
-In-Reply-To: <1158777463.28174.37.camel@lappy>
-References: <1158718568.29000.44.camel@galaxy.corp.google.com>
-	 <4510D3F4.1040009@yahoo.com.au> <1158751720.8970.67.camel@twins>
-	 <4511626B.9000106@yahoo.com.au> <1158767787.3278.103.camel@taijtu>
-	 <451173B5.1000805@yahoo.com.au>
-	 <1158774657.8574.65.camel@galaxy.corp.google.com>
-	 <1158777463.28174.37.camel@lappy>
-Content-Type: text/plain
-Organization: Google Inc
-Date: Wed, 20 Sep 2006 11:57:40 -0700
-Message-Id: <1158778660.8574.114.camel@galaxy.corp.google.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
+	Wed, 20 Sep 2006 14:58:14 -0400
+Received: from max.feld.cvut.cz ([147.32.192.36]:37019 "EHLO max.feld.cvut.cz")
+	by vger.kernel.org with ESMTP id S932263AbWITS6G (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Sep 2006 14:58:06 -0400
+From: CIJOML <cijoml@volny.cz>
+To: linux-kernel@vger.kernel.org
+Subject: Very slow write on flash drive in sync mode???
+Date: Wed, 20 Sep 2006 20:58:05 +0200
+User-Agent: KMail/1.9.3
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-2"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200609202058.05816.cijoml@volny.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-09-20 at 20:37 +0200, Peter Zijlstra wrote:
-> On Wed, 2006-09-20 at 10:50 -0700, Rohit Seth wrote:
-> > On Thu, 2006-09-21 at 03:00 +1000, Nick Piggin wrote:
-> > > (this time to the lists as well)
-> > > 
-> > > Peter Zijlstra wrote:
-> > > 
-> > >  > I'd much rather containterize the whole reclaim code, which should not
-> > >  > be too hard since he already adds a container pointer to struct page.
-> > > 
-> > > 
-> > 
-> > Right now the memory handler in this container subsystem is written in
-> > such a way that when existing kernel reclaimer kicks in, it will first
-> > operate on those (container with pages over the limit) pages first.  But
-> > in general I like the notion of containerizing the whole reclaim code.
-> 
-> Patch 5/5 seems to have a horrid deactivation scheme.
-> 
-> > >  > I still have to reread what Rohit does for file backed pages, that gave
-> > >  > my head a spin.
-> > 
-> > Please let me know if there is any specific part that isn't making much
-> > sense.
-> 
-> Well, the whole over the limit handler is quite painfull, having taken a
-> second reading it isn't all that complex after all, just odd.
-> 
+Hi,
 
-It is very basic right now.  
+I use SanDisk cruzer Titanium 2 GB mounted as sync in fstab
 
-> You just start invalidating whole files for file backed pages. Granted,
-> this will get you below the threshold. but you might just have destroyed
-> your working set.
-> 
+usb 4-2: new high speed USB device using ehci_hcd and address 5
+usb 4-2: configuration #1 chosen from 1 choice
+scsi1 : SCSI emulation for USB Mass Storage devices
+usb-storage: device found at 5
+usb-storage: waiting for device to settle before scanning
+  Vendor: SanDisk   Model: U3 Titanium       Rev: 2.16
+  Type:   Direct-Access                      ANSI SCSI revision: 02
+SCSI device sda: 4001425 512-byte hdwr sectors (2049 MB)
+sda: Write Protect is off
+sda: Mode Sense: 03 00 00 00
+sda: assuming drive cache: write through
+SCSI device sda: 4001425 512-byte hdwr sectors (2049 MB)
+sda: Write Protect is off
+sda: Mode Sense: 03 00 00 00
+sda: assuming drive cache: write through
+ sda: sda1
+sd 1:0:0:0: Attached scsi removable disk sda
+sd 1:0:0:0: Attached scsi generic sg0 type 0
+  Vendor: SanDisk   Model: U3 Titanium       Rev: 2.16
+  Type:   CD-ROM                             ANSI SCSI revision: 02
+sr0: scsi3-mmc drive: 8x/40x writer xa/form2 cdda tray
+sr 1:0:0:1: Attached scsi CD-ROM sr0
+sr 1:0:0:1: Attached scsi generic sg1 type 5
+usb-storage: device scan complete
 
-When a container gone over the limit then it is okay to penalize it.  I
-agree that I'm not making an attempt to maintain the current working
-set.  Any suggestions that I can incorporate to improve this algorithm
-will be very appreciated.
+/dev/sda1       /mnt/cruzer_sync      vfat    user,noauto,sync                
+0       0
+/dev/sda1       /mnt/cruzer     auto    user,noauto             0       0
 
-> Pretty much the same for you anonymous memory handler, you scan through
-> the pages in linear fashion and demote the first that you encounter.
-> 
-> Both things pretty thoroughly destroy the existing kernel reclaim.
-> 
 
-I agree that with in a container I need to do add more smarts to (for
-example) not do a linear search.  Simple additions like last task or
-last mapping visited could be useful. And I definitely want to improve
-on that.
+When I use flash drive in sync mode, it writes on it only 64kB/s. When I 
+umount it and mount it in not sync mode but do sync manually after it writes 
+into memory, kernel writes on flash drive 11 MB/s!!! What is wrong in my 
+configuration?
 
-Though it should not destroy the existing kernel reclaim.  Pages
-belonging to over the limit container should be the first ones to either
-get flushed out to FS or swapped if necessary.  (Means that is the cost
-that you will have to pay if you, for example, want to container your
-tar to 100MB memory foot print).
+Kernel 2.6.18, Debian testing
 
--rohit
+Thanks for help
 
+Michal

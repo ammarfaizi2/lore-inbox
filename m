@@ -1,88 +1,176 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932308AbWITTf1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932315AbWITTjY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932308AbWITTf1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Sep 2006 15:35:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932313AbWITTf1
+	id S932315AbWITTjY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Sep 2006 15:39:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932317AbWITTjY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Sep 2006 15:35:27 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.149]:48592 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S932308AbWITTf0
+	Wed, 20 Sep 2006 15:39:24 -0400
+Received: from iolanthe.rowland.org ([192.131.102.54]:40722 "HELO
+	iolanthe.rowland.org") by vger.kernel.org with SMTP id S932315AbWITTjX
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Sep 2006 15:35:26 -0400
-Subject: Re: [ckrm-tech] [patch00/05]: Containers(V2)- Introduction
-From: Chandra Seetharaman <sekharan@us.ibm.com>
-Reply-To: sekharan@us.ibm.com
-To: Paul Menage <menage@google.com>
-Cc: npiggin@suse.de, CKRM-Tech <ckrm-tech@lists.sourceforge.net>,
-       linux-kernel <linux-kernel@vger.kernel.org>, pj@sgi.com,
-       Rohit Seth <rohitseth@google.com>, devel@openvz.org,
-       Christoph Lameter <clameter@sgi.com>
-In-Reply-To: <6599ad830609201225k3d38afe2gea7adc2fa8067e0@mail.google.com>
-References: <1158718568.29000.44.camel@galaxy.corp.google.com>
-	 <Pine.LNX.4.64.0609200916140.30572@schroedinger.engr.sgi.com>
-	 <1158777240.6536.89.camel@linuxchandra>
-	 <6599ad830609201143h19f6883wb388666e27913308@mail.google.com>
-	 <1158778496.6536.95.camel@linuxchandra>
-	 <6599ad830609201225k3d38afe2gea7adc2fa8067e0@mail.google.com>
-Content-Type: text/plain
-Organization: IBM
-Date: Wed, 20 Sep 2006 12:35:23 -0700
-Message-Id: <1158780923.6536.110.camel@linuxchandra>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-7) 
-Content-Transfer-Encoding: 7bit
+	Wed, 20 Sep 2006 15:39:23 -0400
+Date: Wed, 20 Sep 2006 15:39:22 -0400 (EDT)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@iolanthe.rowland.org
+To: "Paul E. McKenney" <paulmck@us.ibm.com>
+cc: David Howells <dhowells@redhat.com>,
+       Kernel development list <linux-kernel@vger.kernel.org>
+Subject: Re: Uses for memory barriers
+In-Reply-To: <20060919181626.GF1310@us.ibm.com>
+Message-ID: <Pine.LNX.4.44L0.0609201433300.7265-100000@iolanthe.rowland.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-09-20 at 12:25 -0700, Paul Menage wrote:
-> On 9/20/06, Chandra Seetharaman <sekharan@us.ibm.com> wrote:
-> >
-> > We had this discussion more than 18 months back and concluded that it is
-> > not the right thing to do. Here is the link to the thread:
-> 
-> Even if the resource control portions aren't totally compatible,
-> having two separate process container abstractions in the kernel is
-> sub-optimal, both in terms of efficiency and userspace management. How
-> about splitting out the container portions of cpuset from the actual
-> resource control, so that CKRM/RG can hang off of it too? Creation of
-> a cpuset or a resource group would be driven by creation of a
-> container; at fork time, a task inherits its parent's container, and
-> hence its cpuset and/or resource groups.
-> 
-> At its most crude, this could be something like:
-> 
-> struct container {
-> #ifdef CONFIG_CPUSETS
->   struct cpuset cs;
-> #endif
-> #ifdef CONFIG_RES_GROUPS
->   struct resource_group rg;
-> #endif
-> };
+On Tue, 19 Sep 2006, Paul E. McKenney wrote:
 
-Won't it restrict the user to choose one of these, and not both.
-
-It will also prevent the possibility of having resource groups within a
-cpuset.
-
+> I did indeed intend to say that there should be at least one global
+> ordering consistent with all the serieses of values.  How about the
+> following?
 > 
-> but at least it would be sharing some of the abstractions.
-> 
-> Paul
-> 
-> -------------------------------------------------------------------------
-> Take Surveys. Earn Cash. Influence the Future of IT
-> Join SourceForge.net's Techsay panel and you'll get the chance to share your
-> opinions on IT & business topics through brief surveys -- and earn cash
-> http://www.techsay.com/default.php?page=join.php&p=sourceforge&CID=DEVDEV
-> _______________________________________________
-> ckrm-tech mailing list
-> https://lists.sourceforge.net/lists/listinfo/ckrm-tech
--- 
+> (P1):	If each CPU performs a series of stores to a single shared variable,
+> 	then the series of values obtained by the a given CPUs stores
+> 	and loads must be consistent with that obtained by each of the
+> 	other CPUs.  It may or may not be possible to deduce a single
+> 	global order from the full set of such series, however, there
+> 	will be at least one global order that is consistent with each
+> 	CPU's observed series of values.
 
-----------------------------------------------------------------------
-    Chandra Seetharaman               | Be careful what you choose....
-              - sekharan@us.ibm.com   |      .......you may get it.
-----------------------------------------------------------------------
+How about just
 
+(P1):	If two CPUs both see the same two stores to a single shared 
+	variable, then they will see the stores in the same order.
+
+
+> Good point -- perhaps I should just drop P2c entirely.  I am running it by
+> some CPU architects to get their thoughts on it.  But if we don't need it,
+> we should not specify it.  Keep Linux portable!!!  ;-)
+
+What P2c really tries to do is specify conditions for which of two stores
+to a single location will be visible last.  To do it properly requires
+specifying an order for events that take place on more than one CPU,
+something you've tried to avoid doing until now.
+
+
+> No clue.  But I certainly didn't get this example right.  How about
+> the following instead?
+> 
+> 	CPU 0		CPU 1		CPU 2
+> 	-----		-----		-----
+> 	a = 1		while (l < 1);	z = l;
+> 	mb();		b = 1;		mb();
+> 	l = 1		mb();		y = b;
+> 			l = 2;		x = a;
+> 					assert(l != 2 || (x == 1 && y == 1));
+
+You probably meant to write "z" in the assertion rather than "l".
+
+> Here "l" is standing in for the lock variable -- if we acquire the lock,
+> we must see all the stores from all preceding critical sections for
+> that lock.  A similar example would show that any stores CPU 2 executes
+> after its mb() cannot affect any loads that CPUs 0 and 1 executed prior
+> to their mb()s.
+
+Right.  To do this properly requires a more fully developed notion of 
+ordering than you've been using, and it also requires a notion of control 
+dependencies for writes.
+
+> > Not recognizing a control dependency like this would be tantamount to 
+> > doing a speculative write.  Any CPU indulging in such fancies isn't likely 
+> > to survive very long.
+> 
+> You might well be correct, though I would want to ask an Alpha expert.
+> In any case, there are a number of CPUs that do allow speculative -reads-
+> past control dependencies.  My fear is that people will over-generalize
+> the "can't do speculative writes" lesson into "cannot speculate
+> past a conditional branch".
+
+I think that's important enough to be worth emphasizing, so that people 
+won't get it wrong.
+
+>  So I would be OK saying that a memory
+> barrier is required in the above example -- but would be interested
+> in counter-examples where such code is desperately needed, and the
+> overhead of a memory barrier cannot be tolerated.
+
+I don't have any good examples.
+
+
+> I was trying to get at this with the "see the value stored" verbiage.
+> Any thoughts on ways to make this more clear?  Perhaps have the principles
+> first, followed by longer explanations and examples.
+> 
+> And transitivity is painful -- the Alpha "dereferencing does not imply
+> ordering" example being a similar case in point!
+> 
+> > I would much prefer to see an analysis where the primitive notions include 
+> > things like "This store becomes visible to that CPU before this load 
+> > occurs".  It would bear a closer correspondence to what actually happens 
+> > in the hardware.
+> 
+> I will think on better wording.
+
+My thoughts have been moving in this direction:
+
+	Describe everything in terms of a single global ordering.  It's
+	easier to think about, and there shouldn't be a state-space
+	explosion because you can always confine your attention to the
+	events you care about and ignore the others.
+
+	Reads take place at a particular time (when the return value is
+	committed to) but writes become visible at different times to
+	different CPUs (such as when they respond to the invalidate
+	message).
+
+	A CPU's own writes become visible to itself as soon as they
+	execute.  They become visible to other CPUs at the same time or
+	later, but not before.  A write might not ever become visible
+	to some CPUs.
+
+	A read will always return the value of a store that has already
+	become visible to that CPU, but not necessarily the latest such
+	store.
+
+So far everything is straightforward.  The difficult part arises because 
+multiple stores to the same location can mask and overwrite one another.
+
+	If a read returns the value from a particular store, then later
+	reads (on the same CPU and of the same location) will never return 
+	values from stores that became visible earlier than that one.  
+	(The value has overwritten any earlier stores.)
+
+	A store can be masked from a particular CPU by earlier or later 
+	stores to the same location (perhaps made by other CPUs).  A store
+	is masked from a CPU iff it never becomes visible to that CPU.
+
+In this setting we can describe the operation of the various sorts of
+memory barriers.  Apart from the obvious effect of forcing instructions to
+apparently execute in program order, we might have the following:
+
+	If two stores are separated by wmb() then on any CPU where they
+	both become visible, they become visible in the order they were
+	executed.
+
+	If multiple stores to the same location are visible when a CPU
+	executes rmb(), then after the rmb() the latest store has
+	overwritten all the earlier ones.
+
+	If a CPU executes read-mb-store, then no other read on any CPU
+	can return the value of the store before this read completes.
+	(I'd like to say that the read completes before the store
+	becomes visible on any CPU; I'm not sure that either is right.  
+	What about on the executing CPU?)
+
+But this isn't complete.  It doesn't say enough about when one write may
+or may not mask another, or the fact that this occurs in such a way that
+all CPUs will agree on the order of the stores to a single location they
+see in common.
+
+And certainly there should be something saying that one way or another,
+stores do eventually complete.  Given a long enough time with no other
+accesses, some single store to a given location should become visible to
+every CPU.
+
+Alan
 

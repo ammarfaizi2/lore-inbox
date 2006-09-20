@@ -1,51 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932223AbWITVzl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932221AbWITVzY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932223AbWITVzl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Sep 2006 17:55:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932228AbWITVzl
+	id S932221AbWITVzY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Sep 2006 17:55:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932224AbWITVzY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Sep 2006 17:55:41 -0400
-Received: from pat.uio.no ([129.240.10.4]:39047 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S932223AbWITVzk (ORCPT
+	Wed, 20 Sep 2006 17:55:24 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:3253 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932221AbWITVzX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Sep 2006 17:55:40 -0400
-Subject: Re: Autofs4 breakage (was 2.6.19 -mm merge plans)
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20060920135438.d7dd362b.akpm@osdl.org>
-References: <20060920135438.d7dd362b.akpm@osdl.org>
-Content-Type: text/plain
-Date: Wed, 20 Sep 2006 17:55:33 -0400
-Message-Id: <1158789333.5639.37.camel@lade.trondhjem.org>
+	Wed, 20 Sep 2006 17:55:23 -0400
+Date: Wed, 20 Sep 2006 17:55:07 -0400
+From: Dave Jones <davej@redhat.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Marek Vasut <marek.vasut@gmail.com>
+Subject: Re: 2.6.19 -mm merge plans (input patches)
+Message-ID: <20060920215507.GM1153@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+	Marek Vasut <marek.vasut@gmail.com>
+References: <d120d5000609201429m753de40fo194d48427402c6cd@mail.gmail.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.8.0 
-Content-Transfer-Encoding: 7bit
-X-UiO-Spam-info: not spam, SpamAssassin (score=-3.808, required 12,
-	autolearn=disabled, AWL 1.19, UIO_MAIL_IS_INTERNAL -5.00)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <d120d5000609201429m753de40fo194d48427402c6cd@mail.gmail.com>
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-09-20 at 13:54 -0700, Andrew Morton wrote:
+On Wed, Sep 20, 2006 at 05:29:43PM -0400, Dmitry Torokhov wrote:
+ > On 9/20/06, Andrew Morton <akpm@osdl.org> wrote:
+ > >
+ > > remove-silly-messages-from-input-layer.patch
+ > 
+ > I firmly believe that we should keep reporting these conditions. This
+ > way we can explain why keyboard might be losing keypresses. I am open
+ > to changing the message text. Would "atkbd.c: keyboard reported error
+ > condition (FYI only)" be better?
+ 
+Q: What do you expect users to do when they see the message?
 
-> add-newline-to-nfs-dprintk.patch
-> fs-nfs-make-code-static.patch
-> 
->  NFS queue -> Trond.
-> 
->  The NFS git tree breaks autofs4 submounts.  Still.
+ > It is KERN_DEBUG after all.
 
-I still suspect that is due to a misconfigured selinux setup on your
-machine. If autofs4 expects to be able to do mkdir() on your NFS
-partition (something which in itself is wrong), then selinux should be
-configured to allow it to do so.
+users can, and do read dmesg.
 
-Anyhow, does reverting the patch
-
-http://kernel.org/git/gitweb.cgi?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff;h=a634904a7de0d3a0bc606f608007a34e8c05bfee;hp=ddeff520f02b92128132c282c350fa72afffb84a
-
-'fix' the issue for you?
-
-Cheers,
-  Trond
+	Dave
 

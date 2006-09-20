@@ -1,63 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932222AbWITSef@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932220AbWITSeI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932222AbWITSef (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Sep 2006 14:34:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932225AbWITSef
+	id S932220AbWITSeI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Sep 2006 14:34:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932226AbWITSeH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Sep 2006 14:34:35 -0400
-Received: from vms046pub.verizon.net ([206.46.252.46]:41143 "EHLO
-	vms046pub.verizon.net") by vger.kernel.org with ESMTP
-	id S932223AbWITSe0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Sep 2006 14:34:26 -0400
-Date: Wed, 20 Sep 2006 14:34:19 -0400
-From: Gene Heskett <gene.heskett@verizon.net>
-Subject: Re: 2.6.18-rt1
-In-reply-to: <20060920165846.GA31522@elte.hu>
-To: linux-kernel@vger.kernel.org
-Cc: Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>
-Message-id: <200609201434.19177.gene.heskett@verizon.net>
-Organization: Organization? Absolutely zip.
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-Content-disposition: inline
-References: <20060920141907.GA30765@elte.hu>
- <200609201250.03750.gene.heskett@verizon.net> <20060920165846.GA31522@elte.hu>
-User-Agent: KMail/1.7
+	Wed, 20 Sep 2006 14:34:07 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.150]:65209 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S932220AbWITSeD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Sep 2006 14:34:03 -0400
+Subject: Re: [ckrm-tech] [patch00/05]: Containers(V2)- Introduction
+From: Chandra Seetharaman <sekharan@us.ibm.com>
+Reply-To: sekharan@us.ibm.com
+To: Christoph Lameter <clameter@sgi.com>
+Cc: Rohit Seth <rohitseth@google.com>, npiggin@suse.de, pj@sgi.com,
+       linux-kernel <linux-kernel@vger.kernel.org>, devel@openvz.org,
+       CKRM-Tech <ckrm-tech@lists.sourceforge.net>
+In-Reply-To: <Pine.LNX.4.64.0609200916140.30572@schroedinger.engr.sgi.com>
+References: <1158718568.29000.44.camel@galaxy.corp.google.com>
+	 <Pine.LNX.4.64.0609200916140.30572@schroedinger.engr.sgi.com>
+Content-Type: text/plain
+Organization: IBM
+Date: Wed, 20 Sep 2006 11:34:00 -0700
+Message-Id: <1158777240.6536.89.camel@linuxchandra>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-7) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 20 September 2006 12:58, Ingo Molnar wrote:
->* Gene Heskett <gene.heskett@verizon.net> wrote:
->>   LD      .tmp_vmlinux1
->>
->> kernel/built-in.o(.text+0x16f25): In function `hrtimer_start':
->> : undefined reference to `hrtimer_update_timer_prio'
->>
->> make: *** [.tmp_vmlinux1] Error 1
->
->yeah, the !hrt build broke in the last minute, i've uploaded -rt2 with
->the fix.
->
-And that one does an Opps during boot & freezes.  The first line says 
-something about being unable to handle a dereference of $00000000, and 
-goes on from there.  Its about 2 screens full, so I'd have to take a pix 
-to get any more really accurate data.
+On Wed, 2006-09-20 at 09:25 -0700, Christoph Lameter wrote:
+> On Tue, 19 Sep 2006, Rohit Seth wrote:
+> 
+> > For example, a user can run a batch job like backup inside containers.
+> > This job if run unconstrained could step over most of the memory present
+> > in system thus impacting other workloads running on the system at that
+> > time.  But when the same job is run inside containers then the backup
+> > job is run within container limits.
+> 
+> I just saw this for the first time since linux-mm was not cced. We have 
+> discussed a similar mechanism on linux-mm.
+> 
+> We already have such a functionality in the kernel its called a cpuset. A 
 
-I guess we could say the "can an old fart build it" test failed :)
+Christoph,
 
-> Ingo
->-
->To unsubscribe from this list: send the line "unsubscribe linux-kernel"
-> in the body of a message to majordomo@vger.kernel.org
->More majordomo info at  http://vger.kernel.org/majordomo-info.html
->Please read the FAQ at  http://www.tux.org/lkml/
+There had been multiple discussions in the past (as recent as Aug 18,
+2006), where we (Paul and CKRM/RG folks) have concluded that cpuset and
+resource management are orthogonal features.
 
+cpuset provides "resource isolation", and what we, the resource
+management guys want is work-conserving resource control.
+
+cpuset partitions resource and hence the resource that are assigned to a
+node is not available for other cpuset, which is not good for "resource
+management".
+
+chandra
+PS:
+Aug 18 link: http://marc.theaimsgroup.com/?l=linux-
+kernel&m=115593114408336&w=2
+
+Feb 2005 thread: http://marc.theaimsgroup.com/?l=ckrm-
+tech&m=110790400330617&w=2 
+> container could be created simply by creating a fake node that then 
+> allows constraining applications to this node. We already track the 
+> types of pages per node. The statistics you want are already existing. 
+> See /proc/zoneinfo and /sys/devices/system/node/node*/*.
+> 
+> > We use the term container to indicate a structure against which we track
+> > and charge utilization of system resources like memory, tasks etc for a
+> > workload. Containers will allow system admins to customize the
+> > underlying platform for different applications based on their
+> > performance and HW resource utilization needs.  Containers contain
+> > enough infrastructure to allow optimal resource utilization without
+> > bogging down rest of the kernel.  A system admin should be able to
+> > create, manage and free containers easily.
+> 
+> Right thats what cpusets do and it has been working fine for years. Maybe 
+> Paul can help you if you find anything missing in the existing means to 
+> control resources.
+> 
+> -------------------------------------------------------------------------
+> Take Surveys. Earn Cash. Influence the Future of IT
+> Join SourceForge.net's Techsay panel and you'll get the chance to share your
+> opinions on IT & business topics through brief surveys -- and earn cash
+> http://www.techsay.com/default.php?page=join.php&p=sourceforge&CID=DEVDEV
+> _______________________________________________
+> ckrm-tech mailing list
+> https://lists.sourceforge.net/lists/listinfo/ckrm-tech
 -- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-Yahoo.com and AOL/TW attorneys please note, additions to the above
-message by Gene Heskett are:
-Copyright 2006 by Maurice Eugene Heskett, all rights reserved.
+
+----------------------------------------------------------------------
+    Chandra Seetharaman               | Be careful what you choose....
+              - sekharan@us.ibm.com   |      .......you may get it.
+----------------------------------------------------------------------
+
+

@@ -1,51 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932450AbWITW60@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932452AbWITW7O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932450AbWITW60 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Sep 2006 18:58:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932452AbWITW60
+	id S932452AbWITW7O (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Sep 2006 18:59:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932453AbWITW7O
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Sep 2006 18:58:26 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:29124 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S932450AbWITW6Z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Sep 2006 18:58:25 -0400
-Date: Wed, 20 Sep 2006 15:58:15 -0700
-From: Paul Jackson <pj@sgi.com>
-To: rohitseth@google.com
-Cc: clameter@sgi.com, ckrm-tech@lists.sourceforge.net, devel@openvz.org,
-       npiggin@suse.de, linux-kernel@vger.kernel.org
+	Wed, 20 Sep 2006 18:59:14 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:26001 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S932452AbWITW7N (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Sep 2006 18:59:13 -0400
+Date: Wed, 20 Sep 2006 15:59:03 -0700 (PDT)
+From: Christoph Lameter <clameter@sgi.com>
+To: Paul Jackson <pj@sgi.com>
+cc: npiggin@suse.de, rohitseth@google.com, ckrm-tech@lists.sourceforge.net,
+       devel@openvz.org, linux-kernel@vger.kernel.org
 Subject: Re: [patch00/05]: Containers(V2)- Introduction
-Message-Id: <20060920155815.33b03991.pj@sgi.com>
-In-Reply-To: <1158775678.8574.81.camel@galaxy.corp.google.com>
+In-Reply-To: <20060920152753.6f3a3221.pj@sgi.com>
+Message-ID: <Pine.LNX.4.64.0609201558170.1026@schroedinger.engr.sgi.com>
 References: <1158718568.29000.44.camel@galaxy.corp.google.com>
-	<Pine.LNX.4.64.0609200916140.30572@schroedinger.engr.sgi.com>
-	<1158773208.8574.53.camel@galaxy.corp.google.com>
-	<Pine.LNX.4.64.0609201035240.31464@schroedinger.engr.sgi.com>
-	<1158775678.8574.81.camel@galaxy.corp.google.com>
-Organization: SGI
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+ <Pine.LNX.4.64.0609200916140.30572@schroedinger.engr.sgi.com>
+ <20060920164404.GA22913@wotan.suse.de> <Pine.LNX.4.64.0609200944420.30793@schroedinger.engr.sgi.com>
+ <20060920170735.GB22913@wotan.suse.de> <Pine.LNX.4.64.0609201008160.30793@schroedinger.engr.sgi.com>
+ <20060920152753.6f3a3221.pj@sgi.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Seth wrote:
-> So now we depend on getting memory hot-plug to work for faking up these
-> nodes ...for the memory that is already present in the system. It just
-> does not sound logical.
+On Wed, 20 Sep 2006, Paul Jackson wrote:
 
-It's logical to me.  Part of memory hotplug is adding physial memory,
-which is not an issue here.  Part of it is adding another logical
-memory node (turning on another bit in node_online_map) and fixing up
-any code that thought a systems memory nodes were baked in at boottime.
-Perhaps the hardest part is the memory hot-un-plug, which would become
-more urgently needed with such use of fake numa nodes.  The assumption
-that memory doesn't just up and vanish is non-trivial to remove from
-the kernel.  A useful memory containerization should (IMHO) allow for
-both adding and removing such containers.
+> > Hmmm... That gets into issues of knowing how many pages are in use by an 
+> > application and that is fundamentally difficult to do due to pages being 
+> > shared between processes.
+> 
+> Fundamentally difficult or not, it seems to be required for what Nick
+> describes, and for sure cpusets doesn't do it (track memory usage per
+> container.)
 
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+We have the memory usage on a node. So in that sense we track memory 
+usage. We also have VM counters for that node or nodes that describe 
+resource usage.

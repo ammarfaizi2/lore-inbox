@@ -1,117 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932074AbWITRT0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932081AbWITRV2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932074AbWITRT0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Sep 2006 13:19:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932075AbWITRT0
+	id S932081AbWITRV2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Sep 2006 13:21:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932080AbWITRV2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Sep 2006 13:19:26 -0400
-Received: from tomts16-srv.bellnexxia.net ([209.226.175.4]:35049 "EHLO
-	tomts16-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id S932074AbWITRTZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Sep 2006 13:19:25 -0400
-Date: Wed, 20 Sep 2006 13:14:13 -0400
-From: Mathieu Desnoyers <compudj@krystal.dyndns.org>
-To: "Frank Ch. Eigler" <fche@redhat.com>
-Cc: Karim Yaghmour <karim@opersys.com>, linux-kernel@vger.kernel.org,
-       Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       Ingo Molnar <mingo@redhat.com>, Greg Kroah-Hartman <gregkh@suse.de>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Douglas Niehaus <niehaus@eecs.ku.edu>, Tom Zanussi <zanussi@us.ibm.com>,
-       Paul Mundt <lethal@linux-sh.org>, Jes Sorensen <jes@sgi.com>,
-       Richard J Moore <richardj_moore@uk.ibm.com>,
-       William Cohen <wcohen@redhat.com>,
-       "Martin J. Bligh" <mbligh@mbligh.org>,
-       Michel Dagenais <michel.dagenais@polymtl.ca>,
-       systemtap@sources.redhat.com, ltt-dev@shafik.org
-Subject: Re: [PATCH] Linux Kernel Markers 0.2 for Linux 2.6.17
-Message-ID: <20060920171413.GA18333@Krystal>
-References: <y0m4pv3ek49.fsf@ton.toronto.redhat.com> <20060919193623.GA9459@Krystal> <20060919194515.GB18646@redhat.com> <20060919202802.GB552@Krystal> <20060919210703.GD18646@redhat.com> <45106B20.6020600@opersys.com> <20060920132008.GF18646@redhat.com> <20060920133834.GB17032@Krystal> <20060920145739.GA8502@Krystal> <20060920155358.GH18646@redhat.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=_Krystal-1300-1158772453-0001-2"
+	Wed, 20 Sep 2006 13:21:28 -0400
+Received: from orca.ele.uri.edu ([131.128.51.63]:47521 "EHLO orca.ele.uri.edu")
+	by vger.kernel.org with ESMTP id S932077AbWITRVZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Sep 2006 13:21:25 -0400
+Date: Wed, 20 Sep 2006 13:21:23 -0400
+From: Will Simoneau <simoneau@ele.uri.edu>
+To: sparclinux@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [sparc64] 2.6.18 unaligned acccess in ehci_hub_control
+Message-ID: <20060920172123.GA9334@ele.uri.edu>
+Mail-Followup-To: sparclinux@vger.kernel.org, linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="AqsLC8rIMeq19msA"
 Content-Disposition: inline
-In-Reply-To: <20060920155358.GH18646@redhat.com>
-X-Editor: vi
-X-Info: http://krystal.dyndns.org:8080
-X-Operating-System: Linux/2.4.32-grsec (i686)
-X-Uptime: 13:12:11 up 28 days, 14:20,  5 users,  load average: 0.41, 0.33, 0.35
-User-Agent: Mutt/1.5.13 (2006-08-11)
+User-Agent: Mutt/1.5.13 [Linux 2.6.18 sparc64]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a MIME-formatted message.  If you see this text it means that your
-E-mail software does not support MIME-formatted messages.
 
---=_Krystal-1300-1158772453-0001-2
+--AqsLC8rIMeq19msA
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 Content-Transfer-Encoding: quoted-printable
 
-And here is the sample module to use my jump-marker symbols :
+I upgraded from 2.6.17.7 to 2.6.18 today, and in dmesg I have 5 of these
+messages in a row:
 
-(yes, it works!)
+Kernel unaligned access at TPC[100be8c8] ehci_hub_control+0x350/0x680 [ehci=
+_hcd]
 
-Adresses are taken by hand from /proc/kallsyms for now.
+This message wasn't there before... I suppose it is pretty harmless as
+the kernel is supposed to handle unaligned accesses (right?) but this is
+the first time it's happened.
 
----BEGIN---
+According to gdb (my first time using it...),
+drivers/usb/host/ehci-hub.c:280 is to blame:
 
-/* test-mark.c
- *
- */
+(gdb) list *ehci_hub_control+0x350
+0x8d0 is in ehci_hub_control (drivers/usb/host/ehci-hub.c:280).
+275      struct usb_hub_descriptor  *desc
+276   ) {
+277      int      ports =3D HCS_N_PORTS (ehci->hcs_params);
+278      u16      temp;
+279  =20
+280      desc->bDescriptorType =3D 0x29;
+281      desc->bPwrOn2PwrGood =3D 10; /* ehci 1.0, 2.3.9 says 20ms max */
+282      desc->bHubContrCurrent =3D 0;
+283  =20
+284      desc->bNbrPorts =3D ports;
 
-#include <linux/marker.h>
-#include <linux/module.h>
+System is a Sun U80 4x450 with 2.5G and a USB2 PCI card. GCC for the
+kernel is 4.1.1 (with gentoo patchset). The only USB2 device is an
+external Sony dual layer DVD writer.
 
-static void **__mark_subsys_mark1_call =3D (void**)0xf887580c;
-static void **__mark_subsys_mark1_jump_over =3D (void**)0xf8875814;
-static void **__mark_subsys_mark1_jump_call =3D (void*)0xf8875810;
-static void *__this_mark_empty_function =3D (void*)0xf8875000;
-
-static void *saved_over;
-
-void do_mark1(const char *format, int value)
-{
-	printk("value is %d\n", value);
-}
-
-int init_module(void)
-{
-	*__mark_subsys_mark1_call =3D (void*)do_mark1;
-	saved_over =3D *__mark_subsys_mark1_jump_over;
-	*__mark_subsys_mark1_jump_over =3D *__mark_subsys_mark1_jump_call;
-
-	return 0;
-}
-
-void cleanup_module(void)
-{
-	*__mark_subsys_mark1_jump_over =3D saved_over;
-	*__mark_subsys_mark1_call =3D __this_mark_empty_function;
-}
-
-MODULE_LICENSE("GPL");
-MODULE_AUTHOR("Mathieu Desnoyers");
-MODULE_DESCRIPTION("Marker Test");
-
----END---
-
-
-
-
-OpenPGP public key:	      http://krystal.dyndns.org:8080/key/compudj.gpg
-Key fingerprint:     8CD5 52C3 8E3C 4140 715F  BA06 3F25 A8FE 3BAE 9A68=20
-
---=_Krystal-1300-1158772453-0001-2
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Transfer-Encoding: 7bit
-Content-Description: Digital signature
+--AqsLC8rIMeq19msA
+Content-Type: application/pgp-signature
 Content-Disposition: inline
 
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.5 (GNU/Linux)
 
-iD8DBQFFEXblPyWo/juummgRAuTSAKCPuQvvkhg9mZ2HHfK80VI89Q+QBACcDj4x
-ZrzJCtsbI7aR6JadsnouBDk=
-=DNHr
+iD8DBQFFEXiTLYBaX8VDLLURAgDsAKC2rmhf98QKjvglx4FOond3/JyTRQCff1Lc
+scEkEtIpxKOkccMXky3OwkM=
+=6TjD
 -----END PGP SIGNATURE-----
 
---=_Krystal-1300-1158772453-0001-2--
+--AqsLC8rIMeq19msA--

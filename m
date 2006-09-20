@@ -1,68 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750728AbWITXjx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750757AbWITXqF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750728AbWITXjx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Sep 2006 19:39:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750723AbWITXjx
+	id S1750757AbWITXqF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Sep 2006 19:46:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750759AbWITXqF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Sep 2006 19:39:53 -0400
-Received: from smtp-out.google.com ([216.239.45.12]:55336 "EHLO
-	smtp-out.google.com") by vger.kernel.org with ESMTP
-	id S1750728AbWITXjw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Sep 2006 19:39:52 -0400
-DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
-	h=received:subject:from:reply-to:to:cc:in-reply-to:references:
-	content-type:organization:date:message-id:mime-version:x-mailer:content-transfer-encoding;
-	b=PBzpEGDD50KPGw71JmdNbO97uWOZnGD7OqvTdJqY3qn4iKEafkQdNUKXevNlrX/OM
-	OiL5b8a5QBejbvri1/c2A==
+	Wed, 20 Sep 2006 19:46:05 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:37321 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1750757AbWITXqC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Sep 2006 19:46:02 -0400
+Date: Wed, 20 Sep 2006 16:45:52 -0700
+From: Paul Jackson <pj@sgi.com>
+To: rohitseth@google.com
+Cc: clameter@sgi.com, ckrm-tech@lists.sourceforge.net, devel@openvz.org,
+       npiggin@suse.de, linux-kernel@vger.kernel.org
 Subject: Re: [patch00/05]: Containers(V2)- Introduction
-From: Rohit Seth <rohitseth@google.com>
-Reply-To: rohitseth@google.com
-To: Christoph Lameter <clameter@sgi.com>
-Cc: Paul Jackson <pj@sgi.com>, ckrm-tech@lists.sourceforge.net,
-       devel@openvz.org, npiggin@suse.de, linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.64.0609201634450.1955@schroedinger.engr.sgi.com>
+Message-Id: <20060920164552.0a95c481.pj@sgi.com>
+In-Reply-To: <1158794542.7207.10.camel@galaxy.corp.google.com>
 References: <1158718568.29000.44.camel@galaxy.corp.google.com>
-	 <Pine.LNX.4.64.0609200916140.30572@schroedinger.engr.sgi.com>
-	 <1158773208.8574.53.camel@galaxy.corp.google.com>
-	 <Pine.LNX.4.64.0609201035240.31464@schroedinger.engr.sgi.com>
-	 <1158775678.8574.81.camel@galaxy.corp.google.com>
-	 <20060920155815.33b03991.pj@sgi.com>
-	 <Pine.LNX.4.64.0609201601450.1026@schroedinger.engr.sgi.com>
-	 <1158795231.7207.21.camel@galaxy.corp.google.com>
-	 <Pine.LNX.4.64.0609201634450.1955@schroedinger.engr.sgi.com>
-Content-Type: text/plain
-Organization: Google Inc
-Date: Wed, 20 Sep 2006 16:39:29 -0700
-Message-Id: <1158795569.7207.23.camel@galaxy.corp.google.com>
+	<Pine.LNX.4.64.0609200916140.30572@schroedinger.engr.sgi.com>
+	<1158773208.8574.53.camel@galaxy.corp.google.com>
+	<20060920155136.c35c874f.pj@sgi.com>
+	<1158794542.7207.10.camel@galaxy.corp.google.com>
+Organization: SGI
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-09-20 at 16:36 -0700, Christoph Lameter wrote:
-> On Wed, 20 Sep 2006, Rohit Seth wrote:
-> 
-> > > How does the containers implementation under discussion behave if a 
-> > > process is part of a container and the container is removed?
-> > It first removes all the tasks belonging to this container (which means
-> > resetting the container pointers in task_struct and then per page
-> > container pointer belonging to anonymous pages).  It then clears the
-> > container pointers in the mapping structure and also in the pages
-> > belonging to these files.
-> 
-> So the application continues to run unharmed?
-> 
+Seth wrote:
+> But container support will allow the certain files pages to come from
+> the same container irrespective of who is using them.  Something useful
+> for shared libs etc.
 
-It will hit a one time penalty of getting those pointers reset, but
-besides that it will continue to run fine.
+Yes - that is useful for shared libs, and your container patch
+apparently does that cleanly, while cpuset+fakenuma containers can
+only provide a compromise kludge.
 
-> Could we equip containers with restrictions on processors and nodes for 
-> NUMA?
-> 
-
-Yes.  That is something we will have to do (I think part of CPU
-handler-TBD).
-
--rohit
-
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

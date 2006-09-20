@@ -1,83 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751041AbWITISm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751347AbWITI3Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751041AbWITISm (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Sep 2006 04:18:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751348AbWITISm
+	id S1751347AbWITI3Y (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Sep 2006 04:29:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751348AbWITI3Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Sep 2006 04:18:42 -0400
-Received: from mtagate6.uk.ibm.com ([195.212.29.139]:44029 "EHLO
-	mtagate6.uk.ibm.com") by vger.kernel.org with ESMTP
-	id S1751041AbWITISl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Sep 2006 04:18:41 -0400
-In-Reply-To: <20060920010852.GA7469@in.ibm.com>
-Subject: Re: [PATCH] Linux Kernel Markers
-To: prasanna@in.ibm.com
-Cc: Andrew Morton <akpm@osdl.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Mathieu Desnoyers <compudj@krystal.dyndns.org>,
-       "Frank Ch. Eigler" <fche@redhat.com>,
-       Greg Kroah-Hartman <gregkh@suse.de>,
-       Christoph Hellwig <hch@infradead.org>, Jes Sorensen <jes@sgi.com>,
-       Paul Mundt <lethal@linux-sh.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>, ltt-dev@shafik.org,
-       Martin Bligh <mbligh@google.com>,
-       Michel Dagenais <michel.dagenais@polymtl.ca>,
-       Ingo Molnar <mingo@elte.hu>, systemtap@sources.redhat.com,
-       systemtap-owner@sourceware.org, Thomas Gleixner <tglx@linutronix.de>,
-       William Cohen <wcohen@redhat.com>, Tom Zanussi <zanussi@us.ibm.com>
-X-Mailer: Lotus Notes Release 7.0.1 July 07, 2006
-Message-ID: <OFD1A61531.0E2D11C4-ON802571EF.002D4111-802571EF.002DA3BC@uk.ibm.com>
-From: Richard J Moore <richardj_moore@uk.ibm.com>
-Date: Wed, 20 Sep 2006 09:18:30 +0100
-X-MIMETrack: Serialize by Router on D06ML065/06/M/IBM(Release 6.5.5HF607 | June 26, 2006) at
- 20/09/2006 09:20:48
-MIME-Version: 1.0
-Content-type: text/plain; charset=US-ASCII
+	Wed, 20 Sep 2006 04:29:24 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:57308 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1751347AbWITI3Y (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Sep 2006 04:29:24 -0400
+Date: Wed, 20 Sep 2006 10:21:35 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Peter Zijlstra <a.p.zijlstra@chello.nl>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       Arjan van de Ven <arjan@linux.intel.com>
+Subject: Re: [PATCH] rtc: lockdep fix
+Message-ID: <20060920082135.GB12517@elte.hu>
+References: <1158695676.28174.21.camel@lappy>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1158695676.28174.21.camel@lappy>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -2.9
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.9 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5000]
+	-0.1 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+* Peter Zijlstra <a.p.zijlstra@chello.nl> wrote:
 
-systemtap-owner@sourceware.org wrote on 20/09/2006 02:08:52:
+> BUG: warning at kernel/lockdep.c:1816/trace_hardirqs_on() (Not tainted)
+>  [<c04051ee>] show_trace_log_lvl+0x58/0x171
+>  [<c0405802>] show_trace+0xd/0x10
+>  [<c040591b>] dump_stack+0x19/0x1b
+>  [<c043abee>] trace_hardirqs_on+0xa2/0x11e
+>  [<c06143c3>] _spin_unlock_irq+0x22/0x26
+>  [<c0541540>] rtc_get_rtc_time+0x32/0x176
+>  [<c0419ba4>] hpet_rtc_interrupt+0x92/0x14d
+>  [<c0450f94>] handle_IRQ_event+0x20/0x4d
+>  [<c0451055>] __do_IRQ+0x94/0xef
+>  [<c040678d>] do_IRQ+0x9e/0xbd
+>  [<c0404a49>] common_interrupt+0x25/0x2c
 
-> Hi Alan,
->
-> On Wed, Sep 20, 2006 at 01:08:45AM +0100, Alan Cox wrote:
-> > Ar Maw, 2006-09-19 am 13:54 -0400, ysgrifennodd Mathieu Desnoyers:
-> > > Very good idea.. However, overwriting the second instruction
-> with a jump could
-> > > be dangerous on preemptible and SMP kernels, because we never
-> know if a thread
-> > > has an IP in any of its contexts that would return exactly at
-> the middle of the
-> > > jump.
-> >
-> > No: on x86 it is the *same* case for all of these even writing an int3.
-> > One byte or a megabyte,
-> >
-> > You MUST ensure that every CPU executes a serializing instruction
-before
-> > it hits code that was modified by another processor. Otherwise you get
-> > CPU errata and the CPU produces results which vendors like to describe
-> > as "undefined".
->
-> Are you referring to Intel erratum "unsynchronized cross-modifying code"
-> - where it refers to the practice of modifying code on one processor
-> where another has prefetched the unmodified version of the code.
->
-> Thanks
-> Prasanna
+ouch! That is a scenario that could lead to real lockups. Fix looks good 
+and necessary for v2.6.18 to me.
 
+> Signed-off-by: Peter Zijlstra <a.p.zijlstra@chello.nl>
 
-In the special case of replacing an opcode with int3 that erratum doesn't
-apply. I know that's not in the manuals but it has been confirmed by the
-Intel microarchitecture group. And it's not reasonable to it to be any
-other way.
+Acked-by: Ingo Molnar <mingo@elte.hu>
 
-
-
-- -
-Richard J Moore
-IBM Advanced Linux Response Team - Linux Technology Centre
-MOBEX: 264807; Mobile (+44) (0)7739-875237
-Office: (+44) (0)1962-817072
-
+	Ingo

@@ -1,21 +1,26 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751006AbWITKWK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751115AbWITLAS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751006AbWITKWK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Sep 2006 06:22:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751008AbWITKWJ
+	id S1751115AbWITLAS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Sep 2006 07:00:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751116AbWITLAS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Sep 2006 06:22:09 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:37251 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1751005AbWITKWI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Sep 2006 06:22:08 -0400
-Subject: Re: [PATCH] Linux Kernel Markers
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: karim@opersys.com
-Cc: Mathieu Desnoyers <compudj@krystal.dyndns.org>,
-       Martin Bligh <mbligh@google.com>, prasanna@in.ibm.com,
+	Wed, 20 Sep 2006 07:00:18 -0400
+Received: from mail4.hitachi.co.jp ([133.145.228.5]:37562 "EHLO
+	mail4.hitachi.co.jp") by vger.kernel.org with ESMTP
+	id S1751115AbWITLAP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Sep 2006 07:00:15 -0400
+Message-ID: <45111F37.2060607@hitachi.com>
+Date: Wed, 20 Sep 2006 20:00:07 +0900
+From: Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>
+Organization: Systems Development Lab., Hitachi, Ltd., Japan
+User-Agent: Thunderbird 1.5.0.7 (Windows/20060909)
+MIME-Version: 1.0
+To: prasanna@in.ibm.com
+Cc: Martin Bligh <mbligh@google.com>, Vara Prasad <prasadav@us.ibm.com>,
        Andrew Morton <akpm@osdl.org>, "Frank Ch. Eigler" <fche@redhat.com>,
-       Ingo Molnar <mingo@elte.hu>, Paul Mundt <lethal@linux-sh.org>,
+       Ingo Molnar <mingo@elte.hu>,
+       Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
+       Paul Mundt <lethal@linux-sh.org>,
        linux-kernel <linux-kernel@vger.kernel.org>, Jes Sorensen <jes@sgi.com>,
        Tom Zanussi <zanussi@us.ibm.com>,
        Richard J Moore <richardj_moore@uk.ibm.com>,
@@ -23,47 +28,39 @@ Cc: Mathieu Desnoyers <compudj@krystal.dyndns.org>,
        Christoph Hellwig <hch@infradead.org>,
        Greg Kroah-Hartman <gregkh@suse.de>,
        Thomas Gleixner <tglx@linutronix.de>, William Cohen <wcohen@redhat.com>,
-       ltt-dev@shafik.org, systemtap@sources.redhat.com
-In-Reply-To: <451090E7.603@opersys.com>
-References: <20060918234502.GA197@Krystal> <20060919081124.GA30394@elte.hu>
-	 <451008AC.6030006@google.com> <20060919154612.GU3951@redhat.com>
-	 <4510151B.5070304@google.com> <20060919093935.4ddcefc3.akpm@osdl.org>
-	 <45101DBA.7000901@google.com> <20060919063821.GB23836@in.ibm.com>
-	 <45102641.7000101@google.com>  <20060919175405.GC26339@Krystal>
-	 <1158710925.32598.120.camel@localhost.localdomain>
-	 <451090E7.603@opersys.com>
-Content-Type: text/plain
+       ltt-dev@shafik.org, systemtap@sources.redhat.com,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH] Linux Kernel Markers
+References: <20060919081124.GA30394@elte.hu> <451008AC.6030006@google.com> <20060919154612.GU3951@redhat.com> <4510151B.5070304@google.com> <20060919093935.4ddcefc3.akpm@osdl.org> <45101DBA.7000901@google.com> <20060919063821.GB23836@in.ibm.com> <45102641.7000101@google.com> <4510413F.2030200@us.ibm.com> <45104468.50106@google.com> <20060919093056.GA21618@in.ibm.com>
+In-Reply-To: <20060919093056.GA21618@in.ibm.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Date: Wed, 20 Sep 2006 11:44:29 +0100
-Message-Id: <1158749069.7705.9.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Maw, 2006-09-19 am 20:52 -0400, ysgrifennodd Karim Yaghmour:
-> a) the errata & a possible thread having an IP leading back within (not
->    at the start of) the range to be replaced.
-> b) the errata & replacing single instruction with single instruction of
->    same size.
+Hi,
 
-Intel don't distinguish. Richard's reply later in the thread answers a
-lot more including what Intels architecture team said about int3 being a
-specific safe case for soem reason
+S. P. Prasanna wrote:
+> Some more coplicated method.
+> How about inserting a (instruction size) number of breakpoints and
+> wait untill all the threads gets scheduled atleast once (so that
+> threads would hit the breakpoint, if their IPs are in the middle of
+> instruction we want to replace with jump) and then replace with
+> jump instruction.
 
-> I was vaguely aware of the issue on x86. Do you know if this applies the
-> same on other achitectures?
+I think there is no need to insert so many breakpoints.
+Instead of that, you merely wait that all the threads which are
+running on each processors at that time gets scheduled, if the kernel
+is *NOT* preemptive.
 
-I wouldn't know. 
+If the kernel is preemptive, some threads might sleep on the target
+address. In this case, we can use freeze_processes() to ensure safety.
+This idea was proposed by Ingo.
 
-> Also, this is SMP-only, right? (Not that single UP matters for desktop
-> anymore, but just checking.)
+Thanks,
+-- 
+Masami HIRAMATSU
+2nd Research Dept.
+Hitachi, Ltd., Systems Development Laboratory
+E-mail: masami.hiramatsu.pt@hitachi.com
 
-There are some uniprocessor errata but I cannot see how you could patch
-code, somehow take an interrupt (or return from one) without executing a
-serializing instruction, so I likewise think its SMP only.
-
-> Any pointers to the errata?
-
-developer.intel.com 'specification update' documents (which are always
-good reading).

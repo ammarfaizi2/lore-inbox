@@ -1,71 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751551AbWITQpB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751885AbWITQqS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751551AbWITQpB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Sep 2006 12:45:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751877AbWITQpB
+	id S1751885AbWITQqS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Sep 2006 12:46:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751887AbWITQqS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Sep 2006 12:45:01 -0400
-Received: from smtp-out.google.com ([216.239.45.12]:39080 "EHLO
+	Wed, 20 Sep 2006 12:46:18 -0400
+Received: from smtp-out.google.com ([216.239.45.12]:7081 "EHLO
 	smtp-out.google.com") by vger.kernel.org with ESMTP
-	id S1751557AbWITQpA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Sep 2006 12:45:00 -0400
+	id S1751885AbWITQqR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Sep 2006 12:46:17 -0400
 DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
 	h=received:subject:from:reply-to:to:cc:in-reply-to:references:
 	content-type:organization:date:message-id:mime-version:x-mailer:content-transfer-encoding;
-	b=Jd17zWxDN+TK9g8Wahvzpp9k7S6ElmyK2fMmVs60QwxD9mTgGDkdbqAjELhvCpvCF
-	84jYsglUvZQa7TdQUD+HA==
-Subject: Re: [patch02/05]: Containers(V2)- Generic Linux kernel changes
+	b=Ghtir1pl5kC1EkYVl7utyddBsZYiy0O92EEa82MWxQmwWWg7ISS30UpztFlGHJZ+w
+	1hiQUMY+wUjWxUaFZnGUg==
+Subject: Re: [Devel] [patch00/05]: Containers(V2)- Introduction
 From: Rohit Seth <rohitseth@google.com>
 Reply-To: rohitseth@google.com
-To: Andi Kleen <ak@suse.de>
-Cc: CKRM-Tech <ckrm-tech@lists.sourceforge.net>, devel@openvz.org,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <p7364fikcbe.fsf@verdi.suse.de>
-References: <1158718722.29000.50.camel@galaxy.corp.google.com>
-	 <p7364fikcbe.fsf@verdi.suse.de>
+To: Cedric Le Goater <clg@fr.ibm.com>
+Cc: devel@openvz.org, linux-kernel <linux-kernel@vger.kernel.org>,
+       CKRM-Tech <ckrm-tech@lists.sourceforge.net>
+In-Reply-To: <45113CF3.8010308@fr.ibm.com>
+References: <1158718568.29000.44.camel@galaxy.corp.google.com>
+	 <45113CF3.8010308@fr.ibm.com>
 Content-Type: text/plain
 Organization: Google Inc
-Date: Wed, 20 Sep 2006 09:44:29 -0700
-Message-Id: <1158770670.8574.26.camel@galaxy.corp.google.com>
+Date: Wed, 20 Sep 2006 09:45:43 -0700
+Message-Id: <1158770743.8574.28.camel@galaxy.corp.google.com>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.2.1.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-09-20 at 13:27 +0200, Andi Kleen wrote:
-> Rohit Seth <rohitseth@google.com> writes:
-> >  					 */
-> > +#ifdef CONFIG_CONTAINERS
-> > +	struct container_struct *ctn; /* Pointer to container, may be NULL */
-> > +#endif
+On Wed, 2006-09-20 at 15:06 +0200, Cedric Le Goater wrote:
+> Rohit Seth wrote:
+> > 
+> > This is based on lot of discussions over last month or so.  I hope this
+> > patch set is something that we can agree and more support can be added
+> > on top of this.  Please provide feedback and add other extensions that
+> > are useful in the TODO list.
 > 
-> I still don't think it's a good idea to add a pointer to struct page for this.
-
-I thought last time you supported adding a pointer to struct page (when
-you mentioned next gen slab will also consume page->mapping).  May be I
-missed your point.
-
-> This means any kernel that enables the config would need to carry this significant
-> overhead, no matter if containers are used to not.
+> thanks rohit for this patchset. 
 > 
-Sure this is non-zero overhead but I think this is the logical place to
-track the memory.
-
-> Better would be to store them in some other data structure that is only
-> allocated on demand or figure out a way to store them in the sometimes
-> not all used fields in struct page.
+> I applied it on rc7-mm1, compiles smoothly and boots. Here's a edge 
+> issue, I got this oops while rmdir a container with running tasks. 
 > 
 
-which one...I think the fields in page structure are already getting
-doubly used. 
-
-> BTW your patchkit seems to be also in wrong order in that when 02 is applied
-> it won't compile.
-
-Not sure if I understood that.  I've myself tested these patches on
-2.6.18-rc6-mm2 kernel and they apply just fine.  Are you just trying to
-apply 02....if so then that wouldn't suffice.
+Thanks for pointing this out. I will look into this and send the update.
 
 -rohit
+
 

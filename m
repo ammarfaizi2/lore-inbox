@@ -1,42 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750873AbWITGpP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750894AbWITGzd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750873AbWITGpP (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Sep 2006 02:45:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751241AbWITGpP
+	id S1750894AbWITGzd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Sep 2006 02:55:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751245AbWITGzc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Sep 2006 02:45:15 -0400
-Received: from mx.astronics.com ([66.193.41.10]:35286 "EHLO lynx.astronics.com")
-	by vger.kernel.org with ESMTP id S1750873AbWITGpN convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Sep 2006 02:45:13 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: best way to determine if a module is loaded - from another module
-Date: Tue, 19 Sep 2006 23:45:13 -0700
-Message-ID: <E3132DEC8AEA33489D1F1C89C1A3F8E702B8BB23@LYNX.gd-aes.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: best way to determine if a module is loaded - from another module
-thread-index: AcbcgFLm4KsMlcBqT9OqWKaGfbrWww==
-From: "Springer, Doug" <Doug.Springer@astronics.com>
-To: <linux-kernel@vger.kernel.org>
+	Wed, 20 Sep 2006 02:55:32 -0400
+Received: from gate.crashing.org ([63.228.1.57]:2523 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S1750894AbWITGzc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Sep 2006 02:55:32 -0400
+Subject: Re: [RFC] page fault retry with NOPAGE_RETRY
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Mike Waychison <mikew@google.com>, linux-mm@kvack.org,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>
+In-Reply-To: <20060919222656.52fadf3c.akpm@osdl.org>
+References: <1158274508.14473.88.camel@localhost.localdomain>
+	 <20060915001151.75f9a71b.akpm@osdl.org> <45107ECE.5040603@google.com>
+	 <1158709835.6002.203.camel@localhost.localdomain>
+	 <1158710712.6002.216.camel@localhost.localdomain>
+	 <20060919172105.bad4a89e.akpm@osdl.org>
+	 <1158717429.6002.231.camel@localhost.localdomain>
+	 <20060919200533.2874ce36.akpm@osdl.org>
+	 <1158728665.6002.262.camel@localhost.localdomain>
+	 <20060919222656.52fadf3c.akpm@osdl.org>
+Content-Type: text/plain
+Date: Wed, 20 Sep 2006 16:54:59 +1000
+Message-Id: <1158735299.6002.273.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Please CC me on the replies -I'm not on the list.
+> It's a choice between two behaviours:
+> 
+> a) get stuck in the kernel until someone kills you and
+> 
+> b) fault the page in and proceed as expected.
+> 
+> Option b) is better, no?
 
-I can't figure out how to know if another module is loaded.  I know
-/proc/modules has the list.  Do I open that with sys_open or is there a
-better way?
+That's what I don't understand... where is the actual race that can
+cause the livelock you are mentioning. Is this that TryLock always
+fails, we wait, the lock gets available but since we have dropped the
+semaphore around the wait, it might get stolen again by the time we are
+taking the mmap_sem back and that going on ever and ever again while
+lock_page() would get precedence since we have the mmap_sem ?
 
-I have written a software watchdog for the amd au1200 cpu that will
-gracefully shut the unit off if nobody kicks me.
+Ben.
 
-I've read the kernel resources, and searched the mailing list but I
-don't see an answer.
 
-Thanks for any pointers to more info or how to do it.

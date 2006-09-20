@@ -1,24 +1,24 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751258AbWITNXk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751253AbWITN1V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751258AbWITNXk (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Sep 2006 09:23:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751253AbWITNXk
+	id S1751253AbWITN1V (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Sep 2006 09:27:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751286AbWITN1V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Sep 2006 09:23:40 -0400
-Received: from mail4.hitachi.co.jp ([133.145.228.5]:47293 "EHLO
-	mail4.hitachi.co.jp") by vger.kernel.org with ESMTP
-	id S1751258AbWITNXj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Sep 2006 09:23:39 -0400
-Message-ID: <451140D3.2050301@hitachi.com>
-Date: Wed, 20 Sep 2006 22:23:31 +0900
+	Wed, 20 Sep 2006 09:27:21 -0400
+Received: from mail7.hitachi.co.jp ([133.145.228.42]:53167 "EHLO
+	mail7.hitachi.co.jp") by vger.kernel.org with ESMTP
+	id S1751253AbWITN1U (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Sep 2006 09:27:20 -0400
+Message-ID: <451141B1.40803@hitachi.com>
+Date: Wed, 20 Sep 2006 22:27:13 +0900
 From: Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>
 Organization: Systems Development Lab., Hitachi, Ltd., Japan
 User-Agent: Thunderbird 1.5.0.7 (Windows/20060909)
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Helge Hafting <helge.hafting@aitel.hist.no>, prasanna@in.ibm.com,
-       Martin Bligh <mbligh@google.com>, Andrew Morton <akpm@osdl.org>,
-       "Frank Ch. Eigler" <fche@redhat.com>, Ingo Molnar <mingo@elte.hu>,
+To: karim@opersys.com
+Cc: Martin Bligh <mbligh@google.com>, prasanna@in.ibm.com,
+       Andrew Morton <akpm@osdl.org>, "Frank Ch. Eigler" <fche@redhat.com>,
+       Ingo Molnar <mingo@elte.hu>,
        Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
        Paul Mundt <lethal@linux-sh.org>,
        linux-kernel <linux-kernel@vger.kernel.org>, Jes Sorensen <jes@sgi.com>,
@@ -28,50 +28,59 @@ Cc: Helge Hafting <helge.hafting@aitel.hist.no>, prasanna@in.ibm.com,
        Christoph Hellwig <hch@infradead.org>,
        Greg Kroah-Hartman <gregkh@suse.de>,
        Thomas Gleixner <tglx@linutronix.de>, William Cohen <wcohen@redhat.com>,
-       ltt-dev@shafik.org, systemtap@sources.redhat.com
+       ltt-dev@shafik.org, systemtap@sources.redhat.com,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
 Subject: Re: [PATCH] Linux Kernel Markers
-References: <20060918234502.GA197@Krystal> <20060919081124.GA30394@elte.hu> 	 <451008AC.6030006@google.com> <20060919154612.GU3951@redhat.com> 	 <4510151B.5070304@google.com> <20060919093935.4ddcefc3.akpm@osdl.org> 	 <45101DBA.7000901@google.com> <20060919063821.GB23836@in.ibm.com> 	 <45110C6B.6010909@aitel.hist.no> <1158748226.7705.0.camel@localhost.localdomain>
-In-Reply-To: <1158748226.7705.0.camel@localhost.localdomain>
+References: <20060918234502.GA197@Krystal> <20060919081124.GA30394@elte.hu> <451008AC.6030006@google.com> <20060919154612.GU3951@redhat.com> <4510151B.5070304@google.com> <20060919093935.4ddcefc3.akpm@osdl.org> <45101DBA.7000901@google.com> <20060919063821.GB23836@in.ibm.com> <45102641.7000101@google.com> <20060919070516.GD23836@in.ibm.com> <451030A6.6040801@google.com> <45105B5E.9080107@opersys.com>
+In-Reply-To: <45105B5E.9080107@opersys.com>
 Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Hi Karim,
 
-Alan Cox wrote:
-> Ar Mer, 2006-09-20 am 11:39 +0200, ysgrifennodd Helge Hafting:
->> How about this workaround:
->> 1. Overwrite the start of the function with a hlt, which is atomic.
->> 2. Write that 5-byte jump after the hlt.
->> 3. Overwrite the hlt with nop so things will work
->> 4. interrupt any cpus that got stuck on the hlt - or just wait for the 
->> timer.
+Karim Yaghmour wrote:
+> Martin Bligh wrote:
+>> be that many? Still doesn't fix the problem Matieu just pointed
+>> out though. Humpf.
 > 
-> CPU errata time again. You have to synchronize.
+> There's one possibility if we're willing to insert a placeholder
+> at function entry that allows to essentially do what Andrew
+> suggests without much impact. Specifically, if you need a 5-byte
+> operation to jump to the alternate instrumented function, you
+> can then do something like:
 
-Sure, and the djprobe which I had developed method can treat it as below;
-1. Overwrite the 1st instruction with int3. (atomic)
-2. Wait until all processes running on every cpus are scheduled.
-   (I'm using synchronize_sched(). This step ensures no-one exist on
-    the instructions which will be overwritten by the dest-addr)
-3. Write the destination address
-4. Interrupt any cpus to serialize those caches (using CPUID).
-5. Overwrite the int3 with jmp opcode. (atomic)
+This method is very similar to the djprobe.
+And I had gotten the same idea to support preemptive kernel.
 
-In this method, the instructions are updated like below;
-0. [ insn1 ][ insn2]
-1. [int3]1 ][ insn2]
-2. wait
-3. [int3][ destaddr]
-4. sync
-5. [jmp to destaddr]
+> 1- At build time insert 5-byte unconditional jump to instruction
+> right after placeholder.
 
-Actually, #2 is not enough for the preemptive kernel. So, current
-djprobe doesn't support CONFIG_PREEMPT. But Ingo proposed some
-good ideas (use freeze_processes()). I'll try his ideas.
+This means the below code, doesn't this?
+---
+	jmp 1f /* short jump consumes 2 bytes */
+	nop
+	nop
+	nop
+1:
+---
 
-What would you think about djprobe's method?
+> 2- At runtime for diverting flow:
+>    - Replace first byte with int3 (atomically)
+>    - Replace next 4 bytes with instrumented function destination
+
+     - Serialize all processor's cache by using IPI and cpuid.
+
+>    - Replace first byte
+> 3- At runtime for returning flow:
+>    - Do #2 but for the original placeholder jump.
+
+
+I think the djprobe can provide most of functionalities which
+your idea requires.
+I'll update the djprobe against for 2.6.17 or later as soon as
+possible. Would you try to use it?
 
 Thanks,
 
@@ -80,6 +89,8 @@ Masami HIRAMATSU
 2nd Research Dept.
 Hitachi, Ltd., Systems Development Laboratory
 E-mail: masami.hiramatsu.pt@hitachi.com
+
+
 
 
 

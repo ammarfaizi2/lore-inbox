@@ -1,45 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932294AbWITTNv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932271AbWITTTM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932294AbWITTNv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Sep 2006 15:13:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932295AbWITTNv
+	id S932271AbWITTTM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Sep 2006 15:19:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932298AbWITTTL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Sep 2006 15:13:51 -0400
-Received: from nsm.pl ([195.34.211.229]:530 "EHLO nsm.pl") by vger.kernel.org
-	with ESMTP id S932294AbWITTNu (ORCPT
+	Wed, 20 Sep 2006 15:19:11 -0400
+Received: from www.osadl.org ([213.239.205.134]:39627 "EHLO mail.tglx.de")
+	by vger.kernel.org with ESMTP id S932271AbWITTTK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Sep 2006 15:13:50 -0400
-Date: Wed, 20 Sep 2006 21:13:44 +0200
-From: Tomasz Torcz <zdzichu@irc.pl>
-To: CIJOML <cijoml@volny.cz>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Very slow write on flash drive in sync mode???
-Message-ID: <20060920191343.GA15386@irc.pl>
-Mail-Followup-To: CIJOML <cijoml@volny.cz>,
-	linux-kernel@vger.kernel.org
-References: <200609202058.05816.cijoml@volny.cz>
+	Wed, 20 Sep 2006 15:19:10 -0400
+Subject: Re: 2.6.18-rt1
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: Gene Heskett <gene.heskett@verizon.net>
+Cc: linux-kernel@vger.kernel.org, paulmck@us.ibm.com,
+       Daniel Walker <dwalker@mvista.com>, Ingo Molnar <mingo@elte.hu>,
+       John Stultz <johnstul@us.ibm.com>, Dipankar Sarma <dipankar@in.ibm.com>,
+       Arjan van de Ven <arjan@infradead.org>
+In-Reply-To: <1158778040.5724.1020.camel@localhost.localdomain>
+References: <20060920141907.GA30765@elte.hu>
+	 <1158774118.29177.13.camel@c-67-180-230-165.hsd1.ca.comcast.net>
+	 <20060920182553.GC1292@us.ibm.com>
+	 <200609201436.47042.gene.heskett@verizon.net>
+	 <1158778040.5724.1020.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Wed, 20 Sep 2006 21:20:21 +0200
+Message-Id: <1158780021.5724.1023.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200609202058.05816.cijoml@volny.cz>
-User-Agent: Mutt/1.5.11
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 20, 2006 at 08:58:05PM +0200, CIJOML wrote:
-> Hi,
+On Wed, 2006-09-20 at 20:47 +0200, Thomas Gleixner wrote:
+> On Wed, 2006-09-20 at 14:36 -0400, Gene Heskett wrote:
+> > That looks like the chorus of the song I saw when it crashed on boot, 
+> > pretty darned close to identical.
 > 
-> I use SanDisk cruzer Titanium 2 GB mounted as sync in fstab
-> /dev/sda1       /mnt/cruzer_sync      vfat    user,noauto,sync                
-> 
-> When I use flash drive in sync mode, it writes on it only 64kB/s. When I 
-> umount it and mount it in not sync mode but do sync manually after it writes 
-> into memory, kernel writes on flash drive 11 MB/s!!! What is wrong in my 
-> configuration?
+> I can reproduce it. It happens when CONFIG_HIGH_RES_TIMERS is off.
+> Looking into it right now.
 
-  That's expected with sync vfat mount. Use other filesystem or async.
+Fix below.
 
--- 
-Tomasz Torcz                "Funeral in the morning, IDE hacking
-zdzichu@irc.-nie.spam-.pl    in the afternoon and evening." - Alan Cox
+	tglx
+
+Index: linux-2.6.18/kernel/hrtimer.c
+===================================================================
+--- linux-2.6.18.orig/kernel/hrtimer.c	2006-09-20 19:10:05.000000000 +0200
++++ linux-2.6.18/kernel/hrtimer.c	2006-09-20 21:11:26.000000000 +0200
+@@ -873,9 +873,6 @@ static inline void hrtimer_init_hres(str
+ 	set_bit(0, &base->check_clocks);
+ 	base->hres_active = 0;
+ 	hrtimer_init_base_cb_pending(base);
+-#ifdef CONFIG_PREEMPT_SOFTIRQS
+-	init_waitqueue_head(&base->wait);
+-#endif
+ }
+ 
+ static inline int hrtimer_enqueue_reprogram(struct hrtimer *timer,
+@@ -1643,6 +1640,9 @@ static void __devinit init_hrtimers_cpu(
+ 		cpu_base->clock_base[i].cpu_base = cpu_base;
+ 
+ 	hrtimer_init_hres(cpu_base);
++#ifdef CONFIG_PREEMPT_SOFTIRQS
++	init_waitqueue_head(&cpu_base->wait);
++#endif
+ }
+ 
+ #ifdef CONFIG_HOTPLUG_CPU
+
 

@@ -1,50 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751911AbWITQs4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751889AbWITQsz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751911AbWITQs4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Sep 2006 12:48:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751935AbWITQsz
-	(ORCPT <rfc822;linux-kernel-outgoing>);
+	id S1751889AbWITQsz (ORCPT <rfc822;willy@w.ods.org>);
 	Wed, 20 Sep 2006 12:48:55 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:60889 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1751925AbWITQsx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751911AbWITQsy
+	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Wed, 20 Sep 2006 12:48:54 -0400
+Received: from e2.ny.us.ibm.com ([32.97.182.142]:53704 "EHLO e2.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751917AbWITQsx (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
 	Wed, 20 Sep 2006 12:48:53 -0400
-Message-ID: <451170B9.4010101@sgi.com>
-Date: Wed, 20 Sep 2006 18:47:53 +0200
-From: Jes Sorensen <jes@sgi.com>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060907)
-MIME-Version: 1.0
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       bjorn_helgaas@hp.com, Nick Piggin <nickpiggin@yahoo.com.au>,
-       Andrew Morton <akpm@osdl.org>, Robin Holt <holt@sgi.com>,
-       Dean Nelson <dcn@sgi.com>, Hugh Dickins <hugh@veritas.com>
-Subject: Re: [patch] do_no_pfn()
-References: <Pine.LNX.4.64.0609192126070.4388@g5.osdl.org>	<yq0u033c84a.fsf@jaguar.mkp.net> <20060920084638.900c9a69.rdunlap@xenotime.net>
-In-Reply-To: <20060920084638.900c9a69.rdunlap@xenotime.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Subject: [PATCH] slim: handle failure to register
+From: Kylene Jo Hall <kjhall@us.ibm.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Cc: akpm@osdl.org, Serge Hallyn <sergeh@us.ibm.com>,
+       Mimi Zohar <zohar@us.ibm.com>, Dave Safford <safford@us.ibm.com>,
+       sds@tycho.nsa.gov
+Content-Type: text/plain
+Date: Wed, 20 Sep 2006 09:48:43 -0700
+Message-Id: <1158770924.16727.112.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-7) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Randy.Dunlap wrote:
-> On 20 Sep 2006 03:25:25 -0400 Jes Sorensen wrote:
->> +#define NOPFN_SIGBUS	((unsigned long) -1)
->> +#define NOPFN_OOM	((unsigned long) -2)
-> 
-> Is there any difference in the above and
-> 
-> #define NOPFN_SIGBUS		-1UL
-> #define NOPFN_OOM		-2UL
+Thanks to Stephen Smalley for pointing out that we need to securely
+handle a failure to register with the LSM security hooks.  This patch
+adds a panic in the event that the module is unable to register.
 
-I don't think there is, but I was trying to keep it consistent with the
-NOPAGE_foo versions - the way it's done is more explicit so less likely
-anyone will get confused over it.
+Signed-off-by: Kylene Hall <kjhall@us.ibm.com>
+Signed-off-by: Mimi Zohar <zohar@us.ibm.com>
+---
+security/slim/slm_main.c |    6 +++++-
+1 files changed, 5 insertions(+), 1 deletion(-) 
+--- linux-2.6.18-rc6-orig/security/slim/slm_main.c	2006-09-18 16:41:51.000000000 -0500
++++ linux-2.6.18-rc6/security/slim/slm_main.c	2006-09-19 12:48:42.000000000 -0500
+@@ -1644,9 +1644,13 @@ int slim_enabled = 1;
+ #endif
+ static int __init init_slm(void)
+ {
++	int rc;
+ 	if (!slim_enabled)
+ 		return 0;
+ 	slm_task_init_alloc_security(current);
+-	return register_security(&slm_security_ops);
++	rc = register_security(&slm_security_ops);
++	if (rc != 0)
++		panic("SLIM: Unable to register with kernel\n");
++	return rc;
+ }
+ security_initcall(init_slm);
 
-I can change it if it's a sticking point, but I'd claim thats more noise
-than it's worth.
-
-Thanks,
-Jes
 

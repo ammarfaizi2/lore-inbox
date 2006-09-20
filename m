@@ -1,45 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932418AbWITWbW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932430AbWITWlS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932418AbWITWbW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Sep 2006 18:31:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932421AbWITWbW
+	id S932430AbWITWlS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Sep 2006 18:41:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932431AbWITWlS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Sep 2006 18:31:22 -0400
-Received: from khc.piap.pl ([195.187.100.11]:63148 "EHLO khc.piap.pl")
-	by vger.kernel.org with ESMTP id S932418AbWITWbV (ORCPT
+	Wed, 20 Sep 2006 18:41:18 -0400
+Received: from cantor.suse.de ([195.135.220.2]:25514 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932430AbWITWlS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Sep 2006 18:31:21 -0400
-To: sergio@sergiomb.no-ip.org
-Cc: Jesper Juhl <jesper.juhl@gmail.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       billm@melbpc.org.au, billm@suburbia.net
-Subject: Re: Math-emu kills the kernel on Athlon64 X2
-References: <9a8748490609181518j2d12e4f0l2c55e755e40d38c2@mail.gmail.com>
-	<1158623391.13821.4.camel@localhost.portugal>
-	<m3fyeof3c7.fsf@defiant.localdomain>
-	<1158713320.3098.15.camel@localhost.portugal>
-From: Krzysztof Halasa <khc@pm.waw.pl>
-Date: Thu, 21 Sep 2006 00:31:16 +0200
-In-Reply-To: <1158713320.3098.15.camel@localhost.portugal> (Sergio Monteiro Basto's message of "Wed, 20 Sep 2006 01:48:40 +0100")
-Message-ID: <m3bqpa6uh7.fsf@defiant.localdomain>
+	Wed, 20 Sep 2006 18:41:18 -0400
+Date: Wed, 20 Sep 2006 15:41:10 -0700
+From: Greg KH <greg@kroah.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Jiri Kosina <jikos@jikos.cz>, linux-kernel@vger.kernel.org,
+       Alan Stern <stern@rowland.harvard.edu>
+Subject: Re: USB: fix autosuspend-autoresume with CONFIGRe: 2.6.19 -mm merge plans
+Message-ID: <20060920224110.GA15519@kroah.com>
+References: <20060920135438.d7dd362b.akpm@osdl.org> <Pine.LNX.4.64.0609202345590.13974@twin.jikos.cz> <20060920150918.abe0288d.akpm@osdl.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060920150918.abe0288d.akpm@osdl.org>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sergio Monteiro Basto <sergio@sergiomb.no-ip.org> writes:
+On Wed, Sep 20, 2006 at 03:09:18PM -0700, Andrew Morton wrote:
+> On Wed, 20 Sep 2006 23:53:23 +0200 (CEST)
+> Jiri Kosina <jikos@jikos.cz> wrote:
+> 
+> > On Wed, 20 Sep 2006, Andrew Morton wrote:
+> > 
+> > > fix-gregkh-usb-usbcore-add-autosuspend-autoresume-infrastructure.patch
+> > > gregkh-usb-usbcore-add-autosuspend-autoresume-infrastructure-2.patch
+> > 
+> > Hi Andrew,
+> > 
+> > a few days ago I submitted a patch [1] to autosupend-autoresume 
+> > infrastructure (and Alan Stern submitted a similar patch a few hours later 
+> > [2]). 
+> > 
+> > Without this one-liner, all kernels compiled without CONFIG_USB_SUSPEND 
+> > will be unable to perform more than one suspend/resume cycle, which is 
+> > quite annoying. Would you please reconsider pushing these together with 
+> > other autosuspend/autoresume infrastructure fixes?
+> > 
+> > Thanks.
+> > 
+> > [1] http://lkml.org/lkml/2006/9/18/290
+> > [2] http://lkml.org/lkml/2006/9/19/93
+> 
+> I expect the appropriate fixes will automagically appear in Greg's tree, to
+> be picked up in next -mm.  Perhaps they already have appeared - Alan?
 
-> Btw I try install a kernel 2.4 in my DX2 and works but very very slow .
-> I think in this type of computer should be install a kernel 2.2 . 
+I just added the fix to my tree, am catching up on my pending patch
+queue right now...
 
-I think it's a RAM problem. Most 386DX and early 486 boards allowed
-32 MB (using 4 MB modules),  Linux 2.6 should run fine on such
-a beast (386SX was limited to 16 MB address space). Later 486 boards
-using DIMMs, I think, supported 64 MB (with caching).
+thanks,
 
-Of course a "6 bogomips" 386 CPU isn't a speed daemon but in early
-1990s it wasn't any faster and people were using them commonly (and,
-I think, comfortably). IMHO for basic "SOHO Internet server" (mail
-and such) it could be fast enough running Linux 2.6.
--- 
-Krzysztof Halasa
+greg k-h

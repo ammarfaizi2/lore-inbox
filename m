@@ -1,134 +1,255 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751591AbWITPDd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751602AbWITPLU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751591AbWITPDd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Sep 2006 11:03:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751596AbWITPDd
+	id S1751602AbWITPLU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Sep 2006 11:11:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751603AbWITPLU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Sep 2006 11:03:33 -0400
-Received: from mail.suse.de ([195.135.220.2]:2751 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751584AbWITPDc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Sep 2006 11:03:32 -0400
-Date: Wed, 20 Sep 2006 17:03:31 +0200
-From: Nick Piggin <npiggin@suse.de>
-To: Nate Diller <nate.diller@gmail.com>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Jens Axboe <axboe@kernel.dk>
-Subject: Re: [rfc][patch 2.6.18-rc7] block: explicit plugging
-Message-ID: <20060920150331.GC27347@wotan.suse.de>
-References: <20060916115607.GA16971@wotan.suse.de> <5c49b0ed0609181310n409a64c2i172e07044802751a@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <5c49b0ed0609181310n409a64c2i172e07044802751a@mail.gmail.com>
-User-Agent: Mutt/1.5.9i
+	Wed, 20 Sep 2006 11:11:20 -0400
+Received: from buraja.hst.terra.com.br ([200.176.10.198]:48563 "EHLO
+	buraja.hst.terra.com.br") by vger.kernel.org with ESMTP
+	id S1751602AbWITPLT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Sep 2006 11:11:19 -0400
+X-Terra-Karma: -2%
+X-Terra-Hash: 50f637daf62d76f8353fe8479d3c7cb9
+Message-ID: <001801c6dcc7$02085160$2201a8c0@soto>
+From: "Fernando Soto" <f.soto@terra.com.br>
+To: <linux-kernel@vger.kernel.org>
+Cc: <viro@zeniv.linux.org.uk>
+References: <001301c6dcc3$a3c94d50$2201a8c0@soto>
+Subject: Re: Processes stuck in D trying to acquire lock at vfs_rename_dir
+Date: Wed, 20 Sep 2006 12:11:11 -0300
+MIME-Version: 1.0
+Content-Type: text/plain;
+	format=flowed;
+	charset="iso-8859-1";
+	reply-type=response
+Content-Transfer-Encoding: 8bit
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2900.2869
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2962
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 18, 2006 at 01:10:13PM -0700, Nate Diller wrote:
-> On 9/16/06, Nick Piggin <npiggin@suse.de> wrote:
-> >Hi,
-> >
-> >I've been tinkering with this idea for a while, and I'd be interested
-> >in seeing what people think about it. The patch isn't in a great state
-> >of commenting or splitting ;) but I'd be interested feelings about the
-> >general approach, and whether I'm going to hit any bad problems (eg.
-> >with SCSI or IDE).
-> 
-> I *really* like this idea, and I would like to help get it merged.  I
-> can even run some benchmarks for you once I get my test rig running
-> again.
+Hi,
 
-Thanks, that would be handy.
+I was able to reproduce the deadlock reported by Ruda.
+It is a race condition between two processes renaming directories on a NFS 
+volume.
+Assuming the following directory structure:
+    "/nfs/a/b/c", where "/nfs" is mounted on a NFS volume...
+Process 1 tries to rename "/nfs/a/b/c" to "/nfs/a/d"
+at the same time that process 2 (in the second server) is trying to rename
+"/nfs/a/b" to "/nfs/a/d".
+Process 1 may hang.
+The code below reproduces the problem.
 
-> I had a related idea that I have not been able to work on yet.  I
-> called it "kernel anticipation", and it explicitly instructs the
-> scheduler when a function is submitting I/O that subsequent I/O is
-> dependent on.  In other words, when we are composing a bio and get the
-> "BH_Boundary" flag in a buffer head, mark the bio for mandatory
-> anticipation, since we know we'll have a hit.  This would enable the
-> anticipation code to act in some cases even for processes with very
-> high thinktimes.
+Regards,
+Fernando Soto
 
-This patch gives you the mechanism to do that for independent IOs,
-but not for dependent ones (ie. where you actually want to forcefully
-idle the queue).
+-------------- start cut here -------------
+/**********************************
+renamedir
 
-But do remember that if your thinktime is potentially very high, then
-it can quickly get to the point where it is cheaper to eat the cost
-of moving the heads. So even if we *know* we'll have a subsequent
-request very close to the last, it may not be the best idea to wait.
+This program can be used to reproduce the deadlock in
+vfs_rename_dir, kernel 2.6.17
 
-> >On a parallel tiobench benchmark, of the 800 000 calls to __make_request
-> >performed, this patch avoids 490 000 (62%) of queue_lock aquisitions by
-> >early merging on the private plugged list.
-> 
-> Have you run any FS performance benchmorks to check for regressions in
-> performance?  Who knows, you might even see be able to show a visible
-> increase :)
+Instructions:
+1. Mount a NFS volume from two servers (e.g. /nfs)
+2. Create a directory (e.g. testdir) in this volume
+3. In the first server, run 'renamedir -p /nfs/testdir'
+4. In the second server, run 'renamedir -p /nfs/testdir -c'
 
-I haven't done anything interesting/intensive yet. I imagine the
-queue_lock savings won't be measurable on 2-way systems with only
-one or two disks. I do hope the actual request patterns will be
-improved when under parallel and asynch IO, though.
+Wait for a while. The process in the first server
+        should cause a deadlock in the VFS and stuck in
+        D state.
 
-> 
-> >@@ -2865,68 +2762,48 @@ static int __make_request(request_queue_
-> >         */
-> >        blk_queue_bounce(q, &bio);
-> >
-> >-       spin_lock_prefetch(q->queue_lock);
-> >-
-> >        barrier = bio_barrier(bio);
-> >        if (unlikely(barrier) && (q->next_ordered == QUEUE_ORDERED_NONE)) {
-> >                err = -EOPNOTSUPP;
-> >                goto end_io;
-> >        }
-> >
-> >+       /* Attempt merging with the plugged list before taking locks */
-> >+       ioc = current->io_context;
-> >+       if (ioc && ioc->plugged && !list_empty(&ioc->plugged_list)) {
-> >+               struct request *rq;
-> >+               rq = list_entry_rq(ioc->plugged_list.prev);
-> >+
-> >+               el_ret = elv_try_merge(rq, bio);
-> >+               if (el_ret == ELEVATOR_BACK_MERGE) {
-> >+                       if (bio_attempt_back_merge(q, rq, nr_sectors, bio))
-> >+                               goto out;
-> >+               } else if (el_ret == ELEVATOR_FRONT_MERGE) {
-> >+                       if (bio_attempt_front_merge(q, rq, nr_sectors, 
-> >bio))
-> >+                               goto out;
-> >+               }
-> >+       }
-> >+
-> >        spin_lock_irq(q->queue_lock);
-> >
-> >-       if (unlikely(barrier) || elv_queue_empty(q))
-> >+       if (elv_queue_empty(q))
-> >                goto get_rq;
-> >
-> >        el_ret = elv_merge(q, &req, bio);
-> >-       switch (el_ret) {
-> 
-> Have you considered skipping the queue merge entirely, if there is not
-> a hit in the plugged_list?  I would be interested to see a "hit rate"
-> of how many queue merge attempts are successful here.  I bet it's
-> pretty low.  The difference froim just skipping these entirely might
-> not even be visible in a benchmark.  It'd be pretty cool to be able to
-> eliminate the queue merging interface altogether.
+Fernando Soto - f.soto () terra ! com ! br - 20/Sep/2006
+Terra Networks Brasil S/A
+*********************************/
+#include <stdio.h>
+#include <sys/stat.h>
+#include <sys/types.h>
+#include <unistd.h>
+#include <stdlib.h>
+#include <errno.h>
 
-On the tiobench workload above, of the 310 000 requests that hit the
-queue, 290 000 were merged, leaving about 20 000 actual requests going
-to the block device. So it is not insignificant. Definitely it could
-be less if the private queue merging was a bit smarter, but I think
-classes of parallel IO workloads will want to merge on the public queue.
+void usage(void)
+{
+        fprintf(stderr,"renamedir -p <path> [-c]\n");
+        exit(1);
+}
 
-Given that we need to maintain the queue for sorting purposes anyway,
-I don't think merging ends up being too costly .
+int main(int argc, char *argv[])
+{
+        int test_case = 0;
+        char source[FILENAME_MAX];
+        char target[FILENAME_MAX];
+        const char *p1 = NULL;
+        int i;
 
-> 
-> Thanks for doing this work, it looks really promising.
+        // read options
+        while ((i = getopt(argc, argv, "p:c")) != -1) {
+                switch (i) {
+                        case 'c':
+                                test_case = 1;
+                                break;
+                        case 'p':
+                                p1 = optarg;
+                                break;
+                }
+        }
+        if (!p1) {
+                usage();
+        }
 
-I appreciate the interest, thanks.
+        // create test environment
+        snprintf(target,sizeof(target),"%s/b",p1);
+        if (mkdir(target,0755) == -1 && errno != EEXIST) {
+                fprintf(stderr,"Could not create dir %s: 
+%s\n",target,strerror(errno));
+                exit(1);
+        }
+        snprintf(target,sizeof(target),"%s/b/e",p1);
+        if (mkdir(target,0755) == -1 && errno != EEXIST) {
+                fprintf(stderr,"Could not create dir %s: 
+%s\n",target,strerror(errno));
+                exit(1);
+        }
+        snprintf(target,sizeof(target),"%s/b/c",p1);
+        if (mkdir(target,0755) == -1 && errno != EEXIST) {
+                fprintf(stderr,"Could not create dir %s: 
+%s\n",target,strerror(errno));
+                exit(1);
+        }
+        snprintf(target,sizeof(target),"%s/b/c/f",p1);
+        if (mkdir(target,0755) == -1 && errno != EEXIST) {
+                fprintf(stderr,"Could not create dir %s: 
+%s\n",target,strerror(errno));
+                exit(1);
+        }
+
+        // prepare test cases
+        if (test_case) {
+                snprintf(source,sizeof(target),"%s/b",p1);
+                snprintf(target,sizeof(target),"%s/d",p1);
+        } else {
+                snprintf(source,sizeof(target),"%s/b/c",p1);
+                snprintf(target,sizeof(target),"%s/d",p1);
+        }
+
+        // test loop
+        while (1) {
+                rename(source,target);
+                rename(target,source);
+        }
+}
+-------------- end cut here -------------
+
+
+> List:       linux-kernel
+> Subject:    Processes stuck in D trying to acquire lock at vfs_rename_dir
+> From:       Rudá Moura <ruda.moura () terra ! com ! br>
+> Date:       2006-09-19 18:09:59
+> Message-ID: 1158689399.32184.17.camel () localhost
+> [Download message RAW]
+>
+> We are huge mail provider with a pool of many mx, pop and imap machines
+> and we are facing a rather strange situation when we recently
+> upgraded one of our applications, and after a week running, several
+> processes hang in "D" (disk wait) state forever. That way, we cannot
+> strace, gdb, pstack them to know what they were doing or where they
+> were.
+>
+> On the top of those machines are running RHEL version 4 with
+> kernel 2.6.9-42.ELsmp. Some are running (stock) kernel 2.6.17.11
+> with KDB patch applied. The hardware is described as follow:
+>
+> - Dell PowerEdge 6850, QUAD 3,2GHZ HT , 8GB RAM,
+> - 5 SCSI disks 146 GB 15k RPM.
+>
+> We use NFS to keep mailboxes in maildir format. They are shared to many
+> machines and are provided by a NFS server storage.
+>
+> In order to gain more understanding of the problem
+> we decide to enable mutex/futex debug (CONFIG_DEBUG_MUTEXES=y),
+> because the bug is hard to reproduce and happens in an occasional manner
+> for a week or more.
+>
+> The process locked was "ttrlmtp_tcp", they stuck in D while are trying
+> to rename() as the log message states:
+>
+> lmtplog.6.gz:Sep 18 19:00:02 mangoro trrlmtpd_tcp[12499]:
+> 1158616802.840213: TrrMailMdirMoveMBToIdPermMB: trying to rename
+> [/nfs/mail3d03/m/a/r/i/a/4/8/2/6/maria4826/Maildir] to
+> [/nfs/mail3d03/m/a/r/i/a/4/8/2/6/18538100#perm!terra.maria4826] ...
+>
+> and this is what Mutex/Futex Debug gave to us:
+>
+> Sep 18 19:00:02 mangoro kernel:
+> ==========================================
+> Sep 18 19:00:02 mangoro kernel: [ BUG: lock recursion deadlock detected!
+> |
+> Sep 18 19:00:02 mangoro kernel:
+> ------------------------------------------
+> Sep 18 19:00:15 mangoro kernel:
+> Sep 18 19:00:15 mangoro kernel: trrlmtpd_tcp/12499 is trying to acquire
+> this lock:
+> Sep 18 19:00:15 mangoro kernel:  [ed260830] {inode_init_once}
+> Sep 18 19:00:15 mangoro kernel: .. held by:      trrlmtpd_tcp:12499
+> [d94cc560, 115]
+> Sep 18 19:00:15 mangoro kernel: ... acquired at:
+> lock_rename+0x36/0x94
+> Sep 18 19:00:15 mangoro kernel: ... trying at:
+> vfs_rename_dir+0x84/0x100
+> Sep 18 19:00:15 mangoro kernel: ------------------------------
+> Sep 18 19:00:15 mangoro kernel: | showing all locks held by: |
+> (trrlmtpd_tcp/12499 [d94cc560, 115]):
+> Sep 18 19:00:15 mangoro kernel: ------------------------------
+> Sep 18 19:00:15 mangoro kernel:
+> Sep 18 19:00:15 mangoro kernel: #001:             [f6e839f4]
+> {alloc_super}
+> Sep 18 19:00:15 mangoro kernel: ... acquired at:
+> lock_rename+0x4f/0x94
+> Sep 18 19:00:15 mangoro kernel:
+> Sep 18 19:00:15 mangoro kernel: #002:             [ed260b50]
+> {inode_init_once}
+> Sep 18 19:00:15 mangoro kernel: ... acquired at:
+> lock_rename+0x2b/0x94
+> Sep 18 19:00:15 mangoro kernel:
+> Sep 18 19:00:15 mangoro kernel: #003:             [ed260830]
+> {inode_init_once}
+> Sep 18 19:00:15 mangoro kernel: ... acquired at:
+> lock_rename+0x36/0x94
+> Sep 18 19:00:15 mangoro kernel:
+> Sep 18 19:00:15 mangoro kernel:
+> Sep 18 19:00:15 mangoro kernel: trrlmtpd_tcp/12499's [current]
+> stackdump:
+> Sep 18 19:00:15 mangoro kernel:
+> Sep 18 19:00:15 mangoro kernel:  <c0104205> show_trace+0xd/0xf
+> <c01042ce> dump_stack+0x15/0x17
+> Sep 18 19:00:15 mangoro kernel:  <c0131205> report_deadlock+0xea/0x102
+> <c0131364> check_deadlock+0x147/0x151
+> Sep 18 19:00:15 mangoro kernel:  <c0131908> debug_mutex_add_waiter
+> +0x80/0x93  <c02fcf02> __mutex_lock_slowpath+0x117/0x37a
+> Sep 18 19:00:15 mangoro kernel:  <c02fcddb> mutex_lock+0x24/0x27
+> <c0168888> vfs_rename_dir+0x84/0x100
+> Sep 18 19:00:15 mangoro kernel:  <c0168b2a> vfs_rename+0x135/0x273
+> <c0168d9f> do_rename+0x137/0x176
+> Sep 18 19:00:15 mangoro kernel:  <c0168e17> sys_renameat+0x39/0x54
+> <c0168e44> sys_rename+0x12/0x14
+> Sep 18 19:00:15 mangoro kernel:  <c01032ef> sysenter_past_esp+0x54/0x75
+>
+>
+> Unfortunately we couldn't use KDB to debug this process because we had
+> to reboot the machine.
+> We are waiting for another process lock.
+>
+> Any help in the subject will be very appreciate and we are ready to
+> provide more information about this problem if required.
+>
+> Thanks in Advance.
+>
+> -- 
+> Rudá Moura <ruda.moura@terra.com.br> 
 

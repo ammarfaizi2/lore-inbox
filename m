@@ -1,60 +1,122 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932226AbWITSij@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932237AbWITSjz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932226AbWITSij (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Sep 2006 14:38:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932233AbWITSii
+	id S932237AbWITSjz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Sep 2006 14:39:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932236AbWITSjy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Sep 2006 14:38:38 -0400
-Received: from smtp-out.google.com ([216.239.45.12]:5330 "EHLO
-	smtp-out.google.com") by vger.kernel.org with ESMTP id S932226AbWITSih
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Sep 2006 14:38:37 -0400
-DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
-	h=received:subject:from:reply-to:to:cc:in-reply-to:references:
-	content-type:organization:date:message-id:mime-version:x-mailer:content-transfer-encoding;
-	b=rPwvFkiPkkXhqpoMyiZivz2oe9ZL+JgJecbSjVvvKwKOJXlsUNCvuTp3yjzt7RRaI
-	6lN+T6mLqNloyqvIUoYmA==
-Subject: Re: [patch00/05]: Containers(V2)- Introduction
-From: Rohit Seth <rohitseth@google.com>
-Reply-To: rohitseth@google.com
-To: Peter Zijlstra <a.p.zijlstra@chello.nl>
-Cc: Christoph Lameter <clameter@sgi.com>,
-       Nick Piggin <nickpiggin@yahoo.com.au>,
-       CKRM-Tech <ckrm-tech@lists.sourceforge.net>, devel@openvz.org,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       Linux Memory Management <linux-mm@kvack.org>
-In-Reply-To: <1158776824.28174.29.camel@lappy>
-References: <1158718568.29000.44.camel@galaxy.corp.google.com>
-	 <4510D3F4.1040009@yahoo.com.au> <1158751720.8970.67.camel@twins>
-	 <4511626B.9000106@yahoo.com.au> <1158767787.3278.103.camel@taijtu>
-	 <451173B5.1000805@yahoo.com.au>
-	 <1158774657.8574.65.camel@galaxy.corp.google.com>
-	 <Pine.LNX.4.64.0609201051550.31636@schroedinger.engr.sgi.com>
-	 <1158775586.28174.27.camel@lappy>
-	 <1158776099.8574.89.camel@galaxy.corp.google.com>
-	 <1158776824.28174.29.camel@lappy>
-Content-Type: text/plain
-Organization: Google Inc
-Date: Wed, 20 Sep 2006 11:38:08 -0700
-Message-Id: <1158777488.8574.103.camel@galaxy.corp.google.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
-Content-Transfer-Encoding: 7bit
+	Wed, 20 Sep 2006 14:39:54 -0400
+Received: from vms040pub.verizon.net ([206.46.252.40]:10710 "EHLO
+	vms040pub.verizon.net") by vger.kernel.org with ESMTP
+	id S932233AbWITSjx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Sep 2006 14:39:53 -0400
+Date: Wed, 20 Sep 2006 14:36:46 -0400
+From: Gene Heskett <gene.heskett@verizon.net>
+Subject: Re: 2.6.18-rt1
+In-reply-to: <20060920182553.GC1292@us.ibm.com>
+To: linux-kernel@vger.kernel.org, paulmck@us.ibm.com
+Cc: Daniel Walker <dwalker@mvista.com>, Ingo Molnar <mingo@elte.hu>,
+       Thomas Gleixner <tglx@linutronix.de>, John Stultz <johnstul@us.ibm.com>,
+       Dipankar Sarma <dipankar@in.ibm.com>,
+       Arjan van de Ven <arjan@infradead.org>
+Message-id: <200609201436.47042.gene.heskett@verizon.net>
+Organization: Organization? Absolutely zip.
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+Content-disposition: inline
+References: <20060920141907.GA30765@elte.hu>
+ <1158774118.29177.13.camel@c-67-180-230-165.hsd1.ca.comcast.net>
+ <20060920182553.GC1292@us.ibm.com>
+User-Agent: KMail/1.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-09-20 at 20:27 +0200, Peter Zijlstra wrote:
+On Wednesday 20 September 2006 14:25, Paul E. McKenney wrote:
+>On Wed, Sep 20, 2006 at 10:41:58AM -0700, Daniel Walker wrote:
+>> On Wed, 2006-09-20 at 10:38 -0700, Paul E. McKenney wrote:
+>> > On Wed, Sep 20, 2006 at 10:00:38AM -0700, Daniel Walker wrote:
+>> > > On Wed, 2006-09-20 at 12:50 -0400, Gene Heskett wrote:
+>> > > >   LD      .tmp_vmlinux1
+>> > > >
+>> > > > kernel/built-in.o(.text+0x16f25): In function `hrtimer_start':
+>> > > > : undefined reference to `hrtimer_update_timer_prio'
+>> > > >
+>> > > > make: *** [.tmp_vmlinux1] Error 1
+>> > > >
+>> > > > about half way thru the normal time.  config attached.  I don't
+>> > > > think hires timers are enabled.
+>> > > >
+>> > > > Comments?
+>> > >
+>> > > Fix attached.
+>> > >
+>> > > Daniel
+>> >
+>> > Compiles for me with this patch.  Will try it out on a couple of
+>> > machines.
+>>
+>> Ingo actually updated with a similar fix , in
+>>
+>> http://people.redhat.com/~mingo/realtime-preempt/patch-2.6.18-rt2
+>
+>OK, using that instead.
+>
+>I get the following at startup, which probably means that I need to use
+>some machine other than a NUMA-Q.  Trying a different machine...
+>
+>      Thanx, Paul
+>
+>BUG: unable to handle kernel NULL pointer dereference at virtual address
+> 00000000 printing eip:
+>c01151ff
+>*pde = 34d21001
+>*pte = 00000000
+>stopped custom tracer.
+>Oops: 0000 [#1]
+>PREEMPT SMP
+>Modules linked in:
+>CPU:    2
+>EIP:    0060:[<c01151ff>]    Not tainted VLI
+>EFLAGS: 00010246   (2.6.18-rt2-autokern1 #1)
+>EIP is at __wake_up_common+0x10/0x55
+>eax: 00000000   ebx: 00000001   ecx: c113629c   edx: 00000000
+>esi: c113629c   edi: c113629c   ebp: dff25f34   esp: dff25f24
+>ds: 007b   es: 007b   ss: 0068   preempt: 00000001
+>Process softirq-timer/2 (pid: 27, ti=dff24000 task=dff20e30
+> task.ti=dff24000) Stack: 00000000 00000000 c113629c 00000001 dff25f60
+> c0115267 c113629c 00000006 00000001 00000001 00000000 00000006 00000007
+> dffd5e40 c1136270 c1136240 c012ecf6 00000000 00000001 c11360e4 00000001
+> 00000000 dff12000 c043b2c0 Call Trace:
+> [<c0115267>] __wake_up+0x23/0x52
+> [<c012ecf6>] hrtimer_run_queues+0xf6/0x10f
+> [<c0123db3>] run_timer_softirq+0x13b/0x31b
+> [<c011fba0>] ksoftirqd+0xff/0x194
+> [<c011faa1>] ksoftirqd+0x0/0x194
+> [<c012beee>] kthread+0x82/0xa7
+> [<c012be6c>] kthread+0x0/0xa7
+> [<c0101031>] kernel_thread_helper+0x5/0xb
+>---------------------------
+>
+>| preempt count: 00000001 ]
+>| 1-level deep critical section nesting:
+>
+>----------------------------------------
+>.. [<c02fd493>] .... __spin_lock_irqsave+0xe/0x35
+>.....[<00000000>] ..   ( <= _stext+0x3feffd68/0x41)
+>
+>Code: 45 14 00 00 00 00 8b 45 08 83 ca 01 89 55 0c 8b 40 04 89 45 08 5d
+> e9 62 e2 ff ff 55 89 e5 57 56 53 50 8b 7d 08 8b 5d 10 8b 57 20 <8b> 02
+> 89 45 f0 8d 47 20 39 c2 74 31 8b 72 f4 8d 42 f4 ff 75 18 EIP:
+> [<c01151ff>] __wake_up_common+0x10/0x55 SS:ESP 0068:dff25f24
 
-> Yes, I read that in your patches, I was wondering how the cpuset
-> approach would handle this.
-> 
-> Neither are really satisfactory for shared mappings.
-> 
+That looks like the chorus of the song I saw when it crashed on boot, 
+pretty darned close to identical.
 
-In which way?  We could have the per container flag indicating whether
-to charge this container for shared mapping that it initiates or to the
-container where mapping belongs...or is there something different that
-you are referring.
-
--rohit
-
+-- 
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+Yahoo.com and AOL/TW attorneys please note, additions to the above
+message by Gene Heskett are:
+Copyright 2006 by Maurice Eugene Heskett, all rights reserved.

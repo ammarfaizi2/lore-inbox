@@ -1,89 +1,108 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751625AbWITPzN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751631AbWITP6m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751625AbWITPzN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Sep 2006 11:55:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751633AbWITPzM
+	id S1751631AbWITP6m (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Sep 2006 11:58:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751689AbWITP6m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Sep 2006 11:55:12 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:13012 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751625AbWITPzK (ORCPT
+	Wed, 20 Sep 2006 11:58:42 -0400
+Received: from xenotime.net ([66.160.160.81]:51634 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1751686AbWITP6k (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Sep 2006 11:55:10 -0400
-Date: Wed, 20 Sep 2006 11:53:58 -0400
-From: "Frank Ch. Eigler" <fche@redhat.com>
-To: Mathieu Desnoyers <compudj@krystal.dyndns.org>
-Cc: Karim Yaghmour <karim@opersys.com>, linux-kernel@vger.kernel.org,
-       Christoph Hellwig <hch@infradead.org>, Andrew Morton <akpm@osdl.org>,
-       Ingo Molnar <mingo@redhat.com>, Greg Kroah-Hartman <gregkh@suse.de>,
-       Thomas Gleixner <tglx@linutronix.de>,
-       Douglas Niehaus <niehaus@eecs.ku.edu>, Tom Zanussi <zanussi@us.ibm.com>,
-       Paul Mundt <lethal@linux-sh.org>, Jes Sorensen <jes@sgi.com>,
-       Richard J Moore <richardj_moore@uk.ibm.com>,
-       William Cohen <wcohen@redhat.com>,
-       "Martin J. Bligh" <mbligh@mbligh.org>,
-       Michel Dagenais <michel.dagenais@polymtl.ca>,
-       systemtap@sources.redhat.com, ltt-dev@shafik.org
-Subject: Re: [PATCH] Linux Kernel Markers 0.2 for Linux 2.6.17
-Message-ID: <20060920155358.GH18646@redhat.com>
-References: <20060919183447.GA16095@Krystal> <y0m4pv3ek49.fsf@ton.toronto.redhat.com> <20060919193623.GA9459@Krystal> <20060919194515.GB18646@redhat.com> <20060919202802.GB552@Krystal> <20060919210703.GD18646@redhat.com> <45106B20.6020600@opersys.com> <20060920132008.GF18646@redhat.com> <20060920133834.GB17032@Krystal> <20060920145739.GA8502@Krystal>
+	Wed, 20 Sep 2006 11:58:40 -0400
+Date: Wed, 20 Sep 2006 08:59:39 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: Jes Sorensen <jes@sgi.com>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       bjorn_helgaas@hp.com, Nick Piggin <nickpiggin@yahoo.com.au>,
+       Andrew Morton <akpm@osdl.org>, Robin Holt <holt@sgi.com>,
+       Dean Nelson <dcn@sgi.com>, Hugh Dickins <hugh@veritas.com>
+Subject: Re: [patch] mspec driver
+Message-Id: <20060920085939.47b753d9.rdunlap@xenotime.net>
+In-Reply-To: <yq0psdrc81u.fsf@jaguar.mkp.net>
+References: <yq0psdrc81u.fsf@jaguar.mkp.net>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="Rn7IEEq3VEzCw+ji"
-Content-Disposition: inline
-In-Reply-To: <20060920145739.GA8502@Krystal>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 20 Sep 2006 03:26:53 -0400 Jes Sorensen wrote:
 
---Rn7IEEq3VEzCw+ji
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+Ahoy.
 
-Hi -
+>  drivers/char/Kconfig  |    8 
+>  drivers/char/Makefile |    1 
+>  drivers/char/mspec.c  |  421 ++++++++++++++++++++++++++++++++++++++++++++++++++
+>  3 files changed, 430 insertions(+)
+> 
+> Index: linux-2.6/drivers/char/Kconfig
+> ===================================================================
+> --- linux-2.6.orig/drivers/char/Kconfig
+> +++ linux-2.6/drivers/char/Kconfig
+> @@ -439,6 +439,14 @@ config SGI_MBCS
+>           If you have an SGI Altix with an attached SABrick
+>           say Y or M here, otherwise say N.
+>  
+> +config MSPEC
+> +	tristate "Memory special operations driver"
+> +	depends on IA64
+> +	help
+> +	  If you have an ia64 and you want to enable memory special
+> +	  operations support (formerly known as fetchop), say Y here,
+> +	  otherwise say N.
 
-Mathieu Desnoyers wrote:
+If the answers are {Y, N}, then it should be bool instead of tristate.
+If tristate, M can be an answer....
 
-> [...]  Do you have ideas on how we can export the function symbol?
-> (is it necessary ?)
+>  source "drivers/serial/Kconfig"
+>  
+>  config UNIX98_PTYS
 
-It turns out that static variables like that get included in the
-ordinary symbol tables along with other (un)initialized globals - it
-has been making it into /proc/kallsyms.  If the normal symbol table is
-not available, then some other measure would be needed to find the
-variable containing the function pointer.
+> Index: linux-2.6/drivers/char/mspec.c
+> ===================================================================
+> --- /dev/null
+> +++ linux-2.6/drivers/char/mspec.c
+> @@ -0,0 +1,421 @@
+> +#include <linux/config.h>
 
-> [...]
-> #define MARK(name, format, args...) \
->         do { \
->                 __mark_check_format(format, ## args); \
->                 MARK_SYM(name); \
->                 MARK_CALL(name, format, ## args); \
->         } while(0)
+Don't need to include config.h (it's done by build system).
+(well, actually autoconf.h is)
 
-While varargs simplify some things, it sacrifices type-safety, in that
-a handler function would have to be varargs too.  For the systemtap
-marker prototype, parametrized variants use scores of (automatically
-generated) macros, with different arity/type permutations, each
-self-describing and type-safe.
+> +static struct vm_operations_struct mspec_vm_ops = {
+> +	.open = mspec_open,
+> +	.close = mspec_close,
+> +	.nopfn = mspec_nopfn
+> +};
 
-Regarding a marker variant that would require kprobes (inserting a
-labelled NOP or few), it may be an appropriate choice where dormant
-marker overhead must be minimal and robust parameter passing is less
-important.
+These interfaces create a userspace interface, eh?
+So those 3 functions could stand to have kernel-doc function
+comments and have documentation in Documentation/ABI/ (see its
+README file for more details).  Maybe check all of
+Documentation/SubmitChecklist for other items...
 
-- FChE
+> +/*
+> + * mspec_init
+> + *
+> + * Called at boot time to initialize the mspec facility.
+> + */
+> +static int __init
+> +mspec_init(void)
 
---Rn7IEEq3VEzCw+ji
-Content-Type: application/pgp-signature
-Content-Disposition: inline
+ugh, matey.  All on one line.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
+> +{
+> +}
+> +
+> +static void __exit
+> +mspec_exit(void)
 
-iD8DBQFFEWQWVZbdDOm/ZT0RAvwgAJ9FATR8Ru5NHusHpefefsDZPPTcJgCffRpf
-tFPOYEJql5WTc6NywOIm1+4=
-=ylZC
------END PGP SIGNATURE-----
+Ditto.
 
---Rn7IEEq3VEzCw+ji--
+> +{
+> +}
+
+---
+~Randy

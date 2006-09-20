@@ -1,54 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751287AbWITN1Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751286AbWITNcc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751287AbWITN1Z (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Sep 2006 09:27:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751286AbWITN1Z
+	id S1751286AbWITNcc (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Sep 2006 09:32:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751291AbWITNcc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Sep 2006 09:27:25 -0400
-Received: from [80.227.95.181] ([80.227.95.181]:57486 "EHLO HasBox.COM")
-	by vger.kernel.org with ESMTP id S1751287AbWITN1Y (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Sep 2006 09:27:24 -0400
-Date: Wed, 20 Sep 2006 17:27:12 +0400 (GST)
-From: Mitch@0Bits.COM
-X-X-Sender: mitch@hasbox.com
-Reply-To: Mitch@0Bits.COM
-To: linux-kernel@vger.kernel.org
-Subject: UML build failure with 2.6.18
-Message-ID: <Pine.LNX.4.63.0609201724320.29128@hasbox.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Wed, 20 Sep 2006 09:32:32 -0400
+Received: from tomts36-srv.bellnexxia.net ([209.226.175.93]:46507 "EHLO
+	tomts36-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id S1751286AbWITNcb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Sep 2006 09:32:31 -0400
+Date: Wed, 20 Sep 2006 09:32:29 -0400
+From: Mathieu Desnoyers <compudj@krystal.dyndns.org>
+To: Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>
+Cc: "Frank Ch. Eigler" <fche@redhat.com>, Paul Mundt <lethal@linux-sh.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>, Jes Sorensen <jes@sgi.com>,
+       Andrew Morton <akpm@osdl.org>, Tom Zanussi <zanussi@us.ibm.com>,
+       Richard J Moore <richardj_moore@uk.ibm.com>,
+       Michel Dagenais <michel.dagenais@polymtl.ca>,
+       Christoph Hellwig <hch@infradead.org>,
+       Greg Kroah-Hartman <gregkh@suse.de>,
+       Thomas Gleixner <tglx@linutronix.de>, William Cohen <wcohen@redhat.com>,
+       "Martin J. Bligh" <mbligh@mbligh.org>, Ingo Molnar <mingo@elte.hu>,
+       ltt-dev@shafik.org, systemtap@sources.redhat.com
+Subject: Re: [PATCH] Linux Kernel Markers
+Message-ID: <20060920133229.GA17032@Krystal>
+References: <20060918234502.GA197@Krystal> <4511401B.4070809@hitachi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <4511401B.4070809@hitachi.com>
+X-Editor: vi
+X-Info: http://krystal.dyndns.org:8080
+X-Operating-System: Linux/2.4.32-grsec (i686)
+X-Uptime: 09:30:18 up 28 days, 10:38,  2 users,  load average: 0.22, 0.28, 0.20
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+* Masami Hiramatsu (masami.hiramatsu.pt@hitachi.com) wrote:
+> Hi,
+> 
+> Mathieu Desnoyers wrote:
+> > Hello,
+> > 
+> > Following this huge discussion thread, I tried to come with a marker mechanism
+> > (which is something everyone seems to agree that is a necessity) that would be
+> > useful to each kind of tracing (dynamic and static) (concerned projects :
+> > SystemTAP, LKET, LKST, LTTng) and even combinations of those. Religious
+> > considerations aside, I really think that this kind of generic markup is
+> > necessary to fill *everybody*'s need. If I forgot about a specific genericity
+> > aspect, please tell me.
+> > 
+> > I take for agreed that both static and dynamic tracing are useful for different
+> > needs and that a full markup must support both and combinations, letting the
+> > user or the distribution choose.
+> 
+> Basically, I like this static marker concept.
+> But I wonder why wouldn't you use the architecture-independent
+> marker which SystemTap already supports.
+> If we use NOPs, it highly depends on architecture, and is hard
+> to port.
+> 
 
-Hi
+Hi Masami,
 
-anyone having UML build failure with the shiny new 2.6.18
+Are you talking about the marker presented by Frank in his OLS paper (
+void dest() = NULL; if(dest) dest()) ? I think it is a very good idea to use it
+instead of nops.
 
+Mathieu
 
-laptop /usr/src/sources/linux/linux-2.6.18# !ma
-make ARCH=um
-    SYMLINK arch/um/include/kern_constants.h
-    SYMLINK arch/um/include/sysdep
-make[1]: `arch/um/sys-i386/user-offsets.s' is up to date.
-    CHK     arch/um/include/user_constants.h
-    CHK     include/linux/version.h
-    CHK     include/linux/compile.h
-    CC      arch/um/os-Linux/process.o
-arch/um/os-Linux/process.c:144: error: syntax error before 'getpid'
-arch/um/os-Linux/process.c:146: warning: return type defaults to 'int'
-arch/um/os-Linux/process.c:146: warning: function declaration isn't a
-prototype
-arch/um/os-Linux/process.c: In function '_syscall0':
-arch/um/os-Linux/process.c:147: error: syntax error before '{' token
-arch/um/os-Linux/process.c:162: error: syntax error before 'prot'
-arch/um/os-Linux/process.c:209: error: parameter 'ok' is initialized
-arch/um/os-Linux/process.c:211: error: syntax error before 'printk'
-arch/um/os-Linux/process.c:279: error: syntax error before '*' token
-make[1]: *** [arch/um/os-Linux/process.o] Error 1
-make: *** [arch/um/os-Linux] Error 2
-
-
-
-
+OpenPGP public key:              http://krystal.dyndns.org:8080/key/compudj.gpg
+Key fingerprint:     8CD5 52C3 8E3C 4140 715F  BA06 3F25 A8FE 3BAE 9A68 

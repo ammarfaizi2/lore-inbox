@@ -1,72 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751125AbWITLbR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750825AbWITLu4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751125AbWITLbR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Sep 2006 07:31:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750831AbWITLbQ
+	id S1750825AbWITLu4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Sep 2006 07:50:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751155AbWITLuz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Sep 2006 07:31:16 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:30930 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1750821AbWITLbP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Sep 2006 07:31:15 -0400
-Subject: RE: [patch 3/3] Add tsi108 On Chip Ethernet device driver support
-From: Arjan van de Ven <arjan@infradead.org>
-To: Zang Roy-r61911 <tie-fei.zang@freescale.com>
-Cc: Andrew Morton <akpm@osdl.org>, jgarzik <jgarzik@pobox.com>,
-       netdev@vger.kernel.org, linux-kernel@vger.kernel.org
-In-Reply-To: <7EA18FDD2DC2154AA3BD6D2F22A62A0E2FB214@zch01exm23.fsl.freescale.net>
-References: <7EA18FDD2DC2154AA3BD6D2F22A62A0E2FB214@zch01exm23.fsl.freescale.net>
-Content-Type: text/plain
-Organization: Intel International BV
-Date: Wed, 20 Sep 2006 10:45:57 +0200
-Message-Id: <1158741958.2921.3.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Wed, 20 Sep 2006 07:50:55 -0400
+Received: from ns.suse.de ([195.135.220.2]:24217 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1750825AbWITLuz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Sep 2006 07:50:55 -0400
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: prasanna@in.ibm.com, Andrew Morton <akpm@osdl.org>,
+       Mathieu Desnoyers <compudj@krystal.dyndns.org>,
+       "Frank Ch. Eigler" <fche@redhat.com>,
+       Greg Kroah-Hartman <gregkh@suse.de>,
+       Christoph Hellwig <hch@infradead.org>, Jes Sorensen <jes@sgi.com>,
+       Paul Mundt <lethal@linux-sh.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>, ltt-dev@shafik.org,
+       Martin Bligh <mbligh@google.com>,
+       Michel Dagenais <michel.dagenais@polymtl.ca>,
+       Ingo Molnar <mingo@elte.hu>, systemtap@sources.redhat.com,
+       systemtap-owner@sourceware.org, Thomas Gleixner <tglx@linutronix.de>,
+       William Cohen <wcohen@redhat.com>, Tom Zanussi <zanussi@us.ibm.com>
+Subject: Re: [PATCH] Linux Kernel Markers
+References: <OFD1A61531.0E2D11C4-ON802571EF.002D4111-802571EF.002DA3BC@uk.ibm.com>
+	<1158748327.7705.3.camel@localhost.localdomain>
+From: Andi Kleen <ak@suse.de>
+Date: 20 Sep 2006 13:50:53 +0200
+In-Reply-To: <1158748327.7705.3.camel@localhost.localdomain>
+Message-ID: <p731wq6kb8i.fsf@verdi.suse.de>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-09-19 at 15:39 +0800, Zang Roy-r61911 wrote:
+Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
 
-> > 
-> > > +		spin_unlock_irq(&phy_lock);
-> > > +		msleep(10);
-> > > +		spin_lock_irq(&phy_lock);
-> > > +	}
-> > 
-> > hmm some places take phy_lock with disabling interrupts, while others
-> > don't. I sort of fear "the others" may be buggy.... are you sure those
-> > are ok?
-> Could you interpret your comments in detail?
-> Roy
+> Ar Mer, 2006-09-20 am 09:18 +0100, ysgrifennodd Richard J Moore:
+> > > Are you referring to Intel erratum "unsynchronized cross-modifying code"
+> > > - where it refers to the practice of modifying code on one processor
+> > > where another has prefetched the unmodified version of the code.
+> 
+> > In the special case of replacing an opcode with int3 that erratum doesn't
+> > apply. I know that's not in the manuals but it has been confirmed by the
+> > Intel microarchitecture group. And it's not reasonable to it to be any
+> > other way.
+> 
+> Ok thats cool to know and I wish they'd documented it. Is the same true
+> for AMD ?
 
-Hi,
+It pretty much has to, otherwise lots of debuggers would be unhappy
 
-sorry for being unclear/too short in the review.
-
-The phy_lock lock is sometimes taken as spin_lock() and sometimes as
-spin_lock_irq(). It looks likes it can be used in interrupt context, in
-which case the spin_lock_irq() version is correct and the places where
-spin_lock() is used would be a deadlock bug (just think what happens if
-the interrupt happens while spin_lock(&phy_lock) is helt, and the
-spinlock then again tries to take the lock!)
-
-If there is no way this lock is used in interrupt context, then the
-spin_lock_irq() version is doing something which is not needed and also
-a bit expensive; so could be optimized.
-
-But my impression is that the _irq() is needed. Also, please consider
-switching from spin_lock_irq() to spin_lock_irqsave() version instead;
-spin_unlock_irq() has some side effects (interrupts get enabled
-unconditionally) so it is generally safer to use
-spin_lock_irqsave()/spin_unlock_irqrestore() API.
-
-If you have more questions please do not hesitate to ask!
-
-Greetings,
-   Arjan van de Ven 
--- 
-if you want to mail me at work (you don't), use arjan (at) linux.intel.com
-
+-Andi

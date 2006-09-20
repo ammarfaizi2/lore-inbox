@@ -1,20 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750925AbWITCS6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750700AbWITCVa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750925AbWITCS6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 19 Sep 2006 22:18:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750926AbWITCS6
+	id S1750700AbWITCVa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 19 Sep 2006 22:21:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750781AbWITCVa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 19 Sep 2006 22:18:58 -0400
-Received: from smtp-out.google.com ([216.239.45.12]:42264 "EHLO
+	Tue, 19 Sep 2006 22:21:30 -0400
+Received: from smtp-out.google.com ([216.239.45.12]:56088 "EHLO
 	smtp-out.google.com") by vger.kernel.org with ESMTP
-	id S1750921AbWITCS4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 19 Sep 2006 22:18:56 -0400
+	id S1750700AbWITCV3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 19 Sep 2006 22:21:29 -0400
 DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
 	h=received:subject:from:reply-to:to:cc:content-type:
 	organization:date:message-id:mime-version:x-mailer:content-transfer-encoding;
-	b=AZy2w9iBOpe4IsT4bkqGyzDKU3vn/WFE/aDEtxw+Q066m8VcUkO0UkTKvnyyhawpy
-	M+cOZ2126L8N9OODM52QQ==
-Subject: [patch02/05]: Containers(V2)- Generic Linux kernel changes
+	b=YgL5VmIghbeGJtLaMi1dNos8+zWXtm+220JJvgdMcngezMwSt2Jwe1F1xjsffz+WN
+	fw1ZdSIv2NtM1BbaFJUSQ==
+Subject: [patch03/05]: Containers(V2)- Container initialization and
+	configfs interface
 From: Rohit Seth <rohitseth@google.com>
 Reply-To: rohitseth@google.com
 To: Andrew Morton <akpm@osdl.org>
@@ -22,353 +23,466 @@ Cc: CKRM-Tech <ckrm-tech@lists.sourceforge.net>, devel@openvz.org,
        linux-kernel <linux-kernel@vger.kernel.org>
 Content-Type: text/plain
 Organization: Google Inc
-Date: Tue, 19 Sep 2006 19:18:42 -0700
-Message-Id: <1158718722.29000.50.camel@galaxy.corp.google.com>
+Date: Tue, 19 Sep 2006 19:21:10 -0700
+Message-Id: <1158718870.29000.54.camel@galaxy.corp.google.com>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.2.1.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch contains changes to generic part of kernel code.  These
-changes tracks events like new task creating, task's exit, new page
-allocation (both file and anonymous) etc.
+This patch contains containers interface with configfs.  This patch
+defines config group for containers underneath which different
+containers can be created.  This patch also contains initialization code
+for creating work queue.
 
 Signed-off-by: Rohit Seth <rohitseth@google.com>
 
- fs/inode.c                |    3 +++
- include/linux/fs.h        |    5 +++++
- include/linux/mm_inline.h |    4 ++++
- include/linux/mm_types.h  |    4 ++++
- include/linux/sched.h     |    6 ++++++
- init/Kconfig              |    8 ++++++++
- kernel/Makefile           |    1 +
- kernel/exit.c             |    2 ++
- kernel/fork.c             |    9 +++++++++
- mm/Makefile               |    2 ++
- mm/filemap.c              |    4 ++++
- mm/page_alloc.c           |    3 +++
- mm/rmap.c                 |    8 +++++++-
- mm/swap.c                 |    1 +
- mm/vmscan.c               |    1 +
- 15 files changed, 60 insertions(+), 1 deletion(-)
+kernel/container_configfs.c |  440 +++++++++++++++++++++++++++++++++++++++++++++++++++
+ 1 files changed, 440 insertions(+)
 
-
---- linux-2.6.18-rc6-mm2.org/include/linux/mm_inline.h	2006-09-14 15:28:33.000000000 -0700
-+++ linux-2.6.18-rc6-mm2.ctn/include/linux/mm_inline.h	2006-09-14 15:09:08.000000000 -0700
-@@ -1,9 +1,11 @@
-+#include <linux/container.h>
- 
- static inline void
- add_page_to_active_list(struct zone *zone, struct page *page)
- {
- 	list_add(&page->lru, &zone->active_list);
- 	zone->nr_active++;
-+	container_inc_activepage_count(page);
- }
- 
- static inline void
-@@ -23,6 +25,7 @@ add_page_to_inactive_list_tail(struct zo
- static inline void
- del_page_from_active_list(struct zone *zone, struct page *page)
- {
-+	container_dec_activepage_count(page);
- 	list_del(&page->lru);
- 	zone->nr_active--;
- }
-@@ -41,6 +44,7 @@ del_page_from_lru(struct zone *zone, str
- 	if (PageActive(page)) {
- 		__ClearPageActive(page);
- 		zone->nr_active--;
-+		container_dec_activepage_count(page);
- 	} else {
- 		zone->nr_inactive--;
- 	}
---- linux-2.6.18-rc6-mm2.org/include/linux/fs.h	2006-09-14 15:28:33.000000000 -0700
-+++ linux-2.6.18-rc6-mm2.ctn/include/linux/fs.h	2006-09-14 15:09:08.000000000 -0700
-@@ -449,6 +449,7 @@ struct address_space_operations {
- };
- 
- struct backing_dev_info;
-+struct container_struct;
- struct address_space {
- 	struct inode		*host;		/* owner: inode, block_device */
- 	struct radix_tree_root	page_tree;	/* radix tree of all pages */
-@@ -465,6 +466,10 @@ struct address_space {
- 	struct backing_dev_info *backing_dev_info; /* device readahead, etc */
- 	spinlock_t		private_lock;	/* for use by the address_space */
- 	struct list_head	private_list;	/* ditto */
-+#ifdef CONFIG_CONTAINERS
-+	struct container_struct *ctn; /* Pointer to container */
-+	struct list_head	ctn_mapping_list; /* List of files belonging to same container*/
-+#endif
- 	struct address_space	*assoc_mapping;	/* ditto */
- } __attribute__((aligned(sizeof(long))));
- 	/*
---- linux-2.6.18-rc6-mm2.org/include/linux/sched.h	2006-09-14 15:28:33.000000000 -0700
-+++ linux-2.6.18-rc6-mm2.ctn/include/linux/sched.h	2006-09-14 15:09:08.000000000 -0700
-@@ -298,6 +298,8 @@ typedef unsigned long mm_counter_t;
- 		(mm)->hiwater_vm = (mm)->total_vm;	\
- } while (0)
- 
-+struct container_struct;
+--- linux-2.6.18-rc6-mm2.org/kernel/container_configfs.c	1969-12-31 16:00:00.000000000 -0800
++++ linux-2.6.18-rc6-mm2.ctn/kernel/container_configfs.c	2006-09-19 11:34:16.000000000 -0700
+@@ -0,0 +1,440 @@
++/*
++ * Copyright (c) 2006 Rohit Seth <rohitseth@google.com>
++ *
++ * Container initialization code and configfs registration code.
++ */
 +
- struct mm_struct {
- 	struct vm_area_struct * mmap;		/* list of VMAs */
- 	struct rb_root mm_rb;
-@@ -1046,6 +1048,10 @@ struct task_struct {
- #ifdef	CONFIG_TASK_DELAY_ACCT
- 	struct task_delay_info *delays;
- #endif
-+#ifdef CONFIG_CONTAINERS
-+	struct container_struct *ctn;
-+	struct list_head ctn_task_list; /*List of processes belonging to container */
-+#endif
- };
- 
- static inline pid_t process_group(struct task_struct *tsk)
---- linux-2.6.18-rc6-mm2.org/include/linux/mm_types.h	2006-09-14 15:28:33.000000000 -0700
-+++ linux-2.6.18-rc6-mm2.ctn/include/linux/mm_types.h	2006-09-14 15:15:30.000000000 -0700
-@@ -6,6 +6,7 @@
- #include <linux/list.h>
- #include <linux/spinlock.h>
- 
-+struct container_struct;
- struct address_space;
- 
- /*
-@@ -48,6 +49,9 @@ struct page {
- 	struct list_head lru;		/* Pageout list, eg. active_list
- 					 * protected by zone->lru_lock !
- 					 */
-+#ifdef CONFIG_CONTAINERS
-+	struct container_struct *ctn; /* Pointer to container, may be NULL */
-+#endif
- 	/*
- 	 * On machines where all RAM is mapped into kernel address space,
- 	 * we can simply calculate the virtual address. On machines with
---- linux-2.6.18-rc6-mm2.org/mm/filemap.c	2006-09-14 15:28:33.000000000 -0700
-+++ linux-2.6.18-rc6-mm2.ctn/mm/filemap.c	2006-09-14 15:09:08.000000000 -0700
-@@ -30,6 +30,7 @@
- #include <linux/security.h>
- #include <linux/syscalls.h>
- #include <linux/cpuset.h>
++#include <linux/init.h>
++#include <linux/module.h>
++#include <linux/slab.h>
 +#include <linux/container.h>
- #include "filemap.h"
- #include "internal.h"
- 
-@@ -126,6 +127,7 @@ void __remove_from_page_cache(struct pag
- 	page->mapping = NULL;
- 	mapping->nrpages--;
- 	__dec_zone_page_state(page, NR_FILE_PAGES);
-+	container_dec_filepage_count(page);
- }
- EXPORT_SYMBOL(__remove_from_page_cache);
- 
-@@ -461,6 +463,8 @@ int add_to_page_cache(struct page *page,
- 		}
- 		write_unlock_irq(&mapping->tree_lock);
- 		radix_tree_preload_end();
-+		if (!error)
-+			container_inc_filepage_count(mapping, page);
- 	}
- 	return error;
- }
---- linux-2.6.18-rc6-mm2.org/init/Kconfig	2006-09-14 15:28:33.000000000 -0700
-+++ linux-2.6.18-rc6-mm2.ctn/init/Kconfig	2006-09-18 10:48:08.000000000 -0700
-@@ -560,6 +560,14 @@ config STOP_MACHINE
- 	depends on (SMP && MODULE_UNLOAD) || HOTPLUG_CPU
- 	help
- 	  Need stop_machine() primitive.
++#include <linux/configfs.h>
++#include <linux/workqueue.h>
 +
-+config CONTAINERS
-+	bool "Containers"
-+	def_bool y
-+	depends on CONFIGFS_FS
-+	help
-+	  This option allows grouping of resources like memory and tasks. It 
-+	  depends on CONFIGFS_FS support in psuedo filesystem.
- endmenu
- 
- menu "Block layer"
---- linux-2.6.18-rc6-mm2.org/mm/Makefile	2006-09-14 15:28:33.000000000 -0700
-+++ linux-2.6.18-rc6-mm2.ctn/mm/Makefile	2006-09-14 15:09:08.000000000 -0700
-@@ -29,3 +29,5 @@ obj-$(CONFIG_MEMORY_HOTPLUG) += memory_h
- obj-$(CONFIG_FS_XIP) += filemap_xip.o
- obj-$(CONFIG_MIGRATION) += migrate.o
- obj-$(CONFIG_SMP) += allocpercpu.o
-+obj-$(CONFIG_CONTAINERS) += container.o container_mm.o
++/*
++ * Per processor worker thread for handling over the limits scenarios.
++ */
++struct workqueue_struct *container_wq;
 +
---- linux-2.6.18-rc6-mm2.org/mm/page_alloc.c	2006-09-14 15:28:33.000000000 -0700
-+++ linux-2.6.18-rc6-mm2.ctn/mm/page_alloc.c	2006-09-14 15:09:08.000000000 -0700
-@@ -39,6 +39,7 @@
- #include <linux/stop_machine.h>
- #include <linux/sort.h>
- #include <linux/pfn.h>
-+#include <linux/container.h>
- 
- #include <asm/tlbflush.h>
- #include <asm/div64.h>
-@@ -502,6 +503,7 @@ static void free_one_page(struct zone *z
- 	zone->pages_scanned = 0;
- 	__free_one_page(page, zone ,order);
- 	spin_unlock(&zone->lock);
-+	container_init_page_ptr(page, NULL);
- }
- 
- static void __free_pages_ok(struct page *page, unsigned int order)
-@@ -798,6 +800,7 @@ static void fastcall free_hot_cold_page(
- 
- 	arch_free_page(page, 0);
- 
-+	container_init_page_ptr(page, NULL);
- 	if (PageAnon(page))
- 		page->mapping = NULL;
- 	if (free_pages_check(page))
---- linux-2.6.18-rc6-mm2.org/mm/rmap.c	2006-09-14 15:28:33.000000000 -0700
-+++ linux-2.6.18-rc6-mm2.ctn/mm/rmap.c	2006-09-14 15:09:08.000000000 -0700
-@@ -53,6 +53,7 @@
- #include <linux/rmap.h>
- #include <linux/rcupdate.h>
- #include <linux/module.h>
-+#include <linux/container.h>
- 
- #include <asm/tlbflush.h>
- 
-@@ -521,6 +522,7 @@ static void __page_set_anon_rmap(struct 
- 	 * interrupts because it is not modified via interrupt.
- 	 */
- 	__inc_zone_page_state(page, NR_ANON_PAGES);
-+	container_inc_page_count(page);
- }
- 
- /**
-@@ -563,8 +565,10 @@ void page_add_new_anon_rmap(struct page 
-  */
- void page_add_file_rmap(struct page *page)
- {
--	if (atomic_inc_and_test(&page->_mapcount))
-+	if (atomic_inc_and_test(&page->_mapcount)) {
- 		__inc_zone_page_state(page, NR_FILE_MAPPED);
-+		container_inc_page_count(page);
++/*
++ * Default limit for physical memory for a newly created container.  Can
++ * be changed through /configfs/container/<container_name>/page_limit
++ */
++#define DEFAULT_PAGE_LIMIT ((900*1024*1024) >> PAGE_SHIFT)
++
++/*
++ * Default limit for number of tasks that can be created with in a container.  Can
++ * be changed through /configfs/container/<container_name>/task_limit
++ */
++#define DEFAULT_TASK_LIMIT 100
++
++/*
++ * Following attributes are defined as the interface mechanism between configfs
++ * and containers.  
++ * ca_name is the name as it gets shown in configfs
++ * ca_mode is the mode of that attribute
++ * idx is index of the attribute in the container.  This is used to find out
++ * what specific operation is requested.
++ */
++static struct simple_containerfs_attr simple_containerfs_attr_id = {
++	.attr = { .ca_owner = THIS_MODULE, .ca_name = "id", .ca_mode = S_IRUGO },
++	.idx = CONFIGFS_CTN_ATTR_ID,
++};
++
++static struct simple_containerfs_attr simple_containerfs_attr_num_tasks = {
++	.attr = { .ca_owner = THIS_MODULE, .ca_name = "num_tasks", .ca_mode = S_IRUGO },
++	.idx = CONFIGFS_CTN_ATTR_NUM_TASKS,
++};
++
++static struct simple_containerfs_attr simple_containerfs_attr_num_files = {
++	.attr = { .ca_owner = THIS_MODULE, .ca_name = "num_files", .ca_mode = S_IRUGO },
++	.idx = CONFIGFS_CTN_ATTR_NUM_FILES,
++};
++
++static struct simple_containerfs_attr simple_containerfs_attr_num_anon_pages = {
++	.attr = { .ca_owner = THIS_MODULE, .ca_name = "num_anon_pages", .ca_mode = S_IRUGO },
++	.idx = CONFIGFS_CTN_ATTR_NUM_ANON_PAGES,
++};
++
++static struct simple_containerfs_attr simple_containerfs_attr_num_mapped_pages = {
++	.attr = { .ca_owner = THIS_MODULE, .ca_name = "num_mapped_pages", .ca_mode = S_IRUGO },
++	.idx = CONFIGFS_CTN_ATTR_NUM_MAPPED_PAGES,
++};
++
++static struct simple_containerfs_attr simple_containerfs_attr_num_file_pages = {
++	.attr = { .ca_owner = THIS_MODULE, .ca_name = "num_file_pages", .ca_mode = S_IRUGO },
++	.idx = CONFIGFS_CTN_ATTR_NUM_FILE_PAGES,
++};
++
++static struct simple_containerfs_attr simple_containerfs_attr_num_active_pages = {
++	.attr = { .ca_owner = THIS_MODULE, .ca_name = "num_active_pages", .ca_mode = S_IRUGO },
++	.idx = CONFIGFS_CTN_ATTR_NUM_ACTIVE_PAGES,
++};
++
++static struct simple_containerfs_attr simple_containerfs_attr_page_limit = {
++	.attr = { .ca_owner = THIS_MODULE, .ca_name = "page_limit", .ca_mode = S_IRUGO | S_IWUSR },
++	.idx = CONFIGFS_CTN_ATTR_PAGE_LIMIT,
++};
++
++static struct simple_containerfs_attr simple_containerfs_attr_task_limit = {
++	.attr = { .ca_owner = THIS_MODULE, .ca_name = "task_limit", .ca_mode = S_IRUGO | S_IWUSR },
++	.idx = CONFIGFS_CTN_ATTR_TASK_LIMIT,
++};
++
++static struct simple_containerfs_attr simple_containerfs_attr_page_limit_hits = {
++	.attr = { .ca_owner = THIS_MODULE, .ca_name = "page_limit_hits", .ca_mode = S_IRUGO },
++	.idx = CONFIGFS_CTN_ATTR_PAGE_LIMIT_HITS,
++};
++
++static struct simple_containerfs_attr simple_containerfs_attr_task_limit_hits = {
++	.attr = { .ca_owner = THIS_MODULE, .ca_name = "task_limit_hits", .ca_mode = S_IRUGO },
++	.idx = CONFIGFS_CTN_ATTR_TASK_LIMIT_HITS,
++};
++
++static struct simple_containerfs_attr simple_containerfs_attr_freeing = {
++	.attr = { .ca_owner = THIS_MODULE, .ca_name = "freeing", .ca_mode = S_IRUGO },
++	.idx = CONFIGFS_CTN_ATTR_FREEING,
++};
++
++static struct simple_containerfs_attr simple_containerfs_attr_addtask = {
++	.attr = { .ca_owner = THIS_MODULE, .ca_name = "addtask", .ca_mode = S_IRUGO | S_IWUSR },
++	.idx = CONFIGFS_CTN_ATTR_ADD_TASK,
++};
++
++static struct simple_containerfs_attr simple_containerfs_attr_rmtask = {
++	.attr = { .ca_owner = THIS_MODULE, .ca_name = "rmtask", .ca_mode = S_IRUGO | S_IWUSR },
++	.idx = CONFIGFS_CTN_ATTR_RM_TASK,
++};
++
++static struct simple_containerfs_attr simple_containerfs_attr_showtasks = {
++	.attr = { .ca_owner = THIS_MODULE, .ca_name = "showtasks", .ca_mode = S_IRUGO },
++	.idx = CONFIGFS_CTN_ATTR_SHOW_TASKS,
++};
++
++static struct simple_containerfs_attr simple_containerfs_attr_addfile = {
++	.attr = { .ca_owner = THIS_MODULE, .ca_name = "addfile", .ca_mode = S_IRUGO | S_IWUSR },
++	.idx = CONFIGFS_CTN_ATTR_ADD_FILE,
++};
++
++static struct simple_containerfs_attr simple_containerfs_attr_rmfile = {
++	.attr = { .ca_owner = THIS_MODULE, .ca_name = "rmfile", .ca_mode = S_IRUGO | S_IWUSR },
++	.idx = CONFIGFS_CTN_ATTR_RM_FILE,
++};
++
++/*
++ * Array of all the attributes defined for containers. Used at the time when
++ * container is created.
++ */
++static struct configfs_attribute *simple_containerfs_attrs[] = {
++	&simple_containerfs_attr_id.attr,
++	&simple_containerfs_attr_num_tasks.attr,
++	&simple_containerfs_attr_num_files.attr,
++	&simple_containerfs_attr_num_anon_pages.attr,
++	&simple_containerfs_attr_num_mapped_pages.attr,
++	&simple_containerfs_attr_num_file_pages.attr,
++	&simple_containerfs_attr_num_active_pages.attr,
++	&simple_containerfs_attr_page_limit.attr,
++	&simple_containerfs_attr_task_limit.attr,
++	&simple_containerfs_attr_page_limit_hits.attr,
++	&simple_containerfs_attr_task_limit_hits.attr,
++	&simple_containerfs_attr_freeing.attr,
++	&simple_containerfs_attr_addtask.attr,
++	&simple_containerfs_attr_rmtask.attr,
++	&simple_containerfs_attr_showtasks.attr,
++	&simple_containerfs_attr_addfile.attr,
++	&simple_containerfs_attr_rmfile.attr,
++	NULL,
++};
++
++static inline struct simple_containerfs *to_simple_containerfs(struct config_item *item)
++{
++	return item ? container_of(item, struct simple_containerfs, item) : NULL;
++}
++
++/*
++ * simple_containerfs_attr_show operation is executed when ever there is a 
++ * read operation on any of container's attribute.
++ */
++static ssize_t simple_containerfs_attr_show(struct config_item *item,
++		struct configfs_attribute *attr,
++		char *buf)
++{
++	struct simple_containerfs *sc = to_simple_containerfs(item);
++	struct simple_containerfs_attr  *ctfs_attr =
++		container_of(attr, struct simple_containerfs_attr, attr);
++	ssize_t tmp;
++	int copied = 0;
++
++	/* Attributes's index tells us what operation is requested. */
++	switch (ctfs_attr->idx) {
++	case CONFIGFS_CTN_ATTR_ID:
++		tmp = sc->ctn.id;
++		break;
++	case CONFIGFS_CTN_ATTR_NUM_TASKS:
++		tmp = (ssize_t)atomic_read(&sc->ctn.num_tasks);
++		break;
++	case CONFIGFS_CTN_ATTR_NUM_FILES:
++		tmp = (ssize_t)atomic_read(&sc->ctn.num_files);
++		break;
++	case CONFIGFS_CTN_ATTR_NUM_ANON_PAGES:
++		tmp = atomic_long_read(&sc->ctn.num_anon_pages);
++		break;
++	case CONFIGFS_CTN_ATTR_NUM_MAPPED_PAGES:
++		tmp = atomic_long_read(&sc->ctn.num_mapped_pages);
++		break;
++	case CONFIGFS_CTN_ATTR_NUM_FILE_PAGES:
++		tmp = atomic_long_read(&sc->ctn.num_file_pages);
++		break;
++	case CONFIGFS_CTN_ATTR_NUM_ACTIVE_PAGES:
++		tmp = atomic_long_read(&sc->ctn.num_active_pages);
++		break;
++	case CONFIGFS_CTN_ATTR_PAGE_LIMIT:
++		tmp = sc->ctn.page_limit;
++		break;
++	case CONFIGFS_CTN_ATTR_TASK_LIMIT:
++		tmp = sc->ctn.task_limit;
++		break;
++	case CONFIGFS_CTN_ATTR_PAGE_LIMIT_HITS:
++		tmp = atomic_long_read(&sc->ctn.page_limit_hits);
++		break;
++	case CONFIGFS_CTN_ATTR_TASK_LIMIT_HITS:
++		tmp = atomic_long_read(&sc->ctn.task_limit_hits);
++		break;
++	case CONFIGFS_CTN_ATTR_FREEING:
++		tmp = sc->ctn.freeing;
++		break;
++	case CONFIGFS_CTN_ATTR_SHOW_TASKS:
++		copied = 1;
++		tmp = container_show_tasks(&sc->ctn, buf);
++		break;
++	default: 
++		tmp = -1;
 +	}
- }
- 
- /**
-@@ -598,6 +602,8 @@ void page_remove_rmap(struct page *page)
- 			set_page_dirty(page);
- 		__dec_zone_page_state(page,
- 				PageAnon(page) ? NR_ANON_PAGES : NR_FILE_MAPPED);
-+		container_dec_page_count(page);
-+				
- 	}
- }
- 
---- linux-2.6.18-rc6-mm2.org/mm/swap.c	2006-09-14 15:28:33.000000000 -0700
-+++ linux-2.6.18-rc6-mm2.ctn/mm/swap.c	2006-09-14 15:09:08.000000000 -0700
-@@ -196,6 +196,7 @@ void fastcall lru_cache_add_active(struc
- 	struct pagevec *pvec = &get_cpu_var(lru_add_active_pvecs);
- 
- 	page_cache_get(page);
-+	container_init_page_ptr(page, current);
- 	if (!pagevec_add(pvec, page))
- 		__pagevec_lru_add_active(pvec);
- 	put_cpu_var(lru_add_active_pvecs);
---- linux-2.6.18-rc6-mm2.org/mm/vmscan.c	2006-09-14 15:28:33.000000000 -0700
-+++ linux-2.6.18-rc6-mm2.ctn/mm/vmscan.c	2006-09-14 15:09:08.000000000 -0700
-@@ -818,6 +818,7 @@ force_reclaim_mapped:
- 		SetPageLRU(page);
- 		VM_BUG_ON(!PageActive(page));
- 		ClearPageActive(page);
-+		container_dec_activepage_count(page);
- 
- 		list_move(&page->lru, &zone->inactive_list);
- 		pgmoved++;
---- linux-2.6.18-rc6-mm2.org/kernel/exit.c	2006-09-14 15:28:33.000000000 -0700
-+++ linux-2.6.18-rc6-mm2.ctn/kernel/exit.c	2006-09-18 18:18:22.000000000 -0700
-@@ -41,6 +41,7 @@
- #include <linux/audit.h> /* for audit_free() */
- #include <linux/resource.h>
- #include <linux/blkdev.h>
-+#include <linux/container.h>
- 
- #include <asm/uaccess.h>
- #include <asm/unistd.h>
-@@ -171,6 +172,7 @@ repeat:
- 
- 	sched_exit(p);
- 	write_unlock_irq(&tasklist_lock);
-+	container_remove_task(p, NULL);
- 	proc_flush_task(p);
- 	release_thread(p);
- 	call_rcu(&p->rcu, delayed_put_task_struct);
---- linux-2.6.18-rc6-mm2.org/kernel/fork.c	2006-09-14 15:28:33.000000000 -0700
-+++ linux-2.6.18-rc6-mm2.ctn/kernel/fork.c	2006-09-19 10:36:20.000000000 -0700
-@@ -47,6 +47,7 @@
- #include <linux/cn_proc.h>
- #include <linux/delayacct.h>
- #include <linux/taskstats_kern.h>
-+#include <linux/container.h>
- #include <linux/random.h>
- 
- #include <asm/pgtable.h>
-@@ -175,6 +176,13 @@ static struct task_struct *dup_task_stru
- 	}
- 
- 	*tsk = *orig;
 +
-+	container_init_task_ptr(tsk);
-+	if (container_add_task(tsk, orig, NULL) == -ENOSPC) {
-+		free_task_struct(tsk);
-+		free_thread_info(ti);
++	if (!copied)
++		tmp = sprintf(buf, "%ld\n", tmp);
++	return tmp;
++
++}
++
++static ssize_t simple_containerfs_attr_store(struct config_item *item,
++				       struct configfs_attribute *attr,
++				       const char *buf, size_t count)
++{
++	struct simple_containerfs *sc = to_simple_containerfs(item);
++	struct simple_containerfs_attr  *ctfs_attr =
++		container_of(attr, struct simple_containerfs_attr, attr);
++	ssize_t tmp = 0;
++	char *p = (char *)buf;
++
++	/*
++	 * For now it is only a simple operation.  Expected input is
++	 * integer for the attributes that are less than or equal to 
++	 * CONFIGFS_CTN_ATTR_RM_TASK defined in include/linux/container.h 
++	 * But update this code later as different types are expected.
++	 */
++	if (ctfs_attr->idx <= CONFIGFS_CTN_ATTR_RM_TASK) {
++		tmp = simple_strtoul(p, &p, 10);
++		if (!p || (*p && (*p != '\n')))
++			return -EINVAL;
++	}
++
++	if (tmp > INT_MAX)
++		return -ERANGE;
++
++	switch (ctfs_attr->idx) {
++	case CONFIGFS_CTN_ATTR_PAGE_LIMIT:
++		tmp = set_container_page_limit(&sc->ctn, tmp);
++		break;
++	case CONFIGFS_CTN_ATTR_TASK_LIMIT:
++		tmp = set_container_task_limit(&sc->ctn, tmp);
++		break;
++	case CONFIGFS_CTN_ATTR_FREEING:
++		break;
++	case CONFIGFS_CTN_ATTR_ADD_TASK:
++	case CONFIGFS_CTN_ATTR_RM_TASK:
++		{
++			struct task_struct *t;
++
++			read_lock(&tasklist_lock);
++			t = find_task_by_pid(tmp);
++			if (t) {
++				get_task_struct(t);
++				read_unlock(&tasklist_lock);
++				if (ctfs_attr->idx == CONFIGFS_CTN_ATTR_ADD_TASK)
++					tmp = container_add_task(t, NULL, &sc->ctn);
++				else
++					container_remove_task(t, &sc->ctn);
++				put_task_struct(t);
++			}
++			else 
++				read_unlock(&tasklist_lock);
++			break;
++		}
++	default: 
++		printk("Invalid set attr option %d\n", ctfs_attr->idx);
++	}
++
++	return count;
++}
++
++/*
++ * This is where the release operation of container will come when a 
++ * container is getting removed from container directory.  We will just release 
++ * the memory allocated for the container.
++ */
++static void simple_containerfs_release(struct config_item *item)
++{
++	struct simple_containerfs *sc = to_simple_containerfs(item);
++
++	sc->ctn.freeing = 1;
++	smp_mb();
++	free_container(&sc->ctn);
++	kfree(to_simple_containerfs(item));
++}
++
++static struct configfs_item_operations container_item_ops = {
++	.release = simple_containerfs_release,
++	.show_attribute = simple_containerfs_attr_show,
++	.store_attribute = simple_containerfs_attr_store,
++};
++
++static struct config_item_type simple_containerfs_type = {
++	.ct_attrs	= simple_containerfs_attrs,
++	.ct_item_ops	= &container_item_ops,
++	.ct_owner	= THIS_MODULE,
++};
++
++struct containerfs {
++	struct config_group group;
++};
++
++static inline struct containerfs *to_containerfs(struct config_item *item)
++{
++	return container_of(to_config_group(item), struct containerfs, group);
++}
++
++/*
++ * Containers are initialized here.  mkdir command underneath /configfs/container
++ * will get here. name is the pointer to the container name (given as part of 
++ * mkdir command.
++ */
++
++static struct config_item *containerfs_make_item(struct config_group *group, const char *name)
++{
++	struct simple_containerfs *sc;
++
++	sc = kzalloc(sizeof(struct simple_containerfs) + strlen(name) + 1,
++			GFP_KERNEL);
++	if (!sc)
++		return NULL;
++
++	mutex_init(&sc->ctn.mutex);
++	sc->ctn.name = (char *) sc + sizeof(struct simple_containerfs);
++	strcpy(sc->ctn.name, name);
++	sc->ctn.page_limit = DEFAULT_PAGE_LIMIT;
++	sc->ctn.task_limit = DEFAULT_TASK_LIMIT;
++
++	INIT_WORK(&sc->ctn.work, container_overlimit_handler, (void *)&sc->ctn);
++	init_waitqueue_head(&sc->ctn.mm_waitq);
++	INIT_LIST_HEAD(&sc->ctn.tasks);
++	INIT_LIST_HEAD(&sc->ctn.mappings);
++
++	if (setup_container(&sc->ctn) < 0) {
++		kfree(sc);
 +		return NULL;
 +	}
- 	tsk->thread_info = ti;
- 	setup_thread_stack(tsk, orig);
- 
-@@ -1295,6 +1303,7 @@ bad_fork_cleanup_count:
- 	atomic_dec(&p->user->processes);
- 	free_uid(p->user);
- bad_fork_free:
-+	container_remove_task(p, NULL);
- 	free_task(p);
- fork_out:
- 	return ERR_PTR(retval);
---- linux-2.6.18-rc6-mm2.org/kernel/Makefile	2006-09-14 15:28:33.000000000 -0700
-+++ linux-2.6.18-rc6-mm2.ctn/kernel/Makefile	2006-09-14 15:09:08.000000000 -0700
-@@ -52,6 +52,7 @@ obj-$(CONFIG_RELAY) += relay.o
- obj-$(CONFIG_UTS_NS) += utsname.o
- obj-$(CONFIG_TASK_DELAY_ACCT) += delayacct.o
- obj-$(CONFIG_TASKSTATS) += taskstats.o tsacct.o
-+obj-$(CONFIG_CONTAINERS) += container_configfs.o
- 
- ifneq ($(CONFIG_SCHED_NO_NO_OMIT_FRAME_POINTER),y)
- # According to Alan Modra <alan@linuxcare.com.au>, the -fno-omit-frame-pointer is
---- linux-2.6.18-rc6-mm2.org/fs/inode.c	2006-09-14 15:28:31.000000000 -0700
-+++ linux-2.6.18-rc6-mm2.ctn/fs/inode.c	2006-09-14 15:09:08.000000000 -0700
-@@ -22,6 +22,7 @@
- #include <linux/bootmem.h>
- #include <linux/inotify.h>
- #include <linux/mount.h>
-+#include <linux/container.h>
- 
- /*
-  * This is needed for the following functions:
-@@ -164,6 +165,7 @@ static struct inode *alloc_inode(struct 
- 		}
- 		inode->i_private = 0;
- 		inode->i_mapping = mapping;
-+		container_add_file(mapping, NULL);
- 	}
- 	return inode;
- }
-@@ -172,6 +174,7 @@ void destroy_inode(struct inode *inode) 
- {
- 	BUG_ON(inode_has_buffers(inode));
- 	security_inode_free(inode);
-+	container_remove_file(inode->i_mapping);
- 	if (inode->i_sb->s_op->destroy_inode)
- 		inode->i_sb->s_op->destroy_inode(inode);
- 	else
++
++	config_item_init_type_name(&sc->item, name, &simple_containerfs_type);
++
++	return &sc->item;
++}
++
++static struct configfs_attribute containerfs_attr_description = {
++	.ca_owner = THIS_MODULE, 
++	.ca_name = "description", 
++	.ca_mode = S_IRUGO ,
++};
++
++static struct configfs_attribute *containerfs_attrs[] = {
++	&containerfs_attr_description,
++	NULL,
++};
++
++
++/* This is the read operation on the top level /configfs/containers/description.
++ * A general description about containers ...
++ */
++
++static ssize_t containerfs_attr_show(struct config_item *item,
++		struct configfs_attribute *attr,
++		char *page)
++{
++	return sprintf(page, "Containers provide grouping of resources in a "
++			"platform.  It also provides limits and accounting of"
++			"resources\nas they are used by processes belonging to"
++			"those containers\n");
++}
++
++static void containerfs_release(struct config_item *item)
++{
++	kfree(to_containerfs(item));
++}
++
++static struct configfs_item_operations containerfs_item_ops = {
++	.release = containerfs_release,
++	.show_attribute = containerfs_attr_show,
++};
++
++
++static struct configfs_group_operations containerfs_group_ops = {
++	.make_item = containerfs_make_item,
++};
++
++static struct config_item_type containerfs_type = {
++	.ct_item_ops = &containerfs_item_ops,
++	.ct_group_ops = &containerfs_group_ops,
++	.ct_attrs = containerfs_attrs,
++	.ct_owner = THIS_MODULE,
++};
++
++struct containerfs_group {
++	struct configfs_subsystem cs_subsys;
++};
++
++static struct containerfs_group containerfs_group = {
++	.cs_subsys = {
++		.su_group = {
++			.cg_item = {
++				.ci_namebuf = "containers",
++				.ci_type = &containerfs_type,
++			},
++		},
++	},
++};
++
++static int __init configfs_container_init(void)
++{
++	int ret;
++
++	config_group_init(&containerfs_group.cs_subsys.su_group);
++	init_MUTEX(&containerfs_group.cs_subsys.su_sem);
++	ret = configfs_register_subsystem(&containerfs_group.cs_subsys);
++
++	if (ret) 
++		printk(KERN_ERR "Error %d while registering container subsystem\n", ret);
++	else {
++		container_wq = create_workqueue("Kcontainerd");
++		if (container_wq == NULL) {
++			configfs_unregister_subsystem(&containerfs_group.cs_subsys);
++			ret = -ENOMEM;
++			printk(KERN_ERR "Unable to create Container controllers");
++		}
++	}
++	return ret;
++}
++
++/* Depends on configfs inititalization.
++ */
++late_initcall(configfs_container_init);
++
 
 

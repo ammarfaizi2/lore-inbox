@@ -1,18 +1,18 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932116AbWITVVZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932121AbWITVUw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932116AbWITVVZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Sep 2006 17:21:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932115AbWITVU5
+	id S932121AbWITVUw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Sep 2006 17:20:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932122AbWITVUv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Sep 2006 17:20:57 -0400
-Received: from ogre.sisk.pl ([217.79.144.158]:20389 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S932116AbWITVUo (ORCPT
+	Wed, 20 Sep 2006 17:20:51 -0400
+Received: from ogre.sisk.pl ([217.79.144.158]:20645 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S932121AbWITVUo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Wed, 20 Sep 2006 17:20:44 -0400
 From: "Rafael J. Wysocki" <rjw@sisk.pl>
 To: Pavel Machek <pavel@ucw.cz>
-Subject: [PATCH -mm 4/6] swsusp: Add resume_offset command line parameter
-Date: Wed, 20 Sep 2006 21:46:58 +0200
+Subject: [PATCH -mm 6/6] swsusp: Document support for swap files
+Date: Wed, 20 Sep 2006 22:01:08 +0200
 User-Agent: KMail/1.9.1
 Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
 References: <200609202120.58082.rjw@sisk.pl>
@@ -22,118 +22,115 @@ Content-Type: text/plain;
   charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200609202146.59105.rjw@sisk.pl>
+Message-Id: <200609202201.08918.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Add the kernel command line parameter "resume_offset=" allowing us to specify
-the offset, in <PAGE_SIZE> units, from the beginning of the partition pointed
-to by the "resume=" parameter at which the swap header is located.
+Document the "resume_offset=" command line parameter as well as the way in
+which swap files are supported by swsusp.
 
 Signed-off-by: Rafael J. Wysocki <rjw@sisk.pl>
 ---
-kernel/power/disk.c  |   15 +++++++++++++++
- kernel/power/power.h |    1 +
- kernel/power/swap.c  |   15 ++++++++++-----
- 3 files changed, 26 insertions(+), 5 deletions(-)
+ Documentation/kernel-parameters.txt           |    6 +++
+ Documentation/power/swsusp-and-swap-files.txt |   46 ++++++++++++++++++++++++++
+ Documentation/power/swsusp.txt                |   20 +++--------
+ 3 files changed, 58 insertions(+), 14 deletions(-)
 
-Index: linux-2.6.18-rc7-mm1/kernel/power/disk.c
+Index: linux-2.6.18-rc7-mm1/Documentation/kernel-parameters.txt
 ===================================================================
---- linux-2.6.18-rc7-mm1.orig/kernel/power/disk.c
-+++ linux-2.6.18-rc7-mm1/kernel/power/disk.c
-@@ -27,6 +27,7 @@
- static int noresume = 0;
- char resume_file[256] = CONFIG_PM_STD_PARTITION;
- dev_t swsusp_resume_device;
-+sector_t swsusp_resume_block;
+--- linux-2.6.18-rc7-mm1.orig/Documentation/kernel-parameters.txt
++++ linux-2.6.18-rc7-mm1/Documentation/kernel-parameters.txt
+@@ -1370,6 +1370,12 @@ and is between 256 and 4096 characters. 
+ 	resume=		[SWSUSP]
+ 			Specify the partition device for software suspend
  
- /**
-  *	power_down - Shut machine down for hibernate.
-@@ -404,6 +405,19 @@ static int __init resume_setup(char *str
- 	return 1;
- }
++	resume_offset=	[SWSUSP]
++			Specify the offset from the beginning of the partition
++			given by "resume=" at which the swap header is located,
++			in <PAGE_SIZE> units (needed only for swap files).
++			See  Documentation/power/swsusp-and-swap-files.txt
++
+ 	rhash_entries=	[KNL,NET]
+ 			Set number of hash buckets for route cache
  
-+static int __init resume_offset_setup(char *str)
-+{
-+	loff_t offset;
-+
-+	if (noresume)
-+		return 1;
-+
-+	if (sscanf(str, "%llu", &offset) == 1)
-+		swsusp_resume_block = offset;
-+
-+	return 1;
-+}
-+
- static int __init noresume_setup(char *str)
- {
- 	noresume = 1;
-@@ -411,4 +425,5 @@ static int __init noresume_setup(char *s
- }
- 
- __setup("noresume", noresume_setup);
-+__setup("resume_offset=", resume_offset_setup);
- __setup("resume=", resume_setup);
-Index: linux-2.6.18-rc7-mm1/kernel/power/power.h
+Index: linux-2.6.18-rc7-mm1/Documentation/power/swsusp-and-swap-files.txt
 ===================================================================
---- linux-2.6.18-rc7-mm1.orig/kernel/power/power.h
-+++ linux-2.6.18-rc7-mm1/kernel/power/power.h
-@@ -42,6 +42,7 @@ extern const void __nosave_begin, __nosa
- extern unsigned long image_size;
- extern int in_suspend;
- extern dev_t swsusp_resume_device;
-+extern sector_t swsusp_resume_block;
- 
- extern asmlinkage int swsusp_arch_suspend(void);
- extern asmlinkage int swsusp_arch_resume(void);
-Index: linux-2.6.18-rc7-mm1/kernel/power/swap.c
-===================================================================
---- linux-2.6.18-rc7-mm1.orig/kernel/power/swap.c
-+++ linux-2.6.18-rc7-mm1/kernel/power/swap.c
-@@ -160,13 +160,14 @@ static int mark_swapfiles(loff_t start)
- {
- 	int error;
- 
--	bio_read_page(0, &swsusp_header, NULL);
-+	bio_read_page(swsusp_resume_block, &swsusp_header, NULL);
- 	if (!memcmp("SWAP-SPACE",swsusp_header.sig, 10) ||
- 	    !memcmp("SWAPSPACE2",swsusp_header.sig, 10)) {
- 		memcpy(swsusp_header.orig_sig,swsusp_header.sig, 10);
- 		memcpy(swsusp_header.sig,SWSUSP_SIG, 10);
- 		swsusp_header.image = start;
--		error = bio_write_page(0, &swsusp_header, NULL);
-+		error = bio_write_page(swsusp_resume_block,
-+					&swsusp_header, NULL);
- 	} else {
- 		printk(KERN_ERR "swsusp: Swap header not found!\n");
- 		error = -ENODEV;
-@@ -183,7 +184,7 @@ static int swsusp_swap_check(void) /* Th
- {
- 	int res;
- 
--	res = swap_type_of(swsusp_resume_device, 0);
-+	res = swap_type_of(swsusp_resume_device, swsusp_resume_block);
- 	if (res < 0)
- 		return res;
- 
-@@ -606,12 +607,16 @@ int swsusp_check(void)
- 	if (!IS_ERR(resume_bdev)) {
- 		set_blocksize(resume_bdev, PAGE_SIZE);
- 		memset(&swsusp_header, 0, sizeof(swsusp_header));
--		if ((error = bio_read_page(0, &swsusp_header, NULL)))
-+		error = bio_read_page(swsusp_resume_block,
-+					&swsusp_header, NULL);
-+		if (error)
- 			return error;
+--- /dev/null
++++ linux-2.6.18-rc7-mm1/Documentation/power/swsusp-and-swap-files.txt
+@@ -0,0 +1,46 @@
++Using swap files with software suspend (swsusp)
++	(C) 2006 Rafael J. Wysocki <rjw@sisk.pl>
 +
- 		if (!memcmp(SWSUSP_SIG, swsusp_header.sig, 10)) {
- 			memcpy(swsusp_header.sig, swsusp_header.orig_sig, 10);
- 			/* Reset swap signature now */
--			error = bio_write_page(0, &swsusp_header, NULL);
-+			error = bio_write_page(swsusp_resume_block,
-+						&swsusp_header, NULL);
- 		} else {
- 			return -EINVAL;
- 		}
-
++The Linux kernel handles swap files almost in the same way as it handles swap
++partitions and there are only two differences between these two types of swap
++areas:
++(1) swap files need not be contiguous,
++(2) the header of a swap file is not in the first block of the partition that
++holds it.  From the swsusp's point of view (1) is not a problem, because it is
++already taken care of by the swap-handling code, but (2) has to be taken into
++consideration.
++
++In principle the location of a swap file's header may be determined with the
++help of appropriate filesystem driver.  Unfortunately, however, it requires the
++filesystem holding the swap file to be mounted, and if this filesystem is
++journaled, it cannot be mounted during resume from disk.  For this reason to
++identify a swap file swsusp uses the name of the partition that holds the file
++and the offset from the beginning of the partition at which the swap file's
++header is located.  For convenience, this offset is expressed in <PAGE_SIZE>
++units.
++
++In order to use a swap file with swsusp, you need to:
++
++1) Create the swap file and make it active, eg.
++
++# dd if=/dev/zero of=<swap_file_path> bs=1024 count=<swap_file_size_in_k>
++# mkswap <swap_file_path>
++# swapon <swap_file_path>
++
++Then, the kernel will place the following line in the dmesg:
++
++Adding <swap_file_size_in_k - 1>k swap on <swap_file_path>.  Priority:-2 extents:<nr_extents> across:<span_in_k>k offset:<swap_file_offset>
++
++where <nr_extents>, <span_in_k>, <swap_file_offset> are numbers that describe
++the swap file configuration.  The last one, <swap_file_offset>, is needed by
++swsusp.
++
++2) Add the following parameters to the kernel command line:
++
++resume=<swap_file_partition> resume_offset=<swap_file_offset>
++
++where <swap_file_partition> is the partition on which the swap file is located.
++
++Now, swsusp will use the swap file in the same way in which it would use a swap
++partition.  [Of course this means that the resume from a swap file cannot be
++initiated from whithin an initrd of initramfs image.]
+Index: linux-2.6.18-rc7-mm1/Documentation/power/swsusp.txt
+===================================================================
+--- linux-2.6.18-rc7-mm1.orig/Documentation/power/swsusp.txt
++++ linux-2.6.18-rc7-mm1/Documentation/power/swsusp.txt
+@@ -297,20 +297,12 @@ system is shut down or suspended. Additi
+ suspend image to prevent sensitive data from being stolen after
+ resume.
+ 
+-Q: Why can't we suspend to a swap file?
++Q: Can I suspend to a swap file?
+ 
+-A: Because accessing swap file needs the filesystem mounted, and
+-filesystem might do something wrong (like replaying the journal)
+-during mount.
+-
+-There are few ways to get that fixed:
+-
+-1) Probably could be solved by modifying every filesystem to support
+-some kind of "really read-only!" option. Patches welcome.
+-
+-2) suspend2 gets around that by storing absolute positions in on-disk
+-image (and blocksize), with resume parameter pointing directly to
+-suspend header.
++A: Generally, yes, you can.  However, it requires you to use the "resume=" and
++"resume_offset=" kernel command line parameters, so the resume from a swap file
++cannot be initiated from an initrd or initramfs image.  See
++swsusp-and-swap-files.txt for details.
+ 
+ Q: Is there a maximum system RAM size that is supported by swsusp?
+ 

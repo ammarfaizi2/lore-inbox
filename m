@@ -1,61 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751170AbWITMUT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751188AbWITMVd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751170AbWITMUT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Sep 2006 08:20:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751188AbWITMUT
+	id S1751188AbWITMVd (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Sep 2006 08:21:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751193AbWITMVd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Sep 2006 08:20:19 -0400
-Received: from gateway.argo.co.il ([194.90.79.130]:29971 "EHLO
-	argo2k.argo.co.il") by vger.kernel.org with ESMTP id S1751170AbWITMUS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Sep 2006 08:20:18 -0400
-Message-ID: <45113200.3040107@argo.co.il>
-Date: Wed, 20 Sep 2006 15:20:16 +0300
-From: Avi Kivity <avi@argo.co.il>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
-MIME-Version: 1.0
-To: Chris Jefferson <chris@bubblescope.net>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Allocated large blocks of memory on 64 bit linux.
-References: <5cc6b04e0609200428ja52fa8dl5246488f64d794cb@mail.gmail.com>
-In-Reply-To: <5cc6b04e0609200428ja52fa8dl5246488f64d794cb@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Wed, 20 Sep 2006 08:21:33 -0400
+Received: from tomts10.bellnexxia.net ([209.226.175.54]:41123 "EHLO
+	tomts10-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id S1751188AbWITMVc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Sep 2006 08:21:32 -0400
+Date: Wed, 20 Sep 2006 08:21:30 -0400
+From: Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>
+To: Greg KH <gregkh@suse.de>
+Cc: linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
+       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@redhat.com>,
+       Thomas Gleixner <tglx@linutronix.de>, Tom Zanussi <zanussi@us.ibm.com>,
+       ltt-dev@shafik.org, Michel Dagenais <michel.dagenais@polymtl.ca>,
+       Douglas Niehaus <niehaus@eecs.ku.edu>
+Subject: Re: [PATCH 1/11] LTTng-core 0.5.111 : Relay+DebugFS (DebugFS fix)
+Message-ID: <20060920122130.GB25639@Krystal>
+References: <20060916075103.GB29360@Krystal> <20060917160705.GB6326@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 20 Sep 2006 12:20:16.0840 (UTC) FILETIME=[21A3AC80:01C6DCAF]
+Content-Disposition: inline
+In-Reply-To: <20060917160705.GB6326@suse.de>
+X-Editor: vi
+X-Info: http://krystal.dyndns.org:8080
+X-Operating-System: Linux/2.4.32-grsec (i686)
+X-Uptime: 08:18:34 up 28 days,  9:27,  2 users,  load average: 0.07, 0.55, 0.78
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Jefferson wrote:
->
-> I apologise for this slightly off-topic message, but I believe it can
-> best be answered here, and hope the question may be interesting.
->
-> Many libraries have some kind of dynamically sized container (for
-> example C++'s std::vector). When the container is full a new block of
-> memory, typically double the original size, is allocated and the old
-> data copied across.
->
-> On a 64 bit architecture, where the memory space is massive, it seems
-> at first glance a sensible thing to do might be to first make a buffer
-> of size 4k, and then when this fills up, just straight to something
-> huge, like 1MB or even 1GB, as the memory space is effectively
-> infinate compared to the physical memory. Obvious most of this buffer
-> may never be written to, as the object never grows large enough to
-> fill it.
->
-> What is the overhead of allocating memory which is never used? Is this
->
+* Greg KH (gregkh@suse.de) wrote:
+> On Sat, Sep 16, 2006 at 03:51:03AM -0400, Mathieu Desnoyers wrote:
+> > 1 - DebugFS stalled dentry patch
+> > DebugFS seems to keep a stalled dentry when a process is in a directory that is
+> > being removed. Force a differed deletion.
+> > patch-2.6.17-lttng-core-0.5.111-debugfs.diff
+> > 
+> > 
+> > OpenPGP public key:              http://krystal.dyndns.org:8080/key/compudj.gpg
+> > Key fingerprint:     8CD5 52C3 8E3C 4140 715F  BA06 3F25 A8FE 3BAE 9A68 
+> 
+> > --- a/fs/debugfs/inode.c
+> > +++ b/fs/debugfs/inode.c
+> > @@ -266,6 +266,7 @@ EXPORT_SYMBOL_GPL(debugfs_create_dir);
+> >  void debugfs_remove(struct dentry *dentry)
+> >  {
+> >  	struct dentry *parent;
+> > +	int ret = 0;
+> >  	
+> >  	if (!dentry)
+> >  		return;
+> > @@ -278,9 +279,10 @@ void debugfs_remove(struct dentry *dentr
+> >  	if (debugfs_positive(dentry)) {
+> >  		if (dentry->d_inode) {
+> >  			if (S_ISDIR(dentry->d_inode->i_mode))
+> > -				simple_rmdir(parent->d_inode, dentry);
+> > +				ret = simple_rmdir(parent->d_inode, dentry);
+> >  			else
+> > -				simple_unlink(parent->d_inode, dentry);
+> > +				ret = simple_unlink(parent->d_inode, dentry);
+> > +			if(ret) d_delete(dentry);
+> 
+> Are you saying that perhaps all other users of simple_unlink() are also
+> broken like this?  If so, why not just fix simple_unlink()?
+> 
 
-A 1MB virtual area which has just one page instantiated has (amortized) 
-2KB cost in page tables, while a similar 1GB mapping has 8KB cost. 
-That's a 50%-200% overhead which is quite bad.  Also cache line usage is 
-worse since each pte needs a full cache line (two for the 1GB version) now.
+I don't think that libfs is fundamentally broken, as simple_unlink always
+returns 0 but simple_rmdir may fail if !simple_empty(dentry). I think that the
+decision of what to do in such situation is "simply" left to the caller.
 
-In addition, the virtual address space is not infinite. On x86-64, 
-userspace has 47 bits = 128 TB, enough for 128K of these 1G mappings, so 
-your program would exhaust it after allocating 128,000 buffers, which is 
-less than a gigabyte of physical RAM.
+But you probably know more than I do on that matter.
 
--- 
-error compiling committee.c: too many arguments to function
+Mathieu
 
+
+
+OpenPGP public key:              http://krystal.dyndns.org:8080/key/compudj.gpg
+Key fingerprint:     8CD5 52C3 8E3C 4140 715F  BA06 3F25 A8FE 3BAE 9A68 

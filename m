@@ -1,83 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751188AbWITMVd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751218AbWITMtr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751188AbWITMVd (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Sep 2006 08:21:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751193AbWITMVd
+	id S1751218AbWITMtr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Sep 2006 08:49:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751227AbWITMtr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Sep 2006 08:21:33 -0400
-Received: from tomts10.bellnexxia.net ([209.226.175.54]:41123 "EHLO
-	tomts10-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id S1751188AbWITMVc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Sep 2006 08:21:32 -0400
-Date: Wed, 20 Sep 2006 08:21:30 -0400
-From: Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>
-To: Greg KH <gregkh@suse.de>
-Cc: linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
-       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@redhat.com>,
-       Thomas Gleixner <tglx@linutronix.de>, Tom Zanussi <zanussi@us.ibm.com>,
-       ltt-dev@shafik.org, Michel Dagenais <michel.dagenais@polymtl.ca>,
-       Douglas Niehaus <niehaus@eecs.ku.edu>
-Subject: Re: [PATCH 1/11] LTTng-core 0.5.111 : Relay+DebugFS (DebugFS fix)
-Message-ID: <20060920122130.GB25639@Krystal>
-References: <20060916075103.GB29360@Krystal> <20060917160705.GB6326@suse.de>
-Mime-Version: 1.0
+	Wed, 20 Sep 2006 08:49:47 -0400
+Received: from sorrow.cyrius.com ([65.19.161.204]:59922 "EHLO
+	sorrow.cyrius.com") by vger.kernel.org with ESMTP id S1751218AbWITMtq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Sep 2006 08:49:46 -0400
+Date: Wed, 20 Sep 2006 14:49:08 +0200
+From: Martin Michlmayr <tbm@cyrius.com>
+To: linux-kernel@vger.kernel.org, linux-arm-kernel@lists.arm.linux.org.uk
+Subject: AUDIT=y build failure on ARM
+Message-ID: <20060920124908.GA30389@deprecation.cyrius.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060917160705.GB6326@suse.de>
-X-Editor: vi
-X-Info: http://krystal.dyndns.org:8080
-X-Operating-System: Linux/2.4.32-grsec (i686)
-X-Uptime: 08:18:34 up 28 days,  9:27,  2 users,  load average: 0.07, 0.55, 0.78
-User-Agent: Mutt/1.5.13 (2006-08-11)
+User-Agent: Mutt/1.5.11+cvs20060403
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Greg KH (gregkh@suse.de) wrote:
-> On Sat, Sep 16, 2006 at 03:51:03AM -0400, Mathieu Desnoyers wrote:
-> > 1 - DebugFS stalled dentry patch
-> > DebugFS seems to keep a stalled dentry when a process is in a directory that is
-> > being removed. Force a differed deletion.
-> > patch-2.6.17-lttng-core-0.5.111-debugfs.diff
-> > 
-> > 
-> > OpenPGP public key:              http://krystal.dyndns.org:8080/key/compudj.gpg
-> > Key fingerprint:     8CD5 52C3 8E3C 4140 715F  BA06 3F25 A8FE 3BAE 9A68 
-> 
-> > --- a/fs/debugfs/inode.c
-> > +++ b/fs/debugfs/inode.c
-> > @@ -266,6 +266,7 @@ EXPORT_SYMBOL_GPL(debugfs_create_dir);
-> >  void debugfs_remove(struct dentry *dentry)
-> >  {
-> >  	struct dentry *parent;
-> > +	int ret = 0;
-> >  	
-> >  	if (!dentry)
-> >  		return;
-> > @@ -278,9 +279,10 @@ void debugfs_remove(struct dentry *dentr
-> >  	if (debugfs_positive(dentry)) {
-> >  		if (dentry->d_inode) {
-> >  			if (S_ISDIR(dentry->d_inode->i_mode))
-> > -				simple_rmdir(parent->d_inode, dentry);
-> > +				ret = simple_rmdir(parent->d_inode, dentry);
-> >  			else
-> > -				simple_unlink(parent->d_inode, dentry);
-> > +				ret = simple_unlink(parent->d_inode, dentry);
-> > +			if(ret) d_delete(dentry);
-> 
-> Are you saying that perhaps all other users of simple_unlink() are also
-> broken like this?  If so, why not just fix simple_unlink()?
-> 
+I get the build failure below with AUDIT=y on ARM.  The problem is
+that lib/audit.c includes asm-generic/audit_dir_write.h which lists a
+number of syscalls that are not defined on ARM (and some other platforms).
 
-I don't think that libfs is fundamentally broken, as simple_unlink always
-returns 0 but simple_rmdir may fail if !simple_empty(dentry). I think that the
-decision of what to do in such situation is "simply" left to the caller.
+What's the right fix for this?  I don't think I saw this problem with
+2.6.18-rc7 but on the other hand I cannot see any relevant changes
+since then.
 
-But you probably know more than I do on that matter.
+The failure is:
 
-Mathieu
+  CC      lib/audit.o
+In file included from lib/audit.c:7:
+include/asm-generic/audit_dir_write.h:9: error: '__NR_mkdirat' undeclared here (not in a function)
+include/asm-generic/audit_dir_write.h:10: error: '__NR_mknodat' undeclared here (not in a function)
+include/asm-generic/audit_dir_write.h:11: error: '__NR_unlinkat' undeclared here (not in a function)
+include/asm-generic/audit_dir_write.h:12: error: '__NR_renameat' undeclared here (not in a function)
+include/asm-generic/audit_dir_write.h:13: error: '__NR_linkat' undeclared here (not in a function)
+include/asm-generic/audit_dir_write.h:14: error: '__NR_symlinkat' undeclared here (not in a function)
+...
+In file included from lib/audit.c:22:
+include/asm-generic/audit_change_attr.h:12: error: '__NR_fchownat' undeclared here (not in a function)
+include/asm-generic/audit_change_attr.h:12: error: initializer element is not constant
+include/asm-generic/audit_change_attr.h:12: error: (near initialization for 'chattr_class[11]')
+include/asm-generic/audit_change_attr.h:13: error: '__NR_fchmodat' undeclared here (not in a function)
+include/asm-generic/audit_change_attr.h:13: error: initializer element is not constant
+include/asm-generic/audit_change_attr.h:13: error: (near initialization for 'chattr_class[12]')
+lib/audit.c: In function 'audit_classify_syscall':
+lib/audit.c:31: error: '__NR_openat' undeclared (first use in this function)
+lib/audit.c:31: error: (Each undeclared identifier is reported only once
+lib/audit.c:31: error: for each function it appears in.)
+make[5]: *** [lib/audit.o] Error 1
 
-
-
-OpenPGP public key:              http://krystal.dyndns.org:8080/key/compudj.gpg
-Key fingerprint:     8CD5 52C3 8E3C 4140 715F  BA06 3F25 A8FE 3BAE 9A68 
+-- 
+Martin Michlmayr
+http://www.cyrius.com/

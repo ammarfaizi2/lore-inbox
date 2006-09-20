@@ -1,86 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932201AbWITSUL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932207AbWITSX2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932201AbWITSUL (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Sep 2006 14:20:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932204AbWITSUL
+	id S932207AbWITSX2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Sep 2006 14:23:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932202AbWITSX2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Sep 2006 14:20:11 -0400
-Received: from smtp-out.google.com ([216.239.45.12]:11723 "EHLO
-	smtp-out.google.com") by vger.kernel.org with ESMTP id S932201AbWITSUJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Sep 2006 14:20:09 -0400
-DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
-	h=received:subject:from:reply-to:to:cc:in-reply-to:references:
-	content-type:organization:date:message-id:mime-version:x-mailer:content-transfer-encoding;
-	b=MzRBFFrIpGDR97e/dm1oDti3pYLWpsyIQhjfvwRBSbTjR7aLRxXQhaFnIbv2OprDo
-	HXyEr4rT0cP3F2Atd9q8w==
-Subject: Re: [patch02/05]: Containers(V2)- Generic Linux kernel changes
-From: Rohit Seth <rohitseth@google.com>
-Reply-To: rohitseth@google.com
-To: Andi Kleen <ak@suse.de>
-Cc: CKRM-Tech <ckrm-tech@lists.sourceforge.net>, devel@openvz.org,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <200609202014.48815.ak@suse.de>
-References: <1158718722.29000.50.camel@galaxy.corp.google.com>
-	 <p7364fikcbe.fsf@verdi.suse.de>
-	 <1158770670.8574.26.camel@galaxy.corp.google.com>
-	 <200609202014.48815.ak@suse.de>
-Content-Type: text/plain
-Organization: Google Inc
-Date: Wed, 20 Sep 2006 11:19:37 -0700
-Message-Id: <1158776378.8574.95.camel@galaxy.corp.google.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
-Content-Transfer-Encoding: 7bit
+	Wed, 20 Sep 2006 14:23:28 -0400
+Received: from vms048pub.verizon.net ([206.46.252.48]:24261 "EHLO
+	vms048pub.verizon.net") by vger.kernel.org with ESMTP
+	id S932204AbWITSX1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Sep 2006 14:23:27 -0400
+Date: Wed, 20 Sep 2006 14:23:18 -0400
+From: Gene Heskett <gene.heskett@verizon.net>
+Subject: Re: 2.6.18-rt1
+In-reply-to: <1158774118.29177.13.camel@c-67-180-230-165.hsd1.ca.comcast.net>
+To: linux-kernel@vger.kernel.org
+Message-id: <200609201423.18915.gene.heskett@verizon.net>
+Organization: Organization? Absolutely zip.
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+Content-disposition: inline
+References: <20060920141907.GA30765@elte.hu> <20060920173858.GB1292@us.ibm.com>
+ <1158774118.29177.13.camel@c-67-180-230-165.hsd1.ca.comcast.net>
+User-Agent: KMail/1.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-09-20 at 20:14 +0200, Andi Kleen wrote:
-> On Wednesday 20 September 2006 18:44, Rohit Seth wrote:
-> > On Wed, 2006-09-20 at 13:27 +0200, Andi Kleen wrote:
-> > > Rohit Seth <rohitseth@google.com> writes:
-> > > >  					 */
-> > > > +#ifdef CONFIG_CONTAINERS
-> > > > +	struct container_struct *ctn; /* Pointer to container, may be NULL */
-> > > > +#endif
-> > > 
-> > > I still don't think it's a good idea to add a pointer to struct page for this.
-> > 
-> > I thought last time you supported adding a pointer to struct page (when
-> > you mentioned next gen slab will also consume page->mapping).  
-> 
-> I didn't. Alternative was a separate data structure.
-> 
-> > which one...I think the fields in page structure are already getting
-> > doubly used. 
-> 
-> There are lots of different cases. At least for anonymous memory 
-> ->mapping should be free. Perhaps that could be used for anonymous
-> memory and a separate data structure for the important others.
-> 
+On Wednesday 20 September 2006 13:41, Daniel Walker wrote:
 
-It is not free for anonymous memory as it is overloaded with pointer to
-anon_vma.  I think one single pointer consistent across all page usages
-is just so much cleaner and simple...
+[...]
 
-> slab should have at least one field free too, although it might be a different
-> one (iirc Christoph's rewrite uses more than the current slab, but it would
-> surprise me if he needed all) 
->  
-> > > BTW your patchkit seems to be also in wrong order in that when 02 is applied
-> > > it won't compile.
-> > 
-> > Not sure if I understood that.  I've myself tested these patches on
-> > 2.6.18-rc6-mm2 kernel and they apply just fine.  Are you just trying to
-> > apply 02....if so then that wouldn't suffice.
-> 
-> I meant assuming the patchkit was applied you would break binary search
-> inbetween because not each piece compiles on its own.
+>Ingo actually updated with a similar fix , in
+>
+>http://people.redhat.com/~mingo/realtime-preempt/patch-2.6.18-rt2
+>
+>Daniel
 
+And that built, but I haven't rebooted yet, thats next.
 
-I've currently separated the patches based on where the changes are made
-and something that makes each a logical block.  I will reorder the
-patches next time so that each subsequent patch compiles.
-
--rohit
-
+-- 
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+Yahoo.com and AOL/TW attorneys please note, additions to the above
+message by Gene Heskett are:
+Copyright 2006 by Maurice Eugene Heskett, all rights reserved.

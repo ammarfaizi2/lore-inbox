@@ -1,59 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751551AbWIUUmw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751455AbWIUUth@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751551AbWIUUmw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Sep 2006 16:42:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751543AbWIUUmw
+	id S1751455AbWIUUth (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Sep 2006 16:49:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750790AbWIUUth
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Sep 2006 16:42:52 -0400
-Received: from caffeine.uwaterloo.ca ([129.97.134.17]:51870 "EHLO
-	caffeine.csclub.uwaterloo.ca") by vger.kernel.org with ESMTP
-	id S1750834AbWIUUmv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Sep 2006 16:42:51 -0400
-Date: Thu, 21 Sep 2006 16:42:50 -0400
-To: Dax Kelson <dax@gurulabs.com>
-Cc: Linux kernel <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: Smaller compressed kernel source tarballs?
-Message-ID: <20060921204250.GN13641@csclub.uwaterloo.ca>
-References: <1158870777.24172.23.camel@mentorng.gurulabs.com>
-Mime-Version: 1.0
+	Thu, 21 Sep 2006 16:49:37 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:29449 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S1751455AbWIUUtg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Sep 2006 16:49:36 -0400
+Date: Thu, 21 Sep 2006 22:49:29 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Jeff Garzik <jeff@garzik.org>
+Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.19 -mm merge plans
+Message-ID: <20060921204929.GS31906@stusta.de>
+References: <20060920135438.d7dd362b.akpm@osdl.org> <45121382.1090403@garzik.org> <20060920220744.0427539d.akpm@osdl.org> <1158830206.11109.84.camel@localhost.localdomain> <Pine.LNX.4.64.0609210819170.4388@g5.osdl.org> <20060921105959.a55efb5f.akpm@osdl.org> <Pine.LNX.4.64.0609211106391.4388@g5.osdl.org> <4512DB05.2090604@garzik.org> <20060921194604.GQ31906@stusta.de> <4512F83D.7010100@garzik.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1158870777.24172.23.camel@mentorng.gurulabs.com>
-User-Agent: Mutt/1.5.9i
-From: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: lsorense@csclub.uwaterloo.ca
-X-SA-Exim-Scanned: No (on caffeine.csclub.uwaterloo.ca); SAEximRunCond expanded to false
+In-Reply-To: <4512F83D.7010100@garzik.org>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 21, 2006 at 02:32:57PM -0600, Dax Kelson wrote:
-> Today as I was watching the linux-2.6.18.tar.bz2 slowly download I
-> thought it would be nice if it could be made smaller.
+On Thu, Sep 21, 2006 at 04:38:21PM -0400, Jeff Garzik wrote:
+> Adrian Bunk wrote:
+> >Not all of them are regressions, but this shows that users are testing 
+> >-rc kernels and reporting bugs.
 > 
-> The 7zip program/algorithm is free software (LGPL) and can be obtained
-> from http://www.7-zip.org/ and it is distributed with several
-> distributions (it is in Fedora Core 6 extras for example).
 > 
-> Here are the numbers:
-> 
-> ls -al
-> -rw-r--r--  1 root root 240138240 Sep 21 13:55 linux-2.6.18.tar
-> -rw-r--r--  1 root root  34180796 Sep 21 13:42 linux-2.6.18.tar.7z
-> -rw-r--r--  1 root root  41863580 Sep 21 13:45 linux-2.6.18.tar.bz2
-> -rw-r--r--  1 root root  52467357 Sep 21 13:13 linux-2.6.18.tar.gz
-> 
-> ls -alh
-> -rw-r--r--  1 root root 230M Sep 21 13:55 linux-2.6.18.tar
-> -rw-r--r--  1 root root  33M Sep 21 13:42 linux-2.6.18.tar.7z
-> -rw-r--r--  1 root root  40M Sep 21 13:45 linux-2.6.18.tar.bz2
-> -rw-r--r--  1 root root  51M Sep 21 13:13 linux-2.6.18.tar.gz
-> 
-> Smaller the better, especially with the international audience.
+> I never claimed otherwise.  But every release turns up plenty of bugs 
+> that are otherwise uncaught, because its inevitable that a much larger 
+> set of users tests the full releases.
 
-But after you download it once, you can just get the diff next time.
-How is the decompression time on 7zip versus bzip2 and gzip?
+My point is that we don't lack testers and bug reports - we lack people 
+fixing bugs.
 
---
-Len Sorensen
+> 	Jeff
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

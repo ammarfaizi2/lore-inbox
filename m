@@ -1,181 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750912AbWIUBC7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750913AbWIUBKj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750912AbWIUBC7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Sep 2006 21:02:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750910AbWIUBC7
+	id S1750913AbWIUBKj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Sep 2006 21:10:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750914AbWIUBKj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Sep 2006 21:02:59 -0400
-Received: from mail0.lsil.com ([147.145.40.20]:19651 "EHLO mail0.lsil.com")
-	by vger.kernel.org with ESMTP id S1750899AbWIUBC6 (ORCPT
+	Wed, 20 Sep 2006 21:10:39 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:52125 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1750911AbWIUBKi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Sep 2006 21:02:58 -0400
-Subject: [Patch 4/7] megaraid_sas: adds reboot handler
-From: Sumant Patro <sumantp@lsil.com>
-To: James.Bottomley@SteelEye.com, linux-scsi@vger.kernel.org
-Cc: akpm@osdl.org, hch@lst.de, linux-kernel@vger.kernel.org,
-       Neela.Kolli@lsil.com, Bo.Yang@lsil.com
-Content-Type: multipart/mixed; boundary="=-R6HCLmdY/wtImRhpIp5v"
-Date: Wed, 20 Sep 2006 19:02:51 -0700
-Message-Id: <1158804171.4171.51.camel@dumbo>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-22) 
+	Wed, 20 Sep 2006 21:10:38 -0400
+Date: Wed, 20 Sep 2006 18:10:33 -0700 (PDT)
+From: Christoph Lameter <clameter@sgi.com>
+To: "Martin J. Bligh" <mbligh@mbligh.org>
+cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Christoph Lameter <clameter@engr.sgi.com>
+Subject: Re: ZONE_DMA
+In-Reply-To: <4511E1CA.6090403@mbligh.org>
+Message-ID: <Pine.LNX.4.64.0609201804320.2844@schroedinger.engr.sgi.com>
+References: <20060920135438.d7dd362b.akpm@osdl.org> <4511D855.7050100@mbligh.org>
+ <20060920172253.f6d11445.akpm@osdl.org> <4511E1CA.6090403@mbligh.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 20 Sep 2006, Martin J. Bligh wrote:
 
---=-R6HCLmdY/wtImRhpIp5v
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
+> Having something that's used in generic code that means random
+> things on different arches just seems like a recipe for disaster
+> to me.
 
-This patch adds handler to get reboot notification and fires flush command from 
-the reboot notification handler. 
+ZONE_DMA is only used as ZONE_NORMAL if the architecture does not 
+need ZONE_NORMAL because all of memory is reachable via DMA.
 
-Signed-off-by: Sumant Patro <Sumant.Patro@lsil.com>
+> OK ... but requesting ZONE_DMA means what? DMAable for which device?
+> Is it always a floppy disk? on some platforms a PCI card? And how
+> is the VM meant to know what the device is capable of anyway?
 
+I already explained that twice to you. I think we all agree that the 
+situation could be better.
 
-diff -uprN linux-2.6orig/drivers/scsi/megaraid/megaraid_sas.c linux-2.6new/drivers/scsi/megaraid/megaraid_sas.c
---- linux-2.6orig/drivers/scsi/megaraid/megaraid_sas.c 2006-09-20 11:04:34.000000000 -0700
-+++ linux-2.6new/drivers/scsi/megaraid/megaraid_sas.c 2006-09-20 11:05:52.000000000 -0700
-@@ -36,6 +36,8 @@
- #include <linux/fs.h>
- #include <linux/compat.h>
- #include <linux/mutex.h>
-+#include <linux/reboot.h>
-+#include <linux/notifier.h>
- 
- #include <scsi/scsi.h>
- #include <scsi/scsi_cmnd.h>
-@@ -2351,6 +2353,36 @@ static void megasas_flush_cache(struct m
- }
- 
- /**
-+ * megasas_reboot_notify- Flush adapter cache
-+ * @this:   Our notifier block
-+ * @code:   The event notified
-+ * @unused:   Unused
-+ */
-+static int
-+megasas_reboot_notify (struct notifier_block *this, unsigned long code,
-+  void *unused)
-+{
-+	struct megasas_instance *instance;
-+	int i;
-+
-+	for (i = 0; i < megasas_mgmt_info.max_index; i++) {
-+		instance = megasas_mgmt_info.instance[i];
-+		if (instance) {
-+			megasas_flush_cache(instance);
-+		}
-+	}
-+
-+	return NOTIFY_DONE;
-+}
-+
-+/**
-+ * notifier block to get notification on system halt/reboot/shutdown/power off
-+ */
-+static struct notifier_block megasas_notifier = {
-+	.notifier_call = megasas_reboot_notify
-+};
-+
-+/**
-  * megasas_shutdown_controller -	Instructs FW to shutdown the controller
-  * @instance:				Adapter soft state
-  */
-@@ -2903,6 +2935,10 @@ static int __init megasas_init(void)
- 	driver_create_file(&megasas_pci_driver.driver,
- 			   &driver_attr_release_date);
- 
-+	if(register_reboot_notifier(&megasas_notifier)) {
-+		printk("megasas: reboot notify routine registration failed!!\n");
-+	}
-+
- 	return rval;
- }
- 
-@@ -2917,6 +2953,7 @@ static void __exit megasas_exit(void)
- 
-  pci_unregister_driver(&megasas_pci_driver);
-  unregister_chrdev(megasas_mgmt_majorno, "megaraid_sas_ioctl");
-+ unregister_reboot_notifier(&megasas_notifier);
- }
- 
- module_init(megasas_init);
+> Having an arch-specific definition of the limit is arbitrary and
+> useless, is it not? The limit is imposed by the device and its
+> driver, we're not communicating it into any sensible way into the
+> VM code, AFAICS. Unless we're pretending we never call it from
+> generic code, which seems woefully unlikely to me.
 
+Its bad but its not useless. See how various arches use it.
 
---=-R6HCLmdY/wtImRhpIp5v
-Content-Disposition: attachment; filename=reboot_noti-p4.patch
-Content-Type: text/x-patch; name=reboot_noti-p4.patch; charset=UTF-8
-Content-Transfer-Encoding: 7bit
+> Are we redefining ZONE_DMA to always be 16MB limit across all
+> architectures? At least that'd be consistent.
 
-diff -uprN linux-2.6orig/drivers/scsi/megaraid/megaraid_sas.c linux-2.6new/drivers/scsi/megaraid/megaraid_sas.c
---- linux-2.6orig/drivers/scsi/megaraid/megaraid_sas.c	2006-09-20 11:04:34.000000000 -0700
-+++ linux-2.6new/drivers/scsi/megaraid/megaraid_sas.c	2006-09-20 11:05:52.000000000 -0700
-@@ -36,6 +36,8 @@
- #include <linux/fs.h>
- #include <linux/compat.h>
- #include <linux/mutex.h>
-+#include <linux/reboot.h>
-+#include <linux/notifier.h>
- 
- #include <scsi/scsi.h>
- #include <scsi/scsi_cmnd.h>
-@@ -2351,6 +2353,36 @@ static void megasas_flush_cache(struct m
- }
- 
- /**
-+ * megasas_reboot_notify-	Flush adapter cache
-+ * @this:			Our notifier block
-+ * @code:			The event notified
-+ * @unused:			Unused
-+ */
-+static int
-+megasas_reboot_notify (struct notifier_block *this, unsigned long code,
-+		void *unused)
-+{
-+	struct megasas_instance *instance;
-+	int i;
-+
-+	for (i = 0; i < megasas_mgmt_info.max_index; i++) {
-+		instance = megasas_mgmt_info.instance[i];
-+		if (instance) {
-+			megasas_flush_cache(instance);
-+		}
-+	}
-+
-+	return NOTIFY_DONE;
-+}
-+
-+/**
-+ * notifier block to get notification on system halt/reboot/shutdown/power off
-+ */
-+static struct notifier_block megasas_notifier = {
-+	.notifier_call = megasas_reboot_notify
-+};
-+
-+/**
-  * megasas_shutdown_controller -	Instructs FW to shutdown the controller
-  * @instance:				Adapter soft state
-  */
-@@ -2903,6 +2935,10 @@ static int __init megasas_init(void)
- 	driver_create_file(&megasas_pci_driver.driver,
- 			   &driver_attr_release_date);
- 
-+	if(register_reboot_notifier(&megasas_notifier)) {
-+		printk("megasas: reboot notify routine registration failed!!\n");
-+	}
-+
- 	return rval;
- }
- 
-@@ -2917,6 +2953,7 @@ static void __exit megasas_exit(void)
- 
- 	pci_unregister_driver(&megasas_pci_driver);
- 	unregister_chrdev(megasas_mgmt_majorno, "megaraid_sas_ioctl");
-+	unregister_reboot_notifier(&megasas_notifier);
- }
- 
- module_init(megasas_init);
+That wont work because many architectures use different limits. Maybe you 
+should once in a while have a look at the sources.
 
---=-R6HCLmdY/wtImRhpIp5v--
+The patchset leaves the semantics of ZONE_DMA as memory beyond 
+MAX_DMA_ADDRESS as is. Nothing should break. It only allows us to opt out 
+of this scheme if we do not need it.
 

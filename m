@@ -1,52 +1,115 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932066AbWIUWcS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932069AbWIUWdr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932066AbWIUWcS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Sep 2006 18:32:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932069AbWIUWcS
+	id S932069AbWIUWdr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Sep 2006 18:33:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932075AbWIUWdr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Sep 2006 18:32:18 -0400
-Received: from warden-p.diginsite.com ([208.29.163.248]:61655 "HELO
-	warden.diginsite.com") by vger.kernel.org with SMTP id S932066AbWIUWcR
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Sep 2006 18:32:17 -0400
-Date: Thu, 21 Sep 2006 15:20:24 -0700 (PDT)
-From: David Lang <dlang@digitalinsight.com>
-X-X-Sender: dlang@dlang.diginsite.com
-To: Sean <seanlkml@sympatico.ca>
-cc: Dax Kelson <dax@gurulabs.com>,
-       Lennart Sorensen <lsorense@csclub.uwaterloo.ca>,
-       Linux kernel <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: Smaller compressed kernel source tarballs?
-In-Reply-To: <BAYC1-PASMTP04A6968C3ABEA48C9AD2E5AE200@CEZ.ICE>  <20060921182554.23044ca3.seanlkml@sympatico.ca>
-Message-ID: <Pine.LNX.4.63.0609211517380.17238@qynat.qvtvafvgr.pbz>
-References: <1158870777.24172.23.camel@mentorng.gurulabs.com><20060921204250
- .GN13641@csclub.uwaterloo.ca><20060921171747.9ae2b42e.seanlkml@sympatico.ca
- ><1158874875.24172.47.camel@mentorng.gurulabs.com><BAYC1-PASMTP025A72C81CFE
- 009C3BB5A5AE200@CEZ.ICE><20060921175717.272c58ee.seanlkml@sympatico.ca><Pin
- e.LNX.4.63.0609211455570.17238@qynat.qvtvafvgr.pbz>
- <BAYC1-PASMTP04A6968C3ABEA48C9AD2E5AE200@CEZ.ICE> 
- <20060921182554.23044ca3.seanlkml@sympatico.ca>
+	Thu, 21 Sep 2006 18:33:47 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:62379 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932069AbWIUWdq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Sep 2006 18:33:46 -0400
+Message-ID: <45131334.6050803@sandeen.net>
+Date: Thu, 21 Sep 2006 17:33:24 -0500
+From: Eric Sandeen <sandeen@sandeen.net>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       xfs mailing list <xfs@oss.sgi.com>
+Subject: [PATCH -mm] rescue large xfs preferred iosize from the inode diet
+ patch
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 21 Sep 2006, Sean wrote:
+The inode diet patch in -mm unhooked xfs_preferred_iosize from the stat call:
 
->> also people could be behind a firewall that prevents git from working properly,
->> for them tarballs and patches are the right way of doing things.
->
-> I use git from behind a firewall everyday without a problem.  If you've seen
-> such a problem yourself, a bug report would hopefully lead to a solution.
+--- a/fs/xfs/linux-2.6/xfs_vnode.c
++++ b/fs/xfs/linux-2.6/xfs_vnode.c
+@@ -122,7 +122,6 @@ vn_revalidate_core(
+        inode->i_blocks     = vap->va_nblocks;
+        inode->i_mtime      = vap->va_mtime;
+        inode->i_ctime      = vap->va_ctime;
+-       inode->i_blksize    = vap->va_blocksize;
+        if (vap->va_xflags & XFS_XFLAG_IMMUTABLE)
 
-it's not a bug, it's simply the fact that git (properly) uses it's own port for 
-it's own protocol, and not all firewalls allow access to that port. in some 
-cases even where a person would have the ability to get the firewall changed 
-they may not want to for other (political) reasons.
+This in turn breaks the largeio mount option for xfs:
 
-even if git tunneled over HTTP there would be firewalls that would require 
-authentication that git wouldn't be able to do and would therefor block the 
-access.
+  largeio/nolargeio
+        If "nolargeio" is specified, the optimal I/O reported in
+        st_blksize by stat(2) will be as small as possible to allow user
+        applications to avoid inefficient read/modify/write I/O.
+        If "largeio" specified, a filesystem that has a "swidth" specified
+        will return the "swidth" value (in bytes) in st_blksize. If the
+        filesystem does not have a "swidth" specified but does specify
+        an "allocsize" then "allocsize" (in bytes) will be returned
+        instead.
+        If neither of these two options are specified, then filesystem
+        will behave as if "nolargeio" was specified.
 
-David Lang
+and the (undocumented?) allocsize mount option as well.
+
+For a filesystem like this with sunit/swidth specified,
+
+meta-data=/dev/sda1              isize=512    agcount=32, agsize=7625840 blks
+         =                       sectsz=512   attr=0
+data     =                       bsize=4096   blocks=244026880, imaxpct=25
+         =                       sunit=16     swidth=16 blks, unwritten=1
+naming   =version 2              bsize=4096
+log      =internal               bsize=4096   blocks=32768, version=1
+         =                       sectsz=512   sunit=0 blks
+realtime =none                   extsz=65536  blocks=0, rtextents=0
+
+stat on a stock FC6 kernel w/ the largeio mount option returns only the page size:
+
+[root@link-07]# mount -o largeio /dev/sda1 /mnt/test/
+[root@link-07]# stat -c %o /mnt/test/foo
+4096
+
+with the following patch, it does what it should:
+
+[root@link-07]# mount -o largeio /dev/sda1 /mnt/test/
+[root@link-07]# stat -c %o /mnt/test/foo
+65536
+
+same goes for filesystems w/o sunit,swidth but with the allocsize mount option.
+
+stock:
+[root@link-07]# mount -o largeio,allocsize=32768 /dev/sda1 /mnt/test/
+[root@link-07]# stat -c %o /mnt/test/foo
+4096
+
+w/ patch:
+[root@link-07# mount -o largeio,allocsize=32768 /dev/sda1 /mnt/test/
+[root@link-07]# stat -c %o /mnt/test/foo
+32768
+
+Signed-off-by: Eric Sandeen <sandeen@sandeen.net>
+
+XFS guys, does this look ok?
+
+Index: linux-2.6.18/fs/xfs/linux-2.6/xfs_iops.c
+===================================================================
+--- linux-2.6.18.orig/fs/xfs/linux-2.6/xfs_iops.c
++++ linux-2.6.18/fs/xfs/linux-2.6/xfs_iops.c
+@@ -623,12 +623,16 @@ xfs_vn_getattr(
+ {
+ 	struct inode	*inode = dentry->d_inode;
+ 	bhv_vnode_t	*vp = vn_from_inode(inode);
++	xfs_inode_t	*ip;
+ 	int		error = 0;
+ 
+ 	if (unlikely(vp->v_flag & VMODIFIED))
+ 		error = vn_revalidate(vp);
+-	if (!error)
++	if (!error) {
+ 		generic_fillattr(inode, stat);
++		ip = xfs_vtoi(vp);
++		stat->blksize = xfs_preferred_iosize(ip->i_mount);
++	}
+ 	return -error;
+ }
+ 
+
+

@@ -1,101 +1,125 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750841AbWIUO34@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751054AbWIUOlo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750841AbWIUO34 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Sep 2006 10:29:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750855AbWIUO3z
+	id S1751054AbWIUOlo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Sep 2006 10:41:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751058AbWIUOlo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Sep 2006 10:29:55 -0400
-Received: from mail04.syd.optusnet.com.au ([211.29.132.185]:15305 "EHLO
-	mail04.syd.optusnet.com.au") by vger.kernel.org with ESMTP
-	id S1750870AbWIUO3z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Sep 2006 10:29:55 -0400
-From: Con Kolivas <kernel@kolivas.org>
-To: ck mailing list <ck@vds.kolivas.org>,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>
-Subject: 2.6.18-ck1
-Date: Fri, 22 Sep 2006 00:29:46 +1000
-User-Agent: KMail/1.9.1
-MIME-Version: 1.0
-Message-Id: <200609220029.49464.kernel@kolivas.org>
-X-Length: 2613
-Content-Type: multipart/signed;
-  boundary="nextPart23182647.TTsGmmqpsy";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+	Thu, 21 Sep 2006 10:41:44 -0400
+Received: from ppsw-0.csi.cam.ac.uk ([131.111.8.130]:41427 "EHLO
+	ppsw-0.csi.cam.ac.uk") by vger.kernel.org with ESMTP
+	id S1751009AbWIUOlo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Sep 2006 10:41:44 -0400
+X-Cam-SpamDetails: Not scanned
+X-Cam-AntiVirus: No virus found
+X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
+Subject: Re: Fw: 2.6.17 oops, possibly ntfs/mmap related
+From: Anton Altaparmakov <aia21@cam.ac.uk>
+To: Jonathan Woithe <jwoithe@physics.adelaide.edu.au>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+In-Reply-To: <1158832483.5958.7.camel@imp.csi.cam.ac.uk>
+References: <20060912205602.57568b2a.akpm@osdl.org>
+	 <1158832483.5958.7.camel@imp.csi.cam.ac.uk>
+Content-Type: text/plain
+Organization: Computing Service, University of Cambridge, UK
+Date: Thu, 21 Sep 2006 15:41:36 +0100
+Message-Id: <1158849696.5958.39.camel@imp.csi.cam.ac.uk>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.0 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart23182647.TTsGmmqpsy
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Hi,
 
-This patchset is designed to improve system responsiveness and interactivit=
-y.=20
-It is configurable to any workload but the default -ck patch is aimed at th=
-e=20
-desktop and -cks is available with more emphasis on serverspace.
+On Thu, 2006-09-21 at 10:54 +0100, Anton Altaparmakov wrote:
+> On Tue, 2006-09-12 at 20:56 -0700, Andrew Morton wrote:
+> Andrew, thanks for forwarding me the message...
+> > Begin forwarded message:
+> > 
+> > We have a machine which is currently making heavy use of a usb hard disc
+> > formatted with ntfs.  There have been two occasions where the kernel has
+> > oopsed while this disc was being accessed heavily.  Before adding this HDD
+> > the machine in question was rock solid which leads me to think that it
+> > might be related to ntfs.  USB drives formatted with other filesystems do
+> > not appear to suffer from this problem.
 
-Apply to 2.6.18
-http://www.kernel.org/pub/linux/kernel/people/ck/patches/2.6/2.6.18/2.6.18-=
-ck1/patch-2.6.18-ck1.bz2
+I have now seen such an oops too with 2.6.18 kernel.  Note no NTFS file
+systems were mounted at the time (but I had an NTFS file system mounted
+earlier in the day).
 
-or server version
-http://www.kernel.org/pub/linux/kernel/people/ck/patches/cks/patch-2.6.18-c=
-ks1.bz2
+The oops is caused by kswapd0 kernel thread, the stack trace is:
 
-web:
-http://kernel.kolivas.org
+Call Trace:
+ [<c10470a3>] shrink_inactive_list+0x46b/0x790
+ [<c104747c>] shrink_zone+0xb4/0xd3
+ [<c104797d>] kswapd+0x2de/0x3cf
+ [<c102c18e>] kthread+0xc2/0xf0
+ [<c1000bf1>] kernel_thread_helper+0x5/0xb
+DWARF2 unwinder stuck at kernel_thread_helper+0x5/0xb
+Leftover inexact backtrace:
+ [<c1003e6c>] show_stack_log_lvl+0x8c/0x97
+ [<c1003fc8>] show_registers+0x151/0x1c6
+ [<c10041af>] die+0x172/0x27b
+ [<c145f22c>] do_page_fault+0x42c/0x4f9
+ [<c10037dd>] error_code+0x39/0x40
+ [<c10470a3>] shrink_inactive_list+0x46b/0x790
+ [<c104747c>] shrink_zone+0xb4/0xd3
+ [<c104797d>] kswapd+0x2de/0x3cf
+ [<c102c18e>] kthread+0xc2/0xf0
+ [<c1000bf1>] kernel_thread_helper+0x5/0xb
 
-all patches:
-http://www.kernel.org/pub/linux/kernel/people/ck/patches/
+And the EIP is at fs/buffer.c::try_to_release_page() the code of which
+is here:
 
-Split patches available.
+int try_to_release_page(struct page *page, gfp_t gfp_mask)
+{
+        struct address_space * const mapping = page->mapping;
 
-=46ull patchlist:
+        BUG_ON(!PageLocked(page));
+        if (PageWriteback(page))
+                return 0;
 
-sched-staircase-16.2.patch
-sched-staircase16_interactive_tunable.patch
-sched-staircase16_compute_tunable.patch
-sched-range.patch
-sched-iso-4.6.patch
-track_mutexes-1.patch
-sched-idleprio-1.11.patch
-sched-limit_policy_changes.patch
-cfq-ioprio_inherit_rt_class.patch
-cfq-iso_idleprio_ionice.patch
-hz-default_1000.patch=20
-hz-no_default_250.patch=20
-sched-add-above-background-load-function.patch
-mm-swap_prefetch-33.patch=20
-mm-convert_swappiness_to_mapped.patch=20
-mm-lots_watermark.diff=20
-mm-kswapd_inherit_prio-1.patch=20
-mm-prio_dependant_scan-1.patch=20
-mm-background_scan-2.patch
-mm-idleprio_prio.patch
-mm-decrease_minimum_dirty_ratio.patch
-mm-set_zero_dirty_ratio.patch
-mm-filesize_dependant_lru_cache_add.patch
-kconfig-expose_vmsplit_option.patch
-ck1-version.patch
+        if (mapping && mapping->a_ops->releasepage)
 
-=E6=A5=BD=E3=81=97=E3=81=BF=E3=81=AA=E3=81=95=E3=81=84
+^^^ bug happens here when the value of mapping->a_ops is used to obtain
+mapping->a_ops->releasepage
 
-=2D-=20
-=2Dck
+                return mapping->a_ops->releasepage(page, gfp_mask);
+        return try_to_free_buffers(page);
+}
 
---nextPart23182647.TTsGmmqpsy
-Content-Type: application/pgp-signature
+This bug seems to suggest that there is a page which the kernel is
+trying to release private data which has page->mapping set to a valid
+value and page->mapping->a_ops apparently set to an invalid value and
+when page->mapping->a_ops->releasepage is dereferenced it causes an oops
+with the kernel saying:
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
+BUG: unable to handle kernel paging request at virtual address 020030d2
 
-iD8DBQBFEqHdZUg7+tp6mRURAgMMAJ9mnht0j6LXyFXyDfU3plnkbj7GbwCeO9qk
-AffR7bo2o7gvBUWcrSfc4oc=
-=9vxD
------END PGP SIGNATURE-----
+The values of the relevant variables from the oops are:
 
---nextPart23182647.TTsGmmqpsy--
+page = 0xc2248fa0
+page->mapping = 0xe3a79eac
+page->mapping->a_ops = 0x020030aa
+
+Note that 0x020030aa+0x28 = 020030d2 which is the oops causing address
+and 0x28 is the offset of the releasepage function pointer in the
+address space operations structure...
+
+This oops is not identical to the oopses pointed out by Jonathan at:
+
+http://www.atrad.com.au/~jwoithe/kernel/oopses-20060913.txt
+
+But those oopses have to do with pages also so could be related...
+
+Anyone have any ideas how a page can end up in such a weird state?
+
+Best regards,
+
+        Anton
+-- 
+Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
+Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
+Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
+WWW: http://www.linux-ntfs.org/ & http://www-stu.christs.cam.ac.uk/~aia21/
+

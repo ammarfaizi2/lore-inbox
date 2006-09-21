@@ -1,69 +1,128 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750899AbWIUHTZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750903AbWIUHT7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750899AbWIUHTZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Sep 2006 03:19:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750902AbWIUHTZ
+	id S1750903AbWIUHT7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Sep 2006 03:19:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750910AbWIUHT7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Sep 2006 03:19:25 -0400
-Received: from adsl-69-232-92-238.dsl.sndg02.pacbell.net ([69.232.92.238]:15041
-	"EHLO gnuppy.monkey.org") by vger.kernel.org with ESMTP
-	id S1750888AbWIUHTY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Sep 2006 03:19:24 -0400
-Date: Thu, 21 Sep 2006 00:18:40 -0700
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-       John Stultz <johnstul@us.ibm.com>,
-       "Paul E. McKenney" <paulmck@us.ibm.com>,
-       Dipankar Sarma <dipankar@in.ibm.com>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Esben Nielsen <simlo@phys.au.dk>,
-       "Bill Huey (hui)" <billh@gnuppy.monkey.org>
-Subject: Re: [PATCH] move put_task_struct() reaping into a thread [Re: 2.6.18-rt1]
-Message-ID: <20060921071838.GA10337@gnuppy.monkey.org>
-References: <20060920141907.GA30765@elte.hu> <20060921065624.GA9841@gnuppy.monkey.org> <20060921065402.GA22089@elte.hu>
+	Thu, 21 Sep 2006 03:19:59 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.150]:49836 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750902AbWIUHT6
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Sep 2006 03:19:58 -0400
+Date: Thu, 21 Sep 2006 00:20:17 -0700
+From: Nishanth Aravamudan <nacc@us.ibm.com>
+To: Om Narasimhan <om.turyx@gmail.com>
+Cc: linux-kernel@vger.kernel.org, kernel-janitors@lists.osdl.org
+Subject: Re: [KJ] kmalloc to kzalloc patches for drivers/block [sane version]
+Message-ID: <20060921072017.GA27798@us.ibm.com>
+References: <6b4e42d10609202311t47038692x5627f51d69f28209@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060921065402.GA22089@elte.hu>
-User-Agent: Mutt/1.5.13 (2006-08-11)
-From: Bill Huey (hui) <billh@gnuppy.monkey.org>
+In-Reply-To: <6b4e42d10609202311t47038692x5627f51d69f28209@mail.gmail.com>
+X-Operating-System: Linux 2.6.18-rc6 (x86_64)
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 21, 2006 at 08:54:02AM +0200, Ingo Molnar wrote:
-> * Bill Huey <billh@gnuppy.monkey.org> wrote:
+On 20.09.2006 [23:11:25 -0700], Om Narasimhan wrote:
+> This patch changes the kmalloc() calls followed by memset(,0,) to kzalloc.
 > 
-> > On Wed, Sep 20, 2006 at 04:19:07PM +0200, Ingo Molnar wrote:
-> > > I'm pleased to announce the 2.6.18-rt1 tree, which can be downloaded 
-> > > from the usual place:
-> > ... 
-> > > as usual, bugreports, fixes and suggestions are welcome,
-> > 
-> > Speaking of which...
-> > 
-> > This patch moves put_task_struct() reaping into a thread instead of an 
-> > RCU callback function [...]
+>     cciss.c : Changed the kmalloc/memset pair to kzalloc
+>     cpqarray.c : km2zalloc conversion and code size reduction by
+> changing multiple cleanup calls and returns of the function
+> getgeometry() by adding a label.
+>     loop.c : km2zalloc converion
 > 
-> had some time to think about it since yesterday: RCU reaping is done in 
-> softirqs (check out the softirq-rcu threads on your -rt box), that's why 
-> i removed the delayed-task-drop code to begin with. Now i dont doubt 
+> 
+> Signed off by Om Narasimhan <om.turyx@gmail.com>
 
-It's correct from the standpoint of it being reaped in another thread,
-so it fixed those crashes. But I pushed it down into another thread at the
-request of Esben and his private discussion with Paul McKenney, since
-a summary from Esben felt that call_rcu() was somehow less than ideal to
-do that.
+This is not the canonical format, per SubmittingPatches. It should be:
 
-> that you saw crashes under 2.6.17 - but did you manage to figure out 
-> what the reason is for those crashes, and do those reasons really 
-> necessiate the pushing of task-reapdown into yet another set of kernel 
-> threads?
+Signed-off-by: Random J Developer <random@developer.example.org>
 
-Unfortunately no. I even used Robert's .config on my machine. I added a
-disk controller and networking device driver just to boot into his
-configuration and I still couldn't replicated any of his kjournald problems
-at all. If I had his hardware I'd have a better way of replicating those
-problems and pound it out.
+>  drivers/block/cciss.c    |    4 +--
+>  drivers/block/cpqarray.c |   72 +++++++++++++++-------------------------------
+>  drivers/block/loop.c     |    4 +--
+>  3 files changed, 25 insertions(+), 55 deletions(-)
 
-bill
+Your diffstat should have indicated to you that this should be split up
+better. Please (re-)read SubmittingPatches. *One* logical change per
+patch, most importantly.
 
+> 
+> diff --git a/drivers/block/cciss.c b/drivers/block/cciss.c
+> index 2cd3391..a800a69 100644
+> --- a/drivers/block/cciss.c
+> +++ b/drivers/block/cciss.c
+> @@ -900,7 +900,7 @@ #if 0				/* 'buf_size' member is 16-bits
+>  				return -EINVAL;
+>  #endif
+>  			if (iocommand.buf_size > 0) {
+> -				buff = kmalloc(iocommand.buf_size, GFP_KERNEL);
+> +				buff = kzalloc(iocommand.buf_size, GFP_KERNEL);
+>  				if (buff == NULL)
+>  					return -EFAULT;
+>  			}
+> @@ -911,8 +911,6 @@ #endif
+>  					kfree(buff);
+>  					return -EFAULT;
+>  				}
+> -			} else {
+> -				memset(buff, 0, iocommand.buf_size);
+>  			}
+>  			if ((c = cmd_alloc(host, 0)) == NULL) {
+>  				kfree(buff);
+
+This changes performance potentially, no? The memset before was
+conditional upon (iocommand.Request.Type.Direction == XFER_WRITE) and
+now the memory will always be zero'd.
+
+> diff --git a/drivers/block/cpqarray.c b/drivers/block/cpqarray.c
+> index 78082ed..8a697c7 100644
+> --- a/drivers/block/cpqarray.c
+> +++ b/drivers/block/cpqarray.c
+> @@ -1642,58 +1639,46 @@ static void start_fwbk(int ctlr)
+>      It is used only at init time.
+>  *****************************************************************/
+>  static void getgeometry(int ctlr)
+> -{				
+> -	id_log_drv_t *id_ldrive;
+> -	id_ctlr_t *id_ctlr_buf;
+> -	sense_log_drv_stat_t *id_lstatus_buf;
+> -	config_t *sense_config_buf;
+> +{
+
+Unrelated whitespace change.
+
+> +	id_log_drv_t *id_ldrive = NULL;
+> +	id_ctlr_t *id_ctlr_buf = NULL;
+> +	sense_log_drv_stat_t *id_lstatus_buf = NULL;
+> +	config_t *sense_config_buf = NULL;
+
+Why initialize if you're going to immediately assign the return of
+kzalloc()?
+
+>  	unsigned int log_unit, log_index;
+>  	int ret_code, size;
+> -	drv_info_t *drv;
+> +	drv_info_t *drv = NULL;
+
+What does this do? Seems unnecessary and unrelated.
+
+<snip>
+
+> -		kfree(id_ctlr_buf);
+> -		kfree(id_ldrive);
+>  		printk( KERN_ERR "cpqarray:  out of memory.\n");
+> -		return;
+> +		goto end;
+
+All of this rearrangement needs to be a separate patch.
+
+Thanks,
+Nish
+
+-- 
+Nishanth Aravamudan <nacc@us.ibm.com>
+IBM Linux Technology Center

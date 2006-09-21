@@ -1,43 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751365AbWIUUi2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750895AbWIUUiH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751365AbWIUUi2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Sep 2006 16:38:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751385AbWIUUi2
+	id S1750895AbWIUUiH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Sep 2006 16:38:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751365AbWIUUiH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Sep 2006 16:38:28 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:61093 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1751365AbWIUUi1 (ORCPT
+	Thu, 21 Sep 2006 16:38:07 -0400
+Received: from 1-1-12-13a.han.sth.bostream.se ([82.182.30.168]:17315 "EHLO
+	palpatine.hardeman.nu") by vger.kernel.org with ESMTP
+	id S1750895AbWIUUiF convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Sep 2006 16:38:27 -0400
-Message-ID: <4512F83D.7010100@garzik.org>
-Date: Thu, 21 Sep 2006 16:38:21 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
+	Thu, 21 Sep 2006 16:38:05 -0400
+Date: Thu, 21 Sep 2006 22:37:53 +0200
+From: David =?iso-8859-1?Q?H=E4rdeman?= <david@hardeman.nu>
+To: linux-kernel@vger.kernel.org
+Cc: kraxel@bytesex.org
+Subject: [PATCH] Allow RC5 codes 64 - 127 in ir-kbd-i2c.c
+Message-ID: <20060921203753.GA11551@hardeman.nu>
+Mail-Followup-To: linux-kernel@vger.kernel.org, kraxel@bytesex.org
 MIME-Version: 1.0
-To: Adrian Bunk <bunk@stusta.de>
-CC: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.19 -mm merge plans
-References: <20060920135438.d7dd362b.akpm@osdl.org> <45121382.1090403@garzik.org> <20060920220744.0427539d.akpm@osdl.org> <1158830206.11109.84.camel@localhost.localdomain> <Pine.LNX.4.64.0609210819170.4388@g5.osdl.org> <20060921105959.a55efb5f.akpm@osdl.org> <Pine.LNX.4.64.0609211106391.4388@g5.osdl.org> <4512DB05.2090604@garzik.org> <20060921194604.GQ31906@stusta.de>
-In-Reply-To: <20060921194604.GQ31906@stusta.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.3 (----)
-X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.3 points, 5.0 required)
+Content-Type: text/plain; charset=iso-8859-1; format=flowed
+Content-Disposition: inline
+User-Agent: Mutt/1.5.13 (2006-08-11)
+Content-Transfer-Encoding: 8BIT
+X-SA-Score: -2.6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Adrian Bunk wrote:
-> Not all of them are regressions, but this shows that users are testing 
-> -rc kernels and reporting bugs.
+The RC5 coding has for a long time supported commands 64-127 in addition 
+to 0-63. This is controlled by the second bit of the RC5 packet (see  
+http://www.armory.com/~spcecdt/remote/RC5codes.html for details).
 
+The attached patch modifies ir-kbd-i2c.c to allow for commands 64-127, 
+tested with a PVR350 card in combination with a programmable remote.
 
-I never claimed otherwise.  But every release turns up plenty of bugs 
-that are otherwise uncaught, because its inevitable that a much larger 
-set of users tests the full releases.
+Signed-off-by: David Härdeman <david@hardeman.nu>
 
-	Jeff
+-- 
 
-
+diff -ur linux-2.6.18-orig/drivers/media/video/ir-kbd-i2c.c linux-2.6.18/drivers/media/video/ir-kbd-i2c.c
+--- linux-2.6.18-orig/drivers/media/video/ir-kbd-i2c.c	2006-09-21 22:05:16.000000000 +0200
++++ linux-2.6.18/drivers/media/video/ir-kbd-i2c.c	2006-09-21 22:25:40.000000000 +0200
+@@ -64,23 +64,32 @@
+ static int get_key_haup(struct IR_i2c *ir, u32 *ir_key, u32 *ir_raw)
+ {
+ 	unsigned char buf[3];
+-	int start, toggle, dev, code;
++	int start, range, toggle, dev, code;
+ 
+ 	/* poll IR chip */
+ 	if (3 != i2c_master_recv(&ir->c,buf,3))
+ 		return -EIO;
+ 
+ 	/* split rc5 data block ... */
+-	start  = (buf[0] >> 6) &    3;
++	start  = (buf[0] >> 7) &    1;
++	range  = (buf[0] >> 6) &    1;
+ 	toggle = (buf[0] >> 5) &    1;
+ 	dev    =  buf[0]       & 0x1f;
+ 	code   = (buf[1] >> 2) & 0x3f;
+ 
+-	if (3 != start)
++	/* rc5 has two start bits
++	 * the first bit must be one
++	 * the second bit defines the command range (1 = 0-63, 0 = 64 - 127)
++	 */
++	if (!start)
+ 		/* no key pressed */
+ 		return 0;
+-	dprintk(1,"ir hauppauge (rc5): s%d t%d dev=%d code=%d\n",
+-		start, toggle, dev, code);
++
++	if (!range)
++		code += 64;
++
++	dprintk(1,"ir hauppauge (rc5): s%d r%d t%d dev=%d code=%d\n",
++		start, range, toggle, dev, code);
+ 
+ 	/* return key */
+ 	*ir_key = code;

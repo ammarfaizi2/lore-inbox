@@ -1,57 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751212AbWIUE0y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750789AbWIUE1L@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751212AbWIUE0y (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Sep 2006 00:26:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751211AbWIUE0y
+	id S1750789AbWIUE1L (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Sep 2006 00:27:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751211AbWIUE1J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Sep 2006 00:26:54 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:45706 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1750787AbWIUE0x (ORCPT
+	Thu, 21 Sep 2006 00:27:09 -0400
+Received: from atlrel9.hp.com ([156.153.255.214]:17844 "EHLO atlrel9.hp.com")
+	by vger.kernel.org with ESMTP id S1750789AbWIUE1I (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Sep 2006 00:26:53 -0400
-Message-ID: <45121486.3070503@pobox.com>
-Date: Thu, 21 Sep 2006 00:26:46 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
+	Thu, 21 Sep 2006 00:27:08 -0400
+X-IMAP-Sender: agriffis
+Date: Thu, 21 Sep 2006 00:27:02 -0400
+From: Aron Griffis <aron@hp.com>
+To: linux-kernel@vger.kernel.org
+Cc: Sam Ravnborg <sam@ravnborg.org>, Masatake YAMATO <jet@gyve.org>
+Subject: Extend kbuild/defconfig tags support to exuberant ctags
+Message-ID: <20060921042659.GA32242@fc.hp.com>
+Mail-Followup-To: Aron Griffis <aron@hp.com>,
+	linux-kernel@vger.kernel.org, Sam Ravnborg <sam@ravnborg.org>,
+	Masatake YAMATO <jet@gyve.org>
 MIME-Version: 1.0
-To: Zang Roy-r61911 <tie-fei.zang@freescale.com>
-CC: Roland Dreier <rdreier@cisco.com>, Andrew Morton <akpm@osdl.org>,
-       netdev <netdev@vger.kernel.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [patch 3/3] Add tsi108 On Chip Ethernet device driver support
-References: <A0CDBA58F226D911B202000BDBAD46730A1B1410@zch01exm23.fsl.freescale.net>	 <1157962200.10526.10.camel@localhost.localdomain>	 <1158051351.14448.97.camel@localhost.localdomain>	 <ada3bax2lzw.fsf@cisco.com>  <4506C789.4050404@pobox.com> <1158749825.7973.9.camel@localhost.localdomain>
-In-Reply-To: <1158749825.7973.9.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.2 (----)
-X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.2 points, 5.0 required)
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Zang Roy-r61911 wrote:
-> +#define TSI108_ETH_WRITE_REG(offset, val) \
-> +	writel(le32_to_cpu(val),data->regs + (offset))
-> +
-> +#define TSI108_ETH_READ_REG(offset) \
-> +	le32_to_cpu(readl(data->regs + (offset)))
-> +
-> +#define TSI108_ETH_WRITE_PHYREG(offset, val) \
-> +	writel(le32_to_cpu(val), data->phyregs + (offset))
-> +
-> +#define TSI108_ETH_READ_PHYREG(offset) \
-> +	le32_to_cpu(readl(data->phyregs + (offset)))
+The following patch extends kbuild/defconfig tags support to exuberant
+ctags.  The previous support is only for emacs ctags/etags programs.
 
+This patch also corrects the kconfig regex for the emacs invocation.
+Previously it would miss some instances because it assumed /^config
+instead of /^[ \t]*config
 
-NAK:
+Signed-off-by: Aron Griffis <aron@hp.com>
 
-1) writel() and readl() are defined to be little endian.
-
-If your platform is different, then your platform should have its own 
-foobus_writel() and foobus_readl().
-
-2) TSI108_ETH_WRITE_REG() is just way too long.  TSI_READ(), 
-TSI_WRITE(), TSI_READ_PHY() and TSI_WRITE_PHY() would be far more readable.
-
-More in next email.
-
+diff -r dc1d277d06e0 -r 8bec009f95de Makefile
+--- a/Makefile	Wed Sep 20 04:00:07 2006 +0000
++++ b/Makefile	Thu Sep 21 00:11:02 2006 -0400
+@@ -1264,6 +1264,31 @@ define all-defconfigs
+ 	$(call find-sources,'defconfig')
+ endef
+ 
++define xtags
++	if $1 --version 2>&1 | grep -iq exuberant; then \
++	    $(all-sources) | xargs $1 -a \
++		-I __initdata,__exitdata,__acquires,__releases \
++		-I EXPORT_SYMBOL,EXPORT_SYMBOL_GPL \
++		--extra=+f --c-kinds=+px; \
++	    $(all-kconfigs) | xargs $1 -a \
++		--langdef=kconfig \
++		--language-force=kconfig \
++		--regex-kconfig='/^[[:blank:]]*config[[:blank:]]+([[:alnum:]_]+)/\1/'; \
++	    $(all-defconfigs) | xargs $1 -a \
++		--langdef=dotconfig \
++		--language-force=dotconfig \
++		--regex-dotconfig='/^#?[[:blank:]]*(CONFIG_[[:alnum:]_]+)/\1/'; \
++	elif $1 --version 2>&1 | grep -iq emacs; then \
++	    $(all-sources) | xargs $1 -a; \
++	    $(all-kconfigs) | xargs $1 -a \
++		--regex='/^[ \t]*config[ \t]+\([a-zA-Z0-9_]+\)/\1/'; \
++	    $(all-defconfigs) | xargs $1 -a \
++		--regex='/^#?[ \t]?\(CONFIG_[a-zA-Z0-9_]+\)/\1/'; \
++	else \
++	    $(all-sources) | xargs $1 -a; \
++	fi
++endef
++
+ quiet_cmd_cscope-file = FILELST cscope.files
+       cmd_cscope-file = (echo \-k; echo \-q; $(all-sources)) > cscope.files
+ 
+@@ -1277,31 +1302,16 @@ quiet_cmd_TAGS = MAKE   $@
+ quiet_cmd_TAGS = MAKE   $@
+ define cmd_TAGS
+ 	rm -f $@; \
+-	ETAGSF=`etags --version | grep -i exuberant >/dev/null &&     \
+-                echo "-I __initdata,__exitdata,__acquires,__releases  \
+-                      -I EXPORT_SYMBOL,EXPORT_SYMBOL_GPL              \
+-                      --extra=+f --c-kinds=+px"`;                     \
+-                $(all-sources) | xargs etags $$ETAGSF -a;             \
+-	if test "x$$ETAGSF" = x; then                                 \
+-		$(all-kconfigs) | xargs etags -a                      \
+-		--regex='/^config[ \t]+\([a-zA-Z0-9_]+\)/\1/';        \
+-		$(all-defconfigs) | xargs etags -a                    \
+-		--regex='/^#?[ \t]?\(CONFIG_[a-zA-Z0-9_]+\)/\1/';     \
+-	fi
++	$(call xtags,etags)
+ endef
+ 
+ TAGS: FORCE
+ 	$(call cmd,TAGS)
+-
+ 
+ quiet_cmd_tags = MAKE   $@
+ define cmd_tags
+ 	rm -f $@; \
+-	CTAGSF=`ctags --version | grep -i exuberant >/dev/null &&     \
+-                echo "-I __initdata,__exitdata,__acquires,__releases  \
+-                      -I EXPORT_SYMBOL,EXPORT_SYMBOL_GPL              \
+-                      --extra=+f --c-kinds=+px"`;                     \
+-                $(all-sources) | xargs ctags $$CTAGSF -a
++	$(call xtags,ctags)
+ endef
+ 
+ tags: FORCE

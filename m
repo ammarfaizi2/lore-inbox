@@ -1,63 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750738AbWIUGsf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750734AbWIUGyk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750738AbWIUGsf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Sep 2006 02:48:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750739AbWIUGsf
+	id S1750734AbWIUGyk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Sep 2006 02:54:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750743AbWIUGyk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Sep 2006 02:48:35 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:25291 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750738AbWIUGse (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Sep 2006 02:48:34 -0400
-Date: Wed, 20 Sep 2006 23:48:28 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Jeff Garzik <jeff@garzik.org>
-Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>
-Subject: Re: 2.6.19 -mm merge plans
-Message-Id: <20060920234828.a86e095a.akpm@osdl.org>
-In-Reply-To: <45123307.8090809@garzik.org>
-References: <20060920135438.d7dd362b.akpm@osdl.org>
-	<45121382.1090403@garzik.org>
-	<20060920220744.0427539d.akpm@osdl.org>
-	<45123307.8090809@garzik.org>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 21 Sep 2006 02:54:40 -0400
+Received: from mtagate6.uk.ibm.com ([195.212.29.139]:15577 "EHLO
+	mtagate6.uk.ibm.com") by vger.kernel.org with ESMTP
+	id S1750734AbWIUGyj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Sep 2006 02:54:39 -0400
+In-Reply-To: <20060920234517.GA29171@Krystal>
+Subject: Re: [PATCH] Linux Markers 0.4 (+dynamic probe loader) for 2.6.17
+To: Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>
+Cc: Andrew Morton <akpm@osdl.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       "Frank Ch. Eigler" <fche@redhat.com>,
+       Greg Kroah-Hartman <gregkh@suse.de>,
+       Christoph Hellwig <hch@infradead.org>, Jes Sorensen <jes@sgi.com>,
+       Paul Mundt <lethal@linux-sh.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>, ltt-dev@shafik.org,
+       Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>,
+       Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
+       Martin Bligh <mbligh@google.com>,
+       Michel Dagenais <michel.dagenais@polymtl.ca>,
+       Ingo Molnar <mingo@elte.hu>, prasanna@in.ibm.com,
+       systemtap@sources.redhat.com, systemtap-owner@sourceware.org,
+       Thomas Gleixner <tglx@linutronix.de>, William Cohen <wcohen@redhat.com>,
+       Tom Zanussi <zanussi@us.ibm.com>
+X-Mailer: Lotus Notes Release 7.0.1 July 07, 2006
+Message-ID: <OF276694B4.83880CF1-ON802571F0.0024CDAB-802571F0.0025F34C@uk.ibm.com>
+From: Richard J Moore <richardj_moore@uk.ibm.com>
+Date: Thu, 21 Sep 2006 07:54:31 +0100
+X-MIMETrack: Serialize by Router on D06ML065/06/M/IBM(Release 6.5.5HF607 | June 26, 2006) at
+ 21/09/2006 07:56:50
+MIME-Version: 1.0
+Content-type: text/plain; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 21 Sep 2006 02:36:55 -0400
-Jeff Garzik <jeff@garzik.org> wrote:
+Matthieu, are you aware of the work done on generalized RAS hooks for
+linux? It was used in dprpbes, LTT and LKST at one time. That in its own
+way dealt with some of the issues  you're trying to solve. I'm not saying
+it's the correct solution, but it shares a lot of common ground. Check out
+"kernel hooks" aka ghki. We used it to dynamically remove dprobes from the
+pagefault code path when no user probes were active. It was also used to
+instrument tracepoints for different facilities that needed to share
+instrumentation point. There was also a /proc interface that showed which
+hooks were installed and their status. We have generic mechanisms that
+would work across most architectures and optimized ones for specific
+architectures.  One thing we tried to do was to make sure that affect on
+data cache was minimized or eliminated. We achieved that on IA32 by making
+the hook mechanism a test following a load of a literal into a register.
+The hook was activated and deactivated by moving 1 or 0 into a register -
+i.e. by editing the literal in the instruction. (changing mov eax,0 to mov
+eax,1)
 
-> Andrew Morton wrote:
-> > If you think that shortening the release cycle will cause people to be more
-> > disciplined in their changes, to spend less time going berzerk and to spend
-> > more time working with our users and testers on known bugs then I'm all
-> > ears.
-> 
-> Honestly, I do think it would be positive.  It would shorten the 
-> feedback loop, and get more changes out to testers.
-> 
-> It would also decrease the pressure of the 60+ trees trying to get 
-> everything in, because they know the next release is 3-4 months away. 
-> It would be _much_ easier to say "break the generic device stuff in 
-> 2.6.20 not 2.6.19, please" if we knew 2.6.20 wasn't going to be a 2007 
-> release.
-> 
+You might as well see whether there are any bone on that carcass worth
+picking.
 
-Well, it might be worth trying.  But there's a practical problem: how do we
-get there when there's so much work pending?  If we skip some people's
-trees then they'll get sore, and it's not obvious that it'll help much, as
-the various trees are fairly unrelated (ie: parallelisable).
+Richard
 
-I guess the most practical way is to incrementally shorten the cycles.
-
-
-<rerererepeating self>
-
-I do think that any process change we make should send the signal "slow
-down, be more careful, test and review it more carefully".  Or at least,
-"try to make sure it compiles".
-
-A compulsory Reviewed-by: would wedge things up nicely ;)

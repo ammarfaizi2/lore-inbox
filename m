@@ -1,125 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751054AbWIUOlo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751053AbWIUOk2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751054AbWIUOlo (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Sep 2006 10:41:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751058AbWIUOlo
+	id S1751053AbWIUOk2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Sep 2006 10:40:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751009AbWIUOk1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Sep 2006 10:41:44 -0400
-Received: from ppsw-0.csi.cam.ac.uk ([131.111.8.130]:41427 "EHLO
-	ppsw-0.csi.cam.ac.uk") by vger.kernel.org with ESMTP
-	id S1751009AbWIUOlo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Sep 2006 10:41:44 -0400
-X-Cam-SpamDetails: Not scanned
-X-Cam-AntiVirus: No virus found
-X-Cam-ScannerInfo: http://www.cam.ac.uk/cs/email/scanner/
-Subject: Re: Fw: 2.6.17 oops, possibly ntfs/mmap related
-From: Anton Altaparmakov <aia21@cam.ac.uk>
-To: Jonathan Woithe <jwoithe@physics.adelaide.edu.au>
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
-In-Reply-To: <1158832483.5958.7.camel@imp.csi.cam.ac.uk>
-References: <20060912205602.57568b2a.akpm@osdl.org>
-	 <1158832483.5958.7.camel@imp.csi.cam.ac.uk>
-Content-Type: text/plain
-Organization: Computing Service, University of Cambridge, UK
-Date: Thu, 21 Sep 2006 15:41:36 +0100
-Message-Id: <1158849696.5958.39.camel@imp.csi.cam.ac.uk>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.0 
-Content-Transfer-Encoding: 7bit
+	Thu, 21 Sep 2006 10:40:27 -0400
+Received: from ns2.suse.de ([195.135.220.15]:43703 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1750991AbWIUOk1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Sep 2006 10:40:27 -0400
+Date: Thu, 21 Sep 2006 16:39:49 +0200
+From: Stefan Seyfried <seife@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, Dave Jones <davej@redhat.com>,
+       Marek Vasut <marek.vasut@gmail.com>,
+       Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Subject: Re: 2.6.19 -mm merge plans (input patches)
+Message-ID: <20060921143949.GA9581@suse.de>
+References: <d120d5000609201429m753de40fo194d48427402c6cd@mail.gmail.com> <20060920145006.05117085.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20060920145006.05117085.akpm@osdl.org>
+X-Operating-System: SUSE Linux Enterprise Desktop 10 (i586), Kernel 2.6.18-rc6-2-seife
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wed, Sep 20, 2006 at 02:50:06PM -0700, Andrew Morton wrote:
+> On Wed, 20 Sep 2006 17:29:43 -0400
+> "Dmitry Torokhov" <dmitry.torokhov@gmail.com> wrote:
 
-On Thu, 2006-09-21 at 10:54 +0100, Anton Altaparmakov wrote:
-> On Tue, 2006-09-12 at 20:56 -0700, Andrew Morton wrote:
-> Andrew, thanks for forwarding me the message...
-> > Begin forwarded message:
+> > > input-i8042-disable-keyboard-port-when-panicking-and-blinking.patch
+> > > i8042-activate-panic-blink-only-in-x.patch
 > > 
-> > We have a machine which is currently making heavy use of a usb hard disc
-> > formatted with ntfs.  There have been two occasions where the kernel has
-> > oopsed while this disc was being accessed heavily.  Before adding this HDD
-> > the machine in question was rock solid which leads me to think that it
-> > might be related to ntfs.  USB drives formatted with other filesystems do
-> > not appear to suffer from this problem.
+> > There was a concern that blinking is useful even when not running X.
+> > Do you have any input?
+> 
+> No, sorry.
 
-I have now seen such an oops too with 2.6.18 kernel.  Note no NTFS file
-systems were mounted at the time (but I had an NTFS file system mounted
-earlier in the day).
+I found it useful for machines panicking after suspend-to-ram with the
+video still dark.
+I have, however, not seen a machine panicking on resume for quite some
+time. They just hang :-)
 
-The oops is caused by kswapd0 kernel thread, the stack trace is:
-
-Call Trace:
- [<c10470a3>] shrink_inactive_list+0x46b/0x790
- [<c104747c>] shrink_zone+0xb4/0xd3
- [<c104797d>] kswapd+0x2de/0x3cf
- [<c102c18e>] kthread+0xc2/0xf0
- [<c1000bf1>] kernel_thread_helper+0x5/0xb
-DWARF2 unwinder stuck at kernel_thread_helper+0x5/0xb
-Leftover inexact backtrace:
- [<c1003e6c>] show_stack_log_lvl+0x8c/0x97
- [<c1003fc8>] show_registers+0x151/0x1c6
- [<c10041af>] die+0x172/0x27b
- [<c145f22c>] do_page_fault+0x42c/0x4f9
- [<c10037dd>] error_code+0x39/0x40
- [<c10470a3>] shrink_inactive_list+0x46b/0x790
- [<c104747c>] shrink_zone+0xb4/0xd3
- [<c104797d>] kswapd+0x2de/0x3cf
- [<c102c18e>] kthread+0xc2/0xf0
- [<c1000bf1>] kernel_thread_helper+0x5/0xb
-
-And the EIP is at fs/buffer.c::try_to_release_page() the code of which
-is here:
-
-int try_to_release_page(struct page *page, gfp_t gfp_mask)
-{
-        struct address_space * const mapping = page->mapping;
-
-        BUG_ON(!PageLocked(page));
-        if (PageWriteback(page))
-                return 0;
-
-        if (mapping && mapping->a_ops->releasepage)
-
-^^^ bug happens here when the value of mapping->a_ops is used to obtain
-mapping->a_ops->releasepage
-
-                return mapping->a_ops->releasepage(page, gfp_mask);
-        return try_to_free_buffers(page);
-}
-
-This bug seems to suggest that there is a page which the kernel is
-trying to release private data which has page->mapping set to a valid
-value and page->mapping->a_ops apparently set to an invalid value and
-when page->mapping->a_ops->releasepage is dereferenced it causes an oops
-with the kernel saying:
-
-BUG: unable to handle kernel paging request at virtual address 020030d2
-
-The values of the relevant variables from the oops are:
-
-page = 0xc2248fa0
-page->mapping = 0xe3a79eac
-page->mapping->a_ops = 0x020030aa
-
-Note that 0x020030aa+0x28 = 020030d2 which is the oops causing address
-and 0x28 is the offset of the releasepage function pointer in the
-address space operations structure...
-
-This oops is not identical to the oopses pointed out by Jonathan at:
-
-http://www.atrad.com.au/~jwoithe/kernel/oopses-20060913.txt
-
-But those oopses have to do with pages also so could be related...
-
-Anyone have any ideas how a page can end up in such a weird state?
-
-Best regards,
-
-        Anton
 -- 
-Anton Altaparmakov <aia21 at cam.ac.uk> (replace at with @)
-Unix Support, Computing Service, University of Cambridge, CB2 3QH, UK
-Linux NTFS maintainer / IRC: #ntfs on irc.freenode.net
-WWW: http://www.linux-ntfs.org/ & http://www-stu.christs.cam.ac.uk/~aia21/
-
+Stefan Seyfried
+QA / R&D Team Mobile Devices        |              "Any ideas, John?"
+SUSE LINUX Products GmbH, Nürnberg  | "Well, surrounding them's out." 

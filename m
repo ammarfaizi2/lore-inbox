@@ -1,37 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751036AbWIUIFA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751041AbWIUIGS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751036AbWIUIFA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Sep 2006 04:05:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751039AbWIUIFA
+	id S1751041AbWIUIGS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Sep 2006 04:06:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751046AbWIUIGS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Sep 2006 04:05:00 -0400
-Received: from mx1.suse.de ([195.135.220.2]:35473 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751040AbWIUIE6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Sep 2006 04:04:58 -0400
-From: Andi Kleen <ak@suse.de>
-To: "Jan Beulich" <jbeulich@novell.com>
-Subject: Re: [PATCH 2.6.18] x86_64: silence warning when stack unwinding is disabled
-Date: Thu, 21 Sep 2006 10:04:03 +0200
-User-Agent: KMail/1.9.3
-Cc: "Mikael Pettersson" <mikpe@it.uu.se>, linux-kernel@vger.kernel.org
-References: <200609210712.k8L7CdrR015591@alkaid.it.uu.se> <45125C4C.76E4.0078.0@novell.com>
-In-Reply-To: <45125C4C.76E4.0078.0@novell.com>
+	Thu, 21 Sep 2006 04:06:18 -0400
+Received: from moutng.kundenserver.de ([212.227.126.177]:15323 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S1751041AbWIUIGP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Sep 2006 04:06:15 -0400
+Date: Thu, 21 Sep 2006 10:04:12 +0200
+To: linux-kernel@vger.kernel.org
+Subject: munmap from inside kernel
+From: "Andreas Block" <andreas.block@esd-electronics.com>
+Content-Type: text/plain; format=flowed; delsp=yes; charset=iso-8859-15
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200609211004.03942.ak@suse.de>
+Message-ID: <op.tf7x1ae18n9ctc@pc-block.esd>
+User-Agent: Opera Mail/9.01 (Win32)
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:7ee1d245d6d47e4a96dce2c88f0dd45f
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 21 September 2006 09:33, Jan Beulich wrote:
-> A patch to this effect is already queued in -mm (and perhaps also in Andi's tree). Jan
+Hi,
 
-I refixed it independently a few minutes ago.
+following scenario:
+Two linux systems connected via PCI.
+I'd like to write a driver, which allows to map memory from the remote  
+system into local user space and vice versa.
+This works quite well utilizing mmap and respective vma_ops.
+I do have one problem though. When the buffer on the remote side gets  
+destroyed, I'd like to remove the mappings from local user space into this  
+buffer (I do prefer a segfaulting application over an application writing  
+into "I don't know where").
+Under kernel 2.4.x I used "do_munmap()" in protection of "mm->mmap_sem"  
+and it seemed to work quite well for me.
+Now using kernel 2.6.x (I tested 2.6.8 and 2.6.15) this seemingly doesn't  
+work anymore, because I do end up with a crash, when trying to manually  
+unmap the memory.
 
-There was also another compile error in my tree with unwind disabled which
-I fixed.
+Is there any safe way to "trigger munmap()" from inside the kernel?
 
--Andi
+Best regards,
+Andreas

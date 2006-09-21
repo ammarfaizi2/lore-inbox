@@ -1,59 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751141AbWIUDCe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751173AbWIUDT1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751141AbWIUDCe (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Sep 2006 23:02:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751142AbWIUDCe
+	id S1751173AbWIUDT1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Sep 2006 23:19:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751174AbWIUDT1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Sep 2006 23:02:34 -0400
-Received: from web36704.mail.mud.yahoo.com ([209.191.85.38]:859 "HELO
-	web36704.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1751141AbWIUDCd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Sep 2006 23:02:33 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com;
-  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
-  b=0DJbc4Neprwj0yXVCMOHc5gDtEfet5Rw2xM237rRa9OdTp2eRaN198j7h0noXCROb1RbF6+4aEa9b0JxwO2uxyussJ/C+Sy5JbFa6x9t9KwXrzIP/8s3cEV2Uya+DWtxSeV0Xw+KD61UJkZXNI1SKKA0aX3VzPrKR41kSi64RFo=  ;
-Message-ID: <20060921030232.30990.qmail@web36704.mail.mud.yahoo.com>
-Date: Wed, 20 Sep 2006 20:02:32 -0700 (PDT)
-From: Alex Dubov <oakad@yahoo.com>
-Subject: Re: [PATCH 2/2] [MMC] Driver for TI FlashMedia card reader - Kconfig/Makefile entries
-To: Pierre Ossman <drzeus-list@drzeus.cx>
-Cc: linux-kernel@vger.kernel.org, rmk+lkml@arm.linux.org.uk
-In-Reply-To: <4510E00C.4040703@drzeus.cx>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Wed, 20 Sep 2006 23:19:27 -0400
+Received: from e36.co.us.ibm.com ([32.97.110.154]:57309 "EHLO
+	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751173AbWIUDT0
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Sep 2006 23:19:26 -0400
+Date: Thu, 21 Sep 2006 08:49:21 +0530
+From: Maneesh Soni <maneesh@in.ibm.com>
+To: Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>
+Cc: Greg KH <gregkh@suse.de>, Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2.6.18] sysfs: remove duplicated dput in sysfs_update_file
+Message-ID: <20060921031921.GA7183@in.ibm.com>
+Reply-To: maneesh@in.ibm.com
+References: <4510EFD8.2050608@jp.fujitsu.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4510EFD8.2050608@jp.fujitsu.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-> >  
-> > +comment "Texas Instruments Flash Media MMC/SD interface requires TIFM_CORE"
-> > +        depends on MMC != n && TIFM_CORE = n
-> > +	
-> > +config MMC_TIFM_SD
-> > +	tristate "TI Flash Media MMC/SD Interface support  (EXPERIMENTAL)"
-> > +	depends on TIFM_CORE && MMC && EXPERIMENTAL
-> > +	default TIFM_CORE
-> > +	help
-> > +	  This selects the Texas Instruments(R) Flash Media MMC/SD card
-> > +	  interface found in many laptops.
-> > +	  If you have a controller with this interface, say Y or M here.
-> > +
-> > +	  If unsure, say N.
-> > +
-> >   
+On Wed, Sep 20, 2006 at 04:38:00PM +0900, Hidetoshi Seto wrote:
+> Following function can drops d_count twice against one reference
+> by lookup_one_len.
 > 
-> Ditto. And until this depends/select business is sorted out, I'd prefer
-> a select on TIFM_CORE here.
+> <SOURCE>
+> /**
+>  * sysfs_update_file - update the modified timestamp on an object attribute.
+>  * @kobj: object we're acting for.
+>  * @attr: attribute descriptor.
+>  */
+> int sysfs_update_file(struct kobject * kobj, const struct attribute * attr)
+> {
+>         struct dentry * dir = kobj->dentry;
+>         struct dentry * victim;
+>         int res = -ENOENT;
 > 
-I kind of fail to follow here. Do you want to switch TIFM_CORE -> MMC_TIFM_SD dependency into
-MMC_TIFM_SD -> TIFM_CORE + TIFM_7XX1 one? It may be slightly more convenient for users (even
-though most are using pre-compiled kernels provided by distribution), but will be logically
-incorrect, doesn't it? And then, what will become of memorystick driver?
+>         mutex_lock(&dir->d_inode->i_mutex);
+>         victim = lookup_one_len(attr->name, dir, strlen(attr->name));
+>         if (!IS_ERR(victim)) {
+>                 /* make sure dentry is really there */
+>                 if (victim->d_inode &&
+>                     (victim->d_parent->d_inode == dir->d_inode)) {
+>                         victim->d_inode->i_mtime = CURRENT_TIME;
+>                         fsnotify_modify(victim);
+> 
+>                         /**
+>                          * Drop reference from initial sysfs_get_dentry().
+>                          */
+>                         dput(victim);
+>                         res = 0;
+>                 } else
+>                         d_drop(victim);
+> 
+>                 /**
+>                  * Drop the reference acquired from sysfs_get_dentry() above.
+>                  */
+>                 dput(victim);
+>         }
+>         mutex_unlock(&dir->d_inode->i_mutex);
+> 
+>         return res;
+> }
+> </SOURCE>
+> 
+> PCI-hotplug (drivers/pci/hotplug/pci_hotplug_core.c) is only user of
+> this function. I confirmed that dentry of /sys/bus/pci/slots/XXX/*
+> have negative d_count value.
+> 
+> This patch removes unnecessary dput().
+> 
+> Signed-off-by: Hidetoshi Seto <seto.hidetoshi@jp.fujitsu.com>
+> 
+> ---
+>  fs/sysfs/file.c |    5 -----
+>  1 files changed, 5 deletions(-)
+> 
+> Index: linux-2.6.18/fs/sysfs/file.c
+> ===================================================================
+> --- linux-2.6.18.orig/fs/sysfs/file.c
+> +++ linux-2.6.18/fs/sysfs/file.c
+> @@ -483,11 +483,6 @@
+>  		    (victim->d_parent->d_inode == dir->d_inode)) {
+>  			victim->d_inode->i_mtime = CURRENT_TIME;
+>  			fsnotify_modify(victim);
+> -
+> -			/**
+> -			 * Drop reference from initial sysfs_get_dentry().
+> -			 */
+> -			dput(victim);
+>  			res = 0;
+>  		} else
+>  			d_drop(victim);
+> 
+> -
+> 
 
+Looks good to me..
 
-__________________________________________________
-Do You Yahoo!?
-Tired of spam?  Yahoo! Mail has the best spam protection around 
-http://mail.yahoo.com 
+Thanks
+Maneesh

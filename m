@@ -1,53 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750961AbWIUIMw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750966AbWIUIN5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750961AbWIUIMw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Sep 2006 04:12:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751045AbWIUIMw
+	id S1750966AbWIUIN5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Sep 2006 04:13:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751045AbWIUIN5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Sep 2006 04:12:52 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:59871 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1750961AbWIUIMv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Sep 2006 04:12:51 -0400
-Date: Thu, 21 Sep 2006 10:04:57 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Deepak Saxena <dsaxena@plexity.net>
-Cc: linux-kernel@vger.kernel.org, Daniel Walker <dwalker@mvista.com>,
-       Thomas Gleixner <tglx@linutronix.de>, rmk@arm.linux.org.uk,
-       Kevin Hilman <khilman@mvista.com>,
-       linux-arm-kernel@lists.arm.linux.org.uk
-Subject: Re: 2.6.18-rt1
-Message-ID: <20060921080456.GA32040@elte.hu>
-References: <20060920141907.GA30765@elte.hu> <1158774118.29177.13.camel@c-67-180-230-165.hsd1.ca.comcast.net> <20060920182553.GC1292@us.ibm.com> <200609201436.47042.gene.heskett@verizon.net> <20060920194650.GA21037@elte.hu> <20060921080435.GA29636@plexity.net>
-Mime-Version: 1.0
+	Thu, 21 Sep 2006 04:13:57 -0400
+Received: from adsl-69-232-92-238.dsl.sndg02.pacbell.net ([69.232.92.238]:50850
+	"EHLO gnuppy.monkey.org") by vger.kernel.org with ESMTP
+	id S1750966AbWIUIN4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Sep 2006 04:13:56 -0400
+Date: Thu, 21 Sep 2006 01:13:33 -0700
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+       John Stultz <johnstul@us.ibm.com>,
+       "Paul E. McKenney" <paulmck@us.ibm.com>,
+       Dipankar Sarma <dipankar@in.ibm.com>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Esben Nielsen <simlo@phys.au.dk>,
+       "Bill Huey (hui)" <billh@gnuppy.monkey.org>
+Subject: Re: [PATCH] move put_task_struct() reaping into a thread [Re: 2.6.18-rt1]
+Message-ID: <20060921081333.GC11644@gnuppy.monkey.org>
+References: <20060920141907.GA30765@elte.hu> <20060921065624.GA9841@gnuppy.monkey.org> <20060921065402.GA22089@elte.hu> <20060921071838.GA10337@gnuppy.monkey.org> <20060921071624.GA25281@elte.hu> <20060921073222.GC10337@gnuppy.monkey.org> <20060921072908.GA27280@elte.hu> <20060921074805.GA11644@gnuppy.monkey.org> <20060921075633.GA30343@elte.hu>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060921080435.GA29636@plexity.net>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -2.9
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.9 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.4999]
-	-0.1 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+In-Reply-To: <20060921075633.GA30343@elte.hu>
+User-Agent: Mutt/1.5.13 (2006-08-11)
+From: Bill Huey (hui) <billh@gnuppy.monkey.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Sep 21, 2006 at 09:56:33AM +0200, Ingo Molnar wrote:
+> * Bill Huey <billh@gnuppy.monkey.org> wrote:
+> 
+> > [...] If the upstream kernel used RCU function in a task allocation or 
+> > task struct reading in the first place then call_rcu() would be a 
+> > clear choice. However, I didn't see it used in that way (I could be 
+> > wrong) [...]
+> 
+> it was RCU-ified briefly but then it was further improved to direct 
+> freeing, because upstream _can_ free it directly.
 
-* Deepak Saxena <dsaxena@plexity.net> wrote:
+Unfortunately, this is a problem with -rt patch and the lock ordering
+in this system when you have to call a memory allocator within an atomic
+critical section. I fully accept this as part of what goes into making a
+kernel preemptive and I'm ok with it. Not many folks know about the
+special case locking rules in the -rt kernel so this might be new to
+various folks.
 
-> I am seeing an intermittent lock up on the ARM Versatile board during 
-> the ALSA driver init that only shows up with (PREEMPT_RT & 
-> !HIGH_RES_TIMERS & ARM_EABI) enabled. If HRT is disabled and EABI is 
-> enabled, the kernel works every time, and same with !RT & !HRT & EABI.  
-> I get no oops, just a complete lock up with no console output.
+If you're looking for validation of this technique from me and an ego
+stroking, then you have it from me. :)
 
-does enabling LOCKDEP give you any better info? (It might not make a 
-difference on the bootup that locks, but maybe you'll get a lockdep clue 
-about the problem in one of the successful bootups.)
+Fortunately, it's in a non-critical place so this should *not* be too
+much of a problem, but I've already encountered oddies trying to
+allocate a pool of entities for populating a free list under an atomic
+critical section of some sort for some code I've been writing. This is
+a significant problem with kernel coding in -rt, but I can't say what
+the general solution is other than making the memory allocators
+non-preemptible by reverting the locks back to raw spinlocks, etc...
+using lock-break, who knows. I'm ok with the current scenario, but this
+could eventually be a larger problem.
 
-	Ingo
+bill
+

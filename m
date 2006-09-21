@@ -1,127 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751348AbWIUSbF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751362AbWIUSdo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751348AbWIUSbF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Sep 2006 14:31:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751359AbWIUSbF
+	id S1751362AbWIUSdo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Sep 2006 14:33:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751380AbWIUSdo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Sep 2006 14:31:05 -0400
-Received: from master.altlinux.org ([62.118.250.235]:60433 "EHLO
-	master.altlinux.org") by vger.kernel.org with ESMTP
-	id S1751348AbWIUSbC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Sep 2006 14:31:02 -0400
-Date: Thu, 21 Sep 2006 22:30:35 +0400
-From: Sergey Vlasov <vsu@altlinux.ru>
-To: iSteve <isteve@rulez.cz>
-Cc: "Randy.Dunlap" <rdunlap@xenotime.net>, linux-kernel@vger.kernel.org,
-       linux-usb-devel@lists.sourceforge.net
-Subject: broken modules.alias entries for some USB devices
-Message-Id: <20060921223035.c5fda02d.vsu@altlinux.ru>
-In-Reply-To: <20060921165424.139138e5@silver>
-References: <20060920185301.21dcf9bc@silver>
-	<20060920102248.ebb55960.rdunlap@xenotime.net>
-	<20060921165424.139138e5@silver>
-X-Mailer: Sylpheed version 2.2.6 (GTK+ 2.10.2; i586-alt-linux-gnu)
-Mime-Version: 1.0
-Content-Type: multipart/signed; protocol="application/pgp-signature";
- micalg="PGP-SHA1";
- boundary="Signature=_Thu__21_Sep_2006_22_30_35_+0400_QJgnhOoTe6Z6Qjl8"
+	Thu, 21 Sep 2006 14:33:44 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:56737 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1751362AbWIUSdo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Sep 2006 14:33:44 -0400
+Message-ID: <4512DB05.2090604@garzik.org>
+Date: Thu, 21 Sep 2006 14:33:41 -0400
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@osdl.org>
+CC: Andrew Morton <akpm@osdl.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.19 -mm merge plans
+References: <20060920135438.d7dd362b.akpm@osdl.org> <45121382.1090403@garzik.org> <20060920220744.0427539d.akpm@osdl.org> <1158830206.11109.84.camel@localhost.localdomain> <Pine.LNX.4.64.0609210819170.4388@g5.osdl.org> <20060921105959.a55efb5f.akpm@osdl.org> <Pine.LNX.4.64.0609211106391.4388@g5.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0609211106391.4388@g5.osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.3 (----)
+X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Signature=_Thu__21_Sep_2006_22_30_35_+0400_QJgnhOoTe6Z6Qjl8
-Content-Type: text/plain; charset=US-ASCII
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Linus Torvalds wrote:
+> One of the things that I think the current model has excelled at is how it 
+> really changed peoples behaviour, simply because they knew and understood 
+> the rules.
+> 
+> I think the "big merges in the first two weeks, and a -rc1 after, and no 
+> new code after that" rule has been working because it brought everybody in 
+> on the same page. 
 
-On Thu, 21 Sep 2006 16:54:24 +0200 iSteve wrote:
 
-> I've got one more question, this time regarding modules.usbmap.
->=20
-> -modules.usbmap:
-> ibmcam 0x000f 0x0545 0x8080 0x0002 0x0002 0x00 0x00 0x00 0x00 0x00 0x00 0=
-x0
-> ibmcam 0x000f 0x0545 0x8080 0x030a 0x030a 0x00 0x00 0x00 0x00 0x00 0x00 0=
-x0
-> ibmcam 0x000f 0x0545 0x8080 0x0301 0x0301 0x00 0x00 0x00 0x00 0x00 0x00 0=
-x0
-> ibmcam 0x000f 0x0545 0x8002 0x030a 0x030a 0x00 0x00 0x00 0x00 0x00 0x00 0=
-x0
-> ibmcam 0x000f 0x0545 0x800c 0x030a 0x030a 0x00 0x00 0x00 0x00 0x00 0x00 0=
-x0
-> ibmcam 0x000f 0x0545 0x800d 0x030a 0x030a 0x00 0x00 0x00 0x00 0x00 0x00 0=
-x0
-> -EOF
->=20
-> -With corresponding aliases:
-> alias usb:v0545p8080d0002dc*dsc*dp*ic*isc*ip* ibmcam
-> alias usb:v0545p8080d030[10-9]dc*dsc*dp*ic*isc*ip* ibmcam
-> alias usb:v0545p8080d0301dc*dsc*dp*ic*isc*ip* ibmcam
-> alias usb:v0545p8002d030[10-9]dc*dsc*dp*ic*isc*ip* ibmcam
-> alias usb:v0545p800Cd030[10-9]dc*dsc*dp*ic*isc*ip* ibmcam
-> alias usb:v0545p800Dd030[10-9]dc*dsc*dp*ic*isc*ip* ibmcam
-> -EOF
->=20
-> I absolutely do not understand the d030[10-9], where fields bcdDevice_lo =
-and
-> bcdDevice_hi are 0x030a...
+I definitely agree with all that.
 
-This surely looks like a bug.
+I simply argue that, the more time that passes between releases, the 
+MORE BUGS that appear in the next release.
 
-> Looking at drivers/usb/core/usb.c, it'd seem that the MODALIAS sent upon =
-device
-> event doesn't have anything like this -- it would have "[...]d030A[...]".=
- So I
-> wonder, how it got generated?
+After -rc1, you reach a point of diminishing returns where users don't 
+re-test Release Candidates, developers move on to new code rather than 
+fix bugs, and we all move into a limbo where 2.6.X-rcY doesn't see much 
+activity, but the huge "merge snowball" in -mm builds and builds and builds.
 
-scripts/mod/file2alias.c generates these lines from the ID tables.
+As an aside, if a release is getting held up by some key bugs or 
+regressions, I think it's more than fair for Andrew to loudly shame said 
+developers into action.  "The following nincompoops are holding up the 
+release:  Jeff Garzik [bug #1222, #3391], Greg KH [bug #9987, #4418], ..."
 
-> -The relevant items in ibmcam.c:
-> static struct usb_device_id id_table[] =3D {
->         { USB_DEVICE_VER(IBMCAM_VENDOR_ID, IBMCAM_PRODUCT_ID, 0x0002, 0x0=
-002) },
->         { USB_DEVICE_VER(IBMCAM_VENDOR_ID, IBMCAM_PRODUCT_ID, 0x030a, 0x0=
-30a) },
->         { USB_DEVICE_VER(IBMCAM_VENDOR_ID, IBMCAM_PRODUCT_ID, 0x0301, 0x0=
-301) },
->         { USB_DEVICE_VER(IBMCAM_VENDOR_ID, NETCAM_PRODUCT_ID, 0x030a, 0x0=
-30a) },
->         { USB_DEVICE_VER(IBMCAM_VENDOR_ID, VEO_800C_PRODUCT_ID, 0x030a, 0=
-x030a) },
->         { USB_DEVICE_VER(IBMCAM_VENDOR_ID, VEO_800D_PRODUCT_ID, 0x030a, 0=
-x030a) },
+	Jeff
 
-The problem is that the bcdDevice field is supposed to be BCD - i.e.,
-its hex representation should contain only decimal digits 0..9.
-Therefore a proper USB device cannot have bcdDevice =3D=3D 0x030a.
-Apparently some ibmcam devices violate this and use the bcdDevice field
-as if it was binary.
 
->         { }
-> };
-> -EOF
->=20
-> -And the resulting alias part of modinfo:
-> alias: usb:v0545p8080d0002dc*dsc*dp*ic*isc*ip*
-> alias: usb:v0545p8080d030[10-9]dc*dsc*dp*ic*isc*ip*
-> alias: usb:v0545p8080d0301dc*dsc*dp*ic*isc*ip*
-> alias: usb:v0545p8002d030[10-9]dc*dsc*dp*ic*isc*ip*
-> alias: usb:v0545p800Cd030[10-9]dc*dsc*dp*ic*isc*ip*
-> alias: usb:v0545p800Dd030[10-9]dc*dsc*dp*ic*isc*ip*
-
-The code in scripts/mod/file2alias.c assumes that the bcdDevice_lo and
-bcdDevice_hi field contain proper BCD data.  Seems that, thanks to buggy
-hardware, this assumption is incorrect, and the code needs to support
-any hex numbers there.
-
---Signature=_Thu__21_Sep_2006_22_30_35_+0400_QJgnhOoTe6Z6Qjl8
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
-
-iD8DBQFFEtpPW82GfkQfsqIRAtprAJ4+X1HEFtIhDQZcE/QodVOox+YQ6gCbBa3v
-pe3OAKDbrNyMPMeIKPsIZRQ=
-=0tLI
------END PGP SIGNATURE-----
-
---Signature=_Thu__21_Sep_2006_22_30_35_+0400_QJgnhOoTe6Z6Qjl8--

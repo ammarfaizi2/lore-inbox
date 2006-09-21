@@ -1,42 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750735AbWIUKYb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750756AbWIUK2y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750735AbWIUKYb (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Sep 2006 06:24:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750756AbWIUKYb
+	id S1750756AbWIUK2y (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Sep 2006 06:28:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750774AbWIUK2y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Sep 2006 06:24:31 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:28385 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S1750735AbWIUKYa (ORCPT
+	Thu, 21 Sep 2006 06:28:54 -0400
+Received: from z2.cat.iki.fi ([212.16.98.133]:30666 "EHLO z2.cat.iki.fi")
+	by vger.kernel.org with ESMTP id S1750756AbWIUK2y (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Sep 2006 06:24:30 -0400
-Date: Thu, 21 Sep 2006 12:24:12 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: john stultz <johnstul@us.ibm.com>
-cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.19 -mm merge plans (NTP changes)
-In-Reply-To: <1158805731.8648.54.camel@localhost>
-Message-ID: <Pine.LNX.4.64.0609211217190.6761@scrub.home>
-References: <20060920135438.d7dd362b.akpm@osdl.org> <1158805731.8648.54.camel@localhost>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 21 Sep 2006 06:28:54 -0400
+Date: Thu, 21 Sep 2006 13:28:52 +0300
+From: Matti Aarnio <matti.aarnio@zmailer.org>
+To: "Randy.Dunlap" <rdunlap@xenotime.net>
+Cc: Luke Yang <luke.adi@gmail.com>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH 2/4] Blackfin: Serial driver for Blackfin arch on 2.6.18
+Message-ID: <20060921102852.GQ16047@mea-ext.zmailer.org>
+References: <489ecd0c0609202033j4dd9a62fye81f99d61bff030d@mail.gmail.com> <20060920222837.8b2d2a88.rdunlap@xenotime.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060920222837.8b2d2a88.rdunlap@xenotime.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Wed, Sep 20, 2006 at 10:28:37PM -0700, Randy.Dunlap wrote:
+> On Thu, 21 Sep 2006 11:33:05 +0800 Luke Yang wrote:
+> 
+> > This is the serial driver for Blackfin. It is designed for the serial
+> > core framework.
+> > 
+> > As to other drivers, I'll send them one by one later.
+> > 
+> > Signed-off-by: Luke Yang <luke.adi@gmail.com>
+> > 
+> >  drivers/serial/Kconfig      |   35 +
+> >  drivers/serial/Makefile     |    3
+> >  drivers/serial/bfin_5xx.c   |  903 ++++++++++++++++++++++++++++++++++++++++++++
+> >  include/linux/serial_core.h |    3
+> >  4 files changed, 943 insertions(+), 1 deletion(-)
+> > 
+> > diff -urN linux-2.6.18.patch1/drivers/serial/Kconfig
+> > linux-2.6.18.patch2/drivers/serial/Kconfig
+> > --- linux-2.6.18.patch1/drivers/serial/Kconfig	2006-09-21
+> > 09:14:42.000000000 +0800
+> > +++ linux-2.6.18.patch2/drivers/serial/Kconfig	2006-09-21
+> > 09:38:17.000000000 +0800
+> > @@ -488,6 +488,41 @@
+> >  	  your boot loader (lilo or loadlin) about how to pass options to the
+> >  	  kernel at boot time.)
+> > 
+> > +config SERIAL_BFIN
+> > +	bool "Blackfin serial port support (EXPERIMENTAL)"
+> > +	depends on BFIN && EXPERIMENTAL
+> > +	select SERIAL_CORE
+> 
+> Just curious:  why bool and not tristate?  (i.e., why is loadable
+> module not allowed?)
 
-On Wed, 20 Sep 2006, john stultz wrote:
+Target is, after all, uCLinux embedded processor, where one should
+be able to pre-determine what things go in as baseline kernel (what
+hardware was used to build it) and what are possible options.
 
-> No objections here, but I wanted to put forth some caution as I've seen
-> some odd NTP behavior with the full NTP patchset on my laptop (either it
-> does not converge or it just converges *much* more slowly then without).
-> Unfortunately I've not been able to collect solid enough data to analyze
-> the issue (really, each run should go for atleast a full day and always
-> run on the same network).
+All Blackfins have internal UART (or two).
+Some multiplex on same pins also CAN.
 
-grumble...
-As I said before it's expected that the initial covergence is slower and I 
-need the data over multiple days to really say something about it.
-There has been really a lot of time for doing this...
+One of these weeks I should push onward my own BF537 project, I am
+still just pre-collecting all tools to be able to debug it once
+I commit boards to manufacturing...
 
-bye, Roman
+
+  /Matti Aarnio

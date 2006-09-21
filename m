@@ -1,52 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750927AbWIUWA2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751631AbWIUWAp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750927AbWIUWA2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Sep 2006 18:00:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751630AbWIUWA2
+	id S1751631AbWIUWAp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Sep 2006 18:00:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751632AbWIUWAp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Sep 2006 18:00:28 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:17896 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1750924AbWIUWA1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Sep 2006 18:00:27 -0400
-Date: Thu, 21 Sep 2006 14:59:46 -0700
-From: Paul Jackson <pj@sgi.com>
-To: "Paul Menage" <menage@google.com>
-Cc: sekharan@us.ibm.com, npiggin@suse.de, ckrm-tech@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org, rohitseth@google.com, devel@openvz.org,
-       clameter@sgi.com
-Subject: Re: [ckrm-tech] [patch00/05]: Containers(V2)- Introduction
-Message-Id: <20060921145946.8d9ace73.pj@sgi.com>
-In-Reply-To: <6599ad830609211310s4e036e55h89bab26432d83c11@mail.google.com>
-References: <1158718568.29000.44.camel@galaxy.corp.google.com>
-	<Pine.LNX.4.64.0609200916140.30572@schroedinger.engr.sgi.com>
-	<1158777240.6536.89.camel@linuxchandra>
-	<Pine.LNX.4.64.0609201252030.32409@schroedinger.engr.sgi.com>
-	<1158798715.6536.115.camel@linuxchandra>
-	<20060920173638.370e774a.pj@sgi.com>
-	<6599ad830609201742h71d112f4tae8fe390cb874c0b@mail.google.com>
-	<1158803120.6536.139.camel@linuxchandra>
-	<6599ad830609201852k12cee6eey9086247c9bdec8b@mail.google.com>
-	<1158869186.6536.205.camel@linuxchandra>
-	<6599ad830609211310s4e036e55h89bab26432d83c11@mail.google.com>
-Organization: SGI
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
+	Thu, 21 Sep 2006 18:00:45 -0400
+Received: from gate.crashing.org ([63.228.1.57]:45712 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S1751630AbWIUWAo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Sep 2006 18:00:44 -0400
+Subject: Re: [PATCH 2/3] FRV: Permit __do_IRQ() to be dispensed with
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: David Howells <dhowells@redhat.com>
+Cc: Ingo Molnar <mingo@elte.hu>, torvalds@osdl.org, akpm@osdl.org,
+       linux-kernel@vger.kernel.org, uclinux-dev@uclinux.org
+In-Reply-To: <339.1158844334@warthog.cambridge.redhat.com>
+References: <1157786802.31071.171.camel@localhost.localdomain>
+	 <20060908153236.21015.56106.stgit@warthog.cambridge.redhat.com>
+	 <20060908153240.21015.67367.stgit@warthog.cambridge.redhat.com>
+	 <20060909051211.GA6922@elte.hu>
+	 <339.1158844334@warthog.cambridge.redhat.com>
+Content-Type: text/plain
+Date: Fri, 22 Sep 2006 07:59:42 +1000
+Message-Id: <1158875982.26347.125.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul wrote:
-> But, there's no reason that the OpenVZ resource control mechanisms
-> couldn't be hooked into a generic process container mechanism along
-> with cpusets and RG.
+On Thu, 2006-09-21 at 14:12 +0100, David Howells wrote:
+> Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
+> 
+> > It can't optimize __do_IRQ() out in any case if one uses
+> > generic_handle_irq() because of the test in there which can't be
+> > predicted at compile time.
+> 
+> Do you realise that powerpc still uses __do_IRQ if CONFIG_IRQSTACKS=y?  You
+> should probably fix that.
 
-Can the generic container avoid performance bottlenecks due to locks
-or other hot cache lines on the main code paths for fork, exit, page
-allocation and task scheduling?
+At the moment, there is no hurry as this code is shared with arch/ppc
+which hasn't been ported to genirq, so we need to handle both cases.
+(Though I'm not sure we ever get CONFIG_IRQSTACKS with arch/ppc ... I
+should probably check). The code uses desc->handle_irq and falls back to
+__do_IRQ() if that is NULL.
 
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+Ben.
+
+

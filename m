@@ -1,50 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750800AbWIUKqf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750803AbWIUKw4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750800AbWIUKqf (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Sep 2006 06:46:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750803AbWIUKqf
+	id S1750803AbWIUKw4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Sep 2006 06:52:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750804AbWIUKw4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Sep 2006 06:46:35 -0400
-Received: from thunk.org ([69.25.196.29]:30384 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id S1750800AbWIUKqe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Sep 2006 06:46:34 -0400
-Date: Thu, 21 Sep 2006 06:45:54 -0400
-From: Theodore Tso <tytso@mit.edu>
-To: Dmitry Torokhov <dtor@insightbb.com>
-Cc: Robin Getz <rgetz@blackfin.uclinux.org>,
-       "Randy.Dunlap" <rdunlap@xenotime.net>, linux-kernel@vger.kernel.org,
-       Greg KH <gregkh@suse.de>, Andrew Morton <akpm@osdl.org>
-Subject: Re: drivers/char/random.c exported interfaces
-Message-ID: <20060921104554.GA12542@thunk.org>
-Mail-Followup-To: Theodore Tso <tytso@mit.edu>,
-	Dmitry Torokhov <dtor@insightbb.com>,
-	Robin Getz <rgetz@blackfin.uclinux.org>,
-	"Randy.Dunlap" <rdunlap@xenotime.net>, linux-kernel@vger.kernel.org,
-	Greg KH <gregkh@suse.de>, Andrew Morton <akpm@osdl.org>
-References: <6.1.1.1.0.20060920125855.01eca0c0@ptg1.spd.analog.com> <200609210011.25891.dtor@insightbb.com>
+	Thu, 21 Sep 2006 06:52:56 -0400
+Received: from mailout07.sul.t-online.com ([194.25.134.83]:65511 "EHLO
+	mailout07.sul.t-online.com") by vger.kernel.org with ESMTP
+	id S1750803AbWIUKwz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Sep 2006 06:52:55 -0400
+Message-ID: <45126EF6.7060909@t-online.de>
+Date: Thu, 21 Sep 2006 12:52:38 +0200
+From: Bernd Schmidt <bernds_cb1@t-online.de>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060827)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200609210011.25891.dtor@insightbb.com>
-User-Agent: Mutt/1.5.11
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: tytso@thunk.org
-X-SA-Exim-Scanned: No (on thunker.thunk.org); SAEximRunCond expanded to false
+To: Luke Yang <luke.adi@gmail.com>
+CC: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH 4/4] Blackfin: binfmt patch to enhance stacking checking
+References: <489ecd0c0609202033l456d66ceq85ef69e7a4a4aa00@mail.gmail.com>
+In-Reply-To: <489ecd0c0609202033l456d66ceq85ef69e7a4a4aa00@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-ID: bNvWMvZBgeaOn2uZa2ZV9Iw27dy5tye7Mq7rmYmCtD809pBlRmYlko
+X-TOI-MSGID: cdc83e50-f5af-45b2-95a1-48d80569af9a
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 21, 2006 at 12:11:25AM -0400, Dmitry Torokhov wrote:
-> Would there be any objections if I commit the patch below so input
-> could be built as a module? 
+Luke Yang wrote:
 > 
-> -- 
-> Dmitry
-> 
-> Input: fix building input core as a module
-> 
-> Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+> fs/binfmt_elf_fdpic.c       |    7 +-
+> fs/binfmt_flat.c            |  150 
+> ++++++++++++++++++++++++++------------------
+> include/asm-arm/mmu.h       |    1
+> include/asm-frv/mmu.h       |    1
+> include/asm-h8300/mmu.h     |    1
+> include/asm-m32r/mmu.h      |    1
+> include/asm-m68knommu/mmu.h |    1
+> include/asm-sh/mmu.h        |    1
+> include/asm-v850/mmu.h      |    1
+> include/linux/flat.h        |   13 ++-
+> 10 files changed, 112 insertions(+), 65 deletions(-)
 
-Acked-by: "Theodore Ts'o" <tytso@mit.edu>
+I've talked to Luke about this, and I think we'll scratch this last 
+patch for now.  I'll resubmit something smaller in scale which has only 
+the necessary bits to get flat binaries working on the Blackfin, without 
+the stack checking bits.  That should make merging easier and we can add 
+the extra features later.
 
-						- Ted
+
+Bernd

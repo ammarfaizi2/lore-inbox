@@ -1,53 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751035AbWIUIEs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751036AbWIUIFA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751035AbWIUIEs (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Sep 2006 04:04:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751036AbWIUIEs
+	id S1751036AbWIUIFA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Sep 2006 04:05:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751039AbWIUIFA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Sep 2006 04:04:48 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:16324 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751035AbWIUIEo (ORCPT
+	Thu, 21 Sep 2006 04:05:00 -0400
+Received: from mx1.suse.de ([195.135.220.2]:35473 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751040AbWIUIE6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Sep 2006 04:04:44 -0400
-Date: Thu, 21 Sep 2006 09:56:33 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Bill Huey <billh@gnuppy.monkey.org>
-Cc: linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-       John Stultz <johnstul@us.ibm.com>,
-       "Paul E. McKenney" <paulmck@us.ibm.com>,
-       Dipankar Sarma <dipankar@in.ibm.com>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Esben Nielsen <simlo@phys.au.dk>
-Subject: Re: [PATCH] move put_task_struct() reaping into a thread [Re: 2.6.18-rt1]
-Message-ID: <20060921075633.GA30343@elte.hu>
-References: <20060920141907.GA30765@elte.hu> <20060921065624.GA9841@gnuppy.monkey.org> <20060921065402.GA22089@elte.hu> <20060921071838.GA10337@gnuppy.monkey.org> <20060921071624.GA25281@elte.hu> <20060921073222.GC10337@gnuppy.monkey.org> <20060921072908.GA27280@elte.hu> <20060921074805.GA11644@gnuppy.monkey.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 21 Sep 2006 04:04:58 -0400
+From: Andi Kleen <ak@suse.de>
+To: "Jan Beulich" <jbeulich@novell.com>
+Subject: Re: [PATCH 2.6.18] x86_64: silence warning when stack unwinding is disabled
+Date: Thu, 21 Sep 2006 10:04:03 +0200
+User-Agent: KMail/1.9.3
+Cc: "Mikael Pettersson" <mikpe@it.uu.se>, linux-kernel@vger.kernel.org
+References: <200609210712.k8L7CdrR015591@alkaid.it.uu.se> <45125C4C.76E4.0078.0@novell.com>
+In-Reply-To: <45125C4C.76E4.0078.0@novell.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060921074805.GA11644@gnuppy.monkey.org>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -2.9
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.9 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.4979]
-	-0.1 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+Message-Id: <200609211004.03942.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thursday 21 September 2006 09:33, Jan Beulich wrote:
+> A patch to this effect is already queued in -mm (and perhaps also in Andi's tree). Jan
 
-* Bill Huey <billh@gnuppy.monkey.org> wrote:
+I refixed it independently a few minutes ago.
 
-> [...] If the upstream kernel used RCU function in a task allocation or 
-> task struct reading in the first place then call_rcu() would be a 
-> clear choice. However, I didn't see it used in that way (I could be 
-> wrong) [...]
+There was also another compile error in my tree with unwind disabled which
+I fixed.
 
-it was RCU-ified briefly but then it was further improved to direct 
-freeing, because upstream _can_ free it directly.
-
-	Ingo
+-Andi

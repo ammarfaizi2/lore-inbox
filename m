@@ -1,80 +1,167 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750810AbWIUAMQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750804AbWIUANf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750810AbWIUAMQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Sep 2006 20:12:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750811AbWIUAMQ
+	id S1750804AbWIUANf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Sep 2006 20:13:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750813AbWIUANf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Sep 2006 20:12:16 -0400
-Received: from xenotime.net ([66.160.160.81]:34194 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1750810AbWIUAMQ (ORCPT
+	Wed, 20 Sep 2006 20:13:35 -0400
+Received: from gw.goop.org ([64.81.55.164]:63886 "EHLO mail.goop.org")
+	by vger.kernel.org with ESMTP id S1750804AbWIUANe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Sep 2006 20:12:16 -0400
-Date: Wed, 20 Sep 2006 17:13:19 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: Reiner Herrmann <reiner@reiner-h.de>
-Cc: adaplas@pol.net, kernel-janitors@lists.osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Documentation fixes in intel810.txt
-Message-Id: <20060920171319.adb5fc5a.rdunlap@xenotime.net>
-In-Reply-To: <200609210132.54818.reiner@reiner-h.de>
-References: <200609210103.10768.reiner@reiner-h.de>
-	<20060920161546.7d009c9e.rdunlap@xenotime.net>
-	<200609210132.54818.reiner@reiner-h.de>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 20 Sep 2006 20:13:34 -0400
+Message-ID: <4511D92A.3090204@goop.org>
+Date: Wed, 20 Sep 2006 17:13:30 -0700
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
+MIME-Version: 1.0
+To: Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>
+CC: Martin Bligh <mbligh@google.com>, "Frank Ch. Eigler" <fche@redhat.com>,
+       Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>, prasanna@in.ibm.com,
+       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
+       Paul Mundt <lethal@linux-sh.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>, Jes Sorensen <jes@sgi.com>,
+       Tom Zanussi <zanussi@us.ibm.com>,
+       Richard J Moore <richardj_moore@uk.ibm.com>,
+       Michel Dagenais <michel.dagenais@polymtl.ca>,
+       Christoph Hellwig <hch@infradead.org>,
+       Greg Kroah-Hartman <gregkh@suse.de>,
+       Thomas Gleixner <tglx@linutronix.de>, William Cohen <wcohen@redhat.com>,
+       ltt-dev@shafik.org, systemtap@sources.redhat.com,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH] Linux Markers 0.4 (+dynamic probe loader) for 2.6.17
+References: <20060920234517.GA29171@Krystal>
+In-Reply-To: <20060920234517.GA29171@Krystal>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 21 Sep 2006 01:32:54 +0200 Reiner Herrmann wrote:
+Mathieu Desnoyers wrote:
+> +#define MARK_SYM(name)	__asm__ ("__mark_kprobe_" #name ":")
+>   
 
-> > >  
-> > > -   g. "hsync1/hsync2:<value>" 
-> > > -	select the minimum and maximum Horizontal Sync Frequency of the 
-> > > -	monitor in KHz.  If a using a fixed frequency monitor, hsync1 must 
-> > > +   g. "hsync1/hsync2:<value>"
-> > > +	select the minimum and maximum Horizontal Sync Frequency of the
-> > > +	monitor in kHz.  If using a fixed frequency monitor, hsync1 must
-> > 
-> > Why small 'k'?  Is that some standard?
-> > I prefer KHz but I'm flexible.
-> 
-> Those prefixes are case-sensitive (i.e. m = milli and M = Mega).
-> The abbreviation for kilo is a lowercase k.
+This will need to be "asm volatile()" so that gcc doesn't get rid of it 
+altogether.  Also, there's nothing to make gcc keep this in any 
+particular place in the instruction stream, since it doesn't have any 
+data dependencies on anything else.  A "memory" clobber might help, but 
+ideally it would have some explicit data dependency on an important 
+value at that point.
 
-Yep, unfortunately.  so there goes history.  oh well.  :)
+> +#else 
+> +#define MARK_SYM(name)
+> +#endif
+> +
+> +
+> +#ifdef CONFIG_MARK_JUMP_CALL
+> +#define MARK_JUMP_CALL_PROTOTYPE(name) \
+> +	static void \
+> +		(*__mark_##name##_call)(const char *fmt, ...) \
+> +		asm ("__mark_"#name"_call") = \
+> +			__mark_empty_function
+> +#define MARK_JUMP_CALL(name, format, args...) \
+> +	do { \
+> +		preempt_disable(); \
+> +		(void) (__mark_##name##_call(format, ## args)); \
+>   
 
-> So here is a corrected version of the patch (with some more fixes I just detected).
+(*foo)(args) is the preferred style for calling function pointers, since 
+it makes the pointerness explicit.  Though in this case there's enough 
+other complexity that the function call syntax is pretty much irrelevant 
+here.
 
-one small comment below.
+> +		preempt_enable_no_resched(); \
+> +	} while(0)
+> +#else
+> +#define MARK_JUMP_CALL_PROTOTYPE(name)
+> +#define MARK_JUMP_CALL(name, format, args...)
+> +#endif
+> +
+> +#ifdef CONFIG_MARK_JUMP_INLINE
+> +#define MARK_JUMP_INLINE(name, format, args...) \
+> +		(void) (__mark_##name##_inline(format, ## args))
+> +#else
+> +#define MARK_JUMP_INLINE(name, format, args...)
+> +#endif
+> +
+> +#define MARK_JUMP(name, format, args...) \
+> +	do { \
+> +		__label__ over_label, call_label, inline_label; \
+> +		volatile static void *__mark_##name##_jump_over \
+> +				asm ("__mark_"#name"_jump_over") = \
+> +					&&over_label; \
+> +		volatile static void *__mark_##name##_jump_call \
+> +				asm ("__mark_"#name"_jump_call") \
+> +				__attribute__((unused)) =  \
+> +					&&call_label; \
+> +		volatile static void *__mark_##name##_jump_inline \
+> +				asm ("__mark_"#name"_jump_inline") \
+> +				__attribute__((unused)) =  \
+> +					&&inline_label; \
+> +		MARK_JUMP_CALL_PROTOTYPE(name); \
+> +		goto *__mark_##name##_jump_over; \
+> +call_label: \
+> +		MARK_JUMP_CALL(name, format, ## args); \
+> +		goto over_label; \
+> +inline_label: \
+> +		MARK_JUMP_INLINE(name, format, ## args); \
+> +over_label: \
+> +		do {} while(0); \
+> +	} while(0)
+>   
 
-> Signed-off-by: Reiner Herrmann <reiner@reiner-h.de>
-> ---
-> diff -uprN -X linux-2.6.18/Documentation/dontdiff linux-2.6.18/Documentation/fb/intel810.txt linux-work/Documentation/fb/intel810.txt
-> --- linux-2.6.18/Documentation/fb/intel810.txt	2006-09-20 05:42:06.000000000 +0200
-> +++ linux-work/Documentation/fb/intel810.txt	2006-09-21 01:30:37.000000000 +0200
+I have to admit I haven't been following all this tracing stuff, but 
+this is pretty opaque.  What's it trying to achieve?  Hm, OK, I think I 
+see what you're getting at here - see below.
 
-> -   i. "voffset:<value>"	
-> -        select at what offset in MB of the logical memory to allocate the 
-> +   i. "voffset:<value>"
-> +	select at what offset in MB of the logical memory to allocate the
->  	framebuffer memory.  The intent is to avoid the memory blocks
->  	used by standard graphics applications (XFree86).  The default
-> -        offset (16 MB for a 64MB aperture, 8 MB for a 32MB aperture) will
-> -        avoid XFree86's usage and allows up to 7MB/15MB of framebuffer
-> -        memory.  Depending on your usage, adjust the value up or down, 
-> -	(0 for maximum usage, 31/63 MB for the least amount).  Note, an 
-> +	offset (16 MB for a 64MB aperture, 8 MB for a 32MB aperture) will
+> +
+> +#define MARK(name, format, args...) \
+> +	do { \
+> +		__mark_check_format(format, ## args); \
+> +		MARK_SYM(name); \
+> +		MARK_JUMP(name, format, ## args); \
+> +	} while(0)
+>   
 
-You could make "<number> MB" be consistent (preferably with space there).
-Otherwise looks good to me.  Thanks.
+Does this assume that the symbol injected by MARK_SYM() will label the 
+MARK_JUMP() code?  Because it won't.
 
-> +	avoid XFree86's usage and allows up to 7MB/15MB of framebuffer
-> +	memory.  Depending on your usage, adjust the value up or down,
-> +	(0 for maximum usage, 31/63 MB for the least amount).  Note, an
->  	arbitrary setting may conflict with XFree86.
+> 	
+> 	printk("Installing hook\n");
+> 	*target_mark_call = (void*)do_mark1;
+> 	saved_over = *target_mark_jump_over;
+> 	*target_mark_jump_over = *target_mark_jump_call;
+>   
 
----
-~Randy
+So the point of this is to set up the new function, then update the 
+jumpover to point to it, in a way that's SMP safe?  This assumes two things:
+
+   1. that your pointer updates are atomic
+   2. that these writes don't get reordered
+
+1 might be safe, but I don't think its guaranteed for all 
+architectures.  2 is not true without some explicit barriers in there.  
+You'll probably need some in MARK_JUMP too.
+
+
+> 	return 0;
+> }
+>
+> int init_module(void)
+> {
+> 	return mark_install_hook();
+> }
+>
+> void cleanup_module(void)
+> {
+> 	printk("Removing hook\n");
+> 	*target_mark_jump_over = saved_over;
+> 	*target_mark_call = __mark_empty_function;
+>
+> 	/* Wait for instrumentation functions to return before quitting */
+> 	synchronize_sched();
+> }
+>   
+
+What if multiple people hook onto the same mark?  Are you assuming LIFO?
+
+    J

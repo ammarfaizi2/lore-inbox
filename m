@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932088AbWIUWlJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932087AbWIUWmT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932088AbWIUWlJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Sep 2006 18:41:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932087AbWIUWlJ
+	id S932087AbWIUWmT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Sep 2006 18:42:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932093AbWIUWmT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Sep 2006 18:41:09 -0400
-Received: from smtp.ono.com ([62.42.230.12]:31177 "EHLO resmta04.ono.com")
-	by vger.kernel.org with ESMTP id S932088AbWIUWlG convert rfc822-to-8bit
+	Thu, 21 Sep 2006 18:42:19 -0400
+Received: from smtp.ono.com ([62.42.230.12]:18162 "EHLO resmta04.ono.com")
+	by vger.kernel.org with ESMTP id S932087AbWIUWmS convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Sep 2006 18:41:06 -0400
-Date: Fri, 22 Sep 2006 00:40:02 +0200
+	Thu, 21 Sep 2006 18:42:18 -0400
+Date: Fri, 22 Sep 2006 00:41:08 +0200
 From: "J.A. =?UTF-8?B?TWFnYWxsw7Nu?=" <jamagallon@ono.com>
 To: jhf@columbus.rr.com (Joseph Fannin)
 Cc: Laurent Riffard <laurent.riffard@free.fr>,
        Kernel development list <linux-kernel@vger.kernel.org>, akpm@osdl.org
 Subject: Re: 2.6.18-rc7-mm1: no /dev/tty0
-Message-ID: <20060922004002.663a6fe8@werewolf.auna.net>
+Message-ID: <20060922004108.187a8a75@werewolf.auna.net>
 In-Reply-To: <20060921224049.GA2501@nineveh.rivenstone.net>
 References: <20060921234151.2dd12d32@werewolf.auna.net>
 	<45130CF9.4060806@free.fr>
@@ -73,7 +73,7 @@ On Thu, 21 Sep 2006 18:40:50 -0400, jhf@columbus.rr.com (Joseph Fannin) wrote:
 > create /dev/alsa or /dev/psaux.
 > 
 
-Not my case, at least:
+Not mya case, at least:
 
 werewolf:~> rpm -q udev
 udev-098-6mdv2007.0

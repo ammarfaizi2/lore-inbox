@@ -1,73 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750968AbWIUBpZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750964AbWIUBpI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750968AbWIUBpZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Sep 2006 21:45:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750976AbWIUBpZ
+	id S1750964AbWIUBpI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Sep 2006 21:45:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750975AbWIUBpI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Sep 2006 21:45:25 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.152]:55237 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750968AbWIUBpX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Sep 2006 21:45:23 -0400
-Subject: Re: [ckrm-tech] [patch00/05]: Containers(V2)- Introduction
-From: Chandra Seetharaman <sekharan@us.ibm.com>
-Reply-To: sekharan@us.ibm.com
-To: Paul Menage <menage@google.com>
-Cc: Paul Jackson <pj@sgi.com>, npiggin@suse.de,
-       ckrm-tech@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       rohitseth@google.com, devel@openvz.org, clameter@sgi.com
-In-Reply-To: <6599ad830609201742h71d112f4tae8fe390cb874c0b@mail.google.com>
-References: <1158718568.29000.44.camel@galaxy.corp.google.com>
-	 <Pine.LNX.4.64.0609200916140.30572@schroedinger.engr.sgi.com>
-	 <1158777240.6536.89.camel@linuxchandra>
-	 <Pine.LNX.4.64.0609201252030.32409@schroedinger.engr.sgi.com>
-	 <1158798715.6536.115.camel@linuxchandra>
-	 <20060920173638.370e774a.pj@sgi.com>
-	 <6599ad830609201742h71d112f4tae8fe390cb874c0b@mail.google.com>
+	Wed, 20 Sep 2006 21:45:08 -0400
+Received: from ms-smtp-03.nyroc.rr.com ([24.24.2.57]:17403 "EHLO
+	ms-smtp-03.nyroc.rr.com") by vger.kernel.org with ESMTP
+	id S1750964AbWIUBpF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Sep 2006 21:45:05 -0400
+Subject: [PATCH] is it Andy or Andi ??
+From: Steven Rostedt <rostedt@goodmis.org>
+To: LKML <linux-kernel@vger.kernel.org>
+Cc: Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@suse.de>
 Content-Type: text/plain
-Organization: IBM
-Date: Wed, 20 Sep 2006 18:45:20 -0700
-Message-Id: <1158803120.6536.139.camel@linuxchandra>
+Date: Wed, 20 Sep 2006 21:44:53 -0400
+Message-Id: <1158803093.27420.3.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-7) 
+X-Mailer: Evolution 2.6.2 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-09-20 at 17:42 -0700, Paul Menage wrote:
-> On 9/20/06, Paul Jackson <pj@sgi.com> wrote:
-> > Chandra wrote:
-> > > AFAICS, That doesn't help me in over committing resources.
-> >
-> > I agree - I don't think cpusets plus fake numa ... handles over commit.
-> > You might could hack up a cheap substitute, but it wouldn't do the job.
-> 
-> I have some patches locally that basically let you give out a small
-> set of nodes initially to a cpuset, and if memory pressure in
-> try_to_free_pages() passes a specified threshold, automatically
-> allocate one of the parent cpuset's unused memory nodes to the child
-> cpuset, up to specified limit. It's a bit ugly, but lets you trade of
-> performance vs memory footprint on a per-job basis (when combined with
-> fake numa to give lots of small nodes).
+I don't know of any Andy Kleen's but I do know a Andi Kleen.
 
-Interesting. So you could set up the fake node with "guarantee" and let
-it grow till "limit" ?
+-- Steve
 
-BTW, can you do these with fake nodes:
- - dynamic creation
- - dynamic removal
- - dynamic change of size
+Signed-off-by: Steven Rostedt <rostedt@goodmis.org>
 
-Also, How could we account when a process moves from one node to
-another ?
-  
-> 
-> Paul
--- 
-
-----------------------------------------------------------------------
-    Chandra Seetharaman               | Be careful what you choose....
-              - sekharan@us.ibm.com   |      .......you may get it.
-----------------------------------------------------------------------
+Index: linux-2.6.18/net/core/utils.c
+===================================================================
+--- linux-2.6.18.orig/net/core/utils.c	2006-09-20 21:40:20.000000000 -0400
++++ linux-2.6.18/net/core/utils.c	2006-09-20 21:40:27.000000000 -0400
+@@ -3,7 +3,7 @@
+  *
+  *	Authors:
+  *	net_random Alan Cox
+- *	net_ratelimit Andy Kleen
++ *	net_ratelimit Andi Kleen
+  *
+  *	Created by Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>
+  *
 
 

@@ -1,70 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751494AbWIUTyK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751538AbWIUUGa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751494AbWIUTyK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Sep 2006 15:54:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751496AbWIUTyK
+	id S1751538AbWIUUGa (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Sep 2006 16:06:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751539AbWIUUGa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Sep 2006 15:54:10 -0400
-Received: from gw.goop.org ([64.81.55.164]:24464 "EHLO mail.goop.org")
-	by vger.kernel.org with ESMTP id S1751494AbWIUTyJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Sep 2006 15:54:09 -0400
-Message-ID: <4512EDDC.2010000@goop.org>
-Date: Thu, 21 Sep 2006 12:54:04 -0700
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
-MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: "Frank Ch. Eigler" <fche@redhat.com>,
-       Mathieu Desnoyers <compudj@krystal.dyndns.org>,
-       Martin Bligh <mbligh@google.com>,
-       Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>, prasanna@in.ibm.com,
-       Andrew Morton <akpm@osdl.org>,
-       Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
-       Paul Mundt <lethal@linux-sh.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>, Jes Sorensen <jes@sgi.com>,
-       Tom Zanussi <zanussi@us.ibm.com>,
-       Richard J Moore <richardj_moore@uk.ibm.com>,
-       Michel Dagenais <michel.dagenais@polymtl.ca>,
-       Christoph Hellwig <hch@infradead.org>,
-       Greg Kroah-Hartman <gregkh@suse.de>,
-       Thomas Gleixner <tglx@linutronix.de>, William Cohen <wcohen@redhat.com>,
-       ltt-dev@shafik.org, systemtap@sources.redhat.com,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCH] Linux Kernel Markers 0.5 for Linux 2.6.17 (with probe
- management)
-References: <20060921160009.GA30115@Krystal> <20060921175648.GB22226@redhat.com> <20060921185029.GB12048@elte.hu>
-In-Reply-To: <20060921185029.GB12048@elte.hu>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Thu, 21 Sep 2006 16:06:30 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.149]:43956 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751538AbWIUUG3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Sep 2006 16:06:29 -0400
+Subject: Re: [ckrm-tech] [patch00/05]: Containers(V2)- Introduction
+From: Chandra Seetharaman <sekharan@us.ibm.com>
+Reply-To: sekharan@us.ibm.com
+To: Paul Menage <menage@google.com>
+Cc: Paul Jackson <pj@sgi.com>, npiggin@suse.de,
+       ckrm-tech@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       rohitseth@google.com, devel@openvz.org, clameter@sgi.com
+In-Reply-To: <6599ad830609201852k12cee6eey9086247c9bdec8b@mail.google.com>
+References: <1158718568.29000.44.camel@galaxy.corp.google.com>
+	 <Pine.LNX.4.64.0609200916140.30572@schroedinger.engr.sgi.com>
+	 <1158777240.6536.89.camel@linuxchandra>
+	 <Pine.LNX.4.64.0609201252030.32409@schroedinger.engr.sgi.com>
+	 <1158798715.6536.115.camel@linuxchandra>
+	 <20060920173638.370e774a.pj@sgi.com>
+	 <6599ad830609201742h71d112f4tae8fe390cb874c0b@mail.google.com>
+	 <1158803120.6536.139.camel@linuxchandra>
+	 <6599ad830609201852k12cee6eey9086247c9bdec8b@mail.google.com>
+Content-Type: text/plain
+Organization: IBM
+Date: Thu, 21 Sep 2006 13:06:26 -0700
+Message-Id: <1158869186.6536.205.camel@linuxchandra>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-7) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
-> let me qualify that: parameters must be prepared there too - but no 
-> actual function call inserted. (at most a NOP inserted). The register 
-> filling doesnt even have to be function-calling-convention compliant - 
-> that makes the symbolic probe almost zero-impact to register 
-> allocation/scheduling, the only thing it should ensure is that the 
-> parameters that are annotated to be available in register, stack or 
-> memory _somewhere_. (i.e. not hidden or destroyed at that point by gcc) 
-> Does a simple asm() that takes read-only parameters but only adds a NOP 
-> achieve this result?
+On Wed, 2006-09-20 at 18:52 -0700, Paul Menage wrote:
+> On 9/20/06, Chandra Seetharaman <sekharan@us.ibm.com> wrote:
+> >
+> > Interesting. So you could set up the fake node with "guarantee" and let
+> > it grow till "limit" ?
+> 
+> Sure - that works great. (Theoretically you could do this all in
+> userspace - start by assigning  "guarantee" nodes to a
+> container/cpuset and when it gets close to its memory limit assign
+> more nodes to it. But in practice userspace can't keep up with rapid
+> memory allocators.
+> 
+I agree, especially when one of your main object is resource
+utilization. Think about the magnitude of this when you have to deal
+with 100s of containers.
 
-Do you mean using the asm to make sure gcc puts a reference to a 
-variable into the DWARF info, or some other way of encoding the value 
-locations?
+> >
+> > BTW, can you do these with fake nodes:
+> >  - dynamic creation
+> >  - dynamic removal
+> >  - dynamic change of size
+> 
+> The current fake numa support requires you to choose your node layout
+> at boot time - I've been working with 64 fake nodes of 128M each,
+> which gives a reasonable granularity for dividing a machine between
+> multiple different sized jobs.
 
-Hm, another problem.  If the mark is in a loop, and gcc decides to 
-unroll the loop, then you'll probably only get a mark in one iteration 
-of the loop (or 1/Nth of the iterations).  Or worse, assembler errors.  
-The only way I can see to deal with this is to not use symbols, but put 
-records in a special section.  That way, if the asm() inserting them 
-gets duplicated, you'll get duplicate records in the marker section.
+It still will not satisfy what OpenVZ/Container folks are looking for:
+100s of containers.
 
-I guess you'd get a similar problem with markers inserted in inlined 
-functions.
+> 
+> >
+> > Also, How could we account when a process moves from one node to
+> > another ?
+> 
+> If you want to do that (the systems I'm working on don't really) you
+> could probably do it with the migrate_pages() syscall. It might not be
+> that efficient though.
 
-(How does gdb deal with breakpoints in unrolled loops?)
+Totally agree, that will be very costly.
+> 
+> Paul
+-- 
 
-    J
+----------------------------------------------------------------------
+    Chandra Seetharaman               | Be careful what you choose....
+              - sekharan@us.ibm.com   |      .......you may get it.
+----------------------------------------------------------------------
+
+

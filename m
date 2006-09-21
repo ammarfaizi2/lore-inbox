@@ -1,137 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751404AbWIUR7Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751405AbWIUSAS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751404AbWIUR7Y (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Sep 2006 13:59:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751405AbWIUR7Y
+	id S1751405AbWIUSAS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Sep 2006 14:00:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751409AbWIUSAS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Sep 2006 13:59:24 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:52402 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751404AbWIUR7X (ORCPT
+	Thu, 21 Sep 2006 14:00:18 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:28896 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751405AbWIUSAP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Sep 2006 13:59:23 -0400
-Date: Thu, 21 Sep 2006 13:56:48 -0400
-From: "Frank Ch. Eigler" <fche@redhat.com>
-To: Mathieu Desnoyers <compudj@krystal.dyndns.org>
-Cc: Martin Bligh <mbligh@google.com>, "Frank Ch. Eigler" <fche@redhat.com>,
-       Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>, prasanna@in.ibm.com,
-       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-       Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
-       Paul Mundt <lethal@linux-sh.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>, Jes Sorensen <jes@sgi.com>,
-       Tom Zanussi <zanussi@us.ibm.com>,
-       Richard J Moore <richardj_moore@uk.ibm.com>,
-       Michel Dagenais <michel.dagenais@polymtl.ca>,
-       Christoph Hellwig <hch@infradead.org>,
-       Greg Kroah-Hartman <gregkh@suse.de>,
-       Thomas Gleixner <tglx@linutronix.de>, William Cohen <wcohen@redhat.com>,
-       ltt-dev@shafik.org, systemtap@sources.redhat.com,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCH] Linux Kernel Markers 0.5 for Linux 2.6.17 (with probe management)
-Message-ID: <20060921175648.GB22226@redhat.com>
-References: <20060921160009.GA30115@Krystal>
+	Thu, 21 Sep 2006 14:00:15 -0400
+Date: Thu, 21 Sep 2006 10:59:59 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Jeff Garzik <jeff@garzik.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.19 -mm merge plans
+Message-Id: <20060921105959.a55efb5f.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0609210819170.4388@g5.osdl.org>
+References: <20060920135438.d7dd362b.akpm@osdl.org>
+	<45121382.1090403@garzik.org>
+	<20060920220744.0427539d.akpm@osdl.org>
+	<1158830206.11109.84.camel@localhost.localdomain>
+	<Pine.LNX.4.64.0609210819170.4388@g5.osdl.org>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="ikeVEW9yuYc//A+q"
-Content-Disposition: inline
-In-Reply-To: <20060921160009.GA30115@Krystal>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 21 Sep 2006 08:25:55 -0700 (PDT)
+Linus Torvalds <torvalds@osdl.org> wrote:
 
---ikeVEW9yuYc//A+q
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
+> 
+> 
+> On Thu, 21 Sep 2006, Alan Cox wrote:
+> > 
+> > A suggestion from the department of evil ideas: Call even cycles
+> > development odd ones stabilizing. Nothing gets into an odd one without a
+> > review and linux-kernel signoff/ack ?
+> 
+> I don't think that's an evil idea, and in fact we've discussed it before. 
+> I personally like it - right now we tend to have that "interminable series 
+> of -rc<n>" (where <n> is 3..) before release, and I'd almost personally 
+> prefer to just have a rule that is more along the lines of
+> 
+>  - 2.6.<odd> is "the big initial merges with all the obvious fixes to make 
+>    it all work" (ie roughly the current -rc2 or perhaps -rc3).
+> 
+>  - 2.6.<even> is "no big merges, just careful fixes" (ie the current "real 
+>    release")
+> 
+> Each would be ~3 weeks, leaving us with effectively the same real release 
+> schedule, just a naming change.
+> 
+> That said, I think Andrew was of the opinion that it doesn't really _fix_ 
+> anything, and he may well be right. What's the point of the odd release, 
+> if the weekly snapshots after that are supposed to be strictly better than 
+> it anyway?
+> 
+> So I think I may like it just because it _seems_ to combine the good 
+> features of both the old naming scheme and the current one, but I suspect 
+> Andrew may be right in that it doesn't _really_ change anything, deep 
+> down.
+> 
 
-Hi -
+Again, before we can implement anything we should describe what problem we are
+actually trying to solve here.
 
-> Yet, again, a new version. I integrated a full probe management
-> mechanism.  [...]
+Jeff: "I want faster release cycles because <no reason given>"
 
-Thank you for continuing on.
+Me: "I want less bugs"
 
-> +#define MARK_SYM(name) \
-> +		here: asm volatile \
-> +			(MARK_KPROBE_PREFIX#name " = %0" : : "m" (*&&here)); \
-
-Regarding MARK_SYM, if I read Ingo's message correctly, this is the
-only type of marker he believes is necessary, since it would put a
-place for kprobes to put a breakpoint.  FWIW, this still appears to be
-applicable only if the int3 overheads are tolerable, and if parameter
-data extraction is unnecessary or sufficiently robust "by accident".
-
-
-Regarding:
-
-> +#define MARK_JUMP(name, format, args...) \
-> [...]
-
-All this leap/jump/branch elaboration may be based upon scanty
-benchmarks.  The plain conditional-indirect function call is already
-"fast", especially if its hosting compilation unit is compiled with
--freorder-blocks.
-
-Direct jumps to instrumentation are unlikely to be of a great deal of
-use, in that there would have to be some assembly-level code in
-between to save/restore affected registers.  Remember, ultimately the
-handler will be written in C.
-
-Regarding use of an empty_function() sentinel instead of NULLs, it is
-worth measuring carefully whether a unconditional indirect call to
-such a dummy function is faster than a conditional indirect call.  It
-may have to be a per-architecture internal implementation option.
-
-Regarding varargs, I still believe that varargs have poorer
-type-safety.  Remember, it's not just type-safety at the marker site
-(which gcc's printf-format-checker could validate), but the handler's
-too.  I believe it is incorrect that a non-varargs function can always
-safely take a call from a varargs call - varargs changes the calling
-conventions.  This would mean that the handler would itself have to be
-varargs, with all the attendant run-time overheads.  (Plus the idea of
-using a build-time script to generate the non-verargs handlers from
-analyzing particular MARK() calls is itself probably a bit complex for
-its own good.)
-
-Regarding measurements in general, one must avoid being misled by
-microbenchmarks such as those that represent an extreme of caching
-friendliness.  It may be necessary to run large system-level tests to
-meaningfully compare alternatives.
-
-
-> +int marker_set_probe(const char *name, void (*probe)(const char *fmt, ...),
-> +			enum marker_type type);
-> +void marker_disable_probe(const char *name, void (*probe)(const char *fmt, ...),
-> +			enum marker_type type);
-
-I'm unclear about what a merker_type value represents.  Could you go
-over that again?
-
-
-> +static int marker_get_pointers(const char *name,
-> + [...]
-> +	ptrs->call = (void**)kallsyms_lookup_name(call_sym);
-> +	ptrs->jmpselect = (void**)kallsyms_lookup_name(jmpselect_sym);
-> +	ptrs->jmpcall = (void**)kallsyms_lookup_name(jmpcall_sym);
-> +	ptrs->jmpinline = (void**)kallsyms_lookup_name(jmpinline_sym);
-> +	ptrs->jmpover = (void**)kallsyms_lookup_name(jmpover_sym);
-> [...]
-
-I wonder whether, as for kprobes, it will be necessary to lock into
-memory a module containing an active marker.
-
-
-- FChE
-
---ikeVEW9yuYc//A+q
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-
-iD8DBQFFEtJgVZbdDOm/ZT0RAk9mAJ442kN2nNuTRqm9io4IL2RBMBxJJgCdH8jX
-mBQPmm8Pkl/7cH6hqIyIYmY=
-=f+L/
------END PGP SIGNATURE-----
-
---ikeVEW9yuYc//A+q--
+Anyone else?

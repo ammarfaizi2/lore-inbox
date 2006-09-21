@@ -1,87 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750884AbWIUAvM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750887AbWIUAwH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750884AbWIUAvM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Sep 2006 20:51:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750886AbWIUAvL
+	id S1750887AbWIUAwH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Sep 2006 20:52:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750892AbWIUAwH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Sep 2006 20:51:11 -0400
-Received: from dvhart.com ([64.146.134.43]:34535 "EHLO dvhart.com")
-	by vger.kernel.org with ESMTP id S1750884AbWIUAvK (ORCPT
+	Wed, 20 Sep 2006 20:52:07 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:14491 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1750891AbWIUAwE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Sep 2006 20:51:10 -0400
-Message-ID: <4511E1CA.6090403@mbligh.org>
-Date: Wed, 20 Sep 2006 17:50:18 -0700
-From: "Martin J. Bligh" <mbligh@mbligh.org>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060728)
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, Christoph Lameter <clameter@engr.sgi.com>
-Subject: Re: ZONE_DMA
-References: <20060920135438.d7dd362b.akpm@osdl.org>	<4511D855.7050100@mbligh.org> <20060920172253.f6d11445.akpm@osdl.org>
-In-Reply-To: <20060920172253.f6d11445.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Wed, 20 Sep 2006 20:52:04 -0400
+Date: Wed, 20 Sep 2006 17:51:52 -0700
+From: Paul Jackson <pj@sgi.com>
+To: sekharan@us.ibm.com
+Cc: menage@google.com, npiggin@suse.de, ckrm-tech@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org, rohitseth@google.com, devel@openvz.org,
+       clameter@sgi.com
+Subject: Re: [ckrm-tech] [patch00/05]: Containers(V2)- Introduction
+Message-Id: <20060920175152.25dcf5ca.pj@sgi.com>
+In-Reply-To: <1158799559.6536.120.camel@linuxchandra>
+References: <1158718568.29000.44.camel@galaxy.corp.google.com>
+	<Pine.LNX.4.64.0609200916140.30572@schroedinger.engr.sgi.com>
+	<1158777240.6536.89.camel@linuxchandra>
+	<6599ad830609201143h19f6883wb388666e27913308@mail.google.com>
+	<1158778496.6536.95.camel@linuxchandra>
+	<6599ad830609201225k3d38afe2gea7adc2fa8067e0@mail.google.com>
+	<20060920134903.fbd9fea8.pj@sgi.com>
+	<1158799559.6536.120.camel@linuxchandra>
+Organization: SGI
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> (Subject rewritten, developer cc'ed, thwap delivered)
+Chandra wrote:
+> > It seems that cpusets can mimic memory resource groups.  I don't
 > 
-> On Wed, 20 Sep 2006 17:09:57 -0700
-> "Martin J. Bligh" <mbligh@mbligh.org> wrote:
-> 
->>> introduce-config_zone_dma.patch
->>> optional-zone_dma-in-the-vm.patch
->>> optional-zone_dma-in-the-vm-tidy.patch
->>> optional-zone_dma-for-i386.patch
->>> optional-zone_dma-for-x86_64.patch
->>> optional-zone_dma-for-ia64.patch
->>> remove-zone_dma-remains-from-parisc.patch
->>> remove-zone_dma-remains-from-sh-sh64.patch
->> Would it not make sense to define what ZONE_DMA actually means
->> consistently before trying to change it? The current mess across
->> different architectures seems like a disaster area to me.
->>
->> What DOES requesting ZONE_DMA from a driver actually mean?
->>
-> 
-> AFAIK it means "floppy disks" ;)
+> I am little confused w.r.t how cpuset can mimic memory resource groups.
+> How can cpuset provide support for over commit.
 
-That's the problem - it doesn't mean that at all, except on ia32.
-It means totally different things on different architectures. IIRC,
-on PPC64, it's all of memory.
+I didn't say "mimic well" ;).
 
-Having something that's used in generic code that means random
-things on different arches just seems like a recipe for disaster
-to me.
+I had no clue cpusets could do overcommit at all, though Paul Menage just
+posted a notion of how to mimic overcommit, with his post beginning:
 
-> My concern about these patches is that they'll only be useful for
-> self-compiled kernels, because distros will be forced to enable ZONE_DMA
-> for evermore anyway.
-> 
-> If that's correct then perhaps we should drop these patches, because they
-> will serve to weaken ongoing testing.
+> I have some patches locally that basically let you give out a small
+> set of nodes initially to a cpuset, and if memory pressure in
+> try_to_free_pages() passes a specified threshold, automatically
+> allocate one of the parent cpuset's unused memory nodes to the child
+> cpuset, up to specified limit.
 
-Well, I think we actually need to define what it means before we
-mess with it any more. It's not Christoph's fault that it's broken.
-But messing with something that's pretty much undefined will likely
-have undefined consequences.
-
-Christoph Lameter wrote:
- > Actually the desaster is cleaned up by this patch. A couple of
- > architectures that were wrongly using ZONE_DMA now use ZONE_NORMAL.
-
-OK ... but requesting ZONE_DMA means what? DMAable for which device?
-Is it always a floppy disk? on some platforms a PCI card? And how
-is the VM meant to know what the device is capable of anyway?
-
-Having an arch-specific definition of the limit is arbitrary and
-useless, is it not? The limit is imposed by the device and its
-driver, we're not communicating it into any sensible way into the
-VM code, AFAICS. Unless we're pretending we never call it from
-generic code, which seems woefully unlikely to me.
-
-Are we redefining ZONE_DMA to always be 16MB limit across all
-architectures? At least that'd be consistent.
-
-M.
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

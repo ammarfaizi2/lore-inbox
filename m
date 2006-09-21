@@ -1,46 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751557AbWIUUvK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750968AbWIUU5J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751557AbWIUUvK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Sep 2006 16:51:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751554AbWIUUvK
+	id S1750968AbWIUU5J (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Sep 2006 16:57:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751525AbWIUU5J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Sep 2006 16:51:10 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:25059
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1751547AbWIUUvI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Sep 2006 16:51:08 -0400
-Date: Thu, 21 Sep 2006 13:51:21 -0700 (PDT)
-Message-Id: <20060921.135121.35022014.davem@davemloft.net>
-To: mikpe@it.uu.se
-Cc: simoneau@ele.uri.edu, sparclinux@vger.kernel.org,
+	Thu, 21 Sep 2006 16:57:09 -0400
+Received: from sj-iport-5.cisco.com ([171.68.10.87]:45070 "EHLO
+	sj-iport-5.cisco.com") by vger.kernel.org with ESMTP
+	id S1750968AbWIUU5G (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Sep 2006 16:57:06 -0400
+X-IronPort-AV: i="4.09,196,1157353200"; 
+   d="scan'208"; a="323922202:sNHT30390248"
+To: "Bryan O'Sullivan" <bos@serpentine.com>
+Cc: Bill Waddington <william.waddington@beezmo.com>,
        linux-kernel@vger.kernel.org
-Subject: Re: [sparc64] 2.6.18 unaligned acccess in ehci_hub_control
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <17682.27477.995475.57130@alkaid.it.uu.se>
-References: <20060920172123.GA9334@ele.uri.edu>
-	<20060920.105659.128612840.davem@davemloft.net>
-	<17682.27477.995475.57130@alkaid.it.uu.se>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Subject: Re: Flushing writes to PCI devices
+X-Message-Flag: Warning: May contain useful information
+References: <fa.gbsNbubc34pqWPOxWCntrwUyt68@ifi.uio.no>
+	<Pine.LNX.4.44L0.0609201423480.7265-100000@iolanthe.rowland.org>
+	<fa.V4O8HKrhUddxYm5+ixVbyZzPybE@ifi.uio.no>
+	<6263h29e4o17ok032m8rv11p4u6547ngk0@4ax.com>
+	<1158862442.29551.22.camel@sardonyx>
+From: Roland Dreier <rdreier@cisco.com>
+Date: Thu, 21 Sep 2006 13:56:59 -0700
+In-Reply-To: <1158862442.29551.22.camel@sardonyx> (Bryan O'Sullivan's message of "Thu, 21 Sep 2006 11:14:02 -0700")
+Message-ID: <adavenhgcpw.fsf@cisco.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-OriginalArrivalTime: 21 Sep 2006 20:57:05.0042 (UTC) FILETIME=[7E618F20:01C6DDC0]
+Authentication-Results: sj-dkim-5.cisco.com; header.From=rdreier@cisco.com; dkim=pass (
+	sig from cisco.com verified; ); 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Mikael Pettersson <mikpe@it.uu.se>
-Date: Thu, 21 Sep 2006 12:37:09 +0200
+    Bryan> Yes.  If your device requires that writes to some locations
+    Bryan> in MMIO space be performed in a specific order, you must
+    Bryan> explicitly do this in your driver.  Intel CPUs will flush
+    Bryan> posted writes out of order, for example.
 
-> I don't think it's harmless. My Ultra5 has an add-on PCI USB controller
-> card (Belkin). A 2.6.18-rc kernel compiled with gcc-4.1.1 will throw a few
-> unaligned accesses when I initialise USB by inserting a USB memory stick.
-> Removing the memory stick then results in PCI errors and other breakage.
-> 
-> The same kernel compiled with gcc-3.4.6 has no problems at all, so I've
-> been assuming it's a gcc-4 issue and not a kernel issue.
+Really?  Just normal posted PCI writes without using MTRRs or
+write-combining or anything like that?
 
-Compiled with gcc-4.0.x I get the same ehci_hub_control unaligned
-accesses, and putting the correct {get,put}_unaligned() in that
-function makes them go away.
+That doesn't seem right to me, and I would expect all sorts of things
+to break if it were true.
 
-It's a pure mystery if gcc-3.4.x somehow avoids those, as by the
-way the code is written those unaligned accesses are to be expected.
+ - R.

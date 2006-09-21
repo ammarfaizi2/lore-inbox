@@ -1,57 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750887AbWIUAwH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750893AbWIUAy0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750887AbWIUAwH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Sep 2006 20:52:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750892AbWIUAwH
+	id S1750893AbWIUAy0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Sep 2006 20:54:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750894AbWIUAy0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Sep 2006 20:52:07 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:14491 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1750891AbWIUAwE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Sep 2006 20:52:04 -0400
-Date: Wed, 20 Sep 2006 17:51:52 -0700
-From: Paul Jackson <pj@sgi.com>
-To: sekharan@us.ibm.com
-Cc: menage@google.com, npiggin@suse.de, ckrm-tech@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org, rohitseth@google.com, devel@openvz.org,
-       clameter@sgi.com
-Subject: Re: [ckrm-tech] [patch00/05]: Containers(V2)- Introduction
-Message-Id: <20060920175152.25dcf5ca.pj@sgi.com>
-In-Reply-To: <1158799559.6536.120.camel@linuxchandra>
-References: <1158718568.29000.44.camel@galaxy.corp.google.com>
-	<Pine.LNX.4.64.0609200916140.30572@schroedinger.engr.sgi.com>
-	<1158777240.6536.89.camel@linuxchandra>
-	<6599ad830609201143h19f6883wb388666e27913308@mail.google.com>
-	<1158778496.6536.95.camel@linuxchandra>
-	<6599ad830609201225k3d38afe2gea7adc2fa8067e0@mail.google.com>
-	<20060920134903.fbd9fea8.pj@sgi.com>
-	<1158799559.6536.120.camel@linuxchandra>
-Organization: SGI
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 20 Sep 2006 20:54:26 -0400
+Received: from tinc.cathedrallabs.org ([72.9.252.66]:51908 "EHLO
+	tinc.cathedrallabs.org") by vger.kernel.org with ESMTP
+	id S1750893AbWIUAyZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Sep 2006 20:54:25 -0400
+Date: Wed, 20 Sep 2006 21:51:58 -0300
+From: Aristeu Sergio Rozanski Filho <aris@cathedrallabs.org>
+To: Michael Hanselmann <linux-kernel@hansmi.ch>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: [PATCH] ams: remove usage of input_dev cdev
+Message-ID: <20060921005158.GB16002@cathedrallabs.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.13 (2006-08-11)
+X-Spam-Pyzor-Results: Reported 0 times.
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chandra wrote:
-> > It seems that cpusets can mimic memory resource groups.  I don't
-> 
-> I am little confused w.r.t how cpuset can mimic memory resource groups.
-> How can cpuset provide support for over commit.
+This patch removes usage of 'cdev' member of input_dev, not present
+on that struct anymore.
 
-I didn't say "mimic well" ;).
+Signed-off-by: Aristeu S. Rozanski F. <aris@cathedrallabs.org>
 
-I had no clue cpusets could do overcommit at all, though Paul Menage just
-posted a notion of how to mimic overcommit, with his post beginning:
+--- mm.orig/drivers/hwmon/ams/ams-mouse.c	2006-09-20 13:57:59.000000000 -0300
++++ mm/drivers/hwmon/ams/ams-mouse.c	2006-09-20 21:01:59.000000000 -0300
+@@ -66,7 +66,6 @@
+ 	ams_info.idev->name = "Apple Motion Sensor";
+ 	ams_info.idev->id.bustype = ams_info.bustype;
+ 	ams_info.idev->id.vendor = 0;
+-	ams_info.idev->cdev.dev = &ams_info.of_dev->dev;
+ 
+ 	input_set_abs_params(ams_info.idev, ABS_X, -50, 50, 3, 0);
+ 	input_set_abs_params(ams_info.idev, ABS_Y, -50, 50, 3, 0);
 
-> I have some patches locally that basically let you give out a small
-> set of nodes initially to a cpuset, and if memory pressure in
-> try_to_free_pages() passes a specified threshold, automatically
-> allocate one of the parent cpuset's unused memory nodes to the child
-> cpuset, up to specified limit.
-
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401

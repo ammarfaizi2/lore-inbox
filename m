@@ -1,88 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751538AbWIUUGa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751535AbWIUUFw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751538AbWIUUGa (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Sep 2006 16:06:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751539AbWIUUGa
+	id S1751535AbWIUUFw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Sep 2006 16:05:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751536AbWIUUFw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Sep 2006 16:06:30 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.149]:43956 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751538AbWIUUG3
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Sep 2006 16:06:29 -0400
-Subject: Re: [ckrm-tech] [patch00/05]: Containers(V2)- Introduction
-From: Chandra Seetharaman <sekharan@us.ibm.com>
-Reply-To: sekharan@us.ibm.com
-To: Paul Menage <menage@google.com>
-Cc: Paul Jackson <pj@sgi.com>, npiggin@suse.de,
-       ckrm-tech@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       rohitseth@google.com, devel@openvz.org, clameter@sgi.com
-In-Reply-To: <6599ad830609201852k12cee6eey9086247c9bdec8b@mail.google.com>
-References: <1158718568.29000.44.camel@galaxy.corp.google.com>
-	 <Pine.LNX.4.64.0609200916140.30572@schroedinger.engr.sgi.com>
-	 <1158777240.6536.89.camel@linuxchandra>
-	 <Pine.LNX.4.64.0609201252030.32409@schroedinger.engr.sgi.com>
-	 <1158798715.6536.115.camel@linuxchandra>
-	 <20060920173638.370e774a.pj@sgi.com>
-	 <6599ad830609201742h71d112f4tae8fe390cb874c0b@mail.google.com>
-	 <1158803120.6536.139.camel@linuxchandra>
-	 <6599ad830609201852k12cee6eey9086247c9bdec8b@mail.google.com>
-Content-Type: text/plain
-Organization: IBM
-Date: Thu, 21 Sep 2006 13:06:26 -0700
-Message-Id: <1158869186.6536.205.camel@linuxchandra>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-7) 
-Content-Transfer-Encoding: 7bit
+	Thu, 21 Sep 2006 16:05:52 -0400
+Received: from odyssey.analogic.com ([204.178.40.5]:52741 "EHLO
+	odyssey.analogic.com") by vger.kernel.org with ESMTP
+	id S1751534AbWIUUFw convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Sep 2006 16:05:52 -0400
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+X-OriginalArrivalTime: 21 Sep 2006 20:05:42.0131 (UTC) FILETIME=[50D2AC30:01C6DDB9]
+Content-class: urn:content-classes:message
+Subject: Re: "Int 6: CR2" on bootup w/ 2.6.18-rc7-mm1
+Date: Thu, 21 Sep 2006 16:05:41 -0400
+Message-ID: <Pine.LNX.4.61.0609211602130.30511@chaos.analogic.com>
+In-Reply-To: <20060921124336.5dae2e09.akpm@osdl.org>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: "Int 6: CR2" on bootup w/ 2.6.18-rc7-mm1
+thread-index: AcbduVD7xT2Umv+xS/2xrrPeQA0cyQ==
+References: <200609211412.08561.bero@arklinux.org> <20060921124336.5dae2e09.akpm@osdl.org>
+From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+To: "Andrew Morton" <akpm@osdl.org>
+Cc: "Bernhard Rosenkraenzer" <bero@arklinux.org>,
+       "Linux kernel" <linux-kernel@vger.kernel.org>,
+       "Chuck Ebbert" <76306.1226@compuserve.com>, "Andi Kleen" <ak@muc.de>
+Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-09-20 at 18:52 -0700, Paul Menage wrote:
-> On 9/20/06, Chandra Seetharaman <sekharan@us.ibm.com> wrote:
-> >
-> > Interesting. So you could set up the fake node with "guarantee" and let
-> > it grow till "limit" ?
-> 
-> Sure - that works great. (Theoretically you could do this all in
-> userspace - start by assigning  "guarantee" nodes to a
-> container/cpuset and when it gets close to its memory limit assign
-> more nodes to it. But in practice userspace can't keep up with rapid
-> memory allocators.
-> 
-I agree, especially when one of your main object is resource
-utilization. Think about the magnitude of this when you have to deal
-with 100s of containers.
 
-> >
-> > BTW, can you do these with fake nodes:
-> >  - dynamic creation
-> >  - dynamic removal
-> >  - dynamic change of size
-> 
-> The current fake numa support requires you to choose your node layout
-> at boot time - I've been working with 64 fake nodes of 128M each,
-> which gives a reasonable granularity for dividing a machine between
-> multiple different sized jobs.
+On Thu, 21 Sep 2006, Andrew Morton wrote:
 
-It still will not satisfy what OpenVZ/Container folks are looking for:
-100s of containers.
+> On Thu, 21 Sep 2006 14:12:08 +0200
+> Bernhard Rosenkraenzer <bero@arklinux.org> wrote:
+>
+>> This happens when trying to boot 2.6.18-rc7-mm1 on a truly ancient
+>> (Pentium 1)
+>> box:
+>>
+>> Uncompressing Linux... Ok, booting the kernel.
+>>
+>> Int 6: CR2 00000000 err 00000000 EIP c0381719 CS 00000060 flags 00010046
+>> Stack: 00000000 c036f4d1 00000000 c0100199 000001b8 0505c600 00c036cc
+> 001f0fc3
+>>
+>> (No further details even with initcall_debug loglevel=7).
+>> c0381719 appears to be in ACPI code -- but the Int 6 error happens even with
+>> acpi=off.
+>
+> Well Chuck's new early-fault handler has gone and handled an early fault.
+>
+> I assume that machine runs 2.6.18 OK with the same .config?
+> -
 
-> 
-> >
-> > Also, How could we account when a process moves from one node to
-> > another ?
-> 
-> If you want to do that (the systems I'm working on don't really) you
-> could probably do it with the migrate_pages() syscall. It might not be
-> that efficient though.
-
-Totally agree, that will be very costly.
-> 
-> Paul
--- 
-
-----------------------------------------------------------------------
-    Chandra Seetharaman               | Be careful what you choose....
-              - sekharan@us.ibm.com   |      .......you may get it.
-----------------------------------------------------------------------
+Interrupt 6 is an invalid opcode interrupt. The caller might check
+the kind of CPU for which the kernel was compiled. You can't boot
+a '486 with '686 opcodes. "Truly ancient" probably explains it all.
 
 
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.16.24 on an i686 machine (5592.66 BogoMips).
+New book: http://www.AbominableFirebug.com/
+_
+
+
+****************************************************************
+The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
+
+Thank you.

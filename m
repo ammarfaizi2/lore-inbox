@@ -1,83 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751300AbWIUQGr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750959AbWIUQSK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751300AbWIUQGr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Sep 2006 12:06:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751069AbWIUQGr
+	id S1750959AbWIUQSK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Sep 2006 12:18:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751301AbWIUQSJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Sep 2006 12:06:47 -0400
-Received: from xenotime.net ([66.160.160.81]:27568 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1750788AbWIUQGq (ORCPT
+	Thu, 21 Sep 2006 12:18:09 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:36758 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1750959AbWIUQSI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Sep 2006 12:06:46 -0400
-Date: Thu, 21 Sep 2006 09:07:49 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: "Luke Yang" <luke.adi@gmail.com>
-Cc: Aubrey <aubreylee@gmail.com>, "Alan Cox" <alan@lxorguk.ukuu.org.uk>,
-       linux-kernel@vger.kernel.org, "Andrew Morton" <akpm@osdl.org>
-Subject: Re: [PATCH 2/4] Blackfin: Serial driver for Blackfin arch on 2.6.18
-Message-Id: <20060921090749.ce8a3a01.rdunlap@xenotime.net>
-In-Reply-To: <489ecd0c0609210257tb8daf0fl7603ff96e6e21c2e@mail.gmail.com>
-References: <489ecd0c0609202033j4dd9a62fye81f99d61bff030d@mail.gmail.com>
-	<1158830784.11109.93.camel@localhost.localdomain>
-	<6d6a94c50609210223o5adf9bb5w7bfb70fb59094c85@mail.gmail.com>
-	<489ecd0c0609210257tb8daf0fl7603ff96e6e21c2e@mail.gmail.com>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
+	Thu, 21 Sep 2006 12:18:08 -0400
+Date: Thu, 21 Sep 2006 18:06:56 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Mathieu Desnoyers <compudj@krystal.dyndns.org>
+Cc: Martin Bligh <mbligh@google.com>, "Frank Ch. Eigler" <fche@redhat.com>,
+       Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>, prasanna@in.ibm.com,
+       Andrew Morton <akpm@osdl.org>,
+       Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
+       Paul Mundt <lethal@linux-sh.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>, Jes Sorensen <jes@sgi.com>,
+       Tom Zanussi <zanussi@us.ibm.com>,
+       Richard J Moore <richardj_moore@uk.ibm.com>,
+       Michel Dagenais <michel.dagenais@polymtl.ca>,
+       Christoph Hellwig <hch@infradead.org>,
+       Greg Kroah-Hartman <gregkh@suse.de>,
+       Thomas Gleixner <tglx@linutronix.de>, William Cohen <wcohen@redhat.com>,
+       ltt-dev@shafik.org, systemtap@sources.redhat.com,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH] Linux Kernel Markers 0.5 for Linux 2.6.17 (with probe management)
+Message-ID: <20060921160656.GA24774@elte.hu>
+References: <20060921160009.GA30115@Krystal>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060921160009.GA30115@Krystal>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -2.9
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.9 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.4969]
+	-0.1 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 21 Sep 2006 17:57:03 +0800 Luke Yang wrote:
 
-> Great thanks. Here is the new patch:
-> 
->  drivers/serial/Kconfig      |   44 ++
->  drivers/serial/Makefile     |    1
->  drivers/serial/bfin_5xx.c   |  906 ++++++++++++++++++++++++++++++++++++++++++++
->  include/linux/serial_core.h |    3
->  4 files changed, 954 insertions(+)
-> 
+* Mathieu Desnoyers <compudj@krystal.dyndns.org> wrote:
 
-> +#ifdef CONFIG_SERIAL_BFIN_DMA
-> +static void bfin_serial_dma_tx_chars(struct bfin_serial_port *uart)
-> +{
-> +	struct circ_buf *xmit = &uart->port.info->xmit;
-> +	unsigned short ier;
-> +	int flags = 0;
-> +
-> +	if (!uart->tx_done)
-> +		return;
-> +
-> +	uart->tx_done = 0;
-> +
-> +	if (uart->port.x_char) {
-> +		UART_PUT_CHAR(uart, uart->port.x_char);
-> +		uart->port.icount.tx++;
-> +		uart->port.x_char = 0;
-> +		uart->tx_done = 1;
-> +		return;
-> +	}
-> +	/*
-> +	 * Check the modem control lines before
-> +	 * transmitting anything.
-> +	 */
-> +	bfin_serial_mctrl_check(uart);
-> +
-> +	if (uart_circ_empty(xmit) || uart_tx_stopped(&uart->port)) {
-> +		bfin_serial_stop_tx(&uart->port);
-> +		uart->tx_done = 1;
-> +		return;
-> +	}
-> +
-> +	local_irq_save(flags);
-> +	uart->tx_count = CIRC_CNT(xmit->head, xmit->tail, UART_XMIT_SIZE);
-> +	if (uart->tx_count > (UART_XMIT_SIZE - xmit->tail))
-> +	uart->tx_count = UART_XMIT_SIZE - xmit->tail;
+> +config MARK_SYMBOL
+> +config MARK_JUMP_CALL
+> +config MARK_JUMP_INLINE
+> +config MARK_JUMP
 
-The line above still needs to be indented one more tab stop.
-Otherwise looks OK to me.
+same NACK over the proliferation of options as before:
 
----
-~Randy
+  http://marc.theaimsgroup.com/?l=linux-kernel&m=115881457219562&w=2
+
+Tap, tap, is this thing on? ;)
+
+found one related reply from you that i didnt answer yet:
+
+  "As an example, LTTng traces the page fault handler, when kprobes just
+   can't instrument it."
+
+but tracing a raw pagefault at the arch level is a bad idea anyway, we 
+want to trace __handle_mm_fault(). That way you can avoid having to 
+modify every architecture's pagefault handler ...
+
+but the other points remained unanswered as far as i can see.
+
+	Ingo

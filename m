@@ -1,57 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750768AbWIUHas@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750753AbWIUHcH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750768AbWIUHas (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Sep 2006 03:30:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750770AbWIUHar
+	id S1750753AbWIUHcH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Sep 2006 03:32:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750770AbWIUHcH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Sep 2006 03:30:47 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:62349 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1750768AbWIUHar (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Sep 2006 03:30:47 -0400
-Date: Thu, 21 Sep 2006 09:22:16 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Bill Huey <billh@gnuppy.monkey.org>
-Cc: linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-       John Stultz <johnstul@us.ibm.com>,
-       "Paul E. McKenney" <paulmck@us.ibm.com>,
-       Dipankar Sarma <dipankar@in.ibm.com>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Esben Nielsen <simlo@phys.au.dk>
-Subject: Re: [PATCH] move put_task_struct() reaping into a thread [Re: 2.6.18-rt1]
-Message-ID: <20060921072216.GB25835@elte.hu>
-References: <20060920141907.GA30765@elte.hu> <20060921065624.GA9841@gnuppy.monkey.org> <20060921065402.GA22089@elte.hu> <20060921071838.GA10337@gnuppy.monkey.org> <20060921072743.GB10337@gnuppy.monkey.org>
+	Thu, 21 Sep 2006 03:32:07 -0400
+Received: from gwmail.nue.novell.com ([195.135.221.19]:233 "EHLO
+	emea5-mh.id5.novell.com") by vger.kernel.org with ESMTP
+	id S1750753AbWIUHcF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Sep 2006 03:32:05 -0400
+Message-Id: <45125C4C.76E4.0078.0@novell.com>
+X-Mailer: Novell GroupWise Internet Agent 7.0.1 
+Date: Thu, 21 Sep 2006 09:33:00 +0200
+From: "Jan Beulich" <jbeulich@novell.com>
+To: "Mikael Pettersson" <mikpe@it.uu.se>
+Cc: <ak@suse.de>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2.6.18] x86_64: silence warning when stack
+	unwinding is disabled
+References: <200609210712.k8L7CdrR015591@alkaid.it.uu.se>
+In-Reply-To: <200609210712.k8L7CdrR015591@alkaid.it.uu.se>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060921072743.GB10337@gnuppy.monkey.org>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -2.9
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.9 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5000]
-	-0.1 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+A patch to this effect is already queued in -mm (and perhaps also in Andi's tree). Jan
 
-* Bill Huey <billh@gnuppy.monkey.org> wrote:
+>>> Mikael Pettersson <mikpe@it.uu.se> 21.09.06 09:12 >>>
+Compiling kernel 2.6.18 on x86_64 with CONFIG_STACK_UNWIND=n gives:
 
-> Also, triggering a panic() at the beginning of the rt mutex acquire 
-> was very useful since it made "in_atomic()" violations an explicit 
-> error stopping the machine. Stack traces started to get really crazy 
-> in this preemptive kernel with all sorts of things running unlike the 
-> non-preemptive kernel and it was time consuming to figure out the real 
-> stuff from the noise in the stack trace.
+arch/x86_64/kernel/traps.c: In function 'show_trace':
+arch/x86_64/kernel/traps.c:287: warning: cast to pointer from integer of different size
 
-well you should absolutely have serial console if you effectively want 
-to hack the Linux kernel. And in the serial console log you should 
-search for stacktraces top-down, and concentrate on the first one - any 
-subsequent one might be collateral damage of the first one.
+This is because UNW_SP() evaluates to 0, of type int, which
+is cast to a pointer by traps.c. Fix: evaluate to 0UL instead.
 
-	Ingo
+Signed-off-by: Mikael Pettersson <mikpe@it.uu.se>
+
+--- linux-2.6.18/include/asm-x86_64/unwind.h.~1~	2006-09-20 19:28:57.000000000 +0200
++++ linux-2.6.18/include/asm-x86_64/unwind.h	2006-09-20 20:17:52.000000000 +0200
+@@ -95,7 +95,7 @@ static inline int arch_unw_user_mode(con
+ #else
+ 
+ #define UNW_PC(frame) ((void)(frame), 0)
+-#define UNW_SP(frame) ((void)(frame), 0)
++#define UNW_SP(frame) ((void)(frame), 0UL)
+ 
+ static inline int arch_unw_user_mode(const void *info)
+ {

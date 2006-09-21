@@ -1,111 +1,137 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751406AbWIUR4X@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751404AbWIUR7Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751406AbWIUR4X (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Sep 2006 13:56:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751404AbWIUR4W
+	id S1751404AbWIUR7Y (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Sep 2006 13:59:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751405AbWIUR7Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Sep 2006 13:56:22 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:27615 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751402AbWIUR4V (ORCPT
+	Thu, 21 Sep 2006 13:59:24 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:52402 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751404AbWIUR7X (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Sep 2006 13:56:21 -0400
-Date: Thu, 21 Sep 2006 10:56:12 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org, f1@vcc.de
-Cc: "bugme-daemon@kernel-bugs.osdl.org" 
-	<bugme-daemon@bugzilla.kernel.org>
-Subject: Re: [Bugme-new] [Bug 7177] New: Mylex DAC960 driver is not working
- with Kernel newer than 2.6.11 !
-Message-Id: <20060921105612.ff8c54f0.akpm@osdl.org>
-In-Reply-To: <200609211508.k8LF8qAY029812@fire-2.osdl.org>
-References: <200609211508.k8LF8qAY029812@fire-2.osdl.org>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+	Thu, 21 Sep 2006 13:59:23 -0400
+Date: Thu, 21 Sep 2006 13:56:48 -0400
+From: "Frank Ch. Eigler" <fche@redhat.com>
+To: Mathieu Desnoyers <compudj@krystal.dyndns.org>
+Cc: Martin Bligh <mbligh@google.com>, "Frank Ch. Eigler" <fche@redhat.com>,
+       Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>, prasanna@in.ibm.com,
+       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
+       Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
+       Paul Mundt <lethal@linux-sh.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>, Jes Sorensen <jes@sgi.com>,
+       Tom Zanussi <zanussi@us.ibm.com>,
+       Richard J Moore <richardj_moore@uk.ibm.com>,
+       Michel Dagenais <michel.dagenais@polymtl.ca>,
+       Christoph Hellwig <hch@infradead.org>,
+       Greg Kroah-Hartman <gregkh@suse.de>,
+       Thomas Gleixner <tglx@linutronix.de>, William Cohen <wcohen@redhat.com>,
+       ltt-dev@shafik.org, systemtap@sources.redhat.com,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH] Linux Kernel Markers 0.5 for Linux 2.6.17 (with probe management)
+Message-ID: <20060921175648.GB22226@redhat.com>
+References: <20060921160009.GA30115@Krystal>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="ikeVEW9yuYc//A+q"
+Content-Disposition: inline
+In-Reply-To: <20060921160009.GA30115@Krystal>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 21 Sep 2006 08:08:52 -0700
-bugme-daemon@bugzilla.kernel.org wrote:
 
-> http://bugzilla.kernel.org/show_bug.cgi?id=7177
+--ikeVEW9yuYc//A+q
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-Is anyone else out there using dac960 on recentish kernels?
+Hi -
 
->            Summary: Mylex DAC960 driver is not working with Kernel newer
->                     than 2.6.11 !
->     Kernel Version: >2.6.11
->             Status: NEW
->           Severity: blocking
->              Owner: scsi_drivers-other@kernel-bugs.osdl.org
->          Submitter: f1@vcc.de
-> 
-> 
-> Most recent kernel where this bug did not occur: 2.6.18
-> Distribution: gentoo
-> Hardware Environment: SIEMENS Model: STM/L Quad Xeon P3 500MHz 2GIG Ram
-> Software Environment: 
-> Problem Description:
-> drivers/block/DAC960.c
-> Steps to reproduce: Just reboot with kernel newer than 2.6.11 eg 2.6.18
-> 
-> ...
-> FDC 0 is a National Semiconductor PC87306
-> loop: loaded (max 8 devices)
-> DAC960: ***** DAC960 RAID Driver Version 2.5.48 of 14 May 2006 *****
-> DAC960: Copyright 1998-2001 by Leonard N. Zubkoff <lnz@dandelion.com>
-> 
-> and here the kernel stops and nothing happends !
-> 
-> under 2.6.11 the output is much longer:
-> 
-> ...
-> FDC 0 is a National Semiconductor PC87306
-> loop: loaded (max 8 devices)
-> DAC960: ***** DAC960 RAID Driver Version 2.5.47 of 14 November 2002 *****
-> DAC960: Copyright 1998-2001 by Leonard N. Zubkoff <lnz@dandelion.com>
-> DAC960#0: Configuring Mylex DAC960PJ PCI RAID Controller
-> DAC960#0:   Firmware Version: 4.08-0-37, Channels: 3, Memory Size: 64MB
-> DAC960#0:   PCI Bus: 3, Device: 13, Function: 1, I/O Address: Unassigned
-> DAC960#0:   PCI Address: 0xFE600000 mapped at 0xF8810000, IRQ Channel: 161
-> DAC960#0:   Controller Queue Depth: 124, Maximum Blocks per Command: 128
-> DAC960#0:   Driver Queue Depth: 123, Scatter/Gather Limit: 33 of 33 Segments
-> DAC960#0:   Stripe Size: 64KB, Segment Size: 8KB, BIOS Geometry: 255/63
-> DAC960#0:   SAF-TE Enclosure Management Enabled
-> DAC960#0:   Physical Devices:
-> DAC960#0:     0:0  Vendor: SEAGATE   Model: ST39102LC         Revision: 7505
-> DAC960#0:          Serial Number: LJ46608500002910J0LZ
-> DAC960#0:          Disk Status: Standby, 17782784 blocks
-> DAC960#0:     0:1  Vendor: SEAGATE   Model: ST39102LC         Revision: 7503
-> DAC960#0:          Serial Number: LJL1072800002938HQ5K
-> DAC960#0:          Disk Status: Online, 17780736 blocks
-> DAC960#0:     0:2  Vendor: SEAGATE   Model: ST39102LC         Revision: 7503
-> DAC960#0:          Serial Number: LV263431000010091BE1
-> DAC960#0:          Disk Status: Online, 17780736 blocks
-> DAC960#0:     0:3  Vendor: SEAGATE   Model: ST39102LC         Revision: 7503
-> DAC960#0:          Serial Number: LJL04413000019400HC3
-> DAC960#0:          Disk Status: Online, 17780736 blocks
-> DAC960#0:     0:8  Vendor: SIEMENS   Model: STM/L S1          Revision: 4.1b
-> DAC960#0:     1:0  Vendor: SEAGATE   Model: ST39102LC         Revision: 7503
-> DAC960#0:          Serial Number: LJK896890000194006WC
-> DAC960#0:          Disk Status: Online, 17780736 blocks
-> DAC960#0:     1:1  Vendor: SEAGATE   Model: ST39173LC         Revision: 6246
-> DAC960#0:          Serial Number: LM90387100001834F0GP
-> DAC960#0:          Disk Status: Online, 17780736 blocks
-> DAC960#0:     1:2  Vendor: SEAGATE   Model: ST39102LC         Revision: 7503
-> DAC960#0:          Serial Number: LJL0800100002938K4D8
-> DAC960#0:          Disk Status: Online, 17780736 blocks
-> DAC960#0:     1:3  Vendor: SEAGATE   Model: ST39102LC         Revision: 7505
-> DAC960#0:          Serial Number: LJM15325000019220JG2
-> DAC960#0:          Disk Status: Online, 17780736 blocks
-> DAC960#0:     1:8  Vendor: SIEMENS   Model: STM/L S2          Revision: 4.1b
-> DAC960#0:   Logical Drives:
-> DAC960#0:     /dev/rd/c0d0: RAID-5, Online, 106659840 blocks, Write Thru
->  /dev/rd/host0/target0: p1 p2 p3
-> e100: Intel(R) PRO/100 Network Driver, 3.3.6-k2-NAPI
-> e100: Copyright(c) 1999-2004 Intel Corporation
-> ...
-> 
-> ------- You are receiving this mail because: -------
-> You are on the CC list for the bug, or are watching someone who is.
+> Yet, again, a new version. I integrated a full probe management
+> mechanism.  [...]
+
+Thank you for continuing on.
+
+> +#define MARK_SYM(name) \
+> +		here: asm volatile \
+> +			(MARK_KPROBE_PREFIX#name " = %0" : : "m" (*&&here)); \
+
+Regarding MARK_SYM, if I read Ingo's message correctly, this is the
+only type of marker he believes is necessary, since it would put a
+place for kprobes to put a breakpoint.  FWIW, this still appears to be
+applicable only if the int3 overheads are tolerable, and if parameter
+data extraction is unnecessary or sufficiently robust "by accident".
+
+
+Regarding:
+
+> +#define MARK_JUMP(name, format, args...) \
+> [...]
+
+All this leap/jump/branch elaboration may be based upon scanty
+benchmarks.  The plain conditional-indirect function call is already
+"fast", especially if its hosting compilation unit is compiled with
+-freorder-blocks.
+
+Direct jumps to instrumentation are unlikely to be of a great deal of
+use, in that there would have to be some assembly-level code in
+between to save/restore affected registers.  Remember, ultimately the
+handler will be written in C.
+
+Regarding use of an empty_function() sentinel instead of NULLs, it is
+worth measuring carefully whether a unconditional indirect call to
+such a dummy function is faster than a conditional indirect call.  It
+may have to be a per-architecture internal implementation option.
+
+Regarding varargs, I still believe that varargs have poorer
+type-safety.  Remember, it's not just type-safety at the marker site
+(which gcc's printf-format-checker could validate), but the handler's
+too.  I believe it is incorrect that a non-varargs function can always
+safely take a call from a varargs call - varargs changes the calling
+conventions.  This would mean that the handler would itself have to be
+varargs, with all the attendant run-time overheads.  (Plus the idea of
+using a build-time script to generate the non-verargs handlers from
+analyzing particular MARK() calls is itself probably a bit complex for
+its own good.)
+
+Regarding measurements in general, one must avoid being misled by
+microbenchmarks such as those that represent an extreme of caching
+friendliness.  It may be necessary to run large system-level tests to
+meaningfully compare alternatives.
+
+
+> +int marker_set_probe(const char *name, void (*probe)(const char *fmt, ...),
+> +			enum marker_type type);
+> +void marker_disable_probe(const char *name, void (*probe)(const char *fmt, ...),
+> +			enum marker_type type);
+
+I'm unclear about what a merker_type value represents.  Could you go
+over that again?
+
+
+> +static int marker_get_pointers(const char *name,
+> + [...]
+> +	ptrs->call = (void**)kallsyms_lookup_name(call_sym);
+> +	ptrs->jmpselect = (void**)kallsyms_lookup_name(jmpselect_sym);
+> +	ptrs->jmpcall = (void**)kallsyms_lookup_name(jmpcall_sym);
+> +	ptrs->jmpinline = (void**)kallsyms_lookup_name(jmpinline_sym);
+> +	ptrs->jmpover = (void**)kallsyms_lookup_name(jmpover_sym);
+> [...]
+
+I wonder whether, as for kprobes, it will be necessary to lock into
+memory a module containing an active marker.
+
+
+- FChE
+
+--ikeVEW9yuYc//A+q
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+
+iD8DBQFFEtJgVZbdDOm/ZT0RAk9mAJ442kN2nNuTRqm9io4IL2RBMBxJJgCdH8jX
+mBQPmm8Pkl/7cH6hqIyIYmY=
+=f+L/
+-----END PGP SIGNATURE-----
+
+--ikeVEW9yuYc//A+q--

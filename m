@@ -1,108 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751220AbWIUEyn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750825AbWIUFHx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751220AbWIUEyn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Sep 2006 00:54:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750801AbWIUEyn
+	id S1750825AbWIUFHx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Sep 2006 01:07:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751225AbWIUFHx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Sep 2006 00:54:43 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:41180 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751220AbWIUEym (ORCPT
+	Thu, 21 Sep 2006 01:07:53 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:25512 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750825AbWIUFHw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Sep 2006 00:54:42 -0400
-Date: Thu, 21 Sep 2006 06:46:03 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>
-Cc: Martin Bligh <mbligh@google.com>, "Frank Ch. Eigler" <fche@redhat.com>,
-       Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>, prasanna@in.ibm.com,
-       Andrew Morton <akpm@osdl.org>, Paul Mundt <lethal@linux-sh.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>, Jes Sorensen <jes@sgi.com>,
-       Tom Zanussi <zanussi@us.ibm.com>,
-       Richard J Moore <richardj_moore@uk.ibm.com>,
-       Michel Dagenais <michel.dagenais@polymtl.ca>,
-       Christoph Hellwig <hch@infradead.org>,
-       Greg Kroah-Hartman <gregkh@suse.de>,
-       Thomas Gleixner <tglx@linutronix.de>, William Cohen <wcohen@redhat.com>,
-       ltt-dev@shafik.org, systemtap@sources.redhat.com,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCH] Linux Markers 0.4 (+dynamic probe loader) for 2.6.17
-Message-ID: <20060921044603.GA2089@elte.hu>
-References: <20060920234517.GA29171@Krystal>
+	Thu, 21 Sep 2006 01:07:52 -0400
+Date: Wed, 20 Sep 2006 22:07:44 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Jeff Garzik <jeff@garzik.org>
+Cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>
+Subject: Re: 2.6.19 -mm merge plans
+Message-Id: <20060920220744.0427539d.akpm@osdl.org>
+In-Reply-To: <45121382.1090403@garzik.org>
+References: <20060920135438.d7dd362b.akpm@osdl.org>
+	<45121382.1090403@garzik.org>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060920234517.GA29171@Krystal>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -2.9
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.9 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5000]
-	-0.1 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 21 Sep 2006 00:22:26 -0400
+Jeff Garzik <jeff@garzik.org> wrote:
 
-* Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca> wrote:
+> Andrew Morton wrote:
+> > A wander through the -mm patch queue, along with some commentary on my
+> > intentions.
+> > 
+> > 
+> > When replying to this email, please rewrite the Subject: to something
+> > appropriate.  Please also attempt to cc the appropriate developer(s).
+> > 
+> > 
+> > There are quite a lot of patches here which belong in subsystem trees. 
+> > I'll patchbomb the relevant maintainers soon.  Could I pleeeeeze ask that
+> > they either merge the patches or solidly nack them (with reasons)?  Don't
+> > just ignore it all and leave me hanging onto this stuff for ever.  Thanks.
+> 
+> I know this is probably heresy, but what would happen if we didn't merge 
+> all that stuff at once, and then committed to having a real 4-week cycle?
 
-> +menu "Marker configuration"
+(where'd 4 weeks come from?)
 
-> +config MARK_SYMBOL
-> +	bool "Replace markers with symbols"
-> +	  Put symbols in place of markers, useful for kprobe.
-> +
-> +config MARK_JUMP_CALL
-> +	bool "Replace markers with a jump over an inactive function call"
-> +	  Put a jump over a call in place of markers.
-> +
-> +config MARK_JUMP_INLINE
-> +	bool "Replace markers with a jump over an inline function"
-> +	  Put a jump over an inline function.
+Why would a shorter cycle be better?  What are we trying to achieve?
 
-This patch still has the fundamental failure of offering 3 annotation 
-methods instead of offering _one_ annotation method. I mention it again, 
-distros want to have _one_ method they enable, not: "oh, by the way, LTT 
-requires MARK_JUMP_CALL, so no matter how low-overhead MARK_SYMBOL is, 
-you have to enable MARK_JUMP_CALL anyway".
+> The cycles seem to be stretching out again, and I don't really think 
+> it's worth it to hold up the entire kernel for every single piddly 
+> little regression to get fixed.  We'll _never_ be perfect, even if we 
+> weren't slackers.
+> 
 
-We have to face it, tracing is a very optional infrastructure, thus it 
-has to be _very low (preferably zero in most cases) overhead when 
-offered by a kernel binary but kept inactive by the user_ and thus you 
-/have to/ program on the edge to get it into the upstream kernel.
+People seem to treat the stabilisation period as a wonderful quiet time in
+which to run off and develop new features, rather than participating in the
+stabilisation.  This has the following effects:
 
-It wont be easy to achieve this, and you'll have to work with the other 
-tracing projects (and upstream kernel folks) to get one unified markup 
-mechanism agreed on, but nevertheless it's possible technologically.
+1: release cycles get longer
 
-and the only acceptable near-zero-overhead markup scheme proposed so far 
-(and suggested by me all along) is the symbol based markup method. 
-Symbol based markup also has the advantage that the coupling between the 
-kernel and the tracer moves to the symbol space (from the binary 
-instruction-stream space), and thus the in-kernel implementation of it 
-becomes alot more flexible. Flexibility of the upstream kernel design is 
-another thing that we require for 'very optional' features.
+2: the kernel has more bugs
 
-Yes, LTT will probably have to embrace kprobes/SystemTap to insert the 
-tracepoints themselves, but that's the price we get for uniformity, and 
-that's the price you get for _having the markers maintained upstream_.
+3: we put new features into the kernel faster than we otherwise would
+   (see 2:, above).
 
-If after that point upstream cannot optimize kprobes performance to a 
-sufficient level, /then/ can we think about /perhaps/ allowing direct 
-calls generated into the kernel image. But that decision /must/ be 
-driven by distributions and customers. Until then, kprobes based marking 
-and tracing will be 'good enough'.
 
-It affects all tracers: SystemTap/LKST has to adapt to such a scheme 
-too, because currently there's no markup scheme in the kernel. So this 
-is not something 'against' LTT, but something /for/ a unified landscape 
-of tracers. (and as i mentioned it before, it will be easy for you to 
-offer a simple "LTT speedup patch", which distros and the upstream 
-kernel can consider separately. But it must be /optional/.)
+Furthermore, in this period we have 60-odd disjoint trees which are based
+on a relatively-slowly-changing mainline.  This makes people think they are
+free to go berzerk, leaving me bemusedly wondering why there are VFS and
+NFS changes in the OCFS2 tree, SATA changes in the powerpc tree, SATA
+changes in the scsi tree, configfs changes in the GFS2 tree,
+every-goddam-thing changes in the driver tree, MM changes in the parisc
+tree, etc, etc, etc.
 
-So far i have not seen any real arguments against this simple but 
-fundamental upstream requirement which i pointed out for v0.1 already.
+If you think that shortening the release cycle will cause people to be more
+disciplined in their changes, to spend less time going berzerk and to spend
+more time working with our users and testers on known bugs then I'm all
+ears.
 
-	Ingo
+
+
+So...  it again comes down to "what are we trying to achieve"?  Me, I'd
+like to see people spending less time developing whizzy new things and more
+time fixing bugs, tuning performance, etc.  That would fix the lengthy
+release cycle problem automatically.
+
+What do _you_ want to achieve by making changes?
+
+
+And a question.  The current batch of git trees has:
+
+ 2611 files changed, 295643 insertions(+), 130150 deletions(-)
+
+How much of this has been suitably reviewed?
+

@@ -1,71 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751018AbWIUCkg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751026AbWIUCvI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751018AbWIUCkg (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Sep 2006 22:40:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751019AbWIUCkg
+	id S1751026AbWIUCvI (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Sep 2006 22:51:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751030AbWIUCvI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Sep 2006 22:40:36 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:56803 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751016AbWIUCkf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Sep 2006 22:40:35 -0400
-Date: Wed, 20 Sep 2006 19:40:16 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: john stultz <johnstul@us.ibm.com>
-Cc: Roman Zippel <zippel@linux-m68k.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.19 -mm merge plans (NTP changes)
-Message-Id: <20060920194016.a3efc906.akpm@osdl.org>
-In-Reply-To: <1158805731.8648.54.camel@localhost>
-References: <20060920135438.d7dd362b.akpm@osdl.org>
-	<1158805731.8648.54.camel@localhost>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
+	Wed, 20 Sep 2006 22:51:08 -0400
+Received: from web36707.mail.mud.yahoo.com ([209.191.85.41]:26749 "HELO
+	web36707.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1751026AbWIUCvH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Sep 2006 22:51:07 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=oIBgbrVy2K92yRmosKkqPXY4oqmDgFuL2h52z9jbKnYxCvb+hhtZ8GCwLk3WBEnO4q6+H005Z9Ky5mP/NGbxpyt2qbC19/zwHL44IYi4kOovGoohLg3H7Z/kSNKZZTJGaqhIGytC44F6NYhKBQFUE16xCYtBEwxyXEZhC2nrB7o=  ;
+Message-ID: <20060921025106.61978.qmail@web36707.mail.mud.yahoo.com>
+Date: Wed, 20 Sep 2006 19:51:06 -0700 (PDT)
+From: Alex Dubov <oakad@yahoo.com>
+Subject: Re: [PATCH 1/2] [MMC] Driver for TI FlashMedia card reader - source
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, drzeus-list@drzeus.cx,
+       rmk+lkml@arm.linux.org.uk
+In-Reply-To: <20060919232016.68a02e0e.akpm@osdl.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 20 Sep 2006 19:28:51 -0700
-john stultz <johnstul@us.ibm.com> wrote:
+> Could I ask where the information which permitted this (nice-looking) driver to
+> be written came from?
 
-> On Wed, 2006-09-20 at 13:54 -0700, Andrew Morton wrote:
-> > A wander through the -mm patch queue, along with some commentary on my
-> > intentions.
-> > 
-> > When replying to this email, please rewrite the Subject: to something
-> > appropriate.  Please also attempt to cc the appropriate developer(s).
-> >
-> > ntp-move-all-the-ntp-related-code-to-ntpc.patch
-> > ntp-move-all-the-ntp-related-code-to-ntpc-fix.patch
-> > ntp-add-ntp_update_frequency.patch
-> > ntp-add-ntp_update_frequency-fix.patch
-> > ntp-add-time_adj-to-tick-length.patch
-> > ntp-add-time_freq-to-tick-length.patch
-> > ntp-prescale-time_offset.patch
-> > ntp-add-time_adjust-to-tick-length.patch
-> > ntp-remove-time_tolerance.patch
-> > ntp-convert-time_freq-to-nsec-value.patch
-> > ntp-convert-to-the-ntp4-reference-model.patch
-> > ntp-cleanup-defines-and-comments.patch
-> > kernel-time-ntpc-possible-cleanups.patch
-> > kill-wall_jiffies.patch
-> >
-> >  Will merge.
-> 
-> No objections here, but I wanted to put forth some caution as I've seen
-> some odd NTP behavior with the full NTP patchset on my laptop (either it
-> does not converge or it just converges *much* more slowly then without).
-> Unfortunately I've not been able to collect solid enough data to analyze
-> the issue (really, each run should go for atleast a full day and always
-> run on the same network).
-> 
-> However, in trying to narrow it down, the
-> ntp-add-time_adj-to-tick-length patch is where the behavior seems to
-> change the most. Again, no solid data, so I could be seeing ghosts, but
-> I wanted to mention it.
-> 
-> I'll try to put aside some time to run a few longer tests and see if I
-> can get some clear results.
-> 
+I had 3 sources for this:
+1. win64 binary driver
+2. linux binary driver - it says its license is GPL, but source is nowhere to be found
+3. OMAP 5912 datasheet for part of the tifm_sd functionality
 
-OK, thanks.  Won't merge.
+My upcoming memorystick driver only draws from the first two sources. I should also add that I
+never worked for TI nor Everest Consulting (the authors of the binary driver) and don't know
+anybody who ever did.
+
+> The driver has lots of really big inlined functions.  It's best to uninline
+> these.  If the function has a single callsite, gcc will inline it anyway. 
+> If the function has multiple callsites (now, or in the future), inlining it
+> is undesirable.
+
+I actually marked them "inline" to signify the fact that only one callsite is intended for these
+functions. They are not intended to be called from arbitrary places (no problem to fix those,
+though).
+
+
+
+__________________________________________________
+Do You Yahoo!?
+Tired of spam?  Yahoo! Mail has the best spam protection around 
+http://mail.yahoo.com 

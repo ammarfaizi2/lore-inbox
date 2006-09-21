@@ -1,56 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750965AbWIUVoN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751616AbWIUVo3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750965AbWIUVoN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Sep 2006 17:44:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751612AbWIUVoM
+	id S1751616AbWIUVo3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Sep 2006 17:44:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751619AbWIUVo3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Sep 2006 17:44:12 -0400
-Received: from terminus.zytor.com ([192.83.249.54]:34712 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S1750958AbWIUVoM
+	Thu, 21 Sep 2006 17:44:29 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.150]:44969 "EHLO
+	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751612AbWIUVoZ
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Sep 2006 17:44:12 -0400
-Message-ID: <45130792.9040104@zytor.com>
-Date: Thu, 21 Sep 2006 14:43:46 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060808)
-MIME-Version: 1.0
-To: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>
-CC: Dax Kelson <dax@gurulabs.com>, Linux kernel <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: Smaller compressed kernel source tarballs?
-References: <1158870777.24172.23.camel@mentorng.gurulabs.com> <20060921204250.GN13641@csclub.uwaterloo.ca>
-In-Reply-To: <20060921204250.GN13641@csclub.uwaterloo.ca>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Thu, 21 Sep 2006 17:44:25 -0400
+Subject: Re: [ckrm-tech] [patch00/05]: Containers(V2)- Introduction
+From: Chandra Seetharaman <sekharan@us.ibm.com>
+Reply-To: sekharan@us.ibm.com
+To: Paul Menage <menage@google.com>
+Cc: Paul Jackson <pj@sgi.com>, npiggin@suse.de,
+       ckrm-tech@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       rohitseth@google.com, devel@openvz.org, clameter@sgi.com
+In-Reply-To: <6599ad830609211310s4e036e55h89bab26432d83c11@mail.google.com>
+References: <1158718568.29000.44.camel@galaxy.corp.google.com>
+	 <Pine.LNX.4.64.0609200916140.30572@schroedinger.engr.sgi.com>
+	 <1158777240.6536.89.camel@linuxchandra>
+	 <Pine.LNX.4.64.0609201252030.32409@schroedinger.engr.sgi.com>
+	 <1158798715.6536.115.camel@linuxchandra>
+	 <20060920173638.370e774a.pj@sgi.com>
+	 <6599ad830609201742h71d112f4tae8fe390cb874c0b@mail.google.com>
+	 <1158803120.6536.139.camel@linuxchandra>
+	 <6599ad830609201852k12cee6eey9086247c9bdec8b@mail.google.com>
+	 <1158869186.6536.205.camel@linuxchandra>
+	 <6599ad830609211310s4e036e55h89bab26432d83c11@mail.google.com>
+Content-Type: text/plain
+Organization: IBM
+Date: Thu, 21 Sep 2006 14:44:22 -0700
+Message-Id: <1158875062.6536.210.camel@linuxchandra>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-7) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Lennart Sorensen wrote:
-> On Thu, Sep 21, 2006 at 02:32:57PM -0600, Dax Kelson wrote:
->> Today as I was watching the linux-2.6.18.tar.bz2 slowly download I
->> thought it would be nice if it could be made smaller.
->>
->> The 7zip program/algorithm is free software (LGPL) and can be obtained
->> from http://www.7-zip.org/ and it is distributed with several
->> distributions (it is in Fedora Core 6 extras for example).
->>
+On Thu, 2006-09-21 at 13:10 -0700, Paul Menage wrote:
+> On 9/21/06, Chandra Seetharaman <sekharan@us.ibm.com> wrote:
+> > > The current fake numa support requires you to choose your node layout
+> > > at boot time - I've been working with 64 fake nodes of 128M each,
+> > > which gives a reasonable granularity for dividing a machine between
+> > > multiple different sized jobs.
+> >
+> > It still will not satisfy what OpenVZ/Container folks are looking for:
+> > 100s of containers.
 > 
-> But after you download it once, you can just get the diff next time.
-> How is the decompression time on 7zip versus bzip2 and gzip?
+> Right - so fake-numa is not the right solution for everyone, and I
+> never suggested that it is. (Having said that, there are discussions
+> underway to make the zone-based approach more practical - if you could
+> have dynamically-resizable nodes, this would be more applicable to
+> openvz).
+
+It would still have the other issue you pointed, i.e the userspace being
+able to cope up with memory allocators dynamics.
+ 
 > 
+> But, there's no reason that the OpenVZ resource control mechanisms
+> couldn't be hooked into a generic process container mechanism along
+> with cpusets and RG.
 
-7zip (LZMA) decompresses quickly, and the decompressor text is actually 
-smaller than the equivalent for gzip.  Quite nice.
+Isn't that one of the things we are trying to avoid (each one having
+their own solution, especially when we _can_ have a common solution).
+ 
+> 
+> Paul
+-- 
 
-What is not nice is the code for the compressor, which is a total mess. 
-  I have been holding out on implementing LZMA on kernel.org, because 
-just as zip (deflate) didn't become common in the Unix world until an 
-encapsulation format that handles things expected in the Unix world, 
-e.g. streaming, was created (gzip), I don't think LZMA is going to be 
-widely used until there is an "lzip" which does the same thing.  I 
-actually started the work of adding LZMA support to gzip, but then 
-realized it would be better if a new encapsulation format with proper 
-64-bit support everywhere was created.
+----------------------------------------------------------------------
+    Chandra Seetharaman               | Be careful what you choose....
+              - sekharan@us.ibm.com   |      .......you may get it.
+----------------------------------------------------------------------
 
-	-hpa
 

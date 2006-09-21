@@ -1,93 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932094AbWIUWqu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932096AbWIUWsS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932094AbWIUWqu (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Sep 2006 18:46:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932089AbWIUWqu
+	id S932096AbWIUWsS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Sep 2006 18:48:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932100AbWIUWsS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Sep 2006 18:46:50 -0400
-Received: from warden-p.diginsite.com ([208.29.163.248]:45251 "HELO
-	warden.diginsite.com") by vger.kernel.org with SMTP id S932094AbWIUWqt
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Sep 2006 18:46:49 -0400
-Date: Thu, 21 Sep 2006 15:34:53 -0700 (PDT)
-From: David Lang <dlang@digitalinsight.com>
-X-X-Sender: dlang@dlang.diginsite.com
-To: Dave Jones <davej@redhat.com>
-cc: Sean <seanlkml@sympatico.ca>, Dax Kelson <dax@gurulabs.com>,
-       Lennart Sorensen <lsorense@csclub.uwaterloo.ca>,
-       Linux kernel <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: Smaller compressed kernel source tarballs?
-In-Reply-To: <20060921224051.GS26683@redhat.com>
-Message-ID: <Pine.LNX.4.63.0609211530180.17238@qynat.qvtvafvgr.pbz>
-References: <BAYC1-PASMTP025A72C81CFE009C3BB5A5AE200@CEZ.ICE> 
- <20060921175717.272c58ee.seanlkml@sympatico.ca> 
- <Pine.LNX.4.63.0609211455570.17238@qynat.qvtvafvgr.pbz> 
- <20060921222443.GO26683@redhat.com>  <Pine.LNX.4.63.0609211514470.17238@qynat.qvtvafvgr.pbz>
- <20060921224051.GS26683@redhat.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Thu, 21 Sep 2006 18:48:18 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:7075 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S932096AbWIUWsR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Sep 2006 18:48:17 -0400
+Date: Thu, 21 Sep 2006 15:48:04 -0700
+From: Paul Jackson <pj@sgi.com>
+To: "Paul Menage" <menage@google.com>
+Cc: sekharan@us.ibm.com, npiggin@suse.de, ckrm-tech@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org, rohitseth@google.com, devel@openvz.org,
+       clameter@sgi.com
+Subject: Re: [ckrm-tech] [patch00/05]: Containers(V2)- Introduction
+Message-Id: <20060921154804.25dce6ba.pj@sgi.com>
+In-Reply-To: <6599ad830609211507m1f5965d8ucfcb58dd86c97c74@mail.google.com>
+References: <1158718568.29000.44.camel@galaxy.corp.google.com>
+	<Pine.LNX.4.64.0609201252030.32409@schroedinger.engr.sgi.com>
+	<1158798715.6536.115.camel@linuxchandra>
+	<20060920173638.370e774a.pj@sgi.com>
+	<6599ad830609201742h71d112f4tae8fe390cb874c0b@mail.google.com>
+	<1158803120.6536.139.camel@linuxchandra>
+	<6599ad830609201852k12cee6eey9086247c9bdec8b@mail.google.com>
+	<1158869186.6536.205.camel@linuxchandra>
+	<6599ad830609211310s4e036e55h89bab26432d83c11@mail.google.com>
+	<20060921145946.8d9ace73.pj@sgi.com>
+	<6599ad830609211507m1f5965d8ucfcb58dd86c97c74@mail.google.com>
+Organization: SGI
+X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 21 Sep 2006, Dave Jones wrote:
+Paul M wrote:
+> Page allocation and task scheduling are resource controller issues,
+> not generic process container issues.
 
-> 
-> On Thu, Sep 21, 2006 at 03:16:57PM -0700, David Lang wrote:
-> > On Thu, 21 Sep 2006, Dave Jones wrote:
-> >
-> > > On Thu, Sep 21, 2006 at 03:00:48PM -0700, David Lang wrote:
-> > >
-> > > > for the tarball users they would have to grab
-> > > > multiple patches to get from the last thing that they have to whatever is
-> > > > current.
-> > >
-> > > ketchup solves that problem. One command brings any tree up to current.
-> >
-> > so are you saying that ketchup should be used for _all_ access to the vanilla
-> > tree that isn't done via git?
-> > if not then tarballs still have a place.
->
-> I think you have a misunderstanding over what ketchup is/does.
-> It cannot usurp tarballs by its very nature. It retrieves tarballs (if necessary)
-> and whatever patches are necessary to get to the tree you want.
-> http://www.selenic.com/ketchup/
+But when a process is moved to a different container, its page
+allocation and task scheduling constraints and metrics move too.
 
-in that case the compression of the tarballs is still worth dealing with
+One of the essential differences, for example, between the two memory
+constraint mechanisms we have now, mempolicy.c and cpuset.c, is that
+mempolicy only affects the current task, so has an easier time of
+the locking and its hooks in the page allocation code path, whereas
+cpusets allows any task to change any other tasks memory constraints.
 
-> > and how does ketchup deal with patched trees to start with?
->
-> By unpatching if necessary.
+This made the cpuset hooks in the page allocation code path more
+difficult -- and as you have recently shown, we aren't done working
+that code path yet ;).
 
-assuming that it knows where to get the patches from, I was refering to things 
-like the debian or redhat tree with their patches.
+This is likely true in general for resource controllers.  One of
+their more challenging design aspects are the hooks they require in
+the code paths that handle the various controlled resources.
 
-> > > > also people could be behind a firewall that prevents git from working properly,
-> > > > for them tarballs and patches are the right way of doing things.
-> > >
-> > > If they can't git through a firewall, they won't be able to wget a tarball through
-> > > it either.
-> >
-> > to work properly git should talk it's own protocol, http/ftp can be allowed (and
-> > authenticated) through firewalls that don't allow the git protocol.
->
-> 'properly' is the wrong word here. optimally, yes, but the firewall argument
-> alone isn't sufficient to claim git can't be used to clone a tree.
-> A tree cloned over http: vs one over git: has exactly the same information in
-> it. All the history, all the changes. Everything.
+One has to use these hooks to access the container on these fairly
+hot code paths.  And since the container can be changing in parallel
+at the same time, it can be challenging to handling the necessary
+locking without forcing a system-wide lock there.
 
-in most cases, but there are cases where the dumb transports can make mistakes 
-(there have been several threads on the git list covering these), git is good 
-enough to notice mos of them, but there is still room for problems. Also, 
-installing and configuring git should not be a prerequesite to getting the 
-kernel.
+Doable, I presume.  But challenging.
 
-the point being git and ketchup do not eliminate the need to transfer tarballs, 
-and therfor do not eliminate the attractivness of a compression that saves a 
-significant amount of bandwidth.
-
-I was responding to the (apparent) argument that with git and ketchup people 
-should not ever be downloading tarballs, so something that cuts the size of a 
-tarball in half doesn't make any difference.
-
-David Lang
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

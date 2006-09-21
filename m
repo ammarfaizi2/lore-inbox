@@ -1,54 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932090AbWIUWle@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932088AbWIUWlJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932090AbWIUWle (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Sep 2006 18:41:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932089AbWIUWle
+	id S932088AbWIUWlJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Sep 2006 18:41:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932087AbWIUWlJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Sep 2006 18:41:34 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:1004 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932087AbWIUWla (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Sep 2006 18:41:30 -0400
-Date: Thu, 21 Sep 2006 15:41:05 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Mike Waychison <mikew@google.com>, linux-mm@kvack.org,
-       Linux Kernel list <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [RFC] page fault retry with NOPAGE_RETRY
-Message-Id: <20060921154105.904313f7.akpm@osdl.org>
-In-Reply-To: <1158876304.26347.129.camel@localhost.localdomain>
-References: <1158274508.14473.88.camel@localhost.localdomain>
-	<20060915001151.75f9a71b.akpm@osdl.org>
-	<45107ECE.5040603@google.com>
-	<1158709835.6002.203.camel@localhost.localdomain>
-	<1158710712.6002.216.camel@localhost.localdomain>
-	<20060919172105.bad4a89e.akpm@osdl.org>
-	<1158717429.6002.231.camel@localhost.localdomain>
-	<20060919200533.2874ce36.akpm@osdl.org>
-	<1158728665.6002.262.camel@localhost.localdomain>
-	<20060919222656.52fadf3c.akpm@osdl.org>
-	<1158735299.6002.273.camel@localhost.localdomain>
-	<20060920105317.7c3eb5f4.akpm@osdl.org>
-	<1158876304.26347.129.camel@localhost.localdomain>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+	Thu, 21 Sep 2006 18:41:09 -0400
+Received: from smtp.ono.com ([62.42.230.12]:31177 "EHLO resmta04.ono.com")
+	by vger.kernel.org with ESMTP id S932088AbWIUWlG convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Sep 2006 18:41:06 -0400
+Date: Fri, 22 Sep 2006 00:40:02 +0200
+From: "J.A. =?UTF-8?B?TWFnYWxsw7Nu?=" <jamagallon@ono.com>
+To: jhf@columbus.rr.com (Joseph Fannin)
+Cc: Laurent Riffard <laurent.riffard@free.fr>,
+       Kernel development list <linux-kernel@vger.kernel.org>, akpm@osdl.org
+Subject: Re: 2.6.18-rc7-mm1: no /dev/tty0
+Message-ID: <20060922004002.663a6fe8@werewolf.auna.net>
+In-Reply-To: <20060921224049.GA2501@nineveh.rivenstone.net>
+References: <20060921234151.2dd12d32@werewolf.auna.net>
+	<45130CF9.4060806@free.fr>
+	<20060921224049.GA2501@nineveh.rivenstone.net>
+X-Mailer: Sylpheed-Claws 2.4.0cvs208 (GTK+ 2.10.3; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 22 Sep 2006 08:05:04 +1000
-Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
+On Thu, 21 Sep 2006 18:40:50 -0400, jhf@columbus.rr.com (Joseph Fannin) wrote:
 
-> > So I think there's a nasty DoS here if we permit infinite retries.  But
-> > it's not just that - there might be other situations under really heavy
-> > memory pressure where livelocks like this can occur.  It's just a general
-> > robustness-of-implementation issue.
+> On Fri, Sep 22, 2006 at 12:06:49AM +0200, Laurent Riffard wrote:
+> > Le 21.09.2006 23:41, J.A. Magallón a écrit :
 > 
-> Got it. Now, changing args to no_page() will be a pretty big task....
+>     Trimming CC's is generally frowned upon on LKML.
+> 
+> > >When booting 2.6.18-rc7-mm1, the initscripts complain about /dev/tty0 not
+> > >being present. Then the boot sequence blocks...:
+> > >
+> > >Sep 21 23:23:57 werewolf init: open(/dev/console): No such file or
+> > >directory
+> > >Sep 21 23:24:07 werewolf last message repeated 17 times
+> > >Sep 21 23:24:12 werewolf init: Id "3" respawning too fast: disabled for 5
+> > >minutes
+> > >
+> > >(from syslog)
+> > >
+> > >The same userspace boots fine with -rc6-mm2.
+> > >
+> > >Any ideas ?
+> >
+> > Well, I have similar issues: when booting 2.6.18-rc7-mm1, some /dev
+> > files are missing:
+> > - /dev/kmem
+> > - /dev/kmsg
+> > - /dev/mem
+> > - /dev/port
+> > - /dev/ptmx
+> > - /dev/tty
+> >
+> > Setting CONFIG_SYSFS_DEPRECATED=y didn't help. My .config is attached.
+> > ~~
+> > laurent
+> 
+>     There were some problems with older versions of udev not creating
+> some device nodes with -mm kernels.  I don't know if this has been
+> fixed, or if it's the same as this:
+> 
+> "- The kernel doesn't work properly on RH FC3 or pretty much anything
+>   which uses old udev, due to improvements in the driver tree."
+> 
+>     I know that, several -mm's back, Ubuntu Dapper's udev 079 didn't
+> create /dev/alsa or /dev/psaux.
 > 
 
-Not as big as removing the pt_regs arg from every interrupt handler ;)
+Not my case, at least:
 
-But pretty mechanical.  Problem is, I don't think we have our mechanic.
+werewolf:~> rpm -q udev
+udev-098-6mdv2007.0
+
+--
+J.A. Magallon <jamagallon()ono!com>     \               Software is like sex:
+                                         \         It's better when it's free
+Mandriva Linux release 2007.0 (Cooker) for i586
+Linux 2.6.17-jam10 (gcc 4.1.1 20060724 (prerelease) (4.1.1-3mdk)) #1 SMP PREEMPT

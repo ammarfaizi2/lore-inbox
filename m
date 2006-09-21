@@ -1,51 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751070AbWIUN3c@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750976AbWIUNde@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751070AbWIUN3c (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Sep 2006 09:29:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751059AbWIUN3c
+	id S1750976AbWIUNde (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Sep 2006 09:33:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751061AbWIUNde
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Sep 2006 09:29:32 -0400
-Received: from mx00.ext.bfk.de ([217.29.46.125]:55529 "EHLO mx00.ext.bfk.de")
-	by vger.kernel.org with ESMTP id S1750788AbWIUN3b (ORCPT
+	Thu, 21 Sep 2006 09:33:34 -0400
+Received: from dwdmx4.dwd.de ([141.38.3.230]:11723 "EHLO csg-cluster.dwd.de")
+	by vger.kernel.org with ESMTP id S1750976AbWIUNdd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Sep 2006 09:29:31 -0400
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Hayim Shaul <hayim@iportent.com>, Jeff Garzik <jeff@garzik.org>,
-       netdev@vger.kernel.org, edward_peng@dlink.com.tw,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.18-rc6 1/2] dllink driver: porting v1.19 to linux 2.6.18-rc6
-References: <1157620189.2904.16.camel@localhost.localdomain>
-	<1157620795.14882.16.camel@laptopd505.fenrus.org>
-From: Florian Weimer <fweimer@bfk.de>
-Date: Thu, 21 Sep 2006 15:29:09 +0200
-In-Reply-To: <1157620795.14882.16.camel@laptopd505.fenrus.org> (Arjan van de Ven's message of "Thu, 07 Sep 2006 11:19:55 +0200")
-Message-ID: <82slilmjq2.fsf@mid.bfk.de>
+	Thu, 21 Sep 2006 09:33:33 -0400
+Date: Thu, 21 Sep 2006 13:33:21 +0000 (GMT)
+From: Holger Kiehl <Holger.Kiehl@dwd.de>
+X-X-Sender: kiehl@diagnostix.dwd.de
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Question regarding CONFIG_DMA_ENGINE
+Message-ID: <Pine.LNX.4.64.0609211249160.9397@diagnostix.dwd.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Arjan van de Ven:
+Hello
 
->>  	if (irq)
->>  		spin_lock(&np->tx_lock);
->>  	else
->>  		spin_lock_irqsave(&np->tx_lock, flag);
->
-> double eeeep
->
-> this is wrong to do with in_interrupt() as gating factor!
+Is setting this option and CONFIG_NET_DMA usefull even when you do not have
+the hardware?
 
-Well, this is not Hayim fault.  It's in 2.6.18 as is.
+And what hardware is required for this? Is this DMA engine located on
+the network or raid card, or is this something in the chipset? Which
+chipset or cards do have such an engine?
 
-Unfortunately, the driver does not work very well.  Transmitting
-frames hangs after a while (quickly to reproduce with ping -f
--s40000).  Any suggestions how we could this get working?  The cards
-used work quite well in older systems despite all the driver bugs, but
-current systems with different timings expose them.
-
+Thanks,
+Holger
 -- 
-Florian Weimer                <fweimer@bfk.de>
-BFK edv-consulting GmbH       http://www.bfk.de/
-Durlacher Allee 47            tel: +49-721-96201-1
-D-76131 Karlsruhe             fax: +49-721-96201-99
+

@@ -1,101 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751562AbWIUVHm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751573AbWIUVRt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751562AbWIUVHm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Sep 2006 17:07:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751563AbWIUVHm
+	id S1751573AbWIUVRt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Sep 2006 17:17:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751571AbWIUVRt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Sep 2006 17:07:42 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:7362 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751560AbWIUVHl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Sep 2006 17:07:41 -0400
-Subject: Re: 2.6.18-rc7-mm1
-From: Mark Haverkamp <markh@osdl.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>
-In-Reply-To: <20060919012848.4482666d.akpm@osdl.org>
-References: <20060919012848.4482666d.akpm@osdl.org>
-Content-Type: text/plain
-Date: Thu, 21 Sep 2006 14:07:33 -0700
-Message-Id: <1158872854.7064.22.camel@markh3.pdx.osdl.net>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5) 
+	Thu, 21 Sep 2006 17:17:49 -0400
+Received: from 1-1-12-13a.han.sth.bostream.se ([82.182.30.168]:58557 "EHLO
+	palpatine.hardeman.nu") by vger.kernel.org with ESMTP
+	id S1751572AbWIUVRs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Sep 2006 17:17:48 -0400
+Date: Thu, 21 Sep 2006 23:17:38 +0200
+From: David =?iso-8859-1?Q?H=E4rdeman?= <david@hardeman.nu>
+To: linux-kernel@vger.kernel.org
+Cc: kraxel@bytesex.org
+Subject: [PATCH] Allow RC5 codes 64 - 127 in ir-kbd-i2c.c
+Message-ID: <20060921211738.GA12288@hardeman.nu>
+Mail-Followup-To: linux-kernel@vger.kernel.org, kraxel@bytesex.org
+References: <20060921203753.GA11551@hardeman.nu>
+MIME-Version: 1.0
+Content-Type: multipart/mixed; boundary="BOKacYhQ+x31HxR3"
+Content-Disposition: inline
+In-Reply-To: <20060921203753.GA11551@hardeman.nu>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Content-Transfer-Encoding: 7bit
+X-SA-Score: -2.6
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-09-19 at 01:28 -0700, Andrew Morton wrote:
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc7/2.6.18-rc7-mm1/
-> 
 
-> 
-> +rename-the-provided-execve-functions-to-kernel_execve-headers-fix.patch
-> 
->  Fix rename-the-provided-execve-functions-to-kernel_execve.patch some more
-> 
+--BOKacYhQ+x31HxR3
+Content-Type: text/plain; charset=iso-8859-1; format=flowed
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-While running cross compile tests for prpmc750 we got the following
-error that I think is related to the above patches.
+The RC5 coding has for a long time supported commands 64-127 in addition=20
+to 0-63. This is controlled by the second bit of the RC5 packet (see =20
+http://www.armory.com/~spcecdt/remote/RC5codes.html for details).
 
+The attached patch modifies ir-kbd-i2c.c to allow for commands 64-127,=20
+tested with a PVR350 card in combination with a programmable remote.
 
-  UPD     include/linux/compile.h
-  CC      init/version.o
-  LD      init/built-in.o
-  LD      vmlinux
-init/built-in.o: In function `run_init_process':
-main.c:(.text+0x20): undefined reference to `kernel_execve'
-init/built-in.o: In function `do_linuxrc':
-do_mounts_initrd.c:(.init.text+0x3a98): undefined reference to `kernel_execve'
-arch/ppc/kernel/built-in.o: In function `execve':
-arch/ppc/kernel/entry.S:(.text+0x24a2): undefined reference to `errno'
-arch/ppc/kernel/entry.S:(.text+0x24a6): undefined reference to `errno'
-kernel/built-in.o: In function `____call_usermodehelper':
-kmod.c:(.text+0x163f8): undefined reference to `kernel_execve'
-make: [vmlinux] Error 1 (ignored)
-  SYSMAP  System.map
-powerpc-750-linux-gnu-nm: 'vmlinux': No such file
-make: [vmlinux] Error 1 (ignored)
-  MODPOST vmlinux
+This time, attached inline so that it won't be line-wrapped :)
 
+Signed-off-by: David H=E4rdeman <david@hardeman.nu>
 
-Here is a patch that fixes the compile errors.  I took the code from
-misc_32.S.  
+--BOKacYhQ+x31HxR3
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline; filename=ir-kbd-i2c-use-all-rc5-codes
 
-Signed-off-by: Mark Haverkamp <markh@osdl.org>
-
----
-
---- linux-2.6.17.orig/arch/ppc/kernel/misc.S	2006-09-21 08:43:08.000000000 -0700
-+++ linux-2.6.17/arch/ppc/kernel/misc.S	2006-09-21 12:48:56.000000000 -0700
-@@ -1030,20 +1030,16 @@
- 	addi	r1,r1,16
- 	blr
+diff -ur linux-2.6.18-orig/drivers/media/video/ir-kbd-i2c.c linux-2.6.18/drivers/media/video/ir-kbd-i2c.c
+--- linux-2.6.18-orig/drivers/media/video/ir-kbd-i2c.c	2006-09-21 22:05:16.000000000 +0200
++++ linux-2.6.18/drivers/media/video/ir-kbd-i2c.c	2006-09-21 22:25:40.000000000 +0200
+@@ -64,23 +64,32 @@
+ static int get_key_haup(struct IR_i2c *ir, u32 *ir_key, u32 *ir_raw)
+ {
+ 	unsigned char buf[3];
+-	int start, toggle, dev, code;
++	int start, range, toggle, dev, code;
  
-+_GLOBAL(kernel_execve)
-+	li	r0,__NR_execve
-+	sc
-+	bnslr
-+	neg	r3,r3
-+	blr
+ 	/* poll IR chip */
+ 	if (3 != i2c_master_recv(&ir->c,buf,3))
+ 		return -EIO;
+ 
+ 	/* split rc5 data block ... */
+-	start  = (buf[0] >> 6) &    3;
++	start  = (buf[0] >> 7) &    1;
++	range  = (buf[0] >> 6) &    1;
+ 	toggle = (buf[0] >> 5) &    1;
+ 	dev    =  buf[0]       & 0x1f;
+ 	code   = (buf[1] >> 2) & 0x3f;
+ 
+-	if (3 != start)
++	/* rc5 has two start bits
++	 * the first bit must be one
++	 * the second bit defines the command range (1 = 0-63, 0 = 64 - 127)
++	 */
++	if (!start)
+ 		/* no key pressed */
+ 		return 0;
+-	dprintk(1,"ir hauppauge (rc5): s%d t%d dev=%d code=%d\n",
+-		start, toggle, dev, code);
 +
- /*
-  * This routine is just here to keep GCC happy - sigh...
-  */
- _GLOBAL(__main)
- 	blr
++	if (!range)
++		code += 64;
++
++	dprintk(1,"ir hauppauge (rc5): s%d r%d t%d dev=%d code=%d\n",
++		start, range, toggle, dev, code);
  
--#define SYSCALL(name) \
--_GLOBAL(name) \
--	li	r0,__NR_##name; \
--	sc; \
--	bnslr; \
--	lis	r4,errno@ha; \
--	stw	r3,errno@l(r4); \
--	li	r3,-1; \
--	blr
--
--SYSCALL(execve)
+ 	/* return key */
+ 	*ir_key = code;
 
--- 
-Mark Haverkamp <markh@osdl.org>
-
+--BOKacYhQ+x31HxR3--

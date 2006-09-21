@@ -1,128 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750903AbWIUHT7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750720AbWIUHYV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750903AbWIUHT7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Sep 2006 03:19:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750910AbWIUHT7
+	id S1750720AbWIUHYV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Sep 2006 03:24:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750724AbWIUHYV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Sep 2006 03:19:59 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.150]:49836 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750902AbWIUHT6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Sep 2006 03:19:58 -0400
-Date: Thu, 21 Sep 2006 00:20:17 -0700
-From: Nishanth Aravamudan <nacc@us.ibm.com>
-To: Om Narasimhan <om.turyx@gmail.com>
-Cc: linux-kernel@vger.kernel.org, kernel-janitors@lists.osdl.org
-Subject: Re: [KJ] kmalloc to kzalloc patches for drivers/block [sane version]
-Message-ID: <20060921072017.GA27798@us.ibm.com>
-References: <6b4e42d10609202311t47038692x5627f51d69f28209@mail.gmail.com>
-MIME-Version: 1.0
+	Thu, 21 Sep 2006 03:24:21 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:6552 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1750720AbWIUHYV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Sep 2006 03:24:21 -0400
+Date: Thu, 21 Sep 2006 09:16:24 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Bill Huey <billh@gnuppy.monkey.org>
+Cc: linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+       John Stultz <johnstul@us.ibm.com>,
+       "Paul E. McKenney" <paulmck@us.ibm.com>,
+       Dipankar Sarma <dipankar@in.ibm.com>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Esben Nielsen <simlo@phys.au.dk>
+Subject: Re: [PATCH] move put_task_struct() reaping into a thread [Re: 2.6.18-rt1]
+Message-ID: <20060921071624.GA25281@elte.hu>
+References: <20060920141907.GA30765@elte.hu> <20060921065624.GA9841@gnuppy.monkey.org> <20060921065402.GA22089@elte.hu> <20060921071838.GA10337@gnuppy.monkey.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <6b4e42d10609202311t47038692x5627f51d69f28209@mail.gmail.com>
-X-Operating-System: Linux 2.6.18-rc6 (x86_64)
-User-Agent: Mutt/1.5.11
+In-Reply-To: <20060921071838.GA10337@gnuppy.monkey.org>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -2.9
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.9 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5000]
+	-0.1 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 20.09.2006 [23:11:25 -0700], Om Narasimhan wrote:
-> This patch changes the kmalloc() calls followed by memset(,0,) to kzalloc.
+
+* Bill Huey <billh@gnuppy.monkey.org> wrote:
+
+> > > This patch moves put_task_struct() reaping into a thread instead 
+> > > of an RCU callback function [...]
+> > 
+> > had some time to think about it since yesterday: RCU reaping is done 
+> > in softirqs (check out the softirq-rcu threads on your -rt box), 
+> > that's why i removed the delayed-task-drop code to begin with. Now i 
+> > dont doubt
 > 
->     cciss.c : Changed the kmalloc/memset pair to kzalloc
->     cpqarray.c : km2zalloc conversion and code size reduction by
-> changing multiple cleanup calls and returns of the function
-> getgeometry() by adding a label.
->     loop.c : km2zalloc converion
+> It's correct from the standpoint of it being reaped in another thread, 
+> so it fixed those crashes. But I pushed it down into another thread at 
+> the request of Esben and his private discussion with Paul McKenney, 
+> since a summary from Esben felt that call_rcu() was somehow less than 
+> ideal to do that.
+
+but it _is_ already being reaped in another thread: softirq-rcu. 
+Splitting that up any further will only fragment the context-switching 
+and increases cache footprint - it wont (or rather, shouldnt) have any 
+functional effect. (As a sidenote, i'm considering the unification of 
+all 'same default priority' softirq threads into a single thread per 
+CPU, to further reduce this cost of 'spreadout'.)
+
+> > that you saw crashes under 2.6.17 - but did you manage to figure out 
+> > what the reason is for those crashes, and do those reasons really 
+> > necessiate the pushing of task-reapdown into yet another set of 
+> > kernel threads?
 > 
-> 
-> Signed off by Om Narasimhan <om.turyx@gmail.com>
+> Unfortunately no. I even used Robert's .config on my machine. I added 
+> a disk controller and networking device driver just to boot into his 
+> configuration and I still couldn't replicated any of his kjournald 
+> problems at all. If I had his hardware I'd have a better way of 
+> replicating those problems and pound it out.
 
-This is not the canonical format, per SubmittingPatches. It should be:
+ok, then i guess what we have left is to wait and see whether it still 
+triggers with the current 2.6.18-rt codebase - maybe it triggers for 
+someone in a scenario that is easier to debug.
 
-Signed-off-by: Random J Developer <random@developer.example.org>
-
->  drivers/block/cciss.c    |    4 +--
->  drivers/block/cpqarray.c |   72 +++++++++++++++-------------------------------
->  drivers/block/loop.c     |    4 +--
->  3 files changed, 25 insertions(+), 55 deletions(-)
-
-Your diffstat should have indicated to you that this should be split up
-better. Please (re-)read SubmittingPatches. *One* logical change per
-patch, most importantly.
-
-> 
-> diff --git a/drivers/block/cciss.c b/drivers/block/cciss.c
-> index 2cd3391..a800a69 100644
-> --- a/drivers/block/cciss.c
-> +++ b/drivers/block/cciss.c
-> @@ -900,7 +900,7 @@ #if 0				/* 'buf_size' member is 16-bits
->  				return -EINVAL;
->  #endif
->  			if (iocommand.buf_size > 0) {
-> -				buff = kmalloc(iocommand.buf_size, GFP_KERNEL);
-> +				buff = kzalloc(iocommand.buf_size, GFP_KERNEL);
->  				if (buff == NULL)
->  					return -EFAULT;
->  			}
-> @@ -911,8 +911,6 @@ #endif
->  					kfree(buff);
->  					return -EFAULT;
->  				}
-> -			} else {
-> -				memset(buff, 0, iocommand.buf_size);
->  			}
->  			if ((c = cmd_alloc(host, 0)) == NULL) {
->  				kfree(buff);
-
-This changes performance potentially, no? The memset before was
-conditional upon (iocommand.Request.Type.Direction == XFER_WRITE) and
-now the memory will always be zero'd.
-
-> diff --git a/drivers/block/cpqarray.c b/drivers/block/cpqarray.c
-> index 78082ed..8a697c7 100644
-> --- a/drivers/block/cpqarray.c
-> +++ b/drivers/block/cpqarray.c
-> @@ -1642,58 +1639,46 @@ static void start_fwbk(int ctlr)
->      It is used only at init time.
->  *****************************************************************/
->  static void getgeometry(int ctlr)
-> -{				
-> -	id_log_drv_t *id_ldrive;
-> -	id_ctlr_t *id_ctlr_buf;
-> -	sense_log_drv_stat_t *id_lstatus_buf;
-> -	config_t *sense_config_buf;
-> +{
-
-Unrelated whitespace change.
-
-> +	id_log_drv_t *id_ldrive = NULL;
-> +	id_ctlr_t *id_ctlr_buf = NULL;
-> +	sense_log_drv_stat_t *id_lstatus_buf = NULL;
-> +	config_t *sense_config_buf = NULL;
-
-Why initialize if you're going to immediately assign the return of
-kzalloc()?
-
->  	unsigned int log_unit, log_index;
->  	int ret_code, size;
-> -	drv_info_t *drv;
-> +	drv_info_t *drv = NULL;
-
-What does this do? Seems unnecessary and unrelated.
-
-<snip>
-
-> -		kfree(id_ctlr_buf);
-> -		kfree(id_ldrive);
->  		printk( KERN_ERR "cpqarray:  out of memory.\n");
-> -		return;
-> +		goto end;
-
-All of this rearrangement needs to be a separate patch.
-
-Thanks,
-Nish
-
--- 
-Nishanth Aravamudan <nacc@us.ibm.com>
-IBM Linux Technology Center
+	Ingo

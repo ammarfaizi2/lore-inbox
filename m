@@ -1,45 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751041AbWIUIGS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750961AbWIUIMw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751041AbWIUIGS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Sep 2006 04:06:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751046AbWIUIGS
+	id S1750961AbWIUIMw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Sep 2006 04:12:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751045AbWIUIMw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Sep 2006 04:06:18 -0400
-Received: from moutng.kundenserver.de ([212.227.126.177]:15323 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S1751041AbWIUIGP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Sep 2006 04:06:15 -0400
-Date: Thu, 21 Sep 2006 10:04:12 +0200
-To: linux-kernel@vger.kernel.org
-Subject: munmap from inside kernel
-From: "Andreas Block" <andreas.block@esd-electronics.com>
-Content-Type: text/plain; format=flowed; delsp=yes; charset=iso-8859-15
-MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Message-ID: <op.tf7x1ae18n9ctc@pc-block.esd>
-User-Agent: Opera Mail/9.01 (Win32)
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:7ee1d245d6d47e4a96dce2c88f0dd45f
+	Thu, 21 Sep 2006 04:12:52 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:59871 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1750961AbWIUIMv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Sep 2006 04:12:51 -0400
+Date: Thu, 21 Sep 2006 10:04:57 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Deepak Saxena <dsaxena@plexity.net>
+Cc: linux-kernel@vger.kernel.org, Daniel Walker <dwalker@mvista.com>,
+       Thomas Gleixner <tglx@linutronix.de>, rmk@arm.linux.org.uk,
+       Kevin Hilman <khilman@mvista.com>,
+       linux-arm-kernel@lists.arm.linux.org.uk
+Subject: Re: 2.6.18-rt1
+Message-ID: <20060921080456.GA32040@elte.hu>
+References: <20060920141907.GA30765@elte.hu> <1158774118.29177.13.camel@c-67-180-230-165.hsd1.ca.comcast.net> <20060920182553.GC1292@us.ibm.com> <200609201436.47042.gene.heskett@verizon.net> <20060920194650.GA21037@elte.hu> <20060921080435.GA29636@plexity.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060921080435.GA29636@plexity.net>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -2.9
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.9 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.4999]
+	-0.1 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-following scenario:
-Two linux systems connected via PCI.
-I'd like to write a driver, which allows to map memory from the remote  
-system into local user space and vice versa.
-This works quite well utilizing mmap and respective vma_ops.
-I do have one problem though. When the buffer on the remote side gets  
-destroyed, I'd like to remove the mappings from local user space into this  
-buffer (I do prefer a segfaulting application over an application writing  
-into "I don't know where").
-Under kernel 2.4.x I used "do_munmap()" in protection of "mm->mmap_sem"  
-and it seemed to work quite well for me.
-Now using kernel 2.6.x (I tested 2.6.8 and 2.6.15) this seemingly doesn't  
-work anymore, because I do end up with a crash, when trying to manually  
-unmap the memory.
+* Deepak Saxena <dsaxena@plexity.net> wrote:
 
-Is there any safe way to "trigger munmap()" from inside the kernel?
+> I am seeing an intermittent lock up on the ARM Versatile board during 
+> the ALSA driver init that only shows up with (PREEMPT_RT & 
+> !HIGH_RES_TIMERS & ARM_EABI) enabled. If HRT is disabled and EABI is 
+> enabled, the kernel works every time, and same with !RT & !HRT & EABI.  
+> I get no oops, just a complete lock up with no console output.
 
-Best regards,
-Andreas
+does enabling LOCKDEP give you any better info? (It might not make a 
+difference on the bootup that locks, but maybe you'll get a lockdep clue 
+about the problem in one of the successful bootups.)
+
+	Ingo

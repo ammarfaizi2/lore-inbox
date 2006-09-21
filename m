@@ -1,66 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750959AbWIUBnH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750968AbWIUBpZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750959AbWIUBnH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Sep 2006 21:43:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750971AbWIUBnH
+	id S1750968AbWIUBpZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Sep 2006 21:45:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750976AbWIUBpZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Sep 2006 21:43:07 -0400
-Received: from e35.co.us.ibm.com ([32.97.110.153]:39318 "EHLO
-	e35.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750959AbWIUBnE
+	Wed, 20 Sep 2006 21:45:25 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.152]:55237 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750968AbWIUBpX
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Sep 2006 21:43:04 -0400
-Date: Wed, 20 Sep 2006 18:43:55 -0700
-From: "Paul E. McKenney" <paulmck@us.ibm.com>
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: Nick Piggin <nickpiggin@yahoo.com.au>, David Howells <dhowells@redhat.com>,
-       Kernel development list <linux-kernel@vger.kernel.org>
-Subject: Re: Uses for memory barriers
-Message-ID: <20060921014355.GI1292@us.ibm.com>
-Reply-To: paulmck@us.ibm.com
-References: <20060919200116.GJ1310@us.ibm.com> <Pine.LNX.4.44L0.0609191634480.4631-100000@iolanthe.rowland.org>
+	Wed, 20 Sep 2006 21:45:23 -0400
+Subject: Re: [ckrm-tech] [patch00/05]: Containers(V2)- Introduction
+From: Chandra Seetharaman <sekharan@us.ibm.com>
+Reply-To: sekharan@us.ibm.com
+To: Paul Menage <menage@google.com>
+Cc: Paul Jackson <pj@sgi.com>, npiggin@suse.de,
+       ckrm-tech@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       rohitseth@google.com, devel@openvz.org, clameter@sgi.com
+In-Reply-To: <6599ad830609201742h71d112f4tae8fe390cb874c0b@mail.google.com>
+References: <1158718568.29000.44.camel@galaxy.corp.google.com>
+	 <Pine.LNX.4.64.0609200916140.30572@schroedinger.engr.sgi.com>
+	 <1158777240.6536.89.camel@linuxchandra>
+	 <Pine.LNX.4.64.0609201252030.32409@schroedinger.engr.sgi.com>
+	 <1158798715.6536.115.camel@linuxchandra>
+	 <20060920173638.370e774a.pj@sgi.com>
+	 <6599ad830609201742h71d112f4tae8fe390cb874c0b@mail.google.com>
+Content-Type: text/plain
+Organization: IBM
+Date: Wed, 20 Sep 2006 18:45:20 -0700
+Message-Id: <1158803120.6536.139.camel@linuxchandra>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44L0.0609191634480.4631-100000@iolanthe.rowland.org>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.0.4 (2.0.4-7) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 19, 2006 at 04:38:19PM -0400, Alan Stern wrote:
-> On Tue, 19 Sep 2006, Paul E. McKenney wrote:
+On Wed, 2006-09-20 at 17:42 -0700, Paul Menage wrote:
+> On 9/20/06, Paul Jackson <pj@sgi.com> wrote:
+> > Chandra wrote:
+> > > AFAICS, That doesn't help me in over committing resources.
+> >
+> > I agree - I don't think cpusets plus fake numa ... handles over commit.
+> > You might could hack up a cheap substitute, but it wouldn't do the job.
 > 
-> > > Maybe I'm missing something. But if the same CPU loads the value
-> > > before the store becomes visible to cache coherency, it might see
-> > > the value out of any order any of the other CPUs sees.
-> > 
-> > Agreed.  But the CPUs would have to refer to a fine-grained synchronized
-> > timebase or to some other variable in order to detect the fact that there
-> > were in fact multiple different values for the same variable at the same
-> > time (held in the different store queues).
+> I have some patches locally that basically let you give out a small
+> set of nodes initially to a cpuset, and if memory pressure in
+> try_to_free_pages() passes a specified threshold, automatically
+> allocate one of the parent cpuset's unused memory nodes to the child
+> cpuset, up to specified limit. It's a bit ugly, but lets you trade of
+> performance vs memory footprint on a per-job basis (when combined with
+> fake numa to give lots of small nodes).
+
+Interesting. So you could set up the fake node with "guarantee" and let
+it grow till "limit" ?
+
+BTW, can you do these with fake nodes:
+ - dynamic creation
+ - dynamic removal
+ - dynamic change of size
+
+Also, How could we account when a process moves from one node to
+another ?
+  
 > 
-> Even that wouldn't be illegal.  No one ever said that any particular write 
-> becomes visible to all CPUs at the same time.
+> Paul
+-- 
 
-Agreed.  But this would be outside of the cache-coherence protocol.
+----------------------------------------------------------------------
+    Chandra Seetharaman               | Be careful what you choose....
+              - sekharan@us.ibm.com   |      .......you may get it.
+----------------------------------------------------------------------
 
-That said, cross-CPU timing measurements have been very helpful to
-me in the past when messing with memory ordering.  Spooky to be able
-to prove that a single variable really does have multiple values at
-a single point in time, from the perspectives of different CPUs!  ;-)
 
-> > If the CPUs looked only at that one single variable being stored to,
-> > could they have inconsistent opinions about the order of values that
-> > this single variable took on?  My belief is that they could not.
-> 
-> Yes, I think this must be right.  If a store is hung up in a CPU's store 
-> buffer, it will mask later stores by other CPUs (i.e., prevent them from 
-> becoming visible to the CPU that owns the store buffer).  Hence all stores 
-> that _do_ become visible will appear in a consistent order.
-> 
-> But my knowledge of outlandish hardware is extremely limited, so don't 
-> take my word as gospel.
-
-All the hardware that I have had intimate knowledge of has adhered to
-this constraint.
-
-							Thanx, Paul

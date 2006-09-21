@@ -1,32 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750853AbWIUAkZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750860AbWIUAkU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750853AbWIUAkZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Sep 2006 20:40:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750857AbWIUAkZ
+	id S1750860AbWIUAkU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Sep 2006 20:40:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750856AbWIUAkU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Sep 2006 20:40:25 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:16591 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1750853AbWIUAkY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Sep 2006 20:40:24 -0400
-Date: Wed, 20 Sep 2006 17:40:20 -0700 (PDT)
-From: Christoph Lameter <clameter@sgi.com>
-To: "Martin J. Bligh" <mbligh@mbligh.org>
-cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.19 -mm merge plans
-In-Reply-To: <4511D855.7050100@mbligh.org>
-Message-ID: <Pine.LNX.4.64.0609201739350.2518@schroedinger.engr.sgi.com>
-References: <20060920135438.d7dd362b.akpm@osdl.org> <4511D855.7050100@mbligh.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 20 Sep 2006 20:40:20 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:25297 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1750776AbWIUAkS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Sep 2006 20:40:18 -0400
+Subject: Re: ZONE_DMA (was: Re: 2.6.19 -mm merge plans)
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Christoph Lameter <clameter@sgi.com>
+Cc: Andrew Morton <akpm@osdl.org>, "Martin J. Bligh" <mbligh@mbligh.org>,
+       linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org,
+       Christoph Hellwig <hch@infradead.org>
+In-Reply-To: <Pine.LNX.4.64.0609201724490.2403@schroedinger.engr.sgi.com>
+References: <20060920135438.d7dd362b.akpm@osdl.org>
+	 <4511D855.7050100@mbligh.org> <20060920172253.f6d11445.akpm@osdl.org>
+	 <Pine.LNX.4.64.0609201724490.2403@schroedinger.engr.sgi.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Thu, 21 Sep 2006 02:03:50 +0100
+Message-Id: <1158800630.11109.72.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 20 Sep 2006, Martin J. Bligh wrote:
+Ar Mer, 2006-09-20 am 17:31 -0700, ysgrifennodd Christoph Lameter:
+> ZONE_DMA does not have a bright future with IOMMUs and other things 
+> around. None of my system uses ZONE_DMA and I have a variety of them.
 
-> Would it not make sense to define what ZONE_DMA actually means
-> consistently before trying to change it? The current mess across
-> different architectures seems like a disaster area to me.
+IOMMUs don't always help. They IOMMU aperture on AMD64 for example is
+too high to help devices with below 32bit limits.
 
-Actually the desaster is cleaned up by this patch. A couple of 
-architectures that were wrongly using ZONE_DMA now use ZONE_NORMAL.

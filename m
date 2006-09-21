@@ -1,70 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751214AbWIUNWX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751070AbWIUN3c@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751214AbWIUNWX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Sep 2006 09:22:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751224AbWIUNWX
+	id S1751070AbWIUN3c (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Sep 2006 09:29:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751059AbWIUN3c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Sep 2006 09:22:23 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:47830 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751214AbWIUNWW (ORCPT
+	Thu, 21 Sep 2006 09:29:32 -0400
+Received: from mx00.ext.bfk.de ([217.29.46.125]:55529 "EHLO mx00.ext.bfk.de")
+	by vger.kernel.org with ESMTP id S1750788AbWIUN3b (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Sep 2006 09:22:22 -0400
-Date: Thu, 21 Sep 2006 15:14:33 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-       John Stultz <johnstul@us.ibm.com>,
-       Arjan van de Ven <arjan@infradead.org>
-Subject: Re: 2.6.19 -mm merge plans
-Message-ID: <20060921131433.GA4182@elte.hu>
-References: <20060920135438.d7dd362b.akpm@osdl.org>
-Mime-Version: 1.0
+	Thu, 21 Sep 2006 09:29:31 -0400
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Hayim Shaul <hayim@iportent.com>, Jeff Garzik <jeff@garzik.org>,
+       netdev@vger.kernel.org, edward_peng@dlink.com.tw,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.18-rc6 1/2] dllink driver: porting v1.19 to linux 2.6.18-rc6
+References: <1157620189.2904.16.camel@localhost.localdomain>
+	<1157620795.14882.16.camel@laptopd505.fenrus.org>
+From: Florian Weimer <fweimer@bfk.de>
+Date: Thu, 21 Sep 2006 15:29:09 +0200
+In-Reply-To: <1157620795.14882.16.camel@laptopd505.fenrus.org> (Arjan van de Ven's message of "Thu, 07 Sep 2006 11:19:55 +0200")
+Message-ID: <82slilmjq2.fsf@mid.bfk.de>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060920135438.d7dd362b.akpm@osdl.org>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -2.9
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.9 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.4989]
-	-0.1 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+* Arjan van de Ven:
 
-* Andrew Morton <akpm@osdl.org> wrote:
+>>  	if (irq)
+>>  		spin_lock(&np->tx_lock);
+>>  	else
+>>  		spin_lock_irqsave(&np->tx_lock, flag);
+>
+> double eeeep
+>
+> this is wrong to do with in_interrupt() as gating factor!
 
-> ntp-move-all-the-ntp-related-code-to-ntpc.patch
-> ntp-move-all-the-ntp-related-code-to-ntpc-fix.patch
-> ntp-add-ntp_update_frequency.patch
-> ntp-add-ntp_update_frequency-fix.patch
-> ntp-add-time_adj-to-tick-length.patch
-> ntp-add-time_freq-to-tick-length.patch
-> ntp-prescale-time_offset.patch
-> ntp-add-time_adjust-to-tick-length.patch
-> ntp-remove-time_tolerance.patch
-> ntp-convert-time_freq-to-nsec-value.patch
-> ntp-convert-to-the-ntp4-reference-model.patch
-> ntp-cleanup-defines-and-comments.patch
-> kernel-time-ntpc-possible-cleanups.patch
-> kill-wall_jiffies.patch
-> 
->  Will merge.
+Well, this is not Hayim fault.  It's in 2.6.18 as is.
 
-would be nice to merge the -hrt queue that goes right ontop this queue. 
-Even if HIGH_RES_TIMERS is "default n" in the beginning. That gives us 
-high-res timers and dynticks which are both very important features to 
-certain classes of users/devices.
+Unfortunately, the driver does not work very well.  Transmitting
+frames hangs after a while (quickly to reproduce with ping -f
+-s40000).  Any suggestions how we could this get working?  The cards
+used work quite well in older systems despite all the driver bugs, but
+current systems with different timings expose them.
 
-The current queue is at:
-
-  http://tglx.de/projects/hrtimers/2.6.18/
-
-Hm?
-
-	Ingo
+-- 
+Florian Weimer                <fweimer@bfk.de>
+BFK edv-consulting GmbH       http://www.bfk.de/
+Durlacher Allee 47            tel: +49-721-96201-1
+D-76131 Karlsruhe             fax: +49-721-96201-99

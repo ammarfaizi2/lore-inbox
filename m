@@ -1,63 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751432AbWIUSUI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751323AbWIUSVr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751432AbWIUSUI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Sep 2006 14:20:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751440AbWIUSUH
+	id S1751323AbWIUSVr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Sep 2006 14:21:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751290AbWIUSVr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Sep 2006 14:20:07 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:24737 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1751432AbWIUSUG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Sep 2006 14:20:06 -0400
-Message-ID: <4512D7D0.8030501@garzik.org>
-Date: Thu, 21 Sep 2006 14:20:00 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Linus Torvalds <torvalds@osdl.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Thu, 21 Sep 2006 14:21:47 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:56812 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1751324AbWIUSVq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Sep 2006 14:21:46 -0400
+Subject: Re: Flushing writes to PCI devices
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: "Bryan O'Sullivan" <bos@serpentine.com>
+Cc: Bill Waddington <william.waddington@beezmo.com>,
        linux-kernel@vger.kernel.org
-Subject: Re: 2.6.19 -mm merge plans
-References: <20060920135438.d7dd362b.akpm@osdl.org>	<45121382.1090403@garzik.org>	<20060920220744.0427539d.akpm@osdl.org>	<1158830206.11109.84.camel@localhost.localdomain>	<Pine.LNX.4.64.0609210819170.4388@g5.osdl.org> <20060921105959.a55efb5f.akpm@osdl.org>
-In-Reply-To: <20060921105959.a55efb5f.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+In-Reply-To: <1158862442.29551.22.camel@sardonyx>
+References: <fa.gbsNbubc34pqWPOxWCntrwUyt68@ifi.uio.no>
+	 <Pine.LNX.4.44L0.0609201423480.7265-100000@iolanthe.rowland.org>
+	 <fa.V4O8HKrhUddxYm5+ixVbyZzPybE@ifi.uio.no>
+	 <6263h29e4o17ok032m8rv11p4u6547ngk0@4ax.com>
+	 <1158862442.29551.22.camel@sardonyx>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.3 (----)
-X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.3 points, 5.0 required)
+Date: Thu, 21 Sep 2006 19:45:56 +0100
+Message-Id: <1158864356.11109.171.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> Jeff: "I want faster release cycles because <no reason given>"
+Ar Iau, 2006-09-21 am 11:14 -0700, ysgrifennodd Bryan O'Sullivan:
+> Yes.  If your device requires that writes to some locations in MMIO
+> space be performed in a specific order, you must explicitly do this in
+> your driver.  Intel CPUs will flush posted writes out of order, for
+> example.
 
-All the standard goodness that "release early, release often" provides.
+According to the docs I have here if the pci target area is
+prefetchable/postwritable or has MTRRs set specifically to do this (eg
+video ram).
 
-* Avoiding the achingly long wait where huge amounts of changes pile up, 
-then go in.  It should be OBVIOUS that
-	merge 10,000 changes.  global test.  repeat
-is worse than
-	merge 1,000 changes.  global test.  repeat.
+There is no ordering guarantee between PCI and main memory however.
 
-I think it's patently unfair to complain about bugs and regressions, 
-then limit developers to 3-4 test points [mainline releases] per year.
-
-* Faster release cycles means code doesn't spend a quarter of the year 
-in limbo before users test it and give good feedback.
-
-* Code stands a better chance of getting more review.
-
-* Regressions are perceived to be fixed more quickly, if the fix 
-requires more than just 1-2 lines going to stable@kernel.org.
-
-* Submitters don't have to wait for a quarter of a year in order for 
-their submissions to hit a mainline release.
-
-With this last release, I just didn't see the value at all to going all 
-the way to -rc7.  There weren't huge numbers of testers screaming about 
--rc1 and -rc2.  It just seemed like we delayed for no good reason other 
-than a blind hope that the passage of time would fix bugs.
-
-	Jeff
-
+Alan
 

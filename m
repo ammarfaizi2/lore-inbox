@@ -1,67 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751282AbWIUP6o@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751296AbWIUQAn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751282AbWIUP6o (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Sep 2006 11:58:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751295AbWIUP6o
+	id S1751296AbWIUQAn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Sep 2006 12:00:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751299AbWIUQAV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Sep 2006 11:58:44 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:7079 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1751282AbWIUP6n (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Sep 2006 11:58:43 -0400
-Date: Thu, 21 Sep 2006 08:58:34 -0700 (PDT)
-From: Christoph Lameter <clameter@sgi.com>
-To: "Martin J. Bligh" <mbligh@mbligh.org>
-cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Christoph Lameter <clameter@engr.sgi.com>
-Subject: Re: ZONE_DMA
-In-Reply-To: <4511E9AC.2050507@mbligh.org>
-Message-ID: <Pine.LNX.4.64.0609210854210.5626@schroedinger.engr.sgi.com>
-References: <20060920135438.d7dd362b.akpm@osdl.org> <4511D855.7050100@mbligh.org>
- <20060920172253.f6d11445.akpm@osdl.org> <4511E1CA.6090403@mbligh.org>
- <Pine.LNX.4.64.0609201804320.2844@schroedinger.engr.sgi.com>
- <4511E9AC.2050507@mbligh.org>
+	Thu, 21 Sep 2006 12:00:21 -0400
+Received: from nz-out-0102.google.com ([64.233.162.204]:21509 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1751296AbWIUQAS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Sep 2006 12:00:18 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=DIe3Ww3ygY+Tiz0wfNPaxifboAPJoti5FDLgC7NwiJrsCT8LHDZYcH8UOttg0atI0bsFO5yzShCdB0AMBWF1dbSEF2dGEPNlJ+4nM3DPijrL31cOwhhn0ydcc3xTEtoBi5cg8J8nfVxj4FiaQJm7TUbOjpoHKatrOd99+uFJxr4=
+Message-ID: <6d6a94c50609210900le553cedxe1bbbfb1ed8c679a@mail.gmail.com>
+Date: Fri, 22 Sep 2006 00:00:16 +0800
+From: Aubrey <aubreylee@gmail.com>
+To: "Luke Yang" <luke.adi@gmail.com>
+Subject: Re: [PATCH 2/4] Blackfin: Serial driver for Blackfin arch on 2.6.18
+Cc: "Randy. Dunlap" <rdunlap@xenotime.net>,
+       "Alan Cox" <alan@lxorguk.ukuu.org.uk>, linux-kernel@vger.kernel.org,
+       "Andrew Morton" <akpm@osdl.org>
+In-Reply-To: <489ecd0c0609210849r44a76be1h9ddbc308ba78d574@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <489ecd0c0609202033j4dd9a62fye81f99d61bff030d@mail.gmail.com>
+	 <1158830784.11109.93.camel@localhost.localdomain>
+	 <6d6a94c50609210223o5adf9bb5w7bfb70fb59094c85@mail.gmail.com>
+	 <489ecd0c0609210257tb8daf0fl7603ff96e6e21c2e@mail.gmail.com>
+	 <20060921083800.74649310.rdunlap@xenotime.net>
+	 <489ecd0c0609210849r44a76be1h9ddbc308ba78d574@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 20 Sep 2006, Martin J. Bligh wrote:
+Hi Randy,
 
-> > ZONE_DMA is only used as ZONE_NORMAL if the architecture does not need
-> > ZONE_NORMAL because all of memory is reachable via DMA.
-> 
-> That's still inconsistent because it doesn't say DMA for *which*
-> device.
+I think luke just assumed you acked the patch after we have done the
+modification. But he'll remove it. Sorry for that.
 
-Thats the way ZONE_DMA works right now and AFAIK the only way forward is 
-to make it optional and then introduce another way of allocating memory
-for a device. The migrate away from it. The first step is to allow people
-who do not need ZONE_DMA to opt out.
+Please comment the newest patch.
+Thanks,
+-Aubrey
 
-> > That wont work because many architectures use different limits. Maybe you
-> > should once in a while have a look at the sources.
-> 
-> I'm perfectly well aware that it's inconsistent, that's my whole point.
-> However, by some chance of history, it's sort of vaguely working. I
-> think it's dangerous to mess with it rather than fixing it properly.
-
-I think you are spreading FUD. The existing scheme has been working for a 
-long time. Come up with something concrete. I am not 
-changing the definition of ZONE_DMA.
-
-> AFAICS, the correct way to do this is have the requestor pass a memory
-> bound into the allocator, and have the arch figure out which zones
-> are applicable.
-
-Exactly. But you cannot do that with ZONE_DMA __GFP_DMA. We likely need a 
-new page  allocator API for that.
-
-> > Actually the desaster is cleaned up by this patch. A couple of architectures
-> > that were wrongly using ZONE_DMA now use ZONE_NORMAL.
-> 
-> Odd that the PPC64 maintainers didn't seem to know about this.
-> Perhaps it might be a good idea to talk to them before doing this?
-
-Maybe they have not been reading linux-arch? It was discussed among arch 
-maintainers and 4 arches have switched off ZONE_DMA for good.
+On 9/21/06, Luke Yang <luke.adi@gmail.com> wrote:
+> On 9/21/06, Randy.Dunlap <rdunlap@xenotime.net> wrote:
+> > On Thu, 21 Sep 2006 17:57:03 +0800 Luke Yang wrote:
+> >
+> > > Great thanks. Here is the new patch:
+> > >
+> > > Signed-off-by: Luke Yang <luke.adi@gmail.com>
+> > > Acked-by: Randy.Dunlap <rdunlap@xenotime.net>
+> > > Acked-by: Alan Cox <alan@lxorguk.ukuu.org.uk>
+> >
+> > I can't find an email where I acked this patch...
+>  Sorry, I'll remove it.
+> >
+> > >  drivers/serial/Kconfig      |   44 ++
+> > >  drivers/serial/Makefile     |    1
+> > >  drivers/serial/bfin_5xx.c   |  906 ++++++++++++++++++++++++++++++++++++++++++++
+> > >  include/linux/serial_core.h |    3
+> > >  4 files changed, 954 insertions(+)
+> >
+> > ---
+> > ~Randy
+> >
+>
+>
+> --
+> Best regards,
+> Luke Yang
+> luke.adi@gmail.com
+>

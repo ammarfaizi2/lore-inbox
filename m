@@ -1,103 +1,127 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751328AbWIUSW5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751348AbWIUSbF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751328AbWIUSW5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Sep 2006 14:22:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751330AbWIUSW5
+	id S1751348AbWIUSbF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Sep 2006 14:31:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751359AbWIUSbF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Sep 2006 14:22:57 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:23783 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751328AbWIUSW4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Sep 2006 14:22:56 -0400
-Date: Thu, 21 Sep 2006 11:22:20 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Andrew Morton <akpm@osdl.org>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Jeff Garzik <jeff@garzik.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.19 -mm merge plans
-In-Reply-To: <20060921105959.a55efb5f.akpm@osdl.org>
-Message-ID: <Pine.LNX.4.64.0609211106391.4388@g5.osdl.org>
-References: <20060920135438.d7dd362b.akpm@osdl.org> <45121382.1090403@garzik.org>
- <20060920220744.0427539d.akpm@osdl.org> <1158830206.11109.84.camel@localhost.localdomain>
- <Pine.LNX.4.64.0609210819170.4388@g5.osdl.org> <20060921105959.a55efb5f.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Thu, 21 Sep 2006 14:31:05 -0400
+Received: from master.altlinux.org ([62.118.250.235]:60433 "EHLO
+	master.altlinux.org") by vger.kernel.org with ESMTP
+	id S1751348AbWIUSbC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Sep 2006 14:31:02 -0400
+Date: Thu, 21 Sep 2006 22:30:35 +0400
+From: Sergey Vlasov <vsu@altlinux.ru>
+To: iSteve <isteve@rulez.cz>
+Cc: "Randy.Dunlap" <rdunlap@xenotime.net>, linux-kernel@vger.kernel.org,
+       linux-usb-devel@lists.sourceforge.net
+Subject: broken modules.alias entries for some USB devices
+Message-Id: <20060921223035.c5fda02d.vsu@altlinux.ru>
+In-Reply-To: <20060921165424.139138e5@silver>
+References: <20060920185301.21dcf9bc@silver>
+	<20060920102248.ebb55960.rdunlap@xenotime.net>
+	<20060921165424.139138e5@silver>
+X-Mailer: Sylpheed version 2.2.6 (GTK+ 2.10.2; i586-alt-linux-gnu)
+Mime-Version: 1.0
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="PGP-SHA1";
+ boundary="Signature=_Thu__21_Sep_2006_22_30_35_+0400_QJgnhOoTe6Z6Qjl8"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--Signature=_Thu__21_Sep_2006_22_30_35_+0400_QJgnhOoTe6Z6Qjl8
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
+On Thu, 21 Sep 2006 16:54:24 +0200 iSteve wrote:
 
-On Thu, 21 Sep 2006, Andrew Morton wrote:
-> 
-> Again, before we can implement anything we should describe what problem we are
-> actually trying to solve here.
-> 
-> Jeff: "I want faster release cycles because <no reason given>"
-> 
-> Me: "I want less bugs"
-> 
-> Anyone else?
+> I've got one more question, this time regarding modules.usbmap.
+>=20
+> -modules.usbmap:
+> ibmcam 0x000f 0x0545 0x8080 0x0002 0x0002 0x00 0x00 0x00 0x00 0x00 0x00 0=
+x0
+> ibmcam 0x000f 0x0545 0x8080 0x030a 0x030a 0x00 0x00 0x00 0x00 0x00 0x00 0=
+x0
+> ibmcam 0x000f 0x0545 0x8080 0x0301 0x0301 0x00 0x00 0x00 0x00 0x00 0x00 0=
+x0
+> ibmcam 0x000f 0x0545 0x8002 0x030a 0x030a 0x00 0x00 0x00 0x00 0x00 0x00 0=
+x0
+> ibmcam 0x000f 0x0545 0x800c 0x030a 0x030a 0x00 0x00 0x00 0x00 0x00 0x00 0=
+x0
+> ibmcam 0x000f 0x0545 0x800d 0x030a 0x030a 0x00 0x00 0x00 0x00 0x00 0x00 0=
+x0
+> -EOF
+>=20
+> -With corresponding aliases:
+> alias usb:v0545p8080d0002dc*dsc*dp*ic*isc*ip* ibmcam
+> alias usb:v0545p8080d030[10-9]dc*dsc*dp*ic*isc*ip* ibmcam
+> alias usb:v0545p8080d0301dc*dsc*dp*ic*isc*ip* ibmcam
+> alias usb:v0545p8002d030[10-9]dc*dsc*dp*ic*isc*ip* ibmcam
+> alias usb:v0545p800Cd030[10-9]dc*dsc*dp*ic*isc*ip* ibmcam
+> alias usb:v0545p800Dd030[10-9]dc*dsc*dp*ic*isc*ip* ibmcam
+> -EOF
+>=20
+> I absolutely do not understand the d030[10-9], where fields bcdDevice_lo =
+and
+> bcdDevice_hi are 0x030a...
 
-Me: "I want peoples expectations to line up".
+This surely looks like a bug.
 
-(That, btw, is totally independent of this particulay issue - I just like 
-people to know what to expect..)
+> Looking at drivers/usb/core/usb.c, it'd seem that the MODALIAS sent upon =
+device
+> event doesn't have anything like this -- it would have "[...]d030A[...]".=
+ So I
+> wonder, how it got generated?
 
-One of the things that I think the current model has excelled at is how it 
-really changed peoples behaviour, simply because they knew and understood 
-the rules.
+scripts/mod/file2alias.c generates these lines from the ID tables.
 
-I think the "big merges in the first two weeks, and a -rc1 after, and no 
-new code after that" rule has been working because it brought everybody in 
-on the same page. 
+> -The relevant items in ibmcam.c:
+> static struct usb_device_id id_table[] =3D {
+>         { USB_DEVICE_VER(IBMCAM_VENDOR_ID, IBMCAM_PRODUCT_ID, 0x0002, 0x0=
+002) },
+>         { USB_DEVICE_VER(IBMCAM_VENDOR_ID, IBMCAM_PRODUCT_ID, 0x030a, 0x0=
+30a) },
+>         { USB_DEVICE_VER(IBMCAM_VENDOR_ID, IBMCAM_PRODUCT_ID, 0x0301, 0x0=
+301) },
+>         { USB_DEVICE_VER(IBMCAM_VENDOR_ID, NETCAM_PRODUCT_ID, 0x030a, 0x0=
+30a) },
+>         { USB_DEVICE_VER(IBMCAM_VENDOR_ID, VEO_800C_PRODUCT_ID, 0x030a, 0=
+x030a) },
+>         { USB_DEVICE_VER(IBMCAM_VENDOR_ID, VEO_800D_PRODUCT_ID, 0x030a, 0=
+x030a) },
 
-I actually expected people to dislike arbitrary rules more than they do, 
-but I've come to believe that people _like_ having rules that they have to 
-obey, as long as it's not a big pain for them. In other words, arbitrary 
-rules are not actually disliked at all, people actually _like_ them, 
-because suddenly there's less need for making unnecessary judgement 
-decisions.
+The problem is that the bcdDevice field is supposed to be BCD - i.e.,
+its hex representation should contain only decimal digits 0..9.
+Therefore a proper USB device cannot have bcdDevice =3D=3D 0x030a.
+Apparently some ibmcam devices violate this and use the bcdDevice field
+as if it was binary.
 
-As an example: I thought I'd get a lot of back-lash on the whole sign-off 
-procedure. Instead, we're basically signing off everything, and having a 
-few simple rules ended up making it just easier to forward stuff, and we 
-haven't had any of the discussions about who gets to be attributed as an 
-author since the sign-off was introduced. That was a totally unexpected 
-bonus, as far as I was concerned.
+>         { }
+> };
+> -EOF
+>=20
+> -And the resulting alias part of modinfo:
+> alias: usb:v0545p8080d0002dc*dsc*dp*ic*isc*ip*
+> alias: usb:v0545p8080d030[10-9]dc*dsc*dp*ic*isc*ip*
+> alias: usb:v0545p8080d0301dc*dsc*dp*ic*isc*ip*
+> alias: usb:v0545p8002d030[10-9]dc*dsc*dp*ic*isc*ip*
+> alias: usb:v0545p800Cd030[10-9]dc*dsc*dp*ic*isc*ip*
+> alias: usb:v0545p800Dd030[10-9]dc*dsc*dp*ic*isc*ip*
 
-The same goes for my anal efforts at trying to make people use a specific 
-format for sending patches, and sending the "please pull" messages. I'm 
-not hearing any grumbling about it at all, and in fact I'm getting the 
-distinct feeling that people like knowing exactly what format to use, 
-because they didn't really care themselves, and it turns out that having 
-any rule - even if it's fairly arbitrary - seems to be better than not 
-having a rule at all.
+The code in scripts/mod/file2alias.c assumes that the bcdDevice_lo and
+bcdDevice_hi field contain proper BCD data.  Seems that, thanks to buggy
+hardware, this assumption is incorrect, and the code needs to support
+any hex numbers there.
 
-So I think that a "odd release"/"even release" rule that clarifies what a 
-certain mid-point in the release cycle actually _means_, even if it 
-doesn't necessarily add anything else, might be a good thing. It just 
-solidifies peoples expectations about where we are in a release cycle.
+--Signature=_Thu__21_Sep_2006_22_30_35_+0400_QJgnhOoTe6Z6Qjl8
+Content-Type: application/pgp-signature
 
-If we make an arbitrary rule to go with the release cycle ("leading up to 
-the even cycle, you need to get an ack from somebody that actually tested 
-the fix") that could actually be a good thing, for this reason. 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
 
-I dunno. Maybe the only arbitrary rule ends up being that an "odd release" 
-would become a good place for people to try, knowing that we expect bug 
-reports from them. Right now -rc1 might be _too_ scary, even if it ends up 
-being exactly that: the only difference is really not about technology, 
-but about what peoples expectations are.
+iD8DBQFFEtpPW82GfkQfsqIRAtprAJ4+X1HEFtIhDQZcE/QodVOox+YQ6gCbBa3v
+pe3OAKDbrNyMPMeIKPsIZRQ=
+=0tLI
+-----END PGP SIGNATURE-----
 
-If we could instill a culture of "if you aren't a developer, but you just 
-want to help out, try the odd releases", that in itself might be worth the 
-naming change. If it would allow a group of people who might not feel 
-comfortable about reporting problems with a "-rc" to feel like they are 
-_expected_ to report a problem with an odd release, then that would be a 
-good thing, no?
-
-I'm just throwing this out as an idea. I'm not going to really argue very 
-strongly for it. It might have horrible downsides too, for all I know, and 
-we might get people who didn't get the memo on "even vs odd releases" 
-being really unhappy about somethign they perceive to be a buggy release.
-
-			Linus
+--Signature=_Thu__21_Sep_2006_22_30_35_+0400_QJgnhOoTe6Z6Qjl8--

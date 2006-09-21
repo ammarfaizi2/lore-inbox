@@ -1,63 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750853AbWIUO2R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750841AbWIUO34@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750853AbWIUO2R (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Sep 2006 10:28:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750841AbWIUO2R
+	id S1750841AbWIUO34 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Sep 2006 10:29:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750855AbWIUO3z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Sep 2006 10:28:17 -0400
-Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:49296 "EHLO
-	pd2mo1so.prod.shaw.ca") by vger.kernel.org with ESMTP
-	id S1750832AbWIUO2Q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Sep 2006 10:28:16 -0400
-Date: Thu, 21 Sep 2006 08:27:34 -0600
-From: Ray Lehtiniemi <rayl@shawcable.com>
-Subject: Re: [ANNOUNCE] headergraphs - kernel header dependency visualizer
-In-reply-to: <20060921064007.GA32653@uranus.ravnborg.org>
-To: Sam Ravnborg <sam@ravnborg.org>
-Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>, linux-kernel@vger.kernel.org
-Message-id: <200609210827.34925.rayl@shawcable.com>
-Organization: Home
-MIME-version: 1.0
-Content-type: text/plain; charset=iso-8859-1
-Content-transfer-encoding: 7bit
-Content-disposition: inline
-References: <200609201217.06926.rayl@shawcable.com>
- <Pine.LNX.4.61.0609210810210.29240@yvahk01.tjqt.qr>
- <20060921064007.GA32653@uranus.ravnborg.org>
-User-Agent: KMail/1.8.2
+	Thu, 21 Sep 2006 10:29:55 -0400
+Received: from mail04.syd.optusnet.com.au ([211.29.132.185]:15305 "EHLO
+	mail04.syd.optusnet.com.au") by vger.kernel.org with ESMTP
+	id S1750870AbWIUO3z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Sep 2006 10:29:55 -0400
+From: Con Kolivas <kernel@kolivas.org>
+To: ck mailing list <ck@vds.kolivas.org>,
+       linux kernel mailing list <linux-kernel@vger.kernel.org>
+Subject: 2.6.18-ck1
+Date: Fri, 22 Sep 2006 00:29:46 +1000
+User-Agent: KMail/1.9.1
+MIME-Version: 1.0
+Message-Id: <200609220029.49464.kernel@kolivas.org>
+X-Length: 2613
+Content-Type: multipart/signed;
+  boundary="nextPart23182647.TTsGmmqpsy";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 21 September 2006 00:40, Sam Ravnborg wrote:
+--nextPart23182647.TTsGmmqpsy
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-> Reminds me...
-> Arnaldo (acme) made a few simple scripts that was based on dot.
-> They are at his home directory at kernel.org.
+This patchset is designed to improve system responsiveness and interactivit=
+y.=20
+It is configurable to any workload but the default -ck patch is aimed at th=
+e=20
+desktop and -cks is available with more emphasis on serverspace.
 
-yah, the very first commit in my tree is an import of those scripts for 
-reference purposes :-)
+Apply to 2.6.18
+http://www.kernel.org/pub/linux/kernel/people/ck/patches/2.6/2.6.18/2.6.18-=
+ck1/patch-2.6.18-ck1.bz2
 
+or server version
+http://www.kernel.org/pub/linux/kernel/people/ck/patches/cks/patch-2.6.18-c=
+ks1.bz2
 
-> Care to take at look at these to see if there is something to be learned.
-> One good feature was that each level had a different color,
-> and I recall the graphs was more dense with less (confusing?) info.
+web:
+http://kernel.kolivas.org
 
-those graphs contain _much_ less information.
+all patches:
+http://www.kernel.org/pub/linux/kernel/people/ck/patches/
 
-the primary complexity reduction mechanism in hviz appears to be that it adds 
-the current file to the done list immediately before it starts the 
-breadth-first search of the children.  this eliminates the possibility of 
-back edges to previously seen headers, which is why those graphs flow so 
-nicely from left to right.  unfortunately, it also discards most of the 
-dependency information.
+Split patches available.
 
-my goal was to retain and present information from _all_ edges in the graph, 
-not just those which lead to new children.  even for relatively small 
-hierarchies, these graphs generally wind up looking like a big ball of yarn, 
-which is where all the confusing colors and numbers come into play.  they are 
-the distilled remnants of all the edges that have been pruned.  only a select 
-few edges remain to tie the whole thing together.
+=46ull patchlist:
 
+sched-staircase-16.2.patch
+sched-staircase16_interactive_tunable.patch
+sched-staircase16_compute_tunable.patch
+sched-range.patch
+sched-iso-4.6.patch
+track_mutexes-1.patch
+sched-idleprio-1.11.patch
+sched-limit_policy_changes.patch
+cfq-ioprio_inherit_rt_class.patch
+cfq-iso_idleprio_ionice.patch
+hz-default_1000.patch=20
+hz-no_default_250.patch=20
+sched-add-above-background-load-function.patch
+mm-swap_prefetch-33.patch=20
+mm-convert_swappiness_to_mapped.patch=20
+mm-lots_watermark.diff=20
+mm-kswapd_inherit_prio-1.patch=20
+mm-prio_dependant_scan-1.patch=20
+mm-background_scan-2.patch
+mm-idleprio_prio.patch
+mm-decrease_minimum_dirty_ratio.patch
+mm-set_zero_dirty_ratio.patch
+mm-filesize_dependant_lru_cache_add.patch
+kconfig-expose_vmsplit_option.patch
+ck1-version.patch
 
-ray
+=E6=A5=BD=E3=81=97=E3=81=BF=E3=81=AA=E3=81=95=E3=81=84
 
+=2D-=20
+=2Dck
+
+--nextPart23182647.TTsGmmqpsy
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
+
+iD8DBQBFEqHdZUg7+tp6mRURAgMMAJ9mnht0j6LXyFXyDfU3plnkbj7GbwCeO9qk
+AffR7bo2o7gvBUWcrSfc4oc=
+=9vxD
+-----END PGP SIGNATURE-----
+
+--nextPart23182647.TTsGmmqpsy--

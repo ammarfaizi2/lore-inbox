@@ -1,41 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750830AbWIUUat@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750792AbWIUUc7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750830AbWIUUat (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Sep 2006 16:30:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751551AbWIUUat
+	id S1750792AbWIUUc7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Sep 2006 16:32:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751543AbWIUUc7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Sep 2006 16:30:49 -0400
-Received: from tetsuo.zabbo.net ([207.173.201.20]:985 "EHLO tetsuo.zabbo.net")
-	by vger.kernel.org with ESMTP id S1750830AbWIUUat (ORCPT
+	Thu, 21 Sep 2006 16:32:59 -0400
+Received: from mail.gurulabs.com ([67.137.148.7]:744 "EHLO mail.gurulabs.com")
+	by vger.kernel.org with ESMTP id S1750792AbWIUUc7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Sep 2006 16:30:49 -0400
-Message-ID: <4512F676.7020802@oracle.com>
-Date: Thu, 21 Sep 2006 13:30:46 -0700
-From: Zach Brown <zach.brown@oracle.com>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060808)
-MIME-Version: 1.0
-To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-CC: "'Andrew Morton'" <akpm@osdl.org>,
-       "'Suparna Bhattacharya'" <suparna@in.ibm.com>,
-       linux-kernel@vger.kernel.org, linux-aio <linux-aio@kvack.org>
-Subject: Re: [patch] clean up unused kiocb variables
-References: <000101c6ddbc$334248d0$ff0da8c0@amr.corp.intel.com>
-In-Reply-To: <000101c6ddbc$334248d0$ff0da8c0@amr.corp.intel.com>
-Content-Type: text/plain; charset=us-ascii
+	Thu, 21 Sep 2006 16:32:59 -0400
+Subject: Smaller compressed kernel source tarballs?
+From: Dax Kelson <dax@gurulabs.com>
+To: Linux kernel <linux-kernel@vger.kernel.org>
+Cc: Linus Torvalds <torvalds@osdl.org>
+Content-Type: text/plain
+Date: Thu, 21 Sep 2006 14:32:57 -0600
+Message-Id: <1158870777.24172.23.camel@mentorng.gurulabs.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Today as I was watching the linux-2.6.18.tar.bz2 slowly download I
+thought it would be nice if it could be made smaller.
 
-> Let's remove them.  We can always add them back if there is a need.
+The 7zip program/algorithm is free software (LGPL) and can be obtained
+from http://www.7-zip.org/ and it is distributed with several
+distributions (it is in Fedora Core 6 extras for example).
 
-Agreed, especially in this age of dynamic probing.
+Here are the numbers:
 
-> Suparna wanted them around for debug purpose at one point.  I don't know
-> whether that is still the case right now.  At least I can wrap it around
-> with #if DEBUG.
+ls -al
+-rw-r--r--  1 root root 240138240 Sep 21 13:55 linux-2.6.18.tar
+-rw-r--r--  1 root root  34180796 Sep 21 13:42 linux-2.6.18.tar.7z
+-rw-r--r--  1 root root  41863580 Sep 21 13:45 linux-2.6.18.tar.bz2
+-rw-r--r--  1 root root  52467357 Sep 21 13:13 linux-2.6.18.tar.gz
 
-I guess that's better than nothing.  Given the near total lack of
--EIOCBRETRY users I'm just not convinced that they're worth it.
+ls -alh
+-rw-r--r--  1 root root 230M Sep 21 13:55 linux-2.6.18.tar
+-rw-r--r--  1 root root  33M Sep 21 13:42 linux-2.6.18.tar.7z
+-rw-r--r--  1 root root  40M Sep 21 13:45 linux-2.6.18.tar.bz2
+-rw-r--r--  1 root root  51M Sep 21 13:13 linux-2.6.18.tar.gz
 
-- z
+Smaller the better, especially with the international audience.
+
+Dax Kelson
+

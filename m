@@ -1,44 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751060AbWIUJKB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751062AbWIUJOE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751060AbWIUJKB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Sep 2006 05:10:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751062AbWIUJKB
+	id S1751062AbWIUJOE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Sep 2006 05:14:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751071AbWIUJOE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Sep 2006 05:10:01 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:58753 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1751060AbWIUJKA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Sep 2006 05:10:00 -0400
-Subject: Re: Request kernel 2.6.18 ..
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Ben Duncan <ben@versaccounting.com>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <4511DD6E.5090402@versaccounting.com>
-References: <4511DD6E.5090402@versaccounting.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Thu, 21 Sep 2006 10:34:15 +0100
-Message-Id: <1158831256.11109.98.camel@localhost.localdomain>
+	Thu, 21 Sep 2006 05:14:04 -0400
+Received: from gwmail.nue.novell.com ([195.135.221.19]:19389 "EHLO
+	emea5-mh.id5.novell.com") by vger.kernel.org with ESMTP
+	id S1751062AbWIUJOC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Sep 2006 05:14:02 -0400
+Message-Id: <45127439.76E4.0078.0@novell.com>
+X-Mailer: Novell GroupWise Internet Agent 7.0.1 
+Date: Thu, 21 Sep 2006 11:15:05 +0200
+From: "Jan Beulich" <jbeulich@novell.com>
+To: "Andi Kleen" <ak@suse.de>
+Cc: "Mikael Pettersson" <mikpe@it.uu.se>, <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH 2.6.18] x86_64: silence warning when stack
+	unwinding is disabled
+References: <200609210712.k8L7CdrR015591@alkaid.it.uu.se>
+ <45125C4C.76E4.0078.0@novell.com> <200609211004.03942.ak@suse.de>
+In-Reply-To: <200609211004.03942.ak@suse.de>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Mer, 2006-09-20 am 19:31 -0500, ysgrifennodd Ben Duncan:
-> Report: 2.6.18 has solved a lot of issues with
-> my 965 chipset Duo Core intel MB and has been
-> extremely stable ...
-> 
-> Now, any idea on a timeline for driver for the Marvell IDE
-> controller ?
+>>> Andi Kleen <ak@suse.de> 21.09.06 10:04 >>>
+>On Thursday 21 September 2006 09:33, Jan Beulich wrote:
+>> A patch to this effect is already queued in -mm (and perhaps also in Andi's tree). Jan
+>
+>I refixed it independently a few minutes ago.
+>
+>There was also another compile error in my tree with unwind disabled which
+>I fixed.
 
-Possibly never. Marvell don't currently seem to want to play. Now that
-might be for several reasons, one of which is that its someone elses
-chip rebadged. In that case someone has a chance of working out what it
-copies (eg which bits change when you boot with or without a master or
-slave on each channel is a good clue)
-
-The current prognosis however is that you and/or other marvell users are
-going to have to reverse-engineer the thing or just avoid boards using
-that chip.
-
+Thanks!

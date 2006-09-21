@@ -1,94 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751148AbWIUMTz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751139AbWIUMX2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751148AbWIUMTz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Sep 2006 08:19:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751150AbWIUMTz
+	id S1751139AbWIUMX2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Sep 2006 08:23:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751154AbWIUMX2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Sep 2006 08:19:55 -0400
-Received: from natlemon.rzone.de ([81.169.145.170]:25809 "EHLO
-	natlemon.rzone.de") by vger.kernel.org with ESMTP id S1751148AbWIUMTy
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Sep 2006 08:19:54 -0400
-Date: Thu, 21 Sep 2006 14:19:52 +0200
-From: Olaf Hering <olaf@aepfle.de>
-To: linux-kernel@vger.kernel.org
-Subject: backlight: oops in __mutex_lock_slowpath during head /sys/class/graphics/fb0/* in 2.6.18
-Message-ID: <20060921121952.GA16927@aepfle.de>
+	Thu, 21 Sep 2006 08:23:28 -0400
+Received: from mx01.stofanet.dk ([212.10.10.11]:26310 "EHLO mx01.stofanet.dk")
+	by vger.kernel.org with ESMTP id S1751139AbWIUMX1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Sep 2006 08:23:27 -0400
+Date: Thu, 21 Sep 2006 14:23:19 +0200 (CEST)
+From: Esben Nielsen <nielsen.esben@gogglemail.com>
+X-X-Sender: simlo@frodo.shire
+To: Bill Huey <billh@gnuppy.monkey.org>
+cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
+       Thomas Gleixner <tglx@linutronix.de>, John Stultz <johnstul@us.ibm.com>,
+       "Paul E. McKenney" <paulmck@us.ibm.com>,
+       Dipankar Sarma <dipankar@in.ibm.com>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Esben Nielsen <simlo@phys.au.dk>
+Subject: Re: [PATCH] move put_task_struct() reaping into a thread [Re:
+ 2.6.18-rt1]
+In-Reply-To: <20060921081333.GC11644@gnuppy.monkey.org>
+Message-ID: <Pine.LNX.4.64.0609211417470.8638@frodo.shire>
+References: <20060920141907.GA30765@elte.hu> <20060921065624.GA9841@gnuppy.monkey.org>
+ <20060921065402.GA22089@elte.hu> <20060921071838.GA10337@gnuppy.monkey.org>
+ <20060921071624.GA25281@elte.hu> <20060921073222.GC10337@gnuppy.monkey.org>
+ <20060921072908.GA27280@elte.hu> <20060921074805.GA11644@gnuppy.monkey.org>
+ <20060921075633.GA30343@elte.hu> <20060921081333.GC11644@gnuppy.monkey.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-User-Agent: Mutt/1.5.13 (2006-08-11)
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The bl_curve code has some room for improvement.
-
-...
-<6>Monitor sense value = 0x60b
-<6>using video mode 13 and color mode 0.
-<4>Console: switching to colour frame buffer device 104x39
-<6>fb0: valkyrie frame buffer device
-...
-
-inst-sys:~ # cat /proc/fb
-0 valkyrie
-inst-sys:~ # l /sys/class/graphics/fb0/
-total 0
-drwxr-xr-x 2 root root    0 Sep 21 11:54 ./
-drwxr-xr-x 4 root root    0 Sep 21 11:53 ../
--rw-r--r-- 1 root root 4096 Sep 21 12:15 bits_per_pixel
--rw-r--r-- 1 root root 4096 Sep 21 12:15 bl_curve
--rw-r--r-- 1 root root 4096 Sep 21 12:15 blank
--rw-r--r-- 1 root root 4096 Sep 21 12:15 console
--rw-r--r-- 1 root root 4096 Sep 21 12:15 cursor
--r--r--r-- 1 root root 4096 Sep 21 12:15 dev
--rw-r--r-- 1 root root 4096 Sep 21 12:15 mode
--rw-r--r-- 1 root root 4096 Sep 21 12:15 modes
--r--r--r-- 1 root root 4096 Sep 21 12:15 name
--rw-r--r-- 1 root root 4096 Sep 21 12:15 pan
--rw-r--r-- 1 root root 4096 Sep 21 12:15 rotate
--rw-r--r-- 1 root root 4096 Sep 21 12:15 state
--r--r--r-- 1 root root 4096 Sep 21 12:15 stride
-lrwxrwxrwx 1 root root    0 Sep 21 12:15 subsystem -> ../../../class/graphics/
---w------- 1 root root 4096 Sep 21 12:15 uevent
--rw-r--r-- 1 root root 4096 Sep 21 12:15 virtual_size
-inst-sys:~ # head /sys/class/graphics/fb0/*
-==> /sys/class/graphics/fb0/bits_per_pixel <==
-8
-
-==> /sys/class/graphics/fb0/bl_curve <==
-Segmentation fault
-inst-sys:~ # dmesg
-valkyriefb: vmode 13 does not support cmode 1.
-Unable to handle kernel paging request for data at address 0x00000000
-Faulting instruction address: 0xc02c7bd8
-Oops: Kernel access of bad area, sig: 11 [#1]
-
-Modules linked in: tulip mesh cpufreq_ondemand loop nfs nfs_acl lockd sunrpc sg st sd_mod sr_mod scsi_mod ide_cd cdrom
-NIP: C02C7BD8 LR: C0170EBC CTR: C0170E90
-REGS: c4209db0 TRAP: 0300   Not tainted  (2.6.18-rc7-git1-2-default)
-MSR: 00009032 <EE,ME,IR,DR>  CR: 28042488  XER: 00000000
-DAR: 00000000, DSISR: 22000000
-TASK = c7fc8190[2853] 'head' THREAD: c4208000
-GPR00: C4209E6C C4209E60 C7FC8190 C0B77614 C41D5000 C41D5000 00000000 00008000
-GPR08: 00000000 C0B77618 00000000 00000000 00000000 100200C8 10020000 00000001
-GPR16: 10006D08 7FDF9B3C 100A0000 10080000 00000003 7FDF9CAB C4209F20 C2FCDC78
-GPR24: C038BC14 C01EF568 7FDF7858 C41D5000 C0B77614 C0B77400 C7FC8190 C0B77614
-NIP [C02C7BD8] __mutex_lock_slowpath+0x2c/0xa4
-LR [C0170EBC] show_bl_curve+0x2c/0xa0
-Call Trace:  
-[C4209E60] [C02C7A54] mutex_lock+0x18/0x5c (unreliable)
-[C4209E80] [C0170EBC] show_bl_curve+0x2c/0xa0
-[C4209EB0] [C01EF594] class_device_attr_show+0x2c/0x44
-[C4209EC0] [C00CC3BC] sysfs_read_file+0xb8/0x204
-[C4209EF0] [C0083FE4] vfs_read+0xec/0x1c8
-[C4209F10] [C0084444] sys_read+0x4c/0x8c
-[C4209F40] [C00125F8] ret_from_syscall+0x0/0x40
---- Exception: c01 at 0xff589f8
-    LR = 0x100045e0
-Instruction dump:
-4e800020 9421ffe0 7c0802a6 39230004 bfc10018 7c7f1b78 7c5e1378 90010024
-3801000c 9121000c 81690004 90090004 <900b0000> 91610010 90410014 3800ffff
 
 
 
+On Thu, 21 Sep 2006, Bill Huey wrote:
+
+> On Thu, Sep 21, 2006 at 09:56:33AM +0200, Ingo Molnar wrote:
+>> * Bill Huey <billh@gnuppy.monkey.org> wrote:
+>>
+>>> [...] If the upstream kernel used RCU function in a task allocation or
+>>> task struct reading in the first place then call_rcu() would be a
+>>> clear choice. However, I didn't see it used in that way (I could be
+>>> wrong) [...]
+>>
+>> it was RCU-ified briefly but then it was further improved to direct
+>> freeing, because upstream _can_ free it directly.
+>
+> Unfortunately, this is a problem with -rt patch and the lock ordering
+> in this system when you have to call a memory allocator within an atomic
+> critical section. I fully accept this as part of what goes into making a
+> kernel preemptive and I'm ok with it. Not many folks know about the
+> special case locking rules in the -rt kernel so this might be new to
+> various folks.
+>
+> If you're looking for validation of this technique from me and an ego
+> stroking, then you have it from me. :)
+>
+> Fortunately, it's in a non-critical place so this should *not* be too
+> much of a problem, but I've already encountered oddies trying to
+> allocate a pool of entities for populating a free list under an atomic
+> critical section of some sort for some code I've been writing. This is
+> a significant problem with kernel coding in -rt, but I can't say what
+> the general solution is other than making the memory allocators
+> non-preemptible by reverting the locks back to raw spinlocks, etc...
+> using lock-break, who knows. I'm ok with the current scenario, but this
+> could eventually be a larger problem.
+>
+
+The whole point is to defer those frees to a task. In -rt call_rcu() is 
+abused to do that in the case of put_task_struct(). But it is abuse since 
+call_rcu() is much more resourcefull than simply defering to a task.
+
+Paul's idea behind de-RCU'ing put_task_struct() is mostly performance and 
+partly readability because the extra RCU protection isn't needed.
+
+So the answer is:
+Make a general softirq to which free's can be defered from atomic regions, 
+don't abuse call_rcu().
+
+Esben
+
+> bill
+>

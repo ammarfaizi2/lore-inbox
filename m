@@ -1,45 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751284AbWIUPko@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751281AbWIUPkW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751284AbWIUPko (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Sep 2006 11:40:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751285AbWIUPko
+	id S1751281AbWIUPkW (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Sep 2006 11:40:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751284AbWIUPkW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Sep 2006 11:40:44 -0400
-Received: from ug-out-1314.google.com ([66.249.92.169]:62563 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1751284AbWIUPkn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Sep 2006 11:40:43 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
-        b=tVSMn2JGernSSs7nwlVhkbWwFl+3+KEPbnPJGfmeIKy9DPdP8rSWWhwody1qvREBVGw3khs1Ep9eBHAB8lNl9R5vZHTf0QtKgdmGb9HQew8pxpWMsLPXNDLlfVcs/7eLsWStxn6RchH6lDP8iu2DPf90bRLeD1Gusivs0rp8gqg=
-Message-ID: <d120d5000609210840v3bbc2758t66cef4ff7b499089@mail.gmail.com>
-Date: Thu, 21 Sep 2006 11:40:40 -0400
-From: "Dmitry Torokhov" <dtor@insightbb.com>
-To: "Adam Buchbinder" <adam.buchbinder@gmail.com>
-Subject: Re: [linux-usb-devel] [PATCH 2.6.17.11] xpad: dance pad support
-Cc: greg@kroah.com, linux-input@atrey.karlin.mff.cuni.cz,
-       linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
-In-Reply-To: <4512AD76.4070005@gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Thu, 21 Sep 2006 11:40:22 -0400
+Received: from xenotime.net ([66.160.160.81]:62602 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1751281AbWIUPkV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Sep 2006 11:40:21 -0400
+Date: Thu, 21 Sep 2006 08:41:25 -0700
+From: "Randy.Dunlap" <rdunlap@xenotime.net>
+To: "Luke Yang" <luke.adi@gmail.com>
+Cc: linux-kernel@vger.kernel.org, "Andrew Morton" <akpm@osdl.org>
+Subject: Re: [PATCH 3/4] Blackfin: documents and maintainer patch
+Message-Id: <20060921084125.c6de4936.rdunlap@xenotime.net>
+In-Reply-To: <489ecd0c0609202334y5fae5aabq754efccc971d9d8b@mail.gmail.com>
+References: <489ecd0c0609202033g330cfb52te1b246da63b55cf4@mail.gmail.com>
+	<489ecd0c0609202334y5fae5aabq754efccc971d9d8b@mail.gmail.com>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <4512AD76.4070005@gmail.com>
-X-Google-Sender-Auth: 7dcf02c0586e5029
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 9/21/06, Adam Buchbinder <adam.buchbinder@gmail.com> wrote:
-> +
-> +static int dpad_to_buttons = 0;
-> +module_param(dpad_to_buttons, bool, S_IRUGO);
-> +MODULE_PARM_DESC(dpad_to_buttons, "Map D-PAD to buttons rather than axes for unknown pads");
+On Thu, 21 Sep 2006 14:34:59 +0800 Luke Yang wrote:
 
-There is no need to initialize dpad_to_buttons to 0, it already is.
-Oherwise you may add:
+> Hi all,
+> 
+>    Forgot to attach the patch as attachment. Please use the attachment
+> as a real patch.
 
-Acked-by: Dmitry Torokhov <dtor@mail.ru>
+OK.  Sorry I missed seeing the attachments in the other emails.
+Sonic pointed that out to me.
 
--- 
-Dmitry
+---
+~Randy

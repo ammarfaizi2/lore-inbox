@@ -1,77 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751535AbWIUUFw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751545AbWIUUK3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751535AbWIUUFw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Sep 2006 16:05:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751536AbWIUUFw
+	id S1751545AbWIUUK3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Sep 2006 16:10:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751546AbWIUUK3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Sep 2006 16:05:52 -0400
-Received: from odyssey.analogic.com ([204.178.40.5]:52741 "EHLO
-	odyssey.analogic.com") by vger.kernel.org with ESMTP
-	id S1751534AbWIUUFw convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Sep 2006 16:05:52 -0400
+	Thu, 21 Sep 2006 16:10:29 -0400
+Received: from smtp-out.google.com ([216.239.45.12]:8717 "EHLO
+	smtp-out.google.com") by vger.kernel.org with ESMTP
+	id S1751542AbWIUUK2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Sep 2006 16:10:28 -0400
+DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
+	h=received:message-id:date:from:to:subject:cc:in-reply-to:
+	mime-version:content-type:content-transfer-encoding:
+	content-disposition:references;
+	b=OGJZJSGTzQ9JtldLBZBhPalEwi9u3WBgD5CdIAX3KCiLFn8LkLFYl4ooTXLI/1FzN
+	QD/+UaVAG1jvgfeR8RYzw==
+Message-ID: <6599ad830609211310s4e036e55h89bab26432d83c11@mail.google.com>
+Date: Thu, 21 Sep 2006 13:10:22 -0700
+From: "Paul Menage" <menage@google.com>
+To: sekharan@us.ibm.com
+Subject: Re: [ckrm-tech] [patch00/05]: Containers(V2)- Introduction
+Cc: "Paul Jackson" <pj@sgi.com>, npiggin@suse.de,
+       ckrm-tech@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       rohitseth@google.com, devel@openvz.org, clameter@sgi.com
+In-Reply-To: <1158869186.6536.205.camel@linuxchandra>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-X-OriginalArrivalTime: 21 Sep 2006 20:05:42.0131 (UTC) FILETIME=[50D2AC30:01C6DDB9]
-Content-class: urn:content-classes:message
-Subject: Re: "Int 6: CR2" on bootup w/ 2.6.18-rc7-mm1
-Date: Thu, 21 Sep 2006 16:05:41 -0400
-Message-ID: <Pine.LNX.4.61.0609211602130.30511@chaos.analogic.com>
-In-Reply-To: <20060921124336.5dae2e09.akpm@osdl.org>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: "Int 6: CR2" on bootup w/ 2.6.18-rc7-mm1
-thread-index: AcbduVD7xT2Umv+xS/2xrrPeQA0cyQ==
-References: <200609211412.08561.bero@arklinux.org> <20060921124336.5dae2e09.akpm@osdl.org>
-From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-To: "Andrew Morton" <akpm@osdl.org>
-Cc: "Bernhard Rosenkraenzer" <bero@arklinux.org>,
-       "Linux kernel" <linux-kernel@vger.kernel.org>,
-       "Chuck Ebbert" <76306.1226@compuserve.com>, "Andi Kleen" <ak@muc.de>
-Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <1158718568.29000.44.camel@galaxy.corp.google.com>
+	 <Pine.LNX.4.64.0609200916140.30572@schroedinger.engr.sgi.com>
+	 <1158777240.6536.89.camel@linuxchandra>
+	 <Pine.LNX.4.64.0609201252030.32409@schroedinger.engr.sgi.com>
+	 <1158798715.6536.115.camel@linuxchandra>
+	 <20060920173638.370e774a.pj@sgi.com>
+	 <6599ad830609201742h71d112f4tae8fe390cb874c0b@mail.google.com>
+	 <1158803120.6536.139.camel@linuxchandra>
+	 <6599ad830609201852k12cee6eey9086247c9bdec8b@mail.google.com>
+	 <1158869186.6536.205.camel@linuxchandra>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-On Thu, 21 Sep 2006, Andrew Morton wrote:
-
-> On Thu, 21 Sep 2006 14:12:08 +0200
-> Bernhard Rosenkraenzer <bero@arklinux.org> wrote:
+On 9/21/06, Chandra Seetharaman <sekharan@us.ibm.com> wrote:
+> > The current fake numa support requires you to choose your node layout
+> > at boot time - I've been working with 64 fake nodes of 128M each,
+> > which gives a reasonable granularity for dividing a machine between
+> > multiple different sized jobs.
 >
->> This happens when trying to boot 2.6.18-rc7-mm1 on a truly ancient
->> (Pentium 1)
->> box:
->>
->> Uncompressing Linux... Ok, booting the kernel.
->>
->> Int 6: CR2 00000000 err 00000000 EIP c0381719 CS 00000060 flags 00010046
->> Stack: 00000000 c036f4d1 00000000 c0100199 000001b8 0505c600 00c036cc
-> 001f0fc3
->>
->> (No further details even with initcall_debug loglevel=7).
->> c0381719 appears to be in ACPI code -- but the Int 6 error happens even with
->> acpi=off.
->
-> Well Chuck's new early-fault handler has gone and handled an early fault.
->
-> I assume that machine runs 2.6.18 OK with the same .config?
-> -
+> It still will not satisfy what OpenVZ/Container folks are looking for:
+> 100s of containers.
 
-Interrupt 6 is an invalid opcode interrupt. The caller might check
-the kind of CPU for which the kernel was compiled. You can't boot
-a '486 with '686 opcodes. "Truly ancient" probably explains it all.
+Right - so fake-numa is not the right solution for everyone, and I
+never suggested that it is. (Having said that, there are discussions
+underway to make the zone-based approach more practical - if you could
+have dynamically-resizable nodes, this would be more applicable to
+openvz).
 
+But, there's no reason that the OpenVZ resource control mechanisms
+couldn't be hooked into a generic process container mechanism along
+with cpusets and RG.
 
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.16.24 on an i686 machine (5592.66 BogoMips).
-New book: http://www.AbominableFirebug.com/
-_
-
-
-****************************************************************
-The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
-
-Thank you.
+Paul

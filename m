@@ -1,59 +1,112 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750941AbWIULbV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750945AbWIULgS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750941AbWIULbV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Sep 2006 07:31:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750942AbWIULbV
+	id S1750945AbWIULgS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Sep 2006 07:36:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750947AbWIULgS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Sep 2006 07:31:21 -0400
-Received: from mail.kroah.org ([69.55.234.183]:29911 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S1750940AbWIULbU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Sep 2006 07:31:20 -0400
-Date: Thu, 21 Sep 2006 04:30:10 -0700
-From: Greg KH <gregkh@suse.de>
-To: Dmitry Torokhov <dtor@insightbb.com>
-Cc: Robin Getz <rgetz@blackfin.uclinux.org>,
-       "Randy.Dunlap" <rdunlap@xenotime.net>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: drivers/char/random.c exported interfaces
-Message-ID: <20060921113010.GA3756@suse.de>
-References: <6.1.1.1.0.20060920125855.01eca0c0@ptg1.spd.analog.com> <200609210011.25891.dtor@insightbb.com>
+	Thu, 21 Sep 2006 07:36:18 -0400
+Received: from wx-out-0506.google.com ([66.249.82.229]:63768 "EHLO
+	wx-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1750945AbWIULgR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Sep 2006 07:36:17 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:mime-version:content-type;
+        b=cPXg4dDqyvFg9+FGWo/C2Lws3vFdwPBEH3Peer9qE0GwJgMrTMBIZZStS9cZPCiTLUuTq7nQ9RYizrqJeP74cYf7Hph/zELo64FycyD8WelyqaFYnpBQo2HkGH+wbWuz4qJQg5F57/PcigL3tGTACRxB5dLCH9ZY4r3EyNER11M=
+Message-ID: <c293dd340609210436u3456398dw31a955a4120c0111@mail.gmail.com>
+Date: Thu, 21 Sep 2006 17:06:16 +0530
+From: "Toufeeq Hussain" <toufeeqh@gmail.com>
+To: linux-kernel@vger.kernel.org, linux-arm@lists.arm.linux.org.uk,
+       buytenh@wantstofly.org
+Subject: [PATCH] Support for the Cirrus EDB9312 development board
+Cc: toufeeq_hussain@infosys.com, mahendra_m@infosys.com
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200609210011.25891.dtor@insightbb.com>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+Content-Type: multipart/mixed; 
+	boundary="----=_Part_4820_33118169.1158838576534"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 21, 2006 at 12:11:25AM -0400, Dmitry Torokhov wrote:
-> On Wednesday 20 September 2006 13:04, Robin Getz wrote:
-> > Randy Dunlap said:
-> > >ISTM that we should at least fix the first 2 (by EXPORTing them).
-> > >or we don't allow INPUT=m.
-> > >
-> > >You want to send a patch?
-> > 
-> > No problem - which patch do you want? (exporting? or set INPUT to bool?)
-> > 
-> > I'll send the export later tonight if no objections.
-> >
-> 
-> Would there be any objections if I commit the patch below so input
-> could be built as a module? 
-> 
-> -- 
-> Dmitry
-> 
-> Input: fix building input core as a module
-> 
-> Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
+------=_Part_4820_33118169.1158838576534
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-No objection from me, feel free to add:
-	Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+Hi,
 
-to this patch.
+We at Infosys would like to submit the following patch which adds
+support for the EDB9312 (ep93xx based) development board developed by
+Cirrus Logic.
 
-thanks,
+Thanks,
+Toufeeq
 
-greg k-h
+Signed-off-by: Toufeeq Hussain <toufeeq_hussain@infosys.com>
+-- 
+blog @ http://toufeeq.net
+
+------=_Part_4820_33118169.1158838576534
+Content-Type: text/x-patch; name=linux-2.6.18-edb9312.patch; 
+	charset=ANSI_X3.4-1968
+Content-Transfer-Encoding: base64
+X-Attachment-Id: f_esd2i87l
+Content-Disposition: attachment; filename="linux-2.6.18-edb9312.patch"
+
+ZGlmZiAtdXJOIGxpbnV4LTIuNi4xNS5vcmlnL2FyY2gvYXJtL21hY2gtZXA5M3h4L2VkYjkzMTIu
+YyBsaW51eC0yLjYuMTUvYXJjaC9hcm0vbWFjaC1lcDkzeHgvZWRiOTMxMi5jCi0tLSBsaW51eC0y
+LjYuMTUub3JpZy9hcmNoL2FybS9tYWNoLWVwOTN4eC9lZGI5MzEyLmMJMTk3MC0wMS0wMSAwNToz
+MDowMC4wMDAwMDAwMDAgKzA1MzAKKysrIGxpbnV4LTIuNi4xNS9hcmNoL2FybS9tYWNoLWVwOTN4
+eC9lZGI5MzEyLmMJMjAwNi0wOS0wNCAxNjo1NzoxNy43MzcyNTUyMzIgKzA1MzAKQEAgLTAsMCAr
+MSw2MyBAQAorLyoKKyAqIGFyY2gvYXJtL21hY2gtZXA5M3h4L2VkYjkzMTIuYworICogQ2lycnVz
+IExvZ2ljIEVEQjkzMTIgc3VwcG9ydC4KKyAqCisgKiBDb3B5cmlnaHQgKEMpIDIwMDYgSW5mb3N5
+cyBUZWNobm9sb2dpZXMgTGltaXRlZAorICogCVRvdWZlZXEgSHVzc2Fpbgk8dG91ZmVlcV9odXNz
+YWluQGluZm9zeXMuY29tPgorICoKKyAqIFRoaXMgcHJvZ3JhbSBpcyBmcmVlIHNvZnR3YXJlOyB5
+b3UgY2FuIHJlZGlzdHJpYnV0ZSBpdCBhbmQvb3IgbW9kaWZ5CisgKiBpdCB1bmRlciB0aGUgdGVy
+bXMgb2YgdGhlIEdOVSBHZW5lcmFsIFB1YmxpYyBMaWNlbnNlIGFzIHB1Ymxpc2hlZCBieQorICog
+dGhlIEZyZWUgU29mdHdhcmUgRm91bmRhdGlvbjsgZWl0aGVyIHZlcnNpb24gMiBvZiB0aGUgTGlj
+ZW5zZSwgb3IgKGF0CisgKiB5b3VyIG9wdGlvbikgYW55IGxhdGVyIHZlcnNpb24uCisgKi8KKyAK
+KyNpbmNsdWRlIDxsaW51eC9jb25maWcuaD4KKyNpbmNsdWRlIDxsaW51eC9rZXJuZWwuaD4KKyNp
+bmNsdWRlIDxsaW51eC9pbml0Lmg+CisjaW5jbHVkZSA8bGludXgvbW0uaD4KKyNpbmNsdWRlIDxs
+aW51eC9zY2hlZC5oPgorI2luY2x1ZGUgPGxpbnV4L2ludGVycnVwdC5oPgorI2luY2x1ZGUgPGxp
+bnV4L2lvcG9ydC5oPgorI2luY2x1ZGUgPGxpbnV4L210ZC9waHlzbWFwLmg+CisjaW5jbHVkZSA8
+bGludXgvcGxhdGZvcm1fZGV2aWNlLmg+CisjaW5jbHVkZSA8YXNtL2lvLmg+CisjaW5jbHVkZSA8
+YXNtL2hhcmR3YXJlLmg+CisjaW5jbHVkZSA8YXNtL21hY2gtdHlwZXMuaD4KKyNpbmNsdWRlIDxh
+c20vbWFjaC9hcmNoLmg+CisKK3N0YXRpYyBzdHJ1Y3QgcGh5c21hcF9mbGFzaF9kYXRhIGVkYjkz
+MTJfZmxhc2hfZGF0YSA9IHsKKwkud2lkdGgJCT0gNCwKK307CisKK3N0YXRpYyBzdHJ1Y3QgcmVz
+b3VyY2UgZWRiOTMxMl9mbGFzaF9yZXNvdXJjZSA9IHsKKwkuc3RhcnQJCT0gMHg2MDAwMDAwMCwK
+KwkuZW5kCQk9IDB4NjFmZmZmZmYsCisJLmZsYWdzCQk9IElPUkVTT1VSQ0VfTUVNLAorfTsKKwor
+c3RhdGljIHN0cnVjdCBwbGF0Zm9ybV9kZXZpY2UgZWRiOTMxMl9mbGFzaCA9IHsKKwkubmFtZQkJ
+PSAicGh5c21hcC1mbGFzaCIsCisJLmlkCQk9IDAsCisJLmRldgkJPSB7CisJCS5wbGF0Zm9ybV9k
+YXRhCT0gJmVkYjkzMTJfZmxhc2hfZGF0YSwKKwl9LAorCS5udW1fcmVzb3VyY2VzCT0gMSwKKwku
+cmVzb3VyY2UJPSAmZWRiOTMxMl9mbGFzaF9yZXNvdXJjZSwKK307CisKK3N0YXRpYyB2b2lkIF9f
+aW5pdCBlZGI5MzEyX2luaXRfbWFjaGluZSh2b2lkKQoreworCWVwOTN4eF9pbml0X2RldmljZXMo
+KTsKKwlwbGF0Zm9ybV9kZXZpY2VfcmVnaXN0ZXIoJmVkYjkzMTJfZmxhc2gpOworfQorCitNQUNI
+SU5FX1NUQVJUKEVEQjkzMTIsICJDaXJydXMgTG9naWMgRURCOTMxMiBCb2FyZCIpCisJLyogTWFp
+bnRhaW5lcjogVG91ZmVlcSBIdXNzYWluIDx0b3VmZWVxX2h1c3NhaW5AaW5mb3N5cy5jb20+ICov
+CisJLnBoeXNfaW8JPSBFUDkzWFhfQVBCX1BIWVNfQkFTRSwKKwkuaW9fcGdfb2Zmc3QJPSAoKEVQ
+OTNYWF9BUEJfVklSVF9CQVNFKSA+PiAxOCkgJiAweGZmZmMsCisJLmJvb3RfcGFyYW1zCT0gMHgw
+MDAwMDEwMCwKKwkubWFwX2lvCQk9IGVwOTN4eF9tYXBfaW8sCisJLmluaXRfaXJxCT0gZXA5M3h4
+X2luaXRfaXJxLAorCS50aW1lcgkJPSAmZXA5M3h4X3RpbWVyLAorCS5pbml0X21hY2hpbmUJPSBl
+ZGI5MzEyX2luaXRfbWFjaGluZSwKK01BQ0hJTkVfRU5ECkJpbmFyeSBmaWxlcyBsaW51eC0yLjYu
+MTUub3JpZy9hcmNoL2FybS9tYWNoLWVwOTN4eC8uZWRiOTMxNS5jLnN3cCBhbmQgbGludXgtMi42
+LjE1L2FyY2gvYXJtL21hY2gtZXA5M3h4Ly5lZGI5MzE1LmMuc3dwIGRpZmZlcgpkaWZmIC11ck4g
+bGludXgtMi42LjE1Lm9yaWcvYXJjaC9hcm0vbWFjaC1lcDkzeHgvS2NvbmZpZyBsaW51eC0yLjYu
+MTUvYXJjaC9hcm0vbWFjaC1lcDkzeHgvS2NvbmZpZwotLS0gbGludXgtMi42LjE1Lm9yaWcvYXJj
+aC9hcm0vbWFjaC1lcDkzeHgvS2NvbmZpZwkyMDA2LTA5LTA0IDE2OjQzOjEwLjAwMDAwMDAwMCAr
+MDUzMAorKysgbGludXgtMi42LjE1L2FyY2gvYXJtL21hY2gtZXA5M3h4L0tjb25maWcJMjAwNi0w
+OS0wMyAxNzoxMTowMy4wMDAwMDAwMDAgKzA1MzAKQEAgLTE1LDYgKzE1LDEzIEBACiAJICBTYXkg
+J1knIGhlcmUgaWYgeW91IHdhbnQgeW91ciBrZXJuZWwgdG8gc3VwcG9ydCB0aGUgQ2lycnVzCiAJ
+ICBMb2dpYyBFREI5MzAyIEV2YWx1YXRpb24gQm9hcmQuCiAKK2NvbmZpZyBNQUNIX0VEQjkzMTIK
+Kwlib29sICJTdXBwb3J0IENpcnJ1cyBMb2dpYyBFREI5MzEyIgorCWhlbHAKKwkgIFNheSAnWScg
+aGVyZSBpZiB5b3Ugd2FudCB5b3VyIGtlcm5lbCB0byBzdXBwb3J0IHRoZSBDaXJydXMKKwkgIExv
+Z2ljIEVEQjkzMTIgRXZhbHVhdGlvbiBCb2FyZC4KKyAKKwogY29uZmlnIE1BQ0hfRURCOTMxNQog
+CWJvb2wgIlN1cHBvcnQgQ2lycnVzIExvZ2ljIEVEQjkzMTUiCiAJaGVscApkaWZmIC11ck4gbGlu
+dXgtMi42LjE1Lm9yaWcvYXJjaC9hcm0vbWFjaC1lcDkzeHgvTWFrZWZpbGUgbGludXgtMi42LjE1
+L2FyY2gvYXJtL21hY2gtZXA5M3h4L01ha2VmaWxlCi0tLSBsaW51eC0yLjYuMTUub3JpZy9hcmNo
+L2FybS9tYWNoLWVwOTN4eC9NYWtlZmlsZQkyMDA2LTA5LTA0IDE2OjQzOjEwLjAwMDAwMDAwMCAr
+MDUzMAorKysgbGludXgtMi42LjE1L2FyY2gvYXJtL21hY2gtZXA5M3h4L01ha2VmaWxlCTIwMDYt
+MDktMDMgMTc6MTE6MjUuMDAwMDAwMDAwICswNTMwCkBAIC03LDYgKzcsNyBAQAogb2JqLQkJCTo9
+CiAKIG9iai0kKENPTkZJR19NQUNIX0VEQjkzMDIpCSs9IGVkYjkzMDIubworb2JqLSQoQ09ORklH
+X01BQ0hfRURCOTMxMikJKz0gZWRiOTMxMi5vCiBvYmotJChDT05GSUdfTUFDSF9FREI5MzE1KQkr
+PSBlZGI5MzE1Lm8KIG9iai0kKENPTkZJR19NQUNIX0VEQjkzMTVBKQkrPSBlZGI5MzE1YS5vCiBv
+YmotJChDT05GSUdfTUFDSF9HRVNCQzkzMTIpCSs9IGdlc2JjOTMxMi5vCg==
+------=_Part_4820_33118169.1158838576534--

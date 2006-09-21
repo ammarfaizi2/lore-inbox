@@ -1,58 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750819AbWIUAXE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750803AbWIUAX7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750819AbWIUAXE (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Sep 2006 20:23:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750824AbWIUAXE
+	id S1750803AbWIUAX7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Sep 2006 20:23:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750818AbWIUAX7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Sep 2006 20:23:04 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:27328 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750819AbWIUAXB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Sep 2006 20:23:01 -0400
-Date: Wed, 20 Sep 2006 17:22:53 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "Martin J. Bligh" <mbligh@mbligh.org>
-Cc: linux-kernel@vger.kernel.org, Christoph Lameter <clameter@engr.sgi.com>
-Subject: ZONE_DMA (was: Re: 2.6.19 -mm merge plans)
-Message-Id: <20060920172253.f6d11445.akpm@osdl.org>
-In-Reply-To: <4511D855.7050100@mbligh.org>
-References: <20060920135438.d7dd362b.akpm@osdl.org>
-	<4511D855.7050100@mbligh.org>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 20 Sep 2006 20:23:59 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:37325 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1750803AbWIUAX6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Sep 2006 20:23:58 -0400
+Date: Wed, 20 Sep 2006 17:23:50 -0700 (PDT)
+From: Christoph Lameter <clameter@sgi.com>
+To: Andi Kleen <ak@suse.de>
+cc: rohitseth@google.com, CKRM-Tech <ckrm-tech@lists.sourceforge.net>,
+       devel@openvz.org, linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [patch02/05]: Containers(V2)- Generic Linux kernel changes
+In-Reply-To: <200609202014.48815.ak@suse.de>
+Message-ID: <Pine.LNX.4.64.0609201721360.2336@schroedinger.engr.sgi.com>
+References: <1158718722.29000.50.camel@galaxy.corp.google.com>
+ <p7364fikcbe.fsf@verdi.suse.de> <1158770670.8574.26.camel@galaxy.corp.google.com>
+ <200609202014.48815.ak@suse.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 20 Sep 2006, Andi Kleen wrote:
 
-(Subject rewritten, developer cc'ed, thwap delivered)
+> There are lots of different cases. At least for anonymous memory 
+> ->mapping should be free. Perhaps that could be used for anonymous
+> memory and a separate data structure for the important others.
 
-On Wed, 20 Sep 2006 17:09:57 -0700
-"Martin J. Bligh" <mbligh@mbligh.org> wrote:
+mapping is used for swap and to point to the anon vma.
 
-> 
-> > introduce-config_zone_dma.patch
-> > optional-zone_dma-in-the-vm.patch
-> > optional-zone_dma-in-the-vm-tidy.patch
-> > optional-zone_dma-for-i386.patch
-> > optional-zone_dma-for-x86_64.patch
-> > optional-zone_dma-for-ia64.patch
-> > remove-zone_dma-remains-from-parisc.patch
-> > remove-zone_dma-remains-from-sh-sh64.patch
-> 
-> Would it not make sense to define what ZONE_DMA actually means
-> consistently before trying to change it? The current mess across
-> different architectures seems like a disaster area to me.
-> 
-> What DOES requesting ZONE_DMA from a driver actually mean?
-> 
+> slab should have at least one field free too, although it might be a different
+> one (iirc Christoph's rewrite uses more than the current slab, but it would
+> surprise me if he needed all) 
 
-AFAIK it means "floppy disks" ;)
+slab currently has lots of fields free but my rewrite uses all of them.
+And AFAICT this patchset does not track slab pages.
 
-My concern about these patches is that they'll only be useful for
-self-compiled kernels, because distros will be forced to enable ZONE_DMA
-for evermore anyway.
+Hmm.... Build a radix tree with pointers to the pages?
 
-If that's correct then perhaps we should drop these patches, because they
-will serve to weaken ongoing testing.

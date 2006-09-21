@@ -1,52 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750753AbWIUHcH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750770AbWIUHcl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750753AbWIUHcH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Sep 2006 03:32:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750770AbWIUHcH
+	id S1750770AbWIUHcl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Sep 2006 03:32:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750780AbWIUHcl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Sep 2006 03:32:07 -0400
-Received: from gwmail.nue.novell.com ([195.135.221.19]:233 "EHLO
-	emea5-mh.id5.novell.com") by vger.kernel.org with ESMTP
-	id S1750753AbWIUHcF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Sep 2006 03:32:05 -0400
-Message-Id: <45125C4C.76E4.0078.0@novell.com>
-X-Mailer: Novell GroupWise Internet Agent 7.0.1 
-Date: Thu, 21 Sep 2006 09:33:00 +0200
-From: "Jan Beulich" <jbeulich@novell.com>
-To: "Mikael Pettersson" <mikpe@it.uu.se>
-Cc: <ak@suse.de>, <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH 2.6.18] x86_64: silence warning when stack
-	unwinding is disabled
-References: <200609210712.k8L7CdrR015591@alkaid.it.uu.se>
-In-Reply-To: <200609210712.k8L7CdrR015591@alkaid.it.uu.se>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 21 Sep 2006 03:32:41 -0400
+Received: from adsl-69-232-92-238.dsl.sndg02.pacbell.net ([69.232.92.238]:14528
+	"EHLO gnuppy.monkey.org") by vger.kernel.org with ESMTP
+	id S1750770AbWIUHck (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Sep 2006 03:32:40 -0400
+Date: Thu, 21 Sep 2006 00:32:22 -0700
+To: Ingo Molnar <mingo@elte.hu>
+Cc: linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+       John Stultz <johnstul@us.ibm.com>,
+       "Paul E. McKenney" <paulmck@us.ibm.com>,
+       Dipankar Sarma <dipankar@in.ibm.com>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Esben Nielsen <simlo@phys.au.dk>,
+       "Bill Huey (hui)" <billh@gnuppy.monkey.org>
+Subject: Re: [PATCH] move put_task_struct() reaping into a thread [Re: 2.6.18-rt1]
+Message-ID: <20060921073222.GC10337@gnuppy.monkey.org>
+References: <20060920141907.GA30765@elte.hu> <20060921065624.GA9841@gnuppy.monkey.org> <20060921065402.GA22089@elte.hu> <20060921071838.GA10337@gnuppy.monkey.org> <20060921071624.GA25281@elte.hu>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
+In-Reply-To: <20060921071624.GA25281@elte.hu>
+User-Agent: Mutt/1.5.13 (2006-08-11)
+From: Bill Huey (hui) <billh@gnuppy.monkey.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-A patch to this effect is already queued in -mm (and perhaps also in Andi's tree). Jan
+On Thu, Sep 21, 2006 at 09:16:24AM +0200, Ingo Molnar wrote:
+> * Bill Huey <billh@gnuppy.monkey.org> wrote:
+> > It's correct from the standpoint of it being reaped in another thread, 
+> > so it fixed those crashes. But I pushed it down into another thread at 
+> > the request of Esben and his private discussion with Paul McKenney, 
+> > since a summary from Esben felt that call_rcu() was somehow less than 
+> > ideal to do that.
+> 
+> but it _is_ already being reaped in another thread: softirq-rcu. 
+> Splitting that up any further will only fragment the context-switching 
+> and increases cache footprint - it wont (or rather, shouldnt) have any 
+> functional effect. (As a sidenote, i'm considering the unification of 
+> all 'same default priority' softirq threads into a single thread per 
+> CPU, to further reduce this cost of 'spreadout'.)
 
->>> Mikael Pettersson <mikpe@it.uu.se> 21.09.06 09:12 >>>
-Compiling kernel 2.6.18 on x86_64 with CONFIG_STACK_UNWIND=n gives:
+I overloaded another reaping thread that was doing largely similar
+functionality in that it was also reaping, so I don't think it's that bad.
+I did it from a cleanliness point of view with the code tree. It's the
+"desched_thread" in fork.c that I'm using. It seems to be the right
+thing to do. I'm sure Esben will follow up on this.
 
-arch/x86_64/kernel/traps.c: In function 'show_trace':
-arch/x86_64/kernel/traps.c:287: warning: cast to pointer from integer of different size
+> > > that you saw crashes under 2.6.17 - but did you manage to figure out 
+> > > what the reason is for those crashes, and do those reasons really 
+> > > necessiate the pushing of task-reapdown into yet another set of 
+> > > kernel threads?
+> > 
+> > Unfortunately no. I even used Robert's .config on my machine. I added 
+> > a disk controller and networking device driver just to boot into his 
+> > configuration and I still couldn't replicated any of his kjournald 
+> > problems at all. If I had his hardware I'd have a better way of 
+> > replicating those problems and pound it out.
+> 
+> ok, then i guess what we have left is to wait and see whether it still 
+> triggers with the current 2.6.18-rt codebase - maybe it triggers for 
+> someone in a scenario that is easier to debug.
 
-This is because UNW_SP() evaluates to 0, of type int, which
-is cast to a pointer by traps.c. Fix: evaluate to 0UL instead.
+bill
 
-Signed-off-by: Mikael Pettersson <mikpe@it.uu.se>
-
---- linux-2.6.18/include/asm-x86_64/unwind.h.~1~	2006-09-20 19:28:57.000000000 +0200
-+++ linux-2.6.18/include/asm-x86_64/unwind.h	2006-09-20 20:17:52.000000000 +0200
-@@ -95,7 +95,7 @@ static inline int arch_unw_user_mode(con
- #else
- 
- #define UNW_PC(frame) ((void)(frame), 0)
--#define UNW_SP(frame) ((void)(frame), 0)
-+#define UNW_SP(frame) ((void)(frame), 0UL)
- 
- static inline int arch_unw_user_mode(const void *info)
- {

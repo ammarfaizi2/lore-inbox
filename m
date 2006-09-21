@@ -1,79 +1,112 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750808AbWIULHl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750936AbWIULUn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750808AbWIULHl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Sep 2006 07:07:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750822AbWIULHl
+	id S1750936AbWIULUn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Sep 2006 07:20:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750937AbWIULUn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Sep 2006 07:07:41 -0400
-Received: from ogre.sisk.pl ([217.79.144.158]:55979 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S1750808AbWIULHl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Sep 2006 07:07:41 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.19 -mm merge plans
-Date: Thu, 21 Sep 2006 13:10:43 +0200
+	Thu, 21 Sep 2006 07:20:43 -0400
+Received: from free-electrons.com ([88.191.23.47]:16603 "EHLO
+	sd-2511.dedibox.fr") by vger.kernel.org with ESMTP id S1750933AbWIULUn
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Sep 2006 07:20:43 -0400
+From: Michael Opdenacker <michael-lists@free-electrons.com>
+Organization: Free Electrons
+To: linux-kernel@vger.kernel.org
+Subject: [PATCH 2.16.18] [TRIVIAL] Spelling fix: "control" instead of "cotrol"
+Date: Thu, 21 Sep 2006 13:20:11 +0200
 User-Agent: KMail/1.9.1
-Cc: Jeff Garzik <jeff@garzik.org>, linux-kernel@vger.kernel.org,
-       Linus Torvalds <torvalds@osdl.org>
-References: <20060920135438.d7dd362b.akpm@osdl.org> <45123307.8090809@garzik.org> <20060920234828.a86e095a.akpm@osdl.org>
-In-Reply-To: <20060920234828.a86e095a.akpm@osdl.org>
+Cc: trivial@kernel.org
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200609211310.43634.rjw@sisk.pl>
+Message-Id: <200609211320.13040.michael-lists@free-electrons.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday, 21 September 2006 08:48, Andrew Morton wrote:
-> On Thu, 21 Sep 2006 02:36:55 -0400
-> Jeff Garzik <jeff@garzik.org> wrote:
-> 
-> > Andrew Morton wrote:
-> > > If you think that shortening the release cycle will cause people to be more
-> > > disciplined in their changes, to spend less time going berzerk and to spend
-> > > more time working with our users and testers on known bugs then I'm all
-> > > ears.
-> > 
-> > Honestly, I do think it would be positive.  It would shorten the 
-> > feedback loop, and get more changes out to testers.
-> > 
-> > It would also decrease the pressure of the 60+ trees trying to get 
-> > everything in, because they know the next release is 3-4 months away. 
-> > It would be _much_ easier to say "break the generic device stuff in 
-> > 2.6.20 not 2.6.19, please" if we knew 2.6.20 wasn't going to be a 2007 
-> > release.
-> > 
-> 
-> Well, it might be worth trying.  But there's a practical problem: how do we
-> get there when there's so much work pending?  If we skip some people's
-> trees then they'll get sore, and it's not obvious that it'll help much, as
-> the various trees are fairly unrelated (ie: parallelisable).
-> 
-> I guess the most practical way is to incrementally shorten the cycles.
-> 
-> 
-> <rerererepeating self>
-> 
-> I do think that any process change we make should send the signal "slow
-> down, be more careful, test and review it more carefully".  Or at least,
-> "try to make sure it compiles".
-> 
-> A compulsory Reviewed-by: would wedge things up nicely ;)
+This patch against Linux 2.6.18 fixes a spelling mistake happening
+in the below files ("control" instead of "cotrol")
 
-Well, I think this need not help.  Like when some USB-related changes that
-had been reviewed and even tested happened to break ohci-hcd because they
-had only been tested on uhci ...
+drivers/net/ne2.c: * bit by bit.  The EEPROM cotrol port at base + 0x1e has 
+the following
+mm/nommu.c: *   For tight cotrol over page level allocator and protection 
+flags
+mm/vmalloc.c: * For tight cotrol over page level allocator and protection 
+flags
+mm/vmalloc.c: * For tight cotrol over page level allocator and protection 
+flags
+mm/vmalloc.c: * For tight cotrol over page level allocator and protection 
+flags
 
-IMHO every change should appear in at least three consecutive -mm kernels
-without causing any problems before it's allowed to go to the mainline.
+Such comments and spelling mistakes then show up in the automatically 
+generated kernel documentation (created by "make htmldocs").
 
-Greetings,
-Rafael
+	Michael.
 
+--
+
+Signed-off-by: Michael Opdenacker <michael@free-electrons.com>
+
+diff -Nurp linux-2.6.18/drivers/net/ne2.c 
+linux-2.6.18-spelling1/drivers/net/ne2.c
+--- linux-2.6.18/drivers/net/ne2.c	2006-09-20 05:42:06.000000000 +0200
++++ linux-2.6.18-spelling1/drivers/net/ne2.c	2006-09-21 13:07:24.000000000 
++0200
+@@ -152,7 +152,7 @@ static void ne_block_output(struct net_d
+ /*
+  * special code to read the DE-320's MAC address EEPROM.  In contrast to a 
+  * standard NE design, this is a serial EEPROM (93C46) that has to be read
+- * bit by bit.  The EEPROM cotrol port at base + 0x1e has the following 
++ * bit by bit.  The EEPROM control port at base + 0x1e has the following 
+  * layout:
+  *
+  * Bit 0 = Data out (read from EEPROM)
+diff -Nurp linux-2.6.18/mm/nommu.c linux-2.6.18-spelling1/mm/nommu.c
+--- linux-2.6.18/mm/nommu.c	2006-09-20 05:42:06.000000000 +0200
++++ linux-2.6.18-spelling1/mm/nommu.c	2006-09-21 13:07:36.000000000 +0200
+@@ -197,7 +197,7 @@ long vwrite(char *buf, char *addr, unsig
+  *	Allocate enough pages to cover @size from the page level
+  *	allocator and map them into continguos kernel virtual space.
+  *
+- *	For tight cotrol over page level allocator and protection flags
++ *	For tight control over page level allocator and protection flags
+  *	use __vmalloc() instead.
+  */
+ void *vmalloc(unsigned long size)
+diff -Nurp linux-2.6.18/mm/vmalloc.c linux-2.6.18-spelling1/mm/vmalloc.c
+--- linux-2.6.18/mm/vmalloc.c	2006-09-20 05:42:06.000000000 +0200
++++ linux-2.6.18-spelling1/mm/vmalloc.c	2006-09-21 13:07:59.000000000 +0200
+@@ -509,7 +509,7 @@ EXPORT_SYMBOL(__vmalloc);
+  *	Allocate enough pages to cover @size from the page level
+  *	allocator and map them into contiguous kernel virtual space.
+  *
+- *	For tight cotrol over page level allocator and protection flags
++ *	For tight control over page level allocator and protection flags
+  *	use __vmalloc() instead.
+  */
+ void *vmalloc(unsigned long size)
+@@ -549,7 +549,7 @@ EXPORT_SYMBOL(vmalloc_user);
+  *	Allocate enough pages to cover @size from the page level
+  *	allocator and map them into contiguous kernel virtual space.
+  *
+- *	For tight cotrol over page level allocator and protection flags
++ *	For tight control over page level allocator and protection flags
+  *	use __vmalloc() instead.
+  */
+ void *vmalloc_node(unsigned long size, int node)
+@@ -571,7 +571,7 @@ EXPORT_SYMBOL(vmalloc_node);
+  *	the page level allocator and map them into contiguous and
+  *	executable kernel virtual space.
+  *
+- *	For tight cotrol over page level allocator and protection flags
++ *	For tight control over page level allocator and protection flags
+  *	use __vmalloc() instead.
+  */
+ 
 
 -- 
-You never change things by fighting the existing reality.
-		R. Buckminster Fuller
+Michael Opdenacker, Free Electrons
+Free Embedded Linux Training Materials
+on http://free-electrons.com/training
+(More than 1000 pages!)

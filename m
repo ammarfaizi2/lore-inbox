@@ -1,49 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750792AbWIUUc7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751544AbWIUUfm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750792AbWIUUc7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Sep 2006 16:32:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751543AbWIUUc7
+	id S1751544AbWIUUfm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Sep 2006 16:35:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751543AbWIUUfl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Sep 2006 16:32:59 -0400
-Received: from mail.gurulabs.com ([67.137.148.7]:744 "EHLO mail.gurulabs.com")
-	by vger.kernel.org with ESMTP id S1750792AbWIUUc7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Sep 2006 16:32:59 -0400
-Subject: Smaller compressed kernel source tarballs?
-From: Dax Kelson <dax@gurulabs.com>
-To: Linux kernel <linux-kernel@vger.kernel.org>
-Cc: Linus Torvalds <torvalds@osdl.org>
-Content-Type: text/plain
-Date: Thu, 21 Sep 2006 14:32:57 -0600
-Message-Id: <1158870777.24172.23.camel@mentorng.gurulabs.com>
+	Thu, 21 Sep 2006 16:35:41 -0400
+Received: from nwd2mail11.analog.com ([137.71.25.57]:36731 "EHLO
+	nwd2mail11.analog.com") by vger.kernel.org with ESMTP
+	id S1751275AbWIUUfl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Sep 2006 16:35:41 -0400
+X-IronPort-AV: i="4.09,196,1157342400"; 
+   d="scan'208"; a="9967695:sNHT18817946"
+Message-Id: <6.1.1.1.0.20060921162935.01ecb8c0@ptg1.spd.analog.com>
+X-Mailer: QUALCOMM Windows Eudora Version 6.1.1.1
+Date: Thu, 21 Sep 2006 16:35:48 -0400
+To: Dave Jones <davej@redhat.com>
+From: Robin Getz <rgetz@blackfin.uclinux.org>
+Subject: Re: drivers/char/random.c exported interfaces
+Cc: Dmitry Torokhov <dtor@insightbb.com>,
+       "Randy.Dunlap" <rdunlap@xenotime.net>, linux-kernel@vger.kernel.org,
+       Greg KH <gregkh@suse.de>, Andrew Morton <akpm@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Today as I was watching the linux-2.6.18.tar.bz2 slowly download I
-thought it would be nice if it could be made smaller.
+Dave Jones pondered:
+>Under what circumstances is it desirable to allow INPUT=m ?
 
-The 7zip program/algorithm is free software (LGPL) and can be obtained
-from http://www.7-zip.org/ and it is distributed with several
-distributions (it is in Fedora Core 6 extras for example).
+I know there are some people using it in their embedded product. I don't 
+exactly know _why_, but last time I checked it was to ensure that the 
+kernel was as small as possible - which reduces boot time, and their kernel 
+flash footprint (kernel and file system are seperate).
 
-Here are the numbers:
+The input subsystem is one of the last to be initialized in their system, 
+so it allows a little more flexibility in their overall system design.
 
-ls -al
--rw-r--r--  1 root root 240138240 Sep 21 13:55 linux-2.6.18.tar
--rw-r--r--  1 root root  34180796 Sep 21 13:42 linux-2.6.18.tar.7z
--rw-r--r--  1 root root  41863580 Sep 21 13:45 linux-2.6.18.tar.bz2
--rw-r--r--  1 root root  52467357 Sep 21 13:13 linux-2.6.18.tar.gz
-
-ls -alh
--rw-r--r--  1 root root 230M Sep 21 13:55 linux-2.6.18.tar
--rw-r--r--  1 root root  33M Sep 21 13:42 linux-2.6.18.tar.7z
--rw-r--r--  1 root root  40M Sep 21 13:45 linux-2.6.18.tar.bz2
--rw-r--r--  1 root root  51M Sep 21 13:13 linux-2.6.18.tar.gz
-
-Smaller the better, especially with the international audience.
-
-Dax Kelson
-
+-Robin 

@@ -1,41 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751215AbWIUNlA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750699AbWIUOEX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751215AbWIUNlA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Sep 2006 09:41:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751235AbWIUNk7
+	id S1750699AbWIUOEX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Sep 2006 10:04:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750751AbWIUOEW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Sep 2006 09:40:59 -0400
-Received: from out1.smtp.messagingengine.com ([66.111.4.25]:10162 "EHLO
-	out1.smtp.messagingengine.com") by vger.kernel.org with ESMTP
-	id S1751215AbWIUNk7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Sep 2006 09:40:59 -0400
-X-Sasl-enc: Xjp1+xEpfQJ1E7rM1dJuOIQW6E//OATb72fnanNYrrf4 1158846052
-Subject: Re: 2.6.18-rc7-mm1
-From: Ian Kent <raven@themaw.net>
+	Thu, 21 Sep 2006 10:04:22 -0400
+Received: from hansmi.home.forkbomb.ch ([213.144.146.165]:14877 "EHLO
+	hansmi.home.forkbomb.ch") by vger.kernel.org with ESMTP
+	id S1750699AbWIUOEW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Sep 2006 10:04:22 -0400
+Date: Thu, 21 Sep 2006 16:04:20 +0200
+From: Michael Hanselmann <linux-kernel@hansmi.ch>
 To: Andrew Morton <akpm@osdl.org>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20060919012848.4482666d.akpm@osdl.org>
-References: <20060919012848.4482666d.akpm@osdl.org>
-Content-Type: text/plain
-Date: Thu, 21 Sep 2006 21:40:44 +0800
-Message-Id: <1158846044.3148.46.camel@raven.themaw.net>
+Subject: Re: Apple Motion Sensor (was: 2.6.19 -mm merge plans)
+Message-ID: <20060921140420.GB7869@hansmi.ch>
+References: <20060920135438.d7dd362b.akpm@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060920135438.d7dd362b.akpm@osdl.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-09-19 at 01:28 -0700, Andrew Morton wrote:
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc7/2.6.18-rc7-mm1/
-> 
+On Wed, Sep 20, 2006 at 01:54:38PM -0700, Andrew Morton wrote:
+> apple-motion-sensor-driver-2.patch
+> apple-motion-sensor-driver-2-fixes-update.patch
+> apple-motion-sensor-driver-kconfig-fix.patch
 
-> - NFS automounts of subdirectories remain unfixed.
+Please wait with those. We're currently trying to come up with a generic
+class for all motion sensor drivers in the kernel. This will change the
+userland interface again.
 
-I'm guessing this one is mine.
-Should have first pass patch tomorrow.
-
-Sorry for the delay.
-
-Ian
-
-
+Thanks,
+Michael

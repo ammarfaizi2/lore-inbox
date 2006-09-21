@@ -1,66 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932109AbWIUXfP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932114AbWIUXi0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932109AbWIUXfP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Sep 2006 19:35:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932112AbWIUXfP
+	id S932114AbWIUXi0 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Sep 2006 19:38:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932118AbWIUXiZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Sep 2006 19:35:15 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.152]:46282 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S932109AbWIUXfN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Sep 2006 19:35:13 -0400
-Subject: Re: [2.6.18-rc7] printk output delay in syslog wrt dmesg still
-	unfixed
-From: john stultz <johnstul@us.ibm.com>
-To: Tilman Schmidt <tilman@imap.cc>
-Cc: linux-kernel@vger.kernel.org, mingo@elte.hu
-In-Reply-To: <45132018.8070501@imap.cc>
-References: <450BF1CC.2070309@imap.cc> <1158691933.18546.3.camel@localhost>
-	 <45132018.8070501@imap.cc>
-Content-Type: text/plain
-Date: Thu, 21 Sep 2006 16:35:11 -0700
-Message-Id: <1158881711.1134.4.camel@localhost.localdomain>
+	Thu, 21 Sep 2006 19:38:25 -0400
+Received: from bayc1-pasmtp07.bayc1.hotmail.com ([65.54.191.167]:63 "EHLO
+	BAYC1-PASMTP07.CEZ.ICE") by vger.kernel.org with ESMTP
+	id S932114AbWIUXiZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Sep 2006 19:38:25 -0400
+Message-ID: <BAYC1-PASMTP07CBA42AB1F6D00285C35CAE200@CEZ.ICE>
+X-Originating-IP: [65.94.249.130]
+X-Originating-Email: [seanlkml@sympatico.ca]
+Date: Thu, 21 Sep 2006 19:38:23 -0400
+From: Sean <seanlkml@sympatico.ca>
+To: David Lang <dlang@digitalinsight.com>
+Cc: Dave Jones <davej@redhat.com>, Dax Kelson <dax@gurulabs.com>,
+       Lennart Sorensen <lsorense@csclub.uwaterloo.ca>,
+       Linux kernel <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: Smaller compressed kernel source tarballs?
+Message-Id: <20060921193823.ec49d446.seanlkml@sympatico.ca>
+In-Reply-To: <Pine.LNX.4.63.0609211530180.17238@qynat.qvtvafvgr.pbz>
+References: <BAYC1-PASMTP025A72C81CFE009C3BB5A5AE200@CEZ.ICE>
+	<20060921175717.272c58ee.seanlkml@sympatico.ca>
+	<Pine.LNX.4.63.0609211455570.17238@qynat.qvtvafvgr.pbz>
+	<20060921222443.GO26683@redhat.com>
+	<Pine.LNX.4.63.0609211514470.17238@qynat.qvtvafvgr.pbz>
+	<20060921224051.GS26683@redhat.com>
+	<Pine.LNX.4.63.0609211530180.17238@qynat.qvtvafvgr.pbz>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.10.3; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
+X-OriginalArrivalTime: 21 Sep 2006 23:43:43.0734 (UTC) FILETIME=[C610E160:01C6DDD7]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-09-22 at 01:28 +0200, Tilman Schmidt wrote:
-> On 19.09.2006 20:52, john stultz wrote:
-> > You might try git-bisect to find the offending patch.
-> 
-> This turned out to be easier than I expected.
-> The patch which introduces the problem is:
-> 
-> [a0f1ccfd8d37457a6d8a9e01acebeefcdfcc306e] lockdep: do not recurse in printk
+On Thu, 21 Sep 2006 15:34:53 -0700 (PDT)
+David Lang <dlang@digitalinsight.com> wrote:
 
-When you've narrow down a patch, be sure to CC the author (in this case
-Ingo).
+> I was responding to the (apparent) argument that with git and ketchup people 
+> should not ever be downloading tarballs, so something that cuts the size of a 
+> tarball in half doesn't make any difference.
 
-> Reverting that patch makes the problem disappear in 2.6.18, too.
-> In fact, it suffices to revert just the last chunk:
-> 
-> @@ -809,8 +815,15 @@ void release_console_sem(void)
->         console_may_schedule = 0;
->         up(&console_sem);
->         spin_unlock_irqrestore(&logbuf_lock, flags);
-> -       if (wake_klogd && !oops_in_progress && waitqueue_active(&log_wait))
-> -               wake_up_interruptible(&log_wait);
-> +       if (wake_klogd && !oops_in_progress && waitqueue_active(&log_wait)) {
-> +               /*
-> +                * If we printk from within the lock dependency code,
-> +                * from within the scheduler code, then do not lock
-> +                * up due to self-recursion:
-> +                */
-> +               if (!lockdep_internal())
-> +                       wake_up_interruptible(&log_wait);
-> +       }
->  }
->  EXPORT_SYMBOL(release_console_sem);
+Sure there are some cases where tarballs are more appropriate, but with git
+and maybe some of the other tools it should really be the minority situation.
+I wonder how many people just use tarballs out of inertia.  All said though
+saving a few bytes of bandwidth by making the tarballs smaller can't hurt.
 
-Ingo, your thoughts?
-
-thanks
--john
-
+Sean

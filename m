@@ -1,65 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932103AbWIUW4F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932068AbWIUXKV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932103AbWIUW4F (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Sep 2006 18:56:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932102AbWIUW4F
+	id S932068AbWIUXKV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Sep 2006 19:10:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932091AbWIUXKV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Sep 2006 18:56:05 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:25521
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S932100AbWIUW4C (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Sep 2006 18:56:02 -0400
-Date: Thu, 21 Sep 2006 15:56:15 -0700 (PDT)
-Message-Id: <20060921.155615.11378692.davem@davemloft.net>
-To: w@1wt.eu
-Cc: DJurzitza@harmanbecker.com, linux-kernel@vger.kernel.org,
-       sparclinux@vger.kernel.org
-Subject: Re: Patch 2.4 kernel / allow to read more than 2048 (1821) Symbols
- from /boot/System.map
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <20060919182638.GD3467@1wt.eu>
-References: <DA6197CAE190A847B662079EF7631C06015692C9@OEKAW2EXVS03.hbi.ad.harman.com>
-	<20060917.223512.25476592.davem@davemloft.net>
-	<20060919182638.GD3467@1wt.eu>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Thu, 21 Sep 2006 19:10:21 -0400
+Received: from gate.crashing.org ([63.228.1.57]:58513 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S932068AbWIUXKP (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Sep 2006 19:10:15 -0400
+Subject: Re: [RFC] page fault retry with NOPAGE_RETRY
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Mike Waychison <mikew@google.com>, linux-mm@kvack.org,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>
+In-Reply-To: <20060921154105.904313f7.akpm@osdl.org>
+References: <1158274508.14473.88.camel@localhost.localdomain>
+	 <20060915001151.75f9a71b.akpm@osdl.org> <45107ECE.5040603@google.com>
+	 <1158709835.6002.203.camel@localhost.localdomain>
+	 <1158710712.6002.216.camel@localhost.localdomain>
+	 <20060919172105.bad4a89e.akpm@osdl.org>
+	 <1158717429.6002.231.camel@localhost.localdomain>
+	 <20060919200533.2874ce36.akpm@osdl.org>
+	 <1158728665.6002.262.camel@localhost.localdomain>
+	 <20060919222656.52fadf3c.akpm@osdl.org>
+	 <1158735299.6002.273.camel@localhost.localdomain>
+	 <20060920105317.7c3eb5f4.akpm@osdl.org>
+	 <1158876304.26347.129.camel@localhost.localdomain>
+	 <20060921154105.904313f7.akpm@osdl.org>
+Content-Type: text/plain
+Date: Fri, 22 Sep 2006 09:09:25 +1000
+Message-Id: <1158880165.26347.132.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Willy Tarreau <w@1wt.eu>
-Date: Tue, 19 Sep 2006 20:26:38 +0200
-
-> On Sun, Sep 17, 2006 at 10:35:12PM -0700, David Miller wrote:
-> > From: "Jurzitza, Dieter" <DJurzitza@harmanbecker.com>
-> > Date: Mon, 18 Sep 2006 07:23:58 +0200
-> > 
-> > > The 2.4 kernel series uses sys32_get_kernel_syms(struct kernel_sym32
-> > > *table) for reading the kernel symbols (on sparc64). The size of
-> > > struct kernel_sym is 64 byte on "normal" arches, but 72 byte on
-> > > sparc64.
-> > 
-> > Jurzita, you do not need to post this patch multiple times.
-> > I was simply on vacation for 2 weeks right after your first
-> > posting so I had no chance to review the patch.
+On Thu, 2006-09-21 at 15:41 -0700, Andrew Morton wrote:
+> On Fri, 22 Sep 2006 08:05:04 +1000
+> Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
 > 
-> BTW, did you finally review it (no emergency at all on my side) ?
+> > > So I think there's a nasty DoS here if we permit infinite retries.  But
+> > > it's not just that - there might be other situations under really heavy
+> > > memory pressure where livelocks like this can occur.  It's just a general
+> > > robustness-of-implementation issue.
+> > 
+> > Got it. Now, changing args to no_page() will be a pretty big task....
+> > 
+> 
+> Not as big as removing the pt_regs arg from every interrupt handler ;)
 
-There are two problems:
+Which is a change I'm not 100% convinced about btw ... I remember
+actually using that in a few occasions... mostly for debugging though.
+Bah, anyway, I suppose we can always have a per-cpu global with the last
+irq pt_regs pointer if really needed for debug.
+ 
+> But pretty mechanical.  Problem is, I don't think we have our mechanic.
 
-1) If this goes in, similar fixes for sys_ia32.c, mips64, et al.
-   should go in at the same time.
+Yup, we would need to decide what to put in there....
 
-2) I dislike this fix because it means that users can lock down
-   a significant amount of non-swappable kernel memory.  There are
-   no privilege checks in the get_kernel_syms() system call, so
-   anyone can invoke it.  Imagine a fork bomb invoking this, and it
-   could also potentially eat up nearly all of the vmalloc() space.
+Ben.
 
-It may be, in the end, simply better to have a
-"compat_sys_get_kernel_syms" written that can be called
-so a temporary kernel copy is not needed.
 
-I'm not offering to implement this :-)  But it does seem to be the
-only reasonable solution.

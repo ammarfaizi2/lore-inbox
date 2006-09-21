@@ -1,350 +1,282 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750815AbWIUAUJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750816AbWIUAW7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750815AbWIUAUJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Sep 2006 20:20:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750816AbWIUAUJ
+	id S1750816AbWIUAW7 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Sep 2006 20:22:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750819AbWIUAW7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Sep 2006 20:20:09 -0400
-Received: from reiner-h.de ([83.151.27.91]:7609 "EHLO reiner-h.de")
-	by vger.kernel.org with ESMTP id S1750815AbWIUAUG (ORCPT
+	Wed, 20 Sep 2006 20:22:59 -0400
+Received: from mail0.lsil.com ([147.145.40.20]:34495 "EHLO mail0.lsil.com")
+	by vger.kernel.org with ESMTP id S1750816AbWIUAW5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Sep 2006 20:20:06 -0400
-From: Reiner Herrmann <reiner@reiner-h.de>
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-Subject: Re: [PATCH] Documentation fixes in intel810.txt
-Date: Thu, 21 Sep 2006 02:20:40 +0200
-User-Agent: KMail/1.9.4
-Cc: adaplas@pol.net, kernel-janitors@lists.osdl.org,
-       linux-kernel@vger.kernel.org
-References: <200609210103.10768.reiner@reiner-h.de> <200609210132.54818.reiner@reiner-h.de> <20060920171319.adb5fc5a.rdunlap@xenotime.net>
-In-Reply-To: <20060920171319.adb5fc5a.rdunlap@xenotime.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200609210220.41007.reiner@reiner-h.de>
+	Wed, 20 Sep 2006 20:22:57 -0400
+Subject: [Patch 1/7] megaraid_sas FW transition and q size changes
+From: Sumant Patro <sumantp@lsil.com>
+To: James.Bottomley@SteelEye.com, linux-scsi@vger.kernel.org
+Cc: akpm@osdl.org, hch@lst.de, linux-kernel@vger.kernel.org
+Content-Type: multipart/mixed; boundary="=-TMnmmqk8NB8ZwnaxG2xS"
+Date: Wed, 20 Sep 2006 18:22:36 -0700
+Message-Id: <1158801756.4171.24.camel@dumbo>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 (2.0.2-22) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-OK, so here is another resend... :)
 
-This patch fixes some general documentation mistakes and
-cleans up a lot of whitespace issues.
+--=-TMnmmqk8NB8ZwnaxG2xS
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
 
-Signed-off-by: Reiner Herrmann <reiner@reiner-h.de>
----
-diff -uprN -X linux-2.6.18/Documentation/dontdiff linux-2.6.18/Documentation/fb/intel810.txt linux-work/Documentation/fb/intel810.txt
---- linux-2.6.18/Documentation/fb/intel810.txt	2006-09-20 05:42:06.000000000 +0200
-+++ linux-work/Documentation/fb/intel810.txt	2006-09-21 02:15:39.000000000 +0200
-@@ -9,8 +9,9 @@ Intel 810/815 Framebuffer driver
- ================================================================
+This patch has the following enhancements :
+	- handles new transition states of FW to support controller hotplug. 
+	- It reduces by 1 the maximum cmds that the driver may send to FW. 
+	- Sends "Stop Processing" cmd to FW before returning failure from reset routine
+	- Adds print in megasas_transition routine
+	- Sends "RESET" flag to FW to do a soft reset of controller 
+to move from Operational to Ready state, 
+	  
+	This patch has been generated on latest scsi-misc git.
+
+Signed-off-by: Sumant Patro <Sumant.Patro@lsil.com>
+
+diff -uprN linux-2.6orig/drivers/scsi/megaraid/megaraid_sas.c linux-2.6new/drivers/scsi/megaraid/megaraid_sas.c
+--- linux-2.6orig/drivers/scsi/megaraid/megaraid_sas.c 2006-09-20 10:20:40.000000000 -0700
++++ linux-2.6new/drivers/scsi/megaraid/megaraid_sas.c 2006-09-20 10:26:56.000000000 -0700
+@@ -832,6 +832,12 @@ static int megasas_wait_for_outstanding(
+  }
  
- A. Introduction
+  if (atomic_read(&instance->fw_outstanding)) {
++  /*
++  * Send signal to FW to stop processing any pending cmds.
++  * The controller will be taken offline by the OS now.
++  */
++  writel(MFI_STOP_ADP,
++    &instance->reg_set->inbound_doorbell);
+   instance->hw_crit_error = 1;
+   return FAILED;
+  }
+@@ -1229,10 +1235,12 @@ megasas_transition_to_ready(struct megas
+ 
+  fw_state = instance->instancet->read_fw_status_reg(instance->reg_set) & MFI_STATE_MASK;
+ 
++ if (fw_state != MFI_STATE_READY) 
++   printk(KERN_INFO "megasas: Waiting for FW to come to ready"
++          " state\n");
 +
- 	This is a framebuffer driver for various Intel 810/815 compatible
--graphics devices.  These would include:
-+	graphics devices.  These include:
+  while (fw_state != MFI_STATE_READY) {
  
- 	Intel 810
- 	Intel 810E
-@@ -21,136 +22,136 @@ graphics devices.  These would include:
+-  printk(KERN_INFO "megasas: Waiting for FW to come to ready"
+-         " state\n");
+   switch (fw_state) {
  
- B.  Features
+   case MFI_STATE_FAULT:
+@@ -1244,19 +1252,27 @@ megasas_transition_to_ready(struct megas
+    /*
+     * Set the CLR bit in inbound doorbell
+     */
+-   writel(MFI_INIT_CLEAR_HANDSHAKE,
++   writel(MFI_INIT_CLEAR_HANDSHAKE|MFI_INIT_HOTPLUG,
+     &instance->reg_set->inbound_doorbell);
  
--        - Choice of using Discrete Video Timings, VESA Generalized Timing
-+	- Choice of using Discrete Video Timings, VESA Generalized Timing
- 	  Formula, or a framebuffer specific database to set the video mode
+    max_wait = 2;
+    cur_state = MFI_STATE_WAIT_HANDSHAKE;
+    break;
  
--	- Supports a variable range of horizontal and vertical resolution, and
--	  vertical refresh rates if the VESA Generalized Timing Formula is 
-+	- Supports a variable range of horizontal and vertical resolution and
-+	  vertical refresh rates if the VESA Generalized Timing Formula is
- 	  enabled.
- 
--        - Supports color depths of 8, 16, 24 and 32 bits per pixel
-+	- Supports color depths of 8, 16, 24 and 32 bits per pixel
- 
- 	- Supports pseudocolor, directcolor, or truecolor visuals
- 
--        - Full and optimized hardware acceleration at 8, 16 and 24 bpp
-+	- Full and optimized hardware acceleration at 8, 16 and 24 bpp
- 
- 	- Robust video state save and restore
- 
--        - MTRR support 
-+	- MTRR support
- 
- 	- Utilizes user-entered monitor specifications to automatically
- 	  calculate required video mode parameters.
- 
--	- Can concurrently run with xfree86 running with native i810 drivers 
-+	- Can concurrently run with xfree86 running with native i810 drivers
- 
- 	- Hardware Cursor Support
-  
- 	- Supports EDID probing either by DDC/I2C or through the BIOS
- 
- C.  List of available options
--	
--   a. "video=i810fb"  
++  case MFI_STATE_BOOT_MESSAGE_PENDING: 
++   writel(MFI_INIT_HOTPLUG,
++    &instance->reg_set->inbound_doorbell);
 +
-+   a. "video=i810fb"
- 	enables the i810 driver
- 
- 	Recommendation: required
-- 
--   b. "xres:<value>"  
++   max_wait = 10;
++   cur_state = MFI_STATE_BOOT_MESSAGE_PENDING;
++   break;
 +
-+   b. "xres:<value>"
- 	select horizontal resolution in pixels. (This parameter will be
- 	ignored if 'mode_option' is specified.  See 'o' below).
+   case MFI_STATE_OPERATIONAL:
+    /*
+-    * Bring it to READY state; assuming max wait 2 secs
++    * Bring it to READY state; assuming max wait 10 secs
+     */
+    megasas_disable_intr(instance);
+-   writel(MFI_INIT_READY, &instance->reg_set->inbound_doorbell);
++   writel(MFI_RESET_FLAGS, &instance->reg_set->inbound_doorbell);
  
--	Recommendation: user preference 
-+	Recommendation: user preference
- 	(default = 640)
+    max_wait = 10;
+    cur_state = MFI_STATE_OPERATIONAL;
+@@ -1323,6 +1339,7 @@ megasas_transition_to_ready(struct megas
+    return -ENODEV;
+   }
+  };
++  printk(KERN_INFO "megasas: FW now in Ready state\n");
  
-    c. "yres:<value>"
- 	select vertical resolution in scanlines. If Discrete Video Timings
- 	is enabled, this will be ignored and computed as 3*xres/4.  (This
- 	parameter will be ignored if 'mode_option' is specified.  See 'o'
--	below)  
-+	below)
+  return 0;
+ }
+@@ -1690,6 +1707,12 @@ static int megasas_init_mfi(struct megas
+   * Get various operational parameters from status register
+   */
+  instance->max_fw_cmds = instance->instancet->read_fw_status_reg(reg_set) & 0x00FFFF;
++ /*
++  * Reduce the max supported cmds by 1. This is to ensure that the 
++  * reply_q_sz (1 more than the max cmd that driver may send)
++  * does not exceed max cmds that the FW can support
++  */
++ instance->max_fw_cmds = instance->max_fw_cmds-1;
+  instance->max_num_sge = (instance->instancet->read_fw_status_reg(reg_set) & 0xFF0000) >> 
+      0x10;
+  /*
+diff -uprN linux-2.6orig/drivers/scsi/megaraid/megaraid_sas.h linux-2.6new/drivers/scsi/megaraid/megaraid_sas.h
+--- linux-2.6orig/drivers/scsi/megaraid/megaraid_sas.h 2006-09-20 10:20:40.000000000 -0700
++++ linux-2.6new/drivers/scsi/megaraid/megaraid_sas.h 2006-09-20 10:33:31.000000000 -0700
+@@ -50,6 +50,7 @@
+ #define MFI_STATE_WAIT_HANDSHAKE  0x60000000
+ #define MFI_STATE_FW_INIT_2   0x70000000
+ #define MFI_STATE_DEVICE_SCAN   0x80000000
++#define MFI_STATE_BOOT_MESSAGE_PENDING  0x90000000
+ #define MFI_STATE_FLUSH_CACHE   0xA0000000
+ #define MFI_STATE_READY    0xB0000000
+ #define MFI_STATE_OPERATIONAL   0xC0000000
+@@ -64,12 +65,18 @@
+  * READY : Move from OPERATIONAL to READY state; discard queue info
+  * MFIMODE : Discard (possible) low MFA posted in 64-bit mode (??)
+  * CLR_HANDSHAKE: FW is waiting for HANDSHAKE from BIOS or Driver
++ * HOTPLUG : Resume from Hotplug
++ * MFI_STOP_ADP : Send signal to FW to stop processing
+  */
+-#define MFI_INIT_ABORT    0x00000000
++#define MFI_INIT_ABORT    0x00000001
+ #define MFI_INIT_READY    0x00000002
+ #define MFI_INIT_MFIMODE   0x00000004
+ #define MFI_INIT_CLEAR_HANDSHAKE  0x00000008
+-#define MFI_RESET_FLAGS    MFI_INIT_READY|MFI_INIT_MFIMODE
++#define MFI_INIT_HOTPLUG   0x00000010
++#define MFI_STOP_ADP    0x00000020
++#define MFI_RESET_FLAGS    MFI_INIT_READY| \
++      MFI_INIT_MFIMODE| \
++      MFI_INIT_ABORT
  
- 	Recommendation: user preference
- 	(default = 480)
--		
--   d. "vyres:<value>" 
+ /**
+  * MFI frame flags
+
+
+	
+
+--=-TMnmmqk8NB8ZwnaxG2xS
+Content-Disposition: attachment; filename=fw_changes-p1.patch
+Content-Type: text/x-patch; name=fw_changes-p1.patch; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+
+diff -uprN linux-2.6orig/drivers/scsi/megaraid/megaraid_sas.c linux-2.6new/drivers/scsi/megaraid/megaraid_sas.c
+--- linux-2.6orig/drivers/scsi/megaraid/megaraid_sas.c	2006-09-20 10:20:40.000000000 -0700
++++ linux-2.6new/drivers/scsi/megaraid/megaraid_sas.c	2006-09-20 10:26:56.000000000 -0700
+@@ -832,6 +832,12 @@ static int megasas_wait_for_outstanding(
+ 	}
+ 
+ 	if (atomic_read(&instance->fw_outstanding)) {
++		/*
++		* Send signal to FW to stop processing any pending cmds.
++		* The controller will be taken offline by the OS now.
++		*/
++		writel(MFI_STOP_ADP,
++				&instance->reg_set->inbound_doorbell);
+ 		instance->hw_crit_error = 1;
+ 		return FAILED;
+ 	}
+@@ -1229,10 +1235,12 @@ megasas_transition_to_ready(struct megas
+ 
+ 	fw_state = instance->instancet->read_fw_status_reg(instance->reg_set) & MFI_STATE_MASK;
+ 
++	if (fw_state != MFI_STATE_READY) 
++ 		printk(KERN_INFO "megasas: Waiting for FW to come to ready"
++ 		       " state\n");
 +
-+   d. "vyres:<value>"
- 	select virtual vertical resolution in scanlines. If (0) or none
--	is specified, this will be computed against maximum available memory. 
-+	is specified, this will be computed against maximum available memory.
+ 	while (fw_state != MFI_STATE_READY) {
  
- 	Recommendation: do not set
- 	(default = 480)
+-		printk(KERN_INFO "megasas: Waiting for FW to come to ready"
+-		       " state\n");
+ 		switch (fw_state) {
  
-    e. "vram:<value>"
--	select amount of system RAM in MB to allocate for the video memory 
-+	select amount of system RAM in MB to allocate for the video memory
+ 		case MFI_STATE_FAULT:
+@@ -1244,19 +1252,27 @@ megasas_transition_to_ready(struct megas
+ 			/*
+ 			 * Set the CLR bit in inbound doorbell
+ 			 */
+-			writel(MFI_INIT_CLEAR_HANDSHAKE,
++			writel(MFI_INIT_CLEAR_HANDSHAKE|MFI_INIT_HOTPLUG,
+ 				&instance->reg_set->inbound_doorbell);
  
- 	Recommendation: 1 - 4 MB.
- 	(default = 4)
+ 			max_wait = 2;
+ 			cur_state = MFI_STATE_WAIT_HANDSHAKE;
+ 			break;
  
--   f. "bpp:<value>"   
--	select desired pixel depth 
-+   f. "bpp:<value>"
-+	select desired pixel depth
- 
- 	Recommendation: 8
- 	(default = 8)
- 
--   g. "hsync1/hsync2:<value>" 
--	select the minimum and maximum Horizontal Sync Frequency of the 
--	monitor in KHz.  If a using a fixed frequency monitor, hsync1 must 
-+   g. "hsync1/hsync2:<value>"
-+	select the minimum and maximum Horizontal Sync Frequency of the
-+	monitor in kHz.  If using a fixed frequency monitor, hsync1 must
- 	be equal to hsync2. If EDID probing is successful, these will be
- 	ignored and values will be taken from the EDID block.
- 
- 	Recommendation: check monitor manual for correct values
--	default (29/30)
-+	(default = 29/30)
- 
--   h. "vsync1/vsync2:<value>" 
-+   h. "vsync1/vsync2:<value>"
- 	select the minimum and maximum Vertical Sync Frequency of the monitor
--	in Hz. You can also use this option to lock your monitor's refresh 
-+	in Hz. You can also use this option to lock your monitor's refresh
- 	rate. If EDID probing is successful, these will be ignored and values
- 	will be taken from the EDID block.
- 
- 	Recommendation: check monitor manual for correct values
- 	(default = 60/60)
- 
--	IMPORTANT:  If you need to clamp your timings, try to give some 
--	leeway for computational errors (over/underflows).  Example: if 
-+	IMPORTANT:  If you need to clamp your timings, try to give some
-+	leeway for computational errors (over/underflows).  Example: if
- 	using vsync1/vsync2 = 60/60, make sure hsync1/hsync2 has at least
- 	a 1 unit difference, and vice versa.
- 
--   i. "voffset:<value>"	
--        select at what offset in MB of the logical memory to allocate the 
-+   i. "voffset:<value>"
-+	select at what offset in MB of the logical memory to allocate the
- 	framebuffer memory.  The intent is to avoid the memory blocks
- 	used by standard graphics applications (XFree86).  The default
--        offset (16 MB for a 64MB aperture, 8 MB for a 32MB aperture) will
--        avoid XFree86's usage and allows up to 7MB/15MB of framebuffer
--        memory.  Depending on your usage, adjust the value up or down, 
--	(0 for maximum usage, 31/63 MB for the least amount).  Note, an 
-+	offset (16 MB for a 64 MB aperture, 8 MB for a 32MB aperture) will
-+	avoid XFree86's usage and allows up to 7 MB/15 MB of framebuffer
-+	memory.  Depending on your usage, adjust the value up or down
-+	(0 for maximum usage, 31/63 MB for the least amount).  Note, an
- 	arbitrary setting may conflict with XFree86.
- 
- 	Recommendation: do not set
- 	(default = 8 or 16 MB)
--      
--   j. "accel" 
--	enable text acceleration.  This can be enabled/reenabled anytime 
--	by using 'fbset -accel true/false'. 
++		case MFI_STATE_BOOT_MESSAGE_PENDING:	
++			writel(MFI_INIT_HOTPLUG,
++				&instance->reg_set->inbound_doorbell);
 +
-+   j. "accel"
-+	enable text acceleration.  This can be enabled/reenabled anytime
-+	by using 'fbset -accel true/false'.
- 
- 	Recommendation: enable
--	(default = not set) 
-+	(default = not set)
- 
--   k. "mtrr" 
-+   k. "mtrr"
- 	enable MTRR.  This allows data transfers to the framebuffer memory
- 	to occur in bursts which can significantly increase performance.
--	Not very helpful with the i810/i815 because of 'shared memory'. 
-+	Not very helpful with the i810/i815 because of 'shared memory'.
- 
- 	Recommendation: do not set
--	(default = not set) 
-+	(default = not set)
- 
-    l. "extvga"
- 	if specified, secondary/external VGA output will always be enabled.
- 	Useful if the BIOS turns off the VGA port when no monitor is attached.
--	The external VGA monitor can then be attached without rebooting. 
-+	The external VGA monitor can then be attached without rebooting.
- 
- 	Recommendation: do not set
- 	(default = not set)
--	
--   m. "sync" 
++			max_wait = 10;
++			cur_state = MFI_STATE_BOOT_MESSAGE_PENDING;
++			break;
 +
-+   m. "sync"
- 	Forces the hardware engine to do a "sync" or wait for the hardware
--	to finish before starting another instruction. This will produce a 
-+	to finish before starting another instruction. This will produce a
- 	more stable setup, but will be slower.
+ 		case MFI_STATE_OPERATIONAL:
+ 			/*
+-			 * Bring it to READY state; assuming max wait 2 secs
++			 * Bring it to READY state; assuming max wait 10 secs
+ 			 */
+ 			megasas_disable_intr(instance);
+-			writel(MFI_INIT_READY, &instance->reg_set->inbound_doorbell);
++			writel(MFI_RESET_FLAGS, &instance->reg_set->inbound_doorbell);
  
- 	Recommendation: do not set
-@@ -162,6 +163,7 @@ C.  List of available options
+ 			max_wait = 10;
+ 			cur_state = MFI_STATE_OPERATIONAL;
+@@ -1323,6 +1339,7 @@ megasas_transition_to_ready(struct megas
+ 			return -ENODEV;
+ 		}
+ 	};
++ 	printk(KERN_INFO "megasas: FW now in Ready state\n");
  
- 	Recommendation: do not set
- 	(default = not set)
-+
-    o. <xres>x<yres>[-<bpp>][@<refresh>]
- 	The driver will now accept specification of boot mode option.  If this
- 	is specified, the options 'xres' and 'yres' will be ignored. See
-@@ -183,8 +185,8 @@ append="video=i810fb:vram:2,xres:1024,yr
-         vsync1:50,vsync2:85,accel,mtrr"
+ 	return 0;
+ }
+@@ -1690,6 +1707,12 @@ static int megasas_init_mfi(struct megas
+ 	 * Get various operational parameters from status register
+ 	 */
+ 	instance->max_fw_cmds = instance->instancet->read_fw_status_reg(reg_set) & 0x00FFFF;
++	/*
++	 * Reduce the max supported cmds by 1. This is to ensure that the 
++	 * reply_q_sz (1 more than the max cmd that driver may send)
++	 * does not exceed max cmds that the FW can support
++	 */
++	instance->max_fw_cmds = instance->max_fw_cmds-1;
+ 	instance->max_num_sge = (instance->instancet->read_fw_status_reg(reg_set) & 0xFF0000) >> 
+ 					0x10;
+ 	/*
+diff -uprN linux-2.6orig/drivers/scsi/megaraid/megaraid_sas.h linux-2.6new/drivers/scsi/megaraid/megaraid_sas.h
+--- linux-2.6orig/drivers/scsi/megaraid/megaraid_sas.h	2006-09-20 10:20:40.000000000 -0700
++++ linux-2.6new/drivers/scsi/megaraid/megaraid_sas.h	2006-09-20 10:33:31.000000000 -0700
+@@ -50,6 +50,7 @@
+ #define MFI_STATE_WAIT_HANDSHAKE		0x60000000
+ #define MFI_STATE_FW_INIT_2			0x70000000
+ #define MFI_STATE_DEVICE_SCAN			0x80000000
++#define MFI_STATE_BOOT_MESSAGE_PENDING		0x90000000
+ #define MFI_STATE_FLUSH_CACHE			0xA0000000
+ #define MFI_STATE_READY				0xB0000000
+ #define MFI_STATE_OPERATIONAL			0xC0000000
+@@ -64,12 +65,18 @@
+  * READY	: Move from OPERATIONAL to READY state; discard queue info
+  * MFIMODE	: Discard (possible) low MFA posted in 64-bit mode (??)
+  * CLR_HANDSHAKE: FW is waiting for HANDSHAKE from BIOS or Driver
++ * HOTPLUG	: Resume from Hotplug
++ * MFI_STOP_ADP	: Send signal to FW to stop processing
+  */
+-#define MFI_INIT_ABORT				0x00000000
++#define MFI_INIT_ABORT				0x00000001
+ #define MFI_INIT_READY				0x00000002
+ #define MFI_INIT_MFIMODE			0x00000004
+ #define MFI_INIT_CLEAR_HANDSHAKE		0x00000008
+-#define MFI_RESET_FLAGS				MFI_INIT_READY|MFI_INIT_MFIMODE
++#define MFI_INIT_HOTPLUG			0x00000010
++#define MFI_STOP_ADP				0x00000020
++#define MFI_RESET_FLAGS				MFI_INIT_READY| \
++						MFI_INIT_MFIMODE| \
++						MFI_INIT_ABORT
  
- This will initialize the framebuffer to 1024x768 at 8bpp.  The framebuffer
--will use 2 MB of System RAM. MTRR support will be enabled. The refresh rate 
--will be computed based on the hsync1/hsync2 and vsync1/vsync2 values.  
-+will use 2 MB of System RAM. MTRR support will be enabled. The refresh rate
-+will be computed based on the hsync1/hsync2 and vsync1/vsync2 values.
- 
- IMPORTANT:
- You must include hsync1, hsync2, vsync1 and vsync2 to enable video modes
-@@ -194,10 +196,10 @@ vsync1 and vsync2 parameters.  These par
- block.
- 
- E.  Module options
--	
--	The module parameters are essentially similar to the kernel 
--parameters. The main difference is that you need to include a Boolean value 
--(1 for TRUE, and 0 for FALSE) for those options which don't need a value. 
-+
-+The module parameters are essentially similar to the kernel
-+parameters. The main difference is that you need to include a Boolean value
-+(1 for TRUE, and 0 for FALSE) for those options which don't need a value.
- 
- Example, to enable MTRR, include "mtrr=1".
- 
-@@ -214,62 +216,62 @@ Or just add the following to /etc/modpro
- 	options i810fb vram=2 xres=1024 bpp=16 hsync1=30 hsync2=55 vsync1=50 \
- 	vsync2=85 accel=1 mtrr=1
- 
--and just do a 
-+and just do a
- 
- 	modprobe i810fb
- 
- 
- F.  Setup
- 
--	a. Do your usual method of configuring the kernel. 
--	
-+	a. Do your usual method of configuring the kernel.
-+
- 	make menuconfig/xconfig/config
- 
--	b. Under "Code Maturity Options", enable "Prompt for experimental/
--	   incomplete code/drivers".
-+	b. Under "Code maturity level options" enable "Prompt for development
-+	   and/or incomplete code/drivers".
- 
-  	c. Enable agpgart support for the Intel 810/815 on-board graphics.
--	   This is required.  The option is under "Character Devices"
-+	   This is required.  The option is under "Character Devices".
- 
- 	d. Under "Graphics Support", select "Intel 810/815" either statically
- 	   or as a module.  Choose "use VESA Generalized Timing Formula" if
--	   you need to maximize the capability of your display.  To be on the 
--	   safe side, you can leave this unselected.  
--  
-+	   you need to maximize the capability of your display.  To be on the
-+	   safe side, you can leave this unselected.
-+
- 	e. If you want support for DDC/I2C probing (Plug and Play Displays),
- 	   set 'Enable DDC Support' to 'y'. To make this option appear, set
- 	   'use VESA Generalized Timing Formula' to 'y'.
- 
--        f. If you want a framebuffer console, enable it under "Console 
--	   Drivers"
-+        f. If you want a framebuffer console, enable it under "Console
-+	   Drivers".
-+
-+	g. Compile your kernel.
-+
-+	h. Load the driver as described in sections D and E.
- 
--	g. Compile your kernel. 
--	  	
--	h. Load the driver as described in section D and E.
--	
- 	i.  Try the DirectFB (http://www.directfb.org) + the i810 gfxdriver
- 	    patch to see the chipset in action (or inaction :-).
- 
- G.  Acknowledgment:
--	
-+
- 	1.  Geert Uytterhoeven - his excellent howto and the virtual
--                                 framebuffer driver code made this possible.
-+	    framebuffer driver code made this possible.
- 
--	2.  Jeff Hartmann for his agpgart code.  
-+	2.  Jeff Hartmann for his agpgart code.
- 
- 	3.  The X developers.  Insights were provided just by reading the
- 	    XFree86 source code.
- 
- 	4.  Intel(c).  For this value-oriented chipset driver and for
--            providing documentation.
-+	    providing documentation.
- 
- 	5. Matt Sottek.  His inputs and ideas  helped in making some
--	optimizations possible.
-+	   optimizations possible.
- 
- H.  Home Page:
- 
- 	A more complete, and probably updated information is provided at
--http://i810fb.sourceforge.net.
-+	http://i810fb.sourceforge.net.
- 
- ###########################
- Tony
+ /**
+  * MFI frame flags
+
+--=-TMnmmqk8NB8ZwnaxG2xS--
+

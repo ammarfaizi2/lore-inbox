@@ -1,67 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751686AbWIUWZ5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932071AbWIUW3A@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751686AbWIUWZ5 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Sep 2006 18:25:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751692AbWIUWZ5
+	id S932071AbWIUW3A (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Sep 2006 18:29:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932073AbWIUW3A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Sep 2006 18:25:57 -0400
-Received: from bayc1-pasmtp04.bayc1.hotmail.com ([65.54.191.164]:39962 "EHLO
-	BAYC1-PASMTP04.bayc1.hotmail.com") by vger.kernel.org with ESMTP
-	id S1751583AbWIUWZ4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Sep 2006 18:25:56 -0400
-Message-ID: <BAYC1-PASMTP04A6968C3ABEA48C9AD2E5AE200@CEZ.ICE>
-X-Originating-IP: [65.94.249.130]
-X-Originating-Email: [seanlkml@sympatico.ca]
-Date: Thu, 21 Sep 2006 18:25:54 -0400
-From: Sean <seanlkml@sympatico.ca>
-To: David Lang <dlang@digitalinsight.com>
-Cc: Dax Kelson <dax@gurulabs.com>,
+	Thu, 21 Sep 2006 18:29:00 -0400
+Received: from warden-p.diginsite.com ([208.29.163.248]:9661 "HELO
+	warden.diginsite.com") by vger.kernel.org with SMTP id S932071AbWIUW3A
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Sep 2006 18:29:00 -0400
+Date: Thu, 21 Sep 2006 15:16:57 -0700 (PDT)
+From: David Lang <dlang@digitalinsight.com>
+X-X-Sender: dlang@dlang.diginsite.com
+To: Dave Jones <davej@redhat.com>
+cc: Sean <seanlkml@sympatico.ca>, Dax Kelson <dax@gurulabs.com>,
        Lennart Sorensen <lsorense@csclub.uwaterloo.ca>,
        Linux kernel <linux-kernel@vger.kernel.org>,
        Linus Torvalds <torvalds@osdl.org>
 Subject: Re: Smaller compressed kernel source tarballs?
-Message-Id: <20060921182554.23044ca3.seanlkml@sympatico.ca>
-In-Reply-To: <Pine.LNX.4.63.0609211455570.17238@qynat.qvtvafvgr.pbz>
-References: <1158870777.24172.23.camel@mentorng.gurulabs.com>
-	<20060921204250
- .GN13641@csclub.uwaterloo.ca>
-	<20060921171747.9ae2b42e.seanlkml@sympatico.ca>
-	<1158874875.24172.47.camel@mentorng.gurulabs.com>
-	<BAYC1-PASMTP025A72C81CFE009C3BB5A5AE200@CEZ.ICE>
-	<20060921175717.272c58ee.seanlkml@sympatico.ca>
-	<Pine.LNX.4.63.0609211455570.17238@qynat.qvtvafvgr.pbz>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.10.3; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 21 Sep 2006 22:25:56.0494 (UTC) FILETIME=[E82C92E0:01C6DDCC]
+In-Reply-To: <20060921222443.GO26683@redhat.com>
+Message-ID: <Pine.LNX.4.63.0609211514470.17238@qynat.qvtvafvgr.pbz>
+References: <BAYC1-PASMTP025A72C81CFE009C3BB5A5AE200@CEZ.ICE> 
+ <20060921175717.272c58ee.seanlkml@sympatico.ca> 
+ <Pine.LNX.4.63.0609211455570.17238@qynat.qvtvafvgr.pbz> <20060921222443.GO26683@redhat.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 21 Sep 2006 15:00:48 -0700 (PDT)
-David Lang <dlang@digitalinsight.com> wrote:
+On Thu, 21 Sep 2006, Dave Jones wrote:
 
-> yes,
->    however git users are people who plan on following every kernel version for a 
-> while, tarball users are people who grab a copy of the kernel once in a while 
-> (probably not every version). for the tarball users they would have to grab 
-> multiple patches to get from the last thing that they have to whatever is 
-> current. and frankly they may not (and probably should not) trust the last thing 
-> that they have, as in many cases it's a distro patched kernel that may not be 
-> compatable with the vanilla kernel.
+> On Thu, Sep 21, 2006 at 03:00:48PM -0700, David Lang wrote:
 >
-> people who start downloading every revision should start useing git or patches, 
-> but not everyone needs it.
+> > for the tarball users they would have to grab
+> > multiple patches to get from the last thing that they have to whatever is
+> > current.
+>
+> ketchup solves that problem. One command brings any tree up to current.
 
-Agreed, but for those people there isn't going to be much need (if any) to
-worry about if the tar ball is in .gzip or .bzip2 or whatever then either.  And
-that was the case that inspired the suggestion.
- 
-> also people could be behind a firewall that prevents git from working properly, 
-> for them tarballs and patches are the right way of doing things.
+so are you saying that ketchup should be used for _all_ access to the vanilla 
+tree that isn't done via git?
 
-I use git from behind a firewall everyday without a problem.  If you've seen
-such a problem yourself, a bug report would hopefully lead to a solution.
+if not then tarballs still have a place.
 
-Thanks,
-Sean
+and how does ketchup deal with patched trees to start with?
+
+> > also people could be behind a firewall that prevents git from working properly,
+> > for them tarballs and patches are the right way of doing things.
+>
+> If they can't git through a firewall, they won't be able to wget a tarball through
+> it either.
+
+to work properly git should talk it's own protocol, http/ftp can be allowed (and 
+authenticated) through firewalls that don't allow the git protocol.
+
+David Lang
+
+> 	Dave
+>

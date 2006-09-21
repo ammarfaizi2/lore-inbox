@@ -1,77 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932076AbWIUWaM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932066AbWIUWcS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932076AbWIUWaM (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Sep 2006 18:30:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932075AbWIUWaM
+	id S932066AbWIUWcS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Sep 2006 18:32:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932069AbWIUWcS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Sep 2006 18:30:12 -0400
-Received: from smtp-out.google.com ([216.239.45.12]:6715 "EHLO
-	smtp-out.google.com") by vger.kernel.org with ESMTP id S932066AbWIUWaK
+	Thu, 21 Sep 2006 18:32:18 -0400
+Received: from warden-p.diginsite.com ([208.29.163.248]:61655 "HELO
+	warden.diginsite.com") by vger.kernel.org with SMTP id S932066AbWIUWcR
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Sep 2006 18:30:10 -0400
-DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
-	h=received:subject:from:reply-to:to:cc:in-reply-to:references:
-	content-type:organization:date:message-id:mime-version:x-mailer:content-transfer-encoding;
-	b=MSeuk5BbyeoIsCuLNdc+95CfmSzHL9QIoQAUmeN5/KjyIMsXwLZ3wj4G4tbRvWN7q
-	L9nG6wtqiCDA8vkn2dSFw==
-Subject: Re: [ckrm-tech] [patch02/05]: Containers(V2)- Generic Linux kernel
-	changes
-From: Rohit Seth <rohitseth@google.com>
-Reply-To: rohitseth@google.com
-To: sekharan@us.ibm.com
-Cc: Christoph Lameter <clameter@sgi.com>, Andi Kleen <ak@suse.de>,
-       linux-kernel <linux-kernel@vger.kernel.org>, devel@openvz.org,
-       CKRM-Tech <ckrm-tech@lists.sourceforge.net>
-In-Reply-To: <1158802412.6536.127.camel@linuxchandra>
-References: <1158718722.29000.50.camel@galaxy.corp.google.com>
-	 <p7364fikcbe.fsf@verdi.suse.de>
-	 <1158770670.8574.26.camel@galaxy.corp.google.com>
-	 <200609202014.48815.ak@suse.de>
-	 <Pine.LNX.4.64.0609201721360.2336@schroedinger.engr.sgi.com>
-	 <1158802412.6536.127.camel@linuxchandra>
-Content-Type: text/plain
-Organization: Google Inc
-Date: Thu, 21 Sep 2006 15:29:45 -0700
-Message-Id: <1158877786.7207.74.camel@galaxy.corp.google.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
-Content-Transfer-Encoding: 7bit
+	Thu, 21 Sep 2006 18:32:17 -0400
+Date: Thu, 21 Sep 2006 15:20:24 -0700 (PDT)
+From: David Lang <dlang@digitalinsight.com>
+X-X-Sender: dlang@dlang.diginsite.com
+To: Sean <seanlkml@sympatico.ca>
+cc: Dax Kelson <dax@gurulabs.com>,
+       Lennart Sorensen <lsorense@csclub.uwaterloo.ca>,
+       Linux kernel <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: Smaller compressed kernel source tarballs?
+In-Reply-To: <BAYC1-PASMTP04A6968C3ABEA48C9AD2E5AE200@CEZ.ICE>  <20060921182554.23044ca3.seanlkml@sympatico.ca>
+Message-ID: <Pine.LNX.4.63.0609211517380.17238@qynat.qvtvafvgr.pbz>
+References: <1158870777.24172.23.camel@mentorng.gurulabs.com><20060921204250
+ .GN13641@csclub.uwaterloo.ca><20060921171747.9ae2b42e.seanlkml@sympatico.ca
+ ><1158874875.24172.47.camel@mentorng.gurulabs.com><BAYC1-PASMTP025A72C81CFE
+ 009C3BB5A5AE200@CEZ.ICE><20060921175717.272c58ee.seanlkml@sympatico.ca><Pin
+ e.LNX.4.63.0609211455570.17238@qynat.qvtvafvgr.pbz>
+ <BAYC1-PASMTP04A6968C3ABEA48C9AD2E5AE200@CEZ.ICE> 
+ <20060921182554.23044ca3.seanlkml@sympatico.ca>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-09-20 at 18:33 -0700, Chandra Seetharaman wrote:
-> On Wed, 2006-09-20 at 17:23 -0700, Christoph Lameter wrote:
-> > On Wed, 20 Sep 2006, Andi Kleen wrote:
-> > 
-> > > There are lots of different cases. At least for anonymous memory 
-> > > ->mapping should be free. Perhaps that could be used for anonymous
-> > > memory and a separate data structure for the important others.
-> > 
-> > mapping is used for swap and to point to the anon vma.
-> > 
-> > > slab should have at least one field free too, although it might be a different
-> > > one (iirc Christoph's rewrite uses more than the current slab, but it would
-> > > surprise me if he needed all) 
-> > 
-> > slab currently has lots of fields free but my rewrite uses all of them.
-> > And AFAICT this patchset does not track slab pages.
-> > 
-> > Hmm.... Build a radix tree with pointers to the pages?
-> 
-> Yes, that would be a way to isolate the overhead.
-> 
+On Thu, 21 Sep 2006, Sean wrote:
 
-As said earlier, the additional cost is not really that much.  And if we
-do get additional benefit of proper cache alignment for page struct
-because of this additional pointer then it could be a almost zero cost.
+>> also people could be behind a firewall that prevents git from working properly,
+>> for them tarballs and patches are the right way of doing things.
+>
+> I use git from behind a firewall everyday without a problem.  If you've seen
+> such a problem yourself, a bug report would hopefully lead to a solution.
 
-And in mm kernel, I also see PAGE_OWNER defined which puts the whole
-page struct out of sync with caches.
+it's not a bug, it's simply the fact that git (properly) uses it's own port for 
+it's own protocol, and not all firewalls allow access to that port. in some 
+cases even where a person would have the ability to get the firewall changed 
+they may not want to for other (political) reasons.
 
-Christoph, Please let me know if there is still a placeholder for
-container pointer ONLY for kernel pages.  I think it is easy to do away
-with per page pointer for user land as it can be stored in anon_vma or
-mappings.
+even if git tunneled over HTTP there would be firewalls that would require 
+authentication that git wouldn't be able to do and would therefor block the 
+access.
 
--rohit
-
+David Lang

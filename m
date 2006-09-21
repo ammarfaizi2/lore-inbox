@@ -1,83 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751681AbWIUWII@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751677AbWIUWHv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751681AbWIUWII (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Sep 2006 18:08:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751676AbWIUWII
+	id S1751677AbWIUWHv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Sep 2006 18:07:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751678AbWIUWHv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Sep 2006 18:08:08 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:17816 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751681AbWIUWIF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Sep 2006 18:08:05 -0400
-Date: Thu, 21 Sep 2006 18:05:39 -0400
-From: Dave Jones <davej@redhat.com>
-To: David Miller <davem@davemloft.net>
-Cc: jeff@garzik.org, davidsen@tmr.com, torvalds@osdl.org,
-       alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.19 -mm merge plans
-Message-ID: <20060921220539.GL26683@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	David Miller <davem@davemloft.net>, jeff@garzik.org,
-	davidsen@tmr.com, torvalds@osdl.org, alan@lxorguk.ukuu.org.uk,
-	linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.64.0609211106391.4388@g5.osdl.org> <45130533.2010209@tmr.com> <45130527.1000302@garzik.org> <20060921.145208.26283973.davem@davemloft.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 21 Sep 2006 18:07:51 -0400
+Received: from smtp-out.google.com ([216.239.45.12]:19252 "EHLO
+	smtp-out.google.com") by vger.kernel.org with ESMTP
+	id S1751676AbWIUWHu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Sep 2006 18:07:50 -0400
+DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
+	h=received:message-id:date:from:to:subject:cc:in-reply-to:
+	mime-version:content-type:content-transfer-encoding:
+	content-disposition:references;
+	b=jFrFeq1ARYKMGiWhnCswPYPnyXi2aZ8ZKYtbUpfHX0Uq+ZuzsOUMY9arDnNlIf6jp
+	3Bb1+rdH6x65iZtZjnRLQ==
+Message-ID: <6599ad830609211507m1f5965d8ucfcb58dd86c97c74@mail.google.com>
+Date: Thu, 21 Sep 2006 15:07:42 -0700
+From: "Paul Menage" <menage@google.com>
+To: "Paul Jackson" <pj@sgi.com>
+Subject: Re: [ckrm-tech] [patch00/05]: Containers(V2)- Introduction
+Cc: sekharan@us.ibm.com, npiggin@suse.de, ckrm-tech@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org, rohitseth@google.com, devel@openvz.org,
+       clameter@sgi.com
+In-Reply-To: <20060921145946.8d9ace73.pj@sgi.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060921.145208.26283973.davem@davemloft.net>
-User-Agent: Mutt/1.4.2.2i
+References: <1158718568.29000.44.camel@galaxy.corp.google.com>
+	 <Pine.LNX.4.64.0609201252030.32409@schroedinger.engr.sgi.com>
+	 <1158798715.6536.115.camel@linuxchandra>
+	 <20060920173638.370e774a.pj@sgi.com>
+	 <6599ad830609201742h71d112f4tae8fe390cb874c0b@mail.google.com>
+	 <1158803120.6536.139.camel@linuxchandra>
+	 <6599ad830609201852k12cee6eey9086247c9bdec8b@mail.google.com>
+	 <1158869186.6536.205.camel@linuxchandra>
+	 <6599ad830609211310s4e036e55h89bab26432d83c11@mail.google.com>
+	 <20060921145946.8d9ace73.pj@sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 21, 2006 at 02:52:08PM -0700, David Miller wrote:
+On 9/21/06, Paul Jackson <pj@sgi.com> wrote:
+>
+> Can the generic container avoid performance bottlenecks due to locks
+> or other hot cache lines on the main code paths for fork, exit, page
+> allocation and task scheduling?
 
- > But even on that note I would love to have a release cycle where I
- > didn't merge any new features and could work entirely on the bugs
- > that never get worked on.
+Page allocation and task scheduling are resource controller issues,
+not generic process container issues. The generic process containers
+would have essentially the same overheads for fork/exit that cpusets
+have currently.
 
-Would certainly be nice, even if we didn't do it every-other, but
-once every half dozen or so releases.  I've been looking over the
-osdl bugzilla recently (Ironically in a form of escapism from
-the Fedora bugzilla). There's a ton of really old reports in there
-that could be mopped up with a targetted bugfixing release.
-Right now, with so many open bugs, it's difficult to get a real
-picture of where the problem areas are because there's so much
-crap in there. (Fedora's bugzilla is actually going through the
-same problem right now too sadly, at least in part because
-the last few releases have taken so damned long to come out, and
-the -stable releases whilst an improvement, haven't gone far
-enough to fixing a lot of issues users are seeing[*]).
-
- > Sure, I'll still be merging new features into my "N + 1" tree.
- > But my pure interactions with Linus's tree can focus entirely
- > on bug fixing, and I really want an environment in which to
- > concentrate on that exclusively.
-
-There's nothing actually stopping you from enforcing this rule
-in the trees you maintain though. You could do this for networking
-in .19 without having a mandate from Linus that the kernel as
-a whole is going to do the same.
-
-Not that networking is an area that sees that many regressions
-compared to other subsystems IMO. What's your secret? :)
-
- > I think the even/odd idea is great, personally.  And if this
- > makes some people have to wait a little bit longer for their
- > favorite feature to get merged, that's tough. :-)
-
-My concern is that people will 'sit out' the even stage, and
-just accumulate stuff in a single tree they dump once when
-every odd release opens up.
-
-We already have some subsystems that do once-per-release merges,
-and then let fixes build up in their out-of-tree SCM for months
-until the next window. It won't necessarily get worse, but unless
-everyone is participating in the odd/even rules, we won't get
-the benefits that it would offer.
-
-	Dave
-
-[*] I'm not demeaning Greg & Chris' work here at all, they've
-been doing a stellar job, but I think we could use more people
-going through the changelogs looking for stuff that needs
-backporting.
+Paul

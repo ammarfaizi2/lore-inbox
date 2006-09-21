@@ -1,74 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932085AbWIUWlI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751694AbWIUWoF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932085AbWIUWlI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Sep 2006 18:41:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932087AbWIUWlH
+	id S1751694AbWIUWoF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Sep 2006 18:44:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751698AbWIUWoE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Sep 2006 18:41:07 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:44464 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932085AbWIUWlE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Sep 2006 18:41:04 -0400
-Date: Thu, 21 Sep 2006 18:40:51 -0400
-From: Dave Jones <davej@redhat.com>
-To: David Lang <dlang@digitalinsight.com>
-Cc: Sean <seanlkml@sympatico.ca>, Dax Kelson <dax@gurulabs.com>,
-       Lennart Sorensen <lsorense@csclub.uwaterloo.ca>,
-       Linux kernel <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: Smaller compressed kernel source tarballs?
-Message-ID: <20060921224051.GS26683@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	David Lang <dlang@digitalinsight.com>, Sean <seanlkml@sympatico.ca>,
-	Dax Kelson <dax@gurulabs.com>,
-	Lennart Sorensen <lsorense@csclub.uwaterloo.ca>,
-	Linux kernel <linux-kernel@vger.kernel.org>,
-	Linus Torvalds <torvalds@osdl.org>
-References: <BAYC1-PASMTP025A72C81CFE009C3BB5A5AE200@CEZ.ICE> <20060921175717.272c58ee.seanlkml@sympatico.ca> <Pine.LNX.4.63.0609211455570.17238@qynat.qvtvafvgr.pbz> <20060921222443.GO26683@redhat.com> <Pine.LNX.4.63.0609211514470.17238@qynat.qvtvafvgr.pbz>
+	Thu, 21 Sep 2006 18:44:04 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:61114
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1751694AbWIUWoB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Sep 2006 18:44:01 -0400
+Date: Thu, 21 Sep 2006 15:44:15 -0700 (PDT)
+Message-Id: <20060921.154415.116358287.davem@davemloft.net>
+To: davej@redhat.com
+Cc: jeff@garzik.org, davidsen@tmr.com, torvalds@osdl.org,
+       alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.19 -mm merge plans
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <20060921220539.GL26683@redhat.com>
+References: <45130527.1000302@garzik.org>
+	<20060921.145208.26283973.davem@davemloft.net>
+	<20060921220539.GL26683@redhat.com>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.63.0609211514470.17238@qynat.qvtvafvgr.pbz>
-User-Agent: Mutt/1.4.2.2i
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 21, 2006 at 03:16:57PM -0700, David Lang wrote:
- > On Thu, 21 Sep 2006, Dave Jones wrote:
- > 
- > > On Thu, Sep 21, 2006 at 03:00:48PM -0700, David Lang wrote:
- > >
- > > > for the tarball users they would have to grab
- > > > multiple patches to get from the last thing that they have to whatever is
- > > > current.
- > >
- > > ketchup solves that problem. One command brings any tree up to current.
- > 
- > so are you saying that ketchup should be used for _all_ access to the vanilla 
- > tree that isn't done via git?
- > if not then tarballs still have a place.
+From: Dave Jones <davej@redhat.com>
+Date: Thu, 21 Sep 2006 18:05:39 -0400
 
-I think you have a misunderstanding over what ketchup is/does.
-It cannot usurp tarballs by its very nature. It retrieves tarballs (if necessary)
-and whatever patches are necessary to get to the tree you want.
-http://www.selenic.com/ketchup/
- 
- > and how does ketchup deal with patched trees to start with?
+> On Thu, Sep 21, 2006 at 02:52:08PM -0700, David Miller wrote:
+> 
+>  > I think the even/odd idea is great, personally.  And if this
+>  > makes some people have to wait a little bit longer for their
+>  > favorite feature to get merged, that's tough. :-)
+> 
+> My concern is that people will 'sit out' the even stage, and
+> just accumulate stuff in a single tree they dump once when
+> every odd release opens up.
 
-By unpatching if necessary.
+At least they would be dumping on top of "mostly working".
+I kind of like that.  It breeds more confidence into the
+tree having been working before the dump took place, thus
+making the isolation of cause much easier.
 
- > > > also people could be behind a firewall that prevents git from working properly,
- > > > for them tarballs and patches are the right way of doing things.
- > >
- > > If they can't git through a firewall, they won't be able to wget a tarball through
- > > it either.
- > 
- > to work properly git should talk it's own protocol, http/ftp can be allowed (and 
- > authenticated) through firewalls that don't allow the git protocol.
+> We already have some subsystems that do once-per-release merges,
+> and then let fixes build up in their out-of-tree SCM for months
+> until the next window. It won't necessarily get worse, but unless
+> everyone is participating in the odd/even rules, we won't get
+> the benefits that it would offer.
 
-'properly' is the wrong word here. optimally, yes, but the firewall argument
-alone isn't sufficient to claim git can't be used to clone a tree.
-A tree cloned over http: vs one over git: has exactly the same information in
-it. All the history, all the changes. Everything.
-
-	Dave
+Having odd/even rules kind of adds legitimacy to the per-tree folks
+doing the same.  This avoids situations like "why is XXX being an
+asshole with his tree, when there are other trees merging new
+features this round?".  Having buy-in from everyone is very useful
+and gets folks in the correct mindset.

@@ -1,76 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751341AbWIUQ5T@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751344AbWIURBR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751341AbWIUQ5T (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Sep 2006 12:57:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751342AbWIUQ5T
+	id S1751344AbWIURBR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Sep 2006 13:01:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751348AbWIURBR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Sep 2006 12:57:19 -0400
-Received: from dvhart.com ([64.146.134.43]:16872 "EHLO dvhart.com")
-	by vger.kernel.org with ESMTP id S1751341AbWIUQ5T (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Sep 2006 12:57:19 -0400
-Message-ID: <4512C469.5060107@mbligh.org>
-Date: Thu, 21 Sep 2006 09:57:13 -0700
-From: Martin Bligh <mbligh@mbligh.org>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051011)
-X-Accept-Language: en-us, en
+	Thu, 21 Sep 2006 13:01:17 -0400
+Received: from nz-out-0102.google.com ([64.233.162.200]:22725 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1751344AbWIURBQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Sep 2006 13:01:16 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=GsFopqA5HcYUwFQC3iD/PS3Z3wbSukWAQYGvYskoT80lOPKRuFnnowZrlgRNyhg+BjpyGfMxckRNTBAmnDvUtWR32fcf1wJyL56YjkL/DhVrGoRQqFRh+vbsf2yi9+CcMuRO2w44LpOxK6j6M/AIE5JchOKQwWB7wZXHSv12mPo=
+Message-ID: <4512C54B.9060705@gmail.com>
+Date: Fri, 22 Sep 2006 02:00:59 +0900
+From: Tejun Heo <htejun@gmail.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060713)
 MIME-Version: 1.0
-To: Christoph Lameter <clameter@sgi.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Christoph Lameter <clameter@engr.sgi.com>
-Subject: Re: ZONE_DMA
-References: <20060920135438.d7dd362b.akpm@osdl.org> <4511D855.7050100@mbligh.org> <20060920172253.f6d11445.akpm@osdl.org> <4511E1CA.6090403@mbligh.org> <Pine.LNX.4.64.0609201804320.2844@schroedinger.engr.sgi.com> <4511E9AC.2050507@mbligh.org> <Pine.LNX.4.64.0609210854210.5626@schroedinger.engr.sgi.com>
-In-Reply-To: <Pine.LNX.4.64.0609210854210.5626@schroedinger.engr.sgi.com>
+To: Andrew Lyon <andrew.lyon@gmail.com>
+CC: linux-kernel@vger.kernel.org, Jens Axboe <axboe@suse.de>
+Subject: Re: JMicron 20360/20363 AHCI Controller much slower with 2.6.18
+References: <f4527be0609210104p3c6c4933ke77d8372f6dd3848@mail.gmail.com>
+In-Reply-To: <f4527be0609210104p3c6c4933ke77d8372f6dd3848@mail.gmail.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Lameter wrote:
-> On Wed, 20 Sep 2006, Martin J. Bligh wrote:
+Andrew Lyon wrote:
+> Hi,
 > 
+> I have a Gigabyte GA_965P_DS3 with Core 2 Duo CPU, wd raptor connected
+> to onboard JMicron 20360/20363 AHCI Controller, with 2.6.18 the drive
+> is very slow:
 > 
->>>ZONE_DMA is only used as ZONE_NORMAL if the architecture does not need
->>>ZONE_NORMAL because all of memory is reachable via DMA.
->>
->>That's still inconsistent because it doesn't say DMA for *which*
->>device.
+> beast ~ # uname -a
+> Linux beast 2.6.18 #1 SMP Wed Sep 20 15:04:24 BST 2006 i686 Intel(R) 
+> Core(TM)2 C
+> PU          6600  @ 2.40GHz GNU/Linux
+> beast ~ # hdparm -t /dev/sda
 > 
-> 
-> Thats the way ZONE_DMA works right now and AFAIK the only way forward is 
-> to make it optional and then introduce another way of allocating memory
-> for a device. The migrate away from it. The first step is to allow people
-> who do not need ZONE_DMA to opt out.
+> /dev/sda:
+> Timing buffered disk reads:  100 MB in  3.02 seconds =  33.10 MB/sec
 
-OK. Let's leave aside the issue for a second of whether ZONE_DMA should
-be configurable or not (ie your patch), and just worry about how this
-works in practice going forwards in the short term. Don't get me wrong,
-I'd love to kill ZONE_DMA, or at least the 16MB way it's implemented in
-i386 right now.
+Which IO scheduler are you using?  If you're using anticipatory or cfq, 
+can you try deadline?
 
-I presume the fallback order for everything is still
-HIGHMEM -> NORMAL -> DMA, and nobody is proposing changing that.
-(ignoring DMA32 to keep thing simpler).
+Thanks.
 
-If a device driver wants "DMAable" memory, and thus does a ZONE_DMA 
-allocation, and we've moved all its memory from ZONE_DMA to ZONE_NORMAL
-(as I think you're proposing doing for PPC64 (and ia64?)), then the
-allocation will fail.
-
-So are we saying that no driver code should be calling with GFP_DMA
-(a quick grep turns up 148 instances under driver/), that if they do
-they should only work on specific architectures (some instances were
-s390-only drivers)? If so, should we not be removing the definiton of
-GFP_DMA itself if ZONE_DMA is config'ed out, so that it fails at
-compile time, rather than runtime?
-
->>AFAICS, the correct way to do this is have the requestor pass a memory
->>bound into the allocator, and have the arch figure out which zones
->>are applicable.
-> 
-> Exactly. But you cannot do that with ZONE_DMA __GFP_DMA. We likely need a 
-> new page  allocator API for that.
-
-Glad we're agreed on that, at least.
-
-M.
+-- 
+tejun

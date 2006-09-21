@@ -1,51 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751053AbWIUOk2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751064AbWIUOo2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751053AbWIUOk2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Sep 2006 10:40:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751009AbWIUOk1
+	id S1751064AbWIUOo2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Sep 2006 10:44:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751066AbWIUOo2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Sep 2006 10:40:27 -0400
-Received: from ns2.suse.de ([195.135.220.15]:43703 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1750991AbWIUOk1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Sep 2006 10:40:27 -0400
-Date: Thu, 21 Sep 2006 16:39:49 +0200
-From: Stefan Seyfried <seife@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, Dave Jones <davej@redhat.com>,
-       Marek Vasut <marek.vasut@gmail.com>,
-       Dmitry Torokhov <dmitry.torokhov@gmail.com>
-Subject: Re: 2.6.19 -mm merge plans (input patches)
-Message-ID: <20060921143949.GA9581@suse.de>
-References: <d120d5000609201429m753de40fo194d48427402c6cd@mail.gmail.com> <20060920145006.05117085.akpm@osdl.org>
+	Thu, 21 Sep 2006 10:44:28 -0400
+Received: from ug-out-1314.google.com ([66.249.92.172]:20103 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1751009AbWIUOo1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Sep 2006 10:44:27 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Vapg6XKI+Ok8mTEDbIm4p652QB30NpXH3lDfcQr9aWVZnPa4tBB2pJRdBUMiVLqEhTtWfz+vbUeaDldrEWQ0hn34itdnQr4+YYO1xQ8h9LuFiex96hiEbZu2892a8BN3SSaNIK1EEsjDtIXb6/x+gmiaaNSf5NLEm2KAVgr/FBI=
+Message-ID: <d120d5000609210744w4c52bcf0qda2c3b9f12d4c2d3@mail.gmail.com>
+Date: Thu, 21 Sep 2006 10:44:24 -0400
+From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
+To: "Rolf Eike Beer" <eike-kernel@sf-tec.de>
+Subject: Re: [RTC] Remove superfluous call to call to cdev_del()
+Cc: "Alessandro Zummo" <alessandro.zummo@towertech.it>,
+       "Andrew Morton" <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       "Jonathan Corbet" <corbet@lwn.net>
+In-Reply-To: <200609211030.07944.eike-kernel@sf-tec.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20060920145006.05117085.akpm@osdl.org>
-X-Operating-System: SUSE Linux Enterprise Desktop 10 (i586), Kernel 2.6.18-rc6-2-seife
-User-Agent: Mutt/1.5.13 (2006-08-11)
+References: <200609210946.06924.eike-kernel@sf-tec.de>
+	 <20060921095619.0b2f1774@inspiron>
+	 <200609211030.07944.eike-kernel@sf-tec.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 20, 2006 at 02:50:06PM -0700, Andrew Morton wrote:
-> On Wed, 20 Sep 2006 17:29:43 -0400
-> "Dmitry Torokhov" <dmitry.torokhov@gmail.com> wrote:
+On 9/21/06, Rolf Eike Beer <eike-kernel@sf-tec.de> wrote:
+> Alessandro Zummo wrote:
+> > On Thu, 21 Sep 2006 09:46:06 +0200
+> >
+> > Rolf Eike Beer <eike-kernel@sf-tec.de> wrote:
+> > > If cdev_add() fails there is no good reason to call cdev_del().
+> > >
+> > > Signed-off-by: Rolf Eike Beer <eike-kernel@sf-tec.de>
+> > >
+> > >     rtc->char_dev.owner = rtc->owner;
+> > >
+> > >     if (cdev_add(&rtc->char_dev, MKDEV(MAJOR(rtc_devt), rtc->id), 1)) {
+> > > -           cdev_del(&rtc->char_dev);
+> > >             dev_err(class_dev->dev,
+> > >                     "failed to add char device %d:%d\n",
+> > >                     MAJOR(rtc_devt), rtc->id);
+> >
+> >  I'm not sure.. this is drivers/char/raw.c:
+> >
+> >
+> >  cdev_init(&raw_cdev, &raw_fops);
+> >         if (cdev_add(&raw_cdev, dev, MAX_RAW_MINORS)) {
+> >                 kobject_put(&raw_cdev.kobj);
+> >                 unregister_chrdev_region(dev, MAX_RAW_MINORS);
+> >                 goto error;
+> >         }
+> >
+> >  in case of failure, it does a kobject_put.
+> >  tha same call is done by cdev_del.
 
-> > > input-i8042-disable-keyboard-port-when-panicking-and-blinking.patch
-> > > i8042-activate-panic-blink-only-in-x.patch
-> > 
-> > There was a concern that blinking is useful even when not running X.
-> > Do you have any input?
-> 
-> No, sorry.
+But cdev_del also tries to do kobj_unmap before doing kobject_put. If
+cdev_add fails the object is not added to the map so we shoult not try
+to unmap it (although it does not hurt in the current implementation).
 
-I found it useful for machines panicking after suspend-to-ram with the
-video still dark.
-I have, however, not seen a machine panicking on resume for quite some
-time. They just hang :-)
+>
+> This is unneeded here as it's embedded into struct rtc_device. Jonathan?
+>
+
+cdev distingueshes between stattically and synamically allocated
+objects and so it is safe to do kobject_put/cdev_del even on cdevs
+embedded into other structures.
+
+> >  other drivers have implemented different error paths.
+> >  which one is correct?
+>
+
+raw.c seems to be DTRT.
+
+> Probably half of them are wrong, ugly or both. I think this interface is not
+> very intuitive at all. This two calls needed to set up an embedded cdev are
+> IMHO the best way to keep people confused. At least the (possible) need to
+> call cdev_del() on failed cdev_add() is just weird.
+>
+
+The rule is simple - after cdev_init/cdev_alloc call kobject_put.
+After successful cdev_add call cdev_del.
 
 -- 
-Stefan Seyfried
-QA / R&D Team Mobile Devices        |              "Any ideas, John?"
-SUSE LINUX Products GmbH, Nürnberg  | "Well, surrounding them's out." 
+Dmitry

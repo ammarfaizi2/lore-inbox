@@ -1,62 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750764AbWIUVrK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750953AbWIUVsF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750764AbWIUVrK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Sep 2006 17:47:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751623AbWIUVrK
+	id S1750953AbWIUVsF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Sep 2006 17:48:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751617AbWIUVsF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Sep 2006 17:47:10 -0400
-Received: from py-out-1112.google.com ([64.233.166.183]:55749 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S1750764AbWIUVrJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Sep 2006 17:47:09 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=NSCrmfdL7knbeQL5DK9UZGF4OllkCZgTI++heYZvxSFpvHvRzjHUO6SRI8vMRZPBL5Pr3EhaX988Kv65zJ3dvOGKAz2onSHuZh91mjdTA2GNv+X6u1gkXG2pr8w7j2hE+qd9URFeRmkxejcJE7Px58NQsXP1jhM7/PXZj/pOb3Y=
-Message-ID: <a44ae5cd0609211447i41ae58f3xa59d2ae4c5dc5f65@mail.gmail.com>
-Date: Thu, 21 Sep 2006 14:47:08 -0700
-From: "Miles Lane" <miles.lane@gmail.com>
-To: LKML <linux-kernel@vger.kernel.org>
-Subject: 2.6.18 -- INFO: possible recursive locking detected
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Thu, 21 Sep 2006 17:48:05 -0400
+Received: from tomts16-srv.bellnexxia.net ([209.226.175.4]:61630 "EHLO
+	tomts16-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id S1750938AbWIUVsC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Sep 2006 17:48:02 -0400
+Date: Thu, 21 Sep 2006 17:42:48 -0400
+From: Mathieu Desnoyers <compudj@krystal.dyndns.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Martin Bligh <mbligh@google.com>, "Frank Ch. Eigler" <fche@redhat.com>,
+       Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>, prasanna@in.ibm.com,
+       Andrew Morton <akpm@osdl.org>, Paul Mundt <lethal@linux-sh.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>, Jes Sorensen <jes@sgi.com>,
+       Tom Zanussi <zanussi@us.ibm.com>,
+       Richard J Moore <richardj_moore@uk.ibm.com>,
+       Michel Dagenais <michel.dagenais@polymtl.ca>,
+       Christoph Hellwig <hch@infradead.org>,
+       Greg Kroah-Hartman <gregkh@suse.de>,
+       Thomas Gleixner <tglx@linutronix.de>, William Cohen <wcohen@redhat.com>,
+       ltt-dev@shafik.org, systemtap@sources.redhat.com,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH] Linux Kernel Markers 0.5 for Linux 2.6.17 (with probe management)
+Message-ID: <20060921214248.GA10097@Krystal>
+References: <20060921160009.GA30115@Krystal> <20060921160656.GA24774@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+In-Reply-To: <20060921160656.GA24774@elte.hu>
+X-Editor: vi
+X-Info: http://krystal.dyndns.org:8080
+X-Operating-System: Linux/2.4.32-grsec (i686)
+X-Uptime: 17:19:13 up 29 days, 18:27,  2 users,  load average: 1.04, 0.41, 0.25
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-=============================================
-[ INFO: possible recursive locking detected ]
----------------------------------------------
-knodemgrd_1/13913 is trying to acquire lock:
- (&s->rwsem){..--}, at: [<f8960817>] nodemgr_probe_ne+0x22d/0x36c [ieee1394]
+* Ingo Molnar (mingo@elte.hu) wrote:
+ 
+>   "As an example, LTTng traces the page fault handler, when kprobes just
+>    can't instrument it."
+> 
+> but tracing a raw pagefault at the arch level is a bad idea anyway, we 
+> want to trace __handle_mm_fault(). That way you can avoid having to 
+> modify every architecture's pagefault handler ...
+> 
 
-but task is already holding lock:
- (&s->rwsem){..--}, at: [<f89610d8>] nodemgr_host_thread+0x739/0x8a7 [ieee1394]
+Then you lose the ability to trace in-kernel minor page faults.
 
-other info that might help us debug this:
-1 lock held by knodemgrd_1/13913:
- #0:  (&s->rwsem){..--}, at: [<f89610d8>]
-nodemgr_host_thread+0x739/0x8a7 [ieee1394]
+> but the other points remained unanswered as far as i can see.
+>
 
-stack backtrace:
- [<c1003ef5>] show_trace_log_lvl+0x58/0x16a
- [<c100506d>] show_trace+0xd/0x10
- [<c1005087>] dump_stack+0x17/0x1c
- [<c102e485>] __lock_acquire+0x79b/0x9ef
- [<c102e9b6>] lock_acquire+0x5e/0x80
- [<c102b73e>] down_read+0x28/0x3a
- [<f8960817>] nodemgr_probe_ne+0x22d/0x36c [ieee1394]
- [<f89610f7>] nodemgr_host_thread+0x758/0x8a7 [ieee1394]
- [<c1001005>] kernel_thread_helper+0x5/0xb
-DWARF2 unwinder stuck at kernel_thread_helper+0x5/0xb
-Leftover inexact backtrace:
- [<c100506d>] show_trace+0xd/0x10
- [<c1005087>] dump_stack+0x17/0x1c
- [<c102e485>] __lock_acquire+0x79b/0x9ef
- [<c102e9b6>] lock_acquire+0x5e/0x80
- [<c102b73e>] down_read+0x28/0x3a
- [<f8960817>] nodemgr_probe_ne+0x22d/0x36c [ieee1394]
- [<f89610f7>] nodemgr_host_thread+0x758/0x8a7 [ieee1394]
- [<c1001005>] kernel_thread_helper+0x5/0xb
-ieee1394: send packet at S400: ffc0a140 ffc1ffff f0000234
+Hi Ingo,
+
+I clearly expressed my position in the previous emails, so did you. You argued
+about a use of tracing that is not relevant to my vision of reality, which is :
+
+- Embedded systems developers won't want a breakpoint-based probe
+- High performance computing users won't want a breakpoint-based probe
+- djprobe is far away from being in an acceptable state on architectures with
+  very inconvenient erratas (x86).
+- kprobe and djprobe cannot access local variables in every cases
+
+For those reasons, I prefer a jump-over-call approach which lets gcc give us the
+local variables. No need of DWARF or SystemTAP macro Kung Fu. Just C and a
+loadable module.
+
+By no means is it a replacement for a completely dynamic breakpoint-based
+instrumentation mechanism. I really think that both mechanism should coexist.
+
+This is my position : I let the distribution/user decide what is appropriate for
+their use. My goal is to provide them a flexible mechanism that takes the
+multiple variety of uses in account without performance impact if they are not
+willing to pay it to benefit from tracing.
+
+With all due respect, yes, there are Linux users different from the typical
+Redhat client. If your vision is still limited to this scope after a 500
+emails debate, I am afraid that there is very little I can do about it in
+one more.
+
+
+Mathieu
+
+ 
+OpenPGP public key:              http://krystal.dyndns.org:8080/key/compudj.gpg
+Key fingerprint:     8CD5 52C3 8E3C 4140 715F  BA06 3F25 A8FE 3BAE 9A68 

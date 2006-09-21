@@ -1,85 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750878AbWIUAqF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750882AbWIUAsS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750878AbWIUAqF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Sep 2006 20:46:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750880AbWIUAqF
+	id S1750882AbWIUAsS (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Sep 2006 20:48:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750884AbWIUAsS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Sep 2006 20:46:05 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.151]:29888 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750873AbWIUAqC
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Sep 2006 20:46:02 -0400
-Subject: Re: [ckrm-tech] [patch00/05]: Containers(V2)- Introduction
-From: Chandra Seetharaman <sekharan@us.ibm.com>
-Reply-To: sekharan@us.ibm.com
-To: Paul Jackson <pj@sgi.com>
-Cc: Paul Menage <menage@google.com>, npiggin@suse.de,
+	Wed, 20 Sep 2006 20:48:18 -0400
+Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:37534 "EHLO
+	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S1750882AbWIUAsQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Sep 2006 20:48:16 -0400
+Date: Thu, 21 Sep 2006 09:51:00 +0900
+From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+To: Christoph Lameter <clameter@sgi.com>
+Cc: lhms-devel@lists.sourceforge.net, npiggin@suse.de,
        ckrm-tech@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       rohitseth@google.com, devel@openvz.org, clameter@sgi.com
-In-Reply-To: <20060920134903.fbd9fea8.pj@sgi.com>
+       pj@sgi.com, rohitseth@google.com, devel@openvz.org
+Subject: Re: [Lhms-devel] [patch00/05]: Containers(V2)- Introduction
+Message-Id: <20060921095100.25e02b5c.kamezawa.hiroyu@jp.fujitsu.com>
+In-Reply-To: <Pine.LNX.4.64.0609201629220.1859@schroedinger.engr.sgi.com>
 References: <1158718568.29000.44.camel@galaxy.corp.google.com>
-	 <Pine.LNX.4.64.0609200916140.30572@schroedinger.engr.sgi.com>
-	 <1158777240.6536.89.camel@linuxchandra>
-	 <6599ad830609201143h19f6883wb388666e27913308@mail.google.com>
-	 <1158778496.6536.95.camel@linuxchandra>
-	 <6599ad830609201225k3d38afe2gea7adc2fa8067e0@mail.google.com>
-	 <20060920134903.fbd9fea8.pj@sgi.com>
-Content-Type: text/plain
-Organization: IBM
-Date: Wed, 20 Sep 2006 17:45:59 -0700
-Message-Id: <1158799559.6536.120.camel@linuxchandra>
+	<Pine.LNX.4.64.0609200916140.30572@schroedinger.engr.sgi.com>
+	<1158773208.8574.53.camel@galaxy.corp.google.com>
+	<Pine.LNX.4.64.0609201035240.31464@schroedinger.engr.sgi.com>
+	<1158775678.8574.81.camel@galaxy.corp.google.com>
+	<20060920155815.33b03991.pj@sgi.com>
+	<1158794808.7207.14.camel@galaxy.corp.google.com>
+	<Pine.LNX.4.64.0609201629220.1859@schroedinger.engr.sgi.com>
+Organization: Fujitsu
+X-Mailer: Sylpheed version 2.2.0 (GTK+ 2.6.10; i686-pc-mingw32)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-7) 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-09-20 at 13:49 -0700, Paul Jackson wrote:
+On Wed, 20 Sep 2006 16:31:22 -0700 (PDT)
+Christoph Lameter <clameter@sgi.com> wrote:
 
-I concur with most of the comments (except as noted below)
-> Paul M wrote:
-> > Even if the resource control portions aren't totally compatible,
-> > having two separate process container abstractions in the kernel is
-> > sub-optimal
+> On Wed, 20 Sep 2006, Rohit Seth wrote:
 > 
-> At heart, CKRM (ne Resource Groups) are (well, have been until now)
-> different than cpusets.
+> > Absolutely.  Since these containers are not (hard) partitioning the
+> > memory in any way so it is easy to change the limits (effectively
+> > reducing and increasing the memory limits for tasks belonging to
+> > containers).  As you said, memory hot-un-plug is important and it is
+> > non-trivial amount of work.
 > 
-> Cpusets answers the question 'where', and Resource Groups 'how much'.
+> Maybe the hotplug guys want to contribute to the discussion?
 > 
-> The fundamental motivation behind cpusets was to be able to enforce
-> job isolation.  A job can get dedicated use of specified resources,
-> -even- if it means those resources are severely underutilized by that
-> job.
-> 
-> The fundamental motivation (Chandra or others correct me if I'm wrong)
-> of Resource Groups is to improve capacity utilization while limiting
-> starvation due to greedy, competing users for the same resources.
-> 
-> Cpusets seeks maximum isolation.  Resource Groups seeks maximum
-> capacity utilization while preserving guaranteed levels of quality
-> of service.
-> 
-> Cpusets are that wall between you and the neighbor you might not
-> trust.  Resource groups are a large family of modest wealth sitting
-> down to share a meal.
+Ah, I'm reading threads with interest.
 
-I am thinking hard about how to bring guarantee into this picture :).
- 
-> 
-> It seems that cpusets can mimic memory resource groups.  I don't
+I think this discussion is about using fake nodes ('struct pgdat')
+to divide system's memory into some chunks. Your thought is that
+for resizing/adding/removing fake pgdat, memory-hot-plug codes may be useful. 
+correct ?
 
-I am little confused w.r.t how cpuset can mimic memory resource groups.
-How can cpuset provide support for over commit.
+Now, memory-hotplug manages all memory by 'section' and allows adding/(removing)
+section to pgdat.
+Does this section-size handling meet container people's requirement ?
+And do we need freeing page when pgdat is removed ?
 
-> see how cpusets could mimic other resource groups.  But maybe I'm
-> just being a dimm bulb.
-> 
--- 
+I think at least SPARSEMEM is useful for fake nodes because 'struct page'
+are not tied to pgdat. (DISCONTIGMEM uses node_start_pfn. SPARSEMEM not.)
 
-----------------------------------------------------------------------
-    Chandra Seetharaman               | Be careful what you choose....
-              - sekharan@us.ibm.com   |      .......you may get it.
-----------------------------------------------------------------------
-
+-Kame
 

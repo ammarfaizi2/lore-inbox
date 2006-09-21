@@ -1,49 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751277AbWIUPg4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751284AbWIUPko@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751277AbWIUPg4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Sep 2006 11:36:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751278AbWIUPg4
+	id S1751284AbWIUPko (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Sep 2006 11:40:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751285AbWIUPko
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Sep 2006 11:36:56 -0400
-Received: from xenotime.net ([66.160.160.81]:56709 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1751277AbWIUPgz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Sep 2006 11:36:55 -0400
-Date: Thu, 21 Sep 2006 08:38:00 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: "Luke Yang" <luke.adi@gmail.com>
-Cc: Aubrey <aubreylee@gmail.com>, "Alan Cox" <alan@lxorguk.ukuu.org.uk>,
-       linux-kernel@vger.kernel.org, "Andrew Morton" <akpm@osdl.org>
-Subject: Re: [PATCH 2/4] Blackfin: Serial driver for Blackfin arch on 2.6.18
-Message-Id: <20060921083800.74649310.rdunlap@xenotime.net>
-In-Reply-To: <489ecd0c0609210257tb8daf0fl7603ff96e6e21c2e@mail.gmail.com>
-References: <489ecd0c0609202033j4dd9a62fye81f99d61bff030d@mail.gmail.com>
-	<1158830784.11109.93.camel@localhost.localdomain>
-	<6d6a94c50609210223o5adf9bb5w7bfb70fb59094c85@mail.gmail.com>
-	<489ecd0c0609210257tb8daf0fl7603ff96e6e21c2e@mail.gmail.com>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 21 Sep 2006 11:40:44 -0400
+Received: from ug-out-1314.google.com ([66.249.92.169]:62563 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1751284AbWIUPkn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Sep 2006 11:40:43 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
+        b=tVSMn2JGernSSs7nwlVhkbWwFl+3+KEPbnPJGfmeIKy9DPdP8rSWWhwody1qvREBVGw3khs1Ep9eBHAB8lNl9R5vZHTf0QtKgdmGb9HQew8pxpWMsLPXNDLlfVcs/7eLsWStxn6RchH6lDP8iu2DPf90bRLeD1Gusivs0rp8gqg=
+Message-ID: <d120d5000609210840v3bbc2758t66cef4ff7b499089@mail.gmail.com>
+Date: Thu, 21 Sep 2006 11:40:40 -0400
+From: "Dmitry Torokhov" <dtor@insightbb.com>
+To: "Adam Buchbinder" <adam.buchbinder@gmail.com>
+Subject: Re: [linux-usb-devel] [PATCH 2.6.17.11] xpad: dance pad support
+Cc: greg@kroah.com, linux-input@atrey.karlin.mff.cuni.cz,
+       linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
+In-Reply-To: <4512AD76.4070005@gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <4512AD76.4070005@gmail.com>
+X-Google-Sender-Auth: 7dcf02c0586e5029
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 21 Sep 2006 17:57:03 +0800 Luke Yang wrote:
+On 9/21/06, Adam Buchbinder <adam.buchbinder@gmail.com> wrote:
+> +
+> +static int dpad_to_buttons = 0;
+> +module_param(dpad_to_buttons, bool, S_IRUGO);
+> +MODULE_PARM_DESC(dpad_to_buttons, "Map D-PAD to buttons rather than axes for unknown pads");
 
-> Great thanks. Here is the new patch:
-> 
-> Signed-off-by: Luke Yang <luke.adi@gmail.com>
-> Acked-by: Randy.Dunlap <rdunlap@xenotime.net>
-> Acked-by: Alan Cox <alan@lxorguk.ukuu.org.uk>
+There is no need to initialize dpad_to_buttons to 0, it already is.
+Oherwise you may add:
 
-I can't find an email where I acked this patch...
+Acked-by: Dmitry Torokhov <dtor@mail.ru>
 
->  drivers/serial/Kconfig      |   44 ++
->  drivers/serial/Makefile     |    1
->  drivers/serial/bfin_5xx.c   |  906 ++++++++++++++++++++++++++++++++++++++++++++
->  include/linux/serial_core.h |    3
->  4 files changed, 954 insertions(+)
-
----
-~Randy
+-- 
+Dmitry

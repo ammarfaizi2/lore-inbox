@@ -1,80 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750895AbWIUUiH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751551AbWIUUmw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750895AbWIUUiH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Sep 2006 16:38:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751365AbWIUUiH
+	id S1751551AbWIUUmw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Sep 2006 16:42:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751543AbWIUUmw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Sep 2006 16:38:07 -0400
-Received: from 1-1-12-13a.han.sth.bostream.se ([82.182.30.168]:17315 "EHLO
-	palpatine.hardeman.nu") by vger.kernel.org with ESMTP
-	id S1750895AbWIUUiF convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Sep 2006 16:38:05 -0400
-Date: Thu, 21 Sep 2006 22:37:53 +0200
-From: David =?iso-8859-1?Q?H=E4rdeman?= <david@hardeman.nu>
-To: linux-kernel@vger.kernel.org
-Cc: kraxel@bytesex.org
-Subject: [PATCH] Allow RC5 codes 64 - 127 in ir-kbd-i2c.c
-Message-ID: <20060921203753.GA11551@hardeman.nu>
-Mail-Followup-To: linux-kernel@vger.kernel.org, kraxel@bytesex.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1; format=flowed
+	Thu, 21 Sep 2006 16:42:52 -0400
+Received: from caffeine.uwaterloo.ca ([129.97.134.17]:51870 "EHLO
+	caffeine.csclub.uwaterloo.ca") by vger.kernel.org with ESMTP
+	id S1750834AbWIUUmv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Sep 2006 16:42:51 -0400
+Date: Thu, 21 Sep 2006 16:42:50 -0400
+To: Dax Kelson <dax@gurulabs.com>
+Cc: Linux kernel <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: Smaller compressed kernel source tarballs?
+Message-ID: <20060921204250.GN13641@csclub.uwaterloo.ca>
+References: <1158870777.24172.23.camel@mentorng.gurulabs.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.13 (2006-08-11)
-Content-Transfer-Encoding: 8BIT
-X-SA-Score: -2.6
+In-Reply-To: <1158870777.24172.23.camel@mentorng.gurulabs.com>
+User-Agent: Mutt/1.5.9i
+From: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: lsorense@csclub.uwaterloo.ca
+X-SA-Exim-Scanned: No (on caffeine.csclub.uwaterloo.ca); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The RC5 coding has for a long time supported commands 64-127 in addition 
-to 0-63. This is controlled by the second bit of the RC5 packet (see  
-http://www.armory.com/~spcecdt/remote/RC5codes.html for details).
+On Thu, Sep 21, 2006 at 02:32:57PM -0600, Dax Kelson wrote:
+> Today as I was watching the linux-2.6.18.tar.bz2 slowly download I
+> thought it would be nice if it could be made smaller.
+> 
+> The 7zip program/algorithm is free software (LGPL) and can be obtained
+> from http://www.7-zip.org/ and it is distributed with several
+> distributions (it is in Fedora Core 6 extras for example).
+> 
+> Here are the numbers:
+> 
+> ls -al
+> -rw-r--r--  1 root root 240138240 Sep 21 13:55 linux-2.6.18.tar
+> -rw-r--r--  1 root root  34180796 Sep 21 13:42 linux-2.6.18.tar.7z
+> -rw-r--r--  1 root root  41863580 Sep 21 13:45 linux-2.6.18.tar.bz2
+> -rw-r--r--  1 root root  52467357 Sep 21 13:13 linux-2.6.18.tar.gz
+> 
+> ls -alh
+> -rw-r--r--  1 root root 230M Sep 21 13:55 linux-2.6.18.tar
+> -rw-r--r--  1 root root  33M Sep 21 13:42 linux-2.6.18.tar.7z
+> -rw-r--r--  1 root root  40M Sep 21 13:45 linux-2.6.18.tar.bz2
+> -rw-r--r--  1 root root  51M Sep 21 13:13 linux-2.6.18.tar.gz
+> 
+> Smaller the better, especially with the international audience.
 
-The attached patch modifies ir-kbd-i2c.c to allow for commands 64-127, 
-tested with a PVR350 card in combination with a programmable remote.
+But after you download it once, you can just get the diff next time.
+How is the decompression time on 7zip versus bzip2 and gzip?
 
-Signed-off-by: David Härdeman <david@hardeman.nu>
-
--- 
-
-diff -ur linux-2.6.18-orig/drivers/media/video/ir-kbd-i2c.c linux-2.6.18/drivers/media/video/ir-kbd-i2c.c
---- linux-2.6.18-orig/drivers/media/video/ir-kbd-i2c.c	2006-09-21 22:05:16.000000000 +0200
-+++ linux-2.6.18/drivers/media/video/ir-kbd-i2c.c	2006-09-21 22:25:40.000000000 +0200
-@@ -64,23 +64,32 @@
- static int get_key_haup(struct IR_i2c *ir, u32 *ir_key, u32 *ir_raw)
- {
- 	unsigned char buf[3];
--	int start, toggle, dev, code;
-+	int start, range, toggle, dev, code;
- 
- 	/* poll IR chip */
- 	if (3 != i2c_master_recv(&ir->c,buf,3))
- 		return -EIO;
- 
- 	/* split rc5 data block ... */
--	start  = (buf[0] >> 6) &    3;
-+	start  = (buf[0] >> 7) &    1;
-+	range  = (buf[0] >> 6) &    1;
- 	toggle = (buf[0] >> 5) &    1;
- 	dev    =  buf[0]       & 0x1f;
- 	code   = (buf[1] >> 2) & 0x3f;
- 
--	if (3 != start)
-+	/* rc5 has two start bits
-+	 * the first bit must be one
-+	 * the second bit defines the command range (1 = 0-63, 0 = 64 - 127)
-+	 */
-+	if (!start)
- 		/* no key pressed */
- 		return 0;
--	dprintk(1,"ir hauppauge (rc5): s%d t%d dev=%d code=%d\n",
--		start, toggle, dev, code);
-+
-+	if (!range)
-+		code += 64;
-+
-+	dprintk(1,"ir hauppauge (rc5): s%d r%d t%d dev=%d code=%d\n",
-+		start, range, toggle, dev, code);
- 
- 	/* return key */
- 	*ir_key = code;
+--
+Len Sorensen

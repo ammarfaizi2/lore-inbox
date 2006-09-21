@@ -1,48 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751483AbWIUT3U@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751345AbWIUTdi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751483AbWIUT3U (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Sep 2006 15:29:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751484AbWIUT3U
+	id S1751345AbWIUTdi (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Sep 2006 15:33:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751346AbWIUTdi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Sep 2006 15:29:20 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:19935 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1751483AbWIUT3U (ORCPT
+	Thu, 21 Sep 2006 15:33:38 -0400
+Received: from tetsuo.zabbo.net ([207.173.201.20]:53161 "EHLO tetsuo.zabbo.net")
+	by vger.kernel.org with ESMTP id S1751345AbWIUTdh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Sep 2006 15:29:20 -0400
-Date: Thu, 21 Sep 2006 12:29:00 -0700
-From: Paul Jackson <pj@sgi.com>
-To: vatsa@in.ibm.com
-Cc: npiggin@suse.de, sekharan@us.ibm.com, ckrm-tech@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org, rohitseth@google.com, menage@google.com,
-       devel@openvz.org, clameter@sgi.com
-Subject: Re: [ckrm-tech] [patch00/05]: Containers(V2)- Introduction
-Message-Id: <20060921122900.5a6684ed.pj@sgi.com>
-In-Reply-To: <20060921170226.GA7369@in.ibm.com>
-References: <1158718568.29000.44.camel@galaxy.corp.google.com>
-	<Pine.LNX.4.64.0609200916140.30572@schroedinger.engr.sgi.com>
-	<1158777240.6536.89.camel@linuxchandra>
-	<6599ad830609201143h19f6883wb388666e27913308@mail.google.com>
-	<1158778496.6536.95.camel@linuxchandra>
-	<20060920132734.69ab4f57.pj@sgi.com>
-	<20060921170226.GA7369@in.ibm.com>
-Organization: SGI
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 21 Sep 2006 15:33:37 -0400
+Message-ID: <4512E910.6000308@oracle.com>
+Date: Thu, 21 Sep 2006 12:33:36 -0700
+From: Zach Brown <zach.brown@oracle.com>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060808)
+MIME-Version: 1.0
+To: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
+CC: "'Andrew Morton'" <akpm@osdl.org>,
+       "'Suparna Bhattacharya'" <suparna@in.ibm.com>,
+       linux-kernel@vger.kernel.org, linux-aio <linux-aio@kvack.org>
+Subject: Re: [patch] clean up unused kiocb variables
+References: <000001c6ddaf$40d4eff0$ff0da8c0@amr.corp.intel.com>
+In-Reply-To: <000001c6ddaf$40d4eff0$ff0da8c0@amr.corp.intel.com>
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Vatsa wrote:
-> How abt metered cpusets? Each child cpuset of a metered cpuset
-> represents a fraction of CPU time alloted to the tasks of the child
-> cpuset.
+Chen, Kenneth W wrote:
+> Any reason why we keep these two variables around for kiocb structure?
 
-Ah yes - they might work.  Sorry I didn't think of your
-meter_cpu controller patch with its cpuset interface
-when I wrote the above.
+If there is a good one I've forgotten it.
 
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+> They are not used anywhere.
+
+Indeed.
+
+The ki_retried users all seem pretty questionable, too.  How about
+removing all that stuff?
+
+> Signed-off-by: Ken Chen <kenneth.w.chen@intel.com>
+
+Signed-off-by: Zach Brown <zach.brown@oracle.com>
+
+- z

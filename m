@@ -1,55 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750713AbWIUJhw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751095AbWIUJpQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750713AbWIUJhw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Sep 2006 05:37:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751085AbWIUJhw
+	id S1751095AbWIUJpQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Sep 2006 05:45:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751096AbWIUJpQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Sep 2006 05:37:52 -0400
-Received: from gateway.argo.co.il ([194.90.79.130]:48906 "EHLO
-	argo2k.argo.co.il") by vger.kernel.org with ESMTP id S1750713AbWIUJhw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Sep 2006 05:37:52 -0400
-Message-ID: <45125D6D.9080704@argo.co.il>
-Date: Thu, 21 Sep 2006 12:37:49 +0300
-From: Avi Kivity <avi@argo.co.il>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
+	Thu, 21 Sep 2006 05:45:16 -0400
+Received: from ns2.suse.de ([195.135.220.15]:61065 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751095AbWIUJpO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Sep 2006 05:45:14 -0400
+From: Andi Kleen <ak@suse.de>
+To: Mike Galbraith <efault@gmx.de>
+Subject: Re: 2.6.18-rc7-mm1
+Date: Thu, 21 Sep 2006 11:44:58 +0200
+User-Agent: KMail/1.9.3
+Cc: Andrew Morton <akpm@osdl.org>, "Rafael J. Wysocki" <rjw@sisk.pl>,
+       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+References: <20060919012848.4482666d.akpm@osdl.org> <20060919133606.f0c92e66.akpm@osdl.org> <1158762221.6512.10.camel@Homer.simpson.net>
+In-Reply-To: <1158762221.6512.10.camel@Homer.simpson.net>
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Ben Duncan <ben@versaccounting.com>, linux-kernel@vger.kernel.org
-Subject: Re: Request kernel 2.6.18 ..
-References: <1158831256.11109.98.camel@localhost.localdomain>
-In-Reply-To: <1158831256.11109.98.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 21 Sep 2006 09:37:50.0512 (UTC) FILETIME=[9AC9CB00:01C6DD61]
+Content-Disposition: inline
+Message-Id: <200609211144.58950.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
->
-> Ar Mer, 2006-09-20 am 19:31 -0500, ysgrifennodd Ben Duncan:
-> > Report: 2.6.18 has solved a lot of issues with
-> > my 965 chipset Duo Core intel MB and has been
-> > extremely stable ...
-> >
-> > Now, any idea on a timeline for driver for the Marvell IDE
-> > controller ?
->
-> Possibly never. Marvell don't currently seem to want to play. Now that
-> might be for several reasons, one of which is that its someone elses
-> chip rebadged. In that case someone has a chance of working out what it
-> copies (eg which bits change when you boot with or without a master or
-> slave on each channel is a good clue)
->
-> The current prognosis however is that you and/or other marvell users are
-> going to have to reverse-engineer the thing or just avoid boards using
-> that chip.
->
+On Wednesday 20 September 2006 16:23, Mike Galbraith wrote:
+> On Tue, 2006-09-19 at 13:36 -0700, Andrew Morton wrote:
+> > On Tue, 19 Sep 2006 22:25:21 +0200
+> > "Rafael J. Wysocki" <rjw@sisk.pl> wrote:
+> > 
+> > > > - It took maybe ten hours solid work to get this dogpile vaguely
+> > > >   compiling and limping to a login prompt on x86, x86_64 and powerpc. 
+> > > >   I guess it's worth briefly testing if you're keen.
+> > > 
+> > > It's not that bad, but unfortunately the networking doesn't work on my system
+> > > (HPC nx6325 + SUSE 10.1 w/ updates, 64-bit).  Apparently, the interfaces don't
+> > > get configured (both tg3 and bcm43xx are affected).
+> > 
+> > Is there anything interesting in the dmesg output?
+> > 
+> > Perhaps an `strace -f ifup' or whatever would tell us what's failing.
+> 
+> FYI, it`s SuSE`s /sbin/getcfg binary that doesn't like the changes.  It
+> sees /sys/class/net/eth0 as a symlink, and reels off into sys/block (?)
+> looking for a directory.
 
-I have such a board, and all-generic-ide appears to work (at least 
-enough to load the installer from CD, all the rest is SATA).  Perhaps it 
-can be quirked so the parameter won't be necessary?
+It's a known problem. It's actually libsysfs' fault which somehow manages
+to not support symlinks properly. Unfortunately getcfg made the mistake of using libsysfs
+instead of accessing /sys directly
 
--- 
-error compiling committee.c: too many arguments to function
-
+-Andi

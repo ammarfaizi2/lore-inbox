@@ -1,74 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751466AbWIUS7G@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750859AbWIUTEO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751466AbWIUS7G (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Sep 2006 14:59:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751465AbWIUS7G
+	id S1750859AbWIUTEO (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Sep 2006 15:04:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751467AbWIUTEO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Sep 2006 14:59:06 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:25573 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751466AbWIUS7F (ORCPT
+	Thu, 21 Sep 2006 15:04:14 -0400
+Received: from slimak.dkm.cz ([62.24.64.34]:57340 "HELO slimak.dkm.cz")
+	by vger.kernel.org with SMTP id S1750859AbWIUTEN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Sep 2006 14:59:05 -0400
-Date: Thu, 21 Sep 2006 20:50:29 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: "Frank Ch. Eigler" <fche@redhat.com>
-Cc: Mathieu Desnoyers <compudj@krystal.dyndns.org>,
-       Martin Bligh <mbligh@google.com>,
-       Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>, prasanna@in.ibm.com,
-       Andrew Morton <akpm@osdl.org>,
-       Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
-       Paul Mundt <lethal@linux-sh.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>, Jes Sorensen <jes@sgi.com>,
-       Tom Zanussi <zanussi@us.ibm.com>,
-       Richard J Moore <richardj_moore@uk.ibm.com>,
-       Michel Dagenais <michel.dagenais@polymtl.ca>,
-       Christoph Hellwig <hch@infradead.org>,
-       Greg Kroah-Hartman <gregkh@suse.de>,
-       Thomas Gleixner <tglx@linutronix.de>, William Cohen <wcohen@redhat.com>,
-       ltt-dev@shafik.org, systemtap@sources.redhat.com,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCH] Linux Kernel Markers 0.5 for Linux 2.6.17 (with probe management)
-Message-ID: <20060921185029.GB12048@elte.hu>
-References: <20060921160009.GA30115@Krystal> <20060921175648.GB22226@redhat.com>
+	Thu, 21 Sep 2006 15:04:13 -0400
+Date: Thu, 21 Sep 2006 21:03:46 +0200
+From: iSteve <isteve@rulez.cz>
+To: Sergey Vlasov <vsu@altlinux.ru>, linux-kernel@vger.kernel.org,
+       linux-usb-devel@lists.sourceforge.net
+Subject: Re: broken modules.alias entries for some USB devices
+Message-ID: <20060921210346.1a59666b@silver>
+In-Reply-To: <20060921223035.c5fda02d.vsu@altlinux.ru>
+References: <20060920185301.21dcf9bc@silver>
+	<20060920102248.ebb55960.rdunlap@xenotime.net>
+	<20060921165424.139138e5@silver>
+	<20060921223035.c5fda02d.vsu@altlinux.ru>
+X-Mailer: Sylpheed-Claws 2.4.0cvs175 (GTK+ 2.10.1; i486-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060921175648.GB22226@redhat.com>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -2.9
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.9 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.4999]
-	-0.1 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Frank Ch. Eigler <fche@redhat.com> wrote:
-
-> > +#define MARK_SYM(name) \
-> > +		here: asm volatile \
-> > +			(MARK_KPROBE_PREFIX#name " = %0" : : "m" (*&&here)); \
+On Thu, 21 Sep 2006 22:30:35 +0400
+Sergey Vlasov <vsu@altlinux.ru> wrote:
+> The problem is that the bcdDevice field is supposed to be BCD - i.e.,
+> its hex representation should contain only decimal digits 0..9.
+> Therefore a proper USB device cannot have bcdDevice == 0x030a.
+> Apparently some ibmcam devices violate this and use the bcdDevice field
+> as if it was binary.
 > 
-> Regarding MARK_SYM, if I read Ingo's message correctly, this is the 
-> only type of marker he believes is necessary, since it would put a 
-> place for kprobes to put a breakpoint.  FWIW, this still appears to be 
-> applicable only if the int3 overheads are tolerable, and if parameter 
-> data extraction is unnecessary or sufficiently robust "by accident".
+> The code in scripts/mod/file2alias.c assumes that the bcdDevice_lo and
+> bcdDevice_hi field contain proper BCD data.  Seems that, thanks to buggy
+> hardware, this assumption is incorrect, and the code needs to support
+> any hex numbers there.
 
-let me qualify that: parameters must be prepared there too - but no 
-actual function call inserted. (at most a NOP inserted). The register 
-filling doesnt even have to be function-calling-convention compliant - 
-that makes the symbolic probe almost zero-impact to register 
-allocation/scheduling, the only thing it should ensure is that the 
-parameters that are annotated to be available in register, stack or 
-memory _somewhere_. (i.e. not hidden or destroyed at that point by gcc) 
-Does a simple asm() that takes read-only parameters but only adds a NOP 
-achieve this result?
+So the 'correct' alias for this device should be eg.:
+usb:v0545p800Dd030Adc*dsc*dp*ic*isc*ip*
+right?
 
-	Ingo
+Given this new info... what if _lo is 0x030a and _hi is 0x030f? How would the
+alias look like? Or worse, what if _lo is 0x030a and _hi is 0x040a?
+
+Would these be correct?
+usb:v0545p800Dd030[A-F]dc*dsc*dp*ic*isc*ip*
+usb:v0545p800Dd0[30A-40A]dc*dsc*dp*ic*isc*ip*
+
+Thanks in advance.
+-- 
+ -- iSteve

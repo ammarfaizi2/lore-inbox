@@ -1,41 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751065AbWIUJDO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751050AbWIUJGx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751065AbWIUJDO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Sep 2006 05:03:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751057AbWIUJDO
+	id S1751050AbWIUJGx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Sep 2006 05:06:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751054AbWIUJGx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Sep 2006 05:03:14 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:64400 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751065AbWIUJDM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Sep 2006 05:03:12 -0400
-Subject: Re: __STRICT_ANSI__ checks in headers
-From: David Woodhouse <dwmw2@infradead.org>
-To: Ismail Donmez <ismail@pardus.org.tr>
-Cc: LKML <linux-kernel@vger.kernel.org>, Kyle Moffett <mrmacman_g4@mac.com>,
-       mchehab@infradead.org
-In-Reply-To: <200609211200.25214.ismail@pardus.org.tr>
-References: <200609150901.33644.ismail@pardus.org.tr>
-	 <1158302578.4312.166.camel@pmac.infradead.org>
-	 <96EE18FA-1682-4C73-B204-98DA3F525F90@mac.com>
-	 <200609211200.25214.ismail@pardus.org.tr>
-Content-Type: text/plain
-Date: Thu, 21 Sep 2006 10:02:53 +0100
-Message-Id: <1158829373.24527.596.camel@pmac.infradead.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5.dwmw2.1) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Thu, 21 Sep 2006 05:06:53 -0400
+Received: from ns.suse.de ([195.135.220.2]:36763 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751048AbWIUJGw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Sep 2006 05:06:52 -0400
+From: Andreas Schwab <schwab@suse.de>
+To: Florian Weimer <fweimer@bfk.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Historic Linux 2.4 GIT repository
+References: <82odt9obir.fsf@mid.bfk.de>
+X-Yow: I own seven-eighths of all the artists in downtown Burbank!
+Date: Thu, 21 Sep 2006 11:06:50 +0200
+In-Reply-To: <82odt9obir.fsf@mid.bfk.de> (Florian Weimer's message of "Thu, 21
+	Sep 2006 10:43:24 +0200")
+Message-ID: <je7izxy4et.fsf@sykes.suse.de>
+User-Agent: Gnus/5.110006 (No Gnus v0.6) Emacs/22.0.50 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-09-21 at 12:00 +0300, Ismail Donmez wrote:
-> This looks way cleaner, I can cook up a patch for this if everyone
-> agrees.  What do you guys think? 
+Florian Weimer <fweimer@bfk.de> writes:
 
-Makes sense.
+> Is there a GIT repository with historic data, from the 2.5 branch
+> point until the start of Marcelo's (converted?) repository?  If yes,
+> what's its URL?
+
+git://git.kernel.org/pub/scm/linux/kernel/git/tglx/history.git
+
+Andreas.
 
 -- 
-dwmw2
-
+Andreas Schwab, SuSE Labs, schwab@suse.de
+SuSE Linux Products GmbH, Maxfeldstraße 5, 90409 Nürnberg, Germany
+PGP key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
+"And now for something completely different."

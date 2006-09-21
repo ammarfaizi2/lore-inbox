@@ -1,23 +1,23 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750717AbWIUDdA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751178AbWIUDdl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750717AbWIUDdA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Sep 2006 23:33:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751177AbWIUDdA
+	id S1751178AbWIUDdl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Sep 2006 23:33:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751180AbWIUDd0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Sep 2006 23:33:00 -0400
+	Wed, 20 Sep 2006 23:33:26 -0400
 Received: from ug-out-1314.google.com ([66.249.92.173]:12434 "EHLO
 	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1750717AbWIUDc7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Sep 2006 23:32:59 -0400
+	id S1751178AbWIUDdN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Sep 2006 23:33:13 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=tATcef8i5XR96LY2oPuuj+ETd2rQnIJDXFFSjoF4QPff34A8xLZrgRl3cFHlTPsP/QCVX9qQMh+B/xiDU4fJJkJsp+4EYrfL/uxaXSuxdtUhqFn5gDat7pHP/MGJ4AglX9zNeOSTzvNuzfTzC246hqYnKy1IvGR750Ec3GvHuOM=
-Message-ID: <489ecd0c0609202032l1c5540f7t980244e30d134ca0@mail.gmail.com>
-Date: Thu, 21 Sep 2006 11:32:57 +0800
+        b=a/wQpXAI13g0mPNXGTtozJ1087BWKrAKl53kxFpUyTo1HNVeCChDldU2h0/C2WuVNuKpw450JSJRCRm6/ZnufmxmdfORm49EZ6j3QmNTpaHdOR7yy/uGlhznoOsrSDr3/lq8j9HenZ4f2gslzVns7G4wM415s+C3p0PFQbfVFkQ=
+Message-ID: <489ecd0c0609202033g330cfb52te1b246da63b55cf4@mail.gmail.com>
+Date: Thu, 21 Sep 2006 11:33:12 +0800
 From: "Luke Yang" <luke.adi@gmail.com>
 To: linux-kernel@vger.kernel.org, "Andrew Morton" <akpm@osdl.org>
-Subject: [PATCH 1/4] Blackfin: arch patch for 2.6.18
+Subject: [PATCH 3/4] Blackfin: documents and maintainer patch
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
@@ -25,282 +25,334 @@ Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi everyone,
+Hi,
 
-  This is the blackfin architecture for 2.6.18, again. As we promised,
-we fixed some issues in our old patches as following.
+  This is the documents patche for Blackfin arch, also includes the
+MAINTAINERS file change.
 
-- use serial core in that driver
+Signed-off-by: Luke Yang <luke.adi@gmail.com>
 
-- Fix up that ioctl so it a) doesn't sleep in spinlock and b) compiles
+ Documentation/blackfin/00-INDEX          |   11 ++
+ Documentation/blackfin/Filesystems       |  152 +++++++++++++++++++++++++++++++
+ Documentation/blackfin/cache-lock.txt    |   31 ++++++
+ Documentation/blackfin/cachefeatures.txt |   48 +++++++++
+ MAINTAINERS                              |   32 ++++++
+ 5 files changed, 274 insertions(+)
 
-- Use generic IRQ framework
+diff -urN linux-2.6.18.patch3/Documentation/blackfin/00-INDEX
+linux-2.6.18.patch4/Documentation/blackfin/00-INDEX
+--- linux-2.6.18.patch3/Documentation/blackfin/00-INDEX	1970-01-01
+08:00:00.000000000 +0800
++++ linux-2.6.18.patch4/Documentation/blackfin/00-INDEX	2006-09-21
+10:20:33.000000000 +0800
+@@ -0,0 +1,11 @@
++00-INDEX
++	- This file
++
++cache-lock.txt
++	- HOWTO for blackfin cache locking.
++
++cachefeatures.txt
++	- Supported cache features.
++
++Filesystems
++	- Requirements for mounting the root file system.
+diff -urN linux-2.6.18.patch3/Documentation/blackfin/Filesystems
+linux-2.6.18.patch4/Documentation/blackfin/Filesystems
+--- linux-2.6.18.patch3/Documentation/blackfin/Filesystems	1970-01-01
+08:00:00.000000000 +0800
++++ linux-2.6.18.patch4/Documentation/blackfin/Filesystems	2006-09-21
+10:20:33.000000000 +0800
+@@ -0,0 +1,152 @@
++		How to mount the root file system in uClinux/Blackfin
++		-----------------------------------------------------
++
++1	Mounting EXT3 File system.
++	------------------------
++
++	Creating an EXT3 File system for uClinux/Blackfin:
++
++
++Please follow the steps to form the EXT3 File system and mount the same as root
++file system.
++
++a	Make an ext3 file system as large as you want the final root file
++	system.
++
++		mkfs.ext3  /dev/ram0 <your-rootfs-size-in-1k-blocks>
++
++b	Mount this Empty file system on a free directory as:
++
++		mount -t ext3 /dev/ram0  ./test
++			where ./test is the empty directory.
++
++c	Copy your root fs directory that you have so carefully made over.
++
++		cp -af  /tmp/my_final_rootfs_files/* ./test
++
++		(For ex: cp -af uClinux-dist/romfs/* ./test)
++
++d	If you have done everything right till now you should be able to see
++	the required "root" dir's (that's etc, root, bin, lib, sbin...)
++
++e	Now unmount the file system
++
++		umount  ./test
++
++f	Create the root file system image.
++
++		dd if=/dev/ram0 bs=1k count=<your-rootfs-size-in-1k-blocks> \
++		> ext3fs.img
++
++
++Now you have to tell the kernel that will be mounting this file system as
++rootfs.
++So do a make menuconfig under kernel and select the Ext3 journaling file system
++support under File system --> submenu.
++
++
++2.	Mounting EXT2 File system.
++	-------------------------
++
++By default the ext2 file system image will be created if you invoke make from
++the top uClinux-dist directory.
++
++
++3.	Mounting CRAMFS File System
++	----------------------------
++
++To create a CRAMFS file system image execute the command
++
++	mkfs.cramfs ./test cramfs.img
++
++	where ./test is the target directory.
++
++
++4.	Mounting ROMFS File System
++	--------------------------
++
++To create a ROMFS file system image execute the command
++
++	genromfs -v -V "ROMdisk" -f romfs.img -d ./test
++
++	where ./test is the target directory
++
++
++5.	Mounting the JFFS2 Filesystem
++	-----------------------------
++
++To create a compressed JFFS filesystem (JFFS2), please execute the command
++
++	mkfs.jffs2 -d ./test -o jffs2.img
++
++	where ./test is the target directory.
++
++However, please make sure the following is in your kernel config.
++
++/*
++ * RAM/ROM/Flash chip drivers
++ */
++#define CONFIG_MTD_CFI 1
++#define CONFIG_MTD_ROM 1
++/*
++ * Mapping drivers for chip access
++ */
++#define CONFIG_MTD_COMPLEX_MAPPINGS 1
++#define CONFIG_MTD_BF533 1
++#undef CONFIG_MTD_UCLINUX
++
++Through the u-boot boot loader, use the jffs2.img in the corresponding
++partition made in linux-2.6.x/drivers/mtd/maps/bf533_flash.c.
++
++NOTE - 	Currently the Flash driver is available only for EZKIT. Watch out for a
++	STAMP driver soon.
++
++
++6. 	Mounting the NFS File system
++	-----------------------------
++
++	For mounting the NFS please do the following in the kernel config.
++
++	In Networking Support --> Networking options --> TCP/IP networking -->
++		IP: kernel level autoconfiguration
++
++	Enable BOOTP Support.
++
++	In Kernel hacking --> Compiled-in kernel boot parameter add the following
++
++		root=/dev/nfs rw ip=bootp
++
++	In File system --> Network File system, Enable
++
++		NFS file system support --> NFSv3 client support
++		Root File system on NFS
++
++	in uClibc menuconfig, do the following
++	In Networking Support
++		enable Remote Procedure Call (RPC) support
++			Full RPC Support
++
++	On the Host side, ensure that /etc/dhcpd.conf looks something like this
++
++		ddns-update-style ad-hoc;
++		allow bootp;
++		subnet 10.100.4.0 netmask 255.255.255.0 {
++		default-lease-time 122209600;
++		max-lease-time 31557600;
++		group {
++			host bf533 {
++				hardware ethernet 00:CF:52:49:C3:01;
++				fixed-address 10.100.4.50;
++				option root-path "/home/nfsmount";
++			}
++		}
++
++	ensure that /etc/exports looks something like this
++		/home/nfsmount *(rw,no_root_squash,no_all_squash)
++
++	 run the following commands as root (may differ depending on your
++	 distribution) :
++		-  service nfs start
++		-  service portmap start
++		-  service dhcpd start
++		-  /usr/sbin/exportfs
+diff -urN linux-2.6.18.patch3/Documentation/blackfin/cache-lock.txt
+linux-2.6.18.patch4/Documentation/blackfin/cache-lock.txt
+--- linux-2.6.18.patch3/Documentation/blackfin/cache-lock.txt	1970-01-01
+08:00:00.000000000 +0800
++++ linux-2.6.18.patch4/Documentation/blackfin/cache-lock.txt	2006-09-21
+10:20:33.000000000 +0800
+@@ -0,0 +1,31 @@
++How to lock your code in cache in uClinux/blackfin
++--------------------------------------------------
++
++There are only a few steps required to lock your code into the cache.
++Currently you can lock the code by Way.
++
++Below are the interface provided for locking the cache.
++
++
++1. cache_grab_lock(int Ways);
++
++This function grab the lock for locking your code into the cache specified
++by Ways.
++
++
++2. cache_lock(int Ways);
++
++This function should be called after your critical code has been executed.
++Once the critical code exits, the code is now loaded into the cache. This
++function locks the code into the cache.
++
++
++So, the example sequence will be:
++
++	cache_grab_lock(WAY0_L);	/* Grab the lock */
++
++	critical_code();		/* Execute the code of interest */
++
++	cache_lock(WAY0_L);		/* Lock the cache */
++
++Where WAY0_L signifies WAY0 locking.
+diff -urN linux-2.6.18.patch3/Documentation/blackfin/cachefeatures.txt
+linux-2.6.18.patch4/Documentation/blackfin/cachefeatures.txt
+--- linux-2.6.18.patch3/Documentation/blackfin/cachefeatures.txt	1970-01-01
+08:00:00.000000000 +0800
++++ linux-2.6.18.patch4/Documentation/blackfin/cachefeatures.txt	2006-09-21
+10:20:33.000000000 +0800
+@@ -0,0 +1,48 @@
++	- Instruction and Data cache initialization.
++		icache_init();
++		dcache_init();
++
++	-  Instruction and Data cache Invalidation Routines, when flushing the
++	   same is not required.
++		_icache_invalidate();
++		_dcache_invalidate();
++
++	Also, for invalidating the entire instruction and data cache, the below
++	routines are provided (another method for invalidation, refer page
+no 267 and 287 of
++	ADSP-BF533 Hardware Reference manual)
++
++		invalidate_entire_dcache();
++		invalidate_entire_icache();
++
++	-External Flushing of Instruction and data cache routines.
++
++		flush_instruction_cache();
++		flush_data_cache();
++
++	- Internal Flushing of Instruction and Data Cache.
++
++		icplb_flush();
++		dcplb_flush();
++
++	- Locking the cache.
++
++		cache_grab_lock();
++		cache_lock();
++
++	Please refer linux-2.6.x/Documentation/blackfin/cache-lock.txt for how to
++	lock the cache.
++
++	Locking the cache is optional feature.
++
++	- Miscellaneous cache functions.
++
++		flush_cache_all();
++		flush_cache_mm();
++		invalidate_dcache_range();
++		flush_dcache_range();
++		flush_dcache_page();
++		flush_cache_range();
++		flush_cache_page();
++		invalidate_dcache_range();
++		flush_page_to_ram();
++
+diff -urN linux-2.6.18.patch3/MAINTAINERS linux-2.6.18.patch4/MAINTAINERS
+--- linux-2.6.18.patch3/MAINTAINERS	2006-09-21 09:45:22.000000000 +0800
++++ linux-2.6.18.patch4/MAINTAINERS	2006-09-21 10:20:02.000000000 +0800
+@@ -481,6 +481,38 @@
+ T:	git kernel.org:/pub/scm/linux/kernel/git/axboe/linux-2.6-block.git
+ S:	Maintained
 
-- Review all the volatiles, consolidate them in some helper-in-header-file.
++BLACKFIN ARCHITECTURE
++P:     Aubery Li
++M:     aubery.li@analog.com
++P:     Bernd Schmidt
++M:     bernd.schmidt@analog.com
++P:     Michael Hennerich
++M:     michael.hennerich@analog.com
++P:     Mike Frysinger
++M:     michael.frysinger@analog.com
++P:     Jie Zhang
++M:     jie.zhang@analog.com
++P:     Luke Yang
++M:     luke.adi@gmail.com
++P:     Robin Getz
++M:     robin.retz@analog.com
++P:     Roy Huang
++M:     roy.huang@analog.com
++P:     Sonic Zhang
++M:     sonic.zhang@analog.com
++L:     linux-kernel@vger.kernel.org
++L:     uclinux533-devel@blackfin.uclinux.org
++W:     http://blackfin.uclinux.org
++S:     Supported
++
++BLACKFIN SERIAL DRIVER
++P:     Sonic Zhang
++M:     sonic.zhang@analog.com
++L:     linux-kernel@vger.kernel.org
++L:     uclinux533-devel@blackfin.uclinux.org
++W:     http://blackfin.uclinux.org
++S:     Supported
++
+ BLUETOOTH SUBSYSTEM
+ P:	Marcel Holtmann
+ M:	marcel@holtmann.org
 
-  And we also fixed a lot of other issues and ported it to 2.6.18 now.
-As usual, this architecture patch is too big so I just give a link
-here. Please review it and give you comments, we really appreciate.
-
-http://blackfin.uclinux.org/frs/download.php/1010/blackfin_arch_2.6.18.patch
-
-Signed-off-by:  Luke Yang <luke.adi@gmail.com>
-
- arch/blackfin/Kconfig                              |  840 +++++++
- arch/blackfin/Kconfig.ide                          |   88
- arch/blackfin/Makefile                             |   78
- arch/blackfin/defconfig                            | 1088 +++++++++
- arch/blackfin/kernel/Makefile                      |   11
- arch/blackfin/kernel/asm-offsets.c                 |  138 +
- arch/blackfin/kernel/bfin_dma_5xx.c                |  749 ++++++
- arch/blackfin/kernel/bfin_ksyms.c                  |  114
- arch/blackfin/kernel/dma-mapping.c                 |  174 +
- arch/blackfin/kernel/dualcore_test.c               |   51
- arch/blackfin/kernel/entry.S                       |   99
- arch/blackfin/kernel/init_task.c                   |   63
- arch/blackfin/kernel/irqchip.c                     |  150 +
- arch/blackfin/kernel/module.c                      |  469 +++
- arch/blackfin/kernel/process.c                     |  346 ++
- arch/blackfin/kernel/ptrace.c                      |  431 +++
- arch/blackfin/kernel/setup.c                       |  941 +++++++
- arch/blackfin/kernel/signal.c                      |  715 +++++
- arch/blackfin/kernel/sys_bfin.c                    |  254 ++
- arch/blackfin/kernel/time.c                        |  336 ++
- arch/blackfin/kernel/traps.c                       |  640 +++++
- arch/blackfin/kernel/vmlinux.lds.S                 |  225 +
- arch/blackfin/lib/Makefile                         |    9
- arch/blackfin/lib/ashldi3.c                        |   56
- arch/blackfin/lib/ashrdi3.c                        |   57
- arch/blackfin/lib/checksum.c                       |  139 +
- arch/blackfin/lib/divsi3.S                         |  156 +
- arch/blackfin/lib/gcclib.h                         |   49
- arch/blackfin/lib/ins.S                            |   78
- arch/blackfin/lib/lshrdi3.c                        |   70
- arch/blackfin/lib/memchr.S                         |   64
- arch/blackfin/lib/memcmp.S                         |  108
- arch/blackfin/lib/memcpy.S                         |  128 +
- arch/blackfin/lib/memmove.S                        |  102
- arch/blackfin/lib/memset.S                         |  103
- arch/blackfin/lib/modsi3.S                         |   74
- arch/blackfin/lib/muldi3.c                         |   97
- arch/blackfin/lib/outs.S                           |   63
- arch/blackfin/lib/udivsi3.S                        |  157 +
- arch/blackfin/lib/umodsi3.S                        |   63
- arch/blackfin/mach-bf533/Kconfig                   |  103
- arch/blackfin/mach-bf533/Makefile                  |   10
- arch/blackfin/mach-bf533/boards/Makefile           |    8
- arch/blackfin/mach-bf533/boards/cm_bf533.c         |  236 +
- arch/blackfin/mach-bf533/boards/ezkit.c            |  213 +
- arch/blackfin/mach-bf533/boards/generic_board.c    |   78
- arch/blackfin/mach-bf533/boards/stamp.c            |  265 ++
- arch/blackfin/mach-bf533/cpu.c                     |  169 +
- arch/blackfin/mach-bf533/head.S                    |  767 ++++++
- arch/blackfin/mach-bf533/ints-priority.c           |   69
- arch/blackfin/mach-bf533/pm.c                      |  152 +
- arch/blackfin/mach-bf537/Kconfig                   |  147 +
- arch/blackfin/mach-bf537/Makefile                  |   10
- arch/blackfin/mach-bf537/boards/Makefile           |    7
- arch/blackfin/mach-bf537/boards/cm_bf537.c         |  268 ++
- arch/blackfin/mach-bf537/boards/ezkit.c            |  213 +
- arch/blackfin/mach-bf537/boards/generic_board.c    |  469 +++
- arch/blackfin/mach-bf537/boards/led.S              |  183 +
- arch/blackfin/mach-bf537/boards/stamp.c            |  489 ++++
- arch/blackfin/mach-bf537/cpu.c                     |  169 +
- arch/blackfin/mach-bf537/head.S                    |  584 ++++
- arch/blackfin/mach-bf537/ints-priority.c           |   79
- arch/blackfin/mach-bf537/pm.c                      |  150 +
- arch/blackfin/mach-bf561/Kconfig                   |  224 +
- arch/blackfin/mach-bf561/Makefile                  |    9
- arch/blackfin/mach-bf561/boards/Makefile           |    6
- arch/blackfin/mach-bf561/boards/ezkit.c            |   84
- arch/blackfin/mach-bf561/boards/generic_board.c    |   78
- arch/blackfin/mach-bf561/coreb.c                   |  413 +++
- arch/blackfin/mach-bf561/head.S                    |  504 ++++
- arch/blackfin/mach-bf561/ints-priority.c           |  113
- arch/blackfin/mach-common/Makefile                 |   12
- arch/blackfin/mach-common/bf5xx_rtc.c              |  140 +
- arch/blackfin/mach-common/cache.S                  |  255 ++
- arch/blackfin/mach-common/cacheinit.S              |  140 +
- arch/blackfin/mach-common/cplbhdlr.S               |  128 +
- arch/blackfin/mach-common/cplbinfo.c               |  212 +
- arch/blackfin/mach-common/cplbmgr.S                |  623 +++++
- arch/blackfin/mach-common/dpmc.S                   |  438 +++
- arch/blackfin/mach-common/entry.S                  | 1169 +++++++++
- arch/blackfin/mach-common/flush.S                  |  400 +++
- arch/blackfin/mach-common/interrupt.S              |  255 ++
- arch/blackfin/mach-common/ints-priority-dc.c       |  545 ++++
- arch/blackfin/mach-common/ints-priority-sc.c       |  619 +++++
- arch/blackfin/mach-common/irqpanic.c               |  193 +
- arch/blackfin/mach-common/lock.S                   |  215 +
- arch/blackfin/mm/Makefile                          |    5
- arch/blackfin/mm/blackfin_sram.c                   |  532 ++++
- arch/blackfin/mm/blackfin_sram.h                   |   40
- arch/blackfin/mm/init.c                            |  222 +
- arch/blackfin/mm/kmap.c                            |   86
- arch/blackfin/oprofile/Kconfig                     |   29
- arch/blackfin/oprofile/Makefile                    |   14
- arch/blackfin/oprofile/common.c                    |  170 +
- arch/blackfin/oprofile/op_blackfin.h               |  100
- arch/blackfin/oprofile/op_model_bf533.c            |  168 +
- arch/blackfin/oprofile/timer_int.c                 |   79
- fs/Kconfig.binfmt                                  |    2
- include/asm-blackfin/a.out.h                       |   25
- include/asm-blackfin/atomic.h                      |  176 +
- include/asm-blackfin/auxvec.h                      |    4
- include/asm-blackfin/bf53x_timers.h                |  137 +
- include/asm-blackfin/bf5xx_rtc.h                   |   19
- include/asm-blackfin/bfin-global.h                 |  126 +
- include/asm-blackfin/bfin5xx_spi.h                 |  170 +
- include/asm-blackfin/bfin_spi_channel.h            |  180 +
- include/asm-blackfin/bfin_sport.h                  |  176 +
- include/asm-blackfin/bitops.h                      |  213 +
- include/asm-blackfin/blackfin.h                    |   13
- include/asm-blackfin/board/eagle.h                 |    4
- include/asm-blackfin/board/ezkit.h                 |    4
- include/asm-blackfin/board/hawk.h                  |    4
- include/asm-blackfin/board/pub.h                   |   17
- include/asm-blackfin/bug.h                         |   14
- include/asm-blackfin/bugs.h                        |   16
- include/asm-blackfin/byteorder.h                   |   48
- include/asm-blackfin/cache.h                       |   18
- include/asm-blackfin/cacheflush.h                  |  103
- include/asm-blackfin/checksum.h                    |  101
- include/asm-blackfin/cplb.h                        |   51
- include/asm-blackfin/cplbtab.h                     |  572 ++++
- include/asm-blackfin/cpumask.h                     |    6
- include/asm-blackfin/cputime.h                     |    6
- include/asm-blackfin/current.h                     |   23
- include/asm-blackfin/delay.h                       |   41
- include/asm-blackfin/div64.h                       |    1
- include/asm-blackfin/dma-mapping.h                 |   68
- include/asm-blackfin/dma.h                         |  212 +
- include/asm-blackfin/dpmc.h                        |   66
- include/asm-blackfin/elf.h                         |  127 +
- include/asm-blackfin/emergency-restart.h           |    6
- include/asm-blackfin/entry.h                       |  367 +++
- include/asm-blackfin/errno.h                       |    6
- include/asm-blackfin/fcntl.h                       |   87
- include/asm-blackfin/flat.h                        |  128 +
- include/asm-blackfin/futex.h                       |    6
- include/asm-blackfin/hardirq.h                     |   41
- include/asm-blackfin/hw_irq.h                      |    6
- include/asm-blackfin/ide.h                         |   31
- include/asm-blackfin/io.h                          |  155 +
- include/asm-blackfin/ioctl.h                       |    1
- include/asm-blackfin/ioctls.h                      |   82
- include/asm-blackfin/ipc.h                         |   31
- include/asm-blackfin/ipcbuf.h                      |   30
- include/asm-blackfin/irq.h                         |   85
- include/asm-blackfin/kmap_types.h                  |   21
- include/asm-blackfin/l1layout.h                    |   30
- include/asm-blackfin/linkage.h                     |    7
- include/asm-blackfin/local.h                       |    6
- include/asm-blackfin/mach-bf533/anomaly.h          |  172 +
- include/asm-blackfin/mach-bf533/bf533.h            |  288 ++
- include/asm-blackfin/mach-bf533/bfin_serial_5xx.h  |   81
- include/asm-blackfin/mach-bf533/blackfin.h         |   48
- include/asm-blackfin/mach-bf533/cdefBF532.h        |  691 +++++
- include/asm-blackfin/mach-bf533/defBF532.h         | 1202 ++++++++++
- include/asm-blackfin/mach-bf533/dma.h              |   56
- include/asm-blackfin/mach-bf533/irq.h              |  178 +
- include/asm-blackfin/mach-bf533/mem_init.h         |  314 ++
- include/asm-blackfin/mach-bf533/mem_map.h          |  135 +
- include/asm-blackfin/mach-bf535/bf535.h            | 1285 ++++++++++
- include/asm-blackfin/mach-bf535/bf535_serial.h     |  109
- include/asm-blackfin/mach-bf535/blackfin.h         |   44
- include/asm-blackfin/mach-bf535/cdefBF535.h        |  121 +
- include/asm-blackfin/mach-bf535/cdefblackfin.h     |   69
- include/asm-blackfin/mach-bf535/defBF535.h         | 1154 +++++++++
- include/asm-blackfin/mach-bf535/defblackfin.h      |  444 +++
- include/asm-blackfin/mach-bf535/irq.h              |  125 +
- include/asm-blackfin/mach-bf537/anomaly.h          |  118
- include/asm-blackfin/mach-bf537/bf537.h            |  268 ++
- include/asm-blackfin/mach-bf537/bfin_serial_5xx.h  |  101
- include/asm-blackfin/mach-bf537/blackfin.h         |  440 +++
- include/asm-blackfin/mach-bf537/cdefBF534.h        | 1805 +++++++++++++++
- include/asm-blackfin/mach-bf537/cdefBF537.h        |  209 +
- include/asm-blackfin/mach-bf537/defBF534.h         | 2520 +++++++++++++++++++++
- include/asm-blackfin/mach-bf537/defBF537.h         |  404 +++
- include/asm-blackfin/mach-bf537/dma.h              |   55
- include/asm-blackfin/mach-bf537/irq.h              |  185 +
- include/asm-blackfin/mach-bf537/mem_init.h         |  328 ++
- include/asm-blackfin/mach-bf537/mem_map.h          |  143 +
- include/asm-blackfin/mach-bf561/anomaly.h          |  182 +
- include/asm-blackfin/mach-bf561/bf561.h            |  378 +++
- include/asm-blackfin/mach-bf561/blackfin.h         |   54
- include/asm-blackfin/mach-bf561/cdefBF561.h        | 1528 ++++++++++++
- include/asm-blackfin/mach-bf561/defBF561.h         | 1713 ++++++++++++++
- include/asm-blackfin/mach-bf561/dma.h              |   36
- include/asm-blackfin/mach-bf561/irq.h              |  451 +++
- include/asm-blackfin/mach-bf561/mem_init.h         |  283 ++
- include/asm-blackfin/mach-bf561/mem_map.h          |   61
- include/asm-blackfin/mach-common/cdef_LPBlackfin.h |  474 +++
- include/asm-blackfin/mach-common/def_LPBlackfin.h  |  706 +++++
- include/asm-blackfin/macros.h                      |   95
- include/asm-blackfin/mem_map.h                     |   12
- include/asm-blackfin/mman.h                        |   45
- include/asm-blackfin/mmu.h                         |   30
- include/asm-blackfin/mmu_context.h                 |  130 +
- include/asm-blackfin/module.h                      |   19
- include/asm-blackfin/msgbuf.h                      |   31
- include/asm-blackfin/mutex.h                       |    9
- include/asm-blackfin/namei.h                       |   19
- include/asm-blackfin/page.h                        |   89
- include/asm-blackfin/page_offset.h                 |    6
- include/asm-blackfin/param.h                       |   22
- include/asm-blackfin/pci.h                         |  148 +
- include/asm-blackfin/percpu.h                      |    6
- include/asm-blackfin/pgalloc.h                     |    8
- include/asm-blackfin/pgtable.h                     |   62
- include/asm-blackfin/poll.h                        |   24
- include/asm-blackfin/posix_types.h                 |   65
- include/asm-blackfin/processor.h                   |  104
- include/asm-blackfin/ptrace.h                      |  102
- include/asm-blackfin/resource.h                    |    6
- include/asm-blackfin/scatterlist.h                 |   26
- include/asm-blackfin/sections.h                    |    7
- include/asm-blackfin/segment.h                     |    7
- include/asm-blackfin/semaphore-helper.h            |   82
- include/asm-blackfin/semaphore.h                   |  106
- include/asm-blackfin/sembuf.h                      |   25
- include/asm-blackfin/setup.h                       |   17
- include/asm-blackfin/shmbuf.h                      |   42
- include/asm-blackfin/shmparam.h                    |    6
- include/asm-blackfin/sigcontext.h                  |   50
- include/asm-blackfin/siginfo.h                     |   35
- include/asm-blackfin/signal.h                      |  159 +
- include/asm-blackfin/socket.h                      |   53
- include/asm-blackfin/sockios.h                     |   12
- include/asm-blackfin/spinlock.h                    |    6
- include/asm-blackfin/stat.h                        |   77
- include/asm-blackfin/statfs.h                      |    6
- include/asm-blackfin/string.h                      |   97
- include/asm-blackfin/system.h                      |  212 +
- include/asm-blackfin/termbits.h                    |  173 +
- include/asm-blackfin/termios.h                     |  106
- include/asm-blackfin/thread_info.h                 |  142 +
- include/asm-blackfin/timex.h                       |   18
- include/asm-blackfin/tlb.h                         |   16
- include/asm-blackfin/tlbflush.h                    |   62
- include/asm-blackfin/topology.h                    |    6
- include/asm-blackfin/traps.h                       |   75
- include/asm-blackfin/types.h                       |   66
- include/asm-blackfin/uaccess.h                     |  260 ++
- include/asm-blackfin/ucontext.h                    |   30
- include/asm-blackfin/unaligned.h                   |    6
- include/asm-blackfin/unistd.h                      |  545 ++++
- include/asm-blackfin/user.h                        |   91
- include/linux/elf-em.h                             |    1
- include/linux/usb_sl811.h                          |   26
- init/Kconfig                                       |    3
- init/Kconfig.orig                                  |  516 ++++
- lib/Kconfig.debug                                  |    4
- scripts/genksyms/genksyms.c                        |    3
- scripts/mod/mk_elfconfig.c                         |    3
- 251 files changed, 49661 insertions(+), 6 deletions(-)
-
-http://blackfin.uclinux.org/frs/download.php/1010/blackfin_arch_2.6.18.patch
-   (same as above link)
 -- 
 Best regards,
 Luke Yang

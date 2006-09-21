@@ -1,51 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751452AbWIUSxl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751463AbWIUSzH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751452AbWIUSxl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Sep 2006 14:53:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750875AbWIUSxl
+	id S1751463AbWIUSzH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Sep 2006 14:55:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751461AbWIUSzG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Sep 2006 14:53:41 -0400
-Received: from mga02.intel.com ([134.134.136.20]:24885 "EHLO mga02.intel.com")
-	by vger.kernel.org with ESMTP id S1750779AbWIUSxk (ORCPT
+	Thu, 21 Sep 2006 14:55:06 -0400
+Received: from brick.kernel.dk ([62.242.22.158]:26167 "EHLO kernel.dk")
+	by vger.kernel.org with ESMTP id S1751460AbWIUSzF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Sep 2006 14:53:40 -0400
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.09,196,1157353200"; 
-   d="scan'208"; a="132128897:sNHT19678953"
-From: "Chen, Kenneth W" <kenneth.w.chen@intel.com>
-To: "'Andrew Morton'" <akpm@osdl.org>,
-       "'Suparna Bhattacharya'" <suparna@in.ibm.com>
-Cc: <linux-kernel@vger.kernel.org>
-Subject: [patch] clean up unused kiocb variables
-Date: Thu, 21 Sep 2006 11:53:40 -0700
-Message-ID: <000001c6ddaf$40d4eff0$ff0da8c0@amr.corp.intel.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook 11
-Thread-Index: Acbdr0CcW/s8h5pfRvqiRRFXga0SVw==
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+	Thu, 21 Sep 2006 14:55:05 -0400
+Date: Thu, 21 Sep 2006 20:59:39 +0200
+From: Jens Axboe <axboe@kernel.dk>
+To: michaelc@cs.wisc.edu
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/2] block: support larger block pc requests take 2
+Message-ID: <20060921185939.GH16556@kernel.dk>
+References: <11583761161108-git-send-email-michaelc@cs.wisc.edu> <20060921184024.GB16556@kernel.dk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060921184024.GB16556@kernel.dk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Any reason why we keep these two variables around for kiocb structure?
-They are not used anywhere.
+On Thu, Sep 21 2006, Jens Axboe wrote:
+> On Fri, Sep 15 2006, michaelc@cs.wisc.edu wrote:
+> > From: Mike Christie <michaelc@cs.wisc.edu>
+> > 
+> > This patch modifies blk_rq_map/unmap_user() so that it supports
+> > requests larger than bio by chaning them together.
+> > 
+> > Changes since v1.
+> > 1. Removed blk_get_bounced_bio() function. blk_rq_unmap_user
+> > checks the bounced flag and if set access bi_private.
+> > 
+> > 2. Removed biohead_orig field from request.
+> > Signed-off-by: Mike Christie <michaelc@cs.wisc.edu>
+> 
+> Patches 1+2 applied, thanks Mike!
 
-Patch to tidy up kiocb structure.
+Tested, and no good. You can't split it into two patches, if it doesn't
+compile with 1/2 applied. If scsi_ioctl.c needs to be changed, do it
+with the change and not in the next patch. Otherwise bisecting breaks.
 
+Care to resubmit? Just combine the two, but split the bsg patch as that
+needs to go into a separate branch for now. The bsg patch will just be
+merged into the bsg patch set, as that needs to be based on 'block'
+anyway.
 
-Signed-off-by: Ken Chen <kenneth.w.chen@intel.com>
+-- 
+Jens Axboe
 
-
---- ./include/linux/aio.h.orig	2006-09-21 10:03:36.000000000 -0700
-+++ ./include/linux/aio.h	2006-09-21 10:03:56.000000000 -0700
-@@ -110,8 +110,6 @@
- 	char 			__user *ki_buf;	/* remaining iocb->aio_buf */
- 	size_t			ki_left; 	/* remaining bytes */
- 	long			ki_retried; 	/* just for testing */
--	long			ki_kicked; 	/* just for testing */
--	long			ki_queued; 	/* just for testing */
- 
- 	struct list_head	ki_list;	/* the aio core uses this
- 						 * for cancellation */

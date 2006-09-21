@@ -1,41 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750893AbWIUAy0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750838AbWIUAyK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750893AbWIUAy0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Sep 2006 20:54:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750894AbWIUAy0
+	id S1750838AbWIUAyK (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Sep 2006 20:54:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750892AbWIUAyJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Sep 2006 20:54:26 -0400
-Received: from tinc.cathedrallabs.org ([72.9.252.66]:51908 "EHLO
-	tinc.cathedrallabs.org") by vger.kernel.org with ESMTP
-	id S1750893AbWIUAyZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Sep 2006 20:54:25 -0400
-Date: Wed, 20 Sep 2006 21:51:58 -0300
-From: Aristeu Sergio Rozanski Filho <aris@cathedrallabs.org>
-To: Michael Hanselmann <linux-kernel@hansmi.ch>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: [PATCH] ams: remove usage of input_dev cdev
-Message-ID: <20060921005158.GB16002@cathedrallabs.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.13 (2006-08-11)
-X-Spam-Pyzor-Results: Reported 0 times.
+	Wed, 20 Sep 2006 20:54:09 -0400
+Received: from smtp-out.google.com ([216.239.45.12]:51258 "EHLO
+	smtp-out.google.com") by vger.kernel.org with ESMTP
+	id S1750838AbWIUAyI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Sep 2006 20:54:08 -0400
+DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
+	h=received:subject:from:reply-to:to:cc:in-reply-to:references:
+	content-type:organization:date:message-id:mime-version:x-mailer:content-transfer-encoding;
+	b=It95Q9w4NX0+oEFzF8ngFrLzsljj77jLEch54nlMWmnKLn0vVteUarOB78StniOX2
+	oa3hdc70nQTvvzxa9tSpw==
+Subject: Re: [patch02/05]: Containers(V2)- Generic Linux kernel changes
+From: Rohit Seth <rohitseth@google.com>
+Reply-To: rohitseth@google.com
+To: Christoph Lameter <clameter@sgi.com>
+Cc: Andi Kleen <ak@suse.de>, CKRM-Tech <ckrm-tech@lists.sourceforge.net>,
+       devel@openvz.org, linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.64.0609201740530.2581@schroedinger.engr.sgi.com>
+References: <1158718722.29000.50.camel@galaxy.corp.google.com>
+	 <p7364fikcbe.fsf@verdi.suse.de>
+	 <1158770670.8574.26.camel@galaxy.corp.google.com>
+	 <200609202014.48815.ak@suse.de>
+	 <Pine.LNX.4.64.0609201721360.2336@schroedinger.engr.sgi.com>
+	 <1158799073.7207.35.camel@galaxy.corp.google.com>
+	 <Pine.LNX.4.64.0609201740530.2581@schroedinger.engr.sgi.com>
+Content-Type: text/plain
+Organization: Google Inc
+Date: Wed, 20 Sep 2006 17:53:40 -0700
+Message-Id: <1158800020.7207.45.camel@galaxy.corp.google.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.1.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch removes usage of 'cdev' member of input_dev, not present
-on that struct anymore.
+On Wed, 2006-09-20 at 17:41 -0700, Christoph Lameter wrote:
+> On Wed, 20 Sep 2006, Rohit Seth wrote:
+> 
+> > ...my preference is to leave it in page struct...that has non-zero cost.
+> 
+> Oh. Making struct page bigger than a cacheline or not fitting exactly in a 
+> cacheline has some costs.
+> 
 
-Signed-off-by: Aristeu S. Rozanski F. <aris@cathedrallabs.org>
+Isn't most of the architectures not defining WANT_PAGE_VIRTUAL and thus
+the page structure on these is not fitting cache line well. In most of
+these cases the additional pointer will actually make the structure 64
+bytes on 64-bit machines.
 
---- mm.orig/drivers/hwmon/ams/ams-mouse.c	2006-09-20 13:57:59.000000000 -0300
-+++ mm/drivers/hwmon/ams/ams-mouse.c	2006-09-20 21:01:59.000000000 -0300
-@@ -66,7 +66,6 @@
- 	ams_info.idev->name = "Apple Motion Sensor";
- 	ams_info.idev->id.bustype = ams_info.bustype;
- 	ams_info.idev->id.vendor = 0;
--	ams_info.idev->cdev.dev = &ams_info.of_dev->dev;
- 
- 	input_set_abs_params(ams_info.idev, ABS_X, -50, 50, 3, 0);
- 	input_set_abs_params(ams_info.idev, ABS_Y, -50, 50, 3, 0);
+-rohit
 

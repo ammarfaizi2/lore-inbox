@@ -1,55 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751014AbWIUHxA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751019AbWIUHxz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751014AbWIUHxA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Sep 2006 03:53:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751016AbWIUHxA
+	id S1751019AbWIUHxz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Sep 2006 03:53:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751023AbWIUHxz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Sep 2006 03:53:00 -0400
-Received: from adsl-69-232-92-238.dsl.sndg02.pacbell.net ([69.232.92.238]:38338
-	"EHLO gnuppy.monkey.org") by vger.kernel.org with ESMTP
-	id S1751013AbWIUHw7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Sep 2006 03:52:59 -0400
-Date: Thu, 21 Sep 2006 00:52:42 -0700
-To: Ingo Molnar <mingo@elte.hu>
-Cc: linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-       John Stultz <johnstul@us.ibm.com>,
-       "Paul E. McKenney" <paulmck@us.ibm.com>,
-       Dipankar Sarma <dipankar@in.ibm.com>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Esben Nielsen <simlo@phys.au.dk>,
-       "Bill Huey (hui)" <billh@gnuppy.monkey.org>
-Subject: Re: [PATCH] move put_task_struct() reaping into a thread [Re: 2.6.18-rt1]
-Message-ID: <20060921075242.GB11644@gnuppy.monkey.org>
-References: <20060920141907.GA30765@elte.hu> <20060921065624.GA9841@gnuppy.monkey.org> <20060921065402.GA22089@elte.hu> <20060921071838.GA10337@gnuppy.monkey.org> <20060921072743.GB10337@gnuppy.monkey.org> <20060921072216.GB25835@elte.hu> <20060921073522.GD10337@gnuppy.monkey.org> <20060921073130.GB27280@elte.hu>
+	Thu, 21 Sep 2006 03:53:55 -0400
+Received: from smtp.andrew.cmu.edu ([128.2.10.82]:47850 "EHLO
+	smtp.andrew.cmu.edu") by vger.kernel.org with ESMTP
+	id S1751016AbWIUHxy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Sep 2006 03:53:54 -0400
+Message-ID: <45124509.1050205@andrew.cmu.edu>
+Date: Thu, 21 Sep 2006 03:53:45 -0400
+From: James Bruce <bruce@andrew.cmu.edu>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060812)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060921073130.GB27280@elte.hu>
-User-Agent: Mutt/1.5.13 (2006-08-11)
-From: Bill Huey (hui) <billh@gnuppy.monkey.org>
+Newsgroups: gmane.linux.kernel
+To: Dmitry Torokhov <dtor@insightbb.com>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Marek Vasut <marek.vasut@gmail.com>
+Subject: Re: 2.6.19 -mm merge plans (input patches)
+References: <d120d5000609201429m753de40fo194d48427402c6cd@mail.gmail.com> <20060920215507.GM1153@redhat.com> <200609202118.27741.dtor@insightbb.com>
+In-Reply-To: <200609202118.27741.dtor@insightbb.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 21, 2006 at 09:31:30AM +0200, Ingo Molnar wrote:
-> * Bill Huey <billh@gnuppy.monkey.org> wrote:
-> > It was even problematic with the serial console on which is why I did 
-> > that. Maybe it was an artifact of having both the serial console and 
-> > video consoles on ?
+Dmitry Torokhov wrote:
+> On Wednesday 20 September 2006 17:55, Dave Jones wrote:
+>> On Wed, Sep 20, 2006 at 05:29:43PM -0400, Dmitry Torokhov wrote:
+>>  > On 9/20/06, Andrew Morton <akpm@osdl.org> wrote:
+>>  > > remove-silly-messages-from-input-layer.patch
+>>  > 
+>>  > I firmly believe that we should keep reporting these conditions. This
+>>  > way we can explain why keyboard might be losing keypresses. I am open
+>>  > to changing the message text. Would "atkbd.c: keyboard reported error
+>>  > condition (FYI only)" be better?
+>>  
+>> Q: What do you expect users to do when they see the message?
 > 
-> perhaps the real problem was that you got 'intermixed' stackdumps from 
-> multiple CPUs crashing at once? Or was it simply the myriads of 
-> stackdumps? The myriads effect is easy to solve: only look at the first 
-> one, and fix them one by one :-)
+> A: Nothing. But when they tell me that sometimes they lose keystrokes I
+> can ask them if they see it in dmesg. And if they see it there is nothing
+> I can do. Again, if you could suggest a better wording that would not alarm
+> unsuspecting users that would be great.
 
-I don't think I have to tell you that things got "really weird" for a
-while which is why I took the route of most severity and elected to use
-extreme debugging methods. :)
+If it is needed only to answer "does my keyboard work", maybe you could 
+store an error count in the driver, or put it to the event layer. 
+Coupled with a way to retrieve the value (ioctl+evtest,proc,sys,etc), 
+the user can get the information they need, but only when they actually 
+want it.
 
-I mean, some of those stack traces kept triggering a jumble of schedule()
-calls, etc... I decided to hack the heads off of them one at at time and
-stop the kernel immediately after one of those bugs. The immediate panic()
-is what caught the tbl raw_spinlock issue and therefore my lock reversion
-after auditing that portion of the lock graph.
+The networking subsystem seems to store a lot of its error conditions in 
+proc-accessible counters rather than printing a warning.  Thus there is 
+precedent for avoiding dmesg spam in this way.
 
-bill
+Just my $0.02
 
+  - Jim Bruce

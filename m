@@ -1,57 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750871AbWIUFy7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751252AbWIUGBl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750871AbWIUFy7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Sep 2006 01:54:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751246AbWIUFy7
+	id S1751252AbWIUGBl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Sep 2006 02:01:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751251AbWIUGBl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Sep 2006 01:54:59 -0400
-Received: from 85.8.24.16.se.wasadata.net ([85.8.24.16]:20621 "EHLO
-	smtp.drzeus.cx") by vger.kernel.org with ESMTP id S1750871AbWIUFy6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Sep 2006 01:54:58 -0400
-Message-ID: <45122930.10105@drzeus.cx>
-Date: Thu, 21 Sep 2006 07:54:56 +0200
-From: Pierre Ossman <drzeus-list@drzeus.cx>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
-MIME-Version: 1.0
-To: Alex Dubov <oakad@yahoo.com>
-CC: linux-kernel@vger.kernel.org, rmk+lkml@arm.linux.org.uk
-Subject: Re: [PATCH 2/2] [MMC] Driver for TI FlashMedia card reader - Kconfig/Makefile
- entries
-References: <20060921030232.30990.qmail@web36704.mail.mud.yahoo.com>
-In-Reply-To: <20060921030232.30990.qmail@web36704.mail.mud.yahoo.com>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Thu, 21 Sep 2006 02:01:41 -0400
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:15234 "EHLO 2ka.mipt.ru")
+	by vger.kernel.org with ESMTP id S1751249AbWIUGBk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Sep 2006 02:01:40 -0400
+Date: Thu, 21 Sep 2006 10:00:44 +0400
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: Ashwini Kulkarni <ashwini.kulkarni@intel.com>
+Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+       christopher.leech@intel.com
+Subject: Re: [RFC 0/6] TCP socket splice
+Message-ID: <20060921060044.GA23532@2ka.mipt.ru>
+References: <20060920210711.17480.92354.stgit@gitlost.site>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=koi8-r
+Content-Disposition: inline
+In-Reply-To: <20060920210711.17480.92354.stgit@gitlost.site>
+User-Agent: Mutt/1.5.9i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Thu, 21 Sep 2006 10:00:45 +0400 (MSD)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alex Dubov wrote:
->
-> I kind of fail to follow here. Do you want to switch TIFM_CORE -> MMC_TIFM_SD dependency into
-> MMC_TIFM_SD -> TIFM_CORE + TIFM_7XX1 one? It may be slightly more convenient for users (even
-> though most are using pre-compiled kernels provided by distribution), but will be logically
-> incorrect, doesn't it? And then, what will become of memorystick driver?
->
->   
+On Wed, Sep 20, 2006 at 02:07:11PM -0700, Ashwini Kulkarni (ashwini.kulkarni@intel.com) wrote:
+> Using TCP socket splice:
+> 
+>                     Application Control
+>                          |
+>         _________________|__________________________________
+>                          |
+>                          |   TCP socket splice
+>                          | +---------------------+
+>                          | |     Direct path     |
+>                          V |                     V
+>                        Network              File System
+>                        Buffer                  Buffer
+>                          ^                       |
+>                          |                       |
+>         _________________|_______________________|__________
+>                      DMA |                       | DMA
+>                          |                       |
+>        Hardware          |                       |
+>                          |                       V
+>                         NIC                     SATA
+>                                                                     
+> In this method, the objective is to use TCP socket splicing to create a direct
+> path in the kernel from the network buffer to the file system buffer via a pipe
+> buffer. The pages will migrate from the network buffer (which is associated
+> with the socket) into the pipe buffer for an optimized path. From the pipe
+> buffer, the pages will then be migrated to the output file address space page
+> cache. This will enable to create a LAN to file-system API which will avoid the
+> memcpy operations in user space and thus create a fast path from the network
+> buffer to the storage buffer.
+> 
+> Open Issues (currently being addressed):
+> There is a performance drop when transferring bigger files (usually larger than
+> 65536 bytes in size). Performance drop increases with the size of the file.
+> Work is in progress to identify the source of this issue.
+> 
+> We encourage the community to review our TCP socket splice project. Feedback
+> would be greatly appreciated.
 
-No no, I want a change from "depends" to "select". That symbolises the
-same dependency, but it has slightly different semantics (which it
-probably shouldn't, but that's another discussion). With "depends", a
-config entry is hidden if its dependencies aren't satisfied. With
-"select", it will forcefully enable those dependencies.
+First of all it is not zero-copy, most of the time when mtu is not
+changed skb does not have fragments, which means that you need to copy,
+and you do it in skb_splice_bits() after skb_headlen() check.
 
->From a user point of view, the former requires knowledge of how all of
-these things hangs together (which is expecting a bit much), but the
-latter will automatically pull in all the components needed to build the
-option the user selects (which is how dependencies should work IMO).
+Additionally to copy you add kmap/kunmap overhead, which can be very
+noticeble. I would not be surprised that exactly that part introduces
+described above performance drop compared to copy_*_user() approach. 
+Did you checked it with (hacked) drivers, which put data into fragment
+list? Could you post your benchamrks.
 
-Rgds
-Pierre
+And your coding style is broken noticebly...
+Also do not check for every possible error case, negative return value
+always meant error, otherwise it is ok in your case to proceed.
 
+> --
+> Ashwini Kulkarni
 
-> __________________________________________________
-> Do You Yahoo!?
-> Tired of spam?  Yahoo! Mail has the best spam protection around 
-> http://mail.yahoo.com 
->   
-
+-- 
+	Evgeniy Polyakov

@@ -1,58 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751004AbWIUCNx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751011AbWIUC3q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751004AbWIUCNx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 20 Sep 2006 22:13:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751005AbWIUCNx
+	id S1751011AbWIUC3q (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 20 Sep 2006 22:29:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751012AbWIUC3q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 20 Sep 2006 22:13:53 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:47069 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751003AbWIUCNw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 20 Sep 2006 22:13:52 -0400
-Date: Wed, 20 Sep 2006 19:13:36 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Dmitry Torokhov <dtor@insightbb.com>
-Cc: Aristeu Sergio Rozanski Filho <aris@cathedrallabs.org>,
-       Michael Hanselmann <linux-kernel@hansmi.ch>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] ams: remove usage of input_dev cdev
-Message-Id: <20060920191336.001b2c6a.akpm@osdl.org>
-In-Reply-To: <200609202159.53628.dtor@insightbb.com>
-References: <20060921005158.GB16002@cathedrallabs.org>
-	<200609202159.53628.dtor@insightbb.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+	Wed, 20 Sep 2006 22:29:46 -0400
+Received: from e36.co.us.ibm.com ([32.97.110.154]:40421 "EHLO
+	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751010AbWIUC3p
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 20 Sep 2006 22:29:45 -0400
+Subject: Re: 2.6.19 -mm merge plans (NTP changes)
+From: john stultz <johnstul@us.ibm.com>
+To: Andrew Morton <akpm@osdl.org>, Roman Zippel <zippel@linux-m68k.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20060920135438.d7dd362b.akpm@osdl.org>
+References: <20060920135438.d7dd362b.akpm@osdl.org>
+Content-Type: text/plain
+Date: Wed, 20 Sep 2006 19:28:51 -0700
+Message-Id: <1158805731.8648.54.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 20 Sep 2006 21:59:53 -0400
-Dmitry Torokhov <dtor@insightbb.com> wrote:
-
-> On Wednesday 20 September 2006 20:51, Aristeu Sergio Rozanski Filho wrote:
-> > This patch removes usage of 'cdev' member of input_dev, not present
-> > on that struct anymore.
-> > 
+On Wed, 2006-09-20 at 13:54 -0700, Andrew Morton wrote:
+> A wander through the -mm patch queue, along with some commentary on my
+> intentions.
 > 
-> Where did it go?
+> When replying to this email, please rewrite the Subject: to something
+> appropriate.  Please also attempt to cc the appropriate developer(s).
+>
+> ntp-move-all-the-ntp-related-code-to-ntpc.patch
+> ntp-move-all-the-ntp-related-code-to-ntpc-fix.patch
+> ntp-add-ntp_update_frequency.patch
+> ntp-add-ntp_update_frequency-fix.patch
+> ntp-add-time_adj-to-tick-length.patch
+> ntp-add-time_freq-to-tick-length.patch
+> ntp-prescale-time_offset.patch
+> ntp-add-time_adjust-to-tick-length.patch
+> ntp-remove-time_tolerance.patch
+> ntp-convert-time_freq-to-nsec-value.patch
+> ntp-convert-to-the-ntp4-reference-model.patch
+> ntp-cleanup-defines-and-comments.patch
+> kernel-time-ntpc-possible-cleanups.patch
+> kill-wall_jiffies.patch
+>
+>  Will merge.
 
-Sigh.  That would make a good ./.signature
+No objections here, but I wanted to put forth some caution as I've seen
+some odd NTP behavior with the full NTP patchset on my laptop (either it
+does not converge or it just converges *much* more slowly then without).
+Unfortunately I've not been able to collect solid enough data to analyze
+the issue (really, each run should go for atleast a full day and always
+run on the same network).
 
-> > Signed-off-by: Aristeu S. Rozanski F. <aris@cathedrallabs.org>
-> > 
-> > --- mm.orig/drivers/hwmon/ams/ams-mouse.c	2006-09-20 13:57:59.000000000 -0300
-> > +++ mm/drivers/hwmon/ams/ams-mouse.c	2006-09-20 21:01:59.000000000 -0300
-> > @@ -66,7 +66,6 @@
-> >  	ams_info.idev->name = "Apple Motion Sensor";
-> >  	ams_info.idev->id.bustype = ams_info.bustype;
-> >  	ams_info.idev->id.vendor = 0;
-> > -	ams_info.idev->cdev.dev = &ams_info.of_dev->dev;
-> >  
-> >  	input_set_abs_params(ams_info.idev, ABS_X, -50, 50, 3, 0);
-> >  	input_set_abs_params(ams_info.idev, ABS_Y, -50, 50, 3, 0);
-> > 
+However, in trying to narrow it down, the
+ntp-add-time_adj-to-tick-length patch is where the behavior seems to
+change the most. Again, no solid data, so I could be seeing ghosts, but
+I wanted to mention it.
 
-I think the right fix is s/cdev.dev/d.parent/g.  But Greg has moved all
-those patches out of the tree which I'll henceforth be merging into -mm, so
-we can stop worrying about it.  
+I'll try to put aside some time to run a few longer tests and see if I
+can get some clear results.
+
+thanks
+-john
+

@@ -1,86 +1,150 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964791AbWIVRRH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964802AbWIVRR6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964791AbWIVRRH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Sep 2006 13:17:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964795AbWIVRRH
+	id S964802AbWIVRR6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Sep 2006 13:17:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964799AbWIVRR6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Sep 2006 13:17:07 -0400
-Received: from tomts40-srv.bellnexxia.net ([209.226.175.97]:48352 "EHLO
-	tomts40-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id S964791AbWIVRRE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Sep 2006 13:17:04 -0400
-Date: Fri, 22 Sep 2006 13:11:56 -0400
-From: Mathieu Desnoyers <compudj@krystal.dyndns.org>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Martin Bligh <mbligh@google.com>, "Frank Ch. Eigler" <fche@redhat.com>,
-       Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>, prasanna@in.ibm.com,
-       Andrew Morton <akpm@osdl.org>, Paul Mundt <lethal@linux-sh.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>, Jes Sorensen <jes@sgi.com>,
-       Tom Zanussi <zanussi@us.ibm.com>,
-       Richard J Moore <richardj_moore@uk.ibm.com>,
-       Michel Dagenais <michel.dagenais@polymtl.ca>,
-       Christoph Hellwig <hch@infradead.org>,
-       Greg Kroah-Hartman <gregkh@suse.de>,
-       Thomas Gleixner <tglx@linutronix.de>, William Cohen <wcohen@redhat.com>,
-       ltt-dev@shafik.org, systemtap@sources.redhat.com,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCH] Linux Kernel Markers 0.5 for Linux 2.6.17 (with probe management)
-Message-ID: <20060922171156.GA18363@Krystal>
-References: <20060921160009.GA30115@Krystal> <20060921160656.GA24774@elte.hu> <20060921214248.GA10097@Krystal> <20060922064955.GA4167@elte.hu> <20060922140329.GA20839@Krystal> <20060922165352.GA16476@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 22 Sep 2006 13:17:58 -0400
+Received: from mga02.intel.com ([134.134.136.20]:43034 "EHLO mga02.intel.com")
+	by vger.kernel.org with ESMTP id S964782AbWIVRR4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Sep 2006 13:17:56 -0400
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.09,204,1157353200"; 
+   d="scan'208"; a="133328414:sNHT176489068"
+Message-ID: <4514190C.8010901@intel.com>
+Date: Fri, 22 Sep 2006 10:10:36 -0700
+From: Auke Kok <auke-jan.h.kok@intel.com>
+User-Agent: Mail/News 1.5.0.7 (X11/20060918)
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: Holger Kiehl <Holger.Kiehl@dwd.de>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-net <linux-net@vger.kernel.org>, netdev@vger.kernel.org,
+       "Ronciak, John" <john.ronciak@intel.com>
+Subject: Re: 2.6.1[78] page allocation failure. order:3, mode:0x20
+References: <Pine.LNX.4.64.0609220655550.13396@diagnostix.dwd.de> <20060922004253.2e2e2612.akpm@osdl.org>
+In-Reply-To: <20060922004253.2e2e2612.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-In-Reply-To: <20060922165352.GA16476@elte.hu>
-X-Editor: vi
-X-Info: http://krystal.dyndns.org:8080
-X-Operating-System: Linux/2.4.32-grsec (i686)
-X-Uptime: 13:09:28 up 30 days, 14:18,  4 users,  load average: 0.01, 0.10, 0.13
-User-Agent: Mutt/1.5.13 (2006-08-11)
+X-OriginalArrivalTime: 22 Sep 2006 17:12:25.0281 (UTC) FILETIME=[463B0310:01C6DE6A]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Ingo Molnar (mingo@elte.hu) wrote:
+Andrew Morton wrote:
+> On Fri, 22 Sep 2006 07:27:18 +0000 (GMT)
+> Holger Kiehl <Holger.Kiehl@dwd.de> wrote:
 > 
-> * Mathieu Desnoyers <compudj@krystal.dyndns.org> wrote:
+>> I get some of the "page allocation failure" errors. My hardware is 4 CPU
+>> Opteron with one quad + one dual intel e1000 cards. Kernel is plain 2.6.18
+>> and for two cards MTU is set to 9000.
+>>
+>>     Sep 21 21:03:15 athena kernel: vsftpd: page allocation failure. order:3, mode:0x20
+>>     Sep 21 21:03:15 athena kernel:
+>>     Sep 21 21:03:15 athena kernel: Call Trace:
+>>     Sep 21 21:03:15 athena kernel:  <IRQ> [<ffffffff8024e516>] __alloc_pages+0x282/0x29b
+>>     Sep 21 21:03:15 athena kernel:  [<ffffffff8807aa93>] :ip_tables:ipt_do_table+0x1eb/0x318
+>>     Sep 21 21:03:15 athena kernel:  [<ffffffff8026614b>] cache_grow+0x134/0x33d
+>>     Sep 21 21:03:15 athena kernel:  [<ffffffff8026664c>] cache_alloc_refill+0x189/0x1d7
+>>     Sep 21 21:03:15 athena kernel:  [<ffffffff80266724>] __kmalloc+0x8a/0x94
+>>     Sep 21 21:03:15 athena kernel:  [<ffffffff803b5438>] __alloc_skb+0x5c/0x123
+>>     Sep 21 21:03:15 athena kernel:  [<ffffffff803b5f2e>] __netdev_alloc_skb+0x12/0x2d
+>>     Sep 21 21:03:15 athena kernel:  [<ffffffff8033cb22>] e1000_alloc_rx_buffers+0x6f/0x2f3
+>>     Sep 21 21:03:15 athena kernel:  [<ffffffff803d1234>] ip_local_deliver+0x173/0x23b
+>>     Sep 21 21:03:15 athena kernel:  [<ffffffff8033d29a>] e1000_clean_rx_irq+0x4f4/0x514
 > 
-> > > > Then you lose the ability to trace in-kernel minor page faults.
-> > > 
-> > > that's wrong, minor pagefaults go through __handle_mm_fault() just as 
-> > > much.
-> > > 
-> > 
-> > Hi Ingo,
-> > 
-> > On a 2.6.17 kernel tree :
+> Is OK, it's just a warning and it is expected - the kernel will recover.
 > 
-> > It seems like a shortcut path that will never call __handle_mm_fault. 
-> > This path is precisely used to handle vmalloc faults.
+> I'm half-inclined to shut the warning up by sticking a __GFP_NOWARN in there.
 > 
-> yes, but you said "minor fault", not "vmalloc fault".
+> But on the other hand, that warning is handy sometimes.  How come kmalloc
+> decided to request a 32k hunk of memory when the MTU size is only 9k?  Is
+> the driver doing something dumb?
 > 
-> minor faults are the things that happen when a task does read-after-COW 
-> or read-mmap-ed-pagecache-page, and they very much go through 
-> __handle_mm_fault().
+> 	else if (max_frame <= E1000_RXBUFFER_8192)
+> 		adapter->rx_buffer_len = E1000_RXBUFFER_8192;
+> 	else if (max_frame <= E1000_RXBUFFER_16384)
+> 		adapter->rx_buffer_len = E1000_RXBUFFER_16384;
 > 
-> vmalloc faults are extremely rare, x86-specific and they are a pure 
-> kernel-internal matter. (I'd never want to trace them, especially if it 
-> pushes tracepoints into every architecture's page fault handler. I 
-> implemented the initial version of them IIRC, but my memory fails 
-> precisely why. I think it was 4:4 related, but i'm unsure.)
+> It sure is.
 > 
-> (i now realize that above you said "in-kernel minor faults" - under that 
-> you meant vmalloc faults?)
-> 
+> This is going to cause an 9000-byte MTU to use a 16384-byte allocation. 
+> e1000_alloc_rx_buffers() adds two bytes to that, so we do kmalloc(16386),
+> which causes the slab allocator to request 32768 bytes.  All for a 9kbyte skb.
 
-Yes, sorry, my mistake. This kind of fault is not as infrequent as you may
-think, as every newly allocated vmalloc region will cause vmalloc faults on
-every processes on the system that are trying to access them. I agree that
-it should not be a standard event people would be interested in.
+I wonder if we can't account for NET_IP_ALIGN when selecting bufsize, to get at 
+rid of at least 1 order size before we netdev_alloc_skb. This should make 9k 
+frames only kmalloc(16384) and thus stay within the 16k boundary. I hope.
 
-Regards,
+Completely untested: don't commit :)
 
-Mathieu
+Auke
 
-OpenPGP public key:              http://krystal.dyndns.org:8080/key/compudj.gpg
-Key fingerprint:     8CD5 52C3 8E3C 4140 715F  BA06 3F25 A8FE 3BAE 9A68 
+---
+
+e1000: account for NET_IP_ALIGN when calculating bufsiz
+
+Account for NET_IP_ALIGN when requesting buffer sizes from netdev_alloc_skb to 
+reduce slab allocation by half.
+
+Signed-off-by: Auke Kok <auke-jan.h.kok@intel.com>
+
+diff --git a/drivers/net/e1000/e1000_main.c b/drivers/net/e1000/e1000_main.c
+index bb0d129..20b1f39 100644
+--- a/drivers/net/e1000/e1000_main.c
++++ b/drivers/net/e1000/e1000_main.c
+@@ -1144,7 +1144,7 @@ #endif
+
+  	pci_read_config_word(pdev, PCI_COMMAND, &hw->pci_cmd_word);
+
+-	adapter->rx_buffer_len = MAXIMUM_ETHERNET_VLAN_SIZE;
++	adapter->rx_buffer_len = MAXIMUM_ETHERNET_VLAN_SIZE + NET_IP_ALIGN;
+  	adapter->rx_ps_bsize0 = E1000_RXBUFFER_128;
+  	hw->max_frame_size = netdev->mtu +
+  			     ENET_HEADER_SIZE + ETHERNET_FCS_SIZE;
+@@ -3234,26 +3234,27 @@ #define MAX_STD_JUMBO_FRAME_SIZE 9234
+  	 * larger slab size
+  	 * i.e. RXBUFFER_2048 --> size-4096 slab */
+
+-	if (max_frame <= E1000_RXBUFFER_256)
++	if (max_frame + NET_IP_ALIGN <= E1000_RXBUFFER_256)
+  		adapter->rx_buffer_len = E1000_RXBUFFER_256;
+-	else if (max_frame <= E1000_RXBUFFER_512)
++	else if (max_frame + NET_IP_ALIGN <= E1000_RXBUFFER_512)
+  		adapter->rx_buffer_len = E1000_RXBUFFER_512;
+-	else if (max_frame <= E1000_RXBUFFER_1024)
++	else if (max_frame + NET_IP_ALIGN <= E1000_RXBUFFER_1024)
+  		adapter->rx_buffer_len = E1000_RXBUFFER_1024;
+-	else if (max_frame <= E1000_RXBUFFER_2048)
++	else if (max_frame + NET_IP_ALIGN <= E1000_RXBUFFER_2048)
+  		adapter->rx_buffer_len = E1000_RXBUFFER_2048;
+-	else if (max_frame <= E1000_RXBUFFER_4096)
++	else if (max_frame + NET_IP_ALIGN <= E1000_RXBUFFER_4096)
+  		adapter->rx_buffer_len = E1000_RXBUFFER_4096;
+-	else if (max_frame <= E1000_RXBUFFER_8192)
++	else if (max_frame + NET_IP_ALIGN <= E1000_RXBUFFER_8192)
+  		adapter->rx_buffer_len = E1000_RXBUFFER_8192;
+-	else if (max_frame <= E1000_RXBUFFER_16384)
++	else
+  		adapter->rx_buffer_len = E1000_RXBUFFER_16384;
+
+  	/* adjust allocation if LPE protects us, and we aren't using SBP */
+  	if (!adapter->hw.tbi_compatibility_on &&
+  	    ((max_frame == MAXIMUM_ETHERNET_FRAME_SIZE) ||
+  	     (max_frame == MAXIMUM_ETHERNET_VLAN_SIZE)))
+-		adapter->rx_buffer_len = MAXIMUM_ETHERNET_VLAN_SIZE;
++		adapter->rx_buffer_len = MAXIMUM_ETHERNET_VLAN_SIZE
++		                         + NET_IP_ALIGN;
+
+  	netdev->mtu = new_mtu;
+
+@@ -4076,7 +4076,8 @@ e1000_alloc_rx_buffers(struct e1000_adap
+  	struct e1000_buffer *buffer_info;
+  	struct sk_buff *skb;
+  	unsigned int i;
+-	unsigned int bufsz = adapter->rx_buffer_len + NET_IP_ALIGN;
++	/* we have already accounted for NET_IP_ALIGN */
++	unsigned int bufsz = adapter->rx_buffer_len;
+
+  	i = rx_ring->next_to_use;
+  	buffer_info = &rx_ring->buffer_info[i];

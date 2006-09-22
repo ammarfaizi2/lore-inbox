@@ -1,38 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964883AbWIVSlU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750752AbWIVSnn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964883AbWIVSlU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Sep 2006 14:41:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964885AbWIVSlU
+	id S1750752AbWIVSnn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Sep 2006 14:43:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750757AbWIVSnn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Sep 2006 14:41:20 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:49348 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S964882AbWIVSlT (ORCPT
+	Fri, 22 Sep 2006 14:43:43 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:21957 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1750752AbWIVSnm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Sep 2006 14:41:19 -0400
-Date: Fri, 22 Sep 2006 11:40:59 -0700 (PDT)
+	Fri, 22 Sep 2006 14:43:42 -0400
+Date: Fri, 22 Sep 2006 11:43:32 -0700 (PDT)
 From: Christoph Lameter <clameter@sgi.com>
-To: Jesse Barnes <jesse.barnes@intel.com>
-cc: Martin Bligh <mbligh@mbligh.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, Rohit Seth <rohitseth@google.com>
-Subject: Re: ZONE_DMA
-In-Reply-To: <200609221139.03250.jesse.barnes@intel.com>
-Message-ID: <Pine.LNX.4.64.0609221139570.8356@schroedinger.engr.sgi.com>
-References: <20060920135438.d7dd362b.akpm@osdl.org> <200609221126.31201.jesse.barnes@intel.com>
- <Pine.LNX.4.64.0609221129170.8356@schroedinger.engr.sgi.com>
- <200609221139.03250.jesse.barnes@intel.com>
+To: Andrew Morton <akpm@osdl.org>
+cc: David Rientjes <rientjes@cs.washington.edu>,
+       KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>, kmannth@us.ibm.com,
+       linux-kernel@vger.kernel.org, clameter@engr.sgi.com
+Subject: Re: [PATCH] do not free non slab allocated per_cpu_pageset
+In-Reply-To: <20060922113924.014ce28f.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.64.0609221141270.8356@schroedinger.engr.sgi.com>
+References: <1158884252.5657.38.camel@keithlap> <20060921174134.4e0d30f2.akpm@osdl.org>
+ <1158888843.5657.44.camel@keithlap> <20060922112427.d5f3aef6.kamezawa.hiroyu@jp.fujitsu.com>
+ <20060921200806.523ce0b2.akpm@osdl.org> <20060922123045.d7258e13.kamezawa.hiroyu@jp.fujitsu.com>
+ <20060921204629.49caa95f.akpm@osdl.org> <Pine.LNX.4.64N.0609212108360.30543@attu1.cs.washington.edu>
+ <Pine.LNX.4.64N.0609221117210.5858@attu2.cs.washington.edu>
+ <20060922113924.014ce28f.akpm@osdl.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 22 Sep 2006, Jesse Barnes wrote:
+On Fri, 22 Sep 2006, Andrew Morton wrote:
 
-> Right, the internals are arch specific and don't necessarily have to rely 
-> on a zone, depending on their DMA constraints.
+> I think I preferred my earlier fix, recently reworked as:
 
->From what I can see the arch specific do some tricks and then pick GFP_DMA 
-or something to get memory that is appropriately limited. Having the 
-ability to retrieve pages from a certain range from the page allocator 
-would fix this issue and improve the ability of devices to allocate 
-memory.
-
+The problem is though that the pcp pointers must point to the static pcp 
+arrays for bootup to succeed under NUMA. Your patch may work under SMP. 
+For NUMA you may zap pointers to valid static pcps.

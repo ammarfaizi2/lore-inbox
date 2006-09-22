@@ -1,49 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964814AbWIVSEU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964844AbWIVSGO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964814AbWIVSEU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Sep 2006 14:04:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964848AbWIVSEU
+	id S964844AbWIVSGO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Sep 2006 14:06:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964832AbWIVSGO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Sep 2006 14:04:20 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:16803
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S964814AbWIVSET (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Sep 2006 14:04:19 -0400
-Date: Fri, 22 Sep 2006 11:04:36 -0700 (PDT)
-Message-Id: <20060922.110436.34753480.davem@davemloft.net>
-To: nenolod@atheme.org
-Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Subject: Re: [PATCH 2.6.18 try 2] net/ipv4: sysctl to allow non-superuser
- to bypass CAP_NET_BIND_SERVICE requirement
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <AD838733-3A8F-4B3E-B620-9B2284B8B2BF@atheme.org>
-References: <736CE60D-FB88-4246-8728-B7AC7880B28E@atheme.org>
-	<20060922.164109.112537486.yoshfuji@linux-ipv6.org>
-	<AD838733-3A8F-4B3E-B620-9B2284B8B2BF@atheme.org>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
-Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+	Fri, 22 Sep 2006 14:06:14 -0400
+Received: from ns.suse.de ([195.135.220.2]:22176 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S964818AbWIVSGN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Sep 2006 14:06:13 -0400
+Date: Fri, 22 Sep 2006 11:06:03 -0700
+From: Greg KH <greg@kroah.com>
+To: John Keller <jpk@sgi.com>
+Cc: akpm@osdl.org, linux-ia64@vger.kernel.org,
+       pcihpd-discuss@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       linux-acpi@vger.kernel.org, ayoung@sgi.com
+Subject: Re: [Pcihpd-discuss] [PATCH 0/3] - Altix: Add initial ACPI IO support
+Message-ID: <20060922180603.GA14921@kroah.com>
+References: <20060922145109.12407.58547.sendpatchset@attica.americas.sgi.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060922145109.12407.58547.sendpatchset@attica.americas.sgi.com>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: William Pitcock <nenolod@atheme.org>
-Date: Fri, 22 Sep 2006 03:27:22 -0500
+On Fri, Sep 22, 2006 at 09:51:09AM -0500, John Keller wrote:
+> Andrew,
+>  This patchset was sent out more than a few weeks ago and
+> there have been no comments or discussion on it.
+> Can you (or Greg, if that is more appropriate) take this
+> set of patches?
 
-> * The software is untrusted by the end user, in the event that the  
-> software is not trustworthy, the amount of damage it can do running  
-> as a normal user is less than as a superuser. As it is, the bind()  
-> may have failed before the CAP_NET_BIND_SERVICE capability was  
-> granted to the process.
+I'll take it, care to actually send it to me?
 
-You have the power to exec() the daemon in question with
-CAP_NET_BIND_SERVICE capability inherited from the parent,
-and that will be the only "extra" capability the process will
-have.
+thanks,
 
-So there is in fact an existing mechanism for doing this.
-
-If you have the power to set the sysctl, you have the power
-to give the capability to an arbitrary process which you
-want to get lower ports but do not trust to run completely
-as root.
+greg k-h

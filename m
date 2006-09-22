@@ -1,79 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932607AbWIVRCB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932613AbWIVRKL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932607AbWIVRCB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Sep 2006 13:02:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932600AbWIVRCB
+	id S932613AbWIVRKL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Sep 2006 13:10:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932603AbWIVRKK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Sep 2006 13:02:01 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:56742 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932603AbWIVRCA (ORCPT
+	Fri, 22 Sep 2006 13:10:10 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:2701 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932613AbWIVRKI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Sep 2006 13:02:00 -0400
-Date: Fri, 22 Sep 2006 18:53:52 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Mathieu Desnoyers <compudj@krystal.dyndns.org>
-Cc: Martin Bligh <mbligh@google.com>, "Frank Ch. Eigler" <fche@redhat.com>,
-       Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>, prasanna@in.ibm.com,
-       Andrew Morton <akpm@osdl.org>, Paul Mundt <lethal@linux-sh.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>, Jes Sorensen <jes@sgi.com>,
-       Tom Zanussi <zanussi@us.ibm.com>,
-       Richard J Moore <richardj_moore@uk.ibm.com>,
-       Michel Dagenais <michel.dagenais@polymtl.ca>,
-       Christoph Hellwig <hch@infradead.org>,
-       Greg Kroah-Hartman <gregkh@suse.de>,
-       Thomas Gleixner <tglx@linutronix.de>, William Cohen <wcohen@redhat.com>,
-       ltt-dev@shafik.org, systemtap@sources.redhat.com,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCH] Linux Kernel Markers 0.5 for Linux 2.6.17 (with probe management)
-Message-ID: <20060922165352.GA16476@elte.hu>
-References: <20060921160009.GA30115@Krystal> <20060921160656.GA24774@elte.hu> <20060921214248.GA10097@Krystal> <20060922064955.GA4167@elte.hu> <20060922140329.GA20839@Krystal>
+	Fri, 22 Sep 2006 13:10:08 -0400
+Date: Fri, 22 Sep 2006 13:09:09 -0400
+From: Dave Jones <davej@redhat.com>
+To: Jeff Garzik <jeff@garzik.org>
+Cc: David Miller <davem@davemloft.net>,
+       Russell King <rmk+kernel@arm.linux.org.uk>, davidsen@tmr.com,
+       torvalds@osdl.org, alan@lxorguk.ukuu.org.uk,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.19 -mm merge plans
+Message-ID: <20060922170909.GH15032@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Jeff Garzik <jeff@garzik.org>, David Miller <davem@davemloft.net>,
+	Russell King <rmk+kernel@arm.linux.org.uk>, davidsen@tmr.com,
+	torvalds@osdl.org, alan@lxorguk.ukuu.org.uk,
+	linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.64.0609211106391.4388@g5.osdl.org> <45130533.2010209@tmr.com> <45130527.1000302@garzik.org> <20060921.145208.26283973.davem@davemloft.net> <20060921220539.GL26683@redhat.com> <20060922083542.GA4246@flint.arm.linux.org.uk> <20060922154816.GA15032@redhat.com> <45140F61.4040201@garzik.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060922140329.GA20839@Krystal>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -2.9
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.9 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.4983]
-	-0.1 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+In-Reply-To: <45140F61.4040201@garzik.org>
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Sep 22, 2006 at 12:29:21PM -0400, Jeff Garzik wrote:
+ > 
+ > NOTE:  Your mailer generates bogus Mail-Followup-To headers, and you 
+ > snipped rmk from the To/CC.
 
-* Mathieu Desnoyers <compudj@krystal.dyndns.org> wrote:
+Hmm, curious. I'll file a bug. 
 
-> > > Then you lose the ability to trace in-kernel minor page faults.
-> > 
-> > that's wrong, minor pagefaults go through __handle_mm_fault() just as 
-> > much.
-> > 
-> 
-> Hi Ingo,
-> 
-> On a 2.6.17 kernel tree :
+ > > Has Andrew commented on why this is proving to be more of a problem?
+ > > I've done regular rebases of cpufreq/agpgart (admittedly, they don't
+ > > reject hardly ever unless Len has ACPI bits touching cpufreq) without
+ > > causing too much headache.
+ > 
+ > Rebasing _inevitably_ causes more headaches than a simple tree update, 
+ > for any downstream consumer of your tree(s).  It is best to avoid wanton 
+ > rebasing.
+ 
+Sorry, terminology confusion. I rarely throw away a tree and start afresh,
+I meant of course just updating to linus' latest.  This may explain the
+my lack of understanding over Russell's issues.
 
-> It seems like a shortcut path that will never call __handle_mm_fault. 
-> This path is precisely used to handle vmalloc faults.
-
-yes, but you said "minor fault", not "vmalloc fault".
-
-minor faults are the things that happen when a task does read-after-COW 
-or read-mmap-ed-pagecache-page, and they very much go through 
-__handle_mm_fault().
-
-vmalloc faults are extremely rare, x86-specific and they are a pure 
-kernel-internal matter. (I'd never want to trace them, especially if it 
-pushes tracepoints into every architecture's page fault handler. I 
-implemented the initial version of them IIRC, but my memory fails 
-precisely why. I think it was 4:4 related, but i'm unsure.)
-
-(i now realize that above you said "in-kernel minor faults" - under that 
-you meant vmalloc faults?)
-
-	Ingo
+	Dave

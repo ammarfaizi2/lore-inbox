@@ -1,107 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750716AbWIVKWA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750742AbWIVKdV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750716AbWIVKWA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Sep 2006 06:22:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750737AbWIVKWA
+	id S1750742AbWIVKdV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Sep 2006 06:33:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750752AbWIVKdV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Sep 2006 06:22:00 -0400
-Received: from mtagate2.de.ibm.com ([195.212.29.151]:4320 "EHLO
-	mtagate2.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1750716AbWIVKV7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Sep 2006 06:21:59 -0400
-Date: Fri, 22 Sep 2006 12:22:22 +0200
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
-To: Rolf Eike Beer <eike-kernel@sf-tec.de>
-Cc: Greg K-H <greg@kroah.com>, linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [1/9] driver core fixes: make_class_name() retval check
-Message-ID: <20060922122222.7b2f0661@gondolin.boeblingen.de.ibm.com>
-In-Reply-To: <200609221158.07226.eike-kernel@sf-tec.de>
-References: <20060922113650.612d425b@gondolin.boeblingen.de.ibm.com>
-	<200609221158.07226.eike-kernel@sf-tec.de>
-X-Mailer: Sylpheed-Claws 2.5.0-rc3 (GTK+ 2.8.20; i486-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 22 Sep 2006 06:33:21 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:28140 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1750751AbWIVKdU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Sep 2006 06:33:20 -0400
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <Pine.LNX.4.64.0609171022160.27242@sheep.housecafe.de> 
+References: <Pine.LNX.4.64.0609171022160.27242@sheep.housecafe.de>  <20060912000618.a2e2afc0.akpm@osdl.org> 
+To: Christian Kujau <evil@g-house.de>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.18-rc6-mm2: __fscache_register_netfs compile error 
+X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
+Date: Fri, 22 Sep 2006 11:33:08 +0100
+Message-ID: <13395.1158921188@warthog.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 22 Sep 2006 11:58:02 +0200,
-Rolf Eike Beer <eike-kernel@sf-tec.de> wrote:
+Christian Kujau <evil@g-house.de> wrote:
 
-> Either this is inverse of what you wanted to do or just calling 
-> sysfs_create_link(..., NULL) would make it clearer for readers.
+> I could not find this anywhere reported, so here it goes:
+> 
+> when is enabled, gcc-4.0.3 (ubuntu/dapper, x86_64) gives:
+> 
+> fs/built-in.o: In function `init_nfs_fs':inode.c:(.init.text+0x16a9): undefined reference to `__fscache_register_netfs'
+> :inode.c:(.init.text+0x1757): undefined reference to `__fscache_unregister_netfs'
 
-Argh, a typo crept in while rebasing (thanks for noticing). Correct
-patch below.
+It looks like your build failed to build the fscache facility or built it as a
+module but build NFS directly into the kernel.  What's your full configuration?
 
-
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
-
-Make make_class_name() return NULL on error and fixup callers in the
-driver core.
-
-Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
-
----
- drivers/base/class.c |   12 ++++++++----
- drivers/base/core.c  |    7 +++++--
- 2 files changed, 13 insertions(+), 6 deletions(-)
-
---- linux-2.6-CH.orig/drivers/base/class.c
-+++ linux-2.6-CH/drivers/base/class.c
-@@ -362,7 +362,7 @@ char *make_class_name(const char *name, 
- 
- 	class_name = kmalloc(size, GFP_KERNEL);
- 	if (!class_name)
--		return ERR_PTR(-ENOMEM);
-+		return NULL;
- 
- 	strcpy(class_name, name);
- 	strcat(class_name, ":");
-@@ -409,8 +409,11 @@ static int make_deprecated_class_device_
- 		return 0;
- 
- 	class_name = make_class_name(class_dev->class->name, &class_dev->kobj);
--	error = sysfs_create_link(&class_dev->dev->kobj, &class_dev->kobj,
--				  class_name);
-+	if (class_name)
-+		error = sysfs_create_link(&class_dev->dev->kobj,
-+					  &class_dev->kobj, class_name);
-+	else
-+		error = -ENOMEM;
- 	kfree(class_name);
- 	return error;
- }
-@@ -771,7 +774,8 @@ void class_device_del(struct class_devic
- #ifdef CONFIG_SYSFS_DEPRECATED
- 		class_name = make_class_name(class_dev->class->name,
- 					     &class_dev->kobj);
--		sysfs_remove_link(&class_dev->dev->kobj, class_name);
-+		if (class_name)
-+			sysfs_remove_link(&class_dev->dev->kobj, class_name);
- #endif
- 		sysfs_remove_link(&class_dev->kobj, "device");
- 	}
---- linux-2.6-CH.orig/drivers/base/core.c
-+++ linux-2.6-CH/drivers/base/core.c
-@@ -469,7 +469,9 @@ int device_add(struct device *dev)
- 		if (parent) {
- 			sysfs_create_link(&dev->kobj, &dev->parent->kobj, "device");
- 			class_name = make_class_name(dev->class->name, &dev->kobj);
--			sysfs_create_link(&dev->parent->kobj, &dev->kobj, class_name);
-+			if (class_name)
-+				sysfs_create_link(&dev->parent->kobj,
-+						  &dev->kobj, class_name);
- 		}
- #endif
- 	}
-@@ -600,7 +602,8 @@ void device_del(struct device * dev)
- 			char *class_name = NULL;
- 
- 			class_name = make_class_name(dev->class->name, &dev->kobj);
--			sysfs_remove_link(&dev->parent->kobj, class_name);
-+			if (class_name)
-+				sysfs_remove_link(&dev->parent->kobj, class_name);
- 			kfree(class_name);
- #endif
- 			sysfs_remove_link(&dev->kobj, "device");
+David

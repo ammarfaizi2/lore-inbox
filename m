@@ -1,60 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964926AbWIVXeb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964930AbWIVXfJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964926AbWIVXeb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Sep 2006 19:34:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964927AbWIVXeb
+	id S964930AbWIVXfJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Sep 2006 19:35:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964927AbWIVXfJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Sep 2006 19:34:31 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:19114 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S964926AbWIVXeb (ORCPT
+	Fri, 22 Sep 2006 19:35:09 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:8913 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S964930AbWIVXfG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Sep 2006 19:34:31 -0400
-Date: Fri, 22 Sep 2006 16:34:15 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Eric Sandeen <sandeen@sandeen.net>
-Cc: Timothy Shimmin <tes@sgi.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       xfs mailing list <xfs@oss.sgi.com>
-Subject: Re: [PATCH -mm] rescue large xfs preferred iosize from the inode
- diet patch
-Message-Id: <20060922163415.4e137374.akpm@osdl.org>
-In-Reply-To: <45146F76.3010301@sandeen.net>
-References: <45131334.6050803@sandeen.net>
-	<45134472.7080002@sgi.com>
-	<20060922161040.609286fa.akpm@osdl.org>
-	<45146F76.3010301@sandeen.net>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 22 Sep 2006 19:35:06 -0400
+From: Andi Kleen <ak@suse.de>
+To: Christoph Lameter <clameter@sgi.com>
+Subject: More thoughts on getting rid of ZONE_DMA
+Date: Sat, 23 Sep 2006 01:34:45 +0200
+User-Agent: KMail/1.9.3
+Cc: Martin Bligh <mbligh@mbligh.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       akpm@google.com, linux-kernel@vger.kernel.org,
+       Christoph Hellwig <hch@infradead.org>,
+       James Bottomley <James.Bottomley@steeleye.com>, linux-mm@kvack.org
+References: <Pine.LNX.4.64.0609212052280.4736@schroedinger.engr.sgi.com> <4514441E.70207@mbligh.org> <Pine.LNX.4.64.0609221321280.9181@schroedinger.engr.sgi.com>
+In-Reply-To: <Pine.LNX.4.64.0609221321280.9181@schroedinger.engr.sgi.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200609230134.45355.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 22 Sep 2006 18:19:18 -0500
-Eric Sandeen <sandeen@sandeen.net> wrote:
+On Friday 22 September 2006 22:23, Christoph Lameter wrote:
+> Here is an iniitial patch of alloc_pages_range (untested, compiles). 
+> Directed reclaim missing. Feedback wanted. There are some comments in the 
+> patch where I am at the boundary of my knowledge and it would be good if 
+> someone could supply the info needed.
 
-> Andrew Morton wrote:
-> 
-> >> So the fix for this is coming soon (and the fix is different from the
-> >> one above).
-> >>
-> > 
-> > eh?  Eric's patch is based on -mm, which includes the XFS git tree.  If I
-> > go and merge the inode-diet patches from -mm, XFS gets broken until you
-> > guys merge the above mystery patch.  (I prefer to merge the -mm patches
-> > after all the git trees have gone, but sometimes maintainers dawdle and I
-> > get bored of waiting).
-> > 
-> > Is git://oss.sgi.com:8090/nathans/xfs-2.6 obsolete, or are you hiding stuff
-> > from me?  ;)
-> > 
-> > 
-> well it's in cvs:
 
-That's nearly four months old!
+Christoph,
 
-> http://oss.sgi.com/cgi-bin/cvsweb.cgi/xfs-linux/linux-2.6/xfs_iops.c.diff?r1=text&tr1=1.254&r2=text&tr2=1.253&f=h
+I thought a little more about the problem.
 
-<checks to see if the changelog is in Aramaic too>
+Currently I don't think we can get rid of ZONE_DMA even with your patch.
 
+The problem is that if someone has a workload with lots of pinned pages
+(e.g. lots of mlock) then the first 16MB might fill up completely and there 
+is no chance at all to free it because it's pinned
+
+This is not theoretical: Andrea originally implemented the keep lower zones free 
+heuristics exactly because this happened in the field.
+
+So we need some way to reserve some low memory pages (a "low mem mempool" so to
+say). Otherwise it could always run into deadlocks later under load.
+
+As I understand it your goal is to remove knowledge of the DMA zones from
+the generic VM to save some cache lines in hot paths.
+
+First ZONE_DMA32 likely needs to be kept in the normal allocator because there 
+are just too many potential users of it, and some of them even need fast memory allocation.
+
+But AFAIK all 16MB ZONE_DMA don't need fast allocation, so being a bit
+slower for them is ok.
+
+What we could do instead is to have a configurable pool starting at zero with
+a special allocator that can allocate ranges in there. This wouldn't need to 
+be a 16MB pool, but could be a kernel boot parameter.  This would keep
+it completely out of the fast VM path and reach your original goals.
+
+This would also fix aacraid because users of it could just configure a larger 
+pool (we could potentially even have a heuristic to size it based on PCI IDs;
+this wouldn't deal with hotplug but would be still much better than shifting
+it completely to the user) 
+
+-Andi
 

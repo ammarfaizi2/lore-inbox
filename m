@@ -1,93 +1,112 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965231AbWIVWSv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965229AbWIVWXE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965231AbWIVWSv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Sep 2006 18:18:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965233AbWIVWSv
+	id S965229AbWIVWXE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Sep 2006 18:23:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965235AbWIVWXE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Sep 2006 18:18:51 -0400
-Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:28571 "HELO
-	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S965231AbWIVWSu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Sep 2006 18:18:50 -0400
-Subject: Re: [PATCH -mm 0/6] swsusp: Add support for swap files
-From: Nigel Cunningham <ncunningham@linuxmail.org>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: Pavel Machek <pavel@suse.cz>, Andrew Morton <akpm@osdl.org>,
-       LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <200609221328.58504.rjw@sisk.pl>
-References: <200609202120.58082.rjw@sisk.pl>
-	 <1158886913.15894.31.camel@nigel.suspend2.net>
-	 <20060922052324.GG2357@elf.ucw.cz>  <200609221328.58504.rjw@sisk.pl>
-Content-Type: text/plain
-Date: Sat, 23 Sep 2006 08:18:46 +1000
-Message-Id: <1158963526.5106.42.camel@nigel.suspend2.net>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.0 
-Content-Transfer-Encoding: 7bit
+	Fri, 22 Sep 2006 18:23:04 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:10758 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S965229AbWIVWXC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Sep 2006 18:23:02 -0400
+Date: Sat, 23 Sep 2006 00:23:00 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: linux-kernel@vger.kernel.org
+Subject: Linux 2.6.16.30-pre1
+Message-ID: <20060922222300.GA5566@stusta.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+Patch location:
+ftp://ftp.kernel.org/pub/linux/kernel/people/bunk/linux-2.6.16.y/testing/
 
-On Fri, 2006-09-22 at 13:28 +0200, Rafael J. Wysocki wrote:
-> On Friday, 22 September 2006 07:23, Pavel Machek wrote:
-> > On Fri 2006-09-22 11:01:53, Nigel Cunningham wrote:
-> > > Hi.
-> > > 
-> > > On Wed, 2006-09-20 at 21:20 +0200, Rafael J. Wysocki wrote:
-> > > > Hi,
-> > > > 
-> > > > The following series of patches makes swsusp support swap files.
-> > > > 
-> > > > For now, it is only possible to suspend to a swap file using the in-kernel
-> > > > swsusp and the resume cannot be initiated from an initrd.
-> > > 
-> > > I'm trying to understand 'resume cannot be initiated from an initrd'.
-> > > Does that mean if you want to use this functionality, you have to have
-> > > everything needed compiled in to the kernel, and it's not compatible
-> > > with LVM and so on?
-> > 
-> > Not in this version of patch; for resume from initrd, ioctl()
-> > interface needs to be added (*).
-> 
-> Yup.  This is not technically impossible, but the patches don't add an
-> interface needed for this purpose.
-> 
-> Initially I thought of a sysfs-based one, but it didn't seem to be a good
-> solution.  I'm going to add an ioctl() to /dev/snapshot that will allow us
-> to set the "resume offset" from an application.
-> problem I not
-> > 									Pavel
-> > (*) Actually.. of course resume from file from initrd is possible
-> > *now*, probably without this patch series, but that would be bmap and
-> > doing it by hand from userland.
-> 
-> Well, not from a swap file.  To use a swap file for suspending we need a
-> kernel to tell us which page "slots" are available to us (otherwise we could
-> overwrite some swapped-out pages).
-> 
-> We could use a regular (non-swap) file like this but that would require us to
-> use some dangerous code (ie. one that writes directly to blocks belonging to
-> certain file bypassing the filesystem).  IMHO this isn't worth it, provided
-> the kernel's swap-handling code can do this for us and is known to work. ;-)
+git tree:
+git://git.kernel.org/pub/scm/linux/kernel/git/stable/linux-2.6.16.y.git
 
-It's not that dangerous once you debug it. This is what Suspend2 does -
-all I/O is done using bmapping and bios with direct sector numbers,
-regardless of where you're reading from/writing to. The main difficulty
-I saw was with XFS, where the device block size and filesystem block
-size can differ, but even then, it's just a matter of making sure you
-get the right one in the right place.
+RSS feed of the git tree:
+http://www.kernel.org/git/?p=linux/kernel/git/stable/linux-2.6.16.y.git;a=rss
 
-I would encourage you in this direction because it also adds way more
-flexibility. If swap is a thing of the past, the only reason for people
-to have swap space now is to suspend to disk. If you can write to a swap
-file, they don't need a swap partition and more. If you can write to an
-ordinary file, they can know that even if they are in a low memory
-situation and swap is being used, there's no race condition between
-freeing up memory to meet the conditions for suspending to disk, and
-allocating storage for writing the actual image.
 
-Regards,
+Changes since 2.6.16.29:
 
-Nigel
+Adrian Bunk:
+      V4L/DVB: Saa7134: document that there's also a 220RF from KWorld
+      add drivers/media/video/saa7134/saa7134-input.c:flydvb_codes
+      Linux 2.6.16.30-pre1
+
+Andrew Burri:
+      V4L/DVB: Add support for Kworld ATSC110
+
+Curt Meyers:
+      V4L/DVB: KWorld ATSC110: implement set_pll_input
+      V4L/DVB: Kworld ATSC110: enable composite and svideo inputs
+      V4L/DVB: Kworld ATSC110: initialize the tuner for analog mode on module load
+
+Giampiero Giancipoli:
+      V4L/DVB: Added support for the LifeView FlyDVB-T LR301 card
+
+Hartmut Hackmann:
+      V4L/DVB: Added support for the ADS Instant TV DUO Cardbus PTV331
+      V4L/DVB: Added PCI IDs of 2 LifeView Cards
+      V4L/DVB: Corrected CVBS input for the AVERMEDIA 777 DVB-T
+      V4L/DVB: Added support for the new Lifeview hybrid cardbus modules
+      V4L/DVB: TDA10046 Driver update
+      V4L/DVB: TDA8290 update
+
+Peter Hartshorn:
+      V4L/DVB: Added support for the Tevion DVB-T 220RF card
+
+Henk Vergonet:
+      USB: Fix unload oops and memory leak in yealink driver
+      USB: add YEALINK phones to the HID_QUIRK_IGNORE blacklist
+
+Jay Cliburn:
+      via-velocity: fix speed and link status reported by ethtool
+
+Jose Alberto Reguero:
+      V4L/DVB: Add support for the Avermedia 777 DVB-T card
+
+Julien Tous:
+      [AGPGART] ATI RS350 support.
+
+Magnus Kessler:
+      [AGPGART] VIA PT880 Ultra support.
+
+Mark M. Hoffman:
+      I2C: fix 'ignore' module parameter handling
+
+Martin Schwidefsky:
+      kernel/kmod.c: fix a race condition in usermodehelper.
+
+maximilian attems:
+      V4L/DVB: Saa7134: select FW_LOADER
+
+Michael Krufky:
+      V4L/DVB: Kworld ATSC110: cleanups
+      V4L/DVB: Saa7134: make unsupported secondary decoder message generic
+      V4L/DVB: Medion 7134: Autodetect second bridge chip
+
+Michael Rash:
+      [TEXTSEARCH]: Fix Boyer Moore initialization bug
+
+Rickard Osser:
+      V4L/DVB: Saa7134: add support for AVerMedia A169 Dual Analog tuner card
+
+Roland Dreier:
+      Convert idr's internal locking to _irqsave variant
+
+Roy Marples:
+      via-velocity: the link is not correctly detected when the device starts
+
+Tamuki Shoichi:
+      V4L/DVB: Add saa713x card: ELSA EX-VISION 700TV (saa7130)
+      V4L/DVB: ELSA EX-VISION 700TV: fix incorrect PCI subsystem ID
+
+Tushar Gohad:
+      PFKEYV2: Fix inconsistent typing in struct sadb_x_kmprivate.
+
 

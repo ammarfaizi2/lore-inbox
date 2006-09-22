@@ -1,70 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964886AbWIVUKa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964882AbWIVUNi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964886AbWIVUKa (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Sep 2006 16:10:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964887AbWIVUK3
+	id S964882AbWIVUNi (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Sep 2006 16:13:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964889AbWIVUNh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Sep 2006 16:10:29 -0400
-Received: from mail.gmx.net ([213.165.64.20]:21641 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S964886AbWIVUK3 (ORCPT
+	Fri, 22 Sep 2006 16:13:37 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:11449 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S964882AbWIVUNh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Sep 2006 16:10:29 -0400
-X-Authenticated: #31060655
-Message-ID: <45144343.7080404@gmx.net>
-Date: Fri, 22 Sep 2006 22:10:43 +0200
-From: Carl-Daniel Hailfinger <c-d.hailfinger.devel.2006@gmx.net>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.7) Gecko/20060911 SUSE/1.0.5-1.1 SeaMonkey/1.0.5
-MIME-Version: 1.0
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Suspend-devel list <suspend-devel@lists.sourceforge.net>,
-       "Benjamin A. Okopnik" <ben@linuxgazette.net>
-Subject: [PATCH] radeonfb supend/resume support for Acer Aspire 2010
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
+	Fri, 22 Sep 2006 16:13:37 -0400
+Date: Fri, 22 Sep 2006 16:12:46 -0400
+From: Dave Jones <davej@redhat.com>
+To: Pavel Machek <pavel@suse.cz>
+Cc: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+       John Stultz <johnstul@us.ibm.com>,
+       Arjan van de Ven <arjan@infradead.org>
+Subject: Re: 2.6.19 -mm merge plans
+Message-ID: <20060922201246.GA10002@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Pavel Machek <pavel@suse.cz>, Ingo Molnar <mingo@elte.hu>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+	Thomas Gleixner <tglx@linutronix.de>,
+	John Stultz <johnstul@us.ibm.com>,
+	Arjan van de Ven <arjan@infradead.org>
+References: <20060920135438.d7dd362b.akpm@osdl.org> <20060921131433.GA4182@elte.hu> <20060922130648.GD4055@ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060922130648.GD4055@ucw.cz>
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Ben,
+On Fri, Sep 22, 2006 at 01:06:48PM +0000, Pavel Machek wrote:
 
-the patch below has been tested by Benjamin Okopnik and makes
-suspend-to-RAM work for him perfectly on his Acer Aspire 2010.
-Without this patch, a total lockup happens on resume.
+ > > would be nice to merge the -hrt queue that goes right ontop this queue. 
+ > > Even if HIGH_RES_TIMERS is "default n" in the beginning. That gives us 
+ > > high-res timers and dynticks which are both very important features to 
+ > > certain classes of users/devices.
+ > 
+ > dynticks give benefit of 0.3W, or 20minutes (IIRC) from 8hours on thinkpad
+ > x60... and they were around for way too long. (When baseline is
+ > hz=250, it is 0.5W from hz=1000 baseline). It would be cool to
+ > finally merge them.
 
-I hope the patch is still in the merge window for 2.6.19.
+I actually saw much bigger wins when I tested with an Athlon XP based compaq laptop
+a year or so back. dynticks moved idle from being stuck at 21W to a sinusoidal
+cycle in single watt increments between 22W->18W.  It would never stay in the
+lower ranges for long because of timers firing all the time.
 
-Regards,
-Carl-Daniel
--- 
-http://www.hailfinger.org/
+See http://kernelslacker.livejournal.com/33637.html for details.
 
-This patch adds suspend/resume support for the graphics chip in the
-Acer Aspire 2010: ATI Technologies Inc RV350 [Mobility Radeon 9600 M10]
-01:00.0 0300: 1002:4e50 (prog-if 00 [VGA])
-        Subsystem: 1025:0061
-        Flags: bus master, 66MHz, medium devsel, latency 128, IRQ 16
-        Memory at a8000000 (32-bit, prefetchable) [size=128M]
-        I/O ports at c100 [size=256]
-        Memory at e0010000 (32-bit, non-prefetchable) [size=64K]
-        [virtual] Expansion ROM at a0000000 [disabled] [size=128K]
-        Capabilities: [58] AGP version 2.0
-        Capabilities: [50] Power Management version 2
+There is much interest right now in fixing up various bits of userspace
+to not do braindead things with timers/polling.  The gnome people
+have recently come up with a timertop-esque hack (that goes a bit further)
+for eg. See http://blogs.gnome.org/ryanl for details.
+Arjan also recently did battle with a huge amount of really dumb userspace,
+and dwmw2 has been tracking a bunch of these for OLPC:
+https://bugzilla.redhat.com/bugzilla/showdependencytree.cgi?id=204948
 
-Signed-off-by: Carl-Daniel Hailfinger <c-d.hailfinger.devel.2006@mgx.net>
+Damn all these busy people making me feel inadequate :)
 
-
---- a/drivers/video/aty/radeon_pm.c	2006-09-22 02:53:06.000000000 +0200
-+++ b/drivers/video/aty/radeon_pm.c	2006-09-22 02:55:15.000000000 +0200
-@@ -86,6 +86,9 @@
- 	BUGFIX("Samsung P35",
- 	       PCI_VENDOR_ID_SAMSUNG, 0xc00c,
- 	       radeon_pm_off, radeon_reinitialize_M10),
-+	BUGFIX("Acer Aspire 2010",
-+	       PCI_VENDOR_ID_AI, 0x0061,
-+	       radeon_pm_off, radeon_reinitialize_M10),
- 	{ .ident = NULL }
- };
- 
-
-
+	Dave

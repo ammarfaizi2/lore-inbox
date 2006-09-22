@@ -1,91 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750722AbWIVGVk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750709AbWIVGWh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750722AbWIVGVk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Sep 2006 02:21:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750709AbWIVGVk
+	id S1750709AbWIVGWh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Sep 2006 02:22:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750732AbWIVGWh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Sep 2006 02:21:40 -0400
-Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:32910 "EHLO
-	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S1750704AbWIVGVi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Sep 2006 02:21:38 -0400
-Date: Fri, 22 Sep 2006 15:24:47 +0900
-From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-To: "tony.luck@intel.com" <tony.luck@intel.com>
-Cc: Andrew Morton <akpm@osdl.org>,
-       "linux-ia64@vger.kernel.org" <linux-ia64@vger.kernel.org>,
-       LKML <linux-kernel@vger.kernel.org>, GOTO <y-goto@jp.fujitsu.com>
-Subject: [BUGFIX][PATCH] cpu to node relationship fixup take2 [1/2]
- acpi_map_cpu2node
-Message-Id: <20060922152447.42a83860.kamezawa.hiroyu@jp.fujitsu.com>
-Organization: Fujitsu
-X-Mailer: Sylpheed version 2.2.0 (GTK+ 2.6.10; i686-pc-mingw32)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 22 Sep 2006 02:22:37 -0400
+Received: from smtp.ocgnet.org ([64.20.243.3]:18635 "EHLO smtp.ocgnet.org")
+	by vger.kernel.org with ESMTP id S1750709AbWIVGWg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Sep 2006 02:22:36 -0400
+Date: Fri, 22 Sep 2006 15:22:23 +0900
+From: Paul Mundt <lethal@linux-sh.org>
+To: Luke Yang <luke.adi@gmail.com>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Greg KH <greg@kroah.com>
+Subject: Re: [PATCH 3/3] [BFIN] Blackfin documents and MAINTAINER patch
+Message-ID: <20060922062223.GA20269@localhost.Internal.Linux-SH.ORG>
+References: <489ecd0c0609212205j6b2004acj9f89966b7c56d9a0@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <489ecd0c0609212205j6b2004acj9f89966b7c56d9a0@mail.gmail.com>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I rewrote the whoe patch..
+On Fri, Sep 22, 2006 at 01:05:09PM +0800, Luke Yang wrote:
+> This is the documents patche for Blackfin arch, also includes the
+> MAINTAINERS file change.
+> 
+> Signed-off-by: Luke Yang <luke.adi@gmail.com>
+> Acked-by: Alan Cox <alan@redhat.com>
+> 
+> Documentation/blackfin/00-INDEX          |   11 ++
+> Documentation/blackfin/Filesystems       |  169 
+> +++++++++++++++++++++++++++++++
 
-Problem description:
-We have additional_cpus= option for allocating possible_cpus. But nid for
-possible cpus are not fixed at boot time. cpus which is offlined at boot 
-or cpus which is not on SRAT is not tied to its node.
-This will cause panic at cpu onlining.
+Your mailer does line-wrapping..
 
-Changelog V1 -> V2
-- divded patch into 2 pathces.
-- move cpu_to_node relationship fixup before cpu onlining.
+> +cache-lock.txt
+> +	- HOWTO for blackfin cache locking.
+> +
 
-Tested on ia64/NUMA system, which has *physical* node-hot-add function.
+This is a generic enough of a feature that I suspect we should hash out
+a common API for it rather than having people roll their own.
 
-Future work:  node-hot-add by cpu-hot-add.
+> +How to lock your code in cache in uClinux/blackfin
+> +--------------------------------------------------
+> +
+> +There are only a few steps required to lock your code into the cache.
+> +Currently you can lock the code by Way.
+> +
+> +Below are the interface provided for locking the cache.
+> +
+> +
+> +1. cache_grab_lock(int Ways);
+> +
+> +This function grab the lock for locking your code into the cache specified
+> +by Ways.
+> +
+> +
+> +2. cache_lock(int Ways);
+> +
+> +This function should be called after your critical code has been executed.
+> +Once the critical code exits, the code is now loaded into the cache. This
+> +function locks the code into the cache.
+> +
+> +
+> +So, the example sequence will be:
+> +
+> +	cache_grab_lock(WAY0_L);	/* Grab the lock */
+> +
+> +	critical_code();		/* Execute the code of interest */
+> +
+> +	cache_lock(WAY0_L);		/* Lock the cache */
+> +
+> +Where WAY0_L signifies WAY0 locking.
 
--Kame
+This seems rather problematic, obviously you're constrained by
+sets-per-way in the critical code, which is not mentioned anywhere in
+this documentation. Likewise, the user locking in the critical code
+should not have any reason to _care_ which way gets selected, or whether
+they need to span over to 2 ways or not. Furthermore, the code itself
+allows for grabbing the cache 'lock' for multiple ways in one go, which
+people will need to use for tracking the total number of sets necessary
+to accomodate the critical code. You are also missing an equivalent
+cache_unlock().
 
-==
-In usual, pxm_to_nid() mapping is fixed at boot time by SRAT.
+If you have MMIO access to the cachelines, you would be better off just
+having a locked-in page where you would remap the critical bits.
 
-But, unfortunatelly, some system (my system!) do not include
-full SRAT table for possible cpus. (Then, I use additiona_cpus= option.)
-
-For such possible cpus, pxm<->nid should be fixed at hot-add.
-We now have acpi_map_pxm_to_node() which is also used at boot. It's suitable
-here.
-
-Signed-Off-By: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-
- arch/ia64/kernel/acpi.c |   13 ++++++++-----
- 1 file changed, 8 insertions(+), 5 deletions(-)
-
-Index: linux-2.6.18/arch/ia64/kernel/acpi.c
-===================================================================
---- linux-2.6.18.orig/arch/ia64/kernel/acpi.c	2006-09-22 13:39:12.000000000 +0900
-+++ linux-2.6.18/arch/ia64/kernel/acpi.c	2006-09-22 14:24:48.000000000 +0900
-@@ -771,16 +771,19 @@
- {
- #ifdef CONFIG_ACPI_NUMA
- 	int pxm_id;
-+	int nid;
- 
- 	pxm_id = acpi_get_pxm(handle);
--
- 	/*
--	 * Assuming that the container driver would have set the proximity
--	 * domain and would have initialized pxm_to_node(pxm_id) && pxm_flag
-+	 * We don't have cpu-only-node hotadd. But if the system equips
-+	 * SRAT table, pxm is already found and node is ready.
-+  	 * So, just pxm_to_nid(pxm) is OK.
-+	 * This code here is for the system which doesn't have full SRAT
-+  	 * table for possible cpus.
- 	 */
--	node_cpuid[cpu].nid = (pxm_id < 0) ? 0 : pxm_to_node(pxm_id);
--
-+	nid = acpi_map_pxm_to_node(pxm_id);
- 	node_cpuid[cpu].phys_id = physid;
-+	node_cpuid[cpu].nid = nid;
- #endif
- 	return (0);
- }
-
+This could also be taken a step further for platforms that support
+powering down cache ways for power management (particularly where the
+lock-in would inhibit power-down).

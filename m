@@ -1,54 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965166AbWIVVv2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965209AbWIVWGS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965166AbWIVVv2 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Sep 2006 17:51:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965167AbWIVVv2
+	id S965209AbWIVWGS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Sep 2006 18:06:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965213AbWIVWGS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Sep 2006 17:51:28 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:21997 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S965166AbWIVVv2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Sep 2006 17:51:28 -0400
-Date: Fri, 22 Sep 2006 14:51:20 -0700
-From: Judith Lebzelter <judith@osdl.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       dale@farnsworth.org
-Subject: Re: Arrr! Linux 2.6.18
-Message-ID: <20060922215120.GD23169@shell0.pdx.osdl.net>
-References: <Pine.LNX.4.64.0609192126070.4388@g5.osdl.org>
-Mime-Version: 1.0
+	Fri, 22 Sep 2006 18:06:18 -0400
+Received: from nf-out-0910.google.com ([64.233.182.185]:20140 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S965209AbWIVWGR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Sep 2006 18:06:17 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:mime-version:content-type:content-disposition:in-reply-to:user-agent;
+        b=RuaKko6iBaNQoeUncxCWCzqw8warmxYtnqpgwPYCZSUuFJIfXXxh80ae8WV08Fscuf5zJG0pJDDx/g61GnRS6W1yOgq9D82Qws9cE3asA7WXB7wXJFqrKWk1YhsSyyybT0+VWXe3xBnpk2JufLcOy9J/TQ9yFNKQJKDxtMdWOeg=
+Date: Sat, 23 Sep 2006 00:06:29 +0200
+From: Luca <kronos.it@gmail.com>
+To: Linas Vepstas <linas@austin.ibm.com>
+Cc: linux-scsi@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz,
+       linuxppc-dev@ozlabs.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH]: PCI Error Recovery: Symbios SCSI device driver
+Message-ID: <20060922220629.GA4600@dreamland.darkstar.lan>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0609192126070.4388@g5.osdl.org>
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <20060921231314.GW29167@austin.ibm.com>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 
-> Dale Farnsworth:
->       mv643xx_eth: Unmap DMA buffers in receive path
-> 
 
-In OSDL's automated cross-compile for powerpc64, kernel 2.6.18 had this 
-unexpected error:
+Hi Linas,
 
-drivers/net/mv643xx_eth.c: In function 'mv643xx_eth_receive_queue':
-drivers/net/mv643xx_eth.c:388: error: 'RX_SKB_SIZE' undeclared (first use in this function)
+Linas Vepstas <linas@austin.ibm.com> ha scritto:
+> Index: linux-2.6.18-rc7-git1/drivers/scsi/sym53c8xx_2/sym_glue.c
+> ===================================================================
+> --- linux-2.6.18-rc7-git1.orig/drivers/scsi/sym53c8xx_2/sym_glue.c      2006-09-21 17:32:54.000000000 -0500
+> +++ linux-2.6.18-rc7-git1/drivers/scsi/sym53c8xx_2/sym_glue.c   2006-09-21 17:35:37.000000000 -0500
+> +/**
+> + * sym2_io_slot_reset() -- called when the pci bus has been reset.
+> + * @pdev: pointer to PCI device
+> + *
+> + * Restart the card from scratch.
+> + */
+> +static pci_ers_result_t sym2_io_slot_reset (struct pci_dev *pdev)
+> +{
+> +       struct sym_hcb *np = pci_get_drvdata(pdev);
+> +
+> +       printk (KERN_INFO "%s: recovering from a PCI slot reset\n",
 
-Here is a patch that stops the error.
+Space after function name? You put in other places too, it's not
+consistent with the rest of the patch.
 
-Judith Lebzelter
-OSDL
+> +           sym_name(np));
+> +
+> +       if (pci_enable_device(pdev))
+> +               printk (KERN_ERR "%s: device setup failed most egregiously\n",
+> +                           sym_name(np));
 
---- drivers/net/mv643xx_eth.c.old	2006-09-22 11:22:47.951049416 -0700
-+++ drivers/net/mv643xx_eth.c	2006-09-22 11:23:17.787625304 -0700
-@@ -385,7 +385,7 @@
- 	struct pkt_info pkt_info;
- 
- 	while (budget-- > 0 && eth_port_receive(mp, &pkt_info) == ETH_OK) {
--		dma_unmap_single(NULL, pkt_info.buf_ptr, RX_SKB_SIZE,
-+		dma_unmap_single(NULL, pkt_info.buf_ptr, ETH_RX_SKB_SIZE,
- 							DMA_FROM_DEVICE);
- 		mp->rx_desc_count--;
- 		received_packets++;
+Is the failure of pci_enable_device ignored on purpose?
+(plus extra space)
+
+> +
+> +       pci_set_master(pdev);
+> +       enable_irq (pdev->irq);
+
+Spurious space.
+
+> +
+> +       /* Perform host reset only on one instance of the card */
+> +       if (0 == PCI_FUNC (pdev->devfn)) {
+
+Ditto.
+
+> +               if (sym_reset_scsi_bus(np, 0)) {
+> +                  printk(KERN_ERR "%s: Unable to reset scsi host controller\n",
+> +                                                 sym_name(np));
+> +                       return PCI_ERS_RESULT_DISCONNECT;
+> +               }
+> +               sym_start_up (np, 1);
+
+Ditto.
+
+> +       }
+> +
+> +       return PCI_ERS_RESULT_RECOVERED;
+> +}
+
+
+Luca
+-- 
+"L'abilita` politica e` l'abilita` di prevedere quello che
+ accadra` domani, la prossima settimana, il prossimo mese e
+ l'anno prossimo. E di essere cosi` abili, piu` tardi,
+ da spiegare  perche' non e` accaduto."

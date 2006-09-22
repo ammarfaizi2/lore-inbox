@@ -1,49 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932099AbWIVKqD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932144AbWIVKtg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932099AbWIVKqD (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Sep 2006 06:46:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932112AbWIVKqD
+	id S932144AbWIVKtg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Sep 2006 06:49:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932148AbWIVKtg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Sep 2006 06:46:03 -0400
-Received: from emailer.gwdg.de ([134.76.10.24]:13798 "EHLO emailer.gwdg.de")
-	by vger.kernel.org with ESMTP id S932108AbWIVKqB (ORCPT
+	Fri, 22 Sep 2006 06:49:36 -0400
+Received: from dtp.xs4all.nl ([80.126.206.180]:38318 "HELO abra2.bitwizard.nl")
+	by vger.kernel.org with SMTP id S932144AbWIVKtg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Sep 2006 06:46:01 -0400
-Date: Fri, 22 Sep 2006 12:42:29 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: David Woodhouse <dwmw2@infradead.org>
-cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       rdunlap@xenotime.net
-Subject: Re: 2.6.19 -mm merge plans
-In-Reply-To: <1158919801.24527.668.camel@pmac.infradead.org>
-Message-ID: <Pine.LNX.4.61.0609221242070.791@yvahk01.tjqt.qr>
-References: <20060920135438.d7dd362b.akpm@osdl.org> 
- <1158917046.24527.662.camel@pmac.infradead.org> <1158919801.24527.668.camel@pmac.infradead.org>
+	Fri, 22 Sep 2006 06:49:36 -0400
+Date: Fri, 22 Sep 2006 12:49:34 +0200
+From: Erik Mouw <erik@harddisk-recovery.com>
+To: Frederik Deweerdt <deweerdt@free.fr>
+Cc: sam@ravnborg.org, linux-kernel@vger.kernel.org
+Subject: Re: Make kernel -dirty naming optional
+Message-ID: <20060922104933.GA3348@harddisk-recovery.com>
+References: <20060922120210.GA957@slug>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Report: Content analysis: 0.0 points, 6.0 required
-	_SUMMARY_
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060922120210.GA957@slug>
+Organization: Harddisk-recovery.com
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> > mtd-maps-ixp4xx-partition-parsing.patch
->> > fix-the-unlock-addr-lookup-bug-in-mtd-jedec-probe.patch
->> > mtd-printk-format-warning.patch
->> > fs-jffs2-jffs2_fs_ih-removal-of-old-code.patch
->> > drivers-mtd-nand-au1550ndc-removal-of-old-code.patch
->> > 
->> >  MTD queue -> dwmw2
->> 
->> Merged, with the exception of the unlock addr one which I'm still not
->> sure about -- about to investigate harder.
->
->I just reverted Randy's printk format 'fix', since rq->flags _is_ an
->unsigned long, so changing from %ld to %d actually _introduces_ a
->warning.
+On Fri, Sep 22, 2006 at 12:02:10PM +0000, Frederik Deweerdt wrote:
+> Could you consider applying this patch (or indicate me a better way to
+> do it). It can be handy to be able to keep the naming independent of
+> git.
 
-If it is an unsigned long, it should neither be %ld nor %d, but %lu.
+FWIW, if I enable git name tagging, every kernel I compile is tagged as
+"dirty", even if I cloned it directly from kernel.org and didn't make
+any change to the source. That makes the "dirty" tag useless IMHO.
 
 
+Erik
 
-Jan Engelhardt
 -- 
++-- Erik Mouw -- www.harddisk-recovery.com -- +31 70 370 12 90 --
+| Lab address: Delftechpark 26, 2628 XH, Delft, The Netherlands

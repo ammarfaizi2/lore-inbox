@@ -1,117 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932127AbWIVI1B@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750897AbWIVIfw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932127AbWIVI1B (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Sep 2006 04:27:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932124AbWIVI1A
+	id S1750897AbWIVIfw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Sep 2006 04:35:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750891AbWIVIfw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Sep 2006 04:27:00 -0400
-Received: from osiris.atheme.org ([69.60.119.211]:11913 "EHLO
-	osiris.atheme.org") by vger.kernel.org with ESMTP id S932097AbWIVI07
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Sep 2006 04:26:59 -0400
-Mime-Version: 1.0 (Apple Message framework v752.2)
-In-Reply-To: <20060922.164109.112537486.yoshfuji@linux-ipv6.org>
-References: <4E1176C1-8F18-4790-9BCB-95306ACED48A@atheme.org> <736CE60D-FB88-4246-8728-B7AC7880B28E@atheme.org> <20060922.164109.112537486.yoshfuji@linux-ipv6.org>
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <AD838733-3A8F-4B3E-B620-9B2284B8B2BF@atheme.org>
-Content-Transfer-Encoding: 7bit
-From: William Pitcock <nenolod@atheme.org>
-Subject: Re: [PATCH 2.6.18 try 2] net/ipv4: sysctl to allow non-superuser to bypass CAP_NET_BIND_SERVICE requirement
-Date: Fri, 22 Sep 2006 03:27:22 -0500
-To: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-X-Mailer: Apple Mail (2.752.2)
+	Fri, 22 Sep 2006 04:35:52 -0400
+Received: from caramon.arm.linux.org.uk ([217.147.92.249]:61965 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S1750833AbWIVIfw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Sep 2006 04:35:52 -0400
+Date: Fri, 22 Sep 2006 09:35:42 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Dave Jones <davej@redhat.com>, David Miller <davem@davemloft.net>,
+       jeff@garzik.org, davidsen@tmr.com, torvalds@osdl.org,
+       alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.19 -mm merge plans
+Message-ID: <20060922083542.GA4246@flint.arm.linux.org.uk>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	David Miller <davem@davemloft.net>, jeff@garzik.org,
+	davidsen@tmr.com, torvalds@osdl.org, alan@lxorguk.ukuu.org.uk,
+	linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.64.0609211106391.4388@g5.osdl.org> <45130533.2010209@tmr.com> <45130527.1000302@garzik.org> <20060921.145208.26283973.davem@davemloft.net> <20060921220539.GL26683@redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060921220539.GL26683@redhat.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sep 22, 2006, at 2:41 AM, YOSHIFUJI Hideaki wrote:
+On Thu, Sep 21, 2006 at 06:05:39PM -0400, Dave Jones wrote:
+> We already have some subsystems that do once-per-release merges,
+> and then let fixes build up in their out-of-tree SCM for months
+> until the next window. It won't necessarily get worse, but unless
+> everyone is participating in the odd/even rules, we won't get
+> the benefits that it would offer.
 
-> In article <736CE60D-FB88-4246-8728-B7AC7880B28E@atheme.org> (at  
-> Fri, 22 Sep 2006 02:31:59 -0500), William Pitcock  
-> <nenolod@atheme.org> says:
->
->> This patch allows for a user to disable the requirement to meet the
->> CAP_NET_BIND_SERVICE capability for a non-superuser. It is toggled by
->> the net.ipv4.allow_lowport_bind_nonsuperuser sysctl value.
->
-> Why?  I don't think this is a good idea.
->
+I'm heading in that direction (once-per-release merges) actually.
 
-There are several reasons. To summarize, in some setups, such as  
-mine, it is undesirable to force applications to run as root to gain  
-access to 'service' ports. A more defined listing of reasons why this  
-patch is a good idea are below:
+On one hand, I'm credited with the ARM architecture being one of the
+best maintained embedded architectures in the kernel tree.  On the
+other hand, that appears to be winding Linus up due to the regular
+merge requests, which were happening maybe once or twice a week.
 
-* People wanting to run restricted services such as jabber, ircd, etc  
-on low ports to allow people to bypass ISP firewalls, but the  
-software doesn't have mechanisms for dropping privileges (most ircds,  
-for example do not have such an option)
+Linus seems to be of the opinion that, if anyone can't wait a number
+of months for their patch to get into mainline, then they shouldn't
+be involved in this game.  The content of the tree which that comment
+was made at contained (imho) just bug fixes.
 
-* The software is untrusted by the end user, in the event that the  
-software is not trustworthy, the amount of damage it can do running  
-as a normal user is less than as a superuser. As it is, the bind()  
-may have failed before the CAP_NET_BIND_SERVICE capability was  
-granted to the process.
+At the moment, we're up to 528kB (initial commit Aug 21st) of IOP3xx
+and S3C24xx machine updates, and various other developments.  As for
+the other trees, MMC (9kB since Aug 27) and serial (20kB since Aug 30)
+but neither have been looked at for a while, certainly not post 2.6.18.
+I'm not even responding to mail about these because I haven't been even
+thinking about them yet.
 
-* Building on that, capabilities are still linux-specific. Other  
-systems, such as FreeBSD allow you to disable this restriction via  
-sysctl as well. It is very likely that daemons are not capability  
-aware, and thus would require some sort of wrapper script (which is  
-likely beyond the ability of most endusers). Wrapping the daemon  
-would still require superuser privileges as well to make sure it  
-worked properly, and even if it did work properly, it still opens a  
-race condition where the bind() may have failed before the capability  
-bit was granted to the process.
+As far as -mm getting these, I have asked Andrew to pull this tree in
+the past, but whenever I rebase the trees (eg, when 2.6.18 comes out)
+and fix up the rejects, Andrew seems to have a hard time coping.  I
+guess Andrew finds it too difficult to handle my devel branches.
 
-* Many services do not run on 'service' ports, and instead run out in  
-userspace. For instance, MySQL listens on TCP/3306 by default, and  
-PostgreSQL listens in userspace as well (although, I cannot recall  
-the exact port number it listens on at present). In many cases, squid  
-runs on port 8080, which is also userspace. For this reason, it is  
-arguable that the entire CAP_NET_BIND_SERVICE restriction isn't very  
-useful.
+Where I go from here I'm not sure - I'm running out of ideas for
+correct "Care and Operation of (my) Linus Torvalds", except becoming
+one of the Bad People who only merge _lots_ of changes once in a blue
+moon.
 
-* Embedded devices (consumer routers, etc) may want to have some  
-level of privilege seperation internally to reduce the amount of  
-exploitation possibility in their firmware, this patch makes that  
-easier to accomplish (just set the sysctl in the initialization and  
-go from there)
+So, what I'm going to be doing this cycle is essentially sitting on
+stuff for quite some time and not really caring about where in the
+release cycle mainline actually is.  (Anyone remember Linus moaning
+at various people for doing exactly this?  Eg, ALSA people?)  It
+pains me to do this because it's obviously not the _correct_ thing
+to do, but I don't see any other way of keeping Linus happy.  And this
+does mean giving up all hope of getting anything in mainline.
 
-* Other TCP stacks (Winsock2, for instance) do not impose the <= 1023  
-limit.
+As far as my future, I will be handing MMC off to Pierre Ossman during
+this cycle (there are other reasons for doing this which Pierre has been
+aware of for some time.)
 
->> diff --git a/include/linux/sysctl.h b/include/linux/sysctl.h
->> index e4b1a4d..c3f7c3c 100644
->> --- a/include/linux/sysctl.h
->> +++ b/include/linux/sysctl.h
->> @@ -411,6 +411,7 @@ enum
->> 	NET_IPV4_TCP_WORKAROUND_SIGNED_WINDOWS=115,
->> 	NET_TCP_DMA_COPYBREAK=116,
->> 	NET_TCP_SLOW_START_AFTER_IDLE=117,
->> +	NET_IPV4_ALLOW_LOWPORT_BIND_NONSUPERUSER=118,
->>    };
->>
->>    enum {
->
-> This implies all IPv4 protocols including other protocols
-> such as UDP, SCTP, ...
+I'll also be dropping my serial tree entirely - I have no idea who could
+stand in for serial, so there's going to be no real "hand over" for that.
+I do have some outstanding in-progress changes which aren't really ready,
+but those will probably end up in /dev/null (in much the same way that my
+in-progress changes for PCMCIA ended up in a similar place when I handed
+that tree over.)
 
-Yes, I'll change the sysctl name to better infer that it is for TCP.  
-That is not an issue. If you have a suggestion for what it should be,  
-I'd love to hear it.
+So, it's going to mean that the only thing I'm going to be caring about
+post-2.6.19 is ARM again.
 
->
->> @@ -1412,3 +1418,4 @@ EXPORT_SYMBOL(inet_stream_ops);
->>    EXPORT_SYMBOL(inet_unregister_protosw);
->>    EXPORT_SYMBOL(net_statistics);
->>    EXPORT_SYMBOL(sysctl_ip_nonlocal_bind);
->> +EXPORT_SYMBOL(sysctl_ip_allow_lowport_bind_nonsuperuser);
->
-> Please be aware about indent.
-
-I'll be sure to fix that, thank you.
-
-(resent due to mailer glitch)
-
-- nenolod
-
-
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

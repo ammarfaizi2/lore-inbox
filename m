@@ -1,44 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932205AbWIVCHF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932210AbWIVCIg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932205AbWIVCHF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Sep 2006 22:07:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932204AbWIVCHE
+	id S932210AbWIVCIg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Sep 2006 22:08:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932208AbWIVCIg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Sep 2006 22:07:04 -0400
-Received: from fgwmail5.fujitsu.co.jp ([192.51.44.35]:56777 "EHLO
-	fgwmail5.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S932205AbWIVCHB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Sep 2006 22:07:01 -0400
-Date: Fri, 22 Sep 2006 11:09:39 +0900
-From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-To: kmannth@us.ibm.com
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, clameter@engr.sgi.com
-Subject: Re: [BUG] i386 2.6.18 cpu_up: attempt to bring up CPU 4 failed :
- kernel BUG at mm/slab.c:2698!
-Message-Id: <20060922110939.8bf65ed8.kamezawa.hiroyu@jp.fujitsu.com>
-In-Reply-To: <1158888843.5657.44.camel@keithlap>
-References: <1158884252.5657.38.camel@keithlap>
-	<20060921174134.4e0d30f2.akpm@osdl.org>
-	<1158888843.5657.44.camel@keithlap>
-Organization: Fujitsu
-X-Mailer: Sylpheed version 2.2.0 (GTK+ 2.6.10; i686-pc-mingw32)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 21 Sep 2006 22:08:36 -0400
+Received: from gw.goop.org ([64.81.55.164]:2989 "EHLO mail.goop.org")
+	by vger.kernel.org with ESMTP id S932207AbWIVCIf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Sep 2006 22:08:35 -0400
+Message-ID: <45134539.7070305@goop.org>
+Date: Thu, 21 Sep 2006 19:06:49 -0700
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
+MIME-Version: 1.0
+To: Mathieu Desnoyers <compudj@krystal.dyndns.org>
+CC: Martin Bligh <mbligh@google.com>, "Frank Ch. Eigler" <fche@redhat.com>,
+       Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>, prasanna@in.ibm.com,
+       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
+       Paul Mundt <lethal@linux-sh.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>, Jes Sorensen <jes@sgi.com>,
+       Tom Zanussi <zanussi@us.ibm.com>,
+       Richard J Moore <richardj_moore@uk.ibm.com>,
+       Michel Dagenais <michel.dagenais@polymtl.ca>,
+       Christoph Hellwig <hch@infradead.org>,
+       Greg Kroah-Hartman <gregkh@suse.de>,
+       Thomas Gleixner <tglx@linutronix.de>, William Cohen <wcohen@redhat.com>,
+       ltt-dev@shafik.org, systemtap@sources.redhat.com,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH] Linux Kernel Markers 0.7 for 2.6.17 (with type checking!)
+References: <20060921232024.GA16155@Krystal> <451331A1.3020601@goop.org> <20060922020119.GA28712@Krystal>
+In-Reply-To: <20060922020119.GA28712@Krystal>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 21 Sep 2006 18:34:03 -0700
-keith mannthey <kmannth@us.ibm.com> wrote:
-> > b) pageset_cpuup_callback()'s CPU_UP_CANCELED path possibly hasn't been
-> >    tested before.  I'd be guessing that we're not zeroing out the
-> >    zone.pageset[] array when the `struct zone' is first allocated, but I
-> >    don't immediately recall where that code lives.
-> 
+Mathieu Desnoyers wrote:
+> #define MARK_SYM(name) \
+>         do { \
+>                 __label__ here; \
+>                 volatile static void *__mark_kprobe_##name \
+>                         asm (MARK_CALL_PREFIX#name) \
+>                         __attribute__((unused)) = &&here; \
+> here: \
+>                 do { } while(0); \
+>         } while(0)
+>
+> Which fixes the problem. Some tests showed me that the compiler does not unroll
+> an otherwise unrolled loop when this specific macro is called. (test done with
+> -funroll-all-loops).
 
-Just a question. Because process_zones(cpu) is called at CPU_UP_PREPARE,
-cpu_to_node(cpu) should be fixed before CPU_UP_PREPARE ?
-(If so, I should revert a patch I sent today...)
+Eh?  I thought you wanted to avoid changing the generated code?  
+Inhibiting loop unrolling could be a pretty large change...
 
--Kame
-
+    J

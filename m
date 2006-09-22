@@ -1,89 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965331AbWIVXDs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964851AbWIVXFd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965331AbWIVXDs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Sep 2006 19:03:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965334AbWIVXDs
+	id S964851AbWIVXFd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Sep 2006 19:05:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964901AbWIVXFd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Sep 2006 19:03:48 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:52385 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S965331AbWIVXDr (ORCPT
+	Fri, 22 Sep 2006 19:05:33 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:61154 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S964851AbWIVXFc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Sep 2006 19:03:47 -0400
-Date: Fri, 22 Sep 2006 16:02:55 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Olaf Hering <olaf@aepfle.de>
-Cc: Michael Hanselmann <linux-kernel@hansmi.ch>, linux-kernel@vger.kernel.org,
-       linux-fbdev-devel@lists.sourceforge.net,
-       "Antonino A. Daplas" <adaplas@pol.net>,
-       Daniel R Thompson <daniel.thompson@st.com>,
-       Jon Smirl <jonsmirl@gmail.com>
-Subject: Re: backlight: oops in __mutex_lock_slowpath during head
- /sys/class/graphics/fb0/* in 2.6.18
-Message-Id: <20060922160255.b97f2887.akpm@osdl.org>
-In-Reply-To: <20060922112622.GA26724@aepfle.de>
-References: <20060921121952.GA16927@aepfle.de>
-	<20060921123742.ec225cc2.akpm@osdl.org>
-	<20060921215620.GA9518@hansmi.ch>
-	<20060922112622.GA26724@aepfle.de>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+	Fri, 22 Sep 2006 19:05:32 -0400
+Date: Fri, 22 Sep 2006 19:05:27 -0400
+From: Dave Jones <davej@redhat.com>
+To: =?utf-8?B?Uy7Dh2HEn2xhcg==?= Onur <caglar@pardus.org.tr>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [BUG] warning at kernel/cpu.c:38/lock_cpu_hotplug()
+Message-ID: <20060922230527.GA23045@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	=?utf-8?B?Uy7Dh2HEn2xhcg==?= Onur <caglar@pardus.org.tr>,
+	linux-kernel@vger.kernel.org
+References: <200609230145.21997.caglar@pardus.org.tr>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <200609230145.21997.caglar@pardus.org.tr>
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 22 Sep 2006 13:26:22 +0200
-Olaf Hering <olaf@aepfle.de> wrote:
+On Sat, Sep 23, 2006 at 01:45:16AM +0300, S.Çağlar Onur wrote:
+ > Hi;
+ > 
+ > With kernel-2.6.18, "modprobe cpufreq_stats" always (i can reproduce) gaves 
+ > following;
+ > 
+ > ...
+ > Lukewarm IQ detected in hotplug locking
+ > BUG: warning at kernel/cpu.c:38/lock_cpu_hotplug()
+ >  [<b0134a42>] lock_cpu_hotplug+0x42/0x65
+ >  [<b02f8af1>] cpufreq_update_policy+0x25/0xad
+ >  [<b0358756>] kprobe_flush_task+0x18/0x40
+ >  [<b0355aab>] schedule+0x63f/0x68b
+ >  [<b01377c2>] __link_module+0x0/0x1f
+ >  [<b0119e7d>] __cond_resched+0x16/0x34
+ >  [<b03560bf>] cond_resched+0x26/0x31
+ >  [<b0355b0e>] wait_for_completion+0x17/0xb1
+ >  [<f965c547>] cpufreq_stat_cpu_callback+0x13/0x20 [cpufreq_stats]
+ >  [<f9670074>] cpufreq_stats_init+0x74/0x8b [cpufreq_stats]
+ >  [<b0137872>] sys_init_module+0x91/0x174
+ >  [<b0102c81>] sysenter_past_esp+0x56/0x79
 
-> On Thu, Sep 21, Michael Hanselmann wrote:
-> 
-> > What about the patch below? Does it work for you?
-> 
-> Appears to work.
-> 
-> tangerine:~ # head /sys/class/graphics/fb0/*
-> ==> /sys/class/graphics/fb0/bits_per_pixel <==
-> 8
-> 
-> ==> /sys/class/graphics/fb0/bl_curve <==
-> head: error reading `/sys/class/graphics/fb0/bl_curve': No such device
-> 
-> ==> /sys/class/graphics/fb0/blank <==
-> 
-> ==> /sys/class/graphics/fb0/console <==
-> 
-> ==> /sys/class/graphics/fb0/cursor <==
-> 
-> ==> /sys/class/graphics/fb0/dev <==
-> 29:0
-> 
-> ==> /sys/class/graphics/fb0/mode <==
-> 
-> ==> /sys/class/graphics/fb0/modes <==
-> U:832x624p-74
-> 
-> ==> /sys/class/graphics/fb0/name <==
-> valkyrie
-> 
-> ==> /sys/class/graphics/fb0/pan <==
-> 0,0
-> 
-> ==> /sys/class/graphics/fb0/rotate <==
-> 0
-> 
-> ==> /sys/class/graphics/fb0/state <==
-> 0
-> 
-> ==> /sys/class/graphics/fb0/stride <==
-> 832
-> 
-> ==> /sys/class/graphics/fb0/subsystem <==
-> head: error reading `/sys/class/graphics/fb0/subsystem': Is a directory
-> head: cannot open `/sys/class/graphics/fb0/uevent' for reading: Permission denied
-> 
-> ==> /sys/class/graphics/fb0/virtual_size <==
-> 832,624
+Ah yes, cpufreq vs hotplug cpu locking. The eternal battle continues.
 
-Still looks like a bit of a mess, but I assume that's expected.
+Andrew, did we arrive at concensus about how we should fix this?
+I'm still of the opinion that it should be ripped out
+completely, and started from scratch.
 
-Michael, I take it that patch was final?
+	Dave
+

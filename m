@@ -1,53 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932122AbWIVKDU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750702AbWIVKK3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932122AbWIVKDU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Sep 2006 06:03:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932133AbWIVKDU
+	id S1750702AbWIVKK3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Sep 2006 06:10:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750737AbWIVKK2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Sep 2006 06:03:20 -0400
-Received: from nf-out-0910.google.com ([64.233.182.185]:9488 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S932122AbWIVKDT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Sep 2006 06:03:19 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:mime-version:content-type:content-disposition:user-agent:sender;
-        b=jD6X2cwIAmHTBwYun2sXg3D2y2qosW7dQbzv8DwJ+3zJPvwmEgQzeX7P/srID7eRa8Xx1Rd9dt9g4w8rUfyG6F7TRLvD8hsSZDc4Z9hXy5UsG92ZWMvvUaZvkMjhzVHQJALx8FHGuNlNQkVLYdOBkogqtWpnEm4YSThbAl7ZiSM=
-Date: Fri, 22 Sep 2006 12:02:10 +0000
-From: Frederik Deweerdt <deweerdt@free.fr>
-To: sam@ravnborg.org
-Cc: linux-kernel@vger.kernel.org
-Subject: Make kernel -dirty naming optional
-Message-ID: <20060922120210.GA957@slug>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: mutt-ng/devel-r804 (Linux)
+	Fri, 22 Sep 2006 06:10:28 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:57999 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1750702AbWIVKK2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Sep 2006 06:10:28 -0400
+Subject: Re: 2.6.19 -mm merge plans
+From: David Woodhouse <dwmw2@infradead.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, rdunlap@xenotime.net
+In-Reply-To: <1158917046.24527.662.camel@pmac.infradead.org>
+References: <20060920135438.d7dd362b.akpm@osdl.org>
+	 <1158917046.24527.662.camel@pmac.infradead.org>
+Content-Type: text/plain
+Date: Fri, 22 Sep 2006 11:10:01 +0100
+Message-Id: <1158919801.24527.668.camel@pmac.infradead.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5.dwmw2.1) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Sam,
+On Fri, 2006-09-22 at 10:24 +0100, David Woodhouse wrote:
+> On Wed, 2006-09-20 at 13:54 -0700, Andrew Morton wrote:
+> > 
+> > mtd-maps-ixp4xx-partition-parsing.patch
+> > fix-the-unlock-addr-lookup-bug-in-mtd-jedec-probe.patch
+> > mtd-printk-format-warning.patch
+> > fs-jffs2-jffs2_fs_ih-removal-of-old-code.patch
+> > drivers-mtd-nand-au1550ndc-removal-of-old-code.patch
+> > 
+> >  MTD queue -> dwmw2
+> 
+> Merged, with the exception of the unlock addr one which I'm still not
+> sure about -- about to investigate harder.
 
-Could you consider applying this patch (or indicate me a better way to
-do it). It can be handy to be able to keep the naming independent of
-git.
+I just reverted Randy's printk format 'fix', since rq->flags _is_ an
+unsigned long, so changing from %ld to %d actually _introduces_ a
+warning.
 
-Thanks,
-Frederik
+Randy, that's the second time I recall recently that I've ended up
+reverting a printk format fix from you -- what are you doing? How did
+you manage to get the warning you reported:
+
+drivers/mtd/mtd_blkdevs.c:72: warning: long int format, different type arg (arg 2)
 
 
-
-diff --git a/scripts/setlocalversion b/scripts/setlocalversion
-index 82e4993..62f2fef 100644
---- a/scripts/setlocalversion
-+++ b/scripts/setlocalversion
-@@ -9,7 +9,7 @@ usage() {
- cd "${1:-.}" || usage
- 
- # Check for git and a git repo.
--if head=`git rev-parse --verify HEAD 2>/dev/null`; then
-+if [ -z "${IGNORE_GIT}" ] && head=`git rev-parse --verify HEAD 2>/dev/null`; then
- 	# Do we have an untagged version?
- 	if git name-rev --tags HEAD | grep -E '^HEAD[[:space:]]+(.*~[0-9]*|undefined)$' > /dev/null; then
- 		printf '%s%s' -g `echo "$head" | cut -c1-8`
+-- 
+dwmw2
 

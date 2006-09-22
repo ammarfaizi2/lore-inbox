@@ -1,46 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964777AbWIVPuV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964783AbWIVPzf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964777AbWIVPuV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Sep 2006 11:50:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964775AbWIVPuV
+	id S964783AbWIVPzf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Sep 2006 11:55:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964784AbWIVPzf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Sep 2006 11:50:21 -0400
-Received: from wr-out-0506.google.com ([64.233.184.228]:36248 "EHLO
-	wr-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S964777AbWIVPuU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Sep 2006 11:50:20 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=QSDsV5faFkDS8ZnoIQj+9fcyTyMkQHBsgAKymDZt5K6xUwquCw96eQEXsFoS2pZNmy200X97oed0CaI2iaWiEuRO4NbkhEsG22fLEO2bHjZ3KMVVy+DEtRfc0hlnymw5+FdZ4Qx++iiqZ5VUfbUDufYbY7BP1tB5v11TkDH6/0Q=
-Message-ID: <bd0cb7950609220850k7186efco7e0b6328e9461bf5@mail.gmail.com>
-Date: Fri, 22 Sep 2006 11:50:19 -0400
-From: "Tom St Denis" <tomstdenis@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: [PATCH] sky2 network driver
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Fri, 22 Sep 2006 11:55:35 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:56516 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S964783AbWIVPze (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Sep 2006 11:55:34 -0400
+Date: Fri, 22 Sep 2006 08:55:21 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Autofs4 breakage (was 2.6.19 -mm merge plans)
+Message-Id: <20060922085521.af242c86.akpm@osdl.org>
+In-Reply-To: <1158881119.5797.14.camel@lade.trondhjem.org>
+References: <20060920135438.d7dd362b.akpm@osdl.org>
+	<1158789333.5639.37.camel@lade.trondhjem.org>
+	<20060920203947.b9b9920e.akpm@osdl.org>
+	<1158881119.5797.14.camel@lade.trondhjem.org>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch fixes the sky2 network driver for 965P-S3 Gigabyte
-motherboards by adding the device ID required for this revision of the
-chipset.
+On Thu, 21 Sep 2006 19:25:19 -0400
+Trond Myklebust <trond.myklebust@fys.uio.no> wrote:
 
-Signed-Off-by: Tom St Denis <tomstdenis@gmail.com>
+> On Wed, 2006-09-20 at 20:39 -0700, Andrew Morton wrote:
+> > On Wed, 20 Sep 2006 17:55:33 -0400
+> > Trond Myklebust <trond.myklebust@fys.uio.no> wrote:
+> > 
+> > > On Wed, 2006-09-20 at 13:54 -0700, Andrew Morton wrote:
+> > > 
+> > > > add-newline-to-nfs-dprintk.patch
+> > > > fs-nfs-make-code-static.patch
+> > > > 
+> > > >  NFS queue -> Trond.
+> > > > 
+> > > >  The NFS git tree breaks autofs4 submounts.  Still.
+> > > 
+> > > I still suspect that is due to a misconfigured selinux setup on your
+> > > machine. If autofs4 expects to be able to do mkdir() on your NFS
+> > > partition (something which in itself is wrong), then selinux should be
+> > > configured to allow it to do so.
+> > > 
+> > > Anyhow, does reverting the patch
+> > > 
+> > > http://kernel.org/git/gitweb.cgi?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff;h=a634904a7de0d3a0bc606f608007a34e8c05bfee;hp=ddeff520f02b92128132c282c350fa72afffb84a
+> > > 
+> > > 'fix' the issue for you?
+> > > 
+> > 
+> > yes.
+> 
+> Hmm... but you aren't seeing it with a clean 2.6.18 kernel?
+> 
 
---- linux-2.6.18/drivers/net/sky2.c	2006-09-20 03:42:06.000000000 +0000
-+++ linux-2.6.18-tom/drivers/net/sky2.c	2006-09-22 21:28:03.000000000 +0000
-@@ -121,6 +121,7 @@
- 	{ PCI_DEVICE(PCI_VENDOR_ID_MARVELL, 0x4361) },
- 	{ PCI_DEVICE(PCI_VENDOR_ID_MARVELL, 0x4362) },
- 	{ PCI_DEVICE(PCI_VENDOR_ID_MARVELL, 0x4363) },
-+	{ PCI_DEVICE(PCI_VENDOR_ID_MARVELL, 0x4364) },
- 	{ 0 }
- };
-
-
-
-Tom
+Yes, I am.  Mainline broke.

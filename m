@@ -1,76 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964775AbWIVP5d@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964778AbWIVQBL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964775AbWIVP5d (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Sep 2006 11:57:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964778AbWIVP5d
+	id S964778AbWIVQBL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Sep 2006 12:01:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964781AbWIVQBL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Sep 2006 11:57:33 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:53685 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S964775AbWIVP5c (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Sep 2006 11:57:32 -0400
-Subject: Re: GFS2 & DLM merge request
-From: Steven Whitehouse <swhiteho@redhat.com>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Jan Engelhardt <jengelh@linux01.gwdg.de>, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>
-In-Reply-To: <20060922143627.GA24953@infradead.org>
-References: <1158935874.11901.408.camel@quoit.chygwyn.com>
-	 <20060922143627.GA24953@infradead.org>
+	Fri, 22 Sep 2006 12:01:11 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:28117 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S964778AbWIVQBK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Sep 2006 12:01:10 -0400
+Subject: Re: 2.6.19 -mm merge plans
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Dave Jones <davej@redhat.com>
+Cc: David Miller <davem@davemloft.net>, jeff@garzik.org, davidsen@tmr.com,
+       torvalds@osdl.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20060922154816.GA15032@redhat.com>
+References: <Pine.LNX.4.64.0609211106391.4388@g5.osdl.org>
+	 <45130533.2010209@tmr.com> <45130527.1000302@garzik.org>
+	 <20060921.145208.26283973.davem@davemloft.net>
+	 <20060921220539.GL26683@redhat.com>
+	 <20060922083542.GA4246@flint.arm.linux.org.uk>
+	 <20060922154816.GA15032@redhat.com>
 Content-Type: text/plain
-Organization: Red Hat (UK) Ltd
-Date: Fri, 22 Sep 2006 17:02:24 +0100
-Message-Id: <1158940944.11901.417.camel@quoit.chygwyn.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
 Content-Transfer-Encoding: 7bit
+Date: Fri, 22 Sep 2006 17:24:01 +0100
+Message-Id: <1158942242.24572.13.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Ar Gwe, 2006-09-22 am 11:48 -0400, ysgrifennodd Dave Jones:
+> That's unfortunate. If you want someone to scoop bits up and feed Linus,
+> I'm happy to volunteer for the task, as long as you're still willing
+> to eyeball serial diffs until I get up to speed.
 
-On Fri, 2006-09-22 at 15:36 +0100, Christoph Hellwig wrote:
-> On Fri, Sep 22, 2006 at 03:37:54PM +0100, Steven Whitehouse wrote:
-> > Hi,
-> > 
-> > Linus, I believe that all the outstanding issues raised by Christoph,
-> > Jan and others relating to GFS2 and DLM are now settled. Please
-> > therefore consider pulling from:
-> 
-> Clear NACK from me.  The mails I replied to where only the mails Jan started
-> nitpicking and I looked a little deeper at what he already quoted, maybe
-> 5% of the codebase.  Given the horrors I found there I'm pretty sure there
-> will be quite a few more.  And given the amount of junk Andrew plans to push
-> to Linus for 2.6.19 I'll be pretty busy to look at that, aswell as looking
-> at things I promised David for month now, so I'm a little busy.
-> 
-Well I hope that we don't have too many more "horrors" left in the code.
-It has after all been out for review many times in the last year and I
-hope we've not done too bad a job of incorporating all the suggested
-changes so far.
-
-When I spoke to you at OLS you did promise me that you'd look at the
-code in more detail and that was more than a month ago now. I know there
-is a lot else to be reviewed as well as GFS2 and we need to wait our
-place in the queue as it were, but it would be helpful to know where
-that place is, so we can then try our best to work with the process.
-
-> >  include/linux/fs.h                 |    3 
-> >  include/linux/iflags.h             |  102 
-> >  include/linux/kernel.h             |    1 
-> >  mm/filemap.c                       |    3 
-> >  mm/readahead.c                     |    1 
-> 
-> And while we're at it, please don't push core change as part of a subsystem
-> tree ever.  They should go into clearly marked and separately patches via
-> -mm.
-
-Ok, I'm quite happy to do that. They are pretty minor changes, but the
-usual argument is that such changes are not acceptable until there is
-something in the kernel that makes use of them, and they have to happen
-one way around or the other,
-
-Steve.
-
+I'll give you a hand with that, I've got to do some work in that area
+anyway for the arbitary speed support.
 

@@ -1,47 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932533AbWIVQdY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932565AbWIVQff@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932533AbWIVQdY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Sep 2006 12:33:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932555AbWIVQdY
+	id S932565AbWIVQff (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Sep 2006 12:35:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932566AbWIVQff
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Sep 2006 12:33:24 -0400
-Received: from terminus.zytor.com ([192.83.249.54]:30899 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S932533AbWIVQdX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Sep 2006 12:33:23 -0400
-Message-ID: <4514103D.8010303@zytor.com>
-Date: Fri, 22 Sep 2006 09:33:01 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
+	Fri, 22 Sep 2006 12:35:35 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:62364 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S932565AbWIVQfe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Sep 2006 12:35:34 -0400
+Date: Fri, 22 Sep 2006 09:35:13 -0700 (PDT)
+From: Christoph Lameter <clameter@sgi.com>
+To: Andi Kleen <ak@suse.de>
+cc: Martin Bligh <mbligh@mbligh.org>, akpm@google.com,
+       linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
+       James Bottomley <James.Bottomley@steeleye.com>, linux-mm@kvack.org
+Subject: Re: [RFC] Initial alpha-0 for new page allocator API
+In-Reply-To: <200609220817.59801.ak@suse.de>
+Message-ID: <Pine.LNX.4.64.0609220934040.7083@schroedinger.engr.sgi.com>
+References: <Pine.LNX.4.64.0609212052280.4736@schroedinger.engr.sgi.com>
+ <200609220817.59801.ak@suse.de>
 MIME-Version: 1.0
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-CC: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>,
-       Dax Kelson <dax@gurulabs.com>,
-       Linux kernel <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: Smaller compressed kernel source tarballs?
-References: <1158870777.24172.23.camel@mentorng.gurulabs.com> <20060921204250.GN13641@csclub.uwaterloo.ca> <45130792.9040104@zytor.com> <20060922140007.GK13639@csclub.uwaterloo.ca> <Pine.LNX.4.61.0609221811560.12304@yvahk01.tjqt.qr>
-In-Reply-To: <Pine.LNX.4.61.0609221811560.12304@yvahk01.tjqt.qr>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan Engelhardt wrote:
->>> widely used until there is an "lzip" which does the same thing.  I 
->>> actually started the work of adding LZMA support to gzip, but then 
->>> realized it would be better if a new encapsulation format with proper 
->>> 64-bit support everywhere was created.
->> It doesn't handle streaming?
->>
->> So you can't do: tar c dirname | 7zip dirname.tar.7z ?
-> 
-> man 7z [slightly changed for reasonability]:
-> 
->   -si
->       Read data from StdIn (eg: tar -c directory | 7z a -si directory.tar.7z)
-> 
+On Fri, 22 Sep 2006, Andi Kleen wrote:
 
-Yes, but you can't make it write to an unseekable stdout.
+> On Friday 22 September 2006 06:02, Christoph Lameter wrote:
+> > We have repeatedly discussed the problems of devices having varying 
+> > address range requirements for doing DMA.
+> 
+> We already have such an API. dma_alloc_coherent(). Device drivers
+> are not supposed to mess with GFP_DMA* directly anymore for quite
+> some time. 
 
-	-hpa
+Device drivers need to be able to indicate ranges of addresses that may be 
+different from ZONE_DMA. This is an attempt to come up with a future 
+scheme that does no longer rely on device drivers referring to zoies.
+
+> > We would like for the device  
+> > drivers to have the ability to specify exactly which address range is 
+> > allowed. 
+> 
+> I actually have my doubts it is a good idea to add that now. The devices
+> with weird requirements are steadily going away
+
+Hmm.... Martin?
+

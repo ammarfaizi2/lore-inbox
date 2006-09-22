@@ -1,40 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964889AbWIVUQz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964885AbWIVUWz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964889AbWIVUQz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Sep 2006 16:16:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964891AbWIVUQz
+	id S964885AbWIVUWz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Sep 2006 16:22:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964891AbWIVUWz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Sep 2006 16:16:55 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:56251 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S964889AbWIVUQy (ORCPT
+	Fri, 22 Sep 2006 16:22:55 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:1485 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S964885AbWIVUWz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Sep 2006 16:16:54 -0400
-Date: Fri, 22 Sep 2006 13:16:37 -0700
-From: Greg KH <greg@kroah.com>
-To: Ed Swierk <eswierk@arastra.com>
-Cc: linux-kernel@vger.kernel.org, rusty@rustcorp.com.au
-Subject: Re: [RETRY] [PATCH] load_module: no BUG if module_subsys uninitialized
-Message-ID: <20060922201637.GA17547@kroah.com>
-References: <c1bf1cf0609221248v39113875id4b48c62cec8eb46@mail.gmail.com>
+	Fri, 22 Sep 2006 16:22:55 -0400
+Message-ID: <45144613.2080306@garzik.org>
+Date: Fri, 22 Sep 2006 16:22:43 -0400
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <c1bf1cf0609221248v39113875id4b48c62cec8eb46@mail.gmail.com>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+To: Roland Dreier <rdreier@cisco.com>
+CC: Linus Torvalds <torvalds@osdl.org>, Dave Jones <davej@redhat.com>,
+       David Miller <davem@davemloft.net>, davidsen@tmr.com,
+       alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.19 -mm merge plans
+References: <Pine.LNX.4.64.0609211106391.4388@g5.osdl.org>	<45130533.2010209@tmr.com> <45130527.1000302@garzik.org>	<20060921.145208.26283973.davem@davemloft.net>	<20060921220539.GL26683@redhat.com>	<20060922083542.GA4246@flint.arm.linux.org.uk>	<20060922154816.GA15032@redhat.com>	<Pine.LNX.4.64.0609220901040.4388@g5.osdl.org> <aday7sbfyuy.fsf@cisco.com>
+In-Reply-To: <aday7sbfyuy.fsf@cisco.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.3 (----)
+X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 22, 2006 at 12:48:48PM -0700, Ed Swierk wrote:
-> [I discovered after sending my previous message that Gmail helpfully
-> line-wrapped and de-tabified my patch. I'm resending it as an
-> attachment; apologies for the error.]
-> 
-> Invoking load_module() before param_sysfs_init() is called crashes in
-> mod_sysfs_setup(), since the kset in module_subsys is not initialized
-> yet.
+Roland Dreier wrote:
+> My way of handling this has been to wait until you've acted on my
+> first merge request before sending another one.  I also don't touch my
+> published "for-linus" branch in git until you've pulled it.  I just
+> batch up pending changes in my "for-2.6.19" branch until my next merge
+> (and I also encourage people interested in Infiniband to run my
+> for-2.6.19 branch)
 
-How are you calling load_module before this init call is made?
 
-thanks,
+That's pretty much what I do.  I run a
+	git branch upstream-linus upstream
 
-greg k-h
+and then submit a pull request for the upstream-linus branch.  That way, 
+I can keep working and committing stuff, and don't have to wait for 
+Linus to pull.
+
+Then, after the pull, I delete the branch
+	git branch -D upstream-linus
+
+locally, and repeat the process next time a bunch of changes are queued up.
+
+	Jeff
+
+

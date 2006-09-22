@@ -1,55 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932377AbWIVMcS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932374AbWIVMdf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932377AbWIVMcS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Sep 2006 08:32:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932375AbWIVMcR
+	id S932374AbWIVMdf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Sep 2006 08:33:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932379AbWIVMdf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Sep 2006 08:32:17 -0400
-Received: from colin.muc.de ([193.149.48.1]:58628 "EHLO mail.muc.de")
-	by vger.kernel.org with ESMTP id S932374AbWIVMcR (ORCPT
+	Fri, 22 Sep 2006 08:33:35 -0400
+Received: from nat-132.atmel.no ([80.232.32.132]:53211 "EHLO relay.atmel.no")
+	by vger.kernel.org with ESMTP id S932374AbWIVMde (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Sep 2006 08:32:17 -0400
-Date: 22 Sep 2006 14:32:15 +0200
-Date: Fri, 22 Sep 2006 14:32:15 +0200
-From: Andi Kleen <ak@muc.de>
-To: Rusty Russell <rusty@rustcorp.com.au>
-Cc: lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       virtualization <virtualization@lists.osdl.org>,
-       Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: [PATCH 5/7] Use %gs for per-cpu sections in kernel
-Message-ID: <20060922123215.GA98728@muc.de>
-References: <1158925861.26261.3.camel@localhost.localdomain> <1158925997.26261.6.camel@localhost.localdomain> <1158926106.26261.8.camel@localhost.localdomain> <1158926215.26261.11.camel@localhost.localdomain> <1158926308.26261.14.camel@localhost.localdomain> <1158926386.26261.17.camel@localhost.localdomain>
+	Fri, 22 Sep 2006 08:33:34 -0400
+Date: Fri, 22 Sep 2006 14:32:54 +0200
+From: Haavard Skinnemoen <hskinnemoen@atmel.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, David Woodhouse <dwmw2@infradead.org>
+Subject: Re: 2.6.19 -mm merge plans: AVR32
+Message-ID: <20060922143254.50e25ebd@cad-250-152.norway.atmel.com>
+In-Reply-To: <20060920135438.d7dd362b.akpm@osdl.org>
+References: <20060920135438.d7dd362b.akpm@osdl.org>
+Organization: Atmel Norway
+X-Mailer: Sylpheed-Claws 2.5.0-rc2 (GTK+ 2.8.20; i486-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1158926386.26261.17.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-BTW I changed my copy sorry. I redid the early PDA support
-to not be in assembler.
+On Wed, 20 Sep 2006 13:54:38 -0700
+Andrew Morton <akpm@osdl.org> wrote:
 
-On Fri, Sep 22, 2006 at 09:59:45PM +1000, Rusty Russell wrote:
-> This patch actually uses the gs register to implement the per-cpu
-> sections.  It's fairly straightforward: the gs segment starts at the
-> per-cpu offset for the particular cpu (or 0, in very early boot).  
+>  AVR32 architecture.  Will fold into a single patch, and will merge.
+
+Thanks a lot :-) I will do my best to ensure it stays in good shape
+during the -rc series.
+
+> avr32-mtd-static-memory-controller-driver-try-2.patch
+> avr32-mtd-at49bv6416-platform-device-for-atstk1000.patch
+> avr32-mtd-unlock-flash-if-necessary.patch
 > 
-> We also implement x86_64-inspired (via Jeremy Fitzhardinge) per-cpu
-> accesses where a general lvalue isn't needed.  These
-> single-instruction accesses are slightly more efficient, plus (being a
-> single insn) are atomic wrt. preemption so we can use them to
-> implement cpu_local_inc etc.
+>  MTD changes for avr32.   Will send to dwmw2.
 
-The problem is nobody uses cpu_local_inc() etc :/ And it is difficult
-to use in generic code because of the usual preemption issues 
-(and being slower on other archs in many cases compared to preempt disabling
-around larger block of code) 
+It might actually make more sense to fold the first two into the avr32
+architecture patch. Especially now that David has picked up the third
+one (which ended up not being AVR32-specific at all.)
 
-Without that it is the same code as Jeremy's variant
-%gs memory reference + another reference with offset as far as I can see.
+The static memory controller driver isn't really specific to MTD
+anyway, it should be equally useful for all kinds of external
+memory-mapped devices including CompactFlash.
 
-So while it looks nice I don't think it will have advantages. Or did
-i miss something?
-
--Andi
+Haavard

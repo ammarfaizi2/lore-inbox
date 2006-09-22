@@ -1,72 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932092AbWIVSxQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932113AbWIVSyV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932092AbWIVSxQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Sep 2006 14:53:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932113AbWIVSxQ
+	id S932113AbWIVSyV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Sep 2006 14:54:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932116AbWIVSyU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Sep 2006 14:53:16 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:62479 "EHLO
-	spitz.ucw.cz") by vger.kernel.org with ESMTP id S932092AbWIVSxL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Sep 2006 14:53:11 -0400
-Date: Fri, 22 Sep 2006 12:33:29 +0000
-From: Pavel Machek <pavel@suse.cz>
-To: Richard J Moore <richardj_moore@uk.ibm.com>
-Cc: prasanna@in.ibm.com, Andrew Morton <akpm@osdl.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Mathieu Desnoyers <compudj@krystal.dyndns.org>,
-       "Frank Ch. Eigler" <fche@redhat.com>,
-       Greg Kroah-Hartman <gregkh@suse.de>,
-       Christoph Hellwig <hch@infradead.org>, Jes Sorensen <jes@sgi.com>,
-       Paul Mundt <lethal@linux-sh.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>, ltt-dev@shafik.org,
-       Martin Bligh <mbligh@google.com>,
-       Michel Dagenais <michel.dagenais@polymtl.ca>,
-       Ingo Molnar <mingo@elte.hu>, systemtap@sources.redhat.com,
-       systemtap-owner@sourceware.org, Thomas Gleixner <tglx@linutronix.de>,
-       William Cohen <wcohen@redhat.com>, Tom Zanussi <zanussi@us.ibm.com>
-Subject: Re: [PATCH] Linux Kernel Markers
-Message-ID: <20060922123329.GC4055@ucw.cz>
-References: <20060920010852.GA7469@in.ibm.com> <OFD1A61531.0E2D11C4-ON802571EF.002D4111-802571EF.002DA3BC@uk.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <OFD1A61531.0E2D11C4-ON802571EF.002D4111-802571EF.002DA3BC@uk.ibm.com>
-User-Agent: Mutt/1.5.9i
+	Fri, 22 Sep 2006 14:54:20 -0400
+Received: from vms044pub.verizon.net ([206.46.252.44]:60317 "EHLO
+	vms044pub.verizon.net") by vger.kernel.org with ESMTP
+	id S932108AbWIVSyF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Sep 2006 14:54:05 -0400
+Date: Fri, 22 Sep 2006 14:54:00 -0400
+From: Gene Heskett <gene.heskett@verizon.net>
+Subject: Re: GPLv3 Position Statement
+In-reply-to: <1158951907.24572.23.camel@localhost.localdomain>
+To: linux-kernel@vger.kernel.org
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       James Bottomley <James.Bottomley@steeleye.com>
+Message-id: <200609221454.00225.gene.heskett@verizon.net>
+Organization: Organization? Absolutely zip.
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+Content-disposition: inline
+References: <1158941750.3445.31.camel@mulgrave.il.steeleye.com>
+ <200609221430.55889.gene.heskett@verizon.net>
+ <1158951907.24572.23.camel@localhost.localdomain>
+User-Agent: KMail/1.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Friday 22 September 2006 15:05, Alan Cox wrote:
+>Ar Gwe, 2006-09-22 am 14:30 -0400, ysgrifennodd Gene Heskett:
+>> final.  Let me put it this way, I would be willing to become a paying
+>> member of a new organization dedicated to preserving the V2 status if
+>> the due weren't too onnerous.
+>
+>What probably matters more in that situation, and I hope its one that
+>doesn't arise - v3 is in draft and there is fixing time left for many
+>issues - is people to maintain the other projects which will get forked
+>from the FSF if it were to happen: glibc, gcc, etc. My guess is many of
+>these projects would effectively leave the FSF if this happened.
 
-> > > > Very good idea.. However, overwriting the second instruction
-> > with a jump could
-> > > > be dangerous on preemptible and SMP kernels, because we never
-> > know if a thread
-> > > > has an IP in any of its contexts that would return exactly at
-> > the middle of the
-> > > > jump.
-> > >
-> > > No: on x86 it is the *same* case for all of these even writing an int3.
-> > > One byte or a megabyte,
-> > >
-> > > You MUST ensure that every CPU executes a serializing instruction
-> before
-> > > it hits code that was modified by another processor. Otherwise you get
-> > > CPU errata and the CPU produces results which vendors like to describe
-> > > as "undefined".
-> >
-> > Are you referring to Intel erratum "unsynchronized cross-modifying code"
-> > - where it refers to the practice of modifying code on one processor
-> > where another has prefetched the unmodified version of the code.
-> 
-> In the special case of replacing an opcode with int3 that erratum doesn't
-> apply. I know that's not in the manuals but it has been confirmed by the
-> Intel microarchitecture group. And it's not reasonable to it to be any
-> other way.
-
-What about replacing int3 with old instruction (i.e. marker being
-deleted)?
-							Pavel
+I'd almost place bets on that list, Alan.
 
 -- 
-Thanks for all the (sleeping) penguins.
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+Yahoo.com and AOL/TW attorneys please note, additions to the above
+message by Gene Heskett are:
+Copyright 2006 by Maurice Eugene Heskett, all rights reserved.

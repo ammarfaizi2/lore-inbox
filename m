@@ -1,43 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751017AbWIVQJY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751024AbWIVQKs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751017AbWIVQJY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Sep 2006 12:09:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751042AbWIVQJY
+	id S1751024AbWIVQKs (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Sep 2006 12:10:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751079AbWIVQKs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Sep 2006 12:09:24 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:41667 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1750951AbWIVQJX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Sep 2006 12:09:23 -0400
-Date: Fri, 22 Sep 2006 12:08:06 -0400
-From: Dave Jones <davej@redhat.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: David Miller <davem@davemloft.net>, jeff@garzik.org, davidsen@tmr.com,
-       torvalds@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.19 -mm merge plans
-Message-ID: <20060922160806.GE15032@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	David Miller <davem@davemloft.net>, jeff@garzik.org,
-	davidsen@tmr.com, torvalds@osdl.org, linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.64.0609211106391.4388@g5.osdl.org> <45130533.2010209@tmr.com> <45130527.1000302@garzik.org> <20060921.145208.26283973.davem@davemloft.net> <20060921220539.GL26683@redhat.com> <20060922083542.GA4246@flint.arm.linux.org.uk> <20060922154816.GA15032@redhat.com> <1158942242.24572.13.camel@localhost.localdomain>
+	Fri, 22 Sep 2006 12:10:48 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:12751 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1751024AbWIVQKr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Sep 2006 12:10:47 -0400
+Subject: Re: [PATCH 2.6.18] [TRIVIAL] Spelling fixes in
+	Documentation/DocBook
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Michael Opdenacker <michael-lists@free-electrons.com>
+Cc: linux-kernel@vger.kernel.org, trivial@kernel.org
+In-Reply-To: <200609212318.07418.michael-lists@free-electrons.com>
+References: <200609212318.07418.michael-lists@free-electrons.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Fri, 22 Sep 2006 17:34:33 +0100
+Message-Id: <1158942873.24572.20.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1158942242.24572.13.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.2.2i
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 22, 2006 at 05:24:01PM +0100, Alan Cox wrote:
- > Ar Gwe, 2006-09-22 am 11:48 -0400, ysgrifennodd Dave Jones:
- > > That's unfortunate. If you want someone to scoop bits up and feed Linus,
- > > I'm happy to volunteer for the task, as long as you're still willing
- > > to eyeball serial diffs until I get up to speed.
- > 
- > I'll give you a hand with that, I've got to do some work in that area
- > anyway for the arbitary speed support.
+Ar Iau, 2006-09-21 am 23:18 +0200, ysgrifennodd Michael Opdenacker:
+> -<para>There's an <emphasis>ethernet</emphasis> gadget
+> +<para>There's an <emphasis>Ethernet</emphasis> gadget
 
-Cool, sounds good to me. Russell?
+NAK, Ethernet is/was indeed a proper noun but it has become generic
 
-	Dave
+> -and associated transciever to support <emphasis>Dual-Role</emphasis>
+> +and associated transceiver to support <emphasis>Dual-Role</emphasis>
+
+ACK
+
+> -	value which selects the corresponding interrupt decription structure
+> +	value which selects the corresponding interrupt description structure
+
+ACK
+
+
+>  	interrupt hardware and was therefore reimplemented with split
+> -	functionality for egde/level/simple/percpu interrupts. This is not
+> +	functionality for edge/level/simple/percpu interrupts. This is not
+
+ACK - also per-cpu with hyphens ?
+
+> -  <title>The Linux Journalling API</title>
+> +  <title>The Linux Journaling API</title>
+
+NAK. See previous multiple discussions.
+
+>      The preferred method of initializing structures is to use
+> -    designated initialisers, as defined by ISO C99, eg:
+> +    designated initializers, as defined by ISO C99, eg:
+
+NAK. Policy is to keep existing language usage not Americanize nor
+Anglicize.
+
+> -you hold the lock, noone can delete the object, so you don't need to
+> +you hold the lock, no one can delete the object, so you don't need to
+
+ACK
+
+
+> -	support second drives on a port (such as SATA contollers) will
+> +	support second drives on a port (such as SATA controllers) will
+>  	use ata_noop_dev_select().
+
+ACK
+
+
+> -	Higher-level hooks, these two hooks can potentially supercede
+> +	Higher-level hooks, these two hooks can potentially supersede
+
+NAK - Supercede is correct
+
+> -	ATA_QCFLAG_ACTIVE is clared from qc->flags.
+> +	ATA_QCFLAG_ACTIVE is cleared from qc->flags.
+
+ACK
+
+> -        requirement during issuing or excution any ATA/ATAPI command.
+> +        requirement during issuing or executing any ATA/ATAPI command.
+
+NAK. Please check changes before submission
+
+>          </para>
+>  
+>  	<itemizedlist>
+> @@ -951,7 +951,7 @@ and other resources, etc.
+>  
+>          <listitem>
+>  	<para>
+> -	!BSY &amp;&amp; ERR after CDB tranfer starts but before the
+> +	!BSY &amp;&amp; ERR after CDB transfer starts but before the
+
+ACK
+
+>          last byte of CDB is transferred.  ATA/ATAPI standard states
+
+
+
+...
+
+Please also submit each set of changes separately
+
+

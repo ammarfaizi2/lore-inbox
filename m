@@ -1,88 +1,139 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932181AbWIVBeJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932199AbWIVCCq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932181AbWIVBeJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Sep 2006 21:34:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932182AbWIVBeJ
+	id S932199AbWIVCCq (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Sep 2006 22:02:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932200AbWIVCCq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Sep 2006 21:34:09 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.152]:49599 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S932181AbWIVBeF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Sep 2006 21:34:05 -0400
-Subject: Re: [BUG] i386 2.6.18 cpu_up: attempt to bring up CPU 4 failed :
-	kernel BUG at mm/slab.c:2698!
-From: keith mannthey <kmannth@us.ibm.com>
-Reply-To: kmannth@us.ibm.com
-To: Andrew Morton <akpm@osdl.org>
-Cc: lkml <linux-kernel@vger.kernel.org>,
-       Christoph Lameter <clameter@engr.sgi.com>
-In-Reply-To: <20060921174134.4e0d30f2.akpm@osdl.org>
-References: <1158884252.5657.38.camel@keithlap>
-	 <20060921174134.4e0d30f2.akpm@osdl.org>
-Content-Type: text/plain
-Organization: Linux Technology Center IBM
-Date: Thu, 21 Sep 2006 18:34:03 -0700
-Message-Id: <1158888843.5657.44.camel@keithlap>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+	Thu, 21 Sep 2006 22:02:46 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:11993 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S932199AbWIVCCp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Sep 2006 22:02:45 -0400
+Message-ID: <45134472.7080002@sgi.com>
+Date: Fri, 22 Sep 2006 12:03:30 +1000
+From: Timothy Shimmin <tes@sgi.com>
+User-Agent: Thunderbird 1.5.0.7 (Macintosh/20060909)
+MIME-Version: 1.0
+To: Eric Sandeen <sandeen@sandeen.net>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       xfs mailing list <xfs@oss.sgi.com>
+Subject: Re: [PATCH -mm] rescue large xfs preferred iosize from the inode
+ diet patch
+References: <45131334.6050803@sandeen.net>
+In-Reply-To: <45131334.6050803@sandeen.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-09-21 at 17:41 -0700, Andrew Morton wrote:
-> On Thu, 21 Sep 2006 17:17:31 -0700
-> keith mannthey <kmannth@us.ibm.com> wrote:
+Hi Eric,
+
+Eric Sandeen wrote:
+> The inode diet patch in -mm unhooked xfs_preferred_iosize from the stat call:
 > 
-> > I wanted to just give 2.6.18 a spin and I tripped over something I
-> > didn't expect. 
-> > 
-> > 
-> > cpu_up: attempt to bring up CPU 4 failed
-> > kfree_debugcheck: bad ptr c15f6000h.
-> > ------------[ cut here ]------------
-> > kernel BUG at mm/slab.c:2698!
-> > invalid opcode: 0000 [#1]
-> > SMP
-> > Modules linked in:
-> > CPU:    0
-> > EIP:    0060:[<c106ce51>]    Not tainted VLI
-> > EFLAGS: 00010046   (2.6.18 #1)
-> > EIP is at kfree_debugcheck+0x7f/0x90
-> > eax: 00000028   ebx: 000015f6   ecx: c1025289   edx: c7653540
-> > esi: c15f6000   edi: c15f6000   ebp: c764af38   esp: c764af28
-> > ds: 007b   es: 007b   ss: 0068
-> > Process swapper (pid: 1, ti=c764a000 task=c7653540 task.ti=c764a000)
-> > Stack: c122c68d c15f6000 c1635000 00000004 c764af5c c106ef93 00000286
-> > c76a77d0
-> >        00000004 00000001 c1635000 00000004 00000004 c764af6c c10557f6
-> > c1274eac
-> >        c12743dc c764af84 c1207467 00000004 c12734c0 00000004 00000004
-> > c764af98
-> > Call Trace:
-> >  [<c106ef93>] kfree+0x24/0x1d8
-> >  [<c10557f6>] pageset_cpuup_callback+0x40/0x58
-> >  [<c1207467>] notifier_call_chain+0x20/0x31
-> >  [<c1031530>] blocking_notifier_call_chain+0x1d/0x2d
-> >  [<c103f80c>] cpu_up+0xb5/0xcf
-> >  [<c1000372>] init+0x78/0x296
-> >  [<c1002005>] kernel_thread_helper+0x5/0xb
+> --- a/fs/xfs/linux-2.6/xfs_vnode.c
+> +++ b/fs/xfs/linux-2.6/xfs_vnode.c
+> @@ -122,7 +122,6 @@ vn_revalidate_core(
+>         inode->i_blocks     = vap->va_nblocks;
+>         inode->i_mtime      = vap->va_mtime;
+>         inode->i_ctime      = vap->va_ctime;
+> -       inode->i_blksize    = vap->va_blocksize;
+>         if (vap->va_xflags & XFS_XFLAG_IMMUTABLE)
 > 
-> I think we have two problems here:
+> This in turn breaks the largeio mount option for xfs:
 > 
-> a) CPU4 didn't come up.  To diagnose that I think we'll need to ask you
->    to into cpu_up(), add debug printks to blocking_notifier_call_chain(),
->    work out which entry on that chain returned NOTIFY_BAD, then work out
->    why it did so.
+>   largeio/nolargeio
+>         If "nolargeio" is specified, the optimal I/O reported in
+>         st_blksize by stat(2) will be as small as possible to allow user
+>         applications to avoid inefficient read/modify/write I/O.
+>         If "largeio" specified, a filesystem that has a "swidth" specified
+>         will return the "swidth" value (in bytes) in st_blksize. If the
+>         filesystem does not have a "swidth" specified but does specify
+>         an "allocsize" then "allocsize" (in bytes) will be returned
+>         instead.
+>         If neither of these two options are specified, then filesystem
+>         will behave as if "nolargeio" was specified.
+> 
+> and the (undocumented?) allocsize mount option as well.
+> 
+> For a filesystem like this with sunit/swidth specified,
+> 
+> meta-data=/dev/sda1              isize=512    agcount=32, agsize=7625840 blks
+>          =                       sectsz=512   attr=0
+> data     =                       bsize=4096   blocks=244026880, imaxpct=25
+>          =                       sunit=16     swidth=16 blks, unwritten=1
+> naming   =version 2              bsize=4096
+> log      =internal               bsize=4096   blocks=32768, version=1
+>          =                       sectsz=512   sunit=0 blks
+> realtime =none                   extsz=65536  blocks=0, rtextents=0
+> 
+> stat on a stock FC6 kernel w/ the largeio mount option returns only the page size:
+> 
+> [root@link-07]# mount -o largeio /dev/sda1 /mnt/test/
+> [root@link-07]# stat -c %o /mnt/test/foo
+> 4096
+> 
+> with the following patch, it does what it should:
+> 
+> [root@link-07]# mount -o largeio /dev/sda1 /mnt/test/
+> [root@link-07]# stat -c %o /mnt/test/foo
+> 65536
+> 
+> same goes for filesystems w/o sunit,swidth but with the allocsize mount option.
+> 
+> stock:
+> [root@link-07]# mount -o largeio,allocsize=32768 /dev/sda1 /mnt/test/
+> [root@link-07]# stat -c %o /mnt/test/foo
+> 4096
+> 
+> w/ patch:
+> [root@link-07# mount -o largeio,allocsize=32768 /dev/sda1 /mnt/test/
+> [root@link-07]# stat -c %o /mnt/test/foo
+> 32768
+> 
+> Signed-off-by: Eric Sandeen <sandeen@sandeen.net>
+> 
+> XFS guys, does this look ok?
+> 
+> Index: linux-2.6.18/fs/xfs/linux-2.6/xfs_iops.c
+> ===================================================================
+> --- linux-2.6.18.orig/fs/xfs/linux-2.6/xfs_iops.c
+> +++ linux-2.6.18/fs/xfs/linux-2.6/xfs_iops.c
+> @@ -623,12 +623,16 @@ xfs_vn_getattr(
+>  {
+>  	struct inode	*inode = dentry->d_inode;
+>  	bhv_vnode_t	*vp = vn_from_inode(inode);
+> +	xfs_inode_t	*ip;
+>  	int		error = 0;
+>  
+>  	if (unlikely(vp->v_flag & VMODIFIED))
+>  		error = vn_revalidate(vp);
+> -	if (!error)
+> +	if (!error) {
+>  		generic_fillattr(inode, stat);
+> +		ip = xfs_vtoi(vp);
+> +		stat->blksize = xfs_preferred_iosize(ip->i_mount);
+> +	}
+>  	return -error;
+>  }
+>  
 
-That unhappy caller in the chain is cpuup_callback in mm/slab.c.  I am
-still working out as to why, there is a lot going on if this function. 
+Looked at your patch and then at our xfs code in the tree and
+the existing code is different than what yours is based on.
+I then noticed in the logs Nathan has actually made changes for this:
 
-> b) pageset_cpuup_callback()'s CPU_UP_CANCELED path possibly hasn't been
->    tested before.  I'd be guessing that we're not zeroing out the
->    zone.pageset[] array when the `struct zone' is first allocated, but I
->    don't immediately recall where that code lives.
+----------------------------
+revision 1.254
+date: 2006/07/17 10:46:05;  author: nathans;  state: Exp;  lines: +20 -5
+modid: xfs-linux-melb:xfs-kern:26565a
+Update XFS for i_blksize removal from generic inode structure
+----------------------------
+I even reviewed the change (and I don't remember it - getting old).
 
-Thanks,
-  Keith 
+I looked at the mods scheduled for 2.6.19 and this is one of them.
 
+So the fix for this is coming soon (and the fix is different from the
+one above).
 
+Cheers,
+Tim.

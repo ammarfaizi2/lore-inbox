@@ -1,44 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964928AbWIVXch@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964926AbWIVXeb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964928AbWIVXch (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Sep 2006 19:32:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964927AbWIVXch
+	id S964926AbWIVXeb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Sep 2006 19:34:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964927AbWIVXeb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Sep 2006 19:32:37 -0400
-Received: from e36.co.us.ibm.com ([32.97.110.154]:6785 "EHLO e36.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S964925AbWIVXcg (ORCPT
+	Fri, 22 Sep 2006 19:34:31 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:19114 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S964926AbWIVXeb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Sep 2006 19:32:36 -0400
-Date: Fri, 22 Sep 2006 18:32:35 -0500
-To: Luca <kronos.it@gmail.com>
-Cc: linux-scsi@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz,
-       linuxppc-dev@ozlabs.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH]: PCI Error Recovery: Symbios SCSI device driver
-Message-ID: <20060922233235.GB14213@austin.ibm.com>
-References: <20060921231314.GW29167@austin.ibm.com> <20060922220629.GA4600@dreamland.darkstar.lan>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060922220629.GA4600@dreamland.darkstar.lan>
-User-Agent: Mutt/1.5.11
-From: linas@austin.ibm.com (Linas Vepstas)
+	Fri, 22 Sep 2006 19:34:31 -0400
+Date: Fri, 22 Sep 2006 16:34:15 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Eric Sandeen <sandeen@sandeen.net>
+Cc: Timothy Shimmin <tes@sgi.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       xfs mailing list <xfs@oss.sgi.com>
+Subject: Re: [PATCH -mm] rescue large xfs preferred iosize from the inode
+ diet patch
+Message-Id: <20060922163415.4e137374.akpm@osdl.org>
+In-Reply-To: <45146F76.3010301@sandeen.net>
+References: <45131334.6050803@sandeen.net>
+	<45134472.7080002@sgi.com>
+	<20060922161040.609286fa.akpm@osdl.org>
+	<45146F76.3010301@sandeen.net>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Sep 23, 2006 at 12:06:29AM +0200, Luca wrote:
+On Fri, 22 Sep 2006 18:19:18 -0500
+Eric Sandeen <sandeen@sandeen.net> wrote:
+
+> Andrew Morton wrote:
 > 
-> Space after function name? You put in other places too, it's not
-> consistent with the rest of the patch.
+> >> So the fix for this is coming soon (and the fix is different from the
+> >> one above).
+> >>
+> > 
+> > eh?  Eric's patch is based on -mm, which includes the XFS git tree.  If I
+> > go and merge the inode-diet patches from -mm, XFS gets broken until you
+> > guys merge the above mystery patch.  (I prefer to merge the -mm patches
+> > after all the git trees have gone, but sometimes maintainers dawdle and I
+> > get bored of waiting).
+> > 
+> > Is git://oss.sgi.com:8090/nathans/xfs-2.6 obsolete, or are you hiding stuff
+> > from me?  ;)
+> > 
+> > 
+> well it's in cvs:
 
-Oops. I was also coding on a different project recently, with a
-different style.  I'll send a revised patch in a moment.
+That's nearly four months old!
 
-> > +       if (pci_enable_device(pdev))
-> > +               printk (KERN_ERR "%s: device setup failed most egregiously\n",
-> > +                           sym_name(np));
-> 
-> Is the failure of pci_enable_device ignored on purpose?
+> http://oss.sgi.com/cgi-bin/cvsweb.cgi/xfs-linux/linux-2.6/xfs_iops.c.diff?r1=text&tr1=1.254&r2=text&tr2=1.253&f=h
 
-No. :-( Thanks for the catch. I think I got cross-eyed staring at the code.
+<checks to see if the changelog is in Aramaic too>
 
---linas
+

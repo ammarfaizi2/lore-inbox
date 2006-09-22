@@ -1,75 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932259AbWIVDmT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932257AbWIVDnL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932259AbWIVDmT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Sep 2006 23:42:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932257AbWIVDmT
+	id S932257AbWIVDnL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Sep 2006 23:43:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932258AbWIVDnL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Sep 2006 23:42:19 -0400
-Received: from victor.provo.novell.com ([137.65.250.26]:63972 "EHLO
-	victor.provo.novell.com") by vger.kernel.org with ESMTP
-	id S932256AbWIVDmS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Sep 2006 23:42:18 -0400
-Message-ID: <45130531.2040508@novell.com>
-Date: Thu, 21 Sep 2006 14:33:37 -0700
-From: Crispin Cowan <crispin@novell.com>
-User-Agent: Thunderbird 1.5 (X11/20060317)
-MIME-Version: 1.0
-To: Stephen Smalley <sds@tycho.nsa.gov>
-CC: David Madore <david.madore@ens.fr>,
-       Linux Kernel mailing-list <linux-kernel@vger.kernel.org>,
-       LSM mailing-list <linux-security-module@vger.kernel.org>
-Subject: Re: capabilities patch: trying a more "consensual" approach
-References: <20060911212826.GA9606@clipper.ens.fr>	 <20060915225213.GA15173@clipper.ens.fr> <1158584371.18951.227.camel@moss-spartans.epoch.ncsc.mil>
-In-Reply-To: <1158584371.18951.227.camel@moss-spartans.epoch.ncsc.mil>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
+	Thu, 21 Sep 2006 23:43:11 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:24193 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932257AbWIVDnK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Sep 2006 23:43:10 -0400
+Date: Thu, 21 Sep 2006 20:42:42 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+Cc: kmannth@us.ibm.com, linux-kernel@vger.kernel.org, clameter@engr.sgi.com
+Subject: Re: [BUG] i386 2.6.18 cpu_up: attempt to bring up CPU 4 failed :
+ kernel BUG at mm/slab.c:2698!
+Message-Id: <20060921204242.53a88487.akpm@osdl.org>
+In-Reply-To: <20060922123045.d7258e13.kamezawa.hiroyu@jp.fujitsu.com>
+References: <1158884252.5657.38.camel@keithlap>
+	<20060921174134.4e0d30f2.akpm@osdl.org>
+	<1158888843.5657.44.camel@keithlap>
+	<20060922112427.d5f3aef6.kamezawa.hiroyu@jp.fujitsu.com>
+	<20060921200806.523ce0b2.akpm@osdl.org>
+	<20060922123045.d7258e13.kamezawa.hiroyu@jp.fujitsu.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Stephen Smalley wrote:
-> On Sat, 2006-09-16 at 00:52 +0200, David Madore wrote:
->   
->> Now, if I understand correctly, the various alloc_security() LSM hooks
->> do not stack well: if I want my module to be stackable after SElinux
->> (and I do), I can't hook task_alloc_security() to create my variable,
->> so I need to store these "cuppabilities" in a globally visible task
->> field.  Do I understand correctly?  How acceptable is this?  (We can
->> assume that 32 bits will be wide enough, so I'm not talking about
->> adding huge amounts of data to the task struct.)
->>     
-> No, I think that is a losing strategy, and it defeats the purpose of
-> having LSM in the first place.  For now, I'd suggest just _not_
-> supporting stacking with SELinux until such a time as you've
-> successfully gotten your module merged, then later you can take up the
-> best way to support such stacking (whether via direct modification of
-> SELinux to enable chaining off of its security structures, or via the
-> "stacker" module previously implemented by Serge that lacks a real
-> motivating user, although that is contentious).
->   
-I mostly agree with Stephen. I agree with both the approach of modifying
-SELinux so that its task security blobs chain to yours, and I agree with
-the suggestion of letting Stacker do it. I also suggest you consider the
-inverse stack of making your module stack with SELinux instead of vice
-versa (chain in the opposite order) and I suggest you consider making
-your module stack with AppArmor.
+On Fri, 22 Sep 2006 12:30:45 +0900
+KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com> wrote:
 
-The only part I question is why you would need to wait for your module
-to start development on any of these approaches. Especially the Stacker
-approach.
+> On Thu, 21 Sep 2006 20:08:06 -0700
+> Andrew Morton <akpm@osdl.org> wrote:
+> 
+> > But why did the kmalloc() fail?
+> > 
+> > 
+> from this:
+> 
+> ==
+> #define NOTIFY_DONE             0x0000          /* Don't care */
+> #define NOTIFY_OK               0x0001          /* Suits me */
+> #define NOTIFY_STOP_MASK        0x8000          /* Don't call further */
+> #define NOTIFY_BAD              (NOTIFY_STOP_MASK|0x0002)
+> ==
+> 
+> I gues someone returns NOTIFY_BAD before pageset_cpuup_callback() is called.
+> When CPU_UP_CANCELED comes, pageset_cpuup_callback() can't know zone_pcp()
+> is kmalloced or not. Is this ugly ?
+> 
+> -Kame
+> 
+> Before kfree(), we should check zone_pcp() is not boot_pageset[].
+> 
+> Signed-Off-By KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+> 
+> Index: linux-2.6.18/mm/page_alloc.c
+> ===================================================================
+> --- linux-2.6.18.orig/mm/page_alloc.c	2006-09-20 12:42:06.000000000 +0900
+> +++ linux-2.6.18/mm/page_alloc.c	2006-09-22 12:22:03.000000000 +0900
+> @@ -1844,9 +1844,11 @@
+>  
+>  	for_each_zone(zone) {
+>  		struct per_cpu_pageset *pset = zone_pcp(zone, cpu);
+> -
+> -		zone_pcp(zone, cpu) = NULL;
+> -		kfree(pset);
+> +		/* When canceled, zone_pcp still points to boot_pageset[] */
+> +		if (zone_pcp(zone, cpu) != &boot_pageset[cpu]) {
+> +			zone_pcp(zone, cpu) = NULL;
+> +			kfree(pset);
+> +		}
+>  	}
+>  }
+>  
 
-On that point, now that LSM is staying, and there are a multitude of
-modules proposed for mainstream, perhaps it is time to reconsider
-merging Stacker. There was a *lot* of effort invested there benchmarking
-various schemes. With multiple modules coming in, and stacking a
-recurring problem, perhaps we need it now.
+No, that's OK as it is now.  The above code is numa-only, in which case
+zone_pcp(zone, cpu) is known to be kmalloced.  These functions won't even
+compile on !NUMA because in that case, zone_pcp() isn't an lvalue.
 
-Crispin
-
--- 
-Crispin Cowan, Ph.D.                      http://crispincowan.com/~crispin/
-Director of Software Engineering, Novell  http://novell.com
-     Hack: adroit engineering solution to an unanticipated problem
-     Hacker: one who is adroit at pounding round pegs into square holes
-
-
+OBCodingStyleNit: could we pleeeeeze not go and use macros as lvalues like
+this?  It looks just too weird.  Simply do zone_pcp(zone, cpu) and
+set_zone_pcp(zone, cpu, val).

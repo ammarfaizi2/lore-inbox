@@ -1,102 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932523AbWIVPqz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964774AbWIVPs7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932523AbWIVPqz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Sep 2006 11:46:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932614AbWIVPqz
+	id S964774AbWIVPs7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Sep 2006 11:48:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964775AbWIVPs6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Sep 2006 11:46:55 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:62889 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932613AbWIVPqx (ORCPT
+	Fri, 22 Sep 2006 11:48:58 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:26540 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S964774AbWIVPs5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Sep 2006 11:46:53 -0400
-Message-ID: <4514056B.4020807@redhat.com>
-Date: Fri, 22 Sep 2006 10:46:51 -0500
-From: Eric Sandeen <esandeen@redhat.com>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
-MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: [PATCH] 16T fixes for JBD
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Fri, 22 Sep 2006 11:48:57 -0400
+Date: Fri, 22 Sep 2006 11:48:16 -0400
+From: Dave Jones <davej@redhat.com>
+To: David Miller <davem@davemloft.net>, jeff@garzik.org, davidsen@tmr.com,
+       torvalds@osdl.org, alan@lxorguk.ukuu.org.uk,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.19 -mm merge plans
+Message-ID: <20060922154816.GA15032@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	David Miller <davem@davemloft.net>, jeff@garzik.org,
+	davidsen@tmr.com, torvalds@osdl.org, alan@lxorguk.ukuu.org.uk,
+	linux-kernel@vger.kernel.org
+References: <Pine.LNX.4.64.0609211106391.4388@g5.osdl.org> <45130533.2010209@tmr.com> <45130527.1000302@garzik.org> <20060921.145208.26283973.davem@davemloft.net> <20060921220539.GL26683@redhat.com> <20060922083542.GA4246@flint.arm.linux.org.uk>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060922083542.GA4246@flint.arm.linux.org.uk>
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-These are a few places I've found in jbd that look like they
-may not be 16T-safe, or consistent with the use of unsigned
-longs for block containers.  Problems here would be somewhat
-hard to hit, would require journal blocks past the 8T boundary,
-which would not be terribly common.  Still, should fix.
+On Fri, Sep 22, 2006 at 09:35:42AM +0100, Russell King wrote:
+ > On Thu, Sep 21, 2006 at 06:05:39PM -0400, Dave Jones wrote:
+ > > We already have some subsystems that do once-per-release merges,
+ > > and then let fixes build up in their out-of-tree SCM for months
+ > > until the next window. It won't necessarily get worse, but unless
+ > > everyone is participating in the odd/even rules, we won't get
+ > > the benefits that it would offer.
+ > 
+ > I'm heading in that direction (once-per-release merges) actually.
+ > 
+ > On one hand, I'm credited with the ARM architecture being one of the
+ > best maintained embedded architectures in the kernel tree.  On the
+ > other hand, that appears to be winding Linus up due to the regular
+ > merge requests, which were happening maybe once or twice a week.
 
-(some of these have come from the ext4 work on jbd
-as well).
+Hmm. Some trees do seem to get pulled more often than others.
+Linus, is there a upper limit on the number of times you want
+to see pull requests? It strikes me as odd, so I'm wondering
+if there are some crossed wires here.
 
-I think there's one more possibility that the wrap()
-function may not be safe IF your last block in the journal
-butts right up against the 232 block boundary, but that seems
-like a VERY remote possibility, and I'm not worrying about it
-at this point.
+ > As far as -mm getting these, I have asked Andrew to pull this tree in
+ > the past, but whenever I rebase the trees (eg, when 2.6.18 comes out)
+ > and fix up the rejects, Andrew seems to have a hard time coping.  I
+ > guess Andrew finds it too difficult to handle my devel branches.
 
-This patch lived on ext4-devel for a few days without comment
-so I assume it passes muster there ;-)
+Has Andrew commented on why this is proving to be more of a problem?
+I've done regular rebases of cpufreq/agpgart (admittedly, they don't
+reject hardly ever unless Len has ACPI bits touching cpufreq) without
+causing too much headache.
 
-Thanks,
+ > So, what I'm going to be doing this cycle is essentially sitting on
+ > stuff for quite some time and not really caring about where in the
+ > release cycle mainline actually is. 
 
--Eric
+That doesn't sound like the right way to fix the 'caring for my Linus' problem :)
 
-Signed-off-by: Eric Sandeen <esandeen@redhat.com>
+ > As far as my future, I will be handing MMC off to Pierre Ossman during
+ > this cycle (there are other reasons for doing this which Pierre has been
+ > aware of for some time.)
+ > 
+ > I'll also be dropping my serial tree entirely - I have no idea who could
+ > stand in for serial, so there's going to be no real "hand over" for that.
+ > I do have some outstanding in-progress changes which aren't really ready,
+ > but those will probably end up in /dev/null (in much the same way that my
+ > in-progress changes for PCMCIA ended up in a similar place when I handed
+ > that tree over.)
 
-Index: linux-2.6.18/fs/jbd/journal.c
-===================================================================
---- linux-2.6.18.orig/fs/jbd/journal.c
-+++ linux-2.6.18/fs/jbd/journal.c
-@@ -271,7 +271,7 @@ static void journal_kill_thread(journal_
- int journal_write_metadata_buffer(transaction_t *transaction,
- 				  struct journal_head  *jh_in,
- 				  struct journal_head **jh_out,
--				  int blocknr)
-+				  unsigned long blocknr)
- {
- 	int need_copy_out = 0;
- 	int done_copy_out = 0;
-@@ -696,7 +696,7 @@ fail:
-  *  @bdev: Block device on which to create the journal
-  *  @fs_dev: Device which hold journalled filesystem for this journal.
-  *  @start: Block nr Start of journal.
-- *  @len:  Lenght of the journal in blocks.
-+ *  @len:  Length of the journal in blocks.
-  *  @blocksize: blocksize of journalling device
-  *  @returns: a newly created journal_t *
-  *  
-@@ -820,7 +820,7 @@ static void journal_fail_superblock (jou
- static int journal_reset(journal_t *journal)
- {
- 	journal_superblock_t *sb = journal->j_superblock;
--	unsigned int first, last;
-+	unsigned long first, last;
- 
- 	first = be32_to_cpu(sb->s_first);
- 	last = be32_to_cpu(sb->s_maxlen);
-Index: linux-2.6.18/include/linux/jbd.h
-===================================================================
---- linux-2.6.18.orig/include/linux/jbd.h
-+++ linux-2.6.18/include/linux/jbd.h
-@@ -732,7 +732,7 @@ struct journal_s
- 	 */
- 	struct block_device	*j_dev;
- 	int			j_blocksize;
--	unsigned int		j_blk_offset;
-+	unsigned long		j_blk_offset;
- 
- 	/*
- 	 * Device which holds the client fs.  For internal journal this will be
-@@ -866,7 +866,7 @@ extern int 
- journal_write_metadata_buffer(transaction_t	  *transaction,
- 			      struct journal_head  *jh_in,
- 			      struct journal_head **jh_out,
--			      int		   blocknr);
-+			      unsigned long	   blocknr);
- 
- /* Transaction locking */
- extern void		__wait_on_journal (journal_t *);
+That's unfortunate. If you want someone to scoop bits up and feed Linus,
+I'm happy to volunteer for the task, as long as you're still willing
+to eyeball serial diffs until I get up to speed.
 
-
+	Dave 

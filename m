@@ -1,45 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964877AbWIVSei@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964878AbWIVSj0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964877AbWIVSei (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Sep 2006 14:34:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964878AbWIVSei
+	id S964878AbWIVSj0 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Sep 2006 14:39:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964879AbWIVSj0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Sep 2006 14:34:38 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:36041 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S964877AbWIVSeh (ORCPT
+	Fri, 22 Sep 2006 14:39:26 -0400
+Received: from mga02.intel.com ([134.134.136.20]:48709 "EHLO mga02.intel.com")
+	by vger.kernel.org with ESMTP id S964878AbWIVSjZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Sep 2006 14:34:37 -0400
-Message-ID: <45142CBA.6010302@garzik.org>
-Date: Fri, 22 Sep 2006 14:34:34 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
+	Fri, 22 Sep 2006 14:39:25 -0400
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.09,196,1157353200"; 
+   d="scan'208"; a="120893557:sNHT23612372"
+From: Jesse Barnes <jesse.barnes@intel.com>
+To: Christoph Lameter <clameter@sgi.com>
+Subject: Re: ZONE_DMA
+Date: Fri, 22 Sep 2006 11:39:03 -0700
+User-Agent: KMail/1.9.4
+Cc: Martin Bligh <mbligh@mbligh.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, Rohit Seth <rohitseth@google.com>
+References: <20060920135438.d7dd362b.akpm@osdl.org> <200609221126.31201.jesse.barnes@intel.com> <Pine.LNX.4.64.0609221129170.8356@schroedinger.engr.sgi.com>
+In-Reply-To: <Pine.LNX.4.64.0609221129170.8356@schroedinger.engr.sgi.com>
 MIME-Version: 1.0
-To: Gene Heskett <gene.heskett@verizon.net>
-CC: linux-kernel@vger.kernel.org,
-       James Bottomley <James.Bottomley@steeleye.com>
-Subject: Re: GPLv3 Position Statement
-References: <1158941750.3445.31.camel@mulgrave.il.steeleye.com> <200609221359.39519.gene.heskett@verizon.net> <1158948497.3445.55.camel@mulgrave.il.steeleye.com> <200609221430.55889.gene.heskett@verizon.net>
-In-Reply-To: <200609221430.55889.gene.heskett@verizon.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.3 (----)
-X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.3 points, 5.0 required)
+Content-Disposition: inline
+Message-Id: <200609221139.03250.jesse.barnes@intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Gene Heskett wrote:
-> You need to remind RMS that he is not a majority when the vote shows 
-> otherwise by a quite resounding margin, and that he and the FSF may well 
-> become irrevalent if the V2 is not going to be supported after V3 is 
-> final.
+On Friday, September 22, 2006 11:32 am, Christoph Lameter wrote:
+> On Fri, 22 Sep 2006, Jesse Barnes wrote:
+> > Oh, it's already there in the tree, but obviously some drivers still
+> > need to be converted.  See Documentation/DMA-API.txt.  It's not PCI
+> > specific like the old PCI DMA interface
+> > (Documentation/DMA-mapping.txt) and provides a way for drivers to
+> > specify their addressing limitations (dma_supported and dma_set_mask),
+> > which allows the underlying architecture code to report a failure if
+> > necessary.
+>
+> AFAICT this is dealing with special dma issues and not with the problem
+> of allocating memory for a certain supported address range from the page
+> allocator.
 
-Pretty much.
+That's right.  But OTOH device drivers shouldn't be using the page 
+allocator to get DMAable memory, they should be using one of the DMA APIs 
+since only they can portably map memory for DMA.
 
-Also consider the "v3 probably won't be compatible with v2" license 
-compatibility headaches that will abound, given the number of people 
-that oppose GPL v3 so far.
+> From the first glance at the docs it looks as if it is 
+> relying on __GFP_DMAxx to get the allocations right. I think the code
+> could be changed though to call a new page allocator function to get the
+> right memory and that would work for all devices using that API.
 
-	Jeff
+Right, the internals are arch specific and don't necessarily have to rely 
+on a zone, depending on their DMA constraints.
 
-
+Jesse

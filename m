@@ -1,103 +1,234 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964792AbWIVRXs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964804AbWIVR1d@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964792AbWIVRXs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Sep 2006 13:23:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964784AbWIVRXs
+	id S964804AbWIVR1d (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Sep 2006 13:27:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964803AbWIVR1d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Sep 2006 13:23:48 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:18138 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S964803AbWIVRXr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Sep 2006 13:23:47 -0400
-Date: Fri, 22 Sep 2006 19:12:24 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Mathieu Desnoyers <compudj@krystal.dyndns.org>
-Cc: Martin Bligh <mbligh@google.com>, "Frank Ch. Eigler" <fche@redhat.com>,
-       Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>, prasanna@in.ibm.com,
-       Andrew Morton <akpm@osdl.org>, Paul Mundt <lethal@linux-sh.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>, Jes Sorensen <jes@sgi.com>,
-       Tom Zanussi <zanussi@us.ibm.com>,
-       Richard J Moore <richardj_moore@uk.ibm.com>,
-       Michel Dagenais <michel.dagenais@polymtl.ca>,
-       Christoph Hellwig <hch@infradead.org>,
-       Greg Kroah-Hartman <gregkh@suse.de>,
-       Thomas Gleixner <tglx@linutronix.de>, William Cohen <wcohen@redhat.com>,
-       ltt-dev@shafik.org, systemtap@sources.redhat.com,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCH] Linux Kernel Markers 0.5 for Linux 2.6.17 (with probe management)
-Message-ID: <20060922171224.GA18964@elte.hu>
-References: <20060921160009.GA30115@Krystal> <20060921160656.GA24774@elte.hu> <20060921214248.GA10097@Krystal> <20060922064955.GA4167@elte.hu> <20060922140329.GA20839@Krystal> <20060922165352.GA16476@elte.hu> <20060922171156.GA18363@Krystal>
+	Fri, 22 Sep 2006 13:27:33 -0400
+Received: (root@vger.kernel.org) by vger.kernel.org id S964804AbWIVR1c
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Sep 2006 13:27:32 -0400
+Received: from stat9.steeleye.com ([209.192.50.41]:56020 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S1750767AbWIVQPw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Sep 2006 12:15:52 -0400
+Subject: GPLv3 Position Statement
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Date: Fri, 22 Sep 2006 11:15:50 -0500
+Message-Id: <1158941750.3445.31.camel@mulgrave.il.steeleye.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060922171156.GA18363@Krystal>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -2.9
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.9 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5000]
-	-0.1 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Although this white paper was discussed amongst the full group of kernel
+developers who participated in the informal poll, as you can expect from
+Linux Kernel Developers, there was a wide crossection of opinion.  This
+document is really only for discussion, and represents only the views of
+the people listed as authors (not the full voting pool).
 
-* Mathieu Desnoyers <compudj@krystal.dyndns.org> wrote:
+James
 
-> * Ingo Molnar (mingo@elte.hu) wrote:
-> > 
-> > * Mathieu Desnoyers <compudj@krystal.dyndns.org> wrote:
-> > 
-> > > > > Then you lose the ability to trace in-kernel minor page faults.
-> > > > 
-> > > > that's wrong, minor pagefaults go through __handle_mm_fault() just as 
-> > > > much.
-> > > > 
-> > > 
-> > > Hi Ingo,
-> > > 
-> > > On a 2.6.17 kernel tree :
-> > 
-> > > It seems like a shortcut path that will never call __handle_mm_fault. 
-> > > This path is precisely used to handle vmalloc faults.
-> > 
-> > yes, but you said "minor fault", not "vmalloc fault".
-> > 
-> > minor faults are the things that happen when a task does read-after-COW 
-> > or read-mmap-ed-pagecache-page, and they very much go through 
-> > __handle_mm_fault().
-> > 
-> > vmalloc faults are extremely rare, x86-specific and they are a pure 
-> > kernel-internal matter. (I'd never want to trace them, especially if it 
-> > pushes tracepoints into every architecture's page fault handler. I 
-> > implemented the initial version of them IIRC, but my memory fails 
-> > precisely why. I think it was 4:4 related, but i'm unsure.)
-> > 
-> > (i now realize that above you said "in-kernel minor faults" - under that 
-> > you meant vmalloc faults?)
-> > 
-> 
-> Yes, sorry, my mistake. This kind of fault is not as infrequent as you 
-> may think, as every newly allocated vmalloc region will cause vmalloc 
-> faults on every processes on the system that are trying to access 
-> them. I agree that it should not be a standard event people would be 
-> interested in.
+----------
 
-most of the vmalloc area that is allocated on a typical system are 
-modules - and they get loaded on bootup and rarely unloaded. Even for 
-other vmalloc-ed areas like netfilter, the activation of them is during 
-bootup. So from that point on the number of vmalloc faults is quite low. 
-(zero on most systems) If you still want to trace it i'd suggest a 
-separate type of event for it.
+The Dangers and Problems with GPLv3
 
-(meanwhile i remember why i implemented vmalloc faults to begin with: 
-during vmalloc() we used to have a for_each_process() over all 
-kernel-pagetables of tasks to fix up their pagetables. This caused both 
-high latencies and overhead back in the days when we still were frequent 
-vmalloc()ers.)
 
-	Ingo
+James E.J. Bottomley             Mauro Carvalho Chehab
+Thomas Gleixner            Christoph Hellwig           Dave Jones
+Greg Kroah-Hartman              Tony Luck           Andrew Morton
+Trond Myklebust             David Woodhouse
+
+                               15 September 2006
+                                     Abstract
+
+           This document is a position statement on the GNU General Public
+       License version 3 (in its current Draft 2 form) and its surrounding
+       process issued by some of the Maintainers of the Linux Kernel
+       speaking purely in their role as kernel maintainers. In no regard
+       should any opinion expressed herein be construed to represent the
+       views of any entities employing or being associated with any of the
+       authors.
+
+1 Linux and GPLv2
+
+Over the past decade, the Linux Operating System has shown itself to be far
+and away the most successful Open Source operating system in history.
+However, it certainly wasn't the first such open source operating system
+and neither is it currently the only such operating system. We believe that
+the pre-eminent success of Linux owes a great part to the dynamism and
+diversity of its community of contributors, and that one of the catalysts
+for creating and maintaining this community is the development contract as
+expressed by GPLv2.
+
+    Since GPLv2 has served us so well for so long, and since it is the
+foundation of our developer contract which has helped propel Linux to the
+successes it enjoys today, we are extremely reluctant to contemplate
+tampering with that licence except as bug fixes to correct exposed problems
+or updates counter imminent dangers. So far, in the whole history of GPLv2,
+including notable successes both injunctively and at trial, we have not
+found any bugs significant enough to warrant such corrections.
+
+
+2 Linux, the Kernel and the Open Source Universe
+
+Linux Distributions, as the Free Software Foundation (FSF) has often
+observed, don't only contain the kernel; they are composed of a
+distribution of disparate open source components of which the kernel is
+only a part (albeit a significant and indispensable part) which
+collectively make up a useful and usable system. Thus, Linux as installed
+by the end user, is critically dependent on entities, known as
+distributions, who collect all of the necessary components together and
+deliver them in a tested, stable form. The vast proliferation of Open
+Source Licences complicates the job of these distributions and forces them
+to spend time checking and assessing the ramifications of combining
+software packages distributed under different (and often mutually
+incompatible) licences--indeed, sometimes licensing consideration will be
+sufficient to exclude a potential package from a distribution altogether.
+
+    In deference to the critical role of distributions, we regard reducing
+the Open Source licensing profusion as a primary objective. GPLv2 has
+played an important role in moving towards this objective by becoming the
+dominant Licence in the space today, making it possible to put together a
+Linux Distribution from entirely GPLv2 components and thus simplify the
+life of a distributor. Therefore, we believe that any update to GPLv2 must
+be so compelling as to cause all projects currently licensed under it to
+switch as expediently as possible and thus not fragment the currently
+unified GPLv2 licensed ecosystem.
+
+
+3 Linux and Freedom
+
+Another of the planks of Linux's success rests squarely on the breadth and
+diversity of its community of contributors and users, without whom we
+wouldn't have the steady stream of innovation which drives our movement
+forward. However, an essential element of this is the fact that individuals
+with disparate (and sometimes even competing) objectives can still march
+together a considerable distance to their mutual benefit. This synergy of
+effort, while not compromising dissimilar aims, is one of the reasons Linux
+manages to harness the efforts of not only motivated developers but also
+corporate and commercial interests. This in turn is brought about by a
+peculiar freedom enshrined in the developer contract as represented by
+GPLv2, namely the freedom from binding the end use of the project. Without
+this freedom, it would be much more difficult to satisfy the objectives of
+the contributors, since those objectives often have expression in terms of
+the end use to which they wish to put the particular project. Therefore, in
+order to maintain the essential development synergy and consequent
+innovation stream it provides to Linux, we could not countenance any change
+to the GPL which would jeopardise this fundamental freedom.
+
+
+4 Pivotal Role of the Free Software Foundation
+
+We have acknowledged before, projects controlled by the FSF (especially
+gcc, binutils and glibc) are essential components of every shipping Linux
+distribution. However, we also take note of the fact that the FSF operates
+very differently from Linux in that it requires assignment of copyright
+from each and every one of the thousands of contributors to its code
+base. These contributions have been given to the FSF not as a tribute to do
+with as it will but under a solemn trust, as stated in article 9 of GPLv2,
+only to licence the code under versions of the GPL that "... will be
+similar in spirit to the present version". We, like all the individual
+contributors to GNU projects, have taken that trust at face value and
+accorded the FSF a special role in the Open Source Universe because of
+it. It goes without saying that any updates to GPLv2 must be completely in
+accord with the execution of that trust.
+
+
+5 GPLv3 and the Process to Date
+
+The current version (Discussion Draft 2) of GPLv3 on first reading fails
+the necessity test of section 1 on the grounds that there's no substantial
+and identified problem with GPLv2 that it is trying to solve.
+
+    However, a deeper reading reveals several other problems with the
+current FSF draft:
+
+5.1     DRM Clauses
+
+Also referred to as the "Tivoisation" clauses.
+
+    While we find the use of DRM by media companies in their attempts to
+reach into user owned devices to control content deeply disturbing, our
+belief in the essential freedoms of section 3 forbids us from ever
+accepting any licence which contains end use restrictions. The existence of
+DRM abuse is no excuse for curtailing freedoms.
+
+    Further, the FSF's attempts at drafting and re-drafting these
+provisions have shown them to be a nasty minefield which keeps ensnaring
+innocent and beneficial uses of encryption and DRM technologies so, on such
+demonstrated pragmatic ground, these clauses are likewise dangerous and
+difficult to get right and should have no place in a well drafted update to
+GPLv2.
+
+    Finally, we recognise that defining what constitutes DRM abuse is
+essentially political in nature and as such, while we may argue forcefully
+for our political opinions, we may not suborn or coerce others to go along
+with them. Therefore, attempting to write these type of restrictions into
+GPLv3 and then relicense all FSF code under it is tantamount to co-opting
+the work of all prior contributions into the service of the FSF's political
+ends, and thus represents a fundamental violation of the trust outlined in
+section 4.
+
+5.2     Additional Restrictions Clause
+
+As we stated in section 2 one of the serious issues in Open Source is too
+many licences. The additional restrictions section in the current draft
+makes GPLv3 a pick and choose soup of possible restrictions which is going
+to be a nightmare for our distributions to sort out legally and get
+right. Thus, it represents a significant and unacceptable retrograde step
+over GPLv2 and its no additional restrictions clause.
+
+     Further, the additional restrictions create the possibility of
+fragmentation of the licensing universes among particular chosen
+restrictions, which then become difficult to combine and distribute
+(because of the need for keeping track of the separate restrictions). Thus,
+we think this potential for fragmentation will completely eliminate the
+needed compulsion to move quickly to a new licence as outlined in section 2
+
+5.3     Patents Provisions
+
+As drafted, this currently looks like it would potentially jeopardise the
+entire patent portfolio of a company simply by the act of placing a GPLv3
+licensed programme on their website. Since the Linux software ecosystem
+relies on these type of contributions from companies who have lawyers who
+will take the broadest possible interpretation when assessing liability, we
+find this clause unacceptable because of the chilling effect it will have
+on the necessary corporate input to our innovation stream.
+
+     Further, some companies who also act as current distributors of Linux
+have significant patent portfolios; thus this clause represents another
+barrier to their distributing Linux and as such is unacceptable under
+section 2 because of the critical reliance our ecosystem has on these
+distributions.
+
+
+6 Conclusions
+
+The three key objections noted in section 5 are individually and
+collectively sufficient reason for us to reject the current licence
+proposal. However, we also note that the current draft with each of the
+unacceptable provisions stripped out completely represents at best marginal
+value over the tested and proven GPLv2. Therefore, as far as we are
+concerned (and insofar as we control subsystems of the kernel) we cannot
+foresee any drafts of GPLv3 coming out of the current drafting process that
+would prove acceptable to us as a licence to move the current Linux Kernel
+to.
+
+    Further, since the FSF is proposing to shift all of its projects to
+GPLv3 and apply pressure to every other GPL licensed project to move, we
+foresee the release of GPLv3 portends the Balkanisation of the entire Open
+Source Universe upon which we rely. This Balkanisation, which will be
+manifested by distributions being forced to fork various packages in order
+to get consistent licences, has the potential to inflict massive collateral
+damage upon our entire ecosystem and jeopardise the very utility and
+survival of Open Source. Since we can see nothing of sufficient value in
+the current drafts of the GPLv3 to justify this terrible cost, we can only
+assume the FSF is unaware of the current potential for disaster of the
+course on which is has embarked. Therefore, we implore the FSF to
+re-examine the consequences of its actions and to abandon the current GPLv3
+process before it becomes too late.
+

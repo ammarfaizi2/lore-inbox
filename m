@@ -1,68 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932133AbWIVTNy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932176AbWIVTRV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932133AbWIVTNy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Sep 2006 15:13:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932177AbWIVTNy
+	id S932176AbWIVTRV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Sep 2006 15:17:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932177AbWIVTRV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Sep 2006 15:13:54 -0400
-Received: from opersys.com ([64.40.108.71]:15374 "EHLO www.opersys.com")
-	by vger.kernel.org with ESMTP id S932169AbWIVTNx (ORCPT
+	Fri, 22 Sep 2006 15:17:21 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:15569 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S932176AbWIVTRU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Sep 2006 15:13:53 -0400
-Message-ID: <45143850.3000005@opersys.com>
-Date: Fri, 22 Sep 2006 15:24:00 -0400
-From: Karim Yaghmour <karim@opersys.com>
-Reply-To: karim@opersys.com
-Organization: Opersys inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.8.0.6) Gecko/20060804 Fedora/1.0.4-0.5.1.fc5 SeaMonkey/1.0.4
+	Fri, 22 Sep 2006 15:17:20 -0400
+Date: Fri, 22 Sep 2006 12:17:06 -0700 (PDT)
+From: Christoph Lameter <clameter@sgi.com>
+To: Andi Kleen <ak@suse.de>
+cc: Martin Bligh <mbligh@mbligh.org>, akpm@google.com,
+       linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
+       James Bottomley <James.Bottomley@steeleye.com>, linux-mm@kvack.org
+Subject: Re: [RFC] Initial alpha-0 for new page allocator API
+In-Reply-To: <200609222110.25118.ak@suse.de>
+Message-ID: <Pine.LNX.4.64.0609221212150.8764@schroedinger.engr.sgi.com>
+References: <Pine.LNX.4.64.0609212052280.4736@schroedinger.engr.sgi.com>
+ <200609220817.59801.ak@suse.de> <Pine.LNX.4.64.0609220934040.7083@schroedinger.engr.sgi.com>
+ <200609222110.25118.ak@suse.de>
 MIME-Version: 1.0
-To: Mathieu Desnoyers <compudj@krystal.dyndns.org>
-CC: Ingo Molnar <mingo@elte.hu>, Martin Bligh <mbligh@google.com>,
-       "Frank Ch. Eigler" <fche@redhat.com>,
-       Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>, prasanna@in.ibm.com,
-       Andrew Morton <akpm@osdl.org>, Paul Mundt <lethal@linux-sh.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>, Jes Sorensen <jes@sgi.com>,
-       Tom Zanussi <zanussi@us.ibm.com>,
-       Richard J Moore <richardj_moore@uk.ibm.com>,
-       Michel Dagenais <michel.dagenais@polymtl.ca>,
-       Christoph Hellwig <hch@infradead.org>,
-       Greg Kroah-Hartman <gregkh@suse.de>,
-       Thomas Gleixner <tglx@linutronix.de>, William Cohen <wcohen@redhat.com>,
-       ltt-dev@shafik.org, systemtap@sources.redhat.com,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCH] Linux Kernel Markers 0.5 for Linux 2.6.17 (with probe
-  management)
-References: <20060921160009.GA30115@Krystal> <20060921160656.GA24774@elte.hu> <20060921214248.GA10097@Krystal> <20060922070714.GB4167@elte.hu> <20060922150810.GB20839@Krystal> <45140E33.9030509@opersys.com> <20060922161353.GA1569@Krystal> <45141759.8060600@opersys.com> <20060922180654.GA12645@Krystal>
-In-Reply-To: <20060922180654.GA12645@Krystal>
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 22 Sep 2006, Andi Kleen wrote:
 
-Mathieu Desnoyers wrote:
-> Here is the implementation :-)
+> We already have that scheme. Any existing driver should be already converted
+> away from GFP_DMA towards dma_*/pci_*. dma_* knows all the magic
+> how to get memory for the various ranges. No need to mess up the 
+> main allocator.
 
-Trigger happy :)
+That is not the case. The "magic" ends in arch specific 
+*_alloc_dma_coherent function tinkering around with __GFP_DMA and in 
+x86_64 in addition GFP_DMA32.
+> 
+> Anyways, i suppose what could be added as a fallback would be a 
+> really_slow_brute_force_try_to_get_something_in_this_range() allocator
+> that basically goes through the buddy lists freeing in >O(1) 
+> and does some directed reclaim, but that would likely be a separate
+> path anyways and not need your new structure to impact the O(1)
+> allocator.
 
-> To change it, we can dynamically overwrite the __mark_near_jump_select_##name
-> value (a byte) to (__mark_jump_call_##name - __mark_near_jump_##name).
+Right.
 
-Hmm... I don't know if you won't still need to resort to int3 and
-then overwrite the byte. From my understanding it sounds like you
-wouldn't but that's where Richard's insight on the errata stuff
-might come in handy.
+> I am still unconvinced of the real need. The only gaping hole was 
+> GFP_DMA32, which we fixed already.
 
-Have you actually tried to run this code by any chance? *If* it did
-work, I think this might just mean that you don't need either
-kprobes or djprobes.
+And then about DMA zones being associated with arch independent memory 
+ranges which is not the case. GFP_DMA32 just happens to be defined by a
+single arch and thus is has only one interpretation.
 
-> So we have one architecture specific optimisation within the architecture
-> agnostic marking mechanism.
+> Ok there is aacraid with its weird 2GB limit, but in case there are
+> really enough users running into this broken then then the really_slow_*
+> thing above would be likely fine. And those cards are slowly going
+> away too.  
 
-That would seem reasonable, I think. You might want to test out
-your mechanism, get confirmation from Richard and then post an
-update to your patches.
-
-Karim
+I agree.
 

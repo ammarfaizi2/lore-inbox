@@ -1,60 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964931AbWIVXiW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964934AbWIVXmn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964931AbWIVXiW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Sep 2006 19:38:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964933AbWIVXiV
+	id S964934AbWIVXmn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Sep 2006 19:42:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964936AbWIVXmn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Sep 2006 19:38:21 -0400
-Received: from xenotime.net ([66.160.160.81]:22700 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S964931AbWIVXiU (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Sep 2006 19:38:20 -0400
-Date: Fri, 22 Sep 2006 16:39:29 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: linas@austin.ibm.com (Linas Vepstas)
-Cc: Luca <kronos.it@gmail.com>, linux-scsi@vger.kernel.org,
-       linux-pci@atrey.karlin.mff.cuni.cz, linuxppc-dev@ozlabs.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH]: PCI Error Recovery: Symbios SCSI device driver
-Message-Id: <20060922163929.bb870ee1.rdunlap@xenotime.net>
-In-Reply-To: <20060922233235.GB14213@austin.ibm.com>
-References: <20060921231314.GW29167@austin.ibm.com>
-	<20060922220629.GA4600@dreamland.darkstar.lan>
-	<20060922233235.GB14213@austin.ibm.com>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 22 Sep 2006 19:42:43 -0400
+Received: from wx-out-0506.google.com ([66.249.82.231]:55458 "EHLO
+	wx-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S964934AbWIVXmm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Sep 2006 19:42:42 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=Sdxuf7M438IOQJyXxtTWStG33+/rl0wNiNS1JirM4cpbMQN2egPB5CnKJBojchxgkvxqxkFsJ0CetvLZ1LoPRhZQd4EJeo53FDQuqSzUBs4hw8q4yJUCl0XJhUHXhXfY4OHwvFtUcL2wKcdpOsJxrLJOibVBlhz0hjFgHDrWHW8=
+Message-ID: <35a82d00609221642u2e4a5026w434584ff77b7b9bb@mail.gmail.com>
+Date: Fri, 22 Sep 2006 16:42:41 -0700
+From: "Scott Baker" <smbaker@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: fault when using iget() on XFS file system (2.6.9)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 22 Sep 2006 18:32:35 -0500 Linas Vepstas wrote:
+Hello,
 
-> On Sat, Sep 23, 2006 at 12:06:29AM +0200, Luca wrote:
-> > 
-> > Space after function name? You put in other places too, it's not
-> > consistent with the rest of the patch.
-> 
-> Oops. I was also coding on a different project recently, with a
-> different style.  I'll send a revised patch in a moment.
+I'm working on a kernel module that needs to perform an iget() on an
+inode that lies in the XFS file system. Most of the time, this works
+fine, but occasionally the iget will cause a fault by jumping to
+EIP=0. I traced the fault to where iget calls sb->s_op->read_inode,
+and I found that XFS doesn't provide a read_inode function. iget
+attempts to call the read_inode operation if the inode's state has the
+I_NEW bit set. Thus, the kernel jumps off to nowhere.
 
-Please change if()'s to use
+The code works flawlessly on an uniprocessor system, but fails
+intermittently under smp. This leads me to believe that there's a
+race. XFS is probably filling in the inode structure on one cpu while
+my module is performing the iget on the other.
 
-	if (var == constant)
-instead of
-	if (constant == var)
+Does anyone have a suggestion of where I should go from here?
+Modifying XFS or the kernel is out of the question. I can re-implement
+iget myself, detect the error condition, and sleep until XFS finishes
+filling in the inode, but that seems like a bit of a hack.
 
-also.  (or whatever condition is being used)  Thanks.
-
-
-> > > +       if (pci_enable_device(pdev))
-> > > +               printk (KERN_ERR "%s: device setup failed most egregiously\n",
-> > > +                           sym_name(np));
-> > 
-> > Is the failure of pci_enable_device ignored on purpose?
-> 
-> No. :-( Thanks for the catch. I think I got cross-eyed staring at the code.
-
----
-~Randy
+Thanks,
+Scott

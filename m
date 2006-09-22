@@ -1,110 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932547AbWIVOm4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932554AbWIVOtv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932547AbWIVOm4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Sep 2006 10:42:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932546AbWIVOm4
+	id S932554AbWIVOtv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Sep 2006 10:49:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932555AbWIVOtv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Sep 2006 10:42:56 -0400
-Received: from gateway-1237.mvista.com ([63.81.120.158]:36810 "EHLO
-	gateway-1237.mvista.com") by vger.kernel.org with ESMTP
-	id S932547AbWIVOmz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Sep 2006 10:42:55 -0400
-Subject: Re: 2.6.18-rt1
-From: Daniel Walker <dwalker@mvista.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Gene Heskett <gene.heskett@verizon.net>, linux-kernel@vger.kernel.org,
-       paulmck@us.ibm.com, Thomas Gleixner <tglx@linutronix.de>,
-       John Stultz <johnstul@us.ibm.com>, Dipankar Sarma <dipankar@in.ibm.com>,
-       Arjan van de Ven <arjan@infradead.org>
-In-Reply-To: <20060921190257.GA15151@elte.hu>
-References: <20060920141907.GA30765@elte.hu>
-	 <1158774118.29177.13.camel@c-67-180-230-165.hsd1.ca.comcast.net>
-	 <20060920182553.GC1292@us.ibm.com>
-	 <200609201436.47042.gene.heskett@verizon.net>
-	 <20060920194650.GA21037@elte.hu>
-	 <1158783590.29177.19.camel@c-67-180-230-165.hsd1.ca.comcast.net>
-	 <20060920201450.GA22482@elte.hu>
-	 <1158784266.29177.21.camel@c-67-180-230-165.hsd1.ca.comcast.net>
-	 <20060921190257.GA15151@elte.hu>
+	Fri, 22 Sep 2006 10:49:51 -0400
+Received: from mgw-ext13.nokia.com ([131.228.20.172]:6022 "EHLO
+	mgw-ext13.nokia.com") by vger.kernel.org with ESMTP id S932554AbWIVOtu
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Sep 2006 10:49:50 -0400
+Subject: Re: [linux-pm] [PATCH] PowerOP, PowerOP Core, 1/2
+From: Igor Stoppa <igor.stoppa@nokia.com>
+To: ext Pavel Machek <pavel@ucw.cz>
+Cc: "Scott E. Preece" <preece@motorola.com>, linux-pm@lists.osdl.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20060922141127.GM3478@elf.ucw.cz>
+References: <200609192137.k8JLb4NX029061@olwen.urbana.css.mot.com>
+	 <20060922141127.GM3478@elf.ucw.cz>
 Content-Type: text/plain
-Date: Fri, 22 Sep 2006 07:42:50 -0700
-Message-Id: <1158936170.21405.11.camel@c-67-180-230-165.hsd1.ca.comcast.net>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
+Organization: OSSO
+Date: Fri, 22 Sep 2006 17:48:55 +0300
+Message-Id: <1158936535.26687.20.camel@Dogbert.NOE.nokia.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.3 
+X-OriginalArrivalTime: 22 Sep 2006 14:48:51.0850 (UTC) FILETIME=[3839BEA0:01C6DE56]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-09-21 at 21:02 +0200, Ingo Molnar wrote:
-> * Daniel Walker <dwalker@mvista.com> wrote:
+On Fri, 2006-09-22 at 16:11 +0200, ext Pavel Machek wrote:
+> Hi!
 > 
-> > On Wed, 2006-09-20 at 22:14 +0200, Ingo Molnar wrote:
-> > > >         if (up->port.sysrq) {
-> > > >                 /* serial8250_handle_port() already took the lock */
-> > > >                 locked = 0;
-> > 
-> > 
-> > In this case it had interrupts off in the !PREEMPT_RT case, but your 
-> > change leaves them on here.. _irqsave only runs in two of the three 
-> > cases..
+> > Hmm. If you assume the CPUs in an SMP system can be in different
+> > operating points, this would (as Pavel pointed out) result in an
+> > explosion of operating points.
 > 
-> doh, right you are. I updated to the patch below.
+> Problem is not only CPUs, devices are mostly independent in PC
+> case... it would be nice to solve that problem with same approach.
 > 
-> 	Ingo
+> 								Pavel
 
+This whole discussion is, imho, very misleading.
 
-On closer inspection I still think this is wrong. (Although it looks
-really nice..) find below speaking only in term of !PREEMPT_RT ,
+The number of CPU in a box or the number of cores in a chip is not a
+significant element, per se.
 
+What is really important is how interdependent they are.
+In the case of a board with 2, 4 or 8 CPU, the decisione if their states
+are tied together or not is not based on the packaging, but rather on
+the (possibly suboptimal) HW design: shared clock or power sources
+impose constraints and correlations.
 
-> Index: linux/drivers/serial/8250.c
-> ===================================================================
-> --- linux.orig/drivers/serial/8250.c
-> +++ linux/drivers/serial/8250.c
-> @@ -2252,14 +2252,10 @@ serial8250_console_write(struct console 
->  
->  	touch_nmi_watchdog();
->  
-> -	local_irq_save(flags);
-> -	if (up->port.sysrq) {
-> -		/* serial8250_handle_port() already took the lock */
-> -		locked = 0;
+Correlations lead to the multiplication of subsystem states, while
+constraints curb the number, because if CPU1 and CPU2 share the same
+voltage source, then of all the possible states, only those where this
+constraint is satisfied are possible.
 
-in the old version interrupts are off, and stay off until the function
-returns in all cases. Even "locked = 0" .
+Remember what an OP is:
+a set of values that exaustively and uniquely define the state of a
+system.
 
-> -	} else if (oops_in_progress) {
-> -		locked = spin_trylock(&up->port.lock);
-> -	} else
-> -		spin_lock(&up->port.lock);
-> +	if (up->port.sysrq || oops_in_progress)
-> +		locked = spin_trylock_irqsave(&up->port.lock, flags);
+So if your box has 256 CPUs, I bet that they are not all on the same
+board and probably you also have several independently programmable
+power sources.
+If every power source feeds say 8 CPUs, then the box contains 16
+independent subsystems.
 
-Now in the new version interrupts are only off if you _get the lock_.
-Presumably the lock is taken in the calling function, but interrupts
-aren't disabled. 
+Of course one probably would like to orchestrate all of them, but that's
+a 2nd level problem, that could be addressed by a power/workload
+manager.
 
-I'm assuming the code is disabling interrupts for a good reason, I don't
-know enough about the code to say it isn't.
+However, even starting with localised dynamic power management would
+yeld a significant improvement.
 
-> +	else
-> +		spin_lock_irqsave(&up->port.lock, flags);
->  
->  	/*
->  	 *	First save the IER then disable the interrupts
-> @@ -2281,8 +2277,7 @@ serial8250_console_write(struct console 
->  	serial_out(up, UART_IER, ier);
->  
->  	if (locked)
-> -		spin_unlock(&up->port.lock);
-> -	local_irq_restore(flags);
-> +		spin_unlock_irqrestore(&up->port.lock, flags);
->  }
->  
->  static int serial8250_console_setup(struct console *co, char *options)
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+About other device within a PC: SW design cannot really change whatever
+constraints the HW design is imposing: if 2 devices are sharing a
+programmable v/f source, the source is generating a system which
+comprises both devices and it has to be addressed as such.
 
+The innterdipendency could be masked at some high abstract level, but
+then going down, close to HW, it has to be explicitly dealt with.
+
+-- 
+Cheers,
+           Igor
+
+Igor Stoppa (Nokia M - OSSO / Tampere)

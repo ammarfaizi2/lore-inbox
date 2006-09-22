@@ -1,67 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750878AbWIVHnG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750882AbWIVHoE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750878AbWIVHnG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Sep 2006 03:43:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750872AbWIVHnG
+	id S1750882AbWIVHoE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Sep 2006 03:44:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750875AbWIVHoD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Sep 2006 03:43:06 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:27860 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750864AbWIVHnC (ORCPT
+	Fri, 22 Sep 2006 03:44:03 -0400
+Received: from msr48.hinet.net ([168.95.4.148]:60885 "EHLO msr48.hinet.net")
+	by vger.kernel.org with ESMTP id S1750882AbWIVHoA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Sep 2006 03:43:02 -0400
-Date: Fri, 22 Sep 2006 00:42:53 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Holger Kiehl <Holger.Kiehl@dwd.de>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       linux-net <linux-net@vger.kernel.org>, netdev@vger.kernel.org
-Subject: Re: 2.6.1[78] page allocation failure. order:3, mode:0x20
-Message-Id: <20060922004253.2e2e2612.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0609220655550.13396@diagnostix.dwd.de>
-References: <Pine.LNX.4.64.0609220655550.13396@diagnostix.dwd.de>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+	Fri, 22 Sep 2006 03:44:00 -0400
+Subject: [PATCH] Restore the original TX FIFO overflow process.
+From: Jesse Huang <jesse@icplus.com.tw>
+To: linux-kernel@vger.kernel.org, netdev@vger.kernel.org, akpm@osdl.org,
+       jgarzik@pobox.com, jesse@icplus.com.tw
+Content-Type: text/plain
+Date: Fri, 22 Sep 2006 15:30:01 -0400
+Message-Id: <1158953401.2630.0.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.6.0 (2.6.0-1) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 22 Sep 2006 07:27:18 +0000 (GMT)
-Holger Kiehl <Holger.Kiehl@dwd.de> wrote:
+From: Jesse Huang <jesse@icplus.com.tw>
 
-> I get some of the "page allocation failure" errors. My hardware is 4 CPU
-> Opteron with one quad + one dual intel e1000 cards. Kernel is plain 2.6.18
-> and for two cards MTU is set to 9000.
-> 
->     Sep 21 21:03:15 athena kernel: vsftpd: page allocation failure. order:3, mode:0x20
->     Sep 21 21:03:15 athena kernel:
->     Sep 21 21:03:15 athena kernel: Call Trace:
->     Sep 21 21:03:15 athena kernel:  <IRQ> [<ffffffff8024e516>] __alloc_pages+0x282/0x29b
->     Sep 21 21:03:15 athena kernel:  [<ffffffff8807aa93>] :ip_tables:ipt_do_table+0x1eb/0x318
->     Sep 21 21:03:15 athena kernel:  [<ffffffff8026614b>] cache_grow+0x134/0x33d
->     Sep 21 21:03:15 athena kernel:  [<ffffffff8026664c>] cache_alloc_refill+0x189/0x1d7
->     Sep 21 21:03:15 athena kernel:  [<ffffffff80266724>] __kmalloc+0x8a/0x94
->     Sep 21 21:03:15 athena kernel:  [<ffffffff803b5438>] __alloc_skb+0x5c/0x123
->     Sep 21 21:03:15 athena kernel:  [<ffffffff803b5f2e>] __netdev_alloc_skb+0x12/0x2d
->     Sep 21 21:03:15 athena kernel:  [<ffffffff8033cb22>] e1000_alloc_rx_buffers+0x6f/0x2f3
->     Sep 21 21:03:15 athena kernel:  [<ffffffff803d1234>] ip_local_deliver+0x173/0x23b
->     Sep 21 21:03:15 athena kernel:  [<ffffffff8033d29a>] e1000_clean_rx_irq+0x4f4/0x514
+Change Logs:
+   - Restore the original TX FIFO overflow process.
 
-Is OK, it's just a warning and it is expected - the kernel will recover.
+Signed-off-by: Jesse Huang <jesse@icplus.com.tw>
 
-I'm half-inclined to shut the warning up by sticking a __GFP_NOWARN in there.
+---
 
-But on the other hand, that warning is handy sometimes.  How come kmalloc
-decided to request a 32k hunk of memory when the MTU size is only 9k?  Is
-the driver doing something dumb?
+ drivers/net/sundance.c |   45 +++++++++++++++++++++++++++------------------
+ 1 files changed, 27 insertions(+), 18 deletions(-)
 
-	else if (max_frame <= E1000_RXBUFFER_8192)
-		adapter->rx_buffer_len = E1000_RXBUFFER_8192;
-	else if (max_frame <= E1000_RXBUFFER_16384)
-		adapter->rx_buffer_len = E1000_RXBUFFER_16384;
+7d8d60d6b1dbdbc36896148df1cc0242c037d838
+diff --git a/drivers/net/sundance.c b/drivers/net/sundance.c
+index a253924..e68d325 100755
+--- a/drivers/net/sundance.c
++++ b/drivers/net/sundance.c
+@@ -21,8 +21,8 @@
+ */
+ 
+ #define DRV_NAME	"sundance"
+-#define DRV_VERSION	"1.01+LK1.14"
+-#define DRV_RELDATE	"04-Aug-2006"
++#define DRV_VERSION	"1.01+LK1.15"
++#define DRV_RELDATE	"22-Sep-2006"
+ 
+ 
+ /* The user-configurable values.
+@@ -1167,24 +1167,33 @@ static irqreturn_t intr_handler(int irq,
+ 					if (tx_status & 0x02)
+ 						np->stats.tx_window_errors++;
+ 
+-					/* FIFO ERROR need to be reset tx */
+-					if (tx_status & 0x10) {	/* Reset the Tx. */
+-						spin_lock(&np->lock);
+-						reset_tx(dev);
+-						spin_unlock(&np->lock);
+-					}
+-					if (tx_status & 0x1e) {
+-					/* need to make sure tx enabled */
+-						int i = 10;
+-						do {
+-							iowrite16(ioread16(ioaddr + MACCtrl1) | TxEnable, ioaddr + MACCtrl1);
+-							if (ioread16(ioaddr + MACCtrl1) & TxEnabled)
+-								break;
+-							mdelay(1);
+-						} while (--i);
++					/*
++					** This reset has been verified on
++					** DFE-580TX boards ! phdm@macqel.be.
++					*/
++					if (tx_status & 0x10) {	/* TxUnderrun */
++						unsigned short txthreshold;
++
++						txthreshold = ioread16 (ioaddr + TxStartThresh);
++						/* Restart Tx FIFO and transmitter */
++						sundance_reset(dev, (NetworkReset|FIFOReset|TxReset) << 16);
++						iowrite16 (txthreshold, ioaddr + TxStartThresh);
++						/* No need to reset the Tx pointer here */
+ 					}
++					/* Restart the Tx. */
++					iowrite16 (TxEnable, ioaddr + MACCtrl1);
+ 				}
+-
++				if (tx_status & 0x1e) {
++				/* need to make sure tx enabled */
++					int i = 10;
++					do {
++						iowrite16(ioread16(ioaddr + MACCtrl1) | TxEnable, ioaddr + MACCtrl1);
++						if (ioread16(ioaddr + MACCtrl1) & TxEnabled)
++							break;
++						mdelay(1);
++					} while (--i);
++				}
++				
+ 				iowrite16 (0, ioaddr + TxStatus);
+ 				tx_status = ioread16 (ioaddr + TxStatus);
+ 				if (tx_cnt < 0)
+-- 
+1.3.GIT
 
-It sure is.
 
-This is going to cause an 9000-byte MTU to use a 16384-byte allocation. 
-e1000_alloc_rx_buffers() adds two bytes to that, so we do kmalloc(16386),
-which causes the slab allocator to request 32768 bytes.  All for a 9kbyte skb.
 

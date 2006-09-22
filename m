@@ -1,166 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750724AbWIVGQy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750722AbWIVGVk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750724AbWIVGQy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Sep 2006 02:16:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750723AbWIVGQy
+	id S1750722AbWIVGVk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Sep 2006 02:21:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750709AbWIVGVk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Sep 2006 02:16:54 -0400
-Received: from ug-out-1314.google.com ([66.249.92.175]:63111 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1750718AbWIVGQx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Sep 2006 02:16:53 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=QBoGPwM0pKmJsJMh0fz7KgdpJ85F6v1pZNS5+hkjzTV/FsZFE0u27G2kKpjZ46oQX7kW3G/mcDDAZjzl6C2zpQtnfYQmwkxW13cAKuvPHjiYVLM9Jt2OQmfK3o7hbfYpqV93HuWcTCJKgaPEygJ7z0jj2n2tk5gYf5vZikjmoKo=
-Message-ID: <6b4e42d10609212316td429f66q51e35d80c823c571@mail.gmail.com>
-Date: Thu, 21 Sep 2006 23:16:51 -0700
-From: "Om Narasimhan" <om.turyx@gmail.com>
-To: linux-kernel@vger.kernel.org, kernel-janitors@lists.osdl.org
-Subject: removing multiple kfree() and return's
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Fri, 22 Sep 2006 02:21:40 -0400
+Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:32910 "EHLO
+	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S1750704AbWIVGVi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Sep 2006 02:21:38 -0400
+Date: Fri, 22 Sep 2006 15:24:47 +0900
+From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+To: "tony.luck@intel.com" <tony.luck@intel.com>
+Cc: Andrew Morton <akpm@osdl.org>,
+       "linux-ia64@vger.kernel.org" <linux-ia64@vger.kernel.org>,
+       LKML <linux-kernel@vger.kernel.org>, GOTO <y-goto@jp.fujitsu.com>
+Subject: [BUGFIX][PATCH] cpu to node relationship fixup take2 [1/2]
+ acpi_map_cpu2node
+Message-Id: <20060922152447.42a83860.kamezawa.hiroyu@jp.fujitsu.com>
+Organization: Fujitsu
+X-Mailer: Sylpheed version 2.2.0 (GTK+ 2.6.10; i686-pc-mingw32)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Removes repeated calls to kfree() and return; by introducing a label
-and goto label.
+I rewrote the whoe patch..
 
-Signed off by : Om Narasimhan <om.turyx@gmail.com>
+Problem description:
+We have additional_cpus= option for allocating possible_cpus. But nid for
+possible cpus are not fixed at boot time. cpus which is offlined at boot 
+or cpus which is not on SRAT is not tied to its node.
+This will cause panic at cpu onlining.
 
+Changelog V1 -> V2
+- divded patch into 2 pathces.
+- move cpu_to_node relationship fixup before cpu onlining.
 
- drivers/block/cpqarray.c |   62 +++++++++++++++-------------------------------
- 1 files changed, 20 insertions(+), 42 deletions(-)
+Tested on ia64/NUMA system, which has *physical* node-hot-add function.
 
-diff --git a/drivers/block/cpqarray.c b/drivers/block/cpqarray.c
-index 78082ed..e167cec 100644
---- a/drivers/block/cpqarray.c
-+++ b/drivers/block/cpqarray.c
-@@ -1642,58 +1642,47 @@ static void start_fwbk(int ctlr)
-     It is used only at init time.
- *****************************************************************/
- static void getgeometry(int ctlr)
--{				
--	id_log_drv_t *id_ldrive;
--	id_ctlr_t *id_ctlr_buf;
--	sense_log_drv_stat_t *id_lstatus_buf;
--	config_t *sense_config_buf;
-+{
-+	id_log_drv_t *id_ldrive = NULL;
-+	id_ctlr_t *id_ctlr_buf = NULL;
-+	sense_log_drv_stat_t *id_lstatus_buf = NULL;
-+	config_t *sense_config_buf = NULL;
- 	unsigned int log_unit, log_index;
- 	int ret_code, size;
--	drv_info_t *drv;
-+	drv_info_t *drv = NULL;
- 	ctlr_info_t *info_p = hba[ctlr];
- 	int i;
+Future work:  node-hot-add by cpu-hot-add.
 
- 	info_p->log_drv_map = 0;	
- 	
--	id_ldrive = (id_log_drv_t *)kmalloc(sizeof(id_log_drv_t), GFP_KERNEL);
-+	id_ldrive = (id_log_drv_t *)kzalloc(sizeof(id_log_drv_t), GFP_KERNEL);
- 	if(id_ldrive == NULL)
- 	{
- 		printk( KERN_ERR "cpqarray:  out of memory.\n");
--		return;
-+		goto end;
- 	}
+-Kame
 
--	id_ctlr_buf = (id_ctlr_t *)kmalloc(sizeof(id_ctlr_t), GFP_KERNEL);
-+	id_ctlr_buf = (id_ctlr_t *)kzalloc(sizeof(id_ctlr_t), GFP_KERNEL);
- 	if(id_ctlr_buf == NULL)
- 	{
--		kfree(id_ldrive);
- 		printk( KERN_ERR "cpqarray:  out of memory.\n");
--		return;
-+		goto end;
- 	}
+==
+In usual, pxm_to_nid() mapping is fixed at boot time by SRAT.
 
--	id_lstatus_buf = (sense_log_drv_stat_t
-*)kmalloc(sizeof(sense_log_drv_stat_t), GFP_KERNEL);
-+	id_lstatus_buf = (sense_log_drv_stat_t
-*)kzalloc(sizeof(sense_log_drv_stat_t), GFP_KERNEL);
- 	if(id_lstatus_buf == NULL)
- 	{
--		kfree(id_ctlr_buf);
--		kfree(id_ldrive);
- 		printk( KERN_ERR "cpqarray:  out of memory.\n");
--		return;
-+		goto end;
- 	}
+But, unfortunatelly, some system (my system!) do not include
+full SRAT table for possible cpus. (Then, I use additiona_cpus= option.)
 
--	sense_config_buf = (config_t *)kmalloc(sizeof(config_t), GFP_KERNEL);
-+	sense_config_buf = (config_t *)kzalloc(sizeof(config_t), GFP_KERNEL);
- 	if(sense_config_buf == NULL)
- 	{
--		kfree(id_lstatus_buf);
--		kfree(id_ctlr_buf);
--		kfree(id_ldrive);
- 		printk( KERN_ERR "cpqarray:  out of memory.\n");
--		return;
-+		goto end;
- 	}
+For such possible cpus, pxm<->nid should be fixed at hot-add.
+We now have acpi_map_pxm_to_node() which is also used at boot. It's suitable
+here.
 
--	memset(id_ldrive, 0, sizeof(id_log_drv_t));
--	memset(id_ctlr_buf, 0, sizeof(id_ctlr_t));
--	memset(id_lstatus_buf, 0, sizeof(sense_log_drv_stat_t));
--	memset(sense_config_buf, 0, sizeof(config_t));
+Signed-Off-By: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+
+ arch/ia64/kernel/acpi.c |   13 ++++++++-----
+ 1 file changed, 8 insertions(+), 5 deletions(-)
+
+Index: linux-2.6.18/arch/ia64/kernel/acpi.c
+===================================================================
+--- linux-2.6.18.orig/arch/ia64/kernel/acpi.c	2006-09-22 13:39:12.000000000 +0900
++++ linux-2.6.18/arch/ia64/kernel/acpi.c	2006-09-22 14:24:48.000000000 +0900
+@@ -771,16 +771,19 @@
+ {
+ #ifdef CONFIG_ACPI_NUMA
+ 	int pxm_id;
++	int nid;
+ 
+ 	pxm_id = acpi_get_pxm(handle);
 -
- 	info_p->phys_drives = 0;
- 	info_p->log_drv_map = 0;
- 	info_p->drv_assign_map = 0;
-@@ -1709,11 +1698,7 @@ static void getgeometry(int ctlr)
- 		 */
- 		 /* Free all the buffers and return */
- 		printk(KERN_ERR "cpqarray: error sending ID controller\n");
--		kfree(sense_config_buf);
--                kfree(id_lstatus_buf);
--                kfree(id_ctlr_buf);
--                kfree(id_ldrive);
--                return;
-+		goto end;
-         }
+ 	/*
+-	 * Assuming that the container driver would have set the proximity
+-	 * domain and would have initialized pxm_to_node(pxm_id) && pxm_flag
++	 * We don't have cpu-only-node hotadd. But if the system equips
++	 * SRAT table, pxm is already found and node is ready.
++  	 * So, just pxm_to_nid(pxm) is OK.
++	 * This code here is for the system which doesn't have full SRAT
++  	 * table for possible cpus.
+ 	 */
+-	node_cpuid[cpu].nid = (pxm_id < 0) ? 0 : pxm_to_node(pxm_id);
+-
++	nid = acpi_map_pxm_to_node(pxm_id);
+ 	node_cpuid[cpu].phys_id = physid;
++	node_cpuid[cpu].nid = nid;
+ #endif
+ 	return (0);
+ }
 
- 	info_p->log_drives = id_ctlr_buf->nr_drvs;
-@@ -1760,11 +1745,7 @@ static void getgeometry(int ctlr)
- 			 "Access to this controller has been disabled\n",
- 				ctlr, log_unit);
- 			/* Free all the buffers and return */
--                	kfree(sense_config_buf);
--                	kfree(id_lstatus_buf);
--                	kfree(id_ctlr_buf);
--                	kfree(id_ldrive);
--                	return;
-+			goto end;
- 		}
- 		/*
- 		   Make sure the logical drive is configured
-@@ -1795,11 +1776,7 @@ static void getgeometry(int ctlr)
- 					info_p->log_drv_map = 0;
- 					/* Free all the buffers and return */
-                 			printk(KERN_ERR "cpqarray: error sending sense config\n");
--                			kfree(sense_config_buf);
--                			kfree(id_lstatus_buf);
--                			kfree(id_ctlr_buf);
--                			kfree(id_ldrive);
--                			return;
-+					goto end;
-
- 				}
-
-@@ -1815,9 +1792,10 @@ static void getgeometry(int ctlr)
- 			log_index = log_index + 1;
- 		}		/* end of if logical drive configured */
- 	}			/* end of for log_unit */
-+end:
- 	kfree(sense_config_buf);
--  	kfree(id_ldrive);
--  	kfree(id_lstatus_buf);
-+	kfree(id_ldrive);
-+	kfree(id_lstatus_buf);
- 	kfree(id_ctlr_buf);
- 	return;

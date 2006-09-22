@@ -1,75 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964908AbWIVXNs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964911AbWIVXTN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964908AbWIVXNs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Sep 2006 19:13:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964910AbWIVXNr
+	id S964911AbWIVXTN (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Sep 2006 19:19:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964914AbWIVXTN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Sep 2006 19:13:47 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:60902 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S964908AbWIVXNp (ORCPT
+	Fri, 22 Sep 2006 19:19:13 -0400
+Received: from sandeen.net ([209.173.210.139]:46445 "EHLO sandeen.net")
+	by vger.kernel.org with ESMTP id S964911AbWIVXTM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Sep 2006 19:13:45 -0400
-Date: Fri, 22 Sep 2006 19:13:42 -0400
-From: Dave Jones <davej@redhat.com>
-To: =?utf-8?B?Uy7Dh2HEn2xhcg==?= Onur <caglar@pardus.org.tr>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [BUG] warning at kernel/cpu.c:38/lock_cpu_hotplug()
-Message-ID: <20060922231342.GA8414@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	=?utf-8?B?Uy7Dh2HEn2xhcg==?= Onur <caglar@pardus.org.tr>,
-	linux-kernel@vger.kernel.org
-References: <200609230145.21997.caglar@pardus.org.tr>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200609230145.21997.caglar@pardus.org.tr>
-User-Agent: Mutt/1.4.2.2i
+	Fri, 22 Sep 2006 19:19:12 -0400
+Message-ID: <45146F76.3010301@sandeen.net>
+Date: Fri, 22 Sep 2006 18:19:18 -0500
+From: Eric Sandeen <sandeen@sandeen.net>
+User-Agent: Thunderbird 1.5.0.7 (Macintosh/20060909)
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: Timothy Shimmin <tes@sgi.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       xfs mailing list <xfs@oss.sgi.com>
+Subject: Re: [PATCH -mm] rescue large xfs preferred iosize from the inode
+ diet patch
+References: <45131334.6050803@sandeen.net>	<45134472.7080002@sgi.com> <20060922161040.609286fa.akpm@osdl.org>
+In-Reply-To: <20060922161040.609286fa.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Sep 23, 2006 at 01:45:16AM +0300, S.Çağlar Onur wrote:
- > Hi;
- > 
- > With kernel-2.6.18, "modprobe cpufreq_stats" always (i can reproduce) gaves 
- > following;
- > 
- > ...
- > Lukewarm IQ detected in hotplug locking
- > BUG: warning at kernel/cpu.c:38/lock_cpu_hotplug()
- >  [<b0134a42>] lock_cpu_hotplug+0x42/0x65
- >  [<b02f8af1>] cpufreq_update_policy+0x25/0xad
- >  [<b0358756>] kprobe_flush_task+0x18/0x40
- >  [<b0355aab>] schedule+0x63f/0x68b
- >  [<b01377c2>] __link_module+0x0/0x1f
- >  [<b0119e7d>] __cond_resched+0x16/0x34
- >  [<b03560bf>] cond_resched+0x26/0x31
- >  [<b0355b0e>] wait_for_completion+0x17/0xb1
- >  [<f965c547>] cpufreq_stat_cpu_callback+0x13/0x20 [cpufreq_stats]
- >  [<f9670074>] cpufreq_stats_init+0x74/0x8b [cpufreq_stats]
- >  [<b0137872>] sys_init_module+0x91/0x174
- >  [<b0102c81>] sysenter_past_esp+0x56/0x79
+Andrew Morton wrote:
 
-This should do the trick.
-I'll merge the same patch into cpufreq.git
+>> So the fix for this is coming soon (and the fix is different from the
+>> one above).
+>>
+> 
+> eh?  Eric's patch is based on -mm, which includes the XFS git tree.  If I
+> go and merge the inode-diet patches from -mm, XFS gets broken until you
+> guys merge the above mystery patch.  (I prefer to merge the -mm patches
+> after all the git trees have gone, but sometimes maintainers dawdle and I
+> get bored of waiting).
+> 
+> Is git://oss.sgi.com:8090/nathans/xfs-2.6 obsolete, or are you hiding stuff
+> from me?  ;)
+> 
+> 
+well it's in cvs:
 
-		Dave
+http://oss.sgi.com/cgi-bin/cvsweb.cgi/xfs-linux/linux-2.6/xfs_iops.c.diff?r1=text&tr1=1.254&r2=text&tr2=1.253&f=h
 
---- linux-2.6.18.noarch/drivers/cpufreq/cpufreq_stats.c~	2006-09-22 19:12:57.000000000 -0400
-+++ linux-2.6.18.noarch/drivers/cpufreq/cpufreq_stats.c	2006-09-22 19:13:03.000000000 -0400
-@@ -350,12 +350,10 @@ __init cpufreq_stats_init(void)
- 	}
- 
- 	register_hotcpu_notifier(&cpufreq_stat_cpu_notifier);
--	lock_cpu_hotplug();
- 	for_each_online_cpu(cpu) {
- 		cpufreq_stat_cpu_callback(&cpufreq_stat_cpu_notifier, CPU_ONLINE,
- 			(void *)(long)cpu);
- 	}
--	unlock_cpu_hotplug();
- 	return 0;
- }
- static void
+but I'm too lazy to check git on a friday evening. :)
 
--- 
-http://www.codemonkey.org.uk
+Well, sgi-guys, I'll let you sort out which patch you want.  Sorry for not 
+checking cvs first!
+
+-Eric
+

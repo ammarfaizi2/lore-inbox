@@ -1,67 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964909AbWIVXNd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964908AbWIVXNs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964909AbWIVXNd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Sep 2006 19:13:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964908AbWIVXNd
+	id S964908AbWIVXNs (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Sep 2006 19:13:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964910AbWIVXNr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Sep 2006 19:13:33 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.149]:33438 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S964909AbWIVXNc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Sep 2006 19:13:32 -0400
-Subject: [PATCH] slim: fix bug with mm_users usage
-From: Kylene Jo Hall <kjhall@us.ibm.com>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Cc: akpm@osdl.org, Mimi Zohar <zohar@us.ibm.com>,
-       Dave Safford <safford@us.ibm.com>, Serge Hallyn <sergeh@us.ibm.com>
-Content-Type: text/plain
-Date: Fri, 22 Sep 2006 16:13:17 -0700
-Message-Id: <1158966797.20493.76.camel@localhost.localdomain>
+	Fri, 22 Sep 2006 19:13:47 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:60902 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S964908AbWIVXNp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Sep 2006 19:13:45 -0400
+Date: Fri, 22 Sep 2006 19:13:42 -0400
+From: Dave Jones <davej@redhat.com>
+To: =?utf-8?B?Uy7Dh2HEn2xhcg==?= Onur <caglar@pardus.org.tr>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [BUG] warning at kernel/cpu.c:38/lock_cpu_hotplug()
+Message-ID: <20060922231342.GA8414@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	=?utf-8?B?Uy7Dh2HEn2xhcg==?= Onur <caglar@pardus.org.tr>,
+	linux-kernel@vger.kernel.org
+References: <200609230145.21997.caglar@pardus.org.tr>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-7) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <200609230145.21997.caglar@pardus.org.tr>
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-There is a NULL pointer dereference possible that was introduced in the
-last round of modifications to the demotion code before merging.
-current->mm should be checked for existence before it is dereferenced to
-check the value of the mm_users field.  This patch fixes all instances
-of this bug.
+On Sat, Sep 23, 2006 at 01:45:16AM +0300, S.Çağlar Onur wrote:
+ > Hi;
+ > 
+ > With kernel-2.6.18, "modprobe cpufreq_stats" always (i can reproduce) gaves 
+ > following;
+ > 
+ > ...
+ > Lukewarm IQ detected in hotplug locking
+ > BUG: warning at kernel/cpu.c:38/lock_cpu_hotplug()
+ >  [<b0134a42>] lock_cpu_hotplug+0x42/0x65
+ >  [<b02f8af1>] cpufreq_update_policy+0x25/0xad
+ >  [<b0358756>] kprobe_flush_task+0x18/0x40
+ >  [<b0355aab>] schedule+0x63f/0x68b
+ >  [<b01377c2>] __link_module+0x0/0x1f
+ >  [<b0119e7d>] __cond_resched+0x16/0x34
+ >  [<b03560bf>] cond_resched+0x26/0x31
+ >  [<b0355b0e>] wait_for_completion+0x17/0xb1
+ >  [<f965c547>] cpufreq_stat_cpu_callback+0x13/0x20 [cpufreq_stats]
+ >  [<f9670074>] cpufreq_stats_init+0x74/0x8b [cpufreq_stats]
+ >  [<b0137872>] sys_init_module+0x91/0x174
+ >  [<b0102c81>] sysenter_past_esp+0x56/0x79
 
-Signed-off-by: Kylene Hall <kjhall@us.ibm.com>
----
- security/slim/slm_main.c |    6 +++---
- 1 files changed, 3 insertions(+), 3 deletions(-)
+This should do the trick.
+I'll merge the same patch into cpufreq.git
 
---- linux-2.6.18-rc6-orig/security/slim/slm_main.c	2006-09-18 16:41:51.000000000 -0500
-+++ linux-2.6.18-rc6/security/slim/slm_main.c	2006-09-22 13:58:35.000000000 -0500
-@@ -529,7 +519,7 @@ static int enforce_integrity_read(struct
- 	spin_lock(&cur_tsec->lock);
- 	if (!is_iac_less_than_or_exempt(level, cur_tsec->iac_r)) {
- 		rc = has_file_wperm(level);
--		if (atomic_read(&current->mm->mm_users) != 1)
-+		if (current->mm && atomic_read(&current->mm->mm_users) != 1)
- 			rc = 1;
- 		if (rc) {
- 			dprintk(SLM_BASE, "ppid %d(%s p=%d-%s) "
-@@ -1100,7 +1092,7 @@ int slm_socket_create(int family, int ty
- 			memset(&level, 0, sizeof(struct slm_file_xattr));
- 			level.iac_level = SLM_IAC_UNTRUSTED;
- 			rc = has_file_wperm(&level);
--			if (atomic_read(&current->mm->mm_users) != 1)
-+			if (current->mm && atomic_read(&current->mm->mm_users) != 1)
- 				rc = 1;
- 			if (rc) {
- 				dprintk(SLM_BASE,
-@@ -1306,7 +1298,7 @@ static int enforce_integrity_execute(str
- 		cur_tsec->iac_r = cur_tsec->iac_wx;
- 	} else {
- 		rc = has_file_wperm(level);
--		if (atomic_read(&current->mm->mm_users) != 1)
-+		if (current->mm && atomic_read(&current->mm->mm_users) != 1)
- 			rc = 1;
- 		if (rc) {
- 			dprintk(SLM_BASE,
+		Dave
 
+--- linux-2.6.18.noarch/drivers/cpufreq/cpufreq_stats.c~	2006-09-22 19:12:57.000000000 -0400
++++ linux-2.6.18.noarch/drivers/cpufreq/cpufreq_stats.c	2006-09-22 19:13:03.000000000 -0400
+@@ -350,12 +350,10 @@ __init cpufreq_stats_init(void)
+ 	}
+ 
+ 	register_hotcpu_notifier(&cpufreq_stat_cpu_notifier);
+-	lock_cpu_hotplug();
+ 	for_each_online_cpu(cpu) {
+ 		cpufreq_stat_cpu_callback(&cpufreq_stat_cpu_notifier, CPU_ONLINE,
+ 			(void *)(long)cpu);
+ 	}
+-	unlock_cpu_hotplug();
+ 	return 0;
+ }
+ static void
 
+-- 
+http://www.codemonkey.org.uk

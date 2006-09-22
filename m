@@ -1,107 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750829AbWIVHbi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750845AbWIVHi6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750829AbWIVHbi (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Sep 2006 03:31:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750838AbWIVHbh
+	id S1750845AbWIVHi6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Sep 2006 03:38:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750850AbWIVHi6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Sep 2006 03:31:37 -0400
-Received: from osiris.atheme.org ([69.60.119.211]:36065 "EHLO
-	osiris.atheme.org") by vger.kernel.org with ESMTP id S1750829AbWIVHbh
+	Fri, 22 Sep 2006 03:38:58 -0400
+Received: from yue.linux-ipv6.org ([203.178.140.15]:5128 "EHLO
+	yue.st-paulia.net") by vger.kernel.org with ESMTP id S1750845AbWIVHi5
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Sep 2006 03:31:37 -0400
-Mime-Version: 1.0 (Apple Message framework v752.2)
-In-Reply-To: <4E1176C1-8F18-4790-9BCB-95306ACED48A@atheme.org>
+	Fri, 22 Sep 2006 03:38:57 -0400
+Date: Fri, 22 Sep 2006 16:41:09 +0900 (JST)
+Message-Id: <20060922.164109.112537486.yoshfuji@linux-ipv6.org>
+To: nenolod@atheme.org
+Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: Re: [PATCH 2.6.18 try 2] net/ipv4: sysctl to allow non-superuser
+ to bypass CAP_NET_BIND_SERVICE requirement
+From: YOSHIFUJI Hideaki / =?iso-2022-jp?B?GyRCNUhGIzFRTEAbKEI=?= 
+	<yoshfuji@linux-ipv6.org>
+In-Reply-To: <736CE60D-FB88-4246-8728-B7AC7880B28E@atheme.org>
 References: <4E1176C1-8F18-4790-9BCB-95306ACED48A@atheme.org>
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <736CE60D-FB88-4246-8728-B7AC7880B28E@atheme.org>
+	<736CE60D-FB88-4246-8728-B7AC7880B28E@atheme.org>
+Organization: USAGI/WIDE Project
+X-URL: http://www.yoshifuji.org/%7Ehideaki/
+X-Fingerprint: 9022 65EB 1ECF 3AD1 0BDF  80D8 4807 F894 E062 0EEA
+X-PGP-Key-URL: http://www.yoshifuji.org/%7Ehideaki/hideaki@yoshifuji.org.asc
+X-Face: "5$Al-.M>NJ%a'@hhZdQm:."qn~PA^gq4o*>iCFToq*bAi#4FRtx}enhuQKz7fNqQz\BYU]
+ $~O_5m-9'}MIs`XGwIEscw;e5b>n"B_?j/AkL~i/MEa<!5P`&C$@oP>ZBLP
+X-Mailer: Mew version 2.2 on Emacs 20.7 / Mule 4.1 (AOI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-From: William Pitcock <nenolod@atheme.org>
-Subject: [PATCH 2.6.18 try 2] net/ipv4: sysctl to allow non-superuser to bypass CAP_NET_BIND_SERVICE requirement
-Date: Fri, 22 Sep 2006 02:31:59 -0500
-To: linux-kernel@vger.kernel.org
-X-Mailer: Apple Mail (2.752.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch allows for a user to disable the requirement to meet the  
-CAP_NET_BIND_SERVICE capability for a non-superuser. It is toggled by  
-the net.ipv4.allow_lowport_bind_nonsuperuser sysctl value.
+In article <736CE60D-FB88-4246-8728-B7AC7880B28E@atheme.org> (at Fri, 22 Sep 2006 02:31:59 -0500), William Pitcock <nenolod@atheme.org> says:
 
-Changes:
-- clean up mangling from mailer
-- put my signoff in the right location (oops)
+> This patch allows for a user to disable the requirement to meet the  
+> CAP_NET_BIND_SERVICE capability for a non-superuser. It is toggled by  
+> the net.ipv4.allow_lowport_bind_nonsuperuser sysctl value.
 
-Signed-off-by: William Pitcock <nenolod@atheme.org>
----
-diff --git a/include/linux/sysctl.h b/include/linux/sysctl.h
-index e4b1a4d..c3f7c3c 100644
---- a/include/linux/sysctl.h
-+++ b/include/linux/sysctl.h
-@@ -411,6 +411,7 @@ enum
-	NET_IPV4_TCP_WORKAROUND_SIGNED_WINDOWS=115,
-	NET_TCP_DMA_COPYBREAK=116,
-	NET_TCP_SLOW_START_AFTER_IDLE=117,
-+	NET_IPV4_ALLOW_LOWPORT_BIND_NONSUPERUSER=118,
-   };
+Why?  I don't think this is a good idea.
 
-   enum {
-diff --git a/net/ipv4/af_inet.c b/net/ipv4/af_inet.c
-index c84a320..a2ea829 100644
---- a/net/ipv4/af_inet.c
-+++ b/net/ipv4/af_inet.c
-@@ -394,6 +394,11 @@ int inet_release(struct socket *sock)
-   /* It is off by default, see below. */
-   int sysctl_ip_nonlocal_bind;
+> diff --git a/include/linux/sysctl.h b/include/linux/sysctl.h
+> index e4b1a4d..c3f7c3c 100644
+> --- a/include/linux/sysctl.h
+> +++ b/include/linux/sysctl.h
+> @@ -411,6 +411,7 @@ enum
+> 	NET_IPV4_TCP_WORKAROUND_SIGNED_WINDOWS=115,
+> 	NET_TCP_DMA_COPYBREAK=116,
+> 	NET_TCP_SLOW_START_AFTER_IDLE=117,
+> +	NET_IPV4_ALLOW_LOWPORT_BIND_NONSUPERUSER=118,
+>    };
+> 
+>    enum {
 
-+/* When this is enabled, it allows normal users to bind to ports <=  
-1023.
-+ * This is set by the net.ipv4.allow_lowport_bind_nonsuperuser  
-sysctl value.
-+ */
-+int sysctl_ip_allow_lowport_bind_nonsuperuser;
-+
-   int inet_bind(struct socket *sock, struct sockaddr *uaddr, int  
-addr_len)
-   {
-  	struct sockaddr_in *addr = (struct sockaddr_in *)uaddr;
-@@ -432,7 +437,8 @@ int inet_bind(struct socket *sock, struc
-  	snum = ntohs(addr->sin_port);
-  	err = -EACCES;
--	if (snum && snum < PROT_SOCK && !capable(CAP_NET_BIND_SERVICE))
-+	if (!sysctl_ip_allow_lowport_bind_nonsuperuser && snum && snum <  
-PROT_SOCK &&
-+		!capable(CAP_NET_BIND_SERVICE))
-  		goto out;
+This implies all IPv4 protocols including other protocols
+such as UDP, SCTP, ...
 
-  	/*      We keep a pair of addresses. rcv_saddr is the one
-@@ -1412,3 +1418,4 @@ EXPORT_SYMBOL(inet_stream_ops);
-   EXPORT_SYMBOL(inet_unregister_protosw);
-   EXPORT_SYMBOL(net_statistics);
-   EXPORT_SYMBOL(sysctl_ip_nonlocal_bind);
-+EXPORT_SYMBOL(sysctl_ip_allow_lowport_bind_nonsuperuser);
-diff --git a/net/ipv4/sysctl_net_ipv4.c b/net/ipv4/sysctl_net_ipv4.c
-index 70cea9d..c57ef3a 100644
---- a/net/ipv4/sysctl_net_ipv4.c
-+++ b/net/ipv4/sysctl_net_ipv4.c
-@@ -20,6 +20,7 @@ #include <net/tcp.h>
-   /* From af_inet.c */
-   extern int sysctl_ip_nonlocal_bind;
-+extern int sysctl_ip_allow_lowport_bind_nonsuperuser;
+> @@ -1412,3 +1418,4 @@ EXPORT_SYMBOL(inet_stream_ops);
+>    EXPORT_SYMBOL(inet_unregister_protosw);
+>    EXPORT_SYMBOL(net_statistics);
+>    EXPORT_SYMBOL(sysctl_ip_nonlocal_bind);
+> +EXPORT_SYMBOL(sysctl_ip_allow_lowport_bind_nonsuperuser);
 
-  #ifdef CONFIG_SYSCTL
-  static int zero;
-@@ -197,6 +198,14 @@ ctl_table ipv4_table[] = {
-  		.proc_handler	= &proc_dointvec
-  	},
-  	{
-+		.ctl_name	= NET_IPV4_ALLOW_LOWPORT_BIND_NONSUPERUSER,
-+		.procname	= "allow_lowport_bind_nonsuperuser",
-+		.data		= &sysctl_ip_allow_lowport_bind_nonsuperuser,
-+		.maxlen		= sizeof(int),
-+		.mode		= 0644,
-+		.proc_handler	= &proc_dointvec
-+	},
-+	{
-  		.ctl_name	= NET_IPV4_TCP_SYN_RETRIES,
-  		.procname	= "tcp_syn_retries",
-  		.data		= &sysctl_tcp_syn_retries,
+Please be aware about indent.
+
+--yoshfuji

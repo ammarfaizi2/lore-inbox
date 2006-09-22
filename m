@@ -1,49 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932294AbWIVLLv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750824AbWIVLVG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932294AbWIVLLv (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Sep 2006 07:11:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932296AbWIVLLv
+	id S1750824AbWIVLVG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Sep 2006 07:21:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750748AbWIVLVG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Sep 2006 07:11:51 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:59541 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932294AbWIVLLu (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Sep 2006 07:11:50 -0400
-From: David Howells <dhowells@redhat.com>
-Subject: [PATCH 2/2] AFS: Manage AFS modularity vs FS-Cache modularity
-Date: Fri, 22 Sep 2006 12:11:40 +0100
-To: akpm@osdl.org, evil@g-house.de
-Cc: linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org,
-       dhowells@redhat.com
-Message-Id: <20060922111140.16615.46012.stgit@warthog.cambridge.redhat.com>
-In-Reply-To: <20060922111137.16615.7794.stgit@warthog.cambridge.redhat.com>
-References: <20060922111137.16615.7794.stgit@warthog.cambridge.redhat.com>
-Content-Type: text/plain; charset=utf-8; format=fixed
-Content-Transfer-Encoding: 8bit
-User-Agent: StGIT/0.10
+	Fri, 22 Sep 2006 07:21:06 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:13727 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1750824AbWIVLVF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Sep 2006 07:21:05 -0400
+Subject: Re: 2.6.19 -mm merge plans
+From: David Woodhouse <dwmw2@infradead.org>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       rdunlap@xenotime.net
+In-Reply-To: <Pine.LNX.4.61.0609221242070.791@yvahk01.tjqt.qr>
+References: <20060920135438.d7dd362b.akpm@osdl.org>
+	 <1158917046.24527.662.camel@pmac.infradead.org>
+	 <1158919801.24527.668.camel@pmac.infradead.org>
+	 <Pine.LNX.4.61.0609221242070.791@yvahk01.tjqt.qr>
+Content-Type: text/plain
+Date: Fri, 22 Sep 2006 12:20:37 +0100
+Message-Id: <1158924037.24527.673.camel@pmac.infradead.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5.dwmw2.1) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Manage AFS modularity vs FS-Cache modularity such that AFS doesn't have the
-option to use the cache if AFS is built in and FS-Cache is a module.
+On Fri, 2006-09-22 at 12:42 +0200, Jan Engelhardt wrote:
+> If it is an unsigned long, it should neither be %ld nor %d, but %lu.
 
-Signed-Off-By: David Howells <dhowells@redhat.com>
----
+It'll never be negative.
 
- fs/Kconfig |    3 ++-
- 1 files changed, 2 insertions(+), 1 deletions(-)
+-- 
+dwmw2
 
-diff --git a/fs/Kconfig b/fs/Kconfig
-index 77cc578..25d2019 100644
---- a/fs/Kconfig
-+++ b/fs/Kconfig
-@@ -1952,7 +1952,8 @@ # for fs/nls/Config.in
- 
- config AFS_FSCACHE
- 	bool "Provide AFS client caching support"
--	depends on AFS_FS && FSCACHE && EXPERIMENTAL
-+	depends on EXPERIMENTAL
-+	depends on AFS_FS=m && FSCACHE || AFS_FS=y && FSCACHE=y
- 	help
- 	  Say Y here if you want AFS data to be cached locally on through the
- 	  generic filesystem cache manager

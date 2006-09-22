@@ -1,43 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932521AbWIVOSH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932376AbWIVOWA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932521AbWIVOSH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Sep 2006 10:18:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932520AbWIVOSH
+	id S932376AbWIVOWA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Sep 2006 10:22:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932527AbWIVOWA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Sep 2006 10:18:07 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:37567 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932521AbWIVOSE convert rfc822-to-8bit
+	Fri, 22 Sep 2006 10:22:00 -0400
+Received: from leo.stedwards.edu ([209.99.108.120]:34464 "EHLO
+	leo.stedwards.edu") by vger.kernel.org with ESMTP id S932376AbWIVOV7
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Sep 2006 10:18:04 -0400
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <20060922123105.GA3767@wohnheim.fh-wedel.de> 
-References: <20060922123105.GA3767@wohnheim.fh-wedel.de>  <20060922111137.16615.7794.stgit@warthog.cambridge.redhat.com> <20060922111140.16615.46012.stgit@warthog.cambridge.redhat.com> 
-To: =?us-ascii?Q?=3D=3Fiso-8859-1=3FQ=3FJ=3DF6rn=3F=3D?= Engel 
-	<joern@wohnheim.fh-wedel.de>
-Cc: David Howells <dhowells@redhat.com>, akpm@osdl.org, evil@g-house.de,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2/2] AFS: Manage AFS modularity vs FS-Cache modularity 
-X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
-Date: Fri, 22 Sep 2006 15:17:51 +0100
-Message-ID: <20773.1158934671@warthog.cambridge.redhat.com>
+	Fri, 22 Sep 2006 10:21:59 -0400
+Subject: Re: R200 lockup (was Re: DRI/X error resolution)
+From: Stephen Olander Waters <swaters@luy.info>
+To: Dave Jones <davej@redhat.com>
+Cc: Dave Airlie <airlied@gmail.com>, Ryan Richter <ryan@tau.solarneutrino.net>,
+       linux-kernel@vger.kernel.org, dri-devel@lists.sourceforge.net
+In-Reply-To: <20060922055228.GA30835@redhat.com>
+References: <1158898988.3280.8.camel@ix>
+	 <20060922043801.GE16939@tau.solarneutrino.net>
+	 <1158900841.3280.12.camel@ix>
+	 <20060922051622.GF16939@tau.solarneutrino.net>
+	 <21d7e9970609212229v1f8f490dx71c6d1abb104400c@mail.gmail.com>
+	 <20060922055228.GA30835@redhat.com>
+Content-Type: text/plain
+Date: Fri, 22 Sep 2006 09:21:11 -0500
+Message-Id: <1158934871.3309.12.camel@ix>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.3 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jörn Engel <joern@wohnheim.fh-wedel.de> wrote:
+On Fri, 2006-09-22 at 01:52 -0400, Dave Jones wrote:
+> On Fri, Sep 22, 2006 at 03:29:48PM +1000, Dave Airlie wrote:
+>  > On 9/22/06, Ryan Richter <ryan@tau.solarneutrino.net> wrote:
+>  > > On Thu, Sep 21, 2006 at 11:54:01PM -0500, Stephen Olander Waters wrote:
+>  > > > Here is the bug I'm working from (includes hardware, software, etc.):
+>  > > > https://bugs.freedesktop.org/show_bug.cgi?id=6111
+>  > > >
+>  > > > DRI will work if you set: Option "BusType" "PCI" ... but that's not a
+>  > > > real solution. :)
+>  > 
+>  > I really think this more AGP related a bug in the driver for the VIA
+>  > AGP chipsets what AGP chipset are you guys using?
+> 
+> Looking at that bug though, most of the reporters are on AMD64 systems,
+> which uses amd64-agp, not via-agp. (We leave the chipset GART alone,
+> and just use the on-CPU one).
 
-> At least I cannot see why the AFS patch differs from the NFS one in
-> those two details.
+I have the Via K8T8000 chipset (MSI K8T Master2-Far motherboard)
 
-Actually, what the patch itself changes doesn't differ significantly - the
-difference is in the patch context.
+Hrm... the Debian amd64 package in 'unstable' curiously does not include
+amd64-agp.ko.
+http://packages.debian.org/cgi-bin/search_contents.pl?searchmode=filelist&word=linux-image-2.6.17-2-amd64&version=unstable&arch=amd64&page=3&number=50
 
-> >  	bool "Provide AFS client caching support"
->                                                  (EXPERIMENTAL) ?
+However, the i686 version does have amd64-agp.ko.
+http://packages.debian.org/cgi-bin/search_contents.pl?searchmode=filelist&word=linux-image-2.6.17-2-686&version=unstable&arch=i386&page=3&number=50
 
-Well, AFS_FS is itself marked as being experimental, so I'm not sure that the
-AFS_FSCACHE option needs to be also.
+-s
 
-David
+

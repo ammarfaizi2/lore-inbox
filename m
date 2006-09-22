@@ -1,61 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932376AbWIVOWA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932530AbWIVOWa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932376AbWIVOWA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Sep 2006 10:22:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932527AbWIVOWA
+	id S932530AbWIVOWa (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Sep 2006 10:22:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932529AbWIVOWa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Sep 2006 10:22:00 -0400
-Received: from leo.stedwards.edu ([209.99.108.120]:34464 "EHLO
-	leo.stedwards.edu") by vger.kernel.org with ESMTP id S932376AbWIVOV7
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Sep 2006 10:21:59 -0400
-Subject: Re: R200 lockup (was Re: DRI/X error resolution)
-From: Stephen Olander Waters <swaters@luy.info>
-To: Dave Jones <davej@redhat.com>
-Cc: Dave Airlie <airlied@gmail.com>, Ryan Richter <ryan@tau.solarneutrino.net>,
-       linux-kernel@vger.kernel.org, dri-devel@lists.sourceforge.net
-In-Reply-To: <20060922055228.GA30835@redhat.com>
-References: <1158898988.3280.8.camel@ix>
-	 <20060922043801.GE16939@tau.solarneutrino.net>
-	 <1158900841.3280.12.camel@ix>
-	 <20060922051622.GF16939@tau.solarneutrino.net>
-	 <21d7e9970609212229v1f8f490dx71c6d1abb104400c@mail.gmail.com>
-	 <20060922055228.GA30835@redhat.com>
-Content-Type: text/plain
-Date: Fri, 22 Sep 2006 09:21:11 -0500
-Message-Id: <1158934871.3309.12.camel@ix>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 
+	Fri, 22 Sep 2006 10:22:30 -0400
+Received: from [212.33.163.198] ([212.33.163.198]:35712 "EHLO raad.intranet")
+	by vger.kernel.org with ESMTP id S932530AbWIVOW1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Sep 2006 10:22:27 -0400
+From: Al Boldi <a1426z@gawab.com>
+To: linux-kernel@vger.kernel.org
+Subject: Poor scheduling when not loaded at 100% (Was: [PATCH] sched.c: Be a bit more conservative in SMP)
+Date: Fri, 22 Sep 2006 17:24:17 +0300
+User-Agent: KMail/1.5
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200609221724.17107.a1426z@gawab.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-09-22 at 01:52 -0400, Dave Jones wrote:
-> On Fri, Sep 22, 2006 at 03:29:48PM +1000, Dave Airlie wrote:
->  > On 9/22/06, Ryan Richter <ryan@tau.solarneutrino.net> wrote:
->  > > On Thu, Sep 21, 2006 at 11:54:01PM -0500, Stephen Olander Waters wrote:
->  > > > Here is the bug I'm working from (includes hardware, software, etc.):
->  > > > https://bugs.freedesktop.org/show_bug.cgi?id=6111
->  > > >
->  > > > DRI will work if you set: Option "BusType" "PCI" ... but that's not a
->  > > > real solution. :)
->  > 
->  > I really think this more AGP related a bug in the driver for the VIA
->  > AGP chipsets what AGP chipset are you guys using?
-> 
-> Looking at that bug though, most of the reporters are on AMD64 systems,
-> which uses amd64-agp, not via-agp. (We leave the chipset GART alone,
-> and just use the on-CPU one).
+Ludovic Drolez wrote:
+> Ludovic Drolez <ldrolez <at> linbox.com> writes:
+> > In fact, I tested the 1st patch on our cluster (Finite elements
+> > computing on 8 CPUs):
+> > - Under Windows: 875 seconds
+> > - Linux 2.6.16 : 1019 s
+> > - Linux 2.6.16 + manual taskset : 842 s
+> > - Linux 2.6.16 + Vincent's patch : 1373 s
+>
+> Anyone has an idea why the scheduling is poor when processes don't use all
+> CPU ?
+>
+> In the above example, we have 4 processes on 4 processors which use about
+> 40% of the CPU (computing and waiting for network packets).
+> 1- If taskset is not used : CPU0 is used at 80%, and the 3 others at 30%.
+> The tasks are constantly migrated between cores -> poor performance
+> (1019s), Windows does better :-(
+> 2- If taskset is used : All CPUs have 1 process and are used at 40%. No
+> migration -> high performance (842s), better than Windows :-)
+>
+> I tried to play with the 'migration_cost' kernel parameter but it did not
+> help. By default, on the Bi-Xeon Dual Core MB (Dell 1855),
+> migration_cost=1600, and trying values up to 200000, did not improve
+> performance...
+>
+> Any Ideas ?
 
-I have the Via K8T8000 chipset (MSI K8T Master2-Far motherboard)
+Did you try PlugSched?  The spa scheds work wonders, once tuned properly.
 
-Hrm... the Debian amd64 package in 'unstable' curiously does not include
-amd64-agp.ko.
-http://packages.debian.org/cgi-bin/search_contents.pl?searchmode=filelist&word=linux-image-2.6.17-2-amd64&version=unstable&arch=amd64&page=3&number=50
 
-However, the i686 version does have amd64-agp.ko.
-http://packages.debian.org/cgi-bin/search_contents.pl?searchmode=filelist&word=linux-image-2.6.17-2-686&version=unstable&arch=i386&page=3&number=50
+Thanks!
 
--s
 
+--
+Al
 

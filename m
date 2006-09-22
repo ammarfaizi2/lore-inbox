@@ -1,88 +1,97 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932609AbWIVPoO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932608AbWIVPoo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932609AbWIVPoO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Sep 2006 11:44:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932594AbWIVPoN
+	id S932608AbWIVPoo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Sep 2006 11:44:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932523AbWIVPoo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Sep 2006 11:44:13 -0400
-Received: from mx2.suse.de ([195.135.220.15]:25236 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932456AbWIVPoM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Sep 2006 11:44:12 -0400
-From: Andi Kleen <ak@suse.de>
-To: Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>
-Subject: Re: Network performance degradation from 2.6.11.12 to 2.6.16.20
-Date: Fri, 22 Sep 2006 17:43:40 +0200
-User-Agent: KMail/1.9.3
-Cc: David Miller <davem@davemloft.net>, master@sectorb.msk.ru, hawk@diku.dk,
-       harry@atmos.washington.edu, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org
-References: <200609181850.22851.ak@suse.de> <20060919.124751.24100694.davem@davemloft.net> <20060922153517.GB24866@ms2.inr.ac.ru>
-In-Reply-To: <20060922153517.GB24866@ms2.inr.ac.ru>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Fri, 22 Sep 2006 11:44:44 -0400
+Received: from stat9.steeleye.com ([209.192.50.41]:2516 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S932608AbWIVPon (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Sep 2006 11:44:43 -0400
+Subject: Results of an informal GPLv3 poll amongst kernel contributors
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Content-Type: text/plain
+Date: Fri, 22 Sep 2006 10:44:41 -0500
+Message-Id: <1158939881.3445.16.camel@mulgrave.il.steeleye.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200609221743.40053.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 22 September 2006 17:35, Alexey Kuznetsov wrote:
-> Hello!
-> 
-> > I can't even find a reference to SIOCGSTAMP in the
-> > dhcp-2.0pl5 or dhcp3-3.0.3 sources shipped in Ubuntu.
-> > 
-> > But I will note that tpacket_rcv() expects to always get
-> > valid timestamps in the SKB, it does a:
-> 
-> It is equally unlikely it uses mmapped packet socket (tpacket_rcv).
-> 
-> I even installed that dhcp on x86_64. And I do not see anything,
-> netstamp_needed remains zero when running both server and client.
-> It looks like dhcp was defamed without a guilt. :-)
->
-> Seems, Andi saw some leakage in netstamp_needed (value of 7),
-> but I do not see this too.
+These are basically just the votes and who voted.  There's also a nice
+graphical tally but I'll attach that by replying to this message so it
+doesn't get eaten by people's "no mime at all" spam filters.
 
-That came from named. It opens lots of sockets with SIOCGSTAMP.
-No idea what it needs that many for.
- 
-I suspect  it was either dhcpd (server) or that ppp user space daemon
-the original reporter was running.
+James
 
-Maybe it would be a good idea to add a printk by default?
+-------------------------------------
 
-> In any case, the issue is obviously more serious than just behaviour
-> of some applications. On my notebook one gettimeofday() takes:
-> 
-> 	0.2 us with tsc
-> 	4.6 us with pm  (AND THIS CRAP IS DEFAULT!!)
+Vote key:
 
-This is actually quite fast. I've seen much worse ratios.
+   I wouldn't want to use v3 (I really dislike it, or my
+   company would have serious problems allowing me
+-3 to participate using the v3 draft)
 
-Also on some i386 kernels the pmtimer reads the register three 
-times to work around some buggy implementation that doesn't latch the counter
-properly.
+-2 I think v3 is much worse than v2
 
-> 	9.4 us with pit (kinda expected)
-> 
-> It is ridiculous. Obviosuly, nobody (not only tcpdump, but everything
-> else) does not need such clock. Taking timestamp takes time comparable
-> with processing the whole tcp frame. :-) I have no idea what is possible
-> to do without breaking everything, but it is not something to ignore.
-> This timer must be shot. :-)
+-1 I think v2 is better, but I don't care that deeply
 
-If it's a reasonably new notebook it might be actually possible to change.
-The default choices are quite conservative there because in the past
-there were lots of problems with notebooks changing frequency behind
-the kernel's back etc. and screwing up TSC. But that shouldn't happen anymore.
+ 0 I don't really care at all
 
-If you had a 64bit laptop the kernel would likely do the right choice :)
+ 1 I think v3 is better, but I don't care that deeply
 
-Notebooks are easy because they are only single socket, so the only thing
-needed is to keep track of the frequency (or not if you have a Core+) 
+ 2 I think v3 is much better than v2
 
--Andi
+   I wouldn't want to use v2 (I really dislike it, or my
+   company would have serious problems allowing me
+ 3 to participate using the GPLv2)
+
+
+These votes are opinions of the persons listed in their capacities as
+kernel maintainers only. In no regard should any opinion expressed
+herein be construed to represent the views of any entities employing
+or being associated with any of the authors.
+
+Name                                  Vote
+====                                  ====
+Linus Torvalds                        -2.5
+Alan Cox                              -2.0
+James Bottomley                       -3.0
+Ingo Molnar                           -1.0
+Tony Luck                             -2.0
+Neil Brown                            -1.0
+Al Viro                               -2.0
+Jeff Garzik                           -2.0
+Mauro Carvalho Chehab                 -2.0
+Arjan van de Ven                      -3.0
+David Woodhouse                       -2.0
+Greg Kroah Hartman                    -3.0
+Ralf Baechle                          -1.5
+Stephen Hemminger                     -2.0
+Andrew Morton                         -3.0
+Dmitry Torokhov                       -2.0
+Tejun Heo                             -2.0
+Thomas Gleixner                       -3.0
+Takashi Iwai                          -2.0
+Trond Myklebust                       -2.5
+Roland Dreier                         -2.0
+Dave Jones                            -2.0
+Russell King                          -2.0
+John W. Linville                      -2.0
+Andi Kleen                            -2.0
+Patrick McHardy                       -1.0
+David S. Miller                        0.0
+Christoph Hellwig                     -2.0
+Paul Mackerras                        -1.0
+
+
+Total Votes Cast                       29
+Average Vote                          -2.0  +/-   0.7
+Lowest Vote                           -3.0
+Highest Vote                           0.0
+Median Vote                           -2.0
+
 

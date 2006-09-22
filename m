@@ -1,74 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751136AbWIVJ5q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932079AbWIVJ6o@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751136AbWIVJ5q (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Sep 2006 05:57:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751159AbWIVJ5q
+	id S932079AbWIVJ6o (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Sep 2006 05:58:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932092AbWIVJ6o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Sep 2006 05:57:46 -0400
-Received: from mail.sf-mail.de ([62.27.20.61]:56772 "EHLO mail.sf-mail.de")
-	by vger.kernel.org with ESMTP id S1751136AbWIVJ5p (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Sep 2006 05:57:45 -0400
-From: Rolf Eike Beer <eike-kernel@sf-tec.de>
-To: Cornelia Huck <cornelia.huck@de.ibm.com>
-Subject: Re: [1/9] driver core fixes: make_class_name() retval check
-Date: Fri, 22 Sep 2006 11:58:02 +0200
-User-Agent: KMail/1.9.4
-Cc: Greg K-H <greg@kroah.com>, linux-kernel <linux-kernel@vger.kernel.org>
-References: <20060922113650.612d425b@gondolin.boeblingen.de.ibm.com>
-In-Reply-To: <20060922113650.612d425b@gondolin.boeblingen.de.ibm.com>
+	Fri, 22 Sep 2006 05:58:44 -0400
+Received: from namsan.hanyang.ac.kr ([166.104.11.34]:47262 "HELO
+	ece.hanyang.ac.kr") by vger.kernel.org with SMTP id S932079AbWIVJ6o
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Sep 2006 05:58:44 -0400
+Message-ID: <4513B3CE.50805@ece.hanyang.ac.kr>
+Date: Fri, 22 Sep 2006 18:58:38 +0900
+From: a287848 <a287848@ece.hanyang.ac.kr>
+User-Agent: Thunderbird 1.5.0.7 (Windows/20060909)
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1661029.LoudvVX25C";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Different value in journal block after crash?
+Content-Type: text/plain; charset=EUC-KR
 Content-Transfer-Encoding: 7bit
-Message-Id: <200609221158.07226.eike-kernel@sf-tec.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1661029.LoudvVX25C
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Hi I'm moweon.
 
-Cornelia Huck wrote:
-> From: Cornelia Huck <cornelia.huck@de.ibm.com>
->
-> Make make_class_name() return NULL on error and fixup callers in the
-> driver core.
+Now I'm making redundancy module in my jbd based file system.
 
-> @@ -409,8 +409,11 @@ static int make_deprecated_class_device_
->  		return 0;
->
->  	class_name =3D make_class_name(class_dev->class->name, &class_dev->kobj=
-);
-> -	error =3D sysfs_create_link(&class_dev->dev->kobj, &class_dev->kobj,
-> -				  class_name);
-> +	if (!class_name)
-> +		error =3D sysfs_create_link(&class_dev->dev->kobj,
-> +					  &class_dev->kobj, class_name);
-> +	else
-> +		error =3D -ENOMEM;
->  	kfree(class_name);
->  	return error;
->  }
+When I tesed and dumped its block, I found one funny stuation.
 
-Either this is inverse of what you wanted to do or just calling=20
-sysfs_create_link(..., NULL) would make it clearer for readers.
 
-Eike
+First I modified */commit.c/* in jbd directory to print commit complete
+message and it's block number.
+( add printk after wait_on_buffer )
 
---nextPart1661029.LoudvVX25C
-Content-Type: application/pgp-signature
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
+After I saw this message from kernel just like this
 
-iD8DBQBFE7OvXKSJPmm5/E4RAj4vAJ9uIJbLlNGy5MUnwuC0cgXJU//Y0gCcCqsl
-22Oq11jQg27hZmz3g6UIm3s=
-=sU8v
------END PGP SIGNATURE-----
+(*NOTICE: Commit complete , its block number : 560 *)
 
---nextPart1661029.LoudvVX25C--
+I read its contents from block number 1 to 101 into file
+
+And I read it again after suddenly turn off my work station.
+
+, I think it must has same value becuase journal commit block was
+already written behind block number 101 .
+
+
+But when I campared two file, it's different .
+
+Why it happen? Does jbd use some trick in block management?
+
+Dear
+
+
+
+
+
+
+
+
+
+
+
+
+

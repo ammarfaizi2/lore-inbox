@@ -1,58 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932454AbWIVNeZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932455AbWIVNiu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932454AbWIVNeZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Sep 2006 09:34:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932455AbWIVNeZ
+	id S932455AbWIVNiu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Sep 2006 09:38:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932456AbWIVNit
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Sep 2006 09:34:25 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:44165 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S932454AbWIVNeY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Sep 2006 09:34:24 -0400
-Date: Fri, 22 Sep 2006 15:34:21 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH -mm 4/6] swsusp: Add resume_offset command line parameter
-Message-ID: <20060922133421.GA3478@elf.ucw.cz>
-References: <200609202120.58082.rjw@sisk.pl> <200609202146.59105.rjw@sisk.pl> <20060921213143.GE2245@elf.ucw.cz> <200609220018.45198.rjw@sisk.pl>
+	Fri, 22 Sep 2006 09:38:49 -0400
+Received: from wr-out-0506.google.com ([64.233.184.235]:6374 "EHLO
+	wr-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S932455AbWIVNis (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Sep 2006 09:38:48 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=IcQtvY8nedaxMABDYO31ty4JRY87yPK64fdG29JL2cZrsn1auZfJp8B8QqEMI4iEBOgTyVVBUTG6st2dL/VUJurS/rxadpH9ExRTBeOyOF5d5hJEF/cCvX6zI4LNefsd+dwgiLpsiS7rtfx4bZGeNUx6zRr0hSn7cYOt+peXb4I=
+Message-ID: <bd0cb7950609220638r58e11076p3efa8e0bfd5b61ba@mail.gmail.com>
+Date: Fri, 22 Sep 2006 09:38:47 -0400
+From: "Tom St Denis" <tomstdenis@gmail.com>
+To: "Daniel Drake" <dsd@gentoo.org>
+Subject: Re: sky2 eth device with Gigabyte 965P-S3 motherboard
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <bd0cb7950609220629i191683bq7b21fca3e04fafb1@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <200609220018.45198.rjw@sisk.pl>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+References: <bd0cb7950609200635qae3e0c6p3f7d776d33b50542@mail.gmail.com>
+	 <4513D362.8030804@gentoo.org>
+	 <bd0cb7950609220629i191683bq7b21fca3e04fafb1@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On 9/22/06, Tom St Denis <tomstdenis@gmail.com> wrote:
+> This won't be fixed as part of 2.6.18.x?  Looking at the source for
+> the latest gentoo-sources in the 2.6.17 stream I don't see ID 4364 in
+> the source for sky2.c [sky2_id_table[]].  So why is it detected and
+> working there but not in 2.6.18?
+>
+> I'll try adding the device to the table and see what happens.
 
-> > > Add the kernel command line parameter "resume_offset=" allowing us to specify
-> > > the offset, in <PAGE_SIZE> units, from the beginning of the partition pointed
-> > > to by the "resume=" parameter at which the swap header is located.
-> > > 
-> > > Signed-off-by: Rafael J. Wysocki <rjw@sisk.pl>
-> > 
-> > Okay, I'd prefer not to add aditional features to in-kernel swsusp,
-> > but this is just not big enough to reject.
-> > 
-> > ACK.
-> > 
-> > (What is the solution for uswsusp?)
-> 
-> We need an additional ioctl to set both the swap partition and "resume offset"
-> at a time (the one we currently have allows us only to set the partition and I
-> don't want to change it because of the backwards compatibility, but I think
-> I'll change its name ;-) ).
-> 
-> I'd like to add this ioctl along with the one needed to support the "platform"
-> method of powering off, because it will require some similar documentation
-> changes (most importantly, the description of the interface in
-> Documentation/ABI which I'd like to add once and not to tamper with
-> afterwards).
+Adding the line to the table works now.  [yipee, I get proper SATA and
+net now woot!]
 
-Ok, agreed.
-								Pavel
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+May I request that someone insert that one line to drivers/net/sky2.c
+before 2.6.19?
+
+--- sky2.old	2006-09-22 21:34:36.000000000 +0000
++++ sky2.c	2006-09-22 21:28:03.000000000 +0000
+@@ -121,6 +121,7 @@
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_MARVELL, 0x4361) },
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_MARVELL, 0x4362) },
+ 	{ PCI_DEVICE(PCI_VENDOR_ID_MARVELL, 0x4363) },
++	{ PCI_DEVICE(PCI_VENDOR_ID_MARVELL, 0x4364) },
+ 	{ 0 }
+ };
+
+[yeah I know not a normal patch ... I'm also not a kernel developer...]
+
+I'm still confused on how it works in 2.6.17 without the ID?
+
+Thanks,
+Tom

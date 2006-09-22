@@ -1,57 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750702AbWIVKK3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750716AbWIVKWA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750702AbWIVKK3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Sep 2006 06:10:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750737AbWIVKK2
+	id S1750716AbWIVKWA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Sep 2006 06:22:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750737AbWIVKWA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Sep 2006 06:10:28 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:57999 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1750702AbWIVKK2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Sep 2006 06:10:28 -0400
-Subject: Re: 2.6.19 -mm merge plans
-From: David Woodhouse <dwmw2@infradead.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, rdunlap@xenotime.net
-In-Reply-To: <1158917046.24527.662.camel@pmac.infradead.org>
-References: <20060920135438.d7dd362b.akpm@osdl.org>
-	 <1158917046.24527.662.camel@pmac.infradead.org>
-Content-Type: text/plain
-Date: Fri, 22 Sep 2006 11:10:01 +0100
-Message-Id: <1158919801.24527.668.camel@pmac.infradead.org>
+	Fri, 22 Sep 2006 06:22:00 -0400
+Received: from mtagate2.de.ibm.com ([195.212.29.151]:4320 "EHLO
+	mtagate2.de.ibm.com") by vger.kernel.org with ESMTP
+	id S1750716AbWIVKV7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Sep 2006 06:21:59 -0400
+Date: Fri, 22 Sep 2006 12:22:22 +0200
+From: Cornelia Huck <cornelia.huck@de.ibm.com>
+To: Rolf Eike Beer <eike-kernel@sf-tec.de>
+Cc: Greg K-H <greg@kroah.com>, linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [1/9] driver core fixes: make_class_name() retval check
+Message-ID: <20060922122222.7b2f0661@gondolin.boeblingen.de.ibm.com>
+In-Reply-To: <200609221158.07226.eike-kernel@sf-tec.de>
+References: <20060922113650.612d425b@gondolin.boeblingen.de.ibm.com>
+	<200609221158.07226.eike-kernel@sf-tec.de>
+X-Mailer: Sylpheed-Claws 2.5.0-rc3 (GTK+ 2.8.20; i486-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5.dwmw2.1) 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-09-22 at 10:24 +0100, David Woodhouse wrote:
-> On Wed, 2006-09-20 at 13:54 -0700, Andrew Morton wrote:
-> > 
-> > mtd-maps-ixp4xx-partition-parsing.patch
-> > fix-the-unlock-addr-lookup-bug-in-mtd-jedec-probe.patch
-> > mtd-printk-format-warning.patch
-> > fs-jffs2-jffs2_fs_ih-removal-of-old-code.patch
-> > drivers-mtd-nand-au1550ndc-removal-of-old-code.patch
-> > 
-> >  MTD queue -> dwmw2
-> 
-> Merged, with the exception of the unlock addr one which I'm still not
-> sure about -- about to investigate harder.
+On Fri, 22 Sep 2006 11:58:02 +0200,
+Rolf Eike Beer <eike-kernel@sf-tec.de> wrote:
 
-I just reverted Randy's printk format 'fix', since rq->flags _is_ an
-unsigned long, so changing from %ld to %d actually _introduces_ a
-warning.
+> Either this is inverse of what you wanted to do or just calling 
+> sysfs_create_link(..., NULL) would make it clearer for readers.
 
-Randy, that's the second time I recall recently that I've ended up
-reverting a printk format fix from you -- what are you doing? How did
-you manage to get the warning you reported:
-
-drivers/mtd/mtd_blkdevs.c:72: warning: long int format, different type arg (arg 2)
+Argh, a typo crept in while rebasing (thanks for noticing). Correct
+patch below.
 
 
--- 
-dwmw2
+From: Cornelia Huck <cornelia.huck@de.ibm.com>
 
+Make make_class_name() return NULL on error and fixup callers in the
+driver core.
+
+Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+
+---
+ drivers/base/class.c |   12 ++++++++----
+ drivers/base/core.c  |    7 +++++--
+ 2 files changed, 13 insertions(+), 6 deletions(-)
+
+--- linux-2.6-CH.orig/drivers/base/class.c
++++ linux-2.6-CH/drivers/base/class.c
+@@ -362,7 +362,7 @@ char *make_class_name(const char *name, 
+ 
+ 	class_name = kmalloc(size, GFP_KERNEL);
+ 	if (!class_name)
+-		return ERR_PTR(-ENOMEM);
++		return NULL;
+ 
+ 	strcpy(class_name, name);
+ 	strcat(class_name, ":");
+@@ -409,8 +409,11 @@ static int make_deprecated_class_device_
+ 		return 0;
+ 
+ 	class_name = make_class_name(class_dev->class->name, &class_dev->kobj);
+-	error = sysfs_create_link(&class_dev->dev->kobj, &class_dev->kobj,
+-				  class_name);
++	if (class_name)
++		error = sysfs_create_link(&class_dev->dev->kobj,
++					  &class_dev->kobj, class_name);
++	else
++		error = -ENOMEM;
+ 	kfree(class_name);
+ 	return error;
+ }
+@@ -771,7 +774,8 @@ void class_device_del(struct class_devic
+ #ifdef CONFIG_SYSFS_DEPRECATED
+ 		class_name = make_class_name(class_dev->class->name,
+ 					     &class_dev->kobj);
+-		sysfs_remove_link(&class_dev->dev->kobj, class_name);
++		if (class_name)
++			sysfs_remove_link(&class_dev->dev->kobj, class_name);
+ #endif
+ 		sysfs_remove_link(&class_dev->kobj, "device");
+ 	}
+--- linux-2.6-CH.orig/drivers/base/core.c
++++ linux-2.6-CH/drivers/base/core.c
+@@ -469,7 +469,9 @@ int device_add(struct device *dev)
+ 		if (parent) {
+ 			sysfs_create_link(&dev->kobj, &dev->parent->kobj, "device");
+ 			class_name = make_class_name(dev->class->name, &dev->kobj);
+-			sysfs_create_link(&dev->parent->kobj, &dev->kobj, class_name);
++			if (class_name)
++				sysfs_create_link(&dev->parent->kobj,
++						  &dev->kobj, class_name);
+ 		}
+ #endif
+ 	}
+@@ -600,7 +602,8 @@ void device_del(struct device * dev)
+ 			char *class_name = NULL;
+ 
+ 			class_name = make_class_name(dev->class->name, &dev->kobj);
+-			sysfs_remove_link(&dev->parent->kobj, class_name);
++			if (class_name)
++				sysfs_remove_link(&dev->parent->kobj, class_name);
+ 			kfree(class_name);
+ #endif
+ 			sysfs_remove_link(&dev->kobj, "device");

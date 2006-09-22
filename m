@@ -1,40 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750824AbWIVLVG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750883AbWIVL0E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750824AbWIVLVG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Sep 2006 07:21:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750748AbWIVLVG
+	id S1750883AbWIVL0E (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Sep 2006 07:26:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750932AbWIVL0E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Sep 2006 07:21:06 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:13727 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1750824AbWIVLVF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Sep 2006 07:21:05 -0400
-Subject: Re: 2.6.19 -mm merge plans
-From: David Woodhouse <dwmw2@infradead.org>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       rdunlap@xenotime.net
-In-Reply-To: <Pine.LNX.4.61.0609221242070.791@yvahk01.tjqt.qr>
-References: <20060920135438.d7dd362b.akpm@osdl.org>
-	 <1158917046.24527.662.camel@pmac.infradead.org>
-	 <1158919801.24527.668.camel@pmac.infradead.org>
-	 <Pine.LNX.4.61.0609221242070.791@yvahk01.tjqt.qr>
-Content-Type: text/plain
-Date: Fri, 22 Sep 2006 12:20:37 +0100
-Message-Id: <1158924037.24527.673.camel@pmac.infradead.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5.dwmw2.1) 
+	Fri, 22 Sep 2006 07:26:04 -0400
+Received: from ogre.sisk.pl ([217.79.144.158]:16567 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S1750883AbWIVL0B (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Sep 2006 07:26:01 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Nigel Cunningham <ncunningham@linuxmail.org>
+Subject: Re: [PATCH -mm 0/6] swsusp: Add support for swap files
+Date: Fri, 22 Sep 2006 13:28:58 +0200
+User-Agent: KMail/1.9.1
+Cc: Pavel Machek <pavel@suse.cz>, Andrew Morton <akpm@osdl.org>,
+       LKML <linux-kernel@vger.kernel.org>
+References: <200609202120.58082.rjw@sisk.pl> <1158886913.15894.31.camel@nigel.suspend2.net> <20060922052324.GG2357@elf.ucw.cz>
+In-Reply-To: <20060922052324.GG2357@elf.ucw.cz>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Disposition: inline
+Message-Id: <200609221328.58504.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-09-22 at 12:42 +0200, Jan Engelhardt wrote:
-> If it is an unsigned long, it should neither be %ld nor %d, but %lu.
+On Friday, 22 September 2006 07:23, Pavel Machek wrote:
+> On Fri 2006-09-22 11:01:53, Nigel Cunningham wrote:
+> > Hi.
+> > 
+> > On Wed, 2006-09-20 at 21:20 +0200, Rafael J. Wysocki wrote:
+> > > Hi,
+> > > 
+> > > The following series of patches makes swsusp support swap files.
+> > > 
+> > > For now, it is only possible to suspend to a swap file using the in-kernel
+> > > swsusp and the resume cannot be initiated from an initrd.
+> > 
+> > I'm trying to understand 'resume cannot be initiated from an initrd'.
+> > Does that mean if you want to use this functionality, you have to have
+> > everything needed compiled in to the kernel, and it's not compatible
+> > with LVM and so on?
+> 
+> Not in this version of patch; for resume from initrd, ioctl()
+> interface needs to be added (*).
 
-It'll never be negative.
+Yup.  This is not technically impossible, but the patches don't add an
+interface needed for this purpose.
+
+Initially I thought of a sysfs-based one, but it didn't seem to be a good
+solution.  I'm going to add an ioctl() to /dev/snapshot that will allow us
+to set the "resume offset" from an application.
+
+> 									Pavel
+> (*) Actually.. of course resume from file from initrd is possible
+> *now*, probably without this patch series, but that would be bmap and
+> doing it by hand from userland.
+
+Well, not from a swap file.  To use a swap file for suspending we need a
+kernel to tell us which page "slots" are available to us (otherwise we could
+overwrite some swapped-out pages).
+
+We could use a regular (non-swap) file like this but that would require us to
+use some dangerous code (ie. one that writes directly to blocks belonging to
+certain file bypassing the filesystem).  IMHO this isn't worth it, provided
+the kernel's swap-handling code can do this for us and is known to work. ;-)
+
+Greetings,
+Rafael
+
 
 -- 
-dwmw2
-
+You never change things by fighting the existing reality.
+		R. Buckminster Fuller

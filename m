@@ -1,98 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750922AbWIVHsb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750929AbWIVHxx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750922AbWIVHsb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Sep 2006 03:48:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750917AbWIVHsa
+	id S1750929AbWIVHxx (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Sep 2006 03:53:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750932AbWIVHxx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Sep 2006 03:48:30 -0400
-Received: from smtp.ocgnet.org ([64.20.243.3]:25235 "EHLO smtp.ocgnet.org")
-	by vger.kernel.org with ESMTP id S1750891AbWIVHs3 (ORCPT
+	Fri, 22 Sep 2006 03:53:53 -0400
+Received: from opersys.com ([64.40.108.71]:24071 "EHLO www.opersys.com")
+	by vger.kernel.org with ESMTP id S1750919AbWIVHxw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Sep 2006 03:48:29 -0400
-Date: Fri, 22 Sep 2006 16:48:13 +0900
-From: Paul Mundt <lethal@linux-sh.org>
-To: Hirokazu Takata <takata@linux-m32r.org>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Matthew Wilcox <matthew@wil.cx>, linux-arch@vger.kernel.org
-Subject: Re: [PATCH] m32r: Revise __raw_read_trylock()
-Message-ID: <20060922074813.GA20921@localhost.Internal.Linux-SH.ORG>
-References: <swfzmcse7mm.wl%takata@linux-m32r.org>
+	Fri, 22 Sep 2006 03:53:52 -0400
+Message-ID: <45139B6B.3000002@opersys.com>
+Date: Fri, 22 Sep 2006 04:14:35 -0400
+From: Karim Yaghmour <karim@opersys.com>
+Reply-To: karim@opersys.com
+Organization: Opersys inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.6) Gecko/20060804 Fedora/1.0.4-0.5.1.fc5 SeaMonkey/1.0.4
 MIME-Version: 1.0
+To: Ingo Molnar <mingo@elte.hu>
+CC: Mathieu Desnoyers <compudj@krystal.dyndns.org>,
+       Martin Bligh <mbligh@google.com>, "Frank Ch. Eigler" <fche@redhat.com>,
+       Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>, prasanna@in.ibm.com,
+       Andrew Morton <akpm@osdl.org>, Paul Mundt <lethal@linux-sh.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>, Jes Sorensen <jes@sgi.com>,
+       Tom Zanussi <zanussi@us.ibm.com>,
+       Richard J Moore <richardj_moore@uk.ibm.com>,
+       Michel Dagenais <michel.dagenais@polymtl.ca>,
+       Christoph Hellwig <hch@infradead.org>,
+       Greg Kroah-Hartman <gregkh@suse.de>,
+       Thomas Gleixner <tglx@linutronix.de>, William Cohen <wcohen@redhat.com>,
+       ltt-dev@shafik.org, systemtap@sources.redhat.com,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH] Linux Kernel Markers 0.5 for Linux 2.6.17 (with probe
+ management)
+References: <20060921160009.GA30115@Krystal> <20060921160656.GA24774@elte.hu> <20060921214248.GA10097@Krystal> <20060922070714.GB4167@elte.hu>
+In-Reply-To: <20060922070714.GB4167@elte.hu>
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <swfzmcse7mm.wl%takata@linux-m32r.org>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 22, 2006 at 03:29:53PM +0900, Hirokazu Takata wrote:
-> Matthew Wilcox pointed out that generic__raw_read_trylock() is
-> unfit for use.
-> 
-> Here is a patch to fix __raw_read_trylock() for m32r.
-> It is taken from the i386 implementation.
-> 
-This might be a stupid question, but why exactly are we ripping out
-generic__raw_read_trylock() if architectures are going to implement a
-generic implementation anyways, rather than just changing it to match
-the proper semantics?
 
-With this the m32r patch can be dropped and the rest of the
-architectures can switch over as necessary to optimized versions, rather
-than being fundamentally broken.
+Ingo Molnar wrote:
+> are you arguing that i'm trying to force breakpoint-based probing on 
+> you? I dont. In fact i explicitly mentioned that i'd accept and support 
+> a 5-byte NOP in the body of the marker, in the following mails:
 
-Signed-off-by: Paul Mundt <lethal@linux-sh.org>
+Actually that won't work if the kernel runs directly from rom/flash
+simply because it's not possible to do any form of binary editing
+on the image, as is possible in the more common desktop or workstation
+case where the kernel runs from ram.
 
---
-
- include/asm-i386/spinlock.h |   10 +---------
- kernel/spinlock.c           |    9 +++++++--
- 2 files changed, 8 insertions(+), 11 deletions(-)
-
-diff --git a/include/asm-i386/spinlock.h b/include/asm-i386/spinlock.h
-index d102036..2aba6b3 100644
---- a/include/asm-i386/spinlock.h
-+++ b/include/asm-i386/spinlock.h
-@@ -169,15 +169,7 @@ static inline void __raw_write_lock(raw_
- 	__build_write_lock(rw, "__write_lock_failed");
- }
- 
--static inline int __raw_read_trylock(raw_rwlock_t *lock)
--{
--	atomic_t *count = (atomic_t *)lock;
--	atomic_dec(count);
--	if (atomic_read(count) >= 0)
--		return 1;
--	atomic_inc(count);
--	return 0;
--}
-+#define __raw_read_trylock(lock) generic__raw_read_trylock(lock)
- 
- static inline int __raw_write_trylock(raw_rwlock_t *lock)
- {
-diff --git a/kernel/spinlock.c b/kernel/spinlock.c
-index fb524b0..8d50b9d 100644
---- a/kernel/spinlock.c
-+++ b/kernel/spinlock.c
-@@ -15,6 +15,7 @@ #include <linux/spinlock.h>
- #include <linux/interrupt.h>
- #include <linux/debug_locks.h>
- #include <linux/module.h>
-+#include <asm/atomic.h>
- 
- /*
-  * Generic declaration of the raw read_trylock() function,
-@@ -22,8 +23,12 @@ #include <linux/module.h>
-  */
- int __lockfunc generic__raw_read_trylock(raw_rwlock_t *lock)
- {
--	__raw_read_lock(lock);
--	return 1;
-+	atomic_t *count = (atomic_t *)lock;
-+	atomic_dec(count);
-+	if (atomic_read(count) >= 0)
-+		return 1;
-+	atomic_inc(count);
-+	return 0;
- }
- EXPORT_SYMBOL(generic__raw_read_trylock);
+Karim
+-- 
+President  / Opersys Inc.
+Embedded Linux Training and Expertise
+www.opersys.com  /  1.866.677.4546

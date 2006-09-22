@@ -1,48 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751116AbWIVJYf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751121AbWIVJgq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751116AbWIVJYf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Sep 2006 05:24:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751119AbWIVJYe
+	id S1751121AbWIVJgq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Sep 2006 05:36:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751124AbWIVJgp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Sep 2006 05:24:34 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:39332 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751116AbWIVJYe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Sep 2006 05:24:34 -0400
-Subject: Re: 2.6.19 -mm merge plans
-From: David Woodhouse <dwmw2@infradead.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20060920135438.d7dd362b.akpm@osdl.org>
-References: <20060920135438.d7dd362b.akpm@osdl.org>
-Content-Type: text/plain
-Date: Fri, 22 Sep 2006 10:24:06 +0100
-Message-Id: <1158917046.24527.662.camel@pmac.infradead.org>
+	Fri, 22 Sep 2006 05:36:45 -0400
+Received: from mtagate4.de.ibm.com ([195.212.29.153]:37455 "EHLO
+	mtagate4.de.ibm.com") by vger.kernel.org with ESMTP
+	id S1751121AbWIVJgl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Sep 2006 05:36:41 -0400
+Date: Fri, 22 Sep 2006 11:37:04 +0200
+From: Cornelia Huck <cornelia.huck@de.ibm.com>
+To: Greg K-H <greg@kroah.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: [4/9] driver core fixes: bus_add_attrs() retval check
+Message-ID: <20060922113704.25a8cd2e@gondolin.boeblingen.de.ibm.com>
+X-Mailer: Sylpheed-Claws 2.5.0-rc3 (GTK+ 2.8.20; i486-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5.dwmw2.1) 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-09-20 at 13:54 -0700, Andrew Morton wrote:
-> 
-> mtd-maps-ixp4xx-partition-parsing.patch
-> fix-the-unlock-addr-lookup-bug-in-mtd-jedec-probe.patch
-> mtd-printk-format-warning.patch
-> fs-jffs2-jffs2_fs_ih-removal-of-old-code.patch
-> drivers-mtd-nand-au1550ndc-removal-of-old-code.patch
-> 
->  MTD queue -> dwmw2
+From: Cornelia Huck <cornelia.huck@de.ibm.com>
 
-Merged, with the exception of the unlock addr one which I'm still not
-sure about -- about to investigate harder.
+Check return value of bus_add_attrs() in bus_register().
 
-Also merged are
-pci-mtd-switch-to-pci_get_device-and-do-ref-counting.patch and
-avr32-mtd-unlock-flash-if-necessary.patch
+Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
 
--- 
-dwmw2
+---
+ drivers/base/bus.c |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
 
+--- linux-2.6-CH.orig/drivers/base/bus.c
++++ linux-2.6-CH/drivers/base/bus.c
+@@ -746,11 +746,15 @@ int bus_register(struct bus_type * bus)
+ 
+ 	klist_init(&bus->klist_devices, klist_devices_get, klist_devices_put);
+ 	klist_init(&bus->klist_drivers, NULL, NULL);
+-	bus_add_attrs(bus);
++	retval = bus_add_attrs(bus);
++	if (retval)
++		goto bus_attrs_fail;
+ 
+ 	pr_debug("bus type '%s' registered\n", bus->name);
+ 	return 0;
+ 
++bus_attrs_fail:
++	kset_unregister(&bus->drivers);
+ bus_drivers_fail:
+ 	kset_unregister(&bus->devices);
+ bus_devices_fail:

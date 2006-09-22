@@ -1,65 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932079AbWIVJ6o@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932122AbWIVKDU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932079AbWIVJ6o (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Sep 2006 05:58:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932092AbWIVJ6o
+	id S932122AbWIVKDU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Sep 2006 06:03:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932133AbWIVKDU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Sep 2006 05:58:44 -0400
-Received: from namsan.hanyang.ac.kr ([166.104.11.34]:47262 "HELO
-	ece.hanyang.ac.kr") by vger.kernel.org with SMTP id S932079AbWIVJ6o
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Sep 2006 05:58:44 -0400
-Message-ID: <4513B3CE.50805@ece.hanyang.ac.kr>
-Date: Fri, 22 Sep 2006 18:58:38 +0900
-From: a287848 <a287848@ece.hanyang.ac.kr>
-User-Agent: Thunderbird 1.5.0.7 (Windows/20060909)
+	Fri, 22 Sep 2006 06:03:20 -0400
+Received: from nf-out-0910.google.com ([64.233.182.185]:9488 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S932122AbWIVKDT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Sep 2006 06:03:19 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:mime-version:content-type:content-disposition:user-agent:sender;
+        b=jD6X2cwIAmHTBwYun2sXg3D2y2qosW7dQbzv8DwJ+3zJPvwmEgQzeX7P/srID7eRa8Xx1Rd9dt9g4w8rUfyG6F7TRLvD8hsSZDc4Z9hXy5UsG92ZWMvvUaZvkMjhzVHQJALx8FHGuNlNQkVLYdOBkogqtWpnEm4YSThbAl7ZiSM=
+Date: Fri, 22 Sep 2006 12:02:10 +0000
+From: Frederik Deweerdt <deweerdt@free.fr>
+To: sam@ravnborg.org
+Cc: linux-kernel@vger.kernel.org
+Subject: Make kernel -dirty naming optional
+Message-ID: <20060922120210.GA957@slug>
 MIME-Version: 1.0
-To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Different value in journal block after crash?
-Content-Type: text/plain; charset=EUC-KR
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: mutt-ng/devel-r804 (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi I'm moweon.
+Hi Sam,
 
-Now I'm making redundancy module in my jbd based file system.
+Could you consider applying this patch (or indicate me a better way to
+do it). It can be handy to be able to keep the naming independent of
+git.
 
-When I tesed and dumped its block, I found one funny stuation.
-
-
-First I modified */commit.c/* in jbd directory to print commit complete
-message and it's block number.
-( add printk after wait_on_buffer )
-
-
-After I saw this message from kernel just like this
-
-(*NOTICE: Commit complete , its block number : 560 *)
-
-I read its contents from block number 1 to 101 into file
-
-And I read it again after suddenly turn off my work station.
-
-, I think it must has same value becuase journal commit block was
-already written behind block number 101 .
-
-
-But when I campared two file, it's different .
-
-Why it happen? Does jbd use some trick in block management?
-
-Dear
+Thanks,
+Frederik
 
 
 
-
-
-
-
-
-
-
-
-
+diff --git a/scripts/setlocalversion b/scripts/setlocalversion
+index 82e4993..62f2fef 100644
+--- a/scripts/setlocalversion
++++ b/scripts/setlocalversion
+@@ -9,7 +9,7 @@ usage() {
+ cd "${1:-.}" || usage
+ 
+ # Check for git and a git repo.
+-if head=`git rev-parse --verify HEAD 2>/dev/null`; then
++if [ -z "${IGNORE_GIT}" ] && head=`git rev-parse --verify HEAD 2>/dev/null`; then
+ 	# Do we have an untagged version?
+ 	if git name-rev --tags HEAD | grep -E '^HEAD[[:space:]]+(.*~[0-9]*|undefined)$' > /dev/null; then
+ 		printf '%s%s' -g `echo "$head" | cut -c1-8`
 

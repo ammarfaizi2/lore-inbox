@@ -1,69 +1,121 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964809AbWIVRj4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964806AbWIVRjc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964809AbWIVRj4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Sep 2006 13:39:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964815AbWIVRj4
+	id S964806AbWIVRjc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Sep 2006 13:39:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964815AbWIVRjc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Sep 2006 13:39:56 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:1518 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S964809AbWIVRjz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Sep 2006 13:39:55 -0400
-Date: Fri, 22 Sep 2006 10:39:47 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-cc: James Bottomley <James.Bottomley@SteelEye.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Results of an informal GPLv3 poll amongst kernel contributors
-In-Reply-To: <Pine.LNX.4.61.0609221817430.12304@yvahk01.tjqt.qr>
-Message-ID: <Pine.LNX.4.64.0609221029390.4388@g5.osdl.org>
-References: <1158939881.3445.16.camel@mulgrave.il.steeleye.com>
- <Pine.LNX.4.61.0609221817430.12304@yvahk01.tjqt.qr>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 22 Sep 2006 13:39:32 -0400
+Received: (root@vger.kernel.org) by vger.kernel.org id S964806AbWIVRjc
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Sep 2006 13:39:32 -0400
+Received: from osiris.atheme.org ([69.60.119.211]:50834 "EHLO
+	osiris.atheme.org") by vger.kernel.org with ESMTP id S932081AbWIVIWY convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Sep 2006 04:22:24 -0400
+In-Reply-To: <20060922.164109.112537486.yoshfuji@linux-ipv6.org>
+References: <4E1176C1-8F18-4790-9BCB-95306ACED48A@atheme.org> <736CE60D-FB88-4246-8728-B7AC7880B28E@atheme.org> <20060922.164109.112537486.yoshfuji@linux-ipv6.org>
+Mime-Version: 1.0 (Apple Message framework v752.2)
+Content-Type: text/plain; charset=UTF-8; delsp=yes; format=flowed
+Message-Id: <410AB903-2500-4CDF-B777-0367A7C0AEDF@atheme.org>
+Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Content-Transfer-Encoding: 8BIT
+From: William Pitcock <nenolod@atheme.org>
+Subject: Re: [PATCH 2.6.18 try 2] net/ipv4: sysctl to allow non-superuser to bypass CAP_NET_BIND_SERVICE requirement
+Date: Fri, 22 Sep 2006 03:22:47 -0500
+To: =?UTF-8?Q?YOSHIFUJI_Hideaki_/_=E5=90=89=E8=97=A4=E8=8B=B1?=
+	 =?UTF-8?Q?=E6=98=8E?= <yoshfuji@linux-ipv6.org>
+X-Mailer: Apple Mail (2.752.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sep 22, 2006, at 2:41 AM, YOSHIFUJI Hideaki / 吉藤英明 wrote:
 
-
-On Fri, 22 Sep 2006, Jan Engelhardt wrote:
+> In article <736CE60D-FB88-4246-8728-B7AC7880B28E@atheme.org> (at  
+> Fri, 22 Sep 2006 02:31:59 -0500), William Pitcock  
+> <nenolod@atheme.org> says:
 >
-> >
-> >These are basically just the votes and who voted.  There's also a nice
-> >graphical tally but I'll attach that by replying to this message so it
-> >doesn't get eaten by people's "no mime at all" spam filters.
-> >
-> >Average Vote                          -2.0  +/-   0.7
-> 
-> No surprise here :)
+>> This patch allows for a user to disable the requirement to meet the
+>> CAP_NET_BIND_SERVICE capability for a non-superuser. It is toggled by
+>> the net.ipv4.allow_lowport_bind_nonsuperuser sysctl value.
+>
+> Why?  I don't think this is a good idea.
+>
 
-Well, I actually think there were some surprises to some people.
+There are several reasons. To summarize, in some setups, such as  
+mine, it is undesirable to force applications to run as root to gain  
+access to 'service' ports. A more defined listing of reasons why this  
+patch is a good idea are below:
 
-The people involved with the vote were basically selected to be the most 
-active kernel developers (by just doing some trivial statistics over the 
-last 18 months and just picking the top ~30 people). I added Alan Cox to 
-the list, just because, but basically it's otherwise a totally unbiased 
-selection.
+* People wanting to run restricted services such as jabber, ircd, etc  
+on low ports to allow people to bypass ISP firewalls, but the  
+software doesn't have mechanisms for dropping privileges (most ircds,  
+for example do not have such an option)
 
-And trust me when I say that we're an argumentative lot. Some people 
-consider the kernel mailing list to be somewhat argumentative at times, 
-but I think people are even more open in their opinions when they're 
-allowed to vent freely.
+* The software is untrusted by the end user, in the event that the  
+software is not trustworthy, the amount of damage it can do running  
+as a normal user is less than as a superuser. As it is, the bind()  
+may have failed before the CAP_NET_BIND_SERVICE capability was  
+granted to the process.
 
-And we certainly had some "heated discussion" over a number of details, 
-but as you can see from the actual votes, I think the conclusion people 
-had come to (regardless of their opinions on some issues) were more 
-uniform than you might have expected.
+* Building on that, capabilities are still linux-specific. Other  
+systems, such as FreeBSD allow you to disable this restriction via  
+sysctl as well. It is very likely that daemons are not capability  
+aware, and thus would require some sort of wrapper script (which is  
+likely beyond the ability of most endusers). Wrapping the daemon  
+would still require superuser privileges as well to make sure it  
+worked properly, and even if it did work properly, it still opens a  
+race condition where the bind() may have failed before the capability  
+bit was granted to the process.
 
-I think a number of outsiders also believed that I personally was just the 
-odd man out, because I've been so publicly not a huge fan of the GPLv3.  
+* Many services do not run on 'service' ports, and instead run out in  
+userspace. For instance, MySQL listens on TCP/3306 by default, and  
+PostgreSQL listens in userspace as well (although, I cannot recall  
+the exact port number it listens on at present). In many cases, squid  
+runs on port 8080, which is also userspace. For this reason, it is  
+arguable that the entire CAP_NET_BIND_SERVICE restriction isn't very  
+useful.
 
-So I think some people who see the results - especially people who haven't 
-been active in kernel development themselves - might be surprised to see 
-that I wasn't even an outlier in the kernel group.
+* Embedded devices (consumer routers, etc) may want to have some  
+level of privilege seperation internally to reduce the amount of  
+exploitation possibility in their firmware, this patch makes that  
+easier to accomplish (just set the sysctl in the initialization and  
+go from there)
 
-So I suspect your lack of surprise is because you've been on the kernel 
-mailing list for too long, and already know the personalities of the 
-people involved.
+* Other TCP stacks (Winsock2, for instance) do not impose the <= 1023  
+limit.
 
-		Linus
+>> diff --git a/include/linux/sysctl.h b/include/linux/sysctl.h
+>> index e4b1a4d..c3f7c3c 100644
+>> --- a/include/linux/sysctl.h
+>> +++ b/include/linux/sysctl.h
+>> @@ -411,6 +411,7 @@ enum
+>> 	NET_IPV4_TCP_WORKAROUND_SIGNED_WINDOWS=115,
+>> 	NET_TCP_DMA_COPYBREAK=116,
+>> 	NET_TCP_SLOW_START_AFTER_IDLE=117,
+>> +	NET_IPV4_ALLOW_LOWPORT_BIND_NONSUPERUSER=118,
+>>    };
+>>
+>>    enum {
+>
+> This implies all IPv4 protocols including other protocols
+> such as UDP, SCTP, ...
+
+Yes, I'll change the sysctl name to better infer that it is for TCP.  
+That is not an issue. If you have a suggestion for what it should be,  
+I'd love to hear it.
+
+>
+>> @@ -1412,3 +1418,4 @@ EXPORT_SYMBOL(inet_stream_ops);
+>>    EXPORT_SYMBOL(inet_unregister_protosw);
+>>    EXPORT_SYMBOL(net_statistics);
+>>    EXPORT_SYMBOL(sysctl_ip_nonlocal_bind);
+>> +EXPORT_SYMBOL(sysctl_ip_allow_lowport_bind_nonsuperuser);
+>
+> Please be aware about indent.
+
+I'll be sure to fix that, thank you.
+
+(resent due to mailer glitch)
+
+- nenolod
+

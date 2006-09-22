@@ -1,54 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964805AbWIVR2A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964807AbWIVR3F@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964805AbWIVR2A (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Sep 2006 13:28:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964806AbWIVR2A
+	id S964807AbWIVR3F (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Sep 2006 13:29:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964808AbWIVR3E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Sep 2006 13:28:00 -0400
-Received: (root@vger.kernel.org) by vger.kernel.org id S964805AbWIVR17
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Sep 2006 13:27:59 -0400
-Received: from xenotime.net ([66.160.160.81]:20366 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S932557AbWIVQfR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Sep 2006 12:35:17 -0400
-Date: Fri, 22 Sep 2006 09:36:26 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Michael Opdenacker <michael-lists@free-electrons.com>,
-       linux-kernel@vger.kernel.org, trivial@kernel.org
-Subject: Re: [PATCH 2.6.18] [TRIVIAL] Spelling fixes in
- Documentation/DocBook
-Message-Id: <20060922093626.6c66ed89.rdunlap@xenotime.net>
-In-Reply-To: <1158942873.24572.20.camel@localhost.localdomain>
-References: <200609212318.07418.michael-lists@free-electrons.com>
-	<1158942873.24572.20.camel@localhost.localdomain>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.8 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
-X-Face: &4L4\Oj/><0~x8W<MJeAB.(xC/cwW7Ay$UNDMI|/>]44\M(/wa:+,kH&IYtRqs\tQ8="B5=
- qPUwTvq4QPk_KQ^$5ya89f&[m.$<>cp-F(**n,^uIaN{YfG
+	Fri, 22 Sep 2006 13:29:04 -0400
+Received: from tomts16-srv.bellnexxia.net ([209.226.175.4]:31903 "EHLO
+	tomts16-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id S964807AbWIVR3C (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Sep 2006 13:29:02 -0400
+Date: Fri, 22 Sep 2006 13:28:59 -0400
+From: Mathieu Desnoyers <compudj@krystal.dyndns.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Martin Bligh <mbligh@google.com>, "Frank Ch. Eigler" <fche@redhat.com>,
+       Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>, prasanna@in.ibm.com,
+       Andrew Morton <akpm@osdl.org>, Paul Mundt <lethal@linux-sh.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>, Jes Sorensen <jes@sgi.com>,
+       Tom Zanussi <zanussi@us.ibm.com>,
+       Richard J Moore <richardj_moore@uk.ibm.com>,
+       Michel Dagenais <michel.dagenais@polymtl.ca>,
+       Christoph Hellwig <hch@infradead.org>,
+       Greg Kroah-Hartman <gregkh@suse.de>,
+       Thomas Gleixner <tglx@linutronix.de>, William Cohen <wcohen@redhat.com>,
+       ltt-dev@shafik.org, systemtap@sources.redhat.com,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH] Linux Kernel Markers 0.5 for Linux 2.6.17 (with probe management)
+Message-ID: <20060922172859.GA11660@Krystal>
+References: <20060921160009.GA30115@Krystal> <20060921160656.GA24774@elte.hu> <20060921214248.GA10097@Krystal> <20060922064955.GA4167@elte.hu> <20060922140329.GA20839@Krystal> <20060922165352.GA16476@elte.hu> <20060922171156.GA18363@Krystal> <20060922171224.GA18964@elte.hu>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20060922171224.GA18964@elte.hu>
+X-Editor: vi
+X-Info: http://krystal.dyndns.org:8080
+X-Operating-System: Linux/2.4.32-grsec (i686)
+X-Uptime: 13:27:00 up 30 days, 14:35,  4 users,  load average: 0.27, 0.39, 0.26
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 22 Sep 2006 17:34:33 +0100 Alan Cox wrote:
-
-> >  	interrupt hardware and was therefore reimplemented with split
-> > -	functionality for egde/level/simple/percpu interrupts. This is not
-> > +	functionality for edge/level/simple/percpu interrupts. This is not
+* Ingo Molnar (mingo@elte.hu) wrote:
+> > 
+> > Yes, sorry, my mistake. This kind of fault is not as infrequent as you 
+> > may think, as every newly allocated vmalloc region will cause vmalloc 
+> > faults on every processes on the system that are trying to access 
+> > them. I agree that it should not be a standard event people would be 
+> > interested in.
 > 
-> ACK - also per-cpu with hyphens ?
+> most of the vmalloc area that is allocated on a typical system are 
+> modules - and they get loaded on bootup and rarely unloaded. Even for 
+> other vmalloc-ed areas like netfilter, the activation of them is during 
+> bootup. So from that point on the number of vmalloc faults is quite low. 
+> (zero on most systems) If you still want to trace it i'd suggest a 
+> separate type of event for it.
 
-would be good.
+Yes, with this typical vmalloc usage pattern in perspective, we completely
+agree. We also agree on having a separate kind of event for this, as it requires
+the tracer code to be vmalloc-fault-reentrant (very tricky).
 
-> > -        requirement during issuing or excution any ATA/ATAPI command.
-> > +        requirement during issuing or executing any ATA/ATAPI command.
-> 
-> NAK. Please check changes before submission
+Mathieu
 
-You want "execution" instead?  surely not "excution".
-
----
-~~Randy
+OpenPGP public key:              http://krystal.dyndns.org:8080/key/compudj.gpg
+Key fingerprint:     8CD5 52C3 8E3C 4140 715F  BA06 3F25 A8FE 3BAE 9A68 

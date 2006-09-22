@@ -1,126 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030855AbWI0VJn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030856AbWI0VKv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030855AbWI0VJn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Sep 2006 17:09:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030857AbWI0VJn
+	id S1030856AbWI0VKv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Sep 2006 17:10:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030857AbWI0VKu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Sep 2006 17:09:43 -0400
-Received: from rrcs-24-153-218-104.sw.biz.rr.com ([24.153.218.104]:21897 "EHLO
-	dell3.ogc.int") by vger.kernel.org with ESMTP id S1030855AbWI0VJm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Sep 2006 17:09:42 -0400
-Subject: Re: [PATCH 2.6.18 ] LIB Add gen_pool_destroy().
-From: Steve Wise <swise@opengridcomputing.com>
-To: Dean Nelson <dcn@sgi.com>
-Cc: jes@trained-monkey.org, avolkov@varma-el.com, rdunlap@xenotime.net,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20060927195156.GA3283@sgi.com>
-References: <20060927153545.28235.76214.stgit@dell3.ogc.int>
-	 <20060927195156.GA3283@sgi.com>
-Content-Type: text/plain
-Date: Wed, 27 Sep 2006 16:09:40 -0500
-Message-Id: <1159391380.10663.62.camel@stevo-desktop>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
+	Wed, 27 Sep 2006 17:10:50 -0400
+Received: from smtp113.sbc.mail.mud.yahoo.com ([68.142.198.212]:15987 "HELO
+	smtp113.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1030856AbWI0VKt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Sep 2006 17:10:49 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=pacbell.net;
+  h=Received:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
+  b=YaqKs80IDLsf2O3w3Yh9qPnRP0gJQ0bRO9OyuxC8gkJmSmvZQskjkgI3h/JjCF7JUpFjT65AyVhxIDx1gtchcLyw84THwqrVQUMSEJ0fpDDaKm56YY7mJNkpzkuvOzBY8r6vGDImcbu/h8J1hIxIN27Z5h/GBBqTlfV9RHOS8pI=  ;
+From: David Brownell <david-b@pacbell.net>
+To: Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: [patch 2.6.18] genirq: remove oops with fasteoi irq_chip descriptors
+Date: Fri, 22 Sep 2006 06:43:07 -0700
+User-Agent: KMail/1.7.1
+Cc: tglx@linutronix.de, mingo@redhat.com
+References: <200609220641.58938.david-b@pacbell.net>
+In-Reply-To: <200609220641.58938.david-b@pacbell.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200609220643.07750.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dean,
+The irq handler code can oops when used with an irq_chip with just
+enable/disable/eoi methods, appropriate for handle_fasteoi_irq(),
+either by (a) uninstalling, or (b) using it with a chained handler.
 
-Looks like it works fine.
+The problem was that the original code expected there would always
+be mask/unmask/ack methods, and the fix is to instead use methods
+which are always present and which more closely correspond to the
+flag manipulation being done.
 
-Any chance of getting this into 2.6.18 I wonder?
+Signed-off-by: David Brownell <dbrownell@users.sourceforge.net>
 
-
-Steve.
-
-
-
-On Wed, 2006-09-27 at 14:51 -0500, Dean Nelson wrote:
-> Modules using the genpool allocator need to be able to destroy the data
-> structure when unloading.
-> 
-> Signed-off-by: Steve Wise <swise@opengridcomputing.com>
-> Signed-off-by: Dean Nelson <dcn@sgi.com>
-> 
-> ---
-> 
-> Hi Steve,
-> 
-> I agree that the ability to destroy the allocated structures is
-> necessary. Thanks for doing the work. I do think it appropriate
-> to ensure that there are no outstanding allocations (to avoid use
-> after free issues) and have added that check in this new patch.
-> This patch has not been tested, though it does compile. I don't
-> have the time today. I hope you don't mind testing it? :-)
-> 
-> It also looks like I need to straighten out the kernel-doc
-> aspects of this file. I'll tackle that as a separate patch.
-> 
-> Thanks,
-> Dean
-> 
-> 
->  include/linux/genalloc.h |    1 +
->  lib/genalloc.c           |   29 +++++++++++++++++++++++++++++
->  2 files changed, 30 insertions(+)
-> 
-> 
-> Index: linux-2.6/lib/genalloc.c
-> ===================================================================
-> --- linux-2.6.orig/lib/genalloc.c	2006-09-27 13:42:35.000000000 -0500
-> +++ linux-2.6/lib/genalloc.c	2006-09-27 14:31:56.816523882 -0500
-> @@ -71,6 +71,35 @@
->  
-> 
->  /*
-> + * Destroy a memory pool.
-> + *
-> + * @pool: pool to destroy
-> + */
-> +void gen_pool_destroy(struct gen_pool *pool)
-> +{
-> +	struct list_head *_chunk, *_next_chunk;
-> +	struct gen_pool_chunk *chunk;
-> +	int order = pool->min_alloc_order;
-> +	int bit, end_bit;
-> +
-> +
-> +	write_lock(&pool->lock);
-> +	list_for_each_safe(_chunk, _next_chunk, &pool->chunks) {
-> +		chunk = list_entry(_chunk, struct gen_pool_chunk, next_chunk);
-> +
-> +		end_bit = (chunk->end_addr - chunk->start_addr) >> order;
-> +		bit = find_next_bit(chunk->bits, end_bit, 0);
-> +		BUG_ON(bit < end_bit);
-> +
-> +		kfree(chunk);
-> +	}
-> +	kfree(pool);
-> +	return;
-> +}
-> +EXPORT_SYMBOL(gen_pool_destroy);
-> +
-> +
-> +/*
->   * Allocate the requested number of bytes from the specified pool.
->   * Uses a first-fit algorithm.
->   *
-> Index: linux-2.6/include/linux/genalloc.h
-> ===================================================================
-> --- linux-2.6.orig/include/linux/genalloc.h	2006-09-27 13:42:34.000000000 -0500
-> +++ linux-2.6/include/linux/genalloc.h	2006-09-27 14:18:31.807816652 -0500
-> @@ -31,5 +31,6 @@
->  
->  extern struct gen_pool *gen_pool_create(int, int);
->  extern int gen_pool_add(struct gen_pool *, unsigned long, size_t, int);
-> +extern void gen_pool_destroy(struct gen_pool *);
->  extern unsigned long gen_pool_alloc(struct gen_pool *, size_t);
->  extern void gen_pool_free(struct gen_pool *, unsigned long, size_t);
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-
+--- d26.rc4test.orig/kernel/irq/chip.c	2006-09-21 16:41:11.000000000 -0700
++++ d26.rc4test/kernel/irq/chip.c	2006-09-21 18:04:07.000000000 -0700
+@@ -482,10 +482,8 @@ __set_irq_handler(unsigned int irq,
+ 
+ 	/* Uninstall? */
+ 	if (handle == handle_bad_irq) {
+-		if (desc->chip != &no_irq_chip) {
+-			desc->chip->mask(irq);
+-			desc->chip->ack(irq);
+-		}
++		if (desc->chip != &no_irq_chip)
++			desc->chip->shutdown(irq);
+ 		desc->status |= IRQ_DISABLED;
+ 		desc->depth = 1;
+ 	}
+@@ -495,7 +493,7 @@ __set_irq_handler(unsigned int irq,
+ 		desc->status &= ~IRQ_DISABLED;
+ 		desc->status |= IRQ_NOREQUEST | IRQ_NOPROBE;
+ 		desc->depth = 0;
+-		desc->chip->unmask(irq);
++		desc->chip->startup(irq);
+ 	}
+ 	spin_unlock_irqrestore(&desc->lock, flags);
+ }

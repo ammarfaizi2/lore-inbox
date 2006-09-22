@@ -1,75 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932202AbWIVCDY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932203AbWIVCGb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932202AbWIVCDY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Sep 2006 22:03:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932201AbWIVCDY
+	id S932203AbWIVCGb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Sep 2006 22:06:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932204AbWIVCGb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Sep 2006 22:03:24 -0400
-Received: from main.gmane.org ([80.91.229.2]:20676 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S932200AbWIVCDX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Sep 2006 22:03:23 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Oleg Verych <olecom@flower.upol.cz>
-Subject: Re: [PATCH 2/4] Blackfin: Serial driver for Blackfin arch on 2.6.18
-Date: Fri, 22 Sep 2006 04:03:17 +0200
-Organization: Palacky University in Olomouc, experimental physics department.
-Message-ID: <45134465.8060703@flower.upol.cz>
-References: <489ecd0c0609202033j4dd9a62fye81f99d61bff030d@mail.gmail.com>
+	Thu, 21 Sep 2006 22:06:31 -0400
+Received: from tomts13.bellnexxia.net ([209.226.175.34]:9864 "EHLO
+	tomts13-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id S932203AbWIVCGa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Sep 2006 22:06:30 -0400
+Date: Thu, 21 Sep 2006 22:01:19 -0400
+From: Mathieu Desnoyers <compudj@krystal.dyndns.org>
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: Martin Bligh <mbligh@google.com>, "Frank Ch. Eigler" <fche@redhat.com>,
+       Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>, prasanna@in.ibm.com,
+       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
+       Paul Mundt <lethal@linux-sh.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>, Jes Sorensen <jes@sgi.com>,
+       Tom Zanussi <zanussi@us.ibm.com>,
+       Richard J Moore <richardj_moore@uk.ibm.com>,
+       Michel Dagenais <michel.dagenais@polymtl.ca>,
+       Christoph Hellwig <hch@infradead.org>,
+       Greg Kroah-Hartman <gregkh@suse.de>,
+       Thomas Gleixner <tglx@linutronix.de>, William Cohen <wcohen@redhat.com>,
+       ltt-dev@shafik.org, systemtap@sources.redhat.com,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH] Linux Kernel Markers 0.7 for 2.6.17 (with type checking!)
+Message-ID: <20060922020119.GA28712@Krystal>
+References: <20060921232024.GA16155@Krystal> <451331A1.3020601@goop.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Complaints-To: usenet@sea.gmane.org
-Cc: Luke Yang <luke.adi@gmail.com>
-X-Gmane-NNTP-Posting-Host: 158.194.180.30
-User-Agent: Mozilla/5.0 (X11; U; Linux x86_64; en-US; rv:1.7.12) Gecko/20060607 Debian/1.7.12-1.2
-X-Accept-Language: en
-In-Reply-To: <489ecd0c0609202033j4dd9a62fye81f99d61bff030d@mail.gmail.com>
-X-Image-Url: http://flower.upol.cz/~olecom/upol-cz.png
+Content-Disposition: inline
+In-Reply-To: <451331A1.3020601@goop.org>
+X-Editor: vi
+X-Info: http://krystal.dyndns.org:8080
+X-Operating-System: Linux/2.4.32-grsec (i686)
+X-Uptime: 21:17:21 up 29 days, 22:26,  1 user,  load average: 0.12, 0.14, 0.15
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hallo, Luke Yang, who wrote:
-> +static void bfin_serial_mctrl_check(struct bfin_serial_port *uart);
-> +
-> +/*
-> + * interrupts disabled on entry
-> + */
+* Jeremy Fitzhardinge (jeremy@goop.org) wrote:
+> Mathieu Desnoyers wrote:
+> >+#ifdef CONFIG_MARK_SYMBOL
+> >+#define MARK_SYM(name) \
+> >+	do { \
+> >+		__label__ here; \
+> >+		here: asm volatile \
+> >+			(MARK_KPROBE_PREFIX#name " = %0" : : "m" (*&&here)); 
+> >\
+> >+	} while(0)
+> >+#else 
+> >+#define MARK_SYM(name)
+> >+#endif
+> 
+> BTW, this won't work if you put the MARK_SYM in a loop which gcc 
+> unrolls; you'll only get the mark in the last unrolled iteration 
+> (because the symbol assignments will override each other).
+> 
+> Do make this work properly, you really need to put the mark entries into 
+> a separate section, so that if gcc duplicates the code, you get 
+> duplicated markers too.
+> 
 
-spelling error: _are_ disabled
-please grep && sed all patches
+Good point, I will change it to :
 
-> +static void bfin_serial_stop_tx(struct uart_port *port)
-> +{
-> +    struct bfin_serial_port *uart = (struct bfin_serial_port *)port;
-> +    unsigned short ier;
-> +    ier = UART_GET_IER(uart);
-> +    ier &= ~ETBEI;
-> +    UART_PUT_IER(uart, ier);
-> +#ifdef CONFIG_SERIAL_BFIN_DMA
-> +    disable_dma(uart->tx_dma_channel);
-> +#endif
-> +}
+#define MARK_SYM(name) \
+        do { \
+                __label__ here; \
+                volatile static void *__mark_kprobe_##name \
+                        asm (MARK_CALL_PREFIX#name) \
+                        __attribute__((unused)) = &&here; \
+here: \
+                do { } while(0); \
+        } while(0)
 
-one blank line after local variables; you are using this in some functions, in 
-some you are not...
+Which fixes the problem. Some tests showed me that the compiler does not unroll
+an otherwise unrolled loop when this specific macro is called. (test done with
+-funroll-all-loops).
 
-> +
-> +static void bfin_serial_shutdown(struct uart_port *port)
-> +{
-> +    struct bfin_serial_port *uart = (struct bfin_serial_port *)port;
-> +
+Regards,
 
-yes, one more space will be nicer
-
-> +    free_irq(uart->port.irq+1, uart);
-
-here and the like
+Mathieu
 
 
--- 
--o--=O`C
-  #oo'L O  5 years ago TT and WTC7 were assassinated
-<___=E M  learn more how (tm) <http://911research.com>
-
+OpenPGP public key:              http://krystal.dyndns.org:8080/key/compudj.gpg
+Key fingerprint:     8CD5 52C3 8E3C 4140 715F  BA06 3F25 A8FE 3BAE 9A68 

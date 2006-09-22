@@ -1,53 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932400AbWIVQ3Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751160AbWIVQ3g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932400AbWIVQ3Y (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Sep 2006 12:29:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751160AbWIVQ3X
+	id S1751160AbWIVQ3g (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Sep 2006 12:29:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751165AbWIVQ3f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Sep 2006 12:29:23 -0400
-Received: from wx-out-0506.google.com ([66.249.82.224]:22486 "EHLO
-	wx-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1750791AbWIVQ3X (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Sep 2006 12:29:23 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=TheR7hez63QjQ7+EOpbuuuh205LeFHNpCAXuray9ZSnOcMKp2NGaWSVyGne42/bRlI1iPRE0ZZGaIOOgA6IOXuXU5ORrBJQdntfuD0iDEX2nXZ/go8V2cXKohC5pXqMwYwWM0Mk0qPKHzpviu45uyGsHsS0e5csTr/5GPCioofI=
-Message-ID: <bd0cb7950609220929j55c24230h4e53db34af0ac385@mail.gmail.com>
+	Fri, 22 Sep 2006 12:29:35 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:18372 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1751160AbWIVQ3e (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Sep 2006 12:29:34 -0400
+Message-ID: <45140F61.4040201@garzik.org>
 Date: Fri, 22 Sep 2006 12:29:21 -0400
-From: "Tom St Denis" <tomstdenis@gmail.com>
-To: "Daniel Drake" <dsd@gentoo.org>
-Subject: Re: sky2 eth device with Gigabyte 965P-S3 motherboard
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <450E4C25.9030206@gentoo.org>
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
 MIME-Version: 1.0
+To: Dave Jones <davej@redhat.com>, David Miller <davem@davemloft.net>,
+       Russell King <rmk+kernel@arm.linux.org.uk>
+CC: davidsen@tmr.com, torvalds@osdl.org, alan@lxorguk.ukuu.org.uk,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.19 -mm merge plans
+References: <Pine.LNX.4.64.0609211106391.4388@g5.osdl.org> <45130533.2010209@tmr.com> <45130527.1000302@garzik.org> <20060921.145208.26283973.davem@davemloft.net> <20060921220539.GL26683@redhat.com> <20060922083542.GA4246@flint.arm.linux.org.uk> <20060922154816.GA15032@redhat.com>
+In-Reply-To: <20060922154816.GA15032@redhat.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <bd0cb7950609200635qae3e0c6p3f7d776d33b50542@mail.gmail.com>
-	 <4513D362.8030804@gentoo.org>
-	 <bd0cb7950609220629i191683bq7b21fca3e04fafb1@mail.gmail.com>
-	 <450E4C25.9030206@gentoo.org>
+X-Spam-Score: -4.3 (----)
+X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 9/18/06, Daniel Drake <dsd@gentoo.org> wrote:
-> Tom St Denis wrote:
-> > This won't be fixed as part of 2.6.18.x?
->
-> Probably not.
 
-It's a one line fix!!! :-/
+NOTE:  Your mailer generates bogus Mail-Followup-To headers, and you 
+snipped rmk from the To/CC.
 
-> It wasn't detected under 2.6.17. Either your kernel is modified, or you
-> were using the vendor sk98lin driver or something like that. If you have
-> 2.6.17 still bootable you could boot it and check the dmesg output to
-> make sense of things.
+Dave Jones wrote:
+> Hmm. Some trees do seem to get pulled more often than others.
+> Linus, is there a upper limit on the number of times you want
+> to see pull requests? It strikes me as odd, so I'm wondering
+> if there are some crossed wires here.
 
-No, i get sky2 printk after udev kicks in.  It was a 2.6.17-gentoo-r8
-kernel which has devices 4364 through 4368 [just checked].
+Not speaking for Linus, but in general it seems like the more pull 
+requests you send (within reason), the more pulls that occur.  Russell 
+and DaveM certainly seem to send frequent, successful pull requests.
 
-This means my patch is incomplete, and the fix Gentoo made against
-2.6.17 didn't make it into 2.6.18.  ARRG.
 
-Tom
+> Has Andrew commented on why this is proving to be more of a problem?
+> I've done regular rebases of cpufreq/agpgart (admittedly, they don't
+> reject hardly ever unless Len has ACPI bits touching cpufreq) without
+> causing too much headache.
+
+Rebasing _inevitably_ causes more headaches than a simple tree update, 
+for any downstream consumer of your tree(s).  It is best to avoid wanton 
+rebasing.
+
+Think about it:  if someone is pulling and merging your tree, all of a 
+sudden, without warning, the entire hash history is rewritten.  So 
+rather than a Nice and Friendly minor update, the next time they pull 
+your stuff, the downstream user is forced to suffer through either (a) a 
+painful merge, or (b) back out your last tree (ugh!) and redo things 
+from scratch.
+
+Rebasing might make a pretty history, but it is _not_ fun for random 
+consumers of your trees.  It basically punishes people for following 
+your tree -- not something you want to do.
+
+	Jeff
+
+

@@ -1,71 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964834AbWIVTsu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964838AbWIVTuP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964834AbWIVTsu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Sep 2006 15:48:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964837AbWIVTst
+	id S964838AbWIVTuP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Sep 2006 15:50:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964841AbWIVTuP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Sep 2006 15:48:49 -0400
-Received: from wr-out-0506.google.com ([64.233.184.237]:6829 "EHLO
-	wr-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S964834AbWIVTst (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Sep 2006 15:48:49 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:mime-version:content-type:x-google-sender-auth;
-        b=E0G5h6bbZAbDwO8KI+PsASIhlI6mF5rDDW6r5lsdCgZVW695hMUdwoSwA8pBS0WpifR9paQtZE5BvFTeBu77ETlUuoevreQ1jy9T3BZl9U9u4JN2rijPQAHi3kBb5OCFeU3ftCiZcj95YMxoNSxA8qQko/1epVjiRC346X5KJhc=
-Message-ID: <c1bf1cf0609221248v39113875id4b48c62cec8eb46@mail.gmail.com>
-Date: Fri, 22 Sep 2006 12:48:48 -0700
-From: "Ed Swierk" <eswierk@arastra.com>
-To: linux-kernel@vger.kernel.org
-Subject: [RETRY] [PATCH] load_module: no BUG if module_subsys uninitialized
-Cc: rusty@rustcorp.com.au
-MIME-Version: 1.0
-Content-Type: multipart/mixed; 
-	boundary="----=_Part_32997_30962540.1158954528426"
-X-Google-Sender-Auth: 2527b6b82e42a772
+	Fri, 22 Sep 2006 15:50:15 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:64694 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S964838AbWIVTuN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Sep 2006 15:50:13 -0400
+Date: Fri, 22 Sep 2006 12:49:40 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Jes Sorensen <jes@sgi.com>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       bjorn_helgaas@hp.com, Nick Piggin <nickpiggin@yahoo.com.au>,
+       Robin Holt <holt@sgi.com>, Dean Nelson <dcn@sgi.com>,
+       Hugh Dickins <hugh@veritas.com>
+Subject: Re: [patch] do_no_pfn()
+Message-Id: <20060922124940.5ca5ee87.akpm@osdl.org>
+In-Reply-To: <yq0u033c84a.fsf@jaguar.mkp.net>
+References: <Pine.LNX.4.64.0609192126070.4388@g5.osdl.org>
+	<yq0u033c84a.fsf@jaguar.mkp.net>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-------=_Part_32997_30962540.1158954528426
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+On 20 Sep 2006 03:25:25 -0400
+Jes Sorensen <jes@sgi.com> wrote:
 
-[I discovered after sending my previous message that Gmail helpfully
-line-wrapped and de-tabified my patch. I'm resending it as an
-attachment; apologies for the error.]
+> Implement do_no_pfn() for handling mapping of memory without a struct
+> page backing it. This avoids creating fake page table entries for
+> regions which are not backed by real memory.
+> 
+> This feature is used by the MSPEC driver and other users, where it is
+> highly undesirable to have a struct page sitting behind the page
+> (for instance if the page is accessed in cached mode via the struct
+> page in parallel to the the driver accessing it uncached, which can
+> result in data corruption on some architectures, such as ia64).
+> 
+> This version uses specific NOPFN_{SIGBUS,OOM} return values, rather
+> than expect all negative pfn values would be an error. It also bugs on
+> cow mappings as this would not work with the VM.
 
-Invoking load_module() before param_sysfs_init() is called crashes in
-mod_sysfs_setup(), since the kset in module_subsys is not initialized
-yet.
 
-Another patch for the same symptom
-(module_subsys-initialize-earlier.patch) moves param_sysfs_init() to
-the subsys initcalls, but this is still not early enough in the boot
-process in some cases. In particular, topology_init() causes
-/sbin/hotplug to run, which requests net-pf-1 (the UNIX socket
-protocol) which can be compiled as a module. Moving param_sysfs_init()
-to the postcore initcalls fixes this particular race, but there might
-well be other cases where a usermodehelper causes a module to load
-earlier still.
+How does this followup look?
 
-The patch below makes load_module() return an error rather than
-crashing the kernel if invoked before module_subsys is initialized.
 
-------=_Part_32997_30962540.1158954528426
-Content-Type: text/x-patch; name=module_subsys-uninit-return-err.patch; 
-	charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: base64
-X-Attachment-Id: f_esezk7xt
-Content-Disposition: attachment; filename="module_subsys-uninit-return-err.patch"
+We don't want the rarely-used do_no_pfn() to get inlined in the oft-used
+handle_pte_fault(), using up icache.  Mark it noinline and unlikely.
 
-LS0tIGxpbnV4LTIuNi4xNy4xMS5vcmlnL2tlcm5lbC9tb2R1bGUuYwkyMDA2LTA4LTIzIDIxOjE2
-OjMzLjAwMDAwMDAwMCArMDAwMAorKysgbGludXgtMi42LjE3LjExL2tlcm5lbC9tb2R1bGUuYwky
-MDA2LTA5LTIyIDA1OjE5OjAzLjAwMDAwMDAwMCArMDAwMApAQCAtOTk4LDYgKzk5OCwxMiBAQAog
-ewogCWludCBlcnI7CiAKKwlpZiAoIW1vZHVsZV9zdWJzeXMua3NldC5zdWJzeXMpIHsKKwkJcHJp
-bnRrKEtFUk5fRVJSICIlczogbW9kdWxlX3N1YnN5cyBub3QgaW5pdGlhbGl6ZWRcbiIsCisJCSAg
-ICAgICBtb2QtPm5hbWUpOworCQllcnIgPSAtRUlOVkFMOworCQlnb3RvIG91dDsKKwl9CiAJbWVt
-c2V0KCZtb2QtPm1rb2JqLmtvYmosIDAsIHNpemVvZihtb2QtPm1rb2JqLmtvYmopKTsKIAllcnIg
-PSBrb2JqZWN0X3NldF9uYW1lKCZtb2QtPm1rb2JqLmtvYmosICIlcyIsIG1vZC0+bmFtZSk7CiAJ
-aWYgKGVycikK
-------=_Part_32997_30962540.1158954528426--
+
+--- a/mm/memory.c~do_no_pfn-tweaks
++++ a/mm/memory.c
+@@ -2276,8 +2276,10 @@ oom:
+  *
+  * It is expected that the ->nopfn handler always returns the same pfn
+  * for a given virtual mapping.
++ *
++ * Mark this `noinline' to prevent it from bloating the main pagefault code.
+  */
+-static int do_no_pfn(struct mm_struct *mm, struct vm_area_struct *vma,
++static noinline int do_no_pfn(struct mm_struct *mm, struct vm_area_struct *vma,
+ 		     unsigned long address, pte_t *page_table, pmd_t *pmd,
+ 		     int write_access)
+ {
+@@ -2376,7 +2378,7 @@ static inline int handle_pte_fault(struc
+ 					return do_no_page(mm, vma, address,
+ 							  pte, pmd,
+ 							  write_access);
+-				if (vma->vm_ops->nopfn)
++				if (unlikely(vma->vm_ops->nopfn))
+ 					return do_no_pfn(mm, vma, address, pte,
+ 							 pmd, write_access);
+ 			}
+_
+

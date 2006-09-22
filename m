@@ -1,63 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932605AbWIVPge@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932595AbWIVPjg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932605AbWIVPge (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Sep 2006 11:36:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932604AbWIVPge
+	id S932595AbWIVPjg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Sep 2006 11:39:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932603AbWIVPjg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Sep 2006 11:36:34 -0400
-Received: from minus.inr.ac.ru ([194.67.69.97]:27883 "HELO ms2.inr.ac.ru")
-	by vger.kernel.org with SMTP id S932601AbWIVPgd (ORCPT
+	Fri, 22 Sep 2006 11:39:36 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:6050 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932595AbWIVPjf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Sep 2006 11:36:33 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=ms2.inr.ac.ru;
-  b=RQa+fV2AzTFrAD1eT/vCNc0ZdMrZijEARzW4gw4xxk1eOkOL5DI7LEi/YHCjF3D1mIKVduFs0sT/Jqo5F3MYkK6C8jJ+K66ab1Ho7KJ7OQITghMCF0jpYjhcaypIR62p1IQxChg2RZWJm+qTODq3POtSz1wLpAFt6WrWseUnCrI=;
-Date: Fri, 22 Sep 2006 19:35:17 +0400
-From: Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>
-To: David Miller <davem@davemloft.net>
-Cc: master@sectorb.msk.ru, ak@suse.de, hawk@diku.dk,
-       harry@atmos.washington.edu, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org
-Subject: Re: Network performance degradation from 2.6.11.12 to 2.6.16.20
-Message-ID: <20060922153517.GB24866@ms2.inr.ac.ru>
-References: <200609181850.22851.ak@suse.de> <20060918211759.GB31746@tentacle.sectorb.msk.ru> <20060918220038.GB14322@ms2.inr.ac.ru> <20060919.124751.24100694.davem@davemloft.net>
+	Fri, 22 Sep 2006 11:39:35 -0400
+Date: Fri, 22 Sep 2006 11:39:27 -0400
+From: Dave Jones <davej@redhat.com>
+To: Stephen Olander Waters <swaters@luy.info>
+Cc: Dave Airlie <airlied@gmail.com>, Ryan Richter <ryan@tau.solarneutrino.net>,
+       linux-kernel@vger.kernel.org, dri-devel@lists.sourceforge.net
+Subject: Re: R200 lockup (was Re: DRI/X error resolution)
+Message-ID: <20060922153927.GA22531@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Stephen Olander Waters <swaters@luy.info>,
+	Dave Airlie <airlied@gmail.com>,
+	Ryan Richter <ryan@tau.solarneutrino.net>,
+	linux-kernel@vger.kernel.org, dri-devel@lists.sourceforge.net
+References: <1158898988.3280.8.camel@ix> <20060922043801.GE16939@tau.solarneutrino.net> <1158900841.3280.12.camel@ix> <20060922051622.GF16939@tau.solarneutrino.net> <21d7e9970609212229v1f8f490dx71c6d1abb104400c@mail.gmail.com> <20060922055228.GA30835@redhat.com> <1158934871.3309.12.camel@ix>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060919.124751.24100694.davem@davemloft.net>
-User-Agent: Mutt/1.5.6i
+In-Reply-To: <1158934871.3309.12.camel@ix>
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello!
+On Fri, Sep 22, 2006 at 09:21:11AM -0500, Stephen Olander Waters wrote:
+ > On Fri, 2006-09-22 at 01:52 -0400, Dave Jones wrote:
+ > > On Fri, Sep 22, 2006 at 03:29:48PM +1000, Dave Airlie wrote:
+ > >  > On 9/22/06, Ryan Richter <ryan@tau.solarneutrino.net> wrote:
+ > >  > > On Thu, Sep 21, 2006 at 11:54:01PM -0500, Stephen Olander Waters wrote:
+ > >  > > > Here is the bug I'm working from (includes hardware, software, etc.):
+ > >  > > > https://bugs.freedesktop.org/show_bug.cgi?id=6111
+ > >  > > >
+ > >  > > > DRI will work if you set: Option "BusType" "PCI" ... but that's not a
+ > >  > > > real solution. :)
+ > >  > 
+ > >  > I really think this more AGP related a bug in the driver for the VIA
+ > >  > AGP chipsets what AGP chipset are you guys using?
+ > > 
+ > > Looking at that bug though, most of the reporters are on AMD64 systems,
+ > > which uses amd64-agp, not via-agp. (We leave the chipset GART alone,
+ > > and just use the on-CPU one).
+ > 
+ > I have the Via K8T8000 chipset (MSI K8T Master2-Far motherboard)
+ > 
+ > Hrm... the Debian amd64 package in 'unstable' curiously does not include
+ > amd64-agp.ko.
+ > http://packages.debian.org/cgi-bin/search_contents.pl?searchmode=filelist&word=linux-image-2.6.17-2-amd64&version=unstable&arch=amd64&page=3&number=50
 
-> I can't even find a reference to SIOCGSTAMP in the
-> dhcp-2.0pl5 or dhcp3-3.0.3 sources shipped in Ubuntu.
-> 
-> But I will note that tpacket_rcv() expects to always get
-> valid timestamps in the SKB, it does a:
+It's probably built-in if the kernel also supports IOMMU.
 
-It is equally unlikely it uses mmapped packet socket (tpacket_rcv).
-
-I even installed that dhcp on x86_64. And I do not see anything,
-netstamp_needed remains zero when running both server and client.
-It looks like dhcp was defamed without a guilt. :-)
-
-Seems, Andi saw some leakage in netstamp_needed (value of 7),
-but I do not see this too.
-
-
-In any case, the issue is obviously more serious than just behaviour
-of some applications. On my notebook one gettimeofday() takes:
-
-	0.2 us with tsc
-	4.6 us with pm  (AND THIS CRAP IS DEFAULT!!)
-	9.4 us with pit (kinda expected)
-
-It is ridiculous. Obviosuly, nobody (not only tcpdump, but everything
-else) does not need such clock. Taking timestamp takes time comparable
-with processing the whole tcp frame. :-) I have no idea what is possible
-to do without breaking everything, but it is not something to ignore.
-This timer must be shot. :-)
-
-Alexey
+	Dave

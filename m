@@ -1,51 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932164AbWIVBL4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932166AbWIVBMg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932164AbWIVBL4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Sep 2006 21:11:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932165AbWIVBLz
+	id S932166AbWIVBMg (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Sep 2006 21:12:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932168AbWIVBMg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Sep 2006 21:11:55 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:22986 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S932164AbWIVBLy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Sep 2006 21:11:54 -0400
-Date: Thu, 21 Sep 2006 18:11:41 -0700
-From: Paul Jackson <pj@sgi.com>
-To: sekharan@us.ibm.com
-Cc: npiggin@suse.de, ckrm-tech@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org, rohitseth@google.com, menage@google.com,
-       devel@openvz.org, clameter@sgi.com
-Subject: Re: [ckrm-tech] [patch00/05]: Containers(V2)- Introduction
-Message-Id: <20060921181141.38aa0877.pj@sgi.com>
-In-Reply-To: <1158886642.6536.233.camel@linuxchandra>
-References: <1158718568.29000.44.camel@galaxy.corp.google.com>
-	<Pine.LNX.4.64.0609201252030.32409@schroedinger.engr.sgi.com>
-	<1158798715.6536.115.camel@linuxchandra>
-	<20060920173638.370e774a.pj@sgi.com>
-	<6599ad830609201742h71d112f4tae8fe390cb874c0b@mail.google.com>
-	<1158803120.6536.139.camel@linuxchandra>
-	<6599ad830609201852k12cee6eey9086247c9bdec8b@mail.google.com>
-	<1158869186.6536.205.camel@linuxchandra>
-	<6599ad830609211310s4e036e55h89bab26432d83c11@mail.google.com>
-	<1158875062.6536.210.camel@linuxchandra>
-	<6599ad830609211509x17f0306qbe6d0ef86b86cbc9@mail.google.com>
-	<1158883601.6536.223.camel@linuxchandra>
-	<20060921172427.25ddb7ea.pj@sgi.com>
-	<1158886642.6536.233.camel@linuxchandra>
-Organization: SGI
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 21 Sep 2006 21:12:36 -0400
+Received: from mail0.lsil.com ([147.145.40.20]:53903 "EHLO mail0.lsil.com")
+	by vger.kernel.org with ESMTP id S932166AbWIVBMe convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Sep 2006 21:12:34 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [Patch 6/7] megaraid_sas: adds tasklet for cmd completion
+Date: Thu, 21 Sep 2006 19:12:06 -0600
+Message-ID: <0631C836DBF79F42B5A60C8C8D4E82296DF339@NAMAIL2.ad.lsil.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [Patch 6/7] megaraid_sas: adds tasklet for cmd completion
+Thread-Index: Acbdc4wPhb/ZXq+6QSejv6PFgS+RaQAb/w6w
+From: "Patro, Sumant" <Sumant.Patro@lsil.com>
+To: "Christoph Hellwig" <hch@infradead.org>
+Cc: <James.Bottomley@SteelEye.com>, <linux-scsi@vger.kernel.org>,
+       <akpm@osdl.org>, <hch@lst.de>, <linux-kernel@vger.kernel.org>,
+       "Kolli, Neela" <Neela.Kolli@engenio.com>,
+       "Yang, Bo" <Bo.Yang@engenio.com>
+X-OriginalArrivalTime: 22 Sep 2006 01:12:07.0796 (UTC) FILETIME=[1F888340:01C6DDE4]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chandra wrote:
-> I clarified it in the reply to Paul M.
+Hello Christoph,
 
-Yup - thanks.
+	Thank you for the review of the patches.	
+	With implementation of tasklet in the driver we see a
+performance increase of about 8%, so we decided to go with it.
 
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+Regards,
+Sumant
+
+-----Original Message-----
+From: Christoph Hellwig [mailto:hch@infradead.org] 
+Sent: Thursday, September 21, 2006 4:46 AM
+To: Patro, Sumant
+Cc: James.Bottomley@SteelEye.com; linux-scsi@vger.kernel.org;
+akpm@osdl.org; hch@lst.de; linux-kernel@vger.kernel.org; Kolli, Neela;
+Yang, Bo
+Subject: Re: [Patch 6/7] megaraid_sas: adds tasklet for cmd completion
+
+On Wed, Sep 20, 2006 at 07:31:29PM -0700, Sumant Patro wrote:
+> This patch adds a tasklet for command completion.
+
+Why would you need this?  The normal scsi command completion is
+offloaded
+to the SCSI softirq ASAP so I don't see any point for those.  Do you see
+too much time spent in completion of the internal commands?
+

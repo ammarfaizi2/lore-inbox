@@ -1,121 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964810AbWIVVo6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932197AbWIVVmz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964810AbWIVVo6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Sep 2006 17:44:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965099AbWIVVo6
+	id S932197AbWIVVmz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Sep 2006 17:42:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932198AbWIVVmy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Sep 2006 17:44:58 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:24554 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S964810AbWIVVo5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Sep 2006 17:44:57 -0400
-Date: Fri, 22 Sep 2006 14:44:42 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: David Schwartz <davids@webmaster.com>
-cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: RE: The GPL: No shelter for the Linux kernel?
-In-Reply-To: <MDEHLPKNGKAHNMBLJOLKIEJNOJAB.davids@webmaster.com>
-Message-ID: <Pine.LNX.4.64.0609221440470.4388@g5.osdl.org>
-References: <MDEHLPKNGKAHNMBLJOLKIEJNOJAB.davids@webmaster.com>
+	Fri, 22 Sep 2006 17:42:54 -0400
+Received: from server6.greatnet.de ([83.133.96.26]:16800 "EHLO
+	server6.greatnet.de") by vger.kernel.org with ESMTP id S932197AbWIVVmy
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Sep 2006 17:42:54 -0400
+Message-ID: <451458EA.8080502@nachtwindheim.de>
+Date: Fri, 22 Sep 2006 23:43:06 +0200
+From: Henne <henne@nachtwindheim.de>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060911)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Andrew Morton <akpm@osdl.org>
+Cc: kernel-janitors@lists.osdl.org, linux-kernel@vger.kernel.org
+Subject: trailing whitespaces in the Linux-kernel :)
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi there,
 
-[ Sorry if this shows up twice - the first post to linux-kernel was 
-  apparently eaten by an over-eager spam filter with an agenda ;^]
+I've played around with Andrew Morton's script to remove trailing white spaces in kernel patches.
+http://www.zip.com.au/~akpm/linux/patches/stuff/tpp.txt
 
-On Fri, 22 Sep 2006, David Schwartz wrote:
-> 
-> This is probably going to be controversial, but Linus should seriously
-> consider adding a clause that those who contribute to the kernel from now on
-> consent to allow him to modify the license on their current contributions
-> and all past contributions, amending the Linux kernel license as
-> appropriate. This would at least begin to reduce this problem over the next
-> few years, leaving fewer and fewer people with claim to less and less code
-> who would have legal standing to object.
+I used it against the official patches from www.kernel.org and this is the result:
 
-It's the last thing I'd ever want to do, for all the same reasons the 
-kernel doesn't have the "or later versions" language wrt licenses.
+Kernelversion	Size of the patch	Size without trailing WS Number of trailing WS percent of patch
 
-I don't actually want people to need to trust anybody - and that very much 
-includes me - implicitly.
+2.6.12		24539730		24531535		8195			0.0334%
+2.6.13		28539730		28942472		1923			0.0066%
+2.6.14		23024224		23021802		2422			0.0105%
+2.6.15		34260720		34258304		2416			0.0071%
+2.6.16		29085385		29082215		3170			0.0109%
+2.6.17		32637502		32636357		1145			0.0035%
+2.6.18		30005947		30005192		 755			0.0025%
 
-I think people can generally trust me, but they can trust me exactly 
-because they know they don't _have_ to.
+2.6.17-rc7-mm1	26559614		26559450		 164			0.0006%
 
-The reason the poll and the whitepaper got started was that I've obviously 
-not been all that happy with the GPLv3, and while I was pretty sure I was 
-not alone in that opinion, I also realize that _everybody_ thinks that 
-they are right, and that they are supported by all other right-thinking 
-people. That's just how people work. We all think we're better than 
-average.
+Happy hacking,
+Henne
 
-So while I personally thought it was pretty clear that the GPLv2 was the 
-better license for the kernel, I didn't want to just depend on my own 
-personal opinion, but I wanted to feel that I had actually made my best to 
-ask people.
 
-Now, I could have done it all directly on the Linux-kernel mailing list, 
-but let's face it, that would just have caused a long discussion and we'd 
-not have really been any better off anyway. So instead, I did
 
-	git log | grep -i signed-off-by: |
-		cut -d: -f2- | sort | uniq -c | sort -nr | less -S
 
-which anybody else can do on their copy of their git repository, and I 
-just picked the first screenful of people (and Alan. And later we added 
-three more people after somebody pointed out that some top people use 
-multiple email addresses so my initial filtering hadn't counted for them 
-properly).
-
-[ I also double-checked by just checking the same numbers for authorship.
-  I'll very openly admit to thinking that the maintainership that goes 
-  with forwarding other peoples patches to me counts as almost as 
-  important as the authorship itself, which is why I started out with the 
-  signed-off-by count, but I also wanted to verify that the list of people 
-  makes sense either way. It did. ]
-
-In other words, maybe some people thought that the 29 names were somehow 
-"selected" to get that particular answer.  Nope. The only selection was 
-just an arbitrary cut-off-point (and the fact that I think two people 
-didn't actually vote).
-
-It wasn't meant to be really "definitive" - the poll was literally meant 
-to get _some_ kind of view into how the top developers feel. I think the 
-end result ended up being more definitive (just thanks to the very clear 
-voting pattern) than we migth have expected.
-
-So, to anybody not on the list - don't feel bad. This was about getting a 
-good _feeling_ for how the top kernel maintainers - judging purely by an 
-admittedly fairly arbitrary, but also very neutral, measure - felt about 
-the license.
-
-If the result had turned out very differently, I would probably have had 
-to seriously re-think my stance on the license. I don't guarantee that I 
-always change my mind, but I _can_ guarantee that if most of the people I 
-trust tell me I'm a dick-head, I'll at least give it a passing thought.
-
-[ Chorus: "You're a dick-head, Linus" ]
-
-Anyway, nobody got voted off the island. This was a poll, to get a view 
-into what people thought. Take it as such, and I think people will happily 
-discuss issues.
-
-Different people had different issues with the GPLv3, so the separate 
-white-paper that was written was done by a different group, and is meant 
-for a different reason - it talks about some of the issues those 
-particular people wanted to point out.
-
-My personal opinion is that a lot of the public discussion has been driven 
-by people who are motivated by the politics of the discussion. So you have 
-a lot of very vocal GPLv3 supporters. But I think that the people who 
-actually end up doing a lot of the development are usually not as vocal, 
-and haev actually not been heard very much at all.
-
-In some sense, the poll is a way for the people who actually do a lot of 
-the work to show that the FSF doesn't speak for necessarily even a very 
-big portion of actual developers.
-
-				Linus

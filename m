@@ -1,61 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750787AbWIVGgY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750804AbWIVHAA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750787AbWIVGgY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Sep 2006 02:36:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750794AbWIVGgY
+	id S1750804AbWIVHAA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Sep 2006 03:00:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750805AbWIVHAA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Sep 2006 02:36:24 -0400
-Received: from alephnull.demon.nl ([83.160.184.112]:48860 "EHLO
-	xi.wantstofly.org") by vger.kernel.org with ESMTP id S1750787AbWIVGgX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Sep 2006 02:36:23 -0400
-Date: Fri, 22 Sep 2006 08:36:21 +0200
-From: Lennert Buytenhek <buytenh@wantstofly.org>
-To: john cooper <john.cooper@third-harmonic.com>
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.18-rt1
-Message-ID: <20060922063621.GA1283@xi.wantstofly.org>
-References: <20060920141907.GA30765@elte.hu> <1158774118.29177.13.camel@c-67-180-230-165.hsd1.ca.comcast.net> <20060920182553.GC1292@us.ibm.com> <200609201436.47042.gene.heskett@verizon.net> <20060920194650.GA21037@elte.hu> <45134829.9040708@third-harmonic.com>
-Mime-Version: 1.0
+	Fri, 22 Sep 2006 03:00:00 -0400
+Received: from adelphi.physics.adelaide.edu.au ([129.127.102.1]:8667 "EHLO
+	adelphi.physics.adelaide.edu.au") by vger.kernel.org with ESMTP
+	id S1750804AbWIVG77 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Sep 2006 02:59:59 -0400
+From: Jonathan Woithe <jwoithe@physics.adelaide.edu.au>
+Message-Id: <200609220717.k8M7H0Ir021258@auster.physics.adelaide.edu.au>
+Subject: Re: Fw: 2.6.17 oops, possibly ntfs/mmap related
+To: davej@redhat.com (Dave Jones)
+Date: Fri, 22 Sep 2006 16:47:00 +0930 (CST)
+Cc: hugh@veritas.com (Hugh Dickins), akpm@osdl.org (Andrew Morton),
+       aia21@cam.ac.uk (Anton Altaparmakov),
+       jwoithe@physics.adelaide.edu.au (Jonathan Woithe),
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20060921192427.GD17065@redhat.com> from "Dave Jones" at Sep 21, 2006 03:24:27 PM
+X-Mailer: ELM [version 2.5 PL6]
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <45134829.9040708@third-harmonic.com>
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 21, 2006 at 10:19:21PM -0400, john cooper wrote:
-
-> >ok, i've uploaded -rt3:
+> On Thu, Sep 21, 2006 at 08:04:49PM +0100, Hugh Dickins wrote:
 > 
-> Attached is a patch which fixes a build problem
-> for ARM pxa270, and general ARM boot issue when
-> LATENCY_TRACE is configured.
+>  >   BUG: unable to handle kernel paging request at virtual address 0010c744
+>  >    printing eip:
+>  >   c013be50
+>  >   *pde = 00000000
+>  >   Oops: 0002 [#1]
+>  >   Modules linked in: ntfs 8139too via_agp agpgart usb_storage ehci_hcd uhci_hcd usbcore
+>  >   CPU:    0
+>  >   EIP:    0060:[<c013be50>]    Tainted: G   M  VLI
+>  >   EFLAGS: 00010282   (2.6.17 #2) 
+>  >   EIP is at anon_vma_unlink+0x16/0x3c
+>  >   eax: 0010c740   ebx: cf1070cc   ecx: cf107104   edx: cf8bc740
+>  >   esi: cf8bc740   edi: b7e82000   ebp: 00000000   esp: cdad7f58
+>  > 
+>  > I haven't worked out the disassembly in detail to support the idea
+>  > (though certainly anon_vma_unlink would be trying to list_del around
+>  > here), but that eax and esi do suggest a corrupted list: somehow the
+>  > top half of a pointer overwritten by the top half of LIST_POISON1.
+>  > 
+>  > And in Anton's case, the top half of a pointer overwritten by the
+>  > bottom half of LIST_POISON2.
+>  > 
+>  > Maybe just coincidence, and I've nothing more illuminating to add;
+>  > but just a hint of a list_del going very wrong somewhere?
 > 
-> -john
-> 
-> -- 
-> john.cooper@third-harmonic.com
+> Given a machine check happened, the state of the machine in general
+> is questionable.  I'd recommend a run of memtest86+ 
 
->  include/asm-arm/arch-pxa/timex.h |    2 ++
->  kernel/latency_trace.c           |    2 ++
->  2 files changed, 4 insertions(+)
-> =================================================================
-> --- ./kernel/latency_trace.c.ORG	2006-09-20 21:10:15.000000000 -0400
-> +++ ./kernel/latency_trace.c	2006-09-21 21:28:49.000000000 -0400
-> @@ -150,6 +150,8 @@ enum trace_flag_type
->   */
->  #if !defined(CONFIG_DEBUG_PAGEALLOC) && !defined(CONFIG_SMP) && !defined(CONFIG_ARM)
->  # define MAX_TRACE (unsigned long)(8192*16-1)
-> +#elif defined(CONFIG_ARM)      /* 4MB kernel image size limitation */
-> +# define MAX_TRACE (unsigned long)(128*2-1)
+That was already done.  No memory errors were reported over 10 passes.
 
-This patch (queued for Linus) lifts that 4MB limitation:
+Secondly, the machine check indication was only present on one of the two
+oopses we saw.  Furthermore, there was no indication in any log files
+that a machine check had occurred in the case of the second oops.
+Then again, perhaps machine checks don't get logged which would make this
+observation irrelevant.
 
-	http://www.arm.linux.org.uk/developer/patches/viewpatch.php?id=3809/2
+Could we be looking at a dying CPU?
 
-(I ran into the limit when enabling lockdep on ARM.)
-
-
-cheers,
-Lennert
+Regards
+  jonathan

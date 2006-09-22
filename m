@@ -1,89 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932141AbWIVAeK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932142AbWIVAlm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932141AbWIVAeK (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Sep 2006 20:34:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932142AbWIVAeK
+	id S932142AbWIVAlm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Sep 2006 20:41:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932145AbWIVAlm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Sep 2006 20:34:10 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:6667 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932141AbWIVAeI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Sep 2006 20:34:08 -0400
-Date: Fri, 22 Sep 2006 02:34:01 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: torvalds@osdl.org, akpm@osdl.org, gregkh@suse.de,
-       linux-kernel@vger.kernel.org, Kenneth Lee <kenlee@dg.gov.cn>
-Subject: Re: [patch] Race condition in usermodehelper.
-Message-ID: <20060922003401.GZ31906@stusta.de>
-References: <20060915104654.GA31548@skybase>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060915104654.GA31548@skybase>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+	Thu, 21 Sep 2006 20:41:42 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:31410 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932142AbWIVAll (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Sep 2006 20:41:41 -0400
+Date: Thu, 21 Sep 2006 17:41:34 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: kmannth@us.ibm.com
+Cc: lkml <linux-kernel@vger.kernel.org>,
+       Christoph Lameter <clameter@engr.sgi.com>
+Subject: Re: [BUG] i386 2.6.18 cpu_up: attempt to bring up CPU 4 failed :
+ kernel BUG at mm/slab.c:2698!
+Message-Id: <20060921174134.4e0d30f2.akpm@osdl.org>
+In-Reply-To: <1158884252.5657.38.camel@keithlap>
+References: <1158884252.5657.38.camel@keithlap>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Thanks, applied to 2.6.16 (with a note that Kenneth Lee also sent the 
-same patch independently).
+On Thu, 21 Sep 2006 17:17:31 -0700
+keith mannthey <kmannth@us.ibm.com> wrote:
 
-cu
-Adrian
+> I wanted to just give 2.6.18 a spin and I tripped over something I
+> didn't expect. 
+> 
+> 
+> cpu_up: attempt to bring up CPU 4 failed
+> kfree_debugcheck: bad ptr c15f6000h.
+> ------------[ cut here ]------------
+> kernel BUG at mm/slab.c:2698!
+> invalid opcode: 0000 [#1]
+> SMP
+> Modules linked in:
+> CPU:    0
+> EIP:    0060:[<c106ce51>]    Not tainted VLI
+> EFLAGS: 00010046   (2.6.18 #1)
+> EIP is at kfree_debugcheck+0x7f/0x90
+> eax: 00000028   ebx: 000015f6   ecx: c1025289   edx: c7653540
+> esi: c15f6000   edi: c15f6000   ebp: c764af38   esp: c764af28
+> ds: 007b   es: 007b   ss: 0068
+> Process swapper (pid: 1, ti=c764a000 task=c7653540 task.ti=c764a000)
+> Stack: c122c68d c15f6000 c1635000 00000004 c764af5c c106ef93 00000286
+> c76a77d0
+>        00000004 00000001 c1635000 00000004 00000004 c764af6c c10557f6
+> c1274eac
+>        c12743dc c764af84 c1207467 00000004 c12734c0 00000004 00000004
+> c764af98
+> Call Trace:
+>  [<c106ef93>] kfree+0x24/0x1d8
+>  [<c10557f6>] pageset_cpuup_callback+0x40/0x58
+>  [<c1207467>] notifier_call_chain+0x20/0x31
+>  [<c1031530>] blocking_notifier_call_chain+0x1d/0x2d
+>  [<c103f80c>] cpu_up+0xb5/0xcf
+>  [<c1000372>] init+0x78/0x296
+>  [<c1002005>] kernel_thread_helper+0x5/0xb
 
-On Fri, Sep 15, 2006 at 12:46:54PM +0200, Martin Schwidefsky wrote:
-> From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-> 
-> [patch] Race condition in usermodehelper.
-> 
-> There is a race between call_usermodehelper_keys, __call_usermodehelper
-> and wait_for_helper. It should only happen if preemption is enabled or
-> on a virtualized system.
-> 
-> If the cpu is preempted or put to sleep by the hypervisor in
-> __call_usermodehelper between the creation of the wait_for_helper
-> thread and the second check on sub_info->wait, the whole execution
-> of wait_for_helper including the complete call and the continuation
-> after the wait_for_completion in call_usermodehelper_keys can have
-> happened before __call_usermodehelper checks sub_info->wait for the
-> second time. Since sub_info can already have been clobbered,
-> sub_info->wait could be zero and complete is called a second time
-> with an invalid argument. This has happened on s390. It took me only
-> three days to find out ..
-> 
-> Thanks to Arnd Bergmann for his help to spot this bug.
-> 
-> Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
-> ---
-> 
->  kernel/kmod.c |    5 +++--
->  1 files changed, 3 insertions(+), 2 deletions(-)
-> 
-> diff -urpN linux-2.6/kernel/kmod.c linux-2.6-patched/kernel/kmod.c
-> --- linux-2.6/kernel/kmod.c	2006-09-15 12:17:52.000000000 +0200
-> +++ linux-2.6-patched/kernel/kmod.c	2006-09-15 12:18:00.000000000 +0200
-> @@ -196,12 +196,13 @@ static int wait_for_helper(void *data)
->  static void __call_usermodehelper(void *data)
->  {
->  	struct subprocess_info *sub_info = data;
-> +	int wait = sub_info->wait;
->  	pid_t pid;
->  
->  	/* CLONE_VFORK: wait until the usermode helper has execve'd
->  	 * successfully We need the data structures to stay around
->  	 * until that is done.  */
-> -	if (sub_info->wait)
-> +	if (wait)
->  		pid = kernel_thread(wait_for_helper, sub_info,
->  				    CLONE_FS | CLONE_FILES | SIGCHLD);
->  	else
-> @@ -211,7 +212,7 @@ static void __call_usermodehelper(void *
->  	if (pid < 0) {
->  		sub_info->retval = pid;
->  		complete(sub_info->complete);
-> -	} else if (!sub_info->wait)
-> +	} else if (!wait)
->  		complete(sub_info->complete);
->  }
->  
+I think we have two problems here:
+
+a) CPU4 didn't come up.  To diagnose that I think we'll need to ask you
+   to into cpu_up(), add debug printks to blocking_notifier_call_chain(),
+   work out which entry on that chain returned NOTIFY_BAD, then work out
+   why it did so.
+
+b) pageset_cpuup_callback()'s CPU_UP_CANCELED path possibly hasn't been
+   tested before.  I'd be guessing that we're not zeroing out the
+   zone.pageset[] array when the `struct zone' is first allocated, but I
+   don't immediately recall where that code lives.
+
 

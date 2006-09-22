@@ -1,47 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932180AbWIVTSG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964779AbWIVTXT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932180AbWIVTSG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Sep 2006 15:18:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932177AbWIVTSF
+	id S964779AbWIVTXT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Sep 2006 15:23:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964787AbWIVTXT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Sep 2006 15:18:05 -0400
-Received: from fmmailgate02.web.de ([217.72.192.227]:11207 "EHLO
-	fmmailgate02.web.de") by vger.kernel.org with ESMTP id S932174AbWIVTLt
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Sep 2006 15:11:49 -0400
-Message-ID: <0e2001c6de7a$fe756280$962e8d52@aldipc>
-From: "roland" <devzero@web.de>
-To: <linux-kernel@vger.kernel.org>
-Subject: I/O statistics per process
-Date: Fri, 22 Sep 2006 21:12:05 +0200
-MIME-Version: 1.0
-Content-Type: text/plain;
-	format=flowed;
-	charset="iso-8859-1";
-	reply-type=original
+	Fri, 22 Sep 2006 15:23:19 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:36013 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S964779AbWIVTXS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Sep 2006 15:23:18 -0400
+Date: Fri, 22 Sep 2006 12:22:07 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+Cc: lkml <linux-kernel@vger.kernel.org>, David Miller <davem@davemloft.net>,
+       Ulrich Drepper <drepper@redhat.com>, netdev <netdev@vger.kernel.org>,
+       Zach Brown <zach.brown@oracle.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       Chase Venters <chase.venters@clientec.com>
+Subject: Re: [take19 0/4] kevent: Generic event handling mechanism.
+Message-Id: <20060922122207.3b716028.akpm@osdl.org>
+In-Reply-To: <11587449471424@2ka.mipt.ru>
+References: <115a6230591036@2ka.mipt.ru>
+	<11587449471424@2ka.mipt.ru>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2900.2180
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello list,
+On Wed, 20 Sep 2006 13:35:47 +0400
+Evgeniy Polyakov <johnpol@2ka.mipt.ru> wrote:
 
-it`s great that linux now has i/o re-nice with cfq now, but how can the 
-admin determine HOW MUCH i/o a process is actually generating ?
+> Generic event handling mechanism.
+> 
+> Consider for inclusion.
 
-have seen this on windows (process explorer from sysinternals) and on 
-solaris: (psio http://users.tpg.com.au/bdgcvb/psio.html  and pio
-http://www.stormloader.com/yonghuang/freeware/pio.html),  but what`s the 
-Linux (commandline) equivalent ?
-
-is there a modified top/ps with i/o column, or is there yet missing 
-something at the kernel level for getting that counters from ?
-
-
-regards
-Roland K.
-systems engineer. 
-
+Ulrich's objections sounded substantial, and afaik remain largely
+unresolved.   How do we sort this out?

@@ -1,83 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932148AbWIVTIK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932075AbWIVTJn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932148AbWIVTIK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Sep 2006 15:08:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932163AbWIVTIK
+	id S932075AbWIVTJn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Sep 2006 15:09:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932165AbWIVTJn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Sep 2006 15:08:10 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:57566 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S932148AbWIVTII (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Sep 2006 15:08:08 -0400
-Date: Fri, 22 Sep 2006 12:07:49 -0700 (PDT)
-From: Christoph Lameter <clameter@sgi.com>
-To: Jesse Barnes <jesse.barnes@intel.com>
-cc: Martin Bligh <mbligh@mbligh.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, Rohit Seth <rohitseth@google.com>
-Subject: Re: ZONE_DMA
-In-Reply-To: <200609221206.57701.jesse.barnes@intel.com>
-Message-ID: <Pine.LNX.4.64.0609221206410.8675@schroedinger.engr.sgi.com>
-References: <20060920135438.d7dd362b.akpm@osdl.org> <200609221139.03250.jesse.barnes@intel.com>
- <Pine.LNX.4.64.0609221139570.8356@schroedinger.engr.sgi.com>
- <200609221206.57701.jesse.barnes@intel.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 22 Sep 2006 15:09:43 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:37064 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932075AbWIVTJm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Sep 2006 15:09:42 -0400
+Date: Fri, 22 Sep 2006 21:01:06 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Pavel Machek <pavel@suse.cz>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Thomas Gleixner <tglx@linutronix.de>, John Stultz <johnstul@us.ibm.com>,
+       Arjan van de Ven <arjan@infradead.org>
+Subject: Re: 2.6.19 -mm merge plans
+Message-ID: <20060922190106.GA32638@elte.hu>
+References: <20060920135438.d7dd362b.akpm@osdl.org> <20060921131433.GA4182@elte.hu> <20060922130648.GD4055@ucw.cz>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060922130648.GD4055@ucw.cz>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -2.9
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.9 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.4996]
+	-0.1 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 22 Sep 2006, Jesse Barnes wrote:
 
-> Right, being able to allocate from specific ranges would obviate the need 
-> for GFP_DMA and the various zones.  It would come with a cost though since 
-> the VM would have to become aware of pressure at various ranges rather 
-> than just on zones like we have now.  I think that's where things get 
-> tricky.
+* Pavel Machek <pavel@suse.cz> wrote:
 
-Here is a hyperthetical use scenario (no code yet to do this in the page 
-allocator, fake patch for discussion only):
+> > would be nice to merge the -hrt queue that goes right ontop this 
+> > queue. Even if HIGH_RES_TIMERS is "default n" in the beginning. That 
+> > gives us high-res timers and dynticks which are both very important 
+> > features to certain classes of users/devices.
+> 
+> dynticks give benefit of 0.3W, or 20minutes (IIRC) from 8hours on 
+> thinkpad x60... and they were around for way too long. (When baseline 
+> is hz=250, it is 0.5W from hz=1000 baseline). It would be cool to 
+> finally merge them.
 
-Index: linux-2.6.18-rc7-mm1/arch/i386/kernel/pci-dma.c
-===================================================================
---- linux-2.6.18-rc7-mm1.orig/arch/i386/kernel/pci-dma.c	2006-09-12 20:41:36.000000000 -0500
-+++ linux-2.6.18-rc7-mm1/arch/i386/kernel/pci-dma.c	2006-09-22 13:59:29.017611573 -0500
-@@ -26,6 +26,8 @@ void *dma_alloc_coherent(struct device *
- 			   dma_addr_t *dma_handle, gfp_t gfp)
- {
- 	void *ret;
-+	unsigned long low = 0L;
-+	unsigned long high = 0xffffffff;
- 	struct dma_coherent_mem *mem = dev ? dev->dma_mem : NULL;
- 	int order = get_order(size);
- 	/* ignore region specifiers */
-@@ -44,10 +46,14 @@ void *dma_alloc_coherent(struct device *
- 			return NULL;
- 	}
- 
--	if (dev == NULL || (dev->coherent_dma_mask < 0xffffffff))
--		gfp |= GFP_DMA;
-+	if (dev == NULL)
-+		/* Apply safe ISA LIMITS */
-+		high = 16*1024*1024L;
-+	else
-+	if (dev->coherent_dma_mask < 0xffffffff)
-+		high = dev->coherent_dma_mask;
- 
--	ret = (void *)__get_free_pages(gfp, order);
-+	ret = page_address(alloc_pages_range(low, high, gfp, order));
- 
- 	if (ret != NULL) {
- 		memset(ret, 0, size);
-Index: linux-2.6.18-rc7-mm1/include/linux/gfp.h
-===================================================================
---- linux-2.6.18-rc7-mm1.orig/include/linux/gfp.h	2006-09-19 09:26:58.000000000 -0500
-+++ linux-2.6.18-rc7-mm1/include/linux/gfp.h	2006-09-22 14:02:34.298613635 -0500
-@@ -136,6 +136,9 @@ static inline struct page *alloc_pages_n
- 		NODE_DATA(nid)->node_zonelists + gfp_zone(gfp_mask));
- }
- 
-+extern struct page *alloc_pages_range(unsigned long low, unsigned long high,
-+			gfp_t gfp_mask, unsigned int order);
-+
- #ifdef CONFIG_NUMA
- extern struct page *alloc_pages_current(gfp_t gfp_mask, unsigned order);
- 
+note that this is a new implementation of dynticks though, not Con's 
+older stuff which you probably used, right? But it's fairly low-impact 
+(just a few lines ontop of hrtimers, here and there), ontop of the 
+long-existing -hrt queue.
+
+	Ingo

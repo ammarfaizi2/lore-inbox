@@ -1,61 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964855AbWIVSTc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964857AbWIVSUf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964855AbWIVSTc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Sep 2006 14:19:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964856AbWIVSTb
+	id S964857AbWIVSUf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Sep 2006 14:20:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964858AbWIVSUf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Sep 2006 14:19:31 -0400
-Received: from hobbit.corpit.ru ([81.13.94.6]:42320 "EHLO hobbit.corpit.ru")
-	by vger.kernel.org with ESMTP id S964855AbWIVSTb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Sep 2006 14:19:31 -0400
-Message-ID: <4514292C.5000309@tls.msk.ru>
-Date: Fri, 22 Sep 2006 22:19:24 +0400
-From: Michael Tokarev <mjt@tls.msk.ru>
-Organization: Telecom Service, JSC
-User-Agent: Mail/News 1.5 (X11/20060318)
+	Fri, 22 Sep 2006 14:20:35 -0400
+Received: from mx1.cs.washington.edu ([128.208.5.52]:50911 "EHLO
+	mx1.cs.washington.edu") by vger.kernel.org with ESMTP
+	id S964857AbWIVSUe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Sep 2006 14:20:34 -0400
+Date: Fri, 22 Sep 2006 11:20:22 -0700 (PDT)
+From: David Rientjes <rientjes@cs.washington.edu>
+To: Andrew Morton <akpm@osdl.org>
+cc: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>, kmannth@us.ibm.com,
+       linux-kernel@vger.kernel.org, clameter@engr.sgi.com
+Subject: [PATCH] do not free non slab allocated per_cpu_pageset
+In-Reply-To: <Pine.LNX.4.64N.0609212108360.30543@attu1.cs.washington.edu>
+Message-ID: <Pine.LNX.4.64N.0609221117210.5858@attu2.cs.washington.edu>
+References: <1158884252.5657.38.camel@keithlap> <20060921174134.4e0d30f2.akpm@osdl.org>
+ <1158888843.5657.44.camel@keithlap> <20060922112427.d5f3aef6.kamezawa.hiroyu@jp.fujitsu.com>
+ <20060921200806.523ce0b2.akpm@osdl.org> <20060922123045.d7258e13.kamezawa.hiroyu@jp.fujitsu.com>
+ <20060921204629.49caa95f.akpm@osdl.org> <Pine.LNX.4.64N.0609212108360.30543@attu1.cs.washington.edu>
 MIME-Version: 1.0
-To: "H. Peter Anvin" <hpa@zytor.com>
-CC: Johannes Stezenbach <js@linuxtv.org>,
-       Jan Engelhardt <jengelh@linux01.gwdg.de>,
-       Lennart Sorensen <lsorense@csclub.uwaterloo.ca>,
-       Dax Kelson <dax@gurulabs.com>,
-       Linux kernel <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: Smaller compressed kernel source tarballs?
-References: <1158870777.24172.23.camel@mentorng.gurulabs.com> <20060921204250.GN13641@csclub.uwaterloo.ca> <45130792.9040104@zytor.com> <20060922140007.GK13639@csclub.uwaterloo.ca> <Pine.LNX.4.61.0609221811560.12304@yvahk01.tjqt.qr> <4514103D.8010303@zytor.com> <20060922174137.GA29929@linuxtv.org> <451426C9.9040002@zytor.com>
-In-Reply-To: <451426C9.9040002@zytor.com>
-X-Enigmail-Version: 0.94.0.0
-OpenPGP: id=4F9CF57E
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-H. Peter Anvin wrote:
-> Johannes Stezenbach wrote:
->>
->> It seems the "lzma" program from LZMA Utils can:
->>
->> http://tukaani.org/lzma/
->>   "Very similar command line interface than what gzip and bzip2 have."
->>
->> (Debian sid has this in the "lzma" package.)
->>
+On Thu, 21 Sep 2006, David Rientjes wrote:
+
+> The _only_ time zone_pcp is slab allocated is through process_zones().  So 
+> if we have an error on kmalloc_node for that zone_pcp, all previous 
+> allocations are freed and process_zones() fails for that cpu.
 > 
-> Yes, it can.  If that's the way things go then I don't mind it, however,
-> my biggest problem with lzma utils is that the command line parsing is
-> done in a shell script wrapper.
+> We are guaranteed that the process_zones() for cpu 0 succeeds, otherwise 
+> the pageset notifier isn't registered.  On CPU_UP_PREPARE for cpu 4 in 
+> this case, process_zones() fails because we couldn't kmalloc the 
+> per_cpu_pageset and we return NOTIFY_BAD.  This prints the failed message 
+> in the report and then CPU_UP_CANCELED is sent back to the notifier which 
+> attempts to kfree the zone that was never kmalloc'd.
+> 
+> The fix will work except for the case that zone_pcp is never set to NULL 
+> as it should be.
+> 
 
-Well, I don't see any shell code here, in /usr/bin/lzma as in istalled from
-debian version 4.43-2.
+As reported by Keith, the following 2.6.18 patch stops the panic 
+associated with attempting to free a non slab-allocated per_cpu_pageset.
 
-But note that this lzma utility does not have any 'magic number' and does
-no crc checks.  On the site it's said lzma(sdk) is under rewrite to support
-new format with magic number and crc checks...
+Signed-off-by: David Rientjes <rientjes@cs.washington.edu>
+---
+ mm/page_alloc.c |    4 +++-
+ 1 files changed, 3 insertions(+), 1 deletions(-)
 
-After reading this thread I wanted to teach GNU tar to automatically recognize
-..tar.lzma archives - and failed, eactly because of the lack of magic number
-at the start of a file...
-
-/mjt
+diff --git a/mm/page_alloc.c b/mm/page_alloc.c
+index 54a4f53..e16173f 100644
+--- a/mm/page_alloc.c
++++ b/mm/page_alloc.c
+@@ -1845,8 +1845,10 @@ static inline void free_zone_pagesets(in
+ 	for_each_zone(zone) {
+ 		struct per_cpu_pageset *pset = zone_pcp(zone, cpu);
+ 
++		/* Free per_cpu_pageset if it is slab allocated */
++		if (pset != &boot_pageset[cpu])
++			kfree(pset);
+ 		zone_pcp(zone, cpu) = NULL;
+-		kfree(pset);
+ 	}
+ }
+ 

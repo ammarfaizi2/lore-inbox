@@ -1,56 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964911AbWIVXTN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964928AbWIVXch@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964911AbWIVXTN (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Sep 2006 19:19:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964914AbWIVXTN
+	id S964928AbWIVXch (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Sep 2006 19:32:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964927AbWIVXch
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Sep 2006 19:19:13 -0400
-Received: from sandeen.net ([209.173.210.139]:46445 "EHLO sandeen.net")
-	by vger.kernel.org with ESMTP id S964911AbWIVXTM (ORCPT
+	Fri, 22 Sep 2006 19:32:37 -0400
+Received: from e36.co.us.ibm.com ([32.97.110.154]:6785 "EHLO e36.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S964925AbWIVXcg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Sep 2006 19:19:12 -0400
-Message-ID: <45146F76.3010301@sandeen.net>
-Date: Fri, 22 Sep 2006 18:19:18 -0500
-From: Eric Sandeen <sandeen@sandeen.net>
-User-Agent: Thunderbird 1.5.0.7 (Macintosh/20060909)
+	Fri, 22 Sep 2006 19:32:36 -0400
+Date: Fri, 22 Sep 2006 18:32:35 -0500
+To: Luca <kronos.it@gmail.com>
+Cc: linux-scsi@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz,
+       linuxppc-dev@ozlabs.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH]: PCI Error Recovery: Symbios SCSI device driver
+Message-ID: <20060922233235.GB14213@austin.ibm.com>
+References: <20060921231314.GW29167@austin.ibm.com> <20060922220629.GA4600@dreamland.darkstar.lan>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Timothy Shimmin <tes@sgi.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       xfs mailing list <xfs@oss.sgi.com>
-Subject: Re: [PATCH -mm] rescue large xfs preferred iosize from the inode
- diet patch
-References: <45131334.6050803@sandeen.net>	<45134472.7080002@sgi.com> <20060922161040.609286fa.akpm@osdl.org>
-In-Reply-To: <20060922161040.609286fa.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060922220629.GA4600@dreamland.darkstar.lan>
+User-Agent: Mutt/1.5.11
+From: linas@austin.ibm.com (Linas Vepstas)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-
->> So the fix for this is coming soon (and the fix is different from the
->> one above).
->>
+On Sat, Sep 23, 2006 at 12:06:29AM +0200, Luca wrote:
 > 
-> eh?  Eric's patch is based on -mm, which includes the XFS git tree.  If I
-> go and merge the inode-diet patches from -mm, XFS gets broken until you
-> guys merge the above mystery patch.  (I prefer to merge the -mm patches
-> after all the git trees have gone, but sometimes maintainers dawdle and I
-> get bored of waiting).
+> Space after function name? You put in other places too, it's not
+> consistent with the rest of the patch.
+
+Oops. I was also coding on a different project recently, with a
+different style.  I'll send a revised patch in a moment.
+
+> > +       if (pci_enable_device(pdev))
+> > +               printk (KERN_ERR "%s: device setup failed most egregiously\n",
+> > +                           sym_name(np));
 > 
-> Is git://oss.sgi.com:8090/nathans/xfs-2.6 obsolete, or are you hiding stuff
-> from me?  ;)
-> 
-> 
-well it's in cvs:
+> Is the failure of pci_enable_device ignored on purpose?
 
-http://oss.sgi.com/cgi-bin/cvsweb.cgi/xfs-linux/linux-2.6/xfs_iops.c.diff?r1=text&tr1=1.254&r2=text&tr2=1.253&f=h
+No. :-( Thanks for the catch. I think I got cross-eyed staring at the code.
 
-but I'm too lazy to check git on a friday evening. :)
-
-Well, sgi-guys, I'll let you sort out which patch you want.  Sorry for not 
-checking cvs first!
-
--Eric
-
+--linas

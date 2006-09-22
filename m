@@ -1,85 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964830AbWIVToY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964818AbWIVTr2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964830AbWIVToY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Sep 2006 15:44:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964832AbWIVToY
+	id S964818AbWIVTr2 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Sep 2006 15:47:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964834AbWIVTr2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Sep 2006 15:44:24 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.149]:37510 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S964830AbWIVToX
+	Fri, 22 Sep 2006 15:47:28 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:33948 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S964818AbWIVTr2
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Sep 2006 15:44:23 -0400
-Subject: Re: [BUG] i386 2.6.18 cpu_up: attempt to bring up CPU 4 failed :
-	kernel BUG at mm/slab.c:2698!
-From: keith mannthey <kmannth@us.ibm.com>
-Reply-To: kmannth@us.ibm.com
-To: David Rientjes <rientjes@cs.washington.edu>
-Cc: Andrew Morton <akpm@osdl.org>,
-       KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>,
-       lkml <linux-kernel@vger.kernel.org>, clameter@engr.sgi.com
-In-Reply-To: <Pine.LNX.4.64N.0609212108360.30543@attu1.cs.washington.edu>
-References: <1158884252.5657.38.camel@keithlap>
-	 <20060921174134.4e0d30f2.akpm@osdl.org> <1158888843.5657.44.camel@keithlap>
-	 <20060922112427.d5f3aef6.kamezawa.hiroyu@jp.fujitsu.com>
-	 <20060921200806.523ce0b2.akpm@osdl.org>
-	 <20060922123045.d7258e13.kamezawa.hiroyu@jp.fujitsu.com>
-	 <20060921204629.49caa95f.akpm@osdl.org>
-	 <Pine.LNX.4.64N.0609212108360.30543@attu1.cs.washington.edu>
+	Fri, 22 Sep 2006 15:47:28 -0400
+Subject: Re: [RFC] Initial alpha-0 for new page allocator API
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Andi Kleen <ak@suse.de>
+Cc: Christoph Lameter <clameter@sgi.com>, Martin Bligh <mbligh@mbligh.org>,
+       akpm@google.com, linux-kernel@vger.kernel.org,
+       Christoph Hellwig <hch@infradead.org>,
+       James Bottomley <James.Bottomley@steeleye.com>, linux-mm@kvack.org
+In-Reply-To: <200609222110.25118.ak@suse.de>
+References: <Pine.LNX.4.64.0609212052280.4736@schroedinger.engr.sgi.com>
+	 <200609220817.59801.ak@suse.de>
+	 <Pine.LNX.4.64.0609220934040.7083@schroedinger.engr.sgi.com>
+	 <200609222110.25118.ak@suse.de>
 Content-Type: text/plain
-Organization: Linux Technology Center IBM
-Date: Fri, 22 Sep 2006 12:44:18 -0700
-Message-Id: <1158954258.7292.6.camel@keithlap>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
 Content-Transfer-Encoding: 7bit
+Date: Fri, 22 Sep 2006 21:10:50 +0100
+Message-Id: <1158955850.24572.37.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-09-21 at 21:09 -0700, David Rientjes wrote: 
-> On Thu, 21 Sep 2006, Andrew Morton wrote:
+Ar Gwe, 2006-09-22 am 21:10 +0200, ysgrifennodd Andi Kleen:
+> We already have that scheme. Any existing driver should be already converted
+> away from GFP_DMA towards dma_*/pci_*. dma_* knows all the magic
+> how to get memory for the various ranges. No need to mess up the 
+> main allocator.
 
-Well I think there is 3 bug total exposed my unique situation. I think
-all 3 issues are generic mainline bugs that have been around for
-awhile.   
+Add an isa_device class and that'll fall into place nicely. isa_alloc_*
+will end up asking for 20bit DMA and it will work nicely.
 
-1. SRAT not being mapped (patch submitted to fix boot_ioremap code)
-  This caused cpus to fail to be borough on line and panicked the box. 
+> Anyways, i suppose what could be added as a fallback would be a 
+> really_slow_brute_force_try_to_get_something_in_this_range() allocator
 
-2.  The panic is bad.  I have so far tested the patch David
-submitted....  It allowed the cpu_up calls to fail without panicking the
-box.  Andrew do you want me to test yours or ???
+Implementation detail although I note that the defrag/antifrag proposal
+made at the vm summit would mean it mostly come out for free. If we have
+an isa_dma_* API then the detail is platform specific. 
 
-3. Flat mode i386 numa on a real numa system is broken.  If there is
-only 1 node in the system cpus should think they are apart of some other
-node.     Patch below.  
+> that basically goes through the buddy lists freeing in >O(1) 
+> and does some directed reclaim, but that would likely be a separate
+> path anyways and not need your new structure to impact the O(1)
+> allocator.
 
+Just search within the candidate 4MB (or whatever it is these days)
+chunks.
 
+> I am still unconvinced of the real need. The only gaping hole was 
+> GFP_DMA32, which we fixed already.
 
-  If cases where a real numa system boots the Flat numa option make sure
-the cpus don't claim to be apart on a non-existent node.
+Various devices are 30 and 31bit today - some broadcom for example.
 
+> Ok there is aacraid with its weird 2GB limit, 
+> Ok now I'm sure someone will come up with a counter example (hi Alan), but:
+> - Does the device really need more than 16MB?
+> - How often is it used on systems with >1/2GB with a 64bit kernel?
+> [consider that 64bit kernels don't support ISA]
+> - How many users of that particular thing around?
 
-Signed-off-by: Keith Mannthey <kmannth@us.ibm.com>
+Ok the examples I know about are
+- ESS Maestro series audio - PCI, common on 32bit boxes a few years ago,
+no longer shipped and unlikely to be met on 64bit. Also slow allocations
+is fine.
+- Some aacraid, mostly only for control structures. Those found on 64bit
+are probably fine with slow alloc.
+- Broadcom stuff - not sure if 30 or 31bit, around today and on 64bit
+- Floppy controller
 
---- linux-2.6.18/arch/i386/kernel/smpboot.c	2006-09-19
-20:42:06.000000000 -0700
-+++ linux-2.6.18-workes/arch/i386/kernel/smpboot.c	2006-09-21
-21:57:55.000000000 -0700
-@@ -642,9 +642,13 @@
- {
- 	int cpu = smp_processor_id();
- 	int apicid = logical_smp_processor_id();
--
-+	int node = apicid_to_node(apicid);
-+	
-+	if (!node_online(node))
-+		node = first_online_node;
-+	
- 	cpu_2_logical_apicid[cpu] = apicid;
--	map_cpu_to_node(cpu, apicid_to_node(apicid));
-+	map_cpu_to_node(cpu, node);
- }
- 
- static void unmap_cpu_to_logical_apicid(int cpu)
+> I think my point stands.
 
+I think its worthy of discussion.
 

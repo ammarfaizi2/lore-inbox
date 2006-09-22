@@ -1,87 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932393AbWIVNCs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932395AbWIVNDV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932393AbWIVNCs (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Sep 2006 09:02:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932395AbWIVNCr
+	id S932395AbWIVNDV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Sep 2006 09:03:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932398AbWIVNDV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Sep 2006 09:02:47 -0400
-Received: from nz-out-0102.google.com ([64.233.162.196]:17253 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S932393AbWIVNCr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Sep 2006 09:02:47 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:in-reply-to:references:x-mailer:mime-version:content-type:content-transfer-encoding;
-        b=IWJkjkfnBlJR0G5T0sP08DmuTrYwRn47nkHDFsErkVUbXZh8g2WwP6Vo8o+gPUYkzy4mHSUrO7bluYO6F9mEH42aR/5wCl2Fh4O94jh0sTBN8k7GIYNgCrUPJgzCicRGCT7ShSZi3dwXCSmzZRrJWUYAWhElovB4pH2ewp2IIIY=
-Date: Fri, 22 Sep 2006 15:02:42 +0200
-From: Alejandro Riveira =?UTF-8?B?RmVybsOhbmRleg==?= 
-	<ariveira@gmail.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: "set_rtc_mmss: can't update from m to n" cluttering my logs
-Message-ID: <20060922150242.4a46287b@localhost.localdomain>
-In-Reply-To: <20060918192431.42ec5df5.akpm@osdl.org>
-References: <20060918131303.2aed4dc4@localhost.localdomain>
-	<20060918192431.42ec5df5.akpm@osdl.org>
-X-Mailer: Sylpheed-Claws 2.1.1 (GTK+ 2.8.20; i486-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8bit
+	Fri, 22 Sep 2006 09:03:21 -0400
+Received: from 195-13-16-24.net.novis.pt ([195.23.16.24]:1969 "EHLO
+	bipbip.grupopie.com") by vger.kernel.org with ESMTP id S932395AbWIVNDU
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Sep 2006 09:03:20 -0400
+Message-ID: <4513DF11.802@grupopie.com>
+Date: Fri, 22 Sep 2006 14:03:13 +0100
+From: Paulo Marques <pmarques@grupopie.com>
+Organization: Grupo PIE
+User-Agent: Thunderbird 1.5.0.7 (X11/20060909)
+MIME-Version: 1.0
+To: Pekka Enberg <penberg@cs.helsinki.fi>
+CC: Jiri Slaby <jirislaby@gmail.com>, Om Narasimhan <om.turyx@gmail.com>,
+       linux-kernel@vger.kernel.org, kernel-janitors@lists.osdl.org
+Subject: Re: [KJ] kmalloc to kzalloc patches for drivers/block [sane version]
+References: <6b4e42d10609202311t47038692x5627f51d69f28209@mail.gmail.com>	 <20060921072017.GA27798@us.ibm.com>	 <6b4e42d10609212240i3d02241djbdaa0176ab9bfb2b@mail.gmail.com>	 <6b4e42d10609212304o52bbc9b4y434bbd7ef71281e3@mail.gmail.com>	 <4513A21C.40704@gmail.com> <4513C9BF.7040706@grupopie.com> <84144f020609220503n4c495542x2130165e371ec85c@mail.gmail.com>
+In-Reply-To: <84144f020609220503n4c495542x2130165e371ec85c@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-El Mon, 18 Sep 2006 19:24:31 -0700
-Andrew Morton <akpm@osdl.org> escribió:
-
-> On Mon, 18 Sep 2006 13:13:03 +0200
-> Alejandro Riveira Fernández  <ariveira@gmail.com> wrote:
+Pekka Enberg wrote:
+> On 9/22/06, Paulo Marques <pmarques@grupopie.com> wrote:
+>> Agreed on every comment except this one. That complex expression is
+>> really just a constant in the end, so there is no point in using kcalloc.
 > 
-> > Hi, i'm using a 2.6.18-rc7 in an 3880+ X2 AM2 with an uli 1697 chipset
-> > and i'm seeing this on the logs
-> > 
-> > Sep 18 12:49:34 localhost last message repeated 17 times
-> > Sep 18 12:49:40 localhost last message repeated 3 times
-> > Sep 18 12:49:44 localhost kernel: set_rtc_mmss: can't update from 110 to 49
-> > Sep 18 12:49:57 localhost last message repeated 8 times
-> > Sep 18 12:50:01 localhost kernel: set_rtc_mmss: can't update from 110 to 50
-> > Sep 18 12:50:32 localhost last message repeated 17 times
-> > Sep 18 12:50:41 localhost last message repeated 4 times
-> > Sep 18 12:50:42 localhost kernel: set_rtc_mmss: can't update from 111 to 50
-> 
-> That code hasn't really changed in a long time.  Are you able to determine
-> approximately which kernel version introduced this problem?
+> The code is arguably easier to read with kcalloc.
 
+I was afraid the kcalloc call would have the added overhead of an extra 
+parameter and a multiplication, but since it is actually declared as a 
+static inline, gcc should optimize everything away (because both 
+parameters are constants) and give the same result in the end.
 
-i can no know because i changed hardware with that kernel already
-installed :(.
+So, its fine by me either way.
 
-Btw the messages are gone with 2.6.18 final and i suspect that
-everything comes down to a buggy bios
+-- 
+Paulo Marques - www.grupopie.com
 
-[You can ignore the rest of msg it is just a rant]
-
- Sometimes it messes up system date and time forcing fsck in hd's and
-other headaches. i see a msg at boot time about bios not reserving
-e820 memory and PCI: mmio disabled or something like that. i can not
-tell for sure because oddly enough the msg does not end up in logs ??)
-
-
-> 
-> Thanks.  
-
-Thanks to you for the time you invested in this useless msg and big
-thanks for your work in Linux
-
-
----
-
-> All is fine except that I can reliably "oops" it simply by trying to 
-> read from /proc/apm (e.g. cat /proc/apm).
-> oops output and ksymoops-2.3.4 output is attached.
-> Is there anything else I can contribute?
-
-The latitude and longtitude of the bios writers current position, and
-a ballistic missile.
-
-                --Alan Cox LKML-December 08,2000 
-
+"The face of a child can say it all, especially the
+mouth part of the face."

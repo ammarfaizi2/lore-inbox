@@ -1,52 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932129AbWIVS51@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932131AbWIVTGU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932129AbWIVS51 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Sep 2006 14:57:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932131AbWIVS51
+	id S932131AbWIVTGU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Sep 2006 15:06:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932148AbWIVTGU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Sep 2006 14:57:27 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:30114 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932129AbWIVS50 (ORCPT
+	Fri, 22 Sep 2006 15:06:20 -0400
+Received: from mga01.intel.com ([192.55.52.88]:41601 "EHLO mga01.intel.com")
+	by vger.kernel.org with ESMTP id S932131AbWIVTGT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Sep 2006 14:57:26 -0400
-Date: Fri, 22 Sep 2006 11:56:46 -0700
-From: Andrew Morton <akpm@osdl.org>
+	Fri, 22 Sep 2006 15:06:19 -0400
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.09,204,1157353200"; 
+   d="scan'208"; a="135255329:sNHT17433227"
+From: Jesse Barnes <jesse.barnes@intel.com>
 To: Christoph Lameter <clameter@sgi.com>
-Cc: David Rientjes <rientjes@cs.washington.edu>,
-       KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>, kmannth@us.ibm.com,
-       linux-kernel@vger.kernel.org, clameter@engr.sgi.com
-Subject: Re: [PATCH] do not free non slab allocated per_cpu_pageset
-Message-Id: <20060922115646.fd1040e8.akpm@osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0609221141270.8356@schroedinger.engr.sgi.com>
-References: <1158884252.5657.38.camel@keithlap>
-	<20060921174134.4e0d30f2.akpm@osdl.org>
-	<1158888843.5657.44.camel@keithlap>
-	<20060922112427.d5f3aef6.kamezawa.hiroyu@jp.fujitsu.com>
-	<20060921200806.523ce0b2.akpm@osdl.org>
-	<20060922123045.d7258e13.kamezawa.hiroyu@jp.fujitsu.com>
-	<20060921204629.49caa95f.akpm@osdl.org>
-	<Pine.LNX.4.64N.0609212108360.30543@attu1.cs.washington.edu>
-	<Pine.LNX.4.64N.0609221117210.5858@attu2.cs.washington.edu>
-	<20060922113924.014ce28f.akpm@osdl.org>
-	<Pine.LNX.4.64.0609221141270.8356@schroedinger.engr.sgi.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Subject: Re: ZONE_DMA
+Date: Fri, 22 Sep 2006 12:06:57 -0700
+User-Agent: KMail/1.9.4
+Cc: Martin Bligh <mbligh@mbligh.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, Rohit Seth <rohitseth@google.com>
+References: <20060920135438.d7dd362b.akpm@osdl.org> <200609221139.03250.jesse.barnes@intel.com> <Pine.LNX.4.64.0609221139570.8356@schroedinger.engr.sgi.com>
+In-Reply-To: <Pine.LNX.4.64.0609221139570.8356@schroedinger.engr.sgi.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200609221206.57701.jesse.barnes@intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 22 Sep 2006 11:43:32 -0700 (PDT)
-Christoph Lameter <clameter@sgi.com> wrote:
+On Friday, September 22, 2006 11:40 am, Christoph Lameter wrote:
+> On Fri, 22 Sep 2006, Jesse Barnes wrote:
+> > Right, the internals are arch specific and don't necessarily have to
+> > rely on a zone, depending on their DMA constraints.
+>
+> From what I can see the arch specific do some tricks and then pick
+> GFP_DMA or something to get memory that is appropriately limited. Having
+> the ability to retrieve pages from a certain range from the page
+> allocator would fix this issue and improve the ability of devices to
+> allocate memory.
 
-> On Fri, 22 Sep 2006, Andrew Morton wrote:
-> 
-> > I think I preferred my earlier fix, recently reworked as:
-> 
-> The problem is though that the pcp pointers must point to the static pcp 
-> arrays for bootup to succeed under NUMA. Your patch may work under SMP. 
-> For NUMA you may zap pointers to valid static pcps.
+Right, being able to allocate from specific ranges would obviate the need 
+for GFP_DMA and the various zones.  It would come with a cost though since 
+the VM would have to become aware of pressure at various ranges rather 
+than just on zones like we have now.  I think that's where things get 
+tricky.
 
-This is unclear to me.  Do you mean "the pcps must be usable during
-process_zones()'s call to kmalloc_node())" or do you mean "the pcps must
-always be usable" (in which case more work needs to be done) or what?
+Jesse

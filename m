@@ -1,48 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964865AbWIVS1f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964866AbWIVS1v@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964865AbWIVS1f (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Sep 2006 14:27:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964867AbWIVS1f
+	id S964866AbWIVS1v (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Sep 2006 14:27:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964867AbWIVS1u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Sep 2006 14:27:35 -0400
-Received: from terminus.zytor.com ([192.83.249.54]:61865 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S964865AbWIVS1d
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Sep 2006 14:27:33 -0400
-Message-ID: <45142AF1.1090806@zytor.com>
-Date: Fri, 22 Sep 2006 11:26:57 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060808)
-MIME-Version: 1.0
-To: Michael Tokarev <mjt@tls.msk.ru>
-CC: Johannes Stezenbach <js@linuxtv.org>,
-       Jan Engelhardt <jengelh@linux01.gwdg.de>,
-       Lennart Sorensen <lsorense@csclub.uwaterloo.ca>,
-       Dax Kelson <dax@gurulabs.com>,
-       Linux kernel <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: Smaller compressed kernel source tarballs?
-References: <1158870777.24172.23.camel@mentorng.gurulabs.com> <20060921204250.GN13641@csclub.uwaterloo.ca> <45130792.9040104@zytor.com> <20060922140007.GK13639@csclub.uwaterloo.ca> <Pine.LNX.4.61.0609221811560.12304@yvahk01.tjqt.qr> <4514103D.8010303@zytor.com> <20060922174137.GA29929@linuxtv.org> <451426C9.9040002@zytor.com> <4514292C.5000309@tls.msk.ru>
-In-Reply-To: <4514292C.5000309@tls.msk.ru>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Fri, 22 Sep 2006 14:27:50 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:7062 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S964866AbWIVS1k (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Sep 2006 14:27:40 -0400
+Date: Fri, 22 Sep 2006 11:26:49 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Dave Jones <davej@redhat.com>, Al Viro <viro@zeniv.linux.org.uk>
+Cc: David Miller <davem@davemloft.net>, jeff@garzik.org, davidsen@tmr.com,
+       torvalds@osdl.org, alan@lxorguk.ukuu.org.uk,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.19 -mm merge plans
+Message-Id: <20060922112649.2b98cc2d.akpm@osdl.org>
+In-Reply-To: <20060922154816.GA15032@redhat.com>
+References: <Pine.LNX.4.64.0609211106391.4388@g5.osdl.org>
+	<45130533.2010209@tmr.com>
+	<45130527.1000302@garzik.org>
+	<20060921.145208.26283973.davem@davemloft.net>
+	<20060921220539.GL26683@redhat.com>
+	<20060922083542.GA4246@flint.arm.linux.org.uk>
+	<20060922154816.GA15032@redhat.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michael Tokarev wrote:
+On Fri, 22 Sep 2006 11:48:16 -0400
+Dave Jones <davej@redhat.com> wrote:
+
+>  > As far as -mm getting these, I have asked Andrew to pull this tree in
+>  > the past, but whenever I rebase the trees (eg, when 2.6.18 comes out)
+>  > and fix up the rejects, Andrew seems to have a hard time coping.  I
+>  > guess Andrew finds it too difficult to handle my devel branches.
 > 
-> Well, I don't see any shell code here, in /usr/bin/lzma as in istalled from
-> debian version 4.43-2.
-> 
-> But note that this lzma utility does not have any 'magic number' and does
-> no crc checks.
+> Has Andrew commented on why this is proving to be more of a problem?
 
-Ah, right, that's a total killer.
+I don't recall any particular ARM problems, so I'm curious too.  I'm
+presently pulling git+ssh://master.kernel.org/home/rmk/linux-2.6-arm.git,
+which is coming up empty.
 
-> On the site it's said lzma(sdk) is under rewrite to support
-> new format with magic number and crc checks...
+OTOH, I doubt if anyone runtime tests -mm on arm.
 
-That is an absolute must, IMO.  I would use the gzip format as a base.
+OTOH^2, people do cross-compile.
 
-	-hpa
+OTOH^3, my attempts to build an arm cross-compiler haven't been very
+successful.  I do have a .config which compiles, but allmodconfig used to
+die due to the compiler not understanding weird `-m' options.  <tries it>. 
+OK, that got fixed, so without CONFIG_AUDIT, arm allmodconfig compiles.  Am
+happy.
+
+
+<I maintain that it is in the interests of obscure-arch maintainers to help
+others build cross-compilers for their arch..>
+
+<how'd I fall off the cc?>
+
+<looks at viro>
+
+include/asm-generic/audit_dir_write.h:9: error: `__NR_mkdirat' undeclared here (not in a function)
+include/asm-generic/audit_dir_write.h:9: error: initializer element is not constant
+include/asm-generic/audit_dir_write.h:9: error: (near initialization for `dir_class[8]')
+include/asm-generic/audit_dir_write.h:10: error: `__NR_mknodat' undeclared here (not in a function)
+include/asm-generic/audit_dir_write.h:10: error: initializer element is not constant
+include/asm-generic/audit_dir_write.h:10: error: (near initialization for `dir_class[9]')
+include/asm-generic/audit_dir_write.h:11: error: `__NR_unlinkat' undeclared here (not in a function)
 

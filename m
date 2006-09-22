@@ -1,65 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932081AbWIVSw4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932092AbWIVSxQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932081AbWIVSw4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Sep 2006 14:52:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932092AbWIVSw4
+	id S932092AbWIVSxQ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Sep 2006 14:53:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932113AbWIVSxQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Sep 2006 14:52:56 -0400
-Received: from vms048pub.verizon.net ([206.46.252.48]:61629 "EHLO
-	vms048pub.verizon.net") by vger.kernel.org with ESMTP
-	id S932081AbWIVSwz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Sep 2006 14:52:55 -0400
-Date: Fri, 22 Sep 2006 14:52:42 -0400
-From: Gene Heskett <gene.heskett@verizon.net>
-Subject: Re: GPLv3 Position Statement
-In-reply-to: <45142CBA.6010302@garzik.org>
-To: linux-kernel@vger.kernel.org
-Cc: Jeff Garzik <jeff@garzik.org>,
-       James Bottomley <James.Bottomley@steeleye.com>
-Message-id: <200609221452.43137.gene.heskett@verizon.net>
-Organization: Organization? Absolutely zip.
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-Content-disposition: inline
-References: <1158941750.3445.31.camel@mulgrave.il.steeleye.com>
- <200609221430.55889.gene.heskett@verizon.net> <45142CBA.6010302@garzik.org>
-User-Agent: KMail/1.7
+	Fri, 22 Sep 2006 14:53:16 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:62479 "EHLO
+	spitz.ucw.cz") by vger.kernel.org with ESMTP id S932092AbWIVSxL
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Sep 2006 14:53:11 -0400
+Date: Fri, 22 Sep 2006 12:33:29 +0000
+From: Pavel Machek <pavel@suse.cz>
+To: Richard J Moore <richardj_moore@uk.ibm.com>
+Cc: prasanna@in.ibm.com, Andrew Morton <akpm@osdl.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Mathieu Desnoyers <compudj@krystal.dyndns.org>,
+       "Frank Ch. Eigler" <fche@redhat.com>,
+       Greg Kroah-Hartman <gregkh@suse.de>,
+       Christoph Hellwig <hch@infradead.org>, Jes Sorensen <jes@sgi.com>,
+       Paul Mundt <lethal@linux-sh.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>, ltt-dev@shafik.org,
+       Martin Bligh <mbligh@google.com>,
+       Michel Dagenais <michel.dagenais@polymtl.ca>,
+       Ingo Molnar <mingo@elte.hu>, systemtap@sources.redhat.com,
+       systemtap-owner@sourceware.org, Thomas Gleixner <tglx@linutronix.de>,
+       William Cohen <wcohen@redhat.com>, Tom Zanussi <zanussi@us.ibm.com>
+Subject: Re: [PATCH] Linux Kernel Markers
+Message-ID: <20060922123329.GC4055@ucw.cz>
+References: <20060920010852.GA7469@in.ibm.com> <OFD1A61531.0E2D11C4-ON802571EF.002D4111-802571EF.002DA3BC@uk.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <OFD1A61531.0E2D11C4-ON802571EF.002D4111-802571EF.002DA3BC@uk.ibm.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 22 September 2006 14:34, Jeff Garzik wrote:
->Gene Heskett wrote:
->> You need to remind RMS that he is not a majority when the vote shows
->> otherwise by a quite resounding margin, and that he and the FSF may
->> well become irrevalent if the V2 is not going to be supported after V3
->> is final.
->
->Pretty much.
->
->Also consider the "v3 probably won't be compatible with v2" license
->compatibility headaches that will abound, given the number of people
->that oppose GPL v3 so far.
->
-> Jeff
->
-The question then Jeff, is: Since when is this os a democracy, where there 
-are voting rights?  The ultimate big red veto for the kernel at least, is 
-for Linus to stamp on it, and thats the one that many, if not all, will 
-follow.  If the top 50 contributors were to lean on Linus to change his 
-mind, giving lucid arguments, he, haveing an open mind might consider it.  
-OTOH, given this vote tally, he'd not be foolish enough to buck that, its 
-a confirmation of his own feelings.
+Hi!
 
-Unforch, here we all stand (0r sit), preaching to the choir, when its the 
-FSF and RMS we need to be subjecting to the sermon by giving them the 
-chapter and verse of the book we generally follow.  YMMV of course.
+> > > > Very good idea.. However, overwriting the second instruction
+> > with a jump could
+> > > > be dangerous on preemptible and SMP kernels, because we never
+> > know if a thread
+> > > > has an IP in any of its contexts that would return exactly at
+> > the middle of the
+> > > > jump.
+> > >
+> > > No: on x86 it is the *same* case for all of these even writing an int3.
+> > > One byte or a megabyte,
+> > >
+> > > You MUST ensure that every CPU executes a serializing instruction
+> before
+> > > it hits code that was modified by another processor. Otherwise you get
+> > > CPU errata and the CPU produces results which vendors like to describe
+> > > as "undefined".
+> >
+> > Are you referring to Intel erratum "unsynchronized cross-modifying code"
+> > - where it refers to the practice of modifying code on one processor
+> > where another has prefetched the unmodified version of the code.
+> 
+> In the special case of replacing an opcode with int3 that erratum doesn't
+> apply. I know that's not in the manuals but it has been confirmed by the
+> Intel microarchitecture group. And it's not reasonable to it to be any
+> other way.
+
+What about replacing int3 with old instruction (i.e. marker being
+deleted)?
+							Pavel
 
 -- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-Yahoo.com and AOL/TW attorneys please note, additions to the above
-message by Gene Heskett are:
-Copyright 2006 by Maurice Eugene Heskett, all rights reserved.
+Thanks for all the (sleeping) penguins.

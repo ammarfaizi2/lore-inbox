@@ -1,46 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932279AbWIVFQY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932276AbWIVFXb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932279AbWIVFQY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Sep 2006 01:16:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932281AbWIVFQY
+	id S932276AbWIVFXb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Sep 2006 01:23:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932278AbWIVFXa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Sep 2006 01:16:24 -0400
-Received: from solarneutrino.net ([66.199.224.43]:19205 "EHLO
-	tau.solarneutrino.net") by vger.kernel.org with ESMTP
-	id S932279AbWIVFQY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Sep 2006 01:16:24 -0400
-Date: Fri, 22 Sep 2006 01:16:22 -0400
-To: Stephen Olander Waters <swaters@luy.info>
-Cc: linux-kernel@vger.kernel.org, dri-devel@lists.sourceforge.net
-Subject: Re: R200 lockup (was Re: DRI/X error resolution)
-Message-ID: <20060922051622.GF16939@tau.solarneutrino.net>
-References: <1158898988.3280.8.camel@ix> <20060922043801.GE16939@tau.solarneutrino.net> <1158900841.3280.12.camel@ix>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+	Fri, 22 Sep 2006 01:23:30 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:3765 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S932276AbWIVFXa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Sep 2006 01:23:30 -0400
+Date: Fri, 22 Sep 2006 07:23:24 +0200
+From: Pavel Machek <pavel@suse.cz>
+To: Nigel Cunningham <ncunningham@linuxmail.org>
+Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, Andrew Morton <akpm@osdl.org>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH -mm 0/6] swsusp: Add support for swap files
+Message-ID: <20060922052324.GG2357@elf.ucw.cz>
+References: <200609202120.58082.rjw@sisk.pl> <1158886913.15894.31.camel@nigel.suspend2.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1158900841.3280.12.camel@ix>
-User-Agent: Mutt/1.5.9i
-From: Ryan Richter <ryan@tau.solarneutrino.net>
+In-Reply-To: <1158886913.15894.31.camel@nigel.suspend2.net>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 21, 2006 at 11:54:01PM -0500, Stephen Olander Waters wrote:
-> Here is the bug I'm working from (includes hardware, software, etc.):
-> https://bugs.freedesktop.org/show_bug.cgi?id=6111
+On Fri 2006-09-22 11:01:53, Nigel Cunningham wrote:
+> Hi.
 > 
-> DRI will work if you set: Option "BusType" "PCI" ... but that's not a
-> real solution. :)
+> On Wed, 2006-09-20 at 21:20 +0200, Rafael J. Wysocki wrote:
+> > Hi,
+> > 
+> > The following series of patches makes swsusp support swap files.
+> > 
+> > For now, it is only possible to suspend to a swap file using the in-kernel
+> > swsusp and the resume cannot be initiated from an initrd.
+> 
+> I'm trying to understand 'resume cannot be initiated from an initrd'.
+> Does that mean if you want to use this functionality, you have to have
+> everything needed compiled in to the kernel, and it's not compatible
+> with LVM and so on?
 
-Oh, wow.  I had no idea there was a workaround.  What kind of
-performance hit does that entail?  R200 performance is pretty dismal to
-begin with, but it would be awfully nice to not have all our
-workstations crashing all the time...
-
-I wonder why that works.  What chipset do you use?  All our machines are
-AMD 8151.
-
-I'm about to leave town for several days, but I'll try that when I
-return.
-
-Cheers,
--ryan
+Not in this version of patch; for resume from initrd, ioctl()
+interface needs to be added (*).
+									Pavel
+(*) Actually.. of course resume from file from initrd is possible
+*now*, probably without this patch series, but that would be bmap and
+doing it by hand from userland.
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

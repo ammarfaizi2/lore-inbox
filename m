@@ -1,44 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932165AbWIVTKZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932167AbWIVTLS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932165AbWIVTKZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Sep 2006 15:10:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932171AbWIVTKZ
+	id S932167AbWIVTLS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Sep 2006 15:11:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932169AbWIVTLS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Sep 2006 15:10:25 -0400
-Received: from mx4.cs.washington.edu ([128.208.4.190]:56737 "EHLO
-	mx4.cs.washington.edu") by vger.kernel.org with ESMTP
-	id S932169AbWIVTKX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Sep 2006 15:10:23 -0400
-Date: Fri, 22 Sep 2006 12:10:10 -0700 (PDT)
-From: David Rientjes <rientjes@cs.washington.edu>
+	Fri, 22 Sep 2006 15:11:18 -0400
+Received: from mx2.suse.de ([195.135.220.15]:34484 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932167AbWIVTLR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Sep 2006 15:11:17 -0400
+From: Andi Kleen <ak@suse.de>
 To: Christoph Lameter <clameter@sgi.com>
-cc: Andrew Morton <akpm@osdl.org>,
-       KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>, kmannth@us.ibm.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] do not free non slab allocated per_cpu_pageset
-In-Reply-To: <Pine.LNX.4.64.0609221203020.8675@schroedinger.engr.sgi.com>
-Message-ID: <Pine.LNX.4.64N.0609221209130.8288@attu2.cs.washington.edu>
-References: <1158884252.5657.38.camel@keithlap> <20060921174134.4e0d30f2.akpm@osdl.org>
- <1158888843.5657.44.camel@keithlap> <20060922112427.d5f3aef6.kamezawa.hiroyu@jp.fujitsu.com>
- <20060921200806.523ce0b2.akpm@osdl.org> <20060922123045.d7258e13.kamezawa.hiroyu@jp.fujitsu.com>
- <20060921204629.49caa95f.akpm@osdl.org> <Pine.LNX.4.64N.0609212108360.30543@attu1.cs.washington.edu>
- <Pine.LNX.4.64N.0609221117210.5858@attu2.cs.washington.edu>
- <20060922113924.014ce28f.akpm@osdl.org> <Pine.LNX.4.64.0609221141270.8356@schroedinger.engr.sgi.com>
- <20060922115646.fd1040e8.akpm@osdl.org> <Pine.LNX.4.64.0609221203020.8675@schroedinger.engr.sgi.com>
+Subject: Re: [RFC] Initial alpha-0 for new page allocator API
+Date: Fri, 22 Sep 2006 21:10:25 +0200
+User-Agent: KMail/1.9.3
+Cc: Martin Bligh <mbligh@mbligh.org>, akpm@google.com,
+       linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
+       James Bottomley <James.Bottomley@steeleye.com>, linux-mm@kvack.org
+References: <Pine.LNX.4.64.0609212052280.4736@schroedinger.engr.sgi.com> <200609220817.59801.ak@suse.de> <Pine.LNX.4.64.0609220934040.7083@schroedinger.engr.sgi.com>
+In-Reply-To: <Pine.LNX.4.64.0609220934040.7083@schroedinger.engr.sgi.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200609222110.25118.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 22 Sep 2006, Christoph Lameter wrote:
-
-> The pcps must be usable during process_zones() for NUMA bootstrap. 
-> As far as I recall: A cpu is booted with the static arrays and later 
-> process_zones is replacing the references to the static arrays.
+On Friday 22 September 2006 18:35, Christoph Lameter wrote:
+> On Fri, 22 Sep 2006, Andi Kleen wrote:
 > 
+> > On Friday 22 September 2006 06:02, Christoph Lameter wrote:
+> > > We have repeatedly discussed the problems of devices having varying 
+> > > address range requirements for doing DMA.
+> > 
+> > We already have such an API. dma_alloc_coherent(). Device drivers
+> > are not supposed to mess with GFP_DMA* directly anymore for quite
+> > some time. 
+> 
+> Device drivers need to be able to indicate ranges of addresses that may be 
+> different from ZONE_DMA. This is an attempt to come up with a future 
+> scheme that does no longer rely on device drivers referring to zoies.
 
-Yes, they are replaced as soon as the slab allocator is up.  So all we 
-need is to prevent static pcp's from being free'd since they haven't yet 
-matured to being slab.
+We already have that scheme. Any existing driver should be already converted
+away from GFP_DMA towards dma_*/pci_*. dma_* knows all the magic
+how to get memory for the various ranges. No need to mess up the 
+main allocator.
 
-		David
+Anyways, i suppose what could be added as a fallback would be a 
+really_slow_brute_force_try_to_get_something_in_this_range() allocator
+that basically goes through the buddy lists freeing in >O(1) 
+and does some directed reclaim, but that would likely be a separate
+path anyways and not need your new structure to impact the O(1)
+allocator.
+
+I am still unconvinced of the real need. The only gaping hole was 
+GFP_DMA32, which we fixed already.
+
+Ok there is aacraid with its weird 2GB limit, but in case there are
+really enough users running into this broken then then the really_slow_*
+thing above would be likely fine. And those cards are slowly going
+away too.  
+
+If we managed to resist for too long now is the wrong time.
+
+> > I actually have my doubts it is a good idea to add that now. The devices
+> > with weird requirements are steadily going away
+
+> Hmm.... Martin?
+
+Think of it this way: all the weird slow devices of 5-10 years ago have USB
+interfaces today and that does 32bit just fine (=GFP_DMA32). And old 5-10 years old weird
+devices are usually fine with 16MB of playground only.
+
+Ok now I'm sure someone will come up with a counter example (hi Alan), but:
+- Does the device really need more than 16MB?
+- How often is it used on systems with >1/2GB with a 64bit kernel?
+[consider that 64bit kernels don't support ISA]
+- How many users of that particular thing around?
+
+
+I think my point stands.
+
+-And

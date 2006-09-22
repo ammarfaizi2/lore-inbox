@@ -1,61 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964815AbWIVRmO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964825AbWIVRn6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964815AbWIVRmO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Sep 2006 13:42:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964822AbWIVRmO
+	id S964825AbWIVRn6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Sep 2006 13:43:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964826AbWIVRn5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Sep 2006 13:42:14 -0400
-Received: from allen.werkleitz.de ([80.190.251.108]:65247 "EHLO
-	allen.werkleitz.de") by vger.kernel.org with ESMTP id S964815AbWIVRmN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Sep 2006 13:42:13 -0400
-Date: Fri, 22 Sep 2006 19:41:37 +0200
-From: Johannes Stezenbach <js@linuxtv.org>
-To: "H. Peter Anvin" <hpa@zytor.com>
-Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>,
-       Lennart Sorensen <lsorense@csclub.uwaterloo.ca>,
-       Dax Kelson <dax@gurulabs.com>,
-       Linux kernel <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>
-Message-ID: <20060922174137.GA29929@linuxtv.org>
-References: <1158870777.24172.23.camel@mentorng.gurulabs.com> <20060921204250.GN13641@csclub.uwaterloo.ca> <45130792.9040104@zytor.com> <20060922140007.GK13639@csclub.uwaterloo.ca> <Pine.LNX.4.61.0609221811560.12304@yvahk01.tjqt.qr> <4514103D.8010303@zytor.com>
+	Fri, 22 Sep 2006 13:43:57 -0400
+Received: from mga09.intel.com ([134.134.136.24]:42760 "EHLO mga09.intel.com")
+	by vger.kernel.org with ESMTP id S964825AbWIVRn4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Sep 2006 13:43:56 -0400
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.09,204,1157353200"; 
+   d="scan'208"; a="133359785:sNHT56764386"
+From: Jesse Barnes <jesse.barnes@intel.com>
+To: Christoph Lameter <clameter@sgi.com>
+Subject: Re: ZONE_DMA
+Date: Fri, 22 Sep 2006 10:39:28 -0700
+User-Agent: KMail/1.9.4
+Cc: Martin Bligh <mbligh@mbligh.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, Rohit Seth <rohitseth@google.com>
+References: <20060920135438.d7dd362b.akpm@osdl.org> <Pine.LNX.4.64.0609211937460.4433@schroedinger.engr.sgi.com> <200609221021.16579.jesse.barnes@intel.com>
+In-Reply-To: <200609221021.16579.jesse.barnes@intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <4514103D.8010303@zytor.com>
-User-Agent: Mutt/1.5.13 (2006-08-11)
-X-SA-Exim-Connect-IP: 87.162.93.17
-Subject: Re: Smaller compressed kernel source tarballs?
-X-SA-Exim-Version: 4.2.1 (built Mon, 27 Mar 2006 13:42:28 +0200)
-X-SA-Exim-Scanned: Yes (on allen.werkleitz.de)
+Message-Id: <200609221039.28436.jesse.barnes@intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 22, 2006 at 09:33:01AM -0700, H. Peter Anvin wrote:
-> Jan Engelhardt wrote:
-> >>>widely used until there is an "lzip" which does the same thing.  I 
-> >>>actually started the work of adding LZMA support to gzip, but then 
-> >>>realized it would be better if a new encapsulation format with proper 
-> >>>64-bit support everywhere was created.
-> >>It doesn't handle streaming?
-> >>
-> >>So you can't do: tar c dirname | 7zip dirname.tar.7z ?
-> >
-> >man 7z [slightly changed for reasonability]:
-> >
-> >  -si
-> >      Read data from StdIn (eg: tar -c directory | 7z a -si 
-> >      directory.tar.7z)
-> >
-> 
-> Yes, but you can't make it write to an unseekable stdout.
+On Friday, September 22, 2006 10:21 am, Jesse Barnes wrote:
+> If you have a decent enough IOMMU both or either could cover all of
+> memory. In the case of an Altix, the IOMMU is 32 bit capable, so it
+> would make sense for ZONE_DMA32 to contain all of memory...
+>
+> But anyway, I agree with your broader point that we really need a
+> different allocator for this stuff.  It has to be arch specific in some
+> way though, so we can take into account the advantages IOMMUs provide. 
+> I think jejb said he'd come up with a sample implementation a couple of
+> years ago... :)
+>
+> From a portability and definition perspective, I'd contend that ZONE_DMA
+> and ZONE_DMA32 are both broken.  Only ZONE_NORMAL and ZONE_HIGHMEM have
+> sane definitions it seems.
 
-It seems the "lzma" program from LZMA Utils can:
+Ok and right after I sent this my brain returned from vacation and I 
+remembered jejb's DMA allocation API.  It's powerful enough to cover most 
+driver use cases I think (users of GFP_DMA should probably be converted), 
+but for example block layer bounce buffering might need a different 
+interface as I see you've proposed in another mail.
 
-http://tukaani.org/lzma/
-  "Very similar command line interface than what gzip and bzip2 have."
+Hm... s390 driver seem to like GFP_DMA a lot...  and there are a few 
+remaining uses in drivers/scsi... and then of course there are the OSS 
+drivers...
 
-(Debian sid has this in the "lzma" package.)
-
-
-Johannes
+Jesse

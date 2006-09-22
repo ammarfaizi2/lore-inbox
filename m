@@ -1,46 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932373AbWIVMbW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932377AbWIVMcS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932373AbWIVMbW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Sep 2006 08:31:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932375AbWIVMbW
+	id S932377AbWIVMcS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Sep 2006 08:32:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932375AbWIVMcR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Sep 2006 08:31:22 -0400
-Received: from wohnheim.fh-wedel.de ([213.39.233.138]:37516 "EHLO
-	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S932373AbWIVMbV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Sep 2006 08:31:21 -0400
-Date: Fri, 22 Sep 2006 14:31:05 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: David Howells <dhowells@redhat.com>
-Cc: akpm@osdl.org, evil@g-house.de, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2/2] AFS: Manage AFS modularity vs FS-Cache modularity
-Message-ID: <20060922123105.GA3767@wohnheim.fh-wedel.de>
-References: <20060922111137.16615.7794.stgit@warthog.cambridge.redhat.com> <20060922111140.16615.46012.stgit@warthog.cambridge.redhat.com>
+	Fri, 22 Sep 2006 08:32:17 -0400
+Received: from colin.muc.de ([193.149.48.1]:58628 "EHLO mail.muc.de")
+	by vger.kernel.org with ESMTP id S932374AbWIVMcR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Sep 2006 08:32:17 -0400
+Date: 22 Sep 2006 14:32:15 +0200
+Date: Fri, 22 Sep 2006 14:32:15 +0200
+From: Andi Kleen <ak@muc.de>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       virtualization <virtualization@lists.osdl.org>,
+       Jeremy Fitzhardinge <jeremy@goop.org>
+Subject: Re: [PATCH 5/7] Use %gs for per-cpu sections in kernel
+Message-ID: <20060922123215.GA98728@muc.de>
+References: <1158925861.26261.3.camel@localhost.localdomain> <1158925997.26261.6.camel@localhost.localdomain> <1158926106.26261.8.camel@localhost.localdomain> <1158926215.26261.11.camel@localhost.localdomain> <1158926308.26261.14.camel@localhost.localdomain> <1158926386.26261.17.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20060922111140.16615.46012.stgit@warthog.cambridge.redhat.com>
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <1158926386.26261.17.camel@localhost.localdomain>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 22 September 2006 12:11:40 +0100, David Howells wrote:
->
->  	bool "Provide AFS client caching support"
-                                                 (EXPERIMENTAL) ?
-> -	depends on AFS_FS && FSCACHE && EXPERIMENTAL
->  	  Say Y here if you want AFS data to be cached locally on through the
-                                                                 disk ?
+BTW I changed my copy sorry. I redid the early PDA support
+to not be in assembler.
 
-At least I cannot see why the AFS patch differs from the NFS one in
-those two details.
+On Fri, Sep 22, 2006 at 09:59:45PM +1000, Rusty Russell wrote:
+> This patch actually uses the gs register to implement the per-cpu
+> sections.  It's fairly straightforward: the gs segment starts at the
+> per-cpu offset for the particular cpu (or 0, in very early boot).  
+> 
+> We also implement x86_64-inspired (via Jeremy Fitzhardinge) per-cpu
+> accesses where a general lvalue isn't needed.  These
+> single-instruction accesses are slightly more efficient, plus (being a
+> single insn) are atomic wrt. preemption so we can use them to
+> implement cpu_local_inc etc.
 
-Jörn
+The problem is nobody uses cpu_local_inc() etc :/ And it is difficult
+to use in generic code because of the usual preemption issues 
+(and being slower on other archs in many cases compared to preempt disabling
+around larger block of code) 
 
--- 
-More computing sins are committed in the name of efficiency (without
-necessarily achieving it) than for any other single reason - including
-blind stupidity.
--- W. A. Wulf
+Without that it is the same code as Jeremy's variant
+%gs memory reference + another reference with offset as far as I can see.
+
+So while it looks nice I don't think it will have advantages. Or did
+i miss something?
+
+-Andi

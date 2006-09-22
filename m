@@ -1,167 +1,121 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965159AbWIVVpZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964810AbWIVVo6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965159AbWIVVpZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Sep 2006 17:45:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965099AbWIVVpZ
+	id S964810AbWIVVo6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Sep 2006 17:44:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965099AbWIVVo6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Sep 2006 17:45:25 -0400
-Received: from wx-out-0506.google.com ([66.249.82.232]:51183 "EHLO
-	wx-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S965159AbWIVVpW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Sep 2006 17:45:22 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=SHhX7hxEhGlIRLYeOfHcb7Fsxqe9b4PMrOATq2y+UG/Avc4gz7KC3rP4xB6F7ska9pyi3wb3nZQXIZPRVMp8cYAT1Y24Is0taQPMPE3EbvaIOo1XXCJuzEIIXg7eKx1TtbzDjJ5WUKKLx2BfAPLW47IFGn7o6oG07Q1ID25I1eo=
-Message-ID: <fbf7c10b0609221445q1329eb5bsfe304c02f7f336db@mail.gmail.com>
-Date: Fri, 22 Sep 2006 17:45:21 -0400
-From: "Ryan Moszynski" <ryan.m.lists@gmail.com>
-To: "David Kubicek" <dave@awk.cz>, linux-kernel@vger.kernel.org
-Subject: /drivers/usb/class/cdc-acm.c patch question, please cc
+	Fri, 22 Sep 2006 17:44:58 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:24554 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S964810AbWIVVo5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Sep 2006 17:44:57 -0400
+Date: Fri, 22 Sep 2006 14:44:42 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: David Schwartz <davids@webmaster.com>
+cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: RE: The GPL: No shelter for the Linux kernel?
+In-Reply-To: <MDEHLPKNGKAHNMBLJOLKIEJNOJAB.davids@webmaster.com>
+Message-ID: <Pine.LNX.4.64.0609221440470.4388@g5.osdl.org>
+References: <MDEHLPKNGKAHNMBLJOLKIEJNOJAB.davids@webmaster.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-using
-2.6.18
 
-quick version of this question:
+[ Sorry if this shows up twice - the first post to linux-kernel was 
+  apparently eaten by an over-eager spam filter with an agenda ;^]
 
-how could i change line 1 to line 2 without breaking anything while
-providing the
-functionality of the patch i'm trying to apply?
+On Fri, 22 Sep 2006, David Schwartz wrote:
+> 
+> This is probably going to be controversial, but Linus should seriously
+> consider adding a clause that those who contribute to the kernel from now on
+> consent to allow him to modify the license on their current contributions
+> and all past contributions, amending the Linux kernel license as
+> appropriate. This would at least begin to reduce this problem over the next
+> few years, leaving fewer and fewer people with claim to less and less code
+> who would have legal standing to object.
 
+It's the last thing I'd ever want to do, for all the same reasons the 
+kernel doesn't have the "or later versions" language wrt licenses.
 
-	/* line 1  /drivers/usb/class/cdc-acm.c line 918
-	readsize = le16_to_cpu(epread->wMaxPacketSize)* ( quirks ==
-SINGLE_RX_URB ? 1 : 2);
-	
-        /* line 2
-	readsize = (le16_to_cpu(epread->wMaxPacketSize) >
-maxszr)?le16_to_cpu(epread->wMaxPacketSize):maxszr;
+I don't actually want people to need to trust anybody - and that very much 
+includes me - implicitly.
 
+I think people can generally trust me, but they can trust me exactly 
+because they know they don't _have_ to.
 
+The reason the poll and the whitepaper got started was that I've obviously 
+not been all that happy with the GPLv3, and while I was pretty sure I was 
+not alone in that opinion, I also realize that _everybody_ thinks that 
+they are right, and that they are supported by all other right-thinking 
+people. That's just how people work. We all think we're better than 
+average.
 
+So while I personally thought it was pretty clear that the GPLv2 was the 
+better license for the kernel, I didn't want to just depend on my own 
+personal opinion, but I wanted to feel that I had actually made my best to 
+ask people.
 
+Now, I could have done it all directly on the Linux-kernel mailing list, 
+but let's face it, that would just have caused a long discussion and we'd 
+not have really been any better off anyway. So instead, I did
 
-long version:
+	git log | grep -i signed-off-by: |
+		cut -d: -f2- | sort | uniq -c | sort -nr | less -S
 
-since 2.6.14 i have been applying the following patch and recompiling
-my kernel so
-that i can use my verizon kpc650 evdo card with my laptop.  I've
-applied this patch
-succesfully on 2.6.14 and 2.6.15.  It works great and I have no problems.  I am
-trying to apply the patch to 2.6.18 but it fails, and i don't want to
-break anything,
-though I do need the functionality of the patch, since evdo is my only form of
-internet(i live out in the sticks.) Without this patch, after setting
-up the needed
-config files, i can websurf, but if i try to download anything, the
-connection closes.
+which anybody else can do on their copy of their git repository, and I 
+just picked the first screenful of people (and Alan. And later we added 
+three more people after somebody pointed out that some top people use 
+multiple email addresses so my initial filtering hadn't counted for them 
+properly).
 
-The rest of this patch, other than the chunk of which this line is a part,
-applies successfully.
+[ I also double-checked by just checking the same numbers for authorship.
+  I'll very openly admit to thinking that the maintainership that goes 
+  with forwarding other peoples patches to me counts as almost as 
+  important as the authorship itself, which is why I started out with the 
+  signed-off-by count, but I also wanted to verify that the list of people 
+  makes sense either way. It did. ]
 
+In other words, maybe some people thought that the 29 names were somehow 
+"selected" to get that particular answer.  Nope. The only selection was 
+just an arbitrary cut-off-point (and the fact that I think two people 
+didn't actually vote).
 
-ftp://ftp.sonic.net/pub/users/qm/PC5740/usb_bufsz_linux-2.6.14-ulmo
-#################
---- ./drivers/usb/class/cdc-acm.c.~1~	2005-11-12 21:28:19.000000000 -0800
-+++ ./drivers/usb/class/cdc-acm.c	2005-12-04 10:35:10.000000000 -0800
-@@ -73,6 +73,7 @@
- #define DRIVER_AUTHOR "Armin Fuerst, Pavel Machek, Johannes Erdfelt,
-Vojtech Pavlik"
- #define DRIVER_DESC "USB Abstract Control Model driver for USB modems
-and ISDN adapters"
+It wasn't meant to be really "definitive" - the poll was literally meant 
+to get _some_ kind of view into how the top developers feel. I think the 
+end result ended up being more definitive (just thanks to the very clear 
+voting pattern) than we migth have expected.
 
-+static ushort maxszc = 0, maxszw = 0, maxszr = 0;
- static struct usb_driver acm_driver;
- static struct tty_driver *acm_tty_driver;
- static struct acm *acm_table[ACM_TTY_MINORS];
-@@ -833,9 +834,9 @@
- 	}
- 	memset(acm, 0, sizeof(struct acm));
+So, to anybody not on the list - don't feel bad. This was about getting a 
+good _feeling_ for how the top kernel maintainers - judging purely by an 
+admittedly fairly arbitrary, but also very neutral, measure - felt about 
+the license.
 
--	ctrlsize = le16_to_cpu(epctrl->wMaxPacketSize);
--	readsize = le16_to_cpu(epread->wMaxPacketSize);
--	acm->writesize = le16_to_cpu(epwrite->wMaxPacketSize);
-+	ctrlsize = (le16_to_cpu(epctrl->wMaxPacketSize) >
-maxszc)?le16_to_cpu(epctrl->wMaxPacketSize):maxszc;
-+	readsize = (le16_to_cpu(epread->wMaxPacketSize) >
-maxszr)?le16_to_cpu(epread->wMaxPacketSize):maxszr;
-+	acm->writesize = (le16_to_cpu(epwrite->wMaxPacketSize) >
-maxszw)?le16_to_cpu(epwrite->wMaxPacketSize):maxszw;
- 	acm->control = control_interface;
- 	acm->data = data_interface;
- 	acm->minor = minor;
-@@ -1084,4 +1085,9 @@
- MODULE_AUTHOR( DRIVER_AUTHOR );
- MODULE_DESCRIPTION( DRIVER_DESC );
- MODULE_LICENSE("GPL");
--
-+module_param(maxszc, ushort,0);
-+MODULE_PARM_DESC(maxszc,"User specified USB endpoint control size");
-+module_param(maxszr, ushort,0);
-+MODULE_PARM_DESC(maxszr,"User specified USB endpoint read size");
-+module_param(maxszw, ushort,0);
-+MODULE_PARM_DESC(maxszw,"User specified USB endpoint write size");
---- ./drivers/usb/serial/usb-serial.c.~1~	2005-11-12 21:28:19.000000000 -0800
-+++ ./drivers/usb/serial/usb-serial.c	2005-12-04 10:30:04.000000000 -0800
-@@ -361,6 +361,7 @@
-    drivers depend on it.
- */
+If the result had turned out very differently, I would probably have had 
+to seriously re-think my stance on the license. I don't guarantee that I 
+always change my mind, but I _can_ guarantee that if most of the people I 
+trust tell me I'm a dick-head, I'll at least give it a passing thought.
 
-+static ushort maxSize = 0;
- static int debug;
- static struct usb_serial *serial_table[SERIAL_TTY_MINORS];	/*
-initially all NULL */
- static LIST_HEAD(usb_serial_driver_list);
-@@ -1061,7 +1062,7 @@
- 			dev_err(&interface->dev, "No free urbs available\n");
- 			goto probe_error;
- 		}
--		buffer_size = le16_to_cpu(endpoint->wMaxPacketSize);
-+		buffer_size = (le16_to_cpu(endpoint->wMaxPacketSize) >
-maxSize)?le16_to_cpu(endpoint->wMaxPacketSize):maxSize;
- 		port->bulk_in_size = buffer_size;
- 		port->bulk_in_endpointAddress = endpoint->bEndpointAddress;
- 		port->bulk_in_buffer = kmalloc (buffer_size, GFP_KERNEL);
-@@ -1085,7 +1086,7 @@
- 			dev_err(&interface->dev, "No free urbs available\n");
- 			goto probe_error;
- 		}
--		buffer_size = le16_to_cpu(endpoint->wMaxPacketSize);
-+		buffer_size = (le16_to_cpu(endpoint->wMaxPacketSize) >
-maxSize)?le16_to_cpu(endpoint->wMaxPacketSize):maxSize;
- 		port->bulk_out_size = buffer_size;
- 		port->bulk_out_endpointAddress = endpoint->bEndpointAddress;
- 		port->bulk_out_buffer = kmalloc (buffer_size, GFP_KERNEL);
-@@ -1110,7 +1111,7 @@
- 				dev_err(&interface->dev, "No free urbs available\n");
- 				goto probe_error;
- 			}
--			buffer_size = le16_to_cpu(endpoint->wMaxPacketSize);
-+			buffer_size = (le16_to_cpu(endpoint->wMaxPacketSize) >
-maxSize)?le16_to_cpu(endpoint->wMaxPacketSize):maxSize;
- 			port->interrupt_in_endpointAddress = endpoint->bEndpointAddress;
- 			port->interrupt_in_buffer = kmalloc (buffer_size, GFP_KERNEL);
- 			if (!port->interrupt_in_buffer) {
-@@ -1137,7 +1138,7 @@
- 				dev_err(&interface->dev, "No free urbs available\n");
- 				goto probe_error;
- 			}
--			buffer_size = le16_to_cpu(endpoint->wMaxPacketSize);
-+			buffer_size = (le16_to_cpu(endpoint->wMaxPacketSize) >
-maxSize)?le16_to_cpu(endpoint->wMaxPacketSize):maxSize;
- 			port->interrupt_out_size = buffer_size;
- 			port->interrupt_out_endpointAddress = endpoint->bEndpointAddress;
- 			port->interrupt_out_buffer = kmalloc (buffer_size, GFP_KERNEL);
-@@ -1434,3 +1435,5 @@
+[ Chorus: "You're a dick-head, Linus" ]
 
- module_param(debug, bool, S_IRUGO | S_IWUSR);
- MODULE_PARM_DESC(debug, "Debug enabled or not");
-+module_param(maxSize, ushort,0);
-+MODULE_PARM_DESC(maxSize,"User specified USB endpoint size");
-#################
+Anyway, nobody got voted off the island. This was a poll, to get a view 
+into what people thought. Take it as such, and I think people will happily 
+discuss issues.
+
+Different people had different issues with the GPLv3, so the separate 
+white-paper that was written was done by a different group, and is meant 
+for a different reason - it talks about some of the issues those 
+particular people wanted to point out.
+
+My personal opinion is that a lot of the public discussion has been driven 
+by people who are motivated by the politics of the discussion. So you have 
+a lot of very vocal GPLv3 supporters. But I think that the people who 
+actually end up doing a lot of the development are usually not as vocal, 
+and haev actually not been heard very much at all.
+
+In some sense, the poll is a way for the people who actually do a lot of 
+the work to show that the FSF doesn't speak for necessarily even a very 
+big portion of actual developers.
+
+				Linus

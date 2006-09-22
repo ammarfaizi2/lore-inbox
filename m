@@ -1,52 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964868AbWIVUOY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964889AbWIVUQz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964868AbWIVUOY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Sep 2006 16:14:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964889AbWIVUOY
+	id S964889AbWIVUQz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Sep 2006 16:16:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964891AbWIVUQz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Sep 2006 16:14:24 -0400
-Received: from dvhart.com ([64.146.134.43]:20713 "EHLO dvhart.com")
-	by vger.kernel.org with ESMTP id S964868AbWIVUOX (ORCPT
+	Fri, 22 Sep 2006 16:16:55 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:56251 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S964889AbWIVUQy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Sep 2006 16:14:23 -0400
-Message-ID: <4514441E.70207@mbligh.org>
-Date: Fri, 22 Sep 2006 13:14:22 -0700
-From: Martin Bligh <mbligh@mbligh.org>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051011)
-X-Accept-Language: en-us, en
+	Fri, 22 Sep 2006 16:16:54 -0400
+Date: Fri, 22 Sep 2006 13:16:37 -0700
+From: Greg KH <greg@kroah.com>
+To: Ed Swierk <eswierk@arastra.com>
+Cc: linux-kernel@vger.kernel.org, rusty@rustcorp.com.au
+Subject: Re: [RETRY] [PATCH] load_module: no BUG if module_subsys uninitialized
+Message-ID: <20060922201637.GA17547@kroah.com>
+References: <c1bf1cf0609221248v39113875id4b48c62cec8eb46@mail.gmail.com>
 MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Christoph Lameter <clameter@sgi.com>,
-       akpm@google.com, linux-kernel@vger.kernel.org,
-       Christoph Hellwig <hch@infradead.org>,
-       James Bottomley <James.Bottomley@steeleye.com>, linux-mm@kvack.org
-Subject: Re: [RFC] Initial alpha-0 for new page allocator API
-References: <Pine.LNX.4.64.0609212052280.4736@schroedinger.engr.sgi.com> <200609222110.25118.ak@suse.de> <1158955850.24572.37.camel@localhost.localdomain> <200609222202.41692.ak@suse.de>
-In-Reply-To: <200609222202.41692.ak@suse.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <c1bf1cf0609221248v39113875id4b48c62cec8eb46@mail.gmail.com>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, Sep 22, 2006 at 12:48:48PM -0700, Ed Swierk wrote:
+> [I discovered after sending my previous message that Gmail helpfully
+> line-wrapped and de-tabified my patch. I'm resending it as an
+> attachment; apologies for the error.]
+> 
+> Invoking load_module() before param_sysfs_init() is called crashes in
+> mod_sysfs_setup(), since the kset in module_subsys is not initialized
+> yet.
 
-> And is fine with 16MB anyways I think.
-> 
-> 
->>- Some aacraid, mostly only for control structures. Those found on 64bit
->>are probably fine with slow alloc.
-> 
-> 
-> That is the only case where there are rumours they are not fine with 16MB.
-> 
-> 
->>- Broadcom stuff - not sure if 30 or 31bit, around today and on 64bit
-> 
-> 
-> b44 is 30bit. That's true. I even got one here.
-> 
-> But it doesn't count really because we can handle it fine with existing 
-> 16MB GFP_DMA
+How are you calling load_module before this init call is made?
 
-The problem is that GFP_DMA does not mean 16MB on all architectures.
+thanks,
 
-M.
+greg k-h

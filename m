@@ -1,69 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750804AbWIVHAA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750799AbWIVG7a@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750804AbWIVHAA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Sep 2006 03:00:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750805AbWIVHAA
+	id S1750799AbWIVG7a (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Sep 2006 02:59:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750801AbWIVG73
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Sep 2006 03:00:00 -0400
-Received: from adelphi.physics.adelaide.edu.au ([129.127.102.1]:8667 "EHLO
-	adelphi.physics.adelaide.edu.au") by vger.kernel.org with ESMTP
-	id S1750804AbWIVG77 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Sep 2006 02:59:59 -0400
-From: Jonathan Woithe <jwoithe@physics.adelaide.edu.au>
-Message-Id: <200609220717.k8M7H0Ir021258@auster.physics.adelaide.edu.au>
-Subject: Re: Fw: 2.6.17 oops, possibly ntfs/mmap related
-To: davej@redhat.com (Dave Jones)
-Date: Fri, 22 Sep 2006 16:47:00 +0930 (CST)
-Cc: hugh@veritas.com (Hugh Dickins), akpm@osdl.org (Andrew Morton),
-       aia21@cam.ac.uk (Anton Altaparmakov),
-       jwoithe@physics.adelaide.edu.au (Jonathan Woithe),
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20060921192427.GD17065@redhat.com> from "Dave Jones" at Sep 21, 2006 03:24:27 PM
-X-Mailer: ELM [version 2.5 PL6]
-MIME-Version: 1.0
+	Fri, 22 Sep 2006 02:59:29 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:28854 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1750799AbWIVG73 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Sep 2006 02:59:29 -0400
+Date: Fri, 22 Sep 2006 08:49:55 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Mathieu Desnoyers <compudj@krystal.dyndns.org>
+Cc: Martin Bligh <mbligh@google.com>, "Frank Ch. Eigler" <fche@redhat.com>,
+       Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>, prasanna@in.ibm.com,
+       Andrew Morton <akpm@osdl.org>, Paul Mundt <lethal@linux-sh.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>, Jes Sorensen <jes@sgi.com>,
+       Tom Zanussi <zanussi@us.ibm.com>,
+       Richard J Moore <richardj_moore@uk.ibm.com>,
+       Michel Dagenais <michel.dagenais@polymtl.ca>,
+       Christoph Hellwig <hch@infradead.org>,
+       Greg Kroah-Hartman <gregkh@suse.de>,
+       Thomas Gleixner <tglx@linutronix.de>, William Cohen <wcohen@redhat.com>,
+       ltt-dev@shafik.org, systemtap@sources.redhat.com,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH] Linux Kernel Markers 0.5 for Linux 2.6.17 (with probe management)
+Message-ID: <20060922064955.GA4167@elte.hu>
+References: <20060921160009.GA30115@Krystal> <20060921160656.GA24774@elte.hu> <20060921214248.GA10097@Krystal>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20060921214248.GA10097@Krystal>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -2.9
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.9 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.4950]
+	-0.1 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On Thu, Sep 21, 2006 at 08:04:49PM +0100, Hugh Dickins wrote:
+
+* Mathieu Desnoyers <compudj@krystal.dyndns.org> wrote:
+
+> >   "As an example, LTTng traces the page fault handler, when kprobes 
+> >   just can't instrument it."
+> > 
+> > but tracing a raw pagefault at the arch level is a bad idea anyway, 
+> > we want to trace __handle_mm_fault(). That way you can avoid having 
+> > to modify every architecture's pagefault handler ...
 > 
->  >   BUG: unable to handle kernel paging request at virtual address 0010c744
->  >    printing eip:
->  >   c013be50
->  >   *pde = 00000000
->  >   Oops: 0002 [#1]
->  >   Modules linked in: ntfs 8139too via_agp agpgart usb_storage ehci_hcd uhci_hcd usbcore
->  >   CPU:    0
->  >   EIP:    0060:[<c013be50>]    Tainted: G   M  VLI
->  >   EFLAGS: 00010282   (2.6.17 #2) 
->  >   EIP is at anon_vma_unlink+0x16/0x3c
->  >   eax: 0010c740   ebx: cf1070cc   ecx: cf107104   edx: cf8bc740
->  >   esi: cf8bc740   edi: b7e82000   ebp: 00000000   esp: cdad7f58
->  > 
->  > I haven't worked out the disassembly in detail to support the idea
->  > (though certainly anon_vma_unlink would be trying to list_del around
->  > here), but that eax and esi do suggest a corrupted list: somehow the
->  > top half of a pointer overwritten by the top half of LIST_POISON1.
->  > 
->  > And in Anton's case, the top half of a pointer overwritten by the
->  > bottom half of LIST_POISON2.
->  > 
->  > Maybe just coincidence, and I've nothing more illuminating to add;
->  > but just a hint of a list_del going very wrong somewhere?
-> 
-> Given a machine check happened, the state of the machine in general
-> is questionable.  I'd recommend a run of memtest86+ 
+> Then you lose the ability to trace in-kernel minor page faults.
 
-That was already done.  No memory errors were reported over 10 passes.
+that's wrong, minor pagefaults go through __handle_mm_fault() just as 
+much.
 
-Secondly, the machine check indication was only present on one of the two
-oopses we saw.  Furthermore, there was no indication in any log files
-that a machine check had occurred in the case of the second oops.
-Then again, perhaps machine checks don't get logged which would make this
-observation irrelevant.
-
-Could we be looking at a dying CPU?
-
-Regards
-  jonathan
+	Ingo

@@ -1,59 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964936AbWIVXrJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964939AbWIVXt3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964936AbWIVXrJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Sep 2006 19:47:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964939AbWIVXrJ
+	id S964939AbWIVXt3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Sep 2006 19:49:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964943AbWIVXt3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Sep 2006 19:47:09 -0400
-Received: from colo.lackof.org ([198.49.126.79]:57806 "EHLO colo.lackof.org")
-	by vger.kernel.org with ESMTP id S964936AbWIVXrH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Sep 2006 19:47:07 -0400
-Date: Fri, 22 Sep 2006 17:47:12 -0600
-From: Grant Grundler <grundler@parisc-linux.org>
-To: Jeff Garzik <jeff@garzik.org>
-Cc: Grant Grundler <grundler@parisc-linux.org>, Tejun Heo <htejun@gmail.com>,
-       Matthew Wilcox <matthew@wil.cx>, Arjan van de Ven <arjan@infradead.org>,
-       linux-pci@atrey.karlin.mff.cuni.cz, Greg KH <greg@kroah.com>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: question regarding cacheline size
-Message-ID: <20060922234712.GD7764@colo.lackof.org>
-References: <45000076.4070005@gmail.com> <20060907120756.GA29532@flint.arm.linux.org.uk> <20060907122311.GM2558@parisc-linux.org> <1157632405.14882.27.camel@laptopd505.fenrus.org> <20060907124026.GN2558@parisc-linux.org> <45001665.9050509@gmail.com> <20060907130401.GO2558@parisc-linux.org> <45001C48.6050803@gmail.com> <20060907152147.GA17324@colo.lackof.org> <450042F7.5080202@garzik.org>
+	Fri, 22 Sep 2006 19:49:29 -0400
+Received: from zeniv.linux.org.uk ([195.92.253.2]:3806 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S964939AbWIVXt3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Sep 2006 19:49:29 -0400
+Date: Sat, 23 Sep 2006 00:49:27 +0100
+From: Al Viro <viro@ftp.linux.org.uk>
+To: Scott Baker <smbaker@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: fault when using iget() on XFS file system (2.6.9)
+Message-ID: <20060922234927.GU29920@ftp.linux.org.uk>
+References: <35a82d00609221642u2e4a5026w434584ff77b7b9bb@mail.gmail.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <450042F7.5080202@garzik.org>
-X-Home-Page: http://www.parisc-linux.org/
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <35a82d00609221642u2e4a5026w434584ff77b7b9bb@mail.gmail.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 07, 2006 at 12:04:07PM -0400, Jeff Garzik wrote:
-...
-> >Current API (pci_set_mwi()) ties enabling MRM/MRL with enabling MWI
-> >and I don't see a really good reason for that. Only the converse
-> >is true - enabling MWI requires setting cachelinesize.
-> 
-> Correct, that's why it was done that way, when I wrote the API. 
-> Enabling MWI required making sure the BIOS configured our CLS for us, 
-> which was often not the case.  No reason why we can't do a
-> 
-> 	pdev->set_cls = 1;
-> 	rc = pci_enable_device(pdev);
+On Fri, Sep 22, 2006 at 04:42:41PM -0700, Scott Baker wrote:
+> I'm working on a kernel module that needs to perform an iget() on an
+> inode that lies in the XFS file system.
 
-I was thinking the pci_enable_device could safely set CLS if MWI
-were NOT enabled. I'm sure somethings would break that worked before
-but that's what quirks are for, right?
+Explain why you think you need iget().  It's almost certainly a Bad Idea(tm) -
+code outside of filesystem has no business calling it.
 
-Anyway, I'm convinced the arch specific PCI code should be setting CLS
-either at bus_fixup or via some quirks to compensate for "broken" firmware
-(which didn't set CLS). Maybe there is more brokn HW out there than
-I think...I'm easy convince that's the case.
-
-If a driver wanted to enable MWI, then pci_set_mwi() should
-verify (or force) CLS setttings or return an error.
-That part seems pretty straight forward and don't need a
-change in API here.
-
-thanks,
-grant
+Without more context there's no way anyone can help.  What does that
+module attempt to do?

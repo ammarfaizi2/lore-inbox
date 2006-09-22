@@ -1,73 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932182AbWIVVWK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932190AbWIVV27@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932182AbWIVVWK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Sep 2006 17:22:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932185AbWIVVWK
+	id S932190AbWIVV27 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Sep 2006 17:28:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932189AbWIVV27
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Sep 2006 17:22:10 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:31115 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S932182AbWIVVWI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Sep 2006 17:22:08 -0400
-Date: Fri, 22 Sep 2006 14:21:50 -0700 (PDT)
-From: Christoph Lameter <clameter@sgi.com>
-To: Jesse Barnes <jesse.barnes@intel.com>
-cc: Martin Bligh <mbligh@mbligh.org>, Andi Kleen <ak@suse.de>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, akpm@google.com,
-       linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
-       James Bottomley <James.Bottomley@steeleye.com>, linux-mm@kvack.org
-Subject: Re: [RFC] Initial alpha-0 for new page allocator API
-In-Reply-To: <200609221414.00667.jesse.barnes@intel.com>
-Message-ID: <Pine.LNX.4.64.0609221421170.9495@schroedinger.engr.sgi.com>
-References: <Pine.LNX.4.64.0609212052280.4736@schroedinger.engr.sgi.com>
- <200609221341.44354.jesse.barnes@intel.com> <Pine.LNX.4.64.0609221400230.9370@schroedinger.engr.sgi.com>
- <200609221414.00667.jesse.barnes@intel.com>
+	Fri, 22 Sep 2006 17:28:59 -0400
+Received: from wx-out-0506.google.com ([66.249.82.228]:56533 "EHLO
+	wx-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S932188AbWIVV26 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Sep 2006 17:28:58 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
+        b=uULdZ7CIQAMR3HOxYQua4vYkg43GO3XI46TE8DsKAX+chUiVGFVhmY56yQV+IycSwoCF4quoqYXTnDNh7Uq1113v8NsLMQJG62jltr+59DRBBDNYYzwr+XzhsK9IoyblJDykYF5cpWaiOoCm8geGU8bbj9WP95k0BFwbVUmdwkk=
+Message-ID: <c1bf1cf0609221428i618a5902g3d0315f6b0b9b79e@mail.gmail.com>
+Date: Fri, 22 Sep 2006 14:28:57 -0700
+From: "Ed Swierk" <eswierk@arastra.com>
+To: "Greg KH" <greg@kroah.com>
+Subject: Re: [RETRY] [PATCH] load_module: no BUG if module_subsys uninitialized
+Cc: linux-kernel@vger.kernel.org, rusty@rustcorp.com.au
+In-Reply-To: <20060922201637.GA17547@kroah.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <c1bf1cf0609221248v39113875id4b48c62cec8eb46@mail.gmail.com>
+	 <20060922201637.GA17547@kroah.com>
+X-Google-Sender-Auth: aef8d820e3d47749
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 22 Sep 2006, Jesse Barnes wrote:
+On 9/22/06, Greg KH <greg@kroah.com> wrote:
+> How are you calling load_module before this init call is made?
 
-> I was suggesting something like:
-> 
-> 	high = dev ? dev->coherent_dma_mask : 16*1024*1024;
-> 
-> instead.  May as well combine your NULL check and your assignment.  It'll 
-> also do the right thing for 64 bit devices so we don't put unnecessary 
-> pressure on the 32 bit range.  Or am I spacing out and reading the code 
-> wrong?
+In my case, net-pf-1 is getting modprobed as a result of hotplug
+trying to create a UNIX socket. Calls to hotplug begin after the
+topology_init initcall.
 
-Ahh.. Yes something like this will save a lot of lines:
-
-Index: linux-2.6.18-rc7-mm1/arch/i386/kernel/pci-dma.c
-===================================================================
---- linux-2.6.18-rc7-mm1.orig/arch/i386/kernel/pci-dma.c	2006-09-22 15:37:41.000000000 -0500
-+++ linux-2.6.18-rc7-mm1/arch/i386/kernel/pci-dma.c	2006-09-22 16:20:49.849799156 -0500
-@@ -26,8 +26,6 @@ void *dma_alloc_coherent(struct device *
- 			   dma_addr_t *dma_handle, gfp_t gfp)
- {
- 	void *ret;
--	unsigned long low = 0L;
--	unsigned long high = 0xffffffff;
- 	struct dma_coherent_mem *mem = dev ? dev->dma_mem : NULL;
- 	int order = get_order(size);
- 	/* ignore region specifiers */
-@@ -46,14 +44,9 @@ void *dma_alloc_coherent(struct device *
- 			return NULL;
- 	}
- 
--	if (dev == NULL)
--		/* Apply safe ISA LIMITS */
--		high = 16*1024*1024L;
--	else
--	if (dev->coherent_dma_mask < 0xffffffff)
--		high = dev->coherent_dma_mask;
--
--	ret = page_address(alloc_pages_range(low, high, gfp, order));
-+	ret = page_address(alloc_pages_range(0L,
-+		dev ? dev->coherent_dma_mask : 16*1024*1024,
-+		gfp, order));
- 
- 	if (ret != NULL) {
- 		memset(ret, 0, size);
+--Ed

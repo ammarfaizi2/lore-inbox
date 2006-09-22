@@ -1,48 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932485AbWIVNxz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932492AbWIVOAd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932485AbWIVNxz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Sep 2006 09:53:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932487AbWIVNxz
+	id S932492AbWIVOAd (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Sep 2006 10:00:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932493AbWIVOAd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Sep 2006 09:53:55 -0400
-Received: from dtp.xs4all.nl ([80.126.206.180]:9289 "HELO abra2.bitwizard.nl")
-	by vger.kernel.org with SMTP id S932485AbWIVNxy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Sep 2006 09:53:54 -0400
-Date: Fri, 22 Sep 2006 15:53:53 +0200
-From: Erik Mouw <erik@harddisk-recovery.com>
-To: Larry Finger <Larry.Finger@lwfinger.net>
-Cc: dbtsai@gmail.com, John Linville <linville@tuxdriver.com>,
-       netdev@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Bcm43xx softMac Driver in 2.6.18
-Message-ID: <20060922135352.GD4122@harddisk-recovery.com>
-References: <4513E308.10507@lwfinger.net>
-MIME-Version: 1.0
+	Fri, 22 Sep 2006 10:00:33 -0400
+Received: from caffeine.uwaterloo.ca ([129.97.134.17]:5081 "EHLO
+	caffeine.csclub.uwaterloo.ca") by vger.kernel.org with ESMTP
+	id S932492AbWIVOAc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Sep 2006 10:00:32 -0400
+Date: Fri, 22 Sep 2006 10:00:31 -0400
+To: Dax Kelson <dax@gurulabs.com>
+Cc: Linux kernel <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: Smaller compressed kernel source tarballs?
+Message-ID: <20060922140031.GL13639@csclub.uwaterloo.ca>
+References: <1158870777.24172.23.camel@mentorng.gurulabs.com> <20060921204250.GN13641@csclub.uwaterloo.ca> <1158874809.24172.45.camel@mentorng.gurulabs.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4513E308.10507@lwfinger.net>
-Organization: Harddisk-recovery.com
-User-Agent: Mutt/1.5.13 (2006-08-11)
+In-Reply-To: <1158874809.24172.45.camel@mentorng.gurulabs.com>
+User-Agent: Mutt/1.5.9i
+From: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: lsorense@csclub.uwaterloo.ca
+X-SA-Exim-Scanned: No (on caffeine.csclub.uwaterloo.ca); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 22, 2006 at 08:20:08AM -0500, Larry Finger wrote:
-> This patch, which was originally sent to John Linville on 9/14/06,
-> has been taken against 2.6.18. It changes more lines
-> than would be absolutely necessary to affect the fix; however, it
-> ends up with this section looking exactly like the current code (with
-> pending patches) that is in wireless-2.6.
+On Thu, Sep 21, 2006 at 03:40:09PM -0600, Dax Kelson wrote:
+> Decompression times on 2.6.18 are as follows:
+> 
+> gzip:   0m3.509s
+> 7zip:   0m10.012s
+> bzip2:  0m22.703s
 
-Sorry, but your patch doesn't apply cleanly against 2.6.18:
+Hmm, not bad.
 
-erik@arthur:~/git/linux-2.6 > patch -p1 --dry-run < ../bcm43xx-2.6.18.diff
-patching file drivers/net/wireless/bcm43xx/bcm43xx_main.c
-Hunk #1 FAILED at 3182.
-1 out of 1 hunk FAILED -- saving rejects to file drivers/net/wireless/bcm43xx/bcm43xx_main.c.rej
-
-
-Erik
-
--- 
-+-- Erik Mouw -- www.harddisk-recovery.com -- +31 70 370 12 90 --
-| Lab address: Delftechpark 26, 2628 XH, Delft, The Netherlands
+--
+Len Sorensen

@@ -1,102 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751061AbWIVIr3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751089AbWIVI7c@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751061AbWIVIr3 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Sep 2006 04:47:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751079AbWIVIr3
+	id S1751089AbWIVI7c (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Sep 2006 04:59:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751092AbWIVI7c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Sep 2006 04:47:29 -0400
-Received: from av2.karneval.cz ([81.27.192.122]:24610 "EHLO av2.karneval.cz")
-	by vger.kernel.org with ESMTP id S1751061AbWIVIr2 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Sep 2006 04:47:28 -0400
-Message-id: <9112929121291221repost@karneval.cz>
-Subject: [PATCH -repost] isicom: correct firmware loading
-From: Jiri Slaby <jirislaby@gmail.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: <linux-kernel@vger.kernel.org>
-Date: Fri, 22 Sep 2006 10:47:19 +0200 (CEST)
+	Fri, 22 Sep 2006 04:59:32 -0400
+Received: from taverner.CS.Berkeley.EDU ([128.32.168.222]:17632 "EHLO
+	taverner.cs.berkeley.edu") by vger.kernel.org with ESMTP
+	id S1751091AbWIVI7b (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Sep 2006 04:59:31 -0400
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: daw@cs.berkeley.edu (David Wagner)
+Newsgroups: isaac.lists.linux-kernel
+Subject: Re: [PATCH 2.6.18 try 2] net/ipv4: sysctl to allow non-superuser to bypass CAP_NET_BIND_SERVICE requirement
+Date: Fri, 22 Sep 2006 08:59:12 +0000 (UTC)
+Organization: University of California, Berkeley
+Message-ID: <ef08l0$avn$1@taverner.cs.berkeley.edu>
+References: <4E1176C1-8F18-4790-9BCB-95306ACED48A@atheme.org> <736CE60D-FB88-4246-8728-B7AC7880B28E@atheme.org>
+Reply-To: daw-usenet@taverner.cs.berkeley.edu (David Wagner)
+NNTP-Posting-Host: taverner.cs.berkeley.edu
+X-Trace: taverner.cs.berkeley.edu 1158915552 11255 128.32.168.222 (22 Sep 2006 08:59:12 GMT)
+X-Complaints-To: news@taverner.cs.berkeley.edu
+NNTP-Posting-Date: Fri, 22 Sep 2006 08:59:12 +0000 (UTC)
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Originator: daw@taverner.cs.berkeley.edu (David Wagner)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-isicom: correct firmware loading
+William Pitcock  wrote:
+>This patch allows for a user to disable the requirement to meet the  
+>CAP_NET_BIND_SERVICE capability for a non-superuser. It is toggled by  
+>the net.ipv4.allow_lowport_bind_nonsuperuser sysctl value.
 
-Loading of firmware didn't fail when something went wrong (returned 0). Pointer
-to frame was incremented only by sizeof(frame) excluding it's data contents --
-bad idea. Tell the card we're ready just after checking is complete, not before.
-
-Signed-off-by: Jiri Slaby <jirislaby@gmail.com>
-
----
-commit 7fa7a3e6bcd181bb25adacfc71dc8a386e347e9d
-tree 00758e71b46c5de09d98c79cf00f187012b9ba35
-parent ca8b00296c6ff25faf9db7fe4b11d1460b64c7d7
-author Jiri Slaby <jirislaby@gmail.com> Mon, 18 Sep 2006 22:57:06 +0200
-committer Jiri Slaby <jirislaby@gmail.com> Mon, 18 Sep 2006 22:57:06 +0200
-
- drivers/char/isicom.c |   35 +++++++++++++++++++----------------
- 1 files changed, 19 insertions(+), 16 deletions(-)
-
-diff --git a/drivers/char/isicom.c b/drivers/char/isicom.c
-index 6cca4b2..ea2bbf8 100644
---- a/drivers/char/isicom.c
-+++ b/drivers/char/isicom.c
-@@ -1756,9 +1756,12 @@ static int __devinit load_firmware(struc
- 	if (retval)
- 		goto end;
- 
-+	retval = -EIO;
-+
- 	for (frame = (struct stframe *)fw->data;
- 			frame < (struct stframe *)(fw->data + fw->size);
--			frame++) {
-+			frame = (struct stframe *)((u8 *)(frame + 1) +
-+				frame->count)) {
- 		if (WaitTillCardIsFree(base))
- 			goto errrelfw;
- 
-@@ -1797,23 +1800,12 @@ static int __devinit load_firmware(struc
- 		}
-  	}
- 
--	retval = -EIO;
--
--	if (WaitTillCardIsFree(base))
--		goto errrelfw;
--
--	outw(0xf2, base);
--	outw(0x800, base);
--	outw(0x0, base);
--	outw(0x0, base);
--	InterruptTheCard(base);
--	outw(0x0, base + 0x4); /* for ISI4608 cards */
--
- /* XXX: should we test it by reading it back and comparing with original like
-  * in load firmware package? */
--	for (frame = (struct stframe*)fw->data;
--			frame < (struct stframe*)(fw->data + fw->size);
--			frame++) {
-+	for (frame = (struct stframe *)fw->data;
-+			frame < (struct stframe *)(fw->data + fw->size);
-+			frame = (struct stframe *)((u8 *)(frame + 1) +
-+				frame->count)) {
- 		if (WaitTillCardIsFree(base))
- 			goto errrelfw;
- 
-@@ -1863,6 +1855,17 @@ static int __devinit load_firmware(struc
- 		}
- 	}
- 
-+	/* xfer ctrl */
-+	if (WaitTillCardIsFree(base))
-+		goto errrelfw;
-+
-+	outw(0xf2, base);
-+	outw(0x800, base);
-+	outw(0x0, base);
-+	outw(0x0, base);
-+	InterruptTheCard(base);
-+	outw(0x0, base + 0x4); /* for ISI4608 cards */
-+
- 	board->status |= FIRMWARE_LOADED;
- 	retval = 0;
- 
+Can't you provide this functionality (in a non-transparent way) through
+user-space code alone?  I'm thinking of a setuid-root program that
+takes a port number as argv[1], binds to that port, dup()s the new
+file descriptor onto fd 0 (say), drops root, and then forks and execs
+a program specified on argv[2].  If you want to get fancy, instead of
+exec-ing, you could use the standard trick to pass the file descriptor
+over a Unix domain socket to some other process.  Seems like you should
+be able to make something like this work, as long as you're willing to
+make small modifications to the program that uses the low port.  Does
+that work?

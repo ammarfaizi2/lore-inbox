@@ -1,134 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932258AbWIVECX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932266AbWIVEJ4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932258AbWIVECX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Sep 2006 00:02:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932262AbWIVECX
+	id S932266AbWIVEJ4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Sep 2006 00:09:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932267AbWIVEJ4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Sep 2006 00:02:23 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:17581 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S932258AbWIVECW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Sep 2006 00:02:22 -0400
-Date: Thu, 21 Sep 2006 21:02:05 -0700 (PDT)
-From: Christoph Lameter <clameter@sgi.com>
-To: Martin Bligh <mbligh@mbligh.org>
-cc: akpm@google.com, linux-kernel@vger.kernel.org,
-       Christoph Hellwig <hch@infradead.org>,
-       James Bottomley <James.Bottomley@steeleye.com>, linux-mm@kvack.org
-Subject: [RFC] Initial alpha-0 for new page allocator API
-Message-ID: <Pine.LNX.4.64.0609212052280.4736@schroedinger.engr.sgi.com>
+	Fri, 22 Sep 2006 00:09:56 -0400
+Received: from mx4.cs.washington.edu ([128.208.4.190]:58018 "EHLO
+	mx4.cs.washington.edu") by vger.kernel.org with ESMTP
+	id S932266AbWIVEJz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Sep 2006 00:09:55 -0400
+Date: Thu, 21 Sep 2006 21:09:48 -0700 (PDT)
+From: David Rientjes <rientjes@cs.washington.edu>
+To: Andrew Morton <akpm@osdl.org>
+cc: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>, kmannth@us.ibm.com,
+       linux-kernel@vger.kernel.org, clameter@engr.sgi.com
+Subject: Re: [BUG] i386 2.6.18 cpu_up: attempt to bring up CPU 4 failed :
+ kernel BUG at mm/slab.c:2698!
+In-Reply-To: <20060921204629.49caa95f.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.64N.0609212108360.30543@attu1.cs.washington.edu>
+References: <1158884252.5657.38.camel@keithlap> <20060921174134.4e0d30f2.akpm@osdl.org>
+ <1158888843.5657.44.camel@keithlap> <20060922112427.d5f3aef6.kamezawa.hiroyu@jp.fujitsu.com>
+ <20060921200806.523ce0b2.akpm@osdl.org> <20060922123045.d7258e13.kamezawa.hiroyu@jp.fujitsu.com>
+ <20060921204629.49caa95f.akpm@osdl.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We have repeatedly discussed the problems of devices having varying 
-address range requirements for doing DMA. We would like for the device 
-drivers to have the ability to specify exactly which address range is 
-allowed. Also the NUMA guys would like to have the ability to specify NUMA 
-related information.
+On Thu, 21 Sep 2006, Andrew Morton wrote:
 
-So I have put all the important allocation information in a struct 
-allocation_control and am trying to get a new API developed that will fit 
-our needs for better control over allocations. The discussion of the exact 
-nature of the implementation necessary in the page allocator to supply 
-pages fulfilling the criteria specified may better be deferred until we 
-have a reasonable API.
+> On Fri, 22 Sep 2006 12:30:45 +0900
+> KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com> wrote:
+> 
+> > Before kfree(), we should check zone_pcp() is not boot_pageset[].
+> > 
+> > Signed-Off-By KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+> > 
+> > Index: linux-2.6.18/mm/page_alloc.c
+> > ===================================================================
+> > --- linux-2.6.18.orig/mm/page_alloc.c	2006-09-20 12:42:06.000000000 +0900
+> > +++ linux-2.6.18/mm/page_alloc.c	2006-09-22 12:22:03.000000000 +0900
+> > @@ -1844,9 +1844,11 @@
+> >  
+> >  	for_each_zone(zone) {
+> >  		struct per_cpu_pageset *pset = zone_pcp(zone, cpu);
+> > -
+> > -		zone_pcp(zone, cpu) = NULL;
+> > -		kfree(pset);
+> > +		/* When canceled, zone_pcp still points to boot_pageset[] */
+> > +		if (zone_pcp(zone, cpu) != &boot_pageset[cpu]) {
+> > +			zone_pcp(zone, cpu) = NULL;
+> > +			kfree(pset);
+> > +		}
+> >  	}
+> >  }
+> 
+> Oh, I see what you mean.
+> 
+> Oh well, zeroing them all out in process_zones() will work.
 
-The implementation given here uses the existing page_allocator in order to 
-define the behavior of the new functions. The free functions have an _a_ 
-and a _some_ in there to avoid name clashes. Will be removed later.
+The _only_ time zone_pcp is slab allocated is through process_zones().  So 
+if we have an error on kmalloc_node for that zone_pcp, all previous 
+allocations are freed and process_zones() fails for that cpu.
 
-This is only a discussion basis. Once we agree on the API then I will 
-implement that API with minimal effort on top of the existing page 
-allocator and then we can try to see how a device driver would be working 
-with this. I envision that we would have one allocation_control structure 
-in the task structure to control the allocation of pages for a process. 
-This should allow us to move the memory policy related information into 
-the allocation_control structure. I also would think that a device driver
-would have an allocation_control structure somewhere where parameters are 
-set up so that allocations using this structure will yield the pages 
-satisfying the requirements of the device drivers.
+We are guaranteed that the process_zones() for cpu 0 succeeds, otherwise 
+the pageset notifier isn't registered.  On CPU_UP_PREPARE for cpu 4 in 
+this case, process_zones() fails because we couldn't kmalloc the 
+per_cpu_pageset and we return NOTIFY_BAD.  This prints the failed message 
+in the report and then CPU_UP_CANCELED is sent back to the notifier which 
+attempts to kfree the zone that was never kmalloc'd.
 
-Index: linux-2.6.18-rc6-mm1/include/linux/allocator.h
-===================================================================
---- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-2.6.18-rc6-mm1/include/linux/allocator.h	2006-09-21 20:48:30.000000000 -0700
-@@ -0,0 +1,35 @@
-+/*
-+ * Necessary definitions to perform allocations
-+ */
-+
-+#include <linux/mm.h>
-+
-+struct allocation_control {
-+	gfp_t flags;
-+	int order;
-+#ifdef CONFIG_NUMA
-+	int node;
-+	struct mempol *mpol;
-+#endif
-+	unsigned long low_boundary;
-+	unsigned long high_boundary;
-+};
-+
-+/*
-+ * Functions to allocate memory in units of PAGE_SIZE
-+ */
-+struct page *allocate_pages(struct allocation_control *ac,
-+					gfp_t additional_flags);
-+
-+/*
-+ * Free a single page
-+ * (which may be of higher order if allocated with GFP_COMP set)
-+ */
-+void free_a_page(struct page *);
-+
-+/*
-+ * Free a page as allocated with the given allocation control.
-+ * This is needed if higher order pages were allocated without GFP_COMP set.
-+ */
-+void free_some_pages(struct page *, struct allocation_control *ac);
-+
-Index: linux-2.6.18-rc6-mm1/mm/page_allocator.c
-===================================================================
---- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ linux-2.6.18-rc6-mm1/mm/page_allocator.c	2006-09-21 20:49:37.000000000 -0700
-@@ -0,0 +1,37 @@
-+/*
-+ * Standard Page Allocator Definitions
-+ */
-+#include <linux/allocator.h>
-+
-+struct page *allocate_pages(struct allocation_control *ac,
-+					gfp_t additional_flags)
-+{
-+	gfp_t gfp_flags = additional_flags | ac->flags;
-+
-+#ifdef CONFIG_ZONE_DMA32
-+	if (high_boundary < MAX_DMA32_ADDRESS)
-+			gfp_flags |= __GFP_DMA32;
-+	else
-+#endif
-+#ifdef CONFIG_ZONE_DMA
-+	if (high_boundary < MAX_DMA_ADDRESS)
-+			gfp_flags |= GFP_DMA;
-+#endif
-+
-+#ifdef CONFIG_NUMA
-+	if (ac->node != -1)
-+		return alloc_pages_node(ac->node, gfp_flags, ac->order);
-+#endif
-+
-+	return alloc_pages(gfp_flags, ac->order);
-+}
-+
-+void free_a_page(struct page *page)
-+{
-+	__free_pages(page, 0);
-+}
-+
-+void free_some_pages(struct page *page, struct allocation_control *ac)
-+{
-+	__free_pages(page, ac->order);
-+}
+The fix will work except for the case that zone_pcp is never set to NULL 
+as it should be.
+
+		David

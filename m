@@ -1,73 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750815AbWIVJKM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751113AbWIVJTE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750815AbWIVJKM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Sep 2006 05:10:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750950AbWIVJKL
+	id S1751113AbWIVJTE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Sep 2006 05:19:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751111AbWIVJTE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Sep 2006 05:10:11 -0400
-Received: from ku-gbr.de ([81.3.11.18]:37522 "EHLO ku-gbr.de")
-	by vger.kernel.org with ESMTP id S1750815AbWIVJKK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Sep 2006 05:10:10 -0400
-Date: Fri, 22 Sep 2006 11:10:50 +0200
-From: Konstantin Kletschke <lists@ku-gbr.de>
-To: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.6.18-rc6
-Message-ID: <20060922091049.GA5218@anita.doom>
-Mail-Followup-To: linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.64.0609031939100.27779@g5.osdl.org> <20060904223153.GK13238@bayes.mathematik.tu-chemnitz.de> <200609042017.03515.gene.heskett@verizon.net> <200609051704.41576.s0348365@sms.ed.ac.uk>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200609051704.41576.s0348365@sms.ed.ac.uk>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+	Fri, 22 Sep 2006 05:19:04 -0400
+Received: from osiris.atheme.org ([69.60.119.211]:53704 "EHLO
+	osiris.atheme.org") by vger.kernel.org with ESMTP id S1751113AbWIVJTC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Sep 2006 05:19:02 -0400
+In-Reply-To: <ef08l0$avn$1@taverner.cs.berkeley.edu>
+References: <4E1176C1-8F18-4790-9BCB-95306ACED48A@atheme.org> <736CE60D-FB88-4246-8728-B7AC7880B28E@atheme.org> <ef08l0$avn$1@taverner.cs.berkeley.edu>
+Mime-Version: 1.0 (Apple Message framework v752.2)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <EEE7B568-41EC-4005-AFEF-FD9B47ED98EB@atheme.org>
+Cc: linux-kernel@vger.kernel.org
+Content-Transfer-Encoding: 7bit
+From: William Pitcock <nenolod@atheme.org>
+Subject: Re: [PATCH 2.6.18 try 2] net/ipv4: sysctl to allow non-superuser to bypass CAP_NET_BIND_SERVICE requirement
+Date: Fri, 22 Sep 2006 04:19:25 -0500
+To: daw-usenet@taverner.cs.berkeley.edu (David Wagner)
+X-Mailer: Apple Mail (2.752.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am 2006-09-05 17:04 +0100 schrieb Alistair John Strachan:
+On Sep 22, 2006, at 3:59 AM, David Wagner wrote:
 
-> Might not be a kernel problem, userspace might be using libusb and calling 
-> usb_reset() on the device. Try dropping out of X11 and see if it still 
-> happens.
+> William Pitcock  wrote:
+>> This patch allows for a user to disable the requirement to meet the
+>> CAP_NET_BIND_SERVICE capability for a non-superuser. It is toggled by
+>> the net.ipv4.allow_lowport_bind_nonsuperuser sysctl value.
+>
+> Can't you provide this functionality (in a non-transparent way)  
+> through
+> user-space code alone?  I'm thinking of a setuid-root program that
+> takes a port number as argv[1], binds to that port, dup()s the new
+> file descriptor onto fd 0 (say), drops root, and then forks and execs
+> a program specified on argv[2].  If you want to get fancy, instead of
+> exec-ing, you could use the standard trick to pass the file descriptor
+> over a Unix domain socket to some other process.  Seems like you  
+> should
+> be able to make something like this work, as long as you're willing to
+> make small modifications to the program that uses the low port.  Does
+> that work?
 
+While this is possible, the purpose of this patch is to allow for  
+such things to "just work" without any effort from the user to make  
+it work.
 
-I have this with 18_rc6 and 18_rc7 also:
+Additionally, with your solution, the program would still need to be  
+extensively modified. With the sysctl patch, this isn't necessary, as  
+the lowport bind() will be successful as long as the sysctl value is  
+set to a non-zero value.
 
-Sep 22 11:01:50 anita usb 1-3: reset low speed USB device using ohci_hcd
-and address 3
-Sep 22 11:03:17 anita usb 1-3: reset low speed USB device using ohci_hcd
-and address 3
-Sep 22 11:04:04 anita usb 1-3: reset low speed USB device using ohci_hcd
-and address 3
-Sep 22 11:04:52 anita usb 1-3: reset low speed USB device using ohci_hcd
-and address 3
-Sep 22 11:05:46 anita usb 1-3: reset low speed USB device using ohci_hcd
-and address 3
-Sep 22 11:06:30 anita usb 1-3: reset low speed USB device using ohci_hcd
-and address 3
+On other TCP stacks, such as the one included with FreeBSD, you can  
+do the exact same thing this patch does, by doing:
 
-In older Kernels or even 2.6.17 I never saw this.
-So may be the initial report was barking at the wrong tree, this is a
-plugged wired USB keyboard (daskeyboard.com).
-The Keyboard is fully functional while typing on it and this happens
-without being in X. It happens with nobody logged in local, the messages
-are logged even only when logged in via ssh.
+   # sysctl net.inet.ip.portrange.reservedhigh=0
 
-libusb and usbutils are not installed on this machine (should they?).
+The goal of this patch is to provide similar functionality, which  
+right now, it does. However, it's not as fancy as FreeBSD's, but that  
+is because PROT_SOCK in af_inet.c is a constant (#define), and thus  
+not as nicely tuneable.
 
-T:  Bus=01 Lev=01 Prnt=01 Port=02 Cnt=02 Dev#=  3 Spd=1.5 MxCh= 0
-D:  Ver= 2.00 Cls=00(>ifc ) Sub=00 Prot=00 MxPS= 8 #Cfgs=  1
-P:  Vendor=046a ProdID=0048 Rev= 0.26
-S:  Product=Das Keyboard
-C:* #Ifs= 1 Cfg#= 1 Atr=a0 MxPwr=100mA
-I:  If#= 0 Alt= 0 #EPs= 1 Cls=03(HID  ) Sub=01 Prot=01 Driver=usbhid
-E:  Ad=81(I) Atr=03(Int.) MxPS=   8 Ivl=10ms
+However, that is a weak argument for not doing it that way, as I  
+could have done something like:
 
+int sysctl_ip_portrange_high = PROT_SOCK;
 
-Regards, Konsti
+The current way is simpler, though, than the way it is done in  
+FreeBSD, and I feel covers the typical use-case very well.
 
-
-
--- 
-GPG KeyID EF62FCEF
-Fingerprint: 13C9 B16B 9844 EC15 CC2E  A080 1E69 3FDA EF62 FCEF
+However, that's really not a bad idea (what you proposed). But, I  
+still believe that the sysctl patch is more flexible, especially in  
+cases where you might not have the source-code to what you are trying  
+to run (common with enterprise apps, gameserver admin panels, etc.).

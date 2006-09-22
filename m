@@ -1,51 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932212AbWIVCXz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932215AbWIVC1y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932212AbWIVCXz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Sep 2006 22:23:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932214AbWIVCXz
+	id S932215AbWIVC1y (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Sep 2006 22:27:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932216AbWIVC1y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Sep 2006 22:23:55 -0400
-Received: from sandeen.net ([209.173.210.139]:48744 "EHLO sandeen.net")
-	by vger.kernel.org with ESMTP id S932212AbWIVCXy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Sep 2006 22:23:54 -0400
-Message-ID: <4513493F.8090005@sandeen.net>
-Date: Thu, 21 Sep 2006 21:23:59 -0500
-From: Eric Sandeen <sandeen@sandeen.net>
-User-Agent: Thunderbird 1.5.0.7 (Macintosh/20060909)
+	Thu, 21 Sep 2006 22:27:54 -0400
+Received: from nz-out-0102.google.com ([64.233.162.198]:14142 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S932215AbWIVC1y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Sep 2006 22:27:54 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=EeaeGAo+XdfzLGEL//92VA/hHwyxjnRSWzlMHndQbPeorp9QqCj2Jp+wN6hOe1OPGZlb4/dPDCtDadf6ibBunhBS34K5y5pDmwewgucV7PYodEaA9YN+Cz2wX4QtQVjX1sYbokaEXGlo3eRYvmwc/JAtKTrdbkw7bE/TaCG1AqM=
+Message-ID: <6d6a94c50609211927rbd2c90k8ba51f7f255b9ea5@mail.gmail.com>
+Date: Fri, 22 Sep 2006 10:27:53 +0800
+From: Aubrey <aubreylee@gmail.com>
+To: "Oleg Verych" <olecom@flower.upol.cz>
+Subject: Re: [PATCH 2/4] Blackfin: Serial driver for Blackfin arch on 2.6.18
+Cc: linux-kernel@vger.kernel.org, "Luke Yang" <luke.adi@gmail.com>
+In-Reply-To: <45134465.8060703@flower.upol.cz>
 MIME-Version: 1.0
-To: Timothy Shimmin <tes@sgi.com>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       xfs mailing list <xfs@oss.sgi.com>
-Subject: Re: [PATCH -mm] rescue large xfs preferred iosize from the inode
- diet patch
-References: <45131334.6050803@sandeen.net> <45134472.7080002@sgi.com>
-In-Reply-To: <45134472.7080002@sgi.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <489ecd0c0609202033j4dd9a62fye81f99d61bff030d@mail.gmail.com>
+	 <45134465.8060703@flower.upol.cz>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Timothy Shimmin wrote:
+On 9/22/06, Oleg Verych <olecom@flower.upol.cz> wrote:
+> Hallo, Luke Yang, who wrote:
+> > +static void bfin_serial_mctrl_check(struct bfin_serial_port *uart);
+> > +
+> > +/*
+> > + * interrupts disabled on entry
+> > + */
+>
+> spelling error: _are_ disabled
+> please grep && sed all patches
+>
 
-> Looked at your patch and then at our xfs code in the tree and
-> the existing code is different than what yours is based on.
-> I then noticed in the logs Nathan has actually made changes for this:
-> 
-> ----------------------------
-> revision 1.254
-> date: 2006/07/17 10:46:05;  author: nathans;  state: Exp;  lines: +20 -5
-> modid: xfs-linux-melb:xfs-kern:26565a
-> Update XFS for i_blksize removal from generic inode structure
-> ----------------------------
-> I even reviewed the change (and I don't remember it - getting old).
-> 
-> I looked at the mods scheduled for 2.6.19 and this is one of them.
-> 
-> So the fix for this is coming soon (and the fix is different from the
-> one above).
+Thanks for your comments.
+Yeah, the driver is based on an existing driver: sa1100.c, which has
+the spelling issue you mentioned too, but I think in the code comment,
+It's __OK__.
+Anyway, I'll change it and submit a new patch.
 
+> > +static void bfin_serial_stop_tx(struct uart_port *port)
+> > +{
+> > +    struct bfin_serial_port *uart = (struct bfin_serial_port *)port;
+> > +    unsigned short ier;
+> > +    ier = UART_GET_IER(uart);
+> > +    ier &= ~ETBEI;
+> > +    UART_PUT_IER(uart, ier);
+> > +#ifdef CONFIG_SERIAL_BFIN_DMA
+> > +    disable_dma(uart->tx_dma_channel);
+> > +#endif
+> > +}
+>
+> one blank line after local variables; you are using this in some functions, in
+> some you are not...
 
-Ah, ok, thanks guys.  Should have checked CVS I guess.
+Good suggestion, thanks, I'll fix it.
 
--Eric
+>
+> > +
+> > +static void bfin_serial_shutdown(struct uart_port *port)
+> > +{
+> > +    struct bfin_serial_port *uart = (struct bfin_serial_port *)port;
+> > +
+>
+> yes, one more space will be nicer
+>
+> > +    free_irq(uart->port.irq+1, uart);
+>
+> here and the like
+>
+>
+> --
+> -o--=O`C
+>  #oo'L O  5 years ago TT and WTC7 were assassinated
+> <___=E M  learn more how (tm) <http://911research.com>
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>

@@ -1,280 +1,495 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932309AbWIVLxV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932312AbWIVLzO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932309AbWIVLxV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Sep 2006 07:53:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932311AbWIVLxV
+	id S932312AbWIVLzO (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Sep 2006 07:55:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932313AbWIVLzN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Sep 2006 07:53:21 -0400
-Received: from ozlabs.org ([203.10.76.45]:23276 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S932309AbWIVLxU (ORCPT
+	Fri, 22 Sep 2006 07:55:13 -0400
+Received: from ozlabs.org ([203.10.76.45]:24300 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S932312AbWIVLzK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Sep 2006 07:53:20 -0400
-Subject: [PATCH 1/7] Use per-cpu GDT tables from early in boot
+	Fri, 22 Sep 2006 07:55:10 -0400
+Subject: [PATCH 2/7]
 From: Rusty Russell <rusty@rustcorp.com.au>
 To: Andi Kleen <ak@muc.de>
 Cc: lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
        virtualization <virtualization@lists.osdl.org>,
        Jeremy Fitzhardinge <jeremy@goop.org>
-In-Reply-To: <1158925861.26261.3.camel@localhost.localdomain>
+In-Reply-To: <1158925997.26261.6.camel@localhost.localdomain>
 References: <1158925861.26261.3.camel@localhost.localdomain>
+	 <1158925997.26261.6.camel@localhost.localdomain>
 Content-Type: text/plain
-Date: Fri, 22 Sep 2006 21:53:17 +1000
-Message-Id: <1158925997.26261.6.camel@localhost.localdomain>
+Date: Fri, 22 Sep 2006 21:55:05 +1000
+Message-Id: <1158926106.26261.8.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Currently, we have 3 GDT tables: one for early boot (boot_gdt_table),
-one for late boot (cpu_gdt_table), and a dynamically-allocated per-cpu
-one (per-cpu cpu_gdt_table *).
+This patch implements save/restore of %gs in the kernel, so it can be
+used for per-cpu data.  This is not cheap, and we do it for UP as well
+as SMP, which is stupid.  Benchmarks, anyone?
 
-Simplify this and reduce waste, by using the per-cpu GDT table
-directly in boot.  This is done by using the table in the per-cpu
-section until cpu_init() where the per-cpu copies have been set up.
+Based on this patch by Jeremy Fitzhardinge:
 
-This means we it's easier to define the cpu_gdt_table in C, otherwise
-we'd need asm per-cpu definition macros.
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+This patch is the meat of the PDA change.  This patch makes several
+related changes:
 
+1: Most significantly, %gs is now used in the kernel.  This means that on
+   entry, the old value of %gs is saved away, and it is reloaded with
+   __KERNEL_PDA.
+
+2: entry.S constructs the stack in the shape of struct pt_regs, and this
+   is passed around the kernel so that the process's saved register
+   state can be accessed.
+
+   Unfortunately struct pt_regs doesn't currently have space for %gs
+   (or %fs). This patch extends pt_regs to add space for gs (no space
+   is allocated for %fs, since it won't be used, and it would just
+   complicate the code in entry.S to work around the space).
+
+3: Because %gs is now saved on the stack like %ds, %es and the integer
+   registers, there are a number of places where it no longer needs to
+   be handled specially; namely context switch, and saving/restoring the
+   register state in a signal context.
+
+4: And since kernel threads run in kernel space and call normal kernel
+   code, they need to be created with their %gs == __KERNEL_PDA.
+
+NOTE: even though it's called "ptrace-abi.h", this file does not
+define a user-space visible ABI.
+
+And
+
++From: Ingo Molnar <mingo@elte.hu>
+
+in the syscall exit path the %gs selector has to be restored _after_ the
+last kernel function has been called. If lockdep is enabled then this
+kernel function is TRACE_IRQS_ON.
+
+Signed-off-by: Ingo Molnar <mingo@elte.hu>
+Signed-off-by: Jeremy Fitzhardinge <jeremy@xensource.com>
+Signed-off-by: Andi Kleen <ak@suse.de>
+Cc: Chuck Ebbert <76306.1226@compuserve.com>
+Cc: Zachary Amsden <zach@vmware.com>
+Cc: Jan Beulich <jbeulich@novell.com>
+Cc: Andi Kleen <ak@suse.de>
 Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
 
-Index: ak-pda-gs/arch/i386/kernel/setup.c
+Index: ak-pda-gs/arch/i386/kernel/asm-offsets.c
 ===================================================================
---- ak-pda-gs.orig/arch/i386/kernel/setup.c	2006-09-20 15:38:27.000000000 +1000
-+++ ak-pda-gs/arch/i386/kernel/setup.c	2006-09-20 15:39:01.000000000 +1000
-@@ -1437,6 +1437,50 @@
- 	tsc_init();
- }
- 
-+/*
-+ * The Global Descriptor Table contains 28 quadwords, per-CPU.
-+ */
-+__attribute__((aligned(L1_CACHE_BYTES)))
-+DEFINE_PER_CPU(struct desc_struct, cpu_gdt_table[GDT_ENTRIES]) =
-+{
-+	/* kernel 4GB code at 0x00000000 */
-+	[GDT_ENTRY_KERNEL_CS] = { 0x0000ffff, 0x00cf9a00 },
-+	/* kernel 4GB data at 0x00000000 */
-+	[GDT_ENTRY_KERNEL_DS] = { 0x0000ffff, 0x00cf9200 },
-+	/* user 4GB code at 0x00000000 */
-+	[GDT_ENTRY_DEFAULT_USER_CS] = { 0x0000ffff, 0x00cffa00 },
-+	/* user 4GB data at 0x00000000 */
-+	[GDT_ENTRY_DEFAULT_USER_DS] = { 0x0000ffff, 0x00cff200 },
-+	/*
-+	 * Segments used for calling PnP BIOS have byte granularity.
-+	 * They code segments and data segments have fixed 64k limits,
-+	 * the transfer segment sizes are set at run time.
-+	 */
-+	[GDT_ENTRY_PNPBIOS_BASE] =
-+	{ 0x0000ffff, 0x00409a00 }, /* 32-bit code */
-+	{ 0x0000ffff, 0x00009a00 }, /* 16-bit code */
-+	{ 0x0000ffff, 0x00009200 }, /* 16-bit data */
-+	{ 0x00000000, 0x00009200 }, /* 16-bit data */
-+	{ 0x00000000, 0x00009200 }, /* 16-bit data */
-+
-+	/*
-+	 * The APM segments have byte granularity and their bases
-+	 * are set at run time.  All have 64k limits.
-+	 */
-+	[GDT_ENTRY_APMBIOS_BASE] =
-+	{ 0x0000ffff, 0x00409a00 }, /* APM CS    code */
-+	{ 0x0000ffff, 0x00009a00 }, /* APM CS 16 code (16 bit) */
-+	{ 0x0000ffff, 0x00409200 }, /* APM DS    data */
-+
-+	/* ESPFIX 16-bit SS */
-+	[GDT_ENTRY_ESPFIX_SS] = { 0x00000000, 0x00009200 },
-+};
-+
-+/* Early in boot we use the master per-cpu gdt_table directly. */
-+DEFINE_PER_CPU(struct Xgt_desc_struct, cpu_gdt_descr)
-+= { .size = GDT_ENTRIES*8-1, .address = (long)&per_cpu__cpu_gdt_table };
-+EXPORT_PER_CPU_SYMBOL(cpu_gdt_descr);
-+
- static __init int add_pcspkr(void)
- {
- 	struct platform_device *pd;
+--- ak-pda-gs.orig/arch/i386/kernel/asm-offsets.c	2006-09-20 16:40:06.000000000 +1000
++++ ak-pda-gs/arch/i386/kernel/asm-offsets.c	2006-09-20 16:40:18.000000000 +1000
+@@ -67,6 +67,7 @@
+ 	OFFSET(PT_EAX, pt_regs, eax);
+ 	OFFSET(PT_DS,  pt_regs, xds);
+ 	OFFSET(PT_ES,  pt_regs, xes);
++	OFFSET(PT_GS,  pt_regs, xgs);
+ 	OFFSET(PT_ORIG_EAX, pt_regs, orig_eax);
+ 	OFFSET(PT_EIP, pt_regs, eip);
+ 	OFFSET(PT_CS,  pt_regs, xcs);
 Index: ak-pda-gs/arch/i386/kernel/cpu/common.c
 ===================================================================
---- ak-pda-gs.orig/arch/i386/kernel/cpu/common.c	2006-09-20 15:38:27.000000000 +1000
-+++ ak-pda-gs/arch/i386/kernel/cpu/common.c	2006-09-20 15:39:01.000000000 +1000
-@@ -21,9 +21,6 @@
- 
- #include "cpu.h"
- 
--DEFINE_PER_CPU(struct Xgt_desc_struct, cpu_gdt_descr);
--EXPORT_PER_CPU_SYMBOL(cpu_gdt_descr);
--
- DEFINE_PER_CPU(unsigned char, cpu_16bit_stack[CPU_16BIT_STACK_SIZE]);
- EXPORT_PER_CPU_SYMBOL(cpu_16bit_stack);
- 
-@@ -612,38 +609,8 @@
- 		set_in_cr4(X86_CR4_TSD);
- 	}
- 
--	/* The CPU hotplug case */
--	if (cpu_gdt_descr->address) {
--		gdt = (struct desc_struct *)cpu_gdt_descr->address;
--		memset(gdt, 0, PAGE_SIZE);
--		goto old_gdt;
--	}
--	/*
--	 * This is a horrible hack to allocate the GDT.  The problem
--	 * is that cpu_init() is called really early for the boot CPU
--	 * (and hence needs bootmem) but much later for the secondary
--	 * CPUs, when bootmem will have gone away
--	 */
--	if (NODE_DATA(0)->bdata->node_bootmem_map) {
--		gdt = (struct desc_struct *)alloc_bootmem_pages(PAGE_SIZE);
--		/* alloc_bootmem_pages panics on failure, so no check */
--		memset(gdt, 0, PAGE_SIZE);
--	} else {
--		gdt = (struct desc_struct *)get_zeroed_page(GFP_KERNEL);
--		if (unlikely(!gdt)) {
--			printk(KERN_CRIT "CPU%d failed to allocate GDT\n", cpu);
--			for (;;)
--				local_irq_enable();
--		}
--	}
--old_gdt:
--	/*
--	 * Initialize the per-CPU GDT with the boot GDT,
--	 * and set up the GDT descriptor:
--	 */
-- 	memcpy(gdt, cpu_gdt_table, GDT_SIZE);
--
- 	/* Set up GDT entry for 16bit stack */
-+	gdt = __get_cpu_var(cpu_gdt_table);
-  	*(__u64 *)(&gdt[GDT_ENTRY_ESPFIX_SS]) |=
- 		((((__u64)stk16_off) << 16) & 0x000000ffffff0000ULL) |
- 		((((__u64)stk16_off) << 32) & 0xff00000000000000ULL) |
-Index: ak-pda-gs/arch/i386/kernel/head.S
-===================================================================
---- ak-pda-gs.orig/arch/i386/kernel/head.S	2006-09-20 15:38:27.000000000 +1000
-+++ ak-pda-gs/arch/i386/kernel/head.S	2006-09-20 15:39:01.000000000 +1000
-@@ -302,7 +302,7 @@
- 	movl %eax,%cr0
- 
- 	call check_x87
--	lgdt cpu_gdt_descr
-+	lgdt per_cpu__cpu_gdt_descr
- 	lidt idt_descr
- 	ljmp $(__KERNEL_CS),$1f
- 1:	movl $(__KERNEL_DS),%eax	# reload all the segment registers
-@@ -456,12 +456,6 @@
- 	.word IDT_ENTRIES*8-1		# idt contains 256 entries
- 	.long idt_table
- 
--# boot GDT descriptor (later on used by CPU#0):
--	.word 0				# 32 bit align gdt_desc.address
--cpu_gdt_descr:
--	.word GDT_ENTRIES*8-1
--	.long cpu_gdt_table
--
+--- ak-pda-gs.orig/arch/i386/kernel/cpu/common.c	2006-09-20 16:40:06.000000000 +1000
++++ ak-pda-gs/arch/i386/kernel/cpu/common.c	2006-09-20 16:40:18.000000000 +1000
+@@ -579,6 +579,15 @@
+ 	disable_pse = 1;
+ #endif
+ }
++
++/* Make sure %gs is initialized properly in idle threads */
++struct pt_regs * __devinit idle_regs(struct pt_regs *regs)
++{
++	memset(regs, 0, sizeof(struct pt_regs));
++	regs->xgs = __KERNEL_PERCPU;
++	return regs;
++}
++
  /*
-  * The boot_gdt_table must mirror the equivalent in setup.S and is
-  * used only for booting.
-@@ -472,55 +466,3 @@
- 	.quad 0x00cf9a000000ffff	/* kernel 4GB code at 0x00000000 */
- 	.quad 0x00cf92000000ffff	/* kernel 4GB data at 0x00000000 */
+  * cpu_init() initializes state that is per-CPU. Some data is already
+  * initialized (naturally) in the bootstrap process, such as the GDT
+@@ -641,8 +650,8 @@
+ 	__set_tss_desc(cpu, GDT_ENTRY_DOUBLEFAULT_TSS, &doublefault_tss);
+ #endif
  
--/*
-- * The Global Descriptor Table contains 28 quadwords, per-CPU.
-- */
--	.align L1_CACHE_BYTES
--ENTRY(cpu_gdt_table)
--	.quad 0x0000000000000000	/* NULL descriptor */
--	.quad 0x0000000000000000	/* 0x0b reserved */
--	.quad 0x0000000000000000	/* 0x13 reserved */
--	.quad 0x0000000000000000	/* 0x1b reserved */
--	.quad 0x0000000000000000	/* 0x20 unused */
--	.quad 0x0000000000000000	/* 0x28 unused */
--	.quad 0x0000000000000000	/* 0x33 TLS entry 1 */
--	.quad 0x0000000000000000	/* 0x3b TLS entry 2 */
--	.quad 0x0000000000000000	/* 0x43 TLS entry 3 */
--	.quad 0x0000000000000000	/* 0x4b reserved */
--	.quad 0x0000000000000000	/* 0x53 reserved */
--	.quad 0x0000000000000000	/* 0x5b reserved */
--
--	.quad 0x00cf9a000000ffff	/* 0x60 kernel 4GB code at 0x00000000 */
--	.quad 0x00cf92000000ffff	/* 0x68 kernel 4GB data at 0x00000000 */
--	.quad 0x00cffa000000ffff	/* 0x73 user 4GB code at 0x00000000 */
--	.quad 0x00cff2000000ffff	/* 0x7b user 4GB data at 0x00000000 */
--
--	.quad 0x0000000000000000	/* 0x80 TSS descriptor */
--	.quad 0x0000000000000000	/* 0x88 LDT descriptor */
--
--	/*
--	 * Segments used for calling PnP BIOS have byte granularity.
--	 * They code segments and data segments have fixed 64k limits,
--	 * the transfer segment sizes are set at run time.
--	 */
--	.quad 0x00409a000000ffff	/* 0x90 32-bit code */
--	.quad 0x00009a000000ffff	/* 0x98 16-bit code */
--	.quad 0x000092000000ffff	/* 0xa0 16-bit data */
--	.quad 0x0000920000000000	/* 0xa8 16-bit data */
--	.quad 0x0000920000000000	/* 0xb0 16-bit data */
--
--	/*
--	 * The APM segments have byte granularity and their bases
--	 * are set at run time.  All have 64k limits.
--	 */
--	.quad 0x00409a000000ffff	/* 0xb8 APM CS    code */
--	.quad 0x00009a000000ffff	/* 0xc0 APM CS 16 code (16 bit) */
--	.quad 0x004092000000ffff	/* 0xc8 APM DS    data */
--
--	.quad 0x0000920000000000	/* 0xd0 - ESPFIX 16-bit SS */
--	.quad 0x0000000000000000	/* 0xd8 - unused */
--	.quad 0x0000000000000000	/* 0xe0 - unused */
--	.quad 0x0000000000000000	/* 0xe8 - unused */
--	.quad 0x0000000000000000	/* 0xf0 - unused */
--	.quad 0x0000000000000000	/* 0xf8 - GDT entry 31: double-fault TSS */
--
-Index: ak-pda-gs/arch/i386/kernel/smpboot.c
+-	/* Clear %fs and %gs. */
+-	asm volatile ("movl %0, %%fs; movl %0, %%gs" : : "r" (0));
++	/* Clear %fs. */
++	asm volatile ("mov %0, %%fs" : : "r" (0));
+ 
+ 	/* Clear all 6 debug registers: */
+ 	set_debugreg(0, 0);
+Index: ak-pda-gs/arch/i386/kernel/entry.S
 ===================================================================
---- ak-pda-gs.orig/arch/i386/kernel/smpboot.c	2006-09-20 15:38:27.000000000 +1000
-+++ ak-pda-gs/arch/i386/kernel/smpboot.c	2006-09-20 15:39:01.000000000 +1000
-@@ -1058,7 +1058,6 @@
- 	struct warm_boot_cpu_info info;
- 	struct work_struct task;
- 	int	apicid, ret;
--	struct Xgt_desc_struct *cpu_gdt_descr = &per_cpu(cpu_gdt_descr, cpu);
+--- ak-pda-gs.orig/arch/i386/kernel/entry.S	2006-09-20 16:40:06.000000000 +1000
++++ ak-pda-gs/arch/i386/kernel/entry.S	2006-09-20 16:40:18.000000000 +1000
+@@ -30,12 +30,13 @@
+  *	18(%esp) - %eax
+  *	1C(%esp) - %ds
+  *	20(%esp) - %es
+- *	24(%esp) - orig_eax
+- *	28(%esp) - %eip
+- *	2C(%esp) - %cs
+- *	30(%esp) - %eflags
+- *	34(%esp) - %oldesp
+- *	38(%esp) - %oldss
++ *	24(%esp) - %gs
++ *	28(%esp) - orig_eax
++ *	2C(%esp) - %eip
++ *	30(%esp) - %cs
++ *	34(%esp) - %eflags
++ *	38(%esp) - %oldesp
++ *	3C(%esp) - %oldss
+  *
+  * "current" is in register %ebx during any slow entries.
+  */
+@@ -91,6 +92,9 @@
  
- 	apicid = x86_cpu_to_apicid[cpu];
- 	if (apicid == BAD_APICID) {
-@@ -1066,18 +1065,6 @@
- 		goto exit;
- 	}
+ #define SAVE_ALL \
+ 	cld; \
++	pushl %gs; \
++	CFI_ADJUST_CFA_OFFSET 4;\
++	/*CFI_REL_OFFSET gs, 0;*/\
+ 	pushl %es; \
+ 	CFI_ADJUST_CFA_OFFSET 4;\
+ 	/*CFI_REL_OFFSET es, 0;*/\
+@@ -120,7 +124,9 @@
+ 	CFI_REL_OFFSET ebx, 0;\
+ 	movl $(__USER_DS), %edx; \
+ 	movl %edx, %ds; \
+-	movl %edx, %es;
++	movl %edx, %es; \
++	movl $(__KERNEL_PERCPU), %edx; \
++	movl %edx, %gs
  
--	/*
--	 * the CPU isn't initialized at boot time, allocate gdt table here.
--	 * cpu_init will initialize it
--	 */
--	if (!cpu_gdt_descr->address) {
--		cpu_gdt_descr->address = get_zeroed_page(GFP_KERNEL);
--		if (!cpu_gdt_descr->address)
--			printk(KERN_CRIT "CPU%d failed to allocate GDT\n", cpu);
--			ret = -ENOMEM;
--			goto exit;
--	}
+ #define RESTORE_INT_REGS \
+ 	popl %ebx;	\
+@@ -153,17 +159,22 @@
+ 2:	popl %es;	\
+ 	CFI_ADJUST_CFA_OFFSET -4;\
+ 	/*CFI_RESTORE es;*/\
+-.section .fixup,"ax";	\
+-3:	movl $0,(%esp);	\
+-	jmp 1b;		\
++3:	popl %gs;	\
++	CFI_ADJUST_CFA_OFFSET -4;\
++	/*CFI_RESTORE gs;*/\
++.pushsection .fixup,"ax";	\
+ 4:	movl $0,(%esp);	\
++	jmp 1b;		\
++5:	movl $0,(%esp);	\
+ 	jmp 2b;		\
+-.previous;		\
++6:	movl $0,(%esp);	\
++	jmp 3b;		\
+ .section __ex_table,"a";\
+ 	.align 4;	\
+-	.long 1b,3b;	\
+-	.long 2b,4b;	\
+-.previous
++	.long 1b,4b;	\
++	.long 2b,5b;	\
++	.long 3b,6b;	\
++.popsection
+ 
+ #define RING0_INT_FRAME \
+ 	CFI_STARTPROC simple;\
+@@ -320,11 +331,18 @@
+ /* if something modifies registers it must also disable sysexit */
+ 	movl PT_EIP(%esp), %edx
+ 	movl PT_OLDESP(%esp), %ecx
+-	xorl %ebp,%ebp
+ 	TRACE_IRQS_ON
++1:	mov  PT_GS(%esp), %gs
++	xorl %ebp,%ebp
+ 	ENABLE_INTERRUPTS_SYSEXIT
+ 	CFI_ENDPROC
 -
- 	info.complete = &done;
- 	info.apicid = apicid;
- 	info.cpu = cpu;
-Index: ak-pda-gs/include/asm-i386/desc.h
++.pushsection .fixup,"ax";	\
++2:	movl $0,PT_GS(%esp);	\
++	jmp 1b;			\
++.section __ex_table,"a";\
++	.align 4;	\
++	.long 1b,2b;	\
++.popsection
+ 
+ 	# system call handler stub
+ ENTRY(system_call)
+@@ -370,7 +388,7 @@
+ 	TRACE_IRQS_IRET
+ restore_nocheck_notrace:
+ 	RESTORE_REGS
+-	addl $4, %esp
++	addl $4, %esp			# skip orig_eax/error_code
+ 	CFI_ADJUST_CFA_OFFSET -4
+ 1:	INTERRUPT_RETURN
+ .section .fixup,"ax"
+@@ -512,14 +530,12 @@
+ 	/* put ESP to the proper location */ \
+ 	movl %eax, %esp;
+ #define UNWIND_ESPFIX_STACK \
+-	pushl %eax; \
+ 	CFI_ADJUST_CFA_OFFSET 4; \
+ 	movl %ss, %eax; \
+ 	/* see if on 16bit stack */ \
+-	cmpw $__ESPFIX_SS, %ax; \
++	cmp $__ESPFIX_SS, %eax; \
+ 	je 28f; \
+-27:	popl %eax; \
+-	CFI_ADJUST_CFA_OFFSET -4; \
++27:	CFI_ADJUST_CFA_OFFSET -4; \
+ .section .fixup,"ax"; \
+ 28:	movl $__KERNEL_DS, %eax; \
+ 	movl %eax, %ds; \
+@@ -588,13 +604,15 @@
+ 	CFI_ADJUST_CFA_OFFSET 4
+ 	ALIGN
+ error_code:
++	/* the function address is in %gs's slot on the stack */
++	pushl %es
++	CFI_ADJUST_CFA_OFFSET 4
+ 	pushl %ds
+ 	CFI_ADJUST_CFA_OFFSET 4
+ 	/*CFI_REL_OFFSET ds, 0*/
+ 	pushl %eax
+ 	CFI_ADJUST_CFA_OFFSET 4
+ 	CFI_REL_OFFSET eax, 0
+-	xorl %eax, %eax
+ 	pushl %ebp
+ 	CFI_ADJUST_CFA_OFFSET 4
+ 	CFI_REL_OFFSET ebp, 0
+@@ -607,7 +625,6 @@
+ 	pushl %edx
+ 	CFI_ADJUST_CFA_OFFSET 4
+ 	CFI_REL_OFFSET edx, 0
+-	decl %eax			# eax = -1
+ 	pushl %ecx
+ 	CFI_ADJUST_CFA_OFFSET 4
+ 	CFI_REL_OFFSET ecx, 0
+@@ -615,21 +632,17 @@
+ 	CFI_ADJUST_CFA_OFFSET 4
+ 	CFI_REL_OFFSET ebx, 0
+ 	cld
+-	pushl %es
+-	CFI_ADJUST_CFA_OFFSET 4
+-	/*CFI_REL_OFFSET es, 0*/
+ 	UNWIND_ESPFIX_STACK
+-	popl %ecx
+-	CFI_ADJUST_CFA_OFFSET -4
+-	/*CFI_REGISTER es, ecx*/
+-	movl PT_ES(%esp), %edi		# get the function address
++	movl PT_GS(%esp), %edi		# get the function address
+ 	movl PT_ORIG_EAX(%esp), %edx	# get the error code
+-	movl %eax, PT_ORIG_EAX(%esp)
+-	movl %ecx, PT_ES(%esp)
+-	/*CFI_REL_OFFSET es, ES*/
++	movl $-1, PT_ORIG_EAX(%esp)	# no syscall to restart
++	mov  %gs, PT_GS(%esp)
++	/*CFI_REL_OFFSET gs, GS*/
+ 	movl $(__USER_DS), %ecx
+ 	movl %ecx, %ds
+ 	movl %ecx, %es
++	movl $(__KERNEL_PERCPU), %ecx
++	movl %ecx, %gs
+ 	movl %esp,%eax			# pt_regs pointer
+ 	call *%edi
+ 	jmp ret_from_exception
+@@ -939,6 +952,7 @@
+ 	movl	%ebx, PT_EAX(%edx)
+ 	movl	$__USER_DS, PT_DS(%edx)
+ 	movl	$__USER_DS, PT_ES(%edx)
++	movl	$0, PT_GS(%edx)
+ 	movl	%ebx, PT_ORIG_EAX(%edx)
+ 	movl	%ecx, PT_EIP(%edx)
+ 	movl	12(%esp), %ecx
+Index: ak-pda-gs/arch/i386/kernel/process.c
 ===================================================================
---- ak-pda-gs.orig/include/asm-i386/desc.h	2006-09-20 15:27:51.000000000 +1000
-+++ ak-pda-gs/include/asm-i386/desc.h	2006-09-20 15:39:01.000000000 +1000
-@@ -14,8 +14,7 @@
+--- ak-pda-gs.orig/arch/i386/kernel/process.c	2006-09-20 16:40:06.000000000 +1000
++++ ak-pda-gs/arch/i386/kernel/process.c	2006-09-20 16:40:18.000000000 +1000
+@@ -336,6 +336,7 @@
  
- #include <asm/mmu.h>
+ 	regs.xds = __USER_DS;
+ 	regs.xes = __USER_DS;
++	regs.xgs = __KERNEL_PERCPU;
+ 	regs.orig_eax = -1;
+ 	regs.eip = (unsigned long) kernel_thread_helper;
+ 	regs.xcs = __KERNEL_CS | get_kernel_rpl();
+@@ -421,7 +422,6 @@
+ 	p->thread.eip = (unsigned long) ret_from_fork;
  
--extern struct desc_struct cpu_gdt_table[GDT_ENTRIES];
--
-+DECLARE_PER_CPU(struct desc_struct, cpu_gdt_table[GDT_ENTRIES]);
- DECLARE_PER_CPU(unsigned char, cpu_16bit_stack[CPU_16BIT_STACK_SIZE]);
+ 	savesegment(fs,p->thread.fs);
+-	savesegment(gs,p->thread.gs);
  
- struct Xgt_desc_struct {
+ 	tsk = current;
+ 	if (unlikely(test_tsk_thread_flag(tsk, TIF_IO_BITMAP))) {
+@@ -645,16 +645,16 @@
+ 	load_esp0(tss, next);
+ 
+ 	/*
+-	 * Save away %fs and %gs. No need to save %es and %ds, as
+-	 * those are always kernel segments while inside the kernel.
+-	 * Doing this before setting the new TLS descriptors avoids
+-	 * the situation where we temporarily have non-reloadable
+-	 * segments in %fs and %gs.  This could be an issue if the
+-	 * NMI handler ever used %fs or %gs (it does not today), or
+-	 * if the kernel is running inside of a hypervisor layer.
++	 * Save away %fs. No need to save %gs, as it was saved on the
++	 * stack on entry.  No need to save %es and %ds, as those are
++	 * always kernel segments while inside the kernel.  Doing this
++	 * before setting the new TLS descriptors avoids the situation
++	 * where we temporarily have non-reloadable segments in %fs
++	 * and %gs.  This could be an issue if the NMI handler ever
++	 * used %fs or %gs (it does not today), or if the kernel is
++	 * running inside of a hypervisor layer.
+ 	 */
+ 	savesegment(fs, prev->fs);
+-	savesegment(gs, prev->gs);
+ 
+ 	/*
+ 	 * Load the per-thread Thread-Local Storage descriptor.
+@@ -662,16 +662,13 @@
+ 	load_TLS(next, cpu);
+ 
+ 	/*
+-	 * Restore %fs and %gs if needed.
++	 * Restore %fs if needed.
+ 	 *
+-	 * Glibc normally makes %fs be zero, and %gs is one of
+-	 * the TLS segments.
++	 * Glibc normally makes %fs be zero.
+ 	 */
+ 	if (unlikely(prev->fs | next->fs))
+ 		loadsegment(fs, next->fs);
+ 
+-	if (prev->gs | next->gs)
+-		loadsegment(gs, next->gs);
+ 
+ 	/*
+ 	 * Restore IOPL if needed.
+Index: ak-pda-gs/arch/i386/kernel/signal.c
+===================================================================
+--- ak-pda-gs.orig/arch/i386/kernel/signal.c	2006-09-20 16:40:06.000000000 +1000
++++ ak-pda-gs/arch/i386/kernel/signal.c	2006-09-20 16:40:18.000000000 +1000
+@@ -128,7 +128,7 @@
+ 			 X86_EFLAGS_TF | X86_EFLAGS_SF | X86_EFLAGS_ZF | \
+ 			 X86_EFLAGS_AF | X86_EFLAGS_PF | X86_EFLAGS_CF)
+ 
+-	GET_SEG(gs);
++	COPY_SEG(gs);
+ 	GET_SEG(fs);
+ 	COPY_SEG(es);
+ 	COPY_SEG(ds);
+@@ -244,9 +244,7 @@
+ {
+ 	int tmp, err = 0;
+ 
+-	tmp = 0;
+-	savesegment(gs, tmp);
+-	err |= __put_user(tmp, (unsigned int __user *)&sc->gs);
++	err |= __put_user(regs->xgs, (unsigned int __user *)&sc->gs);
+ 	savesegment(fs, tmp);
+ 	err |= __put_user(tmp, (unsigned int __user *)&sc->fs);
+ 
+Index: ak-pda-gs/include/asm-i386/mmu_context.h
+===================================================================
+--- ak-pda-gs.orig/include/asm-i386/mmu_context.h	2006-09-20 16:40:06.000000000 +1000
++++ ak-pda-gs/include/asm-i386/mmu_context.h	2006-09-20 16:40:18.000000000 +1000
+@@ -62,8 +62,8 @@
+ #endif
+ }
+ 
+-#define deactivate_mm(tsk, mm) \
+-	asm("movl %0,%%fs ; movl %0,%%gs": :"r" (0))
++#define deactivate_mm(tsk, mm)			\
++	asm("movl %0,%%fs": :"r" (0));
+ 
+ #define activate_mm(prev, next) \
+ 	switch_mm((prev),(next),NULL)
+Index: ak-pda-gs/include/asm-i386/processor.h
+===================================================================
+--- ak-pda-gs.orig/include/asm-i386/processor.h	2006-09-20 16:40:06.000000000 +1000
++++ ak-pda-gs/include/asm-i386/processor.h	2006-09-20 16:40:18.000000000 +1000
+@@ -477,6 +477,7 @@
+ 	.vm86_info = NULL,						\
+ 	.sysenter_cs = __KERNEL_CS,					\
+ 	.io_bitmap_ptr = NULL,						\
++	.gs = __KERNEL_PERCPU,						\
+ }
+ 
+ /*
+@@ -504,7 +505,8 @@
+ }
+ 
+ #define start_thread(regs, new_eip, new_esp) do {		\
+-	__asm__("movl %0,%%fs ; movl %0,%%gs": :"r" (0));	\
++	__asm__("movl %0,%%fs": :"r" (0));			\
++	regs->xgs = 0;						\
+ 	set_fs(USER_DS);					\
+ 	regs->xds = __USER_DS;					\
+ 	regs->xes = __USER_DS;					\
+Index: ak-pda-gs/kernel/fork.c
+===================================================================
+--- ak-pda-gs.orig/kernel/fork.c	2006-09-20 16:40:06.000000000 +1000
++++ ak-pda-gs/kernel/fork.c	2006-09-20 16:40:18.000000000 +1000
+@@ -1299,7 +1299,7 @@
+ 	return ERR_PTR(retval);
+ }
+ 
+-struct pt_regs * __devinit __attribute__((weak)) idle_regs(struct pt_regs *regs)
++noinline struct pt_regs * __devinit __attribute__((weak)) idle_regs(struct pt_regs *regs)
+ {
+ 	memset(regs, 0, sizeof(struct pt_regs));
+ 	return regs;
+Index: ak-pda-gs/include/asm-i386/ptrace.h
+===================================================================
+--- ak-pda-gs.orig/include/asm-i386/ptrace.h	2006-09-20 16:40:06.000000000 +1000
++++ ak-pda-gs/include/asm-i386/ptrace.h	2006-09-20 16:40:18.000000000 +1000
+@@ -33,6 +33,8 @@
+ 	long eax;
+ 	int  xds;
+ 	int  xes;
++	/* int  xfs; */
++	int  xgs;
+ 	long orig_eax;
+ 	long eip;
+ 	int  xcs;
+Index: ak-pda-gs/include/asm-i386/segment.h
+===================================================================
+--- ak-pda-gs.orig/include/asm-i386/segment.h	2006-09-20 16:40:01.000000000 +1000
++++ ak-pda-gs/include/asm-i386/segment.h	2006-09-20 16:40:18.000000000 +1000
+@@ -39,7 +39,7 @@
+  *  25 - APM BIOS support 
+  *
+  *  26 - ESPFIX small SS
+- *  27 - unused
++ *  27 - PERCPU				[ offset segment for per-cpu area ]
+  *  28 - unused
+  *  29 - unused
+  *  30 - unused
+@@ -74,6 +74,9 @@
+ #define GDT_ENTRY_ESPFIX_SS		(GDT_ENTRY_KERNEL_BASE + 14)
+ #define __ESPFIX_SS (GDT_ENTRY_ESPFIX_SS * 8)
+ 
++#define GDT_ENTRY_PERCPU		(GDT_ENTRY_KERNEL_BASE + 15)
++#define __KERNEL_PERCPU (GDT_ENTRY_PERCPU * 8)
++
+ #define GDT_ENTRY_DOUBLEFAULT_TSS	31
+ 
+ /*
+Index: ak-pda-gs/include/asm-i386/unwind.h
+===================================================================
+--- ak-pda-gs.orig/include/asm-i386/unwind.h	2006-09-20 16:40:01.000000000 +1000
++++ ak-pda-gs/include/asm-i386/unwind.h	2006-09-20 16:40:18.000000000 +1000
+@@ -64,6 +64,7 @@
+ 	info->regs.xss = __KERNEL_DS;
+ 	info->regs.xds = __USER_DS;
+ 	info->regs.xes = __USER_DS;
++	info->regs.xgs = __KERNEL_PERCPU;
+ }
+ 
+ extern asmlinkage int arch_unwind_init_running(struct unwind_frame_info *,
 
 -- 
 Help! Save Australia from the worst of the DMCA: http://linux.org.au/law

@@ -1,67 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964784AbWIVRaY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964816AbWIVRfo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964784AbWIVRaY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Sep 2006 13:30:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964808AbWIVRaY
+	id S964816AbWIVRfo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Sep 2006 13:35:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964817AbWIVRfo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Sep 2006 13:30:24 -0400
-Received: (root@vger.kernel.org) by vger.kernel.org id S964784AbWIVRaX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Sep 2006 13:30:23 -0400
-Received: from xenotime.net ([66.160.160.81]:60056 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S932552AbWIVOr4 (ORCPT
+	Fri, 22 Sep 2006 13:35:44 -0400
+Received: from main.gmane.org ([80.91.229.2]:13804 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S964816AbWIVRfn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Sep 2006 10:47:56 -0400
-Date: Fri, 22 Sep 2006 07:48:58 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.19 -mm merge plans
-Message-Id: <20060922074858.cee79365.rdunlap@xenotime.net>
-In-Reply-To: <1158919801.24527.668.camel@pmac.infradead.org>
-References: <20060920135438.d7dd362b.akpm@osdl.org>
-	<1158917046.24527.662.camel@pmac.infradead.org>
-	<1158919801.24527.668.camel@pmac.infradead.org>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.8 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
-X-Face: &4L4\Oj/><0~x8W<MJeAB.(xC/cwW7Ay$UNDMI|/>]44\M(/wa:+,kH&IYtRqs\tQ8="B5=
- qPUwTvq4QPk_KQ^$5ya89f&[m.$<>cp-F(**n,^uIaN{YfG
+	Fri, 22 Sep 2006 13:35:43 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: "Matthieu CASTET" <castet.matthieu@free.fr>
+Subject: Re: [PATCH 1/3] [BFIN] Blackfin architecture patch for 2.6.18
+Date: Fri, 22 Sep 2006 17:34:31 +0000 (UTC)
+Message-ID: <ef16r7$vjo$1@sea.gmane.org>
+References: <489ecd0c0609212204k6cbbf63ej7d59d3855a4993e7@mail.gmail.com>
+	<20060921232921.88d2aa5d.rdunlap@xenotime.net>
+	<489ecd0c0609220248m41749725t75ccf9ca8753b8dc@mail.gmail.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: cac94-1-81-57-151-96.fbx.proxad.net
+User-Agent: pan 0.112 (Elijah Craig)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 22 Sep 2006 11:10:01 +0100 David Woodhouse wrote:
+On Fri, 22 Sep 2006 17:48:03 +0800, Luke Yang wrote:
 
-> On Fri, 2006-09-22 at 10:24 +0100, David Woodhouse wrote:
-> > On Wed, 2006-09-20 at 13:54 -0700, Andrew Morton wrote:
-> > > 
-> > > mtd-maps-ixp4xx-partition-parsing.patch
-> > > fix-the-unlock-addr-lookup-bug-in-mtd-jedec-probe.patch
-> > > mtd-printk-format-warning.patch
-> > > fs-jffs2-jffs2_fs_ih-removal-of-old-code.patch
-> > > drivers-mtd-nand-au1550ndc-removal-of-old-code.patch
-> > > 
-> > >  MTD queue -> dwmw2
-> > 
-> > Merged, with the exception of the unlock addr one which I'm still not
-> > sure about -- about to investigate harder.
-> 
-> I just reverted Randy's printk format 'fix', since rq->flags _is_ an
-> unsigned long, so changing from %ld to %d actually _introduces_ a
-> warning.
-> 
-> Randy, that's the second time I recall recently that I've ended up
-> reverting a printk format fix from you -- what are you doing? How did
-> you manage to get the warning you reported:
-> 
-> drivers/mtd/mtd_blkdevs.c:72: warning: long int format, different type arg (arg 2)
+>> 9.  In struct sport_register, what are all of those volatiles
+>> for?  Use of volatile usually
+>> indicates bad locking or bad memory barriers, etc., somewhere.
+>  This is not a bug. In embedded, a memory mapped register should be
+> defined as volatile, becasue the hardware may change it without
+> notifying the software.
+>
+No this is bad design. Each time you want to access those memory map
+register you should use read{bwl}/in{bwl} variants.
+After all memory mapped register are not so different of mmio on standard
+PC.
 
-That was originally posted as a patch to -mm, where that field
-has been changed to (unsigned?) int.  Maybe it should be part
-of Jens's block patches, since that is what changes the field
-size.
+For example on au1x00 mips platform [1], some helper are defined to access
+those memory map registers.
 
----
-~~Randy
+using volatile is awful : instead of a clean API to access those
+registers, you often forgot that volatile is need which lead to very hard
+to debug bugs (depend of compiler optimization, state of memory, ...).
+For example on a embedded platform (ADI fusiv) where volatile are used
+everywhere, some developers forgot some, which lead to random lockup on
+boot.
+
+Matthieu
+
+
+[1]
+include/asm-mips/mach-au1x00/au1000.h
+static inline u32 au_readl(unsigned long reg)
+{
+    return (*(volatile u32 *)reg);
+}
+

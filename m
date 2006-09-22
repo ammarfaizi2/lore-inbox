@@ -1,26 +1,23 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932241AbWIVDIQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932247AbWIVDQQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932241AbWIVDIQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Sep 2006 23:08:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932242AbWIVDIQ
+	id S932247AbWIVDQQ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Sep 2006 23:16:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932231AbWIVDQQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Sep 2006 23:08:16 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:60646 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932241AbWIVDIP (ORCPT
+	Thu, 21 Sep 2006 23:16:16 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:22761 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932247AbWIVDQQ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Sep 2006 23:08:15 -0400
-Date: Thu, 21 Sep 2006 20:08:06 -0700
+	Thu, 21 Sep 2006 23:16:16 -0400
+Date: Thu, 21 Sep 2006 20:16:04 -0700
 From: Andrew Morton <akpm@osdl.org>
-To: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-Cc: kmannth@us.ibm.com, linux-kernel@vger.kernel.org, clameter@engr.sgi.com
-Subject: Re: [BUG] i386 2.6.18 cpu_up: attempt to bring up CPU 4 failed :
- kernel BUG at mm/slab.c:2698!
-Message-Id: <20060921200806.523ce0b2.akpm@osdl.org>
-In-Reply-To: <20060922112427.d5f3aef6.kamezawa.hiroyu@jp.fujitsu.com>
-References: <1158884252.5657.38.camel@keithlap>
-	<20060921174134.4e0d30f2.akpm@osdl.org>
-	<1158888843.5657.44.camel@keithlap>
-	<20060922112427.d5f3aef6.kamezawa.hiroyu@jp.fujitsu.com>
+To: kmannth@us.ibm.com
+Cc: lkml <linux-kernel@vger.kernel.org>, Vivek goyal <vgoyal@in.ibm.com>,
+       dave hansen <haveblue@us.ibm.com>
+Subject: Re: [Patch] i386 bootioremap / kexec fix
+Message-Id: <20060921201604.2cea5abb.akpm@osdl.org>
+In-Reply-To: <1158893685.5657.72.camel@keithlap>
+References: <1158893685.5657.72.camel@keithlap>
 X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -28,90 +25,47 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 22 Sep 2006 11:24:27 +0900
-KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com> wrote:
+On Thu, 21 Sep 2006 19:54:45 -0700
+keith mannthey <kmannth@us.ibm.com> wrote:
 
-> On Thu, 21 Sep 2006 18:34:03 -0700
-> keith mannthey <kmannth@us.ibm.com> wrote:
 > 
-> > That unhappy caller in the chain is cpuup_callback in mm/slab.c.  I am
-> > still working out as to why, there is a lot going on if this function. 
-> > 
-> > > b) pageset_cpuup_callback()'s CPU_UP_CANCELED path possibly hasn't been
-> > >    tested before.  I'd be guessing that we're not zeroing out the
-> > >    zone.pageset[] array when the `struct zone' is first allocated, but I
-> > >    don't immediately recall where that code lives.
-> > 
+>   With CONFIG_PHYSICAL_START set to a non default values the i386
+> boot_ioremap code calculated its pte index wrong and users of
+> boot_ioremap have their areas incorrectly mapped  (for me SRAT table not
+> mapped during early boot). This patch removes the addr < BOOT_PTE_PTRS
+> constraint. 
 > 
-> How about here ?
-> == at boot time in mm/page_alloc.c ==
-> free_area_init_core()
-> 	->zone_pcp_init(zone);
->         for (cpu = 0; cpu < NR_CPUS; cpu++) {
-> #ifdef CONFIG_NUMA
->                 /* Early boot. Slab allocator not functional yet */
->                 zone_pcp(zone, cpu) = &boot_pageset[cpu];
->                 setup_pageset(&boot_pageset[cpu],0);
-> #else
->                 setup_pageset(zone_pcp(zone,cpu), batch);
-> #endif
->         }
-> ==================
+> Signed-off-by: Keith Mannthey<kmannth@us.ibm.com>
+> ---
+>  boot_ioremap.c |    7 +++++--
+>  1 files changed, 5 insertions(+), 2 deletions(-)
 > 
-> Not zero-cleared.
-> 
+> diff -urN linux-2.6.18-rc6-mm2-orig/arch/i386/mm/boot_ioremap.c
+> linux-2.6.17/arch/i386/mm/boot_ioremap.c
+> --- linux-2.6.18-rc6-mm2-orig/arch/i386/mm/boot_ioremap.c	2006-09-18
+> 01:19:22.000000000 -0700
+> +++ linux-2.6.17/arch/i386/mm/boot_ioremap.c	2006-09-18
+> 01:23:33.000000000 -0700
+> @@ -29,8 +29,11 @@
+>   */
+>  
+>  #define BOOT_PTE_PTRS (PTRS_PER_PTE*2)
+> -#define boot_pte_index(address) \
+> -	     (((address) >> PAGE_SHIFT) & (BOOT_PTE_PTRS - 1))
+> +
+> +static unsigned long boot_pte_index(unsigned long vaddr) 
+> +{
+> +	return __pa(vaddr) >> PAGE_SHIFT;
+> +}
+>  
+>  static inline boot_pte_t* boot_vaddr_to_pte(void *address)
+>  {
 
-Actually, I'd point the finger at process_zones().  If that kmalloc()
-fails, we leave garbage in the entries for the remaining zones.  But
-free_zone_pagesets() kfrees all of them, uncluding the garbage pointers.
+Thanks.  This patch is against 2.6.18-rc6-mm2, yes?  Does it fix a bug which
+is only in -mm?  If so, do you know which patch introduced it?  Seems to me
+that this is a 2.6.18 fix?
 
-So something like...
+Is this the thing which was causing your NUMA machine to fail?  If so, does
+2.6.18 boot OK now?
 
---- a/mm/page_alloc.c~a
-+++ a/mm/page_alloc.c
-@@ -1811,11 +1811,14 @@ static struct per_cpu_pageset boot_pages
-  */
- static int __cpuinit process_zones(int cpu)
- {
--	struct zone *zone, *dzone;
-+	struct zone *zone;
- 
--	for_each_zone(zone) {
-+	for_each_zone(zone)
-+		zone_pcp(zone, cpu) = NULL;
- 
--		zone_pcp(zone, cpu) = kmalloc_node(sizeof(struct per_cpu_pageset),
-+	for_each_zone(zone) {
-+		zone_pcp(zone, cpu) =
-+			kmalloc_node(sizeof(struct per_cpu_pageset),
- 					 GFP_KERNEL, cpu_to_node(cpu));
- 		if (!zone_pcp(zone, cpu))
- 			goto bad;
-@@ -1824,17 +1827,16 @@ static int __cpuinit process_zones(int c
- 
- 		if (percpu_pagelist_fraction)
- 			setup_pagelist_highmark(zone_pcp(zone, cpu),
--			 	(zone->present_pages / percpu_pagelist_fraction));
-+			    (zone->present_pages / percpu_pagelist_fraction));
- 	}
- 
- 	return 0;
- bad:
--	for_each_zone(dzone) {
--		if (dzone == zone)
--			break;
--		kfree(zone_pcp(dzone, cpu));
--		zone_pcp(dzone, cpu) = NULL;
-+	for_each_zone(zone) {
-+		kfree(zone_pcp(zone, cpu));
-+		zone_pcp(zone, cpu) = NULL;
- 	}
-+	printk(KERN_EMERG "%s: kmalloc() failed\n", __FUNCTION__);
- 	return -ENOMEM;
- }
- 
-_
-
-
-But why did the kmalloc() fail?
-
+You have a bit of wordwrapping happening there btw.

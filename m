@@ -1,56 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932270AbWIVFEp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932279AbWIVFQY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932270AbWIVFEp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Sep 2006 01:04:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932272AbWIVFEp
+	id S932279AbWIVFQY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Sep 2006 01:16:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932281AbWIVFQY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Sep 2006 01:04:45 -0400
-Received: from ug-out-1314.google.com ([66.249.92.175]:11499 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S932270AbWIVFEp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Sep 2006 01:04:45 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=XeFpFG9U2qhwLCnZPcid7WerH/er7lpfx8DNoK4BtFJ9x4M8fuG/eerhAYh0WJ2BL8FTmdL58iFGnEDRToAtKVDfbdhM9zARJma+DNiLJL0jYVhS7H1ZmuEBwUYg7vqtOo15cZtU+u0WfO+bn0rpZfqRgOQ5XztiDJEQxcn3bN4=
-Message-ID: <489ecd0c0609212204k6cbbf63ej7d59d3855a4993e7@mail.gmail.com>
-Date: Fri, 22 Sep 2006 13:04:43 +0800
-From: "Luke Yang" <luke.adi@gmail.com>
-To: linux-kernel@vger.kernel.org, "Andrew Morton" <akpm@osdl.org>,
-       "Greg KH" <greg@kroah.com>
-Subject: [PATCH 1/3] [BFIN] Blackfin architecture patch for 2.6.18
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 22 Sep 2006 01:16:24 -0400
+Received: from solarneutrino.net ([66.199.224.43]:19205 "EHLO
+	tau.solarneutrino.net") by vger.kernel.org with ESMTP
+	id S932279AbWIVFQY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Sep 2006 01:16:24 -0400
+Date: Fri, 22 Sep 2006 01:16:22 -0400
+To: Stephen Olander Waters <swaters@luy.info>
+Cc: linux-kernel@vger.kernel.org, dri-devel@lists.sourceforge.net
+Subject: Re: R200 lockup (was Re: DRI/X error resolution)
+Message-ID: <20060922051622.GF16939@tau.solarneutrino.net>
+References: <1158898988.3280.8.camel@ix> <20060922043801.GE16939@tau.solarneutrino.net> <1158900841.3280.12.camel@ix>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
 Content-Disposition: inline
+In-Reply-To: <1158900841.3280.12.camel@ix>
+User-Agent: Mutt/1.5.9i
+From: Ryan Richter <ryan@tau.solarneutrino.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+On Thu, Sep 21, 2006 at 11:54:01PM -0500, Stephen Olander Waters wrote:
+> Here is the bug I'm working from (includes hardware, software, etc.):
+> https://bugs.freedesktop.org/show_bug.cgi?id=6111
+> 
+> DRI will work if you set: Option "BusType" "PCI" ... but that's not a
+> real solution. :)
 
-I renewed and resend this patch.
+Oh, wow.  I had no idea there was a workaround.  What kind of
+performance hit does that entail?  R200 performance is pretty dismal to
+begin with, but it would be awfully nice to not have all our
+workstations crashing all the time...
 
-This is the blackfin architecture for 2.6.18, again. As we promised,
-we fixed some issues in our old patches as following.
+I wonder why that works.  What chipset do you use?  All our machines are
+AMD 8151.
 
-- use serial core in that driver
+I'm about to leave town for several days, but I'll try that when I
+return.
 
-- Fix up that ioctl so it a) doesn't sleep in spinlock and b) compiles
-
-- Use generic IRQ framework
-
-- Review all the volatiles, consolidate them in some helper-in-header-file.
-
- And we also fixed a lot of other issues and ported it to 2.6.18 now.
-As usual, this architecture patch is too big so I just give a link
-here. Please review it and give you comments, we really appreciate.
-
-This is a big patch so I only put a link here:
-http://blackfin.uclinux.org/frs/download.php/1010/blackfin_arch_2.6.18.patch
-
-Signed-off-by:  Luke Yang <luke.adi@gmail.com>
-
--- 
-Best regards,
-Luke Yang
-luke.adi@gmail.com
+Cheers,
+-ryan

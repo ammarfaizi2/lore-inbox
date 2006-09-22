@@ -1,49 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932170AbWIVKyQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932191AbWIVLB7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932170AbWIVKyQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Sep 2006 06:54:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932171AbWIVKyP
+	id S932191AbWIVLB7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Sep 2006 07:01:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932192AbWIVLB7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Sep 2006 06:54:15 -0400
-Received: from ogre.sisk.pl ([217.79.144.158]:439 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S932170AbWIVKyP (ORCPT
+	Fri, 22 Sep 2006 07:01:59 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:47246 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932191AbWIVLB6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Sep 2006 06:54:15 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Jason Lunz <lunz@falooley.org>
-Subject: Re: [PATCH -mm 5/6] mm: Print first block offset for swap areas
-Date: Fri, 22 Sep 2006 12:57:11 +0200
-User-Agent: KMail/1.9.1
-Cc: Pavel Machek <pavel@ucw.cz>, Andrew Morton <akpm@osdl.org>,
-       LKML <linux-kernel@vger.kernel.org>, Dave Jones <davej@redhat.com>
-References: <20060921235340.DBD89822B@knob.reflex> <20060921235817.GA27170@knob.reflex>
-In-Reply-To: <20060921235817.GA27170@knob.reflex>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Fri, 22 Sep 2006 07:01:58 -0400
+Subject: Re: [PATCH 05/16] GFS2: File and inode operations
+From: Steven Whitehouse <swhiteho@redhat.com>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>, linux-kernel@vger.kernel.org,
+       Russell Cattelan <cattelan@redhat.com>,
+       David Teigland <teigland@redhat.com>, Ingo Molnar <mingo@elte.hu>
+In-Reply-To: <20060916133947.GA1498@infradead.org>
+References: <1157031183.3384.793.camel@quoit.chygwyn.com>
+	 <Pine.LNX.4.61.0609040824290.9108@yvahk01.tjqt.qr>
+	 <20060916133947.GA1498@infradead.org>
+Content-Type: text/plain
+Organization: Red Hat (UK) Ltd
+Date: Fri, 22 Sep 2006 12:06:53 +0100
+Message-Id: <1158923213.11901.374.camel@quoit.chygwyn.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200609221257.12303.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday, 22 September 2006 01:58, Jason Lunz wrote:
-> > The entire problem is we can't use file names during resume, because
-> > we can't mount filesystems at that time, so we need to represent the
-> > swap header's location in a filesystem-independent way.
+Hi,
+
+On Sat, 2006-09-16 at 14:39 +0100, Christoph Hellwig wrote:
+>
+> > >+static int gfs2_readdir(struct file *file, void *dirent, filldir_t filldir)
+> > >+{
+> > >+	int error;
+> > >+
+> > >+	if (strcmp(current->comm, "nfsd") != 0)
+> > 
+> > Is not there a better way to do this? Note that there is also a "nfsd4" process
 > 
-> grub reads files without mounting the filesystem. And it has to find the
-> entire file, not just the beginning. Maybe swsusp could use that
-> technique? If not the in-kernel one, surely the userland version
-> could.
+> This is in fact not allowed at at all.  Please fix you readdir code not to
+> need special cases for nfsd.
+> 
 
-This is filesystem-dependent.  AFAICT not all filesystems are supported
-by GRUB.
+This has now been done in the git tree, and I believe that the resulting
+lock ordering will be deadlock free,
 
-Greetings,
-Rafael
+Steve.
 
 
--- 
-You never change things by fighting the existing reality.
-		R. Buckminster Fuller

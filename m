@@ -1,69 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751160AbWIVQ3g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932533AbWIVQdY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751160AbWIVQ3g (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Sep 2006 12:29:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751165AbWIVQ3f
+	id S932533AbWIVQdY (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Sep 2006 12:33:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932555AbWIVQdY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Sep 2006 12:29:35 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:18372 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1751160AbWIVQ3e (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Sep 2006 12:29:34 -0400
-Message-ID: <45140F61.4040201@garzik.org>
-Date: Fri, 22 Sep 2006 12:29:21 -0400
-From: Jeff Garzik <jeff@garzik.org>
+	Fri, 22 Sep 2006 12:33:24 -0400
+Received: from terminus.zytor.com ([192.83.249.54]:30899 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S932533AbWIVQdX
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Sep 2006 12:33:23 -0400
+Message-ID: <4514103D.8010303@zytor.com>
+Date: Fri, 22 Sep 2006 09:33:01 -0700
+From: "H. Peter Anvin" <hpa@zytor.com>
 User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
 MIME-Version: 1.0
-To: Dave Jones <davej@redhat.com>, David Miller <davem@davemloft.net>,
-       Russell King <rmk+kernel@arm.linux.org.uk>
-CC: davidsen@tmr.com, torvalds@osdl.org, alan@lxorguk.ukuu.org.uk,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.19 -mm merge plans
-References: <Pine.LNX.4.64.0609211106391.4388@g5.osdl.org> <45130533.2010209@tmr.com> <45130527.1000302@garzik.org> <20060921.145208.26283973.davem@davemloft.net> <20060921220539.GL26683@redhat.com> <20060922083542.GA4246@flint.arm.linux.org.uk> <20060922154816.GA15032@redhat.com>
-In-Reply-To: <20060922154816.GA15032@redhat.com>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+CC: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>,
+       Dax Kelson <dax@gurulabs.com>,
+       Linux kernel <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: Smaller compressed kernel source tarballs?
+References: <1158870777.24172.23.camel@mentorng.gurulabs.com> <20060921204250.GN13641@csclub.uwaterloo.ca> <45130792.9040104@zytor.com> <20060922140007.GK13639@csclub.uwaterloo.ca> <Pine.LNX.4.61.0609221811560.12304@yvahk01.tjqt.qr>
+In-Reply-To: <Pine.LNX.4.61.0609221811560.12304@yvahk01.tjqt.qr>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.3 (----)
-X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jan Engelhardt wrote:
+>>> widely used until there is an "lzip" which does the same thing.  I 
+>>> actually started the work of adding LZMA support to gzip, but then 
+>>> realized it would be better if a new encapsulation format with proper 
+>>> 64-bit support everywhere was created.
+>> It doesn't handle streaming?
+>>
+>> So you can't do: tar c dirname | 7zip dirname.tar.7z ?
+> 
+> man 7z [slightly changed for reasonability]:
+> 
+>   -si
+>       Read data from StdIn (eg: tar -c directory | 7z a -si directory.tar.7z)
+> 
 
-NOTE:  Your mailer generates bogus Mail-Followup-To headers, and you 
-snipped rmk from the To/CC.
+Yes, but you can't make it write to an unseekable stdout.
 
-Dave Jones wrote:
-> Hmm. Some trees do seem to get pulled more often than others.
-> Linus, is there a upper limit on the number of times you want
-> to see pull requests? It strikes me as odd, so I'm wondering
-> if there are some crossed wires here.
-
-Not speaking for Linus, but in general it seems like the more pull 
-requests you send (within reason), the more pulls that occur.  Russell 
-and DaveM certainly seem to send frequent, successful pull requests.
-
-
-> Has Andrew commented on why this is proving to be more of a problem?
-> I've done regular rebases of cpufreq/agpgart (admittedly, they don't
-> reject hardly ever unless Len has ACPI bits touching cpufreq) without
-> causing too much headache.
-
-Rebasing _inevitably_ causes more headaches than a simple tree update, 
-for any downstream consumer of your tree(s).  It is best to avoid wanton 
-rebasing.
-
-Think about it:  if someone is pulling and merging your tree, all of a 
-sudden, without warning, the entire hash history is rewritten.  So 
-rather than a Nice and Friendly minor update, the next time they pull 
-your stuff, the downstream user is forced to suffer through either (a) a 
-painful merge, or (b) back out your last tree (ugh!) and redo things 
-from scratch.
-
-Rebasing might make a pretty history, but it is _not_ fun for random 
-consumers of your trees.  It basically punishes people for following 
-your tree -- not something you want to do.
-
-	Jeff
-
-
+	-hpa

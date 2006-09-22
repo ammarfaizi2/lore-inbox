@@ -1,57 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932075AbWIVTJn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932165AbWIVTKZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932075AbWIVTJn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Sep 2006 15:09:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932165AbWIVTJn
+	id S932165AbWIVTKZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Sep 2006 15:10:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932171AbWIVTKZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Sep 2006 15:09:43 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:37064 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932075AbWIVTJm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Sep 2006 15:09:42 -0400
-Date: Fri, 22 Sep 2006 21:01:06 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Pavel Machek <pavel@suse.cz>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Thomas Gleixner <tglx@linutronix.de>, John Stultz <johnstul@us.ibm.com>,
-       Arjan van de Ven <arjan@infradead.org>
-Subject: Re: 2.6.19 -mm merge plans
-Message-ID: <20060922190106.GA32638@elte.hu>
-References: <20060920135438.d7dd362b.akpm@osdl.org> <20060921131433.GA4182@elte.hu> <20060922130648.GD4055@ucw.cz>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060922130648.GD4055@ucw.cz>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -2.9
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.9 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.4996]
-	-0.1 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Fri, 22 Sep 2006 15:10:25 -0400
+Received: from mx4.cs.washington.edu ([128.208.4.190]:56737 "EHLO
+	mx4.cs.washington.edu") by vger.kernel.org with ESMTP
+	id S932169AbWIVTKX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Sep 2006 15:10:23 -0400
+Date: Fri, 22 Sep 2006 12:10:10 -0700 (PDT)
+From: David Rientjes <rientjes@cs.washington.edu>
+To: Christoph Lameter <clameter@sgi.com>
+cc: Andrew Morton <akpm@osdl.org>,
+       KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>, kmannth@us.ibm.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] do not free non slab allocated per_cpu_pageset
+In-Reply-To: <Pine.LNX.4.64.0609221203020.8675@schroedinger.engr.sgi.com>
+Message-ID: <Pine.LNX.4.64N.0609221209130.8288@attu2.cs.washington.edu>
+References: <1158884252.5657.38.camel@keithlap> <20060921174134.4e0d30f2.akpm@osdl.org>
+ <1158888843.5657.44.camel@keithlap> <20060922112427.d5f3aef6.kamezawa.hiroyu@jp.fujitsu.com>
+ <20060921200806.523ce0b2.akpm@osdl.org> <20060922123045.d7258e13.kamezawa.hiroyu@jp.fujitsu.com>
+ <20060921204629.49caa95f.akpm@osdl.org> <Pine.LNX.4.64N.0609212108360.30543@attu1.cs.washington.edu>
+ <Pine.LNX.4.64N.0609221117210.5858@attu2.cs.washington.edu>
+ <20060922113924.014ce28f.akpm@osdl.org> <Pine.LNX.4.64.0609221141270.8356@schroedinger.engr.sgi.com>
+ <20060922115646.fd1040e8.akpm@osdl.org> <Pine.LNX.4.64.0609221203020.8675@schroedinger.engr.sgi.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 22 Sep 2006, Christoph Lameter wrote:
 
-* Pavel Machek <pavel@suse.cz> wrote:
-
-> > would be nice to merge the -hrt queue that goes right ontop this 
-> > queue. Even if HIGH_RES_TIMERS is "default n" in the beginning. That 
-> > gives us high-res timers and dynticks which are both very important 
-> > features to certain classes of users/devices.
+> The pcps must be usable during process_zones() for NUMA bootstrap. 
+> As far as I recall: A cpu is booted with the static arrays and later 
+> process_zones is replacing the references to the static arrays.
 > 
-> dynticks give benefit of 0.3W, or 20minutes (IIRC) from 8hours on 
-> thinkpad x60... and they were around for way too long. (When baseline 
-> is hz=250, it is 0.5W from hz=1000 baseline). It would be cool to 
-> finally merge them.
 
-note that this is a new implementation of dynticks though, not Con's 
-older stuff which you probably used, right? But it's fairly low-impact 
-(just a few lines ontop of hrtimers, here and there), ontop of the 
-long-existing -hrt queue.
+Yes, they are replaced as soon as the slab allocator is up.  So all we 
+need is to prevent static pcp's from being free'd since they haven't yet 
+matured to being slab.
 
-	Ingo
+		David

@@ -1,62 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932517AbWIVONH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932511AbWIVON7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932517AbWIVONH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Sep 2006 10:13:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932519AbWIVONH
+	id S932511AbWIVON7 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Sep 2006 10:13:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932519AbWIVON6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Sep 2006 10:13:07 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:12732 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S932517AbWIVONG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Sep 2006 10:13:06 -0400
-Subject: Re: 2.6.18-rt1
-From: Lee Revell <rlrevell@joe-job.com>
-To: Mark Knecht <markknecht@gmail.com>
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
-       Thomas Gleixner <tglx@linutronix.de>, John Stultz <johnstul@us.ibm.com>,
-       "Paul E. McKenney" <paulmck@us.ibm.com>,
-       Dipankar Sarma <dipankar@in.ibm.com>,
-       Arjan van de Ven <arjan@infradead.org>
-In-Reply-To: <5bdc1c8b0609201238te67affcne7bb21d50bda3a69@mail.gmail.com>
-References: <20060920141907.GA30765@elte.hu>
-	 <5bdc1c8b0609201238te67affcne7bb21d50bda3a69@mail.gmail.com>
-Content-Type: text/plain
-Date: Fri, 22 Sep 2006 10:14:25 -0400
-Message-Id: <1158934466.1097.53.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
+	Fri, 22 Sep 2006 10:13:58 -0400
+Received: from smtp.reflexsecurity.com ([72.54.64.74]:54509 "EHLO
+	crown.reflexsecurity.com") by vger.kernel.org with ESMTP
+	id S932511AbWIVON6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Sep 2006 10:13:58 -0400
+Date: Fri, 22 Sep 2006 10:13:47 -0400
+From: Jason Lunz <lunz@falooley.org>
+To: "Rafael J\. Wysocki" <rjw@sisk.pl>
+Cc: Pavel Machek <pavel@ucw.cz>, Andrew Morton <akpm@osdl.org>,
+       LKML <linux-kernel@vger.kernel.org>, Dave Jones <davej@redhat.com>
+Subject: Re: [PATCH -mm 5/6] mm: Print first block offset for swap areas
+Message-ID: <20060922141346.GA28949@opus.vpn-dev.reflex>
+References: <20060921235340.DBD89822B@knob.reflex> <20060921235817.GA27170@knob.reflex> <200609221257.12303.rjw@sisk.pl>
+In-Reply-To: <200609221257.12303.rjw@sisk.pl>
+User-Agent: Mutt/1.5.13 (2006-08-11)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-09-20 at 12:38 -0700, Mark Knecht wrote:
-> On 9/20/06, Ingo Molnar <mingo@elte.hu> wrote:
-> > I'm pleased to announce the 2.6.18-rt1 tree, which can be downloaded
-> > from the usual place:
-> >
-> >    http://redhat.com/~mingo/realtime-preempt/
-> >
-> 
-> Hi Ingo,
->    I gave 2.6.18-rt2 a quick try. It compiled fine but crashed on
-> boot. I've no way to copy the screen. I can send along a digital photo
-> if the following isn't enough info.
-> 
-> QUESTION: Should I be able to run ati-drivers-8.28.8 with this kernel
-> or would I have to wait for ATI to put out a 2.6.18 compatible driver?
-> The current version does not emerge with 2.6.18-rt2.
-> 
+On Fri, Sep 22, 2006 at 12:57:11PM +0200, Rafael J. Wysocki wrote:
+> This is filesystem-dependent.  AFAICT not all filesystems are supported
+> by GRUB.
 
-I would not expect any proprietary ATI driver to work with an -rt
-kernel, unless they specifically release a binary for -rt.
+of course, but it shows the technique is viable. Grub is 
+widespread, and if it's good enough for so many x86 users to boot with
+then the same approach ought to be adequate for resume, no?
 
-> Not sure how much that will help you. Been awhile since I've sent
-> along crash reports. I'll have to ge a second Linux machine running to
-> do the console boot capture thing if you need it.
-
-Try -rt3.  If the crash persists, you could take a picture of the screen
-with a digital camera and post a link to it.
-
-Lee
-
-
+Jason

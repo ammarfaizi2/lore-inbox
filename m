@@ -1,1638 +1,2559 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964856AbWIVUEA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964853AbWIVUDp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964856AbWIVUEA (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Sep 2006 16:04:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964863AbWIVUD7
+	id S964853AbWIVUDp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Sep 2006 16:03:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964856AbWIVUDp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Sep 2006 16:03:59 -0400
-Received: from py-out-1112.google.com ([64.233.166.180]:11815 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S964856AbWIVUD4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Sep 2006 16:03:56 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:organization:x-mailer:mime-version:content-type:content-transfer-encoding;
-        b=a5sQ/fmNQlPWVq4+HhRf0lYrvaRutUxG8LsTgVXsaWr1GstKVt8skpiMQy3dUF9rp/bjmJXejuX1Hm4+SWFiwuML/7FVp2PBQP31vvkCk1QVzormvbuAdrY0Kohk457ygz7N82GNl7P/jQhR19RHhbzMI9uyQ7nt6OczRGvHS4Q=
-Date: Fri, 22 Sep 2006 22:03:46 +0200
-From: Miguel Ojeda Sandonis <maxextreme@gmail.com>
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [PATCH 2.6.18 real-V5] drivers: add lcd display support
-Message-Id: <20060922220346.69f63338.maxextreme@gmail.com>
-Organization: -
-X-Mailer: Sylpheed version 1.0.4 (GTK+ 1.2.10; i386-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 22 Sep 2006 16:03:45 -0400
+Received: from mtagate1.de.ibm.com ([195.212.29.150]:65 "EHLO
+	mtagate1.de.ibm.com") by vger.kernel.org with ESMTP id S964853AbWIVUDm
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Sep 2006 16:03:42 -0400
+From: Hoang-Nam Nguyen <hnguyen@de.ibm.com>
+To: rolandd@cisco.com
+Subject: Re: [PATCH 2.6.19-rc1] ehca firmware interface based on Anton Blanchard's new hvcall interface
+Date: Fri, 22 Sep 2006 22:00:12 +0200
+User-Agent: KMail/1.7.1
+Cc: linux-kernel@vger.kernel.org, linuxppc-dev@ozlabs.org,
+       openib-general@openib.org, openfabrics-ewg@openib.org, pmac@au1.ibm.com,
+       Christoph.Raisch/Germany/IBM@de.ibm.com
+MIME-Version: 1.0
+Content-Type: Multipart/Mixed;
+  boundary="Boundary-00=_MDEFFBgTiT9/7IY"
+Message-Id: <200609222200.12722.hnguyen@de.ibm.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(This is the real V5 patch. The other V5-mail was the V4, sorry)
+--Boundary-00=_MDEFFBgTiT9/7IY
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-miguelojeda-2.6.18-add-lcd-display-support.patch
-
-
-Changelog (newer first):
-
-V5 - Fixed mistakes found by Joe Perches
-     - coding style
-     - const, spelling mistake
-
-V4 - Fixed mistakes found by Pavel Machek
-     - no zero initialization
-     - GPL version
-     - use bitop generic functions
-
-V3 - Apply for 2.6.18
-     - added const to class_create (2.6.18 hasn't add-const-to-class_create.patch)
-
-V2 - Fixed mistakes found by Greg KH
-     - coding style
-
-V1 - Fixed mistakes found by Alexey Dobriyan
-     - coding style
-     - init() and exit() error management
-
-V0 - Original patch
+> - shca->ib_device.node_type           = RDMA_NODE_IB_CA;
+> + shca->ib_device.node_type           = IB_NODE_CA;
+My mistake, I tested against Paul's git tree only and then used a wrong patch script,
+which exchanged those defines.
+This time I did all manually and tested also against your git tree with Anton's patch
+http://ozlabs.org/pipermail/linuxppc-dev/2006-July/024556.html. 
+Thanks!
+Nam Nguyen
 
 
-Brief:
-
- - Adds const to class_create (2.6.18 hasn't add-const-to-class_create.patch)
- - Adds a "lcddisplay" class for registering LCD devices.
- - Adds support for the ks0108 LCD Controller as a device driver.
-   (uses lcddisplay class and parport interface)
- - Adds support for the cfag12864b LCD Display as a device driver.
-   (uses ks0108 device driver)
- - Adds a new ioctl() magic number/range (0xFF) in the list for the cfag12864b device.
- - Adds the usual Documentation, includes, Makefiles, Kconfigs, MAINTAINERS, CREDITS...
-
-
-Patched files Index:
-
-patching file drivers/base/class.c
-patching file include/linux/device.h
-patching file drivers/Kconfig
-patching file drivers/lcddisplay/cfag12864b.c
-patching file drivers/lcddisplay/cfag12864b_image.h
-patching file drivers/lcddisplay/Kconfig
-patching file drivers/lcddisplay/ks0108.c
-patching file drivers/lcddisplay/lcddisplay.c
-patching file drivers/lcddisplay/Makefile
-patching file drivers/Makefile
-patching file include/linux/cfag12864b.h
-patching file include/linux/ks0108.h
-patching file include/linux/lcddisplay.h
-patching file Documentation/drivers/lcddisplay/cfag12864b
-patching file Documentation/drivers/lcddisplay/lcddisplay
-patching file Documentation/ioctl-number.txt
-patching file CREDITS
-patching file MAINTAINERS
-
-
-Please review.
-
-
-miguelojeda-2.6.18-add-lcd-display-support.patch
-Signed-off-by: Miguel Ojeda Sandonis <maxextreme@gmail.com>
+Signed-off-by: Hoang-Nam Nguyen <hnguyen@de.ibm.com>
 ---
-diff -uprN -X dontdiff linux-2.6.18-vanilla/drivers/base/class.c linux-2.6.18/drivers/base/class.c
---- linux-2.6.18-vanilla/drivers/base/class.c	2006-09-20 14:51:41.000000000 +0200
-+++ linux-2.6.18/drivers/base/class.c	2006-09-20 14:55:56.000000000 +0200
-@@ -197,7 +197,7 @@ static int class_device_create_uevent(st
-  * Note, the pointer created here is to be destroyed when finished by
-  * making a call to class_destroy().
-  */
--struct class *class_create(struct module *owner, char *name)
-+struct class *class_create(struct module *owner, const char *name)
+
+
+ ehca_main.c |    5 
+ hcp_if.c    |  845 ++++++++++++++++++++----------------------------------------
+ hcp_if.h    |    2 
+ hipz_hw.h   |    2 
+ ipz_pt_fn.h |    7 
+ 5 files changed, 298 insertions(+), 563 deletions(-)
+
+
+diff --git a/drivers/infiniband/hw/ehca/ehca_main.c b/drivers/infiniband/hw/ehca/ehca_main.c
+index 159b0be..2380994 100644
+--- a/drivers/infiniband/hw/ehca/ehca_main.c
++++ b/drivers/infiniband/hw/ehca/ehca_main.c
+@@ -5,6 +5,7 @@
+  *
+  *  Authors: Heiko J Schick <schickhj@de.ibm.com>
+  *           Hoang-Nam Nguyen <hnguyen@de.ibm.com>
++ *           Joachim Fenkes <fenkes@de.ibm.com>
+  *
+  *  Copyright (c) 2005 IBM Corporation
+  *
+@@ -48,7 +49,7 @@ #include "hcp_if.h"
+ MODULE_LICENSE("Dual BSD/GPL");
+ MODULE_AUTHOR("Christoph Raisch <raisch@de.ibm.com>");
+ MODULE_DESCRIPTION("IBM eServer HCA InfiniBand Device Driver");
+-MODULE_VERSION("SVNEHCA_0015");
++MODULE_VERSION("SVNEHCA_0016");
+ 
+ int ehca_open_aqp1     = 0;
+ int ehca_debug_level   = 0;
+@@ -749,7 +750,7 @@ int __init ehca_module_init(void)
+  int ret;
+ 
+  printk(KERN_INFO "eHCA Infiniband Device Driver "
+-                  "(Rel.: SVNEHCA_0015)\n");
++                  "(Rel.: SVNEHCA_0016)\n");
+  idr_init(&ehca_qp_idr);
+  idr_init(&ehca_cq_idr);
+  spin_lock_init(&ehca_qp_idr_lock);
+diff --git a/drivers/infiniband/hw/ehca/hcp_if.c b/drivers/infiniband/hw/ehca/hcp_if.c
+index 260e82a..3fb46e6 100644
+--- a/drivers/infiniband/hw/ehca/hcp_if.c
++++ b/drivers/infiniband/hw/ehca/hcp_if.c
+@@ -48,27 +48,27 @@ #include "hcp_phyp.h"
+ #include "hipz_fns.h"
+ #include "ipz_pt_fn.h"
+ 
+-#define H_ALL_RES_QP_ENHANCED_OPS       EHCA_BMASK_IBM(9,11)
+-#define H_ALL_RES_QP_PTE_PIN            EHCA_BMASK_IBM(12,12)
+-#define H_ALL_RES_QP_SERVICE_TYPE       EHCA_BMASK_IBM(13,15)
+-#define H_ALL_RES_QP_LL_RQ_CQE_POSTING  EHCA_BMASK_IBM(18,18)
+-#define H_ALL_RES_QP_LL_SQ_CQE_POSTING  EHCA_BMASK_IBM(19,21)
+-#define H_ALL_RES_QP_SIGNALING_TYPE     EHCA_BMASK_IBM(22,23)
+-#define H_ALL_RES_QP_UD_AV_LKEY_CTRL    EHCA_BMASK_IBM(31,31)
+-#define H_ALL_RES_QP_RESOURCE_TYPE      EHCA_BMASK_IBM(56,63)
+-
+-#define H_ALL_RES_QP_MAX_OUTST_SEND_WR  EHCA_BMASK_IBM(0,15)
+-#define H_ALL_RES_QP_MAX_OUTST_RECV_WR  EHCA_BMASK_IBM(16,31)
+-#define H_ALL_RES_QP_MAX_SEND_SGE       EHCA_BMASK_IBM(32,39)
+-#define H_ALL_RES_QP_MAX_RECV_SGE       EHCA_BMASK_IBM(40,47)
+-
+-#define H_ALL_RES_QP_ACT_OUTST_SEND_WR  EHCA_BMASK_IBM(16,31)
+-#define H_ALL_RES_QP_ACT_OUTST_RECV_WR  EHCA_BMASK_IBM(48,63)
+-#define H_ALL_RES_QP_ACT_SEND_SGE       EHCA_BMASK_IBM(8,15)
+-#define H_ALL_RES_QP_ACT_RECV_SGE       EHCA_BMASK_IBM(24,31)
+-
+-#define H_ALL_RES_QP_SQUEUE_SIZE_PAGES  EHCA_BMASK_IBM(0,31)
+-#define H_ALL_RES_QP_RQUEUE_SIZE_PAGES  EHCA_BMASK_IBM(32,63)
++#define H_ALL_RES_QP_ENHANCED_OPS       EHCA_BMASK_IBM(9, 11)
++#define H_ALL_RES_QP_PTE_PIN            EHCA_BMASK_IBM(12, 12)
++#define H_ALL_RES_QP_SERVICE_TYPE       EHCA_BMASK_IBM(13, 15)
++#define H_ALL_RES_QP_LL_RQ_CQE_POSTING  EHCA_BMASK_IBM(18, 18)
++#define H_ALL_RES_QP_LL_SQ_CQE_POSTING  EHCA_BMASK_IBM(19, 21)
++#define H_ALL_RES_QP_SIGNALING_TYPE     EHCA_BMASK_IBM(22, 23)
++#define H_ALL_RES_QP_UD_AV_LKEY_CTRL    EHCA_BMASK_IBM(31, 31)
++#define H_ALL_RES_QP_RESOURCE_TYPE      EHCA_BMASK_IBM(56, 63)
++
++#define H_ALL_RES_QP_MAX_OUTST_SEND_WR  EHCA_BMASK_IBM(0, 15)
++#define H_ALL_RES_QP_MAX_OUTST_RECV_WR  EHCA_BMASK_IBM(16, 31)
++#define H_ALL_RES_QP_MAX_SEND_SGE       EHCA_BMASK_IBM(32, 39)
++#define H_ALL_RES_QP_MAX_RECV_SGE       EHCA_BMASK_IBM(40, 47)
++
++#define H_ALL_RES_QP_ACT_OUTST_SEND_WR  EHCA_BMASK_IBM(16, 31)
++#define H_ALL_RES_QP_ACT_OUTST_RECV_WR  EHCA_BMASK_IBM(48, 63)
++#define H_ALL_RES_QP_ACT_SEND_SGE       EHCA_BMASK_IBM(8, 15)
++#define H_ALL_RES_QP_ACT_RECV_SGE       EHCA_BMASK_IBM(24, 31)
++
++#define H_ALL_RES_QP_SQUEUE_SIZE_PAGES  EHCA_BMASK_IBM(0, 31)
++#define H_ALL_RES_QP_RQUEUE_SIZE_PAGES  EHCA_BMASK_IBM(32, 63)
+ 
+ /* direct access qp controls */
+ #define DAQP_CTRL_ENABLE    0x01
+@@ -95,35 +95,25 @@ static u32 get_longbusy_msecs(int longbu
+  }
+ }
+ 
+-static long ehca_hcall_7arg_7ret(unsigned long opcode,
+-     unsigned long arg1,
+-     unsigned long arg2,
+-     unsigned long arg3,
+-     unsigned long arg4,
+-     unsigned long arg5,
+-     unsigned long arg6,
+-     unsigned long arg7,
+-     unsigned long *out1,
+-     unsigned long *out2,
+-     unsigned long *out3,
+-     unsigned long *out4,
+-     unsigned long *out5,
+-     unsigned long *out6,
+-     unsigned long *out7)
++static long ehca_plpar_hcall_norets(unsigned long opcode,
++        unsigned long arg1,
++        unsigned long arg2,
++        unsigned long arg3,
++        unsigned long arg4,
++        unsigned long arg5,
++        unsigned long arg6,
++        unsigned long arg7)
  {
- 	struct class *cls;
- 	int retval;
-diff -uprN -X dontdiff linux-2.6.18-vanilla/include/linux/device.h linux-2.6.18/include/linux/device.h
---- linux-2.6.18-vanilla/include/linux/device.h	2006-09-20 14:52:00.000000000 +0200
-+++ linux-2.6.18/include/linux/device.h	2006-09-20 14:55:56.000000000 +0200
-@@ -271,7 +271,7 @@ struct class_interface {
- extern int class_interface_register(struct class_interface *);
- extern void class_interface_unregister(struct class_interface *);
+  long ret;
+  int i, sleep_msecs;
  
--extern struct class *class_create(struct module *owner, char *name);
-+extern struct class *class_create(struct module *owner, const char *name);
- extern void class_destroy(struct class *cls);
- extern struct class_device *class_device_create(struct class *cls,
- 						struct class_device *parent,
-diff -uprN -X dontdiff linux-2.6.18-vanilla/drivers/Kconfig linux-2.6.18/drivers/Kconfig
---- linux-2.6.18-vanilla/drivers/Kconfig	2006-09-20 14:51:40.000000000 +0200
-+++ linux-2.6.18/drivers/Kconfig	2006-09-20 14:56:57.000000000 +0200
-@@ -74,4 +74,6 @@ source "drivers/rtc/Kconfig"
+- ehca_gen_dbg("opcode=%lx arg1=%lx arg2=%lx arg3=%lx arg4=%lx arg5=%lx "
+-       "arg6=%lx arg7=%lx", opcode, arg1, arg2, arg3, arg4, arg5,
+-       arg6, arg7);
++ ehca_gen_dbg("opcode=%lx arg1=%lx arg2=%lx arg3=%lx arg4=%lx "
++       "arg5=%lx arg6=%lx arg7=%lx",
++       opcode, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
  
- source "drivers/dma/Kconfig"
+  for (i = 0; i < 5; i++) {
+-  ret = plpar_hcall_7arg_7ret(opcode,
+-         arg1, arg2, arg3, arg4,
+-         arg5, arg6, arg7,
+-         out1, out2, out3, out4,
+-         out5, out6,out7);
++  ret = plpar_hcall_norets(opcode, arg1, arg2, arg3, arg4,
++      arg5, arg6, arg7);
  
-+source "drivers/lcddisplay/Kconfig"
-+
- endmenu
-diff -uprN -X dontdiff linux-2.6.18-vanilla/drivers/lcddisplay/cfag12864b.c linux-2.6.18/drivers/lcddisplay/cfag12864b.c
---- linux-2.6.18-vanilla/drivers/lcddisplay/cfag12864b.c	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.18/drivers/lcddisplay/cfag12864b.c	2006-09-22 21:46:52.000000000 +0200
-@@ -0,0 +1,529 @@
-+/*
-+ *    Filename: cfag12864b.c
-+ *     Version: 0.1.0
-+ * Description: cfag12864b LCD Display Driver
-+ *     License: GPLv2
-+ *     Depends: lcddisplay ks0108
-+ *
-+ *      Author: Miguel Ojeda Sandonis <maxextreme@gmail.com>
-+ *        Date: 2006-09-21
-+ */
-+
-+
-+#include <linux/init.h>
-+#include <linux/module.h>
-+#include <linux/kernel.h>
-+#include <linux/fs.h>
-+#include <linux/cdev.h>
-+#include <linux/device.h>
-+#include <linux/lcddisplay.h>
-+#include <linux/ks0108.h>
-+#include <linux/cfag12864b.h>
-+#include <asm/uaccess.h>
-+
-+#define NAME "cfag12864b"
-+#define PRINTK_PREFIX  KERN_INFO NAME ": "
-+
-+
-+
-+/*
-+ * Device
-+ */
-+
-+static const unsigned int cfag12864b_firstminor;
-+static const unsigned int cfag12864b_ndevices = 1;
-+static const char * cfag12864b_name = NAME;
-+static int cfag12864b_major;
-+static int cfag12864b_minor;
-+static dev_t cfag12864b_device;
-+struct cdev cfag12864b_chardevice;
-+
-+
-+
-+
-+/*
-+ * cfag12864b Commands
-+ */
-+
-+static const unsigned int cfag12864b_bits = 8;
-+static const unsigned int cfag12864b_width = CFAG12864B_WIDTH;
-+static const unsigned int cfag12864b_height = CFAG12864B_HEIGHT;
-+static const unsigned int cfag12864b_matrixsize = CFAG12864B_MATRIXSIZE;
-+static const unsigned int cfag12864b_controllers = CFAG12864B_CONTROLLERS;
-+static const unsigned int cfag12864b_pages = CFAG12864B_PAGES;
-+static const unsigned int cfag12864b_addresses = CFAG12864B_ADDRESSES;
-+static const unsigned int cfag12864b_size = CFAG12864B_SIZE;
-+static unsigned char cfag12864b_state;
-+
-+static void cfag12864b_set(void)
-+{
-+	ks0108_writecontrol(cfag12864b_state);
-+}
-+
-+static void cfag12864b_setbit(unsigned char state, unsigned char bit)
-+{
-+	if (state)
-+		set_bit(bit, (void*)&cfag12864b_state);
-+	else
-+		clear_bit(bit, (void*)&cfag12864b_state);
-+	cfag12864b_set();
-+}
-+
-+static void cfag12864b_e(unsigned char state)
-+{
-+	cfag12864b_setbit(state, 0);
-+}
-+
-+static void cfag12864b_cs1(unsigned char state)
-+{
-+	cfag12864b_setbit(state, 2);
-+}
-+
-+static void cfag12864b_cs2(unsigned char state)
-+{
-+	cfag12864b_setbit(state, 1);
-+}
-+
-+static void cfag12864b_di(unsigned char state)
-+{
-+	cfag12864b_setbit(state, 3);
-+}
-+
-+static void cfag12864b_setcontrollers(unsigned char first, unsigned char second)
-+{
-+	if (first)
-+		cfag12864b_cs1(0);
-+	else
-+		cfag12864b_cs1(1);
-+
-+	if (second)
-+		cfag12864b_cs2(0);
-+	else
-+		cfag12864b_cs2(1);
-+}
-+
-+static void cfag12864b_controller(unsigned char which)
-+{
-+	if (which == 0)
-+		cfag12864b_setcontrollers(1, 0);
-+	else if (which == 1)
-+		cfag12864b_setcontrollers(0, 1);
-+}
-+
-+static void cfag12864b_displaystate(unsigned char state)
-+{
-+	cfag12864b_di(0);
-+	cfag12864b_e(1);
-+	ks0108_displaystate(state);
-+	cfag12864b_e(0);
-+}
-+
-+static void cfag12864b_address(unsigned char address)
-+{
-+	cfag12864b_di(0);
-+	cfag12864b_e(1);
-+	ks0108_address(address);
-+	cfag12864b_e(0);
-+}
-+
-+static void cfag12864b_page(unsigned char page)
-+{
-+	cfag12864b_di(0);
-+	cfag12864b_e(1);
-+	ks0108_page(page);
-+	cfag12864b_e(0);
-+}
-+
-+static void cfag12864b_startline(unsigned char startline)
-+{
-+	cfag12864b_di(0);
-+	cfag12864b_e(1);
-+	ks0108_startline(startline);
-+	cfag12864b_e(0);
-+}
-+
-+static void cfag12864b_writebyte(unsigned char byte)
-+{
-+	cfag12864b_di(1);
-+	cfag12864b_e(1);
-+	ks0108_writedata(byte);
-+	cfag12864b_e(0);
-+}
-+
-+static void cfag12864b_nop(void)
-+{
-+	cfag12864b_startline(0);
-+}
-+
-+
-+
-+/*
-+ * Auxiliary
-+ */
-+
-+static void normalizeoffset(unsigned int * offset)
-+{
-+	if (*offset >= cfag12864b_pages*cfag12864b_addresses)
-+		*offset -= cfag12864b_pages*cfag12864b_addresses;
-+}
-+
-+static unsigned char calcaddress(unsigned int offset)
-+{
-+	normalizeoffset(&offset);
-+	return offset%cfag12864b_addresses;
-+}
-+
-+static unsigned char calccontroller(unsigned int offset)
-+{
-+	if (offset<cfag12864b_pages*cfag12864b_addresses)
-+		return 0;
-+	return 1;
-+}
-+
-+static unsigned char calcpage(unsigned int offset)
-+{
-+	normalizeoffset(&offset);
-+	return offset/cfag12864b_addresses;
-+}
-+
-+
-+
-+/*
-+ * cfag12864b Exported Commands
-+ */
-+
-+void cfag12864b_on(void)
-+{
-+	cfag12864b_setcontrollers(1,1);
-+	cfag12864b_displaystate(1);
-+}
-+
-+void cfag12864b_off(void)
-+{
-+	cfag12864b_setcontrollers(1, 1);
-+	cfag12864b_displaystate(0);
-+}
-+
-+void cfag12864b_clear(void)
-+{
-+	unsigned char page,address;
-+
-+	cfag12864b_setcontrollers(1, 1);
-+	for (page=0; page<cfag12864b_pages; ++page) {
-+		cfag12864b_page(page);
-+		cfag12864b_address(0);
-+		for (address=0; address<cfag12864b_addresses; ++address)
-+			cfag12864b_writebyte(0);
-+	}
-+}
-+
-+void cfag12864b_write(
-+	unsigned short offset,
-+	const unsigned char * buffer,
-+	unsigned short count)
-+{
-+	unsigned short i;
-+
-+	/* Invalid values: They get updated at the first cycle */
-+	unsigned char controller = 0xFF;
-+	unsigned char page = 0xFF;
-+	unsigned char address = 0xFF;
-+
-+	unsigned char tmpcontroller, tmppage, tmpaddress;
-+
-+	if (offset > cfag12864b_size)
-+		return;
-+	if (count+offset > cfag12864b_size)
-+		count=cfag12864b_size-offset;
-+
-+	for (i=0; i < count; ++i, ++offset, ++address) {
-+		tmpcontroller = calccontroller(offset);
-+		tmppage = calcpage(offset);
-+		tmpaddress = calcaddress(offset);
-+
-+		if (controller != tmpcontroller) {
-+			controller = tmpcontroller;
-+			cfag12864b_controller(controller);
-+			cfag12864b_nop();
-+		}
-+		if (page != tmppage) {
-+			page = tmppage;
-+			cfag12864b_page(page);
-+			cfag12864b_nop();
-+		}
-+
-+		/* Safe method, still quick */
-+		cfag12864b_address(tmpaddress);
-+		cfag12864b_nop();
-+
-+		/* Dummy */
-+		cfag12864b_nop();
-+
-+		cfag12864b_writebyte(buffer[i]);
-+	}
-+}
-+
-+void cfag12864b_format(unsigned char * src)
-+{
-+	unsigned short controller,page,address,bit;
-+	unsigned char * dest;
-+
-+	dest = kmalloc(sizeof(unsigned char)*cfag12864b_size, GFP_KERNEL);
-+	if (dest == NULL) {
-+		printk(PRINTK_PREFIX "format: ERROR: "
-+			"can't alloc memory %i bytes\n",
-+			sizeof(unsigned char)*cfag12864b_size);
-+		return;
-+	}
-+
-+	for (controller=0; controller < cfag12864b_controllers; ++controller)
-+	for (page=0; page < cfag12864b_pages; ++page)
-+	for (address=0; address < cfag12864b_addresses; ++address) {
-+		dest[(controller*cfag12864b_pages+page)*cfag12864b_addresses+address]=0;
-+		for (bit=0; bit < cfag12864b_bits; ++bit)
-+			if (src[controller*cfag12864b_addresses+address+(page*cfag12864b_bits+bit)*cfag12864b_width])
-+				set_bit(bit, (void*)(dest+(controller*cfag12864b_pages+page)*cfag12864b_addresses+address));
-+	}
-+
-+	cfag12864b_write(0, dest, cfag12864b_size);
-+
-+	kfree(dest);
-+}
-+
-+EXPORT_SYMBOL_GPL(cfag12864b_on);
-+EXPORT_SYMBOL_GPL(cfag12864b_off);
-+EXPORT_SYMBOL_GPL(cfag12864b_clear);
-+EXPORT_SYMBOL_GPL(cfag12864b_write);
-+EXPORT_SYMBOL_GPL(cfag12864b_format);
-+
-+
-+/*
-+ * cfag12864b_fops
-+ */
-+
-+static loff_t cfag12864b_fopseek(
-+	struct file * filp,
-+	loff_t offset,
-+	int whence)
-+{
-+	loff_t new;
-+
-+	switch(whence) {
-+	case SEEK_SET:
-+		new = offset;
-+		break;
-+	case SEEK_CUR:
-+		new = filp->f_pos + offset;
-+		break;
-+	case SEEK_END:
-+		new = cfag12864b_size + offset;
-+		break;
-+	default:
-+		return -EINVAL;
-+	}
-+
-+	if (new < 0)
-+		return -EINVAL;
-+	filp->f_pos = new;
-+	return new;
-+}
-+
-+
-+static ssize_t cfag12864b_fopwrite(
-+	struct file * filp,
-+	const char __user * buffer,
-+	size_t count,
-+	loff_t * offset)
-+{
-+	int ret = -EINVAL;
-+	int result;
-+	char * tmpbuffer;
-+
-+	if (*offset > cfag12864b_size)
-+		return 0;
-+	if (*offset+count > cfag12864b_size)
-+		count=cfag12864b_size-*offset;
-+
-+	tmpbuffer = kmalloc(count, GFP_KERNEL);
-+	if (tmpbuffer == NULL) {
-+		printk(PRINTK_PREFIX "FOP write: ERROR: "
-+			"can't alloc memory %i bytes\n",count);
-+		ret = -ENOMEM;
-+		goto none;
-+	}
-+
-+	result = copy_from_user(tmpbuffer, buffer, count);
-+	if (result != 0) {
-+		printk(PRINTK_PREFIX "FOP write: ERROR: "
-+			"can't copy memory from user\n");
-+		ret = -EFAULT;
-+		goto bufferalloced;
-+	}
-+
-+	cfag12864b_write(*offset, tmpbuffer, count);
-+
-+	*offset += count;
-+	ret = count;
-+
-+bufferalloced:
-+	kfree(tmpbuffer);
-+
-+none:
-+	return ret;
-+}
-+
-+static int cfag12864b_fopioctlformat(void __user * arg)
-+{
-+	int result;
-+	int ret = -ENOTTY;
-+
-+	unsigned char * tmpbuffer;
-+
-+	tmpbuffer = kmalloc(
-+		sizeof(unsigned char)*cfag12864b_matrixsize,GFP_KERNEL);
-+	if (tmpbuffer == NULL) {
-+		printk(PRINTK_PREFIX "FOP ioctl: ERROR: "
-+			"can't alloc memory %i bytes\n",
-+			sizeof(unsigned char)*cfag12864b_matrixsize);
-+		goto none;
-+	}
-+
-+	result = copy_from_user(
-+		tmpbuffer,
-+		arg,
-+		sizeof(unsigned char)*cfag12864b_matrixsize);
-+	if (result != 0) {
-+		printk(PRINTK_PREFIX "FOP ioctl: ERROR: "
-+			"can't copy memory from user\n");
-+		goto bufferalloced;
-+	}
-+	
-+	cfag12864b_format(tmpbuffer);
-+
-+	ret = 0;
-+
-+bufferalloced:
-+	kfree(tmpbuffer);
-+
-+none:
-+	return ret;
-+}
-+
-+static int cfag12864b_fopioctl(
-+	struct inode * inode,
-+	struct file * filp,
-+	unsigned int cmd,
-+	unsigned long arg)
-+{
-+	if (_IOC_TYPE(cmd) != CFAG12864B_IOC_MAGIC)
-+		return -ENOTTY;
-+	if (_IOC_NR(cmd) > CFAG12864B_IOC_MAXNR)
-+		return -ENOTTY;
-+
-+	switch(cmd) {
-+	case CFAG12864B_IOCON:
-+		cfag12864b_on();
-+		break;
-+	case CFAG12864B_IOCOFF:
-+		cfag12864b_off();
-+		break;
-+	case CFAG12864B_IOCCLEAR:
-+		cfag12864b_clear();
-+		break;
-+	case CFAG12864B_IOCFORMAT:
-+		return cfag12864b_fopioctlformat((void __user *)arg);
-+	default:
-+		return -ENOTTY;
-+	}
-+
-+	return 0;
-+}
-+
-+
-+static struct file_operations cfag12864b_fops =
-+{
-+	.owner = THIS_MODULE,
-+	.llseek = cfag12864b_fopseek,
-+	.write = cfag12864b_fopwrite,
-+	.ioctl = cfag12864b_fopioctl,
-+};
-+
-+
-+/*
-+ * Module Init & Exit
-+ */
-+
-+static int __init cfag12864b_init(void)
-+{
-+
-+#include "cfag12864b_image.h"
-+
-+	int result;
-+	int ret = -EINVAL;
-+
-+	result = alloc_chrdev_region(
-+		&cfag12864b_device, cfag12864b_firstminor,
-+		cfag12864b_ndevices, cfag12864b_name);
-+	if (result < 0) {
-+		printk(PRINTK_PREFIX "ERROR: "
-+			"can't alloc the char device region\n");
-+		ret = result;
-+		goto none;
-+	}
-+
-+	cfag12864b_major = MAJOR(cfag12864b_device);
-+	cfag12864b_minor = cfag12864b_firstminor;
-+	cfag12864b_device = MKDEV(cfag12864b_major, cfag12864b_minor);
-+
-+	cfag12864b_clear();
-+	cfag12864b_on();
-+	cfag12864b_write(0, cfag12864b_image, cfag12864b_size);
-+
-+	cdev_init(&cfag12864b_chardevice,&cfag12864b_fops);
-+	cfag12864b_chardevice.owner = THIS_MODULE;
-+	cfag12864b_chardevice.ops = &cfag12864b_fops;
-+	result = cdev_add(
-+		&cfag12864b_chardevice,
-+		cfag12864b_device, cfag12864b_ndevices);
-+	if (result < 0) {
-+		printk(PRINTK_PREFIX "ERROR: "
-+			"unable to add a new char device\n");
-+		ret = result;
-+		goto regionalloced;
-+	}
-+
-+	class_device_create(
-+		lcddisplay_class,NULL,
-+		cfag12864b_device,
-+		NULL,"cfag12864b%d", cfag12864b_minor);
-+
-+	printk(PRINTK_PREFIX "Inited\n");
-+
-+	return 0;
-+
-+regionalloced:
-+	unregister_chrdev_region(cfag12864b_device, cfag12864b_ndevices);
-+
-+none:
-+	return ret;
-+}
-+
-+static void __exit cfag12864b_exit(void)
-+{
-+	cfag12864b_off();
-+
-+	class_device_destroy(lcddisplay_class, cfag12864b_device);
-+	cdev_del(&cfag12864b_chardevice);
-+	unregister_chrdev_region(cfag12864b_device, cfag12864b_ndevices);
-+
-+	printk(PRINTK_PREFIX "Exited\n");
-+}
-+
-+module_init(cfag12864b_init);
-+module_exit(cfag12864b_exit);
-+
-+
-+MODULE_LICENSE("GPL");
-+MODULE_AUTHOR("Miguel Ojeda Sandonis <maxextreme@gmail.com>");
-+MODULE_DESCRIPTION("cfag12864b");
-+
-diff -uprN -X dontdiff linux-2.6.18-vanilla/drivers/lcddisplay/cfag12864b_image.h linux-2.6.18/drivers/lcddisplay/cfag12864b_image.h
---- linux-2.6.18-vanilla/drivers/lcddisplay/cfag12864b_image.h	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.18/drivers/lcddisplay/cfag12864b_image.h	2006-09-22 21:43:09.000000000 +0200
-@@ -0,0 +1,80 @@
-+/*
-+ *    Filename: cfag12864b_image.h
-+ *     Version: 0.1.0
-+ * Description: cfag12864b LCD Display Driver Startup Image
-+ *     License: GPLv2
-+ *
-+ *      Author: Miguel Ojeda Sandonis <maxextreme@gmail.com>
-+ *        Date: 2006-09-21
-+ */
-+
-+#ifndef _CFAG12864B_IMAGE_H_
-+#define _CFAG12864B_IMAGE_H_
-+
-+const unsigned char cfag12864b_image[] = {
-+0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-+0x00,0x00,0x00,0xE0,0xF8,0xFC,0xFE,0xFE,0xFF,0xFF,0xFF,0xFF,0xFF,0xFF,0xFE,0xCE,
-+0xEE,0xFC,0xFC,0xF8,0xE0,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-+0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-+0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-+0x00,0x00,0x00,0xFF,0x87,0xFB,0x69,0x23,0x3F,0x3F,0x3F,0x07,0x21,0x79,0xF9,0xF1,
-+0x83,0xFF,0xFF,0xFF,0xFF,0xFE,0x00,0x00,0x00,0x00,0x00,0x00,0xFF,0x06,0x18,0x30,
-+0x18,0x06,0xFF,0x00,0x00,0xFD,0x00,0x00,0x78,0xCC,0x84,0xCC,0xFC,0x00,0x00,0x7C,
-+0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-+0x00,0x00,0xC0,0xFF,0x3D,0x38,0xF0,0xD0,0xD0,0xD0,0xD0,0x48,0x68,0x24,0x14,0x14,
-+0x00,0x3F,0xFF,0xF7,0xEF,0xEF,0xFC,0xF0,0xC0,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-+0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x02,0x02,0x02,0x01,0x00,0x00,0x00,
-+0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x80,0xE0,0x30,0xF8,
-+0xFE,0x7F,0x03,0x00,0x00,0x00,0x00,0x01,0x01,0x01,0x00,0x00,0x00,0x00,0x00,0x00,
-+0x00,0x00,0x00,0x03,0x1F,0x7F,0xFF,0xFF,0xDF,0x3F,0xFE,0xF8,0xF0,0xE0,0x80,0x00,
-+0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x1E,0x33,0x21,0x21,
-+0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0xC0,0xF0,0xFC,0xFF,0xFF,0xFF,0x07,
-+0x01,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-+0x00,0x00,0x00,0x00,0x00,0x00,0x01,0x1F,0xFF,0xFF,0xFC,0x03,0xFF,0xFF,0xFF,0xFE,
-+0xF0,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0xF0,0x00,0x00,0x00,
-+0x00,0x00,0x00,0x00,0x00,0x00,0x00,0xC0,0x7E,0x0F,0x0F,0x0F,0x1B,0x37,0xE7,0xC0,
-+0x80,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-+0x00,0x00,0x00,0x00,0x00,0xE0,0x00,0x10,0xFB,0xFF,0xFD,0xFF,0xFB,0xFF,0x7F,0x3F,
-+0x5F,0x86,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x0F,0x08,0x08,0x08,
-+0x00,0x1E,0xF2,0x02,0x02,0x02,0x01,0x01,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x01,
-+0x07,0x0F,0x3F,0x7E,0xFC,0x38,0x10,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-+0x00,0x80,0xC0,0xE0,0x00,0xFF,0x00,0x00,0x00,0x00,0x01,0x01,0x01,0x00,0x00,0x00,
-+0x00,0x03,0x0C,0x18,0x10,0x10,0xE0,0x00,0x00,0x00,0x00,0x00,0xFC,0x00,0x00,0x00,
-+0x00,0x07,0x09,0x08,0x08,0x08,0x10,0x10,0x10,0x10,0x20,0x20,0x20,0x60,0x40,0xC0,
-+0xC0,0xC0,0xC0,0x60,0x3F,0x1E,0x11,0x1F,0x1E,0x1E,0x1E,0x1E,0x1E,0x1E,0x1F,0x1F,
-+0x1F,0x1F,0x1F,0x11,0x3E,0x7F,0xE0,0xE0,0xC0,0xC0,0xC0,0x60,0x30,0x10,0x08,0x0C,
-+0x04,0x06,0x02,0x02,0x01,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x03,0x02,0x02,0x02,
-+0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x80,0x00,0x00,
-+0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-+0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x80,0x00,0x00,0x00,0x00,0x00,
-+0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-+0x80,0x80,0x00,0xFC,0x00,0x00,0x78,0xD4,0x94,0x94,0x58,0x00,0x00,0xFF,0x00,0x00,
-+0x00,0x00,0x00,0x3C,0x42,0x81,0x81,0x81,0x42,0x3C,0x00,0x00,0xFD,0x00,0x00,0x78,
-+0xD4,0x94,0x94,0x58,0x00,0x00,0x78,0xCC,0x84,0xCC,0xFF,0x00,0x00,0x60,0x94,0x94,
-+0x54,0xF8,0x00,0x00,0x07,0x00,0x00,0x58,0x94,0x94,0xA4,0x68,0x00,0x00,0x00,0x00,
-+0x00,0x00,0xC0,0x20,0x20,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-+0x00,0x00,0x00,0x00,0x40,0x40,0xC0,0x00,0x00,0x00,0x00,0x82,0x41,0x40,0x40,0x80,
-+0x00,0x00,0x80,0x40,0x40,0x40,0x80,0x00,0x00,0x00,0x80,0x40,0x40,0x40,0x00,0x00,
-+0x00,0x00,0x80,0xC0,0x00,0x00,0x00,0xE0,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,
-+0x00,0x01,0x3F,0x01,0x01,0x00,0x18,0x25,0x25,0x15,0x3E,0x00,0x00,0x1E,0xB3,0xA1,
-+0xB3,0x7F,0x00,0x00,0x20,0x20,0x3F,0x20,0x20,0x00,0x00,0x20,0x30,0x28,0x24,0x23,
-+0x00,0x00,0x1D,0x22,0x22,0x22,0x1D,0x00,0x00,0x1F,0x22,0x22,0x22,0x1C,0x00,0x0C,
-+0x0A,0x09,0x08,0x3F,0x08,0x00,0x00,0x3F,0x33,0x21,0x33,0x1E,0x00,0x00,0x00,0x00,
-+0x00,0x00,0xC0,0x20,0x10,0x10,0x10,0x20,0x00,0x00,0xF0,0x10,0x10,0x10,0x20,0xC0,
-+0x00,0x00,0x00,0x00,0x00,0xF0,0x10,0x10,0x10,0x20,0xC0,0x00,0x00,0xD0,0x00,0x00,
-+0x80,0x40,0x40,0x40,0x80,0x00,0x00,0xC0,0xC0,0x40,0xC0,0x80,0x00,0x00,0xF8,0x00,
-+0x00,0x00,0x40,0x40,0x40,0x80,0x00,0xC0,0x00,0x00,0x00,0x00,0xC0,0x00,0x00,0x00,
-+0x08,0x00,0x03,0x04,0x08,0x08,0x08,0x04,0x00,0x00,0x0F,0x08,0x08,0x08,0x04,0x03,
-+0x00,0x00,0x00,0x00,0x00,0x0F,0x08,0x08,0x08,0x04,0x03,0x00,0x00,0x0F,0x00,0x00,
-+0x05,0x09,0x09,0x0A,0x06,0x00,0x00,0x3F,0x0C,0x08,0x0C,0x07,0x00,0x00,0x0F,0x00,
-+0x00,0x06,0x09,0x09,0x05,0x0F,0x00,0x20,0x23,0x1C,0x0C,0x03,0x00,0x00,0x00,0x00,
-+0x00,0x00,0xF4,0x00,0x00,0xF0,0x00,0x10,0x10,0xE0,0x00,0x00,0xF0,0x00,0x00,0x00,
-+0xF0,0x00,0x10,0x20,0xC0,0xC0,0x20,0x10,0x00,0x00,0x00,0x00,0xFC,0x04,0x04,0x04,
-+0x08,0xF0,0x00,0x00,0xF0,0x20,0x10,0x10,0x00,0xF4,0x00,0x30,0xC0,0x00,0x00,0xC0,
-+0x30,0x00,0xE0,0x50,0x50,0x50,0x60,0x00,0x00,0xF0,0x20,0x10,0x10,0x00,0x00,0x00,
-+0x02,0x00,0x03,0x00,0x00,0x03,0x00,0x00,0x00,0x03,0x00,0x00,0x01,0x02,0x02,0x00,
-+0x03,0x00,0x02,0x01,0x00,0x00,0x01,0x02,0x00,0x00,0x00,0x00,0x03,0x02,0x02,0x02,
-+0x01,0x00,0x00,0x00,0x03,0x00,0x00,0x00,0x00,0x03,0x00,0x00,0x00,0x03,0x03,0x00,
-+0x00,0x00,0x01,0x03,0x02,0x02,0x01,0x00,0x00,0x03,0x00,0x00,0x00,0x00,0x00,0x00};
-+
-+#endif /* _CFAG12864B_IMAGE_H_ */
-diff -uprN -X dontdiff linux-2.6.18-vanilla/drivers/lcddisplay/Kconfig linux-2.6.18/drivers/lcddisplay/Kconfig
---- linux-2.6.18-vanilla/drivers/lcddisplay/Kconfig	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.18/drivers/lcddisplay/Kconfig	2006-09-20 14:56:57.000000000 +0200
-@@ -0,0 +1,61 @@
-+#
-+# For a description of the syntax of this configuration file,
-+# see Documentation/kbuild/kconfig-language.txt.
-+#
-+# LCD Display drivers configuration.
-+#
-+
-+menu "LCD Display support"
-+
-+config LCDDISPLAY
-+	tristate "LCD Display support"
-+	default n
-+	---help---
-+	  If you have a LCD display, say Y.
-+
-+	  To compile this as a module, choose M here:
-+	  module will be called lcddisplay.
-+
-+	  If unsure, say N.
-+
-+comment "Parallel port dependent:"
-+
-+config KS0108
-+	tristate "KS0108 LCD Controller"
-+	depends on LCDDISPLAY && PARPORT
-+	default n
-+	---help---
-+	  If you have a LCD display controlled by one or more KS0108
-+	  controllers, say Y. You will need also another more specific
-+	  driver for your LCD.
-+
-+	  Depends on Parallel Port support. If you say Y at
-+	  parport, you will be able to compile this as a module (M)
-+	  and built-in as well (Y). If you said M at parport,
-+	  you will be able only to compile this as a module (M).
-+
-+	  To compile this as a module, choose M here:
-+	  module will be called ks0108.
-+
-+	  If unsure, say N.
-+
-+config CFAG12864B
-+	tristate "CFAG12864B LCD Display"
-+	depends on KS0108
-+	default n
-+	---help---
-+	  If you have a Crystalfontz 128x64 2-color LCD display,
-+	  cfag12864b Series, say Y. You also need the ks0108 LCD
-+	  Controller driver.
-+
-+	  For help about how to wire your LCD to the parallel port,
-+	  check this image: http://www.skippari.net/lcd/sekalaista
-+	                    /crystalfontz_cfag12864B-TMI-V.png
-+
-+	  To compile this as a module, choose M here:
-+	  module will be called cfag12864b.
-+
-+	  If unsure, say N.
-+
-+endmenu
-+
-diff -uprN -X dontdiff linux-2.6.18-vanilla/drivers/lcddisplay/ks0108.c linux-2.6.18/drivers/lcddisplay/ks0108.c
---- linux-2.6.18-vanilla/drivers/lcddisplay/ks0108.c	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.18/drivers/lcddisplay/ks0108.c	2006-09-22 21:48:43.000000000 +0200
-@@ -0,0 +1,175 @@
-+/*
-+ *    Filename: ks0108.c
-+ *     Version: 0.1.0
-+ * Description: ks0108 LCD Display Controller Driver
-+ *     License: GPLv2
-+ *     Depends: parport
-+ *
-+ *      Author: Miguel Ojeda Sandonis <maxextreme@gmail.com>
-+ *        Date: 2006-09-12
-+ */
-+
-+
-+#include <linux/init.h>
-+#include <linux/module.h>
-+#include <linux/kernel.h>
-+#include <linux/fs.h>
-+#include <linux/delay.h>
-+#include <linux/parport.h>
-+#include <linux/ks0108.h>
-+#include <asm/io.h>
-+#include <asm/uaccess.h>
-+
-+
-+#define NAME "ks0108"
-+#define PRINTK_PREFIX  KERN_INFO NAME ": "
-+
-+
-+
-+/*
-+ * Module Parameters
-+ */
-+
-+static unsigned int ks0108_port = 0x378;
-+module_param(ks0108_port,uint,S_IRUGO);
-+
-+
-+
-+/*
-+ * Device
-+ */
-+
-+static const char * ks0108_name = NAME;
-+
-+static struct parport * ks0108_parport;
-+static struct pardevice * ks0108_pardevice;
-+
-+
-+
-+/*
-+ * ks0108 Exported cmds
-+ */
-+
-+#define bit(n)   (((unsigned char)1)<<(n))
-+
-+void ks0108_writedata(unsigned char byte)
-+{
-+	parport_write_data(ks0108_parport, byte);
-+}
-+
-+void ks0108_writecontrol(unsigned char byte)
-+{
-+	const unsigned int ecycledelay = 2;
-+	udelay(ecycledelay);
-+	parport_write_control(ks0108_parport, byte^(bit(3)|bit(1)|bit(0)));
-+}
-+
-+void ks0108_displaystate(unsigned char state)
-+{
-+	unsigned char cmd = bit(1) | bit(2) | bit(3) | bit(4) | bit(5);
-+	if (state)
-+		set_bit(0, (void*)&cmd);
-+	ks0108_writedata(cmd);
-+}
-+
-+void ks0108_startline(unsigned char startline)
-+{
-+	const unsigned char maxstartline = 63;
-+	unsigned char cmd = bit(6) | bit(7);
-+	if (startline > maxstartline)
-+		startline = maxstartline;
-+	cmd |= startline;
-+	ks0108_writedata(cmd);
-+}
-+
-+void ks0108_address(unsigned char address)
-+{
-+	const unsigned char maxaddress = 63;
-+	unsigned char cmd = bit(6);
-+	if (address > maxaddress)
-+		address=maxaddress;
-+	cmd |= address;
-+	ks0108_writedata(cmd);
-+}
-+
-+void ks0108_page(unsigned char page)
-+{
-+	const unsigned char maxpage = 7;
-+	unsigned char cmd = bit(3) | bit(4) | bit(5) | bit(7);
-+	if (page > maxpage)
-+		page = maxpage;
-+	cmd |= page;
-+	ks0108_writedata(cmd);
-+}
-+
-+
-+EXPORT_SYMBOL_GPL(ks0108_writedata);
-+EXPORT_SYMBOL_GPL(ks0108_writecontrol);
-+EXPORT_SYMBOL_GPL(ks0108_displaystate);
-+EXPORT_SYMBOL_GPL(ks0108_startline);
-+EXPORT_SYMBOL_GPL(ks0108_address);
-+EXPORT_SYMBOL_GPL(ks0108_page);
-+
-+
-+
-+
-+/*
-+ * Module Init & Exit
-+ */
-+
-+static int __init ks0108_init(void)
-+{
-+	int result;
-+	int ret = -EINVAL;
-+
-+	ks0108_parport = parport_find_base(ks0108_port);
-+	if (ks0108_parport == NULL) {
-+		printk(PRINTK_PREFIX "ERROR: "
-+			"parport didn't find %i port\n",ks0108_port);
-+		goto none;
-+	}
-+
-+	ks0108_pardevice = parport_register_device(
-+		ks0108_parport, ks0108_name,
-+		NULL, NULL, NULL,
-+		PARPORT_DEV_EXCL, NULL);
-+	if (ks0108_pardevice == NULL) {
-+		printk(PRINTK_PREFIX "ERROR: "
-+			"parport didn't register new device\n");
-+		goto none;
-+	}
-+
-+	result = parport_claim(ks0108_pardevice);
-+	if (result != 0) {
-+		printk(PRINTK_PREFIX "ERROR: "
-+			"can't claim %i parport, maybe in use\n",ks0108_port);
-+		ret = result;
-+		goto registered;
-+	}
-+
-+	printk(PRINTK_PREFIX "Inited\n");
-+	return 0;
-+
-+registered:
-+	parport_unregister_device(ks0108_pardevice);
-+
-+none:
-+	return ret;
-+}
-+
-+static void __exit ks0108_exit(void)
-+{
-+	parport_release(ks0108_pardevice);
-+	parport_unregister_device(ks0108_pardevice);
-+	
-+	printk(PRINTK_PREFIX "Exited\n");
-+}
-+
-+module_init(ks0108_init);
-+module_exit(ks0108_exit);
-+
-+
-+MODULE_LICENSE("GPL");
-+MODULE_AUTHOR("Miguel Ojeda Sandonis <maxextreme@gmail.com>");
-+MODULE_DESCRIPTION("ks0108");
-+
-diff -uprN -X dontdiff linux-2.6.18-vanilla/drivers/lcddisplay/lcddisplay.c linux-2.6.18/drivers/lcddisplay/lcddisplay.c
---- linux-2.6.18-vanilla/drivers/lcddisplay/lcddisplay.c	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.18/drivers/lcddisplay/lcddisplay.c	2006-09-22 21:49:05.000000000 +0200
-@@ -0,0 +1,71 @@
-+/*
-+ *    Filename: lcddisplay.c
-+ *     Version: 0.1.0
-+ * Description: LCD Display Class
-+ *     License: GPLv2
-+ *     Depends: -
-+ *
-+ *      Author: Miguel Ojeda Sandonis <maxextreme@gmail.com>
-+ *        Date: 2006-09-12
-+ */
-+
-+
-+#include <linux/init.h>
-+#include <linux/module.h>
-+#include <linux/kernel.h>
-+#include <linux/fs.h>
-+#include <linux/device.h>
-+#include <linux/lcddisplay.h>
-+
-+#define NAME "lcddisplay"
-+#define PRINTK_PREFIX KERN_INFO NAME ": "
-+
-+static const char * lcddisplay_name = NAME;
-+
-+
-+/*
-+ * Exported Display Data
-+ */
-+
-+struct class * lcddisplay_class;
-+EXPORT_SYMBOL_GPL(lcddisplay_class);
-+
-+
-+/*
-+ * Module Init & Exit
-+ */
-+
-+static int __init lcddisplay_init(void)
-+{
-+	int ret = -EINVAL;
-+
-+	lcddisplay_class = class_create(THIS_MODULE, lcddisplay_name);
-+	if (IS_ERR(lcddisplay_class)) {
-+		printk(PRINTK_PREFIX "ERROR: "
-+			"can't create %s class\n", lcddisplay_name);
-+		goto none;
-+	}
-+
-+	printk(PRINTK_PREFIX "Inited\n");
-+
-+	return 0;
-+
-+none:
-+	return ret;
-+}
-+
-+static void __exit lcddisplay_exit(void)
-+{
-+	class_destroy(lcddisplay_class);
-+
-+	printk(PRINTK_PREFIX "Exited\n");
-+}
-+
-+module_init(lcddisplay_init);
-+module_exit(lcddisplay_exit);
-+
-+
-+MODULE_LICENSE("GPL");
-+MODULE_AUTHOR("Miguel Ojeda Sandonis <maxextreme@gmail.com>");
-+MODULE_DESCRIPTION("lcddisplay");
-+
-diff -uprN -X dontdiff linux-2.6.18-vanilla/drivers/lcddisplay/Makefile linux-2.6.18/drivers/lcddisplay/Makefile
---- linux-2.6.18-vanilla/drivers/lcddisplay/Makefile	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.18/drivers/lcddisplay/Makefile	2006-09-20 14:56:57.000000000 +0200
-@@ -0,0 +1,7 @@
-+#
-+# Makefile for the kernel LCD Display device drivers.
-+#
-+
-+obj-$(CONFIG_LCDDISPLAY)	+= lcddisplay.o
-+obj-$(CONFIG_KS0108)		+= ks0108.o
-+obj-$(CONFIG_CFAG12864B)	+= cfag12864b.o
-diff -uprN -X dontdiff linux-2.6.18-vanilla/drivers/Makefile linux-2.6.18/drivers/Makefile
---- linux-2.6.18-vanilla/drivers/Makefile	2006-09-20 14:51:40.000000000 +0200
-+++ linux-2.6.18/drivers/Makefile	2006-09-20 14:56:57.000000000 +0200
-@@ -76,3 +76,4 @@ obj-$(CONFIG_CRYPTO)		+= crypto/
- obj-$(CONFIG_SUPERH)		+= sh/
- obj-$(CONFIG_GENERIC_TIME)	+= clocksource/
- obj-$(CONFIG_DMA_ENGINE)	+= dma/
-+obj-$(CONFIG_LCDDISPLAY)	+= lcddisplay/
-diff -uprN -X dontdiff linux-2.6.18-vanilla/include/linux/cfag12864b.h linux-2.6.18/include/linux/cfag12864b.h
---- linux-2.6.18-vanilla/include/linux/cfag12864b.h	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.18/include/linux/cfag12864b.h	2006-09-22 21:35:55.000000000 +0200
-@@ -0,0 +1,45 @@
-+/*
-+ *    Filename: cfag12864b.h
-+ *     Version: 0.1.0
-+ * Description: cfag12864b LCD Display Driver Header
-+ *     License: GPLv2
-+ *
-+ *      Author: Miguel Ojeda Sandonis <maxextreme@gmail.com>
-+ *        Date: 2006-09-12
-+ */
-+
-+#ifndef _CFAG12864B_H_
-+#define _CFAG12864B_H_
-+
-+#include <linux/ioctl.h>
-+
-+#define CFAG12864B_WIDTH	128
-+#define CFAG12864B_HEIGHT	64
-+#define CFAG12864B_MATRIXSIZE	CFAG12864B_WIDTH*CFAG12864B_HEIGHT
-+
-+#define CFAG12864B_CONTROLLERS	2
-+#define CFAG12864B_PAGES	8
-+#define CFAG12864B_ADDRESSES	64
-+#define CFAG12864B_SIZE		CFAG12864B_CONTROLLERS * \
-+				CFAG12864B_PAGES * \
-+				CFAG12864B_ADDRESSES
-+
-+#define CFAG12864B_IOC_MAGIC	0xFF
-+#define CFAG12864B_IOC_MAXNR	0x03
-+
-+#define CFAG12864B_IOCOFF	_IO(CFAG12864B_IOC_MAGIC,0)
-+#define CFAG12864B_IOCON	_IO(CFAG12864B_IOC_MAGIC,1)
-+#define CFAG12864B_IOCCLEAR	_IO(CFAG12864B_IOC_MAGIC,2)
-+#define CFAG12864B_IOCFORMAT	_IOW(CFAG12864B_IOC_MAGIC,3,void *)
-+
-+extern void cfag12864b_on(void);
-+extern void cfag12864b_off(void);
-+extern void cfag12864b_clear(void);
-+extern void cfag12864b_write(
-+	unsigned short offset,
-+	const unsigned char * buffer,
-+	unsigned short count);
-+extern void cfag12864b_format(unsigned char * src);
-+
-+#endif /* _CFAG12864B_H_ */
-+
-diff -uprN -X dontdiff linux-2.6.18-vanilla/include/linux/ks0108.h linux-2.6.18/include/linux/ks0108.h
---- linux-2.6.18-vanilla/include/linux/ks0108.h	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.18/include/linux/ks0108.h	2006-09-21 18:30:13.000000000 +0200
-@@ -0,0 +1,21 @@
-+/*
-+ *    Filename: ks0108.h
-+ *     Version: 0.1.0
-+ * Description: ks0108 LCD Display Controller Driver Header
-+ *     License: GPLv2
-+ *
-+ *      Author: Miguel Ojeda Sandonis <maxextreme@gmail.com>
-+ *        Date: 2006-09-12
-+ */
-+
-+#ifndef _KS0108_H_
-+#define _KS0108_H_
-+
-+extern void ks0108_writedata(unsigned char byte);
-+extern void ks0108_writecontrol(unsigned char byte);
-+extern void ks0108_displaystate(unsigned char state);
-+extern void ks0108_startline(unsigned char startline);
-+extern void ks0108_address(unsigned char address);
-+extern void ks0108_page(unsigned char page);
-+
-+#endif /* _KS0108_H_ */
-diff -uprN -X dontdiff linux-2.6.18-vanilla/include/linux/lcddisplay.h linux-2.6.18/include/linux/lcddisplay.h
---- linux-2.6.18-vanilla/include/linux/lcddisplay.h	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.18/include/linux/lcddisplay.h	2006-09-21 18:30:28.000000000 +0200
-@@ -0,0 +1,19 @@
-+/*
-+ *    Filename: lcddisplay.h
-+ *     Version: 0.1.0
-+ * Description: Display Class Header
-+ *     License: GPLv2
-+ *
-+ *      Author: Miguel Ojeda Sandonis <maxextreme@gmail.com>
-+ *        Date: 2006-09-12
-+ */
-+
-+#ifndef _LCDDISPLAY_H_
-+#define _LCDDISPLAY_H_
-+
-+#include <linux/device.h>
-+
-+extern struct class * lcddisplay_class;
-+
-+#endif /* _LCDDISPLAY_H_ */
-+
-diff -uprN -X dontdiff linux-2.6.18-vanilla/Documentation/drivers/lcddisplay/cfag12864b linux-2.6.18/Documentation/drivers/lcddisplay/cfag12864b
---- linux-2.6.18-vanilla/Documentation/drivers/lcddisplay/cfag12864b	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.18/Documentation/drivers/lcddisplay/cfag12864b	2006-09-20 14:56:57.000000000 +0200
-@@ -0,0 +1,367 @@
-+	===============================
-+	cfag12864b Driver Documentation
-+	===============================
-+
-+License:		GPL
-+Author & Maintainer:	Miguel Ojeda Sandonis <maxextreme@gmail.com>
-+Date:			2006-09-12
-+
-+
-+
-+--------
-+0. INDEX
-+--------
-+
-+	1. DEVICE INFORMATION
-+	2. WIRING
-+	3. USER-SPACE PROGRAMMING
-+		3.1. ioctl and a 128*64 boolean matrix
-+		3.2. Direct writing
-+	4. USEFUL FILES
-+		4.1. cfag12864b.h
-+		4.2. bmpwriter.h
-+
-+
-+
-+---------------------
-+1. DEVICE INFORMATION
-+---------------------
-+
-+Manufacturer:	Crystalfontz
-+Webpage:	http://www.crystalfontz.com
-+Device Webpage:	http://www.crystalfontz.com/products/12864b/
-+Type:		LCD Display
-+Width:		128
-+Height:		64
-+Colors:		2
-+Controller:	ks0108
-+Controllers:	2
-+Pages:		8 each controller
-+Addresses:	64 each page
-+
-+
-+
-+---------
-+2. WIRING
-+---------
-+
-+The cfag12864b LCD Display Series don't have a official wiring.
-+
-+The common wiring is done to the parallel port:
-+
-+http://www.skippari.net/lcd/sekalaista/crystalfontz_cfag12864B-TMI-V.png
-+
-+You can get help at Crystalfontz and LCDInfo forums.
-+
-+
-+
-+-------------------------
-+3. USER-SPACE PROGRAMMING
-+-------------------------
-+
-+Include a copy of the provided header:
-+
-+	#include "cfag12864b.h"
-+
-+Open the device for writing, /dev/cfag12864b0:
-+
-+	int fd = open("/dev/cfag12864b0",O_WRONLY);
-+
-+Then use simple ioctl calls to control it:
-+
-+	ioctl(fdisplay,CFAG12864B_IOCOFF);	/* Turn off (don't clear) */
-+	ioctl(fdisplay,CFAG12864B_IOCON);	/* Turn on */
-+	ioctl(fdisplay,CFAG12864B_IOCCLEAR);	/* Clear the display */
-+
-+For writing to the display, you have two options:
-+
-+
-+3.1. ioctl & 128*64 boolean matrix
-+-------------------------------------------------------
-+
-+This method is easier, but you have to update the entire display
-+each time you want to change it.
-+
-+Note:
-+
-+	CFAG12864B_FORMATSIZE ==
-+	CFAG12864B_WIDTH * CFAG12864B_HEIGHT ==
-+	128 * 64
-+
-+Declare the matrix and other one:
-+
-+	unsigned char MyDrawing[CFAG12864B_WIDTH][CFAG12864B_HEIGHT];
-+
-+	unsigned char Buffer[CFAG12864B_FORMATSIZE];
-+
-+Copy the 2d matrix to the buffer , like:
-+
-+	for(i=0;i<CFAG12864B_WIDTH;++i)
-+		for(j=0;j<CFAG12864B_HEIGHT;++j)
-+			Buffer[i+j*CFAG12864B_WIDTH]=MyDrawing[i][j];
-+
-+Call the ioctl:
-+
-+	ioctl(fdisplay,CFAG12864B_IOCFORMAT,Buffer);
-+
-+Voila! Your drawing should appear on the screen.
-+
-+
-+
-+3.2. Direct writing
-+-------------------
-+
-+This methods allows you to change each byte of the device,
-+so you can achieve a higher update rate.
-+
-+The device size is 1024 == CFAG12864B_SIZE.
-+
-+You can write and seek the device. The first 512 bytes write to
-+the first k0108 controller (left display half) and the last 512 bytes
-+write to the second ks0108 controller (right display half).
-+
-+Each controller is divided into 8 pages. Each page has 64 bytes.
-+
-+        Controller 0 Controller 1
-+        _________________________
-+Page 0 |____________|____________|
-+Page 1 |____________|____________|
-+Page 2 |____________|____________|
-+Page 3 |____________|____________|
-+Page 4 |____________|____________|
-+Page 5 |____________|____________|
-+Page 6 |____________|____________|
-+Page 7 |____________|____________|
-+        <--- 64 --->
-+
-+You will understand how the device work executing some commands:
-+
-+	# echo -n A > /dev/cfag12864b0
-+	# echo -n a > /dev/cfag12864b0
-+	# echo AAAAAA > /dev/cfag12864b0
-+	# echo 000000 > /dev/cfag12864b0
-+	# echo Hello world! > /dev/cfag12864b0
-+	# echo Hello world! Hello world! > /dev/cfag12864b0
-+
-+After you understand it, code your functions to change specific bytes.
-+
-+Use write() and lseek() system calls, like:
-+
-+	lseek(fdisplay,ipage*CFAG12864B_HEIGHT,SEEK_SET);
-+	lseek(fdisplay,icontroller*CFAG12864B_SIZE/2,SEEK_SET);
-+
-+	write(fdisplay,bufpage,CFAG12864B_HEIGHT);
-+	write(fdisplay,bufcontroller,CFAG12864B_SIZE/2);
-+	write(fdisplay,bufdisplay,CFAG12864B_SIZE);
-+
-+
-+---------------
-+4. USEFUL FILES
-+---------------
-+
-+
-+4.1 cfag12864b.h
-+----------------
-+
-+You can use a copy of this header in your user-space programs.
-+
-+---
-+/*
-+ *    Filename: cfag12864b.h
-+ *     Version: 0.1.0
-+ * Description: cfag12864b LCD Display Driver Header for user-space apps
-+ *
-+ *      Author: Miguel Ojeda Sandonis <maxextreme@gmail.com>
-+ *        Date: 2006-09-12
-+ */
-+
-+#ifndef _CFAG12864B_H_
-+#define _CFAG12864B_H_
-+
-+#include <sys/ioctl.h>
-+
-+#define CFAG12864B_WIDTH 128
-+#define CFAG12864B_HEIGHT 64
-+#define CFAG12864B_FORMATSIZE CFAG12864B_WIDTH*CFAG12864B_HEIGHT
-+#define CFAG12864B_SIZE 1024
-+
-+#define CFAG12864B_IOC_MAGIC	0xFF
-+
-+#define CFAG12864B_IOCOFF	_IO(CFAG12864B_IOC_MAGIC,0)
-+#define CFAG12864B_IOCON	_IO(CFAG12864B_IOC_MAGIC,1)
-+#define CFAG12864B_IOCCLEAR	_IO(CFAG12864B_IOC_MAGIC,2)
-+#define CFAG12864B_IOCFORMAT	_IOW(CFAG12864B_IOC_MAGIC,3,void *)
-+
-+#endif // _CFAG12864B_H_
-+---
-+
-+
-+
-+4.2 Example BMP writer
-+----------------------
-+
-+You can take ideas from this code. It reads a .bmp 128x64 2-colors file,
-+convert it to a boolean [128*64] buffer and then use
-+ioctl to display it on the screen.
-+
-+---
-+/*
-+ *    Filename: bmpwriter.h
-+ *     Version: 0.1.0
-+ * Description: BMP Writer sample app
-+ *
-+ *      Author: Miguel Ojeda Sandonis <maxextreme@gmail.com>
-+ *        Date: 2006-09-12
-+ */
-+
-+#include <stdio.h>
-+#include <stdlib.h>
-+#include <string.h>
-+
-+#include <sys/types.h>
-+#include <sys/stat.h>
-+#include <fcntl.h>
-+
-+#include "cfag12864b.h"
-+
-+#define BMP_SIZE 1024
-+
-+union dword
-+{
-+	unsigned int u32;
-+	unsigned char u8[4];
-+};
-+
-+#define Bit(n)   ((unsigned char)(1<<(n)))
-+
-+void BMP2Format(
-+	unsigned char _Src[BMP_SIZE],
-+	unsigned char _Dest[CFAG12864B_FORMATSIZE])
-+{
-+	const unsigned int Width = CFAG12864B_WIDTH;
-+	const unsigned int Height = CFAG12864B_HEIGHT;
-+	const unsigned int Bits = 8;
-+
-+	unsigned int  Y,X,Bit;
-+
-+	for(Y=0; Y<Height; ++Y)
-+	for(X=0; X<Width/Bits; ++X)
-+	for(Bit=0; Bit<Bits; ++Bit)
-+		_Dest[X*Bits+Bit+(Height-Y-1)*Width] =
-+			_Src[Y*Width/Bits+X]&Bit(Bits-Bit-1)?0:1;
-+}
-+
-+int main(int argc, char * argv[])
-+{
-+	const unsigned int Width = CFAG12864B_WIDTH;
-+	const unsigned int Height = CFAG12864B_HEIGHT;
-+	const unsigned int Size = CFAG12864B_SIZE;
-+	const unsigned int BPP = 1;
-+	const unsigned int HeaderSize = 0x3E;
-+	const unsigned int BMPSize = BMP_SIZE;
-+
-+	unsigned char c;
-+	unsigned int i,j;
-+	union dword n;
-+
-+	unsigned char Buffer_BMP[BMP_SIZE];
-+	unsigned char Buffer_Matrix[CFAG12864B_FORMATSIZE];
-+
-+	int fdisplay;
-+	FILE * fbmp;
-+
-+	// Check args
-+	if(argc!=3) {
-+		printf("%s: Bad number of arguments. Expected 3\n",
-+			argv[0]);
-+		return -1;
-+	}
-+	
-+	// Open file
-+	fbmp = fopen(argv[2],"rb");
-+	if(fbmp==NULL) {
-+		printf("%s: Can't open %s\n",argv[0], argv[2]);
-+		return -2;
-+	}
-+
-+	// Check file size
-+	fseek(fbmp,0,SEEK_END);
-+	i=ftell(fbmp);
-+	if(i!=HeaderSize+Size) {
-+		printf("%s: Bad file size. %i instead of %i\n",
-+			argv[0], i, HeaderSize+Size);
-+		fclose(fbmp);
-+		return -3;
-+	}
-+
-+	// Check both magic BMP bytes
-+	fseek(fbmp,0,SEEK_SET);
-+	c = fgetc(fbmp);
-+	if(c!='B') {
-+		printf("%s: Bad first magic byte. '%c' instead of 'B'\n",
-+			argv[0], c);
-+		fclose(fbmp);
-+		return -4;
-+	}
-+	c = fgetc(fbmp);
-+	if(c!='M') {
-+		printf("%s: Bad second magic byte. '%c' instead of 'M'\n",
-+			argv[0], c);
-+		fclose(fbmp);
-+		return -5;
-+	}
-+
-+	// Check this is a 128x64 1-bpp BMP file
-+	fseek(fbmp,0x12,SEEK_SET);
-+	for(i=0; i<4; ++i)
-+		n.u8[i] = fgetc(fbmp);
-+	if(n.u32!=Width) {
-+		printf("%s: Bad width. %i instead of %i\n",
-+			argv[0], n.u32, Width);
-+		fclose(fbmp);
-+		return -6;
-+	}
-+	for(i=0; i<4; ++i)
-+		n.u8[i] = fgetc(fbmp);
-+	if(n.u32!=Height) {
-+		printf("%s: Bad width. %i instead of %i\n",
-+			argv[0], n.u32, Height);
-+		fclose(fbmp);
-+		return -7;
-+	}
-+	fseek(fbmp,0x1C,SEEK_SET);
-+	c = fgetc(fbmp);
-+	if(c!=BPP) {
-+		printf("%s: Bad bpp. %i instead of %i\n",
-+			argv[0], c, BPP);
-+		fclose(fbmp);
-+		return -8;
-+	}
-+
-+	// Get bitmap data
-+	fseek(fbmp,0x3E,SEEK_SET);
-+	fread(Buffer_BMP,1,BMPSize,fbmp);
-+	fclose(fbmp);
-+
-+	// Transform BMP data to 2D matrix
-+	BMP2Format(Buffer_BMP,Buffer_Matrix);
-+
-+	// Open file
-+	fdisplay = open(argv[1],O_WRONLY);
-+	if(fdisplay < 0) {
-+		printf("%s: Can't open %s\n", argv[0], argv[1]);
-+		return -9;
-+	}
-+
-+	// Send matrix
-+	ioctl(fdisplay,CFAG12864B_IOCFORMAT,Buffer_Matrix);
-+
-+	// Close file
-+	close(fdisplay);
-+
-+	return 0;
-+}
-+---
-+
-+
-+EOF
-diff -uprN -X dontdiff linux-2.6.18-vanilla/Documentation/drivers/lcddisplay/lcddisplay linux-2.6.18/Documentation/drivers/lcddisplay/lcddisplay
---- linux-2.6.18-vanilla/Documentation/drivers/lcddisplay/lcddisplay	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6.18/Documentation/drivers/lcddisplay/lcddisplay	2006-09-20 14:56:57.000000000 +0200
-@@ -0,0 +1,37 @@
-+	=================================
-+	LCD Display Drivers Documentation
-+	=================================
-+
-+License:		GPL
-+Author & Maintainer:	Miguel Ojeda Sandonis <maxextreme@gmail.com>
-+Date:			2006-09-12
-+
-+--------
-+0. INDEX
-+--------
-+
-+	1. NEW DISPLAY DRIVERS
-+	2. GENERAL TIPS
-+
-+
-+
-+----------------------
-+1. NEW DISPLAY DRIVERS
-+----------------------
-+
-+Feel free to send me new display drivers. I will try to do my best.
-+
-+If you don't get any answer, send your patch directly to the linux-kernel ml.
-+
-+
-+
-+---------------
-+2. GENERAL TIPS
-+---------------
-+
-+- Divide your driver into the controller driver, like ks0108,
-+  and the specific LCD display series driver, like cfag12864b.
-+
-+- Claim for your IO ports in the controller driver.
-+
-+EOF
-diff -uprN -X dontdiff linux-2.6.18-vanilla/Documentation/ioctl-number.txt linux-2.6.18/Documentation/ioctl-number.txt
---- linux-2.6.18-vanilla/Documentation/ioctl-number.txt	2006-09-20 14:51:39.000000000 +0200
-+++ linux-2.6.18/Documentation/ioctl-number.txt	2006-09-20 14:56:57.000000000 +0200
-@@ -191,3 +191,5 @@ Code	Seq#	Include File		Comments
- 					<mailto:aherrman@de.ibm.com>
- 0xF3	00-3F	video/sisfb.h		sisfb (in development)
- 					<mailto:thomas@winischhofer.net>
-+0xFF	00-1F	linux/cfag12864b.h	cfag12864b LCD Display Driver
-+					<mailto:maxextreme@gmail.com>
-diff -uprN -X dontdiff linux-2.6.18-vanilla/CREDITS linux-2.6.18/CREDITS
---- linux-2.6.18-vanilla/CREDITS	2006-09-20 14:51:39.000000000 +0200
-+++ linux-2.6.18/CREDITS	2006-09-20 14:56:57.000000000 +0200
-@@ -2535,6 +2535,14 @@ S: Subiaco, 6008
- S: Perth, Western Australia
- S: Australia
+   if (H_IS_LONG_BUSY(ret)) {
+    sleep_msecs = get_longbusy_msecs(ret);
+@@ -134,44 +124,30 @@ static long ehca_hcall_7arg_7ret(unsigne
+   if (ret < H_SUCCESS)
+    ehca_gen_err("opcode=%lx ret=%lx"
+          " arg1=%lx arg2=%lx arg3=%lx arg4=%lx"
+-         " arg5=%lx arg6=%lx arg7=%lx"
+-         " out1=%lx out2=%lx out3=%lx out4=%lx"
+-         " out5=%lx out6=%lx out7=%lx",
++         " arg5=%lx arg6=%lx arg7=%lx ",
+          opcode, ret,
+-         arg1, arg2, arg3, arg4,
+-         arg5, arg6, arg7,
+-         *out1, *out2, *out3, *out4,
+-         *out5, *out6, *out7);
++         arg1, arg2, arg3, arg4, arg5,
++         arg6, arg7);
  
-+N: Miguel Ojeda Sandonis
-+E: maxextreme@gmail.com
-+D: Author: LCD Display Drivers (ks0108, cfag12864b)
-+D: Maintainer: LCD Display Drivers Tree (drivers/lcddisplay/*)
-+S: C/ Mieses 20, 9-B
-+S: Valladolid 47009
-+S: Spain
+-  ehca_gen_dbg("opcode=%lx ret=%lx out1=%lx out2=%lx out3=%lx "
+-        "out4=%lx out5=%lx out6=%lx out7=%lx",
+-        opcode, ret, *out1, *out2, *out3, *out4, *out5,
+-        *out6, *out7);
++  ehca_gen_dbg("opcode=%lx ret=%lx", opcode, ret);
+   return ret;
 +
- N: Greg Page
- E: gpage@sovereign.org
- D: IPX development and support
-diff -uprN -X dontdiff linux-2.6.18-vanilla/MAINTAINERS linux-2.6.18/MAINTAINERS
---- linux-2.6.18-vanilla/MAINTAINERS	2006-09-20 14:51:39.000000000 +0200
-+++ linux-2.6.18/MAINTAINERS	2006-09-20 14:56:57.000000000 +0200
-@@ -1707,6 +1707,11 @@ M:	James.Bottomley@HansenPartnership.com
- L:	linux-scsi@vger.kernel.org
- S:	Maintained
+  }
  
-+LCD DISPLAY DRIVERS
-+P:	Miguel Ojeda Sandonis
-+M:	maxextreme@gmail.com
-+S:	Maintained
+  return H_BUSY;
+ }
+ 
+-static long ehca_hcall_9arg_9ret(unsigned long opcode,
+-     unsigned long arg1,
+-     unsigned long arg2,
+-     unsigned long arg3,
+-     unsigned long arg4,
+-     unsigned long arg5,
+-     unsigned long arg6,
+-     unsigned long arg7,
+-     unsigned long arg8,
+-     unsigned long arg9,
+-     unsigned long *out1,
+-     unsigned long *out2,
+-     unsigned long *out3,
+-     unsigned long *out4,
+-     unsigned long *out5,
+-     unsigned long *out6,
+-     unsigned long *out7,
+-     unsigned long *out8,
+-     unsigned long *out9)
++static long ehca_plpar_hcall9(unsigned long opcode,
++         unsigned long *outs, /* array of 9 outputs */
++         unsigned long arg1,
++         unsigned long arg2,
++         unsigned long arg3,
++         unsigned long arg4,
++         unsigned long arg5,
++         unsigned long arg6,
++         unsigned long arg7,
++         unsigned long arg8,
++         unsigned long arg9)
+ {
+  long ret;
+  int i, sleep_msecs;
+@@ -182,13 +158,9 @@ static long ehca_hcall_9arg_9ret(unsigne
+        arg8, arg9);
+ 
+  for (i = 0; i < 5; i++) {
+-  ret = plpar_hcall_9arg_9ret(opcode,
+-         arg1, arg2, arg3, arg4,
+-         arg5, arg6, arg7, arg8,
+-         arg9,
+-         out1, out2, out3, out4,
+-         out5, out6, out7, out8,
+-         out9);
++  ret = plpar_hcall9(opcode, outs,
++       arg1, arg2, arg3, arg4, arg5,
++       arg6, arg7, arg8, arg9);
+ 
+   if (H_IS_LONG_BUSY(ret)) {
+    sleep_msecs = get_longbusy_msecs(ret);
+@@ -205,37 +177,35 @@ static long ehca_hcall_9arg_9ret(unsigne
+          " out5=%lx out6=%lx out7=%lx out8=%lx"
+          " out9=%lx",
+          opcode, ret,
+-         arg1, arg2, arg3, arg4,
+-         arg5, arg6, arg7, arg8,
+-         arg9,
+-         *out1, *out2, *out3, *out4,
+-         *out5, *out6, *out7, *out8,
+-         *out9);
++         arg1, arg2, arg3, arg4, arg5,
++         arg6, arg7, arg8, arg9,
++         outs[0], outs[1], outs[2], outs[3],
++         outs[4], outs[5], outs[6], outs[7],
++         outs[8]);
+ 
+   ehca_gen_dbg("opcode=%lx ret=%lx out1=%lx out2=%lx out3=%lx "
+         "out4=%lx out5=%lx out6=%lx out7=%lx out8=%lx "
+-        "out9=%lx", opcode, ret,*out1, *out2, *out3, *out4,
+-        *out5, *out6, *out7, *out8, *out9);
++        "out9=%lx",
++        opcode, ret, outs[0], outs[1], outs[2], outs[3],
++        outs[4], outs[5], outs[6], outs[7], outs[8]);
+   return ret;
+ 
+  }
+ 
+  return H_BUSY;
+ }
+-
+ u64 hipz_h_alloc_resource_eq(const struct ipz_adapter_handle adapter_handle,
+         struct ehca_pfeq *pfeq,
+         const u32 neq_control,
+         const u32 number_of_entries,
+         struct ipz_eq_handle *eq_handle,
+-        u32 * act_nr_of_entries,
+-        u32 * act_pages,
+-        u32 * eq_ist)
++        u32 *act_nr_of_entries,
++        u32 *act_pages,
++        u32 *eq_ist)
+ {
+  u64 ret;
+- u64 dummy;
++ u64 outs[PLPAR_HCALL9_BUFSIZE];
+  u64 allocate_controls;
+- u64 act_nr_of_entries_out, act_pages_out, eq_ist_out;
+ 
+  /* resource type */
+  allocate_controls = 3ULL;
+@@ -246,22 +216,15 @@ u64 hipz_h_alloc_resource_eq(const struc
+  else /* notification event queue */
+   allocate_controls = (1ULL << 63) | allocate_controls;
+ 
+- ret = ehca_hcall_7arg_7ret(H_ALLOC_RESOURCE,
+-       adapter_handle.handle,  /* r4 */
+-       allocate_controls,      /* r5 */
+-       number_of_entries,      /* r6 */
+-       0, 0, 0, 0,
+-       &eq_handle->handle,     /* r4 */
+-       &dummy,            /* r5 */
+-       &dummy,            /* r6 */
+-       &act_nr_of_entries_out, /* r7 */
+-       &act_pages_out,    /* r8 */
+-       &eq_ist_out,            /* r8 */
+-       &dummy);
+-
+- *act_nr_of_entries = (u32)act_nr_of_entries_out;
+- *act_pages         = (u32)act_pages_out;
+- *eq_ist            = (u32)eq_ist_out;
++ ret = ehca_plpar_hcall9(H_ALLOC_RESOURCE, outs,
++    adapter_handle.handle,  /* r4 */
++    allocate_controls,      /* r5 */
++    number_of_entries,      /* r6 */
++    0, 0, 0, 0, 0, 0);
++ eq_handle->handle = outs[0];
++ *act_nr_of_entries = (u32)outs[3];
++ *act_pages = (u32)outs[4];
++ *eq_ist = (u32)outs[5];
+ 
+  if (ret == H_NOT_ENOUGH_RESOURCES)
+   ehca_gen_err("Not enough resource - ret=%lx ", ret);
+@@ -273,20 +236,11 @@ u64 hipz_h_reset_event(const struct ipz_
+          struct ipz_eq_handle eq_handle,
+          const u64 event_mask)
+ {
+- u64 dummy;
+-
+- return ehca_hcall_7arg_7ret(H_RESET_EVENTS,
+-        adapter_handle.handle, /* r4 */
+-        eq_handle.handle,      /* r5 */
+-        event_mask,            /* r6 */
+-        0, 0, 0, 0,
+-        &dummy,
+-        &dummy,
+-        &dummy,
+-        &dummy,
+-        &dummy,
+-        &dummy,
+-        &dummy);
++ return ehca_plpar_hcall_norets(H_RESET_EVENTS,
++           adapter_handle.handle, /* r4 */
++           eq_handle.handle,      /* r5 */
++           event_mask,       /* r6 */
++           0, 0, 0, 0);
+ }
+ 
+ u64 hipz_h_alloc_resource_cq(const struct ipz_adapter_handle adapter_handle,
+@@ -294,30 +248,21 @@ u64 hipz_h_alloc_resource_cq(const struc
+         struct ehca_alloc_cq_parms *param)
+ {
+  u64 ret;
+- u64 dummy;
+- u64 act_nr_of_entries_out, act_pages_out;
+- u64 g_la_privileged_out, g_la_user_out;
+-
+- ret = ehca_hcall_7arg_7ret(H_ALLOC_RESOURCE,
+-       adapter_handle.handle,     /* r4  */
+-       2,                       /* r5  */
+-       param->eq_handle.handle,   /* r6  */
+-       cq->token,               /* r7  */
+-       param->nr_cqe,             /* r8  */
+-       0, 0,
+-       &cq->ipz_cq_handle.handle, /* r4  */
+-       &dummy,               /* r5  */
+-       &dummy,               /* r6  */
+-       &act_nr_of_entries_out,    /* r7  */
+-       &act_pages_out,       /* r8  */
+-       &g_la_privileged_out,      /* r9  */
+-       &g_la_user_out);           /* r10 */
+-
+- param->act_nr_of_entries = (u32)act_nr_of_entries_out;
+- param->act_pages = (u32)act_pages_out;
++ u64 outs[PLPAR_HCALL9_BUFSIZE];
 +
- LED SUBSYSTEM
- P:	Richard Purdie
- M:	rpurdie@rpsys.net
++ ret = ehca_plpar_hcall9(H_ALLOC_RESOURCE, outs,
++    adapter_handle.handle,   /* r4  */
++    2,                  /* r5  */
++    param->eq_handle.handle, /* r6  */
++    cq->token,          /* r7  */
++    param->nr_cqe,           /* r8  */
++    0, 0, 0, 0);
++ cq->ipz_cq_handle.handle = outs[0];
++ param->act_nr_of_entries = (u32)outs[3];
++ param->act_pages = (u32)outs[4];
+ 
+  if (ret == H_SUCCESS)
+-  hcp_galpas_ctor(&cq->galpas, g_la_privileged_out, g_la_user_out);
++  hcp_galpas_ctor(&cq->galpas, outs[5], outs[6]);
+ 
+  if (ret == H_NOT_ENOUGH_RESOURCES)
+   ehca_gen_err("Not enough resources. ret=%lx", ret);
+@@ -330,8 +275,9 @@ u64 hipz_h_alloc_resource_qp(const struc
+         struct ehca_alloc_qp_parms *parms)
+ {
+  u64 ret;
+- u64 dummy, allocate_controls, max_r10_reg;
+- u64 qp_nr_out, r6_out, r7_out, r8_out, g_la_user_out, r11_out;
++ u64 allocate_controls;
++ u64 max_r10_reg;
++ u64 outs[PLPAR_HCALL9_BUFSIZE];
+  u16 max_nr_receive_wqes = qp->init_attr.cap.max_recv_wr + 1;
+  u16 max_nr_send_wqes = qp->init_attr.cap.max_send_wr + 1;
+  int daqp_ctrl = parms->daqp_ctrl;
+@@ -360,48 +306,36 @@ u64 hipz_h_alloc_resource_qp(const struc
+   | EHCA_BMASK_SET(H_ALL_RES_QP_MAX_RECV_SGE,
+      parms->max_recv_sge);
+ 
+-
+- ret = ehca_hcall_9arg_9ret(H_ALLOC_RESOURCE,
+-       adapter_handle.handle,       /* r4  */
+-       allocate_controls,               /* r5  */
+-       qp->send_cq->ipz_cq_handle.handle,
+-       qp->recv_cq->ipz_cq_handle.handle,
+-       parms->ipz_eq_handle.handle,
+-       ((u64)qp->token << 32) | parms->pd.value,
+-       max_r10_reg,                       /* r10 */
+-       parms->ud_av_l_key_ctl,            /* r11 */
+-       0,
+-       &qp->ipz_qp_handle.handle,
+-       &qp_nr_out,                       /* r5  */
+-       &r6_out,                       /* r6  */
+-       &r7_out,                       /* r7  */
+-       &r8_out,                       /* r8  */
+-       &dummy,                       /* r9  */
+-       &g_la_user_out,               /* r10 */
+-       &r11_out,
+-       &dummy);
+-
+- /* extract outputs */
+- qp->real_qp_num = (u32)qp_nr_out;
+-
++ ret = ehca_plpar_hcall9(H_ALLOC_RESOURCE, outs,
++    adapter_handle.handle,            /* r4  */
++    allocate_controls,            /* r5  */
++    qp->send_cq->ipz_cq_handle.handle,
++    qp->recv_cq->ipz_cq_handle.handle,
++    parms->ipz_eq_handle.handle,
++    ((u64)qp->token << 32) | parms->pd.value,
++    max_r10_reg,                    /* r10 */
++    parms->ud_av_l_key_ctl,            /* r11 */
++    0);
++ qp->ipz_qp_handle.handle = outs[0];
++ qp->real_qp_num = (u32)outs[1];
+  parms->act_nr_send_sges =
+-  (u16)EHCA_BMASK_GET(H_ALL_RES_QP_ACT_OUTST_SEND_WR, r6_out);
++  (u16)EHCA_BMASK_GET(H_ALL_RES_QP_ACT_OUTST_SEND_WR, outs[2]);
+  parms->act_nr_recv_wqes =
+-  (u16)EHCA_BMASK_GET(H_ALL_RES_QP_ACT_OUTST_RECV_WR, r6_out);
++  (u16)EHCA_BMASK_GET(H_ALL_RES_QP_ACT_OUTST_RECV_WR, outs[2]);
+  parms->act_nr_send_sges =
+-  (u8)EHCA_BMASK_GET(H_ALL_RES_QP_ACT_SEND_SGE, r7_out);
++  (u8)EHCA_BMASK_GET(H_ALL_RES_QP_ACT_SEND_SGE, outs[3]);
+  parms->act_nr_recv_sges =
+-  (u8)EHCA_BMASK_GET(H_ALL_RES_QP_ACT_RECV_SGE, r7_out);
++  (u8)EHCA_BMASK_GET(H_ALL_RES_QP_ACT_RECV_SGE, outs[3]);
+  parms->nr_sq_pages =
+-  (u32)EHCA_BMASK_GET(H_ALL_RES_QP_SQUEUE_SIZE_PAGES, r8_out);
++  (u32)EHCA_BMASK_GET(H_ALL_RES_QP_SQUEUE_SIZE_PAGES, outs[4]);
+  parms->nr_rq_pages =
+-  (u32)EHCA_BMASK_GET(H_ALL_RES_QP_RQUEUE_SIZE_PAGES, r8_out);
++  (u32)EHCA_BMASK_GET(H_ALL_RES_QP_RQUEUE_SIZE_PAGES, outs[4]);
+ 
+  if (ret == H_SUCCESS)
+-  hcp_galpas_ctor(&qp->galpas, g_la_user_out, g_la_user_out);
++  hcp_galpas_ctor(&qp->galpas, outs[6], outs[6]);
+ 
+  if (ret == H_NOT_ENOUGH_RESOURCES)
+-  ehca_gen_err("Not enough resources. ret=%lx",ret);
++  ehca_gen_err("Not enough resources. ret=%lx", ret);
+ 
+  return ret;
+ }
+@@ -411,7 +345,6 @@ u64 hipz_h_query_port(const struct ipz_a
+         struct hipz_query_port *query_port_response_block)
+ {
+  u64 ret;
+- u64 dummy;
+  u64 r_cb = virt_to_abs(query_port_response_block);
+ 
+  if (r_cb & (EHCA_PAGESIZE-1)) {
+@@ -419,18 +352,11 @@ u64 hipz_h_query_port(const struct ipz_a
+   return H_PARAMETER;
+  }
+ 
+- ret = ehca_hcall_7arg_7ret(H_QUERY_PORT,
+-       adapter_handle.handle, /* r4 */
+-       port_id,           /* r5 */
+-       r_cb,           /* r6 */
+-       0, 0, 0, 0,
+-       &dummy,
+-       &dummy,
+-       &dummy,
+-       &dummy,
+-       &dummy,
+-       &dummy,
+-       &dummy);
++ ret = ehca_plpar_hcall_norets(H_QUERY_PORT,
++          adapter_handle.handle, /* r4 */
++          port_id,              /* r5 */
++          r_cb,              /* r6 */
++          0, 0, 0, 0);
+ 
+  if (ehca_debug_level)
+   ehca_dmp(query_port_response_block, 64, "response_block");
+@@ -441,7 +367,6 @@ u64 hipz_h_query_port(const struct ipz_a
+ u64 hipz_h_query_hca(const struct ipz_adapter_handle adapter_handle,
+        struct hipz_query_hca *query_hca_rblock)
+ {
+- u64 dummy;
+  u64 r_cb = virt_to_abs(query_hca_rblock);
+ 
+  if (r_cb & (EHCA_PAGESIZE-1)) {
+@@ -450,17 +375,10 @@ u64 hipz_h_query_hca(const struct ipz_ad
+   return H_PARAMETER;
+  }
+ 
+- return ehca_hcall_7arg_7ret(H_QUERY_HCA,
+-        adapter_handle.handle, /* r4 */
+-        r_cb,                  /* r5 */
+-        0, 0, 0, 0, 0,
+-        &dummy,
+-        &dummy,
+-        &dummy,
+-        &dummy,
+-        &dummy,
+-        &dummy,
+-        &dummy);
++ return ehca_plpar_hcall_norets(H_QUERY_HCA,
++           adapter_handle.handle, /* r4 */
++           r_cb,                  /* r5 */
++           0, 0, 0, 0, 0);
+ }
+ 
+ u64 hipz_h_register_rpage(const struct ipz_adapter_handle adapter_handle,
+@@ -470,22 +388,13 @@ u64 hipz_h_register_rpage(const struct i
+      const u64 logical_address_of_page,
+      u64 count)
+ {
+- u64 dummy;
+-
+- return ehca_hcall_7arg_7ret(H_REGISTER_RPAGES,
+-        adapter_handle.handle,      /* r4  */
+-        queue_type | pagesize << 8, /* r5  */
+-        resource_handle,         /* r6  */
+-        logical_address_of_page,    /* r7  */
+-        count,                 /* r8  */
+-        0, 0,
+-        &dummy,
+-        &dummy,
+-        &dummy,
+-        &dummy,
+-        &dummy,
+-        &dummy,
+-        &dummy);
++ return ehca_plpar_hcall_norets(H_REGISTER_RPAGES,
++           adapter_handle.handle,      /* r4  */
++           queue_type | pagesize << 8, /* r5  */
++           resource_handle,            /* r6  */
++           logical_address_of_page,    /* r7  */
++           count,                    /* r8  */
++           0, 0);
+ }
+ 
+ u64 hipz_h_register_rpage_eq(const struct ipz_adapter_handle adapter_handle,
+@@ -507,23 +416,14 @@ u64 hipz_h_register_rpage_eq(const struc
+          logical_address_of_page, count);
+ }
+ 
+-u32 hipz_h_query_int_state(const struct ipz_adapter_handle adapter_handle,
++u64 hipz_h_query_int_state(const struct ipz_adapter_handle adapter_handle,
+       u32 ist)
+ {
+- u32 ret;
+- u64 dummy;
+-
+- ret = ehca_hcall_7arg_7ret(H_QUERY_INT_STATE,
+-       adapter_handle.handle, /* r4 */
+-       ist,                   /* r5 */
+-       0, 0, 0, 0, 0,
+-       &dummy,
+-       &dummy,
+-       &dummy,
+-       &dummy,
+-       &dummy,
+-       &dummy,
+-       &dummy);
++ u64 ret;
++ ret = ehca_plpar_hcall_norets(H_QUERY_INT_STATE,
++          adapter_handle.handle, /* r4 */
++          ist,                   /* r5 */
++          0, 0, 0, 0, 0);
+ 
+  if (ret != H_SUCCESS && ret != H_BUSY)
+   ehca_gen_err("Could not query interrupt state.");
+@@ -576,25 +476,20 @@ u64 hipz_h_disable_and_get_wqe(const str
+           void **log_addr_next_rq_wqe2processed,
+           int dis_and_get_function_code)
+ {
+- u64 dummy, dummy1, dummy2;
+-
+- if (!log_addr_next_sq_wqe2processed)
+-  log_addr_next_sq_wqe2processed = (void**)&dummy1;
+- if (!log_addr_next_rq_wqe2processed)
+-  log_addr_next_rq_wqe2processed = (void**)&dummy2;
+-
+- return ehca_hcall_7arg_7ret(H_DISABLE_AND_GETC,
+-        adapter_handle.handle,     /* r4 */
+-        dis_and_get_function_code, /* r5 */
+-        qp_handle.handle,        /* r6 */
+-        0, 0, 0, 0,
+-        (void*)log_addr_next_sq_wqe2processed,
+-        (void*)log_addr_next_rq_wqe2processed,
+-        &dummy,
+-        &dummy,
+-        &dummy,
+-        &dummy,
+-        &dummy);
++ u64 ret;
++ u64 outs[PLPAR_HCALL9_BUFSIZE];
++
++ ret = ehca_plpar_hcall9(H_DISABLE_AND_GETC, outs,
++    adapter_handle.handle,     /* r4 */
++    dis_and_get_function_code, /* r5 */
++    qp_handle.handle,    /* r6 */
++    0, 0, 0, 0, 0, 0);
++ if (log_addr_next_sq_wqe2processed)
++  *log_addr_next_sq_wqe2processed = (void*)outs[0];
++ if (log_addr_next_rq_wqe2processed)
++  *log_addr_next_rq_wqe2processed = (void*)outs[1];
++
++ return ret;
+ }
+ 
+ u64 hipz_h_modify_qp(const struct ipz_adapter_handle adapter_handle,
+@@ -605,22 +500,13 @@ u64 hipz_h_modify_qp(const struct ipz_ad
+        struct h_galpa gal)
+ {
+  u64 ret;
+- u64 dummy;
+- u64 invalid_attribute_identifier, rc_attrib_mask;
+-
+- ret = ehca_hcall_7arg_7ret(H_MODIFY_QP,
+-       adapter_handle.handle,         /* r4 */
+-       qp_handle.handle,           /* r5 */
+-       update_mask,                   /* r6 */
+-       virt_to_abs(mqpcb),           /* r7 */
+-       0, 0, 0,
+-       &invalid_attribute_identifier, /* r4 */
+-       &dummy,                   /* r5 */
+-       &dummy,                   /* r6 */
+-       &dummy,                        /* r7 */
+-       &dummy,                   /* r8 */
+-       &rc_attrib_mask,               /* r9 */
+-       &dummy);
++ u64 outs[PLPAR_HCALL9_BUFSIZE];
++ ret = ehca_plpar_hcall9(H_MODIFY_QP, outs,
++    adapter_handle.handle, /* r4 */
++    qp_handle.handle,      /* r5 */
++    update_mask,        /* r6 */
++    virt_to_abs(mqpcb),    /* r7 */
++    0, 0, 0, 0, 0);
+ 
+  if (ret == H_NOT_ENOUGH_RESOURCES)
+   ehca_gen_err("Insufficient resources ret=%lx", ret);
+@@ -634,61 +520,37 @@ u64 hipz_h_query_qp(const struct ipz_ada
+       struct hcp_modify_qp_control_block *qqpcb,
+       struct h_galpa gal)
+ {
+- u64 dummy;
+-
+- return ehca_hcall_7arg_7ret(H_QUERY_QP,
+-        adapter_handle.handle, /* r4 */
+-        qp_handle.handle,      /* r5 */
+-        virt_to_abs(qqpcb),    /* r6 */
+-        0, 0, 0, 0,
+-        &dummy,
+-        &dummy,
+-        &dummy,
+-        &dummy,
+-        &dummy,
+-        &dummy,
+-        &dummy);
++ return ehca_plpar_hcall_norets(H_QUERY_QP,
++           adapter_handle.handle, /* r4 */
++           qp_handle.handle,      /* r5 */
++           virt_to_abs(qqpcb),    /* r6 */
++           0, 0, 0, 0);
+ }
+ 
+ u64 hipz_h_destroy_qp(const struct ipz_adapter_handle adapter_handle,
+         struct ehca_qp *qp)
+ {
+  u64 ret;
+- u64 dummy;
+- u64 ladr_next_sq_wqe_out, ladr_next_rq_wqe_out;
++ u64 outs[PLPAR_HCALL9_BUFSIZE];
+ 
+  ret = hcp_galpas_dtor(&qp->galpas);
+  if (ret) {
+   ehca_gen_err("Could not destruct qp->galpas");
+   return H_RESOURCE;
+  }
+- ret = ehca_hcall_7arg_7ret(H_DISABLE_AND_GETC,
+-       adapter_handle.handle,     /* r4 */
+-       /* function code */
+-       1,                       /* r5 */
+-       qp->ipz_qp_handle.handle,  /* r6 */
+-       0, 0, 0, 0,
+-       &ladr_next_sq_wqe_out,     /* r4 */
+-       &ladr_next_rq_wqe_out,     /* r5 */
+-       &dummy,
+-       &dummy,
+-       &dummy,
+-       &dummy,
+-       &dummy);
++ ret = ehca_plpar_hcall9(H_DISABLE_AND_GETC, outs,
++    adapter_handle.handle,     /* r4 */
++    /* function code */
++    1,                    /* r5 */
++    qp->ipz_qp_handle.handle,  /* r6 */
++    0, 0, 0, 0, 0, 0);
+  if (ret == H_HARDWARE)
+   ehca_gen_err("HCA not operational. ret=%lx", ret);
+ 
+- ret = ehca_hcall_7arg_7ret(H_FREE_RESOURCE,
+-       adapter_handle.handle,     /* r4 */
+-       qp->ipz_qp_handle.handle,  /* r5 */
+-       0, 0, 0, 0, 0,
+-       &dummy,
+-       &dummy,
+-       &dummy,
+-       &dummy,
+-       &dummy,
+-       &dummy,
+-       &dummy);
++ ret = ehca_plpar_hcall_norets(H_FREE_RESOURCE,
++          adapter_handle.handle,     /* r4 */
++          qp->ipz_qp_handle.handle,  /* r5 */
++          0, 0, 0, 0, 0);
+ 
+  if (ret == H_RESOURCE)
+   ehca_gen_err("Resource still in use. ret=%lx", ret);
+@@ -701,20 +563,11 @@ u64 hipz_h_define_aqp0(const struct ipz_
+          struct h_galpa gal,
+          u32 port)
+ {
+- u64 dummy;
+-
+- return ehca_hcall_7arg_7ret(H_DEFINE_AQP0,
+-        adapter_handle.handle, /* r4 */
+-        qp_handle.handle,      /* r5 */
+-        port,                  /* r6 */
+-        0, 0, 0, 0,
+-        &dummy,
+-        &dummy,
+-        &dummy,
+-        &dummy,
+-        &dummy,
+-        &dummy,
+-        &dummy);
++ return ehca_plpar_hcall_norets(H_DEFINE_AQP0,
++           adapter_handle.handle, /* r4 */
++           qp_handle.handle,      /* r5 */
++           port,                  /* r6 */
++           0, 0, 0, 0);
+ }
+ 
+ u64 hipz_h_define_aqp1(const struct ipz_adapter_handle adapter_handle,
+@@ -724,24 +577,15 @@ u64 hipz_h_define_aqp1(const struct ipz_
+          u32 * bma_qp_nr)
+ {
+  u64 ret;
+- u64 dummy;
+- u64 pma_qp_nr_out, bma_qp_nr_out;
+-
+- ret = ehca_hcall_7arg_7ret(H_DEFINE_AQP1,
+-       adapter_handle.handle, /* r4 */
+-       qp_handle.handle,      /* r5 */
+-       port,           /* r6 */
+-       0, 0, 0, 0,
+-       &pma_qp_nr_out,        /* r4 */
+-       &bma_qp_nr_out,        /* r5 */
+-       &dummy,
+-       &dummy,
+-       &dummy,
+-       &dummy,
+-       &dummy);
+-
+- *pma_qp_nr = (u32)pma_qp_nr_out;
+- *bma_qp_nr = (u32)bma_qp_nr_out;
++ u64 outs[PLPAR_HCALL9_BUFSIZE];
++
++ ret = ehca_plpar_hcall9(H_DEFINE_AQP1, outs,
++    adapter_handle.handle, /* r4 */
++    qp_handle.handle,      /* r5 */
++    port,                /* r6 */
++    0, 0, 0, 0, 0, 0);
++ *pma_qp_nr = (u32)outs[0];
++ *bma_qp_nr = (u32)outs[1];
+ 
+  if (ret == H_ALIAS_EXIST)
+   ehca_gen_err("AQP1 already exists. ret=%lx", ret);
+@@ -756,22 +600,14 @@ u64 hipz_h_attach_mcqp(const struct ipz_
+          u64 subnet_prefix, u64 interface_id)
+ {
+  u64 ret;
+- u64 dummy;
+-
+- ret = ehca_hcall_7arg_7ret(H_ATTACH_MCQP,
+-       adapter_handle.handle,     /* r4 */
+-       qp_handle.handle,          /* r5 */
+-       mcg_dlid,                  /* r6 */
+-       interface_id,              /* r7 */
+-       subnet_prefix,             /* r8 */
+-       0, 0,
+-       &dummy,
+-       &dummy,
+-       &dummy,
+-       &dummy,
+-       &dummy,
+-       &dummy,
+-       &dummy);
++
++ ret = ehca_plpar_hcall_norets(H_ATTACH_MCQP,
++          adapter_handle.handle,  /* r4 */
++          qp_handle.handle,       /* r5 */
++          mcg_dlid,               /* r6 */
++          interface_id,           /* r7 */
++          subnet_prefix,          /* r8 */
++          0, 0);
+ 
+  if (ret == H_NOT_ENOUGH_RESOURCES)
+   ehca_gen_err("Not enough resources. ret=%lx", ret);
+@@ -785,22 +621,13 @@ u64 hipz_h_detach_mcqp(const struct ipz_
+          u16 mcg_dlid,
+          u64 subnet_prefix, u64 interface_id)
+ {
+- u64 dummy;
+-
+- return ehca_hcall_7arg_7ret(H_DETACH_MCQP,
+-        adapter_handle.handle, /* r4 */
+-        qp_handle.handle,    /* r5 */
+-        mcg_dlid,            /* r6 */
+-        interface_id,          /* r7 */
+-        subnet_prefix,         /* r8 */
+-        0, 0,
+-        &dummy,
+-        &dummy,
+-        &dummy,
+-        &dummy,
+-        &dummy,
+-        &dummy,
+-        &dummy);
++ return ehca_plpar_hcall_norets(H_DETACH_MCQP,
++           adapter_handle.handle, /* r4 */
++           qp_handle.handle,      /* r5 */
++           mcg_dlid,              /* r6 */
++           interface_id,          /* r7 */
++           subnet_prefix,         /* r8 */
++           0, 0);
+ }
+ 
+ u64 hipz_h_destroy_cq(const struct ipz_adapter_handle adapter_handle,
+@@ -808,7 +635,6 @@ u64 hipz_h_destroy_cq(const struct ipz_a
+         u8 force_flag)
+ {
+  u64 ret;
+- u64 dummy;
+ 
+  ret = hcp_galpas_dtor(&cq->galpas);
+  if (ret) {
+@@ -816,18 +642,11 @@ u64 hipz_h_destroy_cq(const struct ipz_a
+   return H_RESOURCE;
+  }
+ 
+- ret = ehca_hcall_7arg_7ret(H_FREE_RESOURCE,
+-       adapter_handle.handle,     /* r4 */
+-       cq->ipz_cq_handle.handle,  /* r5 */
+-       force_flag != 0 ? 1L : 0L, /* r6 */
+-       0, 0, 0, 0,
+-       &dummy,
+-       &dummy,
+-       &dummy,
+-       &dummy,
+-       &dummy,
+-       &dummy,
+-       &dummy);
++ ret = ehca_plpar_hcall_norets(H_FREE_RESOURCE,
++          adapter_handle.handle,     /* r4 */
++          cq->ipz_cq_handle.handle,  /* r5 */
++          force_flag != 0 ? 1L : 0L, /* r6 */
++          0, 0, 0, 0);
+ 
+  if (ret == H_RESOURCE)
+   ehca_gen_err("H_FREE_RESOURCE failed ret=%lx ", ret);
+@@ -839,7 +658,6 @@ u64 hipz_h_destroy_eq(const struct ipz_a
+         struct ehca_eq *eq)
+ {
+  u64 ret;
+- u64 dummy;
+ 
+  ret = hcp_galpas_dtor(&eq->galpas);
+  if (ret) {
+@@ -847,18 +665,10 @@ u64 hipz_h_destroy_eq(const struct ipz_a
+   return H_RESOURCE;
+  }
+ 
+- ret = ehca_hcall_7arg_7ret(H_FREE_RESOURCE,
+-       adapter_handle.handle,     /* r4 */
+-       eq->ipz_eq_handle.handle,  /* r5 */
+-       0, 0, 0, 0, 0,
+-       &dummy,
+-       &dummy,
+-       &dummy,
+-       &dummy,
+-       &dummy,
+-       &dummy,
+-       &dummy);
+-
++ ret = ehca_plpar_hcall_norets(H_FREE_RESOURCE,
++          adapter_handle.handle,     /* r4 */
++          eq->ipz_eq_handle.handle,  /* r5 */
++          0, 0, 0, 0, 0);
+ 
+  if (ret == H_RESOURCE)
+   ehca_gen_err("Resource in use. ret=%lx ", ret);
+@@ -875,27 +685,19 @@ u64 hipz_h_alloc_resource_mr(const struc
+         struct ehca_mr_hipzout_parms *outparms)
+ {
+  u64 ret;
+- u64 dummy;
+- u64 lkey_out;
+- u64 rkey_out;
+-
+- ret = ehca_hcall_7arg_7ret(H_ALLOC_RESOURCE,
+-       adapter_handle.handle,            /* r4 */
+-       5,                                /* r5 */
+-       vaddr,                            /* r6 */
+-       length,                           /* r7 */
+-       (((u64)access_ctrl) << 32ULL),    /* r8 */
+-       pd.value,                         /* r9 */
+-       0,
+-       &(outparms->handle.handle),       /* r4 */
+-       &dummy,                           /* r5 */
+-       &lkey_out,                        /* r6 */
+-       &rkey_out,                        /* r7 */
+-       &dummy,
+-       &dummy,
+-       &dummy);
+- outparms->lkey = (u32)lkey_out;
+- outparms->rkey = (u32)rkey_out;
++ u64 outs[PLPAR_HCALL9_BUFSIZE];
++
++ ret = ehca_plpar_hcall9(H_ALLOC_RESOURCE, outs,
++    adapter_handle.handle,            /* r4 */
++    5,                                /* r5 */
++    vaddr,                            /* r6 */
++    length,                           /* r7 */
++    (((u64)access_ctrl) << 32ULL),    /* r8 */
++    pd.value,                         /* r9 */
++    0, 0, 0);
++ outparms->handle.handle = outs[0];
++ outparms->lkey = (u32)outs[2];
++ outparms->rkey = (u32)outs[3];
+ 
+  return ret;
+ }
+@@ -923,7 +725,6 @@ u64 hipz_h_register_rpage_mr(const struc
+          queue_type,
+          mr->ipz_mr_handle.handle,
+          logical_address_of_page, count);
+-
+  return ret;
+ }
+ 
+@@ -932,24 +733,17 @@ u64 hipz_h_query_mr(const struct ipz_ada
+       struct ehca_mr_hipzout_parms *outparms)
+ {
+  u64 ret;
+- u64 dummy;
+- u64 remote_len_out, remote_vaddr_out, acc_ctrl_pd_out, r9_out;
+-
+- ret = ehca_hcall_7arg_7ret(H_QUERY_MR,
+-       adapter_handle.handle,     /* r4 */
+-       mr->ipz_mr_handle.handle,  /* r5 */
+-       0, 0, 0, 0, 0,
+-       &outparms->len,            /* r4 */
+-       &outparms->vaddr,          /* r5 */
+-       &remote_len_out,           /* r6 */
+-       &remote_vaddr_out,         /* r7 */
+-       &acc_ctrl_pd_out,          /* r8 */
+-       &r9_out,
+-       &dummy);
+-
+- outparms->acl  = acc_ctrl_pd_out >> 32;
+- outparms->lkey = (u32)(r9_out >> 32);
+- outparms->rkey = (u32)(r9_out & (0xffffffff));
++ u64 outs[PLPAR_HCALL9_BUFSIZE];
++
++ ret = ehca_plpar_hcall9(H_QUERY_MR, outs,
++    adapter_handle.handle,     /* r4 */
++    mr->ipz_mr_handle.handle,  /* r5 */
++    0, 0, 0, 0, 0, 0, 0);
++ outparms->len = outs[0];
++ outparms->vaddr = outs[1];
++ outparms->acl  = outs[4] >> 32;
++ outparms->lkey = (u32)(outs[5] >> 32);
++ outparms->rkey = (u32)(outs[5] & (0xffffffff));
+ 
+  return ret;
+ }
+@@ -957,19 +751,10 @@ u64 hipz_h_query_mr(const struct ipz_ada
+ u64 hipz_h_free_resource_mr(const struct ipz_adapter_handle adapter_handle,
+        const struct ehca_mr *mr)
+ {
+- u64 dummy;
+-
+- return ehca_hcall_7arg_7ret(H_FREE_RESOURCE,
+-        adapter_handle.handle,    /* r4 */
+-        mr->ipz_mr_handle.handle, /* r5 */
+-        0, 0, 0, 0, 0,
+-        &dummy,
+-        &dummy,
+-        &dummy,
+-        &dummy,
+-        &dummy,
+-        &dummy,
+-        &dummy);
++ return ehca_plpar_hcall_norets(H_FREE_RESOURCE,
++           adapter_handle.handle,    /* r4 */
++           mr->ipz_mr_handle.handle, /* r5 */
++           0, 0, 0, 0, 0);
+ }
+ 
+ u64 hipz_h_reregister_pmr(const struct ipz_adapter_handle adapter_handle,
+@@ -982,28 +767,20 @@ u64 hipz_h_reregister_pmr(const struct i
+      struct ehca_mr_hipzout_parms *outparms)
+ {
+  u64 ret;
+- u64 dummy;
+- u64 lkey_out, rkey_out;
+-
+- ret = ehca_hcall_7arg_7ret(H_REREGISTER_PMR,
+-       adapter_handle.handle,    /* r4 */
+-       mr->ipz_mr_handle.handle, /* r5 */
+-       vaddr_in,              /* r6 */
+-       length,                   /* r7 */
+-       /* r8 */
+-       ((((u64)access_ctrl) << 32ULL) | pd.value),
+-       mr_addr_cb,               /* r9 */
+-       0,
+-       &dummy,                   /* r4 */
+-       &outparms->vaddr,         /* r5 */
+-       &lkey_out,                /* r6 */
+-       &rkey_out,                /* r7 */
+-       &dummy,
+-       &dummy,
+-       &dummy);
+-
+- outparms->lkey = (u32)lkey_out;
+- outparms->rkey = (u32)rkey_out;
++ u64 outs[PLPAR_HCALL9_BUFSIZE];
++
++ ret = ehca_plpar_hcall9(H_REREGISTER_PMR, outs,
++    adapter_handle.handle,    /* r4 */
++    mr->ipz_mr_handle.handle, /* r5 */
++    vaddr_in,           /* r6 */
++    length,                   /* r7 */
++    /* r8 */
++    ((((u64)access_ctrl) << 32ULL) | pd.value),
++    mr_addr_cb,               /* r9 */
++    0, 0, 0);
++ outparms->vaddr = outs[1];
++ outparms->lkey = (u32)outs[2];
++ outparms->rkey = (u32)outs[3];
+ 
+  return ret;
+ }
+@@ -1017,25 +794,18 @@ u64 hipz_h_register_smr(const struct ipz
+    struct ehca_mr_hipzout_parms *outparms)
+ {
+  u64 ret;
+- u64 dummy;
+- u64 lkey_out, rkey_out;
+-
+- ret = ehca_hcall_7arg_7ret(H_REGISTER_SMR,
+-       adapter_handle.handle,            /* r4 */
+-       orig_mr->ipz_mr_handle.handle,    /* r5 */
+-       vaddr_in,                         /* r6 */
+-       (((u64)access_ctrl) << 32ULL),    /* r7 */
+-       pd.value,                         /* r8 */
+-       0, 0,
+-       &(outparms->handle.handle),       /* r4 */
+-       &dummy,                           /* r5 */
+-       &lkey_out,                        /* r6 */
+-       &rkey_out,                        /* r7 */
+-       &dummy,
+-       &dummy,
+-       &dummy);
+- outparms->lkey = (u32)lkey_out;
+- outparms->rkey = (u32)rkey_out;
++ u64 outs[PLPAR_HCALL9_BUFSIZE];
++
++ ret = ehca_plpar_hcall9(H_REGISTER_SMR, outs,
++    adapter_handle.handle,            /* r4 */
++    orig_mr->ipz_mr_handle.handle,    /* r5 */
++    vaddr_in,                         /* r6 */
++    (((u64)access_ctrl) << 32ULL),    /* r7 */
++    pd.value,                         /* r8 */
++    0, 0, 0, 0);
++ outparms->handle.handle = outs[0];
++ outparms->lkey = (u32)outs[2];
++ outparms->rkey = (u32)outs[3];
+ 
+  return ret;
+ }
+@@ -1046,23 +816,15 @@ u64 hipz_h_alloc_resource_mw(const struc
+         struct ehca_mw_hipzout_parms *outparms)
+ {
+  u64 ret;
+- u64 dummy;
+- u64 rkey_out;
+-
+- ret = ehca_hcall_7arg_7ret(H_ALLOC_RESOURCE,
+-       adapter_handle.handle,      /* r4 */
+-       6,                          /* r5 */
+-       pd.value,                   /* r6 */
+-       0, 0, 0, 0,
+-       &(outparms->handle.handle), /* r4 */
+-       &dummy,                     /* r5 */
+-       &dummy,                     /* r6 */
+-       &rkey_out,                  /* r7 */
+-       &dummy,
+-       &dummy,
+-       &dummy);
+-
+- outparms->rkey = (u32)rkey_out;
++ u64 outs[PLPAR_HCALL9_BUFSIZE];
++
++ ret = ehca_plpar_hcall9(H_ALLOC_RESOURCE, outs,
++    adapter_handle.handle,      /* r4 */
++    6,                          /* r5 */
++    pd.value,                   /* r6 */
++    0, 0, 0, 0, 0, 0);
++ outparms->handle.handle = outs[0];
++ outparms->rkey = (u32)outs[3];
+ 
+  return ret;
+ }
+@@ -1072,21 +834,13 @@ u64 hipz_h_query_mw(const struct ipz_ada
+       struct ehca_mw_hipzout_parms *outparms)
+ {
+  u64 ret;
+- u64 dummy;
+- u64 pd_out, rkey_out;
+-
+- ret = ehca_hcall_7arg_7ret(H_QUERY_MW,
+-       adapter_handle.handle,    /* r4 */
+-       mw->ipz_mw_handle.handle, /* r5 */
+-       0, 0, 0, 0, 0,
+-       &dummy,                   /* r4 */
+-       &dummy,                   /* r5 */
+-       &dummy,                   /* r6 */
+-       &rkey_out,                /* r7 */
+-       &pd_out,                  /* r8 */
+-       &dummy,
+-       &dummy);
+- outparms->rkey = (u32)rkey_out;
++ u64 outs[PLPAR_HCALL9_BUFSIZE];
++
++ ret = ehca_plpar_hcall9(H_QUERY_MW, outs,
++    adapter_handle.handle,    /* r4 */
++    mw->ipz_mw_handle.handle, /* r5 */
++    0, 0, 0, 0, 0, 0, 0);
++ outparms->rkey = (u32)outs[3];
+ 
+  return ret;
+ }
+@@ -1094,19 +848,10 @@ u64 hipz_h_query_mw(const struct ipz_ada
+ u64 hipz_h_free_resource_mw(const struct ipz_adapter_handle adapter_handle,
+        const struct ehca_mw *mw)
+ {
+- u64 dummy;
+-
+- return ehca_hcall_7arg_7ret(H_FREE_RESOURCE,
+-        adapter_handle.handle,    /* r4 */
+-        mw->ipz_mw_handle.handle, /* r5 */
+-        0, 0, 0, 0, 0,
+-        &dummy,
+-        &dummy,
+-        &dummy,
+-        &dummy,
+-        &dummy,
+-        &dummy,
+-        &dummy);
++ return ehca_plpar_hcall_norets(H_FREE_RESOURCE,
++           adapter_handle.handle,    /* r4 */
++           mw->ipz_mw_handle.handle, /* r5 */
++           0, 0, 0, 0, 0);
+ }
+ 
+ u64 hipz_h_error_data(const struct ipz_adapter_handle adapter_handle,
+@@ -1114,7 +859,6 @@ u64 hipz_h_error_data(const struct ipz_a
+         void *rblock,
+         unsigned long *byte_count)
+ {
+- u64 dummy;
+  u64 r_cb = virt_to_abs(rblock);
+ 
+  if (r_cb & (EHCA_PAGESIZE-1)) {
+@@ -1122,16 +866,9 @@ u64 hipz_h_error_data(const struct ipz_a
+   return H_PARAMETER;
+  }
+ 
+- return ehca_hcall_7arg_7ret(H_ERROR_DATA,
+-        adapter_handle.handle,
+-        ressource_handle,
+-        r_cb,
+-        0, 0, 0, 0,
+-        &dummy,
+-        &dummy,
+-        &dummy,
+-        &dummy,
+-        &dummy,
+-        &dummy,
+-        &dummy);
++ return ehca_plpar_hcall_norets(H_ERROR_DATA,
++           adapter_handle.handle,
++           ressource_handle,
++           r_cb,
++           0, 0, 0, 0);
+ }
+diff --git a/drivers/infiniband/hw/ehca/hcp_if.h b/drivers/infiniband/hw/ehca/hcp_if.h
+index 39956d8..587ebd4 100644
+--- a/drivers/infiniband/hw/ehca/hcp_if.h
++++ b/drivers/infiniband/hw/ehca/hcp_if.h
+@@ -107,7 +107,7 @@ u64 hipz_h_register_rpage_eq(const struc
+         const u64 logical_address_of_page,
+         const u64 count);
+ 
+-u32 hipz_h_query_int_state(const struct ipz_adapter_handle
++u64 hipz_h_query_int_state(const struct ipz_adapter_handle
+       hcp_adapter_handle,
+       u32 ist);
+ 
+diff --git a/drivers/infiniband/hw/ehca/hipz_hw.h b/drivers/infiniband/hw/ehca/hipz_hw.h
+index f5f4871..3fc92b0 100644
+--- a/drivers/infiniband/hw/ehca/hipz_hw.h
++++ b/drivers/infiniband/hw/ehca/hipz_hw.h
+@@ -184,8 +184,6 @@ struct hipz_mrmwmm {
+ 
+ };
+ 
+-#define MRX_HCR_LPARID_VALID EHCA_BMASK_IBM(0,0)
+-
+ #define MRMWMM_OFFSET(x) offsetof(struct hipz_mrmwmm,x)
+ 
+ struct hipz_qpedmm {
+diff --git a/drivers/infiniband/hw/ehca/ipz_pt_fn.h b/drivers/infiniband/hw/ehca/ipz_pt_fn.h
+index 7e55a31..2f13509 100644
+--- a/drivers/infiniband/hw/ehca/ipz_pt_fn.h
++++ b/drivers/infiniband/hw/ehca/ipz_pt_fn.h
+@@ -226,10 +226,9 @@ static inline void *ipz_eqit_eq_get_inc_
+ {
+  void *ret = ipz_qeit_get(queue);
+  u32 qe = *(u8 *) ret;
+- if ((qe >> 7) == (queue->toggle_state & 1))
+-  ipz_qeit_eq_get_inc(queue); /* this is a good one */
+- else
+-  ret = NULL;
++ if ((qe >> 7) != (queue->toggle_state & 1))
++  return NULL;
++ ipz_qeit_eq_get_inc(queue); /* this is a good one */
+  return ret;
+ }
+ 
+
+--Boundary-00=_MDEFFBgTiT9/7IY
+Content-Type: text/x-diff;
+  charset="us-ascii";
+  name="svnehca_0016_roland_git.patch2"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: attachment;
+	filename="svnehca_0016_roland_git.patch2"
+
+diff --git a/drivers/infiniband/hw/ehca/ehca_main.c b/drivers/infiniband/hw/ehca/ehca_main.c
+index 159b0be..2380994 100644
+--- a/drivers/infiniband/hw/ehca/ehca_main.c
++++ b/drivers/infiniband/hw/ehca/ehca_main.c
+@@ -5,6 +5,7 @@
+  *
+  *  Authors: Heiko J Schick <schickhj@de.ibm.com>
+  *           Hoang-Nam Nguyen <hnguyen@de.ibm.com>
++ *           Joachim Fenkes <fenkes@de.ibm.com>
+  *
+  *  Copyright (c) 2005 IBM Corporation
+  *
+@@ -48,7 +49,7 @@ #include "hcp_if.h"
+ MODULE_LICENSE("Dual BSD/GPL");
+ MODULE_AUTHOR("Christoph Raisch <raisch@de.ibm.com>");
+ MODULE_DESCRIPTION("IBM eServer HCA InfiniBand Device Driver");
+-MODULE_VERSION("SVNEHCA_0015");
++MODULE_VERSION("SVNEHCA_0016");
+ 
+ int ehca_open_aqp1     = 0;
+ int ehca_debug_level   = 0;
+@@ -749,7 +750,7 @@ int __init ehca_module_init(void)
+ 	int ret;
+ 
+ 	printk(KERN_INFO "eHCA Infiniband Device Driver "
+-	                 "(Rel.: SVNEHCA_0015)\n");
++	                 "(Rel.: SVNEHCA_0016)\n");
+ 	idr_init(&ehca_qp_idr);
+ 	idr_init(&ehca_cq_idr);
+ 	spin_lock_init(&ehca_qp_idr_lock);
+diff --git a/drivers/infiniband/hw/ehca/hcp_if.c b/drivers/infiniband/hw/ehca/hcp_if.c
+index 260e82a..3fb46e6 100644
+--- a/drivers/infiniband/hw/ehca/hcp_if.c
++++ b/drivers/infiniband/hw/ehca/hcp_if.c
+@@ -48,27 +48,27 @@ #include "hcp_phyp.h"
+ #include "hipz_fns.h"
+ #include "ipz_pt_fn.h"
+ 
+-#define H_ALL_RES_QP_ENHANCED_OPS       EHCA_BMASK_IBM(9,11)
+-#define H_ALL_RES_QP_PTE_PIN            EHCA_BMASK_IBM(12,12)
+-#define H_ALL_RES_QP_SERVICE_TYPE       EHCA_BMASK_IBM(13,15)
+-#define H_ALL_RES_QP_LL_RQ_CQE_POSTING  EHCA_BMASK_IBM(18,18)
+-#define H_ALL_RES_QP_LL_SQ_CQE_POSTING  EHCA_BMASK_IBM(19,21)
+-#define H_ALL_RES_QP_SIGNALING_TYPE     EHCA_BMASK_IBM(22,23)
+-#define H_ALL_RES_QP_UD_AV_LKEY_CTRL    EHCA_BMASK_IBM(31,31)
+-#define H_ALL_RES_QP_RESOURCE_TYPE      EHCA_BMASK_IBM(56,63)
+-
+-#define H_ALL_RES_QP_MAX_OUTST_SEND_WR  EHCA_BMASK_IBM(0,15)
+-#define H_ALL_RES_QP_MAX_OUTST_RECV_WR  EHCA_BMASK_IBM(16,31)
+-#define H_ALL_RES_QP_MAX_SEND_SGE       EHCA_BMASK_IBM(32,39)
+-#define H_ALL_RES_QP_MAX_RECV_SGE       EHCA_BMASK_IBM(40,47)
+-
+-#define H_ALL_RES_QP_ACT_OUTST_SEND_WR  EHCA_BMASK_IBM(16,31)
+-#define H_ALL_RES_QP_ACT_OUTST_RECV_WR  EHCA_BMASK_IBM(48,63)
+-#define H_ALL_RES_QP_ACT_SEND_SGE       EHCA_BMASK_IBM(8,15)
+-#define H_ALL_RES_QP_ACT_RECV_SGE       EHCA_BMASK_IBM(24,31)
+-
+-#define H_ALL_RES_QP_SQUEUE_SIZE_PAGES  EHCA_BMASK_IBM(0,31)
+-#define H_ALL_RES_QP_RQUEUE_SIZE_PAGES  EHCA_BMASK_IBM(32,63)
++#define H_ALL_RES_QP_ENHANCED_OPS       EHCA_BMASK_IBM(9, 11)
++#define H_ALL_RES_QP_PTE_PIN            EHCA_BMASK_IBM(12, 12)
++#define H_ALL_RES_QP_SERVICE_TYPE       EHCA_BMASK_IBM(13, 15)
++#define H_ALL_RES_QP_LL_RQ_CQE_POSTING  EHCA_BMASK_IBM(18, 18)
++#define H_ALL_RES_QP_LL_SQ_CQE_POSTING  EHCA_BMASK_IBM(19, 21)
++#define H_ALL_RES_QP_SIGNALING_TYPE     EHCA_BMASK_IBM(22, 23)
++#define H_ALL_RES_QP_UD_AV_LKEY_CTRL    EHCA_BMASK_IBM(31, 31)
++#define H_ALL_RES_QP_RESOURCE_TYPE      EHCA_BMASK_IBM(56, 63)
++
++#define H_ALL_RES_QP_MAX_OUTST_SEND_WR  EHCA_BMASK_IBM(0, 15)
++#define H_ALL_RES_QP_MAX_OUTST_RECV_WR  EHCA_BMASK_IBM(16, 31)
++#define H_ALL_RES_QP_MAX_SEND_SGE       EHCA_BMASK_IBM(32, 39)
++#define H_ALL_RES_QP_MAX_RECV_SGE       EHCA_BMASK_IBM(40, 47)
++
++#define H_ALL_RES_QP_ACT_OUTST_SEND_WR  EHCA_BMASK_IBM(16, 31)
++#define H_ALL_RES_QP_ACT_OUTST_RECV_WR  EHCA_BMASK_IBM(48, 63)
++#define H_ALL_RES_QP_ACT_SEND_SGE       EHCA_BMASK_IBM(8, 15)
++#define H_ALL_RES_QP_ACT_RECV_SGE       EHCA_BMASK_IBM(24, 31)
++
++#define H_ALL_RES_QP_SQUEUE_SIZE_PAGES  EHCA_BMASK_IBM(0, 31)
++#define H_ALL_RES_QP_RQUEUE_SIZE_PAGES  EHCA_BMASK_IBM(32, 63)
+ 
+ /* direct access qp controls */
+ #define DAQP_CTRL_ENABLE    0x01
+@@ -95,35 +95,25 @@ static u32 get_longbusy_msecs(int longbu
+ 	}
+ }
+ 
+-static long ehca_hcall_7arg_7ret(unsigned long opcode,
+-				 unsigned long arg1,
+-				 unsigned long arg2,
+-				 unsigned long arg3,
+-				 unsigned long arg4,
+-				 unsigned long arg5,
+-				 unsigned long arg6,
+-				 unsigned long arg7,
+-				 unsigned long *out1,
+-				 unsigned long *out2,
+-				 unsigned long *out3,
+-				 unsigned long *out4,
+-				 unsigned long *out5,
+-				 unsigned long *out6,
+-				 unsigned long *out7)
++static long ehca_plpar_hcall_norets(unsigned long opcode,
++				    unsigned long arg1,
++				    unsigned long arg2,
++				    unsigned long arg3,
++				    unsigned long arg4,
++				    unsigned long arg5,
++				    unsigned long arg6,
++				    unsigned long arg7)
+ {
+ 	long ret;
+ 	int i, sleep_msecs;
+ 
+-	ehca_gen_dbg("opcode=%lx arg1=%lx arg2=%lx arg3=%lx arg4=%lx arg5=%lx "
+-		     "arg6=%lx arg7=%lx", opcode, arg1, arg2, arg3, arg4, arg5,
+-		     arg6, arg7);
++	ehca_gen_dbg("opcode=%lx arg1=%lx arg2=%lx arg3=%lx arg4=%lx "
++		     "arg5=%lx arg6=%lx arg7=%lx",
++		     opcode, arg1, arg2, arg3, arg4, arg5, arg6, arg7);
+ 
+ 	for (i = 0; i < 5; i++) {
+-		ret = plpar_hcall_7arg_7ret(opcode,
+-					    arg1, arg2, arg3, arg4,
+-					    arg5, arg6, arg7,
+-					    out1, out2, out3, out4,
+-					    out5, out6,out7);
++		ret = plpar_hcall_norets(opcode, arg1, arg2, arg3, arg4,
++					 arg5, arg6, arg7);
+ 
+ 		if (H_IS_LONG_BUSY(ret)) {
+ 			sleep_msecs = get_longbusy_msecs(ret);
+@@ -134,44 +124,30 @@ static long ehca_hcall_7arg_7ret(unsigne
+ 		if (ret < H_SUCCESS)
+ 			ehca_gen_err("opcode=%lx ret=%lx"
+ 				     " arg1=%lx arg2=%lx arg3=%lx arg4=%lx"
+-				     " arg5=%lx arg6=%lx arg7=%lx"
+-				     " out1=%lx out2=%lx out3=%lx out4=%lx"
+-				     " out5=%lx out6=%lx out7=%lx",
++				     " arg5=%lx arg6=%lx arg7=%lx ",
+ 				     opcode, ret,
+-				     arg1, arg2, arg3, arg4,
+-				     arg5, arg6, arg7,
+-				     *out1, *out2, *out3, *out4,
+-				     *out5, *out6, *out7);
++				     arg1, arg2, arg3, arg4, arg5,
++				     arg6, arg7);
+ 
+-		ehca_gen_dbg("opcode=%lx ret=%lx out1=%lx out2=%lx out3=%lx "
+-			     "out4=%lx out5=%lx out6=%lx out7=%lx",
+-			     opcode, ret, *out1, *out2, *out3, *out4, *out5,
+-			     *out6, *out7);
++		ehca_gen_dbg("opcode=%lx ret=%lx", opcode, ret);
+ 		return ret;
++
+ 	}
+ 
+ 	return H_BUSY;
+ }
+ 
+-static long ehca_hcall_9arg_9ret(unsigned long opcode,
+-				 unsigned long arg1,
+-				 unsigned long arg2,
+-				 unsigned long arg3,
+-				 unsigned long arg4,
+-				 unsigned long arg5,
+-				 unsigned long arg6,
+-				 unsigned long arg7,
+-				 unsigned long arg8,
+-				 unsigned long arg9,
+-				 unsigned long *out1,
+-				 unsigned long *out2,
+-				 unsigned long *out3,
+-				 unsigned long *out4,
+-				 unsigned long *out5,
+-				 unsigned long *out6,
+-				 unsigned long *out7,
+-				 unsigned long *out8,
+-				 unsigned long *out9)
++static long ehca_plpar_hcall9(unsigned long opcode,
++			      unsigned long *outs, /* array of 9 outputs */
++			      unsigned long arg1,
++			      unsigned long arg2,
++			      unsigned long arg3,
++			      unsigned long arg4,
++			      unsigned long arg5,
++			      unsigned long arg6,
++			      unsigned long arg7,
++			      unsigned long arg8,
++			      unsigned long arg9)
+ {
+ 	long ret;
+ 	int i, sleep_msecs;
+@@ -182,13 +158,9 @@ static long ehca_hcall_9arg_9ret(unsigne
+ 		     arg8, arg9);
+ 
+ 	for (i = 0; i < 5; i++) {
+-		ret = plpar_hcall_9arg_9ret(opcode,
+-					    arg1, arg2, arg3, arg4,
+-					    arg5, arg6, arg7, arg8,
+-					    arg9,
+-					    out1, out2, out3, out4,
+-					    out5, out6, out7, out8,
+-					    out9);
++		ret = plpar_hcall9(opcode, outs,
++				   arg1, arg2, arg3, arg4, arg5,
++				   arg6, arg7, arg8, arg9);
+ 
+ 		if (H_IS_LONG_BUSY(ret)) {
+ 			sleep_msecs = get_longbusy_msecs(ret);
+@@ -205,37 +177,35 @@ static long ehca_hcall_9arg_9ret(unsigne
+ 				     " out5=%lx out6=%lx out7=%lx out8=%lx"
+ 				     " out9=%lx",
+ 				     opcode, ret,
+-				     arg1, arg2, arg3, arg4,
+-				     arg5, arg6, arg7, arg8,
+-				     arg9,
+-				     *out1, *out2, *out3, *out4,
+-				     *out5, *out6, *out7, *out8,
+-				     *out9);
++				     arg1, arg2, arg3, arg4, arg5,
++				     arg6, arg7, arg8, arg9,
++				     outs[0], outs[1], outs[2], outs[3],
++				     outs[4], outs[5], outs[6], outs[7],
++				     outs[8]);
+ 
+ 		ehca_gen_dbg("opcode=%lx ret=%lx out1=%lx out2=%lx out3=%lx "
+ 			     "out4=%lx out5=%lx out6=%lx out7=%lx out8=%lx "
+-			     "out9=%lx", opcode, ret,*out1, *out2, *out3, *out4,
+-			     *out5, *out6, *out7, *out8, *out9);
++			     "out9=%lx",
++			     opcode, ret, outs[0], outs[1], outs[2], outs[3],
++			     outs[4], outs[5], outs[6], outs[7], outs[8]);
+ 		return ret;
+ 
+ 	}
+ 
+ 	return H_BUSY;
+ }
+-
+ u64 hipz_h_alloc_resource_eq(const struct ipz_adapter_handle adapter_handle,
+ 			     struct ehca_pfeq *pfeq,
+ 			     const u32 neq_control,
+ 			     const u32 number_of_entries,
+ 			     struct ipz_eq_handle *eq_handle,
+-			     u32 * act_nr_of_entries,
+-			     u32 * act_pages,
+-			     u32 * eq_ist)
++			     u32 *act_nr_of_entries,
++			     u32 *act_pages,
++			     u32 *eq_ist)
+ {
+ 	u64 ret;
+-	u64 dummy;
++	u64 outs[PLPAR_HCALL9_BUFSIZE];
+ 	u64 allocate_controls;
+-	u64 act_nr_of_entries_out, act_pages_out, eq_ist_out;
+ 
+ 	/* resource type */
+ 	allocate_controls = 3ULL;
+@@ -246,22 +216,15 @@ u64 hipz_h_alloc_resource_eq(const struc
+ 	else /* notification event queue */
+ 		allocate_controls = (1ULL << 63) | allocate_controls;
+ 
+-	ret = ehca_hcall_7arg_7ret(H_ALLOC_RESOURCE,
+-				   adapter_handle.handle,  /* r4 */
+-				   allocate_controls,      /* r5 */
+-				   number_of_entries,      /* r6 */
+-				   0, 0, 0, 0,
+-				   &eq_handle->handle,     /* r4 */
+-				   &dummy,	           /* r5 */
+-				   &dummy,	           /* r6 */
+-				   &act_nr_of_entries_out, /* r7 */
+-				   &act_pages_out,	   /* r8 */
+-				   &eq_ist_out,            /* r8 */
+-				   &dummy);
+-
+-	*act_nr_of_entries = (u32)act_nr_of_entries_out;
+-	*act_pages         = (u32)act_pages_out;
+-	*eq_ist            = (u32)eq_ist_out;
++	ret = ehca_plpar_hcall9(H_ALLOC_RESOURCE, outs,
++				adapter_handle.handle,  /* r4 */
++				allocate_controls,      /* r5 */
++				number_of_entries,      /* r6 */
++				0, 0, 0, 0, 0, 0);
++	eq_handle->handle = outs[0];
++	*act_nr_of_entries = (u32)outs[3];
++	*act_pages = (u32)outs[4];
++	*eq_ist = (u32)outs[5];
+ 
+ 	if (ret == H_NOT_ENOUGH_RESOURCES)
+ 		ehca_gen_err("Not enough resource - ret=%lx ", ret);
+@@ -273,20 +236,11 @@ u64 hipz_h_reset_event(const struct ipz_
+ 		       struct ipz_eq_handle eq_handle,
+ 		       const u64 event_mask)
+ {
+-	u64 dummy;
+-
+-	return ehca_hcall_7arg_7ret(H_RESET_EVENTS,
+-				    adapter_handle.handle, /* r4 */
+-				    eq_handle.handle,      /* r5 */
+-				    event_mask,	           /* r6 */
+-				    0, 0, 0, 0,
+-				    &dummy,
+-				    &dummy,
+-				    &dummy,
+-				    &dummy,
+-				    &dummy,
+-				    &dummy,
+-				    &dummy);
++	return ehca_plpar_hcall_norets(H_RESET_EVENTS,
++				       adapter_handle.handle, /* r4 */
++				       eq_handle.handle,      /* r5 */
++				       event_mask,	      /* r6 */
++				       0, 0, 0, 0);
+ }
+ 
+ u64 hipz_h_alloc_resource_cq(const struct ipz_adapter_handle adapter_handle,
+@@ -294,30 +248,21 @@ u64 hipz_h_alloc_resource_cq(const struc
+ 			     struct ehca_alloc_cq_parms *param)
+ {
+ 	u64 ret;
+-	u64 dummy;
+-	u64 act_nr_of_entries_out, act_pages_out;
+-	u64 g_la_privileged_out, g_la_user_out;
+-
+-	ret = ehca_hcall_7arg_7ret(H_ALLOC_RESOURCE,
+-				   adapter_handle.handle,     /* r4  */
+-				   2,	                      /* r5  */
+-				   param->eq_handle.handle,   /* r6  */
+-				   cq->token,	              /* r7  */
+-				   param->nr_cqe,             /* r8  */
+-				   0, 0,
+-				   &cq->ipz_cq_handle.handle, /* r4  */
+-				   &dummy,	              /* r5  */
+-				   &dummy,	              /* r6  */
+-				   &act_nr_of_entries_out,    /* r7  */
+-				   &act_pages_out,	      /* r8  */
+-				   &g_la_privileged_out,      /* r9  */
+-				   &g_la_user_out);           /* r10 */
+-
+-	param->act_nr_of_entries = (u32)act_nr_of_entries_out;
+-	param->act_pages = (u32)act_pages_out;
++	u64 outs[PLPAR_HCALL9_BUFSIZE];
++
++	ret = ehca_plpar_hcall9(H_ALLOC_RESOURCE, outs,
++				adapter_handle.handle,   /* r4  */
++				2,	                 /* r5  */
++				param->eq_handle.handle, /* r6  */
++				cq->token,	         /* r7  */
++				param->nr_cqe,           /* r8  */
++				0, 0, 0, 0);
++	cq->ipz_cq_handle.handle = outs[0];
++	param->act_nr_of_entries = (u32)outs[3];
++	param->act_pages = (u32)outs[4];
+ 
+ 	if (ret == H_SUCCESS)
+-		hcp_galpas_ctor(&cq->galpas, g_la_privileged_out, g_la_user_out);
++		hcp_galpas_ctor(&cq->galpas, outs[5], outs[6]);
+ 
+ 	if (ret == H_NOT_ENOUGH_RESOURCES)
+ 		ehca_gen_err("Not enough resources. ret=%lx", ret);
+@@ -330,8 +275,9 @@ u64 hipz_h_alloc_resource_qp(const struc
+ 			     struct ehca_alloc_qp_parms *parms)
+ {
+ 	u64 ret;
+-	u64 dummy, allocate_controls, max_r10_reg;
+-	u64 qp_nr_out, r6_out, r7_out, r8_out, g_la_user_out, r11_out;
++	u64 allocate_controls;
++	u64 max_r10_reg;
++	u64 outs[PLPAR_HCALL9_BUFSIZE];
+ 	u16 max_nr_receive_wqes = qp->init_attr.cap.max_recv_wr + 1;
+ 	u16 max_nr_send_wqes = qp->init_attr.cap.max_send_wr + 1;
+ 	int daqp_ctrl = parms->daqp_ctrl;
+@@ -360,48 +306,36 @@ u64 hipz_h_alloc_resource_qp(const struc
+ 		| EHCA_BMASK_SET(H_ALL_RES_QP_MAX_RECV_SGE,
+ 				 parms->max_recv_sge);
+ 
+-
+-	ret = ehca_hcall_9arg_9ret(H_ALLOC_RESOURCE,
+-				   adapter_handle.handle,	      /* r4  */
+-				   allocate_controls,	              /* r5  */
+-				   qp->send_cq->ipz_cq_handle.handle,
+-				   qp->recv_cq->ipz_cq_handle.handle,
+-				   parms->ipz_eq_handle.handle,
+-				   ((u64)qp->token << 32) | parms->pd.value,
+-				   max_r10_reg,	                      /* r10 */
+-				   parms->ud_av_l_key_ctl,            /* r11 */
+-				   0,
+-				   &qp->ipz_qp_handle.handle,
+-				   &qp_nr_out,	                      /* r5  */
+-				   &r6_out,	                      /* r6  */
+-				   &r7_out,	                      /* r7  */
+-				   &r8_out,	                      /* r8  */
+-				   &dummy,	                      /* r9  */
+-				   &g_la_user_out,	              /* r10 */
+-				   &r11_out,
+-				   &dummy);
+-
+-	/* extract outputs */
+-	qp->real_qp_num = (u32)qp_nr_out;
+-
++	ret = ehca_plpar_hcall9(H_ALLOC_RESOURCE, outs,
++				adapter_handle.handle,	           /* r4  */
++				allocate_controls,	           /* r5  */
++				qp->send_cq->ipz_cq_handle.handle,
++				qp->recv_cq->ipz_cq_handle.handle,
++				parms->ipz_eq_handle.handle,
++				((u64)qp->token << 32) | parms->pd.value,
++				max_r10_reg,	                   /* r10 */
++				parms->ud_av_l_key_ctl,            /* r11 */
++				0);
++	qp->ipz_qp_handle.handle = outs[0];
++	qp->real_qp_num = (u32)outs[1];
+ 	parms->act_nr_send_sges =
+-		(u16)EHCA_BMASK_GET(H_ALL_RES_QP_ACT_OUTST_SEND_WR, r6_out);
++		(u16)EHCA_BMASK_GET(H_ALL_RES_QP_ACT_OUTST_SEND_WR, outs[2]);
+ 	parms->act_nr_recv_wqes =
+-		(u16)EHCA_BMASK_GET(H_ALL_RES_QP_ACT_OUTST_RECV_WR, r6_out);
++		(u16)EHCA_BMASK_GET(H_ALL_RES_QP_ACT_OUTST_RECV_WR, outs[2]);
+ 	parms->act_nr_send_sges =
+-		(u8)EHCA_BMASK_GET(H_ALL_RES_QP_ACT_SEND_SGE, r7_out);
++		(u8)EHCA_BMASK_GET(H_ALL_RES_QP_ACT_SEND_SGE, outs[3]);
+ 	parms->act_nr_recv_sges =
+-		(u8)EHCA_BMASK_GET(H_ALL_RES_QP_ACT_RECV_SGE, r7_out);
++		(u8)EHCA_BMASK_GET(H_ALL_RES_QP_ACT_RECV_SGE, outs[3]);
+ 	parms->nr_sq_pages =
+-		(u32)EHCA_BMASK_GET(H_ALL_RES_QP_SQUEUE_SIZE_PAGES, r8_out);
++		(u32)EHCA_BMASK_GET(H_ALL_RES_QP_SQUEUE_SIZE_PAGES, outs[4]);
+ 	parms->nr_rq_pages =
+-		(u32)EHCA_BMASK_GET(H_ALL_RES_QP_RQUEUE_SIZE_PAGES, r8_out);
++		(u32)EHCA_BMASK_GET(H_ALL_RES_QP_RQUEUE_SIZE_PAGES, outs[4]);
+ 
+ 	if (ret == H_SUCCESS)
+-		hcp_galpas_ctor(&qp->galpas, g_la_user_out, g_la_user_out);
++		hcp_galpas_ctor(&qp->galpas, outs[6], outs[6]);
+ 
+ 	if (ret == H_NOT_ENOUGH_RESOURCES)
+-		ehca_gen_err("Not enough resources. ret=%lx",ret);
++		ehca_gen_err("Not enough resources. ret=%lx", ret);
+ 
+ 	return ret;
+ }
+@@ -411,7 +345,6 @@ u64 hipz_h_query_port(const struct ipz_a
+ 		      struct hipz_query_port *query_port_response_block)
+ {
+ 	u64 ret;
+-	u64 dummy;
+ 	u64 r_cb = virt_to_abs(query_port_response_block);
+ 
+ 	if (r_cb & (EHCA_PAGESIZE-1)) {
+@@ -419,18 +352,11 @@ u64 hipz_h_query_port(const struct ipz_a
+ 		return H_PARAMETER;
+ 	}
+ 
+-	ret = ehca_hcall_7arg_7ret(H_QUERY_PORT,
+-				   adapter_handle.handle, /* r4 */
+-				   port_id,	          /* r5 */
+-				   r_cb,	          /* r6 */
+-				   0, 0, 0, 0,
+-				   &dummy,
+-				   &dummy,
+-				   &dummy,
+-				   &dummy,
+-				   &dummy,
+-				   &dummy,
+-				   &dummy);
++	ret = ehca_plpar_hcall_norets(H_QUERY_PORT,
++				      adapter_handle.handle, /* r4 */
++				      port_id,	             /* r5 */
++				      r_cb,	             /* r6 */
++				      0, 0, 0, 0);
+ 
+ 	if (ehca_debug_level)
+ 		ehca_dmp(query_port_response_block, 64, "response_block");
+@@ -441,7 +367,6 @@ u64 hipz_h_query_port(const struct ipz_a
+ u64 hipz_h_query_hca(const struct ipz_adapter_handle adapter_handle,
+ 		     struct hipz_query_hca *query_hca_rblock)
+ {
+-	u64 dummy;
+ 	u64 r_cb = virt_to_abs(query_hca_rblock);
+ 
+ 	if (r_cb & (EHCA_PAGESIZE-1)) {
+@@ -450,17 +375,10 @@ u64 hipz_h_query_hca(const struct ipz_ad
+ 		return H_PARAMETER;
+ 	}
+ 
+-	return ehca_hcall_7arg_7ret(H_QUERY_HCA,
+-				    adapter_handle.handle, /* r4 */
+-				    r_cb,                  /* r5 */
+-				    0, 0, 0, 0, 0,
+-				    &dummy,
+-				    &dummy,
+-				    &dummy,
+-				    &dummy,
+-				    &dummy,
+-				    &dummy,
+-				    &dummy);
++	return ehca_plpar_hcall_norets(H_QUERY_HCA,
++				       adapter_handle.handle, /* r4 */
++				       r_cb,                  /* r5 */
++				       0, 0, 0, 0, 0);
+ }
+ 
+ u64 hipz_h_register_rpage(const struct ipz_adapter_handle adapter_handle,
+@@ -470,22 +388,13 @@ u64 hipz_h_register_rpage(const struct i
+ 			  const u64 logical_address_of_page,
+ 			  u64 count)
+ {
+-	u64 dummy;
+-
+-	return ehca_hcall_7arg_7ret(H_REGISTER_RPAGES,
+-				    adapter_handle.handle,      /* r4  */
+-				    queue_type | pagesize << 8, /* r5  */
+-				    resource_handle,	        /* r6  */
+-				    logical_address_of_page,    /* r7  */
+-				    count,	                /* r8  */
+-				    0, 0,
+-				    &dummy,
+-				    &dummy,
+-				    &dummy,
+-				    &dummy,
+-				    &dummy,
+-				    &dummy,
+-				    &dummy);
++	return ehca_plpar_hcall_norets(H_REGISTER_RPAGES,
++				       adapter_handle.handle,      /* r4  */
++				       queue_type | pagesize << 8, /* r5  */
++				       resource_handle,	           /* r6  */
++				       logical_address_of_page,    /* r7  */
++				       count,	                   /* r8  */
++				       0, 0);
+ }
+ 
+ u64 hipz_h_register_rpage_eq(const struct ipz_adapter_handle adapter_handle,
+@@ -507,23 +416,14 @@ u64 hipz_h_register_rpage_eq(const struc
+ 				     logical_address_of_page, count);
+ }
+ 
+-u32 hipz_h_query_int_state(const struct ipz_adapter_handle adapter_handle,
++u64 hipz_h_query_int_state(const struct ipz_adapter_handle adapter_handle,
+ 			   u32 ist)
+ {
+-	u32 ret;
+-	u64 dummy;
+-
+-	ret = ehca_hcall_7arg_7ret(H_QUERY_INT_STATE,
+-				   adapter_handle.handle, /* r4 */
+-				   ist,                   /* r5 */
+-				   0, 0, 0, 0, 0,
+-				   &dummy,
+-				   &dummy,
+-				   &dummy,
+-				   &dummy,
+-				   &dummy,
+-				   &dummy,
+-				   &dummy);
++	u64 ret;
++	ret = ehca_plpar_hcall_norets(H_QUERY_INT_STATE,
++				      adapter_handle.handle, /* r4 */
++				      ist,                   /* r5 */
++				      0, 0, 0, 0, 0);
+ 
+ 	if (ret != H_SUCCESS && ret != H_BUSY)
+ 		ehca_gen_err("Could not query interrupt state.");
+@@ -576,25 +476,20 @@ u64 hipz_h_disable_and_get_wqe(const str
+ 			       void **log_addr_next_rq_wqe2processed,
+ 			       int dis_and_get_function_code)
+ {
+-	u64 dummy, dummy1, dummy2;
+-
+-	if (!log_addr_next_sq_wqe2processed)
+-		log_addr_next_sq_wqe2processed = (void**)&dummy1;
+-	if (!log_addr_next_rq_wqe2processed)
+-		log_addr_next_rq_wqe2processed = (void**)&dummy2;
+-
+-	return ehca_hcall_7arg_7ret(H_DISABLE_AND_GETC,
+-				    adapter_handle.handle,     /* r4 */
+-				    dis_and_get_function_code, /* r5 */
+-				    qp_handle.handle,	       /* r6 */
+-				    0, 0, 0, 0,
+-				    (void*)log_addr_next_sq_wqe2processed,
+-				    (void*)log_addr_next_rq_wqe2processed,
+-				    &dummy,
+-				    &dummy,
+-				    &dummy,
+-				    &dummy,
+-				    &dummy);
++	u64 ret;
++	u64 outs[PLPAR_HCALL9_BUFSIZE];
++
++	ret = ehca_plpar_hcall9(H_DISABLE_AND_GETC, outs,
++				adapter_handle.handle,     /* r4 */
++				dis_and_get_function_code, /* r5 */
++				qp_handle.handle,	   /* r6 */
++				0, 0, 0, 0, 0, 0);
++	if (log_addr_next_sq_wqe2processed)
++		*log_addr_next_sq_wqe2processed = (void*)outs[0];
++	if (log_addr_next_rq_wqe2processed)
++		*log_addr_next_rq_wqe2processed = (void*)outs[1];
++
++	return ret;
+ }
+ 
+ u64 hipz_h_modify_qp(const struct ipz_adapter_handle adapter_handle,
+@@ -605,22 +500,13 @@ u64 hipz_h_modify_qp(const struct ipz_ad
+ 		     struct h_galpa gal)
+ {
+ 	u64 ret;
+-	u64 dummy;
+-	u64 invalid_attribute_identifier, rc_attrib_mask;
+-
+-	ret = ehca_hcall_7arg_7ret(H_MODIFY_QP,
+-				   adapter_handle.handle,         /* r4 */
+-				   qp_handle.handle,	          /* r5 */
+-				   update_mask,	                  /* r6 */
+-				   virt_to_abs(mqpcb),	          /* r7 */
+-				   0, 0, 0,
+-				   &invalid_attribute_identifier, /* r4 */
+-				   &dummy,	                  /* r5 */
+-				   &dummy,	                  /* r6 */
+-				   &dummy,                        /* r7 */
+-				   &dummy,	                  /* r8 */
+-				   &rc_attrib_mask,               /* r9 */
+-				   &dummy);
++	u64 outs[PLPAR_HCALL9_BUFSIZE];
++	ret = ehca_plpar_hcall9(H_MODIFY_QP, outs,
++				adapter_handle.handle, /* r4 */
++				qp_handle.handle,      /* r5 */
++				update_mask,	       /* r6 */
++				virt_to_abs(mqpcb),    /* r7 */
++				0, 0, 0, 0, 0);
+ 
+ 	if (ret == H_NOT_ENOUGH_RESOURCES)
+ 		ehca_gen_err("Insufficient resources ret=%lx", ret);
+@@ -634,61 +520,37 @@ u64 hipz_h_query_qp(const struct ipz_ada
+ 		    struct hcp_modify_qp_control_block *qqpcb,
+ 		    struct h_galpa gal)
+ {
+-	u64 dummy;
+-
+-	return ehca_hcall_7arg_7ret(H_QUERY_QP,
+-				    adapter_handle.handle, /* r4 */
+-				    qp_handle.handle,      /* r5 */
+-				    virt_to_abs(qqpcb),	   /* r6 */
+-				    0, 0, 0, 0,
+-				    &dummy,
+-				    &dummy,
+-				    &dummy,
+-				    &dummy,
+-				    &dummy,
+-				    &dummy,
+-				    &dummy);
++	return ehca_plpar_hcall_norets(H_QUERY_QP,
++				       adapter_handle.handle, /* r4 */
++				       qp_handle.handle,      /* r5 */
++				       virt_to_abs(qqpcb),    /* r6 */
++				       0, 0, 0, 0);
+ }
+ 
+ u64 hipz_h_destroy_qp(const struct ipz_adapter_handle adapter_handle,
+ 		      struct ehca_qp *qp)
+ {
+ 	u64 ret;
+-	u64 dummy;
+-	u64 ladr_next_sq_wqe_out, ladr_next_rq_wqe_out;
++	u64 outs[PLPAR_HCALL9_BUFSIZE];
+ 
+ 	ret = hcp_galpas_dtor(&qp->galpas);
+ 	if (ret) {
+ 		ehca_gen_err("Could not destruct qp->galpas");
+ 		return H_RESOURCE;
+ 	}
+-	ret = ehca_hcall_7arg_7ret(H_DISABLE_AND_GETC,
+-				   adapter_handle.handle,     /* r4 */
+-				   /* function code */
+-				   1,	                      /* r5 */
+-				   qp->ipz_qp_handle.handle,  /* r6 */
+-				   0, 0, 0, 0,
+-				   &ladr_next_sq_wqe_out,     /* r4 */
+-				   &ladr_next_rq_wqe_out,     /* r5 */
+-				   &dummy,
+-				   &dummy,
+-				   &dummy,
+-				   &dummy,
+-				   &dummy);
++	ret = ehca_plpar_hcall9(H_DISABLE_AND_GETC, outs,
++				adapter_handle.handle,     /* r4 */
++				/* function code */
++				1,	                   /* r5 */
++				qp->ipz_qp_handle.handle,  /* r6 */
++				0, 0, 0, 0, 0, 0);
+ 	if (ret == H_HARDWARE)
+ 		ehca_gen_err("HCA not operational. ret=%lx", ret);
+ 
+-	ret = ehca_hcall_7arg_7ret(H_FREE_RESOURCE,
+-				   adapter_handle.handle,     /* r4 */
+-				   qp->ipz_qp_handle.handle,  /* r5 */
+-				   0, 0, 0, 0, 0,
+-				   &dummy,
+-				   &dummy,
+-				   &dummy,
+-				   &dummy,
+-				   &dummy,
+-				   &dummy,
+-				   &dummy);
++	ret = ehca_plpar_hcall_norets(H_FREE_RESOURCE,
++				      adapter_handle.handle,     /* r4 */
++				      qp->ipz_qp_handle.handle,  /* r5 */
++				      0, 0, 0, 0, 0);
+ 
+ 	if (ret == H_RESOURCE)
+ 		ehca_gen_err("Resource still in use. ret=%lx", ret);
+@@ -701,20 +563,11 @@ u64 hipz_h_define_aqp0(const struct ipz_
+ 		       struct h_galpa gal,
+ 		       u32 port)
+ {
+-	u64 dummy;
+-
+-	return ehca_hcall_7arg_7ret(H_DEFINE_AQP0,
+-				    adapter_handle.handle, /* r4 */
+-				    qp_handle.handle,      /* r5 */
+-				    port,                  /* r6 */
+-				    0, 0, 0, 0,
+-				    &dummy,
+-				    &dummy,
+-				    &dummy,
+-				    &dummy,
+-				    &dummy,
+-				    &dummy,
+-				    &dummy);
++	return ehca_plpar_hcall_norets(H_DEFINE_AQP0,
++				       adapter_handle.handle, /* r4 */
++				       qp_handle.handle,      /* r5 */
++				       port,                  /* r6 */
++				       0, 0, 0, 0);
+ }
+ 
+ u64 hipz_h_define_aqp1(const struct ipz_adapter_handle adapter_handle,
+@@ -724,24 +577,15 @@ u64 hipz_h_define_aqp1(const struct ipz_
+ 		       u32 * bma_qp_nr)
+ {
+ 	u64 ret;
+-	u64 dummy;
+-	u64 pma_qp_nr_out, bma_qp_nr_out;
+-
+-	ret = ehca_hcall_7arg_7ret(H_DEFINE_AQP1,
+-				   adapter_handle.handle, /* r4 */
+-				   qp_handle.handle,      /* r5 */
+-				   port,	          /* r6 */
+-				   0, 0, 0, 0,
+-				   &pma_qp_nr_out,        /* r4 */
+-				   &bma_qp_nr_out,        /* r5 */
+-				   &dummy,
+-				   &dummy,
+-				   &dummy,
+-				   &dummy,
+-				   &dummy);
+-
+-	*pma_qp_nr = (u32)pma_qp_nr_out;
+-	*bma_qp_nr = (u32)bma_qp_nr_out;
++	u64 outs[PLPAR_HCALL9_BUFSIZE];
++
++	ret = ehca_plpar_hcall9(H_DEFINE_AQP1, outs,
++				adapter_handle.handle, /* r4 */
++				qp_handle.handle,      /* r5 */
++				port,	               /* r6 */
++				0, 0, 0, 0, 0, 0);
++	*pma_qp_nr = (u32)outs[0];
++	*bma_qp_nr = (u32)outs[1];
+ 
+ 	if (ret == H_ALIAS_EXIST)
+ 		ehca_gen_err("AQP1 already exists. ret=%lx", ret);
+@@ -756,22 +600,14 @@ u64 hipz_h_attach_mcqp(const struct ipz_
+ 		       u64 subnet_prefix, u64 interface_id)
+ {
+ 	u64 ret;
+-	u64 dummy;
+-
+-	ret = ehca_hcall_7arg_7ret(H_ATTACH_MCQP,
+-				   adapter_handle.handle,     /* r4 */
+-				   qp_handle.handle,          /* r5 */
+-				   mcg_dlid,                  /* r6 */
+-				   interface_id,              /* r7 */
+-				   subnet_prefix,             /* r8 */
+-				   0, 0,
+-				   &dummy,
+-				   &dummy,
+-				   &dummy,
+-				   &dummy,
+-				   &dummy,
+-				   &dummy,
+-				   &dummy);
++
++	ret = ehca_plpar_hcall_norets(H_ATTACH_MCQP,
++				      adapter_handle.handle,  /* r4 */
++				      qp_handle.handle,       /* r5 */
++				      mcg_dlid,               /* r6 */
++				      interface_id,           /* r7 */
++				      subnet_prefix,          /* r8 */
++				      0, 0);
+ 
+ 	if (ret == H_NOT_ENOUGH_RESOURCES)
+ 		ehca_gen_err("Not enough resources. ret=%lx", ret);
+@@ -785,22 +621,13 @@ u64 hipz_h_detach_mcqp(const struct ipz_
+ 		       u16 mcg_dlid,
+ 		       u64 subnet_prefix, u64 interface_id)
+ {
+-	u64 dummy;
+-
+-	return ehca_hcall_7arg_7ret(H_DETACH_MCQP,
+-				    adapter_handle.handle, /* r4 */
+-				    qp_handle.handle,	   /* r5 */
+-				    mcg_dlid,	           /* r6 */
+-				    interface_id,          /* r7 */
+-				    subnet_prefix,         /* r8 */
+-				    0, 0,
+-				    &dummy,
+-				    &dummy,
+-				    &dummy,
+-				    &dummy,
+-				    &dummy,
+-				    &dummy,
+-				    &dummy);
++	return ehca_plpar_hcall_norets(H_DETACH_MCQP,
++				       adapter_handle.handle, /* r4 */
++				       qp_handle.handle,      /* r5 */
++				       mcg_dlid,              /* r6 */
++				       interface_id,          /* r7 */
++				       subnet_prefix,         /* r8 */
++				       0, 0);
+ }
+ 
+ u64 hipz_h_destroy_cq(const struct ipz_adapter_handle adapter_handle,
+@@ -808,7 +635,6 @@ u64 hipz_h_destroy_cq(const struct ipz_a
+ 		      u8 force_flag)
+ {
+ 	u64 ret;
+-	u64 dummy;
+ 
+ 	ret = hcp_galpas_dtor(&cq->galpas);
+ 	if (ret) {
+@@ -816,18 +642,11 @@ u64 hipz_h_destroy_cq(const struct ipz_a
+ 		return H_RESOURCE;
+ 	}
+ 
+-	ret = ehca_hcall_7arg_7ret(H_FREE_RESOURCE,
+-				   adapter_handle.handle,     /* r4 */
+-				   cq->ipz_cq_handle.handle,  /* r5 */
+-				   force_flag != 0 ? 1L : 0L, /* r6 */
+-				   0, 0, 0, 0,
+-				   &dummy,
+-				   &dummy,
+-				   &dummy,
+-				   &dummy,
+-				   &dummy,
+-				   &dummy,
+-				   &dummy);
++	ret = ehca_plpar_hcall_norets(H_FREE_RESOURCE,
++				      adapter_handle.handle,     /* r4 */
++				      cq->ipz_cq_handle.handle,  /* r5 */
++				      force_flag != 0 ? 1L : 0L, /* r6 */
++				      0, 0, 0, 0);
+ 
+ 	if (ret == H_RESOURCE)
+ 		ehca_gen_err("H_FREE_RESOURCE failed ret=%lx ", ret);
+@@ -839,7 +658,6 @@ u64 hipz_h_destroy_eq(const struct ipz_a
+ 		      struct ehca_eq *eq)
+ {
+ 	u64 ret;
+-	u64 dummy;
+ 
+ 	ret = hcp_galpas_dtor(&eq->galpas);
+ 	if (ret) {
+@@ -847,18 +665,10 @@ u64 hipz_h_destroy_eq(const struct ipz_a
+ 		return H_RESOURCE;
+ 	}
+ 
+-	ret = ehca_hcall_7arg_7ret(H_FREE_RESOURCE,
+-				   adapter_handle.handle,     /* r4 */
+-				   eq->ipz_eq_handle.handle,  /* r5 */
+-				   0, 0, 0, 0, 0,
+-				   &dummy,
+-				   &dummy,
+-				   &dummy,
+-				   &dummy,
+-				   &dummy,
+-				   &dummy,
+-				   &dummy);
+-
++	ret = ehca_plpar_hcall_norets(H_FREE_RESOURCE,
++				      adapter_handle.handle,     /* r4 */
++				      eq->ipz_eq_handle.handle,  /* r5 */
++				      0, 0, 0, 0, 0);
+ 
+ 	if (ret == H_RESOURCE)
+ 		ehca_gen_err("Resource in use. ret=%lx ", ret);
+@@ -875,27 +685,19 @@ u64 hipz_h_alloc_resource_mr(const struc
+ 			     struct ehca_mr_hipzout_parms *outparms)
+ {
+ 	u64 ret;
+-	u64 dummy;
+-	u64 lkey_out;
+-	u64 rkey_out;
+-
+-	ret = ehca_hcall_7arg_7ret(H_ALLOC_RESOURCE,
+-				   adapter_handle.handle,            /* r4 */
+-				   5,                                /* r5 */
+-				   vaddr,                            /* r6 */
+-				   length,                           /* r7 */
+-				   (((u64)access_ctrl) << 32ULL),    /* r8 */
+-				   pd.value,                         /* r9 */
+-				   0,
+-				   &(outparms->handle.handle),       /* r4 */
+-				   &dummy,                           /* r5 */
+-				   &lkey_out,                        /* r6 */
+-				   &rkey_out,                        /* r7 */
+-				   &dummy,
+-				   &dummy,
+-				   &dummy);
+-	outparms->lkey = (u32)lkey_out;
+-	outparms->rkey = (u32)rkey_out;
++	u64 outs[PLPAR_HCALL9_BUFSIZE];
++
++	ret = ehca_plpar_hcall9(H_ALLOC_RESOURCE, outs,
++				adapter_handle.handle,            /* r4 */
++				5,                                /* r5 */
++				vaddr,                            /* r6 */
++				length,                           /* r7 */
++				(((u64)access_ctrl) << 32ULL),    /* r8 */
++				pd.value,                         /* r9 */
++				0, 0, 0);
++	outparms->handle.handle = outs[0];
++	outparms->lkey = (u32)outs[2];
++	outparms->rkey = (u32)outs[3];
+ 
+ 	return ret;
+ }
+@@ -923,7 +725,6 @@ u64 hipz_h_register_rpage_mr(const struc
+ 					    queue_type,
+ 					    mr->ipz_mr_handle.handle,
+ 					    logical_address_of_page, count);
+-
+ 	return ret;
+ }
+ 
+@@ -932,24 +733,17 @@ u64 hipz_h_query_mr(const struct ipz_ada
+ 		    struct ehca_mr_hipzout_parms *outparms)
+ {
+ 	u64 ret;
+-	u64 dummy;
+-	u64 remote_len_out, remote_vaddr_out, acc_ctrl_pd_out, r9_out;
+-
+-	ret = ehca_hcall_7arg_7ret(H_QUERY_MR,
+-				   adapter_handle.handle,     /* r4 */
+-				   mr->ipz_mr_handle.handle,  /* r5 */
+-				   0, 0, 0, 0, 0,
+-				   &outparms->len,            /* r4 */
+-				   &outparms->vaddr,          /* r5 */
+-				   &remote_len_out,           /* r6 */
+-				   &remote_vaddr_out,         /* r7 */
+-				   &acc_ctrl_pd_out,          /* r8 */
+-				   &r9_out,
+-				   &dummy);
+-
+-	outparms->acl  = acc_ctrl_pd_out >> 32;
+-	outparms->lkey = (u32)(r9_out >> 32);
+-	outparms->rkey = (u32)(r9_out & (0xffffffff));
++	u64 outs[PLPAR_HCALL9_BUFSIZE];
++
++	ret = ehca_plpar_hcall9(H_QUERY_MR, outs,
++				adapter_handle.handle,     /* r4 */
++				mr->ipz_mr_handle.handle,  /* r5 */
++				0, 0, 0, 0, 0, 0, 0);
++	outparms->len = outs[0];
++	outparms->vaddr = outs[1];
++	outparms->acl  = outs[4] >> 32;
++	outparms->lkey = (u32)(outs[5] >> 32);
++	outparms->rkey = (u32)(outs[5] & (0xffffffff));
+ 
+ 	return ret;
+ }
+@@ -957,19 +751,10 @@ u64 hipz_h_query_mr(const struct ipz_ada
+ u64 hipz_h_free_resource_mr(const struct ipz_adapter_handle adapter_handle,
+ 			    const struct ehca_mr *mr)
+ {
+-	u64 dummy;
+-
+-	return ehca_hcall_7arg_7ret(H_FREE_RESOURCE,
+-				    adapter_handle.handle,    /* r4 */
+-				    mr->ipz_mr_handle.handle, /* r5 */
+-				    0, 0, 0, 0, 0,
+-				    &dummy,
+-				    &dummy,
+-				    &dummy,
+-				    &dummy,
+-				    &dummy,
+-				    &dummy,
+-				    &dummy);
++	return ehca_plpar_hcall_norets(H_FREE_RESOURCE,
++				       adapter_handle.handle,    /* r4 */
++				       mr->ipz_mr_handle.handle, /* r5 */
++				       0, 0, 0, 0, 0);
+ }
+ 
+ u64 hipz_h_reregister_pmr(const struct ipz_adapter_handle adapter_handle,
+@@ -982,28 +767,20 @@ u64 hipz_h_reregister_pmr(const struct i
+ 			  struct ehca_mr_hipzout_parms *outparms)
+ {
+ 	u64 ret;
+-	u64 dummy;
+-	u64 lkey_out, rkey_out;
+-
+-	ret = ehca_hcall_7arg_7ret(H_REREGISTER_PMR,
+-				   adapter_handle.handle,    /* r4 */
+-				   mr->ipz_mr_handle.handle, /* r5 */
+-				   vaddr_in,	             /* r6 */
+-				   length,                   /* r7 */
+-				   /* r8 */
+-				   ((((u64)access_ctrl) << 32ULL) | pd.value),
+-				   mr_addr_cb,               /* r9 */
+-				   0,
+-				   &dummy,                   /* r4 */
+-				   &outparms->vaddr,         /* r5 */
+-				   &lkey_out,                /* r6 */
+-				   &rkey_out,                /* r7 */
+-				   &dummy,
+-				   &dummy,
+-				   &dummy);
+-
+-	outparms->lkey = (u32)lkey_out;
+-	outparms->rkey = (u32)rkey_out;
++	u64 outs[PLPAR_HCALL9_BUFSIZE];
++
++	ret = ehca_plpar_hcall9(H_REREGISTER_PMR, outs,
++				adapter_handle.handle,    /* r4 */
++				mr->ipz_mr_handle.handle, /* r5 */
++				vaddr_in,	          /* r6 */
++				length,                   /* r7 */
++				/* r8 */
++				((((u64)access_ctrl) << 32ULL) | pd.value),
++				mr_addr_cb,               /* r9 */
++				0, 0, 0);
++	outparms->vaddr = outs[1];
++	outparms->lkey = (u32)outs[2];
++	outparms->rkey = (u32)outs[3];
+ 
+ 	return ret;
+ }
+@@ -1017,25 +794,18 @@ u64 hipz_h_register_smr(const struct ipz
+ 			struct ehca_mr_hipzout_parms *outparms)
+ {
+ 	u64 ret;
+-	u64 dummy;
+-	u64 lkey_out, rkey_out;
+-
+-	ret = ehca_hcall_7arg_7ret(H_REGISTER_SMR,
+-				   adapter_handle.handle,            /* r4 */
+-				   orig_mr->ipz_mr_handle.handle,    /* r5 */
+-				   vaddr_in,                         /* r6 */
+-				   (((u64)access_ctrl) << 32ULL),    /* r7 */
+-				   pd.value,                         /* r8 */
+-				   0, 0,
+-				   &(outparms->handle.handle),       /* r4 */
+-				   &dummy,                           /* r5 */
+-				   &lkey_out,                        /* r6 */
+-				   &rkey_out,                        /* r7 */
+-				   &dummy,
+-				   &dummy,
+-				   &dummy);
+-	outparms->lkey = (u32)lkey_out;
+-	outparms->rkey = (u32)rkey_out;
++	u64 outs[PLPAR_HCALL9_BUFSIZE];
++
++	ret = ehca_plpar_hcall9(H_REGISTER_SMR, outs,
++				adapter_handle.handle,            /* r4 */
++				orig_mr->ipz_mr_handle.handle,    /* r5 */
++				vaddr_in,                         /* r6 */
++				(((u64)access_ctrl) << 32ULL),    /* r7 */
++				pd.value,                         /* r8 */
++				0, 0, 0, 0);
++	outparms->handle.handle = outs[0];
++	outparms->lkey = (u32)outs[2];
++	outparms->rkey = (u32)outs[3];
+ 
+ 	return ret;
+ }
+@@ -1046,23 +816,15 @@ u64 hipz_h_alloc_resource_mw(const struc
+ 			     struct ehca_mw_hipzout_parms *outparms)
+ {
+ 	u64 ret;
+-	u64 dummy;
+-	u64 rkey_out;
+-
+-	ret = ehca_hcall_7arg_7ret(H_ALLOC_RESOURCE,
+-				   adapter_handle.handle,      /* r4 */
+-				   6,                          /* r5 */
+-				   pd.value,                   /* r6 */
+-				   0, 0, 0, 0,
+-				   &(outparms->handle.handle), /* r4 */
+-				   &dummy,                     /* r5 */
+-				   &dummy,                     /* r6 */
+-				   &rkey_out,                  /* r7 */
+-				   &dummy,
+-				   &dummy,
+-				   &dummy);
+-
+-	outparms->rkey = (u32)rkey_out;
++	u64 outs[PLPAR_HCALL9_BUFSIZE];
++
++	ret = ehca_plpar_hcall9(H_ALLOC_RESOURCE, outs,
++				adapter_handle.handle,      /* r4 */
++				6,                          /* r5 */
++				pd.value,                   /* r6 */
++				0, 0, 0, 0, 0, 0);
++	outparms->handle.handle = outs[0];
++	outparms->rkey = (u32)outs[3];
+ 
+ 	return ret;
+ }
+@@ -1072,21 +834,13 @@ u64 hipz_h_query_mw(const struct ipz_ada
+ 		    struct ehca_mw_hipzout_parms *outparms)
+ {
+ 	u64 ret;
+-	u64 dummy;
+-	u64 pd_out, rkey_out;
+-
+-	ret = ehca_hcall_7arg_7ret(H_QUERY_MW,
+-				   adapter_handle.handle,    /* r4 */
+-				   mw->ipz_mw_handle.handle, /* r5 */
+-				   0, 0, 0, 0, 0,
+-				   &dummy,                   /* r4 */
+-				   &dummy,                   /* r5 */
+-				   &dummy,                   /* r6 */
+-				   &rkey_out,                /* r7 */
+-				   &pd_out,                  /* r8 */
+-				   &dummy,
+-				   &dummy);
+-	outparms->rkey = (u32)rkey_out;
++	u64 outs[PLPAR_HCALL9_BUFSIZE];
++
++	ret = ehca_plpar_hcall9(H_QUERY_MW, outs,
++				adapter_handle.handle,    /* r4 */
++				mw->ipz_mw_handle.handle, /* r5 */
++				0, 0, 0, 0, 0, 0, 0);
++	outparms->rkey = (u32)outs[3];
+ 
+ 	return ret;
+ }
+@@ -1094,19 +848,10 @@ u64 hipz_h_query_mw(const struct ipz_ada
+ u64 hipz_h_free_resource_mw(const struct ipz_adapter_handle adapter_handle,
+ 			    const struct ehca_mw *mw)
+ {
+-	u64 dummy;
+-
+-	return ehca_hcall_7arg_7ret(H_FREE_RESOURCE,
+-				    adapter_handle.handle,    /* r4 */
+-				    mw->ipz_mw_handle.handle, /* r5 */
+-				    0, 0, 0, 0, 0,
+-				    &dummy,
+-				    &dummy,
+-				    &dummy,
+-				    &dummy,
+-				    &dummy,
+-				    &dummy,
+-				    &dummy);
++	return ehca_plpar_hcall_norets(H_FREE_RESOURCE,
++				       adapter_handle.handle,    /* r4 */
++				       mw->ipz_mw_handle.handle, /* r5 */
++				       0, 0, 0, 0, 0);
+ }
+ 
+ u64 hipz_h_error_data(const struct ipz_adapter_handle adapter_handle,
+@@ -1114,7 +859,6 @@ u64 hipz_h_error_data(const struct ipz_a
+ 		      void *rblock,
+ 		      unsigned long *byte_count)
+ {
+-	u64 dummy;
+ 	u64 r_cb = virt_to_abs(rblock);
+ 
+ 	if (r_cb & (EHCA_PAGESIZE-1)) {
+@@ -1122,16 +866,9 @@ u64 hipz_h_error_data(const struct ipz_a
+ 		return H_PARAMETER;
+ 	}
+ 
+-	return ehca_hcall_7arg_7ret(H_ERROR_DATA,
+-				    adapter_handle.handle,
+-				    ressource_handle,
+-				    r_cb,
+-				    0, 0, 0, 0,
+-				    &dummy,
+-				    &dummy,
+-				    &dummy,
+-				    &dummy,
+-				    &dummy,
+-				    &dummy,
+-				    &dummy);
++	return ehca_plpar_hcall_norets(H_ERROR_DATA,
++				       adapter_handle.handle,
++				       ressource_handle,
++				       r_cb,
++				       0, 0, 0, 0);
+ }
+diff --git a/drivers/infiniband/hw/ehca/hcp_if.h b/drivers/infiniband/hw/ehca/hcp_if.h
+index 39956d8..587ebd4 100644
+--- a/drivers/infiniband/hw/ehca/hcp_if.h
++++ b/drivers/infiniband/hw/ehca/hcp_if.h
+@@ -107,7 +107,7 @@ u64 hipz_h_register_rpage_eq(const struc
+ 			     const u64 logical_address_of_page,
+ 			     const u64 count);
+ 
+-u32 hipz_h_query_int_state(const struct ipz_adapter_handle
++u64 hipz_h_query_int_state(const struct ipz_adapter_handle
+ 			   hcp_adapter_handle,
+ 			   u32 ist);
+ 
+diff --git a/drivers/infiniband/hw/ehca/hipz_hw.h b/drivers/infiniband/hw/ehca/hipz_hw.h
+index f5f4871..3fc92b0 100644
+--- a/drivers/infiniband/hw/ehca/hipz_hw.h
++++ b/drivers/infiniband/hw/ehca/hipz_hw.h
+@@ -184,8 +184,6 @@ struct hipz_mrmwmm {
+ 
+ };
+ 
+-#define MRX_HCR_LPARID_VALID EHCA_BMASK_IBM(0,0)
+-
+ #define MRMWMM_OFFSET(x) offsetof(struct hipz_mrmwmm,x)
+ 
+ struct hipz_qpedmm {
+diff --git a/drivers/infiniband/hw/ehca/ipz_pt_fn.h b/drivers/infiniband/hw/ehca/ipz_pt_fn.h
+index 7e55a31..2f13509 100644
+--- a/drivers/infiniband/hw/ehca/ipz_pt_fn.h
++++ b/drivers/infiniband/hw/ehca/ipz_pt_fn.h
+@@ -226,10 +226,9 @@ static inline void *ipz_eqit_eq_get_inc_
+ {
+ 	void *ret = ipz_qeit_get(queue);
+ 	u32 qe = *(u8 *) ret;
+-	if ((qe >> 7) == (queue->toggle_state & 1))
+-		ipz_qeit_eq_get_inc(queue); /* this is a good one */
+-	else
+-		ret = NULL;
++	if ((qe >> 7) != (queue->toggle_state & 1))
++		return NULL;
++	ipz_qeit_eq_get_inc(queue); /* this is a good one */
+ 	return ret;
+ }
+ 
+
+--Boundary-00=_MDEFFBgTiT9/7IY--

@@ -1,59 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964835AbWIVUIm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964886AbWIVUKa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964835AbWIVUIm (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Sep 2006 16:08:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964885AbWIVUIm
+	id S964886AbWIVUKa (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Sep 2006 16:10:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964887AbWIVUK3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Sep 2006 16:08:42 -0400
-Received: from sj-iport-5.cisco.com ([171.68.10.87]:19853 "EHLO
-	sj-iport-5.cisco.com") by vger.kernel.org with ESMTP
-	id S964835AbWIVUIk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Sep 2006 16:08:40 -0400
-X-IronPort-AV: i="4.09,204,1157353200"; 
-   d="scan'208"; a="324400801:sNHT34277862"
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Dave Jones <davej@redhat.com>, David Miller <davem@davemloft.net>,
-       jeff@garzik.org, davidsen@tmr.com, alan@lxorguk.ukuu.org.uk,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.19 -mm merge plans
-X-Message-Flag: Warning: May contain useful information
-References: <Pine.LNX.4.64.0609211106391.4388@g5.osdl.org>
-	<45130533.2010209@tmr.com> <45130527.1000302@garzik.org>
-	<20060921.145208.26283973.davem@davemloft.net>
-	<20060921220539.GL26683@redhat.com>
-	<20060922083542.GA4246@flint.arm.linux.org.uk>
-	<20060922154816.GA15032@redhat.com>
-	<Pine.LNX.4.64.0609220901040.4388@g5.osdl.org>
-From: Roland Dreier <rdreier@cisco.com>
-Date: Fri, 22 Sep 2006 13:08:37 -0700
-In-Reply-To: <Pine.LNX.4.64.0609220901040.4388@g5.osdl.org> (Linus Torvalds's message of "Fri, 22 Sep 2006 09:21:32 -0700 (PDT)")
-Message-ID: <aday7sbfyuy.fsf@cisco.com>
-User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
+	Fri, 22 Sep 2006 16:10:29 -0400
+Received: from mail.gmx.net ([213.165.64.20]:21641 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S964886AbWIVUK3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Sep 2006 16:10:29 -0400
+X-Authenticated: #31060655
+Message-ID: <45144343.7080404@gmx.net>
+Date: Fri, 22 Sep 2006 22:10:43 +0200
+From: Carl-Daniel Hailfinger <c-d.hailfinger.devel.2006@gmx.net>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.7) Gecko/20060911 SUSE/1.0.5-1.1 SeaMonkey/1.0.5
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-OriginalArrivalTime: 22 Sep 2006 20:08:38.0943 (UTC) FILETIME=[E49FCAF0:01C6DE82]
-Authentication-Results: sj-dkim-5.cisco.com; header.From=rdreier@cisco.com; dkim=pass (
-	sig from cisco.com verified; ); 
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Suspend-devel list <suspend-devel@lists.sourceforge.net>,
+       "Benjamin A. Okopnik" <ben@linuxgazette.net>
+Subject: [PATCH] radeonfb supend/resume support for Acer Aspire 2010
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Linus>   And then at some point (probably later today) I decide to
-    Linus> go into "merge mode" and go back to old mails I ignored and
-    Linus> start applying them and pulling from other peoples git
-    Linus> trees. And so if my "mode switching" has a longer latency
-    Linus> than the "please pull" frequency, I end up seeing two
-    Linus> requests for the same tree during the same "merge mode"
-    Linus> thing, which just means that when I look at the older one,
-    Linus> it no longer matches what is in the tree I'm pulling from.
+Hi Ben,
 
-My way of handling this has been to wait until you've acted on my
-first merge request before sending another one.  I also don't touch my
-published "for-linus" branch in git until you've pulled it.  I just
-batch up pending changes in my "for-2.6.19" branch until my next merge
-(and I also encourage people interested in Infiniband to run my
-for-2.6.19 branch)
+the patch below has been tested by Benjamin Okopnik and makes
+suspend-to-RAM work for him perfectly on his Acer Aspire 2010.
+Without this patch, a total lockup happens on resume.
 
-If I do see you merging other trees (in "merge mode") and skipping my
-merge requests, I'll send a gentle reminder of my first merge request.
+I hope the patch is still in the merge window for 2.6.19.
 
- - R.
+Regards,
+Carl-Daniel
+-- 
+http://www.hailfinger.org/
+
+This patch adds suspend/resume support for the graphics chip in the
+Acer Aspire 2010: ATI Technologies Inc RV350 [Mobility Radeon 9600 M10]
+01:00.0 0300: 1002:4e50 (prog-if 00 [VGA])
+        Subsystem: 1025:0061
+        Flags: bus master, 66MHz, medium devsel, latency 128, IRQ 16
+        Memory at a8000000 (32-bit, prefetchable) [size=128M]
+        I/O ports at c100 [size=256]
+        Memory at e0010000 (32-bit, non-prefetchable) [size=64K]
+        [virtual] Expansion ROM at a0000000 [disabled] [size=128K]
+        Capabilities: [58] AGP version 2.0
+        Capabilities: [50] Power Management version 2
+
+Signed-off-by: Carl-Daniel Hailfinger <c-d.hailfinger.devel.2006@mgx.net>
+
+
+--- a/drivers/video/aty/radeon_pm.c	2006-09-22 02:53:06.000000000 +0200
++++ b/drivers/video/aty/radeon_pm.c	2006-09-22 02:55:15.000000000 +0200
+@@ -86,6 +86,9 @@
+ 	BUGFIX("Samsung P35",
+ 	       PCI_VENDOR_ID_SAMSUNG, 0xc00c,
+ 	       radeon_pm_off, radeon_reinitialize_M10),
++	BUGFIX("Acer Aspire 2010",
++	       PCI_VENDOR_ID_AI, 0x0061,
++	       radeon_pm_off, radeon_reinitialize_M10),
+ 	{ .ident = NULL }
+ };
+ 
+
+

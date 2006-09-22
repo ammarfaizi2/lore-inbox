@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751121AbWIVJgq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750876AbWIVJgZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751121AbWIVJgq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Sep 2006 05:36:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751124AbWIVJgp
+	id S1750876AbWIVJgZ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Sep 2006 05:36:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751112AbWIVJgZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Sep 2006 05:36:45 -0400
-Received: from mtagate4.de.ibm.com ([195.212.29.153]:37455 "EHLO
-	mtagate4.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1751121AbWIVJgl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Sep 2006 05:36:41 -0400
-Date: Fri, 22 Sep 2006 11:37:04 +0200
+	Fri, 22 Sep 2006 05:36:25 -0400
+Received: from mtagate1.de.ibm.com ([195.212.29.150]:32222 "EHLO
+	mtagate1.de.ibm.com") by vger.kernel.org with ESMTP
+	id S1750876AbWIVJgY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Sep 2006 05:36:24 -0400
+Date: Fri, 22 Sep 2006 11:36:45 +0200
 From: Cornelia Huck <cornelia.huck@de.ibm.com>
 To: Greg K-H <greg@kroah.com>
 Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: [4/9] driver core fixes: bus_add_attrs() retval check
-Message-ID: <20060922113704.25a8cd2e@gondolin.boeblingen.de.ibm.com>
+Subject: [0/9] driver core fixes, v2
+Message-ID: <20060922113645.0846f576@gondolin.boeblingen.de.ibm.com>
 X-Mailer: Sylpheed-Claws 2.5.0-rc3 (GTK+ 2.8.20; i486-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -22,32 +22,23 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Cornelia Huck <cornelia.huck@de.ibm.com>
+Hi Greg,
 
-Check return value of bus_add_attrs() in bus_register().
+this is a rebase (also adressing comments) of the patchset I sent on
+Sep 13 against your kernel tree. (If you'd prefer the patches against a
+kernel without the class device rework, please let me know.)
 
-Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+ [1/9] driver core fixes: make_class_name() retval check
+ [2/9] driver core fixes: device_register() retval check in platform.c
+ [3/9] driver core fixes: sysfs_create_link() retval check in class.c
+ [4/9] driver core fixes: bus_add_attrs() retval check
+ [5/9] driver core fixes: bus_add_device() cleanup on error
+ [6/9] driver core fixes: device_add() cleanup on error
+ [7/9] driver core fixes: sysfs_create_link() retval check in core.c
+ [8/9] driver core fixes: device_create_file() retval check in dmapool.c
+ [9/9] driver core fixes: sysfs_create_group() retval in topology.c
 
----
- drivers/base/bus.c |    6 +++++-
- 1 file changed, 5 insertions(+), 1 deletion(-)
-
---- linux-2.6-CH.orig/drivers/base/bus.c
-+++ linux-2.6-CH/drivers/base/bus.c
-@@ -746,11 +746,15 @@ int bus_register(struct bus_type * bus)
- 
- 	klist_init(&bus->klist_devices, klist_devices_get, klist_devices_put);
- 	klist_init(&bus->klist_drivers, NULL, NULL);
--	bus_add_attrs(bus);
-+	retval = bus_add_attrs(bus);
-+	if (retval)
-+		goto bus_attrs_fail;
- 
- 	pr_debug("bus type '%s' registered\n", bus->name);
- 	return 0;
- 
-+bus_attrs_fail:
-+	kset_unregister(&bus->drivers);
- bus_drivers_fail:
- 	kset_unregister(&bus->devices);
- bus_devices_fail:
+-- 
+Cornelia Huck
+Linux for zSeries Developer
+Tel.: +49-7031-16-4837, Mail: cornelia.huck@de.ibm.com

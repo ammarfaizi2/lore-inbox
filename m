@@ -1,76 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964892AbWIVU3v@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964893AbWIVUfJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964892AbWIVU3v (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Sep 2006 16:29:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964895AbWIVU3v
+	id S964893AbWIVUfJ (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Sep 2006 16:35:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964895AbWIVUfJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Sep 2006 16:29:51 -0400
-Received: from gw1a.telemetry-investments.com ([64.20.161.180]:9885 "EHLO
-	sv2.telemetry-investments.com") by vger.kernel.org with ESMTP
-	id S964892AbWIVU3u (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Sep 2006 16:29:50 -0400
-Date: Fri, 22 Sep 2006 16:29:40 -0400
-From: "Bill Rugolsky Jr." <brugolsky@telemetry-investments.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: Pavel Machek <pavel@suse.cz>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
-       John Stultz <johnstul@us.ibm.com>,
-       Arjan van de Ven <arjan@infradead.org>
-Subject: hires timer patchset [was Re: 2.6.19 -mm merge plans]
-Message-ID: <20060922202940.GF14984@ti64.telemetry-investments.com>
-Mail-Followup-To: "Bill Rugolsky Jr." <brugolsky@telemetry-investments.com>,
-	Ingo Molnar <mingo@elte.hu>, Pavel Machek <pavel@suse.cz>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-	Thomas Gleixner <tglx@linutronix.de>,
-	John Stultz <johnstul@us.ibm.com>,
-	Arjan van de Ven <arjan@infradead.org>
-References: <20060920135438.d7dd362b.akpm@osdl.org> <20060921131433.GA4182@elte.hu> <20060922130648.GD4055@ucw.cz> <20060922190106.GA32638@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060922190106.GA32638@elte.hu>
-User-Agent: Mutt/1.4.1i
+	Fri, 22 Sep 2006 16:35:09 -0400
+Received: from ftpbox.mot.com ([129.188.136.9]:51911 "EHLO ftpbox.mot.com")
+	by vger.kernel.org with ESMTP id S964893AbWIVUfH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Sep 2006 16:35:07 -0400
+X-POPI: The contents of this message are Motorola Internal Use Only (MIUO)
+       unless indicated otherwise in the message.
+Date: Fri, 22 Sep 2006 15:34:50 -0500 (CDT)
+Message-Id: <200609222034.k8MKYoDK008487@olwen.urbana.css.mot.com>
+From: "Scott E. Preece" <preece@motorola.com>
+To: pavel@ucw.cz
+CC: eugeny.mints@gmail.com, linux-pm@lists.osdl.org,
+       linux-kernel@vger.kernel.org
+In-reply-to: Pavel Machek's message of Fri, 22 Sep 2006 16:11:27 +0200
+Subject: Re: [linux-pm] [PATCH] PowerOP, PowerOP Core, 1/2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 22, 2006 at 09:01:06PM +0200, Ingo Molnar wrote:
-> 
-> * Pavel Machek <pavel@suse.cz> wrote:
-> 
-> > > would be nice to merge the -hrt queue that goes right ontop this 
-> > > queue. Even if HIGH_RES_TIMERS is "default n" in the beginning. That 
-> > > gives us high-res timers and dynticks which are both very important 
-> > > features to certain classes of users/devices.
-> > 
-> > dynticks give benefit of 0.3W, or 20minutes (IIRC) from 8hours on 
-> > thinkpad x60... and they were around for way too long. (When baseline 
-> > is hz=250, it is 0.5W from hz=1000 baseline). It would be cool to 
-> > finally merge them.
-> 
-> note that this is a new implementation of dynticks though, not Con's 
-> older stuff which you probably used, right? But it's fairly low-impact 
-> (just a few lines ontop of hrtimers, here and there), ontop of the 
-> long-existing -hrt queue.
 
-Just a data point, FWIW; I've made no systematic effort to find regressions.
+Note that I don't think PowerOp would cover all devices. In fact, I
+think most devices would remain autonomous or controlled as part of
+specific subsystems. The only things that PowerOp would bundle together
+would be things that aren't independent (and may not even be visible as
+"devices" in the usual Linux sense), but that have to be managed
+together in changing frequency/voltage. At least, that's the way I
+imagined it would work.
 
-We've been running Thomas's (pre-dynticks) 2.6.16-hrt patchset (and
-HZ=1000) without issue as part of my standard kernel build on x86 and
-x86_64 UP/SMP production hosts -- workstations, PostgreSQL (and other)
-servers, and routers --- since I experienced latency/ntp problems with
-an unpatched kernel using sata_nv on Tyan 2895 Nvidia CK804-chipset mobo
-back in March 2006.  I've also been running the (originally x86-only)
-2.6.17-dynticks patch on a Tyan Athlon SMP workstation mobo, and occasionally
-on my laptop, so far without issue.
+scott
 
-I originally chose Thomas's -hrt variant of John Stultz's timekeeping
-patchset because it had known-working x86_64 support ...
 
-We're not doing anything exotic (such as audio, packet capture,
-or serving thousands of connections) that might stress the timer or
-clock system much, but the x86 routers have GigE traffic and the
-x86_64 PostgreSQL servers are often heavily loaded.
+| From pavel@ucw.cz Fri Sep 22 09:13:53 2006
+| 
+| Hi!
+| 
+| > Hmm. If you assume the CPUs in an SMP system can be in different
+| > operating points, this would (as Pavel pointed out) result in an
+| > explosion of operating points.
+| 
+| Problem is not only CPUs, devices are mostly independent in PC
+| case... it would be nice to solve that problem with same approach.
+| 
+| 								Pavel
+| -- 
+| (english) http://www.livejournal.com/~pavelmachek
+| (cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+| 
 
-Regards,
+-- 
+scott preece
+motorola mobile devices, il67, 1800 s. oak st., champaign, il  61820  
+e-mail:	preece@motorola.com	fax:	+1-217-384-8550
+phone:	+1-217-384-8589	cell: +1-217-433-6114	pager: 2174336114@vtext.com
 
-	Bill Rugolsky
+

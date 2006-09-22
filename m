@@ -1,93 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750897AbWIVIfw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751000AbWIVIgp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750897AbWIVIfw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Sep 2006 04:35:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750891AbWIVIfw
+	id S1751000AbWIVIgp (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Sep 2006 04:36:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750914AbWIVIgp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Sep 2006 04:35:52 -0400
-Received: from caramon.arm.linux.org.uk ([217.147.92.249]:61965 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S1750833AbWIVIfw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Sep 2006 04:35:52 -0400
-Date: Fri, 22 Sep 2006 09:35:42 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Dave Jones <davej@redhat.com>, David Miller <davem@davemloft.net>,
-       jeff@garzik.org, davidsen@tmr.com, torvalds@osdl.org,
-       alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.19 -mm merge plans
-Message-ID: <20060922083542.GA4246@flint.arm.linux.org.uk>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	David Miller <davem@davemloft.net>, jeff@garzik.org,
-	davidsen@tmr.com, torvalds@osdl.org, alan@lxorguk.ukuu.org.uk,
-	linux-kernel@vger.kernel.org
-References: <Pine.LNX.4.64.0609211106391.4388@g5.osdl.org> <45130533.2010209@tmr.com> <45130527.1000302@garzik.org> <20060921.145208.26283973.davem@davemloft.net> <20060921220539.GL26683@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060921220539.GL26683@redhat.com>
-User-Agent: Mutt/1.4.1i
+	Fri, 22 Sep 2006 04:36:45 -0400
+Received: from nf-out-0910.google.com ([64.233.182.190]:5865 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1750891AbWIVIgo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Sep 2006 04:36:44 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=ozIcR4V0lYRv99M7Gz7SanMH6k20N0Y/4AtcYUx1lum5e6xQg8a9hkKHxsIKp5zq7j4Chcglqgc21D2jxwiJNmPraeiOv2vSeO5Ek0FoR1QwRoF6eQsygtWfw/7N2tq7wvp1+fKWIsCDr3b4gdnBBkh5SDvKJ9zARariN4/5Jhg=
+Message-ID: <4513A098.4060505@gmail.com>
+Date: Fri, 22 Sep 2006 10:36:40 +0200
+From: Jiri Slaby <jirislaby@gmail.com>
+User-Agent: Thunderbird 2.0a1 (X11/20060724)
+MIME-Version: 1.0
+To: Om Narasimhan <om.turyx@gmail.com>
+CC: Nishanth Aravamudan <nacc@us.ibm.com>, linux-kernel@vger.kernel.org,
+       kernel-janitors@lists.osdl.org
+Subject: Re: [KJ] kmalloc to kzalloc patches for drivers/block [sane version]
+References: <6b4e42d10609202311t47038692x5627f51d69f28209@mail.gmail.com>	 <20060921072017.GA27798@us.ibm.com> <6b4e42d10609212240i3d02241djbdaa0176ab9bfb2b@mail.gmail.com>
+In-Reply-To: <6b4e42d10609212240i3d02241djbdaa0176ab9bfb2b@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 21, 2006 at 06:05:39PM -0400, Dave Jones wrote:
-> We already have some subsystems that do once-per-release merges,
-> and then let fixes build up in their out-of-tree SCM for months
-> until the next window. It won't necessarily get worse, but unless
-> everyone is participating in the odd/even rules, we won't get
-> the benefits that it would offer.
+Om Narasimhan wrote:
+> Thanks for the comments.
+>> >
+>> > Signed off by Om Narasimhan <om.turyx@gmail.com>
+>>
+>> This is not the canonical format, per SubmittingPatches. It should be:
+>>
+>> Signed-off-by: Random J Developer <random@developer.example.org>
+> OK. I would take care of it.
+>>
+>> >  drivers/block/cciss.c    |    4 +--
+>> >  drivers/block/cpqarray.c |   72 
+>> +++++++++++++++-------------------------------
+>> >  drivers/block/loop.c     |    4 +--
+>> >  3 files changed, 25 insertions(+), 55 deletions(-)
+>>
+>> Your diffstat should have indicated to you that this should be split up
+>> better. Please (re-)read SubmittingPatches. *One* logical change per
+>> patch, most importantly.
+> OK. I would resubmit.
+>> >
+>> > diff --git a/drivers/block/cciss.c b/drivers/block/cciss.c
+>> > index 2cd3391..a800a69 100644
+>> > --- a/drivers/block/cciss.c
+>> > +++ b/drivers/block/cciss.c
+>> > @@ -900,7 +900,7 @@ #if 0                             /* 'buf_size' 
+>> member is 16-bits
+>> >                               return -EINVAL;
+>> >  #endif
+>> >                       if (iocommand.buf_size > 0) {
+>> > -                             buff = kmalloc(iocommand.buf_size, 
+>> GFP_KERNEL);
+>> > +                             buff = kzalloc(iocommand.buf_size, 
+>> GFP_KERNEL);
+>> >                               if (buff == NULL)
+>> >                                       return -EFAULT;
+>> >                       }
+>> > @@ -911,8 +911,6 @@ #endif
+>> >                                       kfree(buff);
+>> >                                       return -EFAULT;
+>> >                               }
+>> > -                     } else {
+>> > -                             memset(buff, 0, iocommand.buf_size);
+>> >                       }
+>> >                       if ((c = cmd_alloc(host, 0)) == NULL) {
+>> >                               kfree(buff);
+>>
+>> This changes performance potentially, no? The memset before was
+>> conditional upon (iocommand.Request.Type.Direction == XFER_WRITE) and
+>> now the memory will always be zero'd.
+> Yes, but not the functionality.
+> if (iocommand.buf_size > 0), code allocates using kmalloc. if
+> direction is XFER_WRITE, it does a copy_from_user(), and free()s the
+> allocated buffer, not really caring what data came in from userspace.
+> Else, it does memset(). So I could safely replace the kmalloc() with
+> kzalloc() without compromising functionality.
 
-I'm heading in that direction (once-per-release merges) actually.
+Ok, this is something like I need 10 bytes of memory, so I request two memory 
+pages for reserved use. It works, but it kills performance.
 
-On one hand, I'm credited with the ARM architecture being one of the
-best maintained embedded architectures in the kernel tree.  On the
-other hand, that appears to be winding Linus up due to the regular
-merge requests, which were happening maybe once or twice a week.
+Why you zero memory that is not needed to be zeroed?
 
-Linus seems to be of the opinion that, if anyone can't wait a number
-of months for their patch to get into mainline, then they shouldn't
-be involved in this game.  The content of the tree which that comment
-was made at contained (imho) just bug fixes.
-
-At the moment, we're up to 528kB (initial commit Aug 21st) of IOP3xx
-and S3C24xx machine updates, and various other developments.  As for
-the other trees, MMC (9kB since Aug 27) and serial (20kB since Aug 30)
-but neither have been looked at for a while, certainly not post 2.6.18.
-I'm not even responding to mail about these because I haven't been even
-thinking about them yet.
-
-As far as -mm getting these, I have asked Andrew to pull this tree in
-the past, but whenever I rebase the trees (eg, when 2.6.18 comes out)
-and fix up the rejects, Andrew seems to have a hard time coping.  I
-guess Andrew finds it too difficult to handle my devel branches.
-
-Where I go from here I'm not sure - I'm running out of ideas for
-correct "Care and Operation of (my) Linus Torvalds", except becoming
-one of the Bad People who only merge _lots_ of changes once in a blue
-moon.
-
-So, what I'm going to be doing this cycle is essentially sitting on
-stuff for quite some time and not really caring about where in the
-release cycle mainline actually is.  (Anyone remember Linus moaning
-at various people for doing exactly this?  Eg, ALSA people?)  It
-pains me to do this because it's obviously not the _correct_ thing
-to do, but I don't see any other way of keeping Linus happy.  And this
-does mean giving up all hope of getting anything in mainline.
-
-As far as my future, I will be handing MMC off to Pierre Ossman during
-this cycle (there are other reasons for doing this which Pierre has been
-aware of for some time.)
-
-I'll also be dropping my serial tree entirely - I have no idea who could
-stand in for serial, so there's going to be no real "hand over" for that.
-I do have some outstanding in-progress changes which aren't really ready,
-but those will probably end up in /dev/null (in much the same way that my
-in-progress changes for PCMCIA ended up in a similar place when I handed
-that tree over.)
-
-So, it's going to mean that the only thing I'm going to be caring about
-post-2.6.19 is ARM again.
-
+regards,
 -- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+http://www.fi.muni.cz/~xslaby/            Jiri Slaby
+faculty of informatics, masaryk university, brno, cz
+e-mail: jirislaby gmail com, gpg pubkey fingerprint:
+B674 9967 0407 CE62 ACC8  22A0 32CC 55C3 39D4 7A7E

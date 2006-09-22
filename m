@@ -1,47 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964861AbWIVS1J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964865AbWIVS1f@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964861AbWIVS1J (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Sep 2006 14:27:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964864AbWIVS1I
+	id S964865AbWIVS1f (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Sep 2006 14:27:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964867AbWIVS1f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Sep 2006 14:27:08 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:16329 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S964861AbWIVS1H (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Sep 2006 14:27:07 -0400
-Message-ID: <45142AEC.70209@garzik.org>
-Date: Fri, 22 Sep 2006 14:26:52 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
+	Fri, 22 Sep 2006 14:27:35 -0400
+Received: from terminus.zytor.com ([192.83.249.54]:61865 "EHLO
+	terminus.zytor.com") by vger.kernel.org with ESMTP id S964865AbWIVS1d
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Sep 2006 14:27:33 -0400
+Message-ID: <45142AF1.1090806@zytor.com>
+Date: Fri, 22 Sep 2006 11:26:57 -0700
+From: "H. Peter Anvin" <hpa@zytor.com>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060808)
 MIME-Version: 1.0
-To: Dave Jones <davej@redhat.com>, Jeff Garzik <jeff@garzik.org>,
-       David Miller <davem@davemloft.net>,
-       Russell King <rmk+kernel@arm.linux.org.uk>, davidsen@tmr.com,
-       torvalds@osdl.org, alan@lxorguk.ukuu.org.uk,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.19 -mm merge plans
-References: <Pine.LNX.4.64.0609211106391.4388@g5.osdl.org> <45130533.2010209@tmr.com> <45130527.1000302@garzik.org> <20060921.145208.26283973.davem@davemloft.net> <20060921220539.GL26683@redhat.com> <20060922083542.GA4246@flint.arm.linux.org.uk> <20060922154816.GA15032@redhat.com> <45140F61.4040201@garzik.org> <20060922171136.GI15032@redhat.com>
-In-Reply-To: <20060922171136.GI15032@redhat.com>
+To: Michael Tokarev <mjt@tls.msk.ru>
+CC: Johannes Stezenbach <js@linuxtv.org>,
+       Jan Engelhardt <jengelh@linux01.gwdg.de>,
+       Lennart Sorensen <lsorense@csclub.uwaterloo.ca>,
+       Dax Kelson <dax@gurulabs.com>,
+       Linux kernel <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: Smaller compressed kernel source tarballs?
+References: <1158870777.24172.23.camel@mentorng.gurulabs.com> <20060921204250.GN13641@csclub.uwaterloo.ca> <45130792.9040104@zytor.com> <20060922140007.GK13639@csclub.uwaterloo.ca> <Pine.LNX.4.61.0609221811560.12304@yvahk01.tjqt.qr> <4514103D.8010303@zytor.com> <20060922174137.GA29929@linuxtv.org> <451426C9.9040002@zytor.com> <4514292C.5000309@tls.msk.ru>
+In-Reply-To: <4514292C.5000309@tls.msk.ru>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.3 (----)
-X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Jones wrote:
-> On Fri, Sep 22, 2006 at 12:29:21PM -0400, Jeff Garzik wrote:
->  > 
->  > NOTE:  Your mailer generates bogus Mail-Followup-To headers, and you 
->  > snipped rmk from the To/CC.
+Michael Tokarev wrote:
 > 
-> Actually, my mailer just respected the Mail-Followup-To: that
-> rmk set in his mail that I replied to. Nothing to see here.
+> Well, I don't see any shell code here, in /usr/bin/lzma as in istalled from
+> debian version 4.43-2.
+> 
+> But note that this lzma utility does not have any 'magic number' and does
+> no crc checks.
 
-Ah, I stand corrected.  Hello, RMK.  :)
+Ah, right, that's a total killer.
 
-	Jeff
+> On the site it's said lzma(sdk) is under rewrite to support
+> new format with magic number and crc checks...
 
+That is an absolute must, IMO.  I would use the gzip format as a base.
 
+	-hpa
 

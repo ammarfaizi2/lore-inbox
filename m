@@ -1,95 +1,132 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751000AbWIVIgp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751066AbWIVInM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751000AbWIVIgp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Sep 2006 04:36:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750914AbWIVIgp
+	id S1751066AbWIVInM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Sep 2006 04:43:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751075AbWIVInM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Sep 2006 04:36:45 -0400
-Received: from nf-out-0910.google.com ([64.233.182.190]:5865 "EHLO
+	Fri, 22 Sep 2006 04:43:12 -0400
+Received: from nf-out-0910.google.com ([64.233.182.185]:16902 "EHLO
 	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1750891AbWIVIgo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Sep 2006 04:36:44 -0400
+	id S1751066AbWIVInL (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Sep 2006 04:43:11 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=ozIcR4V0lYRv99M7Gz7SanMH6k20N0Y/4AtcYUx1lum5e6xQg8a9hkKHxsIKp5zq7j4Chcglqgc21D2jxwiJNmPraeiOv2vSeO5Ek0FoR1QwRoF6eQsygtWfw/7N2tq7wvp1+fKWIsCDr3b4gdnBBkh5SDvKJ9zARariN4/5Jhg=
-Message-ID: <4513A098.4060505@gmail.com>
-Date: Fri, 22 Sep 2006 10:36:40 +0200
+        b=CQw5oRzamIo2/aglW5IopqLKfOgSmhb3HhdQlL4gIJ/pGcQ0fJRuYnPwLuvtVYi3pSFk9qsZ4HywbAAtgxxFhzghS8zQTD7rHlQQPyRkZzyML03Fw/bcg8AdLK30kfXi5h6k0oT9BbBeop5TvQrrK2fBSp5M+S+V2dletI9vwXI=
+Message-ID: <4513A21C.40704@gmail.com>
+Date: Fri, 22 Sep 2006 10:43:08 +0200
 From: Jiri Slaby <jirislaby@gmail.com>
 User-Agent: Thunderbird 2.0a1 (X11/20060724)
 MIME-Version: 1.0
 To: Om Narasimhan <om.turyx@gmail.com>
-CC: Nishanth Aravamudan <nacc@us.ibm.com>, linux-kernel@vger.kernel.org,
-       kernel-janitors@lists.osdl.org
+CC: linux-kernel@vger.kernel.org, kernel-janitors@lists.osdl.org
 Subject: Re: [KJ] kmalloc to kzalloc patches for drivers/block [sane version]
-References: <6b4e42d10609202311t47038692x5627f51d69f28209@mail.gmail.com>	 <20060921072017.GA27798@us.ibm.com> <6b4e42d10609212240i3d02241djbdaa0176ab9bfb2b@mail.gmail.com>
-In-Reply-To: <6b4e42d10609212240i3d02241djbdaa0176ab9bfb2b@mail.gmail.com>
+References: <6b4e42d10609202311t47038692x5627f51d69f28209@mail.gmail.com>	 <20060921072017.GA27798@us.ibm.com>	 <6b4e42d10609212240i3d02241djbdaa0176ab9bfb2b@mail.gmail.com> <6b4e42d10609212304o52bbc9b4y434bbd7ef71281e3@mail.gmail.com>
+In-Reply-To: <6b4e42d10609212304o52bbc9b4y434bbd7ef71281e3@mail.gmail.com>
 Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Om Narasimhan wrote:
-> Thanks for the comments.
->> >
->> > Signed off by Om Narasimhan <om.turyx@gmail.com>
->>
->> This is not the canonical format, per SubmittingPatches. It should be:
->>
->> Signed-off-by: Random J Developer <random@developer.example.org>
-> OK. I would take care of it.
->>
->> >  drivers/block/cciss.c    |    4 +--
->> >  drivers/block/cpqarray.c |   72 
->> +++++++++++++++-------------------------------
->> >  drivers/block/loop.c     |    4 +--
->> >  3 files changed, 25 insertions(+), 55 deletions(-)
->>
->> Your diffstat should have indicated to you that this should be split up
->> better. Please (re-)read SubmittingPatches. *One* logical change per
->> patch, most importantly.
-> OK. I would resubmit.
->> >
->> > diff --git a/drivers/block/cciss.c b/drivers/block/cciss.c
->> > index 2cd3391..a800a69 100644
->> > --- a/drivers/block/cciss.c
->> > +++ b/drivers/block/cciss.c
->> > @@ -900,7 +900,7 @@ #if 0                             /* 'buf_size' 
->> member is 16-bits
->> >                               return -EINVAL;
->> >  #endif
->> >                       if (iocommand.buf_size > 0) {
->> > -                             buff = kmalloc(iocommand.buf_size, 
->> GFP_KERNEL);
->> > +                             buff = kzalloc(iocommand.buf_size, 
->> GFP_KERNEL);
->> >                               if (buff == NULL)
->> >                                       return -EFAULT;
->> >                       }
->> > @@ -911,8 +911,6 @@ #endif
->> >                                       kfree(buff);
->> >                                       return -EFAULT;
->> >                               }
->> > -                     } else {
->> > -                             memset(buff, 0, iocommand.buf_size);
->> >                       }
->> >                       if ((c = cmd_alloc(host, 0)) == NULL) {
->> >                               kfree(buff);
->>
->> This changes performance potentially, no? The memset before was
->> conditional upon (iocommand.Request.Type.Direction == XFER_WRITE) and
->> now the memory will always be zero'd.
-> Yes, but not the functionality.
-> if (iocommand.buf_size > 0), code allocates using kmalloc. if
-> direction is XFER_WRITE, it does a copy_from_user(), and free()s the
-> allocated buffer, not really caring what data came in from userspace.
-> Else, it does memset(). So I could safely replace the kmalloc() with
-> kzalloc() without compromising functionality.
+> Comments incorporated
+> Changes kmalloc() calls succeeded by memset(,0,) to kzalloc()
+> 
+> Signed off by : Om Narasimhan <om.turyx@gmail.com>
+> drivers/block/cciss.c    |    4 +---
+> drivers/block/cpqarray.c |    7 ++-----
+> drivers/block/loop.c     |    3 +--
+> 3 files changed, 4 insertions(+), 10 deletions(-)
+> 
+> diff --git a/drivers/block/cciss.c b/drivers/block/cciss.c
+> index 2cd3391..a800a69 100644
+> --- a/drivers/block/cciss.c
+> +++ b/drivers/block/cciss.c
+> @@ -900,7 +900,7 @@ #if 0                /* 'buf_size' member is 16-bits
+>                 return -EINVAL;
+> #endif
+>             if (iocommand.buf_size > 0) {
+> -                buff = kmalloc(iocommand.buf_size, GFP_KERNEL);
+> +                buff = kzalloc(iocommand.buf_size, GFP_KERNEL);
+>                 if (buff == NULL)
+>                     return -EFAULT;
+>             }
+> @@ -911,8 +911,6 @@ #endif
+>                     kfree(buff);
+>                     return -EFAULT;
+>                 }
+> -            } else {
+> -                memset(buff, 0, iocommand.buf_size);
 
-Ok, this is something like I need 10 bytes of memory, so I request two memory 
-pages for reserved use. It works, but it kills performance.
+No.
 
-Why you zero memory that is not needed to be zeroed?
+>             }
+>             if ((c = cmd_alloc(host, 0)) == NULL) {
+>                 kfree(buff);
+> diff --git a/drivers/block/cpqarray.c b/drivers/block/cpqarray.c
+> index 78082ed..34f8e96 100644
+> --- a/drivers/block/cpqarray.c
+> +++ b/drivers/block/cpqarray.c
+> @@ -424,7 +424,7 @@ static int __init cpqarray_register_ctlr
+>     hba[i]->cmd_pool = (cmdlist_t *)pci_alloc_consistent(
+>         hba[i]->pci_dev, NR_CMDS * sizeof(cmdlist_t),
+>         &(hba[i]->cmd_pool_dhandle));
+> -    hba[i]->cmd_pool_bits = kmalloc(
+> +    hba[i]->cmd_pool_bits = kzalloc(
+>         ((NR_CMDS+BITS_PER_LONG-1)/BITS_PER_LONG)*sizeof(unsigned long),
+>         GFP_KERNEL);
+
+kcalloc?
+
+> @@ -432,7 +432,6 @@ static int __init cpqarray_register_ctlr
+>             goto Enomem1;
+> 
+>     memset(hba[i]->cmd_pool, 0, NR_CMDS * sizeof(cmdlist_t));
+> -    memset(hba[i]->cmd_pool_bits, 0,
+> ((NR_CMDS+BITS_PER_LONG-1)/BITS_PER_LONG)*sizeof(unsigned long));
+
+What's this? Wrapped? kcalloc?
+
+>     printk(KERN_INFO "cpqarray: Finding drives on %s",
+>         hba[i]->devname);
+> 
+> @@ -523,7 +522,6 @@ static int __init cpqarray_init_one( str
+>     i = alloc_cpqarray_hba();
+>     if( i < 0 )
+>         return (-1);
+> -    memset(hba[i], 0, sizeof(ctlr_info_t));
+>     sprintf(hba[i]->devname, "ida%d", i);
+>     hba[i]->ctlr = i;
+>     /* Initialize the pdev driver private data */
+> @@ -580,7 +578,7 @@ static int alloc_cpqarray_hba(void)
+> 
+>     for(i=0; i< MAX_CTLR; i++) {
+>         if (hba[i] == NULL) {
+> -            hba[i] = kmalloc(sizeof(ctlr_info_t), GFP_KERNEL);
+> +            hba[i] = kzalloc(sizeof(ctlr_info_t), GFP_KERNEL);
+>             if(hba[i]==NULL) {
+>                 printk(KERN_ERR "cpqarray: out of memory.\n");
+>                 return (-1);
+> @@ -765,7 +763,6 @@ static int __init cpqarray_eisa_detect(v
+>             continue;
+>         }
+> 
+> -        memset(hba[ctlr], 0, sizeof(ctlr_info_t));
+>         hba[ctlr]->io_mem_addr = eisa[i];
+>         hba[ctlr]->io_mem_length = 0x7FF;
+>         if(!request_region(hba[ctlr]->io_mem_addr,
+> diff --git a/drivers/block/loop.c b/drivers/block/loop.c
+> index 7b3b94d..91b48ef 100644
+> --- a/drivers/block/loop.c
+> +++ b/drivers/block/loop.c
+> @@ -1260,10 +1260,9 @@ static int __init loop_init(void)
+>     if (register_blkdev(LOOP_MAJOR, "loop"))
+>         return -EIO;
+> 
+> -    loop_dev = kmalloc(max_loop * sizeof(struct loop_device), GFP_KERNEL);
+> +    loop_dev = kzalloc(max_loop * sizeof(struct loop_device), GFP_KERNEL);
+
+kcalloc?
 
 regards,
 -- 

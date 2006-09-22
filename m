@@ -1,43 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964875AbWIVScu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964877AbWIVSei@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964875AbWIVScu (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Sep 2006 14:32:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964877AbWIVScu
+	id S964877AbWIVSei (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Sep 2006 14:34:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964878AbWIVSei
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Sep 2006 14:32:50 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:58839 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S964875AbWIVScs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Sep 2006 14:32:48 -0400
-Date: Fri, 22 Sep 2006 11:32:28 -0700 (PDT)
-From: Christoph Lameter <clameter@sgi.com>
-To: Jesse Barnes <jesse.barnes@intel.com>
-cc: Martin Bligh <mbligh@mbligh.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, Rohit Seth <rohitseth@google.com>
-Subject: Re: ZONE_DMA
-In-Reply-To: <200609221126.31201.jesse.barnes@intel.com>
-Message-ID: <Pine.LNX.4.64.0609221129170.8356@schroedinger.engr.sgi.com>
-References: <20060920135438.d7dd362b.akpm@osdl.org> <200609221039.28436.jesse.barnes@intel.com>
- <Pine.LNX.4.64.0609221107440.8037@schroedinger.engr.sgi.com>
- <200609221126.31201.jesse.barnes@intel.com>
+	Fri, 22 Sep 2006 14:34:38 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:36041 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S964877AbWIVSeh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Sep 2006 14:34:37 -0400
+Message-ID: <45142CBA.6010302@garzik.org>
+Date: Fri, 22 Sep 2006 14:34:34 -0400
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Gene Heskett <gene.heskett@verizon.net>
+CC: linux-kernel@vger.kernel.org,
+       James Bottomley <James.Bottomley@steeleye.com>
+Subject: Re: GPLv3 Position Statement
+References: <1158941750.3445.31.camel@mulgrave.il.steeleye.com> <200609221359.39519.gene.heskett@verizon.net> <1158948497.3445.55.camel@mulgrave.il.steeleye.com> <200609221430.55889.gene.heskett@verizon.net>
+In-Reply-To: <200609221430.55889.gene.heskett@verizon.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.3 (----)
+X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 22 Sep 2006, Jesse Barnes wrote:
+Gene Heskett wrote:
+> You need to remind RMS that he is not a majority when the vote shows 
+> otherwise by a quite resounding margin, and that he and the FSF may well 
+> become irrevalent if the V2 is not going to be supported after V3 is 
+> final.
 
-> Oh, it's already there in the tree, but obviously some drivers still need 
-> to be converted.  See Documentation/DMA-API.txt.  It's not PCI specific 
-> like the old PCI DMA interface (Documentation/DMA-mapping.txt) and 
-> provides a way for drivers to specify their addressing limitations 
-> (dma_supported and dma_set_mask), which allows the underlying architecture 
-> code to report a failure if necessary.
+Pretty much.
 
-AFAICT this is dealing with special dma issues and not with the problem of 
-allocating memory for a certain supported address range from the page 
-allocator. From the first glance at the docs it looks as if it is relying 
-on __GFP_DMAxx to get the allocations right. I think the code could be 
-changed though to call a new page allocator function to get the right 
-memory and that would work for all devices using that API.
+Also consider the "v3 probably won't be compatible with v2" license 
+compatibility headaches that will abound, given the number of people 
+that oppose GPL v3 so far.
+
+	Jeff
+
 

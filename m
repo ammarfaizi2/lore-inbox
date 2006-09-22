@@ -1,50 +1,117 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932070AbWIVIQ0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932127AbWIVI1B@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932070AbWIVIQ0 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Sep 2006 04:16:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932097AbWIVIQ0
+	id S932127AbWIVI1B (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Sep 2006 04:27:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932124AbWIVI1A
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Sep 2006 04:16:26 -0400
-Received: from mx10.go2.pl ([193.17.41.74]:28315 "EHLO poczta.o2.pl")
-	by vger.kernel.org with ESMTP id S932070AbWIVIQY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Sep 2006 04:16:24 -0400
-Date: Fri, 22 Sep 2006 10:20:31 +0200
-From: Jarek Poplawski <jarkao2@o2.pl>
-To: linux-kernel@vger.kernel.org
-Cc: netdev@vger.kernel.org
-Subject: Re: Fw: [Bugme-new] [Bug 7179] New: Compilation of .tmp_linux1 fails due to missing declaration in net/netfilter/xt_physdev.c
-Message-ID: <20060922082031.GA6820@ff.dom.local>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060922080310.GA1012@ff.dom.local>
-User-Agent: Mutt/1.4.2.2i
+	Fri, 22 Sep 2006 04:27:00 -0400
+Received: from osiris.atheme.org ([69.60.119.211]:11913 "EHLO
+	osiris.atheme.org") by vger.kernel.org with ESMTP id S932097AbWIVI07
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Sep 2006 04:26:59 -0400
+Mime-Version: 1.0 (Apple Message framework v752.2)
+In-Reply-To: <20060922.164109.112537486.yoshfuji@linux-ipv6.org>
+References: <4E1176C1-8F18-4790-9BCB-95306ACED48A@atheme.org> <736CE60D-FB88-4246-8728-B7AC7880B28E@atheme.org> <20060922.164109.112537486.yoshfuji@linux-ipv6.org>
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <AD838733-3A8F-4B3E-B620-9B2284B8B2BF@atheme.org>
+Content-Transfer-Encoding: 7bit
+From: William Pitcock <nenolod@atheme.org>
+Subject: Re: [PATCH 2.6.18 try 2] net/ipv4: sysctl to allow non-superuser to bypass CAP_NET_BIND_SERVICE requirement
+Date: Fri, 22 Sep 2006 03:27:22 -0500
+To: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+X-Mailer: Apple Mail (2.752.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sorry linux-kernel - it should go to netdev.
+On Sep 22, 2006, at 2:41 AM, YOSHIFUJI Hideaki wrote:
 
+> In article <736CE60D-FB88-4246-8728-B7AC7880B28E@atheme.org> (at  
+> Fri, 22 Sep 2006 02:31:59 -0500), William Pitcock  
+> <nenolod@atheme.org> says:
+>
+>> This patch allows for a user to disable the requirement to meet the
+>> CAP_NET_BIND_SERVICE capability for a non-superuser. It is toggled by
+>> the net.ipv4.allow_lowport_bind_nonsuperuser sysctl value.
+>
+> Why?  I don't think this is a good idea.
+>
 
-On 22-09-2006 10:03, Jarek Poplawski wrote:
-> On 22-09-2006 00:37, Andrew Morton wrote:
->> Methinks CONFIG_NETFILTER_XT_TARGET_CLASSIFY should depend upon
->> CONFIG_BRIDGE_NETFILTER.  Because brnf_deferred_hooks is defined in
->> net/bridge/br_netfilter.c and is referred to in net/netfilter/xt_physdev.c.
+There are several reasons. To summarize, in some setups, such as  
+mine, it is undesirable to force applications to run as root to gain  
+access to 'service' ports. A more defined listing of reasons why this  
+patch is a good idea are below:
+
+* People wanting to run restricted services such as jabber, ircd, etc  
+on low ports to allow people to bypass ISP firewalls, but the  
+software doesn't have mechanisms for dropping privileges (most ircds,  
+for example do not have such an option)
+
+* The software is untrusted by the end user, in the event that the  
+software is not trustworthy, the amount of damage it can do running  
+as a normal user is less than as a superuser. As it is, the bind()  
+may have failed before the CAP_NET_BIND_SERVICE capability was  
+granted to the process.
+
+* Building on that, capabilities are still linux-specific. Other  
+systems, such as FreeBSD allow you to disable this restriction via  
+sysctl as well. It is very likely that daemons are not capability  
+aware, and thus would require some sort of wrapper script (which is  
+likely beyond the ability of most endusers). Wrapping the daemon  
+would still require superuser privileges as well to make sure it  
+worked properly, and even if it did work properly, it still opens a  
+race condition where the bind() may have failed before the capability  
+bit was granted to the process.
+
+* Many services do not run on 'service' ports, and instead run out in  
+userspace. For instance, MySQL listens on TCP/3306 by default, and  
+PostgreSQL listens in userspace as well (although, I cannot recall  
+the exact port number it listens on at present). In many cases, squid  
+runs on port 8080, which is also userspace. For this reason, it is  
+arguable that the entire CAP_NET_BIND_SERVICE restriction isn't very  
+useful.
+
+* Embedded devices (consumer routers, etc) may want to have some  
+level of privilege seperation internally to reduce the amount of  
+exploitation possibility in their firmware, this patch makes that  
+easier to accomplish (just set the sysctl in the initialization and  
+go from there)
+
+* Other TCP stacks (Winsock2, for instance) do not impose the <= 1023  
+limit.
+
+>> diff --git a/include/linux/sysctl.h b/include/linux/sysctl.h
+>> index e4b1a4d..c3f7c3c 100644
+>> --- a/include/linux/sysctl.h
+>> +++ b/include/linux/sysctl.h
+>> @@ -411,6 +411,7 @@ enum
+>> 	NET_IPV4_TCP_WORKAROUND_SIGNED_WINDOWS=115,
+>> 	NET_TCP_DMA_COPYBREAK=116,
+>> 	NET_TCP_SLOW_START_AFTER_IDLE=117,
+>> +	NET_IPV4_ALLOW_LOWPORT_BIND_NONSUPERUSER=118,
+>>    };
 >>
->> Or something else ;)
-> 
-> From net/netfilter/Kconfig:
-> 
-> config NETFILTER_XT_MATCH_PHYSDEV
->         tristate '"physdev" match support'
->         depends on NETFILTER_XTABLES && BRIDGE_NETFILTER
-> 
-> so "properly" generated .config should be enough.
-> 
-> Jarek P.
-> 
-> PS: I've just checked and it compiles OK. 
+>>    enum {
+>
+> This implies all IPv4 protocols including other protocols
+> such as UDP, SCTP, ...
 
+Yes, I'll change the sysctl name to better infer that it is for TCP.  
+That is not an issue. If you have a suggestion for what it should be,  
+I'd love to hear it.
+
+>
+>> @@ -1412,3 +1418,4 @@ EXPORT_SYMBOL(inet_stream_ops);
+>>    EXPORT_SYMBOL(inet_unregister_protosw);
+>>    EXPORT_SYMBOL(net_statistics);
+>>    EXPORT_SYMBOL(sysctl_ip_nonlocal_bind);
+>> +EXPORT_SYMBOL(sysctl_ip_allow_lowport_bind_nonsuperuser);
+>
+> Please be aware about indent.
+
+I'll be sure to fix that, thank you.
+
+(resent due to mailer glitch)
+
+- nenolod
 
 

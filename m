@@ -1,63 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964783AbWIVPzf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964775AbWIVP5d@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964783AbWIVPzf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Sep 2006 11:55:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964784AbWIVPzf
+	id S964775AbWIVP5d (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Sep 2006 11:57:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964778AbWIVP5d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Sep 2006 11:55:35 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:56516 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S964783AbWIVPze (ORCPT
+	Fri, 22 Sep 2006 11:57:33 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:53685 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S964775AbWIVP5c (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Sep 2006 11:55:34 -0400
-Date: Fri, 22 Sep 2006 08:55:21 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Autofs4 breakage (was 2.6.19 -mm merge plans)
-Message-Id: <20060922085521.af242c86.akpm@osdl.org>
-In-Reply-To: <1158881119.5797.14.camel@lade.trondhjem.org>
-References: <20060920135438.d7dd362b.akpm@osdl.org>
-	<1158789333.5639.37.camel@lade.trondhjem.org>
-	<20060920203947.b9b9920e.akpm@osdl.org>
-	<1158881119.5797.14.camel@lade.trondhjem.org>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+	Fri, 22 Sep 2006 11:57:32 -0400
+Subject: Re: GFS2 & DLM merge request
+From: Steven Whitehouse <swhiteho@redhat.com>
+To: Christoph Hellwig <hch@infradead.org>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Jan Engelhardt <jengelh@linux01.gwdg.de>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>
+In-Reply-To: <20060922143627.GA24953@infradead.org>
+References: <1158935874.11901.408.camel@quoit.chygwyn.com>
+	 <20060922143627.GA24953@infradead.org>
+Content-Type: text/plain
+Organization: Red Hat (UK) Ltd
+Date: Fri, 22 Sep 2006 17:02:24 +0100
+Message-Id: <1158940944.11901.417.camel@quoit.chygwyn.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.2.2 (2.2.2-5) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 21 Sep 2006 19:25:19 -0400
-Trond Myklebust <trond.myklebust@fys.uio.no> wrote:
+Hi,
 
-> On Wed, 2006-09-20 at 20:39 -0700, Andrew Morton wrote:
-> > On Wed, 20 Sep 2006 17:55:33 -0400
-> > Trond Myklebust <trond.myklebust@fys.uio.no> wrote:
+On Fri, 2006-09-22 at 15:36 +0100, Christoph Hellwig wrote:
+> On Fri, Sep 22, 2006 at 03:37:54PM +0100, Steven Whitehouse wrote:
+> > Hi,
 > > 
-> > > On Wed, 2006-09-20 at 13:54 -0700, Andrew Morton wrote:
-> > > 
-> > > > add-newline-to-nfs-dprintk.patch
-> > > > fs-nfs-make-code-static.patch
-> > > > 
-> > > >  NFS queue -> Trond.
-> > > > 
-> > > >  The NFS git tree breaks autofs4 submounts.  Still.
-> > > 
-> > > I still suspect that is due to a misconfigured selinux setup on your
-> > > machine. If autofs4 expects to be able to do mkdir() on your NFS
-> > > partition (something which in itself is wrong), then selinux should be
-> > > configured to allow it to do so.
-> > > 
-> > > Anyhow, does reverting the patch
-> > > 
-> > > http://kernel.org/git/gitweb.cgi?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff;h=a634904a7de0d3a0bc606f608007a34e8c05bfee;hp=ddeff520f02b92128132c282c350fa72afffb84a
-> > > 
-> > > 'fix' the issue for you?
-> > > 
-> > 
-> > yes.
+> > Linus, I believe that all the outstanding issues raised by Christoph,
+> > Jan and others relating to GFS2 and DLM are now settled. Please
+> > therefore consider pulling from:
 > 
-> Hmm... but you aren't seeing it with a clean 2.6.18 kernel?
+> Clear NACK from me.  The mails I replied to where only the mails Jan started
+> nitpicking and I looked a little deeper at what he already quoted, maybe
+> 5% of the codebase.  Given the horrors I found there I'm pretty sure there
+> will be quite a few more.  And given the amount of junk Andrew plans to push
+> to Linus for 2.6.19 I'll be pretty busy to look at that, aswell as looking
+> at things I promised David for month now, so I'm a little busy.
 > 
+Well I hope that we don't have too many more "horrors" left in the code.
+It has after all been out for review many times in the last year and I
+hope we've not done too bad a job of incorporating all the suggested
+changes so far.
 
-Yes, I am.  Mainline broke.
+When I spoke to you at OLS you did promise me that you'd look at the
+code in more detail and that was more than a month ago now. I know there
+is a lot else to be reviewed as well as GFS2 and we need to wait our
+place in the queue as it were, but it would be helpful to know where
+that place is, so we can then try our best to work with the process.
+
+> >  include/linux/fs.h                 |    3 
+> >  include/linux/iflags.h             |  102 
+> >  include/linux/kernel.h             |    1 
+> >  mm/filemap.c                       |    3 
+> >  mm/readahead.c                     |    1 
+> 
+> And while we're at it, please don't push core change as part of a subsystem
+> tree ever.  They should go into clearly marked and separately patches via
+> -mm.
+
+Ok, I'm quite happy to do that. They are pretty minor changes, but the
+usual argument is that such changes are not acceptable until there is
+something in the kernel that makes use of them, and they have to happen
+one way around or the other,
+
+Steve.
+
+

@@ -1,56 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932178AbWIVVUy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932182AbWIVVWK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932178AbWIVVUy (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Sep 2006 17:20:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932179AbWIVVUy
+	id S932182AbWIVVWK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Sep 2006 17:22:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932185AbWIVVWK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Sep 2006 17:20:54 -0400
-Received: from earth.cora.nwra.com ([65.125.157.180]:8381 "EHLO
-	earth.cora.nwra.com") by vger.kernel.org with ESMTP id S932178AbWIVVUx
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Sep 2006 17:20:53 -0400
-Message-ID: <4514539D.8010704@cora.nwra.com>
-Date: Fri, 22 Sep 2006 15:20:29 -0600
-From: Orion Poplawski <orion@cora.nwra.com>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
+	Fri, 22 Sep 2006 17:22:10 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:31115 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S932182AbWIVVWI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Sep 2006 17:22:08 -0400
+Date: Fri, 22 Sep 2006 14:21:50 -0700 (PDT)
+From: Christoph Lameter <clameter@sgi.com>
+To: Jesse Barnes <jesse.barnes@intel.com>
+cc: Martin Bligh <mbligh@mbligh.org>, Andi Kleen <ak@suse.de>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, akpm@google.com,
+       linux-kernel@vger.kernel.org, Christoph Hellwig <hch@infradead.org>,
+       James Bottomley <James.Bottomley@steeleye.com>, linux-mm@kvack.org
+Subject: Re: [RFC] Initial alpha-0 for new page allocator API
+In-Reply-To: <200609221414.00667.jesse.barnes@intel.com>
+Message-ID: <Pine.LNX.4.64.0609221421170.9495@schroedinger.engr.sgi.com>
+References: <Pine.LNX.4.64.0609212052280.4736@schroedinger.engr.sgi.com>
+ <200609221341.44354.jesse.barnes@intel.com> <Pine.LNX.4.64.0609221400230.9370@schroedinger.engr.sgi.com>
+ <200609221414.00667.jesse.barnes@intel.com>
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: How to debug random bus errors?
-References: <ef15fm$uhs$1@sea.gmane.org> <Pine.LNX.4.64.0609221225500.4388@g5.osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0609221225500.4388@g5.osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds wrote:
+On Fri, 22 Sep 2006, Jesse Barnes wrote:
+
+> I was suggesting something like:
 > 
-> On Fri, 22 Sep 2006, Orion Poplawski wrote:
->> We're seeing programs die with "bus error" (SIGBUS) randomly on a dual
->> processor Opteron machine.  I've run memtest86+ and cpuburn stress tests with
->> no failure.  gdb on a core file seems uninteresting.  Is there some way to
->> trace the kernel to try to get more insight?
+> 	high = dev ? dev->coherent_dma_mask : 16*1024*1024;
 > 
-> Which kernel?
-> 
+> instead.  May as well combine your NULL check and your assignment.  It'll 
+> also do the right thing for 64 bit devices so we don't put unnecessary 
+> pressure on the 32 bit range.  Or am I spacing out and reading the code 
+> wrong?
 
-Sorry, 2.6.17-1.2142_FC4smp, so fairly recent.
+Ahh.. Yes something like this will save a lot of lines:
 
-> Other than that, does it tend to happen to the same particular program? It 
-> might just be a user space bug that needs a specific set of things to 
-> happen. Some of those bugs go away when you disable address space 
-> randomization etc, since they can depend on just pure luck (or rather, 
-> lack there-of).
-
-So far just one program.  Forgot about address space randomization, may 
-need to look into turning that off to help debugging.
-
-Thanks!
-
--- 
-Orion Poplawski
-System Administrator                  303-415-9701 x222
-NWRA/CoRA Division                    FAX: 303-415-9702
-3380 Mitchell Lane                  orion@cora.nwra.com
-Boulder, CO 80301              http://www.cora.nwra.com
+Index: linux-2.6.18-rc7-mm1/arch/i386/kernel/pci-dma.c
+===================================================================
+--- linux-2.6.18-rc7-mm1.orig/arch/i386/kernel/pci-dma.c	2006-09-22 15:37:41.000000000 -0500
++++ linux-2.6.18-rc7-mm1/arch/i386/kernel/pci-dma.c	2006-09-22 16:20:49.849799156 -0500
+@@ -26,8 +26,6 @@ void *dma_alloc_coherent(struct device *
+ 			   dma_addr_t *dma_handle, gfp_t gfp)
+ {
+ 	void *ret;
+-	unsigned long low = 0L;
+-	unsigned long high = 0xffffffff;
+ 	struct dma_coherent_mem *mem = dev ? dev->dma_mem : NULL;
+ 	int order = get_order(size);
+ 	/* ignore region specifiers */
+@@ -46,14 +44,9 @@ void *dma_alloc_coherent(struct device *
+ 			return NULL;
+ 	}
+ 
+-	if (dev == NULL)
+-		/* Apply safe ISA LIMITS */
+-		high = 16*1024*1024L;
+-	else
+-	if (dev->coherent_dma_mask < 0xffffffff)
+-		high = dev->coherent_dma_mask;
+-
+-	ret = page_address(alloc_pages_range(low, high, gfp, order));
++	ret = page_address(alloc_pages_range(0L,
++		dev ? dev->coherent_dma_mask : 16*1024*1024,
++		gfp, order));
+ 
+ 	if (ret != NULL) {
+ 		memset(ret, 0, size);

@@ -1,54 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964871AbWIVSbq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964875AbWIVScu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964871AbWIVSbq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Sep 2006 14:31:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964867AbWIVSbq
+	id S964875AbWIVScu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Sep 2006 14:32:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964877AbWIVScu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Sep 2006 14:31:46 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:16855 "EHLO
+	Fri, 22 Sep 2006 14:32:50 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:58839 "EHLO
 	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S964863AbWIVSbo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Sep 2006 14:31:44 -0400
-From: John Keller <jpk@sgi.com>
-Message-Id: <200609221831.k8MIVYGP041838@fcbayern.americas.sgi.com>
-Subject: Re: [Pcihpd-discuss] [PATCH 0/3] - Altix: Add initial ACPI IO support
-To: greg@kroah.com (Greg KH)
-Date: Fri, 22 Sep 2006 13:31:34 -0500 (CDT)
-Cc: jpk@sgi.com (John Keller), akpm@osdl.org, linux-ia64@vger.kernel.org,
-       pcihpd-discuss@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       linux-acpi@vger.kernel.org, ayoung@sgi.com
-In-Reply-To: <20060922180603.GA14921@kroah.com> from "Greg KH" at Sep 22, 2006 11:06:03 AM
-X-Mailer: ELM [version 2.5 PL2]
+	id S964875AbWIVScs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Sep 2006 14:32:48 -0400
+Date: Fri, 22 Sep 2006 11:32:28 -0700 (PDT)
+From: Christoph Lameter <clameter@sgi.com>
+To: Jesse Barnes <jesse.barnes@intel.com>
+cc: Martin Bligh <mbligh@mbligh.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, Rohit Seth <rohitseth@google.com>
+Subject: Re: ZONE_DMA
+In-Reply-To: <200609221126.31201.jesse.barnes@intel.com>
+Message-ID: <Pine.LNX.4.64.0609221129170.8356@schroedinger.engr.sgi.com>
+References: <20060920135438.d7dd362b.akpm@osdl.org> <200609221039.28436.jesse.barnes@intel.com>
+ <Pine.LNX.4.64.0609221107440.8037@schroedinger.engr.sgi.com>
+ <200609221126.31201.jesse.barnes@intel.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> 
-> On Fri, Sep 22, 2006 at 09:51:09AM -0500, John Keller wrote:
-> > Andrew,
-> >  This patchset was sent out more than a few weeks ago and
-> > there have been no comments or discussion on it.
-> > Can you (or Greg, if that is more appropriate) take this
-> > set of patches?
-> 
-> I'll take it, care to actually send it to me?
+On Fri, 22 Sep 2006, Jesse Barnes wrote:
 
-My mistake. I should have explicity included you in the initial
-posting. I'll send them out shortly.
+> Oh, it's already there in the tree, but obviously some drivers still need 
+> to be converted.  See Documentation/DMA-API.txt.  It's not PCI specific 
+> like the old PCI DMA interface (Documentation/DMA-mapping.txt) and 
+> provides a way for drivers to specify their addressing limitations 
+> (dma_supported and dma_set_mask), which allows the underlying architecture 
+> code to report a failure if necessary.
 
-
-John
-
-
-> 
-> thanks,
-> 
-> greg k-h
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-acpi" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> 
+AFAICT this is dealing with special dma issues and not with the problem of 
+allocating memory for a certain supported address range from the page 
+allocator. From the first glance at the docs it looks as if it is relying 
+on __GFP_DMAxx to get the allocations right. I think the code could be 
+changed though to call a new page allocator function to get the right 
+memory and that would work for all devices using that API.
 

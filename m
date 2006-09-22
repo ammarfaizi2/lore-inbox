@@ -1,103 +1,110 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932520AbWIVOmz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932547AbWIVOm4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932520AbWIVOmz (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Sep 2006 10:42:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932546AbWIVOmz
+	id S932547AbWIVOm4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Sep 2006 10:42:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932546AbWIVOm4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Fri, 22 Sep 2006 10:42:56 -0400
+Received: from gateway-1237.mvista.com ([63.81.120.158]:36810 "EHLO
+	gateway-1237.mvista.com") by vger.kernel.org with ESMTP
+	id S932547AbWIVOmz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Fri, 22 Sep 2006 10:42:55 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:30101 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932520AbWIVOmy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Sep 2006 10:42:54 -0400
-Date: Fri, 22 Sep 2006 15:42:33 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.19 -mm merge plans
-Message-ID: <20060922144233.GA25478@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-References: <20060920135438.d7dd362b.akpm@osdl.org>
+Subject: Re: 2.6.18-rt1
+From: Daniel Walker <dwalker@mvista.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Gene Heskett <gene.heskett@verizon.net>, linux-kernel@vger.kernel.org,
+       paulmck@us.ibm.com, Thomas Gleixner <tglx@linutronix.de>,
+       John Stultz <johnstul@us.ibm.com>, Dipankar Sarma <dipankar@in.ibm.com>,
+       Arjan van de Ven <arjan@infradead.org>
+In-Reply-To: <20060921190257.GA15151@elte.hu>
+References: <20060920141907.GA30765@elte.hu>
+	 <1158774118.29177.13.camel@c-67-180-230-165.hsd1.ca.comcast.net>
+	 <20060920182553.GC1292@us.ibm.com>
+	 <200609201436.47042.gene.heskett@verizon.net>
+	 <20060920194650.GA21037@elte.hu>
+	 <1158783590.29177.19.camel@c-67-180-230-165.hsd1.ca.comcast.net>
+	 <20060920201450.GA22482@elte.hu>
+	 <1158784266.29177.21.camel@c-67-180-230-165.hsd1.ca.comcast.net>
+	 <20060921190257.GA15151@elte.hu>
+Content-Type: text/plain
+Date: Fri, 22 Sep 2006 07:42:50 -0700
+Message-Id: <1158936170.21405.11.camel@c-67-180-230-165.hsd1.ca.comcast.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060920135438.d7dd362b.akpm@osdl.org>
-User-Agent: Mutt/1.4.2.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-> ecryptfs-fs-makefile-and-fs-kconfig.patch
-> ecryptfs-fs-makefile-and-fs-kconfig-kconfig-help-update.patch
-> ecryptfs-documentation.patch
-> ecryptfs-makefile.patch
-> ecryptfs-main-module-functions.patch
-> ecryptfs-header-declarations.patch
-> ecryptfs-superblock-operations.patch
-> #ecryptfs-superblock-operations-ecryptfs-build-fix.patch
-> ecryptfs-dentry-operations.patch
-> ecryptfs-file-operations.patch
-> #ecryptfs-vs-streamline-generic_file_-interfaces-and-filemap.patch
-> #ecryptfs-vs-streamline-generic_file_-interfaces-and-filemap-fix.patch
-> ecryptfs-inode-operations.patch
-> ecryptfs-mmap-operations.patch
-> ecryptfs-mmap-operations-fix.patch
-> ecryptfs-keystore.patch
-> ecryptfs-crypto-functions.patch
-> ecryptfs-crypto-functions-mutex-fixes.patch
-> fs-ecryptfs-possible-cleanups.patch
-> ecryptfs-debug-functions.patch
-> ecryptfs-alpha-build-fix.patch
-> ecryptfs-convert-assert-to-bug_on.patch
-> ecryptfs-remove-pointless-bug_ons.patch
-> ecryptfs-remove-unnecessary-null-checks.patch
-> ecryptfs-rewrite-ecryptfs_fsync.patch
-> ecryptfs-overhaul-file-locking.patch
-> ecryptfs-remove-lock-propagation.patch
-> ecryptfs-dont-muck-with-the-existing-nameidata-structures.patch
-> ecryptfs-asm-scatterlisth-linux-scatterlisth.patch
-> ecryptfs-support-for-larger-maximum-key-size.patch
-> ecryptfs-add-codes-for-additional-ciphers.patch
-> ecryptfs-unencrypted-key-size-based-on-encrypted-key-size.patch
-> ecryptfs-packet-and-key-management-update-for-variable-key-size.patch
-> ecryptfs-add-ecryptfs_-prefix-to-mount-options-key-size-parameter.patch
-> ecryptfs-set-the-key-size-from-the-default-for-the-mount.patch
-> ecryptfs-check-for-weak-keys.patch
-> ecryptfs-add-define-values-for-cipher-codes-from-rfc2440-openpgp.patch
-> ecryptfs-convert-bits-to-bytes.patch
-> ecryptfs-more-elegant-aes-key-size-manipulation.patch
-> ecryptfs-more-intelligent-use-of-tfm-objects.patch
-> ecryptfs-remove-debugging-cruft.patch
-> ecryptfs-get_sb_dev-fix.patch
-> ecryptfs-validate-minimum-header-extent-size.patch
-> ecryptfs-validate-body-size.patch
-> ecryptfs-validate-packet-length-prior-to-parsing-add-comments.patch
-> ecryptfs-use-the-passed-in-max-value-as-the-upper-bound.patch
-> ecryptfs-change-the-maximum-size-check-when-writing-header.patch
-> ecryptfs-print-the-actual-option-that-is-problematic.patch
-> ecryptfs-add-a-maintainers-entry.patch
-> ecryptfs-partial-signed-integer-to-size_t-conversion-updated-ii.patch
-> ecryptfs-graceful-handling-of-mount-error.patch
-> inode-diet-move-i_pipe-into-a-union-ecryptfs.patch
-> inode-diet-eliminate-i_blksize-and-use-a-per-superblock-default-ecryptfs.patch
-> streamline-generic_file_-interfaces-and-filemap-ecryptfs.patch
-> ecryptfs-fix-printk-format-warnings.patch
-> ecryptfs-associate-vfsmount-with-dentry-rather-than-superblock.patch
-> ecryptfs-mntput-lower-mount-on-umount_begin.patch
-> vfs-make-filldir_t-and-struct-kstat-deal-in-64-bit-inode-numbers-ecryptfs.patch
-> make-kmem_cache_destroy-return-void-ecryptfs.patch
-> ecryptfs-inode-numbering-fixes.patch
-> ecryptfs-versioning-fixes.patch
-> ecryptfs-versioning-fixes-tidy.patch
+On Thu, 2006-09-21 at 21:02 +0200, Ingo Molnar wrote:
+> * Daniel Walker <dwalker@mvista.com> wrote:
 > 
->  Will fold into a single patch and will then merge.
+> > On Wed, 2006-09-20 at 22:14 +0200, Ingo Molnar wrote:
+> > > >         if (up->port.sysrq) {
+> > > >                 /* serial8250_handle_port() already took the lock */
+> > > >                 locked = 0;
+> > 
+> > 
+> > In this case it had interrupts off in the !PREEMPT_RT case, but your 
+> > change leaves them on here.. _irqsave only runs in two of the three 
+> > cases..
+> 
+> doh, right you are. I updated to the patch below.
+> 
+> 	Ingo
 
-Please add a
 
-Not-Acked-By: Christoph Hellwig <hch@lst.de>
+On closer inspection I still think this is wrong. (Although it looks
+really nice..) find below speaking only in term of !PREEMPT_RT ,
 
-here as you don't seem to listen to any of the comments I had against
-the current state and I want this clearly documented.
+
+> Index: linux/drivers/serial/8250.c
+> ===================================================================
+> --- linux.orig/drivers/serial/8250.c
+> +++ linux/drivers/serial/8250.c
+> @@ -2252,14 +2252,10 @@ serial8250_console_write(struct console 
+>  
+>  	touch_nmi_watchdog();
+>  
+> -	local_irq_save(flags);
+> -	if (up->port.sysrq) {
+> -		/* serial8250_handle_port() already took the lock */
+> -		locked = 0;
+
+in the old version interrupts are off, and stay off until the function
+returns in all cases. Even "locked = 0" .
+
+> -	} else if (oops_in_progress) {
+> -		locked = spin_trylock(&up->port.lock);
+> -	} else
+> -		spin_lock(&up->port.lock);
+> +	if (up->port.sysrq || oops_in_progress)
+> +		locked = spin_trylock_irqsave(&up->port.lock, flags);
+
+Now in the new version interrupts are only off if you _get the lock_.
+Presumably the lock is taken in the calling function, but interrupts
+aren't disabled. 
+
+I'm assuming the code is disabling interrupts for a good reason, I don't
+know enough about the code to say it isn't.
+
+> +	else
+> +		spin_lock_irqsave(&up->port.lock, flags);
+>  
+>  	/*
+>  	 *	First save the IER then disable the interrupts
+> @@ -2281,8 +2277,7 @@ serial8250_console_write(struct console 
+>  	serial_out(up, UART_IER, ier);
+>  
+>  	if (locked)
+> -		spin_unlock(&up->port.lock);
+> -	local_irq_restore(flags);
+> +		spin_unlock_irqrestore(&up->port.lock, flags);
+>  }
+>  
+>  static int serial8250_console_setup(struct console *co, char *options)
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+

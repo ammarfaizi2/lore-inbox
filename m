@@ -1,25 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932126AbWIVAGp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932128AbWIVANl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932126AbWIVAGp (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Sep 2006 20:06:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932127AbWIVAGp
+	id S932128AbWIVANl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Sep 2006 20:13:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932129AbWIVANk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Sep 2006 20:06:45 -0400
-Received: from e32.co.us.ibm.com ([32.97.110.150]:36805 "EHLO
-	e32.co.us.ibm.com") by vger.kernel.org with ESMTP id S932126AbWIVAGo
+	Thu, 21 Sep 2006 20:13:40 -0400
+Received: from smtp-out.google.com ([216.239.45.12]:27735 "EHLO
+	smtp-out.google.com") by vger.kernel.org with ESMTP id S932128AbWIVANk
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Sep 2006 20:06:44 -0400
+	Thu, 21 Sep 2006 20:13:40 -0400
+DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
+	h=received:message-id:date:from:to:subject:cc:in-reply-to:
+	mime-version:content-type:content-transfer-encoding:
+	content-disposition:references;
+	b=RGEHSkqvBBXeAWdSgosAXvkziwTG7TCpZekgOfe4dEqxQJIil1PXypmKmm36QXnOu
+	V4YX1YSYiE5rnvdvuRW+Q==
+Message-ID: <6599ad830609211713u7356aff7k6400ddcee9651d61@mail.google.com>
+Date: Thu, 21 Sep 2006 17:13:31 -0700
+From: "Paul Menage" <menage@google.com>
+To: sekharan@us.ibm.com
 Subject: Re: [ckrm-tech] [patch00/05]: Containers(V2)- Introduction
-From: Chandra Seetharaman <sekharan@us.ibm.com>
-Reply-To: sekharan@us.ibm.com
-To: Paul Menage <menage@google.com>
 Cc: npiggin@suse.de, ckrm-tech@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org, Paul Jackson <pj@sgi.com>,
+       linux-kernel@vger.kernel.org, "Paul Jackson" <pj@sgi.com>,
        rohitseth@google.com, devel@openvz.org, clameter@sgi.com
-In-Reply-To: <6599ad830609211509x17f0306qbe6d0ef86b86cbc9@mail.google.com>
+In-Reply-To: <1158883601.6536.223.camel@linuxchandra>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 References: <1158718568.29000.44.camel@galaxy.corp.google.com>
-	 <Pine.LNX.4.64.0609201252030.32409@schroedinger.engr.sgi.com>
-	 <1158798715.6536.115.camel@linuxchandra>
 	 <20060920173638.370e774a.pj@sgi.com>
 	 <6599ad830609201742h71d112f4tae8fe390cb874c0b@mail.google.com>
 	 <1158803120.6536.139.camel@linuxchandra>
@@ -28,57 +37,34 @@ References: <1158718568.29000.44.camel@galaxy.corp.google.com>
 	 <6599ad830609211310s4e036e55h89bab26432d83c11@mail.google.com>
 	 <1158875062.6536.210.camel@linuxchandra>
 	 <6599ad830609211509x17f0306qbe6d0ef86b86cbc9@mail.google.com>
-Content-Type: text/plain
-Organization: IBM
-Date: Thu, 21 Sep 2006 17:06:40 -0700
-Message-Id: <1158883601.6536.223.camel@linuxchandra>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-7) 
-Content-Transfer-Encoding: 7bit
+	 <1158883601.6536.223.camel@linuxchandra>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-09-21 at 15:09 -0700, Paul Menage wrote:
-> On 9/21/06, Chandra Seetharaman <sekharan@us.ibm.com> wrote:
-> >
-> > >
-> > > But, there's no reason that the OpenVZ resource control mechanisms
-> > > couldn't be hooked into a generic process container mechanism along
-> > > with cpusets and RG.
-> >
-> > Isn't that one of the things we are trying to avoid (each one having
-> > their own solution, especially when we _can_ have a common solution).
-> 
-> Can we actually have a single common solution that works for everyone,
-> no matter what their needs? It's already apparent that there are
-> multiple different and subtly incompatible definitions of what "memory
-> controller" means and needs to do. Maybe these can be resolved - but
-> maybe it's better to have, say, two simple but very different memory
-> controllers that the user can pick between, rather than one big and
-> complicated one that tries to please everyone.
+On 9/21/06, Chandra Seetharaman <sekharan@us.ibm.com> wrote:
+> Think about what will be available to customer through a distro.
+>
+> There are two (competing) memory controllers in the kernel. But, distro
+> can turn only one ON. Which in turn mean
 
-Paul,
+Why's that? I don't see why cpuset memory nodemasks can't coexist
+with, say, the RG memory controller. They're attempting to solve
+different problems, and I can see situations where you might want to
+use both at once.
 
-Think about what will be available to customer through a distro. 
+>
+> So, IMHO, it is better to sort out the differences before we get things
+> in mainline kernel.
 
-There are two (competing) memory controllers in the kernel. But, distro
-can turn only one ON. Which in turn mean
- - there will be a debate from the two controller users/advocates with
-   the distro (headache to distro) about which one to turn ON
- - one party will _not_ get what they want and hence no point in them 
-   getting the feature into the mainline in the first place 
-   (dissatisfaction of the users/original implementors of one solution).
+Agreed, if we can come up with a definition of e.g. memory controller
+that everyone agrees is suitable for their needs. You're assuming
+that's so a priori, I'm not yet convinced.
 
-So, IMHO, it is better to sort out the differences before we get things
-in mainline kernel.
- 
-> 
-> Paul
--- 
+And I'm not trying to get another memory controller into the kernel,
+I'm just trying to get a standard process aggregation into the kernel
+(or rather, take the one that's already in the kernel and make it
+possible to hook other controller frameworks into it), so that the
+various memory controllers can become less intrusive patches in their
+own right.
 
-----------------------------------------------------------------------
-    Chandra Seetharaman               | Be careful what you choose....
-              - sekharan@us.ibm.com   |      .......you may get it.
-----------------------------------------------------------------------
-
-
+Paul

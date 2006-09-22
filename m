@@ -1,54 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965235AbWIVWYt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965239AbWIVWaM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965235AbWIVWYt (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Sep 2006 18:24:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965212AbWIVWYs
+	id S965239AbWIVWaM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Sep 2006 18:30:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965240AbWIVWaM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Sep 2006 18:24:48 -0400
-Received: from gw.goop.org ([64.81.55.164]:40899 "EHLO mail.goop.org")
-	by vger.kernel.org with ESMTP id S965235AbWIVWYs (ORCPT
+	Fri, 22 Sep 2006 18:30:12 -0400
+Received: from vena.lwn.net ([206.168.112.25]:39316 "HELO lwn.net")
+	by vger.kernel.org with SMTP id S965239AbWIVWaL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Sep 2006 18:24:48 -0400
-Message-ID: <451462B0.8000709@goop.org>
-Date: Fri, 22 Sep 2006 15:24:48 -0700
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
-MIME-Version: 1.0
-To: Rusty Russell <rusty@rustcorp.com.au>
-CC: Andi Kleen <ak@muc.de>,
-       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       virtualization <virtualization@lists.osdl.org>
-Subject: Re: [PATCH 2/7]
-References: <1158925861.26261.3.camel@localhost.localdomain>	 <1158925997.26261.6.camel@localhost.localdomain> <1158926106.26261.8.camel@localhost.localdomain>
-In-Reply-To: <1158926106.26261.8.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 22 Sep 2006 18:30:11 -0400
+To: video4linux-list@redhat.com
+Cc: linux-kernel@vger.kernel.org
+Subject: 2.6.18 VIDIOC_ENUMSTD bug
+From: Jonathan Corbet <corbet-v4l@lwn.net>
+Date: Fri, 22 Sep 2006 16:30:10 -0600
+Message-ID: <9890.1158964210@lwn.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Rusty Russell wrote:
-> This patch implements save/restore of %gs in the kernel, so it can be
-> used for per-cpu data.  This is not cheap, and we do it for UP as well
-> as SMP, which is stupid.  Benchmarks, anyone?
->   
-I measured the cost as adding 9 cycles to a null syscall on my Core Duo 
-machine.  I have not explicitly measured it on other machines, but I run 
-a number of other segment save/load tests on a wide range of machines, 
-and didn't find much variability.
+The v4l2 API documentation for VIDIOC_ENUMSTD says:
 
-I think saving/restoring %gs will still be necessary. There are a number 
-of places in the kernel which expect to find the usermode %gs on the 
-kernel stack frame, including context switch, ptrace, vm86, signal 
-context, and maybe something else.  If you don't save it on the stack, 
-then you need to have UP variations of %gs handling in all those other 
-places, which is pretty messy.  Also, unless you want to have two 
-definitions of struct_pt regs (which would add even more mess into 
-ptrace), you'd still need to sub/add %esp in entry.S to skip over the 
-%gs hole.  I don't think this UP microoptimisation would be worth enough 
-to justify the mess it would cause elsewhere.
+	To enumerate all standards applications shall begin at index
+	zero, incrementing by one until the driver returns EINVAL. 
 
-How does this version of the patch differ from mine?  Is it just my 
-patch+Ingo's fix, or are there other changes?  I couldn't see anything 
-from a quick read-over.
+The actual code, however, tests the index this way:
 
-    J
+               if (index<=0 || index >= vfd->tvnormsize) {
+                        ret=-EINVAL;
+
+So any application which passes in index=0 gets EINVAL right off the bat
+- and, in fact, this is what happens to mplayer.  So I think the
+following patch is called for, and maybe even appropriate for a 2.6.18.x
+stable release.  Disagreement?
+
+jon
+
+Signed-off-by: Jonathan Corbet <corbet@lwn.net>
+
+--- /k/t/2.6.18-vanilla/drivers/media/video/videodev.c	2006-09-22 16:20:56.000000000 -0600
++++ 18-mont/drivers/media/video/videodev.c	2006-09-22 14:34:14.000000000 -0600
+@@ -836,7 +836,7 @@ static int __video_do_ioctl(struct inode
+ 			break;
+ 		}
+ 
+-		if (index<=0 || index >= vfd->tvnormsize) {
++		if (index < 0 || index >= vfd->tvnormsize) {
+ 			ret=-EINVAL;
+ 			break;
+ 		}
+

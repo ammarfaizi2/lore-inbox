@@ -1,60 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932166AbWIVBMg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932181AbWIVBeJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932166AbWIVBMg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Sep 2006 21:12:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932168AbWIVBMg
+	id S932181AbWIVBeJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Sep 2006 21:34:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932182AbWIVBeJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Sep 2006 21:12:36 -0400
-Received: from mail0.lsil.com ([147.145.40.20]:53903 "EHLO mail0.lsil.com")
-	by vger.kernel.org with ESMTP id S932166AbWIVBMe convert rfc822-to-8bit
+	Thu, 21 Sep 2006 21:34:09 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.152]:49599 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S932181AbWIVBeF
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Sep 2006 21:12:34 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [Patch 6/7] megaraid_sas: adds tasklet for cmd completion
-Date: Thu, 21 Sep 2006 19:12:06 -0600
-Message-ID: <0631C836DBF79F42B5A60C8C8D4E82296DF339@NAMAIL2.ad.lsil.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [Patch 6/7] megaraid_sas: adds tasklet for cmd completion
-Thread-Index: Acbdc4wPhb/ZXq+6QSejv6PFgS+RaQAb/w6w
-From: "Patro, Sumant" <Sumant.Patro@lsil.com>
-To: "Christoph Hellwig" <hch@infradead.org>
-Cc: <James.Bottomley@SteelEye.com>, <linux-scsi@vger.kernel.org>,
-       <akpm@osdl.org>, <hch@lst.de>, <linux-kernel@vger.kernel.org>,
-       "Kolli, Neela" <Neela.Kolli@engenio.com>,
-       "Yang, Bo" <Bo.Yang@engenio.com>
-X-OriginalArrivalTime: 22 Sep 2006 01:12:07.0796 (UTC) FILETIME=[1F888340:01C6DDE4]
+	Thu, 21 Sep 2006 21:34:05 -0400
+Subject: Re: [BUG] i386 2.6.18 cpu_up: attempt to bring up CPU 4 failed :
+	kernel BUG at mm/slab.c:2698!
+From: keith mannthey <kmannth@us.ibm.com>
+Reply-To: kmannth@us.ibm.com
+To: Andrew Morton <akpm@osdl.org>
+Cc: lkml <linux-kernel@vger.kernel.org>,
+       Christoph Lameter <clameter@engr.sgi.com>
+In-Reply-To: <20060921174134.4e0d30f2.akpm@osdl.org>
+References: <1158884252.5657.38.camel@keithlap>
+	 <20060921174134.4e0d30f2.akpm@osdl.org>
+Content-Type: text/plain
+Organization: Linux Technology Center IBM
+Date: Thu, 21 Sep 2006 18:34:03 -0700
+Message-Id: <1158888843.5657.44.camel@keithlap>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello Christoph,
+On Thu, 2006-09-21 at 17:41 -0700, Andrew Morton wrote:
+> On Thu, 21 Sep 2006 17:17:31 -0700
+> keith mannthey <kmannth@us.ibm.com> wrote:
+> 
+> > I wanted to just give 2.6.18 a spin and I tripped over something I
+> > didn't expect. 
+> > 
+> > 
+> > cpu_up: attempt to bring up CPU 4 failed
+> > kfree_debugcheck: bad ptr c15f6000h.
+> > ------------[ cut here ]------------
+> > kernel BUG at mm/slab.c:2698!
+> > invalid opcode: 0000 [#1]
+> > SMP
+> > Modules linked in:
+> > CPU:    0
+> > EIP:    0060:[<c106ce51>]    Not tainted VLI
+> > EFLAGS: 00010046   (2.6.18 #1)
+> > EIP is at kfree_debugcheck+0x7f/0x90
+> > eax: 00000028   ebx: 000015f6   ecx: c1025289   edx: c7653540
+> > esi: c15f6000   edi: c15f6000   ebp: c764af38   esp: c764af28
+> > ds: 007b   es: 007b   ss: 0068
+> > Process swapper (pid: 1, ti=c764a000 task=c7653540 task.ti=c764a000)
+> > Stack: c122c68d c15f6000 c1635000 00000004 c764af5c c106ef93 00000286
+> > c76a77d0
+> >        00000004 00000001 c1635000 00000004 00000004 c764af6c c10557f6
+> > c1274eac
+> >        c12743dc c764af84 c1207467 00000004 c12734c0 00000004 00000004
+> > c764af98
+> > Call Trace:
+> >  [<c106ef93>] kfree+0x24/0x1d8
+> >  [<c10557f6>] pageset_cpuup_callback+0x40/0x58
+> >  [<c1207467>] notifier_call_chain+0x20/0x31
+> >  [<c1031530>] blocking_notifier_call_chain+0x1d/0x2d
+> >  [<c103f80c>] cpu_up+0xb5/0xcf
+> >  [<c1000372>] init+0x78/0x296
+> >  [<c1002005>] kernel_thread_helper+0x5/0xb
+> 
+> I think we have two problems here:
+> 
+> a) CPU4 didn't come up.  To diagnose that I think we'll need to ask you
+>    to into cpu_up(), add debug printks to blocking_notifier_call_chain(),
+>    work out which entry on that chain returned NOTIFY_BAD, then work out
+>    why it did so.
 
-	Thank you for the review of the patches.	
-	With implementation of tasklet in the driver we see a
-performance increase of about 8%, so we decided to go with it.
+That unhappy caller in the chain is cpuup_callback in mm/slab.c.  I am
+still working out as to why, there is a lot going on if this function. 
 
-Regards,
-Sumant
+> b) pageset_cpuup_callback()'s CPU_UP_CANCELED path possibly hasn't been
+>    tested before.  I'd be guessing that we're not zeroing out the
+>    zone.pageset[] array when the `struct zone' is first allocated, but I
+>    don't immediately recall where that code lives.
 
------Original Message-----
-From: Christoph Hellwig [mailto:hch@infradead.org] 
-Sent: Thursday, September 21, 2006 4:46 AM
-To: Patro, Sumant
-Cc: James.Bottomley@SteelEye.com; linux-scsi@vger.kernel.org;
-akpm@osdl.org; hch@lst.de; linux-kernel@vger.kernel.org; Kolli, Neela;
-Yang, Bo
-Subject: Re: [Patch 6/7] megaraid_sas: adds tasklet for cmd completion
+Thanks,
+  Keith 
 
-On Wed, Sep 20, 2006 at 07:31:29PM -0700, Sumant Patro wrote:
-> This patch adds a tasklet for command completion.
-
-Why would you need this?  The normal scsi command completion is
-offloaded
-to the SCSI softirq ASAP so I don't see any point for those.  Do you see
-too much time spent in completion of the internal commands?
 

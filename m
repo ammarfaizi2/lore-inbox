@@ -1,23 +1,25 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932150AbWIVA4j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932152AbWIVA51@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932150AbWIVA4j (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 21 Sep 2006 20:56:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932151AbWIVA4j
+	id S932152AbWIVA51 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 21 Sep 2006 20:57:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932151AbWIVA51
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 21 Sep 2006 20:56:39 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.152]:23771 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S932150AbWIVA4j
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 21 Sep 2006 20:56:39 -0400
+	Thu, 21 Sep 2006 20:57:27 -0400
+Received: from e32.co.us.ibm.com ([32.97.110.150]:6073 "EHLO e32.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932152AbWIVA50 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 21 Sep 2006 20:57:26 -0400
 Subject: Re: [ckrm-tech] [patch00/05]: Containers(V2)- Introduction
 From: Chandra Seetharaman <sekharan@us.ibm.com>
 Reply-To: sekharan@us.ibm.com
-To: Paul Menage <menage@google.com>
+To: Paul Jackson <pj@sgi.com>
 Cc: npiggin@suse.de, ckrm-tech@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org, Paul Jackson <pj@sgi.com>,
-       rohitseth@google.com, devel@openvz.org, clameter@sgi.com
-In-Reply-To: <6599ad830609211713u7356aff7k6400ddcee9651d61@mail.google.com>
+       linux-kernel@vger.kernel.org, rohitseth@google.com, menage@google.com,
+       devel@openvz.org, clameter@sgi.com
+In-Reply-To: <20060921172427.25ddb7ea.pj@sgi.com>
 References: <1158718568.29000.44.camel@galaxy.corp.google.com>
+	 <Pine.LNX.4.64.0609201252030.32409@schroedinger.engr.sgi.com>
+	 <1158798715.6536.115.camel@linuxchandra>
 	 <20060920173638.370e774a.pj@sgi.com>
 	 <6599ad830609201742h71d112f4tae8fe390cb874c0b@mail.google.com>
 	 <1158803120.6536.139.camel@linuxchandra>
@@ -27,68 +29,54 @@ References: <1158718568.29000.44.camel@galaxy.corp.google.com>
 	 <1158875062.6536.210.camel@linuxchandra>
 	 <6599ad830609211509x17f0306qbe6d0ef86b86cbc9@mail.google.com>
 	 <1158883601.6536.223.camel@linuxchandra>
-	 <6599ad830609211713u7356aff7k6400ddcee9651d61@mail.google.com>
+	 <20060921172427.25ddb7ea.pj@sgi.com>
 Content-Type: text/plain
 Organization: IBM
-Date: Thu, 21 Sep 2006 17:55:36 -0700
-Message-Id: <1158886536.6536.230.camel@linuxchandra>
+Date: Thu, 21 Sep 2006 17:57:22 -0700
+Message-Id: <1158886642.6536.233.camel@linuxchandra>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.0.4 (2.0.4-7) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-09-21 at 17:13 -0700, Paul Menage wrote:
-> On 9/21/06, Chandra Seetharaman <sekharan@us.ibm.com> wrote:
-> > Think about what will be available to customer through a distro.
-> >
+On Thu, 2006-09-21 at 17:24 -0700, Paul Jackson wrote:
+> Chandra wrote:
 > > There are two (competing) memory controllers in the kernel. But, distro
-> > can turn only one ON. Which in turn mean
+> > can turn only one ON. 
 > 
-> Why's that? I don't see why cpuset memory nodemasks can't coexist
-> with, say, the RG memory controller. They're attempting to solve
-> different problems, and I can see situations where you might want to
-> use both at once.
+> Huh - time for me to play the dummy again ...
+> 
+> My (fog shrouded) vision of the future has:
+>  1) mempolicy - provides fine grained memory placement for task on self
+>  2) cpuset - provides system wide cpu and memory placement for unrelated tasks
+>  3) some form of resource groups - measures and limits proportion of various
+>     resources used, including cpu cycles, memory pages and network bandwidth,
+>     by collections of tasks.k
+> 
+> Both (2) and (3) need to group tasks in flexible ways distinct from the
+> existing task groupings supported by the kernel.
+> 
+> I thought that Paul M suggested (2) and (3) use common underlying
+> grouping or 'bucket' technology - the infrastructure that separates
+> tasks into buckets and can be used to associate various resource
+> metrics and limits with each bucket.
+> 
+> I can't quite figure out whether you have in mind above:
+>  * a conflict between two competing memory controllers for (3),
 
-Yes, they are two different solutions and I agree that there is no
-competition.
+Yes.
+>  * or a conflict between cpusets and one memory controller for (3).
 
-Where I see the competition is w.r.t memory controllers from different
-resource management solutions (RG, UBC, Rohit's container etc.,). That
-is what I was referring to. Sorry for the confusion.
+No.
+> 
+> And either way, I don't see what that has to do with the underling
+> bucket technology - how we group tasks generically.
 
+True. I clarified it in the reply to Paul M.
 > 
-> >
-> > So, IMHO, it is better to sort out the differences before we get things
-> > in mainline kernel.
+> Guess I am missing something ...
 > 
-> Agreed, if we can come up with a definition of e.g. memory controller
-> that everyone agrees is suitable for their needs. You're assuming
-> that's so a priori, I'm not yet convinced.
-> 
-> And I'm not trying to get another memory controller into the kernel,
-> I'm just trying to get a standard process aggregation into the kernel
-> (or rather, take the one that's already in the kernel and make it
-> possible to hook other controller frameworks into it), so that the
-> various memory controllers can become less intrusive patches in their
-> own right.
-
-I wasn't talking about the competition issue in this context.
-
-Let me clearly state it for the record: I support your effort in
-providing an independent process aggregation :)
- 
-> 
-> Paul
-> 
-> -------------------------------------------------------------------------
-> Take Surveys. Earn Cash. Influence the Future of IT
-> Join SourceForge.net's Techsay panel and you'll get the chance to share your
-> opinions on IT & business topics through brief surveys -- and earn cash
-> http://www.techsay.com/default.php?page=join.php&p=sourceforge&CID=DEVDEV
-> _______________________________________________
-> ckrm-tech mailing list
-> https://lists.sourceforge.net/lists/listinfo/ckrm-tech
 -- 
 
 ----------------------------------------------------------------------

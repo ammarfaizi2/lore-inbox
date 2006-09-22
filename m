@@ -1,70 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964798AbWIVRVo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964792AbWIVRXs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964798AbWIVRVo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Sep 2006 13:21:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964800AbWIVRVo
+	id S964792AbWIVRXs (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Sep 2006 13:23:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964784AbWIVRXs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Sep 2006 13:21:44 -0400
-Received: from mga02.intel.com ([134.134.136.20]:13628 "EHLO mga02.intel.com")
-	by vger.kernel.org with ESMTP id S964798AbWIVRVn convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Sep 2006 13:21:43 -0400
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.09,196,1157353200"; 
-   d="scan'208"; a="120864739:sNHT23226273"
-From: Jesse Barnes <jesse.barnes@intel.com>
-To: Christoph Lameter <clameter@sgi.com>
-Subject: Re: ZONE_DMA
-Date: Fri, 22 Sep 2006 10:21:15 -0700
-User-Agent: KMail/1.9.4
-Cc: Martin Bligh <mbligh@mbligh.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, Rohit Seth <rohitseth@google.com>
-References: <20060920135438.d7dd362b.akpm@osdl.org> <45131D2D.8020403@mbligh.org> <Pine.LNX.4.64.0609211937460.4433@schroedinger.engr.sgi.com>
-In-Reply-To: <Pine.LNX.4.64.0609211937460.4433@schroedinger.engr.sgi.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
+	Fri, 22 Sep 2006 13:23:48 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:18138 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S964803AbWIVRXr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Sep 2006 13:23:47 -0400
+Date: Fri, 22 Sep 2006 19:12:24 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Mathieu Desnoyers <compudj@krystal.dyndns.org>
+Cc: Martin Bligh <mbligh@google.com>, "Frank Ch. Eigler" <fche@redhat.com>,
+       Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>, prasanna@in.ibm.com,
+       Andrew Morton <akpm@osdl.org>, Paul Mundt <lethal@linux-sh.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>, Jes Sorensen <jes@sgi.com>,
+       Tom Zanussi <zanussi@us.ibm.com>,
+       Richard J Moore <richardj_moore@uk.ibm.com>,
+       Michel Dagenais <michel.dagenais@polymtl.ca>,
+       Christoph Hellwig <hch@infradead.org>,
+       Greg Kroah-Hartman <gregkh@suse.de>,
+       Thomas Gleixner <tglx@linutronix.de>, William Cohen <wcohen@redhat.com>,
+       ltt-dev@shafik.org, systemtap@sources.redhat.com,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH] Linux Kernel Markers 0.5 for Linux 2.6.17 (with probe management)
+Message-ID: <20060922171224.GA18964@elte.hu>
+References: <20060921160009.GA30115@Krystal> <20060921160656.GA24774@elte.hu> <20060921214248.GA10097@Krystal> <20060922064955.GA4167@elte.hu> <20060922140329.GA20839@Krystal> <20060922165352.GA16476@elte.hu> <20060922171156.GA18363@Krystal>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200609221021.16579.jesse.barnes@intel.com>
+In-Reply-To: <20060922171156.GA18363@Krystal>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -2.9
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.9 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5000]
+	-0.1 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday, September 21, 2006 7:59 pm, Christoph Lameter wrote:
-> > So if you just put all of memory in ZONE_DMA for your particular
-> > machine, and bumped the DMA limit up to infinity, we wouldn't need
-> > any of these patches, right? Which would also match what the other
-> > arches do for this (eg PPC64).
 
-This is what Altix did for a long time (and it looks like it still sets 
-MAX_DMA_ADDRESS to the top of addressable memory).
+* Mathieu Desnoyers <compudj@krystal.dyndns.org> wrote:
 
-> That would mean abusing ZONE_DMA for a purpose it was not intended for.
-> ZOME_DMA is used to partition memory for a DMA not for covering all of
-> memory. That works yes but it shows a misunderstanding of the purpose
-> for which ZONE_DMA was created.
+> * Ingo Molnar (mingo@elte.hu) wrote:
+> > 
+> > * Mathieu Desnoyers <compudj@krystal.dyndns.org> wrote:
+> > 
+> > > > > Then you lose the ability to trace in-kernel minor page faults.
+> > > > 
+> > > > that's wrong, minor pagefaults go through __handle_mm_fault() just as 
+> > > > much.
+> > > > 
+> > > 
+> > > Hi Ingo,
+> > > 
+> > > On a 2.6.17 kernel tree :
+> > 
+> > > It seems like a shortcut path that will never call __handle_mm_fault. 
+> > > This path is precisely used to handle vmalloc faults.
+> > 
+> > yes, but you said "minor fault", not "vmalloc fault".
+> > 
+> > minor faults are the things that happen when a task does read-after-COW 
+> > or read-mmap-ed-pagecache-page, and they very much go through 
+> > __handle_mm_fault().
+> > 
+> > vmalloc faults are extremely rare, x86-specific and they are a pure 
+> > kernel-internal matter. (I'd never want to trace them, especially if it 
+> > pushes tracepoints into every architecture's page fault handler. I 
+> > implemented the initial version of them IIRC, but my memory fails 
+> > precisely why. I think it was 4:4 related, but i'm unsure.)
+> > 
+> > (i now realize that above you said "in-kernel minor faults" - under that 
+> > you meant vmalloc faults?)
+> > 
+> 
+> Yes, sorry, my mistake. This kind of fault is not as infrequent as you 
+> may think, as every newly allocated vmalloc region will cause vmalloc 
+> faults on every processes on the system that are trying to access 
+> them. I agree that it should not be a standard event people would be 
+> interested in.
 
-AFAIK ZONE_DMA was created for crappy ISA devices that could only DMA to 
-low addresses.  As various architectures were added, they either 
-misunderstood its purpose, abused it for their own purposes, or ignored it 
-in some way as it didn't really apply.
+most of the vmalloc area that is allocated on a typical system are 
+modules - and they get loaded on bootup and rarely unloaded. Even for 
+other vmalloc-ed areas like netfilter, the activation of them is during 
+bootup. So from that point on the number of vmalloc faults is quite low. 
+(zero on most systems) If you still want to trace it i'd suggest a 
+separate type of event for it.
 
-> ZONE_NORMAL is DMAable. GFP_DMA has never meant this is for DMA but it
-> has always meant this is for a special restricted DMA zone. That is also
-> why you have GFP_DMA32. Both GFP_DMA and GFP_DMA32 select special
-> restricted memory areas for handicapped DMA devices that are not able to
-> reach all of memory. Neither should cover all of memory.
+(meanwhile i remember why i implemented vmalloc faults to begin with: 
+during vmalloc() we used to have a for_each_process() over all 
+kernel-pagetables of tasks to fix up their pagetables. This caused both 
+high latencies and overhead back in the days when we still were frequent 
+vmalloc()ers.)
 
-If you have a decent enough IOMMU both or either could cover all of memory.  
-In the case of an Altix, the IOMMU is 32 bit capable, so it would make 
-sense for ZONE_DMA32 to contain all of memory...
-
-But anyway, I agree with your broader point that we really need a different 
-allocator for this stuff.  It has to be arch specific in some way though, 
-so we can take into account the advantages IOMMUs provide.  I think jejb 
-said he'd come up with a sample implementation a couple of years ago... :)
-
->From a portability and definition perspective, I'd contend that ZONE_DMA 
-and ZONE_DMA32 are both broken.  Only ZONE_NORMAL and ZONE_HIGHMEM have 
-sane definitions it seems.
-
-Jesse
+	Ingo

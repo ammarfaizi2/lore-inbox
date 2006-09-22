@@ -1,150 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964802AbWIVRR6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964798AbWIVRVo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964802AbWIVRR6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Sep 2006 13:17:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964799AbWIVRR6
+	id S964798AbWIVRVo (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Sep 2006 13:21:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964800AbWIVRVo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Sep 2006 13:17:58 -0400
-Received: from mga02.intel.com ([134.134.136.20]:43034 "EHLO mga02.intel.com")
-	by vger.kernel.org with ESMTP id S964782AbWIVRR4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Sep 2006 13:17:56 -0400
+	Fri, 22 Sep 2006 13:21:44 -0400
+Received: from mga02.intel.com ([134.134.136.20]:13628 "EHLO mga02.intel.com")
+	by vger.kernel.org with ESMTP id S964798AbWIVRVn convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Sep 2006 13:21:43 -0400
 X-ExtLoop1: 1
-X-IronPort-AV: i="4.09,204,1157353200"; 
-   d="scan'208"; a="133328414:sNHT176489068"
-Message-ID: <4514190C.8010901@intel.com>
-Date: Fri, 22 Sep 2006 10:10:36 -0700
-From: Auke Kok <auke-jan.h.kok@intel.com>
-User-Agent: Mail/News 1.5.0.7 (X11/20060918)
+X-IronPort-AV: i="4.09,196,1157353200"; 
+   d="scan'208"; a="120864739:sNHT23226273"
+From: Jesse Barnes <jesse.barnes@intel.com>
+To: Christoph Lameter <clameter@sgi.com>
+Subject: Re: ZONE_DMA
+Date: Fri, 22 Sep 2006 10:21:15 -0700
+User-Agent: KMail/1.9.4
+Cc: Martin Bligh <mbligh@mbligh.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, Rohit Seth <rohitseth@google.com>
+References: <20060920135438.d7dd362b.akpm@osdl.org> <45131D2D.8020403@mbligh.org> <Pine.LNX.4.64.0609211937460.4433@schroedinger.engr.sgi.com>
+In-Reply-To: <Pine.LNX.4.64.0609211937460.4433@schroedinger.engr.sgi.com>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Holger Kiehl <Holger.Kiehl@dwd.de>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       linux-net <linux-net@vger.kernel.org>, netdev@vger.kernel.org,
-       "Ronciak, John" <john.ronciak@intel.com>
-Subject: Re: 2.6.1[78] page allocation failure. order:3, mode:0x20
-References: <Pine.LNX.4.64.0609220655550.13396@diagnostix.dwd.de> <20060922004253.2e2e2612.akpm@osdl.org>
-In-Reply-To: <20060922004253.2e2e2612.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 22 Sep 2006 17:12:25.0281 (UTC) FILETIME=[463B0310:01C6DE6A]
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+Content-Disposition: inline
+Message-Id: <200609221021.16579.jesse.barnes@intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> On Fri, 22 Sep 2006 07:27:18 +0000 (GMT)
-> Holger Kiehl <Holger.Kiehl@dwd.de> wrote:
-> 
->> I get some of the "page allocation failure" errors. My hardware is 4 CPU
->> Opteron with one quad + one dual intel e1000 cards. Kernel is plain 2.6.18
->> and for two cards MTU is set to 9000.
->>
->>     Sep 21 21:03:15 athena kernel: vsftpd: page allocation failure. order:3, mode:0x20
->>     Sep 21 21:03:15 athena kernel:
->>     Sep 21 21:03:15 athena kernel: Call Trace:
->>     Sep 21 21:03:15 athena kernel:  <IRQ> [<ffffffff8024e516>] __alloc_pages+0x282/0x29b
->>     Sep 21 21:03:15 athena kernel:  [<ffffffff8807aa93>] :ip_tables:ipt_do_table+0x1eb/0x318
->>     Sep 21 21:03:15 athena kernel:  [<ffffffff8026614b>] cache_grow+0x134/0x33d
->>     Sep 21 21:03:15 athena kernel:  [<ffffffff8026664c>] cache_alloc_refill+0x189/0x1d7
->>     Sep 21 21:03:15 athena kernel:  [<ffffffff80266724>] __kmalloc+0x8a/0x94
->>     Sep 21 21:03:15 athena kernel:  [<ffffffff803b5438>] __alloc_skb+0x5c/0x123
->>     Sep 21 21:03:15 athena kernel:  [<ffffffff803b5f2e>] __netdev_alloc_skb+0x12/0x2d
->>     Sep 21 21:03:15 athena kernel:  [<ffffffff8033cb22>] e1000_alloc_rx_buffers+0x6f/0x2f3
->>     Sep 21 21:03:15 athena kernel:  [<ffffffff803d1234>] ip_local_deliver+0x173/0x23b
->>     Sep 21 21:03:15 athena kernel:  [<ffffffff8033d29a>] e1000_clean_rx_irq+0x4f4/0x514
-> 
-> Is OK, it's just a warning and it is expected - the kernel will recover.
-> 
-> I'm half-inclined to shut the warning up by sticking a __GFP_NOWARN in there.
-> 
-> But on the other hand, that warning is handy sometimes.  How come kmalloc
-> decided to request a 32k hunk of memory when the MTU size is only 9k?  Is
-> the driver doing something dumb?
-> 
-> 	else if (max_frame <= E1000_RXBUFFER_8192)
-> 		adapter->rx_buffer_len = E1000_RXBUFFER_8192;
-> 	else if (max_frame <= E1000_RXBUFFER_16384)
-> 		adapter->rx_buffer_len = E1000_RXBUFFER_16384;
-> 
-> It sure is.
-> 
-> This is going to cause an 9000-byte MTU to use a 16384-byte allocation. 
-> e1000_alloc_rx_buffers() adds two bytes to that, so we do kmalloc(16386),
-> which causes the slab allocator to request 32768 bytes.  All for a 9kbyte skb.
+On Thursday, September 21, 2006 7:59 pm, Christoph Lameter wrote:
+> > So if you just put all of memory in ZONE_DMA for your particular
+> > machine, and bumped the DMA limit up to infinity, we wouldn't need
+> > any of these patches, right? Which would also match what the other
+> > arches do for this (eg PPC64).
 
-I wonder if we can't account for NET_IP_ALIGN when selecting bufsize, to get at 
-rid of at least 1 order size before we netdev_alloc_skb. This should make 9k 
-frames only kmalloc(16384) and thus stay within the 16k boundary. I hope.
+This is what Altix did for a long time (and it looks like it still sets 
+MAX_DMA_ADDRESS to the top of addressable memory).
 
-Completely untested: don't commit :)
+> That would mean abusing ZONE_DMA for a purpose it was not intended for.
+> ZOME_DMA is used to partition memory for a DMA not for covering all of
+> memory. That works yes but it shows a misunderstanding of the purpose
+> for which ZONE_DMA was created.
 
-Auke
+AFAIK ZONE_DMA was created for crappy ISA devices that could only DMA to 
+low addresses.  As various architectures were added, they either 
+misunderstood its purpose, abused it for their own purposes, or ignored it 
+in some way as it didn't really apply.
 
----
+> ZONE_NORMAL is DMAable. GFP_DMA has never meant this is for DMA but it
+> has always meant this is for a special restricted DMA zone. That is also
+> why you have GFP_DMA32. Both GFP_DMA and GFP_DMA32 select special
+> restricted memory areas for handicapped DMA devices that are not able to
+> reach all of memory. Neither should cover all of memory.
 
-e1000: account for NET_IP_ALIGN when calculating bufsiz
+If you have a decent enough IOMMU both or either could cover all of memory.  
+In the case of an Altix, the IOMMU is 32 bit capable, so it would make 
+sense for ZONE_DMA32 to contain all of memory...
 
-Account for NET_IP_ALIGN when requesting buffer sizes from netdev_alloc_skb to 
-reduce slab allocation by half.
+But anyway, I agree with your broader point that we really need a different 
+allocator for this stuff.  It has to be arch specific in some way though, 
+so we can take into account the advantages IOMMUs provide.  I think jejb 
+said he'd come up with a sample implementation a couple of years ago... :)
 
-Signed-off-by: Auke Kok <auke-jan.h.kok@intel.com>
+>From a portability and definition perspective, I'd contend that ZONE_DMA 
+and ZONE_DMA32 are both broken.  Only ZONE_NORMAL and ZONE_HIGHMEM have 
+sane definitions it seems.
 
-diff --git a/drivers/net/e1000/e1000_main.c b/drivers/net/e1000/e1000_main.c
-index bb0d129..20b1f39 100644
---- a/drivers/net/e1000/e1000_main.c
-+++ b/drivers/net/e1000/e1000_main.c
-@@ -1144,7 +1144,7 @@ #endif
-
-  	pci_read_config_word(pdev, PCI_COMMAND, &hw->pci_cmd_word);
-
--	adapter->rx_buffer_len = MAXIMUM_ETHERNET_VLAN_SIZE;
-+	adapter->rx_buffer_len = MAXIMUM_ETHERNET_VLAN_SIZE + NET_IP_ALIGN;
-  	adapter->rx_ps_bsize0 = E1000_RXBUFFER_128;
-  	hw->max_frame_size = netdev->mtu +
-  			     ENET_HEADER_SIZE + ETHERNET_FCS_SIZE;
-@@ -3234,26 +3234,27 @@ #define MAX_STD_JUMBO_FRAME_SIZE 9234
-  	 * larger slab size
-  	 * i.e. RXBUFFER_2048 --> size-4096 slab */
-
--	if (max_frame <= E1000_RXBUFFER_256)
-+	if (max_frame + NET_IP_ALIGN <= E1000_RXBUFFER_256)
-  		adapter->rx_buffer_len = E1000_RXBUFFER_256;
--	else if (max_frame <= E1000_RXBUFFER_512)
-+	else if (max_frame + NET_IP_ALIGN <= E1000_RXBUFFER_512)
-  		adapter->rx_buffer_len = E1000_RXBUFFER_512;
--	else if (max_frame <= E1000_RXBUFFER_1024)
-+	else if (max_frame + NET_IP_ALIGN <= E1000_RXBUFFER_1024)
-  		adapter->rx_buffer_len = E1000_RXBUFFER_1024;
--	else if (max_frame <= E1000_RXBUFFER_2048)
-+	else if (max_frame + NET_IP_ALIGN <= E1000_RXBUFFER_2048)
-  		adapter->rx_buffer_len = E1000_RXBUFFER_2048;
--	else if (max_frame <= E1000_RXBUFFER_4096)
-+	else if (max_frame + NET_IP_ALIGN <= E1000_RXBUFFER_4096)
-  		adapter->rx_buffer_len = E1000_RXBUFFER_4096;
--	else if (max_frame <= E1000_RXBUFFER_8192)
-+	else if (max_frame + NET_IP_ALIGN <= E1000_RXBUFFER_8192)
-  		adapter->rx_buffer_len = E1000_RXBUFFER_8192;
--	else if (max_frame <= E1000_RXBUFFER_16384)
-+	else
-  		adapter->rx_buffer_len = E1000_RXBUFFER_16384;
-
-  	/* adjust allocation if LPE protects us, and we aren't using SBP */
-  	if (!adapter->hw.tbi_compatibility_on &&
-  	    ((max_frame == MAXIMUM_ETHERNET_FRAME_SIZE) ||
-  	     (max_frame == MAXIMUM_ETHERNET_VLAN_SIZE)))
--		adapter->rx_buffer_len = MAXIMUM_ETHERNET_VLAN_SIZE;
-+		adapter->rx_buffer_len = MAXIMUM_ETHERNET_VLAN_SIZE
-+		                         + NET_IP_ALIGN;
-
-  	netdev->mtu = new_mtu;
-
-@@ -4076,7 +4076,8 @@ e1000_alloc_rx_buffers(struct e1000_adap
-  	struct e1000_buffer *buffer_info;
-  	struct sk_buff *skb;
-  	unsigned int i;
--	unsigned int bufsz = adapter->rx_buffer_len + NET_IP_ALIGN;
-+	/* we have already accounted for NET_IP_ALIGN */
-+	unsigned int bufsz = adapter->rx_buffer_len;
-
-  	i = rx_ring->next_to_use;
-  	buffer_info = &rx_ring->buffer_info[i];
+Jesse

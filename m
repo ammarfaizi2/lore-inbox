@@ -1,49 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751408AbWIWSeJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751412AbWIWSef@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751408AbWIWSeJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Sep 2006 14:34:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751414AbWIWSeI
+	id S1751412AbWIWSef (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Sep 2006 14:34:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751414AbWIWSef
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Sep 2006 14:34:08 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:54972 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751408AbWIWSeH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Sep 2006 14:34:07 -0400
-Subject: Re: [PATCH 2.6.18] [TRIVIAL] Spelling fixes in
-	Documentation/DocBook
-From: David Woodhouse <dwmw2@infradead.org>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: Randy Dunlap <rdunlap@xenotime.net>,
-       Michael Opdenacker <michael-lists@free-electrons.com>,
-       linux-kernel@vger.kernel.org, trivial@kernel.org
-In-Reply-To: <1159036269.1097.163.camel@mindpipe>
-References: <200609212318.07418.michael-lists@free-electrons.com>
-	 <1159005072.24527.891.camel@pmac.infradead.org>
-	 <20060923100428.99baa1ad.rdunlap@xenotime.net>
-	 <1159036269.1097.163.camel@mindpipe>
+	Sat, 23 Sep 2006 14:34:35 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:38876 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1751412AbWIWSee (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Sep 2006 14:34:34 -0400
+Subject: Re: [patch] remove MNT_NOEXEC check for PROT_EXEC mmaps
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Hugh Dickins <hugh@veritas.com>
+Cc: Stas Sergeev <stsp@aknet.ru>, Andrew Morton <akpm@osdl.org>,
+       Ulrich Drepper <drepper@redhat.com>,
+       Linux kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.64.0609231647420.29557@blonde.wat.veritas.com>
+References: <45150CD7.4010708@aknet.ru>
+	 <Pine.LNX.4.64.0609231555390.27012@blonde.wat.veritas.com>
+	 <451555CB.5010006@aknet.ru>
+	 <Pine.LNX.4.64.0609231647420.29557@blonde.wat.veritas.com>
 Content-Type: text/plain
-Date: Sat, 23 Sep 2006 19:33:59 +0100
-Message-Id: <1159036439.24527.935.camel@pmac.infradead.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5.dwmw2.1) 
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Date: Sat, 23 Sep 2006 19:58:33 +0100
+Message-Id: <1159037913.24572.62.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-09-23 at 14:31 -0400, Lee Revell wrote:
-> On Sat, 2006-09-23 at 10:04 -0700, Randy Dunlap wrote:
-> > "Cooperate" has previously been hyphenated
-> > (co-operate) or spelled with a diaeresis over the second 'o'.
-> > They are now lost. 
-> 
-> Not completely - the New Yorker magazine still spells these with a
-> diaresis ;-)
+Ar Sad, 2006-09-23 am 17:04 +0100, ysgrifennodd Hugh Dickins:
+> No, it's not.  But this doesn't have much to do with tmpfs,
+> nor with shm_open.  It's just that the kernel is not allowing
+> mmap PROT_EXEC on a MNT_NOEXEC mount.  Which seems reasonable
+> (though you can argue that mprotect ought to disallow it too).
 
-And indede their is only a sertain extent too witch we wont two emulate
-the lowest common denomminator.
+Agreed mprotect should also be fixed.
 
--- 
-dwmw2
 

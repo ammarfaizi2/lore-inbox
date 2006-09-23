@@ -1,95 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751338AbWIWR0g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751357AbWIWR3d@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751338AbWIWR0g (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Sep 2006 13:26:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751342AbWIWR0g
+	id S1751357AbWIWR3d (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Sep 2006 13:29:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751342AbWIWR3d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Sep 2006 13:26:36 -0400
-Received: from excu-mxob-1.symantec.com ([198.6.49.12]:62194 "EHLO
-	excu-mxob-1.symantec.com") by vger.kernel.org with ESMTP
-	id S1751338AbWIWR0g (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Sep 2006 13:26:36 -0400
-Date: Sat, 23 Sep 2006 18:26:26 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@blonde.wat.veritas.com
-To: Anatoli Antonovitch <antonovi@ati.com>
-cc: Willy Tarreau <w@1wt.eu>, Tigran Aivazian <tigran@veritas.com>,
-       Michael Chen <micche@ati.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH]i386: fix overflow in vmap on an x86 system which has
- more than 4GB memory.
-In-Reply-To: <1158334477.5219.1.camel@antonovi-desktop>
-Message-ID: <Pine.LNX.4.64.0609231759590.30885@blonde.wat.veritas.com>
-References: <1158334477.5219.1.camel@antonovi-desktop>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 23 Sep 2006 17:26:22.0009 (UTC) FILETIME=[635F5290:01C6DF35]
+	Sat, 23 Sep 2006 13:29:33 -0400
+Received: from igw2.watson.ibm.com ([129.34.20.6]:12245 "EHLO
+	igw2.watson.ibm.com") by vger.kernel.org with ESMTP
+	id S1750766AbWIWR3c (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Sep 2006 13:29:32 -0400
+From: mostrows@earthlink.net
+To: linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+       ppp-bugs@dp.samba.org
+Cc: Michal Ostrowski <mostrows@earthlink.net>
+Subject: [PATCH] Advertise PPPoE MTU / avoid memory leak.
+Reply-To: mostrows@earthlink.net
+Date: Sat, 23 Sep 2006 12:30:23 -0500
+Message-Id: <115903262344-git-send-email-mostrows@earthlink.net>
+X-Mailer: git-send-email 1.4.1.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a 2.4 fix (not needed in 2.6): let's CC maintainer Willy Tarreau.
+PPPoE must advertise the underlying device's MTU via the ppp channel
+descriptor structure, as multilink functionality depends on it.
 
-On Fri, 15 Sep 2006, Anatoli Antonovitch wrote:
+__pppoe_xmit must free any skb it allocates if there is an error
+submitting the skb downstream.
 
-> Description
-> (max_mapnr << PAGE_SHIFT) would overflow on an x86 system which has more
-> than 4GB memory, and hence cause vmap to fail every time.
-
-Good point, thanks for the patch.  Sorry I'm so slow to get to it.
-
-> 
-> Signed-off-by: Michael Chen <micche@ati.com>
-> 
-> Patch
-> diff -Nur linux-2.4.21-40.EL/mm/vmalloc.c
-> linux-2.4.21-40.EL.diff/mm/vmalloc.c
-> --- linux-2.4.21-40.EL/mm/vmalloc.c     2006-02-02 21:13:20.000000000
-> -0600
-> +++ linux-2.4.21-40.EL.diff/mm/vmalloc.c        2006-09-04
-
-And still needs fixing in latest mainline 2.4.
-
-> 11:29:33.000000000 -0500
-> @@ -298,8 +298,8 @@
->         struct vm_struct *area;
->         unsigned long size = count << PAGE_SHIFT;
->  
-> -       if (!size || size > (max_mapnr << PAGE_SHIFT))
-> -               return NULL;
-> +    if (!count || count > max_mapnr)
-> +        return NULL;
-
-I'm afraid the tabs got messed up in both the old and new lines.
-Also, count is a signed int (whereas size and max_mapnr are both
-unsigned longs), so best reject "count <= 0" rather than just "!count".
-
->         area = get_vm_area(size, flags);
->         if (!area) {
->                 return NULL;
-
-Here's a replacement patch for Willy.  Anatoli, you didn't sign
-off the patch yourself: so I'm assuming Michael is the originator.
-
-
-From: Michael Chen <micche@ati.com>
-
-(max_mapnr << PAGE_SHIFT) would overflow on a system which has
-4GB memory or more, and so could cause vmap to fail every time.
-
-Signed-off-by: Michael Chen <micche@ati.com>
-Signed-off-by: Hugh Dickins <hugh@veritas.com>
+Signed-off-by: Michal Ostrowski <mostrows@earthlink.net>
 ---
+ drivers/net/pppoe.c |    5 ++++-
+ 1 files changed, 4 insertions(+), 1 deletions(-)
 
- mm/vmalloc.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
---- 2.4.34-pre3/mm/vmalloc.c	2004-04-14 14:05:41.000000000 +0100
-+++ linux/mm/vmalloc.c	2006-09-23 17:52:59.000000000 +0100
-@@ -293,7 +293,7 @@ void * vmap(struct page **pages, int cou
- 	struct vm_struct *area;
- 	unsigned long size = count << PAGE_SHIFT;
+diff --git a/drivers/net/pppoe.c b/drivers/net/pppoe.c
+index 475dc93..b4dc516 100644
+--- a/drivers/net/pppoe.c
++++ b/drivers/net/pppoe.c
+@@ -600,6 +600,7 @@ static int pppoe_connect(struct socket *
+ 		po->chan.hdrlen = (sizeof(struct pppoe_hdr) +
+ 				   dev->hard_header_len);
  
--	if (!size || size > (max_mapnr << PAGE_SHIFT))
-+	if (count <= 0 || count > max_mapnr)
- 		return NULL;
- 	area = get_vm_area(size, flags);
- 	if (!area) {
++		po->chan.mtu = dev->mtu - sizeof(struct pppoe_hdr);
+ 		po->chan.private = sk;
+ 		po->chan.ops = &pppoe_chan_ops;
+ 
+@@ -831,7 +832,7 @@ static int __pppoe_xmit(struct sock *sk,
+ 	struct pppoe_hdr *ph;
+ 	int headroom = skb_headroom(skb);
+ 	int data_len = skb->len;
+-	struct sk_buff *skb2;
++	struct sk_buff *skb2 = NULL;
+ 
+ 	if (sock_flag(sk, SOCK_DEAD) || !(sk->sk_state & PPPOX_CONNECTED))
+ 		goto abort;
+@@ -887,6 +888,8 @@ static int __pppoe_xmit(struct sock *sk,
+ 	return 1;
+ 
+ abort:
++	if (skb2)
++		kfree_skb(skb2);
+ 	return 0;
+ }
+ 
+-- 
+1.4.1.1
+

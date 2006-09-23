@@ -1,49 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751446AbWIWTId@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751438AbWIWTJB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751446AbWIWTId (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Sep 2006 15:08:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751449AbWIWTId
+	id S1751438AbWIWTJB (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Sep 2006 15:09:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751449AbWIWTJB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Sep 2006 15:08:33 -0400
-Received: from free-electrons.com ([88.191.23.47]:56225 "EHLO
-	sd-2511.dedibox.fr") by vger.kernel.org with ESMTP id S1751446AbWIWTIc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Sep 2006 15:08:32 -0400
-Message-ID: <451585E8.5040308@free-electrons.com>
-Date: Sat, 23 Sep 2006 21:07:20 +0200
-From: Michael Opdenacker <michael-lists@free-electrons.com>
-User-Agent: Thunderbird 1.5 (X11/20051201)
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: linux-kernel@vger.kernel.org, trivial@kernel.org
-Subject: Re: [PATCH 2.6.18] [TRIVIAL] Spelling fixes in	Documentation/DocBook
-References: <200609212318.07418.michael-lists@free-electrons.com> <1158942873.24572.20.camel@localhost.localdomain>
-In-Reply-To: <1158942873.24572.20.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Sat, 23 Sep 2006 15:09:01 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:49900 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1751438AbWIWTJA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Sep 2006 15:09:00 -0400
+Subject: Re: [PATCH 2.6.18] [TRIVIAL] Spelling fixes in
+	Documentation/DocBook
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: David Woodhouse <dwmw2@infradead.org>, Randy Dunlap <rdunlap@xenotime.net>,
+       Michael Opdenacker <michael-lists@free-electrons.com>,
+       linux-kernel@vger.kernel.org, trivial@kernel.org
+In-Reply-To: <1159037251.1097.171.camel@mindpipe>
+References: <200609212318.07418.michael-lists@free-electrons.com>
+	 <1159005072.24527.891.camel@pmac.infradead.org>
+	 <20060923100428.99baa1ad.rdunlap@xenotime.net>
+	 <1159036269.1097.163.camel@mindpipe>
+	 <1159036439.24527.935.camel@pmac.infradead.org>
+	 <1159037251.1097.171.camel@mindpipe>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Date: Sat, 23 Sep 2006 20:32:49 +0100
+Message-Id: <1159039969.24572.74.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> Please also submit each set of changes separately
->   
-Thank you very much for your reviews!
+Ar Sad, 2006-09-23 am 14:47 -0400, ysgrifennodd Lee Revell:
+> On Sat, 2006-09-23 at 19:33 +0100, David Woodhouse wrote:
+> > On Sat, 2006-09-23 at 14:31 -0400, Lee Revell wrote:
+> > > On Sat, 2006-09-23 at 10:04 -0700, Randy Dunlap wrote:
+> > > > "Cooperate" has previously been hyphenated
+> > > > (co-operate) or spelled with a diaeresis over the second 'o'.
+> > > > They are now lost. 
+> > > 
+> > > Not completely - the New Yorker magazine still spells these with a
+> > > diaresis ;-)
+> > 
+> > And indede their is only a sertain extent too witch we wont two emulate
+> > the lowest common denomminator.
+> > 
+> 
+> That being said , until this thread I've never seen "role" spelled any
+> other way than "role", and I read a lot.
+> 
+> What does OED say?
 
-To make sure I understand, shall I resend the patches with only the 
-acknowledged changes, or have you already committed the ones you 
-acknowledged?
+It simply says role (or ro^le). The Oxford guide to style and Fowlers
+have no opinion. 
 
-Of course, next time, I will submit separate patch files as you recommended.
+For co-op* words the style guides prefer the hyphen because it makes the
+pronunciation clearer but doesn't strongly recommend. For cases where
+there are clashing words (ie there is a co-foo, and cofoo is a different
+word) it is required ot use the hypen.
 
-Thanks again!
+Essentially: pick one and stick to it.
 
-    :-)
-
-    Michael.
-
--- 
-Michael Opdenacker, Free Electrons
-Free Embedded Linux Training Materials
-on http://free-electrons.com/training
-(More than 1000 pages!)
+Alan
 

@@ -1,54 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964828AbWIWUgq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964827AbWIWUgK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964828AbWIWUgq (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Sep 2006 16:36:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751518AbWIWUgq
+	id S964827AbWIWUgK (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Sep 2006 16:36:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751543AbWIWUgK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Sep 2006 16:36:46 -0400
-Received: from smtpout.mac.com ([17.250.248.184]:26102 "EHLO smtpout.mac.com")
-	by vger.kernel.org with ESMTP id S1751516AbWIWUgp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Sep 2006 16:36:45 -0400
-In-Reply-To: <20060923144041.GA3540@gondor.apana.org.au>
-References: <20060922.223136.41635862.davem@davemloft.net> <20060923124633.GA2567@gondor.apana.org.au> <20060923125458.GA2682@gondor.apana.org.au> <20060923144041.GA3540@gondor.apana.org.au>
-Mime-Version: 1.0 (Apple Message framework v752.2)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <0C3FEC03-29A8-49B0-9D12-BBFA4AE99A78@mac.com>
-Cc: David Miller <davem@davemloft.net>, linux-kernel@vger.kernel.org,
-       torvalds@osdl.org
-Content-Transfer-Encoding: 7bit
-From: Kyle Moffett <mrmacman_g4@mac.com>
-Subject: Re: [PATCH]: Fix ALIGN() macro
-Date: Sat, 23 Sep 2006 16:36:33 -0400
-To: Herbert Xu <herbert@gondor.apana.org.au>
-X-Mailer: Apple Mail (2.752.2)
+	Sat, 23 Sep 2006 16:36:10 -0400
+Received: from zeniv.linux.org.uk ([195.92.253.2]:37057 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1751503AbWIWUgJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Sep 2006 16:36:09 -0400
+Date: Sat, 23 Sep 2006 21:36:05 +0100
+From: Al Viro <viro@ftp.linux.org.uk>
+To: Sam Ravnborg <sam@ravnborg.org>
+Cc: Linus Torvalds <torvalds@osdl.org>, rolandd@cisco.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] missing includes from infiniband merge
+Message-ID: <20060923203605.GN29920@ftp.linux.org.uk>
+References: <20060923154416.GH29920@ftp.linux.org.uk> <20060923202912.GA22293@uranus.ravnborg.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060923202912.GA22293@uranus.ravnborg.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sep 23, 2006, at 10:40:41, Herbert Xu wrote:
-> diff --git a/crypto/hmac.c b/crypto/hmac.c
-> index f403b69..d52b234 100644
-> --- a/crypto/hmac.c
-> +++ b/crypto/hmac.c
-> @@ -98,7 +98,7 @@ static int hmac_init(struct hash_desc *p
->  	sg_set_buf(&tmp, ipad, bs);
->
->  	return unlikely(crypto_hash_init(&desc)) ?:
-> -	       crypto_hash_update(&desc, &tmp, 1);
-> +	       crypto_hash_update(&desc, &tmp, bs);
->  }
->
->  static int hmac_update(struct hash_desc *pdesc,
+On Sat, Sep 23, 2006 at 10:29:12PM +0200, Sam Ravnborg wrote:
+> On Sat, Sep 23, 2006 at 04:44:16PM +0100, Al Viro wrote:
+> > indirect chains of includes are arch-specific and can't
+> > be relied upon...  (hell, even attempt to build it for
+> > itanic would trigger vmalloc.h ones; err.h triggers
+> > on e.g. alpha).
+> > 
+> > Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+> > ---
+> >  drivers/infiniband/core/mad_priv.h           |    1 +
+> >  drivers/infiniband/hw/amso1100/c2_provider.c |    1 +
+> >  drivers/infiniband/hw/amso1100/c2_rnic.c     |    1 +
+> >  drivers/infiniband/hw/ipath/ipath_diag.c     |    1 +
+> >  4 files changed, 4 insertions(+), 0 deletions(-)
+> A better fix would be to avoid the arch dependency in the non-arch .h
+> files so that in most cases it just works??
 
-Quick question:  does "crypto_hash_init()" ever return anything other  
-than 0 or 1?  If so this is a subtle bug, as "unlikely()" is  
-implemented like this:
+What "it"?  Use of vmalloc() without including vmalloc.h since on i386
+it just happens to be pulled via the
+linux/pci.h -> linux/dmapool.h -> asm-i386/io.h -> linux/vmalloc.h
+chain?
 
-# define unlikely(x) __builtin_expect(!!(x), 0)
-
-IMO any usage of likely/unlikely other than if(unlikely()), if(likely 
-()) is probably a bug.
-
-Cheers,
-Kyle Moffett
-
+Should we replicate it on every platform?  Along with all kinds of fun that's
+going to cause wrt ordering, BTW...

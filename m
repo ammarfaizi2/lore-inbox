@@ -1,115 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751499AbWIWThF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751505AbWIWToJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751499AbWIWThF (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Sep 2006 15:37:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751500AbWIWThF
+	id S1751505AbWIWToJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Sep 2006 15:44:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751507AbWIWToI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Sep 2006 15:37:05 -0400
-Received: from opersys.com ([64.40.108.71]:37636 "EHLO www.opersys.com")
-	by vger.kernel.org with ESMTP id S1751499AbWIWThC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Sep 2006 15:37:02 -0400
-Message-ID: <451591AC.9030703@opersys.com>
-Date: Sat, 23 Sep 2006 15:57:32 -0400
-From: Karim Yaghmour <karim@opersys.com>
-Reply-To: karim@opersys.com
-Organization: Opersys inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.6) Gecko/20060804 Fedora/1.0.4-0.5.1.fc5 SeaMonkey/1.0.4
+	Sat, 23 Sep 2006 15:44:08 -0400
+Received: from moutng.kundenserver.de ([212.227.126.177]:31707 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S1751505AbWIWToH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Sep 2006 15:44:07 -0400
+From: Arnd Bergmann <arnd@arndb.de>
+To: "Mike Frysinger" <vapier.adi@gmail.com>
+Subject: Re: [PATCH 1/4] Blackfin: arch patch for 2.6.18
+Date: Sat, 23 Sep 2006 21:43:56 +0200
+User-Agent: KMail/1.9.4
+Cc: "Luke Yang" <luke.adi@gmail.com>, linux-kernel@vger.kernel.org,
+       "Andrew Morton" <akpm@osdl.org>
+References: <489ecd0c0609202032l1c5540f7t980244e30d134ca0@mail.gmail.com> <200609230218.36894.arnd@arndb.de> <8bd0f97a0609222350o3a9c8c36g468a6177ae7b1ea7@mail.gmail.com>
+In-Reply-To: <8bd0f97a0609222350o3a9c8c36g468a6177ae7b1ea7@mail.gmail.com>
 MIME-Version: 1.0
-To: Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>
-CC: Martin Bligh <mbligh@google.com>, "Frank Ch. Eigler" <fche@redhat.com>,
-       Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>, prasanna@in.ibm.com,
-       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-       Paul Mundt <lethal@linux-sh.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>, Jes Sorensen <jes@sgi.com>,
-       Tom Zanussi <zanussi@us.ibm.com>,
-       Richard J Moore <richardj_moore@uk.ibm.com>,
-       Michel Dagenais <michel.dagenais@polymtl.ca>,
-       Christoph Hellwig <hch@infradead.org>,
-       Greg Kroah-Hartman <gregkh@suse.de>,
-       Thomas Gleixner <tglx@linutronix.de>, William Cohen <wcohen@redhat.com>,
-       ltt-dev@shafik.org, systemtap@sources.redhat.com,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Jeremy Fitzhardinge <jeremy@goop.org>
-Subject: Re: [PATCH] Linux Kernel Markers 0.8 for 2.6.17 (with near jump for
- i386)
-References: <20060922214239.GA28625@Krystal>
-In-Reply-To: <20060922214239.GA28625@Krystal>
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200609232143.56996.arnd@arndb.de>
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:c48f057754fc1b1a557605ab9fa6da41
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Saturday 23 September 2006 08:50, Mike Frysinger wrote:
+> > There is not much point in trying to use the same numbers as an existing
+> > architecture if that means that you have to leave holes like setup().
+> > I don't know if you still have the choice of completely changing the
+> > syscall numbers, but it would make it nicer in the future.
+> 
+> we do, fortunately, have this luxury ... so we can look forward to a
+> nice cleaning of our syscall interface
 
-Mathieu Desnoyers wrote:
-> --- a/arch/i386/Kconfig
-> +++ b/arch/i386/Kconfig
-> @@ -1082,6 +1082,8 @@ config KPROBES
->  	  for kernel debugging, non-intrusive instrumentation and testing.
->  	  If in doubt, say "N".
->  
-> +source "kernel/Kconfig.marker"
-> +
->  source "ltt/Kconfig"
+Actually, I have one more general comment here. It would be really nice
+if you could add those files that have nothing specific to blackfin moved
+to include/asm-generic. That would probably include bug.h, current.h,
+flat.h, hardirq.h, ioctls.h, {ipc,msg,sem,msg}buf.h, kmap_types.h, mman.h,
+param.h, pci.h, poll.h, posix_types.h, scatterlist.h, semaphore.h,
+socket.h, sockios.h, stat.h, termbits.h, termios.h, types.h, and unistd.h.
 
-diffing against an LTT tree ...
+It doesn't really matter if you're the only user of the new files,
+as long as they are generic enough to be used by every future port.
+If the files are specific to nommu, 32bit or little-endian, then
+they should probably have the respective name so the next person can
+do it differently.
 
-> --- /dev/null
-> +++ b/include/asm-alpha/marker.h
-...
-> --- /dev/null
-> +++ b/include/asm-arm/marker.h
-...
-> --- /dev/null
-> +++ b/include/asm-arm26/marker.h
-...
-...
+For unistd.h, it may be a good idea to leave space for a few syscall
+numbers specific to architectures, so you could start the generic numbers
+at 32 or so.
 
-Not sure about the need for asm-foo/marker.h if the file contains no
-code at all. If there's going to be one marker.h per arch, it might
-as well have a purpose. So instead of:
+Of course nobody is forcing you do do that work, but the next person
+trying to do will be really thankful.
 
-> --- /dev/null
-> +++ b/include/asm-i386/marker.h
-...
-> +#define ARCH_HAS_MARK_NEAR_JUMP
-
-and
-
-> --- /dev/null
-> +++ b/include/linux/marker.h
-...
-> +#ifndef ARCH_HAS_MARK_NEAR_JUMP
-...
-
-Why not just have asm-foo/marker.h either implement the optimization
-or point to an asm-generic/marker.h which contains the non-optimized
-code. No #ifndefs needed.
-
-> --- /dev/null
-> +++ b/kernel/Kconfig.marker
-...
-> +config MARK_SYMBOL
-...
-> +config MARK_JUMP_CALL
-...
-> +config MARK_JUMP
-...
-
-My understanding of Ingo's input is that he'd rather not have this
-multiple options. Either the markers are active or they aren't.
-So ...
-MARK_ACTIVE ... speaks for itself, enables both the markers and
-the set/disable infrastructure. Markers are enabled in their
-optimized per-architecture implementation.
-
-MARK_FORCE_DIRECT_CALL ... forces all markers to be non-optimized
-(good for embedded systems where the image is in rom/flash and
-can therefore not have runtime binary modifications.) Maybe this
-should depend on CONFIG_EMBEDDED.
-
-Karim
--- 
-President  / Opersys Inc.
-Embedded Linux Training and Expertise
-www.opersys.com  /  1.866.677.4546
+	Arnd <><

@@ -1,113 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750918AbWIWXa3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750934AbWIWXfh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750918AbWIWXa3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Sep 2006 19:30:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750934AbWIWXa3
+	id S1750934AbWIWXfh (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Sep 2006 19:35:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750936AbWIWXfh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Sep 2006 19:30:29 -0400
-Received: from rhun.apana.org.au ([64.62.148.172]:14091 "EHLO
-	arnor.apana.org.au") by vger.kernel.org with ESMTP id S1750916AbWIWXa2
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Sep 2006 19:30:28 -0400
-Date: Sun, 24 Sep 2006 09:30:19 +1000
-To: Kyle Moffett <mrmacman_g4@mac.com>
-Cc: David Miller <davem@davemloft.net>, linux-kernel@vger.kernel.org,
-       torvalds@osdl.org
-Subject: Re: [PATCH]: Fix ALIGN() macro
-Message-ID: <20060923233019.GA6779@gondor.apana.org.au>
-References: <20060922.223136.41635862.davem@davemloft.net> <20060923124633.GA2567@gondor.apana.org.au> <20060923125458.GA2682@gondor.apana.org.au> <20060923144041.GA3540@gondor.apana.org.au> <0C3FEC03-29A8-49B0-9D12-BBFA4AE99A78@mac.com>
+	Sat, 23 Sep 2006 19:35:37 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:39379
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1750910AbWIWXfg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Sep 2006 19:35:36 -0400
+Date: Sat, 23 Sep 2006 16:35:35 -0700 (PDT)
+Message-Id: <20060923.163535.41636370.davem@davemloft.net>
+To: hadi@cyberus.ca
+Cc: jbglaw@lug-owl.de, joro-lkml@zlug.org, kaber@trash.net,
+       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: Re: [PATCH 00/03][RESUBMIT] net: EtherIP tunnel driver
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <1159015118.5301.19.camel@jzny2>
+References: <20060923120704.GA32284@zlug.org>
+	<20060923121327.GH30245@lug-owl.de>
+	<1159015118.5301.19.camel@jzny2>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <0C3FEC03-29A8-49B0-9D12-BBFA4AE99A78@mac.com>
-User-Agent: Mutt/1.5.9i
-From: Herbert Xu <herbert@gondor.apana.org.au>
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Sep 23, 2006 at 04:36:33PM -0400, Kyle Moffett wrote:
->
-> Quick question:  does "crypto_hash_init()" ever return anything other  
-> than 0 or 1?  If so this is a subtle bug, as "unlikely()" is  
-> implemented like this:
+From: jamal <hadi@cyberus.ca>
+Date: Sat, 23 Sep 2006 08:38:37 -0400
 
-Good point.  It's meant to be an errno value so this is a bug.
+> You just need to use GRE tunnel instead of what you describe above.
+> 
+> While i feel bad that Joerg (and Lennert and others before) have put the
+> effort to do the work, i too question the need for this driver. I dont
+> think even the authors of the original RFC feel this provides anything
+> that GRE cant (according to some posting on netdev that one of the
+> authors made). My understanding is also that the only other OS that
+> implemented this got it wrong - hence you will have to interop with them
+> and provide quirks checks.
+> 
+> I am actually curious if anyone uses it instead of GRE in openbsd?
+> You could argue that including this driver would allow Linux to have
+> another bulb in the christmas tree; the other (more pragmatic way) to
+> look at this is it allows spreading a bad idea and needs to be censored.
+> I prefer the later - and hope this doesnt discourage Joerg from
+> contributing in the future.
 
-[CRYPTO] hmac: Fix error truncation by unlikely()
+First, the only mentioned real use of EtherIP I've seen anywhere is to
+tunnel old LAN based games that used protocols other than IP :-)
 
-The error return values are truncated by unlikely so we need to
-save it first.  Thanks to Kyle Moffett for spotting this.
+Second, the OpenBSD interoperability issues are very real, and there
+is even a Xerox implementation that used an 8-bit instead of a 16-bit
+header size.
 
-Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
--- 
-Visit Openswan at http://www.openswan.org/
-Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
-Home Page: http://gondor.apana.org.au/~herbert/
-PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt
---
-diff --git a/crypto/hmac.c b/crypto/hmac.c
-index d52b234..b521bcd 100644
---- a/crypto/hmac.c
-+++ b/crypto/hmac.c
-@@ -92,13 +92,17 @@ static int hmac_init(struct hash_desc *p
- 	struct hmac_ctx *ctx = align_ptr(ipad + bs * 2 + ds, sizeof(void *));
- 	struct hash_desc desc;
- 	struct scatterlist tmp;
-+	int err;
- 
- 	desc.tfm = ctx->child;
- 	desc.flags = pdesc->flags & CRYPTO_TFM_REQ_MAY_SLEEP;
- 	sg_set_buf(&tmp, ipad, bs);
- 
--	return unlikely(crypto_hash_init(&desc)) ?:
--	       crypto_hash_update(&desc, &tmp, bs);
-+	err = crypto_hash_init(&desc);
-+	if (unlikely(err))
-+		return err;
-+
-+	return crypto_hash_update(&desc, &tmp, bs);
- }
- 
- static int hmac_update(struct hash_desc *pdesc,
-@@ -123,13 +127,17 @@ static int hmac_final(struct hash_desc *
- 	struct hmac_ctx *ctx = align_ptr(digest + ds, sizeof(void *));
- 	struct hash_desc desc;
- 	struct scatterlist tmp;
-+	int err;
- 
- 	desc.tfm = ctx->child;
- 	desc.flags = pdesc->flags & CRYPTO_TFM_REQ_MAY_SLEEP;
- 	sg_set_buf(&tmp, opad, bs + ds);
- 
--	return unlikely(crypto_hash_final(&desc, digest)) ?:
--	       crypto_hash_digest(&desc, &tmp, bs + ds, out);
-+	err = crypto_hash_final(&desc, digest);
-+	if (unlikely(err))
-+		return err;
-+
-+	return crypto_hash_digest(&desc, &tmp, bs + ds, out);
- }
- 
- static int hmac_digest(struct hash_desc *pdesc, struct scatterlist *sg,
-@@ -145,6 +153,7 @@ static int hmac_digest(struct hash_desc 
- 	struct hash_desc desc;
- 	struct scatterlist sg1[2];
- 	struct scatterlist sg2[1];
-+	int err;
- 
- 	desc.tfm = ctx->child;
- 	desc.flags = pdesc->flags & CRYPTO_TFM_REQ_MAY_SLEEP;
-@@ -154,8 +163,11 @@ static int hmac_digest(struct hash_desc 
- 	sg1[1].length = 0;
- 	sg_set_buf(sg2, opad, bs + ds);
- 
--	return unlikely(crypto_hash_digest(&desc, sg1, nbytes + bs, digest)) ?:
--	       crypto_hash_digest(&desc, sg2, bs + ds, out);
-+	err = crypto_hash_digest(&desc, sg1, nbytes + bs, digest);
-+	if (unlikely(err))
-+		return err;
-+
-+	return crypto_hash_digest(&desc, sg2, bs + ds, out);
- }
- 
- static int hmac_init_tfm(struct crypto_tfm *tfm)
+Third, even the introductory material in RFC3378 mentions that people
+are strongly encouraged to use other technologies over EtherIP.
+
+Fourth, and finally, if GRE can provide the same functionality then
+that plus the first three points makes EtherIP something we really
+should not latch onto.
+
+And if it doesn't go in, it's not the end of the world.  Anyone can
+maintain and use the external patch, and if usage gets widespread
+enough we'll of course be required to reevaluate integration.
+
+So I think we should pass on this for now.

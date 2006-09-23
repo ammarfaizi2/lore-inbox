@@ -1,54 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750696AbWIWLSI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750734AbWIWL3g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750696AbWIWLSI (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Sep 2006 07:18:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750708AbWIWLSI
+	id S1750734AbWIWL3g (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Sep 2006 07:29:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750735AbWIWL3f
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Sep 2006 07:18:08 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:5303 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1750696AbWIWLSH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Sep 2006 07:18:07 -0400
-Date: Sat, 23 Sep 2006 13:18:05 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: "Scott E. Preece" <preece@motorola.com>
-Cc: eugeny.mints@gmail.com, linux-pm@lists.osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [linux-pm] [PATCH] PowerOP, PowerOP Core, 1/2
-Message-ID: <20060923111805.GF20778@elf.ucw.cz>
-References: <200609222034.k8MKYoDK008487@olwen.urbana.css.mot.com>
+	Sat, 23 Sep 2006 07:29:35 -0400
+Received: from moutng.kundenserver.de ([212.227.126.187]:4847 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S1750734AbWIWL3f (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Sep 2006 07:29:35 -0400
+From: Arnd Bergmann <arnd@arndb.de>
+To: "Mike Frysinger" <vapier.adi@gmail.com>
+Subject: Re: [PATCH 1/4] Blackfin: arch patch for 2.6.18
+Date: Sat, 23 Sep 2006 13:29:21 +0200
+User-Agent: KMail/1.9.4
+Cc: "Luke Yang" <luke.adi@gmail.com>, linux-kernel@vger.kernel.org,
+       "Andrew Morton" <akpm@osdl.org>
+References: <489ecd0c0609202032l1c5540f7t980244e30d134ca0@mail.gmail.com> <200609231303.35481.arnd@arndb.de> <8bd0f97a0609230415v6a31a784kf6a381f274cf7ef6@mail.gmail.com>
+In-Reply-To: <8bd0f97a0609230415v6a31a784kf6a381f274cf7ef6@mail.gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <200609222034.k8MKYoDK008487@olwen.urbana.css.mot.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+Message-Id: <200609231329.22251.arnd@arndb.de>
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:c48f057754fc1b1a557605ab9fa6da41
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Saturday 23 September 2006 13:15, Mike Frysinger wrote:
+> then that would not be just anomaly.h, that would be the entire mach
+> header subdirs:
+> include/asm-blackfin/mach-bf533/
+> include/asm-blackfin/mach-bf535/
+> include/asm-blackfin/mach-bf537/
+> include/asm-blackfin/mach-bf561/
+> 
+> relocated to the dirs:
+> arch/blackfin/mach-bf533/
+> arch/blackfin/mach-bf535/
+> arch/blackfin/mach-bf537/
+> arch/blackfin/mach-bf561/
 
-> Note that I don't think PowerOp would cover all devices. In fact, I
-> think most devices would remain autonomous or controlled as part of
-> specific subsystems. The only things that PowerOp would bundle together
-> would be things that aren't independent (and may not even be visible as
-> "devices" in the usual Linux sense), but that have to be managed
-> together in changing frequency/voltage. At least, that's the way I
-> imagined it would work.
+Right, that sounds good. Of course it doesn't make sense for files that
+are used outside of arch/blackfin/mach-bfXXX/, but if your split between
+platform specific and generic files is good, you don't have that problem.
 
-Well, two objections to that
-
-a) current powerop code does not handle 256 CPU machine, because that
-would need 256 independend bundles, and powerop has hardcoded "only
-one bundle" rule.
-
-b) having some devices controlled by powerop and some by specific
-subsystem is indeed ugly. I'd hope powerop would cover all the
-devices. (Or maybe cover _no_ devices). Userland should not need to
-know if touchscreen is part of SoC or if it happens to be independend
-on given machine.
-
-								Pavel
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+	Arnd <><

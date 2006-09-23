@@ -1,494 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751250AbWIWPgX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751245AbWIWPkn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751250AbWIWPgX (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Sep 2006 11:36:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751245AbWIWPgW
+	id S1751245AbWIWPkn (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Sep 2006 11:40:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751249AbWIWPkn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Sep 2006 11:36:22 -0400
-Received: from e2.ny.us.ibm.com ([32.97.182.142]:27085 "EHLO e2.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751250AbWIWPgT (ORCPT
+	Sat, 23 Sep 2006 11:40:43 -0400
+Received: from mail.aknet.ru ([82.179.72.26]:32263 "EHLO mail.aknet.ru")
+	by vger.kernel.org with ESMTP id S1751245AbWIWPkm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Sep 2006 11:36:19 -0400
-Date: Sat, 23 Sep 2006 21:06:07 +0530
-From: Dipankar Sarma <dipankar@in.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, Paul E McKenney <paulmck@us.ibm.com>,
-       Ingo Molnar <mingo@elte.hu>
-Subject: Re: [-mm PATCH 4/4] RCU: preempt rcu trace
-Message-ID: <20060923153607.GE13432@in.ibm.com>
-Reply-To: dipankar@in.ibm.com
-References: <20060923152957.GA13432@in.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060923152957.GA13432@in.ibm.com>
-User-Agent: Mutt/1.5.11
+	Sat, 23 Sep 2006 11:40:42 -0400
+Message-ID: <451555CB.5010006@aknet.ru>
+Date: Sat, 23 Sep 2006 19:42:03 +0400
+From: Stas Sergeev <stsp@aknet.ru>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
+MIME-Version: 1.0
+To: Hugh Dickins <hugh@veritas.com>
+Cc: Andrew Morton <akpm@osdl.org>, Ulrich Drepper <drepper@redhat.com>,
+       Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] remove MNT_NOEXEC check for PROT_EXEC mmaps
+References: <45150CD7.4010708@aknet.ru> <Pine.LNX.4.64.0609231555390.27012@blonde.wat.veritas.com>
+In-Reply-To: <Pine.LNX.4.64.0609231555390.27012@blonde.wat.veritas.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This patch consolidates the RCU tracing code in the preemptible
-RCU implementation, moves them to a separate "trace" file and
-cleans up the #ifdefs. Moving to a separate file will eventually
-allow dynamic tracing of RCU implementation.
+Hi.
 
-Signed-off-by: Paul McKenney <paulmck@in.ibm.com>
-Signed-off-by: Dipankar Sarma <dipankar@in.ibm.com>
----
+Hugh Dickins wrote:
+> automatically.  But they were put in for good reason, have been
+> in for nearly three years, I doubt they should come out now.
+I know they won't. I only thought I have to try, after seeing
+the debian problem and googling out a few negative posts about
+these checks.
 
+> It's hardly any surprise, is it, that if a distro chooses now
+> to mount something "noexec", a problem is then found with a few
+> things which want otherwise?
+They do not "want otherwise". They do the right thing - use
+shm_open() and then mmap(), but mmap() suddenly fails. The apps
+are not guilty. Neither I think the debian guys are.
 
- include/linux/rcupreempt_trace.h |   84 ++++++++++++++++++++++++++++
- kernel/Kconfig.preempt           |   11 +--
- kernel/Makefile                  |    1 
- kernel/rcupreempt.c              |  113 ++++++++++++---------------------------
- kernel/rcupreempt_trace.c        |   99 ++++++++++++++++++++++++++++++++++
- 5 files changed, 225 insertions(+), 83 deletions(-)
+> And it seems unlikely that the answer
+> is then to modify the kernel, to weaken the very protection they're
+> wanting to add?
+I don't think they want to prevent PROT_EXEC mmaps. Almost
+certainly not. Maybe they thought they would only block mere
+execve() calls and the like, I don't know. My point is that
+this change (use of "noexec") should not break the properly
+written apps, but right now it does. Is it stated anywhere
+in the shm_open() manpage or elsewhere that you must not use
+"noexec" on tmpfs or you'll get troubles with mmap?
 
-diff -puN /dev/null include/linux/rcupreempt_trace.h
---- /dev/null	2006-09-20 22:20:57.873117750 +0530
-+++ linux-2.6.18-rc6-mm1-rcu-dipankar/include/linux/rcupreempt_trace.h	2006-09-23 10:10:53.000000000 +0530
-@@ -0,0 +1,84 @@
-+/*
-+ * Read-Copy Update mechanism for mutual exclusion (RT implementation)
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
-+ *
-+ * Copyright (C) IBM Corporation, 2006
-+ *
-+ * Author:  Paul McKenney <paulmck@us.ibm.com>
-+ * 
-+ * Based on the original work by Paul McKenney <paul.mckenney@us.ibm.com>
-+ * and inputs from Rusty Russell, Andrea Arcangeli and Andi Kleen.
-+ * Papers:
-+ * http://www.rdrop.com/users/paulmck/paper/rclockpdcsproof.pdf
-+ * http://lse.sourceforge.net/locking/rclock_OLS.2001.05.01c.sc.pdf (OLS2001)
-+ *
-+ * For detailed explanation of Read-Copy Update mechanism see -
-+ * 		http://lse.sourceforge.net/locking/rcupdate.html
-+ *
-+ */
-+
-+#ifndef __LINUX_RCUPREEMPT_TRACE_H
-+#define __LINUX_RCUPREEMPT_TRACE_H
-+
-+#ifdef __KERNEL__
-+#include <linux/types.h>
-+#include <linux/kernel.h>
-+
-+#include <asm/atomic.h>
-+
-+/*
-+ * PREEMPT_RCU data structures.
-+ */
-+
-+struct rcupreempt_trace {
-+	long		next_length;
-+	long		next_add;
-+	long		wait_length;
-+	long		wait_add;
-+	long		done_length;
-+	long		done_add;
-+	long		done_remove;
-+	atomic_t	done_invoked;
-+	long		rcu_check_callbacks;
-+	atomic_t	rcu_try_flip1;
-+	long		rcu_try_flip2;
-+	long		rcu_try_flip3;
-+	atomic_t	rcu_try_flip_e1;
-+	long		rcu_try_flip_e2;
-+	long		rcu_try_flip_e3;
-+};
-+
-+#ifdef CONFIG_RCU_TRACE
-+#define RCU_TRACE(fn, arg) 	fn(arg);
-+#else
-+#define RCU_TRACE(fn, arg)
-+#endif
-+
-+extern void rcupreempt_trace_move2done(struct rcupreempt_trace *trace);
-+extern void rcupreempt_trace_move2wait(struct rcupreempt_trace *trace);
-+extern void rcupreempt_trace_try_flip1(struct rcupreempt_trace *trace);
-+extern void rcupreempt_trace_try_flip_e1(struct rcupreempt_trace *trace);
-+extern void rcupreempt_trace_try_flip_e2(struct rcupreempt_trace *trace);
-+extern void rcupreempt_trace_try_flip_e3(struct rcupreempt_trace *trace);
-+extern void rcupreempt_trace_try_flip2(struct rcupreempt_trace *trace);
-+extern void rcupreempt_trace_try_flip3(struct rcupreempt_trace *trace);
-+extern void rcupreempt_trace_check_callbacks(struct rcupreempt_trace *trace);
-+extern void rcupreempt_trace_done_remove(struct rcupreempt_trace *trace);
-+extern void rcupreempt_trace_invoke(struct rcupreempt_trace *trace);
-+extern void rcupreempt_trace_next_add(struct rcupreempt_trace *trace);
-+
-+#endif /* __KERNEL__ */
-+#endif /* __LINUX_RCUPREEMPT_TRACE_H */
-diff -puN kernel/Kconfig.preempt~rcu-preempt-trace kernel/Kconfig.preempt
---- linux-2.6.18-rc6-mm1-rcu/kernel/Kconfig.preempt~rcu-preempt-trace	2006-09-23 10:10:53.000000000 +0530
-+++ linux-2.6.18-rc6-mm1-rcu-dipankar/kernel/Kconfig.preempt	2006-09-23 10:10:53.000000000 +0530
-@@ -90,13 +90,12 @@ config PREEMPT_RCU
- 
- endchoice
- 
--config RCU_STATS
--	bool "/proc stats for preemptible RCU read-side critical sections"
--	depends on PREEMPT_RCU
-+config RCU_TRACE
-+	bool "Enable tracing for RCU - currently stats in /proc"
- 	default y
- 	help
--	  This option provides /proc stats to provide debugging info for
--	  the preemptible realtime RCU implementation.
-+	  This option provides tracing in RCU which presents /proc 
-+          stats for debugging RCU implementation.
- 
--	  Say Y here if you want to see RCU stats in /proc
-+	  Say Y here if you want to enable RCU tracing
- 	  Say N if you are unsure.
-diff -puN kernel/Makefile~rcu-preempt-trace kernel/Makefile
---- linux-2.6.18-rc6-mm1-rcu/kernel/Makefile~rcu-preempt-trace	2006-09-23 10:10:53.000000000 +0530
-+++ linux-2.6.18-rc6-mm1-rcu-dipankar/kernel/Makefile	2006-09-23 10:11:11.000000000 +0530
-@@ -49,6 +49,7 @@ obj-$(CONFIG_SECCOMP) += seccomp.o
- obj-$(CONFIG_RCU_TORTURE_TEST) += rcutorture.o
- obj-$(CONFIG_CLASSIC_RCU) += rcupdate.o rcuclassic.o
- obj-$(CONFIG_PREEMPT_RCU) += rcupdate.o rcupreempt.o
-+obj-$(CONFIG_RCU_TRACE) += rcupreempt_trace.o
- obj-$(CONFIG_DEBUG_SYNCHRO_TEST) += synchro-test.o
- obj-$(CONFIG_RELAY) += relay.o
- obj-$(CONFIG_UTS_NS) += utsname.o
-diff -puN kernel/rcupreempt.c~rcu-preempt-trace kernel/rcupreempt.c
---- linux-2.6.18-rc6-mm1-rcu/kernel/rcupreempt.c~rcu-preempt-trace	2006-09-23 10:10:53.000000000 +0530
-+++ linux-2.6.18-rc6-mm1-rcu-dipankar/kernel/rcupreempt.c	2006-09-23 10:10:53.000000000 +0530
-@@ -48,6 +48,7 @@
- #include <linux/delay.h>
- #include <linux/byteorder/swabb.h>
- #include <linux/cpumask.h>
-+#include <linux/rcupreempt_trace.h>
- 
- /*
-  * PREEMPT_RCU data structures.
-@@ -63,23 +64,9 @@ struct rcu_data {
- 	struct rcu_head **waittail;
- 	struct rcu_head *donelist;
- 	struct rcu_head **donetail;
--#ifdef CONFIG_RCU_STATS
--	long		n_next_length;
--	long		n_next_add;
--	long		n_wait_length;
--	long		n_wait_add;
--	long		n_done_length;
--	long		n_done_add;
--	long		n_done_remove;
--	atomic_t	n_done_invoked;
--	long		n_rcu_check_callbacks;
--	atomic_t	n_rcu_try_flip1;
--	long		n_rcu_try_flip2;
--	long		n_rcu_try_flip3;
--	atomic_t	n_rcu_try_flip_e1;
--	long		n_rcu_try_flip_e2;
--	long		n_rcu_try_flip_e3;
--#endif /* #ifdef CONFIG_RCU_STATS */
-+#ifdef CONFIG_RCU_TRACE
-+	struct rcupreempt_trace trace;
-+#endif /* #ifdef CONFIG_RCU_TRACE */
- };
- struct rcu_ctrlblk {
- 	spinlock_t	fliplock;
-@@ -180,22 +167,14 @@ static void __rcu_advance_callbacks(void
- 		if (rcu_data.waitlist != NULL) {
- 			*rcu_data.donetail = rcu_data.waitlist;
- 			rcu_data.donetail = rcu_data.waittail;
--#ifdef CONFIG_RCU_STATS
--			rcu_data.n_done_length += rcu_data.n_wait_length;
--			rcu_data.n_done_add += rcu_data.n_wait_length;
--			rcu_data.n_wait_length = 0;
--#endif /* #ifdef CONFIG_RCU_STATS */
-+			RCU_TRACE(rcupreempt_trace_move2done, &rcu_data.trace);
- 		}
- 		if (rcu_data.nextlist != NULL) {
- 			rcu_data.waitlist = rcu_data.nextlist;
- 			rcu_data.waittail = rcu_data.nexttail;
- 			rcu_data.nextlist = NULL;
- 			rcu_data.nexttail = &rcu_data.nextlist;
--#ifdef CONFIG_RCU_STATS
--			rcu_data.n_wait_length += rcu_data.n_next_length;
--			rcu_data.n_wait_add += rcu_data.n_next_length;
--			rcu_data.n_next_length = 0;
--#endif /* #ifdef CONFIG_RCU_STATS */
-+			RCU_TRACE(rcupreempt_trace_move2wait, &rcu_data.trace);
- 		} else {
- 			rcu_data.waitlist = NULL;
- 			rcu_data.waittail = &rcu_data.waitlist;
-@@ -220,22 +199,16 @@ static void rcu_try_flip(void)
- 	unsigned long oldirq;
- 
- 	flipctr = rcu_ctrlblk.completed;
--#ifdef CONFIG_RCU_STATS
--	atomic_inc(&rcu_data.n_rcu_try_flip1);
--#endif /* #ifdef CONFIG_RCU_STATS */
-+	RCU_TRACE(rcupreempt_trace_try_flip1, &rcu_data.trace);
- 	if (unlikely(!spin_trylock_irqsave(&rcu_ctrlblk.fliplock, oldirq))) {
--#ifdef CONFIG_RCU_STATS
--		atomic_inc(&rcu_data.n_rcu_try_flip_e1);
--#endif /* #ifdef CONFIG_RCU_STATS */
-+		RCU_TRACE(rcupreempt_trace_try_flip_e1, &rcu_data.trace);
- 		return;
- 	}
- 	if (unlikely(flipctr != rcu_ctrlblk.completed)) {
- 
- 		/* Our work is done!  ;-) */
- 
--#ifdef CONFIG_RCU_STATS
--		rcu_data.n_rcu_try_flip_e2++;
--#endif /* #ifdef CONFIG_RCU_STATS */
-+		RCU_TRACE(rcupreempt_trace_try_flip_e2, &rcu_data.trace);
- 		spin_unlock_irqrestore(&rcu_ctrlblk.fliplock, oldirq);
- 		return;
- 	}
-@@ -246,14 +219,11 @@ static void rcu_try_flip(void)
- 	 * that started prior to the previous flip.
- 	 */
- 
--#ifdef CONFIG_RCU_STATS
--	rcu_data.n_rcu_try_flip2++;
--#endif /* #ifdef CONFIG_RCU_STATS */
-+	RCU_TRACE(rcupreempt_trace_try_flip2, &rcu_data.trace);
- 	for_each_possible_cpu(cpu) {
- 		if (atomic_read(&per_cpu(rcu_flipctr, cpu)[!flipctr]) != 0) {
--#ifdef CONFIG_RCU_STATS
--			rcu_data.n_rcu_try_flip_e3++;
--#endif /* #ifdef CONFIG_RCU_STATS */
-+			RCU_TRACE(rcupreempt_trace_try_flip_e3, 
-+							&rcu_data.trace);
- 			spin_unlock_irqrestore(&rcu_ctrlblk.fliplock, oldirq);
- 			return;
- 		}
-@@ -264,9 +234,7 @@ static void rcu_try_flip(void)
- 	smp_mb();
- 	rcu_ctrlblk.completed++;
- 
--#ifdef CONFIG_RCU_STATS
--	rcu_data.n_rcu_try_flip3++;
--#endif /* #ifdef CONFIG_RCU_STATS */
-+	RCU_TRACE(rcupreempt_trace_try_flip3, &rcu_data.trace);
- 	spin_unlock_irqrestore(&rcu_ctrlblk.fliplock, oldirq);
- }
- 
-@@ -281,9 +249,7 @@ void rcu_check_callbacks(int cpu, int us
- 		}
- 	}
- 	spin_lock_irqsave(&rcu_data.lock, oldirq);
--#ifdef CONFIG_RCU_STATS
--	rcu_data.n_rcu_check_callbacks++;
--#endif /* #ifdef CONFIG_RCU_STATS */
-+	RCU_TRACE(rcupreempt_trace_check_callbacks, &rcu_data.trace);
- 	__rcu_advance_callbacks();
- 	if (rcu_data.donelist == NULL) {
- 		spin_unlock_irqrestore(&rcu_data.lock, oldirq);
-@@ -306,18 +272,13 @@ static void rcu_process_callbacks(unsign
- 	}
- 	rcu_data.donelist = NULL;
- 	rcu_data.donetail = &rcu_data.donelist;
--#ifdef CONFIG_RCU_STATS
--	rcu_data.n_done_remove += rcu_data.n_done_length;
--	rcu_data.n_done_length = 0;
--#endif /* #ifdef CONFIG_RCU_STATS */
-+	RCU_TRACE(rcupreempt_trace_done_remove, &rcu_data.trace);
- 	spin_unlock_irqrestore(&rcu_data.lock, flags);
- 	while (list) {
- 		next = list->next;
- 		list->func(list);
- 		list = next;
--#ifdef CONFIG_RCU_STATS
--		atomic_inc(&rcu_data.n_done_invoked);
--#endif /* #ifdef CONFIG_RCU_STATS */
-+		RCU_TRACE(rcupreempt_trace_invoke, &rcu_data.trace);
- 	}
- }
- 
-@@ -332,10 +293,7 @@ void fastcall call_rcu(struct rcu_head *
- 	__rcu_advance_callbacks();
- 	*rcu_data.nexttail = head;
- 	rcu_data.nexttail = &head->next;
--#ifdef CONFIG_RCU_STATS
--	rcu_data.n_next_add++;
--	rcu_data.n_next_length++;
--#endif /* #ifdef CONFIG_RCU_STATS */
-+	RCU_TRACE(rcupreempt_trace_next_add, &rcu_data.trace);
- 	spin_unlock_irqrestore(&rcu_data.lock, flags);
- }
- 
-@@ -389,9 +347,10 @@ void synchronize_kernel(void)
- 	synchronize_rcu();
- }
- 
--#ifdef CONFIG_RCU_STATS
-+#ifdef CONFIG_RCU_TRACE
- int rcu_read_proc_data(char *page)
- {
-+	struct rcupreempt_trace *trace = &rcu_data.trace;
- 	return sprintf(page,
- 		       "ggp=%ld lgp=%ld rcc=%ld\n"
- 		       "na=%ld nl=%ld wa=%ld wl=%ld da=%ld dl=%ld dr=%ld di=%d\n"
-@@ -399,23 +358,23 @@ int rcu_read_proc_data(char *page)
- 
- 		       rcu_ctrlblk.completed,
- 		       rcu_data.completed,
--		       rcu_data.n_rcu_check_callbacks,
-+		       trace->rcu_check_callbacks,
- 
--		       rcu_data.n_next_add,
--		       rcu_data.n_next_length,
--		       rcu_data.n_wait_add,
--		       rcu_data.n_wait_length,
--		       rcu_data.n_done_add,
--		       rcu_data.n_done_length,
--		       rcu_data.n_done_remove,
--		       atomic_read(&rcu_data.n_done_invoked),
--
--		       atomic_read(&rcu_data.n_rcu_try_flip1),
--		       rcu_data.n_rcu_try_flip2,
--		       rcu_data.n_rcu_try_flip3,
--		       atomic_read(&rcu_data.n_rcu_try_flip_e1),
--		       rcu_data.n_rcu_try_flip_e2,
--		       rcu_data.n_rcu_try_flip_e3);
-+		       trace->next_add,
-+		       trace->next_length,
-+		       trace->wait_add,
-+		       trace->wait_length,
-+		       trace->done_add,
-+		       trace->done_length,
-+		       trace->done_remove,
-+		       atomic_read(&trace->done_invoked),
-+
-+		       atomic_read(&trace->rcu_try_flip1),
-+		       trace->rcu_try_flip2,
-+		       trace->rcu_try_flip3,
-+		       atomic_read(&trace->rcu_try_flip_e1),
-+		       trace->rcu_try_flip_e2,
-+		       trace->rcu_try_flip_e3);
- }
- 
- int rcu_read_proc_gp_data(char *page)
-@@ -454,7 +413,7 @@ int rcu_read_proc_ctrs_data(char *page)
- 	return (cnt);
- }
- 
--#endif /* #ifdef CONFIG_RCU_STATS */
-+#endif /* #ifdef CONFIG_RCU_TRACE */
- 
- EXPORT_SYMBOL_GPL(call_rcu);
- EXPORT_SYMBOL_GPL(rcu_batches_completed);
-diff -puN /dev/null kernel/rcupreempt_trace.c
---- /dev/null	2006-09-20 22:20:57.873117750 +0530
-+++ linux-2.6.18-rc6-mm1-rcu-dipankar/kernel/rcupreempt_trace.c	2006-09-23 10:10:53.000000000 +0530
-@@ -0,0 +1,99 @@
-+/*
-+ * Read-Copy Update tracing for realtime implementation
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
-+ *
-+ * Copyright (C) IBM Corporation, 2006
-+ *
-+ * Papers:  http://www.rdrop.com/users/paulmck/RCU
-+ *
-+ * For detailed explanation of Read-Copy Update mechanism see -
-+ * 		Documentation/RCU/ *.txt
-+ *
-+ */
-+#include <linux/types.h>
-+#include <linux/kernel.h>
-+#include <linux/init.h>
-+#include <linux/spinlock.h>
-+#include <linux/smp.h>
-+#include <linux/rcupdate.h>
-+#include <linux/interrupt.h>
-+#include <linux/sched.h>
-+#include <asm/atomic.h>
-+#include <linux/bitops.h>
-+#include <linux/module.h>
-+#include <linux/completion.h>
-+#include <linux/moduleparam.h>
-+#include <linux/percpu.h>
-+#include <linux/notifier.h>
-+#include <linux/rcupdate.h>
-+#include <linux/cpu.h>
-+#include <linux/mutex.h>
-+#include <linux/rcupreempt_trace.h>
-+
-+void rcupreempt_trace_move2done(struct rcupreempt_trace *trace)
-+{
-+	trace->done_length += trace->wait_length;
-+	trace->done_add += trace->wait_length;
-+	trace->wait_length = 0;
-+}
-+void rcupreempt_trace_move2wait(struct rcupreempt_trace *trace)
-+{
-+	trace->wait_length += trace->next_length;
-+	trace->wait_add += trace->next_length;
-+	trace->next_length = 0;
-+}
-+void rcupreempt_trace_try_flip1(struct rcupreempt_trace *trace)
-+{
-+	atomic_inc(&trace->rcu_try_flip1);
-+}
-+void rcupreempt_trace_try_flip_e1(struct rcupreempt_trace *trace)
-+{
-+	atomic_inc(&trace->rcu_try_flip_e1);
-+}
-+void rcupreempt_trace_try_flip_e2(struct rcupreempt_trace *trace)
-+{
-+	trace->rcu_try_flip_e2++;
-+}
-+void rcupreempt_trace_try_flip_e3(struct rcupreempt_trace *trace)
-+{
-+	trace->rcu_try_flip_e3++;
-+}
-+void rcupreempt_trace_try_flip2(struct rcupreempt_trace *trace)
-+{
-+	trace->rcu_try_flip2++;
-+}
-+void rcupreempt_trace_try_flip3(struct rcupreempt_trace *trace)
-+{
-+	trace->rcu_try_flip3++;
-+}
-+void rcupreempt_trace_check_callbacks(struct rcupreempt_trace *trace)
-+{
-+	trace->rcu_check_callbacks++;
-+}
-+void rcupreempt_trace_done_remove(struct rcupreempt_trace *trace)
-+{
-+	trace->done_remove += trace->done_length;
-+	trace->done_length = 0;
-+}
-+void rcupreempt_trace_invoke(struct rcupreempt_trace *trace)
-+{
-+	atomic_inc(&trace->done_invoked);
-+}
-+void rcupreempt_trace_next_add(struct rcupreempt_trace *trace)
-+{
-+        trace->next_add++;
-+        trace->next_length++;
-+}
+> The original 2.6.0 patch (later backported into 2.4.25) was
+> <drepper@redhat.com>
+> 	[PATCH] Fix 'noexec' behaviour
+> 	We should not allow mmap() with PROT_EXEC on mounts marked "noexec",
+> 	since otherwise there is no way for user-supplied executable loaders
+> 	(like ld.so and emulator environments) to properly honour the
+> 	"noexec"ness of the target.
+Thanks for the pointer, but that looks like the user-space
+issue to me. Why ld.so can't figure out the "noexecness" and
+do the right thing itself? Or does it figure out the "noexecness"
+exactly by trying the PROT_EXEC mmap and see if it fails?
 
-_

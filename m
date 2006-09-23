@@ -1,72 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751429AbWIWSzS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751421AbWIWS4t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751429AbWIWSzS (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Sep 2006 14:55:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751430AbWIWSzS
+	id S1751421AbWIWS4t (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Sep 2006 14:56:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751431AbWIWS4t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Sep 2006 14:55:18 -0400
-Received: from free-electrons.com ([88.191.23.47]:28331 "EHLO
-	sd-2511.dedibox.fr") by vger.kernel.org with ESMTP id S1751429AbWIWSzQ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Sep 2006 14:55:16 -0400
-Message-ID: <45158305.3010401@free-electrons.com>
-Date: Sat, 23 Sep 2006 20:55:01 +0200
-From: Michael Opdenacker <michael-lists@free-electrons.com>
-User-Agent: Thunderbird 1.5 (X11/20051201)
-MIME-Version: 1.0
-To: "Randy.Dunlap" <rdunlap@xenotime.net>
-CC: linux-kernel@vger.kernel.org, trivial@kernel.org
-Subject: Re: [PATCH 2.6.18] [TRIVIAL] Spelling fixes in Documentation/DocBook
-References: <200609212318.07418.michael-lists@free-electrons.com> <20060921150738.ed407645.rdunlap@xenotime.net>
-In-Reply-To: <20060921150738.ed407645.rdunlap@xenotime.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 23 Sep 2006 14:56:49 -0400
+Received: from e3.ny.us.ibm.com ([32.97.182.143]:57038 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751421AbWIWS4s (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Sep 2006 14:56:48 -0400
+Date: Sun, 24 Sep 2006 00:26:36 +0530
+From: Dipankar Sarma <dipankar@in.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, Paul E McKenney <paulmck@us.ibm.com>,
+       Ingo Molnar <mingo@elte.hu>
+Subject: Re: [-mm PATCH] RCU: various patches
+Message-ID: <20060923185636.GA18156@in.ibm.com>
+Reply-To: dipankar@in.ibm.com
+References: <20060923152957.GA13432@in.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060923152957.GA13432@in.ibm.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Randy.Dunlap wrote:
->>     <structfield>owner</structfield> field, such as in the
->>     <structname>file_operations</structname> structure. Set this field
->>     to the macro <symbol>THIS_MODULE</symbol>.
->> @@ -1028,7 +1028,7 @@ printk(KERN_INFO "my ip: %d.%d.%d.%d\n",
->>  
->>     <para>
->>      The preferred method of initializing structures is to use
->> -    designated initialisers, as defined by ISO C99, eg:
->> +    designated initializers, as defined by ISO C99, eg:
->>     
->
-> UK spelling, it's OK.
->   
+On Sat, Sep 23, 2006 at 08:59:57PM +0530, Dipankar Sarma wrote:
+> This patchset consists of various merge candidates that would
+> do well to have some testing in -mm. This patchset breaks
+> out RCU implementation from its APIs to allow multiple
+> implementations, gives RCU its own softirq and finally
+> lines up preemptible RCU from -rt tree as a configurable
+> RCU implementation for mainline. Published earlier and
+> re-diffed against -mm.
+> 
 
-Thank you all very much for your reviews!
+Andrew,
 
-In this particular case, I chose the American spelling because it 
-existed too in the same file (see 
-http://lxr.free-electrons.com/source/Documentation/DocBook/kernel-hacking.tmpl#1098). 
-I guess it is fine to have 2 different spellings for the same word in 
-the same document, right? Otherwise, arbitrating between the 2 options 
-can be pretty tricky.
+I forgot that some of the 2.6.18-rc7-mm1 has a few patches
+that have been merged. So, I should diff against that so that
+including these in -mm will be easy. Patches will follow tomorrow.
 
->> diff -Nurp linux-2.6.18/Documentation/DocBook/libata.tmpl 
->> linux-2.6.18-aspell-docbook/Documentation/DocBook/libata.tmpl
->> --- linux-2.6.18/Documentation/DocBook/libata.tmpl	2006-09-20 
->> 05:42:06.000000000 +0200
->> +++ linux-2.6.18-aspell-docbook/Documentation/DocBook/libata.tmpl	2006-09-21 
->> 22:14:56.000000000 +0200
->>     
->
-> ack all except "iff".  That is "if and only if".
->   
-Oops, thanks for this reminder!
-
-Cheers,
-
-    Michael.
-
--- 
-Michael Opdenacker, Free Electrons
-Free Embedded Linux Training Materials
-on http://free-electrons.com/training
-(More than 1000 pages!)
-
+Thanks
+Dipankar

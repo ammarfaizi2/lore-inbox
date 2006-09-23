@@ -1,97 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751142AbWIWN1j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751198AbWIWOXV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751142AbWIWN1j (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Sep 2006 09:27:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751139AbWIWN1j
+	id S1751198AbWIWOXV (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Sep 2006 10:23:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751202AbWIWOXV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Sep 2006 09:27:39 -0400
-Received: from ironport-c10.fh-zwickau.de ([141.32.72.200]:51613 "EHLO
-	ironport-c10.fh-zwickau.de") by vger.kernel.org with ESMTP
-	id S1751106AbWIWN1i (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Sep 2006 09:27:38 -0400
-X-IronPort-Anti-Spam-Filtered: true
-X-IronPort-Anti-Spam-Result: AQAAAHbSFEWLcAIN
-X-IronPort-AV: i="4.09,207,1157320800"; 
-   d="scan'208"; a="3401967:sNHT34433464"
-Date: Sat, 23 Sep 2006 15:27:36 +0200
-From: Joerg Roedel <joro-lkml@zlug.org>
-To: jamal <hadi@cyberus.ca>
-Cc: Jan-Benedict Glaw <jbglaw@lug-owl.de>, Patrick McHardy <kaber@trash.net>,
-       davem@davemloft.net, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org
-Subject: Re: [PATCH 00/03][RESUBMIT] net: EtherIP tunnel driver
-Message-ID: <20060923132736.GA345@zlug.org>
-References: <20060923120704.GA32284@zlug.org> <20060923121327.GH30245@lug-owl.de> <1159015118.5301.19.camel@jzny2>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1159015118.5301.19.camel@jzny2>
-User-Agent: Mutt/1.3.28i
+	Sat, 23 Sep 2006 10:23:21 -0400
+Received: from excu-mxob-1.symantec.com ([198.6.49.12]:20664 "EHLO
+	excu-mxob-1.symantec.com") by vger.kernel.org with ESMTP
+	id S1751198AbWIWOXV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Sep 2006 10:23:21 -0400
+Date: Sat, 23 Sep 2006 15:21:40 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@blonde.wat.veritas.com
+To: Andrew Morton <akpm@osdl.org>
+cc: Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Mike Waychison <mikew@google.com>, linux-mm@kvack.org,
+       Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [RFC] page fault retry with NOPAGE_RETRY
+In-Reply-To: <20060920105317.7c3eb5f4.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.64.0609231421110.25804@blonde.wat.veritas.com>
+References: <1158274508.14473.88.camel@localhost.localdomain>
+ <20060915001151.75f9a71b.akpm@osdl.org> <45107ECE.5040603@google.com>
+ <1158709835.6002.203.camel@localhost.localdomain>
+ <1158710712.6002.216.camel@localhost.localdomain> <20060919172105.bad4a89e.akpm@osdl.org>
+ <1158717429.6002.231.camel@localhost.localdomain> <20060919200533.2874ce36.akpm@osdl.org>
+ <1158728665.6002.262.camel@localhost.localdomain> <20060919222656.52fadf3c.akpm@osdl.org>
+ <1158735299.6002.273.camel@localhost.localdomain> <20060920105317.7c3eb5f4.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 23 Sep 2006 14:21:36.0177 (UTC) FILETIME=[93B39A10:01C6DF1B]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Sep 23, 2006 at 08:38:37AM -0400, jamal wrote:
+On Wed, 20 Sep 2006, Andrew Morton wrote:
+> On Wed, 20 Sep 2006 16:54:59 +1000
+> Benjamin Herrenschmidt <benh@kernel.crashing.org> wrote:
+> > 
+> > That's what I don't understand... where is the actual race that can
+> > cause the livelock you are mentioning.
+> 
+> Suppose a program (let's call it "DoS") is written which sits in a loop
+> doing fadvise(FADV_DONTNEED) against some parts of /lib/libc.so.
 
-Hello Jamal,
+I agree there's an issue here, but I believe you're attacking the wrong
+end, thereby complicating and uglifying the pagefault path (in every
+arch) with your proposed arg block and retry limitation.
 
-> You just need to use GRE tunnel instead of what you describe above.
+(Maybe one day there will be need for such an arg block,
+but I don't see that yet.)
 
-The main intention for this driver was not only to provide Ethernet over
-IPv4 tunneling. This is also possible in userspace using a tap interface
-(as Jan-Benedict Glaw mentioned). Another main intention for this driver
-was to provide tunneling of Ethernet packets using the EtherIP protocol.
+Isn't the real problem that fadvise(FADV_DONTNEED) is much more
+powerful than it should be?  Whereas madvise(MADV_DONTNEED) is simply
+releasing pages from my address space, fadvise(FADV_DONTNEED) is going
+so far as to remove them from pagecache (if nothing at that instant
+prevents): forcing others into I/O.  Why should I be allowed to
+invalidate pagecache useful to others so quickly?
 
-> While i feel bad that Joerg (and Lennert and others before) have put the
-> effort to do the work, i too question the need for this driver. I dont
-> think even the authors of the original RFC feel this provides anything
-> that GRE cant (according to some posting on netdev that one of the
-> authors made).
+Shouldn't it merely, say, move the pages in its range to the inactive
+list, giving other processes a chance to reassert an interest in them?
+May not turn out as easy as that, I admit.
 
-You are right. I completly agree with this. But this is also true for
-the IPIP and the SIT driver. You can do both with GRE. And there are
-reasons to keep both in the Kernel.
+I'm fine with your idea of dropping mmap_sem while nopage waits on I/O,
+I'm fine with your idea of an mm mmap transaction count, so nopage can
+just reget mmap_sem without backing out when nothing changed meanwhile.
 
-> My understanding is also that the only other OS that implemented this
-> got it wrong - hence you will have to interop with them and provide
-> quirks checks.
+But I do think Ben should have the simple NOPAGE_RETRY he proposed,
+going right back out to userspace; and that should be enough for your
+case too (the mmap transaction count would make its use a rarity).
 
-At the moment I know at least that at least OpenBSD, NetBSD and FreeBSD
-support the EtherIP protocol. The first of them was OpenBSD, thats
-right. I don't think OpenBSD made a wrong implementation at this point
-(I assume you are speaking of the position of the 3 in the header). The
-RFC is not clear at this point. It defines that the first 4 bits in the
-16 bit Ethernet header MUST be 0011. But it don't defines the
-byteorder of that 16 bit word nor if the least or most significant bit
-comes first. This was the reason (to keep interoperability with the
-existing implementations) I implemented it the same way as OpenBSD and
-my driver does not check the incoming EtherIP header.
- 
-> I am actually curious if anyone uses it instead of GRE in openbsd?
+> So I think there's a nasty DoS here if we permit infinite retries.  But
+> it's not just that - there might be other situations under really heavy
+> memory pressure where livelocks like this can occur.
 
-When I searched Google for EtherIP I found some entries in BSD forums
-discussing questions concering EtherIP usage. This, and the fact I know
-a BSD user that uses EtherIP too, makes be believe there are numerous
-users of EtherIP in the BSD world. And at least the BSD user I know
-wants interoperability of his NetBSD implemenation with Linux. This
-request was the starting point for this driver.
+filemap_nopage would want to mark_page_accessed() before returning
+NOPAGE_RETRY, but if that's not good enough to hold the page in cache
+before the retried fault grabs it, your memory pressure is already
+into thrashing.  I believe the livelock is peculiar to FADV_DONTNEED.
 
-> You could argue that including this driver would allow Linux to have
-> another bulb in the christmas tree; the other (more pragmatic way) to
-> look at this is it allows spreading a bad idea and needs to be censored.
-
-I am not a friend of censorship. I think the users should have the
-freedom to decide what they want to use. There are reasons to have more
-than one way to tunnel Ethernet packets in the Kernel (the reason for
-EtherIP is the interoperability with the BSD implementations). I don't
-know if the GRE driver in mainline already support Ethernet tunneling.
-But if not, my driver is already the second way to do it (after the tap
-devices).
-
-> I prefer the later - and hope this doesnt discourage Joerg from
-> contributing in the future.
-
-Surely not. I intend to further contribute even if this driver would be
-finally rejected :)
-
-Regards,
-    Joerg Roedel
+Hugh

@@ -1,60 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964990AbWIWA4Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965082AbWIWBG1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964990AbWIWA4Z (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 22 Sep 2006 20:56:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964994AbWIWA4Z
+	id S965082AbWIWBG1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 22 Sep 2006 21:06:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965077AbWIWBG0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 22 Sep 2006 20:56:25 -0400
-Received: from xenotime.net ([66.160.160.81]:45012 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S964990AbWIWA4Y (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Sep 2006 20:56:24 -0400
-Date: Fri, 22 Sep 2006 17:57:33 -0700
-From: "Randy.Dunlap" <rdunlap@xenotime.net>
-To: linas@austin.ibm.com (Linas Vepstas)
-Cc: Luca <kronos.it@gmail.com>, linux-scsi@vger.kernel.org,
-       linux-pci@atrey.karlin.mff.cuni.cz, linuxppc-dev@ozlabs.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH]: PCI Error Recovery: Symbios SCSI device driver
-Message-Id: <20060922175733.522c9e0b.rdunlap@xenotime.net>
-In-Reply-To: <20060922235017.GD14213@austin.ibm.com>
-References: <20060921231314.GW29167@austin.ibm.com>
-	<20060922220629.GA4600@dreamland.darkstar.lan>
-	<20060922233235.GB14213@austin.ibm.com>
-	<20060922163929.bb870ee1.rdunlap@xenotime.net>
-	<20060922235017.GD14213@austin.ibm.com>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
+	Fri, 22 Sep 2006 21:06:26 -0400
+Received: from fgwmail7.fujitsu.co.jp ([192.51.44.37]:39553 "EHLO
+	fgwmail7.fujitsu.co.jp") by vger.kernel.org with ESMTP
+	id S965025AbWIWBGZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 22 Sep 2006 21:06:25 -0400
+Date: Sat, 23 Sep 2006 10:06:03 +0900
+From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: tony.luck@intel.com, linux-ia64@vger.kernel.org,
+       linux-kernel@vger.kernel.org, y-goto@jp.fujitsu.com
+Subject: Re: [BUGFIX][PATCH] cpu to node relationship fixup take2 [1/2]
+ acpi_map_cpu2node
+Message-Id: <20060923100603.52db1f5d.kamezawa.hiroyu@jp.fujitsu.com>
+In-Reply-To: <20060922170604.745d662a.akpm@osdl.org>
+References: <20060922152447.42a83860.kamezawa.hiroyu@jp.fujitsu.com>
+	<20060922170604.745d662a.akpm@osdl.org>
+X-Mailer: Sylpheed version 2.2.0 (GTK+ 2.6.10; i686-pc-mingw32)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 22 Sep 2006 18:50:17 -0500 Linas Vepstas wrote:
+On Fri, 22 Sep 2006 17:06:04 -0700
+Andrew Morton <akpm@osdl.org> wrote:
 
-> On Fri, Sep 22, 2006 at 04:39:29PM -0700, Randy.Dunlap wrote:
-> > On Fri, 22 Sep 2006 18:32:35 -0500 Linas Vepstas wrote:
-> > 
-> > > On Sat, Sep 23, 2006 at 12:06:29AM +0200, Luca wrote:
-> > > > 
-> > > > Space after function name? You put in other places too, it's not
-> > > > consistent with the rest of the patch.
-> > > 
-> > > Oops. I was also coding on a different project recently, with a
-> > > different style.  I'll send a revised patch in a moment.
-> > 
-> > Please change if()'s to use
-> > 
-> > 	if (var == constant)
-> > instead of
-> > 	if (constant == var)
+> On Fri, 22 Sep 2006 15:24:47 +0900
+> KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com> wrote:
 > 
-> Yuck! Horrid coding style! No rational excuse for coding like that.
-> Advice taken under protest; new patch shortly.
+> > I rewrote the whoe patch..
+> > 
+> 
+> Well I don't recall ever having seen a "cpu to node relationship fixup
+> take1" and I have generally lost the plot regarding these fixes.
+> 
+Sorry....I noticed cpu-to-node relation ship should be fixed before onlining.
+About subject, I should be more carefull.
 
-Just after my email, I saw this :)
-http://marc.theaimsgroup.com/?l=linux-mm-commits&m=115896769322020&w=2
+> What I have now is:
+> 
+> cpu-to-node-relationship-fixup-take2.patch
+> cpu-to-node-relationship-fixup-map-cpu-to-node.patch
+> 
+> I shall send those patches in reply to this email.  Please confirm that
+> these are correct, sufficient, complete, etc.
+> 
+will do.
 
----
-~Randy
+> Do you believe these are needed in 2.6.18.x?
+> 
+yes, I do, becasue my system panics now at cpu onlining.
+
+Thank you.
+
+-Kame
+

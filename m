@@ -1,107 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964896AbWIWUtJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964914AbWIWUyj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964896AbWIWUtJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Sep 2006 16:49:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964897AbWIWUtJ
+	id S964914AbWIWUyj (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Sep 2006 16:54:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964918AbWIWUyj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Sep 2006 16:49:09 -0400
-Received: from smtp-106-saturday.noc.nerim.net ([62.4.17.106]:13843 "EHLO
-	mallaury.nerim.net") by vger.kernel.org with ESMTP id S964896AbWIWUtG
+	Sat, 23 Sep 2006 16:54:39 -0400
+Received: from zeniv.linux.org.uk ([195.92.253.2]:36314 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S964914AbWIWUyj
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Sep 2006 16:49:06 -0400
-Date: Sat, 23 Sep 2006 22:49:09 +0200
-From: Jean Delvare <khali@linux-fr.org>
-To: Adrian Bunk <bunk@stusta.de>, Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Linux 2.6.16.30-pre1
-Message-Id: <20060923224909.69579243.khali@linux-fr.org>
-In-Reply-To: <20060922230928.GB22830@kroah.com>
-References: <20060922222300.GA5566@stusta.de>
-	<20060922223859.GB21772@kroah.com>
-	<20060922224735.GB5566@stusta.de>
-	<20060922230928.GB22830@kroah.com>
-X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.6.10; i686-pc-linux-gnu)
+	Sat, 23 Sep 2006 16:54:39 -0400
+Date: Sat, 23 Sep 2006 21:54:35 +0100
+From: Al Viro <viro@ftp.linux.org.uk>
+To: Sam Ravnborg <sam@ravnborg.org>
+Cc: Linus Torvalds <torvalds@osdl.org>, rolandd@cisco.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] missing includes from infiniband merge
+Message-ID: <20060923205434.GO29920@ftp.linux.org.uk>
+References: <20060923154416.GH29920@ftp.linux.org.uk> <20060923202912.GA22293@uranus.ravnborg.org> <20060923203605.GN29920@ftp.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060923203605.GN29920@ftp.linux.org.uk>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Adrian, Greg,
-
-> On Sat, Sep 23, 2006 at 12:47:35AM +0200, Adrian Bunk wrote:
-> > On Fri, Sep 22, 2006 at 03:38:59PM -0700, Greg KH wrote:
-> > > On Sat, Sep 23, 2006 at 12:23:00AM +0200, Adrian Bunk wrote:
-> > > > Andrew Burri:
-> > > >       V4L/DVB: Add support for Kworld ATSC110
-> > > > 
-> > > > Curt Meyers:
-> > > >       V4L/DVB: KWorld ATSC110: implement set_pll_input
-> > > >       V4L/DVB: Kworld ATSC110: enable composite and svideo inputs
-> > > >       V4L/DVB: Kworld ATSC110: initialize the tuner for analog mode on module load
-> > > > 
-> > > > Giampiero Giancipoli:
-> > > >       V4L/DVB: Added support for the LifeView FlyDVB-T LR301 card
-> > > > 
-> > > > Hartmut Hackmann:
-> > > >       V4L/DVB: Added support for the ADS Instant TV DUO Cardbus PTV331
-> > > >       V4L/DVB: Added PCI IDs of 2 LifeView Cards
-> > > >       V4L/DVB: Corrected CVBS input for the AVERMEDIA 777 DVB-T
-> > > >       V4L/DVB: Added support for the new Lifeview hybrid cardbus modules
-> > > >       V4L/DVB: TDA10046 Driver update
-> > > >       V4L/DVB: TDA8290 update
-> > > > 
-> > > > Peter Hartshorn:
-> > > >       V4L/DVB: Added support for the Tevion DVB-T 220RF card
+On Sat, Sep 23, 2006 at 09:36:05PM +0100, Al Viro wrote:
+> On Sat, Sep 23, 2006 at 10:29:12PM +0200, Sam Ravnborg wrote:
+> > On Sat, Sep 23, 2006 at 04:44:16PM +0100, Al Viro wrote:
+> > > indirect chains of includes are arch-specific and can't
+> > > be relied upon...  (hell, even attempt to build it for
+> > > itanic would trigger vmalloc.h ones; err.h triggers
+> > > on e.g. alpha).
 > > > 
-> > > Hm, all of these patches seems like these are new features being
-> > > backported to the 2.6.16.y kernel, which is not really allowed under the
-> > > current -stable rules.
-> > > 
-> > > Or are these patches just bugfixes that fix with the current -stable
-> > > rules?
-> > 
-> > They add support for additional hardware to the saa7134 driver.
+> > > Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+> > > ---
+> > >  drivers/infiniband/core/mad_priv.h           |    1 +
+> > >  drivers/infiniband/hw/amso1100/c2_provider.c |    1 +
+> > >  drivers/infiniband/hw/amso1100/c2_rnic.c     |    1 +
+> > >  drivers/infiniband/hw/ipath/ipath_diag.c     |    1 +
+> > >  4 files changed, 4 insertions(+), 0 deletions(-)
+> > A better fix would be to avoid the arch dependency in the non-arch .h
+> > files so that in most cases it just works??
 > 
-> That's not a bugfix.
-> 
-> > If you look at the actual diff there's not much that could cause any 
-> > regression since nearly all of these change don't change anything for 
-> > the already supported cards.
-> 
-> I'm not disagreeing about the regression issue.  I'm just concerned
-> because you are starting down the slope of "backporting new driver
-> support" to the 2.6.16 tree, and that's something that I thought you did
-> not want to do.
-> 
-> But if it is, let us know, and we can discuss it.
+> What "it"?  Use of vmalloc() without including vmalloc.h since on i386
+> it just happens to be pulled via the
+> linux/pci.h -> linux/dmapool.h -> asm-i386/io.h -> linux/vmalloc.h
+> chain?
 
-I second Greg's objection, and share his worries. "No possible
-regression" is something extremely hard to evaluate in general.
-Besides, the goal of -stable as I remember it is not "no regression"
-but rather "only bugfixes", i.e. patches don't go in without a good
-reason (default policy = reject), rather than patches are rejected if
-they may cause problem (default policy = accept.)
+BTW, to do what you suggest we would mean the following:
 
-Adding support for new devices, even if it's only adding an ID in a
-list, is not always safe. I am not happy about new IDs being considered
-as OK for late RCs, I am even less so for -stable.
+let H(arch,foo) = {bar | asm-arch/foo.h pulls asm-arch/bar.h via chain that
+doesn't include linux/*}
+let M(arch,foo) = {baz | asm-arch/bar.h includes linux/baz.h for some bar in
+H(arch,foo)}
+let L(foo) = union of M(arch,foo) by all arch.
+make sure that for each arch and for each bar in L(foo) we have asm-arch/foo.h
+pulling linux/bar.h
 
-The sole fact that Adrian felt the need to release a -pre1 for
-2.6.16.30 betrays his lack of confidence IMHO. And the size of
-ChangeLog-2.6.16.29 speaks for itself.
+Have fun doing that and maintaining the results.  Note that addition of
+include between asm-weird-crap/foo.h and asm-weird-crap/bar.h will require
+changes all over the place in asm-*/* - not only for asm-*/foo.h.
 
-Given that 2.6.16.y follows the naming convention of -stable and is
-released in the official v2.6 directory on ftp.kernel.org, I'd like to
-see it follow the same rules we have for "real" -stable trees. Adrian,
-if you are going to diverge from the original intent of -stable, this
-is your own right, but then please change the name of your tree to
-2.6.16-ab or something similar, to clear the confusion.
-
-I will not use 2.6.16.y with its current rules, for sure, and I doubt
-any distribution will. Wasn't the whole point of 2.6.16.y to serve as a
-common base between several distributions?
-
-Thanks,
--- 
-Jean Delvare
+It won't be pretty, it will be hell to even try to clean dependencies
+_and_ it will break all the time due to ordering requirements.

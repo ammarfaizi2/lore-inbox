@@ -1,54 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751283AbWIWQgu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751280AbWIWQh2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751283AbWIWQgu (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Sep 2006 12:36:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751285AbWIWQgu
+	id S1751280AbWIWQh2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Sep 2006 12:37:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751287AbWIWQh2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Sep 2006 12:36:50 -0400
-Received: from mail.aknet.ru ([82.179.72.26]:56332 "EHLO mail.aknet.ru")
-	by vger.kernel.org with ESMTP id S1751283AbWIWQgt (ORCPT
+	Sat, 23 Sep 2006 12:37:28 -0400
+Received: from mta2.skircr.com ([209.91.64.4]:22902 "EHLO skircr.com")
+	by vger.kernel.org with ESMTP id S1751280AbWIWQh0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Sep 2006 12:36:49 -0400
-Message-ID: <451562F3.90103@aknet.ru>
-Date: Sat, 23 Sep 2006 20:38:11 +0400
-From: Stas Sergeev <stsp@aknet.ru>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
+	Sat, 23 Sep 2006 12:37:26 -0400
+Message-ID: <4515624A.4090100@skircr.com>
+Date: Sat, 23 Sep 2006 10:35:22 -0600
+From: Stephen Atkins <satkins@skircr.com>
 MIME-Version: 1.0
-To: Hugh Dickins <hugh@veritas.com>
-Cc: Andrew Morton <akpm@osdl.org>, Ulrich Drepper <drepper@redhat.com>,
-       Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] remove MNT_NOEXEC check for PROT_EXEC mmaps
-References: <45150CD7.4010708@aknet.ru> <Pine.LNX.4.64.0609231555390.27012@blonde.wat.veritas.com> <451555CB.5010006@aknet.ru> <Pine.LNX.4.64.0609231647420.29557@blonde.wat.veritas.com>
-In-Reply-To: <Pine.LNX.4.64.0609231647420.29557@blonde.wat.veritas.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: linux-kernel@vger.kernel.org, linux-scsi@vger.kernel.org
+Subject: Serial ATA (sii3512a) support
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+Hello everyone.  I'm just wondering what the status is for the Silicon
+Image 3512a serial ata support is.
 
-Hugh Dickins wrote:
-> nor with shm_open.  It's just that the kernel is not allowing
-> mmap PROT_EXEC on a MNT_NOEXEC mount.  Which seems reasonable
-Even for the MAP_PRIVATE mmaps? But what does that solve?
-Even if you restrict mprotect() too, the malicious app will
-simply read() the code in the anonymously mapped region,
-while the properly-written code just breaks.
-Is it documented in any spec or done in any other system?
+I was using gentoo-sources 2.6.12 my Seagate drives worked fine.  I'm
+now running a gentoo-sources 2.6.15-r1 and support has broken.  The same
+thing with gentoo-sources 2.6.17-r8.  I've added my drives to the
+sata_sil.c black list (one of them was missing) but I still get
+"Abnormal status 0x58 on port ..." errors.  Which essentially crashes my
+machine.
 
-> If that's a problem for something, don't mount "noexec"
-Yes, I myself think "noexec" is rather useless and can always
-be bypassed. But whether that particular handling is correct,
-doesn't look obvious to me.
+Unfortunately I don't have the 2.6.12 kernel from Gentoo any more as I
+did a emerge --sync and it got rid of it.  Also some of the other
+drivers I'm using need more recent kernel versions.
 
->> Thanks for the pointer, but that looks like the user-space
->> issue to me. Why ld.so can't figure out the "noexecness" and
->> do the right thing itself?
-> That would be tiresome work.
->> Or does it figure out the "noexecness"
->> exactly by trying the PROT_EXEC mmap and see if it fails?
-> Exactly.
-So do you mean such a checks were added as a quick hack till
-the proper solution is implemented? That may explain the issue,
-at least partially...
+Just some notes on my MB/chipsets.  I've got a Gigabyte GA-7N400Pro2
+with an nForce2 chipset.  It has a on board SATA which the manual says
+is a Sil3112 but the bios reports it as a Sil3512a.  I've got a single 6
+gig IDE as my boot device and root dir.  There are also two SATA drives
+both are Seagates.  One is a ST3250823AS (250 gigs) and a ST3120026AS
+(120 gigs).  I know the Seagate drives have some issues and hence the
+black list.
 
+Just wondering if there is anything I can do to make these things work
+in some of the latest kernels.  Thanks for you help.
+
+-- 
+
+Stephen Atkins

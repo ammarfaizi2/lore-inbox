@@ -1,165 +1,153 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750700AbWIWLEI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750725AbWIWLDm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750700AbWIWLEI (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Sep 2006 07:04:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750720AbWIWLEI
+	id S1750725AbWIWLDm (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Sep 2006 07:03:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750720AbWIWLDm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Sep 2006 07:04:08 -0400
-Received: from pool-71-254-65-206.ronkva.east.verizon.net ([71.254.65.206]:20675
-	"EHLO turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S1750700AbWIWLEE (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Sep 2006 07:04:04 -0400
-Message-Id: <200609231103.k8NB3RiF004703@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
-To: Andrew Morton <akpm@osdl.org>, Greg Kroah-Hartman <gregkh@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.18-rc7-mm1  - gregkh-driver-pcmcia-device.patch breaks orinoco card
-In-Reply-To: Your message of "Tue, 19 Sep 2006 01:28:48 PDT."
-             <20060919012848.4482666d.akpm@osdl.org>
-From: Valdis.Kletnieks@vt.edu
-References: <20060919012848.4482666d.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1159009406_2904P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+	Sat, 23 Sep 2006 07:03:42 -0400
+Received: from moutng.kundenserver.de ([212.227.126.177]:46837 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S1750725AbWIWLDl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Sep 2006 07:03:41 -0400
+From: Arnd Bergmann <arnd@arndb.de>
+To: "Mike Frysinger" <vapier.adi@gmail.com>
+Subject: Re: [PATCH 1/4] Blackfin: arch patch for 2.6.18
+Date: Sat, 23 Sep 2006 13:03:35 +0200
+User-Agent: KMail/1.9.4
+Cc: "Luke Yang" <luke.adi@gmail.com>, linux-kernel@vger.kernel.org,
+       "Andrew Morton" <akpm@osdl.org>
+References: <489ecd0c0609202032l1c5540f7t980244e30d134ca0@mail.gmail.com> <200609230218.36894.arnd@arndb.de> <8bd0f97a0609222350o3a9c8c36g468a6177ae7b1ea7@mail.gmail.com>
+In-Reply-To: <8bd0f97a0609222350o3a9c8c36g468a6177ae7b1ea7@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Date: Sat, 23 Sep 2006 07:03:26 -0400
+Content-Disposition: inline
+Message-Id: <200609231303.35481.arnd@arndb.de>
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:c48f057754fc1b1a557605ab9fa6da41
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1159009406_2904P
-Content-Type: text/plain; charset=us-ascii
+On Saturday 23 September 2006 08:50, Mike Frysinger wrote:
+> On 9/22/06, Arnd Bergmann <arnd@arndb.de> wrote:
+>
+> > It would be nice if you could use a generic way to pass this partition data
+> > to the kernel from the mtd medium, instead of hardcoding it here.
+> 
+> i often wish for such things myself :)
+> 
+> unfortunately, the boot loader we utilize (u-boot) isnt exactly
+> friendly to the idea of managing flash partitions like redboot, and
+> what we have here is the current standard method for defining flash
+> partitions with mtd
 
-On Tue, 19 Sep 2006 01:28:48 PDT, Andrew Morton said:
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18-rc7/2.6.18-rc7-mm1/
+For powerpc, we have started using a flattened device tree derived
+from the Open Firmware standard for passing data to the kernel.
+AFAIK, u-boot has some support for this, or at least you can build
+a generic kernel and stick it into uboot together with a device
+tree file.
 
-> +gregkh-driver-pcmcia-device.patch
+There are different views on whether it's a good idea to have
+the same format on platforms that don't have an Open Firmware
+implementation, but even if you use a different format, it helps
+to have a single blob describing all of your system, including
+stuff like mmio register areas, cpu types, flash layout,
+attached buses, etc.
 
-This one breaks the orinoco wireless card on my Dell Latitude C840.  Oddly
-enough, it *doesn't* break the ethernet on a Xircom multi-function card I
-also have.  I tried it both with and without CONFIG_SYSFS_DEPRECATED.
-Userspace udev is 095 as shipped in Fedora Core 6 test3.
+> > There is not much point in trying to use the same numbers as an existing
+> > architecture if that means that you have to leave holes like setup().
+> > I don't know if you still have the choice of completely changing the
+> > syscall numbers, but it would make it nicer in the future.
+> 
+> we do, fortunately, have this luxury ... so we can look forward to a
+> nice cleaning of our syscall interface
 
-(slot 0 is a Xircom 10/100/56k modem card, slot 2 is the Orinoco-based
-Dell TruMobile 1150 card)
+Ah, very good.
 
-Under 2.6.18-rc6-mm2, I see:
+> > > +#define BUG() do { \
+> > > +     dump_stack(); \
+> > > +     printk("\nkernel BUG at %s:%d!\n", __FILE__, __LINE__); \
+> > > +     panic("BUG!"); \
+> > > +} while (0)
+> >
+> > This is probably better done as an external function:
+> 
+> *shrug* i just did it the same way everyone else does ... i'm a sheep like that
 
-pccard: CardBus card inserted into slot 0
-PCI: Enabling device 0000:03:00.0 (0000 -> 0003)
-ACPI: PCI Interrupt 0000:03:00.0[A] -> Link [LNKD] -> GSI 11 (level, low) -> IRQ 11
-PCI: Setting latency timer of device 0000:03:00.0 to 64
-eth2: Xircom cardbus revision 3 at irq 11
-PCI: Enabling device 0000:03:00.1 (0000 -> 0003)
-ACPI: PCI Interrupt 0000:03:00.1[A] -> Link [LNKD] -> GSI 11 (level, low) -> IRQ 11
-0000:03:00.1: ttyS1 at I/O 0xe080 (irq = 11) is a 16550A
-pccard: PCMCIA card inserted into slot 2
-[rename_device:851]: Changing netdevice name from [eth1] to [eth3]
-ohci1394: fw-host0: AT dma reset ctx=0, aborting transmission
-ieee1394: Current remote IRM is not 1394a-2000 compliant, resetting...
-ieee1394: Host added: ID:BUS[0-00:1023]  GUID[374fc0002a71c021]
-[rename_device:1237]: Changing netdevice name from [eth2] to [eth1]
-cs: memory probe 0xf4000000-0xfbffffff: excluding 0xf4000000-0xf8ffffff 0xfa000000-0xfbffffff
-pcmcia: registering new device pcmcia2.0
-orinoco 0.15 (David Gibson <hermes@gibson.dropbear.id.au>, Pavel Roskin <proski@gnu.org>, et al)
-orinoco_cs 0.15 (David Gibson <hermes@gibson.dropbear.id.au>, Pavel Roskin <proski@gnu.org>, et al)
-pcmcia: request for exclusive IRQ could not be fulfilled.
-pcmcia: the driver needs updating to supported shared IRQ lines.
-cs: IO port probe 0x100-0x3af: excluding 0x370-0x37f
-cs: IO port probe 0x3e0-0x4ff: clean.
-cs: IO port probe 0x820-0x8ff: clean.
-cs: IO port probe 0xc00-0xcf7: clean.
-cs: IO port probe 0xa00-0xaff: clean.
-cs: IO port probe 0x100-0x3af: excluding 0x370-0x37f
-cs: IO port probe 0x3e0-0x4ff: clean.
-cs: IO port probe 0x820-0x8ff: clean.
-cs: IO port probe 0xc00-0xcf7: clean.
-cs: IO port probe 0xa00-0xaff: clean.
-cs: IO port probe 0x100-0x3af: excluding 0x370-0x37f
-cs: IO port probe 0x3e0-0x4ff: clean.
-cs: IO port probe 0x820-0x8ff: clean.
-cs: IO port probe 0xc00-0xcf7: clean.
-cs: IO port probe 0xa00-0xaff: clean.
-eth2: Hardware identity 0005:0004:0005:0000
-eth2: Station identity  001f:0001:0008:000a
-eth2: Firmware determined as Lucent/Agere 8.10
-eth2: Ad-hoc demo mode supported
-eth2: IEEE standard IBSS ad-hoc mode supported
-eth2: WEP supported, 104-bit key
-eth2: MAC address 00:02:2D:5C:11:48
-eth2: Station name "HERMES I"
-eth2: ready
-eth2: orinoco_cs at 2.0, irq 11, io 0xe100-0xe13f
-[rename_device:1295]: Changing netdevice name from [eth2] to [eth5]
-Non-volatile memory driver v1.2
+Ah, then just stay with your code. Maybe someone will want to change it
+across architectures some day and it would help to have it common then.
 
-and under -rc7-mm1, I see:
+Actually, the preferred way of implementing BUG and BUG_ON is to have
+a single inline assembly opcode that will do an unconditional or a 
+condition trap (e.g. invalid opcode) so you can use your regular
+fault handler to print the backtrace and such.
 
-pccard: CardBus card inserted into slot 0
-PCI: Enabling device 0000:03:00.0 (0000 -> 0003)
-ACPI: PCI Interrupt 0000:03:00.0[A] -> Link [LNKD] -> GSI 11 (level, low) -> IRQ 11
-PCI: Setting latency timer of device 0000:03:00.0 to 64
-eth1: Xircom cardbus revision 3 at irq 11 
-PCI: Enabling device 0000:03:00.1 (0000 -> 0003)
-ACPI: PCI Interrupt 0000:03:00.1[A] -> Link [LNKD] -> GSI 11 (level, low) -> IRQ 11
-0000:03:00.1: ttyS1 at I/O 0xe080 (irq = 11) is a 16550A
-pccard: PCMCIA card inserted into slot 2
-ohci1394: fw-host0: AT dma reset ctx=0, aborting transmission
-ieee1394: Current remote IRM is not 1394a-2000 compliant, resetting...
-ieee1394: Host added: ID:BUS[0-00:1023]  GUID[374fc0002a71c021]
-Non-volatile memory driver v1.2
+> > > diff -urN linux-2.6.18/include/asm-blackfin/mach-bf533/anomaly.h
+> > linux-2.6.18.patch1/include/asm-blackfin/mach-bf533/anomaly.h
+> > > --- linux-2.6.18/include/asm-blackfin/mach-bf533/anomaly.h    1970-01-01
+> > 08:00:00.000000000 +0800
+> > > +++ linux-2.6.18.patch1/include/asm-blackfin/mach-bf533/anomaly.h     2006-09-21
+> > 09:29:49.000000000 +0800
+> > > @@ -0,0 +1,172 @@
+> > > +/*
+> > > + * File:         include/asm-blackfin/mach-bf533/anomaly.h
+> >
+> > You seem to have lots of these machine specfic header files in include/asm.
+> > Please move them to the respective machine implementation directory
+> > if they are only used from there
+> 
+> these are arch specific, not machine (aka board)
+> 
+> this is what the blackfin family looks like (first entry is the architecture):
+>  - BF535
+>  - BF533 / BF532 / BF531
+>  - BF537 / BF536 / BF534
+>  - BF561
+> 
+> which is why you find the anomaly definitions in the architecture
+> specific header dir
 
-Hmm.. a lot quieter...
+Ok, we need to align on the terminology then. The 'architecture'
+is a fixed term for the top level of the hierarchy (i386, powerpc,
+blackfin, ...), so you should try to avoid using that to refer
+to things inside of blackfin.
 
-Incidentally, this bisection took about 8 more compiles than it should
-have because of compile-time breakage right in that section of the 'series'
-file.  To bisect through it, I had to apply the following tweaks to the
-series file:
+We have at least three established terms for more specific things:
+'subarchitecture', 'platform' and 'machine'.
 
---- patches/series.orig	2006-09-21 15:06:13.000000000 -0400
-+++ patches/series	2006-09-23 00:18:54.000000000 -0400
-@@ -104,6 +104,8 @@
- gregkh-driver-v4l-dev2-handle-__must_check.patch
- gregkh-driver-drivers-base-platform-notify-needs-to-occur-before-drivers-attach-to-the-device.patch
- gregkh-driver-drivers-base-check-errors.patch
-+gregkh-driver-network-class_device-to-device.patch
-+gregkh-driver-class_device_rename-remove.patch
- gregkh-driver-sysfs-add-proper-sysfs_init-prototype.patch
- gregkh-driver-config_sysfs_deprecated.patch
- gregkh-driver-udev-devices.patch
-@@ -123,12 +125,11 @@
- gregkh-driver-input-device.patch
- gregkh-driver-firmware-device.patch
- gregkh-driver-fb-device.patch
-+gregkh-driver-fb-device-fixes.patch
- gregkh-driver-usb-move-usb_device_class-class-devices-to-be-real-devices.patch
- gregkh-driver-usb-convert-usb-class-devices-to-real-devices.patch
- gregkh-driver-driver-multithread.patch
- gregkh-driver-pci-multithreaded-probe.patch
--gregkh-driver-network-class_device-to-device.patch
--gregkh-driver-class_device_rename-remove.patch
- gregkh-driver-put_device-might_sleep.patch
- gregkh-driver-sysfs-crash-debugging.patch
- gregkh-driver-kobject-warn.patch
-@@ -140,7 +141,6 @@
- gregkh-driver-input-device-more-fixes.patch
- gregkh-driver-input-device-even-more-fixes.patch
- gregkh-driver-input-device-even-more-fixes-2.patch
--gregkh-driver-fb-device-fixes.patch
- more-driver-tree-fixes.patch
- #drivers-base-check-errors.patch
- #fix-device_attribute-memory-leak-in-device_del.patch
+Calling the most specific one 'machine' is very common, so that's
+fine.
 
+What you call 'architecture' (bf535, bf533, bf537, bf561) should
+probably be either 'subarchitecture' or 'platform' in your code.
 
---==_Exmh_1159009406_2904P
-Content-Type: application/pgp-signature
+Now to my point: If all the files that use the platform specific
+headers are in the same source directory, then these headers should
+also be in that platform directory. To compare it with powerpc,
+where we have discussed a long time about the ideal file layout,
+that would mean you get:
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
+arch/blackfin/platforms/bf535/anomaly.h
+                              setup.c
+arch/blackfin/platforms/bf533/anomaly.h
+                              setup-531.c
+                              setup-532.c
+                              setup-533.c
 
-iD8DBQFFFRR+cC3lWbTT17ARApmUAKDWIzj5SXoTeNB2R6bWKV/7BTMgOgCgzmvu
-5lDiTpEvjRRzidKURV6f8kY=
-=+3Rs
------END PGP SIGNATURE-----
+> > > +/* Clock and System Control (0xFFC0 0400-0xFFC0 07FF) */
+> > > +#define bfin_read_PLL_CTL()                  bfin_read16(PLL_CTL)
+> > > +#define bfin_write_PLL_CTL(val)              bfin_write16(PLL_CTL,val)
+> > > +#define bfin_read_PLL_STAT()                 bfin_read16(PLL_STAT)
+> > (and 700 more of these)
+> >
+> > What's the point, are you getting paid by lines of code? Just use
+> > the registers directly!
+> 
+> in our last submission we were doing exactly that ... and we were told
+> to switch to a function style method of reading/writing memory mapped
+> registers
 
---==_Exmh_1159009406_2904P--
+It's hard to imagine that what you have here was intended by the comment
+then. Do you have an archive link about that discussion?
+
+	Arnd <><

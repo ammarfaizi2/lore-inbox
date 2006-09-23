@@ -1,92 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751032AbWIWFTd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751044AbWIWFZK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751032AbWIWFTd (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Sep 2006 01:19:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751034AbWIWFTd
+	id S1751044AbWIWFZK (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Sep 2006 01:25:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751049AbWIWFZJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Sep 2006 01:19:33 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:56039 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751031AbWIWFTc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Sep 2006 01:19:32 -0400
-Date: Fri, 22 Sep 2006 22:19:23 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: kmannth@us.ibm.com
-Cc: David Rientjes <rientjes@cs.washington.edu>,
-       KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>,
-       lkml <linux-kernel@vger.kernel.org>, clameter@engr.sgi.com
-Subject: Re: [BUG] i386 2.6.18 cpu_up: attempt to bring up CPU 4 failed :
- kernel BUG at mm/slab.c:2698!
-Message-Id: <20060922221923.1a7979f1.akpm@osdl.org>
-In-Reply-To: <1158954258.7292.6.camel@keithlap>
-References: <1158884252.5657.38.camel@keithlap>
-	<20060921174134.4e0d30f2.akpm@osdl.org>
-	<1158888843.5657.44.camel@keithlap>
-	<20060922112427.d5f3aef6.kamezawa.hiroyu@jp.fujitsu.com>
-	<20060921200806.523ce0b2.akpm@osdl.org>
-	<20060922123045.d7258e13.kamezawa.hiroyu@jp.fujitsu.com>
-	<20060921204629.49caa95f.akpm@osdl.org>
-	<Pine.LNX.4.64N.0609212108360.30543@attu1.cs.washington.edu>
-	<1158954258.7292.6.camel@keithlap>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+	Sat, 23 Sep 2006 01:25:09 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:21648
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1751044AbWIWFZI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Sep 2006 01:25:08 -0400
+Date: Fri, 22 Sep 2006 22:25:07 -0700 (PDT)
+Message-Id: <20060922.222507.74751476.davem@davemloft.net>
+To: akpm@osdl.org
+Cc: auke-jan.h.kok@intel.com, Holger.Kiehl@dwd.de,
+       linux-kernel@vger.kernel.org, linux-net@vger.kernel.org,
+       netdev@vger.kernel.org, john.ronciak@intel.com
+Subject: Re: 2.6.1[78] page allocation failure. order:3, mode:0x20
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <20060922215000.c1fde093.akpm@osdl.org>
+References: <20060922004253.2e2e2612.akpm@osdl.org>
+	<4514190C.8010901@intel.com>
+	<20060922215000.c1fde093.akpm@osdl.org>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 22 Sep 2006 12:44:18 -0700
-keith mannthey <kmannth@us.ibm.com> wrote:
+From: Andrew Morton <akpm@osdl.org>
+Date: Fri, 22 Sep 2006 21:50:00 -0700
 
-> 3. Flat mode i386 numa on a real numa system is broken.  If there is
-> only 1 node in the system cpus should think they are apart of some other
-> node.     Patch below.  
+> On Fri, 22 Sep 2006 10:10:36 -0700
+> Auke Kok <auke-jan.h.kok@intel.com> wrote:
 > 
+> > e1000: account for NET_IP_ALIGN when calculating bufsiz
+> > 
+> > Account for NET_IP_ALIGN when requesting buffer sizes from netdev_alloc_skb to 
+> > reduce slab allocation by half.
 > 
-> 
->   If cases where a real numa system boots the Flat numa option make sure
-> the cpus don't claim to be apart on a non-existent node.
-> 
-> 
-> Signed-off-by: Keith Mannthey <kmannth@us.ibm.com>
-> 
-> --- linux-2.6.18/arch/i386/kernel/smpboot.c	2006-09-19
-> 20:42:06.000000000 -0700
-> +++ linux-2.6.18-workes/arch/i386/kernel/smpboot.c	2006-09-21
-> 21:57:55.000000000 -0700
-> @@ -642,9 +642,13 @@
->  {
->  	int cpu = smp_processor_id();
->  	int apicid = logical_smp_processor_id();
-> -
-> +	int node = apicid_to_node(apicid);
-> +	
-> +	if (!node_online(node))
-> +		node = first_online_node;
-> +	
->  	cpu_2_logical_apicid[cpu] = apicid;
-> -	map_cpu_to_node(cpu, apicid_to_node(apicid));
-> +	map_cpu_to_node(cpu, node);
->  }
->  
->  static void unmap_cpu_to_logical_apicid(int cpu)
+> Could we please do whatever is needed to get this blessed and merged?  This
+> is such a common problem on such a common driver that I would suggest that
+> we want this in 2.6.18.x as well.  At least, I'd expect distributors to
+> ship this fix (they're nuts if they don't) and so it makes sense to deliver
+> it from kernel.org.
 
-This clashes with your
-convert-i386-summit-subarch-to-use-srat-info-for-apicid_to_node-calls.patch.
-
-I fixed it thusly:
-
-static void map_cpu_to_logical_apicid(void)
-{
-	int cpu = smp_processor_id();
-	int apicid = logical_smp_processor_id();
-	int node = apicid_to_node(hard_smp_processor_id());
-
-	if (!node_online(node))
-		node = first_online_node;
-
-	cpu_2_logical_apicid[cpu] = apicid;
-	map_cpu_to_node(cpu, node);
-}
-
+The NET_IP_ALIGN existed not just for fun :)  There are ramifications
+for removing it.
 

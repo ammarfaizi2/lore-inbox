@@ -1,79 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751222AbWIWOsP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751233AbWIWPRV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751222AbWIWOsP (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Sep 2006 10:48:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751223AbWIWOsP
+	id S1751233AbWIWPRV (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Sep 2006 11:17:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751234AbWIWPRV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Sep 2006 10:48:15 -0400
-Received: from vms046pub.verizon.net ([206.46.252.46]:43937 "EHLO
-	vms046pub.verizon.net") by vger.kernel.org with ESMTP
-	id S1751222AbWIWOsO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Sep 2006 10:48:14 -0400
-Date: Sat, 23 Sep 2006 10:48:13 -0400
-From: Gene Heskett <gene.heskett@verizon.net>
-Subject: Re: 2.6.19 -mm merge plans
-In-reply-to: <358885143.12940@ustc.edu.cn>
-To: linux-kernel@vger.kernel.org
-Cc: Fengguang Wu <fengguang.wu@gmail.com>, Andrew Morton <akpm@osdl.org>
-Message-id: <200609231048.13154.gene.heskett@verizon.net>
-Organization: Organization? Absolutely zip.
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-Content-disposition: inline
-References: <20060920135438.d7dd362b.akpm@osdl.org>
- <20060921165918.af7a5a63.akpm@osdl.org> <358885143.12940@ustc.edu.cn>
-User-Agent: KMail/1.7
+	Sat, 23 Sep 2006 11:17:21 -0400
+Received: from excu-mxob-1.symantec.com ([198.6.49.12]:52215 "EHLO
+	excu-mxob-1.symantec.com") by vger.kernel.org with ESMTP
+	id S1751233AbWIWPRU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Sep 2006 11:17:20 -0400
+Date: Sat, 23 Sep 2006 16:16:51 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@blonde.wat.veritas.com
+To: Stas Sergeev <stsp@aknet.ru>
+cc: Andrew Morton <akpm@osdl.org>, Ulrich Drepper <drepper@redhat.com>,
+       Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] remove MNT_NOEXEC check for PROT_EXEC mmaps
+In-Reply-To: <45150CD7.4010708@aknet.ru>
+Message-ID: <Pine.LNX.4.64.0609231555390.27012@blonde.wat.veritas.com>
+References: <45150CD7.4010708@aknet.ru>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 23 Sep 2006 15:16:47.0375 (UTC) FILETIME=[495451F0:01C6DF23]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 21 September 2006 20:32, Fengguang Wu wrote:
->On Thu, Sep 21, 2006 at 04:59:18PM -0700, Andrew Morton wrote:
->> > On Wed, Sep 20, 2006 at 01:54:38PM -0700, Andrew Morton wrote:
->> > >  The readahead code is complex, I'm unconvinced that it has a lot
->> > > of benefit and Wu has gone quiet.  Will drop.
->> >
->> > Sorry, I've been putting efforts to meet the deadline of the google
->> > SoC project "Rapid linux desktop startup through pre-caching", which
->> > still can not be called success for now. And there's my pending paper
->> > work...
->>
->> Oh, OK.
->>
->> That's a neat thing to be working on.
->
->Thank you.
->
->FYI: I attached a little presentation work, one for the boot time
->stuff, another for the readahead patch.
->
->> > I should be able to come back and concentrate on the readahead patch
->> > after one month, whether it be dropped for now.  I guess it can be
->> > further improved in complexity and performance.  It also needs a good
->> > document for the overall design and benefits.  And sure the
->> > performance numbers :-)
->>
->> I'll hang onto the patches then - they're causing little maintenance
->> trouble for me.
->
->Sorry, I can imagine it, which upsets me.
->I'll try to settle it in the next 3-month cycle.
->
->Thanks,
->Fengguang Wu
+On Sat, 23 Sep 2006, Stas Sergeev wrote:
+> Hi Andrew.
+> 
+> I am not sure at all whether this patch is appreciated
+> or not. The on-list query yielded no results, but I have
+> to try. :)
 
-Both of your attached pdf's were missing the required fonts to display the 
-content on this locale=en machine, as the latest acroread for linux (7.05) 
-advised me about both, and the second one, while it did display the cover 
-page in english at a scale far larger than my 1600x1200 screen, it 
-actually locked up X and I had to reboot.  I thought I had enough fonts 
-here to cover everything too.  :(
+Probably not appreciated :)  I agree with your earlier mail, that
+those mmap MNT_NOEXEC checks don't give any watertight protection:
+they're more a heuristic to prevent the wrong thing happening
+automatically.  But they were put in for good reason, have been
+in for nearly three years, I doubt they should come out now.
 
--- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-Yahoo.com and AOL/TW attorneys please note, additions to the above
-message by Gene Heskett are:
-Copyright 2006 by Maurice Eugene Heskett, all rights reserved.
+It's hardly any surprise, is it, that if a distro chooses now
+to mount something "noexec", a problem is then found with a few
+things which want otherwise?  And it seems unlikely that the answer
+is then to modify the kernel, to weaken the very protection they're
+wanting to add?
+
+The original 2.6.0 patch (later backported into 2.4.25) was
+<drepper@redhat.com>
+	[PATCH] Fix 'noexec' behaviour
+	
+	We should not allow mmap() with PROT_EXEC on mounts marked "noexec",
+	since otherwise there is no way for user-supplied executable loaders
+	(like ld.so and emulator environments) to properly honour the
+	"noexec"ness of the target.
+so let's CC Ulrich Drepper in case he's changed his mind on it.
+
+Hugh
+
+> 
+> This patch removes the MNT_NOEXEC check for the PROT_EXEC
+> mappings. That allows to mount tmpfs with "noexec" option
+> without breaking the existing apps, which is what debian
+> wants to do for sequrity reasons:
+> http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=386945
+> More details here:
+> http://uwsg.ucs.indiana.edu/hypermail/linux/kernel/0609.2/1537.html
+> 
+> Signed-off-by: Stas Sergeev <stsp@aknet.ru>
+> 
+> --- a/mm/mmap.c	2006-01-25 15:02:24.000000000 +0300
+> +++ b/mm/mmap.c	2006-09-21 13:19:15.000000000 +0400
+> @@ -899,10 +899,6 @@
+>  
+>  		if (!file->f_op || !file->f_op->mmap)
+>  			return -ENODEV;
+> -
+> -		if ((prot & PROT_EXEC) &&
+> -		    (file->f_vfsmnt->mnt_flags & MNT_NOEXEC))
+> -			return -EPERM;
+>  	}
+>  	/*
+>  	 * Does the application expect PROT_READ to imply PROT_EXEC?
+> @@ -911,8 +907,7 @@
+>  	 *  mounted, in which case we dont add PROT_EXEC.)
+>  	 */
+>  	if ((prot & PROT_READ) && (current->personality & READ_IMPLIES_EXEC))
+> -		if (!(file && (file->f_vfsmnt->mnt_flags & MNT_NOEXEC)))
+> -			prot |= PROT_EXEC;
+> +		prot |= PROT_EXEC;
+>  
+>  	if (!len)
+>  		return -EINVAL;
+> --- a/mm/nommu.c	2006-04-12 09:37:34.000000000 +0400
+> +++ b/mm/nommu.c	2006-09-21 13:21:32.000000000 +0400
+> @@ -493,13 +493,7 @@
+>  				capabilities &= ~BDI_CAP_MAP_DIRECT;
+>  		}
+>  
+> -		/* handle executable mappings and implied executable
+> -		 * mappings */
+> -		if (file->f_vfsmnt->mnt_flags & MNT_NOEXEC) {
+> -			if (prot & PROT_EXEC)
+> -				return -EPERM;
+> -		}
+> -		else if ((prot & PROT_READ) && !(prot & PROT_EXEC)) {
+> +		if ((prot & PROT_READ) && !(prot & PROT_EXEC)) {
+>  			/* handle implication of PROT_EXEC by PROT_READ */
+>  			if (current->personality & READ_IMPLIES_EXEC) {
+>  				if (capabilities & BDI_CAP_EXEC_MAP)

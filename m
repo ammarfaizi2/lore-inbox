@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751249AbWIWPoT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751252AbWIWPpA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751249AbWIWPoT (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Sep 2006 11:44:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751253AbWIWPoT
+	id S1751252AbWIWPpA (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Sep 2006 11:45:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751255AbWIWPo7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Sep 2006 11:44:19 -0400
-Received: from zeniv.linux.org.uk ([195.92.253.2]:5854 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1751249AbWIWPoT
+	Sat, 23 Sep 2006 11:44:59 -0400
+Received: from zeniv.linux.org.uk ([195.92.253.2]:15070 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1751252AbWIWPo7
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Sep 2006 11:44:19 -0400
-Date: Sat, 23 Sep 2006 16:44:16 +0100
+	Sat, 23 Sep 2006 11:44:59 -0400
+Date: Sat, 23 Sep 2006 16:44:58 +0100
 From: Al Viro <viro@ftp.linux.org.uk>
 To: Linus Torvalds <torvalds@osdl.org>
-Cc: rolandd@cisco.com, linux-kernel@vger.kernel.org
-Subject: [PATCH] missing includes from infiniband merge
-Message-ID: <20060923154416.GH29920@ftp.linux.org.uk>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] more fallout from get_property returning pointer to const
+Message-ID: <20060923154458.GI29920@ftp.linux.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -22,67 +22,68 @@ User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-indirect chains of includes are arch-specific and can't
-be relied upon...  (hell, even attempt to build it for
-itanic would trigger vmalloc.h ones; err.h triggers
-on e.g. alpha).
-
 Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 ---
- drivers/infiniband/core/mad_priv.h           |    1 +
- drivers/infiniband/hw/amso1100/c2_provider.c |    1 +
- drivers/infiniband/hw/amso1100/c2_rnic.c     |    1 +
- drivers/infiniband/hw/ipath/ipath_diag.c     |    1 +
- 4 files changed, 4 insertions(+), 0 deletions(-)
+ arch/powerpc/platforms/powermac/feature.c |    4 ++--
+ arch/powerpc/platforms/powermac/smp.c     |    2 +-
+ drivers/char/briq_panel.c                 |    2 +-
+ drivers/video/riva/fbdev.c                |    2 +-
+ 4 files changed, 5 insertions(+), 5 deletions(-)
 
-diff --git a/drivers/infiniband/core/mad_priv.h b/drivers/infiniband/core/mad_priv.h
-index 1da9adb..d06b590 100644
---- a/drivers/infiniband/core/mad_priv.h
-+++ b/drivers/infiniband/core/mad_priv.h
-@@ -38,6 +38,7 @@ #ifndef __IB_MAD_PRIV_H__
- #define __IB_MAD_PRIV_H__
+diff --git a/arch/powerpc/platforms/powermac/feature.c b/arch/powerpc/platforms/powermac/feature.c
+index 13fcaf5..e49621b 100644
+--- a/arch/powerpc/platforms/powermac/feature.c
++++ b/arch/powerpc/platforms/powermac/feature.c
+@@ -1058,8 +1058,8 @@ core99_reset_cpu(struct device_node *nod
+ 	if (np == NULL)
+ 		return -ENODEV;
+ 	for (np = np->child; np != NULL; np = np->sibling) {
+-		u32 *num = get_property(np, "reg", NULL);
+-		u32 *rst = get_property(np, "soft-reset", NULL);
++		const u32 *num = get_property(np, "reg", NULL);
++		const u32 *rst = get_property(np, "soft-reset", NULL);
+ 		if (num == NULL || rst == NULL)
+ 			continue;
+ 		if (param == *num) {
+diff --git a/arch/powerpc/platforms/powermac/smp.c b/arch/powerpc/platforms/powermac/smp.c
+index 653eeb6..1949b65 100644
+--- a/arch/powerpc/platforms/powermac/smp.c
++++ b/arch/powerpc/platforms/powermac/smp.c
+@@ -702,7 +702,7 @@ #else /* CONFIG_PPC64 */
+ 	/* GPIO based HW sync on ppc32 Core99 */
+ 	if (pmac_tb_freeze == NULL && !machine_is_compatible("MacRISC4")) {
+ 		struct device_node *cpu;
+-		u32 *tbprop = NULL;
++		const u32 *tbprop = NULL;
  
- #include <linux/completion.h>
-+#include <linux/err.h>
- #include <linux/pci.h>
- #include <linux/workqueue.h>
- #include <rdma/ib_mad.h>
-diff --git a/drivers/infiniband/hw/amso1100/c2_provider.c b/drivers/infiniband/hw/amso1100/c2_provider.c
-index 8fddc8c..dd6af55 100644
---- a/drivers/infiniband/hw/amso1100/c2_provider.c
-+++ b/drivers/infiniband/hw/amso1100/c2_provider.c
-@@ -49,6 +49,7 @@ #include <linux/tcp.h>
- #include <linux/init.h>
- #include <linux/dma-mapping.h>
- #include <linux/if_arp.h>
-+#include <linux/vmalloc.h>
+ 		core99_tb_gpio = KL_GPIO_TB_ENABLE;	/* default value */
+ 		cpu = of_find_node_by_type(NULL, "cpu");
+diff --git a/drivers/char/briq_panel.c b/drivers/char/briq_panel.c
+index a0e5eac..caae795 100644
+--- a/drivers/char/briq_panel.c
++++ b/drivers/char/briq_panel.c
+@@ -202,7 +202,7 @@ static struct miscdevice briq_panel_misc
+ static int __init briq_panel_init(void)
+ {
+ 	struct device_node *root = find_path_device("/");
+-	char *machine;
++	const char *machine;
+ 	int i;
  
- #include <asm/io.h>
- #include <asm/irq.h>
-diff --git a/drivers/infiniband/hw/amso1100/c2_rnic.c b/drivers/infiniband/hw/amso1100/c2_rnic.c
-index 1c3c9d6..f49a32b 100644
---- a/drivers/infiniband/hw/amso1100/c2_rnic.c
-+++ b/drivers/infiniband/hw/amso1100/c2_rnic.c
-@@ -50,6 +50,7 @@ #include <linux/init.h>
- #include <linux/dma-mapping.h>
- #include <linux/mm.h>
- #include <linux/inet.h>
-+#include <linux/vmalloc.h>
- 
- #include <linux/route.h>
- 
-diff --git a/drivers/infiniband/hw/ipath/ipath_diag.c b/drivers/infiniband/hw/ipath/ipath_diag.c
-index 28b6b46..29958b6 100644
---- a/drivers/infiniband/hw/ipath/ipath_diag.c
-+++ b/drivers/infiniband/hw/ipath/ipath_diag.c
-@@ -43,6 +43,7 @@
- 
- #include <linux/io.h>
- #include <linux/pci.h>
-+#include <linux/vmalloc.h>
- #include <asm/uaccess.h>
- 
- #include "ipath_kernel.h"
+ 	machine = get_property(root, "model", NULL);
+diff --git a/drivers/video/riva/fbdev.c b/drivers/video/riva/fbdev.c
+index 67d1e1c..61a4665 100644
+--- a/drivers/video/riva/fbdev.c
++++ b/drivers/video/riva/fbdev.c
+@@ -1827,7 +1827,7 @@ static int __devinit riva_get_EDID_OF(st
+ 	struct riva_par *par = info->par;
+ 	struct device_node *dp;
+ 	unsigned char *pedid = NULL;
+-	unsigned char *disptype = NULL;
++	const unsigned char *disptype = NULL;
+ 	static char *propnames[] = {
+ 		"DFP,EDID", "LCD,EDID", "EDID", "EDID1", "EDID,B", "EDID,A", NULL };
+ 	int i;
 -- 
 1.4.2.GIT
 

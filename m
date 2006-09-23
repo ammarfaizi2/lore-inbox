@@ -1,69 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751417AbWIWJik@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751428AbWIWJmV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751417AbWIWJik (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Sep 2006 05:38:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751418AbWIWJij
+	id S1751428AbWIWJmV (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Sep 2006 05:42:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751427AbWIWJmU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Sep 2006 05:38:39 -0400
-Received: from ogre.sisk.pl ([217.79.144.158]:62655 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S1751417AbWIWJii (ORCPT
+	Sat, 23 Sep 2006 05:42:20 -0400
+Received: from ns2.uludag.org.tr ([193.140.100.220]:17124 "EHLO uludag.org.tr")
+	by vger.kernel.org with ESMTP id S1751423AbWIWJmU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Sep 2006 05:38:38 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: ray-gmail@madrabbit.org
-Subject: Re: Bcm43xx softMac Driver in 2.6.18
-Date: Sat, 23 Sep 2006 11:41:25 +0200
-User-Agent: KMail/1.9.1
-Cc: "Larry Finger" <Larry.Finger@lwfinger.net>, dbtsai@gmail.com,
-       "John Linville" <linville@tuxdriver.com>, netdev@vger.kernel.org,
-       LKML <linux-kernel@vger.kernel.org>
-References: <4513E308.10507@lwfinger.net> <2c0942db0609222303o50e47156xe6af9a50ed8301c8@mail.gmail.com>
-In-Reply-To: <2c0942db0609222303o50e47156xe6af9a50ed8301c8@mail.gmail.com>
+	Sat, 23 Sep 2006 05:42:20 -0400
+From: "=?utf-8?q?S=2E=C3=87a=C4=9Flar?= Onur" <caglar@pardus.org.tr>
+Reply-To: caglar@pardus.org.tr
+Organization: =?utf-8?q?T=C3=9CB=C4=B0TAK_/?= UEKAE
+To: Dave Jones <davej@redhat.com>
+Subject: Re: [BUG] warning at kernel/cpu.c:38/lock_cpu_hotplug()
+Date: Sat, 23 Sep 2006 12:42:17 +0300
+User-Agent: KMail/1.9.4
+Cc: linux-kernel@vger.kernel.org
+References: <200609230145.21997.caglar@pardus.org.tr> <20060922231342.GA8414@redhat.com>
+In-Reply-To: <20060922231342.GA8414@redhat.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Content-Type: multipart/signed;
+  boundary="nextPart386340813.UtZUEDO4qQ";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200609231141.26090.rjw@sisk.pl>
+Message-Id: <200609231242.17900.caglar@pardus.org.tr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday, 23 September 2006 08:03, Ray Lee wrote:
-> On 9/22/06, Larry Finger <Larry.Finger@lwfinger.net> wrote:
-> > When we found the cause of NETDEV watchdog timeouts in the wireless-2.6 code,
-> > I knew that the 2.6.18 release code would cause a serious regression.
-> 
-> I don't know if this is the lockup you're trying to address, but
-> 2.6.18's bcm43xx has definitely regressed for me versus 2.6.17.x.
-> 
-> 2.6.18 vanilla and 2.6.18 with your patch both lock my system hard
-> with bcm43xx. I've got an HP/Compaq nx6125 laptop. Symptoms are that
-> it will associate fine on its own and send traffic to/fro upon ifup,
-> but when I do an iwconfig, ifdown, ifup to change the access point,
-> the system locks (somewhat randomly) during one of those operations.
-> Well, the iwconfig or the ifup, actually.
+--nextPart386340813.UtZUEDO4qQ
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-I have observed similar symptoms on HPC nx6325, although I haven't managed
-to get the adapter associate with an AP.
+23 Eyl 2006 Cts 02:13 tarihinde, Dave Jones =C5=9Funlar=C4=B1 yazm=C4=B1=C5=
+=9Ft=C4=B1:=20
+> This should do the trick.
+> I'll merge the same patch into cpufreq.git
 
-This is a PCI-E card so I need some additional patches to make the driver
-detect it, and I use the firmware cut from wl_apsta.o.  The kernel is also
-64-bit, 2.6.18-rc6-mm2.
+Yep, it solved the problem=20
 
-lspci -v:
+Cheers
+=2D-=20
+S.=C3=87a=C4=9Flar Onur <caglar@pardus.org.tr>
+http://cekirdek.pardus.org.tr/~caglar/
 
-30:00.0 Network controller: Broadcom Corporation BCM4310 UART (rev 01)
-        Subsystem: Hewlett-Packard Company Unknown device 1361
-        Flags: bus master, fast devsel, latency 0, IRQ 10
-        Memory at c8000000 (32-bit, non-prefetchable) [size=16K]
-        Capabilities: [40] Power Management version 2
-        Capabilities: [58] Message Signalled Interrupts: 64bit- Queue=0/0 Enable-
-        Capabilities: [d0] Express Legacy Endpoint IRQ 0
+Linux is like living in a teepee. No Windows, no Gates and an Apache in hou=
+se!
 
-Greetings,
-Rafael
+--nextPart386340813.UtZUEDO4qQ
+Content-Type: application/pgp-signature
 
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
 
--- 
-You never change things by fighting the existing reality.
-		R. Buckminster Fuller
+iD8DBQBFFQF5y7E6i0LKo6YRAv1rAKCwGxzAlZANYbnc9gcOVWECthN5QwCgx2v7
+sfT2Xq1ktEY0Y4dWB1CRdCw=
+=Lgtr
+-----END PGP SIGNATURE-----
+
+--nextPart386340813.UtZUEDO4qQ--

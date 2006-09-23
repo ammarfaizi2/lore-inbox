@@ -1,25 +1,24 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751493AbWIWKog@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750743AbWIWLE1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751493AbWIWKog (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Sep 2006 06:44:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751496AbWIWKog
+	id S1750743AbWIWLE1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Sep 2006 07:04:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750735AbWIWLE1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Sep 2006 06:44:36 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:14786 "EHLO
+	Sat, 23 Sep 2006 07:04:27 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:46482 "EHLO
 	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751493AbWIWKof (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Sep 2006 06:44:35 -0400
-Subject: Re: 2.6.19 -mm merge plans
+	id S1750720AbWIWLE0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Sep 2006 07:04:26 -0400
+Subject: Re: [patch 1/8] extend make headers_check to detect more problems
 From: David Woodhouse <dwmw2@infradead.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, "Rongkai.Zhan" <rongkai.zhan@windriver.com>,
-       linux-mtd@lists.infradead.org
-In-Reply-To: <1158917046.24527.662.camel@pmac.infradead.org>
-References: <20060920135438.d7dd362b.akpm@osdl.org>
-	 <1158917046.24527.662.camel@pmac.infradead.org>
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20060918013216.335200000@klappe.arndb.de>
+References: <20060918012740.407846000@klappe.arndb.de>
+	 <20060918013216.335200000@klappe.arndb.de>
 Content-Type: text/plain
-Date: Sat, 23 Sep 2006 11:44:27 +0100
-Message-Id: <1159008267.24527.908.camel@pmac.infradead.org>
+Date: Sat, 23 Sep 2006 12:04:21 +0100
+Message-Id: <1159009461.24527.920.camel@pmac.infradead.org>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5.dwmw2.1) 
 Content-Transfer-Encoding: 7bit
@@ -28,16 +27,42 @@ X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafl
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-09-22 at 10:24 +0100, David Woodhouse wrote:
-> Merged, with the exception of the unlock addr one which I'm still not
-> sure about -- about to investigate harder. 
+On Mon, 2006-09-18 at 03:27 +0200, Arnd Bergmann wrote:
+> plain text document attachment (headercheck-base.diff)
+> In addition to the problem of including non-existant header
+> files, a number of other things can go wrong with header
+> files exported to user space. This adds checks for some
+> common problems:
+> 
+> - The header fails to include the files it needs, which
+>   results in build errors when a program tries to include
+>   it. Check this by doing a dummy compile.
+> 
+> - There is a declarations of a static variable or non-inline
+>   function in the header, which results in object code
+>   in every file including it. Check for symbols in the object
+>   with 'nm'.
+> 
+> - Part of the header is subject to conditional compilation
+>   based on CONFIG_*. Add a regex search for this.
 
-Please drop it (fix-the-unlock-addr-lookup-bug-in-mtd-jedec-probe.patch).
+It would be good to fix these problems, it's true -- but bear in mind
+that none of these are actually fatal problems -- they're just caveats
+of (ab)using kernel-private headers in userspace. 
 
-Returning the first value in the array is intentional -- it should be
-automatically shifted to make it work if it's a x16 chip, and the right
-thing should happen. If _that_ isn't working, give details and we'll
-work out a proper fix.
+On the other hand, it would be good to get people used to running
+'make headers_check' whenever they make a change -- so introducing more
+breakage right now may be counterproductive from that point of view.
+
+So I think I'd prefer to leave this for now, or at least limit it to
+'make CHECKMEHARDER=1 headers_check' so that we can wean people onto
+using headers_check slowly and relatively painlessly.
+
+> I found many problems with this, which I then fixed for
+> powerpc, s390 and i386, in subsequent patches.
+
+Can you -include <linux/types.h> _every_ time, to reduce the number of
+places you have to add '/* @headercheck: -include linux/types.h @ */' ?
 
 -- 
 dwmw2

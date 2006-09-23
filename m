@@ -1,59 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751087AbWIWMpu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751099AbWIWMqi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751087AbWIWMpu (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Sep 2006 08:45:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751097AbWIWMpu
+	id S1751099AbWIWMqi (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Sep 2006 08:46:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751086AbWIWMqh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Sep 2006 08:45:50 -0400
-Received: from electric-eye.fr.zoreil.com ([213.41.134.224]:22246 "EHLO
-	fr.zoreil.com") by vger.kernel.org with ESMTP id S1751087AbWIWMpt
+	Sat, 23 Sep 2006 08:46:37 -0400
+Received: from rhun.apana.org.au ([64.62.148.172]:21252 "EHLO
+	arnor.apana.org.au") by vger.kernel.org with ESMTP id S1751098AbWIWMqh
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Sep 2006 08:45:49 -0400
-Date: Sat, 23 Sep 2006 14:43:59 +0200
-From: Francois Romieu <romieu@fr.zoreil.com>
-To: Amol Lad <amol@verismonetworks.com>
-Cc: David Woodhouse <dwmw2@infradead.org>, linux-kernel@vger.kernel.org,
-       kernel-janitors@lists.osdl.org
-Subject: Re: ioremap balanced with iounmap for drivers/mtd subsystem
-Message-ID: <20060923124359.GA17408@electric-eye.fr.zoreil.com>
-References: <200609222101.k8ML1oW5019174@hera.kernel.org>
+	Sat, 23 Sep 2006 08:46:37 -0400
+Date: Sat, 23 Sep 2006 22:46:33 +1000
+To: David Miller <davem@davemloft.net>
+Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org, herbert@gondor.apana.org
+Subject: Re: [PATCH]: Fix ALIGN() macro
+Message-ID: <20060923124633.GA2567@gondor.apana.org.au>
+References: <20060922.223136.41635862.davem@davemloft.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200609222101.k8ML1oW5019174@hera.kernel.org>
-User-Agent: Mutt/1.4.2.1i
-X-Organisation: Land of Sunshine Inc.
+In-Reply-To: <20060922.223136.41635862.davem@davemloft.net>
+User-Agent: Mutt/1.5.9i
+From: Herbert Xu <herbert@gondor.apana.org.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linux Kernel Mailing List <linux-kernel@vger.kernel.org> :
-> commit 25f0c659fe64832d8ee06aa623fffaad708dcf8b
-[...]
-> diff --git a/drivers/mtd/maps/arctic-mtd.c b/drivers/mtd/maps/arctic-mtd.c
-> index d95ae58..642d96b 100644
-> --- a/drivers/mtd/maps/arctic-mtd.c
-> +++ b/drivers/mtd/maps/arctic-mtd.c
-> @@ -96,6 +96,8 @@ static struct mtd_partition arctic_parti
->  static int __init
->  init_arctic_mtd(void)
->  {
-> +	int err = 0;
+On Fri, Sep 22, 2006 at 10:31:36PM -0700, David Miller wrote:
+>
+> I'm still trying to track down the other regression added by
+> the crypto merge.  I have it git bisected down to a single
+> changeset, but I haven't determined what's really wrong yet.
+> I should be able to kill that over the weekend.  I want to fix
+> this before merging my networking tree so I can be absolutely
+> sure that IPSEC doesn't break because of something in my tree :)
 
-Unneeded initialization.
+Thanks for fixing this Dave.  I recall being bitten earlier
+by the same thing as well.  I really need to start testing
+on 64-bit.
 
-> @@ -109,12 +111,20 @@ init_arctic_mtd(void)
->  	printk("%s: probing %d-bit flash bus\n", NAME, BUSWIDTH * 8);
->  	arctic_mtd = do_map_probe("cfi_probe", &arctic_mtd_map);
->  
-> -	if (!arctic_mtd)
-> +	if (!arctic_mtd) {
-> +		iounmap((void *) arctic_mtd_map.virt);
+BTW could you describe the other regression?
 
-Useless cast.
-
-These two patterns are repeated all over the patch.
-
-A grep for iounmap in drivers/mtd/nand would not hurt.
-
+Thanks,
 -- 
-Ueimor
+Visit Openswan at http://www.openswan.org/
+Email: Herbert Xu ~{PmV>HI~} <herbert@gondor.apana.org.au>
+Home Page: http://gondor.apana.org.au/~herbert/
+PGP Key: http://gondor.apana.org.au/~herbert/pubkey.txt

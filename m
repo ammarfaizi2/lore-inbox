@@ -1,47 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964788AbWIWUMz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964821AbWIWUYD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964788AbWIWUMz (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Sep 2006 16:12:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964795AbWIWUMz
+	id S964821AbWIWUYD (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Sep 2006 16:24:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751546AbWIWUYD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Sep 2006 16:12:55 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:14529
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S964788AbWIWUMy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Sep 2006 16:12:54 -0400
-Date: Sat, 23 Sep 2006 13:12:52 -0700 (PDT)
-Message-Id: <20060923.131252.74747591.davem@davemloft.net>
-To: herbert@gondor.apana.org.au
-Cc: linux-kernel@vger.kernel.org, torvalds@osdl.org
-Subject: Re: [PATCH]: Fix ALIGN() macro
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <20060923144041.GA3540@gondor.apana.org.au>
-References: <20060923124633.GA2567@gondor.apana.org.au>
-	<20060923125458.GA2682@gondor.apana.org.au>
-	<20060923144041.GA3540@gondor.apana.org.au>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Sat, 23 Sep 2006 16:24:03 -0400
+Received: from pasmtpb.tele.dk ([80.160.77.98]:46540 "EHLO pasmtpB.tele.dk")
+	by vger.kernel.org with ESMTP id S1751541AbWIWUYB (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Sep 2006 16:24:01 -0400
+Date: Sat, 23 Sep 2006 22:29:12 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Al Viro <viro@ftp.linux.org.uk>
+Cc: Linus Torvalds <torvalds@osdl.org>, rolandd@cisco.com,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] missing includes from infiniband merge
+Message-ID: <20060923202912.GA22293@uranus.ravnborg.org>
+References: <20060923154416.GH29920@ftp.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060923154416.GH29920@ftp.linux.org.uk>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Herbert Xu <herbert@gondor.apana.org.au>
-Date: Sun, 24 Sep 2006 00:40:41 +1000
+On Sat, Sep 23, 2006 at 04:44:16PM +0100, Al Viro wrote:
+> indirect chains of includes are arch-specific and can't
+> be relied upon...  (hell, even attempt to build it for
+> itanic would trigger vmalloc.h ones; err.h triggers
+> on e.g. alpha).
+> 
+> Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+> ---
+>  drivers/infiniband/core/mad_priv.h           |    1 +
+>  drivers/infiniband/hw/amso1100/c2_provider.c |    1 +
+>  drivers/infiniband/hw/amso1100/c2_rnic.c     |    1 +
+>  drivers/infiniband/hw/ipath/ipath_diag.c     |    1 +
+>  4 files changed, 4 insertions(+), 0 deletions(-)
+A better fix would be to avoid the arch dependency in the non-arch .h
+files so that in most cases it just works??
 
-> OK I think I've found the problem.
-> 
-> [CRYPTO] hmac: Fix hmac_init update call
-> 
-> The crypto_hash_update call in hmac_init gave the number 1
-> instead of the length of the sg list in bytes.  This is a
-> missed conversion from the digest => hash change.
-> 
-> As tcrypt only tests crypto_hash_digest it didn't catch this.
-> 
-> Signed-off-by: Herbert Xu <herbert@gondor.apana.org.au>
+That will result in a few files being included twice or more but
+does that matter with current gcc - I doubt.
 
-This, along with the ALIGN() patch, fixes all the regressions
-for me.  Good spotting Herbert!
-
-Linus, please apply.
+	Sam

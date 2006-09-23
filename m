@@ -1,54 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964826AbWIWU2R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964828AbWIWUgq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964826AbWIWU2R (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Sep 2006 16:28:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751546AbWIWU2R
+	id S964828AbWIWUgq (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Sep 2006 16:36:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751518AbWIWUgq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Sep 2006 16:28:17 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:36840 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751539AbWIWU2Q (ORCPT
+	Sat, 23 Sep 2006 16:36:46 -0400
+Received: from smtpout.mac.com ([17.250.248.184]:26102 "EHLO smtpout.mac.com")
+	by vger.kernel.org with ESMTP id S1751516AbWIWUgp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Sep 2006 16:28:16 -0400
-Date: Sat, 23 Sep 2006 22:20:27 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Voluspa <lista1@comhem.se>
-Cc: Daniel Walker <dwalker@mvista.com>, brugolsky@telemetry-investments.com,
-       pavel@suse.cz, akpm@osdl.org, tglx@linutronix.de,
-       linux-kernel@vger.kernel.org
-Subject: Re: hires timer patchset [was Re: 2.6.19 -mm merge plans]
-Message-ID: <20060923202027.GA8350@elte.hu>
-References: <20060923041746.2b9b7e1f@loke.fish.not> <1159034967.21405.22.camel@c-67-180-230-165.hsd1.ca.comcast.net> <20060923215832.03b1dac5@loke.fish.not>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060923215832.03b1dac5@loke.fish.not>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -2.9
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.9 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5000]
-	-0.1 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Sat, 23 Sep 2006 16:36:45 -0400
+In-Reply-To: <20060923144041.GA3540@gondor.apana.org.au>
+References: <20060922.223136.41635862.davem@davemloft.net> <20060923124633.GA2567@gondor.apana.org.au> <20060923125458.GA2682@gondor.apana.org.au> <20060923144041.GA3540@gondor.apana.org.au>
+Mime-Version: 1.0 (Apple Message framework v752.2)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <0C3FEC03-29A8-49B0-9D12-BBFA4AE99A78@mac.com>
+Cc: David Miller <davem@davemloft.net>, linux-kernel@vger.kernel.org,
+       torvalds@osdl.org
+Content-Transfer-Encoding: 7bit
+From: Kyle Moffett <mrmacman_g4@mac.com>
+Subject: Re: [PATCH]: Fix ALIGN() macro
+Date: Sat, 23 Sep 2006 16:36:33 -0400
+To: Herbert Xu <herbert@gondor.apana.org.au>
+X-Mailer: Apple Mail (2.752.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sep 23, 2006, at 10:40:41, Herbert Xu wrote:
+> diff --git a/crypto/hmac.c b/crypto/hmac.c
+> index f403b69..d52b234 100644
+> --- a/crypto/hmac.c
+> +++ b/crypto/hmac.c
+> @@ -98,7 +98,7 @@ static int hmac_init(struct hash_desc *p
+>  	sg_set_buf(&tmp, ipad, bs);
+>
+>  	return unlikely(crypto_hash_init(&desc)) ?:
+> -	       crypto_hash_update(&desc, &tmp, 1);
+> +	       crypto_hash_update(&desc, &tmp, bs);
+>  }
+>
+>  static int hmac_update(struct hash_desc *pdesc,
 
-* Voluspa <lista1@comhem.se> wrote:
+Quick question:  does "crypto_hash_init()" ever return anything other  
+than 0 or 1?  If so this is a subtle bug, as "unlikely()" is  
+implemented like this:
 
-> WARNING: "monotonic_clock" [drivers/char/hangcheck-timer.ko] undefined!
+# define unlikely(x) __builtin_expect(!!(x), 0)
 
-turn off the CONFIG_HANGCHECK_TIMER option.
+IMO any usage of likely/unlikely other than if(unlikely()), if(likely 
+()) is probably a bug.
 
-> WARNING: "hrtimer_stop_sched_tick" [drivers/acpi/processor.ko] undefined!
-> WARNING: "hrtimer_restart_sched_tick" [drivers/acpi/processor.ko] undefined!
+Cheers,
+Kyle Moffett
 
-add these two lins to the end of kernel/hrtimer.c:
-
-EXPORT_SYMBOL_GPL(hrtimer_stop_sched_tick);
-EXPORT_SYMBOL_GPL(hrtimer_restart_sched_tick);
-
-	Ingo

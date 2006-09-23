@@ -1,41 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964918AbWIWU4Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750892AbWIWVH1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964918AbWIWU4Z (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Sep 2006 16:56:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964920AbWIWU4Z
+	id S1750892AbWIWVH1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Sep 2006 17:07:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750968AbWIWVH0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Sep 2006 16:56:25 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:25031 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S964918AbWIWU4Z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Sep 2006 16:56:25 -0400
-Subject: Re: Linux 2.6.16.30-pre1
-From: Lee Revell <rlrevell@joe-job.com>
-To: Jean Delvare <khali@linux-fr.org>
-Cc: Adrian Bunk <bunk@stusta.de>, Greg KH <greg@kroah.com>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20060923224909.69579243.khali@linux-fr.org>
-References: <20060922222300.GA5566@stusta.de>
-	 <20060922223859.GB21772@kroah.com> <20060922224735.GB5566@stusta.de>
-	 <20060922230928.GB22830@kroah.com>
-	 <20060923224909.69579243.khali@linux-fr.org>
-Content-Type: text/plain
-Date: Sat, 23 Sep 2006 16:57:56 -0400
-Message-Id: <1159045077.1097.182.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+	Sat, 23 Sep 2006 17:07:26 -0400
+Received: from py-out-1112.google.com ([64.233.166.183]:54498 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S1750885AbWIWVHZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Sep 2006 17:07:25 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=SHj7IHG7MNLSRr3WiXWBJlyH1Tf/3f5GTEgwpOw3HcZ6opoylHHhgpF0UyZSnxc0uG2WdK+3JzaW36FNvUl4ZM9EDt4N1/vK5a6vhrjIlyu8NUYYH4PDpGalK+LoCl9Ef2YmgwHSfoTU0cuF7tYRj8qm9xgigXjWCwUcu/t5C3M=
+Message-ID: <a44ae5cd0609231407r1ab38dedu7a2ac9578c064566@mail.gmail.com>
+Date: Sat, 23 Sep 2006 14:07:24 -0700
+From: "Miles Lane" <miles.lane@gmail.com>
+To: LKML <linux-kernel@vger.kernel.org>, B.Zolnierkiewicz@elka.pw.edu.pl
+Subject: 2.6.18 -- ide_core: exports duplicate symbol ide_lock (owned by kernel) -- kobject_add failed for ide-disk with -EEXIST
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-09-23 at 22:49 +0200, Jean Delvare wrote:
-> I will not use 2.6.16.y with its current rules, for sure, and I doubt
-> any distribution will. Wasn't the whole point of 2.6.16.y to serve as
-> a common base between several distributions? 
+ide_core: exports duplicate symbol ide_lock (owned by kernel)
+kobject_add failed for ide-disk with -EEXIST, don't try to register
+things with the same name in the same directory.
+ [<c1003e88>] show_trace_log_lvl+0x58/0x16a
+ [<c1004535>] show_trace+0xd/0x10
+ [<c10045d9>] dump_stack+0x19/0x1b
+ [<c10b00d5>] kobject_add+0x14b/0x171
+ [<c10b0205>] kobject_register+0x1c/0x34
+ [<c11141c5>] bus_add_driver+0x4e/0x106
+ [<c1114e17>] driver_register+0x78/0x7d
+ [<f882400d>] idedisk_init+0xd/0xf [ide_disk]
+ [<c1034f53>] sys_init_module+0x12cb/0x14b0
+ [<c1002eab>] syscall_call+0x7/0xb
+DWARF2 unwinder stuck at syscall_call+0x7/0xb
+Leftover inexact backtrace:
+ [<c1004535>] show_trace+0xd/0x10
+ [<c10045d9>] dump_stack+0x19/0x1b
+ [<c10b00d5>] kobject_add+0x14b/0x171
+ [<c10b0205>] kobject_register+0x1c/0x34
+ [<c11141c5>] bus_add_driver+0x4e/0x106
+ [<c1114e17>] driver_register+0x78/0x7d
+ [<f882400d>] idedisk_init+0xd/0xf [ide_disk]
+ [<c1034f53>] sys_init_module+0x12cb/0x14b0
+ [<c1002eab>] syscall_call+0x7/0xb
+usb usb1: suspend_rh (auto-stop)
 
-I would not expect distros to be interested in a 2.6 tree that does not
-add support for new devices.  Isn't new hardware support one of the main
-areas where distros routinely get ahead of mainline?
-
-Lee
-
+CONFIG_BLK_DEV_IDEDISK=y
+CONFIG_IDEDISK_MULTI_MODE=y
+CONFIG_BLK_DEV_IDECS=m
+CONFIG_BLK_DEV_IDECD=m
+CONFIG_BLK_DEV_IDEFLOPPY=m
+CONFIG_BLK_DEV_IDEPCI=y
+CONFIG_IDEPCI_SHARE_IRQ=y
+CONFIG_BLK_DEV_IDEDMA_PCI=y
+CONFIG_IDEDMA_PCI_AUTO=y
+CONFIG_BLK_DEV_PIIX=y
+CONFIG_BLK_DEV_IDEDMA=y
+CONFIG_IDEDMA_AUTO=y

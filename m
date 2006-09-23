@@ -1,66 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751053AbWIWNNF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751107AbWIWNSg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751053AbWIWNNF (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Sep 2006 09:13:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751100AbWIWNNF
+	id S1751107AbWIWNSg (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Sep 2006 09:18:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751110AbWIWNSg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Sep 2006 09:13:05 -0400
-Received: (root@vger.kernel.org) by vger.kernel.org id S1751053AbWIWNNF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Sep 2006 09:13:05 -0400
-Received: from wx-out-0506.google.com ([66.249.82.235]:23377 "EHLO
-	wx-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1750699AbWIWB62 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 22 Sep 2006 21:58:28 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=VQvACBCzw1MYu9efdlCAJuHaBeovAwA6GJlWY3ijBjS3UNH74xHuYrGHATFKjEDup7njbZx/yU0cEaiNa9cWYKNf3k54UPTJK6D642A1w7CxOLMEcESEBMXvgPNAXei9LtQLBBujqjvps+rTzbVGD13piOPQEIxEYePXrj7jUIA=
-Message-ID: <8bd0f97a0609221858w442b9aeagcff312d2220f70c6@mail.gmail.com>
-Date: Fri, 22 Sep 2006 21:58:27 -0400
-From: "Mike Frysinger" <vapier.adi@gmail.com>
-To: "Roland Dreier" <rdreier@cisco.com>
-Subject: Re: [PATCH 1/4] Blackfin: arch patch for 2.6.18
-Cc: "Randy.Dunlap" <rdunlap@xenotime.net>, "Arnd Bergmann" <arnd@arndb.de>,
-       "Luke Yang" <luke.adi@gmail.com>, linux-kernel@vger.kernel.org,
-       "Andrew Morton" <akpm@osdl.org>
-Illegal-Object: Syntax error in Cc: address found on vger.kernel.org:
-	Cc:	Randy.Dunlap<rdunlap@xenotime.net>
-				    ^-missing end of address
-Illegal-Object: Syntax error in Cc: address found on vger.kernel.org:
-	Cc:	Randy.Dunlap<rdunlap@xenotime.net>
-				    ^-missing end of address
-Illegal-Object: Syntax error in Cc: address found on vger.kernel.org:
-	Cc:	Randy.Dunlap<rdunlap@xenotime.net>
-				    ^-missing end of address
-Illegal-Object: Syntax error in Cc: address found on vger.kernel.org:
-	Cc:	Randy.Dunlap<rdunlap@xenotime.net>
-				    ^-missing end of address
-In-Reply-To: <adad59nfk97.fsf@cisco.com>
+	Sat, 23 Sep 2006 09:18:36 -0400
+Received: from [212.227.126.186] ([212.227.126.186]:4571 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S1751107AbWIWNSf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Sep 2006 09:18:35 -0400
+From: Arnd Bergmann <arnd@arndb.de>
+To: David Woodhouse <dwmw2@infradead.org>
+Subject: Re: [patch 1/8] extend make headers_check to detect more problems
+Date: Sat, 23 Sep 2006 15:18:15 +0200
+User-Agent: KMail/1.9.4
+Cc: linux-arch@vger.kernel.org, linux-kernel@vger.kernel.org
+References: <20060918012740.407846000@klappe.arndb.de> <20060918013216.335200000@klappe.arndb.de> <1159009461.24527.920.camel@pmac.infradead.org>
+In-Reply-To: <1159009461.24527.920.camel@pmac.infradead.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-15"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <489ecd0c0609202032l1c5540f7t980244e30d134ca0@mail.gmail.com>
-	 <200609230218.36894.arnd@arndb.de>
-	 <20060922181826.3b209d1d.rdunlap@xenotime.net>
-	 <adad59nfk97.fsf@cisco.com>
+Message-Id: <200609231518.16201.arnd@arndb.de>
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:c48f057754fc1b1a557605ab9fa6da41
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 9/22/06, Roland Dreier <rdreier@cisco.com> wrote:
->  > > > +static char *cplb_print_entry(char *buf, int type)
->
->  > examples of acceptable interfaces?
->
-> I don't know exactly what a CPLB is, but it looks like this file is
-> something debugging-related.  So stick it in debugfs?
+On Saturday 23 September 2006 13:04, David Woodhouse wrote:
+> It would be good to fix these problems, it's true -- but bear in mind
+> that none of these are actually fatal problems -- they're just caveats
+> of (ab)using kernel-private headers in userspace. 
+> 
+> On the other hand, it would be good to get people used to running
+> 'make headers_check' whenever they make a change -- so introducing more
+> breakage right now may be counterproductive from that point of view.
+> 
+> So I think I'd prefer to leave this for now, or at least limit it to
+> 'make CHECKMEHARDER=1 headers_check' so that we can wean people onto
+> using headers_check slowly and relatively painlessly.
 
-a CPLB is a blackfinisim for handling cache ... it stands for Cache
-Protection Lookaside Buffer
+yes, that sounds fair.
 
-and yes, our proc file for displaying the current software copies of
-the data cplb and instruction cplb tables would probably be better
-implemented via debugfs as there is no real upper limit on how big the
-table can grow ...
--mike
+> > I found many problems with this, which I then fixed for
+> > powerpc, s390 and i386, in subsequent patches.
+> 
+> Can you -include <linux/types.h> _every_ time, to reduce the number of
+> places you have to add '/* @headercheck: -include linux/types.h @ */' ?
+
+The problem with this are a few files which have code like
+
+#ifndef __KERNEL__
+#include <sys/types.h>
+#include <stdint.h>
+#endif
+
+or similar. These break heavily if you include <linux/types.h> before the
+the glibc provided headers, because linux/types.h provides some of the
+types that are normally defined elsewhere and duplicate typedefs result
+in compile errors.
+
+To solve this, we would need to make all headers build fine with
+gcc -D__STRICT_KERNEL_NAMES -include linux/types.h.
+That is a valueable goal as well, since it avoids a number of problems,
+but it is actually a larger change than this.
+
+Now one option we could take would be to always pass -include linux/types.h
+to gcc and put /* @headercheck: -D__STRICT_KERNEL_NAMES */ into the few
+places that break otherwise.
+
+	Arnd <><

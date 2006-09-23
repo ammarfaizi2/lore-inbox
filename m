@@ -1,67 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751317AbWIWQzG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751321AbWIWQ5E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751317AbWIWQzG (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Sep 2006 12:55:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751318AbWIWQzG
+	id S1751321AbWIWQ5E (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Sep 2006 12:57:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751322AbWIWQ5E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Sep 2006 12:55:06 -0400
-Received: from orion.profiwh.com ([85.93.165.28]:4115 "EHLO orion.profiwh.com")
-	by vger.kernel.org with ESMTP id S1751317AbWIWQzD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Sep 2006 12:55:03 -0400
-Message-id: <91newa49121291221@wsc.cz>
-Subject: [PATCH 2/3 -repost] pmc551 use kzalloc
-From: Jiri Slaby <jirislaby@gmail.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: <linux-kernel@vger.kernel.org>, <linux-mtd@lists.infradead.org>
-X-SpamReason: {Bypass=00}-{0,00}-{0,00}-{0,00
-Date: Sat, 23 Sep 2006 12:55:03 -0400
+	Sat, 23 Sep 2006 12:57:04 -0400
+Received: from tomts10.bellnexxia.net ([209.226.175.54]:61633 "EHLO
+	tomts10-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id S1751321AbWIWQ5B (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Sep 2006 12:57:01 -0400
+Date: Sat, 23 Sep 2006 12:51:35 -0400
+From: Mathieu Desnoyers <compudj@krystal.dyndns.org>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Martin Bligh <mbligh@google.com>, "Frank Ch. Eigler" <fche@redhat.com>,
+       Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>, prasanna@in.ibm.com,
+       Andrew Morton <akpm@osdl.org>, Paul Mundt <lethal@linux-sh.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>, Jes Sorensen <jes@sgi.com>,
+       Tom Zanussi <zanussi@us.ibm.com>,
+       Richard J Moore <richardj_moore@uk.ibm.com>,
+       Michel Dagenais <michel.dagenais@polymtl.ca>,
+       Christoph Hellwig <hch@infradead.org>,
+       Greg Kroah-Hartman <gregkh@suse.de>,
+       Thomas Gleixner <tglx@linutronix.de>, William Cohen <wcohen@redhat.com>,
+       ltt-dev@shafik.org, systemtap@sources.redhat.com,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH] Linux Kernel Markers 0.5 for Linux 2.6.17 (with probe management)
+Message-ID: <20060923165135.GA375@Krystal>
+References: <20060921160009.GA30115@Krystal> <20060921160656.GA24774@elte.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20060921160656.GA24774@elte.hu>
+X-Editor: vi
+X-Info: http://krystal.dyndns.org:8080
+X-Operating-System: Linux/2.4.32-grsec (i686)
+X-Uptime: 12:50:16 up 31 days, 13:58,  2 users,  load average: 0.09, 0.19, 0.14
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-pmc551 use kzalloc
+* Ingo Molnar (mingo@elte.hu) wrote:
+> but tracing a raw pagefault at the arch level is a bad idea anyway, we 
+> want to trace __handle_mm_fault(). That way you can avoid having to 
+> modify every architecture's pagefault handler ...
+> 
 
-Use kzalloc instad of kmalloc+memset(0).
+The problem with __handle_mm_fault() is that the struct pt_regs * is not
+passed to this function. An event containing both the address where the fault
+occurs and the instruction pointer that caused the fault is very useful.
 
-Signed-off-by: Jiri Slaby <jirislaby@gmail.com>
+Mathieu
 
----
-commit eb0edd8068cde9b5e6afaf09065a94cb83c10efd
-tree a2f56ac7c0f5cb8e0e3dba707faa68cc8d5c9952
-parent 22f07f42debab2cc3b6ab895d2fa2c34d192c25c
-author Jiri Slaby <jirislaby@gmail.com> Tue, 19 Sep 2006 21:33:07 +0200
-committer Jiri Slaby <xslaby@anemoi.localdomain> Tue, 19 Sep 2006 21:33:07 +0200
-
- drivers/mtd/devices/pmc551.c |    7 ++-----
- 1 files changed, 2 insertions(+), 5 deletions(-)
-
-diff --git a/drivers/mtd/devices/pmc551.c b/drivers/mtd/devices/pmc551.c
-index 4d40236..62a9188 100644
---- a/drivers/mtd/devices/pmc551.c
-+++ b/drivers/mtd/devices/pmc551.c
-@@ -732,23 +732,20 @@ static int __init init_pmc551(void)
- 			msize = length;
- 		}
- 
--		mtd = kmalloc(sizeof(struct mtd_info), GFP_KERNEL);
-+		mtd = kzalloc(sizeof(struct mtd_info), GFP_KERNEL);
- 		if (!mtd) {
- 			printk(KERN_NOTICE "pmc551: Cannot allocate new MTD "
- 				"device.\n");
- 			break;
- 		}
- 
--		memset(mtd, 0, sizeof(struct mtd_info));
--
--		priv = kmalloc(sizeof(struct mypriv), GFP_KERNEL);
-+		priv = kzalloc(sizeof(struct mypriv), GFP_KERNEL);
- 		if (!priv) {
- 			printk(KERN_NOTICE "pmc551: Cannot allocate new MTD "
- 				"device.\n");
- 			kfree(mtd);
- 			break;
- 		}
--		memset(priv, 0, sizeof(*priv));
- 		mtd->priv = priv;
- 		priv->dev = PCI_Device;
- 
+OpenPGP public key:              http://krystal.dyndns.org:8080/key/compudj.gpg
+Key fingerprint:     8CD5 52C3 8E3C 4140 715F  BA06 3F25 A8FE 3BAE 9A68 

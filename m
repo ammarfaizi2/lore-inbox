@@ -1,77 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750868AbWIWLPT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750696AbWIWLSI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750868AbWIWLPT (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Sep 2006 07:15:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750871AbWIWLPT
+	id S1750696AbWIWLSI (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Sep 2006 07:18:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750708AbWIWLSI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Sep 2006 07:15:19 -0400
-Received: from wx-out-0506.google.com ([66.249.82.228]:38308 "EHLO
-	wx-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1750869AbWIWLPS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Sep 2006 07:15:18 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=R+0soLo/pCvzDYyOwvV1xrTDyp+VA/T1fgn6gVk5uD+uajQseUsQ8Bkay/PfyP5T0Z5R9vfCkWFtrV9YLjZnKCufdgELeQ8AasDj18V2I3eFKi9GOIFJYuqEBq+62oTLb/03yRdX3523tgsIXBtxUHTpUu0MdWF6N+KJOW9gPPQ=
-Message-ID: <8bd0f97a0609230415v6a31a784kf6a381f274cf7ef6@mail.gmail.com>
-Date: Sat, 23 Sep 2006 07:15:17 -0400
-From: "Mike Frysinger" <vapier.adi@gmail.com>
-To: "Arnd Bergmann" <arnd@arndb.de>
-Subject: Re: [PATCH 1/4] Blackfin: arch patch for 2.6.18
-Cc: "Luke Yang" <luke.adi@gmail.com>, linux-kernel@vger.kernel.org,
-       "Andrew Morton" <akpm@osdl.org>
-In-Reply-To: <200609231303.35481.arnd@arndb.de>
+	Sat, 23 Sep 2006 07:18:08 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:5303 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1750696AbWIWLSH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Sep 2006 07:18:07 -0400
+Date: Sat, 23 Sep 2006 13:18:05 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: "Scott E. Preece" <preece@motorola.com>
+Cc: eugeny.mints@gmail.com, linux-pm@lists.osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [linux-pm] [PATCH] PowerOP, PowerOP Core, 1/2
+Message-ID: <20060923111805.GF20778@elf.ucw.cz>
+References: <200609222034.k8MKYoDK008487@olwen.urbana.css.mot.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <489ecd0c0609202032l1c5540f7t980244e30d134ca0@mail.gmail.com>
-	 <200609230218.36894.arnd@arndb.de>
-	 <8bd0f97a0609222350o3a9c8c36g468a6177ae7b1ea7@mail.gmail.com>
-	 <200609231303.35481.arnd@arndb.de>
+In-Reply-To: <200609222034.k8MKYoDK008487@olwen.urbana.css.mot.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 9/23/06, Arnd Bergmann <arnd@arndb.de> wrote:
-> On Saturday 23 September 2006 08:50, Mike Frysinger wrote:
-> > On 9/22/06, Arnd Bergmann <arnd@arndb.de> wrote:
-> > > > + * File:         include/asm-blackfin/mach-bf533/anomaly.h
-> > >
-> > > You seem to have lots of these machine specfic header files in include/asm.
-> > > Please move them to the respective machine implementation directory
-> > > if they are only used from there
-> >
-> > these are sub-arch specific, not machine (aka board)
->
-> Now to my point: If all the files that use the platform specific
-> headers are in the same source directory, then these headers should
-> also be in that platform directory. To compare it with powerpc,
-> where we have discussed a long time about the ideal file layout,
-> that would mean you get:
+Hi!
 
-then that would not be just anomaly.h, that would be the entire mach
-header subdirs:
-include/asm-blackfin/mach-bf533/
-include/asm-blackfin/mach-bf535/
-include/asm-blackfin/mach-bf537/
-include/asm-blackfin/mach-bf561/
+> Note that I don't think PowerOp would cover all devices. In fact, I
+> think most devices would remain autonomous or controlled as part of
+> specific subsystems. The only things that PowerOp would bundle together
+> would be things that aren't independent (and may not even be visible as
+> "devices" in the usual Linux sense), but that have to be managed
+> together in changing frequency/voltage. At least, that's the way I
+> imagined it would work.
 
-relocated to the dirs:
-arch/blackfin/mach-bf533/
-arch/blackfin/mach-bf535/
-arch/blackfin/mach-bf537/
-arch/blackfin/mach-bf561/
+Well, two objections to that
 
-> > > What's the point, are you getting paid by lines of code? Just use
-> > > the registers directly!
-> >
-> > in our last submission we were doing exactly that ... and we were told
-> > to switch to a function style method of reading/writing memory mapped
-> > registers
->
-> It's hard to imagine that what you have here was intended by the comment
-> then. Do you have an archive link about that discussion?
+a) current powerop code does not handle 256 CPU machine, because that
+would need 256 independend bundles, and powerop has hardcoded "only
+one bundle" rule.
 
-no as i was not around for said discussion.  but it should be in the
-threads covering the submission of blackfin for 2.6.13 ...
--mike
+b) having some devices controlled by powerop and some by specific
+subsystem is indeed ugly. I'd hope powerop would cover all the
+devices. (Or maybe cover _no_ devices). Userland should not need to
+know if touchscreen is part of SoC or if it happens to be independend
+on given machine.
+
+								Pavel
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

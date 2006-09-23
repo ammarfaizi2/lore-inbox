@@ -1,53 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751322AbWIWRDR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751333AbWIWRVh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751322AbWIWRDR (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Sep 2006 13:03:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751329AbWIWRDR
+	id S1751333AbWIWRVh (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Sep 2006 13:21:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751338AbWIWRVh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Sep 2006 13:03:17 -0400
-Received: from xenotime.net ([66.160.160.81]:38076 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1751322AbWIWRDQ convert rfc822-to-8bit
+	Sat, 23 Sep 2006 13:21:37 -0400
+Received: from zeniv.linux.org.uk ([195.92.253.2]:24712 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1751333AbWIWRVg
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Sep 2006 13:03:16 -0400
-Date: Sat, 23 Sep 2006 10:04:28 -0700
-From: Randy Dunlap <rdunlap@xenotime.net>
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: Michael Opdenacker <michael-lists@free-electrons.com>,
-       linux-kernel@vger.kernel.org, trivial@kernel.org
-Subject: Re: [PATCH 2.6.18] [TRIVIAL] Spelling fixes in
- Documentation/DocBook
-Message-Id: <20060923100428.99baa1ad.rdunlap@xenotime.net>
-In-Reply-To: <1159005072.24527.891.camel@pmac.infradead.org>
-References: <200609212318.07418.michael-lists@free-electrons.com>
-	<1159005072.24527.891.camel@pmac.infradead.org>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
+	Sat, 23 Sep 2006 13:21:36 -0400
+Date: Sat, 23 Sep 2006 18:21:35 +0100
+From: Al Viro <viro@ftp.linux.org.uk>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] more get_property() fallout
+Message-ID: <20060923172135.GL29920@ftp.linux.org.uk>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 23 Sep 2006 10:51:12 +0100 David Woodhouse wrote:
-
-> On Thu, 2006-09-21 at 23:18 +0200, Michael Opdenacker wrote:
-> > -and associated transciever to support <emphasis>Dual-Role</emphasis>
-> > +and associated transceiver to support <emphasis>Dual-Role</emphasis> 
-> 
-> Since you're actually touching this line already, could you not fix
-> 'Role' to 'Rôle'? If you fix the aspell config it ought to catch that
-> error too.
-> 
-> Our computers became capable of more than just ASCII text some years ago
-> -- there's no real excuse for dropping accents any more.
-
-On this side of the pond, many words lose their diacritical marks
-after lots of usage.  "Cooperate" has previously been hyphenated
-(co-operate) or spelled with a diaeresis over the second 'o'.
-They are now lost.  So we can thank teletypes for that?
-or laziness?  could be.
-
-Anyway, "Role" looks good to me.
-
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
 ---
-~Randy
+ drivers/video/riva/fbdev.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+diff --git a/drivers/video/riva/fbdev.c b/drivers/video/riva/fbdev.c
+index 61a4665..4acde4f 100644
+--- a/drivers/video/riva/fbdev.c
++++ b/drivers/video/riva/fbdev.c
+@@ -1826,7 +1826,7 @@ static int __devinit riva_get_EDID_OF(st
+ {
+ 	struct riva_par *par = info->par;
+ 	struct device_node *dp;
+-	unsigned char *pedid = NULL;
++	const unsigned char *pedid = NULL;
+ 	const unsigned char *disptype = NULL;
+ 	static char *propnames[] = {
+ 		"DFP,EDID", "LCD,EDID", "EDID", "EDID1", "EDID,B", "EDID,A", NULL };
+-- 
+1.4.2.GIT
+

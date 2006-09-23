@@ -1,56 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751050AbWIWINk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751120AbWIWIR5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751050AbWIWINk (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Sep 2006 04:13:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751120AbWIWINk
+	id S1751120AbWIWIR5 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Sep 2006 04:17:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751134AbWIWIR5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Sep 2006 04:13:40 -0400
-Received: from colin.muc.de ([193.149.48.1]:37392 "EHLO mail.muc.de")
-	by vger.kernel.org with ESMTP id S1751050AbWIWINj (ORCPT
+	Sat, 23 Sep 2006 04:17:57 -0400
+Received: from colin.muc.de ([193.149.48.1]:39183 "EHLO mail.muc.de")
+	by vger.kernel.org with ESMTP id S1751120AbWIWIR4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Sep 2006 04:13:39 -0400
-Date: 23 Sep 2006 10:13:37 +0200
-Date: Sat, 23 Sep 2006 10:13:37 +0200
+	Sat, 23 Sep 2006 04:17:56 -0400
+Date: 23 Sep 2006 10:17:55 +0200
+Date: Sat, 23 Sep 2006 10:17:55 +0200
 From: Andi Kleen <ak@muc.de>
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Rusty Russell <rusty@rustcorp.com.au>,
-       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       virtualization <virtualization@lists.osdl.org>
+To: Rusty Russell <rusty@rustcorp.com.au>
+Cc: lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       virtualization <virtualization@lists.osdl.org>,
+       Jeremy Fitzhardinge <jeremy@goop.org>
 Subject: Re: [PATCH 5/7] Use %gs for per-cpu sections in kernel
-Message-ID: <20060923081337.GA10534@muc.de>
-References: <1158925861.26261.3.camel@localhost.localdomain> <1158925997.26261.6.camel@localhost.localdomain> <1158926106.26261.8.camel@localhost.localdomain> <1158926215.26261.11.camel@localhost.localdomain> <1158926308.26261.14.camel@localhost.localdomain> <1158926386.26261.17.camel@localhost.localdomain> <4514663E.5050707@goop.org>
+Message-ID: <20060923081755.GB10534@muc.de>
+References: <1158925861.26261.3.camel@localhost.localdomain> <1158925997.26261.6.camel@localhost.localdomain> <1158926106.26261.8.camel@localhost.localdomain> <1158926215.26261.11.camel@localhost.localdomain> <1158926308.26261.14.camel@localhost.localdomain> <1158926386.26261.17.camel@localhost.localdomain> <20060922123215.GA98728@muc.de> <1158987075.26261.79.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4514663E.5050707@goop.org>
+In-Reply-To: <1158987075.26261.79.camel@localhost.localdomain>
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> >+
-> >+	/* Set up GDT entry for 16bit stack */
-> >+	stk16_off = (u32)&per_cpu(cpu_16bit_stack, cpu);
-> >+	gdt = per_cpu(cpu_gdt_table, cpu);
-> >+	*(__u64 *)(&gdt[GDT_ENTRY_ESPFIX_SS]) |=
-> >+		((((__u64)stk16_off) << 16) & 0x000000ffffff0000ULL) |
-> >+		((((__u64)stk16_off) << 32) & 0xff00000000000000ULL) |
-> >+		(CPU_16BIT_STACK_SIZE - 1);
-> >  
+> Mainly that it makes more sense to use the existing per-cpu concept than
+> introduce another kind of per-cpu var within a special structure, but
+> it's also more efficient (see other post).  Hopefully it will spark
+
+What post exactly?  AFAIK it is the same code for common code.
+
+The advantage of the PDA split is that the important variables which are 
+in the PDA can be accessed with a single reference, while generic portable
+per CPU data is the same as it was before. With your scheme even
+the PDA accesses are at least two instructions, right? (I don't
+think gcc/ld can resolve the per cpu section offset into a constant,
+so it has to load them into a register first) 
+
+> interest in making dynamic-percpu pointers use the same offset scheme,
+> now x86 will experience the benefits.
 > 
-> This should use pack_descriptor().  I'd never got around to changing it, 
-> but it really should.
+> And we might even get a third user of local_t!
 
-I fixed it now in the original patch
-
-> >+	/* Complete percpu area setup early, before calling printk(),
-> >+	   since it may end up using it indirectly. */
-> >+	setup_percpu_for_this_cpu(cpu);
-> >+
-> >  
-> 
-> I managed to get all this done in head.S before going into C code; is 
-> that not still possible?  Or is there a later patch to do this.
-
-Why write in assembler what you can write in C?
+I'm not holding my breath. I guess it was a nice idea before preemption
+became popular ...
 
 -Andi

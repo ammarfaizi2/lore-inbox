@@ -1,43 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751239AbWIXWNN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751241AbWIXWQL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751239AbWIXWNN (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Sep 2006 18:13:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751258AbWIXWNN
+	id S1751241AbWIXWQL (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Sep 2006 18:16:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751258AbWIXWQK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Sep 2006 18:13:13 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:55468 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1751239AbWIXWNM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Sep 2006 18:13:12 -0400
-Subject: Re: [2.6.18-rc7-mm1] slow boot
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Tilman Schmidt <tilman@imap.cc>, linux-kernel@vger.kernel.org,
-       Chris Mason <mason@suse.com>, ext2-devel@lists.sourceforge.net,
-       reiserfs-dev@namesys.com
-In-Reply-To: <20060924145337.ae152efd.akpm@osdl.org>
-References: <4516B966.3010909@imap.cc>
-	 <20060924145337.ae152efd.akpm@osdl.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Sun, 24 Sep 2006 23:36:41 +0100
-Message-Id: <1159137402.11049.40.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+	Sun, 24 Sep 2006 18:16:10 -0400
+Received: (root@vger.kernel.org) by vger.kernel.org id S1751241AbWIXWQK
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Sep 2006 18:16:10 -0400
+Received: from pasmtpb.tele.dk ([80.160.77.98]:8594 "EHLO pasmtpB.tele.dk")
+	by vger.kernel.org with ESMTP id S932103AbWIXVNL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Sep 2006 17:13:11 -0400
+From: sam@ravnborg.org
+To: linux-kernel@vger.kernel.org
+Cc: "Robert P. J. Day" <rpjday@mindspring.com>,
+       Sam Ravnborg <sam@ravnborg.org>
+Subject: [PATCH 21/28] kbuild: clarify "make C=" build option
+Reply-To: sam@ravnborg.org
+Date: Sun, 24 Sep 2006 23:18:17 +0200
+Message-Id: <115913270694-git-send-email-sam@ravnborg.org>
+X-Mailer: git-send-email 1.4.1
+In-Reply-To: <1159132706423-git-send-email-sam@ravnborg.org>
+References: 20060924210827.GA26969@uranus.ravnborg.org <1159132704708-git-send-email-sam@ravnborg.org> <11591327042606-git-send-email-sam@ravnborg.org> <11591327042944-git-send-email-sam@ravnborg.org> <11591327041272-git-send-email-sam@ravnborg.org> <11591327041374-git-send-email-sam@ravnborg.org> <11591327041093-git-send-email-sam@ravnborg.org> <11591327053484-git-send-email-sam@ravnborg.org> <11591327051061-git-send-email-sam@ravnborg.org> <11591327053770-git-send-email-sam@ravnborg.org> <11591327051381-git-send-email-sam@ravnborg.org> <11591327054119-git-send-email-sam@ravnborg.org> <11591327051998-git-send-email-sam@ravnborg.org> <11591327051652-git-send-email-sam@ravnborg.org> <11591327053365-git-send-email-sam@ravnborg.org> <1159132705363-git-send-email-sam@ravnborg.org> <11591327063034-git-send-email-sam@ravnborg.org> <11591327061320-git-send-email-sam@ravnborg.org> <1159132706174-git-send-email-sam@ravnborg.org> <11591327061478-git-send-email-sam@ravnborg.org> <115913
+ 2706423-git-send-email-sam@ravnborg.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Sul, 2006-09-24 am 14:53 -0700, ysgrifennodd Andrew Morton:
-> I've *never* seen any reports of any problems being caused by disk
-> writeback caching.  Yes, it's a theoretical problem but for some reason it
-> just doesn't seem to be a problem in practice.  Hence I'm really reluctant
-> to go and slow everyone's machines down so much in this manner.
+From: Robert P. J. Day <rpjday@mindspring.com>
 
-It happens in some cases, the usual one is sudden loss of power. In the
-crashed box cases the disk still gets to write data back and in the
-Linux power off sanely cases we explicitly cache flush. Its the sudden
-loss of power case that is nasty.
+Clarify the use of "make C=" in the top-level Makefile, and fix a
+typo in the Documentation file.
 
-We are also helped of course by the fact the cache is never more than
-can be flushed in about 7 seconds because of other-os features.
+Signed-off-by: Sam Ravnborg <sam@ravnborg.org>
+---
+ Documentation/sparse.txt |    8 ++++----
+ Makefile                 |   12 +++++++++---
+ 2 files changed, 13 insertions(+), 7 deletions(-)
+
+diff --git a/Documentation/sparse.txt b/Documentation/sparse.txt
+index 5a311c3..f9c99c9 100644
+--- a/Documentation/sparse.txt
++++ b/Documentation/sparse.txt
+@@ -69,10 +69,10 @@ recompiled, or use "make C=2" to run spa
+ be recompiled or not.  The latter is a fast way to check the whole tree if you
+ have already built it.
+ 
+-The optional make variable CF can be used to pass arguments to sparse.  The
+-build system passes -Wbitwise to sparse automatically.  To perform endianness
+-checks, you may define __CHECK_ENDIAN__:
++The optional make variable CHECKFLAGS can be used to pass arguments to sparse.
++The build system passes -Wbitwise to sparse automatically.  To perform
++endianness checks, you may define __CHECK_ENDIAN__:
+ 
+-        make C=2 CF="-D__CHECK_ENDIAN__"
++        make C=2 CHECKFLAGS="-D__CHECK_ENDIAN__"
+ 
+ These checks are disabled by default as they generate a host of warnings.
+diff --git a/Makefile b/Makefile
+index 0d4a4dc..cd50298 100644
+--- a/Makefile
++++ b/Makefile
+@@ -41,9 +41,15 @@ ifndef KBUILD_VERBOSE
+   KBUILD_VERBOSE = 0
+ endif
+ 
+-# Call checker as part of compilation of C files
+-# Use 'make C=1' to enable checking (sparse, by default)
+-# Override with 'make C=1 CHECK=checker_executable CHECKFLAGS=....'
++# Call a source code checker (by default, "sparse") as part of the
++# C compilation.
++#
++# Use 'make C=1' to enable checking of only re-compiled files.
++# Use 'make C=2' to enable checking of *all* source files, regardless
++# of whether they are re-compiled or not.
++#
++# See the file "Documentation/sparse.txt" for more details, including
++# where to get the "sparse" utility.
+ 
+ ifdef C
+   ifeq ("$(origin C)", "command line")
+-- 
+1.4.1
 

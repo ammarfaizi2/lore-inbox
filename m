@@ -1,89 +1,114 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751166AbWIXPQ2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751182AbWIXP13@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751166AbWIXPQ2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Sep 2006 11:16:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751170AbWIXPQ1
+	id S1751182AbWIXP13 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Sep 2006 11:27:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751179AbWIXP13
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Sep 2006 11:16:27 -0400
-Received: from wx-out-0506.google.com ([66.249.82.230]:52726 "EHLO
-	wx-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1751166AbWIXPQ1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Sep 2006 11:16:27 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=TDkzOXier0QIqq5GD7XxtAEYjGCip/Du57KtihY6bs1IK0E3csd6x+R255P58QhoNFdw6ssdGNqWvUwMsYQVLMQkm/S4OT9bYI0ie6aj6OGkO8HKiI7cwA/1pZ5otfXbRAo5+/HyQeb8e08soR+Knyo2+UtdpP4TrVRY9KezsNY=
-Message-ID: <62b0912f0609240816q54c3535bt86f781745ecbfa13@mail.gmail.com>
-Date: Sun, 24 Sep 2006 17:16:24 +0200
-From: "Molle Bestefich" <molle.bestefich@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: SATA repeated failure (command 0x35 timeout, status 0xd8)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 24 Sep 2006 11:27:29 -0400
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:21464 "EHLO 2ka.mipt.ru")
+	by vger.kernel.org with ESMTP id S1751177AbWIXP12 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Sep 2006 11:27:28 -0400
+Date: Sun, 24 Sep 2006 19:26:51 +0400
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: Andrew Morton <akpm@osdl.org>
+Cc: David Miller <davem@davemloft.net>, auke-jan.h.kok@intel.com,
+       Holger.Kiehl@dwd.de, linux-kernel@vger.kernel.org,
+       linux-net@vger.kernel.org, netdev@vger.kernel.org,
+       john.ronciak@intel.com
+Subject: Re: 2.6.1[78] page allocation failure. order:3, mode:0x20
+Message-ID: <20060924152651.GA2077@2ka.mipt.ru>
+References: <20060922004253.2e2e2612.akpm@osdl.org> <4514190C.8010901@intel.com> <20060922215000.c1fde093.akpm@osdl.org> <20060922.222507.74751476.davem@davemloft.net> <20060922223348.1b24fda5.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=koi8-r
 Content-Disposition: inline
+In-Reply-To: <20060922223348.1b24fda5.akpm@osdl.org>
+User-Agent: Mutt/1.5.9i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Sun, 24 Sep 2006 19:26:53 +0400 (MSD)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Fri, Sep 22, 2006 at 10:33:48PM -0700, Andrew Morton (akpm@osdl.org) wrote:
+> > The NET_IP_ALIGN existed not just for fun :)  There are ramifications
+> > for removing it.
+> 
+> It's still there, isn't it?
+> 
+> For the 9k MTU case, for example, we end up allocating 16384 byte skbs
+> instead of 32786 kbytes ones.
 
-I have a box with the following hardware/software configuration.
+This patch will not help - netdev_alloc_skb() adds additional
+NET_SKB_PAD and then alloc_skb() adds sizeof(struct skb_shared_info).
+And even if you acconut for them in adapter->rx_buf_len, chip still can
+overwrite that area (in the thread mentioned in this e-mail thread
+before I posted such patch and received a dump of sizes chip receives -
+there were a lot of _different_ ones which were too close to the limit).
 
-# uname -r
-2.6.16.5
+> 
+> diff -puN drivers/net/e1000/e1000_main.c~e1000-account-for-net_ip_align-when-calculating-bufsiz drivers/net/e1000/e1000_main.c
+> --- a/drivers/net/e1000/e1000_main.c~e1000-account-for-net_ip_align-when-calculating-bufsiz
+> +++ a/drivers/net/e1000/e1000_main.c
+> @@ -1101,7 +1101,7 @@ e1000_sw_init(struct e1000_adapter *adap
+>  
+>  	pci_read_config_word(pdev, PCI_COMMAND, &hw->pci_cmd_word);
+>  
+> -	adapter->rx_buffer_len = MAXIMUM_ETHERNET_VLAN_SIZE;
+> +	adapter->rx_buffer_len = MAXIMUM_ETHERNET_VLAN_SIZE + NET_IP_ALIGN;
+>  	adapter->rx_ps_bsize0 = E1000_RXBUFFER_128;
+>  	hw->max_frame_size = netdev->mtu +
+>  			     ENET_HEADER_SIZE + ETHERNET_FCS_SIZE;
+> @@ -3163,26 +3163,27 @@ e1000_change_mtu(struct net_device *netd
+>  	 * larger slab size
+>  	 * i.e. RXBUFFER_2048 --> size-4096 slab */
+>  
+> -	if (max_frame <= E1000_RXBUFFER_256)
+> +	if (max_frame + NET_IP_ALIGN <= E1000_RXBUFFER_256)
+>  		adapter->rx_buffer_len = E1000_RXBUFFER_256;
+> -	else if (max_frame <= E1000_RXBUFFER_512)
+> +	else if (max_frame + NET_IP_ALIGN <= E1000_RXBUFFER_512)
+>  		adapter->rx_buffer_len = E1000_RXBUFFER_512;
+> -	else if (max_frame <= E1000_RXBUFFER_1024)
+> +	else if (max_frame + NET_IP_ALIGN <= E1000_RXBUFFER_1024)
+>  		adapter->rx_buffer_len = E1000_RXBUFFER_1024;
+> -	else if (max_frame <= E1000_RXBUFFER_2048)
+> +	else if (max_frame + NET_IP_ALIGN <= E1000_RXBUFFER_2048)
+>  		adapter->rx_buffer_len = E1000_RXBUFFER_2048;
+> -	else if (max_frame <= E1000_RXBUFFER_4096)
+> +	else if (max_frame + NET_IP_ALIGN <= E1000_RXBUFFER_4096)
+>  		adapter->rx_buffer_len = E1000_RXBUFFER_4096;
+> -	else if (max_frame <= E1000_RXBUFFER_8192)
+> +	else if (max_frame + NET_IP_ALIGN <= E1000_RXBUFFER_8192)
+>  		adapter->rx_buffer_len = E1000_RXBUFFER_8192;
+> -	else if (max_frame <= E1000_RXBUFFER_16384)
+> +	else
+>  		adapter->rx_buffer_len = E1000_RXBUFFER_16384;
+>  
+>  	/* adjust allocation if LPE protects us, and we aren't using SBP */
+>  	if (!adapter->hw.tbi_compatibility_on &&
+>  	    ((max_frame == MAXIMUM_ETHERNET_FRAME_SIZE) ||
+>  	     (max_frame == MAXIMUM_ETHERNET_VLAN_SIZE)))
+> -		adapter->rx_buffer_len = MAXIMUM_ETHERNET_VLAN_SIZE;
+> +		adapter->rx_buffer_len = MAXIMUM_ETHERNET_VLAN_SIZE +
+> +					NET_IP_ALIGN;
+>  
+>  	netdev->mtu = new_mtu;
+>  
+> @@ -4002,7 +4003,8 @@ e1000_alloc_rx_buffers(struct e1000_adap
+>  	struct e1000_buffer *buffer_info;
+>  	struct sk_buff *skb;
+>  	unsigned int i;
+> -	unsigned int bufsz = adapter->rx_buffer_len + NET_IP_ALIGN;
+> +	/* we have already accounted for NET_IP_ALIGN */
+> +	unsigned int bufsz = adapter->rx_buffer_len;
+>  
+>  	i = rx_ring->next_to_use;
+>  	buffer_info = &rx_ring->buffer_info[i];
+> _
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe netdev" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
 
-# lspci | grep SATA
-00:0b.0 CMD Technology Inc Silicon Image SiI 3112 SATARaid Controller (rev 02)
-00:0d.0 CMD Technology Inc Silicon Image SiI 3112 SATARaid Controller (rev 02)
-00:0f.0 CMD Technology Inc Silicon Image SiI 3112 SATARaid Controller (rev 02)
-
-# cd /sys/bus/scsi/devices; for dev in `ls -1`; do name=`ls -1d
-$dev/block*`; disk=`cat $dev/model`; echo "$name: $disk"; done
-0:0:0:0/block:sda: Maxtor 6Y250M0
-1:0:0:0/block:sdb: Maxtor 6Y200M0
-2:0:0:0/block:sdc: Maxtor 6Y200M0
-3:0:0:0/block:sdd: Maxtor 6Y200M0
-4:0:0:0/block:sde: Maxtor 6Y200M0
-5:0:0:0/block:sdf: Maxtor 6Y200M0
-
-It can operate normally for the longest time, but all of a sudden the
-following happens.
-
-# dmesg
-ata2: command 0x35 timeout, stat 0xd8 host_stat 0x1
-ata2: translated ATA stat/err 0xd8/00 to SCSI SK/ASC/ASCQ 0xb/47/00
-ata2: status=0xd8 { Busy }
-sd 1:0:0:0: SCSI error: return code = 0x8000002
-sdb: Current: sense key: Aborted Command
-    Additional sense: Scsi parity error
-end_request: I/O error, dev sdb, sector 323729879
-ATA: abnormal status 0xD8 on port 0xD095E0C7
-ATA: abnormal status 0xD8 on port 0xD095E0C7
-ATA: abnormal status 0xD8 on port 0xD095E0C7
---
-ata2: command 0x35 timeout, stat 0xd8 host_stat 0x1
-ata2: translated ATA stat/err 0xd8/00 to SCSI SK/ASC/ASCQ 0xb/47/00
-ata2: status=0xd8 { Busy }
-sd 1:0:0:0: SCSI error: return code = 0x8000002
-sdb: Current: sense key: Aborted Command
-    Additional sense: Scsi parity error
-end_request: I/O error, dev sdb, sector 323729887
-ATA: abnormal status 0xD8 on port 0xD095E0C7
-ATA: abnormal status 0xD8 on port 0xD095E0C7
-ATA: abnormal status 0xD8 on port 0xD095E0C7
-
-[ .. et cetera, always with sector += 8 .. ]
-
-This usually happens during a write to the RAID.
-
-Funny thing is, it always happens to /dev/sdb.
-It's happened 100s of times, but not once to any other device than /dev/sdb.
-
-Resetting and running Maxtor PowerMax reports that the drive has no
-hardware problems whatsoever.
-
-I can't think of anything useful, except that /dev/sdb sits on the
-same controller card as /dev/sda, which is a slightly different disk
-than the rest of the bunch.
-
-What can/should I do?
+-- 
+	Evgeniy Polyakov

@@ -1,62 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752132AbWIXGUi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752124AbWIXGdK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752132AbWIXGUi (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Sep 2006 02:20:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752133AbWIXGUi
+	id S1752124AbWIXGdK (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Sep 2006 02:33:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752131AbWIXGdK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Sep 2006 02:20:38 -0400
-Received: from palinux.external.hp.com ([192.25.206.14]:31149 "EHLO
-	mail.parisc-linux.org") by vger.kernel.org with ESMTP
-	id S1752132AbWIXGUh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Sep 2006 02:20:37 -0400
-Date: Sun, 24 Sep 2006 00:20:36 -0600
-From: Matthew Wilcox <matthew@wil.cx>
-To: Hirokazu Takata <takata@linux-m32r.org>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] m32r: Revise __raw_read_trylock()
-Message-ID: <20060924062036.GB30273@parisc-linux.org>
-References: <swfzmcse7mm.wl%takata@linux-m32r.org>
-MIME-Version: 1.0
+	Sun, 24 Sep 2006 02:33:10 -0400
+Received: from alephnull.demon.nl ([83.160.184.112]:17282 "EHLO
+	xi.wantstofly.org") by vger.kernel.org with ESMTP id S1752124AbWIXGdJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Sep 2006 02:33:09 -0400
+Date: Sun, 24 Sep 2006 08:33:07 +0200
+From: Lennert Buytenhek <buytenh@wantstofly.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Dave Jones <davej@redhat.com>, Al Viro <viro@zeniv.linux.org.uk>,
+       David Miller <davem@davemloft.net>, jeff@garzik.org, davidsen@tmr.com,
+       torvalds@osdl.org, alan@lxorguk.ukuu.org.uk,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.19 -mm merge plans
+Message-ID: <20060924063307.GA13487@xi.wantstofly.org>
+References: <Pine.LNX.4.64.0609211106391.4388@g5.osdl.org> <45130533.2010209@tmr.com> <45130527.1000302@garzik.org> <20060921.145208.26283973.davem@davemloft.net> <20060921220539.GL26683@redhat.com> <20060922083542.GA4246@flint.arm.linux.org.uk> <20060922154816.GA15032@redhat.com> <20060922112649.2b98cc2d.akpm@osdl.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <swfzmcse7mm.wl%takata@linux-m32r.org>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+In-Reply-To: <20060922112649.2b98cc2d.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 22, 2006 at 03:29:53PM +0900, Hirokazu Takata wrote:
->  
-> -#define __raw_read_trylock(lock) generic__raw_read_trylock(lock)
-> +static inline int __raw_read_trylock(raw_rwlock_t *lock)
-> +{
-> +	atomic_t *count = (atomic_t*)lock;
-> +	atomic_dec(count);
-> +	if (atomic_read(count) >= 0)
-> +		return 1;
-> +	atomic_inc(count);
-> +	return 0;
-> +}
->  
+On Fri, Sep 22, 2006 at 11:26:49AM -0700, Andrew Morton wrote:
 
-Is there a race here between __raw_read_trylock and __raw_write_trylock?
+> <I maintain that it is in the interests of obscure-arch maintainers
+> to help others build cross-compilers for their arch..>
 
-CPU A			CPU B
-__raw_read_trylock
-atomic_dec(count);
-			__raw_write_trylock
-			atomic_sub_and_test(RW_LOCK_BIAS, count)
-atomic_read(count)
+As I regularly test with different gcc versions and encourage others
+to do the same, I've had a set available for a while at:
 
-It'd be fairly harmless as neither would manage to get the lock.  But
-I think it's not too hard to fix.  Seems to me you want to do:
+	http://www.wantstofly.org/~buytenh/kernel/arm-cross/
 
-static inline int __raw_read_trylock(raw_rwlock_t *lock)
-{
-	atomic_t *count = (atomic_t*)lock;
-	if (atomic_dec_return(count) >= 0)
-		return 1;
-	atomic_inc(count);
-	return 0;
-}
+(Generated with crosstool 0.42, see http://kegel.com/crosstool)  Any
+suggestions for making them easier to find for folks?
 
-eliminating the race.
+
+cheers,
+Lennert

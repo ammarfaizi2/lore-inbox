@@ -1,648 +1,714 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751199AbWIXQSN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751187AbWIXQYq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751199AbWIXQSN (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Sep 2006 12:18:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751202AbWIXQSN
+	id S1751187AbWIXQYq (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Sep 2006 12:24:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751189AbWIXQYp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Sep 2006 12:18:13 -0400
-Received: from havoc.gtf.org ([69.61.125.42]:25516 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id S1751199AbWIXQSL (ORCPT
+	Sun, 24 Sep 2006 12:24:45 -0400
+Received: from havoc.gtf.org ([69.61.125.42]:41644 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S1751187AbWIXQYn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Sep 2006 12:18:11 -0400
-Date: Sun, 24 Sep 2006 12:18:10 -0400
+	Sun, 24 Sep 2006 12:24:43 -0400
+Date: Sun, 24 Sep 2006 12:24:42 -0400
 From: Jeff Garzik <jeff@garzik.org>
-To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
+To: netdev@vger.kernel.org
 Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: [git patch] add and use include/linux/magic.h
-Message-ID: <20060924161809.GA13423@havoc.gtf.org>
+Subject: [git patches] net driver updates
+Message-ID: <20060924162442.GA14260@havoc.gtf.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
 User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+[just sent upstream to Andrew & Linus; patch available in git, it's too
+large to post]
 
-Along the lines of linux/poison.h, do a similar thing with filesystem
-superblock (and later perhaps, other) magic numbers.  This permits
-us to delete several headers which -only- included the superblock
-magic number, and it integrates well with dwmw2's header_check /
-header_install stuff.
+Nothing major of interest.  A couple new drivers (ehea, qla3xxx,
+ep93xx_eth), a lot of trailing whitespace killed, a deleted MIPS driver,
+e1000 update, ...
 
-Please pull from 'magic' branch of
-master.kernel.org:/pub/scm/linux/kernel/git/jgarzik/misc-2.6.git magic
+Please pull from 'upstream-linus' branch of
+master.kernel.org:/pub/scm/linux/kernel/git/jgarzik/netdev-2.6.git upstream-linus
 
 to receive the following updates:
 
- fs/affs/affs.h               |    1 -
- fs/affs/super.c              |    1 +
- fs/autofs/autofs_i.h         |    2 --
- fs/autofs/inode.c            |    1 +
- fs/autofs4/autofs_i.h        |    2 --
- fs/autofs4/inode.c           |    1 +
- fs/hpfs/hpfs_fn.h            |    1 -
- fs/hpfs/super.c              |    1 +
- fs/openpromfs/inode.c        |    2 +-
- include/linux/Kbuild         |    4 +---
- include/linux/adfs_fs.h      |    2 +-
- include/linux/affs_fs.h      |    7 -------
- include/linux/coda_psdev.h   |    4 ++--
- include/linux/efs_fs_sb.h    |    3 +--
- include/linux/ext2_fs.h      |    6 +-----
- include/linux/ext3_fs.h      |    6 +-----
- include/linux/hpfs_fs.h      |    8 --------
- include/linux/iso_fs.h       |    6 +++---
- include/linux/jffs2.h        |    4 ++--
- include/linux/magic.h        |   37 +++++++++++++++++++++++++++++++++++++
- include/linux/minix_fs.h     |    6 ++----
- include/linux/msdos_fs.h     |    4 ++--
- include/linux/ncp_fs.h       |    5 +----
- include/linux/nfs_fs.h       |    7 ++-----
- include/linux/openprom_fs.h  |   10 ----------
- include/linux/proc_fs.h      |    3 +--
- include/linux/qnx4_fs.h      |    2 +-
- include/linux/reiserfs_fs.h  |   10 ++--------
- include/linux/smb.h          |    3 +--
- include/linux/usbdevice_fs.h |    3 +--
- 30 files changed, 67 insertions(+), 85 deletions(-)
+ Documentation/networking/LICENSE.qla3xxx        |   46 
+ MAINTAINERS                                     |   37 
+ drivers/isdn/i4l/Kconfig                        |    1 
+ drivers/net/3c501.c                             |   61 
+ drivers/net/3c501.h                             |    4 
+ drivers/net/3c503.c                             |   16 
+ drivers/net/3c503.h                             |    4 
+ drivers/net/3c505.c                             |   24 
+ drivers/net/3c505.h                             |    2 
+ drivers/net/3c507.c                             |   14 
+ drivers/net/3c509.c                             |   53 
+ drivers/net/3c515.c                             |   64 
+ drivers/net/3c523.c                             |   28 
+ drivers/net/3c523.h                             |   14 
+ drivers/net/3c527.c                             |  530 
+ drivers/net/3c527.h                             |    4 
+ drivers/net/3c59x.c                             |   36 
+ drivers/net/7990.c                              |   60 
+ drivers/net/7990.h                              |   24 
+ drivers/net/8139cp.c                            |  122 
+ drivers/net/8139too.c                           |   11 
+ drivers/net/82596.c                             |   12 
+ drivers/net/8390.c                              |  246 
+ drivers/net/8390.h                              |    2 
+ drivers/net/Kconfig                             |   67 
+ drivers/net/Makefile                            |   13 
+ drivers/net/Space.c                             |   24 
+ drivers/net/a2065.c                             |   40 
+ drivers/net/a2065.h                             |    4 
+ drivers/net/ac3200.c                            |    6 
+ drivers/net/acenic.c                            |   46 
+ drivers/net/acenic.h                            |    6 
+ drivers/net/acenic_firmware.h                   |18808 ++++++++++++------------
+ drivers/net/amd8111e.c                          |  489 
+ drivers/net/amd8111e.h                          |  102 
+ drivers/net/apne.c                              |   10 
+ drivers/net/arcnet/com20020-pci.c               |    2 
+ drivers/net/ariadne.c                           |    2 
+ drivers/net/arm/Kconfig                         |    7 
+ drivers/net/arm/Makefile                        |    1 
+ drivers/net/arm/at91_ether.c                    |    2 
+ drivers/net/arm/ep93xx_eth.c                    |  944 +
+ drivers/net/arm/etherh.c                        |    2 
+ drivers/net/at1700.c                            |   30 
+ drivers/net/atari_bionet.c                      |   14 
+ drivers/net/atari_pamsnet.c                     |    2 
+ drivers/net/atarilance.c                        |   22 
+ drivers/net/atp.c                               |    2 
+ drivers/net/au1000_eth.c                        |   71 
+ drivers/net/au1000_eth.h                        |   12 
+ drivers/net/b44.c                               |    4 
+ drivers/net/bmac.c                              |   54 
+ drivers/net/bmac.h                              |    2 
+ drivers/net/bnx2.c                              |  166 
+ drivers/net/bnx2.h                              |   82 
+ drivers/net/bonding/bond_main.c                 |    2 
+ drivers/net/bsd_comp.c                          |   68 
+ drivers/net/cassini.c                           |  540 
+ drivers/net/cassini.h                           |  766 
+ drivers/net/chelsio/cxgb2.c                     |    4 
+ drivers/net/cris/eth_v10.c                      |    4 
+ drivers/net/cs89x0.c                            |   82 
+ drivers/net/cs89x0.h                            |    4 
+ drivers/net/de600.c                             |    4 
+ drivers/net/de620.c                             |   38 
+ drivers/net/declance.c                          |    8 
+ drivers/net/defxx.c                             |  270 
+ drivers/net/defxx.h                             |  192 
+ drivers/net/depca.c                             |  110 
+ drivers/net/depca.h                             |   28 
+ drivers/net/dgrs.c                              |   26 
+ drivers/net/dgrs.h                              |    4 
+ drivers/net/dgrs_asstruct.h                     |    2 
+ drivers/net/dgrs_bcomm.h                        |    2 
+ drivers/net/dgrs_ether.h                        |    4 
+ drivers/net/dgrs_i82596.h                       |    2 
+ drivers/net/dl2k.c                              |  164 
+ drivers/net/dl2k.h                              |    6 
+ drivers/net/dummy.c                             |   28 
+ drivers/net/e100.c                              |   32 
+ drivers/net/e1000/e1000.h                       |    6 
+ drivers/net/e1000/e1000_ethtool.c               |  279 
+ drivers/net/e1000/e1000_hw.c                    | 1167 -
+ drivers/net/e1000/e1000_hw.h                    |   26 
+ drivers/net/e1000/e1000_main.c                  |  154 
+ drivers/net/e1000/e1000_osdep.h                 |   19 
+ drivers/net/e1000/e1000_param.c                 |  161 
+ drivers/net/e2100.c                             |    4 
+ drivers/net/eepro.c                             |    7 
+ drivers/net/eepro100.c                          |   40 
+ drivers/net/eexpress.c                          |   98 
+ drivers/net/eexpress.h                          |   14 
+ drivers/net/ehea/Makefile                       |    6 
+ drivers/net/ehea/ehea.h                         |  447 
+ drivers/net/ehea/ehea_ethtool.c                 |  294 
+ drivers/net/ehea/ehea_hcall.h                   |   51 
+ drivers/net/ehea/ehea_hw.h                      |  292 
+ drivers/net/ehea/ehea_main.c                    | 2654 +++
+ drivers/net/ehea/ehea_phyp.c                    |  705 
+ drivers/net/ehea/ehea_phyp.h                    |  455 
+ drivers/net/ehea/ehea_qmr.c                     |  582 
+ drivers/net/ehea/ehea_qmr.h                     |  358 
+ drivers/net/epic100.c                           |   11 
+ drivers/net/eql.c                               |   32 
+ drivers/net/eth16i.c                            |  308 
+ drivers/net/ewrk3.c                             |   68 
+ drivers/net/ewrk3.h                             |   30 
+ drivers/net/fealnx.c                            |   44 
+ drivers/net/fec.c                               |   84 
+ drivers/net/fec_8xx/fec_main.c                  |   28 
+ drivers/net/forcedeth.c                         |  562 
+ drivers/net/fs_enet/fs_enet-main.c              |    2 
+ drivers/net/gianfar.c                           |   11 
+ drivers/net/gianfar.h                           |    2 
+ drivers/net/gianfar_ethtool.c                   |   18 
+ drivers/net/gianfar_mii.c                       |    4 
+ drivers/net/gianfar_mii.h                       |    2 
+ drivers/net/gianfar_sysfs.c                     |    2 
+ drivers/net/gt64240eth.h                        |    2 
+ drivers/net/gt96100eth.c                        | 1566 -
+ drivers/net/gt96100eth.h                        |  346 
+ drivers/net/hamachi.c                           |  240 
+ drivers/net/hp-plus.c                           |    4 
+ drivers/net/hp.c                                |    2 
+ drivers/net/hp100.c                             |  155 
+ drivers/net/hp100.h                             |   44 
+ drivers/net/hplance.c                           |   12 
+ drivers/net/ibm_emac/ibm_emac_core.c            |    2 
+ drivers/net/ibmveth.c                           |    2 
+ drivers/net/ifb.c                               |   42 
+ drivers/net/ioc3-eth.c                          |    8 
+ drivers/net/irda/mcs7780.c                      |    1 
+ drivers/net/irda/w83977af_ir.c                  |    1 
+ drivers/net/isa-skeleton.c                      |   16 
+ drivers/net/iseries_veth.c                      |    2 
+ drivers/net/ixgb/ixgb.h                         |    5 
+ drivers/net/ixgb/ixgb_ethtool.c                 |    8 
+ drivers/net/ixgb/ixgb_hw.c                      |   17 
+ drivers/net/ixgb/ixgb_ids.h                     |    1 
+ drivers/net/ixgb/ixgb_main.c                    |  152 
+ drivers/net/ixgb/ixgb_osdep.h                   |   12 
+ drivers/net/jazzsonic.c                         |   12 
+ drivers/net/lance.c                             |   38 
+ drivers/net/lasi_82596.c                        |   48 
+ drivers/net/lne390.c                            |    4 
+ drivers/net/loopback.c                          |    6 
+ drivers/net/lp486e.c                            |   22 
+ drivers/net/mac8390.c                           |   48 
+ drivers/net/mac89x0.c                           |   18 
+ drivers/net/mace.c                              |   10 
+ drivers/net/macmace.c                           |   88 
+ drivers/net/macsonic.c                          |   38 
+ drivers/net/meth.c                              |   14 
+ drivers/net/mii.c                               |   18 
+ drivers/net/mv643xx_eth.c                       |    6 
+ drivers/net/myri10ge/myri10ge.c                 |  230 
+ drivers/net/myri10ge/myri10ge_mcp.h             |   47 
+ drivers/net/myri_code.h                         | 9538 ++++++------
+ drivers/net/myri_sbus.c                         |   28 
+ drivers/net/natsemi.c                           |   41 
+ drivers/net/ne-h8300.c                          |    2 
+ drivers/net/ne.c                                |    4 
+ drivers/net/ne2.c                               |   70 
+ drivers/net/ne2k-pci.c                          |   12 
+ drivers/net/ne3210.c                            |   16 
+ drivers/net/netx-eth.c                          |    1 
+ drivers/net/ni5010.c                            |  118 
+ drivers/net/ni52.c                              |    2 
+ drivers/net/ni52.h                              |   16 
+ drivers/net/ni65.c                              |   20 
+ drivers/net/ni65.h                              |    6 
+ drivers/net/ns83820.c                           |   42 
+ drivers/net/oaknet.c                            |   14 
+ drivers/net/pci-skeleton.c                      |    9 
+ drivers/net/pcmcia/3c574_cs.c                   |    4 
+ drivers/net/pcmcia/3c589_cs.c                   |    4 
+ drivers/net/pcmcia/axnet_cs.c                   |    7 
+ drivers/net/pcmcia/fmvj18x_cs.c                 |    8 
+ drivers/net/pcmcia/ibmtr_cs.c                   |    2 
+ drivers/net/pcmcia/nmclan_cs.c                  |    4 
+ drivers/net/pcmcia/pcnet_cs.c                   |   19 
+ drivers/net/pcmcia/smc91c92_cs.c                |    9 
+ drivers/net/pcmcia/xirc2ps_cs.c                 |    4 
+ drivers/net/pcnet32.c                           |  692 
+ drivers/net/phy/fixed.c                         |    4 
+ drivers/net/phy/smsc.c                          |    1 
+ drivers/net/phy/vitesse.c                       |    1 
+ drivers/net/plip.c                              |   42 
+ drivers/net/ppp_async.c                         |    6 
+ drivers/net/ppp_deflate.c                       |    4 
+ drivers/net/ppp_generic.c                       |   16 
+ drivers/net/ppp_synctty.c                       |    2 
+ drivers/net/pppoe.c                             |   16 
+ drivers/net/qla3xxx.c                           | 3537 ++++
+ drivers/net/qla3xxx.h                           | 1194 +
+ drivers/net/r8169.c                             |  660 
+ drivers/net/rionet.c                            |    2 
+ drivers/net/rrunner.c                           |   52 
+ drivers/net/rrunner.h                           |    8 
+ drivers/net/s2io-regs.h                         |    4 
+ drivers/net/s2io.c                              |   57 
+ drivers/net/s2io.h                              |   10 
+ drivers/net/saa9730.c                           |    2 
+ drivers/net/saa9730.h                           |   16 
+ drivers/net/sb1000.c                            |   24 
+ drivers/net/sb1250-mac.c                        |    9 
+ drivers/net/seeq8005.c                          |   98 
+ drivers/net/seeq8005.h                          |    4 
+ drivers/net/sgiseeq.h                           |    4 
+ drivers/net/shaper.c                            |  104 
+ drivers/net/sis190.c                            |    7 
+ drivers/net/sis900.c                            |  227 
+ drivers/net/sis900.h                            |   18 
+ drivers/net/sk98lin/skethtool.c                 |    2 
+ drivers/net/sk98lin/skge.c                      |    4 
+ drivers/net/sk_mca.c                            |   18 
+ drivers/net/sk_mca.h                            |    4 
+ drivers/net/skfp/skfddi.c                       |    2 
+ drivers/net/skge.c                              |  206 
+ drivers/net/skge.h                              |    1 
+ drivers/net/sky2.c                              |  423 
+ drivers/net/sky2.h                              |   35 
+ drivers/net/slhc.c                              |   34 
+ drivers/net/slip.c                              |   32 
+ drivers/net/slip.h                              |    4 
+ drivers/net/smc-mca.c                           |   10 
+ drivers/net/smc-ultra.c                         |    6 
+ drivers/net/smc-ultra32.c                       |    6 
+ drivers/net/smc911x.c                           |    4 
+ drivers/net/smc9194.c                           |    4 
+ drivers/net/smc9194.h                           |   72 
+ drivers/net/smc91x.c                            |    8 
+ drivers/net/sonic.c                             |   22 
+ drivers/net/sonic.h                             |    4 
+ drivers/net/spider_net.c                        |   10 
+ drivers/net/spider_net.h                        |   13 
+ drivers/net/spider_net_ethtool.c                |   57 
+ drivers/net/starfire.c                          |    8 
+ drivers/net/stnic.c                             |    8 
+ drivers/net/sun3_82586.c                        |   18 
+ drivers/net/sun3_82586.h                        |   18 
+ drivers/net/sun3lance.c                         |   74 
+ drivers/net/sunbmac.c                           |    2 
+ drivers/net/sundance.c                          |   69 
+ drivers/net/sungem.c                            |   88 
+ drivers/net/sungem.h                            |   12 
+ drivers/net/sungem_phy.c                        |   50 
+ drivers/net/sungem_phy.h                        |    2 
+ drivers/net/sunhme.c                            |   14 
+ drivers/net/sunlance.c                          |   60 
+ drivers/net/sunqe.c                             |    6 
+ drivers/net/tc35815.c                           |   10 
+ drivers/net/tg3.c                               |  128 
+ drivers/net/tlan.c                              |  344 
+ drivers/net/tlan.h                              |   24 
+ drivers/net/tokenring/3c359.c                   |    2 
+ drivers/net/tokenring/lanstreamer.c             |    2 
+ drivers/net/tulip/21142.c                       |    6 
+ drivers/net/tulip/de2104x.c                     |   20 
+ drivers/net/tulip/de4x5.c                       |    2 
+ drivers/net/tulip/dmfe.c                        |    6 
+ drivers/net/tulip/eeprom.c                      |    2 
+ drivers/net/tulip/interrupt.c                   |    2 
+ drivers/net/tulip/media.c                       |    2 
+ drivers/net/tulip/pnic.c                        |    2 
+ drivers/net/tulip/pnic2.c                       |    2 
+ drivers/net/tulip/timer.c                       |   16 
+ drivers/net/tulip/tulip.h                       |   36 
+ drivers/net/tulip/tulip_core.c                  |  104 
+ drivers/net/tulip/uli526x.c                     |   16 
+ drivers/net/tulip/winbond-840.c                 |   94 
+ drivers/net/tulip/xircom_cb.c                   |    2 
+ drivers/net/tulip/xircom_tulip_cb.c             |    6 
+ drivers/net/tun.c                               |   58 
+ drivers/net/typhoon-firmware.h                  | 7488 ++++-----
+ drivers/net/typhoon.c                           |   20 
+ drivers/net/typhoon.h                           |    4 
+ drivers/net/ucc_geth.c                          |   19 
+ drivers/net/via-rhine.c                         |   13 
+ drivers/net/via-velocity.c                      |  228 
+ drivers/net/via-velocity.h                      |   23 
+ drivers/net/wan/cycx_main.c                     |    1 
+ drivers/net/wan/dlci.c                          |    1 
+ drivers/net/wan/dscc4.c                         |    2 
+ drivers/net/wan/farsync.c                       |    2 
+ drivers/net/wan/lmc/lmc_main.c                  |    2 
+ drivers/net/wan/pc300_drv.c                     |    2 
+ drivers/net/wan/pci200syn.c                     |    2 
+ drivers/net/wan/sdla.c                          |    1 
+ drivers/net/wan/wanxl.c                         |    2 
+ drivers/net/wd.c                                |   12 
+ drivers/net/wireless/Kconfig                    |   23 
+ drivers/net/wireless/airo.c                     |   52 
+ drivers/net/wireless/atmel_pci.c                |    2 
+ drivers/net/wireless/bcm43xx/bcm43xx.h          |  181 
+ drivers/net/wireless/bcm43xx/bcm43xx_debugfs.c  |   80 
+ drivers/net/wireless/bcm43xx/bcm43xx_debugfs.h  |    1 
+ drivers/net/wireless/bcm43xx/bcm43xx_dma.c      |  583 
+ drivers/net/wireless/bcm43xx/bcm43xx_dma.h      |  296 
+ drivers/net/wireless/bcm43xx/bcm43xx_ethtool.c  |    2 
+ drivers/net/wireless/bcm43xx/bcm43xx_ethtool.h  |    2 
+ drivers/net/wireless/bcm43xx/bcm43xx_leds.c     |   10 
+ drivers/net/wireless/bcm43xx/bcm43xx_main.c     |  900 -
+ drivers/net/wireless/bcm43xx/bcm43xx_main.h     |    6 
+ drivers/net/wireless/bcm43xx/bcm43xx_phy.c      |   33 
+ drivers/net/wireless/bcm43xx/bcm43xx_pio.c      |    4 
+ drivers/net/wireless/bcm43xx/bcm43xx_sysfs.c    |  178 
+ drivers/net/wireless/bcm43xx/bcm43xx_wx.c       |  166 
+ drivers/net/wireless/bcm43xx/bcm43xx_xmit.c     |    5 
+ drivers/net/wireless/hostap/hostap.h            |    2 
+ drivers/net/wireless/hostap/hostap_cs.c         |    1 
+ drivers/net/wireless/hostap/hostap_ioctl.c      |    2 
+ drivers/net/wireless/ipw2100.c                  |    9 
+ drivers/net/wireless/ipw2200.c                  |  248 
+ drivers/net/wireless/ipw2200.h                  |   51 
+ drivers/net/wireless/orinoco.c                  |    5 
+ drivers/net/wireless/orinoco.h                  |    8 
+ drivers/net/wireless/orinoco_nortel.c           |    2 
+ drivers/net/wireless/orinoco_pci.c              |    2 
+ drivers/net/wireless/orinoco_plx.c              |    2 
+ drivers/net/wireless/orinoco_tmd.c              |    2 
+ drivers/net/wireless/prism54/isl_ioctl.c        |  597 
+ drivers/net/wireless/prism54/isl_ioctl.h        |    6 
+ drivers/net/wireless/prism54/islpci_dev.c       |    4 
+ drivers/net/wireless/prism54/islpci_dev.h       |    2 
+ drivers/net/wireless/prism54/islpci_hotplug.c   |    2 
+ drivers/net/wireless/ray_cs.c                   |    6 
+ drivers/net/wireless/wavelan_cs.c               |    2 
+ drivers/net/wireless/wl3501_cs.c                |    2 
+ drivers/net/wireless/zd1211rw/Makefile          |    1 
+ drivers/net/wireless/zd1211rw/zd_chip.c         |   62 
+ drivers/net/wireless/zd1211rw/zd_chip.h         |   15 
+ drivers/net/wireless/zd1211rw/zd_def.h          |    6 
+ drivers/net/wireless/zd1211rw/zd_ieee80211.h    |    2 
+ drivers/net/wireless/zd1211rw/zd_mac.c          |    8 
+ drivers/net/wireless/zd1211rw/zd_mac.h          |    6 
+ drivers/net/wireless/zd1211rw/zd_netdev.c       |   17 
+ drivers/net/wireless/zd1211rw/zd_rf.c           |    7 
+ drivers/net/wireless/zd1211rw/zd_rf.h           |    1 
+ drivers/net/wireless/zd1211rw/zd_rf_al2230.c    |  155 
+ drivers/net/wireless/zd1211rw/zd_rf_al7230b.c   |  274 
+ drivers/net/wireless/zd1211rw/zd_usb.c          |  124 
+ drivers/net/wireless/zd1211rw/zd_usb.h          |   15 
+ drivers/net/yellowfin.c                         |   56 
+ drivers/net/znet.c                              |   72 
+ include/asm-arm/arch-ep93xx/ep93xx-regs.h       |    1 
+ include/asm-arm/arch-ep93xx/platform.h          |    6 
+ include/linux/netdevice.h                       |    2 
+ include/net/ieee80211.h                         |    9 
+ include/net/ieee80211softmac.h                  |   60 
+ net/core/ethtool.c                              |   14 
+ net/ieee80211/ieee80211_crypt_ccmp.c            |   23 
+ net/ieee80211/ieee80211_crypt_tkip.c            |  114 
+ net/ieee80211/ieee80211_crypt_wep.c             |   38 
+ net/ieee80211/ieee80211_rx.c                    |   56 
+ net/ieee80211/ieee80211_tx.c                    |    9 
+ net/ieee80211/softmac/ieee80211softmac_assoc.c  |   21 
+ net/ieee80211/softmac/ieee80211softmac_io.c     |   14 
+ net/ieee80211/softmac/ieee80211softmac_module.c |   90 
+ net/ieee80211/softmac/ieee80211softmac_priv.h   |    8 
+ 360 files changed, 40596 insertions(+), 28263 deletions(-)
+
+Adrian Bunk:
+      make drivers/net/e1000/e1000_hw.c:e1000_phy_igp_get_info() static
+
+Alan Cox:
+      gt96100: move to pci_get_device API
+      s2io: Switch to pci_get_device
+
+Andy Gospodarek:
+      cleanup unnecessary forcedeth printk
+      Remove more unnecessary driver printk's
+
+Arjan van de Ven:
+      resend of 8390 patch for lockdep
+
+Auke Kok:
+      e100: increment version to 3.5.10-k4
+      e1000: Same cosmetic fix as earlier sent out for IPV4.
+      e1000: Increment driver version to 7.1.9-k6
+      ixgb: Increment version to 1.0.109-k4
+      e1000: Whitespace cleanup, cosmetic changes
+      e1000: error out if we cannot enable PCI device on resume
+      e1000: remove unused part_num reading code
+      e1000: Use module param array code
+      e1000: Increment driver version to 7.2.7-k2
+      e100: Convert e100 to use netdev_alloc_skb().
+      e100: remove skb->dev assignment
+      e100: increment version to 3.5.16-k2
+      ixgb: Convert dev_alloc_skb to netdev_alloc_skb.
+      ixgb: convert dev->priv to netdev_priv(dev).
+      ixgb: recalculate after how many descriptors to wake the queue
+      ixgb: remove skb->dev assignment
+      ixgb: Increment version to 1.0.112-k2
+
+Auke-Jan H Kok:
+      e1000: revert 'e1000: Remove 0x1000 as supported device'
+
+Ayaz Abdulla:
+      forcedeth: move mac address setup/teardown
+      forcedeth: mac address corrected
+      forcedeth: errata for marvell phys
+      forcedeth: decouple vlan and rx checksum dependency
+
+Brice Goglin:
+      myri10ge: define some previously hardwired firmware constants
+      myri10ge: convert to netdev_alloc_skb
+      myri10ge: use netif_msg_link
+      myri10ge: use multicast support in the firmware
+      myri10ge: improve firmware selection
+
+Christian Steineck:
+      hostap_cs: added support for Proxim Harmony PCI W-Lan card
+
+Christoph Hellwig:
+      e1000: clean up skb allocation code
+
+Dale Farnsworth:
+      mv643xx_eth: restrict to 32-bit PPC_MULTIPLATFORM
+
+Dan Williams:
+      prism54: update to WE-19 for WPA support
+
+Daniel Drake:
+      zd1211rw: Add Sagem device ID's
+      zd1211rw: Implement SIOCGIWNICKN
+      Add zd1211rw MAINTAINERS entry
+      ieee80211: small ERP handling additions
+      softmac: ERP handling and driver-level notifications
+      softmac: export highest_supported_rate function
+      ieee80211: Make ieee80211_rx_any usable
+      softmac: Add MAINTAINERS entry
+      zd1211rw: ZD1211B ASIC/FWT, not jointly decoder
+      zd1211rw: Match vendor driver IFS values
+      zd1211rw: AL2230 ZD1211B vendor sync
+      zd1211rw: Support AL7230B RF
+      zd1211rw: Add ID for Senao NUB-8301
+      zd1211rw: Add ID for Allnet ALLSPOT Hotspot finder
+      zd1211rw: Firmware version vs bootcode version mismatch handling
+      zd1211rw: Add ID for ZyXEL G220F
+      zd1211rw: Convert installer CDROM device into WLAN device
+      zd1211rw: Add ID for Siemens Gigaset USB Stick 54
+      zd1211rw: Add ID for Asus WL-159g
+
+Daniele Venzano:
+      Add new PHY to sis900 supported list
+
+Dave Jones:
+      remove unnecessary config.h includes from drivers/net/
+
+Don Fry:
+      pcnet32: remove unnecessary save/restore register accesses.
+      pcnet32: magic number cleanup
+      pcnet32: move/create receive and transmit routines
+      pcnet32: break receive routine into two pieces.
+      pcnet32: NAPI implementation
+
+Francois Romieu:
+      r8169: mac address change support
+      r8169: RX fifo overflow recovery
+      r8169: hardware flow control
+      r8169: remove rtl8169_init_board
+      r8169: sync with vendor's driver
+      r8169: use NETDEV_TX_{BUSY/OK}
+      r8169: udelay() removal
+      r8169: trim trailing whitespaces and convert whitespaces to tabs
+      r8169: use standard #defines from mii.h instead of declaring private ones
+      r8169: add basic MII ioctl support
+      r8169: the 0x8136 needs a 8 bytes alignment
+      8139cp: trim ring_info
+      8139cp: remove gratuitous indirection
+      8139cp: ring_info removal for the receive path
+      8139cp: sync the device private data with its r8169 counterpart
+      8139cp: removal of useless BUG_ON() check
+      8139cp: use PCI_DEVICE() to shorten the PCI device table
+      Defer tulip_select_media() to process context
+      r8169: quirk for the 8110sb on arm platform
+      8139cp: ring_info removal for the transmit path
+      r8169: the MMIO region of the 8167 stands behin BAR#1
+
+François Romieu:
+      8139cp: pci_get_drvdata(pdev) can not be NULL in suspend handler
+
+Grant Grundler:
+      Print physical address in tulip_init_one
+      Flush MMIO writes in reset sequence
+      Clean up tulip.h
+      Use tulip.h in winbond-840.c
+
+Henrik Kretzschmar:
+      initialisation cleanup for ULI526x-net-driver
+      remove an unused function from the header
+
+Jan-Bernd Themann:
+      ehea: IBM eHEA Ethernet Device Driver
+      ehea: bugfix for register access functions
+
+Jean Tourrilhes:
+      Prism54 : add bitrates to scan result
 
 Jeff Garzik:
-      Move several *_SUPER_MAGIC symbols to include/linux/magic.h.
+      drivers/net: Remove deprecated use of pci_module_init()
+      drivers/net: Trim trailing whitespace
+      drivers/net: const-ify ethtool_ops declarations
+      drivers/net/phy/fixed: #if 0 some incomplete code
+      e1000, ixgb: Remove pointless wrappers
+      net/ieee80211: fix more crypto-related build breakage
 
-diff --git a/fs/affs/affs.h b/fs/affs/affs.h
-index 0ddd4cc..1dc8438 100644
---- a/fs/affs/affs.h
-+++ b/fs/affs/affs.h
-@@ -1,7 +1,6 @@
- #include <linux/types.h>
- #include <linux/fs.h>
- #include <linux/buffer_head.h>
--#include <linux/affs_fs.h>
- #include <linux/amigaffs.h>
- 
- /* AmigaOS allows file names with up to 30 characters length.
-diff --git a/fs/affs/super.c b/fs/affs/super.c
-index 5200f49..1735201 100644
---- a/fs/affs/super.c
-+++ b/fs/affs/super.c
-@@ -14,6 +14,7 @@ #include <linux/module.h>
- #include <linux/init.h>
- #include <linux/statfs.h>
- #include <linux/parser.h>
-+#include <linux/magic.h>
- #include "affs.h"
- 
- extern struct timezone sys_tz;
-diff --git a/fs/autofs/autofs_i.h b/fs/autofs/autofs_i.h
-index a62327f..c7700d9 100644
---- a/fs/autofs/autofs_i.h
-+++ b/fs/autofs/autofs_i.h
-@@ -37,8 +37,6 @@ #else
- #define DPRINTK(D) ((void)0)
- #endif
- 
--#define AUTOFS_SUPER_MAGIC 0x0187
--
- /*
-  * If the daemon returns a negative response (AUTOFS_IOC_FAIL) then the
-  * kernel will keep the negative response cached for up to the time given
-diff --git a/fs/autofs/inode.c b/fs/autofs/inode.c
-index 65e5ed4..af2efbb 100644
---- a/fs/autofs/inode.c
-+++ b/fs/autofs/inode.c
-@@ -16,6 +16,7 @@ #include <linux/slab.h>
- #include <linux/file.h>
- #include <linux/parser.h>
- #include <linux/bitops.h>
-+#include <linux/magic.h>
- #include "autofs_i.h"
- #include <linux/module.h>
- 
-diff --git a/fs/autofs4/autofs_i.h b/fs/autofs4/autofs_i.h
-index d6603d0..480ab17 100644
---- a/fs/autofs4/autofs_i.h
-+++ b/fs/autofs4/autofs_i.h
-@@ -40,8 +40,6 @@ #else
- #define DPRINTK(fmt,args...) do {} while(0)
- #endif
- 
--#define AUTOFS_SUPER_MAGIC 0x0187
--
- /* Unified info structure.  This is pointed to by both the dentry and
-    inode structures.  Each file in the filesystem has an instance of this
-    structure.  It holds a reference to the dentry, so dentries are never
-diff --git a/fs/autofs4/inode.c b/fs/autofs4/inode.c
-index fde78b1..11a6a9a 100644
---- a/fs/autofs4/inode.c
-+++ b/fs/autofs4/inode.c
-@@ -19,6 +19,7 @@ #include <linux/pagemap.h>
- #include <linux/parser.h>
- #include <linux/bitops.h>
- #include <linux/smp_lock.h>
-+#include <linux/magic.h>
- #include "autofs_i.h"
- #include <linux/module.h>
- 
-diff --git a/fs/hpfs/hpfs_fn.h b/fs/hpfs/hpfs_fn.h
-index f687d54..32ab51e 100644
---- a/fs/hpfs/hpfs_fn.h
-+++ b/fs/hpfs/hpfs_fn.h
-@@ -12,7 +12,6 @@
- #include <linux/mutex.h>
- #include <linux/pagemap.h>
- #include <linux/buffer_head.h>
--#include <linux/hpfs_fs.h>
- #include <linux/slab.h>
- #include <linux/smp_lock.h>
- 
-diff --git a/fs/hpfs/super.c b/fs/hpfs/super.c
-index f798480..8fe51c3 100644
---- a/fs/hpfs/super.c
-+++ b/fs/hpfs/super.c
-@@ -11,6 +11,7 @@ #include <linux/module.h>
- #include <linux/parser.h>
- #include <linux/init.h>
- #include <linux/statfs.h>
-+#include <linux/magic.h>
- 
- /* Mark the filesystem dirty, so that chkdsk checks it when os/2 booted */
- 
-diff --git a/fs/openpromfs/inode.c b/fs/openpromfs/inode.c
-index 93a56bd..592a640 100644
---- a/fs/openpromfs/inode.c
-+++ b/fs/openpromfs/inode.c
-@@ -8,10 +8,10 @@ #include <linux/module.h>
- #include <linux/types.h>
- #include <linux/string.h>
- #include <linux/fs.h>
--#include <linux/openprom_fs.h>
- #include <linux/init.h>
- #include <linux/slab.h>
- #include <linux/seq_file.h>
-+#include <linux/magic.h>
- 
- #include <asm/openprom.h>
- #include <asm/oplib.h>
-diff --git a/include/linux/Kbuild b/include/linux/Kbuild
-index 7d076d9..6738360 100644
---- a/include/linux/Kbuild
-+++ b/include/linux/Kbuild
-@@ -12,7 +12,6 @@ header-y += netfilter_bridge/
- header-y += netfilter_ipv4/
- header-y += netfilter_ipv6/
- 
--header-y += affs_fs.h
- header-y += affs_hardblocks.h
- header-y += aio_abi.h
- header-y += a.out.h
-@@ -67,7 +66,6 @@ header-y += genetlink.h
- header-y += gen_stats.h
- header-y += gigaset_dev.h
- header-y += hdsmart.h
--header-y += hpfs_fs.h
- header-y += hysdn_if.h
- header-y += i2c-dev.h
- header-y += i8k.h
-@@ -103,6 +101,7 @@ header-y += ixjuser.h
- header-y += jffs2.h
- header-y += keyctl.h
- header-y += limits.h
-+header-y += magic.h
- header-y += major.h
- header-y += matroxfb.h
- header-y += meye.h
-@@ -116,7 +115,6 @@ header-y += netrom.h
- header-y += nfs2.h
- header-y += nfs4_mount.h
- header-y += nfs_mount.h
--header-y += openprom_fs.h
- header-y += param.h
- header-y += pci_ids.h
- header-y += pci_regs.h
-diff --git a/include/linux/adfs_fs.h b/include/linux/adfs_fs.h
-index 4a5d50c..ef788c2 100644
---- a/include/linux/adfs_fs.h
-+++ b/include/linux/adfs_fs.h
-@@ -2,6 +2,7 @@ #ifndef _ADFS_FS_H
- #define _ADFS_FS_H
- 
- #include <linux/types.h>
-+#include <linux/magic.h>
- 
- /*
-  * Disc Record at disc address 0xc00
-@@ -38,7 +39,6 @@ #define ADFS_DISCRECORD		(0xc00)
- #define ADFS_DR_OFFSET		(0x1c0)
- #define ADFS_DR_SIZE		 60
- #define ADFS_DR_SIZE_BITS	(ADFS_DR_SIZE << 3)
--#define ADFS_SUPER_MAGIC	 0xadf5
- 
- #ifdef __KERNEL__
- #include <linux/adfs_fs_i.h>
-diff --git a/include/linux/affs_fs.h b/include/linux/affs_fs.h
-deleted file mode 100644
-index c57b5ee..0000000
---- a/include/linux/affs_fs.h
-+++ /dev/null
-@@ -1,7 +0,0 @@
--#ifndef _AFFS_FS_H
--#define _AFFS_FS_H
--/*
-- * The affs filesystem constants/structures
-- */
--#define AFFS_SUPER_MAGIC 0xadff
--#endif
-diff --git a/include/linux/coda_psdev.h b/include/linux/coda_psdev.h
-index 98f6c52..b541bb3 100644
---- a/include/linux/coda_psdev.h
-+++ b/include/linux/coda_psdev.h
-@@ -1,11 +1,11 @@
- #ifndef __CODA_PSDEV_H
- #define __CODA_PSDEV_H
- 
-+#include <linux/magic.h>
-+
- #define CODA_PSDEV_MAJOR 67
- #define MAX_CODADEVS  5	   /* how many do we allow */
- 
--#define CODA_SUPER_MAGIC	0x73757245
--
- struct kstatfs;
- 
- struct coda_sb_info
-diff --git a/include/linux/efs_fs_sb.h b/include/linux/efs_fs_sb.h
-index c76088b..ff1945e 100644
---- a/include/linux/efs_fs_sb.h
-+++ b/include/linux/efs_fs_sb.h
-@@ -9,8 +9,7 @@
- #ifndef __EFS_FS_SB_H__
- #define __EFS_FS_SB_H__
- 
--/* statfs() magic number for EFS */
--#define EFS_SUPER_MAGIC	0x414A53
-+#include <linux/magic.h>
- 
- /* EFS superblock magic numbers */
- #define EFS_MAGIC	0x072959
-diff --git a/include/linux/ext2_fs.h b/include/linux/ext2_fs.h
-index facf34e..33a1aa1 100644
---- a/include/linux/ext2_fs.h
-+++ b/include/linux/ext2_fs.h
-@@ -17,6 +17,7 @@ #ifndef _LINUX_EXT2_FS_H
- #define _LINUX_EXT2_FS_H
- 
- #include <linux/types.h>
-+#include <linux/magic.h>
- 
- /*
-  * The second extended filesystem constants/structures
-@@ -63,11 +64,6 @@ #define EXT2_UNDEL_DIR_INO	 6	/* Undelet
- /* First non-reserved inode for old ext2 filesystems */
- #define EXT2_GOOD_OLD_FIRST_INO	11
- 
--/*
-- * The second extended file system magic number
-- */
--#define EXT2_SUPER_MAGIC	0xEF53
--
- #ifdef __KERNEL__
- #include <linux/ext2_fs_sb.h>
- static inline struct ext2_sb_info *EXT2_SB(struct super_block *sb)
-diff --git a/include/linux/ext3_fs.h b/include/linux/ext3_fs.h
-index 9f9cce7..0eed918 100644
---- a/include/linux/ext3_fs.h
-+++ b/include/linux/ext3_fs.h
-@@ -17,6 +17,7 @@ #ifndef _LINUX_EXT3_FS_H
- #define _LINUX_EXT3_FS_H
- 
- #include <linux/types.h>
-+#include <linux/magic.h>
- 
- /*
-  * The second extended filesystem constants/structures
-@@ -67,11 +68,6 @@ #define EXT3_JOURNAL_INO	 8	/* Journal i
- #define EXT3_GOOD_OLD_FIRST_INO	11
- 
- /*
-- * The second extended file system magic number
-- */
--#define EXT3_SUPER_MAGIC	0xEF53
--
--/*
-  * Maximal count of links to a file
-  */
- #define EXT3_LINK_MAX		32000
-diff --git a/include/linux/hpfs_fs.h b/include/linux/hpfs_fs.h
-deleted file mode 100644
-index a5028dd..0000000
---- a/include/linux/hpfs_fs.h
-+++ /dev/null
-@@ -1,8 +0,0 @@
--#ifndef _LINUX_HPFS_FS_H
--#define _LINUX_HPFS_FS_H
--
--/* HPFS magic number (word 0 of block 16) */
--
--#define HPFS_SUPER_MAGIC 0xf995e849
--
--#endif
-diff --git a/include/linux/iso_fs.h b/include/linux/iso_fs.h
-index 4796787..4688ac4 100644
---- a/include/linux/iso_fs.h
-+++ b/include/linux/iso_fs.h
-@@ -2,6 +2,8 @@ #ifndef _ISOFS_FS_H
- #define _ISOFS_FS_H
- 
- #include <linux/types.h>
-+#include <linux/magic.h>
-+
- /*
-  * The isofs filesystem constants/structures
-  */
-@@ -160,6 +162,4 @@ #define ISOFS_BLOCK_SIZE 2048
- #define ISOFS_BUFFER_SIZE(INODE) ((INODE)->i_sb->s_blocksize)
- #define ISOFS_BUFFER_BITS(INODE) ((INODE)->i_sb->s_blocksize_bits)
- 
--#define ISOFS_SUPER_MAGIC 0x9660
--
--#endif
-+#endif /* _ISOFS_FS_H */
-diff --git a/include/linux/jffs2.h b/include/linux/jffs2.h
-index c9c7607..840631f 100644
---- a/include/linux/jffs2.h
-+++ b/include/linux/jffs2.h
-@@ -15,12 +15,12 @@
- #ifndef __LINUX_JFFS2_H__
- #define __LINUX_JFFS2_H__
- 
-+#include <linux/magic.h>
-+
- /* You must include something which defines the C99 uintXX_t types. 
-    We don't do it from here because this file is used in too many
-    different environments. */
- 
--#define JFFS2_SUPER_MAGIC 0x72b6
--
- /* Values we may expect to find in the 'magic' field */
- #define JFFS2_OLD_MAGIC_BITMASK 0x1984
- #define JFFS2_MAGIC_BITMASK 0x1985
-diff --git a/include/linux/magic.h b/include/linux/magic.h
-new file mode 100644
-index 0000000..22036dd
---- /dev/null
-+++ b/include/linux/magic.h
-@@ -0,0 +1,37 @@
-+#ifndef __LINUX_MAGIC_H__
-+#define __LINUX_MAGIC_H__
-+
-+#define ADFS_SUPER_MAGIC	0xadf5
-+#define AFFS_SUPER_MAGIC	0xadff
-+#define AUTOFS_SUPER_MAGIC	0x0187
-+#define CODA_SUPER_MAGIC	0x73757245
-+#define EFS_SUPER_MAGIC		0x414A53
-+#define EXT2_SUPER_MAGIC	0xEF53
-+#define EXT3_SUPER_MAGIC	0xEF53
-+#define HPFS_SUPER_MAGIC	0xf995e849
-+#define ISOFS_SUPER_MAGIC	0x9660
-+#define JFFS2_SUPER_MAGIC	0x72b6
-+
-+#define MINIX_SUPER_MAGIC	0x137F		/* original minix fs */
-+#define MINIX_SUPER_MAGIC2	0x138F		/* minix fs, 30 char names */
-+#define MINIX2_SUPER_MAGIC	0x2468		/* minix V2 fs */
-+#define MINIX2_SUPER_MAGIC2	0x2478		/* minix V2 fs, 30 char names */
-+
-+#define MSDOS_SUPER_MAGIC	0x4d44		/* MD */
-+#define NCP_SUPER_MAGIC		0x564c		/* Guess, what 0x564c is :-) */
-+#define NFS_SUPER_MAGIC		0x6969
-+#define OPENPROM_SUPER_MAGIC	0x9fa1
-+#define PROC_SUPER_MAGIC	0x9fa0
-+#define QNX4_SUPER_MAGIC	0x002f		/* qnx4 fs detection */
-+
-+#define REISERFS_SUPER_MAGIC	0x52654973	/* used by gcc */
-+					/* used by file system utilities that
-+	                                   look at the superblock, etc.  */
-+#define REISERFS_SUPER_MAGIC_STRING	"ReIsErFs"
-+#define REISER2FS_SUPER_MAGIC_STRING	"ReIsEr2Fs"
-+#define REISER2FS_JR_SUPER_MAGIC_STRING	"ReIsEr3Fs"
-+
-+#define SMB_SUPER_MAGIC		0x517B
-+#define USBDEVICE_SUPER_MAGIC	0x9fa2
-+
-+#endif /* __LINUX_MAGIC_H__ */
-diff --git a/include/linux/minix_fs.h b/include/linux/minix_fs.h
-index 1ecc3cc..916e8f7 100644
---- a/include/linux/minix_fs.h
-+++ b/include/linux/minix_fs.h
-@@ -1,6 +1,8 @@
- #ifndef _LINUX_MINIX_FS_H
- #define _LINUX_MINIX_FS_H
- 
-+#include <linux/magic.h>
-+
- /*
-  * The minix filesystem constants/structures
-  */
-@@ -19,10 +21,6 @@ #define MINIX2_LINK_MAX	65530
- 
- #define MINIX_I_MAP_SLOTS	8
- #define MINIX_Z_MAP_SLOTS	64
--#define MINIX_SUPER_MAGIC	0x137F		/* original minix fs */
--#define MINIX_SUPER_MAGIC2	0x138F		/* minix fs, 30 char names */
--#define MINIX2_SUPER_MAGIC	0x2468		/* minix V2 fs */
--#define MINIX2_SUPER_MAGIC2	0x2478		/* minix V2 fs, 30 char names */
- #define MINIX_VALID_FS		0x0001		/* Clean fs. */
- #define MINIX_ERROR_FS		0x0002		/* fs has errors. */
- 
-diff --git a/include/linux/msdos_fs.h b/include/linux/msdos_fs.h
-index d9035c7..bae62d6 100644
---- a/include/linux/msdos_fs.h
-+++ b/include/linux/msdos_fs.h
-@@ -1,6 +1,8 @@
- #ifndef _LINUX_MSDOS_FS_H
- #define _LINUX_MSDOS_FS_H
- 
-+#include <linux/magic.h>
-+
- /*
-  * The MS-DOS filesystem constants/structures
-  */
-@@ -18,8 +20,6 @@ #define CT_LE_W(v)	cpu_to_le16(v)
- #define CT_LE_L(v)	cpu_to_le32(v)
- 
- 
--#define MSDOS_SUPER_MAGIC 0x4d44 /* MD */
--
- #define MSDOS_ROOT_INO	1	/* == MINIX_ROOT_INO */
- #define MSDOS_DIR_BITS	5	/* log2(sizeof(struct msdos_dir_entry)) */
- 
-diff --git a/include/linux/ncp_fs.h b/include/linux/ncp_fs.h
-index b208f0c..02e352b 100644
---- a/include/linux/ncp_fs.h
-+++ b/include/linux/ncp_fs.h
-@@ -11,6 +11,7 @@ #define _LINUX_NCP_FS_H
- #include <linux/fs.h>
- #include <linux/in.h>
- #include <linux/types.h>
-+#include <linux/magic.h>
- 
- #include <linux/ipx.h>
- #include <linux/ncp_no.h>
-@@ -185,10 +186,6 @@ struct ncp_entry_info {
- 	__u8			file_handle[6];
- };
- 
--/* Guess, what 0x564c is :-) */
--#define NCP_SUPER_MAGIC  0x564c
--
--
- static inline struct ncp_server *NCP_SBP(struct super_block *sb)
- {
- 	return sb->s_fs_info;
-diff --git a/include/linux/nfs_fs.h b/include/linux/nfs_fs.h
-index 3b5b041..36f5bcf 100644
---- a/include/linux/nfs_fs.h
-+++ b/include/linux/nfs_fs.h
-@@ -9,6 +9,8 @@
- #ifndef _LINUX_NFS_FS_H
- #define _LINUX_NFS_FS_H
- 
-+#include <linux/magic.h>
-+
- /*
-  * Enable debugging support for nfs client.
-  * Requires RPC_DEBUG.
-@@ -22,11 +24,6 @@ #define NFS_MAX_UDP_TIMEOUT	(60*HZ)
- #define NFS_MAX_TCP_TIMEOUT	(600*HZ)
- 
- /*
-- * superblock magic number for NFS
-- */
--#define NFS_SUPER_MAGIC			0x6969
--
--/*
-  * When flushing a cluster of dirty pages, there can be different
-  * strategies:
-  */
-diff --git a/include/linux/openprom_fs.h b/include/linux/openprom_fs.h
-deleted file mode 100644
-index a837aab..0000000
---- a/include/linux/openprom_fs.h
-+++ /dev/null
-@@ -1,10 +0,0 @@
--#ifndef _LINUX_OPENPROM_FS_H
--#define _LINUX_OPENPROM_FS_H
--
--/*
-- * The openprom filesystem constants/structures
-- */
--
--#define OPENPROM_SUPER_MAGIC 0x9fa1
--
--#endif /* _LINUX_OPENPROM_FS_H */
-diff --git a/include/linux/proc_fs.h b/include/linux/proc_fs.h
-index 17e7578..3435ca3 100644
---- a/include/linux/proc_fs.h
-+++ b/include/linux/proc_fs.h
-@@ -4,6 +4,7 @@ #define _LINUX_PROC_FS_H
- #include <linux/slab.h>
- #include <linux/fs.h>
- #include <linux/spinlock.h>
-+#include <linux/magic.h>
- #include <asm/atomic.h>
- 
- /*
-@@ -24,8 +25,6 @@ enum {
- 	PROC_ROOT_INO = 1,
- };
- 
--#define PROC_SUPER_MAGIC 0x9fa0
--
- /*
-  * This is not completely implemented yet. The idea is to
-  * create an in-memory tree (like the actual /proc filesystem
-diff --git a/include/linux/qnx4_fs.h b/include/linux/qnx4_fs.h
-index 27f49c8..0c7ac44 100644
---- a/include/linux/qnx4_fs.h
-+++ b/include/linux/qnx4_fs.h
-@@ -11,6 +11,7 @@ #ifndef _LINUX_QNX4_FS_H
- #define _LINUX_QNX4_FS_H
- 
- #include <linux/qnxtypes.h>
-+#include <linux/magic.h>
- 
- #define QNX4_ROOT_INO 1
- 
-@@ -25,7 +26,6 @@ #define QNX4_FILE_FSYSCLEAN     0x20
- 
- #define QNX4_I_MAP_SLOTS	8
- #define QNX4_Z_MAP_SLOTS	64
--#define QNX4_SUPER_MAGIC	0x002f	/* qnx4 fs detection */
- #define QNX4_VALID_FS		0x0001	/* Clean fs. */
- #define QNX4_ERROR_FS		0x0002	/* fs has errors. */
- #define QNX4_BLOCK_SIZE         0x200	/* blocksize of 512 bytes */
-diff --git a/include/linux/reiserfs_fs.h b/include/linux/reiserfs_fs.h
-index daa2d83..28493ff 100644
---- a/include/linux/reiserfs_fs.h
-+++ b/include/linux/reiserfs_fs.h
-@@ -12,6 +12,8 @@ #ifndef _LINUX_REISER_FS_H
- #define _LINUX_REISER_FS_H
- 
- #include <linux/types.h>
-+#include <linux/magic.h>
-+
- #ifdef __KERNEL__
- #include <linux/slab.h>
- #include <linux/interrupt.h>
-@@ -227,14 +229,6 @@ #define is_block_in_log_or_reserved_area
-          ((!is_reiserfs_jr(SB_DISK_SUPER_BLOCK(s)) ? \
-          SB_ONDISK_JOURNAL_SIZE(s) + 1 : SB_ONDISK_RESERVED_FOR_JOURNAL(s)))
- 
--				/* used by gcc */
--#define REISERFS_SUPER_MAGIC 0x52654973
--				/* used by file system utilities that
--				   look at the superblock, etc. */
--#define REISERFS_SUPER_MAGIC_STRING "ReIsErFs"
--#define REISER2FS_SUPER_MAGIC_STRING "ReIsEr2Fs"
--#define REISER2FS_JR_SUPER_MAGIC_STRING "ReIsEr3Fs"
--
- int is_reiserfs_3_5(struct reiserfs_super_block *rs);
- int is_reiserfs_3_6(struct reiserfs_super_block *rs);
- int is_reiserfs_jr(struct reiserfs_super_block *rs);
-diff --git a/include/linux/smb.h b/include/linux/smb.h
-index b016220..6df3b15 100644
---- a/include/linux/smb.h
-+++ b/include/linux/smb.h
-@@ -10,6 +10,7 @@ #ifndef _LINUX_SMB_H
- #define _LINUX_SMB_H
- 
- #include <linux/types.h>
-+#include <linux/magic.h>
- 
- enum smb_protocol { 
- 	SMB_PROTOCOL_NONE, 
-@@ -101,8 +102,6 @@ enum smb_conn_state {
- 	CONN_RETRYING		/* Currently trying to reconnect */
- };
- 
--#define SMB_SUPER_MAGIC               0x517B
--
- #define SMB_HEADER_LEN   37     /* includes everything up to, but not
-                                  * including smb_bcc */
- 
-diff --git a/include/linux/usbdevice_fs.h b/include/linux/usbdevice_fs.h
-index 7b7aadb..617d8a1 100644
---- a/include/linux/usbdevice_fs.h
-+++ b/include/linux/usbdevice_fs.h
-@@ -32,11 +32,10 @@ #ifndef _LINUX_USBDEVICE_FS_H
- #define _LINUX_USBDEVICE_FS_H
- 
- #include <linux/types.h>
-+#include <linux/magic.h>
- 
- /* --------------------------------------------------------------------- */
- 
--#define USBDEVICE_SUPER_MAGIC 0x9fa2
--
- /* usbdevfs ioctl codes */
- 
- struct usbdevfs_ctrltransfer {
+Jeff Kirsher:
+      e100: Fix MDIO/MDIO-X
+      e1000: Remove 0x1000 as supported device
+      e1000: Allow NVM to setup LPLU for IGP2 and IGP3
+      e1000: Force full DMA clocking for 10/100 speed
+      e1000: Disable aggressive clocking on esb2 with SERDES port
+
+Jesse Brandeburg:
+      e1000: Explicitly power up the PHY during loopback testing.
+      e1000: explicit locking for two ethtool path functions
+      ixgb: fix cache miss due to miscalculation
+      e1000: unify WoL capability detection code
+      e1000: Add PCI ID 0x10a4 for our new 4-port PCI-Express device
+      ixgb: Set a constant blink rate for ixgb adapter identify (1sec on, 1sec off)
+      ixgb: Cache-align all TX components of the adapter struct.
+      ixgb: Add buffer_info and test like e1000 has.
+
+Jim Lewis:
+      Spidernet: add ethtool -S (show statistics)
+
+John W. Linville:
+      bcm43xx: fix-up build breakage from merging patches out of order
+      bcm43xx: reduce mac_suspend delay loop count
+
+Komuro:
+      network: pcnet_cs.c: remove unnecessary 'mdio_reset'
+      network: axnet_cs.c: add new id (0x021b, 0x0202)
+
+Larry Finger:
+      bcm43xx: improved statistics
+      bcm43xx: improved statistics
+      bcm43xx: add missing mac_suspended initialization
+      bcm43xx: optimization of DMA bitfields
+      bcm43xx: return correct hard_start_xmit error code
+      bcm43xx - set correct value in mac_suspended for ifdown/ifup sequence
+      bcm43xx: Set floor of wireless signal and noise at -110 dBm
+      bcm43xx-softmac: Init, shutdown and restart fixes
+      bcm43xx: Correct out of sequence initialization step
+      bcm43xx: remove dead statistics code
+      bcm43xx: Add firmware version printout
+      bcm43xx: ucode debug status via sysfs
+      bcm43xx: remove dead code in bcm43xx_sysfs.c
+
+Lennert Buytenhek:
+      Cirrus Logic ep93xx ethernet driver
+
+Linas Vepstas:
+      e100: fix error recovery
+      ixgb: Add PCI Error recovery callbacks
+      e1000 disable device on PCI error
+
+Manasi Deval:
+      ixgb: Add CX4 PHY type detection and subdevice ID.
+
+Michael Buesch:
+      bcm43xx: opencoded locking
+      bcm43xx: voluntary preemtion in the calibration loops
+      bcm43xx: suspend MAC while executing long pwork
+      bcm43xx: lower mac_suspend udelay
+      bcm43xx: fix mac_suspend refcount
+      bcm43xx: init routine rewrite
+      bcm43xx: >1G and 64bit DMA support
+      bcm43xx: re-add bcm43xx_rng_init() call
+      MAINTAINERS: Add Larry Finger for bcm43xx (softmac)
+
+Michael Wu:
+      ray_cs: Remove dependency on ieee80211
+
+Pavel Machek:
+      cleanup // comments from ipw2200
+
+Pavel Roskin:
+      orinoco: Don't use "extern inline" on locking functions
+      orinoco: include linux/if_arp.h directly
+
+Philippe De Muyter:
+      sundance: small cleanup
+
+Ralf Baechle:
+      Cleanup SLHC configuration
+      Convert to kzalloc
+      Remove useless casts
+      Remove useless #ifdef MODULE stuff and printout
+      [NET] GT96100: Delete bitrotting ethernet driver
+
+Robert Schulze:
+      airo: collapse debugging-messages in issuecommand to one line
+
+Ron Mercer:
+      qla3xxx NIC driver
+
+shemminger@osdl.org:
+      sky2: remove cloned/pskb_expand_head check
+      sky2: use netdev_alloc_skb
+      sky2: dont use force status bit
+      sky2: MSI test timing
+      sky2: TSO mss optimization
+      sky2: optimize checksum offload information
+      sky2: power down PHY when not up
+      sky2: pci post bug
+      sky2: version 1.7
+
+Stephen Hemminger:
+      sky2: add another PCI ID
+      forcedeth: coding style cleanups
+      forcedeth: le32 annotation
+      sky2: more pci device ids
+      sky2: status interrupt handling improvement
+      forcdeth: revised NAPI support
+      skge: cleanup suspend/resume code
+      skge: pci bus post fixes
+      skge: use dev_alloc_skb
+      skge: use ethX for irq assigments
+      skge: version 1.7
+      sky2: more pci device id's
+      skge: use netdev_alloc_skb
+      skge: irq lock race
+      skge: use NAPI for transmit complete
+      skge: version 1.8
+      skge: check for PCI hotplug during IRQ
+      sky2: tx pause bug fix
+      sky2: fiber support
+      sky2: big endian
+      ethtool: allow const ethtool_ops
+
+Stephen Rothwell:
+      Remove powerpc specific parts of 3c509 driver
+
+Sukadev Bhattiprolu:
+      kthread: airo.c
+
+Thibaut Varene:
+      Make DS21143 printout match lspci output
+
+Ulrich Kunitz:
+      zd1211rw: USB id 1582:6003 for Longshine 8131G3 added
+      zd1211rw: cleanups
+      zd1211rw: Removed unneeded packed attributes
+
+Valerie Henson:
+      Change tulip maintainer
+      Handle pci_enable_device() errors in resume
+
+Vasily Averin:
+      e1000: IRQ resources cleanup
+      e1000: e1000_probe resources cleanup
+      e1000: ring buffers resources cleanup
+
+Zhu Yi:
+      ieee80211: Fix header->qos_ctl endian issue
+      ieee80211: remove ieee80211_tx() is_queue_full warning
+      ieee80211: TKIP and CCMP replay check rework
+      ieee80211: Fix TKIP and WEP decryption error on SMP machines
+      ieee80211: Workaround malformed 802.11 frames from AP
+      ipw2200: always enable frequently used debugging code
+      ipw2200: SIOCGIWFREQ ioctl returns frequency rather than channel
+      ipw2200: ipw_wx_set_essid fix
+      ipw2200: Reassociate even if set the same essid.
+      ipw2200: remove unused struct ipw_rx_buffer
+      ipw2200: Fix ipw2200 QOS parameters endian issue
+      ipw2200: remove the MAC timestamp present field from radiotap head
+      ipw2200: mark "iwconfig retry 255" as invalid
+      ipw2200: Fix kernel Oops if cmdlog debug is enabled
+      ipw2200: Add pci .shutdown handler
+      ipw2100: Fix deadlock detected by lockdep
+      ipw2200: enable wireless extension passive scan
+      ipw2200: Update version stamp to 1.1.4
+      ipw2200: Fix compile error when CONFIG_IPW2200_DEBUG is not selected
+

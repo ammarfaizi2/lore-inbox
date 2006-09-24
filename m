@@ -1,173 +1,176 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752133AbWIXSfX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752140AbWIXSs3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752133AbWIXSfX (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Sep 2006 14:35:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752135AbWIXSfX
+	id S1752140AbWIXSs3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Sep 2006 14:48:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752141AbWIXSs3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Sep 2006 14:35:23 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.149]:48850 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S1752133AbWIXSfW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Sep 2006 14:35:22 -0400
-Date: Mon, 25 Sep 2006 00:05:09 +0530
-From: Dipankar Sarma <dipankar@in.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, Paul E McKenney <paulmck@us.ibm.com>,
-       Ingo Molnar <mingo@elte.hu>
-Subject: Re: [-mm PATCH] RCU: debug sleep check
-Message-ID: <20060924183509.GB22448@in.ibm.com>
-Reply-To: dipankar@in.ibm.com
-References: <20060923152957.GA13432@in.ibm.com>
-Mime-Version: 1.0
+	Sun, 24 Sep 2006 14:48:29 -0400
+Received: from fed1rmmtao09.cox.net ([68.230.241.30]:29355 "EHLO
+	fed1rmmtao09.cox.net") by vger.kernel.org with ESMTP
+	id S1752140AbWIXSs2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Sep 2006 14:48:28 -0400
+From: Junio C Hamano <junkio@cox.net>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+Subject: Re: 2.6.18-mm1
+References: <20060924040215.8e6e7f1a.akpm@osdl.org>
+	<20060924124647.GB25666@flint.arm.linux.org.uk>
+	<20060924132213.GE11916@pasky.or.cz>
+	<20060924142005.GF25666@flint.arm.linux.org.uk>
+	<20060924142958.GU13132@pasky.or.cz>
+	<20060924144710.GG25666@flint.arm.linux.org.uk>
+cc: linux-kernel@vger.kernel.org, Petr Baudis <pasky@suse.cz>
+Date: Sun, 24 Sep 2006 11:48:26 -0700
+In-Reply-To: <20060924144710.GG25666@flint.arm.linux.org.uk> (Russell King's
+	message of "Sun, 24 Sep 2006 15:47:10 +0100")
+Message-ID: <7veju185j9.fsf@assigned-by-dhcp.cox.net>
+User-Agent: Gnus/5.110006 (No Gnus v0.6) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060923152957.GA13432@in.ibm.com>
-User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This adds an overhead of a function call and local_irq_save/restore
-in the rcu reader path when CONFIG_DEBUG_SPINLOCK_SLEEP is set.
-Hopefully that is not much of a concern. Comments are welcome.
-Applies on top of my earlier patches. The full patchset is
-at http://www.hill9.org/linux/kernel/patches/2.6.18-mm1/.
+Russell King <rmk+lkml@arm.linux.org.uk> writes:
 
-Add a debug check for rcu read-side critical section code calling
-a function that might sleep which is illegal. The check is enabled only
-if CONFIG_DEBUG_SPINLOCK_SLEEP is set.
+> I'm just experimenting with git-apply for the forward case, and I'm
+> hitting a small problem.  I can do:
+>
+> 	cat patch | git-apply --stat
+>
+> then I come to commit it:
+>
+> 	git commit -F -
+>
+> but if I just use that, _all_ changes which happen to be in the tree
+> get committed, not just those which are in the index file.
 
-Signed-off-by: Dipankar Sarma <dipankar@in.ibm.com>
----
+That does not sound right.
+
+ * "git apply --stat patch" (you do not need "cat |" there) is
+   only to inspect the changes; it does not apply the change to
+   your working tree.  Think of it as "diffstat for git".
+
+   If you want to apply it _and_ view diffstat, you can say "git
+   apply --stat --apply patch".
+
+ * Not having any pathname in the "git commit" like quoted above
+   in the final step should commit what is in index.  What will
+   be committed may not match what is in your working tree (iow
+   "git diff" can still show some local changes you are not
+   committing).  We often call this "partial commit".
+
+ * When doing partial commits, having "git apply" to prepare
+   what you want to commit in the index is less error prone
+   (otherwise you would somehow need to parse the patch and find
+   out what is added and what is deleted).  I do not exactly
+   know what you are doing in your Perl wrapper, but I suspect
+   bulk of that is to figure out what is changed and run
+   git-update-index on them -- you can lose all that code by
+   using "git apply --index patch".  Then added, removed and
+   modified paths are all updated in the index.
+
+> I guess we'll just have to live with the screwed history until some
+> of the issues I've brought up with git are resolved (the biggest one
+> being git commit being able to take a list of files deleted.)
+
+If you _are_ updating index yourself before calling git-commit,
+you do not need to (and indeed you should not) pass _any_
+pathnames to it.  I think that's where this confusion comes from.
+
+As an old-timer, you may remember that git-commit did not take
+any path arguments initially.  You were supposed to do update-index
+the paths you care about to build the image of what you want to
+record in your next commit and then tell git-commit to commit
+the index, and that was the only way to make a commit.  We still
+support that model of operation.
+
+Then "git-commit -a" was added.  This made git-commit to notice
+modified and deleted files (but not added ones) and run
+update-index automatically on them before doing its work.  
+
+In addition, git-commit started to take path parameters.
+Originally, this was meant to tell git-commit "Oh, I forgot to
+run update-index on these paths so far, so the changes I made to
+the index is fine, but also include the change to these paths in
+the commit as well".  This made git-commit run update-index on
+the given paths ON TOP OF the current index before making a
+commit.  We still support this model of operation, but it now
+requires an explicit -i option to invoke it.
+
+What "git-commit paths..." without an explicit -i option
+currently does is a compromise made to mollify CVS minded
+people's argument to help newbies.  You are telling git-commit:
+
+	Ignore any change I made to the index so far.  The
+	commit I want to make now is the last commit plus
+	changes I have in my working tree on these paths.
+
+This is only meant to support the workflow for people who do not
+want to deal with index at all.  After checking out the last
+commit, you muck with what is in your working tree, and say
+"git-commit paths..." to commit only changes made to the paths
+explicitly listed on the command line.  Hence, as a safety
+measure, we require a few things when this option is used:
+
+ * The index entries for paths you named on the command line
+   should match what is in the last commit.  Otherwise, it means
+   you have done something like this:
+
+	checkout
+	edit foo
+        update-index foo ;# happy with _THIS_ state of foo
+        edit foo ;# further work
+        edit bar
+        commit foo bar
+
+   The new "commit paths..." without -i is not "index has what I
+   want but in addition I want changes to these", so without
+   this check you will end up committing foo after "further
+   work", and you would lose the state you marked with the
+   manual update-index.  Now it may be what the user wanted, or
+   it may not be (remember, this "explicit paths" is now for
+   people who do not usually deal with index, so index entry for
+   named paths being different from the last commit indicates
+   there is something else going on -- maybe the user really
+   cared).  So we flag the problem when we notice it.
+
+ * The named paths must exist in the index (they do not have to
+   exist in your working tree -- so "rm foo; git commit foo"
+   commits the removal of foo).  This is to catch typo on the
+   command line.
+
+So in short, 
+
+        patch -p1 < patch
+        git add $added
+        git rm $removed
+	git update-index $modified
+        echo commit-message | git commit -F - -- $added $modified
+
+is mixing two incompatible mode of operations from separate
+workflows.  You are index-aware by using update-index (or git
+add/rm) but you are driving git-commit as if you are not.
+
+Two possibilities (I would recommend 1b).
+
+(1) Use index-aware workflow consistently (1a):
+
+	patch -p1 <patch
+        parse patch and figure out $added $removed and $modified
+        git update-index --add --remove $added $removed $modified
+	git commit -F $logfile
+
+    Or slightly simpler (1b):
+
+	git apply --index patch
+        git commit -F $logfile
+
+(2) Use index-unaware workflow consistently:
+
+	patch -p1 <patch
+        parse patch and figure out $added $removed and $modified
+	git add $added
+        git rm $removed
+        git update-index $modified
+	git commit -F $logfile
 
 
- include/linux/rcupdate.h |   34 ++++++++++++++++++++++++++++++----
- kernel/rcupdate.c        |   33 +++++++++++++++++++++++++++++++++
- kernel/sched.c           |    2 +-
- 3 files changed, 64 insertions(+), 5 deletions(-)
-
-diff -puN include/linux/rcupdate.h~rcu-reader-sleep-check include/linux/rcupdate.h
---- linux-2.6.18-mm1-rcu/include/linux/rcupdate.h~rcu-reader-sleep-check	2006-09-24 23:18:35.000000000 +0530
-+++ linux-2.6.18-mm1-rcu-dipankar/include/linux/rcupdate.h	2006-09-24 23:18:35.000000000 +0530
-@@ -64,6 +64,16 @@ struct rcu_head {
-        (ptr)->next = NULL; (ptr)->func = NULL; \
- } while (0)
- 
-+#ifdef CONFIG_DEBUG_SPINLOCK_SLEEP
-+extern int rcu_read_in_atomic(void);
-+extern void rcu_add_read_count(void);
-+extern void rcu_sub_read_count(void);
-+#else
-+static inline int rcu_read_in_atomic(void) { return 0;}
-+static inline void rcu_add_read_count(void) {}
-+static inline void rcu_sub_read_count(void) {}
-+#endif
-+
- /**
-  * rcu_read_lock - mark the beginning of an RCU read-side critical section.
-  *
-@@ -93,14 +103,22 @@ struct rcu_head {
-  *
-  * It is illegal to block while in an RCU read-side critical section.
-  */
--#define rcu_read_lock() __rcu_read_lock()
-+#define rcu_read_lock()	\
-+	do {	\
-+		rcu_add_read_count();	\
-+		__rcu_read_lock();	\
-+	} while (0)
- 
- /**
-  * rcu_read_unlock - marks the end of an RCU read-side critical section.
-  *
-  * See rcu_read_lock() for more information.
-  */
--#define rcu_read_unlock() __rcu_read_unlock()
-+#define rcu_read_unlock()	\
-+	do {	\
-+		__rcu_read_unlock();	\
-+		rcu_sub_read_count();	\
-+	} while (0)
- 
- /*
-  * So where is rcu_write_lock()?  It does not exist, as there is no
-@@ -123,14 +141,22 @@ struct rcu_head {
-  * can use just rcu_read_lock().
-  *
-  */
--#define rcu_read_lock_bh()	__rcu_read_lock_bh()
-+#define rcu_read_lock_bh()	\
-+	do {	\
-+		rcu_add_read_count();	\
-+		__rcu_read_lock_bh();	\
-+	} while (0)
-   
- /**
-  * rcu_read_unlock_bh - marks the end of a softirq-only RCU critical section
-  *
-  * See rcu_read_lock_bh() for more information.
-  */
--#define rcu_read_unlock_bh()	__rcu_read_unlock_bh()
-+#define rcu_read_unlock_bh()	\
-+	do {	\
-+		__rcu_read_unlock_bh();	\
-+		rcu_sub_read_count();	\
-+	} while (0)
-   
- /**
-  * rcu_dereference - fetch an RCU-protected pointer in an
-diff -puN kernel/rcupdate.c~rcu-reader-sleep-check kernel/rcupdate.c
---- linux-2.6.18-mm1-rcu/kernel/rcupdate.c~rcu-reader-sleep-check	2006-09-24 23:18:35.000000000 +0530
-+++ linux-2.6.18-mm1-rcu-dipankar/kernel/rcupdate.c	2006-09-24 23:18:35.000000000 +0530
-@@ -127,5 +127,38 @@ void __init rcu_init(void)
- 	__rcu_init();
- }
- 
-+#ifdef CONFIG_DEBUG_SPINLOCK_SLEEP
-+DEFINE_PER_CPU(int, rcu_read_count);
-+int rcu_read_in_atomic(void)
-+{
-+	int val;
-+	int cpu = get_cpu();
-+	val = per_cpu(rcu_read_count, cpu);
-+	put_cpu();
-+	return val;
-+}
-+
-+void rcu_add_read_count(void)
-+{
-+	int cpu, flags;
-+	local_irq_save(flags);
-+	cpu = smp_processor_id();
-+	per_cpu(rcu_read_count, cpu)++;
-+	local_irq_restore(flags);
-+}
-+
-+void rcu_sub_read_count(void)
-+{
-+	int cpu, flags;
-+	local_irq_save(flags);
-+	cpu = smp_processor_id();
-+	per_cpu(rcu_read_count, cpu)--;
-+	local_irq_restore(flags);
-+}
-+EXPORT_SYMBOL_GPL(rcu_read_in_atomic);
-+EXPORT_SYMBOL_GPL(rcu_add_read_count);
-+EXPORT_SYMBOL_GPL(rcu_sub_read_count);
-+#endif
-+
- EXPORT_SYMBOL_GPL(rcu_barrier);
- EXPORT_SYMBOL_GPL(synchronize_rcu);
-diff -puN kernel/sched.c~rcu-reader-sleep-check kernel/sched.c
---- linux-2.6.18-mm1-rcu/kernel/sched.c~rcu-reader-sleep-check	2006-09-24 23:18:35.000000000 +0530
-+++ linux-2.6.18-mm1-rcu-dipankar/kernel/sched.c	2006-09-24 23:18:35.000000000 +0530
-@@ -6974,7 +6974,7 @@ void __might_sleep(char *file, int line)
- #ifdef in_atomic
- 	static unsigned long prev_jiffy;	/* ratelimiting */
- 
--	if ((in_atomic() || irqs_disabled()) &&
-+	if ((in_atomic() || irqs_disabled() || rcu_read_in_atomic()) &&
- 	    system_state == SYSTEM_RUNNING && !oops_in_progress) {
- 		if (time_before(jiffies, prev_jiffy + HZ) && prev_jiffy)
- 			return;
-
-_

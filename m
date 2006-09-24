@@ -1,63 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932093AbWIXVFm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932100AbWIXVFt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932093AbWIXVFm (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Sep 2006 17:05:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932100AbWIXVFm
+	id S932100AbWIXVFt (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Sep 2006 17:05:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932103AbWIXVFt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Sep 2006 17:05:42 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:34520 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S932093AbWIXVFm (ORCPT
+	Sun, 24 Sep 2006 17:05:49 -0400
+Received: from mail.rucls.net ([65.126.99.146]:26843 "EHLO mail.rucls.net")
+	by vger.kernel.org with ESMTP id S932100AbWIXVFs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Sep 2006 17:05:42 -0400
-Date: Sun, 24 Sep 2006 23:05:27 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: kernel list <linux-kernel@vger.kernel.org>, Greg KH <greg@kroah.com>,
-       Linux usb mailing list 
-	<linux-usb-devel@lists.sourceforge.net>
-Subject: Re: [linux-usb-devel] usb still sucks battery in -rc7-mm1
-Message-ID: <20060924210527.GG1873@elf.ucw.cz>
-References: <20060924090858.GA1852@elf.ucw.cz> <Pine.LNX.4.44L0.0609241647230.14008-100000@netrider.rowland.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44L0.0609241647230.14008-100000@netrider.rowland.org>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+	Sun, 24 Sep 2006 17:05:48 -0400
+Date: Sun, 24 Sep 2006 16:05:47 -0500
+From: Mark Felder <felderado@gmail.com>
+To: Ondrej Zary <linux@rainbow-software.org>
+Cc: linux-kernel@vger.kernel.org, hancockr@shaw.ca
+Subject: Re: Bug: Asus CUR-DLS and 2.6
+Message-Id: <20060924160547.e9764600.felderado@gmail.com>
+In-Reply-To: <200609242153.14245.linux@rainbow-software.org>
+References: <fa.oxv6SpXdmGM3attVfc3DVbNIcEk@ifi.uio.no>
+	<4516D8DF.4060402@shaw.ca>
+	<20060924143240.48bf330e.felderado@gmail.com>
+	<200609242153.14245.linux@rainbow-software.org>
+X-Mailer: Sylpheed version 2.2.6 (GTK+ 2.8.19; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Sun, 24 Sep 2006 21:53:13 +0200
+Ondrej Zary <linux@rainbow-software.org> wrote:
 
-> > I made some quick experiments, and usb still eats 4W of battery
-> > power. (With whole machine eating 9W, that's kind of a big deal)...
-> > 
-> > This particular machine has usb bluetooth, but it can be disabled by
-> > firmware, and appears unplugged. (I did that). It also has fingerprint
-> > scanner, that can't be disabled, but that does not have driver (only
-> > driven by useland, and was unused in this experiment).
-> > 
-> > Any ideas?
+> On Sunday 24 September 2006 21:32, you wrote:
+> > On Sun, 24 Sep 2006 13:13:35 -0600
+> >
+> > Robert Hancock <hancockr@shaw.ca> wrote:
+> > > Mark Felder wrote:
+> > > > With a 2.6.15 and 2.6.16 kernel on Gentoo I would receive 3 beeps and
+> > > > it would hardlock as I expained. The CPU fans shut off -- there's no
+> > > > hope of bringing it out of this. Rarely it's happened at GRUB or before
+> > > > GRUB, but only when I've been working on this for a long period of
+> > > > time.
+> > >
 > 
-> The USB autosuspend patches are still not entirely in -mm.  They contain a
-> couple of bugs that have to get fixed first.  When they do get merged you
-> should see considerable improvement.  Note that although they will reduce
-> the amount of power being used by the USB controllers and will stop the
-> DMA activity (thus allowing your CPU to enter C2), they won't put the
-> controllers into D3.  For that you'll have to get PCI autosuspend...
-> :-)
+> 3 beeps and fans turning off - looks like APM suspend mode to me.
+> 
+> 
+> -- 
+> Ondrej Zary
+> 
 
-I have not measured that, but I _hope_ drain by controller itself will
-not be big enough.
 
-> In the meantime, if all you care about is power consumption there are 
-> some things you can do.  The easiest is simply to rmmod ehci-hcd, 
-> ohci-hcd, and uhci-hcd.  After all, if you're not using USB there's no 
-> reason to let the drivers eat up memory, CPU time, and power.
+That's an interesting suspicion, but I just checked all of my kernel configs for every kernel that I've compiled and subsequently had this issue. They all have CONFIG_APM is not set.
 
-Are autosuspend patches available somewhere? (Relative to -mm, or
-relative to 2.6.18?) I'd like to play with them...
-								Pavel
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+
+
+Mark

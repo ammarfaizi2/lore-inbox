@@ -1,44 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751165AbWIXRDA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751192AbWIXRGw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751165AbWIXRDA (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Sep 2006 13:03:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751178AbWIXRDA
+	id S1751192AbWIXRGw (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Sep 2006 13:06:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751196AbWIXRGv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Sep 2006 13:03:00 -0400
-Received: from mail.aknet.ru ([82.179.72.26]:52229 "EHLO mail.aknet.ru")
-	by vger.kernel.org with ESMTP id S1751165AbWIXRC7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Sep 2006 13:02:59 -0400
-Message-ID: <4516BA95.6030900@aknet.ru>
-Date: Sun, 24 Sep 2006 21:04:21 +0400
-From: Stas Sergeev <stsp@aknet.ru>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
-MIME-Version: 1.0
-To: Ulrich Drepper <drepper@redhat.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Hugh Dickins <hugh@veritas.com>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] remove MNT_NOEXEC check for PROT_EXEC mmaps
-References: <45150CD7.4010708@aknet.ru>	 <Pine.LNX.4.64.0609231555390.27012@blonde.wat.veritas.com>	 <451555CB.5010006@aknet.ru>	 <Pine.LNX.4.64.0609231647420.29557@blonde.wat.veritas.com>	 <1159037913.24572.62.camel@localhost.localdomain>	 <45162BE5.2020100@aknet.ru> <1159106032.11049.12.camel@localhost.localdomain> <45169C0C.5010001@aknet.ru> <4516A8E3.4020100@redhat.com> <4516B2C8.4050202@aknet.ru> <4516B721.5070801@redhat.com>
-In-Reply-To: <4516B721.5070801@redhat.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 24 Sep 2006 13:06:51 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:8873 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751193AbWIXRGv convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Sep 2006 13:06:51 -0400
+Date: Sun, 24 Sep 2006 10:06:31 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Dmitry Torokhov <dtor@insightbb.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.18-mm1
+Message-Id: <20060924100631.7cbc0e55.akpm@osdl.org>
+In-Reply-To: <200609241235.49792.dtor@insightbb.com>
+References: <20060924040215.8e6e7f1a.akpm@osdl.org>
+	<200609241235.49792.dtor@insightbb.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+On Sun, 24 Sep 2006 12:35:49 -0400
+Dmitry Torokhov <dtor@insightbb.com> wrote:
 
-Ulrich Drepper wrote:
-> The consensus has been to add the same checks to mprotect.  They were
-> not left out intentionally.
-I know, and as long as the mmap have these checks,
-that would be at least consistent.
-But could you please explain what does that solve
-*besides* the ld.so problem, which looks like the
-user-space problem to me? I tried my best to express
-the negative sides of that approach, but what are
-the positive ones?
-If that approach forces people to avoid using "noexec"
-where they previously used it for good, then I'd even
-call it a regression.
+> On Sunday 24 September 2006 07:02, Andrew Morton wrote:
+> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18/2.6.18-mm1/
+> > 
+> > - 2.6.18-rc7-mm1 had quite a lot of problems due to changes in the driver
+> >   tree.  All of those have been dropped from this patchset.
+> >
+> 
+> Andrew,
+> 
+> Any chance you could start pulling in input tree again?
+> 
 
+doh, I forgot to restore it, sorry.

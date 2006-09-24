@@ -1,55 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751101AbWIXOiw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750974AbWIXOrT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751101AbWIXOiw (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Sep 2006 10:38:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751096AbWIXOiw
+	id S1750974AbWIXOrT (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Sep 2006 10:47:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750966AbWIXOrT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Sep 2006 10:38:52 -0400
-Received: from e4.ny.us.ibm.com ([32.97.182.144]:1209 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751101AbWIXOiv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Sep 2006 10:38:51 -0400
-Date: Sun, 24 Sep 2006 20:08:38 +0530
-From: Dipankar Sarma <dipankar@in.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, Paul E McKenney <paulmck@us.ibm.com>,
-       Ingo Molnar <mingo@elte.hu>
-Subject: Re: [-mm PATCH] RCU: various patches
-Message-ID: <20060924143838.GA22448@in.ibm.com>
-Reply-To: dipankar@in.ibm.com
-References: <20060923152957.GA13432@in.ibm.com> <20060923185636.GA18156@in.ibm.com> <20060924030106.GA7569@in.ibm.com>
+	Sun, 24 Sep 2006 10:47:19 -0400
+Received: from caramon.arm.linux.org.uk ([217.147.92.249]:35084 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S1750974AbWIXOrS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Sep 2006 10:47:18 -0400
+Date: Sun, 24 Sep 2006 15:47:10 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Petr Baudis <pasky@suse.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.18-mm1
+Message-ID: <20060924144710.GG25666@flint.arm.linux.org.uk>
+Mail-Followup-To: Petr Baudis <pasky@suse.cz>, linux-kernel@vger.kernel.org
+References: <20060924040215.8e6e7f1a.akpm@osdl.org> <20060924124647.GB25666@flint.arm.linux.org.uk> <20060924132213.GE11916@pasky.or.cz> <20060924142005.GF25666@flint.arm.linux.org.uk> <20060924142958.GU13132@pasky.or.cz>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060924030106.GA7569@in.ibm.com>
-User-Agent: Mutt/1.5.11
+In-Reply-To: <20060924142958.GU13132@pasky.or.cz>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Sep 24, 2006 at 08:31:06AM +0530, Dipankar Sarma wrote:
-> On Sun, Sep 24, 2006 at 12:26:36AM +0530, Dipankar Sarma wrote:
-> > On Sat, Sep 23, 2006 at 08:59:57PM +0530, Dipankar Sarma wrote:
-> > > This patchset consists of various merge candidates that would
-> > > do well to have some testing in -mm. This patchset breaks
-> > > out RCU implementation from its APIs to allow multiple
-> > > implementations, gives RCU its own softirq and finally
-> > > lines up preemptible RCU from -rt tree as a configurable
-> > > RCU implementation for mainline. Published earlier and
-> > > re-diffed against -mm.
-> > > 
+On Sun, Sep 24, 2006 at 04:29:58PM +0200, Petr Baudis wrote:
+> Dear diary, on Sun, Sep 24, 2006 at 04:20:06PM CEST, I got a letter
+> where Russell King <rmk+lkml@arm.linux.org.uk> said that...
+> > I'm now told that the resulting tree after all the commits is correct.
+> > The problem is that all the files which were supposed to be deleted by
+> > previous patches ended up actually being deleted by the final patch in
+> > the series.
 > > 
-> > I forgot that some of the 2.6.18-rc7-mm1 has a few patches
-> > that have been merged. So, I should diff against that so that
-> > including these in -mm will be easy. Patches will follow tomorrow.
+> > So the resulting tree is fine, it's just that the history is rather
+> > broken.
 > 
-> The latest diffs are here -
+> Well, that rewritehist batch should work fine even in this case.
 > 
-> http://www.hill9.org/linux/kernel/patches/2.6.18-rc7-mm1/
+> (Of course that's assuming that no change was supposed to happen to
+> those files in the last four days.)
 > 
-> The series file specifies the order.
+> > I think a solution to this might be to use git-apply, but there's one
+> > draw back - I currently have the facility to unpatch at a later date,
+> > but git-apply doesn't support -R.
+> 
+> Yes, if there's not too many patches perhaps using git-apply -R would be
+> simpler. git-apply in git-1.4.2.1 does support -R.
 
-Please ignore this patchset for a moment. I will resend a more
-complete and more tested patchset against 2.6.18-mm1.
+I'm just experimenting with git-apply for the forward case, and I'm
+hitting a small problem.  I can do:
 
-Thanks
-Dipankar
+	cat patch | git-apply --stat
+
+then I come to commit it:
+
+	git commit -F -
+
+but if I just use that, _all_ changes which happen to be in the tree
+get committed, not just those which are in the index file.  Manually
+doing each step of the commit is far too much work in perl...
+
+Grumble.
+
+And no, I'm not about to try to rewrite my patch database handling
+using shell script - I don't know of any way to sanely access a mysql
+database from shell.
+
+I guess we'll just have to live with the screwed history until some
+of the issues I've brought up with git are resolved (the biggest one
+being git commit being able to take a list of files deleted.)
+
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

@@ -1,114 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751182AbWIXP13@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751173AbWIXPsG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751182AbWIXP13 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Sep 2006 11:27:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751179AbWIXP13
+	id S1751173AbWIXPsG (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Sep 2006 11:48:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751180AbWIXPsF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Sep 2006 11:27:29 -0400
-Received: from relay.2ka.mipt.ru ([194.85.82.65]:21464 "EHLO 2ka.mipt.ru")
-	by vger.kernel.org with ESMTP id S1751177AbWIXP12 (ORCPT
+	Sun, 24 Sep 2006 11:48:05 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:6084 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751173AbWIXPsE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Sep 2006 11:27:28 -0400
-Date: Sun, 24 Sep 2006 19:26:51 +0400
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: Andrew Morton <akpm@osdl.org>
-Cc: David Miller <davem@davemloft.net>, auke-jan.h.kok@intel.com,
-       Holger.Kiehl@dwd.de, linux-kernel@vger.kernel.org,
-       linux-net@vger.kernel.org, netdev@vger.kernel.org,
-       john.ronciak@intel.com
-Subject: Re: 2.6.1[78] page allocation failure. order:3, mode:0x20
-Message-ID: <20060924152651.GA2077@2ka.mipt.ru>
-References: <20060922004253.2e2e2612.akpm@osdl.org> <4514190C.8010901@intel.com> <20060922215000.c1fde093.akpm@osdl.org> <20060922.222507.74751476.davem@davemloft.net> <20060922223348.1b24fda5.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
-Content-Disposition: inline
-In-Reply-To: <20060922223348.1b24fda5.akpm@osdl.org>
-User-Agent: Mutt/1.5.9i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Sun, 24 Sep 2006 19:26:53 +0400 (MSD)
+	Sun, 24 Sep 2006 11:48:04 -0400
+Message-ID: <4516A8E3.4020100@redhat.com>
+Date: Sun, 24 Sep 2006 08:48:51 -0700
+From: Ulrich Drepper <drepper@redhat.com>
+Organization: Red Hat, Inc.
+User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
+MIME-Version: 1.0
+To: Stas Sergeev <stsp@aknet.ru>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, Hugh Dickins <hugh@veritas.com>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] remove MNT_NOEXEC check for PROT_EXEC mmaps
+References: <45150CD7.4010708@aknet.ru>	 <Pine.LNX.4.64.0609231555390.27012@blonde.wat.veritas.com>	 <451555CB.5010006@aknet.ru>	 <Pine.LNX.4.64.0609231647420.29557@blonde.wat.veritas.com>	 <1159037913.24572.62.camel@localhost.localdomain>	 <45162BE5.2020100@aknet.ru> <1159106032.11049.12.camel@localhost.localdomain> <45169C0C.5010001@aknet.ru>
+In-Reply-To: <45169C0C.5010001@aknet.ru>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enig35C4B2001155A90D1DF76CFF"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 22, 2006 at 10:33:48PM -0700, Andrew Morton (akpm@osdl.org) wrote:
-> > The NET_IP_ALIGN existed not just for fun :)  There are ramifications
-> > for removing it.
-> 
-> It's still there, isn't it?
-> 
-> For the 9k MTU case, for example, we end up allocating 16384 byte skbs
-> instead of 32786 kbytes ones.
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig35C4B2001155A90D1DF76CFF
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: quoted-printable
 
-This patch will not help - netdev_alloc_skb() adds additional
-NET_SKB_PAD and then alloc_skb() adds sizeof(struct skb_shared_info).
-And even if you acconut for them in adapter->rx_buf_len, chip still can
-overwrite that area (in the thread mentioned in this e-mail thread
-before I posted such patch and received a dump of sizes chip receives -
-there were a lot of _different_ ones which were too close to the limit).
+Stas Sergeev wrote:
+> The one that goes to /dev/shm should allow PROT_EXEC, yet
+> not allow executing the binaries with execve().
 
-> 
-> diff -puN drivers/net/e1000/e1000_main.c~e1000-account-for-net_ip_align-when-calculating-bufsiz drivers/net/e1000/e1000_main.c
-> --- a/drivers/net/e1000/e1000_main.c~e1000-account-for-net_ip_align-when-calculating-bufsiz
-> +++ a/drivers/net/e1000/e1000_main.c
-> @@ -1101,7 +1101,7 @@ e1000_sw_init(struct e1000_adapter *adap
->  
->  	pci_read_config_word(pdev, PCI_COMMAND, &hw->pci_cmd_word);
->  
-> -	adapter->rx_buffer_len = MAXIMUM_ETHERNET_VLAN_SIZE;
-> +	adapter->rx_buffer_len = MAXIMUM_ETHERNET_VLAN_SIZE + NET_IP_ALIGN;
->  	adapter->rx_ps_bsize0 = E1000_RXBUFFER_128;
->  	hw->max_frame_size = netdev->mtu +
->  			     ENET_HEADER_SIZE + ETHERNET_FCS_SIZE;
-> @@ -3163,26 +3163,27 @@ e1000_change_mtu(struct net_device *netd
->  	 * larger slab size
->  	 * i.e. RXBUFFER_2048 --> size-4096 slab */
->  
-> -	if (max_frame <= E1000_RXBUFFER_256)
-> +	if (max_frame + NET_IP_ALIGN <= E1000_RXBUFFER_256)
->  		adapter->rx_buffer_len = E1000_RXBUFFER_256;
-> -	else if (max_frame <= E1000_RXBUFFER_512)
-> +	else if (max_frame + NET_IP_ALIGN <= E1000_RXBUFFER_512)
->  		adapter->rx_buffer_len = E1000_RXBUFFER_512;
-> -	else if (max_frame <= E1000_RXBUFFER_1024)
-> +	else if (max_frame + NET_IP_ALIGN <= E1000_RXBUFFER_1024)
->  		adapter->rx_buffer_len = E1000_RXBUFFER_1024;
-> -	else if (max_frame <= E1000_RXBUFFER_2048)
-> +	else if (max_frame + NET_IP_ALIGN <= E1000_RXBUFFER_2048)
->  		adapter->rx_buffer_len = E1000_RXBUFFER_2048;
-> -	else if (max_frame <= E1000_RXBUFFER_4096)
-> +	else if (max_frame + NET_IP_ALIGN <= E1000_RXBUFFER_4096)
->  		adapter->rx_buffer_len = E1000_RXBUFFER_4096;
-> -	else if (max_frame <= E1000_RXBUFFER_8192)
-> +	else if (max_frame + NET_IP_ALIGN <= E1000_RXBUFFER_8192)
->  		adapter->rx_buffer_len = E1000_RXBUFFER_8192;
-> -	else if (max_frame <= E1000_RXBUFFER_16384)
-> +	else
->  		adapter->rx_buffer_len = E1000_RXBUFFER_16384;
->  
->  	/* adjust allocation if LPE protects us, and we aren't using SBP */
->  	if (!adapter->hw.tbi_compatibility_on &&
->  	    ((max_frame == MAXIMUM_ETHERNET_FRAME_SIZE) ||
->  	     (max_frame == MAXIMUM_ETHERNET_VLAN_SIZE)))
-> -		adapter->rx_buffer_len = MAXIMUM_ETHERNET_VLAN_SIZE;
-> +		adapter->rx_buffer_len = MAXIMUM_ETHERNET_VLAN_SIZE +
-> +					NET_IP_ALIGN;
->  
->  	netdev->mtu = new_mtu;
->  
-> @@ -4002,7 +4003,8 @@ e1000_alloc_rx_buffers(struct e1000_adap
->  	struct e1000_buffer *buffer_info;
->  	struct sk_buff *skb;
->  	unsigned int i;
-> -	unsigned int bufsz = adapter->rx_buffer_len + NET_IP_ALIGN;
-> +	/* we have already accounted for NET_IP_ALIGN */
-> +	unsigned int bufsz = adapter->rx_buffer_len;
->  
->  	i = rx_ring->next_to_use;
->  	buffer_info = &rx_ring->buffer_info[i];
-> _
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe netdev" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Why on earth would you want this?  Previously you already acknowledged
+that this kind of "protection" can be worked around by using ld.so
+directly.  Even if you try to stop this you can implement this
+functionality in a scripting language.
 
--- 
-	Evgeniy Polyakov
+Either all executable mapping is forbidden or none.  No middle ground
+can exist.
+
+--=20
+=E2=9E=A7 Ulrich Drepper =E2=9E=A7 Red Hat, Inc. =E2=9E=A7 444 Castro St =
+=E2=9E=A7 Mountain View, CA =E2=9D=96
+
+
+--------------enig35C4B2001155A90D1DF76CFF
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
+Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
+
+iD8DBQFFFqjj2ijCOnn/RHQRAqCJAJwK5lkRwq7rsTP2x08nCEWDmFdoqQCdEBx8
+2KWIZz4ZhnlW3AHbQGSbNsU=
+=3+/s
+-----END PGP SIGNATURE-----
+
+--------------enig35C4B2001155A90D1DF76CFF--

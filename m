@@ -1,40 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751430AbWIXACe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751786AbWIXAGe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751430AbWIXACe (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Sep 2006 20:02:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751478AbWIXACe
+	id S1751786AbWIXAGe (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Sep 2006 20:06:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751841AbWIXAGe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Sep 2006 20:02:34 -0400
-Received: from 1-1-12-13a.han.sth.bostream.se ([82.182.30.168]:51159 "EHLO
-	palpatine.hardeman.nu") by vger.kernel.org with ESMTP
-	id S1751401AbWIXACd convert rfc822-to-8bit (ORCPT
+	Sat, 23 Sep 2006 20:06:34 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:39848 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751703AbWIXAGc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Sep 2006 20:02:33 -0400
-Date: Sun, 24 Sep 2006 02:02:19 +0200
-From: David =?iso-8859-1?Q?H=E4rdeman?= <david@hardeman.nu>
-To: Markus Rechberger <mrechberger@gmail.com>
-Cc: linux-kernel@vger.kernel.org, alsa-devel@lists.sourceforge.net
-Subject: Re: [Alsa-devel] snd-usb-audio problems with 2.6.18
-Message-ID: <20060924000219.GA4679@hardeman.nu>
-Mail-Followup-To: Markus Rechberger <mrechberger@gmail.com>,
-	linux-kernel@vger.kernel.org, alsa-devel@lists.sourceforge.net
-References: <20060923125456.GA7757@hardeman.nu> <d9def9db0609230623k6ccfedbp1cd5be8ec25d176d@mail.gmail.com>
+	Sat, 23 Sep 2006 20:06:32 -0400
+Date: Sat, 23 Sep 2006 17:06:22 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [GIT] Linux client patches against Linux 2.6.18
+In-Reply-To: <1158982165.5493.12.camel@lade.trondhjem.org>
+Message-ID: <Pine.LNX.4.64.0609231700210.4388@g5.osdl.org>
+References: <1158982165.5493.12.camel@lade.trondhjem.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1; format=flowed
-Content-Disposition: inline
-In-Reply-To: <d9def9db0609230623k6ccfedbp1cd5be8ec25d176d@mail.gmail.com>
-User-Agent: Mutt/1.5.13 (2006-08-11)
-Content-Transfer-Encoding: 8BIT
-X-SA-Score: -2.6
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Sep 23, 2006 at 03:23:19PM +0200, Markus Rechberger wrote:
->this issue might be hidden within the usb subsystem.
->USB bandwidth allocation doesn't work 100% yet afaik, better turn off
->support for it when configuring your kernel.
 
-Thanks, turning off bandwidth allocation fixed usb-audio again
 
--- 
-David Härdeman
+On Fri, 22 Sep 2006, Trond Myklebust wrote:
+> 
+>    git pull git://git.linux-nfs.org/pub/linux/nfs-2.6.git
+
+I'm not entirely happy with this.
+
+Why were the generic VFS layer patches wrapped up in this big thing, 
+instead of being sent separately with the proper people looking at them?
+
+I'm not seeing a sign-off or ack for the dentry stuff from Al, for 
+example. Was it passed by him? You moved the dentry rehash function inside 
+the dcache_lock, and if that was a bug-fix, it should have been marked as 
+so and done separately etc.
+
+In other words, this was _not_ the right way to merge these things. I'm a 
+bit grumpy.
+
+		Linus

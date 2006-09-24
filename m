@@ -1,67 +1,117 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751156AbWIXRIb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751174AbWIXRMB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751156AbWIXRIb (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Sep 2006 13:08:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751174AbWIXRIb
+	id S1751174AbWIXRMB (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Sep 2006 13:12:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751176AbWIXRMB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Sep 2006 13:08:31 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:20650 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751156AbWIXRIb (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Sep 2006 13:08:31 -0400
-Date: Sun, 24 Sep 2006 10:08:20 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Jeff Garzik <jeff@garzik.org>
-cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [git patch] add and use include/linux/magic.h
-In-Reply-To: <20060924161809.GA13423@havoc.gtf.org>
-Message-ID: <Pine.LNX.4.64.0609241005290.4388@g5.osdl.org>
-References: <20060924161809.GA13423@havoc.gtf.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 24 Sep 2006 13:12:01 -0400
+Received: from 85.8.24.16.se.wasadata.net ([85.8.24.16]:55693 "EHLO
+	smtp.drzeus.cx") by vger.kernel.org with ESMTP id S1751174AbWIXRMA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Sep 2006 13:12:00 -0400
+From: Pierre Ossman <drzeus@drzeus.cx>
+Subject: [PATCH] Add "or later" clause to licence statement.
+Date: Sun, 24 Sep 2006 19:11:50 +0200
+Cc: Pierre Ossman <drzeus-list@drzeus.cx>
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Message-Id: <20060924171149.22677.60248.stgit@poseidon.drzeus.cx>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Clarify my (Pierre's) position on which GPL versions apply. The patch
+only touches the source files where I am the only major author. The
+people who have made the minor commits to the files have been contacted
+and have no issues with this change.
 
+Signed-off-by: Pierre Ossman <drzeus@drzeus.cx>
+---
 
-On Sun, 24 Sep 2006, Jeff Garzik wrote:
-> 
-> Along the lines of linux/poison.h, do a similar thing with filesystem
-> superblock (and later perhaps, other) magic numbers.  This permits
-> us to delete several headers which -only- included the superblock
-> magic number, and it integrates well with dwmw2's header_check /
-> header_install stuff.
+ arch/i386/kernel/i8237.c |    5 +++++
+ drivers/mmc/sdhci.c      |    5 +++--
+ drivers/mmc/sdhci.h      |    5 +++--
+ drivers/mmc/wbsd.c       |    5 +++--
+ drivers/mmc/wbsd.h       |    5 +++--
+ 5 files changed, 17 insertions(+), 8 deletions(-)
 
-Ok, I'm a little worried that somebody might want its own magic number, 
-but not have its namespace poisoned by other peoples magic numbers (think 
-some user-level program like "e2fsck"), but I guess it's unlikely to be a 
-real problem.
+diff --git a/arch/i386/kernel/i8237.c b/arch/i386/kernel/i8237.c
+index c36d1c0..6f508e8 100644
+--- a/arch/i386/kernel/i8237.c
++++ b/arch/i386/kernel/i8237.c
+@@ -2,6 +2,11 @@
+  * i8237.c: 8237A DMA controller suspend functions.
+  *
+  * Written by Pierre Ossman, 2005.
++ *
++ * This program is free software; you can redistribute it and/or modify
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or (at
++ * your option) any later version.
+  */
+ 
+ #include <linux/init.h>
+diff --git a/drivers/mmc/sdhci.c b/drivers/mmc/sdhci.c
+index 4e21b3b..835dc1f 100644
+--- a/drivers/mmc/sdhci.c
++++ b/drivers/mmc/sdhci.c
+@@ -4,8 +4,9 @@
+  *  Copyright (C) 2005-2006 Pierre Ossman, All Rights Reserved.
+  *
+  * This program is free software; you can redistribute it and/or modify
+- * it under the terms of the GNU General Public License version 2 as
+- * published by the Free Software Foundation.
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or (at
++ * your option) any later version.
+  */
+ 
+ #include <linux/delay.h>
+diff --git a/drivers/mmc/sdhci.h b/drivers/mmc/sdhci.h
+index f245334..72a6793 100644
+--- a/drivers/mmc/sdhci.h
++++ b/drivers/mmc/sdhci.h
+@@ -4,8 +4,9 @@
+  *  Copyright (C) 2005 Pierre Ossman, All Rights Reserved.
+  *
+  * This program is free software; you can redistribute it and/or modify
+- * it under the terms of the GNU General Public License version 2 as
+- * published by the Free Software Foundation.
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or (at
++ * your option) any later version.
+  */
+ 
+ /*
+diff --git a/drivers/mmc/wbsd.c b/drivers/mmc/wbsd.c
+index c351c6d..eb67075 100644
+--- a/drivers/mmc/wbsd.c
++++ b/drivers/mmc/wbsd.c
+@@ -4,8 +4,9 @@
+  *  Copyright (C) 2004-2005 Pierre Ossman, All Rights Reserved.
+  *
+  * This program is free software; you can redistribute it and/or modify
+- * it under the terms of the GNU General Public License version 2 as
+- * published by the Free Software Foundation.
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or (at
++ * your option) any later version.
+  *
+  *
+  * Warning!
+diff --git a/drivers/mmc/wbsd.h b/drivers/mmc/wbsd.h
+index 249baa7..6072993 100644
+--- a/drivers/mmc/wbsd.h
++++ b/drivers/mmc/wbsd.h
+@@ -4,8 +4,9 @@
+  *  Copyright (C) 2004-2005 Pierre Ossman, All Rights Reserved.
+  *
+  * This program is free software; you can redistribute it and/or modify
+- * it under the terms of the GNU General Public License version 2 as
+- * published by the Free Software Foundation.
++ * it under the terms of the GNU General Public License as published by
++ * the Free Software Foundation; either version 2 of the License, or (at
++ * your option) any later version.
+  */
+ 
+ #define LOCK_CODE		0xAA
 
-Pulled.
-
-One more thing: your "please pull" looks fine, but if you were to also add 
-the "--summary" argument to the diffstat generation, I'd have seen:
-
-> Please pull from 'magic' branch of
-> master.kernel.org:/pub/scm/linux/kernel/git/jgarzik/misc-2.6.git magic
-> 
-> to receive the following updates:
-> 
->  fs/affs/affs.h               |    1 -
->  fs/affs/super.c              |    1 +
-> ....
->  include/linux/smb.h          |    3 +--
->  include/linux/usbdevice_fs.h |    3 +--
->  30 files changed, 67 insertions(+), 85 deletions(-)
-
-followed by:
-
- delete mode 100644 include/linux/affs_fs.h
- delete mode 100644 include/linux/hpfs_fs.h
- create mode 100644 include/linux/magic.h
- delete mode 100644 include/linux/openprom_fs.h
-
-which is nice. You see which files actually disappear or appear (or are 
-renamed). Ok?
-
-		Linus

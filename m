@@ -1,57 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752086AbWIXDs7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752100AbWIXEBi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752086AbWIXDs7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Sep 2006 23:48:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752087AbWIXDs7
+	id S1752100AbWIXEBi (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Sep 2006 00:01:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752105AbWIXEBi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Sep 2006 23:48:59 -0400
-Received: from xenotime.net ([66.160.160.81]:10204 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1752086AbWIXDs7 (ORCPT
+	Sun, 24 Sep 2006 00:01:38 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:64224 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1752100AbWIXEBf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Sep 2006 23:48:59 -0400
-Date: Sat, 23 Sep 2006 20:50:08 -0700
-From: Randy Dunlap <rdunlap@xenotime.net>
-To: Aubrey <aubreylee@gmail.com>
-Cc: "Arnd Bergmann" <arnd@arndb.de>, "Luke Yang" <luke.adi@gmail.com>,
-       linux-kernel@vger.kernel.org, "Andrew Morton" <akpm@osdl.org>
-Subject: Re: [PATCH 1/4] Blackfin: arch patch for 2.6.18
-Message-Id: <20060923205008.618156a0.rdunlap@xenotime.net>
-In-Reply-To: <6d6a94c50609232035x4025672dg4f02b3bcceb6d531@mail.gmail.com>
-References: <489ecd0c0609202032l1c5540f7t980244e30d134ca0@mail.gmail.com>
-	<200609230218.36894.arnd@arndb.de>
-	<6d6a94c50609232035x4025672dg4f02b3bcceb6d531@mail.gmail.com>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
+	Sun, 24 Sep 2006 00:01:35 -0400
+Date: Sat, 23 Sep 2006 21:01:12 -0700
+From: Stephen Hemminger <shemminger@osdl.org>
+To: Joerg Roedel <joro-lkml@zlug.org>
+Cc: Patrick McHardy <kaber@trash.net>, davem@davemloft.net,
+       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: Re: [PATCH 02/03] net/bridge: add support for EtherIP devices
+Message-ID: <20060923210112.130938ca@localhost.localdomain>
+In-Reply-To: <20060923121629.GC32284@zlug.org>
+References: <20060923120704.GA32284@zlug.org>
+	<20060923121629.GC32284@zlug.org>
+X-Mailer: Sylpheed-Claws 2.4.0 (GTK+ 2.8.20; x86_64-redhat-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 24 Sep 2006 11:35:31 +0800 Aubrey wrote:
+On Sat, 23 Sep 2006 14:16:29 +0200
+Joerg Roedel <joro-lkml@zlug.org> wrote:
 
-> On 9/23/06, Arnd Bergmann <arnd@arndb.de> wrote:
-> > > +static uint32_t reloc_stack_operate(unsigned int oper, struct module *mod)
-> > > +{
-> > > +     uint32_t value;
-> > > +     switch (oper) {
-> > > +     case R_add:
-> > > +             {
-> > > +                     value =
-> > > +                         reloc_stack[reloc_stack_tos - 2] +
-> > > +                         reloc_stack[reloc_stack_tos - 1];
-> > > +                     reloc_stack_tos -= 2;
-> > > +                     break;
-> > > +             }
-> >
-> > no need for the curly braces here and below
+> This patch changes the device check in the bridge code to allow EtherIP
+> devices to be added.
 > 
-> Hmm, but we need one line < 80 columns, don't we?
+> Signed-off-by: Joerg Roedel <joro-lkml@zlug.org>
 
-Yes (preferably), but:
-The braces for case R_add above simply aren't needed at all.
-And after they are removed, you can indent the remaining code
-one less tab stop.
-
----
-~Randy
+If the device looks like a duck (Ethernet), then why does it need
+a separate ARP type.  There are other tools that might work without
+modification if it just fully pretended to be an ether device.

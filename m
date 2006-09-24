@@ -1,72 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932073AbWIXWm3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751628AbWIXWnB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932073AbWIXWm3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Sep 2006 18:42:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751643AbWIXWm3
+	id S1751628AbWIXWnB (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Sep 2006 18:43:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751669AbWIXWnA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Sep 2006 18:42:29 -0400
-Received: from pasmtpb.tele.dk ([80.160.77.98]:10940 "EHLO pasmtpB.tele.dk")
-	by vger.kernel.org with ESMTP id S1751646AbWIXWmY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Sep 2006 18:42:24 -0400
-Date: Mon, 25 Sep 2006 00:47:40 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Al Viro <viro@ftp.linux.org.uk>
-Cc: linux-kernel@vger.kernel.org, Kirill Korotaev <dev@openvz.org>,
-       Andrey Mirkin <amirkin@sw.ru>, Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH 18/28] kbuild: fail kernel compilation in case of unresolved module symbols
-Message-ID: <20060924224740.GB28051@uranus.ravnborg.org>
-References: <11591327051998-git-send-email-sam@ravnborg.org> <11591327051652-git-send-email-sam@ravnborg.org> <11591327053365-git-send-email-sam@ravnborg.org> <1159132705363-git-send-email-sam@ravnborg.org> <11591327063034-git-send-email-sam@ravnborg.org> <11591327061320-git-send-email-sam@ravnborg.org> <1159132706174-git-send-email-sam@ravnborg.org> <20060924222026.GS29920@ftp.linux.org.uk> <20060924223534.GA27984@uranus.ravnborg.org> <20060924223643.GT29920@ftp.linux.org.uk>
+	Sun, 24 Sep 2006 18:43:00 -0400
+Received: from zeniv.linux.org.uk ([195.92.253.2]:51653 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1751643AbWIXWm5
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Sep 2006 18:42:57 -0400
+Date: Sun, 24 Sep 2006 23:42:57 +0100
+From: Al Viro <viro@ftp.linux.org.uk>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] NULL noise removal
+Message-ID: <20060924224257.GZ29920@ftp.linux.org.uk>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060924223643.GT29920@ftp.linux.org.uk>
-User-Agent: Mutt/1.4.2.1i
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Sep 24, 2006 at 11:36:43PM +0100, Al Viro wrote:
-> On Mon, Sep 25, 2006 at 12:35:34AM +0200, Sam Ravnborg wrote:
-> > On what architectures do you see lots of these warnings - maybe fixable?
-> > Otherwise I could do something like this:
-> 
-> Try allmodconfig someday...
+Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+---
+ sound/drivers/mts64.c |    2 +-
+ sound/sparc/dbri.c    |    6 +++---
+ 2 files changed, 4 insertions(+), 4 deletions(-)
 
-My cross-compile setup severely broke due to me changing dev-machine.
-Will restore it when I get my hand on a proper dev machine again - current
-box consumes too much power for normal use (almost 300W) and is not much
-quicker than my older amd64 box :-(
-
-> 
-> aviro@icy:/usr/src/cross-kernel/volatile/work$ grep -l WARNING.*undefined ../logs/*/X4c
-> ../logs/alpha-SMP/X4c
-> ../logs/alpha/X4c
-> ../logs/arm/X4c
-> ../logs/armv/X4c
-> ../logs/chestnut/X4c
-> ../logs/frv/X4c
-> ../logs/ia64/X4c
-> ../logs/m32r/X4c
-> ../logs/m68k/X4c
-> ../logs/ppc/X4c
-> ../logs/ppc44x/X4c
-> ../logs/ppc64/X4c
-> ../logs/s390/X4c
-> ../logs/s390x/X4c
-> ../logs/sparc32/X4c
-> ../logs/sparc64/X4c
-> ../logs/sun3/X4c
-> ../logs/sun4/X4c
-> ../logs/uml-i386/X4c
-> 
-> That's out of 25 targets.  The only variants that do _NOT_ trigger are
-> amd64, amd64-UP, i386 and uml-amd64.
-
-How many of these ougth to be fixed then?
-> 
-> I more or less agree with rationale behind making that default, but I'd
-> very much appreciate a way to override that.  For now I've just made the
-> -w line unconditional, but the fewer infrastructure patches I've to carry...
-OK. Will include it in next round of kbuild updates.
-
-	Sam
+diff --git a/sound/drivers/mts64.c b/sound/drivers/mts64.c
+index 1699873..ab8d4ef 100644
+--- a/sound/drivers/mts64.c
++++ b/sound/drivers/mts64.c
+@@ -677,7 +677,7 @@ static int __devinit snd_mts64_ctl_creat
+ 		&mts64_ctl_smpte_time_seconds,
+ 		&mts64_ctl_smpte_time_frames,
+ 		&mts64_ctl_smpte_fps,
+-	        0  };
++	        NULL  };
+ 
+ 	for (i = 0; control[i]; ++i) {
+ 		err = snd_ctl_add(card, snd_ctl_new1(control[i], mts));
+diff --git a/sound/sparc/dbri.c b/sound/sparc/dbri.c
+index e4935fc..8016541 100644
+--- a/sound/sparc/dbri.c
++++ b/sound/sparc/dbri.c
+@@ -669,7 +669,7 @@ static s32 *dbri_cmdlock(struct snd_dbri
+ 	else
+ 		printk(KERN_ERR "DBRI: no space for commands.");
+ 
+-	return 0;
++	return NULL;
+ }
+ 
+ /*
+@@ -2037,10 +2037,10 @@ static int snd_dbri_open(struct snd_pcm_
+ 	spin_unlock_irqrestore(&dbri->lock, flags);
+ 
+ 	snd_pcm_hw_rule_add(runtime,0,SNDRV_PCM_HW_PARAM_CHANNELS,
+-			    snd_hw_rule_format, 0, SNDRV_PCM_HW_PARAM_FORMAT,
++			    snd_hw_rule_format, NULL, SNDRV_PCM_HW_PARAM_FORMAT,
+ 			    -1);
+ 	snd_pcm_hw_rule_add(runtime,0,SNDRV_PCM_HW_PARAM_FORMAT,
+-			    snd_hw_rule_channels, 0, 
++			    snd_hw_rule_channels, NULL, 
+ 			    SNDRV_PCM_HW_PARAM_CHANNELS,
+ 			    -1);
+ 				
+-- 
+1.4.2.GIT

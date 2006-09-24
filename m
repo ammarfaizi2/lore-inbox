@@ -1,59 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752065AbWIXChX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752067AbWIXCm1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752065AbWIXChX (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Sep 2006 22:37:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752066AbWIXChX
+	id S1752067AbWIXCm1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Sep 2006 22:42:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752070AbWIXCm0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Sep 2006 22:37:23 -0400
-Received: from dvhart.com ([64.146.134.43]:11754 "EHLO dvhart.com")
-	by vger.kernel.org with ESMTP id S1752065AbWIXChV (ORCPT
+	Sat, 23 Sep 2006 22:42:26 -0400
+Received: from smtp.ustc.edu.cn ([202.38.64.16]:42639 "HELO ustc.edu.cn")
+	by vger.kernel.org with SMTP id S1752067AbWIXCm0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Sep 2006 22:37:21 -0400
-Message-ID: <4515EF28.9000805@mbligh.org>
-Date: Sat, 23 Sep 2006 19:36:24 -0700
-From: "Martin J. Bligh" <mbligh@mbligh.org>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060728)
+	Sat, 23 Sep 2006 22:42:26 -0400
+Message-ID: <359065741.17391@ustc.edu.cn>
+X-EYOUMAIL-SMTPAUTH: wfg@mail.ustc.edu.cn
+Date: Sun, 24 Sep 2006 10:42:40 +0800
+From: Fengguang Wu <fengguang.wu@gmail.com>
+To: Gene Heskett <gene.heskett@verizon.net>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.19 -mm merge plans
+Message-ID: <20060924024239.GA11671@mail.ustc.edu.cn>
+Mail-Followup-To: Gene Heskett <gene.heskett@verizon.net>,
+	linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+References: <20060920135438.d7dd362b.akpm@osdl.org> <20060921165918.af7a5a63.akpm@osdl.org> <358885143.12940@ustc.edu.cn> <200609231048.13154.gene.heskett@verizon.net>
 MIME-Version: 1.0
-To: Christoph Lameter <clameter@sgi.com>
-Cc: Andi Kleen <ak@suse.de>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       akpm@google.com, linux-kernel@vger.kernel.org,
-       Christoph Hellwig <hch@infradead.org>,
-       James Bottomley <James.Bottomley@steeleye.com>, linux-mm@kvack.org
-Subject: Re: More thoughts on getting rid of ZONE_DMA
-References: <Pine.LNX.4.64.0609212052280.4736@schroedinger.engr.sgi.com> <4514441E.70207@mbligh.org> <Pine.LNX.4.64.0609221321280.9181@schroedinger.engr.sgi.com> <200609230134.45355.ak@suse.de> <Pine.LNX.4.64.0609231907360.16435@schroedinger.engr.sgi.com>
-In-Reply-To: <Pine.LNX.4.64.0609231907360.16435@schroedinger.engr.sgi.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200609231048.13154.gene.heskett@verizon.net>
+User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Christoph Lameter wrote:
-> On Sat, 23 Sep 2006, Andi Kleen wrote:
-> 
->> The problem is that if someone has a workload with lots of pinned pages
->> (e.g. lots of mlock) then the first 16MB might fill up completely and there 
->> is no chance at all to free it because it's pinned
-> 
-> Note that mlock'ed pages are movable. mlock only specifies that pages
-> must stay in memory. It does not say that they cannot be moved. So
-> page migration could help there.
-> 
-> This brings up a possible problem spot in the current kernel: It seems 
-> that the VM is capable of migrating pages from ZONE_DMA to 
-> ZONE_NORMAL! So once pages are in memory then they may move out of the 
-> DMA-able area.
-> 
-> I assume the writeback paths have some means of detecting that a
-> page is out of range during writeback and then do page bouncing?
-> 
-> If that is the case then we could simply move movable pages out
-> if necessary. That would be a kind of bouncing logic there that
-> would only kick in if necessary.
+On Sat, Sep 23, 2006 at 10:48:13AM -0400, Gene Heskett wrote:
+> Both of your attached pdf's were missing the required fonts to display the 
+> content on this locale=en machine, as the latest acroread for linux (7.05) 
+> advised me about both, and the second one, while it did display the cover 
 
-If it's the 16MB DMA window for ia32 we're talking about, wouldn't
-it be easier just to remove it from the fallback lists? (assuming
-you have at least 128MB of memory or something, blah, blah). Saves
-doing migration later.
+Thanks for the feedback. I guess the main cause can be from a default
+Chinese font, which is actually not used for the visible characters.
+It should not cause serious readability issues.
 
-M.
+> page in english at a scale far larger than my 1600x1200 screen, it 
+> actually locked up X and I had to reboot.  I thought I had enough fonts 
+> here to cover everything too.  :(
 
+Sorry for that. I'll send a copy of .odp for you.
+
+Regards,
+Wu

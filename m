@@ -1,55 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751915AbWIXL3o@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750978AbWIXLrt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751915AbWIXL3o (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Sep 2006 07:29:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751996AbWIXL3o
+	id S1750978AbWIXLrt (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Sep 2006 07:47:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750982AbWIXLrt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Sep 2006 07:29:44 -0400
-Received: from ore.jhcloos.com ([64.240.156.239]:49930 "EHLO ore.jhcloos.com")
-	by vger.kernel.org with ESMTP id S1751915AbWIXL3n (ORCPT
+	Sun, 24 Sep 2006 07:47:49 -0400
+Received: from smtp1-g19.free.fr ([212.27.42.27]:65438 "EHLO smtp1-g19.free.fr")
+	by vger.kernel.org with ESMTP id S1750978AbWIXLrs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Sep 2006 07:29:43 -0400
-From: James Cloos <cloos@jhcloos.com>
+	Sun, 24 Sep 2006 07:47:48 -0400
+Date: Sun, 24 Sep 2006 13:46:55 +0200
+From: Thomas Petazzoni <thomas.petazzoni@enix.org>
 To: linux-kernel@vger.kernel.org
-Subject: bzImage too big to boot???
-Copyright: Copyright 2006 James Cloos
-X-Hashcash: 1:23:060924:linux-kernel@vger.kernel.org::44Q1rp3+U3Ou9IJp:000000000000000000000000000000000CjIb
-Date: Sun, 24 Sep 2006 07:29:03 -0400
-Message-ID: <m37iztv6y1.fsf@lugabout.jhcloos.org>
-User-Agent: Gnus/5.110006 (No Gnus v0.6) Emacs/23.0.0 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Cc: mj@atrey.karlin.mff.cuni.cz, crutcher+kernel@datastacks.com
+Subject: [PATCH] Prevent multiple inclusion of linux/sysrq.h
+Message-ID: <20060924134655.73704fa9@localhost.localdomain>
+X-Mailer: Sylpheed-Claws 2.5.0-rc3 (GTK+ 2.8.20; i486-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="Sig_hscf+uu0JVJnBYxX.E7k/n_";
+ protocol="application/pgp-signature"; micalg=PGP-SHA1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I don't know whether this is a build-time issue or a grub issue, but
-I've found that on my (pent-3m) laptop I cannot boot any kernel that
-is larger than about 2500 K.  (2504K boots, 2552K fails.)
+--Sig_hscf+uu0JVJnBYxX.E7k/n_
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: quoted-printable
 
-Past that threshold grub complains:  ERR_BAD_FILETYPE.
+Hi,
 
-A 2504 K bzImage translates to a 6128 K vmlinux, 2552 K to 6252 K.
+From: Thomas Petazzoni <thomas.petazzoni@enix.org>
 
-Should bzImages that large be bootable on x86?
+Prevent multiple inclusions of include/linux/sysrq.h using traditional
+#ifndef..#endif.
 
-File(1) shows the same output for the larger files as for the smaller
-ones, so if it is a bug in the vmlinux -> bzImage build process it is
-corrupting the files only beyond the point that file(1) checks.
+Signed-off-by: Thomas Petazzoni <thomas.petazzoni@enix.org>
 
-The laptop's optical drive failed¹, so I cannot test whether syslinux
-can boot it.  (Unless there is a way to have grub boot a vfat file-
-system image with syslinux and the kernel?)
+---
 
-Any thoughts on where I should look?  Or should I just bug-grub?
+Index: linux-2.6/include/linux/sysrq.h
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- linux-2.6.orig/include/linux/sysrq.h	2006-09-23 00:04:05.000000000 +0200
++++ linux-2.6/include/linux/sysrq.h	2006-09-23 00:05:27.000000000 +0200
+@@ -11,6 +11,8 @@
+  *	based upon discusions in irc://irc.openprojects.net/#kernelnewbies
+  */
+=20
++#ifndef _LINUX_SYSRQ_H
++#define _LINUX_SYSRQ_H
+=20
+ struct pt_regs;
+ struct tty_struct;
+@@ -57,3 +59,5 @@
+ #define unregister_sysrq_key(ig,nore) __reterr()
+=20
+ #endif
++
++#endif /* _LINUX_SYSRQ_H */
+--=20
+PETAZZONI Thomas - thomas.petazzoni@enix.org=20
+http://{thomas,sos,kos}.enix.org - Jabber: thomas.petazzoni@jabber.dk
+http://{agenda,livret}dulibre.org - http://www.toulibre.org
+Fingerprint : 0BE1 4CF3 CEA4 AC9D CC6E  1624 F653 CB30 98D3 F7A7
 
--JimC
+--Sig_hscf+uu0JVJnBYxX.E7k/n_
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Disposition: attachment; filename=signature.asc
 
-¹ The old adage that software cannot kill hardware doesn't apply
-  when the hardware expects the software to moderate the thermally
-  inefficient laser and lacks safeguards for software which doesn't
-  know how to keep the laser from overheating and letting all of the
-  magic smoke out..... ;-/
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
 
--- 
-James Cloos <cloos@jhcloos.com>         OpenPGP: 0xED7DAEA6
+iD8DBQFFFnAz9lPLMJjT96cRApywAJ9z1whrsPUW8Tm62gikmRolB4aoogCgtGC1
+qNGZZOqxrjAwj3EoxSpZH50=
+=bnpj
+-----END PGP SIGNATURE-----
+
+--Sig_hscf+uu0JVJnBYxX.E7k/n_--

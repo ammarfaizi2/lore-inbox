@@ -1,38 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751305AbWIXAj0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752047AbWIXBPi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751305AbWIXAj0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Sep 2006 20:39:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751298AbWIXAj0
+	id S1752047AbWIXBPi (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Sep 2006 21:15:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752048AbWIXBPi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Sep 2006 20:39:26 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:47305
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1751294AbWIXAjZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Sep 2006 20:39:25 -0400
-Date: Sat, 23 Sep 2006 17:39:24 -0700 (PDT)
-Message-Id: <20060923.173924.78710069.davem@davemloft.net>
-To: samuel.thibault@ens-lyon.org
-Cc: sparclinux@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] no SA_NODEFER on sparc?
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <20060908000602.GJ8569@bouh.residence.ens-lyon.fr>
-References: <20060908000602.GJ8569@bouh.residence.ens-lyon.fr>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Sat, 23 Sep 2006 21:15:38 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:2514 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1752047AbWIXBPh (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Sep 2006 21:15:37 -0400
+Date: Sat, 23 Sep 2006 21:15:32 -0400
+From: Dave Jones <davej@redhat.com>
+To: Linux Kernel <linux-kernel@vger.kernel.org>
+Cc: ak@suse.de
+Subject: New Intel feature flags.
+Message-ID: <20060924011532.GA5804@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	Linux Kernel <linux-kernel@vger.kernel.org>, ak@suse.de
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Samuel Thibault <samuel.thibault@ens-lyon.org>
-Date: Fri, 8 Sep 2006 02:06:02 +0200
+Add supplemental SSE3 instructions flag, and Direct Cache Access flag.
+As described in "Intel Processor idenfication and the CPUID instruction
+AP485 Sept 2006"
 
-> I noticed that the sparc arch misses a definition for SA_NODEFER. Is
-> that on purpose?  If not, here is a patch for fixing this.
-> 
-> Add SA_NODEFER, deprecating linuxish SA_NOMASK.
-> 
-> Signed-off-by: Samuel Thibault <samuel.thibault@ens-lyon.org>
+Signed-off-by: Dave Jones <davej@redhat.com>
 
-I have no problems with this patch.  Userland headers already
-define both SA_NODEFER and SA_NOMASK on Sparc.
+--- local-git/arch/i386/kernel/cpu/proc.c~	2006-09-23 20:46:35.000000000 -0400
++++ local-git/arch/i386/kernel/cpu/proc.c	2006-09-23 20:48:02.000000000 -0400
+@@ -46,8 +46,8 @@ static int show_cpuinfo(struct seq_file 
+ 
+ 		/* Intel-defined (#2) */
+ 		"pni", NULL, NULL, "monitor", "ds_cpl", "vmx", "smx", "est",
+-		"tm2", NULL, "cid", NULL, NULL, "cx16", "xtpr", NULL,
+-		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
++		"tm2", "ssse3", "cid", NULL, NULL, "cx16", "xtpr", NULL,
++		NULL, NULL, "dca", NULL, NULL, NULL, NULL, NULL,
+ 		NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL,
+ 
+ 		/* VIA/Cyrix/Centaur-defined */
+
+-- 
+http://www.codemonkey.org.uk

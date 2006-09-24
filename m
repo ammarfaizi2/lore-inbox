@@ -1,60 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751303AbWIXWgp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751380AbWIXWiG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751303AbWIXWgp (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Sep 2006 18:36:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751400AbWIXWgp
+	id S1751380AbWIXWiG (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Sep 2006 18:38:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751400AbWIXWiF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Sep 2006 18:36:45 -0400
-Received: from zeniv.linux.org.uk ([195.92.253.2]:55775 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1751303AbWIXWgo
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Sep 2006 18:36:44 -0400
-Date: Sun, 24 Sep 2006 23:36:43 +0100
-From: Al Viro <viro@ftp.linux.org.uk>
-To: Sam Ravnborg <sam@ravnborg.org>
-Cc: linux-kernel@vger.kernel.org, Kirill Korotaev <dev@openvz.org>,
-       Andrey Mirkin <amirkin@sw.ru>, Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH 18/28] kbuild: fail kernel compilation in case of unresolved module symbols
-Message-ID: <20060924223643.GT29920@ftp.linux.org.uk>
-References: <11591327054119-git-send-email-sam@ravnborg.org> <11591327051998-git-send-email-sam@ravnborg.org> <11591327051652-git-send-email-sam@ravnborg.org> <11591327053365-git-send-email-sam@ravnborg.org> <1159132705363-git-send-email-sam@ravnborg.org> <11591327063034-git-send-email-sam@ravnborg.org> <11591327061320-git-send-email-sam@ravnborg.org> <1159132706174-git-send-email-sam@ravnborg.org> <20060924222026.GS29920@ftp.linux.org.uk> <20060924223534.GA27984@uranus.ravnborg.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060924223534.GA27984@uranus.ravnborg.org>
-User-Agent: Mutt/1.4.1i
+	Sun, 24 Sep 2006 18:38:05 -0400
+Received: from einhorn.in-berlin.de ([192.109.42.8]:46278 "EHLO
+	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
+	id S1751380AbWIXWiE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Sep 2006 18:38:04 -0400
+X-Envelope-From: stefanr@s5r6.in-berlin.de
+Message-ID: <45170805.6010409@s5r6.in-berlin.de>
+Date: Mon, 25 Sep 2006 00:34:45 +0200
+From: Stefan Richter <stefanr@s5r6.in-berlin.de>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.6) Gecko/20060730 SeaMonkey/1.0.4
+MIME-Version: 1.0
+To: Sean <seanlkml@sympatico.ca>
+CC: Russell King <rmk+lkml@arm.linux.org.uk>,
+       Lennert Buytenhek <buytenh@wantstofly.org>,
+       Linus Torvalds <torvalds@osdl.org>, Dave Jones <davej@redhat.com>,
+       David Miller <davem@davemloft.net>, jeff@garzik.org, davidsen@tmr.com,
+       alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.19 -mm merge plans
+References: <Pine.LNX.4.64.0609211106391.4388@g5.osdl.org>	<45130533.2010209@tmr.com>	<45130527.1000302@garzik.org>	<20060921.145208.26283973.davem@davemloft.net>	<20060921220539.GL26683@redhat.com>	<20060922083542.GA4246@flint.arm.linux.org.uk>	<20060922154816.GA15032@redhat.com>	<Pine.LNX.4.64.0609220901040.4388@g5.osdl.org>	<20060924074837.GB13487@xi.wantstofly.org>	<20060924092010.GC17639@flint.arm.linux.org.uk> <BAYC1-PASMTP025A69D18D30F23AC048BDAE270@CEZ.ICE>
+In-Reply-To: <BAYC1-PASMTP025A69D18D30F23AC048BDAE270@CEZ.ICE>
+X-Enigmail-Version: 0.94.1.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 25, 2006 at 12:35:34AM +0200, Sam Ravnborg wrote:
-> On what architectures do you see lots of these warnings - maybe fixable?
-> Otherwise I could do something like this:
+Sean wrote:
+> On Sun, 24 Sep 2006 10:20:10 +0100
+> Russell King <rmk+lkml@arm.linux.org.uk> wrote:
+> 
+>> The point I'm making is that for some things, keeping the changes as
+>> patches until they're ready is far easier, more worthwhile and flexible
+>> than having them simmering in some git tree somewhere.
+> 
+> It's not really easier, just different.   Git allows you to make a 
+> "topic branch" to keep separate items that need to bake before going
+> upstream without being mixed in with all your other worked.
+...
+> Git _does_ make it easy and practical to do the same thing.
 
-Try allmodconfig someday...
+I'm not convinced. Certain workflows are more focused on how changes
+change (sic) rather than on how the end product i.e. the sources change.
+I am referring to reworking of patches during tests and reviews as well
+as rewriting descriptions, collecting Acks and Sign-offs etc. while
+maintaining a certain identity of the patch or series of patches.
 
-aviro@icy:/usr/src/cross-kernel/volatile/work$ grep -l WARNING.*undefined ../logs/*/X4c
-../logs/alpha-SMP/X4c
-../logs/alpha/X4c
-../logs/arm/X4c
-../logs/armv/X4c
-../logs/chestnut/X4c
-../logs/frv/X4c
-../logs/ia64/X4c
-../logs/m32r/X4c
-../logs/m68k/X4c
-../logs/ppc/X4c
-../logs/ppc44x/X4c
-../logs/ppc64/X4c
-../logs/s390/X4c
-../logs/s390x/X4c
-../logs/sparc32/X4c
-../logs/sparc64/X4c
-../logs/sun3/X4c
-../logs/sun4/X4c
-../logs/uml-i386/X4c
-
-That's out of 25 targets.  The only variants that do _NOT_ trigger are
-amd64, amd64-UP, i386 and uml-amd64.
-
-I more or less agree with rationale behind making that default, but I'd
-very much appreciate a way to override that.  For now I've just made the
--w line unconditional, but the fewer infrastructure patches I've to carry...
+But maybe I'm just not aware of how git may support this effectively.
+Perhaps thusly: Let the young and wild times of life of a patch actually
+result into many commits to a topic branch; collapse a lot of these
+commits into one or few diffs for each review round; move to a new topic
+branch for bigger reworks of the changeset; and finally collapse it into
+one or few commits to a staging branch for submission? Sounds still more
+like a job for patch-centered tools like quilt.
+-- 
+Stefan Richter
+-=====-=-==- =--= ==---
+http://arcgraph.de/sr/

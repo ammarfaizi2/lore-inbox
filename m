@@ -1,72 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750782AbWIXX3W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751365AbWIXXcY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750782AbWIXX3W (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Sep 2006 19:29:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751360AbWIXX3W
+	id S1751365AbWIXXcY (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Sep 2006 19:32:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751381AbWIXXcY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Sep 2006 19:29:22 -0400
-Received: from rgminet01.oracle.com ([148.87.113.118]:1944 "EHLO
-	rgminet01.oracle.com") by vger.kernel.org with ESMTP
-	id S1750782AbWIXX3V (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Sep 2006 19:29:21 -0400
-Date: Sun, 24 Sep 2006 16:28:54 -0700
-From: Mark Fasheh <mark.fasheh@oracle.com>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Andrew Morton <akpm@osdl.org>, ocfs2-devel@oss.oracle.com,
-       linux-kernel@vger.kernel.org,
-       Trond Myklebust <trond.myklebust@fys.uio.no>,
-       Al Viro <viro@zeniv.linux.org.uk>, Christoph Hellwig <hch@lst.de>
-Subject: Re: [git patches] ocfs2 post 2.6.18 features
-Message-ID: <20060924232854.GG32106@ca-server1.us.oracle.com>
-Reply-To: Mark Fasheh <mark.fasheh@oracle.com>
-References: <20060924221115.GF32106@ca-server1.us.oracle.com> <Pine.LNX.4.64.0609241532140.3952@g5.osdl.org>
+	Sun, 24 Sep 2006 19:32:24 -0400
+Received: from adelphi.physics.adelaide.edu.au ([129.127.102.1]:54663 "EHLO
+	adelphi.physics.adelaide.edu.au") by vger.kernel.org with ESMTP
+	id S1751365AbWIXXcX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Sep 2006 19:32:23 -0400
+From: Jonathan Woithe <jwoithe@physics.adelaide.edu.au>
+Message-Id: <200609242349.k8ONndgr004562@auster.physics.adelaide.edu.au>
+Subject: Re: Fw: 2.6.17 oops, possibly ntfs/mmap related
+To: davej@redhat.com (Dave Jones)
+Date: Mon, 25 Sep 2006 09:19:39 +0930 (CST)
+Cc: jwoithe@physics.adelaide.edu.au (Jonathan Woithe),
+       hugh@veritas.com (Hugh Dickins), akpm@osdl.org (Andrew Morton),
+       aia21@cam.ac.uk (Anton Altaparmakov), linux-kernel@vger.kernel.org
+In-Reply-To: <20060922154035.GB22531@redhat.com> from "Dave Jones" at Sep 22, 2006 11:40:35 AM
+X-Mailer: ELM [version 2.5 PL6]
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0609241532140.3952@g5.osdl.org>
-Organization: Oracle Corporation
-User-Agent: Mutt/1.5.11
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Brightmail-Tracker: AAAAAQAAAAI=
-X-Whitelist: TRUE
-X-Whitelist: TRUE
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Sep 24, 2006 at 03:36:14PM -0700, Linus Torvalds wrote:
+>  > > Given a machine check happened, the state of the machine in general
+>  > > is questionable.  I'd recommend a run of memtest86+ 
+>  > 
+>  > That was already done.  No memory errors were reported over 10 passes.
+>  > 
+>  > Secondly, the machine check indication was only present on one of the two
+>  > oopses we saw.  Furthermore, there was no indication in any log files
+>  > that a machine check had occurred in the case of the second oops.
+>  > Then again, perhaps machine checks don't get logged which would make this
+>  > observation irrelevant.
+>  > 
+>  > Could we be looking at a dying CPU?
 > 
-> Ok, pulled, and pushed out.
-Great, thanks!
+> Maybe. Or some other hardware problem. Insufficient cooling/power for eg.
 
+Power and cooling should be fine, and I've checked fans etc for correct
+functioning - all is ok.  The other thing worth noting is that the problems
+with this machine only started once the USB/NTFS HDD started being used.
+Before this the machine has been rock solid for 2+ years, and the usage
+patterns haven't changed.  Anyway, I'll keep an eye on it and post any
+subsequent information as it becomes available.
 
-> And btw, I appreciate how you separately explained the fs/namei.c change, 
-> together with the diff for just that part. This is a prime example of how 
-> to make things easier for me to verify, when I see something touching a 
-> generic file. Thanks.
-Oh, excellent - I'm glad that worked out. I asked Andrew a couple weeks back
-how we should handle that patch, and he indicated that I could push it if I
-clearly noted its existence in my e-mail.
+Regards
+  jonathan
 
-
-> I do have a small nit: when you ask me to pull, you did:
-> 
-> > Please pull from 'upstream-linus' branch of
-> > git://git.kernel.org/pub/scm/linux/kernel/git/mfasheh/ocfs2.git
-> 
-> I really prefer to see the branch-name at the end of the line (don't worry 
-> if it's more than 80 characters), because that way I don't make the 
-> mistake of cutting-and-pasting the git URL, and forgetting the branch.
-No problem - script updated. I copied the format from one of Jeff's more
-recent pull mails:
-
-Please pull from 'upstream-linus' branch of
-git://git.kernel.org/pub/scm/linux/kernel/git/mfasheh/ocfs2.git
-upstream-linus
-
-Hope that works for you.
-	--Mark
-
---
-Mark Fasheh
-Senior Software Developer, Oracle
-mark.fasheh@oracle.com

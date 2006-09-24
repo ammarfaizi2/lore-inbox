@@ -1,69 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750865AbWIXOUO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750936AbWIXOaB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750865AbWIXOUO (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Sep 2006 10:20:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750900AbWIXOUO
+	id S1750936AbWIXOaB (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Sep 2006 10:30:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750952AbWIXOaB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Sep 2006 10:20:14 -0400
-Received: from caramon.arm.linux.org.uk ([217.147.92.249]:15890 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S1750865AbWIXOUM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Sep 2006 10:20:12 -0400
-Date: Sun, 24 Sep 2006 15:20:06 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Petr Baudis <pasky@ucw.cz>
-Cc: linux-kernel@vger.kernel.org
+	Sun, 24 Sep 2006 10:30:01 -0400
+Received: from w241.dkm.cz ([62.24.88.241]:39862 "EHLO machine.or.cz")
+	by vger.kernel.org with ESMTP id S1750936AbWIXOaA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Sep 2006 10:30:00 -0400
+Date: Sun, 24 Sep 2006 16:29:58 +0200
+From: Petr Baudis <pasky@suse.cz>
+To: linux-kernel@vger.kernel.org
 Subject: Re: 2.6.18-mm1
-Message-ID: <20060924142005.GF25666@flint.arm.linux.org.uk>
-Mail-Followup-To: Petr Baudis <pasky@ucw.cz>, linux-kernel@vger.kernel.org
-References: <20060924040215.8e6e7f1a.akpm@osdl.org> <20060924124647.GB25666@flint.arm.linux.org.uk> <20060924132213.GE11916@pasky.or.cz>
-Mime-Version: 1.0
+Message-ID: <20060924142958.GU13132@pasky.or.cz>
+References: <20060924040215.8e6e7f1a.akpm@osdl.org> <20060924124647.GB25666@flint.arm.linux.org.uk> <20060924132213.GE11916@pasky.or.cz> <20060924142005.GF25666@flint.arm.linux.org.uk>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060924132213.GE11916@pasky.or.cz>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20060924142005.GF25666@flint.arm.linux.org.uk>
+X-message-flag: Outlook : A program to spread viri, but it can do mail too.
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Sep 24, 2006 at 03:22:13PM +0200, Petr Baudis wrote:
-> Dear diary, on Sun, Sep 24, 2006 at 02:46:47PM CEST, I got a letter
-> where Russell King <rmk+lkml@arm.linux.org.uk> said that...
-> > On Sun, Sep 24, 2006 at 04:02:15AM -0700, Andrew Morton wrote:
-> > >  git-arm.patch
-> > 
-> > It's worth pointing out that something has gone horribly wrong in the
-> > devel branch of this tree, resulting in a load of files being deleted
-> > which shouldn't have been.
-> > 
-> > Absolutely no idea how that happened, but it's a commit buried behind
-> > lots of other commits and has taken some 4 days to be spotted.  At a
-> > guess, a perl bug where a new associative array somehow manages to pick
-> > up on old values and forget values from previous assignments.
-> > 
-> > Oddly, running the script in debug mode (where the only things which
-> > don't happen is the git commands get called) appears to give correct
-> > behaviour.
-> > 
-> > So I'm in the situation where I need to rebuild 4 days work in the ARM
-> > devel tree. ;(
+Dear diary, on Sun, Sep 24, 2006 at 04:20:06PM CEST, I got a letter
+where Russell King <rmk+lkml@arm.linux.org.uk> said that...
+> I'm now told that the resulting tree after all the commits is correct.
+> The problem is that all the files which were supposed to be deleted by
+> previous patches ended up actually being deleted by the final patch in
+> the series.
 > 
-> If I understand correctly, you just need to get rid of that bad commit?
+> So the resulting tree is fine, it's just that the history is rather
+> broken.
 
-I'm now told that the resulting tree after all the commits is correct.
-The problem is that all the files which were supposed to be deleted by
-previous patches ended up actually being deleted by the final patch in
-the series.
+Well, that rewritehist batch should work fine even in this case.
 
-So the resulting tree is fine, it's just that the history is rather
-broken.
+(Of course that's assuming that no change was supposed to happen to
+those files in the last four days.)
 
-I think a solution to this might be to use git-apply, but there's one
-draw back - I currently have the facility to unpatch at a later date,
-but git-apply doesn't support -R.  I'd have to fall back to the patch
-+ git add + git rm + git commit method, but that's been shown to be
-fundamentally broken.
+> I think a solution to this might be to use git-apply, but there's one
+> draw back - I currently have the facility to unpatch at a later date,
+> but git-apply doesn't support -R.
+
+Yes, if there's not too many patches perhaps using git-apply -R would be
+simpler. git-apply in git-1.4.2.1 does support -R.
 
 -- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+				Petr "Pasky" Baudis
+Stuff: http://pasky.or.cz/
+#!/bin/perl -sp0777i<X+d*lMLa^*lN%0]dsXx++lMlN/dsM0<j]dsj
+$/=unpack('H*',$_);$_=`echo 16dio\U$k"SK$/SM$n\EsN0p[lN*1
+lK[d2%Sa2/d0$^Ixp"|dc`;s/\W//g;$_=pack('H*',/((..)*)$/)

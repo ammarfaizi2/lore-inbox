@@ -1,102 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752062AbWIXCTi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752064AbWIXCgz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752062AbWIXCTi (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 23 Sep 2006 22:19:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752063AbWIXCTi
+	id S1752064AbWIXCgz (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 23 Sep 2006 22:36:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752065AbWIXCgz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 23 Sep 2006 22:19:38 -0400
-Received: from mdmail.ccwis.com ([12.148.212.152]:50444 "EHLO
-	computer-connectionsinc.com") by vger.kernel.org with ESMTP
-	id S1752062AbWIXCTh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 23 Sep 2006 22:19:37 -0400
-From: Mark Felder <felderado@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Bug: Asus CUR-DLS and 2.6
-Date: Sat, 23 Sep 2006 21:18:20 -0500
-User-Agent: KMail/1.9.1
-MIME-Version: 1.0
-Content-Disposition: inline
-Message-Id: <200609232118.20410.felderado@gmail.com>
-Content-Type: text/plain;
-  charset="us-ascii"
+	Sat, 23 Sep 2006 22:36:55 -0400
+Received: from pne-smtpout2-sn2.hy.skanova.net ([81.228.8.164]:55945 "EHLO
+	pne-smtpout2-sn2.hy.skanova.net") by vger.kernel.org with ESMTP
+	id S1752064AbWIXCgy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 23 Sep 2006 22:36:54 -0400
+Date: Sun, 24 Sep 2006 04:36:29 +0200
+From: Voluspa <lista1@comhem.se>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: Daniel Walker <dwalker@mvista.com>, brugolsky@telemetry-investments.com,
+       pavel@suse.cz, akpm@osdl.org, tglx@linutronix.de,
+       linux-kernel@vger.kernel.org
+Subject: Re: hires timer patchset [was Re: 2.6.19 -mm merge plans]
+Message-ID: <20060924043629.5bebc404@loke.fish.not>
+In-Reply-To: <20060923202027.GA8350@elte.hu>
+References: <20060923041746.2b9b7e1f@loke.fish.not>
+	<1159034967.21405.22.camel@c-67-180-230-165.hsd1.ca.comcast.net>
+	<20060923215832.03b1dac5@loke.fish.not>
+	<20060923202027.GA8350@elte.hu>
+X-Mailer: Sylpheed-Claws 2.4.0 (GTK+ 2.4.13; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-RBL-Warning: mail from 64.211.118.1 refused by SpamHaus, see http://www.spamhaus.org
-X-MDRemoteIP: 64.211.118.1
-X-Return-Path: felderado@gmail.com
-X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
-X-Spam-Report: *  3.0 MDAEMON_DNSBL MDaemon: marked by MDaemon's DNSBL
-	*  1.0 BAYES_40 BODY: Bayesian spam probability is 20 to 40%
-	*      [score: 0.3822]
-X-Spam-Processed: computer-connectionsinc.com, Sat, 23 Sep 2006 21:14:56 -0500
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello all,
+On Sat, 23 Sep 2006 22:20:27 +0200 Ingo Molnar wrote:
+> 
+> * Voluspa wrote:
+> 
+> > WARNING: "monotonic_clock" [drivers/char/hangcheck-timer.ko]
+> > undefined!
+> 
+> turn off the CONFIG_HANGCHECK_TIMER option.
+> 
+> > WARNING: "hrtimer_stop_sched_tick" [drivers/acpi/processor.ko]
+> > undefined! WARNING:
+> > "hrtimer_restart_sched_tick" [drivers/acpi/processor.ko] undefined!
+> 
+> add these two lins to the end of kernel/hrtimer.c:
+> 
+> EXPORT_SYMBOL_GPL(hrtimer_stop_sched_tick);
+> EXPORT_SYMBOL_GPL(hrtimer_restart_sched_tick);
 
-I'm writing to report and interesting occurance that I fully believe is a bug 
-in the 2.6 kernel. 
+My mind was clouded close to bedtime. I now remember the fix that
+was published already at 2.6.17 time, from Steven Rostedt:
 
-In March I purchased a used Asus CUR-DLS motherboard with two socket 370 PIII 
-866 processors. I picked up two 256MB PC-133 ECC modules. I proceeded 
-installed Linux on it and all was well. I believe my initial kernel was 
-approximately 2.6.12.
+http://marc.theaimsgroup.com/?l=linux-kernel&m=115124086410874&w=2
 
-At the end of May, things went awry. The machine had an interesting issue -- 
-it would beep 3 times, and then it would be hardlocked. I didn't have much 
-time to test the machine out as it was only a for-fun machine and I had 
-started a new job.
+Well, result is that NO_HZ indeed is the culprit for this CPU
+issue. /proc/interrupts showed the timer to be stuck on an initial 3044
+triggers after boot, while NMI: counted up almost as fast as LOC: (if
+that tells any tale). Observing "top -d 1" for awhile revealed SYS
+bursting (almost regularly alternating) between 50% and 100% CPU each 2
+to 3 seconds. In between it was 0. USER also had the same pattern, but
+with much longer duration. Perhaps 10 seconds from one show to the next.
 
-Well, I have more free time now, and I've narrowed down the bug I think. 
-Here's the situation:
+I've gotten the broken out hrt-dyntick1 patches so will be able to
+experiment on my own - slowly, on spare time.
 
-With a 2.6.15 and 2.6.16 kernel on Gentoo I would receive 3 beeps and it would 
-hardlock as I expained. The CPU fans shut off -- there's no hope of bringing 
-it out of this. Rarely it's happened at GRUB or before GRUB, but only when 
-I've been working on this for a long period of time. 
+I am of course available for any thoughts or trials you can come up
+with in the meantime.
 
-I've tried many live CDs -- most use recent 2.6 kernels, and I could repeat 
-nearly the same problem on them. It often occurs when starting networking. 
-I've tried onboard e100, tulip, and others that I have access to and I get 
-nearly the same results. Depending on the livecd I can either get a hardlock 
-+ 3 beeps, or I can receive an address via DHCP, but I can't speak to the 
-network at all. The e100 reports "system timing errors" in this occasion. On 
-some setups I can reproduce it instantly by having the network cable 
-unplugged and plugging it in after it's brought up the e100 interface.
-
-Now I was under the inital impression that I had bad hardware. I've 
-thouroughly tested my RAM and even replaced the motherboard with an identical 
-ASUS CUR-DLS, so right now I have two of them on my hands, and the one I just 
-got has the most recent BIOS, the other did not. The only hardware bug that I 
-can see is that one processor incorrectly reports its temperature -- stays 
-around 50 celcius all the time, but I figure that's just a bad sensor.
-
-I came to the conclusion it must be a 2.6 bug when I dropped in a Slackware CD 
-I just picked up recently. It uses a 2.4 kernel. To my surprise it worked 
-fine -- no hardlocks, network works great on all adapters, including onboard. 
-Very strange stuff indeed.
-
-Things I've tried with the 2.6 include apic/noapic, nosmp and swapped 
-processors to each other's slots, nolapic (dont think it actually works for 
-SMP though, I'm not sure on that one), and nearly every combination of them. 
-The only other thing I've noticed is that some livecds report an apic but 
-when initializing the kernel -- right at the very beginning, and it says to 
-report them to the hardware manufacturer and it claims to work around it.
-
-This motherboard uses the Serverworks chipset. I'm not using SCSI.
-
-I would really like to get this bug squashed -- I have a use for this system 
-and I'd really really prefer to use a 2.6 kernel. Now since I have an 
-identical motherboard on hand, if anyone is interested in figuring out what 
-is going on and would like hands on access to the hardware, I could get you 
-one of these motherboards. If you really don't have access to PIII's/RAM to 
-put in it, I could the whole setup off too, but I'd really like to get it 
-back if possible.
-
-I'm open to any suggestions you might have. As of this moment, I'm not on the 
-kernel mailing list, but I will be looking to sign up after I send this off. 
-
-Thank you for your time, and keep up the great work everyone :)
-
-
-Mark Felder
-
+Mvh
+Mats Johannesson

@@ -1,50 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752153AbWIXGje@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752170AbWIXGyM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752153AbWIXGje (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Sep 2006 02:39:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752155AbWIXGje
+	id S1752170AbWIXGyM (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Sep 2006 02:54:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752171AbWIXGyM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Sep 2006 02:39:34 -0400
-Received: from pasmtpa.tele.dk ([80.160.77.114]:57503 "EHLO pasmtpA.tele.dk")
-	by vger.kernel.org with ESMTP id S1752153AbWIXGje (ORCPT
+	Sun, 24 Sep 2006 02:54:12 -0400
+Received: from mail.aknet.ru ([82.179.72.26]:49932 "EHLO mail.aknet.ru")
+	by vger.kernel.org with ESMTP id S1752170AbWIXGyL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Sep 2006 02:39:34 -0400
-Date: Sun, 24 Sep 2006 08:44:47 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Al Viro <viro@ftp.linux.org.uk>
-Cc: Linus Torvalds <torvalds@osdl.org>, rolandd@cisco.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] missing includes from infiniband merge
-Message-ID: <20060924064446.GA13320@uranus.ravnborg.org>
-References: <20060923154416.GH29920@ftp.linux.org.uk> <20060923202912.GA22293@uranus.ravnborg.org> <20060923203605.GN29920@ftp.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060923203605.GN29920@ftp.linux.org.uk>
-User-Agent: Mutt/1.4.2.1i
+	Sun, 24 Sep 2006 02:54:11 -0400
+Message-ID: <45162BE5.2020100@aknet.ru>
+Date: Sun, 24 Sep 2006 10:55:33 +0400
+From: Stas Sergeev <stsp@aknet.ru>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
+MIME-Version: 1.0
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Hugh Dickins <hugh@veritas.com>, Andrew Morton <akpm@osdl.org>,
+       Ulrich Drepper <drepper@redhat.com>,
+       Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] remove MNT_NOEXEC check for PROT_EXEC mmaps
+References: <45150CD7.4010708@aknet.ru>	 <Pine.LNX.4.64.0609231555390.27012@blonde.wat.veritas.com>	 <451555CB.5010006@aknet.ru>	 <Pine.LNX.4.64.0609231647420.29557@blonde.wat.veritas.com> <1159037913.24572.62.camel@localhost.localdomain>
+In-Reply-To: <1159037913.24572.62.camel@localhost.localdomain>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Sep 23, 2006 at 09:36:05PM +0100, Al Viro wrote:
-> > A better fix would be to avoid the arch dependency in the non-arch .h
-> > files so that in most cases it just works??
-> 
-> What "it"?  Use of vmalloc() without including vmalloc.h since on i386
-> it just happens to be pulled via the
-> linux/pci.h -> linux/dmapool.h -> asm-i386/io.h -> linux/vmalloc.h
-> chain?
-The other way around. Try to get rid of the evil includes in arch-$(ASM)
-that is just sitting there for no other purpose than to let a developer skip
-a single include.
-In this case the right fix IMO would have been to kill the include of
-linux/vmalloc.h from asm-i386/io.h and let all users that previously failed
-to include vmalloc.h now do so themself.
+Hello.
 
-Looking through asm-i386/io.h at fist look there is zero use of
-linux/vmalloc.h so the include has no business there.
+Alan Cox wrote:
+> Agreed mprotect should also be fixed.
+Since "noexec" was already rendered useless - yes.
+Before, people could use it and hope the binaries
+won't get executed (and if it was possible to execute
+them by invoking ld.so directly, then ld.so could have
+been fixed). Now the only possibility is to not use the
+"noexec" at all.
+So does that add to security or substract?..
 
-With this your patch would obviously be needed and on top of this we would
-have to fix other places that 'forget' to include vmalloc.h but the good thing
-would be that this is now a bit more consistent across architectures.
-
-	Sam

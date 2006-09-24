@@ -1,78 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750984AbWIXOuM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751123AbWIXOwk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750984AbWIXOuM (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Sep 2006 10:50:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751123AbWIXOuM
+	id S1751123AbWIXOwk (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Sep 2006 10:52:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751143AbWIXOwj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Sep 2006 10:50:12 -0400
-Received: from hs-grafik.net ([80.237.205.72]:64014 "EHLO hs-grafik.net")
-	by vger.kernel.org with ESMTP id S1750984AbWIXOuK (ORCPT
+	Sun, 24 Sep 2006 10:52:39 -0400
+Received: from mail.aknet.ru ([82.179.72.26]:28433 "EHLO mail.aknet.ru")
+	by vger.kernel.org with ESMTP id S1751123AbWIXOwj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Sep 2006 10:50:10 -0400
-From: Alexander Gran <alex@grans.eu>
-To: Pavel Machek <pavel@ucw.cz>
-Subject: Re: usb still sucks battery in -rc7-mm1
-Date: Sun, 24 Sep 2006 16:49:59 +0200
-User-Agent: KMail/1.9.4
-Cc: kernel list <linux-kernel@vger.kernel.org>, Greg KH <greg@kroah.com>,
-       Linux usb mailing list 
-	<linux-usb-devel@lists.sourceforge.net>
-References: <20060924090858.GA1852@elf.ucw.cz>
-In-Reply-To: <20060924090858.GA1852@elf.ucw.cz>
-X-Face: ){635DT*1Z+Z}$~Bf[[i"X:f2i+:Za[:Q0<UzyJPoAm(;y"@=?utf-8?q?LwMhWM4=5D=60x1bDaQDpet=3B=3Be=0A=09N=5CBIb8o=5BF!fdHrI-=7E=24?=
- =?utf-8?q?ctS=3F!?=,U+0}](xD}_b]awZrK=>753Wk;RwhCU`Bt(I^/Jxl~5zIH<
- =?utf-8?q?=0A=09XplI=3A9GKEcr/JPqzW=3BR=5FqDQe*=23CE=7E70=3Bj=25Hg8CNh*4?=<
+	Sun, 24 Sep 2006 10:52:39 -0400
+Message-ID: <45169C0C.5010001@aknet.ru>
+Date: Sun, 24 Sep 2006 18:54:04 +0400
+From: Stas Sergeev <stsp@aknet.ru>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1854954.a6A7gc8YxQ";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Hugh Dickins <hugh@veritas.com>, Andrew Morton <akpm@osdl.org>,
+       Ulrich Drepper <drepper@redhat.com>,
+       Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] remove MNT_NOEXEC check for PROT_EXEC mmaps
+References: <45150CD7.4010708@aknet.ru>	 <Pine.LNX.4.64.0609231555390.27012@blonde.wat.veritas.com>	 <451555CB.5010006@aknet.ru>	 <Pine.LNX.4.64.0609231647420.29557@blonde.wat.veritas.com>	 <1159037913.24572.62.camel@localhost.localdomain>	 <45162BE5.2020100@aknet.ru> <1159106032.11049.12.camel@localhost.localdomain>
+In-Reply-To: <1159106032.11049.12.camel@localhost.localdomain>
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-Id: <200609241650.02922@zodiac.zodiac.dnsalias.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1854954.a6A7gc8YxQ
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Hello.
 
-Perhaps your cpu cannot go into deep c states? At least my IBm T40p has tha=
-t=20
-problem, when USB is enabled.
+Alan Cox wrote:
+> If you want a tmpfs with noexec and a shared memory space with exec why
+> don't you just sort out mounting two different tmpfs instances ?
+The one that goes to /dev/shm should allow PROT_EXEC, yet
+not allow executing the binaries with execve(). How?
+There may be other tmpfs instances, I think they are
+unaffected, but what to do with the /dev/shm one?
 
-regards
-Alex
-
-Am Sonntag, 24. September 2006 11:08 schrieb Pavel Machek:
-> Hi!
->
-> I made some quick experiments, and usb still eats 4W of battery
-> power. (With whole machine eating 9W, that's kind of a big deal)...
->
-> This particular machine has usb bluetooth, but it can be disabled by
-> firmware, and appears unplugged. (I did that). It also has fingerprint
-> scanner, that can't be disabled, but that does not have driver (only
-> driven by useland, and was unused in this experiment).
->
-> Any ideas?
-> 								Pavel
-
-=2D-=20
-Encrypted Mails welcome.
-PGP-Key at http://www.grans.eu/misc/pgpkey.asc | Key-ID: 0x6D7DD291
-More info at http://www.grans.eu/Alexander_Gran.html
-
---nextPart1854954.a6A7gc8YxQ
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
-
-iD8DBQBFFpsa/aHb+2190pERAhwqAJ0dwGKOvj8Vw2gS/5+ihi6XtsArNgCfXDvs
-NMTxSvWD6z4lpoISDyACfwY=
-=XFir
------END PGP SIGNATURE-----
-
---nextPart1854954.a6A7gc8YxQ--

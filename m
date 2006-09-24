@@ -1,84 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751261AbWIXWNe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751239AbWIXWNN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751261AbWIXWNe (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Sep 2006 18:13:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751264AbWIXWNe
+	id S1751239AbWIXWNN (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Sep 2006 18:13:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751258AbWIXWNN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Sep 2006 18:13:34 -0400
-Received: from out1.smtp.messagingengine.com ([66.111.4.25]:65480 "EHLO
-	out1.smtp.messagingengine.com") by vger.kernel.org with ESMTP
-	id S1751262AbWIXWNd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Sep 2006 18:13:33 -0400
-X-Sasl-enc: +1BIk2qpO0owTcT73m/zk0NTsVcuj1e3zEXzRxr0F6bz 1159136014
-Message-ID: <4517036C.2050803@imap.cc>
-Date: Mon, 25 Sep 2006 00:15:08 +0200
-From: Tilman Schmidt <tilman@imap.cc>
-Organization: me - organized??
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; de-AT; rv:1.8.0.6) Gecko/20060729 SeaMonkey/1.0.4 Mnenhy/0.7.4.666
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: linux-kernel@vger.kernel.org, Chris Mason <mason@suse.com>,
-       ext2-devel@lists.sourceforge.net, reiserfs-dev@namesys.com
+	Sun, 24 Sep 2006 18:13:13 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:55468 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1751239AbWIXWNM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Sep 2006 18:13:12 -0400
 Subject: Re: [2.6.18-rc7-mm1] slow boot
-References: <4516B966.3010909@imap.cc> <20060924145337.ae152efd.akpm@osdl.org>
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Tilman Schmidt <tilman@imap.cc>, linux-kernel@vger.kernel.org,
+       Chris Mason <mason@suse.com>, ext2-devel@lists.sourceforge.net,
+       reiserfs-dev@namesys.com
 In-Reply-To: <20060924145337.ae152efd.akpm@osdl.org>
-X-Enigmail-Version: 0.94.1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enigA8DF09CCB0AC2DFA94F3BE57"
+References: <4516B966.3010909@imap.cc>
+	 <20060924145337.ae152efd.akpm@osdl.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Sun, 24 Sep 2006 23:36:41 +0100
+Message-Id: <1159137402.11049.40.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enigA8DF09CCB0AC2DFA94F3BE57
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
+Ar Sul, 2006-09-24 am 14:53 -0700, ysgrifennodd Andrew Morton:
+> I've *never* seen any reports of any problems being caused by disk
+> writeback caching.  Yes, it's a theoretical problem but for some reason it
+> just doesn't seem to be a problem in practice.  Hence I'm really reluctant
+> to go and slow everyone's machines down so much in this manner.
 
-On 24.09.2006 23:53, Andrew Morton wrote:
-> make-ext3-mount-default-to-barrier=3D1.patch takes my laptop's bootup t=
-ime
-> from 53 seconds to 68, which is rather painful.  In fact I'm inclined t=
-o
-> drop the patch because of this, and I'd also be quite concerned about t=
-he
-> similar reiserfs patch, make-reiserfs-default-to-barrier=3Dflush.patch.=
+It happens in some cases, the usual one is sudden loss of power. In the
+crashed box cases the disk still gets to write data back and in the
+Linux power off sanely cases we explicitly cache flush. Its the sudden
+loss of power case that is nasty.
 
+We are also helped of course by the fact the cache is never more than
+can be flushed in about 7 seconds because of other-os features.
 
-ReiserFS would be the relevant one for me. I'll go and see what
-happens if I revert that one, then.
-
-> But apart from that problem I see no differences in bootup time between=
-
-> 2.6.18 and 2.6.18-mm1.
->=20
-> Do you have the time to go through the
-> http://www.zip.com.au/~akpm/linux/patches/stuff/bisecting-mm-trees.txt
-> process?
-
-I can't promise anything in the short term, but I'll try.
-
-Thanks
-Tilman
-
---=20
-Tilman Schmidt                          E-Mail: tilman@imap.cc
-Bonn, Germany
-Diese Nachricht besteht zu 100% aus wiederverwerteten Bits.
-Ungeoeffnet mindestens haltbar bis: (siehe Rueckseite)
-
-
---------------enigA8DF09CCB0AC2DFA94F3BE57
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.3rc1 (MingW32)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
-
-iD4DBQFFFwNsMdB4Whm86/kRAvXZAJ9nChCgwFrGmJF0wD//0+fBA6ADJwCYrSjB
-uLsoO0reGnShtOwcfw4A+g==
-=OYVh
------END PGP SIGNATURE-----
-
---------------enigA8DF09CCB0AC2DFA94F3BE57--

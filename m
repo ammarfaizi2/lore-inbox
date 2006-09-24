@@ -1,39 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752100AbWIXEBi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752104AbWIXETe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752100AbWIXEBi (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Sep 2006 00:01:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752105AbWIXEBi
+	id S1752104AbWIXETe (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Sep 2006 00:19:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752105AbWIXETe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Sep 2006 00:01:38 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:64224 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1752100AbWIXEBf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Sep 2006 00:01:35 -0400
-Date: Sat, 23 Sep 2006 21:01:12 -0700
-From: Stephen Hemminger <shemminger@osdl.org>
-To: Joerg Roedel <joro-lkml@zlug.org>
-Cc: Patrick McHardy <kaber@trash.net>, davem@davemloft.net,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Subject: Re: [PATCH 02/03] net/bridge: add support for EtherIP devices
-Message-ID: <20060923210112.130938ca@localhost.localdomain>
-In-Reply-To: <20060923121629.GC32284@zlug.org>
-References: <20060923120704.GA32284@zlug.org>
-	<20060923121629.GC32284@zlug.org>
-X-Mailer: Sylpheed-Claws 2.4.0 (GTK+ 2.8.20; x86_64-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sun, 24 Sep 2006 00:19:34 -0400
+Received: from kishna.firstlight.net ([63.80.208.5]:62165 "EHLO
+	kishna.firstlight.net") by vger.kernel.org with ESMTP
+	id S1752104AbWIXETd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Sep 2006 00:19:33 -0400
+Date: Sat, 23 Sep 2006 21:19:31 -0700 (PDT)
+From: Neil Whelchel <koyama@firstlight.net>
+To: linux-kernel@vger.kernel.org
+Subject: Kernel panic with two BTTV cards
+Message-ID: <Pine.LNX.4.44.0609232118180.29847-100000@kishna.firstlight.net>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 23 Sep 2006 14:16:29 +0200
-Joerg Roedel <joro-lkml@zlug.org> wrote:
+Hello,
+I have a Dual Xeon box with a Broadcom CIOB-X2 chipset with two BT878
+cards installed. All is well until I start using both cards at the same
+time. After a random period of time (5 min to 10 hr) I get a random kernel
+panic that completely freezes the machine. This has never occurred when I
+am
+using only one of the two installed cards at a time. I have also tried
+this with TB848 cards as well with the same problem.
+This problem has persisted through every version of the kernel I have
+tested so far.
+2.6.12 SMP
+2.6.13.1 SMP
+2.6.14.3 SMP
+2.6.17.11 SMP
+I have tried all of these with Preemption and no Preemption.
+Any thoughts?
 
-> This patch changes the device check in the bridge code to allow EtherIP
-> devices to be added.
-> 
-> Signed-off-by: Joerg Roedel <joro-lkml@zlug.org>
 
-If the device looks like a duck (Ethernet), then why does it need
-a separate ARP type.  There are other tools that might work without
-modification if it just fully pretended to be an ether device.
+-Neil Whelchel-
+First Light Internet Services
+760 366-0145 Ext 601
+- I don't do Window$, that's what the janitor is for -
+
+Beware the new TTY code!
+
+
+-Neil Whelchel-
+First Light Internet Services
+760 366-0145 Ext 601
+- I don't do Window$, that's what the janitor is for -
+
+A debugged program is one for which you have not yet found the conditions
+that make it fail.
+		-- Jerry Ogdin
+

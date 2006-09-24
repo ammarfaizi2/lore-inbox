@@ -1,48 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750981AbWIXOef@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751101AbWIXOiw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750981AbWIXOef (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Sep 2006 10:34:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751086AbWIXOef
+	id S1751101AbWIXOiw (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Sep 2006 10:38:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751096AbWIXOiw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Sep 2006 10:34:35 -0400
-Received: from nf-out-0910.google.com ([64.233.182.187]:12911 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1750981AbWIXOef (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Sep 2006 10:34:35 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=googlemail.com;
-        h=received:from:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=cPGV2HFv4yTW8LQ0Ul5qL1WQqwbtgwvfh0kbV2ZZ99M0mp4xe4FWImXAeh/bIrEwZNzgzA8yJS7nDxKCnVCZTG2nZct9YAiEiNXmpyES68Eu0b719U6hv9aJ/rbfLJFJTMfwfJvpZAkiHl8fRYQuQpKCmAmogKwkBpZGniCA8hM=
-From: Denis Vlasenko <vda.linux@googlemail.com>
-To: James Cloos <cloos@jhcloos.com>
-Subject: Re: bzImage too big to boot???
-Date: Sun, 24 Sep 2006 16:33:14 +0200
-User-Agent: KMail/1.8.2
-Cc: linux-kernel@vger.kernel.org
-References: <m37iztv6y1.fsf@lugabout.jhcloos.org>
-In-Reply-To: <m37iztv6y1.fsf@lugabout.jhcloos.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Sun, 24 Sep 2006 10:38:52 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:1209 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751101AbWIXOiv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Sep 2006 10:38:51 -0400
+Date: Sun, 24 Sep 2006 20:08:38 +0530
+From: Dipankar Sarma <dipankar@in.ibm.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, Paul E McKenney <paulmck@us.ibm.com>,
+       Ingo Molnar <mingo@elte.hu>
+Subject: Re: [-mm PATCH] RCU: various patches
+Message-ID: <20060924143838.GA22448@in.ibm.com>
+Reply-To: dipankar@in.ibm.com
+References: <20060923152957.GA13432@in.ibm.com> <20060923185636.GA18156@in.ibm.com> <20060924030106.GA7569@in.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200609241633.14250.vda.linux@googlemail.com>
+In-Reply-To: <20060924030106.GA7569@in.ibm.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 24 September 2006 13:29, James Cloos wrote:
-> I don't know whether this is a build-time issue or a grub issue, but
-> I've found that on my (pent-3m) laptop I cannot boot any kernel that
-> is larger than about 2500 K.  (2504K boots, 2552K fails.)
+On Sun, Sep 24, 2006 at 08:31:06AM +0530, Dipankar Sarma wrote:
+> On Sun, Sep 24, 2006 at 12:26:36AM +0530, Dipankar Sarma wrote:
+> > On Sat, Sep 23, 2006 at 08:59:57PM +0530, Dipankar Sarma wrote:
+> > > This patchset consists of various merge candidates that would
+> > > do well to have some testing in -mm. This patchset breaks
+> > > out RCU implementation from its APIs to allow multiple
+> > > implementations, gives RCU its own softirq and finally
+> > > lines up preemptible RCU from -rt tree as a configurable
+> > > RCU implementation for mainline. Published earlier and
+> > > re-diffed against -mm.
+> > > 
+> > 
+> > I forgot that some of the 2.6.18-rc7-mm1 has a few patches
+> > that have been merged. So, I should diff against that so that
+> > including these in -mm will be easy. Patches will follow tomorrow.
 > 
-> Past that threshold grub complains:  ERR_BAD_FILETYPE.
+> The latest diffs are here -
 > 
-> A 2504 K bzImage translates to a 6128 K vmlinux, 2552 K to 6252 K.
+> http://www.hill9.org/linux/kernel/patches/2.6.18-rc7-mm1/
 > 
-> Should bzImages that large be bootable on x86?
+> The series file specifies the order.
 
-Yes. I can boot 3MB bzImage with lilo and with linld,
-although lilo seems to have some trouble with initrd
-with kernel images that large.
---
-vda
+Please ignore this patchset for a moment. I will resend a more
+complete and more tested patchset against 2.6.18-mm1.
+
+Thanks
+Dipankar

@@ -1,56 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752104AbWIXETe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752117AbWIXE2z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752104AbWIXETe (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Sep 2006 00:19:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752105AbWIXETe
+	id S1752117AbWIXE2z (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Sep 2006 00:28:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752118AbWIXE2z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Sep 2006 00:19:34 -0400
-Received: from kishna.firstlight.net ([63.80.208.5]:62165 "EHLO
-	kishna.firstlight.net") by vger.kernel.org with ESMTP
-	id S1752104AbWIXETd (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Sep 2006 00:19:33 -0400
-Date: Sat, 23 Sep 2006 21:19:31 -0700 (PDT)
-From: Neil Whelchel <koyama@firstlight.net>
-To: linux-kernel@vger.kernel.org
-Subject: Kernel panic with two BTTV cards
-Message-ID: <Pine.LNX.4.44.0609232118180.29847-100000@kishna.firstlight.net>
+	Sun, 24 Sep 2006 00:28:55 -0400
+Received: from py-out-1112.google.com ([64.233.166.176]:14773 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S1752117AbWIXE2y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Sep 2006 00:28:54 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=jUFJvEPiY85sCJ2A4zRtuYV2JowZ7x2/SLU923WNNDhQpEwM22j6A/Y/zUyhIWpN0SHsEphypGnvQptBWGTD82Vv97cFG++sHBxTem8tfVXCmuw7mmxW34GCqO3y3d4tOIp0vodoEBr5HJQI5NnovwyOFw5zqLxD+kSc8Pn78Nc=
+Message-ID: <6d6a94c50609232128o52d1f92br58f598587f4e1f06@mail.gmail.com>
+Date: Sun, 24 Sep 2006 12:28:53 +0800
+From: Aubrey <aubreylee@gmail.com>
+To: "Randy Dunlap" <rdunlap@xenotime.net>
+Subject: Re: [PATCH 1/4] Blackfin: arch patch for 2.6.18
+Cc: "Arnd Bergmann" <arnd@arndb.de>, "Luke Yang" <luke.adi@gmail.com>,
+       linux-kernel@vger.kernel.org, "Andrew Morton" <akpm@osdl.org>
+In-Reply-To: <20060923205008.618156a0.rdunlap@xenotime.net>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <489ecd0c0609202032l1c5540f7t980244e30d134ca0@mail.gmail.com>
+	 <200609230218.36894.arnd@arndb.de>
+	 <6d6a94c50609232035x4025672dg4f02b3bcceb6d531@mail.gmail.com>
+	 <20060923205008.618156a0.rdunlap@xenotime.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
-I have a Dual Xeon box with a Broadcom CIOB-X2 chipset with two BT878
-cards installed. All is well until I start using both cards at the same
-time. After a random period of time (5 min to 10 hr) I get a random kernel
-panic that completely freezes the machine. This has never occurred when I
-am
-using only one of the two installed cards at a time. I have also tried
-this with TB848 cards as well with the same problem.
-This problem has persisted through every version of the kernel I have
-tested so far.
-2.6.12 SMP
-2.6.13.1 SMP
-2.6.14.3 SMP
-2.6.17.11 SMP
-I have tried all of these with Preemption and no Preemption.
-Any thoughts?
-
-
--Neil Whelchel-
-First Light Internet Services
-760 366-0145 Ext 601
-- I don't do Window$, that's what the janitor is for -
-
-Beware the new TTY code!
-
-
--Neil Whelchel-
-First Light Internet Services
-760 366-0145 Ext 601
-- I don't do Window$, that's what the janitor is for -
-
-A debugged program is one for which you have not yet found the conditions
-that make it fail.
-		-- Jerry Ogdin
-
+On 9/24/06, Randy Dunlap <rdunlap@xenotime.net> wrote:
+> On Sun, 24 Sep 2006 11:35:31 +0800 Aubrey wrote:
+>
+> > On 9/23/06, Arnd Bergmann <arnd@arndb.de> wrote:
+> > > > +static uint32_t reloc_stack_operate(unsigned int oper, struct module *mod)
+> > > > +{
+> > > > +     uint32_t value;
+> > > > +     switch (oper) {
+> > > > +     case R_add:
+> > > > +             {
+> > > > +                     value =
+> > > > +                         reloc_stack[reloc_stack_tos - 2] +
+> > > > +                         reloc_stack[reloc_stack_tos - 1];
+> > > > +                     reloc_stack_tos -= 2;
+> > > > +                     break;
+> > > > +             }
+> > >
+> > > no need for the curly braces here and below
+> >
+> > Hmm, but we need one line < 80 columns, don't we?
+>
+> Yes (preferably), but:
+> The braces for case R_add above simply aren't needed at all.
+> And after they are removed, you can indent the remaining code
+> one less tab stop.
+>
+Yeah, the braces for case should be removed. Done.

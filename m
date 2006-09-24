@@ -1,81 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751313AbWIXRkW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751315AbWIXRqz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751313AbWIXRkW (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Sep 2006 13:40:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751315AbWIXRkW
+	id S1751315AbWIXRqz (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Sep 2006 13:46:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751316AbWIXRqy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Sep 2006 13:40:22 -0400
-Received: from wx-out-0506.google.com ([66.249.82.235]:24752 "EHLO
-	wx-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1751313AbWIXRkV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Sep 2006 13:40:21 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=G7LCuUWrvMzoxQSRi5GkbN5ebnxbBKZAGLKrX8V20m0iB/0lBeF50w6wbkgzQj++HdsaHpn454vyAS0LVkjFUQLSUnSH50uBtIrUvDnyzMVICuBvMRi1PtcuYiGuntPvtak+JYRS5HFtQ60XAFOEkEpryd+hB8gF1pj0XzFwbCU=
-Message-ID: <fbf7c10b0609241040j10bef8a0qce1d95d8cd98f981@mail.gmail.com>
-Date: Sun, 24 Sep 2006 13:40:19 -0400
-From: "Ryan Moszynski" <ryan.m.lists@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Re: /drivers/usb/class/cdc-acm.c patch question, please cc
-Cc: "Oliver Neukum" <oliver@neukum.org>, "David Kubicek" <dave@awk.cz>,
-       greg@kroah.com
-In-Reply-To: <200609241526.48659.oliver@neukum.org>
+	Sun, 24 Sep 2006 13:46:54 -0400
+Received: from cweiske.de ([80.237.146.62]:49582 "EHLO mail.cweiske.de")
+	by vger.kernel.org with ESMTP id S1751315AbWIXRqy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Sep 2006 13:46:54 -0400
+Message-ID: <4516C4B9.5010509@cweiske.de>
+Date: Sun, 24 Sep 2006 19:47:37 +0200
+From: Christian Weiske <cweiske@cweiske.de>
+User-Agent: My own hands[TM] Mnenhy/0.7.4.0
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <fbf7c10b0609221445q1329eb5bsfe304c02f7f336db@mail.gmail.com>
-	 <200609241526.48659.oliver@neukum.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, reiserfs-dev@namesys.com,
+       Ingo Molnar <mingo@elte.hu>, Nick Piggin <nickpiggin@yahoo.com.au>
+Subject: Re: 2.6.18 BUG: unable to handle kernel NULL pointer dereference
+ at virtual address 000,0000a
+References: <45155915.7080107@cweiske.de>	<20060923134244.e7b73826.akpm@osdl.org>	<451677FE.2070409@cweiske.de> <20060924095029.0262a2c8.akpm@osdl.org>
+In-Reply-To: <20060924095029.0262a2c8.akpm@osdl.org>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enig65069F579F1F56CE47AFA95F"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-sorry guys, my bad.
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enig65069F579F1F56CE47AFA95F
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: quoted-printable
 
-I just compiled 2.6.18 again with my stock config, and everything
-worked. With 2.6.15 i had to recompile using the patch and load these
-in /etc/modules in order for my card to work at full speed.
-
-######
-ohci-hcd
-usbserial vendor=0x0c88 product=0x17da maxSize=2048
-cdc_acm maxszr=16384 maxszw=2048
-#######
-
-however, now, at boot the kernel loads the 'airprime' driver, and
-everything works without any manual module loading.  Yay.  2.6.15 had
-the airprime driver, but i guess it didn't recognize my card at that
-point.
-
-However, to get this(and i would guess any other evdo) card to work,
-you still have set up 4 config files:
-
-######
-etc/ppp/chap-secrets
-etc/ppp/peers/verizon
-etc/chatscripts/verizon-connect
-etc/chatscripts/verizon-disconnect
-#######
-
-which makes it a lot more labor intensive to set up for the first time
-than it is in windows, but at least everything works.
+Andrew,
 
 
+> I assume that you have confirmed that the machine doesn't have hardware=
 
-On 9/24/06, Oliver Neukum <oliver@neukum.org> wrote:
-> Am Freitag, 22. September 2006 23:45 schrieb Ryan Moszynski:
-> > since 2.6.14 i have been applying the following patch and recompiling
-> > my kernel so
-> > that i can use my verizon kpc650 evdo card with my laptop. I've
-> > applied this patch
-> > succesfully on 2.6.14 and 2.6.15. It works great and I have no problems. I am
-> > trying to apply the patch to 2.6.18 but it fails, and i don't want to
-> > break anything,
->
-> First give me a description of your device. Secondly, we'll try
-> to find a generic solution. Thirdly, if nothing else helps, we'll add
-> a generic quirk to the driver.
->
->         Regards
->                 Oliver
->
+> problems?  Does it run some earlier kernel OK? =20
+The disks are both fine, they worked in other pcs without problems. The
+ide controller card also worked fine, and the motherboard is new -
+whatever you can expect with that. Maybe the combination is the problem.
+
+I had some problems after running the machine for some days but I
+thought that wasn't a hardware but more a kernel timing problem:
+http://bugzilla.kernel.org/show_bug.cgi?id=3D6969
+
+
+> And how long does it take to crash?
+After starting the yacy daemon, it's about half a minute until the
+"possible recursive locking detected" appears, and after one or two
+minutes the whole thing crashes.
+
+
+--=20
+Regards/MfG,
+Christian Weiske
+
+
+--------------enig65069F579F1F56CE47AFA95F
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2.2 (GNU/Linux)
+
+iD8DBQFFFsS9FMhaCCTq+CMRAuYYAKDnyRzWp28z5XsrrBSwFRaiVBGvCgCdEj+2
+Y4rvq+AQfN6pamFz/Sj029Q=
+=x7lH
+-----END PGP SIGNATURE-----
+
+--------------enig65069F579F1F56CE47AFA95F--

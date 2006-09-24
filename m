@@ -1,49 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750861AbWIXQul@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751104AbWIXQzT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750861AbWIXQul (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Sep 2006 12:50:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750987AbWIXQul
+	id S1751104AbWIXQzT (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Sep 2006 12:55:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751146AbWIXQzS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Sep 2006 12:50:41 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:3238 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750861AbWIXQuk (ORCPT
+	Sun, 24 Sep 2006 12:55:18 -0400
+Received: from w241.dkm.cz ([62.24.88.241]:14484 "EHLO machine.or.cz")
+	by vger.kernel.org with ESMTP id S1751134AbWIXQzR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Sep 2006 12:50:40 -0400
-Date: Sun, 24 Sep 2006 09:50:29 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Christian Weiske <cweiske@cweiske.de>
-Cc: linux-kernel@vger.kernel.org, reiserfs-dev@namesys.com,
-       Ingo Molnar <mingo@elte.hu>, Nick Piggin <nickpiggin@yahoo.com.au>
-Subject: Re: 2.6.18 BUG: unable to handle kernel NULL pointer dereference at
- virtual address 000,0000a
-Message-Id: <20060924095029.0262a2c8.akpm@osdl.org>
-In-Reply-To: <451677FE.2070409@cweiske.de>
-References: <45155915.7080107@cweiske.de>
-	<20060923134244.e7b73826.akpm@osdl.org>
-	<451677FE.2070409@cweiske.de>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sun, 24 Sep 2006 12:55:17 -0400
+Date: Sun, 24 Sep 2006 18:55:15 +0200
+From: Petr Baudis <pasky@suse.cz>
+To: linux-kernel@vger.kernel.org
+Cc: git@vger.kernel.org
+Subject: Re: 2.6.18-mm1
+Message-ID: <20060924165515.GX13132@pasky.or.cz>
+References: <20060924040215.8e6e7f1a.akpm@osdl.org> <20060924124647.GB25666@flint.arm.linux.org.uk> <20060924132213.GE11916@pasky.or.cz> <20060924142005.GF25666@flint.arm.linux.org.uk> <20060924142958.GU13132@pasky.or.cz> <20060924144710.GG25666@flint.arm.linux.org.uk>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060924144710.GG25666@flint.arm.linux.org.uk>
+X-message-flag: Outlook : A program to spread viri, but it can do mail too.
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 24 Sep 2006 14:20:14 +0200
-Christian Weiske <cweiske@cweiske.de> wrote:
-
-> > It would be interesting to find out if enabling CONFIG_4KSTACKS makes this
-> > go away (although I'm not sure why).
-> So, here are the results from the 4K runs:
+Dear diary, on Sun, Sep 24, 2006 at 04:47:10PM CEST, I got a letter
+where Russell King <rmk+lkml@arm.linux.org.uk> said that...
+> On Sun, Sep 24, 2006 at 04:29:58PM +0200, Petr Baudis wrote:
+> > Dear diary, on Sun, Sep 24, 2006 at 04:20:06PM CEST, I got a letter
+> > where Russell King <rmk+lkml@arm.linux.org.uk> said that...
+> > > I'm now told that the resulting tree after all the commits is correct.
+> > > The problem is that all the files which were supposed to be deleted by
+> > > previous patches ended up actually being deleted by the final patch in
+> > > the series.
+> > > 
+> > > So the resulting tree is fine, it's just that the history is rather
+> > > broken.
+> > 
+> > Well, that rewritehist batch should work fine even in this case.
+> > 
+> > (Of course that's assuming that no change was supposed to happen to
+> > those files in the last four days.)
+> > 
+> > > I think a solution to this might be to use git-apply, but there's one
+> > > draw back - I currently have the facility to unpatch at a later date,
+> > > but git-apply doesn't support -R.
+> > 
+> > Yes, if there's not too many patches perhaps using git-apply -R would be
+> > simpler. git-apply in git-1.4.2.1 does support -R.
 > 
-> Beside one Oops message, I got a "kernel BUG at mm/slab.c:2747!" in log
-> #1. Call traces as usual.
+> I'm just experimenting with git-apply for the forward case, and I'm
+> hitting a small problem.  I can do:
 > 
-> Further, logs #2 and #3 show funny things; the thing just rebooted. Log
-> #2 has some oversized ethernet frames before the reboot.
+> 	cat patch | git-apply --stat
+> 
+> then I come to commit it:
+> 
+> 	git commit -F -
+> 
+> but if I just use that, _all_ changes which happen to be in the tree
+> get committed, not just those which are in the index file.  Manually
+> doing each step of the commit is far too much work in perl...
 
-I assume that you have confirmed that the machine doesn't have hardware
-problems?  Does it run some earlier kernel OK?  
+Hmm, I'm sorry but I'm not all that well-versed in git commit inner
+workings. The best way to get help is to cc' git@vger.kernel.org.
 
-And how long does it take to crash?
+According to git-commit documentation, when you do what you wrote you
+use, it _should_ commit just the index file...
 
-Thanks.
+-- 
+				Petr "Pasky" Baudis
+Stuff: http://pasky.or.cz/
+#!/bin/perl -sp0777i<X+d*lMLa^*lN%0]dsXx++lMlN/dsM0<j]dsj
+$/=unpack('H*',$_);$_=`echo 16dio\U$k"SK$/SM$n\EsN0p[lN*1
+lK[d2%Sa2/d0$^Ixp"|dc`;s/\W//g;$_=pack('H*',/((..)*)$/)

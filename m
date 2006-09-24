@@ -1,67 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932086AbWIXUr3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932088AbWIXUwR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932086AbWIXUr3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Sep 2006 16:47:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932087AbWIXUr3
+	id S932088AbWIXUwR (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Sep 2006 16:52:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932089AbWIXUwR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Sep 2006 16:47:29 -0400
-Received: from pasmtpa.tele.dk ([80.160.77.114]:60371 "EHLO pasmtpA.tele.dk")
-	by vger.kernel.org with ESMTP id S932086AbWIXUr3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Sep 2006 16:47:29 -0400
-Date: Sun, 24 Sep 2006 22:52:44 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Al Viro <viro@ftp.linux.org.uk>
-Cc: Linus Torvalds <torvalds@osdl.org>, rolandd@cisco.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] missing includes from infiniband merge
-Message-ID: <20060924205244.GA26774@uranus.ravnborg.org>
-References: <20060923154416.GH29920@ftp.linux.org.uk> <20060923202912.GA22293@uranus.ravnborg.org> <20060923203605.GN29920@ftp.linux.org.uk> <20060924064446.GA13320@uranus.ravnborg.org> <20060924191917.GQ29920@ftp.linux.org.uk>
+	Sun, 24 Sep 2006 16:52:17 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:45216 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S932088AbWIXUwQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Sep 2006 16:52:16 -0400
+Subject: Re: [S390] remove old z90crypt driver.
+From: David Woodhouse <dwmw2@infradead.org>
+To: Martin Schwidefsky <schwidefsky@de.ibm.com>, akpm@osdl.org
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <200609222101.k8ML1w93019317@hera.kernel.org>
+References: <200609222101.k8ML1w93019317@hera.kernel.org>
+Content-Type: text/plain
+Date: Sun, 24 Sep 2006 21:51:55 +0100
+Message-Id: <1159131115.24527.956.camel@pmac.infradead.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060924191917.GQ29920@ftp.linux.org.uk>
-User-Agent: Mutt/1.4.2.1i
+X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5.dwmw2.1) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Sep 24, 2006 at 08:19:17PM +0100, Al Viro wrote:
+On Fri, 2006-09-22 at 21:01 +0000, Linux Kernel Mailing List wrote:
+> [S390] remove old z90crypt driver.
 > 
-> > Looking through asm-i386/io.h at fist look there is zero use of
-> > linux/vmalloc.h so the include has no business there.
+> The z90crypt driver has served its term. It is replaced by the shiny
+> new zcrypt device driver.
 > 
-> There are obvious asm/page.h uses, so just ripping it out won't be enough.
-> Even for that particular case.  And we have shitloads of places were
-> asm-foo/bar.h genuinely needs linux/baz.h for e.g. implementation of
-> an inlined helper.  With other targets not needing it at all.  Would you
-> mandate including it from every user of asm/foo.h?  And maintain such
-> rules afterwards ("asm/foo.h needs linux/baz.h included before it since
-> on $WEIRD_TARGET we include asm/unique_turd.h that won't compile unless
-> linux/baz.h will be aready there").
+> Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 
-The only thing I like to see is minimal suprise. And minimal suprise in
-this case is to be considered as "works on almost all archs if not all".
-In practical terms it could be that users of asm/* had to include
-baz.h before bar.h. Or we could stick to current mess where one has
-to have a shitload of crosscompiles and CPU power to check even trivial
-changes to a few include files.
+You neglected to remove the defunct z90crypt.h from
+include/asm-s390/Kbuild, breaking 'make headers_install' on s390.
 
-Partly this could be fixed by making header files in asm-$(ARCH)
-second class citizen - that always got included via their linux/
-counterpart.
+You also neglected to export the new asm/zcrypt.h too. This should fix
+both:
 
-Take a look at uaccess.h for example.
-A grep shows that most architectures include almost the same header files
-with a few that require string.h.
-So it would be so simple to move the include of string.h to the
-linux/uaccess.h counter part and no arch specific dependencies.
+Signed-off-by: David Woodhouse <dwmw2@infradead.org>
 
-Grepping the tree I only find one user of linux/uaccess.h : filemap.*
-But even though my point holds that there are easy way to deal with this
-without the maintenace nightmare you try to picture up.
+--- a/include/asm-s390/Kbuild
++++ b/include/asm-s390/Kbuild
+@@ -6,7 +6,7 @@ header-y += qeth.h
+ header-y += tape390.h
+ header-y += ucontext.h
+ header-y += vtoc.h
+-header-y += z90crypt.h
++header-y += zcrypt.h
 
-That said this would maybe work in two third of the cases and is no
-bullet proof solution. But each time we can decrease the arch differences
-we are one step in the right direction.
+ unifdef-y += cmb.h
+ unifdef-y += debug.h
 
-	Sam
+-- 
+dwmw2
+

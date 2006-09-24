@@ -1,60 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751909AbWIXJ3b@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751849AbWIXJ7a@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751909AbWIXJ3b (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Sep 2006 05:29:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751913AbWIXJ3b
+	id S1751849AbWIXJ7a (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Sep 2006 05:59:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751865AbWIXJ73
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Sep 2006 05:29:31 -0400
-Received: from cweiske.de ([80.237.146.62]:40347 "EHLO mail.cweiske.de")
-	by vger.kernel.org with ESMTP id S1751909AbWIXJ3b (ORCPT
+	Sun, 24 Sep 2006 05:59:29 -0400
+Received: from mail.aknet.ru ([82.179.72.26]:25618 "EHLO mail.aknet.ru")
+	by vger.kernel.org with ESMTP id S1751849AbWIXJ73 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Sep 2006 05:29:31 -0400
-Message-ID: <45165027.3040208@cweiske.de>
-Date: Sun, 24 Sep 2006 11:30:15 +0200
-From: Christian Weiske <cweiske@cweiske.de>
-User-Agent: My own hands[TM] Mnenhy/0.7.4.0
+	Sun, 24 Sep 2006 05:59:29 -0400
+Message-ID: <45165755.8070607@aknet.ru>
+Date: Sun, 24 Sep 2006 14:00:53 +0400
+From: Stas Sergeev <stsp@aknet.ru>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Cc: reiserfs-dev@namesys.com
-Subject: Re: 2.6.18 BUG: unable to handle kernel NULL pointer dereference
- at virtual address 000,0000a
-References: <45155915.7080107@cweiske.de> <20060923134244.e7b73826.akpm@osdl.org> <45164BA6.60200@cweiske.de>
-In-Reply-To: <45164BA6.60200@cweiske.de>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enigCB9758878A0453097C420314"
+To: Hugh Dickins <hugh@veritas.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Morton <akpm@osdl.org>,
+       Ulrich Drepper <drepper@redhat.com>,
+       Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] remove MNT_NOEXEC check for PROT_EXEC mmaps
+References: <45150CD7.4010708@aknet.ru>  <Pine.LNX.4.64.0609231555390.27012@blonde.wat.veritas.com>  <451555CB.5010006@aknet.ru>  <Pine.LNX.4.64.0609231647420.29557@blonde.wat.veritas.com> <1159037913.24572.62.camel@localhost.localdomain> <45162BE5.2020100@aknet.ru> <Pine.LNX.4.64.0609241009020.17400@blonde.wat.veritas.com>
+In-Reply-To: <Pine.LNX.4.64.0609241009020.17400@blonde.wat.veritas.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enigCB9758878A0453097C420314
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: quoted-printable
+Hi.
 
-> I put the logs in a tar.bz2 because I didn't want to flood the list wit=
-h
-> a 200k message.
+Hugh Dickins wrote:
+>> Since "noexec" was already rendered useless - yes.
+> I'm very puzzled.  The intention of "noexec" is to prevent execution
+> of files on that mount.  You're saying it's useless because it's
+That was actually a bad english on my side, sorry
+(English is not my native lang). Instead of "useless"
+I meant to say "changed to the point where it cannot be
+effectively used any more".
 
-In case the bz2 didn't make it through the list:
-http://xml.cweiske.de/dojo%20kernelpanic%20+%20debug.tar.bz2
+> preventing execution of files on that mount?
+What exactly the "execution" consist of here? You are
+not going to prevent an execution of some perl scripts
+etc, dont you? So IMHO that applies to only the execution
+of the native binaries, ie, similair to just removing the
+exec permission from all the files on that partition. Or
+at least that's how I understand it. And clearing an exec
+permission doesn't disable PROT_EXEC, AFAIK.
 
---=20
-Regards/MfG,
-Christian Weiske
+> It seems to me that
+> you simply have a mount where "noexec" presents more problems than
+> it solves: so don't use it there.
+I am not at all an expert in a security but I think the point
+of "noexecing" the partitions was to make it difficult for an
+attacker to put his own binaries somewhere and execute them.
+In this case (but I may be wrong) leaving tmpfs without noexec
+prevents that goal from being achieved even if all the other
+writeable partitions are noexeced, because an attacker will
+use /dev/shm for his binaries then. Just my guesses though.
 
+> That doesn't mean it's useless:
+> not every mmap involves PROT_EXEC, not every mount demands execution.
+I think it is now more useless than before because that
+restriction breaks *only* the properly written apps, while
+the malicious ones are completely unaffected. That forces
+the people to use it rarely than before (not on tmpfs), and
+so it looses its use almost completely, leaving at least that
+partition executable.
+Why only the properly-written apps breaks is because they use
+MAP_SHARED - that you *can* effectively protect from PROT_EXEC,
+provided you restrict also mprotect(). The malicious apps are
+unaffected because they will not use MAP_SHARED, but instead
+just read() the binary into the anonymously mapped area with
+PROT_EXEC set. ld.so could certainly do that work on his own,
+but I don't know how difficult it could be. (I guess it could
+retrieve the "noexec" flag from /proc/mounts or something like
+that, instead of trying PROT_EXEC and see if it fails).
 
---------------enigCB9758878A0453097C420314
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2.2 (GNU/Linux)
-
-iD8DBQFFFlArFMhaCCTq+CMRAlUjAKDC8mPwnP28XXQ04Pg4M9FFvJeE1wCgzwO5
-RjLybgOZ+o8AgBWANfasUM0=
-=g+YY
------END PGP SIGNATURE-----
-
---------------enigCB9758878A0453097C420314--

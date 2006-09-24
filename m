@@ -1,40 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752063AbWIXSH6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751334AbWIXSOn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752063AbWIXSH6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Sep 2006 14:07:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752130AbWIXSH5
+	id S1751334AbWIXSOn (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Sep 2006 14:14:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752111AbWIXSOn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Sep 2006 14:07:57 -0400
-Received: from mail.aknet.ru ([82.179.72.26]:28177 "EHLO mail.aknet.ru")
-	by vger.kernel.org with ESMTP id S1752120AbWIXSHy (ORCPT
+	Sun, 24 Sep 2006 14:14:43 -0400
+Received: from mail.gmx.de ([213.165.64.20]:59344 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1751334AbWIXSOm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Sep 2006 14:07:54 -0400
-Message-ID: <4516C9D0.3080606@aknet.ru>
-Date: Sun, 24 Sep 2006 22:09:20 +0400
-From: Stas Sergeev <stsp@aknet.ru>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
-MIME-Version: 1.0
-To: Ulrich Drepper <drepper@redhat.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Hugh Dickins <hugh@veritas.com>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] remove MNT_NOEXEC check for PROT_EXEC mmaps
-References: <45150CD7.4010708@aknet.ru>	 <Pine.LNX.4.64.0609231555390.27012@blonde.wat.veritas.com>	 <451555CB.5010006@aknet.ru>	 <Pine.LNX.4.64.0609231647420.29557@blonde.wat.veritas.com>	 <1159037913.24572.62.camel@localhost.localdomain>	 <45162BE5.2020100@aknet.ru> <1159106032.11049.12.camel@localhost.localdomain> <45169C0C.5010001@aknet.ru> <4516A8E3.4020100@redhat.com> <4516B2C8.4050202@aknet.ru> <4516B721.5070801@redhat.com>
-In-Reply-To: <4516B721.5070801@redhat.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+	Sun, 24 Sep 2006 14:14:42 -0400
+X-Authenticated: #14349625
+Subject: Re: sluggish system responsiveness under higher IO load
+From: Mike Galbraith <efault@gmx.de>
+To: Matthias Dahl <mlkernel@mortal-soul.de>
+Cc: Jens Axboe <axboe@kernel.dk>, linux-kernel@vger.kernel.org
+In-Reply-To: <200609241632.11126.mlkernel@mortal-soul.de>
+References: <200608061200.37701.mlkernel@mortal-soul.de>
+	 <200609031315.04308.mlkernel@mortal-soul.de>
+	 <20060915181709.GA15333@kernel.dk>
+	 <200609241632.11126.mlkernel@mortal-soul.de>
+Content-Type: text/plain
+Date: Sun, 24 Sep 2006 20:27:17 +0000
+Message-Id: <1159129637.6098.60.camel@Homer.simpson.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.0 
 Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ulrich Drepper wrote:
-> The consensus has been to add the same checks to mprotect.  They were
-> not left out intentionally.
-But how about the anonymous mmap with PROT_EXEC set?
-This is exactly what the malicious loader will do, it
-won't do the shared (or private) file-backed mmap.
-So your technique doesn't restrict the malicious
-loaders, including the potential script loader you
-were referring to. It doesn't even make their life
-any harder. Only the properly-written programs suffer.
-Or, in case of ceasing to use noexec - the security.
+On Sun, 2006-09-24 at 16:32 +0200, Matthias Dahl wrote:
+> On Friday 15 September 2006 20:17, Jens Axboe wrote:
+> 
+> > Sounds like a hardware issue, someone could be hogging the bus. You
+> > could try and play with the pci latency setting.
+> 
+> Is there a way I can debug this...? I really would like to get to the bottom 
+> of this somehow. I did one more test: installed and started enemy territory 
+> because it's free and heavily uses OpenGL... works fine so far. But simply 
+> starting an untar process in the background while et is running causes quite 
+> distorted sound and even the mouse pointer won't react in time anymore until 
+> the untar process is finished. This can't be right. IO load shouldn't cause 
+> sluggish responsiveness...
+
+It depends a lot on how the application is written.  Start your app at
+nice -10, and retry the IO interference test.
+
+	-Mike
 

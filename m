@@ -1,63 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750867AbWIXMai@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750744AbWIXMqx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750867AbWIXMai (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Sep 2006 08:30:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750872AbWIXMai
+	id S1750744AbWIXMqx (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Sep 2006 08:46:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750748AbWIXMqx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Sep 2006 08:30:38 -0400
-Received: from igw2.watson.ibm.com ([129.34.20.6]:16559 "EHLO
-	igw2.watson.ibm.com") by vger.kernel.org with ESMTP
-	id S1750865AbWIXMah (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Sep 2006 08:30:37 -0400
-Subject: Re: [PATCH] Advertise PPPoE MTU / avoid memory leak.
-From: Michal Ostrowski <mostrows@earthlink.net>
-To: David Miller <davem@davemloft.net>
-Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-       ppp-bugs@dp.samba.org
-In-Reply-To: <20060923.145600.51855973.davem@davemloft.net>
-References: <115903262344-git-send-email-mostrows@earthlink.net>
-	 <20060923.145600.51855973.davem@davemloft.net>
-Content-Type: text/plain
-Date: Sun, 24 Sep 2006 07:29:25 -0500
-Message-Id: <1159100966.23197.293.camel@brick.austin.ibm.com>
+	Sun, 24 Sep 2006 08:46:53 -0400
+Received: from caramon.arm.linux.org.uk ([217.147.92.249]:27144 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S1750744AbWIXMqx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Sep 2006 08:46:53 -0400
+Date: Sun, 24 Sep 2006 13:46:47 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.18-mm1
+Message-ID: <20060924124647.GB25666@flint.arm.linux.org.uk>
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
+	linux-kernel@vger.kernel.org
+References: <20060924040215.8e6e7f1a.akpm@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060924040215.8e6e7f1a.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-09-23 at 14:56 -0700, David Miller wrote:
-> From: mostrows@earthlink.net
-> Date: Sat, 23 Sep 2006 12:30:23 -0500
-> 
-> > __pppoe_xmit must free any skb it allocates if there is an error
-> > submitting the skb downstream.
-> 
-> This isn't right, dev_queue_xmit() can return -ENETDOWN and still
-> free the SKB, so your change will cause the SKB to be freed up
-> twice in that case, from dev_queue_xmit():
-> 
-> 	rc = -ENETDOWN;
-> 	rcu_read_unlock_bh();
-> 
-> out_kfree_skb:
-> 	kfree_skb(skb);
-> 	return rc;
-> 
-> dev_queue_xmit() is basically expected to consume the packet,
-> error or not.
-> 
-> What case of calling dev_queue_xmit() did you discover that did not
-> kfree the SKB on error?  We should fix that.  On a quick scan on the
-> entire dev_queue_xmit() implmentation, I cannot find such a case.
-> 
+On Sun, Sep 24, 2006 at 04:02:15AM -0700, Andrew Morton wrote:
+>  git-arm.patch
 
-I think the call path via dev->hard_start_xmit, if it fails, may result
-in an skb not being freed.  This appears to be the case with the e100.c
-driver.  The qdisc_restart path to dev->hard_start_xmit also appears
-susceptible to this.  It appears that not all devices agree as to who
-should clean-up an skb on error.
+It's worth pointing out that something has gone horribly wrong in the
+devel branch of this tree, resulting in a load of files being deleted
+which shouldn't have been.
+
+Absolutely no idea how that happened, but it's a commit buried behind
+lots of other commits and has taken some 4 days to be spotted.  At a
+guess, a perl bug where a new associative array somehow manages to pick
+up on old values and forget values from previous assignments.
+
+Oddly, running the script in debug mode (where the only things which
+don't happen is the git commands get called) appears to give correct
+behaviour.
+
+So I'm in the situation where I need to rebuild 4 days work in the ARM
+devel tree. ;(
 
 -- 
-Michal Ostrowski <mostrows@earthlink.net>
-
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

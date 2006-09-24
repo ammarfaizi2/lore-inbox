@@ -1,48 +1,33 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932139AbWIXW45@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932244AbWIXXA2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932139AbWIXW45 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Sep 2006 18:56:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932151AbWIXW45
+	id S932244AbWIXXA2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Sep 2006 19:00:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932273AbWIXXA2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Sep 2006 18:56:57 -0400
-Received: from mail.gmx.net ([213.165.64.20]:50379 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S932139AbWIXW45 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Sep 2006 18:56:57 -0400
-X-Authenticated: #704063
-Subject: [Patch] Remove unnecessary check in
-	drivers/pci/hotplug/pciehp_ctrl.c
-From: Eric Sesterhenn <snakebyte@gmx.de>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Date: Mon, 25 Sep 2006 00:56:53 +0200
-Message-Id: <1159138613.9062.17.camel@alice>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 
+	Sun, 24 Sep 2006 19:00:28 -0400
+Received: from relay01.mail-hub.dodo.com.au ([203.220.32.149]:36757 "EHLO
+	relay01.mail-hub.dodo.com.au") by vger.kernel.org with ESMTP
+	id S932271AbWIXXA1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Sep 2006 19:00:27 -0400
+From: Grant Coady <grant_lkml@dodo.com.au>
+To: Sam Ravnborg <sam@ravnborg.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: 2.6.18-mm1 make oldconfig missed SATA
+Date: Mon, 25 Sep 2006 09:00:22 +1000
+Organization: http://bugsplatter.mine.nu/
+Reply-To: Grant Coady <gcoady.lk@gmail.com>
+Message-ID: <n73eh2d2ido2oimfqn798hp029lshga5qf@4ax.com>
+X-Mailer: Forte Agent 2.0/32.652
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi,
+Hi there,
 
-this was spotted by coverity (cid #819). We dereference p_slot
-earlier in the function, and i found no way it could become NULL
-anywhere.
+2.6.18-mm1 make oldconfig didn't pull SATA config from 2.6.18 old screen to 
+the new libata screen, caught me out -- this may be an issue for 2.6.19 
+upgraders that a quick make oldconfig rebuild will fail to boot?
 
-Signed-off-by: Eric Sesterhenn <snakebyte@gmx.de>
-
---- linux-2.6.18-git3/drivers/pci/hotplug/pciehp_ctrl.c.orig	2006-09-24 22:19:11.000000000 +0200
-+++ linux-2.6.18-git3/drivers/pci/hotplug/pciehp_ctrl.c	2006-09-24 22:25:10.000000000 +0200
-@@ -790,8 +790,7 @@ int pciehp_enable_slot(struct slot *p_sl
- 		p_slot->hpc_ops->get_latch_status(p_slot, &getstatus);
- 	}
- 
--	if (p_slot)
--		update_slot_info(p_slot);
-+	update_slot_info(p_slot);
- 
- 	return rc;
- }
-
-
+Grant.

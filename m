@@ -1,46 +1,29 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750766AbWIXN3q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750860AbWIXNrn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750766AbWIXN3q (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Sep 2006 09:29:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750762AbWIXN3q
+	id S1750860AbWIXNrn (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Sep 2006 09:47:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750869AbWIXNrn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Sep 2006 09:29:46 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:49851 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1750766AbWIXN3p (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Sep 2006 09:29:45 -0400
-Subject: Re: [patch] remove MNT_NOEXEC check for PROT_EXEC mmaps
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Stas Sergeev <stsp@aknet.ru>
-Cc: Hugh Dickins <hugh@veritas.com>, Andrew Morton <akpm@osdl.org>,
-       Ulrich Drepper <drepper@redhat.com>,
-       Linux kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <45162BE5.2020100@aknet.ru>
-References: <45150CD7.4010708@aknet.ru>
-	 <Pine.LNX.4.64.0609231555390.27012@blonde.wat.veritas.com>
-	 <451555CB.5010006@aknet.ru>
-	 <Pine.LNX.4.64.0609231647420.29557@blonde.wat.veritas.com>
-	 <1159037913.24572.62.camel@localhost.localdomain>
-	 <45162BE5.2020100@aknet.ru>
-Content-Type: text/plain
+	Sun, 24 Sep 2006 09:47:43 -0400
+Received: from nf-out-0910.google.com ([64.233.182.185]:4846 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1750860AbWIXNrn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Sep 2006 09:47:43 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=MGdA/Bn8ZIhP9WK+iXDS4MSvL3jZ1QBFUknl7mtZK0oSJx/Ra7PyYNn1v6GhpjnMOxC8P0FFocItTduyq5WzK0YxAg29QedGSzDTnrz8bd/rLKSRceQ5+kZS1G8Zkq5l8umnr6cDkC/N75ij9uWgfAX7zu5dqOmNvA+bG+GQq4k=
+Message-ID: <b6fcc0a0609240647v2df20521m9ee4f4af9785a23c@mail.gmail.com>
+Date: Sun, 24 Sep 2006 17:47:41 +0400
+From: "Alexey Dobriyan" <adobriyan@gmail.com>
+To: "Andrew Morton" <akpm@osdl.org>
+Subject: unsigned long flags; (was Re: 2.6.18-mm1)
+Cc: linux-kernel@vger.kernel.org, "Haavard Skinnemoen" <hskinnemoen@atmel.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Date: Sun, 24 Sep 2006 14:53:52 +0100
-Message-Id: <1159106032.11049.12.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Sul, 2006-09-24 am 10:55 +0400, ysgrifennodd Stas Sergeev:
-> Before, people could use it and hope the binaries
-> won't get executed (and if it was possible to execute
-> them by invoking ld.so directly, then ld.so could have
-> been fixed). Now the only possibility is to not use the
-> "noexec" at all.
-> So does that add to security or substract?..
-
-If you want a tmpfs with noexec and a shared memory space with exec why
-don't you just sort out mounting two different tmpfs instances ?
-
-Alan
-
+avr32 does unsigned int flags in show_dtlb_entry() and tlb_show()

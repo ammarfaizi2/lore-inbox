@@ -1,54 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751055AbWIXTTV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750989AbWIXTWp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751055AbWIXTTV (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Sep 2006 15:19:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751103AbWIXTTV
+	id S1750989AbWIXTWp (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Sep 2006 15:22:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750994AbWIXTWo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Sep 2006 15:19:21 -0400
-Received: from zeniv.linux.org.uk ([195.92.253.2]:47033 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1751055AbWIXTTU
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Sep 2006 15:19:20 -0400
-Date: Sun, 24 Sep 2006 20:19:17 +0100
-From: Al Viro <viro@ftp.linux.org.uk>
-To: Sam Ravnborg <sam@ravnborg.org>
-Cc: Linus Torvalds <torvalds@osdl.org>, rolandd@cisco.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] missing includes from infiniband merge
-Message-ID: <20060924191917.GQ29920@ftp.linux.org.uk>
-References: <20060923154416.GH29920@ftp.linux.org.uk> <20060923202912.GA22293@uranus.ravnborg.org> <20060923203605.GN29920@ftp.linux.org.uk> <20060924064446.GA13320@uranus.ravnborg.org>
+	Sun, 24 Sep 2006 15:22:44 -0400
+Received: from pool-71-254-65-206.ronkva.east.verizon.net ([71.254.65.206]:18886
+	"EHLO turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S1750968AbWIXTWo (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Sep 2006 15:22:44 -0400
+Message-Id: <200609241922.k8OJMeHs008932@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
+To: Tilman Schmidt <tilman@imap.cc>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [2.6.18-rc7-mm1] slow boot
+In-Reply-To: Your message of "Sun, 24 Sep 2006 18:59:18 +0200."
+             <4516B966.3010909@imap.cc>
+From: Valdis.Kletnieks@vt.edu
+References: <4516B966.3010909@imap.cc>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060924064446.GA13320@uranus.ravnborg.org>
-User-Agent: Mutt/1.4.1i
+Content-Type: multipart/signed; boundary="==_Exmh_1159125759_7036P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Sun, 24 Sep 2006 15:22:39 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Sep 24, 2006 at 08:44:47AM +0200, Sam Ravnborg wrote:
-> On Sat, Sep 23, 2006 at 09:36:05PM +0100, Al Viro wrote:
-> > > A better fix would be to avoid the arch dependency in the non-arch .h
-> > > files so that in most cases it just works??
-> > 
-> > What "it"?  Use of vmalloc() without including vmalloc.h since on i386
-> > it just happens to be pulled via the
-> > linux/pci.h -> linux/dmapool.h -> asm-i386/io.h -> linux/vmalloc.h
-> > chain?
-> The other way around. Try to get rid of the evil includes in arch-$(ASM)
-> that is just sitting there for no other purpose than to let a developer skip
-> a single include.
-> In this case the right fix IMO would have been to kill the include of
-> linux/vmalloc.h from asm-i386/io.h and let all users that previously failed
-> to include vmalloc.h now do so themself.
+--==_Exmh_1159125759_7036P
+Content-Type: text/plain; charset=us-ascii
 
-> Looking through asm-i386/io.h at fist look there is zero use of
-> linux/vmalloc.h so the include has no business there.
+On Sun, 24 Sep 2006 18:59:18 +0200, Tilman Schmidt said:
 
-There are obvious asm/page.h uses, so just ripping it out won't be enough.
-Even for that particular case.  And we have shitloads of places were
-asm-foo/bar.h genuinely needs linux/baz.h for e.g. implementation of
-an inlined helper.  With other targets not needing it at all.  Would you
-mandate including it from every user of asm/foo.h?  And maintain such
-rules afterwards ("asm/foo.h needs linux/baz.h included before it since
-on $WEIRD_TARGET we include asm/unique_turd.h that won't compile unless
-linux/baz.h will be aready there").
+> FYI: On my Dell OptiPlex GX110 (Intel Pentium III, 933 MHz, 512 MB
+> RAM, i810 chipset), kernel 2.6.18-rc7-mm1 takes drastically longer
+> to boot than 2.6.18 mainline release. Some data points from the
+> respective dmesg outputs:
+
+> <<<<<<< 2.6.18
+> <4>[   26.336075] ------------------------
+> <4>[   26.336130] | Locking API testsuite:
+
+Try building your -rc7-mm1 kernel without CONFIG_DEBUG_LOCKING_API_SELFTESTS
+(and you've probably got a few other high-impact DEBUG options turned
+on - CONFIG_PROVE_LOCKING is another possible culprit).
+
+--==_Exmh_1159125759_7036P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFFFtr/cC3lWbTT17ARAlgDAKCb/bnRwl+3k+yc9LhaahIRnQnerACferL9
+5iWwrgVZ5/n8HCSQCWzBzqk=
+=VScA
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1159125759_7036P--

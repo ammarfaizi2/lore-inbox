@@ -1,53 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752023AbWIXSHV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752063AbWIXSH6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752023AbWIXSHV (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Sep 2006 14:07:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752130AbWIXSHU
+	id S1752063AbWIXSH6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Sep 2006 14:07:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752130AbWIXSH5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Sep 2006 14:07:20 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:34258 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1752023AbWIXSHR (ORCPT
+	Sun, 24 Sep 2006 14:07:57 -0400
+Received: from mail.aknet.ru ([82.179.72.26]:28177 "EHLO mail.aknet.ru")
+	by vger.kernel.org with ESMTP id S1752120AbWIXSHy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Sep 2006 14:07:17 -0400
-Date: Sun, 24 Sep 2006 19:59:34 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Christian Weiske <cweiske@cweiske.de>, netdev@vger.kernel.org,
-       linux-kernel@vger.kernel.org, reiserfs-dev@namesys.com,
-       Nick Piggin <nickpiggin@yahoo.com.au>
-Subject: Re: 2.6.18 BUG: unable to handle kernel NULL pointer dereference at virtual address 000,0000a
-Message-ID: <20060924175934.GA15420@elte.hu>
-References: <45155915.7080107@cweiske.de> <20060923134244.e7b73826.akpm@osdl.org> <45164BA6.60200@cweiske.de> <20060924031923.76886810.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060924031923.76886810.akpm@osdl.org>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -2.9
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.9 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5000]
-	-0.1 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+	Sun, 24 Sep 2006 14:07:54 -0400
+Message-ID: <4516C9D0.3080606@aknet.ru>
+Date: Sun, 24 Sep 2006 22:09:20 +0400
+From: Stas Sergeev <stsp@aknet.ru>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
+MIME-Version: 1.0
+To: Ulrich Drepper <drepper@redhat.com>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Hugh Dickins <hugh@veritas.com>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] remove MNT_NOEXEC check for PROT_EXEC mmaps
+References: <45150CD7.4010708@aknet.ru>	 <Pine.LNX.4.64.0609231555390.27012@blonde.wat.veritas.com>	 <451555CB.5010006@aknet.ru>	 <Pine.LNX.4.64.0609231647420.29557@blonde.wat.veritas.com>	 <1159037913.24572.62.camel@localhost.localdomain>	 <45162BE5.2020100@aknet.ru> <1159106032.11049.12.camel@localhost.localdomain> <45169C0C.5010001@aknet.ru> <4516A8E3.4020100@redhat.com> <4516B2C8.4050202@aknet.ru> <4516B721.5070801@redhat.com>
+In-Reply-To: <4516B721.5070801@redhat.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Ulrich Drepper wrote:
+> The consensus has been to add the same checks to mprotect.  They were
+> not left out intentionally.
+But how about the anonymous mmap with PROT_EXEC set?
+This is exactly what the malicious loader will do, it
+won't do the shared (or private) file-backed mmap.
+So your technique doesn't restrict the malicious
+loaders, including the potential script loader you
+were referring to. It doesn't even make their life
+any harder. Only the properly-written programs suffer.
+Or, in case of ceasing to use noexec - the security.
 
-* Andrew Morton <akpm@osdl.org> wrote:
-
-> You have tcp_v6 lockdep warnings.  They're in
-> http://xml.cweiske.de/dojo%20kernelpanic%20+%20debug.tar.bz2 is anyone is
-> keen.  (I've largely lost interest in lockdep warnings - many of them are
-> false positives and require make-lockdep-shut-up patches).
-
-FYI, this is from Herbert Xu's recent mail to netdev:
-
-| Subject: Re: neigh_lookup lockdep warning
-|
-| [...]
-| BTW, out of the last four validator reports I've read three have 
-| turned out to be genuine bugs.  So you guys have done a fantastic job!

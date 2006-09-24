@@ -1,117 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751174AbWIXRMB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751226AbWIXRZ4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751174AbWIXRMB (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Sep 2006 13:12:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751176AbWIXRMB
+	id S1751226AbWIXRZ4 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Sep 2006 13:25:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751228AbWIXRZ4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Sep 2006 13:12:01 -0400
-Received: from 85.8.24.16.se.wasadata.net ([85.8.24.16]:55693 "EHLO
-	smtp.drzeus.cx") by vger.kernel.org with ESMTP id S1751174AbWIXRMA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Sep 2006 13:12:00 -0400
-From: Pierre Ossman <drzeus@drzeus.cx>
-Subject: [PATCH] Add "or later" clause to licence statement.
-Date: Sun, 24 Sep 2006 19:11:50 +0200
-Cc: Pierre Ossman <drzeus-list@drzeus.cx>
-To: akpm@osdl.org
-Cc: linux-kernel@vger.kernel.org
-Message-Id: <20060924171149.22677.60248.stgit@poseidon.drzeus.cx>
+	Sun, 24 Sep 2006 13:25:56 -0400
+Received: from mail.gmx.net ([213.165.64.20]:43748 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1751226AbWIXRZz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Sep 2006 13:25:55 -0400
+X-Authenticated: #14349625
+Subject: Re: 2.6.19 -mm merge plans
+From: Mike Galbraith <efault@gmx.de>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+Cc: Lennert Buytenhek <buytenh@wantstofly.org>,
+       Linus Torvalds <torvalds@osdl.org>, Dave Jones <davej@redhat.com>,
+       David Miller <davem@davemloft.net>, jeff@garzik.org, davidsen@tmr.com,
+       alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+In-Reply-To: <20060924092010.GC17639@flint.arm.linux.org.uk>
+References: <Pine.LNX.4.64.0609211106391.4388@g5.osdl.org>
+	 <45130533.2010209@tmr.com> <45130527.1000302@garzik.org>
+	 <20060921.145208.26283973.davem@davemloft.net>
+	 <20060921220539.GL26683@redhat.com>
+	 <20060922083542.GA4246@flint.arm.linux.org.uk>
+	 <20060922154816.GA15032@redhat.com>
+	 <Pine.LNX.4.64.0609220901040.4388@g5.osdl.org>
+	 <20060924074837.GB13487@xi.wantstofly.org>
+	 <20060924092010.GC17639@flint.arm.linux.org.uk>
+Content-Type: text/plain
+Date: Sun, 24 Sep 2006 19:38:26 +0000
+Message-Id: <1159126706.6098.18.camel@Homer.simpson.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.0 
+Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Clarify my (Pierre's) position on which GPL versions apply. The patch
-only touches the source files where I am the only major author. The
-people who have made the minor commits to the files have been contacted
-and have no issues with this change.
+On Sun, 2006-09-24 at 10:20 +0100, Russell King wrote:
 
-Signed-off-by: Pierre Ossman <drzeus@drzeus.cx>
----
+> The point I'm making is that for some things, keeping the changes as
+> patches until they're ready is far easier, more worthwhile and flexible
+> than having them simmering in some git tree somewhere.
 
- arch/i386/kernel/i8237.c |    5 +++++
- drivers/mmc/sdhci.c      |    5 +++--
- drivers/mmc/sdhci.h      |    5 +++--
- drivers/mmc/wbsd.c       |    5 +++--
- drivers/mmc/wbsd.h       |    5 +++--
- 5 files changed, 17 insertions(+), 8 deletions(-)
-
-diff --git a/arch/i386/kernel/i8237.c b/arch/i386/kernel/i8237.c
-index c36d1c0..6f508e8 100644
---- a/arch/i386/kernel/i8237.c
-+++ b/arch/i386/kernel/i8237.c
-@@ -2,6 +2,11 @@
-  * i8237.c: 8237A DMA controller suspend functions.
-  *
-  * Written by Pierre Ossman, 2005.
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or (at
-+ * your option) any later version.
-  */
- 
- #include <linux/init.h>
-diff --git a/drivers/mmc/sdhci.c b/drivers/mmc/sdhci.c
-index 4e21b3b..835dc1f 100644
---- a/drivers/mmc/sdhci.c
-+++ b/drivers/mmc/sdhci.c
-@@ -4,8 +4,9 @@
-  *  Copyright (C) 2005-2006 Pierre Ossman, All Rights Reserved.
-  *
-  * This program is free software; you can redistribute it and/or modify
-- * it under the terms of the GNU General Public License version 2 as
-- * published by the Free Software Foundation.
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or (at
-+ * your option) any later version.
-  */
- 
- #include <linux/delay.h>
-diff --git a/drivers/mmc/sdhci.h b/drivers/mmc/sdhci.h
-index f245334..72a6793 100644
---- a/drivers/mmc/sdhci.h
-+++ b/drivers/mmc/sdhci.h
-@@ -4,8 +4,9 @@
-  *  Copyright (C) 2005 Pierre Ossman, All Rights Reserved.
-  *
-  * This program is free software; you can redistribute it and/or modify
-- * it under the terms of the GNU General Public License version 2 as
-- * published by the Free Software Foundation.
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or (at
-+ * your option) any later version.
-  */
- 
- /*
-diff --git a/drivers/mmc/wbsd.c b/drivers/mmc/wbsd.c
-index c351c6d..eb67075 100644
---- a/drivers/mmc/wbsd.c
-+++ b/drivers/mmc/wbsd.c
-@@ -4,8 +4,9 @@
-  *  Copyright (C) 2004-2005 Pierre Ossman, All Rights Reserved.
-  *
-  * This program is free software; you can redistribute it and/or modify
-- * it under the terms of the GNU General Public License version 2 as
-- * published by the Free Software Foundation.
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or (at
-+ * your option) any later version.
-  *
-  *
-  * Warning!
-diff --git a/drivers/mmc/wbsd.h b/drivers/mmc/wbsd.h
-index 249baa7..6072993 100644
---- a/drivers/mmc/wbsd.h
-+++ b/drivers/mmc/wbsd.h
-@@ -4,8 +4,9 @@
-  *  Copyright (C) 2004-2005 Pierre Ossman, All Rights Reserved.
-  *
-  * This program is free software; you can redistribute it and/or modify
-- * it under the terms of the GNU General Public License version 2 as
-- * published by the Free Software Foundation.
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or (at
-+ * your option) any later version.
-  */
- 
- #define LOCK_CODE		0xAA
+I <heart> patch and </heart> scm (works for me:), but in theory, isn't
+that the same?
 

@@ -1,48 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751301AbWIXWg1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751303AbWIXWgp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751301AbWIXWg1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Sep 2006 18:36:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751303AbWIXWg1
+	id S1751303AbWIXWgp (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Sep 2006 18:36:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751400AbWIXWgp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Sep 2006 18:36:27 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:35727 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751301AbWIXWg0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Sep 2006 18:36:26 -0400
-Date: Sun, 24 Sep 2006 15:36:14 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Mark Fasheh <mark.fasheh@oracle.com>
-cc: Andrew Morton <akpm@osdl.org>, ocfs2-devel@oss.oracle.com,
-       linux-kernel@vger.kernel.org,
-       Trond Myklebust <trond.myklebust@fys.uio.no>,
-       Al Viro <viro@zeniv.linux.org.uk>, Christoph Hellwig <hch@lst.de>
-Subject: Re: [git patches] ocfs2 post 2.6.18 features
-In-Reply-To: <20060924221115.GF32106@ca-server1.us.oracle.com>
-Message-ID: <Pine.LNX.4.64.0609241532140.3952@g5.osdl.org>
-References: <20060924221115.GF32106@ca-server1.us.oracle.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 24 Sep 2006 18:36:45 -0400
+Received: from zeniv.linux.org.uk ([195.92.253.2]:55775 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1751303AbWIXWgo
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Sep 2006 18:36:44 -0400
+Date: Sun, 24 Sep 2006 23:36:43 +0100
+From: Al Viro <viro@ftp.linux.org.uk>
+To: Sam Ravnborg <sam@ravnborg.org>
+Cc: linux-kernel@vger.kernel.org, Kirill Korotaev <dev@openvz.org>,
+       Andrey Mirkin <amirkin@sw.ru>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH 18/28] kbuild: fail kernel compilation in case of unresolved module symbols
+Message-ID: <20060924223643.GT29920@ftp.linux.org.uk>
+References: <11591327054119-git-send-email-sam@ravnborg.org> <11591327051998-git-send-email-sam@ravnborg.org> <11591327051652-git-send-email-sam@ravnborg.org> <11591327053365-git-send-email-sam@ravnborg.org> <1159132705363-git-send-email-sam@ravnborg.org> <11591327063034-git-send-email-sam@ravnborg.org> <11591327061320-git-send-email-sam@ravnborg.org> <1159132706174-git-send-email-sam@ravnborg.org> <20060924222026.GS29920@ftp.linux.org.uk> <20060924223534.GA27984@uranus.ravnborg.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060924223534.GA27984@uranus.ravnborg.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Sep 25, 2006 at 12:35:34AM +0200, Sam Ravnborg wrote:
+> On what architectures do you see lots of these warnings - maybe fixable?
+> Otherwise I could do something like this:
 
-Ok, pulled, and pushed out.
+Try allmodconfig someday...
 
-And btw, I appreciate how you separately explained the fs/namei.c change, 
-together with the diff for just that part. This is a prime example of how 
-to make things easier for me to verify, when I see something touching a 
-generic file. Thanks.
+aviro@icy:/usr/src/cross-kernel/volatile/work$ grep -l WARNING.*undefined ../logs/*/X4c
+../logs/alpha-SMP/X4c
+../logs/alpha/X4c
+../logs/arm/X4c
+../logs/armv/X4c
+../logs/chestnut/X4c
+../logs/frv/X4c
+../logs/ia64/X4c
+../logs/m32r/X4c
+../logs/m68k/X4c
+../logs/ppc/X4c
+../logs/ppc44x/X4c
+../logs/ppc64/X4c
+../logs/s390/X4c
+../logs/s390x/X4c
+../logs/sparc32/X4c
+../logs/sparc64/X4c
+../logs/sun3/X4c
+../logs/sun4/X4c
+../logs/uml-i386/X4c
 
-I do have a small nit: when you ask me to pull, you did:
+That's out of 25 targets.  The only variants that do _NOT_ trigger are
+amd64, amd64-UP, i386 and uml-amd64.
 
-> Please pull from 'upstream-linus' branch of
-> git://git.kernel.org/pub/scm/linux/kernel/git/mfasheh/ocfs2.git
-
-I really prefer to see the branch-name at the end of the line (don't worry 
-if it's more than 80 characters), because that way I don't make the 
-mistake of cutting-and-pasting the git URL, and forgetting the branch.
-
-So if you can update your "please pull" script to do that, I'd be even 
-happier.
-
-		Linus
+I more or less agree with rationale behind making that default, but I'd
+very much appreciate a way to override that.  For now I've just made the
+-w line unconditional, but the fewer infrastructure patches I've to carry...

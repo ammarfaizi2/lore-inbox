@@ -1,42 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932112AbWIXWsw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932126AbWIXWtz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932112AbWIXWsw (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Sep 2006 18:48:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932126AbWIXWsw
+	id S932126AbWIXWtz (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Sep 2006 18:49:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932136AbWIXWtz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Sep 2006 18:48:52 -0400
-Received: from zeniv.linux.org.uk ([195.92.253.2]:58824 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S932112AbWIXWsw
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Sep 2006 18:48:52 -0400
-Date: Sun, 24 Sep 2006 23:48:51 +0100
-From: Al Viro <viro@ftp.linux.org.uk>
-To: Sam Ravnborg <sam@ravnborg.org>
-Cc: linux-kernel@vger.kernel.org, Kirill Korotaev <dev@openvz.org>,
-       Andrey Mirkin <amirkin@sw.ru>, Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH 18/28] kbuild: fail kernel compilation in case of unresolved module symbols
-Message-ID: <20060924224851.GB29920@ftp.linux.org.uk>
-References: <11591327051652-git-send-email-sam@ravnborg.org> <11591327053365-git-send-email-sam@ravnborg.org> <1159132705363-git-send-email-sam@ravnborg.org> <11591327063034-git-send-email-sam@ravnborg.org> <11591327061320-git-send-email-sam@ravnborg.org> <1159132706174-git-send-email-sam@ravnborg.org> <20060924222026.GS29920@ftp.linux.org.uk> <20060924223534.GA27984@uranus.ravnborg.org> <20060924223643.GT29920@ftp.linux.org.uk> <20060924224740.GB28051@uranus.ravnborg.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060924224740.GB28051@uranus.ravnborg.org>
-User-Agent: Mutt/1.4.1i
+	Sun, 24 Sep 2006 18:49:55 -0400
+Received: from taverner.CS.Berkeley.EDU ([128.32.168.222]:22969 "EHLO
+	taverner.cs.berkeley.edu") by vger.kernel.org with ESMTP
+	id S932126AbWIXWty (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Sep 2006 18:49:54 -0400
+To: linux-kernel@vger.kernel.org
+Path: not-for-mail
+From: daw@cs.berkeley.edu (David Wagner)
+Newsgroups: isaac.lists.linux-kernel
+Subject: Re: [patch] remove MNT_NOEXEC check for PROT_EXEC mmaps
+Date: Sun, 24 Sep 2006 22:49:42 +0000 (UTC)
+Organization: University of California, Berkeley
+Message-ID: <ef7226$5om$1@taverner.cs.berkeley.edu>
+References: <45150CD7.4010708@aknet.ru> <4516C9D0.3080606@aknet.ru> <ef6ldq$uup$1@taverner.cs.berkeley.edu> <FE51C682-23F0-4BFE-AA3F-E3B74F9D6E3A@mac.com>
+Reply-To: daw-usenet@taverner.cs.berkeley.edu (David Wagner)
+NNTP-Posting-Host: taverner.cs.berkeley.edu
+X-Trace: taverner.cs.berkeley.edu 1159138182 5910 128.32.168.222 (24 Sep 2006 22:49:42 GMT)
+X-Complaints-To: news@taverner.cs.berkeley.edu
+NNTP-Posting-Date: Sun, 24 Sep 2006 22:49:42 +0000 (UTC)
+X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
+Originator: daw@taverner.cs.berkeley.edu (David Wagner)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 25, 2006 at 12:47:40AM +0200, Sam Ravnborg wrote:
-> > That's out of 25 targets.  The only variants that do _NOT_ trigger are
-> > amd64, amd64-UP, i386 and uml-amd64.
-> 
-> How many of these ougth to be fixed then?
+Kyle Moffett  wrote:
+>On Sep 24, 2006, at 15:14:02, David Wagner wrote:
+>> I'm curious about this, too.  ld-linux.so is a purely unprivileged
+>> program.  It isn't setuid root.  Can you write a variant of ld- linux.so
+>> that reads an executable into memory off of a partition mounted noexec and
+>> then begins executing that code?  (perhaps by using anonymous mmap with
+>> PROT_EXEC or some other mechanism) It sure seems like the answer would
+>> be yes.  If so, I'm having a hard time understanding what guarantees
+>> noexec gives you.  Isn't the noexec flag just a speedbump that raises
+>> the bar a little but doesn't really prevent anything?
+>
+>I seem to recall somewhere that it was possible to prevent anonymous
+>memory from being mapped PROT_EXEC during or after being mapped
+>PROT_WRITE; and that in fact your average SELinux-enabled system had
+>such protections for everything but the Java binary and a few other
+>odd programs.  If you can't ever execute any data blobs except those
+>that came directly from a properly-secured SELinux-enabled filesystem
+>it makes exploiting a server significantly harder.
 
-In theory - all of them.  Right now that's just plain not feasible...
+Interesting.  You're probably right.  Thanks.
 
-> > I more or less agree with rationale behind making that default, but I'd
-> > very much appreciate a way to override that.  For now I've just made the
-> > -w line unconditional, but the fewer infrastructure patches I've to carry...
-> OK. Will include it in next round of kbuild updates.
-
-BTW, an alternative would be to stop unconditionally after full set of checks
-and not bother with .mod.o/.ko at all.  _Not_ as a default, of course...
+I don't mean to sound ungrateful, but I'm still curious about my original
+question (which I don't believe has been answered).  To be honest, I
+wasn't asking whether it was possible to configure Linux or SELinux in
+a way that blocks this "attack"; I was more interested in whether this
+"attack" will succeed against a stock Linux system.  If you have any
+thoughts on that question, I'd be interested to hear them.  I notice that
+the original poster has raised essentially this point more than once,
+too, but never got any response, either.

@@ -1,76 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751611AbWIXVvL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751633AbWIXVxY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751611AbWIXVvL (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Sep 2006 17:51:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751615AbWIXVvL
+	id S1751633AbWIXVxY (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Sep 2006 17:53:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751615AbWIXVxY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Sep 2006 17:51:11 -0400
-Received: from pasmtpa.tele.dk ([80.160.77.114]:15507 "EHLO pasmtpA.tele.dk")
-	by vger.kernel.org with ESMTP id S1751611AbWIXVvK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Sep 2006 17:51:10 -0400
-Date: Sun, 24 Sep 2006 23:56:25 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Al Viro <viro@ftp.linux.org.uk>
-Cc: Linus Torvalds <torvalds@osdl.org>, rolandd@cisco.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] missing includes from infiniband merge
-Message-ID: <20060924215625.GA27605@uranus.ravnborg.org>
-References: <20060923154416.GH29920@ftp.linux.org.uk> <20060923202912.GA22293@uranus.ravnborg.org> <20060923203605.GN29920@ftp.linux.org.uk> <20060924064446.GA13320@uranus.ravnborg.org> <20060924191917.GQ29920@ftp.linux.org.uk> <20060924205244.GA26774@uranus.ravnborg.org> <20060924213508.GR29920@ftp.linux.org.uk>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060924213508.GR29920@ftp.linux.org.uk>
-User-Agent: Mutt/1.4.2.1i
+	Sun, 24 Sep 2006 17:53:24 -0400
+Received: from out1.smtp.messagingengine.com ([66.111.4.25]:51639 "EHLO
+	out1.smtp.messagingengine.com") by vger.kernel.org with ESMTP
+	id S1751622AbWIXVxY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Sep 2006 17:53:24 -0400
+X-Sasl-enc: uf+mcVlS+9av/Mfy+yqKHlxTMdaI2Q1N1wgCLTF/O3so 1159134803
+Message-ID: <4516FEB2.1060208@imap.cc>
+Date: Sun, 24 Sep 2006 23:54:58 +0200
+From: Tilman Schmidt <tilman@imap.cc>
+Organization: me - organized??
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; de-AT; rv:1.8.0.6) Gecko/20060729 SeaMonkey/1.0.4 Mnenhy/0.7.4.666
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: [2.6.18-rc7-mm1] ethernet configuration scripts of SuSE 10.0
+ broken
+References: <451469A8.1040504@imap.cc>
+In-Reply-To: <451469A8.1040504@imap.cc>
+X-Enigmail-Version: 0.94.1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+ protocol="application/pgp-signature";
+ boundary="------------enigC4F0A0A935C9D60466AE003A"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> > Or we could stick to current mess where one has
-> > to have a shitload of crosscompiles and CPU power to check even trivial
-> > changes to a few include files.
-> 
-> We _are_ stuck with it.
-For old stuff - to a high degree yes.
+This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
+--------------enigC4F0A0A935C9D60466AE003A
+Content-Type: text/plain; charset=ISO-8859-15
+Content-Transfer-Encoding: quoted-printable
 
-> > Partly this could be fixed by making header files in asm-$(ARCH)
-> > second class citizen - that always got included via their linux/
-> > counterpart.
-> 
-> Which only makes dependency graph fatter...  What's the difference
-> between including asm/uaccess.h and linux/uaccess.h?
-It makes it fatter on the horizontal level - yes.
-But then files do not rely on files being included by asm-* files
-anymore - so less difference between architecutes.
+On 23.09.2006 00:54, /me wrote:
+> When booting kernel 2.6.18-rc7-mm1 on my SuSE Linux 10.0 system,
+> setup of the Ethernet interface fails.
 
-> Basically, you pull tons of includes into linux/blah.h because it
-> happens to include asm/foo.h and _that_ depends on having linux/barf.h
-> for $WEIRD_TARGET.
-That would be wrong. Any file in asm-* that needs a file from linux/
-should pull that include to the linux/ counterpart and in this way
-we are on track again.
+Just re-tested with release 2.6.18-mm1 and the problem is gone.
 
-It boils down to something simple as:
-Do we want to keep arch independence lower on the price of higher number
-includes in asm- counter part files in linux/?
+Thanks
+Tilman
+
+--=20
+Tilman Schmidt                          E-Mail: tilman@imap.cc
+Bonn, Germany
+Diese Nachricht besteht zu 100% aus wiederverwerteten Bits.
+Ungeoeffnet mindestens haltbar bis: (siehe Rueckseite)
 
 
-> And guess what?  You are back to the same cross-compiles,
-> since attempt to remove blah.h -> barf.h will break $WEIRD_TARGET, but
-> you won't notice that unless you cross-compile for it.
-No.
-There is a huge difference modifying architecture independent code like
-infiniband or module.c and to try to clean up headers.
-Cleaning up headers really really require that one cross compile
-a lot no matter how files are organized.
+--------------enigC4F0A0A935C9D60466AE003A
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: OpenPGP digital signature
+Content-Disposition: attachment; filename="signature.asc"
 
-> So all you get is a bunch of harder to explain includes between linux/*.h,
-> _and_ extra dependencies that make no sense whatsoever.
-They are easy to explain: They are there to keep arch independence lower -
-and the cost is a number (tons?) of extra includes.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.3rc1 (MingW32)
+Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
 
-OK - this was a fun thread talking about arch specific includes.
-But since I do not plan to follow-up with patches I will
-drop of for now. bugzilla and others tell me I should concentrate
-on other things.
+iD8DBQFFFv65MdB4Whm86/kRAgbdAJ4yqx95WwQITqr9R2FfGNVJcBHIUACfQp6K
+K6E9zTiGp/FMb6dRZDsfAXg=
+=0+22
+-----END PGP SIGNATURE-----
 
-	Sam
+--------------enigC4F0A0A935C9D60466AE003A--

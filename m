@@ -1,57 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751341AbWIXXXM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750782AbWIXX3W@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751341AbWIXXXM (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Sep 2006 19:23:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751360AbWIXXXM
+	id S1750782AbWIXX3W (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Sep 2006 19:29:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751360AbWIXX3W
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Sep 2006 19:23:12 -0400
-Received: from bayc1-pasmtp03.bayc1.hotmail.com ([65.54.191.163]:11075 "EHLO
-	BAYC1-PASMTP03.bayc1.hotmail.com") by vger.kernel.org with ESMTP
-	id S1751341AbWIXXXK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Sep 2006 19:23:10 -0400
-Message-ID: <BAYC1-PASMTP03A93CF0AD4CEACDC36DF0AE270@CEZ.ICE>
-X-Originating-IP: [65.94.249.130]
-X-Originating-Email: [seanlkml@sympatico.ca]
-Date: Sun, 24 Sep 2006 19:23:08 -0400
-From: Sean <seanlkml@sympatico.ca>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: Lennert Buytenhek <buytenh@wantstofly.org>,
-       Linus Torvalds <torvalds@osdl.org>, Dave Jones <davej@redhat.com>,
-       David Miller <davem@davemloft.net>, jeff@garzik.org, davidsen@tmr.com,
-       alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.19 -mm merge plans
-Message-Id: <20060924192308.ef60880a.seanlkml@sympatico.ca>
-In-Reply-To: <20060924230948.GG12795@flint.arm.linux.org.uk>
-References: <45130533.2010209@tmr.com>
-	<45130527.1000302@garzik.org>
-	<20060921.145208.26283973.davem@davemloft.net>
-	<20060921220539.GL26683@redhat.com>
-	<20060922083542.GA4246@flint.arm.linux.org.uk>
-	<20060922154816.GA15032@redhat.com>
-	<Pine.LNX.4.64.0609220901040.4388@g5.osdl.org>
-	<20060924074837.GB13487@xi.wantstofly.org>
-	<20060924092010.GC17639@flint.arm.linux.org.uk>
-	<20060924142353.6c725128.seanlkml@sympatico.ca>
-	<20060924230948.GG12795@flint.arm.linux.org.uk>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.10.3; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
-X-OriginalArrivalTime: 24 Sep 2006 23:23:09.0791 (UTC) FILETIME=[65D15EF0:01C6E030]
+	Sun, 24 Sep 2006 19:29:22 -0400
+Received: from rgminet01.oracle.com ([148.87.113.118]:1944 "EHLO
+	rgminet01.oracle.com") by vger.kernel.org with ESMTP
+	id S1750782AbWIXX3V (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Sep 2006 19:29:21 -0400
+Date: Sun, 24 Sep 2006 16:28:54 -0700
+From: Mark Fasheh <mark.fasheh@oracle.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Andrew Morton <akpm@osdl.org>, ocfs2-devel@oss.oracle.com,
+       linux-kernel@vger.kernel.org,
+       Trond Myklebust <trond.myklebust@fys.uio.no>,
+       Al Viro <viro@zeniv.linux.org.uk>, Christoph Hellwig <hch@lst.de>
+Subject: Re: [git patches] ocfs2 post 2.6.18 features
+Message-ID: <20060924232854.GG32106@ca-server1.us.oracle.com>
+Reply-To: Mark Fasheh <mark.fasheh@oracle.com>
+References: <20060924221115.GF32106@ca-server1.us.oracle.com> <Pine.LNX.4.64.0609241532140.3952@g5.osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0609241532140.3952@g5.osdl.org>
+Organization: Oracle Corporation
+User-Agent: Mutt/1.5.11
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Brightmail-Tracker: AAAAAQAAAAI=
+X-Whitelist: TRUE
+X-Whitelist: TRUE
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 25 Sep 2006 00:09:48 +0100
-Russell King <rmk+lkml@arm.linux.org.uk> wrote:
+On Sun, Sep 24, 2006 at 03:36:14PM -0700, Linus Torvalds wrote:
+> 
+> Ok, pulled, and pushed out.
+Great, thanks!
 
-> Before people disagree with my statement (and I'm referring to all the
-> replies so far), maybe they should talk to Thomas who pioneered the
-> genirq changes to find out why he decided to work with patches rather
-> than a git repository?
 
-When Thomas makes a sweeping statement about the applicability of one
-tool over another people will respond to him.  But if _you_ make such
-a statement yourself (even if it's based on his conclusions) then
-you better accept that people who disagree will respond to your statement.
+> And btw, I appreciate how you separately explained the fs/namei.c change, 
+> together with the diff for just that part. This is a prime example of how 
+> to make things easier for me to verify, when I see something touching a 
+> generic file. Thanks.
+Oh, excellent - I'm glad that worked out. I asked Andrew a couple weeks back
+how we should handle that patch, and he indicated that I could push it if I
+clearly noted its existence in my e-mail.
 
-Sean
+
+> I do have a small nit: when you ask me to pull, you did:
+> 
+> > Please pull from 'upstream-linus' branch of
+> > git://git.kernel.org/pub/scm/linux/kernel/git/mfasheh/ocfs2.git
+> 
+> I really prefer to see the branch-name at the end of the line (don't worry 
+> if it's more than 80 characters), because that way I don't make the 
+> mistake of cutting-and-pasting the git URL, and forgetting the branch.
+No problem - script updated. I copied the format from one of Jeff's more
+recent pull mails:
+
+Please pull from 'upstream-linus' branch of
+git://git.kernel.org/pub/scm/linux/kernel/git/mfasheh/ocfs2.git
+upstream-linus
+
+Hope that works for you.
+	--Mark
+
+--
+Mark Fasheh
+Senior Software Developer, Oracle
+mark.fasheh@oracle.com

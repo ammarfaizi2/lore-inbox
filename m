@@ -1,66 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751633AbWIXVxY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932146AbWIXVyT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751633AbWIXVxY (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Sep 2006 17:53:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751615AbWIXVxY
+	id S932146AbWIXVyT (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Sep 2006 17:54:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751628AbWIXVyT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Sep 2006 17:53:24 -0400
-Received: from out1.smtp.messagingengine.com ([66.111.4.25]:51639 "EHLO
-	out1.smtp.messagingengine.com") by vger.kernel.org with ESMTP
-	id S1751622AbWIXVxY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Sep 2006 17:53:24 -0400
-X-Sasl-enc: uf+mcVlS+9av/Mfy+yqKHlxTMdaI2Q1N1wgCLTF/O3so 1159134803
-Message-ID: <4516FEB2.1060208@imap.cc>
-Date: Sun, 24 Sep 2006 23:54:58 +0200
-From: Tilman Schmidt <tilman@imap.cc>
-Organization: me - organized??
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.0; de-AT; rv:1.8.0.6) Gecko/20060729 SeaMonkey/1.0.4 Mnenhy/0.7.4.666
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: [2.6.18-rc7-mm1] ethernet configuration scripts of SuSE 10.0
- broken
-References: <451469A8.1040504@imap.cc>
-In-Reply-To: <451469A8.1040504@imap.cc>
-X-Enigmail-Version: 0.94.1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
- protocol="application/pgp-signature";
- boundary="------------enigC4F0A0A935C9D60466AE003A"
+	Sun, 24 Sep 2006 17:54:19 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:38276 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751622AbWIXVyS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Sep 2006 17:54:18 -0400
+Date: Sun, 24 Sep 2006 14:53:37 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Tilman Schmidt <tilman@imap.cc>
+Cc: linux-kernel@vger.kernel.org, Chris Mason <mason@suse.com>,
+       ext2-devel@lists.sourceforge.net, reiserfs-dev@namesys.com
+Subject: Re: [2.6.18-rc7-mm1] slow boot
+Message-Id: <20060924145337.ae152efd.akpm@osdl.org>
+In-Reply-To: <4516B966.3010909@imap.cc>
+References: <4516B966.3010909@imap.cc>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is an OpenPGP/MIME signed message (RFC 2440 and 3156)
---------------enigC4F0A0A935C9D60466AE003A
-Content-Type: text/plain; charset=ISO-8859-15
-Content-Transfer-Encoding: quoted-printable
+On Sun, 24 Sep 2006 18:59:18 +0200
+Tilman Schmidt <tilman@imap.cc> wrote:
 
-On 23.09.2006 00:54, /me wrote:
-> When booting kernel 2.6.18-rc7-mm1 on my SuSE Linux 10.0 system,
-> setup of the Ethernet interface fails.
+> In the end, the mm kernel has taken twice as much time to get up
+> and running as the mainline kernel.
 
-Just re-tested with release 2.6.18-mm1 and the problem is gone.
+Don't know, sorry.
 
-Thanks
-Tilman
+make-ext3-mount-default-to-barrier=1.patch takes my laptop's bootup time
+from 53 seconds to 68, which is rather painful.  In fact I'm inclined to
+drop the patch because of this, and I'd also be quite concerned about the
+similar reiserfs patch, make-reiserfs-default-to-barrier=flush.patch.
 
---=20
-Tilman Schmidt                          E-Mail: tilman@imap.cc
-Bonn, Germany
-Diese Nachricht besteht zu 100% aus wiederverwerteten Bits.
-Ungeoeffnet mindestens haltbar bis: (siehe Rueckseite)
+I've *never* seen any reports of any problems being caused by disk
+writeback caching.  Yes, it's a theoretical problem but for some reason it
+just doesn't seem to be a problem in practice.  Hence I'm really reluctant
+to go and slow everyone's machines down so much in this manner.
 
+But apart from that problem I see no differences in bootup time between
+2.6.18 and 2.6.18-mm1.
 
---------------enigC4F0A0A935C9D60466AE003A
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: OpenPGP digital signature
-Content-Disposition: attachment; filename="signature.asc"
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.3rc1 (MingW32)
-Comment: Using GnuPG with Mozilla - http://enigmail.mozdev.org
-
-iD8DBQFFFv65MdB4Whm86/kRAgbdAJ4yqx95WwQITqr9R2FfGNVJcBHIUACfQp6K
-K6E9zTiGp/FMb6dRZDsfAXg=
-=0+22
------END PGP SIGNATURE-----
-
---------------enigC4F0A0A935C9D60466AE003A--
+Do you have the time to go through the
+http://www.zip.com.au/~akpm/linux/patches/stuff/bisecting-mm-trees.txt
+process?

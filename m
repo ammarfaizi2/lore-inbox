@@ -1,84 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751051AbWIXHsk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750967AbWIXHrY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751051AbWIXHsk (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Sep 2006 03:48:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751059AbWIXHsk
+	id S1750967AbWIXHrY (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Sep 2006 03:47:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751059AbWIXHrY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Sep 2006 03:48:40 -0400
-Received: from alephnull.demon.nl ([83.160.184.112]:55170 "EHLO
-	xi.wantstofly.org") by vger.kernel.org with ESMTP id S1751008AbWIXHsk
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Sep 2006 03:48:40 -0400
-Date: Sun, 24 Sep 2006 09:48:37 +0200
-From: Lennert Buytenhek <buytenh@wantstofly.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Dave Jones <davej@redhat.com>, David Miller <davem@davemloft.net>,
-       jeff@garzik.org, davidsen@tmr.com, alan@lxorguk.ukuu.org.uk,
+	Sun, 24 Sep 2006 03:47:24 -0400
+Received: from master.altlinux.org ([62.118.250.235]:5897 "EHLO
+	master.altlinux.org") by vger.kernel.org with ESMTP
+	id S1750967AbWIXHrX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Sep 2006 03:47:23 -0400
+Date: Sun, 24 Sep 2006 11:46:47 +0400
+From: Sergey Vlasov <vsu@altlinux.ru>
+To: Willy Tarreau <w@1wt.eu>
+Cc: Adrian Bunk <bunk@stusta.de>, Greg KH <greg@kroah.com>,
        linux-kernel@vger.kernel.org
-Subject: Re: 2.6.19 -mm merge plans
-Message-ID: <20060924074837.GB13487@xi.wantstofly.org>
-References: <Pine.LNX.4.64.0609211106391.4388@g5.osdl.org> <45130533.2010209@tmr.com> <45130527.1000302@garzik.org> <20060921.145208.26283973.davem@davemloft.net> <20060921220539.GL26683@redhat.com> <20060922083542.GA4246@flint.arm.linux.org.uk> <20060922154816.GA15032@redhat.com> <Pine.LNX.4.64.0609220901040.4388@g5.osdl.org>
+Subject: Re: Linux 2.6.16.30-pre1
+Message-Id: <20060924114647.a0e4a650.vsu@altlinux.ru>
+In-Reply-To: <20060923235315.GB24214@1wt.eu>
+References: <20060922222300.GA5566@stusta.de>
+	<20060922223859.GB21772@kroah.com>
+	<20060922224735.GB5566@stusta.de>
+	<20060922230928.GB22830@kroah.com>
+	<20060923045610.GM541@1wt.eu>
+	<20060923232150.GK5566@stusta.de>
+	<20060923235315.GB24214@1wt.eu>
+X-Mailer: Sylpheed version 2.2.6 (GTK+ 2.10.2; i586-alt-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0609220901040.4388@g5.osdl.org>
-User-Agent: Mutt/1.4.1i
+Content-Type: multipart/signed; protocol="application/pgp-signature";
+ micalg="PGP-SHA1";
+ boundary="Signature=_Sun__24_Sep_2006_11_46_47_+0400_Dt/z=6OsfFBCJp0x"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 22, 2006 at 09:21:32AM -0700, Linus Torvalds wrote:
+--Signature=_Sun__24_Sep_2006_11_46_47_+0400_Dt/z=6OsfFBCJp0x
+Content-Type: text/plain; charset=US-ASCII
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> > Hmm. Some trees do seem to get pulled more often than others.
-> > Linus, is there a upper limit on the number of times you want
-> > to see pull requests? It strikes me as odd, so I'm wondering
-> > if there are some crossed wires here.
-> 
-> I personally prefer to not see _too_ many pull requests, since that
-> to me indicates that people don't take advantage of the distributed
-> nature of git, and don't let things "simmer" in their own tree for
-> a while.
+On Sun, 24 Sep 2006 01:53:15 +0200 Willy Tarreau wrote:
 
-ARM has many sub-architectures, and patches for each of the sub-archs
-typically (not always) come from the same person in ARM land, which
-typically means that the total set of ARM changes doesn't really need
-much integration testing as a whole.
+> The problem is when some hardware suddenly become detected and assigned
+> in the middle of a stable release. Do not forget that people need stable
+> releases to be able to blindly update and get their security vulnerabilit=
+ies
+> fixed. Sometimes, unlocking 2 SATA ports on the mobo by adding a PCI ID or
+> adding the PCI ID of some new ethernet cards that were not supported may
+> lead to such fun things (eth0 becoming eth2, sda becoming sdc, etc...).
+> This causes real trouble to admins, particularly those doing remote
+> updates. At least, I think that if you manage to inform people clearly
+> enough, and to separate security fixes and such fixes in distinct release=
+s,
+> it might work in most situations. But this is a dangerous game anyway.
 
-Changes that span sub-architectures (such as genirq) are usually
-discussed on the mailing list first, and tested before they get
-committed to any tree.  I.e. on the few occasions that we do need
-to test ARM-wide changes, we just email patches around rather than
-asking folks "whether 2.6.30-rmk42 works."
+Seems that the V4L/DVB patches in question are safe in this regard.
+These patches add PCI table entries matching the specific subsystem ids;
+without these entries the device will still match the default entry for
+the chip, and the user will get the same /dev/videoN, but most likely it
+won't work correctly.
 
-Due to this, by the time a patch gets sent to rmk it's Obviously
-Perfect, and the remaining testing work is 99% integration testing
-with concurrent changes to other subsystems -- mtd, netdev, usb, etc.
+The only problem which might arise is with additional IR input devices,
+but no one should expect any stable ordering there - with USB the order
+of input devices is already random.
 
-In fact, I'd argue that there are more patches that span arch/arm plus
-some other part of the tree (inter-related mtd bits, netdev bits, usb
-bits, framebuffer bits), than there are patches that span different ARM
-sub-architectures.
+--Signature=_Sun__24_Sep_2006_11_46_47_+0400_Dt/z=6OsfFBCJp0x
+Content-Type: application/pgp-signature
 
-For example, a driver for the ethernet MAC in the ARM cpu that I have
-here was recently applied by jgarzik, but I cannot submit the arch/arm
-hooks to make use of this driver until jgarzik's tree is merged upstream
-_and_ rmk rebases the half a megabyte of pending ARM changes on this
-tree.  If I submit the hooks to rmk when the driver goes upstream, rmk's
-private tree (probably still based on 2.6.18 when that happens, so won't
-have the relevant netdev changes) will break.
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
 
-To make making these kinds of changes easier without sending stuff
-upstream so regularly, rmk would have to either pull from upstream
-regularly or rebase his tree on upstream regularly, both of which
-don't seem like desirable options.
+iD8DBQFFFjfrW82GfkQfsqIRAo1kAJwMKUxV1hYLVTJZJnN+7ZrtsGhXGgCeLdNM
+4/4y2ag/LqcdTt4ZPKgaYE4=
+=Dzsr
+-----END PGP SIGNATURE-----
 
-Also, I do want to track upstream git, as every now and then changes
-are made upstream that break ARM, and we want to be able to detect that
-quickly.
-
-Due to the nature of ARM work, rmk maintaining a long-lived tree for
-stuff to 'simmer in' would probably reduce the burden on Linus but
-would not have much of an advantage otherwise, IMHO.
-
-
-cheers,
-Lennert
+--Signature=_Sun__24_Sep_2006_11_46_47_+0400_Dt/z=6OsfFBCJp0x--

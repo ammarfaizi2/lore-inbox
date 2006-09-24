@@ -1,64 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751112AbWIYLMq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751124AbWIYLRQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751112AbWIYLMq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Sep 2006 07:12:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751143AbWIYLMp
+	id S1751124AbWIYLRQ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Sep 2006 07:17:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751153AbWIYLRQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Sep 2006 07:12:45 -0400
-Received: from emailer.gwdg.de ([134.76.10.24]:17895 "EHLO emailer.gwdg.de")
-	by vger.kernel.org with ESMTP id S1751112AbWIYLMp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Sep 2006 07:12:45 -0400
-Date: Mon, 25 Sep 2006 13:11:27 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Michiel de Boer <x@rebelhomicide.demon.nl>
-cc: James Bottomley <James.Bottomley@SteelEye.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: GPLv3 Position Statement
-In-Reply-To: <451798FA.8000004@rebelhomicide.demon.nl>
-Message-ID: <Pine.LNX.4.61.0609251301030.21631@yvahk01.tjqt.qr>
-References: <1158941750.3445.31.camel@mulgrave.il.steeleye.com>
- <451798FA.8000004@rebelhomicide.demon.nl>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Report: Content analysis: 0.0 points, 6.0 required
-	_SUMMARY_
+	Mon, 25 Sep 2006 07:17:16 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:32735 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1751124AbWIYLRP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Sep 2006 07:17:15 -0400
+Subject: Re: [patch] remove MNT_NOEXEC check for PROT_EXEC mmaps
+From: Arjan van de Ven <arjan@infradead.org>
+To: Stas Sergeev <stsp@aknet.ru>
+Cc: Andrew Morton <akpm@osdl.org>, Linux kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <45150CD7.4010708@aknet.ru>
+References: <45150CD7.4010708@aknet.ru>
+Content-Type: text/plain
+Organization: Intel International BV
+Date: Sun, 24 Sep 2006 02:53:38 +0200
+Message-Id: <1159059219.3093.276.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->
-> What is the stance of the developer team / kernel maintainers on
-> DRM, Trusted Computing and software patents? Does the refusal to
-> adopt GPLv3 as is mean that these two are more likely to emerge as
-> supported functionality in the Linux kernel? Are there any moral
-> boundaries Linux kernel developers will not cross concerning
-> present and new U.S. laws on technology? Are they willing to put
-> that in writing? Will Linux support HD-DVD and BluRay by being
-> slightly more tolerant to closed source binary blobs? What about
-> the already existant problems with the Content Scrambling System
-> for DVD's?
+On Sat, 2006-09-23 at 14:30 +0400, Stas Sergeev wrote:
+> Hi Andrew.
+> 
+> I am not sure at all whether this patch is appreciated
+> or not. The on-list query yielded no results, but I have
+> to try. :)
+> 
+> This patch removes the MNT_NOEXEC check for the PROT_EXEC
+> mappings. 
 
-I agree with Neil here. Supporting HD-DVD/BluRay/Other will probably
-"as simple" as integrating DVD support into the CD-only source code
-back when DVDs where introduced was.
+so you remove a security check ...
 
-I suppose that HD-DVD drives will use the same ATAPI/SATA commands as
-DVD drives do (plus/minus the regular extras). In other words: Data
-read from the drive arrives as bytes that are ready to be parsed
-according to struct toc / whatever. There is no kernel-level
-translation required right now (at least it looks that way), and to
-watch a CSS-encrypted video, you need some extra userspace software
-to do so. I do not see why HD-DVD/BR should suddenly require a
-kernel-level CSS/Other decryptor... or did I miss something and
-Windows had a kernel-level deCSS all the time?
+> That allows to mount tmpfs with "noexec" option
+> without breaking the existing apps, which is what debian
+> wants to do for sequrity reasons:
+> http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=386945
 
-> Finally, i hope that the wishes of the community of people that have only
-> contributed to the kernel a few times but whose combined work may equal that
-> of the core developers, are taken into account; as well as the wishes of
-> the massive amount of users of the Linux kernel.
->
-> How about a public poll?
+... to add a "security" feature?
 
+sounds like the wrong tradeoff!
 
-Jan Engelhardt
--- 
+If you can mmap PROT_EXEC the "noexec" mount option doesn't mean
+anything! Because a elf binary loader is easily written in
+perl/shell/whatever, the kernel "x" bit is just a convenience there!
+The PROT_EXEC check at least makes it a bit harder to do anything like
+this; not impossible obviously
+
+Greetings,
+   Arjan van de Ven
+

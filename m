@@ -1,43 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750923AbWIXO0A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750865AbWIXOUO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750923AbWIXO0A (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Sep 2006 10:26:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750942AbWIXO0A
+	id S1750865AbWIXOUO (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Sep 2006 10:20:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750900AbWIXOUO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Sep 2006 10:26:00 -0400
-Received: from nf-out-0910.google.com ([64.233.182.188]:18521 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1750900AbWIXOZ7 convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Sep 2006 10:25:59 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:in-reply-to:references:x-mailer:mime-version:content-type:content-transfer-encoding;
-        b=q8NmEYk5pwnxagtpT//Y/2fdNATatD452Y0scZWoMGf/cFwV0NxgZl7MQ30595GGMRKnk75pmZ9o/vlXNfKipTOQAGVVm1BdBtCGk2nRsOcvYY+YXv6UYstLHZH/kWb05ObkEdxlrNGpShRjrWgDAxFJKXAd9cII3jyJvH8DXQA=
-Date: Sun, 24 Sep 2006 16:25:52 +0200
-From: Diego Calleja <diegocg@gmail.com>
-To: Fengguang Wu <fengguang.wu@gmail.com>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.19 -mm merge plans
-Message-Id: <20060924162552.0cb1ece8.diegocg@gmail.com>
-In-Reply-To: <358885143.12940@ustc.edu.cn>
-References: <20060920135438.d7dd362b.akpm@osdl.org>
-	<358882397.20533@ustc.edu.cn>
-	<20060921165918.af7a5a63.akpm@osdl.org>
-	<358885143.12940@ustc.edu.cn>
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.20; i486-pc-linux-gnu)
+	Sun, 24 Sep 2006 10:20:14 -0400
+Received: from caramon.arm.linux.org.uk ([217.147.92.249]:15890 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S1750865AbWIXOUM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Sep 2006 10:20:12 -0400
+Date: Sun, 24 Sep 2006 15:20:06 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Petr Baudis <pasky@ucw.cz>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.18-mm1
+Message-ID: <20060924142005.GF25666@flint.arm.linux.org.uk>
+Mail-Followup-To: Petr Baudis <pasky@ucw.cz>, linux-kernel@vger.kernel.org
+References: <20060924040215.8e6e7f1a.akpm@osdl.org> <20060924124647.GB25666@flint.arm.linux.org.uk> <20060924132213.GE11916@pasky.or.cz>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060924132213.GE11916@pasky.or.cz>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-El Fri, 22 Sep 2006 08:32:23 +0800,
-Fengguang Wu <fengguang.wu@gmail.com> escribió:
+On Sun, Sep 24, 2006 at 03:22:13PM +0200, Petr Baudis wrote:
+> Dear diary, on Sun, Sep 24, 2006 at 02:46:47PM CEST, I got a letter
+> where Russell King <rmk+lkml@arm.linux.org.uk> said that...
+> > On Sun, Sep 24, 2006 at 04:02:15AM -0700, Andrew Morton wrote:
+> > >  git-arm.patch
+> > 
+> > It's worth pointing out that something has gone horribly wrong in the
+> > devel branch of this tree, resulting in a load of files being deleted
+> > which shouldn't have been.
+> > 
+> > Absolutely no idea how that happened, but it's a commit buried behind
+> > lots of other commits and has taken some 4 days to be spotted.  At a
+> > guess, a perl bug where a new associative array somehow manages to pick
+> > up on old values and forget values from previous assignments.
+> > 
+> > Oddly, running the script in debug mode (where the only things which
+> > don't happen is the git commands get called) appears to give correct
+> > behaviour.
+> > 
+> > So I'm in the situation where I need to rebuild 4 days work in the ARM
+> > devel tree. ;(
+> 
+> If I understand correctly, you just need to get rid of that bad commit?
 
-> FYI: I attached a little presentation work, one for the boot time
-> stuff, another for the readahead patch.
+I'm now told that the resulting tree after all the commits is correct.
+The problem is that all the files which were supposed to be deleted by
+previous patches ended up actually being deleted by the final patch in
+the series.
 
-A nice and clean way to collect I/O traces that it's not mentioned in
-the boot_linux_faster.pdf paper would be to use kprobes + systemtap.
+So the resulting tree is fine, it's just that the history is rather
+broken.
 
+I think a solution to this might be to use git-apply, but there's one
+draw back - I currently have the facility to unpatch at a later date,
+but git-apply doesn't support -R.  I'd have to fall back to the patch
++ git add + git rm + git commit method, but that's been shown to be
+fundamentally broken.
+
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

@@ -1,70 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751354AbWIXUGG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751373AbWIXUHh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751354AbWIXUGG (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Sep 2006 16:06:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751373AbWIXUGG
+	id S1751373AbWIXUHh (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Sep 2006 16:07:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751400AbWIXUHh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Sep 2006 16:06:06 -0400
-Received: from mail.aknet.ru ([82.179.72.26]:6154 "EHLO mail.aknet.ru")
-	by vger.kernel.org with ESMTP id S1751354AbWIXUGD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Sep 2006 16:06:03 -0400
-Message-ID: <4516E581.4070404@aknet.ru>
-Date: Mon, 25 Sep 2006 00:07:29 +0400
-From: Stas Sergeev <stsp@aknet.ru>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Ulrich Drepper <drepper@redhat.com>, Hugh Dickins <hugh@veritas.com>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux kernel <linux-kernel@vger.kernel.org>
+	Sun, 24 Sep 2006 16:07:37 -0400
+Received: from nf-out-0910.google.com ([64.233.182.188]:28902 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1751373AbWIXUHg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Sep 2006 16:07:36 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=googlemail.com;
+        h=received:from:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
+        b=JPZIVy+B+3ytVFA+I424Tp9ZMT7QuNEktEc7KG5advVoyBT35hXiiOxScL/P3KQLB4ali3iMO5JFQlLA/buv4ZlcsKoJ3qkmAgbFkTAyIASKnxK9HsD0OceaYTAdhIAIROIshxkSBUrjR6p9076C6YjccwQrXtTxMynwTk9cDLs=
+From: Denis Vlasenko <vda.linux@googlemail.com>
+To: Stas Sergeev <stsp@aknet.ru>
 Subject: Re: [patch] remove MNT_NOEXEC check for PROT_EXEC mmaps
-References: <45150CD7.4010708@aknet.ru>	 <Pine.LNX.4.64.0609231555390.27012@blonde.wat.veritas.com>	 <451555CB.5010006@aknet.ru>	 <Pine.LNX.4.64.0609231647420.29557@blonde.wat.veritas.com>	 <1159037913.24572.62.camel@localhost.localdomain>	 <45162BE5.2020100@aknet.ru>	 <1159106032.11049.12.camel@localhost.localdomain>	 <45169C0C.5010001@aknet.ru> <4516A8E3.4020100@redhat.com>	 <4516B2C8.4050202@aknet.ru> <1159127978.11049.35.camel@localhost.localdomain>
-In-Reply-To: <1159127978.11049.35.camel@localhost.localdomain>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Date: Sun, 24 Sep 2006 22:06:20 +0200
+User-Agent: KMail/1.8.2
+Cc: Ulrich Drepper <drepper@redhat.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Hugh Dickins <hugh@veritas.com>, Andrew Morton <akpm@osdl.org>,
+       Linux kernel <linux-kernel@vger.kernel.org>
+References: <45150CD7.4010708@aknet.ru> <4516B721.5070801@redhat.com> <4516C9D0.3080606@aknet.ru>
+In-Reply-To: <4516C9D0.3080606@aknet.ru>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200609242206.20446.vda.linux@googlemail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.
+On Sunday 24 September 2006 20:09, Stas Sergeev wrote:
+> Ulrich Drepper wrote:
+> > The consensus has been to add the same checks to mprotect.  They were
+> > not left out intentionally.
+> But how about the anonymous mmap with PROT_EXEC set?
+> This is exactly what the malicious loader will do, it
 
-Alan Cox wrote:
->> 2. Do the anonymous mmap with PROT_EXEC set, then simply read()
->> the code there, then execute. This you *can not* restrict!
-> Its a non-finite turing machine, you can also execute an interpreter.
-Exactly. So the question is: what does the current checks
-prevent from working if the above is always possible? Answer -
-the properly-written apps. Or am I missing something?
+If attacker has malicious loaders on the system,
+the situation is already sort of hopeless.
 
->> Now, the breakage of the properly-written programs forces people
->> to stop using "noexec" on /dev/shm-mounted tmpfs. As far as I
-> But you've already just argued that this isn't useful anyway ?
-Until the malicious loader *script* is written, there is at least
-the use. You can easily write the malicious non-script loader,
-but you'll have problems invoking it from the noexeced partition.
-Most of the current security techniques makes the attack more
-difficult but not eliminate it entirely. Without such a magic
-script, noexec does its work rather effectively I think (provided
-that ld.so is fixed too).
-The point is: adding such a checks for mmap() does *not* make
-that work of noexec any more effective, but instead breaks the
-existing apps or configurations, forcing people to resort to the
-weaker configurations. Except for the very suspicious help for
-ld.so, noone so far mentioned a *single* advantage of such a
-checks, or I might have been blind. :)
+Stas, I think noexec mounts are meant to prevent
+_accidental_ execution of binaries/libs from that
+filesystem. Think VFAT partition here, where all
+files have execute bits set.
 
->> understand, having the single writeable and executable mountpoint
->> is almost as bad as having all of them. The attacker will now simply
->> put his binary into /dev/shm.
-> SELinux
-... while before, the "noexec" could do the trick quite right.
-That's what I was saying: "noexec" is becoming useless after
-such a change, the one now needs SELinux to achieve the same
-goal without breaking the existing apps.
-I am not at all in favour of noexec. But before, it did one simple
-task (fail exec calls) and it was clear where to use it and
-where not. Now it pretends to do something more, but in fact,
-compared to the older behaviour, the only difference is that now
-it breaks apps where before it could be used safely. There are
-no other differences, or at least I haven't seen them.
+If user wants to execute binary blob from that fs
+bad enough, he will do it. Maybe just by
+copying file first to /tmp.
 
+> won't do the shared (or private) file-backed mmap.
+> So your technique doesn't restrict the malicious
+> loaders, including the potential script loader you
+> were referring to. It doesn't even make their life
+> any harder. Only the properly-written programs suffer.
+> Or, in case of ceasing to use noexec - the security.
+--
+vda

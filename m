@@ -1,60 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932148AbWIYOML@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932178AbWIYOSD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932148AbWIYOML (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Sep 2006 10:12:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932152AbWIYOMK
+	id S932178AbWIYOSD (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Sep 2006 10:18:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932179AbWIYOSD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Sep 2006 10:12:10 -0400
-Received: from stat9.steeleye.com ([209.192.50.41]:32184 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S932148AbWIYOMJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Sep 2006 10:12:09 -0400
-Subject: Re: GPLv3 Position Statement
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: Michiel de Boer <x@rebelhomicide.demon.nl>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <451798FA.8000004@rebelhomicide.demon.nl>
-References: <1158941750.3445.31.camel@mulgrave.il.steeleye.com>
-	 <451798FA.8000004@rebelhomicide.demon.nl>
-Content-Type: text/plain
-Date: Mon, 25 Sep 2006 09:12:03 -0500
-Message-Id: <1159193523.3463.14.camel@mulgrave.il.steeleye.com>
+	Mon, 25 Sep 2006 10:18:03 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:18960 "EHLO
+	spitz.ucw.cz") by vger.kernel.org with ESMTP id S932178AbWIYOSA
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Sep 2006 10:18:00 -0400
+Date: Sun, 24 Sep 2006 16:21:58 +0000
+From: Pavel Machek <pavel@ucw.cz>
+To: Alexander Gran <alex@grans.eu>
+Cc: kernel list <linux-kernel@vger.kernel.org>, Greg KH <greg@kroah.com>,
+       Linux usb mailing list 
+	<linux-usb-devel@lists.sourceforge.net>
+Subject: Re: usb still sucks battery in -rc7-mm1
+Message-ID: <20060924162158.GB5156@ucw.cz>
+References: <20060924090858.GA1852@elf.ucw.cz> <200609241650.02922@zodiac.zodiac.dnsalias.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200609241650.02922@zodiac.zodiac.dnsalias.org>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-09-25 at 10:53 +0200, Michiel de Boer wrote:
-> For what it's worth, i support RMS and his fight for free software fully.
-> I support the current draft of the GPL version 3 and am very dissapointed
-> it will not be adopted as is. IMHO, Linux has the power and influence
-> to move mountains in the software industry, and shouldn't shy away from
-> the opportunity to take moral responsibility when it arises.
+On Sun 24-09-06 16:49:59, Alexander Gran wrote:
+> Perhaps your cpu cannot go into deep c states? At least my IBm T40p has that 
+> problem, when USB is enabled.
 
-Well ... as Russell already pointed out; adopting GPLv3 was made
-incredibly difficult for us by the FSF.  We could easily adopt a GPLv2
-compatible licence simply by going through some sort of process to
-secure agreement and then altering the COPYING file of the kernel (the
-point being that past contributions would still be v2, future
-contributions would be the new licence and there's no distribution
-problem because they're compatible).
+Yes, and latest -mm's were expected to fix that...
 
-There are definite bug fixes to v2 in the v3 draft:  Bittorrent and
-termination.  However, we could adopt those in a v2 compatible fashion
-(as additional permissions).  Additionally, it does strike me that a
-patent grant could be formulated in a v2 compatible manner if people
-agreed on it.  Obviously, the additional restrictions of v3 is
-completely impossible to accommodate in a v2 compatible manner.  The DRM
-provisions could be disputed: if you believe they're already in v2, then
-they could be adopted in a v2 compatible fashion as a clarification ...
-however, they'd have to be quite a bit less broad than the current v3
-language.
+							Pavel
 
-All in all, we could probably only switch to v3 by some type of
-universal acclamation process, which, with 28 votes against already
-isn't really likely.
+> 
+> regards
+> Alex
+> 
+> Am Sonntag, 24. September 2006 11:08 schrieb Pavel Machek:
+> > Hi!
+> >
+> > I made some quick experiments, and usb still eats 4W of battery
+> > power. (With whole machine eating 9W, that's kind of a big deal)...
+> >
+> > This particular machine has usb bluetooth, but it can be disabled by
+> > firmware, and appears unplugged. (I did that). It also has fingerprint
+> > scanner, that can't be disabled, but that does not have driver (only
+> > driven by useland, and was unused in this experiment).
+> >
+> > Any ideas?
+> > 								Pavel
+> 
+> -- 
+> Encrypted Mails welcome.
+> PGP-Key at http://www.grans.eu/misc/pgpkey.asc | Key-ID: 0x6D7DD291
+> More info at http://www.grans.eu/Alexander_Gran.html
 
-James
 
 
+-- 
+Thanks for all the (sleeping) penguins.

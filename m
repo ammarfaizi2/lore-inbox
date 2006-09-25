@@ -1,46 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751427AbWIYLjH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751414AbWIYLmO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751427AbWIYLjH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Sep 2006 07:39:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751445AbWIYLjH
+	id S1751414AbWIYLmO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Sep 2006 07:42:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751447AbWIYLmO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Sep 2006 07:39:07 -0400
-Received: from stat9.steeleye.com ([209.192.50.41]:26804 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S1751427AbWIYLjF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Sep 2006 07:39:05 -0400
-Subject: Re: mainline aic94xx firmware woes
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Muli Ben-Yehuda <muli@il.ibm.com>, linux-scsi <linux-scsi@vger.kernel.org>,
-       Linux-Kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <1159183984.11049.59.camel@localhost.localdomain>
-References: <20060925101124.GH6374@rhun.haifa.ibm.com>
-	 <1159183984.11049.59.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Mon, 25 Sep 2006 06:38:56 -0500
-Message-Id: <1159184336.3463.3.camel@mulgrave.il.steeleye.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
+	Mon, 25 Sep 2006 07:42:14 -0400
+Received: from hu-out-0506.google.com ([72.14.214.239]:25480 "EHLO
+	hu-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1751414AbWIYLmN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Sep 2006 07:42:13 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=iuykA7ukhR32fC2c30gJsM3bjat3onAPuPTs6kmXG4npB9BsnQIxQmeJXOejW9O4506AKk4Ligbcq4uxObYaHCSA7YFUQk8PZk8IdPL4CMQ0TwovLEgg4D3u9ZUvNONKmHbinxifpobgfSDp7fPDy1IDCFcYyu20WbbjQRr86Jw=
+Message-ID: <ce55079f0609250442x5638a93fuac95c65a54a0927@mail.gmail.com>
+Date: Mon, 25 Sep 2006 15:42:12 +0400
+From: Vladimir <vovan888@gmail.com>
+To: lamikr@cc.jyu.fi
+Subject: Re: [PATCH 5/5] Add gsm phone support for the mixer in tsc2101 alsa driver.
+Cc: tony@atomide.com, OMAP-Linux <linux-omap-open-source@linux.omap.com>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <44FF2A6D.3000500@cc.jyu.fi>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <44E51565.6020505@cc.jyu.fi> <20060905151808.GC18073@atomide.com>
+	 <44FF2A6D.3000500@cc.jyu.fi>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-09-25 at 12:33 +0100, Alan Cox wrote:
-> We should not be including non-free firmware in the kernel, we should be
-> continuing to drive it out into things like initramfs.
+> 1) As we do not yet have any kind of multiplexing support to gsm module
+> (currently directly accesing dev/ttyS1 for at commands)
+> our phone app is not able to run simultaneously with the ppp. I am not
+> sure should I resolve this in the kernel space or user space.
+>
 
-Right, which is why this was done as one of the conditions for accepting
-the driver
-
-> > Also, aic94xx does not compile unless FW_LOADER is set in .config due
-> > to missing 'request_firmware'. What's the right thing to do here -
-> > aic94xx selecting it, depending on it
-> 
-> Either select or depend
-
-select, I think.
-
-James
-
-
+I work on getting linux running on Siemens SX1 mobile phone.
+and I use GSM multiplexer daemon from here -
+http://developer.berlios.de/projects/gsmmux/
+it works fine for me.

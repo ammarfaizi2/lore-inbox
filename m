@@ -1,66 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932081AbWIYNMh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750747AbWIYNYU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932081AbWIYNMh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Sep 2006 09:12:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932116AbWIYNMh
+	id S1750747AbWIYNYU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Sep 2006 09:24:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750993AbWIYNYU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Sep 2006 09:12:37 -0400
-Received: from test.neuron.ee ([194.126.121.141]:47521 "EHLO test.neuron.ee")
-	by vger.kernel.org with ESMTP id S932081AbWIYNMg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Sep 2006 09:12:36 -0400
-Message-ID: <4517D5BF.7000103@city.ee>
-Date: Mon, 25 Sep 2006 16:12:31 +0300
-From: Lenar <lenar@city.ee>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060728)
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Kernel BUG / invalid opcode
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 25 Sep 2006 09:24:20 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:57729 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1750747AbWIYNYT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Sep 2006 09:24:19 -0400
+Subject: Re: [PATCH] v4l2 VIDIOC_DQBUF typo in 2.6.18
+From: Mauro Carvalho Chehab <mchehab@infradead.org>
+To: Jonathan Corbet <corbet@lwn.net>
+Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, stable@kernel.org,
+       s.hauer@pengutronix.de
+In-Reply-To: <8056.1159189100@lwn.net>
+References: <8056.1159189100@lwn.net>
+Content-Type: text/plain; charset=ISO-8859-1
+Date: Mon, 25 Sep 2006 10:24:10 -0300
+Message-Id: <1159190650.10332.93.camel@praia>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.0-1mdv2007.0 
+Content-Transfer-Encoding: 8bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <mchehab@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Do not know where to send it, linux-kernel, debian or vserver guys, but
-thought I'll start here.
+Hi, Jonathan,
 
-Happened on dual-core AMD64 4600+ machine
+Em Seg, 2006-09-25 às 06:58 -0600, Jonathan Corbet escreveu:
+> It seems that, in the rush to create the new V4L2 ioctl() API, the
+> VIDIOC_DQBUF code got cut-and-pasted in without being fixed up.
+Yes.
+> I went and made a patch, only to discover that Sascha Hauer beat me to it.
+It is already corrected at my -git tree and at V4L/DVB development tree,
+available at http://linuxtv.org/hg. The correction is also at -mm
+series.
 
-Please ask, if more info is needed.
+This trouble were discovered too late at 2.6.18 cycle, and affected just
+vivi module, used to emulate a v4l2 driver. It is likely to affect just
+driver and userspace developers.
 
-L.
+> That patch doesn't seem to have been picked up yet, however.  Since it's
+> important (streaming I/O will not work without it), here's an attempt to
+> spread it a bit more widely.
 
----
-
-Kernel BUG at mm/rmap.c:561
-invalid opcode: 0000 [1] SMP
-CPU 1
-Modules linked in: netconsole button ac battery dummy w83627ehf i2c_isa 
-i2c_core loop softdog serio_raw psmouse evdev pcspkr ext3 jbd mbcache 
-dm_mirror dm_snapshot dm_mod raid1 md_mod ide_generic sd_mod amd74xx 
-generic ide_core forcedeth sata_nv libata scsi_mod thermal processor fan
-Pid: 14466, comm: libtool Not tainted 2.6.17-2-vserver-amd64 #1
-RIP: 0010:[<ffffffff8020abc8>] <ffffffff8020abc8>{page_remove_rmap+19}
-RSP: 0018:ffff81001fc57df0  EFLAGS: 00010286
-RAX: 00000000ffffffff RBX: ffff81007ea98000 RCX: ffff8100010202a0
-RDX: 0000000000000000 RSI: 800000001f000045 RDI: ffff81007ea98000
-RBP: 000000001f000000 R08: ffff81007ea0da40 R09: 0000000000000000
-R10: 0000000000000000 R11: 0000000000745208 R12: 0000000000608000
-R13: ffff810020251040 R14: ffff81007cb73240 R15: 0000000000749000
-FS:  00002abb10e1e6d0(0000) GS:ffff810001349ac0(0000) knlGS:0000000000000000
-CS:  0010 DS: 0000 ES: 0000 CR0: 000000008005003b
-CR2: 00002abb10e18fe0 CR3: 0000000028647000 CR4: 00000000000006e0
-Process libtool (pid: 14466[#26], threadinfo ffff81001fc56000, task 
-ffff81002d556880)
-Stack: ffffffff802079e2 0000000000000000 ffff81001fc57ec8 ffffffffffffffff
-       0000000000000000 ffff8100369de700 ffff81001fc57ed0 0000000000000000
-       0000000151c21a98 0000000000749000
-Call Trace: <ffffffff802079e2>{unmap_vmas+1025} 
-<ffffffff802390c7>{exit_mmap+120}
-       <ffffffff8023b321>{mmput+40} <ffffffff8021438e>{do_exit+527}
-       <ffffffff802481cc>{cpuset_exit+0} <ffffffff8025b84e>{system_call+126}
-
-Code: 0f 0b 68 ee 3d 40 80 c2 31 02 48 83 ce ff bf 20 00 00 00 e9
-RIP <ffffffff8020abc8>{page_remove_rmap+19} RSP <ffff81001fc57df0>
- <1>Fixing recursive fault but reboot is needed!
+Cheers, 
+Mauro.
 

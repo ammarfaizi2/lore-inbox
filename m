@@ -1,55 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932084AbWIYMBm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750809AbWIYMKI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932084AbWIYMBm (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Sep 2006 08:01:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932080AbWIYMBl
+	id S1750809AbWIYMKI (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Sep 2006 08:10:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750817AbWIYMKI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Sep 2006 08:01:41 -0400
-Received: from nat-132.atmel.no ([80.232.32.132]:36559 "EHLO relay.atmel.no")
-	by vger.kernel.org with ESMTP id S932092AbWIYMBl (ORCPT
+	Mon, 25 Sep 2006 08:10:08 -0400
+Received: from hs-grafik.net ([80.237.205.72]:45318 "EHLO hs-grafik.net")
+	by vger.kernel.org with ESMTP id S1750809AbWIYMKG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Sep 2006 08:01:41 -0400
-Date: Mon, 25 Sep 2006 14:01:23 +0200
-From: Haavard Skinnemoen <hskinnemoen@atmel.com>
-To: Russell King <rmk+lkml@arm.linux.org.uk>
-Cc: Andrew Victor <andrew@sanpeople.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 0/3] at91_serial: Introduction
-Message-ID: <20060925140123.12bf8cd5@cad-250-152.norway.atmel.com>
-In-Reply-To: <20060923211417.GB4363@flint.arm.linux.org.uk>
-References: <11545303083273-git-send-email-hskinnemoen@atmel.com>
-	<20060923211417.GB4363@flint.arm.linux.org.uk>
-Organization: Atmel Norway
-X-Mailer: Sylpheed-Claws 2.5.0-rc3 (GTK+ 2.8.20; i486-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 25 Sep 2006 08:10:06 -0400
+From: Alexander Gran <alex@grans.eu>
+To: Tilman Schmidt <tilman@imap.cc>
+Subject: Re: [2.6.18-rc7-mm1] slow boot
+Date: Mon, 25 Sep 2006 14:09:59 +0200
+User-Agent: KMail/1.9.4
+Cc: linux-kernel@vger.kernel.org
+References: <4516B966.3010909@imap.cc>
+In-Reply-To: <4516B966.3010909@imap.cc>
+X-Face: ){635DT*1Z+Z}$~Bf[[i"X:f2i+:Za[:Q0<UzyJPoAm(;y"@=?iso-8859-15?q?LwMhWM4=5D=60x1bDaQDpet=3B=3Be=0A=09N=5CBIb8o=5BF!fdHrI-?=
+ =?iso-8859-15?q?=7E=24ctS=3F!?=,U+0}](xD}_b]awZrK=>753Wk;RwhCU`Bt(I^/Jxl~5zIH<
+ =?iso-8859-15?q?=0A=09XplI=3A9GKEcr/JPqzW=3BR=5FqDQe*=23CE=7E70=3Bj=25Hg8?=
+ =?iso-8859-15?q?CNh*4?=<
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart1423870.Wt5x5ZRnlU";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
+Message-Id: <200609251409.59927@zodiac.zodiac.dnsalias.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 23 Sep 2006 22:14:17 +0100
-Russell King <rmk+lkml@arm.linux.org.uk> wrote:
+--nextPart1423870.Wt5x5ZRnlU
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-> On Wed, Aug 02, 2006 at 04:51:45PM +0200, Haavard Skinnemoen wrote:
-> > Another thing: Andrew, are you the official maintainer of this
-> > driver? If not, who is?
-> 
-> I've not heard from Andrew, so I'm not sure what to do about this.  I
-> think these changes need validating by someone with the existing
-> driver's hardware (iow, AT91RM9200 and/or AT91SAM9261) so we can be
-> sure we don't break that support.
+Hi,
 
-I really want at least the first one to go in, as the new AVR32 port
-would soon find itself without a serial driver otherwise. And it
-doesn't make any actual changes for the CONFIG_ARM case, so it should
-be quite safe. The last two are bugfixes which I believe make sense on
-ARM as well, but that's also a reason why they should be more thoroughly
-tested.
+simillar behavior here, but at different parts. 2.6.18-rc7-mm1 takes way=20
+longer than 2.6.16-mm1 (the last one working here to boot.
+I have delays (seconds!) between:=20
+intel8x0_measure_ac97_clock: measured 50450 usecs
+intel8x0: clocking to 48000
+and=20
+IBM TrackPoint firmware: 0x0e, buttons: 3/3
+input: TPPS/2 IBM TrackPoint as /devices/platform/i8042/serio0/serio2/input3
 
-I can resend them as individual patches if it helps make it more clear
-that they don't really depend on each other.
+I'll try to find out more, however I'm quite busy (and ill...) atm. If Tilm=
+an=20
+hadn't mailed, I wouldn't report either, but it looks I'm not the only one=
+=20
+with these problem ;-O
+BTW: No real debuging enabled here, just sysrq and dmesg buffer size.
 
-I have a AT91RM9200-EK board lying around, so I might be able to test
-the patches on that as soon as I get the necessary cross compilers and
-other tools set up.
+regards
+Alex
 
-Haavard
+=2D-=20
+Encrypted Mails welcome.
+PGP-Key at http://www.grans.eu/misc/pgpkey.asc | Key-ID: 0x6D7DD291
+More info at http://www.grans.eu/Alexander_Gran.html
+
+--nextPart1423870.Wt5x5ZRnlU
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
+
+iD8DBQBFF8cX/aHb+2190pERAoy7AKCAc/VJBI7WBg9txynv5OG51aTHBwCdErsy
+edynTuAb5H7qW7V7Zf06KBI=
+=F6Gm
+-----END PGP SIGNATURE-----
+
+--nextPart1423870.Wt5x5ZRnlU--

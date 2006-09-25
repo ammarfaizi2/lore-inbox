@@ -1,71 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964859AbWIYCWz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030189AbWIYCf7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964859AbWIYCWz (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Sep 2006 22:22:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964848AbWIYCWz
+	id S1030189AbWIYCf7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Sep 2006 22:35:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030190AbWIYCf6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Sep 2006 22:22:55 -0400
-Received: from palinux.external.hp.com ([192.25.206.14]:406 "EHLO
-	mail.parisc-linux.org") by vger.kernel.org with ESMTP
-	id S964833AbWIYCWx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Sep 2006 22:22:53 -0400
-Date: Sun, 24 Sep 2006 20:22:52 -0600
-From: Matthew Wilcox <matthew@wil.cx>
-To: James Bottomley <James.Bottomley@steeleye.com>,
-       Linus Torvalds <torvalds@osdl.org>
-Cc: Andrew Morton <akpm@osdl.org>, linux-scsi@vger.kernel.org,
+	Sun, 24 Sep 2006 22:35:58 -0400
+Received: from xenotime.net ([66.160.160.81]:32132 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1030189AbWIYCf6 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Sep 2006 22:35:58 -0400
+Date: Sun, 24 Sep 2006 19:37:11 -0700
+From: Randy Dunlap <rdunlap@xenotime.net>
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@muc.de>,
+       Chuck Ebbert <76306.1226@compuserve.com>,
+       Zachary Amsden <zach@vmware.com>, Jan Beulich <jbeulich@novell.com>,
        linux-kernel@vger.kernel.org
-Subject: [PATCH] Revert ABI-breaking change in /proc
-Message-ID: <20060925022252.GG2595@parisc-linux.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.13 (2006-08-11)
+Subject: Re: i386 pda patches
+Message-Id: <20060924193711.cc46d3de.rdunlap@xenotime.net>
+In-Reply-To: <4517256E.10606@goop.org>
+References: <20060924013521.13d574b1.akpm@osdl.org>
+	<4517256E.10606@goop.org>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Some user tools parse /proc/scsi/scsi, so we can't yet change the names.
-Change the existing ones back to their old names, and add an admonition
-to not make the same mistake that I did.
+On Sun, 24 Sep 2006 17:40:14 -0700 Jeremy Fitzhardinge wrote:
 
-Andrew Morton reports that this was breaking YDL 4.1 userspace.
+> Andrew Morton wrote:
+> > I am unable to correlate what's in Andi's tree with the PDA-related emails
+> > on this list.  Why is this?
+> >   
+> 
+> I'm not sure what's in Andi's tree.  He mentioned that he had trouble 
+> merging a previous patch I had, but it wasn't a particularly big change.
+> 
+> Andi, where can I get your tree?
 
-Signed-off-by: Matthew Wilcox <matthew@wil.cx>
-Signed-off-by: Andrew Morton <akpm@osdl.org>
+Looks like it's at
+ftp://ftp.firstfloor.org/pub/ak/x86_64/quilt-current/
 
-diff -puN drivers/scsi/scsi.c~revert-scsi-improve-inquiry-printing drivers/scsi/scsi.c
---- a/drivers/scsi/scsi.c~revert-scsi-improve-inquiry-printing
-+++ a/drivers/scsi/scsi.c
-@@ -96,22 +96,26 @@ unsigned int scsi_logging_level;
- EXPORT_SYMBOL(scsi_logging_level);
- #endif
- 
-+/* NB: These are exposed through /proc/scsi/scsi and form part of the ABI.
-+ * You may not alter any existing entry (although adding new ones is
-+ * encouraged once assigned by ANSI/INCITS T10
-+ */
- static const char *const scsi_device_types[] = {
--	"Direct access    ",
--	"Sequential access",
-+	"Direct-Access    ",
-+	"Sequential-Access",
- 	"Printer          ",
- 	"Processor        ",
- 	"WORM             ",
--	"CD/DVD           ",
-+	"CD-ROM           ",
- 	"Scanner          ",
--	"Optical memory   ",
--	"Media changer    ",
-+	"Optical Device   ",
-+	"Medium Changer   ",
- 	"Communications   ",
- 	"ASC IT8          ",
- 	"ASC IT8          ",
- 	"RAID             ",
- 	"Enclosure        ",
--	"Direct access RBC",
-+	"Direct-Access-RBC",
- 	"Optical card     ",
- 	"Bridge controller",
- 	"Object storage   ",
+
+---
+~Randy

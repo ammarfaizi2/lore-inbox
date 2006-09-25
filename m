@@ -1,79 +1,121 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750964AbWIYQsN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750911AbWIYQud@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750964AbWIYQsN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Sep 2006 12:48:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751242AbWIYQsN
+	id S1750911AbWIYQud (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Sep 2006 12:50:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751256AbWIYQud
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Sep 2006 12:48:13 -0400
-Received: from mga06.intel.com ([134.134.136.21]:65098 "EHLO
-	orsmga101.jf.intel.com") by vger.kernel.org with ESMTP
-	id S1750955AbWIYQsM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Sep 2006 12:48:12 -0400
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.09,215,1157353200"; 
-   d="scan'208"; a="135369179:sNHT7891510760"
-Date: Mon, 25 Sep 2006 09:46:39 -0700
-From: Valerie Henson <val_henson@linux.intel.com>
-To: Dave Kleikamp <shaggy@austin.ibm.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel <linux-kernel@vger.kernel.org>,
-       ext4 development <linux-ext4@vger.kernel.org>,
-       "Theodore Ts'o" <tytso@mit.edu>
-Subject: Re: [PATCH] EXT2: Remove superblock lock contention in ext2_statfs
-Message-ID: <20060925164637.GA30477@goober>
-References: <1158611794.11940.40.camel@kleikamp.austin.ibm.com> <1158622685.11940.52.camel@kleikamp.austin.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1158622685.11940.52.camel@kleikamp.austin.ibm.com>
-User-Agent: Mutt/1.5.9i
+	Mon, 25 Sep 2006 12:50:33 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:43157 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750911AbWIYQuc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Sep 2006 12:50:32 -0400
+Date: Mon, 25 Sep 2006 09:50:20 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Michiel de Boer <x@rebelhomicide.demon.nl>
+cc: James Bottomley <James.Bottomley@SteelEye.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: GPLv3 Position Statement
+In-Reply-To: <451798FA.8000004@rebelhomicide.demon.nl>
+Message-ID: <Pine.LNX.4.64.0609250926030.3952@g5.osdl.org>
+References: <1158941750.3445.31.camel@mulgrave.il.steeleye.com>
+ <451798FA.8000004@rebelhomicide.demon.nl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 18, 2006 at 06:38:05PM -0500, Dave Kleikamp wrote:
-> On Mon, 2006-09-18 at 15:36 -0500, Dave Kleikamp wrote:
-> > EXT2: Remove superblock lock contention in ext2_statfs
-> > 
-> > Fix a performance degradation introduced in 2.6.17.  (30% degradation running
-> > dbench with 16 threads)
-> > 
-> > Patch 21730eed11de42f22afcbd43f450a1872a0b5ea1, which claims to make
-> > EXT2_DEBUG work again, moves the taking of the kernel lock out of debug-only
-> > code in ext2_count_free_inodes and ext2_count_free_blocks and into
-> > ext2_statfs.  This patch reverses that part of the patch.
-> > 
-> > Signed-off-by: Dave Kleikamp <shaggy@austin.ibm.com>
+
+
+On Mon, 25 Sep 2006, Michiel de Boer wrote:
 > 
-> Eric Sandeen pointed out to me that taking the superblock lock in
-> ext2_count_free_* will cause a deadlock when EXT2FS_DEBUG is enabled,
-> since the superblock is locked in write_super().
-> 
-> We found that the same problem was fixed in ext3 with this patch
-> (forgive the long link):
-> http://git.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff;h=5b11687924e40790deb0d5f959247ade82196665;hp=2384f55f8aa520172c995965bd2f8a9740d53095
-> 
-> The patch below just removes the use of the superblock lock in the debug
-> code.
+> I support the current draft of the GPL version 3 and am very dissapointed
+> it will not be adopted as is. IMHO, Linux has the power and influence
+> to move mountains in the software industry, and shouldn't shy away from
+> the opportunity to take moral responsibility when it arises.
 
-(Sorry for the delay; been on vacation.)
+Well, you do have to realize that Linux has never been an FSF project, and 
+in fact has never even been a "Free Software" project.
 
-Heh, I ran into the same lock nesting issues as you when I first tried
-to fix this; the lock debugging code found it for me.  I asked for
-feedback on the locking issue when I submitted the patch, but no one
-had any opinions then, so I chose consistency over possible
-contention.  Al Viro snorted at the idea of consistency in the results
-of statfs (I paraphrase his IRC remarks), and thinking about it
-further, I realized the debug code should not be doing these checks in
-statfs anyway; only on mount and unmount.  This is because it appears
-that the block group accounting and the overall fs accounting are done
-non-atomically - see group_reserve_blocks() for example - and part of
-what the code does is reconcile these two numbers.  It is legal for a
-valid fs to have the block group summaries and the fs-wide summaries
-out of sync, so the debug code could erroneously report an error,
-leading some poor soul on a wild goose chase.  Removing this code from
-statfs also happens to fix the locking issues nicely.
+The whole "Open Source" renaming was done largely _exactly_ because people 
+wanted to distance themselves from the FSF. The fact that the FSF and it's 
+followers refused to accept the name "Open Source", and continued to call 
+Linux "Free Software" is not _our_ fault.
 
-Rewriting this has been on my todo list for about 6 months now -
-anyone interested in grabbing it?  I'm on #linuxfs on irc.oftc.net if
-anyone wants to chat about it.
+Similarly, the fact that rms and the FSF has tried to paint Linux as a GNU 
+project (going as far as trying to rename it "GNU/Linux" at every 
+opportunity they get) is their confusion, not ours.
 
--VAL
+I personally have always been very clear about this: Linux is "Open 
+Source". It was never a FSF project, and it was always about giving source 
+code back and keeping it open, not about anything else. The very first 
+license used for the kernel was _not_ the GPL at all, but read the release 
+notes for Linux 0.01, and you will see:
+
+		2. Copyrights etc
+
+  This kernel is (C) 1991 Linus Torvalds, but all or part of it may be
+  redistributed provided you do the following:
+
+	- Full source must be available (and free), if not with the
+	  distribution then at least on asking for it.
+
+	- Copyright notices must be intact. (In fact, if you distribute
+	  only parts of it you may have to add copyrights, as there aren't
+	  (C)'s in all files.) Small partial excerpts may be copied
+	  without bothering with copyrights.
+
+	- You may not distibute this for a fee, not even "handling"
+	  costs.
+
+notice? Linux from the very beginning was not about the FSF ideals, but 
+about "Full source must be available". It also talked about "Free", but 
+that very much was "Free as in beer, not as in freedom", and I decided to 
+drop that later on.
+
+How much clearer can I be? I've actively tried to promote "Open Source" as 
+an alternative to "Free Software", so the FSF only has itself to blame 
+over the confusion. 
+
+Thinking that Linux has followed FSF goals is incorrect. IT NEVER DID!
+
+I think the GPLv2 is an absolutely great license. I obviously relicensed 
+everything just a few months after releasing the first version of Linux. 
+But people who claim that that means that I (or anybody else) should care 
+what the FSF thinks on other issues are just being totally silly.
+
+> What is the stance of the developer team / kernel maintainers on DRM,
+> Trusted Computing and software patents?
+
+I'm very much on record as not liking them. That changes nothing. I'm also 
+very much on record as saying that DRM, TPC etc have nothing at all to do 
+with the kernel license.
+
+If you want to fight DRM, do so by joining the Creative Commons movement. 
+The problem with Disney is not that they use DRM, it's that they control 
+the content in the first place - and they do that because content tends to 
+be too monopolized. 
+
+The whole "content" discussion has _nothing_ to do with an operating 
+system. Trying to add that tie-in is a bad idea. It tries to link things 
+that aren't relevant. 
+
+So go fight the problem at the _source_ of the problem, not in my project 
+that has got nothing to do it.
+
+And please, when you join that fight, use your _own_ copyrights. Not 
+somebody elses. I absolutely hate how the FSF has tried to use my code as 
+a weapon, just because I decided that their license was good.
+
+> How about a public poll?
+
+Here's a poll for you:
+ - go write your own kernel
+ - poll which one is more popular
+
+It really is that simple. The kernel was released with a few rules. The 
+same way you can't just make your own version of it and then not release 
+sources, you _also_ cannot just make it GPLv3. 
+
+It's not a democracy. Copyright is a _right_. Authors matter.
+
+			Linus

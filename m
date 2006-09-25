@@ -1,64 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932184AbWIYFvU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751210AbWIYGD4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932184AbWIYFvU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Sep 2006 01:51:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932169AbWIYFvU
+	id S1751210AbWIYGD4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Sep 2006 02:03:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751298AbWIYGD4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Sep 2006 01:51:20 -0400
-Received: from nwd2mail11.analog.com ([137.71.25.57]:43123 "EHLO
-	nwd2mail11.analog.com") by vger.kernel.org with ESMTP
-	id S932184AbWIYFvU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Sep 2006 01:51:20 -0400
-X-IronPort-AV: i="4.09,210,1157342400"; 
-   d="scan'208"; a="10191560:sNHT21261618"
-Message-Id: <6.1.1.1.0.20060925011906.01ecea00@ptg1.spd.analog.com>
-X-Mailer: QUALCOMM Windows Eudora Version 6.1.1.1
-Date: Mon, 25 Sep 2006 01:51:34 -0400
-To: Paul Mundt <lethal@linux-sh.org>
-From: Robin Getz <rgetz@blackfin.uclinux.org>
-Subject: Re: [PATCH 3/3] [BFIN] Blackfin documents and MAINTAINER patch
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Greg KH <gregkh@suse.de>, luke Yang <luke.adi@gmail.com>
+	Mon, 25 Sep 2006 02:03:56 -0400
+Received: from ozlabs.org ([203.10.76.45]:1711 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S1751210AbWIYGDz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Sep 2006 02:03:55 -0400
+Subject: Re: [PATCH 5/7] Use %gs for per-cpu sections in kernel
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: Andi Kleen <ak@muc.de>,
+       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       virtualization <virtualization@lists.osdl.org>
+In-Reply-To: <45176865.7020300@goop.org>
+References: <1158925861.26261.3.camel@localhost.localdomain>
+	 <1158925997.26261.6.camel@localhost.localdomain>
+	 <1158926106.26261.8.camel@localhost.localdomain>
+	 <1158926215.26261.11.camel@localhost.localdomain>
+	 <1158926308.26261.14.camel@localhost.localdomain>
+	 <1158926386.26261.17.camel@localhost.localdomain>
+	 <4514663E.5050707@goop.org>
+	 <1158985882.26261.60.camel@localhost.localdomain>
+	 <45172AC8.2070701@goop.org>
+	 <1159146974.26986.30.camel@localhost.localdomain>
+	 <45173287.8070204@goop.org>
+	 <1159152678.26986.38.camel@localhost.localdomain>
+	 <45176865.7020300@goop.org>
+Content-Type: text/plain
+Date: Mon, 25 Sep 2006 16:03:52 +1000
+Message-Id: <1159164232.26986.59.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul indicated:
-> > +cache-lock.txt
-> > +     - HOWTO for blackfin cache locking.
-> > +
->
->This is a generic enough of a feature that I suspect we should hash out a 
->common API for it rather than having people roll their own.
+On Sun, 2006-09-24 at 22:25 -0700, Jeremy Fitzhardinge wrote:
+> The %gs:per_cpu__foo addressing mode still calculates 
+> 0xbcef00+0xc0433800, which is still a subtraction.  My essential point 
+> is that *all* kernel addresses (=kernel symbols) are negative, so using 
+> them as an offset from a segment base (any segment base) is a 
+> subtraction, which requires a 4G limit.
 
-That sounds like a good idea. From the few people that use this, I think a 
-much simpler interface would be desirable.
+I don't think so.  There's *never* address subtraction, there's
+sometimes 32 bit wrap (glibc uses this to effect subtraction, sure).
+But there's no wrap here.
 
-For data, it is easy - something similar to the processor specific 
-xx_flush_range(start,end) - have a xxx_lock_range(start,end) would be good, 
-and easy to implement.
+To test, I changed the following:
 
-The only thing I am not sure of - is how to force things into cache. For 
-data - it is easy - do a read, and then lock it. For instruction - for 
-those architectures which have separate instruction cache (like Blackfin) 
-it is much harder. The only way to get code into cache is to execute it. 
-(ergo the existing interface).
+--- smpboot.c.~8~	2006-09-25 15:51:50.000000000 +1000
++++ smpboot.c	2006-09-25 16:00:36.000000000 +1000
+@@ -926,8 +926,9 @@
+ 					      unsigned long per_cpu_off)
+ {
+ 	unsigned limit, flags;
++	extern char __per_cpu_end[];
+ 
+-	limit = (1 << 20);
++	limit = PAGE_ALIGN((long)__per_cpu_end) >> PAGE_SHIFT;
+ 	flags = 0x8;		/* 4k granularity */
+ 
+ 	/* present read-write data segment */
 
-Normally - what we do when locking things in cache is specific to the hardware.
-   - to prevent isr polluting cache, we disable interrupts
-   - If the code to be locked has a possibility of already being in the 
-instruction cache, we invalidate the entire cache first
-   - we locks 3/4 of the cache - forcing any code to be put into a specific 
-location.
-   - execute the code of interest (once)
-   - unlock the 3/4 of cache, and lock the 1/4 where the code of interest 
-is located.
-   - turn back on interrupts.
 
-Because the algorithm is so specific to the hardware - I am not sure how to 
-make instruction as generic as data could be.
+Works fine...
 
-How does SH cache handle things like this?
+Hope that clarifies!
+Rusty.
+-- 
+Help! Save Australia from the worst of the DMCA: http://linux.org.au/law
 
--Robin

@@ -1,78 +1,110 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751019AbWIYPjd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751034AbWIYPnx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751019AbWIYPjd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Sep 2006 11:39:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751027AbWIYPjd
+	id S1751034AbWIYPnx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Sep 2006 11:43:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751032AbWIYPnx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Sep 2006 11:39:33 -0400
-Received: from wr-out-0506.google.com ([64.233.184.236]:58310 "EHLO
-	wr-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1751018AbWIYPjc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Sep 2006 11:39:32 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=WKLNCqP4bt4d5Zah0YOrkM2xe95yHrIx3qp9AH47512JGch2ZD8ZofWMYv5yX5gm3574XKM2klVQ1vT++CSBozJu7iradgHeOUJVLXEOh/neBarM5J6V0IaiifUmGlwg3acaIo1HhbFbqzDs//KUA8c1Qht5BqhAATaz0g6eXAw=
-Message-ID: <6d6a94c50609250839y7365e20ale6910e36b0ec9976@mail.gmail.com>
-Date: Mon, 25 Sep 2006 23:39:31 +0800
-From: Aubrey <aubreylee@gmail.com>
-To: "Arnd Bergmann" <arnd@arndb.de>
-Subject: Re: [PATCH 1/4] Blackfin: arch patch for 2.6.18
-Cc: "Luke Yang" <luke.adi@gmail.com>, linux-kernel@vger.kernel.org,
-       "Andrew Morton" <akpm@osdl.org>
-In-Reply-To: <200609251126.17494.arnd@arndb.de>
+	Mon, 25 Sep 2006 11:43:53 -0400
+Received: from mail.fieldses.org ([66.93.2.214]:5357 "EHLO pickle.fieldses.org")
+	by vger.kernel.org with ESMTP id S1750976AbWIYPnw (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Sep 2006 11:43:52 -0400
+Date: Mon, 25 Sep 2006 11:43:16 -0400
+To: NeilBrown <neilb@suse.de>
+Cc: Andrew Morton <akpm@osdl.org>, nfs@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org, Greg Banks <gnb@melbourne.sgi.com>
+Subject: Re: [NFS] [PATCH 008 of 11] knfsd: Prepare knfsd for support of rsize/wsize of up to 1MB, over TCP.
+Message-ID: <20060925154316.GA17465@fieldses.org>
+References: <20060824162917.3600.patches@notabene> <1060824063711.5008@suse.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <489ecd0c0609202032l1c5540f7t980244e30d134ca0@mail.gmail.com>
-	 <200609250854.04470.arnd@arndb.de>
-	 <6d6a94c50609250049l75b2f070q81583b90d8fcfaec@mail.gmail.com>
-	 <200609251126.17494.arnd@arndb.de>
+In-Reply-To: <1060824063711.5008@suse.de>
+User-Agent: Mutt/1.5.13 (2006-08-11)
+From: "J. Bruce Fields" <bfields@fieldses.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 9/25/06, Arnd Bergmann <arnd@arndb.de> wrote:
-> It's the same problem as why sleep_on() is wrong and wait_event() is
-> right, you can find lots of documentation about that.
->
-> Think about a process calling nanosleep() to wait for a timeout.
-> It eventually ends up going to sleep and the kernel schedules
-> the idle task.
->
-> The idle task checks need_resched(), which returns false, so it
-> will call the idle instruction. Before it gets there, the timer
-> tick happens, which calls the timer softirq. That softirq notices
-> that the user process should continue running and calls wake_up(),
-> which makes the condition for need_resched() true.
->
-> Since we're handling that softirq that interrupted the idle task,
-> that task continues what it was last doing and calls the idle instruction.
-> This is the point where it goes wrong, because your user task should
-> run, but the CPU is sleeping until the next interrupt happens.
->
-> Note that you should in the future disable timer ticks during the
-> idle function (CONFIG_NO_IDLE_HZ or similar) to save more power, but
-> in that case the CPU may be in idle indefinitely after missing the
-> one interrupt that should have woken it up.
->
+On Thu, Aug 24, 2006 at 04:37:11PM +1000, NeilBrown wrote:
+> The limit over UDP remains at 32K.  Also, make some of
+> the apparently arbitrary sizing constants clearer.
+> 
+> The biggest change here involves replacing NFSSVC_MAXBLKSIZE
+> by a function of the rqstp.  This allows it to be different
+> for different protocols (udp/tcp) and also allows it
+> to depend on the servers declared sv_bufsiz.
+> 
+> Note that we don't actually increase sv_bufsz for nfs yet.
+> That comes next.
 
-I digged into the code and got something different.
-Between need_resched() and IDLE instruction, a timer interrupt occurs.
-Yes, softirq may not schedule out to run the user task, but the
-interrupt handler will.
-You can find in our patch, I believe the same behavior is on the ARM/M68K.
+This patch has some problems.  (Apologies for being so slow to look at
+them!)
 
-1) Timer interrupt will call do_irq(), then return_from_int().
+We're reporting svc_max_payload(rqstp) as the server's maximum
+read/write block size:
 
-2) return_from_int() will check if there is interrupt pending or
-signal pending, if so, it will call schedule_and_signal_from_int().
+> @@ -538,15 +539,16 @@ nfsd3_proc_fsinfo(struct svc_rqst * rqst
+>  					   struct nfsd3_fsinfores *resp)
+>  {
+>  	int	nfserr;
+> +	u32	max_blocksize = svc_max_payload(rqstp);
+>  
+>  	dprintk("nfsd: FSINFO(3)   %s\n",
+>  				SVCFH_fmt(&argp->fh));
+>  
+> -	resp->f_rtmax  = NFSSVC_MAXBLKSIZE;
+> -	resp->f_rtpref = NFSSVC_MAXBLKSIZE;
+> +	resp->f_rtmax  = max_blocksize;
+> +	resp->f_rtpref = max_blocksize;
+>  	resp->f_rtmult = PAGE_SIZE;
+> -	resp->f_wtmax  = NFSSVC_MAXBLKSIZE;
+> -	resp->f_wtpref = NFSSVC_MAXBLKSIZE;
+> +	resp->f_wtmax  = max_blocksize;
+> +	resp->f_wtpref = max_blocksize;
+>  	resp->f_wtmult = PAGE_SIZE;
+>  	resp->f_dtpref = PAGE_SIZE;
+>  	resp->f_maxfilesize = ~(u32) 0;
 
-3) schedule_and_signal_from_int() will jump to resume_userspace()
+But svc_max_payload() usually returns sv_bufsz in the TCP case:
 
-4) resume_userspace() will call _schedule to run the user task.
+> +u32 svc_max_payload(const struct svc_rqst *rqstp)
+> +{
+> +	int max = RPCSVC_MAXPAYLOAD_TCP;
+> +
+> +	if (rqstp->rq_sock->sk_sock->type == SOCK_DGRAM)
+> +		max = RPCSVC_MAXPAYLOAD_UDP;
+> +	if (rqstp->rq_server->sv_bufsz < max)
+> +		max = rqstp->rq_server->sv_bufsz;
+> +	return max;
+> +}
 
-So, here is no interrupt latency. The user task will run even between
-need_resched() and IDLE instruction.
 
--Aubrey
+That's the *total* size of the buffer for holding requests and replies.
+
+If a client actually tries to send a write of that size, the entire
+request will of course exceed sv_bufsz, so we'll drop it.  (We've seen
+this happen with the Solaris v4 client.)
+
+> -#define NFSD_BUFSIZE		(1024 + NFSSVC_MAXBLKSIZE)
+> +/*
+> + * Largest number of bytes we need to allocate for an NFS
+> + * call or reply.  Used to control buffer sizes.  We use
+> + * the length of v3 WRITE, READDIR and READDIR replies
+> + * which are an RPC header, up to 26 XDR units of reply
+> + * data, and some page data.
+> + *
+> + * Note that accuracy here doesn't matter too much as the
+> + * size is rounded up to a page size when allocating space.
+> + */
+
+Is the rounding up *always* going to increase the size?  And if not,
+then why doesn't accuracy matter?
+
+> +#define NFSD_BUFSIZE		((RPC_MAX_HEADER_WITH_AUTH+26)*XDR_UNIT + NFSSVC_MAXBLKSIZE)
+
+I think this results in 80 less bytes less than before, I think.
+
+No doubt we have lots of wiggle room here, but I'd rather we didn't
+decrease that size without seeing a careful analysis.
+
+--b.

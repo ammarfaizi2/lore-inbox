@@ -1,36 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751157AbWIYLTK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751382AbWIYL3H@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751157AbWIYLTK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Sep 2006 07:19:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751163AbWIYLTK
+	id S1751382AbWIYL3H (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Sep 2006 07:29:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751384AbWIYL3H
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Sep 2006 07:19:10 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:64910 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1751157AbWIYLTI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Sep 2006 07:19:08 -0400
-Subject: Re: hires timer patchset [was Re: 2.6.19 -mm merge plans]
-From: Arjan van de Ven <arjan@infradead.org>
-To: Voluspa <lista1@comhem.se>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20060923172517.01ec72b5@loke.fish.not>
-References: <20060923172517.01ec72b5@loke.fish.not>
-Content-Type: text/plain
-Organization: Intel International BV
-Date: Mon, 25 Sep 2006 13:18:36 +0200
-Message-Id: <1159183121.3085.11.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Mon, 25 Sep 2006 07:29:07 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:34246 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751382AbWIYL3E (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Sep 2006 07:29:04 -0400
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <20060925110437.GD25449@flint.arm.linux.org.uk> 
+References: <20060925110437.GD25449@flint.arm.linux.org.uk>  <20060924223925.GU29920@ftp.linux.org.uk> <22314.1159181060@warthog.cambridge.redhat.com> <1159183568.11049.51.camel@localhost.localdomain> 
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, David Howells <dhowells@redhat.com>,
+       Al Viro <viro@ftp.linux.org.uk>, Linus Torvalds <torvalds@osdl.org>,
+       Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] restore libata build on frv 
+X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
+Date: Mon, 25 Sep 2006 12:28:22 +0100
+Message-ID: <5602.1159183702@warthog.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Russell King <rmk+lkml@arm.linux.org.uk> wrote:
 
-> I'm not particularly eager to get it solved... the nvidia driver still
-> needs one more hack for the glue to build against -rt3.
+> Note that if you don't provide an asm/libata-portmap.h file, you can't
+> build libata at the moment - linux/libata.h requires this file to be
+> present.
 
-that's one for nvidia not this list
+Yes, but it should be empty as there is no ISA bus.
 
-
+David

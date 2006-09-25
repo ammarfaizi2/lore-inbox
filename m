@@ -1,81 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751291AbWIYRPa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751309AbWIYRQi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751291AbWIYRPa (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Sep 2006 13:15:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751309AbWIYRPa
+	id S1751309AbWIYRQi (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Sep 2006 13:16:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751317AbWIYRQg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Sep 2006 13:15:30 -0400
-Received: from khc.piap.pl ([195.187.100.11]:41384 "EHLO khc.piap.pl")
-	by vger.kernel.org with ESMTP id S1751291AbWIYRP3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Sep 2006 13:15:29 -0400
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Tejun Heo <htejun@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: NV SATA breakage: jgarzik/libata-dev#upstream etc
-References: <m3wt7tm6sh.fsf@defiant.localdomain> <451721F8.4060600@pobox.com>
-	<m3vencjeit.fsf@defiant.localdomain>
-From: Krzysztof Halasa <khc@pm.waw.pl>
-Date: Mon, 25 Sep 2006 19:15:27 +0200
-Message-ID: <m364fbrhow.fsf@defiant.localdomain>
+	Mon, 25 Sep 2006 13:16:36 -0400
+Received: from web31809.mail.mud.yahoo.com ([68.142.207.72]:29795 "HELO
+	web31809.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1751309AbWIYRQf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Sep 2006 13:16:35 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com;
+  h=Message-ID:Received:Date:From:Reply-To:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=dHeoxDaWbYn7qVFgWsKYss9X/UnEWYjE6ePUvSjifOWTNFJR64Y0XzprbyeAqcyHl/4n1afFP9nqqkTjKZ+frOUQFwjzX3rUuiv6hH3EAq9njRHoG9+yAuX4FZGmvj7+oiUuzUFFms7yXBiyaikKA7ASRa6nPwyq+IE2hycaPqo=  ;
+Message-ID: <20060925171634.69667.qmail@web31809.mail.mud.yahoo.com>
+Date: Mon, 25 Sep 2006 10:16:34 -0700 (PDT)
+From: Luben Tuikov <ltuikov@yahoo.com>
+Reply-To: ltuikov@yahoo.com
+Subject: Re: [PATCH] fix idiocy in asd_init_lseq_mdp()
+To: dougg@torque.net, Al Viro <viro@ftp.linux.org.uk>
+Cc: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <4517EBF7.4020508@torque.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ok, rebooted it.
+--- Douglas Gilbert <dougg@torque.net> wrote:
+> Al Viro wrote:
+> > To whoever had written that code:
+> > 
+> > a) priority of >> is higher than that of &
+> > b) priority of typecast is higher than that of any binary operator
+> > c) learn the fscking C
+[...]
+> BTW Luben was pointing out that the call you patched
+> and the following call can be combined into a less
+> trouble prone asd_write_reg_dword() call.
 
-After that commit (fea63e38013ec628ab3f7fddc4c2148064b7910a), it does:
+More than that -- I looked at the history of that
+file/line and the code as I had written it _never_ had
+that broken cast and shift mess.
 
-ata1: SATA max UDMA/133 cmd 0xC800 ctl 0xC482 bmdma 0xC000 irq 225
+"Someone" changed that after I submitted the code to lkml/lsml.
 
-GPF: 0 [1]
-RIP: ata_device_add+0x19a/0x530
-RAX: 48000002d0b38d48
-R14: ffff81003f7cc7e0
+    Luben
 
-Call trace:
-nv_init_one+0x190/0x1f0
-pci_match_device
-pci_device_probe
-driver_probe_device
-__driver_attach
-__driver_attach
-bus_for_each_dev
-driver_register
-__pci_register_driver
-nv_init
-etc.
-
-ata_device_add:
-...
- 193:   49 8b 46 08             mov    0x8(%r14),%rax <<<< ap->ops = invalid
- 197:   4c 89 f7                mov    %r14,%rdi      <<<< ap
- 19a:   ff 90 f8 00 00 00       callq  *0xf8(%rax)    <<<< ap->ops->port_start
- ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-And it GPFs here (ap->ops->port_start(ap)).
-
-Actually it seems the ap->ops = RAX is invalid but not exactly a NULL ptr.
-
-Now, sata_nv.c: nv_init_one():
-	struct ata_port_info *ppi;
-	ppi = &nv_port_info[ent->driver_data];
-	probe_ent = ata_pci_init_native_mode(pdev, &ppi,
-        	ATA_PORT_PRIMARY | ATA_ PORT_SECONDARY);
-
-while
-/**
- *      ata_pci_init_native_mode - Initialize native-mode driver
- *      @pdev:  pci device to be initialized
- *      @port:  array[2] of pointers to port info structures.
-                ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-Not sure... should the nv_init_one() just read:
-	struct ata_port_info *ppi[2];
-	ppi[0] = ppi[1] = &nv_port_info[ent->driver_data];
-	probe_ent = ata_pci_init_native_mode(pdev, ppi,
-        	ATA_PORT_PRIMARY | ATA_ PORT_SECONDARY);
-
-or should
-	ppi[1] = NULL?
--- 
-Krzysztof Halasa

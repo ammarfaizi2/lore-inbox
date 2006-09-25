@@ -1,69 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751391AbWIYVWf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751262AbWIYVWU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751391AbWIYVWf (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Sep 2006 17:22:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751393AbWIYVWf
+	id S1751262AbWIYVWU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Sep 2006 17:22:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751391AbWIYVWU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Sep 2006 17:22:35 -0400
-Received: from xenotime.net ([66.160.160.81]:11440 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1751391AbWIYVWe (ORCPT
+	Mon, 25 Sep 2006 17:22:20 -0400
+Received: from gw.goop.org ([64.81.55.164]:29064 "EHLO mail.goop.org")
+	by vger.kernel.org with ESMTP id S1751262AbWIYVWT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Sep 2006 17:22:34 -0400
-Date: Mon, 25 Sep 2006 14:23:46 -0700
-From: Randy Dunlap <rdunlap@xenotime.net>
-To: Henne <henne@nachtwindheim.de>
-Cc: Jeff Garzik <jgarzik@pobox.com>, Andrew Morton <akpm@osdl.org>,
-       linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] ata-piix: kerneldoc-error-on-ata_piixc.patch 2nd try
-Message-Id: <20060925142346.cbf0ed6a.rdunlap@xenotime.net>
-In-Reply-To: <45183E12.1080503@nachtwindheim.de>
-References: <451826BE.2040201@nachtwindheim.de>
-	<4518305C.3090906@pobox.com>
-	<20060925131151.4f73612c.rdunlap@xenotime.net>
-	<45183880.40003@pobox.com>
-	<45183E12.1080503@nachtwindheim.de>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 25 Sep 2006 17:22:19 -0400
+Message-ID: <45184885.8020807@goop.org>
+Date: Mon, 25 Sep 2006 14:22:13 -0700
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
+MIME-Version: 1.0
+To: Mathieu Desnoyers <compudj@krystal.dyndns.org>
+CC: Martin Bligh <mbligh@google.com>, "Frank Ch. Eigler" <fche@redhat.com>,
+       Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>, prasanna@in.ibm.com,
+       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
+       Paul Mundt <lethal@linux-sh.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>, Jes Sorensen <jes@sgi.com>,
+       Tom Zanussi <zanussi@us.ibm.com>,
+       Richard J Moore <richardj_moore@uk.ibm.com>,
+       Michel Dagenais <michel.dagenais@polymtl.ca>,
+       Christoph Hellwig <hch@infradead.org>,
+       Greg Kroah-Hartman <gregkh@suse.de>,
+       Thomas Gleixner <tglx@linutronix.de>, William Cohen <wcohen@redhat.com>,
+       ltt-dev@shafik.org, systemtap@sources.redhat.com,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Karim Yaghmour <karim@opersys.com>,
+       Pavel Machek <pavel@suse.cz>, Joe Perches <joe@perches.com>,
+       "Randy.Dunlap" <rdunlap@xenotime.net>,
+       "Jose R. Santos" <jrs@us.ibm.com>
+Subject: Re: [PATCH] Linux Kernel Markers 0.11 for 2.6.17
+References: <20060925151028.GA14695@Krystal> <45181CE9.1080204@goop.org> <20060925201036.GB13049@Krystal> <45183B20.2080907@goop.org> <20060925203502.GA3770@Krystal> <20060925204701.GB3770@Krystal>
+In-Reply-To: <20060925204701.GB3770@Krystal>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 25 Sep 2006 22:37:38 +0200 Henne wrote:
+Mathieu Desnoyers wrote:
+> Better idea : we could put a read/write dependency on a memory location.
+>   
 
-> Jeff Garzik schrieb:
-> > Randy Dunlap wrote:
-> >> I agree with all of these except #4.  Maybe you can reconcile your
-> >> preference with that in Documentation/SubmittingPatches, which
-> >> contains:
-> >>
-> >> <quote>
-> >> The canonical patch message body contains the following:
-> >>
-> >>   - A "from" line specifying the patch author.
-> >> </quote>
-> >>
-> >> A patch submitter should not need to know the patch receiver's
-> >> personal preferences and vary patches based on those.
-> > 
-> > 
-> > It's not a personal preference.  It's all based on git-applymbox, pretty
-> > much.
-> > 
-> > The SubmittingPatches doc should be updated to clarify that a From line
-> > is not needed in the email body, if it is the same as the From line in
-> > the RFC822 header.
+Yes, that works well.  And it needn't even exist:
 
-It seems to be a small, simple matter of "not needed" vs. "allowed".
-AFAIK, From: is always allowed but it is not needed if the From: mail
-header matches the From: body text.
+	extern int __marker_sequencer;		/* doesn't exist, never referenced */
 
+	asm volatile("first asm" : "+m" (__marker_sequencer));
 
-> >     Jeff
-> Thanks for pointing my nose on this guys! I'll keep that in mind when writing patches, but that from line
-> should be discussed by the maintainers.
+	asm volatile("second asm" : "+m" (__marker_sequencer));
 
+This keeps the asms ordered with respect to each other (and prevents to 
+independent markers from being intermingled), but it doesn't prevent 
+them from being re-ordered with respect to other code.
 
----
-~Randy
+    J

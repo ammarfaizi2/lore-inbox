@@ -1,64 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751453AbWIYVdZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751467AbWIYVeK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751453AbWIYVdZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Sep 2006 17:33:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751455AbWIYVdZ
+	id S1751467AbWIYVeK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Sep 2006 17:34:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751459AbWIYVeJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Sep 2006 17:33:25 -0400
-Received: from gw.goop.org ([64.81.55.164]:56290 "EHLO mail.goop.org")
-	by vger.kernel.org with ESMTP id S1751453AbWIYVdY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Sep 2006 17:33:24 -0400
-Message-ID: <45184B27.1030907@goop.org>
-Date: Mon, 25 Sep 2006 14:33:27 -0700
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
-MIME-Version: 1.0
-To: Andi Kleen <ak@suse.de>
-CC: akpm@osdl.org, linux-kernel@vger.kernel.org,
-       Chuck Ebbert <76306.1226@compuserve.com>,
-       Zachary Amsden <zach@vmware.com>, Jan Beulich <jbeulich@novell.com>,
-       James Bottomley <James.Bottomley@steeleye.com>,
-       Matt Tolentino <matthew.e.tolentino@intel.com>
-Subject: Re: [PATCH 1/6] Initialize the per-CPU data area.
-References: <20060925184540.601971833@goop.org> <200609252249.54901.ak@suse.de> <45184318.6060807@goop.org> <200609252305.10239.ak@suse.de>
-In-Reply-To: <200609252305.10239.ak@suse.de>
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+	Mon, 25 Sep 2006 17:34:09 -0400
+Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:25285 "HELO
+	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
+	id S1751455AbWIYVeI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Sep 2006 17:34:08 -0400
+Subject: When will the lunacy end? (Was Re: [PATCH] uswsusp: add
+	pmops->{prepare,enter,finish} support (aka "platform mode"))
+From: Nigel Cunningham <ncunningham@linuxmail.org>
+To: Stefan Seyfried <seife@suse.de>
+Cc: linux-kernel@vger.kernel.org, Pavel Machek <pavel@suse.cz>,
+       "Rafael J. Wysocki" <rjw@sisk.pl>, Andrew Morton <akpm@osdl.org>
+In-Reply-To: <20060925071338.GD9869@suse.de>
+References: <20060925071338.GD9869@suse.de>
+Content-Type: text/plain
+Date: Tue, 26 Sep 2006 07:34:03 +1000
+Message-Id: <1159220043.12814.30.camel@nigel.suspend2.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.0 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
->> I'll respin it against your patches later today.
->>     
->
-> Thanks. It's not that urgent because the merge will need a few days
-> at least.
->   
+Hi.
 
-I guess I should just use plain 2.6.19 as a base.
+On Mon, 2006-09-25 at 09:13 +0200, Stefan Seyfried wrote:
+> +	case SNAPSHOT_PMOPS:
+> +		switch (arg) {
+> +
+> +		case PMOPS_PREPARE:
+> +			if (pm_ops->prepare) {
+> +				error = pm_ops->prepare(PM_SUSPEND_DISK);
+> +			}
+> +			break;
+> +
+> +		case PMOPS_ENTER:
+> +			kernel_shutdown_prepare(SYSTEM_SUSPEND_DISK);
+> +			error = pm_ops->enter(PM_SUSPEND_DISK);
+> +			break;
+> +
+> +		case PMOPS_FINISH:
+> +			if (pm_ops && pm_ops->finish) {
+> +				pm_ops->finish(PM_SUSPEND_DISK);
+> +			}
+> +			break;
+> +
+> +		default:
+> +			printk(KERN_ERR "SNAPSHOT_PMOPS: invalid argument %ld\n", arg);
+> +			error = -EINVAL;
+> +
+> +		}
+> +		break;
+> +
+>  	default:
+>  		error = -ENOTTY;
 
-> Also I must admit I haven't figured out yet if yours or Rusty's patchkit
-> is better. So far I was leaning towards yours, but that might be because
-> I haven't looked closely at Rusty's version.
+Guys! Why can't you see yet that all this uswsusp business is sheer
+lunacy? All of the important code is done in the kernel, and must be
+done in the kernel. Moving the little bit of high level logic that can
+be done in userspace to userspace doesn't mean you're doing the
+suspending in userspace.
 
-The basic machinery is similar, though he's gone and made things like 
-the per-cpu GDTs actual percpu variables, with a bit of gymnastics to 
-use them from assembler.  I haven't looked at the last iteration which 
-does all the setup in the head.S assembler.
+If you have to use userspace for suspending, use it for the things that
+don't matter, like the user interface, not the things that will break
+suspending and resuming if they break.
 
-On the plus side, he makes some use of %gs to reference percpu data, and 
-it's a nice simple patch to do so.  One slightly odd aspect of it is 
-that %gs:0 is actually at a large offset below the percpu memory, in 
-order to compensate for the offset of the percpu data section in the 
-kernel address space.
+</rant>
 
-And in my heart of hearts I'd prefer to use the compiler TLS support to 
-do this; it gets better generated code (at least in the non-Xen case), 
-with the downside of needing some more support in the module loader.  It 
-also gets rid of all the special access macros/assembler for percpu 
-variables.  (And ideally we can convince the gcc folks to allow 
-generation of positive offset TLS relocations, and solve the Xen problem 
-that way.)
+Nigel
 
-    J

@@ -1,66 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751444AbWIYVak@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751453AbWIYVdZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751444AbWIYVak (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Sep 2006 17:30:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751453AbWIYVak
+	id S1751453AbWIYVdZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Sep 2006 17:33:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751455AbWIYVdZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Sep 2006 17:30:40 -0400
-Received: from caramon.arm.linux.org.uk ([217.147.92.249]:14607 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S1751444AbWIYVaj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Sep 2006 17:30:39 -0400
-Date: Mon, 25 Sep 2006 22:30:31 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Daniel Walker <dwalker@mvista.com>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH -mm] console: console_drivers not initialized
-Message-ID: <20060925213031.GD25257@flint.arm.linux.org.uk>
-Mail-Followup-To: Daniel Walker <dwalker@mvista.com>, akpm@osdl.org,
-	linux-kernel@vger.kernel.org
-References: <20060925210710.931336000@mvista.com> <20060925211122.GC25257@flint.arm.linux.org.uk> <1159219581.3648.10.camel@c-67-180-230-165.hsd1.ca.comcast.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1159219581.3648.10.camel@c-67-180-230-165.hsd1.ca.comcast.net>
-User-Agent: Mutt/1.4.1i
+	Mon, 25 Sep 2006 17:33:25 -0400
+Received: from gw.goop.org ([64.81.55.164]:56290 "EHLO mail.goop.org")
+	by vger.kernel.org with ESMTP id S1751453AbWIYVdY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Sep 2006 17:33:24 -0400
+Message-ID: <45184B27.1030907@goop.org>
+Date: Mon, 25 Sep 2006 14:33:27 -0700
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
+MIME-Version: 1.0
+To: Andi Kleen <ak@suse.de>
+CC: akpm@osdl.org, linux-kernel@vger.kernel.org,
+       Chuck Ebbert <76306.1226@compuserve.com>,
+       Zachary Amsden <zach@vmware.com>, Jan Beulich <jbeulich@novell.com>,
+       James Bottomley <James.Bottomley@steeleye.com>,
+       Matt Tolentino <matthew.e.tolentino@intel.com>
+Subject: Re: [PATCH 1/6] Initialize the per-CPU data area.
+References: <20060925184540.601971833@goop.org> <200609252249.54901.ak@suse.de> <45184318.6060807@goop.org> <200609252305.10239.ak@suse.de>
+In-Reply-To: <200609252305.10239.ak@suse.de>
+Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 25, 2006 at 02:26:21PM -0700, Daniel Walker wrote:
-> On Mon, 2006-09-25 at 22:11 +0100, Russell King wrote:
-> > On Mon, Sep 25, 2006 at 02:07:10PM -0700, dwalker@mvista.com wrote:
-> > > I was doing -rt stuff on a PPC PowerBook G4. It would always reboot
-> > > itself when it hit console_init() .
-> > > 
-> > > I noticed that the console code seems to want console_drivers = NULL,
-> > > but it never actually sets it that way. Once I added this, the reboot 
-> > > issue was gone..
-> > 
-> > It's a BSS variable, it _should_ be zeroed by the architecture's BSS
-> > initialisation.  If not, it suggests there's something very _very_
-> > wrong in the architecture's C runtime initialisation code.
-> > 
-> > As such, this patch is merely a band-aid, not a correct fix.
-> 
-> It happens on two different compilers gcc 4.1 and 3.3 ..
+Andi Kleen wrote:
+>> I'll respin it against your patches later today.
+>>     
+>
+> Thanks. It's not that urgent because the merge will need a few days
+> at least.
+>   
 
-The zeroing of the BSS is not a function of the compiler, but the C startup
-code, which might be written in assembly or c.
+I guess I should just use plain 2.6.19 as a base.
 
-> I was using
-> arch/powerpc/ which is fairly new .. However, If stuff was suppose to be
-> zero'd and wasn't, I'd imagine this machine would be rebooting _a lot_
-> more often.
+> Also I must admit I haven't figured out yet if yours or Rusty's patchkit
+> is better. So far I was leaning towards yours, but that might be because
+> I haven't looked closely at Rusty's version.
 
-The alternative explaination is that explicitly changing a variable from
-the BSS to have an explicit initialisation moves it into the data segment,
-which results in quite a bit of data moving around.  So it might not even
-be related to this - maybe a data structure alignment issue somewhere?
-Shrug - but it's for powerpc folk to investigate.
+The basic machinery is similar, though he's gone and made things like 
+the per-cpu GDTs actual percpu variables, with a bit of gymnastics to 
+use them from assembler.  I haven't looked at the last iteration which 
+does all the setup in the head.S assembler.
 
-Suggest you report it to powerpc folk as a bug.
+On the plus side, he makes some use of %gs to reference percpu data, and 
+it's a nice simple patch to do so.  One slightly odd aspect of it is 
+that %gs:0 is actually at a large offset below the percpu memory, in 
+order to compensate for the offset of the percpu data section in the 
+kernel address space.
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+And in my heart of hearts I'd prefer to use the compiler TLS support to 
+do this; it gets better generated code (at least in the non-Xen case), 
+with the downside of needing some more support in the module loader.  It 
+also gets rid of all the special access macros/assembler for percpu 
+variables.  (And ideally we can convince the gcc folks to allow 
+generation of positive offset TLS relocations, and solve the Xen problem 
+that way.)
+
+    J

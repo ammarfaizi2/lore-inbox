@@ -1,67 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932196AbWIYBOj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751779AbWIYBQY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932196AbWIYBOj (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Sep 2006 21:14:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932203AbWIYBOj
+	id S1751779AbWIYBQY (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Sep 2006 21:16:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750827AbWIYBQX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Sep 2006 21:14:39 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:64776 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S932196AbWIYBOi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Sep 2006 21:14:38 -0400
-Date: Mon, 25 Sep 2006 03:14:36 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Jeff Garzik <jeff@garzik.org>, Andrew Morton <akpm@osdl.org>,
-       LKML <linux-kernel@vger.kernel.org>, junkio@cox.net
-Subject: git diff <-> diffstat
-Message-ID: <20060925011436.GC4547@stusta.de>
-References: <20060924161809.GA13423@havoc.gtf.org> <Pine.LNX.4.64.0609241005290.4388@g5.osdl.org> <45172297.6070108@garzik.org> <Pine.LNX.4.64.0609241732580.3952@g5.osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0609241732580.3952@g5.osdl.org>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+	Sun, 24 Sep 2006 21:16:23 -0400
+Received: from ozlabs.org ([203.10.76.45]:48033 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S932169AbWIYBQX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Sep 2006 21:16:23 -0400
+Subject: Re: [PATCH 5/7] Use %gs for per-cpu sections in kernel
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: Andi Kleen <ak@muc.de>,
+       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       virtualization <virtualization@lists.osdl.org>
+In-Reply-To: <45172AC8.2070701@goop.org>
+References: <1158925861.26261.3.camel@localhost.localdomain>
+	 <1158925997.26261.6.camel@localhost.localdomain>
+	 <1158926106.26261.8.camel@localhost.localdomain>
+	 <1158926215.26261.11.camel@localhost.localdomain>
+	 <1158926308.26261.14.camel@localhost.localdomain>
+	 <1158926386.26261.17.camel@localhost.localdomain>
+	 <4514663E.5050707@goop.org>
+	 <1158985882.26261.60.camel@localhost.localdomain>
+	 <45172AC8.2070701@goop.org>
+Content-Type: text/plain
+Date: Mon, 25 Sep 2006 11:16:14 +1000
+Message-Id: <1159146974.26986.30.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Sep 24, 2006 at 05:34:05PM -0700, Linus Torvalds wrote:
+On Sun, 2006-09-24 at 18:03 -0700, Jeremy Fitzhardinge wrote:
+> Rusty Russell wrote:
+> >> So are symbols referencing the .data.percpu section 0-based?  Wouldn't 
+> >> you need to subtract __per_cpu_start from the symbols to get a 0-based 
+> >> segment offset?
+> >>     
+> >
+> > I don't think I understand the question.
+> >
+> > The .data.percpu section is the "template" per-cpu section, freed along
+> > with other initdata: after setup_percpu_areas() is called, it is not
+> > supposed to be used.  Around that time, the gs segment is set up based
+> > at __per_cpu_offset[cpu], so "%gs:<varname>" accesses the local version.
+> >   
 > 
+> If you do
 > 
-> On Sun, 24 Sep 2006, Jeff Garzik wrote:
-> > 
-> > Right now I just pipe 'git diff master..branch' to diffstat.
+>     DEFINE_PER_CPU(int, foo);
 > 
-> Ok. That just means that you can change it do say
-> 
-> 	git diff -M --stat --summary master..branch
-> 
-> and you get exactly what you need. No need for a separate diffstat at all, 
-> and you get all the renaming and summary printout.
+> then this ends up defining per_cpu__foo in .data.percpu.  Since 
+> .data.percpu is part of the init data section, it starts at some address 
+> X (not 0), so the real offset into the actual per-cpu memory is actually 
+> (per_cpu__foo - __per_cpu_start).  setup_per_cpu_areas() builds this 
+> delta into the __per_cpu_offset[], and so it means that the base of your 
+> %gs segment is at -__per_cpu_start from the actual start of the CPU's 
+> per-cpu memory, and the limit has to be correspondingly larger.  Which 
+> is a bit ugly.
 
-Is there any way for "git diff" to handle additional options diffstat 
-handles? I'm a big fan of the -w72 diffstat option.
+Hi Jeremy!
 
-Oh, and with git 1.4.2.1,
-  git diff -M --stat --summary v2.6.18..master
-in your tree gives me some funny lines like:
+	You're thinking of it in a convoluted way, by converting to offsets
+from the per-cpu section, then converting it back.  How about this
+explanation: the local cpu's versions are offset from where the compiler
+thinks they are by __per_cpu_offset[cpu].  We set the segment base to
+__per_cpu_offset[cpu], so "%gs:per_cpu__foo" gets us straight to the
+local cpu version.  __per_cpu_offset[cpu] is always positive (kernel
+image sits at bottom of kernel address space).
 
- .../netlabel/draft-ietf-cipso-ipsecurity-01.txt    |  791 +
- .../{cpu_setup_power4.S => cpu_setup_ppc970.S}     |  103 
- .../powerpc/platforms}/iseries/it_exp_vpd_panel.h  |    6 
- .../powerpc/platforms}/iseries/it_lp_naca.h        |    6 
+>   Especially since "__per_cpu_start" is actually very 
+> large, and so this scheme pretty much relies on being able to wrap 
+> around the segment limit, and will be very bad for Xen.
 
-I don't know what's going wrong here, but diffstat doesn't produce this.
+__per_cpu_start is large, yes.  But there's no reason to use it in
+address calculation.  The second half of your statement is not correct.
 
-> 		Linus
+> An alternative is to put the "-__per_cpu_start" into the addressing mode 
+> when constructing the address of the per-cpu variable.
 
-cu
-Adrian
+I think you're thinking of TLS relocations?  I don't use them...
 
+Rusty.
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
+Help! Save Australia from the worst of the DMCA: http://linux.org.au/law
 

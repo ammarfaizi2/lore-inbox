@@ -1,62 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932144AbWIYOKY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932148AbWIYOML@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932144AbWIYOKY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Sep 2006 10:10:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932142AbWIYOKX
+	id S932148AbWIYOML (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Sep 2006 10:12:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932152AbWIYOMK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Sep 2006 10:10:23 -0400
-Received: from mtagate2.de.ibm.com ([195.212.29.151]:7206 "EHLO
-	mtagate2.de.ibm.com") by vger.kernel.org with ESMTP id S932134AbWIYOKW
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Sep 2006 10:10:22 -0400
-Date: Mon, 25 Sep 2006 17:10:19 +0300
-From: Muli Ben-Yehuda <muli@il.ibm.com>
-To: James Bottomley <James.Bottomley@SteelEye.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       linux-scsi <linux-scsi@vger.kernel.org>,
-       Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: mainline aic94xx firmware woes
-Message-ID: <20060925141019.GP6374@rhun.haifa.ibm.com>
-References: <20060925101124.GH6374@rhun.haifa.ibm.com> <1159183984.11049.59.camel@localhost.localdomain> <1159184336.3463.3.camel@mulgrave.il.steeleye.com>
+	Mon, 25 Sep 2006 10:12:10 -0400
+Received: from stat9.steeleye.com ([209.192.50.41]:32184 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S932148AbWIYOMJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Sep 2006 10:12:09 -0400
+Subject: Re: GPLv3 Position Statement
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: Michiel de Boer <x@rebelhomicide.demon.nl>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <451798FA.8000004@rebelhomicide.demon.nl>
+References: <1158941750.3445.31.camel@mulgrave.il.steeleye.com>
+	 <451798FA.8000004@rebelhomicide.demon.nl>
+Content-Type: text/plain
+Date: Mon, 25 Sep 2006 09:12:03 -0500
+Message-Id: <1159193523.3463.14.camel@mulgrave.il.steeleye.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1159184336.3463.3.camel@mulgrave.il.steeleye.com>
-User-Agent: Mutt/1.5.11
+X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 25, 2006 at 06:38:56AM -0500, James Bottomley wrote:
-> On Mon, 2006-09-25 at 12:33 +0100, Alan Cox wrote:
-> > We should not be including non-free firmware in the kernel, we should be
-> > continuing to drive it out into things like initramfs.
-> 
-> Right, which is why this was done as one of the conditions for accepting
-> the driver
+On Mon, 2006-09-25 at 10:53 +0200, Michiel de Boer wrote:
+> For what it's worth, i support RMS and his fight for free software fully.
+> I support the current draft of the GPL version 3 and am very dissapointed
+> it will not be adopted as is. IMHO, Linux has the power and influence
+> to move mountains in the software industry, and shouldn't shy away from
+> the opportunity to take moral responsibility when it arises.
 
-Fair enough.
+Well ... as Russell already pointed out; adopting GPLv3 was made
+incredibly difficult for us by the FSF.  We could easily adopt a GPLv2
+compatible licence simply by going through some sort of process to
+secure agreement and then altering the COPYING file of the kernel (the
+point being that past contributions would still be v2, future
+contributions would be the new licence and there's no distribution
+problem because they're compatible).
 
-> > > Also, aic94xx does not compile unless FW_LOADER is set in .config due
-> > > to missing 'request_firmware'. What's the right thing to do here -
-> > > aic94xx selecting it, depending on it
-> > 
-> > Either select or depend
-> 
-> select, I think.
+There are definite bug fixes to v2 in the v3 draft:  Bittorrent and
+termination.  However, we could adopt those in a v2 compatible fashion
+(as additional permissions).  Additionally, it does strike me that a
+patent grant could be formulated in a v2 compatible manner if people
+agreed on it.  Obviously, the additional restrictions of v3 is
+completely impossible to accommodate in a v2 compatible manner.  The DRM
+provisions could be disputed: if you believe they're already in v2, then
+they could be adopted in a v2 compatible fashion as a clarification ...
+however, they'd have to be quite a bit less broad than the current v3
+language.
 
-aic94xx relies on external firmware and thus requires FW_LOADER.
+All in all, we could probably only switch to v3 by some type of
+universal acclamation process, which, with 28 votes against already
+isn't really likely.
 
-Signed-off-by: Muli Ben-Yehuda <muli@il.ibm.com>
+James
 
-diff -r 2e01eba444f0 drivers/scsi/aic94xx/Kconfig
---- a/drivers/scsi/aic94xx/Kconfig	Mon Sep 25 10:07:49 2006 +0700
-+++ b/drivers/scsi/aic94xx/Kconfig	Mon Sep 25 17:08:09 2006 +0300
-@@ -28,6 +28,7 @@ config SCSI_AIC94XX
- 	tristate "Adaptec AIC94xx SAS/SATA support"
- 	depends on PCI
- 	select SCSI_SAS_LIBSAS
-+	select FW_LOADER
- 	help
- 		This driver supports Adaptec's SAS/SATA 3Gb/s 64 bit PCI-X
- 		AIC94xx chip based host adapters.
 

@@ -1,177 +1,130 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751423AbWIYSHb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751408AbWIYSQU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751423AbWIYSHb (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Sep 2006 14:07:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751430AbWIYSHb
+	id S1751408AbWIYSQU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Sep 2006 14:16:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751434AbWIYSQU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Sep 2006 14:07:31 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.145]:25306 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751423AbWIYSHa (ORCPT
+	Mon, 25 Sep 2006 14:16:20 -0400
+Received: from gw.goop.org ([64.81.55.164]:50339 "EHLO mail.goop.org")
+	by vger.kernel.org with ESMTP id S1751408AbWIYSQT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Sep 2006 14:07:30 -0400
-Date: Mon, 25 Sep 2006 11:08:05 -0700
-From: "Paul E. McKenney" <paulmck@us.ibm.com>
-To: Dipankar Sarma <dipankar@in.ibm.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Ingo Molnar <mingo@elte.hu>
-Subject: Re: [-mm PATCH] RCU: debug sleep check
-Message-ID: <20060925180805.GF1292@us.ibm.com>
-Reply-To: paulmck@us.ibm.com
-References: <20060923152957.GA13432@in.ibm.com> <20060924183509.GB22448@in.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060924183509.GB22448@in.ibm.com>
-User-Agent: Mutt/1.4.1i
+	Mon, 25 Sep 2006 14:16:19 -0400
+Message-ID: <45181CE9.1080204@goop.org>
+Date: Mon, 25 Sep 2006 11:16:09 -0700
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
+MIME-Version: 1.0
+To: Mathieu Desnoyers <compudj@krystal.dyndns.org>
+CC: Martin Bligh <mbligh@google.com>, "Frank Ch. Eigler" <fche@redhat.com>,
+       Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>, prasanna@in.ibm.com,
+       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
+       Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
+       Paul Mundt <lethal@linux-sh.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>, Jes Sorensen <jes@sgi.com>,
+       Tom Zanussi <zanussi@us.ibm.com>,
+       Richard J Moore <richardj_moore@uk.ibm.com>,
+       Michel Dagenais <michel.dagenais@polymtl.ca>,
+       Christoph Hellwig <hch@infradead.org>,
+       Greg Kroah-Hartman <gregkh@suse.de>,
+       Thomas Gleixner <tglx@linutronix.de>, William Cohen <wcohen@redhat.com>,
+       ltt-dev@shafik.org, systemtap@sources.redhat.com,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Karim Yaghmour <karim@opersys.com>,
+       Pavel Machek <pavel@suse.cz>, Joe Perches <joe@perches.com>,
+       "Randy.Dunlap" <rdunlap@xenotime.net>,
+       "Jose R. Santos" <jrs@us.ibm.com>
+Subject: Re: [PATCH] Linux Kernel Markers 0.11 for 2.6.17
+References: <20060925151028.GA14695@Krystal>
+In-Reply-To: <20060925151028.GA14695@Krystal>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 25, 2006 at 12:05:09AM +0530, Dipankar Sarma wrote:
-> This adds an overhead of a function call and local_irq_save/restore
-> in the rcu reader path when CONFIG_DEBUG_SPINLOCK_SLEEP is set.
-> Hopefully that is not much of a concern. Comments are welcome.
-> Applies on top of my earlier patches. The full patchset is
-> at http://www.hill9.org/linux/kernel/patches/2.6.18-mm1/.
-> 
-> Add a debug check for rcu read-side critical section code calling
-> a function that might sleep which is illegal. The check is enabled only
-> if CONFIG_DEBUG_SPINLOCK_SLEEP is set.
+Mathieu Desnoyers wrote:
+> Good morning everyone,
+>
+> Following Jeremy Fitzhardinge's advice, I rewrote my marker mechanism taking in
+> consideration inline functions (and therefore also unrolled loops). This new
+> marker version is a complete rewrite of the previous one. It allows :
+>
+> - Multiple occurrences of the same marker name.
+> - Declaration of a marker in an inline function.
+> - Declaration of a marker in an unrolled loop.
+> - It _does not_ change the compiler optimisations.
+>   
 
-Useful for non-CONFIG_PREEMPT kernels!
+Well, it will a little bit. If you put a mark on a statement which would 
+have otherwise been removed, then it will not be removed; the labels 
+effectively change the potential control flow graph as far as the 
+compiler is concerned. But if marks are used appropriately the impact 
+should be pretty minimal.
 
-Acked-by: Paul E. McKenney <paulmck@us.ibm.com>
-> Signed-off-by: Dipankar Sarma <dipankar@in.ibm.com>
-> ---
-> 
-> 
->  include/linux/rcupdate.h |   34 ++++++++++++++++++++++++++++++----
->  kernel/rcupdate.c        |   33 +++++++++++++++++++++++++++++++++
->  kernel/sched.c           |    2 +-
->  3 files changed, 64 insertions(+), 5 deletions(-)
-> 
-> diff -puN include/linux/rcupdate.h~rcu-reader-sleep-check include/linux/rcupdate.h
-> --- linux-2.6.18-mm1-rcu/include/linux/rcupdate.h~rcu-reader-sleep-check	2006-09-24 23:18:35.000000000 +0530
-> +++ linux-2.6.18-mm1-rcu-dipankar/include/linux/rcupdate.h	2006-09-24 23:18:35.000000000 +0530
-> @@ -64,6 +64,16 @@ struct rcu_head {
->         (ptr)->next = NULL; (ptr)->func = NULL; \
->  } while (0)
->  
-> +#ifdef CONFIG_DEBUG_SPINLOCK_SLEEP
-> +extern int rcu_read_in_atomic(void);
-> +extern void rcu_add_read_count(void);
-> +extern void rcu_sub_read_count(void);
-> +#else
-> +static inline int rcu_read_in_atomic(void) { return 0;}
-> +static inline void rcu_add_read_count(void) {}
-> +static inline void rcu_sub_read_count(void) {}
-> +#endif
-> +
->  /**
->   * rcu_read_lock - mark the beginning of an RCU read-side critical section.
->   *
-> @@ -93,14 +103,22 @@ struct rcu_head {
->   *
->   * It is illegal to block while in an RCU read-side critical section.
->   */
-> -#define rcu_read_lock() __rcu_read_lock()
-> +#define rcu_read_lock()	\
-> +	do {	\
-> +		rcu_add_read_count();	\
-> +		__rcu_read_lock();	\
-> +	} while (0)
->  
->  /**
->   * rcu_read_unlock - marks the end of an RCU read-side critical section.
->   *
->   * See rcu_read_lock() for more information.
->   */
-> -#define rcu_read_unlock() __rcu_read_unlock()
-> +#define rcu_read_unlock()	\
-> +	do {	\
-> +		__rcu_read_unlock();	\
-> +		rcu_sub_read_count();	\
-> +	} while (0)
->  
->  /*
->   * So where is rcu_write_lock()?  It does not exist, as there is no
-> @@ -123,14 +141,22 @@ struct rcu_head {
->   * can use just rcu_read_lock().
->   *
->   */
-> -#define rcu_read_lock_bh()	__rcu_read_lock_bh()
-> +#define rcu_read_lock_bh()	\
-> +	do {	\
-> +		rcu_add_read_count();	\
-> +		__rcu_read_lock_bh();	\
-> +	} while (0)
->    
->  /**
->   * rcu_read_unlock_bh - marks the end of a softirq-only RCU critical section
->   *
->   * See rcu_read_lock_bh() for more information.
->   */
-> -#define rcu_read_unlock_bh()	__rcu_read_unlock_bh()
-> +#define rcu_read_unlock_bh()	\
-> +	do {	\
-> +		__rcu_read_unlock_bh();	\
-> +		rcu_sub_read_count();	\
-> +	} while (0)
->    
->  /**
->   * rcu_dereference - fetch an RCU-protected pointer in an
-> diff -puN kernel/rcupdate.c~rcu-reader-sleep-check kernel/rcupdate.c
-> --- linux-2.6.18-mm1-rcu/kernel/rcupdate.c~rcu-reader-sleep-check	2006-09-24 23:18:35.000000000 +0530
-> +++ linux-2.6.18-mm1-rcu-dipankar/kernel/rcupdate.c	2006-09-24 23:18:35.000000000 +0530
-> @@ -127,5 +127,38 @@ void __init rcu_init(void)
->  	__rcu_init();
->  }
->  
-> +#ifdef CONFIG_DEBUG_SPINLOCK_SLEEP
-> +DEFINE_PER_CPU(int, rcu_read_count);
-> +int rcu_read_in_atomic(void)
-> +{
-> +	int val;
-> +	int cpu = get_cpu();
-> +	val = per_cpu(rcu_read_count, cpu);
-> +	put_cpu();
-> +	return val;
-> +}
-> +
-> +void rcu_add_read_count(void)
-> +{
-> +	int cpu, flags;
-> +	local_irq_save(flags);
-> +	cpu = smp_processor_id();
-> +	per_cpu(rcu_read_count, cpu)++;
-> +	local_irq_restore(flags);
-> +}
-> +
-> +void rcu_sub_read_count(void)
-> +{
-> +	int cpu, flags;
-> +	local_irq_save(flags);
-> +	cpu = smp_processor_id();
-> +	per_cpu(rcu_read_count, cpu)--;
-> +	local_irq_restore(flags);
-> +}
-> +EXPORT_SYMBOL_GPL(rcu_read_in_atomic);
-> +EXPORT_SYMBOL_GPL(rcu_add_read_count);
-> +EXPORT_SYMBOL_GPL(rcu_sub_read_count);
-> +#endif
-> +
->  EXPORT_SYMBOL_GPL(rcu_barrier);
->  EXPORT_SYMBOL_GPL(synchronize_rcu);
-> diff -puN kernel/sched.c~rcu-reader-sleep-check kernel/sched.c
-> --- linux-2.6.18-mm1-rcu/kernel/sched.c~rcu-reader-sleep-check	2006-09-24 23:18:35.000000000 +0530
-> +++ linux-2.6.18-mm1-rcu-dipankar/kernel/sched.c	2006-09-24 23:18:35.000000000 +0530
-> @@ -6974,7 +6974,7 @@ void __might_sleep(char *file, int line)
->  #ifdef in_atomic
->  	static unsigned long prev_jiffy;	/* ratelimiting */
->  
-> -	if ((in_atomic() || irqs_disabled()) &&
-> +	if ((in_atomic() || irqs_disabled() || rcu_read_in_atomic()) &&
->  	    system_state == SYSTEM_RUNNING && !oops_in_progress) {
->  		if (time_before(jiffies, prev_jiffy + HZ) && prev_jiffy)
->  			return;
-> 
-> _
+[MARK_CALL]
+> +		asm volatile(	".section .markers, \"a\";\n\t" \
+> +				".long %0, %1;\n\t" \
+> +				".previous;\n\t" : : \
+>   
+[MARK_JUMP]
+> +		asm volatile(	".section .markers, \"a\";\n\t" \
+> +				".long %0, %1, %2;\n\t" \
+> +				".previous;\n\t" : : \
+> +			"m" (*&&jump_select_label), \
+> +			"m" (*&&call_label), \
+> +			"m" (*&&over_label)); \
+>   
+
+If you're going to put different types in the .markers section 
+(presumably per-architecture, rather than different types for within one 
+architecture) you should probably also define a structure in the same 
+place, if nothing
+
+> +		asm volatile (	".align 16;\n\t" : : ); \
+> +		asm volatile (	".byte 0xeb;\n\t" : : ); \
+> +jump_select_label: \
+> +		asm volatile (	".byte %0-%1;\n\t" : : \
+> +				"m" (*&&over_label), "m" (*&&call_label)); \
+>   
+
+There's absolutely nothing to guarantee that these three asm() will be 
+kept together in the generated code, or in the same place with respect 
+to any other asms.
+
+> +call_label: \
+> +		asm volatile ("" : : ); \
+> +		MARK_CALL(name, format, ## args); \
+> +		asm volatile ("" : : ); \
+> +over_label: \
+> +		asm volatile ("" : : ); \
+>   
+
+These asm volatiles won't do anything at all. What are you trying to 
+achieve?
+
+> +#ifdef CONFIG_MARKERS
+> +#define MARK(name, format, args...) \
+> +	do { \
+> +		__label__ here; \
+> +here:   	asm volatile(	".section .markers, \"a\";\n\t" \
+> +				".long %0, %1;\n\t" \
+> +				".previous;\n\t" : : \
+> +			"m" (*(#name)), \
+> +			"m" (*&&here)); \
+>   
+
+Seems like a bad idea that MARK() can put one type of record in 
+.markers, but MARK_JUMP and MARK_CALL can put different records in the 
+same section? How do you distinguish them? Or are they certain to be 
+exclusive? Either way, I'd probably put different mark records in 
+different sections: .markers.jump, .markers.call, markers.labels. And 
+define appropriate structures for the record types in each section.
+
+Also, expecting to call a varargs function from a non-varargs callsite 
+is skating on very thin ice. Lots of architectures have very different 
+calling conventions for varadic vs non-varadic functions, and I wouldn't 
+rely on being able to make any sweeping generalizations about it. 
+regparm is only documented to do anything on i386; it almost certainly 
+won't make a non-varadic callsite look like a varadic call to a varadic 
+function on architectures who's ABIs use different conventions for the 
+two types of function.
+
+J

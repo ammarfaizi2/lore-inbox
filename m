@@ -1,38 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750970AbWIYPYk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750968AbWIYPaL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750970AbWIYPYk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Sep 2006 11:24:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750972AbWIYPYk
+	id S1750968AbWIYPaL (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Sep 2006 11:30:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750977AbWIYPaL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Sep 2006 11:24:40 -0400
-Received: from liaag1ab.mx.compuserve.com ([149.174.40.28]:46990 "EHLO
-	liaag1ab.mx.compuserve.com") by vger.kernel.org with ESMTP
-	id S1750970AbWIYPYj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Sep 2006 11:24:39 -0400
-Date: Mon, 25 Sep 2006 11:20:53 -0400
-From: Chuck Ebbert <76306.1226@compuserve.com>
-Subject: Re: [PATCH 0/11] LTTng-core (basic tracing infrastructure)
-  0.5.108
-To: Ingo Molnar <mingo@elte.hu>
+	Mon, 25 Sep 2006 11:30:11 -0400
+Received: from smtp8.orange.fr ([193.252.22.23]:61675 "EHLO
+	smtp-msa-out08.orange.fr") by vger.kernel.org with ESMTP
+	id S1750968AbWIYPaK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Sep 2006 11:30:10 -0400
+X-ME-UUID: 20060925153008968.EC8A91C001EA@mwinf0809.orange.fr
+Subject: Re: GPLv3 Position Statement
+From: Xavier Bestel <xavier.bestel@free.fr>
+To: James Bottomley <James.Bottomley@SteelEye.com>
 Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Message-ID: <200609251123_MC3-1-CC21-A7D1@compuserve.com>
-MIME-Version: 1.0
+In-Reply-To: <1158941750.3445.31.camel@mulgrave.il.steeleye.com>
+References: <1158941750.3445.31.camel@mulgrave.il.steeleye.com>
+Content-Type: text/plain
+Message-Id: <1159198204.9736.7.camel@capoeira>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-1) 
+Date: Mon, 25 Sep 2006 17:30:04 +0200
 Content-Transfer-Encoding: 7bit
-Content-Type: text/plain;
-	 charset=us-ascii
-Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-In-Reply-To: <20060918151713.GA11495@elte.hu>
+On Fri, 2006-09-22 at 18:15, James Bottomley wrote:
+> [...] we
+> foresee the release of GPLv3 portends the Balkanisation of the entire Open
+> Source Universe upon which we rely. This Balkanisation, which will be
+> manifested by distributions being forced to fork various packages in order
+> to get consistent licences, has the potential to inflict massive collateral
+> damage upon our entire ecosystem and jeopardise the very utility and
+> survival of Open Source. [...]
 
-On Mon, 18 Sep 2006 17:17:13 +0200, Ingo Molnar wrote:
+This language looks terribly like US politician bullshit. Maybe you
+should reformulate that "paper".
 
-> yeah - and i dont think the kprobes overhead is a fundamental thing - i 
-> posted a few kprobes-speedup patches as a reply to your measurements.
-
-Where is the source code for the kprobes benchmarks you used?
-
--- 
-Chuck
+	Xav
 

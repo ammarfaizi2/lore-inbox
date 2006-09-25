@@ -1,59 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750734AbWIYTqr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750768AbWIYT4N@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750734AbWIYTqr (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Sep 2006 15:46:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750739AbWIYTqr
+	id S1750768AbWIYT4N (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Sep 2006 15:56:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750743AbWIYT4N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Sep 2006 15:46:47 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:2255 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1750734AbWIYTqq (ORCPT
+	Mon, 25 Sep 2006 15:56:13 -0400
+Received: from mail-gw3.adaptec.com ([216.52.22.36]:30675 "EHLO
+	mail-gw3.adaptec.com") by vger.kernel.org with ESMTP
+	id S1750710AbWIYT4M convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Sep 2006 15:46:46 -0400
-Message-ID: <4518321D.80606@garzik.org>
-Date: Mon, 25 Sep 2006 15:46:37 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
+	Mon, 25 Sep 2006 15:56:12 -0400
+content-class: urn:content-classes:message
 MIME-Version: 1.0
-To: Neil Brown <neilb@suse.de>
-CC: Michiel de Boer <x@rebelhomicide.demon.nl>,
-       James Bottomley <James.Bottomley@SteelEye.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: GPLv3 Position Statement
-References: <1158941750.3445.31.camel@mulgrave.il.steeleye.com>	<451798FA.8000004@rebelhomicide.demon.nl> <17687.46268.156413.352299@cse.unsw.edu.au>
-In-Reply-To: <17687.46268.156413.352299@cse.unsw.edu.au>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.3 (----)
-X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.3 points, 5.0 required)
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [PATCH] fix idiocy in asd_init_lseq_mdp()
+X-MimeOLE: Produced By Microsoft Exchange V6.0.6603.0
+Date: Mon, 25 Sep 2006 15:56:11 -0400
+Message-ID: <A121ABA5B472B74EB59076B8E3C8F01902555F9B@rtpe2k01.adaptec.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [PATCH] fix idiocy in asd_init_lseq_mdp()
+Thread-Index: Acbgyh4UU5t9jsRkSY+LEGlGlK1CowAERv5g
+From: "Hammer, Jack" <Jack_Hammer@adaptec.com>
+To: "James Bottomley" <James.Bottomley@SteelEye.com>,
+       "Al Viro" <viro@ftp.linux.org.uk>
+Cc: "Luben Tuikov" <ltuikov@yahoo.com>, <dougg@torque.net>,
+       <linux-scsi@vger.kernel.org>, <linux-kernel@vger.kernel.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Neil Brown wrote:
-> But maybe I am just misinformed.  Maybe there are dozens of different
-> manufacturers making devices that use DRM to prohibit freedom despite
-> using GPL code, and maybe there are hundreds of submarine patents
-> owned by distributors of GPL code and embodied in that code that the
-> owners are going to start suing us overs.... Is there a list of these
-> somewhere?
+James,
 
-At least for patents, lawyers scream bloody murder if a list of patents 
-is posted.  Once that is done, people can no longer claim ignorance of a 
-patent.
+asd_write_reg_dword() is the correct implementation for writing the
+LmM0INTEN_MASK to the LmSEQ_INTEN_SAVE register.
+
+Jack 
 
 
->> What is the stance of the developer team / kernel maintainers on DRM,
-> 
-> While I cannot speak for other developers (and sometimes have trouble
-> speaking for myself), one stance I have often heard is that DRM is
-> simply a tool - one that is largely based on cryptography which is
-> just another tool.  They can have good uses and bad uses just like the
-> TCP/IP stack (think 'spam').  So code to implement then would (if of
-> suitable quality) be allowed into the kernel.  If you want to make DRM
-> illegal, speak to your member-of-parliament, not your code developers.
 
-This is a KEY POINT: There can be good DRM as well as bad DRM.
+-----Original Message-----
+From: James Bottomley [mailto:James.Bottomley@SteelEye.com] 
+Sent: Monday, September 25, 2006 1:43 PM
+To: Hammer, Jack; Al Viro
+Cc: Luben Tuikov; dougg@torque.net; linux-scsi@vger.kernel.org;
+linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] fix idiocy in asd_init_lseq_mdp()
 
-	Jeff
+On Mon, 2006-09-25 at 18:39 +0100, Al Viro wrote:
+> Far more interesting question: where does the hardware expect to see 
+> the upper 16 bits of that 32bit value?  Which one it is -
+> LmSEQ_INTEN_SAVE(lseq)
+> ori LmSEQ_INTEN_SAVE(lseq) + 2?
+
+I don't honestly know.  The change was made as part of a slew of changes
+by Robert Tarte at Adaptec to make the driver run on Big Endian
+platforms.  I've copied Jack Hammer who's now looking after it in the
+hope that he can enlighten us.
+
+James
+
 
 

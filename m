@@ -1,59 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750877AbWIYO7j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750909AbWIYPHl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750877AbWIYO7j (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Sep 2006 10:59:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750889AbWIYO7j
+	id S1750909AbWIYPHl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Sep 2006 11:07:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750911AbWIYPHl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Sep 2006 10:59:39 -0400
-Received: from zeniv.linux.org.uk ([195.92.253.2]:39338 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1750877AbWIYO7j
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Sep 2006 10:59:39 -0400
-Date: Mon, 25 Sep 2006 15:59:37 +0100
-From: Al Viro <viro@ftp.linux.org.uk>
-To: Douglas Gilbert <dougg@torque.net>
-Cc: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] fix idiocy in asd_init_lseq_mdp()
-Message-ID: <20060925145937.GJ29920@ftp.linux.org.uk>
-References: <20060925015722.GF29920@ftp.linux.org.uk> <4517EBF7.4020508@torque.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 25 Sep 2006 11:07:41 -0400
+Received: from wx-out-0506.google.com ([66.249.82.226]:60541 "EHLO
+	wx-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1750905AbWIYPHk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Sep 2006 11:07:40 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=Y9cEESK+eFet51L2H9uoThgEpHqVLai4PJwirz24edEAJnHTgWcRWV5StVKZP4ghYJCPCUz1UXlO0C9Up3W9nFGlYdrHEi8hsjfvuwNQE77A7ZcsEk0cOKbqECccRutWH+qhUSsE7nq5TwQtl43KpaX127HFSau6Nt2dia/7GOw=
+Message-ID: <fbf7c10b0609250807x142f073r5d252b1fa3e575fa@mail.gmail.com>
+Date: Mon, 25 Sep 2006 11:07:39 -0400
+From: "Ryan Moszynski" <ryan.m.lists@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: /drivers/usb/class/cdc-acm.c patch question, please cc
+In-Reply-To: <fbf7c10b0609241040j10bef8a0qce1d95d8cd98f981@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <4517EBF7.4020508@torque.net>
-User-Agent: Mutt/1.4.1i
+References: <fbf7c10b0609221445q1329eb5bsfe304c02f7f336db@mail.gmail.com>
+	 <200609241526.48659.oliver@neukum.org>
+	 <fbf7c10b0609241040j10bef8a0qce1d95d8cd98f981@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Several of us have reported a degenerate mode, that
-> I term as "tmf timeout", in which a aic94xx based card
-> becomes inoperable. Alas, the same hardware running another
-> OS does not exhibit that problem (or at least not as much).
+well, chalk that up to false optimism.
 
-> >  	asd_write_reg_word(asd_ha, LmSEQ_INTEN_SAVE(lseq),
-> > -			    (u16) LmM0INTEN_MASK & 0xFFFF0000 >> 16);
-> > +			    (u16) ((LmM0INTEN_MASK & 0xFFFF0000) >> 16));
-> >  	asd_write_reg_word(asd_ha, LmSEQ_INTEN_SAVE(lseq) + 2,
-> >  			    (u16) LmM0INTEN_MASK & 0xFFFF);
-> >  	asd_write_reg_byte(asd_ha, LmSEQ_LINK_RST_FRM_LEN(lseq), 0);
- 
-> BTW Luben was pointing out that the call you patched
-> and the following call can be combined into a less
-> trouble prone asd_write_reg_dword() call.
+my last message said that everything worked fine.  It did, while I was
+at home, where the maximum download speeds I can get are around 16
+kbps, however, when I got into town where my speeds average 120 kbps
+or so, the device is unusable.  It can connect, and you can browse the
+web, but as soon as you try to download something the connection
+ceases to work, even though the card is still blinking like it's
+connected.  Setting the maxSize variable in the 2.6.15 patch fixed
+this problem, i'm not sure whats in 2.6.18 thats supposed to do the
+same job.
 
-In that case there's another bug - we should write upper 16 bits to
-addr + 2, not the lower ones.
 
-IOW, the old code was
-	broken attempt to write upper 16 bits to addr (ends up writing _lower_
-16 bits)
-	writing lower 16 bits to addr + 2
-
-With this patch we get the first call do what it clearly intended to do
-(unless it's a deliberate obfuscation from hell).  _IF_ we really want
-to write the damn thing little-endian, the order should be reverted on
-top of that.  I.e.
-  	asd_write_reg_word(asd_ha, LmSEQ_INTEN_SAVE(lseq),
-  			    (u16) LmM0INTEN_MASK & 0xFFFF);
-  	asd_write_reg_word(asd_ha, LmSEQ_INTEN_SAVE(lseq) + 2,
-			    (u16) ((LmM0INTEN_MASK & 0xFFFF0000) >> 16));
-or, indeed, asd_write_reg_dword().
+On 9/24/06, Ryan Moszynski <ryan.m.lists@gmail.com> wrote:
+> sorry guys, my bad.
+>
+> I just compiled 2.6.18 again with my stock config, and everything
+> worked. With 2.6.15 i had to recompile using the patch and load these
+> in /etc/modules in order for my card to work at full speed.
+>
+> ######
+> ohci-hcd
+> usbserial vendor=0x0c88 product=0x17da maxSize=2048
+> cdc_acm maxszr=16384 maxszw=2048
+> #######
+>
+> however, now, at boot the kernel loads the 'airprime' driver, and
+> everything works without any manual module loading.  Yay.  2.6.15 had
+> the airprime driver, but i guess it didn't recognize my card at that
+> point.
+>
+> However, to get this(and i would guess any other evdo) card to work,
+> you still have set up 4 config files:
+>
+> ######
+> etc/ppp/chap-secrets
+> etc/ppp/peers/verizon
+> etc/chatscripts/verizon-connect
+> etc/chatscripts/verizon-disconnect
+> #######
+>
+> which makes it a lot more labor intensive to set up for the first time
+> than it is in windows, but at least everything works.
+>
+>
+>
+> On 9/24/06, Oliver Neukum <oliver@neukum.org> wrote:
+> > Am Freitag, 22. September 2006 23:45 schrieb Ryan Moszynski:
+> > > since 2.6.14 i have been applying the following patch and recompiling
+> > > my kernel so
+> > > that i can use my verizon kpc650 evdo card with my laptop. I've
+> > > applied this patch
+> > > succesfully on 2.6.14 and 2.6.15. It works great and I have no problems. I am
+> > > trying to apply the patch to 2.6.18 but it fails, and i don't want to
+> > > break anything,
+> >
+> > First give me a description of your device. Secondly, we'll try
+> > to find a generic solution. Thirdly, if nothing else helps, we'll add
+> > a generic quirk to the driver.
+> >
+> >         Regards
+> >                 Oliver
+> >
+>

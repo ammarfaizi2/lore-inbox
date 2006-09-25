@@ -1,61 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751048AbWIYPsu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751051AbWIYQDu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751048AbWIYPsu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Sep 2006 11:48:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751054AbWIYPst
+	id S1751051AbWIYQDu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Sep 2006 12:03:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751056AbWIYQDu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Sep 2006 11:48:49 -0400
-Received: from terminus.zytor.com ([192.83.249.54]:29396 "EHLO
-	terminus.zytor.com") by vger.kernel.org with ESMTP id S1751044AbWIYPst
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Sep 2006 11:48:49 -0400
-Message-ID: <4517FA12.1010300@zytor.com>
-Date: Mon, 25 Sep 2006 08:47:30 -0700
-From: "H. Peter Anvin" <hpa@zytor.com>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
-MIME-Version: 1.0
-To: Paulo Marques <pmarques@grupopie.com>
-CC: Michael Tokarev <mjt@tls.msk.ru>, Johannes Stezenbach <js@linuxtv.org>,
-       Jan Engelhardt <jengelh@linux01.gwdg.de>,
-       Lennart Sorensen <lsorense@csclub.uwaterloo.ca>,
-       Dax Kelson <dax@gurulabs.com>,
-       Linux kernel <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: Smaller compressed kernel source tarballs?
-References: <1158870777.24172.23.camel@mentorng.gurulabs.com> <20060921204250.GN13641@csclub.uwaterloo.ca> <45130792.9040104@zytor.com> <20060922140007.GK13639@csclub.uwaterloo.ca> <Pine.LNX.4.61.0609221811560.12304@yvahk01.tjqt.qr> <4514103D.8010303@zytor.com> <20060922174137.GA29929@linuxtv.org> <451426C9.9040002@zytor.com> <4514292C.5000309@tls.msk.ru> <45142AF1.1090806@zytor.com> <4517C2CC.4070900@grupopie.com>
-In-Reply-To: <4517C2CC.4070900@grupopie.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 25 Sep 2006 12:03:50 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:23524 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1750843AbWIYQDt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Sep 2006 12:03:49 -0400
+Date: Mon, 25 Sep 2006 12:01:15 -0400
+From: "Frank Ch. Eigler" <fche@redhat.com>
+To: Mathieu Desnoyers <compudj@krystal.dyndns.org>
+Cc: Martin Bligh <mbligh@google.com>, "Frank Ch. Eigler" <fche@redhat.com>,
+       Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>, prasanna@in.ibm.com,
+       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
+       Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
+       Paul Mundt <lethal@linux-sh.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>, Jes Sorensen <jes@sgi.com>,
+       Tom Zanussi <zanussi@us.ibm.com>,
+       Richard J Moore <richardj_moore@uk.ibm.com>,
+       Michel Dagenais <michel.dagenais@polymtl.ca>,
+       Christoph Hellwig <hch@infradead.org>,
+       Greg Kroah-Hartman <gregkh@suse.de>,
+       Thomas Gleixner <tglx@linutronix.de>, William Cohen <wcohen@redhat.com>,
+       ltt-dev@shafik.org, systemtap@sources.redhat.com,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Jeremy Fitzhardinge <jeremy@goop.org>,
+       Karim Yaghmour <karim@opersys.com>, Pavel Machek <pavel@suse.cz>,
+       Joe Perches <joe@perches.com>, "Randy.Dunlap" <rdunlap@xenotime.net>,
+       "Jose R. Santos" <jrs@us.ibm.com>
+Subject: Re: [PATCH] Linux Kernel Markers 0.11 for 2.6.17
+Message-ID: <20060925160115.GE25296@redhat.com>
+References: <20060925151028.GA14695@Krystal>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="11Y7aswkeuHtSBEs"
+Content-Disposition: inline
+In-Reply-To: <20060925151028.GA14695@Krystal>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paulo Marques wrote:
-> H. Peter Anvin wrote:
->> Michael Tokarev wrote:
->>> [...]
->>> On the site it's said lzma(sdk) is under rewrite to support
->>> new format with magic number and crc checks...
->>
->> That is an absolute must, IMO.  I would use the gzip format as a base.
-> 
-> If you're suggesting a gzip like format (but with different magic, 
-> etc.), that's ok.
-> 
-> However, it has been suggested on similar threads to use the CM field of 
-> the gzip format to introduce different compression methods.
-> 
-> While this is the purpose of this field, I find this to be a very bad 
-> idea. The worse part of it is that, after "lzma gzip" files start to 
-> proliferate, you never know if you can decompress a .gz with your 
-> version of gunzip, which is something that you currently have for granted.
-> 
-> If more formats start being supported inside gzip, this only gets worse...
-> 
 
-Doesn't mean that one should name the files .gz.
+--11Y7aswkeuHtSBEs
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
 
-A more significant reason to not do this is that I think there are a lot 
-of programs out where which only check the magic number and not the 
-compression format.
+Hi -
 
-	-hpa
+> [...]
+> - It _does not_ change the compiler optimisations.
+
+Like any similar mechanism, it does force the compiler to change its
+code generation, so one can't claim this too strongly.
+
+> [...]  Comments are welcome,
+
+I'm still uneasy about the use of varargs.  The current code now uses
+the formatting string as metadata to be matched (strcmp) between
+producer and consumer.  A general tool that would use them would have
+to start parsing general printf directives.  I believe they are not
+quite general enough either e.g. to describe a raw binary blob.
+
+I realize they serve a useful purpose in abbreviating what otherwise
+one might have to do (like that multiplicity of STAP_MARK_* type/arity
+permutations).  But maybe there is a better way.
+
+Also, while regparm(0) may provide some comfort on x86, is there good
+reason to believe that the same trick works (and will continue to
+work) on non-x86 platforms to invoke a non-varargs callee with a
+varargs caller?
+
+
+- FChE
+
+--11Y7aswkeuHtSBEs
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+
+iD8DBQFFF/1LVZbdDOm/ZT0RAjeNAKCAGAjUIL8OuCUm05TiNzk/V5EEcwCeO1hV
+7Lsw+Gh6e1qCZtUB5BfPZFE=
+=YapC
+-----END PGP SIGNATURE-----
+
+--11Y7aswkeuHtSBEs--

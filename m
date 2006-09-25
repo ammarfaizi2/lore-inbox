@@ -1,44 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751399AbWIYRnj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751410AbWIYRoP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751399AbWIYRnj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Sep 2006 13:43:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751391AbWIYRnj
+	id S1751410AbWIYRoP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Sep 2006 13:44:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751408AbWIYRoP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Sep 2006 13:43:39 -0400
-Received: from stat9.steeleye.com ([209.192.50.41]:5310 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S1751388AbWIYRni (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Sep 2006 13:43:38 -0400
-Subject: Re: [PATCH] fix idiocy in asd_init_lseq_mdp()
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: "Hammer, Jack" <Jack_Hammer@adaptec.com>, Al Viro <viro@ftp.linux.org.uk>
-Cc: Luben Tuikov <ltuikov@yahoo.com>, dougg@torque.net,
-       linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
-In-Reply-To: <20060925173922.GL29920@ftp.linux.org.uk>
-References: <4517EBF7.4020508@torque.net>
-	 <20060925171634.69667.qmail@web31809.mail.mud.yahoo.com>
-	 <20060925173922.GL29920@ftp.linux.org.uk>
-Content-Type: text/plain
-Date: Mon, 25 Sep 2006 13:43:22 -0400
-Message-Id: <1159206202.3463.62.camel@mulgrave.il.steeleye.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
-Content-Transfer-Encoding: 7bit
+	Mon, 25 Sep 2006 13:44:15 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:1692 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S1751391AbWIYRoO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Sep 2006 13:44:14 -0400
+Date: Mon, 25 Sep 2006 19:38:36 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: ray-gmail@madrabbit.org
+cc: john stultz <johnstul@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.19 -mm merge plans (NTP changes)
+In-Reply-To: <2c0942db0609251004h288818c9k4f1c8684b956b72@mail.gmail.com>
+Message-ID: <Pine.LNX.4.64.0609251929030.6761@scrub.home>
+References: <20060920135438.d7dd362b.akpm@osdl.org>  <1158805731.8648.54.camel@localhost>
+  <Pine.LNX.4.64.0609211217190.6761@scrub.home>  <1159203005.8288.16.camel@localhost>
+ <2c0942db0609251004h288818c9k4f1c8684b956b72@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-09-25 at 18:39 +0100, Al Viro wrote:
-> Far more interesting question: where does the hardware expect to see
-> the
-> upper 16 bits of that 32bit value?  Which one it is -
-> LmSEQ_INTEN_SAVE(lseq)
-> ori LmSEQ_INTEN_SAVE(lseq) + 2?
+Hi,
 
-I don't honestly know.  The change was made as part of a slew of changes
-by Robert Tarte at Adaptec to make the driver run on Big Endian
-platforms.  I've copied Jack Hammer who's now looking after it in the
-hope that he can enlighten us.
+On Mon, 25 Sep 2006, Ray Lee wrote:
 
-James
+> On 9/25/06, john stultz <johnstul@us.ibm.com> wrote:
+> > I was able to run tests for two days each w/ and w/o the patch I had
+> > concerns about. And indeed, it seems if the drift file is reset, the
+> > initial convergence is much slower (and this is really what worried me).
+> > However once it converges it seems to keep sync as well as the current
+> > code.
+> 
+> So slower convergence isn't a regression?
 
+Not really, it makes the clock more stable and less suspectible to 
+network delays.
+I think a big part of the problem is that our calibration code could use 
+some improvements, I've seen some widely different initial drift values 
+from one reboot to the next, which is the main reason ntp has to do that 
+much initial work in the first place.
 
+bye, Roman

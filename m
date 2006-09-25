@@ -1,144 +1,292 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751116AbWIYKwB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751114AbWIYKvy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751116AbWIYKwB (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Sep 2006 06:52:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751119AbWIYKwB
+	id S1751114AbWIYKvy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Sep 2006 06:51:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751116AbWIYKvy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Sep 2006 06:52:01 -0400
-Received: from ns1.suse.de ([195.135.220.2]:3230 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751116AbWIYKv7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Sep 2006 06:51:59 -0400
-From: Neil Brown <neilb@suse.de>
-To: Michiel de Boer <x@rebelhomicide.demon.nl>
-Date: Mon, 25 Sep 2006 20:51:40 +1000
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 25 Sep 2006 06:51:54 -0400
+Received: from amsfep17-int.chello.nl ([213.46.243.15]:63182 "EHLO
+	amsfep19-int.chello.nl") by vger.kernel.org with ESMTP
+	id S1751114AbWIYKvx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Sep 2006 06:51:53 -0400
+Subject: [PATCH] usb-serial: possible irq lock inversion (PPP vs.
+	usb/serial)
+From: Peter Zijlstra <a.p.zijlstra@chello.nl>
+To: gregkh@suse.de, Andrew Morton <akpm@osdl.org>
+Cc: linux-usb-devel@lists.sourceforge.net,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Dave Jones <davej@redhat.com>, Ingo Molnar <mingo@elte.hu>,
+       arjan <arjan@infradead.org>
+Content-Type: text/plain
+Date: Mon, 25 Sep 2006 12:51:41 +0200
+Message-Id: <1159181501.5018.17.camel@lappy>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
-Message-ID: <17687.46268.156413.352299@cse.unsw.edu.au>
-Cc: James Bottomley <James.Bottomley@SteelEye.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: GPLv3 Position Statement
-In-Reply-To: message from Michiel de Boer on Monday September 25
-References: <1158941750.3445.31.camel@mulgrave.il.steeleye.com>
-	<451798FA.8000004@rebelhomicide.demon.nl>
-X-Mailer: VM 7.19 under Emacs 21.4.1
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday September 25, x@rebelhomicide.demon.nl wrote:
-> 
-> For what it's worth, i support RMS and his fight for free software fully.
-> I support the current draft of the GPL version 3 and am very dissapointed
-> it will not be adopted as is. IMHO, Linux has the power and influence
-> to move mountains in the software industry, and shouldn't shy away from
-> the opportunity to take moral responsibility when it arises.
 
-I think that would be against the character of Linux.  Linux has
-always been primarily about technology and community rather than
-freedom.  Doing something to improve the technology or enable the
-community would be very in-character.  Doing something in the name of
-freedom would not.
+=========================================================
+[ INFO: possible irq lock inversion dependency detected ]
+---------------------------------------------------------
+ksoftirqd/0/3 just changed the state of lock:
+ (&ap->xmit_lock){-+..}, at: [<f9337224>] ppp_async_push+0x2f/0x3b3 [ppp_async]
+but this lock took another, soft-irq-unsafe lock in the past:
+ (&port->lock){--..}
 
-Is that a reasonable position to take?  Well, maybe.
+and interrupts could create inverse lock ordering between them.
 
-There are (at least) two ways to change unpleasant behaviour in
-others.  One is through legislation.  The other is through making the
-pleasant behaviour more attractive.
-Legislation is short term, but makes things black-and-white (or, in
-the case of grey areas, very expensive). 
-Rewarding good behaviour is a much slower process, but deals with gray
-areas much more effectively.
 
-I think it is clear that we need a balance.  
-The 'legislation' of GPLv2 plus the economic benefit of hundreds of
-developers have been an effective 2-prong attack to encourage people
-to share their software.  This has been self re-enforcing.  The more
-people see the benefit, the more people seem to get involved.
-So Linux has done a lot for freedom by focussing on technology.
+other info that might help us debug this:
+no locks held by ksoftirqd/0/3.
 
-So the question is: has the balance swung far enough the wrong way to
-make a change in legislation necessary?
+the first lock's dependencies:
+-> (&ap->xmit_lock){-+..} ops: 0 {
+   initial-use  at:
+                        [<c043bf43>] lock_acquire+0x4b/0x6c
+                        [<c06086a8>] _spin_lock_bh+0x1e/0x2d
+                        [<f9337224>] ppp_async_push+0x2f/0x3b3 [ppp_async]
+                        [<f93375b8>] ppp_async_send+0x10/0x3d [ppp_async]
+                        [<f932f071>] ppp_channel_push+0x3a/0x94 [ppp_generic]
+                        [<f9330395>] ppp_write+0xd5/0xe1 [ppp_generic]
+                        [<c0471f23>] vfs_write+0xab/0x157
+                        [<c0472568>] sys_write+0x3b/0x60
+                        [<c0403faf>] syscall_call+0x7/0xb
+   in-softirq-W at:
+                        [<c043bf43>] lock_acquire+0x4b/0x6c
+                        [<c06086a8>] _spin_lock_bh+0x1e/0x2d
+                        [<f9337224>] ppp_async_push+0x2f/0x3b3 [ppp_async]
+                        [<f9337aea>] ppp_async_process+0x48/0x5b [ppp_async]
+                        [<c04294b4>] tasklet_action+0x65/0xca
+                        [<c04293d5>] __do_softirq+0x78/0xf2
+                        [<c040662f>] do_softirq+0x5a/0xbe
+   hardirq-on-W at:
+                        [<c043bf43>] lock_acquire+0x4b/0x6c
+                        [<c06086a8>] _spin_lock_bh+0x1e/0x2d
+                        [<f9337224>] ppp_async_push+0x2f/0x3b3 [ppp_async]
+                        [<f93375b8>] ppp_async_send+0x10/0x3d [ppp_async]
+                        [<f932f071>] ppp_channel_push+0x3a/0x94 [ppp_generic]
+                        [<f9330395>] ppp_write+0xd5/0xe1 [ppp_generic]
+                        [<c0471f23>] vfs_write+0xab/0x157
+                        [<c0472568>] sys_write+0x3b/0x60
+                        [<c0403faf>] syscall_call+0x7/0xb
+ }
+ ... key      at: [<f933b208>] __key.19284+0x0/0xffffce72 [ppp_async]
+ -> (&port->lock){--..} ops: 0 {
+    initial-use  at:
+                          [<c043bf43>] lock_acquire+0x4b/0x6c
+                          [<c060867b>] _spin_lock+0x19/0x28
+                          [<f9324478>] usb_serial_generic_write+0x79/0x23d [usbserial]
+                          [<f9322531>] serial_write+0x8a/0x99 [usbserial]
+                          [<c052dbed>] write_chan+0x22e/0x2a8
+                          [<c052b530>] tty_write+0x148/0x1ce
+                          [<c0471f23>] vfs_write+0xab/0x157
+                          [<c0472568>] sys_write+0x3b/0x60
+                          [<c0403faf>] syscall_call+0x7/0xb
+    softirq-on-W at:
+                          [<c043bf43>] lock_acquire+0x4b/0x6c
+                          [<c060867b>] _spin_lock+0x19/0x28
+                          [<f9324478>] usb_serial_generic_write+0x79/0x23d [usbserial]
+                          [<f9322531>] serial_write+0x8a/0x99 [usbserial]
+                          [<c052dbed>] write_chan+0x22e/0x2a8
+                          [<c052b530>] tty_write+0x148/0x1ce
+                          [<c0471f23>] vfs_write+0xab/0x157
+                          [<c0472568>] sys_write+0x3b/0x60
+                          [<c0403faf>] syscall_call+0x7/0xb
+    hardirq-on-W at:
+                          [<c043bf43>] lock_acquire+0x4b/0x6c
+                          [<c060867b>] _spin_lock+0x19/0x28
+                          [<f9324478>] usb_serial_generic_write+0x79/0x23d [usbserial]
+                          [<f9322531>] serial_write+0x8a/0x99 [usbserial]
+                          [<c052dbed>] write_chan+0x22e/0x2a8
+                          [<c052b530>] tty_write+0x148/0x1ce
+                          [<c0471f23>] vfs_write+0xab/0x157
+                          [<c0472568>] sys_write+0x3b/0x60
+                          [<c0403faf>] syscall_call+0x7/0xb
+  }
+  ... key      at: [<f932b08c>] __key.15523+0x0/0xffff9965 [usbserial]
+ ... acquired at:
+   [<c043bf43>] lock_acquire+0x4b/0x6c
+   [<c060867b>] _spin_lock+0x19/0x28
+   [<f9324478>] usb_serial_generic_write+0x79/0x23d [usbserial]
+   [<f9322531>] serial_write+0x8a/0x99 [usbserial]
+   [<f933729c>] ppp_async_push+0xa7/0x3b3 [ppp_async]
+   [<f93375da>] ppp_async_send+0x32/0x3d [ppp_async]
+   [<f932f071>] ppp_channel_push+0x3a/0x94 [ppp_generic]
+   [<f9330395>] ppp_write+0xd5/0xe1 [ppp_generic]
+   [<c0471f23>] vfs_write+0xab/0x157
+   [<c0472568>] sys_write+0x3b/0x60
+   [<c0403faf>] syscall_call+0x7/0xb
 
-The 'DRM' provision of the proposed GPLv3 seem to be being driven by 1
-company - Tivo.  Yes, what they are doing is against our spirit of
-freedom.   But is it enough to justify changing the legislation?  Or
-would that be 'the tail wagging the dog'??
+Change port->lock locking to softirq-safe, other locks down the
+call-chain appear to be hardirq-safe so this should do.
 
-The 'patent' provisions are - to me - more defensible than the DRM
-provisions (fewer grey areas).  But are they an actual problem, or
-just a potential problem?
+(compile tested only due to lack of hardware)
 
-The GPLv2 was written based on experience of people taking code and
-giving nothing back.  Based on quite a lot of (unpleasant) experience,
-a very effective measure was developed to combat it.
-Do we have the same amount of experience with the problems that the
-GPLv3 is supposed to fix?  If not, fixing now might be a bit premature
-and may lead to unwanted side effects.
+Signed-off-by: Peter Zijlstra <a.p.zijlstra@chello.nl>
+---
+ drivers/usb/serial/cyberjack.c   |    6 +++---
+ drivers/usb/serial/generic.c     |    6 +++---
+ drivers/usb/serial/ipw.c         |    6 +++---
+ drivers/usb/serial/ir-usb.c      |    6 +++---
+ drivers/usb/serial/keyspan_pda.c |    6 +++---
+ drivers/usb/serial/omninet.c     |    6 +++---
+ drivers/usb/serial/safe_serial.c |    6 +++---
+ 7 files changed, 21 insertions(+), 21 deletions(-)
 
-But maybe I am just misinformed.  Maybe there are dozens of different
-manufacturers making devices that use DRM to prohibit freedom despite
-using GPL code, and maybe there are hundreds of submarine patents
-owned by distributors of GPL code and embodied in that code that the
-owners are going to start suing us overs.... Is there a list of these
-somewhere?
+Index: linux-2.6-mm/drivers/usb/serial/cyberjack.c
+===================================================================
+--- linux-2.6-mm.orig/drivers/usb/serial/cyberjack.c
++++ linux-2.6-mm/drivers/usb/serial/cyberjack.c
+@@ -214,14 +214,14 @@ static int cyberjack_write (struct usb_s
+ 		return (0);
+ 	}
+ 
+-	spin_lock(&port->lock);
++	spin_lock_bh(&port->lock);
+ 	if (port->write_urb_busy) {
+-		spin_unlock(&port->lock);
++		spin_unlock_bh(&port->lock);
+ 		dbg("%s - already writing", __FUNCTION__);
+ 		return 0;
+ 	}
+ 	port->write_urb_busy = 1;
+-	spin_unlock(&port->lock);
++	spin_unlock_bh(&port->lock);
+ 
+ 	spin_lock_irqsave(&priv->lock, flags);
+ 
+Index: linux-2.6-mm/drivers/usb/serial/generic.c
+===================================================================
+--- linux-2.6-mm.orig/drivers/usb/serial/generic.c
++++ linux-2.6-mm/drivers/usb/serial/generic.c
+@@ -175,14 +175,14 @@ int usb_serial_generic_write(struct usb_
+ 
+ 	/* only do something if we have a bulk out endpoint */
+ 	if (serial->num_bulk_out) {
+-		spin_lock(&port->lock);
++		spin_lock_bh(&port->lock);
+ 		if (port->write_urb_busy) {
+-			spin_unlock(&port->lock);
++			spin_unlock_bh(&port->lock);
+ 			dbg("%s - already writing", __FUNCTION__);
+ 			return 0;
+ 		}
+ 		port->write_urb_busy = 1;
+-		spin_unlock(&port->lock);
++		spin_unlock_bh(&port->lock);
+ 
+ 		count = (count > port->bulk_out_size) ? port->bulk_out_size : count;
+ 
+Index: linux-2.6-mm/drivers/usb/serial/ipw.c
+===================================================================
+--- linux-2.6-mm.orig/drivers/usb/serial/ipw.c
++++ linux-2.6-mm/drivers/usb/serial/ipw.c
+@@ -394,14 +394,14 @@ static int ipw_write(struct usb_serial_p
+ 		return 0;
+ 	}
+ 
+-	spin_lock(&port->lock);
++	spin_lock_bh(&port->lock);
+ 	if (port->write_urb_busy) {
+-		spin_unlock(&port->lock);
++		spin_unlock_bh(&port->lock);
+ 		dbg("%s - already writing", __FUNCTION__);
+ 		return 0;
+ 	}
+ 	port->write_urb_busy = 1;
+-	spin_unlock(&port->lock);
++	spin_unlock_bh(&port->lock);
+ 
+ 	count = min(count, port->bulk_out_size);
+ 	memcpy(port->bulk_out_buffer, buf, count);
+Index: linux-2.6-mm/drivers/usb/serial/ir-usb.c
+===================================================================
+--- linux-2.6-mm.orig/drivers/usb/serial/ir-usb.c
++++ linux-2.6-mm/drivers/usb/serial/ir-usb.c
+@@ -342,14 +342,14 @@ static int ir_write (struct usb_serial_p
+ 	if (count == 0)
+ 		return 0;
+ 
+-	spin_lock(&port->lock);
++	spin_lock_bh(&port->lock);
+ 	if (port->write_urb_busy) {
+-		spin_unlock(&port->lock);
++		spin_unlock_bh(&port->lock);
+ 		dbg("%s - already writing", __FUNCTION__);
+ 		return 0;
+ 	}
+ 	port->write_urb_busy = 1;
+-	spin_unlock(&port->lock);
++	spin_unlock_bh(&port->lock);
+ 
+ 	transfer_buffer = port->write_urb->transfer_buffer;
+ 	transfer_size = min(count, port->bulk_out_size - 1);
+Index: linux-2.6-mm/drivers/usb/serial/keyspan_pda.c
+===================================================================
+--- linux-2.6-mm.orig/drivers/usb/serial/keyspan_pda.c
++++ linux-2.6-mm/drivers/usb/serial/keyspan_pda.c
+@@ -518,13 +518,13 @@ static int keyspan_pda_write(struct usb_
+ 	   the TX urb is in-flight (wait until it completes)
+ 	   the device is full (wait until it says there is room)
+ 	*/
+-	spin_lock(&port->lock);
++	spin_lock_bh(&port->lock);
+ 	if (port->write_urb_busy || priv->tx_throttled) {
+-		spin_unlock(&port->lock);
++		spin_unlock_bh(&port->lock);
+ 		return 0;
+ 	}
+ 	port->write_urb_busy = 1;
+-	spin_unlock(&port->lock);
++	spin_unlock_bh(&port->lock);
+ 
+ 	/* At this point the URB is in our control, nobody else can submit it
+ 	   again (the only sudden transition was the one from EINPROGRESS to
+Index: linux-2.6-mm/drivers/usb/serial/omninet.c
+===================================================================
+--- linux-2.6-mm.orig/drivers/usb/serial/omninet.c
++++ linux-2.6-mm/drivers/usb/serial/omninet.c
+@@ -256,14 +256,14 @@ static int omninet_write (struct usb_ser
+ 		return (0);
+ 	}
+ 
+-	spin_lock(&wport->lock);
++	spin_lock_bh(&wport->lock);
+ 	if (wport->write_urb_busy) {
+-		spin_unlock(&wport->lock);
++		spin_unlock_bh(&wport->lock);
+ 		dbg("%s - already writing", __FUNCTION__);
+ 		return 0;
+ 	}
+ 	wport->write_urb_busy = 1;
+-	spin_unlock(&wport->lock);
++	spin_unlock_bh(&wport->lock);
+ 
+ 	count = (count > OMNINET_BULKOUTSIZE) ? OMNINET_BULKOUTSIZE : count;
+ 
+Index: linux-2.6-mm/drivers/usb/serial/safe_serial.c
+===================================================================
+--- linux-2.6-mm.orig/drivers/usb/serial/safe_serial.c
++++ linux-2.6-mm/drivers/usb/serial/safe_serial.c
+@@ -298,14 +298,14 @@ static int safe_write (struct usb_serial
+ 		dbg ("%s - write request of 0 bytes", __FUNCTION__);
+ 		return (0);
+ 	}
+-	spin_lock(&port->lock);
++	spin_lock_bh(&port->lock);
+ 	if (port->write_urb_busy) {
+-		spin_unlock(&port->lock);
++		spin_unlock_bh(&port->lock);
+ 		dbg("%s - already writing", __FUNCTION__);
+ 		return 0;
+ 	}
+ 	port->write_urb_busy = 1;
+-	spin_unlock(&port->lock);
++	spin_unlock_bh(&port->lock);
+ 
+ 	packet_length = port->bulk_out_size;	// get max packetsize
+ 
 
-> 
-> What is the stance of the developer team / kernel maintainers on DRM,
 
-While I cannot speak for other developers (and sometimes have trouble
-speaking for myself), one stance I have often heard is that DRM is
-simply a tool - one that is largely based on cryptography which is
-just another tool.  They can have good uses and bad uses just like the
-TCP/IP stack (think 'spam').  So code to implement then would (if of
-suitable quality) be allowed into the kernel.  If you want to make DRM
-illegal, speak to your member-of-parliament, not your code developers.
-
-> Trusted Computing and software patents? Does the refusal to adopt GPLv3 as
-> is mean that these two are more likely to emerge as supported functionality
-> in the Linux kernel? Are there any moral boundaries Linux kernel developers
-> will not cross concerning present and new U.S. laws on technology? Are they
-> willing to put that in writing? Will Linux support HD-DVD and BluRay by
-> being slightly more tolerant to closed source binary blobs? What about
-> the already existant problems with the Content Scrambling System for
-> DVD's?
-
-Tolerance of binary blogs seems to be steadily dropping.
-
-As far as I can tell, the DVD-CSS is purely a legal issue today - the
-technical issues are solved (I can watch any-region on my Linux
-computer, and in Australia, the law requires that all DVD players must
-ignore region encoding as it is an anti-competitive practice).
-
-How HD-DVD and BluRay will work on Linux is yet to be seen, but I
-seriously doubt that anything in the GPLvX would have much effect on
-the outcome.  The greater effect would come from people writing to
-their congress-person and voting with their wallet.... or just
-reverse-engineering the technology:-)
-
-> 
-> Finally, i hope that the wishes of the community of people that have only
-> contributed to the kernel a few times but whose combined work may equal that
-> of the core developers, are taken into account; as well as the wishes of
-> the massive amount of users of the Linux kernel.
-
-This isn't about anyone's wishes.  The kernel is GPLv2 only and that is not
-going to change - arguably is cannot change.
-
-This is about a group of developers giving an opinion.  If others
-agree, it might become an argument that the FSF will choose to allow
-to affect their policy making (rather than thinking it is just Linus
-raving as usual).  If no-one agrees, it will remain the opinion of a
-few, with all the lack of force that implies.
-
-> 
-> How about a public poll?
-
-We've all see the sort of politician that get into government on the
-back of a public poll...  Do you really think a public poll would
-provide a useful result :-)
-
-NeilBrown

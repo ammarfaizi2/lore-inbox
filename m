@@ -1,48 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750875AbWIYJGU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750706AbWIYJPS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750875AbWIYJGU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Sep 2006 05:06:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750876AbWIYJGU
+	id S1750706AbWIYJPS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Sep 2006 05:15:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750767AbWIYJPS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Sep 2006 05:06:20 -0400
-Received: from caramon.arm.linux.org.uk ([217.147.92.249]:52747 "EHLO
-	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
-	id S1750870AbWIYJGU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Sep 2006 05:06:20 -0400
-Date: Mon, 25 Sep 2006 10:06:11 +0100
-From: Russell King <rmk+lkml@arm.linux.org.uk>
-To: Michiel de Boer <x@rebelhomicide.demon.nl>
-Cc: James Bottomley <James.Bottomley@SteelEye.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: GPLv3 Position Statement
-Message-ID: <20060925090611.GB25449@flint.arm.linux.org.uk>
-Mail-Followup-To: Michiel de Boer <x@rebelhomicide.demon.nl>,
-	James Bottomley <James.Bottomley@SteelEye.com>,
-	linux-kernel <linux-kernel@vger.kernel.org>
-References: <1158941750.3445.31.camel@mulgrave.il.steeleye.com> <451798FA.8000004@rebelhomicide.demon.nl>
+	Mon, 25 Sep 2006 05:15:18 -0400
+Received: from bay0-omc3-s30.bay0.hotmail.com ([65.54.246.230]:34007 "EHLO
+	bay0-omc3-s30.bay0.hotmail.com") by vger.kernel.org with ESMTP
+	id S1750706AbWIYJPQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Sep 2006 05:15:16 -0400
+Message-ID: <BAY113-F179EA856F326C120BB65BBC3240@phx.gbl>
+X-Originating-IP: [81.91.239.211]
+X-Originating-Email: [mmmbello09@hotmail.com]
+From: "mmmbello bello" <mmmbello09@hotmail.com>
+Subject: compesation
+Date: Mon, 25 Sep 2006 05:15:15 -0400
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <451798FA.8000004@rebelhomicide.demon.nl>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; format=flowed
+X-OriginalArrivalTime: 25 Sep 2006 09:15:16.0012 (UTC) FILETIME=[1D187EC0:01C6E083]
+To: unlisted-recipients:; (no To-header on input)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 25, 2006 at 10:53:14AM +0200, Michiel de Boer wrote:
-> For what it's worth, i support RMS and his fight for free software fully.
-> I support the current draft of the GPL version 3 and am very dissapointed
-> it will not be adopted as is.
+Dear friend
 
-Let me stop you there.  The kernel has had far too many contributors
-submit code under "GPLv2 only" to allow it to be universally relicensed
-as GPLv3, even if we _wanted_ to do that.
+I'm happy to inform you about my success in getting those funds transffered 
+under the cooperation of a new partiner from london uk
 
-So the question about adoption of GPLv3 is largely irrelevant for the
-kernel.
+Presently i'm in london uk for investment projects with my own share of the 
+total sum.meanwhile,i didn't forget your past efforts and attempts to assist 
+me in transffering those funds despite that it failed us somehow.
 
-If you think otherwise, please seek expert legal advice.
 
--- 
-Russell King
- Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
- maintainer of:  2.6 Serial core
+Now contact my secretary his name is utobo email:utoboo1@yahoo.com
+ask him to send you the total $1.500us. which i kept for your compensation 
+for all your past efforts and attempts to assist me in this matter.i 
+appreciated your efforts at that time very much.so feel free and get 
+intouched with my secretary utoboo and instruct him where to send the amount 
+to you.
+
+
+Please do let me know immediately you receive it so that we can share the 
+joy after all the sufferness at that time.in the moment, i'm very busy here 
+because of the investment projects which I and the new partiner are having 
+at hand, finally,remember that i had forwarded instruction to the secretary 
+on your
+
+behalf to receive those money,so feel free to get intouch with utobooto send 
+the amount to you without any delay.
+
+with best regards,
+mmmbello
+
+_________________________________________________________________
+Try the new Live Search today!  
+http://imagine-windowslive.com/minisites/searchlaunch/?locale=en-us&FORM=WLMTAG
+

@@ -1,71 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751226AbWIYXWJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751684AbWIYXdT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751226AbWIYXWJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Sep 2006 19:22:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751487AbWIYXWJ
+	id S1751684AbWIYXdT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Sep 2006 19:33:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751688AbWIYXdT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Sep 2006 19:22:09 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:30660 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1751226AbWIYXWF (ORCPT
+	Mon, 25 Sep 2006 19:33:19 -0400
+Received: from ozlabs.org ([203.10.76.45]:15040 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S1751684AbWIYXdS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Sep 2006 19:22:05 -0400
-Date: Tue, 26 Sep 2006 01:21:51 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Nigel Cunningham <ncunningham@linuxmail.org>,
-       Stefan Seyfried <seife@suse.de>, linux-kernel@vger.kernel.org,
-       "Rafael J. Wysocki" <rjw@sisk.pl>
-Subject: Re: When will the lunacy end? (Was Re: [PATCH] uswsusp: add pmops->{prepare,enter,finish} support (aka "platform mode"))
-Message-ID: <20060925232151.GA1896@elf.ucw.cz>
-References: <20060925071338.GD9869@suse.de> <1159220043.12814.30.camel@nigel.suspend2.net> <20060925144558.878c5374.akpm@osdl.org> <20060925224500.GB2540@elf.ucw.cz> <20060925160648.de96b6fa.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060925160648.de96b6fa.akpm@osdl.org>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+	Mon, 25 Sep 2006 19:33:18 -0400
+Subject: Re: [PATCH 5/7] Use %gs for per-cpu sections in kernel
+From: Rusty Russell <rusty@rustcorp.com.au>
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: Andi Kleen <ak@muc.de>,
+       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       virtualization <virtualization@lists.osdl.org>
+In-Reply-To: <45177664.3060103@goop.org>
+References: <1158925861.26261.3.camel@localhost.localdomain>
+	 <1158925997.26261.6.camel@localhost.localdomain>
+	 <1158926106.26261.8.camel@localhost.localdomain>
+	 <1158926215.26261.11.camel@localhost.localdomain>
+	 <1158926308.26261.14.camel@localhost.localdomain>
+	 <1158926386.26261.17.camel@localhost.localdomain>
+	 <4514663E.5050707@goop.org>
+	 <1158985882.26261.60.camel@localhost.localdomain>
+	 <45172AC8.2070701@goop.org>
+	 <1159146974.26986.30.camel@localhost.localdomain>
+	 <45173287.8070204@goop.org>
+	 <1159152678.26986.38.camel@localhost.localdomain>
+	 <45176865.7020300@goop.org>
+	 <1159164232.26986.59.camel@localhost.localdomain>
+	 <45177664.3060103@goop.org>
+Content-Type: text/plain
+Date: Tue, 26 Sep 2006 09:33:14 +1000
+Message-Id: <1159227195.26986.68.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Sun, 2006-09-24 at 23:25 -0700, Jeremy Fitzhardinge wrote:
+> Rusty Russell wrote:
+> > I don't think so.  There's *never* address subtraction, there's
+> > sometimes 32 bit wrap (glibc uses this to effect subtraction, sure).
+> > But there's no wrap here.
+> >   
+> Hm, I guess, so long as you assume the kernel data segment is always 
+> below the kernel heap.
 
-On Mon 2006-09-25 16:06:48, Andrew Morton wrote:
-> On Tue, 26 Sep 2006 00:45:00 +0200
-> Pavel Machek <pavel@ucw.cz> wrote:
-> 
-> > Anyways this boils down to "find which drivers are delaying suspend
-> > and fix them".
-> 
-> The first step would be "find some way of identifying where all the time is
-> being spent".
-> 
-> Right now, netconsole gets disabled (or makes the machine hang) and most of
-> these machines don't have serial ports and the printk buffer gets lost
-> during resume.
-> 
-> The net result is that the machine takes a long time to suspend and resume,
-> and you don't have a clue *why*.
-> 
-> And this is a significant issue, IMO.  In terms of
-> niceness-of-user-interface, being able to suspend in twelve seconds instead
-> of twenty seven rates fairly highly...
+Agreed, we should BUG_ON() in case anyone ever changes this...  I will
+create a patch for this...
 
-Your machines spend 15 seconds in drivers? Ouch, I did not realize
-_that_. 
+> > To test, I changed the following:
+> >
+> > --- smpboot.c.~8~	2006-09-25 15:51:50.000000000 +1000
+> > +++ smpboot.c	2006-09-25 16:00:36.000000000 +1000
+> > @@ -926,8 +926,9 @@
+> >  					      unsigned long per_cpu_off)
+> >  {
+> >  	unsigned limit, flags;
+> > +	extern char __per_cpu_end[];
+> >  
+> > -	limit = (1 << 20);
+> > +	limit = PAGE_ALIGN((long)__per_cpu_end) >> PAGE_SHIFT;
+> >   
+> limit is a size, rather than the end address, so this isn't quite right.
 
-(My machine suspends in 7 seconds, perhaps 2-3 of that are playing
-with drivers, so I just failed to see where the problem is).
+I think it's OK.  For every "%gs:var", var will be less than
+__per_cpu_end.
 
-Are these your big SMP servers? Any SCSI involved?
-
-Rafael has "fakesuspend" patches somewhere, but you can probably just
-swapoff -a, then echo disk > /sys/power/state. If you are lucky, that
-should be slow, too... fortunately you'll have useful dmesg buffer
-when you are done. CONFIG_PRINTK_TIMING or something, and you should
-have enough clues...?
-
-15 seconds spend within drivers is definitely _not_ okay.
-								Pavel
+Thanks!
+Rusty.
 -- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+Help! Save Australia from the worst of the DMCA: http://linux.org.au/law
+

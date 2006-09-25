@@ -1,81 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751052AbWIYICB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751383AbWIYIJo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751052AbWIYICB (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Sep 2006 04:02:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751269AbWIYICB
+	id S1751383AbWIYIJo (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Sep 2006 04:09:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751462AbWIYIJo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Sep 2006 04:02:01 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:39631 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1751052AbWIYICA (ORCPT
+	Mon, 25 Sep 2006 04:09:44 -0400
+Received: from ogre.sisk.pl ([217.79.144.158]:45516 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S1751383AbWIYIJn (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Sep 2006 04:02:00 -0400
-Message-ID: <45178D19.5000803@sgi.com>
-Date: Mon, 25 Sep 2006 18:02:33 +1000
-From: Timothy Shimmin <tes@sgi.com>
-User-Agent: Thunderbird 1.5.0.7 (Macintosh/20060909)
+	Mon, 25 Sep 2006 04:09:43 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Stefan Seyfried <seife@suse.de>
+Subject: Re: [PATCH] uswsusp: add pmops->{prepare,enter,finish} support (aka "platform mode")
+Date: Mon, 25 Sep 2006 10:12:10 +0200
+User-Agent: KMail/1.9.1
+Cc: linux-kernel@vger.kernel.org, Pavel Machek <pavel@suse.cz>,
+       Andrew Morton <akpm@osdl.org>
+References: <20060925071338.GD9869@suse.de>
+In-Reply-To: <20060925071338.GD9869@suse.de>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Eric Sandeen <sandeen@sandeen.net>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       xfs mailing list <xfs@oss.sgi.com>
-Subject: Re: [PATCH -mm] rescue large xfs preferred iosize from the inode
- diet patch
-References: <45131334.6050803@sandeen.net>	<45134472.7080002@sgi.com> <20060922161040.609286fa.akpm@osdl.org>
-In-Reply-To: <20060922161040.609286fa.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200609251012.11317.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> On Fri, 22 Sep 2006 12:03:30 +1000
-
->> Looked at your patch and then at our xfs code in the tree and
->> the existing code is different than what yours is based on.
->> I then noticed in the logs Nathan has actually made changes for this:
->>
->> ----------------------------
->> revision 1.254
->> date: 2006/07/17 10:46:05;  author: nathans;  state: Exp;  lines: +20 -5
->> modid: xfs-linux-melb:xfs-kern:26565a
->> Update XFS for i_blksize removal from generic inode structure
->> ----------------------------
->> I even reviewed the change (and I don't remember it - getting old).
->>
->> I looked at the mods scheduled for 2.6.19 and this is one of them.
->>
->> So the fix for this is coming soon (and the fix is different from the
->> one above).
->>
+On Monday, 25 September 2006 09:13, Stefan Seyfried wrote:
+> From: Stefan Seyfried <seife@suse.de>
 > 
-> eh?  Eric's patch is based on -mm, which includes the XFS git tree.  If I
-> go and merge the inode-diet patches from -mm, XFS gets broken until you
-> guys merge the above mystery patch.  (I prefer to merge the -mm patches
-> after all the git trees have gone, but sometimes maintainers dawdle and I
-> get bored of waiting).
+> Add an ioctl to the userspace swsusp code that enables the usage of the
+> pmops->prepare, pmops->enter and pmops->finish methods (the in-kernel
+> suspend knows these as "platform method"). These are needed on many machines
+> to (among others) speed up resuming by letting the BIOS skip some steps or
+> let my hp nx5000 recognise the correct ac_adapter state after resume again.
 > 
-> Is git://oss.sgi.com:8090/nathans/xfs-2.6 obsolete, or are you hiding stuff
-> from me?  ;)
-> 
-:)
-We're still getting our act together since Nathan is no longer here.
-Going forward the new git tree is at:
-     git://oss.sgi.com:8090/xfs/xfs-2.6
+> Signed-off-by: Stefan Seyfried <seife@suse.de>
 
-This has some more recent changes than the "nathans" one but
-is far from up to date with the internal sgi tree and the external
-cvs tree (as you noticed with the nathans one:).
+ACK
 
-I will get the "xfs" one updated in the next day or so.
-
-(Aside: for some strange reason, the "nathans" one has 3 extra
-  mods (commits) and as expected (to me:) the "xfs" one has 10 extra
-  mods (commits) and there is about 46 mods (including missing 3)
-  pending for the "xfs" tree.
-  If we end up moving from our internal SCM to git at some point,
-  this could make the updates less of a hassle:).
+Greetings,
+Rafael
 
 
---Tim
-
-
+-- 
+You never change things by fighting the existing reality.
+		R. Buckminster Fuller

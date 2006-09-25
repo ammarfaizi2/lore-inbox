@@ -1,53 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750840AbWIYUIv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750912AbWIYUKj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750840AbWIYUIv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Sep 2006 16:08:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750873AbWIYUIv
+	id S1750912AbWIYUKj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Sep 2006 16:10:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750932AbWIYUKj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Sep 2006 16:08:51 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:56015 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1750840AbWIYUIu (ORCPT
+	Mon, 25 Sep 2006 16:10:39 -0400
+Received: from xenotime.net ([66.160.160.81]:50342 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1750912AbWIYUKi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Sep 2006 16:08:50 -0400
-Message-ID: <4518374D.9060206@garzik.org>
-Date: Mon, 25 Sep 2006 16:08:45 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
-MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       linux-ide@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [git patch] libata fix
-References: <20060925193511.GA6129@havoc.gtf.org> <1159216257.11049.137.camel@localhost.localdomain>
-In-Reply-To: <1159216257.11049.137.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Mon, 25 Sep 2006 16:10:38 -0400
+Date: Mon, 25 Sep 2006 13:11:51 -0700
+From: Randy Dunlap <rdunlap@xenotime.net>
+To: Jeff Garzik <jgarzik@pobox.com>
+Cc: Henne <henne@nachtwindheim.de>, Andrew Morton <akpm@osdl.org>,
+       linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] ata-piix: kerneldoc-error-on-ata_piixc.patch 2nd try
+Message-Id: <20060925131151.4f73612c.rdunlap@xenotime.net>
+In-Reply-To: <4518305C.3090906@pobox.com>
+References: <451826BE.2040201@nachtwindheim.de>
+	<4518305C.3090906@pobox.com>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.3 (----)
-X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> Ar Llu, 2006-09-25 am 15:35 -0400, ysgrifennodd Jeff Garzik:
->> [hey Linus, your git summary hint helped, thanks]
->>
->> Please pull from 'upstream-linus' branch of
->> master.kernel.org:/pub/scm/linux/kernel/git/jgarzik/libata-dev.git upstream-linus
+On Mon, 25 Sep 2006 15:39:08 -0400 Jeff Garzik wrote:
+
+> Henne wrote:
+> > Heres a new version of the kerneldoc error in ata_piix.c
+> > The old one which doesn't apply clean is in 2.6.18-mm1 and can be removed there if acked.
+> > 
+> > Greets,
+> > Henne
+> > 
+> > From: Henrik Kretzschmar <henne@nachtwindheim.de>
+> > 
+> > Fixes an error in kerneldoc of ata_piix.c.
+> > This is the 2nd try, written for 2.6.18-git4
+> > Signed-off-by: Henrik Kretzschmar <henne@nachtwindheim.de>
 > 
-> Btw this one doesn't actually solve the FRV case. That's going to need
-> some more work and thinking. Look for patches tomorrow.
+> Several problems with your patch format:
+> 
+> 1) your subject line includes-a-bunch-of-words-separated-by-dashes, 
+> which is incorrect.  Just use standard English.
+> 
+> 2) "2nd try" should be inside the brackets ("[", "]"), so that the 
+> script removes it during merge
+> 
+> 3) All comments such as the first paragraph and "Greets, Henne" should 
+> be moved underneath the "---" separator, so that they are not copied 
+> into the kernel changelog verbatim.  You force people to hand-edit your 
+> email before merging.
+> 
+> 4) No need for "From:" in the email body, it duplicates the email's 
+> RFC822 From header.
 
-It gets FRV to where it was at the point of 2.6.18 release.  Whether it 
-worked on FRV at the time of 2.6.18 is quite a different question...
+I agree with all of these except #4.  Maybe you can reconcile your
+preference with that in Documentation/SubmittingPatches, which
+contains:
 
-This recent push merely exposed _existing_ arch dependencies.  They 
-aren't new by any stretch of the imagination.
+<quote>
+The canonical patch message body contains the following:
 
-As we see, the push has spurred relevant people into taking the correct 
-action ;-)
+  - A "from" line specifying the patch author.
+</quote>
 
-	Jeff
+A patch submitter should not need to know the patch receiver's
+personal preferences and vary patches based on those.
 
 
+> 5) Another comment "This is the 2nd try, written for 2.6.18-git4" which 
+> should be moved after the "---" separator.  Otherwise, it must be 
+> hand-edited out.
 
+
+---
+~Randy

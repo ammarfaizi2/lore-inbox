@@ -1,147 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751638AbWIYXRJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751639AbWIYXS6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751638AbWIYXRJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Sep 2006 19:17:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751642AbWIYXRJ
+	id S1751639AbWIYXS6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Sep 2006 19:18:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751645AbWIYXS5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Sep 2006 19:17:09 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:10710 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1751638AbWIYXRI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Sep 2006 19:17:08 -0400
-Message-ID: <4518636C.8090802@garzik.org>
-Date: Mon, 25 Sep 2006 19:17:00 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
-MIME-Version: 1.0
-To: Arne Ahrend <aahrend@web.de>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.18-git4 crashes in sata_via
-References: <20060925225205.a4e0a2d3.aahrend@web.de>
-In-Reply-To: <20060925225205.a4e0a2d3.aahrend@web.de>
-Content-Type: multipart/mixed;
- boundary="------------080205080804050206070906"
-X-Spam-Score: -4.3 (----)
-X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.3 points, 5.0 required)
+	Mon, 25 Sep 2006 19:18:57 -0400
+Received: from tomts40.bellnexxia.net ([209.226.175.97]:52920 "EHLO
+	tomts40-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id S1751639AbWIYXS4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Sep 2006 19:18:56 -0400
+Date: Mon, 25 Sep 2006 19:13:43 -0400
+From: Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: Martin Bligh <mbligh@google.com>, "Frank Ch. Eigler" <fche@redhat.com>,
+       Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>, prasanna@in.ibm.com,
+       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
+       Paul Mundt <lethal@linux-sh.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>, Jes Sorensen <jes@sgi.com>,
+       Tom Zanussi <zanussi@us.ibm.com>,
+       Richard J Moore <richardj_moore@uk.ibm.com>,
+       Michel Dagenais <michel.dagenais@polymtl.ca>,
+       Christoph Hellwig <hch@infradead.org>,
+       Greg Kroah-Hartman <gregkh@suse.de>,
+       Thomas Gleixner <tglx@linutronix.de>, William Cohen <wcohen@redhat.com>,
+       ltt-dev@shafik.org, systemtap@sources.redhat.com,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Karim Yaghmour <karim@opersys.com>,
+       Pavel Machek <pavel@suse.cz>, Joe Perches <joe@perches.com>,
+       "Randy.Dunlap" <rdunlap@xenotime.net>,
+       "Jose R. Santos" <jrs@us.ibm.com>
+Subject: Re: [PATCH] Linux Kernel Markers 0.11 for 2.6.17
+Message-ID: <20060925231343.GA12011@Krystal>
+References: <20060925151028.GA14695@Krystal> <45181CE9.1080204@goop.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <45181CE9.1080204@goop.org>
+X-Editor: vi
+X-Info: http://krystal.dyndns.org:8080
+X-Operating-System: Linux/2.4.32-grsec (i686)
+X-Uptime: 19:04:52 up 33 days, 20:13,  5 users,  load average: 0.01, 0.11, 0.14
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------080205080804050206070906
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-
-Arne Ahrend wrote:
-> Hi,
+* Jeremy Fitzhardinge (jeremy@goop.org) wrote:
+> If you're going to put different types in the .markers section 
+> (presumably per-architecture, rather than different types for within one 
+> architecture) you should probably also define a structure in the same 
+> place, if nothing
 > 
-> don't know if this is of any interest, but on my Athlon64 2.6.18-git4 (like -git3) crashes on startup when initializing
-> the SATA ports. The machine does not actually have any SATA disks installed, but I compile in sata_via support anyway (and pata_via, of course).
-> Alans pata_via driver has been working for me on various kernels without any issues for half a year now.
 
+For now, I only expect two kinds of structures :
 
-Does the attached patch fix your problems?
+One for the architectures which implements the MARK_JUMP optimisation and one
+where they don't. Does it make sense to assume that each architecture will offer
+the possibility to write a 1 byte offset calculated from the difference between
+two addresses ? If not, then, it can be useful to think of a per archtecture
+structure, but module.c shall be modified accordingly too. So for now, I would
+stay with only one definition in linux/marker.h and if we see the need for it,
+we can put the structures in asm-*/marker.h and adapt module.c per architecture
+accordingly (probably by using a macro).
 
-	Jeff
+Mathieu
 
-
-
---------------080205080804050206070906
-Content-Type: text/plain;
- name="patch"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="patch"
-
-diff --git a/drivers/ata/sata_nv.c b/drivers/ata/sata_nv.c
-index 27c22fe..8cd730f 100644
---- a/drivers/ata/sata_nv.c
-+++ b/drivers/ata/sata_nv.c
-@@ -484,7 +484,7 @@ static void nv_error_handler(struct ata_
- static int nv_init_one (struct pci_dev *pdev, const struct pci_device_id *ent)
- {
- 	static int printed_version = 0;
--	struct ata_port_info *ppi;
-+	struct ata_port_info *ppi[2];
- 	struct ata_probe_ent *probe_ent;
- 	int pci_dev_busy = 0;
- 	int rc;
-@@ -520,8 +520,8 @@ static int nv_init_one (struct pci_dev *
- 
- 	rc = -ENOMEM;
- 
--	ppi = &nv_port_info[ent->driver_data];
--	probe_ent = ata_pci_init_native_mode(pdev, &ppi, ATA_PORT_PRIMARY | ATA_PORT_SECONDARY);
-+	ppi[0] = ppi[1] = &nv_port_info[ent->driver_data];
-+	probe_ent = ata_pci_init_native_mode(pdev, ppi, ATA_PORT_PRIMARY | ATA_PORT_SECONDARY);
- 	if (!probe_ent)
- 		goto err_out_regions;
- 
-diff --git a/drivers/ata/sata_sis.c b/drivers/ata/sata_sis.c
-index 9b17375..18d49ff 100644
---- a/drivers/ata/sata_sis.c
-+++ b/drivers/ata/sata_sis.c
-@@ -240,7 +240,7 @@ static int sis_init_one (struct pci_dev 
- 	struct ata_probe_ent *probe_ent = NULL;
- 	int rc;
- 	u32 genctl;
--	struct ata_port_info *ppi;
-+	struct ata_port_info *ppi[2];
- 	int pci_dev_busy = 0;
- 	u8 pmr;
- 	u8 port2_start;
-@@ -265,8 +265,8 @@ static int sis_init_one (struct pci_dev 
- 	if (rc)
- 		goto err_out_regions;
- 
--	ppi = &sis_port_info;
--	probe_ent = ata_pci_init_native_mode(pdev, &ppi, ATA_PORT_PRIMARY | ATA_PORT_SECONDARY);
-+	ppi[0] = ppi[1] = &sis_port_info;
-+	probe_ent = ata_pci_init_native_mode(pdev, ppi, ATA_PORT_PRIMARY | ATA_PORT_SECONDARY);
- 	if (!probe_ent) {
- 		rc = -ENOMEM;
- 		goto err_out_regions;
-diff --git a/drivers/ata/sata_uli.c b/drivers/ata/sata_uli.c
-index 8fc6e80..dd76f37 100644
---- a/drivers/ata/sata_uli.c
-+++ b/drivers/ata/sata_uli.c
-@@ -185,7 +185,7 @@ static int uli_init_one (struct pci_dev 
- {
- 	static int printed_version;
- 	struct ata_probe_ent *probe_ent;
--	struct ata_port_info *ppi;
-+	struct ata_port_info *ppi[2];
- 	int rc;
- 	unsigned int board_idx = (unsigned int) ent->driver_data;
- 	int pci_dev_busy = 0;
-@@ -211,8 +211,8 @@ static int uli_init_one (struct pci_dev 
- 	if (rc)
- 		goto err_out_regions;
- 
--	ppi = &uli_port_info;
--	probe_ent = ata_pci_init_native_mode(pdev, &ppi, ATA_PORT_PRIMARY | ATA_PORT_SECONDARY);
-+	ppi[0] = ppi[1] = &uli_port_info;
-+	probe_ent = ata_pci_init_native_mode(pdev, ppi, ATA_PORT_PRIMARY | ATA_PORT_SECONDARY);
- 	if (!probe_ent) {
- 		rc = -ENOMEM;
- 		goto err_out_regions;
-diff --git a/drivers/ata/sata_via.c b/drivers/ata/sata_via.c
-index 7f087ae..a72a238 100644
---- a/drivers/ata/sata_via.c
-+++ b/drivers/ata/sata_via.c
-@@ -318,9 +318,10 @@ static void vt6421_init_addrs(struct ata
- static struct ata_probe_ent *vt6420_init_probe_ent(struct pci_dev *pdev)
- {
- 	struct ata_probe_ent *probe_ent;
--	struct ata_port_info *ppi = &vt6420_port_info;
--
--	probe_ent = ata_pci_init_native_mode(pdev, &ppi, ATA_PORT_PRIMARY | ATA_PORT_SECONDARY);
-+	struct ata_port_info *ppi[2];
-+	
-+	ppi[0] = ppi[1] = &vt6420_port_info;
-+	probe_ent = ata_pci_init_native_mode(pdev, ppi, ATA_PORT_PRIMARY | ATA_PORT_SECONDARY);
- 	if (!probe_ent)
- 		return NULL;
- 
-
---------------080205080804050206070906--
+OpenPGP public key:              http://krystal.dyndns.org:8080/key/compudj.gpg
+Key fingerprint:     8CD5 52C3 8E3C 4140 715F  BA06 3F25 A8FE 3BAE 9A68 

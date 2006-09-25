@@ -1,64 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751489AbWIYL4a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751490AbWIYL5r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751489AbWIYL4a (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Sep 2006 07:56:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751490AbWIYL4a
+	id S1751490AbWIYL5r (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Sep 2006 07:57:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751492AbWIYL5r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Sep 2006 07:56:30 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:24781 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1751489AbWIYL43 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Sep 2006 07:56:29 -0400
-Subject: Re: [PATCH] restore libata build on frv
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: David Howells <dhowells@redhat.com>
-Cc: Al Viro <viro@ftp.linux.org.uk>, Linus Torvalds <torvalds@osdl.org>,
-       Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org
-In-Reply-To: <5578.1159183668@warthog.cambridge.redhat.com>
-References: <1159183568.11049.51.camel@localhost.localdomain>
-	 <20060924223925.GU29920@ftp.linux.org.uk>
-	 <22314.1159181060@warthog.cambridge.redhat.com>
-	 <5578.1159183668@warthog.cambridge.redhat.com>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Mon, 25 Sep 2006 13:19:31 +0100
-Message-Id: <1159186771.11049.63.camel@localhost.localdomain>
+	Mon, 25 Sep 2006 07:57:47 -0400
+Received: from ironport-c10.fh-zwickau.de ([141.32.72.200]:6984 "EHLO
+	ironport-c10.fh-zwickau.de") by vger.kernel.org with ESMTP
+	id S1751490AbWIYL5q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Sep 2006 07:57:46 -0400
+X-IronPort-Anti-Spam-Filtered: true
+X-IronPort-Anti-Spam-Result: AQAAAEdgF0WLcgEBDQ
+X-IronPort-AV: i="4.09,213,1157320800"; 
+   d="scan'208"; a="3470015:sNHT30681384"
+Date: Mon, 25 Sep 2006 13:57:44 +0200
+From: Joerg Roedel <joro-lkml@zlug.org>
+To: Andi Kleen <ak@suse.de>
+Cc: David Miller <davem@davemloft.net>, jbglaw@lug-owl.de, kaber@trash.net,
+       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: Re: [PATCH 00/03][RESUBMIT] net: EtherIP tunnel driver
+Message-ID: <20060925115744.GD23028@zlug.org>
+References: <20060923120704.GA32284@zlug.org> <20060923121327.GH30245@lug-owl.de> <1159015118.5301.19.camel@jzny2> <20060923.163535.41636370.davem@davemloft.net> <p738xk8kzym.fsf@verdi.suse.de>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <p738xk8kzym.fsf@verdi.suse.de>
+User-Agent: Mutt/1.3.28i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Llu, 2006-09-25 am 12:27 +0100, ysgrifennodd David Howells:
-> Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
-> These are all legacy ISA settings, and not applicable to FRV:
-> 
-> 	#define ATA_PRIMARY_CMD		0x1F0
-> 	#define ATA_PRIMARY_CTL		0x3F6
-> 	#define ATA_PRIMARY_IRQ		14
-> 
-> 	#define ATA_SECONDARY_CMD	0x170
-> 	#define ATA_SECONDARY_CTL	0x376
-> 	#define ATA_SECONDARY_IRQ	15
+On Mon, Sep 25, 2006 at 12:22:41PM +0200, Andi Kleen wrote:
 
-Wrong these are PCI settings. Please read the PCI specifications. In
-particular the handling of non-native mode IDE storage class devices on
-a PCI bus. For the IRQ mapping of the non-native ports consult your
-bridge documentation.
+> How would you convince those old LAN games to use a MTU < 1500 which
+> is needed for the tunnel?  I bet they have the size hardcoded.
 
-> Note that the ata_pci_init_legacy_port() explicitly states the IRQ numbers as
-> 14 and 15 without reference to the macros and so is bad, eg:
-> 
-> 		probe_ent->irq = 14;
+The tunnel provides an MTU of 1500. To guarantee this, it never sets the
+DF flag in outgoing packets.
 
-That is indeed a bug
-
-> Make FRV build with libata enabled.  This is done by making the legacy ISA
-> interface support conditional on the definition of the legacy ISA port
-> settings.  If there's no ISA bus, we shouldn't even attempt to pretend that
-> there is.
-> 
-> Signed-Off-By: David Howells <dhowells@redhat.com>
-
-Nacked-by: Alan Cox <alan@redhat.com>
-
-
+Joerg

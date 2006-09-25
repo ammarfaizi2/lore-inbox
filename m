@@ -1,48 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932195AbWIYGJk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932202AbWIYGSk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932195AbWIYGJk (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Sep 2006 02:09:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751783AbWIYGJj
+	id S932202AbWIYGSk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Sep 2006 02:18:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932209AbWIYGSk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Sep 2006 02:09:39 -0400
-Received: from smtp.ocgnet.org ([64.20.243.3]:48587 "EHLO smtp.ocgnet.org")
-	by vger.kernel.org with ESMTP id S1751298AbWIYGJi (ORCPT
+	Mon, 25 Sep 2006 02:18:40 -0400
+Received: from smtp.ocgnet.org ([64.20.243.3]:23258 "EHLO smtp.ocgnet.org")
+	by vger.kernel.org with ESMTP id S932202AbWIYGSj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Sep 2006 02:09:38 -0400
-Date: Mon, 25 Sep 2006 15:09:17 +0900
+	Mon, 25 Sep 2006 02:18:39 -0400
+Date: Mon, 25 Sep 2006 15:18:19 +0900
 From: Paul Mundt <lethal@linux-sh.org>
-To: Matthew Wilcox <matthew@wil.cx>
-Cc: Hirokazu Takata <takata@linux-m32r.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org
-Subject: Re: [PATCH] m32r: Revise __raw_read_trylock()
-Message-ID: <20060925060917.GA8422@localhost.na.rta>
-References: <swfzmcse7mm.wl%takata@linux-m32r.org> <20060922074813.GA20921@localhost.Internal.Linux-SH.ORG> <20060922112708.GR2585@parisc-linux.org>
+To: Robin Getz <rgetz@blackfin.uclinux.org>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
+       Greg KH <gregkh@suse.de>, luke Yang <luke.adi@gmail.com>
+Subject: Re: [PATCH 3/3] [BFIN] Blackfin documents and MAINTAINER patch
+Message-ID: <20060925061819.GA8879@localhost.na.rta>
+References: <6.1.1.1.0.20060925011906.01ecea00@ptg1.spd.analog.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060922112708.GR2585@parisc-linux.org>
+In-Reply-To: <6.1.1.1.0.20060925011906.01ecea00@ptg1.spd.analog.com>
 User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 22, 2006 at 05:27:08AM -0600, Matthew Wilcox wrote:
-> You're assuming:
+On Mon, Sep 25, 2006 at 01:51:34AM -0400, Robin Getz wrote:
+> Paul indicated:
+> >This is a generic enough of a feature that I suspect we should hash out a 
+> >common API for it rather than having people roll their own.
 > 
->  - a spinlock is an atomic_t.
->  - Said atomic_t uses RW_LOCK_BIAS to indicate locked/unlocked.
+> That sounds like a good idea. From the few people that use this, I think a 
+> much simpler interface would be desirable.
 > 
-> This is true for m32r, but not for sparc.
+> For data, it is easy - something similar to the processor specific 
+> xx_flush_range(start,end) - have a xxx_lock_range(start,end) would be good, 
+> and easy to implement.
+> 
+Yes, xxx_lock_range() (and a corresponding xxx_unlock_range()) would be
+ideal for this.
 
-That makes sense, thanks for the clarification.
+> The only thing I am not sure of - is how to force things into cache. For 
+> data - it is easy - do a read, and then lock it. For instruction - for 
+> those architectures which have separate instruction cache (like Blackfin) 
+> it is much harder. The only way to get code into cache is to execute it. 
+> (ergo the existing interface).
+> 
+I suppose the first question is to determine whether it's really worth
+doing the I-cache locking or simply sticking with a simplistic interface
+aimed more at D-cache locking.
 
-> SuperH looks completely broken -- I don't see how holding a read lock
-> prevents someone else from getting a write lock.  The SH write_trylock
-> uses RW_LOCK_BIAS, but write_lock doesn't.  Are there any SMP SH
-> machines?
+The I-cache case is somewhat more problematic, the only way to do it in
+an architecture-neutral fashion is likely to expose a code page that is
+pre-loaded and kicked down to the lower levels to work out the actual
+locking semantics.
 
-Yes, it's broken, most of the work for that has been happening out of
-tree, and we'll have to sync it up again. The initial work was targetted
-at a pair of microcontrollers, but there were too many other issues
-there that the work was eventually abandoned. Recently it's started up
-again on more reasonable CPUs, so we'll be fixing these things up in
-order.
+> Because the algorithm is so specific to the hardware - I am not sure how to 
+> make instruction as generic as data could be.
+> 
+> How does SH cache handle things like this?
+> 
+On SH both the I and D caches have MMIO access to the cache lines, so we
+can jump to uncached space, clean the relevant cache, and then map the
+data we want to lock directly in before jumping back to cached space.
+
+So far we haven't done much with I-cache locking though.

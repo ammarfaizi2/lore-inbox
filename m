@@ -1,66 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750883AbWIYIL1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750709AbWIYIPU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750883AbWIYIL1 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Sep 2006 04:11:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750857AbWIYIL0
+	id S1750709AbWIYIPU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Sep 2006 04:15:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750778AbWIYIPU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Sep 2006 04:11:26 -0400
-Received: from mtagate5.de.ibm.com ([195.212.29.154]:11084 "EHLO
-	mtagate5.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1750774AbWIYILZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Sep 2006 04:11:25 -0400
-Subject: Re: [S390] remove old z90crypt driver.
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Reply-To: schwidefsky@de.ibm.com
-To: David Woodhouse <dwmw2@infradead.org>
-Cc: akpm@osdl.org, Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1159131115.24527.956.camel@pmac.infradead.org>
-References: <200609222101.k8ML1w93019317@hera.kernel.org>
-	 <1159131115.24527.956.camel@pmac.infradead.org>
-Content-Type: text/plain
-Organization: IBM Corporation
-Date: Mon, 25 Sep 2006 10:11:23 +0200
-Message-Id: <1159171883.28115.2.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 
-Content-Transfer-Encoding: 7bit
+	Mon, 25 Sep 2006 04:15:20 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:27860 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1750709AbWIYIPT (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Sep 2006 04:15:19 -0400
+Date: Mon, 25 Sep 2006 10:15:17 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Willy Tarreau <w@1wt.eu>, Greg KH <greg@kroah.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Linux 2.6.16.30-pre1
+Message-ID: <20060925081517.GB2107@elf.ucw.cz>
+References: <20060922222300.GA5566@stusta.de> <20060922223859.GB21772@kroah.com> <20060922224735.GB5566@stusta.de> <20060922230928.GB22830@kroah.com> <20060923045610.GM541@1wt.eu> <20060923232150.GK5566@stusta.de> <20060924101753.GB4813@ucw.cz> <20060925012322.GE4547@stusta.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060925012322.GE4547@stusta.de>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-09-24 at 21:51 +0100, David Woodhouse wrote:
-> You neglected to remove the defunct z90crypt.h from
-> include/asm-s390/Kbuild, breaking 'make headers_install' on s390.
-> 
-> You also neglected to export the new asm/zcrypt.h too. This should fix
-> both:
-> 
-> Signed-off-by: David Woodhouse <dwmw2@infradead.org>
-> 
-> --- a/include/asm-s390/Kbuild
-> +++ b/include/asm-s390/Kbuild
-> @@ -6,7 +6,7 @@ header-y += qeth.h
->  header-y += tape390.h
->  header-y += ucontext.h
->  header-y += vtoc.h
-> -header-y += z90crypt.h
-> +header-y += zcrypt.h
-> 
->  unifdef-y += cmb.h
->  unifdef-y += debug.h
-> 
+Hi!
 
-Unfortunately true. The patches for the new crypto driver originate from
-before headers_install. I forgot to update them accordingly ..
-Anyway, thanks for the heads up. I'll add the patch to git390. 
+> > > And my rules are:
+> > > - patch must be in Linus' tree
+> > > - I'm asking the patch authors and maintainers of the affected subsystem
+> > >   whether the patch is OK for 2.6.16
+> > 
+> > I thought stable rules were longer than this... including 'patch must
+> > be < 100 lines' and 'must be bugfix for serious bug'. Changing rules
+> > for -stable series in the middle of it seems like a bad idea...
+> 
+> I stated what I'd do with 2.6.16 before I took over maintainance.
 
+I do not remember you stating that
+Documentation/stable_kernel_rules.txt is obsolete, and that you'll
+have your own version. Heh, I'm not sure greg understood that.
+								Pavel
 -- 
-blue skies,
-  Martin.
-
-Martin Schwidefsky
-Linux for zSeries Development & Services
-IBM Deutschland Entwicklung GmbH
-
-"Reality continues to ruin my life." - Calvin.
-
-
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

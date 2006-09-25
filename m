@@ -1,60 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751784AbWIYBU7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964773AbWIYBVM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751784AbWIYBU7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Sep 2006 21:20:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751789AbWIYBU7
+	id S964773AbWIYBVM (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Sep 2006 21:21:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751794AbWIYBVL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Sep 2006 21:20:59 -0400
-Received: from ozlabs.org ([203.10.76.45]:59041 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S1751784AbWIYBU6 (ORCPT
+	Sun, 24 Sep 2006 21:21:11 -0400
+Received: from msr40.hinet.net ([168.95.4.140]:12267 "EHLO msr40.hinet.net")
+	by vger.kernel.org with ESMTP id S1751801AbWIYBVJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Sep 2006 21:20:58 -0400
-Subject: Re: [PATCH 5/7] Use %gs for per-cpu sections in kernel
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Andi Kleen <ak@muc.de>,
-       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       virtualization <virtualization@lists.osdl.org>
-In-Reply-To: <45172BCE.4010708@goop.org>
-References: <1158925861.26261.3.camel@localhost.localdomain>
-	 <1158925997.26261.6.camel@localhost.localdomain>
-	 <1158926106.26261.8.camel@localhost.localdomain>
-	 <1158926215.26261.11.camel@localhost.localdomain>
-	 <1158926308.26261.14.camel@localhost.localdomain>
-	 <1158926386.26261.17.camel@localhost.localdomain>
-	 <4514663E.5050707@goop.org> <20060923081337.GA10534@muc.de>
-	 <45172BCE.4010708@goop.org>
-Content-Type: text/plain
-Date: Mon, 25 Sep 2006 11:20:53 +1000
-Message-Id: <1159147253.26986.34.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
+	Sun, 24 Sep 2006 21:21:09 -0400
+Message-ID: <005801c6e040$dae8daa0$4964a8c0@icplus.com.tw>
+From: "Jesse Huang" <jesse@icplus.com.tw>
+To: "Andrew Morton" <akpm@osdl.org>
+Cc: <linux-kernel@vger.kernel.org>, <netdev@vger.kernel.org>,
+       <jgarzik@pobox.com>
+References: <1158953401.2630.0.camel@localhost.localdomain><20060923015041.54e1aa51.akpm@osdl.org> <20060923015157.b4014c6a.akpm@osdl.org>
+Subject: Re: [PATCH] Restore the original TX FIFO overflow process.
+Date: Mon, 25 Sep 2006 09:20:57 +0800
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2800.1807
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1807
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-09-24 at 18:07 -0700, Jeremy Fitzhardinge wrote:
-> Andi Kleen wrote:
-> >> I managed to get all this done in head.S before going into C code; is 
-> >> that not still possible?  Or is there a later patch to do this.
-> >>     
-> >
-> > Why write in assembler what you can write in C?
-> >   
-> This stuff is very basic, and you could consider it as being part of the 
-> kernel's C runtime model, and therefore can be expected to be available 
-> everywhere.  In particular, the use of current is so prevalent that you 
-> really can't call anything without having the PDA set up.
+Ok, I will generate new patch according to this.
 
-Yeah, I agree with Jeremy.  It's nice if we can just use it everywhere,
-and he kindly explained to me that secondary CPUs we can do most of it
-before the CPU bringup (ie. in C): we just have to load the gs register
-in asm AFAICT.
+Thanks.
+----- Original Message ----- 
+From: "Andrew Morton" <akpm@osdl.org>
+To: "Jesse Huang" <jesse@icplus.com.tw>
+Sent: Saturday, September 23, 2006 4:51 PM
+Subject: Re: [PATCH] Restore the original TX FIFO overflow process.
 
-I'll produce a patch, so we can see what we're talking about...
 
-Thanks!
-Rusty.
--- 
-Help! Save Australia from the worst of the DMCA: http://linux.org.au/law
+On Sat, 23 Sep 2006 01:50:41 -0700
+Andrew Morton <akpm@osdl.org> wrote:
+
+> I suggest you send a complete new patch series against Jeff's latest tree.
+> I'll send you a copy of that.
+
+attached.
+
+
 

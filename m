@@ -1,38 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750825AbWIYUDE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750836AbWIYUEq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750825AbWIYUDE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Sep 2006 16:03:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750822AbWIYUDE
+	id S1750836AbWIYUEq (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Sep 2006 16:04:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750837AbWIYUEq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Sep 2006 16:03:04 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:12703 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1750811AbWIYUDB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Sep 2006 16:03:01 -0400
-Subject: Re: [git patch] libata fix
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Jeff Garzik <jeff@garzik.org>
-Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       linux-ide@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <20060925193511.GA6129@havoc.gtf.org>
-References: <20060925193511.GA6129@havoc.gtf.org>
-Content-Type: text/plain
+	Mon, 25 Sep 2006 16:04:46 -0400
+Received: from server6.greatnet.de ([83.133.96.26]:21717 "EHLO
+	server6.greatnet.de") by vger.kernel.org with ESMTP
+	id S1750836AbWIYUEp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Sep 2006 16:04:45 -0400
+Message-ID: <4518366D.5050306@nachtwindheim.de>
+Date: Mon, 25 Sep 2006 22:05:01 +0200
+From: Henne <henne@nachtwindheim.de>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060911)
+MIME-Version: 1.0
+To: Greg KH <greg@kroah.com>, Andrew Morton <akpm@osdl.org>
+Cc: linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
+Subject: [PATCH 3rd try] pci: mark pci_module_init() as deprecated
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Date: Mon, 25 Sep 2006 21:27:02 +0100
-Message-Id: <1159216022.11049.132.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Llu, 2006-09-25 am 15:35 -0400, ysgrifennodd Jeff Garzik:
-> + * Define if arch has non-standard setup.  This is a _PCI_ standard
-> + * not a legacy or ISA standard.
+Changes the pci_module_init macro into a deprecated inline function.
+Signed-off-by: Henrik Kretzschmar <henne@nachtwindheim.de>
 
-The IRQs bit isn't.
+---
 
-I've got some better changes I'm testing here but they touch the PCI
-core code so want to shake through -mm first I think so fine by me.
+Since nearly all pci_module_init()'s are removed from the tree (19 left), heres the patch for
+2.6.18-git4.
 
-Alan
+In the mm-patchset it's called:
+mark-pci_module_init-deprecated.patch
+and can be removed if acked by greg.
+
+
+--- linux-2.6/include/linux/pci.h	2006-08-01 01:31:59.000000000 +0200
++++ linux-2.6.18-git4/include/linux/pci.h	2006-09-25 21:01:47.000000000 +0200
+@@ -384,12 +384,6 @@
+ 	.vendor = PCI_ANY_ID, .device = PCI_ANY_ID, \
+ 	.subvendor = PCI_ANY_ID, .subdevice = PCI_ANY_ID
+ 
+-/*
+- * pci_module_init is obsolete, this stays here till we fix up all usages of it
+- * in the tree.
+- */
+-#define pci_module_init	pci_register_driver
+-
+ /* these external functions are only available when PCI support is enabled */
+ #ifdef CONFIG_PCI
+ 
+@@ -547,6 +541,16 @@
+ 	return __pci_register_driver(driver, THIS_MODULE);
+ }
+ 
++/*
++ * pci_module_init is obsolete, this stays here till we fix up all usages of it
++ * in the tree.
++ */
++
++static inline int __deprecated pci_module_init(struct pci_driver* drv)
++{
++	return pci_register_driver(drv);
++}
++
+ void pci_unregister_driver(struct pci_driver *);
+ void pci_remove_behind_bridge(struct pci_dev *);
+ struct pci_driver *pci_dev_driver(const struct pci_dev *);
+
+
 

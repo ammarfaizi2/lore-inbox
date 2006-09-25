@@ -1,52 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751130AbWIYLHI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751132AbWIYLHJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751130AbWIYLHI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Sep 2006 07:07:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751133AbWIYLHH
+	id S1751132AbWIYLHJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Sep 2006 07:07:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751133AbWIYLHJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Mon, 25 Sep 2006 07:07:09 -0400
+Received: from animx.eu.org ([216.98.75.249]:9613 "EHLO animx.eu.org")
+	by vger.kernel.org with ESMTP id S1751132AbWIYLHH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
 	Mon, 25 Sep 2006 07:07:07 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:49305 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1751130AbWIYLHG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Sep 2006 07:07:06 -0400
-Subject: Re: GPLv3 Position Statement
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Neil Brown <neilb@suse.de>
-Cc: Michiel de Boer <x@rebelhomicide.demon.nl>,
-       James Bottomley <James.Bottomley@SteelEye.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <17687.46268.156413.352299@cse.unsw.edu.au>
-References: <1158941750.3445.31.camel@mulgrave.il.steeleye.com>
-	 <451798FA.8000004@rebelhomicide.demon.nl>
-	 <17687.46268.156413.352299@cse.unsw.edu.au>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Mon, 25 Sep 2006 12:31:34 +0100
-Message-Id: <1159183895.11049.56.camel@localhost.localdomain>
+Date: Mon, 25 Sep 2006 06:59:08 -0400
+From: Wakko Warner <wakko@animx.eu.org>
+To: Roman Glebov <sleon@sleon.dyndns.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: megaraid question
+Message-ID: <20060925105908.GA9897@animx.eu.org>
+Mail-Followup-To: Roman Glebov <sleon@sleon.dyndns.org>,
+	linux-kernel@vger.kernel.org
+References: <20060925012909.A56E52963F@sleon.dyndns.org> <20060925015126.GA8764@animx.eu.org> <200609250417.41995.sleon@sleon.dyndns.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200609250417.41995.sleon@sleon.dyndns.org>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Llu, 2006-09-25 am 20:51 +1000, ysgrifennodd Neil Brown:
-> The 'DRM' provision of the proposed GPLv3 seem to be being driven by 1
-> company - Tivo.  Yes, what they are doing is against our spirit of
+Roman Glebov wrote:
+> Am Montag, 25. September 2006 03:51 schrieb Wakko Warner:
+> > Keep me in CC.
+    ^^^^^^^^^^^^^^
 
-Actually quite a few companies have done this, and in some cases have
-been involved in out of court settlements over that kind of abuse.
+> > sleon@sleon.dyndns.org wrote:
+> > > i am using opensource megaraid driver (2.6.17) . Do you know any
+> > > opensource monitoring tool for the opensource megaraid drivers Or is
+> > > there a way to check the state of harddrives connected to the megaraid
+> > > controller?
+> >
+> > I'd like to add a "ME TOO" here.  as well as one for the adaptec raid
+> > cards.
+> >
+> > Last time I looked, the only software I could find for megaraid was a
+> > program from Dell (binary only unfortunately)
+> Hi, thanks for answering me!
+> 
+> If i find something out i will let you know.
 
-Let's be clear about this. The GPLv2 covers the scripts etc for
-installation. The DRM keys are probably covered, and out of court
-settlements lend weight to that. It has always been my publically stated
-position that I reserve the right to sue anyone who uses my code and
-locks it away with keys.
+That'd be great.
 
-The GPLv3 rewords it in an attempt to be clearer but also I think rather
-more over-reaching. It's not clear what for example happens with a
-rented device containing GPL software but with DRM on the hardware.
-Thats quite different to owned hardware. GPLv2 leaves it open for the
-courts to make a sensible decision per case, GPLv3 tries to define it in
-advance and its very very hard to define correctly.
+> THe last info i got is that it is somehow possible with smartmon tools.
+> (a la smartctl -d megaraid,0 /dev/sda)
 
-Alan
+I have never tried this.
 
+> I am asking smartmontools developers right now, because there is no out of the 
+> box support for megaraid.
+> 
+> Also i was told that there is a binary monitoring tool from lsi-logic page.
+> 
+> But will it work with open source driver?
+
+I'm not sure about the program from LSI, but the one from Dell seems to work
+with any megaraid controller (the one I do have happens to be a dell
+megaraid card).  The program I used from that package looks very similar to
+the bios configuration tool and you can change disk layouts from within the
+program while still in linux.
+
+-- 
+ Lab tests show that use of micro$oft causes cancer in lab animals
+ Got Gas???

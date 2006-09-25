@@ -1,79 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030195AbWIYCvV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751832AbWIYC6t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030195AbWIYCvV (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Sep 2006 22:51:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030194AbWIYCvU
+	id S1751832AbWIYC6t (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Sep 2006 22:58:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751833AbWIYC6s
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Sep 2006 22:51:20 -0400
-Received: from ozlabs.org ([203.10.76.45]:44453 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S1030195AbWIYCvU (ORCPT
+	Sun, 24 Sep 2006 22:58:48 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:17869 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751832AbWIYC6s (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Sep 2006 22:51:20 -0400
-Subject: Re: [PATCH 5/7] Use %gs for per-cpu sections in kernel
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Andi Kleen <ak@muc.de>,
-       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       virtualization <virtualization@lists.osdl.org>
-In-Reply-To: <45173287.8070204@goop.org>
-References: <1158925861.26261.3.camel@localhost.localdomain>
-	 <1158925997.26261.6.camel@localhost.localdomain>
-	 <1158926106.26261.8.camel@localhost.localdomain>
-	 <1158926215.26261.11.camel@localhost.localdomain>
-	 <1158926308.26261.14.camel@localhost.localdomain>
-	 <1158926386.26261.17.camel@localhost.localdomain>
-	 <4514663E.5050707@goop.org>
-	 <1158985882.26261.60.camel@localhost.localdomain>
-	 <45172AC8.2070701@goop.org>
-	 <1159146974.26986.30.camel@localhost.localdomain>
-	 <45173287.8070204@goop.org>
-Content-Type: text/plain
-Date: Mon, 25 Sep 2006 12:51:16 +1000
-Message-Id: <1159152678.26986.38.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
+	Sun, 24 Sep 2006 22:58:48 -0400
+Date: Sun, 24 Sep 2006 19:55:19 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Adrian Bunk <bunk@stusta.de>
+cc: Jeff Garzik <jeff@garzik.org>, Andrew Morton <akpm@osdl.org>,
+       LKML <linux-kernel@vger.kernel.org>, junkio@cox.net
+Subject: Re: git diff <-> diffstat
+In-Reply-To: <20060925022208.GF4547@stusta.de>
+Message-ID: <Pine.LNX.4.64.0609241949370.3952@g5.osdl.org>
+References: <20060924161809.GA13423@havoc.gtf.org> <Pine.LNX.4.64.0609241005290.4388@g5.osdl.org>
+ <45172297.6070108@garzik.org> <Pine.LNX.4.64.0609241732580.3952@g5.osdl.org>
+ <20060925011436.GC4547@stusta.de> <Pine.LNX.4.64.0609241858380.3952@g5.osdl.org>
+ <20060925022208.GF4547@stusta.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-09-24 at 18:36 -0700, Jeremy Fitzhardinge wrote:
-> Rusty Russell wrote:
-> > 	You're thinking of it in a convoluted way, by converting to offsets
-> > from the per-cpu section, then converting it back.  How about this
-> > explanation: the local cpu's versions are offset from where the compiler
-> > thinks they are by __per_cpu_offset[cpu].  We set the segment base to
-> > __per_cpu_offset[cpu], so "%gs:per_cpu__foo" gets us straight to the
-> > local cpu version.  __per_cpu_offset[cpu] is always positive (kernel
-> > image sits at bottom of kernel address space).
-> >   
+
+
+On Mon, 25 Sep 2006, Adrian Bunk wrote:
 > 
-> We're talking kernel virtual addresses, so the physical load address 
-> doesn't matter, of course.
-> 
-> So, take this kernel I have here as an explicit example:
-> 
-> $ nm -n vmlinux
-> [...]
-> c0431100 A __per_cpu_start
-> [...]
-> c0433800 D per_cpu__cpu_gdt_descr
-> c0433880 D per_cpu__cpu_tlbstate
-> 
-> 
-> And say that this CPU has its percpu data allocated at 0xc100000.
+> Ah, OK. The truncates are something I wasn't used from diffstat 
+> (diffstat always prints the complete name).
 
-That can't happen, since 0xc100000 is not in the kernel address space.
-0xc1000000 is though, perhaps that's what you meant?
+Yeah, I don't know what the right solution is.
 
-> So, in this case the %gs base will be loaded with 0xc100000-0xc0431100 = 
-> 0x4bccef00
+Especially with renames (but even without), diffstat-like output can get 
+some _really_ long lines, and since I think it's important to get the 
+actual _stat_ part to line up (so that you can really see where the big 
+changes are), I felt it was more important to get that lining up than it 
+was to see the first part of the filename.
 
-A negative offset, exactly, which can't happen, as I said.
+But yeah, we should probably have a flag to allow longer (and shorter) 
+lines, and another to control whether we truncate to strictly honor that 
+flag or not.
 
-Hope that clarifies?
+That said, I think the current behaviour is likely at least the right 
+default one. It's quite readable once you get used to it, and the renames 
+do _not_ get truncated in the "summary" part at the end, since then there 
+is nothing to line up with.
 
-Confused,
-Rusty.
--- 
-Help! Save Australia from the worst of the DMCA: http://linux.org.au/law
+So for an example of this, just do
 
+	git show --summary --stat -M 06a36db1
+
+where you have an already fairly long pathname that is then renamed to 
+_another_ long pathname.
+
+		Linus

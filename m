@@ -1,69 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750848AbWIYMPa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751072AbWIYMQY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750848AbWIYMPa (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Sep 2006 08:15:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750951AbWIYMPa
+	id S1751072AbWIYMQY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Sep 2006 08:16:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751108AbWIYMQY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Sep 2006 08:15:30 -0400
-Received: from nat-132.atmel.no ([80.232.32.132]:4847 "EHLO relay.atmel.no")
-	by vger.kernel.org with ESMTP id S1750848AbWIYMPa (ORCPT
+	Mon, 25 Sep 2006 08:16:24 -0400
+Received: from mx1.suse.de ([195.135.220.2]:4524 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751072AbWIYMQX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Sep 2006 08:15:30 -0400
-Date: Mon, 25 Sep 2006 14:15:27 +0200
-From: Haavard Skinnemoen <hskinnemoen@atmel.com>
-To: "Alexey Dobriyan" <adobriyan@gmail.com>
-Cc: "Andrew Morton" <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: unsigned long flags; (was Re: 2.6.18-mm1)
-Message-ID: <20060925141527.1906f81a@cad-250-152.norway.atmel.com>
-In-Reply-To: <b6fcc0a0609240647v2df20521m9ee4f4af9785a23c@mail.gmail.com>
-References: <b6fcc0a0609240647v2df20521m9ee4f4af9785a23c@mail.gmail.com>
-Organization: Atmel Norway
-X-Mailer: Sylpheed-Claws 2.5.0-rc3 (GTK+ 2.8.20; i486-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 25 Sep 2006 08:16:23 -0400
+From: Andi Kleen <ak@suse.de>
+To: Joerg Roedel <joro-lkml@zlug.org>
+Subject: Re: [PATCH 00/03][RESUBMIT] net: EtherIP tunnel driver
+Date: Mon, 25 Sep 2006 14:16:15 +0200
+User-Agent: KMail/1.9.3
+Cc: David Miller <davem@davemloft.net>, jbglaw@lug-owl.de, kaber@trash.net,
+       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+References: <20060923120704.GA32284@zlug.org> <p738xk8kzym.fsf@verdi.suse.de> <20060925115744.GD23028@zlug.org>
+In-Reply-To: <20060925115744.GD23028@zlug.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200609251416.15738.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 24 Sep 2006 17:47:41 +0400
-"Alexey Dobriyan" <adobriyan@gmail.com> wrote:
+On Monday 25 September 2006 13:57, Joerg Roedel wrote:
+> On Mon, Sep 25, 2006 at 12:22:41PM +0200, Andi Kleen wrote:
+> 
+> > How would you convince those old LAN games to use a MTU < 1500 which
+> > is needed for the tunnel?  I bet they have the size hardcoded.
+> 
+> The tunnel provides an MTU of 1500. To guarantee this, it never sets the
+> DF flag in outgoing packets.
 
-> avr32 does unsigned int flags in show_dtlb_entry() and tlb_show()
+This means it will multiply all full sized packets. That sounds horrible.
 
-Thanks. Andrew, please consider merging the patch below together with
-the rest of the AVR32 stuff.
-
----
-From: Haavard Skinnemoen <hskinnemoen@atmel.com>
-
-AVR32: Use unsigned long flags for saving interrupt state
-
-Signed-off-by: Haavard Skinnemoen <hskinnemoen@atmel.com>
----
- arch/avr32/mm/tlb.c |    6 ++++--
- 1 file changed, 4 insertions(+), 2 deletions(-)
-
-Index: linux-2.6.18-rc7-mm1/arch/avr32/mm/tlb.c
-===================================================================
---- linux-2.6.18-rc7-mm1.orig/arch/avr32/mm/tlb.c	2006-09-25 14:04:22.000000000 +0200
-+++ linux-2.6.18-rc7-mm1/arch/avr32/mm/tlb.c	2006-09-25 14:09:22.000000000 +0200
-@@ -15,7 +15,8 @@
- 
- void show_dtlb_entry(unsigned int index)
- {
--	unsigned int tlbehi, tlbehi_save, tlbelo, mmucr, mmucr_save, flags;
-+	unsigned int tlbehi, tlbehi_save, tlbelo, mmucr, mmucr_save;
-+	unsigned long flags;
- 
- 	local_irq_save(flags);
- 	mmucr_save = sysreg_read(MMUCR);
-@@ -305,7 +306,8 @@ static void tlb_stop(struct seq_file *tl
- 
- static int tlb_show(struct seq_file *tlb, void *v)
- {
--	unsigned int tlbehi, tlbehi_save, tlbelo, mmucr, mmucr_save, flags;
-+	unsigned int tlbehi, tlbehi_save, tlbelo, mmucr, mmucr_save;
-+	unsigned long flags;
- 	unsigned long *index = v;
- 
- 	if (*index == 0)
+-Andi

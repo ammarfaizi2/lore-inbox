@@ -1,75 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751467AbWIYVeK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751455AbWIYVfY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751467AbWIYVeK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Sep 2006 17:34:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751459AbWIYVeJ
+	id S1751455AbWIYVfY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Sep 2006 17:35:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751458AbWIYVfY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Sep 2006 17:34:09 -0400
-Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:25285 "HELO
-	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S1751455AbWIYVeI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Sep 2006 17:34:08 -0400
-Subject: When will the lunacy end? (Was Re: [PATCH] uswsusp: add
-	pmops->{prepare,enter,finish} support (aka "platform mode"))
-From: Nigel Cunningham <ncunningham@linuxmail.org>
-To: Stefan Seyfried <seife@suse.de>
-Cc: linux-kernel@vger.kernel.org, Pavel Machek <pavel@suse.cz>,
-       "Rafael J. Wysocki" <rjw@sisk.pl>, Andrew Morton <akpm@osdl.org>
-In-Reply-To: <20060925071338.GD9869@suse.de>
-References: <20060925071338.GD9869@suse.de>
-Content-Type: text/plain
-Date: Tue, 26 Sep 2006 07:34:03 +1000
-Message-Id: <1159220043.12814.30.camel@nigel.suspend2.net>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.0 
+	Mon, 25 Sep 2006 17:35:24 -0400
+Received: from gw.goop.org ([64.81.55.164]:1763 "EHLO mail.goop.org")
+	by vger.kernel.org with ESMTP id S1751455AbWIYVfX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Sep 2006 17:35:23 -0400
+Message-ID: <45184B9D.3030702@goop.org>
+Date: Mon, 25 Sep 2006 14:35:25 -0700
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
+MIME-Version: 1.0
+To: Mathieu Desnoyers <compudj@krystal.dyndns.org>
+CC: Martin Bligh <mbligh@google.com>, "Frank Ch. Eigler" <fche@redhat.com>,
+       Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>, prasanna@in.ibm.com,
+       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
+       Paul Mundt <lethal@linux-sh.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>, Jes Sorensen <jes@sgi.com>,
+       Tom Zanussi <zanussi@us.ibm.com>,
+       Richard J Moore <richardj_moore@uk.ibm.com>,
+       Michel Dagenais <michel.dagenais@polymtl.ca>,
+       Christoph Hellwig <hch@infradead.org>,
+       Greg Kroah-Hartman <gregkh@suse.de>,
+       Thomas Gleixner <tglx@linutronix.de>, William Cohen <wcohen@redhat.com>,
+       ltt-dev@shafik.org, systemtap@sources.redhat.com,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Karim Yaghmour <karim@opersys.com>,
+       Pavel Machek <pavel@suse.cz>, Joe Perches <joe@perches.com>,
+       "Randy.Dunlap" <rdunlap@xenotime.net>,
+       "Jose R. Santos" <jrs@us.ibm.com>
+Subject: Re: [PATCH] Linux Kernel Markers 0.11 for 2.6.17
+References: <20060925151028.GA14695@Krystal> <45181CE9.1080204@goop.org> <20060925201036.GB13049@Krystal> <45183B20.2080907@goop.org> <20060925203502.GA3770@Krystal> <20060925204701.GB3770@Krystal> <45184885.8020807@goop.org> <20060925213207.GD3770@Krystal>
+In-Reply-To: <20060925213207.GD3770@Krystal>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+Mathieu Desnoyers wrote:
+> I will declare the pointers around the jmp instruction directly in assembly : I
+> wouldn't want gcc to put some other code there by mistake.
+>
+> I will use the "name" variable, as it is already there.
+>   
 
-On Mon, 2006-09-25 at 09:13 +0200, Stefan Seyfried wrote:
-> +	case SNAPSHOT_PMOPS:
-> +		switch (arg) {
-> +
-> +		case PMOPS_PREPARE:
-> +			if (pm_ops->prepare) {
-> +				error = pm_ops->prepare(PM_SUSPEND_DISK);
-> +			}
-> +			break;
-> +
-> +		case PMOPS_ENTER:
-> +			kernel_shutdown_prepare(SYSTEM_SUSPEND_DISK);
-> +			error = pm_ops->enter(PM_SUSPEND_DISK);
-> +			break;
-> +
-> +		case PMOPS_FINISH:
-> +			if (pm_ops && pm_ops->finish) {
-> +				pm_ops->finish(PM_SUSPEND_DISK);
-> +			}
-> +			break;
-> +
-> +		default:
-> +			printk(KERN_ERR "SNAPSHOT_PMOPS: invalid argument %ld\n", arg);
-> +			error = -EINVAL;
-> +
-> +		}
-> +		break;
-> +
->  	default:
->  		error = -ENOTTY;
+Probably better not to.  If you use the fake extern, gcc won't be 
+tempted to generate any code to satisfy the reference in the asm param line.
 
-Guys! Why can't you see yet that all this uswsusp business is sheer
-lunacy? All of the important code is done in the kernel, and must be
-done in the kernel. Moving the little bit of high level logic that can
-be done in userspace to userspace doesn't mean you're doing the
-suspending in userspace.
-
-If you have to use userspace for suspending, use it for the things that
-don't matter, like the user interface, not the things that will break
-suspending and resuming if they break.
-
-</rant>
-
-Nigel
-
+    J

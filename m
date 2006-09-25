@@ -1,49 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751410AbWIYRoP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751161AbWIYRsa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751410AbWIYRoP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Sep 2006 13:44:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751408AbWIYRoP
+	id S1751161AbWIYRsa (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Sep 2006 13:48:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751393AbWIYRsa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Sep 2006 13:44:15 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:1692 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S1751391AbWIYRoO (ORCPT
+	Mon, 25 Sep 2006 13:48:30 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:59341 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751161AbWIYRs3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Sep 2006 13:44:14 -0400
-Date: Mon, 25 Sep 2006 19:38:36 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: ray-gmail@madrabbit.org
-cc: john stultz <johnstul@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.19 -mm merge plans (NTP changes)
-In-Reply-To: <2c0942db0609251004h288818c9k4f1c8684b956b72@mail.gmail.com>
-Message-ID: <Pine.LNX.4.64.0609251929030.6761@scrub.home>
-References: <20060920135438.d7dd362b.akpm@osdl.org>  <1158805731.8648.54.camel@localhost>
-  <Pine.LNX.4.64.0609211217190.6761@scrub.home>  <1159203005.8288.16.camel@localhost>
- <2c0942db0609251004h288818c9k4f1c8684b956b72@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 25 Sep 2006 13:48:29 -0400
+Date: Mon, 25 Sep 2006 13:45:25 -0400
+From: "Frank Ch. Eigler" <fche@redhat.com>
+To: Ingo Molnar <mingo@elte.hu>
+Cc: "Frank Ch. Eigler" <fche@redhat.com>,
+       Mathieu Desnoyers <compudj@krystal.dyndns.org>,
+       Martin Bligh <mbligh@google.com>,
+       Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>, prasanna@in.ibm.com,
+       Andrew Morton <akpm@osdl.org>,
+       Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
+       Paul Mundt <lethal@linux-sh.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>, Jes Sorensen <jes@sgi.com>,
+       Tom Zanussi <zanussi@us.ibm.com>,
+       Richard J Moore <richardj_moore@uk.ibm.com>,
+       Michel Dagenais <michel.dagenais@polymtl.ca>,
+       Christoph Hellwig <hch@infradead.org>,
+       Greg Kroah-Hartman <gregkh@suse.de>,
+       Thomas Gleixner <tglx@linutronix.de>, William Cohen <wcohen@redhat.com>,
+       ltt-dev@shafik.org, systemtap@sources.redhat.com,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [PATCH] Linux Kernel Markers 0.5 for Linux 2.6.17 (with probe management)
+Message-ID: <20060925174525.GF25296@redhat.com>
+References: <20060921160009.GA30115@Krystal> <20060921175648.GB22226@redhat.com> <20060921185029.GB12048@elte.hu>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="kA1LkgxZ0NN7Mz3A"
+Content-Disposition: inline
+In-Reply-To: <20060921185029.GB12048@elte.hu>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-On Mon, 25 Sep 2006, Ray Lee wrote:
+--kA1LkgxZ0NN7Mz3A
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-> On 9/25/06, john stultz <johnstul@us.ibm.com> wrote:
-> > I was able to run tests for two days each w/ and w/o the patch I had
-> > concerns about. And indeed, it seems if the drift file is reset, the
-> > initial convergence is much slower (and this is really what worried me).
-> > However once it converges it seems to keep sync as well as the current
-> > code.
-> 
-> So slower convergence isn't a regression?
+Hi -
 
-Not really, it makes the clock more stable and less suspectible to 
-network delays.
-I think a big part of the problem is that our calibration code could use 
-some improvements, I've seen some widely different initial drift values 
-from one reboot to the next, which is the main reason ntp has to do that 
-much initial work in the first place.
+On Thu, Sep 21, 2006 at 08:50:29PM +0200, Ingo Molnar wrote:
 
-bye, Roman
+> [...]  let me qualify that: parameters must be prepared there too -
+> but no actual function call inserted. (at most a NOP
+> inserted). [...]  Does a simple asm() that takes read-only
+> parameters but only adds a NOP achieve this result?
+
+You mean something like this?
+
+#define MARK(n,v1,v2,v3) asm ("__mark_" #n ": nop" ::  \
+                              "X" (v1), "X" (v2), "X" (v3))
+
+I haven't been able to get gcc to emit any better debuginfo for
+parameters pseudo-passed like this.=20
+
+(I've tested such a marker inserted into an inner loop of dhrystone.
+It was compiled with "-ggdb -O3".  Neither gdb nor systemtap could
+resolve the same values/symbols being passed as MARK() arguments,
+though at least the breakpoint address was nicely marked.)
+
+- FChE
+
+--kA1LkgxZ0NN7Mz3A
+Content-Type: application/pgp-signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.2.6 (GNU/Linux)
+
+iD8DBQFFGBW1VZbdDOm/ZT0RArIGAJ0Us3G4aBh/3d05EIjzZvpHqK57GgCfaLrv
+w8I7yrCv1SCCg8QnwBYCQsA=
+=xMiZ
+-----END PGP SIGNATURE-----
+
+--kA1LkgxZ0NN7Mz3A--

@@ -1,42 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932173AbWIYOUZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932179AbWIYO1G@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932173AbWIYOUZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Sep 2006 10:20:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932179AbWIYOUZ
+	id S932179AbWIYO1G (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Sep 2006 10:27:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932180AbWIYO1G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Sep 2006 10:20:25 -0400
-Received: from zeniv.linux.org.uk ([195.92.253.2]:9624 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S932173AbWIYOUZ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Sep 2006 10:20:25 -0400
-Date: Mon, 25 Sep 2006 15:20:16 +0100
-From: Al Viro <viro@ftp.linux.org.uk>
-To: David Howells <dhowells@redhat.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Linus Torvalds <torvalds@osdl.org>,
-       Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] restore libata build on frv
-Message-ID: <20060925142016.GI29920@ftp.linux.org.uk>
-References: <1159186771.11049.63.camel@localhost.localdomain> <1159183568.11049.51.camel@localhost.localdomain> <20060924223925.GU29920@ftp.linux.org.uk> <22314.1159181060@warthog.cambridge.redhat.com> <5578.1159183668@warthog.cambridge.redhat.com> <7276.1159186684@warthog.cambridge.redhat.com>
+	Mon, 25 Sep 2006 10:27:06 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:8897 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S932179AbWIYO1E (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Sep 2006 10:27:04 -0400
+Subject: Re: GPLv3 Position Statement
+From: Lee Revell <rlrevell@joe-job.com>
+To: Neil Brown <neilb@suse.de>
+Cc: Michiel de Boer <x@rebelhomicide.demon.nl>,
+       James Bottomley <James.Bottomley@SteelEye.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <17687.46268.156413.352299@cse.unsw.edu.au>
+References: <1158941750.3445.31.camel@mulgrave.il.steeleye.com>
+	 <451798FA.8000004@rebelhomicide.demon.nl>
+	 <17687.46268.156413.352299@cse.unsw.edu.au>
+Content-Type: text/plain
+Date: Mon, 25 Sep 2006 10:27:27 -0400
+Message-Id: <1159194447.2899.66.camel@mindpipe>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <7276.1159186684@warthog.cambridge.redhat.com>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 25, 2006 at 01:18:04PM +0100, David Howells wrote:
-> Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+On Mon, 2006-09-25 at 20:51 +1000, Neil Brown wrote:
+> Tolerance of binary blogs seems to be steadily dropping.
 > 
-> > Wrong these are PCI settings. Please read the PCI specifications. In
-> > particular the handling of non-native mode IDE storage class devices on
-> > a PCI bus. For the IRQ mapping of the non-native ports consult your
-> > bridge documentation.
-> 
-> Even if that is the case, they are all invalid/incorrect, and so Al Viro's
-> patch is _still_ NAK'd.
+> As far as I can tell, the DVD-CSS is purely a legal issue today - the
+> technical issues are solved (I can watch any-region on my Linux
+> computer, and in Australia, the law requires that all DVD players must
+> ignore region encoding as it is an anti-competitive practice). 
 
-Fine by me.  In that case we need to add
-	depends on !FRV || BROKEN
-to drivers/ata/Kconfig and be done with that.  BTW, empty libata-portmap.h
-is equivalent to absent one - it still won't build.
+Tolerance by who?  As far as I can tell tolerance for binary blobs by
+the typical Linux desktop user is higher than ever.  They consider it a
+bug if their distro does not automagically install the nvidia/ATI
+drivers, and immediately write you off as a GPL zealot if you even
+mention that a tainted kernel cannot be debugged.
+
+Lee
+

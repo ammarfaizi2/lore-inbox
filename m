@@ -1,85 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751161AbWIYRsa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751407AbWIYRyJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751161AbWIYRsa (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Sep 2006 13:48:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751393AbWIYRsa
+	id S1751407AbWIYRyJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Sep 2006 13:54:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751408AbWIYRyJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Sep 2006 13:48:30 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:59341 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751161AbWIYRs3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Sep 2006 13:48:29 -0400
-Date: Mon, 25 Sep 2006 13:45:25 -0400
-From: "Frank Ch. Eigler" <fche@redhat.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: "Frank Ch. Eigler" <fche@redhat.com>,
-       Mathieu Desnoyers <compudj@krystal.dyndns.org>,
-       Martin Bligh <mbligh@google.com>,
-       Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>, prasanna@in.ibm.com,
-       Andrew Morton <akpm@osdl.org>,
-       Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
-       Paul Mundt <lethal@linux-sh.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>, Jes Sorensen <jes@sgi.com>,
-       Tom Zanussi <zanussi@us.ibm.com>,
-       Richard J Moore <richardj_moore@uk.ibm.com>,
-       Michel Dagenais <michel.dagenais@polymtl.ca>,
-       Christoph Hellwig <hch@infradead.org>,
-       Greg Kroah-Hartman <gregkh@suse.de>,
-       Thomas Gleixner <tglx@linutronix.de>, William Cohen <wcohen@redhat.com>,
-       ltt-dev@shafik.org, systemtap@sources.redhat.com,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: [PATCH] Linux Kernel Markers 0.5 for Linux 2.6.17 (with probe management)
-Message-ID: <20060925174525.GF25296@redhat.com>
-References: <20060921160009.GA30115@Krystal> <20060921175648.GB22226@redhat.com> <20060921185029.GB12048@elte.hu>
-Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="kA1LkgxZ0NN7Mz3A"
-Content-Disposition: inline
-In-Reply-To: <20060921185029.GB12048@elte.hu>
-User-Agent: Mutt/1.4.1i
+	Mon, 25 Sep 2006 13:54:09 -0400
+Received: from mga02.intel.com ([134.134.136.20]:53887 "EHLO mga02.intel.com")
+	by vger.kernel.org with ESMTP id S1751407AbWIYRyI convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Sep 2006 13:54:08 -0400
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.09,215,1157353200"; 
+   d="scan'208"; a="135429854:sNHT413652946"
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: New section mismatch warning on latest linux-2.6 git tree
+Date: Mon, 25 Sep 2006 10:51:54 -0700
+Message-ID: <EB12A50964762B4D8111D55B764A8454A41360@scsmsx413.amr.corp.intel.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: New section mismatch warning on latest linux-2.6 git tree
+Thread-Index: Acbft5wUD29dp3dLQa6nIdDPmSjR5gBE4/Uw
+From: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
+To: "Ismail Donmez" <ismail@pardus.org.tr>,
+       "LKML" <linux-kernel@vger.kernel.org>
+Cc: "Andrew Morton" <akpm@osdl.org>
+X-OriginalArrivalTime: 25 Sep 2006 17:51:55.0233 (UTC) FILETIME=[4A123D10:01C6E0CB]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+ 
+>-----Original Message-----
+>From: linux-kernel-owner@vger.kernel.org 
+>[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Ismail Donmez
+>Sent: Sunday, September 24, 2006 1:58 AM
+>To: LKML
+>Subject: New section mismatch warning on latest linux-2.6 git tree
+>
+>Hi,
+>
+>This seems to be pretty new :
+>
+>WARNING: arch/i386/kernel/cpu/cpufreq/speedstep-centrino.o - 
+>Section mismatch: 
+>reference to .init.text: from .data between 
+>'sw_any_bug_dmi_table' (at offset 
+>0x320) and 'centrino_attr'
+>
+>Using Linus' latest git tree.
+>
+>Regards,
+>ismail
 
---kA1LkgxZ0NN7Mz3A
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+Andrew,
 
-Hi -
+Can you please push the patch from Jeremy here:
 
-On Thu, Sep 21, 2006 at 08:50:29PM +0200, Ingo Molnar wrote:
+http://www.ussg.iu.edu/hypermail/linux/kernel/0609.1/1389.html
 
-> [...]  let me qualify that: parameters must be prepared there too -
-> but no actual function call inserted. (at most a NOP
-> inserted). [...]  Does a simple asm() that takes read-only
-> parameters but only adds a NOP achieve this result?
-
-You mean something like this?
-
-#define MARK(n,v1,v2,v3) asm ("__mark_" #n ": nop" ::  \
-                              "X" (v1), "X" (v2), "X" (v3))
-
-I haven't been able to get gcc to emit any better debuginfo for
-parameters pseudo-passed like this.=20
-
-(I've tested such a marker inserted into an inner loop of dhrystone.
-It was compiled with "-ggdb -O3".  Neither gdb nor systemtap could
-resolve the same values/symbols being passed as MARK() arguments,
-though at least the breakpoint address was nicely marked.)
-
-- FChE
-
---kA1LkgxZ0NN7Mz3A
-Content-Type: application/pgp-signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.2.6 (GNU/Linux)
-
-iD8DBQFFGBW1VZbdDOm/ZT0RArIGAJ0Us3G4aBh/3d05EIjzZvpHqK57GgCfaLrv
-w8I7yrCv1SCCg8QnwBYCQsA=
-=xMiZ
------END PGP SIGNATURE-----
-
---kA1LkgxZ0NN7Mz3A--
+Thanks,
+Venki

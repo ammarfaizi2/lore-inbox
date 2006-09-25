@@ -1,90 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751198AbWIYVBg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751312AbWIYVFd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751198AbWIYVBg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Sep 2006 17:01:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751206AbWIYVBg
+	id S1751312AbWIYVFd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Sep 2006 17:05:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751319AbWIYVFd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Sep 2006 17:01:36 -0400
-Received: from pas38-1-82-67-71-117.fbx.proxad.net ([82.67.71.117]:24493 "EHLO
-	siegfried.gbfo.org") by vger.kernel.org with ESMTP id S1751198AbWIYVBf
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Sep 2006 17:01:35 -0400
-Date: Mon, 25 Sep 2006 23:01:52 +0200 (CEST)
-From: Jean-Marc Saffroy <saffroy@gmail.com>
-X-X-Sender: saffroy@erda.mds
-To: Vivek Goyal <vgoyal@in.ibm.com>
-cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Jaroslav Kysela <perex@suse.cz>, Takashi Iwai <tiwai@suse.de>,
-       Dave Anderson <anderson@redhat.com>,
-       "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: Re: oops in :snd_pcm_oss:resample_expand+0x19c/0x1f0
-In-Reply-To: <20060925153047.GA19794@in.ibm.com>
-Message-ID: <Pine.LNX.4.64.0609252034030.4825@erda.mds>
-References: <Pine.LNX.4.64.0609241825280.4838@erda.mds>
- <20060924135417.c0c18b76.akpm@osdl.org> <Pine.LNX.4.64.0609242256540.4950@erda.mds>
- <20060925153047.GA19794@in.ibm.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Mon, 25 Sep 2006 17:05:33 -0400
+Received: from vms040pub.verizon.net ([206.46.252.40]:45960 "EHLO
+	vms040pub.verizon.net") by vger.kernel.org with ESMTP
+	id S1751312AbWIYVFb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Sep 2006 17:05:31 -0400
+Date: Mon, 25 Sep 2006 16:58:07 -0400
+From: Gene Heskett <gene.heskett@verizon.net>
+Subject: Re: GPLv3 Position Statement
+In-reply-to: <1159194447.2899.66.camel@mindpipe>
+To: linux-kernel@vger.kernel.org
+Cc: Lee Revell <rlrevell@joe-job.com>, Neil Brown <neilb@suse.de>,
+       Michiel de Boer <x@rebelhomicide.demon.nl>,
+       James Bottomley <James.Bottomley@steeleye.com>
+Message-id: <200609251658.08058.gene.heskett@verizon.net>
+Organization: Organization? Absolutely zip.
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+Content-disposition: inline
+References: <1158941750.3445.31.camel@mulgrave.il.steeleye.com>
+ <17687.46268.156413.352299@cse.unsw.edu.au> <1159194447.2899.66.camel@mindpipe>
+User-Agent: KMail/1.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Vivek,
+On Monday 25 September 2006 10:27, Lee Revell wrote:
+>On Mon, 2006-09-25 at 20:51 +1000, Neil Brown wrote:
+>> Tolerance of binary blogs seems to be steadily dropping.
+>>
+>> As far as I can tell, the DVD-CSS is purely a legal issue today - the
+>> technical issues are solved (I can watch any-region on my Linux
+>> computer, and in Australia, the law requires that all DVD players must
+>> ignore region encoding as it is an anti-competitive practice).
 
-Thanks for all the good news on the future of kdump, it's nice to know 
-that people are working on improving the user experience.
+I suspect thats history now, with the DMCA proposals now being voted on 
+there.
 
-On Mon, 25 Sep 2006, Vivek Goyal wrote:
+>Tolerance by who?  As far as I can tell tolerance for binary blobs by
+>the typical Linux desktop user is higher than ever.
 
->>>> Oh and I wish I could use gdb on a kdump core. :-)
->
-> Currently we can use gdb but only for linearly mapped region. You are 
-> right its just a matter of re-generating the elf headers and remap the 
-> vmalloc areas to enable module debugging in gdb. I can not do it after 
-> the crash so probably the best place would be do it in user space. A 
-> program can read /proc/vmcore and regenerate the headers for enabling 
-> module debugging with gdb.
+Generaly speaking, from someone way up in the top level of the bleacher 
+seats here, thats true, as for instance the ndiswrapper scenario, required 
+by the rules of the various radio spectrum regulating agencies around the 
+planet.  They would never, ever, give approval to a driver that was 100% 
+open source because of the ease with which the open source coder could 
+make them illegal, either for frequencies used, or for the Transmitter 
+Power Output one of these software radios COULD be made to do.
 
-I assume that "after the crash" means "in the kernel crash handler", 
-AFAICT the current dump from vmcore has all what's needed.
+>They consider it a 
+>bug if their distro does not automagically install the nvidia/ATI
+>drivers, and immediately write you off as a GPL zealot if you even
+>mention that a tainted kernel cannot be debugged.
 
-> Hmm.. Crash vs gdb is an interesting issue. I have not used gdb very 
-> extensively on core dumps, but with my limited experiece, I found 
-> "crash" to be more friendly.
+No, I do not, and never have said too much about it (as if anyone would 
+listen to me anyway) unless I was pissed because the kernels available 
+driver was obviously broken and caused crashes etc.  We DO understand, 
+very well, that troubleshooting a problem just isn't possible when the 
+srcs are not available, meaning there is no way in hell you can certify 
+that the tainting driver didn't scribble all over memory it has no 
+business scribbling into.
 
-One thing I like *very much* in gdb is its ability to display function 
-params and local variables in any stack frame, and I haven't found out how 
-to do it with crash.
+Begin rant:
 
-> Crash has got so many in-built commands tailored for kernel debugging 
-> and gdb lacks all those. Yes, we can write gdb scripts to implement 
-> those, but last time Alaxender Nyberg wrote few gdb scripts to dump all 
-> the threads and it was so slow.
+Yeah, we'ed be fools to say we don't have a political agenda when we're 
+forced to use substandard or questionably legal means for reasons related 
+to the above.  But give us credit for understanding the reasons.  What we, 
+the users, need in many cases, is a contact address to address our vents 
+to, for instance for someone at broadcom, high enough to have meaningfull 
+input to the discussions in the board room, that we could mail-bomb with 
+requests for better support.  If 3000+ people who bought their stuff with 
+some well known makers label on it, like HP, and found they couldn't use 
+that builtin radio and do it 100% legal and compatibly, would email (and 
+Cc: your countries regulatory agency too) that chip maker and gently but 
+firmly bitch, that bit of 'politics' might well bring about some 
+constructive change in broadcoms (and the regulatory agencies involved) 
+attitude vis-a-vis specs release so better drivers could be written.
 
-I agree that gdb is sometimes very slow, but maybe it's easier to optimize 
-gdb than to make crash smarter?
-
-For this particular problem (listing threads), the real fix would be to 
-add the PT_NOTE entry that each thread deserves, then gdb would let you do 
-"info threads" instead, and dump nice backtraces of each.
-
-> Look at Documentation/kdump/gdbmacros.txt
-
-Hmmm, these need an update, they no longer work with 2.6.18. But I have an 
-idea of how slow they can be, having tried a few things myself.
-
-> So what's issue with crash? Is it just a matter of being more familiar 
-> with gdb or gdb has got advantages over "crash" when it comes to kernel 
-> debugging?
-
-Oh I am certainly biased towards gdb :-) but function params and local 
-vars are very useful when debugging.
-
-Of course crash is still a very useful tool, and until we can really use 
-gdb on kdumps (which requires some work), it will remain the best option 
-we have. Heck, it even impressed Andrew Morton! ;-)
-
-
-Cheers,
+End rant.
 
 -- 
-saffroy@gmail.com
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+Yahoo.com and AOL/TW attorneys please note, additions to the above
+message by Gene Heskett are:
+Copyright 2006 by Maurice Eugene Heskett, all rights reserved.

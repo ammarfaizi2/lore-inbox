@@ -1,54 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751736AbWIYGCi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751781AbWIYGF3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751736AbWIYGCi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Sep 2006 02:02:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751298AbWIYGCi
+	id S1751781AbWIYGF3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Sep 2006 02:05:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751739AbWIYGF3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Sep 2006 02:02:38 -0400
-Received: from emailer.gwdg.de ([134.76.10.24]:31632 "EHLO emailer.gwdg.de")
-	by vger.kernel.org with ESMTP id S932202AbWIYGCh (ORCPT
+	Mon, 25 Sep 2006 02:05:29 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:43916 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751298AbWIYGF2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Sep 2006 02:02:37 -0400
-Date: Mon, 25 Sep 2006 07:59:47 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Linus Torvalds <torvalds@osdl.org>
-cc: Petr Baudis <pasky@suse.cz>, David Schwartz <davids@webmaster.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>, git@vger.kernel.org
-Subject: Re: The GPL: No shelter for the Linux kernel?
-In-Reply-To: <Pine.LNX.4.64.0609240923331.4388@g5.osdl.org>
-Message-ID: <Pine.LNX.4.61.0609250757070.18552@yvahk01.tjqt.qr>
-References: <MDEHLPKNGKAHNMBLJOLKIEJNOJAB.davids@webmaster.com>
- <Pine.LNX.4.61.0609231004330.9543@yvahk01.tjqt.qr> <Pine.LNX.4.64.0609231051570.4388@g5.osdl.org>
- <20060923181406.GC11916@pasky.or.cz> <Pine.LNX.4.61.0609240952240.28459@yvahk01.tjqt.qr>
- <Pine.LNX.4.64.0609240923331.4388@g5.osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Report: Content analysis: 0.0 points, 6.0 required
-	_SUMMARY_
+	Mon, 25 Sep 2006 02:05:28 -0400
+Date: Sun, 24 Sep 2006 23:05:06 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: Andi Kleen <ak@muc.de>, Chuck Ebbert <76306.1226@compuserve.com>,
+       Zachary Amsden <zach@vmware.com>, Jan Beulich <jbeulich@novell.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: i386 pda patches
+Message-Id: <20060924230506.572eee8e.akpm@osdl.org>
+In-Reply-To: <45176B53.7040608@goop.org>
+References: <20060924013521.13d574b1.akpm@osdl.org>
+	<4517256E.10606@goop.org>
+	<20060924223427.6f42e77c.akpm@osdl.org>
+	<45176B53.7040608@goop.org>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> Would every file that does not contain an explicit license (this 
->> excludes MODULE_LICENSE) falls under COPYING?
->
->[...]
->If a file doesn't have a license mentioned, it doesn't mean that it's 
->"free for all" or not copyrighted, it just means that you need to find out 
->what the license is some other way (and if you can't find out, you 
->shouldn't be copying that file ;)
->
->Of course, for clarity, a lot of projects end up adding at least a minimal 
->copyright header license everywhere, just to cover their *sses. It's not 
->required, but maybe it avoids some confusion, especially if that file is 
->later copied into some other project with other basic rules (but if you 
->do that, you really _should_ have added the information at that point!).
->[...]
+On Sun, 24 Sep 2006 22:38:27 -0700
+Jeremy Fitzhardinge <jeremy@goop.org> wrote:
 
-Though I strongly agree with you, some GNU folks (such as 
-savannah.nongnu.org) seem to explicitly require it, even for files 
-that do not make up a single program (i.e. like coreutils/ls.c).
+> Andrew Morton wrote:
+> > It may be related to the .config, rather than the CPU type.
+> >   
+> 
+> Hm, wonder if it's !4K stacks...
+> 
 
+It oopses in the same manner with 4k stacks enabled.
 
+CPU 1 irqstacks, hard=c0503000 soft=c04fb000
+Initializing CPU#1
+general protection fault: 0080 [#1]
+SMP 
+last sysfs file: 
+Modules linked in:
+CPU:    1
+EIP:    0060:[<c010af23>]    Not tainted VLI
+EFLAGS: 00010086   (2.6.18 #2) 
+EIP is at cpu_init+0x153/0x2b0
+eax: 00000080   ebx: 0115f220   ecx: e2c02073   edx: c1008964
+esi: 00000001   edi: c1c94550   ebp: c1c98f84   esp: c1c98f6c
+ds: 007b   es: 007b   ss: 0068
+Process swapper (pid: 0, ti=c1c98000 task=c1c94550 task.ti=c1c98000)
+Stack: c03c4604 00000001 0115f220 00000002 00000000 00000000 c1c98fb8 c010ffbe 
+       00000000 00000000 00000000 00000000 00000000 00000000 00000000 00000000 
+       00000002 00000000 00000000 c1c98fb4 00000000 00000000 00000000 00000000 
+Call Trace:
+ [<c0103e56>] show_trace_log_lvl+0x26/0x40
+ [<c0103f19>] show_stack_log_lvl+0xa9/0xd0
+ [<c0104321>] show_registers+0x1c1/0x250
+ [<c01044ec>] die+0x13c/0x300
+ [<c0105614>] do_general_protection+0x114/0x1c0
+ [<c03aa8d9>] error_code+0x39/0x40
+ [<c010ffbe>] start_secondary+0xe/0x4d0
+ [<00000000>] 0x0
+ [<c1c98fb4>] 0xc1c98fb4
+ =======================
+Code: c1 ea 10 09 da 8b 1c b5 00 87 4a c0 c1 e1 10 81 c9 73 20 00 00 01 d8 8b 40 02 89 88 80 00 00 00 89 90 84 00 00 00 b8 80 00 00 00 <0f> 00 d8 89 e0 8b 1d a0 0a 41 c0 25 00 f0 ff ff 8b 78 10 a1 7c 
+EIP: [<c010af23>] cpu_init+0x153/0x2b0 SS:ESP 0068:c1c98f6c
+ <0>Kernel panic - not syncing: Attempted to kill the idle task!
 
-Jan Engelhardt
--- 

@@ -1,130 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750751AbWIYTfT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750800AbWIYTjO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750751AbWIYTfT (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Sep 2006 15:35:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750743AbWIYTfT
+	id S1750800AbWIYTjO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Sep 2006 15:39:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750794AbWIYTjO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Sep 2006 15:35:19 -0400
-Received: from havoc.gtf.org ([69.61.125.42]:31461 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id S1750731AbWIYTfR (ORCPT
+	Mon, 25 Sep 2006 15:39:14 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:50382 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1750753AbWIYTjN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Sep 2006 15:35:17 -0400
-Date: Mon, 25 Sep 2006 15:35:11 -0400
-From: Jeff Garzik <jeff@garzik.org>
-To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
-Cc: linux-ide@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
-Subject: [git patch] libata fix
-Message-ID: <20060925193511.GA6129@havoc.gtf.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	Mon, 25 Sep 2006 15:39:13 -0400
+Message-ID: <4518305C.3090906@pobox.com>
+Date: Mon, 25 Sep 2006 15:39:08 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
+MIME-Version: 1.0
+To: Henne <henne@nachtwindheim.de>
+CC: Andrew Morton <akpm@osdl.org>, linux-ide@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] ata-piix: kerneldoc-error-on-ata_piixc.patch 2nd try
+References: <451826BE.2040201@nachtwindheim.de>
+In-Reply-To: <451826BE.2040201@nachtwindheim.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.3 (----)
+X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Henne wrote:
+> Heres a new version of the kerneldoc error in ata_piix.c
+> The old one which doesn't apply clean is in 2.6.18-mm1 and can be removed there if acked.
+> 
+> Greets,
+> Henne
+> 
+> From: Henrik Kretzschmar <henne@nachtwindheim.de>
+> 
+> Fixes an error in kerneldoc of ata_piix.c.
+> This is the 2nd try, written for 2.6.18-git4
+> Signed-off-by: Henrik Kretzschmar <henne@nachtwindheim.de>
 
-[hey Linus, your git summary hint helped, thanks]
+Several problems with your patch format:
 
-Please pull from 'upstream-linus' branch of
-master.kernel.org:/pub/scm/linux/kernel/git/jgarzik/libata-dev.git upstream-linus
+1) your subject line includes-a-bunch-of-words-separated-by-dashes, 
+which is incorrect.  Just use standard English.
 
-to receive the following updates:
+2) "2nd try" should be inside the brackets ("[", "]"), so that the 
+script removes it during merge
 
- include/asm-alpha/libata-portmap.h   |    1 -
- include/asm-frv/libata-portmap.h     |    1 -
- include/asm-i386/libata-portmap.h    |    1 -
- include/asm-ia64/libata-portmap.h    |    1 -
- include/asm-powerpc/libata-portmap.h |    1 -
- include/asm-sparc/libata-portmap.h   |    1 -
- include/asm-sparc64/libata-portmap.h |    1 -
- include/asm-x86_64/libata-portmap.h  |    1 -
- include/linux/libata.h               |    8 ++++++++
- 9 files changed, 8 insertions(+), 8 deletions(-)
- delete mode 100644 include/asm-alpha/libata-portmap.h
- delete mode 100644 include/asm-frv/libata-portmap.h
- delete mode 100644 include/asm-i386/libata-portmap.h
- delete mode 100644 include/asm-ia64/libata-portmap.h
- delete mode 100644 include/asm-powerpc/libata-portmap.h
- delete mode 100644 include/asm-sparc/libata-portmap.h
- delete mode 100644 include/asm-sparc64/libata-portmap.h
- delete mode 100644 include/asm-x86_64/libata-portmap.h
+3) All comments such as the first paragraph and "Greets, Henne" should 
+be moved underneath the "---" separator, so that they are not copied 
+into the kernel changelog verbatim.  You force people to hand-edit your 
+email before merging.
 
-Jeff Garzik:
-      [libata] No need for all those arch libata-portmap.h headers
+4) No need for "From:" in the email body, it duplicates the email's 
+RFC822 From header.
 
-diff --git a/include/asm-alpha/libata-portmap.h b/include/asm-alpha/libata-portmap.h
-deleted file mode 100644
-index 75484ef..0000000
---- a/include/asm-alpha/libata-portmap.h
-+++ /dev/null
-@@ -1 +0,0 @@
--#include <asm-generic/libata-portmap.h>
-diff --git a/include/asm-frv/libata-portmap.h b/include/asm-frv/libata-portmap.h
-deleted file mode 100644
-index 75484ef..0000000
---- a/include/asm-frv/libata-portmap.h
-+++ /dev/null
-@@ -1 +0,0 @@
--#include <asm-generic/libata-portmap.h>
-diff --git a/include/asm-i386/libata-portmap.h b/include/asm-i386/libata-portmap.h
-deleted file mode 100644
-index 75484ef..0000000
---- a/include/asm-i386/libata-portmap.h
-+++ /dev/null
-@@ -1 +0,0 @@
--#include <asm-generic/libata-portmap.h>
-diff --git a/include/asm-ia64/libata-portmap.h b/include/asm-ia64/libata-portmap.h
-deleted file mode 100644
-index 75484ef..0000000
---- a/include/asm-ia64/libata-portmap.h
-+++ /dev/null
-@@ -1 +0,0 @@
--#include <asm-generic/libata-portmap.h>
-diff --git a/include/asm-powerpc/libata-portmap.h b/include/asm-powerpc/libata-portmap.h
-deleted file mode 100644
-index 75484ef..0000000
---- a/include/asm-powerpc/libata-portmap.h
-+++ /dev/null
-@@ -1 +0,0 @@
--#include <asm-generic/libata-portmap.h>
-diff --git a/include/asm-sparc/libata-portmap.h b/include/asm-sparc/libata-portmap.h
-deleted file mode 100644
-index 75484ef..0000000
---- a/include/asm-sparc/libata-portmap.h
-+++ /dev/null
-@@ -1 +0,0 @@
--#include <asm-generic/libata-portmap.h>
-diff --git a/include/asm-sparc64/libata-portmap.h b/include/asm-sparc64/libata-portmap.h
-deleted file mode 100644
-index 75484ef..0000000
---- a/include/asm-sparc64/libata-portmap.h
-+++ /dev/null
-@@ -1 +0,0 @@
--#include <asm-generic/libata-portmap.h>
-diff --git a/include/asm-x86_64/libata-portmap.h b/include/asm-x86_64/libata-portmap.h
-deleted file mode 100644
-index 75484ef..0000000
---- a/include/asm-x86_64/libata-portmap.h
-+++ /dev/null
-@@ -1 +0,0 @@
--#include <asm-generic/libata-portmap.h>
-diff --git a/include/linux/libata.h b/include/linux/libata.h
-index 1ef3d39..d6a3d4b 100644
---- a/include/linux/libata.h
-+++ b/include/linux/libata.h
-@@ -36,7 +36,15 @@ #include <linux/ata.h>
- #include <linux/workqueue.h>
- #include <scsi/scsi_host.h>
- 
-+/*
-+ * Define if arch has non-standard setup.  This is a _PCI_ standard
-+ * not a legacy or ISA standard.
-+ */
-+#ifdef CONFIG_ATA_NONSTANDARD
- #include <asm/libata-portmap.h>
-+#else
-+#include <asm-generic/libata-portmap.h>
-+#endif
- 
- /*
-  * compile-time options: to be removed as soon as all the drivers are
+5) Another comment "This is the 2nd try, written for 2.6.18-git4" which 
+should be moved after the "---" separator.  Otherwise, it must be 
+hand-edited out.
+
+

@@ -1,50 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750938AbWIYU1A@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751140AbWIYU3L@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750938AbWIYU1A (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Sep 2006 16:27:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751083AbWIYU1A
+	id S1751140AbWIYU3L (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Sep 2006 16:29:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751139AbWIYU3L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Sep 2006 16:27:00 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:44049 "EHLO
-	spitz.ucw.cz") by vger.kernel.org with ESMTP id S1750938AbWIYU1A
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Sep 2006 16:27:00 -0400
-Date: Mon, 25 Sep 2006 20:26:45 +0000
-From: Pavel Machek <pavel@suse.cz>
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Takashi Iwai <tiwai@suse.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       alsa-devel@alsa-project.org, Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.18: hda_intel: azx_get_response timeout, switching to single_cmd mode...
-Message-ID: <20060925202644.GB6278@ucw.cz>
-References: <451834D0.40304@goop.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <451834D0.40304@goop.org>
-User-Agent: Mutt/1.5.9i
+	Mon, 25 Sep 2006 16:29:11 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:40400 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1751104AbWIYU3I (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Sep 2006 16:29:08 -0400
+Message-ID: <45183C12.2060201@garzik.org>
+Date: Mon, 25 Sep 2006 16:29:06 -0400
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
+CC: linux-ide@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [git patch] libata fix
+References: <20060925193511.GA6129@havoc.gtf.org>
+In-Reply-To: <20060925193511.GA6129@havoc.gtf.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.3 (----)
+X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
-
-> I have a ThinkPad X60 which uses the Intel 82801G HDA 
-> audio chip.  This used to work for me, but lately 
-> (sometime during 2.6.18-rcX series) it stopped working - 
-> programs trying to use it tend to just block forever 
-> waiting for /dev/dsp.
-
-I have x60 here,
-
-> The only obvious symptom is:
+Jeff Garzik wrote:
+> [hey Linus, your git summary hint helped, thanks]
 > 
->    hda_intel: azx_get_response timeout, switching to 
->    single_cmd mode...
-> 
+> Please pull from 'upstream-linus' branch of
+> master.kernel.org:/pub/scm/linux/kernel/git/jgarzik/libata-dev.git upstream-linus
 
-sometimes see this message, too, and sound more or less works for me.
-(Using alsa interface, mplayer works ok. mpg123 does not work).
+Argh.  I forgot to run the push script.  It's there now.
+
+	Jeff
 
 
--- 
-Thanks for all the (sleeping) penguins.

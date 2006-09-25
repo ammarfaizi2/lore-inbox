@@ -1,40 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751490AbWIYL5r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932075AbWIYMAv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751490AbWIYL5r (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Sep 2006 07:57:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751492AbWIYL5r
+	id S932075AbWIYMAv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Sep 2006 08:00:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932080AbWIYMAv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Sep 2006 07:57:47 -0400
-Received: from ironport-c10.fh-zwickau.de ([141.32.72.200]:6984 "EHLO
-	ironport-c10.fh-zwickau.de") by vger.kernel.org with ESMTP
-	id S1751490AbWIYL5q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Sep 2006 07:57:46 -0400
-X-IronPort-Anti-Spam-Filtered: true
-X-IronPort-Anti-Spam-Result: AQAAAEdgF0WLcgEBDQ
-X-IronPort-AV: i="4.09,213,1157320800"; 
-   d="scan'208"; a="3470015:sNHT30681384"
-Date: Mon, 25 Sep 2006 13:57:44 +0200
-From: Joerg Roedel <joro-lkml@zlug.org>
-To: Andi Kleen <ak@suse.de>
-Cc: David Miller <davem@davemloft.net>, jbglaw@lug-owl.de, kaber@trash.net,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Subject: Re: [PATCH 00/03][RESUBMIT] net: EtherIP tunnel driver
-Message-ID: <20060925115744.GD23028@zlug.org>
-References: <20060923120704.GA32284@zlug.org> <20060923121327.GH30245@lug-owl.de> <1159015118.5301.19.camel@jzny2> <20060923.163535.41636370.davem@davemloft.net> <p738xk8kzym.fsf@verdi.suse.de>
+	Mon, 25 Sep 2006 08:00:51 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:25521 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S932075AbWIYMAu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Sep 2006 08:00:50 -0400
+Subject: Re: An Ode to GPLv2 (was Re: GPLv3 Position Statement)
+From: Arjan van de Ven <arjan@infradead.org>
+To: Willy Tarreau <w@1wt.eu>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <20060925044010.GN541@1wt.eu>
+References: <1158941750.3445.31.camel@mulgrave.il.steeleye.com>
+	 <Pine.LNX.4.64.0609241917520.3952@g5.osdl.org>
+	 <20060925044010.GN541@1wt.eu>
+Content-Type: text/plain
+Organization: Intel International BV
+Date: Mon, 25 Sep 2006 14:00:05 +0200
+Message-Id: <1159185611.3085.26.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <p738xk8kzym.fsf@verdi.suse.de>
-User-Agent: Mutt/1.3.28i
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 25, 2006 at 12:22:41PM +0200, Andi Kleen wrote:
+On Mon, 2006-09-25 at 06:40 +0200, Willy Tarreau wrote:
+> do a few months back. After all the fuss about binary-only modules
+> incompatibility with GPLv2, I wanted to change the license of haproxy
+> to explicitly permit external binary-only code to be linked with it. 
 
-> How would you convince those old LAN games to use a MTU < 1500 which
-> is needed for the tunnel?  I bet they have the size hardcoded.
+LGPL is then a logical and commonly accepted choice for a license
 
-The tunnel provides an MTU of 1500. To guarantee this, it never sets the
-DF flag in outgoing packets.
-
-Joerg

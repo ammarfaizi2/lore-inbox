@@ -1,36 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751143AbWIYMTi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750975AbWIYMav@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751143AbWIYMTi (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Sep 2006 08:19:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751147AbWIYMTi
+	id S1750975AbWIYMav (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Sep 2006 08:30:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751160AbWIYMav
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Sep 2006 08:19:38 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:25325 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751143AbWIYMTi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Sep 2006 08:19:38 -0400
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <1159186771.11049.63.camel@localhost.localdomain> 
-References: <1159186771.11049.63.camel@localhost.localdomain>  <1159183568.11049.51.camel@localhost.localdomain> <20060924223925.GU29920@ftp.linux.org.uk> <22314.1159181060@warthog.cambridge.redhat.com> <5578.1159183668@warthog.cambridge.redhat.com> 
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: David Howells <dhowells@redhat.com>, Al Viro <viro@ftp.linux.org.uk>,
-       Linus Torvalds <torvalds@osdl.org>, Jeff Garzik <jgarzik@pobox.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] restore libata build on frv 
-X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
-Date: Mon, 25 Sep 2006 13:18:04 +0100
-Message-ID: <7276.1159186684@warthog.cambridge.redhat.com>
+	Mon, 25 Sep 2006 08:30:51 -0400
+Received: from embla.aitel.hist.no ([158.38.50.22]:44502 "HELO
+	embla.aitel.hist.no") by vger.kernel.org with SMTP id S1750975AbWIYMau
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Sep 2006 08:30:50 -0400
+Message-ID: <4517CB2C.7020807@aitel.hist.no>
+Date: Mon, 25 Sep 2006 14:27:24 +0200
+From: Helge Hafting <helge.hafting@aitel.hist.no>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060812)
+MIME-Version: 1.0
+To: Molle Bestefich <molle.bestefich@gmail.com>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: ext3 corruption
+References: <62b0912f0607131332u5c390acfrd290e2129b97d7d9@mail.gmail.com>	 <62b0912f0608081647p2d540f43t84767837ba523dc4@mail.gmail.com>	 <Pine.LNX.4.61.0608090723520.30551@chaos.analogic.com>	 <62b0912f0608090822n2d0c44c4uc33b5b1db00e9d33@mail.gmail.com>	 <1A5F0A2F95110B3F35E8A9B5@dhcp-2-206.wgops.com>	 <62b0912f0608091128n4d32d437h45cf74af893dc7c8@mail.gmail.com>	 <20060810030602.GA29664@mail>	 <62b0912f0608100248w2b3c2243xec588aee8c5a9079@mail.gmail.com>	 <44DB2436.6080501@aitel.hist.no> <62b0912f0609240156p21caf564qc20b82b2ee4d8f43@mail.gmail.com>
+In-Reply-To: <62b0912f0609240156p21caf564qc20b82b2ee4d8f43@mail.gmail.com>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+Molle Bestefich wrote:
+> I wrote:
+>> I have a ~1TB filesystem that failed to mount today, the message is:
+>>
+>> EXT3-fs error (device loop0): ext3_check_descriptors: Block bitmap for
+>> group 2338 not in group (block 1607003381)!
+>> EXT3-fs: group descriptors corrupted !
+>>
+>> Yesterday it worked flawlessly.
+>
+> Helge Hafting wrote:
+>> > And voila, that difficult task of assessing in which order to do
+>> > things is out of the hands of distros like Red Hat, and into the
+>> > hands of those people who actually make the binaries.
+>>
+>> Not so easy.  You do not want to shut down md devices because
+>> samba is using them. Someone else may run samba on a single
+>> harddisk and also have some md-devices that they take down
+>> and bring up a lot.  So having samba generally depend on md doesn't
+>> work.  Your setup need it, others may have different needs.
+>
+> I've looked hard at things and just found that maybe it's not the init
+> order that's to blame..
+>
+> It seems that unmounting the filesystem fails with a "device busy" error.
+> I'm not sure why there's still open files on the device, but perhaps a
+> remote user is copying a file or some such (likely).
+That is solvable by shutting down remote operations first.
+So stop samba (or nfs or whatever) before attempting to umount.
+> Anyway, the system is shutting down, so it should just forcefully
+> unmount the device, but it doesn't.
+> The halt script tries "umount" three times, which all fail with:
+> "device is busy".
+> It then actually tries "umount -f" three times, which all fail with
+> "Device or resource busy"
+> At which point the halt script turns off the machine and the
+> filesystem is ruined.
+>
+> How to fix forceful unmount so it works?
+I don't know, other than researching what filesystems support
+forced umount and use one of those. Complain to the vendor or maintainer
+of your particular filesystem.
 
-> Wrong these are PCI settings. Please read the PCI specifications. In
-> particular the handling of non-native mode IDE storage class devices on
-> a PCI bus. For the IRQ mapping of the non-native ports consult your
-> bridge documentation.
+However, you can usually find out why some file is open. Try
+umount yourself, when it doesn't work, use "lsof" to see
+what file is open. Then figure out who or what is keeping it open.
+To debug a shutdown problem, consider putting "lsof >> logfile"
+in your shutdown script.
 
-Even if that is the case, they are all invalid/incorrect, and so Al Viro's
-patch is _still_ NAK'd.
+Not a solution but a workaround: Run "sync" before shutdown.
+(Stick it in some script.)
+Now, all data in filesystem caches will be written to disk before power 
+is lost.
+This isn't perfect, but filesystem damage is greatly minimized and
+often avoided completely.  Useful while waiting for a better solution.
 
-David
+The real solution is to set things up so unforced umount works.
+This is normally possible to do.
+
+
+Helge Hafting

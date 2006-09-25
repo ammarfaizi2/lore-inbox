@@ -1,50 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750743AbWIYUA0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750825AbWIYUDE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750743AbWIYUA0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Sep 2006 16:00:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750807AbWIYUA0
+	id S1750825AbWIYUDE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Sep 2006 16:03:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750822AbWIYUDE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Sep 2006 16:00:26 -0400
-Received: from server6.greatnet.de ([83.133.96.26]:48590 "EHLO
-	server6.greatnet.de") by vger.kernel.org with ESMTP
-	id S1750743AbWIYUAZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Sep 2006 16:00:25 -0400
-Message-ID: <4518356E.8030108@nachtwindheim.de>
-Date: Mon, 25 Sep 2006 22:00:46 +0200
-From: Henne <henne@nachtwindheim.de>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060911)
-MIME-Version: 1.0
-To: Jeff Garzik <jgarzik@pobox.com>, Andrew Morton <akpm@osdl.org>
-Cc: linux-pci@atrey.karlin.mff.cuni.cz, linux-kernel@vger.kernel.org
-Subject: [PATCH 3rd try] ata-piix: fixes kerneldoc error
-Content-Type: text/plain; charset=ISO-8859-1
+	Mon, 25 Sep 2006 16:03:04 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:12703 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1750811AbWIYUDB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Sep 2006 16:03:01 -0400
+Subject: Re: [git patch] libata fix
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Jeff Garzik <jeff@garzik.org>
+Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       linux-ide@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20060925193511.GA6129@havoc.gtf.org>
+References: <20060925193511.GA6129@havoc.gtf.org>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Date: Mon, 25 Sep 2006 21:27:02 +0100
+Message-Id: <1159216022.11049.132.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fixes an error in kerneldoc of ata_piix.c.
-Signed-off-by: Henrik Kretzschmar <henne@nachtwindheim.de>
+Ar Llu, 2006-09-25 am 15:35 -0400, ysgrifennodd Jeff Garzik:
+> + * Define if arch has non-standard setup.  This is a _PCI_ standard
+> + * not a legacy or ISA standard.
 
----
-Heres a new version of the kerneldoc error in ata_piix.c
-This is the 3rd try, written for 2.6.18-git4.
-The old one which doesn't apply clean is in 2.6.18-mm1 and can be removed there if acked.
+The IRQs bit isn't.
 
-Greets,
-Henne
+I've got some better changes I'm testing here but they touch the PCI
+core code so want to shake through -mm first I think so fine by me.
 
---- linux-2.6/drivers/ata/ata_piix.c	2006-09-25 09:27:46.000000000 +0200
-+++ linux-2.6.18-git4/drivers/ata/ata_piix.c	2006-09-25 20:47:32.000000000 +0200
-@@ -851,7 +851,7 @@
-  *	@ap: Port whose timings we are configuring
-  *	@adev: Drive in question
-  *	@udma: udma mode, 0 - 6
-- *	@is_ich: set if the chip is an ICH device
-+ *	@isich: set if the chip is an ICH device
-  *
-  *	Set UDMA mode for device, in host controller PCI config space.
-  *
-
-
-
+Alan
 

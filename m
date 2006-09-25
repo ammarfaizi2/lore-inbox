@@ -1,44 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751345AbWIYDFP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751641AbWIYEZv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751345AbWIYDFP (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Sep 2006 23:05:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751327AbWIYDFP
+	id S1751641AbWIYEZv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Sep 2006 00:25:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751660AbWIYEZv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Sep 2006 23:05:15 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:22150 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751345AbWIYDFO (ORCPT
+	Mon, 25 Sep 2006 00:25:51 -0400
+Received: from opersys.com ([64.40.108.71]:42762 "EHLO www.opersys.com")
+	by vger.kernel.org with ESMTP id S1751604AbWIYEZu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Sep 2006 23:05:14 -0400
-From: Andi Kleen <ak@suse.de>
-To: Dave Jones <davej@redhat.com>
-Subject: Re: New Intel feature flags.
-Date: Mon, 25 Sep 2006 05:03:29 +0200
-User-Agent: KMail/1.9.3
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>
-References: <20060924011532.GA5804@redhat.com> <200609241050.14760.ak@suse.de> <20060925030215.GA15224@redhat.com>
-In-Reply-To: <20060925030215.GA15224@redhat.com>
+	Mon, 25 Sep 2006 00:25:50 -0400
+Message-ID: <45175F28.3090109@opersys.com>
+Date: Mon, 25 Sep 2006 00:46:32 -0400
+From: Karim Yaghmour <karim@opersys.com>
+Reply-To: karim@opersys.com
+Organization: Opersys inc.
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.6) Gecko/20060804 Fedora/1.0.4-0.5.1.fc5 SeaMonkey/1.0.4
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Richard J Moore <richardj_moore@uk.ibm.com>,
+       Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>
+CC: Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
+       "Frank Ch. Eigler" <fche@redhat.com>, Ingo Molnar <mingo@elte.hu>,
+       Ingo Molnar <mingo@redhat.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       SystemTAP <systemtap@sources.redhat.com>,
+       Satoshi Oshima <soshima@redhat.com>,
+       "Martin J. Bligh" <mbligh@mbligh.org>,
+       Prasanna S Panchamukhi <prasanna@in.ibm.com>,
+       Tom Zanussi <zanussi@us.ibm.com>,
+       Michel Dagenais <michel.dagenais@polymtl.ca>,
+       William Cohen <wcohen@redhat.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Andrew Morton <akpm@osdl.org>, Christoph Hellwig <hch@infradead.org>
+Subject: Re: Does this work? "dcprobes" an x86-hack simple djprobes-equivalent?
+References: <45163D3D.4010108@opersys.com>
+In-Reply-To: <45163D3D.4010108@opersys.com>
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200609250503.29715.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 25 September 2006 05:02, Dave Jones wrote:
-> On Sun, Sep 24, 2006 at 10:50:14AM +0200, Andi Kleen wrote:
->  > On Sunday 24 September 2006 03:15, Dave Jones wrote:
->  > > Add supplemental SSE3 instructions flag, and Direct Cache Access flag.
->  > > As described in "Intel Processor idenfication and the CPUID instruction
->  > > AP485 Sept 2006"
->  > 
->  > Added thanks. I also added it for x86-64
-> 
-> I just looked at ftp://ftp.firstfloor.org/pub/ak/x86_64/quilt-current/patches/new-intel-cpuid-flags
-> Somehow "ssse3" became "ssse2".
 
+Slight binary typo ...
 
-Sorry fixed.
+Karim Yaghmour wrote:
+> Of course, this means hardwiring a multiplexing function at
+> 0xCCCC,0xCCCCCCCC, if that makes any sense (offset 0xCCCCCCCC
+> of code segment entry 7,099 of the LDT with an RPL of 1).
 
--Andi
+Actually 0xCCCC is code segment entry 6,553 of the LDT with an
+RPL of 0.
+
+Karim
+-- 
+President  / Opersys Inc.
+Embedded Linux Training and Expertise
+www.opersys.com  /  1.866.677.4546

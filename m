@@ -1,68 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751479AbWIYLzB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751489AbWIYL4a@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751479AbWIYLzB (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Sep 2006 07:55:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751489AbWIYLzB
+	id S1751489AbWIYL4a (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Sep 2006 07:56:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751490AbWIYL4a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Sep 2006 07:55:01 -0400
-Received: from smtp110.mail.mud.yahoo.com ([209.191.85.220]:31088 "HELO
-	smtp110.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1751479AbWIYLzA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Sep 2006 07:55:00 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=BJnfanIvSISW8fe4MdC4fs6p+uLmljEHcJXu7MsKxFL201VGuKeIF2YBDzBOYkVF1wH8VJKdzoreJi99aNwJmW7zQ7zGBpzbXkN+sMiRl5B49wPAkVIBJcTSAMJW8rSYyCaodjqJArMF+dfc6jZug5q82EWMczIHsNSO+lSZ2qY=  ;
-Message-ID: <451747EE.50900@yahoo.com.au>
-Date: Mon, 25 Sep 2006 13:07:26 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20060216 Debian/1.7.12-1.1ubuntu2
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Ingo Molnar <mingo@elte.hu>
-CC: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Jeff Garzik <jeff@garzik.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.19 -mm merge plans
-References: <20060920135438.d7dd362b.akpm@osdl.org> <45121382.1090403@garzik.org> <20060920220744.0427539d.akpm@osdl.org> <1158830206.11109.84.camel@localhost.localdomain> <Pine.LNX.4.64.0609210819170.4388@g5.osdl.org> <20060921105959.a55efb5f.akpm@osdl.org> <Pine.LNX.4.64.0609211106391.4388@g5.osdl.org> <20060924185100.GA20524@elte.hu>
-In-Reply-To: <20060924185100.GA20524@elte.hu>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Mon, 25 Sep 2006 07:56:30 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:24781 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1751489AbWIYL43 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Sep 2006 07:56:29 -0400
+Subject: Re: [PATCH] restore libata build on frv
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: David Howells <dhowells@redhat.com>
+Cc: Al Viro <viro@ftp.linux.org.uk>, Linus Torvalds <torvalds@osdl.org>,
+       Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <5578.1159183668@warthog.cambridge.redhat.com>
+References: <1159183568.11049.51.camel@localhost.localdomain>
+	 <20060924223925.GU29920@ftp.linux.org.uk>
+	 <22314.1159181060@warthog.cambridge.redhat.com>
+	 <5578.1159183668@warthog.cambridge.redhat.com>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
+Date: Mon, 25 Sep 2006 13:19:31 +0100
+Message-Id: <1159186771.11049.63.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ingo Molnar wrote:
+Ar Llu, 2006-09-25 am 12:27 +0100, ysgrifennodd David Howells:
+> Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+> These are all legacy ISA settings, and not applicable to FRV:
+> 
+> 	#define ATA_PRIMARY_CMD		0x1F0
+> 	#define ATA_PRIMARY_CTL		0x3F6
+> 	#define ATA_PRIMARY_IRQ		14
+> 
+> 	#define ATA_SECONDARY_CMD	0x170
+> 	#define ATA_SECONDARY_CTL	0x376
+> 	#define ATA_SECONDARY_IRQ	15
 
->* Linus Torvalds <torvalds@osdl.org> wrote:
->
->
->>I think the "big merges in the first two weeks, and a -rc1 after, and 
->>no new code after that" rule has been working because it brought 
->>everybody in on the same page.
->>
->
->yeah. I dont really support the even/odd release thing because even the 
->old 1.2/1.3/2.0/2.1/2.2/2.3/2.4 scheme _always_ confused non-insiders. 
->Sometimes i saw it confuse people who already understood the GPL ;-) 
->Furthermore it would just dillute our version numbers to encode some 
->information that "-rc1" indicates just as well. Insiders know perfectly 
->well that when -rc1 is released the merge window is closed. And what 
->causes -rc elongation is usually not the lack of communication towards 
->users or lack of testing but the lack of fixing power ...
->
+Wrong these are PCI settings. Please read the PCI specifications. In
+particular the handling of non-native mode IDE storage class devices on
+a PCI bus. For the IRQ mapping of the non-native ports consult your
+bridge documentation.
 
-OTOH, if we were worried about confusing people, we wouldn't be
-using the acronym 'rc' for our 'Ridiculous Count', and have our rc1
-denote the result of 2 weeks of stuffing the tree with new features
-and intrusive changes, where people might mistake that for the much
-more common RC-as-in-'Release Candidate'. :)
+> Note that the ata_pci_init_legacy_port() explicitly states the IRQ numbers as
+> 14 and 15 without reference to the macros and so is bad, eg:
+> 
+> 		probe_ent->irq = 14;
 
-Our -rc is what everyone else knows as -pre, and our dot zeros
-basically correspond to what people think of as a release candidate.
-As a developer it doesn't hurt me and I do like the current system,
-but in principle I just dislike things that are more confusing than
-they could be.
+That is indeed a bug
 
---
+> Make FRV build with libata enabled.  This is done by making the legacy ISA
+> interface support conditional on the definition of the legacy ISA port
+> settings.  If there's no ISA bus, we shouldn't even attempt to pretend that
+> there is.
+> 
+> Signed-Off-By: David Howells <dhowells@redhat.com>
 
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+Nacked-by: Alan Cox <alan@redhat.com>
+
+

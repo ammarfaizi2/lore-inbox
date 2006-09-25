@@ -1,68 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932194AbWIYBNE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932196AbWIYBOj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932194AbWIYBNE (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Sep 2006 21:13:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932196AbWIYBNE
+	id S932196AbWIYBOj (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Sep 2006 21:14:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932203AbWIYBOj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Sep 2006 21:13:04 -0400
-Received: from pool-71-254-65-206.ronkva.east.verizon.net ([71.254.65.206]:8391
-	"EHLO turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S932194AbWIYBNC (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Sep 2006 21:13:02 -0400
-Message-Id: <200609250112.k8P1CTfZ019880@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
-To: Stas Sergeev <stsp@aknet.ru>
-Cc: Ulrich Drepper <drepper@redhat.com>, Hugh Dickins <hugh@veritas.com>,
-       Andrew Morton <akpm@osdl.org>,
-       Linux kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [patch] remove MNT_NOEXEC check for PROT_EXEC mmaps
-In-Reply-To: Your message of "Sat, 23 Sep 2006 19:47:19 +0400."
-             <45155707.4010906@aknet.ru>
-From: Valdis.Kletnieks@vt.edu
-References: <45150CD7.4010708@aknet.ru> <Pine.LNX.4.64.0609231555390.27012@blonde.wat.veritas.com> <45155499.4000209@redhat.com>
-            <45155707.4010906@aknet.ru>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1159146748_16795P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Sun, 24 Sep 2006 21:12:28 -0400
+	Sun, 24 Sep 2006 21:14:39 -0400
+Received: from emailhub.stusta.mhn.de ([141.84.69.5]:64776 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S932196AbWIYBOi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Sep 2006 21:14:38 -0400
+Date: Mon, 25 Sep 2006 03:14:36 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Jeff Garzik <jeff@garzik.org>, Andrew Morton <akpm@osdl.org>,
+       LKML <linux-kernel@vger.kernel.org>, junkio@cox.net
+Subject: git diff <-> diffstat
+Message-ID: <20060925011436.GC4547@stusta.de>
+References: <20060924161809.GA13423@havoc.gtf.org> <Pine.LNX.4.64.0609241005290.4388@g5.osdl.org> <45172297.6070108@garzik.org> <Pine.LNX.4.64.0609241732580.3952@g5.osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0609241732580.3952@g5.osdl.org>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1159146748_16795P
-Content-Type: text/plain; charset=us-ascii
-
-On Sat, 23 Sep 2006 19:47:19 +0400, Stas Sergeev said:
-> Hi.
+On Sun, Sep 24, 2006 at 05:34:05PM -0700, Linus Torvalds wrote:
 > 
-> Ulrich Drepper wrote:
-> > Definitely not.  The test should stay.  It does the right thing.  Yes,
-> > some applications might break, but this is the fault of the application.
-> But why exactly? They do:
-> shm_open();
-> mmap(PROT_READ|PROT_WRITE|PROT_EXEC);
-> and mmap fails.
-> Where is the fault of an app here?
+> 
+> On Sun, 24 Sep 2006, Jeff Garzik wrote:
+> > 
+> > Right now I just pipe 'git diff master..branch' to diffstat.
+> 
+> Ok. That just means that you can change it do say
+> 
+> 	git diff -M --stat --summary master..branch
+> 
+> and you get exactly what you need. No need for a separate diffstat at all, 
+> and you get all the renaming and summary printout.
 
-'man 2 open' reports the following error code as a possibility:
-       EROFS  pathname refers to a file on a read-only filesystem and write
-	access was requested.
+Is there any way for "git diff" to handle additional options diffstat 
+handles? I'm a big fan of the -w72 diffstat option.
 
-Are you suggesting that it's not an app's fault/problem if it tries to
-open a writable file on a R/O filesystem?  Because it's essentially the
-same problem....
+Oh, and with git 1.4.2.1,
+  git diff -M --stat --summary v2.6.18..master
+in your tree gives me some funny lines like:
 
+ .../netlabel/draft-ietf-cipso-ipsecurity-01.txt    |  791 +
+ .../{cpu_setup_power4.S => cpu_setup_ppc970.S}     |  103 
+ .../powerpc/platforms}/iseries/it_exp_vpd_panel.h  |    6 
+ .../powerpc/platforms}/iseries/it_lp_naca.h        |    6 
 
---==_Exmh_1159146748_16795P
-Content-Type: application/pgp-signature
+I don't know what's going wrong here, but diffstat doesn't produce this.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
+> 		Linus
 
-iD8DBQFFFyz8cC3lWbTT17ARAnocAJoCeDx/9zrQ0TujdHm2f4bL/olGBACfRWk3
-ho+RNpkBF6qqpbCJ4e7FFHo=
-=TrdD
------END PGP SIGNATURE-----
+cu
+Adrian
 
---==_Exmh_1159146748_16795P--
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
+

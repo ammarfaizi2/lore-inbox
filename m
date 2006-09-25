@@ -1,90 +1,354 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932117AbWIYNfz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751573AbWIYOHr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932117AbWIYNfz (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Sep 2006 09:35:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750993AbWIYNfz
+	id S1751573AbWIYOHr (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Sep 2006 10:07:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751579AbWIYOHq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Sep 2006 09:35:55 -0400
-Received: from server.mrvanes.com ([81.17.40.76]:26066 "EHLO mail.mrvanes.com")
-	by vger.kernel.org with ESMTP id S1750817AbWIYNfy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Sep 2006 09:35:54 -0400
-From: Martin van Es <martin@mrvanes.com>
-To: linux-kernel@vger.kernel.org
-Subject: intel8x0-snd module fails to correctly detect clock when compiled in kernel
-Date: Mon, 25 Sep 2006 15:35:44 +0200
-User-Agent: KMail/1.9.4
+	Mon, 25 Sep 2006 10:07:46 -0400
+Received: from rwcrmhc15.comcast.net ([204.127.192.85]:37249 "EHLO
+	rwcrmhc15.comcast.net") by vger.kernel.org with ESMTP
+	id S1751573AbWIYOHp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Sep 2006 10:07:45 -0400
+Date: Mon, 25 Sep 2006 09:09:41 -0500
+From: Corey Minyard <minyard@acm.org>
+To: Linux Kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+Cc: David Barksdale <amatus@ocgnet.org>
+Subject: [PATCH] IPMI: per-channel command registration
+Message-ID: <20060925140941.GA6364@localdomain>
+Reply-To: minyard@acm.org
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200609251535.45246.martin@mrvanes.com>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-For the second time I sent a mail to perex@suse.cz a couple of days ago 
-without any reply so far, so I thought I'd let the kernel mailinglist reader 
-know of my findings as well.
 
-Maybe anybody else can do something with the knowledge that the intel8x0-snd 
-module fails to detect the 'clock' correctly if built into the kernel, as a 
-module this works fine. If not for anything else, I hope this mail gets 
-archived and the solution is available for anybody else having the same 
-problem.
+This patch adds the ability to register for a command per-channel in
+the IPMI driver.
 
+If your BMC supports multiple channels, incoming messages can be
+differentiated by the channel on which they arrived. In this case it's
+useful to have the ability to register to receive commands on a
+specific channel instead the current behaviour of all channels.
 
-Below is the verbatim mail as I sent it to Jaroslav:
+Signed-off-by: David Barksdale <amatus@ocgnet.org>
+Signed-off-by: Corey Minyard <minyard@acm.org>
 
-Yesterday I compiled the fresh 2.6.18 kernel and to my big surprise I 
-discovered my sound was a bit off speed (too slow, like 48000 content was 
-played at 44100 or so). Hence my immediate search for clock problems.
-
-A bit of searching revealed that the ac97#0-0 file (in /proc/asound/card0 dir) 
-contains 2 lines referring to 441~ and 48~.
-In 2.6.18 these lines 
-
-PCM front DAC    : 48000Hz
-PCM ADC          : 48000Hz
-
-Both lines alternate between 44100 and 48000 between reboots (and I can't find 
-what it depends on).
-
-dmesg outputs the following 2 lines concerning audio clock:
-intel8x0_measure_ac97_clock: measured 50992 usecs
-intel8x0: clocking to 43920
-
-The 'clocking to' line is not always the same, but never 48000.
-
-Don't ask me why, but at last I tried to build the intel8x0-snd driver as a 
-module and surprisingly that always results in correct funcionality. The 2 
-dmesg lines now read:
-intel8x0_measure_ac97_clock: measured 50463 usecs
-intel8x0: clocking to 48000
-
-The clocking line is always 48000, just like it used to be in 2.6.17.
-
-I tried to use ac97_clock=48000 as kernel boot parameter, but the doesn't 
-help (for the in-kernel version of the module).
-
-ALSA version in 2.6.18 is:
-Advanced Linux Sound Architecture Driver Version 1.0.12rc1 (Thu Jun 22 
-13:55:50 2006 UTC).
-
-My alsa intel8x0 device string is:
-ALSA device list:
-#0: Intel 82801DB-ICH4 with ALC202 at 0xe0100c00, irq 10
-
-
-For the time being, my problem is solved by compiling the driver as module.
-In the future however I'd appreciate building my kernel monolithic again.
-
-
-Hope the information and bugreport is of any use to improve the intel8x0-snd 
-module in future kernels.
-
-Regards,
-Martin van Es
--- 
-If 'but' was of any use, it would be a logical operator.
-
+Index: linux-2.6.18/drivers/char/ipmi/ipmi_devintf.c
+===================================================================
+--- linux-2.6.18.orig/drivers/char/ipmi/ipmi_devintf.c
++++ linux-2.6.18/drivers/char/ipmi/ipmi_devintf.c
+@@ -377,7 +377,8 @@ static int ipmi_ioctl(struct inode  *ino
+ 			break;
+ 		}
+ 
+-		rv = ipmi_register_for_cmd(priv->user, val.netfn, val.cmd);
++		rv = ipmi_register_for_cmd(priv->user, val.netfn, val.cmd,
++					   IPMI_CHAN_ALL);
+ 		break;
+ 	}
+ 
+@@ -390,7 +391,36 @@ static int ipmi_ioctl(struct inode  *ino
+ 			break;
+ 		}
+ 
+-		rv = ipmi_unregister_for_cmd(priv->user, val.netfn, val.cmd);
++		rv = ipmi_unregister_for_cmd(priv->user, val.netfn, val.cmd,
++					     IPMI_CHAN_ALL);
++		break;
++	}
++
++	case IPMICTL_REGISTER_FOR_CMD_CHANS:
++	{
++		struct ipmi_cmdspec_chans val;
++
++		if (copy_from_user(&val, arg, sizeof(val))) {
++			rv = -EFAULT;
++			break;
++		}
++
++		rv = ipmi_register_for_cmd(priv->user, val.netfn, val.cmd,
++					   val.chans);
++		break;
++	}
++
++	case IPMICTL_UNREGISTER_FOR_CMD_CHANS:
++	{
++		struct ipmi_cmdspec_chans val;
++
++		if (copy_from_user(&val, arg, sizeof(val))) {
++			rv = -EFAULT;
++			break;
++		}
++
++		rv = ipmi_unregister_for_cmd(priv->user, val.netfn, val.cmd,
++					     val.chans);
+ 		break;
+ 	}
+ 
+Index: linux-2.6.18/drivers/char/ipmi/ipmi_msghandler.c
+===================================================================
+--- linux-2.6.18.orig/drivers/char/ipmi/ipmi_msghandler.c
++++ linux-2.6.18/drivers/char/ipmi/ipmi_msghandler.c
+@@ -96,6 +96,7 @@ struct cmd_rcvr
+ 	ipmi_user_t   user;
+ 	unsigned char netfn;
+ 	unsigned char cmd;
++	unsigned int  chans;
+ 
+ 	/*
+ 	 * This is used to form a linked lised during mass deletion.
+@@ -953,24 +954,41 @@ int ipmi_set_gets_events(ipmi_user_t use
+ 
+ static struct cmd_rcvr *find_cmd_rcvr(ipmi_smi_t    intf,
+ 				      unsigned char netfn,
+-				      unsigned char cmd)
++				      unsigned char cmd,
++				      unsigned char chan)
+ {
+ 	struct cmd_rcvr *rcvr;
+ 
+ 	list_for_each_entry_rcu(rcvr, &intf->cmd_rcvrs, link) {
+-		if ((rcvr->netfn == netfn) && (rcvr->cmd == cmd))
++		if ((rcvr->netfn == netfn) && (rcvr->cmd == cmd)
++					&& (rcvr->chans & (1 << chan)))
+ 			return rcvr;
+ 	}
+ 	return NULL;
+ }
+ 
++static int is_cmd_rcvr_exclusive(ipmi_smi_t    intf,
++				 unsigned char netfn,
++				 unsigned char cmd,
++				 unsigned int  chans)
++{
++	struct cmd_rcvr *rcvr;
++
++	list_for_each_entry_rcu(rcvr, &intf->cmd_rcvrs, link) {
++		if ((rcvr->netfn == netfn) && (rcvr->cmd == cmd)
++					&& (rcvr->chans & chans))
++			return 0;
++	}
++	return 1;
++}
++
+ int ipmi_register_for_cmd(ipmi_user_t   user,
+ 			  unsigned char netfn,
+-			  unsigned char cmd)
++			  unsigned char cmd,
++			  unsigned int  chans)
+ {
+ 	ipmi_smi_t      intf = user->intf;
+ 	struct cmd_rcvr *rcvr;
+-	struct cmd_rcvr *entry;
+ 	int             rv = 0;
+ 
+ 
+@@ -979,12 +997,12 @@ int ipmi_register_for_cmd(ipmi_user_t   
+ 		return -ENOMEM;
+ 	rcvr->cmd = cmd;
+ 	rcvr->netfn = netfn;
++	rcvr->chans = chans;
+ 	rcvr->user = user;
+ 
+ 	mutex_lock(&intf->cmd_rcvrs_mutex);
+ 	/* Make sure the command/netfn is not already registered. */
+-	entry = find_cmd_rcvr(intf, netfn, cmd);
+-	if (entry) {
++	if (!is_cmd_rcvr_exclusive(intf, netfn, cmd, chans)) {
+ 		rv = -EBUSY;
+ 		goto out_unlock;
+ 	}
+@@ -1001,24 +1019,39 @@ int ipmi_register_for_cmd(ipmi_user_t   
+ 
+ int ipmi_unregister_for_cmd(ipmi_user_t   user,
+ 			    unsigned char netfn,
+-			    unsigned char cmd)
++			    unsigned char cmd,
++			    unsigned int  chans)
+ {
+ 	ipmi_smi_t      intf = user->intf;
+ 	struct cmd_rcvr *rcvr;
++	struct cmd_rcvr *rcvrs = NULL;
++	int i, rv = -ENOENT;
+ 
+ 	mutex_lock(&intf->cmd_rcvrs_mutex);
+-	/* Make sure the command/netfn is not already registered. */
+-	rcvr = find_cmd_rcvr(intf, netfn, cmd);
+-	if ((rcvr) && (rcvr->user == user)) {
+-		list_del_rcu(&rcvr->link);
+-		mutex_unlock(&intf->cmd_rcvrs_mutex);
+-		synchronize_rcu();
++	for (i = 0; i < IPMI_NUM_CHANNELS; i++) {
++		if (((1 << i) & chans) == 0)
++			continue;
++		rcvr = find_cmd_rcvr(intf, netfn, cmd, i);
++		if (rcvr == NULL)
++			continue;
++		if (rcvr->user == user) {
++			rv = 0;
++			rcvr->chans &= ~chans;
++			if (rcvr->chans == 0) {
++				list_del_rcu(&rcvr->link);
++				rcvr->next = rcvrs;
++				rcvrs = rcvr;
++			}
++		}
++	}
++	mutex_unlock(&intf->cmd_rcvrs_mutex);
++	synchronize_rcu();
++	while (rcvrs) {
++		rcvr = rcvrs;
++		rcvrs = rcvr->next;
+ 		kfree(rcvr);
+-		return 0;
+-	} else {
+-		mutex_unlock(&intf->cmd_rcvrs_mutex);
+-		return -ENOENT;
+ 	}
++	return rv;
+ }
+ 
+ void ipmi_user_set_run_to_completion(ipmi_user_t user, int val)
+@@ -2548,6 +2581,7 @@ static int handle_ipmb_get_msg_cmd(ipmi_
+ 	int                      rv = 0;
+ 	unsigned char            netfn;
+ 	unsigned char            cmd;
++	unsigned char            chan;
+ 	ipmi_user_t              user = NULL;
+ 	struct ipmi_ipmb_addr    *ipmb_addr;
+ 	struct ipmi_recv_msg     *recv_msg;
+@@ -2568,9 +2602,10 @@ static int handle_ipmb_get_msg_cmd(ipmi_
+ 
+ 	netfn = msg->rsp[4] >> 2;
+ 	cmd = msg->rsp[8];
++	chan = msg->rsp[3] & 0xf;
+ 
+ 	rcu_read_lock();
+-	rcvr = find_cmd_rcvr(intf, netfn, cmd);
++	rcvr = find_cmd_rcvr(intf, netfn, cmd, chan);
+ 	if (rcvr) {
+ 		user = rcvr->user;
+ 		kref_get(&user->refcount);
+@@ -2728,6 +2763,7 @@ static int handle_lan_get_msg_cmd(ipmi_s
+ 	int                      rv = 0;
+ 	unsigned char            netfn;
+ 	unsigned char            cmd;
++	unsigned char            chan;
+ 	ipmi_user_t              user = NULL;
+ 	struct ipmi_lan_addr     *lan_addr;
+ 	struct ipmi_recv_msg     *recv_msg;
+@@ -2748,9 +2784,10 @@ static int handle_lan_get_msg_cmd(ipmi_s
+ 
+ 	netfn = msg->rsp[6] >> 2;
+ 	cmd = msg->rsp[10];
++	chan = msg->rsp[3] & 0xf;
+ 
+ 	rcu_read_lock();
+-	rcvr = find_cmd_rcvr(intf, netfn, cmd);
++	rcvr = find_cmd_rcvr(intf, netfn, cmd, chan);
+ 	if (rcvr) {
+ 		user = rcvr->user;
+ 		kref_get(&user->refcount);
+Index: linux-2.6.18/include/linux/ipmi.h
+===================================================================
+--- linux-2.6.18.orig/include/linux/ipmi.h
++++ linux-2.6.18/include/linux/ipmi.h
+@@ -148,6 +148,13 @@ struct ipmi_lan_addr
+ #define IPMI_BMC_CHANNEL  0xf
+ #define IPMI_NUM_CHANNELS 0x10
+ 
++/*
++ * Used to signify an "all channel" bitmask.  This is more than the
++ * actual number of channels because this is used in userland and
++ * will cover us if the number of channels is extended.
++ */
++#define IPMI_CHAN_ALL     (~0)
++
+ 
+ /*
+  * A raw IPMI message without any addressing.  This covers both
+@@ -350,18 +357,21 @@ int ipmi_request_supply_msgs(ipmi_user_t
+ 
+ /*
+  * When commands come in to the SMS, the user can register to receive
+- * them.  Only one user can be listening on a specific netfn/cmd pair
++ * them.  Only one user can be listening on a specific netfn/cmd/chan tuple
+  * at a time, you will get an EBUSY error if the command is already
+  * registered.  If a command is received that does not have a user
+  * registered, the driver will automatically return the proper
+- * error.
++ * error.  Channels are specified as a bitfield, use IPMI_CHAN_ALL to
++ * mean all channels.
+  */
+ int ipmi_register_for_cmd(ipmi_user_t   user,
+ 			  unsigned char netfn,
+-			  unsigned char cmd);
++			  unsigned char cmd,
++			  unsigned int  chans);
+ int ipmi_unregister_for_cmd(ipmi_user_t   user,
+ 			    unsigned char netfn,
+-			    unsigned char cmd);
++			    unsigned char cmd,
++			    unsigned int  chans);
+ 
+ /*
+  * Allow run-to-completion mode to be set for the interface of
+@@ -571,6 +581,36 @@ struct ipmi_cmdspec
+ #define IPMICTL_UNREGISTER_FOR_CMD	_IOR(IPMI_IOC_MAGIC, 15,	\
+ 					     struct ipmi_cmdspec)
+ 
++/*
++ * Register to get commands from other entities on specific channels.
++ * This way, you can only listen on specific channels, or have messages
++ * from some channels go to one place and other channels to someplace
++ * else.  The chans field is a bitmask, (1 << channel) for each channel.
++ * It may be IPMI_CHAN_ALL for all channels.
++ */
++struct ipmi_cmdspec_chans
++{
++	unsigned char netfn;
++	unsigned char cmd;
++	unsigned int  chans;
++};
++
++/*
++ * Register to receive a specific command on specific channels.  error values:
++ *   - EFAULT - an address supplied was invalid.
++ *   - EBUSY - One of the netfn/cmd/chans supplied was already in use.
++ *   - ENOMEM - could not allocate memory for the entry.
++ */
++#define IPMICTL_REGISTER_FOR_CMD_CHANS	_IOR(IPMI_IOC_MAGIC, 28,	\
++					     struct ipmi_cmdspec_chans)
++/*
++ * Unregister some netfn/cmd/chans.  error values:
++ *  - EFAULT - an address supplied was invalid.
++ *  - ENOENT - None of the netfn/cmd/chans were found registered for this user.
++ */
++#define IPMICTL_UNREGISTER_FOR_CMD_CHANS _IOR(IPMI_IOC_MAGIC, 29,	\
++					     struct ipmi_cmdspec_chans)
++
+ /* 
+  * Set whether this interface receives events.  Note that the first
+  * user registered for events will get all pending events for the
+Index: linux-2.6.18/Documentation/IPMI.txt
+===================================================================
+--- linux-2.6.18.orig/Documentation/IPMI.txt
++++ linux-2.6.18/Documentation/IPMI.txt
+@@ -326,9 +326,12 @@ for events, they will all receive all ev
+ 
+ For receiving commands, you have to individually register commands you
+ want to receive.  Call ipmi_register_for_cmd() and supply the netfn
+-and command name for each command you want to receive.  Only one user
+-may be registered for each netfn/cmd, but different users may register
+-for different commands.
++and command name for each command you want to receive.  You also
++specify a bitmask of the channels you want to receive the command from
++(or use IPMI_CHAN_ALL for all channels if you don't care).  Only one
++user may be registered for each netfn/cmd/channel, but different users
++may register for different commands, or the same command if the
++channel bitmasks do not overlap.
+ 
+ From userland, equivalent IOCTLs are provided to do these functions.
+ 

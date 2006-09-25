@@ -1,63 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751822AbWIYB6D@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751823AbWIYB72@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751822AbWIYB6D (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Sep 2006 21:58:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751823AbWIYB6D
+	id S1751823AbWIYB72 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Sep 2006 21:59:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751832AbWIYB72
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Sep 2006 21:58:03 -0400
-Received: from zeniv.linux.org.uk ([195.92.253.2]:59537 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1751822AbWIYB6B
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Sep 2006 21:58:01 -0400
-Date: Mon, 25 Sep 2006 02:57:57 +0100
-From: Al Viro <viro@ftp.linux.org.uk>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org
-Subject: [PATCH] pata_pdc2027x iomem annotations
-Message-ID: <20060925015757.GG29920@ftp.linux.org.uk>
+	Sun, 24 Sep 2006 21:59:28 -0400
+Received: from animx.eu.org ([216.98.75.249]:62393 "EHLO animx.eu.org")
+	by vger.kernel.org with ESMTP id S1751823AbWIYB72 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Sep 2006 21:59:28 -0400
+Date: Sun, 24 Sep 2006 21:51:26 -0400
+From: Wakko Warner <wakko@animx.eu.org>
+To: sleon@sleon.dyndns.org
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: megaraid question
+Message-ID: <20060925015126.GA8764@animx.eu.org>
+Mail-Followup-To: sleon@sleon.dyndns.org, linux-kernel@vger.kernel.org
+References: <20060925012909.A56E52963F@sleon.dyndns.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <20060925012909.A56E52963F@sleon.dyndns.org>
+User-Agent: Mutt/1.5.6+20040907i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
----
- drivers/ata/pata_pdc2027x.c |    6 +++---
- 1 files changed, 3 insertions(+), 3 deletions(-)
+Keep me in CC.
 
-diff --git a/drivers/ata/pata_pdc2027x.c b/drivers/ata/pata_pdc2027x.c
-index 56b8c1e..31ab9c8 100644
---- a/drivers/ata/pata_pdc2027x.c
-+++ b/drivers/ata/pata_pdc2027x.c
-@@ -242,7 +242,7 @@ MODULE_DEVICE_TABLE(pci, pdc2027x_pci_tb
-  *	@ap: Port
-  *	@offset: offset from mmio base
-  */
--static inline void* port_mmio(struct ata_port *ap, unsigned int offset)
-+static inline void __iomem *port_mmio(struct ata_port *ap, unsigned int offset)
- {
- 	return ap->host->mmio_base + ap->port_no * 0x100 + offset;
- }
-@@ -253,7 +253,7 @@ static inline void* port_mmio(struct ata
-  *	@adev: device
-  *	@offset: offset from mmio base
-  */
--static inline void* dev_mmio(struct ata_port *ap, struct ata_device *adev, unsigned int offset)
-+static inline void __iomem *dev_mmio(struct ata_port *ap, struct ata_device *adev, unsigned int offset)
- {
- 	u8 adj = (adev->devno) ? 0x08 : 0x00;
- 	return port_mmio(ap, offset) + adj;
-@@ -758,7 +758,7 @@ static int __devinit pdc2027x_init_one(s
- 
- 	struct ata_probe_ent *probe_ent = NULL;
- 	unsigned long base;
--	void *mmio_base;
-+	void __iomem *mmio_base;
- 	int rc;
- 
- 	if (!printed_version++)
+sleon@sleon.dyndns.org wrote:
+> i am using opensource megaraid driver (2.6.17) . Do you know any opensource monitoring tool for the opensource megaraid drivers Or is there a way to check the state of harddrives connected to the megaraid controller?
+
+I'd like to add a "ME TOO" here.  as well as one for the adaptec raid cards.
+
+Last time I looked, the only software I could find for megaraid was a
+program from Dell (binary only unfortunately)
+
 -- 
-1.4.2.GIT
-
+ Lab tests show that use of micro$oft causes cancer in lab animals
+ Got Gas???

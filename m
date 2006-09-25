@@ -1,112 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750803AbWIYF3J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751559AbWIYFei@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750803AbWIYF3J (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Sep 2006 01:29:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751179AbWIYF3J
+	id S1751559AbWIYFei (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Sep 2006 01:34:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751740AbWIYFei
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Sep 2006 01:29:09 -0400
-Received: from ozlabs.org ([203.10.76.45]:64685 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S1750885AbWIYF3G (ORCPT
+	Mon, 25 Sep 2006 01:34:38 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:50821 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751555AbWIYFeh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Sep 2006 01:29:06 -0400
-Subject: Re: [PATCH 7/7] (Optional) implement current as a per-cpu var
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Andi Kleen <ak@muc.de>
-Cc: virtualization <virtualization@lists.osdl.org>,
-       lkml - Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <1158926502.26261.20.camel@localhost.localdomain>
-References: <1158925861.26261.3.camel@localhost.localdomain>
-	 <1158925997.26261.6.camel@localhost.localdomain>
-	 <1158926106.26261.8.camel@localhost.localdomain>
-	 <1158926215.26261.11.camel@localhost.localdomain>
-	 <1158926308.26261.14.camel@localhost.localdomain>
-	 <1158926386.26261.17.camel@localhost.localdomain>
-	 <1158926451.26261.18.camel@localhost.localdomain>
-	 <1158926502.26261.20.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Mon, 25 Sep 2006 15:29:00 +1000
-Message-Id: <1159162141.26986.46.camel@localhost.localdomain>
+	Mon, 25 Sep 2006 01:34:37 -0400
+Date: Sun, 24 Sep 2006 22:34:27 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: Andi Kleen <ak@muc.de>, Chuck Ebbert <76306.1226@compuserve.com>,
+       Zachary Amsden <zach@vmware.com>, Jan Beulich <jbeulich@novell.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: i386 pda patches
+Message-Id: <20060924223427.6f42e77c.akpm@osdl.org>
+In-Reply-To: <4517256E.10606@goop.org>
+References: <20060924013521.13d574b1.akpm@osdl.org>
+	<4517256E.10606@goop.org>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-09-22 at 22:01 +1000, Rusty Russell wrote:
-> This implements current as a per-cpu variable.
+On Sun, 24 Sep 2006 17:40:14 -0700
+Jeremy Fitzhardinge <jeremy@goop.org> wrote:
 
-Again, revised for updated 5/7: we no longer need to avoid using current
-early on.
+> Andrew Morton wrote:
+> > I am unable to correlate what's in Andi's tree with the PDA-related emails
+> > on this list.  Why is this?
+> >   
+> 
+> I'm not sure what's in Andi's tree.  He mentioned that he had trouble 
+> merging a previous patch I had, but it wasn't a particularly big change.
+> 
+> Andi, where can I get your tree?
+> 
+> > Anyway, the PDA patches are causing my little old dual-pIII to reboot about
+> > one second into the boot process.
+> >   
+> 
+> Interesting.  Have there been any other complaints about -mm crashing?  
+> There's nothing in here which is "new cpu"; it should work the same all 
+> the way back to an i386.
 
-This implements current as a per-cpu variable.  The generic code
-expects it in thread_info still, so I don't remove it from there, but
-reducing current from 9 bytes/3 insns to 6 bytes/1 insn is a nice
-micro-optimization.
+It may be related to the .config, rather than the CPU type.
 
-Signed-off-by: Rusty Russell <rusty@rustcorp.com.au>
+> > Bisection says:
+> >
+> > x86_64-mm-i386-pda-asm-offsets.patch
+> > x86_64-mm-i386-pda-basics.patch                         OK
+> > x86_64-mm-i386-pda-init-pda.patch                       oops
+> > x86_64-mm-i386-pda-use-gs.patch				reboot
+> > x86_64-mm-i386-pda-user-abi.patch                       BAD
+> > x86_64-mm-i386-pda-vm86.patch
+> > x86_64-mm-i386-pda-smp-processorid.patch
+> > x86_64-mm-i386-pda-current.patch
+> >
+> >
+> > So x86_64-mm-i386-pda-init-pda.patch causes the below oops and
+> > x86_64-mm-i386-pda-use-gs.patch causes the instareboot.
+> >
+> >
+> >
+> > Compat vDSO mapped to ffffe000.
+> > Checking 'hlt' instruction... OK.
+> > SMP alternatives: switching to UP code
+> > CPU0: Intel Pentium III (Coppermine) stepping 03
+> > SMP alternatives: switching to SMP code
+> > Booting processor 1/1 eip 2000
+> > Initializing CPU#1
+> > general protection fault: 0080 [#1]
+> > SMP 
+> > last sysfs file: 
+> > Modules linked in:
+> > CPU:    1
+> > EIP:    0060:[<c010ad63>]    Not tainted VLI
+> > EFLAGS: 00010086   (2.6.18 #8) 
+> > EIP is at cpu_init+0x153/0x2b0
+> >   
+> What line does this EIP correspond to?
+> 
 
-Index: ak-fresh/arch/i386/kernel/setup.c
-===================================================================
---- ak-fresh.orig/arch/i386/kernel/setup.c	2006-09-25 15:02:33.000000000 +1000
-+++ ak-fresh/arch/i386/kernel/setup.c	2006-09-25 15:06:31.000000000 +1000
-@@ -148,6 +148,9 @@
- 
- unsigned char __initdata boot_params[PARAM_SIZE];
- 
-+DEFINE_PER_CPU(struct task_struct *, current_task) = &init_task;
-+EXPORT_PER_CPU_SYMBOL(current_task);
-+
- static struct resource data_resource = {
- 	.name	= "Kernel data",
- 	.start	= 0,
-Index: ak-fresh/arch/i386/kernel/smpboot.c
-===================================================================
---- ak-fresh.orig/arch/i386/kernel/smpboot.c	2006-09-25 15:02:51.000000000 +1000
-+++ ak-fresh/arch/i386/kernel/smpboot.c	2006-09-25 15:06:31.000000000 +1000
-@@ -972,6 +972,7 @@
- 	if (IS_ERR(idle))
- 		panic("failed fork for CPU %d", cpu);
- 	idle->thread.eip = (unsigned long) start_secondary;
-+	per_cpu(current_task, cpu) = idle;
- 
-  	setup_percpu(cpu);
-  	booting_cpu_gdt_desc_ptr = &per_cpu(cpu_gdt_descr, cpu);
-Index: ak-fresh/include/asm-i386/current.h
-===================================================================
---- ak-fresh.orig/include/asm-i386/current.h	2006-09-25 15:02:33.000000000 +1000
-+++ ak-fresh/include/asm-i386/current.h	2006-09-25 15:06:31.000000000 +1000
-@@ -1,15 +1,10 @@
- #ifndef _I386_CURRENT_H
- #define _I386_CURRENT_H
- 
-+#include <asm/percpu.h>
- #include <linux/thread_info.h>
- 
--struct task_struct;
--
--static __always_inline struct task_struct * get_current(void)
--{
--	return current_thread_info()->task;
--}
-- 
--#define current get_current()
-+DECLARE_PER_CPU(struct task_struct *, current_task);
-+#define current x86_read_percpu(current_task)
- 
- #endif /* !(_I386_CURRENT_H) */
-Index: ak-fresh/arch/i386/kernel/process.c
-===================================================================
---- ak-fresh.orig/arch/i386/kernel/process.c	2006-09-25 15:02:33.000000000 +1000
-+++ ak-fresh/arch/i386/kernel/process.c	2006-09-25 15:06:31.000000000 +1000
-@@ -669,6 +669,7 @@
- 	if (unlikely(prev->fs | next->fs))
- 		loadsegment(fs, next->fs);
- 
-+	x86_write_percpu(current_task, next_p);
- 
- 	/*
- 	 * Restore IOPL if needed.
+(gdb) l *0xc010ad63
+0xc010ad63 is in cpu_init (arch/i386/kernel/cpu/common.c:748).
+743                     BUG();
+744             enter_lazy_tlb(&init_mm, current);
+745     
+746             load_esp0(t, thread);
+747             set_tss_desc(cpu,t);
+748             load_TR_desc();
+749             load_LDT(&init_mm.context);
+750     
+751     #ifdef CONFIG_DOUBLEFAULT
+752             /* Set up doublefault TSS pointer in the GDT */
 
--- 
-Help! Save Australia from the worst of the DMCA: http://linux.org.au/law
 

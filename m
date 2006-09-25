@@ -1,66 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751407AbWIYRyJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751411AbWIYR5X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751407AbWIYRyJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Sep 2006 13:54:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751408AbWIYRyJ
+	id S1751411AbWIYR5X (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Sep 2006 13:57:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751412AbWIYR5X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Sep 2006 13:54:09 -0400
-Received: from mga02.intel.com ([134.134.136.20]:53887 "EHLO mga02.intel.com")
-	by vger.kernel.org with ESMTP id S1751407AbWIYRyI convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Sep 2006 13:54:08 -0400
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.09,215,1157353200"; 
-   d="scan'208"; a="135429854:sNHT413652946"
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
-MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: New section mismatch warning on latest linux-2.6 git tree
-Date: Mon, 25 Sep 2006 10:51:54 -0700
-Message-ID: <EB12A50964762B4D8111D55B764A8454A41360@scsmsx413.amr.corp.intel.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: New section mismatch warning on latest linux-2.6 git tree
-Thread-Index: Acbft5wUD29dp3dLQa6nIdDPmSjR5gBE4/Uw
-From: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
-To: "Ismail Donmez" <ismail@pardus.org.tr>,
-       "LKML" <linux-kernel@vger.kernel.org>
-Cc: "Andrew Morton" <akpm@osdl.org>
-X-OriginalArrivalTime: 25 Sep 2006 17:51:55.0233 (UTC) FILETIME=[4A123D10:01C6E0CB]
+	Mon, 25 Sep 2006 13:57:23 -0400
+Received: from pasmtpa.tele.dk ([80.160.77.114]:28900 "EHLO pasmtpA.tele.dk")
+	by vger.kernel.org with ESMTP id S1751411AbWIYR5W (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Sep 2006 13:57:22 -0400
+Date: Mon, 25 Sep 2006 20:02:38 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Cc: linux-kernel@vger.kernel.org, Sam Ravnborg <sam@mars.ravnborg.org>
+Subject: Re: [PATCH 13/28] kbuild: make -rR is now default
+Message-ID: <20060925180238.GC2490@uranus.ravnborg.org>
+References: <11591327041374-git-send-email-sam@ravnborg.org> <11591327041093-git-send-email-sam@ravnborg.org> <11591327053484-git-send-email-sam@ravnborg.org> <11591327051061-git-send-email-sam@ravnborg.org> <11591327053770-git-send-email-sam@ravnborg.org> <11591327051381-git-send-email-sam@ravnborg.org> <11591327054119-git-send-email-sam@ravnborg.org> <11591327051998-git-send-email-sam@ravnborg.org> <11591327051652-git-send-email-sam@ravnborg.org> <Pine.LNX.4.61.0609250824020.18552@yvahk01.tjqt.qr>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.61.0609250824020.18552@yvahk01.tjqt.qr>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
- 
->-----Original Message-----
->From: linux-kernel-owner@vger.kernel.org 
->[mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Ismail Donmez
->Sent: Sunday, September 24, 2006 1:58 AM
->To: LKML
->Subject: New section mismatch warning on latest linux-2.6 git tree
->
->Hi,
->
->This seems to be pretty new :
->
->WARNING: arch/i386/kernel/cpu/cpufreq/speedstep-centrino.o - 
->Section mismatch: 
->reference to .init.text: from .data between 
->'sw_any_bug_dmi_table' (at offset 
->0x320) and 'centrino_attr'
->
->Using Linus' latest git tree.
->
->Regards,
->ismail
+On Mon, Sep 25, 2006 at 08:24:31AM +0200, Jan Engelhardt wrote:
+> 
+> >Subject: [PATCH 13/28] kbuild: make -rR is now default
+> >
+> >Do not specify -rR anymore - it is default.
+> 
+> What do you mean, it is default? Did upstream (GNU make) enable it by 
+> default?
+The top-level Makefiles set MAKEFLAGS variables so you
+do not need to specify "$(MAKE) -rR" to get optimal performance.
 
-Andrew,
-
-Can you please push the patch from Jeremy here:
-
-http://www.ussg.iu.edu/hypermail/linux/kernel/0609.1/1389.html
-
-Thanks,
-Venki
+	Sam

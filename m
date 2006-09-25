@@ -1,51 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750747AbWIYNYU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750727AbWIYNX6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750747AbWIYNYU (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Sep 2006 09:24:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750993AbWIYNYU
+	id S1750727AbWIYNX6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Sep 2006 09:23:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750747AbWIYNX6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Sep 2006 09:24:20 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:57729 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1750747AbWIYNYT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Sep 2006 09:24:19 -0400
-Subject: Re: [PATCH] v4l2 VIDIOC_DQBUF typo in 2.6.18
-From: Mauro Carvalho Chehab <mchehab@infradead.org>
-To: Jonathan Corbet <corbet@lwn.net>
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org, stable@kernel.org,
-       s.hauer@pengutronix.de
-In-Reply-To: <8056.1159189100@lwn.net>
-References: <8056.1159189100@lwn.net>
-Content-Type: text/plain; charset=ISO-8859-1
-Date: Mon, 25 Sep 2006 10:24:10 -0300
-Message-Id: <1159190650.10332.93.camel@praia>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.0-1mdv2007.0 
-Content-Transfer-Encoding: 8bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <mchehab@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Mon, 25 Sep 2006 09:23:58 -0400
+Received: from smtp106.mail.mud.yahoo.com ([209.191.85.216]:63568 "HELO
+	smtp106.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1750727AbWIYNX5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Sep 2006 09:23:57 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=3XmMDjTx+gLOLtR6DD8IrdviLhW/KHDrpNwGhwX7FoMIBnytBF67xUfdq71kUb1J+LicJHV/8Vt39Au8Baj07nc+RzMzMIOdYRGmGeFqGlfsCbe26iZZhhxm/iqOizfV5TiuzGFXwTxAaYcXZdtU6PUJUKRrpPIiHuxZLR5ocNU=  ;
+Message-ID: <451757BE.3070802@yahoo.com.au>
+Date: Mon, 25 Sep 2006 14:14:54 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20060216 Debian/1.7.12-1.1ubuntu2
+X-Accept-Language: en
+MIME-Version: 1.0
+To: Christian Weiske <cweiske@cweiske.de>
+CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       reiserfs-dev@namesys.com, Ingo Molnar <mingo@elte.hu>
+Subject: Re: 2.6.18 BUG: unable to handle kernel NULL pointer dereference
+ at virtual address 000,0000a
+References: <45155915.7080107@cweiske.de>	<20060923134244.e7b73826.akpm@osdl.org>	<451677FE.2070409@cweiske.de> <20060924095029.0262a2c8.akpm@osdl.org> <4516C4B9.5010509@cweiske.de>
+In-Reply-To: <4516C4B9.5010509@cweiske.de>
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, Jonathan,
+Christian Weiske wrote:
 
-Em Seg, 2006-09-25 às 06:58 -0600, Jonathan Corbet escreveu:
-> It seems that, in the rush to create the new V4L2 ioctl() API, the
-> VIDIOC_DQBUF code got cut-and-pasted in without being fixed up.
-Yes.
-> I went and made a patch, only to discover that Sascha Hauer beat me to it.
-It is already corrected at my -git tree and at V4L/DVB development tree,
-available at http://linuxtv.org/hg. The correction is also at -mm
-series.
+>Andrew,
+>
+>
+>
+>>I assume that you have confirmed that the machine doesn't have hardware
+>>problems?  Does it run some earlier kernel OK?  
+>>
+>The disks are both fine, they worked in other pcs without problems. The
+>ide controller card also worked fine, and the motherboard is new -
+>whatever you can expect with that. Maybe the combination is the problem.
+>
 
-This trouble were discovered too late at 2.6.18 cycle, and affected just
-vivi module, used to emulate a v4l2 driver. It is likely to affect just
-driver and userspace developers.
+Memory, motherboard, and CPU would be possible candidates, in roughly
+that order of likelihood. If you can run memtest86+ on it overnight,
+that would provide a bit more confidence in all.
 
-> That patch doesn't seem to have been picked up yet, however.  Since it's
-> important (streaming I/O will not work without it), here's an attempt to
-> spread it a bit more widely.
+Can you try using a different IDE controller to reproduce the panic
+on the same system?
 
-Cheers, 
-Mauro.
+>>And how long does it take to crash?
+>>
+>After starting the yacy daemon, it's about half a minute until the
+>"possible recursive locking detected" appears, and after one or two
+>minutes the whole thing crashes.
+>
 
+I wonder if that does anything unusual apart from use the network?
+Can you break it with anything else? a big ftp transfer?
+
+--
+
+Send instant messages to your online friends http://au.messenger.yahoo.com 

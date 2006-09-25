@@ -1,47 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964782AbWIYBkX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964790AbWIYBlR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964782AbWIYBkX (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Sep 2006 21:40:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932216AbWIYBkX
+	id S964790AbWIYBlR (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Sep 2006 21:41:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964789AbWIYBlR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Sep 2006 21:40:23 -0400
-Received: from nessie.weebeastie.net ([220.233.7.36]:12552 "EHLO
-	bunyip.lochness.weebeastie.net") by vger.kernel.org with ESMTP
-	id S932212AbWIYBkW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Sep 2006 21:40:22 -0400
-Date: Mon, 25 Sep 2006 11:42:05 +1000
-From: CaT <cat@zip.com.au>
-To: sleon@sleon.dyndns.org
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: megaraid question
-Message-ID: <20060925014205.GT2007@zip.com.au>
-References: <20060925012909.A56E52963F@sleon.dyndns.org>
+	Sun, 24 Sep 2006 21:41:17 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:13515
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S932216AbWIYBlQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 24 Sep 2006 21:41:16 -0400
+Date: Sun, 24 Sep 2006 18:41:18 -0700 (PDT)
+Message-Id: <20060924.184118.104036249.davem@davemloft.net>
+To: mostrows@earthlink.net
+Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
+       ppp-bugs@dp.samba.org
+Subject: Re: [PATCH] Advertise PPPoE MTU / avoid memory leak.
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <1159100966.23197.293.camel@brick.austin.ibm.com>
+References: <115903262344-git-send-email-mostrows@earthlink.net>
+	<20060923.145600.51855973.davem@davemloft.net>
+	<1159100966.23197.293.camel@brick.austin.ibm.com>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060925012909.A56E52963F@sleon.dyndns.org>
-Organisation: Furball Inc.
-User-Agent: Mutt/1.5.9i
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 25, 2006 at 01:29:09AM +0000, sleon@sleon.dyndns.org wrote:
-> i am using opensource megaraid driver (2.6.17) . Do you know any
-> opensource monitoring tool for the opensource megaraid drivers Or is
-> there a way to check the state of harddrives connected to the megaraid
-> controller?
+From: Michal Ostrowski <mostrows@earthlink.net>
+Date: Sun, 24 Sep 2006 07:29:25 -0500
 
-I've only found MegaCLI which has the kind of interface that makes
-me wish I was a bricklayer (I'm looking at the SAS raid card btw).
+> I think the call path via dev->hard_start_xmit, if it fails, may result
+> in an skb not being freed.  This appears to be the case with the e100.c
+> driver.  The qdisc_restart path to dev->hard_start_xmit also appears
+> susceptible to this.  It appears that not all devices agree as to who
+> should clean-up an skb on error.
 
-Pick your card out from http://www.lsilogic.com/cm/DownloadSearch.do
-and you should get something. No source (fooey) but at least it's
-something.
+There is a well defined policy about who frees the SKB or has
+ownership of it based upon dev->hard_start_xmit() return values.
 
-Wish the source was available though. I might be bothered to do
-something about the interface.
+Any driver deviating from this set of rules should simply be
+audited and fixed, as needed.
 
--- 
-    "To the extent that we overreact, we proffer the terrorists the
-    greatest tribute."
-    	- High Court Judge Michael Kirby
+But, no matter, your change is buggy and we can't apply your
+patch (even if it does fix a leak in some legitimate case)
+because it introduces an obvious double-free bug.

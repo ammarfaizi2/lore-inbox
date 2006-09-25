@@ -1,88 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751417AbWIYSmJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751469AbWIYSzZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751417AbWIYSmJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Sep 2006 14:42:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751459AbWIYSmJ
+	id S1751469AbWIYSzZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Sep 2006 14:55:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751474AbWIYSzZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Sep 2006 14:42:09 -0400
-Received: from mga05.intel.com ([192.55.52.89]:13426 "EHLO
-	fmsmga101.fm.intel.com") by vger.kernel.org with ESMTP
-	id S1751417AbWIYSmH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Sep 2006 14:42:07 -0400
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.09,215,1157353200"; 
-   d="scan'208"; a="137075916:sNHT3714377625"
-Date: Mon, 25 Sep 2006 11:23:32 -0700
-From: Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>
-To: Dave Jones <davej@redhat.com>,
-       "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
-       Ismail Donmez <ismail@pardus.org.tr>,
-       LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-Subject: Re: New section mismatch warning on latest linux-2.6 git tree
-Message-ID: <20060925112332.A30077@unix-os.sc.intel.com>
-References: <EB12A50964762B4D8111D55B764A8454A41360@scsmsx413.amr.corp.intel.com> <20060925182347.GB9683@redhat.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 25 Sep 2006 14:55:25 -0400
+Received: from ogre.sisk.pl ([217.79.144.158]:6610 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S1751469AbWIYSzY (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Sep 2006 14:55:24 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Ingo Molnar <mingo@elte.hu>
+Subject: Re: 2.6.19 -mm merge plans
+Date: Mon, 25 Sep 2006 20:57:56 +0200
+User-Agent: KMail/1.9.1
+Cc: Nick Piggin <nickpiggin@yahoo.com.au>, Linus Torvalds <torvalds@osdl.org>,
+       Andrew Morton <akpm@osdl.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Jeff Garzik <jeff@garzik.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <20060920135438.d7dd362b.akpm@osdl.org> <451747EE.50900@yahoo.com.au> <20060925115352.GA15705@elte.hu>
+In-Reply-To: <20060925115352.GA15705@elte.hu>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.2.5.1i
-In-Reply-To: <20060925182347.GB9683@redhat.com>; from davej@redhat.com on Mon, Sep 25, 2006 at 02:23:47PM -0400
+Message-Id: <200609252057.57149.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 25, 2006 at 02:23:47PM -0400, Dave Jones wrote:
+On Monday, 25 September 2006 13:53, Ingo Molnar wrote:
 > 
-> That's the patch that has caused this situation.
-> Andrew had it in -mm until recently, when I merged it into cpufreq.git.
-> And now, Linus has pulled it into mainline.
+> * Nick Piggin <nickpiggin@yahoo.com.au> wrote:
 > 
-> 	Dave
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
+> > OTOH, if we were worried about confusing people, we wouldn't be using 
+> > the acronym 'rc' for our 'Ridiculous Count', and have our rc1 denote 
+> > the result of 2 weeks of stuffing the tree with new features and 
+> > intrusive changes, where people might mistake that for the much more 
+> > common RC-as-in-'Release Candidate'. :)
 
-Patch below resolves this section mismatch issue.
+Well, "release" need not mean anything really stable.  Let's think of it as
+certain state of the tree that has been given a label for future reference.
 
-Please apply.
+> oh, we could call the first one -rc0 then :-)
 
-Thanks,
-Venki
+Good idea, IMHO. :-)
 
-Make the sections proper and get rid of section mismatch warnings.
+Greetings,
+Rafael
 
-Signed-off-by: Venkatesh Pallipadi <venkatesh.pallipadi@intel.com>
 
-Index: linux-2.6.18-rc4/arch/i386/kernel/cpu/cpufreq/acpi-cpufreq.c
-===================================================================
---- linux-2.6.18-rc4.orig/arch/i386/kernel/cpu/cpufreq/acpi-cpufreq.c
-+++ linux-2.6.18-rc4/arch/i386/kernel/cpu/cpufreq/acpi-cpufreq.c
-@@ -569,13 +569,13 @@ static int acpi_cpufreq_early_init(void)
-  */
- static int bios_with_sw_any_bug;
- 
--static int __init sw_any_bug_found(struct dmi_system_id *d)
-+static int sw_any_bug_found(struct dmi_system_id *d)
- {
- 	bios_with_sw_any_bug = 1;
- 	return 0;
- }
- 
--static struct dmi_system_id __initdata sw_any_bug_dmi_table[] = {
-+static struct dmi_system_id sw_any_bug_dmi_table[] = {
- 	{
- 		.callback = sw_any_bug_found,
- 		.ident = "Supermicro Server X6DLP",
-Index: linux-2.6.18-rc4/arch/i386/kernel/cpu/cpufreq/speedstep-centrino.c
-===================================================================
---- linux-2.6.18-rc4.orig/arch/i386/kernel/cpu/cpufreq/speedstep-centrino.c
-+++ linux-2.6.18-rc4/arch/i386/kernel/cpu/cpufreq/speedstep-centrino.c
-@@ -386,7 +386,7 @@ static int centrino_cpu_early_init_acpi(
-  * than OS intended it to run at. Detect it and handle it cleanly.
-  */
- static int bios_with_sw_any_bug;
--static int __init sw_any_bug_found(struct dmi_system_id *d)
-+static int sw_any_bug_found(struct dmi_system_id *d)
- {
- 	bios_with_sw_any_bug = 1;
- 	return 0;
+-- 
+You never change things by fighting the existing reality.
+		R. Buckminster Fuller

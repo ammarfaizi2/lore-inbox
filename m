@@ -1,44 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751179AbWIYUtX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750731AbWIYUu5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751179AbWIYUtX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Sep 2006 16:49:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751054AbWIYUtW
+	id S1750731AbWIYUu5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Sep 2006 16:50:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751178AbWIYUu5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Sep 2006 16:49:22 -0400
-Received: from atlrel7.hp.com ([156.153.255.213]:33166 "EHLO atlrel7.hp.com")
-	by vger.kernel.org with ESMTP id S1751109AbWIYUtV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Sep 2006 16:49:21 -0400
-Message-ID: <451840CA.5060901@hp.com>
-Date: Mon, 25 Sep 2006 16:49:14 -0400
-From: Brian Haley <brian.haley@hp.com>
-Organization: Open Source and Linux Organization
-User-Agent: Thunderbird 1.5.0.7 (X11/20060922)
+	Mon, 25 Sep 2006 16:50:57 -0400
+Received: from nf-out-0910.google.com ([64.233.182.186]:23146 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1751054AbWIYUuz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Sep 2006 16:50:55 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=googlemail.com;
+        h=received:from:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
+        b=reB4vJ5icU7zxjDxBgLy+zbOzDmU2QgD0h/bSTHUqsqeL7cXxuXGBb+DmsJZJ6026TJ7ahmdGjfvfYKt8AcZHz10vLojetRNIAKiu5FyzYbEJvvGnhsRpXpu+jr6HnkkStuvg3SD2RCQlVNj52/GWrFSjaOGNf5rPnJEwpOsNyE=
+From: Denis Vlasenko <vda.linux@googlemail.com>
+To: Muli Ben-Yehuda <muli@il.ibm.com>,
+       James Bottomley <James.Bottomley@steeleye.com>
+Subject: Re: mainline aic94xx firmware woes
+Date: Mon, 25 Sep 2006 22:49:39 +0200
+User-Agent: KMail/1.8.2
+Cc: linux-scsi <linux-scsi@vger.kernel.org>,
+       Linux-Kernel <linux-kernel@vger.kernel.org>
+References: <20060925101124.GH6374@rhun.haifa.ibm.com>
+In-Reply-To: <20060925101124.GH6374@rhun.haifa.ibm.com>
 MIME-Version: 1.0
-To: Joerg Roedel <joro-lkml@zlug.org>
-Cc: Valdis.Kletnieks@vt.edu, jamal <hadi@cyberus.ca>,
-       Jan-Benedict Glaw <jbglaw@lug-owl.de>,
-       Patrick McHardy <kaber@trash.net>, davem@davemloft.net,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Subject: Re: [PATCH 00/03][RESUBMIT] net: EtherIP tunnel driver
-References: <20060923120704.GA32284@zlug.org> <20060923121327.GH30245@lug-owl.de> <1159015118.5301.19.camel@jzny2> <20060923132736.GA345@zlug.org> <200609250107.k8P17h8A019714@turing-police.cc.vt.edu> <20060925083249.GC23028@zlug.org>
-In-Reply-To: <20060925083249.GC23028@zlug.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200609252249.39446.vda.linux@googlemail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Joerg Roedel wrote:
->> Is there something in the RFC that suggests that a byte order other than
->> 'network order' is possible/acceptable there?
+On Monday 25 September 2006 12:11, Muli Ben-Yehuda wrote:
+> Hi,
 > 
-> No. The RFC states nothing at all about byte- or bitorder. That is why
-> the RFC is ambigious at this point.
+> The recently merged aic94xx in mainline requires external firmware
+> support. This, in turn, necessitates an initrd/initramfs environment
+> that includes firmware support to load the firmware. Will a patch to
+> optionally include the firmware inline in the kernel and thus not
+> having to use an initramfs be acceptable?
+> 
+> Also, aic94xx does not compile unless FW_LOADER is set in .config due
+> to missing 'request_firmware'. What's the right thing to do here -
+> aic94xx selecting it, depending on it, or FW_LOADER providing empty
+> request_firmware() in case it's compiled out (the last one violates
+> the principle of least surprise IMHO).
 
-RFC 791 (IPv4) Appendix B does give instructions on byte ordering for 
-all IPv4 headers and data, and RFC 791 is listed in the References for 
-RFC 3378.  I noticed this is only Informational, not a Standards track 
-document, so I guess the non-interoperable implementations kind of go 
-with the territory.
+While we're at it, already existing aicXXXX driver continues to be
+insanely large due to excessive inlining of I/O routines:
 
--Brian
+# x86_64-pc-linux-gnu-size aic7xxx.o
+   text    data     bss     dec     hex filename
+ 118978   22673     568  142219   22b8b aic7xxx.o
+
+This is not even helping performance one iota.
+Call overhead for these routines pales in comparison
+to I/O instruction stalls, which is in turn pales in comparison to
+disk seek delays.
+
+Please do something with it.
+--
+vda

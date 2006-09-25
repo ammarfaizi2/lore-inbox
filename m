@@ -1,57 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751446AbWIYSR5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751438AbWIYSYH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751446AbWIYSR5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Sep 2006 14:17:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751439AbWIYSR4
+	id S1751438AbWIYSYH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Sep 2006 14:24:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751459AbWIYSYH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Sep 2006 14:17:56 -0400
-Received: from igw2.watson.ibm.com ([129.34.20.6]:42903 "EHLO
-	igw2.watson.ibm.com") by vger.kernel.org with ESMTP
-	id S1750793AbWIYSRz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Sep 2006 14:17:55 -0400
-Subject: Re: [PATCH] Advertise PPPoE MTU / avoid memory leak.
-From: Michal Ostrowski <mostrows@earthlink.net>
-To: David Miller <davem@davemloft.net>
-Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org,
-       ppp-bugs@dp.samba.org
-In-Reply-To: <20060924.184118.104036249.davem@davemloft.net>
-References: <115903262344-git-send-email-mostrows@earthlink.net>
-	 <20060923.145600.51855973.davem@davemloft.net>
-	 <1159100966.23197.293.camel@brick.austin.ibm.com>
-	 <20060924.184118.104036249.davem@davemloft.net>
-Content-Type: text/plain
-Date: Mon, 25 Sep 2006 13:16:37 -0500
-Message-Id: <1159208197.23197.303.camel@brick.austin.ibm.com>
+	Mon, 25 Sep 2006 14:24:07 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:49645 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1751438AbWIYSYF (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Sep 2006 14:24:05 -0400
+Date: Mon, 25 Sep 2006 14:23:47 -0400
+From: Dave Jones <davej@redhat.com>
+To: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
+Cc: Ismail Donmez <ismail@pardus.org.tr>, LKML <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: New section mismatch warning on latest linux-2.6 git tree
+Message-ID: <20060925182347.GB9683@redhat.com>
+Mail-Followup-To: Dave Jones <davej@redhat.com>,
+	"Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
+	Ismail Donmez <ismail@pardus.org.tr>,
+	LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+References: <EB12A50964762B4D8111D55B764A8454A41360@scsmsx413.amr.corp.intel.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <EB12A50964762B4D8111D55B764A8454A41360@scsmsx413.amr.corp.intel.com>
+User-Agent: Mutt/1.4.2.2i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-09-24 at 18:41 -0700, David Miller wrote:
-> From: Michal Ostrowski <mostrows@earthlink.net>
-> Date: Sun, 24 Sep 2006 07:29:25 -0500
-> 
-> > I think the call path via dev->hard_start_xmit, if it fails, may result
-> > in an skb not being freed.  This appears to be the case with the e100.c
-> > driver.  The qdisc_restart path to dev->hard_start_xmit also appears
-> > susceptible to this.  It appears that not all devices agree as to who
-> > should clean-up an skb on error.
-> 
-> There is a well defined policy about who frees the SKB or has
-> ownership of it based upon dev->hard_start_xmit() return values.
-> 
-> Any driver deviating from this set of rules should simply be
-> audited and fixed, as needed.
-> 
-> But, no matter, your change is buggy and we can't apply your
-> patch (even if it does fix a leak in some legitimate case)
-> because it introduces an obvious double-free bug.
-> 
+On Mon, Sep 25, 2006 at 10:51:54AM -0700, Pallipadi, Venkatesh wrote:
 
-Yup.  I'll resubmit a fixed one.
+ > >This seems to be pretty new :
+ > >
+ > >WARNING: arch/i386/kernel/cpu/cpufreq/speedstep-centrino.o - 
+ > >Section mismatch: 
+ > >reference to .init.text: from .data between 
+ > >'sw_any_bug_dmi_table' (at offset 
+ > >0x320) and 'centrino_attr'
+ > >
+ > >Using Linus' latest git tree.
+ > >
+ > >Regards,
+ > >ismail
+ > 
+ > Andrew,
+ > 
+ > Can you please push the patch from Jeremy here:
+ > 
+ > http://www.ussg.iu.edu/hypermail/linux/kernel/0609.1/1389.html
 
+That's the patch that has caused this situation.
+Andrew had it in -mm until recently, when I merged it into cpufreq.git.
+And now, Linus has pulled it into mainline.
 
--- 
-Michal Ostrowski <mostrows@earthlink.net>
-
+	Dave

@@ -1,52 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932207AbWIYOk0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750760AbWIYOr2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932207AbWIYOk0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Sep 2006 10:40:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932211AbWIYOk0
+	id S1750760AbWIYOr2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Sep 2006 10:47:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750739AbWIYOr2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Sep 2006 10:40:26 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:62674 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932207AbWIYOkZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Sep 2006 10:40:25 -0400
-Date: Mon, 25 Sep 2006 07:40:09 -0700
-From: Stephen Hemminger <shemminger@osdl.org>
-To: Joerg Roedel <joro-lkml@zlug.org>
-Cc: Patrick McHardy <kaber@trash.net>, davem@davemloft.net,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Subject: Re: [PATCH 02/03] net/bridge: add support for EtherIP devices
-Message-ID: <20060925074009.781a2228@localhost.localdomain>
-In-Reply-To: <20060925082445.GB23028@zlug.org>
-References: <20060923120704.GA32284@zlug.org>
-	<20060923121629.GC32284@zlug.org>
-	<20060923210112.130938ca@localhost.localdomain>
-	<20060925082445.GB23028@zlug.org>
-X-Mailer: Sylpheed-Claws 2.4.0 (GTK+ 2.8.20; x86_64-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 25 Sep 2006 10:47:28 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:17798 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1750700AbWIYOr1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Sep 2006 10:47:27 -0400
+Message-ID: <4517EBF7.4020508@torque.net>
+Date: Mon, 25 Sep 2006 10:47:19 -0400
+From: Douglas Gilbert <dougg@torque.net>
+Reply-To: dougg@torque.net
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+MIME-Version: 1.0
+To: Al Viro <viro@ftp.linux.org.uk>
+CC: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] fix idiocy in asd_init_lseq_mdp()
+References: <20060925015722.GF29920@ftp.linux.org.uk>
+In-Reply-To: <20060925015722.GF29920@ftp.linux.org.uk>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 25 Sep 2006 10:24:45 +0200
-Joerg Roedel <joro-lkml@zlug.org> wrote:
+Al Viro wrote:
+> To whoever had written that code:
+> 
+> a) priority of >> is higher than that of &
+> b) priority of typecast is higher than that of any binary operator
+> c) learn the fscking C
 
-> On Sat, Sep 23, 2006 at 09:01:12PM -0700, Stephen Hemminger wrote:
-> 
-> > If the device looks like a duck (Ethernet), then why does it need
-> > a separate ARP type.  There are other tools that might work without
-> > modification if it just fully pretended to be an ether device.
-> 
-> This solves the problem of getting a list of all EtherIP devices. If
-> they use ARPHRD_ETHER and use an ioctl in the SIOCDEVPRIVATE space is
-> not a save way (not even if the ioctl uses ethip0, this device could be
-> owned by another driver if EtherIP is not present).
-> On the other hand, a new ARP type opens a lot of new problems. A lot of
-> userspace tools and libraries must be changed. So this solutions is not
-> perfect.
-> 
-> Cheers,
-> Joerg
+Al,
+On the assumption that you have hardware that uses this
+driver, did you notice any improvement with your patch
+applied?
 
-To get a list of all EtherIP devices, just maintain a linked list
-in the private device information. Use list macros, it isn't hard.
+Several of us have reported a degenerate mode, that
+I term as "tmf timeout", in which a aic94xx based card
+becomes inoperable. Alas, the same hardware running another
+OS does not exhibit that problem (or at least not as much).
+
+> Signed-off-by: Al Viro <viro@zeniv.linux.org.uk>
+> ---
+>  drivers/scsi/aic94xx/aic94xx_seq.c |    2 +-
+>  1 files changed, 1 insertions(+), 1 deletions(-)
+> 
+> diff --git a/drivers/scsi/aic94xx/aic94xx_seq.c b/drivers/scsi/aic94xx/aic94xx_seq.c
+> index d9b6da5..56e4b3b 100644
+> --- a/drivers/scsi/aic94xx/aic94xx_seq.c
+> +++ b/drivers/scsi/aic94xx/aic94xx_seq.c
+> @@ -764,7 +764,7 @@ static void asd_init_lseq_mdp(struct asd
+>  	asd_write_reg_word(asd_ha, LmSEQ_FIRST_INV_SCB_SITE(lseq),
+>  			   (u16)last_scb_site_no+1);
+>  	asd_write_reg_word(asd_ha, LmSEQ_INTEN_SAVE(lseq),
+> -			    (u16) LmM0INTEN_MASK & 0xFFFF0000 >> 16);
+> +			    (u16) ((LmM0INTEN_MASK & 0xFFFF0000) >> 16));
+>  	asd_write_reg_word(asd_ha, LmSEQ_INTEN_SAVE(lseq) + 2,
+>  			    (u16) LmM0INTEN_MASK & 0xFFFF);
+>  	asd_write_reg_byte(asd_ha, LmSEQ_LINK_RST_FRM_LEN(lseq), 0);
+
+BTW Luben was pointing out that the call you patched
+and the following call can be combined into a less
+trouble prone asd_write_reg_dword() call.
+
+Doug Gilbert
+

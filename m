@@ -1,80 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751022AbWIYMvK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751153AbWIYM4S@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751022AbWIYMvK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Sep 2006 08:51:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751038AbWIYMvK
+	id S1751153AbWIYM4S (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Sep 2006 08:56:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751155AbWIYM4S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Sep 2006 08:51:10 -0400
-Received: from khc.piap.pl ([195.187.100.11]:34244 "EHLO khc.piap.pl")
-	by vger.kernel.org with ESMTP id S1751022AbWIYMvJ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Sep 2006 08:51:09 -0400
-To: Jeff Garzik <jgarzik@pobox.com>
-Cc: Tejun Heo <htejun@gmail.com>, linux-kernel@vger.kernel.org
-Subject: Re: NV SATA breakage: jgarzik/libata-dev#upstream etc
-References: <m3wt7tm6sh.fsf@defiant.localdomain> <451721F8.4060600@pobox.com>
-From: Krzysztof Halasa <khc@pm.waw.pl>
-Date: Mon, 25 Sep 2006 14:51:06 +0200
-In-Reply-To: <451721F8.4060600@pobox.com> (Jeff Garzik's message of "Sun, 24 Sep 2006 20:25:28 -0400")
-Message-ID: <m3vencjeit.fsf@defiant.localdomain>
-MIME-Version: 1.0
+	Mon, 25 Sep 2006 08:56:18 -0400
+Received: from sigint.cs.purdue.edu ([128.10.2.82]:226 "EHLO
+	sigint.cs.purdue.edu") by vger.kernel.org with ESMTP
+	id S1751153AbWIYM4R (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Sep 2006 08:56:17 -0400
+Date: Mon, 25 Sep 2006 08:56:16 -0400
+From: linux@sigint.cs.purdue.edu
+To: Roman Glebov <sleon@sleon.dyndns.org>, linux-kernel@vger.kernel.org
+Cc: Wakko Warner <wakko@animx.eu.org>
+Subject: Re: megaraid question
+Message-ID: <20060925125616.GA15591@sigint.cs.purdue.edu>
+References: <20060925012909.A56E52963F@sleon.dyndns.org> <20060925015126.GA8764@animx.eu.org> <200609250417.41995.sleon@sleon.dyndns.org> <20060925105908.GA9897@animx.eu.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060925105908.GA9897@animx.eu.org>
+X-Disclaimer: Any similarity to an opinion of Purdue is purely coincidental
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik <jgarzik@pobox.com> writes:
+On Mon, Sep 25, 2006 at 06:59:08AM -0400, Wakko Warner wrote:
+> Roman Glebov wrote:
+> > 
+> > Also i was told that there is a binary monitoring tool from lsi-logic page.
+> > 
+> > But will it work with open source driver?
+> 
+> I'm not sure about the program from LSI, but the one from Dell seems to work
+> with any megaraid controller (the one I do have happens to be a dell
+> megaraid card).  The program I used from that package looks very similar to
+> the bios configuration tool and you can change disk layouts from within the
+> program while still in linux.
 
->> libata-core.c
->> int ata_device_add(const struct ata_probe_ent *ent)
->> {
->> ...
->>         /* register each port bound to this device */
->>         for (i = 0; i < host->n_ports; i++) {
->> ...
->>                 /* start port */
->>                 rc = ap->ops->port_start(ap);
->>                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
->> The problematic commit is fea63e38013ec628ab3f7fddc4c2148064b7910a:
->> "[PATCH] libata: fix non-uniform ports handling
->> Non-uniform ports handling got broken while updating libata to handle
->> those in the same host.  Only separate irq for the non-uniform
->> secondary port was implemented while all other fields (host flags,
->> transfer mode...) of the secondary port simply shared those of the
->> first.
->
-> What's broken, and how does it affect NV sata?
-
-NV SATA initialization fails with NULL pointer dereference in
-ata_device_add (= kernel panic).
-
-> That's the chipset on my main dev workstation, and there are no
-> problems here...
-
-I'm a bit surprised... I'm using x86_64 with only one SATA "controller"
-enabled (ports 0 and 1 only, ports 2-5 are disabled in BIOS). Only
-port 0 is in use. Gcc 4.1.1.
-
-With a64f97f2c351410dfb3099c2369eacf7154b5532 (2.6.18-rc7+, "Merge branch
-'tmp' into upstream", just before the commit in question) it works fine:
-
-libata version 2.00 loaded.
-sata_nv 0000:00:05.0: version 2.0
-ACPI: PCI Interrupt Link [LSA0] enabled at IRQ 23
-GSI 16 sharing vector 0xE1 and IRQ 16
-ACPI: PCI Interrupt 0000:00:05.0[A] -> Link [LSA0] -> GSI 23 (level, low) -> IRQ
- 225
-PCI: Setting latency timer of device 0000:00:05.0 to 64
-ata1: SATA max UDMA/133 cmd 0xC800 ctl 0xC482 bmdma 0xC000 irq 225
-ata2: SATA max UDMA/133 cmd 0xC400 ctl 0xC082 bmdma 0xC008 irq 225
-scsi0 : sata_nv
-ata1: SATA link up 1.5 Gbps (SStatus 113 SControl 300)
-ata1.00: ATA-7, max UDMA/133, 488397168 sectors: LBA48 NCQ (depth 0/32)
-ata1.00: ata1: dev 0 multi count 16
-ata1.00: configured for UDMA/133
-scsi1 : sata_nv
-ata2: SATA link down (SStatus 0 SControl 300)
-ATA: abnormal status 0x7F on port 0xC407
-  Vendor: ATA       Model: ST3250823AS       Rev: 3.03
-  Type:   Direct-Access                      ANSI SCSI revision: 05
--- 
-Krzysztof Halasa
+The program from Dell is the same program you get from LSI.  Yes, it does
+work with the kernel's "new generation" megaraid driver.  Just make sure
+/dev/megadev0 is present.

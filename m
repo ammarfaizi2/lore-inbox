@@ -1,57 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751393AbWIYVZH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751401AbWIYV0Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751393AbWIYVZH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Sep 2006 17:25:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751401AbWIYVZH
+	id S1751401AbWIYV0Y (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Sep 2006 17:26:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751439AbWIYV0Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Sep 2006 17:25:07 -0400
-Received: from mail.fieldses.org ([66.93.2.214]:59808 "EHLO
-	pickle.fieldses.org") by vger.kernel.org with ESMTP
-	id S1751393AbWIYVZF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Sep 2006 17:25:05 -0400
-Date: Mon, 25 Sep 2006 17:24:57 -0400
-To: NeilBrown <neilb@suse.de>
-Cc: Andrew Morton <akpm@osdl.org>, nfs@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: [NFS] [PATCH 009 of 11] knfsd: Allow max size of NFSd payload to be configured.
-Message-ID: <20060925212457.GK32762@fieldses.org>
-References: <20060824162917.3600.patches@notabene> <1060824063716.5020@suse.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1060824063716.5020@suse.de>
-User-Agent: Mutt/1.5.13 (2006-08-11)
-From: "J. Bruce Fields" <bfields@fieldses.org>
+	Mon, 25 Sep 2006 17:26:24 -0400
+Received: from gateway-1237.mvista.com ([63.81.120.158]:40332 "EHLO
+	gateway-1237.mvista.com") by vger.kernel.org with ESMTP
+	id S1751401AbWIYV0X (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Sep 2006 17:26:23 -0400
+Subject: Re: [PATCH -mm] console: console_drivers not initialized
+From: Daniel Walker <dwalker@mvista.com>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20060925211122.GC25257@flint.arm.linux.org.uk>
+References: <20060925210710.931336000@mvista.com>
+	 <20060925211122.GC25257@flint.arm.linux.org.uk>
+Content-Type: text/plain
+Date: Mon, 25 Sep 2006 14:26:21 -0700
+Message-Id: <1159219581.3648.10.camel@c-67-180-230-165.hsd1.ca.comcast.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Aug 24, 2006 at 04:37:16PM +1000, NeilBrown wrote:
-> diff .prev/fs/nfsd/nfssvc.c ./fs/nfsd/nfssvc.c
-> --- .prev/fs/nfsd/nfssvc.c	2006-08-24 16:26:10.000000000 +1000
-> +++ ./fs/nfsd/nfssvc.c	2006-08-24 16:26:10.000000000 +1000
-> @@ -198,9 +198,26 @@ int nfsd_create_serv(void)
->  		unlock_kernel();
->  		return 0;
->  	}
-> +	if (nfsd_max_blksize == 0) {
-> +		/* choose a suitable default */
-> +		struct sysinfo i;
-> +		si_meminfo(&i);
-> +		/* Aim for 1/4096 of memory per thread
-> +		 * This gives 1MB on 4Gig machines
-> +		 * But only uses 32K on 128M machines.
-> +		 * Bottom out at 8K on 32M and smaller.
-> +		 * Of course, this is only a default.
-> +		 */
-> +		nfsd_max_blksize = NFSSVC_MAXBLKSIZE;
-> +		i.totalram >>= 12;
-> +		while (nfsd_max_blksize > i.totalram &&
-> +		       nfsd_max_blksize >= 8*1024*2)
-> +			nfsd_max_blksize /= 2;
-> +	}
+On Mon, 2006-09-25 at 22:11 +0100, Russell King wrote:
+> On Mon, Sep 25, 2006 at 02:07:10PM -0700, dwalker@mvista.com wrote:
+> > I was doing -rt stuff on a PPC PowerBook G4. It would always reboot
+> > itself when it hit console_init() .
+> > 
+> > I noticed that the console code seems to want console_drivers = NULL,
+> > but it never actually sets it that way. Once I added this, the reboot 
+> > issue was gone..
+> 
+> It's a BSS variable, it _should_ be zeroed by the architecture's BSS
+> initialisation.  If not, it suggests there's something very _very_
+> wrong in the architecture's C runtime initialisation code.
+> 
+> As such, this patch is merely a band-aid, not a correct fix.
 
-It looks to me like totalram is actually measured in pages.  So in
-practice this gives almost everyone 8k here.  So that 12 should be
-something like 12 - PAGE_CACHE_SHIFT?
+It happens on two different compilers gcc 4.1 and 3.3 .. I was using
+arch/powerpc/ which is fairly new .. However, If stuff was suppose to be
+zero'd and wasn't, I'd imagine this machine would be rebooting _a lot_
+more often.
 
---b.
+Daniel
+

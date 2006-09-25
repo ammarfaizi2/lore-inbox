@@ -1,57 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751438AbWIYSYH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750997AbWIYS3R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751438AbWIYSYH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Sep 2006 14:24:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751459AbWIYSYH
+	id S1750997AbWIYS3R (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Sep 2006 14:29:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751359AbWIYS3R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Sep 2006 14:24:07 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:49645 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751438AbWIYSYF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Sep 2006 14:24:05 -0400
-Date: Mon, 25 Sep 2006 14:23:47 -0400
-From: Dave Jones <davej@redhat.com>
-To: "Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>
-Cc: Ismail Donmez <ismail@pardus.org.tr>, LKML <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: New section mismatch warning on latest linux-2.6 git tree
-Message-ID: <20060925182347.GB9683@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	"Pallipadi, Venkatesh" <venkatesh.pallipadi@intel.com>,
-	Ismail Donmez <ismail@pardus.org.tr>,
-	LKML <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-References: <EB12A50964762B4D8111D55B764A8454A41360@scsmsx413.amr.corp.intel.com>
+	Mon, 25 Sep 2006 14:29:17 -0400
+Received: from e36.co.us.ibm.com ([32.97.110.154]:35748 "EHLO
+	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S1750997AbWIYS3Q
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Sep 2006 14:29:16 -0400
+Date: Mon, 25 Sep 2006 11:29:38 -0700
+From: Mike Anderson <andmike@us.ibm.com>
+To: James Bottomley <James.Bottomley@SteelEye.com>
+Cc: "Hammer, Jack" <Jack_Hammer@adaptec.com>, Al Viro <viro@ftp.linux.org.uk>,
+       Luben Tuikov <ltuikov@yahoo.com>, dougg@torque.net,
+       linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] fix idiocy in asd_init_lseq_mdp()
+Message-ID: <20060925182938.GA4635@us.ibm.com>
+References: <4517EBF7.4020508@torque.net> <20060925171634.69667.qmail@web31809.mail.mud.yahoo.com> <20060925173922.GL29920@ftp.linux.org.uk> <1159206202.3463.62.camel@mulgrave.il.steeleye.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <EB12A50964762B4D8111D55B764A8454A41360@scsmsx413.amr.corp.intel.com>
-User-Agent: Mutt/1.4.2.2i
+In-Reply-To: <1159206202.3463.62.camel@mulgrave.il.steeleye.com>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 25, 2006 at 10:51:54AM -0700, Pallipadi, Venkatesh wrote:
+James Bottomley <James.Bottomley@SteelEye.com> wrote:
+> On Mon, 2006-09-25 at 18:39 +0100, Al Viro wrote:
+> > Far more interesting question: where does the hardware expect to see
+> > the
+> > upper 16 bits of that 32bit value?  Which one it is -
+> > LmSEQ_INTEN_SAVE(lseq)
+> > ori LmSEQ_INTEN_SAVE(lseq) + 2?
+> 
+> I don't honestly know.  The change was made as part of a slew of changes
+> by Robert Tarte at Adaptec to make the driver run on Big Endian
+> platforms.  I've copied Jack Hammer who's now looking after it in the
+> hope that he can enlighten us.
 
- > >This seems to be pretty new :
- > >
- > >WARNING: arch/i386/kernel/cpu/cpufreq/speedstep-centrino.o - 
- > >Section mismatch: 
- > >reference to .init.text: from .data between 
- > >'sw_any_bug_dmi_table' (at offset 
- > >0x320) and 'centrino_attr'
- > >
- > >Using Linus' latest git tree.
- > >
- > >Regards,
- > >ismail
- > 
- > Andrew,
- > 
- > Can you please push the patch from Jeremy here:
- > 
- > http://www.ussg.iu.edu/hypermail/linux/kernel/0609.1/1389.html
+This was not Rob. I sent this bad code out in a roll up of support for
+non-x86 systems (and bad process for not running sparse on the
+patch which passed the buck onto someone else to find).
 
-That's the patch that has caused this situation.
-Andrew had it in -mm until recently, when I merged it into cpufreq.git.
-And now, Linus has pulled it into mainline.
+I think it might have been for an IA64 offset issue someone was seeing. I
+cannot find the original mail on the issue in my mail archives.
 
-	Dave
+I will try and track down a IA64 system to see if we can verify this is
+really needed. If not we should revert back to the original dword
+implementation. 
+
+-andmike
+--
+Michael Anderson
+andmike@us.ibm.com

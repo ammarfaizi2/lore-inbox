@@ -1,39 +1,30 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932203AbWIYG3a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932209AbWIYGdu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932203AbWIYG3a (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Sep 2006 02:29:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932209AbWIYG3a
+	id S932209AbWIYGdu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Sep 2006 02:33:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932230AbWIYGdt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Sep 2006 02:29:30 -0400
-Received: from gw.goop.org ([64.81.55.164]:26012 "EHLO mail.goop.org")
-	by vger.kernel.org with ESMTP id S932203AbWIYG33 (ORCPT
+	Mon, 25 Sep 2006 02:33:49 -0400
+Received: from 8.ctyme.com ([69.50.231.8]:37580 "EHLO darwin.ctyme.com")
+	by vger.kernel.org with ESMTP id S932209AbWIYGdt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Sep 2006 02:29:29 -0400
-Message-ID: <4517774F.9010806@goop.org>
-Date: Sun, 24 Sep 2006 23:29:35 -0700
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
+	Mon, 25 Sep 2006 02:33:49 -0400
+Message-ID: <4517784C.2020603@perkel.com>
+Date: Sun, 24 Sep 2006 23:33:48 -0700
+From: Marc Perkel <marc@perkel.com>
+User-Agent: Thunderbird 1.5.0.7 (Windows/20060909)
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Andi Kleen <ak@muc.de>, Chuck Ebbert <76306.1226@compuserve.com>,
-       Zachary Amsden <zach@vmware.com>, Jan Beulich <jbeulich@novell.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: i386 pda patches
-References: <20060924013521.13d574b1.akpm@osdl.org>	<4517256E.10606@goop.org>	<20060924223427.6f42e77c.akpm@osdl.org>	<45176B53.7040608@goop.org> <20060924230506.572eee8e.akpm@osdl.org>
-In-Reply-To: <20060924230506.572eee8e.akpm@osdl.org>
-Content-Type: text/plain; charset=US-ASCII; format=flowed
+To: linux-kernel@vger.kernel.org
+Subject: Re: GPLv3 Position Statement
+References: <1158941750.3445.31.camel@mulgrave.il.steeleye.com> <200609221359.39519.gene.heskett@verizon.net> <1158948497.3445.55.camel@mulgrave.il.steeleye.com> <200609221430.55889.gene.heskett@verizon.net>
+In-Reply-To: <200609221430.55889.gene.heskett@verizon.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Spamfilter-host: darwin.ctyme.com - http://www.junkemailfilter.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> It oopses in the same manner with 4k stacks enabled.
->   
+I have to say for wht it's worth that you did an excellent job of 
+stating a very well reasons position on GPL3 and laid out in good detail 
+the problems and consequences in a logical manner.
 
-Hm. Looks like its the actual load_TR_desc() getting the GPF. I'm 
-updating the patches to 2.6.18-mm1, and I'll try to repro this.
-
-Have there been any other oops reports for -mm which look like this? Is 
-there anything unusual about the config?
-
-J

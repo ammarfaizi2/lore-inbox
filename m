@@ -1,41 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750954AbWIYKL2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750960AbWIYKPS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750954AbWIYKL2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Sep 2006 06:11:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750949AbWIYKL2
+	id S1750960AbWIYKPS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Sep 2006 06:15:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751000AbWIYKPS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Sep 2006 06:11:28 -0400
-Received: from mtagate5.de.ibm.com ([195.212.29.154]:29549 "EHLO
-	mtagate5.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1750932AbWIYKL1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Sep 2006 06:11:27 -0400
-Date: Mon, 25 Sep 2006 13:11:24 +0300
-From: Muli Ben-Yehuda <muli@il.ibm.com>
-To: James Bottomley <James.Bottomley@SteelEye.com>
-Cc: linux-scsi <linux-scsi@vger.kernel.org>,
-       Linux-Kernel <linux-kernel@vger.kernel.org>
-Subject: mainline aic94xx firmware woes
-Message-ID: <20060925101124.GH6374@rhun.haifa.ibm.com>
+	Mon, 25 Sep 2006 06:15:18 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:40122 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1750983AbWIYKPR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Sep 2006 06:15:17 -0400
+Subject: Re: [PATCH] libata: rework legacy handling to remove much of the
+	cruft
+From: David Woodhouse <dwmw2@infradead.org>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Tejun Heo <htejun@gmail.com>,
+       rmk@arm.linux.org.uk
+In-Reply-To: <200609241805.k8OI5Xkn007593@hera.kernel.org>
+References: <200609241805.k8OI5Xkn007593@hera.kernel.org>
+Content-Type: text/plain
+Date: Mon, 25 Sep 2006 11:14:50 +0100
+Message-Id: <1159179290.320.11.camel@pmac.infradead.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5.dwmw2.1) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sun, 2006-09-24 at 18:05 +0000, Linux Kernel Mailing List wrote:
+> 
+> +#define ATA_PRIMARY_CMD                0x1F0
+> +#define ATA_PRIMARY_CTL                0x3F6
+> +#define ATA_PRIMARY_IRQ                14
+> +
+> +#define ATA_SECONDARY_CMD      0x170
+> +#define ATA_SECONDARY_CTL      0x376
+> +#define ATA_SECONDARY_IRQ      15
 
-The recently merged aic94xx in mainline requires external firmware
-support. This, in turn, necessitates an initrd/initramfs environment
-that includes firmware support to load the firmware. Will a patch to
-optionally include the firmware inline in the kernel and thus not
-having to use an initramfs be acceptable?
+Please, don't do this. We've only just cleaned up the serial driver to
+get rid of crap like this -- we _don't_ want to do it like this.
 
-Also, aic94xx does not compile unless FW_LOADER is set in .config due
-to missing 'request_firmware'. What's the right thing to do here -
-aic94xx selecting it, depending on it, or FW_LOADER providing empty
-request_firmware() in case it's compiled out (the last one violates
-the principle of least surprise IMHO).
+We should register the non-discoverable devices as platform devices (or
+of_devices, or something), and not just hardcode stuff like this in
+asm/foo.h headers.
 
-Cheers,
-Muli
+-- 
+dwmw2
+

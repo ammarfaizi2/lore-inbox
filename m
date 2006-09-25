@@ -1,49 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751617AbWIYW5L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751275AbWIYXHH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751617AbWIYW5L (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Sep 2006 18:57:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751619AbWIYW5L
+	id S1751275AbWIYXHH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Sep 2006 19:07:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751632AbWIYXHG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Sep 2006 18:57:11 -0400
-Received: from h-66-166-126-70.lsanca54.covad.net ([66.166.126.70]:54999 "EHLO
-	myri.com") by vger.kernel.org with ESMTP id S1751617AbWIYW5H (ORCPT
+	Mon, 25 Sep 2006 19:07:06 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:26021 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751275AbWIYXHF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Sep 2006 18:57:07 -0400
-Message-ID: <45185EB0.90300@ens-lyon.org>
-Date: Mon, 25 Sep 2006 18:56:48 -0400
-From: Brice Goglin <Brice.Goglin@ens-lyon.org>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060812)
-MIME-Version: 1.0
-To: Holger Kiehl <Holger.Kiehl@dwd.de>
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Question regarding CONFIG_DMA_ENGINE
-References: <Pine.LNX.4.64.0609211249160.9397@diagnostix.dwd.de>
-In-Reply-To: <Pine.LNX.4.64.0609211249160.9397@diagnostix.dwd.de>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
+	Mon, 25 Sep 2006 19:07:05 -0400
+Date: Mon, 25 Sep 2006 16:06:48 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Nigel Cunningham <ncunningham@linuxmail.org>,
+       Stefan Seyfried <seife@suse.de>, linux-kernel@vger.kernel.org,
+       "Rafael J. Wysocki" <rjw@sisk.pl>
+Subject: Re: When will the lunacy end? (Was Re: [PATCH] uswsusp: add
+ pmops->{prepare,enter,finish} support (aka "platform mode"))
+Message-Id: <20060925160648.de96b6fa.akpm@osdl.org>
+In-Reply-To: <20060925224500.GB2540@elf.ucw.cz>
+References: <20060925071338.GD9869@suse.de>
+	<1159220043.12814.30.camel@nigel.suspend2.net>
+	<20060925144558.878c5374.akpm@osdl.org>
+	<20060925224500.GB2540@elf.ucw.cz>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Holger Kiehl wrote:
-> Hello
->
-> Is setting this option and CONFIG_NET_DMA usefull even when you do not
-> have
-> the hardware?
->
-> And what hardware is required for this? Is this DMA engine located on
-> the network or raid card, or is this something in the chipset? Which
-> chipset or cards do have such an engine?
->
-> Thanks,
-> Holger
+On Tue, 26 Sep 2006 00:45:00 +0200
+Pavel Machek <pavel@ucw.cz> wrote:
 
-I guess the option is completely useless without such hardware.
+> Anyways this boils down to "find which drivers are delaying suspend
+> and fix them".
 
-For now, you need a Intel E5000 chipset (Blackford and co.). It exports
-a special PCI device (id 8086:1a38) for DMA. No other device is
-supported so far, but some Raid stuff have been proposed recently IIRC.
+The first step would be "find some way of identifying where all the time is
+being spent".
 
-Brice
+Right now, netconsole gets disabled (or makes the machine hang) and most of
+these machines don't have serial ports and the printk buffer gets lost
+during resume.
 
+The net result is that the machine takes a long time to suspend and resume,
+and you don't have a clue *why*.
+
+And this is a significant issue, IMO.  In terms of
+niceness-of-user-interface, being able to suspend in twelve seconds instead
+of twenty seven rates fairly highly...

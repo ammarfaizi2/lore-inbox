@@ -1,39 +1,101 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750856AbWIYOyc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750861AbWIYO6G@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750856AbWIYOyc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Sep 2006 10:54:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750841AbWIYOyc
+	id S1750861AbWIYO6G (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Sep 2006 10:58:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750871AbWIYO6G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Sep 2006 10:54:32 -0400
-Received: from ironport-c10.fh-zwickau.de ([141.32.72.200]:6013 "EHLO
-	ironport-c10.fh-zwickau.de") by vger.kernel.org with ESMTP
-	id S1750832AbWIYOyb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Sep 2006 10:54:31 -0400
-X-IronPort-Anti-Spam-Filtered: true
-X-IronPort-Anti-Spam-Result: AQAAABaIF0WLcgEBDQ
-X-IronPort-AV: i="4.09,215,1157320800"; 
-   d="scan'208"; a="3476630:sNHT30540336"
-Date: Mon, 25 Sep 2006 16:54:29 +0200
-From: Joerg Roedel <joro-lkml@zlug.org>
-To: Stephen Hemminger <shemminger@osdl.org>
-Cc: Patrick McHardy <kaber@trash.net>, davem@davemloft.net,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Subject: Re: [PATCH 02/03] net/bridge: add support for EtherIP devices
-Message-ID: <20060925145429.GF23028@zlug.org>
-References: <20060923120704.GA32284@zlug.org> <20060923121629.GC32284@zlug.org> <20060923210112.130938ca@localhost.localdomain> <20060925082445.GB23028@zlug.org> <20060925074009.781a2228@localhost.localdomain>
+	Mon, 25 Sep 2006 10:58:06 -0400
+Received: from mtagate5.de.ibm.com ([195.212.29.154]:33456 "EHLO
+	mtagate5.de.ibm.com") by vger.kernel.org with ESMTP
+	id S1750861AbWIYO6E (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Sep 2006 10:58:04 -0400
+Date: Mon, 25 Sep 2006 16:58:30 +0200
+From: Cornelia Huck <cornelia.huck@de.ibm.com>
+To: Russell King <rmk+lkml@arm.linux.org.uk>
+Cc: Greg K-H <greg@kroah.com>, linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [2/9] driver core fixes: device_register() retval check in
+ platform.c
+Message-ID: <20060925165830.0bcdce55@gondolin.boeblingen.de.ibm.com>
+In-Reply-To: <20060923211032.GA4363@flint.arm.linux.org.uk>
+References: <20060922113655.4306a1b5@gondolin.boeblingen.de.ibm.com>
+	<20060923211032.GA4363@flint.arm.linux.org.uk>
+X-Mailer: Sylpheed-Claws 2.5.0-rc3 (GTK+ 2.8.20; i486-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060925074009.781a2228@localhost.localdomain>
-User-Agent: Mutt/1.3.28i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 25, 2006 at 07:40:09AM -0700, Stephen Hemminger wrote:
-> 
-> To get a list of all EtherIP devices, just maintain a linked list
-> in the private device information. Use list macros, it isn't hard.
+On Sat, 23 Sep 2006 22:10:32 +0100,
+Russell King <rmk+lkml@arm.linux.org.uk> wrote:
 
-I use lists in the driver to maintain the list. The problem is to get
-such a list in userspace in a safe way (the way over SIOCDEVPRIVATE
-ioctls is not safe).
+> I don't think there's much value in patches such as this - if the
+> platform bus type didn't register, what happens when we then try
+> to register a platform device driver or a platform device?  ISTR
+> doing that before the bus type is registered leads to an OOPS.
+
+Yes, since the klists have not yet been initialized.
+
+> So, presumably to do this properly, if the platform_bus_type failed
+> to register, you need to force all platform device/platform device
+> driver registrations to also fail.
+
+We should fail registration (gracefully) of all devices/drivers which
+specify a bus that is !NULL but has not been registered. Unfortunately,
+I don't see an easy way to do this.
+
+However, we can fail the registration of devices that specify a parent
+that is !NULL but not yet added to the tree. This catches platform
+devices registering before platform_bus_type (since platform_bus is not
+registered then), similar for other bus types like iucv.
+(Unfortunately, not drivers...)
+
+
+From: Cornelia Huck <cornelia.huck@de.ibm.com>
+
+Force parent devices to be registered before their children. Otherwise we'll
+oops when creating the child's sysfs directory.
+
+Signed-off-by: Cornelia Huck <cornelia.huck@de.ibm.com>
+
+---
+ drivers/base/bus.c  |    6 ++++--
+ drivers/base/core.c |    5 ++++-
+ 2 files changed, 8 insertions(+), 3 deletions(-)
+
+--- linux-2.6.18-mm1.orig/drivers/base/core.c
++++ linux-2.6.18-mm1/drivers/base/core.c
+@@ -474,7 +474,10 @@ int device_add(struct device *dev)
+ 	}
+ 
+ 	parent = get_device(dev->parent);
+-
++	if (parent && !device_is_registered(parent)) {
++		error = -EINVAL;
++		goto Error;
++	}
+ 	pr_debug("DEV: registering device: ID = '%s'\n", dev->bus_id);
+ 
+ 	/* first, register with generic layer. */
+--- linux-2.6.18-mm1.orig/drivers/base/bus.c
++++ linux-2.6.18-mm1/drivers/base/bus.c
+@@ -418,7 +418,8 @@ int bus_attach_device(struct device * de
+ 			ret = 0;
+ 		} else
+ 			dev->is_registered = 0;
+-	}
++	} else
++		dev->is_registered = 1;
+ 	return ret;
+ }
+ 
+@@ -443,7 +444,8 @@ void bus_remove_device(struct device * d
+ 		pr_debug("bus %s: remove device %s\n", dev->bus->name, dev->bus_id);
+ 		device_release_driver(dev);
+ 		put_bus(dev->bus);
+-	}
++	} else
++		dev->is_registered = 0;
+ }
+ 
+ static int driver_add_attrs(struct bus_type * bus, struct device_driver * drv)

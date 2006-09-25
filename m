@@ -1,47 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932210AbWIYOkc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932207AbWIYOk0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932210AbWIYOkc (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Sep 2006 10:40:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932211AbWIYOkb
+	id S932207AbWIYOk0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Sep 2006 10:40:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932211AbWIYOk0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Sep 2006 10:40:31 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:51591 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932210AbWIYOka (ORCPT
+	Mon, 25 Sep 2006 10:40:26 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:62674 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932207AbWIYOkZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Sep 2006 10:40:30 -0400
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <20060925142016.GI29920@ftp.linux.org.uk> 
-References: <20060925142016.GI29920@ftp.linux.org.uk>  <1159186771.11049.63.camel@localhost.localdomain> <1159183568.11049.51.camel@localhost.localdomain> <20060924223925.GU29920@ftp.linux.org.uk> <22314.1159181060@warthog.cambridge.redhat.com> <5578.1159183668@warthog.cambridge.redhat.com> <7276.1159186684@warthog.cambridge.redhat.com> 
-To: Al Viro <viro@ftp.linux.org.uk>
-Cc: David Howells <dhowells@redhat.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linus Torvalds <torvalds@osdl.org>, Jeff Garzik <jgarzik@pobox.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] restore libata build on frv 
-X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
-Date: Mon, 25 Sep 2006 15:39:12 +0100
-Message-ID: <20660.1159195152@warthog.cambridge.redhat.com>
+	Mon, 25 Sep 2006 10:40:25 -0400
+Date: Mon, 25 Sep 2006 07:40:09 -0700
+From: Stephen Hemminger <shemminger@osdl.org>
+To: Joerg Roedel <joro-lkml@zlug.org>
+Cc: Patrick McHardy <kaber@trash.net>, davem@davemloft.net,
+       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: Re: [PATCH 02/03] net/bridge: add support for EtherIP devices
+Message-ID: <20060925074009.781a2228@localhost.localdomain>
+In-Reply-To: <20060925082445.GB23028@zlug.org>
+References: <20060923120704.GA32284@zlug.org>
+	<20060923121629.GC32284@zlug.org>
+	<20060923210112.130938ca@localhost.localdomain>
+	<20060925082445.GB23028@zlug.org>
+X-Mailer: Sylpheed-Claws 2.4.0 (GTK+ 2.8.20; x86_64-redhat-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Al Viro <viro@ftp.linux.org.uk> wrote:
+On Mon, 25 Sep 2006 10:24:45 +0200
+Joerg Roedel <joro-lkml@zlug.org> wrote:
 
-> Fine by me.  In that case we need to add
-> 	depends on !FRV || BROKEN
+> On Sat, Sep 23, 2006 at 09:01:12PM -0700, Stephen Hemminger wrote:
+> 
+> > If the device looks like a duck (Ethernet), then why does it need
+> > a separate ARP type.  There are other tools that might work without
+> > modification if it just fully pretended to be an ether device.
+> 
+> This solves the problem of getting a list of all EtherIP devices. If
+> they use ARPHRD_ETHER and use an ioctl in the SIOCDEVPRIVATE space is
+> not a save way (not even if the ioctl uses ethip0, this device could be
+> owned by another driver if EtherIP is not present).
+> On the other hand, a new ARP type opens a lot of new problems. A lot of
+> userspace tools and libraries must be changed. So this solutions is not
+> perfect.
+> 
+> Cheers,
+> Joerg
 
-My point is that all the numbers are invalid or incorrect.  They will cause
-the arch to oops, and so need completely replacing.  So that patch you added
-is incorrect and should not include asm-generic/libata-portmap.h as nothing in
-there is correct on this arch.  So your patch should *not* be applied, but
-should instead be replaced.
-
-> to drivers/ata/Kconfig and be done with that.  BTW, empty libata-portmap.h
-> is equivalent to absent one - it still won't build.
-
-Why does the arch have to supply those numbers?  What's wrong with my
-suggested patch?  According to code in libata, these are _legacy_ access
-methods, and on FRV they aren't currently required, so why can't I dispense
-with them if they're not needed?  Doing that not only skips legacy accesses
-for ISA compatibility, it also reduces the code size by not actually emitting
-the code for the accesses, thus making the kernel smaller...
-
-David
+To get a list of all EtherIP devices, just maintain a linked list
+in the private device information. Use list macros, it isn't hard.

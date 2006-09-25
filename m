@@ -1,58 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751478AbWIYLvp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751480AbWIYLzS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751478AbWIYLvp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Sep 2006 07:51:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751479AbWIYLvp
+	id S1751480AbWIYLzS (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Sep 2006 07:55:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751489AbWIYLzS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Sep 2006 07:51:45 -0400
-Received: from 195-13-16-24.net.novis.pt ([195.23.16.24]:29880 "EHLO
-	bipbip.grupopie.com") by vger.kernel.org with ESMTP
-	id S1751478AbWIYLvo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Sep 2006 07:51:44 -0400
-Message-ID: <4517C2CC.4070900@grupopie.com>
-Date: Mon, 25 Sep 2006 12:51:40 +0100
-From: Paulo Marques <pmarques@grupopie.com>
-Organization: Grupo PIE
-User-Agent: Thunderbird 1.5.0.7 (X11/20060909)
+	Mon, 25 Sep 2006 07:55:18 -0400
+Received: from smtp4-g19.free.fr ([212.27.42.30]:23244 "EHLO smtp4-g19.free.fr")
+	by vger.kernel.org with ESMTP id S1751480AbWIYLzQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Sep 2006 07:55:16 -0400
+From: Dominique Dumont <domi.dumont@free.fr>
+To: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Pb with simultaneous SATA and ALSA I/O
+cc: alsa-user <alsa-user@lists.sourceforge.net>
+Date: Mon, 25 Sep 2006 13:55:17 +0200
+Message-ID: <877izsp3dm.fsf@gandalf.hd.free.fr>
+User-Agent: Gnus/5.110006 (No Gnus v0.6) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-To: "H. Peter Anvin" <hpa@zytor.com>
-CC: Michael Tokarev <mjt@tls.msk.ru>, Johannes Stezenbach <js@linuxtv.org>,
-       Jan Engelhardt <jengelh@linux01.gwdg.de>,
-       Lennart Sorensen <lsorense@csclub.uwaterloo.ca>,
-       Dax Kelson <dax@gurulabs.com>,
-       Linux kernel <linux-kernel@vger.kernel.org>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: Smaller compressed kernel source tarballs?
-References: <1158870777.24172.23.camel@mentorng.gurulabs.com> <20060921204250.GN13641@csclub.uwaterloo.ca> <45130792.9040104@zytor.com> <20060922140007.GK13639@csclub.uwaterloo.ca> <Pine.LNX.4.61.0609221811560.12304@yvahk01.tjqt.qr> <4514103D.8010303@zytor.com> <20060922174137.GA29929@linuxtv.org> <451426C9.9040002@zytor.com> <4514292C.5000309@tls.msk.ru> <45142AF1.1090806@zytor.com>
-In-Reply-To: <45142AF1.1090806@zytor.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: domi.dumont@free.fr
+X-SA-Exim-Scanned: No (on gandalf.hd.free.fr); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-H. Peter Anvin wrote:
-> Michael Tokarev wrote:
->>[...]
->> On the site it's said lzma(sdk) is under rewrite to support
->> new format with magic number and crc checks...
-> 
-> That is an absolute must, IMO.  I would use the gzip format as a base.
 
-If you're suggesting a gzip like format (but with different magic, 
-etc.), that's ok.
+Hello
 
-However, it has been suggested on similar threads to use the CM field of 
-the gzip format to introduce different compression methods.
+I have some problem using the SPDIF output of my SB Live card while
+performing I/O on my SATA drive. (See [1] for the whole story on the
+ALSA mailing list)
 
-While this is the purpose of this field, I find this to be a very bad 
-idea. The worse part of it is that, after "lzma gzip" files start to 
-proliferate, you never know if you can decompress a .gz with your 
-version of gunzip, which is something that you currently have for granted.
+My Yamaha amplifier does not recognize the AC3 (Dolby digital) stream
+from the sdpif plug while performing I/O on my SATA drive.
 
-If more formats start being supported inside gzip, this only gets worse...
+If I have a lot of I/O (e.g. running md5sum on a 4Gb file), the AC3
+stream is completely broken.
 
--- 
-Paulo Marques - www.grupopie.com
+If I have some I/O (e.g. reading a Hi-def movie), I get some AC3
+drop-out even if the CPU is about 50%.
 
-"The face of a child can say it all, especially the
-mouth part of the face."
+I have the same result with DTS output.
+
+With PCM output, I've noticed a hi-frequency distortion, which means
+that the interaction between SATA and snd module occurs several
+thousands time per second.
+
+My set up is:
+- Debian Linux kernel 2.6.17
+- Sound blaster SB Live 5.1 (snd_emu10k1 module)
+- SATA drive (sata_sil and libata module)
+- A7n8x deluxe mobo
+- AMD XP 3200 
+
+So far I verified that:
+- AC3 output works fine when SATA drive is left alone
+- AC3 output works fine when running md5sum on a PATA drive
+- DTS output works fine on the mobo SPDIF output (snd_intel8x0 module)
+  even when running md5sum on the SATA drive. (cannot try AC3 stream
+  because of Soundstorm chip :-( )
+- Preemp kernel option does not fix the problem
+- when running md5sum on SATA drive, alsa driver report a starvation
+  (xrun) every few seconds, not thousands of time per second.
+
+Could someone shed some light on this problem ?
+
+What can I do to help debug this problem ?
+
+Thanks
+
+
+[1] http://www.mail-archive.com/alsa-user@lists.sourceforge.net/msg17399.html

@@ -1,62 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751347AbWIYVOn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751378AbWIYVP2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751347AbWIYVOn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Sep 2006 17:14:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751377AbWIYVOn
+	id S1751378AbWIYVP2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Sep 2006 17:15:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751262AbWIYVP2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Sep 2006 17:14:43 -0400
-Received: from proof.pobox.com ([207.106.133.28]:14296 "EHLO proof.pobox.com")
-	by vger.kernel.org with ESMTP id S1751347AbWIYVOm (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Sep 2006 17:14:42 -0400
-Message-ID: <451846BE.5030704@pobox.com>
-Date: Mon, 25 Sep 2006 17:14:38 -0400
-From: Mark Lord <mlord@pobox.com>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060909)
-MIME-Version: 1.0
-To: netdev@vger.kernel.org, davem@davemloft.net, linux-kernel@vger.kernel.org
-Subject: Wireless router with 2 MACs: okay with mswin, not with Linux ?
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Mon, 25 Sep 2006 17:15:28 -0400
+Received: from vms044pub.verizon.net ([206.46.252.44]:48081 "EHLO
+	vms044pub.verizon.net") by vger.kernel.org with ESMTP
+	id S1751378AbWIYVP1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Sep 2006 17:15:27 -0400
+Date: Mon, 25 Sep 2006 17:10:17 -0400
+From: Gene Heskett <gene.heskett@verizon.net>
+Subject: Re: GPLv3 Position Statement
+In-reply-to: <4518321D.80606@garzik.org>
+To: linux-kernel@vger.kernel.org
+Cc: Jeff Garzik <jeff@garzik.org>, Neil Brown <neilb@suse.de>,
+       Michiel de Boer <x@rebelhomicide.demon.nl>,
+       James Bottomley <James.Bottomley@steeleye.com>
+Message-id: <200609251710.18299.gene.heskett@verizon.net>
+Organization: Organization? Absolutely zip.
+MIME-version: 1.0
+Content-type: text/plain; charset=us-ascii
+Content-transfer-encoding: 7bit
+Content-disposition: inline
+References: <1158941750.3445.31.camel@mulgrave.il.steeleye.com>
+ <17687.46268.156413.352299@cse.unsw.edu.au> <4518321D.80606@garzik.org>
+User-Agent: KMail/1.7
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
+On Monday 25 September 2006 15:46, Jeff Garzik wrote:
+>Neil Brown wrote:
+>> But maybe I am just misinformed.  Maybe there are dozens of different
+>> manufacturers making devices that use DRM to prohibit freedom despite
+>> using GPL code, and maybe there are hundreds of submarine patents
+>> owned by distributors of GPL code and embodied in that code that the
+>> owners are going to start suing us overs.... Is there a list of these
+>> somewhere?
+>
+>At least for patents, lawyers scream bloody murder if a list of patents
+>is posted.  Once that is done, people can no longer claim ignorance of a
+>patent.
 
-I'm posting this from a hotel which has a wireless AP (B+G) for guests.
-It took me several hours to figure out how to get the connection working
-with my 2.6.18 notebook -- works just fine with other guests' mswin machines.
+Thats their problem, they created this mess in the first place.  I can 
+recall buying, years ago, things whose makers label devoted more text area 
+to listing the applicable patents either pending or granted on the device 
+the label was attached to than was devoted to the makers logo itself.  Now 
+it probably takes whole pages of 4 pt pica text with the patent 
+proliferation ad adsurdium thats taken place in the last 40 years...  Bah.  
+All created to make sure the legal profession never starves.
 
-WEP is used, and is set up and working just fine:  I can access the AP's
-built-in web interface without any troubles.  But..
+>>> What is the stance of the developer team / kernel maintainers on DRM,
+>>
+>> While I cannot speak for other developers (and sometimes have trouble
+>> speaking for myself), one stance I have often heard is that DRM is
+>> simply a tool - one that is largely based on cryptography which is
+>> just another tool.  They can have good uses and bad uses just like the
+>> TCP/IP stack (think 'spam').  So code to implement then would (if of
+>> suitable quality) be allowed into the kernel.  If you want to make DRM
+>> illegal, speak to your member-of-parliament, not your code developers.
+>
+>This is a KEY POINT: There can be good DRM as well as bad DRM.
+>
+>	Jeff
+>
+>
+>-
+>To unsubscribe from this list: send the line "unsubscribe linux-kernel"
+> in the body of a message to majordomo@vger.kernel.org
+>More majordomo info at  http://vger.kernel.org/majordomo-info.html
+>Please read the FAQ at  http://www.tux.org/lkml/
 
-The AP has two MAC addresses:
-
-# arping -c1 192.168.1.1 -I eth1
-ARPING 192.168.1.1 from 192.168.1.53 eth1
-Unicast reply from 192.168.1.1 [00:11:F5:BA:67:AA]  2.164ms
-Unicast reply from 192.168.1.1 [00:11:F5:77:38:C2]  5.696ms
-Sent 1 probes (1 broadcast(s))
-Received 2 response(s)
-#
-
-The first MAC can connect locally to the AP, but not outside.
-The second MAC can connect locally and/or outside.
-
-Linux only seems to ever use the first (no good) MAC for the AP,
-rather than the second.  Whenever I try an outside access, the AP 
-sends a gratuitous ARP reply, telling my machine to use the other MAC.
-This seems to be ignored by Linux, but heeded by Windows.
-
-For now, I've just written a small script to detect such a situation,
-and to set a static ARP mapping for the second MAC.  This works, but is way
-beyond "normal usage" for most people.
-
-Surely there's a flag or something to have the kernel cope with this?
-
-????
 -- 
-Mark Lord
-Real-Time Remedies Inc.
-mlord@pobox.com
-
+Cheers, Gene
+"There are four boxes to be used in defense of liberty:
+ soap, ballot, jury, and ammo. Please use in that order."
+-Ed Howdershelt (Author)
+Yahoo.com and AOL/TW attorneys please note, additions to the above
+message by Gene Heskett are:
+Copyright 2006 by Maurice Eugene Heskett, all rights reserved.

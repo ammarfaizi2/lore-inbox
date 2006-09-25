@@ -1,25 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750710AbWIYCJE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964799AbWIYCPb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750710AbWIYCJE (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 24 Sep 2006 22:09:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750842AbWIYCJD
+	id S964799AbWIYCPb (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 24 Sep 2006 22:15:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964800AbWIYCPb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 24 Sep 2006 22:09:03 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:41152 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750710AbWIYCJB (ORCPT
+	Sun, 24 Sep 2006 22:15:31 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:55489 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S964799AbWIYCPa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 24 Sep 2006 22:09:01 -0400
-Date: Sun, 24 Sep 2006 19:05:39 -0700 (PDT)
+	Sun, 24 Sep 2006 22:15:30 -0400
+Date: Sun, 24 Sep 2006 19:15:25 -0700 (PDT)
 From: Linus Torvalds <torvalds@osdl.org>
-To: Adrian Bunk <bunk@stusta.de>
-cc: Jeff Garzik <jeff@garzik.org>, Andrew Morton <akpm@osdl.org>,
-       LKML <linux-kernel@vger.kernel.org>, junkio@cox.net
-Subject: Re: git diff <-> diffstat
-In-Reply-To: <20060925011436.GC4547@stusta.de>
-Message-ID: <Pine.LNX.4.64.0609241858380.3952@g5.osdl.org>
-References: <20060924161809.GA13423@havoc.gtf.org> <Pine.LNX.4.64.0609241005290.4388@g5.osdl.org>
- <45172297.6070108@garzik.org> <Pine.LNX.4.64.0609241732580.3952@g5.osdl.org>
- <20060925011436.GC4547@stusta.de>
+To: Sam Ravnborg <sam@ravnborg.org>
+cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [GIT PATCHES] kbuild.git updates for 2.6.19
+In-Reply-To: <20060924210827.GA26969@uranus.ravnborg.org>
+Message-ID: <Pine.LNX.4.64.0609241909580.3952@g5.osdl.org>
+References: <20060924210827.GA26969@uranus.ravnborg.org>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -27,59 +24,37 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-On Mon, 25 Sep 2006, Adrian Bunk wrote:
+On Sun, 24 Sep 2006, Sam Ravnborg wrote:
+>
+> kbuild updates for 2.6.19.
 > 
-> Is there any way for "git diff" to handle additional options diffstat 
-> handles? I'm a big fan of the -w72 diffstat option.
-
-No, I think we've got the width fixed at 80 columns.
-
-> Oh, and with git 1.4.2.1,
->   git diff -M --stat --summary v2.6.18..master
-> in your tree gives me some funny lines like:
+> Please pull from:
 > 
->  .../netlabel/draft-ietf-cipso-ipsecurity-01.txt    |  791 +
->  .../{cpu_setup_power4.S => cpu_setup_ppc970.S}     |  103 
->  .../powerpc/platforms}/iseries/it_exp_vpd_panel.h  |    6 
->  .../powerpc/platforms}/iseries/it_lp_naca.h        |    6 
-> 
-> I don't know what's going wrong here, but diffstat doesn't produce this.
+> 	git://git.kernel.org/pub/scm/linux/kernel/git/sam/kbuild.git
 
-Nothing is going wrong, and diffstat doesn't produce it, exactly because 
-diffstat cannot understand renames.
+Btw, this shows an irritating bug in your setup: your computer has its 
+clock set wildly incorrectly.
 
-So what happened is that you had files (and directories) that got renamed, 
-and "git diff --stat" will show that.
+Git doesn't really _care_, but if you look at gitweb at this time, it will 
+annotate all the commits I pulled from you as being "right now", because 
+your computers clock was set several hours into the future, and thus your 
+timestamps are crap.
 
-For example, one was just a rename within one directory: that's the
+Please fix. The "author" times are correct (they get taken from the emails 
+or from the original commit that got cherry-picked, depending on how you 
+did things), but look for example at commit 5026b38c:
 
-	.../{cpu_setup_power4.S => cpu_setup_ppc970.S}
+	author	Randy Dunlap <rdunlap@xenotime.net>
+		Fri, 22 Sep 2006 19:37:56 +0000 (12:37 -0700)
+	committer	Sam Ravnborg <sam@neptun.ravnborg.org>
+		Mon, 25 Sep 2006 11:33:04 +0000 (13:33 +0200)
 
-thing. In the other cases, the file got renamed at the directory level 
-(the two final pathnames remained the same, but the file got moved from 
-one directory to another). That's what he
+and I can tell you that you sure as hell didn't commit that on Monday, 
+September 25, at 11:33 UTC (or 13:33 in +0200), because right now it's 
+2:13 AM in UTC, and the date your commit got marked for is still more than 
+nine hours in the future (and was further off when you did it).
 
-	prefix/{dir => dir2}/file.c
+I'd suggest running NTP, or at least checking that your date is even 
+_remotely_ correctly set on your computer ;)
 
-syntax means. It's renaming "file.c" from "prefix/dir/file.c" to 
-"prefix/dir2/file.c".
-
-With long path-names, it can get a bit confusing, since we then truncate 
-the end result and just show the last parts to make it fit, of course.
-
-This is _hugely_ superior to a regular diffstat, btw. If you have a 
-regular diffstat, and you moved a file and made some changes, it will look 
-something like
-
-	one/dir/file.c            |  278 -------------
-	another/file.c            |  280 ++++++++++++++
-
-but with rename detection on (remember, you need "-M" to enable it in 
-git), you'd get
-
-	{one/dir => another}/file.c  | 7 +++--
-
-ie it would show the rename and the (much smaller) change that was 
-associated with it.
-
-		Linus
+			Linus

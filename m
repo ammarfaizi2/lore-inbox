@@ -1,172 +1,258 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750702AbWIYIjq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750701AbWIYIjn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750702AbWIYIjq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Sep 2006 04:39:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750732AbWIYIjq
+	id S1750701AbWIYIjn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Sep 2006 04:39:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750702AbWIYIjn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Sep 2006 04:39:46 -0400
-Received: from post-23.mail.nl.demon.net ([194.159.73.193]:28389 "EHLO
-	post-23.mail.nl.demon.net") by vger.kernel.org with ESMTP
-	id S1750702AbWIYIjp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Sep 2006 04:39:45 -0400
-Message-ID: <45179580.200@infi.nl>
-Date: Mon, 25 Sep 2006 10:38:24 +0200
-From: Roy de Boer <roy@infi.nl>
-User-Agent: Thunderbird 1.5.0.7 (Windows/20060909)
-MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.1[78] page allocation failure. order:3, mode:0x20
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Mon, 25 Sep 2006 04:39:43 -0400
+Received: from mail01.verismonetworks.com ([164.164.99.228]:1469 "EHLO
+	mail01.verismonetworks.com") by vger.kernel.org with ESMTP
+	id S1750701AbWIYIjm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Sep 2006 04:39:42 -0400
+Subject: [PATCH] misc_register error return handling
+From: Amol Lad <amol@verismonetworks.com>
+To: linux-kernel@vger.kernel.org,
+       kernel Janitors <kernel-janitors@lists.osdl.org>
+Content-Type: text/plain
+Date: Mon, 25 Sep 2006 14:13:01 +0530
+Message-Id: <1159173781.25016.34.camel@amol.verismonetworks.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 22 Sep 2006 07:27:18 +0000 (GMT) Holger Kiehl 
-<Holger.Kiehl@dwd.de> wrote:
- > I get some of the "page allocation failure" errors. My hardware is 4 CPU
- > Opteron with one quad + one dual intel e1000 cards. Kernel is plain 
-2.6.18
- > and for two cards MTU is set to 9000.
+Sending to lkml also.
 
-I'm getting more or less the same error messages (although I'm no 
-expert) on a AMD Geode NX 1700+ and a intel e1000 nic. I'm using a stock 
-2.6.18 kernel.
+Some drivers do not handle failure of misc_register. 
 
-I hope this will help diagnose the problem.
+Added return value checks appropriately in defaulting drivers
 
-Sep 25 07:54:46 gatar kernel: [23623.594000] java: page allocation 
-failure. order:1, mode:0x20
-Sep 25 07:54:46 gatar kernel: [23623.594000]  [<c0147963>] 
-__alloc_pages+0x213/0x330
-Sep 25 07:54:46 gatar kernel: [23623.594000]  [<c015da07>] 
-cache_alloc_refill+0x307/0x530
-Sep 25 07:54:46 gatar kernel: [23623.594000]  [<c015dcad>] 
-__kmalloc+0x7d/0x80
-Sep 25 07:54:46 gatar kernel: [23623.594000]  [<c04b7523>] 
-__alloc_skb+0x63/0x120
-Sep 25 07:54:46 gatar kernel: [23623.594000]  [<c04e4618>] 
-tcp_collapse+0x138/0x360
-Sep 25 07:54:46 gatar kernel: [23623.594000]  [<c04e4945>] 
-tcp_prune_queue+0x105/0x2c0
-Sep 25 07:54:46 gatar kernel: [23623.594000]  [<e0e29396>] 
-tcp_packet+0x356/0xcc0 [ip_conntrack]
-Sep 25 07:54:46 gatar kernel: [23623.594000]  [<c04e78a1>] 
-tcp_data_queue+0x5f1/0xc50
-Sep 25 07:54:46 gatar kernel: [23623.594000]  [<c04e8f3a>] 
-tcp_rcv_established+0x26a/0x940
-Sep 25 07:54:46 gatar kernel: [23623.594000]  [<e0e11937>] 
-ipt_do_table+0x267/0x300 [ip_tables]
-Sep 25 07:54:46 gatar kernel: [23623.594000]  [<c04f0bba>] 
-tcp_v4_do_rcv+0xca/0x2d0
-Sep 25 07:54:46 gatar kernel: [23623.594000]  [<c04f1bbb>] 
-tcp_v4_rcv+0x72b/0x890
-Sep 25 07:54:46 gatar kernel: [23623.594000]  [<c04d46e0>] 
-ip_local_deliver_finish+0x0/0x170
-Sep 25 07:54:46 gatar kernel: [23623.594000]  [<c04d46e0>] 
-ip_local_deliver_finish+0x0/0x170
-Sep 25 07:54:46 gatar kernel: [23623.594000]  [<c04d497f>] 
-ip_local_deliver+0x12f/0x200
-Sep 25 07:54:46 gatar kernel: [23623.594000]  [<c04d46e0>] 
-ip_local_deliver_finish+0x0/0x170
-Sep 25 07:54:46 gatar kernel: [23623.594000]  [<c04d4d23>] 
-ip_rcv+0x2d3/0x500
-Sep 25 07:54:46 gatar kernel: [23623.594000]  [<c04d4420>] 
-ip_rcv_finish+0x0/0x2c0
-Sep 25 07:54:46 gatar kernel: [23623.594000]  [<c04bfaa9>] 
-netif_receive_skb+0x1f9/0x270
-Sep 25 07:54:46 gatar kernel: [23623.594000]  [<c04bfb8e>] 
-process_backlog+0x6e/0xf0
-Sep 25 07:54:46 gatar kernel: [23623.594000]  [<c04bd57c>] 
-net_rx_action+0x6c/0x150
-Sep 25 07:54:46 gatar kernel: [23623.594000]  [<c0123e43>] 
-__do_softirq+0x43/0x90
-Sep 25 07:54:46 gatar kernel: [23623.594000]  [<c0123eb6>] 
-do_softirq+0x26/0x30
-Sep 25 07:54:46 gatar kernel: [23623.594000]  [<c0105776>] do_IRQ+0x36/0x70
-Sep 25 07:54:46 gatar kernel: [23623.594000]  [<c043739f>] 
-ata_scsi_rw_xlat+0x2ff/0x510
-Sep 25 07:54:46 gatar kernel: [23623.594000]  [<c01038fe>] 
-common_interrupt+0x1a/0x20
-Sep 25 07:54:46 gatar kernel: [23623.594000]  [<c0141e7c>] 
-remove_suid+0xc/0x70
-Sep 25 07:54:46 gatar kernel: [23623.594000]  [<c017b236>] 
-file_update_time+0x46/0xc0
-Sep 25 07:54:46 gatar kernel: [23623.594000]  [<c0144df1>] 
-__generic_file_aio_write_nolock+0x201/0x470
-Sep 25 07:54:46 gatar kernel: [23623.594000]  [<c011b796>] 
-__cond_resched+0x16/0x30
-Sep 25 07:54:46 gatar kernel: [23623.594000]  [<c014532e>] 
-generic_file_aio_write+0x6e/0x110
-Sep 25 07:54:46 gatar kernel: [23623.594000]  [<c0105776>] do_IRQ+0x36/0x70
-Sep 25 07:54:46 gatar kernel: [23623.594000]  [<c01d8994>] 
-ext3_file_write+0x44/0xd0
-Sep 25 07:54:46 gatar kernel: [23623.594000]  [<c0160a48>] 
-do_sync_write+0xd8/0x140
-Sep 25 07:54:46 gatar kernel: [23623.594000]  [<c0132520>] 
-autoremove_wake_function+0x0/0x60
-Sep 25 07:54:46 gatar kernel: [23623.594000]  [<c0160fed>] 
-vfs_write+0xdd/0x1c0
-Sep 25 07:54:46 gatar kernel: [23623.594000]  [<c0161b0b>] 
-sys_write+0x4b/0x80
-Sep 25 07:54:46 gatar kernel: [23623.594000]  [<c0102f0d>] 
-sysenter_past_esp+0x56/0x79
-Sep 25 07:54:46 gatar kernel: [23623.594000] Mem-info:
-Sep 25 07:54:46 gatar kernel: [23623.594000] DMA per-cpu:
-Sep 25 07:54:46 gatar kernel: [23623.594000] cpu 0 hot: high 0, batch 1 
-used:0
-Sep 25 07:54:46 gatar kernel: [23623.594000] cpu 0 cold: high 0, batch 1 
-used:0
-Sep 25 07:54:46 gatar kernel: [23623.594000] DMA32 per-cpu: empty
-Sep 25 07:54:46 gatar kernel: [23623.594000] Normal per-cpu:
-Sep 25 07:54:46 gatar kernel: [23623.594000] cpu 0 hot: high 186, batch 
-31 used:176
-Sep 25 07:54:46 gatar kernel: [23623.594000] cpu 0 cold: high 62, batch 
-15 used:6
-Sep 25 07:54:46 gatar kernel: [23623.594000] HighMem per-cpu: empty
-Sep 25 07:54:46 gatar kernel: [23623.594000] Free pages:        5612kB 
-(0kB HighMem)
-Sep 25 07:54:46 gatar kernel: [23623.594000] Active:92165 inactive:19681 
-dirty:1771 writeback:1 unstable:0 free:1403 slab:6352 mapped:14889 
-pagetables:424
-Sep 25 07:54:46 gatar kernel: [23623.594000] DMA free:2016kB min:88kB 
-low:108kB high:132kB active:7404kB inactive:288kB present:16384kB 
-pages_scanned:0 all_unreclaimable? no
-Sep 25 07:54:46 gatar kernel: [23623.594000] lowmem_reserve[]: 0 0 495 495
-Sep 25 07:54:46 gatar kernel: [23623.594000] DMA32 free:0kB min:0kB 
-low:0kB high:0kB active:0kB inactive:0kB present:0kB pages_scanned:0 
-all_unreclaimable? no
-Sep 25 07:54:46 gatar kernel: [23623.594000] lowmem_reserve[]: 0 0 495 495
-Sep 25 07:54:46 gatar kernel: [23623.594000] Normal free:3596kB 
-min:2804kB low:3504kB high:4204kB active:361256kB inactive:78436kB 
-present:507840kB pages_scanned:0 all_unreclaimable? no
-Sep 25 07:54:46 gatar kernel: [23623.594000] lowmem_reserve[]: 0 0 0 0
-Sep 25 07:54:46 gatar kernel: [23623.594000] HighMem free:0kB min:128kB 
-low:128kB high:128kB active:0kB inactive:0kB present:0kB pages_scanned:0 
-all_unreclaimable? no
-Sep 25 07:54:46 gatar kernel: [23623.594000] lowmem_reserve[]: 0 0 0 0
-Sep 25 07:54:46 gatar kernel: [23623.594000] DMA: 10*4kB 1*8kB 1*16kB 
-1*32kB 0*64kB 1*128kB 1*256kB 1*512kB 1*1024kB 0*2048kB 0*4096kB = 2016kB
-Sep 25 07:54:46 gatar kernel: [23623.594000] DMA32: empty
-Sep 25 07:54:46 gatar kernel: [23623.594000] Normal: 767*4kB 0*8kB 
-1*16kB 0*32kB 0*64kB 0*128kB 0*256kB 1*512kB 0*1024kB 0*2048kB 0*4096kB 
-= 3596kB
-Sep 25 07:54:46 gatar kernel: [23623.594000] HighMem: empty
-Sep 25 07:54:46 gatar kernel: [23623.594000] Swap cache: add 378, delete 
-378, find 16/24, race 0+0
-Sep 25 07:54:46 gatar kernel: [23623.594000] Free swap  = 656028kB
-Sep 25 07:54:46 gatar kernel: [23623.594000] Total swap = 656496kB
-Sep 25 07:54:46 gatar kernel: [23623.594000] Free swap:       656028kB
-Sep 25 07:54:46 gatar kernel: [23623.594000] 131056 pages of RAM
-Sep 25 07:54:46 gatar kernel: [23623.594000] 0 pages of HIGHMEM
-Sep 25 07:54:46 gatar kernel: [23623.594000] 2741 reserved pages
-Sep 25 07:54:46 gatar kernel: [23623.594000] 79395 pages shared
-Sep 25 07:54:46 gatar kernel: [23623.594000] 0 pages swap cached
-Sep 25 07:54:46 gatar kernel: [23623.594000] 1771 pages dirty
-Sep 25 07:54:46 gatar kernel: [23623.594000] 1 pages writeback
-Sep 25 07:54:46 gatar kernel: [23623.594000] 14889 pages mapped
-Sep 25 07:54:46 gatar kernel: [23623.594000] 6352 pages slab
-Sep 25 07:54:46 gatar kernel: [23623.594000] 424 pages pagetables
+Tested with:
+- allmodconfig
+- Manually tweaking Kconfig/Makefiles to make sure that the changed
+files compiles without any errors/warnings
 
-Regards,
+Signed-off-by: Amol Lad <amol@verismonetworks.com>
+---
+ arch/i386/kernel/apm.c             |   23 +++++++++++++++++------
+ arch/um/drivers/mmapper_kern.c     |    6 ++++--
+ arch/x86_64/kernel/mce.c           |    6 +++++-
+ drivers/char/watchdog/ep93xx_wdt.c |    4 ++++
+ drivers/input/misc/hp_sdc_rtc.c    |    7 ++++++-
+ drivers/macintosh/apm_emu.c        |    8 +++++++-
+ drivers/macintosh/smu.c            |   11 ++++++++---
+ drivers/macintosh/via-pmu.c        |   11 ++++++++---
+ 8 files changed, 59 insertions(+), 17 deletions(-)
+---
+diff -uprN -X linux-2.6.18-orig/Documentation/dontdiff linux-2.6.18-orig/arch/i386/kernel/apm.c linux-2.6.18/arch/i386/kernel/apm.c
+--- linux-2.6.18-orig/arch/i386/kernel/apm.c	2006-09-21 10:15:25.000000000 +0530
++++ linux-2.6.18/arch/i386/kernel/apm.c	2006-09-25 13:59:53.000000000 +0530
+@@ -2246,6 +2246,12 @@ static int __init apm_init(void)
+ 		return -ENODEV;
+ 	}
+ 
++	ret = misc_register(&apm_device);
++	if (ret != 0) {
++		printk(KERN_ERR "apm: cannot register misc device.\n");
++		return ret;
++	}
++
+ 	if (allow_ints)
+ 		apm_info.allow_ints = 1;
+ 	if (broken_psr)
+@@ -2282,17 +2288,20 @@ static int __init apm_init(void)
+ 
+ 	if (apm_info.disabled) {
+ 		printk(KERN_NOTICE "apm: disabled on user request.\n");
+-		return -ENODEV;
++		ret = -ENODEV;
++		goto out_misc;
+ 	}
+ 	if ((num_online_cpus() > 1) && !power_off && !smp) {
+ 		printk(KERN_NOTICE "apm: disabled - APM is not SMP safe.\n");
+ 		apm_info.disabled = 1;
+-		return -ENODEV;
++		ret = -ENODEV;
++		goto out_misc;
+ 	}
+ 	if (PM_IS_ACTIVE()) {
+ 		printk(KERN_NOTICE "apm: overridden by ACPI.\n");
+ 		apm_info.disabled = 1;
+-		return -ENODEV;
++		ret = -ENODEV;
++		goto out_misc;
+ 	}
+ #ifdef CONFIG_PM_LEGACY
+ 	pm_active = 1;
+@@ -2339,7 +2348,8 @@ static int __init apm_init(void)
+ 	ret = kernel_thread(apm, NULL, CLONE_KERNEL | SIGCHLD);
+ 	if (ret < 0) {
+ 		printk(KERN_ERR "apm: disabled - Unable to start kernel thread.\n");
+-		return -ENOMEM;
++		ret = -ENOMEM;
++		goto out_misc;
+ 	}
+ 
+ 	if (num_online_cpus() > 1 && !smp ) {
+@@ -2348,8 +2358,6 @@ static int __init apm_init(void)
+ 		return 0;
+ 	}
+ 
+-	misc_register(&apm_device);
+-
+ 	if (HZ != 100)
+ 		idle_period = (idle_period * HZ) / 100;
+ 	if (idle_threshold < 100) {
+@@ -2359,6 +2367,9 @@ static int __init apm_init(void)
+ 	}
+ 
+ 	return 0;
++out_misc:
++	misc_deregister(&apm_device);
++	return ret;
+ }
+ 
+ static void __exit apm_exit(void)
+diff -uprN -X linux-2.6.18-orig/Documentation/dontdiff linux-2.6.18-orig/arch/um/drivers/mmapper_kern.c linux-2.6.18/arch/um/drivers/mmapper_kern.c
+--- linux-2.6.18-orig/arch/um/drivers/mmapper_kern.c	2006-08-24 02:46:33.000000000 +0530
++++ linux-2.6.18/arch/um/drivers/mmapper_kern.c	2006-09-25 13:23:46.000000000 +0530
+@@ -103,7 +103,7 @@ static struct miscdevice mmapper_dev = {
+ 
+ static int __init mmapper_init(void)
+ {
+-	int err;
++	int err = 0;
+ 
+ 	printk(KERN_INFO "Mapper v0.1\n");
+ 
+@@ -121,8 +121,10 @@ static int __init mmapper_init(void)
+ 	}
+ 
+ 	p_buf = __pa(v_buf);
+-out:
++    
+ 	return 0;
++out:
++	return err;
+ }
+ 
+ static void mmapper_exit(void)
+diff -uprN -X linux-2.6.18-orig/Documentation/dontdiff linux-2.6.18-orig/arch/x86_64/kernel/mce.c linux-2.6.18/arch/x86_64/kernel/mce.c
+--- linux-2.6.18-orig/arch/x86_64/kernel/mce.c	2006-09-21 10:15:31.000000000 +0530
++++ linux-2.6.18/arch/x86_64/kernel/mce.c	2006-09-25 14:00:39.000000000 +0530
+@@ -663,7 +663,11 @@ static __init int mce_init_device(void)
+ 	}
+ 
+ 	register_hotcpu_notifier(&mce_cpu_notifier);
+-	misc_register(&mce_log_device);
++
++	err = misc_register(&mce_log_device);
++	if (err != 0)
++		printk(KERN_ERR "MCE: cannot register misc device.\n");
++
+ 	return err;
+ }
+ 
+diff -uprN -X linux-2.6.18-orig/Documentation/dontdiff linux-2.6.18-orig/drivers/char/watchdog/ep93xx_wdt.c linux-2.6.18/drivers/char/watchdog/ep93xx_wdt.c
+--- linux-2.6.18-orig/drivers/char/watchdog/ep93xx_wdt.c	2006-09-21 10:15:32.000000000 +0530
++++ linux-2.6.18/drivers/char/watchdog/ep93xx_wdt.c	2006-09-25 13:23:46.000000000 +0530
+@@ -215,6 +215,10 @@ static int __init ep93xx_wdt_init(void)
+ 	int err;
+ 
+ 	err = misc_register(&ep93xx_wdt_miscdev);
++	if (err != 0) {
++		printk(KERN_ERR PFX "cannot register misc device.\n");
++		return err;
++	}
+ 
+ 	boot_status = __raw_readl(EP93XX_WDT_WATCHDOG) & 0x01 ? 1 : 0;
+ 
+diff -uprN -X linux-2.6.18-orig/Documentation/dontdiff linux-2.6.18-orig/drivers/input/misc/hp_sdc_rtc.c linux-2.6.18/drivers/input/misc/hp_sdc_rtc.c
+--- linux-2.6.18-orig/drivers/input/misc/hp_sdc_rtc.c	2006-08-24 02:46:33.000000000 +0530
++++ linux-2.6.18/drivers/input/misc/hp_sdc_rtc.c	2006-09-25 14:01:36.000000000 +0530
+@@ -695,7 +695,12 @@ static int __init hp_sdc_rtc_init(void)
+ 
+ 	if ((ret = hp_sdc_request_timer_irq(&hp_sdc_rtc_isr)))
+ 		return ret;
+-	misc_register(&hp_sdc_rtc_dev);
++
++	ret = misc_register(&hp_sdc_rtc_dev);
++	if (ret != 0) {
++		printk(KERN_ERR "HP i8042 SDC + MSM-58321 RTC: cannot register misc device.\n");
++		return ret;
++	}
+         create_proc_read_entry ("driver/rtc", 0, 0, 
+ 				hp_sdc_rtc_read_proc, NULL);
+ 
+diff -uprN -X linux-2.6.18-orig/Documentation/dontdiff linux-2.6.18-orig/drivers/macintosh/apm_emu.c linux-2.6.18/drivers/macintosh/apm_emu.c
+--- linux-2.6.18-orig/drivers/macintosh/apm_emu.c	2006-09-21 10:15:33.000000000 +0530
++++ linux-2.6.18/drivers/macintosh/apm_emu.c	2006-09-25 14:02:04.000000000 +0530
+@@ -519,6 +519,7 @@ static struct miscdevice apm_device = {
+ static int __init apm_emu_init(void)
+ {
+ 	struct proc_dir_entry *apm_proc;
++	int ret;
+ 
+ 	if (sys_ctrler != SYS_CTRLER_PMU) {
+ 		printk(KERN_INFO "apm_emu: Requires a machine with a PMU.\n");
+@@ -529,7 +530,12 @@ static int __init apm_emu_init(void)
+ 	if (apm_proc)
+ 		apm_proc->owner = THIS_MODULE;
+ 
+-	misc_register(&apm_device);
++	ret = misc_register(&apm_device);
++	if (ret != 0) {
++		printk(KERN_ERR "apm_emu: cannot register misc device.\n");
++		remove_proc_entry("apm", NULL);
++		return ret;
++	}
+ 
+ 	pmu_register_sleep_notifier(&apm_sleep_notifier);
+ 
+diff -uprN -X linux-2.6.18-orig/Documentation/dontdiff linux-2.6.18-orig/drivers/macintosh/smu.c linux-2.6.18/drivers/macintosh/smu.c
+--- linux-2.6.18-orig/drivers/macintosh/smu.c	2006-09-21 10:15:33.000000000 +0530
++++ linux-2.6.18/drivers/macintosh/smu.c	2006-09-25 14:02:32.000000000 +0530
+@@ -1292,10 +1292,15 @@ static struct miscdevice pmu_device = {
+ 
+ static int smu_device_init(void)
+ {
++	int ret = 0;
++    
+ 	if (!smu)
+ 		return -ENODEV;
+-	if (misc_register(&pmu_device) < 0)
+-		printk(KERN_ERR "via-pmu: cannot register misc device.\n");
+-	return 0;
++    
++	ret = misc_register(&pmu_device);
++	if (ret != 0)
++		printk(KERN_ERR "SMU: cannot register misc device.\n");
++        
++	return ret;
+ }
+ device_initcall(smu_device_init);
+diff -uprN -X linux-2.6.18-orig/Documentation/dontdiff linux-2.6.18-orig/drivers/macintosh/via-pmu.c linux-2.6.18/drivers/macintosh/via-pmu.c
+--- linux-2.6.18-orig/drivers/macintosh/via-pmu.c	2006-09-21 10:15:33.000000000 +0530
++++ linux-2.6.18/drivers/macintosh/via-pmu.c	2006-09-25 14:03:02.000000000 +0530
+@@ -2678,11 +2678,16 @@ static struct miscdevice pmu_device = {
+ 
+ static int pmu_device_init(void)
+ {
++	int ret = 0;
++
+ 	if (!via)
+ 		return 0;
+-	if (misc_register(&pmu_device) < 0)
+-		printk(KERN_ERR "via-pmu: cannot register misc device.\n");
+-	return 0;
++
++	ret = misc_register(&pmu_device);
++	if (ret != 0)
++		printk(KERN_ERR "pmu: cannot register misc device.\n");
++
++	return ret;
+ }
+ device_initcall(pmu_device_init);
 
-Roy de Boer
+

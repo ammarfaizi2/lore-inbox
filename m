@@ -1,57 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751379AbWIYRmK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751399AbWIYRnj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751379AbWIYRmK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Sep 2006 13:42:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751387AbWIYRmJ
+	id S1751399AbWIYRnj (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Sep 2006 13:43:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751391AbWIYRnj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Sep 2006 13:42:09 -0400
-Received: from mail.aknet.ru ([82.179.72.26]:4615 "EHLO mail.aknet.ru")
-	by vger.kernel.org with ESMTP id S1751379AbWIYRmH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Sep 2006 13:42:07 -0400
-Message-ID: <45181548.8010202@aknet.ru>
-Date: Mon, 25 Sep 2006 21:43:36 +0400
-From: Stas Sergeev <stsp@aknet.ru>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
-MIME-Version: 1.0
-To: Linux kernel <linux-kernel@vger.kernel.org>
-Cc: Denis Vlasenko <vda@port.imtp.ilyichevsk.odessa.ua>
-Subject: Re: [patch] remove MNT_NOEXEC check for PROT_EXEC mmaps
-References: <45150CD7.4010708@aknet.ru> <1159059219.3093.276.camel@laptopd505.fenrus.org>
-In-Reply-To: <1159059219.3093.276.camel@laptopd505.fenrus.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+	Mon, 25 Sep 2006 13:43:39 -0400
+Received: from stat9.steeleye.com ([209.192.50.41]:5310 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S1751388AbWIYRni (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Sep 2006 13:43:38 -0400
+Subject: Re: [PATCH] fix idiocy in asd_init_lseq_mdp()
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: "Hammer, Jack" <Jack_Hammer@adaptec.com>, Al Viro <viro@ftp.linux.org.uk>
+Cc: Luben Tuikov <ltuikov@yahoo.com>, dougg@torque.net,
+       linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20060925173922.GL29920@ftp.linux.org.uk>
+References: <4517EBF7.4020508@torque.net>
+	 <20060925171634.69667.qmail@web31809.mail.mud.yahoo.com>
+	 <20060925173922.GL29920@ftp.linux.org.uk>
+Content-Type: text/plain
+Date: Mon, 25 Sep 2006 13:43:22 -0400
+Message-Id: <1159206202.3463.62.camel@mulgrave.il.steeleye.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi **David, please CC me next time, if possible.
+On Mon, 2006-09-25 at 18:39 +0100, Al Viro wrote:
+> Far more interesting question: where does the hardware expect to see
+> the
+> upper 16 bits of that 32bit value?  Which one it is -
+> LmSEQ_INTEN_SAVE(lseq)
+> ori LmSEQ_INTEN_SAVE(lseq) + 2?
 
-David Wagner wrote:
-> Makes sense.  Of course, nothing prevents an attacker from
-> introducing malicious loaders, since the loader is an unprivileged
-> user-level program.
-I think having all the user-writable partitions
-noexec actually does prevent an attacker from
-introducing a malicious loader, or at least to
-invoke it. That's why I think a simple "do not
-use noexec whenever it hurts" is a bad option.
+I don't honestly know.  The change was made as part of a slew of changes
+by Robert Tarte at Adaptec to make the driver run on Big Endian
+platforms.  I've copied Jack Hammer who's now looking after it in the
+hope that he can enlighten us.
 
->>/filesystem. Think VFAT partition here, where all/
->>/files have execute bits set./
-Not strictly related to the topic, but Denis, have
-you tried "fmask" option to get rid of this?
+James
 
-> That suggests that the question to Stas should be: Do these programs that
-> you're trying to make work count as example of accidental execution of
-> binaries on the tmpfs, or are they deliberate execution knowing full well
-> that the noexec flag is set and damn the consequences?
-This is not at all about executing the *binaries*
-on tmpfs, and this is very important. What these
-progs need is only to mmap a piece of a shared
-memory with the PROT_EXEC permission. Nothing more.
-Previously, noexec did not prevent this. Now it does.
-What is worse, it prevents this also for MAP_PRIVATE.
-This is really something I cannot understand.
-The "ro" option doesn't prevent PROT_WRITE for MAP_PRIVATE,
-thats the known fact.
 

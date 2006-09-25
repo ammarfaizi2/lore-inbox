@@ -1,72 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932066AbWIYJbP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932070AbWIYJbl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932066AbWIYJbP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Sep 2006 05:31:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750824AbWIYJbP
+	id S932070AbWIYJbl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Sep 2006 05:31:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932074AbWIYJbl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Sep 2006 05:31:15 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:25058 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1750724AbWIYJbO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Sep 2006 05:31:14 -0400
-Message-ID: <4517A1D9.2090505@sgi.com>
-Date: Mon, 25 Sep 2006 11:31:05 +0200
-From: Jes Sorensen <jes@sgi.com>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060527)
+	Mon, 25 Sep 2006 05:31:41 -0400
+Received: from smtp102.mail.mud.yahoo.com ([209.191.85.212]:55963 "HELO
+	smtp102.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S932070AbWIYJbk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Sep 2006 05:31:40 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.com.au;
+  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
+  b=jlEpI4dhkLYWfmAAO6upa5fhEv4AMUWSz6wwMmfoH0cD2Sxa1IcvZe4EE/2aiF+++t+UD/Blho90MRuabIKgUAYMvaSTWRi0fYSxTRxbIScXVrNnrjmIZPPQmdhjqTAeSxrk9ug1yb3rgwEMnc+u+gyaVOSmMydza6xlOeBx59o=  ;
+Message-ID: <451744A9.7050405@yahoo.com.au>
+Date: Mon, 25 Sep 2006 12:53:29 +1000
+From: Nick Piggin <nickpiggin@yahoo.com.au>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20060216 Debian/1.7.12-1.1ubuntu2
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       bjorn_helgaas@hp.com, Nick Piggin <nickpiggin@yahoo.com.au>,
-       Robin Holt <holt@sgi.com>, Dean Nelson <dcn@sgi.com>,
-       Hugh Dickins <hugh@veritas.com>
-Subject: Re: [patch] do_no_pfn()
-References: <Pine.LNX.4.64.0609192126070.4388@g5.osdl.org>	<yq0u033c84a.fsf@jaguar.mkp.net> <20060922124940.5ca5ee87.akpm@osdl.org>
-In-Reply-To: <20060922124940.5ca5ee87.akpm@osdl.org>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
+To: Hugh Dickins <hugh@veritas.com>
+CC: Yingchao Zhou <yc_zhou@ncic.ac.cn>,
+       linux-kernel <linux-kernel@vger.kernel.org>, akpm <akpm@osdl.org>,
+       alan <alan@redhat.com>, zxc <zxc@ncic.ac.cn>,
+       Linux Memory Management <linux-mm@kvack.org>
+Subject: Re: [RFC] PAGE_RW Should be added to PAGE_COPY ?
+References: <20060915033842.C205FFB045@ncic.ac.cn> <Pine.LNX.4.64.0609150514190.7397@blonde.wat.veritas.com> <Pine.LNX.4.64.0609151431320.22674@blonde.wat.veritas.com> <450BAAF4.1080509@yahoo.com.au> <Pine.LNX.4.64.0609231835570.32262@blonde.wat.veritas.com>
+In-Reply-To: <Pine.LNX.4.64.0609231835570.32262@blonde.wat.veritas.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
+Hugh Dickins wrote:
 
-> How does this followup look?
-> 
-> We don't want the rarely-used do_no_pfn() to get inlined in the oft-used
-> handle_pte_fault(), using up icache.  Mark it noinline and unlikely.
+>On Sat, 16 Sep 2006, Nick Piggin wrote:
+>
+>>... but the problem is still fundamentally COW.
+>>
+>
+>Well, yes, we wouldn't have all these problems if we didn't have
+>to respect COW.  But generally a process can, one way or another,
+>make sure it won't get into those problems: Yingchao is concerned
+>with the way the TestSetPageLocked unpredictably upsets correctness.
+>I'd say it's a more serious error than the general problems with COW.
+>
 
+But correctness is no more upset here than with any other reason that
+the page gets COWed.
 
-I'd say it looks good - will give a microscopic slowdown for do_no_pfn
-but compared to the overall benefit I think thats more than acceptable.
+>>In other words, one should always be able to return 0 from that
+>>can_share_swap_page and have the system continue to work... right?
+>>Because even if you hadn't done that mprotect trick, you may still
+>>have a problem because the page may *have* to be copied on write
+>>if it is shared over fork.
+>>
+>
+>Most processes won't fork, and exec has freed them from sharing
+>their parents pages, and their private file mappings aren't being
+>used as buffers.  Maybe Yingchao will later have to worry about
+>those cases, but for now it seems not.
+>
 
-Acked-by: Jes Sorensen <jes@sgi.com>
+So we should still solve it for once and for all just by turning off
+COW completely.
 
-Cheers,
-Jes
+>>So if we filled in the missing mm/ implementation of VM_DONTCOPY
+>>(and call it MAP_DONTCOPY rather than the confusing MAP_DONTFORK)
+>>such that it withstands such an mprotect sequence, we can then ask
+>>that all userspace drivers do their get_user_pages memory on these
+>>types of vmas.
+>>
+>
+>(madvise MADV_DONTFORK)
+>
+>For the longest time I couldn't understand you there at all, perhaps
+>distracted by your parenthetical line: at last I think you're proposing
+>we tweak mprotect to behave differently on a VM_DONTCOPY area.
+>
+>But differently in what way?  Allow it to ignore Copy-On-Write?
+>
 
-> --- a/mm/memory.c~do_no_pfn-tweaks
-> +++ a/mm/memory.c
-> @@ -2276,8 +2276,10 @@ oom:
->   *
->   * It is expected that the ->nopfn handler always returns the same pfn
->   * for a given virtual mapping.
-> + *
-> + * Mark this `noinline' to prevent it from bloating the main pagefault code.
->   */
-> -static int do_no_pfn(struct mm_struct *mm, struct vm_area_struct *vma,
-> +static noinline int do_no_pfn(struct mm_struct *mm, struct vm_area_struct *vma,
->  		     unsigned long address, pte_t *page_table, pmd_t *pmd,
->  		     int write_access)
->  {
-> @@ -2376,7 +2378,7 @@ static inline int handle_pte_fault(struc
->  					return do_no_page(mm, vma, address,
->  							  pte, pmd,
->  							  write_access);
-> -				if (vma->vm_ops->nopfn)
-> +				if (unlikely(vma->vm_ops->nopfn))
->  					return do_no_pfn(mm, vma, address, pte,
->  							 pmd, write_access);
->  			}
-> _
+Well I think that we should have a flag that just prevents copy
+on write from ever happening. Maybe that would mean it be easiest
+to implement in mmap rather than as madvise, but that should be
+OK.
 
+--
+
+Send instant messages to your online friends http://au.messenger.yahoo.com 

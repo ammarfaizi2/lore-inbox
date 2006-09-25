@@ -1,55 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750916AbWIYPOW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750924AbWIYPP6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750916AbWIYPOW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Sep 2006 11:14:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750924AbWIYPOW
+	id S1750924AbWIYPP6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Sep 2006 11:15:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750940AbWIYPP6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Sep 2006 11:14:22 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:35039 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750913AbWIYPOV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Sep 2006 11:14:21 -0400
-Date: Mon, 25 Sep 2006 08:14:05 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-cc: Petr Baudis <pasky@suse.cz>, David Schwartz <davids@webmaster.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>, git@vger.kernel.org
-Subject: Re: The GPL: No shelter for the Linux kernel?
-In-Reply-To: <Pine.LNX.4.61.0609250757070.18552@yvahk01.tjqt.qr>
-Message-ID: <Pine.LNX.4.64.0609250807090.3952@g5.osdl.org>
-References: <MDEHLPKNGKAHNMBLJOLKIEJNOJAB.davids@webmaster.com>
- <Pine.LNX.4.61.0609231004330.9543@yvahk01.tjqt.qr> <Pine.LNX.4.64.0609231051570.4388@g5.osdl.org>
- <20060923181406.GC11916@pasky.or.cz> <Pine.LNX.4.61.0609240952240.28459@yvahk01.tjqt.qr>
- <Pine.LNX.4.64.0609240923331.4388@g5.osdl.org> <Pine.LNX.4.61.0609250757070.18552@yvahk01.tjqt.qr>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 25 Sep 2006 11:15:58 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:39055 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1750924AbWIYPP5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Sep 2006 11:15:57 -0400
+Subject: Re: [PATCH] restore libata build on frv
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Al Viro <viro@ftp.linux.org.uk>
+Cc: David Howells <dhowells@redhat.com>, Linus Torvalds <torvalds@osdl.org>,
+       Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <20060925142016.GI29920@ftp.linux.org.uk>
+References: <1159186771.11049.63.camel@localhost.localdomain>
+	 <1159183568.11049.51.camel@localhost.localdomain>
+	 <20060924223925.GU29920@ftp.linux.org.uk>
+	 <22314.1159181060@warthog.cambridge.redhat.com>
+	 <5578.1159183668@warthog.cambridge.redhat.com>
+	 <7276.1159186684@warthog.cambridge.redhat.com>
+	 <20060925142016.GI29920@ftp.linux.org.uk>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Mon, 25 Sep 2006 16:39:34 +0100
+Message-Id: <1159198774.11049.87.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Ar Llu, 2006-09-25 am 15:20 +0100, ysgrifennodd Al Viro:
+> Fine by me.  In that case we need to add
+> 	depends on !FRV || BROKEN
+> to drivers/ata/Kconfig and be done with that.  BTW, empty libata-portmap.h
+> is equivalent to absent one - it still won't build.
 
+>From every public piece of info I can find and from looking at the FRV
+tree your changes are correct for the ports Al. I can't find any info on
+how legacy IRQ routing is done on FRV systems but if it is not then set
+the IRQ values to zero and maybe Dave will stop complaining.
 
-On Mon, 25 Sep 2006, Jan Engelhardt wrote:
-> 
-> Though I strongly agree with you, some GNU folks (such as 
-> savannah.nongnu.org) seem to explicitly require it, even for files 
-> that do not make up a single program (i.e. like coreutils/ls.c).
+Alan
 
-Each project obviously has its own rules. The kernel, in many ways, these 
-days does something even stronger, in the sense that we now ask not that 
-every file be marked, but each and every change be signed-off-on. It's 
-more than a copyright issue, of course (it started out motivated by the 
-worries of tracking codeflow, but I think one reason it has worked so well 
-is that it's become useful for so many other things).
-
-So lots of projects have their specific rules. I don't think the "add 
-notice to every file" is wrong per se, I just think it's impractical: not 
-only does it get unwieldly with all those messages at the top, usually an 
-open source project ends up being a mix of lots of different people that 
-own rights in it, and in many ways it's thus better to track at a change 
-level rather than a file level if you do tracking.
-
-But exactly because it doesn't have any real legal rules, the rules are 
-from other sources, and boil down mainly to just per-project "coding 
-style" issues.
-
-		Linus

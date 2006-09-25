@@ -1,93 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751312AbWIYVFd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751280AbWIYVF0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751312AbWIYVFd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Sep 2006 17:05:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751319AbWIYVFd
+	id S1751280AbWIYVF0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Sep 2006 17:05:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751281AbWIYVF0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Sep 2006 17:05:33 -0400
-Received: from vms040pub.verizon.net ([206.46.252.40]:45960 "EHLO
-	vms040pub.verizon.net") by vger.kernel.org with ESMTP
-	id S1751312AbWIYVFb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Sep 2006 17:05:31 -0400
-Date: Mon, 25 Sep 2006 16:58:07 -0400
-From: Gene Heskett <gene.heskett@verizon.net>
-Subject: Re: GPLv3 Position Statement
-In-reply-to: <1159194447.2899.66.camel@mindpipe>
-To: linux-kernel@vger.kernel.org
-Cc: Lee Revell <rlrevell@joe-job.com>, Neil Brown <neilb@suse.de>,
-       Michiel de Boer <x@rebelhomicide.demon.nl>,
-       James Bottomley <James.Bottomley@steeleye.com>
-Message-id: <200609251658.08058.gene.heskett@verizon.net>
-Organization: Organization? Absolutely zip.
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-Content-disposition: inline
-References: <1158941750.3445.31.camel@mulgrave.il.steeleye.com>
- <17687.46268.156413.352299@cse.unsw.edu.au> <1159194447.2899.66.camel@mindpipe>
-User-Agent: KMail/1.7
+	Mon, 25 Sep 2006 17:05:26 -0400
+Received: from mail.suse.de ([195.135.220.2]:24222 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751280AbWIYVFZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Sep 2006 17:05:25 -0400
+From: Andi Kleen <ak@suse.de>
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Subject: Re: [PATCH 1/6] Initialize the per-CPU data area.
+Date: Mon, 25 Sep 2006 23:05:10 +0200
+User-Agent: KMail/1.9.3
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org,
+       Chuck Ebbert <76306.1226@compuserve.com>,
+       Zachary Amsden <zach@vmware.com>, Jan Beulich <jbeulich@novell.com>,
+       James Bottomley <James.Bottomley@steeleye.com>,
+       Matt Tolentino <matthew.e.tolentino@intel.com>
+References: <20060925184540.601971833@goop.org> <200609252249.54901.ak@suse.de> <45184318.6060807@goop.org>
+In-Reply-To: <45184318.6060807@goop.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200609252305.10239.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 25 September 2006 10:27, Lee Revell wrote:
->On Mon, 2006-09-25 at 20:51 +1000, Neil Brown wrote:
->> Tolerance of binary blogs seems to be steadily dropping.
->>
->> As far as I can tell, the DVD-CSS is purely a legal issue today - the
->> technical issues are solved (I can watch any-region on my Linux
->> computer, and in Australia, the law requires that all DVD players must
->> ignore region encoding as it is an anti-competitive practice).
+On Monday 25 September 2006 22:59, Jeremy Fitzhardinge wrote:
+> Andi Kleen wrote:
+> > If this is really 1/1 why does it patch a file called pda.h? 
+> >
+> > I've thrown away the local pda patches before this because I assumed
+> > you started fresh.
+> >
+> > Somehow I'm not surprised that nothing applies.  You seem to always
+> > start with some random tree that nobody else has.
+> >   
+> Well, it's based on -mm, but I guess that includes pieces of your patch 
+> series.  I was a bit surprised to see pda.h still in -mm with the rest 
+> dropped.
 
-I suspect thats history now, with the DMCA proposals now being voted on 
-there.
+I see.  Andrew reverted some stuff to fix his PII (which I broke BTW
+it wasn't a problem in your original patches) but he didn't revert everything
+only starting from the bisected patch.
 
->Tolerance by who?  As far as I can tell tolerance for binary blobs by
->the typical Linux desktop user is higher than ever.
+Ok on the next resync everything will be dropped there.
+ 
+> > Anyways, this patchkit has caused so much trouble and churn that I'll drop
+> > it for now until after the .19 merge is done.
+> >   
+> I'll respin it against your patches later today.
 
-Generaly speaking, from someone way up in the top level of the bleacher 
-seats here, thats true, as for instance the ndiswrapper scenario, required 
-by the rules of the various radio spectrum regulating agencies around the 
-planet.  They would never, ever, give approval to a driver that was 100% 
-open source because of the ease with which the open source coder could 
-make them illegal, either for frequencies used, or for the Transmitter 
-Power Output one of these software radios COULD be made to do.
+Thanks. It's not that urgent because the merge will need a few days
+at least.
 
->They consider it a 
->bug if their distro does not automagically install the nvidia/ATI
->drivers, and immediately write you off as a GPL zealot if you even
->mention that a tainted kernel cannot be debugged.
+Also I must admit I haven't figured out yet if yours or Rusty's patchkit
+is better. So far I was leaning towards yours, but that might be because
+I haven't looked closely at Rusty's version.
 
-No, I do not, and never have said too much about it (as if anyone would 
-listen to me anyway) unless I was pissed because the kernels available 
-driver was obviously broken and caused crashes etc.  We DO understand, 
-very well, that troubleshooting a problem just isn't possible when the 
-srcs are not available, meaning there is no way in hell you can certify 
-that the tainting driver didn't scribble all over memory it has no 
-business scribbling into.
-
-Begin rant:
-
-Yeah, we'ed be fools to say we don't have a political agenda when we're 
-forced to use substandard or questionably legal means for reasons related 
-to the above.  But give us credit for understanding the reasons.  What we, 
-the users, need in many cases, is a contact address to address our vents 
-to, for instance for someone at broadcom, high enough to have meaningfull 
-input to the discussions in the board room, that we could mail-bomb with 
-requests for better support.  If 3000+ people who bought their stuff with 
-some well known makers label on it, like HP, and found they couldn't use 
-that builtin radio and do it 100% legal and compatibly, would email (and 
-Cc: your countries regulatory agency too) that chip maker and gently but 
-firmly bitch, that bit of 'politics' might well bring about some 
-constructive change in broadcoms (and the regulatory agencies involved) 
-attitude vis-a-vis specs release so better drivers could be written.
-
-End rant.
-
--- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-Yahoo.com and AOL/TW attorneys please note, additions to the above
-message by Gene Heskett are:
-Copyright 2006 by Maurice Eugene Heskett, all rights reserved.
+-Andi

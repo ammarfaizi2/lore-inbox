@@ -1,56 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751641AbWIYEZv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751543AbWIYEdk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751641AbWIYEZv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Sep 2006 00:25:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751660AbWIYEZv
+	id S1751543AbWIYEdk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Sep 2006 00:33:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751544AbWIYEdk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Sep 2006 00:25:51 -0400
-Received: from opersys.com ([64.40.108.71]:42762 "EHLO www.opersys.com")
-	by vger.kernel.org with ESMTP id S1751604AbWIYEZu (ORCPT
+	Mon, 25 Sep 2006 00:33:40 -0400
+Received: from mail.aknet.ru ([82.179.72.26]:27140 "EHLO mail.aknet.ru")
+	by vger.kernel.org with ESMTP id S1751007AbWIYEdj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Sep 2006 00:25:50 -0400
-Message-ID: <45175F28.3090109@opersys.com>
-Date: Mon, 25 Sep 2006 00:46:32 -0400
-From: Karim Yaghmour <karim@opersys.com>
-Reply-To: karim@opersys.com
-Organization: Opersys inc.
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.6) Gecko/20060804 Fedora/1.0.4-0.5.1.fc5 SeaMonkey/1.0.4
+	Mon, 25 Sep 2006 00:33:39 -0400
+Message-ID: <45175C7B.7040005@aknet.ru>
+Date: Mon, 25 Sep 2006 08:35:07 +0400
+From: Stas Sergeev <stsp@aknet.ru>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
 MIME-Version: 1.0
-To: Richard J Moore <richardj_moore@uk.ibm.com>,
-       Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>
-CC: Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
-       "Frank Ch. Eigler" <fche@redhat.com>, Ingo Molnar <mingo@elte.hu>,
-       Ingo Molnar <mingo@redhat.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       SystemTAP <systemtap@sources.redhat.com>,
-       Satoshi Oshima <soshima@redhat.com>,
-       "Martin J. Bligh" <mbligh@mbligh.org>,
-       Prasanna S Panchamukhi <prasanna@in.ibm.com>,
-       Tom Zanussi <zanussi@us.ibm.com>,
-       Michel Dagenais <michel.dagenais@polymtl.ca>,
-       William Cohen <wcohen@redhat.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Andrew Morton <akpm@osdl.org>, Christoph Hellwig <hch@infradead.org>
-Subject: Re: Does this work? "dcprobes" an x86-hack simple djprobes-equivalent?
-References: <45163D3D.4010108@opersys.com>
-In-Reply-To: <45163D3D.4010108@opersys.com>
-Content-Type: text/plain; charset=ISO-8859-1
+To: Valdis.Kletnieks@vt.edu
+Cc: Ulrich Drepper <drepper@redhat.com>, Hugh Dickins <hugh@veritas.com>,
+       Andrew Morton <akpm@osdl.org>,
+       Linux kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [patch] remove MNT_NOEXEC check for PROT_EXEC mmaps
+References: <45150CD7.4010708@aknet.ru> <Pine.LNX.4.64.0609231555390.27012@blonde.wat.veritas.com> <45155499.4000209@redhat.com>            <45155707.4010906@aknet.ru> <200609250112.k8P1CTfZ019880@turing-police.cc.vt.edu>
+In-Reply-To: <200609250112.k8P1CTfZ019880@turing-police.cc.vt.edu>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi.
 
-Slight binary typo ...
+Valdis.Kletnieks@vt.edu wrote:
+>> But why exactly? They do:
+>> shm_open();
+>> mmap(PROT_READ|PROT_WRITE|PROT_EXEC);
+>> and mmap fails.
+>> Where is the fault of an app here?
+> Are you suggesting that it's not an app's fault/problem if it tries to
+> open a writable file on a R/O filesystem?  Because it's essentially the
+> same problem....
+It is not really the same - the app is not trying to
+create an "executable" file on a noexec filesystem.
+PROT_EXEC never required the exec permission on a file
+btw. The MAP_PRIVATE mmap roughly means a read of the
+file into the memory, where the program can do anything
+with its data, including an execution. Does the R/O
+filesystem disallow PROT_WRITE for MAP_PRIVATE? Haven't
+tried, but I hope it doesn't.
 
-Karim Yaghmour wrote:
-> Of course, this means hardwiring a multiplexing function at
-> 0xCCCC,0xCCCCCCCC, if that makes any sense (offset 0xCCCCCCCC
-> of code segment entry 7,099 of the LDT with an RPL of 1).
-
-Actually 0xCCCC is code segment entry 6,553 of the LDT with an
-RPL of 0.
-
-Karim
--- 
-President  / Opersys Inc.
-Embedded Linux Training and Expertise
-www.opersys.com  /  1.866.677.4546

@@ -1,64 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751218AbWIYQVa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750964AbWIYQsN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751218AbWIYQVa (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Sep 2006 12:21:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751222AbWIYQVa
+	id S1750964AbWIYQsN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Sep 2006 12:48:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751242AbWIYQsN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Sep 2006 12:21:30 -0400
-Received: from zeniv.linux.org.uk ([195.92.253.2]:38116 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1751218AbWIYQVa
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Sep 2006 12:21:30 -0400
-Date: Mon, 25 Sep 2006 17:21:20 +0100
-From: Al Viro <viro@ftp.linux.org.uk>
-To: David Howells <dhowells@redhat.com>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Linus Torvalds <torvalds@osdl.org>,
-       Jeff Garzik <jgarzik@pobox.com>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] restore libata build on frv
-Message-ID: <20060925162120.GK29920@ftp.linux.org.uk>
-References: <1159199184.11049.93.camel@localhost.localdomain> <20060925142016.GI29920@ftp.linux.org.uk> <1159186771.11049.63.camel@localhost.localdomain> <1159183568.11049.51.camel@localhost.localdomain> <20060924223925.GU29920@ftp.linux.org.uk> <22314.1159181060@warthog.cambridge.redhat.com> <5578.1159183668@warthog.cambridge.redhat.com> <7276.1159186684@warthog.cambridge.redhat.com> <20660.1159195152@warthog.cambridge.redhat.com> <22596.1159200250@warthog.cambridge.redhat.com>
+	Mon, 25 Sep 2006 12:48:13 -0400
+Received: from mga06.intel.com ([134.134.136.21]:65098 "EHLO
+	orsmga101.jf.intel.com") by vger.kernel.org with ESMTP
+	id S1750955AbWIYQsM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Sep 2006 12:48:12 -0400
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.09,215,1157353200"; 
+   d="scan'208"; a="135369179:sNHT7891510760"
+Date: Mon, 25 Sep 2006 09:46:39 -0700
+From: Valerie Henson <val_henson@linux.intel.com>
+To: Dave Kleikamp <shaggy@austin.ibm.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel <linux-kernel@vger.kernel.org>,
+       ext4 development <linux-ext4@vger.kernel.org>,
+       "Theodore Ts'o" <tytso@mit.edu>
+Subject: Re: [PATCH] EXT2: Remove superblock lock contention in ext2_statfs
+Message-ID: <20060925164637.GA30477@goober>
+References: <1158611794.11940.40.camel@kleikamp.austin.ibm.com> <1158622685.11940.52.camel@kleikamp.austin.ibm.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <22596.1159200250@warthog.cambridge.redhat.com>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <1158622685.11940.52.camel@kleikamp.austin.ibm.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 25, 2006 at 05:04:10PM +0100, David Howells wrote:
-> Alan Cox <alan@lxorguk.ukuu.org.uk> wrote:
+On Mon, Sep 18, 2006 at 06:38:05PM -0500, Dave Kleikamp wrote:
+> On Mon, 2006-09-18 at 15:36 -0500, Dave Kleikamp wrote:
+> > EXT2: Remove superblock lock contention in ext2_statfs
+> > 
+> > Fix a performance degradation introduced in 2.6.17.  (30% degradation running
+> > dbench with 16 threads)
+> > 
+> > Patch 21730eed11de42f22afcbd43f450a1872a0b5ea1, which claims to make
+> > EXT2_DEBUG work again, moves the taking of the kernel lock out of debug-only
+> > code in ext2_count_free_inodes and ext2_count_free_blocks and into
+> > ext2_statfs.  This patch reverses that part of the patch.
+> > 
+> > Signed-off-by: Dave Kleikamp <shaggy@austin.ibm.com>
 > 
-> > Ack Al Viro's changes but with IRQ set to zero.
+> Eric Sandeen pointed out to me that taking the superblock lock in
+> ext2_count_free_* will cause a deadlock when EXT2FS_DEBUG is enabled,
+> since the superblock is locked in write_super().
 > 
-> The PCI bus has special mappings.  You may not address it with those numbers.
-> Any of those numbers.  Al's patch is 100% incorrect.  Sorry.
+> We found that the same problem was fixed in ext3 with this patch
+> (forgive the long link):
+> http://git.kernel.org/git/?p=linux/kernel/git/torvalds/linux-2.6.git;a=commitdiff;h=5b11687924e40790deb0d5f959247ade82196665;hp=2384f55f8aa520172c995965bd2f8a9740d53095
+> 
+> The patch below just removes the use of the superblock lock in the debug
+> code.
 
-Oh, for fuck sake...  2.6.18 drivers/scsi/libata-core.c:
+(Sorry for the delay; been on vacation.)
 
-                if ((ap->flags & ATA_FLAG_NO_LEGACY) == 0) {
-                        struct ata_ioports *ioaddr = &ap->ioaddr;
+Heh, I ran into the same lock nesting issues as you when I first tried
+to fix this; the lock debugging code found it for me.  I asked for
+feedback on the locking issue when I submitted the patch, but no one
+had any opinions then, so I chose consistency over possible
+contention.  Al Viro snorted at the idea of consistency in the results
+of statfs (I paraphrase his IRC remarks), and thinking about it
+further, I realized the debug code should not be doing these checks in
+statfs anyway; only on mount and unmount.  This is because it appears
+that the block group accounting and the overall fs accounting are done
+non-atomically - see group_reserve_blocks() for example - and part of
+what the code does is reconcile these two numbers.  It is legal for a
+valid fs to have the block group summaries and the fs-wide summaries
+out of sync, so the debug code could erroneously report an error,
+leading some poor soul on a wild goose chase.  Removing this code from
+statfs also happens to fix the locking issues nicely.
 
-                        if (ioaddr->cmd_addr == 0x1f0)
-                                release_region(0x1f0, 8);
-                        else if (ioaddr->cmd_addr == 0x170)
-                                release_region(0x170, 8);
-                }
+Rewriting this has been on my todo list for about 6 months now -
+anyone interested in grabbing it?  I'm on #linuxfs on irc.oftc.net if
+anyone wants to chat about it.
 
-current drivers/ata/libata-core.c:
-                if ((ap->flags & ATA_FLAG_NO_LEGACY) == 0) {
-                        struct ata_ioports *ioaddr = &ap->ioaddr;
-
-                        /* FIXME: Add -ac IDE pci mods to remove these special cases */
-                        if (ioaddr->cmd_addr == ATA_PRIMARY_CMD)
-                                release_region(ATA_PRIMARY_CMD, 8);
-                        else if (ioaddr->cmd_addr == ATA_SECONDARY_CMD)
-                                release_region(ATA_SECONDARY_CMD, 8);
-                }
-
-Patch in question restores the situation prior to libata merge.  That's
-what FRV had been doing all along if SATA had been enabled.  No more,
-mo less.
-
-Now, if you want to change that behaviour, more power to you.  But that's
-a separate patch, obviously, and all issues related to that exist in vanilla
-2.6.18 just as in the current tree.
+-VAL

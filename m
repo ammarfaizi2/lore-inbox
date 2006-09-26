@@ -1,71 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932238AbWIZTvg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932246AbWIZTyK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932238AbWIZTvg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Sep 2006 15:51:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932252AbWIZTvg
+	id S932246AbWIZTyK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Sep 2006 15:54:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932247AbWIZTyJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Sep 2006 15:51:36 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:6623 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932238AbWIZTvf (ORCPT
+	Tue, 26 Sep 2006 15:54:09 -0400
+Received: from ogre.sisk.pl ([217.79.144.158]:24799 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S932246AbWIZTyG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Sep 2006 15:51:35 -0400
-To: Mathieu Desnoyers <compudj@krystal.dyndns.org>
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>, Martin Bligh <mbligh@google.com>,
-       Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>, prasanna@in.ibm.com,
-       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-       Paul Mundt <lethal@linux-sh.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>, Jes Sorensen <jes@sgi.com>,
-       Tom Zanussi <zanussi@us.ibm.com>,
-       Richard J Moore <richardj_moore@uk.ibm.com>,
-       Michel Dagenais <michel.dagenais@polymtl.ca>,
-       Christoph Hellwig <hch@infradead.org>,
-       Greg Kroah-Hartman <gregkh@suse.de>,
-       Thomas Gleixner <tglx@linutronix.de>, William Cohen <wcohen@redhat.com>,
-       ltt-dev@shafik.org, systemtap@sources.redhat.com,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Karim Yaghmour <karim@opersys.com>,
-       Pavel Machek <pavel@suse.cz>, Joe Perches <joe@perches.com>,
-       "Randy.Dunlap" <rdunlap@xenotime.net>,
-       "Jose R. Santos" <jrs@us.ibm.com>
-Subject: Re: [PATCH] Linux Kernel Markers 0.13 for 2.6.17
-References: <20060925233349.GA2352@Krystal> <20060925235617.GA3147@Krystal>
-	<45187146.8040302@goop.org> <20060926002551.GA18276@Krystal>
-	<20060926004535.GA2978@Krystal> <45187C0E.1080601@goop.org>
-	<20060926025924.GA27366@Krystal> <4518B4A0.6070509@goop.org>
-	<20060926180414.GA10497@Krystal> <4519781D.9040503@goop.org>
-	<20060926190849.GA2280@Krystal>
-From: fche@redhat.com (Frank Ch. Eigler)
-Date: 26 Sep 2006 15:49:34 -0400
-In-Reply-To: <20060926190849.GA2280@Krystal>
-Message-ID: <y0mhcyue7ch.fsf@ton.toronto.redhat.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.3
+	Tue, 26 Sep 2006 15:54:06 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Pavel Machek <pavel@ucw.cz>
+Subject: Re: When will the lunacy end? (Was Re: [PATCH] uswsusp: add pmops->{prepare,enter,finish} support (aka "platform mode"))
+Date: Tue, 26 Sep 2006 21:56:55 +0200
+User-Agent: KMail/1.9.1
+Cc: Andrew Morton <akpm@osdl.org>,
+       Nigel Cunningham <ncunningham@linuxmail.org>,
+       Stefan Seyfried <seife@suse.de>, linux-kernel@vger.kernel.org
+References: <20060925071338.GD9869@suse.de> <20060925144558.878c5374.akpm@osdl.org> <20060925224500.GB2540@elf.ucw.cz>
+In-Reply-To: <20060925224500.GB2540@elf.ucw.cz>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200609262156.56274.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mathieu Desnoyers <compudj@krystal.dyndns.org> writes:
+On Tuesday, 26 September 2006 00:45, Pavel Machek wrote:
+> Hi!
+> 
+> On Mon 2006-09-25 14:45:58, Andrew Morton wrote:
+> > On Tue, 26 Sep 2006 07:34:03 +1000
+> > Nigel Cunningham <ncunningham@linuxmail.org> wrote:
+> > 
+> > > </rant>
+> > 
+> > metoo!  I'd suggest that it'd be better to be expending the grey cells on
+> > making the present suspend stuff nice and solid, stable and fast.
+> 
+> [Un?]fortunately, Novell has some suggestions how I should expend my
+> grey cells in this area.
+> 
+> Anyway you want:
+> 
+> nice)
+> 	not sure if me + Rafael can do much here. Perhaps someone else
+> 	has to go through the code and rewrite it one more time? Or do
+> 	you have specific areas where suspend is really ugly?
+> 
+> solid)
+> 	apart from HIGHMEM64G fiasco, and related agpgart fiasco long
+> 	time before that... these are driver problems...
+> 
+> stable)
+> 	I believe we are doing pretty well in this area. We did not
+> 	have too many regressions, did we? (And notice that nice+fast
+> 	are actually both conflicting goals with stable).
+> 
+> fast)
+> 	frankly, that is not my priority for in-kernel
+> 	suspend. uswsusp will always be few seconds faster, thanks to
+> 	LZW. If we do 40MB/sec or 50MB/sec during write is not that
+> 	important. Patches are always welcome.
 
-> [...]
-> > Yep, that looks reasonable.  Though you could just directly test a 
-> > per-marker enable flag, rather than using "condition"...
-> [...]
-> I am not sure I understand your suggestion correctly.. do you mean having
-> a per-marker flag that would be loaded and tested at every marker site ?
+Actually, swsusp with the speed-up patches requires quite a lot of RAM to
+write to disk asynchronously.  This effectively means that on my box the image
+size should not exceed 3/8 of the total RAM size, or the synchronous writing
+will start due to the lack of memory.
 
-I gather that one reason for working so hard with the inline assembly
-is a race condition problem with the plain STAP_MARK style of marker
-disconnection:
+uswsusp doesn't seem to have this problem.
 
-        if (pointer) (*pointer)(args ...);
+Greetings,
+Rafael
 
-Granted, but this problem could almost certainly be dealt with simpler
-than that.  How about a compxchg or other atomic-fetch of the static
-pointer with a local variable?  That should solve the worry of an
-(*NULL) call.
 
-If we then become concerned with a valid pointer become obsolete (the
-probe handler function wanting to unload), we might be able to use
-some RCU-type deferral mechanism and/or preempt controls to ensure
-that this does not happen.
-
-- FChE
+-- 
+You never change things by fighting the existing reality.
+		R. Buckminster Fuller

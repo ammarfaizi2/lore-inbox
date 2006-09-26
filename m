@@ -1,130 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932270AbWIZULT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964777AbWIZUOo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932270AbWIZULT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Sep 2006 16:11:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932273AbWIZULT
+	id S964777AbWIZUOo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Sep 2006 16:14:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964778AbWIZUOo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Sep 2006 16:11:19 -0400
-Received: from ogre.sisk.pl ([217.79.144.158]:38623 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S932270AbWIZULS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Sep 2006 16:11:18 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: [PATCH -mm 3/6] swsusp: Use block device offsets to identify swap locations
-Date: Tue, 26 Sep 2006 22:04:02 +0200
-User-Agent: KMail/1.9.1
-Cc: Dave Jones <davej@redhat.com>, Pavel Machek <pavel@ucw.cz>,
-       LKML <linux-kernel@vger.kernel.org>
-References: <200609231158.00147.rjw@sisk.pl> <200609231204.25911.rjw@sisk.pl> <20060926123853.14682513.akpm@osdl.org>
-In-Reply-To: <20060926123853.14682513.akpm@osdl.org>
+	Tue, 26 Sep 2006 16:14:44 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:27151 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S964777AbWIZUOn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Sep 2006 16:14:43 -0400
+Date: Tue, 26 Sep 2006 22:14:37 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Nigel Cunningham <ncunningham@linuxmail.org>,
+       Stefan Seyfried <seife@suse.de>, linux-kernel@vger.kernel.org,
+       "Rafael J. Wysocki" <rjw@sisk.pl>
+Subject: Re: When will the lunacy end? (Was Re: [PATCH] uswsusp: add pmops->{prepare,enter,finish} support (aka "platform mode"))
+Message-ID: <20060926201437.GH4547@stusta.de>
+References: <20060925071338.GD9869@suse.de> <1159220043.12814.30.camel@nigel.suspend2.net> <20060925144558.878c5374.akpm@osdl.org> <20060925224500.GB2540@elf.ucw.cz>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200609262204.03512.rjw@sisk.pl>
+In-Reply-To: <20060925224500.GB2540@elf.ucw.cz>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday, 26 September 2006 21:38, Andrew Morton wrote:
-> On Sat, 23 Sep 2006 12:04:25 +0200
-> "Rafael J. Wysocki" <rjw@sisk.pl> wrote:
-> 
-> > Make swsusp use block device offsets instead of swap offsets to identify swap
-> > locations and make it use the same code paths for writing as well as for
-> > reading data.
-> > 
-> > This allows us to use the same code for handling swap files and swap
-> > partitions and to simplify the code, eg. by dropping rw_swap_page_sync().
-> > 
-> > ..
-> >
-> > +sector_t swapdev_block(int swap_type, pgoff_t offset)
-> 
-> swapdev_block() returns sector_t.
-> 
-> > -unsigned long alloc_swap_page(int swap, struct bitmap_page *bitmap)
-> > +loff_t alloc_swapdev_block(int swap, struct bitmap_page *bitmap)
-> >  {
-> >  	unsigned long offset;
-> >  
-> >  	offset = swp_offset(get_swap_page_of_type(swap));
-> >  	if (offset) {
-> > -		if (bitmap_set(bitmap, offset)) {
-> > +		if (bitmap_set(bitmap, offset))
-> >  			swap_free(swp_entry(swap, offset));
-> > -			offset = 0;
-> > -		}
-> > +		else
-> > +			return swapdev_block(swap, offset);
-> >  	}
-> > -	return offset;
-> > +	return 0;
-> >  }
-> 
-> But alloc_swapdev_block() returns loff_t.
+On Tue, Sep 26, 2006 at 12:45:00AM +0200, Pavel Machek wrote:
+>...
+> solid)
+> 	apart from HIGHMEM64G fiasco, and related agpgart fiasco long
+> 	time before that... these are driver problems...
+>...
 
-I'll change all that to sector_t.
- 
-> >  void free_all_swap_pages(int swap, struct bitmap_page *bitmap)
-> > Index: linux-2.6.18-rc7-mm1/kernel/power/user.c
-> > ===================================================================
-> > --- linux-2.6.18-rc7-mm1.orig/kernel/power/user.c
-> > +++ linux-2.6.18-rc7-mm1/kernel/power/user.c
-> > @@ -239,7 +239,7 @@ static int snapshot_ioctl(struct inode *
-> >  				break;
-> >  			}
-> >  		}
-> > -		offset = alloc_swap_page(data->swap, data->bitmap);
-> > +		offset = alloc_swapdev_block(data->swap, data->bitmap);
-> 
-> `offset' is declared loff_t, yet it is holding a sector_t.
-> 
-> > ===================================================================
-> > --- linux-2.6.18-rc7-mm1.orig/kernel/power/swap.c
-> > +++ linux-2.6.18-rc7-mm1/kernel/power/swap.c
-> > @@ -34,8 +34,8 @@ extern char resume_file[];
-> >  #define SWSUSP_SIG	"S1SUSPEND"
-> >  
-> >  static struct swsusp_header {
-> > -	char reserved[PAGE_SIZE - 20 - sizeof(swp_entry_t)];
-> > -	swp_entry_t image;
-> > +	char	reserved[PAGE_SIZE - 20 - sizeof(loff_t)];
-> > +	loff_t	image;
-> 
-> More possible sector_t/loff_t confusion.
-> 
-> >  static int swsusp_swap_check(void) /* This is called before saving image */
-> >  {
-> > -	int res = swap_type_of(swsusp_resume_device, 0);
-> > +	int res;
-> >  
-> > -	if (res >= 0) {
-> > -		root_swap = res;
-> > -		return 0;
-> > -	}
-> > -	return res;
-> > +	res = swap_type_of(swsusp_resume_device, 0);
-> > +	if (res < 0)
-> > +		return res;
-> > +
-> > +	root_swap = res;
-> > +	resume_bdev = open_by_devnum(swsusp_resume_device, FMODE_WRITE);
-> > +	if (IS_ERR(resume_bdev))
-> > +		return PTR_ERR(resume_bdev);
-> > +
-> > +	set_blocksize(resume_bdev, PAGE_SIZE);
-> > +	return 0;
-> >  }
-> 
-> set_blocksize() can fail.
+One point that seems to be a bit forgotten is that driver problems do 
+actually matter a lot:
 
-Will check for that.
+I for one do not care much whether I can abort suspending (I can always 
+resume) or whether dancing penguins are displayed during suspending - 
+but the fact that my saa7134 card only outputs the picture but no sound 
+after resuming from suspend-to-disk is a real show-stopper for me.
 
-> 
-> > -#define MAP_PAGE_ENTRIES	(PAGE_SIZE / sizeof(long) - 1)
-> > +#define MAP_PAGE_ENTRIES	(PAGE_SIZE / sizeof(loff_t) - 1)
-> 
-> I think this is dealing with sector_t's?
+> 									Pavel
+
+cu
+Adrian
+
+-- 
+
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 

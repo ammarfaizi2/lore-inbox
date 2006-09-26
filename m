@@ -1,46 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932279AbWIZUTn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964782AbWIZUWB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932279AbWIZUTn (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Sep 2006 16:19:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932284AbWIZUTn
+	id S964782AbWIZUWB (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Sep 2006 16:22:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964783AbWIZUWB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Sep 2006 16:19:43 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:9949 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932279AbWIZUTn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Sep 2006 16:19:43 -0400
-Date: Tue, 26 Sep 2006 13:19:38 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Andi Kleen <ak@suse.de>
-cc: linux-kernel@vger.kernel.org, discuss@x86-64.org
-Subject: Re: x86/x86-64 merge for 2.6.19
-In-Reply-To: <200609262202.28846.ak@suse.de>
-Message-ID: <Pine.LNX.4.64.0609261318240.3952@g5.osdl.org>
-References: <200609261244.43863.ak@suse.de> <Pine.LNX.4.64.0609261241390.3952@g5.osdl.org>
- <200609262202.28846.ak@suse.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 26 Sep 2006 16:22:01 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:44949 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S964782AbWIZUWA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Sep 2006 16:22:00 -0400
+Subject: Re: [PATCH] restore libata build on frv
+From: David Woodhouse <dwmw2@infradead.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Jeff Garzik <jgarzik@pobox.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       David Howells <dhowells@redhat.com>, Al Viro <viro@ftp.linux.org.uk>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.64.0609260909470.3952@g5.osdl.org>
+References: <20060925142016.GI29920@ftp.linux.org.uk>
+	 <1159186771.11049.63.camel@localhost.localdomain>
+	 <1159183568.11049.51.camel@localhost.localdomain>
+	 <20060924223925.GU29920@ftp.linux.org.uk>
+	 <22314.1159181060@warthog.cambridge.redhat.com>
+	 <5578.1159183668@warthog.cambridge.redhat.com>
+	 <7276.1159186684@warthog.cambridge.redhat.com>
+	 <20660.1159195152@warthog.cambridge.redhat.com>
+	 <1159199184.11049.93.camel@localhost.localdomain>
+	 <1159258013.3309.9.camel@pmac.infradead.org> <4518EA39.40309@pobox.com>
+	 <1159260980.3309.22.camel@pmac.infradead.org>
+	 <Pine.LNX.4.64.0609260909470.3952@g5.osdl.org>
+Content-Type: text/plain
+Date: Tue, 26 Sep 2006 21:21:09 +0100
+Message-Id: <1159302069.3309.46.camel@pmac.infradead.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5.dwmw2.1) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, 2006-09-26 at 09:15 -0700, Linus Torvalds wrote:
+> That NO_IRQ thing should be zero, and any architecture that thinks that 
+> zero is a valid IRQ just needs to fix its own irq mapping so that the 
+> "cookie" doesn't work.
 
+> The thing is, it's zero. Get over it. 
 
-On Tue, 26 Sep 2006, Andi Kleen wrote:
-> > 
-> > I really don't want do http:// pulls - they are very inefficient, and I 
-> > don't trust the end result because the http protocol isn't really good for 
-> > verifying the end result (same goes for rsync:// to an even bigger 
-> > degree). 
-> 
-> Sorry that was actually me typoing (my fingers are not used to git:// urls
-> yet) I've sent you a new email with correct URL
+Signed-off-by: David Woodhouse <dwmw2@infradead.org>
 
-I actually tried it with "git://" instead of "http://" bit maybe I typoed 
-too.
+diff --git a/kernel/irq/manage.c b/kernel/irq/manage.c
+index 92be519..0cdf8ad 100644
+--- a/kernel/irq/manage.c
++++ b/kernel/irq/manage.c
+@@ -219,7 +219,7 @@ int setup_irq(unsigned int irq, struct i
+ 	unsigned long flags;
+ 	int shared = 0;
+ 
+-	if (irq >= NR_IRQS)
++	if (!irq || irq >= NR_IRQS)
+ 		return -EINVAL;
+ 
+ 	if (desc->chip == &no_irq_chip)
 
-Anyway, the new address was fine. Pulled, pushed out.
+-- 
+dwmw2
 
-(Side note, I'm hoping we can sync up more easily now, and in smaller 
-chunks ;)
-
-		Linus

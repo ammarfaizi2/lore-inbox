@@ -1,59 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964795AbWIZUoh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932301AbWIZUof@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964795AbWIZUoh (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Sep 2006 16:44:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932305AbWIZUog
+	id S932301AbWIZUof (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Sep 2006 16:44:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932303AbWIZUoe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Sep 2006 16:44:36 -0400
-Received: from dspnet.fr.eu.org ([213.186.44.138]:1811 "EHLO dspnet.fr.eu.org")
-	by vger.kernel.org with ESMTP id S932303AbWIZUog (ORCPT
+	Tue, 26 Sep 2006 16:44:34 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:18321 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S932301AbWIZUoe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Sep 2006 16:44:36 -0400
-Date: Tue, 26 Sep 2006 22:44:33 +0200
-From: Olivier Galibert <galibert@pobox.com>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: jgarzik@pobox.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] libata-sff: use our IRQ defines
-Message-ID: <20060926204433.GA77171@dspnet.fr.eu.org>
-Mail-Followup-To: Olivier Galibert <galibert@pobox.com>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>, jgarzik@pobox.com,
-	linux-kernel@vger.kernel.org
-References: <1159289737.11049.261.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1159289737.11049.261.camel@localhost.localdomain>
-User-Agent: Mutt/1.4.2.2i
+	Tue, 26 Sep 2006 16:44:34 -0400
+Message-ID: <4519912C.80402@garzik.org>
+Date: Tue, 26 Sep 2006 16:44:28 -0400
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
+MIME-Version: 1.0
+To: Greg KH <greg@kroah.com>
+CC: Andrew Morton <akpm@osdl.org>, Jim Paradis <jparadis@redhat.com>,
+       Andi Kleen <ak@suse.de>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] x86[-64] PCI domain support
+References: <20060926191508.GA6350@havoc.gtf.org> <20060926202303.GA15369@kroah.com>
+In-Reply-To: <20060926202303.GA15369@kroah.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.3 (----)
+X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 26, 2006 at 05:55:37PM +0100, Alan Cox wrote:
-> Signed-off-by: Alan Cox <alan@redhat.com>
+Greg KH wrote:
+> On Tue, Sep 26, 2006 at 03:15:08PM -0400, Jeff Garzik wrote:
+>> The x86[-64] PCI domain effort needs to be restarted, because we've got
+>> machines out in the field that need this in order for some devices to
+>> work.
+>>
+>> RHEL is shipping it now, apparently without any problems.
+>>
+>> The 'pciseg' branch of
+>> git://git.kernel.org/pub/scm/linux/kernel/git/jgarzik/misc-2.6.git pciseg
 > 
-> diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.18-mm1/drivers/ata/libata-sff.c linux-2.6.18-mm1/drivers/ata/libata-sff.c
-> --- linux.vanilla-2.6.18-mm1/drivers/ata/libata-sff.c	2006-09-25 12:10:08.000000000 +0100
-> +++ linux-2.6.18-mm1/drivers/ata/libata-sff.c	2006-09-25 16:04:41.000000000 +0100
-> @@ -881,7 +881,7 @@
->  	probe_ent->private_data = port[0]->private_data;
->  
->  	if (port_mask & ATA_PORT_PRIMARY) {
-> -		probe_ent->irq = 14;
-> +		probe_ent->irq = ATA_PRIMARY_IRQ;
->  		probe_ent->port[0].cmd_addr = ATA_PRIMARY_CMD;
->  		probe_ent->port[0].altstatus_addr =
->  		probe_ent->port[0].ctl_addr = ATA_PRIMARY_CTL;
-> @@ -896,7 +896,7 @@
->  
->  	if (port_mask & ATA_PORT_SECONDARY) {
->  		if (probe_ent->irq)
-> -			probe_ent->irq2 = 15;
-> +			probe_ent->irq2 = ATA_SECONDARY_IRQ;
->  		else
->  			probe_ent->irq = 15;
+> So are the NUMA issues now taken care of properly?  If so, care to send
+> me the patches for this so I can add them to my quilt tree?
 
-Isn't that one supposed to be ATA_SECONDARY_IRQ too?
+Er, I just posted the combined patch for review.  Can't you pull from 
+the above URL?  It's a bit of a pain to dive in and out of git.
 
->  		probe_ent->port[1].cmd_addr = ATA_SECONDARY_CMD;
-> 
+	Jeff
 
-  OG.
+
+

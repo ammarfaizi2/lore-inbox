@@ -1,39 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751821AbWIZAHJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751822AbWIZAIV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751821AbWIZAHJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Sep 2006 20:07:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751820AbWIZAHJ
+	id S1751822AbWIZAIV (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Sep 2006 20:08:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751827AbWIZAIU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Sep 2006 20:07:09 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:50392 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1751819AbWIZAHH (ORCPT
+	Mon, 25 Sep 2006 20:08:20 -0400
+Received: from mail1.webmaster.com ([216.152.64.169]:21765 "EHLO
+	mail1.webmaster.com") by vger.kernel.org with ESMTP
+	id S1751822AbWIZAIT convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Sep 2006 20:07:07 -0400
-Message-ID: <45186F25.9000700@garzik.org>
-Date: Mon, 25 Sep 2006 20:07:01 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
+	Mon, 25 Sep 2006 20:08:19 -0400
+From: "David Schwartz" <davids@webmaster.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: RE: Swap on Fuse deadlocks?
+Date: Mon, 25 Sep 2006 17:08:13 -0700
+Message-ID: <MDEHLPKNGKAHNMBLJOLKMEIEOKAB.davids@webmaster.com>
 MIME-Version: 1.0
-To: Jan-Bernd Themann <ossthema@de.ibm.com>
-CC: netdev <netdev@vger.kernel.org>, Christoph Raisch <raisch@de.ibm.com>,
-       Jan-Bernd Themann <themann@de.ibm.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       linux-ppc <linuxppc-dev@ozlabs.org>, Marcus Eder <meder@de.ibm.com>,
-       Thomas Klein <tklein@de.ibm.com>, pmac@au1.ibm.com
-Subject: Re: [PATCH 2.6.19-rc1] ehea firmware interface based on Anton Blanchard's
- new hvcall interface
-References: <200609251550.01514.ossthema@de.ibm.com>
-In-Reply-To: <200609251550.01514.ossthema@de.ibm.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.3 (----)
-X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.3 points, 5.0 required)
+Content-Type: text/plain;
+	charset="utf-8"
+Content-Transfer-Encoding: 8BIT
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
+Importance: Normal
+In-Reply-To: <45184D88.1010203@comcast.net>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2962
+X-Authenticated-Sender: joelkatz@webmaster.com
+X-Spam-Processed: mail1.webmaster.com, Mon, 25 Sep 2006 17:11:11 -0800
+	(not processed: message from trusted or authenticated source)
+X-MDRemoteIP: 206.171.168.138
+X-Return-Path: davids@webmaster.com
+X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
+Reply-To: davids@webmaster.com
+X-MDAV-Processed: mail1.webmaster.com, Mon, 25 Sep 2006 17:11:15 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-patch does not apply.
 
-also, it would seem like varargs would be appropriate here.
+> Swap on disk I don't get.  A little slow perhaps due to the LZO or zlib
+> compression in the middle (lzolayer lets you pick either); but a total
+> freeze?  What's wrong here, is lzo_fs data getting swapped out and then
+> not swapped in because it's needed to decompress itself?
+
+The filesystem would have to make sure to lock in memory itself and any code it might need. Obviously, if the filesystem code itself gets swapped out, you cannot swap it back in again ever. Any user-space filesystem that expects to handle swap had better call 'mlock'.
+
+DS
 
 

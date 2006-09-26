@@ -1,64 +1,124 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751365AbWIZNUU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751342AbWIZNWb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751365AbWIZNUU (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Sep 2006 09:20:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751342AbWIZNUU
+	id S1751342AbWIZNWb (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Sep 2006 09:22:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751370AbWIZNWb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Sep 2006 09:20:20 -0400
-Received: from ug-out-1314.google.com ([66.249.92.173]:37737 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1751328AbWIZNUT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Sep 2006 09:20:19 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=PYP+gqO6chTHkSDAOfDRkqLGTaJByqHGea9ThAoNvLLzXUhFGE3SxU5Ps7gWswyrJug64TfF4A2VVhAA/UkBpvl6mVIANdK/vS7j+ZKF4r0LYY7axdwjj2RjlB9zsLYGNy7NRPalsmOi3H634Lh9ZMMVYtCZ4ADiE7nV3hWkR0g=
-Message-ID: <d120d5000609260620me5cf24bw83fc6d65fa7cb232@mail.gmail.com>
-Date: Tue, 26 Sep 2006 09:20:17 -0400
-From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
-To: "Greg KH" <greg@kroah.com>
-Subject: Re: [PATCH 26/47] Driver core: add groups support to struct device
-Cc: linux-kernel@vger.kernel.org, "Linus Torvalds" <torvalds@osdl.org>,
-       "Andrew Morton" <akpm@osdl.org>
-In-Reply-To: <11592491672052-git-send-email-greg@kroah.com>
+	Tue, 26 Sep 2006 09:22:31 -0400
+Received: from twin.jikos.cz ([213.151.79.26]:33740 "EHLO twin.jikos.cz")
+	by vger.kernel.org with ESMTP id S1751342AbWIZNWa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Sep 2006 09:22:30 -0400
+Date: Tue, 26 Sep 2006 15:21:57 +0200 (CEST)
+From: Jiri Kosina <jikos@jikos.cz>
+To: Peter Zijlstra <a.p.zijlstra@chello.nl>
+cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>, Arjan van de Ven <arjan@infradead.org>,
+       Dave Jones <davej@redhat.com>, Ingo Molnar <mingo@elte.hu>
+Subject: Re: [PATCH 2/2] serio: lockdep annotation for ps2dev->cmd_mutex and
+ serio->lock
+In-Reply-To: <20060926113748.833215000@chello.nl>
+Message-ID: <Pine.LNX.4.64.0609261520280.3938@twin.jikos.cz>
+References: <20060926113150.294656000@chello.nl> <20060926113748.833215000@chello.nl>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <20060926053728.GA8970@kroah.com>
-	 <11592491371254-git-send-email-greg@kroah.com>
-	 <1159249140339-git-send-email-greg@kroah.com>
-	 <11592491451786-git-send-email-greg@kroah.com>
-	 <11592491482560-git-send-email-greg@kroah.com>
-	 <11592491551919-git-send-email-greg@kroah.com>
-	 <11592491581007-git-send-email-greg@kroah.com>
-	 <11592491611339-git-send-email-greg@kroah.com>
-	 <11592491643725-git-send-email-greg@kroah.com>
-	 <11592491672052-git-send-email-greg@kroah.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 9/26/06, Greg KH <greg@kroah.com> wrote:
-> From: Greg Kroah-Hartman <gregkh@suse.de>
->
-> This is needed for the network class devices in order to be able to
-> convert over to use struct device.
->
+On Tue, 26 Sep 2006, Peter Zijlstra wrote:
 
-Greg,
+> Based ideas from Jiri Kosina, this patch tracks the nesting depth
+> and uses the new lockdep_set_class_and_subclass() annotation to store
+> this information in the lock objects.
 
-You keep pushing out patches that merge class devices and standard
-devices but you still have not shown the usefullness of this process.
-Why do you feel the need to change internal kernel structures
-(ever-expanding struct device to accomodate everything that is in
-struct class_device) when it should be possible to simply adjust sysfs
-representation of the kernel tree (moving class devices into
-/sys/device/.. part of the tree)  to udev's liking and leave the rest
-of the kernel alone. You have seen the patch, only minor changes in
-driver/base/class.c are needed to accomplish the move.
+Hi,
 
-I really disappointed that there was no discussion/review of the
-implementation at all.
+the lockdep part of the patch (1/2) is OK. The second part, specifically 
+the libps2.c changes, are not complete - the originally (wrongly) 
+introduced mutex_lock_nested() has to be changed back to mutex_lock(), 
+otherwise we will get spurious warning from lockdep about ps2_mutex_key.
+
+Below is the fixed version of the patch. I confirm that this (together 
+with Peter's original changes in lockdep, already acked by Ingo) fixes the 
+synpatics passthrough port lockdep warnings.
+
+So, as long as you, Dmitry, seem to be convenient with this approach, 
+please apply. Thanks.
+
+Signed-off-by: Jiri Kosina <jikos@jikos.cz>
+
+Index: linux-2.6-mm/drivers/input/serio/libps2.c
+===================================================================
+--- linux-2.6.18-rc6-mm2.orig/drivers/input/serio/libps2.c	2006-09-04 04:19:48.000000000 +0200
++++ linux-2.6.18-rc6-mm2/drivers/input/serio/libps2.c	2006-09-26 14:45:18.000000000 +0200
+@@ -182,7 +182,7 @@ int ps2_command(struct ps2dev *ps2dev, u
+ 		return -1;
+ 	}
+ 
+-	mutex_lock_nested(&ps2dev->cmd_mutex, SINGLE_DEPTH_NESTING);
++	mutex_lock(&ps2dev->cmd_mutex);
+ 
+ 	serio_pause_rx(ps2dev->serio);
+ 	ps2dev->flags = command == PS2_CMD_GETID ? PS2_FLAG_WAITID : 0;
+@@ -280,6 +280,8 @@ int ps2_schedule_command(struct ps2dev *
+ 	return 0;
+ }
+ 
++static struct lock_class_key ps2_mutex_key;
++
+ /*
+  * ps2_init() initializes ps2dev structure
+  */
+@@ -287,6 +289,8 @@ int ps2_schedule_command(struct ps2dev *
+ void ps2_init(struct ps2dev *ps2dev, struct serio *serio)
+ {
+ 	mutex_init(&ps2dev->cmd_mutex);
++	lockdep_set_class_and_subclass(&ps2dev->cmd_mutex, &ps2_mutex_key,
++				       serio->depth);
+ 	init_waitqueue_head(&ps2dev->wait);
+ 	ps2dev->serio = serio;
+ }
+Index: linux-2.6-mm/drivers/input/serio/serio.c
+===================================================================
+--- linux-2.6-mm.orig/drivers/input/serio/serio.c	2006-09-26 10:25:22.000000000 +0200
++++ linux-2.6-mm/drivers/input/serio/serio.c	2006-09-26 10:34:04.000000000 +0200
+@@ -521,6 +521,8 @@ static void serio_release_port(struct de
+ 	module_put(THIS_MODULE);
+ }
+ 
++static struct lock_class_key serio_lock_key;
++
+ /*
+  * Prepare serio port for registration.
+  */
+@@ -538,8 +540,13 @@ static void serio_init_port(struct serio
+ 		 "serio%ld", (long)atomic_inc_return(&serio_no) - 1);
+ 	serio->dev.bus = &serio_bus;
+ 	serio->dev.release = serio_release_port;
+-	if (serio->parent)
++	if (serio->parent) {
+ 		serio->dev.parent = &serio->parent->dev;
++		serio->depth = serio->parent->depth + 1;
++	} else
++		serio->depth = 0;
++	lockdep_set_class_and_subclass(&serio->lock, &serio_lock_key,
++				       serio->depth);
+ }
+ 
+ /*
+Index: linux-2.6-mm/include/linux/serio.h
+===================================================================
+--- linux-2.6-mm.orig/include/linux/serio.h	2006-09-26 10:25:22.000000000 +0200
++++ linux-2.6-mm/include/linux/serio.h	2006-09-26 10:34:04.000000000 +0200
+@@ -41,6 +41,7 @@ struct serio {
+ 	void (*stop)(struct serio *);
+ 
+ 	struct serio *parent, *child;
++	unsigned int depth;		/* level of nesting in serio hierarchy */
+ 
+ 	struct serio_driver *drv;	/* accessed from interrupt, must be protected by serio->lock and serio->sem */
+ 	struct mutex drv_mutex;		/* protects serio->drv so attributes can pin driver */
+
 
 -- 
-Dmitry
+Jiri Kosina

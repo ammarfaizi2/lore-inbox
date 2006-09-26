@@ -1,66 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750791AbWIZIHb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750816AbWIZI3P@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750791AbWIZIHb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Sep 2006 04:07:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750792AbWIZIHb
+	id S1750816AbWIZI3P (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Sep 2006 04:29:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750817AbWIZI3P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Sep 2006 04:07:31 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:13244 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1750791AbWIZIH3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Sep 2006 04:07:29 -0400
-Subject: Re: [PATCH] restore libata build on frv
-From: David Woodhouse <dwmw2@infradead.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: David Howells <dhowells@redhat.com>, Al Viro <viro@ftp.linux.org.uk>,
-       Linus Torvalds <torvalds@osdl.org>, Jeff Garzik <jgarzik@pobox.com>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <1159199184.11049.93.camel@localhost.localdomain>
-References: <20060925142016.GI29920@ftp.linux.org.uk>
-	 <1159186771.11049.63.camel@localhost.localdomain>
-	 <1159183568.11049.51.camel@localhost.localdomain>
-	 <20060924223925.GU29920@ftp.linux.org.uk>
-	 <22314.1159181060@warthog.cambridge.redhat.com>
-	 <5578.1159183668@warthog.cambridge.redhat.com>
-	 <7276.1159186684@warthog.cambridge.redhat.com>
-	 <20660.1159195152@warthog.cambridge.redhat.com>
-	 <1159199184.11049.93.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Tue, 26 Sep 2006 09:06:53 +0100
-Message-Id: <1159258013.3309.9.camel@pmac.infradead.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5.dwmw2.1) 
+	Tue, 26 Sep 2006 04:29:15 -0400
+Received: from gw.goop.org ([64.81.55.164]:46530 "EHLO mail.goop.org")
+	by vger.kernel.org with ESMTP id S1750816AbWIZI3O (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Sep 2006 04:29:14 -0400
+Message-ID: <4518E4DF.8010007@goop.org>
+Date: Tue, 26 Sep 2006 01:29:19 -0700
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
+MIME-Version: 1.0
+To: Andy Whitcroft <apw@shadowen.org>
+CC: Martin Bligh <mbligh@google.com>, Andrew Morton <akpm@osdl.org>,
+       Andi Kleen <ak@suse.de>, LKML <linux-kernel@vger.kernel.org>,
+       Ian Campbell <Ian.Campbell@XenSource.com>
+Subject: Re: 2.6.18-mm1 compile failure on x86_64
+References: <45185A93.7020105@google.com> <4518DC0B.10207@shadowen.org>
+In-Reply-To: <4518DC0B.10207@shadowen.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-09-25 at 16:46 +0100, Alan Cox wrote:
-> Ar Llu, 2006-09-25 am 15:39 +0100, ysgrifennodd David Howells:
-> > Why does the arch have to supply those numbers?  What's wrong with my
-> > suggested patch?  According to code in libata, these are _legacy_ access
-> > methods, and on FRV they aren't currently required, so why can't I dispense
-> 
-> "legacy, legacy, legacy" "wont wont wont"
-> 
-> The ports in question are PCI values. They come from the PCI
-> specifications and apply to any device with PCI bus, unless it has
-> special mappings. The same logic you are whining about is already partly
-> handled in the generic pci quirks code, and in time will end up with the
-> I/O port value fixups there anyway.
+Andy Whitcroft wrote:
+> Martin Bligh wrote:
+>   
+>> http://test.kernel.org/abat/49037/debug/test.log.0   
+>>
+>>   AS      arch/x86_64/boot/bootsect.o
+>>   LD      arch/x86_64/boot/bootsect
+>>   AS      arch/x86_64/boot/setup.o
+>>   LD      arch/x86_64/boot/setup
+>>   AS      arch/x86_64/boot/compressed/head.o
+>>   CC      arch/x86_64/boot/compressed/misc.o
+>>   OBJCOPY arch/x86_64/boot/compressed/vmlinux.bin
+>> BFD: Warning: Writing section `.data.percpu' to huge (ie negative) file
+>> offset 0x804700c0.
+>> /usr/local/autobench/sources/x86_64-cross/gcc-3.4.0-glibc-2.3.2/bin/x86_64-unknown-linux-gnu-objcopy:
+>> arch/x86_64/boot/compressed/vmlinux.bin: File truncated
+>> make[2]: *** [arch/x86_64/boot/compressed/vmlinux.bin] Error 1
+>> make[1]: *** [arch/x86_64/boot/compressed/vmlinux] Error 2
+>> make: *** [bzImage] Error 2
+>> 09/25/06-09:13:48 Build the kernel. Failed rc = 2
+>> 09/25/06-09:13:49 build: kernel build Failed rc = 1
+>>
+>> Wierd. Same box compiled 2.6.18 fine.
+>>     
 >
-> See quirk_ide_bases in drivers/pci/quirks.c
+> Pretty sure this isn't a space problem, as we have just checked space
+> before the build and I've taken no action since then.  Someone did
+> mention "tool chain issue" when it was first spotted.  Will check with
+> them and see why they thought that.
+>   
 
-If we can do that with PCI quirks, why the need to hard-code it in the
-IDE driver too?
+Does this box have an older version of binutils (2.15?)?  If so, it 
+might be getting upset over the patch "note-section" in Andi's queue.  I 
+know it has been a bit problematic, but I don't know if the problems 
+manifest in this way.
 
-And IRQ zero isn't particularly helpful suggestion -- using an invalid
-IRQ number would be better. Like NO_IRQ or IDE_NO_IRQ, which should be
--1.
-
-Don't make me dig out the board where the PCI slots all get IRQ 0 :)
-
--- 
-dwmw2
-
+    J

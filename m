@@ -1,67 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750955AbWIZJnY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751045AbWIZJsW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750955AbWIZJnY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Sep 2006 05:43:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750981AbWIZJnY
+	id S1751045AbWIZJsW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Sep 2006 05:48:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751046AbWIZJsV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Sep 2006 05:43:24 -0400
-Received: from mail.sf-mail.de ([62.27.20.61]:1746 "EHLO mail.sf-mail.de")
-	by vger.kernel.org with ESMTP id S1750955AbWIZJnX (ORCPT
+	Tue, 26 Sep 2006 05:48:21 -0400
+Received: from nat-132.atmel.no ([80.232.32.132]:61661 "EHLO relay.atmel.no")
+	by vger.kernel.org with ESMTP id S1751045AbWIZJsV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Sep 2006 05:43:23 -0400
-From: Rolf Eike Beer <eike-kernel@sf-tec.de>
-To: linux-mm@kvack.org
-Subject: [PATCH] Mark __remove_vm_area() static
-Date: Tue, 26 Sep 2006 11:43:50 +0200
-User-Agent: KMail/1.9.4
-Cc: linux-kernel@vger.kernel.org, akpm@osdl.org
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+	Tue, 26 Sep 2006 05:48:21 -0400
+Date: Tue, 26 Sep 2006 11:48:26 +0200
+From: Haavard Skinnemoen <hskinnemoen@atmel.com>
+To: Andrew Victor <andrew@sanpeople.com>
+Cc: Russell King <rmk+lkml@arm.linux.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/3] at91_serial: Introduction
+Message-ID: <20060926114826.3f85b939@cad-250-152.norway.atmel.com>
+In-Reply-To: <1159262891.24662.25.camel@fuzzie.sanpeople.com>
+References: <11545303083273-git-send-email-hskinnemoen@atmel.com>
+	<20060923211417.GB4363@flint.arm.linux.org.uk>
+	<1159261584.24659.16.camel@fuzzie.sanpeople.com>
+	<20060926112757.03dd8cbc@cad-250-152.norway.atmel.com>
+	<1159262891.24662.25.camel@fuzzie.sanpeople.com>
+Organization: Atmel Norway
+X-Mailer: Sylpheed-Claws 2.5.0-rc3 (GTK+ 2.8.20; i486-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200609261143.51105.eike-kernel@sf-tec.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The function is exported but not used from anywhere else. It's also marked as
-"not for driver use" so noone out there should really care.
+On 26 Sep 2006 11:28:11 +0200
+Andrew Victor <andrew@sanpeople.com> wrote:
 
-Signed-off-by: Rolf Eike Beer <eike-kernel@sf-tec.de>
+> hi Haavard,
+> 
+> > Maybe we can agree on a platform_data format so
+> > that we can remove the #ifdef altogether?
+> 
+> The platform_data structure is currently defined in
+> include/asm-arm/arch-at91rm9200/board.h as:
+> 
+> struct at91_uart_data {
+> 	short	use_dma_tx;	/* use transmit DMA? */
+> 	short	use_dma_rx;	/* use receive DMA? */
+> };
+> 
+> I don't think the DMA-support is currently in mainline, but is in the
+> pending patches on http://maxim.org.za/AT91RM9200/2.6/
 
----
-commit 1d88bdc56807cccf598d8b92fb98ddf03f3a42db
-tree 72c6525b019b9102c14778141ed1f236d7ebe331
-parent 8322f0cb8a117fe42e993d48f5ae0fbc006f8ef0
-author Rolf Eike Beer <eike-kernel@sf-tec.de> Tue, 26 Sep 2006 11:41:42 +0200
-committer Rolf Eike Beer <eike-kernel@sf-tec.de> Tue, 26 Sep 2006 11:41:42 +0200
+Are you going to submit it for 2.6.19? I want to try to slam a big
+rename patch in without messing up too many not-yet-submitted patches...
 
- include/linux/vmalloc.h |    1 -
- mm/vmalloc.c            |    2 +-
- 2 files changed, 1 insertions(+), 2 deletions(-)
+> I guess we can just add another field:
+> 	short	no_remap;	/* base address is already
+> mapped */ (or something similar)
 
-diff --git a/include/linux/vmalloc.h b/include/linux/vmalloc.h
-index 71b6363..dc6f55e 100644
---- a/include/linux/vmalloc.h
-+++ b/include/linux/vmalloc.h
-@@ -64,7 +64,6 @@ extern struct vm_struct *__get_vm_area(u
- extern struct vm_struct *get_vm_area_node(unsigned long size,
- 					unsigned long flags, int node);
- extern struct vm_struct *remove_vm_area(void *addr);
--extern struct vm_struct *__remove_vm_area(void *addr);
- extern int map_vm_area(struct vm_struct *area, pgprot_t prot,
- 			struct page ***pages);
- extern void unmap_vm_area(struct vm_struct *area);
-diff --git a/mm/vmalloc.c b/mm/vmalloc.c
-index 3ac7c03..44fb4ca 100644
---- a/mm/vmalloc.c
-+++ b/mm/vmalloc.c
-@@ -269,7 +269,7 @@ static struct vm_struct *__find_vm_area(
- }
- 
- /* Caller must hold vmlist_lock */
--struct vm_struct *__remove_vm_area(void *addr)
-+static struct vm_struct *__remove_vm_area(void *addr)
- {
- 	struct vm_struct **p, *tmp;
- 
+Or maybe even better:
+	void __iomem *regs;	/* fixed mapping of base address */
+
+to indicate the actual mapping (if it's NULL, it hasn't been mapped yet)
+
+Haavard

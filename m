@@ -1,63 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751045AbWIZJsW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750814AbWIZKJt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751045AbWIZJsW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Sep 2006 05:48:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751046AbWIZJsV
+	id S1750814AbWIZKJt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Sep 2006 06:09:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751037AbWIZKJt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Sep 2006 05:48:21 -0400
-Received: from nat-132.atmel.no ([80.232.32.132]:61661 "EHLO relay.atmel.no")
-	by vger.kernel.org with ESMTP id S1751045AbWIZJsV (ORCPT
+	Tue, 26 Sep 2006 06:09:49 -0400
+Received: from mx2.suse.de ([195.135.220.15]:33156 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1750814AbWIZKJs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Sep 2006 05:48:21 -0400
-Date: Tue, 26 Sep 2006 11:48:26 +0200
-From: Haavard Skinnemoen <hskinnemoen@atmel.com>
-To: Andrew Victor <andrew@sanpeople.com>
-Cc: Russell King <rmk+lkml@arm.linux.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 0/3] at91_serial: Introduction
-Message-ID: <20060926114826.3f85b939@cad-250-152.norway.atmel.com>
-In-Reply-To: <1159262891.24662.25.camel@fuzzie.sanpeople.com>
-References: <11545303083273-git-send-email-hskinnemoen@atmel.com>
-	<20060923211417.GB4363@flint.arm.linux.org.uk>
-	<1159261584.24659.16.camel@fuzzie.sanpeople.com>
-	<20060926112757.03dd8cbc@cad-250-152.norway.atmel.com>
-	<1159262891.24662.25.camel@fuzzie.sanpeople.com>
-Organization: Atmel Norway
-X-Mailer: Sylpheed-Claws 2.5.0-rc3 (GTK+ 2.8.20; i486-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 26 Sep 2006 06:09:48 -0400
+Date: Tue, 26 Sep 2006 12:08:47 +0200
+From: Stefan Seyfried <seife@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Pavel Machek <pavel@ucw.cz>, Nigel Cunningham <ncunningham@linuxmail.org>,
+       linux-kernel@vger.kernel.org, "Rafael J. Wysocki" <rjw@sisk.pl>
+Subject: Re: When will the lunacy end? (Was Re: [PATCH] uswsusp: add pmops->{prepare,enter,finish} support (aka "platform mode"))
+Message-ID: <20060926100847.GC5782@suse.de>
+References: <20060925071338.GD9869@suse.de> <1159220043.12814.30.camel@nigel.suspend2.net> <20060925144558.878c5374.akpm@osdl.org> <20060925224500.GB2540@elf.ucw.cz> <20060925160648.de96b6fa.akpm@osdl.org> <20060925232151.GA1896@elf.ucw.cz> <20060925172240.5c389c25.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20060925172240.5c389c25.akpm@osdl.org>
+X-Operating-System: SUSE Linux Enterprise Desktop 10 (i586), Kernel 2.6.18-3-seife
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 26 Sep 2006 11:28:11 +0200
-Andrew Victor <andrew@sanpeople.com> wrote:
-
-> hi Haavard,
+On Mon, Sep 25, 2006 at 05:22:40PM -0700, Andrew Morton wrote:
+> On Tue, 26 Sep 2006 01:21:51 +0200
+> Pavel Machek <pavel@ucw.cz> wrote:
+ 
+> > 15 seconds spend within drivers is definitely _not_ okay.
 > 
-> > Maybe we can agree on a platform_data format so
-> > that we can remove the #ifdef altogether?
-> 
-> The platform_data structure is currently defined in
-> include/asm-arm/arch-at91rm9200/board.h as:
-> 
-> struct at91_uart_data {
-> 	short	use_dma_tx;	/* use transmit DMA? */
-> 	short	use_dma_rx;	/* use receive DMA? */
-> };
-> 
-> I don't think the DMA-support is currently in mainline, but is in the
-> pending patches on http://maxim.org.za/AT91RM9200/2.6/
+> I assumed it was the same for everyone else ;)
 
-Are you going to submit it for 2.6.19? I want to try to slam a big
-rename patch in without messing up too many not-yet-submitted patches...
+No, it is not. Although i must admit that Pavel actually seems to _never_
+have the bad hardware, and i seem to _always_ get the bad hardware, that
+is slow to suspend :-)
 
-> I guess we can just add another field:
-> 	short	no_remap;	/* base address is already
-> mapped */ (or something similar)
-
-Or maybe even better:
-	void __iomem *regs;	/* fixed mapping of base address */
-
-to indicate the actual mapping (if it's NULL, it hasn't been mapped yet)
-
-Haavard
+(it might sometimes also be software setup problems, not only hardware)
+-- 
+Stefan Seyfried
+QA / R&D Team Mobile Devices        |              "Any ideas, John?"
+SUSE LINUX Products GmbH, Nürnberg  | "Well, surrounding them's out." 

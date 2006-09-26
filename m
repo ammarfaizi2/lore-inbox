@@ -1,24 +1,24 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932174AbWIZRfS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932167AbWIZRfG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932174AbWIZRfS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Sep 2006 13:35:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932175AbWIZRfR
+	id S932167AbWIZRfG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Sep 2006 13:35:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932172AbWIZRfF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Sep 2006 13:35:17 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:55689 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S932174AbWIZRfQ (ORCPT
+	Tue, 26 Sep 2006 13:35:05 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:53641 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S932167AbWIZRfE (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Sep 2006 13:35:16 -0400
-Message-ID: <451964D2.4090203@pobox.com>
-Date: Tue, 26 Sep 2006 13:35:14 -0400
+	Tue, 26 Sep 2006 13:35:04 -0400
+Message-ID: <451964C5.9090909@pobox.com>
+Date: Tue, 26 Sep 2006 13:35:01 -0400
 From: Jeff Garzik <jgarzik@pobox.com>
 User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
 MIME-Version: 1.0
 To: Alan Cox <alan@lxorguk.ukuu.org.uk>
 CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] libata: tighten rules for legacy dependancies
-References: <1159288642.11049.253.camel@localhost.localdomain>
-In-Reply-To: <1159288642.11049.253.camel@localhost.localdomain>
+Subject: Re: [PATCH] libata: refuse to register IRQless ports
+References: <1159288532.11049.250.camel@localhost.localdomain>
+In-Reply-To: <1159288532.11049.250.camel@localhost.localdomain>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 X-Spam-Score: -4.3 (----)
@@ -28,11 +28,12 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 Alan Cox wrote:
-> The legacy and QDI drivers are ISA/VLB bus [we don't have a VLB define
-> but ISA will do nicely].
+> We don't currently support pure polled operation so when we meet a BIOS
+> which forgot to assign an IRQ to a PCI device it all goes a little pear
+> shaped. Trap this case properly.
 > 
 > Signed-off-by: Alan Cox <alan@redhat.com>
 
-applied
+applied, but please stop adding trailing whitespace
 
 

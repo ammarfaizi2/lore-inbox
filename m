@@ -1,113 +1,174 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751405AbWIZFor@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751464AbWIZFkr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751405AbWIZFor (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Sep 2006 01:44:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751445AbWIZFkK
+	id S1751464AbWIZFkr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Sep 2006 01:40:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751447AbWIZFkN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Sep 2006 01:40:10 -0400
-Received: from ns2.suse.de ([195.135.220.15]:42709 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751418AbWIZFjg (ORCPT
+	Tue, 26 Sep 2006 01:40:13 -0400
+Received: from ns2.suse.de ([195.135.220.15]:41429 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751405AbWIZFjd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Sep 2006 01:39:36 -0400
+	Tue, 26 Sep 2006 01:39:33 -0400
 From: Greg KH <greg@kroah.com>
 To: linux-kernel@vger.kernel.org
 Cc: Greg Kroah-Hartman <gregkh@suse.de>
-Subject: [PATCH 29/47] Driver core: add device_rename function
-Date: Mon, 25 Sep 2006 22:37:49 -0700
-Message-Id: <1159249177618-git-send-email-greg@kroah.com>
+Subject: [PATCH 28/47] Driver core: add ability for classes to handle devices properly
+Date: Mon, 25 Sep 2006 22:37:48 -0700
+Message-Id: <11592491744040-git-send-email-greg@kroah.com>
 X-Mailer: git-send-email 1.4.2.1
-In-Reply-To: <11592491744040-git-send-email-greg@kroah.com>
+In-Reply-To: <11592491704137-git-send-email-greg@kroah.com>
 References: <20060926053728.GA8970@kroah.com> <1159249087369-git-send-email-greg@kroah.com> <11592490903867-git-send-email-greg@kroah.com> <11592490933346-git-send-email-greg@kroah.com> <1159249096460-git-send-email-greg@kroah.com> <11592490993970-git-send-email-greg@kroah.com> <11592491023995-git-send-email-greg@kroah.com> <1159249104512-git-send-email-greg@kroah.com> <11592491082990-git-send-email-greg@kroah.com> <1159249111668-git-send-email-greg@kroah.com> <11592491152668-git-send-email-greg@kroah.com> <115924911859-git-send-email-greg@kroah.com> <11592491211162-git-send-email-greg@kroah.com> <1159249124371-git-send-email-greg@kroah.com> <11592491274168-git-send-email-greg@kroah.com> <11592491303012-git-send-email-greg@kroah.com> <11592491342421-git-send-email-greg@kroah.com> <11592491371254-git-send-email-greg@kroah.com> <1159249140339-git-send-email-greg@kroah.com> <11592491451786-git-send-email-greg@kroah.com> <11592491482560-git-send-email-greg@kroah.com> <11592491512
- 235-git-send-email-greg@kroah.com> <11592491551919-git-send-email-greg@kroah.com> <11592491581007-git-send-email-greg@kroah.com> <11592491611339-git-send-email-greg@kroah.com> <11592491643725-git-send-email-greg@kroah.com> <11592491672052-git-send-email-greg@kroah.com> <11592491704137-git-send-email-greg@kroah.com> <11592491744040-git-send-email-greg@kroah.com>
+ 235-git-send-email-greg@kroah.com> <11592491551919-git-send-email-greg@kroah.com> <11592491581007-git-send-email-greg@kroah.com> <11592491611339-git-send-email-greg@kroah.com> <11592491643725-git-send-email-greg@kroah.com> <11592491672052-git-send-email-greg@kroah.com> <11592491704137-git-send-email-greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: Greg Kroah-Hartman <gregkh@suse.de>
 
-The network layer needs this to convert to using struct device instead
-of a struct class_device.
+This adds two new callbacks to the class structure:
+	int	(*dev_uevent)(struct device *dev, char **envp, int num_envp,
+			char *buffer, int buffer_size);
+	void	(*dev_release)(struct device *dev);
+
+And one pointer:
+	struct device_attribute		* dev_attrs;
+
+which all corrispond with the same thing as the "normal" class devices
+do, yet this is for when a struct device is bound to a class.
+
+Someday soon, struct class_device will go away, and then the other
+fields in this structure can be removed too.  But this is necessary in
+order to get the transition to work properly.
+
+Tested out on a network core patch that converted it to use struct
+device instead of struct class_device.
+
 
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 ---
- drivers/base/core.c    |   55 ++++++++++++++++++++++++++++++++++++++++++++++++
- include/linux/device.h |    1 +
- 2 files changed, 56 insertions(+), 0 deletions(-)
+ drivers/base/core.c    |   53 ++++++++++++++++++++++++++++++++++++++++++++++++
+ include/linux/device.h |    4 ++++
+ 2 files changed, 57 insertions(+), 0 deletions(-)
 
 diff --git a/drivers/base/core.c b/drivers/base/core.c
-index f1228f2..0db4756 100644
+index 5c91d0d..f1228f2 100644
 --- a/drivers/base/core.c
 +++ b/drivers/base/core.c
-@@ -736,3 +736,58 @@ void device_destroy(struct class *class,
- 		device_unregister(dev);
- }
- EXPORT_SYMBOL_GPL(device_destroy);
-+
-+/**
-+ * device_rename - renames a device
-+ * @dev: the pointer to the struct device to be renamed
-+ * @new_name: the new name of the device
-+ */
-+int device_rename(struct device *dev, char *new_name)
-+{
-+	char *old_class_name = NULL;
-+	char *new_class_name = NULL;
-+	char *old_symlink_name = NULL;
-+	int error;
-+
-+	dev = get_device(dev);
-+	if (!dev)
-+		return -EINVAL;
-+
-+	pr_debug("DEVICE: renaming '%s' to '%s'\n", dev->bus_id, new_name);
-+
-+	if ((dev->class) && (dev->parent))
-+		old_class_name = make_class_name(dev->class->name, &dev->kobj);
-+
-+	if (dev->class) {
-+		old_symlink_name = kmalloc(BUS_ID_SIZE, GFP_KERNEL);
-+		if (!old_symlink_name)
-+			return -ENOMEM;
-+		strlcpy(old_symlink_name, dev->bus_id, BUS_ID_SIZE);
-+	}
-+
-+	strlcpy(dev->bus_id, new_name, BUS_ID_SIZE);
-+
-+	error = kobject_rename(&dev->kobj, new_name);
-+
-+	if (old_class_name) {
-+		new_class_name = make_class_name(dev->class->name, &dev->kobj);
-+		if (new_class_name) {
-+			sysfs_create_link(&dev->parent->kobj, &dev->kobj,
-+					  new_class_name);
-+			sysfs_remove_link(&dev->parent->kobj, old_class_name);
+@@ -94,6 +94,8 @@ static void device_release(struct kobjec
+ 
+ 	if (dev->release)
+ 		dev->release(dev);
++	else if (dev->class && dev->class->dev_release)
++		dev->class->dev_release(dev);
+ 	else {
+ 		printk(KERN_ERR "Device '%s' does not have a release() function, "
+ 			"it is broken and must be fixed.\n",
+@@ -183,6 +185,15 @@ static int dev_uevent(struct kset *kset,
+ 		}
+ 	}
+ 
++	if (dev->class && dev->class->dev_uevent) {
++		/* have the class specific function add its stuff */
++		retval = dev->class->dev_uevent(dev, envp, num_envp, buffer, buffer_size);
++			if (retval) {
++				pr_debug("%s - dev_uevent() returned %d\n",
++					 __FUNCTION__, retval);
 +		}
 +	}
-+	if (dev->class) {
-+		sysfs_remove_link(&dev->class->subsys.kset.kobj,
-+				  old_symlink_name);
-+		sysfs_create_link(&dev->class->subsys.kset.kobj, &dev->kobj,
-+				  dev->bus_id);
++
+ 	return retval;
+ }
+ 
+@@ -228,6 +239,43 @@ static void device_remove_groups(struct 
+ 	}
+ }
+ 
++static int device_add_attrs(struct device *dev)
++{
++	struct class *class = dev->class;
++	int error = 0;
++	int i;
++
++	if (!class)
++		return 0;
++
++	if (class->dev_attrs) {
++		for (i = 0; attr_name(class->dev_attrs[i]); i++) {
++			error = device_create_file(dev, &class->dev_attrs[i]);
++			if (error)
++				break;
++		}
 +	}
-+	put_device(dev);
-+
-+	kfree(old_class_name);
-+	kfree(new_class_name);
-+	kfree(old_symlink_name);
-+
++	if (error)
++		while (--i >= 0)
++			device_remove_file(dev, &class->dev_attrs[i]);
 +	return error;
 +}
++
++static void device_remove_attrs(struct device *dev)
++{
++	struct class *class = dev->class;
++	int i;
++
++	if (!class)
++		return;
++
++	if (class->dev_attrs) {
++		for (i = 0; attr_name(class->dev_attrs[i]); i++)
++			device_remove_file(dev, &class->dev_attrs[i]);
++	}
++}
++
++
+ static ssize_t show_dev(struct device *dev, struct device_attribute *attr,
+ 			char *buf)
+ {
+@@ -382,6 +430,8 @@ int device_add(struct device *dev)
+ 		}
+ 	}
+ 
++	if ((error = device_add_attrs(dev)))
++		goto AttrsError;
+ 	if ((error = device_add_groups(dev)))
+ 		goto GroupError;
+ 	if ((error = device_pm_add(dev)))
+@@ -412,6 +462,8 @@ int device_add(struct device *dev)
+  PMError:
+ 	device_remove_groups(dev);
+  GroupError:
++ 	device_remove_attrs(dev);
++ AttrsError:
+ 	if (dev->devt_attr) {
+ 		device_remove_file(dev, dev->devt_attr);
+ 		kfree(dev->devt_attr);
+@@ -509,6 +561,7 @@ void device_del(struct device * dev)
+ 	}
+ 	device_remove_file(dev, &dev->uevent_attr);
+ 	device_remove_groups(dev);
++	device_remove_attrs(dev);
+ 
+ 	/* Notify the platform of the removal, in case they
+ 	 * need to do anything...
 diff --git a/include/linux/device.h b/include/linux/device.h
-index 3122bd2..3400e09 100644
+index 994d3eb..3122bd2 100644
 --- a/include/linux/device.h
 +++ b/include/linux/device.h
-@@ -380,6 +380,7 @@ extern int device_add(struct device * de
- extern void device_del(struct device * dev);
- extern int device_for_each_child(struct device *, void *,
- 		     int (*fn)(struct device *, void *));
-+extern int device_rename(struct device *dev, char *new_name);
+@@ -151,12 +151,16 @@ struct class {
  
- /*
-  * Manual binding of a device to driver. See drivers/base/bus.c
+ 	struct class_attribute		* class_attrs;
+ 	struct class_device_attribute	* class_dev_attrs;
++	struct device_attribute		* dev_attrs;
+ 
+ 	int	(*uevent)(struct class_device *dev, char **envp,
+ 			   int num_envp, char *buffer, int buffer_size);
++	int	(*dev_uevent)(struct device *dev, char **envp, int num_envp,
++				char *buffer, int buffer_size);
+ 
+ 	void	(*release)(struct class_device *dev);
+ 	void	(*class_release)(struct class *class);
++	void	(*dev_release)(struct device *dev);
+ 
+ 	int	(*suspend)(struct device *, pm_message_t state);
+ 	int	(*resume)(struct device *);
 -- 
 1.4.2.1
 

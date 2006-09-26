@@ -1,51 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932301AbWIZUof@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964800AbWIZUpl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932301AbWIZUof (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Sep 2006 16:44:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932303AbWIZUoe
+	id S964800AbWIZUpl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Sep 2006 16:45:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964797AbWIZUpk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Sep 2006 16:44:34 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:18321 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S932301AbWIZUoe (ORCPT
+	Tue, 26 Sep 2006 16:45:40 -0400
+Received: from atlrel6.hp.com ([156.153.255.205]:56517 "EHLO atlrel6.hp.com")
+	by vger.kernel.org with ESMTP id S964798AbWIZUpi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Sep 2006 16:44:34 -0400
-Message-ID: <4519912C.80402@garzik.org>
-Date: Tue, 26 Sep 2006 16:44:28 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
+	Tue, 26 Sep 2006 16:45:38 -0400
+From: Bjorn Helgaas <bjorn.helgaas@hp.com>
+To: Andrew Morton <akpm@osdl.org>
+Subject: [patch] i386: replace intermediate array-size definitions with ARRAY_SIZE()
+Date: Tue, 26 Sep 2006 14:45:21 -0600
+User-Agent: KMail/1.9.1
+Cc: linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-To: Greg KH <greg@kroah.com>
-CC: Andrew Morton <akpm@osdl.org>, Jim Paradis <jparadis@redhat.com>,
-       Andi Kleen <ak@suse.de>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] x86[-64] PCI domain support
-References: <20060926191508.GA6350@havoc.gtf.org> <20060926202303.GA15369@kroah.com>
-In-Reply-To: <20060926202303.GA15369@kroah.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.3 (----)
-X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.3 points, 5.0 required)
+Content-Disposition: inline
+Message-Id: <200609261445.21537.bjorn.helgaas@hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Greg KH wrote:
-> On Tue, Sep 26, 2006 at 03:15:08PM -0400, Jeff Garzik wrote:
->> The x86[-64] PCI domain effort needs to be restarted, because we've got
->> machines out in the field that need this in order for some devices to
->> work.
->>
->> RHEL is shipping it now, apparently without any problems.
->>
->> The 'pciseg' branch of
->> git://git.kernel.org/pub/scm/linux/kernel/git/jgarzik/misc-2.6.git pciseg
-> 
-> So are the NUMA issues now taken care of properly?  If so, care to send
-> me the patches for this so I can add them to my quilt tree?
+Code is easier to validate if array sizes aren't hidden behind extra
+#defines.
 
-Er, I just posted the combined patch for review.  Can't you pull from 
-the above URL?  It's a bit of a pain to dive in and out of git.
+Signed-off-by: Bjorn Helgaas <bjorn.helgaas@hp.com>
 
-	Jeff
-
-
-
+Index: work-mm3/arch/i386/kernel/setup.c
+===================================================================
+--- work-mm3.orig/arch/i386/kernel/setup.c	2006-09-26 14:33:24.000000000 -0600
++++ work-mm3/arch/i386/kernel/setup.c	2006-09-26 14:37:57.000000000 -0600
+@@ -209,9 +209,6 @@
+ 	.flags	= IORESOURCE_BUSY | IORESOURCE_READONLY | IORESOURCE_MEM
+ } };
+ 
+-#define ADAPTER_ROM_RESOURCES \
+-	(sizeof adapter_rom_resources / sizeof adapter_rom_resources[0])
+-
+ static struct resource video_rom_resource = {
+ 	.name 	= "Video ROM",
+ 	.start	= 0xc0000,
+@@ -273,9 +270,6 @@
+ 	.flags	= IORESOURCE_BUSY | IORESOURCE_IO
+ } };
+ 
+-#define STANDARD_IO_RESOURCES \
+-	(sizeof standard_io_resources / sizeof standard_io_resources[0])
+-
+ #define romsignature(x) (*(unsigned short *)(x) == 0xaa55)
+ 
+ static int __init romchecksum(unsigned char *rom, unsigned long length)
+@@ -332,7 +326,7 @@
+ 	}
+ 
+ 	/* check for adapter roms on 2k boundaries */
+-	for (i = 0; i < ADAPTER_ROM_RESOURCES && start < upper; start += 2048) {
++	for (i = 0; i < ARRAY_SIZE(adapter_rom_resources) && start < upper; start += 2048) {
+ 		rom = isa_bus_to_virt(start);
+ 		if (!romsignature(rom))
+ 			continue;
+@@ -1292,7 +1286,7 @@
+ 	request_resource(&iomem_resource, &video_ram_resource);
+ 
+ 	/* request I/O space for devices used on all i[345]86 PCs */
+-	for (i = 0; i < STANDARD_IO_RESOURCES; i++)
++	for (i = 0; i < ARRAY_SIZE(standard_io_resources); i++)
+ 		request_resource(&ioport_resource, &standard_io_resources[i]);
+ 	return 0;
+ }

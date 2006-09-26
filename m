@@ -1,77 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932146AbWIZPys@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932154AbWIZPzE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932146AbWIZPys (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Sep 2006 11:54:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932153AbWIZPyq
+	id S932154AbWIZPzE (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Sep 2006 11:55:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932153AbWIZPzE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Sep 2006 11:54:46 -0400
-Received: from igw2.watson.ibm.com ([129.34.20.6]:56805 "EHLO
-	igw2.watson.ibm.com") by vger.kernel.org with ESMTP id S932146AbWIZPy3
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Sep 2006 11:54:29 -0400
-Subject: Re: [PATCH 7/7] SLIM: documentation
-From: David Safford <safford@watson.ibm.com>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: kjhall@us.ibm.com, linux-kernel <linux-kernel@vger.kernel.org>,
-       LSM ML <linux-security-module@vger.kernel.org>,
-       David Safford <safford@us.ibm.com>, Mimi Zohar <zohar@us.ibm.com>,
-       Serge E Hallyn <sergeh@us.ibm.com>, akpm@osdl.org
-In-Reply-To: <20060919191643.GA7246@elf.ucw.cz>
-References: <1158083888.18137.18.camel@localhost.localdomain>
-	 <20060919191643.GA7246@elf.ucw.cz>
-Content-Type: text/plain
-Date: Tue, 26 Sep 2006 11:54:45 -0400
-Message-Id: <1159286085.4718.4.camel@localhost.localdomain>
+	Tue, 26 Sep 2006 11:55:04 -0400
+Received: from xenotime.net ([66.160.160.81]:34459 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S932149AbWIZPzA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Sep 2006 11:55:00 -0400
+Date: Tue, 26 Sep 2006 08:56:11 -0700
+From: Randy Dunlap <rdunlap@xenotime.net>
+To: Takashi Iwai <tiwai@suse.de>
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>, Pavel Machek <pavel@suse.cz>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       alsa-devel@alsa-project.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.18: hda_intel: azx_get_response timeout, switching to
+ single_cmd mode...
+Message-Id: <20060926085611.c32e7cb2.rdunlap@xenotime.net>
+In-Reply-To: <s5hy7s6r5m6.wl%tiwai@suse.de>
+References: <451834D0.40304@goop.org>
+	<s5hlko7szjy.wl%tiwai@suse.de>
+	<20060926083720.da9dca8e.rdunlap@xenotime.net>
+	<s5hy7s6r5m6.wl%tiwai@suse.de>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5) 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-09-19 at 21:16 +0200, Pavel Machek wrote: 
-> Hi!
+On Tue, 26 Sep 2006 17:48:33 +0200 Takashi Iwai wrote:
+
+> At Tue, 26 Sep 2006 08:37:20 -0700,
+> Randy Dunlap wrote:
+> > 
+> > On Tue, 26 Sep 2006 12:16:33 +0200 Takashi Iwai wrote:
+> > 
+> > > At Mon, 25 Sep 2006 12:58:08 -0700,
+> > > Jeremy Fitzhardinge wrote:
+> > > > 
+> > > > I have a ThinkPad X60 which uses the Intel 82801G HDA audio chip.  This 
+> > > > used to work for me, but lately (sometime during 2.6.18-rcX series) it 
+> > > > stopped working - programs trying to use it tend to just block forever 
+> > > > waiting for /dev/dsp.
+> > > > 
+> > > > The only obvious symptom is:
+> > > > 
+> > > >     hda_intel: azx_get_response timeout, switching to single_cmd mode...
+> > > > 
+> > > > appearing in the kernel log when booting.
+> > > > 
+> > > 
+> > > There is no big change relevant to TP X60 during 2.6.18rc, so I don't
+> > > think it's a regression in the hd-audio driver code.
+> > > 
+> > > > Details attached.  The dmesg output is for the FC6 distro kernel 
+> > > > 2.6.18-1.2689.fc6PAE, but I see the same symptoms with 2.6.18-mm1.
+> > > 
+> > > You must see difference with mm1 (suppose that mm1 already includes
+> > > the latest ALSA patches).  When the CORB/RIRB interrupt gets broken,
+> > > the driver first switches to poling mode, then single_cmd mode as
+> > > fallback.
+> > > 
+> > > Also, try disable_msi=1 option for mm1.  MSI seems broken on some
+> > > systems.
+> > 
+> > is that "pci=nomsi" ?
 > 
-> > Documentation.
+> No, snd-hda-intel driver has a new module option "disable_msi" to
+> disable MSI support on that driver.  As default, it's off, i.e. MSI is
+> enabled if available.  (Well, I feel it's better to rename it
+> enable_msi and set on as default...)
 > 
-> Thanks for it.
-> 
-> > +file /etc/resolv.conf, dbus-daemon, which accepts data from
-> > +potentially untrusted processes, Xorg, which has to accept data
-> > +from all Xwindow clients, regardless of level, and postfix which
-> > +delivers untrusted mail. Again, these applications inherently
-> > +must cross trust levels, and SLIM properly identifies them.
-> 
-> How is this supposed to work. Xorg was not designed to be security
-> barrier. So... your exploited evolution, but evolution is now
-> UNTRUSTED, so you can't do anything interesting... right?
-> 
-> Wrong. evolution can ask Xorg to simulate "rm -rf /" keypresses, and
-> send them to your shell in another window...
+> Sorry for unclear text.
 
-On one hand, I thought that allowSendEvents and editresBlock
-specifically blocked synthetic keypresses from shell windows like 
-xterm. On the other hand, I do agree that the X server
-can provide dangerous communications between levels, and needs to
-be fixed in some way. (dbus and Orbit have similar problems.)
+ugh.  We shouldn't have drivers with such options IMO.
+I have seen/used MSI for ethernet, SATA, and audio.
+It either works for all of them or none of them AFAIK.
 
-Slim and selinux can control X access through socket labels, so there
-are several options, based on your choice of policy:
-  - you can run in "single level at a time" mode, in which all processes
-    have to be at the same level, such as untrusted. This is safe, but
-    pretty unusable, as you have to have separate logins for each level.
-  - you can make the server a guard process, so that it can accept 
-    connections from applications at any level. This is not generally
-    safe as you point out, but is transparent to the user, and works
-    for now.
-  - you can add the necessary MAC checks into the X server, so that
-    it enforces the local policy. This is safe, and convenient, but
-    requires some patches to the server. NSA has started this work
-    as part of LSM/selinux. See 
-http://www.nsa.gov/selinux/papers/x11/t1.html
+Why do you think that it should not just be a global system option/flag?
 
-The documentation should have explained we are doing the second,
-temporarily, until the X (and dbus, and Orbit) hooks are available.
-
-dave
-
-
+---
+~Randy

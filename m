@@ -1,45 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964778AbWIZUPz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932279AbWIZUTn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964778AbWIZUPz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Sep 2006 16:15:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964779AbWIZUPz
+	id S932279AbWIZUTn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Sep 2006 16:19:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932284AbWIZUTn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Sep 2006 16:15:55 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.149]:63382 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S964778AbWIZUPy
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Sep 2006 16:15:54 -0400
-Subject: Re: 2.6.18 Nasty Lockup
-From: john stultz <johnstul@us.ibm.com>
-To: Greg Schafer <gschafer@zip.com.au>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20060926123640.GA7826@tigers.local>
-References: <20060926123640.GA7826@tigers.local>
-Content-Type: text/plain
-Date: Tue, 26 Sep 2006 13:15:51 -0700
-Message-Id: <1159301752.17071.0.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
+	Tue, 26 Sep 2006 16:19:43 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:9949 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932279AbWIZUTn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Sep 2006 16:19:43 -0400
+Date: Tue, 26 Sep 2006 13:19:38 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Andi Kleen <ak@suse.de>
+cc: linux-kernel@vger.kernel.org, discuss@x86-64.org
+Subject: Re: x86/x86-64 merge for 2.6.19
+In-Reply-To: <200609262202.28846.ak@suse.de>
+Message-ID: <Pine.LNX.4.64.0609261318240.3952@g5.osdl.org>
+References: <200609261244.43863.ak@suse.de> <Pine.LNX.4.64.0609261241390.3952@g5.osdl.org>
+ <200609262202.28846.ak@suse.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-09-26 at 22:36 +1000, Greg Schafer wrote:
-> Hi
+
+
+On Tue, 26 Sep 2006, Andi Kleen wrote:
+> > 
+> > I really don't want do http:// pulls - they are very inefficient, and I 
+> > don't trust the end result because the http protocol isn't really good for 
+> > verifying the end result (same goes for rsync:// to an even bigger 
+> > degree). 
 > 
-> This is a _hard_ lockup. No oops, no magic sysrq, no nuthin, just a
-> completely dead machine with only option the reset button. Usually happens
-> within a couple of minutes of desktop use but is 100% reproducible. Problem
-> is still there in a fresh checkout of current Linus git tree (post 2.6.18).
-> 
-> Dual Athlon-MP 2200's on a Tyan S2466 Tiger MPX. Config attached.
-> 
-> I used git-bisect and arrived at the apparent culprit below. Anything else I
-> should do to gather more info?
+> Sorry that was actually me typoing (my fingers are not used to git:// urls
+> yet) I've sent you a new email with correct URL
 
-Quick test: Does enabling CONFIG_ACPI change the behavior?
+I actually tried it with "git://" instead of "http://" bit maybe I typoed 
+too.
 
-thanks
--john
+Anyway, the new address was fine. Pulled, pushed out.
 
+(Side note, I'm hoping we can sync up more easily now, and in smaller 
+chunks ;)
 
+		Linus

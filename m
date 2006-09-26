@@ -1,37 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932348AbWIZQcJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932351AbWIZQb0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932348AbWIZQcJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Sep 2006 12:32:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932353AbWIZQcI
+	id S932351AbWIZQb0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Sep 2006 12:31:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932348AbWIZQb0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Sep 2006 12:32:08 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:44171 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932348AbWIZQcF (ORCPT
+	Tue, 26 Sep 2006 12:31:26 -0400
+Received: from mail.parknet.jp ([210.171.160.80]:1546 "EHLO parknet.jp")
+	by vger.kernel.org with ESMTP id S932351AbWIZQbZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Sep 2006 12:32:05 -0400
-Date: Tue, 26 Sep 2006 09:31:42 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Takashi Iwai <tiwai@suse.de>
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>, Pavel Machek <pavel@suse.cz>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       alsa-devel@alsa-project.org
-Subject: Re: 2.6.18: hda_intel: azx_get_response timeout, switching to
- single_cmd mode...
-Message-Id: <20060926093142.43369b93.akpm@osdl.org>
-In-Reply-To: <s5hlko7szjy.wl%tiwai@suse.de>
-References: <451834D0.40304@goop.org>
-	<s5hlko7szjy.wl%tiwai@suse.de>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 26 Sep 2006 12:31:25 -0400
+X-AuthUser: hirofumi@parknet.jp
+To: Andi Kleen <ak@suse.de>
+Cc: Greg KH <greg@kroah.com>, OGAWA Hirofumi <hogawa@miraclelinux.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] arch/i386/pci/mmconfig.c tlb flush fix
+References: <lry7s7t1su.fsf@dhcp-0242.miraclelinux.com>
+	<p73y7s6kebe.fsf@verdi.suse.de> <87mz8mzl6k.fsf@duaron.myhome.or.jp>
+	<200609261747.09923.ak@suse.de>
+From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Date: Wed, 27 Sep 2006 01:31:17 +0900
+In-Reply-To: <200609261747.09923.ak@suse.de> (Andi Kleen's message of "Tue\, 26 Sep 2006 17\:47\:09 +0200")
+Message-ID: <87d59izj1m.fsf@duaron.myhome.or.jp>
+User-Agent: Gnus/5.11 (Gnus v5.11) Emacs/22.0.50 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 26 Sep 2006 12:16:33 +0200
-Takashi Iwai <tiwai@suse.de> wrote:
+Andi Kleen <ak@suse.de> writes:
 
-> You must see difference with mm1 (suppose that mm1 already includes
-> the latest ALSA patches).
+> On Tuesday 26 September 2006 17:45, OGAWA Hirofumi wrote:
+>> Andi Kleen <ak@suse.de> writes:
+>> 
+>> > OGAWA Hirofumi <hogawa@miraclelinux.com> writes:
+>> >> 
+>> >> We use the fixmap for accessing pci config space in pci_mmcfg_read/write().
+>> >> The problem is in pci_exp_set_dev_base(). It is caching a last
+>> >> accessed address to avoid calling set_fixmap_nocache() whenever
+>> >> pci_mmcfg_read/write() is used.
+>> >
+>> >
+>> > Good catch. I already had another report of mmconfig corruption on i386,
+>> > but didn't have time to look at it yet.
+>> >
+>> > Will be definitely stable material once it hit mainline.
+>> 
+>> Indeed.
+>> 
+>> If I found this in mainline, should I send something like a reminder
+>> email with patch to you, Greg?
+>
+> I have it already queued for both.
 
-No, the alsa tree was accidentally omitted from 2.6.18-mm1, sorry.
+Oh, thanks.
+-- 
+OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>

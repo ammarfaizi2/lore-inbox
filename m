@@ -1,51 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964789AbWIZU13@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964788AbWIZUcz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964789AbWIZU13 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Sep 2006 16:27:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964791AbWIZU13
+	id S964788AbWIZUcz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Sep 2006 16:32:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964790AbWIZUcz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Sep 2006 16:27:29 -0400
-Received: from mx2.suse.de ([195.135.220.15]:17366 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S964789AbWIZU12 (ORCPT
+	Tue, 26 Sep 2006 16:32:55 -0400
+Received: from ogre.sisk.pl ([217.79.144.158]:65247 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S964788AbWIZUcy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Sep 2006 16:27:28 -0400
-From: Andi Kleen <ak@suse.de>
-To: Greg KH <greg@kroah.com>
-Subject: Re: [PATCH] x86[-64] PCI domain support
-Date: Tue, 26 Sep 2006 22:27:22 +0200
-User-Agent: KMail/1.9.3
-Cc: Jeff Garzik <jeff@garzik.org>, Andrew Morton <akpm@osdl.org>,
-       Jim Paradis <jparadis@redhat.com>, LKML <linux-kernel@vger.kernel.org>
-References: <20060926191508.GA6350@havoc.gtf.org> <20060926202303.GA15369@kroah.com>
-In-Reply-To: <20060926202303.GA15369@kroah.com>
+	Tue, 26 Sep 2006 16:32:54 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Adrian Bunk <bunk@stusta.de>
+Subject: Re: When will the lunacy end? (Was Re: [PATCH] uswsusp: add pmops->{prepare,enter,finish} support (aka "platform mode"))
+Date: Tue, 26 Sep 2006 22:35:13 +0200
+User-Agent: KMail/1.9.1
+Cc: Pavel Machek <pavel@ucw.cz>, Andrew Morton <akpm@osdl.org>,
+       Nigel Cunningham <ncunningham@linuxmail.org>,
+       Stefan Seyfried <seife@suse.de>, linux-kernel@vger.kernel.org
+References: <20060925071338.GD9869@suse.de> <20060925224500.GB2540@elf.ucw.cz> <20060926201437.GH4547@stusta.de>
+In-Reply-To: <20060926201437.GH4547@stusta.de>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200609262227.22217.ak@suse.de>
+Message-Id: <200609262235.14816.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 26 September 2006 22:23, Greg KH wrote:
-> On Tue, Sep 26, 2006 at 03:15:08PM -0400, Jeff Garzik wrote:
-> > 
-> > The x86[-64] PCI domain effort needs to be restarted, because we've got
-> > machines out in the field that need this in order for some devices to
-> > work.
-> > 
-> > RHEL is shipping it now, apparently without any problems.
-> > 
-> > The 'pciseg' branch of
-> > git://git.kernel.org/pub/scm/linux/kernel/git/jgarzik/misc-2.6.git pciseg
+On Tuesday, 26 September 2006 22:14, Adrian Bunk wrote:
+> On Tue, Sep 26, 2006 at 12:45:00AM +0200, Pavel Machek wrote:
+> >...
+> > solid)
+> > 	apart from HIGHMEM64G fiasco, and related agpgart fiasco long
+> > 	time before that... these are driver problems...
+> >...
 > 
-> So are the NUMA issues now taken care of properly? 
+> One point that seems to be a bit forgotten is that driver problems do 
+> actually matter a lot:
+> 
+> I for one do not care much whether I can abort suspending (I can always 
+> resume) or whether dancing penguins are displayed during suspending - 
+> but the fact that my saa7134 card only outputs the picture but no sound 
+> after resuming from suspend-to-disk is a real show-stopper for me.
 
-I assume IBM would have complained if it was broken in RHEL.
+Certainly, but neither me, nor Pavel can fix all drivers with suspend-related
+problems.
 
-But iirc Summit has two BIOS options for this. Maybe they just recommend
-to set the other one for Linux. Anyways I guess that can be all figured
-out once the patch is in tree.
+I think the only way to get the drivers' problems fixed eventually is to file
+bug reports in bugzilla and generally complain about them to the people
+who write/maintain these drivers.
 
--Andi
+Greetings,
+Rafael
 
+
+-- 
+You never change things by fighting the existing reality.
+		R. Buckminster Fuller

@@ -1,64 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932440AbWIZWLX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964868AbWIZWUn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932440AbWIZWLX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Sep 2006 18:11:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932444AbWIZWLX
+	id S964868AbWIZWUn (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Sep 2006 18:20:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964869AbWIZWUn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Sep 2006 18:11:23 -0400
-Received: from gw.goop.org ([64.81.55.164]:20925 "EHLO mail.goop.org")
-	by vger.kernel.org with ESMTP id S932440AbWIZWLW (ORCPT
+	Tue, 26 Sep 2006 18:20:43 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:27804 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S964868AbWIZWUm (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Sep 2006 18:11:22 -0400
-Message-ID: <4519A58A.7070302@goop.org>
-Date: Tue, 26 Sep 2006 15:11:22 -0700
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
+	Tue, 26 Sep 2006 18:20:42 -0400
+Date: Tue, 26 Sep 2006 15:20:33 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Sam Ravnborg <sam@ravnborg.org>
+cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org, discuss@x86-64.org
+Subject: Re: x86/x86-64 merge for 2.6.19
+In-Reply-To: <20060926220457.GA12905@uranus.ravnborg.org>
+Message-ID: <Pine.LNX.4.64.0609261517440.3952@g5.osdl.org>
+References: <200609261244.43863.ak@suse.de> <200609262202.28846.ak@suse.de>
+ <Pine.LNX.4.64.0609261318240.3952@g5.osdl.org> <200609262226.09418.ak@suse.de>
+ <Pine.LNX.4.64.0609261339050.3952@g5.osdl.org> <20060926220457.GA12905@uranus.ravnborg.org>
 MIME-Version: 1.0
-To: Mathieu Desnoyers <compudj@krystal.dyndns.org>
-CC: Martin Bligh <mbligh@google.com>, "Frank Ch. Eigler" <fche@redhat.com>,
-       Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>, prasanna@in.ibm.com,
-       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-       Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
-       Paul Mundt <lethal@linux-sh.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>, Jes Sorensen <jes@sgi.com>,
-       Tom Zanussi <zanussi@us.ibm.com>,
-       Richard J Moore <richardj_moore@uk.ibm.com>,
-       Michel Dagenais <michel.dagenais@polymtl.ca>,
-       Christoph Hellwig <hch@infradead.org>,
-       Greg Kroah-Hartman <gregkh@suse.de>,
-       Thomas Gleixner <tglx@linutronix.de>, William Cohen <wcohen@redhat.com>,
-       ltt-dev@shafik.org, systemtap@sources.redhat.com,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Karim Yaghmour <karim@opersys.com>,
-       Pavel Machek <pavel@suse.cz>, Joe Perches <joe@perches.com>,
-       "Randy.Dunlap" <rdunlap@xenotime.net>,
-       "Jose R. Santos" <jrs@us.ibm.com>
-Subject: Re: [PATCH] Linux Kernel Markers 0.14 for 2.6.17
-References: <20060926220604.GA30396@Krystal>
-In-Reply-To: <20060926220604.GA30396@Krystal>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mathieu Desnoyers wrote:
-> Hi,
->
-> Constructing on Jeremy Fitzhardinge's comments about gcc optimizations, I
-> rewrote (once more) the markers mechanism so that the optimized mode does not
-> jump between two different inline asm. Instead, the optimized version uses a
-> load immediate (in assembly) that will be used by a test to decide of a branch
-> (in C).
->   
 
-I should have spelled out my point a bit more.  If you've got a flag 
-you're just testing, couldn't you just do:
 
-	if (__mark_enabled_##name)
-		(*__mark_func)(...);
+On Wed, 27 Sep 2006, Sam Ravnborg wrote:
 
-and do without the asms or the section?
+> On Tue, Sep 26, 2006 at 01:44:42PM -0700, Linus Torvalds wrote:
+> >
+> > Right. I'm actually surprised not more peole use git that way. It was 
+> > literally one of the _design_goals_ of git to have people use quilt a a 
+> > more "willy-nilly" front-end process, with git giving the true distributed 
+> > nature that you can't get from that kind of softer patch-queue like 
+> > system.
+> 
+> One of the major benefits from git is that whenever I decide to
+> do some changes git allows me to start modifying as I like and when
+> done I just do "git diff | less" to review it. And when it turns out
+> to be a piece of crap I just do "git reset --hard" and be done with it.
+> This make my life so much easier than having to copy symlinked tress
+> around all the time - and I then may not touch the base for the symlinks.
 
-The section will still be useful for simply labelling the mark sites, 
-but if you want to call something there, you don't need it.
+Yeah, I won't argue against that too much. I'm a pure git user myself, 
+although my patterns tend to be different from most other people (only 
+fairly small code changes, and mostly merging other peoples code: I end up 
+often touching source code more when I do some trivial manual conflict 
+resolution than at most other times..)
 
-    J
+And yes, making "git diff" as efficient as possible was definitely one of 
+the things that I worked on, exactly because it is how I work when I do 
+end up working on something: continually reminding myself what the other 
+changes I did were..
+
+So "git" should work fine for pretty much any normal development, but a 
+patch maintenance system it ain't.
+
+			Linus

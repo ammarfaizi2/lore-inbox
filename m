@@ -1,97 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751402AbWIZFjL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751662AbWIZFvi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751402AbWIZFjL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Sep 2006 01:39:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751339AbWIZFjK
+	id S1751662AbWIZFvi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Sep 2006 01:51:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751554AbWIZFvM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Sep 2006 01:39:10 -0400
-Received: from mx1.suse.de ([195.135.220.2]:56545 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751402AbWIZFjH (ORCPT
+	Tue, 26 Sep 2006 01:51:12 -0400
+Received: from mail.suse.de ([195.135.220.2]:57313 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751384AbWIZFjK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Sep 2006 01:39:07 -0400
+	Tue, 26 Sep 2006 01:39:10 -0400
 From: Greg KH <greg@kroah.com>
 To: linux-kernel@vger.kernel.org
-Cc: David Brownell <david-b@pacbell.net>,
+Cc: Pavel Machek <pavel@suse.cz>,
        David Brownell <dbrownell@users.sourceforge.net>,
        Greg Kroah-Hartman <gregkh@suse.de>
-Subject: [PATCH 20/47] PM: add kconfig option for deprecated .../power/state files
-Date: Mon, 25 Sep 2006 22:37:40 -0700
-Message-Id: <11592491482560-git-send-email-greg@kroah.com>
+Subject: [PATCH 21/47] PM: schedule /sys/devices/.../power/state for removal
+Date: Mon, 25 Sep 2006 22:37:41 -0700
+Message-Id: <11592491512235-git-send-email-greg@kroah.com>
 X-Mailer: git-send-email 1.4.2.1
-In-Reply-To: <11592491451786-git-send-email-greg@kroah.com>
-References: <20060926053728.GA8970@kroah.com> <1159249087369-git-send-email-greg@kroah.com> <11592490903867-git-send-email-greg@kroah.com> <11592490933346-git-send-email-greg@kroah.com> <1159249096460-git-send-email-greg@kroah.com> <11592490993970-git-send-email-greg@kroah.com> <11592491023995-git-send-email-greg@kroah.com> <1159249104512-git-send-email-greg@kroah.com> <11592491082990-git-send-email-greg@kroah.com> <1159249111668-git-send-email-greg@kroah.com> <11592491152668-git-send-email-greg@kroah.com> <115924911859-git-send-email-greg@kroah.com> <11592491211162-git-send-email-greg@kroah.com> <1159249124371-git-send-email-greg@kroah.com> <11592491274168-git-send-email-greg@kroah.com> <11592491303012-git-send-email-greg@kroah.com> <11592491342421-git-send-email-greg@kroah.com> <11592491371254-git-send-email-greg@kroah.com> <1159249140339-git-send-email-greg@kroah.com> <11592491451786-git-send-email-greg@kroah.com>
+In-Reply-To: <11592491482560-git-send-email-greg@kroah.com>
+References: <20060926053728.GA8970@kroah.com> <1159249087369-git-send-email-greg@kroah.com> <11592490903867-git-send-email-greg@kroah.com> <11592490933346-git-send-email-greg@kroah.com> <1159249096460-git-send-email-greg@kroah.com> <11592490993970-git-send-email-greg@kroah.com> <11592491023995-git-send-email-greg@kroah.com> <1159249104512-git-send-email-greg@kroah.com> <11592491082990-git-send-email-greg@kroah.com> <1159249111668-git-send-email-greg@kroah.com> <11592491152668-git-send-email-greg@kroah.com> <115924911859-git-send-email-greg@kroah.com> <11592491211162-git-send-email-greg@kroah.com> <1159249124371-git-send-email-greg@kroah.com> <11592491274168-git-send-email-greg@kroah.com> <11592491303012-git-send-email-greg@kroah.com> <11592491342421-git-send-email-greg@kroah.com> <11592491371254-git-send-email-greg@kroah.com> <1159249140339-git-send-email-greg@kroah.com> <11592491451786-git-send-email-greg@kroah.com> <11592491482560-git-send-email-greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: David Brownell <david-b@pacbell.net>
+From: Pavel Machek <pavel@suse.cz>
 
-Add a new PM_SYSFS_DEPRECATED config option to control whether or
-not the /sys/devices/.../power/state files are provided.  This will
-make it easier to get rid of that mechanism when the time comes,
-and to verify that userspace tools work right without it.
+This lists the /sys/devices/.../power/state file, and its internal support,
+as due for removal next year.
 
+Signed-off-by: Pavel Machek <pavel@suse.cz>
 Signed-off-by: David Brownell <dbrownell@users.sourceforge.net>
-Acked-by: Pavel Machek <pavel@suse.cz>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 ---
- drivers/base/power/sysfs.c |    6 ++++++
- kernel/power/Kconfig       |   11 +++++++++++
- 2 files changed, 17 insertions(+), 0 deletions(-)
+ Documentation/feature-removal-schedule.txt |   15 +++++++++++++++
+ 1 files changed, 15 insertions(+), 0 deletions(-)
 
-diff --git a/drivers/base/power/sysfs.c b/drivers/base/power/sysfs.c
-index e55b3c2..2d47517 100644
---- a/drivers/base/power/sysfs.c
-+++ b/drivers/base/power/sysfs.c
-@@ -7,6 +7,8 @@ #include <linux/string.h>
- #include "power.h"
+diff --git a/Documentation/feature-removal-schedule.txt b/Documentation/feature-removal-schedule.txt
+index a89a1b7..611acc3 100644
+--- a/Documentation/feature-removal-schedule.txt
++++ b/Documentation/feature-removal-schedule.txt
+@@ -6,6 +6,21 @@ be removed from this file.
  
+ ---------------------------
  
-+#ifdef	CONFIG_PM_SYSFS_DEPRECATED
++What:	/sys/devices/.../power/state
++	dev->power.power_state
++	dpm_runtime_{suspend,resume)()
++When:	July 2007
++Why:	Broken design for runtime control over driver power states, confusing
++	driver-internal runtime power management with:  mechanisms to support
++	system-wide sleep state transitions; event codes that distinguish
++	different phases of swsusp "sleep" transitions; and userspace policy
++	inputs.  This framework was never widely used, and most attempts to
++	use it were broken.  Drivers should instead be exposing domain-specific
++	interfaces either to kernel or to userspace.
++Who:	Pavel Machek <pavel@suse.cz>
 +
- /**
-  *	state - Control current power state of device
-  *
-@@ -66,6 +68,8 @@ static ssize_t state_store(struct device
- static DEVICE_ATTR(state, 0644, state_show, state_store);
- 
- 
-+#endif	/* CONFIG_PM_SYSFS_DEPRECATED */
++---------------------------
 +
- /*
-  *	wakeup - Report/change current wakeup option for device
-  *
-@@ -139,7 +143,9 @@ static DEVICE_ATTR(wakeup, 0644, wake_sh
- 
- 
- static struct attribute * power_attrs[] = {
-+#ifdef	CONFIG_PM_SYSFS_DEPRECATED
- 	&dev_attr_state.attr,
-+#endif
- 	&dev_attr_wakeup.attr,
- 	NULL,
- };
-diff --git a/kernel/power/Kconfig b/kernel/power/Kconfig
-index 619ecab..1ed9720 100644
---- a/kernel/power/Kconfig
-+++ b/kernel/power/Kconfig
-@@ -53,6 +53,17 @@ config PM_TRACE
- 	CAUTION: this option will cause your machine's real-time clock to be
- 	set to an invalid time after a resume.
- 
-+config PM_SYSFS_DEPRECATED
-+	bool "Driver model /sys/devices/.../power/state files (DEPRECATED)"
-+	depends on PM && SYSFS
-+	default n
-+	help
-+	  The driver model started out with a sysfs file intended to provide
-+	  a userspace hook for device power management.  This feature has never
-+	  worked very well, except for limited testing purposes, and so it will
-+	  be removed.   It's not clear that a generic mechanism could really
-+	  handle the wide variability of device power states; any replacements
-+	  are likely to be bus or driver specific.
- 
- config SOFTWARE_SUSPEND
- 	bool "Software Suspend"
+ What:	RAW driver (CONFIG_RAW_DRIVER)
+ When:	December 2005
+ Why:	declared obsolete since kernel 2.6.3
 -- 
 1.4.2.1
 

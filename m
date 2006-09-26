@@ -1,62 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750803AbWIZBMN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750741AbWIZBeb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750803AbWIZBMN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Sep 2006 21:12:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750799AbWIZBMN
+	id S1750741AbWIZBeb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Sep 2006 21:34:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750778AbWIZBeb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Sep 2006 21:12:13 -0400
-Received: from gort.metaparadigm.com ([203.117.131.12]:56043 "EHLO
-	gort.metaparadigm.com") by vger.kernel.org with ESMTP
-	id S1750803AbWIZBMM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Sep 2006 21:12:12 -0400
-Message-ID: <45187E63.3020200@metaparadigm.com>
-Date: Tue, 26 Sep 2006 09:12:03 +0800
-From: Michael Clark <michael@metaparadigm.com>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060915)
+	Mon, 25 Sep 2006 21:34:31 -0400
+Received: from mtiwmhc11.worldnet.att.net ([204.127.131.115]:11747 "EHLO
+	mtiwmhc11.worldnet.att.net") by vger.kernel.org with ESMTP
+	id S1750741AbWIZBeb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Sep 2006 21:34:31 -0400
+Message-ID: <451883A2.3090009@lwfinger.net>
+Date: Mon, 25 Sep 2006 20:34:26 -0500
+From: Larry Finger <Larry.Finger@lwfinger.net>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060909)
 MIME-Version: 1.0
-To: Pavel Machek <pavel@suse.cz>, Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Takashi Iwai <tiwai@suse.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       alsa-devel@alsa-project.org, Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.18: hda_intel: azx_get_response timeout, switching to single_cmd
- mode...
-References: <451834D0.40304@goop.org> <20060925202644.GB6278@ucw.cz>
-In-Reply-To: <20060925202644.GB6278@ucw.cz>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
+To: LKML <linux-kernel@vger.kernel.org>
+Subject: Bug (or Feature) in the swap system
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Pavel Machek wrote:
-> Hi!
->
->   
->> I have a ThinkPad X60 which uses the Intel 82801G HDA 
->> audio chip.  This used to work for me, but lately 
->> (sometime during 2.6.18-rcX series) it stopped working - 
->> programs trying to use it tend to just block forever 
->> waiting for /dev/dsp.
->>     
->
-> I have x60 here,
->
->   
->> The only obvious symptom is:
->>
->>    hda_intel: azx_get_response timeout, switching to 
->>    single_cmd mode...
->>
->>     
+On my system, I used to have two smallish swap partitions on hda3 and hda7. When I upgraded my hard 
+drive, I increased the size of hda7 and planned to mount hda3 as /boot. Accordingly, I formatted it 
+as an ext3 partition, but failed to modify fstab.
 
-I got similar kernel message relating to an azx_get_response timeout
-with an 82801G HDA audio running Debian kernel 2.6.16-2 (happened during
-suspend to ram IIRC) - after replacing kernel alsa with alsa-source
-1.0.12 (24 Aug release) the problem went away (in addition to making
-sound come out when it didn't before).
+When I first booted with the new drive, I noticed the error message that it was unable to find a 
+swap space signature; therefore, I checked the swap space with the free command and was satisfied to 
+see 1250 MB of swap space. Everything seemed fine when the system was first booted; however any 
+sizable task such as a kernel build would proceed very slowly. From top, I learned that the cpu 
+usage by the system was in the 85-90% range. It was impossible to move the mouse, or to do anything 
+interactive. Process kswapd0 would run frequently, but no swap space was ever used. As hda3 had 
+never been used, it was simple to change it to a swap partition, format it, and issue a swapon. 
+IMMEDIATELY, the system was normal!
 
-Not sure if this info helps but trying the alsa-project release and
-seeing if that works may help identify what needs fixing in mainline
-hda_intel.
+Getting back to my subject line: Is this an obscure bug or a feature designed to punish idiots that 
+cannot set up their swap space correctly?
 
-~mc
+Thanks,
+
+Larry

@@ -1,49 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750845AbWIZEKg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750767AbWIZEum@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750845AbWIZEKg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Sep 2006 00:10:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750832AbWIZEKg
+	id S1750767AbWIZEum (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Sep 2006 00:50:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750758AbWIZEum
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Sep 2006 00:10:36 -0400
-Received: from out1.smtp.messagingengine.com ([66.111.4.25]:17583 "EHLO
-	out1.smtp.messagingengine.com") by vger.kernel.org with ESMTP
-	id S1750845AbWIZEKf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Sep 2006 00:10:35 -0400
-X-Sasl-enc: vIq8HT1+9KeAdC+6/ZyJdZ4JP2qbHyhE3FoixDyFzp5M 1159243836
-Date: Tue, 26 Sep 2006 12:10:26 +0800 (WST)
-From: Ian Kent <raven@themaw.net>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: Autofs4 breakage (was 2.6.19 -mm merge plans)
-In-Reply-To: <1158789333.5639.37.camel@lade.trondhjem.org>
-Message-ID: <Pine.LNX.4.64.0609261206380.2953@raven.themaw.net>
-References: <20060920135438.d7dd362b.akpm@osdl.org> <1158789333.5639.37.camel@lade.trondhjem.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 26 Sep 2006 00:50:42 -0400
+Received: from xenotime.net ([66.160.160.81]:61414 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1750767AbWIZEul (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Sep 2006 00:50:41 -0400
+Date: Mon, 25 Sep 2006 21:51:47 -0700
+From: Randy Dunlap <rdunlap@xenotime.net>
+To: v4l-dvb-maintainer@linuxtv.org, lkml <linux-kernel@vger.kernel.org>
+Cc: isely@pobox.com, akpm <akpm@osdl.org>, alannisota@gmail.com,
+       jelle@foks.8m.com, kraxel@bytesex.org
+Subject: [PATCH] drivers/media: use NULL instead of 0 for ptrs
+Message-Id: <20060925215147.1a9f6a42.rdunlap@xenotime.net>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 20 Sep 2006, Trond Myklebust wrote:
+From: Randy Dunlap <rdunlap@xenotime.net>
 
-> On Wed, 2006-09-20 at 13:54 -0700, Andrew Morton wrote:
-> 
-> > add-newline-to-nfs-dprintk.patch
-> > fs-nfs-make-code-static.patch
-> > 
-> >  NFS queue -> Trond.
-> > 
-> >  The NFS git tree breaks autofs4 submounts.  Still.
-> 
-> I still suspect that is due to a misconfigured selinux setup on your
-> machine. If autofs4 expects to be able to do mkdir() on your NFS
-> partition (something which in itself is wrong), then selinux should be
-> configured to allow it to do so.
+Use NULL instead of 0 for pointer value, eliminate sparse warnings.
 
-As we decided I am working on changing this and it's well on the way to 
-being completed. It's actually somewhat more complex than just not 
-creating directories on non-autofs file systems.
+Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
+---
+ drivers/media/dvb/dvb-usb/gp8psk.c                   |    2 +-
+ drivers/media/video/cx88/cx88-blackbird.c            |    2 +-
+ drivers/media/video/pvrusb2/pvrusb2-i2c-chips-v4l2.c |    4 +++-
+ 3 files changed, 5 insertions(+), 3 deletions(-)
 
-Once again, sorry for the delay.
+--- linux-2618-g4.orig/drivers/media/dvb/dvb-usb/gp8psk.c
++++ linux-2618-g4/drivers/media/dvb/dvb-usb/gp8psk.c
+@@ -217,7 +217,7 @@ static struct dvb_usb_properties gp8psk_
+ 		  .cold_ids = { &gp8psk_usb_table[0], NULL },
+ 		  .warm_ids = { &gp8psk_usb_table[1], NULL },
+ 		},
+-		{ 0 },
++		{ NULL },
+ 	}
+ };
+ 
+--- linux-2618-g4.orig/drivers/media/video/cx88/cx88-blackbird.c
++++ linux-2618-g4/drivers/media/video/cx88/cx88-blackbird.c
+@@ -896,7 +896,7 @@ static int mpeg_do_ioctl(struct inode *i
+ 		snprintf(name, sizeof(name), "%s/2", core->name);
+ 		printk("%s/2: ============  START LOG STATUS  ============\n",
+ 		       core->name);
+-		cx88_call_i2c_clients(core, VIDIOC_LOG_STATUS, 0);
++		cx88_call_i2c_clients(core, VIDIOC_LOG_STATUS, NULL);
+ 		cx2341x_log_status(&dev->params, name);
+ 		printk("%s/2: =============  END LOG STATUS  =============\n",
+ 		       core->name);
+--- linux-2618-g4.orig/drivers/media/video/pvrusb2/pvrusb2-i2c-chips-v4l2.c
++++ linux-2618-g4/drivers/media/video/pvrusb2/pvrusb2-i2c-chips-v4l2.c
+@@ -19,6 +19,7 @@
+  *
+  */
+ 
++#include <linux/kernel.h>
+ #include "pvrusb2-i2c-core.h"
+ #include "pvrusb2-hdw-internal.h"
+ #include "pvrusb2-debug.h"
+@@ -93,7 +94,8 @@ void pvr2_i2c_probe(struct pvr2_hdw *hdw
+ 
+ const struct pvr2_i2c_op *pvr2_i2c_get_op(unsigned int idx)
+ {
+-	if (idx >= sizeof(ops)/sizeof(ops[0])) return 0;
++	if (idx >= ARRAY_SIZE(ops))
++		return NULL;
+ 	return ops[idx];
+ }
+ 
 
-Ian
 
+---

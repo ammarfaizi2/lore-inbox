@@ -1,67 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932190AbWIZRpE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932197AbWIZRuT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932190AbWIZRpE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Sep 2006 13:45:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932191AbWIZRpE
+	id S932197AbWIZRuT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Sep 2006 13:50:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932198AbWIZRuS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Sep 2006 13:45:04 -0400
-Received: from fmmailgate01.web.de ([217.72.192.221]:40650 "EHLO
-	fmmailgate01.web.de") by vger.kernel.org with ESMTP id S932190AbWIZRpB
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Sep 2006 13:45:01 -0400
-Date: Tue, 26 Sep 2006 19:44:41 +0200
-From: Arne Ahrend <aahrend@web.de>
-To: Jeff Garzik <jeff@garzik.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.18-git4 crashes in sata_via
-Message-Id: <20060926194441.527c83b6.aahrend@web.de>
-In-Reply-To: <4518636C.8090802@garzik.org>
-References: <20060925225205.a4e0a2d3.aahrend@web.de>
-	<4518636C.8090802@garzik.org>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.20; x86_64-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 26 Sep 2006 13:50:18 -0400
+Received: from zod.pns.networktel.net ([209.159.47.6]:44265 "EHLO
+	zod.pns.networktel.net") by vger.kernel.org with ESMTP
+	id S932197AbWIZRuR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Sep 2006 13:50:17 -0400
+Message-ID: <451965E5.1080600@versaccounting.com>
+Date: Tue, 26 Sep 2006 12:39:49 -0500
+From: Ben Duncan <ben@versaccounting.com>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: Re: EIP Errors kernel 2.6.18 .AND hard lockup ...
+References: <45194883.3080700@versaccounting.com> <6bffcb0e0609260851q5d97f784i47d43f2076843600@mail.gmail.com>
+In-Reply-To: <6bffcb0e0609260851q5d97f784i47d43f2076843600@mail.gmail.com>
+Content-Type: text/plain; charset=us-ascii; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 25 Sep 2006 19:17:00 -0400
-Jeff Garzik <jeff@garzik.org> wrote:
+Ok, first IANAKP (I am not a kernel programmer ) ;-> ...
+But, just got another hard lockup and EIP code ...
 
-> Does the attached patch fix your problems?
+I am not sure why this should got to nVidia (Please, I
+personally know the Head of nVidias' Linux driver development,
+so if it is a nVidia problem, I can help there).
 
-Yep, it works like a charm. Many thanks!
+Anway,
 
-	Arne
+EIP shows :
 
+desktop kernel: CPU:    0
+desktop kernel: EIP:    0060:[<c01ba714>]    Tainted: P      VLI
+EFLAGS: 00010046   (2.6.18 #1)
+desktop kernel: EIP is at radix_tree_tag_set+0x6a/0xa2
+desktop kernel: eax: 00000001   ebx: 00000001   ecx: 00000001   edx: 00000001
+desktop kernel: esi: 00000000   edi: 00000000   ebp: f7cf3d70   esp: f7cf3d54
+desktop kernel: ds: 007b   es: 007b   ss: 0068
+desktop kernel: Process pdflush (pid: 181, ti=f7cf2000 task=f7cd6a90 task.ti=f7cf2000)
+desktop kernel: Stack: 00000001 00000001 00050001 f71a2f4c c1061be0 f71a2f48 00000000 
+f7cf3d88c01ba3cc t radix_tree_node_alloc
+c01ba416 T radix_tree_preload
+c01ba475 t radix_tree_extend
+c01ba4ff T radix_tree_insert
+c01ba5fc T radix_tree_lookup_slot
+c01ba651 T radix_tree_lookup
+c01ba6aa T radix_tree_tag_set
+c01ba74c T radix_tree_tag_clear
+c01ba81a t __lookup
+c01ba906 T radix_tree_gang_lookup
 
+desktop kernel:        c013579e 00000286 f57d5f68 c1061be0 00050002 f7cf3db8 c014ccc8 00000000
+desktop kernel:        00001000 f57d5f68 000773b0 00000000 c0150760 f71a2e70 00000000 c1061be0
 
-libata version 2.00 loaded.
-sata_via 0000:00:0f.0: version 2.0
-GSI 17 sharing vector 0xB1 and IRQ 17
-ACPI: PCI Interrupt 0000:00:0f.0[B] -> GSI 20 (level, low) -> IRQ 17
-sata_via 0000:00:0f.0: routed to hard irq line 10
-ata1: SATA max UDMA/133 cmd 0xC400 ctl 0xC002 bmdma 0xB000 irq 17
-ata2: SATA max UDMA/133 cmd 0xB800 ctl 0xB402 bmdma 0xB008 irq 17
-scsi0 : sata_via
-ata1: SATA link down 1.5 Gbps (SStatus 0 SControl 300)
-ATA: abnormal status 0x7F on port 0xC407
-scsi1 : sata_via
-ata2: SATA link down 1.5 Gbps (SStatus 0 SControl 300)
-ATA: abnormal status 0x7F on port 0xB807
-pata_via 0000:00:0f.1: version 0.1.13
-ACPI: PCI Interrupt 0000:00:0f.1[A] -> GSI 20 (level, low) -> IRQ 17
-PCI: VIA IRQ fixup for 0000:00:0f.1, from 255 to 1
-ata3: PATA max UDMA/133 cmd 0x1F0 ctl 0x3F6 bmdma 0xFC00 irq 14
-ata4: PATA max UDMA/133 cmd 0x170 ctl 0x376 bmdma 0xFC08 irq 15
-scsi2 : pata_via
-ata3.00: ATA-7, max UDMA/100, 312581808 sectors: LBA48 
-ata3.00: ata3: dev 0 multi count 16
-ata3.01: ATAPI, max UDMA/33
-ata3.00: configured for UDMA/100
-ata3.01: configured for UDMA/33
-scsi3 : pata_via
-ata4.00: ATAPI, max UDMA/33
-ata4.01: ATAPI, max UDMA/33
-ata4.00: configured for UDMA/33
-ata4.01: configured for UDMA/33
+With current system map showing:
+
+c01ba3cc t radix_tree_node_alloc
+c01ba416 T radix_tree_preload
+c01ba475 t radix_tree_extend
+c01ba4ff T radix_tree_insert
+c01ba5fc T radix_tree_lookup_slot
+c01ba651 T radix_tree_lookup
+c01ba6aa T radix_tree_tag_set
+c01ba74c T radix_tree_tag_clear
+c01ba81a t __lookup
+c01ba906 T radix_tree_gang_lookup
+
+The "radix lookup" seems to be occuring inside of the radix_tree_tag_set
+and in particular the pdflush routine.
+
+fgrep'ing kernel shows this is in the lib/radix-tree routine ..
+
+To me seems to be a PDFLUSH eip and the nvidia stuff is just
+a by product of loaded modules, no?
+
+Thnaks ..
+
+Michal Piotrowski wrote:
+> Hi,
+> 
+<SNIP>
+> 
+> "When emailing linux-bugs@nvidia.com, please attach an
+> nvidia-bug-report.log, which is generated by running
+> "nvidia-bug-report.sh". "
+> http://www.nvidia.com/object/linux_display_ia32_1.0-8774.html
+> 
+> Please send this report to Nvidia.
+> 
+> Regards,
+> Michal
+> 
+
+-- 
+Ben Duncan   - Business Network Solutions, Inc. 336 Elton Road  Jackson MS, 39212
+"Never attribute to malice, that which can be adequately explained by stupidity"
+        - Hanlon's Razor
+

@@ -1,41 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751197AbWIZMWq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932070AbWIZMZX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751197AbWIZMWq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Sep 2006 08:22:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751199AbWIZMWq
+	id S932070AbWIZMZX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Sep 2006 08:25:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751208AbWIZMZX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Sep 2006 08:22:46 -0400
-Received: from mx2.suse.de ([195.135.220.15]:30613 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751197AbWIZMWp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Sep 2006 08:22:45 -0400
-To: OGAWA Hirofumi <hogawa@miraclelinux.com>
-Cc: linux-kernel@vger.kernel.org, OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Subject: Re: [PATCH] arch/i386/pci/mmconfig.c tlb flush fix
-References: <lry7s7t1su.fsf@dhcp-0242.miraclelinux.com>
-From: Andi Kleen <ak@suse.de>
-Date: 26 Sep 2006 14:22:29 +0200
-In-Reply-To: <lry7s7t1su.fsf@dhcp-0242.miraclelinux.com>
-Message-ID: <p73y7s6kebe.fsf@verdi.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 26 Sep 2006 08:25:23 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:39849 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1751206AbWIZMZW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Sep 2006 08:25:22 -0400
+Subject: Re: pata_serverworks oopses in latest -git
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Diego Calleja <diegocg@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20060926140016.54d532ba.diegocg@gmail.com>
+References: <20060926140016.54d532ba.diegocg@gmail.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Tue, 26 Sep 2006 13:50:10 +0100
+Message-Id: <1159275010.11049.215.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-OGAWA Hirofumi <hogawa@miraclelinux.com> writes:
+Ar Maw, 2006-09-26 am 14:00 +0200, ysgrifennodd Diego Calleja:
+> When trying to test the new libata PATA drivers in the latest -git tree, I 
+> got this when udev tried to load the module:
 
-> Hi,
-> 
-> We use the fixmap for accessing pci config space in pci_mmcfg_read/write().
-> The problem is in pci_exp_set_dev_base(). It is caching a last
-> accessed address to avoid calling set_fixmap_nocache() whenever
-> pci_mmcfg_read/write() is used.
+Yes something seems to be very ill in the -git tree but I'm not sure
+what has changed in the libata core to trigger all this at the moment.
 
+Alan
 
-Good catch. I already had another report of mmconfig corruption on i386,
-but didn't have time to look at it yet.
-
-Will be definitely stable material once it hit mainline.
-
--Andi

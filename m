@@ -1,83 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751843AbWIZA7P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751871AbWIZBCP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751843AbWIZA7P (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Sep 2006 20:59:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751686AbWIZA7P
+	id S1751871AbWIZBCP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Sep 2006 21:02:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751874AbWIZBCO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Sep 2006 20:59:15 -0400
-Received: from pas38-1-82-67-71-117.fbx.proxad.net ([82.67.71.117]:32914 "EHLO
-	siegfried.gbfo.org") by vger.kernel.org with ESMTP id S1751802AbWIZA7N
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Sep 2006 20:59:13 -0400
-Date: Tue, 26 Sep 2006 02:59:43 +0200 (CEST)
-From: Jean-Marc Saffroy <saffroy@gmail.com>
-X-X-Sender: saffroy@erda.mds
-To: Vivek Goyal <vgoyal@in.ibm.com>
-cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Jaroslav Kysela <perex@suse.cz>, Takashi Iwai <tiwai@suse.de>,
-       Dave Anderson <anderson@redhat.com>,
-       "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: Re: oops in :snd_pcm_oss:resample_expand+0x19c/0x1f0
-In-Reply-To: <20060925233750.GA9791@in.ibm.com>
-Message-ID: <Pine.LNX.4.64.0609260205290.4825@erda.mds>
-References: <Pine.LNX.4.64.0609241825280.4838@erda.mds>
- <20060924135417.c0c18b76.akpm@osdl.org> <Pine.LNX.4.64.0609242256540.4950@erda.mds>
- <20060925153047.GA19794@in.ibm.com> <Pine.LNX.4.64.0609252034030.4825@erda.mds>
- <20060925233750.GA9791@in.ibm.com>
+	Mon, 25 Sep 2006 21:02:14 -0400
+Received: from gw.goop.org ([64.81.55.164]:56996 "EHLO mail.goop.org")
+	by vger.kernel.org with ESMTP id S1751871AbWIZBCN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Sep 2006 21:02:13 -0400
+Message-ID: <45187C0E.1080601@goop.org>
+Date: Mon, 25 Sep 2006 18:02:06 -0700
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+To: Mathieu Desnoyers <compudj@krystal.dyndns.org>
+CC: Martin Bligh <mbligh@google.com>, "Frank Ch. Eigler" <fche@redhat.com>,
+       Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>, prasanna@in.ibm.com,
+       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
+       Paul Mundt <lethal@linux-sh.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>, Jes Sorensen <jes@sgi.com>,
+       Tom Zanussi <zanussi@us.ibm.com>,
+       Richard J Moore <richardj_moore@uk.ibm.com>,
+       Michel Dagenais <michel.dagenais@polymtl.ca>,
+       Christoph Hellwig <hch@infradead.org>,
+       Greg Kroah-Hartman <gregkh@suse.de>,
+       Thomas Gleixner <tglx@linutronix.de>, William Cohen <wcohen@redhat.com>,
+       ltt-dev@shafik.org, systemtap@sources.redhat.com,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Karim Yaghmour <karim@opersys.com>,
+       Pavel Machek <pavel@suse.cz>, Joe Perches <joe@perches.com>,
+       "Randy.Dunlap" <rdunlap@xenotime.net>,
+       "Jose R. Santos" <jrs@us.ibm.com>
+Subject: Re: [PATCH] Linux Kernel Markers 0.13 for 2.6.17
+References: <20060925233349.GA2352@Krystal> <20060925235617.GA3147@Krystal> <45187146.8040302@goop.org> <20060926002551.GA18276@Krystal> <20060926004535.GA2978@Krystal>
+In-Reply-To: <20060926004535.GA2978@Krystal>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 25 Sep 2006, Vivek Goyal wrote:
+Mathieu Desnoyers wrote:
+> To protect code from being preempted, the macros preempt_disable and
+> preempt_enable must normally be used. Logically, this macro must make sure gcc
+> doesn't interleave preemptible code and non-preemptible code.
+>   
 
->> One thing I like *very much* in gdb is its ability to display function
->> params and local variables in any stack frame, and I haven't found out how
->> to do it with crash.
->
-> Agreed. AFAIK, crash does not display the function params and local
-> variables. gdb has got this advantage, though last time I looked
-> at local variables dispalyed by gdb, they seemed to be junk. Not very
-> sure why it was so?
+No, it only needs to prevent globally visible side-effects from being 
+moved into/out of preemptable blocks.  In practice that means memory 
+updates (including the implicit ones that calls to external functions 
+are assumed to make).
 
-Most probably this is due to compiler optimizations, eg. the register is 
-reused for another purpose. Recently I was pleased to discover that gdb 
-6.5 is smart enough to tell the user that a variable has been optimized 
-out (certainly with help from debug info produced by gcc).
+> Which makes me think that if I put barriers around my asm, call, asm trio, no
+> other code will be interleaved. Is it right ?
+>   
 
->> I agree that gdb is sometimes very slow, but maybe it's easier to 
->> optimize gdb than to make crash smarter?
->
-> I beg to differ here. Not sure why it is easier to optimize gdb. If we 
-> try to optimize gdb by writing scripts, then IMHO, writing C program is 
-> easier and faster. If the idea is to optimize gdb by modifying gdb code 
-> then its no different than crash. In fact, why to reinvent the wheel if 
-> crash already does so many things for us. Yes, but probably we need to 
-> modify crash to be able to obtain function parameters and local 
-> variables.
+No global side effects, but code with local side effects could be moved 
+around without changing the meaning of preempt.
 
-Oh I only meant that *maybe* gdb deserved some optimizations that would be 
-suitable for general use, but this is pure speculation. I agree that a 
-custom modified gdb is in a way akin to crash.
+For example:
 
->> For this particular problem (listing threads), the real fix would be to 
->> add the PT_NOTE entry that each thread deserves, then gdb would let you 
->> do "info threads" instead, and dump nice backtraces of each.
->
-> Displaying even the currently non executing threads using "info threads" 
-> and their backtraces is interesting. Crash can already do that. I am 
-> apprehensive about traversing through the task list and dumping every 
-> thread's register state after a crash. There is no gurantee that list is 
-> in a sane state. And in general, we are trying to make crash handler as 
-> small as possible to improve the reliability of dumping operation.
->
-> Register state of every non-executing thread is already present in the
-> vmcore and IMHO, we should write scripts to get info about other
-> threads then doing it in kernel.
+	int foo;
+	extern int global;
 
-This is exactly what I had in mind, for the very reasons you mentioned. 
-:-)
+	foo = some_function();
 
+	foo += 42;
 
--- 
-saffroy@gmail.com
+	preempt_disable();
+	// stuff
+	preempt_enable();
+
+	global = foo;
+	foo += other_thing();
+
+Assume here that some_function and other_function are extern, and so gcc 
+has no insight into their behaviour and therefore conservatively assumes 
+they have global side-effects.
+
+The memory barriers in preempt_disable/enable will prevent gcc from 
+moving any of the function calls into the non-preemptable region. But 
+because "foo" is local and isn't visible to any other code, there's no 
+reason why the "foo += 42" couldn't move into the preempt region.  
+Likewise, the assignment to "global" can't move out of the range between 
+the preempt_enable and the call to other_thing().
+
+So in your case, if your equivalent of the non-preemptable block is the 
+call to the marker function, then there's a good chance that the 
+compiler might decide to move some other code in there.
+
+Now it might be possible to take the addresses of labels to inhibit code 
+motion into a particular range:
+
+	{
+		__label__ before, after;
+		asm volatile("" : : "m" (*&&before), "m" (*&&after));	// gcc can't know what we're doing with the labels
+
+	before:	;
+		// stuff
+	after:	;
+	}
+
+but that might be risky for several reasons: I don't know of any 
+particular promises gcc makes in this circumstance; I suspect taking the 
+address of a label will have a pretty severe inhibition on what 
+optimisations gcc's is willing to use (it may prevent inlining 
+altogether); and this looks pretty unusual, so there could be bugs.
+
+    J

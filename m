@@ -1,56 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751428AbWIZNig@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751482AbWIZNlW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751428AbWIZNig (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Sep 2006 09:38:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751377AbWIZNig
+	id S1751482AbWIZNlW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Sep 2006 09:41:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751466AbWIZNlV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Sep 2006 09:38:36 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:38537 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751428AbWIZNif (ORCPT
+	Tue, 26 Sep 2006 09:41:21 -0400
+Received: from mx1.suse.de ([195.135.220.2]:14519 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751482AbWIZNlV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Sep 2006 09:38:35 -0400
-Date: Tue, 26 Sep 2006 15:30:43 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Peter Zijlstra <a.p.zijlstra@chello.nl>
-Cc: Jiri Kosina <jikos@jikos.cz>, Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-       linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Arjan van de Ven <arjan@infradead.org>, Dave Jones <davej@redhat.com>
-Subject: Re: [PATCH 2/2] serio: lockdep annotation for ps2dev->cmd_mutex and serio->lock
-Message-ID: <20060926133043.GA30226@elte.hu>
-References: <20060926113150.294656000@chello.nl> <20060926113748.833215000@chello.nl> <Pine.LNX.4.64.0609261520280.3938@twin.jikos.cz> <1159277799.5038.22.camel@lappy>
-Mime-Version: 1.0
+	Tue, 26 Sep 2006 09:41:21 -0400
+Date: Tue, 26 Sep 2006 06:41:19 -0700
+From: Greg KH <greg@kroah.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: linux-kernel@vger.kernel.org, Kay Sievers <kay.sievers@vrfy.org>
+Subject: Re: [PATCH 30/47] Driver core: create devices/virtual/ tree
+Message-ID: <20060926134119.GA11435@kroah.com>
+References: <11592491551919-git-send-email-greg@kroah.com> <11592491581007-git-send-email-greg@kroah.com> <11592491611339-git-send-email-greg@kroah.com> <11592491643725-git-send-email-greg@kroah.com> <11592491672052-git-send-email-greg@kroah.com> <11592491704137-git-send-email-greg@kroah.com> <11592491744040-git-send-email-greg@kroah.com> <1159249177618-git-send-email-greg@kroah.com> <11592491803904-git-send-email-greg@kroah.com> <d120d5000609260624j4fb1f45en6ce2339843fcc1ad@mail.gmail.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1159277799.5038.22.camel@lappy>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -2.9
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.9 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5000]
-	-0.1 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+In-Reply-To: <d120d5000609260624j4fb1f45en6ce2339843fcc1ad@mail.gmail.com>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Sep 26, 2006 at 09:24:15AM -0400, Dmitry Torokhov wrote:
+> On 9/26/06, Greg KH <greg@kroah.com> wrote:
+> >From: Greg Kroah-Hartman <gregkh@suse.de>
+> >
+> >This change creates a devices/virtual/CLASS_NAME tree for struct devices
+> >that belong to a class, yet do not have a "real" struct device for a
+> >parent.  It automatically creates the directories on the fly as needed.
+> >
+> 
+> Why do you need multiple virtual devices? All parentless class devices
+> could grow from a single virtual device.
 
-* Peter Zijlstra <a.p.zijlstra@chello.nl> wrote:
+They could, but it's a mess of a single directory if you do that.
+Having /sys/devices/virtual/tty/ as a place for all tty virtual device
+is nicer than /sys/devices/virtual/ as a single place for all of them
+(mem, network, tty, misc, etc.)
 
-> > Below is the fixed version of the patch. I confirm that this 
-> > (together with Peter's original changes in lockdep, already acked by 
-> > Ingo) fixes the synpatics passthrough port lockdep warnings.
-> > 
-> > So, as long as you, Dmitry, seem to be convenient with this 
-> > approach, please apply. Thanks.
-> > 
-> > Signed-off-by: Jiri Kosina <jikos@jikos.cz>
-> Acked-by: Peter Zijlstra <a.p.zijlstra@chello.nl>
+thanks,
 
-great. Re-ack:
-
- Acked-by: Ingo Molnar <mingo@elte.hu>
-
-	Ingo
+greg k-h

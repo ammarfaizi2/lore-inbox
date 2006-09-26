@@ -1,55 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964797AbWIZUsc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964799AbWIZUt0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964797AbWIZUsc (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Sep 2006 16:48:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964799AbWIZUsc
+	id S964799AbWIZUt0 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Sep 2006 16:49:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964801AbWIZUt0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Sep 2006 16:48:32 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:26014 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S964797AbWIZUsb (ORCPT
+	Tue, 26 Sep 2006 16:49:26 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:41449 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S964799AbWIZUtZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Sep 2006 16:48:31 -0400
-Date: Tue, 26 Sep 2006 22:48:27 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Vovan <vovan888@gmail.com>
-Cc: lamikr@cc.jyu.fi, tony@atomide.com,
-       OMAP-Linux <linux-omap-open-source@linux.omap.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 5/5] Add gsm phone support for the mixer in tsc2101 alsa driver.
-Message-ID: <20060926204827.GA4714@elf.ucw.cz>
-References: <44E51565.6020505@cc.jyu.fi> <20060905151808.GC18073@atomide.com> <44FF2A6D.3000500@cc.jyu.fi> <ce55079f0609250442x5638a93fuac95c65a54a0927@mail.gmail.com> <20060926194541.GA4596@ucw.cz> <op.tgh52caydbah4f@vovan>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <op.tgh52caydbah4f@vovan>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+	Tue, 26 Sep 2006 16:49:25 -0400
+Date: Tue, 26 Sep 2006 13:49:01 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: Dave Jones <davej@redhat.com>, Pavel Machek <pavel@ucw.cz>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH -mm 5/6] mm: Print first block offset for swap areas
+Message-Id: <20060926134901.18fad0db.akpm@osdl.org>
+In-Reply-To: <200609262213.26274.rjw@sisk.pl>
+References: <200609231158.00147.rjw@sisk.pl>
+	<200609231210.54692.rjw@sisk.pl>
+	<20060926123907.4801a022.akpm@osdl.org>
+	<200609262213.26274.rjw@sisk.pl>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+On Tue, 26 Sep 2006 22:13:25 +0200
+"Rafael J. Wysocki" <rjw@sisk.pl> wrote:
 
-> >>I work on getting linux running on Siemens SX1 mobile
-> >>phone.
-> >
-> >Do you have web pages with current state somewhere? SX1 should be
-> >*cheap* toy for experiments...
+> On Tuesday, 26 September 2006 21:39, Andrew Morton wrote:
+> > On Sat, 23 Sep 2006 12:10:54 +0200
+> > "Rafael J. Wysocki" <rjw@sisk.pl> wrote:
+> > 
+> > > In order to use a swap file with swsusp we need to know the offset at which
+> > > its swap header is located.  However, the swap header is always located in the
+> > > first page block of the swap file and it's quite easy to make sys_swapon() print
+> > > the offset of the swap file's (or swap partition's) first page block.
+> > 
+> > Why is this needed?  The swapfile's pathname is present in /proc/swaps, so
+> > an application can read that, do the FIBMAP and rewrite grub.conf without
+> > needing to parse dmesg?
+> 
+> Well, this is not needed, but it's useful if you have no such application and
+> want to set up things manually. ;-)
 
-I googled a bit, and its price in czech republic is ~$100..$140.
-
-> Sure:
-> http://www.handhelds.org/moin/moin.cgi/SiemensSX1
-
-Thanks! ...so you were able to get most of stuff working, but do not
-have qt/gpe working, and probably do not have suspend working so
-battery life is really bad, right?
-
-OTOH you can dual boot with symbian... so battery life is not _as_ bad
-problem. Do you need windows machine to apply patch allowing you to
-run uboot? Is there easy way to tell difference between 32MB and 24MB
-sx1's? Getting 24MB part would spoil all the fun, I'm afraid...
-
-								Pavel
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+ick.  We need such an application (probably doable in a python script?). 
+Methinks that telling people to go poking in dmesg will simply delay the
+development and propagation of that application..

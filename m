@@ -1,71 +1,112 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932133AbWIZPv7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932139AbWIZPwl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932133AbWIZPv7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Sep 2006 11:51:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932136AbWIZPv7
+	id S932139AbWIZPwl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Sep 2006 11:52:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932137AbWIZPwk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Sep 2006 11:51:59 -0400
-Received: from zod.pns.networktel.net ([209.159.47.6]:7365 "EHLO
-	zod.pns.networktel.net") by vger.kernel.org with ESMTP
-	id S932133AbWIZPv6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Sep 2006 11:51:58 -0400
-Message-ID: <45194A26.4060403@versaccounting.com>
-Date: Tue, 26 Sep 2006 10:41:26 -0500
-From: Ben Duncan <ben@versaccounting.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
-X-Accept-Language: en-us, en
+	Tue, 26 Sep 2006 11:52:40 -0400
+Received: from py-out-1112.google.com ([64.233.166.179]:41291 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S932139AbWIZPwh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Sep 2006 11:52:37 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=WeJT+009XIu2XGXeE8rLojG0eXSs+EwpD7Y9D0BbQzQxvy1xFYJCyI3+MQFikZ/VFBc1Y5F8fpZm0vLS9XeR82i5pFZE67t44+NXUJRUgCuTo5MyV0piJ+t5Zj7mqifdAN3bo5H5mnU1E2FfvjG/T/007ARqHVQgxe4IZKMfUMg=
+Message-ID: <4354d3270609260852maec46abh6755a17522797b65@mail.gmail.com>
+Date: Tue, 26 Sep 2006 18:52:37 +0300
+From: "=?ISO-8859-1?Q?T=F6r=F6k_Edvin?=" <edwintorok@gmail.com>
+To: "Phillip Susi" <psusi@cfl.rr.com>
+Subject: Re: [PATCH][RFC] Rearranging files to improve disk performanc
+Cc: linux-kernel@vger.kernel.org, viro@zeniv.linux.org.uk
+In-Reply-To: <451836CC.2010003@cfl.rr.com>
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.18 Nasty Lockup
-References: <20060926123640.GA7826@tigers.local>
-In-Reply-To: <20060926123640.GA7826@tigers.local>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <4354d3270609231211r6b9227fdhb88a6dc8822fc803@mail.gmail.com>
+	 <451836CC.2010003@cfl.rr.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-have gotten recently that as well. One time happen to have top running when
-that happened again.
+On 9/25/06, Phillip Susi <psusi@cfl.rr.com> wrote:
+> This ability is already available at least for ext2/3 in the old defrag
+> package, which can take a list of files and priorities to assign to
+> them, and it will pack them in the order given at the start of the disk.
 
-Top showed PDFLUSH consuming 100%CPU and 100% memeory
+My idea was to use existing filesystem calls to move files around. That is why
+the basic idea is to have online defragmentation.
+If it is possible to use the code from the old ext2/3 defrag to create
+an online defragmentation program, excellent. But I'd like a general
+solution, that would work
+/could be made to work with all filesystems in the future.
+That is why I asked for comments on my suggestion of a (real) simple
+filesystem rearranger (or defragmenter if you want to call it that
+way).
 
-Do not know if this well help anyone, but thought I would share.
+> As for your idea, if there is going to be online defrag support in the
+> kernel ( and yes, this is a form of defragmenting ) I'd rather see the
+> ability to move files around deterministically rather than just give a
+> hint and pray, similar to how windows handles online defragmenting.
 
-My lspci for the record:
+I agree with this, and maybe sysfs is a bad choice for what I'd like
+to accomplish. Maybe a netlink based api would be better, as we would
+have a more obvious way of reporting errors?
 
-00:00.0 Host bridge: nVidia Corporation nForce2 AGP (different version?) (rev c1)
-00:00.1 RAM memory: nVidia Corporation nForce2 Memory Controller 1 (rev c1)
-00:00.2 RAM memory: nVidia Corporation nForce2 Memory Controller 4 (rev c1)
-00:00.3 RAM memory: nVidia Corporation nForce2 Memory Controller 3 (rev c1)
-00:00.4 RAM memory: nVidia Corporation nForce2 Memory Controller 2 (rev c1)
-00:00.5 RAM memory: nVidia Corporation nForce2 Memory Controller 5 (rev c1)
-00:01.0 ISA bridge: nVidia Corporation nForce2 ISA Bridge (rev a3)
-00:01.1 SMBus: nVidia Corporation nForce2 SMBus (MCP) (rev a2)
-00:02.0 USB Controller: nVidia Corporation nForce2 USB Controller (rev a3)
-00:02.1 USB Controller: nVidia Corporation nForce2 USB Controller (rev a3)
-00:02.2 USB Controller: nVidia Corporation nForce2 USB Controller (rev a3)
-00:04.0 Ethernet controller: nVidia Corporation nForce2 Ethernet Controller (rev a1)
-00:06.0 Multimedia audio controller: nVidia Corporation nForce2 AC97 Audio Controler (MCP) 
-(rev a1)
-00:08.0 PCI bridge: nVidia Corporation nForce2 External PCI Bridge (rev a3)
-00:09.0 IDE interface: nVidia Corporation nForce2 IDE (rev a2)
-00:1e.0 PCI bridge: nVidia Corporation nForce2 AGP (rev c1)
-01:09.0 Mass storage controller: Silicon Image, Inc. SiI 3112 [SATALink/SATARaid] Serial ATA 
-Controller (rev 02)
-02:00.0 VGA compatible controller: nVidia Corporation NV18 [GeForce4 MX 440 AGP 8x] (rev a2)
+Anyway, regardless of the user to kernel communication, IMHO it should
+be established _what_ will userspace communicate to kernel, and
+viceversa (i.e. an API).
 
 
-Greg Schafer wrote:
-> Hi
-> 
-> This is a _hard_ lockup. No oops, no magic sysrq, no nuthin, just a
-> completely dead machine with only option the reset button. Usually happens
-> within a couple of minutes of desktop use but is 100% reproducible. Problem
-> is still there in a fresh checkout of current Linus git tree (post 2.6.18).
-> 
-<SNIP>
--- 
-Ben Duncan   - Business Network Solutions, Inc. 336 Elton Road  Jackson MS, 39212
-"Never attribute to malice, that which can be adequately explained by stupidity"
-        - Hanlon's Razor
+1. Determine current file location on disk.
+We already have this: FIBMAP ioctl.
 
+2. For determining where to put files, we need to know the free extents.
+'debugreiserfs -m <partition>' already accomplishes this, but it
+should be made more general.
+
+3. Ascertaining the optimal location for files.
+Can be done entirely in userspace, once you have the information from
+steps 1 and 2.
+
+4. Notifying userspace on writes to disk/pending writes to disk.
+Can be done via inotify/dnotify. This is needed, so that userspace
+knows to refresh its idea of
+free extents, and possibly the defrag strategy.
+
+5. Once a defrag strategy has been determined, tell the kernel to
+reserve those blocks
+for our files. (preallocation?) This can be useful if you are
+defragmenting a system under load, and can't afford to shut down
+processes that write to the disk. And also refreshing the fs bitmap
+would be expensive.
+
+6. It should be easy to reclaim blocks preallocated in step 5. (in the
+(unlikely?) event the defrag program crashes/needs to be restarted, or
+if defrag is aborted).
+
+7. An API to move files around, or at least chunks of it.
+This is the critical part. If space has been preallocated in step 5,
+it should be as easy as copy the file to new place/ delete from old
+place. (relocate_inode(inode,newlocation)).
+
+8. Have the ability to submit multiple move request simultaneously to
+take advantage of ncq/tcq/write-read merges,...
+
+9. Take advantage of blocks freed up after moving files. Thus if
+multiple requests are issued, they must not operate on the same block
+(obviously).
+
+10. Status reports on the success of preallocation, file moves,...
+especially the reason why an operation was not possible.
+
+
+I welcome any comments/suggestions on the above. Feel free to improve
+on it, or to rewrite the defrag-api-ideas from scratch.
+I would really appreciate if somebody could point out problems with
+certain assumptions I made above, and of course welcome any criticism
+too.
+
+
+Best regards,
+Edwin

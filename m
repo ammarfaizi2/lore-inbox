@@ -1,130 +1,117 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750736AbWIZDEl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750804AbWIZDm1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750736AbWIZDEl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Sep 2006 23:04:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750782AbWIZDEl
+	id S1750804AbWIZDm1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Sep 2006 23:42:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750814AbWIZDm1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Sep 2006 23:04:41 -0400
-Received: from tomts43.bellnexxia.net ([209.226.175.110]:18658 "EHLO
-	tomts43-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id S1750736AbWIZDEj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Sep 2006 23:04:39 -0400
-Date: Mon, 25 Sep 2006 22:59:24 -0400
-From: Mathieu Desnoyers <compudj@krystal.dyndns.org>
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Martin Bligh <mbligh@google.com>, "Frank Ch. Eigler" <fche@redhat.com>,
-       Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>, prasanna@in.ibm.com,
-       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-       Paul Mundt <lethal@linux-sh.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>, Jes Sorensen <jes@sgi.com>,
-       Tom Zanussi <zanussi@us.ibm.com>,
-       Richard J Moore <richardj_moore@uk.ibm.com>,
-       Michel Dagenais <michel.dagenais@polymtl.ca>,
-       Christoph Hellwig <hch@infradead.org>,
-       Greg Kroah-Hartman <gregkh@suse.de>,
-       Thomas Gleixner <tglx@linutronix.de>, William Cohen <wcohen@redhat.com>,
-       ltt-dev@shafik.org, systemtap@sources.redhat.com,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Karim Yaghmour <karim@opersys.com>,
-       Pavel Machek <pavel@suse.cz>, Joe Perches <joe@perches.com>,
-       "Randy.Dunlap" <rdunlap@xenotime.net>,
-       "Jose R. Santos" <jrs@us.ibm.com>
-Subject: Re: [PATCH] Linux Kernel Markers 0.13 for 2.6.17
-Message-ID: <20060926025924.GA27366@Krystal>
-References: <20060925233349.GA2352@Krystal> <20060925235617.GA3147@Krystal> <45187146.8040302@goop.org> <20060926002551.GA18276@Krystal> <20060926004535.GA2978@Krystal> <45187C0E.1080601@goop.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 25 Sep 2006 23:42:27 -0400
+Received: from nz-out-0102.google.com ([64.233.162.204]:3421 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S1750804AbWIZDm0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Sep 2006 23:42:26 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=COrPzd8ZpjFV2mIhJSDDv29mfKMzmEZOp+SycfQqmORHr6VSbvglBm46YNQs1B489ZX1gATvymdeSIse2GA8+G88k0iA2FW23cXDj0oAgQ3XxozykRmpA40emfvRv2efs924WnrPbfRCp8pVex8CiE3Zt6Kcbh7tcuxh23PmCDU=
+Message-ID: <6d6a94c50609252042g72f676a9s609095e2f1187ada@mail.gmail.com>
+Date: Tue, 26 Sep 2006 11:42:25 +0800
+From: Aubrey <aubreylee@gmail.com>
+To: "Arnd Bergmann" <arnd@arndb.de>
+Subject: Re: [PATCH 1/4] Blackfin: arch patch for 2.6.18
+Cc: "Luke Yang" <luke.adi@gmail.com>, linux-kernel@vger.kernel.org,
+       "Andrew Morton" <akpm@osdl.org>
+In-Reply-To: <200609251905.22224.arnd@arndb.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <45187C0E.1080601@goop.org>
-X-Editor: vi
-X-Info: http://krystal.dyndns.org:8080
-X-Operating-System: Linux/2.4.32-grsec (i686)
-X-Uptime: 22:47:46 up 33 days, 23:56,  1 user,  load average: 0.36, 0.20, 0.12
-User-Agent: Mutt/1.5.13 (2006-08-11)
+References: <489ecd0c0609202032l1c5540f7t980244e30d134ca0@mail.gmail.com>
+	 <200609251126.17494.arnd@arndb.de>
+	 <6d6a94c50609250839y7365e20ale6910e36b0ec9976@mail.gmail.com>
+	 <200609251905.22224.arnd@arndb.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-First of all, yes, gcc seems not to allow a programmer to jump between asm
-labels without painfully verifying everything, as stated in 
-http://developer.apple.com/documentation/DeveloperTools/gcc-4.0.1/gcc/Extended-Asm.html
-"Speaking of labels, jumps from one asm to another are not supported. The
-compiler's optimizers do not know about these jumps, and therefore they
-cannot take account of them when deciding how to optimize."
+On 9/26/06, Arnd Bergmann <arnd@arndb.de> wrote:
+> On Monday 25 September 2006 17:39, Aubrey wrote:
+> > 1) Timer interrupt will call do_irq(), then return_from_int().
+> >
+> > 2) return_from_int() will check if there is interrupt pending or
+> > signal pending, if so, it will call schedule_and_signal_from_int().
+> >
+> > 3) schedule_and_signal_from_int() will jump to resume_userspace()
+> >
+> > 4) resume_userspace() will call _schedule to run the user task.
+>
+> I have a little trouble reading your assembly code, but your
+> return_from_int() function should normally not call
+> schedule_and_signal_from_int() when the interrupt happened
+> in kernel context (like in the idle function):
+>
+> +       /* if not return to user mode, get out */
+> +       p2.l = lo(IPEND);
+> +       p2.h = hi(IPEND);
+> +       r0 = [p2];
+> +       r1 = 0x17(Z);
+> +       r2 = ~r1;
+> +       r2.h = 0;
+> +       r0 = r2 & r0;
+> +       r1 = 1;
+> +       r1 = r0 - r1;
+> +       r2 = r0 & r1;
+> +       cc = r2 == 0;
+> +       if !cc jump 2f;
+>
+> This looks a lot like you user_mode() function, so you jump
+> over schedule_and_signal_from_int() here.
+>
+> What you described would be a preemptive kernel
+> (CONFIG_PREEMPT), but you clearly don't have that enabled.
+>
 
-however... (see below)
+No, schedule_and_signal_from_int will be called.
+The above code is checking if there are at least two bits set on, if
+so, schedule_and_signal_from_int will be called.
 
-* Jeremy Fitzhardinge (jeremy@goop.org) wrote:
-> Mathieu Desnoyers wrote:
-> >To protect code from being preempted, the macros preempt_disable and
-> >preempt_enable must normally be used. Logically, this macro must make sure 
-> >gcc
-> >doesn't interleave preemptible code and non-preemptible code.
-> >  
-> 
-> No, it only needs to prevent globally visible side-effects from being 
-> moved into/out of preemptable blocks.  In practice that means memory 
-> updates (including the implicit ones that calls to external functions 
-> are assumed to make).
-> 
-> >Which makes me think that if I put barriers around my asm, call, asm trio, 
-> >no
-> >other code will be interleaved. Is it right ?
-> >  
-> 
-> No global side effects, but code with local side effects could be moved 
-> around without changing the meaning of preempt.
-> 
-> For example:
-> 
-> 	int foo;
-> 	extern int global;
-> 
-> 	foo = some_function();
-> 
-> 	foo += 42;
-> 
-> 	preempt_disable();
-> 	// stuff
-> 	preempt_enable();
-> 
-> 	global = foo;
-> 	foo += other_thing();
-> 
-> Assume here that some_function and other_function are extern, and so gcc 
-> has no insight into their behaviour and therefore conservatively assumes 
-> they have global side-effects.
-> 
-> The memory barriers in preempt_disable/enable will prevent gcc from 
-> moving any of the function calls into the non-preemptable region. But 
-> because "foo" is local and isn't visible to any other code, there's no 
-> reason why the "foo += 42" couldn't move into the preempt region.  
+Blackfin supports 3 processor mode: (1) user mode (2) supervisor mode
+(3) emulation mode. In the kernel space, the processor should be in
+the supervisor mode. To keep the processor in the supervisor mode, we
+raise the lowest priority interrupt event. Kerenl actually in the
+interrupt handler of the lowest priority interrupt event. See
+arch/blackfin/mach-bf53x/head.S.
+=================================
+/* This section keeps the processor in supervisor mode
+         * during kernel boot.  Switches to user mode at end of boot.
+         * See page 3-9 of Hardware Reference manual for documentation.
+         */
 
-I am not sure about this last statement. The same reference :
-http://developer.apple.com/documentation/DeveloperTools/gcc-4.0.1/gcc/Extended-Asm.html
+        /* EVT15 = _real_start */
 
-States :
-"If your assembler instructions access memory in an unpredictable fashion,
-add memory to the list of clobbered registers. This will cause GCC to not
-keep memory values cached in registers across the assembler instruction
-and not optimize stores or loads to that memory. You will also want to
-add the volatile keyword if the memory affected is not listed in the
-inputs or outputs of the asm, as the memory clobber does not count as
-a side-effect of the asm. If you know how large the accessed memory is,
-you can add it as input or output but if this is not known, you should
-add memory.  As an example, if you access ten bytes of a string, you can
-use a memory input like:
+        p0.l = lo(EVT15);
+        p0.h = hi(EVT15);
+        p1.l = _real_start;
+        p1.h = _real_start;
+        [p0] = p1;
+        csync;
 
-  {"m"( ({ struct { char x[10]; } *p = (void *)ptr ; *p; }) )} "
+        p0.l = lo(IMASK);
+        p0.h = hi(IMASK);
+        p1.l = IMASK_IVG15;
+        p1.h = 0x0;
+        [p0] = p1;
+        csync;
 
+        raise 15;
+        p0.l = .LWAIT_HERE;
+        p0.h = .LWAIT_HERE;
+        reti = p0;
+        rti;
+===============================================
+So, in the kernel space, there is always one bit in the IPEND register
+is set. And if there comes a timer interrupt event, in the timer
+interrupt handler, there should be two bits set in the IPEND register.
+Therefore, schedule happens in the return_from_int.
 
-I am just wondering how gcc can assume that I will not modify variables on the
-stack from within a function with a memory clobber. If I would like to do some
-nasty things in my assembly code, like accessing directly to a local variable by
-using an offset from the stack pointer, I would expect gcc not to relocate this
-local variable around my asm volatile memory clobbered statement, as it falls
-under the category "access memory in an unpredictable fashion".
+So, I still say there is no latency here.
 
-Mathieu
-
-OpenPGP public key:              http://krystal.dyndns.org:8080/key/compudj.gpg
-Key fingerprint:     8CD5 52C3 8E3C 4140 715F  BA06 3F25 A8FE 3BAE 9A68 
+-Aubrey

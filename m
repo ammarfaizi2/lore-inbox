@@ -1,38 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751055AbWIZFOZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751084AbWIZFQk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751055AbWIZFOZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Sep 2006 01:14:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751056AbWIZFOY
+	id S1751084AbWIZFQk (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Sep 2006 01:16:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751085AbWIZFQk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Sep 2006 01:14:24 -0400
-Received: from ozlabs.org ([203.10.76.45]:7321 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S1751052AbWIZFOY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Sep 2006 01:14:24 -0400
+	Tue, 26 Sep 2006 01:16:40 -0400
+Received: from out1.smtp.messagingengine.com ([66.111.4.25]:10468 "EHLO
+	out1.smtp.messagingengine.com") by vger.kernel.org with ESMTP
+	id S1751084AbWIZFQj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Sep 2006 01:16:39 -0400
+X-Sasl-enc: YqJOyt0vgPF1vN4eIFerOqIArJYP+UcEd433bguI3Pbn 1159247800
+From: Shriramana Sharma <samjnaa@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Improvements in 2.6.18 will help SATA?
+Date: Tue, 26 Sep 2006 10:46:35 +0530
+User-Agent: KMail/1.9.4
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Message-ID: <17688.46820.516756.495462@cargo.ozlabs.ibm.com>
-Date: Tue, 26 Sep 2006 15:13:08 +1000
-From: Paul Mackerras <paulus@samba.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Daniel Walker <dwalker@mvista.com>,
-       Russell King <rmk+lkml@arm.linux.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH -mm] console: console_drivers not initialized
-In-Reply-To: <20060925144204.e71c2423.akpm@osdl.org>
-References: <20060925210710.931336000@mvista.com>
-	<20060925211122.GC25257@flint.arm.linux.org.uk>
-	<1159219581.3648.10.camel@c-67-180-230-165.hsd1.ca.comcast.net>
-	<20060925144204.e71c2423.akpm@osdl.org>
-X-Mailer: VM 7.19 under Emacs 21.4.1
+Content-Disposition: inline
+Message-Id: <200609261046.35391.samjnaa@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton writes:
+I'm an end user, not a developer. From:
 
-> What Russell said.  If the arch startup code isn't correctly zeroing bss
-> then that's pretty badly busted.
+http://www.kernel.org/pub/linux/kernel/v2.6/ChangeLog-2.6.18
 
-Indeed.  We do actually zero the BSS on startup. :)
+I see that a lot of the changes are related to SATA. I have a Seagate SATA HDD 
+as my one and only HDD so if I will really be benefitting performance-wise 
+from the new features or improvements, then I will install 2.6.18 over 
+2.6.15. So please tell me as I am not able to decipher for myself, whether 
+these improvements will lead to better performance, efficiency, speed or 
+something like that on my SATA HDD.
 
-Paul.
+Please don't be harsh with me if this question is way OT for this list. I 
+thought only the developers can answer such a question so I asked here. I'm 
+sincerely sorry if I am bothering anyone.
+
+Please cc me as I am not on the list.
+
+-- 
+
+Shriramana Sharma
+Linux user #395953 using Kubuntu 6.06.1

@@ -1,42 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932492AbWIZTji@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932497AbWIZTnT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932492AbWIZTji (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Sep 2006 15:39:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932493AbWIZTjh
+	id S932497AbWIZTnT (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Sep 2006 15:43:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932495AbWIZTnT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Sep 2006 15:39:37 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:35532 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932492AbWIZTj0 (ORCPT
+	Tue, 26 Sep 2006 15:43:19 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:25487 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S932494AbWIZTnS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Sep 2006 15:39:26 -0400
-Date: Tue, 26 Sep 2006 12:38:59 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: Dave Jones <davej@redhat.com>, Pavel Machek <pavel@ucw.cz>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH -mm 4/6] swsusp: Add resume_offset command line
- parameter
-Message-Id: <20060926123859.34e9b913.akpm@osdl.org>
-In-Reply-To: <200609231208.25670.rjw@sisk.pl>
-References: <200609231158.00147.rjw@sisk.pl>
-	<200609231208.25670.rjw@sisk.pl>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 26 Sep 2006 15:43:18 -0400
+Message-ID: <451982D1.6000806@garzik.org>
+Date: Tue, 26 Sep 2006 15:43:13 -0400
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
+MIME-Version: 1.0
+To: Diego Calleja <diegocg@gmail.com>
+CC: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
+Subject: Re: pata_serverworks oopses in latest -git
+References: <20060926140016.54d532ba.diegocg@gmail.com>	<1159275010.11049.215.camel@localhost.localdomain>	<45194DAD.6060904@garzik.org> <20060926212939.69b52f0d.diegocg@gmail.com>
+In-Reply-To: <20060926212939.69b52f0d.diegocg@gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Spam-Score: -4.3 (----)
+X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 23 Sep 2006 12:08:25 +0200
-"Rafael J. Wysocki" <rjw@sisk.pl> wrote:
+Diego Calleja wrote:
+> El Tue, 26 Sep 2006 11:56:29 -0400,
+> Jeff Garzik <jeff@garzik.org> escribió:
+> 
+>> Diego, does the attached patch help?
+> 
+> Yes and no :) It fixes that problem but I hit another oops, but this
+> time it's triggered because it hits the BUG() at:
+> 
+> static int serverworks_pre_reset(struct ata_port *ap) {
+> [...]
+>         BUG();
+>         return -1;      /* kill compiler warning */
 
-> Add the kernel command line parameter "resume_offset=" allowing us to specify
-> the offset, in <PAGE_SIZE> units, from the beginning of the partition pointed
-> to by the "resume=" parameter at which the swap header is located.
+I'll punt this one to Alan :)
 
-Is this description correct?  I think it's in 512-byte units?
+Can you provide using with 'lspci -vvvxxxn' output, as root?
 
-It certainly should be - a filesytem could start the swapfile at any
-sector_t.
+	Jeff
+
 
 

@@ -1,59 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964787AbWIZU13@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964789AbWIZU13@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964787AbWIZU13 (ORCPT <rfc822;willy@w.ods.org>);
+	id S964789AbWIZU13 (ORCPT <rfc822;willy@w.ods.org>);
 	Tue, 26 Sep 2006 16:27:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964790AbWIZU12
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964791AbWIZU13
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Sep 2006 16:27:28 -0400
-Received: from mx2.suse.de ([195.135.220.15]:16342 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S964787AbWIZU12 (ORCPT
+	Tue, 26 Sep 2006 16:27:29 -0400
+Received: from mx2.suse.de ([195.135.220.15]:17366 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S964789AbWIZU12 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 26 Sep 2006 16:27:28 -0400
 From: Andi Kleen <ak@suse.de>
-To: Linus Torvalds <torvalds@osdl.org>
-Subject: Re: x86/x86-64 merge for 2.6.19
-Date: Tue, 26 Sep 2006 22:26:09 +0200
+To: Greg KH <greg@kroah.com>
+Subject: Re: [PATCH] x86[-64] PCI domain support
+Date: Tue, 26 Sep 2006 22:27:22 +0200
 User-Agent: KMail/1.9.3
-Cc: linux-kernel@vger.kernel.org, discuss@x86-64.org
-References: <200609261244.43863.ak@suse.de> <200609262202.28846.ak@suse.de> <Pine.LNX.4.64.0609261318240.3952@g5.osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0609261318240.3952@g5.osdl.org>
+Cc: Jeff Garzik <jeff@garzik.org>, Andrew Morton <akpm@osdl.org>,
+       Jim Paradis <jparadis@redhat.com>, LKML <linux-kernel@vger.kernel.org>
+References: <20060926191508.GA6350@havoc.gtf.org> <20060926202303.GA15369@kroah.com>
+In-Reply-To: <20060926202303.GA15369@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200609262226.09418.ak@suse.de>
+Message-Id: <200609262227.22217.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 26 September 2006 22:19, Linus Torvalds wrote:
-> 
-> On Tue, 26 Sep 2006, Andi Kleen wrote:
-> > > 
-> > > I really don't want do http:// pulls - they are very inefficient, and I 
-> > > don't trust the end result because the http protocol isn't really good for 
-> > > verifying the end result (same goes for rsync:// to an even bigger 
-> > > degree). 
+On Tuesday 26 September 2006 22:23, Greg KH wrote:
+> On Tue, Sep 26, 2006 at 03:15:08PM -0400, Jeff Garzik wrote:
 > > 
-> > Sorry that was actually me typoing (my fingers are not used to git:// urls
-> > yet) I've sent you a new email with correct URL
+> > The x86[-64] PCI domain effort needs to be restarted, because we've got
+> > machines out in the field that need this in order for some devices to
+> > work.
+> > 
+> > RHEL is shipping it now, apparently without any problems.
+> > 
+> > The 'pciseg' branch of
+> > git://git.kernel.org/pub/scm/linux/kernel/git/jgarzik/misc-2.6.git pciseg
 > 
-> I actually tried it with "git://" instead of "http://" bit maybe I typoed 
-> too.
+> So are the NUMA issues now taken care of properly? 
 
-Yes I managed to typo twice  (linus-2.6 instead of linux-2.6)
-Amazing, wasn't it?
- 
-> Anyway, the new address was fine. Pulled, pushed out.
+I assume IBM would have complained if it was broken in RHEL.
 
-Thanks.
- 
-> (Side note, I'm hoping we can sync up more easily now, and in smaller 
-> chunks ;)
-
-Yes that is why I did it. I still use quilt for my tree because it works
-best for me, but together with all the i386 stuff I was over 230 patches
-and email clearly didn't scale well to that much.
+But iirc Summit has two BIOS options for this. Maybe they just recommend
+to set the other one for Linux. Anyways I guess that can be all figured
+out once the patch is in tree.
 
 -Andi
 

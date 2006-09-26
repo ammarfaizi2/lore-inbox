@@ -1,44 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964786AbWIZUZp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964787AbWIZU13@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964786AbWIZUZp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Sep 2006 16:25:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964787AbWIZUZp
+	id S964787AbWIZU13 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Sep 2006 16:27:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964790AbWIZU12
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Sep 2006 16:25:45 -0400
-Received: from hu-out-0506.google.com ([72.14.214.228]:38899 "EHLO
-	hu-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S964786AbWIZUZo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Sep 2006 16:25:44 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:to:subject:from:cc:content-type:mime-version:references:content-transfer-encoding:message-id:in-reply-to:user-agent;
-        b=Val532s+eFDQ12F3hcZXFXY6HgMSoh8V8bTf9AfZ4pOnoGWiji3gS2tf+EEVtyvHDNvt3LQgc2fcetG05pG5wVnf3H2F1733UM46YATwPxUNNVaghRw4GLq2NaVa9ehHKMECqiCGhVDjsWJRz3J31Htt2pOg7QEML5xhUVbDcSM=
-Date: Wed, 27 Sep 2006 00:33:38 +0400
-To: "Pavel Machek" <pavel@ucw.cz>
-Subject: Re: [PATCH 5/5] Add gsm phone support for the mixer in tsc2101 alsa driver.
-From: Vovan <vovan888@gmail.com>
-Cc: lamikr@cc.jyu.fi, tony@atomide.com,
-       OMAP-Linux <linux-omap-open-source@linux.omap.com>,
-       linux-kernel@vger.kernel.org
-Content-Type: text/plain; format=flowed; delsp=yes; charset=windows-1251
+	Tue, 26 Sep 2006 16:27:28 -0400
+Received: from mx2.suse.de ([195.135.220.15]:16342 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S964787AbWIZU12 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Sep 2006 16:27:28 -0400
+From: Andi Kleen <ak@suse.de>
+To: Linus Torvalds <torvalds@osdl.org>
+Subject: Re: x86/x86-64 merge for 2.6.19
+Date: Tue, 26 Sep 2006 22:26:09 +0200
+User-Agent: KMail/1.9.3
+Cc: linux-kernel@vger.kernel.org, discuss@x86-64.org
+References: <200609261244.43863.ak@suse.de> <200609262202.28846.ak@suse.de> <Pine.LNX.4.64.0609261318240.3952@g5.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0609261318240.3952@g5.osdl.org>
 MIME-Version: 1.0
-References: <44E51565.6020505@cc.jyu.fi> <20060905151808.GC18073@atomide.com> <44FF2A6D.3000500@cc.jyu.fi> <ce55079f0609250442x5638a93fuac95c65a54a0927@mail.gmail.com> <20060926194541.GA4596@ucw.cz>
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-ID: <op.tgh52caydbah4f@vovan>
-In-Reply-To: <20060926194541.GA4596@ucw.cz>
-User-Agent: Opera Mail/9.02 (Linux)
+Content-Disposition: inline
+Message-Id: <200609262226.09418.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->> >
->>
->> I work on getting linux running on Siemens SX1 mobile
->> phone.
->
-> Do you have web pages with current state somewhere? SX1 should be
-> *cheap* toy for experiments...
-> 							Pavel
+On Tuesday 26 September 2006 22:19, Linus Torvalds wrote:
+> 
+> On Tue, 26 Sep 2006, Andi Kleen wrote:
+> > > 
+> > > I really don't want do http:// pulls - they are very inefficient, and I 
+> > > don't trust the end result because the http protocol isn't really good for 
+> > > verifying the end result (same goes for rsync:// to an even bigger 
+> > > degree). 
+> > 
+> > Sorry that was actually me typoing (my fingers are not used to git:// urls
+> > yet) I've sent you a new email with correct URL
+> 
+> I actually tried it with "git://" instead of "http://" bit maybe I typoed 
+> too.
 
-Sure:
-http://www.handhelds.org/moin/moin.cgi/SiemensSX1
+Yes I managed to typo twice  (linus-2.6 instead of linux-2.6)
+Amazing, wasn't it?
+ 
+> Anyway, the new address was fine. Pulled, pushed out.
+
+Thanks.
+ 
+> (Side note, I'm hoping we can sync up more easily now, and in smaller 
+> chunks ;)
+
+Yes that is why I did it. I still use quilt for my tree because it works
+best for me, but together with all the i386 stuff I was over 230 patches
+and email clearly didn't scale well to that much.
+
+-Andi
 

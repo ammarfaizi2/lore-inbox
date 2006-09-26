@@ -1,63 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964835AbWIZVnJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964843AbWIZVn2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964835AbWIZVnJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Sep 2006 17:43:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964837AbWIZVnI
+	id S964843AbWIZVn2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Sep 2006 17:43:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964846AbWIZVn2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Sep 2006 17:43:08 -0400
-Received: from nf-out-0910.google.com ([64.233.182.187]:21567 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S964835AbWIZVnH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Sep 2006 17:43:07 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=bPUhypHUEBSsaIRaEMjC44zKFVMGaNSUVHkG3CMaKqS5cgSPuwON/HJRNNGElxu40nlA6eWvsY7YrJSXtWzYIgtq6YhO85uTs5DBtwnm443n4Eue2rSM9FFpg47ukscjYyYs4mWSuVqXfyMXtyuvAlDTRfuuci5hKF0Ql2LXuNU=
-Message-ID: <45199EEB.5040402@gmail.com>
-Date: Tue, 26 Sep 2006 23:43:07 +0200
-From: Jiri Slaby <jirislaby@gmail.com>
-User-Agent: Thunderbird 2.0a1 (X11/20060724)
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: linux-kernel@vger.kernel.org, support@moxa.com.tw
-Subject: Re: [PATCH 2/3] Char: mxser_new, upgrade to 1.9.1
-References: <87473798798444375@wsc.cz> <20060926141149.3e3e3a4c.akpm@osdl.org>
-In-Reply-To: <20060926141149.3e3e3a4c.akpm@osdl.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 26 Sep 2006 17:43:28 -0400
+Received: from [198.99.130.12] ([198.99.130.12]:61605 "EHLO
+	saraswathi.solana.com") by vger.kernel.org with ESMTP
+	id S964845AbWIZVn1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Sep 2006 17:43:27 -0400
+Date: Tue, 26 Sep 2006 17:41:49 -0400
+From: Jeff Dike <jdike@addtoit.com>
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: akpm@osdl.org, user-mode-linux-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 3/5] UML - disable header exporting
+Message-ID: <20060926214149.GA6880@ccure.user-mode-linux.org>
+References: <200609261753.k8QHrMrV005540@ccure.user-mode-linux.org> <1159301304.3309.37.camel@pmac.infradead.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1159301304.3309.37.camel@pmac.infradead.org>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> On Sun, 24 Sep 2006 13:58:58 -0700
-> Jiri Slaby <jirislaby@gmail.com> wrote:
-> 
->> I also added printk line with info, if somebody wants to test it, he may
->> contact me as I can potentially debug the driver with him or just to
->> confirm it works properly.
-> 
-> hm, so you don't actually have a known tester for this?
+On Tue, Sep 26, 2006 at 09:08:24PM +0100, David Woodhouse wrote:
+> Already done upstream.
 
-There were some people, that told me it doesn't work but they can't (or don't 
-want) to unapply patch-serie.
+Oops, didn't notice.
 
-> <goes on a little hunt>
-> 
-> These people:
-> 
-> Bernard Pidoux <pidoux@ccr.jussieu.fr>
+Please drop this then.
 
-He unfortunately doesn't have the card. His friend had, before he passed away.
-
-> Sergei Organov <osv@javad.com>
-> 
-> appear to have the hardware and are using this driver. 
-> 
-> Also Denis Vlasenko <vda@ilport.com.ua>, who is a kernel developer.
-
-I'll try these two fellows, thanks,
--- 
-http://www.fi.muni.cz/~xslaby/            Jiri Slaby
-faculty of informatics, masaryk university, brno, cz
-e-mail: jirislaby gmail com, gpg pubkey fingerprint:
-B674 9967 0407 CE62 ACC8  22A0 32CC 55C3 39D4 7A7E
+			Jeff

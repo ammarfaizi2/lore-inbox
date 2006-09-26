@@ -1,42 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932112AbWIZTiJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932481AbWIZTjY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932112AbWIZTiJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Sep 2006 15:38:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932153AbWIZTiJ
+	id S932481AbWIZTjY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Sep 2006 15:39:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932492AbWIZTjX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Sep 2006 15:38:09 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:63937 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932112AbWIZTiI convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Sep 2006 15:38:08 -0400
-Subject: Re: pata_serverworks oopses in latest -git
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Diego Calleja <diegocg@gmail.com>
-Cc: Jeff Garzik <jeff@garzik.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <20060926212939.69b52f0d.diegocg@gmail.com>
-References: <20060926140016.54d532ba.diegocg@gmail.com>
-	 <1159275010.11049.215.camel@localhost.localdomain>
-	 <45194DAD.6060904@garzik.org>  <20060926212939.69b52f0d.diegocg@gmail.com>
-Content-Type: text/plain; charset=UTF-8
-Content-Transfer-Encoding: 8BIT
-Date: Tue, 26 Sep 2006 21:02:26 +0100
-Message-Id: <1159300946.11049.300.camel@localhost.localdomain>
+	Tue, 26 Sep 2006 15:39:23 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:32972 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932481AbWIZTjW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Sep 2006 15:39:22 -0400
+Date: Tue, 26 Sep 2006 12:39:07 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: Dave Jones <davej@redhat.com>, Pavel Machek <pavel@ucw.cz>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH -mm 5/6] mm: Print first block offset for swap areas
+Message-Id: <20060926123907.4801a022.akpm@osdl.org>
+In-Reply-To: <200609231210.54692.rjw@sisk.pl>
+References: <200609231158.00147.rjw@sisk.pl>
+	<200609231210.54692.rjw@sisk.pl>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Maw, 2006-09-26 am 21:29 +0200, ysgrifennodd Diego Calleja:
-> El Tue, 26 Sep 2006 11:56:29 -0400,
-> Jeff Garzik <jeff@garzik.org> escribió:
-> 
-> > Diego, does the attached patch help?
-> 
-> Yes and no :) It fixes that problem but I hit another oops, but this
-> time it's triggered because it hits the BUG() at:
+On Sat, 23 Sep 2006 12:10:54 +0200
+"Rafael J. Wysocki" <rjw@sisk.pl> wrote:
 
-Burble.....
+> In order to use a swap file with swsusp we need to know the offset at which
+> its swap header is located.  However, the swap header is always located in the
+> first page block of the swap file and it's quite easy to make sys_swapon() print
+> the offset of the swap file's (or swap partition's) first page block.
 
-Can you send me an lspci -vxxx of your serverworks controller. That
-shouldn't be possible so I must have the table wrong.
-
+Why is this needed?  The swapfile's pathname is present in /proc/swaps, so
+an application can read that, do the FIBMAP and rewrite grub.conf without
+needing to parse dmesg?

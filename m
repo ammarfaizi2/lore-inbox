@@ -1,29 +1,28 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750723AbWIZHgP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750722AbWIZHnF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750723AbWIZHgP (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Sep 2006 03:36:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750739AbWIZHgP
+	id S1750722AbWIZHnF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Sep 2006 03:43:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750730AbWIZHnE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Sep 2006 03:36:15 -0400
-Received: from mail7.hitachi.co.jp ([133.145.228.42]:13184 "EHLO
+	Tue, 26 Sep 2006 03:43:04 -0400
+Received: from mail7.hitachi.co.jp ([133.145.228.42]:34693 "EHLO
 	mail7.hitachi.co.jp") by vger.kernel.org with ESMTP
-	id S1750723AbWIZHgO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Sep 2006 03:36:14 -0400
+	id S1750722AbWIZHnB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Sep 2006 03:43:01 -0400
 Message-Type: Multiple Part
 MIME-Version: 1.0
-Message-ID: <XNM1$9$0$4$$3$3$7$A$9002680U4518d84f@hitachi.com>
+Message-ID: <XNM1$9$0$4$$3$3$7$A$9002681U4518d9f9@hitachi.com>
 Content-Type: text/plain; charset="us-ascii"
-To: <akpm@osdl.org>, <tony.luck@intel.ocm>, <greg@kroah.com>,
+To: <akpm@osdl.org>, <tony.luck@intel.com>, <greg@kroah.com>,
        <linux-ia64@vger.kernel.org>
 From: <eiichiro.oiwa.nm@hitachi.com>
 Cc: <linux-kernel@vger.kernel.org>
-Date: Tue, 26 Sep 2006 16:35:54 +0900
-References: <200609260605.k8Q65dAc005670@fire-2.osdl.org>
+Date: Tue, 26 Sep 2006 16:42:50 +0900
 Importance: normal
 Subject: [PATCH 2.6.18] IA64: Add pci_fixup_video into IA64 kernel for
     embedded VGA
-X400-Content-Identifier: X4518D84F00000M
-X400-MTS-Identifier: [/C=JP/ADMD=HITNET/PRMD=HITACHI/;gmml160609261635431LS]
+X400-Content-Identifier: X4518D9F900000M
+X400-MTS-Identifier: [/C=JP/ADMD=HITNET/PRMD=HITACHI/;gmml160609261642492EU]
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org

@@ -1,14 +1,14 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750798AbWIZLDs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750857AbWIZLGN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750798AbWIZLDs (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Sep 2006 07:03:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750801AbWIZLDs
+	id S1750857AbWIZLGN (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Sep 2006 07:06:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750858AbWIZLGN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Sep 2006 07:03:48 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:17097 "EHLO
+	Tue, 26 Sep 2006 07:06:13 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:19401 "EHLO
 	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1750798AbWIZLDr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Sep 2006 07:03:47 -0400
+	id S1750850AbWIZLGM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Sep 2006 07:06:12 -0400
 Subject: Re: [PATCH] restore libata build on frv
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
 To: David Woodhouse <dwmw2@infradead.org>
@@ -29,8 +29,8 @@ References: <20060925142016.GI29920@ftp.linux.org.uk>
 	 <1159260980.3309.22.camel@pmac.infradead.org>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Date: Tue, 26 Sep 2006 12:25:21 +0100
-Message-Id: <1159269921.11049.190.camel@localhost.localdomain>
+Date: Tue, 26 Sep 2006 12:30:33 +0100
+Message-Id: <1159270234.11049.192.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
@@ -44,10 +44,8 @@ Ar Maw, 2006-09-26 am 09:56 +0100, ysgrifennodd David Woodhouse:
 > That's fine -- but don't use zero to mean none. We have NO_IRQ for that,
 > and zero isn't an appropriate choice.
 
-Zero means "no IRQ". That's official kernel policy and true for both old
-and new IDE. Architectures are supposed to remap any real "irq 0".
-
-Might as well use NO_IRQ though, as its clearer.
+Let me correct that - you *had* NO_IRQ. It isn't defined for most
+platforms any more in -mm it seems.
 
 Alan
 

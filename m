@@ -1,73 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964800AbWIZUpl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964797AbWIZUsc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964800AbWIZUpl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Sep 2006 16:45:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964797AbWIZUpk
+	id S964797AbWIZUsc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Sep 2006 16:48:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964799AbWIZUsc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Sep 2006 16:45:40 -0400
-Received: from atlrel6.hp.com ([156.153.255.205]:56517 "EHLO atlrel6.hp.com")
-	by vger.kernel.org with ESMTP id S964798AbWIZUpi (ORCPT
+	Tue, 26 Sep 2006 16:48:32 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:26014 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S964797AbWIZUsb (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Sep 2006 16:45:38 -0400
-From: Bjorn Helgaas <bjorn.helgaas@hp.com>
-To: Andrew Morton <akpm@osdl.org>
-Subject: [patch] i386: replace intermediate array-size definitions with ARRAY_SIZE()
-Date: Tue, 26 Sep 2006 14:45:21 -0600
-User-Agent: KMail/1.9.1
-Cc: linux-kernel@vger.kernel.org
+	Tue, 26 Sep 2006 16:48:31 -0400
+Date: Tue, 26 Sep 2006 22:48:27 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Vovan <vovan888@gmail.com>
+Cc: lamikr@cc.jyu.fi, tony@atomide.com,
+       OMAP-Linux <linux-omap-open-source@linux.omap.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 5/5] Add gsm phone support for the mixer in tsc2101 alsa driver.
+Message-ID: <20060926204827.GA4714@elf.ucw.cz>
+References: <44E51565.6020505@cc.jyu.fi> <20060905151808.GC18073@atomide.com> <44FF2A6D.3000500@cc.jyu.fi> <ce55079f0609250442x5638a93fuac95c65a54a0927@mail.gmail.com> <20060926194541.GA4596@ucw.cz> <op.tgh52caydbah4f@vovan>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200609261445.21537.bjorn.helgaas@hp.com>
+In-Reply-To: <op.tgh52caydbah4f@vovan>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Code is easier to validate if array sizes aren't hidden behind extra
-#defines.
+Hi!
 
-Signed-off-by: Bjorn Helgaas <bjorn.helgaas@hp.com>
+> >>I work on getting linux running on Siemens SX1 mobile
+> >>phone.
+> >
+> >Do you have web pages with current state somewhere? SX1 should be
+> >*cheap* toy for experiments...
 
-Index: work-mm3/arch/i386/kernel/setup.c
-===================================================================
---- work-mm3.orig/arch/i386/kernel/setup.c	2006-09-26 14:33:24.000000000 -0600
-+++ work-mm3/arch/i386/kernel/setup.c	2006-09-26 14:37:57.000000000 -0600
-@@ -209,9 +209,6 @@
- 	.flags	= IORESOURCE_BUSY | IORESOURCE_READONLY | IORESOURCE_MEM
- } };
- 
--#define ADAPTER_ROM_RESOURCES \
--	(sizeof adapter_rom_resources / sizeof adapter_rom_resources[0])
--
- static struct resource video_rom_resource = {
- 	.name 	= "Video ROM",
- 	.start	= 0xc0000,
-@@ -273,9 +270,6 @@
- 	.flags	= IORESOURCE_BUSY | IORESOURCE_IO
- } };
- 
--#define STANDARD_IO_RESOURCES \
--	(sizeof standard_io_resources / sizeof standard_io_resources[0])
--
- #define romsignature(x) (*(unsigned short *)(x) == 0xaa55)
- 
- static int __init romchecksum(unsigned char *rom, unsigned long length)
-@@ -332,7 +326,7 @@
- 	}
- 
- 	/* check for adapter roms on 2k boundaries */
--	for (i = 0; i < ADAPTER_ROM_RESOURCES && start < upper; start += 2048) {
-+	for (i = 0; i < ARRAY_SIZE(adapter_rom_resources) && start < upper; start += 2048) {
- 		rom = isa_bus_to_virt(start);
- 		if (!romsignature(rom))
- 			continue;
-@@ -1292,7 +1286,7 @@
- 	request_resource(&iomem_resource, &video_ram_resource);
- 
- 	/* request I/O space for devices used on all i[345]86 PCs */
--	for (i = 0; i < STANDARD_IO_RESOURCES; i++)
-+	for (i = 0; i < ARRAY_SIZE(standard_io_resources); i++)
- 		request_resource(&ioport_resource, &standard_io_resources[i]);
- 	return 0;
- }
+I googled a bit, and its price in czech republic is ~$100..$140.
+
+> Sure:
+> http://www.handhelds.org/moin/moin.cgi/SiemensSX1
+
+Thanks! ...so you were able to get most of stuff working, but do not
+have qt/gpe working, and probably do not have suspend working so
+battery life is really bad, right?
+
+OTOH you can dual boot with symbian... so battery life is not _as_ bad
+problem. Do you need windows machine to apply patch allowing you to
+run uboot? Is there easy way to tell difference between 32MB and 24MB
+sx1's? Getting 24MB part would spoil all the fun, I'm afraid...
+
+								Pavel
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

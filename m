@@ -1,49 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932339AbWIZQLy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932342AbWIZQNw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932339AbWIZQLy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Sep 2006 12:11:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932338AbWIZQLn
+	id S932342AbWIZQNw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Sep 2006 12:13:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932344AbWIZQNv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Sep 2006 12:11:43 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:19604 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932337AbWIZQLl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Sep 2006 12:11:41 -0400
-Subject: Re: [SYSFS] Add a declaration for fs_subsys
-From: Steven Whitehouse <swhiteho@redhat.com>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: gregkh@suse.de, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>
-In-Reply-To: <20060926160043.GA2402@infradead.org>
-References: <1159274711.11901.460.camel@quoit.chygwyn.com>
-	 <20060926160043.GA2402@infradead.org>
+	Tue, 26 Sep 2006 12:13:51 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:63451 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932338AbWIZQNu
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Sep 2006 12:13:50 -0400
+Subject: [PATCH] libata: refuse to register IRQless ports
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: jgarzik@pobox.com, linux-kernel@vger.kernel.org
 Content-Type: text/plain
-Organization: Red Hat (UK) Ltd
-Date: Tue, 26 Sep 2006 17:18:08 +0100
-Message-Id: <1159287488.11901.514.camel@quoit.chygwyn.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
 Content-Transfer-Encoding: 7bit
+Date: Tue, 26 Sep 2006 17:35:32 +0100
+Message-Id: <1159288532.11049.250.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+We don't currently support pure polled operation so when we meet a BIOS
+which forgot to assign an IRQ to a PCI device it all goes a little pear
+shaped. Trap this case properly.
 
-On Tue, 2006-09-26 at 17:00 +0100, Christoph Hellwig wrote:
-> On Tue, Sep 26, 2006 at 01:45:11PM +0100, Steven Whitehouse wrote:
-> > 
-> > The fs_subsys of sysfs does not have a declaration in any header
-> > file, despite it being an exported symbol. This patch adds one so
-> > that modules don't have to add their own. This is something used
-> > by GFS2 (and already in the GFS2 tree) but I think can safely be
-> > considered generic infrastructure.
-> 
-> The declaration seem to be already present in Linus' current tree.
-> 
+Signed-off-by: Alan Cox <alan@redhat.com>
 
-Oops. Sorry, I'd totally missed that. I've backed out the second
-declaration from the GFS2 tree,
-
-Steve.
-
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.18-mm1/drivers/ata/libata-core.c linux-2.6.18-mm1/drivers/ata/libata-core.c
+--- linux.vanilla-2.6.18-mm1/drivers/ata/libata-core.c	2006-09-25 12:10:08.000000000 +0100
++++ linux-2.6.18-mm1/drivers/ata/libata-core.c	2006-09-26 11:47:57.041010560 +0100
+@@ -5460,6 +5460,11 @@
+ 	int rc;
+ 
+ 	DPRINTK("ENTER\n");
++	
++	if (ent->irq == 0) {
++		dev_printk(KERN_ERR, dev, "is not available: No interrupt assigned.\n");
++		return 0;
++	}
+ 	/* alloc a container for our list of ATA ports (buses) */
+ 	host = kzalloc(sizeof(struct ata_host) +
+ 		       (ent->n_ports * sizeof(void *)), GFP_KERNEL);
 

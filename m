@@ -1,24 +1,25 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751630AbWIZAIo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751842AbWIZANk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751630AbWIZAIo (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Sep 2006 20:08:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751828AbWIZAIo
+	id S1751842AbWIZANk (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Sep 2006 20:13:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751840AbWIZANk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Sep 2006 20:08:44 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:217 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1751630AbWIZAIl (ORCPT
+	Mon, 25 Sep 2006 20:13:40 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:14297 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1751842AbWIZANj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Sep 2006 20:08:41 -0400
-Message-ID: <45186F87.8080207@pobox.com>
-Date: Mon, 25 Sep 2006 20:08:39 -0400
+	Mon, 25 Sep 2006 20:13:39 -0400
+Message-ID: <451870AA.1030906@pobox.com>
+Date: Mon, 25 Sep 2006 20:13:30 -0400
 From: Jeff Garzik <jgarzik@pobox.com>
 User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
 MIME-Version: 1.0
-To: Al Viro <viro@ftp.linux.org.uk>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] restore __iomem annotations in e1000
-References: <20060923003240.GF29920@ftp.linux.org.uk>
-In-Reply-To: <20060923003240.GF29920@ftp.linux.org.uk>
+To: Henne <henne@nachtwindheim.de>
+CC: Andrew Morton <akpm@osdl.org>, linux-pci@atrey.karlin.mff.cuni.cz,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 3rd try] ata-piix: fixes kerneldoc error
+References: <4518356E.8030108@nachtwindheim.de>
+In-Reply-To: <4518356E.8030108@nachtwindheim.de>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 X-Spam-Score: -4.3 (----)
@@ -27,5 +28,5 @@ X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-applied
+applied, thanks
 

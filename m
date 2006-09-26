@@ -1,90 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965114AbWIZXFW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965128AbWIZXI2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965114AbWIZXFW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Sep 2006 19:05:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965123AbWIZXFV
+	id S965128AbWIZXI2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Sep 2006 19:08:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965130AbWIZXI2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Sep 2006 19:05:21 -0400
-Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:7880 "HELO
-	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S965122AbWIZXFT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Sep 2006 19:05:19 -0400
-Subject: Re: When will the lunacy end? (Was Re: [PATCH] uswsusp: add
-	pmops->{prepare,enter,finish} support (aka "platform mode"))
-From: Nigel Cunningham <ncunningham@linuxmail.org>
-To: Adrian Bunk <bunk@stusta.de>
-Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, Pavel Machek <pavel@ucw.cz>,
-       Andrew Morton <akpm@osdl.org>, Stefan Seyfried <seife@suse.de>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20060926223146.GI4547@stusta.de>
-References: <20060925071338.GD9869@suse.de>
-	 <20060925224500.GB2540@elf.ucw.cz> <20060926201437.GH4547@stusta.de>
-	 <200609262235.14816.rjw@sisk.pl>
-	 <1159306711.7485.13.camel@nigel.suspend2.net>
-	 <20060926223146.GI4547@stusta.de>
-Content-Type: text/plain
-Date: Wed, 27 Sep 2006 09:05:15 +1000
-Message-Id: <1159311915.7485.37.camel@nigel.suspend2.net>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.0 
+	Tue, 26 Sep 2006 19:08:28 -0400
+Received: from wr-out-0506.google.com ([64.233.184.238]:62494 "EHLO
+	wr-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S965128AbWIZXI1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Sep 2006 19:08:27 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=a2aO/ACZTpgfY7Y2G+JR8UrqyCQP++QWH+E2wRyhE784//2fvbQEaD0I+DWidkbtEJzp6n6mG5bjWpW87jgck0mKx+6Pz2vitUBcu5ksrTmSeoH9wR3bjeUFLYKeljVvUiUB9lZ37CpNuZ74RYiMX9+ICzdOWPpKrj0YCp55IHE=
+Message-ID: <9a8748490609261608h25d66ed9rde23a1319578dbb7@mail.gmail.com>
+Date: Wed, 27 Sep 2006 01:08:27 +0200
+From: "Jesper Juhl" <jesper.juhl@gmail.com>
+To: "Dimitri Chausson" <tri2000@gmx.net>
+Subject: Re: serious kernel messages in /var/log/messages
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20060926195605.e0e9efa8.tri2000@gmx.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <20060926195605.e0e9efa8.tri2000@gmx.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+On 26/09/06, Dimitri Chausson <tri2000@gmx.net> wrote:
+[... snip ...]
+> I already suspect a hardware problem, but I do
+> not know what to start with. '
 
-On Wed, 2006-09-27 at 00:31 +0200, Adrian Bunk wrote:
-> On Wed, Sep 27, 2006 at 07:38:31AM +1000, Nigel Cunningham wrote:
-> > Hi.
-> > 
-> > On Tue, 2006-09-26 at 22:35 +0200, Rafael J. Wysocki wrote:
-> > > On Tuesday, 26 September 2006 22:14, Adrian Bunk wrote:
-> > > > On Tue, Sep 26, 2006 at 12:45:00AM +0200, Pavel Machek wrote:
-> > > > >...
-> > > > > solid)
-> > > > > 	apart from HIGHMEM64G fiasco, and related agpgart fiasco long
-> > > > > 	time before that... these are driver problems...
-> > > > >...
-> > > > 
-> > > > One point that seems to be a bit forgotten is that driver problems do 
-> > > > actually matter a lot:
-> > > > 
-> > > > I for one do not care much whether I can abort suspending (I can always 
-> > > > resume) or whether dancing penguins are displayed during suspending - 
-> > > > but the fact that my saa7134 card only outputs the picture but no sound 
-> > > > after resuming from suspend-to-disk is a real show-stopper for me.
-> > 
-> > Agreed that some things are more important than others. But to some
-> > people, user interface does matter. After all, we want (well I want)
-> > people considering converting from Windows to see that free software can
-> > be better than proprietary stuff, not just imitate what they're doing. 
-> > 
-> > Suspend2 doesn't actually provide dancing penguins while suspending -
-> > it's a simple progress bar in either pure text or overlayed on an image
-> > of your choosing.
-> > 
-> > The support for aborting is really just fall out from the work on
-> > debugging and testing failure paths.
-> >...
-> 
-> Sorry if this sounded as if I was against improvements of suspend.
-> That was not my intention.
-> 
-> But as long as there are driver problems, suspend as a whole can not be 
-> called solid. The core itself might be solid or not, but without working 
-> drivers this doesn't buy users much.
-> 
-> A user might be impressed by a progress bar on a nifty image, but if one 
-> or more of his drivers have problems with suspend the user won't get a 
-> good impression of Linux.
-> 
-> How many driver problems with suspend are buried in emails and
-> Bugzillas (will problems like kernel Bugzilla #6035 ever be debugged?)?
+memtest86 and/or memtest86+ are usually good starting points :
 
-I fully agree. One of the largest issues I'm regularly dealing with is
-people reporting problems with drivers.
+http://www.memtest86.com/
+http://www.memtest.org/
 
-Regards,
+faulty memory can often lead to very strange and seemingly random
+problems, so give the machine a good run with a mem testing tool like
+one of the above - I'd suggest running all tests of memtest86+ for
+some 8-12 hours - if the machine survives that without errors then
+your RAM is probably OK.
 
-Nigel
 
+If you suspect your CPU (or just want to make sure) then a program
+like cpuburn can be useful :
+
+http://pages.sbcglobal.net/redelm/
+
+
+If you suspect your harddrive, then smartmontools is probably what you
+are looking for:
+
+http://smartmontools.sourceforge.net/
+
+
+-- 
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

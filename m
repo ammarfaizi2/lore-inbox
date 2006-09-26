@@ -1,57 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932068AbWIZMiy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751204AbWIZMpr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932068AbWIZMiy (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Sep 2006 08:38:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932071AbWIZMiy
+	id S1751204AbWIZMpr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Sep 2006 08:45:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751308AbWIZMpq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Sep 2006 08:38:54 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:56482 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932068AbWIZMix (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Sep 2006 08:38:53 -0400
-Subject: [SYSFS] Add a declaration for fs_subsys
-From: Steven Whitehouse <swhiteho@redhat.com>
-To: gregkh@suse.de
-Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Christoph Hellwig <hch@infradead.org>
-Content-Type: text/plain
-Organization: Red Hat (UK) Ltd
-Date: Tue, 26 Sep 2006 13:45:11 +0100
-Message-Id: <1159274711.11901.460.camel@quoit.chygwyn.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.2 (2.2.2-5) 
+	Tue, 26 Sep 2006 08:45:46 -0400
+Received: from hellhawk.shadowen.org ([80.68.90.175]:27411 "EHLO
+	hellhawk.shadowen.org") by vger.kernel.org with ESMTP
+	id S1751204AbWIZMpq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Sep 2006 08:45:46 -0400
+Message-ID: <451920C8.6030909@shadowen.org>
+Date: Tue, 26 Sep 2006 13:44:56 +0100
+From: Andy Whitcroft <apw@shadowen.org>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060812)
+MIME-Version: 1.0
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+CC: Martin Bligh <mbligh@google.com>, Andrew Morton <akpm@osdl.org>,
+       Andi Kleen <ak@suse.de>, LKML <linux-kernel@vger.kernel.org>,
+       Ian Campbell <Ian.Campbell@XenSource.com>
+Subject: Re: 2.6.18-mm1 compile failure on x86_64
+References: <45185A93.7020105@google.com> <4518DC0B.10207@shadowen.org> <4518E4DF.8010007@goop.org>
+In-Reply-To: <4518E4DF.8010007@goop.org>
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Jeremy Fitzhardinge wrote:
+> Andy Whitcroft wrote:
+>> Martin Bligh wrote:
+>>  
+>>> http://test.kernel.org/abat/49037/debug/test.log.0  
+>>>   AS      arch/x86_64/boot/bootsect.o
+>>>   LD      arch/x86_64/boot/bootsect
+>>>   AS      arch/x86_64/boot/setup.o
+>>>   LD      arch/x86_64/boot/setup
+>>>   AS      arch/x86_64/boot/compressed/head.o
+>>>   CC      arch/x86_64/boot/compressed/misc.o
+>>>   OBJCOPY arch/x86_64/boot/compressed/vmlinux.bin
+>>> BFD: Warning: Writing section `.data.percpu' to huge (ie negative) file
+>>> offset 0x804700c0.
+>>> /usr/local/autobench/sources/x86_64-cross/gcc-3.4.0-glibc-2.3.2/bin/x86_64-unknown-linux-gnu-objcopy:
+>>>
+>>> arch/x86_64/boot/compressed/vmlinux.bin: File truncated
+>>> make[2]: *** [arch/x86_64/boot/compressed/vmlinux.bin] Error 1
+>>> make[1]: *** [arch/x86_64/boot/compressed/vmlinux] Error 2
+>>> make: *** [bzImage] Error 2
+>>> 09/25/06-09:13:48 Build the kernel. Failed rc = 2
+>>> 09/25/06-09:13:49 build: kernel build Failed rc = 1
+>>>
+>>> Wierd. Same box compiled 2.6.18 fine.
+>>>     
+>>
+>> Pretty sure this isn't a space problem, as we have just checked space
+>> before the build and I've taken no action since then.  Someone did
+>> mention "tool chain issue" when it was first spotted.  Will check with
+>> them and see why they thought that.
+>>   
+> 
+> Does this box have an older version of binutils (2.15?)?  If so, it
+> might be getting upset over the patch "note-section" in Andi's queue.  I
+> know it has been a bit problematic, but I don't know if the problems
+> manifest in this way.
 
-The fs_subsys of sysfs does not have a declaration in any header
-file, despite it being an exported symbol. This patch adds one so
-that modules don't have to add their own. This is something used
-by GFS2 (and already in the GFS2 tree) but I think can safely be
-considered generic infrastructure.
+Sure does:
 
-Signed-off-by: Steven Whitehouse <swhiteho@redhat.com>
----
- include/linux/fs.h |    3 +++
- 1 files changed, 3 insertions(+), 0 deletions(-)
+ii  binutils       2.14.90.0.7-8  The GNU assembler, linker and binary
+utiliti
 
-diff --git a/include/linux/fs.h b/include/linux/fs.h
-index 1d3e601..48f9821 100644
---- a/include/linux/fs.h
-+++ b/include/linux/fs.h
-@@ -1377,6 +1377,9 @@ extern struct subsystem fs_subsys;
- #define FLOCK_VERIFY_READ  1
- #define FLOCK_VERIFY_WRITE 2
- 
-+/* /sys/fs */
-+extern struct subsystem fs_subsys;
-+
- extern int locks_mandatory_locked(struct inode *);
- extern int locks_mandatory_area(int, struct inode *, struct file *, loff_t, size_t);
- 
--- 
-1.4.1
+Thanks for the hint I'll try backing it out and see.
 
-
-
+-apw

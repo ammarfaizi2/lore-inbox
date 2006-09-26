@@ -1,45 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932111AbWIZPSN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932106AbWIZPSl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932111AbWIZPSN (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Sep 2006 11:18:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932115AbWIZPSN
+	id S932106AbWIZPSl (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Sep 2006 11:18:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932116AbWIZPSl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Sep 2006 11:18:13 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.152]:53725 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S932111AbWIZPSM
+	Tue, 26 Sep 2006 11:18:41 -0400
+Received: from coyote.holtmann.net ([217.160.111.169]:16809 "EHLO
+	mail.holtmann.net") by vger.kernel.org with ESMTP id S932106AbWIZPSk
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Sep 2006 11:18:12 -0400
-Subject: [PATCH] remove extra extern in 2.6.18-rt3
-From: John Kacur <jkacur@ca.ibm.com>
-To: Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>
-Cc: linux-kernel@vger.kernel.org
+	Tue, 26 Sep 2006 11:18:40 -0400
+Subject: Re: [PATCH 26/47] Driver core: add groups support to struct device
+From: Marcel Holtmann <marcel@holtmann.org>
+To: Greg KH <greg@kroah.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+       Kay Sievers <kay.sievers@vrfy.org>, linux-kernel@vger.kernel.org,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+In-Reply-To: <20060926134654.GB11435@kroah.com>
+References: <11592491371254-git-send-email-greg@kroah.com>
+	 <1159249140339-git-send-email-greg@kroah.com>
+	 <11592491451786-git-send-email-greg@kroah.com>
+	 <11592491482560-git-send-email-greg@kroah.com>
+	 <11592491551919-git-send-email-greg@kroah.com>
+	 <11592491581007-git-send-email-greg@kroah.com>
+	 <11592491611339-git-send-email-greg@kroah.com>
+	 <11592491643725-git-send-email-greg@kroah.com>
+	 <11592491672052-git-send-email-greg@kroah.com>
+	 <d120d5000609260620me5cf24bw83fc6d65fa7cb232@mail.gmail.com>
+	 <20060926134654.GB11435@kroah.com>
 Content-Type: text/plain
-Date: Tue, 26 Sep 2006 11:14:53 -0400
-Message-Id: <1159283693.21437.5.camel@tycho.torolab.ibm.com>
+Date: Tue, 26 Sep 2006 17:18:57 +0200
+Message-Id: <1159283937.800.3.camel@localhost>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.0 (2.6.0-1) 
+X-Mailer: Evolution 2.8.0 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-My apologies if you are receiving this more than once - I was having
-trouble with my mailer.
+Hi Greg,
 
-Remove a duplicate line.
-Signed-off-by: "John Kacur" <jkacur@rogers.com>
+> > I really disappointed that there was no discussion/review of the
+> > implementation at all.
+> 
+> There has not been any real implementation yet, only a few patches added
+> to the core that add a few extra functionality to struct device to allow
+> class_device to move that way.  The patches that move the subsystems
+> over will be discussed (and some already have, like networking), when
+> they are ready.  Right now most of that work is being done by Kay and
+> myself as a proof of concept to make sure that we can do this properly
+> and that userspace can handle it well.
 
-Index: linux-2.6.18-rt3/include/linux/profile.h
-===================================================================
---- linux-2.6.18-rt3.orig/include/linux/profile.h       2006-09-22 10:36:18.000000000 -0400
-+++ linux-2.6.18-rt3/include/linux/profile.h    2006-09-22 14:48:49.000000000 -0400
-@@ -34,8 +34,6 @@
+if you look at the Bluetooth subsystem, it became real devices in the
+2.6.18 release. I was using a platform device for the virtual and UART
+based adapters with no parent, but I am gonna change this to the virtual
+devices once it is upstream. It works beautiful and the /sys/class is
+now only a fast entry point to find the devices.
 
- extern int prof_pid;
+Regards
 
--extern int prof_pid;
--
- #ifdef CONFIG_PROFILING
-
- struct task_struct;
+Marcel
 
 

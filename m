@@ -1,328 +1,177 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751353AbWIZFih@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751424AbWIZFj7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751353AbWIZFih (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Sep 2006 01:38:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751345AbWIZFig
+	id S1751424AbWIZFj7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Sep 2006 01:39:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751421AbWIZFj5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Sep 2006 01:38:36 -0400
-Received: from cantor.suse.de ([195.135.220.2]:47329 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751318AbWIZFia (ORCPT
+	Tue, 26 Sep 2006 01:39:57 -0400
+Received: from mx2.suse.de ([195.135.220.15]:50389 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751424AbWIZFjw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Sep 2006 01:38:30 -0400
+	Tue, 26 Sep 2006 01:39:52 -0400
 From: Greg KH <greg@kroah.com>
 To: linux-kernel@vger.kernel.org
-Cc: Linus Torvalds <torvalds@osdl.org>, Greg Kroah-Hartman <gregkh@suse.de>
-Subject: [PATCH 9/47] Suspend infrastructure cleanup and extension
-Date: Mon, 25 Sep 2006 22:37:29 -0700
-Message-Id: <1159249111668-git-send-email-greg@kroah.com>
+Cc: Randy Dunlap <rdunlap@xenotime.net>, Greg Kroah-Hartman <gregkh@suse.de>
+Subject: [PATCH 34/47] sysfs_remove_bin_file: no return value, dump_stack on error
+Date: Mon, 25 Sep 2006 22:37:54 -0700
+Message-Id: <11592491924093-git-send-email-greg@kroah.com>
 X-Mailer: git-send-email 1.4.2.1
-In-Reply-To: <11592491082990-git-send-email-greg@kroah.com>
-References: <20060926053728.GA8970@kroah.com> <1159249087369-git-send-email-greg@kroah.com> <11592490903867-git-send-email-greg@kroah.com> <11592490933346-git-send-email-greg@kroah.com> <1159249096460-git-send-email-greg@kroah.com> <11592490993970-git-send-email-greg@kroah.com> <11592491023995-git-send-email-greg@kroah.com> <1159249104512-git-send-email-greg@kroah.com> <11592491082990-git-send-email-greg@kroah.com>
+In-Reply-To: <11592491901464-git-send-email-greg@kroah.com>
+References: <20060926053728.GA8970@kroah.com> <1159249087369-git-send-email-greg@kroah.com> <11592490903867-git-send-email-greg@kroah.com> <11592490933346-git-send-email-greg@kroah.com> <1159249096460-git-send-email-greg@kroah.com> <11592490993970-git-send-email-greg@kroah.com> <11592491023995-git-send-email-greg@kroah.com> <1159249104512-git-send-email-greg@kroah.com> <11592491082990-git-send-email-greg@kroah.com> <1159249111668-git-send-email-greg@kroah.com> <11592491152668-git-send-email-greg@kroah.com> <115924911859-git-send-email-greg@kroah.com> <11592491211162-git-send-email-greg@kroah.com> <1159249124371-git-send-email-greg@kroah.com> <11592491274168-git-send-email-greg@kroah.com> <11592491303012-git-send-email-greg@kroah.com> <11592491342421-git-send-email-greg@kroah.com> <11592491371254-git-send-email-greg@kroah.com> <1159249140339-git-send-email-greg@kroah.com> <11592491451786-git-send-email-greg@kroah.com> <11592491482560-git-send-email-greg@kroah.com> <11592491512
+ 235-git-send-email-greg@kroah.com> <11592491551919-git-send-email-greg@kroah.com> <11592491581007-git-send-email-greg@kroah.com> <11592491611339-git-send-email-greg@kroah.com> <11592491643725-git-send-email-greg@kroah.com> <11592491672052-git-send-email-greg@kroah.com> <11592491704137-git-send-email-greg@kroah.com> <11592491744040-git-send-email-greg@kroah.com> <1159249177618-git-send-email-greg@kroah.com> <11592491803904-git-send-email-greg@kroah.com> <11592491833450-git-send-email-greg@kroah.com> <11592491862904-git-send-email-greg@kroah.com> <11592491901464-git-send-email-greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Linus Torvalds <torvalds@osdl.org>
+From: Randy.Dunlap <rdunlap@xenotime.net>
 
-Allow devices to participate in the suspend process more intimately,
-in particular, allow the final phase (with interrupts disabled) to
-also be open to normal devices, not just system devices.
+Make sysfs_remove_bin_file() void.  If it detects an error,
+printk the file name and call dump_stack().
 
-Also, allow classes to participate in device suspend.
+sysfs_hash_and_remove() now returns an error code indicating
+its success or failure so that sysfs_remove_bin_file() can
+know success/failure.
 
-Signed-off-by: Linus Torvalds <torvalds@osdl.org>
+Convert the only driver that checked the return value of
+sysfs_remove_bin_file().
+
+Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 ---
- drivers/base/power/resume.c  |   28 ++++++++--
- drivers/base/power/suspend.c |  122 ++++++++++++++++++++++++++++++++----------
- include/linux/device.h       |   11 +++-
- include/linux/pm.h           |    1 
- kernel/power/main.c          |    4 +
- 5 files changed, 130 insertions(+), 36 deletions(-)
+ drivers/pci/hotplug/acpiphp_ibm.c |    4 +---
+ fs/sysfs/bin.c                    |   13 ++++++++-----
+ fs/sysfs/inode.c                  |   11 ++++++++---
+ fs/sysfs/sysfs.h                  |    2 +-
+ include/linux/sysfs.h             |    2 +-
+ 5 files changed, 19 insertions(+), 13 deletions(-)
 
-diff --git a/drivers/base/power/resume.c b/drivers/base/power/resume.c
-index 826093e..48e3d49 100644
---- a/drivers/base/power/resume.c
-+++ b/drivers/base/power/resume.c
-@@ -38,13 +38,35 @@ int resume_device(struct device * dev)
- 		dev_dbg(dev,"resuming\n");
- 		error = dev->bus->resume(dev);
- 	}
-+	if (dev->class && dev->class->resume) {
-+		dev_dbg(dev,"class resume\n");
-+		error = dev->class->resume(dev);
-+	}
- 	up(&dev->sem);
- 	TRACE_RESUME(error);
- 	return error;
+diff --git a/drivers/pci/hotplug/acpiphp_ibm.c b/drivers/pci/hotplug/acpiphp_ibm.c
+index 317457d..d0a07d9 100644
+--- a/drivers/pci/hotplug/acpiphp_ibm.c
++++ b/drivers/pci/hotplug/acpiphp_ibm.c
+@@ -487,9 +487,7 @@ static void __exit ibm_acpiphp_exit(void
+ 	if (ACPI_FAILURE(status))
+ 		err("%s: Notification handler removal failed\n", __FUNCTION__);
+ 	/* remove the /sys entries */
+-	if (sysfs_remove_bin_file(sysdir, &ibm_apci_table_attr))
+-		err("%s: removal of sysfs file apci_table failed\n",
+-				__FUNCTION__);
++	sysfs_remove_bin_file(sysdir, &ibm_apci_table_attr);
  }
  
+ module_init(ibm_acpiphp_init);
+diff --git a/fs/sysfs/bin.c b/fs/sysfs/bin.c
+index c16a93c..98022e4 100644
+--- a/fs/sysfs/bin.c
++++ b/fs/sysfs/bin.c
+@@ -10,6 +10,7 @@ #undef DEBUG
  
-+static int resume_device_early(struct device * dev)
-+{
-+	int error = 0;
+ #include <linux/errno.h>
+ #include <linux/fs.h>
++#include <linux/kernel.h>
+ #include <linux/kobject.h>
+ #include <linux/module.h>
+ #include <linux/slab.h>
+@@ -176,7 +177,6 @@ const struct file_operations bin_fops = 
+  *	sysfs_create_bin_file - create binary file for object.
+  *	@kobj:	object.
+  *	@attr:	attribute descriptor.
+- *
+  */
  
-+	TRACE_DEVICE(dev);
-+	TRACE_RESUME(0);
-+	if (dev->bus && dev->bus->resume_early) {
-+		dev_dbg(dev,"EARLY resume\n");
-+		error = dev->bus->resume_early(dev);
-+	}
-+	TRACE_RESUME(error);
-+	return error;
-+}
-+
-+/*
-+ * Resume the devices that have either not gone through
-+ * the late suspend, or that did go through it but also
-+ * went through the early resume
-+ */
- void dpm_resume(void)
+ int sysfs_create_bin_file(struct kobject * kobj, struct bin_attribute * attr)
+@@ -191,13 +191,16 @@ int sysfs_create_bin_file(struct kobject
+  *	sysfs_remove_bin_file - remove binary file for object.
+  *	@kobj:	object.
+  *	@attr:	attribute descriptor.
+- *
+  */
+ 
+-int sysfs_remove_bin_file(struct kobject * kobj, struct bin_attribute * attr)
++void sysfs_remove_bin_file(struct kobject * kobj, struct bin_attribute * attr)
  {
- 	down(&dpm_list_sem);
-@@ -99,10 +121,8 @@ void dpm_power_up(void)
- 		struct list_head * entry = dpm_off_irq.next;
- 		struct device * dev = to_device(entry);
+-	sysfs_hash_and_remove(kobj->dentry,attr->attr.name);
+-	return 0;
++	if (sysfs_hash_and_remove(kobj->dentry, attr->attr.name) < 0) {
++		printk(KERN_ERR "%s: "
++			"bad dentry or inode or no such file: \"%s\"\n",
++			__FUNCTION__, attr->attr.name);
++		dump_stack();
++	}
+ }
  
--		get_device(dev);
--		list_move_tail(entry, &dpm_active);
--		resume_device(dev);
--		put_device(dev);
-+		list_move_tail(entry, &dpm_off);
-+		resume_device_early(dev);
+ EXPORT_SYMBOL_GPL(sysfs_create_bin_file);
+diff --git a/fs/sysfs/inode.c b/fs/sysfs/inode.c
+index 9889e54..fd7cd5f 100644
+--- a/fs/sysfs/inode.c
++++ b/fs/sysfs/inode.c
+@@ -12,6 +12,7 @@ #include <linux/pagemap.h>
+ #include <linux/namei.h>
+ #include <linux/backing-dev.h>
+ #include <linux/capability.h>
++#include <linux/errno.h>
+ #include "sysfs.h"
+ 
+ extern struct super_block * sysfs_sb;
+@@ -234,17 +235,18 @@ void sysfs_drop_dentry(struct sysfs_dire
  	}
  }
  
-diff --git a/drivers/base/power/suspend.c b/drivers/base/power/suspend.c
-index 69509e0..10e8032 100644
---- a/drivers/base/power/suspend.c
-+++ b/drivers/base/power/suspend.c
-@@ -65,7 +65,19 @@ int suspend_device(struct device * dev, 
+-void sysfs_hash_and_remove(struct dentry * dir, const char * name)
++int sysfs_hash_and_remove(struct dentry * dir, const char * name)
+ {
+ 	struct sysfs_dirent * sd;
+ 	struct sysfs_dirent * parent_sd;
++	int found = 0;
  
- 	dev->power.prev_state = dev->power.power_state;
+ 	if (!dir)
+-		return;
++		return -ENOENT;
  
--	if (dev->bus && dev->bus->suspend && !dev->power.power_state.event) {
-+	if (dev->class && dev->class->suspend && !dev->power.power_state.event) {
-+		dev_dbg(dev, "class %s%s\n",
-+			suspend_verb(state.event),
-+			((state.event == PM_EVENT_SUSPEND)
-+					&& device_may_wakeup(dev))
-+				? ", may wakeup"
-+				: ""
-+			);
-+		error = dev->class->suspend(dev, state);
-+		suspend_report_result(dev->class->suspend, error);
-+	}
-+
-+	if (!error && dev->bus && dev->bus->suspend && !dev->power.power_state.event) {
- 		dev_dbg(dev, "%s%s\n",
- 			suspend_verb(state.event),
- 			((state.event == PM_EVENT_SUSPEND)
-@@ -81,15 +93,74 @@ int suspend_device(struct device * dev, 
- }
+ 	if (dir->d_inode == NULL)
+ 		/* no inode means this hasn't been made visible yet */
+-		return;
++		return -ENOENT;
  
- 
-+/*
-+ * This is called with interrupts off, only a single CPU
-+ * running. We can't do down() on a semaphore (and we don't
-+ * need the protection)
-+ */
-+static int suspend_device_late(struct device *dev, pm_message_t state)
-+{
-+	int error = 0;
-+
-+	if (dev->power.power_state.event) {
-+		dev_dbg(dev, "PM: suspend_late %d-->%d\n",
-+			dev->power.power_state.event, state.event);
-+	}
-+
-+	if (dev->bus && dev->bus->suspend_late && !dev->power.power_state.event) {
-+		dev_dbg(dev, "LATE %s%s\n",
-+			suspend_verb(state.event),
-+			((state.event == PM_EVENT_SUSPEND)
-+					&& device_may_wakeup(dev))
-+				? ", may wakeup"
-+				: ""
-+			);
-+		error = dev->bus->suspend_late(dev, state);
-+		suspend_report_result(dev->bus->suspend_late, error);
-+	}
-+	return error;
-+}
-+
-+/**
-+ *	device_prepare_suspend - save state and prepare to suspend
-+ *
-+ *	NOTE! Devices cannot detach at this point - not only do we
-+ *	hold the device list semaphores over the whole prepare, but
-+ *	the whole point is to do non-invasive preparatory work, not
-+ *	the actual suspend.
-+ */
-+int device_prepare_suspend(pm_message_t state)
-+{
-+	int error = 0;
-+	struct device * dev;
-+
-+	down(&dpm_sem);
-+	down(&dpm_list_sem);
-+	list_for_each_entry_reverse(dev, &dpm_active, power.entry) {
-+		if (!dev->bus || !dev->bus->suspend_prepare)
-+			continue;
-+		error = dev->bus->suspend_prepare(dev, state);
-+		if (error)
-+			break;
-+	}
-+	up(&dpm_list_sem);
-+	up(&dpm_sem);
-+	return error;
-+}
-+
- /**
-  *	device_suspend - Save state and stop all devices in system.
-  *	@state:		Power state to put each device in.
-  *
-  *	Walk the dpm_active list, call ->suspend() for each device, and move
-- *	it to dpm_off.
-- *	Check the return value for each. If it returns 0, then we move the
-- *	the device to the dpm_off list. If it returns -EAGAIN, we move it to
-- *	the dpm_off_irq list. If we get a different error, try and back out.
-+ *	it to the dpm_off list.
-+ *
-+ *	(For historical reasons, if it returns -EAGAIN, that used to mean
-+ *	that the device would be called again with interrupts disabled.
-+ *	These days, we use the "suspend_late()" callback for that, so we
-+ *	print a warning and consider it an error).
-+ *
-+ *	If we get a different error, try and back out.
-  *
-  *	If we hit a failure with any of the devices, call device_resume()
-  *	above to bring the suspended devices back to life.
-@@ -115,39 +186,27 @@ int device_suspend(pm_message_t state)
- 
- 		/* Check if the device got removed */
- 		if (!list_empty(&dev->power.entry)) {
--			/* Move it to the dpm_off or dpm_off_irq list */
-+			/* Move it to the dpm_off list */
- 			if (!error)
- 				list_move(&dev->power.entry, &dpm_off);
--			else if (error == -EAGAIN) {
--				list_move(&dev->power.entry, &dpm_off_irq);
--				error = 0;
--			}
+ 	parent_sd = dir->d_fsdata;
+ 	mutex_lock(&dir->d_inode->i_mutex);
+@@ -255,8 +257,11 @@ void sysfs_hash_and_remove(struct dentry
+ 			list_del_init(&sd->s_sibling);
+ 			sysfs_drop_dentry(sd, dir);
+ 			sysfs_put(sd);
++			found = 1;
+ 			break;
  		}
- 		if (error)
- 			printk(KERN_ERR "Could not suspend device %s: "
--				"error %d\n", kobject_name(&dev->kobj), error);
-+				"error %d%s\n",
-+				kobject_name(&dev->kobj), error,
-+				error == -EAGAIN ? " (please convert to suspend_late)" : "");
- 		put_device(dev);
  	}
- 	up(&dpm_list_sem);
--	if (error) {
--		/* we failed... before resuming, bring back devices from
--		 * dpm_off_irq list back to main dpm_off list, we do want
--		 * to call resume() on them, in case they partially suspended
--		 * despite returning -EAGAIN
--		 */
--		while (!list_empty(&dpm_off_irq)) {
--			struct list_head * entry = dpm_off_irq.next;
--			list_move(entry, &dpm_off);
--		}
-+	if (error)
- 		dpm_resume();
--	}
+ 	mutex_unlock(&dir->d_inode->i_mutex);
 +
- 	up(&dpm_sem);
- 	return error;
++	return found ? 0 : -ENOENT;
  }
+diff --git a/fs/sysfs/sysfs.h b/fs/sysfs/sysfs.h
+index 3651ffb..6f3d6bd 100644
+--- a/fs/sysfs/sysfs.h
++++ b/fs/sysfs/sysfs.h
+@@ -10,7 +10,7 @@ extern int sysfs_make_dirent(struct sysf
+ 				umode_t, int);
  
- EXPORT_SYMBOL_GPL(device_suspend);
+ extern int sysfs_add_file(struct dentry *, const struct attribute *, int);
+-extern void sysfs_hash_and_remove(struct dentry * dir, const char * name);
++extern int sysfs_hash_and_remove(struct dentry * dir, const char * name);
+ extern struct sysfs_dirent *sysfs_find(struct sysfs_dirent *dir, const char * name);
  
--
- /**
-  *	device_power_down - Shut down special devices.
-  *	@state:		Power state to enter.
-@@ -162,14 +221,17 @@ int device_power_down(pm_message_t state
- 	int error = 0;
- 	struct device * dev;
+ extern int sysfs_create_subdir(struct kobject *, const char *, struct dentry **);
+diff --git a/include/linux/sysfs.h b/include/linux/sysfs.h
+index 1ea5d3c..95f6db5 100644
+--- a/include/linux/sysfs.h
++++ b/include/linux/sysfs.h
+@@ -114,7 +114,7 @@ extern void
+ sysfs_remove_link(struct kobject *, const char * name);
  
--	list_for_each_entry_reverse(dev, &dpm_off_irq, power.entry) {
--		if ((error = suspend_device(dev, state)))
--			break;
-+	while (!list_empty(&dpm_off)) {
-+		struct list_head * entry = dpm_off.prev;
-+
-+		dev = to_device(entry);
-+		error = suspend_device_late(dev, state);
-+		if (error)
-+			goto Error;
-+		list_move(&dev->power.entry, &dpm_off_irq);
- 	}
--	if (error)
--		goto Error;
--	if ((error = sysdev_suspend(state)))
--		goto Error;
-+
-+	error = sysdev_suspend(state);
-  Done:
- 	return error;
-  Error:
-diff --git a/include/linux/device.h b/include/linux/device.h
-index 8a648cd..b40be6f 100644
---- a/include/linux/device.h
-+++ b/include/linux/device.h
-@@ -51,8 +51,12 @@ struct bus_type {
- 	int		(*probe)(struct device * dev);
- 	int		(*remove)(struct device * dev);
- 	void		(*shutdown)(struct device * dev);
--	int		(*suspend)(struct device * dev, pm_message_t state);
--	int		(*resume)(struct device * dev);
-+
-+	int (*suspend_prepare)(struct device * dev, pm_message_t state);
-+	int (*suspend)(struct device * dev, pm_message_t state);
-+	int (*suspend_late)(struct device * dev, pm_message_t state);
-+	int (*resume_early)(struct device * dev);
-+	int (*resume)(struct device * dev);
- };
+ int sysfs_create_bin_file(struct kobject * kobj, struct bin_attribute * attr);
+-int sysfs_remove_bin_file(struct kobject * kobj, struct bin_attribute * attr);
++void sysfs_remove_bin_file(struct kobject *kobj, struct bin_attribute *attr);
  
- extern int bus_register(struct bus_type * bus);
-@@ -154,6 +158,9 @@ struct class {
- 
- 	void	(*release)(struct class_device *dev);
- 	void	(*class_release)(struct class *class);
-+
-+	int	(*suspend)(struct device *, pm_message_t state);
-+	int	(*resume)(struct device *);
- };
- 
- extern int class_register(struct class *);
-diff --git a/include/linux/pm.h b/include/linux/pm.h
-index 658c1b9..096fb6f 100644
---- a/include/linux/pm.h
-+++ b/include/linux/pm.h
-@@ -190,6 +190,7 @@ #ifdef CONFIG_PM
- extern suspend_disk_method_t pm_disk_mode;
- 
- extern int device_suspend(pm_message_t state);
-+extern int device_prepare_suspend(pm_message_t state);
- 
- #define device_set_wakeup_enable(dev,val) \
- 	((dev)->power.should_wakeup = !!(val))
-diff --git a/kernel/power/main.c b/kernel/power/main.c
-index 6d295c7..0c3ed6a 100644
---- a/kernel/power/main.c
-+++ b/kernel/power/main.c
-@@ -57,6 +57,10 @@ static int suspend_prepare(suspend_state
- 	if (!pm_ops || !pm_ops->enter)
- 		return -EPERM;
- 
-+	error = device_prepare_suspend(PMSG_SUSPEND);
-+	if (error)
-+		return error;
-+
- 	pm_prepare_console();
- 
- 	disable_nonboot_cpus();
+ int sysfs_create_group(struct kobject *, const struct attribute_group *);
+ void sysfs_remove_group(struct kobject *, const struct attribute_group *);
 -- 
 1.4.2.1
 

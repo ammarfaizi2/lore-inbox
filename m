@@ -1,54 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932302AbWIZUmk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932306AbWIZUo5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932302AbWIZUmk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Sep 2006 16:42:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932301AbWIZUmj
+	id S932306AbWIZUo5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Sep 2006 16:44:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932305AbWIZUo5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Sep 2006 16:42:39 -0400
-Received: from khc.piap.pl ([195.187.100.11]:33439 "EHLO khc.piap.pl")
-	by vger.kernel.org with ESMTP id S932297AbWIZUmj (ORCPT
+	Tue, 26 Sep 2006 16:44:57 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:39399 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932303AbWIZUor (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Sep 2006 16:42:39 -0400
-To: Jeff Garzik <jeff@garzik.org>
-Cc: netdev@vger.kernel.org, lkml <linux-kernel@vger.kernel.org>,
-       PC300 Maintainer <pc300@cyclades.com>
-Subject: Generic HDLC update
-From: Krzysztof Halasa <khc@pm.waw.pl>
-Date: Tue, 26 Sep 2006 22:42:34 +0200
-Message-ID: <m3odt21hs5.fsf@defiant.localdomain>
+	Tue, 26 Sep 2006 16:44:47 -0400
+Date: Tue, 26 Sep 2006 13:44:42 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Andi Kleen <ak@suse.de>
+cc: linux-kernel@vger.kernel.org, discuss@x86-64.org
+Subject: Re: x86/x86-64 merge for 2.6.19
+In-Reply-To: <200609262226.09418.ak@suse.de>
+Message-ID: <Pine.LNX.4.64.0609261339050.3952@g5.osdl.org>
+References: <200609261244.43863.ak@suse.de> <200609262202.28846.ak@suse.de>
+ <Pine.LNX.4.64.0609261318240.3952@g5.osdl.org> <200609262226.09418.ak@suse.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-Jeff,
-in this thread I'm posting two patches:
-- 1/2: modularizes generic HDLC code - WAN protocols (FR, Cisco HDLC
-  etc.) can now be separate modules. We can now have multiple module
-  versions for a protocol (something like syncppp-based PPP or based
-  on generic PPP). Also we don't have to load things like syncppp or
-  lapb if we don't need it.
-
-  "Core" generic HDLC code doesn't now know anything about the
-  WAN protocols - all protocol-related information has been moved from
-  hdlc.h to the protocol drivers.
 
 
-- 2/2: while both user-space and low-level driver interfaces are not
-  changed by the first patch, it has to change data structures
-  internal to the generic HDLC. Unfortunately, there is one particular
-  driver - pc300 - abusing those internal structures. There are few
-  ways to fix this driver but it's not trivial. PC300 maintainer has
-  been notified about the problem and possible solutions, and has
-  been sent a copy of the modularizing patch two+ months ago.
+On Tue, 26 Sep 2006, Andi Kleen wrote:
+> 
+> Yes that is why I did it. I still use quilt for my tree because it works
+> best for me, but together with all the i386 stuff I was over 230 patches
+> and email clearly didn't scale well to that much.
 
-  This patch removes accesses to the HDLC-internal data structures
-  from pc300 driver, thus enabling it to compile but breaking part
-  of its functionality.
+Right. I'm actually surprised not more peole use git that way. It was 
+literally one of the _design_goals_ of git to have people use quilt a a 
+more "willy-nilly" front-end process, with git giving the true distributed 
+nature that you can't get from that kind of softer patch-queue like 
+system.
 
-Please apply both patches to Linux 2.6.
-Thanks.
--- 
-Krzysztof Halasa
+We discussed some quilt integration stuff, but nobody actually ended up 
+ever using both (except indirectly, as with the whole Andrew->Linus 
+stage). StGit kind of comes closest.
+
+So I don't think your usage should be considered to be even strange. I 
+think it makes sense. I just think that everybody agrees that if we can do 
+it in chunks of a few tens of patches most of the time instead of chunks 
+of 225, everybody will have an easier time, if only because the latency 
+goes down, and it's just easier to react.
+
+That said, the merges with Andrew are also sometimes in the 150+ patch 
+range, and merging with other git trees can sometimes bring in even more. 
+So I'm not claiming any hard limits or anything like that, just that in 
+general it's nicer to get updates trickle in over time rather than all at 
+once.
+
+I suspect this was mostly a one-time startup-event.
+
+			Linus

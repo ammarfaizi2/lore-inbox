@@ -1,47 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750714AbWIZKvI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750798AbWIZLDs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750714AbWIZKvI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Sep 2006 06:51:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750788AbWIZKvI
+	id S1750798AbWIZLDs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Sep 2006 07:03:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750801AbWIZLDs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Sep 2006 06:51:08 -0400
-Received: from mail.gmx.de ([213.165.64.20]:17877 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1750714AbWIZKvH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Sep 2006 06:51:07 -0400
-X-Authenticated: #704063
-Subject: [Patch] Possible dereference in net/core/rtnetlink.c
-From: Eric Sesterhenn <snakebyte@gmx.de>
-To: linux-kernel@vger.kernel.org
-Cc: kuznet@ms2.inr.ac.ru
+	Tue, 26 Sep 2006 07:03:48 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:17097 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1750798AbWIZLDr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Sep 2006 07:03:47 -0400
+Subject: Re: [PATCH] restore libata build on frv
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: Jeff Garzik <jgarzik@pobox.com>, David Howells <dhowells@redhat.com>,
+       Al Viro <viro@ftp.linux.org.uk>, Linus Torvalds <torvalds@osdl.org>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <1159260980.3309.22.camel@pmac.infradead.org>
+References: <20060925142016.GI29920@ftp.linux.org.uk>
+	 <1159186771.11049.63.camel@localhost.localdomain>
+	 <1159183568.11049.51.camel@localhost.localdomain>
+	 <20060924223925.GU29920@ftp.linux.org.uk>
+	 <22314.1159181060@warthog.cambridge.redhat.com>
+	 <5578.1159183668@warthog.cambridge.redhat.com>
+	 <7276.1159186684@warthog.cambridge.redhat.com>
+	 <20660.1159195152@warthog.cambridge.redhat.com>
+	 <1159199184.11049.93.camel@localhost.localdomain>
+	 <1159258013.3309.9.camel@pmac.infradead.org>  <4518EA39.40309@pobox.com>
+	 <1159260980.3309.22.camel@pmac.infradead.org>
 Content-Type: text/plain
-Date: Tue, 26 Sep 2006 12:50:51 +0200
-Message-Id: <1159267851.5558.2.camel@alice>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 
 Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
+Date: Tue, 26 Sep 2006 12:25:21 +0100
+Message-Id: <1159269921.11049.190.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi,
+Ar Maw, 2006-09-26 am 09:56 +0100, ysgrifennodd David Woodhouse:
+> On Tue, 2006-09-26 at 04:52 -0400, Jeff Garzik wrote:
+> > The irq is a special case no matter how we try to prettyify it.  We need 
+> > two irqs, and PCI only gives us one per device. 
+> 
+> That's fine -- but don't use zero to mean none. We have NO_IRQ for that,
+> and zero isn't an appropriate choice.
 
-another possible dereference spotted by coverity (#cid 1390).
-if the nlmsg_parse() call fails, we goto errout, where we call
-dev_put(), with dev still initialized to NULL.
+Zero means "no IRQ". That's official kernel policy and true for both old
+and new IDE. Architectures are supposed to remap any real "irq 0".
 
-Signed-off-by: Eric Sesterhenn <snakebyte@gmx.de>
+Might as well use NO_IRQ though, as its clearer.
 
---- linux-2.6.18-git5/net/core/rtnetlink.c.orig	2006-09-26 12:48:03.000000000 +0200
-+++ linux-2.6.18-git5/net/core/rtnetlink.c	2006-09-26 12:48:28.000000000 +0200
-@@ -562,7 +562,7 @@ static int rtnl_getlink(struct sk_buff *
- 
- 	err = nlmsg_parse(nlh, sizeof(*ifm), tb, IFLA_MAX, ifla_policy);
- 	if (err < 0)
--		goto errout;
-+		return err;
- 
- 	ifm = nlmsg_data(nlh);
- 	if (ifm->ifi_index >= 0) {
-
+Alan
 

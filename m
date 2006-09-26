@@ -1,43 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751192AbWIZMNY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751167AbWIZMVB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751192AbWIZMNY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Sep 2006 08:13:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751167AbWIZMNY
+	id S1751167AbWIZMVB (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Sep 2006 08:21:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751194AbWIZMVB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Sep 2006 08:13:24 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:32679 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1751192AbWIZMNX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Sep 2006 08:13:23 -0400
-Date: Tue, 26 Sep 2006 14:13:20 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: David Schwartz <davids@webmaster.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Swap on Fuse deadlocks?
-Message-ID: <20060926121319.GA2367@elf.ucw.cz>
-References: <45184D88.1010203@comcast.net> <MDEHLPKNGKAHNMBLJOLKMEIEOKAB.davids@webmaster.com>
+	Tue, 26 Sep 2006 08:21:01 -0400
+Received: from gateway.insightbb.com ([74.128.0.19]:29472 "EHLO
+	asav10.insightbb.com") by vger.kernel.org with ESMTP
+	id S1751167AbWIZMVB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Sep 2006 08:21:01 -0400
+X-IronPort-Anti-Spam-Filtered: true
+X-IronPort-Anti-Spam-Result: AR4FAKO2GEWBTooaLA
+From: Dmitry Torokhov <dtor@insightbb.com>
+To: Ingo Molnar <mingo@elte.hu>
+Subject: Re: [PATCH 1/2] lockdep: lockdep_set_class_and_subclass
+Date: Tue, 26 Sep 2006 08:20:57 -0400
+User-Agent: KMail/1.9.3
+Cc: Peter Zijlstra <a.p.zijlstra@chello.nl>, linux-kernel@vger.kernel.org,
+       Jiri Kosina <jikos@jikos.cz>, Andrew Morton <akpm@osdl.org>,
+       Arjan van de Ven <arjan@infradead.org>, Dave Jones <davej@redhat.com>
+References: <20060926113150.294656000@chello.nl> <20060926113748.089037000@chello.nl> <20060926115404.GA18283@elte.hu>
+In-Reply-To: <20060926115404.GA18283@elte.hu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <MDEHLPKNGKAHNMBLJOLKMEIEOKAB.davids@webmaster.com>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+Message-Id: <200609260820.58837.dtor@insightbb.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon 2006-09-25 17:08:13, David Schwartz wrote:
+On Tuesday 26 September 2006 07:54, Ingo Molnar wrote:
 > 
-> > Swap on disk I don't get.  A little slow perhaps due to the LZO or zlib
-> > compression in the middle (lzolayer lets you pick either); but a total
-> > freeze?  What's wrong here, is lzo_fs data getting swapped out and then
-> > not swapped in because it's needed to decompress itself?
+> * Peter Zijlstra <a.p.zijlstra@chello.nl> wrote:
 > 
-> The filesystem would have to make sure to lock in memory itself and any code it might need. Obviously, if the filesystem code itself gets swapped out, you cannot swap it back in again ever. Any user-space filesystem that expects to handle swap had better call 'mlock'.
+> > Add lockdep_set_class_and_subclass() to the lockdep annotations.
+> > 
+> > This annotation makes it possible to assign a subclass on lock init. 
+> > This annotation is meant to reduce the _nested() annotations by 
+> > assigning a default subclass.
+> > 
+> > One could do without this annotation and rely on lockdep_set_class() 
+> > exclusively, but that would require a manual stack of struct 
+> > lock_class_key objects.
+> > 
+> > Signed-off-by: Peter Zijlstra <a.p.zijlstra@chello.nl>
+> 
+> thanks, this extension to lockdep.c looks good to me - provided it 
+> solves the problem :-)
+> 
+> Acked-by: Ingo Molnar <mingo@elte.hu>
 > 
 
-mlock is certainly neccessary, but I am not sure it is enough. Linux
-VM was not designed with "swap over userspace" in mind.
-								Pavel
+I will try testing it tonight - I have a Synaptics with a pass-through
+port. Anyway, it really looks good now as far as serio code concerned.
+
 -- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+Dmitry

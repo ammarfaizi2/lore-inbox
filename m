@@ -1,37 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750730AbWIZIwb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750742AbWIZIwe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750730AbWIZIwb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Sep 2006 04:52:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750742AbWIZIwa
+	id S1750742AbWIZIwe (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Sep 2006 04:52:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750769AbWIZIwe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Sep 2006 04:52:30 -0400
-Received: from py-out-1112.google.com ([64.233.166.178]:5226 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S1750730AbWIZIwa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Sep 2006 04:52:30 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=X6rPNNIsqf5mgiWenzc8VCj5n5u4R1D0Kc9UYman4ShYyA5uJDJ/j6t5ppVpwGfmuKPxgUPSYt+q5LF06Y4vmPpIxDCpPhNOtUv/WF7LYufUk51iwtdKCOsDYUa1YCVZ1L5xeqJxS3POOjJQ1o1cVfDbhhC239m1OnCw9As/h/U=
-Message-ID: <24c1515f0609260152j256e8473yf2e4d14e65222c67@mail.gmail.com>
-Date: Tue, 26 Sep 2006 11:52:29 +0300
-From: "Janne Karhunen" <janne.karhunen@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: kernel threads and signals
+	Tue, 26 Sep 2006 04:52:34 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:16102 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1750742AbWIZIwd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Sep 2006 04:52:33 -0400
+Message-ID: <4518EA39.40309@pobox.com>
+Date: Tue, 26 Sep 2006 04:52:09 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
 MIME-Version: 1.0
+To: David Woodhouse <dwmw2@infradead.org>
+CC: Alan Cox <alan@lxorguk.ukuu.org.uk>, David Howells <dhowells@redhat.com>,
+       Al Viro <viro@ftp.linux.org.uk>, Linus Torvalds <torvalds@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] restore libata build on frv
+References: <20060925142016.GI29920@ftp.linux.org.uk>	 <1159186771.11049.63.camel@localhost.localdomain>	 <1159183568.11049.51.camel@localhost.localdomain>	 <20060924223925.GU29920@ftp.linux.org.uk>	 <22314.1159181060@warthog.cambridge.redhat.com>	 <5578.1159183668@warthog.cambridge.redhat.com>	 <7276.1159186684@warthog.cambridge.redhat.com>	 <20660.1159195152@warthog.cambridge.redhat.com>	 <1159199184.11049.93.camel@localhost.localdomain> <1159258013.3309.9.camel@pmac.infradead.org>
+In-Reply-To: <1159258013.3309.9.camel@pmac.infradead.org>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+X-Spam-Score: -4.3 (----)
+X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+David Woodhouse wrote:
+> On Mon, 2006-09-25 at 16:46 +0100, Alan Cox wrote:
+>> Ar Llu, 2006-09-25 am 15:39 +0100, ysgrifennodd David Howells:
+>>> Why does the arch have to supply those numbers?  What's wrong with my
+>>> suggested patch?  According to code in libata, these are _legacy_ access
+>>> methods, and on FRV they aren't currently required, so why can't I dispense
+>> "legacy, legacy, legacy" "wont wont wont"
+>>
+>> The ports in question are PCI values. They come from the PCI
+>> specifications and apply to any device with PCI bus, unless it has
+>> special mappings. The same logic you are whining about is already partly
+>> handled in the generic pci quirks code, and in time will end up with the
+>> I/O port value fixups there anyway.
+>>
+>> See quirk_ide_bases in drivers/pci/quirks.c
+> 
+> If we can do that with PCI quirks, why the need to hard-code it in the
+> IDE driver too?
+> 
+> And IRQ zero isn't particularly helpful suggestion -- using an invalid
+> IRQ number would be better. Like NO_IRQ or IDE_NO_IRQ, which should be
+> -1.
+> 
+> Don't make me dig out the board where the PCI slots all get IRQ 0 :)
 
-I have a kernel module foo that uses kernel thread bar. With
-signal_pending() I can easily check whether or not thread has
-pending signals, but what's the correct way to check for the
-specific signal number(s)?
+The irq is a special case no matter how we try to prettyify it.  We need 
+two irqs, and PCI only gives us one per device.
+
+	Jeff
 
 
--- 
-// Janne
+

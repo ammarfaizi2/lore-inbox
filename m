@@ -1,56 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750706AbWIZHwK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750782AbWIZH5e@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750706AbWIZHwK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Sep 2006 03:52:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750770AbWIZHwK
+	id S1750782AbWIZH5e (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Sep 2006 03:57:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750778AbWIZH5e
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Sep 2006 03:52:10 -0400
-Received: from hellhawk.shadowen.org ([80.68.90.175]:49170 "EHLO
-	hellhawk.shadowen.org") by vger.kernel.org with ESMTP
-	id S1750706AbWIZHwJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Sep 2006 03:52:09 -0400
-Message-ID: <4518DC0B.10207@shadowen.org>
-Date: Tue, 26 Sep 2006 08:51:39 +0100
-From: Andy Whitcroft <apw@shadowen.org>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060812)
+	Tue, 26 Sep 2006 03:57:34 -0400
+Received: from mail.gmx.net ([213.165.64.20]:63171 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1750772AbWIZH5d (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Sep 2006 03:57:33 -0400
+X-Authenticated: #4399952
+From: Florian Schmidt <mista.tapas@gmx.net>
+To: Ingo Molnar <mingo@elte.hu>
+Subject: Re: 2.6.18-rt1
+Date: Tue, 26 Sep 2006 09:57:30 +0200
+User-Agent: KMail/1.9.4
+Cc: linux-kernel@vger.kernel.org, Thomas Gleixner <tglx@linutronix.de>,
+       John Stultz <johnstul@us.ibm.com>,
+       "Paul E. McKenney" <paulmck@us.ibm.com>,
+       Dipankar Sarma <dipankar@in.ibm.com>,
+       Arjan van de Ven <arjan@infradead.org>
+References: <20060920141907.GA30765@elte.hu> <200609251153.28991.mista.tapas@gmx.net>
+In-Reply-To: <200609251153.28991.mista.tapas@gmx.net>
+X-Face: %EpW[IH18fBP*R?oz~]%Klbl.q!_(Xs_q"t?K~RVx[c7~3|C3kDdA(8y_KOB\{(Rn(=?utf-8?q?MZhm=0A=09=7B/l=2E?=>O48>i9k<+(,c^Y%mGm)M\+RxuxL4r<7-W63sB$+w\}hkT"Q2?v&N:y\Z
 MIME-Version: 1.0
-To: Martin Bligh <mbligh@google.com>
-CC: Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@suse.de>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.18-mm1 compile failure on x86_64
-References: <45185A93.7020105@google.com>
-In-Reply-To: <45185A93.7020105@google.com>
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200609260957.30585.mista.tapas@gmx.net>
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Martin Bligh wrote:
-> http://test.kernel.org/abat/49037/debug/test.log.0   
-> 
->   AS      arch/x86_64/boot/bootsect.o
->   LD      arch/x86_64/boot/bootsect
->   AS      arch/x86_64/boot/setup.o
->   LD      arch/x86_64/boot/setup
->   AS      arch/x86_64/boot/compressed/head.o
->   CC      arch/x86_64/boot/compressed/misc.o
->   OBJCOPY arch/x86_64/boot/compressed/vmlinux.bin
-> BFD: Warning: Writing section `.data.percpu' to huge (ie negative) file
-> offset 0x804700c0.
-> /usr/local/autobench/sources/x86_64-cross/gcc-3.4.0-glibc-2.3.2/bin/x86_64-unknown-linux-gnu-objcopy:
-> arch/x86_64/boot/compressed/vmlinux.bin: File truncated
-> make[2]: *** [arch/x86_64/boot/compressed/vmlinux.bin] Error 1
-> make[1]: *** [arch/x86_64/boot/compressed/vmlinux] Error 2
-> make: *** [bzImage] Error 2
-> 09/25/06-09:13:48 Build the kernel. Failed rc = 2
-> 09/25/06-09:13:49 build: kernel build Failed rc = 1
-> 
-> Wierd. Same box compiled 2.6.18 fine.
+On Monday 25 September 2006 11:53, Florian Schmidt wrote:
+> .config attached
+>
+> Besides these problems it ran very well for the hours i had it up. Nothing
+> suspicious in the logs. Will try another build with more aggressive
+> debugging options.
 
-Pretty sure this isn't a space problem, as we have just checked space
-before the build and I've taken no action since then.  Someone did
-mention "tool chain issue" when it was first spotted.  Will check with
-them and see why they thought that.
+Erm, forget this bug report.
 
--apw
+- The long switching to console time seems to be duee to the xorg nv driver
+
+- logging into X via gdm now fails under different kernels, too (though i 
+still have no clue why)
+
+- also in 2.6.17-rt8  i can run jack with rt even though no rt-lsm is loaded. 
+This is the only really funky one, but i suspect there's some other mechanism 
+that explains this.
+
+Regarsd,
+Flo
+
+-- 
+Palimm Palimm!
+http://tapas.affenbande.org

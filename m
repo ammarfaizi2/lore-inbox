@@ -1,129 +1,108 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932427AbWIZXjq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932312AbWIZXjK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932427AbWIZXjq (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Sep 2006 19:39:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932433AbWIZXjq
+	id S932312AbWIZXjK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Sep 2006 19:39:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932410AbWIZXjK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Sep 2006 19:39:46 -0400
-Received: from wx-out-0506.google.com ([66.249.82.233]:3236 "EHLO
-	wx-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S932427AbWIZXjq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Sep 2006 19:39:46 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:mime-version:content-type;
-        b=ZgXbK372glHnTCxLBzug19ymnxMVSJHX0ACOS0qAQ1iHJbQFwVR1jkAZ+2Czl3sRGTgyDxJmN5L8in1Zm/+SQwFKRsxr/825ZKD6xRfUs7xp0Gd/eBjxZ1Nyo4bQBYVt8w17gJ/i/hOtFeYEKELd2zW4S6IK6KGsq1RkC2rfr8U=
-Message-ID: <9a8748490609261639o12585969tdb0db3bad921f19e@mail.gmail.com>
-Date: Wed, 27 Sep 2006 01:39:45 +0200
-From: "Jesper Juhl" <jesper.juhl@gmail.com>
-To: "Trond Myklebust" <trond.myklebust@fys.uio.no>
-Subject: Re: [PATCH][resend] NFS: Kill obsolete NFS_PARANOIA (try 2)
-Cc: linux-kernel@vger.kernel.org, "Rick Sladkey" <jrs@world.std.com>,
-       "Neil Brown" <neilb@cse.unsw.edu.au>, nfs@lists.sourceforge.net,
-       "Jesper Juhl" <jesper.juhl@gmail.com>
+	Tue, 26 Sep 2006 19:39:10 -0400
+Received: from mailout.stusta.mhn.de ([141.84.69.5]:44817 "HELO
+	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
+	id S932312AbWIZXjJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Sep 2006 19:39:09 -0400
+Date: Wed, 27 Sep 2006 01:39:03 +0200
+From: Adrian Bunk <bunk@stusta.de>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: Nigel Cunningham <ncunningham@linuxmail.org>, Pavel Machek <pavel@ucw.cz>,
+       Andrew Morton <akpm@osdl.org>, Stefan Seyfried <seife@suse.de>,
+       linux-kernel@vger.kernel.org
+Subject: Re: When will the lunacy end? (Was Re: [PATCH] uswsusp: add pmops->{prepare,enter,finish} support (aka "platform mode"))
+Message-ID: <20060926233903.GK4547@stusta.de>
+References: <20060925071338.GD9869@suse.de> <20060926223146.GI4547@stusta.de> <1159311915.7485.37.camel@nigel.suspend2.net> <200609270131.46686.rjw@sisk.pl>
 MIME-Version: 1.0
-Content-Type: multipart/mixed; 
-	boundary="----=_Part_18998_2379296.1159313985136"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200609270131.46686.rjw@sisk.pl>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-------=_Part_18998_2379296.1159313985136
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+On Wed, Sep 27, 2006 at 01:31:46AM +0200, Rafael J. Wysocki wrote:
+> On Wednesday, 27 September 2006 01:05, Nigel Cunningham wrote:
+> > On Wed, 2006-09-27 at 00:31 +0200, Adrian Bunk wrote:
+> > > On Wed, Sep 27, 2006 at 07:38:31AM +1000, Nigel Cunningham wrote:
+> > > > Hi.
+> > > > 
+> > > > On Tue, 2006-09-26 at 22:35 +0200, Rafael J. Wysocki wrote:
+> > > > > On Tuesday, 26 September 2006 22:14, Adrian Bunk wrote:
+> > > > > > On Tue, Sep 26, 2006 at 12:45:00AM +0200, Pavel Machek wrote:
+> > > > > > >...
+> > > > > > > solid)
+> > > > > > > 	apart from HIGHMEM64G fiasco, and related agpgart fiasco long
+> > > > > > > 	time before that... these are driver problems...
+> > > > > > >...
+> > > > > > 
+> > > > > > One point that seems to be a bit forgotten is that driver problems do 
+> > > > > > actually matter a lot:
+> > > > > > 
+> > > > > > I for one do not care much whether I can abort suspending (I can always 
+> > > > > > resume) or whether dancing penguins are displayed during suspending - 
+> > > > > > but the fact that my saa7134 card only outputs the picture but no sound 
+> > > > > > after resuming from suspend-to-disk is a real show-stopper for me.
+> > > > 
+> > > > Agreed that some things are more important than others. But to some
+> > > > people, user interface does matter. After all, we want (well I want)
+> > > > people considering converting from Windows to see that free software can
+> > > > be better than proprietary stuff, not just imitate what they're doing. 
+> > > > 
+> > > > Suspend2 doesn't actually provide dancing penguins while suspending -
+> > > > it's a simple progress bar in either pure text or overlayed on an image
+> > > > of your choosing.
+> > > > 
+> > > > The support for aborting is really just fall out from the work on
+> > > > debugging and testing failure paths.
+> > > >...
+> > > 
+> > > Sorry if this sounded as if I was against improvements of suspend.
+> > > That was not my intention.
+> > > 
+> > > But as long as there are driver problems, suspend as a whole can not be 
+> > > called solid. The core itself might be solid or not, but without working 
+> > > drivers this doesn't buy users much.
+> > > 
+> > > A user might be impressed by a progress bar on a nifty image, but if one 
+> > > or more of his drivers have problems with suspend the user won't get a 
+> > > good impression of Linux.
+> > > 
+> > > How many driver problems with suspend are buried in emails and
+> > > Bugzillas (will problems like kernel Bugzilla #6035 ever be debugged?)?
+> > 
+> > I fully agree. One of the largest issues I'm regularly dealing with is
+> > people reporting problems with drivers.
+> 
+> Well, can we please have these reports forwarded to LKML or placed
+> in the bugzilla?
 
-On 27/09/06, Jesper Juhl <jesper.juhl@gmail.com> wrote:
->   [ please keep me on Cc: ]
->
->
-> Remove obsolete NFS_PARANOIA .
->
-> Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
-> ---
+The main question is:
 
-Whoops, I accidentally included an old version of the patch. The one I
-intended to send is attached - sorry.
+Who will track these bugs, debug them (who is e.g. responsible for 
+kernel Bugzilla #6035?) and repeatingly poke maintainers to fix such 
+issues?
+
+If you are saying you will do this job, I can try to redirect such bug 
+reports to the kernel Bugzilla, create a "suspend driver problems" meta 
+bug there, assign it to you and create the dependencies that it tracks 
+the already existing bugs in the kernel Bugzilla.
+
+> Greetings,
+> Rafael
+
+cu
+Adrian
 
 -- 
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
 
-------=_Part_18998_2379296.1159313985136
-Content-Type: application/octet-stream; name=NFS_PARANOIA.patch
-Content-Transfer-Encoding: base64
-X-Attachment-Id: f_eskxmupj
-Content-Disposition: attachment; filename="NFS_PARANOIA.patch"
+       "Is there not promise of rain?" Ling Tan asked suddenly out
+        of the darkness. There had been need of rain for many days.
+       "Only a promise," Lao Er said.
+                                       Pearl S. Buck - Dragon Seed
 
-UmVtb3ZlIG9ic29sZXRlIE5GU19QQVJBTk9JQSAuCgpTaWduZWQtb2ZmLWJ5OiBKZXNwZXIgSnVo
-bCA8amVzcGVyLmp1aGxAZ21haWwuY29tPgotLS0KCiBmcy9uZnMvZGlyLmMgICAgICB8ICAgMTcg
-KystLS0tLS0tLS0tLS0tLS0KIGZzL25mcy9pbm9kZS5jICAgIHwgICAxMSArLS0tLS0tLS0tLQog
-ZnMvbmZzL25mczJ4ZHIuYyAgfCAgICAxIC0KIGZzL25mcy9wYWdlbGlzdC5jIHwgICAgNiAtLS0t
-LS0KIDQgZmlsZXMgY2hhbmdlZCwgMyBpbnNlcnRpb25zKCspLCAzMiBkZWxldGlvbnMoLSkKCmRp
-ZmYgLXVwciBsaW51eC0yLjYuMTgtZ2l0Ni1vcmlnL2ZzL25mcy9kaXIuYyBsaW51eC0yLjYuMTgt
-Z2l0Ni9mcy9uZnMvZGlyLmMKLS0tIGxpbnV4LTIuNi4xOC1naXQ2LW9yaWcvZnMvbmZzL2Rpci5j
-CTIwMDYtMDktMjcgMDE6MTY6NTIuMDAwMDAwMDAwICswMjAwCisrKyBsaW51eC0yLjYuMTgtZ2l0
-Ni9mcy9uZnMvZGlyLmMJMjAwNi0wOS0yNyAwMToyNToyMS4wMDAwMDAwMDAgKzAyMDAKQEAgLTM4
-LDcgKzM4LDYgQEAKICNpbmNsdWRlICJkZWxlZ2F0aW9uLmgiCiAjaW5jbHVkZSAiaW9zdGF0Lmgi
-CiAKLSNkZWZpbmUgTkZTX1BBUkFOT0lBIDEKIC8qICNkZWZpbmUgTkZTX0RFQlVHX1ZFUkJPU0Ug
-MSAqLwogCiBzdGF0aWMgaW50IG5mc19vcGVuZGlyKHN0cnVjdCBpbm9kZSAqLCBzdHJ1Y3QgZmls
-ZSAqKTsKQEAgLTEzMDksMTEgKzEzMDgsNiBAQCBzdGF0aWMgaW50IG5mc19zaWxseXJlbmFtZShz
-dHJ1Y3QgaW5vZGUgCiAJCWF0b21pY19yZWFkKCZkZW50cnktPmRfY291bnQpKTsKIAluZnNfaW5j
-X3N0YXRzKGRpciwgTkZTSU9TX1NJTExZUkVOQU1FKTsKIAotI2lmZGVmIE5GU19QQVJBTk9JQQot
-aWYgKCFkZW50cnktPmRfaW5vZGUpCi1wcmludGsoIk5GUzogc2lsbHktcmVuYW1pbmcgJXMvJXMs
-IG5lZ2F0aXZlIGRlbnRyeT8/XG4iLAotZGVudHJ5LT5kX3BhcmVudC0+ZF9uYW1lLm5hbWUsIGRl
-bnRyeS0+ZF9uYW1lLm5hbWUpOwotI2VuZGlmCiAJLyoKIAkgKiBXZSBkb24ndCBhbGxvdyBhIGRl
-bnRyeSB0byBiZSBzaWxseS1yZW5hbWVkIHR3aWNlLgogCSAqLwpAQCAtMTYyOCwxNiArMTYyMiw5
-IEBAIHN0YXRpYyBpbnQgbmZzX3JlbmFtZShzdHJ1Y3QgaW5vZGUgKm9sZF8KIAkJCW5ld19pbm9k
-ZSA9IE5VTEw7CiAJCQkvKiBpbnN0YW50aWF0ZSB0aGUgcmVwbGFjZW1lbnQgdGFyZ2V0ICovCiAJ
-CQlkX2luc3RhbnRpYXRlKG5ld19kZW50cnksIE5VTEwpOwotCQl9IGVsc2UgaWYgKGF0b21pY19y
-ZWFkKCZuZXdfZGVudHJ5LT5kX2NvdW50KSA+IDEpIHsKLQkJLyogZGVudHJ5IHN0aWxsIGJ1c3k/
-ICovCi0jaWZkZWYgTkZTX1BBUkFOT0lBCi0JCQlwcmludGsoIm5mc19yZW5hbWU6IHRhcmdldCAl
-cy8lcyBidXN5LCBkX2NvdW50PSVkXG4iLAotCQkJICAgICAgIG5ld19kZW50cnktPmRfcGFyZW50
-LT5kX25hbWUubmFtZSwKLQkJCSAgICAgICBuZXdfZGVudHJ5LT5kX25hbWUubmFtZSwKLQkJCSAg
-ICAgICBhdG9taWNfcmVhZCgmbmV3X2RlbnRyeS0+ZF9jb3VudCkpOwotI2VuZGlmCisJCX0gZWxz
-ZSBpZiAoYXRvbWljX3JlYWQoJm5ld19kZW50cnktPmRfY291bnQpID4gMSkKKwkJCS8qIGRlbnRy
-eSBzdGlsbCBidXN5PyAqLwogCQkJZ290byBvdXQ7Ci0JCX0KIAl9IGVsc2UKIAkJbmV3X2lub2Rl
-LT5pX25saW5rLS07CiAKZGlmZiAtdXByIGxpbnV4LTIuNi4xOC1naXQ2LW9yaWcvZnMvbmZzL2lu
-b2RlLmMgbGludXgtMi42LjE4LWdpdDYvZnMvbmZzL2lub2RlLmMKLS0tIGxpbnV4LTIuNi4xOC1n
-aXQ2LW9yaWcvZnMvbmZzL2lub2RlLmMJMjAwNi0wOS0yNyAwMToxNjo1Mi4wMDAwMDAwMDAgKzAy
-MDAKKysrIGxpbnV4LTIuNi4xOC1naXQ2L2ZzL25mcy9pbm9kZS5jCTIwMDYtMDktMjcgMDE6MjU6
-NTcuMDAwMDAwMDAwICswMjAwCkBAIC00OCw3ICs0OCw2IEBACiAjaW5jbHVkZSAiaW50ZXJuYWwu
-aCIKIAogI2RlZmluZSBORlNEQkdfRkFDSUxJVFkJCU5GU0RCR19WRlMKLSNkZWZpbmUgTkZTX1BB
-UkFOT0lBIDEKIAogc3RhdGljIHZvaWQgbmZzX2ludmFsaWRhdGVfaW5vZGUoc3RydWN0IGlub2Rl
-ICopOwogc3RhdGljIGludCBuZnNfdXBkYXRlX2lub2RlKHN0cnVjdCBpbm9kZSAqLCBzdHJ1Y3Qg
-bmZzX2ZhdHRyICopOwpAQCAtODk0LDcgKzg5Myw3IEBAIHN0YXRpYyBpbnQgbmZzX3VwZGF0ZV9p
-bm9kZShzdHJ1Y3QgaW5vZGUKIAkgKiBNYWtlIHN1cmUgdGhlIGlub2RlJ3MgdHlwZSBoYXNuJ3Qg
-Y2hhbmdlZC4KIAkgKi8KIAlpZiAoKGlub2RlLT5pX21vZGUgJiBTX0lGTVQpICE9IChmYXR0ci0+
-bW9kZSAmIFNfSUZNVCkpCi0JCWdvdG8gb3V0X2NoYW5nZWQ7CisJCWdvdG8gb3V0X2VycjsKIAog
-CXNlcnZlciA9IE5GU19TRVJWRVIoaW5vZGUpOwogCS8qIFVwZGF0ZSB0aGUgZnNpZCBpZiBhbmQg
-b25seSBpZiB0aGlzIGlzIHRoZSByb290IGRpcmVjdG9yeSAqLwpAQCAtMTAwNCwxNCArMTAwMyw2
-IEBAIHN0YXRpYyBpbnQgbmZzX3VwZGF0ZV9pbm9kZShzdHJ1Y3QgaW5vZGUKIAkJbmZzaS0+Y2Fj
-aGVfdmFsaWRpdHkgfD0gaW52YWxpZDsKIAogCXJldHVybiAwOwotIG91dF9jaGFuZ2VkOgotCS8q
-Ci0JICogQmlnIHRyb3VibGUhIFRoZSBpbm9kZSBoYXMgYmVjb21lIGEgZGlmZmVyZW50IG9iamVj
-dC4KLQkgKi8KLSNpZmRlZiBORlNfUEFSQU5PSUEKLQlwcmludGsoS0VSTl9ERUJVRyAiJXM6IGlu
-b2RlICVsZCBtb2RlIGNoYW5nZWQsICUwN28gdG8gJTA3b1xuIiwKLQkJCV9fRlVOQ1RJT05fXywg
-aW5vZGUtPmlfaW5vLCBpbm9kZS0+aV9tb2RlLCBmYXR0ci0+bW9kZSk7Ci0jZW5kaWYKICBvdXRf
-ZXJyOgogCS8qCiAJICogTm8gbmVlZCB0byB3b3JyeSBhYm91dCB1bmhhc2hpbmcgdGhlIGRlbnRy
-eSwgYXMgdGhlCmRpZmYgLXVwciBsaW51eC0yLjYuMTgtZ2l0Ni1vcmlnL2ZzL25mcy9uZnMyeGRy
-LmMgbGludXgtMi42LjE4LWdpdDYvZnMvbmZzL25mczJ4ZHIuYwotLS0gbGludXgtMi42LjE4LWdp
-dDYtb3JpZy9mcy9uZnMvbmZzMnhkci5jCTIwMDYtMDktMjcgMDE6MTY6NTIuMDAwMDAwMDAwICsw
-MjAwCisrKyBsaW51eC0yLjYuMTgtZ2l0Ni9mcy9uZnMvbmZzMnhkci5jCTIwMDYtMDktMjcgMDE6
-MjU6NTcuMDAwMDAwMDAwICswMjAwCkBAIC0yNiw3ICsyNiw2IEBACiAjaW5jbHVkZSAiaW50ZXJu
-YWwuaCIKIAogI2RlZmluZSBORlNEQkdfRkFDSUxJVFkJCU5GU0RCR19YRFIKLS8qICNkZWZpbmUg
-TkZTX1BBUkFOT0lBIDEgKi8KIAogLyogTWFwcGluZyBmcm9tIE5GUyBlcnJvciBjb2RlIHRvICJl
-cnJubyIgZXJyb3IgY29kZS4gKi8KICNkZWZpbmUgZXJybm9fTkZTRVJSX0lPCQlFSU8KZGlmZiAt
-dXByIGxpbnV4LTIuNi4xOC1naXQ2LW9yaWcvZnMvbmZzL3BhZ2VsaXN0LmMgbGludXgtMi42LjE4
-LWdpdDYvZnMvbmZzL3BhZ2VsaXN0LmMKLS0tIGxpbnV4LTIuNi4xOC1naXQ2LW9yaWcvZnMvbmZz
-L3BhZ2VsaXN0LmMJMjAwNi0wOS0yMCAwNTo0MjowNi4wMDAwMDAwMDAgKzAyMDAKKysrIGxpbnV4
-LTIuNi4xOC1naXQ2L2ZzL25mcy9wYWdlbGlzdC5jCTIwMDYtMDktMjcgMDE6MzI6NTguMDAwMDAw
-MDAwICswMjAwCkBAIC0xOCw3ICsxOCw2IEBACiAjaW5jbHVkZSA8bGludXgvbmZzX2ZzLmg+CiAj
-aW5jbHVkZSA8bGludXgvbmZzX21vdW50Lmg+CiAKLSNkZWZpbmUgTkZTX1BBUkFOT0lBIDEKIAog
-c3RhdGljIGttZW1fY2FjaGVfdCAqbmZzX3BhZ2VfY2FjaGVwOwogCkBAIC0xNzEsMTEgKzE3MCw2
-IEBAIG5mc19yZWxlYXNlX3JlcXVlc3Qoc3RydWN0IG5mc19wYWdlICpyZXEKIAlpZiAoIWF0b21p
-Y19kZWNfYW5kX3Rlc3QoJnJlcS0+d2JfY291bnQpKQogCQlyZXR1cm47CiAKLSNpZmRlZiBORlNf
-UEFSQU5PSUEKLQlCVUdfT04gKCFsaXN0X2VtcHR5KCZyZXEtPndiX2xpc3QpKTsKLQlCVUdfT04g
-KE5GU19XQkFDS19CVVNZKHJlcSkpOwotI2VuZGlmCi0KIAkvKiBSZWxlYXNlIHN0cnVjdCBmaWxl
-IG9yIGNhY2hlZCBjcmVkZW50aWFsICovCiAJbmZzX2NsZWFyX3JlcXVlc3QocmVxKTsKIAlwdXRf
-bmZzX29wZW5fY29udGV4dChyZXEtPndiX2NvbnRleHQpOwo=
-------=_Part_18998_2379296.1159313985136--

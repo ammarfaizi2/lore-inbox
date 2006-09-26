@@ -1,69 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751303AbWIZFij@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751286AbWIZFiL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751303AbWIZFij (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Sep 2006 01:38:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751364AbWIZFii
+	id S1751286AbWIZFiL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Sep 2006 01:38:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751294AbWIZFiL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Sep 2006 01:38:38 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:28373 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751303AbWIZFi0 (ORCPT
+	Tue, 26 Sep 2006 01:38:11 -0400
+Received: from mail.suse.de ([195.135.220.2]:42465 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751286AbWIZFiI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Sep 2006 01:38:26 -0400
+	Tue, 26 Sep 2006 01:38:08 -0400
 From: Greg KH <greg@kroah.com>
 To: linux-kernel@vger.kernel.org
-Cc: Greg Kroah-Hartman <gregkh@suse.de>
-Subject: [PATCH 8/47] SYSFS: allow sysfs_create_link to create symlinks in the root of sysfs
-Date: Mon, 25 Sep 2006 22:37:28 -0700
-Message-Id: <11592491082990-git-send-email-greg@kroah.com>
+Cc: Kay Sievers <kay.sievers@suse.de>, Greg Kroah-Hartman <gregkh@suse.de>
+Subject: [PATCH 2/47] deprecate PHYSDEV* keys
+Date: Mon, 25 Sep 2006 22:37:22 -0700
+Message-Id: <11592490903867-git-send-email-greg@kroah.com>
 X-Mailer: git-send-email 1.4.2.1
-In-Reply-To: <1159249104512-git-send-email-greg@kroah.com>
-References: <20060926053728.GA8970@kroah.com> <1159249087369-git-send-email-greg@kroah.com> <11592490903867-git-send-email-greg@kroah.com> <11592490933346-git-send-email-greg@kroah.com> <1159249096460-git-send-email-greg@kroah.com> <11592490993970-git-send-email-greg@kroah.com> <11592491023995-git-send-email-greg@kroah.com> <1159249104512-git-send-email-greg@kroah.com>
+In-Reply-To: <1159249087369-git-send-email-greg@kroah.com>
+References: <20060926053728.GA8970@kroah.com> <1159249087369-git-send-email-greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@suse.de>
+From: Kay Sievers <kay.sievers@suse.de>
 
-This is needed to make the compatible link for /sys/block in the future.
+deprecate PHYSDEV* values in the uevent environment
 
+These values are no longer needed and inconsistent with the
+stacking of class devices. The event environment should not
+carry properties of a parent device. The key PHYSDEVDRIVER is
+available as DRIVER, PHYDEVBUS is indentical SUBSYSTEM. Class
+devices should not carry any of these values.
+
+Signed-off-by: Kay Sievers <kay.sievers@suse.de>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 ---
- fs/sysfs/symlink.c |   14 ++++++++++++--
- 1 files changed, 12 insertions(+), 2 deletions(-)
+ Documentation/feature-removal-schedule.txt |   12 ++++++++++++
+ drivers/base/class.c                       |    2 +-
+ drivers/base/core.c                        |   10 +++++++---
+ 3 files changed, 20 insertions(+), 4 deletions(-)
 
-diff --git a/fs/sysfs/symlink.c b/fs/sysfs/symlink.c
-index d2eac3c..f50e3cc 100644
---- a/fs/sysfs/symlink.c
-+++ b/fs/sysfs/symlink.c
-@@ -3,6 +3,7 @@
-  */
+diff --git a/Documentation/feature-removal-schedule.txt b/Documentation/feature-removal-schedule.txt
+index 552507f..a89a1b7 100644
+--- a/Documentation/feature-removal-schedule.txt
++++ b/Documentation/feature-removal-schedule.txt
+@@ -294,3 +294,15 @@ Why:	The frame diverter is included in m
+ 	It is not clear if anyone is still using it.
+ Who:	Stephen Hemminger <shemminger@osdl.org>
  
- #include <linux/fs.h>
-+#include <linux/mount.h>
- #include <linux/module.h>
- #include <linux/kobject.h>
- #include <linux/namei.h>
-@@ -82,10 +83,19 @@ exit1:
-  */
- int sysfs_create_link(struct kobject * kobj, struct kobject * target, const char * name)
- {
--	struct dentry * dentry = kobj->dentry;
-+	struct dentry *dentry = NULL;
- 	int error = -EEXIST;
- 
--	BUG_ON(!kobj || !kobj->dentry || !name);
-+	BUG_ON(!name);
++---------------------------
 +
-+	if (!kobj) {
-+		if (sysfs_mount && sysfs_mount->mnt_sb)
-+			dentry = sysfs_mount->mnt_sb->s_root;
-+	} else
-+		dentry = kobj->dentry;
 +
-+	if (!dentry)
-+		return -EFAULT;
++What:	PHYSDEVPATH, PHYSDEVBUS, PHYSDEVDRIVER in the uevent environment
++When:	Oktober 2008
++Why:	The stacking of class devices makes these values misleading and
++	inconsistent.
++	Class devices should not carry any of these properties, and bus
++	devices have SUBSYTEM and DRIVER as a replacement.
++Who:	Kay Sievers <kay.sievers@suse.de>
++
++---------------------------
+diff --git a/drivers/base/class.c b/drivers/base/class.c
+index de89083..46336f1 100644
+--- a/drivers/base/class.c
++++ b/drivers/base/class.c
+@@ -361,7 +361,7 @@ static int class_uevent(struct kset *kse
+ 	pr_debug("%s - name = %s\n", __FUNCTION__, class_dev->class_id);
  
- 	mutex_lock(&dentry->d_inode->i_mutex);
- 	if (!sysfs_dirent_exist(dentry->d_fsdata, name))
+ 	if (class_dev->dev) {
+-		/* add physical device, backing this device  */
++		/* add device, backing this class device (deprecated) */
+ 		struct device *dev = class_dev->dev;
+ 		char *path = kobject_get_path(&dev->kobj, GFP_KERNEL);
+ 
+diff --git a/drivers/base/core.c b/drivers/base/core.c
+index be6b5bc..04d089f 100644
+--- a/drivers/base/core.c
++++ b/drivers/base/core.c
+@@ -149,17 +149,21 @@ static int dev_uevent(struct kset *kset,
+ 			       "MINOR=%u", MINOR(dev->devt));
+ 	}
+ 
+-	/* add bus name of physical device */
++	/* add bus name (same as SUBSYSTEM, deprecated) */
+ 	if (dev->bus)
+ 		add_uevent_var(envp, num_envp, &i,
+ 			       buffer, buffer_size, &length,
+ 			       "PHYSDEVBUS=%s", dev->bus->name);
+ 
+-	/* add driver name of physical device */
+-	if (dev->driver)
++	/* add driver name (PHYSDEV* values are deprecated)*/
++	if (dev->driver) {
++		add_uevent_var(envp, num_envp, &i,
++			       buffer, buffer_size, &length,
++			       "DRIVER=%s", dev->driver->name);
+ 		add_uevent_var(envp, num_envp, &i,
+ 			       buffer, buffer_size, &length,
+ 			       "PHYSDEVDRIVER=%s", dev->driver->name);
++	}
+ 
+ 	/* terminate, set to next free slot, shrink available space */
+ 	envp[i] = NULL;
 -- 
 1.4.2.1
 

@@ -1,46 +1,156 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964859AbWIZVul@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932429AbWIZV7s@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964859AbWIZVul (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Sep 2006 17:50:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964860AbWIZVul
+	id S932429AbWIZV7s (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Sep 2006 17:59:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932432AbWIZV7r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Sep 2006 17:50:41 -0400
-Received: from nf-out-0910.google.com ([64.233.182.188]:40793 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S964859AbWIZVuk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Sep 2006 17:50:40 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=QkVow+qOC2KmJChVrs+b8XqGQ5Rnkb4qvUTxjZxgylokzsVbWPGjHrjTmJH2wN/4Nx/RHdSe+QYAt7GqbSRPeUspFyse632C39lmpIWx9RIrtJSM3QYkcI0wiosiyiy+z+2n9qRo7VBDYkZHD3uhwizBVJNsxpuxWlur8WoRTlI=
-Message-ID: <4519A0B0.3030207@gmail.com>
-Date: Tue, 26 Sep 2006 23:50:40 +0200
-From: Jiri Slaby <jirislaby@gmail.com>
-User-Agent: Thunderbird 2.0a1 (X11/20060724)
+	Tue, 26 Sep 2006 17:59:47 -0400
+Received: from ogre.sisk.pl ([217.79.144.158]:12769 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S932429AbWIZV7q (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Sep 2006 17:59:46 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH -mm 6/6] swsusp: Document support for swap files
+Date: Tue, 26 Sep 2006 23:56:08 +0200
+User-Agent: KMail/1.9.1
+Cc: Dave Jones <davej@redhat.com>, Pavel Machek <pavel@ucw.cz>,
+       LKML <linux-kernel@vger.kernel.org>
+References: <200609231158.00147.rjw@sisk.pl> <200609231213.02501.rjw@sisk.pl>
+In-Reply-To: <200609231213.02501.rjw@sisk.pl>
 MIME-Version: 1.0
-To: Janne Karhunen <janne.karhunen@gmail.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: kernel threads and signals
-References: <24c1515f0609260152j256e8473yf2e4d14e65222c67@mail.gmail.com>
-In-Reply-To: <24c1515f0609260152j256e8473yf2e4d14e65222c67@mail.gmail.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200609262356.10145.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Janne Karhunen wrote:
-> Hi,
+On Saturday, 23 September 2006 12:13, Rafael J. Wysocki wrote:
+> Document the "resume_offset=" command line parameter as well as the way in
+> which swap files are supported by swsusp.
 > 
-> I have a kernel module foo that uses kernel thread bar. With
-> signal_pending() I can easily check whether or not thread has
-> pending signals, but what's the correct way to check for the
-> specific signal number(s)?
+> Signed-off-by: Rafael J. Wysocki <rjw@sisk.pl>
+> Acked-by: Pavel Machek <pavel@ucw.cz>
+> ---
+If we drop the 5/6 patch, the documentation has to be updated, as follows:
 
-I am not pretty sure, but spinlock;dequeue_signal;spinunlock; should work.
+---
+Document the "resume_offset=" command line parameter as well as the way in
+which swap files are supported by swsusp.
 
-regards,
--- 
-http://www.fi.muni.cz/~xslaby/            Jiri Slaby
-faculty of informatics, masaryk university, brno, cz
-e-mail: jirislaby gmail com, gpg pubkey fingerprint:
-B674 9967 0407 CE62 ACC8  22A0 32CC 55C3 39D4 7A7E
+Signed-off-by: Rafael J. Wysocki <rjw@sisk.pl>
+---
+ Documentation/kernel-parameters.txt           |    6 ++
+ Documentation/power/swsusp-and-swap-files.txt |   54 ++++++++++++++++++++++++++
+ Documentation/power/swsusp.txt                |   20 ++-------
+ 3 files changed, 66 insertions(+), 14 deletions(-)
+
+Index: linux-2.6.18-mm1/Documentation/kernel-parameters.txt
+===================================================================
+--- linux-2.6.18-mm1.orig/Documentation/kernel-parameters.txt
++++ linux-2.6.18-mm1/Documentation/kernel-parameters.txt
+@@ -1368,6 +1368,12 @@ and is between 256 and 4096 characters. 
+ 	resume=		[SWSUSP]
+ 			Specify the partition device for software suspend
+ 
++	resume_offset=	[SWSUSP]
++			Specify the offset from the beginning of the partition
++			given by "resume=" at which the swap header is located,
++			in <PAGE_SIZE> units (needed only for swap files).
++			See  Documentation/power/swsusp-and-swap-files.txt
++
+ 	rhash_entries=	[KNL,NET]
+ 			Set number of hash buckets for route cache
+ 
+Index: linux-2.6.18-mm1/Documentation/power/swsusp-and-swap-files.txt
+===================================================================
+--- /dev/null
++++ linux-2.6.18-mm1/Documentation/power/swsusp-and-swap-files.txt
+@@ -0,0 +1,54 @@
++Using swap files with software suspend (swsusp)
++	(C) 2006 Rafael J. Wysocki <rjw@sisk.pl>
++
++The Linux kernel handles swap files almost in the same way as it handles swap
++partitions and there are only two differences between these two types of swap
++areas:
++(1) swap files need not be contiguous,
++(2) the header of a swap file is not in the first block of the partition that
++holds it.  From the swsusp's point of view (1) is not a problem, because it is
++already taken care of by the swap-handling code, but (2) has to be taken into
++consideration.
++
++In principle the location of a swap file's header may be determined with the
++help of appropriate filesystem driver.  Unfortunately, however, it requires the
++filesystem holding the swap file to be mounted, and if this filesystem is
++journaled, it cannot be mounted during resume from disk.  For this reason to
++identify a swap file swsusp uses the name of the partition that holds the file
++and the offset from the beginning of the partition at which the swap file's
++header is located.  For convenience, this offset is expressed in <PAGE_SIZE>
++units.
++
++In order to use a swap file with swsusp, you need to:
++
++1) Create the swap file and make it active, eg.
++
++# dd if=/dev/zero of=<swap_file_path> bs=1024 count=<swap_file_size_in_k>
++# mkswap <swap_file_path>
++# swapon <swap_file_path>
++
++2) Use an application that will bmap the swap file with the help of the
++FIBMAP ioctl and determine the location of the file's swap header, as the
++offset, in <PAGE_SIZE> units, from the beginning of the partition which
++holds the swap file.
++
++3) Add the following parameters to the kernel command line:
++
++resume=<swap_file_partition> resume_offset=<swap_file_offset>
++
++where <swap_file_partition> is the partition on which the swap file is located
++and <swap_file_offset> is the offset of the swap header determined by the
++application in 2).  [Of course, this step may be carried out automatically
++by the same application that determies the swap file's header offset using the
++FIBMAP ioctl.]
++
++Now, swsusp will use the swap file in the same way in which it would use a swap
++partition.  [Of course this means that the resume from a swap file cannot be
++initiated from whithin an initrd of initramfs image.]  In particular, the
++swap file has to be active (ie. be present in /proc/swaps) so that it can be
++used for suspending.
++
++Note that if the swap file used for suspending is deleted and recreated,
++the location of its header need not be the same as before.  Thus every time
++this happens the value of the "resume_offset=" kernel command line parameter
++has to be updated.
+Index: linux-2.6.18-mm1/Documentation/power/swsusp.txt
+===================================================================
+--- linux-2.6.18-mm1.orig/Documentation/power/swsusp.txt
++++ linux-2.6.18-mm1/Documentation/power/swsusp.txt
+@@ -297,20 +297,12 @@ system is shut down or suspended. Additi
+ suspend image to prevent sensitive data from being stolen after
+ resume.
+ 
+-Q: Why can't we suspend to a swap file?
++Q: Can I suspend to a swap file?
+ 
+-A: Because accessing swap file needs the filesystem mounted, and
+-filesystem might do something wrong (like replaying the journal)
+-during mount.
+-
+-There are few ways to get that fixed:
+-
+-1) Probably could be solved by modifying every filesystem to support
+-some kind of "really read-only!" option. Patches welcome.
+-
+-2) suspend2 gets around that by storing absolute positions in on-disk
+-image (and blocksize), with resume parameter pointing directly to
+-suspend header.
++A: Generally, yes, you can.  However, it requires you to use the "resume=" and
++"resume_offset=" kernel command line parameters, so the resume from a swap file
++cannot be initiated from an initrd or initramfs image.  See
++swsusp-and-swap-files.txt for details.
+ 
+ Q: Is there a maximum system RAM size that is supported by swsusp?
+ 
+

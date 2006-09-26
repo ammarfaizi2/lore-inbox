@@ -1,62 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932106AbWIZPSl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932116AbWIZPZK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932106AbWIZPSl (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Sep 2006 11:18:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932116AbWIZPSl
+	id S932116AbWIZPZK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Sep 2006 11:25:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932118AbWIZPZK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Sep 2006 11:18:41 -0400
-Received: from coyote.holtmann.net ([217.160.111.169]:16809 "EHLO
-	mail.holtmann.net") by vger.kernel.org with ESMTP id S932106AbWIZPSk
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Sep 2006 11:18:40 -0400
-Subject: Re: [PATCH 26/47] Driver core: add groups support to struct device
-From: Marcel Holtmann <marcel@holtmann.org>
-To: Greg KH <greg@kroah.com>
-Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
-       Kay Sievers <kay.sievers@vrfy.org>, linux-kernel@vger.kernel.org,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-In-Reply-To: <20060926134654.GB11435@kroah.com>
-References: <11592491371254-git-send-email-greg@kroah.com>
-	 <1159249140339-git-send-email-greg@kroah.com>
-	 <11592491451786-git-send-email-greg@kroah.com>
-	 <11592491482560-git-send-email-greg@kroah.com>
-	 <11592491551919-git-send-email-greg@kroah.com>
-	 <11592491581007-git-send-email-greg@kroah.com>
-	 <11592491611339-git-send-email-greg@kroah.com>
-	 <11592491643725-git-send-email-greg@kroah.com>
-	 <11592491672052-git-send-email-greg@kroah.com>
-	 <d120d5000609260620me5cf24bw83fc6d65fa7cb232@mail.gmail.com>
-	 <20060926134654.GB11435@kroah.com>
-Content-Type: text/plain
-Date: Tue, 26 Sep 2006 17:18:57 +0200
-Message-Id: <1159283937.800.3.camel@localhost>
+	Tue, 26 Sep 2006 11:25:10 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:13215 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S932116AbWIZPZI (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Sep 2006 11:25:08 -0400
+Message-Id: <200609261525.k8QFP6j4022389@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
+To: linux-kernel@vger.kernel.org
+Subject: Stupid kexec/kdump question...
+From: Valdis.Kletnieks@vt.edu
 Mime-Version: 1.0
-X-Mailer: Evolution 2.8.0 
+Content-Type: multipart/signed; boundary="==_Exmh_1159284306_3699P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
+Date: Tue, 26 Sep 2006 11:25:06 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Greg,
+--==_Exmh_1159284306_3699P
+Content-Type: text/plain; charset=us-ascii
 
-> > I really disappointed that there was no discussion/review of the
-> > implementation at all.
-> 
-> There has not been any real implementation yet, only a few patches added
-> to the core that add a few extra functionality to struct device to allow
-> class_device to move that way.  The patches that move the subsystems
-> over will be discussed (and some already have, like networking), when
-> they are ready.  Right now most of that work is being done by Kay and
-> myself as a proof of concept to make sure that we can do this properly
-> and that userspace can handle it well.
+OK, I'm running a Fedora Core 6 (rawhide actually) box with -18-mm1 kernel.
+I've installed kexec-tools and similar, and am trying to get the kernels
+built following the hints in Documentation/kdump/kdump.txt, but a few
+questions arise:
 
-if you look at the Bluetooth subsystem, it became real devices in the
-2.6.18 release. I was using a platform device for the virtual and UART
-based adapters with no parent, but I am gonna change this to the virtual
-devices once it is upstream. It works beautiful and the /sys/class is
-now only a fast entry point to find the devices.
+1) Other than the fact that the Fedora userspace looks for a ${kernelvers}kdump
+kernel, is there any reason the kdump kernel has to match the running one, or
+can an older kernel be used?
 
-Regards
+2) I'm presuming that a massively stripped down kernel (no sound support,
+no netfilter, no etc) that just has what's needed to mount the dump location
+is sufficient?
 
-Marcel
+3) The docs recommend 'crashkernel=64M@16M', but that's 8% of my memory.
+What will happen if I try '16M@16M' instead?  Just slower copying due to
+a smaller buffer cache space, or something more evil?
 
 
+--==_Exmh_1159284306_3699P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFFGUZScC3lWbTT17ARAmxcAKCIn1KnHJiVcZ3jUlmpbUCMG37/2wCbBcIt
+env++htSibVedprQNrG6Ayk=
+=RxwW
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1159284306_3699P--

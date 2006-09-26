@@ -1,47 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751084AbWIZFQk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751107AbWIZFSs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751084AbWIZFQk (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Sep 2006 01:16:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751085AbWIZFQk
+	id S1751107AbWIZFSs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Sep 2006 01:18:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751111AbWIZFSs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Sep 2006 01:16:40 -0400
-Received: from out1.smtp.messagingengine.com ([66.111.4.25]:10468 "EHLO
-	out1.smtp.messagingengine.com") by vger.kernel.org with ESMTP
-	id S1751084AbWIZFQj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Sep 2006 01:16:39 -0400
-X-Sasl-enc: YqJOyt0vgPF1vN4eIFerOqIArJYP+UcEd433bguI3Pbn 1159247800
-From: Shriramana Sharma <samjnaa@gmail.com>
-To: linux-kernel@vger.kernel.org
-Subject: Improvements in 2.6.18 will help SATA?
-Date: Tue, 26 Sep 2006 10:46:35 +0530
-User-Agent: KMail/1.9.4
+	Tue, 26 Sep 2006 01:18:48 -0400
+Received: from py-out-1112.google.com ([64.233.166.178]:17373 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S1751107AbWIZFSr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Sep 2006 01:18:47 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=AgmBpcJrjOMkQ+vphZ3odTQ14jAO70XUpCKOkSY5hyI2oOHxe0NokYVo7HqBy+84RgrDTZsZim+g7bxKvZ/GjJ4iHUzjBdtAiJ9tTtYzh1DQIDY7GJL/dCZI8Qc4JG5hrzYy/znyMFmmz6VIM+egiqn6Qkm6QK31G0gWPpnVyo4=
+Message-ID: <4518B831.8060109@gmail.com>
+Date: Tue, 26 Sep 2006 14:18:41 +0900
+From: Tejun Heo <htejun@gmail.com>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060915)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+To: Timur Tabi <timur@freescale.com>
+CC: linux-kernel@vger.kernel.org,
+       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>
+Subject: Re: "qc timeout" error in sata_sil 3114 driver, 2.6.18
+References: <45144D3D.4010400@freescale.com>
+In-Reply-To: <45144D3D.4010400@freescale.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200609261046.35391.samjnaa@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'm an end user, not a developer. From:
+[cc'ing linux-ide]
 
-http://www.kernel.org/pub/linux/kernel/v2.6/ChangeLog-2.6.18
+Timur Tabi wrote:
+> I'm working on a new PowerPC board (8349 based) with a Silicon Image 
+> 3114 SATA controller
+> connected to a Hitachi drive.  When the sata_sil driver loads and tries 
+> to find the device,
+> I get "qc timeout" errors.  I don't know a lot about SATA.  Can anyone 
+> give me a clue as
+> to what could be wrong?
 
-I see that a lot of the changes are related to SATA. I have a Seagate SATA HDD 
-as my one and only HDD so if I will really be benefitting performance-wise 
-from the new features or improvements, then I will install 2.6.18 over 
-2.6.15. So please tell me as I am not able to decipher for myself, whether 
-these improvements will lead to better performance, efficiency, speed or 
-something like that on my SATA HDD.
+Several questions.
 
-Please don't be harsh with me if this question is way OT for this list. I 
-thought only the developers can answer such a question so I asked here. I'm 
-sincerely sorry if I am bothering anyone.
-
-Please cc me as I am not on the list.
+1. does any previous kernel version work?  say, 2.6.17?
+2. can your ppc board do byte-aligned mmio access?
+3. it could be irq routing problem.  can you verify that?
 
 -- 
-
-Shriramana Sharma
-Linux user #395953 using Kubuntu 6.06.1
+tejun

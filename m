@@ -1,51 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932497AbWIZTnT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932493AbWIZTnV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932497AbWIZTnT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Sep 2006 15:43:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932495AbWIZTnT
+	id S932493AbWIZTnV (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Sep 2006 15:43:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932496AbWIZTnV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Sep 2006 15:43:19 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:25487 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S932494AbWIZTnS (ORCPT
+	Tue, 26 Sep 2006 15:43:21 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:16846 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932493AbWIZTnS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 26 Sep 2006 15:43:18 -0400
-Message-ID: <451982D1.6000806@garzik.org>
-Date: Tue, 26 Sep 2006 15:43:13 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
-MIME-Version: 1.0
-To: Diego Calleja <diegocg@gmail.com>
-CC: alan@lxorguk.ukuu.org.uk, linux-kernel@vger.kernel.org
-Subject: Re: pata_serverworks oopses in latest -git
-References: <20060926140016.54d532ba.diegocg@gmail.com>	<1159275010.11049.215.camel@localhost.localdomain>	<45194DAD.6060904@garzik.org> <20060926212939.69b52f0d.diegocg@gmail.com>
-In-Reply-To: <20060926212939.69b52f0d.diegocg@gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Spam-Score: -4.3 (----)
-X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.3 points, 5.0 required)
+Date: Tue, 26 Sep 2006 12:43:10 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "Miles Lane" <miles.lane@gmail.com>, netdev@vger.kernel.org
+Cc: LKML <linux-kernel@vger.kernel.org>, "Jouni Malinen" <jkmaline@cc.hut.fi>,
+       "James P. Ketrenos" <ipw2100-admin@linux.intel.com>
+Subject: Re: 2.6.18-mm1 -- ieee80211: Info elem: parse failed:
+ info_element->len + 2 > left : info_element->len+2=28 left=9, id=221.
+Message-Id: <20060926124310.17797fe5.akpm@osdl.org>
+In-Reply-To: <a44ae5cd0609261204g673fbf8ft6809378930986eac@mail.gmail.com>
+References: <a44ae5cd0609261204g673fbf8ft6809378930986eac@mail.gmail.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Diego Calleja wrote:
-> El Tue, 26 Sep 2006 11:56:29 -0400,
-> Jeff Garzik <jeff@garzik.org> escribió:
+
+[added netdev]
+
+On Tue, 26 Sep 2006 12:04:40 -0700
+"Miles Lane" <miles.lane@gmail.com> wrote:
+
+> ieee80211: Info elem: parse failed: info_element->len + 2 > left :
+> info_element->len+2=28 left=9, id=221.
+> ieee80211: Info elem: parse failed: info_element->len + 2 > left :
+> info_element->len+2=28 left=9, id=221.
+> ieee80211: Info elem: parse failed: info_element->len + 2 > left :
+> info_element->len+2=28 left=9, id=221.
 > 
->> Diego, does the attached patch help?
-> 
-> Yes and no :) It fixes that problem but I hit another oops, but this
-> time it's triggered because it hits the BUG() at:
-> 
-> static int serverworks_pre_reset(struct ata_port *ap) {
-> [...]
->         BUG();
->         return -1;      /* kill compiler warning */
+> >From dmesg output:
+> ieee80211: 802.11 data/management/control stack, git-1.1.13
+> ieee80211: Copyright (C) 2004-2005 Intel Corporation <jketreno@linux.intel.com>
+> ieee80211_crypt: registered algorithm 'NULL'
+> ieee80211_crypt: registered algorithm 'WEP'
+> ieee80211_crypt: registered algorithm 'CCMP'
+> ieee80211_crypt: registered algorithm 'TKIP'
 
-I'll punt this one to Alan :)
+I suspect that whatever caused this is now in mainline.  Are you able to
+test Linus's current git tree?
 
-Can you provide using with 'lspci -vvvxxxn' output, as root?
-
-	Jeff
-
-
-
+Thanks.

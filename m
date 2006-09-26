@@ -1,94 +1,134 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751593AbWIZFtE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751132AbWIZFti@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751593AbWIZFtE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Sep 2006 01:49:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751132AbWIZFjO
+	id S1751132AbWIZFti (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Sep 2006 01:49:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751383AbWIZFtI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Sep 2006 01:39:14 -0400
-Received: from ns1.suse.de ([195.135.220.2]:55521 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751383AbWIZFjE (ORCPT
+	Tue, 26 Sep 2006 01:49:08 -0400
+Received: from cantor.suse.de ([195.135.220.2]:58081 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751339AbWIZFjR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Sep 2006 01:39:04 -0400
+	Tue, 26 Sep 2006 01:39:17 -0400
 From: Greg KH <greg@kroah.com>
 To: linux-kernel@vger.kernel.org
-Cc: David Brownell <david-b@pacbell.net>,
-       David Brownell <dbrownell@users.sourceforge.net>,
-       Greg Kroah-Hartman <gregkh@suse.de>
-Subject: [PATCH 19/47] PM: update docs for writing .../power/state
-Date: Mon, 25 Sep 2006 22:37:39 -0700
-Message-Id: <11592491451786-git-send-email-greg@kroah.com>
+Cc: Andrew Morton <akpm@osdl.org>, Greg Kroah-Hartman <gregkh@suse.de>
+Subject: [PATCH 23/47] PM: add /sys/power documentation to Documentation/ABI
+Date: Mon, 25 Sep 2006 22:37:43 -0700
+Message-Id: <11592491581007-git-send-email-greg@kroah.com>
 X-Mailer: git-send-email 1.4.2.1
-In-Reply-To: <1159249140339-git-send-email-greg@kroah.com>
-References: <20060926053728.GA8970@kroah.com> <1159249087369-git-send-email-greg@kroah.com> <11592490903867-git-send-email-greg@kroah.com> <11592490933346-git-send-email-greg@kroah.com> <1159249096460-git-send-email-greg@kroah.com> <11592490993970-git-send-email-greg@kroah.com> <11592491023995-git-send-email-greg@kroah.com> <1159249104512-git-send-email-greg@kroah.com> <11592491082990-git-send-email-greg@kroah.com> <1159249111668-git-send-email-greg@kroah.com> <11592491152668-git-send-email-greg@kroah.com> <115924911859-git-send-email-greg@kroah.com> <11592491211162-git-send-email-greg@kroah.com> <1159249124371-git-send-email-greg@kroah.com> <11592491274168-git-send-email-greg@kroah.com> <11592491303012-git-send-email-greg@kroah.com> <11592491342421-git-send-email-greg@kroah.com> <11592491371254-git-send-email-greg@kroah.com> <1159249140339-git-send-email-greg@kroah.com>
+In-Reply-To: <11592491551919-git-send-email-greg@kroah.com>
+References: <20060926053728.GA8970@kroah.com> <1159249087369-git-send-email-greg@kroah.com> <11592490903867-git-send-email-greg@kroah.com> <11592490933346-git-send-email-greg@kroah.com> <1159249096460-git-send-email-greg@kroah.com> <11592490993970-git-send-email-greg@kroah.com> <11592491023995-git-send-email-greg@kroah.com> <1159249104512-git-send-email-greg@kroah.com> <11592491082990-git-send-email-greg@kroah.com> <1159249111668-git-send-email-greg@kroah.com> <11592491152668-git-send-email-greg@kroah.com> <115924911859-git-send-email-greg@kroah.com> <11592491211162-git-send-email-greg@kroah.com> <1159249124371-git-send-email-greg@kroah.com> <11592491274168-git-send-email-greg@kroah.com> <11592491303012-git-send-email-greg@kroah.com> <11592491342421-git-send-email-greg@kroah.com> <11592491371254-git-send-email-greg@kroah.com> <1159249140339-git-send-email-greg@kroah.com> <11592491451786-git-send-email-greg@kroah.com> <11592491482560-git-send-email-greg@kroah.com> <11592491512
+ 235-git-send-email-greg@kroah.com> <11592491551919-git-send-email-greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: David Brownell <david-b@pacbell.net>
+From: Rafael J. Wysocki <rjw@sisk.pl>
 
-Updates to match current code:
+The file sysfs-power that documents the interface in the /sys/power/ directory
+is added to Documentation/ABI/testing.
 
- - Make writes to the /sys/devices/.../power/state files fail cleanly
-   if the device requires the irqs-off call variants.
-
- - Fix comments describing the /sys/devices/.../power/state file writes
-   to match the code; the last several releases have invalidated the
-   previous text.
-
-Signed-off-by: David Brownell <dbrownell@users.sourceforge.net>
+Signed-off-by: Rafael J. Wysocki <rjw@sisk.pl>
+Acked-by: Pavel Machek <pavel@ucw.cz>
+Signed-off-by: Andrew Morton <akpm@osdl.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 ---
- drivers/base/power/sysfs.c |   29 +++++++++++++++++++----------
- 1 files changed, 19 insertions(+), 10 deletions(-)
+ Documentation/ABI/testing/sysfs-power |   88 +++++++++++++++++++++++++++++++++
+ 1 files changed, 88 insertions(+), 0 deletions(-)
 
-diff --git a/drivers/base/power/sysfs.c b/drivers/base/power/sysfs.c
-index 40d7242..e55b3c2 100644
---- a/drivers/base/power/sysfs.c
-+++ b/drivers/base/power/sysfs.c
-@@ -11,18 +11,23 @@ #include "power.h"
-  *	state - Control current power state of device
-  *
-  *	show() returns the current power state of the device. '0' indicates
-- *	the device is on. Other values (1-3) indicate the device is in a low
-+ *	the device is on. Other values (2) indicate the device is in some low
-  *	power state.
-  *
-- *	store() sets the current power state, which is an integer value
-- *	between 0-3. If the device is on ('0'), and the value written is
-- *	greater than 0, then the device is placed directly into the low-power
-- *	state (via its driver's ->suspend() method).
-- *	If the device is currently in a low-power state, and the value is 0,
-- *	the device is powered back on (via the ->resume() method).
-- *	If the device is in a low-power state, and a different low-power state
-- *	is requested, the device is first resumed, then suspended into the new
-- *	low-power state.
-+ *	store() sets the current power state, which is an integer valued
-+ *	0, 2, or 3.  Devices with bus.suspend_late(), or bus.resume_early()
-+ *	methods fail this operation; those methods couldn't be called.
-+ *	Otherwise,
-+ *
-+ *	- If the recorded dev->power.power_state.event matches the
-+ *	  target value, nothing is done.
-+ *	- If the recorded event code is nonzero, the device is reactivated
-+ *	  by calling bus.resume() and/or class.resume().
-+ *	- If the target value is nonzero, the device is suspended by
-+ *	  calling class.suspend() and/or bus.suspend() with event code
-+ *	  PM_EVENT_SUSPEND.
-+ *
-+ *	This mechanism is DEPRECATED and should only be used for testing.
-  */
- 
- static ssize_t state_show(struct device * dev, struct device_attribute *attr, char * buf)
-@@ -38,6 +43,10 @@ static ssize_t state_store(struct device
- 	pm_message_t state;
- 	int error = -EINVAL;
- 
-+	/* disallow incomplete suspend sequences */
-+	if (dev->bus && (dev->bus->suspend_late || dev->bus->resume_early))
-+		return error;
+diff --git a/Documentation/ABI/testing/sysfs-power b/Documentation/ABI/testing/sysfs-power
+new file mode 100644
+index 0000000..d882f80
+--- /dev/null
++++ b/Documentation/ABI/testing/sysfs-power
+@@ -0,0 +1,88 @@
++What:		/sys/power/
++Date:		August 2006
++Contact:	Rafael J. Wysocki <rjw@sisk.pl>
++Description:
++		The /sys/power directory will contain files that will
++		provide a unified interface to the power management
++		subsystem.
 +
- 	state.event = PM_EVENT_SUSPEND;
- 	/* Older apps expected to write "3" here - confused with PCI D3 */
- 	if ((n == 1) && !strcmp(buf, "3"))
++What:		/sys/power/state
++Date:		August 2006
++Contact:	Rafael J. Wysocki <rjw@sisk.pl>
++Description:
++		The /sys/power/state file controls the system power state.
++		Reading from this file returns what states are supported,
++		which is hard-coded to 'standby' (Power-On Suspend), 'mem'
++		(Suspend-to-RAM), and 'disk' (Suspend-to-Disk).
++
++		Writing to this file one of these strings causes the system to
++		transition into that state. Please see the file
++		Documentation/power/states.txt for a description of each of
++		these states.
++
++What:		/sys/power/disk
++Date:		August 2006
++Contact:	Rafael J. Wysocki <rjw@sisk.pl>
++Description:
++		The /sys/power/disk file controls the operating mode of the
++		suspend-to-disk mechanism.  Reading from this file returns
++		the name of the method by which the system will be put to
++		sleep on the next suspend.  There are four methods supported:
++		'firmware' - means that the memory image will be saved to disk
++		by some firmware, in which case we also assume that the
++		firmware will handle the system suspend.
++		'platform' - the memory image will be saved by the kernel and
++		the system will be put to sleep by the platform driver (e.g.
++		ACPI or other PM registers).
++		'shutdown' - the memory image will be saved by the kernel and
++		the system will be powered off.
++		'reboot' - the memory image will be saved by the kernel and
++		the system will be rebooted.
++
++		The suspend-to-disk method may be chosen by writing to this
++		file one of the accepted strings:
++
++		'firmware'
++		'platform'
++		'shutdown'
++		'reboot'
++
++		It will only change to 'firmware' or 'platform' if the system
++		supports that.
++
++What:		/sys/power/image_size
++Date:		August 2006
++Contact:	Rafael J. Wysocki <rjw@sisk.pl>
++Description:
++		The /sys/power/image_size file controls the size of the image
++		created by the suspend-to-disk mechanism.  It can be written a
++		string representing a non-negative integer that will be used
++		as an upper limit of the image size, in bytes.  The kernel's
++		suspend-to-disk code will do its best to ensure the image size
++		will not exceed this number.  However, if it turns out to be
++		impossible, the kernel will try to suspend anyway using the
++		smallest image possible.  In particular, if "0" is written to
++		this file, the suspend image will be as small as possible.
++
++		Reading from this file will display the current image size
++		limit, which is set to 500 MB by default.
++
++What:		/sys/power/pm_trace
++Date:		August 2006
++Contact:	Rafael J. Wysocki <rjw@sisk.pl>
++Description:
++		The /sys/power/pm_trace file controls the code which saves the
++		last PM event point in the RTC across reboots, so that you can
++		debug a machine that just hangs during suspend (or more
++		commonly, during resume).  Namely, the RTC is only used to save
++		the last PM event point if this file contains '1'.  Initially
++		it contains '0' which may be changed to '1' by writing a
++		string representing a nonzero integer into it.
++
++		To use this debugging feature you should attempt to suspend
++		the machine, then reboot it and run
++
++		dmesg -s 1000000 | grep 'hash matches'
++
++		CAUTION: Using it will cause your machine's real-time (CMOS)
++		clock to be set to a random invalid time after a resume.
 -- 
 1.4.2.1
 

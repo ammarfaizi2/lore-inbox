@@ -1,68 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964822AbWIZVb5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964833AbWIZVeM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964822AbWIZVb5 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Sep 2006 17:31:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964823AbWIZVb5
+	id S964833AbWIZVeM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Sep 2006 17:34:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964835AbWIZVeM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Sep 2006 17:31:57 -0400
-Received: from raven.upol.cz ([158.194.120.4]:35547 "EHLO raven.upol.cz")
-	by vger.kernel.org with ESMTP id S964822AbWIZVby (ORCPT
+	Tue, 26 Sep 2006 17:34:12 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:24201 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S964833AbWIZVeL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Sep 2006 17:31:54 -0400
-To: Lee Revell <rlrevell@joe-job.com>, Neil Brown <neilb@suse.de>,
-       Michiel de Boer <x@rebelhomicide.demon.nl>,
-       James Bottomley <James.Bottomley@SteelEye.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-X-Posted-To: gmane.linux.kernel
-Subject: Re: GPLv3 Position Statement
-References: <1158941750.3445.31.camel@mulgrave.il.steeleye.com> <451798FA.8000004@rebelhomicide.demon.nl> <17687.46268.156413.352299@cse.unsw.edu.au> <1159194447.2899.66.camel@mindpipe>
-Date: Tue, 26 Sep 2006 23:32:08 +0200
-Message-ID: <slrnehj72o.3c4.olecom@deen.upol.cz.local>
-User-Agent: slrn/0.9.8.1pl1 (Debian)
-From: Oleg Verych <olecom@flower.upol.cz>
-X-SA-Exim-Connect-IP: 158.194.64.175
-X-SA-Exim-Mail-From: olecom@flower.upol.cz
-X-SA-Exim-Scanned: No (on flower); SAEximRunCond expanded to false
-Organization: Palacky University in Olomouc, experimental physics department.
-X-Image-Url: http://flower.upol.cz/~olecom/upol-cz.png
+	Tue, 26 Sep 2006 17:34:11 -0400
+Date: Tue, 26 Sep 2006 14:33:44 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Hirokazu Takata <takata.hirokazu@renesas.com>
+Cc: Matthew Wilcox <matthew@wil.cx>, Hirokazu Takata <takata@linux-m32r.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] m32r: Revise __raw_read_trylock()
+Message-Id: <20060926143344.f036aa76.akpm@osdl.org>
+In-Reply-To: <swf8xk8l75h.wl%takata.hirokazu@renesas.com>
+References: <swfzmcse7mm.wl%takata@linux-m32r.org>
+	<20060924062036.GB30273@parisc-linux.org>
+	<swf8xk8l75h.wl%takata.hirokazu@renesas.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, 25 Sep 2006 16:47:22 +0900
+Hirokazu Takata <takata.hirokazu@renesas.com> wrote:
 
-Hallo,
+> Andrew, please drop and replace the previous my patch with the following
+> Matthew's fix.
+> 
+> Thank you.
+> 
+> Signed-off-by: Hirokazu Takata <takata@linux-m32r.org>
+> Cc: Matthew Wilcox <matthew@wil.cx>
+> --
+>  include/asm-m32r/spinlock.h |    9 ++++++++-
+>  1 file changed, 8 insertions(+), 1 deletion(-)
+> 
+> diff --git a/include/asm-m32r/spinlock.h b/include/asm-m32r/spinlock.h
+> index f94c1a6..f9f9072 100644
+> --- a/include/asm-m32r/spinlock.h
+> +++ b/include/asm-m32r/spinlock.h
+> @@ -298,7 +298,14 @@ #endif	/* CONFIG_CHIP_M32700_TS1 */
+>  	);
+>  }
+>  
+> -#define __raw_read_trylock(lock) generic__raw_read_trylock(lock)
+> +static inline int __raw_read_trylock(raw_rwlock_t *lock)
+> +{
+> +	atomic_t *count = (atomic_t*)lock;
+> +	if (atomic_dec_return(count) >= 0)
+> +		return 1;
+> +	atomic_inc(count);
+> +	return 0;
+> +}
 
-On 2006-09-25, Lee Revell <rlrevell@joe-job.com> wrote:
-> On Mon, 2006-09-25 at 20:51 +1000, Neil Brown wrote:
->> Tolerance of binary blogs seems to be steadily dropping.
->> 
+We don't have a changelog for this patch.  My usual technique when this
+happens is to mutter something unprintable then go on a hunt through the
+mailing list archives.
 
-[Binary bloGs. Yea, that's future of it (and XML) ;]
+But all I have is "Matthew Wilcox pointed out that
+generic__raw_read_trylock() is unfit for use.".
 
->> As far as I can tell, the DVD-CSS is purely a legal issue today - the
->> technical issues are solved (I can watch any-region on my Linux
->> computer, and in Australia, the law requires that all DVD players must
->> ignore region encoding as it is an anti-competitive practice). 
->
-> Tolerance by who?  As far as I can tell tolerance for binary blobs by
-> the typical Linux desktop user is higher than ever.  They consider it a
-> bug if their distro does not automagically install the nvidia/ATI
-> drivers, and immediately write you off as a GPL zealot if you even
-> mention that a tainted kernel cannot be debugged.
-
-This is not what Linux all about, as far as i can understand, reading lkml.
-
-Recall, please, linuxant MODULE_LICENSE("GPL\0 if bla-bla") case.
-Poor linux users, happy with stupid devices at low bandwidth and
-Working Drivers (tm).
-
-NV/ATI's driver _users_ are the same, *it's cool to be a kung-fu hacker*
-fashion. And don't tell me linux is desktop / game / home theater ready,
-please. It's nearly an orthogonal world by purpose and needs. (IMHO, of course)
-
-That fashion even affects Debian with all that firmware stuff. Invalid
-users (who cannot manage to have Debian installed without firmware,
-but loves it, server support for free or ever freedom; last is rare
-already) are in damn higher priority, than a 15 years of Social Contract.
-
-> Lee
->
+What's wrong with it?

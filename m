@@ -1,66 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751662AbWIZFvi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751628AbWIZFwG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751662AbWIZFvi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Sep 2006 01:51:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751554AbWIZFvM
+	id S1751628AbWIZFwG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Sep 2006 01:52:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751299AbWIZFis
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Sep 2006 01:51:12 -0400
-Received: from mail.suse.de ([195.135.220.2]:57313 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751384AbWIZFjK (ORCPT
+	Tue, 26 Sep 2006 01:38:48 -0400
+Received: from ns1.suse.de ([195.135.220.2]:44001 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751297AbWIZFiO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Sep 2006 01:39:10 -0400
+	Tue, 26 Sep 2006 01:38:14 -0400
 From: Greg KH <greg@kroah.com>
 To: linux-kernel@vger.kernel.org
-Cc: Pavel Machek <pavel@suse.cz>,
-       David Brownell <dbrownell@users.sourceforge.net>,
-       Greg Kroah-Hartman <gregkh@suse.de>
-Subject: [PATCH 21/47] PM: schedule /sys/devices/.../power/state for removal
-Date: Mon, 25 Sep 2006 22:37:41 -0700
-Message-Id: <11592491512235-git-send-email-greg@kroah.com>
+Cc: Greg Kroah-Hartman <gregkh@suse.de>
+Subject: [PATCH 4/47] device_create(): make fmt argument 'const char *'
+Date: Mon, 25 Sep 2006 22:37:24 -0700
+Message-Id: <1159249096460-git-send-email-greg@kroah.com>
 X-Mailer: git-send-email 1.4.2.1
-In-Reply-To: <11592491482560-git-send-email-greg@kroah.com>
-References: <20060926053728.GA8970@kroah.com> <1159249087369-git-send-email-greg@kroah.com> <11592490903867-git-send-email-greg@kroah.com> <11592490933346-git-send-email-greg@kroah.com> <1159249096460-git-send-email-greg@kroah.com> <11592490993970-git-send-email-greg@kroah.com> <11592491023995-git-send-email-greg@kroah.com> <1159249104512-git-send-email-greg@kroah.com> <11592491082990-git-send-email-greg@kroah.com> <1159249111668-git-send-email-greg@kroah.com> <11592491152668-git-send-email-greg@kroah.com> <115924911859-git-send-email-greg@kroah.com> <11592491211162-git-send-email-greg@kroah.com> <1159249124371-git-send-email-greg@kroah.com> <11592491274168-git-send-email-greg@kroah.com> <11592491303012-git-send-email-greg@kroah.com> <11592491342421-git-send-email-greg@kroah.com> <11592491371254-git-send-email-greg@kroah.com> <1159249140339-git-send-email-greg@kroah.com> <11592491451786-git-send-email-greg@kroah.com> <11592491482560-git-send-email-greg@kroah.com>
+In-Reply-To: <11592490933346-git-send-email-greg@kroah.com>
+References: <20060926053728.GA8970@kroah.com> <1159249087369-git-send-email-greg@kroah.com> <11592490903867-git-send-email-greg@kroah.com> <11592490933346-git-send-email-greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Pavel Machek <pavel@suse.cz>
+From: Greg Kroah-Hartman <gregkh@suse.de>
 
-This lists the /sys/devices/.../power/state file, and its internal support,
-as due for removal next year.
-
-Signed-off-by: Pavel Machek <pavel@suse.cz>
-Signed-off-by: David Brownell <dbrownell@users.sourceforge.net>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 ---
- Documentation/feature-removal-schedule.txt |   15 +++++++++++++++
- 1 files changed, 15 insertions(+), 0 deletions(-)
+ drivers/base/core.c    |    2 +-
+ include/linux/device.h |    2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-diff --git a/Documentation/feature-removal-schedule.txt b/Documentation/feature-removal-schedule.txt
-index a89a1b7..611acc3 100644
---- a/Documentation/feature-removal-schedule.txt
-+++ b/Documentation/feature-removal-schedule.txt
-@@ -6,6 +6,21 @@ be removed from this file.
+diff --git a/drivers/base/core.c b/drivers/base/core.c
+index 04d089f..5d4b7e0 100644
+--- a/drivers/base/core.c
++++ b/drivers/base/core.c
+@@ -583,7 +583,7 @@ static void device_create_release(struct
+  * been created with a call to class_create().
+  */
+ struct device *device_create(struct class *class, struct device *parent,
+-			     dev_t devt, char *fmt, ...)
++			     dev_t devt, const char *fmt, ...)
+ {
+ 	va_list args;
+ 	struct device *dev = NULL;
+diff --git a/include/linux/device.h b/include/linux/device.h
+index 1fec285..8d92013 100644
+--- a/include/linux/device.h
++++ b/include/linux/device.h
+@@ -384,7 +384,7 @@ extern void device_reprobe(struct device
+  * Easy functions for dynamically creating devices on the fly
+  */
+ extern struct device *device_create(struct class *cls, struct device *parent,
+-				    dev_t devt, char *fmt, ...)
++				    dev_t devt, const char *fmt, ...)
+ 				    __attribute__((format(printf,4,5)));
+ extern void device_destroy(struct class *cls, dev_t devt);
  
- ---------------------------
- 
-+What:	/sys/devices/.../power/state
-+	dev->power.power_state
-+	dpm_runtime_{suspend,resume)()
-+When:	July 2007
-+Why:	Broken design for runtime control over driver power states, confusing
-+	driver-internal runtime power management with:  mechanisms to support
-+	system-wide sleep state transitions; event codes that distinguish
-+	different phases of swsusp "sleep" transitions; and userspace policy
-+	inputs.  This framework was never widely used, and most attempts to
-+	use it were broken.  Drivers should instead be exposing domain-specific
-+	interfaces either to kernel or to userspace.
-+Who:	Pavel Machek <pavel@suse.cz>
-+
-+---------------------------
-+
- What:	RAW driver (CONFIG_RAW_DRIVER)
- When:	December 2005
- Why:	declared obsolete since kernel 2.6.3
 -- 
 1.4.2.1
 

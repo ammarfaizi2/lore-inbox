@@ -1,45 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932213AbWIZUCf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932263AbWIZUFz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932213AbWIZUCf (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Sep 2006 16:02:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932259AbWIZUCf
+	id S932263AbWIZUFz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Sep 2006 16:05:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932262AbWIZUFz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Sep 2006 16:02:35 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:25555 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932213AbWIZUCe (ORCPT
+	Tue, 26 Sep 2006 16:05:55 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:10455 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932259AbWIZUFy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Sep 2006 16:02:34 -0400
-From: Andi Kleen <ak@suse.de>
-To: Linus Torvalds <torvalds@osdl.org>
-Subject: Re: x86/x86-64 merge for 2.6.19
-Date: Tue, 26 Sep 2006 22:02:28 +0200
-User-Agent: KMail/1.9.3
-Cc: linux-kernel@vger.kernel.org, discuss@x86-64.org
-References: <200609261244.43863.ak@suse.de> <Pine.LNX.4.64.0609261241390.3952@g5.osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0609261241390.3952@g5.osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Tue, 26 Sep 2006 16:05:54 -0400
+Date: Tue, 26 Sep 2006 13:05:30 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "Tobias Oed" <tobiasoed@hotmail.com>
+Cc: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org,
+       B.Zolnierkiewicz@elka.pw.edu.pl, alan@lxorguk.ukuu.org.uk,
+       sshtylyov@ru.mvista.com
+Subject: Re: enable-cdrom-dma-access-with-pdc20265_old.patch
+Message-Id: <20060926130530.5ac89c91.akpm@osdl.org>
+In-Reply-To: <BAY105-F11E6F724B96A5A607106EAA3260@phx.gbl>
+References: <BAY105-F11E6F724B96A5A607106EAA3260@phx.gbl>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200609262202.28846.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 26 September 2006 21:48, Linus Torvalds wrote:
-> 
-> On Tue, 26 Sep 2006, Andi Kleen wrote:
-> > 
-> > Please pull 'for-linus' from
-> > 	
-> > 	http://one.firstfloor.org/home/andi/git/linus-2.6
-> 
-> I really don't want do http:// pulls - they are very inefficient, and I 
-> don't trust the end result because the http protocol isn't really good for 
-> verifying the end result (same goes for rsync:// to an even bigger 
-> degree). 
+On Sat, 23 Sep 2006 10:43:57 -0400
+"Tobias Oed" <tobiasoed@hotmail.com> wrote:
 
-Sorry that was actually me typoing (my fingers are not used to git:// urls
-yet) I've sent you a new email with correct URL
+> If it makes things easier my patch labeled
+> enable-cdrom-dma-access-with-pdc20265_old.patch in -mm
+> could be dropped in favour of what follows (against 2.6.18),
+> making the feature an EXPERIMENTAL config option.
 
--Andi
+eh, we'll just merge it as-is, see what happens, I think.
+
+I'll assume that this new patch contained no other changes (ie: the patch
+in -mm is ok-to-merge).
+

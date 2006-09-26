@@ -1,46 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751219AbWIZFci@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751268AbWIZFe4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751219AbWIZFci (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Sep 2006 01:32:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751229AbWIZFch
+	id S1751268AbWIZFe4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Sep 2006 01:34:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751278AbWIZFe4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Sep 2006 01:32:37 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:53728 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1751219AbWIZFch (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Sep 2006 01:32:37 -0400
-Message-ID: <4518BB6E.5010005@pobox.com>
-Date: Tue, 26 Sep 2006 01:32:30 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
+	Tue, 26 Sep 2006 01:34:56 -0400
+Received: from x35.xmailserver.org ([69.30.125.51]:29830 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP
+	id S1751268AbWIZFez (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Sep 2006 01:34:55 -0400
+X-AuthUser: davidel@xmailserver.org
+Date: Mon, 25 Sep 2006 22:34:46 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@alien.or.mcafeemobile.com
+To: Andrew Morton <akpm@osdl.org>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Michael Kerrisk <michael.kerrisk@gmx.net>
+Subject: Re: [patch] epoll_pwait for 2.6.18 ...
+In-Reply-To: <20060925200419.85aa4ff6.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.64.0609252232110.10839@alien.or.mcafeemobile.com>
+References: <Pine.LNX.4.64.0609251735070.4749@alien.or.mcafeemobile.com>
+ <20060925200419.85aa4ff6.akpm@osdl.org>
+X-GPG-FINGRPRINT: CFAE 5BEE FD36 F65E E640  56FE 0974 BF23 270F 474E
+X-GPG-PUBLIC_KEY: http://www.xmailserver.org/davidel.asc
 MIME-Version: 1.0
-To: Auke Kok <auke-jan.h.kok@intel.com>
-CC: Al Viro <viro@ftp.linux.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] restore __iomem annotations in e1000
-References: <20060923003240.GF29920@ftp.linux.org.uk> <45186F87.8080207@pobox.com> <4518B451.4080303@intel.com>
-In-Reply-To: <4518B451.4080303@intel.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.3 (----)
-X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.3 points, 5.0 required)
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Auke Kok wrote:
-> Jeff Garzik wrote:
->> applied
+On Mon, 25 Sep 2006, Andrew Morton wrote:
+
+> On Mon, 25 Sep 2006 17:43:10 -0700 (PDT)
+> Davide Libenzi <davidel@xmailserver.org> wrote:
+>
 >>
-> 
-> Thanks,
-> 
-> I have no idea why and when these annotations were lost, but we have 
-> them in much older versions of the code. I'll try to track it down and 
-> make sure that it doesn't disappear again.
+>> The attached patch implements the epoll_pwait system call
+>
+> Your email client space-stuffed it.  That's pretty easy to fix up, but...
 
-Just run an sparse check as described in
-Documentation/sparse.txt...
+Damn Pine!
 
-	Jeff
+
+>> arch/i386/kernel/syscall_table.S |    1
+>> fs/eventpoll.c                   |   55 ++++++++++++++++++++++++++++++++++++---
+>> include/asm-i386/unistd.h        |    3 +-
+>> include/linux/syscalls.h         |    3 ++
+>
+> Could you please also wire up x86_64, so we can keep the 32-bit syscall
+> numbers in sync?  I guess we should do arch/ia64/ia32/ia32_entry.S too, but
+> people don't seem to do that.
+
+Ack. Will repost tomorrow ...
+
+
+- Davide
 
 

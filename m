@@ -1,160 +1,129 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932489AbWIZXaA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932427AbWIZXjq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932489AbWIZXaA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Sep 2006 19:30:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932256AbWIZXaA
+	id S932427AbWIZXjq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Sep 2006 19:39:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932433AbWIZXjq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Sep 2006 19:30:00 -0400
-Received: from nf-out-0910.google.com ([64.233.182.185]:62109 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S932489AbWIZX37 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Sep 2006 19:29:59 -0400
+	Tue, 26 Sep 2006 19:39:46 -0400
+Received: from wx-out-0506.google.com ([66.249.82.233]:3236 "EHLO
+	wx-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S932427AbWIZXjq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Sep 2006 19:39:46 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:from:to:subject:date:user-agent:cc:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=Sq3UiKAZXQOQnDFjTRajdXCgFEwBuVqUAkNLo+msWHwkXxyrMgIa5RmD4KsH+Fp7iMU1M+3GqbqlMaulSJxzUX3v/VMiTwlUUwaswtr0+kMEDFnC4zDahn9lc4zSTC8nNtnOsBl3z2aingEd0iYh+vsHR7bwfulkwt/8jzfQz7I=
-From: Jesper Juhl <jesper.juhl@gmail.com>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Subject: [PATCH][resend] NFS: Kill obsolete NFS_PARANOIA
-Date: Wed, 27 Sep 2006 01:31:16 +0200
-User-Agent: KMail/1.9.4
-Cc: linux-kernel@vger.kernel.org, Rick Sladkey <jrs@world.std.com>,
-       Neil Brown <neilb@cse.unsw.edu.au>, nfs@lists.sourceforge.net,
-       Jesper Juhl <jesper.juhl@gmail.com>
+        h=received:message-id:date:from:to:subject:cc:mime-version:content-type;
+        b=ZgXbK372glHnTCxLBzug19ymnxMVSJHX0ACOS0qAQ1iHJbQFwVR1jkAZ+2Czl3sRGTgyDxJmN5L8in1Zm/+SQwFKRsxr/825ZKD6xRfUs7xp0Gd/eBjxZ1Nyo4bQBYVt8w17gJ/i/hOtFeYEKELd2zW4S6IK6KGsq1RkC2rfr8U=
+Message-ID: <9a8748490609261639o12585969tdb0db3bad921f19e@mail.gmail.com>
+Date: Wed, 27 Sep 2006 01:39:45 +0200
+From: "Jesper Juhl" <jesper.juhl@gmail.com>
+To: "Trond Myklebust" <trond.myklebust@fys.uio.no>
+Subject: Re: [PATCH][resend] NFS: Kill obsolete NFS_PARANOIA (try 2)
+Cc: linux-kernel@vger.kernel.org, "Rick Sladkey" <jrs@world.std.com>,
+       "Neil Brown" <neilb@cse.unsw.edu.au>, nfs@lists.sourceforge.net,
+       "Jesper Juhl" <jesper.juhl@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200609270131.16608.jesper.juhl@gmail.com>
+Content-Type: multipart/mixed; 
+	boundary="----=_Part_18998_2379296.1159313985136"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  [ please keep me on Cc: ] 
+------=_Part_18998_2379296.1159313985136
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
+On 27/09/06, Jesper Juhl <jesper.juhl@gmail.com> wrote:
+>   [ please keep me on Cc: ]
+>
+>
+> Remove obsolete NFS_PARANOIA .
+>
+> Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
+> ---
 
-Remove obsolete NFS_PARANOIA .
+Whoops, I accidentally included an old version of the patch. The one I
+intended to send is attached - sorry.
 
-Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
----
+-- 
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html
 
- fs/nfs/dir.c      |   17 ++---------------
- fs/nfs/inode.c    |   11 +----------
- fs/nfs/nfs2xdr.c  |    1 -
- fs/nfs/pagelist.c |    7 ++-----
- 4 files changed, 5 insertions(+), 31 deletions(-)
+------=_Part_18998_2379296.1159313985136
+Content-Type: application/octet-stream; name=NFS_PARANOIA.patch
+Content-Transfer-Encoding: base64
+X-Attachment-Id: f_eskxmupj
+Content-Disposition: attachment; filename="NFS_PARANOIA.patch"
 
-diff -upr linux-2.6.18-git6-orig/fs/nfs/dir.c linux-2.6.18-git6/fs/nfs/dir.c
---- linux-2.6.18-git6-orig/fs/nfs/dir.c	2006-09-27 01:16:52.000000000 +0200
-+++ linux-2.6.18-git6/fs/nfs/dir.c	2006-09-27 01:25:21.000000000 +0200
-@@ -38,7 +38,6 @@
- #include "delegation.h"
- #include "iostat.h"
- 
--#define NFS_PARANOIA 1
- /* #define NFS_DEBUG_VERBOSE 1 */
- 
- static int nfs_opendir(struct inode *, struct file *);
-@@ -1309,11 +1308,6 @@ static int nfs_sillyrename(struct inode 
- 		atomic_read(&dentry->d_count));
- 	nfs_inc_stats(dir, NFSIOS_SILLYRENAME);
- 
--#ifdef NFS_PARANOIA
--if (!dentry->d_inode)
--printk("NFS: silly-renaming %s/%s, negative dentry??\n",
--dentry->d_parent->d_name.name, dentry->d_name.name);
--#endif
- 	/*
- 	 * We don't allow a dentry to be silly-renamed twice.
- 	 */
-@@ -1628,16 +1622,9 @@ static int nfs_rename(struct inode *old_
- 			new_inode = NULL;
- 			/* instantiate the replacement target */
- 			d_instantiate(new_dentry, NULL);
--		} else if (atomic_read(&new_dentry->d_count) > 1) {
--		/* dentry still busy? */
--#ifdef NFS_PARANOIA
--			printk("nfs_rename: target %s/%s busy, d_count=%d\n",
--			       new_dentry->d_parent->d_name.name,
--			       new_dentry->d_name.name,
--			       atomic_read(&new_dentry->d_count));
--#endif
-+		} else if (atomic_read(&new_dentry->d_count) > 1)
-+			/* dentry still busy? */
- 			goto out;
--		}
- 	} else
- 		new_inode->i_nlink--;
- 
-diff -upr linux-2.6.18-git6-orig/fs/nfs/inode.c linux-2.6.18-git6/fs/nfs/inode.c
---- linux-2.6.18-git6-orig/fs/nfs/inode.c	2006-09-27 01:16:52.000000000 +0200
-+++ linux-2.6.18-git6/fs/nfs/inode.c	2006-09-27 01:25:57.000000000 +0200
-@@ -48,7 +48,6 @@
- #include "internal.h"
- 
- #define NFSDBG_FACILITY		NFSDBG_VFS
--#define NFS_PARANOIA 1
- 
- static void nfs_invalidate_inode(struct inode *);
- static int nfs_update_inode(struct inode *, struct nfs_fattr *);
-@@ -894,7 +893,7 @@ static int nfs_update_inode(struct inode
- 	 * Make sure the inode's type hasn't changed.
- 	 */
- 	if ((inode->i_mode & S_IFMT) != (fattr->mode & S_IFMT))
--		goto out_changed;
-+		goto out_err;
- 
- 	server = NFS_SERVER(inode);
- 	/* Update the fsid if and only if this is the root directory */
-@@ -1004,14 +1003,6 @@ static int nfs_update_inode(struct inode
- 		nfsi->cache_validity |= invalid;
- 
- 	return 0;
-- out_changed:
--	/*
--	 * Big trouble! The inode has become a different object.
--	 */
--#ifdef NFS_PARANOIA
--	printk(KERN_DEBUG "%s: inode %ld mode changed, %07o to %07o\n",
--			__FUNCTION__, inode->i_ino, inode->i_mode, fattr->mode);
--#endif
-  out_err:
- 	/*
- 	 * No need to worry about unhashing the dentry, as the
-diff -upr linux-2.6.18-git6-orig/fs/nfs/nfs2xdr.c linux-2.6.18-git6/fs/nfs/nfs2xdr.c
---- linux-2.6.18-git6-orig/fs/nfs/nfs2xdr.c	2006-09-27 01:16:52.000000000 +0200
-+++ linux-2.6.18-git6/fs/nfs/nfs2xdr.c	2006-09-27 01:25:57.000000000 +0200
-@@ -26,7 +26,6 @@
- #include "internal.h"
- 
- #define NFSDBG_FACILITY		NFSDBG_XDR
--/* #define NFS_PARANOIA 1 */
- 
- /* Mapping from NFS error code to "errno" error code. */
- #define errno_NFSERR_IO		EIO
-diff -upr linux-2.6.18-git6-orig/fs/nfs/pagelist.c linux-2.6.18-git6/fs/nfs/pagelist.c
---- linux-2.6.18-git6-orig/fs/nfs/pagelist.c	2006-09-20 05:42:06.000000000 +0200
-+++ linux-2.6.18-git6/fs/nfs/pagelist.c	2006-09-27 01:25:57.000000000 +0200
-@@ -18,7 +18,6 @@
- #include <linux/nfs_fs.h>
- #include <linux/nfs_mount.h>
- 
--#define NFS_PARANOIA 1
- 
- static kmem_cache_t *nfs_page_cachep;
- 
-@@ -171,10 +170,8 @@ nfs_release_request(struct nfs_page *req
- 	if (!atomic_dec_and_test(&req->wb_count))
- 		return;
- 
--#ifdef NFS_PARANOIA
--	BUG_ON (!list_empty(&req->wb_list));
--	BUG_ON (NFS_WBACK_BUSY(req));
--#endif
-+	BUG_ON(!list_empty(&req->wb_list));
-+	BUG_ON(NFS_WBACK_BUSY(req));
- 
- 	/* Release struct file or cached credential */
- 	nfs_clear_request(req);
-
-
+UmVtb3ZlIG9ic29sZXRlIE5GU19QQVJBTk9JQSAuCgpTaWduZWQtb2ZmLWJ5OiBKZXNwZXIgSnVo
+bCA8amVzcGVyLmp1aGxAZ21haWwuY29tPgotLS0KCiBmcy9uZnMvZGlyLmMgICAgICB8ICAgMTcg
+KystLS0tLS0tLS0tLS0tLS0KIGZzL25mcy9pbm9kZS5jICAgIHwgICAxMSArLS0tLS0tLS0tLQog
+ZnMvbmZzL25mczJ4ZHIuYyAgfCAgICAxIC0KIGZzL25mcy9wYWdlbGlzdC5jIHwgICAgNiAtLS0t
+LS0KIDQgZmlsZXMgY2hhbmdlZCwgMyBpbnNlcnRpb25zKCspLCAzMiBkZWxldGlvbnMoLSkKCmRp
+ZmYgLXVwciBsaW51eC0yLjYuMTgtZ2l0Ni1vcmlnL2ZzL25mcy9kaXIuYyBsaW51eC0yLjYuMTgt
+Z2l0Ni9mcy9uZnMvZGlyLmMKLS0tIGxpbnV4LTIuNi4xOC1naXQ2LW9yaWcvZnMvbmZzL2Rpci5j
+CTIwMDYtMDktMjcgMDE6MTY6NTIuMDAwMDAwMDAwICswMjAwCisrKyBsaW51eC0yLjYuMTgtZ2l0
+Ni9mcy9uZnMvZGlyLmMJMjAwNi0wOS0yNyAwMToyNToyMS4wMDAwMDAwMDAgKzAyMDAKQEAgLTM4
+LDcgKzM4LDYgQEAKICNpbmNsdWRlICJkZWxlZ2F0aW9uLmgiCiAjaW5jbHVkZSAiaW9zdGF0Lmgi
+CiAKLSNkZWZpbmUgTkZTX1BBUkFOT0lBIDEKIC8qICNkZWZpbmUgTkZTX0RFQlVHX1ZFUkJPU0Ug
+MSAqLwogCiBzdGF0aWMgaW50IG5mc19vcGVuZGlyKHN0cnVjdCBpbm9kZSAqLCBzdHJ1Y3QgZmls
+ZSAqKTsKQEAgLTEzMDksMTEgKzEzMDgsNiBAQCBzdGF0aWMgaW50IG5mc19zaWxseXJlbmFtZShz
+dHJ1Y3QgaW5vZGUgCiAJCWF0b21pY19yZWFkKCZkZW50cnktPmRfY291bnQpKTsKIAluZnNfaW5j
+X3N0YXRzKGRpciwgTkZTSU9TX1NJTExZUkVOQU1FKTsKIAotI2lmZGVmIE5GU19QQVJBTk9JQQot
+aWYgKCFkZW50cnktPmRfaW5vZGUpCi1wcmludGsoIk5GUzogc2lsbHktcmVuYW1pbmcgJXMvJXMs
+IG5lZ2F0aXZlIGRlbnRyeT8/XG4iLAotZGVudHJ5LT5kX3BhcmVudC0+ZF9uYW1lLm5hbWUsIGRl
+bnRyeS0+ZF9uYW1lLm5hbWUpOwotI2VuZGlmCiAJLyoKIAkgKiBXZSBkb24ndCBhbGxvdyBhIGRl
+bnRyeSB0byBiZSBzaWxseS1yZW5hbWVkIHR3aWNlLgogCSAqLwpAQCAtMTYyOCwxNiArMTYyMiw5
+IEBAIHN0YXRpYyBpbnQgbmZzX3JlbmFtZShzdHJ1Y3QgaW5vZGUgKm9sZF8KIAkJCW5ld19pbm9k
+ZSA9IE5VTEw7CiAJCQkvKiBpbnN0YW50aWF0ZSB0aGUgcmVwbGFjZW1lbnQgdGFyZ2V0ICovCiAJ
+CQlkX2luc3RhbnRpYXRlKG5ld19kZW50cnksIE5VTEwpOwotCQl9IGVsc2UgaWYgKGF0b21pY19y
+ZWFkKCZuZXdfZGVudHJ5LT5kX2NvdW50KSA+IDEpIHsKLQkJLyogZGVudHJ5IHN0aWxsIGJ1c3k/
+ICovCi0jaWZkZWYgTkZTX1BBUkFOT0lBCi0JCQlwcmludGsoIm5mc19yZW5hbWU6IHRhcmdldCAl
+cy8lcyBidXN5LCBkX2NvdW50PSVkXG4iLAotCQkJICAgICAgIG5ld19kZW50cnktPmRfcGFyZW50
+LT5kX25hbWUubmFtZSwKLQkJCSAgICAgICBuZXdfZGVudHJ5LT5kX25hbWUubmFtZSwKLQkJCSAg
+ICAgICBhdG9taWNfcmVhZCgmbmV3X2RlbnRyeS0+ZF9jb3VudCkpOwotI2VuZGlmCisJCX0gZWxz
+ZSBpZiAoYXRvbWljX3JlYWQoJm5ld19kZW50cnktPmRfY291bnQpID4gMSkKKwkJCS8qIGRlbnRy
+eSBzdGlsbCBidXN5PyAqLwogCQkJZ290byBvdXQ7Ci0JCX0KIAl9IGVsc2UKIAkJbmV3X2lub2Rl
+LT5pX25saW5rLS07CiAKZGlmZiAtdXByIGxpbnV4LTIuNi4xOC1naXQ2LW9yaWcvZnMvbmZzL2lu
+b2RlLmMgbGludXgtMi42LjE4LWdpdDYvZnMvbmZzL2lub2RlLmMKLS0tIGxpbnV4LTIuNi4xOC1n
+aXQ2LW9yaWcvZnMvbmZzL2lub2RlLmMJMjAwNi0wOS0yNyAwMToxNjo1Mi4wMDAwMDAwMDAgKzAy
+MDAKKysrIGxpbnV4LTIuNi4xOC1naXQ2L2ZzL25mcy9pbm9kZS5jCTIwMDYtMDktMjcgMDE6MjU6
+NTcuMDAwMDAwMDAwICswMjAwCkBAIC00OCw3ICs0OCw2IEBACiAjaW5jbHVkZSAiaW50ZXJuYWwu
+aCIKIAogI2RlZmluZSBORlNEQkdfRkFDSUxJVFkJCU5GU0RCR19WRlMKLSNkZWZpbmUgTkZTX1BB
+UkFOT0lBIDEKIAogc3RhdGljIHZvaWQgbmZzX2ludmFsaWRhdGVfaW5vZGUoc3RydWN0IGlub2Rl
+ICopOwogc3RhdGljIGludCBuZnNfdXBkYXRlX2lub2RlKHN0cnVjdCBpbm9kZSAqLCBzdHJ1Y3Qg
+bmZzX2ZhdHRyICopOwpAQCAtODk0LDcgKzg5Myw3IEBAIHN0YXRpYyBpbnQgbmZzX3VwZGF0ZV9p
+bm9kZShzdHJ1Y3QgaW5vZGUKIAkgKiBNYWtlIHN1cmUgdGhlIGlub2RlJ3MgdHlwZSBoYXNuJ3Qg
+Y2hhbmdlZC4KIAkgKi8KIAlpZiAoKGlub2RlLT5pX21vZGUgJiBTX0lGTVQpICE9IChmYXR0ci0+
+bW9kZSAmIFNfSUZNVCkpCi0JCWdvdG8gb3V0X2NoYW5nZWQ7CisJCWdvdG8gb3V0X2VycjsKIAog
+CXNlcnZlciA9IE5GU19TRVJWRVIoaW5vZGUpOwogCS8qIFVwZGF0ZSB0aGUgZnNpZCBpZiBhbmQg
+b25seSBpZiB0aGlzIGlzIHRoZSByb290IGRpcmVjdG9yeSAqLwpAQCAtMTAwNCwxNCArMTAwMyw2
+IEBAIHN0YXRpYyBpbnQgbmZzX3VwZGF0ZV9pbm9kZShzdHJ1Y3QgaW5vZGUKIAkJbmZzaS0+Y2Fj
+aGVfdmFsaWRpdHkgfD0gaW52YWxpZDsKIAogCXJldHVybiAwOwotIG91dF9jaGFuZ2VkOgotCS8q
+Ci0JICogQmlnIHRyb3VibGUhIFRoZSBpbm9kZSBoYXMgYmVjb21lIGEgZGlmZmVyZW50IG9iamVj
+dC4KLQkgKi8KLSNpZmRlZiBORlNfUEFSQU5PSUEKLQlwcmludGsoS0VSTl9ERUJVRyAiJXM6IGlu
+b2RlICVsZCBtb2RlIGNoYW5nZWQsICUwN28gdG8gJTA3b1xuIiwKLQkJCV9fRlVOQ1RJT05fXywg
+aW5vZGUtPmlfaW5vLCBpbm9kZS0+aV9tb2RlLCBmYXR0ci0+bW9kZSk7Ci0jZW5kaWYKICBvdXRf
+ZXJyOgogCS8qCiAJICogTm8gbmVlZCB0byB3b3JyeSBhYm91dCB1bmhhc2hpbmcgdGhlIGRlbnRy
+eSwgYXMgdGhlCmRpZmYgLXVwciBsaW51eC0yLjYuMTgtZ2l0Ni1vcmlnL2ZzL25mcy9uZnMyeGRy
+LmMgbGludXgtMi42LjE4LWdpdDYvZnMvbmZzL25mczJ4ZHIuYwotLS0gbGludXgtMi42LjE4LWdp
+dDYtb3JpZy9mcy9uZnMvbmZzMnhkci5jCTIwMDYtMDktMjcgMDE6MTY6NTIuMDAwMDAwMDAwICsw
+MjAwCisrKyBsaW51eC0yLjYuMTgtZ2l0Ni9mcy9uZnMvbmZzMnhkci5jCTIwMDYtMDktMjcgMDE6
+MjU6NTcuMDAwMDAwMDAwICswMjAwCkBAIC0yNiw3ICsyNiw2IEBACiAjaW5jbHVkZSAiaW50ZXJu
+YWwuaCIKIAogI2RlZmluZSBORlNEQkdfRkFDSUxJVFkJCU5GU0RCR19YRFIKLS8qICNkZWZpbmUg
+TkZTX1BBUkFOT0lBIDEgKi8KIAogLyogTWFwcGluZyBmcm9tIE5GUyBlcnJvciBjb2RlIHRvICJl
+cnJubyIgZXJyb3IgY29kZS4gKi8KICNkZWZpbmUgZXJybm9fTkZTRVJSX0lPCQlFSU8KZGlmZiAt
+dXByIGxpbnV4LTIuNi4xOC1naXQ2LW9yaWcvZnMvbmZzL3BhZ2VsaXN0LmMgbGludXgtMi42LjE4
+LWdpdDYvZnMvbmZzL3BhZ2VsaXN0LmMKLS0tIGxpbnV4LTIuNi4xOC1naXQ2LW9yaWcvZnMvbmZz
+L3BhZ2VsaXN0LmMJMjAwNi0wOS0yMCAwNTo0MjowNi4wMDAwMDAwMDAgKzAyMDAKKysrIGxpbnV4
+LTIuNi4xOC1naXQ2L2ZzL25mcy9wYWdlbGlzdC5jCTIwMDYtMDktMjcgMDE6MzI6NTguMDAwMDAw
+MDAwICswMjAwCkBAIC0xOCw3ICsxOCw2IEBACiAjaW5jbHVkZSA8bGludXgvbmZzX2ZzLmg+CiAj
+aW5jbHVkZSA8bGludXgvbmZzX21vdW50Lmg+CiAKLSNkZWZpbmUgTkZTX1BBUkFOT0lBIDEKIAog
+c3RhdGljIGttZW1fY2FjaGVfdCAqbmZzX3BhZ2VfY2FjaGVwOwogCkBAIC0xNzEsMTEgKzE3MCw2
+IEBAIG5mc19yZWxlYXNlX3JlcXVlc3Qoc3RydWN0IG5mc19wYWdlICpyZXEKIAlpZiAoIWF0b21p
+Y19kZWNfYW5kX3Rlc3QoJnJlcS0+d2JfY291bnQpKQogCQlyZXR1cm47CiAKLSNpZmRlZiBORlNf
+UEFSQU5PSUEKLQlCVUdfT04gKCFsaXN0X2VtcHR5KCZyZXEtPndiX2xpc3QpKTsKLQlCVUdfT04g
+KE5GU19XQkFDS19CVVNZKHJlcSkpOwotI2VuZGlmCi0KIAkvKiBSZWxlYXNlIHN0cnVjdCBmaWxl
+IG9yIGNhY2hlZCBjcmVkZW50aWFsICovCiAJbmZzX2NsZWFyX3JlcXVlc3QocmVxKTsKIAlwdXRf
+bmZzX29wZW5fY29udGV4dChyZXEtPndiX2NvbnRleHQpOwo=
+------=_Part_18998_2379296.1159313985136--

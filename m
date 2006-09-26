@@ -1,69 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964870AbWIZW7o@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965114AbWIZXFW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964870AbWIZW7o (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Sep 2006 18:59:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964877AbWIZW7o
+	id S965114AbWIZXFW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Sep 2006 19:05:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965123AbWIZXFV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Sep 2006 18:59:44 -0400
-Received: from e4.ny.us.ibm.com ([32.97.182.144]:57552 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S964870AbWIZW7n (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Sep 2006 18:59:43 -0400
-Subject: Re: 2.6.18 Nasty Lockup
-From: john stultz <johnstul@us.ibm.com>
-To: Greg Schafer <gschafer@zip.com.au>
-Cc: linux-kernel@vger.kernel.org,
-       James Puthukattukaran <James.Puthukattukaran@Sun.COM>,
-       Michael Obster <lkm@obster.org>,
-       =?ISO-8859-1?Q?S=2E=C7a=3F=3Flar?= Onur <caglar@pardus.org.tr>
-In-Reply-To: <20060926220245.GA7883@tigers.local>
-References: <20060926123640.GA7826@tigers.local>
-	 <1159301752.17071.0.camel@localhost>  <20060926220245.GA7883@tigers.local>
+	Tue, 26 Sep 2006 19:05:21 -0400
+Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:7880 "HELO
+	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
+	id S965122AbWIZXFT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Sep 2006 19:05:19 -0400
+Subject: Re: When will the lunacy end? (Was Re: [PATCH] uswsusp: add
+	pmops->{prepare,enter,finish} support (aka "platform mode"))
+From: Nigel Cunningham <ncunningham@linuxmail.org>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, Pavel Machek <pavel@ucw.cz>,
+       Andrew Morton <akpm@osdl.org>, Stefan Seyfried <seife@suse.de>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <20060926223146.GI4547@stusta.de>
+References: <20060925071338.GD9869@suse.de>
+	 <20060925224500.GB2540@elf.ucw.cz> <20060926201437.GH4547@stusta.de>
+	 <200609262235.14816.rjw@sisk.pl>
+	 <1159306711.7485.13.camel@nigel.suspend2.net>
+	 <20060926223146.GI4547@stusta.de>
 Content-Type: text/plain
-Date: Tue, 26 Sep 2006 15:58:24 -0700
-Message-Id: <1159311504.17071.13.camel@localhost>
+Date: Wed, 27 Sep 2006 09:05:15 +1000
+Message-Id: <1159311915.7485.37.camel@nigel.suspend2.net>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+X-Mailer: Evolution 2.8.0 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-09-27 at 08:02 +1000, Greg Schafer wrote:
-> On Tue, Sep 26, 2006 at 01:15:51PM -0700, john stultz wrote:
-> > On Tue, 2006-09-26 at 22:36 +1000, Greg Schafer wrote:
-> > > This is a _hard_ lockup. No oops, no magic sysrq, no nuthin, just a
-> > > completely dead machine with only option the reset button. Usually happens
-> > > within a couple of minutes of desktop use but is 100% reproducible. Problem
-> > > is still there in a fresh checkout of current Linus git tree (post 2.6.18).
-> > > 
-> > > Dual Athlon-MP 2200's on a Tyan S2466 Tiger MPX. Config attached.
-> > > 
-> > > I used git-bisect and arrived at the apparent culprit below. Anything else I
-> > > should do to gather more info?
+Hi.
+
+On Wed, 2006-09-27 at 00:31 +0200, Adrian Bunk wrote:
+> On Wed, Sep 27, 2006 at 07:38:31AM +1000, Nigel Cunningham wrote:
+> > Hi.
 > > 
-> > Quick test: Does enabling CONFIG_ACPI change the behavior?
+> > On Tue, 2006-09-26 at 22:35 +0200, Rafael J. Wysocki wrote:
+> > > On Tuesday, 26 September 2006 22:14, Adrian Bunk wrote:
+> > > > On Tue, Sep 26, 2006 at 12:45:00AM +0200, Pavel Machek wrote:
+> > > > >...
+> > > > > solid)
+> > > > > 	apart from HIGHMEM64G fiasco, and related agpgart fiasco long
+> > > > > 	time before that... these are driver problems...
+> > > > >...
+> > > > 
+> > > > One point that seems to be a bit forgotten is that driver problems do 
+> > > > actually matter a lot:
+> > > > 
+> > > > I for one do not care much whether I can abort suspending (I can always 
+> > > > resume) or whether dancing penguins are displayed during suspending - 
+> > > > but the fact that my saa7134 card only outputs the picture but no sound 
+> > > > after resuming from suspend-to-disk is a real show-stopper for me.
+> > 
+> > Agreed that some things are more important than others. But to some
+> > people, user interface does matter. After all, we want (well I want)
+> > people considering converting from Windows to see that free software can
+> > be better than proprietary stuff, not just imitate what they're doing. 
+> > 
+> > Suspend2 doesn't actually provide dancing penguins while suspending -
+> > it's a simple progress bar in either pure text or overlayed on an image
+> > of your choosing.
+> > 
+> > The support for aborting is really just fall out from the work on
+> > debugging and testing failure paths.
+> >...
 > 
-> Yes. It doesn't lockup now, at least it hasn't yet. Should I always
-> configure with CONFIG_ACPI? I've usually avoided it.
-
-Yea. Dual proc AMD systems tend to not have synced TSCs, so we fall back
-to whatever is available. If ACPI is not enabled, that usually means
-only the PIT is left (otherwise the ACPI PM or HPET can be used).
-
-
+> Sorry if this sounded as if I was against improvements of suspend.
+> That was not my intention.
 > 
-> On Tue, Sep 26, 2006 at 11:18:02AM -0700, john stultz wrote:
-> > Thanks for narrowing this down. Could you send me full dmesg output?
+> But as long as there are driver problems, suspend as a whole can not be 
+> called solid. The core itself might be solid or not, but without working 
+> drivers this doesn't buy users much.
 > 
-> Sure, attached (non CONFIG_ACPI case).
+> A user might be impressed by a progress bar on a nifty image, but if one 
+> or more of his drivers have problems with suspend the user won't get a 
+> good impression of Linux.
+> 
+> How many driver problems with suspend are buried in emails and
+> Bugzillas (will problems like kernel Bugzilla #6035 ever be debugged?)?
 
-Thanks, that confirms the above theory. It seems there is a SMP race w/
-the PIT clocksource. Andi was having a similar issue, and I had some
-difficulty reproducing it (my dev box is UP) but I'll grab an SMP system
-and try a few tests.
+I fully agree. One of the largest issues I'm regularly dealing with is
+people reporting problems with drivers.
 
-Thanks so much again for narrowing this down and providing quick
-feedback!
--john
+Regards,
 
+Nigel
 

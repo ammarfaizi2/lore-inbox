@@ -1,91 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751207AbWIZFkA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751535AbWIZFpZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751207AbWIZFkA (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Sep 2006 01:40:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751425AbWIZFjz
+	id S1751535AbWIZFpZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Sep 2006 01:45:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751521AbWIZFpR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Sep 2006 01:39:55 -0400
-Received: from mx2.suse.de ([195.135.220.15]:46549 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751421AbWIZFjp (ORCPT
+	Tue, 26 Sep 2006 01:45:17 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:58837 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751415AbWIZFkI (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Sep 2006 01:39:45 -0400
+	Tue, 26 Sep 2006 01:40:08 -0400
 From: Greg KH <greg@kroah.com>
 To: linux-kernel@vger.kernel.org
-Cc: Greg Kroah-Hartman <gregkh@suse.de>
-Subject: [PATCH 32/47] Driver core: add ability for devices to create and remove bin files
-Date: Mon, 25 Sep 2006 22:37:52 -0700
-Message-Id: <11592491862904-git-send-email-greg@kroah.com>
+Cc: Andrew Morton <akpm@osdl.org>, Greg Kroah-Hartman <gregkh@suse.de>
+Subject: [PATCH 39/47] v4l-dev2: handle __must_check
+Date: Mon, 25 Sep 2006 22:37:59 -0700
+Message-Id: <1159249209773-git-send-email-greg@kroah.com>
 X-Mailer: git-send-email 1.4.2.1
-In-Reply-To: <11592491833450-git-send-email-greg@kroah.com>
+In-Reply-To: <11592492061208-git-send-email-greg@kroah.com>
 References: <20060926053728.GA8970@kroah.com> <1159249087369-git-send-email-greg@kroah.com> <11592490903867-git-send-email-greg@kroah.com> <11592490933346-git-send-email-greg@kroah.com> <1159249096460-git-send-email-greg@kroah.com> <11592490993970-git-send-email-greg@kroah.com> <11592491023995-git-send-email-greg@kroah.com> <1159249104512-git-send-email-greg@kroah.com> <11592491082990-git-send-email-greg@kroah.com> <1159249111668-git-send-email-greg@kroah.com> <11592491152668-git-send-email-greg@kroah.com> <115924911859-git-send-email-greg@kroah.com> <11592491211162-git-send-email-greg@kroah.com> <1159249124371-git-send-email-greg@kroah.com> <11592491274168-git-send-email-greg@kroah.com> <11592491303012-git-send-email-greg@kroah.com> <11592491342421-git-send-email-greg@kroah.com> <11592491371254-git-send-email-greg@kroah.com> <1159249140339-git-send-email-greg@kroah.com> <11592491451786-git-send-email-greg@kroah.com> <11592491482560-git-send-email-greg@kroah.com> <11592491512
- 235-git-send-email-greg@kroah.com> <11592491551919-git-send-email-greg@kroah.com> <11592491581007-git-send-email-greg@kroah.com> <11592491611339-git-send-email-greg@kroah.com> <11592491643725-git-send-email-greg@kroah.com> <11592491672052-git-send-email-greg@kroah.com> <11592491704137-git-send-email-greg@kroah.com> <11592491744040-git-send-email-greg@kroah.com> <1159249177618-git-send-email-greg@kroah.com> <11592491803904-git-send-email-greg@kroah.com> <11592491833450-git-send-email-greg@kroah.com>
+ 235-git-send-email-greg@kroah.com> <11592491551919-git-send-email-greg@kroah.com> <11592491581007-git-send-email-greg@kroah.com> <11592491611339-git-send-email-greg@kroah.com> <11592491643725-git-send-email-greg@kroah.com> <11592491672052-git-send-email-greg@kroah.com> <11592491704137-git-send-email-greg@kroah.com> <11592491744040-git-send-email-greg@kroah.com> <1159249177618-git-send-email-greg@kroah.com> <11592491803904-git-send-email-greg@kroah.com> <11592491833450-git-send-email-greg@kroah.com> <11592491862904-git-send-email-greg@kroah.com> <11592491901464-git-send-email-greg@kroah.com> <11592491924093-git-send-email-greg@kroah.com> <1159249196427-git-send-email-greg@kroah.com> <1159249200793-git-send-email-greg@kroah.com> <11592492023883-git-send-email-greg@kroah.com> <11592492061208-git-send-email-greg@kroah.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Greg Kroah-Hartman <gregkh@suse.de>
+From: Andrew Morton <akpm@osdl.org>
 
-Makes it easier for devices to create and remove binary attribute files
-so they don't have to call directly into sysfs.  This is needed to help
-with the conversion from struct class_device to struct device.
+We get hundreds of these:
 
+include/media/v4l2-dev.h:348: warning: ignoring return value of 'class_device_create_file', declared with attribute warn_unused_result
+
+Handle it, and propagate the __must_check back a level.
+
+Signed-off-by: Andrew Morton <akpm@osdl.org>
 Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
 ---
- drivers/base/core.c    |   26 ++++++++++++++++++++++++++
- include/linux/device.h |    4 ++++
- 2 files changed, 30 insertions(+), 0 deletions(-)
+ include/media/v4l2-dev.h |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
 
-diff --git a/drivers/base/core.c b/drivers/base/core.c
-index 1d3d358..bc9f35c 100644
---- a/drivers/base/core.c
-+++ b/drivers/base/core.c
-@@ -319,6 +319,32 @@ void device_remove_file(struct device * 
- 	}
- }
+diff --git a/include/media/v4l2-dev.h b/include/media/v4l2-dev.h
+index 810462f..bb495b7 100644
+--- a/include/media/v4l2-dev.h
++++ b/include/media/v4l2-dev.h
+@@ -341,7 +341,7 @@ #include <linux/mm.h>
+ extern struct video_device* video_devdata(struct file*);
  
-+/**
-+ * device_create_bin_file - create sysfs binary attribute file for device.
-+ * @dev: device.
-+ * @attr: device binary attribute descriptor.
-+ */
-+int device_create_bin_file(struct device *dev, struct bin_attribute *attr)
-+{
-+	int error = -EINVAL;
-+	if (dev)
-+		error = sysfs_create_bin_file(&dev->kobj, attr);
-+	return error;
-+}
-+EXPORT_SYMBOL_GPL(device_create_bin_file);
-+
-+/**
-+ * device_remove_bin_file - remove sysfs binary attribute file
-+ * @dev: device.
-+ * @attr: device binary attribute descriptor.
-+ */
-+void device_remove_bin_file(struct device *dev, struct bin_attribute *attr)
-+{
-+	if (dev)
-+		sysfs_remove_bin_file(&dev->kobj, attr);
-+}
-+EXPORT_SYMBOL_GPL(device_remove_bin_file);
-+
- static void klist_children_get(struct klist_node *n)
+ #define to_video_device(cd) container_of(cd, struct video_device, class_dev)
+-static inline int
++static inline int __must_check
+ video_device_create_file(struct video_device *vfd,
+ 			 struct class_device_attribute *attr)
  {
- 	struct device *dev = container_of(n, struct device, knode_parent);
-diff --git a/include/linux/device.h b/include/linux/device.h
-index e0fae0e..7d447d7 100644
---- a/include/linux/device.h
-+++ b/include/linux/device.h
-@@ -309,6 +309,10 @@ struct device_attribute dev_attr_##_name
- 
- extern int device_create_file(struct device *device, struct device_attribute * entry);
- extern void device_remove_file(struct device * dev, struct device_attribute * attr);
-+extern int __must_check device_create_bin_file(struct device *dev,
-+					       struct bin_attribute *attr);
-+extern void device_remove_bin_file(struct device *dev,
-+				   struct bin_attribute *attr);
- struct device {
- 	struct klist		klist_children;
- 	struct klist_node	knode_parent;		/* node in sibling list */
 -- 
 1.4.2.1
 

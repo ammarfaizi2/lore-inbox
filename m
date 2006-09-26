@@ -1,115 +1,303 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932473AbWIZTG7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932468AbWIZTIa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932473AbWIZTG7 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Sep 2006 15:06:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932468AbWIZTG7
+	id S932468AbWIZTIa (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Sep 2006 15:08:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932476AbWIZTIa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Sep 2006 15:06:59 -0400
-Received: from smtp102.mail.mud.yahoo.com ([209.191.85.212]:4691 "HELO
-	smtp102.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S932472AbWIZTG6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Sep 2006 15:06:58 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=j1fLWVX6ofPKx1wOUSFV2orGEx6WhmBMLz5Ja2vLECyHfSCdwbykuXTpvUphfou92MwRVlTPtXwJWR5b3ZLFFhTELCNgGJ3WkCS4IT9HC1NBDvV1xErx1Rml86xRUeKPqvcyNeCGMdQh5pEYJbEHBHud4/KemNnajxtTiktXiPs=  ;
-Message-ID: <4519200A.4000109@yahoo.com.au>
-Date: Tue, 26 Sep 2006 22:41:46 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
-MIME-Version: 1.0
-To: Andreas Block <andreas.block@esd-electronics.com>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Bad page state with x86_64
-References: <op.tghdlool8n9ctc@pc-block.esd>
-In-Reply-To: <op.tghdlool8n9ctc@pc-block.esd>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+	Tue, 26 Sep 2006 15:08:30 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:45505 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932468AbWIZTI3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Sep 2006 15:08:29 -0400
+Date: Tue, 26 Sep 2006 12:08:21 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Miguel Ojeda Sandonis <maxextreme@gmail.com>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.18 real-V5] drivers: add lcd display support
+Message-Id: <20060926120821.e11f3254.akpm@osdl.org>
+In-Reply-To: <20060922220346.69f63338.maxextreme@gmail.com>
+References: <20060922220346.69f63338.maxextreme@gmail.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andreas Block wrote:
-> Hi,
-> 
-> the following problem occurs with a driver "pa_drv" written by myself  
-> under x84_64. Code works fine under x86_32 and with small modifications  
-> also under ppc. Problem also occurs under 2.6.15-1.2054_FC5.
-> 
-> 
-> Bad page state in process 'pa_test'
-> page:ffff810000869000 flags:0x0100000000000414 mapping:0000000000000000  
-> mapcount:0 count:0
-> Trying to fix it up, but a reboot is needed
-> Backtrace:
-> 
-> Call Trace:
->  [<ffffffff802642a4>] bad_page+0x4e/0x78
->  [<ffffffff80264591>] free_hot_cold_page+0x73/0xff
->  [<ffffffff8026c24e>] unmap_vmas+0x440/0x756
->  [<ffffffff8026f8f7>] unmap_region+0xb9/0x12c
->  [<ffffffff802705eb>] do_munmap+0x1fd/0x27a
->  [<ffffffff8043ed3d>] __down_write_nested+0x34/0x9e
->  [<ffffffff802706a8>] sys_munmap+0x40/0x5a
->  [<ffffffff80222508>] cstar_do_call+0x1b/0x65
-> 
-> ----------- [cut here ] --------- [please bite here ] ---------
-> Kernel BUG at include/linux/mm.h:300
-> invalid opcode: 0000 [1] SMP
-> CPU 0
-> Modules linked in: pa_drv_k26 radeon drm autofs4 hidp nfs lockd nfs_acl  
-> rfcomm l2cap bluetooth sunrpc dm_mirror dm_mod video button battery  
-> asus_acpi ac ipv6 lp parport_pc parport floppy nvram snd_intel8x0  
-> snd_ac97_codec snd_ac97_bus snd_seq_dummy snd_seq_oss 
-> snd_seq_midi_event  snd_seq snd_seq_device snd_pcm_oss snd_mixer_oss 
-> snd_pcm ehci_hcd ohci1394  ieee1394 ohci_hcd snd_timer snd soundcore 
-> i2c_nforce2 forcedeth i2c_core  pcspkr snd_page_alloc ext3 jbd sata_nv 
-> libata sd_mod scsi_mod
-> Pid: 2722, comm: pa_test Tainted: G    B 2.6.18 #1
-> RIP: 0010:[<ffffffff802647e7>]  [<ffffffff802647e7>] __free_pages+0x7/0x2b
-> RSP: 0018:ffff8100064cfea0  EFLAGS: 00010246
-> RAX: 0000000000000000 RBX: ffff810012729ac0 RCX: 000000000000003f
-> RDX: 000000000001fff0 RSI: 0000000000000005 RDI: ffff810000869000
-> RBP: 0000000000005001 R08: 000000000804b02c R09: 00000000fff5a218
-> R10: 0000000000005001 R11: 0000000000005001 R12: 0000000000000000
-> R13: 0000000000005001 R14: ffff81001f534320 R15: ffff810012729ac0
-> FS:  00002acba44ea340(0000) GS:ffffffff8061f000(0063)  
-> knlGS:00000000f7faf6b0
-> CS:  0010 DS: 002b ES: 002b CR0: 000000008005003b
-> CR2: 00000000f7fb1000 CR3: 000000000714e000 CR4: 00000000000006e0
-> Process pa_test (pid: 2722, threadinfo ffff8100064ce000, task  
-> ffff81000aaaa100)
-> Stack:  ffffffff885071b2 ffff810012729ac0 ffffffff885071e5 0000000000000000
->  ffffffff88507373 0000000000000000 0000000000000000 0000000000000000
->  0000000000000000 0000000000000000 0000000000000000 0000000000005001
-> Call Trace:
->  [<ffffffff885071b2>] :pa_drv_k26:pa_free_local_buffer+0x1b/0x3b
->  [<ffffffff885071e5>] :pa_drv_k26:pa_destroy_local+0x13/0x17
->  [<ffffffff88507373>] :pa_drv_k26:pa_ioctl_unlocked+0x166/0x272
->  [<ffffffff802ad503>] compat_sys_ioctl+0xc5/0x2b2
->  [<ffffffff80222508>] cstar_do_call+0x1b/0x65
-> 
-> 
-> Code: 0f 0b 68 8e f5 46 80 c2 2c 01 90 ff 4f 08 0f 94 c0 84 c0 74
-> RIP  [<ffffffff802647e7>] __free_pages+0x7/0x2b
->  RSP <ffff8100064cfea0>
-> 
-> 
-> I've a stripped down example, which reproduces the problem shown below.  
-> I'll happily sent an archive containing, code of driver, library and 
-> test  application to anybody, who likes to spend a look at it or attach 
-> it to a  mail to this list, if I'm allowed to do so.
-> 
-> Note: I'm not blaming the kernel to be buggy. It may well be, that the  
-> source of the problem sits between my keyboard and my chair, but I'd be  
-> very grateful for any advice on what I'm doing wrong, if so.
+On Fri, 22 Sep 2006 22:03:46 +0200
+Miguel Ojeda Sandonis <maxextreme@gmail.com> wrote:
 
-It is freeing a PageReserved page. You should ensure to balance your
-reference counting on *each* page (or allocate a compound page and
-treat it as a single one). When you map pages into userspace via
-nopage or remap_pfn_range, you need to increment their count, which
-gets decremented by the VM when they are unmapped.
+> miguelojeda-2.6.18-add-lcd-display-support.patch
+> 
+> ...
+>
+> diff -uprN -X dontdiff linux-2.6.18-vanilla/include/linux/device.h linux-2.6.18/include/linux/device.h
+> --- linux-2.6.18-vanilla/include/linux/device.h	2006-09-20 14:52:00.000000000 +0200
+> +++ linux-2.6.18/include/linux/device.h	2006-09-20 14:55:56.000000000 +0200
+> @@ -271,7 +271,7 @@ struct class_interface {
+>  extern int class_interface_register(struct class_interface *);
+>  extern void class_interface_unregister(struct class_interface *);
+>  
+> -extern struct class *class_create(struct module *owner, char *name);
+> +extern struct class *class_create(struct module *owner, const char *name);
 
--- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+Please prepare a separate patch for this, send to Greg.
+
+> --- linux-2.6.18-vanilla/drivers/lcddisplay/cfag12864b.c	1970-01-01 01:00:00.000000000 +0100
+> +++ linux-2.6.18/drivers/lcddisplay/cfag12864b.c	2006-09-22 21:46:52.000000000 +0200
+> @@ -0,0 +1,529 @@
+> +/*
+> + *    Filename: cfag12864b.c
+> + *     Version: 0.1.0
+> + * Description: cfag12864b LCD Display Driver
+> + *     License: GPLv2
+> + *     Depends: lcddisplay ks0108
+> + *
+> + *      Author: Miguel Ojeda Sandonis <maxextreme@gmail.com>
+> + *        Date: 2006-09-21
+> + */
+> +
+> +
+> +#include <linux/init.h>
+> +#include <linux/module.h>
+> +#include <linux/kernel.h>
+> +#include <linux/fs.h>
+> +#include <linux/cdev.h>
+> +#include <linux/device.h>
+> +#include <linux/lcddisplay.h>
+> +#include <linux/ks0108.h>
+> +#include <linux/cfag12864b.h>
+> +#include <asm/uaccess.h>
+> +
+> +#define NAME "cfag12864b"
+> +#define PRINTK_PREFIX  KERN_INFO NAME ": "
+
+In numerous places the driver uses PRINTK_PREFIX for reporting errors.  It
+should use KERN_ERR.  I suggest that PRINTK_PREFIX be removed and that you
+open-code all the printk facility levels, make sure that the appropriate
+level is being used at each site.
+
+> +
+> +
+> +/*
+> + * Device
+> + */
+> +
+> +static const unsigned int cfag12864b_firstminor;
+> +static const unsigned int cfag12864b_ndevices = 1;
+> +static const char * cfag12864b_name = NAME;
+
+The more usual kernel style is to not put a space after the `*':
+
+	static const char *cfag12864b_name = NAME;
+
+(this affects the entire patch).
+
+
+Suggest that cfag12864b_name be removed - just use NAME at the single place
+where this variable is used.
+
+> +static int cfag12864b_major;
+> +static int cfag12864b_minor;
+> +static dev_t cfag12864b_device;
+> +struct cdev cfag12864b_chardevice;
+> +
+> +
+> +
+> +
+
+One blank line is sufficient (there are many instances of this)
+
+> +/*
+> + * cfag12864b Commands
+> + */
+> +
+> +static const unsigned int cfag12864b_bits = 8;
+> +static const unsigned int cfag12864b_width = CFAG12864B_WIDTH;
+> +static const unsigned int cfag12864b_height = CFAG12864B_HEIGHT;
+> +static const unsigned int cfag12864b_matrixsize = CFAG12864B_MATRIXSIZE;
+> +static const unsigned int cfag12864b_controllers = CFAG12864B_CONTROLLERS;
+> +static const unsigned int cfag12864b_pages = CFAG12864B_PAGES;
+> +static const unsigned int cfag12864b_addresses = CFAG12864B_ADDRESSES;
+> +static const unsigned int cfag12864b_size = CFAG12864B_SIZE;
+> +static unsigned char cfag12864b_state;
+> +
+> +static void cfag12864b_set(void)
+> +{
+> +	ks0108_writecontrol(cfag12864b_state);
+> +}
+> +
+> +static void cfag12864b_setbit(unsigned char state, unsigned char bit)
+> +{
+> +	if (state)
+> +		set_bit(bit, (void*)&cfag12864b_state);
+> +	else
+> +		clear_bit(bit, (void*)&cfag12864b_state);
+> +	cfag12864b_set();
+> +}
+
+bitops are defined on an unsigned long only.  This trick is as ugly as sin
+and is buggy on big-endian CPUs.  Suggest that cfag12864b_state be
+converted to unsigned long.
+
+> +{
+> +	cfag12864b_startline(0);
+> +}
+> +
+> +
+> +
+
+blank lines
+
+> +/*
+> + * Auxiliary
+> + */
+> +
+> +static void normalizeoffset(unsigned int * offset)
+
+coding style.
+
+> +{
+> +	if (*offset >= cfag12864b_pages*cfag12864b_addresses)
+> +		*offset -= cfag12864b_pages*cfag12864b_addresses;
+> +}
+
+Ths usual kernel style is to put a single space around arithmetic operators
+and around comparison operators.  This affects the entire patch, please.
+
+
+> +void cfag12864b_clear(void)
+> +{
+> +	unsigned char page,address;
+> +
+> +	cfag12864b_setcontrollers(1, 1);
+> +	for (page=0; page<cfag12864b_pages; ++page) {
+
+For example,
+
+	for (page = 0; page < cfag12864b_pages; page++) {
+
+would be more kernelish.
+
+The use of the identifier `page' here is unfortunate.  We usually expect
+such a thing to have type `struct page *'.  I understand that "Each
+controller is divided into 8 pages", but it'd be nice if some different
+nomenclature could be used here.  If nothing else comes to mind, we can
+live with it as-is.
+
+> +void cfag12864b_write(
+> +	unsigned short offset,
+> +	const unsigned char * buffer,
+> +	unsigned short count)
+> +{
+
+It is more usual to do
+
+void cfag12864b_write(unsigned short offset, const unsigned char *buffer,
+			unsigned short count)
+{
+
+> +	for (controller=0; controller < cfag12864b_controllers; ++controller)
+> +	for (page=0; page < cfag12864b_pages; ++page)
+> +	for (address=0; address < cfag12864b_addresses; ++address) {
+> +		dest[(controller*cfag12864b_pages+page)*cfag12864b_addresses+address]=0;
+> +		for (bit=0; bit < cfag12864b_bits; ++bit)
+> +			if (src[controller*cfag12864b_addresses+address+(page*cfag12864b_bits+bit)*cfag12864b_width])
+> +				set_bit(bit, (void*)(dest+(controller*cfag12864b_pages+page)*cfag12864b_addresses+address));
+> +	}
+
+That's rather ugly-looking.
+
+It's also probably-incorrect on big-endian CPUs.  Perhaps you should not
+use bitops at all for this driver, use open-coded | and &/~ instead?
+
+
+The driver doesn't have any locking.  Is it racy on SMP and/or
+CONFIG_PREEMPT?
+
+> +static int cfag12864b_fopioctlformat(void __user * arg)
+> +{
+> +	int result;
+> +	int ret = -ENOTTY;
+> +
+> +	unsigned char * tmpbuffer;
+> +
+> +	tmpbuffer = kmalloc(
+> +		sizeof(unsigned char)*cfag12864b_matrixsize,GFP_KERNEL);
+> +	if (tmpbuffer == NULL) {
+> +		printk(PRINTK_PREFIX "FOP ioctl: ERROR: "
+> +			"can't alloc memory %i bytes\n",
+> +			sizeof(unsigned char)*cfag12864b_matrixsize);
+> +		goto none;
+> +	}
+> +
+> +	result = copy_from_user(
+> +		tmpbuffer,
+> +		arg,
+> +		sizeof(unsigned char)*cfag12864b_matrixsize);
+
+	result = copy_from_user(tmpbuffer, arg, cfag12864b_matrixsize);
+
+
+> +	if (result != 0) {
+> +		printk(PRINTK_PREFIX "FOP ioctl: ERROR: "
+> +			"can't copy memory from user\n");
+> +		goto bufferalloced;
+> +	}
+> +	
+> +	cfag12864b_format(tmpbuffer);
+> +
+> +	ret = 0;
+> +
+> +bufferalloced:
+> +	kfree(tmpbuffer);
+> +
+> +none:
+> +	return ret;
+> +}
+> +
+>
+> ...
+>
+> +
+> +static struct file_operations cfag12864b_fops =
+
+`static const struct'
+
+> +
+> +	class_device_create(
+> +		lcddisplay_class,NULL,
+> +		cfag12864b_device,
+> +		NULL,"cfag12864b%d", cfag12864b_minor);
+
+class_device_create() can fail.
+
+> +void ks0108_writecontrol(unsigned char byte)
+> +{
+> +	const unsigned int ecycledelay = 2;
+> +	udelay(ecycledelay);
+> +	parport_write_control(ks0108_parport, byte^(bit(3)|bit(1)|bit(0)));
+> +}
+
+udelay(2) would be clearer.
+
+> +void ks0108_displaystate(unsigned char state)
+> +{
+> +	unsigned char cmd = bit(1) | bit(2) | bit(3) | bit(4) | bit(5);
+> +	if (state)
+> +		set_bit(0, (void*)&cmd);
+
+argh.  Even if this driver will only ever run on big-endian hardware,
+please don't do this.
+
+> +void ks0108_startline(unsigned char startline)
+> +{
+> +	const unsigned char maxstartline = 63;
+> +	unsigned char cmd = bit(6) | bit(7);
+> +	if (startline > maxstartline)
+> +		startline = maxstartline;
+
+There are a lot of open-coded min() and max() operations in this driver. 
+Suggest it be changed to use min() and max().
+
+

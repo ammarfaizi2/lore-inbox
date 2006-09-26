@@ -1,35 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751173AbWIZG6g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751711AbWIZHHZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751173AbWIZG6g (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Sep 2006 02:58:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751700AbWIZG6g
+	id S1751711AbWIZHHZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Sep 2006 03:07:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751715AbWIZHHZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Sep 2006 02:58:36 -0400
-Received: from ns2.g-housing.de ([81.169.133.75]:62913 "EHLO mail.g-house.de")
-	by vger.kernel.org with ESMTP id S1751173AbWIZG6f (ORCPT
+	Tue, 26 Sep 2006 03:07:25 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:41152 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751700AbWIZHHY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Sep 2006 02:58:35 -0400
-Date: Tue, 26 Sep 2006 07:58:33 +0100 (BST)
-From: Christian Kujau <evil@g-house.de>
-X-X-Sender: evil@sheep.housecafe.de
-To: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.18-rc6-mm2: __fscache_register_netfs compile error
-In-Reply-To: <Pine.LNX.4.64.0609232122074.5644@sheep.housecafe.de>
-Message-ID: <Pine.LNX.4.64.0609260756550.20388@sheep.housecafe.de>
-References: <Pine.LNX.4.64.0609171022160.27242@sheep.housecafe.de> 
- <20060912000618.a2e2afc0.akpm@osdl.org>  <13720.1158921566@warthog.cambridge.redhat.com>
- <Pine.LNX.4.64.0609232122074.5644@sheep.housecafe.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+	Tue, 26 Sep 2006 03:07:24 -0400
+Date: Tue, 26 Sep 2006 00:07:14 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Andi Kleen <ak@suse.de>
+Cc: Martin Bligh <mbligh@google.com>, LKML <linux-kernel@vger.kernel.org>,
+       Andy Whitcroft <apw@shadowen.org>
+Subject: Re: 2.6.18-mm1 compile failure on x86_64
+Message-Id: <20060926000714.bd12361b.akpm@osdl.org>
+In-Reply-To: <200609260841.27413.ak@suse.de>
+References: <45185A93.7020105@google.com>
+	<200609260841.27413.ak@suse.de>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-for the record (and to make the archives happy): the compile error 
-went away with the latest -mm version (same config, make oldconfig).
+On Tue, 26 Sep 2006 08:41:27 +0200
+Andi Kleen <ak@suse.de> wrote:
 
-Thanks,
-Christian.
--- 
-BOFH excuse #11:
+> On Tuesday 26 September 2006 00:39, Martin Bligh wrote:
+> > http://test.kernel.org/abat/49037/debug/test.log.0	
+> > 
+> >    AS      arch/x86_64/boot/bootsect.o
+> >    LD      arch/x86_64/boot/bootsect
+> >    AS      arch/x86_64/boot/setup.o
+> >    LD      arch/x86_64/boot/setup
+> >    AS      arch/x86_64/boot/compressed/head.o
+> >    CC      arch/x86_64/boot/compressed/misc.o
+> >    OBJCOPY arch/x86_64/boot/compressed/vmlinux.bin
+> > BFD: Warning: Writing section `.data.percpu' to huge (ie negative) file 
+> > offset 0x804700c0.
+> 
+> Most likely that is the problem. I don't know what patch it could be
+> (none of mine have been merged yet).
 
-magnetic interference from money/credit cards
+That was 2.6.18-mm1 - it has around 300 of "yours" ;)
+
+> Can you bisect?
+
+I was unable to reproduce it.  Lack of disk space is suspected.

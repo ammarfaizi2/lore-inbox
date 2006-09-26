@@ -1,73 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932206AbWIZRvd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932215AbWIZRyh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932206AbWIZRvd (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Sep 2006 13:51:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932208AbWIZRvd
+	id S932215AbWIZRyh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Sep 2006 13:54:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932219AbWIZRyh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Sep 2006 13:51:33 -0400
-Received: from nz-out-0102.google.com ([64.233.162.200]:1668 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S932206AbWIZRvc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Sep 2006 13:51:32 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=G3yX4AD3RuzGl5/924i5SbVlThFzaKeHfHw0sT3P2hvxAo4tnrIh5C00SJGX+SJacSiub9tyzq6alKWFk8CrGun1AXsgyxqvJCaL7XmKb1gwA4oOnUruDL0bGmba8U89OptAB80xReCddxMaY7pmeIXL3G9U2w1zWEAvSuZbYU8=
-Message-ID: <a44ae5cd0609261051i6dc03777l6646899624a62d5a@mail.gmail.com>
-Date: Tue, 26 Sep 2006 10:51:21 -0700
-From: "Miles Lane" <miles.lane@gmail.com>
-To: "Andrew Morton" <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
-       cpufreq@lists.linux.org.uk
-Subject: 2.6.18-mm1 -- CPUFreq not working
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+	Tue, 26 Sep 2006 13:54:37 -0400
+Received: from [198.99.130.12] ([198.99.130.12]:6307 "EHLO
+	saraswathi.solana.com") by vger.kernel.org with ESMTP
+	id S932215AbWIZRyf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Sep 2006 13:54:35 -0400
+Message-Id: <200609261753.k8QHrPth005550@ccure.user-mode-linux.org>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.0.4
+To: akpm@osdl.org
+cc: user-mode-linux-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: [PATCH 5/5] UML - fix allocation size
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Date: Tue, 26 Sep 2006 13:53:25 -0400
+From: Jeff Dike <jdike@addtoit.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This looks like a kernel config logic problem.  I shouldn't be able to
-build ondemand support into the kernel, if all the other CPU power
-management code is built as modules.  I suspect this problem applies
-to the other governers (powersave, performance, conservative).
-drivers/built-in.o: In function `ondemand_powersave_bias_init':
-cpufreq_ondemand.c:(.text+0x6f78f): undefined reference to
-`cpufreq_frequency_get_table'
-drivers/built-in.o: In function `powersave_bias_target':
-cpufreq_ondemand.c:(.text+0x6f8e7): undefined reference to
-`cpufreq_frequency_table_target'
-cpufreq_ondemand.c:(.text+0x6f925): undefined reference to
-`cpufreq_frequency_table_target'
-cpufreq_ondemand.c:(.text+0x6f949): undefined reference to
-`cpufreq_frequency_table_target'
+Fix an instance of ptr=alloc(sizeof(ptr)).  Grepping showed no more instances
+of this pattern.
 
-I am wondering whether the following warning indicates a problem that
-prevents CPUFreq from working, because no matter how I play with the
-CPUFreq kernel config options, I always get a message from the power
-management applet that CPUFreq isn't working.
-WARNING: arch/i386/kernel/cpu/cpufreq/acpi-cpufreq.o - Section
-mismatch: reference to .init.data:sw_any_bug_dmi_table from .text
-between 'acpi_cpufreq_cpu_init' (at offset 0x360) and
-'acpi_cpufreq_target'
-WARNING: arch/i386/kernel/cpu/cpufreq/speedstep-centrino.o - Section
-mismatch: reference to .init.text: from .data between
-'sw_any_bug_dmi_table' (at offset 0x40) and 'models
+Also fixed the formatting in the area.
 
-Here's my current .config settings:
-CONFIG_CPU_FREQ=y
-CONFIG_CPU_FREQ_TABLE=m
-CONFIG_CPU_FREQ_DEBUG=y
-CONFIG_CPU_FREQ_STAT=m
-CONFIG_CPU_FREQ_DEFAULT_GOV_USERSPACE=y
-CONFIG_CPU_FREQ_GOV_PERFORMANCE=m
-CONFIG_CPU_FREQ_GOV_POWERSAVE=m
-CONFIG_CPU_FREQ_GOV_USERSPACE=y
-CONFIG_CPU_FREQ_GOV_ONDEMAND=m
-CONFIG_CPU_FREQ_GOV_CONSERVATIVE=m
-CONFIG_X86_SPEEDSTEP_CENTRINO=m
-CONFIG_X86_SPEEDSTEP_CENTRINO_ACPI=y
-CONFIG_X86_SPEEDSTEP_CENTRINO_TABLE=y
-CONFIG_X86_SPEEDSTEP_ICH=m
-CONFIG_X86_SPEEDSTEP_SMI=m
-CONFIG_X86_SPEEDSTEP_LIB=m
-CONFIG_X86_SPEEDSTEP_RELAXED_CAP_CHECK=y
+Signed-off-by: Jeff Dike <jdike@addtoit.com>
+
+Index: linux-2.6.18-mm/arch/um/drivers/net_kern.c
+===================================================================
+--- linux-2.6.18-mm.orig/arch/um/drivers/net_kern.c	2006-09-12 16:31:36.000000000 -0400
++++ linux-2.6.18-mm/arch/um/drivers/net_kern.c	2006-09-22 10:17:11.000000000 -0400
+@@ -560,12 +560,13 @@ static int eth_setup(char *str)
+ 	int n, err;
+ 
+ 	err = eth_parse(str, &n, &str);
+-	if(err) return(1);
++	if(err)
++		return 1;
+ 
+-	new = alloc_bootmem(sizeof(new));
++	new = alloc_bootmem(sizeof(*new));
+ 	if (new == NULL){
+ 		printk("eth_init : alloc_bootmem failed\n");
+-		return(1);
++		return 1;
+ 	}
+ 
+ 	INIT_LIST_HEAD(&new->list);
+@@ -573,7 +574,7 @@ static int eth_setup(char *str)
+ 	new->init = str;
+ 
+ 	list_add_tail(&new->list, &eth_cmd_line);
+-	return(1);
++	return 1;
+ }
+ 
+ __setup("eth", eth_setup);
+

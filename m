@@ -1,87 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964869AbWIZW2F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932449AbWIZWaA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964869AbWIZW2F (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Sep 2006 18:28:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964870AbWIZW2E
+	id S932449AbWIZWaA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Sep 2006 18:30:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932450AbWIZWaA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Sep 2006 18:28:04 -0400
-Received: from tomts5.bellnexxia.net ([209.226.175.25]:38126 "EHLO
-	tomts5-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id S964869AbWIZW2C (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Sep 2006 18:28:02 -0400
-Date: Tue, 26 Sep 2006 18:27:58 -0400
-From: Mathieu Desnoyers <compudj@krystal.dyndns.org>
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Martin Bligh <mbligh@google.com>, "Frank Ch. Eigler" <fche@redhat.com>,
-       Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>, prasanna@in.ibm.com,
-       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-       Paul Mundt <lethal@linux-sh.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>, Jes Sorensen <jes@sgi.com>,
-       Tom Zanussi <zanussi@us.ibm.com>,
-       Richard J Moore <richardj_moore@uk.ibm.com>,
-       Michel Dagenais <michel.dagenais@polymtl.ca>,
-       Christoph Hellwig <hch@infradead.org>,
-       Greg Kroah-Hartman <gregkh@suse.de>,
-       Thomas Gleixner <tglx@linutronix.de>, William Cohen <wcohen@redhat.com>,
-       ltt-dev@shafik.org, systemtap@sources.redhat.com,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Karim Yaghmour <karim@opersys.com>,
-       Pavel Machek <pavel@suse.cz>, Joe Perches <joe@perches.com>,
-       "Randy.Dunlap" <rdunlap@xenotime.net>,
-       "Jose R. Santos" <jrs@us.ibm.com>
-Subject: Re: [PATCH] Linux Kernel Markers 0.14 for 2.6.17
-Message-ID: <20060926222758.GA9668@Krystal>
-References: <20060926220604.GA30396@Krystal> <4519A58A.7070302@goop.org>
-Mime-Version: 1.0
+	Tue, 26 Sep 2006 18:30:00 -0400
+Received: from palinux.external.hp.com ([192.25.206.14]:26077 "EHLO
+	mail.parisc-linux.org") by vger.kernel.org with ESMTP
+	id S932449AbWIZW37 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Sep 2006 18:29:59 -0400
+Date: Tue, 26 Sep 2006 16:29:58 -0600
+From: Matthew Wilcox <matthew@wil.cx>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Hirokazu Takata <takata.hirokazu@renesas.com>,
+       Hirokazu Takata <takata@linux-m32r.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] m32r: Revise __raw_read_trylock()
+Message-ID: <20060926222958.GN5017@parisc-linux.org>
+References: <swfzmcse7mm.wl%takata@linux-m32r.org> <20060924062036.GB30273@parisc-linux.org> <swf8xk8l75h.wl%takata.hirokazu@renesas.com> <20060926143344.f036aa76.akpm@osdl.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <4519A58A.7070302@goop.org>
-X-Editor: vi
-X-Info: http://krystal.dyndns.org:8080
-X-Operating-System: Linux/2.4.32-grsec (i686)
-X-Uptime: 18:24:09 up 34 days, 19:32,  3 users,  load average: 0.29, 0.25, 0.27
+In-Reply-To: <20060926143344.f036aa76.akpm@osdl.org>
 User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Jeremy Fitzhardinge (jeremy@goop.org) wrote:
-> Mathieu Desnoyers wrote:
-> >Hi,
-> >
-> >Constructing on Jeremy Fitzhardinge's comments about gcc optimizations, I
-> >rewrote (once more) the markers mechanism so that the optimized mode does 
-> >not
-> >jump between two different inline asm. Instead, the optimized version uses 
-> >a
-> >load immediate (in assembly) that will be used by a test to decide of a 
-> >branch
-> >(in C).
-> >  
+On Tue, Sep 26, 2006 at 02:33:44PM -0700, Andrew Morton wrote:
+> We don't have a changelog for this patch.  My usual technique when this
+> happens is to mutter something unprintable then go on a hunt through the
+> mailing list archives.
 > 
-> I should have spelled out my point a bit more.  If you've got a flag 
-> you're just testing, couldn't you just do:
+> But all I have is "Matthew Wilcox pointed out that
+> generic__raw_read_trylock() is unfit for use.".
 > 
-> 	if (__mark_enabled_##name)
-> 		(*__mark_func)(...);
-> 
-> and do without the asms or the section?
-> 
+> What's wrong with it?
 
-Because a supplementary memory read is added on the critical path with a normal
-flag test. The assembly can provide an immediate value without any need of
-memory read from the data section.
+I pointed it out on linux-arch a couple of weeks ago.  Ever look at the
+generic__raw_read_trylock implementation?
 
-To change the behavior of the program, I just have to change the immediate value
-in the movb instruction.
+$ git-diff linus spinlock.c 
+diff --git a/kernel/spinlock.c b/kernel/spinlock.c
+index fb524b0..6fc4c92 100644
+--- a/kernel/spinlock.c
++++ b/kernel/spinlock.c
+@@ -16,17 +16,6 @@ #include <linux/interrupt.h>
+ #include <linux/debug_locks.h>
+ #include <linux/module.h>
+ 
+-/*
+- * Generic declaration of the raw read_trylock() function,
+- * architectures are supposed to optimize this:
+- */
+-int __lockfunc generic__raw_read_trylock(raw_rwlock_t *lock)
+-{
+-       __raw_read_lock(lock);
+-       return 1;
+-}
+-EXPORT_SYMBOL(generic__raw_read_trylock);
+-
 
-However, the non-optimized generic version does exactly this : it simply tests a
-flag loaded from memory. It can be very useful on embedded systems where the
-code is in read-only memory.
+If the cpu has the lock held for write, is interrupted, and the interrupt
+handler calls read_trylock(), it's an instant deadlock.
 
-Regards,
-
-Mathieu
-
-
-OpenPGP public key:              http://krystal.dyndns.org:8080/key/compudj.gpg
-Key fingerprint:     8CD5 52C3 8E3C 4140 715F  BA06 3F25 A8FE 3BAE 9A68 
+Now, Dave Miller has subsequently pointed out that we don't have any
+situations where this can occur.  Nevertheless, we should delete
+generic__raw_read_lock (and its associated EXPORT to make Arjan happy)
+so that nobody thinks they can use it.

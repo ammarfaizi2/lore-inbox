@@ -1,107 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751272AbWIZSQY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750719AbWIZSTJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751272AbWIZSQY (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Sep 2006 14:16:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751271AbWIZSQY
+	id S1750719AbWIZSTJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Sep 2006 14:19:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751340AbWIZSTJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Sep 2006 14:16:24 -0400
-Received: from mail.aknet.ru ([82.179.72.26]:4878 "EHLO mail.aknet.ru")
-	by vger.kernel.org with ESMTP id S1750719AbWIZSQX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Sep 2006 14:16:23 -0400
-Message-ID: <45196ED2.90405@aknet.ru>
-Date: Tue, 26 Sep 2006 22:17:54 +0400
-From: Stas Sergeev <stsp@aknet.ru>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
-MIME-Version: 1.0
-To: Linux kernel <linux-kernel@vger.kernel.org>
-Cc: Andrew Morton <akpm@osdl.org>, Jeff Garzik <jgarzik@pobox.com>
-Subject: Re: 2.6.18-mm1 (Oops in sata_nv)
-Content-Type: multipart/mixed;
- boundary="------------060600040503000803060805"
+	Tue, 26 Sep 2006 14:19:09 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.149]:29587 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751271AbWIZSTI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Sep 2006 14:19:08 -0400
+Subject: Re: 2.6.18 Nasty Lockup
+From: john stultz <johnstul@us.ibm.com>
+To: Greg Schafer <gschafer@zip.com.au>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20060926123640.GA7826@tigers.local>
+References: <20060926123640.GA7826@tigers.local>
+Content-Type: text/plain
+Date: Tue, 26 Sep 2006 11:18:02 -0700
+Message-Id: <1159294682.8648.56.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------060600040503000803060805
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+On Tue, 2006-09-26 at 22:36 +1000, Greg Schafer wrote:
+> This is a _hard_ lockup. No oops, no magic sysrq, no nuthin, just a
+> completely dead machine with only option the reset button. Usually happens
+> within a couple of minutes of desktop use but is 100% reproducible. Problem
+> is still there in a fresh checkout of current Linus git tree (post 2.6.18).
+> 
+> Dual Athlon-MP 2200's on a Tyan S2466 Tiger MPX. Config attached.
 
-Hi.
+Thanks for narrowing this down. Could you send me full dmesg output?
 
-Andrew Morton wrote:
-> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18/2.6.18-mm1/
-Not that I've been able to run -mm for the
-last few months, but now at least I've got
-an oops, which is better than nothing. :)
-Attached. Any guesses, or should I start the
-binary-search?
+thanks
+-john
 
 
---------------060600040503000803060805
-Content-Type: text/plain;
- name="a"
-Content-Transfer-Encoding: base64
-Content-Disposition: inline;
- filename="a"
-
-aGRjOiBQSElMSVBTIERST002MjE2LCBBVEFQSSBDRC9EVkQtUk9NIGRyaXZlCmhkZDogX05F
-QyBEVkRfUlcgTkQtNDU1MUEsIEFUQVBJIENEL0RWRC1ST00gZHJpdmUKaWRlMSBhdCAweDE3
-MC0weDE3NywweDM3NiBvbiBpcnEgMTUKaGRjOiBBVEFQSSAxNlggRFZELVJPTSBkcml2ZSwg
-NTEya0IgQ2FjaGUKVW5pZm9ybSBDRC1ST00gZHJpdmVyIFJldmlzaW9uOiAzLjIwCmhkZDog
-QVRBUEkgMzJYIERWRC1ST00gRFZELVItUkFNIENELVIvUlcgZHJpdmUsIDIwNDhrQiBDYWNo
-ZQp1c2Jjb3JlOiByZWdpc3RlcmVkIG5ldyBpbnRlcmZhY2UgZHJpdmVyIGxpYnVzdWFsClBO
-UDogTm8gUFMvMiBjb250cm9sbGVyIGZvdW5kLiBQcm9iaW5nIHBvcnRzIGRpcmVjdGx5Lgpz
-ZXJpbzogaTgwNDIgQVVYIHBvcnQgYXQgMHg2MCwweDY0IGlycSAxMgpzZXJpbzogaTgwNDIg
-S0JEIHBvcnQgYXQgMHg2MCwweDY0IGlycSAxCm1pY2U6IFBTLzIgbW91c2UgZGV2aWNlIGNv
-bW1vbiBmb3IgYWxsIG1pY2UKVENQIGJpYyByZWdpc3RlcmVkCkluaXRpYWxpemluZyBYRlJN
-IG5ldGxpbmsgc29ja2V0Ck5FVDogUmVnaXN0ZXJlZCBwcm90b2NvbCBmYW1pbHkgMQpORVQ6
-IFJlZ2lzdGVyZWQgcHJvdG9jb2wgZmFtaWx5IDE3CnBvd2Vybm93LWs4OiBGb3VuZCAyIEFN
-RCBBdGhsb24odG0pIDY0IFgyIER1YWwgQ29yZSBQcm9jZXNzb3IgMzgwMCsgcHJvY2Vzc29y
-cyAodmVyc2lvbiAyLjAwLjAwKQpwb3dlcm5vdy1rODogICAgMCA6IGZpZCAweGMgKDIwMDAg
-TUh6KSwgdmlkIDB4OApwb3dlcm5vdy1rODogICAgMSA6IGZpZCAweGEgKDE4MDAgTUh6KSwg
-dmlkIDB4YQpwb3dlcm5vdy1rODogICAgMiA6IGZpZCAweDIgKDEwMDAgTUh6KSwgdmlkIDB4
-MTIKQUNQSTogKHN1cHBvcnRzIFMwIFMzIFM0IFM1KQpGcmVlaW5nIHVudXNlZCBrZXJuZWwg
-bWVtb3J5OiAyMjBrIGZyZWVkCldyaXRlIHByb3RlY3RpbmcgdGhlIGtlcm5lbCByZWFkLW9u
-bHkgZGF0YTogNDU3awpTQ1NJIHN1YnN5c3RlbSBpbml0aWFsaXplZApBQ1BJOiBQQ0kgSW50
-ZXJydXB0IExpbmsgW0FQU0ldIGVuYWJsZWQgYXQgSVJRIDIyCkFDUEk6IFBDSSBJbnRlcnJ1
-cHQgMDAwMDowMDowNy4wW0FdIC0+IExpbmsgW0FQU0ldIC0+IEdTSSAyMiAobGV2ZWwsIGxv
-dykgLT4gSVJRIDIyCmF0YTE6IFNBVEEgbWF4IFVETUEvMTMzIGNtZCAweDlGMCBjdGwgMHhC
-RjIgYm1kbWEgMHhEODAwIGlycSAyMgpnZW5lcmFsIHByb3RlY3Rpb24gZmF1bHQ6IDAwMDAg
-WzFdIFNNUCAKbGFzdCBzeXNmcyBmaWxlOiAvYmxvY2svcmFtMC9yZW1vdmFibGUKQ1BVIDEg
-Ck1vZHVsZXMgbGlua2VkIGluOiBzYXRhX252IGxpYmF0YSBzZF9tb2Qgc2NzaV9tb2QKUGlk
-OiAzNzksIGNvbW06IGluc21vZCBOb3QgdGFpbnRlZCAyLjYuMTgtbW0xICMzClJJUDogMDAx
-MDpbPGZmZmZmZmZmODgwMzE3Mjg+XSAgWzxmZmZmZmZmZjg4MDMxNzI4Pl0gOmxpYmF0YTph
-dGFfZGV2aWNlX2FkZCsweDFjOC8weDU2MApSU1A6IDAwMTg6ZmZmZjgxMDAzZmRlOWJlOCAg
-RUZMQUdTOiAwMDAxMDI0NgpSQVg6IDQ4MDAwMDAxZjhiMzhkNDggUkJYOiAwMDAwMDAwMDAw
-MDAwMDAxIFJDWDogMDAwMDAwMDAwMDAwMDAwMQpSRFg6IGZmZmY4MTAwM2Y4ZWIwMDAgUlNJ
-OiBmZmZmODEwMDNmOGViMTE4IFJESTogZmZmZjgxMDAzZjYxODVkMApSQlA6IGZmZmY4MTAw
-M2ZkZTljNTggUjA4OiAwMDAwMDAwMDAwMDAwMDAwIFIwOTogZmZmZjgxMDAzZjYxOGM1OApS
-MTA6IDAwMDAwMDAwMDAwMDAwMDEgUjExOiAwMDAwMDAwMDAwMDAwMDAwIFIxMjogMDAwMDAw
-MDAwMDAwMGJmMgpSMTM6IDAwMDAwMDAwMDAwMDA5ZjAgUjE0OiBmZmZmODEwMDNmNjE4NWQw
-IFIxNTogMDAwMDAwMDAwMDAwMDAwMQpGUzogIDAwMDAwMDAwMDA1N2I4NTAoMDA2MykgR1M6
-ZmZmZjgxMDAzN2ZmYjQ0MCgwMDAwKSBrbmxHUzowMDAwMDAwMDAwMDAwMDAwCkNTOiAgMDAx
-MCBEUzogMDAwMCBFUzogMDAwMCBDUjA6IDAwMDAwMDAwODAwNTAwM2IKQ1IyOiAwMDAwMDAw
-MDAwNjVhZWEwIENSMzogMDAwMDAwMDAzZjg1ZjAwMCBDUjQ6IDAwMDAwMDAwMDAwMDA2ZTAK
-UHJvY2VzcyBpbnNtb2QgKHBpZDogMzc5LCB0aHJlYWRpbmZvIGZmZmY4MTAwM2ZkZTgwMDAs
-IHRhc2sgZmZmZjgxMDAzZmJhMzA0MCkKU3RhY2s6ICAwMDAwMDAwMDAwMDBkODAwIGZmZmY4
-MTAwMDAwMDAwMTYgZmZmZjgxMDAzZjhlYjAwMCBmZmZmODEwMDM3ZWU5NDQwCiBmZmZmODEw
-MDM3ZWM4MDcwIDAwMDAwMDE2ODgwNDc3MjAgMDAwMDAwMDAwMDAwMDAwMSBmZmZmODEwMDM3
-ZWM4MDAwCiBmZmZmODEwMDNmZGU5YzU4IGZmZmY4MTAwMzdlYzgwMDAgMDAwMDAwMDAwMDAw
-MDAwMCBmZmZmZmZmZjg4MDQ3NzIwCkNhbGwgVHJhY2U6CiBbPGZmZmZmZmZmODgwNDc2NDA+
-XSA6c2F0YV9udjpudl9pbml0X29uZSsweDE5MC8weDFmMAogWzxmZmZmZmZmZjgwMzZkYzJk
-Pl0gcGNpX2RldmljZV9wcm9iZSsweDVkLzB4YTAKIFs8ZmZmZmZmZmY4MDNkNzU1NT5dIHJl
-YWxseV9wcm9iZSsweDY1LzB4MTAwCiBbPGZmZmZmZmZmODAzZDc2OGM+XSBkcml2ZXJfcHJv
-YmVfZGV2aWNlKzB4OWMvMHhiMAogWzxmZmZmZmZmZjgwM2Q3N2YzPl0gX19kcml2ZXJfYXR0
-YWNoKzB4YTMvMHhmMAogWzxmZmZmZmZmZjgwM2Q2OTFmPl0gYnVzX2Zvcl9lYWNoX2Rldisw
-eDRmLzB4ODAKIFs8ZmZmZmZmZmY4MDNkNzQwYz5dIGRyaXZlcl9hdHRhY2grMHgxYy8weDIw
-CiBbPGZmZmZmZmZmODAzZDZkMGY+XSBidXNfYWRkX2RyaXZlcisweDdmLzB4MWQwCiBbPGZm
-ZmZmZmZmODAzZDdhZDk+XSBkcml2ZXJfcmVnaXN0ZXIrMHg4OS8weDkwCiBbPGZmZmZmZmZm
-ODAzNmRlOWI+XSBfX3BjaV9yZWdpc3Rlcl9kcml2ZXIrMHg4Yi8weGIwCiBbPGZmZmZmZmZm
-ODgwNGIwMTc+XSA6c2F0YV9udjpudl9pbml0KzB4MTcvMHgxOQogWzxmZmZmZmZmZjgwMmI2
-YjMzPl0gc3lzX2luaXRfbW9kdWxlKzB4MTdiMy8weDE5YjAKIFs8ZmZmZmZmZmY4MDI2NzEx
-ZT5dIHN5c3RlbV9jYWxsKzB4N2UvMHg4MwogWzwwMDAwMDAwMDAwNDBjOGRhPl0KCgpDb2Rl
-OiBmZiA5MCBmOCAwMCAwMCAwMCA4NSBjMCAwZiA4NSBjMyAwMiAwMCAwMCA0MSA4MyBmZiAw
-MSA3NSAxNyAKUklQICBbPGZmZmZmZmZmODgwMzE3Mjg+XSA6bGliYXRhOmF0YV9kZXZpY2Vf
-YWRkKzB4MWM4LzB4NTYwCiBSU1AgPGZmZmY4MTAwM2ZkZTliZTg+CiA=
---------------060600040503000803060805--

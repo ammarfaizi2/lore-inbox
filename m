@@ -1,67 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964781AbWIZUVv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964783AbWIZUXW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964781AbWIZUVv (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Sep 2006 16:21:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964782AbWIZUVv
+	id S964783AbWIZUXW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Sep 2006 16:23:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964784AbWIZUXW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Sep 2006 16:21:51 -0400
-Received: from bay0-omc3-s31.bay0.hotmail.com ([65.54.246.231]:5357 "EHLO
-	bay0-omc3-s31.bay0.hotmail.com") by vger.kernel.org with ESMTP
-	id S964781AbWIZUVu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Sep 2006 16:21:50 -0400
-Message-ID: <BAY103-F365FA452C152C9CF32478385250@phx.gbl>
-X-Originating-IP: [66.46.92.242]
-X-Originating-Email: [ig_sh@hotmail.com]
-In-Reply-To: <45187160.10404@shaw.ca>
-From: "Igor Sharovar" <ig_sh@hotmail.com>
-To: hancockr@shaw.ca
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Problem of using a PCI device in a Hot Plug PCI slot
-Date: Tue, 26 Sep 2006 16:21:48 -0400
-Mime-Version: 1.0
-Content-Type: text/plain; format=flowed
-X-OriginalArrivalTime: 26 Sep 2006 20:21:50.0327 (UTC) FILETIME=[65FA6870:01C6E1A9]
+	Tue, 26 Sep 2006 16:23:22 -0400
+Received: from ns2.suse.de ([195.135.220.15]:33749 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S964783AbWIZUXV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Sep 2006 16:23:21 -0400
+Date: Tue, 26 Sep 2006 13:23:03 -0700
+From: Greg KH <greg@kroah.com>
+To: Jeff Garzik <jeff@garzik.org>
+Cc: Andrew Morton <akpm@osdl.org>, Jim Paradis <jparadis@redhat.com>,
+       Andi Kleen <ak@suse.de>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] x86[-64] PCI domain support
+Message-ID: <20060926202303.GA15369@kroah.com>
+References: <20060926191508.GA6350@havoc.gtf.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060926191508.GA6350@havoc.gtf.org>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Robert,
-I checked these pins. They are grounded.
-I wonder if a Hot Plug slot doesn't have enough power to feed the card. I 
-measured voltages (12, 3.3 and 5). I saw a spark during power on, but this 
-spark never goes to a normal voltage level. For example, in the +12v pin I 
-saw a spark +3.5 volt.
+On Tue, Sep 26, 2006 at 03:15:08PM -0400, Jeff Garzik wrote:
+> 
+> The x86[-64] PCI domain effort needs to be restarted, because we've got
+> machines out in the field that need this in order for some devices to
+> work.
+> 
+> RHEL is shipping it now, apparently without any problems.
+> 
+> The 'pciseg' branch of
+> git://git.kernel.org/pub/scm/linux/kernel/git/jgarzik/misc-2.6.git pciseg
 
-Igor
+So are the NUMA issues now taken care of properly?  If so, care to send
+me the patches for this so I can add them to my quilt tree?
 
+thanks,
 
->From: Robert Hancock <hancockr@shaw.ca>
->To: Igor Sharovar <ig_sh@hotmail.com>
->CC: linux-kernel@vger.kernel.org
->Subject: Re: Problem of using a PCI device in a Hot Plug PCI slot
->Date: Mon, 25 Sep 2006 18:16:32 -0600
->
->Igor Sharovar wrote:
->>Hello,
->>
->>A PCI card, which developed in my company, isn't powered in a Hot Plug PCI 
->>slot(  Intel server ).
->>During boot-up, a populated slot powers up, then immediately powers off.
->>The card works fine in non Hot Plug slots. The Hot Plug PCI specification 
->>says that a regular PCI card should at least be powered in a Hot Plug PCI 
->>slot.
->>What are requirements for running a PCI card in a Hot Plug slot.
->>I would appreciate any help.
->
->Maybe the card isn't grounding the right PRSNT pins to allow the machine to 
->detect the presence of the card?
->
->--
->Robert Hancock      Saskatoon, SK, Canada
->To email, remove "nospam" from hancockr@nospamshaw.ca
->Home Page: http://www.roberthancock.com/
->
-
-_________________________________________________________________
-Buy what you want when you want it on Sympatico / MSN Shopping 
-http://shopping.sympatico.msn.ca/content/shp/?ctId=2,ptnrid=176,ptnrdata=081805
-
+greg k-h

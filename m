@@ -1,39 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750704AbWIZCsX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750732AbWIZCzp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750704AbWIZCsX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Sep 2006 22:48:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750716AbWIZCsW
+	id S1750732AbWIZCzp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Sep 2006 22:55:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750736AbWIZCzp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Sep 2006 22:48:22 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:4581 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750704AbWIZCsW (ORCPT
+	Mon, 25 Sep 2006 22:55:45 -0400
+Received: from gate.crashing.org ([63.228.1.57]:5863 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S1750732AbWIZCzo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Sep 2006 22:48:22 -0400
-Date: Mon, 25 Sep 2006 19:48:15 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Roe Peterson <roe@liveglobalbid.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Sound, RS-232 serial fails on dell latitute D620 notebook...
-Message-Id: <20060925194815.8267d305.akpm@osdl.org>
-In-Reply-To: <45183C7E.6050408@liveglobalbid.com>
-References: <45183C7E.6050408@liveglobalbid.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+	Mon, 25 Sep 2006 22:55:44 -0400
+Subject: Re: [PATCH 2.6.19-rc1] ehea firmware interface based on Anton
+	Blanchard's new hvcall interface
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Jeff Garzik <jeff@garzik.org>
+Cc: Jan-Bernd Themann <ossthema@de.ibm.com>, Thomas Klein <tklein@de.ibm.com>,
+       Jan-Bernd Themann <themann@de.ibm.com>, netdev <netdev@vger.kernel.org>,
+       pmac@au1.ibm.com, linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-ppc <linuxppc-dev@ozlabs.org>,
+       Christoph Raisch <raisch@de.ibm.com>, Marcus Eder <meder@de.ibm.com>
+In-Reply-To: <45186F25.9000700@garzik.org>
+References: <200609251550.01514.ossthema@de.ibm.com>
+	 <45186F25.9000700@garzik.org>
+Content-Type: text/plain
+Date: Tue, 26 Sep 2006 12:53:51 +1000
+Message-Id: <1159239231.5462.8.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.8.0 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 25 Sep 2006 14:30:54 -0600
-Roe Peterson <roe@liveglobalbid.com> wrote:
+On Mon, 2006-09-25 at 20:07 -0400, Jeff Garzik wrote:
+> patch does not apply.
+> 
+> also, it would seem like varargs would be appropriate here.
 
-> This is probably a Dell problem, but I'm hoping someone on the list has
-> seen similar behavior before.
+Not really... these are hypervisor calls, their calling convention is
+not varargs, thus we would need some conversion layer if using them,
+with possible performance loss (it's also hard to do right as we are
+passing args by registers, not stack).
 
-It's not familiar.
+Ben.
 
-> Sound input and RS232 serial input do not function on a Dell Latitude D620.
 
-Did any kernel ever work correctly?  Tried a 2.4.x kernel?
-
-Please send the full dmesg output.

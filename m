@@ -1,90 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751544AbWIZQmM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751551AbWIZQpL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751544AbWIZQmM (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Sep 2006 12:42:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751547AbWIZQmM
+	id S1751551AbWIZQpL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Sep 2006 12:45:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751553AbWIZQpL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Sep 2006 12:42:12 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:43694 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751544AbWIZQmL (ORCPT
+	Tue, 26 Sep 2006 12:45:11 -0400
+Received: from mx.pathscale.com ([64.160.42.68]:20908 "EHLO mx.pathscale.com")
+	by vger.kernel.org with ESMTP id S1751551AbWIZQpJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Sep 2006 12:42:11 -0400
-To: Mathieu Desnoyers <compudj@krystal.dyndns.org>
-Cc: Martin Bligh <mbligh@google.com>,
-       Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>, prasanna@in.ibm.com,
-       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-       Paul Mundt <lethal@linux-sh.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>, Jes Sorensen <jes@sgi.com>,
-       Tom Zanussi <zanussi@us.ibm.com>,
-       Richard J Moore <richardj_moore@uk.ibm.com>,
-       Michel Dagenais <michel.dagenais@polymtl.ca>,
-       Christoph Hellwig <hch@infradead.org>,
-       Greg Kroah-Hartman <gregkh@suse.de>,
-       Thomas Gleixner <tglx@linutronix.de>, William Cohen <wcohen@redhat.com>,
-       ltt-dev@shafik.org, systemtap@sources.redhat.com,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Jeremy Fitzhardinge <jeremy@goop.org>,
-       Karim Yaghmour <karim@opersys.com>, Pavel Machek <pavel@suse.cz>,
-       Joe Perches <joe@perches.com>, "Randy.Dunlap" <rdunlap@xenotime.net>,
-       "Jose R. Santos" <jrs@us.ibm.com>
-Subject: Re: [PATCH] Linux Kernel Markers 0.11 for 2.6.17
-References: <20060925151028.GA14695@Krystal>
-	<20060925160115.GE25296@redhat.com> <20060925232828.GA29343@Krystal>
-From: fche@redhat.com (Frank Ch. Eigler)
-Date: 26 Sep 2006 12:39:38 -0400
-In-Reply-To: <20060925232828.GA29343@Krystal>
-Message-ID: <y0mr6xyeg51.fsf@ton.toronto.redhat.com>
-User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.3
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 26 Sep 2006 12:45:09 -0400
+Subject: Re: When will the lunacy end? (Was Re: [PATCH] uswsusp: add
+	pmops->{prepare,enter,finish} support (aka "platform mode"))
+From: "Bryan O'Sullivan" <bos@serpentine.com>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Nigel Cunningham <ncunningham@linuxmail.org>,
+       Stefan Seyfried <seife@suse.de>, linux-kernel@vger.kernel.org,
+       "Rafael J. Wysocki" <rjw@sisk.pl>
+In-Reply-To: <20060925232151.GA1896@elf.ucw.cz>
+References: <20060925071338.GD9869@suse.de>
+	 <1159220043.12814.30.camel@nigel.suspend2.net>
+	 <20060925144558.878c5374.akpm@osdl.org> <20060925224500.GB2540@elf.ucw.cz>
+	 <20060925160648.de96b6fa.akpm@osdl.org>  <20060925232151.GA1896@elf.ucw.cz>
+Content-Type: text/plain
+Date: Tue, 26 Sep 2006 09:45:08 -0700
+Message-Id: <1159289108.9652.10.camel@chalcedony.pathscale.com>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mathieu Desnoyers <compudj@krystal.dyndns.org> writes:
+On Tue, 2006-09-26 at 01:21 +0200, Pavel Machek wrote:
 
-> [...]
-> > I believe [printf formatting directives] are not
-> > quite general enough either e.g. to describe a raw binary blob.
->
-> If you want to dump a raw binary blob, what about :
-> MARK(mysubsys_myevent, "char %p %u", blobptr, blobsize); where %p is
-> a pointer to an array of char and %u the length ?
+> Your machines spend 15 seconds in drivers? Ouch, I did not realize
+> _that_. 
 
-That involves new conventions beyond printf.  Why not "%p %p %u %u"
-for two blobs ... or why implicitly dereference the given pointers.  A
-probe handler unaware of a specific marker's semantics would not know
-whether or not this is implied.
+My laptop spends some substantial amount of time aimilarly mooning me
+when I suspend it.  The phases are timed roughly like this:
 
+16 seconds doing things to devices
+2 seconds memory
+4 seconds doing more things to devices
+10 seconds writing to disk
 
-> My idea is to use the string to identify what is referred by a
-> pointer, so it can be casted into this type with some kind of
-> coherency between the marker and the probe.
+(Yes, it takes about 32 seconds to suspend.)
 
-I understand what you're using them for.  To me, they just don't look
-like a good fit.
+	<b
 
-
-> > I realize they serve a useful purpose in abbreviating what otherwise
-> > one might have to do (like that multiplicity of STAP_MARK_* type/arity
-> > permutations).  [...]
-> 
-> I think that duplicating the number of marker macros could easily make
-> them unflexible and ugly. [...]
-
-Inflexible and ugly in what way?  Remember, the macro definitions can
-be automatically generated.  At the macro call site, there needs to be
-little difference.
-
-
-> [...]  Good point, I will setup a va_args in the probe.  When
-> correctly used, however, there is no need to use the format string :
-> we can directly get the variables from the var arg list if we know
-> in advance what the string will be.
-
-Do I understand you correctly that the probe handlers would be given
-va_list values, and would have to call va_arg to yank out individual
-actual arguments?  So again type safety is a matter of explicit coding
-(equivalent to correctly casting each type)?
-
-
-- FChE

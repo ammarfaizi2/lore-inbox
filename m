@@ -1,51 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751493AbWIZNuz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751400AbWIZN4l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751493AbWIZNuz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Sep 2006 09:50:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751503AbWIZNuz
+	id S1751400AbWIZN4l (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Sep 2006 09:56:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751243AbWIZN4l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Sep 2006 09:50:55 -0400
-Received: from svr68.ehostpros.com ([67.15.48.48]:23935 "EHLO
-	svr68.ehostpros.com") by vger.kernel.org with ESMTP
-	id S1751493AbWIZNuy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Sep 2006 09:50:54 -0400
-Subject: __get_free_pages() on an ia64
-From: Adhiraj <adhiraj@linsyssoft.com>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Date: Tue, 26 Sep 2006 18:46:40 +0530
-Message-Id: <1159276600.4407.11.camel@triumph>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.2 (2.0.2-3) 
+	Tue, 26 Sep 2006 09:56:41 -0400
+Received: from alpha898.server4you.de ([85.25.133.156]:35277 "EHLO
+	alpha1.spitfire-media.de") by vger.kernel.org with ESMTP
+	id S1751400AbWIZN4k (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Sep 2006 09:56:40 -0400
+Message-ID: <4519319E.6070709@obster.org>
+Date: Tue, 26 Sep 2006 15:56:46 +0200
+From: Michael Obster <lkm@obster.org>
+User-Agent: Thunderbird 1.5.0.7 (Macintosh/20060909)
+MIME-Version: 1.0
+To: Greg Schafer <gschafer@zip.com.au>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.18 Nasty Lockup
+References: <20060926123640.GA7826@tigers.local>
+In-Reply-To: <20060926123640.GA7826@tigers.local>
+Content-Type: text/plain; charset=ISO-8859-15
 Content-Transfer-Encoding: 7bit
-X-Antivirus-Scanner: Clean mail though you should still use an Antivirus
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - svr68.ehostpros.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - linsyssoft.com
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi All,
+Hi Greg,
 
-I found a strange thing on ia64 platform. When I allocate pages using
-__get_free_pages() with GFP_DMA, sometimes the physical addresses of
-allocated pages fall beyond 4G.
+what do you mean with desktop use? X11-System? Then please add also your
+used grafic card and the X11 driver. I see this behaviour with lots of
+binary only driver like from NVIDIA or ATI (perhaps they have problems
+with the new 2.6.18 kernel).
 
-I am working on a device driver where the device does not support
-addresses above 4G and hence I have to implement bounce buffers. The
-bounce buffer code works fine on other architectures. But since I get 
-4G+ addresses on ia64, the code would not work. Any idea why should this
-happen? And any workaround if I _NEED_ addresses below 4G. The machine
-has 2G of physical memory.
+Just to except that this is the cause for your lock ups.
 
-The dma mask is set to 64 bits using pci_set_dma_mask().
+Kind regards,
+Michael Obster
 
-Thanks in advance,
-Adhiraj.
-
-
+Greg Schafer schrieb:
+> This is a _hard_ lockup. No oops, no magic sysrq, no nuthin, just a
+> completely dead machine with only option the reset button. Usually happens
+> within a couple of minutes of desktop use but is 100% reproducible. Problem
+> is still there in a fresh checkout of current Linus git tree (post 2.6.18).
+> 
+> Dual Athlon-MP 2200's on a Tyan S2466 Tiger MPX. Config attached.

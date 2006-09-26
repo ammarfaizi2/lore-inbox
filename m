@@ -1,42 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932216AbWIZRyg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932214AbWIZRyU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932216AbWIZRyg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Sep 2006 13:54:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932217AbWIZRyg
+	id S932214AbWIZRyU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Sep 2006 13:54:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932215AbWIZRyU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Sep 2006 13:54:36 -0400
-Received: from [198.99.130.12] ([198.99.130.12]:5539 "EHLO
-	saraswathi.solana.com") by vger.kernel.org with ESMTP
-	id S932216AbWIZRyf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Sep 2006 13:54:35 -0400
-Message-Id: <200609261753.k8QHrOOC005545@ccure.user-mode-linux.org>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.0.4
-To: akpm@osdl.org
-cc: user-mode-linux-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: [PATCH 4/5] UML - Fix sleep length bug
+	Tue, 26 Sep 2006 13:54:20 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:5546 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932214AbWIZRyU (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Sep 2006 13:54:20 -0400
+Date: Tue, 26 Sep 2006 10:54:09 -0700
+From: Judith Lebzelter <judith@osdl.org>
+To: linux-kernel@vger.kernel.org
+Cc: akpm@osdl.org, tytso@mit.edu
+Subject: 2.6.18-mm1 inode_diet fix
+Message-ID: <20060926175409.GA26041@shell0.pdx.osdl.net>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Date: Tue, 26 Sep 2006 13:53:24 -0400
-From: Jeff Dike <jdike@addtoit.com>
+Content-Disposition: inline
+User-Agent: Mutt/1.5.6i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-um_timer shouldn't add local_offset to the host time since get_time already
-did it.  This threw off sleep when a settimeofday or equivalent had happened.
+Hi,
 
-Signed-off-by: Jeff Dike <jdike@addtoit.com>
+In OSDL's automated cross-compiles, I see an error for powerpc allmodconfig in 2.6.18-mm1:
 
-Index: linux-2.6.18-mm/arch/um/kernel/time.c
-===================================================================
---- linux-2.6.18-mm.orig/arch/um/kernel/time.c	2006-09-12 10:43:38.000000000 -0400
-+++ linux-2.6.18-mm/arch/um/kernel/time.c	2006-09-22 10:15:45.000000000 -0400
-@@ -95,7 +95,7 @@ irqreturn_t um_timer(int irq, void *dev,
+arch/powerpc/platforms/pseries/hvCall_inst.c: In function 'hcall_inst_seq_open':
+arch/powerpc/platforms/pseries/hvCall_inst.c:88: error: 'struct inode' has no member named 'u'
+make[2]: [arch/powerpc/platforms/pseries/hvCall_inst.o] Error 1 (ignored)
+powerpc64-unknown-linux-gnu-ld: arch/powerpc/platforms/pseries/hvCall_inst.o: No such file: No such file or directory
+make[2]: [arch/powerpc/platforms/pseries/built-in.o] Error 1 (ignored)
+powerpc64-unknown-linux-gnu-ld: arch/powerpc/platforms/pseries/built-in.o: No such file: No such file or directory
+make[1]: [arch/powerpc/platforms/built-in.o] Error 1 (ignored)
+
+
+This seems to be an oversight in patch:
+inode_diet-replace-inodeugeneric_ip-with-inodei_private.patch
+
+Here is a patch that removes the error.
+
+Signed-off-by: Judith Lebzelter <judith@osdl.org>
+
+
+--- linux/arch/powerpc/platforms/pseries/hvCall_inst.c.orig	2006-09-26 09:52:19.701978352 -0700
++++ linux/arch/powerpc/platforms/pseries/hvCall_inst.c	2006-09-26 09:52:33.971809008 -0700
+@@ -85,7 +85,7 @@
  
- 	do_timer(1);
+ 	rc = seq_open(file, &hcall_inst_seq_ops);
+ 	seq = file->private_data;
+-	seq->private = file->f_dentry->d_inode->u.generic_ip;
++	seq->private = file->f_dentry->d_inode->i_private;
  
--	nsecs = get_time() + local_offset;
-+	nsecs = get_time();
- 	xtime.tv_sec = nsecs / NSEC_PER_SEC;
- 	xtime.tv_nsec = nsecs - xtime.tv_sec * NSEC_PER_SEC;
- 
+ 	return rc;
+ }
 

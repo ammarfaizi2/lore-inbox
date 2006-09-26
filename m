@@ -1,66 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750908AbWIZJ17@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750906AbWIZJ2G@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750908AbWIZJ17 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Sep 2006 05:27:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750910AbWIZJ17
+	id S1750906AbWIZJ2G (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Sep 2006 05:28:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750923AbWIZJ2G
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Sep 2006 05:27:59 -0400
-Received: from nat-132.atmel.no ([80.232.32.132]:10979 "EHLO relay.atmel.no")
-	by vger.kernel.org with ESMTP id S1750906AbWIZJ17 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Sep 2006 05:27:59 -0400
-Date: Tue, 26 Sep 2006 11:27:57 +0200
-From: Haavard Skinnemoen <hskinnemoen@atmel.com>
-To: Andrew Victor <andrew@sanpeople.com>
-Cc: Russell King <rmk+lkml@arm.linux.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 0/3] at91_serial: Introduction
-Message-ID: <20060926112757.03dd8cbc@cad-250-152.norway.atmel.com>
-In-Reply-To: <1159261584.24659.16.camel@fuzzie.sanpeople.com>
-References: <11545303083273-git-send-email-hskinnemoen@atmel.com>
-	<20060923211417.GB4363@flint.arm.linux.org.uk>
-	<1159261584.24659.16.camel@fuzzie.sanpeople.com>
-Organization: Atmel Norway
-X-Mailer: Sylpheed-Claws 2.5.0-rc3 (GTK+ 2.8.20; i486-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Tue, 26 Sep 2006 05:28:06 -0400
+Received: from ns.miraclelinux.com ([219.118.163.66]:29539 "EHLO
+	mail01.miraclelinux.com") by vger.kernel.org with ESMTP
+	id S1750906AbWIZJ2D (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Sep 2006 05:28:03 -0400
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+Subject: [PATCH] arch/i386/pci/mmconfig.c tlb flush fix
+From: OGAWA Hirofumi <hogawa@miraclelinux.com>
+Date: Tue, 26 Sep 2006 18:28:01 +0900
+Message-ID: <lry7s7t1su.fsf@dhcp-0242.miraclelinux.com>
+User-Agent: Gnus/5.11 (Gnus v5.11) Emacs/22.0.50 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 26 Sep 2006 11:06:24 +0200
-Andrew Victor <andrew@sanpeople.com> wrote:
+Hi,
 
-> For patch 1, I'm not to keen on the:
-> 
->   +#ifdef CONFIG_AVR32
->   +       port->flags |= UPF_IOREMAP;
->   +       port->membase = ioremap(pdev->resource[0].start,
->   +                               pdev->resource[0].end
->   +                               - pdev->resource[0].start + 1);
->   +#else
-> 
-> part.  It might be better to pass a flag (in the platform_data
-> structure) whether we are providing a virtual or a physical address.
-> (If you want early init on the serial console, then I recommend just
-> using a static mapping for the DBGU peripheral).
+We use the fixmap for accessing pci config space in pci_mmcfg_read/write().
+The problem is in pci_exp_set_dev_base(). It is caching a last
+accessed address to avoid calling set_fixmap_nocache() whenever
+pci_mmcfg_read/write() is used.
 
-I sent a new patch in the same thread with this instead:
+static inline void pci_exp_set_dev_base(int bus, int devfn)
+{
+	u32 dev_base = base | (bus << 20) | (devfn << 12);
+	if (dev_base != mmcfg_last_accessed_device) {
+		mmcfg_last_accessed_device = dev_base;
+		set_fixmap_nocache(FIX_PCIE_MCFG, dev_base);
+	}
+}
 
-+#ifdef CONFIG_AVR32
-+	port->flags |= UPF_IOREMAP;
-+	port->membase = NULL;
-+#else
+            cpu0                                        cpu1
+  ---------------------------------------------------------------------------
+    pci_mmcfg_read("device-A")
+        pci_exp_set_dev_base()
+            set_fixmap_nocache()
+                                              pci_mmcfg_read("device-B")
+                                                  pci_exp_set_dev_base()
+                                                      set_fixmap_nocache()
+    pci_mmcfg_read("device-B")
+        pci_exp_set_dev_base()
+            /* doesn't flush tlb */
 
-This means that the console will be initialized a bit late, but I can
-live with that for now. Maybe we can agree on a platform_data format so
-that we can remove the #ifdef altogether?
+But if cpus accessed the above order, the second pci_mmcfg_read() on
+cpu0 doesn't flush the TLB, because "mmcfg_last_accessed_device" is
+device-B.  So, second pci_mmcfg_read() on cpu0 accesses a device-A via
+a previous TLB cache.
 
-> Patch 2 & 3 look correct, but they would need to be tested.
+This patches fixes this situation by adds "mmcfg_last_accessed_cpu" check.
 
-Yeah, I'm struggling a bit with SPI right now, but I'll se if I can get
-my AT91 board up and running after that.
+Please apply.
 
-I'll resend the first patch when the AVR32 patches are in, and the
-last two after I've tested them on AT91.
 
-Haavard
+Signed-off-by: OGAWA Hirofumi <hogawa@miraclelinux.com>
+---
+
+ arch/i386/pci/mmconfig.c |    6 +++++-
+ 1 file changed, 5 insertions(+), 1 deletion(-)
+
+diff -puN arch/i386/pci/mmconfig.c~mmconfig-tlb-race-fix arch/i386/pci/mmconfig.c
+--- linux-2.6/arch/i386/pci/mmconfig.c~mmconfig-tlb-race-fix	2006-09-26 11:35:54.000000000 +0900
++++ linux-2.6-hirofumi/arch/i386/pci/mmconfig.c	2006-09-26 11:36:54.000000000 +0900
+@@ -26,6 +26,7 @@
+ 
+ /* The base address of the last MMCONFIG device accessed */
+ static u32 mmcfg_last_accessed_device;
++static int mmcfg_last_accessed_cpu;
+ 
+ static DECLARE_BITMAP(fallback_slots, MAX_CHECK_BUS*32);
+ 
+@@ -70,8 +71,11 @@ static u32 get_base_addr(unsigned int se
+ static inline void pci_exp_set_dev_base(unsigned int base, int bus, int devfn)
+ {
+ 	u32 dev_base = base | (bus << 20) | (devfn << 12);
+-	if (dev_base != mmcfg_last_accessed_device) {
++	int cpu = smp_processor_id();
++	if (dev_base != mmcfg_last_accessed_device ||
++	    cpu != mmcfg_last_accessed_cpu) {
+ 		mmcfg_last_accessed_device = dev_base;
++		mmcfg_last_accessed_cpu = cpu;
+ 		set_fixmap_nocache(FIX_PCIE_MCFG, dev_base);
+ 	}
+ }
+_
+
+-- 
+OGAWA Hirofumi <hogawa@miraclelinux.com>

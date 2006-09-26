@@ -1,45 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932247AbWIZTyu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932213AbWIZUCf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932247AbWIZTyu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Sep 2006 15:54:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932254AbWIZTyu
+	id S932213AbWIZUCf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Sep 2006 16:02:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932259AbWIZUCf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Sep 2006 15:54:50 -0400
-Received: from atlrel8.hp.com ([156.153.255.206]:23207 "EHLO atlrel8.hp.com")
-	by vger.kernel.org with ESMTP id S932247AbWIZTys (ORCPT
+	Tue, 26 Sep 2006 16:02:35 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:25555 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932213AbWIZUCe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Sep 2006 15:54:48 -0400
-From: Bjorn Helgaas <bjorn.helgaas@hp.com>
-To: Keith Owens <kaos@sgi.com>
-Subject: KDB blindly reads keyboard port
-Date: Tue, 26 Sep 2006 13:54:30 -0600
-User-Agent: KMail/1.9.1
-Cc: linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
+	Tue, 26 Sep 2006 16:02:34 -0400
+From: Andi Kleen <ak@suse.de>
+To: Linus Torvalds <torvalds@osdl.org>
+Subject: Re: x86/x86-64 merge for 2.6.19
+Date: Tue, 26 Sep 2006 22:02:28 +0200
+User-Agent: KMail/1.9.3
+Cc: linux-kernel@vger.kernel.org, discuss@x86-64.org
+References: <200609261244.43863.ak@suse.de> <Pine.LNX.4.64.0609261241390.3952@g5.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0609261241390.3952@g5.osdl.org>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="us-ascii"
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200609261354.30722.bjorn.helgaas@hp.com>
+Message-Id: <200609262202.28846.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-get_kbd_char() in arch/ia64/kdb/kdba_io.c does "inb(KBD_STATUS_REG)".
+On Tuesday 26 September 2006 21:48, Linus Torvalds wrote:
+> 
+> On Tue, 26 Sep 2006, Andi Kleen wrote:
+> > 
+> > Please pull 'for-linus' from
+> > 	
+> > 	http://one.firstfloor.org/home/andi/git/linus-2.6
+> 
+> I really don't want do http:// pulls - they are very inefficient, and I 
+> don't trust the end result because the http protocol isn't really good for 
+> verifying the end result (same goes for rsync:// to an even bigger 
+> degree). 
 
-But we don't know whether there's even an i8042 keyboard controller
-present.  On HP ia64 boxes, there is no i8042, and trying to read
-from it can cause an MCA.
+Sorry that was actually me typoing (my fingers are not used to git:// urls
+yet) I've sent you a new email with correct URL
 
-This depends on the specific platform and how it is configured.  I
-observed this MCA while booting the SLES10 install kernel on an
-HP rx7620 in "default" acpiconfig mode.  The supported acpiconfig
-mode on this box is "single-pci-domain", which also puts some
-legacy ports into "soft-fail" mode, where the read will just return
-0xff instead of causing an MCA.  But I think it's wrong to blindly
-poke around in I/O port space.
-
-i8042_pnp_init() uses PNPACPI to figure out whether the i8042
-device is present.  That's probably too heavy-weight for what
-you want to do in KDB, though.
-
-Bjorn
+-Andi

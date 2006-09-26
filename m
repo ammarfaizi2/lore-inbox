@@ -1,48 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751251AbWIZPpT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751273AbWIZPrW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751251AbWIZPpT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Sep 2006 11:45:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751265AbWIZPpT
+	id S1751273AbWIZPrW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Sep 2006 11:47:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751271AbWIZPrW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Sep 2006 11:45:19 -0400
-Received: from mail.parknet.jp ([210.171.160.80]:62473 "EHLO parknet.jp")
-	by vger.kernel.org with ESMTP id S1751251AbWIZPpQ (ORCPT
+	Tue, 26 Sep 2006 11:47:22 -0400
+Received: from cantor.suse.de ([195.135.220.2]:1742 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751265AbWIZPrV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Sep 2006 11:45:16 -0400
-X-AuthUser: hirofumi@parknet.jp
-To: Greg KH <greg@kroah.com>, Andi Kleen <ak@suse.de>
-Cc: OGAWA Hirofumi <hogawa@miraclelinux.com>, linux-kernel@vger.kernel.org
+	Tue, 26 Sep 2006 11:47:21 -0400
+From: Andi Kleen <ak@suse.de>
+To: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
 Subject: Re: [PATCH] arch/i386/pci/mmconfig.c tlb flush fix
-References: <lry7s7t1su.fsf@dhcp-0242.miraclelinux.com>
-	<p73y7s6kebe.fsf@verdi.suse.de>
-From: OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
-Date: Wed, 27 Sep 2006 00:45:07 +0900
-In-Reply-To: <p73y7s6kebe.fsf@verdi.suse.de> (Andi Kleen's message of "26 Sep 2006 14\:22\:29 +0200")
-Message-ID: <87mz8mzl6k.fsf@duaron.myhome.or.jp>
-User-Agent: Gnus/5.11 (Gnus v5.11) Emacs/22.0.50 (gnu/linux)
+Date: Tue, 26 Sep 2006 17:47:09 +0200
+User-Agent: KMail/1.9.3
+Cc: Greg KH <greg@kroah.com>, OGAWA Hirofumi <hogawa@miraclelinux.com>,
+       linux-kernel@vger.kernel.org
+References: <lry7s7t1su.fsf@dhcp-0242.miraclelinux.com> <p73y7s6kebe.fsf@verdi.suse.de> <87mz8mzl6k.fsf@duaron.myhome.or.jp>
+In-Reply-To: <87mz8mzl6k.fsf@duaron.myhome.or.jp>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200609261747.09923.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen <ak@suse.de> writes:
+On Tuesday 26 September 2006 17:45, OGAWA Hirofumi wrote:
+> Andi Kleen <ak@suse.de> writes:
+> 
+> > OGAWA Hirofumi <hogawa@miraclelinux.com> writes:
+> >> 
+> >> We use the fixmap for accessing pci config space in pci_mmcfg_read/write().
+> >> The problem is in pci_exp_set_dev_base(). It is caching a last
+> >> accessed address to avoid calling set_fixmap_nocache() whenever
+> >> pci_mmcfg_read/write() is used.
+> >
+> >
+> > Good catch. I already had another report of mmconfig corruption on i386,
+> > but didn't have time to look at it yet.
+> >
+> > Will be definitely stable material once it hit mainline.
+> 
+> Indeed.
+> 
+> If I found this in mainline, should I send something like a reminder
+> email with patch to you, Greg?
 
-> OGAWA Hirofumi <hogawa@miraclelinux.com> writes:
->> 
->> We use the fixmap for accessing pci config space in pci_mmcfg_read/write().
->> The problem is in pci_exp_set_dev_base(). It is caching a last
->> accessed address to avoid calling set_fixmap_nocache() whenever
->> pci_mmcfg_read/write() is used.
->
->
-> Good catch. I already had another report of mmconfig corruption on i386,
-> but didn't have time to look at it yet.
->
-> Will be definitely stable material once it hit mainline.
+I have it already queued for both.
 
-Indeed.
-
-If I found this in mainline, should I send something like a reminder
-email with patch to you, Greg?
--- 
-OGAWA Hirofumi <hirofumi@mail.parknet.co.jp>
+-Andi

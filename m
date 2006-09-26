@@ -1,94 +1,160 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932110AbWIZX3a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932489AbWIZXaA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932110AbWIZX3a (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Sep 2006 19:29:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932256AbWIZX3a
+	id S932489AbWIZXaA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Sep 2006 19:30:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932256AbWIZXaA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Sep 2006 19:29:30 -0400
-Received: from ogre.sisk.pl ([217.79.144.158]:56801 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S932110AbWIZX33 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Sep 2006 19:29:29 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Nigel Cunningham <ncunningham@linuxmail.org>
-Subject: Re: When will the lunacy end? (Was Re: [PATCH] uswsusp: add pmops->{prepare,enter,finish} support (aka "platform mode"))
-Date: Wed, 27 Sep 2006 01:31:46 +0200
-User-Agent: KMail/1.9.1
-Cc: Adrian Bunk <bunk@stusta.de>, Pavel Machek <pavel@ucw.cz>,
-       Andrew Morton <akpm@osdl.org>, Stefan Seyfried <seife@suse.de>,
-       linux-kernel@vger.kernel.org
-References: <20060925071338.GD9869@suse.de> <20060926223146.GI4547@stusta.de> <1159311915.7485.37.camel@nigel.suspend2.net>
-In-Reply-To: <1159311915.7485.37.camel@nigel.suspend2.net>
+	Tue, 26 Sep 2006 19:30:00 -0400
+Received: from nf-out-0910.google.com ([64.233.182.185]:62109 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S932489AbWIZX37 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Sep 2006 19:29:59 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:from:to:subject:date:user-agent:cc:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
+        b=Sq3UiKAZXQOQnDFjTRajdXCgFEwBuVqUAkNLo+msWHwkXxyrMgIa5RmD4KsH+Fp7iMU1M+3GqbqlMaulSJxzUX3v/VMiTwlUUwaswtr0+kMEDFnC4zDahn9lc4zSTC8nNtnOsBl3z2aingEd0iYh+vsHR7bwfulkwt/8jzfQz7I=
+From: Jesper Juhl <jesper.juhl@gmail.com>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Subject: [PATCH][resend] NFS: Kill obsolete NFS_PARANOIA
+Date: Wed, 27 Sep 2006 01:31:16 +0200
+User-Agent: KMail/1.9.4
+Cc: linux-kernel@vger.kernel.org, Rick Sladkey <jrs@world.std.com>,
+       Neil Brown <neilb@cse.unsw.edu.au>, nfs@lists.sourceforge.net,
+       Jesper Juhl <jesper.juhl@gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-15"
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200609270131.46686.rjw@sisk.pl>
+Message-Id: <200609270131.16608.jesper.juhl@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday, 27 September 2006 01:05, Nigel Cunningham wrote:
-> Hi.
-> 
-> On Wed, 2006-09-27 at 00:31 +0200, Adrian Bunk wrote:
-> > On Wed, Sep 27, 2006 at 07:38:31AM +1000, Nigel Cunningham wrote:
-> > > Hi.
-> > > 
-> > > On Tue, 2006-09-26 at 22:35 +0200, Rafael J. Wysocki wrote:
-> > > > On Tuesday, 26 September 2006 22:14, Adrian Bunk wrote:
-> > > > > On Tue, Sep 26, 2006 at 12:45:00AM +0200, Pavel Machek wrote:
-> > > > > >...
-> > > > > > solid)
-> > > > > > 	apart from HIGHMEM64G fiasco, and related agpgart fiasco long
-> > > > > > 	time before that... these are driver problems...
-> > > > > >...
-> > > > > 
-> > > > > One point that seems to be a bit forgotten is that driver problems do 
-> > > > > actually matter a lot:
-> > > > > 
-> > > > > I for one do not care much whether I can abort suspending (I can always 
-> > > > > resume) or whether dancing penguins are displayed during suspending - 
-> > > > > but the fact that my saa7134 card only outputs the picture but no sound 
-> > > > > after resuming from suspend-to-disk is a real show-stopper for me.
-> > > 
-> > > Agreed that some things are more important than others. But to some
-> > > people, user interface does matter. After all, we want (well I want)
-> > > people considering converting from Windows to see that free software can
-> > > be better than proprietary stuff, not just imitate what they're doing. 
-> > > 
-> > > Suspend2 doesn't actually provide dancing penguins while suspending -
-> > > it's a simple progress bar in either pure text or overlayed on an image
-> > > of your choosing.
-> > > 
-> > > The support for aborting is really just fall out from the work on
-> > > debugging and testing failure paths.
-> > >...
-> > 
-> > Sorry if this sounded as if I was against improvements of suspend.
-> > That was not my intention.
-> > 
-> > But as long as there are driver problems, suspend as a whole can not be 
-> > called solid. The core itself might be solid or not, but without working 
-> > drivers this doesn't buy users much.
-> > 
-> > A user might be impressed by a progress bar on a nifty image, but if one 
-> > or more of his drivers have problems with suspend the user won't get a 
-> > good impression of Linux.
-> > 
-> > How many driver problems with suspend are buried in emails and
-> > Bugzillas (will problems like kernel Bugzilla #6035 ever be debugged?)?
-> 
-> I fully agree. One of the largest issues I'm regularly dealing with is
-> people reporting problems with drivers.
-
-Well, can we please have these reports forwarded to LKML or placed
-in the bugzilla?
-
-Greetings,
-Rafael
+  [ please keep me on Cc: ] 
 
 
--- 
-You never change things by fighting the existing reality.
-		R. Buckminster Fuller
+Remove obsolete NFS_PARANOIA .
+
+Signed-off-by: Jesper Juhl <jesper.juhl@gmail.com>
+---
+
+ fs/nfs/dir.c      |   17 ++---------------
+ fs/nfs/inode.c    |   11 +----------
+ fs/nfs/nfs2xdr.c  |    1 -
+ fs/nfs/pagelist.c |    7 ++-----
+ 4 files changed, 5 insertions(+), 31 deletions(-)
+
+diff -upr linux-2.6.18-git6-orig/fs/nfs/dir.c linux-2.6.18-git6/fs/nfs/dir.c
+--- linux-2.6.18-git6-orig/fs/nfs/dir.c	2006-09-27 01:16:52.000000000 +0200
++++ linux-2.6.18-git6/fs/nfs/dir.c	2006-09-27 01:25:21.000000000 +0200
+@@ -38,7 +38,6 @@
+ #include "delegation.h"
+ #include "iostat.h"
+ 
+-#define NFS_PARANOIA 1
+ /* #define NFS_DEBUG_VERBOSE 1 */
+ 
+ static int nfs_opendir(struct inode *, struct file *);
+@@ -1309,11 +1308,6 @@ static int nfs_sillyrename(struct inode 
+ 		atomic_read(&dentry->d_count));
+ 	nfs_inc_stats(dir, NFSIOS_SILLYRENAME);
+ 
+-#ifdef NFS_PARANOIA
+-if (!dentry->d_inode)
+-printk("NFS: silly-renaming %s/%s, negative dentry??\n",
+-dentry->d_parent->d_name.name, dentry->d_name.name);
+-#endif
+ 	/*
+ 	 * We don't allow a dentry to be silly-renamed twice.
+ 	 */
+@@ -1628,16 +1622,9 @@ static int nfs_rename(struct inode *old_
+ 			new_inode = NULL;
+ 			/* instantiate the replacement target */
+ 			d_instantiate(new_dentry, NULL);
+-		} else if (atomic_read(&new_dentry->d_count) > 1) {
+-		/* dentry still busy? */
+-#ifdef NFS_PARANOIA
+-			printk("nfs_rename: target %s/%s busy, d_count=%d\n",
+-			       new_dentry->d_parent->d_name.name,
+-			       new_dentry->d_name.name,
+-			       atomic_read(&new_dentry->d_count));
+-#endif
++		} else if (atomic_read(&new_dentry->d_count) > 1)
++			/* dentry still busy? */
+ 			goto out;
+-		}
+ 	} else
+ 		new_inode->i_nlink--;
+ 
+diff -upr linux-2.6.18-git6-orig/fs/nfs/inode.c linux-2.6.18-git6/fs/nfs/inode.c
+--- linux-2.6.18-git6-orig/fs/nfs/inode.c	2006-09-27 01:16:52.000000000 +0200
++++ linux-2.6.18-git6/fs/nfs/inode.c	2006-09-27 01:25:57.000000000 +0200
+@@ -48,7 +48,6 @@
+ #include "internal.h"
+ 
+ #define NFSDBG_FACILITY		NFSDBG_VFS
+-#define NFS_PARANOIA 1
+ 
+ static void nfs_invalidate_inode(struct inode *);
+ static int nfs_update_inode(struct inode *, struct nfs_fattr *);
+@@ -894,7 +893,7 @@ static int nfs_update_inode(struct inode
+ 	 * Make sure the inode's type hasn't changed.
+ 	 */
+ 	if ((inode->i_mode & S_IFMT) != (fattr->mode & S_IFMT))
+-		goto out_changed;
++		goto out_err;
+ 
+ 	server = NFS_SERVER(inode);
+ 	/* Update the fsid if and only if this is the root directory */
+@@ -1004,14 +1003,6 @@ static int nfs_update_inode(struct inode
+ 		nfsi->cache_validity |= invalid;
+ 
+ 	return 0;
+- out_changed:
+-	/*
+-	 * Big trouble! The inode has become a different object.
+-	 */
+-#ifdef NFS_PARANOIA
+-	printk(KERN_DEBUG "%s: inode %ld mode changed, %07o to %07o\n",
+-			__FUNCTION__, inode->i_ino, inode->i_mode, fattr->mode);
+-#endif
+  out_err:
+ 	/*
+ 	 * No need to worry about unhashing the dentry, as the
+diff -upr linux-2.6.18-git6-orig/fs/nfs/nfs2xdr.c linux-2.6.18-git6/fs/nfs/nfs2xdr.c
+--- linux-2.6.18-git6-orig/fs/nfs/nfs2xdr.c	2006-09-27 01:16:52.000000000 +0200
++++ linux-2.6.18-git6/fs/nfs/nfs2xdr.c	2006-09-27 01:25:57.000000000 +0200
+@@ -26,7 +26,6 @@
+ #include "internal.h"
+ 
+ #define NFSDBG_FACILITY		NFSDBG_XDR
+-/* #define NFS_PARANOIA 1 */
+ 
+ /* Mapping from NFS error code to "errno" error code. */
+ #define errno_NFSERR_IO		EIO
+diff -upr linux-2.6.18-git6-orig/fs/nfs/pagelist.c linux-2.6.18-git6/fs/nfs/pagelist.c
+--- linux-2.6.18-git6-orig/fs/nfs/pagelist.c	2006-09-20 05:42:06.000000000 +0200
++++ linux-2.6.18-git6/fs/nfs/pagelist.c	2006-09-27 01:25:57.000000000 +0200
+@@ -18,7 +18,6 @@
+ #include <linux/nfs_fs.h>
+ #include <linux/nfs_mount.h>
+ 
+-#define NFS_PARANOIA 1
+ 
+ static kmem_cache_t *nfs_page_cachep;
+ 
+@@ -171,10 +170,8 @@ nfs_release_request(struct nfs_page *req
+ 	if (!atomic_dec_and_test(&req->wb_count))
+ 		return;
+ 
+-#ifdef NFS_PARANOIA
+-	BUG_ON (!list_empty(&req->wb_list));
+-	BUG_ON (NFS_WBACK_BUSY(req));
+-#endif
++	BUG_ON(!list_empty(&req->wb_list));
++	BUG_ON(NFS_WBACK_BUSY(req));
+ 
+ 	/* Release struct file or cached credential */
+ 	nfs_clear_request(req);
+
+

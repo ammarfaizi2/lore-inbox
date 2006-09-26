@@ -1,56 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932249AbWIZTtJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932238AbWIZTvg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932249AbWIZTtJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Sep 2006 15:49:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932252AbWIZTtJ
+	id S932238AbWIZTvg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Sep 2006 15:51:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932252AbWIZTvg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Sep 2006 15:49:09 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:62159 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932256AbWIZTtF (ORCPT
+	Tue, 26 Sep 2006 15:51:36 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:6623 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S932238AbWIZTvf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Sep 2006 15:49:05 -0400
-Date: Tue, 26 Sep 2006 12:48:59 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Andi Kleen <ak@suse.de>
-cc: linux-kernel@vger.kernel.org, discuss@x86-64.org
-Subject: Re: x86/x86-64 merge for 2.6.19
-In-Reply-To: <200609261244.43863.ak@suse.de>
-Message-ID: <Pine.LNX.4.64.0609261241390.3952@g5.osdl.org>
-References: <200609261244.43863.ak@suse.de>
+	Tue, 26 Sep 2006 15:51:35 -0400
+To: Mathieu Desnoyers <compudj@krystal.dyndns.org>
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>, Martin Bligh <mbligh@google.com>,
+       Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>, prasanna@in.ibm.com,
+       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
+       Paul Mundt <lethal@linux-sh.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>, Jes Sorensen <jes@sgi.com>,
+       Tom Zanussi <zanussi@us.ibm.com>,
+       Richard J Moore <richardj_moore@uk.ibm.com>,
+       Michel Dagenais <michel.dagenais@polymtl.ca>,
+       Christoph Hellwig <hch@infradead.org>,
+       Greg Kroah-Hartman <gregkh@suse.de>,
+       Thomas Gleixner <tglx@linutronix.de>, William Cohen <wcohen@redhat.com>,
+       ltt-dev@shafik.org, systemtap@sources.redhat.com,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Karim Yaghmour <karim@opersys.com>,
+       Pavel Machek <pavel@suse.cz>, Joe Perches <joe@perches.com>,
+       "Randy.Dunlap" <rdunlap@xenotime.net>,
+       "Jose R. Santos" <jrs@us.ibm.com>
+Subject: Re: [PATCH] Linux Kernel Markers 0.13 for 2.6.17
+References: <20060925233349.GA2352@Krystal> <20060925235617.GA3147@Krystal>
+	<45187146.8040302@goop.org> <20060926002551.GA18276@Krystal>
+	<20060926004535.GA2978@Krystal> <45187C0E.1080601@goop.org>
+	<20060926025924.GA27366@Krystal> <4518B4A0.6070509@goop.org>
+	<20060926180414.GA10497@Krystal> <4519781D.9040503@goop.org>
+	<20060926190849.GA2280@Krystal>
+From: fche@redhat.com (Frank Ch. Eigler)
+Date: 26 Sep 2006 15:49:34 -0400
+In-Reply-To: <20060926190849.GA2280@Krystal>
+Message-ID: <y0mhcyue7ch.fsf@ton.toronto.redhat.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.3
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Mathieu Desnoyers <compudj@krystal.dyndns.org> writes:
 
+> [...]
+> > Yep, that looks reasonable.  Though you could just directly test a 
+> > per-marker enable flag, rather than using "condition"...
+> [...]
+> I am not sure I understand your suggestion correctly.. do you mean having
+> a per-marker flag that would be loaded and tested at every marker site ?
 
-On Tue, 26 Sep 2006, Andi Kleen wrote:
-> 
-> Please pull 'for-linus' from
-> 	
-> 	http://one.firstfloor.org/home/andi/git/linus-2.6
+I gather that one reason for working so hard with the inline assembly
+is a race condition problem with the plain STAP_MARK style of marker
+disconnection:
 
-I really don't want do http:// pulls - they are very inefficient, and I 
-don't trust the end result because the http protocol isn't really good for 
-verifying the end result (same goes for rsync:// to an even bigger 
-degree). 
+        if (pointer) (*pointer)(args ...);
 
-The native git protocol is not just more efficient, it's fundamentally 
-designed to be safe (ie everything is purely based on the actual data 
-coming down the line - there's no possibility for any hashed object 
-corruption, because the receiving side doesn't even care about the SHA1 
-names of the data it receives - it will re-compute them).
+Granted, but this problem could almost certainly be dealt with simpler
+than that.  How about a compxchg or other atomic-fetch of the static
+pointer with a local variable?  That should solve the worry of an
+(*NULL) call.
 
-So please put them on some machine that has either anonymous native git 
-access ("git-daemon") or that I can ssh into. I can either just send 
-people my ssh key, but I actually prefer avoiding that, and instead just 
-have developers use one of the machines that people share ssh access to as 
-a meeting point (ie most people use "master.kernel.org" because they 
-already had accounts on that machine - if you don't want to actually 
-export the tree to the mirrors, just put it in your own home directory and 
-make sure I can get read (and execute, for directories) rights to the 
-repository.
+If we then become concerned with a valid pointer become obsolete (the
+probe handler function wanting to unload), we might be able to use
+some RCU-type deferral mechanism and/or preempt controls to ensure
+that this does not happen.
 
-Thanks,
-
-		Linus
+- FChE

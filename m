@@ -1,44 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932093AbWIZOo3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932108AbWIZO5y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932093AbWIZOo3 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Sep 2006 10:44:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932094AbWIZOo3
+	id S932108AbWIZO5y (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Sep 2006 10:57:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932112AbWIZO5y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Sep 2006 10:44:29 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:20352 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S932093AbWIZOo2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Sep 2006 10:44:28 -0400
-Subject: Re: Pb with simultaneous SATA and ALSA I/O
-From: Lee Revell <rlrevell@joe-job.com>
-To: Dominique Dumont <domi.dumont@free.fr>
-Cc: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>,
-       linux-kernel <linux-kernel@vger.kernel.org>,
-       alsa-user <alsa-user@lists.sourceforge.net>
-In-Reply-To: <87bqp2ofrf.fsf@gandalf.hd.free.fr>
-References: <877izsp3dm.fsf@gandalf.hd.free.fr>
-	 <20060925143838.GQ13641@csclub.uwaterloo.ca>
-	 <1159195859.2899.72.camel@mindpipe>  <87bqp2ofrf.fsf@gandalf.hd.free.fr>
-Content-Type: text/plain
-Date: Tue, 26 Sep 2006 10:44:56 -0400
-Message-Id: <1159281897.2899.188.camel@mindpipe>
+	Tue, 26 Sep 2006 10:57:54 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:3852 "EHLO spitz.ucw.cz")
+	by vger.kernel.org with ESMTP id S932108AbWIZO5x (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Sep 2006 10:57:53 -0400
+Date: Tue, 26 Sep 2006 14:57:43 +0000
+From: Pavel Machek <pavel@ucw.cz>
+To: George Nychis <gnychis@cmu.edu>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: no status when suspending to disk
+Message-ID: <20060926145742.GA4030@ucw.cz>
+References: <4517DA5E.4050709@cmu.edu>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4517DA5E.4050709@cmu.edu>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-09-26 at 16:37 +0200, Dominique Dumont wrote:
-> Lee Revell <rlrevell@joe-job.com> writes:
+On Mon 25-09-06 09:32:14, George Nychis wrote:
+> Hey guys,
 > 
-> > Dominique: try the -rt kernel, enable latency tracing and post the
-> > output.
+> Whenever I suspend to disk without quitting X first, I do not get a
+> status, ie. 58%
 > 
-> Should I use 2.6.17 + rt to stay closer to my current setup or should I get 2.6.18 + rt ?
+> I updated my kernel a couple weeks ago and it miraculously came up, I
+> was able to get a status when using the kernel.
 > 
+> Then when I just recently updated my kernel again it went away.
+> 
+> All I get now is a blank, but lit, LCD screen with a blinking cursor at
+> the very top left.
+> 
+> How can I get it to display the status?
 
-I would say 2.6.18 + -rt - it's not as if 2.6.17 could be fixed at this
-point.
+console loglevel, see faq.
 
-Lee
-
+-- 
+Thanks for all the (sleeping) penguins.

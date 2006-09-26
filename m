@@ -1,104 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932197AbWIZRuT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932206AbWIZRvd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932197AbWIZRuT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Sep 2006 13:50:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932198AbWIZRuS
+	id S932206AbWIZRvd (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Sep 2006 13:51:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932208AbWIZRvd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Sep 2006 13:50:18 -0400
-Received: from zod.pns.networktel.net ([209.159.47.6]:44265 "EHLO
-	zod.pns.networktel.net") by vger.kernel.org with ESMTP
-	id S932197AbWIZRuR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Sep 2006 13:50:17 -0400
-Message-ID: <451965E5.1080600@versaccounting.com>
-Date: Tue, 26 Sep 2006 12:39:49 -0500
-From: Ben Duncan <ben@versaccounting.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.4) Gecko/20030624 Netscape/7.1
-X-Accept-Language: en-us, en
+	Tue, 26 Sep 2006 13:51:33 -0400
+Received: from nz-out-0102.google.com ([64.233.162.200]:1668 "EHLO
+	nz-out-0102.google.com") by vger.kernel.org with ESMTP
+	id S932206AbWIZRvc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Sep 2006 13:51:32 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=G3yX4AD3RuzGl5/924i5SbVlThFzaKeHfHw0sT3P2hvxAo4tnrIh5C00SJGX+SJacSiub9tyzq6alKWFk8CrGun1AXsgyxqvJCaL7XmKb1gwA4oOnUruDL0bGmba8U89OptAB80xReCddxMaY7pmeIXL3G9U2w1zWEAvSuZbYU8=
+Message-ID: <a44ae5cd0609261051i6dc03777l6646899624a62d5a@mail.gmail.com>
+Date: Tue, 26 Sep 2006 10:51:21 -0700
+From: "Miles Lane" <miles.lane@gmail.com>
+To: "Andrew Morton" <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
+       cpufreq@lists.linux.org.uk
+Subject: 2.6.18-mm1 -- CPUFreq not working
 MIME-Version: 1.0
-To: linux-kernel@vger.kernel.org
-Subject: Re: EIP Errors kernel 2.6.18 .AND hard lockup ...
-References: <45194883.3080700@versaccounting.com> <6bffcb0e0609260851q5d97f784i47d43f2076843600@mail.gmail.com>
-In-Reply-To: <6bffcb0e0609260851q5d97f784i47d43f2076843600@mail.gmail.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ok, first IANAKP (I am not a kernel programmer ) ;-> ...
-But, just got another hard lockup and EIP code ...
+This looks like a kernel config logic problem.  I shouldn't be able to
+build ondemand support into the kernel, if all the other CPU power
+management code is built as modules.  I suspect this problem applies
+to the other governers (powersave, performance, conservative).
+drivers/built-in.o: In function `ondemand_powersave_bias_init':
+cpufreq_ondemand.c:(.text+0x6f78f): undefined reference to
+`cpufreq_frequency_get_table'
+drivers/built-in.o: In function `powersave_bias_target':
+cpufreq_ondemand.c:(.text+0x6f8e7): undefined reference to
+`cpufreq_frequency_table_target'
+cpufreq_ondemand.c:(.text+0x6f925): undefined reference to
+`cpufreq_frequency_table_target'
+cpufreq_ondemand.c:(.text+0x6f949): undefined reference to
+`cpufreq_frequency_table_target'
 
-I am not sure why this should got to nVidia (Please, I
-personally know the Head of nVidias' Linux driver development,
-so if it is a nVidia problem, I can help there).
+I am wondering whether the following warning indicates a problem that
+prevents CPUFreq from working, because no matter how I play with the
+CPUFreq kernel config options, I always get a message from the power
+management applet that CPUFreq isn't working.
+WARNING: arch/i386/kernel/cpu/cpufreq/acpi-cpufreq.o - Section
+mismatch: reference to .init.data:sw_any_bug_dmi_table from .text
+between 'acpi_cpufreq_cpu_init' (at offset 0x360) and
+'acpi_cpufreq_target'
+WARNING: arch/i386/kernel/cpu/cpufreq/speedstep-centrino.o - Section
+mismatch: reference to .init.text: from .data between
+'sw_any_bug_dmi_table' (at offset 0x40) and 'models
 
-Anway,
-
-EIP shows :
-
-desktop kernel: CPU:    0
-desktop kernel: EIP:    0060:[<c01ba714>]    Tainted: P      VLI
-EFLAGS: 00010046   (2.6.18 #1)
-desktop kernel: EIP is at radix_tree_tag_set+0x6a/0xa2
-desktop kernel: eax: 00000001   ebx: 00000001   ecx: 00000001   edx: 00000001
-desktop kernel: esi: 00000000   edi: 00000000   ebp: f7cf3d70   esp: f7cf3d54
-desktop kernel: ds: 007b   es: 007b   ss: 0068
-desktop kernel: Process pdflush (pid: 181, ti=f7cf2000 task=f7cd6a90 task.ti=f7cf2000)
-desktop kernel: Stack: 00000001 00000001 00050001 f71a2f4c c1061be0 f71a2f48 00000000 
-f7cf3d88c01ba3cc t radix_tree_node_alloc
-c01ba416 T radix_tree_preload
-c01ba475 t radix_tree_extend
-c01ba4ff T radix_tree_insert
-c01ba5fc T radix_tree_lookup_slot
-c01ba651 T radix_tree_lookup
-c01ba6aa T radix_tree_tag_set
-c01ba74c T radix_tree_tag_clear
-c01ba81a t __lookup
-c01ba906 T radix_tree_gang_lookup
-
-desktop kernel:        c013579e 00000286 f57d5f68 c1061be0 00050002 f7cf3db8 c014ccc8 00000000
-desktop kernel:        00001000 f57d5f68 000773b0 00000000 c0150760 f71a2e70 00000000 c1061be0
-
-With current system map showing:
-
-c01ba3cc t radix_tree_node_alloc
-c01ba416 T radix_tree_preload
-c01ba475 t radix_tree_extend
-c01ba4ff T radix_tree_insert
-c01ba5fc T radix_tree_lookup_slot
-c01ba651 T radix_tree_lookup
-c01ba6aa T radix_tree_tag_set
-c01ba74c T radix_tree_tag_clear
-c01ba81a t __lookup
-c01ba906 T radix_tree_gang_lookup
-
-The "radix lookup" seems to be occuring inside of the radix_tree_tag_set
-and in particular the pdflush routine.
-
-fgrep'ing kernel shows this is in the lib/radix-tree routine ..
-
-To me seems to be a PDFLUSH eip and the nvidia stuff is just
-a by product of loaded modules, no?
-
-Thnaks ..
-
-Michal Piotrowski wrote:
-> Hi,
-> 
-<SNIP>
-> 
-> "When emailing linux-bugs@nvidia.com, please attach an
-> nvidia-bug-report.log, which is generated by running
-> "nvidia-bug-report.sh". "
-> http://www.nvidia.com/object/linux_display_ia32_1.0-8774.html
-> 
-> Please send this report to Nvidia.
-> 
-> Regards,
-> Michal
-> 
-
--- 
-Ben Duncan   - Business Network Solutions, Inc. 336 Elton Road  Jackson MS, 39212
-"Never attribute to malice, that which can be adequately explained by stupidity"
-        - Hanlon's Razor
-
+Here's my current .config settings:
+CONFIG_CPU_FREQ=y
+CONFIG_CPU_FREQ_TABLE=m
+CONFIG_CPU_FREQ_DEBUG=y
+CONFIG_CPU_FREQ_STAT=m
+CONFIG_CPU_FREQ_DEFAULT_GOV_USERSPACE=y
+CONFIG_CPU_FREQ_GOV_PERFORMANCE=m
+CONFIG_CPU_FREQ_GOV_POWERSAVE=m
+CONFIG_CPU_FREQ_GOV_USERSPACE=y
+CONFIG_CPU_FREQ_GOV_ONDEMAND=m
+CONFIG_CPU_FREQ_GOV_CONSERVATIVE=m
+CONFIG_X86_SPEEDSTEP_CENTRINO=m
+CONFIG_X86_SPEEDSTEP_CENTRINO_ACPI=y
+CONFIG_X86_SPEEDSTEP_CENTRINO_TABLE=y
+CONFIG_X86_SPEEDSTEP_ICH=m
+CONFIG_X86_SPEEDSTEP_SMI=m
+CONFIG_X86_SPEEDSTEP_LIB=m
+CONFIG_X86_SPEEDSTEP_RELAXED_CAP_CHECK=y

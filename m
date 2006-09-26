@@ -1,40 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964838AbWIZVjT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964841AbWIZVjF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964838AbWIZVjT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Sep 2006 17:39:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964842AbWIZVjT
+	id S964841AbWIZVjF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Sep 2006 17:39:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964838AbWIZVjE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Sep 2006 17:39:19 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:11916 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S964838AbWIZVjR (ORCPT
+	Tue, 26 Sep 2006 17:39:04 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:30611 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S964834AbWIZVjB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Sep 2006 17:39:17 -0400
-Date: Tue, 26 Sep 2006 14:39:11 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Andi Kleen <ak@suse.de>
-cc: discuss@x86-64.org, linux-kernel@vger.kernel.org
-Subject: Re: [discuss] Re: x86/x86-64 merge for 2.6.19
-In-Reply-To: <200609262323.10190.ak@suse.de>
-Message-ID: <Pine.LNX.4.64.0609261437410.3952@g5.osdl.org>
-References: <200609261244.43863.ak@suse.de> <200609262226.09418.ak@suse.de>
- <Pine.LNX.4.64.0609261339050.3952@g5.osdl.org> <200609262323.10190.ak@suse.de>
+	Tue, 26 Sep 2006 17:39:01 -0400
+Message-ID: <45199DF3.1050708@garzik.org>
+Date: Tue, 26 Sep 2006 17:38:59 -0400
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Krzysztof Halasa <khc@pm.waw.pl>
+CC: netdev@vger.kernel.org, lkml <linux-kernel@vger.kernel.org>,
+       PC300 Maintainer <pc300@cyclades.com>
+Subject: Re: Generic HDLC update
+References: <m3odt21hs5.fsf@defiant.localdomain> <m3ac4m1fbj.fsf@defiant.localdomain>
+In-Reply-To: <m3ac4m1fbj.fsf@defiant.localdomain>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.3 (----)
+X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Krzysztof Halasa wrote:
+> The first patch renames drivers/net/wan/hdlc_generic.c file to hdlc.c.
+> It has been generated with git-diff* -M. Please let me know if you
+> need a "normal" patch.
+
+It depends completely on what git-applymbox will accept, and how 
+git-applymbox interprets your submission.
+
+In this case... testing... it looks like it renamed things correctly.
+
+	Jeff
 
 
-On Tue, 26 Sep 2006, Andi Kleen wrote:
-> 
-> I normally do the main bulk the two week merge window and only important
-> stuff afterwards (usually two or three smaller merges with more stuff
-> and then only critical bug fixes in small batches until release). 
-> 
-> You want merges more often or more spaced out?
-
-That sounds fine, let's just see how this firms up. It's not like I've 
-really had a lot of "rules" in general, and mostly the merges tend to 
-eventually find a pattern that is just convenient for everybody.
-
-		Linus "don't worry, be happy" Torvalds

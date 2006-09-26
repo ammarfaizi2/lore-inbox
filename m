@@ -1,44 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964783AbWIZUXW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964786AbWIZUZp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964783AbWIZUXW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Sep 2006 16:23:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964784AbWIZUXW
+	id S964786AbWIZUZp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Sep 2006 16:25:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964787AbWIZUZp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Sep 2006 16:23:22 -0400
-Received: from ns2.suse.de ([195.135.220.15]:33749 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S964783AbWIZUXV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Sep 2006 16:23:21 -0400
-Date: Tue, 26 Sep 2006 13:23:03 -0700
-From: Greg KH <greg@kroah.com>
-To: Jeff Garzik <jeff@garzik.org>
-Cc: Andrew Morton <akpm@osdl.org>, Jim Paradis <jparadis@redhat.com>,
-       Andi Kleen <ak@suse.de>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] x86[-64] PCI domain support
-Message-ID: <20060926202303.GA15369@kroah.com>
-References: <20060926191508.GA6350@havoc.gtf.org>
+	Tue, 26 Sep 2006 16:25:45 -0400
+Received: from hu-out-0506.google.com ([72.14.214.228]:38899 "EHLO
+	hu-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S964786AbWIZUZo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Sep 2006 16:25:44 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:to:subject:from:cc:content-type:mime-version:references:content-transfer-encoding:message-id:in-reply-to:user-agent;
+        b=Val532s+eFDQ12F3hcZXFXY6HgMSoh8V8bTf9AfZ4pOnoGWiji3gS2tf+EEVtyvHDNvt3LQgc2fcetG05pG5wVnf3H2F1733UM46YATwPxUNNVaghRw4GLq2NaVa9ehHKMECqiCGhVDjsWJRz3J31Htt2pOg7QEML5xhUVbDcSM=
+Date: Wed, 27 Sep 2006 00:33:38 +0400
+To: "Pavel Machek" <pavel@ucw.cz>
+Subject: Re: [PATCH 5/5] Add gsm phone support for the mixer in tsc2101 alsa driver.
+From: Vovan <vovan888@gmail.com>
+Cc: lamikr@cc.jyu.fi, tony@atomide.com,
+       OMAP-Linux <linux-omap-open-source@linux.omap.com>,
+       linux-kernel@vger.kernel.org
+Content-Type: text/plain; format=flowed; delsp=yes; charset=windows-1251
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060926191508.GA6350@havoc.gtf.org>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+References: <44E51565.6020505@cc.jyu.fi> <20060905151808.GC18073@atomide.com> <44FF2A6D.3000500@cc.jyu.fi> <ce55079f0609250442x5638a93fuac95c65a54a0927@mail.gmail.com> <20060926194541.GA4596@ucw.cz>
+Content-Transfer-Encoding: 7bit
+Message-ID: <op.tgh52caydbah4f@vovan>
+In-Reply-To: <20060926194541.GA4596@ucw.cz>
+User-Agent: Opera Mail/9.02 (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 26, 2006 at 03:15:08PM -0400, Jeff Garzik wrote:
-> 
-> The x86[-64] PCI domain effort needs to be restarted, because we've got
-> machines out in the field that need this in order for some devices to
-> work.
-> 
-> RHEL is shipping it now, apparently without any problems.
-> 
-> The 'pciseg' branch of
-> git://git.kernel.org/pub/scm/linux/kernel/git/jgarzik/misc-2.6.git pciseg
+>> >
+>>
+>> I work on getting linux running on Siemens SX1 mobile
+>> phone.
+>
+> Do you have web pages with current state somewhere? SX1 should be
+> *cheap* toy for experiments...
+> 							Pavel
 
-So are the NUMA issues now taken care of properly?  If so, care to send
-me the patches for this so I can add them to my quilt tree?
+Sure:
+http://www.handhelds.org/moin/moin.cgi/SiemensSX1
 
-thanks,
-
-greg k-h

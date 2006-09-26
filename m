@@ -1,44 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932176AbWIZRff@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932182AbWIZRjx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932176AbWIZRff (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Sep 2006 13:35:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932175AbWIZRff
+	id S932182AbWIZRjx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Sep 2006 13:39:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932180AbWIZRjx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Sep 2006 13:35:35 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:56969 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S932172AbWIZRfc (ORCPT
+	Tue, 26 Sep 2006 13:39:53 -0400
+Received: from sd291.sivit.org ([194.146.225.122]:58638 "EHLO sd291.sivit.org")
+	by vger.kernel.org with ESMTP id S932175AbWIZRjw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Sep 2006 13:35:32 -0400
-Message-ID: <451964E1.4090304@pobox.com>
-Date: Tue, 26 Sep 2006 13:35:29 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
+	Tue, 26 Sep 2006 13:39:52 -0400
+Message-ID: <45195583.4090500@popies.net>
+Date: Tue, 26 Sep 2006 18:29:55 +0200
+From: Stelian Pop <stelian@popies.net>
+User-Agent: Thunderbird 1.5.0.7 (Macintosh/20060909)
 MIME-Version: 1.0
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] libata-eh: Remove layering violation and duplication
- when	handling absent ports
-References: <1159289618.11049.259.camel@localhost.localdomain>
-In-Reply-To: <1159289618.11049.259.camel@localhost.localdomain>
+To: Andrea Gelmini <gelma@gelma.net>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: sonypc with Sony Vaio VGN-SZ1VP
+References: <20060926135659.GA3685@jnb.gelma.net>
+In-Reply-To: <20060926135659.GA3685@jnb.gelma.net>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.3 (----)
-X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.3 points, 5.0 required)
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox wrote:
-> This removes the layering violation where drivers have to fiddle
-> directly with EH flags. Instead we now recognize -ENOENT means "no port"
-> and do the handling in the core code.
-> 
-> This also removes an instance of a call to disable the port, and an
-> identical printk from each driver doing this. Even better - future rule
-> changes will be in one place only.
-> 
-> Signed-off-by: Alan Cox <alan@redhat.com>
+Andrea Gelmini a écrit :
+> Hi,
+> 	I've got a Sony Vaio VGN-SZ1VP (dmidecode[1] and lspci[2]).
+> 	Using default kernel (linux-image-2.6.15-27-686) of Ubuntu
+> 	Dapper I've got /proc/acpi/sony/brightness and it works well
+> 	(yes, Ubuntu drivers/char/sonypi.c is patched).
+> 	With any other newer vanilla kernel, 2.6.15/16/17/18, /proc/acpi/sony
+> 	doesn't appear, and it's impossibile to set brigthness, of
+> 	course. Same thing with Ubuntu kernel package
+> 	(linux-image-2.6.17-9-386).
+> 	I tried to port Ubuntu sonypi.c patches to 2.6.18, but it doesn't
+> 	work (I mean, it compiles clean, it "modprobes"[3] clean, but no
+> 	/proc/acpi/sony/ directory).
 
-applied, but please stop adding trailing whitespace
+/proc/acpi/sony comes from the sony_acpi driver, not sonypi.
 
+You should get the latest sony_acpi driver, preferably from the -mm tree 
+which hosts the most up to date version.
 
+Stelian.
+-- 
+Stelian Pop <stelian@popies.net>

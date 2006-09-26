@@ -1,185 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932358AbWIZSEV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751272AbWIZSQY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932358AbWIZSEV (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Sep 2006 14:04:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932360AbWIZSEU
+	id S1751272AbWIZSQY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Sep 2006 14:16:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751271AbWIZSQY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Sep 2006 14:04:20 -0400
-Received: from tomts22-srv.bellnexxia.net ([209.226.175.184]:57075 "EHLO
-	tomts22-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id S932358AbWIZSET (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Sep 2006 14:04:19 -0400
-Date: Tue, 26 Sep 2006 14:04:14 -0400
-From: Mathieu Desnoyers <compudj@krystal.dyndns.org>
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Martin Bligh <mbligh@google.com>, "Frank Ch. Eigler" <fche@redhat.com>,
-       Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>, prasanna@in.ibm.com,
-       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-       Paul Mundt <lethal@linux-sh.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>, Jes Sorensen <jes@sgi.com>,
-       Tom Zanussi <zanussi@us.ibm.com>,
-       Richard J Moore <richardj_moore@uk.ibm.com>,
-       Michel Dagenais <michel.dagenais@polymtl.ca>,
-       Christoph Hellwig <hch@infradead.org>,
-       Greg Kroah-Hartman <gregkh@suse.de>,
-       Thomas Gleixner <tglx@linutronix.de>, William Cohen <wcohen@redhat.com>,
-       ltt-dev@shafik.org, systemtap@sources.redhat.com,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Karim Yaghmour <karim@opersys.com>,
-       Pavel Machek <pavel@suse.cz>, Joe Perches <joe@perches.com>,
-       "Randy.Dunlap" <rdunlap@xenotime.net>,
-       "Jose R. Santos" <jrs@us.ibm.com>
-Subject: Re: [PATCH] Linux Kernel Markers 0.13 for 2.6.17
-Message-ID: <20060926180414.GA10497@Krystal>
-References: <20060925233349.GA2352@Krystal> <20060925235617.GA3147@Krystal> <45187146.8040302@goop.org> <20060926002551.GA18276@Krystal> <20060926004535.GA2978@Krystal> <45187C0E.1080601@goop.org> <20060926025924.GA27366@Krystal> <4518B4A0.6070509@goop.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-In-Reply-To: <4518B4A0.6070509@goop.org>
-X-Editor: vi
-X-Info: http://krystal.dyndns.org:8080
-X-Operating-System: Linux/2.4.32-grsec (i686)
-X-Uptime: 13:58:29 up 34 days, 15:07,  4 users,  load average: 1.73, 0.81, 0.44
-User-Agent: Mutt/1.5.13 (2006-08-11)
+	Tue, 26 Sep 2006 14:16:24 -0400
+Received: from mail.aknet.ru ([82.179.72.26]:4878 "EHLO mail.aknet.ru")
+	by vger.kernel.org with ESMTP id S1750719AbWIZSQX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Sep 2006 14:16:23 -0400
+Message-ID: <45196ED2.90405@aknet.ru>
+Date: Tue, 26 Sep 2006 22:17:54 +0400
+From: Stas Sergeev <stsp@aknet.ru>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
+MIME-Version: 1.0
+To: Linux kernel <linux-kernel@vger.kernel.org>
+Cc: Andrew Morton <akpm@osdl.org>, Jeff Garzik <jgarzik@pobox.com>
+Subject: Re: 2.6.18-mm1 (Oops in sata_nv)
+Content-Type: multipart/mixed;
+ boundary="------------060600040503000803060805"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+This is a multi-part message in MIME format.
+--------------060600040503000803060805
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Ok, so as far as I can see, we can only control the execution flow by modifying
-values in the output list of the asm.
+Hi.
 
-Do you think the following would work ?
-
-
-#define MARK_JUMP(name, format, args...) \
-        do { \
-                char condition; \
-                asm volatile(   ".section .markers, \"a\";\n\t" \
-                                        ".long 0f;\n\t" \
-                                        ".previous;\n\t" \
-                                        "0:\n\t" \
-                                        "movb $0,%1;\n\t" \
-                                : "+m" (__marker_sequencer), \
-                                "=r" (condition) : ); \
-                if(unlikely(condition)) { \
-                        MARK_CALL(name, format, ## args); \
-                } \
-        } while(0)
-
-The jump is left to gcc, we only modify an immediate value (a byte) to change
-the selection. The is no memory load involved on the fast path :
-
-...
-   6:   b0 00                   mov    $0x0,%al
-   8:   84 c0                   test   %al,%al
-   a:   75 07                   jne    13 <my_open+0x13>
-   c:   b8 ff ff ff ff          mov    $0xffffffff,%eax
-  11:   c9                      leave  
-  12:   c3                      ret    
-  13:   b8 01 00 00 00          mov    $0x1,%eax
-  18:   e8 fc ff ff ff          call   19 <my_open+0x19>
-  1d:   c7 44 24 0c 00 00 00    movl   $0x0,0xc(%esp)
-  24:   00 
-  25:   c7 44 24 08 06 00 00    movl   $0x6,0x8(%esp)
-  2c:   00 
-  2d:   c7 44 24 04 02 00 00    movl   $0x2,0x4(%esp)
-  34:   00 
-  35:   c7 04 24 0c 00 00 00    movl   $0xc,(%esp)
-  3c:   ff 15 94 00 00 00       call   *0x94
-  42:   b8 01 00 00 00          mov    $0x1,%eax
-  47:   e8 fc ff ff ff          call   48 <my_open+0x48>
-  4c:   eb be                   jmp    c <my_open+0xc>
+Andrew Morton wrote:
+> ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18/2.6.18-mm1/
+Not that I've been able to run -mm for the
+last few months, but now at least I've got
+an oops, which is better than nothing. :)
+Attached. Any guesses, or should I start the
+binary-search?
 
 
-Mathieu
+--------------060600040503000803060805
+Content-Type: text/plain;
+ name="a"
+Content-Transfer-Encoding: base64
+Content-Disposition: inline;
+ filename="a"
 
-* Jeremy Fitzhardinge (jeremy@goop.org) wrote:
-> Mathieu Desnoyers wrote:
-> >>Mathieu Desnoyers wrote:
-> >>    
-> >>>To protect code from being preempted, the macros preempt_disable and
-> >>>preempt_enable must normally be used. Logically, this macro must make 
-> >>>sure gcc
-> >>>doesn't interleave preemptible code and non-preemptible code.
-> >>> 
-> >>>      
-> >>No, it only needs to prevent globally visible side-effects from being 
-> >>moved into/out of preemptable blocks.  In practice that means memory 
-> >>updates (including the implicit ones that calls to external functions 
-> >>are assumed to make).
-> >>
-> >>    
-> >>>Which makes me think that if I put barriers around my asm, call, asm 
-> >>>trio, no
-> >>>other code will be interleaved. Is it right ?
-> >>> 
-> >>>      
-> >>No global side effects, but code with local side effects could be moved 
-> >>around without changing the meaning of preempt.
-> >>
-> >>For example:
-> >>
-> >>	int foo;
-> >>	extern int global;
-> >>
-> >>	foo = some_function();
-> >>
-> >>	foo += 42;
-> >>
-> >>	preempt_disable();
-> >>	// stuff
-> >>	preempt_enable();
-> >>
-> >>	global = foo;
-> >>	foo += other_thing();
-> >>
-> >>Assume here that some_function and other_function are extern, and so gcc 
-> >>has no insight into their behaviour and therefore conservatively assumes 
-> >>they have global side-effects.
-> >>
-> >>The memory barriers in preempt_disable/enable will prevent gcc from 
-> >>moving any of the function calls into the non-preemptable region. But 
-> >>because "foo" is local and isn't visible to any other code, there's no 
-> >>reason why the "foo += 42" couldn't move into the preempt region.  
-> >>    
-> >
-> >I am not sure about this last statement. The same reference :
-> >http://developer.apple.com/documentation/DeveloperTools/gcc-4.0.1/gcc/Extended-Asm.html
-> >  
-> (This is pretty old, and this is an area which changes quite a lot.  You 
-> should refer to something more recent;
-> http://www.cims.nyu.edu/cgi-systems/info2html?/usr/local/info(gcc)Top 
-> for example, though in this case the quoted text looks the same.)
-> 
-> >I am just wondering how gcc can assume that I will not modify variables on 
-> >the
-> >stack from within a function with a memory clobber. If I would like to do 
-> >some
-> >nasty things in my assembly code, like accessing directly to a local 
-> >variable by
-> >using an offset from the stack pointer, I would expect gcc not to relocate 
-> >this
-> >local variable around my asm volatile memory clobbered statement, as it 
-> >falls
-> >under the category "access memory in an unpredictable fashion".
-> >  
-> 
-> That not really what it means.  gcc is free to put local variables in 
-> memory or register, and unless you pass the local to your asm as a 
-> parameter, your code has no way of knowing how to find the current 
-> location of the local.  You could trash your stack frame from within the 
-> asm if you like, but I don't think gcc is under any obligation to behave 
-> in a deterministic way if you do.
-> 
-> "Unpredictable" in this case means that the memory modified isn't easily 
-> specified as a normal asm parameter.  For example, if you have an asm 
-> which does a memset(), the modified memory's size is a runtime variable 
-> rather than a compile-time constant.  Or perhaps your asm follows a 
-> linked list and modifies memory as it traverses the list.
-> 
-> 
->    J
-> 
-OpenPGP public key:              http://krystal.dyndns.org:8080/key/compudj.gpg
-Key fingerprint:     8CD5 52C3 8E3C 4140 715F  BA06 3F25 A8FE 3BAE 9A68 
+aGRjOiBQSElMSVBTIERST002MjE2LCBBVEFQSSBDRC9EVkQtUk9NIGRyaXZlCmhkZDogX05F
+QyBEVkRfUlcgTkQtNDU1MUEsIEFUQVBJIENEL0RWRC1ST00gZHJpdmUKaWRlMSBhdCAweDE3
+MC0weDE3NywweDM3NiBvbiBpcnEgMTUKaGRjOiBBVEFQSSAxNlggRFZELVJPTSBkcml2ZSwg
+NTEya0IgQ2FjaGUKVW5pZm9ybSBDRC1ST00gZHJpdmVyIFJldmlzaW9uOiAzLjIwCmhkZDog
+QVRBUEkgMzJYIERWRC1ST00gRFZELVItUkFNIENELVIvUlcgZHJpdmUsIDIwNDhrQiBDYWNo
+ZQp1c2Jjb3JlOiByZWdpc3RlcmVkIG5ldyBpbnRlcmZhY2UgZHJpdmVyIGxpYnVzdWFsClBO
+UDogTm8gUFMvMiBjb250cm9sbGVyIGZvdW5kLiBQcm9iaW5nIHBvcnRzIGRpcmVjdGx5Lgpz
+ZXJpbzogaTgwNDIgQVVYIHBvcnQgYXQgMHg2MCwweDY0IGlycSAxMgpzZXJpbzogaTgwNDIg
+S0JEIHBvcnQgYXQgMHg2MCwweDY0IGlycSAxCm1pY2U6IFBTLzIgbW91c2UgZGV2aWNlIGNv
+bW1vbiBmb3IgYWxsIG1pY2UKVENQIGJpYyByZWdpc3RlcmVkCkluaXRpYWxpemluZyBYRlJN
+IG5ldGxpbmsgc29ja2V0Ck5FVDogUmVnaXN0ZXJlZCBwcm90b2NvbCBmYW1pbHkgMQpORVQ6
+IFJlZ2lzdGVyZWQgcHJvdG9jb2wgZmFtaWx5IDE3CnBvd2Vybm93LWs4OiBGb3VuZCAyIEFN
+RCBBdGhsb24odG0pIDY0IFgyIER1YWwgQ29yZSBQcm9jZXNzb3IgMzgwMCsgcHJvY2Vzc29y
+cyAodmVyc2lvbiAyLjAwLjAwKQpwb3dlcm5vdy1rODogICAgMCA6IGZpZCAweGMgKDIwMDAg
+TUh6KSwgdmlkIDB4OApwb3dlcm5vdy1rODogICAgMSA6IGZpZCAweGEgKDE4MDAgTUh6KSwg
+dmlkIDB4YQpwb3dlcm5vdy1rODogICAgMiA6IGZpZCAweDIgKDEwMDAgTUh6KSwgdmlkIDB4
+MTIKQUNQSTogKHN1cHBvcnRzIFMwIFMzIFM0IFM1KQpGcmVlaW5nIHVudXNlZCBrZXJuZWwg
+bWVtb3J5OiAyMjBrIGZyZWVkCldyaXRlIHByb3RlY3RpbmcgdGhlIGtlcm5lbCByZWFkLW9u
+bHkgZGF0YTogNDU3awpTQ1NJIHN1YnN5c3RlbSBpbml0aWFsaXplZApBQ1BJOiBQQ0kgSW50
+ZXJydXB0IExpbmsgW0FQU0ldIGVuYWJsZWQgYXQgSVJRIDIyCkFDUEk6IFBDSSBJbnRlcnJ1
+cHQgMDAwMDowMDowNy4wW0FdIC0+IExpbmsgW0FQU0ldIC0+IEdTSSAyMiAobGV2ZWwsIGxv
+dykgLT4gSVJRIDIyCmF0YTE6IFNBVEEgbWF4IFVETUEvMTMzIGNtZCAweDlGMCBjdGwgMHhC
+RjIgYm1kbWEgMHhEODAwIGlycSAyMgpnZW5lcmFsIHByb3RlY3Rpb24gZmF1bHQ6IDAwMDAg
+WzFdIFNNUCAKbGFzdCBzeXNmcyBmaWxlOiAvYmxvY2svcmFtMC9yZW1vdmFibGUKQ1BVIDEg
+Ck1vZHVsZXMgbGlua2VkIGluOiBzYXRhX252IGxpYmF0YSBzZF9tb2Qgc2NzaV9tb2QKUGlk
+OiAzNzksIGNvbW06IGluc21vZCBOb3QgdGFpbnRlZCAyLjYuMTgtbW0xICMzClJJUDogMDAx
+MDpbPGZmZmZmZmZmODgwMzE3Mjg+XSAgWzxmZmZmZmZmZjg4MDMxNzI4Pl0gOmxpYmF0YTph
+dGFfZGV2aWNlX2FkZCsweDFjOC8weDU2MApSU1A6IDAwMTg6ZmZmZjgxMDAzZmRlOWJlOCAg
+RUZMQUdTOiAwMDAxMDI0NgpSQVg6IDQ4MDAwMDAxZjhiMzhkNDggUkJYOiAwMDAwMDAwMDAw
+MDAwMDAxIFJDWDogMDAwMDAwMDAwMDAwMDAwMQpSRFg6IGZmZmY4MTAwM2Y4ZWIwMDAgUlNJ
+OiBmZmZmODEwMDNmOGViMTE4IFJESTogZmZmZjgxMDAzZjYxODVkMApSQlA6IGZmZmY4MTAw
+M2ZkZTljNTggUjA4OiAwMDAwMDAwMDAwMDAwMDAwIFIwOTogZmZmZjgxMDAzZjYxOGM1OApS
+MTA6IDAwMDAwMDAwMDAwMDAwMDEgUjExOiAwMDAwMDAwMDAwMDAwMDAwIFIxMjogMDAwMDAw
+MDAwMDAwMGJmMgpSMTM6IDAwMDAwMDAwMDAwMDA5ZjAgUjE0OiBmZmZmODEwMDNmNjE4NWQw
+IFIxNTogMDAwMDAwMDAwMDAwMDAwMQpGUzogIDAwMDAwMDAwMDA1N2I4NTAoMDA2MykgR1M6
+ZmZmZjgxMDAzN2ZmYjQ0MCgwMDAwKSBrbmxHUzowMDAwMDAwMDAwMDAwMDAwCkNTOiAgMDAx
+MCBEUzogMDAwMCBFUzogMDAwMCBDUjA6IDAwMDAwMDAwODAwNTAwM2IKQ1IyOiAwMDAwMDAw
+MDAwNjVhZWEwIENSMzogMDAwMDAwMDAzZjg1ZjAwMCBDUjQ6IDAwMDAwMDAwMDAwMDA2ZTAK
+UHJvY2VzcyBpbnNtb2QgKHBpZDogMzc5LCB0aHJlYWRpbmZvIGZmZmY4MTAwM2ZkZTgwMDAs
+IHRhc2sgZmZmZjgxMDAzZmJhMzA0MCkKU3RhY2s6ICAwMDAwMDAwMDAwMDBkODAwIGZmZmY4
+MTAwMDAwMDAwMTYgZmZmZjgxMDAzZjhlYjAwMCBmZmZmODEwMDM3ZWU5NDQwCiBmZmZmODEw
+MDM3ZWM4MDcwIDAwMDAwMDE2ODgwNDc3MjAgMDAwMDAwMDAwMDAwMDAwMSBmZmZmODEwMDM3
+ZWM4MDAwCiBmZmZmODEwMDNmZGU5YzU4IGZmZmY4MTAwMzdlYzgwMDAgMDAwMDAwMDAwMDAw
+MDAwMCBmZmZmZmZmZjg4MDQ3NzIwCkNhbGwgVHJhY2U6CiBbPGZmZmZmZmZmODgwNDc2NDA+
+XSA6c2F0YV9udjpudl9pbml0X29uZSsweDE5MC8weDFmMAogWzxmZmZmZmZmZjgwMzZkYzJk
+Pl0gcGNpX2RldmljZV9wcm9iZSsweDVkLzB4YTAKIFs8ZmZmZmZmZmY4MDNkNzU1NT5dIHJl
+YWxseV9wcm9iZSsweDY1LzB4MTAwCiBbPGZmZmZmZmZmODAzZDc2OGM+XSBkcml2ZXJfcHJv
+YmVfZGV2aWNlKzB4OWMvMHhiMAogWzxmZmZmZmZmZjgwM2Q3N2YzPl0gX19kcml2ZXJfYXR0
+YWNoKzB4YTMvMHhmMAogWzxmZmZmZmZmZjgwM2Q2OTFmPl0gYnVzX2Zvcl9lYWNoX2Rldisw
+eDRmLzB4ODAKIFs8ZmZmZmZmZmY4MDNkNzQwYz5dIGRyaXZlcl9hdHRhY2grMHgxYy8weDIw
+CiBbPGZmZmZmZmZmODAzZDZkMGY+XSBidXNfYWRkX2RyaXZlcisweDdmLzB4MWQwCiBbPGZm
+ZmZmZmZmODAzZDdhZDk+XSBkcml2ZXJfcmVnaXN0ZXIrMHg4OS8weDkwCiBbPGZmZmZmZmZm
+ODAzNmRlOWI+XSBfX3BjaV9yZWdpc3Rlcl9kcml2ZXIrMHg4Yi8weGIwCiBbPGZmZmZmZmZm
+ODgwNGIwMTc+XSA6c2F0YV9udjpudl9pbml0KzB4MTcvMHgxOQogWzxmZmZmZmZmZjgwMmI2
+YjMzPl0gc3lzX2luaXRfbW9kdWxlKzB4MTdiMy8weDE5YjAKIFs8ZmZmZmZmZmY4MDI2NzEx
+ZT5dIHN5c3RlbV9jYWxsKzB4N2UvMHg4MwogWzwwMDAwMDAwMDAwNDBjOGRhPl0KCgpDb2Rl
+OiBmZiA5MCBmOCAwMCAwMCAwMCA4NSBjMCAwZiA4NSBjMyAwMiAwMCAwMCA0MSA4MyBmZiAw
+MSA3NSAxNyAKUklQICBbPGZmZmZmZmZmODgwMzE3Mjg+XSA6bGliYXRhOmF0YV9kZXZpY2Vf
+YWRkKzB4MWM4LzB4NTYwCiBSU1AgPGZmZmY4MTAwM2ZkZTliZTg+CiA=
+--------------060600040503000803060805--

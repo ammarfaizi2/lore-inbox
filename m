@@ -1,81 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750796AbWIZAWw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751657AbWIZAZz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750796AbWIZAWw (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 25 Sep 2006 20:22:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751843AbWIZAWv
+	id S1751657AbWIZAZz (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 25 Sep 2006 20:25:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751658AbWIZAZz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 25 Sep 2006 20:22:51 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:37569 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750796AbWIZAWv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 25 Sep 2006 20:22:51 -0400
-Date: Mon, 25 Sep 2006 17:22:40 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Nigel Cunningham <ncunningham@linuxmail.org>,
-       Stefan Seyfried <seife@suse.de>, linux-kernel@vger.kernel.org,
-       "Rafael J. Wysocki" <rjw@sisk.pl>
-Subject: Re: When will the lunacy end? (Was Re: [PATCH] uswsusp: add
- pmops->{prepare,enter,finish} support (aka "platform mode"))
-Message-Id: <20060925172240.5c389c25.akpm@osdl.org>
-In-Reply-To: <20060925232151.GA1896@elf.ucw.cz>
-References: <20060925071338.GD9869@suse.de>
-	<1159220043.12814.30.camel@nigel.suspend2.net>
-	<20060925144558.878c5374.akpm@osdl.org>
-	<20060925224500.GB2540@elf.ucw.cz>
-	<20060925160648.de96b6fa.akpm@osdl.org>
-	<20060925232151.GA1896@elf.ucw.cz>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+	Mon, 25 Sep 2006 20:25:55 -0400
+Received: from tomts40.bellnexxia.net ([209.226.175.97]:37089 "EHLO
+	tomts40-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id S1751656AbWIZAZy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 25 Sep 2006 20:25:54 -0400
+Date: Mon, 25 Sep 2006 20:25:51 -0400
+From: Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: Martin Bligh <mbligh@google.com>, "Frank Ch. Eigler" <fche@redhat.com>,
+       Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>, prasanna@in.ibm.com,
+       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
+       Paul Mundt <lethal@linux-sh.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>, Jes Sorensen <jes@sgi.com>,
+       Tom Zanussi <zanussi@us.ibm.com>,
+       Richard J Moore <richardj_moore@uk.ibm.com>,
+       Michel Dagenais <michel.dagenais@polymtl.ca>,
+       Christoph Hellwig <hch@infradead.org>,
+       Greg Kroah-Hartman <gregkh@suse.de>,
+       Thomas Gleixner <tglx@linutronix.de>, William Cohen <wcohen@redhat.com>,
+       ltt-dev@shafik.org, systemtap@sources.redhat.com,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Karim Yaghmour <karim@opersys.com>,
+       Pavel Machek <pavel@suse.cz>, Joe Perches <joe@perches.com>,
+       "Randy.Dunlap" <rdunlap@xenotime.net>,
+       "Jose R. Santos" <jrs@us.ibm.com>
+Subject: Re: [PATCH] Linux Kernel Markers 0.13 for 2.6.17
+Message-ID: <20060926002551.GA18276@Krystal>
+References: <20060925233349.GA2352@Krystal> <20060925235617.GA3147@Krystal> <45187146.8040302@goop.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <45187146.8040302@goop.org>
+X-Editor: vi
+X-Info: http://krystal.dyndns.org:8080
+X-Operating-System: Linux/2.4.32-grsec (i686)
+X-Uptime: 20:22:28 up 33 days, 21:31,  3 users,  load average: 0.05, 0.21, 0.24
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 26 Sep 2006 01:21:51 +0200
-Pavel Machek <pavel@ucw.cz> wrote:
-
-> Hi!
+* Jeremy Fitzhardinge (jeremy@goop.org) wrote:
+> Mathieu Desnoyers wrote:
+> >Just as a precision :
+> >
+> >The following sequence (please refer to the code below for local symbols
+> >1 and 2) :
+> >
+> >1:
+> >preempt_disable()
+> >call (*__mark_call_##name)(format, ## args);
+> >preempt_enable_no_resched()
+> >2:
+> >
+> >is insured because :
+> >
+> >1 is part of an inline assembly with rw dependency on __marker_sequencer
+> >the call is surrounded by memory barriers.
+> >2 is part of an inline assembly with rw dependency on __marker_sequencer
+> >  
 > 
-> On Mon 2006-09-25 16:06:48, Andrew Morton wrote:
-> > On Tue, 26 Sep 2006 00:45:00 +0200
-> > Pavel Machek <pavel@ucw.cz> wrote:
-> > 
-> > > Anyways this boils down to "find which drivers are delaying suspend
-> > > and fix them".
-> > 
-> > The first step would be "find some way of identifying where all the time is
-> > being spent".
-> > 
-> > Right now, netconsole gets disabled (or makes the machine hang) and most of
-> > these machines don't have serial ports and the printk buffer gets lost
-> > during resume.
-> > 
-> > The net result is that the machine takes a long time to suspend and resume,
-> > and you don't have a clue *why*.
-> > 
-> > And this is a significant issue, IMO.  In terms of
-> > niceness-of-user-interface, being able to suspend in twelve seconds instead
-> > of twenty seven rates fairly highly...
+> What do you mean the call is surrounded by memory barriers?  Do you mean 
+> a call has an implicit barrier, or something else?
 > 
-> Your machines spend 15 seconds in drivers? Ouch, I did not realize
-> _that_. 
+Yes, preempt_disable() has a barrier(), on gcc :
+__asm__ __volatile__("": : :"memory").
+
+
+> Either way, this doesn't prevent some otherwise unrelated 
+> non-memory-using code from being scheduled in there, which would not be 
+> executed.  The gcc manual really strongly discourages jumping between 
+> inline asms, because they have basically unpredictable results.
 > 
-> (My machine suspends in 7 seconds, perhaps 2-3 of that are playing
-> with drivers, so I just failed to see where the problem is).
-> 
-> Are these your big SMP servers? Any SCSI involved?
 
-It's my long-suffering Vaio laptop.
+Ok, I will do the call in assembly then.
 
-> Rafael has "fakesuspend" patches somewhere, but you can probably just
-> swapoff -a, then echo disk > /sys/power/state. If you are lucky, that
-> should be slow, too... fortunately you'll have useful dmesg buffer
-> when you are done. CONFIG_PRINTK_TIMING or something, and you should
-> have enough clues...?
+Mathieu
 
-That would help.
 
-> 15 seconds spend within drivers is definitely _not_ okay.
-
-I assumed it was the same for everyone else ;)
+OpenPGP public key:              http://krystal.dyndns.org:8080/key/compudj.gpg
+Key fingerprint:     8CD5 52C3 8E3C 4140 715F  BA06 3F25 A8FE 3BAE 9A68 

@@ -1,64 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965467AbWI0JXG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965469AbWI0JZR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965467AbWI0JXG (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Sep 2006 05:23:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965468AbWI0JXG
+	id S965469AbWI0JZR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Sep 2006 05:25:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965470AbWI0JZR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Sep 2006 05:23:06 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:50334 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S965467AbWI0JXD (ORCPT
+	Wed, 27 Sep 2006 05:25:17 -0400
+Received: from www.osadl.org ([213.239.205.134]:13519 "EHLO mail.tglx.de")
+	by vger.kernel.org with ESMTP id S965469AbWI0JZP (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Sep 2006 05:23:03 -0400
-Date: Wed, 27 Sep 2006 11:15:13 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Bill Huey <billh@gnuppy.monkey.org>
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>, linux-kernel@vger.kernel.org,
-       Thomas Gleixner <tglx@linutronix.de>, John Stultz <johnstul@us.ibm.com>,
-       "Paul E. McKenney" <paulmck@us.ibm.com>,
-       Dipankar Sarma <dipankar@in.ibm.com>,
-       Arjan van de Ven <arjan@infradead.org>
-Subject: Re: [PATCH] move put_task_struct() reaping into a thread [Re: 2.6.18-rt1]
-Message-ID: <20060927091513.GC20395@elte.hu>
-References: <20060920141907.GA30765@elte.hu> <20060921065624.GA9841@gnuppy.monkey.org> <m1irjaqaqa.fsf@ebiederm.dsl.xmission.com> <20060927050856.GA16140@gnuppy.monkey.org> <20060927085712.GA16938@elte.hu> <20060927091456.GB17136@gnuppy.monkey.org>
-Mime-Version: 1.0
+	Wed, 27 Sep 2006 05:25:15 -0400
+Date: Wed, 27 Sep 2006 11:25:11 +0200
+From: Jan Altenberg <tb10alj@tglx.de>
+To: Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] Fix simple Kconfig.preempt typo in 2.6.18-rt4
+Message-ID: <20060927092511.GA4644@tb10alj3.homag.com>
+Mail-Followup-To: Ingo Molnar <mingo@elte.hu>,
+	Thomas Gleixner <tglx@linutronix.de>, linux-kernel@vger.kernel.org
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060927091456.GB17136@gnuppy.monkey.org>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -2.9
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.9 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5000]
-	-0.1 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+- Fix a simple typo in kernel/Kconfig.preempt
 
-* Bill Huey <billh@gnuppy.monkey.org> wrote:
+Signed-off-by: Jan Altenberg <tb10alj@tglx.de>
 
-> On Wed, Sep 27, 2006 at 10:57:12AM +0200, Ingo Molnar wrote:
-> > * Bill Huey <billh@gnuppy.monkey.org> wrote:
-> > 
-> > > Because the conversion of memory allocation routines like kmalloc and 
-> > > kfree aren't safely callable within a preempt_disable critical section 
-> > > since they were incompletely converted in the -rt. [...]
-> > 
-> > they were not 'incompletely converted' - they are /intentionally/ fully 
-> > preemptible.
-> 
-> What I meant by "incompletely converted" is that the allocators could 
-> be made more safe in non-preemptible scenarios under -rt. [...]
+----------------------
 
-no, the -rt kernel intentionally does not do that and wont do that. 
-There's lots of complex stuff going on within allocators, even in the 
-GFP_ATOMIC path. We might be able to plug in more deterministic 
-allocators (like SLOB), but even they must be fully preemptible. In the 
--rt kernel there's basically no compromise on the "do as little as 
-possible in non-preemptible regions" stance.
-
-	Ingo
+--- linux-2.6.18-rt4/kernel/Kconfig.preempt.orig	2006-09-27 11:09:20.000000000 +0200
++++ linux-2.6.18-rt4/kernel/Kconfig.preempt	2006-09-27 11:09:40.000000000 +0200
+@@ -65,7 +65,7 @@ config PREEMPT_RT
+ 	  critical kernel code involuntarily preemptible. The remaining
+ 	  handful of lowlevel non-preemptible codepaths are short and
+ 	  have a deterministic latency of a couple of tens of
+-	  microseconds (depending the the hardware).  This also allows
++	  microseconds (depending on the hardware).  This also allows
+ 	  applications to run more 'smoothly' even when the system is
+ 	  under load, at the cost of lower throughput and runtime
+ 	  overhead to kernel code.

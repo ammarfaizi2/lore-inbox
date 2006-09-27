@@ -1,50 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030228AbWI0QTK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751215AbWI0Q0J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030228AbWI0QTK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Sep 2006 12:19:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751210AbWI0QTJ
+	id S1751215AbWI0Q0J (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Sep 2006 12:26:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751216AbWI0Q0J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Sep 2006 12:19:09 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:64653 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1751208AbWI0QTI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Sep 2006 12:19:08 -0400
-Date: Wed, 27 Sep 2006 09:19:00 -0700 (PDT)
-From: Christoph Lameter <clameter@sgi.com>
-To: Andy Whitcroft <apw@shadowen.org>
-cc: Andrew Morton <akpm@osdl.org>, linux-mm@kvack.org,
-       linux-kernel@vger.kernel.org, Dave Hansen <haveblue@us.ibm.com>
-Subject: Re: [PATCH] zone table removal miss merge
-In-Reply-To: <20060927112315.GA8093@shadowen.org>
-Message-ID: <Pine.LNX.4.64.0609270911060.9171@schroedinger.engr.sgi.com>
-References: <20060927021934.9461b867.akpm@osdl.org> <20060927112315.GA8093@shadowen.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 27 Sep 2006 12:26:09 -0400
+Received: from nwd2mail10.analog.com ([137.71.25.55]:39260 "EHLO
+	nwd2mail10.analog.com") by vger.kernel.org with ESMTP
+	id S1751215AbWI0Q0I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Sep 2006 12:26:08 -0400
+X-IronPort-AV: i="4.09,225,1157342400"; 
+   d="scan'208"; a="12218281:sNHT21509740"
+Message-Id: <6.1.1.1.0.20060927121508.01ecea90@ptg1.spd.analog.com>
+X-Mailer: QUALCOMM Windows Eudora Version 6.1.1.1
+Date: Wed, 27 Sep 2006 12:25:17 -0400
+To: arnd Bergmann <arnd@arndb.de>
+From: Robin Getz <rgetz@blackfin.uclinux.org>
+Subject: Re: [PATCH 1/4] Blackfin: arch patch for 2.6.18
+Cc: luke Yang <luke.adi@gmail.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 27 Sep 2006, Andy Whitcroft wrote:
+Arnd wrote:
+>Ok, looks good now. Just a few details that don't impact the
+>functionality:
 
-> The below should fix it.
+[snip]
 
-Acked-by: Christoph Lameter <clameter@sgi.com>
+What I committed (to our source) is:
 
++++ process.c   27 Sep 2006 15:32:46 -0000      1.42
+@@ -101,10 +101,10 @@
+  {
+         while (!need_resched()) {
+                 leds_switch(LED_OFF);
+-             __asm__("nop;\n\t \
+-                         nop;\n\t \
+-                         nop;\n\t \
+-                         idle;\n\t": : :"cc");
++               local_irq_disable();
++               if (likely( !need_resched()))
++                       idle_with_irq_disabled();
++               local_irq_enable();
+                 leds_switch(LED_ON);
+         }
+  }
 
-Note that if ZONE_DMA is off then ZONES_WIDTH may become
-0 and therefore also ZONES_PGSHIFT is zero.
+And in system.h, this was added (because this is where all the other 
+inlines is which messes with the interrupts are - and irq_flags is already 
+defined here)
 
-If you then do
++++ system.h    27 Sep 2006 15:32:51 -0000      1.24
 
-#define ZONEID_PGSHIFT ZONES_PGSHIFT
++#define idle_with_irq_disabled() do {   \
++        __asm__ __volatile__ (          \
++                "nop; nop;\n"           \
++                ".align 8;\n"           \
++                "sti %0; idle;\n"       \
++                ::"d" (irq_flags));     \
++} while (0)
 
-then ZONEID_PGSHIFT will be 0!
+It seems to work OK.
 
-So this could be an issue for the optional ZONE_DMA patch.
+Thanks for your help on this.
 
-Could you also make sure that ZONEID_PGSHIFT is set correctly even if 
-ZONES_WIDTH is zero?
+I think we have been weeding through everyone's comments, and have most 
+things fixed up.
 
-This affects the optional ZONE_DMA patch. zone table removal should be 
-fine with just the above patch.
+Are there any other major issues that you can see (that have not been 
+pointed out).
 
-
+-Robin

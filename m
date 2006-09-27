@@ -1,54 +1,36 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030758AbWI0UWj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030756AbWI0UYj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030758AbWI0UWj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Sep 2006 16:22:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030760AbWI0UWj
+	id S1030756AbWI0UYj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Sep 2006 16:24:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030759AbWI0UYj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Sep 2006 16:22:39 -0400
-Received: from www.osadl.org ([213.239.205.134]:9433 "EHLO mail.tglx.de")
-	by vger.kernel.org with ESMTP id S1030758AbWI0UWi (ORCPT
+	Wed, 27 Sep 2006 16:24:39 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:55777 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030756AbWI0UYi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Sep 2006 16:22:38 -0400
-Subject: Re: [RFC] exponential update_wall_time
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: Ingo Molnar <mingo@elte.hu>
-Cc: john stultz <johnstul@us.ibm.com>, Roman Zippel <zippel@linux-m68k.org>,
-       lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-In-Reply-To: <20060927200832.GB20282@elte.hu>
-References: <1159385734.29040.9.camel@localhost>
-	 <20060927200832.GB20282@elte.hu>
-Content-Type: text/plain
-Date: Wed, 27 Sep 2006 22:24:19 +0200
-Message-Id: <1159388660.9326.509.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
+	Wed, 27 Sep 2006 16:24:38 -0400
+Date: Wed, 27 Sep 2006 13:21:17 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Andi Kleen <ak@suse.de>
+cc: Kyle McMartin <kyle@parisc-linux.org>, linux-kernel@vger.kernel.org,
+       linux-acpi@vger.kernel.org, akpm@osdl.org
+Subject: Re: [BUG] Oops on boot (probably ACPI related)
+In-Reply-To: <p73fyedje0f.fsf@verdi.suse.de>
+Message-ID: <Pine.LNX.4.64.0609271320580.3952@g5.osdl.org>
+References: <200609271424.47824.eike-kernel@sf-tec.de>
+ <pan.2006.09.27.17.56.13.80913@automagically.de> <20060927184037.GA3306@athena.road.mcmartin.ca>
+ <p73fyedje0f.fsf@verdi.suse.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-09-27 at 22:08 +0200, Ingo Molnar wrote:
-> * john stultz <johnstul@us.ibm.com> wrote:
+
+
+On Wed, 27 Sep 2006, Andi Kleen wrote:
 > 
-> > Accumulate time in update_wall_time exponentially. This avoids long 
-> > running loops seen with the dynticks patch as well as the problematic 
-> > hang" seen on systems with broken clocksources.
-> > 
-> > This applies on top of 2.6.18-mm1
-> > 
-> > Signed-off-by: John Stultz <johnstul@us.ibm.com>
-> 
-> Acked-by: Ingo Molnar <mingo@elte.hu>
+> I expect this patch to fix it.
 
-Acked-by: Thomas Gleixner <tglx@linutronix.de>
+Andrew, Kyle, can you verify?
 
-> works fine and is included in 2.6.18-rt too.
-
-Same here.
-
-	tglx
-
-
-
-
-
+		Linus

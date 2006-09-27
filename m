@@ -1,45 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030492AbWI0Rq7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030489AbWI0Rqi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030492AbWI0Rq7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Sep 2006 13:46:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030491AbWI0Rq6
+	id S1030489AbWI0Rqi (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Sep 2006 13:46:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030490AbWI0Rqi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Sep 2006 13:46:58 -0400
-Received: from nwd2mail11.analog.com ([137.71.25.57]:39734 "EHLO
-	nwd2mail11.analog.com") by vger.kernel.org with ESMTP
-	id S1030492AbWI0Rq5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Sep 2006 13:46:57 -0400
-X-IronPort-AV: i="4.09,225,1157342400"; 
-   d="scan'208"; a="10386604:sNHT19044228"
-Message-Id: <6.1.1.1.0.20060927132022.01ed0450@ptg1.spd.analog.com>
-X-Mailer: QUALCOMM Windows Eudora Version 6.1.1.1
-Date: Wed, 27 Sep 2006 13:47:16 -0400
-To: Randy Dunlap <dunlap@xenotime.net>
-From: Robin Getz <rgetz@blackfin.uclinux.org>
-Subject: Re: [PATCH 1/4] Blackfin: arch patch for 2.6.18
-Cc: arnd Bergmann <arnd@arndb.de>, luke Yang <luke.adi@gmail.com>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Mime-Version: 1.0
-Content-Type: text/plain; charset="us-ascii"; format=flowed
+	Wed, 27 Sep 2006 13:46:38 -0400
+Received: from ug-out-1314.google.com ([66.249.92.173]:32796 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1030489AbWI0Rqh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Sep 2006 13:46:37 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=b4VII1xWz/Otra/U2GyQ7TsNfYXGCLsK2PC1PGVisjY3X3ZgDlW3FD1oNzHMqKimmHltBbNJt+jVdU+98chx47+dxNmqoXgpFoHO1zRupEt+aHz03jlEpNG1z5VfLvDO90sEQDquU07AeOqriCdbE1Oxr5J+XQnmaou2Ip3slWE=
+Message-ID: <6b4e42d10609271046x216e5175g59cb42f12e067c82@mail.gmail.com>
+Date: Wed, 27 Sep 2006 10:46:36 -0700
+From: "Om Narasimhan" <om.turyx@gmail.com>
+To: kernelnewbies <kernelnewbies@nl.linux.org>, linux-kernel@vger.kernel.org
+Subject: HPET : timer routing setup with Legacy Routing Replacement bit set
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Randy wrote:
+Hi,
+I am working with a new bios for a server our company build. I am
+confused about the routing of the timer and arch/x86_64/kernel/time.c
+irq setup.
 
->except for coding style nits.  E.g., the patch above:
->a.  uses spaces instead of tabs for indentation
+HPET specification states that if Legacy routing replacement enable
+bit is set, IRQ0 should not be connected to PIN0 of IOAPIC, and IRQ0
+should not generate any interrupts. But in the kernel code, timer is
+hard coded to irq0 (arch/x86_64/kernel/time.c : time_init(), calls
+setup_irq(0,&irq0). 0 being the irq number)
 
-yeah - my copy/paste/mailer is broken - when it copies tabs, it pastes 
-space into the mailer.
+My question is, should it not be IRQ2 if HPET is enabled and Legacy
+Routing Replacement bit is enbaled?
 
->b.  has an extra (unwanted) space in:
-> > +               if (likely( !need_resched()))
->                              ^
-
-There are still lots of places where we need to fix up broken white space 
-in our patches.
-
-Does anyone have a script that identifies white space problems?
-
-Thanks
--Robin 
+Regards,
+Om.

@@ -1,146 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932232AbWI0IN4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932131AbWI0Iis@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932232AbWI0IN4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Sep 2006 04:13:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932236AbWI0IN4
+	id S932131AbWI0Iis (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Sep 2006 04:38:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932236AbWI0Iir
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Sep 2006 04:13:56 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:41170 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932232AbWI0INz (ORCPT
+	Wed, 27 Sep 2006 04:38:47 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:37523 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932131AbWI0Iir (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Sep 2006 04:13:55 -0400
-Date: Wed, 27 Sep 2006 01:13:48 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Martin Devera <devik@cdi.cz>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: stat of /proc fails after CPU hot-unplug with EOVERFLOW in
- 2.6.18
-Message-Id: <20060927011348.36818f83.akpm@osdl.org>
-In-Reply-To: <451A2E83.5000806@cdi.cz>
-References: <451A2E83.5000806@cdi.cz>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+	Wed, 27 Sep 2006 04:38:47 -0400
+Date: Wed, 27 Sep 2006 10:31:00 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: John Kacur <jkacur@ca.ibm.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] remove extra extern in 2.6.18-rt3
+Message-ID: <20060927083100.GB12149@elte.hu>
+References: <1159283693.21437.5.camel@tycho.torolab.ibm.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1159283693.21437.5.camel@tycho.torolab.ibm.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -2.9
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.9 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.4965]
+	-0.1 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 27 Sep 2006 09:55:47 +0200
-Martin Devera <devik@cdi.cz> wrote:
 
-> Hello,
-> 
-> I have 2way Opteron machine. I've done this:
-> echo 0 > /sys/devices/system/cpu/cpu1/online
-> 
-> and then strace stat /proc:
-> 
-> [snip]
-> personality(PER_LINUX)                  = 4194304
-> getpid()                                = 14926
-> brk(0)                                  = 0x804b000
-> brk(0x804b1a0)                          = 0x804b1a0
-> brk(0x804c000)                          = 0x804c000
-> stat("/proc", 0xbf8e7490)               = -1 EOVERFLOW
-> 
-> When I do echo 1 > ... to start cpu again then the stat starts
-> to work again ... Weird.
-> 
+* John Kacur <jkacur@ca.ibm.com> wrote:
 
-boggle.
+> Remove a duplicate line.
+> Signed-off-by: "John Kacur" <jkacur@rogers.com>
 
-Can you add this patch, see where it's going bad?
+thx, applied.
 
-
- fs/stat.c |   30 +++++++++++++++++++++++-------
- 1 file changed, 23 insertions(+), 7 deletions(-)
-
-diff -puN fs/stat.c~a fs/stat.c
---- a/fs/stat.c~a
-+++ a/fs/stat.c
-@@ -18,6 +18,8 @@
- #include <asm/uaccess.h>
- #include <asm/unistd.h>
- 
-+#define D() printk("%s:%d\n", __FILE__, __LINE__)
-+
- void generic_fillattr(struct inode *inode, struct kstat *stat)
- {
- 	stat->dev = inode->i_sb->s_dev;
-@@ -141,14 +143,18 @@ static int cp_old_stat(struct kstat *sta
- 	tmp.st_ino = stat->ino;
- 	tmp.st_mode = stat->mode;
- 	tmp.st_nlink = stat->nlink;
--	if (tmp.st_nlink != stat->nlink)
-+	if (tmp.st_nlink != stat->nlink) {
-+		D();
- 		return -EOVERFLOW;
-+	}
- 	SET_UID(tmp.st_uid, stat->uid);
- 	SET_GID(tmp.st_gid, stat->gid);
- 	tmp.st_rdev = old_encode_dev(stat->rdev);
- #if BITS_PER_LONG == 32
--	if (stat->size > MAX_NON_LFS)
-+	if (stat->size > MAX_NON_LFS) {
-+		D();
- 		return -EOVERFLOW;
-+	}
- #endif	
- 	tmp.st_size = stat->size;
- 	tmp.st_atime = stat->atime.tv_sec;
-@@ -195,11 +201,15 @@ static int cp_new_stat(struct kstat *sta
- 	struct stat tmp;
- 
- #if BITS_PER_LONG == 32
--	if (!old_valid_dev(stat->dev) || !old_valid_dev(stat->rdev))
-+	if (!old_valid_dev(stat->dev) || !old_valid_dev(stat->rdev)) {
-+		D();
- 		return -EOVERFLOW;
-+	}
- #else
--	if (!new_valid_dev(stat->dev) || !new_valid_dev(stat->rdev))
-+	if (!new_valid_dev(stat->dev) || !new_valid_dev(stat->rdev)) {
-+		D();
- 		return -EOVERFLOW;
-+	}
- #endif
- 
- 	memset(&tmp, 0, sizeof(tmp));
-@@ -211,8 +221,10 @@ static int cp_new_stat(struct kstat *sta
- 	tmp.st_ino = stat->ino;
- 	tmp.st_mode = stat->mode;
- 	tmp.st_nlink = stat->nlink;
--	if (tmp.st_nlink != stat->nlink)
-+	if (tmp.st_nlink != stat->nlink) {
-+		D();
- 		return -EOVERFLOW;
-+	}
- 	SET_UID(tmp.st_uid, stat->uid);
- 	SET_GID(tmp.st_gid, stat->gid);
- #if BITS_PER_LONG == 32
-@@ -221,8 +233,10 @@ static int cp_new_stat(struct kstat *sta
- 	tmp.st_rdev = new_encode_dev(stat->rdev);
- #endif
- #if BITS_PER_LONG == 32
--	if (stat->size > MAX_NON_LFS)
-+	if (stat->size > MAX_NON_LFS) {
-+		D();
- 		return -EOVERFLOW;
-+	}
- #endif	
- 	tmp.st_size = stat->size;
- 	tmp.st_atime = stat->atime.tv_sec;
-@@ -337,8 +351,10 @@ static long cp_new_stat64(struct kstat *
- 	memset(&tmp, 0, sizeof(struct stat64));
- #ifdef CONFIG_MIPS
- 	/* mips has weird padding, so we don't get 64 bits there */
--	if (!new_valid_dev(stat->dev) || !new_valid_dev(stat->rdev))
-+	if (!new_valid_dev(stat->dev) || !new_valid_dev(stat->rdev)) {
-+		D();
- 		return -EOVERFLOW;
-+	}
- 	tmp.st_dev = new_encode_dev(stat->dev);
- 	tmp.st_rdev = new_encode_dev(stat->rdev);
- #else
-_
-
+	Ingo

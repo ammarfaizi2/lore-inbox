@@ -1,84 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030893AbWI0Vgj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030901AbWI0ViH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030893AbWI0Vgj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Sep 2006 17:36:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030897AbWI0Vgj
+	id S1030901AbWI0ViH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Sep 2006 17:38:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030902AbWI0ViH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Sep 2006 17:36:39 -0400
-Received: from www.osadl.org ([213.239.205.134]:9178 "EHLO mail.tglx.de")
-	by vger.kernel.org with ESMTP id S1030893AbWI0Vgi (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Sep 2006 17:36:38 -0400
-Subject: Re: [patch 2.6.18] genirq: remove oops with fasteoi irq_chip
-	descriptors
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: David Brownell <david-b@pacbell.net>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>, mingo@redhat.com
-In-Reply-To: <200609220643.07750.david-b@pacbell.net>
-References: <200609220641.58938.david-b@pacbell.net>
-	 <200609220643.07750.david-b@pacbell.net>
-Content-Type: text/plain
-Date: Wed, 27 Sep 2006 23:38:17 +0200
-Message-Id: <1159393098.9326.546.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+	Wed, 27 Sep 2006 17:38:07 -0400
+Received: from wx-out-0506.google.com ([66.249.82.231]:59726 "EHLO
+	wx-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1030901AbWI0ViG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Sep 2006 17:38:06 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=IXGokit2wn7WSW/sCDygoGhwo178oz/idbqo2UaBCUA39Gg3aq/b2Ero90ZQlCZDiHoWQqryTTGQ1kJMTroRdrKAAaRu5w2MI2TQuwjnF9Tontg5A/SKYFSugHsUWYl7Q0XqxqajgH0e1xGVmPhY0xop+PDHFxxTBDafIXmpRX0=
+Message-ID: <9a8748490609271438n13d822e0x6af0bd06c32c8ae0@mail.gmail.com>
+Date: Wed, 27 Sep 2006 23:38:05 +0200
+From: "Jesper Juhl" <jesper.juhl@gmail.com>
+To: "Randy Dunlap" <rdunlap@xenotime.net>
+Subject: Re: Tiny error in printk output for clocksource : a3:<6>Time: acpi_pm clocksource has been installed.
+Cc: gregkh <greg@kroah.com>,
+       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+In-Reply-To: <20060926205415.98b8d95d.rdunlap@xenotime.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <9a8748490609261722g557eaeeayc148b5f5d910874d@mail.gmail.com>
+	 <20060926173347.04fd66dd.rdunlap@xenotime.net>
+	 <200609270236.58148.jesper.juhl@gmail.com>
+	 <20060926205415.98b8d95d.rdunlap@xenotime.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-09-22 at 06:43 -0700, David Brownell wrote:
-> The irq handler code can oops when used with an irq_chip with just
-> enable/disable/eoi methods, appropriate for handle_fasteoi_irq(),
-> either by (a) uninstalling, or (b) using it with a chained handler.
-> 
-> The problem was that the original code expected there would always
-> be mask/unmask/ack methods, and the fix is to instead use methods
-> which are always present and which more closely correspond to the
-> flag manipulation being done.
-> 
-> Signed-off-by: David Brownell <dbrownell@users.sourceforge.net>
+On 27/09/06, Randy Dunlap <rdunlap@xenotime.net> wrote:
+> On Wed, 27 Sep 2006 02:36:58 +0200 Jesper Juhl wrote:
+>
+> > On Wednesday 27 September 2006 02:33, Randy Dunlap wrote:
+> > > On Wed, 27 Sep 2006 02:22:18 +0200 Jesper Juhl wrote:
+> > >
+> > > > I get this in dmesg with 2.6.18-git6 :
+> > > >       a3:<6>Time: acpi_pm clocksource has been installed.
+> > > >
+> > > > Looks like some printk() somewhere is not adding \n correctly after
+> > > > outputting a message priority or a message priority too much is
+> > > > used... I've not investigated where this happens, but just wanted to
+> > > > report it.
+> > >
+> > > Hi,
+> > > How about posting (pasting) some of the message log before that?
+> > >
+> > Sure, below is the entire dmesg output from this boot of the box
+> > (including the line above) :
+>
+> I suppose that you have CONFIG_PCI_MULTITHREAD_PROBE=y ?
 
-NACK. 
+Correct.
 
-# grep startup kernel/irq/manage.c
-307:                    if (desc->chip->startup)
-308:                            desc->chip->startup(irq);
+> What happens if you change to to =n ?
+>
+Doing that resolves the issue.
 
-# grep shutdown kernel/irq/manage.c
-386:                            if (desc->chip->shutdown)
-387:                                    desc->chip->shutdown(irq);
+So yes, you are correct in your other posts in this thread that the
+problem is caused by multiple printk()'s from different locations
+being mixed up.
 
-startup() and shutdown() are optional and mostly there to keep the not
-converted do_IRQ() users working.
-
-This patch will simply break _all_ ARM and PowerPC in one go and as well
-the i386 and x86_64 conversion which is in -mm.
-
-	tglx
-
-> --- d26.rc4test.orig/kernel/irq/chip.c	2006-09-21 16:41:11.000000000 -0700
-> +++ d26.rc4test/kernel/irq/chip.c	2006-09-21 18:04:07.000000000 -0700
-> @@ -482,10 +482,8 @@ __set_irq_handler(unsigned int irq,
->  
->  	/* Uninstall? */
->  	if (handle == handle_bad_irq) {
-> -		if (desc->chip != &no_irq_chip) {
-> -			desc->chip->mask(irq);
-> -			desc->chip->ack(irq);
-> -		}
-> +		if (desc->chip != &no_irq_chip)
-> +			desc->chip->shutdown(irq);
->  		desc->status |= IRQ_DISABLED;
->  		desc->depth = 1;
->  	}
-> @@ -495,7 +493,7 @@ __set_irq_handler(unsigned int irq,
->  		desc->status &= ~IRQ_DISABLED;
->  		desc->status |= IRQ_NOREQUEST | IRQ_NOPROBE;
->  		desc->depth = 0;
-> -		desc->chip->unmask(irq);
-> +		desc->chip->startup(irq);
->  	}
->  	spin_unlock_irqrestore(&desc->lock, flags);
->  }
-
+-- 
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

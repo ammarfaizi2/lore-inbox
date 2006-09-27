@@ -1,93 +1,118 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030220AbWI0QMr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030225AbWI0QNp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030220AbWI0QMr (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Sep 2006 12:12:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030224AbWI0QMr
+	id S1030225AbWI0QNp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Sep 2006 12:13:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030227AbWI0QNp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Sep 2006 12:12:47 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:9863 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1030220AbWI0QMp (ORCPT
+	Wed, 27 Sep 2006 12:13:45 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:12481 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1030225AbWI0QNo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Sep 2006 12:12:45 -0400
-Date: Wed, 27 Sep 2006 09:12:33 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Andy Whitcroft <apw@shadowen.org>
-Cc: linux-kernel@vger.kernel.org, Steve Fox <drfickle@us.ibm.com>,
-       "Moore, Eric Dean" <Eric.Moore@lsil.com>, linux-scsi@vger.kernel.org
-Subject: Re: 2.6.18-mm1
-Message-Id: <20060927091233.dbb006f0.akpm@osdl.org>
-In-Reply-To: <451A4394.7000504@shadowen.org>
-References: <20060924040215.8e6e7f1a.akpm@osdl.org>
-	<451A4394.7000504@shadowen.org>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 27 Sep 2006 12:13:44 -0400
+To: Mathieu Desnoyers <compudj@krystal.dyndns.org>
+Cc: Martin Bligh <mbligh@google.com>,
+       Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>, prasanna@in.ibm.com,
+       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
+       Paul Mundt <lethal@linux-sh.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>, Jes Sorensen <jes@sgi.com>,
+       Tom Zanussi <zanussi@us.ibm.com>,
+       Richard J Moore <richardj_moore@uk.ibm.com>,
+       Michel Dagenais <michel.dagenais@polymtl.ca>,
+       Christoph Hellwig <hch@infradead.org>,
+       Greg Kroah-Hartman <gregkh@suse.de>,
+       Thomas Gleixner <tglx@linutronix.de>, William Cohen <wcohen@redhat.com>,
+       ltt-dev@shafik.org, systemtap@sources.redhat.com,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Jeremy Fitzhardinge <jeremy@goop.org>,
+       Karim Yaghmour <karim@opersys.com>, Pavel Machek <pavel@suse.cz>,
+       Joe Perches <joe@perches.com>, "Randy.Dunlap" <rdunlap@xenotime.net>,
+       "Jose R. Santos" <jrs@us.ibm.com>
+Subject: Re: [PATCH] Linux Kernel Markers 0.11 for 2.6.17
+References: <20060925151028.GA14695@Krystal>
+	<20060925160115.GE25296@redhat.com> <20060925232828.GA29343@Krystal>
+	<y0mr6xyeg51.fsf@ton.toronto.redhat.com>
+	<20060927013020.GA5171@Krystal>
+From: fche@redhat.com (Frank Ch. Eigler)
+Date: 27 Sep 2006 12:12:09 -0400
+In-Reply-To: <20060927013020.GA5171@Krystal>
+Message-ID: <y0m8xk5e1ba.fsf@ton.toronto.redhat.com>
+User-Agent: Gnus/5.0808 (Gnus v5.8.8) Emacs/21.3
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 27 Sep 2006 10:25:40 +0100
-Andy Whitcroft <apw@shadowen.org> wrote:
+Hi -
 
-> Ok.  Now that we've got past the linker changes breaking down under
-> older tool chains I am getting following panic on boot.  The machine has
-> one of these, other machines do seem to boot:
-> 
-> 0000:02:04.0 SCSI storage controller: LSI Logic / Symbios Logic 53c1030
-> PCI-X Fusion-MPT Dual Ultra320 SCSI (rev 07)
-> 
-> It appears that this driver is unchanged between 2.6.18 and -mm1.
-> 2.6.18 boots just fine.  Odd.
-> 
-> Any suggestions?
-> 
-> -apw
-> 
-> mptbase: Initiating ioc0 bringup
-> ioc0: 53C1030: Capabilities={Initiator}
-> mptbase: Initiating ioc0 recovery
-> Unable to handle kernel NULL pointer dereference at 0000000000000500 RIP:
->  [<ffffffff803fadfb>] mptspi_dv_renegotiate_work+0x10/0x4a
-> PGD 0
-> Oops: 0000 [1] SMP
-> last sysfs file:
-> CPU 0
-> Modules linked in:
-> Pid: 14, comm: events/0 Not tainted 2.6.18-mm1-autokern1 #1
-> RIP: 0010:[<ffffffff803fadfb>]  [<ffffffff803fadfb>]
-> mptspi_dv_renegotiate_work+0x10/0x4a
-> RSP: 0000:ffff8101000e1e20  EFLAGS: 00010282
-> RAX: 0000000000000001 RBX: ffff810001fe6940 RCX: 000000000000001f
-> RDX: 0000000000000000 RSI: ffff810001fe6940 RDI: 0000000000001fe6
-> RBP: ffff8101000e1e30 R08: ffff8101000e0000 R09: 0000000000000011
-> R10: ffff810001014820 R11: ffff810001014820 R12: 0000000000000500
-> R13: ffff810001ef1640 R14: 0000000000000206 R15: ffff810001fe6940
-> FS:  0000000000000000(0000) GS:ffffffff80582000(0000) knlGS:0000000000000000
-> CS:  0010 DS: 0018 ES: 0018 CR0: 000000008005003b
-> CR2: 0000000000000500 CR3: 0000000000201000 CR4: 00000000000006e0
-> Process events/0 (pid: 14, threadinfo ffff8101000e0000, task
-> ffff8100816b1040)
-> Stack:  ffff810001fe6940 ffff810001fe6948 ffff8101000e1e70 ffffffff80239163
->  ffffffff803fadeb ffff810001ef1640 ffff810001f0dd40 ffffffff802391a7
->  00000000fffffffc ffffffff804b08d4 ffff8101000e1f00 ffffffff8023929a
-> Call Trace:
->  [<ffffffff80239163>] run_workqueue+0xa2/0xe6
->  [<ffffffff803fadeb>] mptspi_dv_renegotiate_work+0x0/0x4a
->  [<ffffffff802391a7>] worker_thread+0x0/0x126
->  [<ffffffff8023929a>] worker_thread+0xf3/0x126
->  [<ffffffff80224de3>] default_wake_function+0x0/0xf
->  [<ffffffff80224de3>] default_wake_function+0x0/0xf
->  [<ffffffff802391a7>] worker_thread+0x0/0x126
->  [<ffffffff8023c304>] kthread+0xd0/0xfc
->  [<ffffffff8020a658>] child_rip+0xa/0x12
->  [<ffffffff8023c234>] kthread+0x0/0xfc
->  [<ffffffff8020a64e>] child_rip+0x0/0x12
-> 
-> 
-> Code: 49 8b 04 24 31 f6 48 8b b8 48 01 00 00 e8 5f 8f fe ff 48 85
-> RIP  [<ffffffff803fadfb>] mptspi_dv_renegotiate_work+0x10/0x4a
->  RSP <ffff8101000e1e20>
-> CR2: 0000000000000500
+Mathieu Desnoyers <compudj@krystal.dyndns.org> writes:
 
-There are mpt-fusion changes in 2.6.18-mm1, but afaict they're in mainline
-now.  Do you know if current -linus works OK?
+> [...]
+> > That involves new conventions beyond printf.  Why not "%p %p %u %u"
+> > for two blobs ... or why implicitly dereference the given pointers.  A
+> > probe handler unaware of a specific marker's semantics would not know
+> > whether or not this is implied.
+> 
+> [...]
+> So yes, there is a semantic to create, but I don't see the problem with that.
+
+That's a part of my point.  The marker data types marked up with
+printf directives do not fully describe the data - in this case
+whether it is a raw pointer or a data blob that is being marked.
+
+> And why would the probe actually know what to do with a pointer ? If
+> it only wants to record the pointer's address or if it wants to
+> access data inside this pointer, it's up to the probe (or automatic
+> probe generator, hum ?) to do it.
+
+Of course, but that precludes a general client tool, such as (say) a
+trace-only handler.
+
+> > > I think that duplicating the number of marker macros could easily make
+> > > them unflexible and ugly. [...]
+> > 
+> > Inflexible and ugly in what way?  [...]
+> 
+> I don't expect the kernel programmer community to accept that their code will
+> call an automatically generated macro. It removes all the idea of "I can see
+> what code is actually generated by my function", which I believe is necessary.
+
+Not at all - the generated macros can sit in-tree and are easily
+inspected.  Check out gen-stapmark.h and stapmark.h at
+<http://sources.redhat.com/cgi-bin/cvsweb.cgi/src/?cvsroot=systemtap>.
+
+> Also, people are used to the simplicity and flexibility of printf
+> style format strings.
+
+True, but is this in context of the existing tracing/probing
+facilities?  Unless I'm mistaken, ltt functions doesn't use them; nor
+does blktrace.  Other than printk, are there any?
+
+> Do you really expect people to start using various macros like
+> MARK_u_p_llu
+
+I don't know.  Using gcc extensions such as __builtin_typeof() could
+automate the typing aspect, leaving only the arity as a
+programmer-visible text.
+
+> and start defining their own marker macro each time they want to add
+> a specific type ?
+
+Well, adding a new type would be at last as hard in the printf case.
+
+
+> [...] However, if you want to create probes that are type-safe, you
+> can then create a script that will extract all the format strings in
+> the markers section of the object and automatically generate all the
+> probes with their respective va_args setup at the beginning of the
+> probe. [...]
+
+This could work.  OTOH this relies on an as-yet-unwritten script, and
+additional run-time costs (the parameter-by-parameter va_arg copying).
+
+I wonder if writing a functional back-end for these markers should be
+considered a corequisite for this work; or in the alternative, whether
+it's good enough to start putting markers into the code, and revamp
+their implementation later if necessary.
+
+
+- FChE

@@ -1,37 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030177AbWI0QI4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030220AbWI0QMr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030177AbWI0QI4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Sep 2006 12:08:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030179AbWI0QI4
+	id S1030220AbWI0QMr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Sep 2006 12:12:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030224AbWI0QMr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Sep 2006 12:08:56 -0400
-Received: from mx1.suse.de ([195.135.220.2]:47007 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1030177AbWI0QIy (ORCPT
+	Wed, 27 Sep 2006 12:12:47 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:9863 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030220AbWI0QMp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Sep 2006 12:08:54 -0400
-Date: Wed, 27 Sep 2006 09:08:42 -0700
-From: Greg KH <greg@kroah.com>
-To: Sergey Panov <sipan@sipan.org>
-Cc: James Bottomley <James.Bottomley@SteelEye.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: GPLv3 Position Statement
-Message-ID: <20060927160842.GA15191@kroah.com>
-References: <1158941750.3445.31.camel@mulgrave.il.steeleye.com> <1159319508.16507.15.camel@sipan.sipan.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1159319508.16507.15.camel@sipan.sipan.org>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+	Wed, 27 Sep 2006 12:12:45 -0400
+Date: Wed, 27 Sep 2006 09:12:33 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Andy Whitcroft <apw@shadowen.org>
+Cc: linux-kernel@vger.kernel.org, Steve Fox <drfickle@us.ibm.com>,
+       "Moore, Eric Dean" <Eric.Moore@lsil.com>, linux-scsi@vger.kernel.org
+Subject: Re: 2.6.18-mm1
+Message-Id: <20060927091233.dbb006f0.akpm@osdl.org>
+In-Reply-To: <451A4394.7000504@shadowen.org>
+References: <20060924040215.8e6e7f1a.akpm@osdl.org>
+	<451A4394.7000504@shadowen.org>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 26, 2006 at 09:11:47PM -0400, Sergey Panov wrote:
+On Wed, 27 Sep 2006 10:25:40 +0100
+Andy Whitcroft <apw@shadowen.org> wrote:
+
+> Ok.  Now that we've got past the linker changes breaking down under
+> older tool chains I am getting following panic on boot.  The machine has
+> one of these, other machines do seem to boot:
 > 
-> The last Q. is how good is the almost forgotten Hurd kernel?
+> 0000:02:04.0 SCSI storage controller: LSI Logic / Symbios Logic 53c1030
+> PCI-X Fusion-MPT Dual Ultra320 SCSI (rev 07)
+> 
+> It appears that this driver is unchanged between 2.6.18 and -mm1.
+> 2.6.18 boots just fine.  Odd.
+> 
+> Any suggestions?
+> 
+> -apw
+> 
+> mptbase: Initiating ioc0 bringup
+> ioc0: 53C1030: Capabilities={Initiator}
+> mptbase: Initiating ioc0 recovery
+> Unable to handle kernel NULL pointer dereference at 0000000000000500 RIP:
+>  [<ffffffff803fadfb>] mptspi_dv_renegotiate_work+0x10/0x4a
+> PGD 0
+> Oops: 0000 [1] SMP
+> last sysfs file:
+> CPU 0
+> Modules linked in:
+> Pid: 14, comm: events/0 Not tainted 2.6.18-mm1-autokern1 #1
+> RIP: 0010:[<ffffffff803fadfb>]  [<ffffffff803fadfb>]
+> mptspi_dv_renegotiate_work+0x10/0x4a
+> RSP: 0000:ffff8101000e1e20  EFLAGS: 00010282
+> RAX: 0000000000000001 RBX: ffff810001fe6940 RCX: 000000000000001f
+> RDX: 0000000000000000 RSI: ffff810001fe6940 RDI: 0000000000001fe6
+> RBP: ffff8101000e1e30 R08: ffff8101000e0000 R09: 0000000000000011
+> R10: ffff810001014820 R11: ffff810001014820 R12: 0000000000000500
+> R13: ffff810001ef1640 R14: 0000000000000206 R15: ffff810001fe6940
+> FS:  0000000000000000(0000) GS:ffffffff80582000(0000) knlGS:0000000000000000
+> CS:  0010 DS: 0018 ES: 0018 CR0: 000000008005003b
+> CR2: 0000000000000500 CR3: 0000000000201000 CR4: 00000000000006e0
+> Process events/0 (pid: 14, threadinfo ffff8101000e0000, task
+> ffff8100816b1040)
+> Stack:  ffff810001fe6940 ffff810001fe6948 ffff8101000e1e70 ffffffff80239163
+>  ffffffff803fadeb ffff810001ef1640 ffff810001f0dd40 ffffffff802391a7
+>  00000000fffffffc ffffffff804b08d4 ffff8101000e1f00 ffffffff8023929a
+> Call Trace:
+>  [<ffffffff80239163>] run_workqueue+0xa2/0xe6
+>  [<ffffffff803fadeb>] mptspi_dv_renegotiate_work+0x0/0x4a
+>  [<ffffffff802391a7>] worker_thread+0x0/0x126
+>  [<ffffffff8023929a>] worker_thread+0xf3/0x126
+>  [<ffffffff80224de3>] default_wake_function+0x0/0xf
+>  [<ffffffff80224de3>] default_wake_function+0x0/0xf
+>  [<ffffffff802391a7>] worker_thread+0x0/0x126
+>  [<ffffffff8023c304>] kthread+0xd0/0xfc
+>  [<ffffffff8020a658>] child_rip+0xa/0x12
+>  [<ffffffff8023c234>] kthread+0x0/0xfc
+>  [<ffffffff8020a64e>] child_rip+0x0/0x12
+> 
+> 
+> Code: 49 8b 04 24 31 f6 48 8b b8 48 01 00 00 e8 5f 8f fe ff 48 85
+> RIP  [<ffffffff803fadfb>] mptspi_dv_renegotiate_work+0x10/0x4a
+>  RSP <ffff8101000e1e20>
+> CR2: 0000000000000500
 
-Note that Hurd has a lot of Linux driver code in it, which probably can
-not be changed to GPLv3...
-
-thanks,
-
-greg k-h
+There are mpt-fusion changes in 2.6.18-mm1, but afaict they're in mainline
+now.  Do you know if current -linus works OK?

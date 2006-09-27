@@ -1,93 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964825AbWI0MwQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751072AbWI0NFe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964825AbWI0MwQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Sep 2006 08:52:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932265AbWI0MwQ
+	id S1751072AbWI0NFe (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Sep 2006 09:05:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750929AbWI0NFe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Sep 2006 08:52:16 -0400
-Received: from pool-71-254-65-206.ronkva.east.verizon.net ([71.254.65.206]:57028
-	"EHLO turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S932250AbWI0MwP (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Sep 2006 08:52:15 -0400
-Message-Id: <200609271251.k8RCpp6X029724@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
-To: ebiederm@xmission.com (Eric W. Biederman)
-Cc: Horms <horms@verge.net.au>, Andrew Morton <akpm@osdl.org>,
-       fastboot@lists.osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [Fastboot] Stupid kexec/kdump question...
-In-Reply-To: Your message of "Wed, 27 Sep 2006 02:00:07 MDT."
-             <m1u02toi2g.fsf@ebiederm.dsl.xmission.com>
-From: Valdis.Kletnieks@vt.edu
-References: <200609261525.k8QFP6j4022389@turing-police.cc.vt.edu> <20060926221029.d9e87650.akpm@osdl.org> <20060927052737.GA17214@verge.net.au>
-            <m1u02toi2g.fsf@ebiederm.dsl.xmission.com>
+	Wed, 27 Sep 2006 09:05:34 -0400
+Received: from main.gmane.org ([80.91.229.2]:9868 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S1750701AbWI0NFd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Sep 2006 09:05:33 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Robert <kerplop@sbcglobal.net>
+Subject: Re: A little script help please .... USB Keychain Drives
+Date: Wed, 27 Sep 2006 07:55:26 -0500
+Message-ID: <efdsbv$t5l$1@sea.gmane.org>
+References: <14CFC56C96D8554AA0B8969DB825FEA001C397FA@chicken.machinevisionproducts.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1159361510_3752P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Date: Wed, 27 Sep 2006 08:51:50 -0400
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: adsl-209-30-178-82.dsl.rcsntx.swbell.net
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.7) Gecko/20060915 CentOS/1.0.5-0.1.el4.centos4 SeaMonkey/1.0.5
+In-Reply-To: <14CFC56C96D8554AA0B8969DB825FEA001C397FA@chicken.machinevisionproducts.com>
+Cc: fedora-list@redhat.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1159361510_3752P
-Content-Type: text/plain; charset=us-ascii
-
-On Wed, 27 Sep 2006 02:00:07 MDT, Eric W. Biederman said:
-
-> I suspect the reason for the matching kernel from the distros is just
-> that everything is quite new so they don't want to wonder if you old
-> kernel has all of the appropriate support, and by that point they can
-> probably assume the shipped kernel works.
-
-And careful reading of the Fedora scripts shows how to provide your
-own custom kernel/initrd pair. Setting the right variable in the right
-config file will use that - if it's unset, it will go with a kernel
-named ${kernelversion}kdump.
-
-> >> > 2) I'm presuming that a massively stripped down kernel (no sound support,
-> >> > no netfilter, no etc) that just has what's needed to mount the dump location
-> >> > is sufficient?
-> >
-> > Yes
-
-I'm definitely submitting a doc patch to explain all this in more detail, as
-soon as I get it figured out enough. ;)
-
-> >> > 3) The docs recommend 'crashkernel=64M@16M', but that's 8% of my memory.
-> >> > What will happen if I try '16M@16M' instead?  Just slower copying due to
-> >> > a smaller buffer cache space, or something more evil?
-> >
-> > There is a lower bound to how small you can make the space, which
-> > is basically how little memory space your post-crash kernel needs.
-> > 16M is probably pushing it, but 32M should be more than possible.
-> > Experimentation is really the order of the day here.
+Brian D. McGrew wrote:
+> Can someone who is a little better at scripting than I give me some help
+> here on Fedora Core 3.
 > 
-> At that level I would say that below 32M is where you start dealing with
-> custom built programs, instead of slapping a bunch of utilities inside
-> a ramdisk.  I suspect with a little care you could get a few K user
-> space executable and fit everything inside of 4M.  But I don't know if anyone
-> is that ambitious yet.
+> Using the 2.6.9 kernel I would put in a USB Keychain drive of a CD-ROM
+> and it would automount it without a problem.
+> 
+> We upgrade to 2.6.16.16 and this is now broken and thanks to the list,
+> we've narrowed it to the haldaemon but because of production cycles I
+> can't upgrade anything.  I'm stuck with what I've got.
+> 
+> Can someone share a script that I can run with a setuid bit to find and
+> mount the CD-ROM _and_ the USB Keychain drive after they're inserted?  I
+> can't see to get anything to work properly.
+> 
+> Thanks,
+> 
+> :b!
+> 
+> Brian D. McGrew { brian@visionpro.com || brian@doubledimension.com }
+> --
+>> This is a test.  This is only a test!
+>   Had this been an actual emergency, you would have been
+>   told to cancel this test and seek professional assistance!
+> 
+> 
 
-Well, the stripped down kernel is right around 2M.  Unfortunately, I need
-to run lvm.static, which is another 1.5M at least.  So unless busybox has
-grown support for LVM, I'm looking at 8M at best.
+ASSUMING a mount point gets created when you plug in that USB drive, you 
+might do something similar to what I did in my backup script:
 
-Another stupid question - I see how the first kernel gets the 'crashkernel='
-parameter and knows how much space there is.  But if you set it to 32M@16M,
-how does the kdump kernel know it only has 32M?  Or does it just start at
-the 16M line, and it's your job to make sure it doesn't go over the 48M line
-and start corrupting the dump?
+# Set the output mount (UD is USB DRIVE mount point)
+export UD=/media/OTOT
+#
+#
+# Check for drive mounted
+if [ -z  $(mount | grep $UD | awk '{ print $3 }') ]; then
+    mount $UD
+fi
+#
+#
+The key is having the mount point automatically created. Check 
+/etc/fstab with the drive plugged in and go from there. 
 
-
---==_Exmh_1159361510_3752P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFFGnPmcC3lWbTT17ARAv+1AJsGFdmkVRQU7ZDL5EUxZ9kWJKzNxgCeJFUW
-UM1gaACHNIlF0mEF+aLZ7H0=
-=N/47
------END PGP SIGNATURE-----
-
---==_Exmh_1159361510_3752P--

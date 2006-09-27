@@ -1,50 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030892AbWI0VoO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030904AbWI0Vwl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030892AbWI0VoO (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Sep 2006 17:44:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030902AbWI0VoO
+	id S1030904AbWI0Vwl (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Sep 2006 17:52:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030908AbWI0Vwk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Sep 2006 17:44:14 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:17320 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1030892AbWI0VoN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Sep 2006 17:44:13 -0400
-Subject: Re: [PATCH] Chipset addition for the VIA Southbridge workaround /
-	quirk
-From: Lee Revell <rlrevell@joe-job.com>
-To: Michiel de Boer <x@rebelhomicide.demon.nl>
-Cc: gregkh@suse.de, linux-kernel@vger.kernel.org
-In-Reply-To: <451AE795.6030804@rebelhomicide.demon.nl>
-References: <451AE795.6030804@rebelhomicide.demon.nl>
-Content-Type: text/plain
-Date: Wed, 27 Sep 2006 17:44:46 -0400
-Message-Id: <1159393487.1275.52.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+	Wed, 27 Sep 2006 17:52:40 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:22471 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1030904AbWI0Vwk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Sep 2006 17:52:40 -0400
+Message-ID: <451AF29D.2030102@garzik.org>
+Date: Wed, 27 Sep 2006 17:52:29 -0400
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
+MIME-Version: 1.0
+To: Jan-Bernd Themann <ossthema@de.ibm.com>
+CC: pmac@au1.ibm.com, Christoph Raisch <raisch@de.ibm.com>,
+       Jan-Bernd Themann <themann@de.ibm.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-ppc <linuxppc-dev@ozlabs.org>, Marcus Eder <meder@de.ibm.com>,
+       Thomas Klein <tklein@de.ibm.com>
+Subject: Re: [PATCH 2.6.19-rc1] ehea firmware interface based on Anton Blanchard's
+ new hvcall interface
+References: <200609271847.34258.ossthema@de.ibm.com>
+In-Reply-To: <200609271847.34258.ossthema@de.ibm.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.3 (----)
+X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-09-27 at 23:05 +0200, Michiel de Boer wrote:
-> Also built in is an Creative Labs SB Live! audio device. When i was
-> still using windows 98, i experienced corruptions when burning DVD's,
-> and after lengthy investigation i discovered i had a buggy
-> southbridge.[1]
-> Apparently the presence of the SB Live! audio device might even
-> accelerate the problem, although it does not actually disappear when
-> this PCI card is removed. When i moved to Linux, i decided that
-> writing a kernel patch based on the fixup programs i found for windows
-> 98 would be appropriate. 
+Jan-Bernd Themann wrote:
+> Hi Jeff, 
+> 
+> the last patch did not work, so here is the new patch. The patch is build against
+> git://git.kernel.org/pub/scm/linux/kernel/git/jgarzik/netdev.2.6.git HEAD today.
+> Could you give it a try?
 
-Just FYI, the onboard "SBLive" is not a real SBLive! - it uses a newer,
-cheaper, and vastly inferior chipset that moves all of the interesting
-hardware features of the good old SBLive! into the (Windows) driver. 
+Per the standard patch format in Documentation/SubmittingPatches, these 
+sort of comments should go beneath the "---" separator.  Otherwise, if 
+they are not hand-edited out, they will go into the final changeset 
+description.
 
-I would be surprised if it had the same issues as the original emu10k1
-chipset, which generated a lot more bus traffic by implementing multiple
-stream mixing in hardware.
 
-IOW, this bug is probably unrelated to the SBLive...
+> This eHEA patch reflects changes according to Anton's new hvcall interface
+> which has been commited in Paul's git tree:
+> 
+> git://git.kernel.org/pub/scm/linux/kernel/git/paulus/powerpc.git
 
-Lee
+When is this going upstream?  I don't want things to get too out-of-sync.
+
+
+> In addition to the above changes the patch includes a bug fix (port state
+> notification) and minor changes (default queue length, coding style updates).
+
+These changes should be in a separate patch.  Makes 'git bisect' work 
+better, makes the changes more reviewable, and in general follows the 
+"separate logical changes" rule.
+
+
+> diff -Nurp netdev-2.6/drivers/net/ehea/ehea_ethtool.c netdev-2.6_patched/drivers/net/ehea/ehea_ethtool.c
+> --- netdev-2.6/drivers/net/ehea/ehea_ethtool.c	2006-09-26 10:27:38.000000000 +0200
+> +++ netdev-2.6_patched/drivers/net/ehea/ehea_ethtool.c	2006-09-26 19:28:22.000000000 +0200
+> @@ -270,7 +270,7 @@ static void ehea_get_ethtool_stats(struc
+>  	kfree(cb6);
+>  }
+>  
+> -const struct ethtool_ops ehea_ethtool_ops = {
+> +struct ethtool_ops ehea_ethtool_ops = {
+>  	.get_settings = ehea_get_settings,
+>  	.get_drvinfo = ehea_get_drvinfo,
+>  	.get_msglevel = ehea_get_msglevel,
+
+
+This is an obvious regression.
+
+	Jeff
+
 

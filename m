@@ -1,60 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964773AbWI0OoS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964897AbWI0PKu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964773AbWI0OoS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Sep 2006 10:44:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932437AbWI0OoS
+	id S964897AbWI0PKu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Sep 2006 11:10:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964895AbWI0PKu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Sep 2006 10:44:18 -0400
-Received: from www1.cdi.cz ([194.213.194.49]:15508 "EHLO www1.cdi.cz")
-	by vger.kernel.org with ESMTP id S932433AbWI0OoR (ORCPT
+	Wed, 27 Sep 2006 11:10:50 -0400
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:5837 "EHLO 2ka.mipt.ru")
+	by vger.kernel.org with ESMTP id S964892AbWI0PKt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Sep 2006 10:44:17 -0400
-Message-ID: <451A8E38.60300@cdi.cz>
-Date: Wed, 27 Sep 2006 16:44:08 +0200
-From: Martin Devera <devik@cdi.cz>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060729)
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: stat of /proc fails after CPU hot-unplug with EOVERFLOW in 2.6.18
-References: <451A2E83.5000806@cdi.cz> <20060927011348.36818f83.akpm@osdl.org>
-In-Reply-To: <20060927011348.36818f83.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 27 Sep 2006 11:10:49 -0400
+Date: Wed, 27 Sep 2006 19:09:57 +0400
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: David Miller <davem@davemloft.net>, Ulrich Drepper <drepper@redhat.com>,
+       Andrew Morton <akpm@osdl.org>, netdev <netdev@vger.kernel.org>,
+       Zach Brown <zach.brown@oracle.com>,
+       Christoph Hellwig <hch@infradead.org>,
+       Chase Venters <chase.venters@clientec.com>
+Subject: Re: [take19 0/4] kevent: Generic event handling mechanism.
+Message-ID: <20060927150957.GA18116@2ka.mipt.ru>
+References: <115a6230591036@2ka.mipt.ru> <11587449471424@2ka.mipt.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=koi8-r
+Content-Disposition: inline
+In-Reply-To: <11587449471424@2ka.mipt.ru>
+User-Agent: Mutt/1.5.9i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Wed, 27 Sep 2006 19:09:59 +0400 (MSD)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> On Wed, 27 Sep 2006 09:55:47 +0200
-> Martin Devera <devik@cdi.cz> wrote:
+On Wed, Sep 20, 2006 at 01:35:47PM +0400, Evgeniy Polyakov (johnpol@2ka.mipt.ru) wrote:
 > 
->> Hello,
->>
->> I have 2way Opteron machine. I've done this:
->> echo 0 > /sys/devices/system/cpu/cpu1/online
->>
->> and then strace stat /proc:
->>
->> [snip]
->> personality(PER_LINUX)                  = 4194304
->> getpid()                                = 14926
->> brk(0)                                  = 0x804b000
->> brk(0x804b1a0)                          = 0x804b1a0
->> brk(0x804c000)                          = 0x804c000
->> stat("/proc", 0xbf8e7490)               = -1 EOVERFLOW
->>
->> When I do echo 1 > ... to start cpu again then the stat starts
->> to work again ... Weird.
->>
+> Generic event handling mechanism.
 > 
-> boggle.
-> 
-> Can you add this patch, see where it's going bad?
+> Consider for inclusion.
 
-Ehh .. I finally learned how to code jprobe (I can't reboot the machine now),
-tested, installed and ... guess what ? The overflow bug is gone :-(
-It simply works now.
-I will reboot it next week and try again.
+I have been told in private what is signal masks about - just to wait
+until either signal or given condition is ready, but in that case just 
+add additional kevent user like AIO complete or netwrok notification 
+and wait until either requested events are ready or signal is triggered.
 
-thanks for a help and sorry for your wasted time,
-Martin
+-- 
+	Evgeniy Polyakov

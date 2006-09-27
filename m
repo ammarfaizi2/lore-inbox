@@ -1,94 +1,37 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965117AbWI0QI3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030177AbWI0QI4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965117AbWI0QI3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Sep 2006 12:08:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965145AbWI0QI3
+	id S1030177AbWI0QI4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Sep 2006 12:08:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030179AbWI0QI4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Sep 2006 12:08:29 -0400
-Received: from smtp1-g19.free.fr ([212.27.42.27]:33162 "EHLO smtp1-g19.free.fr")
-	by vger.kernel.org with ESMTP id S965117AbWI0QI2 (ORCPT
+	Wed, 27 Sep 2006 12:08:56 -0400
+Received: from mx1.suse.de ([195.135.220.2]:47007 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1030177AbWI0QIy (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Sep 2006 12:08:28 -0400
-From: ygosset <ygosset@free.fr>
-Organization: none
-To: linux-kernel@vger.kernel.org
-Subject: Help needed on 2.6.18, Irq and SATA controler.
-Date: Wed, 27 Sep 2006 18:08:04 +0200
-User-Agent: KMail/1.8.2
+	Wed, 27 Sep 2006 12:08:54 -0400
+Date: Wed, 27 Sep 2006 09:08:42 -0700
+From: Greg KH <greg@kroah.com>
+To: Sergey Panov <sipan@sipan.org>
+Cc: James Bottomley <James.Bottomley@SteelEye.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: GPLv3 Position Statement
+Message-ID: <20060927160842.GA15191@kroah.com>
+References: <1158941750.3445.31.camel@mulgrave.il.steeleye.com> <1159319508.16507.15.camel@sipan.sipan.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200609271808.04956.ygosset@free.fr>
+In-Reply-To: <1159319508.16507.15.camel@sipan.sipan.org>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.
+On Tue, Sep 26, 2006 at 09:11:47PM -0400, Sergey Panov wrote:
+> 
+> The last Q. is how good is the almost forgotten Hurd kernel?
 
-I boot on an SATA drive,
-with this kernel:2.6.12-12mdk .
+Note that Hurd has a lot of Linux driver code in it, which probably can
+not be changed to GPLv3...
 
-Here is an lspci on my sata controler:
-"
-01:08.0 RAID bus controller: VIA Technologies, Inc. VIA VT6420 SATA RAID 
-Controller (rev 50)
-        Subsystem: VIA Technologies, Inc. VIA VT6420 SATA RAID Controller
-        Control: I/O+ Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- 
-Stepping- SERR- FastB2B-
-        Status: Cap+ 66Mhz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- 
-<TAbort- <MAbort- >SERR- <PERR-
-        Latency: 32
-        Interrupt: pin A routed to IRQ 16
-        Region 0: I/O ports at a000 [size=8]
-        Region 1: I/O ports at a400 [size=4]
-        Region 2: I/O ports at a800 [size=8]
-        Region 3: I/O ports at ac00 [size=4]
-        Region 4: I/O ports at b000 [size=16]
-        Region 5: I/O ports at b400 [size=256]
-        Expansion ROM at <unassigned> [disabled] [size=64K]
-        Capabilities: [c0] Power Management version 2
-                Flags: PMEClk- DSI- D1- D2- AuxCurrent=0mA 
-PME(D0-,D1-,D2-,D3hot-,D3cold-)
-                Status: D0 PME-Enable- DSel=0 DScale=0 PME-
-..
-01:08.0 Class 0104: 1106:3149 (rev 50)
-..
+thanks,
 
-I have tried to compile and install the latest kernel: 2.6.18,
-and I can't boot.
-I have found a little difference in log between this kernel:
-in 2.6.18, I haven't a line "PCI: Via IRQ fixup for 0000:01:08.0, from 11 to 
-0",
-I have this choice for the irq on 2.6.18:
-"sata_via(0000:01:08.0): routed to hard irq line 11"
-and after these errors:
-"ata 1.00 : qc timeout (cmd 0xec)
-..
-ata 1: port is slow to respond
-Kernel panic
-".
-
-I have this from the first kernel (v2.6.12)  in syslog:
-"Sep 26 12:15:38 mybox kernel: PCI: Via IRQ fixup for 0000:01:08.0, from 11 to 
-0"
-"Sep 26 12:15:38 mybox kernel: sata_via(0000:01:08.0): routed to hard irq line 
-0"
-
-
-So, in the file quirks.c from 2.6.18 kernel,
-I have added this line
-"
-DECLARE_PCI_FIXUP_ENABLE(PCI_VENDOR_ID_VIA, PCI_DEVICE_ID_VIA_8237_SATA, 
-quirk_via_irq);"
-
-I have still the same error:
-Via IRQ fixup is applied but it is impossible to boot,
-even with append=" acpi=off pci=biosirq " in lilo.conf.
-
-Thanks!
-
-Yvan Gosset.
---
-ygosset@free.fr
-
+greg k-h

@@ -1,21 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932191AbWI0BBD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932189AbWI0BAp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932191AbWI0BBD (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Sep 2006 21:01:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932193AbWI0BBB
+	id S932189AbWI0BAp (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Sep 2006 21:00:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932109AbWI0BAp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Sep 2006 21:01:01 -0400
-Received: from ns2.suse.de ([195.135.220.15]:19334 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932192AbWI0BA7 (ORCPT
+	Tue, 26 Sep 2006 21:00:45 -0400
+Received: from mx1.suse.de ([195.135.220.2]:26804 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932189AbWI0BAo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Sep 2006 21:00:59 -0400
-Date: Tue, 26 Sep 2006 18:00:45 -0700
+	Tue, 26 Sep 2006 21:00:44 -0400
+Date: Tue, 26 Sep 2006 18:00:46 -0700
 From: Greg KH <gregkh@suse.de>
 To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, lm-sensors@lm-sensors.org,
-       Jean Delvare <khali@linux-fr.org>
-Subject: [GIT PATCH] I2C patches for 2.6.18
-Message-ID: <20060927010044.GA9136@kroah.com>
+Cc: linux-kernel@vger.kernel.org, linux-pci@atrey.karlin.mff.cuni.cz
+Subject: [GIT PATCH] PCI patches for 2.6.18
+Message-ID: <20060927010046.GA9134@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -23,157 +22,125 @@ User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here are some i2c patches for 2.6.18.  They include a new driver, a
-bunch of warning fixes, and some other odd changes detailed below.
+Here are some PCI patches for 2.6.18.  Big things here include the MSI rework,
+the PCI express error handling framework, and some other pci hotplug driver
+changes to handle new hardware.
 
-They all have been in the -mm tree for a while.
+All of these patches have been in the -mm tree for a bit.
 
 Please pull from:
-	git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/i2c-2.6.git/
-or from:
-	master.kernel.org:/pub/scm/linux/kernel/git/gregkh/i2c-2.6.git/
-if it isn't synced up yet.
+	git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/pci-2.6.git/
+or if master.kernel.org hasn't synced up yet:
+	master.kernel.org:/pub/scm/linux/kernel/git/gregkh/pci-2.6.git/
 
-The full patch series will sent to the sensors mailing list, if anyone
+The full patches will be sent to the linux-pci mailing list, if anyone
 wants to see them.
 
 thanks,
 
 greg k-h
 
- Documentation/feature-removal-schedule.txt |    9 
- Documentation/i2c/busses/i2c-viapro        |    7 
- Documentation/i2c/i2c-stub                 |   15 +
- drivers/acorn/char/i2c.c                   |    1 
- drivers/acpi/i2c_ec.c                      |    2 
- drivers/hwmon/it87.c                       |    1 
- drivers/hwmon/lm78.c                       |    1 
- drivers/hwmon/pc87360.c                    |    1 
- drivers/hwmon/sis5595.c                    |    1 
- drivers/hwmon/smsc47b397.c                 |    1 
- drivers/hwmon/smsc47m1.c                   |    1 
- drivers/hwmon/via686a.c                    |    1 
- drivers/hwmon/vt8231.c                     |    1 
- drivers/hwmon/w83627ehf.c                  |    1 
- drivers/hwmon/w83627hf.c                   |    1 
- drivers/hwmon/w83781d.c                    |    1 
- drivers/i2c/Kconfig                        |    2 
- drivers/i2c/algos/Kconfig                  |    6 
- drivers/i2c/algos/Makefile                 |    1 
- drivers/i2c/algos/i2c-algo-bit.c           |   23 -
- drivers/i2c/algos/i2c-algo-pca.c           |    2 
- drivers/i2c/algos/i2c-algo-pcf.c           |    2 
- drivers/i2c/algos/i2c-algo-sgi.c           |    2 
- drivers/i2c/algos/i2c-algo-sibyte.c        |  215 ---------
- drivers/i2c/busses/Kconfig                 |   34 +
- drivers/i2c/busses/Makefile                |    1 
- drivers/i2c/busses/i2c-ali1535.c           |    2 
- drivers/i2c/busses/i2c-ali1563.c           |    2 
- drivers/i2c/busses/i2c-ali15x3.c           |    2 
- drivers/i2c/busses/i2c-amd756.c            |    2 
- drivers/i2c/busses/i2c-amd8111.c           |    2 
- drivers/i2c/busses/i2c-au1550.c            |   21 +
- drivers/i2c/busses/i2c-elektor.c           |    1 
- drivers/i2c/busses/i2c-hydra.c             |    1 
- drivers/i2c/busses/i2c-i801.c              |    2 
- drivers/i2c/busses/i2c-i810.c              |    2 
- drivers/i2c/busses/i2c-ibm_iic.c           |    2 
- drivers/i2c/busses/i2c-iop3xx.c            |    2 
- drivers/i2c/busses/i2c-isa.c               |   42 +-
- drivers/i2c/busses/i2c-ixp2000.c           |    1 
- drivers/i2c/busses/i2c-ixp4xx.c            |    1 
- drivers/i2c/busses/i2c-mpc.c               |    2 
- drivers/i2c/busses/i2c-mv64xxx.c           |    2 
- drivers/i2c/busses/i2c-nforce2.c           |    2 
- drivers/i2c/busses/i2c-ocores.c            |    2 
- drivers/i2c/busses/i2c-omap.c              |  676 ++++++++++++++++++++++++++++
- drivers/i2c/busses/i2c-parport-light.c     |    1 
- drivers/i2c/busses/i2c-parport.c           |    1 
- drivers/i2c/busses/i2c-piix4.c             |    2 
- drivers/i2c/busses/i2c-powermac.c          |    2 
- drivers/i2c/busses/i2c-prosavage.c         |    1 
- drivers/i2c/busses/i2c-pxa.c               |    2 
- drivers/i2c/busses/i2c-s3c2410.c           |    2 
- drivers/i2c/busses/i2c-savage4.c           |    1 
- drivers/i2c/busses/i2c-sibyte.c            |  160 ++++++-
- drivers/i2c/busses/i2c-sis5595.c           |    2 
- drivers/i2c/busses/i2c-sis630.c            |    2 
- drivers/i2c/busses/i2c-sis96x.c            |    2 
- drivers/i2c/busses/i2c-stub.c              |   21 +
- drivers/i2c/busses/i2c-via.c               |    1 
- drivers/i2c/busses/i2c-viapro.c            |   10 
- drivers/i2c/busses/i2c-voodoo3.c           |    2 
- drivers/i2c/busses/scx200_acb.c            |    2 
- drivers/i2c/busses/scx200_i2c.c            |   12 
- drivers/i2c/chips/eeprom.c                 |    8 
- drivers/i2c/chips/max6875.c                |   25 +
- drivers/i2c/chips/pca9539.c                |   11 
- drivers/i2c/chips/pcf8574.c                |   22 +
- drivers/i2c/chips/pcf8591.c                |   58 ++
- drivers/i2c/i2c-core.c                     |   72 ++-
- drivers/i2c/i2c-dev.c                      |  109 ++---
- drivers/ieee1394/pcilynx.c                 |    1 
- drivers/media/video/bt8xx/bttv-i2c.c       |    1 
- drivers/media/video/cx88/cx88-i2c.c        |    1 
- drivers/media/video/cx88/cx88-vp3054-i2c.c |    1 
- drivers/media/video/zoran_card.c           |    1 
- drivers/video/i810/i810-i2c.c              |    1 
- drivers/video/matrox/i2c-matroxfb.c        |   12 
- drivers/video/savage/savagefb-i2c.c        |    1 
- include/linux/i2c-algo-bit.h               |    1 
- include/linux/i2c-algo-pcf.h               |    1 
- include/linux/i2c-algo-sibyte.h            |   33 -
- include/linux/i2c.h                        |   14 -
- 83 files changed, 1219 insertions(+), 482 deletions(-)
- delete mode 100644 drivers/i2c/algos/i2c-algo-sibyte.c
- create mode 100644 drivers/i2c/busses/i2c-omap.c
- delete mode 100644 include/linux/i2c-algo-sibyte.h
+ Documentation/pcieaer-howto.txt             |  253 +++++++++
+ arch/ia64/pci/pci.c                         |    3 
+ arch/powerpc/sysdev/mpic.c                  |    2 
+ drivers/infiniband/hw/ipath/ipath_iba6110.c |    5 
+ drivers/pci/bus.c                           |   22 +
+ drivers/pci/hotplug/acpiphp.h               |    5 
+ drivers/pci/hotplug/acpiphp_glue.c          |  127 ++++-
+ drivers/pci/hotplug/fakephp.c               |   18 -
+ drivers/pci/hotplug/pci_hotplug.h           |    4 
+ drivers/pci/hotplug/pci_hotplug_core.c      |  157 ++++--
+ drivers/pci/hotplug/pciehp_ctrl.c           |   12 
+ drivers/pci/hotplug/pcihp_skeleton.c        |    9 
+ drivers/pci/hotplug/shpchp.h                |    2 
+ drivers/pci/hotplug/shpchp_core.c           |    6 
+ drivers/pci/hotplug/shpchp_sysfs.c          |    4 
+ drivers/pci/msi.c                           |   51 +-
+ drivers/pci/pci-driver.c                    |   11 
+ drivers/pci/pci-sysfs.c                     |  153 ++++-
+ drivers/pci/pci.c                           |   50 ++
+ drivers/pci/pci.h                           |    2 
+ drivers/pci/pcie/Kconfig                    |    1 
+ drivers/pci/pcie/Makefile                   |    3 
+ drivers/pci/pcie/aer/Kconfig                |   12 
+ drivers/pci/pcie/aer/Makefile               |    8 
+ drivers/pci/pcie/aer/aerdrv.c               |  346 ++++++++++++
+ drivers/pci/pcie/aer/aerdrv.h               |  125 ++++
+ drivers/pci/pcie/aer/aerdrv_acpi.c          |   68 ++
+ drivers/pci/pcie/aer/aerdrv_core.c          |  758 +++++++++++++++++++++++++++
+ drivers/pci/pcie/aer/aerdrv_errprint.c      |  248 +++++++++
+ drivers/pci/pcie/portdrv.h                  |    2 
+ drivers/pci/pcie/portdrv_bus.c              |    1 
+ drivers/pci/pcie/portdrv_core.c             |   11 
+ drivers/pci/pcie/portdrv_pci.c              |  211 +++++++-
+ drivers/pci/probe.c                         |   16 -
+ drivers/pci/quirks.c                        |  104 +++-
+ drivers/pci/remove.c                        |   37 +
+ drivers/pci/setup-bus.c                     |   13 
+ include/linux/aer.h                         |   24 +
+ include/linux/pci.h                         |    5 
+ include/linux/pci_ids.h                     |    1 
+ include/linux/pci_regs.h                    |    2 
+ include/linux/pcieport_if.h                 |    6 
+ kernel/resource.c                           |   32 +
+ 43 files changed, 2719 insertions(+), 211 deletions(-)
+ create mode 100644 Documentation/pcieaer-howto.txt
+ create mode 100644 drivers/pci/pcie/aer/Kconfig
+ create mode 100644 drivers/pci/pcie/aer/Makefile
+ create mode 100644 drivers/pci/pcie/aer/aerdrv.c
+ create mode 100644 drivers/pci/pcie/aer/aerdrv.h
+ create mode 100644 drivers/pci/pcie/aer/aerdrv_acpi.c
+ create mode 100644 drivers/pci/pcie/aer/aerdrv_core.c
+ create mode 100644 drivers/pci/pcie/aer/aerdrv_errprint.c
+ create mode 100644 include/linux/aer.h
 
 ---------------
 
 Adrian Bunk:
-      i2c-algo-pcf: Discard the mdelay data struct member
+      PCI: drivers/pci/hotplug/acpiphp_glue.c: make a function static
 
-Arthur Othieno:
-      i2c: Fix copy-n-paste in subsystem Kconfig
+Alan Cox:
+      PCI: Multiprobe sanitizer
 
-David Brownell:
-      i2c: Let drivers constify i2c_algorithm data
+Brice Goglin:
+      MSI: Cleanup existing MSI quirks
+      MSI: Factorize common code in pci_msi_supported()
+      MSI: Export the PCI_BUS_FLAGS_NO_MSI flag in sysfs
+      MSI: Rename PCI_CAP_ID_HT_IRQCONF into PCI_CAP_ID_HT
+      MSI: Blacklist PCI-E chipsets depending on Hypertransport MSI capability
 
-David Hubbard:
-      i2c-isa: Fail adding driver on attach_adapter error
+Greg Kroah-Hartman:
+      SHPCHP: fix __must_check warnings
+      PCI Hotplug: fix __must_check warnings
+      PCI: fix __must_check warnings
 
-Domen Puncer:
-      i2c-au1550: Fix timeout problem
-      i2c-au1550: Add SMBus functionality flag
-      i2c-au1550: Add I2C support for Au1200
+Kenji Kaneshige:
+      pciehp - fix wrong return value
 
-Jean Delvare:
-      i2c-dev: Cleanups
-      i2c-dev: Use a list for data storage
-      i2c-dev: Drop the client template
-      i2c: __must_check fixes (core drivers)
-      i2c: __must_check fixes, i2c-dev
-      i2c-algo-sibyte: Cleanups
-      i2c-algo-sibyte: Merge into i2c-sibyte
-      i2c-sibyte: Kip Walker is gone
-      i2c-matroxfb: Struct init conversion
-      i2c-algo-bit: Discard the mdelay data struct member
-      i2c: Plan i2c-isa for removal
-      i2c-stub: Chip address as a module parameter
-      i2c-dev: attach/detach_adapter cleanups
-      i2c: __must_check fixes (chip drivers)
-      i2c-algo-bit: Cleanups
-      i2c-core: Drop useless bitmaskings
-      i2c: Warn on i2c client creation failure
-      i2c-isa: Restore driver owner
-      i2c: Constify i2c_algorithm declarations, part 1
-      i2c: Constify i2c_algorithm declarations, part 2
-      i2c: Drop unimplemented slave functions
+Matthew Wilcox:
+      Resources: insert identical resources above existing resources
 
-Komal Shah:
-      i2c: New bus driver for TI OMAP boards
+Michael S. Tsirkin:
+      PCI: Restore PCI Express capability registers after PM event
 
-Rudolf Marek:
-      i2c-viapro: Add support for the VT8237A and VT8251
+Randy Dunlap:
+      PCIE: check and return bus_register errors
+
+Satoru Takeuchi:
+      PCI Hotplug: cleanup pcihp skeleton code.
+      acpiphp: set hpp values before starting devices
+      acpiphp: initialize ioapics before starting devices
+      acpiphp: do not initialize existing ioapics
+      PCI: add pci_stop_bus_device
+      acpiphp: stop bus device before acpi_bus_trim
+      acpiphp: disable bridges
+      PCI: assign ioapic resource at hotplug
+      acpiphp: add support for ioapic hot-remove
+      IA64: PCI: dont disable irq which is not enabled
+
+Zhang, Yanmin:
+      PCI-Express AER implemetation: aer howto document
+      PCI-Express AER implemetation: export pcie_port_bus_type
+      PCI-Express AER implemetation: AER core and aerdriver
+      PCI-Express AER implemetation: pcie_portdrv error handler
 

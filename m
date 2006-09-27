@@ -1,42 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030755AbWI0UVQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030758AbWI0UWj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030755AbWI0UVQ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Sep 2006 16:21:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030756AbWI0UVQ
+	id S1030758AbWI0UWj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Sep 2006 16:22:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030760AbWI0UWj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Sep 2006 16:21:16 -0400
-Received: from gw.goop.org ([64.81.55.164]:64488 "EHLO mail.goop.org")
-	by vger.kernel.org with ESMTP id S1030755AbWI0UVO (ORCPT
+	Wed, 27 Sep 2006 16:22:39 -0400
+Received: from www.osadl.org ([213.239.205.134]:9433 "EHLO mail.tglx.de")
+	by vger.kernel.org with ESMTP id S1030758AbWI0UWi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Sep 2006 16:21:14 -0400
-Message-ID: <451ADD44.2030500@goop.org>
-Date: Wed, 27 Sep 2006 13:21:24 -0700
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
-MIME-Version: 1.0
-To: Andi Kleen <ak@muc.de>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: revised pda patches
-References: <4518D273.2030103@goop.org> <20060927113136.GA80066@muc.de> <451AAE0A.4010704@goop.org> <20060927194619.GB80066@muc.de>
-In-Reply-To: <20060927194619.GB80066@muc.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Wed, 27 Sep 2006 16:22:38 -0400
+Subject: Re: [RFC] exponential update_wall_time
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: Ingo Molnar <mingo@elte.hu>
+Cc: john stultz <johnstul@us.ibm.com>, Roman Zippel <zippel@linux-m68k.org>,
+       lkml <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+In-Reply-To: <20060927200832.GB20282@elte.hu>
+References: <1159385734.29040.9.camel@localhost>
+	 <20060927200832.GB20282@elte.hu>
+Content-Type: text/plain
+Date: Wed, 27 Sep 2006 22:24:19 +0200
+Message-Id: <1159388660.9326.509.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
-> Yes I dropped all i386-pda-* patches earlier.
->   
+On Wed, 2006-09-27 at 22:08 +0200, Ingo Molnar wrote:
+> * john stultz <johnstul@us.ibm.com> wrote:
+> 
+> > Accumulate time in update_wall_time exponentially. This avoids long 
+> > running loops seen with the dynticks patch as well as the problematic 
+> > hang" seen on systems with broken clocksources.
+> > 
+> > This applies on top of 2.6.18-mm1
+> > 
+> > Signed-off-by: John Stultz <johnstul@us.ibm.com>
+> 
+> Acked-by: Ingo Molnar <mingo@elte.hu>
 
-"i386-pda-asm-offsets" doesn't really have anything to do with the PDA 
-stuff; it's just a generic cleanup. It got posted as a prereq, but I 
-don't consider it part of the same patch series (locally it doesn't have 
-the i386-pda- prefix).
+Acked-by: Thomas Gleixner <tglx@linutronix.de>
 
-> Also BTW the result didn't boot. Ok will try with that old patch too.
->   
+> works fine and is included in 2.6.18-rt too.
 
-How did it fail?
+Same here.
 
-    J
+	tglx
+
+
+
+
+

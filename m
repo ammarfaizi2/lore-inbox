@@ -1,46 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031208AbWI0XEc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031213AbWI0XFX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1031208AbWI0XEc (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Sep 2006 19:04:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031212AbWI0XEc
+	id S1031213AbWI0XFX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Sep 2006 19:05:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031212AbWI0XFW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Sep 2006 19:04:32 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:48304 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S1031208AbWI0XEb (ORCPT
+	Wed, 27 Sep 2006 19:05:22 -0400
+Received: from www.osadl.org ([213.239.205.134]:16091 "EHLO mail.tglx.de")
+	by vger.kernel.org with ESMTP id S1031213AbWI0XFT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Sep 2006 19:04:31 -0400
-Date: Thu, 28 Sep 2006 01:04:09 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: john stultz <johnstul@us.ibm.com>
-cc: lkml <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>,
-       Thomas Gleixner <tglx@linutronix.de>, Andrew Morton <akpm@osdl.org>
-Subject: Re: [RFC] exponential update_wall_time
-In-Reply-To: <1159385734.29040.9.camel@localhost>
-Message-ID: <Pine.LNX.4.64.0609280031550.6761@scrub.home>
-References: <1159385734.29040.9.camel@localhost>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 27 Sep 2006 19:05:19 -0400
+Subject: Re: GPLv3 Position Statement
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Linus Torvalds <torvalds@osdl.org>, Krzysztof Halasa <khc@pm.waw.pl>,
+       Nicolas Mailhot <nicolas.mailhot@laposte.net>,
+       linux-kernel@vger.kernel.org,
+       James Bottomley <James.Bottomley@SteelEye.com>
+In-Reply-To: <1159398089.11049.381.camel@localhost.localdomain>
+References: <43447.192.54.193.51.1159350218.squirrel@rousalka.dyndns.org>
+	 <Pine.LNX.4.64.0609271031300.3952@g5.osdl.org>
+	 <m33bad9hgy.fsf@defiant.localdomain>
+	 <Pine.LNX.4.64.0609271336200.3952@g5.osdl.org>
+	 <1159398089.11049.381.camel@localhost.localdomain>
+Content-Type: text/plain
+Date: Thu, 28 Sep 2006 01:07:02 +0200
+Message-Id: <1159398423.9326.577.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Thu, 2006-09-28 at 00:01 +0100, Alan Cox wrote:
+> Ar Mer, 2006-09-27 am 13:41 -0700, ysgrifennodd Linus Torvalds:
+> > I think the hatred of pins became so high that it became almost 
+> > unacceptable for motherboard designers to add them on PC's. Nobody wants 
+> > to open their case any more ;)
+> 
+> Actually some of the smarter ones wired it to the SMM indications in the
+> chipset so that only BIOS controlled SMM management code can do the
+> update and that does checksumming or basic very crude crypto type
+> checks.
+> 
+> Fortunately the thought of a slammer equivalent that erases the firmware
+> isn't something most vendors want to risk their stock price and business
+> on.
 
-On Wed, 27 Sep 2006, john stultz wrote:
+This protection is treacherous and unethical! It restricts your ultimate
+freedom to render your own box useless. :)
 
-> Accumulate time in update_wall_time exponentially. 
-> This avoids long running loops seen with the dynticks patch
-> as well as the problematic hang" seen on systems with broken 
-> clocksources.
+	tglx
 
-This is the wrong approach, second_overflow() should be called every HZ
-increment steps and your patch breaks this.
-There are other approaches oo accommodate dyntick. 
-1. You could make HZ in ntp_update_frequency() dynamic and thus reduce the 
-frequency with which update_wall_time() needs to be called (Note that 
-other clock variables like cycle_interval have to be adjusted as well). 
-2. If dynticks stops the timer interrupt for a long time, it could 
-precalculate a few things, e.g. it could complete the second and then 
-advance the time in full seconds.
 
-bye, Roman

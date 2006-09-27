@@ -1,43 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031132AbWI0WJ3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031130AbWI0WLJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1031132AbWI0WJ3 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Sep 2006 18:09:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031131AbWI0WJ3
+	id S1031130AbWI0WLJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Sep 2006 18:11:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031133AbWI0WLJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Sep 2006 18:09:29 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:31177 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1031118AbWI0WJ2 (ORCPT
+	Wed, 27 Sep 2006 18:11:09 -0400
+Received: from atlrel7.hp.com ([156.153.255.213]:8833 "EHLO atlrel7.hp.com")
+	by vger.kernel.org with ESMTP id S1031130AbWI0WLF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Sep 2006 18:09:28 -0400
-Message-ID: <451AF696.1050201@pobox.com>
-Date: Wed, 27 Sep 2006 18:09:26 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
+	Wed, 27 Sep 2006 18:11:05 -0400
+From: Bjorn Helgaas <bjorn.helgaas@hp.com>
+To: Keith Owens <kaos@sgi.com>
+Subject: Re: KDB blindly reads keyboard port
+Date: Wed, 27 Sep 2006 16:11:00 -0600
+User-Agent: KMail/1.9.1
+Cc: linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
+References: <5239.1159325150@kao2.melbourne.sgi.com>
+In-Reply-To: <5239.1159325150@kao2.melbourne.sgi.com>
 MIME-Version: 1.0
-To: Jay Cliburn <jacliburn@bellsouth.net>
-CC: linux-kernel@vger.kernel.org, netdev@vger.kernel.org, shemminger@osdl.org
-Subject: Re: [PATCH 1/1] atl1: Attansic L1 Gigabit Ethernet driver
-References: <20060927132345.GC11922@osprey.hogchain.net>
-In-Reply-To: <20060927132345.GC11922@osprey.hogchain.net>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.3 (----)
-X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.3 points, 5.0 required)
+Content-Disposition: inline
+Message-Id: <200609271611.00701.bjorn.helgaas@hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I'll wait for the update based on Stephen's comments, before reviewing.
+On Tuesday 26 September 2006 20:45, Keith Owens wrote:
+> No support for legacy I/O ports could be a bigger problem than just
+> KDB.
 
-As usual for a new driver, it will take a couple rounds of review+update 
-to get things straight.  So please be patient :)
+On Itanium (and I suppose on x86), ACPI theoretically tells us enough
+that we don't need to assume any legacy resources.  Of course, Linux
+doesn't listen to everything ACPI is trying to tell it.  But that's
+a Linux deficiency we should remedy.
 
-And thanks for working on this!
+> To fix just KDB, apply this patch over kdb-v4.4-2.6.18-common-1 and
+> add 'kdb_skip_keyboard' to the boot command line on the offending
+> hardware. 
 
-	Jeff
+This doesn't feel like the right solution.  Since firmware tells us
+whether the device is present, I think we should rely on that.  If
+you want to use the device before ACPI is initialized, *then* you
+should pass a "kdb_use_keyboard" sort of flag.
 
-
-P.S.  I wonder if Attansic would permit upload of their hardware 
-programming guide to http://gkernel.sf.net/specs/ ?
-
-
+Bjorn

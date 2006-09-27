@@ -1,23 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932329AbWI0DLQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932361AbWI0Dmh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932329AbWI0DLQ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Sep 2006 23:11:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932331AbWI0DLP
+	id S932361AbWI0Dmh (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Sep 2006 23:42:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932363AbWI0Dmh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Sep 2006 23:11:15 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:44268 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932329AbWI0DLP (ORCPT
+	Tue, 26 Sep 2006 23:42:37 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:45957 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932361AbWI0Dmg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Sep 2006 23:11:15 -0400
-Date: Tue, 26 Sep 2006 20:11:04 -0700
+	Tue, 26 Sep 2006 23:42:36 -0400
+Date: Tue, 26 Sep 2006 20:42:24 -0700
 From: Andrew Morton <akpm@osdl.org>
-To: ebiederm@xmission.com (Eric W. Biederman)
-Cc: linux-kernel@vger.kernel.org, Andi Kleen <ak@suse.de>, adurbin@google.com
-Subject: Re: 2.6.18-mm1
-Message-Id: <20060926201104.1bb1a193.akpm@osdl.org>
-In-Reply-To: <m1mz8mqd4a.fsf@ebiederm.dsl.xmission.com>
-References: <20060924040215.8e6e7f1a.akpm@osdl.org>
-	<m1mz8mqd4a.fsf@ebiederm.dsl.xmission.com>
+To: Jeff Dike <jdike@addtoit.com>
+Cc: user-mode-linux-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/5] UML - file renaming
+Message-Id: <20060926204224.e365734f.akpm@osdl.org>
+In-Reply-To: <200609261753.k8QHrGlI005530@ccure.user-mode-linux.org>
+References: <200609261753.k8QHrGlI005530@ccure.user-mode-linux.org>
 X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -25,57 +24,27 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 26 Sep 2006 20:04:05 -0600
-ebiederm@xmission.com (Eric W. Biederman) wrote:
+On Tue, 26 Sep 2006 13:53:15 -0400
+Jeff Dike <jdike@addtoit.com> wrote:
 
-> When I apply:
-> x86_64-mm-insert-ioapics-and-local-apic-into-resource-map
-> 
-> My e1000 fails to initializes and complains about a bad eeprom checksum.
-> I haven't tracked this down to root cause yet and I am in the process of building
-> 2.6.18-mm1 with just that patch reverted to confirm that is the only cause.
-> 
-> I could not see anything obvious in the patch.  I don't have a clue the patch
-> could be triggering the problem I'm seeing.
-> 
-> At a quick visual diff I'm not seeing any other differences in the kernel boot
-> logs, or in /proc/iomem.
+> Move some foo_kern.c files to foo.c now that the old foo.c files are out
+> of the way.
 
-This bit looks fishy:
+This doesn't apply, because arch/um/kernel/process_kern.c has been altered
+by uml-fix-stack-alignment.patch.
 
- GSI 17 sharing vector 0x4A and IRQ 17
- PCI->APIC IRQ transform: 0000:05:0c.0[A] -> IRQ 17
-+PCI: Cannot allocate resource region 8 of bridge 0000:00:02.0
-+PCI: Cannot allocate resource region 8 of bridge 0000:01:00.0
-+PCI: Cannot allocate resource region 8 of bridge 0000:01:00.2
-+PCI: Cannot allocate resource region 0 of device 0000:01:00.1
-+PCI: Cannot allocate resource region 0 of device 0000:01:00.3
-+PCI: Cannot allocate resource region 0 of device 0000:03:04.0
-+PCI: Cannot allocate resource region 0 of device 0000:03:04.1
- PCI-GART: No AMD northbridge found.
- PCI: Bridge: 0000:01:00.0
-   IO window: disabled.
--  MEM window: fe000000-fe0fffff
-+  MEM window: e2000000-e20fffff
-   PREFETCH window: fd000000-fdffffff
- PCI: Bridge: 0000:01:00.2
-   IO window: 1000-1fff
--  MEM window: fe100000-fe1fffff
-+  MEM window: e2100000-e21fffff
-   PREFETCH window: disabled.
- PCI: Bridge: 0000:00:02.0
-   IO window: 1000-1fff
--  MEM window: fe000000-fe2fffff
-+  MEM window: e2000000-e22fffff
-   PREFETCH window: fd000000-fdffffff
- PCI: Bridge: 0000:00:06.0
-   IO window: disabled.
-@@ -123,17 +131,17 @@
- PCI: Bridge: 0000:00:1e.0
-   IO window: 2000-2fff
-   MEM window: fb000000-fc0fffff
--  PREFETCH window: e2000000-e20fffff
+I fixed that up via
 
+	 mv arch/um/kernel/process_kern.c arch/um/kernel/skas/process_kern.c
 
-Wanna hack into arch/i386/pci/i386.c:pcibios_allocate_bus_resources() and
-see what is conflicting with what?
+> Also cleaned up some whitespace and an emacs formatting comment.
+
+So if any of these changes were made to process_kern.c, you've lost 'em.
+
+They shouldn't have been: please do code-moving and code-changing within
+distinct patches.
+
+This file-moving also moved over a bunch of trailing-whitespace, which I
+removed.  Which violates the previous rule.  I'm bad.
+
+btw, it'd be nice to change your scripts to add a diffstat after the ^---.

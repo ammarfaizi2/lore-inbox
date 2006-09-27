@@ -1,47 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965408AbWI0HKF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964817AbWI0HMN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965408AbWI0HKF (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Sep 2006 03:10:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932456AbWI0HKE
+	id S964817AbWI0HMN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Sep 2006 03:12:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932455AbWI0HMN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Sep 2006 03:10:04 -0400
-Received: from py-out-1112.google.com ([64.233.166.183]:34129 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S932447AbWI0HKB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Sep 2006 03:10:01 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=MO4IFoOkVhdRcXakGqwjYHI/VeK9wo6sTxJ2VvRb6C5/xyvfSfdYd95GL8JR7Dzp8VXZ2yIJyxKrhfBjOMAKoM+ZUlJnDhx5M3Itrtnmei0lT8Q4cafwj43PyWZzbLMghcfemjhRWAEqJf4HEbfD7X+W93yDM57d71KpoWGQm+A=
-Message-ID: <a44ae5cd0609270010n43f04a2xb49852d5aeeeda9c@mail.gmail.com>
-Date: Wed, 27 Sep 2006 00:10:01 -0700
-From: "Miles Lane" <miles.lane@gmail.com>
-To: LKML <linux-kernel@vger.kernel.org>, "Andrew Morton" <akpm@osdl.org>
-Subject: 2.6.18-mm1 -- need to run mkproper? snd_timer: Unknown symbol snd_info_create_module_entry
+	Wed, 27 Sep 2006 03:12:13 -0400
+Received: from mx1.suse.de ([195.135.220.2]:15589 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932448AbWI0HMM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Sep 2006 03:12:12 -0400
+From: Andi Kleen <ak@suse.de>
+To: discuss@x86-64.org
+Subject: Re: [discuss] Re: x86/x86-64 merge for 2.6.19
+Date: Wed, 27 Sep 2006 09:11:22 +0200
+User-Agent: KMail/1.9.3
+Cc: Andrew Morton <akpm@osdl.org>, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org, Jan Beulich <jbeulich@novell.com>
+References: <200609261244.43863.ak@suse.de> <20060926224114.5ca873ec.akpm@osdl.org>
+In-Reply-To: <20060926224114.5ca873ec.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+Message-Id: <200609270911.22437.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello, I changed my build options and ran "make all install modules
-modules_install" and so forth.  Do the unknown symbol messages below
-indicate that all dependencies were not rebuilt and I need to run make
-mrproper, or is something else going on here?
+On Wednesday 27 September 2006 07:41, Andrew Morton wrote:
+> On Tue, 26 Sep 2006 12:44:43 +0200
+> Andi Kleen <ak@suse.de> wrote:
+> 
+> >       i386: Remove lock section support in semaphore.h
+> 
+> This change turns my x86_32 Vaio into a brick about half a second into
+> bootup.  Screen goes black and the fan goes all whirry.
 
-snd_timer: Unknown symbol snd_verbose_printd
-snd_timer: Unknown symbol snd_info_register
-snd_timer: Unknown symbol snd_info_create_module_entry
-snd_timer: Unknown symbol snd_info_free_entry
-snd_timer: Unknown symbol snd_verbose_printk
-snd_timer: Unknown symbol snd_iprintf
-snd_timer: Unknown symbol snd_ecards_limit
-snd_timer: Unknown symbol snd_oss_info_register
-snd_timer: Unknown symbol snd_unregister_device
-snd_timer: Unknown symbol snd_device_new
-snd_timer: Unknown symbol snd_register_device
+Oops. Sorry. I thought I had commented it out, but it sneaked back
+in when I had to regenerated the tree.
 
-bay: Unknown symbol is_dock_device
-bay: Unknown symbol register_hotplug_dock_device
-bay: Unknown symbol unregister_hotplug_dock_device
+> 
+> It's a bit of a mystery why this well-reported bug was merged, but let us
+> move on..
+
+That was my fault clearly.
+ 
+-Andi

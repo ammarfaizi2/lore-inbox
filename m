@@ -1,52 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965438AbWI0Iyj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965451AbWI0I61@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965438AbWI0Iyj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Sep 2006 04:54:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750902AbWI0Iyj
+	id S965451AbWI0I61 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Sep 2006 04:58:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750929AbWI0I61
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Sep 2006 04:54:39 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:946 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1750890AbWI0Iyj (ORCPT
+	Wed, 27 Sep 2006 04:58:27 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:28902 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1750902AbWI0I60 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Sep 2006 04:54:39 -0400
-From: Paul Jackson <pj@sgi.com>
+	Wed, 27 Sep 2006 04:58:26 -0400
+Date: Wed, 27 Sep 2006 10:58:07 +0200
+From: Pavel Machek <pavel@ucw.cz>
 To: Andrew Morton <akpm@osdl.org>
-Cc: Greg Banks <gnb@melbourne.sgi.com>, Paul Jackson <pj@sgi.com>,
-       linux-kernel@vger.kernel.org
-Date: Wed, 27 Sep 2006 01:54:29 -0700
-Message-Id: <20060927085429.32218.64893.sendpatchset@sam.engr.sgi.com>
-Subject: [PATCH] cpumask add highest_possible_node_id fix
+Cc: Nigel Cunningham <ncunningham@linuxmail.org>,
+       "Rafael J. Wysocki" <rjw@sisk.pl>, Adrian Bunk <bunk@stusta.de>,
+       Stefan Seyfried <seife@suse.de>, linux-kernel@vger.kernel.org
+Subject: Re: When will the lunacy end? (Was Re: [PATCH] uswsusp: add pmops->{prepare,enter,finish} support (aka "platform mode"))
+Message-ID: <20060927085807.GA24857@elf.ucw.cz>
+References: <20060925071338.GD9869@suse.de> <200609270131.46686.rjw@sisk.pl> <20060926233903.GK4547@stusta.de> <200609270712.34082.rjw@sisk.pl> <1159335550.5341.25.camel@nigel.suspend2.net> <20060926230040.fbc86f33.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060926230040.fbc86f33.akpm@osdl.org>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fix typo in lib/cpumask.c - looks like a cut+paste forgot
-to change a cpu macro call to a node macro call.  This
-typo caused the following build warnings:
+Hi!
 
-lib/cpumask.c: In function `highest_possible_node_id':
-lib/cpumask.c:56: warning: passing arg 1 of `__first_cpu' from incompatible pointer type
-lib/cpumask.c:56: warning: passing arg 2 of `__next_cpu' from incompatible pointer type   
+> > > > If you are saying you will do this job, I can try to redirect such bug 
+> > > > reports to the kernel Bugzilla, create a "suspend driver problems" meta 
+> > > > bug there, assign it to you and create the dependencies that it tracks 
+> > > > the already existing bugs in the kernel Bugzilla.
+> > > 
+> > > Yes, please do this.
+> > > 
+> > > [I must say I'm a bit afraid of that but anyway someone has to do it ... ;-)]
+> > 
+> > :) Can I please get copies too?
+> 
+> Here are some:
+> 
+> http://bugme.osdl.org/show_bug.cgi?id=5528
+> http://bugzilla.kernel.org/show_bug.cgi?id=5945
+> http://bugzilla.kernel.org/show_bug.cgi?id=6101
+> http://bugzilla.kernel.org/show_bug.cgi?id=5962
 
-Signed-off-by: Paul Jackson <pj@sgi.com>
+> http://bugzilla.kernel.org/show_bug.cgi?id=7057
+> http://bugzilla.kernel.org/show_bug.cgi?id=7067
+> http://bugzilla.kernel.org/show_bug.cgi?id=7077
 
----
+Hmm, this series scares me, I wonder if 7087 will be suspend bug, too?
 
- lib/cpumask.c |    2 +-
- 1 files changed, 1 insertion(+), 1 deletion(-)
+Anyway I went through them and closed the historic ones.
 
---- 2.6.18-rc7-mm1.orig/lib/cpumask.c	2006-09-26 16:25:57.000000000 -0700
-+++ 2.6.18-rc7-mm1/lib/cpumask.c	2006-09-27 01:38:17.000000000 -0700
-@@ -53,7 +53,7 @@ int highest_possible_node_id(void)
- 	unsigned int node;
- 	unsigned int highest = 0;
- 
--	for_each_cpu_mask(node, node_possible_map)
-+	for_each_node_mask(node, node_possible_map)
- 		highest = node;
- 	return highest;
- }
-
+								Pavel
 -- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

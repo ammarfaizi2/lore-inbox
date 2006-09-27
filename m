@@ -1,70 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031260AbWI0XxJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031263AbWI0X5Q@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1031260AbWI0XxJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Sep 2006 19:53:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031261AbWI0XxJ
+	id S1031263AbWI0X5Q (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Sep 2006 19:57:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031265AbWI0X5Q
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Sep 2006 19:53:09 -0400
-Received: from www.osadl.org ([213.239.205.134]:48347 "EHLO mail.tglx.de")
-	by vger.kernel.org with ESMTP id S1031260AbWI0XxI (ORCPT
+	Wed, 27 Sep 2006 19:57:16 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:26322 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1031263AbWI0X5P (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Sep 2006 19:53:08 -0400
-Subject: Re: [patch 2.6.18] genirq: remove oops with fasteoi irq_chip
-	descriptors
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: David Brownell <david-b@pacbell.net>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>, mingo@redhat.com
-In-Reply-To: <200609271621.11608.david-b@pacbell.net>
-References: <200609220641.58938.david-b@pacbell.net>
-	 <200609220643.07750.david-b@pacbell.net>
-	 <1159393098.9326.546.camel@localhost.localdomain>
-	 <200609271621.11608.david-b@pacbell.net>
-Content-Type: text/plain
-Date: Thu, 28 Sep 2006 01:54:51 +0200
-Message-Id: <1159401291.9326.599.camel@localhost.localdomain>
+	Wed, 27 Sep 2006 19:57:15 -0400
+Date: Wed, 27 Sep 2006 16:57:04 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Martin Filip <bugtraq@smoula.net>
+Cc: =?ISO-8859-1?Q?Bj=F6rn?= Steinbrink <B.Steinbrink@gmx.de>,
+       linux-kernel@vger.kernel.org, Ayaz Abdulla <aabdulla@nvidia.com>
+Subject: Re: forcedeth - WOL [SOLVED]
+Message-Id: <20060927165704.613bf0aa.akpm@osdl.org>
+In-Reply-To: <1159389486.8902.4.camel@archon.smoula-in.net>
+References: <1159379441.9024.7.camel@archon.smoula-in.net>
+	<20060927183857.GA2963@atjola.homenet>
+	<1159389486.8902.4.camel@archon.smoula-in.net>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave,
+On Wed, 27 Sep 2006 22:38:06 +0200
+Martin Filip <bugtraq@smoula.net> wrote:
 
-On Wed, 2006-09-27 at 16:21 -0700, David Brownell wrote:
-> As you should know, irq_chip_set_defaults() ensures that every
-> irqchip has startup() and shutdown() methods.  Their default
-> implementations use enable() and disable() ... which in turn
-> have default implementations using mask()/unmask(), for use
-> with non-EIO handlers. 
+> Hi,
+> 
+> Bj__rn Steinbrink p____e v St 27. 09. 2006 v 20:38 +0200:
+> 
+> > Did you check that WOL was enabled? I need to re-activate it after each
+> > boot (I guess that's normal, not sure though).
+> > The output of "ethtool eth0" should show:
+> > 
+> >         Supports Wake-on: g
+> >         Wake-on: g
+> > 
+> Yes, of course :)
+> 
+> > Also, I remember a bugzilla entry in which it was said that the MAC was
+> > somehow reversed by the driver. I that is still the case (I can't find
+> > the bugzilla entry right now), you might just reverse the MAC address in
+> > your WOL packet to workaround the bug.
+> 
+> Hey! this is really crazy :) but it works! To bo honest - I really do
+> not know what crazy bug could cause problems like this. I thought it's
+> NIC thing to manage all the work about WOL. I thought OS only sets NIC
+> into "WOL mode".
+> 
+> But seeing this - one packet for windows and one magic packet for linux
+> driver - I really do not get it.
+> 
 
-True. Still you change the semantics.
+Are you saying that byte-reversing the MAC address make WOL work correctly?
 
-	chip->mask();
-	chip->ack();
+What tool do you use to send the packet, and how is it being invoked?
 
-is not equal to :
+Do we know if this reversal *always* happens with this driver, or only
+sometimes?
 
-	if (!(desc->status & IRQ_DELAYED_DISABLE))
-		irq_desc[irq].chip->mask(irq);
-
-
-> So what's the correct fix then ... use enable() and disable()?
-> Oopsing isn't OK... 
-
-True, but we can not unconditionally change the semantics. 
-
-Does it break existing or new code ?
-
-> It was certainly _tested_ on a 2.6.18 ARM board, so you're clearly wrong
-> about at least that part of your feedback as well as the bits about the
-> shartup and shutdown calls being "optional" (in any practical sense, since
-> they are in fact _always_ present).
-
-Sorry, I did not think about the defaults in the first place. The
-conditionals in manage,c are probably superflous leftovers from one of
-the evolvement.
-
-	tglx
-
-
+Thanks.

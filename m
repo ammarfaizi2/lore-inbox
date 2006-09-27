@@ -1,51 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030644AbWI0TK2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030649AbWI0TLM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030644AbWI0TK2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Sep 2006 15:10:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030649AbWI0TK2
+	id S1030649AbWI0TLM (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Sep 2006 15:11:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030651AbWI0TLM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Sep 2006 15:10:28 -0400
-Received: from wr-out-0506.google.com ([64.233.184.224]:60993 "EHLO
-	wr-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1030644AbWI0TK1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Sep 2006 15:10:27 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:sender:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references:x-google-sender-auth;
-        b=HPnQPGBL/tHOJzGAL/lS6SjybQyyBeinLDLUipVvLr7kzq/swTEHb/s2Zp7WCAe2zZVJ9kJES96IimhCKPVQWp2sx1dEloUFVzeJfus5KUYpIE4R7ArcN5lmJ82bYliuGxWDqlngS+PkhR9gn7NHwa5czqdK44FEDCyeTj+jHPY=
-Message-ID: <c1bf1cf0609271210o5958e39y94e033b478e979f5@mail.gmail.com>
-Date: Wed, 27 Sep 2006 12:10:26 -0700
-From: "Ed Swierk" <eswierk@arastra.com>
-To: "Greg KH" <greg@kroah.com>
-Subject: Re: [RETRY] [PATCH] load_module: no BUG if module_subsys uninitialized
-Cc: linux-kernel@vger.kernel.org, rusty@rustcorp.com.au
-In-Reply-To: <20060927045611.GC32644@kroah.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=UTF-8; format=flowed
+	Wed, 27 Sep 2006 15:11:12 -0400
+Received: from hera.kernel.org ([140.211.167.34]:20442 "EHLO hera.kernel.org")
+	by vger.kernel.org with ESMTP id S1030649AbWI0TLL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Sep 2006 15:11:11 -0400
+To: linux-kernel@vger.kernel.org
+From: Stephen Hemminger <shemminger@osdl.org>
+Subject: Re: Zero copy between ISR, kernel and User
+Date: Wed, 27 Sep 2006 12:10:30 -0700
+Organization: OSDL
+Message-ID: <20060927121030.4469ec6e@freekitty>
+References: <4519F7A9.4050807@saville.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <c1bf1cf0609221248v39113875id4b48c62cec8eb46@mail.gmail.com>
-	 <20060922201637.GA17547@kroah.com>
-	 <c1bf1cf0609221428i618a5902g3d0315f6b0b9b79e@mail.gmail.com>
-	 <20060927045611.GC32644@kroah.com>
-X-Google-Sender-Auth: 3d630fc0e9ec2d34
+X-Trace: build.pdx.osdl.net 1159384240 9926 10.8.0.54 (27 Sep 2006 19:10:40 GMT)
+X-Complaints-To: abuse@osdl.org
+NNTP-Posting-Date: Wed, 27 Sep 2006 19:10:40 +0000 (UTC)
+X-Newsreader: Sylpheed-Claws 2.5.0-rc3 (GTK+ 2.10.3; i486-pc-linux-gnu)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 9/26/06, Greg KH <greg@kroah.com> wrote:
-> So, with this patch the module will still not be loaded properly, right?
-> Well, I guess at least we don't oops... ok.
+On Tue, 26 Sep 2006 21:01:45 -0700
+Wink Saville <wink@saville.com> wrote:
 
-Correct. sys_init_module() ends up returning an error to
-/sbin/modprobe, which trickles down to request_module() if it was
-invoked via kmod. The module doesn't get loaded, but at least the
-error message states which module it is, and as you say, at least we
-don't oops.
+> Hello,
+> 
+> I would like to allow the transferring of data between ISR's, kernel and 
+> user code, without requiring copying. I envision allocating buffers in 
+> the kernel and then mapping them so that they appear at the same 
+> addresses to all code, and never being swapped out of memory.
+> 
+> Is this feasible for all supported Linux architectures and is there 
+> existing code that someone could point me towards?
+> 
+> Regards,
+> 
+> Wink Saville
+> 
 
-I think that not oopsing is pretty important in a case where a goofy
-but technically valid configuration (compiling Unix sockets as a
-module, and trying to boot with a rootfs containing a version of
-/sbin/hotplug that requires Unix sockets) collides with an obscure
-kernel implementation detail (initcall ordering).
+Your better off having application mmap a device, then transfer
+the data to there. Something like AF_PACKET.
 
---Ed
+-- 
+Stephen Hemminger <shemminger@osdl.org>

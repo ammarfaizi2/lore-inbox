@@ -1,46 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965432AbWI0HlN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965431AbWI0HlJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965432AbWI0HlN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Sep 2006 03:41:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965434AbWI0HlN
+	id S965431AbWI0HlJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Sep 2006 03:41:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965432AbWI0HlJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Sep 2006 03:41:13 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:16621 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S965432AbWI0HlM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Sep 2006 03:41:12 -0400
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: Andi Kleen <ak@suse.de>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       adurbin@google.com
-Subject: Re: 2.6.18-mm1
-References: <20060924040215.8e6e7f1a.akpm@osdl.org>
-	<m1mz8mqd4a.fsf@ebiederm.dsl.xmission.com>
-	<200609270913.15688.ak@suse.de>
-Date: Wed, 27 Sep 2006 01:39:47 -0600
-In-Reply-To: <200609270913.15688.ak@suse.de> (Andi Kleen's message of "Wed, 27
-	Sep 2006 09:13:15 +0200")
-Message-ID: <m14putpxks.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
+	Wed, 27 Sep 2006 03:41:09 -0400
+Received: from colin.muc.de ([193.149.48.1]:53764 "EHLO mail.muc.de")
+	by vger.kernel.org with ESMTP id S965431AbWI0HlI (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Sep 2006 03:41:08 -0400
+Date: 27 Sep 2006 09:41:07 +0200
+Date: Wed, 27 Sep 2006 09:41:07 +0200
+From: Andi Kleen <ak@muc.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Don Zickus <dzickus@redhat.com>
+Subject: Re: [PATCH] x86: Allow users to force a panic on NMI
+Message-ID: <20060927074107.GA62414@muc.de>
+References: <200609262259.k8QMxxa9012876@hera.kernel.org> <20060926165857.4bf90fd6.akpm@osdl.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060926165857.4bf90fd6.akpm@osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen <ak@suse.de> writes:
+On Tue, Sep 26, 2006 at 04:58:57PM -0700, Andrew Morton wrote:
+> On Tue, 26 Sep 2006 22:59:59 GMT
+> Linux Kernel Mailing List <linux-kernel@vger.kernel.org> wrote:
+> 
+> > --- a/kernel/panic.c
+> > +++ b/kernel/panic.c
+> > @@ -21,6 +21,7 @@ #include <linux/kexec.h>
+> >  #include <linux/debug_locks.h>
+> >  
+> >  int panic_on_oops;
+> > +int panic_on_unrecovered_nmi;
+> >  int tainted;
+> >  static int pause_on_oops;
+> >  static int pause_on_oops_flag;
+> 
+> Is visible to all architectures.
 
-> On Wednesday 27 September 2006 04:04, Eric W. Biederman wrote:
->> 
->> When I apply:
->> x86_64-mm-insert-ioapics-and-local-apic-into-resource-map
->> 
->> My e1000 fails to initializes and complains about a bad eeprom checksum.
->> I haven't tracked this down to root cause yet and I am in the process of
-> building
->> 2.6.18-mm1 with just that patch reverted to confirm that is the only cause.
->
-> Is this with Linux BIOS?
+Ok, adding a #ifdef
 
-Yes.  Not that it matters in this case.
-
-Eric
+-Andi

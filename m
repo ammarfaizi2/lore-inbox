@@ -1,48 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965431AbWI0HlJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965420AbWI0Hnz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965431AbWI0HlJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Sep 2006 03:41:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965432AbWI0HlJ
+	id S965420AbWI0Hnz (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Sep 2006 03:43:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965433AbWI0Hnz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Sep 2006 03:41:09 -0400
-Received: from colin.muc.de ([193.149.48.1]:53764 "EHLO mail.muc.de")
-	by vger.kernel.org with ESMTP id S965431AbWI0HlI (ORCPT
+	Wed, 27 Sep 2006 03:43:55 -0400
+Received: from mail.sf-mail.de ([62.27.20.61]:14557 "EHLO mail.sf-mail.de")
+	by vger.kernel.org with ESMTP id S965420AbWI0Hny (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Sep 2006 03:41:08 -0400
-Date: 27 Sep 2006 09:41:07 +0200
-Date: Wed, 27 Sep 2006 09:41:07 +0200
-From: Andi Kleen <ak@muc.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Don Zickus <dzickus@redhat.com>
-Subject: Re: [PATCH] x86: Allow users to force a panic on NMI
-Message-ID: <20060927074107.GA62414@muc.de>
-References: <200609262259.k8QMxxa9012876@hera.kernel.org> <20060926165857.4bf90fd6.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060926165857.4bf90fd6.akpm@osdl.org>
-User-Agent: Mutt/1.4.1i
+	Wed, 27 Sep 2006 03:43:54 -0400
+From: Rolf Eike Beer <eike-kernel@sf-tec.de>
+To: Linus Torvalds <torvalds@osdl.org>
+Subject: Re: x86/x86-64 merge for 2.6.19
+Date: Wed, 27 Sep 2006 09:44:34 +0200
+User-Agent: KMail/1.9.4
+Cc: Paolo Ciarrocchi <paolo.ciarrocchi@gmail.com>,
+       linux-kernel@vger.kernel.org
+References: <200609261244.43863.ak@suse.de> <4d8e3fd30609261425ob262489nec1240f5a0c5050f@mail.gmail.com> <Pine.LNX.4.64.0609261439220.3952@g5.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0609261439220.3952@g5.osdl.org>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart1402724.siy7PaY2Bz";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200609270944.35110.eike-kernel@sf-tec.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 26, 2006 at 04:58:57PM -0700, Andrew Morton wrote:
-> On Tue, 26 Sep 2006 22:59:59 GMT
-> Linux Kernel Mailing List <linux-kernel@vger.kernel.org> wrote:
-> 
-> > --- a/kernel/panic.c
-> > +++ b/kernel/panic.c
-> > @@ -21,6 +21,7 @@ #include <linux/kexec.h>
-> >  #include <linux/debug_locks.h>
-> >  
-> >  int panic_on_oops;
-> > +int panic_on_unrecovered_nmi;
-> >  int tainted;
-> >  static int pause_on_oops;
-> >  static int pause_on_oops_flag;
-> 
-> Is visible to all architectures.
+--nextPart1402724.siy7PaY2Bz
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-Ok, adding a #ifdef
+Am Dienstag, 26. September 2006 23:43 schrieb Linus Torvalds:
+> On Tue, 26 Sep 2006, Paolo Ciarrocchi wrote:
+> > out of curiosity, wouldn't be better to sync with Andrew via git?
+> > Why via plain patches?
+> >
+> > What am I missing?
+>
+> I think you're just missing that we've become so used to it that it's just
+> easier than all the alternatives.
 
--Andi
+[...]
+
+> I think it's worked out pretty well, no?
+
+Nearly everyone else seems to remove the '[PATCH]' from the subject line wh=
+en=20
+putting things into git. Everything I suspect coming from Andrew to your tr=
+ee=20
+still has it. Is this intentional or just yet another skript needing a=20
+fix? :)
+
+Eike
+
+--nextPart1402724.siy7PaY2Bz
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+
+iD8DBQBFGivjXKSJPmm5/E4RAq3qAJ41RcD8pZ71Up0QyczJ+Rwty67a5ACeIENf
+NiARQBZTyfVnEkzZWcBYJdA=
+=7xe/
+-----END PGP SIGNATURE-----
+
+--nextPart1402724.siy7PaY2Bz--

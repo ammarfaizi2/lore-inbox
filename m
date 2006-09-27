@@ -1,41 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965426AbWI0HeJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965430AbWI0HgR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965426AbWI0HeJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Sep 2006 03:34:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965427AbWI0HeJ
+	id S965430AbWI0HgR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Sep 2006 03:36:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965429AbWI0HgR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Sep 2006 03:34:09 -0400
-Received: from matups.math.u-psud.fr ([129.175.50.4]:17130 "EHLO
-	matups.math.u-psud.fr") by vger.kernel.org with ESMTP
-	id S965426AbWI0HeI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Sep 2006 03:34:08 -0400
-From: Duncan Sands <duncan.sands@math.u-psud.fr>
-To: Jeff Garzik <jeff@garzik.org>
-Subject: Re: Reporting driver bugs.
-Date: Wed, 27 Sep 2006 09:32:23 +0200
-User-Agent: KMail/1.9.4
-Cc: Nigel Cunningham <ncunningham@linuxmail.org>,
-       Andrew Morton <akpm@osdl.org>, "Rafael J. Wysocki" <rjw@sisk.pl>,
-       LKML <linux-kernel@vger.kernel.org>
-References: <1159316745.5341.5.camel@nigel.suspend2.net> <4519C991.4070604@garzik.org>
-In-Reply-To: <4519C991.4070604@garzik.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Wed, 27 Sep 2006 03:36:17 -0400
+Received: from rwcrmhc15.comcast.net ([204.127.192.85]:33480 "EHLO
+	rwcrmhc15.comcast.net") by vger.kernel.org with ESMTP
+	id S965428AbWI0HgN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Sep 2006 03:36:13 -0400
+Subject: Re: GPLv3 Position Statement
+From: Sergey Panov <sipan@sipan.org>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Cc: James Bottomley <James.Bottomley@SteelEye.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.61.0609270753590.19275@yvahk01.tjqt.qr>
+References: <1158941750.3445.31.camel@mulgrave.il.steeleye.com>
+	 <1159319508.16507.15.camel@sipan.sipan.org>
+	 <Pine.LNX.4.61.0609270753590.19275@yvahk01.tjqt.qr>
+Content-Type: text/plain
+Organization: Home
+Date: Wed, 27 Sep 2006 03:36:09 -0400
+Message-Id: <1159342569.2653.30.camel@sipan.sipan.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5) 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200609270932.24738.duncan.sands@math.u-psud.fr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Unfortunately there is no one right answer.  Some driver maintainers 
-> don't see the bugzilla.kernel.org entry at all; others find it useful 
-> for tracking purposes.
+On Wed, 2006-09-27 at 07:55 +0200, Jan Engelhardt wrote: 
+> >Fuzzy (but realistic) logic:
+> >
+> >   kernel != operating_system
+> >
+> >   operating_system > kernel
+> >
+> >   operating_system - kernel = 0
+> >
+> >   kernel - (operating_system - kernel) < 0
+> >
+> >Another (license compatibility) Q. is:
+> >    If the (operating_system - kernel) is re-licensed under v.3 and
+> >    the kernel is still under v.2 , would it be possible to distribute
+> >    combination (kernel + (operating_system - kernel)) ?
+> 
+> If by operating system you mean the surrounding userland application,
 
-I tend to forget about bugzilla entries assigned to me.  Can bugzilla
-be configured to send reminder emails about open bugs every now and
-again?
+almost, surrounding_userland_applications = (operating_system - kernel) 
 
-Best wishes,
+> then yes, why should there be a problem with a GPL2 kernel and a GPL3 
+> userland? After all, the userland is not only GPL, but also BSD and 
+> other stuff.
 
-Duncan.
+It was not a problem with GPL[0-1]/BSD/MIT license, but is it still true
+with GPL3? What is the difference between running application on the top
+of the kernel "A" and linked with the library "B"?
+
+> >The last Q. is how good is the almost forgotten Hurd kernel?
+> 
+> Wild guess: At most on par with Minix.
+
+... ???. I am not so sure. Kernel is really a small thing. The VMWare
+proprietary hyper-visor was/is reusing Linux drivers with ease, why BSD or
+Hurd can not do the same? As a former (Linux) driver writer I like to show the
+following numbers to my friends:
+
+$ du -s lib kernel  net drivers
+980     lib
+1728    kernel
+16132   net
+130872  drivers
+
+and:
+
+$ find ./kernel -type f -exec cat  {} + | wc -l
+48312
+$ find ./drivers -type f -exec cat  {} + | wc -l
+3367849
+
+================================================================
+
+PS. Given that some of the sub-systems (e.g SCSI) in Linux still suck
+badly, other OS (not as in Operating Systems but as in Open Source)
+alternatives might eventually gain some ground in the enterprise
+environment.
+
+ 
+
+

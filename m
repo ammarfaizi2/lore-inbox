@@ -1,61 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965440AbWI0Htu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932254AbWI0HvX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965440AbWI0Htu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Sep 2006 03:49:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965442AbWI0Htu
+	id S932254AbWI0HvX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Sep 2006 03:51:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932385AbWI0HvX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Sep 2006 03:49:50 -0400
-Received: from ns2.uludag.org.tr ([193.140.100.220]:39120 "EHLO uludag.org.tr")
-	by vger.kernel.org with ESMTP id S965440AbWI0Htt convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Sep 2006 03:49:49 -0400
-From: Ismail Donmez <ismail@pardus.org.tr>
-Organization: =?utf-8?q?T=C3=9CB=C4=B0TAK/UEKAE?=
-To: Len Brown <lenb@kernel.org>
-Subject: Re: sonypc with Sony Vaio VGN-SZ1VP
-Date: Wed, 27 Sep 2006 10:50:02 +0300
-User-Agent: KMail/1.9.4
-Cc: Andrew Morton <akpm@osdl.org>, Stelian Pop <stelian@popies.net>,
-       Andrea Gelmini <gelma@gelma.net>, linux-kernel@vger.kernel.org,
-       linux-acpi@vger.kernel.org
-References: <20060926135659.GA3685@jnb.gelma.net> <20060926221400.5da1b796.akpm@osdl.org> <200609270204.38970.len.brown@intel.com>
-In-Reply-To: <200609270204.38970.len.brown@intel.com>
+	Wed, 27 Sep 2006 03:51:23 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:9390 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932254AbWI0HvW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Sep 2006 03:51:22 -0400
+From: Andi Kleen <ak@suse.de>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Subject: Re: 2.6.18-mm1
+Date: Wed, 27 Sep 2006 09:51:17 +0200
+User-Agent: KMail/1.9.3
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       adurbin@google.com
+References: <20060924040215.8e6e7f1a.akpm@osdl.org> <200609270913.15688.ak@suse.de> <m14putpxks.fsf@ebiederm.dsl.xmission.com>
+In-Reply-To: <m14putpxks.fsf@ebiederm.dsl.xmission.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 8BIT
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200609271050.03904.ismail@pardus.org.tr>
+Message-Id: <200609270951.17124.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-27 Eyl 2006 Çar 09:04 tarihinde, Len Brown şunları yazmıştı: 
-[...]
-> > > Will sony_acpi ever make it to the mainline? Its very useful for new
-> > > Vaio models.
->
-> Nope, not as it is.  Useful != supportable.
->
-> 1. It must not create any files under /proc/acpi
->     This is creating a machine-specific API, which
->     is exactly what we don't want  Nobody can maintain
->     50 machine specific APIs.
->
->     These objects must appear generic and under sysfs
->     as if acpi were not involved in providing them.
->
-> 2. its source code shall not live in drivers/acpi
->     it is not part of the ACPI implementation after all --
->     it is a platform specific driver.
+On Wednesday 27 September 2006 09:39, Eric W. Biederman wrote:
+> Andi Kleen <ak@suse.de> writes:
+> 
+> > On Wednesday 27 September 2006 04:04, Eric W. Biederman wrote:
+> >> 
+> >> When I apply:
+> >> x86_64-mm-insert-ioapics-and-local-apic-into-resource-map
+> >> 
+> >> My e1000 fails to initializes and complains about a bad eeprom checksum.
+> >> I haven't tracked this down to root cause yet and I am in the process of
+> > building
+> >> 2.6.18-mm1 with just that patch reverted to confirm that is the only cause.
+> >
+> > Is this with Linux BIOS?
+> 
+> Yes.  Not that it matters in this case.
 
-Is there a such example code under kernel now, so one could look at it and fix 
-sony_acpi driver.
+Well Linus BIOS is known to play very fast-and-lose regarding supplying
+correct BIOS tables.
 
-Regards,
-ismail
+Perhaps it conflicts with a broken e820 map?
 
--- 
-They that can give up essential liberty to obtain a little temporary safety 
-deserve neither liberty nor safety.
--- Benjamin Franklin
+-Andi

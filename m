@@ -1,272 +1,116 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030497AbWI0RvM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030501AbWI0Rv6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030497AbWI0RvM (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Sep 2006 13:51:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030498AbWI0RvL
+	id S1030501AbWI0Rv6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Sep 2006 13:51:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030503AbWI0Rv6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Sep 2006 13:51:11 -0400
-Received: from r16s03p19.home.nbox.cz ([83.240.22.12]:18876 "EHLO
-	scarab.smoula.net") by vger.kernel.org with ESMTP id S1030497AbWI0RvJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Sep 2006 13:51:09 -0400
-Subject: forcedeth - WOL
-From: Martin Filip <bugtraq@smoula.net>
-To: linux-kernel@vger.kernel.org
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-SGb/Zido1EhQgGmEZcCz"
-Date: Wed, 27 Sep 2006 19:50:41 +0200
-Message-Id: <1159379441.9024.7.camel@archon.smoula-in.net>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.0 
+	Wed, 27 Sep 2006 13:51:58 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:1710 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030501AbWI0Rv5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Sep 2006 13:51:57 -0400
+Date: Wed, 27 Sep 2006 10:51:50 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Nicolas Mailhot <nicolas.mailhot@laposte.net>
+cc: linux-kernel@vger.kernel.org,
+       James Bottomley <James.Bottomley@SteelEye.com>
+Subject: Re: GPLv3 Position Statement
+In-Reply-To: <43447.192.54.193.51.1159350218.squirrel@rousalka.dyndns.org>
+Message-ID: <Pine.LNX.4.64.0609271031300.3952@g5.osdl.org>
+References: <43447.192.54.193.51.1159350218.squirrel@rousalka.dyndns.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---=-SGb/Zido1EhQgGmEZcCz
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
 
-Hi to LKML,
+On Wed, 27 Sep 2006, Nicolas Mailhot wrote:
+> 
+> It's not as if most (all?) widespread linux-embedded devices are not
+> flashable nowadays. Factory recall everytime you need to fix a
+> security/feature bug just costs too much
 
-I'm experiencing some troubles with WOL with my nForce NIC.
-The problem is simple - after setting WOL mode to magic packet my PC
-won't wake up. I've noticed there were some changes about this in new
-kernel, but no luck for me.
+Side note: it's not even about factory recalls, it's that flash chips are 
+literally cheaper than masked roms for almost all applications.
 
-I'm using 2.6.18 kernel, vanilla. I've tried this with Windows Vista RC1
-(build 5600) and WOL works correctly. My NIC is integrated on MSI K8N
-Neo4-FI
+Mask roms are expensive for several reasons:
 
-Is there any way how can I help with developement of this feature?
+ - they force extra development costs on you, because you have to be 
+   insanely careful, since you know you're stuck with it.
 
- # lspci -v
-00:00.0 Memory controller: nVidia Corporation CK804 Memory Controller
-(rev a3)
-        Subsystem: Micro-Star International Co., Ltd. Unknown device
-7125
-        Flags: bus master, 66MHz, fast devsel, latency 0
-        Capabilities: [44] HyperTransport: Slave or Primary Interface
-        Capabilities: [e0] HyperTransport: MSI Mapping
+   So it's not even just the cost of the recall itself: it's the 
+   _opportunity_ cost of having to worry about it which tends to be the 
+   biggest cost by far. Most devices never get recalled, and when they do 
+   get recalled, a lot of people never bother about it. So the real cost 
+   is seldom the recall itself, it's just the expense of worrying about 
+   it, and wasting time on trying to make things "perfect" (which never
+   really works anyway)
 
-00:01.0 ISA bridge: nVidia Corporation CK804 ISA Bridge (rev a3)
-        Subsystem: Micro-Star International Co., Ltd. Unknown device
-7125
-        Flags: bus master, 66MHz, fast devsel, latency 0
+ - during development, mask roms are a big pain in the ass, so you need to 
+   build all your development boards (even the very final one! The one 
+   that is supposedly identical to the released version!) with a flash 
+   anyway, even if you can only program it by setting a magic jumper or 
+   something.
 
-00:01.1 SMBus: nVidia Corporation CK804 SMBus (rev a2)
-        Subsystem: Micro-Star International Co., Ltd. Unknown device
-7125
-        Flags: 66MHz, fast devsel, IRQ 11
-        I/O ports at fc00 [size=3D32]
-        I/O ports at 4c00 [size=3D64]
-        I/O ports at 4c40 [size=3D64]
-        Capabilities: [44] Power Management version 2
+   So using a mask rom means that your development platform pretty much 
+   will never match the actual hw platform you sell. That's a DISASTER. 
+   It's like always developing and testing with the compiler using the 
+   "-g" flag, but then _shipping_ the binary with "-O". Nobody sane would 
+   ever do that - it just means that all your verification was basically
+   useless.
 
-00:02.0 USB Controller: nVidia Corporation CK804 USB Controller (rev a2)
-(prog-if 10 [OHCI])
-        Subsystem: Micro-Star International Co., Ltd. Unknown device
-7125
-        Flags: bus master, 66MHz, fast devsel, latency 0, IRQ 50
-        Memory at fe02f000 (32-bit, non-prefetchable) [size=3D4K]
-        Capabilities: [44] Power Management version 2
+ - They force you to use a specialized chip. Mass production usually means 
+   that in any kind of low volumes, specialized chips are always going to 
+   be more expensive.
 
-00:02.1 USB Controller: nVidia Corporation CK804 USB Controller (rev a3)
-(prog-if 20 [EHCI])
-        Subsystem: Micro-Star International Co., Ltd. Unknown device
-7125
-        Flags: bus master, 66MHz, fast devsel, latency 0, IRQ 233
-        Memory at feb00000 (32-bit, non-prefetchable) [size=3D256]
-        Capabilities: [44] Debug port
-        Capabilities: [80] Power Management version 2
+   People seem to sometimes still believe that we live in the 1980's. Mask 
+   roms used to be relatively "cheaper", because it wasn't as much about 
+   standardized and huge volumes of chips. These people should please 
+   realize that technology has changed in the last quarter century, and 
+   we're not playing "pong" any more.
 
-00:06.0 IDE interface: nVidia Corporation CK804 IDE (rev f2) (prog-if 8a
-[Master SecP PriP])
-        Subsystem: Micro-Star International Co., Ltd. Unknown device
-7125
-        Flags: bus master, 66MHz, fast devsel, latency 0
-        I/O ports at e000 [size=3D16]
-        Capabilities: [44] Power Management version 2
+[ Side note: is there a good "pong" box you can buy? I want pong and the 
+  real asteroids - the one with vector graphics. And I realize I can't 
+  afford the real asteroids, but dang, there should be a realistic pong
+  somewhere? Some things are hard to improve on.. ]
 
-00:07.0 IDE interface: nVidia Corporation CK804 Serial ATA Controller
-(rev f3) (prog-if 85 [Master SecO PriO])
-        Subsystem: Micro-Star International Co., Ltd. Unknown device
-7125
-        Flags: bus master, 66MHz, fast devsel, latency 0, IRQ 217
-        I/O ports at 09f0 [size=3D8]
-        I/O ports at 0bf0 [size=3D4]
-        I/O ports at 0970 [size=3D8]
-        I/O ports at 0b70 [size=3D4]
-        I/O ports at cc00 [size=3D16]
-        Memory at fe02b000 (32-bit, non-prefetchable) [size=3D4K]
-        Capabilities: [44] Power Management version 2
+So even if you don't actually want to upgrade the machine, it's likely to 
+have a flash in it simply because it's often _cheaper_ that way. 
 
-00:08.0 IDE interface: nVidia Corporation CK804 Serial ATA Controller
-(rev f3) (prog-if 85 [Master SecO PriO])
-        Subsystem: Micro-Star International Co., Ltd. Unknown device
-7125
-        Flags: bus master, 66MHz, fast devsel, latency 0, IRQ 225
-        I/O ports at 09e0 [size=3D8]
-        I/O ports at 0be0 [size=3D4]
-        I/O ports at 0960 [size=3D8]
-        I/O ports at 0b60 [size=3D4]
-        I/O ports at b800 [size=3D16]
-        Memory at fe02a000 (32-bit, non-prefetchable) [size=3D4K]
-        Capabilities: [44] Power Management version 2
+And it not at all uncommon to have a flash that simply cannot be upgraded 
+without opening the box. Even a lot of PC's have that: a lot (most?) PC's 
+have a flash that has a separate _hardware_ pin that says that it is 
+(possibly just partially) read-only. So in order to upgrade it, you'd 
+literally need to open the case up, set a jumper, and _then_ run the 
+program to reflash it.
 
-00:09.0 PCI bridge: nVidia Corporation CK804 PCI Bridge (rev a2)
-(prog-if 01 [Subtractive decode])
-        Flags: bus master, 66MHz, fast devsel, latency 0
-        Bus: primary=3D00, secondary=3D01, subordinate=3D01, sec-latency=3D=
-32
-        I/O behind bridge: 0000a000-0000afff
-        Memory behind bridge: fde00000-fdefffff
-        Prefetchable memory behind bridge: fdf00000-fdffffff
+People do things like that for fail-safe reasons. For example, a portion 
+of the flash is read-only, just so that if a re-flashing fails, you have 
+the read-only portion that verifies the signature, and if it doesn't 
+match, it contains enough basic logic that you can try to re-flash again.
 
-00:0a.0 Bridge: nVidia Corporation CK804 Ethernet Controller (rev a3)
-        Subsystem: Micro-Star International Co., Ltd. Unknown device
-7125
-        Flags: bus master, 66MHz, fast devsel, latency 0, IRQ 217
-        Memory at fe029000 (32-bit, non-prefetchable) [size=3D4K]
-        I/O ports at b400 [size=3D8]
-        Capabilities: [44] Power Management version 2
+Those kinds of fail-safes are absolutely _critical_, and I'm not talking 
+about some "hypothetical" device here. I'm talking very much about devices 
+that you and me and everybody else probably use every stinking day.
 
-00:0b.0 PCI bridge: nVidia Corporation CK804 PCIE Bridge (rev a3)
-(prog-if 00 [Normal decode])
-        Flags: bus master, fast devsel, latency 0
-        Bus: primary=3D00, secondary=3D02, subordinate=3D02, sec-latency=3D=
-0
-        I/O behind bridge: 00009000-00009fff
-        Memory behind bridge: fdd00000-fddfffff
-        Prefetchable memory behind bridge:
-00000000fdc00000-00000000fdc00000
-        Capabilities: [40] Power Management version 2
-        Capabilities: [48] Message Signalled Interrupts: 64bit+
-Queue=3D0/1 Enable+
-        Capabilities: [58] HyperTransport: MSI Mapping
-        Capabilities: [80] Express Root Port (Slot+) IRQ 0
-        Capabilities: [100] Virtual Channel
+In fact, I can pretty much guarantee that pretty much everybody who is 
+reading this is reading it on a machine that has an upgrade facility that 
+is protected by cryptographic means. Your CPU. Most of the microcode 
+updaters have some simple crypto in them (although sometimes that crypto 
+is pretty weak and I think AMD relies more on just not documenting the 
+format).
 
-00:0c.0 PCI bridge: nVidia Corporation CK804 PCIE Bridge (rev a3)
-(prog-if 00 [Normal decode])
-        Flags: bus master, fast devsel, latency 0
-        Bus: primary=3D00, secondary=3D03, subordinate=3D03, sec-latency=3D=
-0
-        I/O behind bridge: 00008000-00008fff
-        Memory behind bridge: fdb00000-fdbfffff
-        Prefetchable memory behind bridge:
-00000000fda00000-00000000fda00000
-        Capabilities: [40] Power Management version 2
-        Capabilities: [48] Message Signalled Interrupts: 64bit+
-Queue=3D0/1 Enable+
-        Capabilities: [58] HyperTransport: MSI Mapping
-        Capabilities: [80] Express Root Port (Slot+) IRQ 0
-        Capabilities: [100] Virtual Channel
+Look into the Linux kernel microcode updater code some day, and please 
+realize that it talks to one of those evil "DRM-protected devices".
 
-00:0d.0 PCI bridge: nVidia Corporation CK804 PCIE Bridge (rev a3)
-(prog-if 00 [Normal decode])
-        Flags: bus master, fast devsel, latency 0
-        Bus: primary=3D00, secondary=3D04, subordinate=3D04, sec-latency=3D=
-0
-        I/O behind bridge: 00007000-00007fff
-        Memory behind bridge: fd900000-fd9fffff
-        Prefetchable memory behind bridge:
-00000000fd800000-00000000fd800000
-        Capabilities: [40] Power Management version 2
-        Capabilities: [48] Message Signalled Interrupts: 64bit+
-Queue=3D0/1 Enable+
-        Capabilities: [58] HyperTransport: MSI Mapping
-        Capabilities: [80] Express Root Port (Slot+) IRQ 0
-        Capabilities: [100] Virtual Channel
+And dammit, this is all OK. If people want to write a GPL'd microcode 
+update, they damn well should be able to. Oh, but the GPLv3 forbids them 
+from doing that without giving out the keys used to sign the result.
 
-00:0e.0 PCI bridge: nVidia Corporation CK804 PCIE Bridge (rev a3)
-(prog-if 00 [Normal decode])
-        Flags: bus master, fast devsel, latency 0
-        Bus: primary=3D00, secondary=3D05, subordinate=3D05, sec-latency=3D=
-0
-        I/O behind bridge: 00006000-00006fff
-        Memory behind bridge: f4000000-fbffffff
-        Prefetchable memory behind bridge:
-00000000d0000000-00000000dff00000
-        Capabilities: [40] Power Management version 2
-        Capabilities: [48] Message Signalled Interrupts: 64bit+
-Queue=3D0/1 Enable+
-        Capabilities: [58] HyperTransport: MSI Mapping
-        Capabilities: [80] Express Root Port (Slot+) IRQ 0
-        Capabilities: [100] Virtual Channel
+	"But that's ok, because the FSF is looking out for all of us, and
+	 we know mommy knows best."
 
-00:18.0 Host bridge: Advanced Micro Devices [AMD] K8 [Athlon64/Opteron]
-HyperTransport Technology Configuration
-        Flags: fast devsel
-        Capabilities: [80] HyperTransport: Host or Secondary Interface
+So it's all good.
 
-00:18.1 Host bridge: Advanced Micro Devices [AMD] K8 [Athlon64/Opteron]
-Address Map
-        Flags: fast devsel
-
-00:18.2 Host bridge: Advanced Micro Devices [AMD] K8 [Athlon64/Opteron]
-DRAM Controller
-        Flags: fast devsel
-
-00:18.3 Host bridge: Advanced Micro Devices [AMD] K8 [Athlon64/Opteron]
-Miscellaneous Control
-        Flags: fast devsel
-
-01:08.0 Multimedia audio controller: Creative Labs SB Live! EMU10k1 (rev
-06)
-        Subsystem: Creative Labs CT4832 SBLive! Value
-        Flags: bus master, medium devsel, latency 32, IRQ 58
-        I/O ports at ac00 [size=3D32]
-        Capabilities: [dc] Power Management version 1
-
-01:08.1 Input device controller: Creative Labs SB Live! Game Port (rev
-06)
-        Subsystem: Creative Labs Gameport Joystick
-        Flags: bus master, medium devsel, latency 32
-        I/O ports at a800 [size=3D8]
-        Capabilities: [dc] Power Management version 1
-
-05:00.0 VGA compatible controller: nVidia Corporation NV43 [GeForce
-6600] (rev a2) (prog-if 00 [VGA])
-        Flags: bus master, fast devsel, latency 0, IRQ 58
-        Memory at f4000000 (32-bit, non-prefetchable) [size=3D64M]
-        Memory at d0000000 (64-bit, prefetchable) [size=3D256M]
-        Memory at fa000000 (64-bit, non-prefetchable) [size=3D16M]
-        [virtual] Expansion ROM at f8000000 [disabled] [size=3D128K]
-        Capabilities: [60] Power Management version 2
-        Capabilities: [68] Message Signalled Interrupts: 64bit+
-Queue=3D0/0 Enable-
-        Capabilities: [78] Express Endpoint IRQ 0
-        Capabilities: [100] Virtual Channel
-        Capabilities: [128] Power Budgeting
-
---=20
-Martin Filip
-e-mail: nexus@smoula.net
-ICQ#: 31531391
-jabber: nexus@smoula.net
-www: http://www.smoula.net
-
- _________________________________________=20
-/ BOFH Excuse #230: Lusers learning curve \
-\ appears to be fractal                   /
- -----------------------------------------=20
-       \   ,__,
-        \  (oo)____
-           (__)    )\
-              ||--|| *
-
---=-SGb/Zido1EhQgGmEZcCz
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Toto je =?UTF-8?Q?digit=C3=A1ln=C4=9B?=
-	=?ISO-8859-1?Q?_podepsan=E1?= =?UTF-8?Q?_=C4=8D=C3=A1st?=
-	=?ISO-8859-1?Q?_zpr=E1vy?=
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
-
-iD8DBQBFGrnxzvp9bBLJ9XMRApnKAJ9Ochk7Xk4bsL3+UOQEIydhWTkL6wCfdyou
-eEPGFaaQh87J1TGOJksy7us=
-=2TaD
------END PGP SIGNATURE-----
-
---=-SGb/Zido1EhQgGmEZcCz--
-
+			Linus

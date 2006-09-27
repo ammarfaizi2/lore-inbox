@@ -1,50 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030887AbWI0Vew@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030882AbWI0VgU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030887AbWI0Vew (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Sep 2006 17:34:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030888AbWI0Vew
+	id S1030882AbWI0VgU (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Sep 2006 17:36:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030891AbWI0VgT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Sep 2006 17:34:52 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:64688 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S1030887AbWI0Vev (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Sep 2006 17:34:51 -0400
-Date: Wed, 27 Sep 2006 23:34:43 +0200
-From: Pavel Machek <pavel@ucw.cz>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Nigel Cunningham <ncunningham@linuxmail.org>,
-       Stefan Seyfried <seife@suse.de>, linux-kernel@vger.kernel.org,
-       "Rafael J. Wysocki" <rjw@sisk.pl>
-Subject: Re: When will the lunacy end? (Was Re: [PATCH] uswsusp: add pmops->{prepare,enter,finish} support (aka "platform mode"))
-Message-ID: <20060927213443.GD25589@elf.ucw.cz>
-References: <1159220043.12814.30.camel@nigel.suspend2.net> <20060925144558.878c5374.akpm@osdl.org> <20060925224500.GB2540@elf.ucw.cz> <20060925160648.de96b6fa.akpm@osdl.org> <20060925232151.GA1896@elf.ucw.cz> <20060925172240.5c389c25.akpm@osdl.org> <20060926102434.GA2134@elf.ucw.cz> <20060926094607.815d126f.akpm@osdl.org> <20060927090902.GC24857@elf.ucw.cz> <20060927140808.2aece78e.akpm@osdl.org>
+	Wed, 27 Sep 2006 17:36:19 -0400
+Received: from moutng.kundenserver.de ([212.227.126.187]:59367 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S1030882AbWI0VgT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Sep 2006 17:36:19 -0400
+From: Arnd Bergmann <arnd@arndb.de>
+To: Robin Getz <rgetz@blackfin.uclinux.org>
+Subject: Re: [PATCH 1/4] Blackfin: arch patch for 2.6.18
+Date: Wed, 27 Sep 2006 23:36:24 +0200
+User-Agent: KMail/1.9.1
+Cc: luke Yang <luke.adi@gmail.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+References: <6.1.1.1.0.20060927170244.01ed18d0@ptg1.spd.analog.com>
+In-Reply-To: <6.1.1.1.0.20060927170244.01ed18d0@ptg1.spd.analog.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060927140808.2aece78e.akpm@osdl.org>
-X-Warning: Reading this can be dangerous to your mental health.
-User-Agent: Mutt/1.5.11+cvs20060126
+Message-Id: <200609272336.25007.arnd@arndb.de>
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:bf0b512fe2ff06b96d9695102898be39
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi!
+Am Wednesday 27 September 2006 23:22 schrieb Robin Getz:
+> Systems that use static inline:
+> ./asm-m32r/system.h:static inline void local_irq_enable(void)
+> ./asm-sh64/system.h:static __inline__ void local_irq_enable(void)
+> ./asm-sh/system.h:static __inline__ void local_irq_enable(void)
+> ./asm-xtensa/system.h:static inline void local_irq_enable(void)
+>
+> With the "optimizations" that gcc4 is making with inline being only a
+> "suggestion", I think I would prefer to stick with the macro, unless there
+> is violent opposition.
 
-> > http://marc.theaimsgroup.com/?l=linux-acpi&m=115506915023030&q=raw
-> 
-> OK, that compiles.
+Note that the architectures that do the macro are the ones that
+were there first, while the four above are relatively new. They may
+well have gotten the same comment ;-)
 
-Does it also help you find the problem?
+For a single statement, it doesn't really matter much
+whether you're using a macro or an inline function, but the longer
+the macro gets, the more reason there is to change it.
 
-> I think we should get this documented and merge it (or something like it) into
-> mainline.  This is one area where it's worth investing in debugging tools.
-> 
-> If you agree, are we happy with it in its present form?
+In particular, new gcc versions actually do a pretty good job
+at deciding when to use an out-of-line function and it may make
+your code better if you let it.
 
-Well, I thought about it, but then I thought you would not like such a
-patch. Yes, it certainly makes my life easier.
-								Pavel
+> As Mike pointed out - we are sheep - we just do what the majority (18/22)
+> of other people do.
 
+Not a bad strategy in general. An even better strategy is to do
+what the better architecture implementations in linux do and
+to apply common sense. "better" of course is rather subjective,
+but I typically recommend looking at arch/parisc as a good example.
 
--- 
-(english) http://www.livejournal.com/~pavelmachek
-(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html
+	Arnd <><

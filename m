@@ -1,74 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030181AbWI0LiT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030182AbWI0Lis@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030181AbWI0LiT (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Sep 2006 07:38:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030182AbWI0LiT
+	id S1030182AbWI0Lis (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Sep 2006 07:38:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030186AbWI0Lis
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Sep 2006 07:38:19 -0400
-Received: from moutng.kundenserver.de ([212.227.126.186]:13802 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S1030181AbWI0LiQ convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Sep 2006 07:38:16 -0400
-From: Arnd Bergmann <arnd@arndb.de>
-To: Aubrey <aubreylee@gmail.com>
-Subject: Re: [PATCH 1/4] Blackfin: arch patch for 2.6.18
-Date: Wed, 27 Sep 2006 13:37:52 +0200
-User-Agent: KMail/1.9.4
-Cc: "Luke Yang" <luke.adi@gmail.com>, linux-kernel@vger.kernel.org,
-       "Andrew Morton" <akpm@osdl.org>, "Getz, Robin" <Robin.Getz@analog.com>
-References: <489ecd0c0609202032l1c5540f7t980244e30d134ca0@mail.gmail.com> <200609251905.22224.arnd@arndb.de> <6d6a94c50609270304o79947064y3019dd5f82eb8373@mail.gmail.com>
-In-Reply-To: <6d6a94c50609270304o79947064y3019dd5f82eb8373@mail.gmail.com>
+	Wed, 27 Sep 2006 07:38:48 -0400
+Received: from mtagate4.de.ibm.com ([195.212.29.153]:50403 "EHLO
+	mtagate4.de.ibm.com") by vger.kernel.org with ESMTP
+	id S1030182AbWI0Lir (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Sep 2006 07:38:47 -0400
+Date: Wed, 27 Sep 2006 13:37:39 +0200
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: Andi Kleen <ak@suse.de>, Martin Schwidefsky <schwidefsky@de.ibm.com>
+Subject: Re: [PATCH] x86: Add portable getcpu call
+Message-ID: <20060927113739.GB6872@osiris.boeblingen.de.ibm.com>
+References: <200609262300.k8QN06dD013707@hera.kernel.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200609271337.53485.arnd@arndb.de>
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:c48f057754fc1b1a557605ab9fa6da41
+In-Reply-To: <200609262300.k8QN06dD013707@hera.kernel.org>
+User-Agent: mutt-ng/devel-r804 (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 27 September 2006 12:04, Aubrey wrote:
-> inline static void default_idle(void)
-> {
->        int flag;
+On Tue, Sep 26, 2006 at 11:00:06PM +0000, Linux Kernel Mailing List wrote:
+> commit 3cfc348bf90ffaa777c188652aa297f04eb94de8
+> tree 8908d6a5a61e54ab422ec7f4800d6ac591695423
+> parent c08c820508233b424deab3302bc404bbecc6493a
+> author Andi Kleen <ak@suse.de> 1159260748 +0200
+> committer Andi Kleen <andi@basil.nowhere.org> 1159260748 +0200
 > 
->        while (!need_resched()) {
->                leds_switch(LED_OFF);
->                local_irq_save(flag);
->                if ( likely(!need_resched()) {
-> #if defined (ANOMALY_05000244) && defined (CONFIG_BLKFIN_CACHE)
->                      __asm__("nop; nop;\n");
-> #endif
->                      __asm__(".align 64;\n STI %0; IDLE;\n"
->                              : %0 (flag): :"cc");
->                }
->                local_irq_restore(flag);
->                leds_switch(LED_ON);
->        }
-> }======================================
+> [PATCH] x86: Add portable getcpu call
 > 
-> Here, according to design, it's not possible that interrupt occurs
-> between "STI %0"(enable interrupt) and "IDLE".
-> 
-> __asm__(".align 64; STI %0; IDLE;" : %0 (x):  :"cc");
-> 
-> Robin can explain more details.
+> For NUMA optimization and some other algorithms it is useful to have a fast
+> to get the current CPU and node numbers in user space.
 
-Ok, looks good now. Just a few details that don't impact the 
-functionality:
+Hmm.. just realized that there is a new system call.
 
-- Always use 'static inline', not 'inline static', because of C99
-- In the kernel, it's more common to use 'asm' than '__asm__'.
-- It should probably be 'asm volatile', since gcc might notice
-  that the output (flag) is not used anywhere and it can therefore
-  eliminate the asm.
-- Usually, I recommend using local_irq_disable() instead of
-  local_irq_save(flags) when you know that interrupts are enabled
-  before. It uses one less local variable, which makes it more
-  efficient on some architectures.
-- I'd insert the two NOPs unconditionally here for better
-  readability.
+> +asmlinkage long sys_getcpu(unsigned __user *cpup, unsigned __user *nodep,
+> +	   		   struct getcpu_cache __user *cache)
+> +{
+> +	int err = 0;
+> +	int cpu = raw_smp_processor_id();
+> +	if (cpup)
+> +		err |= put_user(cpu, cpup);
+> +	if (nodep)
+> +		err |= put_user(cpu_to_node(cpu), nodep);
+> +	if (cache) {
+> +		/*
+> +		 * The cache is not needed for this implementation,
+> +		 * but make sure user programs pass something
+> +		 * valid. vsyscall implementations can instead make
+> +		 * good use of the cache. Only use t0 and t1 because
+> +		 * these are available in both 32bit and 64bit ABI (no
+> +		 * need for a compat_getcpu). 32bit has enough
+> +		 * padding
+> +		 */
+> +		unsigned long t0, t1;
+> +		get_user(t0, &cache->t0);
+> +		get_user(t1, &cache->t1);
+> +		t0++;
+> +		t1++;
+> +		put_user(t0, &cache->t0);
+> +		put_user(t1, &cache->t1);
+> +	}
+> +	return err ? -EFAULT : 0;
+> +}
 
-	Arnd <><
+In include/linux/getcpu.h we have
+
+/* Cache for getcpu() to speed it up. Results might be upto a jiffie
+   out of date, but will be faster.
+   User programs should not refer to the contents of this structure.
+   It is only a cache for vgetcpu(). It might change in future kernels.
+   The user program must store this information per thread (__thread)
+   If you want 100% accurate information pass NULL instead. */
+struct getcpu_cache {
+	unsigned long t0;
+	unsigned long t1;
+	unsigned long res[4];
+};
+
+
+So this means that the contents of getcpu_cache will look completely
+different if a process runs in 32bit mode or 64bit mode. Even if you're
+saying "user programs should not..." this looks odd to me.
+Is this really on purpose and do you really think that no user space
+application will ever rely on the format of getcpu_cache?

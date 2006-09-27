@@ -1,31 +1,34 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030194AbWI0Lz2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030199AbWI0L5L@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030194AbWI0Lz2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Sep 2006 07:55:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030196AbWI0Lz2
+	id S1030199AbWI0L5L (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Sep 2006 07:57:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030200AbWI0L5K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Sep 2006 07:55:28 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:5292 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1030194AbWI0Lz1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Sep 2006 07:55:27 -0400
-Subject: Re: SATA: Marvell 88SE6141 kernel support?
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: genestapp@charter.net
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <393855126.1159346763423.JavaMail.root@fepweb13>
-References: <393855126.1159346763423.JavaMail.root@fepweb13>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Wed, 27 Sep 2006 13:20:18 +0100
-Message-Id: <1159359618.11049.349.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+	Wed, 27 Sep 2006 07:57:10 -0400
+Received: from palinux.external.hp.com ([192.25.206.14]:65412 "EHLO
+	mail.parisc-linux.org") by vger.kernel.org with ESMTP
+	id S1030199AbWI0L5I (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Sep 2006 07:57:08 -0400
+Date: Wed, 27 Sep 2006 05:57:08 -0600
+From: Matthew Wilcox <matthew@wil.cx>
+To: Keith Owens <kaos@sgi.com>
+Cc: Bjorn Helgaas <bjorn.helgaas@hp.com>, linux-kernel@vger.kernel.org,
+       linux-ia64@vger.kernel.org
+Subject: Re: KDB blindly reads keyboard port
+Message-ID: <20060927115707.GQ5017@parisc-linux.org>
+References: <200609261354.30722.bjorn.helgaas@hp.com> <5239.1159325150@kao2.melbourne.sgi.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <5239.1159325150@kao2.melbourne.sgi.com>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-We just got docs for it. I've got an "it compiles" legacy mode driver
-for the chip if you want to try it out.
+On Wed, Sep 27, 2006 at 12:45:50PM +1000, Keith Owens wrote:
+> No support for legacy I/O ports could be a bigger problem than just
+> KDB.  To fix just KDB, apply this patch over kdb-v4.4-2.6.18-common-1 and add
+> 'kdb_skip_keyboard' to the boot command line on the offending hardware.
 
-Alan
-
+Why can't you use acpi_kbd_controller_present instead of introducing a
+new option?

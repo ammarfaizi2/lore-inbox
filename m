@@ -1,42 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030659AbWI0TTo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030669AbWI0TZ6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030659AbWI0TTo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Sep 2006 15:19:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030660AbWI0TTo
+	id S1030669AbWI0TZ6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Sep 2006 15:25:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030672AbWI0TZ6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Sep 2006 15:19:44 -0400
-Received: from wohnheim.fh-wedel.de ([213.39.233.138]:5822 "EHLO
-	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S1030659AbWI0TTn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Sep 2006 15:19:43 -0400
-Date: Wed, 27 Sep 2006 21:19:22 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Robin Getz <rgetz@blackfin.uclinux.org>
-Cc: Randy Dunlap <dunlap@xenotime.net>, arnd Bergmann <arnd@arndb.de>,
-       luke Yang <luke.adi@gmail.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 1/4] Blackfin: arch patch for 2.6.18
-Message-ID: <20060927191922.GA2909@wohnheim.fh-wedel.de>
-References: <6.1.1.1.0.20060927132022.01ed0450@ptg1.spd.analog.com>
+	Wed, 27 Sep 2006 15:25:58 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:30219 "EHLO
+	spitz.ucw.cz") by vger.kernel.org with ESMTP id S1030670AbWI0TZ5
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Sep 2006 15:25:57 -0400
+Date: Wed, 27 Sep 2006 14:40:42 +0000
+From: Pavel Machek <pavel@ucw.cz>
+To: Greg KH <greg@kroah.com>
+Cc: Dmitry Torokhov <dmitry.torokhov@gmail.com>,
+       Kay Sievers <kay.sievers@vrfy.org>, linux-kernel@vger.kernel.org,
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH 26/47] Driver core: add groups support to struct device
+Message-ID: <20060927144041.GA4519@ucw.cz>
+References: <11592491482560-git-send-email-greg@kroah.com> <11592491551919-git-send-email-greg@kroah.com> <11592491581007-git-send-email-greg@kroah.com> <11592491611339-git-send-email-greg@kroah.com> <11592491643725-git-send-email-greg@kroah.com> <11592491672052-git-send-email-greg@kroah.com> <d120d5000609260620me5cf24bw83fc6d65fa7cb232@mail.gmail.com> <20060926134654.GB11435@kroah.com> <d120d5000609260701q65039221rac64d043a5b55df9@mail.gmail.com> <20060926142340.GA11999@kroah.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <6.1.1.1.0.20060927132022.01ed0450@ptg1.spd.analog.com>
+In-Reply-To: <20060926142340.GA11999@kroah.com>
 User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 27 September 2006 13:47:16 -0400, Robin Getz wrote:
+Hi!
+
+> > Why can't the device itself manage it? If you want to stub out the
+> > common parts just create a function like netdev_suspend and call it at
+> > appropriate time.
 > 
-> Does anyone have a script that identifies white space problems?
+> Because you would then need to add that function call to _every_ network
+> device driver.  This way, we do not need to do that as the class gets
+> called in the proper place before the device driver does.
 
-If you use vim:
-highlight RedundantSpaces ctermbg=red guibg=red
-match RedundantSpaces /\s\+$\| \+\ze\t/
+I'm not sure this is good idea, it also has potential to break all the
+network devices with one diff.
 
-Jörn
+Some devices will be doing parts of class_suspend already, so I do not
+think that some breakage will happen.
 
 -- 
-A defeated army first battles and then seeks victory.
--- Sun Tzu
+Thanks for all the (sleeping) penguins.

@@ -1,80 +1,146 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932224AbWI0IFI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932232AbWI0IN4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932224AbWI0IFI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Sep 2006 04:05:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932229AbWI0IFI
+	id S932232AbWI0IN4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Sep 2006 04:13:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932236AbWI0IN4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Sep 2006 04:05:08 -0400
-Received: from wx-out-0506.google.com ([66.249.82.233]:25014 "EHLO
-	wx-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S932224AbWI0IFE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Sep 2006 04:05:04 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=T18c1WASUgJhXrg10HBdWqUmilwwcBkFd8rSYQMpk1pX8xqs28vZ9Uy02MYdw1850DD8NZ+IFBEucQ77pMbyC3bMbv4+o0/xJU0NDjqJagfTAyVLytXqhB0AcT1UDCRPDCsQTyhhcxG1pgCxuHjSepgYEKkZOwKbNO7WbGMRVlU=
-Message-ID: <4d8e3fd30609270105pee59188p8043dda694878e36@mail.gmail.com>
-Date: Wed, 27 Sep 2006 10:05:03 +0200
-From: "Paolo Ciarrocchi" <paolo.ciarrocchi@gmail.com>
-To: "Linus Torvalds" <torvalds@osdl.org>
-Subject: Re: x86/x86-64 merge for 2.6.19
+	Wed, 27 Sep 2006 04:13:56 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:41170 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932232AbWI0INz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Sep 2006 04:13:55 -0400
+Date: Wed, 27 Sep 2006 01:13:48 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Martin Devera <devik@cdi.cz>
 Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <Pine.LNX.4.64.0609261439220.3952@g5.osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Subject: Re: stat of /proc fails after CPU hot-unplug with EOVERFLOW in
+ 2.6.18
+Message-Id: <20060927011348.36818f83.akpm@osdl.org>
+In-Reply-To: <451A2E83.5000806@cdi.cz>
+References: <451A2E83.5000806@cdi.cz>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <200609261244.43863.ak@suse.de> <200609262202.28846.ak@suse.de>
-	 <Pine.LNX.4.64.0609261318240.3952@g5.osdl.org>
-	 <200609262226.09418.ak@suse.de>
-	 <Pine.LNX.4.64.0609261339050.3952@g5.osdl.org>
-	 <4d8e3fd30609261425ob262489nec1240f5a0c5050f@mail.gmail.com>
-	 <Pine.LNX.4.64.0609261439220.3952@g5.osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 9/26/06, Linus Torvalds <torvalds@osdl.org> wrote:
-> On Tue, 26 Sep 2006, Paolo Ciarrocchi wrote:
-> >
-> > out of curiosity, wouldn't be better to sync with Andrew via git?
-> > Why via plain patches?
-> >
-> > What am I missing?
->
-> I think you're just missing that we've become so used to it that it's just
-> easier than all the alternatives.
+On Wed, 27 Sep 2006 09:55:47 +0200
+Martin Devera <devik@cdi.cz> wrote:
 
-Umh.. good point ;)
+> Hello,
+> 
+> I have 2way Opteron machine. I've done this:
+> echo 0 > /sys/devices/system/cpu/cpu1/online
+> 
+> and then strace stat /proc:
+> 
+> [snip]
+> personality(PER_LINUX)                  = 4194304
+> getpid()                                = 14926
+> brk(0)                                  = 0x804b000
+> brk(0x804b1a0)                          = 0x804b1a0
+> brk(0x804c000)                          = 0x804c000
+> stat("/proc", 0xbf8e7490)               = -1 EOVERFLOW
+> 
+> When I do echo 1 > ... to start cpu again then the stat starts
+> to work again ... Weird.
+> 
 
-> Also, the way we do things with Andrew actually has a few advantages over
-> a straight git-to-git merge. In particular, when Andrew sends me his
-> current stable quilt queue, every email is also Cc'd to the people who
-> sent it to him originally or were otherwise involved.
+boggle.
 
-I forgot that Andrew is CC'ing the "author" of the patch when he sends
-to you the email.
+Can you add this patch, see where it's going bad?
 
-> So the very act of transferring the patches from one tree to another
-> sometimes produces an extra acknowledgement cycle, and we've had patches
-> that got NACK'ed at that point because it was an older version of the
-> patch etc.
->
-> Now, I suspect this is more of an advantage with Andrew's tree than with
-> most other trees (most other trees tend to have a much stricter focus),
-> and perhaps equally importantly, it also wouldn't really work very well if
-> _everybody_ did it, so I personally believe this is one of those
-> situations where what's good for _one_ case may not actually be wonderful
-> for _all_ cases.
->
-> I think it's worked out pretty well, no?
 
-Oh yes! I just did the mistake to think that the work flow of Andrew
-was similar to the one used by Andy. And that's clearly a mistake.
+ fs/stat.c |   30 +++++++++++++++++++++++-------
+ 1 file changed, 23 insertions(+), 7 deletions(-)
 
-Thanks for the clarification.
+diff -puN fs/stat.c~a fs/stat.c
+--- a/fs/stat.c~a
++++ a/fs/stat.c
+@@ -18,6 +18,8 @@
+ #include <asm/uaccess.h>
+ #include <asm/unistd.h>
+ 
++#define D() printk("%s:%d\n", __FILE__, __LINE__)
++
+ void generic_fillattr(struct inode *inode, struct kstat *stat)
+ {
+ 	stat->dev = inode->i_sb->s_dev;
+@@ -141,14 +143,18 @@ static int cp_old_stat(struct kstat *sta
+ 	tmp.st_ino = stat->ino;
+ 	tmp.st_mode = stat->mode;
+ 	tmp.st_nlink = stat->nlink;
+-	if (tmp.st_nlink != stat->nlink)
++	if (tmp.st_nlink != stat->nlink) {
++		D();
+ 		return -EOVERFLOW;
++	}
+ 	SET_UID(tmp.st_uid, stat->uid);
+ 	SET_GID(tmp.st_gid, stat->gid);
+ 	tmp.st_rdev = old_encode_dev(stat->rdev);
+ #if BITS_PER_LONG == 32
+-	if (stat->size > MAX_NON_LFS)
++	if (stat->size > MAX_NON_LFS) {
++		D();
+ 		return -EOVERFLOW;
++	}
+ #endif	
+ 	tmp.st_size = stat->size;
+ 	tmp.st_atime = stat->atime.tv_sec;
+@@ -195,11 +201,15 @@ static int cp_new_stat(struct kstat *sta
+ 	struct stat tmp;
+ 
+ #if BITS_PER_LONG == 32
+-	if (!old_valid_dev(stat->dev) || !old_valid_dev(stat->rdev))
++	if (!old_valid_dev(stat->dev) || !old_valid_dev(stat->rdev)) {
++		D();
+ 		return -EOVERFLOW;
++	}
+ #else
+-	if (!new_valid_dev(stat->dev) || !new_valid_dev(stat->rdev))
++	if (!new_valid_dev(stat->dev) || !new_valid_dev(stat->rdev)) {
++		D();
+ 		return -EOVERFLOW;
++	}
+ #endif
+ 
+ 	memset(&tmp, 0, sizeof(tmp));
+@@ -211,8 +221,10 @@ static int cp_new_stat(struct kstat *sta
+ 	tmp.st_ino = stat->ino;
+ 	tmp.st_mode = stat->mode;
+ 	tmp.st_nlink = stat->nlink;
+-	if (tmp.st_nlink != stat->nlink)
++	if (tmp.st_nlink != stat->nlink) {
++		D();
+ 		return -EOVERFLOW;
++	}
+ 	SET_UID(tmp.st_uid, stat->uid);
+ 	SET_GID(tmp.st_gid, stat->gid);
+ #if BITS_PER_LONG == 32
+@@ -221,8 +233,10 @@ static int cp_new_stat(struct kstat *sta
+ 	tmp.st_rdev = new_encode_dev(stat->rdev);
+ #endif
+ #if BITS_PER_LONG == 32
+-	if (stat->size > MAX_NON_LFS)
++	if (stat->size > MAX_NON_LFS) {
++		D();
+ 		return -EOVERFLOW;
++	}
+ #endif	
+ 	tmp.st_size = stat->size;
+ 	tmp.st_atime = stat->atime.tv_sec;
+@@ -337,8 +351,10 @@ static long cp_new_stat64(struct kstat *
+ 	memset(&tmp, 0, sizeof(struct stat64));
+ #ifdef CONFIG_MIPS
+ 	/* mips has weird padding, so we don't get 64 bits there */
+-	if (!new_valid_dev(stat->dev) || !new_valid_dev(stat->rdev))
++	if (!new_valid_dev(stat->dev) || !new_valid_dev(stat->rdev)) {
++		D();
+ 		return -EOVERFLOW;
++	}
+ 	tmp.st_dev = new_encode_dev(stat->dev);
+ 	tmp.st_rdev = new_encode_dev(stat->rdev);
+ #else
+_
 
-Ciao,
--- 
-Paolo
-http://paolo.ciarrocchi.googlepages.com
-http://picasaweb.google.com/paolo.ciarrocchi

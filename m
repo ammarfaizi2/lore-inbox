@@ -1,60 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751220AbWI0Qgs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751227AbWI0Ql2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751220AbWI0Qgs (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Sep 2006 12:36:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751225AbWI0Qgs
+	id S1751227AbWI0Ql2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Sep 2006 12:41:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751229AbWI0Ql1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Sep 2006 12:36:48 -0400
-Received: from mail.sf-mail.de ([62.27.20.61]:19624 "EHLO mail.sf-mail.de")
-	by vger.kernel.org with ESMTP id S1751220AbWI0Qgr (ORCPT
+	Wed, 27 Sep 2006 12:41:27 -0400
+Received: from moutng.kundenserver.de ([212.227.126.177]:44743 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S1751227AbWI0Ql1 convert rfc822-to-8bit (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Sep 2006 12:36:47 -0400
-From: Rolf Eike Beer <eike-kernel@sf-tec.de>
-To: Andrew Morton <akpm@osdl.org>
-Subject: [PATCH][AIO] Remove BUG_ON(unlikely) in include/linux/aio.h
-Date: Wed, 27 Sep 2006 18:37:29 +0200
+	Wed, 27 Sep 2006 12:41:27 -0400
+From: Arnd Bergmann <arnd@arndb.de>
+To: Robin Getz <rgetz@blackfin.uclinux.org>
+Subject: Re: [PATCH 1/4] Blackfin: arch patch for 2.6.18
+Date: Wed, 27 Sep 2006 18:41:13 +0200
 User-Agent: KMail/1.9.4
-Cc: Zach Brown <zach.brown@oracle.com>, linux-kernel@vger.kernel.org
+Cc: luke Yang <luke.adi@gmail.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+References: <6.1.1.1.0.20060927121508.01ecea90@ptg1.spd.analog.com>
+In-Reply-To: <6.1.1.1.0.20060927121508.01ecea90@ptg1.spd.analog.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-Message-Id: <200609271837.29301.eike-kernel@sf-tec.de>
+Message-Id: <200609271841.14135.arnd@arndb.de>
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:c48f057754fc1b1a557605ab9fa6da41
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-BUG_ON() does this unlikely check itself, as bugs in Linux are unlikely
-anyway :)
+On Wednesday 27 September 2006 18:25, Robin Getz wrote:
+> +#define idle_with_irq_disabled() do {   \
+> +        __asm__ __volatile__ (          \
+> +                "nop; nop;\n"           \
+> +                ".align 8;\n"           \
+> +                "sti %0; idle;\n"       \
+> +                ::"d" (irq_flags));     \
+> +} while (0)
+> 
 
-Signed-off-by: Rolf Eike Beer <eike-kernel@sf-tec.de>
-Acked-by: Zach Brown <zach.brown@oracle.com>
+The irq_flags are not declared anywhere in the code you just posted,
+I guess you could simply declare a local variable in this macro.
 
----
-commit 0764f582b694c80d0cd1db8f3320db5112b9053c
-tree ed9907f05b09d7b16d8c1a6e4013eaffd0f2b42b
-parent f0544b86176beef7fa05f4c009bc46f142717cbf
-author Rolf Eike Beer <eike-kernel@sf-tec.de> Fri, 28 Jul 2006 10:30:30 +0200
-committer Rolf Eike Beer <beer@siso-eb-i34d.silicon-software.de> Fri, 28 Jul 2006 10:30:30 +0200
+It would also be better to convert macros like this one to inline
+functions in general. The rule is: if you can use either a macro
+or an inline function with the same effect, use an inline function.
 
- include/linux/aio.h |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
-
-diff --git a/include/linux/aio.h b/include/linux/aio.h
-index 00c8efa..8a01933 100644
---- a/include/linux/aio.h
-+++ b/include/linux/aio.h
-@@ -213,11 +213,11 @@ int FASTCALL(io_submit_one(struct kioctx
- 				  struct iocb *iocb));
- 
- #define get_ioctx(kioctx) do {						\
--	BUG_ON(unlikely(atomic_read(&(kioctx)->users) <= 0));		\
-+	BUG_ON(atomic_read(&(kioctx)->users) <= 0);			\
- 	atomic_inc(&(kioctx)->users);					\
- } while (0)
- #define put_ioctx(kioctx) do {						\
--	BUG_ON(unlikely(atomic_read(&(kioctx)->users) <= 0));		\
-+	BUG_ON(atomic_read(&(kioctx)->users) <= 0);			\
- 	if (unlikely(atomic_dec_and_test(&(kioctx)->users))) 		\
- 		__put_ioctx(kioctx);					\
- } while (0)
+	Arnd <><

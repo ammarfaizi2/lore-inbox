@@ -1,53 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030746AbWI0UQv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030753AbWI0US6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030746AbWI0UQv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Sep 2006 16:16:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030753AbWI0UQv
+	id S1030753AbWI0US6 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Sep 2006 16:18:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030754AbWI0US6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Sep 2006 16:16:51 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:24481 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1030754AbWI0UQt (ORCPT
+	Wed, 27 Sep 2006 16:18:58 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:1760 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030753AbWI0US5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Sep 2006 16:16:49 -0400
-Date: Wed, 27 Sep 2006 22:08:33 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: john stultz <johnstul@us.ibm.com>
-Cc: Roman Zippel <zippel@linux-m68k.org>, lkml <linux-kernel@vger.kernel.org>,
-       Thomas Gleixner <tglx@linutronix.de>, Andrew Morton <akpm@osdl.org>
-Subject: Re: [RFC] exponential update_wall_time
-Message-ID: <20060927200832.GB20282@elte.hu>
-References: <1159385734.29040.9.camel@localhost>
+	Wed, 27 Sep 2006 16:18:57 -0400
+Date: Wed, 27 Sep 2006 13:18:49 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: James Ketrenos <jketreno@linux.intel.com>
+Cc: Miles Lane <miles.lane@gmail.com>, LKML <linux-kernel@vger.kernel.org>,
+       Jouni Malinen <jkmaline@cc.hut.fi>
+Subject: Re: 2.6.18-mm1 -- ieee80211: Info elem: parse failed:
+ info_element->len + 2 > left : info_element->len+2=28 left=9, id=221.
+Message-Id: <20060927131849.ba64412c.akpm@osdl.org>
+In-Reply-To: <451AE356.5050306@linux.intel.com>
+References: <a44ae5cd0609261204g673fbf8ft6809378930986eac@mail.gmail.com>
+	<a44ae5cd0609261756w1e82087p60c18ef941657466@mail.gmail.com>
+	<a44ae5cd0609262305p1d0b9aaai9db324aff0b3ba0c@mail.gmail.com>
+	<451AE356.5050306@linux.intel.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1159385734.29040.9.camel@localhost>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -2.9
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.9 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5000]
-	-0.1 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Wed, 27 Sep 2006 13:47:18 -0700
+James Ketrenos <jketreno@linux.intel.com> wrote:
 
-* john stultz <johnstul@us.ibm.com> wrote:
+> +static int snprint_line(char *buf, size_t count,
+> +			const u8 * data, u32 len, u32 ofs)
+> +{
+> +	int out, i, j, l;
+> +	char c;
+> +
+> +	out = snprintf(buf, count, "%08X", ofs);
+> +
+> +	for (l = 0, i = 0; i < 2; i++) {
+> +		out += snprintf(buf + out, count - out, " ");
+> +		for (j = 0; j < 8 && l < len; j++, l++)
+> +			out += snprintf(buf + out, count - out, "%02X ",
+> +					data[(i * 8 + j)]);
+> +		for (; j < 8; j++)
+> +			out += snprintf(buf + out, count - out, "   ");
+> +	}
+> +
+> +	out += snprintf(buf + out, count - out, " ");
+> +	for (l = 0, i = 0; i < 2; i++) {
+> +		out += snprintf(buf + out, count - out, " ");
+> +		for (j = 0; j < 8 && l < len; j++, l++) {
+> +			c = data[(i * 8 + j)];
+> +			if (!isascii(c) || !isprint(c))
+> +				c = '.';
+> +
+> +			out += snprintf(buf + out, count - out, "%c", c);
+> +		}
+> +
+> +		for (; j < 8; j++)
+> +			out += snprintf(buf + out, count - out, " ");
+> +	}
+> +
+> +	return out;
+> +}
 
-> Accumulate time in update_wall_time exponentially. This avoids long 
-> running loops seen with the dynticks patch as well as the problematic 
-> hang" seen on systems with broken clocksources.
-> 
-> This applies on top of 2.6.18-mm1
-> 
-> Signed-off-by: John Stultz <johnstul@us.ibm.com>
+I've occasionally felt that the kernel should have a generic
+print-a-hunk-of-memory function (slab.c has two open-coded
+implementations already).
 
-Acked-by: Ingo Molnar <mingo@elte.hu>
-
-works fine and is included in 2.6.18-rt too.
-
-	Ingo
+What does the output of this one look like?

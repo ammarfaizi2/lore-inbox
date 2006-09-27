@@ -1,61 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031190AbWI0Wyo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031193AbWI0Wz5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1031190AbWI0Wyo (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Sep 2006 18:54:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031194AbWI0Wyo
+	id S1031193AbWI0Wz5 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Sep 2006 18:55:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965164AbWI0Wz5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Sep 2006 18:54:44 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:30354
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1031190AbWI0Wyn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Sep 2006 18:54:43 -0400
-Date: Wed, 27 Sep 2006 15:54:42 -0700 (PDT)
-Message-Id: <20060927.155442.71092068.davem@davemloft.net>
-To: suresh.b.siddha@intel.com
-Cc: akpm@osdl.org, hugh@veritas.com, linux-kernel@vger.kernel.org,
-       asit.k.mallick@intel.com
-Subject: Re: [patch] mm: fix a race condition under SMC + COW
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <20060927151507.A12423@unix-os.sc.intel.com>
-References: <20060927151507.A12423@unix-os.sc.intel.com>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Wed, 27 Sep 2006 18:55:57 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:36532 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S965163AbWI0Wz4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Sep 2006 18:55:56 -0400
+Date: Wed, 27 Sep 2006 15:55:49 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "roland" <devzero@web.de>, Jay Lan <jlan@engr.sgi.com>
+Cc: "Fengguang Wu" <fengguang.wu@gmail.com>, <linux-kernel@vger.kernel.org>,
+       <lserinol@gmail.com>
+Subject: Re: I/O statistics per process
+Message-Id: <20060927155549.4a69490d.akpm@osdl.org>
+In-Reply-To: <008f01c6e27a$f9bd5460$962e8d52@aldipc>
+References: <0e2001c6de7a$fe756280$962e8d52@aldipc>
+	<359067036.19509@ustc.edu.cn>
+	<008f01c6e27a$f9bd5460$962e8d52@aldipc>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
-Date: Wed, 27 Sep 2006 15:15:07 -0700
+On Wed, 27 Sep 2006 23:22:02 +0200
+"roland" <devzero@web.de> wrote:
 
-> From: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
+> thanks. tried to contact redflag, but they don`t answer. maybe support is 
+> being on holiday.... !?
 > 
-> Failing context is a multi threaded process context and the failing
-> sequence is as follows.
+> linux kernel hackers - there is really no standard way to watch i/o metrics 
+> (bytes read/written) at process level?
+
+The patch csa-accounting-taskstats-update.patch in current -mm kernels
+(whcih is planned for 2.6.19) does have per-process chars-read and
+chars-written accounting ("Extended accounting fields").  That's probably
+not waht you really want, although it might tell you what you want to know.
+
+> it`s extremly hard for the admin to track down, what process is hogging the 
+> disk - especially if there is more than one task consuming cpu.
+
+Sure.  Doing this is actually fairly tricky because disk writes are almost
+always deferred.  We'd need to remember which process dirtied some memory,
+then track that info all the way down to the disk IO level, then perform
+the accounting operations at IO submit-time or completion time, on a
+per-page basis.  It isn't rocket-science, but it's a lot of stuff and some
+overhead.
+
+> meanwhile i found blktrace and read into the documenation. looks really cool 
+> and seems to be very powerful tool - but it it`s seems a little bit 
+> "oversized" and not the right tool for this. seems to be for 
+> tracing/debugging/analysis
 > 
-> One thread T0 doing self modifying code on page X on processor P0 and
-> another thread T1 doing COW (breaking the COW setup as part of just happened
-> fork() in another thread T2) on the same page X on processor P1. T0 doing SMC
-> can endup modifying  the new page Y (allocated by the T1 doing COW on P1) but
-> because of different I/D TLB's, P0 ITLB will not see the new mapping till
-> the flush TLB IPI from  P1 is received. During this interval, if T0 executes
-> the code created by SMC it can result in an app error (as ITLB still points to
-> old page X and endup executing the content in page X rather than using
-> the content in page Y).
-> 
-> Fix this issue by first clearing the PTE and flushing it, before updating it
-> with new entry.
-> 
-> Signed-off-by: Suresh Siddha <suresh.b.siddha@intel.com>
+> what about http://lkml.org/lkml/2005/9/12/89  "with following patch, 
+> userspace processes/utilities will be able to access per process I/O 
+> statistics. for example, top like utilites can use this information" which 
+> has been posted to lkml one year ago ? any update on this ?
 
-You can't really do a set_pte_at() in this code path because
-there isn't a subsequent flush_tlb_*().
+csa-accounting-taskstats-update.patch makes that information available to
+userspace.
 
-This is needed because some architectures queue up all set_pte_at()
-calls until the next flush_tlb_*() in order to batch TLB flushes.
-PowerPC and Sparc64 both do this.
+But it's approximate, because
 
-The pte_establish() in the existing code works fine because it takes
-care of the set_pte_at() and flush_tlb_*() work internally when
-necessary on a given platform.
+- it doesn't account for disk readahead
 
+- it doesn't account for pagefault-initiated reads (althought it easily
+  could - Jay?)
+
+- it overaccounts for a process writing to an already-dirty page.
+
+  (We could fix this too: nuke the existing stuff and do
+
+	current->wchar += PAGE_CACHE_SIZE;
+
+   in __set_page_dirty_[no]buffers().) (But that ends up being wrong if
+   someone truncates the file before it got written)
+
+- it doesn't account for file readahead (although it easily could)
+
+- it doesn't account for pagefault-initiated readahead (it could)
+
+
+hm.  There's actually quite a lot we could do here to make these fields
+more accurate and useful.  A lot of this depends on what the definition of
+these fields _is_.  Is is just for disk IO?  Is it supposed to include
+console IO, or what?

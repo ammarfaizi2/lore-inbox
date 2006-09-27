@@ -1,64 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965418AbWI0HYH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965400AbWI0H1l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965418AbWI0HYH (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Sep 2006 03:24:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965422AbWI0HYH
+	id S965400AbWI0H1l (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Sep 2006 03:27:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965425AbWI0H1l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Sep 2006 03:24:07 -0400
-Received: from moutng.kundenserver.de ([212.227.126.177]:25074 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S965420AbWI0HYG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Sep 2006 03:24:06 -0400
-To: linux-kernel@vger.kernel.org
-Subject: Re: Bad page state with x86_64
-From: "Andreas Block" <andreas.block@esd-electronics.com>
-Content-Type: text/plain; format=flowed; delsp=yes; charset=iso-8859-15
+	Wed, 27 Sep 2006 03:27:41 -0400
+Received: from mail.sf-mail.de ([62.27.20.61]:23478 "EHLO mail.sf-mail.de")
+	by vger.kernel.org with ESMTP id S965400AbWI0H1k (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Sep 2006 03:27:40 -0400
+From: Rolf Eike Beer <eike-kernel@sf-tec.de>
+To: Jeff Garzik <jeff@garzik.org>
+Subject: Re: [PATCH] x86[-64] PCI domain support
+Date: Wed, 27 Sep 2006 09:28:17 +0200
+User-Agent: KMail/1.9.4
+Cc: Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>,
+       Jim Paradis <jparadis@redhat.com>, Andi Kleen <ak@suse.de>,
+       LKML <linux-kernel@vger.kernel.org>
+References: <20060926191508.GA6350@havoc.gtf.org>
+In-Reply-To: <20060926191508.GA6350@havoc.gtf.org>
 MIME-Version: 1.0
-In-Reply-To: <4519200A.4000109@yahoo.com.au>
-References: <op.tghdlool8n9ctc@pc-block.esd> <4519200A.4000109@yahoo.com.au>
+Content-Type: multipart/signed;
+  boundary="nextPart1404408.e8jz3LH4Yv";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
-Date: Wed, 27 Sep 2006 09:20:48 +0200
-Message-ID: <op.tgiz0y0t8n9ctc@pc-block.esd>
-User-Agent: Opera Mail/9.02 (Win32)
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:7ee1d245d6d47e4a96dce2c88f0dd45f
+Message-Id: <200609270928.18378.eike-kernel@sf-tec.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 26 Sep 2006 14:41:46 +0200, Nick Piggin <nickpiggin@yahoo.com.au>
-wrote:
+--nextPart1404408.e8jz3LH4Yv
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-> It is freeing a PageReserved page. You should ensure to balance your
-> reference counting on *each* page (or allocate a compound page and
-> treat it as a single one). When you map pages into userspace via
-> nopage or remap_pfn_range, you need to increment their count, which
-> gets decremented by the VM when they are unmapped.
+Jeff Garzik wrote:
 
-Thanks a lot for your time and help. Still there are a few things a
-seemingly don't understand correctly.
-Do I understand you right, I don't have to "put_page" after calling
-"get_page" in my no-page handler?
-Also I'm wondering, why this code works flawlessly on 2.6.10 32-Bit and
-several 2.4.x kernels 32-Bit and PPC and is failing to work on x86_64,
-only. Do I have to do the "get/put_page" mechanism differnetly on x86_64?
-Another question:
-In my no-page handler, I reserve the physical page. I do have to clear the
-reserve bit of those page after unmap, right? Or is this done implicitly
-as well?
+> diff --git a/arch/i386/pci/acpi.c b/arch/i386/pci/acpi.c
+> index b33aea8..e4f4828 100644
+> --- a/arch/i386/pci/acpi.c
+> +++ b/arch/i386/pci/acpi.c
+> @@ -8,20 +8,37 @@ #include "pci.h"
+>  struct pci_bus * __devinit pci_acpi_scan_root(struct acpi_device *device,
+> int domain, int busnum) {
+>  	struct pci_bus *bus;
+> +	struct pci_sysdata *sd;
+>
+> +	/* Allocate per-root-bus (not per bus) arch-specific data.
+> +	 * TODO: leak; this memory is never freed.
+> +	 * It's arguable whether it's worth the trouble to care.
+> +	 */
+> +	sd =3D kzalloc(sizeof(*sd), GFP_KERNEL);
+> +	if (!sd) {
+> +		printk(KERN_ERR "PCI: OOM, not probing PCI bus %02x\n", busnum);
+> +		return NULL;
+> +	}
+> +
+> +#ifdef CONFIG_PCI_DOMAINS
+> +	sd->domain =3D domain;
+> +#else
+>  	if (domain !=3D 0) {
+>  		printk(KERN_WARNING "PCI: Multiple domains not supported\n");
 
-Again, thanks for your effort.
--- 
--------------------------------------------------------------------------
+kfree(sd);
 
-                             _/_/_/_/   Andreas Block
-                            _/_/_/_/   Dipl.-Ing.
-                           _/_/_/_/   andreas.block@esd-electronics.com
 
-       _/_/_/   _/_/_/_/_/_/_/      esd electronic system design gmbh
-     _/   _/  _/             _/    Vahrenwalder Str. 207
-    _/   _/    _/_/_/   _/   _/   D-30165 Hannover
-    _/             _/  _/   _/   Phone: +49-511-37298-0
-     _/_/_/_/_/_/_/   _/_/_/    Fax:   +49-511-37298-68
-                               http://www.esd-electronics.com
+>  		return NULL;
+>  	}
+> +#endif /* CONFIG_PCI_DOMAINS */
 
--------------------------------------------------------------------------
- 
+I would move this check to be done before the memory is allocated so we don=
+'t=20
+need to free it.
+
+Eike
+
+--nextPart1404408.e8jz3LH4Yv
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2 (GNU/Linux)
+
+iD8DBQBFGigSXKSJPmm5/E4RAsDfAJ466KHe3/AYeR0X1oEGOpg2fXa7lwCffkPV
+CcT1LfDeRzXIK8NV8PVh4MI=
+=PNmq
+-----END PGP SIGNATURE-----
+
+--nextPart1404408.e8jz3LH4Yv--

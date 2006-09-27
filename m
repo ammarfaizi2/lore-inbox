@@ -1,48 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964970AbWI0Eq5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964975AbWI0EvV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964970AbWI0Eq5 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Sep 2006 00:46:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965094AbWI0Eq5
+	id S964975AbWI0EvV (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Sep 2006 00:51:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965129AbWI0EvV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Sep 2006 00:46:57 -0400
-Received: from relay.2ka.mipt.ru ([194.85.82.65]:52201 "EHLO 2ka.mipt.ru")
-	by vger.kernel.org with ESMTP id S964970AbWI0Eq4 (ORCPT
+	Wed, 27 Sep 2006 00:51:21 -0400
+Received: from xenotime.net ([66.160.160.81]:65452 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S964975AbWI0EvU (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Sep 2006 00:46:56 -0400
-Date: Wed, 27 Sep 2006 08:46:09 +0400
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: Christoph Hellwig <hch@infradead.org>
-Cc: Andrew Morton <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
-       David Miller <davem@davemloft.net>, Ulrich Drepper <drepper@redhat.com>,
-       netdev <netdev@vger.kernel.org>, Zach Brown <zach.brown@oracle.com>,
-       Chase Venters <chase.venters@clientec.com>
-Subject: Re: [take19 0/4] kevent: Generic event handling mechanism.
-Message-ID: <20060927044608.GA8965@2ka.mipt.ru>
-References: <115a6230591036@2ka.mipt.ru> <11587449471424@2ka.mipt.ru> <20060922122207.3b716028.akpm@osdl.org> <20060926155416.GB32030@infradead.org>
+	Wed, 27 Sep 2006 00:51:20 -0400
+Date: Tue, 26 Sep 2006 21:52:35 -0700
+From: Randy Dunlap <rdunlap@xenotime.net>
+To: Greg KH <greg@kroah.com>
+Cc: Jesper Juhl <jesper.juhl@gmail.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Tiny error in printk output for clocksource : a3:<6>Time:
+ acpi_pm clocksource has been installed.
+Message-Id: <20060926215235.16c987c0.rdunlap@xenotime.net>
+In-Reply-To: <20060927043239.GA32082@kroah.com>
+References: <9a8748490609261722g557eaeeayc148b5f5d910874d@mail.gmail.com>
+	<20060926173347.04fd66dd.rdunlap@xenotime.net>
+	<200609270236.58148.jesper.juhl@gmail.com>
+	<20060926205415.98b8d95d.rdunlap@xenotime.net>
+	<20060927043239.GA32082@kroah.com>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
-Content-Disposition: inline
-In-Reply-To: <20060926155416.GB32030@infradead.org>
-User-Agent: Mutt/1.5.9i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Wed, 27 Sep 2006 08:46:10 +0400 (MSD)
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 26, 2006 at 04:54:16PM +0100, Christoph Hellwig (hch@infradead.org) wrote:
-> > > Generic event handling mechanism.
-> > > 
-> > > Consider for inclusion.
+On Tue, 26 Sep 2006 21:32:39 -0700 Greg KH wrote:
+
+> On Tue, Sep 26, 2006 at 08:54:15PM -0700, Randy Dunlap wrote:
+> > On Wed, 27 Sep 2006 02:36:58 +0200 Jesper Juhl wrote:
 > > 
-> > Ulrich's objections sounded substantial, and afaik remain largely
-> > unresolved.   How do we sort this out?
+> > > On Wednesday 27 September 2006 02:33, Randy Dunlap wrote:
+> > > > On Wed, 27 Sep 2006 02:22:18 +0200 Jesper Juhl wrote:
+> > > > 
+> > > > > I get this in dmesg with 2.6.18-git6 :
+> > > > >       a3:<6>Time: acpi_pm clocksource has been installed.
+> > > > > 
+> > > > > Looks like some printk() somewhere is not adding \n correctly after
+> > > > > outputting a message priority or a message priority too much is
+> > > > > used... I've not investigated where this happens, but just wanted to
+> > > > > report it.
+> > > > 
+> > > > Hi,
+> > > > How about posting (pasting) some of the message log before that?
+> > > > 
+> > > Sure, below is the entire dmesg output from this boot of the box 
+> > > (including the line above) :
+> > 
+> > I suppose that you have CONFIG_PCI_MULTITHREAD_PROBE=y ?
+> > What happens if you change to to =n ?
+> > 
+> > > eth0: VIA Rhine II at 0xff5fec00, 00:50:ba:f2:<6>serio: i8042 AUX port at 0x60,0x64 irq 12
+> > > serio: i8042 KBD port at 0x60,0x64 irq 1
+> > > mice: PS/2 mouse device common for all mice
+> > > EDAC MC: Ver: 2.0.1 Sep 27 2006
+> > > TCP cubic registered
+> > > NET: Registered protocol family 1
+> > > NET: Registered protocol family 17
+> > > Starting balanced_irq
+> > > Using IPI Shortcut mode
+> > > a3:<6>Time: acpi_pm clocksource has been installed.
+> > > 1d, IRQ 18.
+> > > eth0: MII PHY found at address 8, status 0x782d advertising 01e1 Link 45e1.
+> > 
+> > I'm pretty sure that this is caused by parallel device probing.
+> > The serio and clocksource messages are interspersed with the
+> > eth0 (via rhine) info.  Garbled.
+> > 
+> > Greg, is this expected?
 > 
-> I haven't seen any of Ulrichs points (which mostly is a large subset of
-> my objection) beeing addressed.
+> Only if one bit of code doesn't write a full line to the printk()
+> buffer, yes that could happen.
+> 
+> What driver writes "a3:"?  I couldn't find it anywhere in Linus's
+> current tree.
 
-Could you please be more specific?
+Nope, that's part of the NIC's MAC address.  It was split up.
 
-As far as I can see I addressed all suggestions made by Christoph and
-still waiting for comments about my points after reply to Ulrich's.
-
--- 
-	Evgeniy Polyakov
+---
+~Randy

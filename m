@@ -1,141 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932225AbWI0Ba1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932230AbWI0BhY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932225AbWI0Ba1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Sep 2006 21:30:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932226AbWI0Ba1
+	id S932230AbWI0BhY (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Sep 2006 21:37:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932234AbWI0BhY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Sep 2006 21:30:27 -0400
-Received: from tomts22-srv.bellnexxia.net ([209.226.175.184]:58367 "EHLO
-	tomts22-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id S932225AbWI0Ba0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Sep 2006 21:30:26 -0400
-Date: Tue, 26 Sep 2006 21:30:20 -0400
-From: Mathieu Desnoyers <compudj@krystal.dyndns.org>
-To: "Frank Ch. Eigler" <fche@redhat.com>
-Cc: Martin Bligh <mbligh@google.com>,
-       Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>, prasanna@in.ibm.com,
-       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-       Paul Mundt <lethal@linux-sh.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>, Jes Sorensen <jes@sgi.com>,
-       Tom Zanussi <zanussi@us.ibm.com>,
-       Richard J Moore <richardj_moore@uk.ibm.com>,
-       Michel Dagenais <michel.dagenais@polymtl.ca>,
-       Christoph Hellwig <hch@infradead.org>,
-       Greg Kroah-Hartman <gregkh@suse.de>,
-       Thomas Gleixner <tglx@linutronix.de>, William Cohen <wcohen@redhat.com>,
-       ltt-dev@shafik.org, systemtap@sources.redhat.com,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Jeremy Fitzhardinge <jeremy@goop.org>,
-       Karim Yaghmour <karim@opersys.com>, Pavel Machek <pavel@suse.cz>,
-       Joe Perches <joe@perches.com>, "Randy.Dunlap" <rdunlap@xenotime.net>,
-       "Jose R. Santos" <jrs@us.ibm.com>
-Subject: Re: [PATCH] Linux Kernel Markers 0.11 for 2.6.17
-Message-ID: <20060927013020.GA5171@Krystal>
-References: <20060925151028.GA14695@Krystal> <20060925160115.GE25296@redhat.com> <20060925232828.GA29343@Krystal> <y0mr6xyeg51.fsf@ton.toronto.redhat.com>
-Mime-Version: 1.0
+	Tue, 26 Sep 2006 21:37:24 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:47500 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S932230AbWI0BhY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Sep 2006 21:37:24 -0400
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: Andy Whitcroft <apw@shadowen.org>, Martin Bligh <mbligh@google.com>,
+       Andrew Morton <akpm@osdl.org>, Andi Kleen <ak@suse.de>,
+       LKML <linux-kernel@vger.kernel.org>,
+       Ian Campbell <Ian.Campbell@XenSource.com>
+Subject: Re: 2.6.18-mm1 compile failure on x86_64
+References: <45185A93.7020105@google.com> <4518DC0B.10207@shadowen.org>
+	<4518E4DF.8010007@goop.org>
+Date: Tue, 26 Sep 2006 19:35:21 -0600
+In-Reply-To: <4518E4DF.8010007@goop.org> (Jeremy Fitzhardinge's message of
+	"Tue, 26 Sep 2006 01:29:19 -0700")
+Message-ID: <m1venaqeg6.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-In-Reply-To: <y0mr6xyeg51.fsf@ton.toronto.redhat.com>
-X-Editor: vi
-X-Info: http://krystal.dyndns.org:8080
-X-Operating-System: Linux/2.4.32-grsec (i686)
-X-Uptime: 21:11:03 up 34 days, 22:19,  2 users,  load average: 0.21, 0.27, 0.20
-User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Frank,
+Jeremy Fitzhardinge <jeremy@goop.org> writes:
 
-* Frank Ch. Eigler (fche@redhat.com) wrote:
-> Mathieu Desnoyers <compudj@krystal.dyndns.org> writes:
-> 
-> > [...]
-> > > I believe [printf formatting directives] are not
-> > > quite general enough either e.g. to describe a raw binary blob.
-> >
-> > If you want to dump a raw binary blob, what about :
-> > MARK(mysubsys_myevent, "char %p %u", blobptr, blobsize); where %p is
-> > a pointer to an array of char and %u the length ?
-> 
-> That involves new conventions beyond printf.  Why not "%p %p %u %u"
-> for two blobs ... or why implicitly dereference the given pointers.  A
-> probe handler unaware of a specific marker's semantics would not know
-> whether or not this is implied.
-> 
+> Andy Whitcroft wrote:
+>> Martin Bligh wrote:
+>>
+>>> http://test.kernel.org/abat/49037/debug/test.log.0
+>>>
+>>>   AS      arch/x86_64/boot/bootsect.o
+>>>   LD      arch/x86_64/boot/bootsect
+>>>   AS      arch/x86_64/boot/setup.o
+>>>   LD      arch/x86_64/boot/setup
+>>>   AS      arch/x86_64/boot/compressed/head.o
+>>>   CC      arch/x86_64/boot/compressed/misc.o
+>>>   OBJCOPY arch/x86_64/boot/compressed/vmlinux.bin
+>>> BFD: Warning: Writing section `.data.percpu' to huge (ie negative) file
+>>> offset 0x804700c0.
+>>>
+> /usr/local/autobench/sources/x86_64-cross/gcc-3.4.0-glibc-2.3.2/bin/x86_64-unknown-linux-gnu-objcopy:
+>>> arch/x86_64/boot/compressed/vmlinux.bin: File truncated
+>>> make[2]: *** [arch/x86_64/boot/compressed/vmlinux.bin] Error 1
+>>> make[1]: *** [arch/x86_64/boot/compressed/vmlinux] Error 2
+>>> make: *** [bzImage] Error 2
+>>> 09/25/06-09:13:48 Build the kernel. Failed rc = 2
+>>> 09/25/06-09:13:49 build: kernel build Failed rc = 1
+>>>
+>>> Wierd. Same box compiled 2.6.18 fine.
+>>>
+>>
+>> Pretty sure this isn't a space problem, as we have just checked space
+>> before the build and I've taken no action since then.  Someone did
+>> mention "tool chain issue" when it was first spotted.  Will check with
+>> them and see why they thought that.
+>>
+>
+> Does this box have an older version of binutils (2.15?)?  If so, it might be
+> getting upset over the patch "note-section" in Andi's queue.  I know it has been
+> a bit problematic, but I don't know if the problems manifest in this way.
 
-The idea is to be able to access to a data unit (here, a bin blob) described in
-one or more consecutive statements in the string. Why doing %p %u %p %u for two
-binary blobs ? Suppose you are creating a probe sub-function that takes a
-va_list as parameter and has to extract a such a bin blob. It will expect one
-pointer and a size. It simply has to get them sequentially with va_arg. It makes
-things much more difficult if you decide to put all the sizes at the end.
+I have seen this one as well, and it wasn't a space problem, but some weird
+toolchain issue.  I solved it by upgrading my toolchain, because I wanted
+the dwarf unwind support and that required a newer toolchain then I had
+been using anyway.
 
-So yes, there is a semantic to create, but I don't see the problem with that.
+My old toolchain was a cross compiler based on:
+GNU ld version 2.13.90.0.4 20020814
 
-And why would the probe actually know what to do with a pointer ? If it only
-wants to record the pointer's address or if it wants to access data inside this
-pointer, it's up to the probe (or automatic probe generator, hum ?) to do it.
-
-> 
-> > My idea is to use the string to identify what is referred by a
-> > pointer, so it can be casted into this type with some kind of
-> > coherency between the marker and the probe.
-> 
-> I understand what you're using them for.  To me, they just don't look
-> like a good fit.
-> 
-> 
-> > > I realize they serve a useful purpose in abbreviating what otherwise
-> > > one might have to do (like that multiplicity of STAP_MARK_* type/arity
-> > > permutations).  [...]
-> > 
-> > I think that duplicating the number of marker macros could easily make
-> > them unflexible and ugly. [...]
-> 
-> Inflexible and ugly in what way?  Remember, the macro definitions can
-> be automatically generated.  At the macro call site, there needs to be
-> little difference.
-> 
-
-I don't expect the kernel programmer community to accept that their code will
-call an automatically generated macro. It removes all the idea of "I can see
-what code is actually generated by my function", which I believe is necessary.
-
-Also, people are used to the simplicity and flexibility of printf style format
-strings. Do you really expect people to start using various macros like 
-MARK_u_p_llu and start defining their own marker macro each time they want to
-add a specific type ?
-
-> 
-> > [...]  Good point, I will setup a va_args in the probe.  When
-> > correctly used, however, there is no need to use the format string :
-> > we can directly get the variables from the var arg list if we know
-> > in advance what the string will be.
-> 
-> Do I understand you correctly that the probe handlers would be given
-> va_list values, and would have to call va_arg to yank out individual
-> actual arguments?
-
-Yes. I want to minimize the visual impact of the marker in the code while
-making it self-describing and easy to inspect by a kernel programmer.
-
-> So again type safety is a matter of explicit coding
-> (equivalent to correctly casting each type)?
-> 
-
-If someone chooses to create their own probes, yes, they must to exactly that.
-However, if you want to create probes that are type-safe, you can then create a
-script that will extract all the format strings in the markers section of the
-object and automatically generate all the probes with their respective va_args
-setup at the beginning of the probe. By using the string verification upon
-connexion of the probe, type safety should be insured.
-
-My point is that type safety should not exclusively be the marker mechanism's
-burden : there are other tools (probe generators) involved in that process.
-
-Mathieu
-
-
-OpenPGP public key:              http://krystal.dyndns.org:8080/key/compudj.gpg
-Key fingerprint:     8CD5 52C3 8E3C 4140 715F  BA06 3F25 A8FE 3BAE 9A68 
+Eric

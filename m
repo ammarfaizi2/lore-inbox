@@ -1,58 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965479AbWI0Jh2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965468AbWI0JkW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965479AbWI0Jh2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Sep 2006 05:37:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965480AbWI0Jh2
+	id S965468AbWI0JkW (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Sep 2006 05:40:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965482AbWI0JkW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Sep 2006 05:37:28 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:36764 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S965479AbWI0Jh1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Sep 2006 05:37:27 -0400
-Date: Wed, 27 Sep 2006 10:10:00 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Peter Zijlstra <a.p.zijlstra@chello.nl>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       notting@redhat.com, Dave Jones <davej@redhat.com>,
-       arjan <arjan@infradead.org>
-Subject: Re: [PATCH] sysrq: disable lockdep on reboot
-Message-ID: <20060927081000.GA9676@elte.hu>
-References: <1159283602.5038.25.camel@lappy>
+	Wed, 27 Sep 2006 05:40:22 -0400
+Received: from mail01.verismonetworks.com ([164.164.99.228]:56532 "EHLO
+	mail01.verismonetworks.com") by vger.kernel.org with ESMTP
+	id S965468AbWI0JkW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Sep 2006 05:40:22 -0400
+Subject: [PATCH] ioremap balanced with iounmap for drivers/sbus
+From: Amol Lad <amol@verismonetworks.com>
+To: linux kernel <linux-kernel@vger.kernel.org>
+Cc: kernel Janitors <kernel-janitors@lists.osdl.org>
+Content-Type: text/plain
+Date: Wed, 27 Sep 2006 15:13:36 +0530
+Message-Id: <1159350216.25016.107.camel@amol.verismonetworks.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1159283602.5038.25.camel@lappy>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -2.9
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.9 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5000]
-	-0.1 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+X-Mailer: Evolution 2.2.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+ioremap must be balanced by an iounmap and failing to do so can result
+in a memory leak.
 
-* Peter Zijlstra <a.p.zijlstra@chello.nl> wrote:
+Tested (compilation only) with:
+- Modifying arch/i386/Kconfig and other Makefiles to make sure that the
+changed file is compiling ok.
 
-> SysRq : Emergency Sync
-> Emergency Sync complete
-> SysRq : Emergency Remount R/O
-> Emergency Remount complete
-> SysRq : Resetting
-> BUG: warning at kernel/lockdep.c:1816/trace_hardirqs_on() (Not tainted)
+Signed-off-by: Amol Lad <amol@verismonetworks.com>
+---
+ vfc_dev.c |    8 +++++++-
+ 1 files changed, 7 insertions(+), 1 deletion(-)
+---
+diff -uprN -X linux-2.6.18-orig/Documentation/dontdiff linux-2.6.18-orig/drivers/sbus/char/vfc_dev.c linux-2.6.18/drivers/sbus/char/vfc_dev.c
+--- linux-2.6.18-orig/drivers/sbus/char/vfc_dev.c	2006-09-21 10:15:38.000000000 +0530
++++ linux-2.6.18/drivers/sbus/char/vfc_dev.c	2006-09-27 14:46:59.000000000 +0530
+@@ -678,8 +678,14 @@ static int vfc_probe(void)
+ 		if (strcmp(sdev->prom_name, "vfc") == 0) {
+ 			vfc_dev_lst[instance]=(struct vfc_dev *)
+ 				kmalloc(sizeof(struct vfc_dev), GFP_KERNEL);
+-			if (vfc_dev_lst[instance] == NULL)
++			if (vfc_dev_lst[instance] == NULL) {
++				int i;
++				for (i = 0; i < instance; i++) {
++					if (vfc_dev_lst[i]->regs)
++						sbus_iounmap(vfc_dev_lst[i]->regs, sizeof(struct vfc_regs));
++				}
+ 				return -ENOMEM;
++			}
+ 			ret = init_vfc_device(sdev,
+ 					      vfc_dev_lst[instance],
+ 					      instance);
 
-> Since we're shutting down anyway, don't bother being smart, just turn 
-> the thing off.
-> 
-> Signed-off-by: Peter Zijlstra <a.p.zijlstra@chello.nl>
 
-agreed,
-
-Acked-by: Ingo Molnar <mingo@elte.hu>
-
-	Ingo

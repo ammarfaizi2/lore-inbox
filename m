@@ -1,52 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751124AbWI0LwR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030192AbWI0Lya@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751124AbWI0LwR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Sep 2006 07:52:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751129AbWI0LwR
+	id S1030192AbWI0Lya (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Sep 2006 07:54:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030194AbWI0Lya
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Sep 2006 07:52:17 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:51464 "EHLO
-	spitz.ucw.cz") by vger.kernel.org with ESMTP id S1751124AbWI0LwP
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Sep 2006 07:52:15 -0400
-Date: Wed, 27 Sep 2006 11:51:34 +0000
-From: Pavel Machek <pavel@ucw.cz>
-To: David Wagner <daw-usenet@taverner.cs.berkeley.edu>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [patch] remove MNT_NOEXEC check for PROT_EXEC mmaps
-Message-ID: <20060927115134.GC4296@ucw.cz>
-References: <45150CD7.4010708@aknet.ru> <4516C9D0.3080606@aknet.ru> <ef6ldq$uup$1@taverner.cs.berkeley.edu> <20060925105355.GA4390@elf.ucw.cz> <ef9i4q$emc$1@taverner.cs.berkeley.edu>
+	Wed, 27 Sep 2006 07:54:30 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:4268 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1030192AbWI0Lya (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Sep 2006 07:54:30 -0400
+Subject: Re: GPLv3 Position Statement
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Cc: Sergey Panov <sipan@sipan.org>,
+       James Bottomley <James.Bottomley@SteelEye.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.61.0609271051550.19438@yvahk01.tjqt.qr>
+References: <1158941750.3445.31.camel@mulgrave.il.steeleye.com>
+	 <1159319508.16507.15.camel@sipan.sipan.org>
+	 <Pine.LNX.4.61.0609270753590.19275@yvahk01.tjqt.qr>
+	 <1159342569.2653.30.camel@sipan.sipan.org>
+	 <Pine.LNX.4.61.0609271051550.19438@yvahk01.tjqt.qr>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Wed, 27 Sep 2006 13:19:00 +0100
+Message-Id: <1159359540.11049.347.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <ef9i4q$emc$1@taverner.cs.berkeley.edu>
-User-Agent: Mutt/1.5.9i
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+Ar Mer, 2006-09-27 am 10:58 +0200, ysgrifennodd Jan Engelhardt:
+> I think Linus once said that he does not consider the kernel to 
+> become part of a combined work when an application uses the kernel.
 
-On Mon 25-09-06 21:36:26, David Wagner wrote:
-> Pavel Machek  wrote:
-> >> I'm curious about this, too.  ld-linux.so is a purely unprivileged
-> >> program.  It isn't setuid root.  Can you write a variant of ld-linux.so
-> >> that reads an executable into memory off of a partition mounted noexec and
-> >> then begins executing that code?  (perhaps by using anonymous mmap
-> >> with
-> >
-> >Yes, you can, but to execute your ld-linux-ignore-noexec.so variant,
-> >you need to put it somewhere with exec permissions, right?
-> 
-> Well, yes, if you write it as a binary executable -- but not if you're
-> more clever.  For instance, you can write a ld-linux-ignore-noexec.so.pl
-> Perl script, store the Perl script on the noexec partition, and execute
-> it via "/usr/bin/perl ld-linux-ignore-noexec.so.pl" (since I think
-> Perl scripts can execute all of the system calls you'd need to use to
-> write your own loader, since it's pretty well guaranteed that /usr/bin
-> will live on a partition that is not marked noexec).  Note that Perl
+COPYING top of the kernel source tree.
 
-Ok, you are right. For noexec to be effective, interpretters need to
-be well-behaved, and perl is not. Maybe we should forget about
-noexec, and maybe we should fix perl, I do not know.
--- 
-Thanks for all the (sleeping) penguins.
+> I tend to agree, it's gray (unless Linus explicitly colorizes it) -- 
+> IIRC the GPL allows a GPL and closed program to interact if they do so 
+> using 'standard' interfaces, i.e. passing a file as argument, or 
+> shell redirection, communicating over a pipe or a socket, etc.
+> But OTOH, linking code makes it a combined work.
+
+No. The definition of a derivative work is a legal one and not a
+technical one. Take a look at the history of the objective C compiler
+front end for gcc. It is possible that linked code is not derivative or
+pipe using code is derivative - consider for example RPC. Simply making
+a linux device driver make the same function calls to the kernel by RPC
+messages over a pipe type device would not change its status.
+
+Alan
+

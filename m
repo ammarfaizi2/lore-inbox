@@ -1,47 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965427AbWI0Hf6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965432AbWI0HlN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965427AbWI0Hf6 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Sep 2006 03:35:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965428AbWI0Hf6
+	id S965432AbWI0HlN (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Sep 2006 03:41:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965434AbWI0HlN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Sep 2006 03:35:58 -0400
-Received: from havoc.gtf.org ([69.61.125.42]:1208 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id S965427AbWI0Hf5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Sep 2006 03:35:57 -0400
-Date: Wed, 27 Sep 2006 03:35:51 -0400
-From: Jeff Garzik <jeff@garzik.org>
-To: Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>
-Cc: LKML <linux-kernel@vger.kernel.org>, ak@suse.de
-Subject: [PATCH] PCI domains Kconfig entry
-Message-ID: <20060927073551.GA6088@havoc.gtf.org>
-Mime-Version: 1.0
+	Wed, 27 Sep 2006 03:41:13 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:16621 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S965432AbWI0HlM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Sep 2006 03:41:12 -0400
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: Andi Kleen <ak@suse.de>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       adurbin@google.com
+Subject: Re: 2.6.18-mm1
+References: <20060924040215.8e6e7f1a.akpm@osdl.org>
+	<m1mz8mqd4a.fsf@ebiederm.dsl.xmission.com>
+	<200609270913.15688.ak@suse.de>
+Date: Wed, 27 Sep 2006 01:39:47 -0600
+In-Reply-To: <200609270913.15688.ak@suse.de> (Andi Kleen's message of "Wed, 27
+	Sep 2006 09:13:15 +0200")
+Message-ID: <m14putpxks.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andi Kleen <ak@suse.de> writes:
 
-There is obviously a missing patch...
+> On Wednesday 27 September 2006 04:04, Eric W. Biederman wrote:
+>> 
+>> When I apply:
+>> x86_64-mm-insert-ioapics-and-local-apic-into-resource-map
+>> 
+>> My e1000 fails to initializes and complains about a bad eeprom checksum.
+>> I haven't tracked this down to root cause yet and I am in the process of
+> building
+>> 2.6.18-mm1 with just that patch reverted to confirm that is the only cause.
+>
+> Is this with Linux BIOS?
 
-With this patch, my Marvell SATA on the second root PCI bus of my 
-HP xw9300 workstation works.  Without the PCI domain support, the
-Marvell SATA is completely invisible to the kernel.
+Yes.  Not that it matters in this case.
 
-
-diff --git a/arch/x86_64/Kconfig b/arch/x86_64/Kconfig
-index efe249e..3816775 100644
---- a/arch/x86_64/Kconfig
-+++ b/arch/x86_64/Kconfig
-@@ -622,6 +622,10 @@ config PCI_MMCONFIG
- 	bool "Support mmconfig PCI config space access"
- 	depends on PCI && ACPI
- 
-+config PCI_DOMAINS
-+	bool "PCI domain support"
-+	depends on PCI
-+
- source "drivers/pci/pcie/Kconfig"
- 
- source "drivers/pci/Kconfig"
+Eric

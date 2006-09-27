@@ -1,184 +1,234 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030775AbWI0Ucs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030776AbWI0Uct@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030775AbWI0Ucs (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Sep 2006 16:32:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030779AbWI0Ucs
+	id S1030776AbWI0Uct (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Sep 2006 16:32:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030778AbWI0Uct
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Sep 2006 16:32:48 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:36588 "EHLO
+	Wed, 27 Sep 2006 16:32:49 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:36844 "EHLO
 	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1030775AbWI0Ucr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	id S1030776AbWI0Ucr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Wed, 27 Sep 2006 16:32:47 -0400
 From: "Eric W. Biederman" <ebiederm@xmission.com>
 To: Andrew Morton <akpm@osdl.org>
 Cc: <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>,
        Tony Luck <tony.luck@intel.com>, Andi Kleen <ak@suse.de>,
        "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: [PATCH 5/5] htirq: Tidy up the htirq code
-Date: Wed, 27 Sep 2006 14:31:26 -0600
-Message-Id: <11593890882551-git-send-email-ebiederm@xmission.com>
+Subject: [PATCH 2/5] msi: Only use a single irq_chip for msi interrupts
+Date: Wed, 27 Sep 2006 14:31:23 -0600
+Message-Id: <11593890872594-git-send-email-ebiederm@xmission.com>
 X-Mailer: git-send-email 1.4.2.g3cd4f
 In-Reply-To: <<m11wpxm4sy.fsf@ebiederm.dsl.xmission.com>
 References: <<m11wpxm4sy.fsf@ebiederm.dsl.xmission.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This moves the declarations for the architecture helpers into
-include/linux/htirq.h from the generic include/linux/pci.h.
-Hopefully this will make this distinction clearer.
+The logic works like this.
 
-htirq.h is included where it is needed.
+Since we no longer track the state logic by hand in msi.c startup
+and shutdown are no longer needed.
 
-The dependency on the msi code is fixed and removed.
+By updating msi_set_mask_bit to work on msi devices that do not
+implement a mask bit we can always call the mask/unmask functions.
 
-The Makefile is tidied up.
+What we really have are mask and unmask so we use them to
+implement the .mask and .unmask functions instead of .enable
+and .disable.
+
+By switching to the handle_edge_irq handler we only need an ack
+function that moves the irq if necessary.  Which removes the
+old end and ack functions and their peculiar logic of sometimes
+disabling an irq.
+
+This removes the reliance on pre genirq irq handling methods.
 
 Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
 ---
- arch/i386/kernel/io_apic.c   |    5 ++---
- arch/x86_64/kernel/io_apic.c |    1 +
- drivers/pci/Kconfig          |    1 -
- drivers/pci/Makefile         |    4 +++-
- drivers/pci/htirq.c          |    1 +
- include/linux/htirq.h        |   15 +++++++++++++++
- include/linux/pci.h          |   11 -----------
- 7 files changed, 22 insertions(+), 16 deletions(-)
+ drivers/pci/msi.c |  115 +++++++++++------------------------------------------
+ 1 files changed, 24 insertions(+), 91 deletions(-)
 
-diff --git a/arch/i386/kernel/io_apic.c b/arch/i386/kernel/io_apic.c
-index 5a12527..b7287fb 100644
---- a/arch/i386/kernel/io_apic.c
-+++ b/arch/i386/kernel/io_apic.c
-@@ -33,6 +33,7 @@ #include <linux/module.h>
- #include <linux/sysdev.h>
- #include <linux/pci.h>
- #include <linux/msi.h>
-+#include <linux/htirq.h>
+diff --git a/drivers/pci/msi.c b/drivers/pci/msi.c
+index e3ba396..fc7dd2a 100644
+--- a/drivers/pci/msi.c
++++ b/drivers/pci/msi.c
+@@ -53,21 +53,20 @@ static void msi_set_mask_bit(unsigned in
+ 	struct msi_desc *entry;
  
- #include <asm/io.h>
- #include <asm/smp.h>
-@@ -2409,9 +2410,8 @@ static int __init ioapic_init_sysfs(void
- 
- device_initcall(ioapic_init_sysfs);
- 
--#ifdef CONFIG_PCI_MSI
- /*
-- * Dynamic irq allocate and deallocation for MSI
-+ * Dynamic irq allocate and deallocation
-  */
- int create_irq(void)
- {
-@@ -2450,7 +2450,6 @@ void destroy_irq(unsigned int irq)
- 	irq_vector[irq] = 0;
- 	spin_unlock_irqrestore(&vector_lock, flags);
+ 	entry = msi_desc[irq];
+-	if (!entry || !entry->dev || !entry->mask_base)
+-		return;
++	BUG_ON(!entry || !entry->dev);
+ 	switch (entry->msi_attrib.type) {
+ 	case PCI_CAP_ID_MSI:
+-	{
+-		int		pos;
+-		u32		mask_bits;
+-
+-		pos = (long)entry->mask_base;
+-		pci_read_config_dword(entry->dev, pos, &mask_bits);
+-		mask_bits &= ~(1);
+-		mask_bits |= flag;
+-		pci_write_config_dword(entry->dev, pos, mask_bits);
++		if (entry->msi_attrib.maskbit) {
++			int		pos;
++			u32		mask_bits;
++
++			pos = (long)entry->mask_base;
++			pci_read_config_dword(entry->dev, pos, &mask_bits);
++			mask_bits &= ~(1);
++			mask_bits |= flag;
++			pci_write_config_dword(entry->dev, pos, mask_bits);
++		}
+ 		break;
+-	}
+ 	case PCI_CAP_ID_MSIX:
+ 	{
+ 		int offset = entry->msi_attrib.entry_nr * PCI_MSIX_ENTRY_SIZE +
+@@ -76,6 +75,7 @@ static void msi_set_mask_bit(unsigned in
+ 		break;
+ 	}
+ 	default:
++		BUG();
+ 		break;
+ 	}
  }
--#endif /* CONFIG_PCI_MSI */
+@@ -186,83 +186,21 @@ static void unmask_MSI_irq(unsigned int 
+ 	msi_set_mask_bit(irq, 0);
+ }
  
+-static unsigned int startup_msi_irq_wo_maskbit(unsigned int irq)
+-{
+-	return 0;	/* never anything pending */
+-}
+-
+-static unsigned int startup_msi_irq_w_maskbit(unsigned int irq)
+-{
+-	startup_msi_irq_wo_maskbit(irq);
+-	unmask_MSI_irq(irq);
+-	return 0;	/* never anything pending */
+-}
+-
+-static void shutdown_msi_irq(unsigned int irq)
+-{
+-}
+-
+-static void end_msi_irq_wo_maskbit(unsigned int irq)
++static void ack_msi_irq(unsigned int irq)
+ {
+ 	move_native_irq(irq);
+ 	ack_APIC_irq();
+ }
+ 
+-static void end_msi_irq_w_maskbit(unsigned int irq)
+-{
+-	move_native_irq(irq);
+-	unmask_MSI_irq(irq);
+-	ack_APIC_irq();
+-}
+-
+-static void do_nothing(unsigned int irq)
+-{
+-}
+-
+-/*
+- * Interrupt Type for MSI-X PCI/PCI-X/PCI-Express Devices,
+- * which implement the MSI-X Capability Structure.
+- */
+-static struct hw_interrupt_type msix_irq_type = {
+-	.typename	= "PCI-MSI-X",
+-	.startup	= startup_msi_irq_w_maskbit,
+-	.shutdown	= shutdown_msi_irq,
+-	.enable		= unmask_MSI_irq,
+-	.disable	= mask_MSI_irq,
+-	.ack		= mask_MSI_irq,
+-	.end		= end_msi_irq_w_maskbit,
+-	.set_affinity	= set_msi_affinity
+-};
+-
+-/*
+- * Interrupt Type for MSI PCI/PCI-X/PCI-Express Devices,
+- * which implement the MSI Capability Structure with
+- * Mask-and-Pending Bits.
+- */
+-static struct hw_interrupt_type msi_irq_w_maskbit_type = {
+-	.typename	= "PCI-MSI",
+-	.startup	= startup_msi_irq_w_maskbit,
+-	.shutdown	= shutdown_msi_irq,
+-	.enable		= unmask_MSI_irq,
+-	.disable	= mask_MSI_irq,
+-	.ack		= mask_MSI_irq,
+-	.end		= end_msi_irq_w_maskbit,
+-	.set_affinity	= set_msi_affinity
+-};
+-
  /*
-  * MSI mesage composition
-diff --git a/arch/x86_64/kernel/io_apic.c b/arch/x86_64/kernel/io_apic.c
-index e55028f..91728d9 100644
---- a/arch/x86_64/kernel/io_apic.c
-+++ b/arch/x86_64/kernel/io_apic.c
-@@ -31,6 +31,7 @@ #include <linux/mc146818rtc.h>
- #include <linux/acpi.h>
- #include <linux/sysdev.h>
- #include <linux/msi.h>
-+#include <linux/htirq.h>
- #ifdef CONFIG_ACPI
- #include <acpi/acpi_bus.h>
- #endif
-diff --git a/drivers/pci/Kconfig b/drivers/pci/Kconfig
-index 0af6d72..3029412 100644
---- a/drivers/pci/Kconfig
-+++ b/drivers/pci/Kconfig
-@@ -55,7 +55,6 @@ config PCI_DEBUG
- config HT_IRQ
- 	bool "Interrupts on hypertransport devices"
- 	default y
--	depends on PCI_MSI
- 	depends on X86_LOCAL_APIC && X86_IO_APIC
- 	help
- 	   This allows native hypertransport devices to use interrupts.
-diff --git a/drivers/pci/Makefile b/drivers/pci/Makefile
-index 04694ec..e3beb78 100644
---- a/drivers/pci/Makefile
-+++ b/drivers/pci/Makefile
-@@ -17,6 +17,9 @@ obj-$(CONFIG_HOTPLUG_PCI) += hotplug/
- # Build the PCI MSI interrupt support
- obj-$(CONFIG_PCI_MSI) += msi.o
+- * Interrupt Type for MSI PCI/PCI-X/PCI-Express Devices,
+- * which implement the MSI Capability Structure without
+- * Mask-and-Pending Bits.
++ * IRQ Chip for MSI PCI/PCI-X/PCI-Express Devices,
++ * which implement the MSI or MSI-X Capability Structure.
+  */
+-static struct hw_interrupt_type msi_irq_wo_maskbit_type = {
+-	.typename	= "PCI-MSI",
+-	.startup	= startup_msi_irq_wo_maskbit,
+-	.shutdown	= shutdown_msi_irq,
+-	.enable		= do_nothing,
+-	.disable	= do_nothing,
+-	.ack		= do_nothing,
+-	.end		= end_msi_irq_wo_maskbit,
++static struct irq_chip msi_chip = {
++	.name		= "PCI-MSI",
++	.unmask		= unmask_MSI_irq,
++	.mask		= mask_MSI_irq,
++	.ack		= ack_msi_irq,
+ 	.set_affinity	= set_msi_affinity
+ };
  
-+# Build the Hypertransport interrupt support
-+obj-$(CONFIG_HT_IRQ) += htirq.o
-+
- #
- # Some architectures use the generic PCI setup functions
- #
-@@ -29,7 +32,6 @@ obj-$(CONFIG_PPC32) += setup-irq.o
- obj-$(CONFIG_PPC64) += setup-bus.o
- obj-$(CONFIG_MIPS) += setup-bus.o setup-irq.o
- obj-$(CONFIG_X86_VISWS) += setup-irq.o
--obj-$(CONFIG_HT_IRQ) += htirq.o
+@@ -330,7 +268,7 @@ static void attach_msi_entry(struct msi_
+ 	spin_unlock_irqrestore(&msi_lock, flags);
+ }
  
- #
- # ACPI Related PCI FW Functions
-diff --git a/drivers/pci/htirq.c b/drivers/pci/htirq.c
-index 4ba4635..0e27f24 100644
---- a/drivers/pci/htirq.c
-+++ b/drivers/pci/htirq.c
-@@ -11,6 +11,7 @@ #include <linux/pci.h>
- #include <linux/spinlock.h>
- #include <linux/slab.h>
- #include <linux/gfp.h>
-+#include <linux/htirq.h>
+-static int create_msi_irq(struct hw_interrupt_type *handler)
++static int create_msi_irq(struct irq_chip *chip)
+ {
+ 	struct msi_desc *entry;
+ 	int irq;
+@@ -345,7 +283,7 @@ static int create_msi_irq(struct hw_inte
+ 		return -EBUSY;
+ 	}
  
- /* Global ht irq lock.
-  *
-diff --git a/include/linux/htirq.h b/include/linux/htirq.h
-new file mode 100644
-index 0000000..1f15ce2
---- /dev/null
-+++ b/include/linux/htirq.h
-@@ -0,0 +1,15 @@
-+#ifndef LINUX_HTIRQ_H
-+#define LINUX_HTIRQ_H
-+
-+/* Helper functions.. */
-+void write_ht_irq_low(unsigned int irq, u32 data);
-+void write_ht_irq_high(unsigned int irq, u32 data);
-+u32  read_ht_irq_low(unsigned int irq);
-+u32  read_ht_irq_high(unsigned int irq);
-+void mask_ht_irq(unsigned int irq);
-+void unmask_ht_irq(unsigned int irq);
-+
-+/* The arch hook for getting things started */
-+int arch_setup_ht_irq(unsigned int irq, struct pci_dev *dev);
-+
-+#endif /* LINUX_HTIRQ_H */
-diff --git a/include/linux/pci.h b/include/linux/pci.h
-index 9fa0740..5bc4659 100644
---- a/include/linux/pci.h
-+++ b/include/linux/pci.h
-@@ -619,20 +619,9 @@ extern void msi_remove_pci_irq_vectors(s
- #endif
+-	set_irq_chip(irq, handler);
++	set_irq_chip_and_handler(irq, chip, handle_edge_irq);
+ 	set_irq_data(irq, entry);
  
- #ifdef CONFIG_HT_IRQ
--/* Helper functions.. */
--void write_ht_irq_low(unsigned int irq, u32 data);
--void write_ht_irq_high(unsigned int irq, u32 data);
--u32  read_ht_irq_low(unsigned int irq);
--u32  read_ht_irq_high(unsigned int irq);
--void mask_ht_irq(unsigned int irq);
--void unmask_ht_irq(unsigned int irq);
+ 	return irq;
+@@ -634,16 +572,11 @@ static int msi_capability_init(struct pc
+ 	struct msi_desc *entry;
+ 	int pos, irq;
+ 	u16 control;
+-	struct hw_interrupt_type *handler;
+ 
+    	pos = pci_find_capability(dev, PCI_CAP_ID_MSI);
+ 	pci_read_config_word(dev, msi_control_reg(pos), &control);
+ 	/* MSI Entry Initialization */
+-	handler = &msi_irq_wo_maskbit_type;
+-	if (is_mask_bit_support(control))
+-		handler = &msi_irq_w_maskbit_type;
 -
- /* The functions a driver should call */
- int  ht_create_irq(struct pci_dev *dev, int idx);
- void ht_destroy_irq(unsigned int irq);
--
--/* The arch hook for getting things started */
--int arch_setup_ht_irq(unsigned int irq, struct pci_dev *dev);
- #endif /* CONFIG_HT_IRQ */
+-	irq = create_msi_irq(handler);
++	irq = create_msi_irq(&msi_chip);
+ 	if (irq < 0)
+ 		return irq;
  
- extern void pci_block_user_cfg_access(struct pci_dev *dev);
+@@ -715,7 +648,7 @@ static int msix_capability_init(struct p
+ 
+ 	/* MSI-X Table Initialization */
+ 	for (i = 0; i < nvec; i++) {
+-		irq = create_msi_irq(&msix_irq_type);
++		irq = create_msi_irq(&msi_chip);
+ 		if (irq < 0)
+ 			break;
+ 
 -- 
 1.4.2.rc3.g7e18e-dirty
 

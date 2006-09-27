@@ -1,63 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030857AbWI0VLR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030869AbWI0VVn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030857AbWI0VLR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Sep 2006 17:11:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030859AbWI0VLQ
+	id S1030869AbWI0VVn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Sep 2006 17:21:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030870AbWI0VVn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Sep 2006 17:11:16 -0400
-Received: from ogre.sisk.pl ([217.79.144.158]:30848 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S1030857AbWI0VLO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Sep 2006 17:11:14 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: When will the lunacy end? (Was Re: [PATCH] uswsusp: add pmops->{prepare,enter,finish} support (aka "platform mode"))
-Date: Wed, 27 Sep 2006 23:13:30 +0200
-User-Agent: KMail/1.9.1
-Cc: Pavel Machek <pavel@ucw.cz>, Nigel Cunningham <ncunningham@linuxmail.org>,
-       Stefan Seyfried <seife@suse.de>, linux-kernel@vger.kernel.org
-References: <20060925071338.GD9869@suse.de> <20060927090902.GC24857@elf.ucw.cz> <20060927140808.2aece78e.akpm@osdl.org>
-In-Reply-To: <20060927140808.2aece78e.akpm@osdl.org>
+	Wed, 27 Sep 2006 17:21:43 -0400
+Received: from fmmailgate02.web.de ([217.72.192.227]:57520 "EHLO
+	fmmailgate02.web.de") by vger.kernel.org with ESMTP
+	id S1030869AbWI0VVk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Sep 2006 17:21:40 -0400
+Message-ID: <008f01c6e27a$f9bd5460$962e8d52@aldipc>
+From: "roland" <devzero@web.de>
+To: "Fengguang Wu" <fengguang.wu@gmail.com>
+Cc: <linux-kernel@vger.kernel.org>, <lserinol@gmail.com>, <akpm@osdl.org>
+References: <0e2001c6de7a$fe756280$962e8d52@aldipc> <359067036.19509@ustc.edu.cn>
+Subject: Re: I/O statistics per process
+Date: Wed, 27 Sep 2006 23:22:02 +0200
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
+	format=flowed;
+	charset="iso-8859-1";
+	reply-type=original
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200609272313.31474.rjw@sisk.pl>
+X-Priority: 3
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook Express 6.00.2900.2180
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday, 27 September 2006 23:08, Andrew Morton wrote:
-> On Wed, 27 Sep 2006 11:09:02 +0200
-> Pavel Machek <pavel@ucw.cz> wrote:
-> 
-> > Hi!
-> > 
-> > > > Is "swapoff -a; echo disk > /sys/power/state" slow for you? If so, we
-> > > > have something reasonably easy to debug, if not, we'll try something
-> > > > else...
-> > > 
-> > > sony:/home/akpm# swapoff -a 
-> > > sony:/home/akpm# time (echo disk > /sys/power/state) 
-> > > echo: write error: no such device
-> > > (; echo disk > /sys/power/state; )  0.00s user 0.08s system 1% cpu 5.259 total
-> > > 
-> > > It took an additional two-odd seconds to bring the X UI back into a serviceable
-> > > state.
-> > 
-> > Console switches take long... yes it would be nice to fix X :-).
-> > 
-> > But we did not reproduce that 12 seconds problem. Can you try patches
-> > from
-> > 
-> > http://marc.theaimsgroup.com/?l=linux-acpi&m=115506915023030&q=raw
-> > 
-> 
-> OK, that compiles.
-> 
-> I think we should get this documented and merge it (or something like it) into
-> mainline.  This is one area where it's worth investing in debugging tools.
-> 
-> If you agree, are we happy with it in its present form?
+thanks. tried to contact redflag, but they don`t answer. maybe support is 
+being on holiday.... !?
 
-I am. ;-)
+linux kernel hackers - there is really no standard way to watch i/o metrics 
+(bytes read/written) at process level?
+
+it`s extremly hard for the admin to track down, what process is hogging the 
+disk - especially if there is more than one task consuming cpu.
+
+meanwhile i found blktrace and read into the documenation. looks really cool 
+and seems to be very powerful tool - but it it`s seems a little bit 
+"oversized" and not the right tool for this. seems to be for 
+tracing/debugging/analysis
+
+what about http://lkml.org/lkml/2005/9/12/89  "with following patch, 
+userspace processes/utilities will be able to access per process I/O 
+statistics. for example, top like utilites can use this information" which 
+has been posted to lkml one year ago ? any update on this ?
+
+roland
+
+
+----- Original Message ----- 
+From: "Fengguang Wu" <fengguang.wu@gmail.com>
+To: "roland" <devzero@web.de>
+Cc: <linux-kernel@vger.kernel.org>
+Sent: Sunday, September 24, 2006 5:04 AM
+Subject: Re: I/O statistics per process
+
+
+> On Fri, Sep 22, 2006 at 09:12:05PM +0200, roland wrote:
+>> is there a modified top/ps with i/o column, or is there yet missing
+>> something at the kernel level for getting that counters from ?
+>
+> Red Flag(http://www.redflag-linux.com/eindex.html) has developed an
+> iotop based on kprobes/systemtap. You can contact them if necessary. 
+

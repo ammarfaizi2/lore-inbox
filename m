@@ -1,78 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030827AbWI0VF2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030851AbWI0VGJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030827AbWI0VF2 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Sep 2006 17:05:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030849AbWI0VF2
+	id S1030851AbWI0VGJ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Sep 2006 17:06:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030833AbWI0VGI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Sep 2006 17:05:28 -0400
-Received: from post-24.mail.nl.demon.net ([194.159.73.194]:1751 "EHLO
-	post-24.mail.nl.demon.net") by vger.kernel.org with ESMTP
-	id S1030827AbWI0VF1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Sep 2006 17:05:27 -0400
-Message-ID: <451AE795.6030804@rebelhomicide.demon.nl>
-Date: Wed, 27 Sep 2006 23:05:25 +0200
-From: Michiel de Boer <x@rebelhomicide.demon.nl>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060915)
+	Wed, 27 Sep 2006 17:06:08 -0400
+Received: from ns2.uludag.org.tr ([193.140.100.220]:64943 "EHLO uludag.org.tr")
+	by vger.kernel.org with ESMTP id S1030851AbWI0VGH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Sep 2006 17:06:07 -0400
+From: "=?utf-8?q?S=2E=C3=87a=C4=9Flar?= Onur" <caglar@pardus.org.tr>
+Reply-To: caglar@pardus.org.tr
+Organization: =?utf-8?q?T=C3=9CB=C4=B0TAK_/?= UEKAE
+To: Andi Kleen <ak@muc.de>
+Subject: Re: 2.6.18 Nasty Lockup
+Date: Thu, 28 Sep 2006 00:06:00 +0300
+User-Agent: KMail/1.9.4
+Cc: john stultz <johnstul@us.ibm.com>, Greg Schafer <gschafer@zip.com.au>,
+       linux-kernel@vger.kernel.org
+References: <20060926123640.GA7826@tigers.local> <1159384500.29040.3.camel@localhost> <20060927205531.GB36261@muc.de>
+In-Reply-To: <20060927205531.GB36261@muc.de>
 MIME-Version: 1.0
-To: gregkh@suse.de
-CC: linux-kernel@vger.kernel.org
-Subject: [PATCH] Chipset addition for the VIA Southbridge workaround / quirk
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: multipart/signed;
+  boundary="nextPart8672332.cP83zKcFR8";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
+Message-Id: <200609280006.03500.caglar@pardus.org.tr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi, i'm (maybe unfortunately ;) the owner of a socket 370 motherboard
-by DFI. It's type number is CA63-EC REV A+. According to the manual
-this is the exact chipset naming:
-VIA 82C693A/82C686B AGPset
+--nextPart8672332.cP83zKcFR8
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-Also built in is an Creative Labs SB Live! audio device. When i was
-still using windows 98, i experienced corruptions when burning DVD's,
-and after lengthy investigation i discovered i had a buggy southbridge.[1]
-Apparently the presence of the SB Live! audio device might even accelerate
-the problem, although it does not actually disappear when this PCI card
-is removed. When i moved to Linux, i decided that writing a kernel patch
-based on the fixup programs i found for windows 98 would be appropriate.
+27 Eyl 2006 =C3=87ar 23:55 tarihinde, Andi Kleen =C5=9Funlar=C4=B1 yazm=C4=
+=B1=C5=9Ft=C4=B1:=20
+> > Ok. Good to hear you have a workaround. Now to sort out why your TSCs
+> > are becoming un-synced. From the dmesg you sent me privately, I noticed
+>
+> On Intel it seems to happen when people overclock their systems.
 
-However, i was pleased to discover that fixup code was already present in
-drivers/pci/quirks.c . The only thing i had to do then was add my mother-
-board identifier to the bottom of the code. The patch has been tried and
-tested since 2.6.8, and since then it has evolved since it turned out it
-contained unneccessary code patches. It has also been tested without
-problems on the user base of the distro Kanotix[2], of which i'm a
-co-developer. It activates as it should when it should, fixes the corrup-
-tions i had when burning DVD's, and improves system behavior.
-It's a very small and simple patch, but it would spare me from having
-to patch the kernel source myself it it were to be included.
+This sytem is not overlocked, its a pure 2 x Intel Xeon 3GHz with HT.
 
-Regards, Michiel de Boer
+> > that while you have 4 cpus, the following message only shows up once:
+> >
+> > ACPI: Processor [CPU1] (supports 8 throttling states)
+> >
+> > Does disabling cpufreq change anything?
+>
+> Throttling has nothing to do with cpufreq
+> (at least not until you use the broken P4 throttling cpufreq
+> driver, which nobody should). It is normally only used when
+> the CPU overheats.
 
-[1] 
-http://www.theregister.co.uk/2001/04/12/datacorruption_bug_hits_via_chipsets/
-     http://www.realworldtech.com/page.cfm?ArticleID=RWT051401003409
-     http://www.tecchannel.de/ueberblick/archiv/401770/
-[2] http://www.kanotix.com
+None of them is used on this system also
 
-Credit: Stefan Lippers-Hollmann <s.l-h@gmx.de>, for showing me the way
-around in the kernel sources.
-Signed-off-by: Michiel Lieuwe de Boer <x@rebelhomicide.demon.nl>
+buildfarm ~ # lsmod
+Module                  Size  Used by
+i2c_i801                7372  0
+i2c_core               19968  1 i2c_i801
+serio_raw               7012  0
+e752x_edac             11364  0
+edac_mc                21424  1 e752x_edac
+i6300esb                7096  0
+tg3                    98116  0
+sd_mod                 18432  4
+uhci_hcd               21900  0
+ehci_hcd               29896  0
+usbcore               115652  5 uhci_hcd,ehci_hcd
+ata_piix               13864  2
+libata                 93172  1 ata_piix
+scsi_mod              127304  2 sd_mod,libata
 
-diff -Nru linux-2.6.18.orig/drivers/pci/quirks.c 
-linux-2.6.18/drivers/pci/quirks.c
---- linux-2.6.18.orig/drivers/pci/quirks.c      2006-09-20 
-05:42:06.000000000 +0200
-+++ linux-2.6.18/drivers/pci/quirks.c   2006-09-27 22:43:30.000000000 +0200
-@@ -172,6 +172,7 @@
- DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_VIA,     
-PCI_DEVICE_ID_VIA_8363_0,       quirk_vialatency );
- DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_VIA,     
-PCI_DEVICE_ID_VIA_8371_1,       quirk_vialatency );
- DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_VIA,     
-PCI_DEVICE_ID_VIA_8361,         quirk_vialatency );
-+DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_VIA,     
-PCI_DEVICE_ID_VIA_82C691_0,     quirk_vialatency );
+Also if needed, you can find .config at=20
+http://cekirdek.pardus.org.tr/~caglar/config.2.6.18
 
- /*
-  *     VIA Apollo VP3 needs ETBF on BT848/878
+Cheers
+=2D-=20
+S.=C3=87a=C4=9Flar Onur <caglar@pardus.org.tr>
+http://cekirdek.pardus.org.tr/~caglar/
 
+Linux is like living in a teepee. No Windows, no Gates and an Apache in hou=
+se!
+
+--nextPart8672332.cP83zKcFR8
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
+
+iD8DBQBFGue7y7E6i0LKo6YRAr4LAJ0axdPFXuX5oT05fUX+sRRJYCDOAQCgicdj
+2lVguO9fXgT6ilfjK3OrHW4=
+=MELr
+-----END PGP SIGNATURE-----
+
+--nextPart8672332.cP83zKcFR8--

@@ -1,40 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750807AbWI0AZu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750811AbWI0Acf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750807AbWI0AZu (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Sep 2006 20:25:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750808AbWI0AZu
+	id S1750811AbWI0Acf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Sep 2006 20:32:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750813AbWI0Acf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Sep 2006 20:25:50 -0400
-Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:36823 "HELO
-	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S1750807AbWI0AZt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Sep 2006 20:25:49 -0400
-Subject: Reporting driver bugs.
-From: Nigel Cunningham <ncunningham@linuxmail.org>
-To: suspend2-devel <suspend2-devel@lists.suspend2.net>,
-       suspend2-users <suspend2-users@lists.suspend2.net>
-Cc: Andrew Morton <akpm@osdl.org>, "Rafael J. Wysocki" <rjw@sisk.pl>,
-       LKML <linux-kernel@vger.kernel.org>
-Content-Type: text/plain
-Date: Wed, 27 Sep 2006 10:25:45 +1000
-Message-Id: <1159316745.5341.5.camel@nigel.suspend2.net>
+	Tue, 26 Sep 2006 20:32:35 -0400
+Received: from xenotime.net ([66.160.160.81]:46228 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1750811AbWI0Ace (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 26 Sep 2006 20:32:34 -0400
+Date: Tue, 26 Sep 2006 17:33:47 -0700
+From: Randy Dunlap <rdunlap@xenotime.net>
+To: "Jesper Juhl" <jesper.juhl@gmail.com>
+Cc: "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>
+Subject: Re: Tiny error in printk output for clocksource : a3:<6>Time:
+ acpi_pm clocksource has been installed.
+Message-Id: <20060926173347.04fd66dd.rdunlap@xenotime.net>
+In-Reply-To: <9a8748490609261722g557eaeeayc148b5f5d910874d@mail.gmail.com>
+References: <9a8748490609261722g557eaeeayc148b5f5d910874d@mail.gmail.com>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.8.0 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi everyone.
+On Wed, 27 Sep 2006 02:22:18 +0200 Jesper Juhl wrote:
 
-I've been involved in a little discussion this morning about reporting
-driver bugs. In the past, I've tended to point people directly to the
-driver author, but I've learnt that the preferred thing is to get people
-to open reports on bugzilla.kernel.org.
+> I get this in dmesg with 2.6.18-git6 :
+>       a3:<6>Time: acpi_pm clocksource has been installed.
+> 
+> Looks like some printk() somewhere is not adding \n correctly after
+> outputting a message priority or a message priority too much is
+> used... I've not investigated where this happens, but just wanted to
+> report it.
 
-I'm therefore writing to ask if those of you who help with triage could
-point people there as well.
+Hi,
+How about posting (pasting) some of the message log before that?
 
-Thanks, and thanks for all your help!
-
-Nigel
-
+---
+~Randy

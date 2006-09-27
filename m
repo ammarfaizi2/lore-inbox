@@ -1,103 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965211AbWI0FNa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965336AbWI0FOY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965211AbWI0FNa (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Sep 2006 01:13:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965332AbWI0FNa
+	id S965336AbWI0FOY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Sep 2006 01:14:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965335AbWI0FOY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Sep 2006 01:13:30 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:1735 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S965211AbWI0FN3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Sep 2006 01:13:29 -0400
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, Andi Kleen <ak@suse.de>, adurbin@google.com
-Subject: Re: 2.6.18-mm1
-References: <20060924040215.8e6e7f1a.akpm@osdl.org>
-	<m1mz8mqd4a.fsf@ebiederm.dsl.xmission.com>
-	<20060926201104.1bb1a193.akpm@osdl.org>
-Date: Tue, 26 Sep 2006 23:12:14 -0600
-In-Reply-To: <20060926201104.1bb1a193.akpm@osdl.org> (Andrew Morton's message
-	of "Tue, 26 Sep 2006 20:11:04 -0700")
-Message-ID: <m1ac4lriz5.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 27 Sep 2006 01:14:24 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:17055 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S965332AbWI0FOX (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Sep 2006 01:14:23 -0400
+Date: Tue, 26 Sep 2006 22:14:00 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Ismail Donmez <ismail@pardus.org.tr>
+Cc: Stelian Pop <stelian@popies.net>, Andrea Gelmini <gelma@gelma.net>,
+       linux-kernel@vger.kernel.org, "Brown, Len" <len.brown@intel.com>,
+       linux-acpi@vger.kernel.org
+Subject: Re: sonypc with Sony Vaio VGN-SZ1VP
+Message-Id: <20060926221400.5da1b796.akpm@osdl.org>
+In-Reply-To: <200609262056.32052.ismail@pardus.org.tr>
+References: <20060926135659.GA3685@jnb.gelma.net>
+	<45195583.4090500@popies.net>
+	<200609262056.32052.ismail@pardus.org.tr>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton <akpm@osdl.org> writes:
+On Tue, 26 Sep 2006 20:56:31 +0300
+Ismail Donmez <ismail@pardus.org.tr> wrote:
 
-> On Tue, 26 Sep 2006 20:04:05 -0600
-> ebiederm@xmission.com (Eric W. Biederman) wrote:
->
->> When I apply:
->> x86_64-mm-insert-ioapics-and-local-apic-into-resource-map
->> 
->> My e1000 fails to initializes and complains about a bad eeprom checksum.
->> I haven't tracked this down to root cause yet and I am in the process of
-> building
->> 2.6.18-mm1 with just that patch reverted to confirm that is the only cause.
->> 
->> I could not see anything obvious in the patch.  I don't have a clue the patch
->> could be triggering the problem I'm seeing.
->> 
->> At a quick visual diff I'm not seeing any other differences in the kernel boot
->> logs, or in /proc/iomem.
->
-> This bit looks fishy:
->
->  GSI 17 sharing vector 0x4A and IRQ 17
->  PCI->APIC IRQ transform: 0000:05:0c.0[A] -> IRQ 17
-> +PCI: Cannot allocate resource region 8 of bridge 0000:00:02.0
-> +PCI: Cannot allocate resource region 8 of bridge 0000:01:00.0
-> +PCI: Cannot allocate resource region 8 of bridge 0000:01:00.2
-> +PCI: Cannot allocate resource region 0 of device 0000:01:00.1
-> +PCI: Cannot allocate resource region 0 of device 0000:01:00.3
-> +PCI: Cannot allocate resource region 0 of device 0000:03:04.0
-> +PCI: Cannot allocate resource region 0 of device 0000:03:04.1
->  PCI-GART: No AMD northbridge found.
->  PCI: Bridge: 0000:01:00.0
->    IO window: disabled.
-> -  MEM window: fe000000-fe0fffff
-> +  MEM window: e2000000-e20fffff
->    PREFETCH window: fd000000-fdffffff
->  PCI: Bridge: 0000:01:00.2
->    IO window: 1000-1fff
-> -  MEM window: fe100000-fe1fffff
-> +  MEM window: e2100000-e21fffff
->    PREFETCH window: disabled.
->  PCI: Bridge: 0000:00:02.0
->    IO window: 1000-1fff
-> -  MEM window: fe000000-fe2fffff
-> +  MEM window: e2000000-e22fffff
->    PREFETCH window: fd000000-fdffffff
->  PCI: Bridge: 0000:00:06.0
->    IO window: disabled.
-> @@ -123,17 +131,17 @@
->  PCI: Bridge: 0000:00:1e.0
->    IO window: 2000-2fff
->    MEM window: fb000000-fc0fffff
-> -  PREFETCH window: e2000000-e20fffff
->
->
-> Wanna hack into arch/i386/pci/i386.c:pcibios_allocate_bus_resources() and
-> see what is conflicting with what?
+> 26 Eyl 2006 Sal 19:29 tarihinde şunları yazmıştınız:
+> > Andrea Gelmini a écrit :
+> > > Hi,
+> > > 	I've got a Sony Vaio VGN-SZ1VP (dmidecode[1] and lspci[2]).
+> > > 	Using default kernel (linux-image-2.6.15-27-686) of Ubuntu
+> > > 	Dapper I've got /proc/acpi/sony/brightness and it works well
+> > > 	(yes, Ubuntu drivers/char/sonypi.c is patched).
+> > > 	With any other newer vanilla kernel, 2.6.15/16/17/18, /proc/acpi/sony
+> > > 	doesn't appear, and it's impossibile to set brigthness, of
+> > > 	course. Same thing with Ubuntu kernel package
+> > > 	(linux-image-2.6.17-9-386).
+> > > 	I tried to port Ubuntu sonypi.c patches to 2.6.18, but it doesn't
+> > > 	work (I mean, it compiles clean, it "modprobes"[3] clean, but no
+> > > 	/proc/acpi/sony/ directory).
+> >
+> > /proc/acpi/sony comes from the sony_acpi driver, not sonypi.
+> >
+> > You should get the latest sony_acpi driver, preferably from the -mm tree
+> > which hosts the most up to date version.
+> 
+> Will sony_acpi ever make it to the mainline? Its very useful for new Vaio 
+> models.
+> 
 
-Good catch.  Add that to the earlier /proc/iomem output.
-> fe200000-fe200fff : IOAPIC 1
-> fe201000-fe201fff : IOAPIC 2
-
-On that board I have ioapics on pci devices and it appears the way
-the patch is reserving them it doesn't account for ioapics that
-have that property.  I.e.  Those ioapics regions show up in lspci
-on an ioapic pci device and the regions are specified with normal
-base address registers.
-
-I'm trying to finish up my msi work, so I'm going to avoid further
-digging.  Hopefully this is enough now that we have a reasonable
-explanation someone can actually dig in and fix this problem.
-
-Eric
-
+I'm inclined to slip it in, but Len has good-sounding reasons for not
+merging this sort of driver, and I always forget what they are?
 

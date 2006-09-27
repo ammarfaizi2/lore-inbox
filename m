@@ -1,32 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964798AbWI0IqI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965438AbWI0Iyj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964798AbWI0IqI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Sep 2006 04:46:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750890AbWI0IqI
+	id S965438AbWI0Iyj (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Sep 2006 04:54:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750902AbWI0Iyj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Sep 2006 04:46:08 -0400
-Received: from mxsf30.cluster1.charter.net ([209.225.28.230]:16825 "EHLO
-	mxsf30.cluster1.charter.net") by vger.kernel.org with ESMTP
-	id S1750882AbWI0IqF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Sep 2006 04:46:05 -0400
-Message-ID: <393855126.1159346763423.JavaMail.root@fepweb13>
-Date: Wed, 27 Sep 2006 4:46:03 -0400
-From: <genestapp@charter.net>
-To: linux-kernel@vger.kernel.org
-Subject: SATA: Marvell 88SE6141 kernel support?
-MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Transfer-Encoding: 7bit
-X-Priority: 3 (Normal)
-Sensitivity: Normal
+	Wed, 27 Sep 2006 04:54:39 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:946 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1750890AbWI0Iyj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Sep 2006 04:54:39 -0400
+From: Paul Jackson <pj@sgi.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Greg Banks <gnb@melbourne.sgi.com>, Paul Jackson <pj@sgi.com>,
+       linux-kernel@vger.kernel.org
+Date: Wed, 27 Sep 2006 01:54:29 -0700
+Message-Id: <20060927085429.32218.64893.sendpatchset@sam.engr.sgi.com>
+Subject: [PATCH] cpumask add highest_possible_node_id fix
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I talked to Gord Peters who asked about this sata chip in June. He said there is a experimental patch for it, but the one he had was an old version. I've been looking all over but could not find it. Also I've checked the newest linux kernel builds and there is no mention of mv_61x support. Does anyone know the status of kernel support for this chip? I'm running 2.6.17 kernel currently but will be upgrading to .18 on Thursday (FC5)
+Fix typo in lib/cpumask.c - looks like a cut+paste forgot
+to change a cpu macro call to a node macro call.  This
+typo caused the following build warnings:
 
-I'm using the Asus P5WD2-E motherboard. I've already used the 4 sata ports on the ICH7 chip and I'm looking to expand my software raid 5 array with a couple more drives (and more later).
-For reference, this was the earlier thread from archives:
-http://lkml.org/lkml/2006/6/14/259
+lib/cpumask.c: In function `highest_possible_node_id':
+lib/cpumask.c:56: warning: passing arg 1 of `__first_cpu' from incompatible pointer type
+lib/cpumask.c:56: warning: passing arg 2 of `__next_cpu' from incompatible pointer type   
 
-Thank you for your time,
-Gene
+Signed-off-by: Paul Jackson <pj@sgi.com>
+
+---
+
+ lib/cpumask.c |    2 +-
+ 1 files changed, 1 insertion(+), 1 deletion(-)
+
+--- 2.6.18-rc7-mm1.orig/lib/cpumask.c	2006-09-26 16:25:57.000000000 -0700
++++ 2.6.18-rc7-mm1/lib/cpumask.c	2006-09-27 01:38:17.000000000 -0700
+@@ -53,7 +53,7 @@ int highest_possible_node_id(void)
+ 	unsigned int node;
+ 	unsigned int highest = 0;
+ 
+-	for_each_cpu_mask(node, node_possible_map)
++	for_each_node_mask(node, node_possible_map)
+ 		highest = node;
+ 	return highest;
+ }
+
+-- 
+                  I won't rest till it's the best ...
+                  Programmer, Linux Scalability
+                  Paul Jackson <pj@sgi.com> 1.925.600.0401

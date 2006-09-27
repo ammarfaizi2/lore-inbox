@@ -1,50 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030846AbWI0VBZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030827AbWI0VF2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030846AbWI0VBZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Sep 2006 17:01:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030847AbWI0VBZ
+	id S1030827AbWI0VF2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Sep 2006 17:05:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030849AbWI0VF2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Sep 2006 17:01:25 -0400
-Received: from khc.piap.pl ([195.187.100.11]:15496 "EHLO khc.piap.pl")
-	by vger.kernel.org with ESMTP id S1030846AbWI0VBY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Sep 2006 17:01:24 -0400
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Nicolas Mailhot <nicolas.mailhot@laposte.net>,
-       linux-kernel@vger.kernel.org,
-       James Bottomley <James.Bottomley@SteelEye.com>
-Subject: Re: GPLv3 Position Statement
-References: <43447.192.54.193.51.1159350218.squirrel@rousalka.dyndns.org>
-	<Pine.LNX.4.64.0609271031300.3952@g5.osdl.org>
-	<m33bad9hgy.fsf@defiant.localdomain>
-	<Pine.LNX.4.64.0609271336200.3952@g5.osdl.org>
-From: Krzysztof Halasa <khc@pm.waw.pl>
-Date: Wed, 27 Sep 2006 23:01:19 +0200
-In-Reply-To: <Pine.LNX.4.64.0609271336200.3952@g5.osdl.org> (Linus Torvalds's message of "Wed, 27 Sep 2006 13:41:48 -0700 (PDT)")
-Message-ID: <m3y7s581nk.fsf@defiant.localdomain>
+	Wed, 27 Sep 2006 17:05:28 -0400
+Received: from post-24.mail.nl.demon.net ([194.159.73.194]:1751 "EHLO
+	post-24.mail.nl.demon.net") by vger.kernel.org with ESMTP
+	id S1030827AbWI0VF1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Sep 2006 17:05:27 -0400
+Message-ID: <451AE795.6030804@rebelhomicide.demon.nl>
+Date: Wed, 27 Sep 2006 23:05:25 +0200
+From: Michiel de Boer <x@rebelhomicide.demon.nl>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060915)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: gregkh@suse.de
+CC: linux-kernel@vger.kernel.org
+Subject: [PATCH] Chipset addition for the VIA Southbridge workaround / quirk
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus Torvalds <torvalds@osdl.org> writes:
+Hi, i'm (maybe unfortunately ;) the owner of a socket 370 motherboard
+by DFI. It's type number is CA63-EC REV A+. According to the manual
+this is the exact chipset naming:
+VIA 82C693A/82C686B AGPset
 
-> But the whole point was to just show how silly the whole "upgradable" vs 
-> "not upgradable" discussion is. We're literally talking about something 
-> where apparently it matters to the GPLv3 whether a pin on a chip is 
-> connected to software or hardware (or not at all). Is that sane?
+Also built in is an Creative Labs SB Live! audio device. When i was
+still using windows 98, i experienced corruptions when burning DVD's,
+and after lengthy investigation i discovered i had a buggy southbridge.[1]
+Apparently the presence of the SB Live! audio device might even accelerate
+the problem, although it does not actually disappear when this PCI card
+is removed. When i moved to Linux, i decided that writing a kernel patch
+based on the fixup programs i found for windows 98 would be appropriate.
 
-I admit I haven't read the last GPLv3 draft, but for me the "freedom"
-(=> benefit) is not the ability to alter software in some specific
-existing device, but rather to take the software, perhaps modify it
-and use in _my_ hardware device.
+However, i was pleased to discover that fixup code was already present in
+drivers/pci/quirks.c . The only thing i had to do then was add my mother-
+board identifier to the bottom of the code. The patch has been tried and
+tested since 2.6.8, and since then it has evolved since it turned out it
+contained unneccessary code patches. It has also been tested without
+problems on the user base of the distro Kanotix[2], of which i'm a
+co-developer. It activates as it should when it should, fixes the corrup-
+tions i had when burning DVD's, and improves system behavior.
+It's a very small and simple patch, but it would spare me from having
+to patch the kernel source myself it it were to be included.
 
-I can't use a modified kernel with their TIVO platform? No problem,
-Chinese can make a better one, or maybe some mini ITX board from
-VIA would do.
+Regards, Michiel de Boer
 
+[1] 
+http://www.theregister.co.uk/2001/04/12/datacorruption_bug_hits_via_chipsets/
+     http://www.realworldtech.com/page.cfm?ArticleID=RWT051401003409
+     http://www.tecchannel.de/ueberblick/archiv/401770/
+[2] http://www.kanotix.com
 
-Though I think "upgrading" engine settings of my car could be nice,
-never had time to look at it :-)
--- 
-Krzysztof Halasa
+Credit: Stefan Lippers-Hollmann <s.l-h@gmx.de>, for showing me the way
+around in the kernel sources.
+Signed-off-by: Michiel Lieuwe de Boer <x@rebelhomicide.demon.nl>
+
+diff -Nru linux-2.6.18.orig/drivers/pci/quirks.c 
+linux-2.6.18/drivers/pci/quirks.c
+--- linux-2.6.18.orig/drivers/pci/quirks.c      2006-09-20 
+05:42:06.000000000 +0200
++++ linux-2.6.18/drivers/pci/quirks.c   2006-09-27 22:43:30.000000000 +0200
+@@ -172,6 +172,7 @@
+ DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_VIA,     
+PCI_DEVICE_ID_VIA_8363_0,       quirk_vialatency );
+ DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_VIA,     
+PCI_DEVICE_ID_VIA_8371_1,       quirk_vialatency );
+ DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_VIA,     
+PCI_DEVICE_ID_VIA_8361,         quirk_vialatency );
++DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_VIA,     
+PCI_DEVICE_ID_VIA_82C691_0,     quirk_vialatency );
+
+ /*
+  *     VIA Apollo VP3 needs ETBF on BT848/878
+

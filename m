@@ -1,42 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030246AbWI0Q7r@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030243AbWI0Q7t@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030246AbWI0Q7r (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Sep 2006 12:59:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030245AbWI0Q7q
+	id S1030243AbWI0Q7t (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Sep 2006 12:59:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030248AbWI0Q7t
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Sep 2006 12:59:46 -0400
-Received: from gw.goop.org ([64.81.55.164]:54190 "EHLO mail.goop.org")
-	by vger.kernel.org with ESMTP id S1030244AbWI0Q7p (ORCPT
+	Wed, 27 Sep 2006 12:59:49 -0400
+Received: from nat-132.atmel.no ([80.232.32.132]:14029 "EHLO relay.atmel.no")
+	by vger.kernel.org with ESMTP id S1030243AbWI0Q7r (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Sep 2006 12:59:45 -0400
-Message-ID: <451AAE0A.4010704@goop.org>
-Date: Wed, 27 Sep 2006 09:59:54 -0700
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
-MIME-Version: 1.0
-To: Andi Kleen <ak@muc.de>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: revised pda patches
-References: <4518D273.2030103@goop.org> <20060927113136.GA80066@muc.de>
-In-Reply-To: <20060927113136.GA80066@muc.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Wed, 27 Sep 2006 12:59:47 -0400
+From: Haavard Skinnemoen <hskinnemoen@atmel.com>
+To: Andrew Victor <andrew@sanpeople.com>
+Cc: Russell King <rmk+lkml@arm.linux.org.uk>, linux-kernel@vger.kernel.org,
+       hskinnemoen@atmel.com
+Subject: [PATCH 2/8] at91_serial -> atmel_serial: at91_serial.c
+Reply-To: Haavard Skinnemoen <hskinnemoen@atmel.com>
+Date: Wed, 27 Sep 2006 18:57:59 +0200
+Message-Id: <11593762852168-git-send-email-hskinnemoen@atmel.com>
+X-Mailer: git-send-email 1.4.1.1
+In-Reply-To: <115937628584-git-send-email-hskinnemoen@atmel.com>
+References: <1159376285670-git-send-email-hskinnemoen@atmel.com> <115937628584-git-send-email-hskinnemoen@atmel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
-> I added them now, thanks.
->
-> At least one seemed to assume that asm-offsets.c already has entries
-> for all the registers, which wasn't the case. I fixed that up from
-> the patch context, but some double checking might be useful.
->   
+Rename at91_serial.c atmel_serial.c
 
-Eh?  They patch+compile cleanly against your patch queue of the other 
-day.  -use-gs adds PT_GS to asm-offsets, assuming that 
-"i386-pda-asm-offsets" has already been applied.  Did you accidentally 
-remove that from your queue too; it was just before the old 
-"i386-pda-basics"?
+Signed-off-by: Haavard Skinnemoen <hskinnemoen@atmel.com>
+---
+ drivers/serial/Makefile                          |    2 +-
+ drivers/serial/{at91_serial.c => atmel_serial.c} |    0 
+ 2 files changed, 1 insertions(+), 1 deletions(-)
 
-    J
+diff --git a/drivers/serial/Makefile b/drivers/serial/Makefile
+index 927faee..e49808a 100644
+--- a/drivers/serial/Makefile
++++ b/drivers/serial/Makefile
+@@ -54,5 +54,5 @@ obj-$(CONFIG_SERIAL_TXX9) += serial_txx9
+ obj-$(CONFIG_SERIAL_VR41XX) += vr41xx_siu.o
+ obj-$(CONFIG_SERIAL_SGI_IOC4) += ioc4_serial.o
+ obj-$(CONFIG_SERIAL_SGI_IOC3) += ioc3_serial.o
+-obj-$(CONFIG_SERIAL_AT91) += at91_serial.o
++obj-$(CONFIG_SERIAL_AT91) += atmel_serial.o
+ obj-$(CONFIG_SERIAL_NETX) += netx-serial.o
+diff --git a/drivers/serial/at91_serial.c b/drivers/serial/atmel_serial.c
+similarity index 100%
+rename from drivers/serial/at91_serial.c
+rename to drivers/serial/atmel_serial.c
+-- 
+1.4.1.1
+

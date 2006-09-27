@@ -1,83 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751170AbWI0N0G@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751187AbWI0Nbr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751170AbWI0N0G (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Sep 2006 09:26:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751169AbWI0N0F
+	id S1751187AbWI0Nbr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Sep 2006 09:31:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751190AbWI0Nbr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Sep 2006 09:26:05 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.149]:23979 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751181AbWI0N0E
+	Wed, 27 Sep 2006 09:31:47 -0400
+Received: from nat-132.atmel.no ([80.232.32.132]:58334 "EHLO relay.atmel.no")
+	by vger.kernel.org with ESMTP id S1751187AbWI0Nbr convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Sep 2006 09:26:04 -0400
-Date: Wed, 27 Sep 2006 09:24:20 -0400
-From: Vivek Goyal <vgoyal@in.ibm.com>
-To: Valdis.Kletnieks@vt.edu
-Cc: "Eric W. Biederman" <ebiederm@xmission.com>, Andrew Morton <akpm@osdl.org>,
-       fastboot@lists.osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [Fastboot] Stupid kexec/kdump question...
-Message-ID: <20060927132420.GB2514@in.ibm.com>
-Reply-To: vgoyal@in.ibm.com
-References: <200609261525.k8QFP6j4022389@turing-police.cc.vt.edu> <20060926221029.d9e87650.akpm@osdl.org> <20060927052737.GA17214@verge.net.au> <m1u02toi2g.fsf@ebiederm.dsl.xmission.com> <200609271251.k8RCpp6X029724@turing-police.cc.vt.edu>
+	Wed, 27 Sep 2006 09:31:47 -0400
+Date: Wed, 27 Sep 2006 15:31:44 +0200
+From: Haavard Skinnemoen <hskinnemoen@atmel.com>
+To: Andrew Victor <andrew@sanpeople.com>
+Cc: Russell King <rmk+lkml@arm.linux.org.uk>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/3] at91_serial: Introduction
+Message-ID: <20060927153144.47871208@cad-250-152.norway.atmel.com>
+In-Reply-To: <1159261584.24659.16.camel@fuzzie.sanpeople.com>
+References: <11545303083273-git-send-email-hskinnemoen@atmel.com>
+	<20060923211417.GB4363@flint.arm.linux.org.uk>
+	<1159261584.24659.16.camel@fuzzie.sanpeople.com>
+Organization: Atmel Norway
+X-Mailer: Sylpheed-Claws 2.5.0-rc3 (GTK+ 2.8.20; i486-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200609271251.k8RCpp6X029724@turing-police.cc.vt.edu>
-User-Agent: Mutt/1.5.11
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 27, 2006 at 08:51:50AM -0400, Valdis.Kletnieks@vt.edu wrote:
-> On Wed, 27 Sep 2006 02:00:07 MDT, Eric W. Biederman said:
-> 
-> > I suspect the reason for the matching kernel from the distros is just
-> > that everything is quite new so they don't want to wonder if you old
-> > kernel has all of the appropriate support, and by that point they can
-> > probably assume the shipped kernel works.
-> 
-> And careful reading of the Fedora scripts shows how to provide your
-> own custom kernel/initrd pair. Setting the right variable in the right
-> config file will use that - if it's unset, it will go with a kernel
-> named ${kernelversion}kdump.
-> 
-> > >> > 2) I'm presuming that a massively stripped down kernel (no sound support,
-> > >> > no netfilter, no etc) that just has what's needed to mount the dump location
-> > >> > is sufficient?
-> > >
-> > > Yes
-> 
-> I'm definitely submitting a doc patch to explain all this in more detail, as
-> soon as I get it figured out enough. ;)
-> 
-> > >> > 3) The docs recommend 'crashkernel=64M@16M', but that's 8% of my memory.
-> > >> > What will happen if I try '16M@16M' instead?  Just slower copying due to
-> > >> > a smaller buffer cache space, or something more evil?
-> > >
-> > > There is a lower bound to how small you can make the space, which
-> > > is basically how little memory space your post-crash kernel needs.
-> > > 16M is probably pushing it, but 32M should be more than possible.
-> > > Experimentation is really the order of the day here.
-> > 
-> > At that level I would say that below 32M is where you start dealing with
-> > custom built programs, instead of slapping a bunch of utilities inside
-> > a ramdisk.  I suspect with a little care you could get a few K user
-> > space executable and fit everything inside of 4M.  But I don't know if anyone
-> > is that ambitious yet.
-> 
-> Well, the stripped down kernel is right around 2M.  Unfortunately, I need
-> to run lvm.static, which is another 1.5M at least.  So unless busybox has
-> grown support for LVM, I'm looking at 8M at best.
-> 
+On 26 Sep 2006 11:06:24 +0200
+Andrew Victor <andrew@sanpeople.com> wrote:
 
-Distros don't want to build and ship an additional kernel just for dumping
-purposes. They want to use production kernel as binary itself as dump
-capture kernel. It reduces overheads for them significantly.
+> Patch 2 & 3 look correct, but they would need to be tested.
 
-Currently we are reserving 64MB of memory for our testing purposes on 
-i386 and x86_64. Any thing lesser than that, sometimes either system
-hangs or OOM killer pitches in. Now people are working on preparing custom
-initrd for dumping purposes so that dumping can be done from early user
-space itself. This might lead to reduced memory usage and more reliability.
-I think soon it should be available in fedora (busybox based custom initrd
-for crashdumping purposes.)
+Ok, I've tested part 2 (at91_serial: Fix roundoff error in
+at91_console_get_options), and it works on my AT91RM9200-EK board. In
+fact, the latest git code does _not_ work -- I see the same garbage as
+on ATSTK1000, and this patch fixes it.
 
--Vivek
+Part 3 probably has real problems, and I'm not sure how to fix it. I'll
+try some kind of "break timeout" so that any problems will at least be
+transient. The current break code works on neither STK1000 nor
+AT91RM9200-EK, so even a not-quite-100%-correct fix should be
+acceptable, no?
+
+I'm queuing up some patches now that I'll send off as soon as I get them
+tested on both ARM and AVR32. This includes the big rename patch I've
+been talking about.
+
+Håvard

@@ -1,50 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932398AbWI0HFi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965408AbWI0HKF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932398AbWI0HFi (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Sep 2006 03:05:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932400AbWI0HFi
+	id S965408AbWI0HKF (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Sep 2006 03:10:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932456AbWI0HKE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Sep 2006 03:05:38 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:29650 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932398AbWI0HFi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Sep 2006 03:05:38 -0400
-Subject: Re: [PATCH] restore libata build on frv
-From: David Woodhouse <dwmw2@infradead.org>
-To: David Howells <dhowells@redhat.com>
-Cc: Al Viro <viro@ftp.linux.org.uk>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Linus Torvalds <torvalds@osdl.org>, Jeff Garzik <jgarzik@pobox.com>,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <20660.1159195152@warthog.cambridge.redhat.com>
-References: <20060925142016.GI29920@ftp.linux.org.uk>
-	 <1159186771.11049.63.camel@localhost.localdomain>
-	 <1159183568.11049.51.camel@localhost.localdomain>
-	 <20060924223925.GU29920@ftp.linux.org.uk>
-	 <22314.1159181060@warthog.cambridge.redhat.com>
-	 <5578.1159183668@warthog.cambridge.redhat.com>
-	 <7276.1159186684@warthog.cambridge.redhat.com>
-	 <20660.1159195152@warthog.cambridge.redhat.com>
-Content-Type: text/plain
-Date: Wed, 27 Sep 2006 08:05:24 +0100
-Message-Id: <1159340724.3309.103.camel@pmac.infradead.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5.dwmw2.1) 
+	Wed, 27 Sep 2006 03:10:04 -0400
+Received: from py-out-1112.google.com ([64.233.166.183]:34129 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S932447AbWI0HKB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Sep 2006 03:10:01 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=MO4IFoOkVhdRcXakGqwjYHI/VeK9wo6sTxJ2VvRb6C5/xyvfSfdYd95GL8JR7Dzp8VXZ2yIJyxKrhfBjOMAKoM+ZUlJnDhx5M3Itrtnmei0lT8Q4cafwj43PyWZzbLMghcfemjhRWAEqJf4HEbfD7X+W93yDM57d71KpoWGQm+A=
+Message-ID: <a44ae5cd0609270010n43f04a2xb49852d5aeeeda9c@mail.gmail.com>
+Date: Wed, 27 Sep 2006 00:10:01 -0700
+From: "Miles Lane" <miles.lane@gmail.com>
+To: LKML <linux-kernel@vger.kernel.org>, "Andrew Morton" <akpm@osdl.org>
+Subject: 2.6.18-mm1 -- need to run mkproper? snd_timer: Unknown symbol snd_info_create_module_entry
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-09-25 at 15:39 +0100, David Howells wrote:
-> My point is that all the numbers are invalid or incorrect.  They will cause
-> the arch to oops, and so need completely replacing.   
+Hello, I changed my build options and ran "make all install modules
+modules_install" and so forth.  Do the unknown symbol messages below
+indicate that all dependencies were not rebuilt and I need to run make
+mrproper, or is something else going on here?
 
-The way we deal with code which blindly pokes at legacy I/O addresses on
-PowerPC is to have a check_legacy_ioport() function which will tell you
-if it's safe to poke at the address in question. Perhaps that should be
-extended to other architectures (some can just #define it to 0) and used
-in the IDE code.
+snd_timer: Unknown symbol snd_verbose_printd
+snd_timer: Unknown symbol snd_info_register
+snd_timer: Unknown symbol snd_info_create_module_entry
+snd_timer: Unknown symbol snd_info_free_entry
+snd_timer: Unknown symbol snd_verbose_printk
+snd_timer: Unknown symbol snd_iprintf
+snd_timer: Unknown symbol snd_ecards_limit
+snd_timer: Unknown symbol snd_oss_info_register
+snd_timer: Unknown symbol snd_unregister_device
+snd_timer: Unknown symbol snd_device_new
+snd_timer: Unknown symbol snd_register_device
 
--- 
-dwmw2
-
+bay: Unknown symbol is_dock_device
+bay: Unknown symbol register_hotplug_dock_device
+bay: Unknown symbol unregister_hotplug_dock_device

@@ -1,42 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932278AbWI0OOY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932265AbWI0OOH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932278AbWI0OOY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Sep 2006 10:14:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932285AbWI0OOX
+	id S932265AbWI0OOH (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Sep 2006 10:14:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932278AbWI0OOH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Sep 2006 10:14:23 -0400
-Received: from viper.oldcity.dca.net ([216.158.38.4]:47584 "HELO
-	viper.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S932278AbWI0OOW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Sep 2006 10:14:22 -0400
-Subject: Re: Bad PTE VM: killing process hald-addon-keyb
-From: Lee Revell <rlrevell@joe-job.com>
-To: Christian <christiand59@web.de>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200609271538.58248.christiand59@web.de>
-References: <200609271538.58248.christiand59@web.de>
-Content-Type: text/plain
-Date: Wed, 27 Sep 2006 10:14:55 -0400
-Message-Id: <1159366495.1275.10.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
+	Wed, 27 Sep 2006 10:14:07 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:60292 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S932265AbWI0OOG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Sep 2006 10:14:06 -0400
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: Andi Kleen <ak@suse.de>
+Cc: Ian Campbell <Ian.Campbell@xensource.com>,
+       Andre Noll <maan@systemlinux.org>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       Jeremy Fitzhardinge <jeremy@goop.org>,
+       Andy Whitcroft <apw@shadowen.org>, Martin Bligh <mbligh@google.com>,
+       Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.18-mm1 compile failure on x86_64
+References: <45185A93.7020105@google.com> <200609271226.44834.ak@suse.de>
+	<1159355329.28313.29.camel@localhost.localdomain>
+	<200609271405.03849.ak@suse.de>
+Date: Wed, 27 Sep 2006 08:11:39 -0600
+In-Reply-To: <200609271405.03849.ak@suse.de> (Andi Kleen's message of "Wed, 27
+	Sep 2006 14:05:03 +0200")
+Message-ID: <m1d59ho0v8.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-09-27 at 15:38 +0200, Christian wrote:
-> [   35.036871] nvidia: module license 'NVIDIA' taints kernel.
-> [   35.041856] ACPI: PCI Interrupt Link [APC3] enabled at IRQ 18
-> [   35.041860] GSI 22 sharing vector 0x4A and IRQ 22
-> [   35.041865] ACPI: PCI Interrupt 0000:01:00.0[A] -> Link [APC3] ->
-> GSI 18 
-> (level, low) -> IRQ 74
-> [   35.041873] PCI: Setting latency timer of device 0000:01:00.0 to 64
-> [   35.042033] NVRM: loading NVIDIA Linux x86_64 Kernel Module
-> 1.0-8774  Tue 
-> Aug  1 21:42:17 PDT 2006 
+Andi Kleen <ak@suse.de> writes:
 
-Sigh... please report this to Nvidia.
+>> The xen-unstable tree has had the .bss movement patch in for a couple of
+>> weeks now with no reported bugs. We are frozen for the release 3.0.3 so
+>> at least in theory people should be testing it pretty hard ;-)
+>
+> Ok maybe we should retry it. The BSS movement patch makes sense by
+> itself after all and in theory really shouldn't break anything.
+> I'll reenable it.
 
-Lee
+I think some part of the relocatable kernel or kexec on panic work
+had problems with the bss in the middle as well.
 
+Eric

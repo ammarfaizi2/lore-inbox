@@ -1,52 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965350AbWI0FeK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932375AbWI0FjQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965350AbWI0FeK (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Sep 2006 01:34:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965348AbWI0FeK
+	id S932375AbWI0FjQ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Sep 2006 01:39:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932400AbWI0FjQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Sep 2006 01:34:10 -0400
-Received: from fgwmail6.fujitsu.co.jp ([192.51.44.36]:46820 "EHLO
-	fgwmail6.fujitsu.co.jp") by vger.kernel.org with ESMTP
-	id S965347AbWI0FeJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Sep 2006 01:34:09 -0400
-Date: Wed, 27 Sep 2006 14:36:00 +0900
-From: KAMEZAWA Hiroyuki <kamezawa.hiroyu@jp.fujitsu.com>
-To: linux-kernel@vger.kernel.org
-Cc: akpm@osdl.org, mm-commits@vger.kernel.org, stable@kernel.org
-Subject: Re: + fix-cpu-to-node-relationship-fixup-map-cpu-to-node.patch
- added to -mm tree
-Message-Id: <20060927143600.67418b15.kamezawa.hiroyu@jp.fujitsu.com>
-In-Reply-To: <200609270332.k8R3WWkm012520@shell0.pdx.osdl.net>
-References: <200609270332.k8R3WWkm012520@shell0.pdx.osdl.net>
-Organization: Fujitsu
-X-Mailer: Sylpheed version 2.2.0 (GTK+ 2.6.10; i686-pc-mingw32)
+	Wed, 27 Sep 2006 01:39:16 -0400
+Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:34213 "HELO
+	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
+	id S932375AbWI0FjP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Sep 2006 01:39:15 -0400
+Subject: Re: When will the lunacy end? (Was Re: [PATCH] uswsusp: add
+	pmops->{prepare,enter,finish} support (aka "platform mode"))
+From: Nigel Cunningham <ncunningham@linuxmail.org>
+To: "Rafael J. Wysocki" <rjw@sisk.pl>
+Cc: Adrian Bunk <bunk@stusta.de>, Pavel Machek <pavel@ucw.cz>,
+       Andrew Morton <akpm@osdl.org>, Stefan Seyfried <seife@suse.de>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <200609270712.34082.rjw@sisk.pl>
+References: <20060925071338.GD9869@suse.de> <200609270131.46686.rjw@sisk.pl>
+	 <20060926233903.GK4547@stusta.de>  <200609270712.34082.rjw@sisk.pl>
+Content-Type: text/plain
+Date: Wed, 27 Sep 2006 15:39:10 +1000
+Message-Id: <1159335550.5341.25.camel@nigel.suspend2.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.8.0 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 26 Sep 2006 20:32:32 -0700
-akpm@osdl.org wrote:
+Hi.
 
+On Wed, 2006-09-27 at 07:12 +0200, Rafael J. Wysocki wrote:
+> > > Well, can we please have these reports forwarded to LKML or placed
+> > > in the bugzilla?
+> > 
+> > The main question is:
+> > 
+> > Who will track these bugs, debug them (who is e.g. responsible for 
+> > kernel Bugzilla #6035?) and repeatingly poke maintainers to fix such 
+> > issues?
+> > 
+> > If you are saying you will do this job, I can try to redirect such bug 
+> > reports to the kernel Bugzilla, create a "suspend driver problems" meta 
+> > bug there, assign it to you and create the dependencies that it tracks 
+> > the already existing bugs in the kernel Bugzilla.
 > 
-> The patch titled
+> Yes, please do this.
 > 
->      fix "cpu to node relationship fixup: map cpu to node"
-> 
-> has been added to the -mm tree.  Its filename is
-> 
->      fix-cpu-to-node-relationship-fixup-map-cpu-to-node.patch
-> 
-> See http://www.zip.com.au/~akpm/linux/patches/stuff/added-to-mm.txt to find
-> out what to do about this
-> 
+> [I must say I'm a bit afraid of that but anyway someone has to do it ... ;-)]
 
-Tested on
-- CONFIG_NUMA=n, on tiger4/ia64 smp 
-- CONFIG_NUMA=y, on Fujitsu's PrimeQuest(ia64/NUMA)
-  node hotplug also works fine.
+:) Can I please get copies too?
 
-Thanks,
--Kame
+Regards,
+
+Nigel
 

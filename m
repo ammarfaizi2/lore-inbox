@@ -1,44 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964897AbWI0PKu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964913AbWI0PXh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964897AbWI0PKu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Sep 2006 11:10:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964895AbWI0PKu
+	id S964913AbWI0PXh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Sep 2006 11:23:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964928AbWI0PXh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Sep 2006 11:10:50 -0400
-Received: from relay.2ka.mipt.ru ([194.85.82.65]:5837 "EHLO 2ka.mipt.ru")
-	by vger.kernel.org with ESMTP id S964892AbWI0PKt (ORCPT
+	Wed, 27 Sep 2006 11:23:37 -0400
+Received: from xenotime.net ([66.160.160.81]:10133 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S964913AbWI0PXg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Sep 2006 11:10:49 -0400
-Date: Wed, 27 Sep 2006 19:09:57 +0400
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: David Miller <davem@davemloft.net>, Ulrich Drepper <drepper@redhat.com>,
-       Andrew Morton <akpm@osdl.org>, netdev <netdev@vger.kernel.org>,
-       Zach Brown <zach.brown@oracle.com>,
-       Christoph Hellwig <hch@infradead.org>,
-       Chase Venters <chase.venters@clientec.com>
-Subject: Re: [take19 0/4] kevent: Generic event handling mechanism.
-Message-ID: <20060927150957.GA18116@2ka.mipt.ru>
-References: <115a6230591036@2ka.mipt.ru> <11587449471424@2ka.mipt.ru>
+	Wed, 27 Sep 2006 11:23:36 -0400
+Date: Wed, 27 Sep 2006 08:24:50 -0700
+From: Randy Dunlap <rdunlap@xenotime.net>
+To: Joe Perches <joe@perches.com>
+Cc: Greg KH <greg@kroah.com>, Jesper Juhl <jesper.juhl@gmail.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Tiny error in printk output for clocksource : a3:<6>Time:
+ acpi_pm clocksource has been installed.
+Message-Id: <20060927082450.d6de0f4f.rdunlap@xenotime.net>
+In-Reply-To: <1159334393.13196.9.camel@localhost>
+References: <9a8748490609261722g557eaeeayc148b5f5d910874d@mail.gmail.com>
+	<20060926173347.04fd66dd.rdunlap@xenotime.net>
+	<200609270236.58148.jesper.juhl@gmail.com>
+	<20060926205415.98b8d95d.rdunlap@xenotime.net>
+	<20060927043239.GA32082@kroah.com>
+	<20060926215235.16c987c0.rdunlap@xenotime.net>
+	<20060926215622.f128d9fa.rdunlap@xenotime.net>
+	<1159333843.13196.6.camel@localhost>
+	<20060926221718.7e20613e.rdunlap@xenotime.net>
+	<1159334393.13196.9.camel@localhost>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
-Content-Disposition: inline
-In-Reply-To: <11587449471424@2ka.mipt.ru>
-User-Agent: Mutt/1.5.9i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Wed, 27 Sep 2006 19:09:59 +0400 (MSD)
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 20, 2006 at 01:35:47PM +0400, Evgeniy Polyakov (johnpol@2ka.mipt.ru) wrote:
-> 
-> Generic event handling mechanism.
-> 
-> Consider for inclusion.
+On Tue, 26 Sep 2006 22:19:53 -0700 Joe Perches wrote:
 
-I have been told in private what is signal masks about - just to wait
-until either signal or given condition is ready, but in that case just 
-add additional kevent user like AIO complete or netwrok notification 
-and wait until either requested events are ready or signal is triggered.
+> On Tue, 2006-09-26 at 22:17 -0700, Randy Dunlap wrote:
+> > > > so it does break the printk()s up itself.
+> > > Changing all of those MAC address printks to a single function
+> > > could prevent this.
+> > > http://www.uwsg.iu.edu/hypermail/linux/net/0602.1/0002.html
+> > True enough.  Thanks for the patch.
+> > However, in this case, the single-printed MAC address still needs
+> > a \n, with the IRQ on a separate line (wasting vertical screen space),
+> > or it needs a custom printk() that is all done at one time.
+> > Probably the latter IMO.  Oh, it looks like your patch
+> > has a way to handle that too.  Good.
+> > What happened to your patch?
+> 
+> I sent it as an RFC with samples and such.
+> It's out of date and it went comment free.
+> I could bring it forward if anyone wants it.
 
--- 
-	Evgeniy Polyakov
+I think that it's needed, but it's really up to the netdev
+people.  If you do resend it, please note this problem
+(that Jesper posted) as well.
+
+Thanks,
+---
+~Randy

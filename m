@@ -1,86 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964862AbWI0Eae@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964966AbWI0Ekf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964862AbWI0Eae (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Sep 2006 00:30:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964863AbWI0Eae
+	id S964966AbWI0Ekf (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Sep 2006 00:40:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964934AbWI0Ekf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Sep 2006 00:30:34 -0400
-Received: from mail.kroah.org ([69.55.234.183]:10628 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S964862AbWI0Ead (ORCPT
+	Wed, 27 Sep 2006 00:40:35 -0400
+Received: from mail.kroah.org ([69.55.234.183]:63877 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S964966AbWI0Eke (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Sep 2006 00:30:33 -0400
-Date: Tue, 26 Sep 2006 20:29:21 -0700
+	Wed, 27 Sep 2006 00:40:34 -0400
+Date: Tue, 26 Sep 2006 21:33:43 -0700
 From: Greg KH <gregkh@suse.de>
-To: Valdis.Kletnieks@vt.edu
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: 2.6.18-rc7-mm1  - gregkh-driver-pcmcia-device.patch breaks orinoco card
-Message-ID: <20060927032921.GI31633@suse.de>
-References: <20060919012848.4482666d.akpm@osdl.org> <200609231103.k8NB3RiF004703@turing-police.cc.vt.edu>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Greg KH <greg@kroah.com>, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>, Cornelia Huck <cornelia.huck@de.ibm.com>
+Subject: Re: [PATCH 41/47] drivers/base: check errors
+Message-ID: <20060927043343.GA32396@suse.de>
+References: <11592491901464-git-send-email-greg@kroah.com> <11592491924093-git-send-email-greg@kroah.com> <1159249196427-git-send-email-greg@kroah.com> <1159249200793-git-send-email-greg@kroah.com> <11592492023883-git-send-email-greg@kroah.com> <11592492061208-git-send-email-greg@kroah.com> <1159249209773-git-send-email-greg@kroah.com> <11592492123695-git-send-email-greg@kroah.com> <11592492153066-git-send-email-greg@kroah.com> <d120d5000609261023o20c29171kcba4903c9a35fffb@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200609231103.k8NB3RiF004703@turing-police.cc.vt.edu>
+In-Reply-To: <d120d5000609261023o20c29171kcba4903c9a35fffb@mail.gmail.com>
 User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Sep 23, 2006 at 07:03:26AM -0400, Valdis.Kletnieks@vt.edu wrote:
-> orinoco 0.15 (David Gibson <hermes@gibson.dropbear.id.au>, Pavel Roskin <proski@gnu.org>, et al)
-> orinoco_cs 0.15 (David Gibson <hermes@gibson.dropbear.id.au>, Pavel Roskin <proski@gnu.org>, et al)
-> pcmcia: request for exclusive IRQ could not be fulfilled.
-> pcmcia: the driver needs updating to supported shared IRQ lines.
-> cs: IO port probe 0x100-0x3af: excluding 0x370-0x37f
-> cs: IO port probe 0x3e0-0x4ff: clean.
-> cs: IO port probe 0x820-0x8ff: clean.
-> cs: IO port probe 0xc00-0xcf7: clean.
-> cs: IO port probe 0xa00-0xaff: clean.
-> cs: IO port probe 0x100-0x3af: excluding 0x370-0x37f
-> cs: IO port probe 0x3e0-0x4ff: clean.
-> cs: IO port probe 0x820-0x8ff: clean.
-> cs: IO port probe 0xc00-0xcf7: clean.
-> cs: IO port probe 0xa00-0xaff: clean.
-> cs: IO port probe 0x100-0x3af: excluding 0x370-0x37f
-> cs: IO port probe 0x3e0-0x4ff: clean.
-> cs: IO port probe 0x820-0x8ff: clean.
-> cs: IO port probe 0xc00-0xcf7: clean.
-> cs: IO port probe 0xa00-0xaff: clean.
-> eth2: Hardware identity 0005:0004:0005:0000
-> eth2: Station identity  001f:0001:0008:000a
-> eth2: Firmware determined as Lucent/Agere 8.10
-> eth2: Ad-hoc demo mode supported
-> eth2: IEEE standard IBSS ad-hoc mode supported
-> eth2: WEP supported, 104-bit key
-> eth2: MAC address 00:02:2D:5C:11:48
-> eth2: Station name "HERMES I"
-> eth2: ready
-> eth2: orinoco_cs at 2.0, irq 11, io 0xe100-0xe13f
-> [rename_device:1295]: Changing netdevice name from [eth2] to [eth5]
-> Non-volatile memory driver v1.2
+On Tue, Sep 26, 2006 at 01:23:34PM -0400, Dmitry Torokhov wrote:
+> On 9/26/06, Greg KH <greg@kroah.com> wrote:
+> >From: Andrew Morton <akpm@osdl.org>
+> >
+> >Add lots of return-value checking.
+> >
+> >+               if (error)
+> >+                       goto out;
+> >+               error = sysfs_create_link(&bus->devices.kobj,
+> >+                                               &dev->kobj, dev->bus_id);
+> >+               if (error)
+> >+                       goto out;
+> >+               error = sysfs_create_link(&dev->kobj,
+> >+                               &dev->bus->subsys.kset.kobj, "subsystem");
+> >+               if (error)
+> >+                       goto out;
+> >+               error = sysfs_create_link(&dev->kobj,
+> >+                               &dev->bus->subsys.kset.kobj, "bus");
+> >       }
+> >+out:
+> >       return error;
 > 
-> and under -rc7-mm1, I see:
-> 
-> pccard: CardBus card inserted into slot 0
-> PCI: Enabling device 0000:03:00.0 (0000 -> 0003)
-> ACPI: PCI Interrupt 0000:03:00.0[A] -> Link [LNKD] -> GSI 11 (level, low) -> IRQ 11
-> PCI: Setting latency timer of device 0000:03:00.0 to 64
-> eth1: Xircom cardbus revision 3 at irq 11 
-> PCI: Enabling device 0000:03:00.1 (0000 -> 0003)
-> ACPI: PCI Interrupt 0000:03:00.1[A] -> Link [LNKD] -> GSI 11 (level, low) -> IRQ 11
-> 0000:03:00.1: ttyS1 at I/O 0xe080 (irq = 11) is a 16550A
-> pccard: PCMCIA card inserted into slot 2
-> ohci1394: fw-host0: AT dma reset ctx=0, aborting transmission
-> ieee1394: Current remote IRM is not 1394a-2000 compliant, resetting...
-> ieee1394: Host added: ID:BUS[0-00:1023]  GUID[374fc0002a71c021]
-> Non-volatile memory driver v1.2
-> 
-> Hmm.. a lot quieter...
+> What about removing the links that were created if one of these calls fails?
 
-So, you have a pcmcia or cardbus card here?  I've tried this with a
-cardbus card and it worked fine.
-
-Are you sure you have the latest userspace tools, I didn't think that cs
-was needed anymore, but again, without a pcmcia device to test this
-with, I really am not sure :(
+Yes, that would be good, I think I have a patch in my queue that handles
+that properly...
 
 thanks,
 

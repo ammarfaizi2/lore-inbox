@@ -1,68 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932073AbWI0AhS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932083AbWI0ApX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932073AbWI0AhS (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 26 Sep 2006 20:37:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932075AbWI0AhS
+	id S932083AbWI0ApX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 26 Sep 2006 20:45:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932086AbWI0ApX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Sep 2006 20:37:18 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:14280 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932073AbWI0AhQ (ORCPT
+	Tue, 26 Sep 2006 20:45:23 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:21662 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S932083AbWI0ApW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Sep 2006 20:37:16 -0400
-Date: Tue, 26 Sep 2006 17:37:11 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: minyard@acm.org
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-       David Barksdale <amatus@ocgnet.org>
-Subject: Re: [PATCH] IPMI: per-channel command registration
-Message-Id: <20060926173711.ea3c877e.akpm@osdl.org>
-In-Reply-To: <20060925140941.GA6364@localdomain>
-References: <20060925140941.GA6364@localdomain>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 26 Sep 2006 20:45:22 -0400
+Message-ID: <4519C991.4070604@garzik.org>
+Date: Tue, 26 Sep 2006 20:45:05 -0400
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
+MIME-Version: 1.0
+To: Nigel Cunningham <ncunningham@linuxmail.org>
+CC: suspend2-devel <suspend2-devel@lists.suspend2.net>,
+       suspend2-users <suspend2-users@lists.suspend2.net>,
+       Andrew Morton <akpm@osdl.org>, "Rafael J. Wysocki" <rjw@sisk.pl>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: Re: Reporting driver bugs.
+References: <1159316745.5341.5.camel@nigel.suspend2.net>
+In-Reply-To: <1159316745.5341.5.camel@nigel.suspend2.net>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.3 (----)
+X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 25 Sep 2006 09:09:41 -0500
-Corey Minyard <minyard@acm.org> wrote:
-
+Nigel Cunningham wrote:
+> Hi everyone.
 > 
-> This patch adds the ability to register for a command per-channel in
-> the IPMI driver.
+> I've been involved in a little discussion this morning about reporting
+> driver bugs. In the past, I've tended to point people directly to the
+> driver author, but I've learnt that the preferred thing is to get people
+> to open reports on bugzilla.kernel.org.
 > 
-> If your BMC supports multiple channels, incoming messages can be
-> differentiated by the channel on which they arrived. In this case it's
-> useful to have the ability to register to receive commands on a
-> specific channel instead the current behaviour of all channels.
-> 
-> +	case IPMICTL_REGISTER_FOR_CMD_CHANS:
-> +	{
-> +		struct ipmi_cmdspec_chans val;
-> +
-> +		if (copy_from_user(&val, arg, sizeof(val))) {
+> I'm therefore writing to ask if those of you who help with triage could
+> point people there as well.
 
-It becomes part of the ABI.
+Unfortunately there is no one right answer.  Some driver maintainers 
+don't see the bugzilla.kernel.org entry at all; others find it useful 
+for tracking purposes.
 
-> +/*
-> + * Register to get commands from other entities on specific channels.
-> + * This way, you can only listen on specific channels, or have messages
-> + * from some channels go to one place and other channels to someplace
-> + * else.  The chans field is a bitmask, (1 << channel) for each channel.
-> + * It may be IPMI_CHAN_ALL for all channels.
-> + */
-> +struct ipmi_cmdspec_chans
-> +{
-> +	unsigned char netfn;
-> +	unsigned char cmd;
-> +	unsigned int  chans;
-> +};
+At the very least, one should make sure the driver author is always CC'd 
+on initial bug reports.
 
-Has it been tested with 32-bit userspace and a 64-bit kernel?
+	Jeff
 
-Even if it has, I'd be a bit worried that it depends upon the user's
-compiler laying this structure out in the same manner as did his
-kernel-provider's compiler.
 
-Turning this into three u32's sounds safer?
+

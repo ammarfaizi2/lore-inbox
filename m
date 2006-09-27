@@ -1,61 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030722AbWI0TtW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030726AbWI0Ttn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030722AbWI0TtW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Sep 2006 15:49:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030723AbWI0TtW
+	id S1030726AbWI0Ttn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Sep 2006 15:49:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030725AbWI0Ttm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Sep 2006 15:49:22 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:53717 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1030722AbWI0TtV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Sep 2006 15:49:21 -0400
-Date: Wed, 27 Sep 2006 12:49:04 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Markus Schoder <lists@gammarayburst.de>
-Cc: linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>
-Subject: Re: PROBLEM with 2.6.18: BUG: scheduling while atomic
-Message-Id: <20060927124904.1a0d94c2.akpm@osdl.org>
-In-Reply-To: <200609271444.20845.lists@gammarayburst.de>
-References: <200609271444.20845.lists@gammarayburst.de>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+	Wed, 27 Sep 2006 15:49:42 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:36615 "EHLO
+	spitz.ucw.cz") by vger.kernel.org with ESMTP id S1030723AbWI0Ttl
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Sep 2006 15:49:41 -0400
+Date: Wed, 27 Sep 2006 19:46:00 +0000
+From: Pavel Machek <pavel@ucw.cz>
+To: jeremy@goop.org
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/6] Per-processor private data areas for i386
+Message-ID: <20060927194600.GA4538@ucw.cz>
+References: <20060925184540.601971833@goop.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060925184540.601971833@goop.org>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 27 Sep 2006 14:44:20 +0200
-Markus Schoder <lists@gammarayburst.de> wrote:
+Hi!
 
-> Twice within the last 4 days the kernel started generating
+> [ Changes since previous post:
+>   - roll a new set of patches with all updates, based on 2.6.18-mm1 ]
 > 
-> BUG: scheduling while atomic: swapper/0x00000001/0
+> Implement per-processor data areas for i386.
 > 
-> messages like crazy (several hundreds per second) and would not stop until
-> rebooted.  I have no idea what triggered it.
+> This patch implements per-processor data areas by using %gs as the
+> base segment of the per-processor memory.  This has two principle
+> advantages:
 > 
-> Did not have this problem with the 2.6.17 series which I am back to
-> using now.
+> - It allows very simple direct access to per-processor data by
+>   effectively using an effective address of the form %gs:offset, where
+>   offset is the offset into struct i386_pda.  These sequences are faster
+>   and smaller than the current mechanism using current_thread_info().
 > 
-> I am using the proprietary nvidia module so if people think it helps I can try
-> to recreate the problem without this module (might take a few days though).
+> - It also allows per-CPU data to be allocated as each CPU is brought
+>   up, rather than statically allocating it based on the maximum number
+>   of CPUs which could be brought up.
 > 
-> The logged call traces are not always completely identical here are some
-> examples:
+> Performance:
 > 
-> Sep 24 13:29:24 gondolin kernel: Call Trace:
-> Sep 24 13:29:24 gondolin kernel:  [<ffffffff80268ca5>] thread_return+0x0/0xeb
-> Sep 24 13:29:24 gondolin kernel:  [<ffffffff802684fa>] __sched_text_start+0x7a/0x825
-> Sep 24 13:29:24 gondolin kernel:  [<ffffffff88000000>] :unix:unix_poll+0x0/0xb0
-> Sep 24 13:29:24 gondolin kernel:  [<ffffffff88000000>] :unix:unix_poll+0x0/0xb0
-> Sep 24 13:29:24 gondolin kernel:  [<ffffffff8026ef30>] default_idle+0x0/0x60
-> Sep 24 13:29:24 gondolin kernel:  [<ffffffff8024f276>] cpu_idle+0x96/0xb0
-> Sep 24 13:29:24 gondolin kernel:  [<ffffffff805e5641>] start_secondary+0x4f1/0x500
+> I've done some simple performance tests on an Intel Core Duo running
+> at 1GHz (to emphisize any performance delta).  The results for the
+> lmbench null syscall latency test, which should show the most negative
+> effect from this change, show a ~9ns decline (.237uS -> .245uS).
+> This corresponds to around 9 CPU cycles, and correlates well with
+> the addition of the push/load/pop %gs into the hot path.
 
-This might indicate that some code somewhere forgot to do
-spin_unlock/preempt_enable/kunmap_atomic/whatever.
+So we have 4% slowdown...
 
-Ingo, do you have a current version of the patch which allows us to locate
-the culprit?
+> I have not yet measured the effect on other typees of processor or
+> more complex syscalls (though I would expect the push/pop overhead
+> would be drowned by longer times spent in the kernel, and mitigated by
+> actual use of the PDA).
+> 
+> The size improvements on the kernel text are nice as well: 
+>     2889361 -> 2883936 = 5425 bytes saved
 
-Thanks.
+...and 0.2% smaller kernel. I guess you should demonstrate speedup at
+complex syscalls before wedecide it is worth it...?
+
+-- 
+Thanks for all the (sleeping) penguins.

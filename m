@@ -1,47 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031130AbWI0WLJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030780AbWI0WXu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1031130AbWI0WLJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Sep 2006 18:11:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031133AbWI0WLJ
+	id S1030780AbWI0WXu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Sep 2006 18:23:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031146AbWI0WXu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Sep 2006 18:11:09 -0400
-Received: from atlrel7.hp.com ([156.153.255.213]:8833 "EHLO atlrel7.hp.com")
-	by vger.kernel.org with ESMTP id S1031130AbWI0WLF (ORCPT
+	Wed, 27 Sep 2006 18:23:50 -0400
+Received: from ozlabs.org ([203.10.76.45]:39568 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S1030780AbWI0WXt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Sep 2006 18:11:05 -0400
-From: Bjorn Helgaas <bjorn.helgaas@hp.com>
-To: Keith Owens <kaos@sgi.com>
-Subject: Re: KDB blindly reads keyboard port
-Date: Wed, 27 Sep 2006 16:11:00 -0600
-User-Agent: KMail/1.9.1
-Cc: linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
-References: <5239.1159325150@kao2.melbourne.sgi.com>
-In-Reply-To: <5239.1159325150@kao2.melbourne.sgi.com>
+	Wed, 27 Sep 2006 18:23:49 -0400
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200609271611.00701.bjorn.helgaas@hp.com>
+Message-ID: <17690.63978.373862.727933@cargo.ozlabs.ibm.com>
+Date: Thu, 28 Sep 2006 08:23:38 +1000
+From: Paul Mackerras <paulus@samba.org>
+To: Jeff Garzik <jeff@garzik.org>
+Cc: Jan-Bernd Themann <ossthema@de.ibm.com>, Thomas Klein <tklein@de.ibm.com>,
+       Jan-Bernd Themann <themann@de.ibm.com>, pmac@au1.ibm.com,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       linux-ppc <linuxppc-dev@ozlabs.org>,
+       Christoph Raisch <raisch@de.ibm.com>, Marcus Eder <meder@de.ibm.com>
+Subject: Re: [PATCH 2.6.19-rc1] ehea firmware interface based on Anton
+	Blanchard's new hvcall interface
+In-Reply-To: <451AF29D.2030102@garzik.org>
+References: <200609271847.34258.ossthema@de.ibm.com>
+	<451AF29D.2030102@garzik.org>
+X-Mailer: VM 7.19 under Emacs 21.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tuesday 26 September 2006 20:45, Keith Owens wrote:
-> No support for legacy I/O ports could be a bigger problem than just
-> KDB.
+Jeff,
 
-On Itanium (and I suppose on x86), ACPI theoretically tells us enough
-that we don't need to assume any legacy resources.  Of course, Linux
-doesn't listen to everything ACPI is trying to tell it.  But that's
-a Linux deficiency we should remedy.
+> > This eHEA patch reflects changes according to Anton's new hvcall interface
+> > which has been commited in Paul's git tree:
+> > 
+> > git://git.kernel.org/pub/scm/linux/kernel/git/paulus/powerpc.git
+> 
+> When is this going upstream?  I don't want things to get too out-of-sync.
 
-> To fix just KDB, apply this patch over kdb-v4.4-2.6.18-common-1 and
-> add 'kdb_skip_keyboard' to the boot command line on the offending
-> hardware. 
+It's upstream already, and currently the ehea driver in Linus' tree
+doesn't compile as a result.
 
-This doesn't feel like the right solution.  Since firmware tells us
-whether the device is present, I think we should rely on that.  If
-you want to use the device before ACPI is initialized, *then* you
-should pass a "kdb_use_keyboard" sort of flag.
-
-Bjorn
+Paul.

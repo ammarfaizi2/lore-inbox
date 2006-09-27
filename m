@@ -1,50 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965477AbWI0Jda@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965479AbWI0Jh2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965477AbWI0Jda (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Sep 2006 05:33:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965476AbWI0Jd3
+	id S965479AbWI0Jh2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Sep 2006 05:37:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965480AbWI0Jh2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Sep 2006 05:33:29 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:35755 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S965474AbWI0Jd2 (ORCPT
+	Wed, 27 Sep 2006 05:37:28 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:36764 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S965479AbWI0Jh1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Sep 2006 05:33:28 -0400
-Message-ID: <451A4565.2080601@garzik.org>
-Date: Wed, 27 Sep 2006 05:33:25 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
-MIME-Version: 1.0
-To: genestapp@charter.net
-CC: linux-kernel@vger.kernel.org,
-       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>
-Subject: Re: SATA: Marvell 88SE6141 kernel support?
-References: <393855126.1159346763423.JavaMail.root@fepweb13>
-In-Reply-To: <393855126.1159346763423.JavaMail.root@fepweb13>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.3 (----)
-X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.3 points, 5.0 required)
+	Wed, 27 Sep 2006 05:37:27 -0400
+Date: Wed, 27 Sep 2006 10:10:00 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Peter Zijlstra <a.p.zijlstra@chello.nl>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       notting@redhat.com, Dave Jones <davej@redhat.com>,
+       arjan <arjan@infradead.org>
+Subject: Re: [PATCH] sysrq: disable lockdep on reboot
+Message-ID: <20060927081000.GA9676@elte.hu>
+References: <1159283602.5038.25.camel@lappy>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1159283602.5038.25.camel@lappy>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -2.9
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.9 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5000]
+	-0.1 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-genestapp@charter.net wrote:
-> I talked to Gord Peters who asked about this sata chip in June. He said there is a experimental patch for it, but the one he had was an old version. I've been looking all over but could not find it. Also I've checked the newest linux kernel builds and there is no mention of mv_61x support. Does anyone know the status of kernel support for this chip? I'm running 2.6.17 kernel currently but will be upgrading to .18 on Thursday (FC5)
+
+* Peter Zijlstra <a.p.zijlstra@chello.nl> wrote:
+
+> SysRq : Emergency Sync
+> Emergency Sync complete
+> SysRq : Emergency Remount R/O
+> Emergency Remount complete
+> SysRq : Resetting
+> BUG: warning at kernel/lockdep.c:1816/trace_hardirqs_on() (Not tainted)
+
+> Since we're shutting down anyway, don't bother being smart, just turn 
+> the thing off.
 > 
-> I'm using the Asus P5WD2-E motherboard. I've already used the 4 sata ports on the ICH7 chip and I'm looking to expand my software raid 5 array with a couple more drives (and more later).
-> For reference, this was the earlier thread from archives:
-> http://lkml.org/lkml/2006/6/14/259
+> Signed-off-by: Peter Zijlstra <a.p.zijlstra@chello.nl>
 
-This chip is vastly different from sata_mv.
+agreed,
 
-For the SATA portion (not PATA), you might have some luck adding your 
-PCI ID to ahci.c.  Give that a try, and let us know if it works or 
-explodes :)
+Acked-by: Ingo Molnar <mingo@elte.hu>
 
-Other than that, no progress at all to report.  Marvell just provided 
-the documentation to me, but I've made no progress yet.
-
-	Jeff
-
-
-
+	Ingo

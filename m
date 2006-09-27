@@ -1,88 +1,105 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030910AbWI0V4Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030913AbWI0V5m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030910AbWI0V4Z (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Sep 2006 17:56:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030912AbWI0V4Y
+	id S1030913AbWI0V5m (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Sep 2006 17:57:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030916AbWI0V5m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Sep 2006 17:56:24 -0400
-Received: from mga06.intel.com ([134.134.136.21]:19044 "EHLO
-	orsmga101.jf.intel.com") by vger.kernel.org with ESMTP
-	id S1030910AbWI0V4X (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Sep 2006 17:56:23 -0400
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.09,226,1157353200"; 
-   d="scan'208"; a="137289199:sNHT24828202"
-Message-ID: <451B01FB.2000408@linux.intel.com>
-Date: Wed, 27 Sep 2006 15:58:03 -0700
-From: James Ketrenos <jketreno@linux.intel.com>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8.0.5) Gecko/20060911 SeaMonkey/1.0.3
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Miles Lane <miles.lane@gmail.com>, LKML <linux-kernel@vger.kernel.org>,
-       Jouni Malinen <jkmaline@cc.hut.fi>
-Subject: Re: 2.6.18-mm1 -- ieee80211: Info elem: parse failed: info_element->len
- + 2 > left : info_element->len+2=28 left=9, id=221.
-References: <a44ae5cd0609261204g673fbf8ft6809378930986eac@mail.gmail.com>	<a44ae5cd0609261756w1e82087p60c18ef941657466@mail.gmail.com>	<a44ae5cd0609262305p1d0b9aaai9db324aff0b3ba0c@mail.gmail.com>	<451AE356.5050306@linux.intel.com> <20060927131849.ba64412c.akpm@osdl.org>
-In-Reply-To: <20060927131849.ba64412c.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1
+	Wed, 27 Sep 2006 17:57:42 -0400
+Received: from www.osadl.org ([213.239.205.134]:24282 "EHLO mail.tglx.de")
+	by vger.kernel.org with ESMTP id S1030913AbWI0V5l (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Sep 2006 17:57:41 -0400
+Subject: Re: Athlon64x2 problem with 2.6.18-rt4 and hrtimers
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: Clark Williams <williams@redhat.com>
+Cc: Ingo Molnar <mingo@elte.hu>, john stultz <johnstul@us.ibm.com>,
+       LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <451ADF7A.8070709@redhat.com>
+References: <451ADF7A.8070709@redhat.com>
+Content-Type: text/plain
+Date: Wed, 27 Sep 2006 23:59:24 +0200
+Message-Id: <1159394364.9326.560.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> On Wed, 27 Sep 2006 13:47:18 -0700
-> James Ketrenos <jketreno@linux.intel.com> wrote:
+Clark,
+
+On Wed, 2006-09-27 at 15:30 -0500, Clark Williams wrote:
+> What I've been seeing were some very long latencies while running
+> cyclictimer (v0.1 thru v0.9). The test would start up and run with quite
+> good numbers for a few thousand iterations, then really large latencies
+> would start to occur (between 5000 and 30000 us). I have not dumped the
+> stats to a file and done any statistical analysis as to how frequent the
+> large latencies are, nor whether they're trending up or down.
+
+Would be interesting to see.
+
+> I had a suspicion that it involved signal delivery because of the following:
 > 
->> +static int snprint_line(char *buf, size_t count,
->> +			const u8 * data, u32 len, u32 ofs)
->> +{
->> +	int out, i, j, l;
->> +	char c;
->> +
->> +	out = snprintf(buf, count, "%08X", ofs);
->> +
->> +	for (l = 0, i = 0; i < 2; i++) {
->> +		out += snprintf(buf + out, count - out, " ");
->> +		for (j = 0; j < 8 && l < len; j++, l++)
->> +			out += snprintf(buf + out, count - out, "%02X ",
->> +					data[(i * 8 + j)]);
->> +		for (; j < 8; j++)
->> +			out += snprintf(buf + out, count - out, "   ");
->> +	}
->> +
->> +	out += snprintf(buf + out, count - out, " ");
->> +	for (l = 0, i = 0; i < 2; i++) {
->> +		out += snprintf(buf + out, count - out, " ");
->> +		for (j = 0; j < 8 && l < len; j++, l++) {
->> +			c = data[(i * 8 + j)];
->> +			if (!isascii(c) || !isprint(c))
->> +				c = '.';
->> +
->> +			out += snprintf(buf + out, count - out, "%c", c);
->> +		}
->> +
->> +		for (; j < 8; j++)
->> +			out += snprintf(buf + out, count - out, " ");
->> +	}
->> +
->> +	return out;
->> +}
+> $ sudo ./cyclictest32 --prio=1
+> 0.01 0.03 0.01 1/151 3486
 > 
-> I've occasionally felt that the kernel should have a generic
-> print-a-hunk-of-memory function (slab.c has two open-coded
-> implementations already).
+> T: 0 ( 3484) P: 1 I:    1000 C:    8955 Min:      10 Act:   38011 Avg:
+>  20919 Max:   38445
+> $ sudo ./cyclictest32 --prio=1 --nanosleep
+> 0.01 0.03 0.00 1/151 3490
 > 
-> What does the output of this one look like?
+> T: 0 ( 3488) P: 1 I:    1000 C:   12995 Min:       6 Act:       7 Avg:
+>      6 Max:      31
+> 
+> As you can see, the Avg and Max times stay quite low when using
+> nanosleep; the latencies only happen when using itimers.
 
-The formatting was done to look pretty similar to generic hex editors/dumpers:
+Also can you run a test with prio=80, if there is any difference ?
 
-00000000 80 00 00 00 FF FF FF FF  FF FF 00 14 6C 9E C1 1E   ........ ....l...
-00000010 00 14 6C 9E C1 1E 00 AF  86 07 D7 DC 11 00 00 00   ..l..... ........
-00000020 64 00 01 04 00 07 4E 45  54 47 45 41 52 01 08 82   d.....NE TGEAR...
-00000030 84 8B 96 24 30 48 6C 03  01 0B 05 04 00 01 00 00   ...$0Hl. ........
-00000040 2A 01 02 2F 01 02 32 04  0C 12 18 60 DD 06 00 10   *../..2. ...`....
-00000050 18 02 00 00
+> I was describing this behavior when DJ Delorie suggested that it might
+> be affinity based rather than signal delivery. He suggested binding the
+> test to a particular processor, so I did with the following results:
+> 
+> $ sudo taskset 0x1 ./cyclictest32 --prio=1
+> 0.11 0.07 0.08 1/149 3311
+> 
+> T: 0 ( 3305) P: 1 I:    1000 C:   45709 Min:       8 Act:      11 Avg:
+>     10 Max:      53
+> $ sudo taskset 0x2 ./cyclictest32 --prio=1
+> 0.03 0.05 0.08 1/149 3323
+> 
+> T: 0 ( 3313) P: 1 I:    1000 C:   74451 Min:      10 Act:   58011 Avg:
+>  28976 Max:   58818
+> 
+> So it seems that the latencies only occur on processor 1 (not on
+> processor 0).  I booted 2.6.18-rt4 with and without idle=poll (as Ingo
+> suggested) and saw the long latencies in both cases when the test was
+> bound to processor 1 (never with processor 0).
 
-The above was generated via printk_buf() with an 84 byte buffer passed in.
+Hmm. 
 
-James
+> Hopefully this is useful information. I just wanted to let you guys
+> know, since you'll probably have a fix available long before I can
+> comprehend the arch/x86_64 code where this probably occurs.  Let me know
+> if you want other things, like the .config or something else.
+
+Can you please switch on CONFIG_LATENCY_TRACE (depends on
+CONFIG_LATENCY_TIMING) ?
+
+Use the latest version of cyclictest and add -b XXX to the command line,
+where XXX is the maximum latency in micro seconds. Once the latency is
+greater than the given maximum, the kernel tracer and cyclictest is
+stopped.
+
+Now you can read the kernel trace:
+
+cat /proc/latency_trace >trace.log 
+
+The trace should give us more insight.
+
+Please be aware that the tracer adds significant overhead to the kernel,
+so the latencies will be much higher.
+
+	tglx
+
+

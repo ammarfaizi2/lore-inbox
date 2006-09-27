@@ -1,75 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030237AbWI0Qbq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751206AbWI0Qfw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030237AbWI0Qbq (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Sep 2006 12:31:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030239AbWI0Qbp
+	id S1751206AbWI0Qfw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Sep 2006 12:35:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751225AbWI0Qfw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Sep 2006 12:31:45 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.145]:34746 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1030237AbWI0Qbo (ORCPT
+	Wed, 27 Sep 2006 12:35:52 -0400
+Received: from xenotime.net ([66.160.160.81]:40163 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1751206AbWI0Qfv (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Sep 2006 12:31:44 -0400
-Date: Wed, 27 Sep 2006 09:32:40 -0700
-From: "Paul E. McKenney" <paulmck@us.ibm.com>
-To: Christoph Hellwig <hch@infradead.org>,
-       Dipankar Sarma <dipankar@in.ibm.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>
-Subject: Re: [-mm PATCH 1/4] RCU: split classic rcu
-Message-ID: <20060927163239.GC1291@us.ibm.com>
-Reply-To: paulmck@us.ibm.com
-References: <20060923152957.GA13432@in.ibm.com> <20060923153141.GB13432@in.ibm.com> <20060925165433.GA28898@infradead.org>
+	Wed, 27 Sep 2006 12:35:51 -0400
+Date: Wed, 27 Sep 2006 09:36:59 -0700
+From: Randy Dunlap <rdunlap@xenotime.net>
+To: Robin Getz <rgetz@blackfin.uclinux.org>
+Cc: arnd Bergmann <arnd@arndb.de>, luke Yang <luke.adi@gmail.com>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/4] Blackfin: arch patch for 2.6.18
+Message-Id: <20060927093659.1636e3d8.rdunlap@xenotime.net>
+In-Reply-To: <6.1.1.1.0.20060927121508.01ecea90@ptg1.spd.analog.com>
+References: <6.1.1.1.0.20060927121508.01ecea90@ptg1.spd.analog.com>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060925165433.GA28898@infradead.org>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 25, 2006 at 05:54:33PM +0100, Christoph Hellwig wrote:
-> On Sat, Sep 23, 2006 at 09:01:41PM +0530, Dipankar Sarma wrote:
-> > 
-> > This patch re-organizes the RCU code to enable multiple implementations
-> > of RCU. Users of RCU continues to include rcupdate.h and the
-> > RCU interfaces remain the same. This is in preparation for
-> > subsequently merging the preepmtpible RCU implementation.
+On Wed, 27 Sep 2006 12:25:17 -0400 Robin Getz wrote:
+
+> Arnd wrote:
+> >Ok, looks good now. Just a few details that don't impact the
+> >functionality:
 > 
-> I still disagree very strongly.  In a given tree there should be oneRCU
-> implementation for the traditional interface.  We probably want srcu
-> in addition, but not things hiding behind the interface.
+> [snip]
+> 
+> What I committed (to our source) is:
+> 
+> +++ process.c   27 Sep 2006 15:32:46 -0000      1.42
+> @@ -101,10 +101,10 @@
+>   {
+>          while (!need_resched()) {
+>                  leds_switch(LED_OFF);
+> -             __asm__("nop;\n\t \
+> -                         nop;\n\t \
+> -                         nop;\n\t \
+> -                         idle;\n\t": : :"cc");
+> +               local_irq_disable();
+> +               if (likely( !need_resched()))
+> +                       idle_with_irq_disabled();
+> +               local_irq_enable();
+>                  leds_switch(LED_ON);
+>          }
+>   }
+> 
+> And in system.h, this was added (because this is where all the other 
+> inlines is which messes with the interrupts are - and irq_flags is already 
+> defined here)
+> 
+> +++ system.h    27 Sep 2006 15:32:51 -0000      1.24
+> 
+> +#define idle_with_irq_disabled() do {   \
+> +        __asm__ __volatile__ (          \
+> +                "nop; nop;\n"           \
+> +                ".align 8;\n"           \
+> +                "sti %0; idle;\n"       \
+> +                ::"d" (irq_flags));     \
+> +} while (0)
+> 
+> It seems to work OK.
+> 
+> Thanks for your help on this.
+> 
+> I think we have been weeding through everyone's comments, and have most 
+> things fixed up.
 
-Hello, Christoph!
+except for coding style nits.  E.g., the patch above:
+a.  uses spaces instead of tabs for indentation
+b.  has an extra (unwanted) space in:
+> +               if (likely( !need_resched()))
+                             ^
 
-I agree very much with your "oneRCU to defer them all" goal for the
-traditional interface.
+> Are there any other major issues that you can see (that have not been 
+> pointed out).
 
-However, the current implementation is extremely well-tested and seems
-to be quite reliable.  Yes, there might still be a rough edge or two
-in cases where people do call_rcu() in tight loops, but even that is
-being covered in most cases where "don't do that" doesn't apply (e.g.,
-close(open()) from user space).  The Linux implementation of RCU is
-almost six years old, and first appeared in mainline almost four years
-ago -- that is some -serious- testing!
-
-We will be switching to a new implementation.  I am working to make it
-as reliable as I know how, but it seems reasonable to have a changeover
-period that might be measured in years.  I -really- don't want to be
-inflicting even the possibility of RCU implementation bugs on anyone who
-has not "signed up" for code that has not yet be hammered into total
-and complete submission!  CONFIG_PREEMPT_RT is quite reliable even now,
-but there is "quite reliable" and then there is "hammered into total
-and complete submission".  ;-)
-
-Also, we need any new implementation of RCU to be in a separate file.
-I don't want to even think about the number of times that I accidentally
-changed the wrong version of RCU when working on the -rt implementation
-before we split it -- the functions have the same name, right?  :-/
-
-So maybe we rip the multi-RCU infrastructure out once we have fully
-(and I mean -fully-) tested the new RCU implementation, taken care of
-any performance anomalies, and so on.  I would be totally OK with that,
-but believe the split will be needed in the meantime.
-
-Fair enough?  Or am I missing something?
-
-							Thanx, Paul
+---
+~Randy

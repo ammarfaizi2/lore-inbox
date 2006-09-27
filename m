@@ -1,111 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965348AbWI0Fop@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965351AbWI0F4d@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965348AbWI0Fop (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Sep 2006 01:44:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965353AbWI0Fop
+	id S965351AbWI0F4d (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Sep 2006 01:56:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965352AbWI0F4d
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Sep 2006 01:44:45 -0400
-Received: from smtp-out.google.com ([216.239.45.12]:46335 "EHLO
-	smtp-out.google.com") by vger.kernel.org with ESMTP id S965352AbWI0Foo
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Sep 2006 01:44:44 -0400
-DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
-	h=received:message-id:date:from:to:subject:cc:in-reply-to:
-	mime-version:content-type:content-transfer-encoding:
-	content-disposition:references;
-	b=vTy3uDexId8coacDR+DGbpsRPb8UPJeWawYMSuqeURDjmp2rDcNxtGs5P6dwDnbHd
-	JUjnHEABCRbW7wQB1iVZQ==
-Message-ID: <8f95bb250609262244w423bea15pe15ec6a1c7ef1800@mail.google.com>
-Date: Tue, 26 Sep 2006 22:44:39 -0700
-From: "Aaron Durbin" <adurbin@google.com>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: Re: 2.6.18-mm1
-Cc: "Andrew Morton" <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       "Andi Kleen" <ak@suse.de>
-In-Reply-To: <m1ac4lriz5.fsf@ebiederm.dsl.xmission.com>
+	Wed, 27 Sep 2006 01:56:33 -0400
+Received: from emailer.gwdg.de ([134.76.10.24]:27279 "EHLO emailer.gwdg.de")
+	by vger.kernel.org with ESMTP id S965351AbWI0F4c (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Sep 2006 01:56:32 -0400
+Date: Wed, 27 Sep 2006 07:55:41 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Sergey Panov <sipan@sipan.org>
+cc: James Bottomley <James.Bottomley@SteelEye.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: GPLv3 Position Statement
+In-Reply-To: <1159319508.16507.15.camel@sipan.sipan.org>
+Message-ID: <Pine.LNX.4.61.0609270753590.19275@yvahk01.tjqt.qr>
+References: <1158941750.3445.31.camel@mulgrave.il.steeleye.com>
+ <1159319508.16507.15.camel@sipan.sipan.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <20060924040215.8e6e7f1a.akpm@osdl.org>
-	 <m1mz8mqd4a.fsf@ebiederm.dsl.xmission.com>
-	 <20060926201104.1bb1a193.akpm@osdl.org>
-	 <m1ac4lriz5.fsf@ebiederm.dsl.xmission.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Report: Content analysis: 0.0 points, 6.0 required
+	_SUMMARY_
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 9/26/06, Eric W. Biederman <ebiederm@xmission.com> wrote:
-> Andrew Morton <akpm@osdl.org> writes:
->
-> > On Tue, 26 Sep 2006 20:04:05 -0600
-> > ebiederm@xmission.com (Eric W. Biederman) wrote:
-> >
-> >> When I apply:
-> >> x86_64-mm-insert-ioapics-and-local-apic-into-resource-map
-> >>
-> >> My e1000 fails to initializes and complains about a bad eeprom checksum.
-> >> I haven't tracked this down to root cause yet and I am in the process of
-> > building
-> >> 2.6.18-mm1 with just that patch reverted to confirm that is the only cause.
-> >>
-> >> I could not see anything obvious in the patch.  I don't have a clue the patch
-> >> could be triggering the problem I'm seeing.
-> >>
-> >> At a quick visual diff I'm not seeing any other differences in the kernel boot
-> >> logs, or in /proc/iomem.
-> >
-> > This bit looks fishy:
-> >
-> >  GSI 17 sharing vector 0x4A and IRQ 17
-> >  PCI->APIC IRQ transform: 0000:05:0c.0[A] -> IRQ 17
-> > +PCI: Cannot allocate resource region 8 of bridge 0000:00:02.0
-> > +PCI: Cannot allocate resource region 8 of bridge 0000:01:00.0
-> > +PCI: Cannot allocate resource region 8 of bridge 0000:01:00.2
-> > +PCI: Cannot allocate resource region 0 of device 0000:01:00.1
-> > +PCI: Cannot allocate resource region 0 of device 0000:01:00.3
-> > +PCI: Cannot allocate resource region 0 of device 0000:03:04.0
-> > +PCI: Cannot allocate resource region 0 of device 0000:03:04.1
-> >  PCI-GART: No AMD northbridge found.
-> >  PCI: Bridge: 0000:01:00.0
-> >    IO window: disabled.
-> > -  MEM window: fe000000-fe0fffff
-> > +  MEM window: e2000000-e20fffff
-> >    PREFETCH window: fd000000-fdffffff
-> >  PCI: Bridge: 0000:01:00.2
-> >    IO window: 1000-1fff
-> > -  MEM window: fe100000-fe1fffff
-> > +  MEM window: e2100000-e21fffff
-> >    PREFETCH window: disabled.
-> >  PCI: Bridge: 0000:00:02.0
-> >    IO window: 1000-1fff
-> > -  MEM window: fe000000-fe2fffff
-> > +  MEM window: e2000000-e22fffff
-> >    PREFETCH window: fd000000-fdffffff
-> >  PCI: Bridge: 0000:00:06.0
-> >    IO window: disabled.
-> > @@ -123,17 +131,17 @@
-> >  PCI: Bridge: 0000:00:1e.0
-> >    IO window: 2000-2fff
-> >    MEM window: fb000000-fc0fffff
-> > -  PREFETCH window: e2000000-e20fffff
-> >
-> >
-> > Wanna hack into arch/i386/pci/i386.c:pcibios_allocate_bus_resources() and
-> > see what is conflicting with what?
->
-> Good catch.  Add that to the earlier /proc/iomem output.
-> > fe200000-fe200fff : IOAPIC 1
-> > fe201000-fe201fff : IOAPIC 2
->
-> On that board I have ioapics on pci devices and it appears the way
-> the patch is reserving them it doesn't account for ioapics that
-> have that property.  I.e.  Those ioapics regions show up in lspci
-> on an ioapic pci device and the regions are specified with normal
-> base address registers.
->
 
-That patch marks each IOAPIC resource as IORESOURCE_BUSY.  This why
-the pci allocation fails. I will post patch to fix this in the
-morning.
+>Fuzzy (but realistic) logic:
+>
+>   kernel != operating_system
+>
+>   operating_system > kernel
+>
+>   operating_system - kernel = 0
+>
+>   kernel - (operating_system - kernel) < 0
+>
+>Another (license compatibility) Q. is:
+>    If the (operating_system - kernel) is re-licensed under v.3 and
+>    the kernel is still under v.2 , would it be possible to distribute
+>    combination (kernel + (operating_system - kernel)) ?
 
--Aaron
+If by operating system you mean the surrounding userland application, 
+then yes, why should there be a problem with a GPL2 kernel and a GPL3 
+userland? After all, the userland is not only GPL, but also BSD and 
+other stuff.
+
+>The last Q. is how good is the almost forgotten Hurd kernel?
+
+Wild guess: At most on par with Minix.
+
+
+
+Jan Engelhardt
+-- 

@@ -1,100 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030851AbWI0VGJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030850AbWI0VGA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030851AbWI0VGJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Sep 2006 17:06:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030833AbWI0VGI
+	id S1030850AbWI0VGA (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Sep 2006 17:06:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030852AbWI0VGA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Sep 2006 17:06:08 -0400
-Received: from ns2.uludag.org.tr ([193.140.100.220]:64943 "EHLO uludag.org.tr")
-	by vger.kernel.org with ESMTP id S1030851AbWI0VGH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Sep 2006 17:06:07 -0400
-From: "=?utf-8?q?S=2E=C3=87a=C4=9Flar?= Onur" <caglar@pardus.org.tr>
-Reply-To: caglar@pardus.org.tr
-Organization: =?utf-8?q?T=C3=9CB=C4=B0TAK_/?= UEKAE
-To: Andi Kleen <ak@muc.de>
-Subject: Re: 2.6.18 Nasty Lockup
-Date: Thu, 28 Sep 2006 00:06:00 +0300
-User-Agent: KMail/1.9.4
-Cc: john stultz <johnstul@us.ibm.com>, Greg Schafer <gschafer@zip.com.au>,
-       linux-kernel@vger.kernel.org
-References: <20060926123640.GA7826@tigers.local> <1159384500.29040.3.camel@localhost> <20060927205531.GB36261@muc.de>
-In-Reply-To: <20060927205531.GB36261@muc.de>
+	Wed, 27 Sep 2006 17:06:00 -0400
+Received: from mail1.webmaster.com ([216.152.64.169]:25870 "EHLO
+	mail1.webmaster.com") by vger.kernel.org with ESMTP
+	id S1030850AbWI0VF7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Sep 2006 17:05:59 -0400
+From: "David Schwartz" <davids@webmaster.com>
+To: "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
+Subject: RE: GPLv3 Position Statement
+Date: Wed, 27 Sep 2006 14:05:13 -0700
+Message-ID: <MDEHLPKNGKAHNMBLJOLKIEEFOLAB.davids@webmaster.com>
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart8672332.cP83zKcFR8";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Message-Id: <200609280006.03500.caglar@pardus.org.tr>
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
+In-Reply-To: <20060927123247.GA14668@thunk.org>
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2962
+X-Authenticated-Sender: joelkatz@webmaster.com
+X-Spam-Processed: mail1.webmaster.com, Wed, 27 Sep 2006 14:08:16 -0800
+	(not processed: message from trusted or authenticated source)
+X-MDRemoteIP: 206.171.168.138
+X-Return-Path: davids@webmaster.com
+X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
+Reply-To: davids@webmaster.com
+X-MDAV-Processed: mail1.webmaster.com, Wed, 27 Sep 2006 14:08:17 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart8672332.cP83zKcFR8
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
 
-27 Eyl 2006 =C3=87ar 23:55 tarihinde, Andi Kleen =C5=9Funlar=C4=B1 yazm=C4=
-=B1=C5=9Ft=C4=B1:=20
-> > Ok. Good to hear you have a workaround. Now to sort out why your TSCs
-> > are becoming un-synced. From the dmesg you sent me privately, I noticed
->
-> On Intel it seems to happen when people overclock their systems.
+> Many people believe that the GPL infects across
+> shared library links.  Whether or not that's true, it's never been
+> tested in court, and probably depends on the legal jurisdiction.
 
-This sytem is not overlocked, its a pure 2 x Intel Xeon 3GHz with HT.
+It's absurd and has been thoroughly refuted many times. A program can link
+with a shared library that was wholly developed *after* that program was
+developed. How can a work be a derivative work of a work that was made after
+it and fully independently of it?
 
-> > that while you have 4 cpus, the following message only shows up once:
-> >
-> > ACPI: Processor [CPU1] (supports 8 throttling states)
-> >
-> > Does disabling cpufreq change anything?
->
-> Throttling has nothing to do with cpufreq
-> (at least not until you use the broken P4 throttling cpufreq
-> driver, which nobody should). It is normally only used when
-> the CPU overheats.
+The GPL only infects derivative works. You cannot create a work that must be
+subject to the GPL unless you creatively copy significant protectable
+expression from a GPL'd work when you create that work.
 
-None of them is used on this system also
 
-buildfarm ~ # lsmod
-Module                  Size  Used by
-i2c_i801                7372  0
-i2c_core               19968  1 i2c_i801
-serio_raw               7012  0
-e752x_edac             11364  0
-edac_mc                21424  1 e752x_edac
-i6300esb                7096  0
-tg3                    98116  0
-sd_mod                 18432  4
-uhci_hcd               21900  0
-ehci_hcd               29896  0
-usbcore               115652  5 uhci_hcd,ehci_hcd
-ata_piix               13864  2
-libata                 93172  1 ata_piix
-scsi_mod              127304  2 sd_mod,libata
+For example, I write a program that dynamically links to a 'malloc.so'
+library. You then later write your own 'malloc.so' library with some funky
+allocator in it and you GPL it. Nobody could ever sanely argue that someone
+linking my program with your library changes the licensing requirements of
+my program.
 
-Also if needed, you can find .config at=20
-http://cekirdek.pardus.org.tr/~caglar/config.2.6.18
+The law is really quite clear that one work can only be derivative work of
+another if it contains significant protectable expression copied from that
+work.
 
-Cheers
-=2D-=20
-S.=C3=87a=C4=9Flar Onur <caglar@pardus.org.tr>
-http://cekirdek.pardus.org.tr/~caglar/
+[from another post]
+> But OTOH, linking code makes it a combined work.
 
-Linux is like living in a teepee. No Windows, no Gates and an Apache in hou=
-se!
+Linking does not create a work, it only combines existing works. Dynamic
+linking is not a creative authoring process and cannot produce a work for
+copyright purposes, derivative or otherwise.
 
---nextPart8672332.cP83zKcFR8
-Content-Type: application/pgp-signature
+There certainly might be cases where two works dynamically link to each
+other and one is also a derivative work of the other. But such a general
+rule totally defies common sense. The law is clear that a derivative work is
+made when you creatively take significant protected expression from another
+work, beyond what is needed for interoperability.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
+Linking may make a work in an informal sense, but it does not create a work
+for copyright purposes. Only creative expression makes a work. Linkers do
+not express themselves creatively, artfully picking and choosing one among
+dozens of equally-valid options.
 
-iD8DBQBFGue7y7E6i0LKo6YRAr4LAJ0axdPFXuX5oT05fUX+sRRJYCDOAQCgicdj
-2lVguO9fXgT6ilfjK3OrHW4=
-=MELr
------END PGP SIGNATURE-----
+DS
 
---nextPart8672332.cP83zKcFR8--
+

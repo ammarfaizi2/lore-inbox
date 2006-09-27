@@ -1,90 +1,143 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965400AbWI0H1l@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965425AbWI0Hb0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965400AbWI0H1l (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Sep 2006 03:27:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965425AbWI0H1l
+	id S965425AbWI0Hb0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Sep 2006 03:31:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965427AbWI0Hb0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Sep 2006 03:27:41 -0400
-Received: from mail.sf-mail.de ([62.27.20.61]:23478 "EHLO mail.sf-mail.de")
-	by vger.kernel.org with ESMTP id S965400AbWI0H1k (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Sep 2006 03:27:40 -0400
-From: Rolf Eike Beer <eike-kernel@sf-tec.de>
-To: Jeff Garzik <jeff@garzik.org>
-Subject: Re: [PATCH] x86[-64] PCI domain support
-Date: Wed, 27 Sep 2006 09:28:17 +0200
-User-Agent: KMail/1.9.4
-Cc: Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>,
-       Jim Paradis <jparadis@redhat.com>, Andi Kleen <ak@suse.de>,
-       LKML <linux-kernel@vger.kernel.org>
-References: <20060926191508.GA6350@havoc.gtf.org>
-In-Reply-To: <20060926191508.GA6350@havoc.gtf.org>
+	Wed, 27 Sep 2006 03:31:26 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:183 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S965425AbWI0HbZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Sep 2006 03:31:25 -0400
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: Bill Huey (hui) <billh@gnuppy.monkey.org>
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
+       Thomas Gleixner <tglx@linutronix.de>, John Stultz <johnstul@us.ibm.com>,
+       "Paul E. McKenney" <paulmck@us.ibm.com>,
+       Dipankar Sarma <dipankar@in.ibm.com>,
+       Arjan van de Ven <arjan@infradead.org>
+Subject: Re: [PATCH] move put_task_struct() reaping into a thread [Re: 2.6.18-rt1]
+References: <20060920141907.GA30765@elte.hu>
+	<20060921065624.GA9841@gnuppy.monkey.org>
+	<m1irjaqaqa.fsf@ebiederm.dsl.xmission.com>
+	<20060927050856.GA16140@gnuppy.monkey.org>
+	<m11wpxrgnm.fsf@ebiederm.dsl.xmission.com>
+	<20060927063415.GB16140@gnuppy.monkey.org>
+Date: Wed, 27 Sep 2006 01:29:44 -0600
+In-Reply-To: <20060927063415.GB16140@gnuppy.monkey.org> (Bill Huey's message
+	of "Tue, 26 Sep 2006 23:34:15 -0700")
+Message-ID: <m1d59hpy1j.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart1404408.e8jz3LH4Yv";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
-Content-Transfer-Encoding: 7bit
-Message-Id: <200609270928.18378.eike-kernel@sf-tec.de>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart1404408.e8jz3LH4Yv
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+Bill Huey (hui) <billh@gnuppy.monkey.org> writes:
 
-Jeff Garzik wrote:
-
-> diff --git a/arch/i386/pci/acpi.c b/arch/i386/pci/acpi.c
-> index b33aea8..e4f4828 100644
-> --- a/arch/i386/pci/acpi.c
-> +++ b/arch/i386/pci/acpi.c
-> @@ -8,20 +8,37 @@ #include "pci.h"
->  struct pci_bus * __devinit pci_acpi_scan_root(struct acpi_device *device,
-> int domain, int busnum) {
->  	struct pci_bus *bus;
-> +	struct pci_sysdata *sd;
+> On Wed, Sep 27, 2006 at 12:02:21AM -0600, Eric W. Biederman wrote:
+>> Bill Huey (hui) <billh@gnuppy.monkey.org> writes:
+>> Interesting.  I think the easy solution would just be to assert that put_task_struct
+>> can sleep and to fix any callers that expect differently.  I haven't looked very
+>> closely but I don't recall anything that needs put_task_struct to be atomic.
+>> With a function that complex I certainly would not expect it to never sleep unless
+>> it had a big fat comment.
 >
-> +	/* Allocate per-root-bus (not per bus) arch-specific data.
-> +	 * TODO: leak; this memory is never freed.
-> +	 * It's arguable whether it's worth the trouble to care.
-> +	 */
-> +	sd =3D kzalloc(sizeof(*sd), GFP_KERNEL);
-> +	if (!sd) {
-> +		printk(KERN_ERR "PCI: OOM, not probing PCI bus %02x\n", busnum);
-> +		return NULL;
-> +	}
-> +
-> +#ifdef CONFIG_PCI_DOMAINS
-> +	sd->domain =3D domain;
-> +#else
->  	if (domain !=3D 0) {
->  		printk(KERN_WARNING "PCI: Multiple domains not supported\n");
+> One of the main claims about the -rt patch is that the kernel is basically
+> conversion of the current locking semantics in the kernel. What you mentioned
+> above would deviate from that and and clutter non-preemptive kernel maintenance.
+> If you're suggesting a more general change to that function, then it wouldn't
+> violate that.
 
-kfree(sd);
+Yes I am.  The motivator would be the RT work but I don't see a reason why
+the it couldn't be put in the mainline kernel.  If not at least we need
+the big fat comment in the mainline kernel that says put_task_struct must
+be safe to call with interrupts disabled.
+
+The way the code is structured now it deviates from the mainline kernel in
+more than just changing locking behavior.  Which is what brought me into
+this conversation in the first place.  So removing that point of discord
+would be good.
+
+>> Well I did find an instance where we call put_task_struct with a
+>> spinlock held.  Inside of lib/rwsem.c:rwsem_down_failed_common(). 
+>> 
+>> Still that may be the only user that cares.  I suspect with a little
+>> code rearrangement that case is fixable.  It's not like that code is a
+>> fast path or anything.  It should just be a matter of passing the 
+>> task struct outside of the spinlock before calling put_task_struct.
+>
+> Yeah, that's what the small patch of mine does outside of doing an RCU
+> callback.
+
+If you have fixed rwsem_down_failed_common() like it sounds like you have.
+That would be a nice patch to for the mainline kernel.
 
 
->  		return NULL;
->  	}
-> +#endif /* CONFIG_PCI_DOMAINS */
+>> But this is a path where we are freeing data, so GFP_ATOMIC should not come
+>> into it.  I just read through the code and there are not allocations
+>> there.
+>
+> Correct, I see it as a possibly bigger problem since memory allocators and
+> destructors aren't available readily in preempt_disable critical sections.
+> It's not the case in the regular kernel which could be a significant concern.
 
-I would move this check to be done before the memory is allocated so we don=
-'t=20
-need to free it.
+Yes.  I would say that memory allocators have never been readily available in
+sections where we have preemption disabled, but they at least are available
+and sometimes they will even give you the memory you asked for.
 
-Eike
+> There are a couple of issues here.
+>
+> (1) The RCU callback isn't used in this case to back other RCU read critical
+> sections. It's just used as a generic callback mechanism in this case. Some
+> consider it a hack.
+>
+> (2) RCU isn't necessarily bad for -rt since Paul McKenney and folks are
+> working on making it preempt friendly. Any talk of removing the use RCU in -rt
+> is premature and probably unlikely because of this work. There are many options
+> here. RCU very useful for scalability so seeing it go away in -rt would be
+> generally a bad thing IMO.
 
---nextPart1404408.e8jz3LH4Yv
-Content-Type: application/pgp-signature
+Agreed.  However until the issues are resolved with call_rcu it appears quite
+silly to increase the usage of it in the RT tree.  
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2 (GNU/Linux)
+About the rcu removal discussion I heard it was more the possibility was
+suggested because the downside was significant, and normal locks were
+more deterministic.  The emphasis was that call_rcu could be a problem and
+that something needs to happen to fix that. 
 
-iD8DBQBFGigSXKSJPmm5/E4RAsDfAJ466KHe3/AYeR0X1oEGOpg2fXa7lwCffkPV
-CcT1LfDeRzXIK8NV8PVh4MI=
-=PNmq
------END PGP SIGNATURE-----
+> The use of lock-free techinques is something that could eventually be more
+> widely used in -rt since it'll make kernel call paths potentially more
+> deterministic without worrying about hitting a contending mutex and that can
+> effect determinism. It's not expect to be the case where calls into the kernel
+> are going to be deterministic but to extend the basic idea of determinism into
+> certain critical kernel paths like a read() to a special device driver, etc...
+>
+> Route table look up also comes to mind here that benefits from this case if
+> there's a need for real time facilities in networking.
+>
+> Just some ideas here.
 
---nextPart1404408.e8jz3LH4Yv--
+Agreed.  The normal rcu path is quite nice.  It is the call_rcu part used
+to implement delayed freeing where things get ugly.
+
+>> My gut feel now that I understand the pieces is that this approach has
+>> all of the hallmarks of a hack, both the kmalloc/kfree thing and even
+>> more calling put_task_struct in an atomic context.  If the callers
+>> were fixed put_task_struct could safely sleep so kmalloc/kfree
+>> sleeping would not be a problem.
+>
+> I can't say. The current logic just queues the request into a list and a
+> thread wakes to reap that task_struct. It's sufficient and the need to
+> convert put_task_struct so that it can block.
+
+Yes the current logic is simple and requires no changes elsewhere.
+It is always nice when you can do that.  But in this case it adds unnecessary
+overhead, and indeterminism.   From what little I understand of RCU both
+of those are bad things.  Thus my gut feeling that the approach is a hack
+and should get fixed properly.
+
+Anyway short of submitting a patch I think I have said enough.
+Thank you for the explanation.
+
+Eric

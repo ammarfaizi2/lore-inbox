@@ -1,112 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030695AbWI0Tft@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030700AbWI0Tgw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030695AbWI0Tft (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Sep 2006 15:35:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030696AbWI0Tft
+	id S1030700AbWI0Tgw (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Sep 2006 15:36:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030697AbWI0Tgw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Sep 2006 15:35:49 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.151]:24493 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S1030695AbWI0Tfs
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Sep 2006 15:35:48 -0400
-Subject: [RFC] exponential update_wall_time
-From: john stultz <johnstul@us.ibm.com>
-To: Roman Zippel <zippel@linux-m68k.org>
-Cc: lkml <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>,
-       Thomas Gleixner <tglx@linutronix.de>
-Content-Type: text/plain
-Date: Wed, 27 Sep 2006 12:35:33 -0700
-Message-Id: <1159385734.29040.9.camel@localhost>
+	Wed, 27 Sep 2006 15:36:52 -0400
+Received: from bay0-omc3-s17.bay0.hotmail.com ([65.54.246.217]:19645 "EHLO
+	bay0-omc3-s17.bay0.hotmail.com") by vger.kernel.org with ESMTP
+	id S1030698AbWI0Tgv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Sep 2006 15:36:51 -0400
+Message-ID: <BAY105-F18AEE697B69389FD4208FEA31A0@phx.gbl>
+X-Originating-IP: [82.226.72.184]
+X-Originating-Email: [tobiasoed@hotmail.com]
+In-Reply-To: <20060926130530.5ac89c91.akpm@osdl.org>
+From: "Tobias Oed" <tobiasoed@hotmail.com>
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org,
+       B.Zolnierkiewicz@elka.pw.edu.pl, alan@lxorguk.ukuu.org.uk,
+       sshtylyov@ru.mvista.com
+Subject: Re: enable-cdrom-dma-access-with-pdc20265_old.patch
+Date: Wed, 27 Sep 2006 15:36:45 -0400
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; format=flowed
+X-OriginalArrivalTime: 27 Sep 2006 19:36:48.0683 (UTC) FILETIME=[4615FFB0:01C6E26C]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hey Roman,
-	Just wanted to run this by you for comment. Ingo was finding issues w/
-update_wall_clock looping for too long when using dynticks. I also think
-this will avoid the bad clocksource caused hangs that have been
-occasionally reported (instead of looping forever, time will just
-accumulate oddly), which will help point to the issue.
+>
+> > If it makes things easier my patch labeled
+> > enable-cdrom-dma-access-with-pdc20265_old.patch in -mm
+> > could be dropped in favour of what follows (against 2.6.18),
+> > making the feature an EXPERIMENTAL config option.
+>
+>eh, we'll just merge it as-is, see what happens, I think.
+>
+>I'll assume that this new patch contained no other changes (ie: the patch
+>in -mm is ok-to-merge).
 
-Anyway, just wanted to get your thoughts before I send it to Andrew for
-more testing.
+Hi Andrew,
+except for the config option, the two patches are identical, so
+keeping the one that is already in -mm now works with me.
+Tobias.
 
-thanks
--john
-
-Accumulate time in update_wall_time exponentially. 
-This avoids long running loops seen with the dynticks patch
-as well as the problematic hang" seen on systems with broken 
-clocksources.
-
-This applies on top of 2.6.18-mm1
-
-Signed-off-by: John Stultz <johnstul@us.ibm.com>
-
- kernel/timer.c |   28 ++++++++++++++++++++--------
- 1 file changed, 20 insertions(+), 8 deletions(-)
-
-Index: linux-2.6.18/kernel/timer.c
-===================================================================
---- linux-2.6.18.orig/kernel/timer.c	2006-09-20 16:17:54.000000000 +0200
-+++ linux-2.6.18/kernel/timer.c	2006-09-20 16:17:59.000000000 +0200
-@@ -902,6 +902,7 @@ static void clocksource_adjust(struct cl
- static void update_wall_time(void)
- {
- 	cycle_t offset;
-+	int shift = 0;
- 
- 	/* Make sure we're fully resumed: */
- 	if (unlikely(timekeeping_suspended))
-@@ -914,28 +915,39 @@ static void update_wall_time(void)
- #endif
- 	clock->xtime_nsec += (s64)xtime.tv_nsec << clock->shift;
- 
-+	while (offset > clock->cycle_interval << (shift + 1))
-+		shift++;
-+
- 	/* normally this loop will run just once, however in the
- 	 * case of lost or late ticks, it will accumulate correctly.
- 	 */
- 	while (offset >= clock->cycle_interval) {
-+		if (offset < (clock->cycle_interval << shift)) {
-+			shift--;
-+			continue;
-+		}
-+
- 		/* accumulate one interval */
--		clock->xtime_nsec += clock->xtime_interval;
--		clock->cycle_last += clock->cycle_interval;
--		offset -= clock->cycle_interval;
-+		clock->xtime_nsec += clock->xtime_interval << shift;
-+		clock->cycle_last += clock->cycle_interval << shift;
-+		offset -= clock->cycle_interval << shift;
- 
--		if (clock->xtime_nsec >= (u64)NSEC_PER_SEC << clock->shift) {
-+		while (clock->xtime_nsec >= (u64)NSEC_PER_SEC << clock->shift) {
- 			clock->xtime_nsec -= (u64)NSEC_PER_SEC << clock->shift;
- 			xtime.tv_sec++;
- 			second_overflow();
- 		}
- 
- 		/* interpolator bits */
--		time_interpolator_update(clock->xtime_interval
--						>> clock->shift);
-+		time_interpolator_update((clock->xtime_interval
-+						>> clock->shift)<<shift);
- 
- 		/* accumulate error between NTP and clock interval */
--		clock->error += current_tick_length();
--		clock->error -= clock->xtime_interval << (TICK_LENGTH_SHIFT - clock->shift);
-+		clock->error += current_tick_length() << shift;
-+		clock->error -= (clock->xtime_interval
-+			<< (TICK_LENGTH_SHIFT - clock->shift))<<shift;
-+
-+		shift--;
- 	}
- 
- 	/* correct the clock when NTP error is too big */
-
+_________________________________________________________________
+Be seen and heard with Windows Live Messenger and Microsoft LifeCams 
+http://clk.atdmt.com/MSN/go/msnnkwme0020000001msn/direct/01/?href=http://www.microsoft.com/hardware/digitalcommunication/default.mspx?locale=en-us&source=hmtagline
 

@@ -1,230 +1,184 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030779AbWI0UdS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030775AbWI0Ucs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030779AbWI0UdS (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Sep 2006 16:33:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030778AbWI0Ucv
-	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Sep 2006 16:32:51 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:37100 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1030777AbWI0Ucs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	id S1030775AbWI0Ucs (ORCPT <rfc822;willy@w.ods.org>);
 	Wed, 27 Sep 2006 16:32:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030779AbWI0Ucs
+	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Wed, 27 Sep 2006 16:32:48 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:36588 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1030775AbWI0Ucr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Sep 2006 16:32:47 -0400
 From: "Eric W. Biederman" <ebiederm@xmission.com>
 To: Andrew Morton <akpm@osdl.org>
 Cc: <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>,
        Tony Luck <tony.luck@intel.com>, Andi Kleen <ak@suse.de>,
        "Eric W. Biederman" <ebiederm@xmission.com>
-Subject: [PATCH 1/5] msi: Simplify msi sanity checks by adding with generic irq code.
-Date: Wed, 27 Sep 2006 14:31:22 -0600
-Message-Id: <11593890863331-git-send-email-ebiederm@xmission.com>
+Subject: [PATCH 5/5] htirq: Tidy up the htirq code
+Date: Wed, 27 Sep 2006 14:31:26 -0600
+Message-Id: <11593890882551-git-send-email-ebiederm@xmission.com>
 X-Mailer: git-send-email 1.4.2.g3cd4f
 In-Reply-To: <<m11wpxm4sy.fsf@ebiederm.dsl.xmission.com>
 References: <<m11wpxm4sy.fsf@ebiederm.dsl.xmission.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Currently msi.c is doing sanity checks that make certain before
-an irq is destroyed it has no more users.
+This moves the declarations for the architecture helpers into
+include/linux/htirq.h from the generic include/linux/pci.h.
+Hopefully this will make this distinction clearer.
 
-By adding irq_has_action I can perform the test is a generic way, instead
-of relying on a msi specific data structure.
+htirq.h is included where it is needed.
 
-By performing the core check in dynamic_irq_cleanup I ensure every user
-of dynamic irqs has a test present and we don't free resources that are
-in use.
+The dependency on the msi code is fixed and removed.
 
-In msi.c this allows me to kill the attrib.state member of msi_desc and
-all of the assciated code to maintain it.
-
-To keep from freeing data structures when irq cleanup code is called to
-soon changing dyanamic_irq_cleanup is insufficient because there are
-msi specific data structures that are also not safe to free.
+The Makefile is tidied up.
 
 Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
 ---
- drivers/pci/msi.c   |   43 ++++++++-----------------------------------
- drivers/pci/msi.h   |    2 +-
- include/linux/irq.h |    7 +++++++
- kernel/irq/chip.c   |    7 +++++++
- 4 files changed, 23 insertions(+), 36 deletions(-)
+ arch/i386/kernel/io_apic.c   |    5 ++---
+ arch/x86_64/kernel/io_apic.c |    1 +
+ drivers/pci/Kconfig          |    1 -
+ drivers/pci/Makefile         |    4 +++-
+ drivers/pci/htirq.c          |    1 +
+ include/linux/htirq.h        |   15 +++++++++++++++
+ include/linux/pci.h          |   11 -----------
+ 7 files changed, 22 insertions(+), 16 deletions(-)
 
-diff --git a/drivers/pci/msi.c b/drivers/pci/msi.c
-index da2c6c2..e3ba396 100644
---- a/drivers/pci/msi.c
-+++ b/drivers/pci/msi.c
-@@ -188,18 +188,6 @@ static void unmask_MSI_irq(unsigned int 
+diff --git a/arch/i386/kernel/io_apic.c b/arch/i386/kernel/io_apic.c
+index 5a12527..b7287fb 100644
+--- a/arch/i386/kernel/io_apic.c
++++ b/arch/i386/kernel/io_apic.c
+@@ -33,6 +33,7 @@ #include <linux/module.h>
+ #include <linux/sysdev.h>
+ #include <linux/pci.h>
+ #include <linux/msi.h>
++#include <linux/htirq.h>
  
- static unsigned int startup_msi_irq_wo_maskbit(unsigned int irq)
+ #include <asm/io.h>
+ #include <asm/smp.h>
+@@ -2409,9 +2410,8 @@ static int __init ioapic_init_sysfs(void
+ 
+ device_initcall(ioapic_init_sysfs);
+ 
+-#ifdef CONFIG_PCI_MSI
+ /*
+- * Dynamic irq allocate and deallocation for MSI
++ * Dynamic irq allocate and deallocation
+  */
+ int create_irq(void)
  {
--	struct msi_desc *entry;
--	unsigned long flags;
--
--	spin_lock_irqsave(&msi_lock, flags);
--	entry = msi_desc[irq];
--	if (!entry || !entry->dev) {
--		spin_unlock_irqrestore(&msi_lock, flags);
--		return 0;
--	}
--	entry->msi_attrib.state = 1;	/* Mark it active */
--	spin_unlock_irqrestore(&msi_lock, flags);
--
- 	return 0;	/* never anything pending */
+@@ -2450,7 +2450,6 @@ void destroy_irq(unsigned int irq)
+ 	irq_vector[irq] = 0;
+ 	spin_unlock_irqrestore(&vector_lock, flags);
  }
+-#endif /* CONFIG_PCI_MSI */
  
-@@ -212,14 +200,6 @@ static unsigned int startup_msi_irq_w_ma
+ /*
+  * MSI mesage composition
+diff --git a/arch/x86_64/kernel/io_apic.c b/arch/x86_64/kernel/io_apic.c
+index e55028f..91728d9 100644
+--- a/arch/x86_64/kernel/io_apic.c
++++ b/arch/x86_64/kernel/io_apic.c
+@@ -31,6 +31,7 @@ #include <linux/mc146818rtc.h>
+ #include <linux/acpi.h>
+ #include <linux/sysdev.h>
+ #include <linux/msi.h>
++#include <linux/htirq.h>
+ #ifdef CONFIG_ACPI
+ #include <acpi/acpi_bus.h>
+ #endif
+diff --git a/drivers/pci/Kconfig b/drivers/pci/Kconfig
+index 0af6d72..3029412 100644
+--- a/drivers/pci/Kconfig
++++ b/drivers/pci/Kconfig
+@@ -55,7 +55,6 @@ config PCI_DEBUG
+ config HT_IRQ
+ 	bool "Interrupts on hypertransport devices"
+ 	default y
+-	depends on PCI_MSI
+ 	depends on X86_LOCAL_APIC && X86_IO_APIC
+ 	help
+ 	   This allows native hypertransport devices to use interrupts.
+diff --git a/drivers/pci/Makefile b/drivers/pci/Makefile
+index 04694ec..e3beb78 100644
+--- a/drivers/pci/Makefile
++++ b/drivers/pci/Makefile
+@@ -17,6 +17,9 @@ obj-$(CONFIG_HOTPLUG_PCI) += hotplug/
+ # Build the PCI MSI interrupt support
+ obj-$(CONFIG_PCI_MSI) += msi.o
  
- static void shutdown_msi_irq(unsigned int irq)
- {
--	struct msi_desc *entry;
--	unsigned long flags;
--
--	spin_lock_irqsave(&msi_lock, flags);
--	entry = msi_desc[irq];
--	if (entry && entry->dev)
--		entry->msi_attrib.state = 0;	/* Mark it not active */
--	spin_unlock_irqrestore(&msi_lock, flags);
- }
- 
- static void end_msi_irq_wo_maskbit(unsigned int irq)
-@@ -671,7 +651,6 @@ static int msi_capability_init(struct pc
- 	entry->link.head = irq;
- 	entry->link.tail = irq;
- 	entry->msi_attrib.type = PCI_CAP_ID_MSI;
--	entry->msi_attrib.state = 0;			/* Mark it not active */
- 	entry->msi_attrib.is_64 = is_64bit_address(control);
- 	entry->msi_attrib.entry_nr = 0;
- 	entry->msi_attrib.maskbit = is_mask_bit_support(control);
-@@ -744,7 +723,6 @@ static int msix_capability_init(struct p
-  		j = entries[i].entry;
-  		entries[i].vector = irq;
- 		entry->msi_attrib.type = PCI_CAP_ID_MSIX;
-- 		entry->msi_attrib.state = 0;		/* Mark it not active */
- 		entry->msi_attrib.is_64 = 1;
- 		entry->msi_attrib.entry_nr = j;
- 		entry->msi_attrib.maskbit = 1;
-@@ -897,12 +875,12 @@ void pci_disable_msi(struct pci_dev* dev
- 		spin_unlock_irqrestore(&msi_lock, flags);
- 		return;
- 	}
--	if (entry->msi_attrib.state) {
-+	if (irq_has_action(dev->irq)) {
- 		spin_unlock_irqrestore(&msi_lock, flags);
- 		printk(KERN_WARNING "PCI: %s: pci_disable_msi() called without "
- 		       "free_irq() on MSI irq %d\n",
- 		       pci_name(dev), dev->irq);
--		BUG_ON(entry->msi_attrib.state > 0);
-+		BUG_ON(irq_has_action(dev->irq));
- 	} else {
- 		default_irq = entry->msi_attrib.default_irq;
- 		spin_unlock_irqrestore(&msi_lock, flags);
-@@ -1035,17 +1013,16 @@ void pci_disable_msix(struct pci_dev* de
- 
- 	temp = dev->irq;
- 	if (!msi_lookup_irq(dev, PCI_CAP_ID_MSIX)) {
--		int state, irq, head, tail = 0, warning = 0;
-+		int irq, head, tail = 0, warning = 0;
- 		unsigned long flags;
- 
- 		irq = head = dev->irq;
- 		dev->irq = temp;			/* Restore pin IRQ */
- 		while (head != tail) {
- 			spin_lock_irqsave(&msi_lock, flags);
--			state = msi_desc[irq]->msi_attrib.state;
- 			tail = msi_desc[irq]->link.tail;
- 			spin_unlock_irqrestore(&msi_lock, flags);
--			if (state)
-+			if (irq_has_action(irq))
- 				warning = 1;
- 			else if (irq != head)	/* Release MSI-X irq */
- 				msi_free_irq(dev, irq);
-@@ -1072,7 +1049,7 @@ void pci_disable_msix(struct pci_dev* de
-  **/
- void msi_remove_pci_irq_vectors(struct pci_dev* dev)
- {
--	int state, pos, temp;
-+	int pos, temp;
- 	unsigned long flags;
- 
- 	if (!pci_msi_enable || !dev)
-@@ -1081,14 +1058,11 @@ void msi_remove_pci_irq_vectors(struct p
- 	temp = dev->irq;		/* Save IOAPIC IRQ */
- 	pos = pci_find_capability(dev, PCI_CAP_ID_MSI);
- 	if (pos > 0 && !msi_lookup_irq(dev, PCI_CAP_ID_MSI)) {
--		spin_lock_irqsave(&msi_lock, flags);
--		state = msi_desc[dev->irq]->msi_attrib.state;
--		spin_unlock_irqrestore(&msi_lock, flags);
--		if (state) {
-+		if (irq_has_action(dev->irq)) {
- 			printk(KERN_WARNING "PCI: %s: msi_remove_pci_irq_vectors() "
- 			       "called without free_irq() on MSI irq %d\n",
- 			       pci_name(dev), dev->irq);
--			BUG_ON(state > 0);
-+			BUG_ON(irq_has_action(dev->irq));
- 		} else /* Release MSI irq assigned to this device */
- 			msi_free_irq(dev, dev->irq);
- 		dev->irq = temp;		/* Restore IOAPIC IRQ */
-@@ -1101,11 +1075,10 @@ void msi_remove_pci_irq_vectors(struct p
- 		irq = head = dev->irq;
- 		while (head != tail) {
- 			spin_lock_irqsave(&msi_lock, flags);
--			state = msi_desc[irq]->msi_attrib.state;
- 			tail = msi_desc[irq]->link.tail;
- 			base = msi_desc[irq]->mask_base;
- 			spin_unlock_irqrestore(&msi_lock, flags);
--			if (state)
-+			if (irq_has_action(irq))
- 				warning = 1;
- 			else if (irq != head) /* Release MSI-X irq */
- 				msi_free_irq(dev, irq);
-diff --git a/drivers/pci/msi.h b/drivers/pci/msi.h
-index 435d05a..77823bf 100644
---- a/drivers/pci/msi.h
-+++ b/drivers/pci/msi.h
-@@ -53,7 +53,7 @@ struct msi_desc {
- 	struct {
- 		__u8	type	: 5; 	/* {0: unused, 5h:MSI, 11h:MSI-X} */
- 		__u8	maskbit	: 1; 	/* mask-pending bit supported ?   */
--		__u8	state	: 1; 	/* {0: free, 1: busy}		  */
-+		__u8	unused	: 1;
- 		__u8	is_64	: 1;	/* Address size: 0=32bit 1=64bit  */
- 		__u8	pos;	 	/* Location of the msi capability */
- 		__u16	entry_nr;    	/* specific enabled entry 	  */
-diff --git a/include/linux/irq.h b/include/linux/irq.h
-index ee8a5ea..86b65ed 100644
---- a/include/linux/irq.h
-+++ b/include/linux/irq.h
-@@ -373,6 +373,13 @@ set_irq_chained_handler(unsigned int irq
- extern int create_irq(void);
- extern void destroy_irq(unsigned int irq);
- 
-+/* Test to see if a driver has successfully requested an irq */
-+static inline int irq_has_action(unsigned int irq)
-+{
-+	struct irq_desc *desc = irq_desc + irq;
-+	return desc->action != NULL;
-+}
++# Build the Hypertransport interrupt support
++obj-$(CONFIG_HT_IRQ) += htirq.o
 +
- /* Dynamic irq helper functions */
- extern void dynamic_irq_init(unsigned int irq);
- extern void dynamic_irq_cleanup(unsigned int irq);
-diff --git a/kernel/irq/chip.c b/kernel/irq/chip.c
-index e128b7d..2253898 100644
---- a/kernel/irq/chip.c
-+++ b/kernel/irq/chip.c
-@@ -151,6 +151,13 @@ void dynamic_irq_cleanup(unsigned int ir
+ #
+ # Some architectures use the generic PCI setup functions
+ #
+@@ -29,7 +32,6 @@ obj-$(CONFIG_PPC32) += setup-irq.o
+ obj-$(CONFIG_PPC64) += setup-bus.o
+ obj-$(CONFIG_MIPS) += setup-bus.o setup-irq.o
+ obj-$(CONFIG_X86_VISWS) += setup-irq.o
+-obj-$(CONFIG_HT_IRQ) += htirq.o
  
- 	desc = irq_desc + irq;
- 	spin_lock_irqsave(&desc->lock, flags);
-+	if (desc->action) {
-+		spin_unlock_irqrestore(&desc->lock, flags);
-+		printk(KERN_ERR "Destroying IRQ%d without calling free_irq\n",
-+			irq);
-+		WARN_ON(1);
-+		return;
-+	}
- 	desc->handle_irq = handle_bad_irq;
- 	desc->chip = &no_irq_chip;
- 	spin_unlock_irqrestore(&desc->lock, flags);
+ #
+ # ACPI Related PCI FW Functions
+diff --git a/drivers/pci/htirq.c b/drivers/pci/htirq.c
+index 4ba4635..0e27f24 100644
+--- a/drivers/pci/htirq.c
++++ b/drivers/pci/htirq.c
+@@ -11,6 +11,7 @@ #include <linux/pci.h>
+ #include <linux/spinlock.h>
+ #include <linux/slab.h>
+ #include <linux/gfp.h>
++#include <linux/htirq.h>
+ 
+ /* Global ht irq lock.
+  *
+diff --git a/include/linux/htirq.h b/include/linux/htirq.h
+new file mode 100644
+index 0000000..1f15ce2
+--- /dev/null
++++ b/include/linux/htirq.h
+@@ -0,0 +1,15 @@
++#ifndef LINUX_HTIRQ_H
++#define LINUX_HTIRQ_H
++
++/* Helper functions.. */
++void write_ht_irq_low(unsigned int irq, u32 data);
++void write_ht_irq_high(unsigned int irq, u32 data);
++u32  read_ht_irq_low(unsigned int irq);
++u32  read_ht_irq_high(unsigned int irq);
++void mask_ht_irq(unsigned int irq);
++void unmask_ht_irq(unsigned int irq);
++
++/* The arch hook for getting things started */
++int arch_setup_ht_irq(unsigned int irq, struct pci_dev *dev);
++
++#endif /* LINUX_HTIRQ_H */
+diff --git a/include/linux/pci.h b/include/linux/pci.h
+index 9fa0740..5bc4659 100644
+--- a/include/linux/pci.h
++++ b/include/linux/pci.h
+@@ -619,20 +619,9 @@ extern void msi_remove_pci_irq_vectors(s
+ #endif
+ 
+ #ifdef CONFIG_HT_IRQ
+-/* Helper functions.. */
+-void write_ht_irq_low(unsigned int irq, u32 data);
+-void write_ht_irq_high(unsigned int irq, u32 data);
+-u32  read_ht_irq_low(unsigned int irq);
+-u32  read_ht_irq_high(unsigned int irq);
+-void mask_ht_irq(unsigned int irq);
+-void unmask_ht_irq(unsigned int irq);
+-
+ /* The functions a driver should call */
+ int  ht_create_irq(struct pci_dev *dev, int idx);
+ void ht_destroy_irq(unsigned int irq);
+-
+-/* The arch hook for getting things started */
+-int arch_setup_ht_irq(unsigned int irq, struct pci_dev *dev);
+ #endif /* CONFIG_HT_IRQ */
+ 
+ extern void pci_block_user_cfg_access(struct pci_dev *dev);
 -- 
 1.4.2.rc3.g7e18e-dirty
 

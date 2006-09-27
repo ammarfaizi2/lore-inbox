@@ -1,57 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965468AbWI0JkW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965480AbWI0Jnq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965468AbWI0JkW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Sep 2006 05:40:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965482AbWI0JkW
+	id S965480AbWI0Jnq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Sep 2006 05:43:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965483AbWI0Jnq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Sep 2006 05:40:22 -0400
-Received: from mail01.verismonetworks.com ([164.164.99.228]:56532 "EHLO
-	mail01.verismonetworks.com") by vger.kernel.org with ESMTP
-	id S965468AbWI0JkW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Sep 2006 05:40:22 -0400
-Subject: [PATCH] ioremap balanced with iounmap for drivers/sbus
-From: Amol Lad <amol@verismonetworks.com>
-To: linux kernel <linux-kernel@vger.kernel.org>
-Cc: kernel Janitors <kernel-janitors@lists.osdl.org>
-Content-Type: text/plain
-Date: Wed, 27 Sep 2006 15:13:36 +0530
-Message-Id: <1159350216.25016.107.camel@amol.verismonetworks.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1 
-Content-Transfer-Encoding: 7bit
+	Wed, 27 Sep 2006 05:43:46 -0400
+Received: from mx.laposte.net ([81.255.54.11]:17900 "EHLO mx.laposte.net")
+	by vger.kernel.org with ESMTP id S965480AbWI0Jnp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Sep 2006 05:43:45 -0400
+Message-ID: <43447.192.54.193.51.1159350218.squirrel@rousalka.dyndns.org>
+Date: Wed, 27 Sep 2006 11:43:38 +0200 (CEST)
+Subject: Re: GPLv3 Position Statement
+From: "Nicolas Mailhot" <nicolas.mailhot@laposte.net>
+To: linux-kernel@vger.kernel.org
+Cc: "James Bottomley" <James.Bottomley@SteelEye.com>
+User-Agent: SquirrelMail/1.4.8-2.fc6
+MIME-Version: 1.0
+Content-Type: text/plain;charset=utf-8
+Content-Transfer-Encoding: 8bit
+X-Priority: 3 (Normal)
+Importance: Normal
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-ioremap must be balanced by an iounmap and failing to do so can result
-in a memory leak.
+> As far as the you must be able to run modifications language goes:  too
+> many embedded devices nowadays embed linux.  To demand a channel for
+> modification is dictating to manufacturers how they build things.  Take
+> the case of an intelligent SCSI PCI card which happens to run embedded
+> linux in flash.
 
-Tested (compilation only) with:
-- Modifying arch/i386/Kconfig and other Makefiles to make sure that the
-changed file is compiling ok.
+So just clarify GPL v3 so any GPLv3 distributor gives the same level of
+access to the people he distributes his GPLed software do (ie if the code
+is on a flasheable device, open the flash process ; if it's drm-protected
+: give
+the DRM key)
 
-Signed-off-by: Amol Lad <amol@verismonetworks.com>
----
- vfc_dev.c |    8 +++++++-
- 1 files changed, 7 insertions(+), 1 deletion(-)
----
-diff -uprN -X linux-2.6.18-orig/Documentation/dontdiff linux-2.6.18-orig/drivers/sbus/char/vfc_dev.c linux-2.6.18/drivers/sbus/char/vfc_dev.c
---- linux-2.6.18-orig/drivers/sbus/char/vfc_dev.c	2006-09-21 10:15:38.000000000 +0530
-+++ linux-2.6.18/drivers/sbus/char/vfc_dev.c	2006-09-27 14:46:59.000000000 +0530
-@@ -678,8 +678,14 @@ static int vfc_probe(void)
- 		if (strcmp(sdev->prom_name, "vfc") == 0) {
- 			vfc_dev_lst[instance]=(struct vfc_dev *)
- 				kmalloc(sizeof(struct vfc_dev), GFP_KERNEL);
--			if (vfc_dev_lst[instance] == NULL)
-+			if (vfc_dev_lst[instance] == NULL) {
-+				int i;
-+				for (i = 0; i < instance; i++) {
-+					if (vfc_dev_lst[i]->regs)
-+						sbus_iounmap(vfc_dev_lst[i]->regs, sizeof(struct vfc_regs));
-+				}
- 				return -ENOMEM;
-+			}
- 			ret = init_vfc_device(sdev,
- 					      vfc_dev_lst[instance],
- 					      instance);
+It's not as if most (all?) widespread linux-embedded devices are not
+flashable nowadays. Factory recall everytime you need to fix a
+security/feature bug just costs too much
+
+(as far as I know every single Tivo-like thing *is* updateable remotely)
+
+-- 
+Nicolas Mailhot
 
 

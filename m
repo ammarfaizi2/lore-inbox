@@ -1,62 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031197AbWI0W6l@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031206AbWI0W7K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1031197AbWI0W6l (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Sep 2006 18:58:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031198AbWI0W6l
+	id S1031206AbWI0W7K (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Sep 2006 18:59:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031202AbWI0W7K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Sep 2006 18:58:41 -0400
-Received: from THUNK.ORG ([69.25.196.29]:21168 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id S1031197AbWI0W6k (ORCPT
+	Wed, 27 Sep 2006 18:59:10 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:59061 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1031200AbWI0W6w (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Sep 2006 18:58:40 -0400
-Date: Wed, 27 Sep 2006 18:58:15 -0400
-From: Theodore Tso <tytso@mit.edu>
-To: Chase Venters <chase.venters@clientec.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Jan Engelhardt <jengelh@linux01.gwdg.de>,
-       Sergey Panov <sipan@sipan.org>,
-       James Bottomley <James.Bottomley@SteelEye.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: GPLv3 Position Statement
-Message-ID: <20060927225815.GB7469@thunk.org>
-Mail-Followup-To: Theodore Tso <tytso@mit.edu>,
-	Chase Venters <chase.venters@clientec.com>,
-	Linus Torvalds <torvalds@osdl.org>,
-	Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Jan Engelhardt <jengelh@linux01.gwdg.de>,
-	Sergey Panov <sipan@sipan.org>,
-	James Bottomley <James.Bottomley@SteelEye.com>,
-	linux-kernel <linux-kernel@vger.kernel.org>
-References: <1158941750.3445.31.camel@mulgrave.il.steeleye.com> <1159319508.16507.15.camel@sipan.sipan.org> <Pine.LNX.4.61.0609270753590.19275@yvahk01.tjqt.qr> <1159342569.2653.30.camel@sipan.sipan.org> <Pine.LNX.4.61.0609271051550.19438@yvahk01.tjqt.qr> <1159359540.11049.347.camel@localhost.localdomain> <Pine.LNX.4.64.0609271000510.3952@g5.osdl.org> <Pine.LNX.4.64.0609271300130.7316@turbotaz.ourhouse>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0609271300130.7316@turbotaz.ourhouse>
-User-Agent: Mutt/1.5.11
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: tytso@thunk.org
-X-SA-Exim-Scanned: No (on thunker.thunk.org); SAEximRunCond expanded to false
+	Wed, 27 Sep 2006 18:58:52 -0400
+Date: Wed, 27 Sep 2006 15:58:31 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Nigel Cunningham <ncunningham@linuxmail.org>,
+       Stefan Seyfried <seife@suse.de>, linux-kernel@vger.kernel.org,
+       "Rafael J. Wysocki" <rjw@sisk.pl>
+Subject: Re: When will the lunacy end? (Was Re: [PATCH] uswsusp: add
+ pmops->{prepare,enter,finish} support (aka "platform mode"))
+Message-Id: <20060927155831.dc2a8588.akpm@osdl.org>
+In-Reply-To: <20060927213443.GD25589@elf.ucw.cz>
+References: <1159220043.12814.30.camel@nigel.suspend2.net>
+	<20060925144558.878c5374.akpm@osdl.org>
+	<20060925224500.GB2540@elf.ucw.cz>
+	<20060925160648.de96b6fa.akpm@osdl.org>
+	<20060925232151.GA1896@elf.ucw.cz>
+	<20060925172240.5c389c25.akpm@osdl.org>
+	<20060926102434.GA2134@elf.ucw.cz>
+	<20060926094607.815d126f.akpm@osdl.org>
+	<20060927090902.GC24857@elf.ucw.cz>
+	<20060927140808.2aece78e.akpm@osdl.org>
+	<20060927213443.GD25589@elf.ucw.cz>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 27, 2006 at 01:37:37PM -0500, Chase Venters wrote:
-> I think one thing that should have happened a _lot_ sooner is that you and 
-> others should have made clear to the startled community that you object 
-> precisely to the anti-Tivoization clause, not because of any technical 
-> reason or interpretation but because you don't see anything wrong with 
-> Tivo's use of Linux. It would have been nice but totally optional to 
-> engage in dialogue with the FSF. But slandering them about their license 
-> development process, or their intentions with regard to using Linux as 
-> leverage, is counterproductive whether true or not.
+On Wed, 27 Sep 2006 23:34:43 +0200
+Pavel Machek <pavel@ucw.cz> wrote:
 
-This has been made clear to Eben and the FSF, for a long time.  The
-FSF has simply chosen not to listen to Linus and other members of the
-kernel community.  In fact, I've never seen any interest in a
-dialogue, just a pseudo-dialogue where "input is solicited", and then
-as near as far as I can tell, at least on the anti-Tivo issue, has
-been simply ignored.  But in any case, it should not have come as a
-surprise and should not have startled anyone.
+> Hi!
+> 
+> > > http://marc.theaimsgroup.com/?l=linux-acpi&m=115506915023030&q=raw
+> > 
+> > OK, that compiles.
+> 
+> Does it also help you find the problem?
 
-Regards,
+argh.  pooter is five miles away and attention span is infinitesimal.
 
-					- Ted
+> > I think we should get this documented and merge it (or something like it) into
+> > mainline.  This is one area where it's worth investing in debugging tools.
+> > 
+> > If you agree, are we happy with it in its present form?
+> 
+> Well, I thought about it, but then I thought you would not like such a
+> patch. Yes, it certainly makes my life easier.
+
+OK, let's run with it.  If that's the final version.  Perhaps add some nice
+words in the documentation?

@@ -1,75 +1,142 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965365AbWI0GDW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965371AbWI0GDm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965365AbWI0GDW (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Sep 2006 02:03:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965364AbWI0GDW
+	id S965371AbWI0GDm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Sep 2006 02:03:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965370AbWI0GDl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Sep 2006 02:03:22 -0400
-Received: from hera.kernel.org ([140.211.167.34]:50070 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S965362AbWI0GDV convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Sep 2006 02:03:21 -0400
-From: Len Brown <len.brown@intel.com>
-Reply-To: Len Brown <lenb@kernel.org>
-Organization: Intel Open Source Technology Center
+	Wed, 27 Sep 2006 02:03:41 -0400
+Received: from ogre.sisk.pl ([217.79.144.158]:50149 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S965364AbWI0GDa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Sep 2006 02:03:30 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
 To: Andrew Morton <akpm@osdl.org>
-Subject: Re: sonypc with Sony Vaio VGN-SZ1VP
-Date: Wed, 27 Sep 2006 02:04:38 -0400
-User-Agent: KMail/1.8.2
-Cc: Ismail Donmez <ismail@pardus.org.tr>, Stelian Pop <stelian@popies.net>,
-       Andrea Gelmini <gelma@gelma.net>, linux-kernel@vger.kernel.org,
-       linux-acpi@vger.kernel.org
-References: <20060926135659.GA3685@jnb.gelma.net> <200609262056.32052.ismail@pardus.org.tr> <20060926221400.5da1b796.akpm@osdl.org>
-In-Reply-To: <20060926221400.5da1b796.akpm@osdl.org>
+Subject: [PATCH -mm 4/5] swsusp: Add resume_offset command line parameter (rev. 2)
+Date: Wed, 27 Sep 2006 07:34:54 +0200
+User-Agent: KMail/1.9.1
+Cc: Pavel Machek <pavel@ucw.cz>, LKML <linux-kernel@vger.kernel.org>
+References: <200609270720.28131.rjw@sisk.pl>
+In-Reply-To: <200609270720.28131.rjw@sisk.pl>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 8BIT
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200609270204.38970.len.brown@intel.com>
+Message-Id: <200609270734.54590.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 27 September 2006 01:14, Andrew Morton wrote:
-> On Tue, 26 Sep 2006 20:56:31 +0300
-> Ismail Donmez <ismail@pardus.org.tr> wrote:
-> 
-> > 26 Eyl 2006 Sal 19:29 tarihinde şunları yazmıştınız:
-> > > Andrea Gelmini a écrit :
-> > > > Hi,
-> > > > 	I've got a Sony Vaio VGN-SZ1VP (dmidecode[1] and lspci[2]).
-> > > > 	Using default kernel (linux-image-2.6.15-27-686) of Ubuntu
-> > > > 	Dapper I've got /proc/acpi/sony/brightness and it works well
-> > > > 	(yes, Ubuntu drivers/char/sonypi.c is patched).
-> > > > 	With any other newer vanilla kernel, 2.6.15/16/17/18, /proc/acpi/sony
-> > > > 	doesn't appear, and it's impossibile to set brigthness, of
-> > > > 	course. Same thing with Ubuntu kernel package
-> > > > 	(linux-image-2.6.17-9-386).
-> > > > 	I tried to port Ubuntu sonypi.c patches to 2.6.18, but it doesn't
-> > > > 	work (I mean, it compiles clean, it "modprobes"[3] clean, but no
-> > > > 	/proc/acpi/sony/ directory).
-> > >
-> > > /proc/acpi/sony comes from the sony_acpi driver, not sonypi.
-> > >
-> > > You should get the latest sony_acpi driver, preferably from the -mm tree
-> > > which hosts the most up to date version.
-> > 
-> > Will sony_acpi ever make it to the mainline? Its very useful for new Vaio 
-> > models.
+Add the kernel command line parameter "resume_offset=" allowing us to specify
+the offset, in <PAGE_SIZE> units, from the beginning of the partition pointed
+to by the "resume=" parameter at which the swap header is located.
 
-Nope, not as it is.  Useful != supportable.
+This offset can be determined, for example, by an application using the FIBMAP
+ioctl to obtain the swap header's block number for given file.
 
-1. It must not create any files under /proc/acpi
-    This is creating a machine-specific API, which
-    is exactly what we don't want  Nobody can maintain
-    50 machine specific APIs.
+Signed-off-by: Rafael J. Wysocki <rjw@sisk.pl>
+---
+  kernel/power/disk.c  |   15 +++++++++++++++
+ kernel/power/power.h |    1 +
+ kernel/power/swap.c  |   15 ++++++++++-----
+ 3 files changed, 26 insertions(+), 5 deletions(-)
 
-    These objects must appear generic and under sysfs
-    as if acpi were not involved in providing them.
+Index: linux-2.6.18-mm1/kernel/power/disk.c
+===================================================================
+--- linux-2.6.18-mm1.orig/kernel/power/disk.c
++++ linux-2.6.18-mm1/kernel/power/disk.c
+@@ -27,6 +27,7 @@
+ static int noresume = 0;
+ char resume_file[256] = CONFIG_PM_STD_PARTITION;
+ dev_t swsusp_resume_device;
++sector_t swsusp_resume_block;
+ 
+ /**
+  *	power_down - Shut machine down for hibernate.
+@@ -404,6 +405,19 @@ static int __init resume_setup(char *str
+ 	return 1;
+ }
+ 
++static int __init resume_offset_setup(char *str)
++{
++	sector_t offset;
++
++	if (noresume)
++		return 1;
++
++	if (sscanf(str, "%llu", &offset) == 1)
++		swsusp_resume_block = offset;
++
++	return 1;
++}
++
+ static int __init noresume_setup(char *str)
+ {
+ 	noresume = 1;
+@@ -411,4 +425,5 @@ static int __init noresume_setup(char *s
+ }
+ 
+ __setup("noresume", noresume_setup);
++__setup("resume_offset=", resume_offset_setup);
+ __setup("resume=", resume_setup);
+Index: linux-2.6.18-mm1/kernel/power/power.h
+===================================================================
+--- linux-2.6.18-mm1.orig/kernel/power/power.h
++++ linux-2.6.18-mm1/kernel/power/power.h
+@@ -42,6 +42,7 @@ extern const void __nosave_begin, __nosa
+ extern unsigned long image_size;
+ extern int in_suspend;
+ extern dev_t swsusp_resume_device;
++extern sector_t swsusp_resume_block;
+ 
+ extern asmlinkage int swsusp_arch_suspend(void);
+ extern asmlinkage int swsusp_arch_resume(void);
+Index: linux-2.6.18-mm1/kernel/power/swap.c
+===================================================================
+--- linux-2.6.18-mm1.orig/kernel/power/swap.c
++++ linux-2.6.18-mm1/kernel/power/swap.c
+@@ -160,13 +160,14 @@ static int mark_swapfiles(sector_t start
+ {
+ 	int error;
+ 
+-	bio_read_page(0, &swsusp_header, NULL);
++	bio_read_page(swsusp_resume_block, &swsusp_header, NULL);
+ 	if (!memcmp("SWAP-SPACE",swsusp_header.sig, 10) ||
+ 	    !memcmp("SWAPSPACE2",swsusp_header.sig, 10)) {
+ 		memcpy(swsusp_header.orig_sig,swsusp_header.sig, 10);
+ 		memcpy(swsusp_header.sig,SWSUSP_SIG, 10);
+ 		swsusp_header.image = start;
+-		error = bio_write_page(0, &swsusp_header, NULL);
++		error = bio_write_page(swsusp_resume_block,
++					&swsusp_header, NULL);
+ 	} else {
+ 		printk(KERN_ERR "swsusp: Swap header not found!\n");
+ 		error = -ENODEV;
+@@ -183,7 +184,7 @@ static int swsusp_swap_check(void) /* Th
+ {
+ 	int res;
+ 
+-	res = swap_type_of(swsusp_resume_device, 0);
++	res = swap_type_of(swsusp_resume_device, swsusp_resume_block);
+ 	if (res < 0)
+ 		return res;
+ 
+@@ -609,12 +610,16 @@ int swsusp_check(void)
+ 	if (!IS_ERR(resume_bdev)) {
+ 		set_blocksize(resume_bdev, PAGE_SIZE);
+ 		memset(&swsusp_header, 0, sizeof(swsusp_header));
+-		if ((error = bio_read_page(0, &swsusp_header, NULL)))
++		error = bio_read_page(swsusp_resume_block,
++					&swsusp_header, NULL);
++		if (error)
+ 			return error;
++
+ 		if (!memcmp(SWSUSP_SIG, swsusp_header.sig, 10)) {
+ 			memcpy(swsusp_header.sig, swsusp_header.orig_sig, 10);
+ 			/* Reset swap signature now */
+-			error = bio_write_page(0, &swsusp_header, NULL);
++			error = bio_write_page(swsusp_resume_block,
++						&swsusp_header, NULL);
+ 		} else {
+ 			return -EINVAL;
+ 		}
 
-2. its source code shall not live in drivers/acpi
-    it is not part of the ACPI implementation after all --
-    it is a platform specific driver.
-
-thanks,
--Len

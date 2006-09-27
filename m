@@ -1,62 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031206AbWI0W7K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031200AbWI0XAp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1031206AbWI0W7K (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Sep 2006 18:59:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031202AbWI0W7K
+	id S1031200AbWI0XAp (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Sep 2006 19:00:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031201AbWI0XAp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Sep 2006 18:59:10 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:59061 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1031200AbWI0W6w (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Sep 2006 18:58:52 -0400
-Date: Wed, 27 Sep 2006 15:58:31 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Nigel Cunningham <ncunningham@linuxmail.org>,
-       Stefan Seyfried <seife@suse.de>, linux-kernel@vger.kernel.org,
-       "Rafael J. Wysocki" <rjw@sisk.pl>
-Subject: Re: When will the lunacy end? (Was Re: [PATCH] uswsusp: add
- pmops->{prepare,enter,finish} support (aka "platform mode"))
-Message-Id: <20060927155831.dc2a8588.akpm@osdl.org>
-In-Reply-To: <20060927213443.GD25589@elf.ucw.cz>
-References: <1159220043.12814.30.camel@nigel.suspend2.net>
-	<20060925144558.878c5374.akpm@osdl.org>
-	<20060925224500.GB2540@elf.ucw.cz>
-	<20060925160648.de96b6fa.akpm@osdl.org>
-	<20060925232151.GA1896@elf.ucw.cz>
-	<20060925172240.5c389c25.akpm@osdl.org>
-	<20060926102434.GA2134@elf.ucw.cz>
-	<20060926094607.815d126f.akpm@osdl.org>
-	<20060927090902.GC24857@elf.ucw.cz>
-	<20060927140808.2aece78e.akpm@osdl.org>
-	<20060927213443.GD25589@elf.ucw.cz>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+	Wed, 27 Sep 2006 19:00:45 -0400
+Received: from nwd2mail10.analog.com ([137.71.25.55]:3245 "EHLO
+	nwd2mail10.analog.com") by vger.kernel.org with ESMTP
+	id S1031200AbWI0XAo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Sep 2006 19:00:44 -0400
+X-IronPort-AV: i="4.09,226,1157342400"; 
+   d="scan'208"; a="12239991:sNHT20332830"
+Message-Id: <6.1.1.1.0.20060927185639.01ecea00@ptg1.spd.analog.com>
+X-Mailer: QUALCOMM Windows Eudora Version 6.1.1.1
+Date: Wed, 27 Sep 2006 19:01:03 -0400
+To: Arnd Bergmann <arnd@arndb.de>
+From: Robin Getz <rgetz@blackfin.uclinux.org>
+Subject: Re: [PATCH 1/4] Blackfin: arch patch for 2.6.18
+Cc: luke Yang <luke.adi@gmail.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 27 Sep 2006 23:34:43 +0200
-Pavel Machek <pavel@ucw.cz> wrote:
+Arnd wrote:
+>An even better strategy is to do what the better architecture 
+>implementations in linux do and to apply common sense. "better" of course 
+>is rather subjective, but I typically recommend looking at arch/parisc as 
+>a good example.
 
-> Hi!
-> 
-> > > http://marc.theaimsgroup.com/?l=linux-acpi&m=115506915023030&q=raw
-> > 
-> > OK, that compiles.
-> 
-> Does it also help you find the problem?
+Sure - we will go with that.
 
-argh.  pooter is five miles away and attention span is infinitesimal.
+./linux-2.6.x/include/asm-parisc/system.h
 
-> > I think we should get this documented and merge it (or something like it) into
-> > mainline.  This is one area where it's worth investing in debugging tools.
-> > 
-> > If you agree, are we happy with it in its present form?
-> 
-> Well, I thought about it, but then I thought you would not like such a
-> patch. Yes, it certainly makes my life easier.
+/* interrupt control */
+#define local_save_flags(x)     __asm__ __volatile__("ssm 0, %0" : "=r" (x) 
+: : "memory")
+#define local_irq_disable()     __asm__ __volatile__("rsm %0,%%r0\n" : : 
+"i" (PSW_I) : "memory" )
+#define local_irq_enable()      __asm__ __volatile__("ssm %0,%%r0\n" : : 
+"i" (PSW_I) : "memory" )
 
-OK, let's run with it.  If that's the final version.  Perhaps add some nice
-words in the documentation?
+:)
+
+-Robin 

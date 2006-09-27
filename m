@@ -1,103 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030223AbWI0M3c@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932245AbWI0Mby@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030223AbWI0M3c (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Sep 2006 08:29:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030222AbWI0M3b
+	id S932245AbWI0Mby (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Sep 2006 08:31:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932273AbWI0Mby
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Sep 2006 08:29:31 -0400
-Received: from zombie.ncsc.mil ([144.51.88.131]:45286 "EHLO jazzdrum.ncsc.mil")
-	by vger.kernel.org with ESMTP id S1030220AbWI0M3a (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Sep 2006 08:29:30 -0400
-Subject: Re: [PATCH 4/7] SLIM: secfs patch
-From: Stephen Smalley <sds@tycho.nsa.gov>
-To: Kylene Jo Hall <kjhall@us.ibm.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>,
-       LSM ML <linux-security-module@vger.kernel.org>,
-       Dave Safford <safford@us.ibm.com>, Mimi Zohar <zohar@us.ibm.com>,
-       Serge Hallyn <sergeh@us.ibm.com>, akpm@osdl.org
-In-Reply-To: <1158612642.16727.53.camel@localhost.localdomain>
-References: <1158083873.18137.14.camel@localhost.localdomain>
-	 <1158611418.14194.70.camel@moss-spartans.epoch.ncsc.mil>
-	 <1158612642.16727.53.camel@localhost.localdomain>
-Content-Type: text/plain
-Organization: National Security Agency
-Date: Wed, 27 Sep 2006 08:30:14 -0400
-Message-Id: <1159360214.32075.29.camel@moss-spartans.epoch.ncsc.mil>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
+	Wed, 27 Sep 2006 08:31:54 -0400
+Received: from wx-out-0506.google.com ([66.249.82.230]:52095 "EHLO
+	wx-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S932245AbWI0Mbx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Sep 2006 08:31:53 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=I8Z7XQDCdL3IgHWK258qMCxRfFgVI/EOoqOysmJsDivqBobXqSRrIdq9hru2VHlKabJPD9RO1/wdjL4giqDcQHPWf8sU0k8CRk2kIVQlFUfingedzdvy7uiudUEvycF15H7h6wubSFgjYfl8PBv6cLsGY+Q/8x6N2WSYQo60fjk=
+Message-ID: <5a4c581d0609270531p52d9452fie223dbd3152bcd38@mail.gmail.com>
+Date: Wed, 27 Sep 2006 12:31:52 +0000
+From: "Alessandro Suardi" <alessandro.suardi@gmail.com>
+To: "Linux Kernel" <linux-kernel@vger.kernel.org>
+Subject: 2.6.18-git7 freezes solid on boot
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-09-18 at 13:50 -0700, Kylene Jo Hall wrote:
-> On Mon, 2006-09-18 at 16:30 -0400, Stephen Smalley wrote:
-> > On Tue, 2006-09-12 at 10:57 -0700, Kylene Jo Hall wrote:
-> > > This patch provides the securityfs used by SLIM.
-> > > 
-> > > Signed-off-by: Mimi Zohar <zohar@us.ibm.com>
-> > > Signed-off-by: Kylene Hall <kjhall@us.ibm.com>
-> > > --- 
-> > >  security/slim/slm_secfs.c |   73 ++++++++++++++++++++++++++++++++++++
-> > >  1 files changed, 73 insertions(+)
-> > > 
-> > > --- linux-2.6.18/security/slim/slm_secfs.c	1969-12-31 16:00:00.000000000 -0800
-> > > +++ linux-2.6.17-working/security/slim/slm_secfs.c	2006-09-06 11:49:09.000000000 -0700
-> > > @@ -0,0 +1,73 @@
-> > > +/*
-> > > + * SLIM securityfs support: debugging control files
-> > > + *
-> > > + * Copyright (C) 2005, 2006 IBM Corporation
-> > > + * Author: Mimi Zohar <zohar@us.ibm.com>
-> > > + *	   Kylene Hall <kjhall@us.ibm.com>
-> > > + *
-> > > + *      This program is free software; you can redistribute it and/or modify
-> > > + *      it under the terms of the GNU General Public License as published by
-> > > + *      the Free Software Foundation, version 2 of the License.
-> > > + */
-> > > +
-> > > +#include <asm/uaccess.h>
-> > > +#include <linux/config.h>
-> > > +#include <linux/module.h>
-> > > +#include <linux/kernel.h>
-> > > +#include <linux/security.h>
-> > > +#include <linux/debugfs.h>
-> > > +#include "slim.h"
-> > > +
-> > > +static struct dentry *slim_sec_dir, *slim_level;
-> > > +
-> > > +static ssize_t slm_read_level(struct file *file, char __user *buf,
-> > > +			      size_t buflen, loff_t *ppos)
-> > > +{
-> > > +	struct slm_tsec_data *cur_tsec = current->security;
-> > > +	ssize_t len;
-> > > +	char data[28]; 
-> > > +	if (is_kernel_thread(current))
-> > > +		len = snprintf(data, sizeof(data), "KERNEL\n");
-> > > +	else if (!cur_tsec)
-> > > +		len = snprintf(data, sizeof(data), "UNKNOWN\n");
-> > > +	else {
-> > > +		if (cur_tsec->iac_wx != cur_tsec->iac_r)
-> > > +			len = snprintf(data, sizeof(data), "GUARD wx:%s r:%s\n",
-> > > +				      slm_iac_str[cur_tsec->iac_wx],
-> > > +				      slm_iac_str[cur_tsec->iac_r]);
-> > > +		else
-> > > +			len = snprintf(data, sizeof(data), "%s\n",
-> > > +				      slm_iac_str[cur_tsec->iac_wx]);
-> > > +	}
-> > > +	return simple_read_from_buffer(buf, buflen, ppos, data, len);
-> > > +}
-> > 
-> > Why do you need this when you implement getprocattr and return the same
-> > data that way?
-> > 
-> True you can get the same info that way but we find it very useful to be
-> able to cat this file and get the level of the current process.
+Dell D610 running FC5, works fine with -git5, locks up
+ in less than a second after selecting the GRUB entry
+ for -git7, with NumLock on and nothing else working,
+ SysRq included, except for the power switch (no need
+ to keep it down for 10 secs though - it powers off
+ right away).
 
-It is duplicated code and interface for no obvious purpose - why cannot
-you cat /proc/self/attr/current instead?
+Since bzdiffing patch-2.6.18-git5 and -git7 shows there
+ are framebuffer changes, I'm wondering whether anyone
+ had already stumbled into similar issues.
 
--- 
-Stephen Smalley
-National Security Agency
+Video card is an Intel i915GM.
 
+Thanks in advance, ciao,
+
+--alessandro
+
+"Well a man has two reasons for things that he does
+  the first one is pride and the second one is love
+  all understandings must come by this way"
+
+     (Husker Du, 'She Floated Away')

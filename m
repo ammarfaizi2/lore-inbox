@@ -1,105 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030880AbWI0V2a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030887AbWI0Vew@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030880AbWI0V2a (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Sep 2006 17:28:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030881AbWI0V2a
+	id S1030887AbWI0Vew (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Sep 2006 17:34:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030888AbWI0Vew
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Sep 2006 17:28:30 -0400
-Received: from smtp-out.google.com ([216.239.45.12]:25885 "EHLO
-	smtp-out.google.com") by vger.kernel.org with ESMTP
-	id S1030880AbWI0V23 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Sep 2006 17:28:29 -0400
-DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
-	h=received:subject:from:reply-to:to:cc:in-reply-to:references:
-	content-type:organization:date:message-id:mime-version:x-mailer:content-transfer-encoding;
-	b=R8VOFGPD4V2bIrraLmvzNPc4/2gp+Rv10SVnuH6YuX/aLzQYp1s9W09F7PSXUMT++
-	Vv0ImANGPe0wVCJt5/brA==
-Subject: Re: [ckrm-tech] [patch00/05]: Containers(V2)- Introduction
-From: Rohit Seth <rohitseth@google.com>
-Reply-To: rohitseth@google.com
-To: sekharan@us.ibm.com
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, devel@openvz.org,
-       CKRM-Tech <ckrm-tech@lists.sourceforge.net>
-In-Reply-To: <1159386644.4773.80.camel@linuxchandra>
-References: <1158718568.29000.44.camel@galaxy.corp.google.com>
-	 <1159386644.4773.80.camel@linuxchandra>
-Content-Type: text/plain
-Organization: Google Inc
-Date: Wed, 27 Sep 2006 14:28:06 -0700
-Message-Id: <1159392487.23458.70.camel@galaxy.corp.google.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
-Content-Transfer-Encoding: 7bit
+	Wed, 27 Sep 2006 17:34:52 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:64688 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1030887AbWI0Vev (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Sep 2006 17:34:51 -0400
+Date: Wed, 27 Sep 2006 23:34:43 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Nigel Cunningham <ncunningham@linuxmail.org>,
+       Stefan Seyfried <seife@suse.de>, linux-kernel@vger.kernel.org,
+       "Rafael J. Wysocki" <rjw@sisk.pl>
+Subject: Re: When will the lunacy end? (Was Re: [PATCH] uswsusp: add pmops->{prepare,enter,finish} support (aka "platform mode"))
+Message-ID: <20060927213443.GD25589@elf.ucw.cz>
+References: <1159220043.12814.30.camel@nigel.suspend2.net> <20060925144558.878c5374.akpm@osdl.org> <20060925224500.GB2540@elf.ucw.cz> <20060925160648.de96b6fa.akpm@osdl.org> <20060925232151.GA1896@elf.ucw.cz> <20060925172240.5c389c25.akpm@osdl.org> <20060926102434.GA2134@elf.ucw.cz> <20060926094607.815d126f.akpm@osdl.org> <20060927090902.GC24857@elf.ucw.cz> <20060927140808.2aece78e.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060927140808.2aece78e.akpm@osdl.org>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-09-27 at 12:50 -0700, Chandra Seetharaman wrote:
-> Rohit,
+Hi!
+
+> > http://marc.theaimsgroup.com/?l=linux-acpi&m=115506915023030&q=raw
 > 
-> I finally looked into your memory controller patches. Here are some of
-> the issues I see:
-> (All points below are in the context of page limit of containers being
-> hit and the new code starts freeing up pages)
+> OK, that compiles.
+
+Does it also help you find the problem?
+
+> I think we should get this documented and merge it (or something like it) into
+> mainline.  This is one area where it's worth investing in debugging tools.
 > 
-> 1. LRU is ignored totally thereby thrashing the working set (as pointed
->    by Peter Zijlstra).
+> If you agree, are we happy with it in its present form?
 
-As the container goes over the limit, this algorithm deactivates some of
-the pages.  I agree that the logic to find out the correct pages to
-deactivate needs to be improved.  But the idea is that these pages go in
-front of inactive list so that if there is any memory pressure system
-wide then these pages can easily be reclaimed.
+Well, I thought about it, but then I thought you would not like such a
+patch. Yes, it certainly makes my life easier.
+								Pavel
 
-> 2. Frees up file pages first when hitting the page limit thereby making 
->    vm_swappiness ineffective.
 
-Not sure if I understood this part correctly.  But the choice when the
-container goes over its limit is between swap out some of the anonymous
-memory first or writeback some of the dirty file pages belonging to this
-container.
-
-> 3. Starts writing back pages when the # of file pages is close to the 
->    limit, thereby breaking the current writeback algorithm/logic.
-
-That is done so as to ensure processes belonging to container (Whose
-limit is hit) are the first ones getting penalized.  For example, if you
-run a tar in a container with 100MB limit then the dirty file pages will
-be written back to disk when 100MB limit is hit).  Though I will be
-adding a HARD_LIMIT on page cache flag and the strict limit will be only
-maintained if this container flag is set.
-
-> 4. MAPPED files are not counted against the page limit. why ?. This
->    affects reclamation behavior and makes vm_swappiness ineffective.
-
-num_mapped_pages only indicates how many page cache pages are mapped in
-user page tables.  More of an accounting variable.
-
-> 5. Starts freeing up pages from the first task or the first file in the
->    linked list. This logic unfairly penalizes the early members of the 
->    list.
-
-This is the part that I've to fix.  Some per container variables that
-remembers the last values will help here.
-
-> 6. Both active and inactive pages use physical pages. But, the 
->    controller only counts active pages and not inactive pages. why ?
-
-The thought is, it is okay for containers to go over its limit as long
-as there is enough memory in the system. When there is any memory
-pressure then the inactive (+ dereferenced) pages get swapped out thus
-penalizing the container.  I'm also thinking of having hard limit for
-anonymous pages beyond which the container will not be able to grow its
-anonymous pages.
-
-> 7. Page limit is checked against the sum of (anon and file pages) in 
->    some places and against active pages at some other places. IMO, it 
->    should be always compared to the same value.
-> 
-It is checked against sum of anon+file pages at the time when new pages
-is getting allocated.  But as the reclaimer activate the pages, so it is
-also important to make sure the number of active pages is not going
-above its limit.
-
-Thanks for your comments,
--rohit
-
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

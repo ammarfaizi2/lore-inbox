@@ -1,59 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030522AbWI0SjB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030524AbWI0Skn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030522AbWI0SjB (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Sep 2006 14:39:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030525AbWI0SjB
+	id S1030524AbWI0Skn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Sep 2006 14:40:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030526AbWI0Skm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Sep 2006 14:39:01 -0400
-Received: from mail.gmx.net ([213.165.64.20]:6369 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1030522AbWI0SjA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Sep 2006 14:39:00 -0400
-X-Authenticated: #5039886
-Date: Wed, 27 Sep 2006 20:38:58 +0200
-From: =?iso-8859-1?Q?Bj=F6rn?= Steinbrink <B.Steinbrink@gmx.de>
-To: Martin Filip <bugtraq@smoula.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: forcedeth - WOL
-Message-ID: <20060927183857.GA2963@atjola.homenet>
-Mail-Followup-To: =?iso-8859-1?Q?Bj=F6rn?= Steinbrink <B.Steinbrink@gmx.de>,
-	Martin Filip <bugtraq@smoula.net>, linux-kernel@vger.kernel.org
-References: <1159379441.9024.7.camel@archon.smoula-in.net>
+	Wed, 27 Sep 2006 14:40:42 -0400
+Received: from stout.engsoc.carleton.ca ([134.117.69.22]:20683 "EHLO
+	stout.engsoc.carleton.ca") by vger.kernel.org with ESMTP
+	id S1030524AbWI0Skl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Sep 2006 14:40:41 -0400
+Date: Wed, 27 Sep 2006 14:40:37 -0400
+From: Kyle McMartin <kyle@parisc-linux.org>
+To: Markus Dahms <mad@automagically.de>
+Cc: linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org, akpm@osdl.org,
+       torvalds@osdl.org
+Subject: Re: [BUG] Oops on boot (probably ACPI related)
+Message-ID: <20060927184037.GA3306@athena.road.mcmartin.ca>
+References: <200609271424.47824.eike-kernel@sf-tec.de> <pan.2006.09.27.17.56.13.80913@automagically.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <1159379441.9024.7.camel@archon.smoula-in.net>
+In-Reply-To: <pan.2006.09.27.17.56.13.80913@automagically.de>
 User-Agent: Mutt/1.5.13 (2006-08-11)
-X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2006.09.27 19:50:41 +0200, Martin Filip wrote:
-> Hi to LKML,
+On Wed, Sep 27, 2006 at 07:56:13PM +0200, Markus Dahms wrote:
+> > I get this on my machine. SMP kernel, linus git from this morning. .config
+> > and test available on request.
 > 
-> I'm experiencing some troubles with WOL with my nForce NIC.
-> The problem is simple - after setting WOL mode to magic packet my PC
-> won't wake up. I've noticed there were some changes about this in new
-> kernel, but no luck for me.
-> 
-> I'm using 2.6.18 kernel, vanilla. I've tried this with Windows Vista RC1
-> (build 5600) and WOL works correctly. My NIC is integrated on MSI K8N
-> Neo4-FI
-> 
-> Is there any way how can I help with developement of this feature?
 
-Did you check that WOL was enabled? I need to re-activate it after each
-boot (I guess that's normal, not sure though).
-The output of "ethtool eth0" should show:
+I saw this as well.
 
-        Supports Wake-on: g
-        Wake-on: g
+Reverting,
+>       i386: Remove lock section support in semaphore.h
 
-Also, I remember a bugzilla entry in which it was said that the MAC was
-somehow reversed by the driver. I that is still the case (I can't find
-the bugzilla entry right now), you might just reverse the MAC address in
-your WOL packet to workaround the bug.
+Fixes it for me (and apparently akpm too from Message-Id:
+<20060926224114.5ca873ec.akpm@osdl.org>)
 
-HTH
-Björn
+Linus, please revert 01215ad8d83e18321d99e9b5750a6f21cac243a2 for now...
+
+Cheers,
+	Kyle McMartin

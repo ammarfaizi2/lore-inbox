@@ -1,98 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965123AbWI0EzJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965261AbWI0FDY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965123AbWI0EzJ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Sep 2006 00:55:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965132AbWI0EzJ
+	id S965261AbWI0FDY (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Sep 2006 01:03:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965263AbWI0FDY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Sep 2006 00:55:09 -0400
-Received: from xenotime.net ([66.160.160.81]:63150 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S965123AbWI0EzI (ORCPT
+	Wed, 27 Sep 2006 01:03:24 -0400
+Received: from mail.kroah.org ([69.55.234.183]:44938 "EHLO perch.kroah.org")
+	by vger.kernel.org with ESMTP id S965261AbWI0FDW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Sep 2006 00:55:08 -0400
-Date: Tue, 26 Sep 2006 21:56:22 -0700
-From: Randy Dunlap <rdunlap@xenotime.net>
-To: Randy Dunlap <rdunlap@xenotime.net>
-Cc: Greg KH <greg@kroah.com>, Jesper Juhl <jesper.juhl@gmail.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Tiny error in printk output for clocksource : a3:<6>Time:
- acpi_pm clocksource has been installed.
-Message-Id: <20060926215622.f128d9fa.rdunlap@xenotime.net>
-In-Reply-To: <20060926215235.16c987c0.rdunlap@xenotime.net>
-References: <9a8748490609261722g557eaeeayc148b5f5d910874d@mail.gmail.com>
-	<20060926173347.04fd66dd.rdunlap@xenotime.net>
-	<200609270236.58148.jesper.juhl@gmail.com>
-	<20060926205415.98b8d95d.rdunlap@xenotime.net>
-	<20060927043239.GA32082@kroah.com>
-	<20060926215235.16c987c0.rdunlap@xenotime.net>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Wed, 27 Sep 2006 01:03:22 -0400
+Date: Tue, 26 Sep 2006 21:56:11 -0700
+From: Greg KH <greg@kroah.com>
+To: Ed Swierk <eswierk@arastra.com>
+Cc: linux-kernel@vger.kernel.org, rusty@rustcorp.com.au
+Subject: Re: [RETRY] [PATCH] load_module: no BUG if module_subsys uninitialized
+Message-ID: <20060927045611.GC32644@kroah.com>
+References: <c1bf1cf0609221248v39113875id4b48c62cec8eb46@mail.gmail.com> <20060922201637.GA17547@kroah.com> <c1bf1cf0609221428i618a5902g3d0315f6b0b9b79e@mail.gmail.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <c1bf1cf0609221428i618a5902g3d0315f6b0b9b79e@mail.gmail.com>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 26 Sep 2006 21:52:35 -0700 Randy Dunlap wrote:
-
-> On Tue, 26 Sep 2006 21:32:39 -0700 Greg KH wrote:
+On Fri, Sep 22, 2006 at 02:28:57PM -0700, Ed Swierk wrote:
+> On 9/22/06, Greg KH <greg@kroah.com> wrote:
+> >How are you calling load_module before this init call is made?
 > 
-> > On Tue, Sep 26, 2006 at 08:54:15PM -0700, Randy Dunlap wrote:
-> > > On Wed, 27 Sep 2006 02:36:58 +0200 Jesper Juhl wrote:
-> > > 
-> > > > On Wednesday 27 September 2006 02:33, Randy Dunlap wrote:
-> > > > > On Wed, 27 Sep 2006 02:22:18 +0200 Jesper Juhl wrote:
-> > > > > 
-> > > > > > I get this in dmesg with 2.6.18-git6 :
-> > > > > >       a3:<6>Time: acpi_pm clocksource has been installed.
-> > > > > > 
-> > > > > > Looks like some printk() somewhere is not adding \n correctly after
-> > > > > > outputting a message priority or a message priority too much is
-> > > > > > used... I've not investigated where this happens, but just wanted to
-> > > > > > report it.
-> > > > > 
-> > > > > Hi,
-> > > > > How about posting (pasting) some of the message log before that?
-> > > > > 
-> > > > Sure, below is the entire dmesg output from this boot of the box 
-> > > > (including the line above) :
-> > > 
-> > > I suppose that you have CONFIG_PCI_MULTITHREAD_PROBE=y ?
-> > > What happens if you change to to =n ?
-> > > 
-> > > > eth0: VIA Rhine II at 0xff5fec00, 00:50:ba:f2:<6>serio: i8042 AUX port at 0x60,0x64 irq 12
-> > > > serio: i8042 KBD port at 0x60,0x64 irq 1
-> > > > mice: PS/2 mouse device common for all mice
-> > > > EDAC MC: Ver: 2.0.1 Sep 27 2006
-> > > > TCP cubic registered
-> > > > NET: Registered protocol family 1
-> > > > NET: Registered protocol family 17
-> > > > Starting balanced_irq
-> > > > Using IPI Shortcut mode
-> > > > a3:<6>Time: acpi_pm clocksource has been installed.
-> > > > 1d, IRQ 18.
-> > > > eth0: MII PHY found at address 8, status 0x782d advertising 01e1 Link 45e1.
-> > > 
-> > > I'm pretty sure that this is caused by parallel device probing.
-> > > The serio and clocksource messages are interspersed with the
-> > > eth0 (via rhine) info.  Garbled.
-> > > 
-> > > Greg, is this expected?
-> > 
-> > Only if one bit of code doesn't write a full line to the printk()
-> > buffer, yes that could happen.
-> > 
-> > What driver writes "a3:"?  I couldn't find it anywhere in Linus's
-> > current tree.
-> 
-> Nope, that's part of the NIC's MAC address.  It was split up.
+> In my case, net-pf-1 is getting modprobed as a result of hotplug
+> trying to create a UNIX socket. Calls to hotplug begin after the
+> topology_init initcall.
 
-Sorry.  In this case, it was via-rhine.c:
+So, with this patch the module will still not be loaded properly, right?
+Well, I guess at least we don't oops... ok.
 
-	for (i = 0; i < 5; i++)
-		printk("%2.2x:", dev->dev_addr[i]);
-	printk("%2.2x, IRQ %d.\n", dev->dev_addr[i], pdev->irq);
+thanks,
 
-so it does break the printk()s up itself.
-
----
-~Randy
+greg k-h

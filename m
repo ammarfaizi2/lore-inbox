@@ -1,57 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965282AbWI0FD4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965326AbWI0FJg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965282AbWI0FD4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Sep 2006 01:03:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965269AbWI0FDz
+	id S965326AbWI0FJg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Sep 2006 01:09:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965327AbWI0FJg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Sep 2006 01:03:55 -0400
-Received: from mail.kroah.org ([69.55.234.183]:50570 "EHLO perch.kroah.org")
-	by vger.kernel.org with ESMTP id S965277AbWI0FDy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Sep 2006 01:03:54 -0400
-Date: Tue, 26 Sep 2006 21:40:51 -0700
-From: Greg KH <greg@kroah.com>
-To: Jeff Garzik <jeff@garzik.org>
-Cc: Andrew Morton <akpm@osdl.org>, Jim Paradis <jparadis@redhat.com>,
-       Andi Kleen <ak@suse.de>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] x86[-64] PCI domain support
-Message-ID: <20060927044051.GA32589@kroah.com>
-References: <20060926191508.GA6350@havoc.gtf.org> <20060926202303.GA15369@kroah.com> <4519912C.80402@garzik.org>
+	Wed, 27 Sep 2006 01:09:36 -0400
+Received: from adsl-69-232-92-238.dsl.sndg02.pacbell.net ([69.232.92.238]:12185
+	"EHLO gnuppy.monkey.org") by vger.kernel.org with ESMTP
+	id S965326AbWI0FJf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Sep 2006 01:09:35 -0400
+Date: Tue, 26 Sep 2006 22:08:56 -0700
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
+       Thomas Gleixner <tglx@linutronix.de>, John Stultz <johnstul@us.ibm.com>,
+       "Paul E. McKenney" <paulmck@us.ibm.com>,
+       Dipankar Sarma <dipankar@in.ibm.com>,
+       Arjan van de Ven <arjan@infradead.org>,
+       "Bill Huey (hui)" <billh@gnuppy.monkey.org>
+Subject: Re: [PATCH] move put_task_struct() reaping into a thread [Re: 2.6.18-rt1]
+Message-ID: <20060927050856.GA16140@gnuppy.monkey.org>
+References: <20060920141907.GA30765@elte.hu> <20060921065624.GA9841@gnuppy.monkey.org> <m1irjaqaqa.fsf@ebiederm.dsl.xmission.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4519912C.80402@garzik.org>
+In-Reply-To: <m1irjaqaqa.fsf@ebiederm.dsl.xmission.com>
 User-Agent: Mutt/1.5.13 (2006-08-11)
+From: Bill Huey (hui) <billh@gnuppy.monkey.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Sep 26, 2006 at 04:44:28PM -0400, Jeff Garzik wrote:
-> Greg KH wrote:
-> >On Tue, Sep 26, 2006 at 03:15:08PM -0400, Jeff Garzik wrote:
-> >>The x86[-64] PCI domain effort needs to be restarted, because we've got
-> >>machines out in the field that need this in order for some devices to
-> >>work.
-> >>
-> >>RHEL is shipping it now, apparently without any problems.
-> >>
-> >>The 'pciseg' branch of
-> >>git://git.kernel.org/pub/scm/linux/kernel/git/jgarzik/misc-2.6.git pciseg
-> >
-> >So are the NUMA issues now taken care of properly?  If so, care to send
-> >me the patches for this so I can add them to my quilt tree?
+On Tue, Sep 26, 2006 at 08:55:41PM -0600, Eric W. Biederman wrote:
+> Bill Huey (hui) <billh@gnuppy.monkey.org> writes:
+> > This patch moves put_task_struct() reaping into a thread instead of an
+> > RCU callback function as discussed with Esben publically and Ingo privately:
 > 
-> Er, I just posted the combined patch for review.  Can't you pull from 
-> the above URL?  It's a bit of a pain to dive in and out of git.
+> Stupid question.
 
-I agree, it is a pain :)
+It's a great question actually.
 
-And I don't use git for patch maintenance, only for sending stuff to
-Linus.  So I'd have to pull this and extract out the patches and edit
-the headers in order to get them into my tree in mbox form (as my
-patchflow works off of emails.)
+> Why does the rt tree make all calls to put_task_struct an rcu action?
+> We only need the rcu callback from kernel/exit.c
 
-So, care to make it a bit easier for me to take these?
+Because the conversion of memory allocation routines like kmalloc and kfree aren't
+safely callable within a preempt_disable critical section since they were incompletely
+converted in the -rt. It can run into the sleeping in atomic scenario which can result
+in a deadlock since those routines use blocking locks internally in the implementation
+now as a result of the spinlock_t conversion to blocking locks.
+ 
+> Nothing else needs those semantics.
 
-thanks,
+Right, blame it on the incomplete conversion of the kmalloc and friends. GFP_ATOMIC is
+is kind of meaningless in the -rt tree and it might be a good thing to add something
+like GFP_RT_ATOMIC for cases like this to be handled properly and restore that particular
+semantic in a more meaningful way.
+ 
+> I agree that put_task_struct is the most common point so this is unlikely
+> to remove your issues with rcu callbacks but it just seems completely backwards
+> to increase the number of rcu callbacks in the rt tree.
 
-greg k-h
+I'm not sure what mean here, but if you mean that you don't like the RCU API abuse then
+I agree with you on that. However, Ingo disagrees and I'm not going to argue it with him.
+Although, I'm not going stop you if you do. :)
+
+bill
+

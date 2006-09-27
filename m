@@ -1,160 +1,219 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030852AbWI0VHA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030832AbWI0VI3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030852AbWI0VHA (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Sep 2006 17:07:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030833AbWI0VHA
+	id S1030832AbWI0VI3 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Sep 2006 17:08:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030854AbWI0VI2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Sep 2006 17:07:00 -0400
-Received: from iolanthe.rowland.org ([192.131.102.54]:12563 "HELO
-	iolanthe.rowland.org") by vger.kernel.org with SMTP
-	id S1030852AbWI0VG7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Sep 2006 17:06:59 -0400
-Date: Wed, 27 Sep 2006 17:06:57 -0400 (EDT)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@iolanthe.rowland.org
-To: "Paul E. McKenney" <paulmck@us.ibm.com>
-cc: David Howells <dhowells@redhat.com>,
-       Kernel development list <linux-kernel@vger.kernel.org>
-Subject: Re: Uses for memory barriers
-In-Reply-To: <20060922050236.GA1287@us.ibm.com>
-Message-ID: <Pine.LNX.4.44L0.0609271137480.6627-100000@iolanthe.rowland.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Wed, 27 Sep 2006 17:08:28 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:63876 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030832AbWI0VI1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Sep 2006 17:08:27 -0400
+Date: Wed, 27 Sep 2006 14:08:08 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: Nigel Cunningham <ncunningham@linuxmail.org>,
+       Stefan Seyfried <seife@suse.de>, linux-kernel@vger.kernel.org,
+       "Rafael J. Wysocki" <rjw@sisk.pl>
+Subject: Re: When will the lunacy end? (Was Re: [PATCH] uswsusp: add
+ pmops->{prepare,enter,finish} support (aka "platform mode"))
+Message-Id: <20060927140808.2aece78e.akpm@osdl.org>
+In-Reply-To: <20060927090902.GC24857@elf.ucw.cz>
+References: <20060925071338.GD9869@suse.de>
+	<1159220043.12814.30.camel@nigel.suspend2.net>
+	<20060925144558.878c5374.akpm@osdl.org>
+	<20060925224500.GB2540@elf.ucw.cz>
+	<20060925160648.de96b6fa.akpm@osdl.org>
+	<20060925232151.GA1896@elf.ucw.cz>
+	<20060925172240.5c389c25.akpm@osdl.org>
+	<20060926102434.GA2134@elf.ucw.cz>
+	<20060926094607.815d126f.akpm@osdl.org>
+	<20060927090902.GC24857@elf.ucw.cz>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Paul:
+On Wed, 27 Sep 2006 11:09:02 +0200
+Pavel Machek <pavel@ucw.cz> wrote:
 
-Thinking about this a little more, I came up with something that you might
-like.  It's a bit abstract, but it does seem to capture all the essential
-ingredients.
+> Hi!
+> 
+> > > Is "swapoff -a; echo disk > /sys/power/state" slow for you? If so, we
+> > > have something reasonably easy to debug, if not, we'll try something
+> > > else...
+> > 
+> > sony:/home/akpm# swapoff -a 
+> > sony:/home/akpm# time (echo disk > /sys/power/state) 
+> > echo: write error: no such device
+> > (; echo disk > /sys/power/state; )  0.00s user 0.08s system 1% cpu 5.259 total
+> > 
+> > It took an additional two-odd seconds to bring the X UI back into a serviceable
+> > state.
+> 
+> Console switches take long... yes it would be nice to fix X :-).
+> 
+> But we did not reproduce that 12 seconds problem. Can you try patches
+> from
+> 
+> http://marc.theaimsgroup.com/?l=linux-acpi&m=115506915023030&q=raw
+> 
 
-Let's start with some new notation.  If A is a location in memory and n is
-an index number, let's write "ld(A,n)", "st(A,n)", and "ac(A,n)" to stand
-for a load, store, or arbitrary access to A.  The index n is simply a way
-to distinguish among multiple accesses to the same location.  If n isn't
-needed we may choose to omit it.
+OK, that compiles.
 
-This approach uses two important relations.  The first is the "comes 
-before" relation we have already seen.  Let's abbreviate it "c.b.", or 
-"c.a." for the converse "comes after" relation.
+I think we should get this documented and merge it (or something like it) into
+mainline.  This is one area where it's worth investing in debugging tools.
 
-"Comes before" applies across CPUs, but only for accesses to the same 
-location in memory.  st(A) c.b. ld(A) if the load returns the value of the 
-store.  st(A,m) c.b. st(A,n) if the second store overwrites the first.  
-We do not allow loads to "come before" anything.  This reflects the fact 
-that even though a store may have completed and may be visible to a 
-particular CPU, a subsequent load might not return the value of the store 
-(for example, if an invalidate message has been acknowledged but not 
-yet processed).
-
-"Comes before" need not be transitive, depending on the architecture.  We 
-can safely allow it to be transitive among stores that are all visible to 
-some single CPU, but not all stores need to be so visible.
-
-As an example, consider a 4-CPU system where CPUs 0,1 share the cache C01
-and CPUs 2,3 share the cache C23.  Suppose that each CPU executes a store
-to A concurrently.  Then C01 might decide that the store from CPU 0 will
-overwrite the store from CPU 1, and C23 might decide that the store from
-CPU 2 will overwrite the store from CPU 3.  Similarly, the two caches
-together might decide that the store from CPU 0 will overwrite the store
-from CPU 2.  Under these conditions it makes no sense to compare the
-stores from CPUs 1 and 3, because nowhere are both stores visible.
-
-As a special case, we can assume that stores taking place under a bus lock
-(such as the store in atomic_xchg) will be visible to all CPUs or caches,
-and hence all such stores to a particular location can be placed in a
-global total order consistent with the "comes before" relation.
-
-As part of your P0, we can assert that whenever the sequence
-
-	st(A,m)
-	ac(A,n)
-
-occurs on a single CPU, st(A,m) c.b. ac(A,n).  In other words, each CPU 
-always sees the results of its own stores.
-
-The second relation I'll call "sequencing", and I'll write it using the
-standard "<" and ">" symbols.  Unlike "comes before", sequencing applies
-to arbitrary memory locations but only to accesses on a single CPU.  It is
-fully transitive, hence a genuine partial ordering.  It's kind of a
-strengthened form of "comes before", just as "comes before" is a
-strengthened form of "occurs earlier in time".
-
-If M is a memory barrier, then in this code
-
-	ac(A)
-	M
-	ac(B)
-
-we will have ac(A) < ac(B), provided the barrier type is appropriate for 
-the sorts of access.  As a special extra case, if st(B) has any kind of 
-dependency (control, data, or address) on a previous ld(A), then ld(A) < 
-st(B) even without a memory barrier.  In other words, CPUs don't do 
-speculative writes.  But in general, if two accesses are not separated by 
-a memory barrier then they are not sequenced.
-
-Given this background, the operation of memory barries can be explained 
-very simply as follows.  Whenever we have
-
-	ac(A,i) < ac(B,j) c.b. ac(B,k) < ac(A,l)
-
-then ac(A,i) c.b. ac(A,l), or if i is a load and l is a store, then
-st(A,l) !c.b. ld(A,i).
-
-As degenerate subcases, when A and B are the same location we also have:
-
-	ac(A,i) < ac(A,j) c.b. ac(A,k)  implies
-		ac(A,i) c.b. ac(A,k), or ac(A,k) !c.b. ac(A,i);
-
-	ac(A,j) c.b. ac(A,k) < ac(A,l)  implies
-		ac(A,j) c.b. ac(A,l), or ac(A,l) !c.b. ac(A,j).
-
-One way to view all this is that sequencing is transitive with "comes 
-before", roughly speaking.
+If you agree, are we happy with it in its present form?
 
 
-Now, if we consider atomic_xchg() to be a combined load followed by a
-store, its atomic nature is expressed by requiring that no other store can
-occur in the middle.  Symbolically, let's say atomic_xchg(&A) is
-represented by
 
-	ld(A,m); st(A,n);
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
 
-and we can even stipulate that since these are atomic accesses, ld(A,m) <
-st(A,n).  Then for any other st(A,k) on any CPU, if st(A,k) c.b. st(A,n)  
-we must have st(A,k) c.b. ld(A,m).  The reverse implication follows from
-one of the degenerate subcases above.
+Add a swsusp debugging mode.  This does everything that's needed for a suspend
+except for actually suspending.  So we can look in the log messages and work
+out a) what code is being slow and b) which drivers are misbehaving.
 
->From this you can prove that for any two atomic_xchg() calls on the same
-atomic_t variable, one "comes before" the other.  Going on from there, you
-can show that -- assuming spinlocks are implemented via atomic_xchg() --
-for any two critical sections, one comes completely before the other. 
-Furthermore every CPU will agree on which came first, so there is a 
-global total ordering of critical sections.
 
-On the other hand, the fact that c.b. isn't transitive for all stores 
-means that this code can't be proved to work (all values initially 0):
+(1)
+# echo testproc > /sys/power/disk
+# echo disk > /sys/power/state
 
-	CPU 0		CPU 1		CPU 2
-	-----		-----		-----
-	a = 1;		while (b < 1) ;
-	mb();		c = 1;
-	b = 1;		mb();
-			b = 2;		while (b < 2) ;
-					mb();
-					assert(a==1 && c==1);
+This should turn off the non-boot CPU, freeze all processes, wait for 5
+seconds and then thaw the processes and the CPU.
 
-CPU 2 would have been safe in asserting that c==1 alone.  But the 
-possibility remains that CPU 2 might see b=2 before seeing a=1, and it 
-might not see b=1 at all.  Symbolically, even though we have
+(2)
+# echo test > /sys/power/disk
+# echo disk > /sys/power/state
 
-	a=1 < b=1 c.b. b=2 c.b. !(b<2) < (a==1)
+This should turn off the non-boot CPU, freeze all processes, shrink
+memory, suspend all devices, wait for 5 seconds, resume the devices etc.
 
-we can't conclude that a=1 c.b. (a==1).
+Cc: Pavel Machek <pavel@ucw.cz>
+Signed-off-by: Andrew Morton <akpm@osdl.org>
+---
 
-What do you think?
+ include/linux/pm.h  |    4 +++-
+ kernel/power/disk.c |   37 ++++++++++++++++++++++++++++---------
+ 2 files changed, 31 insertions(+), 10 deletions(-)
 
-Alan
-
+diff -puN include/linux/pm.h~swsusp-debugging include/linux/pm.h
+--- a/include/linux/pm.h~swsusp-debugging
++++ a/include/linux/pm.h
+@@ -116,7 +116,9 @@ typedef int __bitwise suspend_disk_metho
+ #define	PM_DISK_PLATFORM	((__force suspend_disk_method_t) 2)
+ #define	PM_DISK_SHUTDOWN	((__force suspend_disk_method_t) 3)
+ #define	PM_DISK_REBOOT		((__force suspend_disk_method_t) 4)
+-#define	PM_DISK_MAX		((__force suspend_disk_method_t) 5)
++#define	PM_DISK_TEST		((__force suspend_disk_method_t) 5)
++#define	PM_DISK_TESTPROC	((__force suspend_disk_method_t) 6)
++#define	PM_DISK_MAX		((__force suspend_disk_method_t) 7)
+ 
+ struct pm_ops {
+ 	suspend_disk_method_t pm_disk_mode;
+diff -puN kernel/power/disk.c~swsusp-debugging kernel/power/disk.c
+--- a/kernel/power/disk.c~swsusp-debugging
++++ a/kernel/power/disk.c
+@@ -72,7 +72,7 @@ static inline void platform_finish(void)
+ 
+ static int prepare_processes(void)
+ {
+-	int error;
++	int error = 0;
+ 
+ 	pm_prepare_console();
+ 
+@@ -85,6 +85,12 @@ static int prepare_processes(void)
+ 		goto thaw;
+ 	}
+ 
++	if (pm_disk_mode == PM_DISK_TESTPROC) {
++		printk("swsusp debug: Waiting for 5 seconds.\n");
++		mdelay(5000);
++		goto thaw;
++	}
++
+ 	/* Free memory before shutting down devices. */
+ 	if (!(error = swsusp_shrink_memory()))
+ 		return 0;
+@@ -121,13 +127,21 @@ int pm_suspend_disk(void)
+ 	if (error)
+ 		return error;
+ 
++	if (pm_disk_mode == PM_DISK_TESTPROC)
++		goto Thaw;
++
+ 	suspend_console();
+ 	error = device_suspend(PMSG_FREEZE);
+ 	if (error) {
+ 		resume_console();
+ 		printk("Some devices failed to suspend\n");
+-		unprepare_processes();
+-		return error;
++		goto Thaw;
++	}
++
++	if (pm_disk_mode == PM_DISK_TEST) {
++		printk("swsusp debug: Waiting for 5 seconds.\n");
++		mdelay(5000);
++		goto Done;
+ 	}
+ 
+ 	pr_debug("PM: snapshotting memory.\n");
+@@ -144,16 +158,17 @@ int pm_suspend_disk(void)
+ 			power_down(pm_disk_mode);
+ 		else {
+ 			swsusp_free();
+-			unprepare_processes();
+-			return error;
++			goto Thaw;
+ 		}
+-	} else
++	} else {
+ 		pr_debug("PM: Image restored successfully.\n");
++	}
+ 
+ 	swsusp_free();
+  Done:
+ 	device_resume();
+ 	resume_console();
++ Thaw:
+ 	unprepare_processes();
+ 	return error;
+ }
+@@ -250,6 +265,8 @@ static const char * const pm_disk_modes[
+ 	[PM_DISK_PLATFORM]	= "platform",
+ 	[PM_DISK_SHUTDOWN]	= "shutdown",
+ 	[PM_DISK_REBOOT]	= "reboot",
++	[PM_DISK_TEST]		= "test",
++	[PM_DISK_TESTPROC]	= "testproc",
+ };
+ 
+ /**
+@@ -304,17 +321,19 @@ static ssize_t disk_store(struct subsyst
+ 		}
+ 	}
+ 	if (mode) {
+-		if (mode == PM_DISK_SHUTDOWN || mode == PM_DISK_REBOOT)
++		if (mode == PM_DISK_SHUTDOWN || mode == PM_DISK_REBOOT ||
++		     mode == PM_DISK_TEST || mode == PM_DISK_TESTPROC) {
+ 			pm_disk_mode = mode;
+-		else {
++		} else {
+ 			if (pm_ops && pm_ops->enter &&
+ 			    (mode == pm_ops->pm_disk_mode))
+ 				pm_disk_mode = mode;
+ 			else
+ 				error = -EINVAL;
+ 		}
+-	} else
++	} else {
+ 		error = -EINVAL;
++	}
+ 
+ 	pr_debug("PM: suspend-to-disk mode set to '%s'\n",
+ 		 pm_disk_modes[mode]);
+_
 

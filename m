@@ -1,57 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030238AbWI0Q35@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030237AbWI0Qbq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030238AbWI0Q35 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Sep 2006 12:29:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030239AbWI0Q34
+	id S1030237AbWI0Qbq (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Sep 2006 12:31:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030239AbWI0Qbp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Sep 2006 12:29:56 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.149]:23692 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S1030238AbWI0Q3y
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Sep 2006 12:29:54 -0400
-Date: Wed, 27 Sep 2006 11:29:56 -0500
-From: Michael Halcrow <mhalcrow@us.ibm.com>
-To: akpm@osdl.org
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: [PATCH] eCryptfs: Grab lock on lower_page in ecryptfs_sync_page
-Message-ID: <20060927162956.GC3256@us.ibm.com>
-Reply-To: Michael Halcrow <mhalcrow@us.ibm.com>
+	Wed, 27 Sep 2006 12:31:45 -0400
+Received: from e5.ny.us.ibm.com ([32.97.182.145]:34746 "EHLO e5.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1030237AbWI0Qbo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Sep 2006 12:31:44 -0400
+Date: Wed, 27 Sep 2006 09:32:40 -0700
+From: "Paul E. McKenney" <paulmck@us.ibm.com>
+To: Christoph Hellwig <hch@infradead.org>,
+       Dipankar Sarma <dipankar@in.ibm.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>
+Subject: Re: [-mm PATCH 1/4] RCU: split classic rcu
+Message-ID: <20060927163239.GC1291@us.ibm.com>
+Reply-To: paulmck@us.ibm.com
+References: <20060923152957.GA13432@in.ibm.com> <20060923153141.GB13432@in.ibm.com> <20060925165433.GA28898@infradead.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <20060925165433.GA28898@infradead.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The recent swap of grab_cache_page() with find_get_page() in
-ecryptfs_sync_page() missed the fact that we need a lock on the lower
-page. This patch replaces find_get_page() with find_lock_page() in
-order to make sure that this lock is obtained.
+On Mon, Sep 25, 2006 at 05:54:33PM +0100, Christoph Hellwig wrote:
+> On Sat, Sep 23, 2006 at 09:01:41PM +0530, Dipankar Sarma wrote:
+> > 
+> > This patch re-organizes the RCU code to enable multiple implementations
+> > of RCU. Users of RCU continues to include rcupdate.h and the
+> > RCU interfaces remain the same. This is in preparation for
+> > subsequently merging the preepmtpible RCU implementation.
+> 
+> I still disagree very strongly.  In a given tree there should be oneRCU
+> implementation for the traditional interface.  We probably want srcu
+> in addition, but not things hiding behind the interface.
 
-Signed-off-by: Michael Halcrow <mhalcrow@us.ibm.com>
+Hello, Christoph!
 
----
+I agree very much with your "oneRCU to defer them all" goal for the
+traditional interface.
 
- fs/ecryptfs/mmap.c |    4 ++--
- 1 files changed, 2 insertions(+), 2 deletions(-)
+However, the current implementation is extremely well-tested and seems
+to be quite reliable.  Yes, there might still be a rough edge or two
+in cases where people do call_rcu() in tight loops, but even that is
+being covered in most cases where "don't do that" doesn't apply (e.g.,
+close(open()) from user space).  The Linux implementation of RCU is
+almost six years old, and first appeared in mainline almost four years
+ago -- that is some -serious- testing!
 
-ef0b82f22907486bd87f8c37508a9f7d1dcd5601
-diff --git a/fs/ecryptfs/mmap.c b/fs/ecryptfs/mmap.c
-index 8a4040d..924dd90 100644
---- a/fs/ecryptfs/mmap.c
-+++ b/fs/ecryptfs/mmap.c
-@@ -766,9 +766,9 @@ static void ecryptfs_sync_page(struct pa
- 	lower_inode = ecryptfs_inode_to_lower(inode);
- 	/* NOTE: Recently swapped with grab_cache_page(), since
- 	 * sync_page() just makes sure that pending I/O gets done. */
--	lower_page = find_get_page(lower_inode->i_mapping, page->index);
-+	lower_page = find_lock_page(lower_inode->i_mapping, page->index);
- 	if (!lower_page) {
--		ecryptfs_printk(KERN_DEBUG, "find_get_page failed\n");
-+		ecryptfs_printk(KERN_DEBUG, "find_lock_page failed\n");
- 		return;
- 	}
- 	lower_page->mapping->a_ops->sync_page(lower_page);
--- 
-1.3.3
+We will be switching to a new implementation.  I am working to make it
+as reliable as I know how, but it seems reasonable to have a changeover
+period that might be measured in years.  I -really- don't want to be
+inflicting even the possibility of RCU implementation bugs on anyone who
+has not "signed up" for code that has not yet be hammered into total
+and complete submission!  CONFIG_PREEMPT_RT is quite reliable even now,
+but there is "quite reliable" and then there is "hammered into total
+and complete submission".  ;-)
 
+Also, we need any new implementation of RCU to be in a separate file.
+I don't want to even think about the number of times that I accidentally
+changed the wrong version of RCU when working on the -rt implementation
+before we split it -- the functions have the same name, right?  :-/
+
+So maybe we rip the multi-RCU infrastructure out once we have fully
+(and I mean -fully-) tested the new RCU implementation, taken care of
+any performance anomalies, and so on.  I would be totally OK with that,
+but believe the split will be needed in the meantime.
+
+Fair enough?  Or am I missing something?
+
+							Thanx, Paul

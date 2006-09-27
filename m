@@ -1,48 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031176AbWI0Wtx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031179AbWI0Wu2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1031176AbWI0Wtx (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Sep 2006 18:49:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031180AbWI0Wtw
+	id S1031179AbWI0Wu2 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Sep 2006 18:50:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031183AbWI0Wu2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Sep 2006 18:49:52 -0400
-Received: from mail.gmx.net ([213.165.64.20]:9914 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1031176AbWI0Wtv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Sep 2006 18:49:51 -0400
-X-Authenticated: #704063
-Subject: [Patch] Remove unnecessary check in drivers/rtc/rtc-v3020.c
-From: Eric Sesterhenn <snakebyte@gmx.de>
-To: linux-kernel@vger.kernel.org
-Cc: a.zummo@towertech.it
+	Wed, 27 Sep 2006 18:50:28 -0400
+Received: from viper.oldcity.dca.net ([216.158.38.4]:59564 "HELO
+	viper.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S1031179AbWI0WuZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Sep 2006 18:50:25 -0400
+Subject: Re: Athlon64x2 problem with 2.6.18-rt4 and hrtimers
+From: Lee Revell <rlrevell@joe-job.com>
+To: tglx@linutronix.de
+Cc: Clark Williams <williams@redhat.com>, Ingo Molnar <mingo@elte.hu>,
+       john stultz <johnstul@us.ibm.com>, LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <1159394364.9326.560.camel@localhost.localdomain>
+References: <451ADF7A.8070709@redhat.com>
+	 <1159394364.9326.560.camel@localhost.localdomain>
 Content-Type: text/plain
-Date: Thu, 28 Sep 2006 00:49:36 +0200
-Message-Id: <1159397376.14069.5.camel@alice>
+Date: Wed, 27 Sep 2006 18:50:59 -0400
+Message-Id: <1159397459.1275.55.camel@mindpipe>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
-X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-hi,
+On Wed, 2006-09-27 at 23:59 +0200, Thomas Gleixner wrote:
+> Can you please switch on CONFIG_LATENCY_TRACE (depends on
+> CONFIG_LATENCY_TIMING) ?
+> 
+> Use the latest version of cyclictest and add -b XXX to the command
+> line,
+> where XXX is the maximum latency in micro seconds. Once the latency is
+> greater than the given maximum, the kernel tracer and cyclictest is
+> stopped.
+> 
+> Now you can read the kernel trace:
+> 
+> cat /proc/latency_trace >trace.log 
+> 
+> The trace should give us more insight. 
 
-looks like the probe function always gets a valid pdev,
-and checking it after dereferencing it is pretty useless.
-This patch removes the check (cid #1365)
+I thought latency tracing did not work on Athlon X2 due to the unsynced
+TSCs problem?
 
-Signed-off-by: Eric Sesterhenn <snakebyte@gmx.de>
-
---- linux-2.6.18-git7/drivers/rtc/rtc-v3020.c.orig	2006-09-27 22:18:37.000000000 +0200
-+++ linux-2.6.18-git7/drivers/rtc/rtc-v3020.c	2006-09-27 22:18:50.000000000 +0200
-@@ -169,9 +169,6 @@ static int rtc_probe(struct platform_dev
- 	if (pdev->resource[0].flags != IORESOURCE_MEM)
- 		return -EBUSY;
- 
--	if (pdev == NULL)
--		return -EBUSY;
--
- 	chip = kzalloc(sizeof *chip, GFP_KERNEL);
- 	if (!chip)
- 		return -ENOMEM;
-
+Lee
 

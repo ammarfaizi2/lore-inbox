@@ -1,89 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965433AbWI0HpY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965440AbWI0Htu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965433AbWI0HpY (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Sep 2006 03:45:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965436AbWI0HpY
+	id S965440AbWI0Htu (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Sep 2006 03:49:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965442AbWI0Htu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Sep 2006 03:45:24 -0400
-Received: from ogre.sisk.pl ([217.79.144.158]:44006 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S965433AbWI0HpX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Sep 2006 03:45:23 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: When will the lunacy end? (Was Re: [PATCH] uswsusp: add pmops->{prepare,enter,finish} support (aka "platform mode"))
-Date: Wed, 27 Sep 2006 09:47:33 +0200
-User-Agent: KMail/1.9.1
-Cc: Nigel Cunningham <ncunningham@linuxmail.org>, Adrian Bunk <bunk@stusta.de>,
-       Pavel Machek <pavel@ucw.cz>, Stefan Seyfried <seife@suse.de>,
-       linux-kernel@vger.kernel.org
-References: <20060925071338.GD9869@suse.de> <1159335550.5341.25.camel@nigel.suspend2.net> <20060926230040.fbc86f33.akpm@osdl.org>
-In-Reply-To: <20060926230040.fbc86f33.akpm@osdl.org>
+	Wed, 27 Sep 2006 03:49:50 -0400
+Received: from ns2.uludag.org.tr ([193.140.100.220]:39120 "EHLO uludag.org.tr")
+	by vger.kernel.org with ESMTP id S965440AbWI0Htt convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Sep 2006 03:49:49 -0400
+From: Ismail Donmez <ismail@pardus.org.tr>
+Organization: =?utf-8?q?T=C3=9CB=C4=B0TAK/UEKAE?=
+To: Len Brown <lenb@kernel.org>
+Subject: Re: sonypc with Sony Vaio VGN-SZ1VP
+Date: Wed, 27 Sep 2006 10:50:02 +0300
+User-Agent: KMail/1.9.4
+Cc: Andrew Morton <akpm@osdl.org>, Stelian Pop <stelian@popies.net>,
+       Andrea Gelmini <gelma@gelma.net>, linux-kernel@vger.kernel.org,
+       linux-acpi@vger.kernel.org
+References: <20060926135659.GA3685@jnb.gelma.net> <20060926221400.5da1b796.akpm@osdl.org> <200609270204.38970.len.brown@intel.com>
+In-Reply-To: <200609270204.38970.len.brown@intel.com>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+  charset="utf-8"
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-Message-Id: <200609270947.34408.rjw@sisk.pl>
+Message-Id: <200609271050.03904.ismail@pardus.org.tr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday, 27 September 2006 08:00, Andrew Morton wrote:
-> On Wed, 27 Sep 2006 15:39:10 +1000
-> Nigel Cunningham <ncunningham@linuxmail.org> wrote:
-> 
-> > > > If you are saying you will do this job, I can try to redirect such bug 
-> > > > reports to the kernel Bugzilla, create a "suspend driver problems" meta 
-> > > > bug there, assign it to you and create the dependencies that it tracks 
-> > > > the already existing bugs in the kernel Bugzilla.
-> > > 
-> > > Yes, please do this.
-> > > 
-> > > [I must say I'm a bit afraid of that but anyway someone has to do it ... ;-)]
-> > 
-> > :) Can I please get copies too?
-> 
-> Here are some:
+Hi,
+27 Eyl 2006 Çar 09:04 tarihinde, Len Brown şunları yazmıştı: 
+[...]
+> > > Will sony_acpi ever make it to the mainline? Its very useful for new
+> > > Vaio models.
+>
+> Nope, not as it is.  Useful != supportable.
+>
+> 1. It must not create any files under /proc/acpi
+>     This is creating a machine-specific API, which
+>     is exactly what we don't want  Nobody can maintain
+>     50 machine specific APIs.
+>
+>     These objects must appear generic and under sysfs
+>     as if acpi were not involved in providing them.
+>
+> 2. its source code shall not live in drivers/acpi
+>     it is not part of the ACPI implementation after all --
+>     it is a platform specific driver.
 
-Thanks.
+Is there a such example code under kernel now, so one could look at it and fix 
+sony_acpi driver.
 
-> http://bugme.osdl.org/show_bug.cgi?id=5528
-
-Unresolved, seems to be related to the fact that the support for PowerMac
-suspend is still incomplete.
-
-> http://bugzilla.kernel.org/show_bug.cgi?id=5945
-
-Unresolved, the reporter didn't say if the problem is still present in
-recent kernels.
-
-> http://bugzilla.kernel.org/show_bug.cgi?id=6101
-
-Old kernel, unidentified driver problem, more information needed from the
-reporter.
-
-> http://bugzilla.kernel.org/show_bug.cgi?id=5962
-
-Probably a duplicate of http://bugzilla.kernel.org/show_bug.cgi?id=5534
-(resolved), confirmation from the reporter needed.
-
-> http://bugzilla.kernel.org/show_bug.cgi?id=7057
-
-Assigned to Pavel, should be rejected.
-
-> http://bugzilla.kernel.org/show_bug.cgi?id=7067
-
-Duplicate of http://bugzilla.kernel.org/show_bug.cgi?id=6494,
-should be fixed by the AHCI suspend patches.
-
-> http://bugzilla.kernel.org/show_bug.cgi?id=7077
-
-Unresolved, assigned to Alan Cox.
-
-Greetings,
-Rafael
-
+Regards,
+ismail
 
 -- 
-You never change things by fighting the existing reality.
-		R. Buckminster Fuller
+They that can give up essential liberty to obtain a little temporary safety 
+deserve neither liberty nor safety.
+-- Benjamin Franklin

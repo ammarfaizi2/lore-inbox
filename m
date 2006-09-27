@@ -1,61 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030654AbWI0TPN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030659AbWI0TTo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030654AbWI0TPN (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Sep 2006 15:15:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030652AbWI0TPN
+	id S1030659AbWI0TTo (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Sep 2006 15:19:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030660AbWI0TTo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Sep 2006 15:15:13 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.152]:40675 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S1030654AbWI0TPK
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Sep 2006 15:15:10 -0400
-Subject: Re: 2.6.18 Nasty Lockup
-From: john stultz <johnstul@us.ibm.com>
-To: caglar@pardus.org.tr
-Cc: Greg Schafer <gschafer@zip.com.au>, linux-kernel@vger.kernel.org,
-       Andi Kleen <ak@muc.de>
-In-Reply-To: <200609271245.39591.caglar@pardus.org.tr>
-References: <20060926123640.GA7826@tigers.local>
-	 <200609270015.51465.caglar@pardus.org.tr>
-	 <1159311057.17071.5.camel@localhost>
-	 <200609271245.39591.caglar@pardus.org.tr>
-Content-Type: text/plain; charset=UTF-8
-Date: Wed, 27 Sep 2006 12:14:59 -0700
-Message-Id: <1159384500.29040.3.camel@localhost>
+	Wed, 27 Sep 2006 15:19:44 -0400
+Received: from wohnheim.fh-wedel.de ([213.39.233.138]:5822 "EHLO
+	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
+	id S1030659AbWI0TTn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Sep 2006 15:19:43 -0400
+Date: Wed, 27 Sep 2006 21:19:22 +0200
+From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
+To: Robin Getz <rgetz@blackfin.uclinux.org>
+Cc: Randy Dunlap <dunlap@xenotime.net>, arnd Bergmann <arnd@arndb.de>,
+       luke Yang <luke.adi@gmail.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 1/4] Blackfin: arch patch for 2.6.18
+Message-ID: <20060927191922.GA2909@wohnheim.fh-wedel.de>
+References: <6.1.1.1.0.20060927132022.01ed0450@ptg1.spd.analog.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
 Content-Transfer-Encoding: 8bit
+In-Reply-To: <6.1.1.1.0.20060927132022.01ed0450@ptg1.spd.analog.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-09-27 at 12:45 +0300, S.Çağlar Onur wrote:
-> 27 Eyl 2006 Çar 01:50 tarihinde, john stultz şunları yazmıştı: 
-> > On Wed, 2006-09-27 at 00:15 +0300, S.Çağlar Onur wrote:
-> > > 26 Eyl 2006 Sal 15:36 tarihinde, Greg Schafer şunları yazmıştı:
-> > > > This is a _hard_ lockup. No oops, no magic sysrq, no nuthin, just a
-> > > > completely dead machine with only option the reset button. Usually
-> > > > happens within a couple of minutes of desktop use but is 100%
-> > > > reproducible. Problem is still there in a fresh checkout of current
-> > > > Linus git tree (post 2.6.18).
-> > >
-> > > Same symptoms here and its reproducible after starting the irqbalance
-> > > (0.12 or 0.13), if i disable irqbalance then everything is going fine.
-> >
-> > Hmm.. Not sure about the connection to irqbalance. You're using the TSC
-> > clocksource, so I'm curious if your cpu TSC's are out of sync. Can you
-> > boot w/ "clocksource=acpi_pm" to see if that resolves it?
+On Wed, 27 September 2006 13:47:16 -0400, Robin Getz wrote:
 > 
-> Yep, it solves the problem and system boot normally with irqbalance enabled.
+> Does anyone have a script that identifies white space problems?
 
-Ok. Good to hear you have a workaround. Now to sort out why your TSCs
-are becoming un-synced. From the dmesg you sent me privately, I noticed
-that while you have 4 cpus, the following message only shows up once:
+If you use vim:
+highlight RedundantSpaces ctermbg=red guibg=red
+match RedundantSpaces /\s\+$\| \+\ze\t/
 
-ACPI: Processor [CPU1] (supports 8 throttling states)
+J�rn
 
-Does disabling cpufreq change anything?
-
-thanks
--john
-
-
+-- 
+A defeated army first battles and then seeks victory.
+-- Sun Tzu

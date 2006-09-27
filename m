@@ -1,67 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030856AbWI0VKv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030857AbWI0VLR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030856AbWI0VKv (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Sep 2006 17:10:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030857AbWI0VKu
+	id S1030857AbWI0VLR (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Sep 2006 17:11:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030859AbWI0VLQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Sep 2006 17:10:50 -0400
-Received: from smtp113.sbc.mail.mud.yahoo.com ([68.142.198.212]:15987 "HELO
-	smtp113.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1030856AbWI0VKt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Sep 2006 17:10:49 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=pacbell.net;
-  h=Received:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
-  b=YaqKs80IDLsf2O3w3Yh9qPnRP0gJQ0bRO9OyuxC8gkJmSmvZQskjkgI3h/JjCF7JUpFjT65AyVhxIDx1gtchcLyw84THwqrVQUMSEJ0fpDDaKm56YY7mJNkpzkuvOzBY8r6vGDImcbu/h8J1hIxIN27Z5h/GBBqTlfV9RHOS8pI=  ;
-From: David Brownell <david-b@pacbell.net>
-To: Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: [patch 2.6.18] genirq: remove oops with fasteoi irq_chip descriptors
-Date: Fri, 22 Sep 2006 06:43:07 -0700
-User-Agent: KMail/1.7.1
-Cc: tglx@linutronix.de, mingo@redhat.com
-References: <200609220641.58938.david-b@pacbell.net>
-In-Reply-To: <200609220641.58938.david-b@pacbell.net>
+	Wed, 27 Sep 2006 17:11:16 -0400
+Received: from ogre.sisk.pl ([217.79.144.158]:30848 "EHLO ogre.sisk.pl")
+	by vger.kernel.org with ESMTP id S1030857AbWI0VLO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Sep 2006 17:11:14 -0400
+From: "Rafael J. Wysocki" <rjw@sisk.pl>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: When will the lunacy end? (Was Re: [PATCH] uswsusp: add pmops->{prepare,enter,finish} support (aka "platform mode"))
+Date: Wed, 27 Sep 2006 23:13:30 +0200
+User-Agent: KMail/1.9.1
+Cc: Pavel Machek <pavel@ucw.cz>, Nigel Cunningham <ncunningham@linuxmail.org>,
+       Stefan Seyfried <seife@suse.de>, linux-kernel@vger.kernel.org
+References: <20060925071338.GD9869@suse.de> <20060927090902.GC24857@elf.ucw.cz> <20060927140808.2aece78e.akpm@osdl.org>
+In-Reply-To: <20060927140808.2aece78e.akpm@osdl.org>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="us-ascii"
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200609220643.07750.david-b@pacbell.net>
+Message-Id: <200609272313.31474.rjw@sisk.pl>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The irq handler code can oops when used with an irq_chip with just
-enable/disable/eoi methods, appropriate for handle_fasteoi_irq(),
-either by (a) uninstalling, or (b) using it with a chained handler.
+On Wednesday, 27 September 2006 23:08, Andrew Morton wrote:
+> On Wed, 27 Sep 2006 11:09:02 +0200
+> Pavel Machek <pavel@ucw.cz> wrote:
+> 
+> > Hi!
+> > 
+> > > > Is "swapoff -a; echo disk > /sys/power/state" slow for you? If so, we
+> > > > have something reasonably easy to debug, if not, we'll try something
+> > > > else...
+> > > 
+> > > sony:/home/akpm# swapoff -a 
+> > > sony:/home/akpm# time (echo disk > /sys/power/state) 
+> > > echo: write error: no such device
+> > > (; echo disk > /sys/power/state; )  0.00s user 0.08s system 1% cpu 5.259 total
+> > > 
+> > > It took an additional two-odd seconds to bring the X UI back into a serviceable
+> > > state.
+> > 
+> > Console switches take long... yes it would be nice to fix X :-).
+> > 
+> > But we did not reproduce that 12 seconds problem. Can you try patches
+> > from
+> > 
+> > http://marc.theaimsgroup.com/?l=linux-acpi&m=115506915023030&q=raw
+> > 
+> 
+> OK, that compiles.
+> 
+> I think we should get this documented and merge it (or something like it) into
+> mainline.  This is one area where it's worth investing in debugging tools.
+> 
+> If you agree, are we happy with it in its present form?
 
-The problem was that the original code expected there would always
-be mask/unmask/ack methods, and the fix is to instead use methods
-which are always present and which more closely correspond to the
-flag manipulation being done.
-
-Signed-off-by: David Brownell <dbrownell@users.sourceforge.net>
-
---- d26.rc4test.orig/kernel/irq/chip.c	2006-09-21 16:41:11.000000000 -0700
-+++ d26.rc4test/kernel/irq/chip.c	2006-09-21 18:04:07.000000000 -0700
-@@ -482,10 +482,8 @@ __set_irq_handler(unsigned int irq,
- 
- 	/* Uninstall? */
- 	if (handle == handle_bad_irq) {
--		if (desc->chip != &no_irq_chip) {
--			desc->chip->mask(irq);
--			desc->chip->ack(irq);
--		}
-+		if (desc->chip != &no_irq_chip)
-+			desc->chip->shutdown(irq);
- 		desc->status |= IRQ_DISABLED;
- 		desc->depth = 1;
- 	}
-@@ -495,7 +493,7 @@ __set_irq_handler(unsigned int irq,
- 		desc->status &= ~IRQ_DISABLED;
- 		desc->status |= IRQ_NOREQUEST | IRQ_NOPROBE;
- 		desc->depth = 0;
--		desc->chip->unmask(irq);
-+		desc->chip->startup(irq);
- 	}
- 	spin_unlock_irqrestore(&desc->lock, flags);
- }
+I am. ;-)

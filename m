@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030768AbWI0U17@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030766AbWI0U2L@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030768AbWI0U17 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Sep 2006 16:27:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030767AbWI0U17
+	id S1030766AbWI0U2L (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Sep 2006 16:28:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030769AbWI0U2L
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Sep 2006 16:27:59 -0400
-Received: from gw.goop.org ([64.81.55.164]:23008 "EHLO mail.goop.org")
-	by vger.kernel.org with ESMTP id S1030766AbWI0U16 (ORCPT
+	Wed, 27 Sep 2006 16:28:11 -0400
+Received: from gw.goop.org ([64.81.55.164]:25056 "EHLO mail.goop.org")
+	by vger.kernel.org with ESMTP id S1030767AbWI0U2I (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Sep 2006 16:27:58 -0400
-Message-ID: <451ADED9.4090602@goop.org>
-Date: Wed, 27 Sep 2006 13:28:09 -0700
+	Wed, 27 Sep 2006 16:28:08 -0400
+Message-ID: <451ADEE4.4010508@goop.org>
+Date: Wed, 27 Sep 2006 13:28:20 -0700
 From: Jeremy Fitzhardinge <jeremy@goop.org>
 User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
 MIME-Version: 1.0
-To: Pavel Machek <pavel@ucw.cz>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+To: Pavel Machek <pavel@ucw.cz>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
        Andrew Morton <akpm@osdl.org>, Rusty Russell <rusty@rustcorp.com.au>
 Subject: Re: [PATCH 0/6] Per-processor private data areas for i386
 References: <20060925184540.601971833@goop.org> <20060927194600.GA4538@ucw.cz>

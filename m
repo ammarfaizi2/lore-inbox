@@ -1,68 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030869AbWI0VVn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030872AbWI0VVr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030869AbWI0VVn (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Sep 2006 17:21:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030870AbWI0VVn
+	id S1030872AbWI0VVr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Sep 2006 17:21:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030871AbWI0VVr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Sep 2006 17:21:43 -0400
-Received: from fmmailgate02.web.de ([217.72.192.227]:57520 "EHLO
-	fmmailgate02.web.de") by vger.kernel.org with ESMTP
-	id S1030869AbWI0VVk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Sep 2006 17:21:40 -0400
-Message-ID: <008f01c6e27a$f9bd5460$962e8d52@aldipc>
-From: "roland" <devzero@web.de>
-To: "Fengguang Wu" <fengguang.wu@gmail.com>
-Cc: <linux-kernel@vger.kernel.org>, <lserinol@gmail.com>, <akpm@osdl.org>
-References: <0e2001c6de7a$fe756280$962e8d52@aldipc> <359067036.19509@ustc.edu.cn>
-Subject: Re: I/O statistics per process
-Date: Wed, 27 Sep 2006 23:22:02 +0200
-MIME-Version: 1.0
-Content-Type: text/plain;
-	format=flowed;
-	charset="iso-8859-1";
-	reply-type=original
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2900.2180
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2180
+	Wed, 27 Sep 2006 17:21:47 -0400
+Received: from nwd2mail10.analog.com ([137.71.25.55]:20877 "EHLO
+	nwd2mail10.analog.com") by vger.kernel.org with ESMTP
+	id S1030870AbWI0VVp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Sep 2006 17:21:45 -0400
+X-IronPort-AV: i="4.09,226,1157342400"; 
+   d="scan'208"; a="12236083:sNHT21747460"
+Message-Id: <6.1.1.1.0.20060927170244.01ed18d0@ptg1.spd.analog.com>
+X-Mailer: QUALCOMM Windows Eudora Version 6.1.1.1
+Date: Wed, 27 Sep 2006 17:22:04 -0400
+To: Arnd Bergmann <arnd@arndb.de>
+From: Robin Getz <rgetz@blackfin.uclinux.org>
+Subject: Re: [PATCH 1/4] Blackfin: arch patch for 2.6.18
+Cc: luke Yang <luke.adi@gmail.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Mime-Version: 1.0
+Content-Type: text/plain; charset="us-ascii"; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-thanks. tried to contact redflag, but they don`t answer. maybe support is 
-being on holiday.... !?
-
-linux kernel hackers - there is really no standard way to watch i/o metrics 
-(bytes read/written) at process level?
-
-it`s extremly hard for the admin to track down, what process is hogging the 
-disk - especially if there is more than one task consuming cpu.
-
-meanwhile i found blktrace and read into the documenation. looks really cool 
-and seems to be very powerful tool - but it it`s seems a little bit 
-"oversized" and not the right tool for this. seems to be for 
-tracing/debugging/analysis
-
-what about http://lkml.org/lkml/2005/9/12/89  "with following patch, 
-userspace processes/utilities will be able to access per process I/O 
-statistics. for example, top like utilites can use this information" which 
-has been posted to lkml one year ago ? any update on this ?
-
-roland
-
-
------ Original Message ----- 
-From: "Fengguang Wu" <fengguang.wu@gmail.com>
-To: "roland" <devzero@web.de>
-Cc: <linux-kernel@vger.kernel.org>
-Sent: Sunday, September 24, 2006 5:04 AM
-Subject: Re: I/O statistics per process
-
-
-> On Fri, Sep 22, 2006 at 09:12:05PM +0200, roland wrote:
->> is there a modified top/ps with i/o column, or is there yet missing
->> something at the kernel level for getting that counters from ?
+Arnd wrote:
+>Am Wednesday 27 September 2006 19:19 schrieb Robin Getz:
+> > OK - I was just doing the similar thing to what already exists in
+> > ./asm-blackfin/system.h
+> >
+> > #define local_irq_enable() do {         \
+> >          __asm__ __volatile__ (          \
+> >                  "sti %0;"               \
+> >                  ::"d"(irq_flags));      \ } while (0)
+> >
+> > which could be simplified to:
+> >
+> > #define local_irq_enable() __asm__ __volatile__ ("sti %0;"
+> > ::"d"(irq_flags));
 >
-> Red Flag(http://www.redflag-linux.com/eindex.html) has developed an
-> iotop based on kprobes/systemtap. You can contact them if necessary. 
+>Actually, this one is slightly broken, because of the ';' at the end of 
+>the macro (think of "if(x) local_irq_enable(); else somthing_else()").
 
+Ok - the extra ; is a typo in the email - not anything that I was proposing 
+as a submission. What you are pointing out is to be _really_ careful when 
+doing macros.
+
+I was trying to say was that we are just doing what everyone else seems to 
+be doing (which doesn't make it correct or the proper thing to do).
+
+Systems that use macros:
+./asm-alpha/system.h:#define local_irq_enable()
+./asm-arm26/system.h:#define local_irq_enable()
+./asm-arm/system.h:#define local_irq_enable()
+./asm-blackfin/system.h:#define local_irq_enable()
+./asm-frv/system.h:#define local_irq_enable()
+./asm-h8300/system.h:#define local_irq_enable()
+./asm-i386/system.h:#define local_irq_enable()
+./asm-ia64/system.h:#define local_irq_enable()
+./asm-m32r/system.h:#define local_irq_enable()
+./asm-m68knommu/system.h:#define local_irq_enable()
+./asm-m68k/system.h:#define local_irq_enable()
+./asm-parisc/system.h:#define local_irq_enable()
+./asm-s390/system.h:#define local_irq_enable()
+./asm-sparc64/system.h:#define local_irq_enable()
+./asm/system.h:#define local_irq_enable()
+./asm-v850/system.h:#define local_irq_enable()
+./asm-x86_64/system.h:#define local_irq_enable()
+./asm-x86_64/system.h:#define local_irq_enable()
+
+Systems that use static inline:
+./asm-m32r/system.h:static inline void local_irq_enable(void)
+./asm-sh64/system.h:static __inline__ void local_irq_enable(void)
+./asm-sh/system.h:static __inline__ void local_irq_enable(void)
+./asm-xtensa/system.h:static inline void local_irq_enable(void)
+
+With the "optimizations" that gcc4 is making with inline being only a 
+"suggestion", I think I would prefer to stick with the macro, unless there 
+is violent opposition.
+
+As Mike pointed out - we are sheep - we just do what the majority (18/22) 
+of other people do.
+
+-Robin

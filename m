@@ -1,44 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161008AbWI1VZN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161179AbWI1V0Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161008AbWI1VZN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Sep 2006 17:25:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161116AbWI1VZN
+	id S1161179AbWI1V0Z (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Sep 2006 17:26:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161182AbWI1V0Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Sep 2006 17:25:13 -0400
-Received: from user-0c93tin.cable.mindspring.com ([24.145.246.87]:40376 "EHLO
-	hachi.dashjr.org") by vger.kernel.org with ESMTP id S1161008AbWI1VZL
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Sep 2006 17:25:11 -0400
-From: Luke-Jr <luke@dashjr.org>
-Organization: -Jr family
-To: linux-kernel@vger.kernel.org
-Subject: PCI bridge missing
-Date: Thu, 28 Sep 2006 16:24:15 -0500
-User-Agent: KMail/1.9.1
+	Thu, 28 Sep 2006 17:26:25 -0400
+Received: from gw.goop.org ([64.81.55.164]:6533 "EHLO mail.goop.org")
+	by vger.kernel.org with ESMTP id S1161179AbWI1V0Y (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Sep 2006 17:26:24 -0400
+Message-ID: <451C3E09.6000400@goop.org>
+Date: Thu, 28 Sep 2006 14:26:33 -0700
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+To: Andrew Morton <akpm@osdl.org>
+CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: 2.6.18-1.2689.fc6PAE: oops in ext3_clear_inode+0x52/0x8b
+References: <451C33B2.5000007@goop.org> <20060928142313.8848cec9.akpm@osdl.org>
+In-Reply-To: <20060928142313.8848cec9.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200609281624.16082.luke@dashjr.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This applies to Debian sarge kernels kernel-image-2.4.27-2-686, 2.6.8-3-686, 
-2.6.16-2-686, and 2.6.17-2-686...
-I am trying to setup a Dell Optiplex GX1p system, which has a daughterboard 
-PCI bridge for its PCI and ISA slots:
-00:0f.0 PCI bridge: Digital Equipment Corporation DECchip 21152 (rev 03)
+Andrew Morton wrote:
+> 756e6547 -> uneG.   Matches "GenuineIntel".
+>
+> That'll get written into a temporary page by the /proc/cpuinfo handler, so
+> it might just be a use-uninitialised.
+>   
 
-However, this bridge is completely ignored and unseen by Linux. It does not 
-show up in lspci or dmesg (as far as I can tell) at all. The daughterboard is 
-plugged in, and the PCI cards on it are powered.
+I was compiling a kernel at the time, so it could have come from the 
+kernel source.
 
-How could I go about troubleshooting the problem? Has anyone experienced 
-something like this before?
+> It's relatively common for that big inode LRU walk to wander off in the
+> wrong direction and to start operating on random memory.
+>
+> IOW: don't know.  Something scribbled on memory somewhere.
+>   
 
-Thanks,
+Yep, that was as far as I got...
 
-Luke-Jr
-
-P.S. Please CC me if possible.
+    J

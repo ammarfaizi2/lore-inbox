@@ -1,96 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161199AbWI2AXY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161203AbWI2AX5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161199AbWI2AXY (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Sep 2006 20:23:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161203AbWI2AXY
+	id S1161203AbWI2AX5 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Sep 2006 20:23:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161201AbWI2AX4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Sep 2006 20:23:24 -0400
-Received: from smtp-out.google.com ([216.239.45.12]:10983 "EHLO
-	smtp-out.google.com") by vger.kernel.org with ESMTP
-	id S1161201AbWI2AXW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Sep 2006 20:23:22 -0400
-DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
-	h=received:subject:from:reply-to:to:cc:in-reply-to:references:
-	content-type:organization:date:message-id:mime-version:x-mailer:content-transfer-encoding;
-	b=S9tzs4UE6lKKft2/OYZPBFkpWN1/QQ8ORJd9ua4//0dUSQBlbSE9bHZ+7QUd7yHek
-	A+5TckqRSVtWzO+vFrLjw==
-Subject: Re: [ckrm-tech] [patch00/05]: Containers(V2)- Introduction
-From: Rohit Seth <rohitseth@google.com>
-Reply-To: rohitseth@google.com
-To: balbir@in.ibm.com
-Cc: CKRM-Tech <ckrm-tech@lists.sourceforge.net>, sekharan@us.ibm.com,
-       devel@openvz.org, linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <451C4468.4010009@in.ibm.com>
-References: <1158718568.29000.44.camel@galaxy.corp.google.com>
-	 <1159386644.4773.80.camel@linuxchandra>
-	 <1159392487.23458.70.camel@galaxy.corp.google.com>
-	 <1159395892.4773.107.camel@linuxchandra> <451B815D.2010807@in.ibm.com>
-	 <1159468275.2669.88.camel@galaxy.corp.google.com>
-	 <451C4468.4010009@in.ibm.com>
+	Thu, 28 Sep 2006 20:23:56 -0400
+Received: from mga02.intel.com ([134.134.136.20]:17255 "EHLO mga02.intel.com")
+	by vger.kernel.org with ESMTP id S1161203AbWI2AXz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Sep 2006 20:23:55 -0400
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.09,232,1157353200"; 
+   d="scan'208"; a="137932386:sNHT21840987"
+Subject: Re: [PATCH] low performance of lib/sort.c , kernel 2.6.18
+From: Zou Nan hai <nanhai.zou@intel.com>
+To: Matt Mackall <mpm@selenic.com>
+Cc: keios <keios.cn@gmail.com>, LKML <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+In-Reply-To: <20060928223341.GI6412@waste.org>
+References: <76505a370609280818r3ffc9a4akf4cec6ed366d32e3@mail.gmail.com>
+	 <20060928223341.GI6412@waste.org>
 Content-Type: text/plain
-Organization: Google Inc
-Date: Thu, 28 Sep 2006 17:22:59 -0700
-Message-Id: <1159489380.2669.128.camel@galaxy.corp.google.com>
+Organization: 
+Message-Id: <1159482868.5251.22.camel@linux-znh>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
+X-Mailer: Ximian Evolution 1.2.2 (1.2.2-4) 
+Date: 29 Sep 2006 06:34:28 +0800
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-09-29 at 03:23 +0530, Balbir Singh wrote:
-> Rohit Seth wrote:
-> > On Thu, 2006-09-28 at 13:31 +0530, Balbir Singh wrote:
-
-> > 
-> >> (b) The other option is to do what the resource group memory controller does -
-> >> build a per group LRU list of pages (active, inactive) and reclaim
-> >> them using the existing code (by passing the correct container pointer,
-> >> instead of the zone pointer). One disadvantage of this approach is that
-> >> the global reclaim is impacted as the global LRU list is broken. At the
-> >> expense of another list, we could maintain two lists, global LRU and
-> >> container LRU lists. Depending on the context of the reclaim - (container
-> >> over limit, memory pressure) we could update/manipulate both lists.
-> >> This approach is definitely very expensive.
-> >>
-> > 
-> > Two LRUs is a nice idea.  Though I don't think it will go too far.  It
-> > will involve adding another list pointers in the page structure.  I
-> > agree that the mem handler is not optimal at all but I don't want to
-> > make it mimic kernel reclaimer at the same time.
+On Fri, 2006-09-29 at 06:33, Matt Mackall wrote:
+> On Thu, Sep 28, 2006 at 11:18:45PM +0800, keios wrote:
+> > It is a non-standard heap-sort algorithm implementation because the
+> > index of child node is wrong . The sort function still outputs right
+> > result, but the performance is O( n * ( log(n) + 1 ) ) , about 10% ~
+> > 20% worse than standard algorithm .
+> >
+> > Signed-off-by: keios <keios.cn@gmail.com>
 > 
-> One possible solution is to move the container tracking out of the pages and
-> into address_space and anon_vma. I guess this functionality will complicate
-> task migration and accounting a bit though.
+> Was a bit mystified by this as your patch matches what I've got
+> in my userspace test harness from 2003.
 > 
-
-In the next version, I'm removing the per page pointer for container.
-address_space already has a container pointer, I'm adding a pointer in
-anon_vma as well.  And that does seem to be complicating the accounting
-just a wee bit.  Though on its own, it is not helping the reclaim part. 
-
-I'll have to see how to handle kernel pages w/o a per page pointer.
-
-> > 
-> >> 2. Comments on task migration support
-> >>
-> >> (a) One of the issues I found while using the container code is that, one could
-> >> add a task to a container say "a". "a" gets charged for the tasks usage,
-> >> when the same task moves to a different container say "b", when the task
-> >> exits, the credit goes to "b" and "a" remains indefinitely charged.
-> >>
-> > hmm, when the task is removed from "a" then "a" gets the credits for the
-> > amount of anon memory that is used by the task.  Or do you mean
-> > something different.
+> Here's what I submitted, which is almost the same as yours:
 > 
-> Aah, I see. Once possible minor concern here is that a task could hope across
-> several containers, it could map files in each container and allocate page
-> cache pages, when it reaches the limit, it could hop to another container
-> and carry on until it hits the limit there.
+> http://www.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.11-rc4/2.6.11-rc4-mm1/broken-out/lib-sort-heapsort-implementation-of-sort.patch
 > 
-If there are multiple containers that a process can hop to then yes that
-will happen.
+> Then Zou Nan hai sent Andrew a fix for an off-by-one bug here (merged
+> with my patch):
+> 
+> http://kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.11/2.6.11-mm1/broken-out/lib-sort-heapsort-implementation-of-sort.patch
+> 
+> ..which introduced the performance regression.
+> 
+> And then I subsequently tweaked my local copy for use in another
+> project, coming up with your version.
+> 
+> So this passes my test harness just fine (for both even and odd array
+> sizes).
+> 
+> Acked-by: Matt Mackall <mpm@selenic.com>
 
+ 
+  I think this patch is correct. 
 
-
--rohit
-
+  Thanks
+  Zou Nan hai

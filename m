@@ -1,67 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161059AbWI1K5S@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965309AbWI1LCf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161059AbWI1K5S (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Sep 2006 06:57:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965309AbWI1K5S
+	id S965309AbWI1LCf (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Sep 2006 07:02:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965310AbWI1LCf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Sep 2006 06:57:18 -0400
-Received: from ogre.sisk.pl ([217.79.144.158]:51846 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S965308AbWI1K5R (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Sep 2006 06:57:17 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Adrian Bunk <bunk@stusta.de>
-Subject: Re: When will the lunacy end? (Was Re: [PATCH] uswsusp: add pmops->{prepare,enter,finish} support (aka "platform mode"))
-Date: Thu, 28 Sep 2006 12:59:24 +0200
-User-Agent: KMail/1.9.1
-Cc: Nigel Cunningham <ncunningham@linuxmail.org>, Pavel Machek <pavel@ucw.cz>,
-       Andrew Morton <akpm@osdl.org>, Stefan Seyfried <seife@suse.de>,
-       linux-kernel@vger.kernel.org
-References: <20060925071338.GD9869@suse.de> <200609270712.34082.rjw@sisk.pl> <20060927232137.GB3305@stusta.de>
-In-Reply-To: <20060927232137.GB3305@stusta.de>
+	Thu, 28 Sep 2006 07:02:35 -0400
+Received: from ug-out-1314.google.com ([66.249.92.175]:48800 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S965309AbWI1LCe (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Sep 2006 07:02:34 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=googlemail.com;
+        h=received:from:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
+        b=ujlTLJZLAneJyWvW/3RLiKk8l9gRNXDJcbefoOsaI+5QCbOhcK0TIZIFy0+HwLfbsc2nLzKZMk9qKGK8NY8BwNqYFm3d8Oty43p0gApSvni0IyUZ3R82GtOVMMfITI5cbWqE2mwNxrPUHYzcCVHgQPDurYeE4mOS/qH6KjLT86k=
+From: Denis Vlasenko <vda.linux@googlemail.com>
+To: Randy Dunlap <rdunlap@xenotime.net>
+Subject: Re: Tiny error in printk output for clocksource : a3:<6>Time: acpi_pm clocksource has been installed.
+Date: Thu, 28 Sep 2006 12:56:23 +0200
+User-Agent: KMail/1.8.2
+Cc: Joe Perches <joe@perches.com>, Greg KH <greg@kroah.com>,
+       Jesper Juhl <jesper.juhl@gmail.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+References: <9a8748490609261722g557eaeeayc148b5f5d910874d@mail.gmail.com> <1159333843.13196.6.camel@localhost> <20060926221718.7e20613e.rdunlap@xenotime.net>
+In-Reply-To: <20060926221718.7e20613e.rdunlap@xenotime.net>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200609281259.25608.rjw@sisk.pl>
+Message-Id: <200609281256.23175.vda.linux@googlemail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday, 28 September 2006 01:21, Adrian Bunk wrote:
-> On Wed, Sep 27, 2006 at 07:12:33AM +0200, Rafael J. Wysocki wrote:
-> > On Wednesday, 27 September 2006 01:39, Adrian Bunk wrote:
-> >...
-> > > 
-> > > Who will track these bugs, debug them (who is e.g. responsible for 
-> > > kernel Bugzilla #6035?) and repeatingly poke maintainers to fix such 
-> > > issues?
-> > > 
-> > > If you are saying you will do this job, I can try to redirect such bug 
-> > > reports to the kernel Bugzilla, create a "suspend driver problems" meta 
-> > > bug there, assign it to you and create the dependencies that it tracks 
-> > > the already existing bugs in the kernel Bugzilla.
-> > 
-> > Yes, please do this.
-> > 
-> > [I must say I'm a bit afraid of that but anyway someone has to do it ... ;-)]
+On Wednesday 27 September 2006 07:17, Randy Dunlap wrote:
+> On Tue, 26 Sep 2006 22:10:43 -0700 Joe Perches wrote:
 > 
-> OK, thanks.
+> > On Tue, 2006-09-26 at 21:56 -0700, Randy Dunlap wrote:
+> > > > Nope, that's part of the NIC's MAC address.  It was split up.
+> > > 
+> > > Sorry.  In this case, it was via-rhine.c:
+> > > 
+> > > 	for (i = 0; i < 5; i++)
+> > > 		printk("%2.2x:", dev->dev_addr[i]);
+> > > 	printk("%2.2x, IRQ %d.\n", dev->dev_addr[i], pdev->irq);
+> > > 
+> > > so it does break the printk()s up itself.
+> > 
+> > Changing all of those MAC address printks to a single function
+> > could prevent this.
+> > 
+> > http://www.uwsg.iu.edu/hypermail/linux/net/0602.1/0002.html
 > 
-> I've created #7216, assigned it to you and added Pavel and Nigel to
-> the Cc.
+> True enough.  Thanks for the patch.
+> However, in this case, the single-printed MAC address still needs
+> a \n, with the IRQ on a separate line (wasting vertical screen space),
+> or it needs a custom printk() that is all done at one time.
 
-Thanks.
+Custom print_mac worked very nice for me in acx driver.
+In order to accomodate arbitrary text before/after mac addres,
+I did it this way:
 
-> If in doubt I added a bug to the list, so it might contain some false 
-> positives.
+#define MACSTR "%02X:%02X:%02X:%02X:%02X:%02X"
+#define MAC(bytevector) \
+        ((unsigned char *)bytevector)[0], \
+        ((unsigned char *)bytevector)[1], \
+        ((unsigned char *)bytevector)[2], \
+        ((unsigned char *)bytevector)[3], \
+        ((unsigned char *)bytevector)[4], \
+        ((unsigned char *)bytevector)[5]
 
-OK
+void print_mac(const char *head, const unsigned char *mac, const char *tail)
+{
+        printk("%s"MACSTR"%s", head, MAC(mac), tail);
+}
 
-Greetings,
-Rafael
 
-
--- 
-You never change things by fighting the existing reality.
-		R. Buckminster Fuller
+Usage: print_mac("adev->bssid: ", adev->bssid, "\n");
+--
+vda

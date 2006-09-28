@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030265AbWI1RcO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030269AbWI1Rct@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030265AbWI1RcO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Sep 2006 13:32:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030267AbWI1RcO
+	id S1030269AbWI1Rct (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Sep 2006 13:32:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030266AbWI1Rct
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Sep 2006 13:32:14 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:62598 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1030265AbWI1RcM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Sep 2006 13:32:12 -0400
-Date: Thu, 28 Sep 2006 23:02:02 +0530
+	Thu, 28 Sep 2006 13:32:49 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.152]:59114 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S1030269AbWI1Rcr
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Sep 2006 13:32:47 -0400
+Date: Thu, 28 Sep 2006 23:02:39 +0530
 From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
 To: Ingo Molnar <mingo@elte.hu>, Nick Piggin <nickpiggin@yahoo.com.au>
 Cc: linux-kernel@vger.kernel.org, Kirill Korotaev <dev@openvz.org>,
@@ -17,8 +17,8 @@ Cc: linux-kernel@vger.kernel.org, Kirill Korotaev <dev@openvz.org>,
        sekharan@us.ibm.com, Andrew Morton <akpm@osdl.org>,
        nagar@watson.ibm.com, matthltc@us.ibm.com, dipankar@in.ibm.com,
        ckrm-tech@lists.sourceforge.net
-Subject: [RFC, PATCH 6/9] CPU Controller V2 - Handle dont care groups
-Message-ID: <20060928173202.GG8746@in.ibm.com>
+Subject: [RFC, PATCH 7/9] CPU Controller V2 - SMP load balance changes
+Message-ID: <20060928173239.GH8746@in.ibm.com>
 Reply-To: vatsa@in.ibm.com
 References: <20060928172520.GA8746@in.ibm.com>
 Mime-Version: 1.0
@@ -29,185 +29,269 @@ User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Deal with task-groups whose bandwidth hasnt been explicitly set by the
-administrator. Unallocated CPU bandwidth is equally distributed among such
-"don't care" groups.
+When balancing tasks across CPU runqueues, we need to take into account the 
+quota of task-groups (for example: we dont want to pull all tasks of a group
+with 90% limit on the same CPU).
+
+This is easily accomplished by piggy backing on the smpnice mechanism.
+
+This patch also modifies move_tasks() to look at all the arrays of runqueue for 
+pulling tasks.
 
 Signed-off-by : Srivatsa Vaddagiri <vatsa@in.ibm.com>
 
 ---
 
- linux-2.6.18-root/include/linux/sched.h |    2 
- linux-2.6.18-root/kernel/sched.c        |   92 ++++++++++++++++++++++++++++++--
- 2 files changed, 88 insertions(+), 6 deletions(-)
+ linux-2.6.18-root/kernel/sched.c |  155 +++++++++++++++++++++++++++++----------
+ 1 files changed, 119 insertions(+), 36 deletions(-)
 
-diff -puN kernel/sched.c~cpu_ctlr_handle_dont_cares kernel/sched.c
---- linux-2.6.18/kernel/sched.c~cpu_ctlr_handle_dont_cares	2006-09-28 16:40:28.772666712 +0530
-+++ linux-2.6.18-root/kernel/sched.c	2006-09-28 17:23:16.989238448 +0530
-@@ -226,6 +226,12 @@ static DEFINE_PER_CPU(struct task_grp_rq
- /* task-group object - maintains information about each task-group */
- struct task_grp {
- 	unsigned short ticks, long_ticks; /* bandwidth given to task-group */
-+ 	int left_over_pct;
-+ 	int total_dont_care_grps;
-+ 	int dont_care;          /* Does this group care for its bandwidth ? */
-+ 	struct task_grp *parent;
-+ 	struct list_head dont_care_list;
-+ 	struct list_head list;
- 	struct task_grp_rq *rq[NR_CPUS]; /* runqueue pointer for every cpu */
+diff -puN kernel/sched.c~load_balance kernel/sched.c
+--- linux-2.6.18/kernel/sched.c~load_balance	2006-09-28 16:40:34.992721120 +0530
++++ linux-2.6.18-root/kernel/sched.c	2006-09-28 17:23:15.762424952 +0530
+@@ -216,7 +216,7 @@ struct task_grp_rq {
+ 	unsigned long expired_timestamp;
+ 	unsigned short ticks, long_ticks;
+   	int prio;			/* Priority of the task-group */
+-	unsigned long last_update;
++	unsigned long last_update, raw_weighted_load;
+ 	struct list_head list;
+ 	struct task_grp *tg;
  };
+@@ -906,6 +906,11 @@ static inline int __normal_prio(struct t
+ #define RTPRIO_TO_LOAD_WEIGHT(rp) \
+ 	(PRIO_TO_LOAD_WEIGHT(MAX_RT_PRIO) + LOAD_WEIGHT(rp))
  
-@@ -7031,6 +7037,12 @@ void __init sched_init(void)
- 
- 	init_task_grp.ticks = CPU_CONTROL_SHORT_WINDOW;   /* 100% bandwidth */
- 	init_task_grp.long_ticks = NUM_LONG_TICKS;
-+ 	init_task_grp.left_over_pct = 100;  /* 100% unallocated bandwidth */
-+ 	init_task_grp.parent = NULL;
-+ 	init_task_grp.total_dont_care_grps = 1;	/* init_task_grp itself */
-+ 	init_task_grp.dont_care = 1;
-+ 	INIT_LIST_HEAD(&init_task_grp.dont_care_list);
-+	list_add_tail(&init_task_grp.list, &init_task_grp.dont_care_list);
- 
- 	for_each_possible_cpu(i) {
- 		struct rq *rq;
-@@ -7195,8 +7207,31 @@ void set_curr_task(int cpu, struct task_
- 
- #ifdef CONFIG_CPUMETER
- 
-+/* Distribute left over bandwidth equally to all "dont care" task groups */
-+static void recalc_dontcare(struct task_grp *tg_root)
++static inline int cpu_quota(struct task_grp *tg)
 +{
-+	int ticks;
-+	struct list_head *entry;
-+
-+	if (!tg_root->total_dont_care_grps)
-+		return;
-+
-+	ticks = ((tg_root->left_over_pct / tg_root->total_dont_care_grps) *
-+		       				CPU_CONTROL_SHORT_WINDOW) / 100;
-+
-+	list_for_each(entry, &tg_root->dont_care_list) {
-+		struct task_grp *tg;
-+		int i;
-+
-+		tg = list_entry(entry, struct task_grp, list);
-+		tg->ticks = ticks;
-+		for_each_possible_cpu(i)
-+			tg->rq[i]->ticks = tg->ticks;
-+	}
++	return (tg->ticks * 100) / CPU_CONTROL_SHORT_WINDOW;
 +}
 +
- /* Allocate runqueue structures for the new task-group */
--void *sched_alloc_group(void)
-+void *sched_alloc_group(struct task_grp *tg_parent)
+ static void set_load_weight(struct task_struct *p)
  {
- 	struct task_grp *tg;
- 	struct task_grp_rq *tgrq;
-@@ -7208,6 +7243,10 @@ void *sched_alloc_group(void)
+ 	if (has_rt_policy(p)) {
+@@ -919,21 +924,25 @@ static void set_load_weight(struct task_
+ 			p->load_weight = 0;
+ 		else
+ #endif
+-			p->load_weight = RTPRIO_TO_LOAD_WEIGHT(p->rt_priority);
++			p->load_weight = (RTPRIO_TO_LOAD_WEIGHT(p->rt_priority)
++						* cpu_quota(task_grp(p))) / 100;
+ 	} else
+-		p->load_weight = PRIO_TO_LOAD_WEIGHT(p->static_prio);
++		p->load_weight = (PRIO_TO_LOAD_WEIGHT(p->static_prio)
++						* cpu_quota(task_grp(p))) / 100;
+ }
  
- 	tg->ticks = CPU_CONTROL_SHORT_WINDOW;
- 	tg->long_ticks = NUM_LONG_TICKS;
-+	tg->parent = tg_parent;
-+	tg->dont_care = 1;
-+	tg->left_over_pct = 100;
-+	INIT_LIST_HEAD(&tg->dont_care_list);
- 
- 	for_each_possible_cpu(i) {
- 		tgrq = kzalloc(sizeof(*tgrq), GFP_KERNEL);
-@@ -7217,6 +7256,15 @@ void *sched_alloc_group(void)
- 		task_grp_rq_init(tgrq, tg);
- 	}
- 
-+	if (tg->parent) {
-+		tg->parent->total_dont_care_grps++;
-+		list_add_tail(&tg->list, &tg->parent->dont_care_list);
-+		recalc_dontcare(tg->parent);
-+	} else {
-+		tg->total_dont_care_grps = 1;
-+		list_add_tail(&tg->list, &tg->dont_care_list);
-+	}
-+
- 	return tg;
- oom:
- 	while (i--)
-@@ -7230,6 +7278,16 @@ oom:
- void sched_dealloc_group(struct task_grp *tg)
+ static inline void
+-inc_raw_weighted_load(struct rq *rq, const struct task_struct *p)
++inc_raw_weighted_load(struct rq *rq, struct task_struct *p)
  {
- 	int i;
-+	struct task_grp *tg_root = tg->parent;
-+
-+	if (!tg_root)
-+		tg_root = tg;
-+
-+	if (tg->dont_care) {
-+		tg_root->total_dont_care_grps--;
-+		list_del(&tg->list);
-+		recalc_dontcare(tg_root);
-+	}
+ 	rq->raw_weighted_load += p->load_weight;
++	task_grp_rq(p)->raw_weighted_load += p->load_weight;
+ }
  
- 	for_each_possible_cpu(i)
- 		kfree(tg->rq[i]);
-@@ -7240,12 +7298,33 @@ void sched_dealloc_group(struct task_grp
- /* Assign quota to this group */
- int sched_assign_quota(struct task_grp *tg, int quota)
+ static inline void
+-dec_raw_weighted_load(struct rq *rq, const struct task_struct *p)
++dec_raw_weighted_load(struct rq *rq, struct task_struct *p)
  {
--	int i;
-+	int i, old_quota = 0;
-+	struct task_grp *tg_root = tg->parent;
+ 	rq->raw_weighted_load -= p->load_weight;
++	task_grp_rq(p)->raw_weighted_load -= p->load_weight;
+ }
+ 
+ static inline void inc_nr_running(struct task_struct *p, struct rq *rq)
+@@ -2241,42 +2250,30 @@ int can_migrate_task(struct task_struct 
+ 	return 1;
+ }
+ 
+-#define rq_best_prio(rq) min((rq)->curr->prio, (rq)->expired->best_static_prio)
++#define rq_best_prio(rq) min((rq)->active->best_dyn_prio, \
++				 (rq)->expired->best_static_prio)
+ 
+-/*
+- * move_tasks tries to move up to max_nr_move tasks and max_load_move weighted
+- * load from busiest to this_rq, as part of a balancing operation within
+- * "domain". Returns the number of tasks moved.
+- *
+- * Called with both runqueues locked.
+- */
+-static int move_tasks(struct rq *this_rq, int this_cpu, struct rq *busiest,
+-		      unsigned long max_nr_move, unsigned long max_load_move,
+-		      struct sched_domain *sd, enum idle_type idle,
+-		      int *all_pinned)
++static int __move_tasks(struct task_grp_rq *this_rq, int this_cpu,
++			struct task_grp_rq *busiest, unsigned long max_nr_move,
++			unsigned long max_load_move, struct sched_domain *sd,
++			enum idle_type idle, int *all_pinned, long *load_moved)
+ {
+ 	int idx, pulled = 0, pinned = 0, this_best_prio, best_prio,
+-	    best_prio_seen, skip_for_load;
++	    best_prio_seen = 0, skip_for_load;
+ 	struct prio_array *array, *dst_array;
+ 	struct list_head *head, *curr;
+ 	struct task_struct *tmp;
+-	long rem_load_move;
++	long rem_load_move, grp_load_diff;
 +
-+	if (!tg_root)
-+		tg_root = tg;
++	grp_load_diff = busiest->raw_weighted_load - this_rq->raw_weighted_load;
++	rem_load_move = grp_load_diff/2;
+ 
+-	if (max_nr_move == 0 || max_load_move == 0)
++	if (grp_load_diff < 0 || max_nr_move == 0 || max_load_move == 0)
+ 		goto out;
+ 
+-	rem_load_move = max_load_move;
+ 	pinned = 1;
+ 	this_best_prio = rq_best_prio(this_rq);
+ 	best_prio = rq_best_prio(busiest);
+-	/*
+-	 * Enable handling of the case where there is more than one task
+-	 * with the best priority.   If the current running task is one
+-	 * of those with prio==best_prio we know it won't be moved
+-	 * and therefore it's safe to override the skip (based on load) of
+-	 * any task we find with that prio.
+-	 */
+-	best_prio_seen = best_prio == busiest->curr->prio;
+ 
+ 	/*
+ 	 * We first consider expired tasks. Those will likely not be
+@@ -2325,7 +2322,7 @@ skip_queue:
+ 	if (skip_for_load && idx < this_best_prio)
+ 		skip_for_load = !best_prio_seen && idx == best_prio;
+ 	if (skip_for_load ||
+-	    !can_migrate_task(tmp, busiest, this_cpu, sd, idle, &pinned)) {
++	    !can_migrate_task(tmp, task_rq(tmp), this_cpu, sd, idle, &pinned)) {
+ 
+ 		best_prio_seen |= idx == best_prio;
+ 		if (curr != head)
+@@ -2339,7 +2336,8 @@ skip_queue:
+ 		schedstat_inc(sd, lb_hot_gained[idle]);
+ #endif
+ 
+-	pull_task(busiest, array, tmp, this_rq, dst_array, this_cpu);
++	pull_task(task_rq(tmp), array, tmp, cpu_rq(this_cpu), dst_array,
++								 this_cpu);
+ 	pulled++;
+ 	rem_load_move -= tmp->load_weight;
+ 
+@@ -2365,9 +2363,98 @@ out:
+ 
+ 	if (all_pinned)
+ 		*all_pinned = pinned;
++	*load_moved = grp_load_diff/2 - rem_load_move;
+ 	return pulled;
+ }
+ 
++static inline int choose_next_array(struct prio_array *arr[], int start_idx)
++{
++	int i;
 +
-+	if (!tg->dont_care)
-+		old_quota = (tg->ticks * 100) / CPU_CONTROL_SHORT_WINDOW;
++	for (i = start_idx; arr[i]; i++)
++		if (arr[i]->nr_active)
++			break;
 +
-+	if (quota > (tg_root->left_over_pct - old_quota))
-+		return -EINVAL;
++	return i;
++}
 +
-+	if (tg->dont_care) {
-+		tg->dont_care = 0;
-+		tg_root->total_dont_care_grps--;
-+		list_del(&tg->list);
++/*
++ * move_tasks tries to move up to max_nr_move tasks and max_load_move weighted
++ * load from busiest to this_rq, as part of a balancing operation within
++ * "domain". Returns the number of tasks moved.
++ *
++ * Called with both runqueues locked.
++ */
++static int move_tasks(struct rq *this_rq, int this_cpu, struct rq *busiest,
++		      unsigned long max_nr_move, unsigned long max_load_move,
++		      struct sched_domain *sd, enum idle_type idle,
++		      int *all_pinned)
++{
++	struct task_grp_rq *busy_grp, *this_grp;
++	long load_moved;
++	unsigned long total_nr_moved = 0, nr_moved;
++	int idx;
++	int arr_idx = 0;
++	struct list_head *head, *curr;
++	struct prio_array *array, *array_prefs[5];
++
++
++	/* order in which tasks are picked up */
++	array_prefs[0] = busiest->greedy_expired;
++	array_prefs[1] = busiest->greedy_active;
++	array_prefs[2] = busiest->expired;
++	array_prefs[3] = busiest->active;
++	array_prefs[4] = NULL;
++
++	arr_idx = choose_next_array(array_prefs, arr_idx);
++	array = array_prefs[arr_idx++];
++
++	if (!array)
++		goto out;
++
++new_array:
++	/* Start searching at priority 0: */
++	idx = 0;
++skip_bitmap:
++	if (!idx)
++		idx = sched_find_first_bit(array->bitmap);
++	else
++		idx = find_next_bit(array->bitmap, MAX_PRIO, idx);
++	if (idx >= MAX_PRIO) {
++		arr_idx = choose_next_array(array_prefs, arr_idx);
++		array = array_prefs[arr_idx++];
++		if (!array)
++			goto out;
++		goto new_array;
 +	}
- 
- 	tg->ticks = (quota * CPU_CONTROL_SHORT_WINDOW) / 100;
-+	for_each_possible_cpu(i) {
-+  		tg->rq[i]->ticks = tg->ticks;
-+		tg->rq[i]->long_ticks = tg->long_ticks;
-+	}
- 
--	for_each_possible_cpu(i)
--		tg->rq[i]->ticks = tg->ticks;
-+	/* xxx: needs some locking */
-+	tg_root->left_over_pct -= (quota - old_quota);
-+	recalc_dontcare(tg_root);
- 
++
++	head = array->queue + idx;
++	curr = head->prev;
++skip_queue:
++	busy_grp = list_entry(curr, struct task_grp_rq, list);
++	this_grp = busy_grp->tg->rq[this_cpu];
++
++	curr = curr->prev;
++
++	nr_moved = __move_tasks(this_grp, this_cpu, busy_grp, max_nr_move,
++			max_load_move, sd, idle, all_pinned, &load_moved);
++
++	total_nr_moved += nr_moved;
++	max_nr_move -= nr_moved;
++	max_load_move -= load_moved;
++
++	if (!max_nr_move || (long)max_load_move <= 0)
++		goto out;
++
++	if (curr != head)
++		goto skip_queue;
++	idx++;
++	goto skip_bitmap;
++
++out:
++	return total_nr_moved;
++}
++
+ /*
+  * find_busiest_group finds and returns the busiest CPU group within the
+  * domain. It calculates and returns the amount of weighted load which
+@@ -7329,11 +7416,6 @@ int sched_assign_quota(struct task_grp *
  	return 0;
  }
-@@ -7258,7 +7337,10 @@ static inline int cpu_quota(struct task_
+ 
+-static inline int cpu_quota(struct task_grp *tg)
+-{
+-	return (tg->ticks * 100) / CPU_CONTROL_SHORT_WINDOW;
+-}
+-
  /* Return assigned quota for this group */
  int sched_get_quota(struct task_grp *tg)
  {
--	return cpu_quota(tg);
-+	if (tg->dont_care)
-+		return 0;
-+	else
-+		return cpu_quota(tg);
- }
+@@ -7396,6 +7478,7 @@ void sched_post_move_task(struct task_st
+ {
+ 	struct rq *rq = task_rq(tsk);
  
- /*
-diff -puN include/linux/sched.h~cpu_ctlr_handle_dont_cares include/linux/sched.h
---- linux-2.6.18/include/linux/sched.h~cpu_ctlr_handle_dont_cares	2006-09-28 16:40:28.777665952 +0530
-+++ linux-2.6.18-root/include/linux/sched.h	2006-09-28 16:40:28.801662304 +0530
-@@ -1615,7 +1615,7 @@ static inline int try_to_freeze(void) { 
- #ifdef CONFIG_CPUMETER
- struct task_grp;
- struct task_grp_ops {
--	void *(*alloc_group)(void);
-+	void *(*alloc_group)(struct task_grp *grp_parent);
- 	void (*dealloc_group)(struct task_grp *grp);
- 	int (*assign_quota)(struct task_grp *grp, int quota);
- 	int (*pre_move_task)(struct task_struct *tsk, unsigned long *,
++	set_load_weight(tsk);
+ 	if (rc == 2)
+ 		__activate_task(tsk, rq);
+ 
 _
 -- 
 Regards,

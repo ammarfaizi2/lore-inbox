@@ -1,59 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030366AbWI1SuI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161007AbWI1SuV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030366AbWI1SuI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Sep 2006 14:50:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030368AbWI1SuI
+	id S1161007AbWI1SuV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Sep 2006 14:50:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161011AbWI1SuV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Sep 2006 14:50:08 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:22967 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1030366AbWI1SuF (ORCPT
+	Thu, 28 Sep 2006 14:50:21 -0400
+Received: from xenotime.net ([66.160.160.81]:52928 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1161007AbWI1SuT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Sep 2006 14:50:05 -0400
-Date: Thu, 28 Sep 2006 11:49:39 -0700
-From: Paul Jackson <pj@sgi.com>
-To: menage@google.com
-Cc: akpm@osdl.org, ckrm-tech@lists.sourceforge.net, mbligh@google.com,
-       rohitseth@google.com, winget@google.com, dev@sw.ru, sekharan@us.ibm.com,
-       linux-kernel@vger.kernel.org, jlan@sgi.com
-Subject: Re: [RFC][PATCH 0/4] Generic container system
-Message-Id: <20060928114939.d13c957b.pj@sgi.com>
-In-Reply-To: <20060928104035.840699000@menage.corp.google.com>
-References: <20060928104035.840699000@menage.corp.google.com>
-Organization: SGI
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
+	Thu, 28 Sep 2006 14:50:19 -0400
+Date: Thu, 28 Sep 2006 11:51:34 -0700
+From: Randy Dunlap <rdunlap@xenotime.net>
+To: Judith Lebzelter <judith@osdl.org>
+Cc: linux-kernel@vger.kernel.org, vda@ilport.com.ua, akpm@osdl.org,
+       acx100-devel@lists.sourceforge.net
+Subject: Re: 2.6.18-mm1 tiacx-fix-attribute-packed-warnings for wlan
+Message-Id: <20060928115134.92738bb4.rdunlap@xenotime.net>
+In-Reply-To: <20060928173421.GG26041@shell0.pdx.osdl.net>
+References: <20060928173421.GG26041@shell0.pdx.osdl.net>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Menage wrote:
-> This patchset extracts the process grouping code from cpusets into a
-> generic container system,
+On Thu, 28 Sep 2006 10:34:21 -0700 Judith Lebzelter wrote:
 
-Interesting.  I'll try to give it a careful review in the next couple
-of days.
+> Hello,
+> 
+> The patch tiacx-fix-attribute-packed-warnings.patch takes care of many of 
+> the 'packed attribute' warnings, but I noticed that some of these warnings like:
+> 
+> drivers/net/wireless/tiacx/wlan_compat.h:246: warning: 'packed' attribute ignored for field of type 'u8[5u]'
+> drivers/net/wireless/tiacx/wlan_hdr.h:476: warning: 'packed' attribute ignored for field of type 'wlanitem_u32_t'
+> drivers/net/wireless/tiacx/wlan_mgmt.h:253: warning: 'packed' attribute ignored for field of type 'u8'
+> 
+> are still present for the i386/allmodconfig build on gcc-4.1.1 for 2.6.18-mm1.  
+> So I made a patch for the files where it is still a problem.  This compiled
+> without warnings.
 
-I've added Jay Lan <jlan@sgi.com> to the cc list.  I encourage you to
-include him on your cc list in the future - thanks.  He has expertise
-in some of SGI's earlier container-like efforts.
 
-> cpusets ... well documented
-> (particularly with regards to synchronization rules).
+Hello,
 
-thanks ;
+How are you creating/generating patch files?  (git, quilt, by hand, ...)
+[quilt can help a bit if your answer is "by hand" or by custom tools.]
 
-Question (perhaps already answered in your code - I haven't looked
-yet): can loadable kernel modules register containers?  I'd like to
-see at least GPL modules be able to register containers, but I
-appreciate that this could be a controversial issue.  Technically, I am
-guessing that some EXPORT_GPL_SYMPOL declarations on the necessary
-container registration routines would provide GPL modules with this
-capability.
+Please see Documentation/SubmittingPatches, e.g.:
 
-Guess I should read the code ...
+section 12) The canonical patch format
 
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+Consider including output of "diffstat -p1 -w70" after the
+"---" marker so that patch readers can see what files are
+changed and how much.
+
+Please add diff option "-p" also.
+
+(all mentioned in SubmittingPatches)
+
+> diff -Nur linux.nodelta/drivers/net/wireless/tiacx/wlan_compat.h linux/drivers/net/wireless/tiacx/wlan_compat.h
+> --- linux.nodelta/drivers/net/wireless/tiacx/wlan_compat.h	2006-09-28 09:06:00.628523695 -0700
+> +++ linux/drivers/net/wireless/tiacx/wlan_compat.h	2006-09-28 09:50:59.301786662 -0700
+> @@ -243,20 +243,20 @@
+
+Thanks.
+---
+~Randy

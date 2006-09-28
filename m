@@ -1,99 +1,119 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030248AbWI1QZ7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030250AbWI1Q1h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030248AbWI1QZ7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Sep 2006 12:25:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030249AbWI1QZ7
+	id S1030250AbWI1Q1h (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Sep 2006 12:27:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030253AbWI1Q1h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Sep 2006 12:25:59 -0400
-Received: from ug-out-1314.google.com ([66.249.92.175]:36965 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1030248AbWI1QZ6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Sep 2006 12:25:58 -0400
+	Thu, 28 Sep 2006 12:27:37 -0400
+Received: from py-out-1112.google.com ([64.233.166.183]:10335 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S1030249AbWI1Q1f (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Sep 2006 12:27:35 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=googlemail.com;
-        h=received:from:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=f4qu1Gznh8g99y56Ei/yCaHW9Sr23+ZK8KCyGpyH6fru4LMLaBZoxPRYlW5QoUZMnsj7vQ2EaGZ2XmO+wIbNzE6TMowVtxUKZqkRrPYHRh0KlVe2cAF7FRgZkqvfC91pUTcogWT/HnAtUMTR8aM9/7F6kFRp4HGnvj1/NtZQ3Bs=
-From: Denis Vlasenko <vda.linux@googlemail.com>
-To: Joe Perches <joe@perches.com>
-Subject: Re: Tiny error in printk output for clocksource : a3:<6>Time: acpi_pm clocksource has been installed.
-Date: Thu, 28 Sep 2006 18:19:43 +0200
+        s=beta; d=gmail.com;
+        h=received:from:organization:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
+        b=O5hOtUQKngYLjQLtXmL3WezUOHCNHx4pd4lbMBEvw1lpg5KpKfGAiH15QgnkDdW3cQ2YIEF17yvM+BPd/4WxGcHUiN8EEDbegbmrKsQZLey7niUeMFCt4iFmuLYIAkpw15QUbkRTCIq0sQxJwAd4RMOdfhOsSaqv1R1R09MuzuU=
+From: Yu Luming <luming.yu@gmail.com>
+Organization: gmail
+To: stelian@popies.net
+Subject: Re: sonypc with Sony Vaio VGN-SZ1VP
+Date: Fri, 29 Sep 2006 00:27:33 +0800
 User-Agent: KMail/1.8.2
-Cc: Randy Dunlap <rdunlap@xenotime.net>, Greg KH <greg@kroah.com>,
-       Jesper Juhl <jesper.juhl@gmail.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <9a8748490609261722g557eaeeayc148b5f5d910874d@mail.gmail.com> <200609281256.23175.vda.linux@googlemail.com> <1159459694.5015.19.camel@localhost>
-In-Reply-To: <1159459694.5015.19.camel@localhost>
+Cc: "Len Brown" <lenb@kernel.org>, "Andrew Morton" <akpm@osdl.org>,
+       "Ismail Donmez" <ismail@pardus.org.tr>,
+       "Andrea Gelmini" <gelma@gelma.net>, linux-kernel@vger.kernel.org,
+       linux-acpi@vger.kernel.org
+References: <49814.213.30.172.234.1159357906.squirrel@webmail.popies.net>
+In-Reply-To: <49814.213.30.172.234.1159357906.squirrel@webmail.popies.net>
 MIME-Version: 1.0
 Content-Type: text/plain;
-  charset="koi8-r"
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200609281819.43712.vda.linux@googlemail.com>
+Message-Id: <200609290027.33262.luming.yu@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 28 September 2006 18:08, Joe Perches wrote:
-> On Thu, 2006-09-28 at 12:56 +0200, Denis Vlasenko wrote:
-> > \#define MACSTR "%02X:%02X:%02X:%02X:%02X:%02X"
-> > #define MAC(bytevector) \
-> >         ((unsigned char *)bytevector)[0], \
-> >         ((unsigned char *)bytevector)[1], \
-> >         ((unsigned char *)bytevector)[2], \
-> >         ((unsigned char *)bytevector)[3], \
-> >         ((unsigned char *)bytevector)[4], \
-> >         ((unsigned char *)bytevector)[5]
-> 
-> This is similar to the 802.11 way.
-> 802.11 uses MAC_FMT and MAC_ARG.
-> I think a common style is preferable.
-> 
-> It's fine, but it increases the size of kernel image
-> by up to ~100K.  Using a common function, a stack
-> automatic and "%s" in the printk decreases the size
-> of the kernel. 
+On Wednesday 27 September 2006 19:51, stelian@popies.net wrote:
+> >> > Will sony_acpi ever make it to the mainline? Its very useful for new
+> >>
+> >> Vaio
+> >>
+> >> > models.
+> >
+> > Nope, not as it is.  Useful != supportable.
+> >
+> > 1. It must not create any files under /proc/acpi
+> >     This is creating a machine-specific API, which
+> >     is exactly what we don't want  Nobody can maintain
+> >     50 machine specific APIs.
+> >
+> >     These objects must appear generic and under sysfs
+> >     as if acpi were not involved in providing them.
+> >
+> > 2. its source code shall not live in drivers/acpi
+> >     it is not part of the ACPI implementation after all --
+> >     it is a platform specific driver.
+>
+> In this case, would a patch ripping off asus_acpi, ibm_acpi and
+> toshiba_acpi  from the kernel be accepted ?
+>
+> I don't really care much about sony_acpi (since I'm not maintaining it
+> anymore, even if I still answer support requests about it), but this is
+> just silly. This has been going on for more than one and a half year now.
+>
+> Meanwhile (at least from what I've seen), the ACPI subsystem still doesn't
+> provide this "generic" API which platform specific driver need to
+> implement. drivers/acpi/{hotkey.c,video.c} are just rudimentary, and there
+> is no indication that this is going forward:
+>
+> In March 2005 you (Len) said:
+> > The goal is to DELETE ibm, toshiba, and asus drivers -- or at least the
+> > duplicated functions in them.
+> >
+> > platform specific drivers make it harder, not easier, to support more
+> > hardware -- there are a zillion vendors out there, implementing special
+> > drivers for each of them is a strategy of last resort.
 
-You deleted part of my message where I show exactly that:
-a common function, which handles 80% of usage cases.
+hotkey.c was expected to replace all platform specific driver under
+acpi directory, and I have ever expected that ACPI spec would define
+standard device ID, and AML method name and event number for common keys
+such as brightness control, output switch. So, I was expecting the hotkey.c
+could become the generic driver when such spec was published and accepted
+by OEMs. But, I don't know if such kind of things will happen.
 
-You are trying to cover all possible cases with this monstrosity:
+>
+> and
+>
+> > I'd like to keep this driver out-of-tree
+> > until we prove that we can't enhance the
+> > generic code to handle this hardware
+> > without the addition of a new driver.
 
-extern char *__dev_addr6_fmt(char* buf, const unsigned char *addr);
-#define DEV_ADDR6_FMT "%s" /* expands to: "FF:FF:FF:FF:FF:FF" */
-#define DEV_ADDR6_BUF char __dev_addr6_buf[sizeof("FF:FF:FF:FF:FF:FF")]
-#define DEV_ADDR6(addr) __dev_addr6_fmt(__dev_addr6_buf,(const unsigned char*)addr)
-#define DEV_ADDR6_BUF_2 char __dev_addr6_buf_2[sizeof("FF:FF:FF:FF:FF:FF")]
-#define DEV_ADDR6_2(addr) __dev_addr6_fmt(__dev_addr6_buf_2,(const unsigned char*)addr)
-#define DEV_ADDR6_BUF_3 char __dev_addr6_buf_3[sizeof("FF:FF:FF:FF:FF:FF")]
-#define DEV_ADDR6_3(addr) __dev_addr6_fmt(__dev_addr6_buf_3,(const unsigned char*)addr)
-#define DEV_ADDR6_BUF_4 char __dev_addr6_buf_4[sizeof("FF:FF:FF:FF:FF:FF")]
-#define DEV_ADDR6_4(addr) __dev_addr6_fmt(__dev_addr6_buf_4,(const unsigned char*)addr)
+So, if there are NO standards, and we don't want mess up user space tools with
+a dozen of totally different acpi proc interface for different platform 
+drivers. We have to use  generic code to create  unified interface for the 
+sake of clean user space tool.  Some technique are:
+1. use input layer to translate any hot-key event into key code defined in 
+input.h
+2. use backlight class (driver/video/backlight.c)  to hook generic brightness 
+control interface for brightness control under sysfs. 
+3. use output class to hook generic output switch control interface for 
+display output switch control under sysfs.
+4. other generic code.
+..
+>
+> How long is this going to take ?
+>
+I think the maintainer of asus_acpi, toshiba_acpi, ibm_acpi, sony_acpi, 
+panasonic_acpi, msi_acpi, ... should use the techniques mentioned above.
+for new platform, Please don't just fork a new driver from toshiba_acpi.c, or
+the existing ones in drivers/acpi. They also need to use  generic code 
+mentioned above.   Then, the platform specific driver could be accepted into 
+mainline. Otherwise, I don't know how these kind of platform specific driver
+can be maintained, and deployed by OSV.
 
-Usage:
+Thanks,
+Luming
 
-DEV_ADDR6_BUF;
-...
-printk(", h/w address " DEV_ADDR6_FMT "\n", DEV_ADDR6(dev->dev_addr));
 
-Why don't you use a parameter for DEV_ADDR6{_BUF}? DEV_ADDR6_BUF(var_name).
-DEV_ADDR6(var_name, addr). That would be less cryptic.
-
-In my case, it's just
-
-print_mac(", h/w address ", dev->dev_addr, "\n");
-
-Actually, I think it makes sense to have both: yours for complicated
-cases (printk with lots of other %something) and mine for simple ones
-(no local variable, smaller code).
-
-> Strictly, not all MAC addresses are 6 byte.
-> 
-> Maybe all the Ethernet/TR addresses should use the
-> IEEE EUI48 designation?  That feels a bit like the
-> KiB/KB distinction, but it is technically correct.
-> 
-> Would a patch with an DEV6_ADDR->EUI48 substitution
-> be acceptable?
-
-Maybe. Doesn't look obvious, but if it is in standards...
---
-vda

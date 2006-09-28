@@ -1,83 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751918AbWI1Pc3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965113AbWI1Pi7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751918AbWI1Pc3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Sep 2006 11:32:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751917AbWI1Pc3
+	id S965113AbWI1Pi7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Sep 2006 11:38:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965118AbWI1Pi7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Sep 2006 11:32:29 -0400
-Received: from excu-mxob-1.symantec.com ([198.6.49.12]:27073 "EHLO
-	excu-mxob-1.symantec.com") by vger.kernel.org with ESMTP
-	id S965057AbWI1Pc2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Sep 2006 11:32:28 -0400
-Date: Thu, 28 Sep 2006 16:30:19 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@blonde.wat.veritas.com
-To: Andi Kleen <ak@muc.de>
-cc: Jeremy Fitzhardinge <jeremy@goop.org>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Put the BUG __FILE__ and __LINE__ info out of line
-In-Reply-To: <20060928103853.GB99906@muc.de>
-Message-ID: <Pine.LNX.4.64.0609281626001.25939@blonde.wat.veritas.com>
-References: <451B64E3.9020900@goop.org> <20060927233509.f675c02d.akpm@osdl.org>
- <451B708D.20505@goop.org> <20060928000019.3fb4b317.akpm@osdl.org>
- <20060928071731.GB84041@muc.de> <20060928002610.05e61321.akpm@osdl.org>
- <20060928101555.GA99906@muc.de> <451BA434.9020409@goop.org>
- <20060928103853.GB99906@muc.de>
+	Thu, 28 Sep 2006 11:38:59 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:28833 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S965113AbWI1Pi7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Sep 2006 11:38:59 -0400
+Date: Thu, 28 Sep 2006 08:38:36 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>
+cc: Chase Venters <chase.venters@clientec.com>, Sergey Panov <sipan@sipan.org>,
+       Patrick McFarland <diablod3@gmail.com>, Theodore Tso <tytso@mit.edu>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Jan Engelhardt <jengelh@linux01.gwdg.de>,
+       James Bottomley <James.Bottomley@steeleye.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: GPLv3 Position Statement
+In-Reply-To: <20060928135510.GR13641@csclub.uwaterloo.ca>
+Message-ID: <Pine.LNX.4.64.0609280831430.3952@g5.osdl.org>
+References: <1158941750.3445.31.camel@mulgrave.il.steeleye.com>
+ <Pine.LNX.4.64.0609271945450.3952@g5.osdl.org> <1159415242.13562.12.camel@sipan.sipan.org>
+ <200609272339.28337.chase.venters@clientec.com> <20060928135510.GR13641@csclub.uwaterloo.ca>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 28 Sep 2006 15:30:11.0978 (UTC) FILETIME=[FCF9BEA0:01C6E312]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 28 Sep 2006, Andi Kleen wrote:
-> On Thu, Sep 28, 2006 at 03:30:12AM -0700, Jeremy Fitzhardinge wrote:
-> > Andi Kleen wrote:
-> > >But no out of line section. So overall it's smaller, although the cache 
-> > >footprint
-> > >is 2 bytes larger. But then is 2 bytes larger really an issue? We don't 
-> > >have
-> > >_that_ many BUGs anyways.
-> > >  
-> > 
-> > I think the out of line section is a feature; no point in crufting up 
-> > the icache with BUG gunk, especially since a number of them are on 
-> > fairly hot paths.
+
+
+On Thu, 28 Sep 2006, Lennart Sorensen wrote:
 > 
-> It's 10 bytes per BUG. 
+> I wonder if perhaps the solution should be that the GPLv3 draft should
+> be renamed to something else to allow RMS to create his new license that
+> does exactly what he wants it to do, without hijacking existing GPLv2
+> code using a license that in many people's opinion is NOT in the spirit
+> of the GPLv2 (which it could be argued overrides the "or later" part of
+> the license).
 
-Or 9 bytes per BUG: I protested about the disassembly problem back
-when the minimized BUG() first went in, and have been using "ljmp"
-in my i386 builds ever since:
+I've argued that in the past, and so have others. 
 
---- 2.6.18-git9/arch/i386/kernel/traps.c	2006-09-28 12:03:47.000000000 +0100
-+++ linux/arch/i386/kernel/traps.c	2006-09-28 16:23:56.000000000 +0100
-@@ -422,10 +422,10 @@ static void handle_BUG(struct pt_regs *r
- 		char *file;
- 		char c;
- 
--		if (probe_kernel_address((unsigned short __user *)(eip + 2),
-+		if (probe_kernel_address((unsigned short __user *)(eip + 7),
- 					line))
- 			break;
--		if (__get_user(file, (char * __user *)(eip + 4)) ||
-+		if (__get_user(file, (char * __user *)(eip + 3)) ||
- 		    (unsigned long)file < PAGE_OFFSET || __get_user(c, file))
- 			file = "<bad filename>";
- 
---- 2.6.18-git9/include/asm-i386/bug.h	2006-09-20 04:42:06.000000000 +0100
-+++ linux/include/asm-i386/bug.h	2006-09-28 16:23:56.000000000 +0100
-@@ -13,9 +13,11 @@
- #ifdef CONFIG_DEBUG_BUGVERBOSE
- #define BUG()				\
-  __asm__ __volatile__(	"ud2\n"		\
--			"\t.word %c0\n"	\
--			"\t.long %c1\n"	\
--			 : : "i" (__LINE__), "i" (__FILE__))
-+			"\t.byte 0xea\n" \
-+			"\t.long %c0\n"	\
-+			"\t.word %c1\n"	\
-+			 : : "i" (__FILE__), "i" (__LINE__))
-+	/* "ljmp long short" so disassemblers can make sense of it */
- #else
- #define BUG() __asm__ __volatile__("ud2\n")
- #endif
+I think the GPLv3 could well try to stand on its own, without being 
+propped up by a lot of code which was written by people who may or may not 
+agree with the changes.
+
+The whole "in the spirit of" thing is very much debatable - the FSF will 
+claim that it's in _their_ spirit, but the whole point of the language is 
+not to re-assure _them_, but others, so the argument (which I've heard 
+over and over again) that _their_ spirit matters more is somewhat dubious.
+
+I would personally think that a much less contentious thing would have 
+been to make a future "GPL" only happens if some court of law actually 
+struck down something, or some actual judge made it clear that something 
+could be problematic. In other words, it shouldn't extend on the meaning 
+of the license, it should be used to _fix_ actual problems. Not imagined 
+ones.
+
+Instead, so far, every single lawsuit about the GPLv2 has instead 
+strengthened the thing. NONE of the worries that people have had 
+(language, translation, whatever) have actually been problems. The GPLv2 
+is stronger today than it was 15 years ago!
+
+But there are certainly tons of non-legal reasons why the FSF doesn't want 
+to go that way.
+
+			Linus

@@ -1,53 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932180AbWI1QEU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964937AbWI1QFj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932180AbWI1QEU (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Sep 2006 12:04:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932509AbWI1QCe
+	id S964937AbWI1QFj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Sep 2006 12:05:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030198AbWI1QE4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Sep 2006 12:02:34 -0400
-Received: from mx.pathscale.com ([64.160.42.68]:4790 "EHLO mx.pathscale.com")
-	by vger.kernel.org with ESMTP id S1751927AbWI1QBY (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Sep 2006 12:01:24 -0400
-Content-Type: text/plain; charset="us-ascii"
+	Thu, 28 Sep 2006 12:04:56 -0400
+Received: from iolanthe.rowland.org ([192.131.102.54]:6412 "HELO
+	iolanthe.rowland.org") by vger.kernel.org with SMTP id S964933AbWI1QEh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Sep 2006 12:04:37 -0400
+Date: Thu, 28 Sep 2006 12:04:36 -0400 (EDT)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@iolanthe.rowland.org
+To: Andy Whitcroft <apw@shadowen.org>
+cc: linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>,
+       Greg Kroah-Hartman <gregkh@suse.de>
+Subject: Re: 2.6.18-git9
+In-Reply-To: <451B94AA.3090100@shadowen.org>
+Message-ID: <Pine.LNX.4.44L0.0609281203320.6609-100000@iolanthe.rowland.org>
 MIME-Version: 1.0
-Content-Transfer-Encoding: 7bit
-Subject: [PATCH 24 of 28] IB/mthca - Fix compiler warnings with gcc4 on
-	possible unitialized variables
-X-Mercurial-Node: 9fa624c592af68f7a851e5c1becd81218b0a2b91
-Message-Id: <9fa624c592af68f7a851.1159459220@eng-12.pathscale.com>
-In-Reply-To: <patchbomb.1159459196@eng-12.pathscale.com>
-Date: Thu, 28 Sep 2006 09:00:20 -0700
-From: "Bryan O'Sullivan" <bos@pathscale.com>
-To: rdreier@cisco.com
-Cc: linux-kernel@vger.kernel.org, openib-general@openib.org
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-It's possible (from the compiler perspective) that f0 is unitialized
-in two functions (shows up with gcc4.0.2 on fc4, for example).  Initialize
-to zero to fix warning.
+On Thu, 28 Sep 2006, Andy Whitcroft wrote:
 
-Signed-off-by: Bryan O'Sullivan <bryan.osullivan@qlogic.com>
+> I have a couple of power boxes which no longer seem to be able to
+> compile mainline as of 2.6.18-git9.  The build fails as below:
+> 
+>   CC      drivers/usb/core/driver.o
+> drivers/usb/core/driver.c: In function `usb_probe_device':
+> drivers/usb/core/driver.c:168: error: structure has no member named
+> `pm_usage_cnt'
+> drivers/usb/core/driver.c: In function `usb_driver_claim_interface':
+> drivers/usb/core/driver.c:305: error: structure has no member named
+> `pm_mutex'
+> drivers/usb/core/driver.c:309: error: structure has no member named
+> `pm_mutex'
+> drivers/usb/core/driver.c: In function `usb_driver_release_interface':
+> drivers/usb/core/driver.c:358: error: structure has no member named
+> `pm_mutex'
+> drivers/usb/core/driver.c:362: error: structure has no member named
+> `pm_mutex'
+> make[3]: *** [drivers/usb/core/driver.o] Error 1
+> make[2]: *** [drivers/usb/core] Error 2
+> make[1]: *** [drivers/usb] Error 2
+> make: *** [drivers] Error 2
+> 
+> This seems to be realated to the changes in this commit:
+> 
+> 	commit 645daaab0b6adc35c1838df2a82f9d729fdb1767
+>     	usbcore: add autosuspend/autoresume infrastructure
+> 
+> The machines in question do not have CONFIG_PM set.  It seems that the
+> definition of pm_mutex et al in struct usb_device are contingent on that
+> defined, but the use of it in usb_driver_release_interface() are not.
+> 
+> Its not clear to me if suspending in this context is quite the same as
+> full suspend to disk that I associate with PM so I am unsure which bit
+> is in error.  Will retest with those references under CONFIG_PM.
+> 
+> Alan?
 
-diff -r 6a9a67c2b35a -r 9fa624c592af drivers/infiniband/hw/mthca/mthca_qp.c
---- a/drivers/infiniband/hw/mthca/mthca_qp.c	Thu Sep 28 08:57:13 2006 -0700
-+++ b/drivers/infiniband/hw/mthca/mthca_qp.c	Thu Sep 28 08:57:13 2006 -0700
-@@ -1527,7 +1527,7 @@ int mthca_tavor_post_send(struct ib_qp *
- 	int i;
- 	int size;
- 	int size0 = 0;
--	u32 f0;
-+	u32 f0 = 0;
- 	int ind;
- 	u8 op0 = 0;
- 
-@@ -1870,7 +1870,7 @@ int mthca_arbel_post_send(struct ib_qp *
- 	int i;
- 	int size;
- 	int size0 = 0;
--	u32 f0;
-+	u32 f0 = 0;
- 	int ind;
- 	u8 op0 = 0;
- 
+This problem was noticed in -mm and the patch to fix it was sent in very 
+recently; it hasn't filtered upstream yet.  The patch itself is here:
+
+http://marc.theaimsgroup.com/?l=linux-usb-devel&m=115929663530629&w=2
+
+Alan Stern
+

@@ -1,86 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752000AbWI1U1o@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750726AbWI1UcJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752000AbWI1U1o (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Sep 2006 16:27:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752001AbWI1U1o
+	id S1750726AbWI1UcJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Sep 2006 16:32:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750762AbWI1UcJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Sep 2006 16:27:44 -0400
-Received: from mout0.freenet.de ([194.97.50.131]:15779 "EHLO mout0.freenet.de")
-	by vger.kernel.org with ESMTP id S1752000AbWI1U1n (ORCPT
+	Thu, 28 Sep 2006 16:32:09 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:37511 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1750726AbWI1UcF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Sep 2006 16:27:43 -0400
-From: Karsten Wiese <annabellesgarden@yahoo.de>
-To: linux-kernel@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
-Subject: [PATCH] Reset file->f_op in snd_card_file_remove(). Take 2
-Date: Thu, 28 Sep 2006 22:28:02 +0200
-User-Agent: KMail/1.9.4
-Cc: mingo@elte.hu, alsa-devel@lists.sourceforge.net
+	Thu, 28 Sep 2006 16:32:05 -0400
+Message-ID: <451C3140.4090201@pobox.com>
+Date: Thu, 28 Sep 2006 16:32:00 -0400
+From: Jeff Garzik <jgarzik@pobox.com>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200609282228.02611.annabellesgarden@yahoo.de>
-X-Warning: yahoo.de is listed at abuse.rfc-ignorant.org
+To: Diego Calleja <diegocg@gmail.com>
+CC: Kristen Carlson Accardi <kristen.c.accardi@intel.com>,
+       linux-ide@vger.intel.com, linux-kernel@vger.kernel.org,
+       rdunlap@xenotime.net
+Subject: Re: [patch 1/2] libata: _GTF support
+References: <20060928182211.076258000@localhost.localdomain>	<20060928112901.62ee8eba.kristen.c.accardi@intel.com> <20060928205144.98aefd13.diegocg@gmail.com>
+In-Reply-To: <20060928205144.98aefd13.diegocg@gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Spam-Score: -4.3 (----)
+X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi
+Diego Calleja wrote:
+> El Thu, 28 Sep 2006 11:29:01 -0700,
+> Kristen Carlson Accardi <kristen.c.accardi@intel.com> escribió:
+> 
+>> +config SATA_ACPI
+>> +	bool
+>> +	depends on ACPI && PCI
+> 
+> Why not s/SATA_ACPI/ACPI/ and delete the kconfig option, so this
+> feature gets enabled automatically when user enables ACPI?
 
-It oopses with 2.6.18-rt4 + alsa-kernel-1.0.13rc3 now.
-I wrote before, 2.6.18-rt3 + alsa-driver-1.0.13rc3 would be ok,
-but its not. bug showed again reliably under memory-pressure.
+It's a reasonable request, but I think it's better to integrate as-is, 
+and then delete the Kconfig option as you describe once everybody is 
+happy with the upstream, [hopefully-]working code.
 
-      Karsten
-
-===
-
-Reset file->f_op in snd_card_file_remove(). Take 2
-
-
-i think what happens here is:
-
-  us428control runs, kernel has allocated a struct file for /dev/hwC1D0.
-
-  usb disconnect
-
-  snd_usb_usx2y calls snd_card_disconnect,
-  tells us428control to exit.
-
-  snd_card_disconnect replaces /dev/hwC1D0's file->f_op
-  with a kmalloc()ed version, that would only allow releases.
-
-  us428control starts exiting
-
-  __fput is called with struct file for /dev/hwC1D0.
-
-  snd_card_file_remove() is called, alsa notices struct file
-  for /dev/hwC1D0 is about to be closed.
-  with patch below, file->f_op would be set NULL now.
-
-  snd_usb_usx2y's free()s snd_card instance and /dev/hwC1D0's
-  file->f_ops, those that would only allow releases.
-
-  for reason I would like to know,
-  __fput is called again with struct file for /dev/hwC1D0
-  from us428control's do_exit().
-  __fput see's file->f_op is still set.
-  Without patch and under memory pressure, file->f_op can
-  point to anything now.
+	Jeff
 
 
-Signed-off-by: Karsten Wiese <annabellesgarden@yahoo.de>
 
-
-diff -pur ../alsa/1.0.13/alsa-driver-1.0.13rc3/alsa-kernel/core/init.c rt4-kw/sound/core/init.c
---- ../alsa/1.0.13/alsa-driver-1.0.13rc3/alsa-kernel/core/init.c	2006-09-25 15:33:19.000000000 +0200
-+++ rt4-kw/sound/core/init.c	2006-09-28 18:48:15.000000000 +0200
-@@ -707,6 +707,8 @@ int snd_card_file_remove(struct snd_card
- 	mfile = card->files;
- 	while (mfile) {
- 		if (mfile->file == file) {
-+			fops_put(file->f_op);
-+			file->f_op = NULL;
- 			if (pfile)
- 				pfile->next = mfile->next;
- 			else

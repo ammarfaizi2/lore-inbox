@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031316AbWI1BFU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964979AbWI1BIZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1031316AbWI1BFU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Sep 2006 21:05:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031320AbWI1BFU
+	id S964979AbWI1BIZ (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Sep 2006 21:08:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964980AbWI1BIZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Sep 2006 21:05:20 -0400
-Received: from havoc.gtf.org ([69.61.125.42]:42962 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id S1031316AbWI1BFS (ORCPT
+	Wed, 27 Sep 2006 21:08:25 -0400
+Received: from havoc.gtf.org ([69.61.125.42]:45522 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S964979AbWI1BIY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Sep 2006 21:05:18 -0400
-Date: Wed, 27 Sep 2006 21:05:18 -0400
+	Wed, 27 Sep 2006 21:08:24 -0400
+Date: Wed, 27 Sep 2006 21:08:24 -0400
 From: Jeff Garzik <jeff@garzik.org>
-To: LKML <linux-kernel@vger.kernel.org>, Greg KH <greg@kroah.com>,
-       Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
-Subject: [PATCH] device_for_each_child(): kill pointless warning noise
-Message-ID: <20060928010518.GA25865@havoc.gtf.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: LKML <linux-kernel@vger.kernel.org>, linux-scsi@vger.kernel.org
+Subject: [PATCH] SCSI: shift device_reprobe() warning explosion
+Message-ID: <20060928010824.GA26438@havoc.gtf.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -23,26 +23,28 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-As the last patch demonstrated, it is quite valid for a caller to ignore
-the return value of device_for_each_child(), given that the return value
-is wholly dependent on the actor -- which in practice often has a
-hardcoded return value.
+SCSI warns about device_reprobe() for _every file_, even though there is
+only a single caller in the entirety of SCSI.
 
-Please apply, to reduce a portion of the warning explosion seen in
-current linux-2.6.git.
+The need to check return code is valid, so we update the warning area to
+shift the burden to the [only] caller, mptsas.
 
 Signed-off-by: Jeff Garzik <jeff@garzik.org>
 
-diff --git a/include/linux/device.h b/include/linux/device.h
-index 662e6a1..9d4f6a9 100644
---- a/include/linux/device.h
-+++ b/include/linux/device.h
-@@ -393,7 +393,7 @@ extern void device_unregister(struct dev
- extern void device_initialize(struct device * dev);
- extern int __must_check device_add(struct device * dev);
- extern void device_del(struct device * dev);
--extern int __must_check device_for_each_child(struct device *, void *,
-+extern int device_for_each_child(struct device *, void *,
- 		     int (*fn)(struct device *, void *));
- extern int device_rename(struct device *dev, char *new_name);
+diff --git a/include/scsi/scsi_device.h b/include/scsi/scsi_device.h
+index 895d212..b401c82 100644
+--- a/include/scsi/scsi_device.h
++++ b/include/scsi/scsi_device.h
+@@ -298,9 +298,9 @@ extern int scsi_execute_async(struct scs
+ 			      void (*done)(void *, char *, int, int),
+ 			      gfp_t gfp);
  
+-static inline void scsi_device_reprobe(struct scsi_device *sdev)
++static inline int __must_check scsi_device_reprobe(struct scsi_device *sdev)
+ {
+-	device_reprobe(&sdev->sdev_gendev);
++	return device_reprobe(&sdev->sdev_gendev);
+ }
+ 
+ static inline unsigned int sdev_channel(struct scsi_device *sdev)
+

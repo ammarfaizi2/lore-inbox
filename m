@@ -1,54 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750738AbWI1Wie@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161338AbWI1WmM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750738AbWI1Wie (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Sep 2006 18:38:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751027AbWI1Wie
+	id S1161338AbWI1WmM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Sep 2006 18:42:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161345AbWI1WmM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Sep 2006 18:38:34 -0400
-Received: from nf-out-0910.google.com ([64.233.182.184]:7007 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1750738AbWI1Wid (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Sep 2006 18:38:33 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=QzIabXNCTlGBqmKj76ZAzdrbljSKpSdEg2JzcgJr0KaQT0nzT/g4XtyXT4L/7sqSIT2WdFniAZ2iIRqGGUcdk1z/Qs+KI0g6ZwNgcPUINj7LlBzXnLgIKGUYm9I2y5HTYtuKw4i7gS7ELseT6ayn3Tqq/gZ4pxLFVVn3CG5mXqw=
-Message-ID: <451C4F0F.6010307@gmail.com>
-Date: Thu, 28 Sep 2006 16:39:11 -0600
-From: Jim Cromie <jim.cromie@gmail.com>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060909)
+	Thu, 28 Sep 2006 18:42:12 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:40420 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1161338AbWI1WmK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Sep 2006 18:42:10 -0400
+Date: Thu, 28 Sep 2006 15:41:58 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Greg KH <gregkh@suse.de>
+cc: Alan Stern <stern@rowland.harvard.edu>, Olaf Hering <olaf@aepfle.de>,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-usb-devel@lists.sourceforge.net
+Subject: Re: [linux-usb-devel] [GIT PATCH] USB patches for 2.6.18
+In-Reply-To: <20060928222518.GA12666@suse.de>
+Message-ID: <Pine.LNX.4.64.0609281540580.3952@g5.osdl.org>
+References: <Pine.LNX.4.44L0.0609281815170.10847-100000@iolanthe.rowland.org>
+ <Pine.LNX.4.64.0609281521470.3952@g5.osdl.org> <20060928222518.GA12666@suse.de>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: linux-kernel@vger.kernel.org, ak@suse.de
-Subject: Re: 2.6.18-mm2
-References: <20060928014623.ccc9b885.akpm@osdl.org>
-In-Reply-To: <20060928014623.ccc9b885.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-[jimc@harpo linux-2.6.18-mm2-sk]$ make
-  CHK     include/linux/version.h
-  CHK     include/linux/utsrelease.h
-  CHK     include/linux/compile.h
-  GEN     .version
-  CHK     include/linux/compile.h
-  UPD     include/linux/compile.h
-  CC      init/version.o
-  LD      init/built-in.o
-  LD      .tmp_vmlinux1
-arch/i386/kernel/built-in.o(.text+0x34f1): In function `do_nmi':
-arch/i386/kernel/traps.c:752: undefined reference to 
-`panic_on_unrecovered_nmi'
-arch/i386/kernel/built-in.o(.text+0x3564):arch/i386/kernel/traps.c:712: 
-undefined reference to `panic_on_unrecovered_nmi'
 
+On Thu, 28 Sep 2006, Greg KH wrote:
+> > 
+> > Greg, can we please feed fixes to me faster?
+> 
+> Faster?  My god man, I just found out a few minutes ago that these were
+> causing problems for people.  I had only applied them to my local tree
+> about 12 hours ago :)
 
-$ grep nmi arch/i386/kernel/Makefile
-obj-$(CONFIG_X86_LOCAL_APIC)    += apic.o nmi.o
+Umm. I'm just saying that that fix was apparently sent to the 
+linux-usb-devel people two days _before_ I even merged the USB changes..
 
-which I dont have enabled.
+Or did I misunderstand?
 
-It looks to be due to changes in x86_64-mm-nmi-sysctl-cleanup.patch
+		Linus

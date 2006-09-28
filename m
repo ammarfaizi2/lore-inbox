@@ -1,103 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965333AbWI1LiH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965395AbWI1LjK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965333AbWI1LiH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Sep 2006 07:38:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965331AbWI1LiH
+	id S965395AbWI1LjK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Sep 2006 07:39:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965403AbWI1LjJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Sep 2006 07:38:07 -0400
-Received: from r16s03p19.home.nbox.cz ([83.240.22.12]:45490 "EHLO
-	scarab.smoula.net") by vger.kernel.org with ESMTP id S965322AbWI1LiE
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Sep 2006 07:38:04 -0400
-Subject: Re: forcedeth - WOL [SOLVED]
-From: Martin Filip <bugtraq@smoula.net>
-To: Andrew Morton <akpm@osdl.org>
-Cc: =?ISO-8859-1?Q?Bj=F6rn?= Steinbrink <B.Steinbrink@gmx.de>,
-       linux-kernel@vger.kernel.org, Ayaz Abdulla <aabdulla@nvidia.com>,
-       stable@kernel.org
-In-Reply-To: <20060927203906.f4fc331e.akpm@osdl.org>
-References: <1159379441.9024.7.camel@archon.smoula-in.net>
-	 <20060927183857.GA2963@atjola.homenet>
-	 <1159389486.8902.4.camel@archon.smoula-in.net>
-	 <20060927165704.613bf0aa.akpm@osdl.org>
-	 <20060928000447.GB2963@atjola.homenet>
-	 <20060928004053.GA3521@atjola.homenet>
-	 <20060928010133.GB3521@atjola.homenet>
-	 <20060927183625.5231e969.akpm@osdl.org>
-	 <20060928020438.GC3521@atjola.homenet>
-	 <20060928022447.GA3890@atjola.homenet>
-	 <20060927203906.f4fc331e.akpm@osdl.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-eDe6eLH0S6kGo8iH5UNK"
-Date: Thu, 28 Sep 2006 13:37:45 +0200
-Message-Id: <1159443465.8961.4.camel@archon.smoula-in.net>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.0 
+	Thu, 28 Sep 2006 07:39:09 -0400
+Received: from web26504.mail.ukl.yahoo.com ([217.146.176.41]:61808 "HELO
+	web26504.mail.ukl.yahoo.com") by vger.kernel.org with SMTP
+	id S1161087AbWI1LjI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Sep 2006 07:39:08 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=yahoo.de;
+  h=Message-ID:Received:Date:From:Subject:To:Cc:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding;
+  b=UINzf3Flc6+GX4EGAvLpu3gvV4bR2n7NXWJZO+lRvCaXfov42PDUaXt6rD7lFaVGjuI5VKoa8ShN1dHQH6HKNicrfUyb4NCwnHaWtYipS1XaIf5oS7kOAd6HxjakQnzuamCEdwwvZ9vu5DHNQVm96IhaU/6w3rlYMw8aWubRryk=  ;
+Message-ID: <20060928113906.20550.qmail@web26504.mail.ukl.yahoo.com>
+Date: Thu, 28 Sep 2006 13:39:06 +0200 (CEST)
+From: karsten wiese <annabellesgarden@yahoo.de>
+Subject: Re: [PATCH] Reset file->f_op in snd_card_file_remove()
+To: Takashi Iwai <tiwai@suse.de>
+Cc: mingo@elte.hu, alsa-devel@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <s5h4puspal8.wl%tiwai@suse.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--- Takashi Iwai <tiwai@suse.de> schrieb:
 
---=-eDe6eLH0S6kGo8iH5UNK
-Content-Type: text/plain
-Content-Transfer-Encoding: quoted-printable
+> At Wed, 27 Sep 2006 21:27:51 +0200,
+> Karsten Wiese wrote:
+> > 
+> > Hi
+> > 
+> > This patch helps prevent an oops on 2.6.18-rt3,
+> > when my usb usx2y soundcard disconnects.
+> > Physically disconnects or "rmmod uhci_hc" both oops 1in7.
+> > 
+> > With this patch still no oops after > 1000 disconnects.
+> > 
+> > Please apply/comment.
+> > 
+> >       thanks,
+> >       Karsten
+> > 
+> > ===
+> > 
+> > Reset file->f_op in snd_card_file_remove()
+> > 
+> > When passing here in response to an usb disconnect,
+> > file->f_op has been replaced with a kmalloc()ed version,
+> > that would only allow releases.
+> > 
+> > It will be free()ed later on in snd_card_free().
+> > Here it happened sometimes, that the free()ed, not NULLed file->f_op
+> > caused an oops in module_put() called by fops_put() still later on.
+> > 
+> > Signed-off-by: Karsten Wiese <annabellesgarden@yahoo.de>
+> 
+> snd_card_file_remove() is not a right place to do that, IMO.
+> 
+you are right, patch is wrong: it causes snd_hwdep's use count corruption.
 
-> > > I just took a peek at the code.
-> > >=20
-> > > The version on bugzilla (last attachment, comment #22), which was
-> > > reported to work correctly, has the MAC address reversal hardcoded.
-> > > The driver in 2.6.18 has some logic to detect if it should reverse th=
-e
-> > > MAC address. So it looks like a hardware oddity/bug that the driver
-> > > wants to fix but fails. I'll see what happens if I force address
-> > > reversal and if I can decipher anything, but probably someone else wi=
-ll
-> > > have to cast the runes...
-> >=20
-> > OK, please excuse me wasting your time, it's late over here... I've
-> > actually been looking at Linus' git tree (pulled yesterday) while
-> > writing that mail, not 2.6.18.
-> > 2.6.18 does _not_ contain the address reversal detection.
-> > Using the git tree instead of 2.6.18 WOL works as expected, without
-> > having to reverse the MAC address.
-> >=20
->=20
-> hm, OK, thanks.  Ayaz, do you think 5070d3408405ae1941f259acac7a9882045c3=
-be4 is
-> a suitable thing for 2.6.18.x?
-Hi,
+> Could you check whether this problem still happens on post-2.6.18?
+> There are a lot of fixes in this area after 2.6.18.
+> 
+i'm now running 2.6.18-rt3 + alsa-driver-1.0.13rc1 and problem seams to be gone.
 
-you never sleep guys, do you :) I've just tried patch from bugzilla.
-(here is version twaked to be usable with 2.6.18
-http://www.smoula.net/download/forcedeth.c) and it looks like it's
-working correctly with correct ordered MAC.
+      Karsten
 
---=20
-Martin Filip
-e-mail: nexus@smoula.net
-ICQ#: 31531391
-jabber: nexus@smoula.net
-www: http://www.smoula.net
 
- _______________________________=20
-< BOFH Excuse #100: IRQ dropout >
- -------------------------------=20
-       \   ,__,
-        \  (oo)____
-           (__)    )\
-              ||--|| *
+	
 
---=-eDe6eLH0S6kGo8iH5UNK
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: Toto je =?UTF-8?Q?digit=C3=A1ln=C4=9B?=
-	=?ISO-8859-1?Q?_podepsan=E1?= =?UTF-8?Q?_=C4=8D=C3=A1st?=
-	=?ISO-8859-1?Q?_zpr=E1vy?=
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
-
-iD8DBQBFG7QJzvp9bBLJ9XMRAhOEAJ43RCO/BwZ5H04pi4TK5FnlO4VfLgCeO6eg
-XpZ6Fr6jeGIKzytLDgnvVbc=
-=kcri
------END PGP SIGNATURE-----
-
---=-eDe6eLH0S6kGo8iH5UNK--
-
+	
+		
+___________________________________________________________ 
+Der frühe Vogel fängt den Wurm. Hier gelangen Sie zum neuen Yahoo! Mail: http://mail.yahoo.de

@@ -1,65 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750941AbWI1VKG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751003AbWI1VTw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750941AbWI1VKG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Sep 2006 17:10:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750958AbWI1VKG
+	id S1751003AbWI1VTw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Sep 2006 17:19:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750958AbWI1VTw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Sep 2006 17:10:06 -0400
-Received: from ug-out-1314.google.com ([66.249.92.172]:41627 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1750928AbWI1VKE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Sep 2006 17:10:04 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=OSG3T/BqFfytzBI2egWGe8t7huYgig2YMsSvEJwtBcGmn8AwwRHASyvMkJVdlOdpiREgf0IcHoKQ5LXvQ9ncnxAgcOCVZmtLj0R8qOfD5I7T3xjCqtFDkJaUJtPVl4zFhTb7Lh/xQeh6gi4OHUpaWORaWtN1m+sswlkIPt6yMTo=
-Message-ID: <4807377b0609281410p28d445c8mc32e7d2cb71221ab@mail.gmail.com>
-Date: Thu, 28 Sep 2006 14:10:02 -0700
-From: "Jesse Brandeburg" <jesse.brandeburg@gmail.com>
-To: "Sukadev Bhattiprolu" <sukadev@us.ibm.com>
-Subject: Re: Network problem with 2.6.18-mm1 ?
-Cc: "Auke Kok" <auke-jan.h.kok@intel.com>, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org
-In-Reply-To: <20060928185222.GB3352@us.ibm.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Thu, 28 Sep 2006 17:19:52 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:41698 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1751009AbWI1VTv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Sep 2006 17:19:51 -0400
+Date: Thu, 28 Sep 2006 23:11:50 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: john stultz <johnstul@us.ibm.com>, lkml <linux-kernel@vger.kernel.org>,
+       Thomas Gleixner <tglx@linutronix.de>, Andrew Morton <akpm@osdl.org>
+Subject: Re: [RFC] exponential update_wall_time
+Message-ID: <20060928211150.GA32393@elte.hu>
+References: <1159385734.29040.9.camel@localhost> <Pine.LNX.4.64.0609280031550.6761@scrub.home> <1159398793.7297.9.camel@localhost> <Pine.LNX.4.64.0609280128330.6761@scrub.home> <1159403333.7297.24.camel@localhost> <Pine.LNX.4.64.0609282254450.6761@scrub.home>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <20060928013724.GA22898@us.ibm.com> <451B2D29.9040306@intel.com>
-	 <20060928185222.GB3352@us.ibm.com>
+In-Reply-To: <Pine.LNX.4.64.0609282254450.6761@scrub.home>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -2.8
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.8 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5000]
+	-0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 9/28/06, Sukadev Bhattiprolu <sukadev@us.ibm.com> wrote:
-> Thanks. See below for additional info
->
-> Auke Kok [auke-jan.h.kok@intel.com] wrote:
-> | Sukadev Bhattiprolu wrote:
-> | >
-> | >I am unable to get networking to work with 2.6.18-mm1 on my system.
-> | >
-> | >But 2.6.18 kernel on same system works fine. Here is some info about
-> | >the system/debug attempts. Attached are the lspci output and config.
-> | >
-> | >Appreciate any help. Please let me know if you need more info.
 
-It seems you're having interrupt delivery problems or interrupts are
-getting lost.
-rx_missed_errors indicates frames that were dropped due to the e1000
-adapter's fifo getting full and over flowing.
-> rx_no_buffer_count: 310
-> rx_missed_errors: 5865
-rx_no_buffer_count indicates that the driver didn't return buffers to
-the hardware soon enough, but the hardware was able to store the
-packet (at the time of reception) in the fifo to try again.
+* Roman Zippel <zippel@linux-m68k.org> wrote:
 
-Both these indicate to me that there is something wrong with
-interrupts.  Maybe interrupt sharing
+> > > add up to 1 second. Right now we slice it into HZ steps, but this 
+> > > can be rather easily changed now.
+> > 
+> > Right off, it seems it would then make sense to make the ntp "ticks" 
+> > one second in length. And set the interval values accordingly.
+> > 
+> > However, there might be clocksources that are incapable of running 
+> > freely for a full second w/o overflowing. In that case we would need 
+> > to set the interval values and the ntp tick length accordingly. It 
+> > seems we need some sort of interface to ntp to define that base tick 
+> > length. Would that be ok by you?
+> 
+> I don't see how you want to do this without some rather complex 
+> calculations. I doubt this will make anything easier.
 
-can you possibly try a back to back connection with another linux box
-and run tcpdump on both ends then ping?  it will tell us if traffic is
-truely getting out and coming in okay.
+lets figure out a way to solve this in some manner - the loop of 
+thousands of function calls on dynticks didnt look too well. Millions of 
+kids will be grateful for it :-)
 
-also please send output of lspci -vv and cat /proc/interrupts
-
-Jesse
+	Ingo

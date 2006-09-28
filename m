@@ -1,53 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751180AbWI1Xnz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751209AbWI1Xpb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751180AbWI1Xnz (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Sep 2006 19:43:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751186AbWI1Xnz
+	id S1751209AbWI1Xpb (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Sep 2006 19:45:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751205AbWI1Xpb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Sep 2006 19:43:55 -0400
-Received: from gw.goop.org ([64.81.55.164]:26758 "EHLO mail.goop.org")
-	by vger.kernel.org with ESMTP id S1751180AbWI1Xny (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Sep 2006 19:43:54 -0400
-Message-ID: <451C5E3B.60204@goop.org>
-Date: Thu, 28 Sep 2006 16:43:55 -0700
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
+	Thu, 28 Sep 2006 19:45:31 -0400
+Received: from wx-out-0506.google.com ([66.249.82.239]:50622 "EHLO
+	wx-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1751209AbWI1Xpa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Sep 2006 19:45:30 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:content-type:content-transfer-encoding;
+        b=ULEC3HBovT+pZFpcFe9hYObm2UHTgEAj36jM9m5wmSzKiN3zZaTP04oM7k3rIzUoqtKt/R/BTssvfX4Tp/1QoiWlp+MBeiJCZqpjqRhU8rn3i2Kgkv8VspKE2alebp6BSZMC4dNSb0HYd/CxNAuRMJr9tnTLudwtTLpJaA65ibA=
+Message-ID: <451C5EAE.3050309@gmail.com>
+Date: Thu, 28 Sep 2006 19:45:50 -0400
+From: Florin Malita <fmalita@gmail.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: linux-kernel@vger.kernel.org, Andi Kleen <ak@muc.de>,
-       Hugh Dickens <hugh@veritas.com>,
-       Michael Ellerman <michael@ellerman.id.au>,
-       Paul Mackerras <paulus@samba.org>
-Subject: Re: [PATCH RFC 1/4] Generic BUG handling.
-References: <20060928225444.439520197@goop.org>	<20060928225452.229936605@goop.org> <20060928163256.aa53b8d7.akpm@osdl.org>
-In-Reply-To: <20060928163256.aa53b8d7.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+To: perex@suse.cz
+CC: linux-kernel@vger.kernel.org, tiwai@suse.de
+Subject: [PATCH] Dereference after free in snd_hwdep_release()
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> What is the locking for these lists?  I don't see much in here.  It has
-> implications for code which wants to do BUG while holding that lock..
->   
+snd_card_file_remove() may free hw->card so we can't dereference
+hw->card->module after that.
 
-There's no locking.  This is a direct copy of the original powerpc 
-code.  I assume, but haven't checked, that there's a lock to serialize 
-module loading/unloading, so the insertion/deletion is all properly 
-synchronized. 
+Coverity ID 1420.
 
-The only other user is traversal when actually handling a bug; if you're 
-very unlucky this could happen while you're actually loading/unloading 
-and you would see the list in an inconsistent state.  I guess we could 
-put a lock there, and trylock it on traversal; at least that would stop 
-a concurrent modload/unload from getting in there while we're trying to 
-walk the list.
+Signed-off-by: Florin Malita <fmalita@gmail.com>
+---
 
-> Shouldn't this be u64? ;)
->   
+diff --git a/sound/core/hwdep.c b/sound/core/hwdep.c
+index 9aa9d94..46b4768 100644
+--- a/sound/core/hwdep.c
++++ b/sound/core/hwdep.c
+@@ -158,6 +158,7 @@ static int snd_hwdep_release(struct inod
+ {
+ 	int err = -ENXIO;
+ 	struct snd_hwdep *hw = file->private_data;
++	struct module *mod = hw->card->module;
+ 	mutex_lock(&hw->open_mutex);
+ 	if (hw->ops.release) {
+ 		err = hw->ops.release(hw, file);
+@@ -167,7 +168,7 @@ static int snd_hwdep_release(struct inod
+ 		hw->used--;
+ 	snd_card_file_remove(hw->card, file);
+ 	mutex_unlock(&hw->open_mutex);
+-	module_put(hw->card->module);
++	module_put(mod);
+ 	return err;
+ }
+ 
 
-I'll get right on that.  And perhaps it should be signed if people 
-overshoot and introduce a negative number of BUGs.
 
-    J

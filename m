@@ -1,53 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965305AbWI1Ki4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161060AbWI1Kxu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965305AbWI1Ki4 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Sep 2006 06:38:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965306AbWI1Kiz
+	id S1161060AbWI1Kxu (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Sep 2006 06:53:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965306AbWI1Kxu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Sep 2006 06:38:55 -0400
-Received: from colin.muc.de ([193.149.48.1]:42251 "EHLO mail.muc.de")
-	by vger.kernel.org with ESMTP id S965305AbWI1Kiz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Sep 2006 06:38:55 -0400
-Date: 28 Sep 2006 12:38:53 +0200
-Date: Thu, 28 Sep 2006 12:38:53 +0200
-From: Andi Kleen <ak@muc.de>
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Put the BUG __FILE__ and __LINE__ info out of line
-Message-ID: <20060928103853.GB99906@muc.de>
-References: <451B64E3.9020900@goop.org> <20060927233509.f675c02d.akpm@osdl.org> <451B708D.20505@goop.org> <20060928000019.3fb4b317.akpm@osdl.org> <20060928071731.GB84041@muc.de> <20060928002610.05e61321.akpm@osdl.org> <20060928101555.GA99906@muc.de> <451BA434.9020409@goop.org>
+	Thu, 28 Sep 2006 06:53:50 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:29128 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S965290AbWI1Kxt
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Sep 2006 06:53:49 -0400
+Subject: Re: [PATCH 2.6.18] PCI: Turn pci_fixup_video into generic for
+	embedded VGA
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: eiichiro.oiwa.nm@hitachi.com
+Cc: akpm@osdl.org, tony.luck@intel.com, greg@kroah.com,
+       Jesse Barnes <jesse.barnes@intel.com>, linux-ia64@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <XNM1$9$0$4$$3$3$7$A$9002686U451b55cd@hitachi.com>
+References: <XNM1$9$0$4$$3$3$7$A$9002686U451b55cd@hitachi.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Thu, 28 Sep 2006 12:18:22 +0100
+Message-Id: <1159442302.11049.404.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <451BA434.9020409@goop.org>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 28, 2006 at 03:30:12AM -0700, Jeremy Fitzhardinge wrote:
-> Andi Kleen wrote:
-> >But no out of line section. So overall it's smaller, although the cache 
-> >footprint
-> >is 2 bytes larger. But then is 2 bytes larger really an issue? We don't 
-> >have
-> >_that_ many BUGs anyways.
-> >  
+Ar Iau, 2006-09-28 am 13:55 +0900, ysgrifennodd
+eiichiro.oiwa.nm@hitachi.com:
+> pci_fixup_video turns into generic code because there are many platforms need this fixup
+> for embedded VGA as well as x86. The Video BIOS integrates into System BIOS on a machine
+> has embedded VGA although embedded VGA generally don't have PCI ROM. As a result,
+> embedded VGA need the way that the sysfs rom points to the Video BIOS of System
+> RAM (0xC0000). PCI-to-PCI Bridge Architecture specification describes the condition whether
+> or not PCI ROM forwards VGA compatible memory address. fixup_video suits this specification.
+> Although the Video ROM generally implements in x86 code regardless of platform, some
+> application such as X Window System can run this code by dosemu86. Therefore,
+> pci_fixup_video should turn into generic code.
 > 
-> I think the out of line section is a feature; no point in crufting up 
-> the icache with BUG gunk, especially since a number of them are on 
-> fairly hot paths.
-
-It's 10 bytes per BUG. 
-
 > 
-> >I'll port the x86-64 way over to i386
-> 
-> It's neat, and it would solve my immediate problem, but I think my way 
-> is actually better.
+> Signed-off-by: Eiichiro Oiwa <eiichiro.oiwa.nm@hitachi.com>
 
-Your way will be even bigger because we would need to add
-dwarf2 annotation to the out of line code.
+Acked-by: Alan Cox <alan@redhat.com>
 
--Andi

@@ -1,102 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964981AbWI1BQh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964986AbWI1B3F@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964981AbWI1BQh (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Sep 2006 21:16:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964986AbWI1BQh
+	id S964986AbWI1B3F (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Sep 2006 21:29:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965067AbWI1B3F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Sep 2006 21:16:37 -0400
-Received: from www.osadl.org ([213.239.205.134]:44764 "EHLO mail.tglx.de")
-	by vger.kernel.org with ESMTP id S964981AbWI1BQg (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Sep 2006 21:16:36 -0400
-Subject: Re: [Bulk] Re: [patch 2.6.18] genirq: remove oops with fasteoi
-	irq_chip descriptors
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: David Brownell <david-b@pacbell.net>
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>, mingo@redhat.com
-In-Reply-To: <200609271739.10215.david-b@pacbell.net>
-References: <200609220641.58938.david-b@pacbell.net>
-	 <200609271621.11608.david-b@pacbell.net>
-	 <1159401291.9326.599.camel@localhost.localdomain>
-	 <200609271739.10215.david-b@pacbell.net>
-Content-Type: text/plain
-Date: Thu, 28 Sep 2006 03:18:19 +0200
-Message-Id: <1159406299.9326.644.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+	Wed, 27 Sep 2006 21:29:05 -0400
+Received: from smtp104.sbc.mail.mud.yahoo.com ([68.142.198.203]:25694 "HELO
+	smtp104.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S964986AbWI1B3C (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Sep 2006 21:29:02 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=pacbell.net;
+  h=Received:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
+  b=hViRbQxDBLfEVXPBEWYwoFvn0af7gNTsfu83w1up4kQiTO8x+4t7f1PVTiKm5dNg4jtm1nXPrxenVoNzwHJY3d57oIGMS0a9qw4zfZ27OYQZYqG6Ow8NYA0SlDkEdyeZCfc+X23yaBXe2/lKZ+Afz0kh83mds8AC6LCRRR+KDxw=  ;
+From: David Brownell <david-b@pacbell.net>
+To: Arnd Bergmann <arnd@arndb.de>
+Subject: Re: [PATCH 1/3] driver for mcs7830 (aka DeLOCK) USB ethernet adapter
+Date: Wed, 27 Sep 2006 18:28:57 -0700
+User-Agent: KMail/1.7.1
+Cc: linux-usb-devel@lists.sourceforge.net,
+       David Hollis <dhollis@davehollis.com>, support@moschip.com,
+       dbrownell@users.sourceforge.net, linux-kernel@vger.kernel.org,
+       Michael Helmling <supermihi@web.de>
+References: <200609170102.50856.arnd@arndb.de>
+In-Reply-To: <200609170102.50856.arnd@arndb.de>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200609271828.58205.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave,
-
-On Wed, 2006-09-27 at 17:39 -0700, David Brownell wrote:
->  - It wouldn't use chip->mask_ack() when that exists and those
->    other two routines don't, even though mask_ack_irq() is a
->    conveniently defined inline.
-
-So why not replace it by mask_ack_irq() ?
-
->  - Umm, how could it ever be correct to leave the IRQ active
->    without a dispatcher?  ISTR the rationale for that delayed
->    disable was not purely to be a PITA for all driver writers,
->    but was to address some issue with edge triggering.  In that
->    path, triggering was no longer to be allowed ...
-
-Your patch would result in default_disable() when no shutdown function
-is provided. default_disable() does the delayed disable thing, while you
-remove the handler. The next event on that line will cause a spurious
-IRQ.
-
->  - Plus ack()ing the IRQ there just seemed pretty dubious.  It's
->    not like there would be anything preventing that signal line
->    from being lowered (or raised, etc) immediately after the ack(),
->    which in some hardware would latch the IRQ until later unmask().
->
-> Leaving the question:  what's the point of it??  The overall
-> system has to behave sanely with or without the ack(); just
-> clearing a latch doesn't mean it couldn't get set later.
-
-Fair enough.
-
-> > > So what's the correct fix then ... use enable() and disable()?
-> > > Oopsing isn't OK... 
-> > 
-> > True, but we can not unconditionally change the semantics. 
+On Saturday 16 September 2006 4:02 pm, Arnd Bergmann wrote:
+> This driver adds support for the DeLOCK USB ethernet adapter
+> and potentially others based on the MosChip MCS7830 chip.
 > 
-> Some current semantics are "it oopses".  That's a good definition
-> of semantics that _must_ be changed.  We're not Microsoft.  ;)
-
-Agreed, it just depends on how they get fixed.
-
-> > Does it break existing or new code ?
+> It is based on the usbnet and asix drivers as well as the
+> original device driver provided by MosChip, which in turn
+> was based on the usbnet driver.
 > 
-> Could any code relying on those previous semantics have been
-> correct in the first place, though?  Seemed to me it couldn't
-> have been.
+> It has been tested successfully on an OHCI, but interestingly
+> there seems to be a problem with the mcs7830 when connected to
+> the ICH6/EHCI in my thinkpad: it keeps receiving lots of
+> broken packets in the RX interrupt. The problem goes away when
+> I'm using an active USB hub, so I assume it's not related to
+> the device driver, but rather to the hardware.
 > 
-> Plus, unregistering IRQ dispatchers is a strange notion.  I've
-> never seen it done in practice ... normally, they get set up once
-> during chip/board setup then never changed.  Bugs in code paths
-> like that have been known to last for decades unfixed.
+> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
 
-Agreed. Nothing is using this currently.
+Signed-off-by: David Brownell <dbrownell@users.sourceforge.net>
 
-> > Sorry, I did not think about the defaults in the first place. The
-> > conditionals in manage,c are probably superflous leftovers from one of
-> > the evolvement.
-> 
-> And that's how I was taking that particular mask() then ack() too,
-> especially given it never used mask_ack() when it should have, and
-> since that logic oopsed in various cases with fasteoi handlers.
+... yes, I'd assume it's a hardware issue too.  Try different
+cables; if you have a fast 'scope, you might see what kind of
+eye diagram you get.  The hub might improve the signal quality.
 
-The remaining question is whether mask_ack_irq() or shutdown() is the
-correct approach. Your patch would make it mandatory to implement
-shutdown at least for such removable stuff.
 
-I'm not sure about that right now as I'm too tired.
+Do you know how the remote wakeup mechanism works for this chip?
+It'd be interesting to see "usbnet" be taught how to autosuspend
+chips which will wake up the USB host when they get the right
+kind of packet ... for example, passing the multicast/broadcast
+filter, or addressed directly to that adapter.
 
-	tglx
+Such an autosuspend mechanism would let the host controller stop
+polling a mostly-idle network link, getting rid of one source of
+periodic DMA transfers and thus allowing deeper sleep states for
+many x86 family CPUs.  And also, I'd expect, giving fewer
+opportunities for those broken RX packets.  :)
 
+- Dave
 

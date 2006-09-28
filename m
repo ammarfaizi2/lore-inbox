@@ -1,62 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751867AbWI1MI3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751860AbWI1MEm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751867AbWI1MI3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Sep 2006 08:08:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965406AbWI1MI3
+	id S1751860AbWI1MEm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Sep 2006 08:04:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751861AbWI1MEm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Sep 2006 08:08:29 -0400
-Received: from relay.2ka.mipt.ru ([194.85.82.65]:27089 "EHLO 2ka.mipt.ru")
-	by vger.kernel.org with ESMTP id S1751867AbWI1MI1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Sep 2006 08:08:27 -0400
-Date: Thu, 28 Sep 2006 16:08:26 +0400
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: linux-kernel@vger.kernel.org
-Cc: linux-crypto@vger.kernel.org, netdev@vger.kernel.org
-Subject: [ACRYPTO] New asynchronous crypto layer (acrypto) release.
-Message-ID: <20060928120826.GA18063@2ka.mipt.ru>
+	Thu, 28 Sep 2006 08:04:42 -0400
+Received: from mail.sanpeople.com ([196.41.13.122]:54533 "EHLO
+	za-gw.sanpeople.com") by vger.kernel.org with ESMTP
+	id S1751860AbWI1MEm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Sep 2006 08:04:42 -0400
+Subject: Re: [PATCH 8/8] atmel_serial: Kill at91_register_uart_fns
+From: Andrew Victor <andrew@sanpeople.com>
+To: Haavard Skinnemoen <hskinnemoen@atmel.com>
+Cc: Russell King <rmk+lkml@arm.linux.org.uk>, linux-kernel@vger.kernel.org
+In-Reply-To: <20060928135131.0d075ab5@cad-250-152.norway.atmel.com>
+References: <1159376285670-git-send-email-hskinnemoen@atmel.com>
+	 <115937628584-git-send-email-hskinnemoen@atmel.com>
+	 <11593762852168-git-send-email-hskinnemoen@atmel.com>
+	 <11593762851735-git-send-email-hskinnemoen@atmel.com>
+	 <11593762853931-git-send-email-hskinnemoen@atmel.com>
+	 <11593762851544-git-send-email-hskinnemoen@atmel.com>
+	 <11593762851494-git-send-email-hskinnemoen@atmel.com>
+	 <1159376285621-git-send-email-hskinnemoen@atmel.com>
+	 <11593762852950-git-send-email-hskinnemoen@atmel.com>
+	 <1159435315.23157.73.camel@fuzzie.sanpeople.com>
+	 <20060928113857.0e3e7c48@cad-250-152.norway.atmel.com>
+	 <1159442049.23157.94.camel@fuzzie.sanpeople.com>
+	 <20060928135131.0d075ab5@cad-250-152.norway.atmel.com>
+Content-Type: text/plain
+Organization: Multenet Technologies (Pty) Ltd
+Message-Id: <1159444607.23157.114.camel@fuzzie.sanpeople.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
-Content-Disposition: inline
-User-Agent: Mutt/1.5.9i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Thu, 28 Sep 2006 16:08:27 +0400 (MSD)
+X-Mailer: Ximian Evolution 1.2.2 
+Date: 28 Sep 2006 13:56:48 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.
 
-I'm pleased to announce asynchronous crypto layer (acrypto) [1] release 
-for 2.6.18 kernel tree. Acrypto allows to handle crypto requests 
-asynchronously in hardware.
+> Rename at91_register_uart_fns and associated structs and variables
+> to make it consistent with the atmel_ prefix used by the rest of
+> the driver.
+> 
+> Signed-off-by: Haavard Skinnemoen <hskinnemoen@atmel.com>
 
-Combined patchset includes:
- * acrypto core
- * IPsec ESP4 port to acrypto
- * dm-crypt port to acrypto
- * OCF to acrypto bridge
-
-Acrypto supports following crypto providers:
- * SW crypto provider
- * HIFN 795x adapters
- * VIA nehemiah CPU
- * SuperCrypt CE99C003B
- * devices supported by OCF
-
-With this release of combined patchset for 2.6.18 I drop feature
-extensions for 2.6.16 and 2.6.17 trees and move them into maintenance
-state.
-
-Combined patchset [190k] and drivers for various acrypto providers can 
-be found on project's homepage.
-
-1. Acrypto homepage.
-http://tservice.net.ru/~s0mbre/old/?section=projects&item=acrypto
-
-Signed-off-by: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-
--- 
-	Evgeniy Polyakov
+Signed-off-by: Andrew Victor <andrew@sanpeople.com>
 
 
--- 
-	Evgeniy Polyakov
+

@@ -1,64 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030377AbWI1TBc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751987AbWI1TKN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030377AbWI1TBc (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Sep 2006 15:01:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030379AbWI1TBb
+	id S1751987AbWI1TKN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Sep 2006 15:10:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751986AbWI1TKM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Sep 2006 15:01:31 -0400
-Received: from smtp-vbr13.xs4all.nl ([194.109.24.33]:18692 "EHLO
-	smtp-vbr13.xs4all.nl") by vger.kernel.org with ESMTP
-	id S1030377AbWI1TBa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Sep 2006 15:01:30 -0400
-Date: Thu, 28 Sep 2006 21:00:53 +0200
-From: thunder7@xs4all.nl
-To: Steve Fox <drfickle@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.18-mm2
-Message-ID: <20060928190053.GB5596@amd64.of.nowhere>
-Reply-To: Jurriaan <thunder7@xs4all.nl>
-References: <20060928014623.ccc9b885.akpm@osdl.org> <efh217$8au$1@sea.gmane.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <efh217$8au$1@sea.gmane.org>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+	Thu, 28 Sep 2006 15:10:12 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:7055 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751980AbWI1TKK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Sep 2006 15:10:10 -0400
+Date: Thu, 28 Sep 2006 12:09:52 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Jay Lan <jlan@engr.sgi.com>
+Cc: roland <devzero@web.de>, Fengguang Wu <fengguang.wu@gmail.com>,
+       linux-kernel@vger.kernel.org, lserinol@gmail.com
+Subject: Re: I/O statistics per process
+Message-Id: <20060928120952.9f09cbf7.akpm@osdl.org>
+In-Reply-To: <451C1AAA.3090301@engr.sgi.com>
+References: <0e2001c6de7a$fe756280$962e8d52@aldipc>
+	<359067036.19509@ustc.edu.cn>
+	<008f01c6e27a$f9bd5460$962e8d52@aldipc>
+	<20060927155549.4a69490d.akpm@osdl.org>
+	<451C1AAA.3090301@engr.sgi.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Steve Fox <drfickle@us.ibm.com>
-Date: Thu, Sep 28, 2006 at 05:50:31PM +0000
-> On Thu, 28 Sep 2006 01:46:23 -0700, Andrew Morton wrote:
-> 
-> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18/2.6.18-mm2/
-> 
-> Panic on boot. This machine booted 2.6.18-mm1 fine. em64t machine.
-> 
-> TCP bic registered
-> TCP westwood registered
-> TCP htcp registered
-> NET: Registered protocol family 1
-> NET: Registered protocol family 17
-> Unable to handle kernel paging request at ffffffffffffffff RIP: 
+On Thu, 28 Sep 2006 11:55:38 -0700
+Jay Lan <jlan@engr.sgi.com> wrote:
 
-I think you need to post additional details, such as .config files.
-2.6.18-mm2 boots fine here (x86-64, X2 4600 cpu, smp)
+> Andrew Morton wrote:
+> > On Wed, 27 Sep 2006 23:22:02 +0200
+> > "roland" <devzero@web.de> wrote:
+> > 
+> >>thanks. tried to contact redflag, but they don`t answer. maybe support is 
+> >>being on holiday.... !?
+> >>
+> >>linux kernel hackers - there is really no standard way to watch i/o metrics 
+> >>(bytes read/written) at process level?
+> > 
+> > The patch csa-accounting-taskstats-update.patch in current -mm kernels
+> > (whcih is planned for 2.6.19) does have per-process chars-read and
+> > chars-written accounting ("Extended accounting fields").  That's probably
+> > not waht you really want, although it might tell you what you want to know.
+> > 
+> >>it`s extremly hard for the admin to track down, what process is hogging the 
+> >>disk - especially if there is more than one task consuming cpu.
+> 
+> Rolend,
+> 
+> The per-process chars-read and chars-writeen accounting is made
+> available through taskstats interface (see Documentation/accounting/
+> taskstats.txt) in 2.6.18-mm1 kernel. Unfortunately, the user-space CSA
+> package is still a few months away. You may, for now, write your
+> own taskstats application or go a long way to port the in-kernel
+> implementation of pagg/job/csa.
+> 
+> However, the "Externded acocunting fields" patch does not provide you
+> straight forward answer. The patch provides accounting data only at
+> process termination (just like the BSD accounting) and it seems that
+> you want to see which run-away application (ie, alive) eating up your
+> disk. The taskstats interface offers a query mode (command-response),
+> but currently only delayacct uses that mode. We would need to make
+> those data available in the query mode in order for application to
+> see accounting data of live processes.
 
-Linux version 2.6.18-mm2 (jurriaan@middle) (gcc version 4.1.2 20060920 (prerelease) (Debian 4.1.1-14)) #5 SMP Thu Sep 28 19:56:29 CEST 2006
-Command line: root=/dev/md2 video=nvidiafb:1600x1200-32@85 atkbd.softrepeat=1
-protocol family 1
-NET: Registered protocol family 10
-lo: Disabled Privacy Extensions
-IPv6 over IPv4 tunneling driver
-NET: Registered protocol family 17
-NET: Registered protocol family 15
-NET: Registered protocol family 8
-NET: Registered protocol family 20
-powernow-k8: Found 2 AMD Athlon(tm) 64 X2 Dual Core Processor 4600+ processors (version 2.00.00)
+ow.  That is a rather important enhancement to have.
 
-Kind regards,
-Jurriaan
--- 
-"I resent it as well," said Scharde. "I am working to keep my rage under
-control."
-        Jack Vance - Ecce and Old Earth
-Debian (Unstable) GNU/Linux 2.6.18-mm2 2x4826 bogomips load 1.35
+> > 
+> > csa-accounting-taskstats-update.patch makes that information available to
+> > userspace.
+> > 
+> > But it's approximate, because
+> > 
+> > - it doesn't account for disk readahead
+> > 
+> > - it doesn't account for pagefault-initiated reads (althought it easily
+> >   could - Jay?)
+> > 
+> > - it overaccounts for a process writing to an already-dirty page.
+> > 
+> >   (We could fix this too: nuke the existing stuff and do
+> > 
+> > 	current->wchar += PAGE_CACHE_SIZE;
+> > 
+> >    in __set_page_dirty_[no]buffers().) (But that ends up being wrong if
+> >    someone truncates the file before it got written)
+> > 
+> > - it doesn't account for file readahead (although it easily could)
+> > 
+> > - it doesn't account for pagefault-initiated readahead (it could)
+> > 
+> > 
+> > hm.  There's actually quite a lot we could do here to make these fields
+> > more accurate and useful.  A lot of this depends on what the definition of
+> > these fields _is_.  Is is just for disk IO?  Is it supposed to include
+> > console IO, or what?
+
+I'd be interested in your opinions on all the above, please.
+

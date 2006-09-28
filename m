@@ -1,55 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965101AbWI1BuU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031331AbWI1Bzn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965101AbWI1BuU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Sep 2006 21:50:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965181AbWI1BuU
+	id S1031331AbWI1Bzn (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Sep 2006 21:55:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031332AbWI1Bzn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Sep 2006 21:50:20 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:7379 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S965101AbWI1BuS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Sep 2006 21:50:18 -0400
-Message-ID: <451B2A58.9010603@garzik.org>
-Date: Wed, 27 Sep 2006 21:50:16 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: LKML <linux-kernel@vger.kernel.org>, Greg KH <greg@kroah.com>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [PATCH] device_for_each_child(): kill pointless warning noise
-References: <20060928010518.GA25865@havoc.gtf.org> <20060927184200.7d7b9cc2.akpm@osdl.org>
-In-Reply-To: <20060927184200.7d7b9cc2.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Wed, 27 Sep 2006 21:55:43 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:62136
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S1031331AbWI1Bzm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Sep 2006 21:55:42 -0400
+Date: Wed, 27 Sep 2006 18:55:41 -0700 (PDT)
+Message-Id: <20060927.185541.02300409.davem@davemloft.net>
+To: suresh.b.siddha@intel.com
+Cc: akpm@osdl.org, hugh@veritas.com, linux-kernel@vger.kernel.org,
+       asit.k.mallick@intel.com
+Subject: Re: [patch] mm: fix a race condition under SMC + COW
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <20060927172355.B12423@unix-os.sc.intel.com>
+References: <20060927151507.A12423@unix-os.sc.intel.com>
+	<20060927.155442.71092068.davem@davemloft.net>
+	<20060927172355.B12423@unix-os.sc.intel.com>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.3 (----)
-X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> On Wed, 27 Sep 2006 21:05:18 -0400
-> Jeff Garzik <jeff@garzik.org> wrote:
+From: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
+Date: Wed, 27 Sep 2006 17:23:55 -0700
+
+> I am flushing the pte entry in ptep_clear_flush() and it is Ok not
+> to do another TLB flush after doing set_pte_at().
 > 
->> As the last patch demonstrated, it is quite valid for a caller to ignore
->> the return value of device_for_each_child(), given that the return value
->> is wholly dependent on the actor -- which in practice often has a
->> hardcoded return value.
+> On Sparc64, this new set_pte_at() (after ptep_clear_flush) will not batch
+> any TLB flush as the previous pte contents were zero.
 > 
-> Yes, but almost all of the instances which you found are flat-out *wrong*. 
-> They're returning 0 or 1 at random places in the callchain because they're
-> calling intermediate void-returning functions which are themselves dropping
-> error codes on the floor instead of returning them.
+> We are Ok with this patch, isn't it?
 
-"almost all"  Thus it is wrong to _force_ the usage model on the caller.
-
-It should be obvious that a simple search need not _require_ a dummy 
-return value, that is promptly ignored.
-
-See previous email for examples.
-
-	Jeff
-
-
+Ok, it seems PowerPC also has the "don't do anything if previous PTE
+was zero" logic.  So yes, it should be ok.
 

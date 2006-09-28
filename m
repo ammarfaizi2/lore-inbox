@@ -1,193 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751508AbWI1UXI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751510AbWI1UZw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751508AbWI1UXI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Sep 2006 16:23:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751509AbWI1UXI
+	id S1751510AbWI1UZw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Sep 2006 16:25:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751998AbWI1UZw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Sep 2006 16:23:08 -0400
-Received: from e36.co.us.ibm.com ([32.97.110.154]:49618 "EHLO
-	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751508AbWI1UXG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Sep 2006 16:23:06 -0400
-Subject: Re: [ckrm-tech] [patch00/05]: Containers(V2)- Introduction
-From: Chandra Seetharaman <sekharan@us.ibm.com>
-Reply-To: sekharan@us.ibm.com
-To: rohitseth@google.com
-Cc: linux-kernel <linux-kernel@vger.kernel.org>, devel@openvz.org,
-       CKRM-Tech <ckrm-tech@lists.sourceforge.net>
-In-Reply-To: <1159467139.2669.74.camel@galaxy.corp.google.com>
-References: <1158718568.29000.44.camel@galaxy.corp.google.com>
-	 <1159386644.4773.80.camel@linuxchandra>
-	 <1159392487.23458.70.camel@galaxy.corp.google.com>
-	 <1159395892.4773.107.camel@linuxchandra>
-	 <1159467139.2669.74.camel@galaxy.corp.google.com>
-Content-Type: text/plain
-Organization: IBM
-Date: Thu, 28 Sep 2006 13:23:04 -0700
-Message-Id: <1159474984.4773.138.camel@linuxchandra>
+	Thu, 28 Sep 2006 16:25:52 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:6318 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751510AbWI1UZv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Sep 2006 16:25:51 -0400
+Date: Thu, 28 Sep 2006 13:25:48 -0700
+From: Bryce Harrington <bryce@osdl.org>
+To: linux-kernel@vger.kernel.org
+Subject: [OOPS] -git8,9:  NULL pointer dereference in mptspi_dv_renegotiate_work
+Message-ID: <20060928202548.GO12968@osdl.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-7) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-09-28 at 11:12 -0700, Rohit Seth wrote:
-> On Wed, 2006-09-27 at 15:24 -0700, Chandra Seetharaman wrote:
-> > On Wed, 2006-09-27 at 14:28 -0700, Rohit Seth wrote:
-> > 
-> > Rohit,
-> > 
-> > For 1-4, I understand the rationale. But, your implementation deviates
-> > from the current behavior of the VM subsystem which could affect the
-> > ability of these patches getting into mainline.
-> > 
-> 
-> I agree that this implementation differs from existing VM subsystem.
-> But the key point here is, it puts the pages that should be reclaimed.
+Apologies if this has already been reported; I didn't spot it on the
+list.  We've noticed an Oops on AMD64 when running linux-2.6.18-git8 and
+-git9, but not -git7:
 
-But, you are putting the pages up for reclamation without any
-consideration to the working set and system memory pressure.
+ mptbase: Initiating ioc0 recovery
+ Unable to handle kernel NULL pointer dereference at 0000000000000500 RIP: 
+  [<ffffffff80489aa2>] mptspi_dv_renegotiate_work+0xc/0x45
+ PGD 0 
+ Oops: 0000 [1] PREEMPT SMP 
+ CPU 0 
+ Modules linked in:
+ Pid: 8, comm: events/0 Not tainted 2.6.18-git8 #1
+ RIP: 0010:[<ffffffff80489aa2>]  [<ffffffff80489aa2>] mptspi_dv_renegotiate_work+0xc/0x45
+ RSP: 0000:ffff81003ec65e40  EFLAGS: 00010282
+ RAX: 0000000000000002 RBX: ffff81003e86f640 RCX: 000000000000001e
+ RDX: 0000000000000001 RSI: 0000000000000213 RDI: 000000000003e86f
+ RBP: 0000000000000500 R08: ffff81003ec64000 R09: ffff81003ed0cf40
+ R10: ffff81003e86f640 R11: ffff81003ed0cf40 R12: ffff81003ed0cf40
+ R13: 0000000000000213 R14: ffff81003e86f640 R15: ffffffff80489a96
+ FS:  0000000000000000(0000) GS:ffffffff80779000(0000) knlGS:0000000000000000
+ CS:  0010 DS: 0018 ES: 0018 CR0: 000000008005003b
+ CR2: 0000000000000500 CR3: 0000000000201000 CR4: 00000000000006e0
+ Process events/0 (pid: 8, threadinfo ffff81003ec64000, task ffff81007f180740)
+ Stack:  ffff81003ec65ef8 ffff81003e86f640 ffff81003e86f648 ffffffff8023f1bd
+  ffff81003ed0cf40 ffff81003ed0cf40 ffffffff8023f204 ffff8100016dfd70
+  00000000fffffffc ffffffff80593ffd 0000000000000000 ffffffff8023f300
+ Call Trace:
+  [<ffffffff8023f1bd>] run_workqueue+0x9a/0xe1
+  [<ffffffff8023f204>] worker_thread+0x0/0x12e
+  [<ffffffff8023f300>] worker_thread+0xfc/0x12e
+  [<ffffffff80229f62>] default_wake_function+0x0/0xe
+  [<ffffffff80229f62>] default_wake_function+0x0/0xe
+  [<ffffffff80242433>] kthread+0xc8/0xf1
+  [<ffffffff8020a3f8>] child_rip+0xa/0x12
+  [<ffffffff8024236b>] kthread+0x0/0xf1
+  [<ffffffff8020a3ee>] child_rip+0x0/0x12
  
-> And this part needs further refining.
-> 
-> > IMO, the current behavior in terms of reclamation, LRU, vm_swappiness,
-> > and writeback logic should be maintained.
-> > 
-> 
-> How?  I don't want to duplicate the whole logic for containers.
+ 
+ Code: 48 8b 45 00 31 f6 48 8b b8 50 01 00 00 e8 5c 4d fe ff 48 85 
+ RIP  [<ffffffff80489aa2>] mptspi_dv_renegotiate_work+0xc/0x45
+  RSP <ffff81003ec65e40>
+ CR2: 0000000000000500
+  <6>mptbase: Initiating ioc0 recovery
 
-We don't have to be duplicating the whole logic. Just make sure that the
-existing mechanisms are aware of containers, if they exist.
+Full console logs showing the above oops are here:
+-git7:   ok   http://crucible.osdl.org/runs/2223/sysinfo/amd01.console
+-git8:  Oops  http://crucible.osdl.org/runs/2233/sysinfo/amd01.console
+-git9:  Oops  http://crucible.osdl.org/runs/2241/sysinfo/amd01.console
 
-<snip>
+Reference information about the machine this is run on:
+    http://crucible.osdl.org/runs/2223/sysinfo/amd01.1/
 
-> > 
-> > But, it will still suffer from (1) above, as we would have no idea of
-> > the current working set (LRU) (within an item or among the items).
-> > 
-> 
-> Please let me know how do you propose to have another LRU for pages in
-> containers.  Though I can add some heuristics.
+Config files:
+-git7:  http://crucible.osdl.org/runs/2223/sysinfo/amd01.config
+-git8:  http://crucible.osdl.org/runs/2233/sysinfo/amd01.config
 
-There are multiple ways as Balbir pointed in his email:
- - reclamation per container (as in current RG implementation)
-   ( + do a system wide reclaim when the system pressure is high)
- - reclaim with the knowledge of containers that are over limit
-   (Dave Hansen's patches + avoid overhead of combing the list)
- - have two lists one for the system and one per container
-
-> 
-> > > 
-> > > > 6. Both active and inactive pages use physical pages. But, the 
-> > > >    controller only counts active pages and not inactive pages. why ?
-> > > 
-> > > The thought is, it is okay for containers to go over its limit as long
-> > 
-> > Real number of "physical pages" used by the container is the sum of
-> > active and inactive pages.
-> > 
-> 
-> >From the user pov, the real sum of pages that are used by container for
-> user land is anon + file.  Now some times it is possible that there are
-> active pages that are neither in page cache nor in use as anon.
-> 
-> 
-> > My question is, shouldn't that be used to check against page limit
-> > instead of active pages alone ?
-> I can use active+inactive as the test.  Sure.  But I will have to also
-> still have a check to make sure that number of active pages themselves
-> is not bigger than page_limit.
-> 
-> > How do we describe "page limit" as (to the user) ?
-> > 
-> 
-> Amount of memory below which no container throttling will happen.  And
-
-But, from the implementation one cannot clearly derive what we mean by
-"memory" here (physical ?, file + anon ?; if we say physical, it is not
-correct).
-
-> if the system is properly configured that it also ensures that this much
-> memory will always be there to user.  If a container goes over this
-> limit then it will be throttled and it will suffer performance.
-
-But, the user's expectation would be that we would be throwing out pages
-based on LRU (within that container). But this implementation doesn't
-provide that behavior. It doesn't care about the working set.
-
-Performance impact will be lesser if we consider the working set and
-throw out pages based on LRU (within a container).
-
-> 
-> > > as there is enough memory in the system. When there is any memory
-> > > pressure then the inactive (+ dereferenced) pages get swapped out thus
-> > > penalizing the container.  I'm also thinking of having hard limit for
-> > 
-> > Reclamation goes through active pages and page cache pages before it
-> > gets into inactive pages. So, this may not work as you are explaining.
-> 
-> That is a good point.  I'll have to make a check in reclaim so that when
-> the system is ready for swap or write back then containers are looked
-> first.
-> 
-> >  
-> > > anonymous pages beyond which the container will not be able to grow its
-> > > anonymous pages.
-> > 
-> > You might break the current behavior (memory pressure must be very high
-> > before these starts failing) if you are going to be strict about it.
-> > 
-> 
-> That feature when implemented will be a container specific.
-
-My point is, even though it is container specific, the behavior (inside
-a container) should be same as what a user sees at the system level now.
-
-For example, consider a workload that is run on a 1G system now, and
-user sees only occasional memory allocation failures and just a handful
-of oom kills. When the workload is moved to a container with 1G,
-failures the user see should be in the same order ( and similar with
-performance characteristics).
-
-Do you agree that it will be the user's expectation ?
-
-> 
-> > > 
-> > > > 7. Page limit is checked against the sum of (anon and file pages) in 
-> > > >    some places and against active pages at some other places. IMO, it 
-> > > >    should be always compared to the same value.
-> > > > 
-> > > It is checked against sum of anon+file pages at the time when new pages
-> > 
-> > why can't we check against active pages here ?
-> > 
-> > > is getting allocated.  But as the reclaimer activate the pages, so it is
-> > > also important to make sure the number of active pages is not going
-> > > above its limit.
-> > 
-> > My point is that they won't be same (ever) and hence the check is
-> > inconsistent. 
-> > 
-> 
-> The check ensures 
-> 1- when a new page is getting added then the total sum of pages is
-> checked against the limit.
-> 2- Number of active pages don't exceed the limit.
-> 
-> These two points combined together enforce the decision that once the
-> container goes over the limit, we scan the pages again to deactivate the
-> excess.
-
-Again, I understand the rationale. But it is not consistent.
-> 
-> Thanks,
-> -rohit
-> 
--- 
-
-----------------------------------------------------------------------
-    Chandra Seetharaman               | Be careful what you choose....
-              - sekharan@us.ibm.com   |      .......you may get it.
-----------------------------------------------------------------------
-
-
+Bryce

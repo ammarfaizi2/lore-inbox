@@ -1,48 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161334AbWI1WZS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932531AbWI1WfY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161334AbWI1WZS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Sep 2006 18:25:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161335AbWI1WZS
+	id S932531AbWI1WfY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Sep 2006 18:35:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932532AbWI1WfY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Sep 2006 18:25:18 -0400
-Received: from mail.suse.de ([195.135.220.2]:27861 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1161334AbWI1WZQ (ORCPT
+	Thu, 28 Sep 2006 18:35:24 -0400
+Received: from waste.org ([66.93.16.53]:10463 "EHLO waste.org")
+	by vger.kernel.org with ESMTP id S932531AbWI1WfX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Sep 2006 18:25:16 -0400
-Date: Thu, 28 Sep 2006 15:25:18 -0700
-From: Greg KH <gregkh@suse.de>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Alan Stern <stern@rowland.harvard.edu>, Olaf Hering <olaf@aepfle.de>,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-usb-devel@lists.sourceforge.net
-Subject: Re: [linux-usb-devel] [GIT PATCH] USB patches for 2.6.18
-Message-ID: <20060928222518.GA12666@suse.de>
-References: <Pine.LNX.4.44L0.0609281815170.10847-100000@iolanthe.rowland.org> <Pine.LNX.4.64.0609281521470.3952@g5.osdl.org>
-MIME-Version: 1.0
+	Thu, 28 Sep 2006 18:35:23 -0400
+Date: Thu, 28 Sep 2006 17:33:41 -0500
+From: Matt Mackall <mpm@selenic.com>
+To: keios <keios.cn@gmail.com>
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] low performance of lib/sort.c , kernel 2.6.18
+Message-ID: <20060928223341.GI6412@waste.org>
+References: <76505a370609280818r3ffc9a4akf4cec6ed366d32e3@mail.gmail.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0609281521470.3952@g5.osdl.org>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+In-Reply-To: <76505a370609280818r3ffc9a4akf4cec6ed366d32e3@mail.gmail.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 28, 2006 at 03:22:04PM -0700, Linus Torvalds wrote:
-> 
-> 
-> On Thu, 28 Sep 2006, Alan Stern wrote:
-> > 
-> > Another example of a bug for which the fix hasn't yet gone upstream to 
-> > Linus.  The -mm kernel should work.  It you want to apply the fix 
-> > yourself, it's these two patches:
-> 
-> Greg, can we please feed fixes to me faster?
+On Thu, Sep 28, 2006 at 11:18:45PM +0800, keios wrote:
+> It is a non-standard heap-sort algorithm implementation because the
+> index of child node is wrong . The sort function still outputs right
+> result, but the performance is O( n * ( log(n) + 1 ) ) , about 10% ~
+> 20% worse than standard algorithm .
+>
+> Signed-off-by: keios <keios.cn@gmail.com>
 
-Faster?  My god man, I just found out a few minutes ago that these were
-causing problems for people.  I had only applied them to my local tree
-about 12 hours ago :)
+Was a bit mystified by this as your patch matches what I've got
+in my userspace test harness from 2003.
 
-Give me a bit, I'll have them ready for you to pull from...
+Here's what I submitted, which is almost the same as yours:
 
-thanks,
+http://www.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.11-rc4/2.6.11-rc4-mm1/broken-out/lib-sort-heapsort-implementation-of-sort.patch
 
-greg k-h
+Then Zou Nan hai sent Andrew a fix for an off-by-one bug here (merged
+with my patch):
+
+http://kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.11/2.6.11-mm1/broken-out/lib-sort-heapsort-implementation-of-sort.patch
+
+..which introduced the performance regression.
+
+And then I subsequently tweaked my local copy for use in another
+project, coming up with your version.
+
+So this passes my test harness just fine (for both even and odd array
+sizes).
+
+Acked-by: Matt Mackall <mpm@selenic.com>
+
+-- 
+Mathematics is the supreme nostalgia of our time.

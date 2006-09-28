@@ -1,104 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031321AbWI1Bpl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031325AbWI1Bsr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1031321AbWI1Bpl (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Sep 2006 21:45:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965178AbWI1Bpk
+	id S1031325AbWI1Bsr (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Sep 2006 21:48:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031324AbWI1Bsr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Sep 2006 21:45:40 -0400
-Received: from nf-out-0910.google.com ([64.233.182.191]:3234 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S965083AbWI1Bpj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Sep 2006 21:45:39 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent;
-        b=sCmP3Ie/P/1EKMsGRcD0A3KFLmGqXjyO/lCjDyIi7X8QqT4ewFxzLeclA/KN30VVNlUyy+DuWhZqpEW1pR+Ryq+n6P69HSEqv4kK4U24UDr9vKvWPAwLK5n5Ih+JAccvkG0ELMy0Ud5R01La0iu2xLDoOgguElbbz3Kw1rKOFyA=
-Date: Thu, 28 Sep 2006 10:45:29 +0900
-From: Tejun Heo <htejun@gmail.com>
-To: Eran Tromer <eran@tromer.org>
-Cc: Jeff Garzik <jgarzik@pobox.com>, linux-ide@vger.kernel.org,
-       linux-kernel@vger.kernel.org, Mark Lord <mlord@pobox.com>
-Subject: Re: [patch] libata: return sense data in HDIO_DRIVE_CMD ioctl
-Message-ID: <20060928014529.GF25800@htj.dyndns.org>
-References: <451AA16F.1080704@tromer.org>
+	Wed, 27 Sep 2006 21:48:47 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:2003 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S965181AbWI1Bsp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Sep 2006 21:48:45 -0400
+Message-ID: <451B29FA.7020502@garzik.org>
+Date: Wed, 27 Sep 2006 21:48:42 -0400
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <451AA16F.1080704@tromer.org>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-scsi@vger.kernel.org, Greg KH <greg@kroah.com>,
+       LKML <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [PATCH] Illustration of warning explosion silliness
+References: <20060928005830.GA25694@havoc.gtf.org> <20060927183507.5ef244f3.akpm@osdl.org>
+In-Reply-To: <20060927183507.5ef244f3.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.3 (----)
+X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello, Eran Tromer.
-
-On Wed, Sep 27, 2006 at 07:06:07PM +0300, Eran Tromer wrote:
-> > hdparm -C says the same thing for my drive.  I think it's safe to
-> > ignore.  Hmmm... it needs to be tracked down.  Maybe some problem in
-> > HDIO ioctl implementation in libata.
+Andrew Morton wrote:
+> On Wed, 27 Sep 2006 20:58:30 -0400
+> Jeff Garzik <jeff@garzik.org> wrote:
 > 
-> Yes, and fixed by this patch.
-
-Great.  Things look good at the first glance.  Just a few comments.
-
-> @@ -210,18 +214,46 @@ int ata_cmd_ioctl(struct scsi_device *sc
+>> The following patch (DO NOT APPLY) illustrates why
+>> device_for_each_child() should not be marked with __must_check.
+>>
+>> The function returns the return value of the actor function, and ceases
+>> iteration upon error.
+>>
+>> However, _every_ case in drivers/scsi has a hardcoded return value,
+>> illustrating how it is quite valid to not check the return value of this
+>> function.
+>>
 > 
->  	/* Good values for timeout and retries?  Values below
->  	   from scsi_ioctl_send_command() for default case... */
-> -	if (scsi_execute_req(scsidev, scsi_cmd, data_dir, argbuf, argsize,
-> -			     &sshdr, (10*HZ), 5)) {
-> +	cmd_result = scsi_execute(scsidev, scsi_cmd, data_dir, argbuf, argsize,
-> +	                          sensebuf, (10*HZ), 5, 0);
-> +
-> +	if ((cmd_result>>24) == DRIVER_SENSE) {   /* sense data available */
+> What does "has a hardcoded return value" mean?
 
-driver_byte() seems more appropriate.
+Reference the sentence before that.  The return value of the actor 
+passed to device_for_each_child() is always either zero (for some 
+actors) or one (for another actor).  In all cases, it is never variable.
 
-> +		u8 *desc = sensebuf + 8;
-> +		cmd_result &= ~(0xFF<<24); /* DRIVER_SENSE is not an error */
-> +
-> +		/* If we set cc then ATA pass-through will cause a
-> +		 * check condition even if no error. Filter that. */
-> +		if (cmd_result & SAM_STAT_CHECK_CONDITION) {
-> +			struct scsi_sense_hdr sshdr;
-> +			scsi_normalize_sense(sensebuf, SCSI_SENSE_BUFFERSIZE,
-> +			                      &sshdr);
-> +			if (sshdr.sense_key==0 &&
-> +			    sshdr.asc==0 && sshdr.ascq==0)
-> +				cmd_result &= ~SAM_STAT_CHECK_CONDITION;
-> +		}
-> +
-> +		/* Send userspace a few ATA registers (same as drivers/ide) */
-> +		if (sensebuf[0] == 0x72 &&     /* format is "descriptor" */
-> +		    desc[0] == 0x09 ) {        /* code is "ATA Descriptor" */
-> +			args[0] = desc[13];    /* status */
-> +			args[1] = desc[3];     /* error */
-> +			args[2] = desc[5];     /* sector count (0:7) */
-> +			if (copy_to_user(arg, args, sizeof(args)))
-> +				rc = -EFAULT;
-> +		}
-> +	}
-> +
-> +
-> +	if (cmd_result) {
 
-I wonder whether we need to fake default error ATA regsiters here.
-Anyways, it's unrelated to this patch.
-
->  		rc = -EIO;
->  		goto error;
->  	}
+> AFICT the problem here is that (for example) (going up the call stack in
+> the callee->caller direction):
 > 
-> -	/* Need code to retrieve data from check condition? */
-> -
->  	if ((argbuf)
->  	 && copy_to_user(arg + sizeof(args), argbuf, argsize))
->  		rc = -EFAULT;
->  error:
-> +	kfree(sensebuf);
->  	kfree(argbuf);
->  	return rc;
+> scsi_internal_device_block() returns an error code
+> 
+> but device_block() drops that on the floor
+> 
+> so target_block() drops it on the floor too
+> 
+> so scsi_target_block() drops it on the floor too
+> 
+> 
+> It's a small matter of (correct kernel) programming to correctly propagate
+> the scsi_internal_device_block() error code all the way back out of
+> scsi_target_block().
+> 
+> It all looks rather sloppy?
 
-Acked-by: Tejun Heo <htejun@gmail.com>
+Quite sloppy.  But that doesn't change the fact that 
+device_for_each_child()'s actor _may_ hardcode the return value.  It's a 
+valid usage model for that function.
 
--- 
-tejun
+If you are doing a simple collection of data -- adding items to a 
+preallocating list or bitmap -- or doing a search, as with 
+__remove_child() in drivers/scsi/scsi_sysfs.c, the return value can be 
+quite useless.
+
+The usage model should not be _forced_ upon the caller, since it might 
+not be needed.
+
+	Jeff
+
+

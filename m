@@ -1,60 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932511AbWI1QIl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932509AbWI1QG2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932511AbWI1QIl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Sep 2006 12:08:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932498AbWI1QIk
+	id S932509AbWI1QG2 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Sep 2006 12:06:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932269AbWI1QC3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Sep 2006 12:08:40 -0400
-Received: from DSL022.labridge.com ([206.117.136.22]:62470 "EHLO Perches.com")
-	by vger.kernel.org with ESMTP id S1751328AbWI1QIV (ORCPT
+	Thu, 28 Sep 2006 12:02:29 -0400
+Received: from mx.pathscale.com ([64.160.42.68]:5814 "EHLO mx.pathscale.com")
+	by vger.kernel.org with ESMTP id S1751932AbWI1QBY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Sep 2006 12:08:21 -0400
-Subject: Re: Tiny error in printk output for clocksource : a3:<6>Time:
-	acpi_pm clocksource has been installed.
-From: Joe Perches <joe@perches.com>
-To: Denis Vlasenko <vda.linux@googlemail.com>
-Cc: Randy Dunlap <rdunlap@xenotime.net>, Greg KH <greg@kroah.com>,
-       Jesper Juhl <jesper.juhl@gmail.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-In-Reply-To: <200609281256.23175.vda.linux@googlemail.com>
-References: <9a8748490609261722g557eaeeayc148b5f5d910874d@mail.gmail.com>
-	 <1159333843.13196.6.camel@localhost>
-	 <20060926221718.7e20613e.rdunlap@xenotime.net>
-	 <200609281256.23175.vda.linux@googlemail.com>
-Content-Type: text/plain
-Date: Thu, 28 Sep 2006 09:08:14 -0700
-Message-Id: <1159459694.5015.19.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.0-1mdv2007.0 
+	Thu, 28 Sep 2006 12:01:24 -0400
+Content-Type: text/plain; charset="us-ascii"
+MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
+Subject: [PATCH 28 of 28] IB/ipath - fix lockdep error upon "ifconfig ibN down"
+X-Mercurial-Node: c61b17b5602f2690dc3afecfdc0a17331c8a72ea
+Message-Id: <c61b17b5602f2690dc3a.1159459224@eng-12.pathscale.com>
+In-Reply-To: <patchbomb.1159459196@eng-12.pathscale.com>
+Date: Thu, 28 Sep 2006 09:00:24 -0700
+From: "Bryan O'Sullivan" <bos@pathscale.com>
+To: rdreier@cisco.com
+Cc: linux-kernel@vger.kernel.org, openib-general@openib.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-09-28 at 12:56 +0200, Denis Vlasenko wrote:
-> \#define MACSTR "%02X:%02X:%02X:%02X:%02X:%02X"
-> #define MAC(bytevector) \
->         ((unsigned char *)bytevector)[0], \
->         ((unsigned char *)bytevector)[1], \
->         ((unsigned char *)bytevector)[2], \
->         ((unsigned char *)bytevector)[3], \
->         ((unsigned char *)bytevector)[4], \
->         ((unsigned char *)bytevector)[5]
+Signed-off-by: Bryan O'Sullivan <bryan.osullivan@qlogic.com>
 
-This is similar to the 802.11 way.
-802.11 uses MAC_FMT and MAC_ARG.
-I think a common style is preferable.
-
-It's fine, but it increases the size of kernel image
-by up to ~100K.  Using a common function, a stack
-automatic and "%s" in the printk decreases the size
-of the kernel. 
-
-Strictly, not all MAC addresses are 6 byte.
-
-Maybe all the Ethernet/TR addresses should use the
-IEEE EUI48 designation?  That feels a bit like the
-KiB/KB distinction, but it is technically correct.
-
-Would a patch with an DEV6_ADDR->EUI48 substitution
-be acceptable?
-
+diff -r 944d7e53a049 -r c61b17b5602f drivers/infiniband/hw/ipath/ipath_verbs.c
+--- a/drivers/infiniband/hw/ipath/ipath_verbs.c	Thu Sep 28 08:57:13 2006 -0700
++++ b/drivers/infiniband/hw/ipath/ipath_verbs.c	Thu Sep 28 08:57:13 2006 -0700
+@@ -1202,6 +1202,7 @@ static struct ib_ah *ipath_create_ah(str
+ 	struct ipath_ah *ah;
+ 	struct ib_ah *ret;
+ 	struct ipath_ibdev *dev = to_idev(pd->device);
++	unsigned long flags;
+ 
+ 	/* A multicast address requires a GRH (see ch. 8.4.1). */
+ 	if (ah_attr->dlid >= IPATH_MULTICAST_LID_BASE &&
+@@ -1228,16 +1229,16 @@ static struct ib_ah *ipath_create_ah(str
+ 		goto bail;
+ 	}
+ 
+-	spin_lock(&dev->n_ahs_lock);
++	spin_lock_irqsave(&dev->n_ahs_lock, flags);
+ 	if (dev->n_ahs_allocated == ib_ipath_max_ahs) {
+-		spin_unlock(&dev->n_ahs_lock);
++		spin_unlock_irqrestore(&dev->n_ahs_lock, flags);
+ 		kfree(ah);
+ 		ret = ERR_PTR(-ENOMEM);
+ 		goto bail;
+ 	}
+ 
+ 	dev->n_ahs_allocated++;
+-	spin_unlock(&dev->n_ahs_lock);
++	spin_unlock_irqrestore(&dev->n_ahs_lock, flags);
+ 
+ 	/* ib_create_ah() will initialize ah->ibah. */
+ 	ah->attr = *ah_attr;
+@@ -1258,10 +1259,11 @@ static int ipath_destroy_ah(struct ib_ah
+ {
+ 	struct ipath_ibdev *dev = to_idev(ibah->device);
+ 	struct ipath_ah *ah = to_iah(ibah);
+-
+-	spin_lock(&dev->n_ahs_lock);
++	unsigned long flags;
++
++	spin_lock_irqsave(&dev->n_ahs_lock, flags);
+ 	dev->n_ahs_allocated--;
+-	spin_unlock(&dev->n_ahs_lock);
++	spin_unlock_irqrestore(&dev->n_ahs_lock, flags);
+ 
+ 	kfree(ah);
+ 

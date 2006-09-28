@@ -1,69 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751781AbWI1IkE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751788AbWI1Imm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751781AbWI1IkE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Sep 2006 04:40:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751784AbWI1IkE
+	id S1751788AbWI1Imm (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Sep 2006 04:42:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751792AbWI1Imm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Sep 2006 04:40:04 -0400
-Received: from ns2.uludag.org.tr ([193.140.100.220]:59050 "EHLO uludag.org.tr")
-	by vger.kernel.org with ESMTP id S1751781AbWI1IkB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Sep 2006 04:40:01 -0400
-From: "=?utf-8?q?S=2E=C3=87a=C4=9Flar?= Onur" <caglar@pardus.org.tr>
-Reply-To: caglar@pardus.org.tr
-Organization: =?utf-8?q?T=C3=9CB=C4=B0TAK_/?= UEKAE
-To: john stultz <johnstul@us.ibm.com>
-Subject: Re: 2.6.18 Nasty Lockup
-Date: Thu, 28 Sep 2006 14:39:55 +0300
-User-Agent: KMail/1.9.4
-Cc: Greg Schafer <gschafer@zip.com.au>, linux-kernel@vger.kernel.org,
-       Andi Kleen <ak@muc.de>
-References: <20060926123640.GA7826@tigers.local> <200609271245.39591.caglar@pardus.org.tr> <1159384500.29040.3.camel@localhost>
-In-Reply-To: <1159384500.29040.3.camel@localhost>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart2360442.BjxJbYFhIt";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+	Thu, 28 Sep 2006 04:42:42 -0400
+Received: from mail.sanpeople.com ([196.41.13.122]:40453 "EHLO
+	za-gw.sanpeople.com") by vger.kernel.org with ESMTP
+	id S1751788AbWI1Iml (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Sep 2006 04:42:41 -0400
+Subject: Re: [PATCH 3/8] at91_serial -> atmel_serial: Kconfig symbols
+From: Andrew Victor <andrew@sanpeople.com>
+To: Haavard Skinnemoen <hskinnemoen@atmel.com>
+Cc: Russell King <rmk+lkml@arm.linux.org.uk>, linux-kernel@vger.kernel.org
+In-Reply-To: <11593762851735-git-send-email-hskinnemoen@atmel.com>
+References: <1159376285670-git-send-email-hskinnemoen@atmel.com>
+	 <115937628584-git-send-email-hskinnemoen@atmel.com>
+	 <11593762852168-git-send-email-hskinnemoen@atmel.com>
+	 <11593762851735-git-send-email-hskinnemoen@atmel.com>
+Content-Type: text/plain
+Organization: Multenet Technologies (Pty) Ltd
+Message-Id: <1159432488.23157.25.camel@fuzzie.sanpeople.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 
+Date: 28 Sep 2006 10:34:49 +0200
 Content-Transfer-Encoding: 7bit
-Message-Id: <200609281439.58755.caglar@pardus.org.tr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart2360442.BjxJbYFhIt
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+hi Haavard,
 
-27 Eyl 2006 =C3=87ar 22:14 tarihinde, john stultz =C5=9Funlar=C4=B1 yazm=C4=
-=B1=C5=9Ft=C4=B1:=20
-> Ok. Good to hear you have a workaround. Now to sort out why your TSCs
-> are becoming un-synced. From the dmesg you sent me privately, I noticed
-> that while you have 4 cpus, the following message only shows up once:
->
-> ACPI: Processor [CPU1] (supports 8 throttling states)
->
-> Does disabling cpufreq change anything?
+> Rename the following Kconfig symbols:
+>   * CONFIG_SERIAL_AT91 -> CONFIG_SERIAL_ATMEL
+>   * CONFIG_SERIAL_AT91_CONSOLE -> CONFIG_SERIAL_ATMEL_CONSOLE
+>   * CONFIG_SERIAL_AT91_TTYAT -> CONFIG_SERIAL_ATMEL_TTYAT
 
-By the way i tried but nothing changes :(
 
-=2D-=20
-S.=C3=87a=C4=9Flar Onur <caglar@pardus.org.tr>
-http://cekirdek.pardus.org.tr/~caglar/
+> -config SERIAL_AT91
+> -	bool "AT91RM9200 / AT91SAM9261 serial port support"
+> +config SERIAL_ATMEL
+> +	bool "AT91 / AT32 on-chip serial port support"
+>  	depends on ARM && (ARCH_AT91RM9200 || ARCH_AT91SAM9261)
+>  	select SERIAL_CORE
+>  	help
+>  	  This enables the driver for the on-chip UARTs of the Atmel
+>  	  AT91RM9200 and AT91SAM926 processor.
 
-Linux is like living in a teepee. No Windows, no Gates and an Apache in hou=
-se!
+Shouldn't this dependency be:
+   depends on (ARM && ARCH_AT91) || AVR32
 
---nextPart2360442.BjxJbYFhIt
-Content-Type: application/pgp-signature
+(The "ARCH_AT91RM9200 || ARCH_AT91SAM9261" can be replaced with
+ARCH_AT91 since the driver should usable on the RM9200, SAM9261 and
+SAM9260)
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
+The help text should probably also be updated for these 3 options so
+that it mentions the AVR32.
 
-iD8DBQBFG7SOy7E6i0LKo6YRAm/QAJ4/aFH+3P3vtok2v83BTfgHampduwCdGTvZ
-PGth6X21/v9i2Yqi0QU0jw8=
-=n9vo
------END PGP SIGNATURE-----
 
---nextPart2360442.BjxJbYFhIt--
+Regards,
+  Andrew Victor
+
+
+

@@ -1,120 +1,242 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161350AbWI1WnL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161349AbWI1WoR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161350AbWI1WnL (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Sep 2006 18:43:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161348AbWI1WnA
+	id S1161349AbWI1WoR (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Sep 2006 18:44:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161351AbWI1WoQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Sep 2006 18:43:00 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:59364 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1161347AbWI1Wm6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Sep 2006 18:42:58 -0400
-Date: Thu, 28 Sep 2006 15:42:37 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Cc: Pavel Machek <pavel@ucw.cz>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH -mm 1/3] swsusp: Add ioctl for swap files support
-Message-Id: <20060928154237.d91abb1f.akpm@osdl.org>
-In-Reply-To: <200609290013.39137.rjw@sisk.pl>
-References: <200609290005.17616.rjw@sisk.pl>
-	<200609290013.39137.rjw@sisk.pl>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+	Thu, 28 Sep 2006 18:44:16 -0400
+Received: from hentges.net ([81.169.178.128]:32480 "EHLO
+	h6563.serverkompetenz.net") by vger.kernel.org with ESMTP
+	id S1161349AbWI1WoO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Sep 2006 18:44:14 -0400
+Subject: Re: 2.6.18-mm2
+From: Matthias Hentges <oe@hentges.net>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <20060928014623.ccc9b885.akpm@osdl.org>
+References: <20060928014623.ccc9b885.akpm@osdl.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-8BEv+446t0jn73MV0u0F"
+Date: Fri, 29 Sep 2006 00:44:01 +0200
+Message-Id: <1159483441.4641.12.camel@mhcln03>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution 2.6.3 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 29 Sep 2006 00:13:38 +0200
-"Rafael J. Wysocki" <rjw@sisk.pl> wrote:
 
-> To be able to use swap files as suspend storage from the userland suspend
-> tools we need an additional ioctl() that will allow us to provide the kernel
-> with both the swap header's offset and the identification of the resume
-> partition.
-> 
-> The new ioctl() should be regarded as a replacement for the
-> SNAPSHOT_SET_SWAP_FILE ioctl() that from now on will be considered as
-> obsolete, but has to stay for backwards compatibility of the interface.
-> 
-> +
-> +/*
-> + * This structure is used to pass the values needed for the identification
-> + * of the resume swap area from a user space to the kernel via the
-> + * SNAPSHOT_SET_SWAP_AREA ioctl
-> + */
-> +struct resume_swap_area {
-> +	u_int16_t dev;
-> +	loff_t offset;
-> +} __attribute__((packed));
->
-
-hmm.  Asking the compiler to pack 16-bit and 64-bit quantities in this
-manner is a bit risky.  I guess it'll do the right thing, consistently,
-across all compiler versions and vendors and 32-bit-on-64-bit-kernel, etc.
-
-But from a defensiveness/paranoia POV it'd be better to use a u32 here, I
-suspect.  (Will access to that loff_t cause an alignment trap on ia64?  Any
-other CPUs?  Dunno).
-
->  #define PMOPS_PREPARE	1
->  #define PMOPS_ENTER	2
-> Index: linux-2.6.18-mm1/kernel/power/user.c
-> ===================================================================
-> --- linux-2.6.18-mm1.orig/kernel/power/user.c
-> +++ linux-2.6.18-mm1/kernel/power/user.c
-> @@ -343,6 +343,37 @@ OutS3:
->  		}
->  		break;
->  
-> +	case SNAPSHOT_SET_SWAP_AREA:
-> +		if (data->bitmap) {
-> +			error = -EPERM;
-> +		} else {
-> +			struct resume_swap_area swap_area;
-> +			dev_t swdev;
-> +
-> +			error = copy_from_user(&swap_area, (void __user *)arg,
-> +					sizeof(struct resume_swap_area));
-> +			if (error) {
-> +				error = -EFAULT;
-> +				break;
-> +			}
-> +
-> +			/*
-> +			 * User space encodes device types as two-byte values,
-> +			 * so we need to recode them
-> +			 */
-
-Really?  stat() uses unsigned long and stat64() uses unsigned long long dev_t.
+--=-8BEv+446t0jn73MV0u0F
+Content-Type: multipart/mixed; boundary="=-MddNmO9u1fgj5wHDWaM/"
 
 
+--=-MddNmO9u1fgj5wHDWaM/
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-> +			swdev = old_decode_dev(swap_area.dev);
-> +			if (swdev) {
-> +				offset = swap_area.offset;
-> +				data->swap = swap_type_of(swdev, offset);
-> +				if (data->swap < 0)
-> +					error = -ENODEV;
-> +			} else {
-> +				data->swap = -1;
-> +				error = -EINVAL;
-> +			}
-> +		}
-> +		break;
-> +
->  	default:
->  		error = -ENOTTY;
+Hello all,
 
-But I wonder if we need to pass the device identified into this ioctl at
-all.  What device is the ioctl() against?  ie: what do `filp' and `inode'
-point at?  If it's /dev/hda1 then everything we need is right there, is it
-not?
+I've just tested -mm2 on my C2D system and I'm getting a lot of these
+messages:
 
-ohshit, it's a miscdevice.  I wonder if it would have defined all this
-stuff to be operations against the blockdev.  Perhaps not.
+"[  139.143807] printk: 131 messages suppressed.
+[  139.148235] sky2 0000:03:00.0: pci express error (0x500547)"
 
-Well anyway.  It might be neater to require that userspace open /dev/hda1
-and pass in the fd to this ioctl.  But this code will never be neat, so
-whatever.
+Please note that the "sky2" driver has always been the black sheep on
+that system due to regular full lock-ups of the driver, requiring a
+rmmod sky2 + modprobe sky2 cycle.
+
+This happens often enough to warrant writing a cronjob checking the
+network and auto-rmmod'ing the module.....
+
+While the above is bloody annoying at times (heh), the driver never
+caused any messages like the ones I now get with -mm2 .
+
+Dmesg of a fresh boot is attached. -mm 1 works perfectly fine on that
+machine.
+
+--=20
+Matthias Hentges=20
+
+My OS: Debian SID. Geek by Nature, Linux by Choice
+
+--=-MddNmO9u1fgj5wHDWaM/
+Content-Disposition: attachment; filename=dmesg_2.6.18-mm2.txt.gz
+Content-Type: application/x-gzip; name=dmesg_2.6.18-mm2.txt.gz
+Content-Transfer-Encoding: base64
+
+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
+K+rdtuFATx/bdB/uf/dNCH3reQAA
+
+
+--=-MddNmO9u1fgj5wHDWaM/--
+
+--=-8BEv+446t0jn73MV0u0F
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: Dies ist ein digital signierter Nachrichtenteil
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
+
+iD8DBQBFHFAxAq2P5eLUP5IRAngwAKChFPFlqkcUGBBNNgBOgzfjGYvuTACgmXdO
+1GLASPUOLTJ71Sz2itrszbE=
+=d6eR
+-----END PGP SIGNATURE-----
+
+--=-8BEv+446t0jn73MV0u0F--
 

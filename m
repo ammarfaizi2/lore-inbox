@@ -1,43 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751325AbWI1RCT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030252AbWI1RDT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751325AbWI1RCT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Sep 2006 13:02:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751940AbWI1RCT
+	id S1030252AbWI1RDT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Sep 2006 13:03:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751942AbWI1RDT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Sep 2006 13:02:19 -0400
-Received: from pasmtpb.tele.dk ([80.160.77.98]:51924 "EHLO pasmtpB.tele.dk")
-	by vger.kernel.org with ESMTP id S1751325AbWI1RCS (ORCPT
+	Thu, 28 Sep 2006 13:03:19 -0400
+Received: from DSL022.labridge.com ([206.117.136.22]:2823 "EHLO Perches.com")
+	by vger.kernel.org with ESMTP id S1751941AbWI1RDS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Sep 2006 13:02:18 -0400
-Date: Thu, 28 Sep 2006 19:02:12 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Andrew Victor <andrew@sanpeople.com>
-Cc: Haavard Skinnemoen <hskinnemoen@atmel.com>,
-       Russell King <rmk+lkml@arm.linux.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 8/8] atmel_serial: Kill at91_register_uart_fns
-Message-ID: <20060928170212.GA29691@uranus.ravnborg.org>
-References: <11593762853931-git-send-email-hskinnemoen@atmel.com> <11593762851544-git-send-email-hskinnemoen@atmel.com> <11593762851494-git-send-email-hskinnemoen@atmel.com> <1159376285621-git-send-email-hskinnemoen@atmel.com> <11593762852950-git-send-email-hskinnemoen@atmel.com> <1159435315.23157.73.camel@fuzzie.sanpeople.com> <20060928113857.0e3e7c48@cad-250-152.norway.atmel.com> <1159442049.23157.94.camel@fuzzie.sanpeople.com> <20060928135131.0d075ab5@cad-250-152.norway.atmel.com> <1159444607.23157.114.camel@fuzzie.sanpeople.com>
+	Thu, 28 Sep 2006 13:03:18 -0400
+Subject: Re: Tiny error in printk output for clocksource : a3:<6>Time:
+	acpi_pm clocksource has been installed.
+From: Joe Perches <joe@perches.com>
+To: Denis Vlasenko <vda.linux@googlemail.com>
+Cc: Randy Dunlap <rdunlap@xenotime.net>, Greg KH <greg@kroah.com>,
+       Jesper Juhl <jesper.juhl@gmail.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <200609281819.43712.vda.linux@googlemail.com>
+References: <9a8748490609261722g557eaeeayc148b5f5d910874d@mail.gmail.com>
+	 <200609281256.23175.vda.linux@googlemail.com>
+	 <1159459694.5015.19.camel@localhost>
+	 <200609281819.43712.vda.linux@googlemail.com>
+Content-Type: text/plain
+Date: Thu, 28 Sep 2006 10:03:10 -0700
+Message-Id: <1159462990.5015.50.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1159444607.23157.114.camel@fuzzie.sanpeople.com>
-User-Agent: Mutt/1.4.2.1i
+X-Mailer: Evolution 2.8.0-1mdv2007.0 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 28, 2006 at 01:56:48PM +0200, Andrew Victor wrote:
+On Thu, 2006-09-28 at 18:19 +0200, Denis Vlasenko wrote:
+> You are trying to cover all possible cases with this monstrosity:
+> extern char *__dev_addr6_fmt(char* buf, const unsigned char *addr);
+> #define DEV_ADDR6_FMT "%s" /* expands to: "FF:FF:FF:FF:FF:FF" */
+> #define DEV_ADDR6_BUF char __dev_addr6_buf[sizeof("FF:FF:FF:FF:FF:FF")]
+> DEV_ADDR6_BUF;
+> ...
+> printk(", h/w address " DEV_ADDR6_FMT "\n", DEV_ADDR6(dev->dev_addr));
+
+Yup, it's not pretty.
+
+> Why don't you use a parameter for DEV_ADDR6{_BUF}? DEV_ADDR6_BUF(var_name).
+> DEV_ADDR6(var_name, addr). That would be less cryptic.
+
+Your idea makes code a bit visually longer, but I've no real objection.
+
+> print_mac(", h/w address ", dev->dev_addr, "\n");
+
+> > Would a patch with a DEV6_ADDR->EUI48 substitution
+> > be acceptable?
 > 
-> > Rename at91_register_uart_fns and associated structs and variables
-> > to make it consistent with the atmel_ prefix used by the rest of
-> > the driver.
-> > 
-> > Signed-off-by: Haavard Skinnemoen <hskinnemoen@atmel.com>
-> 
-> Signed-off-by: Andrew Victor <andrew@sanpeople.com>
+> Maybe. Doesn't look obvious, but if it is in standards...
 
-You Sign-off a path when it passes through your hands.
-You acknowledge a path by Acked-by: xxx when you acknowledge a path.
+Perhaps:
 
-You are no the only one that get this wrong...
+extern char *__EUI48_fmt(char *buf, const unsigned char *addr);
+#define EUI48_FMT "%s" /* expands to: "FF:FF:FF:FF:FF:FF" */
+#define DECLARE_EUI48(name) char name[sizeof("FF:FF:FF:FF:FF:FF")]
+#define EUI48(name, addr) __EUI48_fmt(name, (const unsigned char *)addr)
 
-	Sam
+use case:
+
+{
+	DECLARE_EUI48(eui48);
+	printk("mac: " EUI48_FMT, EUI48(eui48, dev->dev_addr));
+}
+
+Here's one with an assumption of an eui48 buffer name.
+
+extern char *__EUI48_fmt(char *buf, const unsigned char *addr);
+#define EUI48_FMT "%s" /* expands to: "FF:FF:FF:FF:FF:FF" */
+#define DECLARE_EUI48 char __eui48_buf[sizeof("FF:FF:FF:FF:FF:FF")]
+#define EUI48(addr) __EUI48_fmt(__eui48_buf, (const unsigned char *)addr)
+
+use case:
+
+{
+	DECLARE_EUI48;
+	printk("mac: " EUI48_FMT, EUI48(dev->dev_addr));
+}
+
+Which one do you like more?
+

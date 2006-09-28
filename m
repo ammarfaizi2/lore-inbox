@@ -1,106 +1,266 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161351AbWI1WpP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161356AbWI1Wp7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161351AbWI1WpP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Sep 2006 18:45:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161352AbWI1WpO
+	id S1161356AbWI1Wp7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Sep 2006 18:45:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161355AbWI1Wp6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Sep 2006 18:45:14 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:18150 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1161351AbWI1WpL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Sep 2006 18:45:11 -0400
-Date: Thu, 28 Sep 2006 15:45:07 -0700
-From: Stephen Hemminger <shemminger@osdl.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: "Steve Fox" <drfickle@us.ibm.com>, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org
-Subject: Re: 2.6.18-mm2
-Message-ID: <20060928154507.05ed598b@freekitty>
-In-Reply-To: <20060928140124.5f7154e3.akpm@osdl.org>
-References: <20060928014623.ccc9b885.akpm@osdl.org>
-	<efh217$8au$1@sea.gmane.org>
-	<20060928140124.5f7154e3.akpm@osdl.org>
-Organization: OSDL
-X-Mailer: Sylpheed-Claws 2.5.0-rc3 (GTK+ 2.10.3; i486-pc-linux-gnu)
+	Thu, 28 Sep 2006 18:45:58 -0400
+Received: from mtagate2.uk.ibm.com ([195.212.29.135]:9744 "EHLO
+	mtagate2.uk.ibm.com") by vger.kernel.org with ESMTP
+	id S1161352AbWI1Wp4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Sep 2006 18:45:56 -0400
+Date: Fri, 29 Sep 2006 01:45:50 +0300
+From: Muli Ben-Yehuda <muli@il.ibm.com>
+To: Jeff Garzik <jeff@garzik.org>
+Cc: Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>,
+       Jim Paradis <jparadis@redhat.com>, Andi Kleen <ak@suse.de>,
+       LKML <linux-kernel@vger.kernel.org>, jdmason@kudzu.us
+Subject: Re: [PATCH] x86[-64] PCI domain support
+Message-ID: <20060928224550.GJ22787@rhun.haifa.ibm.com>
+References: <20060926191508.GA6350@havoc.gtf.org> <20060928093332.GG22787@rhun.haifa.ibm.com> <451B99C5.7080809@garzik.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <451B99C5.7080809@garzik.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 28 Sep 2006 14:01:24 -0700
-Andrew Morton <akpm@osdl.org> wrote:
+On Thu, Sep 28, 2006 at 05:45:41AM -0400, Jeff Garzik wrote:
+> Muli Ben-Yehuda wrote:
+> >On Tue, Sep 26, 2006 at 03:15:08PM -0400, Jeff Garzik wrote:
+> >>The x86[-64] PCI domain effort needs to be restarted, because we've got
+> >>machines out in the field that need this in order for some devices to
+> >>work.
+> >>
+> >This breaks the Calgary IOMMU, since it uses sysdata for other
+> >purposes (going back from a bus to its IO address space). I'm looking
+> >into it.
+> 
+> You'll need to modify struct pci_sysdata in 
+> include/asm-{i386,x86_64}/pci.h to include the data that you previously 
+> stored directly into the sysdata pointer.
 
-> 
-> (please always do reply-to-all)
-> 
-> On Thu, 28 Sep 2006 17:50:31 +0000 (UTC)
-> "Steve Fox" <drfickle@us.ibm.com> wrote:
-> 
-> > On Thu, 28 Sep 2006 01:46:23 -0700, Andrew Morton wrote:
-> > 
-> > > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18/2.6.18-mm2/
-> > 
-> > Panic on boot. This machine booted 2.6.18-mm1 fine. em64t machine.
-> > 
-> > TCP bic registered
-> > TCP westwood registered
-> > TCP htcp registered
-> > NET: Registered protocol family 1
-> > NET: Registered protocol family 17
-> > Unable to handle kernel paging request at ffffffffffffffff RIP: 
-> >  [<ffffffff8047ef93>] packet_notifier+0x163/0x1a0
-> > PGD 203027 PUD 2b031067 PMD 0 
-> > Oops: 0000 [1] SMP 
-> > last sysfs file: 
-> > CPU 0 
-> > Modules linked in:
-> > Pid: 1, comm: swapper Not tainted 2.6.18-mm2-autokern1 #1
-> > RIP: 0010:[<ffffffff8047ef93>]  [<ffffffff8047ef93>] packet_notifier+0x163/0x1a0
-> > RSP: 0000:ffff810bffcbde90  EFLAGS: 00010286
-> > RAX: 0000000000000000 RBX: ffff810bff4a1000 RCX: 2222222222222222
-> > RDX: ffff810bff4a1000 RSI: 0000000000000005 RDI: ffffffff8055f5e0
-> > RBP: ffffffffffffffff R08: 0000000000007616 R09: 000000000000000e
-> > R10: 0000000000000006 R11: ffffffff803373f0 R12: 0000000000000000
-> > R13: 0000000000000005 R14: ffff810bff4a1000 R15: 0000000000000000
-> > FS:  0000000000000000(0000) GS:ffffffff805d8000(0000) knlGS:0000000000000000
-> > CS:  0010 DS: 0018 ES: 0018 CR0: 000000008005003b
-> > CR2: ffffffffffffffff CR3: 0000000000201000 CR4: 00000000000006e0
-> > Process swapper (pid: 1, threadinfo ffff810bffcbc000, task ffff810bffcbb510)
-> > Stack:  ffff810bff4a1000 ffffffff8055f4c0 0000000000000000 ffff810bffcbdef0
-> >  0000000000000000 ffffffff8042736e 0000000000000000 0000000000000000
-> >  0000000000000000 ffffffff8061c68d ffffffff806260f0 ffffffff80207182
-> > Call Trace:
-> >  [<ffffffff8042736e>] register_netdevice_notifier+0x3e/0x70
-> >  [<ffffffff8061c68d>] packet_init+0x2d/0x53
-> >  [<ffffffff80207182>] init+0x162/0x330
-> >  [<ffffffff8020a9d8>] child_rip+0xa/0x12
-> >  [<ffffffff8033c2a2>] acpi_ds_init_one_object+0x0/0x82
-> >  [<ffffffff80207020>] init+0x0/0x330
-> >  [<ffffffff8020a9ce>] child_rip+0x0/0x12
-> > 
-> > 
-> > Code: 48 8b 45 00 0f 18 08 49 83 fd 02 4c 8d 65 f8 0f 84 f8 fe ff 
-> > RIP  [<ffffffff8047ef93>] packet_notifier+0x163/0x1a0
-> >  RSP <ffff810bffcbde90>
-> > CR2: ffffffffffffffff
-> >  <0>Kernel panic - not syncing: Attempted to kill init!
-> > 
-> 
-> I'm really struggling to work out what went wrong there.  Comparing your
-> miserable 20 bytes of code to my object code makes me think that this:
-> 
-> 		struct packet_sock *po = pkt_sk(sk);
-> 
-> returned -1, perhaps in %ebp.  But it's all very crude.
+Something like this should do the trick. Note - this should not be
+applied yet - after several gigabytes of network and disk activity it
+takes aic94xx down. More investigation required.
 
-That doesn't seem possible given:
-
-static inline struct packet_sock *pkt_sk(struct sock *sk)
-{
-	return (struct packet_sock *)sk;
-}
-
-That means the packet socket list is corrupted??
-
-Stephen Hemminger <shemminger@osdl.org>
+diff -Naurp -X /home/muli/w/dontdiff pci-domains/arch/x86_64/kernel/pci-calgary.c linux/arch/x86_64/kernel/pci-calgary.c
+--- pci-domains/arch/x86_64/kernel/pci-calgary.c	2006-09-28 13:31:14.000000000 +0300
++++ linux/arch/x86_64/kernel/pci-calgary.c	2006-09-28 13:14:38.000000000 +0300
+@@ -317,7 +317,7 @@ void calgary_unmap_sg(struct device *dev
+ 		      int nelems, int direction)
+ {
+ 	unsigned long flags;
+-	struct iommu_table *tbl = to_pci_dev(dev)->bus->self->sysdata;
++	struct iommu_table *tbl = pci_iommu(to_pci_dev(dev)->bus);
+ 
+ 	if (!translate_phb(to_pci_dev(dev)))
+ 		return;
+@@ -346,7 +346,7 @@ static int calgary_nontranslate_map_sg(s
+ int calgary_map_sg(struct device *dev, struct scatterlist *sg,
+ 	int nelems, int direction)
+ {
+-	struct iommu_table *tbl = to_pci_dev(dev)->bus->self->sysdata;
++	struct iommu_table *tbl = pci_iommu(to_pci_dev(dev)->bus);
+ 	unsigned long flags;
+ 	unsigned long vaddr;
+ 	unsigned int npages;
+@@ -400,7 +400,7 @@ dma_addr_t calgary_map_single(struct dev
+ 	dma_addr_t dma_handle = bad_dma_address;
+ 	unsigned long uaddr;
+ 	unsigned int npages;
+-	struct iommu_table *tbl = to_pci_dev(dev)->bus->self->sysdata;
++	struct iommu_table *tbl = pci_iommu(to_pci_dev(dev)->bus);
+ 
+ 	uaddr = (unsigned long)vaddr;
+ 	npages = num_dma_pages(uaddr, size);
+@@ -416,7 +416,7 @@ dma_addr_t calgary_map_single(struct dev
+ void calgary_unmap_single(struct device *dev, dma_addr_t dma_handle,
+ 	size_t size, int direction)
+ {
+-	struct iommu_table *tbl = to_pci_dev(dev)->bus->self->sysdata;
++	struct iommu_table *tbl = pci_iommu(to_pci_dev(dev)->bus);
+ 	unsigned int npages;
+ 
+ 	if (!translate_phb(to_pci_dev(dev)))
+@@ -434,7 +434,7 @@ void* calgary_alloc_coherent(struct devi
+ 	unsigned int npages, order;
+ 	struct iommu_table *tbl;
+ 
+-	tbl = to_pci_dev(dev)->bus->self->sysdata;
++	tbl = pci_iommu(to_pci_dev(dev)->bus);
+ 
+ 	size = PAGE_ALIGN(size); /* size rounded up to full pages */
+ 	npages = size >> PAGE_SHIFT;
+@@ -551,7 +551,7 @@ static void __init calgary_reserve_mem_r
+ 	limit++;
+ 
+ 	numpages = ((limit - start) >> PAGE_SHIFT);
+-	iommu_range_reserve(dev->sysdata, start, numpages);
++	iommu_range_reserve(pci_iommu(dev->bus), start, numpages);
+ }
+ 
+ static void __init calgary_reserve_peripheral_mem_1(struct pci_dev *dev)
+@@ -559,7 +559,7 @@ static void __init calgary_reserve_perip
+ 	void __iomem *target;
+ 	u64 low, high, sizelow;
+ 	u64 start, limit;
+-	struct iommu_table *tbl = dev->sysdata;
++	struct iommu_table *tbl = pci_iommu(dev->bus);
+ 	unsigned char busnum = dev->bus->number;
+ 	void __iomem *bbar = tbl->bbar;
+ 
+@@ -583,7 +583,7 @@ static void __init calgary_reserve_perip
+ 	u32 val32;
+ 	u64 low, high, sizelow, sizehigh;
+ 	u64 start, limit;
+-	struct iommu_table *tbl = dev->sysdata;
++	struct iommu_table *tbl = pci_iommu(dev->bus);
+ 	unsigned char busnum = dev->bus->number;
+ 	void __iomem *bbar = tbl->bbar;
+ 
+@@ -621,7 +621,7 @@ static void __init calgary_reserve_regio
+ 	void __iomem *bbar;
+ 	unsigned char busnum;
+ 	u64 start;
+-	struct iommu_table *tbl = dev->sysdata;
++	struct iommu_table *tbl = pci_iommu(dev->bus);
+ 
+ 	bbar = tbl->bbar;
+ 	busnum = dev->bus->number;
+@@ -652,7 +652,7 @@ static int __init calgary_setup_tar(stru
+ 	if (ret)
+ 		return ret;
+ 
+-	tbl = dev->sysdata;
++	tbl = pci_iommu(dev->bus);
+ 	tbl->it_base = (unsigned long)bus_info[dev->bus->number].tce_space;
+ 	tce_free(tbl, 0, tbl->it_size);
+ 
+@@ -665,7 +665,7 @@ static int __init calgary_setup_tar(stru
+ 	/* zero out all TAR bits under sw control */
+ 	val64 &= ~TAR_SW_BITS;
+ 
+-	tbl = dev->sysdata;
++	tbl = pci_iommu(dev->bus);
+ 	table_phys = (u64)__pa(tbl->it_base);
+ 	val64 |= table_phys;
+ 
+@@ -682,7 +682,7 @@ static int __init calgary_setup_tar(stru
+ static void __init calgary_free_bus(struct pci_dev *dev)
+ {
+ 	u64 val64;
+-	struct iommu_table *tbl = dev->sysdata;
++	struct iommu_table *tbl = pci_iommu(dev->bus);
+ 	void __iomem *target;
+ 	unsigned int bitmapsz;
+ 
+@@ -697,7 +697,8 @@ static void __init calgary_free_bus(stru
+ 	tbl->it_map = NULL;
+ 
+ 	kfree(tbl);
+-	dev->sysdata = NULL;
++	
++	set_pci_iommu(dev->bus, NULL);
+ 
+ 	/* Can't free bootmem allocated memory after system is up :-( */
+ 	bus_info[dev->bus->number].tce_space = NULL;
+@@ -706,7 +707,7 @@ static void __init calgary_free_bus(stru
+ static void calgary_watchdog(unsigned long data)
+ {
+ 	struct pci_dev *dev = (struct pci_dev *)data;
+-	struct iommu_table *tbl = dev->sysdata;
++	struct iommu_table *tbl = pci_iommu(dev->bus);
+ 	void __iomem *bbar = tbl->bbar;
+ 	u32 val32;
+ 	void __iomem *target;
+@@ -742,7 +743,7 @@ static void __init calgary_enable_transl
+ 	struct iommu_table *tbl;
+ 
+ 	busnum = dev->bus->number;
+-	tbl = dev->sysdata;
++	tbl = pci_iommu(dev->bus);
+ 	bbar = tbl->bbar;
+ 
+ 	/* enable TCE in PHB Config Register */
+@@ -772,7 +773,7 @@ static void __init calgary_disable_trans
+ 	struct iommu_table *tbl;
+ 
+ 	busnum = dev->bus->number;
+-	tbl = dev->sysdata;
++	tbl = pci_iommu(dev->bus);
+ 	bbar = tbl->bbar;
+ 
+ 	/* disable TCE in PHB Config Register */
+@@ -813,8 +814,7 @@ static inline unsigned int __init locate
+ static void __init calgary_init_one_nontraslated(struct pci_dev *dev)
+ {
+ 	pci_dev_get(dev);
+-	dev->sysdata = NULL;
+-	dev->bus->self = dev;
++	set_pci_iommu(dev->bus, NULL);
+ }
+ 
+ static int __init calgary_init_one(struct pci_dev *dev)
+diff -Naurp -X /home/muli/w/dontdiff pci-domains/arch/x86_64/kernel/tce.c linux/arch/x86_64/kernel/tce.c
+--- pci-domains/arch/x86_64/kernel/tce.c	2006-09-28 13:31:14.000000000 +0300
++++ linux/arch/x86_64/kernel/tce.c	2006-09-28 13:40:52.000000000 +0300
+@@ -137,9 +137,9 @@ int build_tce_table(struct pci_dev *dev,
+ 	struct iommu_table *tbl;
+ 	int ret;
+ 
+-	if (dev->sysdata) {
+-		printk(KERN_ERR "Calgary: dev %p has sysdata %p\n",
+-		       dev, dev->sysdata);
++	if (pci_iommu(dev->bus)) {
++		printk(KERN_ERR "Calgary: dev %p has sysdata->iommu %p\n",
++		       dev, pci_iommu(dev->bus));
+ 		BUG();
+ 	}
+ 
+@@ -156,11 +156,7 @@ int build_tce_table(struct pci_dev *dev,
+ 
+ 	tbl->bbar = bbar;
+ 
+-	/*
+-	 * NUMA is already using the bus's sysdata pointer, so we use
+-	 * the bus's pci_dev's sysdata instead.
+-	 */
+-	dev->sysdata = tbl;
++	set_pci_iommu(dev->bus, tbl);
+ 
+ 	return 0;
+ 
+diff -Naurp -X /home/muli/w/dontdiff pci-domains/include/asm-x86_64/pci.h linux/include/asm-x86_64/pci.h
+--- pci-domains/include/asm-x86_64/pci.h	2006-09-28 13:34:05.000000000 +0300
++++ linux/include/asm-x86_64/pci.h	2006-09-28 15:19:56.000000000 +0300
+@@ -8,6 +8,7 @@
+ struct pci_sysdata {
+ 	int		domain;		/* PCI domain */
+ 	int		node;		/* NUMA node */
++	void*		iommu;		/* IOMMU private data */
+ };
+ 
+ #ifdef CONFIG_PCI_DOMAINS
+@@ -23,6 +24,20 @@ static inline int pci_proc_domain(struct
+ }
+ #endif /* CONFIG_PCI_DOMAINS */
+ 
++#ifdef CONFIG_CALGARY_IOMMU
++static inline void* pci_iommu(struct pci_bus *bus)
++{
++	struct pci_sysdata *sd = bus->sysdata;
++	return sd->iommu;
++}
++
++static inline void set_pci_iommu(struct pci_bus *bus, void *val)
++{
++	struct pci_sysdata *sd = bus->sysdata;
++	sd->iommu = val;
++}
++#endif /* CONFIG_CALGARY_IOMMU */
++
+ #include <linux/mm.h> /* for struct page */
+ 
+ /* Can be used to override the logic in pci_scan_bus for skipping

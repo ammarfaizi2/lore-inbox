@@ -1,97 +1,109 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751915AbWI1PEV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751889AbWI1PHv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751915AbWI1PEV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Sep 2006 11:04:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751910AbWI1PEV
+	id S1751889AbWI1PHv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Sep 2006 11:07:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751908AbWI1PHv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Sep 2006 11:04:21 -0400
-Received: from e6.ny.us.ibm.com ([32.97.182.146]:53200 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751224AbWI1PET (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Sep 2006 11:04:19 -0400
-Subject: [PATCH] JBD: Make journal_do_submit_data static
-From: Dave Kleikamp <shaggy@austin.ibm.com>
-To: Eric Sandeen <sandeen@sandeen.net>
-Cc: Andrew Morton <akpm@osdl.org>, Jan Kara <jack@suse.cz>,
-       Badari Pulavarty <pbadari@us.ibm.com>,
-       Anton Altaparmakov <aia21@cam.ac.uk>, sct@redhat.com,
-       linux-fsdevel <linux-fsdevel@vger.kernel.org>,
-       lkml <linux-kernel@vger.kernel.org>, ext4 <linux-ext4@vger.kernel.org>
-In-Reply-To: <451AF4B5.1090607@sandeen.net>
-References: <20060901101801.7845bca2.akpm@osdl.org>
-	 <1157472702.23501.12.camel@dyn9047017100.beaverton.ibm.com>
-	 <20060906124719.GA11868@atrey.karlin.mff.cuni.cz>
-	 <1157555559.23501.25.camel@dyn9047017100.beaverton.ibm.com>
-	 <20060906153449.GC18281@atrey.karlin.mff.cuni.cz>
-	 <1157559545.23501.30.camel@dyn9047017100.beaverton.ibm.com>
-	 <20060906162723.GA14345@atrey.karlin.mff.cuni.cz>
-	 <1157563016.23501.39.camel@dyn9047017100.beaverton.ibm.com>
-	 <20060906172733.GC14345@atrey.karlin.mff.cuni.cz>
-	 <1157641877.7725.13.camel@dyn9047017100.beaverton.ibm.com>
-	 <20060907223048.GD22549@atrey.karlin.mff.cuni.cz>
-	 <1158179120.11112.2.camel@kleikamp.austin.ibm.com>
-	 <20060913203817.b6711381.akpm@osdl.org>  <451AF4B5.1090607@sandeen.net>
-Content-Type: text/plain
-Date: Thu, 28 Sep 2006 10:03:56 -0500
-Message-Id: <1159455836.12007.2.camel@kleikamp.austin.ibm.com>
+	Thu, 28 Sep 2006 11:07:51 -0400
+Received: from ns9.hostinglmi.net ([213.194.149.146]:10194 "EHLO
+	ns9.hostinglmi.net") by vger.kernel.org with ESMTP id S1751889AbWI1PHu
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Sep 2006 11:07:50 -0400
+Date: Thu, 28 Sep 2006 17:07:26 +0200
+From: DervishD <lkml@dervishd.net>
+To: Simon Oosthoek <simon.oosthoek@ti-wmc.nl>
+Cc: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>,
+       Chase Venters <chase.venters@clientec.com>,
+       Sergey Panov <sipan@sipan.org>, Linus Torvalds <torvalds@osdl.org>,
+       Patrick McFarland <diablod3@gmail.com>, Theodore Tso <tytso@mit.edu>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Jan Engelhardt <jengelh@linux01.gwdg.de>,
+       James Bottomley <James.Bottomley@steeleye.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: GPLv3 Position Statement
+Message-ID: <20060928150726.GB1474@DervishD>
+Mail-Followup-To: Simon Oosthoek <simon.oosthoek@ti-wmc.nl>,
+	Lennart Sorensen <lsorense@csclub.uwaterloo.ca>,
+	Chase Venters <chase.venters@clientec.com>,
+	Sergey Panov <sipan@sipan.org>, Linus Torvalds <torvalds@osdl.org>,
+	Patrick McFarland <diablod3@gmail.com>,
+	Theodore Tso <tytso@mit.edu>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Jan Engelhardt <jengelh@linux01.gwdg.de>,
+	James Bottomley <James.Bottomley@steeleye.com>,
+	linux-kernel <linux-kernel@vger.kernel.org>
+References: <1158941750.3445.31.camel@mulgrave.il.steeleye.com> <Pine.LNX.4.64.0609271945450.3952@g5.osdl.org> <1159415242.13562.12.camel@sipan.sipan.org> <200609272339.28337.chase.venters@clientec.com> <20060928135510.GR13641@csclub.uwaterloo.ca> <20060928141932.GA707@DervishD> <451BE156.5060600@ti-wmc.nl>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <451BE156.5060600@ti-wmc.nl>
+User-Agent: Mutt/1.4.2.1i
+Organization: DervishD
+X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
+X-AntiAbuse: Primary Hostname - ns9.hostinglmi.net
+X-AntiAbuse: Original Domain - vger.kernel.org
+X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
+X-AntiAbuse: Sender Address Domain - dervishd.net
+X-Source: 
+X-Source-Args: 
+X-Source-Dir: 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-09-27 at 17:01 -0500, Eric Sandeen wrote:
-> Andrew Morton wrote:
-> > On Wed, 13 Sep 2006 15:25:19 -0500
-> > Dave Kleikamp <shaggy@austin.ibm.com> wrote:
-> > 
-> >>> +void journal_do_submit_data(struct buffer_head **wbuf, int bufs)
-> >> Is there any reason this couldn't be static?
-> > 
-> > Nope.
+    Hi Simon :)
+
+ * Simon Oosthoek <simon.oosthoek@ti-wmc.nl> dixit:
+> DervishD wrote:
+> >    Probably the renaming is just common sense and will avoid ALL
+> >problems. People like me are concerned only because all GPLv2 that
+> >doesn't state otherwise will be released automagically under GPLv3 as
+> >soon as the latest draft is made the official version. Otherwise, I
+> >wouldn't give a hump about any new license until I have the time to
+> >read it and see if I like it.
 > 
-> With this change, journal_brelse_array can also be made static in
-> recovery.c, and removed from jbd.h, I think.
+> I've already commented on the fsf site about this in the same way,
+> and I wasn't the first one. The only problem with this, from the
+> FSF p.o.v. is when this draft will not be automatically applied to
+> all those pieces of code licensed under "v2 or any later", the
+> power of their political message will be reduced to those choosing
+> freely to convert to the new license. I have no idea how many that
+> would be, but those that do would actually support their political
+> agenda, which would be much better from the "free" perspective.
 
-Looks like it.  Here's a patch to do that:
+    Probably I'm wrong here, but if the renaming took place, much
+more people will probably convert to the new license if given the
+change of choosing. I mean, we humans tend to do exactly the opposite
+of what we are forced to do...
 
-JBD: Make journal_brelse_array static
+    OTOH, if the renaming takes place and almost nobody changes to
+GPLv3, that's a thing to think profoundly about.
 
-It's always good to make symbols static when we can, and this also
-eliminates the need to rename the function in jbd2
+> So who would get "hurt" by this? People who licensed their code
+> under the GPLv2 or later, naively thinking that the license text
+> was the intended goal of the license.
 
-suggested by Eric Sandeen
-
-Signed-off-by: Dave Kleikamp <shaggy@austin.ibm.com>
-Cc: Eric Sandeen <sandeen@sandeen.net>
-
-diff --git a/fs/jbd/recovery.c b/fs/jbd/recovery.c
-index 445eed6..11563fe 100644
---- a/fs/jbd/recovery.c
-+++ b/fs/jbd/recovery.c
-@@ -46,7 +46,7 @@ static int scan_revoke_records(journal_t
- #ifdef __KERNEL__
+    That's what I think, too. Myself, I've re-released some of my
+projects just in case I dislike the GPLv3 because I don't want my
+license to be converted by the recipients of my code (they can pick
+GPLv3 if they want). Probably I will convert to GPLv3, who knows, but
+not because I lazily copied a disclaimer that says "any later
+version", if I do a relicensing I'll do it on purpose. When I chose
+GPLv2 I thought that future versions will correct minor legalese,
+wording or things like that, but I never thought about the DRM thing.
+While I don't like "tivoization", I'm not against DRM as a
+technology, and the same can be applied to other chunks of the new
+GPLv3 license draft.
  
- /* Release readahead buffers after use */
--void journal_brelse_array(struct buffer_head *b[], int n)
-+static void journal_brelse_array(struct buffer_head *b[], int n)
- {
- 	while (--n >= 0)
- 		brelse (b[n]);
-diff --git a/include/linux/jbd.h b/include/linux/jbd.h
-index a6d9daa..fe89444 100644
---- a/include/linux/jbd.h
-+++ b/include/linux/jbd.h
-@@ -977,7 +977,6 @@ extern void	   journal_write_revoke_reco
- extern int	journal_set_revoke(journal_t *, unsigned long, tid_t);
- extern int	journal_test_revoke(journal_t *, unsigned long, tid_t);
- extern void	journal_clear_revoke(journal_t *);
--extern void	journal_brelse_array(struct buffer_head *b[], int n);
- extern void	journal_switch_revoke_table(journal_t *journal);
- 
- /*
+> Still, these are interesting times in free/open source software
+> world ;-)
+
+    Unfortunately ;) I think that finally people will make a good
+deal about all this fuss :)) And if they don't, I'm not worried at
+all for the future of FOSS, because if a fork must be produced, it
+will be. Killing FOSS is very hard ;)
+
+    Raúl Núñez de Arenas Coronado
 
 -- 
-David Kleikamp
-IBM Linux Technology Center
-
+Linux Registered User 88736 | http://www.dervishd.net
+It's my PC and I'll cry if I want to... RAmen!

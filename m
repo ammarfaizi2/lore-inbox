@@ -1,73 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964986AbWI1B3F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965067AbWI1B3O@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964986AbWI1B3F (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Sep 2006 21:29:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965067AbWI1B3F
+	id S965067AbWI1B3O (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Sep 2006 21:29:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965171AbWI1B3N
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Sep 2006 21:29:05 -0400
-Received: from smtp104.sbc.mail.mud.yahoo.com ([68.142.198.203]:25694 "HELO
-	smtp104.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S964986AbWI1B3C (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Sep 2006 21:29:02 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=pacbell.net;
-  h=Received:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
-  b=hViRbQxDBLfEVXPBEWYwoFvn0af7gNTsfu83w1up4kQiTO8x+4t7f1PVTiKm5dNg4jtm1nXPrxenVoNzwHJY3d57oIGMS0a9qw4zfZ27OYQZYqG6Ow8NYA0SlDkEdyeZCfc+X23yaBXe2/lKZ+Afz0kh83mds8AC6LCRRR+KDxw=  ;
-From: David Brownell <david-b@pacbell.net>
-To: Arnd Bergmann <arnd@arndb.de>
-Subject: Re: [PATCH 1/3] driver for mcs7830 (aka DeLOCK) USB ethernet adapter
-Date: Wed, 27 Sep 2006 18:28:57 -0700
-User-Agent: KMail/1.7.1
-Cc: linux-usb-devel@lists.sourceforge.net,
-       David Hollis <dhollis@davehollis.com>, support@moschip.com,
-       dbrownell@users.sourceforge.net, linux-kernel@vger.kernel.org,
-       Michael Helmling <supermihi@web.de>
-References: <200609170102.50856.arnd@arndb.de>
-In-Reply-To: <200609170102.50856.arnd@arndb.de>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+	Wed, 27 Sep 2006 21:29:13 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:32493 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S965067AbWI1B3L
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Sep 2006 21:29:11 -0400
+Subject: Re: GPLv3 Position Statement
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Chase Venters <chase.venters@clientec.com>, Theodore Tso <tytso@mit.edu>,
+       Jan Engelhardt <jengelh@linux01.gwdg.de>,
+       Sergey Panov <sipan@sipan.org>,
+       James Bottomley <James.Bottomley@SteelEye.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.64.0609271641370.3952@g5.osdl.org>
+References: <1158941750.3445.31.camel@mulgrave.il.steeleye.com>
+	 <1159319508.16507.15.camel@sipan.sipan.org>
+	 <Pine.LNX.4.61.0609270753590.19275@yvahk01.tjqt.qr>
+	 <1159342569.2653.30.camel@sipan.sipan.org>
+	 <Pine.LNX.4.61.0609271051550.19438@yvahk01.tjqt.qr>
+	 <1159359540.11049.347.camel@localhost.localdomain>
+	 <Pine.LNX.4.64.0609271000510.3952@g5.osdl.org>
+	 <Pine.LNX.4.64.0609271300130.7316@turbotaz.ourhouse>
+	 <20060927225815.GB7469@thunk.org>
+	 <Pine.LNX.4.64.0609271808041.7316@turbotaz.ourhouse>
+	 <Pine.LNX.4.64.0609271641370.3952@g5.osdl.org>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200609271828.58205.david-b@pacbell.net>
+Date: Thu, 28 Sep 2006 02:53:40 +0100
+Message-Id: <1159408420.11049.403.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 16 September 2006 4:02 pm, Arnd Bergmann wrote:
-> This driver adds support for the DeLOCK USB ethernet adapter
-> and potentially others based on the MosChip MCS7830 chip.
-> 
-> It is based on the usbnet and asix drivers as well as the
-> original device driver provided by MosChip, which in turn
-> was based on the usbnet driver.
-> 
-> It has been tested successfully on an OHCI, but interestingly
-> there seems to be a problem with the mcs7830 when connected to
-> the ICH6/EHCI in my thinkpad: it keeps receiving lots of
-> broken packets in the RX interrupt. The problem goes away when
-> I'm using an active USB hub, so I assume it's not related to
-> the device driver, but rather to the hardware.
-> 
-> Signed-off-by: Arnd Bergmann <arnd@arndb.de>
+Ar Mer, 2006-09-27 am 17:18 -0700, ysgrifennodd Linus Torvalds:
+>      _not_ been unknown to the people involved. Trust me, the FSF knew 
+>      very well that the kernel standpoint on the GPLv2 was that Tivo was
 
-Signed-off-by: David Brownell <dbrownell@users.sourceforge.net>
+s/kernel/Linus and some other copyright holders/
 
-... yes, I'd assume it's a hardware issue too.  Try different
-cables; if you have a fast 'scope, you might see what kind of
-eye diagram you get.  The hub might improve the signal quality.
+I reserve the right some day to attempt to sue the ass of people who
+tivo-ise my code. Hey I might lose but I reserve the right to.
+
+That said the FSF DRM clause is problematic, the GPLv2 leaves things in
+a slightly woolly situation with regards to keys in terms of whether
+they are part of the scripts etc (for the benefit of anyone's corporate
+lawyers: I think they usually are and I've said so in public). That
+vagueness is actually a good thing because it lets the legal system
+interpret the intent of the license and the situation at hand. Lawyers
+generally don't like vaguenesses of course and the GPLv3 draft tries to
+be non-vague. It's also flawed as a result precisely because it has to
+cover every imaginable case in one paragraph.
+
+There are lots of problems with the current v3 draft
+
+1.	"anything users can regenerate automatically" is horribly vague.
+Automatically *how* - with a $25,000 proprietary tool for example ....
+
+2.	Section 3 is US specific and doesn't really work. In some parts of
+the world breaking a technological protection seems to be a criminal
+matter and you can't waive the criminal law.
+
+3.	Additional terms is a license explosion and the interactions between
+them will get ugly.
+
+4.	The geographical clause still has the same bug as GPLv2. Who is the
+"original author" and what happens when I write a new OS and import 90%
+of Linux into it - am I the original author now ?
 
 
-Do you know how the remote wakeup mechanism works for this chip?
-It'd be interesting to see "usbnet" be taught how to autosuspend
-chips which will wake up the USB host when they get the right
-kind of packet ... for example, passing the multicast/broadcast
-filter, or addressed directly to that adapter.
+Some of this is quite fixable - the "regenerate automatically" for
+example and the glitches in the patent clauses are just a matter of a
+little more lawyering, others like the DRM clauses don't work and also
+don't really address rented equipment for example.
 
-Such an autosuspend mechanism would let the host controller stop
-polling a mostly-idle network link, getting rid of one source of
-periodic DMA transfers and thus allowing deeper sleep states for
-many x86 family CPUs.  And also, I'd expect, giving fewer
-opportunities for those broken RX packets.  :)
+Personally I'm still hopeful the final GPLv3 will fix at least the
+majority of problems. I'm not sure it ultimately matters for the kernel
+whether it does or not, but for the general case of free software it is
+clearly important to get it right.
 
-- Dave
+Alan
 

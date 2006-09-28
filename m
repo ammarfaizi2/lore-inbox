@@ -1,40 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161130AbWI1Nvy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751906AbWI1Nvo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161130AbWI1Nvy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Sep 2006 09:51:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161129AbWI1Nvy
+	id S1751906AbWI1Nvo (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Sep 2006 09:51:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751909AbWI1Nvo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Sep 2006 09:51:54 -0400
-Received: from relay5.ptmail.sapo.pt ([212.55.154.25]:42167 "HELO sapo.pt")
-	by vger.kernel.org with SMTP id S1161131AbWI1Nvw convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Sep 2006 09:51:52 -0400
-X-AntiVirus: PTMail-AV 0.3-0.88.4
-From: Sergio Monteiro Basto <sergio@sergiomb.no-ip.org>
-To: Robert Hancock <hancockr@shaw.ca>
-Subject: Re: [PATCH] Chipset addition for the VIA Southbridge workaround / quirk
-Date: Thu, 28 Sep 2006 14:51:44 +0100
-User-Agent: KMail/1.9.4
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel <linux-kernel@vger.kernel.org>,
-       Michiel de Boer <x@rebelhomicide.demon.nl>
-References: <fa.a5JNkmioXw5Nk7TL3per32bVULU@ifi.uio.no> <fa.26gtk6nrxcQoI9Era+0RigHE+Ug@ifi.uio.no> <451B2F3A.2090307@shaw.ca>
-In-Reply-To: <451B2F3A.2090307@shaw.ca>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200609281451.45502.sergio@sergiomb.no-ip.org>
+	Thu, 28 Sep 2006 09:51:44 -0400
+Received: from main.gmane.org ([80.91.229.2]:40920 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S1751906AbWI1Nvn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Sep 2006 09:51:43 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Andreas Jellinghaus <aj@ciphirelabs.com>
+Subject: Re: [ACRYPTO] New asynchronous crypto layer (acrypto) release.
+Date: Thu, 28 Sep 2006 15:23:43 +0200
+Message-ID: <451BCCDF.5000201@ciphirelabs.com>
+References: <20060928120826.GA18063@2ka.mipt.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=KOI8-R; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Complaints-To: usenet@sea.gmane.org
+Cc: netdev@vger.kernel.org, linux-crypto@vger.kernel.org
+X-Gmane-NNTP-Posting-Host: ciphirelabs.net
+User-Agent: Thunderbird 1.5.0.7 (X11/20060922)
+In-Reply-To: <20060928120826.GA18063@2ka.mipt.ru>
+Cc: linux-kernel@vger.kernel.org, linux-crypto@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 28 September 2006 03:11, Robert Hancock wrote:
-> Andrew Morton wrote:
-> > Could you please test 2.6.18-mm1, or simply
-> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18/2.6.
-> >18-mm1/broken-out/via-irq-quirk-behaviour-change.patch
->
-> This is dealing with a different (much older) quirk than that..
-where is the rest of thread ? 
--- 
-Sérgio M. B.
+Evgeniy Polyakov wrote:
+> Hello.
+> 
+> I'm pleased to announce asynchronous crypto layer (acrypto) [1] release 
+> for 2.6.18 kernel tree. Acrypto allows to handle crypto requests 
+> asynchronously in hardware.
+> 
+> Combined patchset includes:
+>  * acrypto core
+>  * IPsec ESP4 port to acrypto
+>  * dm-crypt port to acrypto
+
+so I should be able to replace a plain 2.6.18 kernel with one
+with this patchset and use dm-crypt'ed partitions (e.g. swap,
+encrypted root filesystem) as usual without further changes?
+
+Did anyone test this with success?
+
+Regards, Andreas
+

@@ -1,54 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751486AbWI1ToV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161038AbWI1TqD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751486AbWI1ToV (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Sep 2006 15:44:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751496AbWI1ToV
+	id S1161038AbWI1TqD (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Sep 2006 15:46:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751991AbWI1TqC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Sep 2006 15:44:21 -0400
-Received: from colin.muc.de ([193.149.48.1]:525 "EHLO mail.muc.de")
-	by vger.kernel.org with ESMTP id S1751486AbWI1ToU (ORCPT
+	Thu, 28 Sep 2006 15:46:02 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:62107 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751989AbWI1TqB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Sep 2006 15:44:20 -0400
-Date: 28 Sep 2006 21:44:18 +0200
-Date: Thu, 28 Sep 2006 21:44:18 +0200
-From: Andi Kleen <ak@muc.de>
-To: Hugh Dickins <hugh@veritas.com>
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>, Andrew Morton <akpm@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Put the BUG __FILE__ and __LINE__ info out of line
-Message-ID: <20060928194418.GA51533@muc.de>
-References: <451B64E3.9020900@goop.org> <20060927233509.f675c02d.akpm@osdl.org> <451B708D.20505@goop.org> <20060928000019.3fb4b317.akpm@osdl.org> <20060928071731.GB84041@muc.de> <20060928002610.05e61321.akpm@osdl.org> <20060928101555.GA99906@muc.de> <451BA434.9020409@goop.org> <20060928103853.GB99906@muc.de> <Pine.LNX.4.64.0609281626001.25939@blonde.wat.veritas.com>
+	Thu, 28 Sep 2006 15:46:01 -0400
+Date: Thu, 28 Sep 2006 12:45:39 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: James Morris <jmorris@namei.org>
+Cc: linux-kernel@vger.kernel.org, Stephen Smalley <sds@tycho.nsa.gov>,
+       Cory Olmo <colmo@TrustedCS.com>
+Subject: Re: [PATCH] SELinux - support mls categories for context mounts
+Message-Id: <20060928124539.71aa5ee8.akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0609281529140.28065@d.namei>
+References: <Pine.LNX.4.64.0609281529140.28065@d.namei>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0609281626001.25939@blonde.wat.veritas.com>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 28, 2006 at 04:30:19PM +0100, Hugh Dickins wrote:
-> On Thu, 28 Sep 2006, Andi Kleen wrote:
-> > On Thu, Sep 28, 2006 at 03:30:12AM -0700, Jeremy Fitzhardinge wrote:
-> > > Andi Kleen wrote:
-> > > >But no out of line section. So overall it's smaller, although the cache 
-> > > >footprint
-> > > >is 2 bytes larger. But then is 2 bytes larger really an issue? We don't 
-> > > >have
-> > > >_that_ many BUGs anyways.
-> > > >  
-> > > 
-> > > I think the out of line section is a feature; no point in crufting up 
-> > > the icache with BUG gunk, especially since a number of them are on 
-> > > fairly hot paths.
-> > 
-> > It's 10 bytes per BUG. 
+On Thu, 28 Sep 2006 15:30:53 -0400 (EDT)
+James Morris <jmorris@namei.org> wrote:
+
+> This patch allows commas to be embedded into context mount options (i.e. 
+> "-o context=some_selinux_context_t"), to better support multiple 
+> categories, which are separated by commas and confuse mount.
 > 
-> Or 9 bytes per BUG: I protested about the disassembly problem back
-> when the minimized BUG() first went in, and have been using "ljmp"
-> in my i386 builds ever since:
+> For example, with the current code:
+> 
+>   mount -t iso9660 /dev/cdrom /media/cdrom -o \
+>   ro,context=system_u:object_r:iso9660_t:s0:c1,c3,c4,exec
+> 
+> The context option that will be interpreted by SELinux is
+> context=system_u:object_r:iso9660_t:s0:c1
+> 
+> instead of
+> context=system_u:object_r:iso9660_t:s0:c1,c3,c4
+> 
+> The options that will be passed on to the file system will be
+> ro,c3,c4,exec.
+> 
+> The proposed solution is to allow/require the SELinux context option 
+> specified to mount to use quotes when the context contains a comma.
 
-Good point.
-
-Need to check if that works on x86-64 too. 
-
--Andi
+None of this seems to be documented anywhere.  I expect the people who
+actually work on this stuff make a pretty tight group, but...

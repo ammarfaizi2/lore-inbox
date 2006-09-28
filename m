@@ -1,79 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422698AbWI2UAa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422721AbWI2UE4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422698AbWI2UAa (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Sep 2006 16:00:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422690AbWI2UA3
+	id S1422721AbWI2UE4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Sep 2006 16:04:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422727AbWI2UE4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Sep 2006 16:00:29 -0400
-Received: from smtp-out.google.com ([216.239.45.12]:2140 "EHLO
-	smtp-out.google.com") by vger.kernel.org with ESMTP
-	id S1422698AbWI2UA1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Sep 2006 16:00:27 -0400
-DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
-	h=received:message-id:date:from:user-agent:
-	x-accept-language:mime-version:to:cc:subject:references:in-reply-to:
-	content-type:content-transfer-encoding;
-	b=t9Egz4q1hkP/4tly6adgcCWpSonX73LSdy95mXyv7D0XXiOTSyRxvrtNFPhgjnt3m
-	65xKzOlvF5g5FVNqiypfw==
-Message-ID: <451D7B21.4050105@google.com>
-Date: Fri, 29 Sep 2006 12:59:29 -0700
-From: Martin Bligh <mbligh@google.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051011)
-X-Accept-Language: en-us, en
+	Fri, 29 Sep 2006 16:04:56 -0400
+Received: from mail3.uklinux.net ([80.84.72.33]:38568 "EHLO mail3.uklinux.net")
+	by vger.kernel.org with ESMTP id S1422721AbWI2UEz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Sep 2006 16:04:55 -0400
+Date: Thu, 28 Sep 2006 20:56:27 +0100
+To: Randy Dunlap <rdunlap@xenotime.net>
+Cc: Roger Gammans <roger@computer-surgery.co.uk>,
+       lkml <linux-kernel@vger.kernel.org>
+Subject: Re: fs/bio.c - Hardcoded sector size ?
+Message-ID: <20060928195627.GD4759@julia.computer-surgery.co.uk>
+References: <20060928182238.GA4759@julia.computer-surgery.co.uk> <20060929113814.db87b8d5.rdunlap@xenotime.net> <20060928185820.GB4759@julia.computer-surgery.co.uk> <20060929121157.0258883f.rdunlap@xenotime.net> <20060928191946.GC4759@julia.computer-surgery.co.uk> <20060929123737.ec613178.rdunlap@xenotime.net>
 MIME-Version: 1.0
-To: Mauro Carvalho Chehab <mchehab@infradead.org>
-CC: Andrew Morton <akpm@osdl.org>, Sujoy Gupta <sujoy@google.com>,
-       LKML <linux-kernel@vger.kernel.org>, video4linux-list@redhat.com
-Subject: Re: [PATCH] fix compiler warning in drivers/media/video/video-buf.c
-References: <451C070E.8080800@google.com>	 <20060928105108.88b37304.akpm@osdl.org> <1159559648.10055.35.camel@praia>
-In-Reply-To: <1159559648.10055.35.camel@praia>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 8bit
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="O5XBE6gyVG5Rl6Rj"
+Content-Disposition: inline
+In-Reply-To: <20060929123737.ec613178.rdunlap@xenotime.net>
+X-GPG-Fingerprint: ADAD DF3A AE05 CA28 3BDB  D352 7E81 8852 817A FB7B
+X-GPG-Key: 1024D/817AFB7B (wwwkeys.uk.pgp.net)
+User-Agent: Mutt/1.5.13 (2006-08-11)
+From: Roger Gammans <roger@computer-surgery.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Mauro Carvalho Chehab wrote:
-> Em Qui, 2006-09-28 às 10:51 -0700, Andrew Morton escreveu:
-> 
->>On Thu, 28 Sep 2006 10:31:58 -0700
->>Martin Bligh <mbligh@google.com> wrote:
-> 
-> 
->>That being said, this driver is wrong to be storing dma addresses in a
->>void*.  And indeed there is a FIXME regarding this at
->>include/linux/videodev2.h:476, so I guess hiding this warning won't obscure
->>any fault which wasn't already known about..
-> 
-> 
-> Yes. The original structure is:
-> 
-> struct v4l2_framebuffer
-> {
->         __u32                   capability;
->         __u32                   flags;
->         void*                   base;
->         struct v4l2_pix_format  fmt;
-> };
-> 
-> Since this is used at ioctl definition, changing this would break
-> userspace apps. We might replace this to something like:
-> 
-> struct v4l2_framebuffer
-> {
->         __u32                   capability;
->         __u32                   flags;
-> 	union {
-> 	        void*		base_ptr; /*FOO definition to avoid breaking userpace apps */
-> 		dma_addr_t	base;
-> 	}
->         struct v4l2_pix_format  fmt;
-> };
-> 
-> This way, base will have the expected type, and it won't break any
-> userspace app if sizeof(void *)<=sizeof(base). I think this is true for
-> all architectures (anyway, if it isn't, v4l is broken anyway).
 
-Won't that just make the userspace apps not work properly? Not that
-they do right now, but how does masking the problem help?
+--O5XBE6gyVG5Rl6Rj
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-M.
+On Fri, Sep 29, 2006 at 12:37:37PM -0700, Randy Dunlap wrote:
+> Hm, I looked thru fs/bio.c and block/*.c and Documentation/Docbook/*.tmpl.
+> The best place that I see to put it right now is in
+> include/linux/bio.h, struct bio, field: bi_sector.
+>=20
+> What do you think of that?
+
+Well, ... Um. I can't think of anywhere better either, so how about
+this:-
+
+Signed-Off-By: Roger Gammans <rgammans@computer-sugery.co.uk>
+
+diff --git a/include/linux/bio.h b/include/linux/bio.h
+index 76bdaea..77a8e6b 100644
+--- a/include/linux/bio.h
++++ b/include/linux/bio.h
+@@ -70,7 +70,8 @@ typedef void (bio_destructor_t) (struct
+  * stacking drivers)
+  */
+ struct bio {
+-       sector_t                bi_sector;
++       sector_t                bi_sector;      /* device address in 512 by=
+te
++                                                  sectors */
+        struct bio              *bi_next;       /* request queue link */
+        struct block_device     *bi_bdev;
+        unsigned long           bi_flags;       /* status, command, etc
+*/
+
+
+--=20
+Roger.                          Home| http://www.sandman.uklinux.net/
+Master of Peng Shui.      (Ancient oriental art of Penguin Arranging)
+Work|Independent Sys Consultant | http://www.computer-surgery.co.uk/
+So what are the eigenvalues and eigenvectors of 'The Matrix'? --anon
+
+--O5XBE6gyVG5Rl6Rj
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
+
+iD8DBQFFHCjqTryqm47jHdMRAppAAKChfRmMB6a6MwmRJLKIIDF2HWbP1ACbBphj
+aITeTNo8tJ99UX6HFkkVyWQ=
+=LwQH
+-----END PGP SIGNATURE-----
+
+--O5XBE6gyVG5Rl6Rj--

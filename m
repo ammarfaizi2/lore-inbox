@@ -1,109 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750754AbWI1XDW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750786AbWI1XDk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750754AbWI1XDW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Sep 2006 19:03:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750774AbWI1XDW
+	id S1750786AbWI1XDk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Sep 2006 19:03:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750818AbWI1XDk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Sep 2006 19:03:22 -0400
-Received: from scrub.xs4all.nl ([194.109.195.176]:31932 "EHLO scrub.xs4all.nl")
-	by vger.kernel.org with ESMTP id S1750754AbWI1XDV (ORCPT
+	Thu, 28 Sep 2006 19:03:40 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:5008 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1750786AbWI1XDi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Sep 2006 19:03:21 -0400
-Date: Fri, 29 Sep 2006 01:03:16 +0200 (CEST)
-From: Roman Zippel <zippel@linux-m68k.org>
-X-X-Sender: roman@scrub.home
-To: Dave Jones <davej@redhat.com>
-cc: Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: oom kill oddness.
-In-Reply-To: <20060927205435.GF1319@redhat.com>
-Message-ID: <Pine.LNX.4.64.0609290035060.6762@scrub.home>
-References: <20060927205435.GF1319@redhat.com>
+	Thu, 28 Sep 2006 19:03:38 -0400
+Message-ID: <451C54C0.6080402@garzik.org>
+Date: Thu, 28 Sep 2006 19:03:28 -0400
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+To: Muli Ben-Yehuda <muli@il.ibm.com>
+CC: Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>,
+       Jim Paradis <jparadis@redhat.com>, Andi Kleen <ak@suse.de>,
+       LKML <linux-kernel@vger.kernel.org>, jdmason@kudzu.us
+Subject: Re: [PATCH] x86[-64] PCI domain support
+References: <20060926191508.GA6350@havoc.gtf.org> <20060928093332.GG22787@rhun.haifa.ibm.com> <451B99C5.7080809@garzik.org> <20060928224550.GJ22787@rhun.haifa.ibm.com>
+In-Reply-To: <20060928224550.GJ22787@rhun.haifa.ibm.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.3 (----)
+X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
-
-On Wed, 27 Sep 2006, Dave Jones wrote:
-
-> So I have two boxes that are very similar.
-> Both have 2GB of RAM & 1GB of swap space.
-> One has a 2.8GHz CPU, the other a 2.93GHz CPU, both dualcore.
+Muli Ben-Yehuda wrote:
+> On Thu, Sep 28, 2006 at 05:45:41AM -0400, Jeff Garzik wrote:
+>> Muli Ben-Yehuda wrote:
+>>> On Tue, Sep 26, 2006 at 03:15:08PM -0400, Jeff Garzik wrote:
+>>>> The x86[-64] PCI domain effort needs to be restarted, because we've got
+>>>> machines out in the field that need this in order for some devices to
+>>>> work.
+>>>>
+>>> This breaks the Calgary IOMMU, since it uses sysdata for other
+>>> purposes (going back from a bus to its IO address space). I'm looking
+>>> into it.
+>> You'll need to modify struct pci_sysdata in 
+>> include/asm-{i386,x86_64}/pci.h to include the data that you previously 
+>> stored directly into the sysdata pointer.
 > 
-> The slower box survives a 'make -j bzImage' of a 2.6.18 kernel tree
-> without incident. (Although it takes ~4 minutes longer than a -j2)
-> 
-> The faster box goes absolutely nuts, oomkilling everything in sight,
-> until eventually after about 10 minutes, the box locks up dead,
-> and won't even respond to pings.
-> 
-> Oh, the only other difference - the slower box has 1 disk, whereas the
-> faster box has two in RAID0.   I'm not surprised that stuff is getting
-> oom-killed given the pathological scenario, but the fact that the
-> box never recovered at all is a little odd.  Does md lack some means
-> of dealing with low memory scenarios ?
+> Something like this should do the trick. Note - this should not be
+> applied yet - after several gigabytes of network and disk activity it
+> takes aic94xx down. More investigation required.
 
-I think I see the same thing on the other end on slow machines, here it 
-only takes a single compile job, which doesn't quite fit into memory and 
-another task (like top) which occasionally wakes up and tries to allocate 
-memory and then kills the compile job - that's very annoying.
+hmmmm.  What kernels did you test?
 
-AFAICT the basic problem is that "did_some_progress" in __alloc_pages() is 
-rather local information, other processes can still make progress and keep 
-this process from making progress, which gets grumpy and starts killing. 
-What's happing here is that most memory is either mapped or in the swap 
-cache, so we have a race between processes trying to free memory from the 
-cache and processes mapping memory back into their address space.
+I would suggest testing
 
-If someone wants to play with the problem, the example program below 
-triggers the problem relatively easily (booting with only little ram 
-helps), it starts a number of readers, which should touch a bit more 
-memory than is available and a few writers, which occasionally allocate 
-memory.
+jgarzik/misc-2.6.git#master	-> vanilla Linux kernel
+jgarzik/misc-2.6.git#pciseg	-> #master + PCI domain support
+#pciseg + your patch
 
-bye, Roman
+That should narrow down the problems.  A problem with aic94xx sorta 
+sounds like something unrelated.
 
 
-#include <stdlib.h>
-#include <string.h>
-#include <time.h>
+> diff -Naurp -X /home/muli/w/dontdiff pci-domains/arch/x86_64/kernel/pci-calgary.c linux/arch/x86_64/kernel/pci-calgary.c
+> --- pci-domains/arch/x86_64/kernel/pci-calgary.c	2006-09-28 13:31:14.000000000 +0300
+> +++ linux/arch/x86_64/kernel/pci-calgary.c	2006-09-28 13:14:38.000000000 +0300
 
-#define MEM_SIZE (24 << 20)
+ACK patch
 
-int main(int ac, char **av)
-{
-	volatile char *mem;
-	int i, memsize;
 
-	memsize = MEM_SIZE;
-	if (ac > 1)
-		memsize = atoi(av[1]) << 20;
-	mem = malloc(memsize);
-
-	memset(mem, 0, memsize);
-	for (i = 0; i < 32; i++) {
-		if (!fork()) {
-			while (1) {
-				*(mem + random() % memsize);
-			}
-		}
-	}
-	for (i = 0; i < 5; i++) {
-		if (!fork()) {
-			while (1) {
-				volatile char *p;
-				struct timespec ts;
-				int t = random() % 5000;
-				ts.tv_sec = t / 1000;
-				ts.tv_nsec = (t % 1000) * 1000000;
-				nanosleep(&ts, NULL);
-				p = malloc(1 << 16);
-				memset(p, 0, 1 << 16);
-				free(p);
-			}
-		}
-	}
-	while (1)
-		pause();
-}

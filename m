@@ -1,20 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161345AbWI1Wmv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161346AbWI1Wm7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161345AbWI1Wmv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Sep 2006 18:42:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161346AbWI1Wmu
+	id S1161346AbWI1Wm7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Sep 2006 18:42:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161348AbWI1Wm6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Sep 2006 18:42:50 -0400
-Received: from mail.suse.de ([195.135.220.2]:58327 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1161345AbWI1Wmt (ORCPT
+	Thu, 28 Sep 2006 18:42:58 -0400
+Received: from mail.suse.de ([195.135.220.2]:59351 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1161346AbWI1Wm5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Sep 2006 18:42:49 -0400
-Date: Thu, 28 Sep 2006 15:42:50 -0700
+	Thu, 28 Sep 2006 18:42:57 -0400
+Date: Thu, 28 Sep 2006 15:42:48 -0700
 From: Greg KH <gregkh@suse.de>
 To: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
-Subject: [GIT PATCH] More USB patches for 2.6.18
-Message-ID: <20060928224250.GA23841@kroah.com>
+Cc: linux-kernel@vger.kernel.org, lm-sensors@lm-sensors.org,
+       Jean Delvare <khali@linux-fr.org>
+Subject: [GIT PATCH] HWMon patches for 2.6.18
+Message-ID: <20060928224248.GA23843@kroah.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -22,109 +23,144 @@ User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here are some more USB bugfixes and device ids 2.6.18.  They should all
-fix the reported problems in your current tree (if not, please let me
-know.)
+Here are some hwmon patches for 2.6.18.  They include a new driver, and
+a bunch of warning fixes that cleaned up the code a lot.
 
-All of these changes have been in the -mm tree for a while.
+Half of these have been in the -mm tree for a while, the other half were
+in Jean's tree for too long before I added them to mine (the delay was
+my fault.)
 
 Please pull from:
-	master.kernel.org:/pub/scm/linux/kernel/git/gregkh/usb-2.6.git/
+	git://git.kernel.org/pub/scm/linux/kernel/git/gregkh/hwmon-2.6.git/
+or from:
+	master.kernel.org:/pub/scm/linux/kernel/git/gregkh/hwmon-2.6.git/
+if it isn't synced up yet.
 
-The full patches will be sent to the linux-usb-devel mailing list, if
-anyone wants to see them.
+The full patch series will sent to the sensors mailing list, if anyone
+wants to see them.
 
 thanks,
 
 greg k-h
 
- drivers/usb/core/driver.c          |   65 ++++-----
- drivers/usb/core/hcd.c             |    6 -
- drivers/usb/core/hub.c             |    4 -
- drivers/usb/core/usb.c             |   46 ++++++
- drivers/usb/core/usb.h             |   19 ++-
- drivers/usb/gadget/dummy_hcd.c     |   33 +++-
- drivers/usb/gadget/file_storage.c  |   35 ++++-
- drivers/usb/host/ohci-hcd.c        |   18 +-
- drivers/usb/host/ohci-hub.c        |  265 +++++++++++++++++++++---------------
- drivers/usb/host/ohci-pci.c        |    3 
- drivers/usb/host/ohci.h            |    1 
- drivers/usb/image/microtek.c       |   18 +-
- drivers/usb/image/microtek.h       |    4 -
- drivers/usb/input/hid-core.c       |    4 +
- drivers/usb/misc/phidgetkit.c      |   56 +++++---
- drivers/usb/net/asix.c             |    4 +
- drivers/usb/net/kaweth.c           |    1 
- drivers/usb/net/pegasus.c          |   18 +-
- drivers/usb/serial/cyberjack.c     |    6 -
- drivers/usb/serial/ftdi_sio.c      |    4 +
- drivers/usb/serial/ftdi_sio.h      |   10 +
- drivers/usb/serial/generic.c       |    6 -
- drivers/usb/serial/ipaq.c          |    1 
- drivers/usb/serial/ipw.c           |    6 -
- drivers/usb/serial/ir-usb.c        |    6 -
- drivers/usb/serial/keyspan_pda.c   |    6 -
- drivers/usb/serial/omninet.c       |    6 -
- drivers/usb/serial/pl2303.c        |    1 
- drivers/usb/serial/pl2303.h        |    4 +
- drivers/usb/serial/safe_serial.c   |    6 -
- drivers/usb/storage/unusual_devs.h |   14 ++
- include/linux/usb.h                |    2 
- 32 files changed, 436 insertions(+), 242 deletions(-)
+ Documentation/hwmon/it87      |   61 +-
+ Documentation/hwmon/k8temp    |   52 ++
+ Documentation/hwmon/vt1211    |  206 ++++++
+ Documentation/hwmon/w83627ehf |   85 +++
+ Documentation/hwmon/w83791d   |   69 +-
+ MAINTAINERS                   |    6 
+ drivers/hwmon/Kconfig         |   51 +-
+ drivers/hwmon/Makefile        |    2 
+ drivers/hwmon/abituguru.c     |   30 +
+ drivers/hwmon/adm1021.c       |   31 +
+ drivers/hwmon/adm1025.c       |   94 ++-
+ drivers/hwmon/adm1026.c       |  286 ++++-----
+ drivers/hwmon/adm1031.c       |  114 ++-
+ drivers/hwmon/adm9240.c       |  105 +--
+ drivers/hwmon/asb100.c        |  122 ++--
+ drivers/hwmon/atxp1.c         |   28 +
+ drivers/hwmon/ds1621.c        |   28 +
+ drivers/hwmon/f71805f.c       |  336 +++++++---
+ drivers/hwmon/fscher.c        |  106 +--
+ drivers/hwmon/fscpos.c        |   75 +-
+ drivers/hwmon/gl518sm.c       |   74 +-
+ drivers/hwmon/gl520sm.c       |  128 ++--
+ drivers/hwmon/hdaps.c         |    6 
+ drivers/hwmon/it87.c          |  469 +++++++++++---
+ drivers/hwmon/k8temp.c        |  294 +++++++++
+ drivers/hwmon/lm63.c          |   96 ++-
+ drivers/hwmon/lm75.c          |   24 +
+ drivers/hwmon/lm77.c          |   33 +
+ drivers/hwmon/lm78.c          |   88 ++-
+ drivers/hwmon/lm80.c          |   85 +--
+ drivers/hwmon/lm83.c          |  128 +++-
+ drivers/hwmon/lm85.c          |  173 +++--
+ drivers/hwmon/lm87.c          |  191 ++++--
+ drivers/hwmon/lm90.c          |   90 ++-
+ drivers/hwmon/lm92.c          |   34 +
+ drivers/hwmon/max1619.c       |   33 +
+ drivers/hwmon/pc87360.c       |  230 +++++--
+ drivers/hwmon/sis5595.c       |  101 ++-
+ drivers/hwmon/smsc47b397.c    |   39 +
+ drivers/hwmon/smsc47m1.c      |   81 ++
+ drivers/hwmon/smsc47m192.c    |  150 +++--
+ drivers/hwmon/via686a.c       |   83 ++-
+ drivers/hwmon/vt1211.c        | 1355 +++++++++++++++++++++++++++++++++++++++++
+ drivers/hwmon/vt8231.c        |  186 ++++--
+ drivers/hwmon/w83627ehf.c     |  485 ++++++++++++++-
+ drivers/hwmon/w83627hf.c      |  232 ++++---
+ drivers/hwmon/w83781d.c       |  277 ++++----
+ drivers/hwmon/w83791d.c       |    7 
+ drivers/hwmon/w83792d.c       |  554 ++++++++++-------
+ drivers/hwmon/w83l785ts.c     |   28 +
+ include/linux/pci_ids.h       |    1 
+ 51 files changed, 5727 insertions(+), 1915 deletions(-)
+ create mode 100644 Documentation/hwmon/k8temp
+ create mode 100644 Documentation/hwmon/vt1211
+ create mode 100644 Documentation/hwmon/w83627ehf
+ create mode 100644 drivers/hwmon/k8temp.c
+ create mode 100644 drivers/hwmon/vt1211.c
 
 ---------------
 
-Alan Cox:
-      ohci: Use ref-counting hotplug safe interfaces
+Alexey Dobriyan:
+      atxp1: Signed/unsigned char bug fix
 
-Alan Stern:
-      USB: unusual-devs entry for Nokia E60
-      USB: create new workqueue thread for USB autosuspend
-      USB: dummy-hcd: fix "warn-unused-result" messages
-      USB: g_file_storage: fix "ignoring return value" warnings
-      USB: allow both root-hub interrupts and polling
-      OHCI: remove existing autosuspend code
-      OHCI: add auto-stop support
-      USB: fix autosuspend when CONFIG_PM isn't set
-      USB: g_file_storage: Set sense info Valid bit only when needed
+Charles Spirakis:
+      w83791d: Documentation update
 
-David Hollis:
-      USB: asix - Add alternate device IDs for Dlink DUB-E100 Rev B1
+David Hubbard:
+      w83627ehf: Fix unchecked return status
 
-Henrik Kretzschmar:
-      USB: fixes kerneldoc errors in usbcore-auto(susp/res)-patch
-      USB: microtek usb scanner: Scsi_Cmnd conversion
+Dmitry Torokhov:
+      hdaps: Handle errors from input_register_device
 
-Ian Abbott:
-      USB serial ftdi_sio: Add support for Tactrix OpenPort devices
+Hans de Goede:
+      abituguru: Add suspend/resume support
 
-Jan Mate:
-      USB Storage: unusual_devs.h entry for Sony Ericsson P990i
+Jean Delvare:
+      smsc47m1: dev_warn fix
+      it87: Add support for the IT8716F
+      it87: No sysfs files for disabled fans
+      it87: Prevent overflow on fan clock divider write
+      it87: in8 has no limit registers
+      it87: Cleanup set_fan_div
+      it87: Add support for the IT8718F
+      it87: Overwrite broken default limits
+      it87: Copyright update
+      k8temp: Enable automatic loading
+      hwmon: Make a dozen drivers no more experimental
+      hwmon: Add individual alarm files to 4 drivers
+      hwmon: Fix unchecked return status, batch 4
+      Fix unchecked return status, batch 5
+      hwmon: Fix unchecked return status, batch 6
+      hwmon: Fix unchecked return status, SMSC chips
+      hwmon: Remove Yuan Mu's address
 
-Justin Carlson:
-      USB: add SeaLevel 2106 SeaLINK support to ftdi_sio
+Jim Cromie:
+      pc87360: Move some code around
+      pc87360: Delete sysfs files on device deletion
+      pc87360: Check for error on sysfs files creation
+      w83781d: Fix unchecked return status
 
-Matthias Urlichs:
-      USB: another device ID for ipaq
+Juerg Haefliger:
+      hwmon: New driver for the VIA VT1211
+      vt1211: Add documentation
+      vt1211: Document module parameters
 
-Mikael Pettersson:
-      USB: Fix alignment of buffer passed down to ->hub_control()
+Mark M. Hoffman:
+      hwmon: Fix unchecked return status, batch 1
+      hwmon: Fix unchecked return status, batch 2
+      hwmon: Fix unchecked return status, batch 3
 
-Oliver Neukum:
-      USB: new id for kaweth
+Roger Lucas:
+      vt8231: Fix unchecked return status
 
-Peter Zijlstra:
-      usb-serial: possible irq lock inversion (PPP vs. usb/serial)
-
-Petko Manolov:
-      USB: Pegasus driver failing for ADMtek 8515 network device
-
-Raghavendra Biligiri:
-      USB: add Raritan KVM USB Dongle to the HID_QUIRK_NOGET blacklist
-
-Sean Young:
-      USB: New PhidgetKit 8/8/8 reset outputs after 2 seconds
-
-Wesley PA4WDH:
-      USB: Add vendor / product ID to pl2303
+Rudolf Marek:
+      hwmon: Add fan speed control features to w83627ehf
+      hwmon: Documentation update for w83627ehf
+      hwmon: New driver k8temp
+      k8temp: Add documentation
+      w83l785ts: Fix unchecked return status
+      w83792d: Fix unchecked return status
 

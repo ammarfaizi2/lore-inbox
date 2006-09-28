@@ -1,66 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751230AbWI1Pbk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751918AbWI1Pc3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751230AbWI1Pbk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Sep 2006 11:31:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751912AbWI1Pbk
+	id S1751918AbWI1Pc3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Sep 2006 11:32:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751917AbWI1Pc3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Sep 2006 11:31:40 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:62366 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751230AbWI1Pbj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Sep 2006 11:31:39 -0400
-Date: Thu, 28 Sep 2006 08:31:16 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: =?ISO-8859-1?Q?J=F6rn_Engel?= <joern@wohnheim.fh-wedel.de>
-cc: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>,
-       Chase Venters <chase.venters@clientec.com>,
-       Sergey Panov <sipan@sipan.org>, Patrick McFarland <diablod3@gmail.com>,
-       Theodore Tso <tytso@mit.edu>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Jan Engelhardt <jengelh@linux01.gwdg.de>,
-       James Bottomley <James.Bottomley@steeleye.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: GPLv3 Position Statement
-In-Reply-To: <20060928152020.GC21814@wohnheim.fh-wedel.de>
-Message-ID: <Pine.LNX.4.64.0609280825350.3952@g5.osdl.org>
-References: <1158941750.3445.31.camel@mulgrave.il.steeleye.com>
- <Pine.LNX.4.64.0609271945450.3952@g5.osdl.org> <1159415242.13562.12.camel@sipan.sipan.org>
- <200609272339.28337.chase.venters@clientec.com> <20060928135510.GR13641@csclub.uwaterloo.ca>
- <20060928141932.GA707@DervishD> <20060928144028.GA21814@wohnheim.fh-wedel.de>
- <Pine.LNX.4.64.0609280748500.3952@g5.osdl.org> <20060928152020.GC21814@wohnheim.fh-wedel.de>
+	Thu, 28 Sep 2006 11:32:29 -0400
+Received: from excu-mxob-1.symantec.com ([198.6.49.12]:27073 "EHLO
+	excu-mxob-1.symantec.com") by vger.kernel.org with ESMTP
+	id S965057AbWI1Pc2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Sep 2006 11:32:28 -0400
+Date: Thu, 28 Sep 2006 16:30:19 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@blonde.wat.veritas.com
+To: Andi Kleen <ak@muc.de>
+cc: Jeremy Fitzhardinge <jeremy@goop.org>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] Put the BUG __FILE__ and __LINE__ info out of line
+In-Reply-To: <20060928103853.GB99906@muc.de>
+Message-ID: <Pine.LNX.4.64.0609281626001.25939@blonde.wat.veritas.com>
+References: <451B64E3.9020900@goop.org> <20060927233509.f675c02d.akpm@osdl.org>
+ <451B708D.20505@goop.org> <20060928000019.3fb4b317.akpm@osdl.org>
+ <20060928071731.GB84041@muc.de> <20060928002610.05e61321.akpm@osdl.org>
+ <20060928101555.GA99906@muc.de> <451BA434.9020409@goop.org>
+ <20060928103853.GB99906@muc.de>
 MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="21872808-2004966641-1159457476=:3952"
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 28 Sep 2006 15:30:11.0978 (UTC) FILETIME=[FCF9BEA0:01C6E312]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-
---21872808-2004966641-1159457476=:3952
-Content-Type: TEXT/PLAIN; charset=iso-8859-1
-Content-Transfer-Encoding: 8BIT
-
-
-
-On Thu, 28 Sep 2006, Jörn Engel wrote:
+On Thu, 28 Sep 2006, Andi Kleen wrote:
+> On Thu, Sep 28, 2006 at 03:30:12AM -0700, Jeremy Fitzhardinge wrote:
+> > Andi Kleen wrote:
+> > >But no out of line section. So overall it's smaller, although the cache 
+> > >footprint
+> > >is 2 bytes larger. But then is 2 bytes larger really an issue? We don't 
+> > >have
+> > >_that_ many BUGs anyways.
+> > >  
+> > 
+> > I think the out of line section is a feature; no point in crufting up 
+> > the icache with BUG gunk, especially since a number of them are on 
+> > fairly hot paths.
 > 
-> And this is an area where I slightly disagree with you.  While I would
-> hope that you were right, I can easily imagine a judge ruling that "v2
-> or later" in the preamble means that the project just signed a blank
-> license of the FSF's discretion.
+> It's 10 bytes per BUG. 
 
-I think a judge could rule on almost anything, almost any way. Some judges 
-seem to have less sense than a well-trained rabbit (see the lawsuit about 
-"The Wind Done Gone", where at least one judge blocked it.
+Or 9 bytes per BUG: I protested about the disassembly problem back
+when the minimized BUG() first went in, and have been using "ljmp"
+in my i386 builds ever since:
 
-Judges are just people, after all.
-
-So yes, clarifications are good. No question about that. There's a reason 
-I added mine. Just to tell everybody else, and to make sure there's as 
-little gray area in that place as humanly possible.
-
-So I'm not saying that "v2 only" language is _bad_. I'm just saying that 
-it shouldn't matter. It's technically enough to just say "GPLv2", and you 
-don't really have to say anything else.
-
-			Linus
---21872808-2004966641-1159457476=:3952--
+--- 2.6.18-git9/arch/i386/kernel/traps.c	2006-09-28 12:03:47.000000000 +0100
++++ linux/arch/i386/kernel/traps.c	2006-09-28 16:23:56.000000000 +0100
+@@ -422,10 +422,10 @@ static void handle_BUG(struct pt_regs *r
+ 		char *file;
+ 		char c;
+ 
+-		if (probe_kernel_address((unsigned short __user *)(eip + 2),
++		if (probe_kernel_address((unsigned short __user *)(eip + 7),
+ 					line))
+ 			break;
+-		if (__get_user(file, (char * __user *)(eip + 4)) ||
++		if (__get_user(file, (char * __user *)(eip + 3)) ||
+ 		    (unsigned long)file < PAGE_OFFSET || __get_user(c, file))
+ 			file = "<bad filename>";
+ 
+--- 2.6.18-git9/include/asm-i386/bug.h	2006-09-20 04:42:06.000000000 +0100
++++ linux/include/asm-i386/bug.h	2006-09-28 16:23:56.000000000 +0100
+@@ -13,9 +13,11 @@
+ #ifdef CONFIG_DEBUG_BUGVERBOSE
+ #define BUG()				\
+  __asm__ __volatile__(	"ud2\n"		\
+-			"\t.word %c0\n"	\
+-			"\t.long %c1\n"	\
+-			 : : "i" (__LINE__), "i" (__FILE__))
++			"\t.byte 0xea\n" \
++			"\t.long %c0\n"	\
++			"\t.word %c1\n"	\
++			 : : "i" (__FILE__), "i" (__LINE__))
++	/* "ljmp long short" so disassemblers can make sense of it */
+ #else
+ #define BUG() __asm__ __volatile__("ud2\n")
+ #endif

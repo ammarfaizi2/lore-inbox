@@ -1,71 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161149AbWI1Ol1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161158AbWI1OoS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161149AbWI1Ol1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Sep 2006 10:41:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161156AbWI1Ol1
+	id S1161158AbWI1OoS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Sep 2006 10:44:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161160AbWI1OoS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Sep 2006 10:41:27 -0400
-Received: from wohnheim.fh-wedel.de ([213.39.233.138]:20143 "EHLO
-	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S1161149AbWI1Ol0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Sep 2006 10:41:26 -0400
-Date: Thu, 28 Sep 2006 16:40:28 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>,
-       Chase Venters <chase.venters@clientec.com>,
-       Sergey Panov <sipan@sipan.org>, Linus Torvalds <torvalds@osdl.org>,
-       Patrick McFarland <diablod3@gmail.com>, Theodore Tso <tytso@mit.edu>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Jan Engelhardt <jengelh@linux01.gwdg.de>,
-       James Bottomley <James.Bottomley@steeleye.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: GPLv3 Position Statement
-Message-ID: <20060928144028.GA21814@wohnheim.fh-wedel.de>
-References: <1158941750.3445.31.camel@mulgrave.il.steeleye.com> <Pine.LNX.4.64.0609271945450.3952@g5.osdl.org> <1159415242.13562.12.camel@sipan.sipan.org> <200609272339.28337.chase.venters@clientec.com> <20060928135510.GR13641@csclub.uwaterloo.ca> <20060928141932.GA707@DervishD>
+	Thu, 28 Sep 2006 10:44:18 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.149]:8091 "EHLO e31.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1161158AbWI1OoR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Sep 2006 10:44:17 -0400
+Date: Thu, 28 Sep 2006 20:14:03 +0530
+From: Dipankar Sarma <dipankar@in.ibm.com>
+To: Christoph Hellwig <hch@infradead.org>,
+       "Paul E. McKenney" <paulmck@us.ibm.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>
+Subject: Re: [-mm PATCH 1/4] RCU: split classic rcu
+Message-ID: <20060928144403.GA27499@in.ibm.com>
+Reply-To: dipankar@in.ibm.com
+References: <20060923152957.GA13432@in.ibm.com> <20060923153141.GB13432@in.ibm.com> <20060925165433.GA28898@infradead.org> <20060927163239.GC1291@us.ibm.com> <20060928142616.GA20185@infradead.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20060928141932.GA707@DervishD>
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <20060928142616.GA20185@infradead.org>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 28 September 2006 16:19:32 +0200, DervishD wrote:
+On Thu, Sep 28, 2006 at 03:26:16PM +0100, Christoph Hellwig wrote:
+> On Wed, Sep 27, 2006 at 09:32:40AM -0700, Paul E. McKenney wrote:
+> > We will be switching to a new implementation.  I am working to make it
+> > as reliable as I know how, but it seems reasonable to have a changeover
+> > period that might be measured in years.  I -really- don't want to be
+> > inflicting even the possibility of RCU implementation bugs on anyone who
+> > has not "signed up" for code that has not yet be hammered into total
+> > and complete submission!  CONFIG_PREEMPT_RT is quite reliable even now,
+> > but there is "quite reliable" and then there is "hammered into total
+> > and complete submission".  ;-)
+> > 
+> > Also, we need any new implementation of RCU to be in a separate file.
+> > I don't want to even think about the number of times that I accidentally
+> > changed the wrong version of RCU when working on the -rt implementation
+> > before we split it -- the functions have the same name, right?  :-/
 > 
->     Probably the renaming is just common sense and will avoid ALL
-> problems. People like me are concerned only because all GPLv2 that
-> doesn't state otherwise will be released automagically under GPLv3 as
-> soon as the latest draft is made the official version. Otherwise, I
-> wouldn't give a hump about any new license until I have the time to
-> read it and see if I like it.
+> Still there's absolutely no point in putting all this into mainline.  Do
+> it in your toy tree (whether it's called -rt or -pk :)) and keep one
+> stable implementation in mainline.  That one implementation should be
+> srcu capable rather sooner than later (as soon as you're satisfied with it)
+> because there's lots of interesting use cases for sleeping in RCU read
+> sections.  But until then keep the mainline code simple.
 
-In my very uninformed opinion, your problem is a very minor one.  Your
-"v2 or later" code won't get the license v2 removed, it will become
-dual "v2 or v3" licensed.  And assuming that v3 only adds restrictions
-and doesn't allow the licensee any additional rights, you, as the
-author, shouldn't have to worry much.
+Christoph,
 
-The problem arises later.  As with BSD/GPL dual licensed code, where
-anyone can take the code and relicense it as either BSD or GPL, "v2 or
-v3" code can get relicensed as v3 only.  At this point, nothing is
-lost, as the identical "v2 or v3" code still exists.  But with further
-development on the "v3 only" branch, you have a fork.  And one that
-doesn't just require technical means to get merged back, but has legal
-restrictions.
+The RCU read path is so sensitive that unless a large number of
+users test the rcupreempt implementation, it will be difficult
+for us to safely switch over without hurting. We cannot get that
+test exposure from -rt or -pk :-) Really, the mainline code split is
+very simple and should be maintainable with an understanding
+that within a year or so, we can switch over to just one
+implementation. I am not comfortable with the risk of causing
+sudden performance problems for some users. By staging it,
+we can minimize that risk.
 
-And I assume (careful, I'm _really_ uninformed here) the FSF is well
-aware of that and wants a one-way compatibility between v2 and v3.
-Any v2 code can be picked up by a v3 project, but not the other way
-around.  v3 projects have a clear evolutionary advantage over v2.
+Srcu is independent of the underlying RCU mechanism, it works with 
+both the RCU implementations.
 
-And here the kernel wording with "v2 only" in the kernel is
-interesting.  It turns a one-way compatibility into no compatibility
-at all.  So the evolutionary advantage is lost, as it only exists
-through the "v2 or later" term.
-
-Jörn
-
--- 
-Homo Sapiens is a goal, not a description.
--- unknown
+Thanks
+Dipankar

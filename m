@@ -1,72 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751115AbWI1X3a@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751128AbWI1Xaj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751115AbWI1X3a (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Sep 2006 19:29:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751128AbWI1X3a
+	id S1751128AbWI1Xaj (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Sep 2006 19:30:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751134AbWI1Xai
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Sep 2006 19:29:30 -0400
-Received: from xenotime.net ([66.160.160.81]:62624 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1751115AbWI1X33 (ORCPT
+	Thu, 28 Sep 2006 19:30:38 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:64136 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751128AbWI1Xah (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Sep 2006 19:29:29 -0400
-Date: Thu, 28 Sep 2006 16:30:46 -0700
-From: Randy Dunlap <rdunlap@xenotime.net>
-To: Tilman Schmidt <tilman@imap.cc>
-Cc: Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, Ingo Molnar <mingo@elte.hu>,
-       jbeulich@novell.com
-Subject: Re: [2.6.18-rc7-mm1] slow boot
-Message-Id: <20060928163046.055b3ce0.rdunlap@xenotime.net>
-In-Reply-To: <451C58AC.5060601@imap.cc>
-References: <4516B966.3010909@imap.cc>
-	<20060924145337.ae152efd.akpm@osdl.org>
-	<451BFFA9.4030000@imap.cc>
-	<200609281912.01858.ak@suse.de>
-	<451C58AC.5060601@imap.cc>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
+	Thu, 28 Sep 2006 19:30:37 -0400
+Date: Thu, 28 Sep 2006 16:30:23 -0700
+From: Stephen Hemminger <shemminger@osdl.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Jeff Garzik <jeff@garzik.org>, oe@hentges.net,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Netdev List <netdev@vger.kernel.org>
+Subject: Re: sky2 (was Re: 2.6.18-mm2)
+Message-ID: <20060928163023.21086528@freekitty>
+In-Reply-To: <20060928162539.7d565d0a.akpm@osdl.org>
+References: <20060928155053.7d8567ae.akpm@osdl.org>
+	<451C5599.80402@garzik.org>
+	<20060928162539.7d565d0a.akpm@osdl.org>
+Organization: OSDL
+X-Mailer: Sylpheed-Claws 2.5.0-rc3 (GTK+ 2.10.3; i486-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 29 Sep 2006 01:20:12 +0200 Tilman Schmidt wrote:
 
-> Am 28.09.2006 19:12 schrieb Andi Kleen:
-> > On Thursday 28 September 2006 19:00, Tilman Schmidt wrote:
-> > 
-> > missing context here, but ...
 > 
-> Forwarded by separate mail.
+> See also http://bugzilla.kernel.org/show_bug.cgi?id=7222
 > 
-> >> x86_64-mm-i386-stacktrace-unwinder.patch
-> [...]
-> >> Backing out just this patch from 2.6.18-mm1 (and resolving conflicts
-> >> manually the obvious way) gets the boot time back to normal (ie. as
-> >> fast as 2.6.18 mainline) on my
-> >> Linux gx110 2.6.18-mm1-noinitrd #2 PREEMPT Thu Sep 28 18:48:32 CEST 2006 i686 i686 i386 GNU/Linux
-> >> machine.
-> > 
-> > Hmm, i assume you have lockdep on.
-> 
-> Indeed.
-> 
-> > The new backtracer is of course slower
-> > than the old one and it will slow down lockdep which takes a lot of backtraces. 
-> > But it shouldn't be a significant slowdown.
-> 
-> Unfortunately, it is. Boot time roughly doubles from 39 to 76 secs.
-> 
-> > Can you perhaps boot with profile=1 and then send readprofile output after
-> > boot?
-> 
-> I'm afraid I'll need instructions for that. I assume "profile=1"
-> is to be appended to the kernel command line; but how do I
-> retrieve that readprofile output you are asking for?
+> That's two reports in 18 hours, from amongst the presumably-small population
+> of sky2-owning -mm testers.
 
-Use 'readprofile'.  Usage is described in
-Documentation/basic_profiling.txt in the kernel source tree.
+I'll back it out if we don't get a simple resolution. It was just trying to
+use the pci facilities as intended.
 
----
-~Randy
+Note: I know what is causing all the sky2 problems, there is something wrong that
+is causing flow control negotiation not to propagate back to all the multiple levels
+of the chip. Unclear how to fix it, the documentation is not helpful on this.
+If not resolved soon, I'll just force Tx flow control off for now.
+
+
+-- 
+Stephen Hemminger <shemminger@osdl.org>

@@ -1,42 +1,99 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031150AbWI1Bfj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031318AbWI1Bgk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1031150AbWI1Bfj (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Sep 2006 21:35:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031163AbWI1Bfj
+	id S1031318AbWI1Bgk (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Sep 2006 21:36:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031320AbWI1Bgk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Sep 2006 21:35:39 -0400
-Received: from zeniv.linux.org.uk ([195.92.253.2]:54992 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1031150AbWI1Bfj
+	Wed, 27 Sep 2006 21:36:40 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:2694 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1031318AbWI1Bgj convert rfc822-to-8bit
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Sep 2006 21:35:39 -0400
-Date: Thu, 28 Sep 2006 02:35:31 +0100
-From: Al Viro <viro@ftp.linux.org.uk>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Chase Venters <chase.venters@clientec.com>, Theodore Tso <tytso@mit.edu>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Jan Engelhardt <jengelh@linux01.gwdg.de>,
-       Sergey Panov <sipan@sipan.org>,
-       James Bottomley <James.Bottomley@SteelEye.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: GPLv3 Position Statement
-Message-ID: <20060928013531.GV29920@ftp.linux.org.uk>
-References: <1159319508.16507.15.camel@sipan.sipan.org> <Pine.LNX.4.61.0609270753590.19275@yvahk01.tjqt.qr> <1159342569.2653.30.camel@sipan.sipan.org> <Pine.LNX.4.61.0609271051550.19438@yvahk01.tjqt.qr> <1159359540.11049.347.camel@localhost.localdomain> <Pine.LNX.4.64.0609271000510.3952@g5.osdl.org> <Pine.LNX.4.64.0609271300130.7316@turbotaz.ourhouse> <20060927225815.GB7469@thunk.org> <Pine.LNX.4.64.0609271808041.7316@turbotaz.ourhouse> <Pine.LNX.4.64.0609271641370.3952@g5.osdl.org>
+	Wed, 27 Sep 2006 21:36:39 -0400
+Date: Wed, 27 Sep 2006 18:36:25 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: =?ISO-8859-1?B?Qmr2cm4=?= Steinbrink <B.Steinbrink@gmx.de>
+Cc: Martin Filip <bugtraq@smoula.net>, linux-kernel@vger.kernel.org,
+       Ayaz Abdulla <aabdulla@nvidia.com>
+Subject: Re: forcedeth - WOL [SOLVED]
+Message-Id: <20060927183625.5231e969.akpm@osdl.org>
+In-Reply-To: <20060928010133.GB3521@atjola.homenet>
+References: <1159379441.9024.7.camel@archon.smoula-in.net>
+	<20060927183857.GA2963@atjola.homenet>
+	<1159389486.8902.4.camel@archon.smoula-in.net>
+	<20060927165704.613bf0aa.akpm@osdl.org>
+	<20060928000447.GB2963@atjola.homenet>
+	<20060928004053.GA3521@atjola.homenet>
+	<20060928010133.GB3521@atjola.homenet>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0609271641370.3952@g5.osdl.org>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8BIT
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 27, 2006 at 05:18:42PM -0700, Linus Torvalds wrote:
- 
-> Because the even _deeper_ rift between the FSF and the whole "Open Source" 
-> community is not over "Tivo" or any particular detail like that, but 
-> between "practical and useful" and "ideology".
+On Thu, 28 Sep 2006 03:01:33 +0200
+Björn Steinbrink <B.Steinbrink@gmx.de> wrote:
 
-... and then there are those of us who know very well what ideology is:
-the choice weapon of talentless hacks hell-bent on gaining and keeping
-influence and never doing original research or any other honest work.
+> On 2006.09.28 02:40:53 +0200, Björn Steinbrink wrote:
+> > On 2006.09.28 02:04:48 +0200, Björn Steinbrink wrote:
+> > > 
+> > > Hi Andrew,
+> > > 
+> > > 
+> > > On 2006.09.27 16:57:04 -0700, Andrew Morton wrote:
+> > > > On Wed, 27 Sep 2006 22:38:06 +0200
+> > > > Martin Filip <bugtraq@smoula.net> wrote:
+> > > > 
+> > > > > Hi,
+> > > > > 
+> > > > > Bj__rn Steinbrink p____e v St 27. 09. 2006 v 20:38 +0200:
+> > > > > 
+> > > > > > Did you check that WOL was enabled? I need to re-activate it after each
+> > > > > > boot (I guess that's normal, not sure though).
+> > > > > > The output of "ethtool eth0" should show:
+> > > > > > 
+> > > > > >         Supports Wake-on: g
+> > > > > >         Wake-on: g
+> > > > > > 
+> > > > > Yes, of course :)
+> > > > > 
+> > > > > > Also, I remember a bugzilla entry in which it was said that the MAC was
+> > > > > > somehow reversed by the driver. I that is still the case (I can't find
+> > > > > > the bugzilla entry right now), you might just reverse the MAC address in
+> > > > > > your WOL packet to workaround the bug.
+> > > > > 
+> > > > > Hey! this is really crazy :) but it works! To bo honest - I really do
+> > > > > not know what crazy bug could cause problems like this. I thought it's
+> > > > > NIC thing to manage all the work about WOL. I thought OS only sets NIC
+> > > > > into "WOL mode".
+> > > > > 
+> > > > > But seeing this - one packet for windows and one magic packet for linux
+> > > > > driver - I really do not get it.
+> > > > > 
+> > > > 
+> > > > Are you saying that byte-reversing the MAC address make WOL work correctly?
+> > > > 
+> > > > What tool do you use to send the packet, and how is it being invoked?
+> 
+> As I like replying to myself, I of course intentionally forgot to answer
+> this question... *sigh*
+> 
+> I used etherwake this time, but tried with a self-made tool (which works
+> with my Broadcom NIC) when I discovered the bug report.
+> 
+> etherwake 01:23:45:67:89:ab -- works when I shutdown during POST
+> etherwake ab:89:67:45:23:01 -- works when WOL was enabled with ethtool
 
-	Al "I've grown up in USSR and USA feels just like home" Viro
+OK, I use etherwake too.
+
+> > > > Do we know if this reversal *always* happens with this driver, or only
+> > > > sometimes?
+> 
+> I only tried 2.6.18 twice this time, but when I wrote my own tool to do
+> it, I had probably 20-30 power on -> ethtool -> poweroff cycles before I
+> decided to look into Bugzilla. As it looked like being fixed already and
+> I did use the nForce NIC for testing only, I didn't spend any further
+> time on it back then.
+
+What I'm angling towards is: "is this just a driver bug"?
+

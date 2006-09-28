@@ -1,90 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751952AbWI1RKI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751861AbWI1RMI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751952AbWI1RKI (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Sep 2006 13:10:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751953AbWI1RKI
+	id S1751861AbWI1RMI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Sep 2006 13:12:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751955AbWI1RMI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Sep 2006 13:10:08 -0400
-Received: from hqemgate01.nvidia.com ([216.228.112.170]:17470 "EHLO
-	HQEMGATE01.nvidia.com") by vger.kernel.org with ESMTP
-	id S1751952AbWI1RKF convert rfc822-to-8bit (ORCPT
+	Thu, 28 Sep 2006 13:12:08 -0400
+Received: from ns.suse.de ([195.135.220.2]:43937 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751861AbWI1RMG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Sep 2006 13:10:05 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Thu, 28 Sep 2006 13:12:06 -0400
+From: Andi Kleen <ak@suse.de>
+To: Tilman Schmidt <tilman@imap.cc>
+Subject: Re: [2.6.18-rc7-mm1] slow boot
+Date: Thu, 28 Sep 2006 19:12:01 +0200
+User-Agent: KMail/1.9.3
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Ingo Molnar <mingo@elte.hu>, jbeulich@novell.com
+References: <4516B966.3010909@imap.cc> <20060924145337.ae152efd.akpm@osdl.org> <451BFFA9.4030000@imap.cc>
+In-Reply-To: <451BFFA9.4030000@imap.cc>
 MIME-Version: 1.0
+Content-Disposition: inline
+Message-Id: <200609281912.01858.ak@suse.de>
 Content-Type: text/plain;
-	charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: forcedeth - WOL [SOLVED]
-Date: Thu, 28 Sep 2006 10:09:24 -0700
-Message-ID: <DBFABB80F7FD3143A911F9E6CFD477B0189CAAA9@hqemmail02.nvidia.com>
-In-Reply-To: <20060927203906.f4fc331e.akpm@osdl.org>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: forcedeth - WOL [SOLVED]
-Thread-Index: Acbir7Rcsk0bxzlAT9+biq6uZzR5UwAcOBDw
-From: "Ayaz Abdulla" <AAbdulla@nvidia.com>
-To: "Andrew Morton" <akpm@osdl.org>,
-       =?iso-8859-1?Q?Bj=F6rn_Steinbrink?= <B.Steinbrink@gmx.de>
-Cc: "Martin Filip" <bugtraq@smoula.net>, <linux-kernel@vger.kernel.org>,
-       <stable@kernel.org>
-X-OriginalArrivalTime: 28 Sep 2006 17:09:33.0289 (UTC) FILETIME=[DE319D90:01C6E320]
+  charset="iso-8859-15"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thursday 28 September 2006 19:00, Tilman Schmidt wrote:
 
+missing context here, but ...
 
------Original Message-----
-From: Andrew Morton [mailto:akpm@osdl.org] 
-Sent: Wednesday, September 27, 2006 8:39 PM
-To: Björn Steinbrink
-Cc: Martin Filip; linux-kernel@vger.kernel.org; Ayaz Abdulla; stable@kernel.org
-Subject: Re: forcedeth - WOL [SOLVED]
-
-
-On Thu, 28 Sep 2006 04:24:47 +0200
-Björn Steinbrink <B.Steinbrink@gmx.de> wrote:
-
-> On 2006.09.28 04:04:38 +0200, Björn Steinbrink wrote:
-> > On 2006.09.27 18:36:25 -0700, Andrew Morton wrote:
-> > > On Thu, 28 Sep 2006 03:01:33 +0200
-> > > Björn Steinbrink <B.Steinbrink@gmx.de> wrote:
-> > > 
-> > > > > > > Do we know if this reversal *always* happens with this 
-> > > > > > > driver, or only sometimes?
-> > > > 
-> > > > I only tried 2.6.18 twice this time, but when I wrote my own 
-> > > > tool to do it, I had probably 20-30 power on -> ethtool -> 
-> > > > poweroff cycles before I decided to look into Bugzilla. As it 
-> > > > looked like being fixed already and I did use the nForce NIC for 
-> > > > testing only, I didn't spend any further time on it back then.
-> > > 
-> > > What I'm angling towards is: "is this just a driver bug"?
-> > 
-> > I just took a peek at the code.
-> > 
-> > The version on bugzilla (last attachment, comment #22), which was 
-> > reported to work correctly, has the MAC address reversal hardcoded. 
-> > The driver in 2.6.18 has some logic to detect if it should reverse 
-> > the MAC address. So it looks like a hardware oddity/bug that the 
-> > driver wants to fix but fails. I'll see what happens if I force 
-> > address reversal and if I can decipher anything, but probably 
-> > someone else will have to cast the runes...
+> On 24.09.2006 23:53, Andrew Morton wrote:
+> > Do you have the time to go through the
+> > http://www.zip.com.au/~akpm/linux/patches/stuff/bisecting-mm-trees.txt
+> > process?
 > 
-> OK, please excuse me wasting your time, it's late over here... I've 
-> actually been looking at Linus' git tree (pulled yesterday) while 
-> writing that mail, not 2.6.18. 2.6.18 does _not_ contain the address 
-> reversal detection. Using the git tree instead of 2.6.18 WOL works as 
-> expected, without having to reverse the MAC address.
+> Phew, it's done. And the winner is:
 > 
+> x86_64-mm-i386-stacktrace-unwinder.patch
+> --------8<--------8<--------8<--------8<--------8<--------8<--------
+> i386: Do stacktracer conversion too
+> 
+> Following x86-64 patches. Reuses code from them in fact.
+> 
+> Convert the standard backtracer to do all output using
+> callbacks.   Use the x86-64 stack tracer implementation
+> that uses these callbacks to implement the stacktrace interface.
+> 
+> This allows to use the new dwarf2 unwinder for stacktrace
+> and get better backtraces.
+> 
+> Cc: mingo@elte.hu
+> 
+> Signed-off-by: Andi Kleen <ak@suse.de>
+> -------->8-------->8-------->8-------->8-------->8-------->8--------
+> 
+> Backing out just this patch from 2.6.18-mm1 (and resolving conflicts
+> manually the obvious way) gets the boot time back to normal (ie. as
+> fast as 2.6.18 mainline) on my
+> Linux gx110 2.6.18-mm1-noinitrd #2 PREEMPT Thu Sep 28 18:48:32 CEST 2006 i686 i686 i386 GNU/Linux
+> machine.
 
-hm, OK, thanks.  Ayaz, do you think 5070d3408405ae1941f259acac7a9882045c3be4 is a suitable thing for 2.6.18.x?
 
-There are a few forcedeth patches (mac addr, NAPI, cleanup, etc) in that commit list and the mac address changes could be put into 2.6.18.x
------------------------------------------------------------------------------------
-This email message is for the sole use of the intended recipient(s) and may contain
-confidential information.  Any unauthorized review, use, disclosure or distribution
-is prohibited.  If you are not the intended recipient, please contact the sender by
-reply email and destroy all copies of the original message.
------------------------------------------------------------------------------------
+Hmm, i assume you have lockdep on. The new backtracer is of course slower
+than the old one and it will slow down lockdep which takes a lot of backtraces. 
+But it shouldn't be a significant slowdown.
+
+Can you perhaps boot with profile=1 and then send readprofile output after
+boot?
+
+-Andi

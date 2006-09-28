@@ -1,73 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031287AbWI1AY0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031288AbWI1A2z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1031287AbWI1AY0 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Sep 2006 20:24:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031290AbWI1AY0
+	id S1031288AbWI1A2z (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Sep 2006 20:28:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965175AbWI1A2z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Sep 2006 20:24:26 -0400
-Received: from wx-out-0506.google.com ([66.249.82.229]:10851 "EHLO
-	wx-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1031289AbWI1AYY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Sep 2006 20:24:24 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=kX+Stk45/SzK1qyevkLXBdw9OIDl8MWC/EuCvbl8It3szLjqrglP0rh2bKZ6u3BybkpYiH9GGKq2tbd1DSOJ7///lkh834xSwPmjfTJSXVSmaAKsAvVU72GZdYEQ2GgEt49UedI7VErRXR3ij9TrbEmUEg129DjUBn51iHJFFC8=
-Message-ID: <9a8748490609271724y5f39c57s889f94986e119e6d@mail.gmail.com>
-Date: Thu, 28 Sep 2006 02:24:20 +0200
-From: "Jesper Juhl" <jesper.juhl@gmail.com>
-To: "Miles Lane" <miles.lane@gmail.com>
-Subject: Re: 2.6.18-mm1 -- ieee80211: Info elem: parse failed: info_element->len + 2 > left : info_element->len+2=28 left=9, id=221.
-Cc: "Andrew Morton" <akpm@osdl.org>, netdev@vger.kernel.org,
-       LKML <linux-kernel@vger.kernel.org>,
-       "Jouni Malinen" <jkmaline@cc.hut.fi>,
-       "James P. Ketrenos" <ipw2100-admin@linux.intel.com>
-In-Reply-To: <a44ae5cd0609261753t311a7952w2a98434c093ef1c@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Wed, 27 Sep 2006 20:28:55 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.152]:56009 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S965173AbWI1A2z
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Sep 2006 20:28:55 -0400
+Subject: Re: [RFC] exponential update_wall_time
+From: john stultz <johnstul@us.ibm.com>
+To: Roman Zippel <zippel@linux-m68k.org>
+Cc: lkml <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>,
+       Thomas Gleixner <tglx@linutronix.de>, Andrew Morton <akpm@osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0609280128330.6761@scrub.home>
+References: <1159385734.29040.9.camel@localhost>
+	 <Pine.LNX.4.64.0609280031550.6761@scrub.home>
+	 <1159398793.7297.9.camel@localhost>
+	 <Pine.LNX.4.64.0609280128330.6761@scrub.home>
+Content-Type: text/plain
+Date: Wed, 27 Sep 2006 17:28:52 -0700
+Message-Id: <1159403333.7297.24.camel@localhost>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <a44ae5cd0609261204g673fbf8ft6809378930986eac@mail.gmail.com>
-	 <20060926124310.17797fe5.akpm@osdl.org>
-	 <a44ae5cd0609261753t311a7952w2a98434c093ef1c@mail.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 27/09/06, Miles Lane <miles.lane@gmail.com> wrote:
-> On 9/26/06, Andrew Morton <akpm@osdl.org> wrote:
-> >
-> > [added netdev]
-> >
-> > On Tue, 26 Sep 2006 12:04:40 -0700
-> > "Miles Lane" <miles.lane@gmail.com> wrote:
-> >
-> > > ieee80211: Info elem: parse failed: info_element->len + 2 > left :
-> > > info_element->len+2=28 left=9, id=221.
-> > > ieee80211: Info elem: parse failed: info_element->len + 2 > left :
-> > > info_element->len+2=28 left=9, id=221.
-> > > ieee80211: Info elem: parse failed: info_element->len + 2 > left :
-> > > info_element->len+2=28 left=9, id=221.
-> > >
-> > > >From dmesg output:
-> > > ieee80211: 802.11 data/management/control stack, git-1.1.13
-> > > ieee80211: Copyright (C) 2004-2005 Intel Corporation <jketreno@linux.intel.com>
-> > > ieee80211_crypt: registered algorithm 'NULL'
-> > > ieee80211_crypt: registered algorithm 'WEP'
-> > > ieee80211_crypt: registered algorithm 'CCMP'
-> > > ieee80211_crypt: registered algorithm 'TKIP'
-> >
-> > I suspect that whatever caused this is now in mainline.  Are you able to
-> > test Linus's current git tree?
->
-> Sorry, I don't have oodles of disk space free to hold all the git
-> historical information (iirc, it's huge).
-[snip]
+On Thu, 2006-09-28 at 01:40 +0200, Roman Zippel wrote:
+> Hi,
+> 
+> On Wed, 27 Sep 2006, john stultz wrote:
+> 
+> > > This is the wrong approach, second_overflow() should be called every HZ
+> > > increment steps and your patch breaks this.
+> > 
+> > First, forgive me, since I've got a bit of a head cold, so I'm even
+> > slower then usual. I just don't see how this patch changes the behavior.
+> > Every second we will call second_overflow. But in the case where we
+> > skipped 100 ticks, we don't loop 100 times. Could you explain this a bit
+> > more?
+> 
+> second_overflow() changes the tick length, but the new tick length is now 
+> applied to varying number of ticks with your patch, which is bad for 
+> correct timekeeping.
 
-You could just grab the latest snapshot (at the time of this writing
-that's 2.6.18-git8) from kernel.org - that way you wouldn't get all
-the historical git data.
+Hmm.. Ok, I can see that. Thanks for the clarification.
 
--- 
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+> > > There are other approaches oo accommodate dyntick. 
+> > > 1. You could make HZ in ntp_update_frequency() dynamic and thus reduce the 
+> > > frequency with which update_wall_time() needs to be called (Note that 
+> > > other clock variables like cycle_interval have to be adjusted as well). 
+> > 
+> > I'm not sure how this is functionally different from what this patch
+> > does.
+> > 
+> > 
+> > > 2. If dynticks stops the timer interrupt for a long time, it could 
+> > > precalculate a few things, e.g. it could complete the second and then 
+> > > advance the time in full seconds.
+> > 
+> > Not following this one at all.
+> 
+> You have to keep in mind that ntp time is basically advanced in 1 second 
+> steps (or HZ ticks or freq cycles to be precise) and you have to keep that 
+> property. You can slice that second however you like, but it still has to 
+> add up to 1 second. Right now we slice it into HZ steps, but this can be 
+> rather easily changed now.
+
+Right off, it seems it would then make sense to make the ntp "ticks" one
+second in length. And set the interval values accordingly.
+
+However, there might be clocksources that are incapable of running
+freely for a full second w/o overflowing. In that case we would need to
+set the interval values and the ntp tick length accordingly. It seems we
+need some sort of interface to ntp to define that base tick length.
+Would that be ok by you?
+
+thanks
+-john
+

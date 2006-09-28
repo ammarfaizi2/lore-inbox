@@ -1,68 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030267AbWI1RcP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030275AbWI1Rdc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030267AbWI1RcP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Sep 2006 13:32:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030270AbWI1RcP
+	id S1030275AbWI1Rdc (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Sep 2006 13:33:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030272AbWI1Rdc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Sep 2006 13:32:15 -0400
-Received: from smtp-out.google.com ([216.239.45.12]:44363 "EHLO
-	smtp-out.google.com") by vger.kernel.org with ESMTP
-	id S1030266AbWI1RcM (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Sep 2006 13:32:12 -0400
-DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
-	h=received:message-id:date:from:user-agent:
-	x-accept-language:mime-version:to:cc:subject:content-type;
-	b=opJWXaFti1MhcaCeI5kSzlbnBsWNJSYggoXxO2clyv4r81Ly7Fg0fJrUZjmSiGuyP
-	MHJcSlpZ8hLygkn7P76pw==
-Message-ID: <451C070E.8080800@google.com>
-Date: Thu, 28 Sep 2006 10:31:58 -0700
-From: Martin Bligh <mbligh@google.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051011)
-X-Accept-Language: en-us, en
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Sujoy Gupta <sujoy@google.com>, LKML <linux-kernel@vger.kernel.org>
-Subject: [PATCH] fix compiler warning in drivers/media/video/video-buf.c
-Content-Type: multipart/mixed;
- boundary="------------020000030805030800070309"
+	Thu, 28 Sep 2006 13:33:32 -0400
+Received: from e3.ny.us.ibm.com ([32.97.182.143]:13971 "EHLO e3.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1030273AbWI1Rda (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Sep 2006 13:33:30 -0400
+Date: Thu, 28 Sep 2006 23:03:20 +0530
+From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
+To: Ingo Molnar <mingo@elte.hu>, Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: linux-kernel@vger.kernel.org, Kirill Korotaev <dev@openvz.org>,
+       Mike Galbraith <efault@gmx.de>, Balbir Singh <balbir@in.ibm.com>,
+       sekharan@us.ibm.com, Andrew Morton <akpm@osdl.org>,
+       nagar@watson.ibm.com, matthltc@us.ibm.com, dipankar@in.ibm.com,
+       ckrm-tech@lists.sourceforge.net
+Subject: [RFC, PATCH 8/9] CPU Controller V2 - task_cpu(p) needs to be correct always
+Message-ID: <20060928173320.GI8746@in.ibm.com>
+Reply-To: vatsa@in.ibm.com
+References: <20060928172520.GA8746@in.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060928172520.GA8746@in.ibm.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------020000030805030800070309
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+We rely very much on task_cpu(p) to be correct at all times, so that we can
+correctly find the task_grp_rq from which the task has to be removed or added
+to.
 
-Using a double cast to avoid compiler warnings when
-building for PAE. Compiler doesn't like direct casting
-of a 32 bit ptr to 64 bit integer.
+There is however one place in the scheduler where this assumption of
+task_cpu(p) being correct is broken. This patch fixes that piece of code.
 
-From: Sujoy Gupta <sujoy@google.com>
-Signed-off-by: Martin J. Bligh <mbligh@google.com>
+(Thanks to Balbir Singh for pointing this out to me)
 
---------------020000030805030800070309
-Content-Type: text/plain;
- name="2.6.18-videobuf"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="2.6.18-videobuf"
+Signed-off-by : Srivatsa Vaddagiri <vatsa@in.ibm.com>
 
-diff -aurpN -X /home/mbligh/.diff.exclude linux-2.6.18/drivers/media/video/video-buf.c 2.6.18-videobuf/drivers/media/video/video-buf.c
---- linux-2.6.18/drivers/media/video/video-buf.c	2006-06-17 18:49:35.000000000 -0700
-+++ 2.6.18-videobuf/drivers/media/video/video-buf.c	2006-09-28 10:28:54.000000000 -0700
-@@ -365,7 +365,12 @@ videobuf_iolock(struct videobuf_queue* q
- 		if (NULL == fbuf)
- 			return -EINVAL;
- 		/* FIXME: need sanity checks for vb->boff */
--		bus   = (dma_addr_t)fbuf->base + vb->boff;
-+		/*
-+		 * Using a double cast to avoid compiler warnings when
-+		 * building for PAE. Compiler doesn't like direct casting 
-+		 * of a 32 bit ptr to 64 bit integer.
-+		 */
-+		bus   = (dma_addr_t)(size_t)fbuf->base + vb->boff;
- 		pages = PAGE_ALIGN(vb->size) >> PAGE_SHIFT;
- 		err = videobuf_dma_init_overlay(&vb->dma,PCI_DMA_FROMDEVICE,
- 						bus, pages);
+---
 
---------------020000030805030800070309--
+ linux-2.6.18-root/kernel/sched.c |   10 ++++++++--
+ 1 files changed, 8 insertions(+), 2 deletions(-)
+
+diff -puN kernel/sched.c~cpu_ctlr_setcpu kernel/sched.c
+--- linux-2.6.18/kernel/sched.c~cpu_ctlr_setcpu	2006-09-28 16:40:37.844287616 +0530
++++ linux-2.6.18-root/kernel/sched.c	2006-09-28 17:23:14.896556584 +0530
+@@ -5230,6 +5230,7 @@ static int __migrate_task(struct task_st
+ {
+ 	struct rq *rq_dest, *rq_src;
+ 	int ret = 0;
++	struct prio_array *array;
+ 
+ 	if (unlikely(cpu_is_offline(dest_cpu)))
+ 		return ret;
+@@ -5245,8 +5246,8 @@ static int __migrate_task(struct task_st
+ 	if (!cpu_isset(dest_cpu, p->cpus_allowed))
+ 		goto out;
+ 
+-	set_task_cpu(p, dest_cpu);
+-	if (p->array) {
++	array = p->array;
++	if (array) {
+ 		/*
+ 		 * Sync timestamp with rq_dest's before activating.
+ 		 * The same thing could be achieved by doing this step
+@@ -5256,6 +5257,11 @@ static int __migrate_task(struct task_st
+ 		p->timestamp = p->timestamp - rq_src->timestamp_last_tick
+ 				+ rq_dest->timestamp_last_tick;
+ 		deactivate_task(p, rq_src);
++	}
++
++	set_task_cpu(p, dest_cpu);
++
++	if (array) {
+ 		__activate_task(p, rq_dest);
+ 		if (TASK_PREEMPTS_CURR(p, rq_dest))
+ 			resched_task(rq_dest->curr);
+_
+-- 
+Regards,
+vatsa

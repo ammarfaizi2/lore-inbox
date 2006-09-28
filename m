@@ -1,80 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751510AbWI1UZw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752000AbWI1U1o@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751510AbWI1UZw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Sep 2006 16:25:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751998AbWI1UZw
+	id S1752000AbWI1U1o (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Sep 2006 16:27:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752001AbWI1U1o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Sep 2006 16:25:52 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:6318 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751510AbWI1UZv (ORCPT
+	Thu, 28 Sep 2006 16:27:44 -0400
+Received: from mout0.freenet.de ([194.97.50.131]:15779 "EHLO mout0.freenet.de")
+	by vger.kernel.org with ESMTP id S1752000AbWI1U1n (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Sep 2006 16:25:51 -0400
-Date: Thu, 28 Sep 2006 13:25:48 -0700
-From: Bryce Harrington <bryce@osdl.org>
-To: linux-kernel@vger.kernel.org
-Subject: [OOPS] -git8,9:  NULL pointer dereference in mptspi_dv_renegotiate_work
-Message-ID: <20060928202548.GO12968@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Thu, 28 Sep 2006 16:27:43 -0400
+From: Karsten Wiese <annabellesgarden@yahoo.de>
+To: linux-kernel@vger.kernel.org, Takashi Iwai <tiwai@suse.de>
+Subject: [PATCH] Reset file->f_op in snd_card_file_remove(). Take 2
+Date: Thu, 28 Sep 2006 22:28:02 +0200
+User-Agent: KMail/1.9.4
+Cc: mingo@elte.hu, alsa-devel@lists.sourceforge.net
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.5.11
+Message-Id: <200609282228.02611.annabellesgarden@yahoo.de>
+X-Warning: yahoo.de is listed at abuse.rfc-ignorant.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Apologies if this has already been reported; I didn't spot it on the
-list.  We've noticed an Oops on AMD64 when running linux-2.6.18-git8 and
--git9, but not -git7:
+Hi
 
- mptbase: Initiating ioc0 recovery
- Unable to handle kernel NULL pointer dereference at 0000000000000500 RIP: 
-  [<ffffffff80489aa2>] mptspi_dv_renegotiate_work+0xc/0x45
- PGD 0 
- Oops: 0000 [1] PREEMPT SMP 
- CPU 0 
- Modules linked in:
- Pid: 8, comm: events/0 Not tainted 2.6.18-git8 #1
- RIP: 0010:[<ffffffff80489aa2>]  [<ffffffff80489aa2>] mptspi_dv_renegotiate_work+0xc/0x45
- RSP: 0000:ffff81003ec65e40  EFLAGS: 00010282
- RAX: 0000000000000002 RBX: ffff81003e86f640 RCX: 000000000000001e
- RDX: 0000000000000001 RSI: 0000000000000213 RDI: 000000000003e86f
- RBP: 0000000000000500 R08: ffff81003ec64000 R09: ffff81003ed0cf40
- R10: ffff81003e86f640 R11: ffff81003ed0cf40 R12: ffff81003ed0cf40
- R13: 0000000000000213 R14: ffff81003e86f640 R15: ffffffff80489a96
- FS:  0000000000000000(0000) GS:ffffffff80779000(0000) knlGS:0000000000000000
- CS:  0010 DS: 0018 ES: 0018 CR0: 000000008005003b
- CR2: 0000000000000500 CR3: 0000000000201000 CR4: 00000000000006e0
- Process events/0 (pid: 8, threadinfo ffff81003ec64000, task ffff81007f180740)
- Stack:  ffff81003ec65ef8 ffff81003e86f640 ffff81003e86f648 ffffffff8023f1bd
-  ffff81003ed0cf40 ffff81003ed0cf40 ffffffff8023f204 ffff8100016dfd70
-  00000000fffffffc ffffffff80593ffd 0000000000000000 ffffffff8023f300
- Call Trace:
-  [<ffffffff8023f1bd>] run_workqueue+0x9a/0xe1
-  [<ffffffff8023f204>] worker_thread+0x0/0x12e
-  [<ffffffff8023f300>] worker_thread+0xfc/0x12e
-  [<ffffffff80229f62>] default_wake_function+0x0/0xe
-  [<ffffffff80229f62>] default_wake_function+0x0/0xe
-  [<ffffffff80242433>] kthread+0xc8/0xf1
-  [<ffffffff8020a3f8>] child_rip+0xa/0x12
-  [<ffffffff8024236b>] kthread+0x0/0xf1
-  [<ffffffff8020a3ee>] child_rip+0x0/0x12
- 
- 
- Code: 48 8b 45 00 31 f6 48 8b b8 50 01 00 00 e8 5c 4d fe ff 48 85 
- RIP  [<ffffffff80489aa2>] mptspi_dv_renegotiate_work+0xc/0x45
-  RSP <ffff81003ec65e40>
- CR2: 0000000000000500
-  <6>mptbase: Initiating ioc0 recovery
+It oopses with 2.6.18-rt4 + alsa-kernel-1.0.13rc3 now.
+I wrote before, 2.6.18-rt3 + alsa-driver-1.0.13rc3 would be ok,
+but its not. bug showed again reliably under memory-pressure.
 
-Full console logs showing the above oops are here:
--git7:   ok   http://crucible.osdl.org/runs/2223/sysinfo/amd01.console
--git8:  Oops  http://crucible.osdl.org/runs/2233/sysinfo/amd01.console
--git9:  Oops  http://crucible.osdl.org/runs/2241/sysinfo/amd01.console
+      Karsten
 
-Reference information about the machine this is run on:
-    http://crucible.osdl.org/runs/2223/sysinfo/amd01.1/
+===
 
-Config files:
--git7:  http://crucible.osdl.org/runs/2223/sysinfo/amd01.config
--git8:  http://crucible.osdl.org/runs/2233/sysinfo/amd01.config
+Reset file->f_op in snd_card_file_remove(). Take 2
 
-Bryce
+
+i think what happens here is:
+
+  us428control runs, kernel has allocated a struct file for /dev/hwC1D0.
+
+  usb disconnect
+
+  snd_usb_usx2y calls snd_card_disconnect,
+  tells us428control to exit.
+
+  snd_card_disconnect replaces /dev/hwC1D0's file->f_op
+  with a kmalloc()ed version, that would only allow releases.
+
+  us428control starts exiting
+
+  __fput is called with struct file for /dev/hwC1D0.
+
+  snd_card_file_remove() is called, alsa notices struct file
+  for /dev/hwC1D0 is about to be closed.
+  with patch below, file->f_op would be set NULL now.
+
+  snd_usb_usx2y's free()s snd_card instance and /dev/hwC1D0's
+  file->f_ops, those that would only allow releases.
+
+  for reason I would like to know,
+  __fput is called again with struct file for /dev/hwC1D0
+  from us428control's do_exit().
+  __fput see's file->f_op is still set.
+  Without patch and under memory pressure, file->f_op can
+  point to anything now.
+
+
+Signed-off-by: Karsten Wiese <annabellesgarden@yahoo.de>
+
+
+diff -pur ../alsa/1.0.13/alsa-driver-1.0.13rc3/alsa-kernel/core/init.c rt4-kw/sound/core/init.c
+--- ../alsa/1.0.13/alsa-driver-1.0.13rc3/alsa-kernel/core/init.c	2006-09-25 15:33:19.000000000 +0200
++++ rt4-kw/sound/core/init.c	2006-09-28 18:48:15.000000000 +0200
+@@ -707,6 +707,8 @@ int snd_card_file_remove(struct snd_card
+ 	mfile = card->files;
+ 	while (mfile) {
+ 		if (mfile->file == file) {
++			fops_put(file->f_op);
++			file->f_op = NULL;
+ 			if (pfile)
+ 				pfile->next = mfile->next;
+ 			else

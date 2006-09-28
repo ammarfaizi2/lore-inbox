@@ -1,63 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030253AbWI1RKQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751952AbWI1RKI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030253AbWI1RKQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Sep 2006 13:10:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751955AbWI1RKQ
+	id S1751952AbWI1RKI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Sep 2006 13:10:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751953AbWI1RKI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Sep 2006 13:10:16 -0400
-Received: from excu-mxob-2.symantec.com ([198.6.49.23]:62092 "EHLO
-	excu-mxob-2.symantec.com") by vger.kernel.org with ESMTP
-	id S1751954AbWI1RKN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Sep 2006 13:10:13 -0400
-Date: Thu, 28 Sep 2006 18:09:33 +0100 (BST)
-From: Hugh Dickins <hugh@veritas.com>
-X-X-Sender: hugh@blonde.wat.veritas.com
-To: Neil Brown <neilb@suse.de>
-cc: "J. Bruce Fields" <bfields@fieldses.org>, Andrew Morton <akpm@osdl.org>,
-       nfs@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [NFS] [PATCH 009 of 11] knfsd: Allow max size of NFSd payload
- to be configured.
-In-Reply-To: <17691.19982.162616.572205@cse.unsw.edu.au>
-Message-ID: <Pine.LNX.4.64.0609281752290.32574@blonde.wat.veritas.com>
-References: <20060824162917.3600.patches@notabene> <1060824063716.5020@suse.de>
- <20060925212457.GK32762@fieldses.org> <17691.19982.162616.572205@cse.unsw.edu.au>
+	Thu, 28 Sep 2006 13:10:08 -0400
+Received: from hqemgate01.nvidia.com ([216.228.112.170]:17470 "EHLO
+	HQEMGATE01.nvidia.com") by vger.kernel.org with ESMTP
+	id S1751952AbWI1RKF convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Sep 2006 13:10:05 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-OriginalArrivalTime: 28 Sep 2006 17:09:25.0839 (UTC) FILETIME=[D9C0D5F0:01C6E320]
+Content-Type: text/plain;
+	charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: forcedeth - WOL [SOLVED]
+Date: Thu, 28 Sep 2006 10:09:24 -0700
+Message-ID: <DBFABB80F7FD3143A911F9E6CFD477B0189CAAA9@hqemmail02.nvidia.com>
+In-Reply-To: <20060927203906.f4fc331e.akpm@osdl.org>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: forcedeth - WOL [SOLVED]
+Thread-Index: Acbir7Rcsk0bxzlAT9+biq6uZzR5UwAcOBDw
+From: "Ayaz Abdulla" <AAbdulla@nvidia.com>
+To: "Andrew Morton" <akpm@osdl.org>,
+       =?iso-8859-1?Q?Bj=F6rn_Steinbrink?= <B.Steinbrink@gmx.de>
+Cc: "Martin Filip" <bugtraq@smoula.net>, <linux-kernel@vger.kernel.org>,
+       <stable@kernel.org>
+X-OriginalArrivalTime: 28 Sep 2006 17:09:33.0289 (UTC) FILETIME=[DE319D90:01C6E320]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 28 Sep 2006, Neil Brown wrote:
-> But are the pages that totalram is measure in, normal pages, of
-> page_cache pages?  And is there a difference?
 
-There's never yet been a difference, outside of some patches by bcrl.
-But totalram_pages comes "before" any idea of page cache, so it's in
-normal pages.
 
-> Should we use PAGE_CACHE_SHIFT, or PAGE_SHIFT?
+-----Original Message-----
+From: Andrew Morton [mailto:akpm@osdl.org] 
+Sent: Wednesday, September 27, 2006 8:39 PM
+To: Björn Steinbrink
+Cc: Martin Filip; linux-kernel@vger.kernel.org; Ayaz Abdulla; stable@kernel.org
+Subject: Re: forcedeth - WOL [SOLVED]
 
-PAGE_SHIFT.
 
-> And why do we have both if they are numerically identical?
+On Thu, 28 Sep 2006 04:24:47 +0200
+Björn Steinbrink <B.Steinbrink@gmx.de> wrote:
 
-Very irritating: the time I've wasted on "correcting" code for the
-"difference" between them!  Yet there's still plenty wrong and I've
-largely given up on it.
-
-Probably never will be a difference: but the idea was that the page
-cache might use >0-order pages (unclear what happens to swap cache).
-
-I wish they'd waited for a working implementation before introducing
-the distinction; but never quite felt like deleting all trace of it.
-
+> On 2006.09.28 04:04:38 +0200, Björn Steinbrink wrote:
+> > On 2006.09.27 18:36:25 -0700, Andrew Morton wrote:
+> > > On Thu, 28 Sep 2006 03:01:33 +0200
+> > > Björn Steinbrink <B.Steinbrink@gmx.de> wrote:
+> > > 
+> > > > > > > Do we know if this reversal *always* happens with this 
+> > > > > > > driver, or only sometimes?
+> > > > 
+> > > > I only tried 2.6.18 twice this time, but when I wrote my own 
+> > > > tool to do it, I had probably 20-30 power on -> ethtool -> 
+> > > > poweroff cycles before I decided to look into Bugzilla. As it 
+> > > > looked like being fixed already and I did use the nForce NIC for 
+> > > > testing only, I didn't spend any further time on it back then.
+> > > 
+> > > What I'm angling towards is: "is this just a driver bug"?
+> > 
+> > I just took a peek at the code.
+> > 
+> > The version on bugzilla (last attachment, comment #22), which was 
+> > reported to work correctly, has the MAC address reversal hardcoded. 
+> > The driver in 2.6.18 has some logic to detect if it should reverse 
+> > the MAC address. So it looks like a hardware oddity/bug that the 
+> > driver wants to fix but fails. I'll see what happens if I force 
+> > address reversal and if I can decipher anything, but probably 
+> > someone else will have to cast the runes...
 > 
-> I'll submit a patch which uses
->         12 - PAGE_SHIFT
-> in a little while.
+> OK, please excuse me wasting your time, it's late over here... I've 
+> actually been looking at Linus' git tree (pulled yesterday) while 
+> writing that mail, not 2.6.18. 2.6.18 does _not_ contain the address 
+> reversal detection. Using the git tree instead of 2.6.18 WOL works as 
+> expected, without having to reverse the MAC address.
+> 
 
-I haven't seen your context; but "12 - PAGE_SHIFT" sounds like a
-bad idea on all those architectures with PAGE_SHIFT 13 or more;
-you'll be on much safer ground working with "PAGE_SHIFT - 12".
+hm, OK, thanks.  Ayaz, do you think 5070d3408405ae1941f259acac7a9882045c3be4 is a suitable thing for 2.6.18.x?
 
-Hugh
+There are a few forcedeth patches (mac addr, NAPI, cleanup, etc) in that commit list and the mac address changes could be put into 2.6.18.x
+-----------------------------------------------------------------------------------
+This email message is for the sole use of the intended recipient(s) and may contain
+confidential information.  Any unauthorized review, use, disclosure or distribution
+is prohibited.  If you are not the intended recipient, please contact the sender by
+reply email and destroy all copies of the original message.
+-----------------------------------------------------------------------------------

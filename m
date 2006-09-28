@@ -1,80 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161411AbWI2AFZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161363AbWI2AG6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161411AbWI2AFZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Sep 2006 20:05:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161412AbWI2AFZ
+	id S1161363AbWI2AG6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Sep 2006 20:06:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161412AbWI2AG6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Sep 2006 20:05:25 -0400
-Received: from mx2.suse.de ([195.135.220.15]:36007 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1161411AbWI2AFZ (ORCPT
+	Thu, 28 Sep 2006 20:06:58 -0400
+Received: from ozlabs.org ([203.10.76.45]:5266 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S1161363AbWI2AG5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Sep 2006 20:05:25 -0400
-Date: Thu, 28 Sep 2006 17:05:24 -0700
-From: Greg KH <gregkh@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-usb-devel@lists.sourceforge.net
-Subject: Re: [GIT PATCH] More USB patches for 2.6.18
-Message-ID: <20060929000524.GA1625@suse.de>
-References: <20060928224250.GA23841@kroah.com> <Pine.LNX.4.64.0609281639040.3952@g5.osdl.org> <20060928165951.2c5bd4c7.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060928165951.2c5bd4c7.akpm@osdl.org>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+	Thu, 28 Sep 2006 20:06:57 -0400
+Subject: Re: [RFC/PATCH 7/7] Preliminary MPIC MSI backend
+From: Michael Ellerman <michael@ellerman.id.au>
+Reply-To: michael@ellerman.id.au
+To: linux-kernel@vger.kernel.org
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>, linuxppc-dev@ozlabs.org,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Jake Moilanen <moilanen@austin.ibm.com>
+In-Reply-To: <20060928215349.45C0667C47@ozlabs.org>
+References: <20060928215349.45C0667C47@ozlabs.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-zN0IEaP9Pia3hDl6kWKc"
+Date: Fri, 29 Sep 2006 09:37:41 +1000
+Message-Id: <1159486661.25820.1.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 28, 2006 at 04:59:51PM -0700, Andrew Morton wrote:
-> On Thu, 28 Sep 2006 16:40:23 -0700 (PDT)
-> Linus Torvalds <torvalds@osdl.org> wrote:
-> 
-> > 
-> > 
-> > On Thu, 28 Sep 2006, Greg KH wrote:
-> > >
-> > > Here are some more USB bugfixes and device ids 2.6.18.  They should all
-> > > fix the reported problems in your current tree (if not, please let me
-> > > know.)
-> > > 
-> > > All of these changes have been in the -mm tree for a while.
-> > 
-> > Maybe I shouldn't have hurried you.
-> > 
-> > 	In file included from drivers/usb/host/ohci-hcd.c:140:
-> > 	drivers/usb/host/ohci-hub.c: In function 'ohci_rh_resume':
-> > 	drivers/usb/host/ohci-hub.c:184: error: invalid storage class for function 'ohci_restart'
-> > 	drivers/usb/host/ohci-hub.c:188: warning: implicit declaration of function 'ohci_restart'
-> > 	drivers/usb/host/ohci-hcd.c: At top level:
-> > 	drivers/usb/host/ohci-hcd.c:815: error: static declaration of 'ohci_restart' follows non-static declaration
-> > 	drivers/usb/host/ohci-hub.c:188: error: previous implicit declaration of 'ohci_restart' was here
-> > 	make[3]: *** [drivers/usb/host/ohci-hcd.o] Error 1
-> > 	make[2]: *** [drivers/usb/host] Error 2
-> > 	make[1]: *** [drivers/usb] Error 2
-> > 	make: *** [drivers] Error 2
-> > 
-> 
-> That's the "some gccs dont like static function decls in that scope" thing.
-> 
-> I fixed it (unpleasantly) like this:
-> 
-> 
-> diff -puN drivers/usb/host/ohci-hub.c~ohci-add-auto-stop-support-hack-hack drivers/usb/host/ohci-hub.c
-> --- a/drivers/usb/host/ohci-hub.c~ohci-add-auto-stop-support-hack-hack
-> +++ a/drivers/usb/host/ohci-hub.c
-> @@ -132,6 +132,10 @@ static inline struct ed *find_head (stru
->  	return ed;
->  }
->  
-> +#ifdef CONFIG_PM
-> +static int ohci_restart(struct ohci_hcd *ohci);
-> +#endif
 
-That #ifdef shouldn't be even needed.
+--=-zN0IEaP9Pia3hDl6kWKc
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-I'll add a patch to the git tree to fix this up, give me a few
-minutes...
+On Fri, 2006-09-29 at 07:53 +1000, Michael Ellerman wrote:
+> A pretty hackish MPIC backend, just enough to flesh out the design.
+> Based on code from Segher.
+>=20
+> Signed-off-by: Michael Ellerman <michael@ellerman.id.au>
 
-thanks,
+Missing a quilt ref, new one coming RSN.
 
-greg k-h
+cheers
+
+--=20
+Michael Ellerman
+OzLabs, IBM Australia Development Lab
+
+wwweb: http://michael.ellerman.id.au
+phone: +61 2 6212 1183 (tie line 70 21183)
+
+We do not inherit the earth from our ancestors,
+we borrow it from our children. - S.M.A.R.T Person
+
+--=-zN0IEaP9Pia3hDl6kWKc
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2.2 (GNU/Linux)
+
+iD8DBQBFHFzFdSjSd0sB4dIRAltiAKCg4iQh2gLc18fHgImsjjqTYsYPfQCcD4cK
+eGhleY1TWWUOf30IuVwlzDs=
+=ouha
+-----END PGP SIGNATURE-----
+
+--=-zN0IEaP9Pia3hDl6kWKc--
+

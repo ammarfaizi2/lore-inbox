@@ -1,120 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965192AbWI1CEU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031174AbWI1CEm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965192AbWI1CEU (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Sep 2006 22:04:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031174AbWI1CEU
+	id S1031174AbWI1CEm (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Sep 2006 22:04:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965198AbWI1CEm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Sep 2006 22:04:20 -0400
-Received: from mga01.intel.com ([192.55.52.88]:15638 "EHLO mga01.intel.com")
-	by vger.kernel.org with ESMTP id S965191AbWI1CET (ORCPT
+	Wed, 27 Sep 2006 22:04:42 -0400
+Received: from mail.gmx.de ([213.165.64.20]:20425 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S965197AbWI1CEk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Sep 2006 22:04:19 -0400
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.09,227,1157353200"; 
-   d="scan'208"; a="138597620:sNHT20924057"
-Message-ID: <451B2D29.9040306@intel.com>
-Date: Wed, 27 Sep 2006 19:02:17 -0700
-From: Auke Kok <auke-jan.h.kok@intel.com>
-User-Agent: Mail/News 1.5.0.7 (X11/20060918)
+	Wed, 27 Sep 2006 22:04:40 -0400
+X-Authenticated: #5039886
+Date: Thu, 28 Sep 2006 04:04:38 +0200
+From: =?iso-8859-1?Q?Bj=F6rn?= Steinbrink <B.Steinbrink@gmx.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Martin Filip <bugtraq@smoula.net>, linux-kernel@vger.kernel.org,
+       Ayaz Abdulla <aabdulla@nvidia.com>
+Subject: Re: forcedeth - WOL [SOLVED]
+Message-ID: <20060928020438.GC3521@atjola.homenet>
+Mail-Followup-To: =?iso-8859-1?Q?Bj=F6rn?= Steinbrink <B.Steinbrink@gmx.de>,
+	Andrew Morton <akpm@osdl.org>, Martin Filip <bugtraq@smoula.net>,
+	linux-kernel@vger.kernel.org, Ayaz Abdulla <aabdulla@nvidia.com>
+References: <1159379441.9024.7.camel@archon.smoula-in.net> <20060927183857.GA2963@atjola.homenet> <1159389486.8902.4.camel@archon.smoula-in.net> <20060927165704.613bf0aa.akpm@osdl.org> <20060928000447.GB2963@atjola.homenet> <20060928004053.GA3521@atjola.homenet> <20060928010133.GB3521@atjola.homenet> <20060927183625.5231e969.akpm@osdl.org>
 MIME-Version: 1.0
-To: Sukadev Bhattiprolu <sukadev@us.ibm.com>
-CC: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Subject: Re: Network problem with 2.6.18-mm1 ?
-References: <20060928013724.GA22898@us.ibm.com>
-In-Reply-To: <20060928013724.GA22898@us.ibm.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20060927183625.5231e969.akpm@osdl.org>
+User-Agent: Mutt/1.5.13 (2006-08-11)
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sukadev Bhattiprolu wrote:
+On 2006.09.27 18:36:25 -0700, Andrew Morton wrote:
+> On Thu, 28 Sep 2006 03:01:33 +0200
+> Björn Steinbrink <B.Steinbrink@gmx.de> wrote:
 > 
-> I am unable to get networking to work with 2.6.18-mm1 on my system.
+> > > > > Do we know if this reversal *always* happens with this driver, or only
+> > > > > sometimes?
+> > 
+> > I only tried 2.6.18 twice this time, but when I wrote my own tool to do
+> > it, I had probably 20-30 power on -> ethtool -> poweroff cycles before I
+> > decided to look into Bugzilla. As it looked like being fixed already and
+> > I did use the nForce NIC for testing only, I didn't spend any further
+> > time on it back then.
 > 
-> But 2.6.18 kernel on same system works fine. Here is some info about
-> the system/debug attempts. Attached are the lspci output and config.
-> 
-> Appreciate any help. Please let me know if you need more info. 
-> 
-> Suka
-> 
-> System info:
-> 
-> 	x326, 2 CPU (AMD Opteron Processor 250)
-> 
-> Kernel info:
-> 
-> 	$ uname -a
-> 	Linux elm3b166 2.6.18-mm1 #4 SMP PREEMPT Tue Sep 26 18:11:58 PDT 2006
-> 	x86_64 GNU/Linux
-> 
-> 	Config tokens differing between the 2.6.18 kernel that works and
-> 	the 2.6.18-mm1 that does not are:
-> 
-> 	Tokens in 2.6.18 but not in 2.6.18-mm1 config
-> 
-> 		CONFIG_SCSI_FC_ATTRS=y
-> 		CONFIG_SCSI_SATA_SIL=y
-> 		CONFIG_SCSI_SATA=y
-> 
-> 	Tokens in 2.6.18-mm1 but not in 2.6.18 config
-> 
-> 		CONFIG_PROC_SYSCTL=y
-> 		CONFIG_SATA_SIL=y 
-> 		CONFIG_ATA=y 
-> 		CONFIG_ARCH_POPULATES_NODE_MAP=y
-> 		CONFIG_CRYPTO_ALGAPI=y
-> 		CONFIG_MICROCODE_OLD_INTERFACE=y
-> 		CONFIG_BLOCK=y
-> 		CONFIG_VIDEO_V4L1_COMPAT=y
-> 		CONFIG_ZONE_DMA=y
-> 		CONFIG_FB_DDC=y
-> 
-> 	All drivers compiled into kernel in both cases.
-> 
-> Debug info:
-> 
-> 	Checked hardware connections :-) 
-> 	(Rebooting on 2.6.18 kernel works - consistently)
-> 	
-> 	$ ethtool -i eth0
-> 		driver: e1000
-> 		version: 7.2.7-k2
-> 		firmware-version: N/A
-> 
-> 	$ ip addr
-> 		seems fine (up, broadcasting etc)
-> 
-> 	$ ip -s link
-> 		shows no errors/drops/overruns
-> 
-> 	$ ip route
-> 		shows the correct gw
-> 
-> 	$ ethtool -S eth0
-> 
-> 		shows non-zero tx/rx packets/bytes but *rx_missed_errors*
-> 		quite large (~138K) and increasing over time
-> 
-> 	$ ping <own-ip-addr>
-> 		works fine
-> 
-> 	$ ping <gateway>
-> 		no response.
-> 
-> 	$ tcpdump -i eth0 host <broken-host>
-> 	
-> 		while pinging gateway, tcpdump shows messages like:
-> 
-> 		18:03:45.936161 arp who-has <gateway> tell <broken-host>
-> 
-> (Config file and lspci output are attached)
+> What I'm angling towards is: "is this just a driver bug"?
 
-how about dmesg? Perhaps it shows some valuable information.
+I just took a peek at the code.
 
-also, since this is a networking problem, please include `ifconfig eth0` and the full 
-output of `ethtool eth0` and `ethtool -S eth0`
+The version on bugzilla (last attachment, comment #22), which was
+reported to work correctly, has the MAC address reversal hardcoded.
+The driver in 2.6.18 has some logic to detect if it should reverse the
+MAC address. So it looks like a hardware oddity/bug that the driver
+wants to fix but fails. I'll see what happens if I force address
+reversal and if I can decipher anything, but probably someone else will
+have to cast the runes...
 
-Cheers,
-
-Auke
+Björn

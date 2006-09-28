@@ -1,160 +1,144 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161030AbWI1GRl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161031AbWI1GSv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161030AbWI1GRl (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Sep 2006 02:17:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161031AbWI1GRl
+	id S1161031AbWI1GSv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Sep 2006 02:18:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161034AbWI1GSv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Sep 2006 02:17:41 -0400
-Received: from gate.crashing.org ([63.228.1.57]:45489 "EHLO gate.crashing.org")
-	by vger.kernel.org with ESMTP id S1161030AbWI1GRk (ORCPT
+	Thu, 28 Sep 2006 02:18:51 -0400
+Received: from www.osadl.org ([213.239.205.134]:62687 "EHLO mail.tglx.de")
+	by vger.kernel.org with ESMTP id S1161031AbWI1GSu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Sep 2006 02:17:40 -0400
-Subject: Re: +
-	msi-refactor-and-move-the-msi-irq_chip-into-the-arch-code.patch added to
-	-mm tree
-From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-To: "Eric W. Biederman" <ebiederm@xmission.com>
-Cc: David Miller <davem@davemloft.net>, linux-kernel@vger.kernel.org,
-       akpm@osdl.org, ak@suse.de, greg@kroah.com, mingo@elte.hu,
-       tglx@linutronix.de, tony.luck@intel.com,
-       Michael Ellerman <michaele@au.ibm.com>
-In-Reply-To: <m13bacleum.fsf@ebiederm.dsl.xmission.com>
-References: <200609272215.k8RMFbuH018967@shell0.pdx.osdl.net>
-	 <20060927.155035.74747595.davem@davemloft.net>
-	 <1159398584.18293.101.camel@localhost.localdomain>
-	 <m13bacleum.fsf@ebiederm.dsl.xmission.com>
-Content-Type: text/plain
-Date: Thu, 28 Sep 2006 16:16:06 +1000
-Message-Id: <1159424166.9974.33.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.0 
-Content-Transfer-Encoding: 7bit
+	Thu, 28 Sep 2006 02:18:50 -0400
+Date: Thu, 28 Sep 2006 08:18:47 +0200
+From: Jan Altenberg <tb10alj@tglx.de>
+To: Ingo Molnar <mingo@elte.hu>, Thomas Gleixner <tglx@linutronix.de>
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] remove trailing whitespaces in 2.6.18-rt4
+Message-ID: <20060928061847.GB5091@tb10alj3.homag.com>
+Mail-Followup-To: Ingo Molnar <mingo@elte.hu>,
+	Thomas Gleixner <tglx@linutronix.de>, linux-kernel@vger.kernel.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
-> My apologies for the conflict.  I had hoped to catch you at OLS so
-> I could get a better understanding of how things look in ppc land but
-> we never ran into each other.  I also posted a precursor to this design
-> with the hypertransport irqs and asked for comments.
+I recognized some trailing whitespaces in lines inserted by the -rt
+patch:
 
-No worries. We just both got sidetracked and Michael forgot to send you
-his preliminary code... anyway, it's not that fundamentally alien to our
-needs. I'm tempted to let Michael finish and push what he has so we have
-a solution for 2.6.19 (we have some emergency there) and in a second
-step, look into reconciling the 2 approaches.
-
-> > The important thing here is that alloc is arch specific. We don't
-> > absolutely need the msi_ops mecanism exposed generically, it could be
-> > instead something like pcibios_alloc_msis() and pcibios_setup_msi()
-> > etc... and internally, powerpc implementation could use per-bus function
-> > pointers, but the base idea is that allocation is something that is left
-> > to the platform.
-> 
-> Sure, and I left it to the architecture, so there should be no problem
-> there.
-
-Ok. Good.
-
-> Mostly it looks like to meet your needs more of msi.c needs to be
-> turned into library functions that most architectures can use but your
-> weird cases on ppc can skip.
-
-Sort-of... We didn't that much use the library model though with our
-implementation as I didn't expect alloc to be generic on some archs, but
-you are right, it could be made that way. (I sort of assume that all
-archs have different means of allocating HW vectors and matching them to
-linux IRQs, or at least discovering which linux IRQs are not in
-potential use by hardware...).
-
-> I knew there was a hypervisor issue but I don't have enough visibility
-> there so I didn't even try. 
-> 
-> I have a weird concern coming from working with the infinipath driver,
-> and that is what happens if someone almost implements msi and puts the
-> registers in the wrong location.
-
-Heh... well, our hypervisor is nasty in the sense that it will do
-everything, and doesn't give us the choice, on MSI-X, of what individual
-MSI-X to enable. Only how many (starting with the first one). That
-doesn't quite match the linux API, though looking at how that API is
-used, I haven't found somebody requesting a discontiguous range of MSIs
-to be enabled ...
-
-> The problem is simply we have 2 irq controllers in play.  The
-> one on the chip and the one your the msi is targeted at.  It might
-> be easiest to add an extra pointer in struct irq to handle the case
-> of irq controllers on plug in devices.
-
-Well, our current approach on PPC hides the "MSI controller" part in the
-code for the PIC that receives the MSI. In practice, that works fairly
-well because we almost never have to handle different combinations: the
-Apple U4's PCIe is always driven by MPIC, the HT controllers (HT2000
-typically is what we use) too, thus we just added code to the MPIC
-driver to also handle MSI for both types of controllers. The Cell stuff
-is separate and just a self-contained cascaded controller itself (the
-MSI part), etc...
-
-In some cases (like the HT and Apple PCIe), the MSI logic is comletely
-transparent, it's just a small decoder that turns MSI writes to a magic
-address or HT interrupts into inputs on the MPIC. Thus the irq_chip is
-really only the "standard" MPIC irq_chip... Same with hypervisor, where
-they just appear as just some more irqs to the existing virtual IRQ
-controller, and thus have the exact same irq_chip... those (at least
-MPIC does) need to use the chip_data already for other means.
-
-Thus it's the alloc function which is routed to the appropriate
-controller code for a given device, which allocates the low level
-hardware vectors, binds them to linux irqs, and sets up an appropriate
-irq_desc/irq_chip for it. That's all local to the alloc function, and
-those alloc functions are currently provided by PIC code.
-
-> > I think the msi_desc (or whatever data structure that holds the state of
-> > the MSI(X), backup LSI, etc... for one device) shall be hanging off
-> > struct pci_dev instead.
-> 
-> That doesn't feel right when you can have up to 4K irqs per device.
-
-Why ? I didn't say it shall be embedded in the pci_dev, but hanging off
-it (a pointer).
-
-> Using using the msi_desc array is a reasonable short term solution
-> but I am hoping at some point to kill all of the NR_IRQ arrays
-> so we can more efficiently have a sparsely populated irq space.
-> But I would really like something like a slot I can use in struct
-> irq_desc.
-
-Might be useful too yes... I think our current implementation carries a
-mapping table of IRQs to pci_dev to get to the pointer in pci_dev iirc
-(at least that's how we discussed it a while ago with Michael, I don't
-know if he actually followed that). It might be better indeed to just
-have a pointer off irq_desc for exclusive use by MSIs ... 
-
-> Sounds good to me.  One small step at a time.  As long as we keep
-> things in terms of linux irq numbers in the generic code.  I really
-> don't much care.
-
-Yes, we all agree there. Hardware number are not visible to non-arch
-code.
+- Remove trailing whitespaces from 2.6.18-rt4
 
 
-> Let's just take this one small step at a time and fix the issues that
-> we see and understand well.   All I know is that the original code was
-> so horrible that when I replicated the code across 3 different
-> architectures the total number of lines went down.
+Signed-off-by: Jan Altenberg <tb10alj@tglx.de>
 
-Yes, you work as I said is definitely a good step in the right
-direction. I don't think the divergences are that fundamental.
+----------------------
 
-> There are things in that code like msi_lock that I think are totally
-> unnecessary but haven't been annoying enough for me to kill.
-> 
-> I'm just glad things are now close enough people can imagine
-> how to go from where we are to where the code needs to be.
-
-Yeah :)
-
-Cheers,
-Ben.
-
-
+diff -uprN -X linux-2.6.18-rt4/Documentation/dontdiff linux-2.6.18-rt4/arch/arm/mach-ixp4xx/common.c linux-2.6.18-rt4-whitespace-fixes/arch/arm/mach-ixp4xx/common.c
+--- linux-2.6.18-rt4/arch/arm/mach-ixp4xx/common.c	2006-09-28 07:29:10.000000000 +0200
++++ linux-2.6.18-rt4-whitespace-fixes/arch/arm/mach-ixp4xx/common.c	2006-09-28 07:13:23.000000000 +0200
+@@ -396,7 +396,7 @@ device_initcall(ixp4xx_clocksource_init)
+ #ifdef CONFIG_HIGH_RES_TIMERS
+ static u32 clockevent_mode = 0;
+ 
+-static void ixp4xx_set_next_event(unsigned long evt, 
++static void ixp4xx_set_next_event(unsigned long evt,
+ 				  struct clock_event *unused)
+ {
+ 	u32 oneshot = (clockevent_mode == CLOCK_EVT_ONESHOT) ?
+@@ -413,7 +413,7 @@ static void ixp4xx_set_mode(int mode, st
+ 
+ static struct clock_event clockevent_ixp4xx = {
+ 	.name		= "ixp4xx timer1",
+-	.capabilities	= CLOCK_CAP_NEXTEVT | CLOCK_CAP_TICK | 
++	.capabilities	= CLOCK_CAP_NEXTEVT | CLOCK_CAP_TICK |
+ 			  CLOCK_CAP_UPDATE | CLOCK_CAP_PROFILE,
+ 	.shift		= 32,
+ 	.set_mode	= ixp4xx_set_mode,
+diff -uprN -X linux-2.6.18-rt4/Documentation/dontdiff linux-2.6.18-rt4/arch/ia64/kernel/entry.S linux-2.6.18-rt4-whitespace-fixes/arch/ia64/kernel/entry.S
+--- linux-2.6.18-rt4/arch/ia64/kernel/entry.S	2006-09-28 07:29:11.000000000 +0200
++++ linux-2.6.18-rt4-whitespace-fixes/arch/ia64/kernel/entry.S	2006-09-28 07:15:09.000000000 +0200
+@@ -1113,7 +1113,7 @@ skip_rbs_switch:
+ 	ssm psr.i		// enable interrupts
+ 	br.call.spnt.many rp=schedule
+ .ret9a:	rsm psr.i		// disable interrupts
+-	;; 
++	;;
+ 	br.cond.sptk.many .endpreemptdep
+ .fromkernel:
+ 	br.call.spnt.many rp=preempt_schedule_irq
+diff -uprN -X linux-2.6.18-rt4/Documentation/dontdiff linux-2.6.18-rt4/arch/ia64/kernel/fsys.S linux-2.6.18-rt4-whitespace-fixes/arch/ia64/kernel/fsys.S
+--- linux-2.6.18-rt4/arch/ia64/kernel/fsys.S	2006-09-28 07:29:11.000000000 +0200
++++ linux-2.6.18-rt4-whitespace-fixes/arch/ia64/kernel/fsys.S	2006-09-28 07:17:05.000000000 +0200
+@@ -219,7 +219,7 @@ ENTRY(fsys_gettimeofday)
+ (p6)    br.cond.spnt.few .fail_einval	// deferred branch
+ 	;;
+ 	ld8 r30 = [r10]		// clocksource->mmio_ptr
+-	movl r19 = itc_lastcycle 
++	movl r19 = itc_lastcycle
+ 	add r23 = IA64_CLOCKSOURCE_SHIFT_OFFSET,r20
+ 	cmp.ne p6, p0 = 0, r2	// Fallback if work is scheduled
+ (p6)    br.cond.spnt.many fsys_fallback_syscall
+diff -uprN -X linux-2.6.18-rt4/Documentation/dontdiff linux-2.6.18-rt4/arch/mips/kernel/time.c linux-2.6.18-rt4-whitespace-fixes/arch/mips/kernel/time.c
+--- linux-2.6.18-rt4/arch/mips/kernel/time.c	2006-09-28 07:29:11.000000000 +0200
++++ linux-2.6.18-rt4-whitespace-fixes/arch/mips/kernel/time.c	2006-09-28 07:19:15.000000000 +0200
+@@ -12,9 +12,9 @@
+  * option) any later version.
+  *
+  * This implementation of High Res Timers uses two timers. One is the system
+- * timer. The second is used for the high res timers. The high res timers 
++ * timer. The second is used for the high res timers. The high res timers
+  * require the CPU to have count/compare registers. The mips_set_next_event()
+- * function schedules the next high res timer interrupt. 
++ * function schedules the next high res timer interrupt.
+  */
+ #include <linux/types.h>
+ #include <linux/kernel.h>
+@@ -754,7 +754,7 @@ void __init time_init(void)
+ 
+ #ifdef CONFIG_HIGH_RES_TIMERS
+ 		hrt_cycles_per_jiffy = ( (CONFIG_CPU_SPEED * 1000000) + HZ / 2) / HZ;
+-#else 
++#else
+ 		hrt_cycles_per_jiffy = cycles_per_jiffy;
+ #endif
+ 
+@@ -921,7 +921,7 @@ static void sync_c0_count_slave(void *in
+ 	unsigned long flags;
+ 	u32 diff_count; /* CPU count registers are 32-bit */
+ 	local_irq_save(flags);
+-        
++
+ 	for(loop = 0; loop <= LOOPS; loop++) {
+ 		/* Sync with the Master processor */
+ 		sync_cpus_slave(cpus++);
+diff -uprN -X linux-2.6.18-rt4/Documentation/dontdiff linux-2.6.18-rt4/include/asm-mips/atomic.h linux-2.6.18-rt4-whitespace-fixes/include/asm-mips/atomic.h
+--- linux-2.6.18-rt4/include/asm-mips/atomic.h	2006-09-28 07:29:11.000000000 +0200
++++ linux-2.6.18-rt4-whitespace-fixes/include/asm-mips/atomic.h	2006-09-28 07:21:09.000000000 +0200
+@@ -657,7 +657,7 @@ static __inline__ long atomic64_sub_if_p
+ 		: "=&r" (result), "=&r" (temp), "=m" (v->counter)
+ 		: "Ir" (i), "m" (v->counter)
+ 		: "memory");
+-	} 
++	}
+ #if !defined(CONFIG_NO_SPINLOCK) && !defined(CONFIG_PREEMPT_RT)
+ 	else {
+ 		unsigned long flags;
+diff -uprN -X linux-2.6.18-rt4/Documentation/dontdiff linux-2.6.18-rt4/kernel/timer.c linux-2.6.18-rt4-whitespace-fixes/kernel/timer.c
+--- linux-2.6.18-rt4/kernel/timer.c	2006-09-28 07:29:11.000000000 +0200
++++ linux-2.6.18-rt4-whitespace-fixes/kernel/timer.c	2006-09-28 07:23:03.000000000 +0200
+@@ -690,9 +690,9 @@ unsigned long next_timer_interrupt(void)
+ 
+ /******************************************************************/
+ 
+-/* 
+- * The current time 
+- * wall_to_monotonic is what we need to add to xtime (or xtime corrected 
++/*
++ * The current time
++ * wall_to_monotonic is what we need to add to xtime (or xtime corrected
+  * for sub jiffie times) to get to monotonic time.  Monotonic is pegged
+  * at zero at system boot time, so wall_to_monotonic will be negative,
+  * however, we will ALWAYS keep the tv_nsec part positive so we can use

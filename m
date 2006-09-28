@@ -1,61 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161359AbWI2S0E@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161377AbWI2S2p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161359AbWI2S0E (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Sep 2006 14:26:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161372AbWI2S0E
+	id S1161377AbWI2S2p (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Sep 2006 14:28:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161381AbWI2S2p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Sep 2006 14:26:04 -0400
-Received: from baldrick.bootc.net ([83.142.228.48]:22449 "EHLO
-	baldrick.fusednetworks.co.uk") by vger.kernel.org with ESMTP
-	id S1161359AbWI2S0B (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Sep 2006 14:26:01 -0400
-In-Reply-To: <1159551809.13029.56.camel@localhost.localdomain>
-References: <1159551809.13029.56.camel@localhost.localdomain>
-Mime-Version: 1.0 (Apple Message framework v752.2)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <20A1F284-F6EB-46DA-B9DC-B1AC3F1D1E44@bootc.net>
-Cc: linux-kernel@vger.kernel.org
-Content-Transfer-Encoding: 7bit
-From: Chris Boot <bootc@bootc.net>
-Subject: Re: [PATCH] libata: test driver for Marvell PATA
-Date: Fri, 29 Sep 2006 19:25:58 +0100
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-X-Mailer: Apple Mail (2.752.2)
+	Fri, 29 Sep 2006 14:28:45 -0400
+Received: from mail3.uklinux.net ([80.84.72.33]:4003 "EHLO mail3.uklinux.net")
+	by vger.kernel.org with ESMTP id S1161372AbWI2S2l (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Sep 2006 14:28:41 -0400
+Date: Thu, 28 Sep 2006 19:22:38 +0100
+To: linux-kernel@vger.kernel.org
+Subject: fs/bio.c - Hardcoded sector size ?
+Message-ID: <20060928182238.GA4759@julia.computer-surgery.co.uk>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-GPG-Fingerprint: ADAD DF3A AE05 CA28 3BDB  D352 7E81 8852 817A FB7B
+X-GPG-Key: 1024D/817AFB7B (wwwkeys.uk.pgp.net)
+User-Agent: Mutt/1.5.13 (2006-08-11)
+From: Roger Gammans <roger@computer-surgery.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi
 
-On 29 Sep 2006, at 18:43, Alan Cox wrote:
+In bio_endio()  there is the follow line:- 
 
-> This should drive the Marvell PATA (and first two SATA ports) but I
-> don't have hardware to test so give it a spin. Currently it'll  
-> probably
-> clash with the AHCI driver if you are using the SATA ports but if we
-> know this code works for the PATA port that is fixable later on.
->
-> Alan
->
-> diff -u --new-file --recursive --exclude-from /usr/src/exclude  
-> linux.vanilla-2.6.18-mm2/drivers/ata/Kconfig linux-2.6.18-mm2/ 
-> drivers/ata/Kconfig
-> --- linux.vanilla-2.6.18-mm2/drivers/ata/Kconfig	2006-09-28  
-> 14:33:46.000000000 +0100
-> +++ linux-2.6.18-mm2/drivers/ata/Kconfig	2006-09-29  
-> 17:42:31.392428080 +0100
-> @@ -327,6 +327,15 @@
->
->  	  If unsure, say N.
->
-> +config PATA_MARVELL
-> +	tristate "Marvell PATA support via legacy nmode"
+	bio->bi_sector += (bytes_done >> 9);
 
-mode?
+and there is a similiar line assuming a 512byte sector in 
+__bio_add_page() .
 
-Chris
+Is this a bug as the the actual  block size  should be available
+from bio->bi_bdev->bd_block_size surely - or is some clever code
+where all block devices have to translate back to 512 byte sectors
+for bio s.
 
+TTFN
 -- 
-Chris Boot
-bootc@bootc.net
-http://www.bootc.net/
-
-
+Roger.                          Home| http://www.sandman.uklinux.net/
+Master of Peng Shui.      (Ancient oriental art of Penguin Arranging)
+Work|Independent Sys Consultant | http://www.computer-surgery.co.uk/
+So what are the eigenvalues and eigenvectors of 'The Matrix'? --anon

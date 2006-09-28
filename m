@@ -1,78 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031269AbWI1AE1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031272AbWI1AEv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1031269AbWI1AE1 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Sep 2006 20:04:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031271AbWI1AE0
+	id S1031272AbWI1AEv (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Sep 2006 20:04:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031274AbWI1AEv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Sep 2006 20:04:26 -0400
-Received: from ns.suse.de ([195.135.220.2]:25217 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1031269AbWI1AEZ (ORCPT
+	Wed, 27 Sep 2006 20:04:51 -0400
+Received: from mail.gmx.net ([213.165.64.20]:16325 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1031272AbWI1AEu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Sep 2006 20:04:25 -0400
-From: Neil Brown <neilb@suse.de>
-To: Chase Venters <chase.venters@clientec.com>
-Date: Thu, 28 Sep 2006 10:03:57 +1000
+	Wed, 27 Sep 2006 20:04:50 -0400
+X-Authenticated: #5039886
+Date: Thu, 28 Sep 2006 02:04:48 +0200
+From: =?iso-8859-1?Q?Bj=F6rn?= Steinbrink <B.Steinbrink@gmx.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Martin Filip <bugtraq@smoula.net>, linux-kernel@vger.kernel.org,
+       Ayaz Abdulla <aabdulla@nvidia.com>
+Subject: Re: forcedeth - WOL [SOLVED]
+Message-ID: <20060928000447.GB2963@atjola.homenet>
+Mail-Followup-To: =?iso-8859-1?Q?Bj=F6rn?= Steinbrink <B.Steinbrink@gmx.de>,
+	Andrew Morton <akpm@osdl.org>, Martin Filip <bugtraq@smoula.net>,
+	linux-kernel@vger.kernel.org, Ayaz Abdulla <aabdulla@nvidia.com>
+References: <1159379441.9024.7.camel@archon.smoula-in.net> <20060927183857.GA2963@atjola.homenet> <1159389486.8902.4.camel@archon.smoula-in.net> <20060927165704.613bf0aa.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17691.4461.70747.594419@cse.unsw.edu.au>
-Cc: Theodore Tso <tytso@mit.edu>, Linus Torvalds <torvalds@osdl.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Jan Engelhardt <jengelh@linux01.gwdg.de>,
-       Sergey Panov <sipan@sipan.org>,
-       James Bottomley <James.Bottomley@SteelEye.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: GPLv3 Position Statement
-In-Reply-To: message from Chase Venters on Wednesday September 27
-References: <1158941750.3445.31.camel@mulgrave.il.steeleye.com>
-	<1159319508.16507.15.camel@sipan.sipan.org>
-	<Pine.LNX.4.61.0609270753590.19275@yvahk01.tjqt.qr>
-	<1159342569.2653.30.camel@sipan.sipan.org>
-	<Pine.LNX.4.61.0609271051550.19438@yvahk01.tjqt.qr>
-	<1159359540.11049.347.camel@localhost.localdomain>
-	<Pine.LNX.4.64.0609271000510.3952@g5.osdl.org>
-	<Pine.LNX.4.64.0609271300130.7316@turbotaz.ourhouse>
-	<20060927225815.GB7469@thunk.org>
-	<Pine.LNX.4.64.0609271808041.7316@turbotaz.ourhouse>
-X-Mailer: VM 7.19 under Emacs 21.4.1
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20060927165704.613bf0aa.akpm@osdl.org>
+User-Agent: Mutt/1.5.13 (2006-08-11)
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday September 27, chase.venters@clientec.com wrote:
+
+Hi Andrew,
+
+
+On 2006.09.27 16:57:04 -0700, Andrew Morton wrote:
+> On Wed, 27 Sep 2006 22:38:06 +0200
+> Martin Filip <bugtraq@smoula.net> wrote:
 > 
-> What I was really addressing here is that the whole F/OSS community 
-> exploded over the news that Linux was not adopting the GPLv3. I think it's 
-> fair to say that the reason why Linux is not adopting GPLv3 (aside from 
-> the very practical matter of gaining the consensus of copyright holders)
-> is that Linus and other top copyright holders don't think what Tivo is 
-> doing is wrong. But when that statement first came out, it was almost lost 
-> in the noise of "The FSF is not going to listen to us, and what about 
-> encryption keys?" The former probably has no place outside of LKML; the 
-> latter is the sort of thing you'd bring up at gplv3.fsf.org if you wanted 
-> to participate in the process.
+> > Hi,
+> > 
+> > Bj__rn Steinbrink p____e v St 27. 09. 2006 v 20:38 +0200:
+> > 
+> > > Did you check that WOL was enabled? I need to re-activate it after each
+> > > boot (I guess that's normal, not sure though).
+> > > The output of "ethtool eth0" should show:
+> > > 
+> > >         Supports Wake-on: g
+> > >         Wake-on: g
+> > > 
+> > Yes, of course :)
+> > 
+> > > Also, I remember a bugzilla entry in which it was said that the MAC was
+> > > somehow reversed by the driver. I that is still the case (I can't find
+> > > the bugzilla entry right now), you might just reverse the MAC address in
+> > > your WOL packet to workaround the bug.
+> > 
+> > Hey! this is really crazy :) but it works! To bo honest - I really do
+> > not know what crazy bug could cause problems like this. I thought it's
+> > NIC thing to manage all the work about WOL. I thought OS only sets NIC
+> > into "WOL mode".
+> > 
+> > But seeing this - one packet for windows and one magic packet for linux
+> > driver - I really do not get it.
+> > 
+> 
+> Are you saying that byte-reversing the MAC address make WOL work correctly?
+> 
+> What tool do you use to send the packet, and how is it being invoked?
+> 
+> Do we know if this reversal *always* happens with this driver, or only
+> sometimes?
+> 
+> Thanks.
 
-I don't think that anyone is saying that what Tivo is doing isn't
-wrong.  What is being said is that the license is the wrong place to
-try to stop this sort of behaviour.  It is too broad a brush.
-There are a number of different reasons for wanting to use
-technological measures for stopping people from re-purposing a device
-and they aren't necessarily all bad.  Do we want our code to be
-prohibited from being used in all of these cases?  Some people think
-not.
+searching bugzilla was more succesful this time (somehow bugzillas hate
+me, so I need a bunch of tries every time), the bug I meant was #6604.
 
-But I wonder if GPLv3 will really stop Tivo....
-I just read it again and saw - at the end of section 1.
+The bugreport says that it should work with 0.57 though (which is in
+2.6.18 AFAICT), I'll go and see if it works for me...
 
-  The Corresponding Source need not include anything that users can
-  regenerate automatically from other parts of the Corresponding
-  Source. 
-
-So if Tivo included the code they used to generate the key, then they
-don't need to include the key itself :-)  Users can regenerate the key
-form that program.  Not sure how long it will take though.
-
-NeilBrown
-
+Björn

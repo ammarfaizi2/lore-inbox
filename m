@@ -1,59 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161108AbWI1NGS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751881AbWI1NHU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161108AbWI1NGS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Sep 2006 09:06:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751881AbWI1NGS
+	id S1751881AbWI1NHU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Sep 2006 09:07:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751880AbWI1NHU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Sep 2006 09:06:18 -0400
-Received: from mail-gw3.adaptec.com ([216.52.22.36]:7901 "EHLO
-	mail-gw3.adaptec.com") by vger.kernel.org with ESMTP
-	id S1751880AbWI1NGR convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Sep 2006 09:06:17 -0400
-content-class: urn:content-classes:message
+	Thu, 28 Sep 2006 09:07:20 -0400
+Received: from mtagate1.de.ibm.com ([195.212.29.150]:19530 "EHLO
+	mtagate1.de.ibm.com") by vger.kernel.org with ESMTP
+	id S1751881AbWI1NHS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Sep 2006 09:07:18 -0400
+Date: Thu, 28 Sep 2006 15:07:15 +0200
+From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+To: linux-kernel@vger.kernel.org, geraldsc@de.ibm.com
+Subject: [S390] Avoid static struct initializations in appldata.
+Message-ID: <20060928130715.GA1120@skybase>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: [aacraid] Adaptec 2820SA Crash
-X-MimeOLE: Produced By Microsoft Exchange V6.0.6487.1
-Date: Thu, 28 Sep 2006 09:06:15 -0400
-Message-ID: <547AF3BD0F3F0B4CBDC379BAC7E4189F02CE35B6@otce2k03.adaptec.com>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: [aacraid] Adaptec 2820SA Crash
-Thread-Index: AcbiqHll6EhEyIZmTFCf38h7hqNI7gAVlPAA
-From: "Salyzyn, Mark" <mark_salyzyn@adaptec.com>
-To: "Sean Bruno" <sean.bruno@dsl-only.net>, <linux-kernel@vger.kernel.org>
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I look forward to seeing them.
+From: Gerald Schaefer <geraldsc@de.ibm.com>
 
-Please report them to the scsi list as well.
+[S390] Avoid static struct initializations in appldata.
 
-Sincerely -- Mark Salyzyn
+Don't use static initialization for struct members containing
+variables because gcc would generate more code and use double space
+on stack.
 
-> -----Original Message-----
-> From: linux-kernel-owner@vger.kernel.org 
-> [mailto:linux-kernel-owner@vger.kernel.org] On Behalf Of Sean Bruno
-> Sent: Wednesday, September 27, 2006 10:47 PM
-> To: linux-kernel@vger.kernel.org
-> Subject: [aacraid] Adaptec 2820SA Crash
-> 
-> 
-> I noted that the aacraid module under 2.6.18 is crashing pretty hard
-> under 2.6.18
-> 
-> Anyone working on that?  I'll send more detail in the AM with serial
-> console captures and dump information.
-> 
-> Sean
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe 
-> linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+Signed-off-by: Gerald Schaefer <geraldsc@de.ibm.com>
+Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
+---
+
+ arch/s390/appldata/appldata_base.c |    4 ++--
+ 1 files changed, 2 insertions(+), 2 deletions(-)
+
+diff -urpN linux-2.6/arch/s390/appldata/appldata_base.c linux-2.6-patched/arch/s390/appldata/appldata_base.c
+--- linux-2.6/arch/s390/appldata/appldata_base.c	2006-09-28 14:58:39.000000000 +0200
++++ linux-2.6-patched/arch/s390/appldata/appldata_base.c	2006-09-28 14:58:50.000000000 +0200
+@@ -157,12 +157,12 @@ int appldata_diag(char record_nr, u16 fu
+ 		.prod_nr    = {0xD3, 0xC9, 0xD5, 0xE4,
+ 			       0xE7, 0xD2, 0xD9},	/* "LINUXKR" */
+ 		.prod_fn    = 0xD5D3,			/* "NL" */
+-		.record_nr  = record_nr,
+ 		.version_nr = 0xF2F6,			/* "26" */
+ 		.release_nr = 0xF0F1,			/* "01" */
+-		.mod_lvl    = (mod_lvl[0]) << 8 | mod_lvl[1],
+ 	};
+ 
++	id.record_nr = record_nr;
++	id.mod_lvl = (mod_lvl[0]) << 8 | mod_lvl[1];
+ 	return appldata_asm(&id, function, (void *) buffer, length);
+ }
+ /************************ timer, work, DIAG <END> ****************************/

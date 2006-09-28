@@ -1,60 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751773AbWI1IUF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751774AbWI1I2p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751773AbWI1IUF (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Sep 2006 04:20:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751774AbWI1IUE
+	id S1751774AbWI1I2p (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Sep 2006 04:28:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751154AbWI1I2p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Sep 2006 04:20:04 -0400
-Received: from emailer.gwdg.de ([134.76.10.24]:4755 "EHLO emailer.gwdg.de")
-	by vger.kernel.org with ESMTP id S1751773AbWI1IUB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Sep 2006 04:20:01 -0400
-Date: Thu, 28 Sep 2006 10:18:23 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Linus Torvalds <torvalds@osdl.org>
-cc: Sergey Panov <sipan@sipan.org>,
-       James Bottomley <James.Bottomley@SteelEye.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: GPLv3 Position Statement
-In-Reply-To: <Pine.LNX.4.64.0609270947030.3952@g5.osdl.org>
-Message-ID: <Pine.LNX.4.61.0609281016570.21498@yvahk01.tjqt.qr>
-References: <1158941750.3445.31.camel@mulgrave.il.steeleye.com>
- <1159319508.16507.15.camel@sipan.sipan.org> <Pine.LNX.4.61.0609270753590.19275@yvahk01.tjqt.qr>
- <Pine.LNX.4.64.0609270947030.3952@g5.osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Report: Content analysis: 0.0 points, 6.0 required
-	_SUMMARY_
+	Thu, 28 Sep 2006 04:28:45 -0400
+Received: from mail.sanpeople.com ([196.41.13.122]:38405 "EHLO
+	za-gw.sanpeople.com") by vger.kernel.org with ESMTP
+	id S1751126AbWI1I2o (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Sep 2006 04:28:44 -0400
+Subject: Re: [PATCH 1/8] at91_serial -> atmel_serial: at91rm9200_usart.h
+From: Andrew Victor <andrew@sanpeople.com>
+To: Haavard Skinnemoen <hskinnemoen@atmel.com>
+Cc: Russell King <rmk+lkml@arm.linux.org.uk>, linux-kernel@vger.kernel.org
+In-Reply-To: <115937628584-git-send-email-hskinnemoen@atmel.com>
+References: <1159376285670-git-send-email-hskinnemoen@atmel.com>
+	 <115937628584-git-send-email-hskinnemoen@atmel.com>
+Content-Type: text/plain
+Organization: Multenet Technologies (Pty) Ltd
+Message-Id: <1159431641.23154.9.camel@fuzzie.sanpeople.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.2.2 
+Date: 28 Sep 2006 10:20:41 +0200
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
->> >The last Q. is how good is the almost forgotten Hurd kernel?
->> 
->> Wild guess: At most on par with Minix.
->
->...and here's a thing that most people forget: good code simply doesn't 
->care about ideology, and ideology often does the wrong technical decisions 
->because it's not about practical issues.
->
->The watch-word in Linux development has been "pragmatism". That's probably 
->part of what drives the FSF wild about Linux in the first place. I care 
->about _practical_ issues, not about wild goose chases.
->
->If I weren't into computers, I'd be in science. And the rules in science 
->are the same: you simply can't do good science if you start with an 
->agenda. If you say that you'll never touch high-energy physics because 
->you find the atom bomb to be morally reprehensible, that's your right, but 
->you have to also realize that then you can never actually understand the 
->world, and do everything you may need to do.
->[...]
->In many ways, the GPLv3 is about "religion". They limit the technology 
-[...]
+> Move include/asm/arch/at91rm9200_usart.h into drivers/serial and rename
+> it atmel_usart.h. Also delete AVR32's version of this file.
+> 
+> Signed-off-by: Haavard Skinnemoen <hskinnemoen@atmel.com>
 
-Oops, I think we misunderstand each other right now. I took the above question
-as how functional (=good) is Hurd. I did not mean to talk about licensing here.
+Signed-off-by: Andrew Victor <andrew@sanpeople.com>
 
 
 
-Jan Engelhardt
--- 

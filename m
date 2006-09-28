@@ -1,65 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932199AbWI1WOQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030384AbWI1WSL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932199AbWI1WOQ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Sep 2006 18:14:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932525AbWI1WOQ
+	id S1030384AbWI1WSL (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Sep 2006 18:18:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932529AbWI1WSL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Sep 2006 18:14:16 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:35803 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932199AbWI1WOP (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Sep 2006 18:14:15 -0400
-Date: Thu, 28 Sep 2006 15:14:09 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Jay Lan <jlan@engr.sgi.com>
-Cc: roland <devzero@web.de>, Fengguang Wu <fengguang.wu@gmail.com>,
-       linux-kernel@vger.kernel.org, lserinol@gmail.com
-Subject: Re: I/O statistics per process
-Message-Id: <20060928151409.f0a9bda7.akpm@osdl.org>
-In-Reply-To: <451C45F1.1050604@engr.sgi.com>
-References: <0e2001c6de7a$fe756280$962e8d52@aldipc>
-	<359067036.19509@ustc.edu.cn>
-	<008f01c6e27a$f9bd5460$962e8d52@aldipc>
-	<20060927155549.4a69490d.akpm@osdl.org>
-	<451C1AAA.3090301@engr.sgi.com>
-	<20060928120952.9f09cbf7.akpm@osdl.org>
-	<451C45F1.1050604@engr.sgi.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 28 Sep 2006 18:18:11 -0400
+Received: from iolanthe.rowland.org ([192.131.102.54]:58130 "HELO
+	iolanthe.rowland.org") by vger.kernel.org with SMTP id S932527AbWI1WSJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Sep 2006 18:18:09 -0400
+Date: Thu, 28 Sep 2006 18:18:07 -0400 (EDT)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@iolanthe.rowland.org
+To: Olaf Hering <olaf@aepfle.de>
+cc: Greg KH <gregkh@suse.de>, Andrew Morton <akpm@osdl.org>,
+       Linus Torvalds <torvalds@osdl.org>, <linux-kernel@vger.kernel.org>,
+       <linux-usb-devel@lists.sourceforge.net>
+Subject: Re: [linux-usb-devel] [GIT PATCH] USB patches for 2.6.18
+In-Reply-To: <20060928220852.GA24043@aepfle.de>
+Message-ID: <Pine.LNX.4.44L0.0609281815170.10847-100000@iolanthe.rowland.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 28 Sep 2006 15:00:17 -0700
-Jay Lan <jlan@engr.sgi.com> wrote:
+On Fri, 29 Sep 2006, Olaf Hering wrote:
 
-> >>>    in __set_page_dirty_[no]buffers().) (But that ends up being wrong if
-> >>>    someone truncates the file before it got written)
-> >>>
-> >>> - it doesn't account for file readahead (although it easily could)
-> >>>
-> >>> - it doesn't account for pagefault-initiated readahead (it could)
-> >>>
+> On Wed, Sep 27, Greg KH wrote:
 > 
-> Mmm, i am not a true FS I/O person. The data collection patches i
-> submitted in Nov 2004 was the code i inherited and has been
-> used in production system by our CSA customers. We lost a bit in
-> contents and accuracy when CSA was ported from IRIX to Linux. I am
-> sure there is room for improvement without much overhead.
+> > Alan Stern:
+> 
+> >       usbcore: remove usb_suspend_root_hub
+> 
+> This change between -git8 and -git9 makes my keyboard unhappy:
 
-OK, well it sounds like we're free to define these in any way we like.  So
-we actually get to make them mean something useful - how nice.
+Another example of a bug for which the fix hasn't yet gone upstream to 
+Linus.  The -mm kernel should work.  It you want to apply the fix 
+yourself, it's these two patches:
 
-I hereby declare: "approxmiately equal to the number of filesystem bytes
-which this task has caused to occur, or which shall occur in the near
-future".
+http://marc.theaimsgroup.com/?l=linux-usb-devel&m=115921335306280&w=2
+http://marc.theaimsgroup.com/?l=linux-usb-devel&m=115921335520143&w=2
 
-> Maybe FS
-> I/O guys can chip in?
-
-I used to be one of them.  I can take a look at doing this.  Given the lack
-of any applciation to read the darn numbers out I guess I'll need to expose
-them in /proc for now.  Yes, that monitoring patch (and an application to
-read from it!) would be appreciated, thanks.
+Alan Stern
 

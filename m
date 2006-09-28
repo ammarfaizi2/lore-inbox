@@ -1,54 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031358AbWI1Fel@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031360AbWI1FfN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1031358AbWI1Fel (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Sep 2006 01:34:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031359AbWI1Fel
+	id S1031360AbWI1FfN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Sep 2006 01:35:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031362AbWI1FfN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Sep 2006 01:34:41 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:24281 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1031358AbWI1Fek (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Sep 2006 01:34:40 -0400
-Message-ID: <451B5EE8.1000207@garzik.org>
-Date: Thu, 28 Sep 2006 01:34:32 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
+	Thu, 28 Sep 2006 01:35:13 -0400
+Received: from py-out-1112.google.com ([64.233.166.178]:52385 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S1031360AbWI1FfK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Sep 2006 01:35:10 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=OcQdWevp2GL11515n01w3cbRNYM69q+AZLsXmjAwbFHkZyjkZSNeiJtPl2a/nGRyBaqrvQ8pPRPMEv+YC6nOSIAutbTqhPGxSmioVuHE/lmjZJ4rV/vjCH7jj8v7iGii/DUWkhJHFJVLwVbz1FvEZdlB0Llrwr6Wd7qFqD7styU=
+Message-ID: <a44ae5cd0609272235v4e54824dl4e7ac4718e503cc1@mail.gmail.com>
+Date: Wed, 27 Sep 2006 22:35:10 -0700
+From: "Miles Lane" <miles.lane@gmail.com>
+To: "Andrew Morton" <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
+       linux-acpi@vger.kernel.org
+Subject: 2.6.18-mm1 -- ACPI Exception (evregion-0424): AE_TIME, Returned by Handler for [EmbeddedControl] [20060707]
 MIME-Version: 1.0
-To: Sergey Panov <sipan@sipan.org>
-CC: Chase Venters <chase.venters@clientec.com>,
-       Linus Torvalds <torvalds@osdl.org>,
-       Patrick McFarland <diablod3@gmail.com>, Theodore Tso <tytso@mit.edu>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Jan Engelhardt <jengelh@linux01.gwdg.de>,
-       James Bottomley <James.Bottomley@steeleye.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: GPLv3 Position Statement
-References: <1158941750.3445.31.camel@mulgrave.il.steeleye.com>	 <Pine.LNX.4.64.0609271945450.3952@g5.osdl.org>	 <1159415242.13562.12.camel@sipan.sipan.org>	 <200609272339.28337.chase.venters@clientec.com>	 <451B5A59.9040806@garzik.org> <1159421223.13562.75.camel@sipan.sipan.org>
-In-Reply-To: <1159421223.13562.75.camel@sipan.sipan.org>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.3 (----)
-X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.3 points, 5.0 required)
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sergey Panov wrote:
-> On Thu, 2006-09-28 at 01:15 -0400, Jeff Garzik wrote:
->> Chase Venters wrote:
->>> The final GPLv3 may indeed go too far for many open-source supporters. But 
->>> then again, it is the FSF's license, and it should at least not surprise 
->>> anyone if they are more concerned with the ideals of the license rather than 
->>> current market realities. Market conditions change; ideals generally don't.
->> As long as you can admit that FSF is divorced from reality...
-> 
-> ??? Ideals are always divorced from reality. But some shape it, and some
-> are irrelevant.
+When I booted last time, I found that my X pointer was frozen.  When I
+switched to a VT and ran dmesg, I found:
 
-
-Since we have to deal with the reality of the license, I guess that 
-means GPLv3 is irrelevant.
-
-	Jeff
-
-
+[drm] Initialized drm 1.0.1 20051102
+ACPI: PCI Interrupt 0000:00:02.0[A] -> GSI 16 (level, low) -> IRQ 19
+[drm] Initialized i915 1.5.0 20060119 on minor 0
+[drm] Initialized i915 1.5.0 20060119 on minor 1
+ACPI: read EC, IB not empty
+ACPI: read EC, IB not empty
+ACPI: read EC, IB not empty
+ACPI: read EC, IB not empty
+ACPI: read EC, IB not empty
+ACPI Exception (evregion-0424): AE_TIME, Returned by Handler for
+[EmbeddedControl] [20060707]
+ACPI Exception (dswexec-0458): AE_TIME, While resolving operands for
+[OpcodeName unavailable] [20060707]
+ACPI Error (psparse-0537): Method parse/execution failed
+[\_SB_.ACAD._PSR] (Node c1e3f464), AE_TIME
+ACPI Exception (acpi_ac-0096): AE_TIME, Error reading AC Adapter state
+[20060707]
+ACPI: read EC, IB not empty
+ACPI Exception (evregion-0424): AE_TIME, Returned by Handler for
+[EmbeddedControl] [20060707]
+ACPI Error (psparse-0537): Method parse/execution failed
+[\_SB_.BAT0._BST] (Node c1e3f624), AE_TIME
+ACPI Exception (acpi_battery-0206): AE_TIME, Evaluating _BST [20060707]
+ACPI: read EC, IB not empty
+ACPI Exception (evregion-0424): AE_TIME, Returned by Handler for
+[EmbeddedControl] [20060707]
+ACPI Exception (dswexec-0458): AE_TIME, While resolving operands for
+[OpcodeName unavailable] [20060707]
+ACPI Error (psparse-0537): Method parse/execution failed
+[\_SB_.ACAD._PSR] (Node c1e3f464), AE_TIME
+ACPI Exception (acpi_ac-0096): AE_TIME, Error reading AC Adapter state
+[20060707]
+ACPI: read EC, IB not empty
+ACPI Exception (evregion-0424): AE_TIME, Returned by Handler for
+[EmbeddedControl] [20060707]
+ACPI Error (psparse-0537): Method parse/execution failed
+[\_SB_.BAT0._BST] (Node c1e3f624), AE_TIME
+ACPI Exception (acpi_battery-0206): AE_TIME, Evaluating _BST [20060707]
+ACPI: read EC, IB not empty
+ACPI: read EC, IB not empty
+ACPI: read EC, IB not empty
+ACPI: read EC, IB not empty
+ADDRCONF(NETDEV_CHANGE): eth1: link becomes ready
+ACPI: read EC, IB not empty

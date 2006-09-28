@@ -1,48 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751875AbWI1NZm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965421AbWI1NbX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751875AbWI1NZm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Sep 2006 09:25:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751885AbWI1NZm
+	id S965421AbWI1NbX (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Sep 2006 09:31:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751890AbWI1NbX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Sep 2006 09:25:42 -0400
-Received: from wohnheim.fh-wedel.de ([213.39.233.138]:39326 "EHLO
-	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S1751875AbWI1NZm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Sep 2006 09:25:42 -0400
-Date: Thu, 28 Sep 2006 15:25:40 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Martin Schwidefsky <schwidefsky@de.ibm.com>
-Cc: linux-kernel@vger.kernel.org, holzheu@de.ibm.com
-Subject: Re: [S390] hypfs sparse warnings.
-Message-ID: <20060928132540.GA18933@wohnheim.fh-wedel.de>
-References: <20060928130737.GB1120@skybase>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20060928130737.GB1120@skybase>
-User-Agent: Mutt/1.5.9i
+	Thu, 28 Sep 2006 09:31:23 -0400
+Received: from nat-132.atmel.no ([80.232.32.132]:38630 "EHLO relay.atmel.no")
+	by vger.kernel.org with ESMTP id S1751888AbWI1NbW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Sep 2006 09:31:22 -0400
+From: Haavard Skinnemoen <hskinnemoen@atmel.com>
+To: Andrew Victor <andrew@sanpeople.com>
+Cc: Russell King <rmk+lkml@arm.linux.org.uk>, linux-kernel@vger.kernel.org,
+       Haavard Skinnemoen <hskinnemoen@atmel.com>
+Subject: [PATCH 0/4] More atmel_serial updates
+Reply-To: Haavard Skinnemoen <hskinnemoen@atmel.com>
+Date: Thu, 28 Sep 2006 15:31:38 +0200
+Message-Id: <11594503023218-git-send-email-hskinnemoen@atmel.com>
+X-Mailer: git-send-email 1.4.1.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 28 September 2006 15:07:37 +0200, Martin Schwidefsky wrote:
-> 
-> sparse complains, if we use bitwise operations on enums. Cast enum to
-> long in order to fix that problem!
+Hi,
 
-At this point I start to wonder which part should be changed.  Is it
-better to
-a) cast some more, as you started to do,
-b) change enums to #defines or
-c) change '|' to '+'?
+Now that Andrew Victor seems to be happy about the renaming (thanks
+a lot for reviewing, Andrew), here are a few more patches to make
+atmel_serial usable for AVR32, as well as a general bugfix.
 
-At any rate, you have the same problem in 5 seperate places by my
-count and only changed 1 of them.  Nak - in case anyone cares.
+I've dropped the break fix for now, as it doesn't seem to work on
+my AT91RM9200-EK board. I'll see if I can fix it properly later --
+it's not really a showstopper, for me anyway.
 
-Jörn
+There's also a pure AVR32 patch in this set. Feel free to ignore it,
+but I thought I'd include it so that you can see the whole picture.
 
--- 
-The competent programmer is fully aware of the strictly limited size of
-his own skull; therefore he approaches the programming task in full
-humility, and among other things he avoids clever tricks like the plague.
--- Edsger W. Dijkstra
+Shortlog and diffstat for the whole series follows.
+
+Haavard
+
+Haavard Skinnemoen:
+      atmel_serial: Pass fixed register mappings through platform_data
+      atmel_serial: Support AVR32
+      AVR32: Allow renumbering of serial devices
+      atmel_serial: Fix roundoff error in atmel_console_get_options
+
+ arch/arm/mach-at91rm9200/devices.c      |    1 +
+ arch/avr32/boards/atstk1000/atstk1002.c |   16 ++++++++-
+ arch/avr32/kernel/setup.c               |    1 +
+ arch/avr32/mach-at32ap/at32ap.c         |    3 --
+ arch/avr32/mach-at32ap/at32ap7000.c     |   53 +++++++++++++++++++++----------
+ drivers/serial/Kconfig                  |   24 +++++++-------
+ drivers/serial/atmel_serial.c           |   17 ++++++++--
+ include/asm-arm/arch-at91rm9200/board.h |    1 +
+ include/asm-avr32/arch-at32ap/board.h   |    6 ++++
+ include/asm-avr32/arch-at32ap/init.h    |    1 +
+ 10 files changed, 85 insertions(+), 38 deletions(-)

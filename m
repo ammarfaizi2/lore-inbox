@@ -1,46 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751863AbWI1MHX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751867AbWI1MI3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751863AbWI1MHX (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Sep 2006 08:07:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751864AbWI1MHX
+	id S1751867AbWI1MI3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Sep 2006 08:08:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965406AbWI1MI3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Sep 2006 08:07:23 -0400
-Received: from vms044pub.verizon.net ([206.46.252.44]:59622 "EHLO
-	vms044pub.verizon.net") by vger.kernel.org with ESMTP
-	id S1751863AbWI1MHW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Sep 2006 08:07:22 -0400
-Date: Thu, 28 Sep 2006 08:07:21 -0400
-From: Gene Heskett <gene.heskett@verizon.net>
-Subject: Re: Creative Commons as an example of a simple license
-In-reply-to: <loom.20060928T075159-494@post.gmane.org>
+	Thu, 28 Sep 2006 08:08:29 -0400
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:27089 "EHLO 2ka.mipt.ru")
+	by vger.kernel.org with ESMTP id S1751867AbWI1MI1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Sep 2006 08:08:27 -0400
+Date: Thu, 28 Sep 2006 16:08:26 +0400
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
 To: linux-kernel@vger.kernel.org
-Message-id: <200609280807.21329.gene.heskett@verizon.net>
-Organization: Organization? Absolutely zip.
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-Content-disposition: inline
-References: <loom.20060928T075159-494@post.gmane.org>
-User-Agent: KMail/1.7
+Cc: linux-crypto@vger.kernel.org, netdev@vger.kernel.org
+Subject: [ACRYPTO] New asynchronous crypto layer (acrypto) release.
+Message-ID: <20060928120826.GA18063@2ka.mipt.ru>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=koi8-r
+Content-Disposition: inline
+User-Agent: Mutt/1.5.9i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Thu, 28 Sep 2006 16:08:27 +0400 (MSD)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 28 September 2006 02:59, Esteban Barahona wrote:
->apparently I "have lines longer than 80 characters" so I have to post
-> like this: http://www.zensui.org/CC/about_GPLv3.html
+Hello.
 
-At least one person read my rant, thank you Esteban.  However, I wasn't 
-aware that the Creative Commons License was a "pick-a-rule" license, where 
-you could drasticly change the effect of the license and still call it the 
-CCL.
+I'm pleased to announce asynchronous crypto layer (acrypto) [1] release 
+for 2.6.18 kernel tree. Acrypto allows to handle crypto requests 
+asynchronously in hardware.
 
-I need obviously, to read it more carefully.
+Combined patchset includes:
+ * acrypto core
+ * IPsec ESP4 port to acrypto
+ * dm-crypt port to acrypto
+ * OCF to acrypto bridge
+
+Acrypto supports following crypto providers:
+ * SW crypto provider
+ * HIFN 795x adapters
+ * VIA nehemiah CPU
+ * SuperCrypt CE99C003B
+ * devices supported by OCF
+
+With this release of combined patchset for 2.6.18 I drop feature
+extensions for 2.6.16 and 2.6.17 trees and move them into maintenance
+state.
+
+Combined patchset [190k] and drivers for various acrypto providers can 
+be found on project's homepage.
+
+1. Acrypto homepage.
+http://tservice.net.ru/~s0mbre/old/?section=projects&item=acrypto
+
+Signed-off-by: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
 
 -- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-Yahoo.com and AOL/TW attorneys please note, additions to the above
-message by Gene Heskett are:
-Copyright 2006 by Maurice Eugene Heskett, all rights reserved.
+	Evgeniy Polyakov
+
+
+-- 
+	Evgeniy Polyakov

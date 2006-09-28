@@ -1,78 +1,193 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161180AbWI1UUk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751508AbWI1UXI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161180AbWI1UUk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Sep 2006 16:20:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161179AbWI1UUk
+	id S1751508AbWI1UXI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Sep 2006 16:23:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751509AbWI1UXI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Sep 2006 16:20:40 -0400
-Received: from mail-in-10.arcor-online.net ([151.189.21.50]:22472 "EHLO
-	mail-in-01.arcor-online.net") by vger.kernel.org with ESMTP
-	id S1161177AbWI1UUj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Sep 2006 16:20:39 -0400
-From: Prakash Punnoor <prakash@punnoor.de>
-To: Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.18 hangs during boot on ASUS M2NPV-VM motherboard
-Date: Thu, 28 Sep 2006 22:20:20 +0200
-User-Agent: KMail/1.9.4
-Cc: Marc Perkel <marc@perkel.com>, linux-kernel@vger.kernel.org,
-       "Andy Currid" <ACurrid@nvidia.com>
-References: <451BFDC8.6030308@perkel.com> <20060928131427.bc3d0ed4.akpm@osdl.org>
-In-Reply-To: <20060928131427.bc3d0ed4.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: multipart/signed;
-  boundary="nextPart5004007.idy3cveRYd";
-  protocol="application/pgp-signature";
-  micalg=pgp-sha1
+	Thu, 28 Sep 2006 16:23:08 -0400
+Received: from e36.co.us.ibm.com ([32.97.110.154]:49618 "EHLO
+	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751508AbWI1UXG
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Sep 2006 16:23:06 -0400
+Subject: Re: [ckrm-tech] [patch00/05]: Containers(V2)- Introduction
+From: Chandra Seetharaman <sekharan@us.ibm.com>
+Reply-To: sekharan@us.ibm.com
+To: rohitseth@google.com
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, devel@openvz.org,
+       CKRM-Tech <ckrm-tech@lists.sourceforge.net>
+In-Reply-To: <1159467139.2669.74.camel@galaxy.corp.google.com>
+References: <1158718568.29000.44.camel@galaxy.corp.google.com>
+	 <1159386644.4773.80.camel@linuxchandra>
+	 <1159392487.23458.70.camel@galaxy.corp.google.com>
+	 <1159395892.4773.107.camel@linuxchandra>
+	 <1159467139.2669.74.camel@galaxy.corp.google.com>
+Content-Type: text/plain
+Organization: IBM
+Date: Thu, 28 Sep 2006 13:23:04 -0700
+Message-Id: <1159474984.4773.138.camel@linuxchandra>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.4 (2.0.4-7) 
 Content-Transfer-Encoding: 7bit
-Message-Id: <200609282220.20790.prakash@punnoor.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---nextPart5004007.idy3cveRYd
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: quoted-printable
-Content-Disposition: inline
+On Thu, 2006-09-28 at 11:12 -0700, Rohit Seth wrote:
+> On Wed, 2006-09-27 at 15:24 -0700, Chandra Seetharaman wrote:
+> > On Wed, 2006-09-27 at 14:28 -0700, Rohit Seth wrote:
+> > 
+> > Rohit,
+> > 
+> > For 1-4, I understand the rationale. But, your implementation deviates
+> > from the current behavior of the VM subsystem which could affect the
+> > ability of these patches getting into mainline.
+> > 
+> 
+> I agree that this implementation differs from existing VM subsystem.
+> But the key point here is, it puts the pages that should be reclaimed.
 
-Am Donnerstag 28 September 2006 22:14 schrieb Andrew Morton:
+But, you are putting the pages up for reclamation without any
+consideration to the working set and system memory pressure.
+ 
+> And this part needs further refining.
+> 
+> > IMO, the current behavior in terms of reclamation, LRU, vm_swappiness,
+> > and writeback logic should be maintained.
+> > 
+> 
+> How?  I don't want to duplicate the whole logic for containers.
 
-> > I compiled 2.6.18 and setting acpi_skip_timer_override to 0 instead of 1
-> > makes the problem go away. Obviously the logic needs to e a little more
-> > complex than is but this shouldn't be that hard to resolve.
-> >
-> > http://bugzilla.kernel.org/show_bug.cgi?id=3D6975
->
-> I think the kernel _should_ be enabling acpi_skip_timer_override by itsel=
-f,
-> but isn't doing that for some reason.
+We don't have to be duplicating the whole logic. Just make sure that the
+existing mechanisms are aware of containers, if they exist.
 
-Other way round. It should only enable it for broken chipsets. But it hasn'=
-t=20
-been defined what _are_ the broken chipsets.... currently it is enabled for=
-=20
-all chipsets.
+<snip>
 
->
-> Perhaps Andy can help.  He may not even be aware of this problem...
+> > 
+> > But, it will still suffer from (1) above, as we would have no idea of
+> > the current working set (LRU) (within an item or among the items).
+> > 
+> 
+> Please let me know how do you propose to have another LRU for pages in
+> containers.  Though I can add some heuristics.
 
-Na, he just choses not to say anything.
+There are multiple ways as Balbir pointed in his email:
+ - reclamation per container (as in current RG implementation)
+   ( + do a system wide reclaim when the system pressure is high)
+ - reclaim with the knowledge of containers that are over limit
+   (Dave Hansen's patches + avoid overhead of combing the list)
+ - have two lists one for the system and one per container
 
-http://marc.theaimsgroup.com/?l=3Dlinux-kernel&m=3D115675009906807&w=3D2
+> 
+> > > 
+> > > > 6. Both active and inactive pages use physical pages. But, the 
+> > > >    controller only counts active pages and not inactive pages. why ?
+> > > 
+> > > The thought is, it is okay for containers to go over its limit as long
+> > 
+> > Real number of "physical pages" used by the container is the sum of
+> > active and inactive pages.
+> > 
+> 
+> >From the user pov, the real sum of pages that are used by container for
+> user land is anon + file.  Now some times it is possible that there are
+> active pages that are neither in page cache nor in use as anon.
+> 
+> 
+> > My question is, shouldn't that be used to check against page limit
+> > instead of active pages alone ?
+> I can use active+inactive as the test.  Sure.  But I will have to also
+> still have a check to make sure that number of active pages themselves
+> is not bigger than page_limit.
+> 
+> > How do we describe "page limit" as (to the user) ?
+> > 
+> 
+> Amount of memory below which no container throttling will happen.  And
 
-=2D-=20
-(=B0=3D                 =3D=B0)
-//\ Prakash Punnoor /\\
-V_/                 \_V
+But, from the implementation one cannot clearly derive what we mean by
+"memory" here (physical ?, file + anon ?; if we say physical, it is not
+correct).
 
---nextPart5004007.idy3cveRYd
-Content-Type: application/pgp-signature
+> if the system is properly configured that it also ensures that this much
+> memory will always be there to user.  If a container goes over this
+> limit then it will be throttled and it will suffer performance.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
+But, the user's expectation would be that we would be throwing out pages
+based on LRU (within that container). But this implementation doesn't
+provide that behavior. It doesn't care about the working set.
 
-iD8DBQBFHC6ExU2n/+9+t5gRAnLnAKDCvetITC3cvsXIUJ0sfKS/0qXqSQCfbEAG
-qbEtIMzEC1WqVg0BG1RCYH8=
-=0EQP
------END PGP SIGNATURE-----
+Performance impact will be lesser if we consider the working set and
+throw out pages based on LRU (within a container).
 
---nextPart5004007.idy3cveRYd--
+> 
+> > > as there is enough memory in the system. When there is any memory
+> > > pressure then the inactive (+ dereferenced) pages get swapped out thus
+> > > penalizing the container.  I'm also thinking of having hard limit for
+> > 
+> > Reclamation goes through active pages and page cache pages before it
+> > gets into inactive pages. So, this may not work as you are explaining.
+> 
+> That is a good point.  I'll have to make a check in reclaim so that when
+> the system is ready for swap or write back then containers are looked
+> first.
+> 
+> >  
+> > > anonymous pages beyond which the container will not be able to grow its
+> > > anonymous pages.
+> > 
+> > You might break the current behavior (memory pressure must be very high
+> > before these starts failing) if you are going to be strict about it.
+> > 
+> 
+> That feature when implemented will be a container specific.
+
+My point is, even though it is container specific, the behavior (inside
+a container) should be same as what a user sees at the system level now.
+
+For example, consider a workload that is run on a 1G system now, and
+user sees only occasional memory allocation failures and just a handful
+of oom kills. When the workload is moved to a container with 1G,
+failures the user see should be in the same order ( and similar with
+performance characteristics).
+
+Do you agree that it will be the user's expectation ?
+
+> 
+> > > 
+> > > > 7. Page limit is checked against the sum of (anon and file pages) in 
+> > > >    some places and against active pages at some other places. IMO, it 
+> > > >    should be always compared to the same value.
+> > > > 
+> > > It is checked against sum of anon+file pages at the time when new pages
+> > 
+> > why can't we check against active pages here ?
+> > 
+> > > is getting allocated.  But as the reclaimer activate the pages, so it is
+> > > also important to make sure the number of active pages is not going
+> > > above its limit.
+> > 
+> > My point is that they won't be same (ever) and hence the check is
+> > inconsistent. 
+> > 
+> 
+> The check ensures 
+> 1- when a new page is getting added then the total sum of pages is
+> checked against the limit.
+> 2- Number of active pages don't exceed the limit.
+> 
+> These two points combined together enforce the decision that once the
+> container goes over the limit, we scan the pages again to deactivate the
+> excess.
+
+Again, I understand the rationale. But it is not consistent.
+> 
+> Thanks,
+> -rohit
+> 
+-- 
+
+----------------------------------------------------------------------
+    Chandra Seetharaman               | Be careful what you choose....
+              - sekharan@us.ibm.com   |      .......you may get it.
+----------------------------------------------------------------------
+
+

@@ -1,18 +1,18 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965032AbWI1PVO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030187AbWI1PYs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965032AbWI1PVO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Sep 2006 11:21:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965038AbWI1PVO
+	id S1030187AbWI1PYs (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Sep 2006 11:24:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030257AbWI1PYs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Sep 2006 11:21:14 -0400
-Received: from wohnheim.fh-wedel.de ([213.39.233.138]:42166 "EHLO
-	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S965032AbWI1PVN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Sep 2006 11:21:13 -0400
-Date: Thu, 28 Sep 2006 17:20:20 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>,
+	Thu, 28 Sep 2006 11:24:48 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:54940 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030187AbWI1PYr (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Sep 2006 11:24:47 -0400
+Date: Thu, 28 Sep 2006 08:24:19 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: =?ISO-8859-1?Q?J=F6rn_Engel?= <joern@wohnheim.fh-wedel.de>
+cc: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>,
        Chase Venters <chase.venters@clientec.com>,
        Sergey Panov <sipan@sipan.org>, Patrick McFarland <diablod3@gmail.com>,
        Theodore Tso <tytso@mit.edu>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
@@ -20,50 +20,69 @@ Cc: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>,
        James Bottomley <James.Bottomley@steeleye.com>,
        linux-kernel <linux-kernel@vger.kernel.org>
 Subject: Re: GPLv3 Position Statement
-Message-ID: <20060928152020.GC21814@wohnheim.fh-wedel.de>
-References: <1158941750.3445.31.camel@mulgrave.il.steeleye.com> <Pine.LNX.4.64.0609271945450.3952@g5.osdl.org> <1159415242.13562.12.camel@sipan.sipan.org> <200609272339.28337.chase.venters@clientec.com> <20060928135510.GR13641@csclub.uwaterloo.ca> <20060928141932.GA707@DervishD> <20060928144028.GA21814@wohnheim.fh-wedel.de> <Pine.LNX.4.64.0609280748500.3952@g5.osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
 In-Reply-To: <Pine.LNX.4.64.0609280748500.3952@g5.osdl.org>
-User-Agent: Mutt/1.5.9i
+Message-ID: <Pine.LNX.4.64.0609280808450.3952@g5.osdl.org>
+References: <1158941750.3445.31.camel@mulgrave.il.steeleye.com>
+ <Pine.LNX.4.64.0609271945450.3952@g5.osdl.org> <1159415242.13562.12.camel@sipan.sipan.org>
+ <200609272339.28337.chase.venters@clientec.com> <20060928135510.GR13641@csclub.uwaterloo.ca>
+ <20060928141932.GA707@DervishD> <20060928144028.GA21814@wohnheim.fh-wedel.de>
+ <Pine.LNX.4.64.0609280748500.3952@g5.osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 28 September 2006 08:04:13 -0700, Linus Torvalds wrote:
+
+
+On Thu, 28 Sep 2006, Linus Torvalds wrote:
 > 
-> No. I _really_ want to clarify this, because so many people get it wrong. 
-> Really.
-> 
-> The "GPLv2 only" wording is really just a clarification. You don't need it 
-> for the project to be "GPLv2 only".
-> 
-> If a project says: "This code is licensed under this copyright license" 
-> and then goes on to quote the GPLv2, then IT IS NOT COMPATIBLE WITH THE 
-> GPLv3!
-> 
-> Or if you just say "I license my code under the GPLv2", IT IS NOT 
-> COMPATIBLE WITH THE GPLv3.
+> It should also be pointed out that even a "GPLv2 or later" project can be 
+> forked two different ways: you can turn it into a "GPLv3" (with perhaps a 
+> "or later" added too) project, but you can _equally_ turn it into a "GPLv2 
+> only" project.
 
-And this is an area where I slightly disagree with you.  While I would
-hope that you were right, I can easily imagine a judge ruling that "v2
-or later" in the preamble means that the project just signed a blank
-license of the FSF's discretion.
+Btw, it should be stated here: I'm not advocating either of the above. If 
+a license says "v2 or later", anybody who removes an explicit right 
+granted by the people who originally wrote and worked on the code is just 
+being a total a-hole.
 
-I can just as easily imagine a judge ruling that "simply copying the
-GPL license verbatim and not removing the 'or later'" clause is does
-not sufficiently demonstrate the authors intent to dual-license the
-code.
+Quite frankly, if the FSF ever relicenses any of their projects to be 
+"GPLv3 or later", I will hope that everybody immediately forks, and 
+creates a GPLv2-only copy (and yes, you have to do it immediately, or 
+you're screwed forever). That way the people involved can all vote with 
+their feet.
 
-And the likelihood of either ruling will depend on many things, but
-will never reach 0 or 1.  It is a gray area where your legal advice is
-just as bad as mine and your "GPLv2 only" clarification may in fact be
-a fork I was talking about.  We just don't know until this has been
-tested in court, which hopefully never happens.
+I think the same is true of code that is licensed "GPL or BSD dual 
+licensed". If I notice a patch that removes the BSD dual-license for a 
+file, I won't apply it to the kernel I maintain unless there is some 
+really pressing reason that I can't even think of off-hand (of course, 
+that doesn't mean it can't have happened - if it came through a 
+sub-maintainer I would likely never even have noticed).
 
-Jörn
+Or, indeed, as in the case of the reiserfs code: it's dual-licensed "GPLv2 
+or any other license as per Hans Reiser".
 
--- 
-Joern's library part 11:
-http://www.unicom.com/pw/reply-to-harmful.html
+Btw, I have always found it funny how some people have no problem at all 
+with "GPLv2 or later", but then complain about reiserfs: it is _exactly_ 
+the same dual-license, it's just that a different legal entity controls 
+the other yet-to-be-determined license.
+
+The only _real_ difference is that in the case of reiserfs, the "other 
+entity" is actually the original author of the code, so I _personally_ 
+actually very strongly feel that the reiserfs case is _better_ than "GPLv2 
+or later". In the reiserfs case, the person who does the relicensing is 
+actually the same people who wrote the original code and maintained it. 
+
+That's how it should be (of course, I think Reiser isn't actually 
+actively maintaining reiserfs any more, so at some point his "moral 
+rights" do end up weakening, but in the absense of any big rewrites, I 
+don't think that has happened yet in this example - I just wanted to 
+point out that things aren't "black-and-white" and "original author" 
+only gets you so far if you then leave the project).
+
+I know certain people don't like the reiserfs license - they've complained 
+to me. At the same time, I know some of those same people themselves 
+expressly use "GPLv2 or later". I think those people have a serious 
+disconnect in their logic.
+
+			Linus

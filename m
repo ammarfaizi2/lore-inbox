@@ -1,150 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751310AbWI1RYP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751329AbWI1RZr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751310AbWI1RYP (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Sep 2006 13:24:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751329AbWI1RYP
+	id S1751329AbWI1RZr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Sep 2006 13:25:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751960AbWI1RZr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Sep 2006 13:24:15 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:21186 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1751310AbWI1RYP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Sep 2006 13:24:15 -0400
-Date: Thu, 28 Sep 2006 12:24:07 -0500
-From: Dean Nelson <dcn@sgi.com>
-To: Randy Dunlap <rdunlap@xenotime.net>
-Cc: linux-kernel@vger.kernel.org, holt@sgi.com, swise@opengridcomputing.com,
-       jes@trained-monkey.org, avolkov@varma-el.com, dcn@sgi.com
-Subject: [PATCH] make genpool allocator adhere to kernel-doc standards
-Message-ID: <20060928172407.GA13807@sgi.com>
-References: <20060927153545.28235.76214.stgit@dell3.ogc.int> <20060927085123.99749d2c.rdunlap@xenotime.net> <1159372405.10663.13.camel@stevo-desktop> <20060927085608.7f753439.rdunlap@xenotime.net> <20060927195929.GB3283@sgi.com> <20060927132728.d01ee9fb.rdunlap@xenotime.net>
+	Thu, 28 Sep 2006 13:25:47 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.149]:55174 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751958AbWI1RZq
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Sep 2006 13:25:46 -0400
+Date: Thu, 28 Sep 2006 22:55:20 +0530
+From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
+To: Ingo Molnar <mingo@elte.hu>, Nick Piggin <nickpiggin@yahoo.com.au>
+Cc: linux-kernel@vger.kernel.org, Kirill Korotaev <dev@openvz.org>,
+       Mike Galbraith <efault@gmx.de>, Balbir Singh <balbir@in.ibm.com>,
+       sekharan@us.ibm.com, Andrew Morton <akpm@osdl.org>,
+       nagar@watson.ibm.com, matthltc@us.ibm.com, dipankar@in.ibm.com,
+       ckrm-tech@lists.sourceforge.net
+Subject: [RFC, PATCH 0/9] CPU Controller V2
+Message-ID: <20060928172520.GA8746@in.ibm.com>
+Reply-To: vatsa@in.ibm.com
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060927132728.d01ee9fb.rdunlap@xenotime.net>
-User-Agent: Mutt/1.5.9i
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The exported kernel interfaces of genpool allocator need to adhere to
-the requirements of kernel-doc.
+Here's V2 of the token-based CPU controller I have been working on.
 
-Signed-off-by: Dean Nelson <dcn@sgi.com>
+Changes since last version (posted at http://lkml.org/lkml/2006/8/20/115):
 
----
+	- Task load was not changed when it moved between task-groups of
+	  different quota (bug hit by Mike Galbraith).
 
-On Wed, Sep 27, 2006 at 01:27:28PM -0700, Randy Dunlap wrote:
-> On Wed, 27 Sep 2006 14:59:29 -0500 Dean Nelson wrote:
-> > 
-> > Sorry Randy, this was my mistake. I didn't know about kernel-doc.
-> > I'll put together a patch tommorrow, if that would be alright?
-> > I don't have the time today.
-> 
-> Sure, no problem.  Thanks for doing that.
-> I'll review it when you post it.
+	- SMP load balance seems to work -much- better now wrt its awaress
+	  of quota on each task-group. The trick was to go beyond the
+	  max_load difference in __move_tasks and instead use the load
+	  difference between two task-groups on the different cpus as
+	  basis of pulling tasks.
 
-Thanks for reviewing this. If you do not have any issues with
-this patch, would you mind sending it on to Linus?
+	- Better timeslice management, aimed at handling bursty
+	  workloads better. Patch 3/9 has documentation on timeslice
+	  management for various task-groups.
 
-This patch is dependent on another patch to be applied first, the
-patch with a subject line of: '[PATCH] add gen_pool_destroy()'.
-(Its most recent version.)
+	- Modified cpuset interface as per Paul Jackson's suggestions.
+	  Some of the changes are:
+		- s/meter_cpu/cpu_meter_enabled
+		- s/cpu_quota/cpu_meter_quota
+		- s/FILE_METER_FLAG/FILE_CPU_METER_ENABLED
+		- s/FILE_METER_QUOTA/FILE_CPU_METER_QUOTA
+		- Dont allow cpu_meter_enabled to be turned on for an
+		  "in-use" cpuset (which has tasks attached to it)
+		- Dont allow cpu_meter_quota to be changed for an 
+		  "in-use" cpuset (which has tasks attached to it)
+		  
+		  Last two are temporary limitations until we figure out how
+		  to get to a cpuset's task-list more easily. 
 
-Thanks,
-Dean
+Still on my todo list:
+
+	- Improved surplus cycles management. If A, B and C groups have
+	  been given 50%, 30% and 20%  quota respectively and if group B
+	  is idle, B's quota has to be divided b/n A and C in the 5:2 
+	  proportion.
+	
+	- Although load balance seems to be working nicely for the
+	  testcases I have been running, I anticipate certain corner
+	  cases which are yet to be worked out. Especially I need to
+	  make sure some of the HT/MC optimizations are not broken.
 
 
- genalloc.c |   39 +++++++++++++++++++++++----------------
- 1 file changed, 23 insertions(+), 16 deletions(-)
+Ingo/Nick, IMHO virtualizing cpu-runqueues approach to solve the controller 
+need is not a good idea, since:
 
+	- retaining existing load-balance optimizations for MC/SMT case is 
+	  going to be hard (has to be done at schedule time now)
+	- because of virtualization, two virtual cpus could end up running on 
+	  the same physical cpu which would affect the carefull SMP 
+	  optimizations put in place are all-over the kernel
+	- not to mention specialized apps which want to bind to CPUs for 
+	  performance reasons may behave badly in such a virtualized
+	  environment.
 
-Index: linux-2.6/lib/genalloc.c
-===================================================================
---- linux-2.6.orig/lib/genalloc.c	2006-09-28 10:54:41.330794389 -0500
-+++ linux-2.6/lib/genalloc.c	2006-09-28 11:02:54.327472348 -0500
-@@ -14,11 +14,13 @@
- #include <linux/genalloc.h>
- 
- 
--/*
-- * Create a new special memory pool.
-- *
-+/**
-+ * gen_pool_create - create a new special memory pool
-  * @min_alloc_order: log base 2 of number of bytes each bitmap bit represents
-  * @nid: node id of the node the pool structure should be allocated on, or -1
-+ *
-+ * Create a new special memory pool that can be used to manage special purpose
-+ * memory not managed by the regular kmalloc/kfree interface.
-  */
- struct gen_pool *gen_pool_create(int min_alloc_order, int nid)
- {
-@@ -35,14 +37,15 @@
- EXPORT_SYMBOL(gen_pool_create);
- 
- 
--/*
-- * Add a new chunk of memory to the specified pool.
-- *
-+/**
-+ * gen_pool_add - add a new chunk of special memory to the pool
-  * @pool: pool to add new memory chunk to
-  * @addr: starting address of memory chunk to add to pool
-  * @size: size in bytes of the memory chunk to add to pool
-  * @nid: node id of the node the chunk structure and bitmap should be
-  *       allocated on, or -1
-+ *
-+ * Add a new chunk of special memory to the specified pool.
-  */
- int gen_pool_add(struct gen_pool *pool, unsigned long addr, size_t size,
- 		 int nid)
-@@ -70,10 +73,12 @@
- EXPORT_SYMBOL(gen_pool_add);
- 
- 
--/*
-- * Destroy a memory pool. Verifies that there are no outstanding allocations.
-- *
-+/**
-+ * gen_pool_destroy - destroy a special memory pool
-  * @pool: pool to destroy
-+ *
-+ * Destroy the specified special memory pool. Verifies that there are no
-+ * outstanding allocations.
-  */
- void gen_pool_destroy(struct gen_pool *pool)
- {
-@@ -100,12 +105,13 @@
- EXPORT_SYMBOL(gen_pool_destroy);
- 
- 
--/*
-- * Allocate the requested number of bytes from the specified pool.
-- * Uses a first-fit algorithm.
-- *
-+/**
-+ * gen_pool_alloc - allocate special memory from the pool
-  * @pool: pool to allocate from
-  * @size: number of bytes to allocate from the pool
-+ *
-+ * Allocate the requested number of bytes from the specified pool.
-+ * Uses a first-fit algorithm.
-  */
- unsigned long gen_pool_alloc(struct gen_pool *pool, size_t size)
- {
-@@ -158,12 +164,13 @@
- EXPORT_SYMBOL(gen_pool_alloc);
- 
- 
--/*
-- * Free the specified memory back to the specified pool.
-- *
-+/**
-+ * gen_pool_free - free allocated special memory back to the pool
-  * @pool: pool to free to
-  * @addr: starting address of memory to free back to pool
-  * @size: size in bytes of memory to free
-+ *
-+ * Free previously allocated special memory back to the specified pool.
-  */
- void gen_pool_free(struct gen_pool *pool, unsigned long addr, size_t size)
- {
+Hence I have been pursuing more simpler approaches like in this patch.
+
+Your comments/views on this are highly appreciated.
+
+-- 
+Regards,
+vatsa

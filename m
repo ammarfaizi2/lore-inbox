@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161113AbWI1NIv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161114AbWI1NJJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161113AbWI1NIv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Sep 2006 09:08:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161114AbWI1NIv
+	id S1161114AbWI1NJJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Sep 2006 09:09:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161115AbWI1NJJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Sep 2006 09:08:51 -0400
-Received: from mtagate4.de.ibm.com ([195.212.29.153]:35242 "EHLO
-	mtagate4.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1161113AbWI1NIt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Sep 2006 09:08:49 -0400
-Date: Thu, 28 Sep 2006 15:08:47 +0200
+	Thu, 28 Sep 2006 09:09:09 -0400
+Received: from mtagate6.de.ibm.com ([195.212.29.155]:31774 "EHLO
+	mtagate6.de.ibm.com") by vger.kernel.org with ESMTP
+	id S1161114AbWI1NJG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Sep 2006 09:09:06 -0400
+Date: Thu, 28 Sep 2006 15:09:04 +0200
 From: Martin Schwidefsky <schwidefsky@de.ibm.com>
-To: linux-kernel@vger.kernel.org
-Subject: [S390] __div64_32 for 31 bit.
-Message-ID: <20060928130847.GD1120@skybase>
+To: linux-kernel@vger.kernel.org, cborntra@de.ibm.com
+Subject: [S390] config option for z9-109 code generation.
+Message-ID: <20060928130904.GE1120@skybase>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
@@ -21,260 +21,47 @@ User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Martin Schwidefsky <schwidefsky@de.ibm.com>
+From: Christian Borntraeger <cborntra@de.ibm.com>
 
-[S390] __div64_32 for 31 bit.
+[S390] config option for z9-109 code generation.
 
-The clocksource infrastructure introduced with commit
-ad596171ed635c51a9eef829187af100cbf8dcf7 broke 31 bit s390.
-The reason is that the do_div() primitive for 31 bit always
-had a restriction: it could only divide an unsigned 64 bit
-integer by an unsigned 31 bit integer. The clocksource code
-now uses do_div() with a base value that has the most
-significant bit set. The result is that clock->cycle_interval
-has a funny value which causes the linux time to jump around
-like mad. 
-The solution is "obvious": implement a proper __div64_32
-function for 31 bit s390.
+Add a kernel config option for the IBM System z9. This will produce
+faster code on newer compilers using the -march=z9-109 option.
 
+Signed-off-by: Christian Borntraeger <cborntra@de.ibm.com>
 Signed-off-by: Martin Schwidefsky <schwidefsky@de.ibm.com>
 ---
 
- arch/s390/Kconfig        |    4 +
- arch/s390/lib/Makefile   |    1 
- arch/s390/lib/div64.c    |  151 +++++++++++++++++++++++++++++++++++++++++++++++
- include/asm-s390/div64.h |   48 --------------
- 4 files changed, 156 insertions(+), 48 deletions(-)
+ arch/s390/Kconfig  |    8 ++++++++
+ arch/s390/Makefile |    1 +
+ 2 files changed, 9 insertions(+)
 
 diff -urpN linux-2.6/arch/s390/Kconfig linux-2.6-patched/arch/s390/Kconfig
---- linux-2.6/arch/s390/Kconfig	2006-09-28 14:58:39.000000000 +0200
-+++ linux-2.6-patched/arch/s390/Kconfig	2006-09-28 14:58:54.000000000 +0200
-@@ -51,6 +51,10 @@ config 64BIT
- 	  Select this option if you have a 64 bit IBM zSeries machine
- 	  and want to use the 64 bit addressing mode.
+--- linux-2.6/arch/s390/Kconfig	2006-09-28 14:58:55.000000000 +0200
++++ linux-2.6-patched/arch/s390/Kconfig	2006-09-28 14:58:55.000000000 +0200
+@@ -153,6 +153,14 @@ config MARCH_Z990
+ 	  This will be slightly faster but does not work on
+ 	  older machines such as the z900.
  
-+config 32BIT
-+	bool
-+	default y if !64BIT
++config MARCH_Z9_109
++	bool "IBM System z9"
++	help
++	  Select this to enable optimizations for IBM System z9-109, IBM
++	  System z9 Enterprise Class (z9 EC), and IBM System z9 Business
++	  Class (z9 BC). The kernel will be slightly faster but will not
++	  work on older machines such as the z990, z890, z900, and z800.
 +
- config SMP
- 	bool "Symmetric multi-processing support"
- 	---help---
-diff -urpN linux-2.6/arch/s390/lib/div64.c linux-2.6-patched/arch/s390/lib/div64.c
---- linux-2.6/arch/s390/lib/div64.c	1970-01-01 01:00:00.000000000 +0100
-+++ linux-2.6-patched/arch/s390/lib/div64.c	2006-09-28 14:58:54.000000000 +0200
-@@ -0,0 +1,151 @@
-+/*
-+ *  arch/s390/lib/div64.c
-+ *
-+ *  __div64_32 implementation for 31 bit.
-+ *
-+ *    Copyright (C) IBM Corp. 2006
-+ *    Author(s): Martin Schwidefsky (schwidefsky@de.ibm.com),
-+ */
-+
-+#include <linux/types.h>
-+#include <linux/module.h>
-+
-+#ifdef CONFIG_MARCH_G5
-+
-+/*
-+ * Function to divide an unsigned 64 bit integer by an unsigned
-+ * 31 bit integer using signed 64/32 bit division.
-+ */
-+static uint32_t __div64_31(uint64_t *n, uint32_t base)
-+{
-+	register uint32_t reg2 asm("2");
-+	register uint32_t reg3 asm("3");
-+	uint32_t *words = (uint32_t *) n;
-+	uint32_t tmp;
-+
-+	/* Special case base==1, remainder = 0, quotient = n */
-+	if (base == 1)
-+		return 0;
-+	/*
-+	 * Special case base==0 will cause a fixed point divide exception
-+	 * on the dr instruction and may not happen anyway. For the
-+	 * following calculation we can assume base > 1. The first
-+	 * signed 64 / 32 bit division with an upper half of 0 will
-+	 * give the correct upper half of the 64 bit quotient.
-+	 */
-+	reg2 = 0UL;
-+	reg3 = words[0];
-+	asm volatile(
-+		"	dr	%0,%2\n"
-+		: "+d" (reg2), "+d" (reg3) : "d" (base) : "cc" );
-+	words[0] = reg3;
-+	reg3 = words[1];
-+	/*
-+	 * To get the lower half of the 64 bit quotient and the 32 bit
-+	 * remainder we have to use a little trick. Since we only have
-+	 * a signed division the quotient can get too big. To avoid this
-+	 * the 64 bit dividend is halved, then the signed division will
-+	 * work. Afterwards the quotient and the remainder are doubled.
-+	 * If the last bit of the dividend has been one the remainder
-+	 * is increased by one then checked against the base. If the
-+	 * remainder has overflown subtract base and increase the
-+	 * quotient. Simple, no ?
-+	 */
-+	asm volatile(
-+		"	nr	%2,%1\n"
-+		"	srdl	%0,1\n"
-+		"	dr	%0,%3\n"
-+		"	alr	%0,%0\n"
-+		"	alr	%1,%1\n"
-+		"	alr	%0,%2\n"
-+		"	clr	%0,%3\n"
-+		"	jl	0f\n"
-+		"	slr	%0,%3\n"
-+		"	alr	%1,%2\n"
-+		"0:\n"
-+		: "+d" (reg2), "+d" (reg3), "=d" (tmp)
-+		: "d" (base), "2" (1UL) : "cc" );
-+	words[1] = reg3;
-+	return reg2;
-+}
-+
-+/*
-+ * Function to divide an unsigned 64 bit integer by an unsigned
-+ * 32 bit integer using the unsigned 64/31 bit division.
-+ */
-+uint32_t __div64_32(uint64_t *n, uint32_t base)
-+{
-+	uint32_t r;
-+
-+	/*
-+	 * If the most significant bit of base is set, divide n by
-+	 * (base/2). That allows to use 64/31 bit division and gives a
-+	 * good approximation of the result: n = (base/2)*q + r. The
-+	 * result needs to be corrected with two simple transformations.
-+	 * If base is already < 2^31-1 __div64_31 can be used directly.
-+	 */
-+	r = __div64_31(n, ((signed) base < 0) ? (base/2) : base);
-+	if ((signed) base < 0) {
-+		uint64_t q = *n;
-+		/*
-+		 * First transformation:
-+		 * n = (base/2)*q + r
-+		 *   = ((base/2)*2)*(q/2) + ((q&1) ? (base/2) : 0) + r
-+		 * Since r < (base/2), r + (base/2) < base.
-+		 * With q1 = (q/2) and r1 = r + ((q&1) ? (base/2) : 0)
-+		 * n = ((base/2)*2)*q1 + r1 with r1 < base.
-+		 */
-+		if (q & 1)
-+			r += base/2;
-+		q >>= 1;
-+		/*
-+		 * Second transformation. ((base/2)*2) could have lost the
-+		 * last bit.
-+		 * n = ((base/2)*2)*q1 + r1
-+		 *   = base*q1 - ((base&1) ? q1 : 0) + r1
-+		 */
-+		if (base & 1) {
-+			int64_t rx = r - q;
-+			/*
-+			 * base is >= 2^31. The worst case for the while
-+			 * loop is n=2^64-1 base=2^31+1. That gives a
-+			 * maximum for q=(2^64-1)/2^31 = 0x1ffffffff. Since
-+			 * base >= 2^31 the loop is finished after a maximum
-+			 * of three iterations.
-+			 */
-+			while (rx < 0) {
-+				rx += base;
-+				q--;
-+			}
-+			r = rx;
-+		}
-+		*n = q;
-+	}
-+	return r;
-+}
-+
-+#else /* MARCH_G5 */
-+
-+uint32_t __div64_32(uint64_t *n, uint32_t base)
-+{
-+	register uint32_t reg2 asm("2");
-+	register uint32_t reg3 asm("3");
-+	uint32_t *words = (uint32_t *) n;
-+
-+	reg2 = 0UL;
-+	reg3 = words[0];
-+	asm volatile(
-+		"	dlr	%0,%2\n"
-+		: "+d" (reg2), "+d" (reg3) : "d" (base) : "cc" );
-+	words[0] = reg3;
-+	reg3 = words[1];
-+	asm volatile(
-+		"	dlr	%0,%2\n"
-+		: "+d" (reg2), "+d" (reg3) : "d" (base) : "cc" );
-+	words[1] = reg3;
-+	return reg2;
-+}
-+
-+#endif /* MARCH_G5 */
-+
-+EXPORT_SYMBOL(__div64_32);
-diff -urpN linux-2.6/arch/s390/lib/Makefile linux-2.6-patched/arch/s390/lib/Makefile
---- linux-2.6/arch/s390/lib/Makefile	2006-09-28 14:58:39.000000000 +0200
-+++ linux-2.6-patched/arch/s390/lib/Makefile	2006-09-28 14:58:54.000000000 +0200
-@@ -5,5 +5,6 @@
- EXTRA_AFLAGS := -traditional
+ endchoice
  
- lib-y += delay.o string.o uaccess_std.o
-+lib-$(CONFIG_32BIT) += div64.o
- lib-$(CONFIG_64BIT) += uaccess_mvcos.o
- lib-$(CONFIG_SMP) += spinlock.o
-diff -urpN linux-2.6/include/asm-s390/div64.h linux-2.6-patched/include/asm-s390/div64.h
---- linux-2.6/include/asm-s390/div64.h	2006-09-20 05:42:06.000000000 +0200
-+++ linux-2.6-patched/include/asm-s390/div64.h	2006-09-28 14:58:54.000000000 +0200
-@@ -1,49 +1 @@
--#ifndef __S390_DIV64
--#define __S390_DIV64
--
--#ifndef __s390x__
--
--/* for do_div "base" needs to be smaller than 2^31-1 */
--#define do_div(n, base) ({                                      \
--	unsigned long long __n = (n);				\
--	unsigned long __r;					\
--								\
--	asm ("   slr  0,0\n"					\
--	     "   l    1,%1\n"					\
--	     "   srdl 0,1\n"					\
--	     "   dr   0,%2\n"					\
--	     "   alr  1,1\n"					\
--	     "   alr  0,0\n"					\
--	     "   lhi  2,1\n"					\
--	     "   n    2,%1\n"					\
--	     "   alr  0,2\n"					\
--	     "   clr  0,%2\n"					\
--	     "   jl   0f\n"					\
--	     "   slr  0,%2\n"					\
--             "   ahi  1,1\n"					\
--	     "0: st   1,%1\n"					\
--	     "   l    1,4+%1\n"					\
--	     "   srdl 0,1\n"					\
--             "   dr   0,%2\n"					\
--	     "   alr  1,1\n"					\
--	     "   alr  0,0\n"					\
--	     "   lhi  2,1\n"					\
--	     "   n    2,4+%1\n"					\
--	     "   alr  0,2\n"					\
--	     "   clr  0,%2\n"					\
--             "   jl   1f\n"					\
--	     "   slr  0,%2\n"					\
--	     "   ahi  1,1\n"					\
--	     "1: st   1,4+%1\n"					\
--             "   lr   %0,0"					\
--	     : "=d" (__r), "=m" (__n)				\
--	     : "d" (base), "m" (__n) : "0", "1", "2", "cc" );	\
--	(n) = (__n);						\
--        __r;                                                    \
--})
--
--#else /* __s390x__ */
- #include <asm-generic/div64.h>
--#endif /* __s390x__ */
--
--#endif
+ config PACK_STACK
+diff -urpN linux-2.6/arch/s390/Makefile linux-2.6-patched/arch/s390/Makefile
+--- linux-2.6/arch/s390/Makefile	2006-09-20 05:42:06.000000000 +0200
++++ linux-2.6-patched/arch/s390/Makefile	2006-09-28 14:58:55.000000000 +0200
+@@ -33,6 +33,7 @@ endif
+ cflags-$(CONFIG_MARCH_G5)   += $(call cc-option,-march=g5)
+ cflags-$(CONFIG_MARCH_Z900) += $(call cc-option,-march=z900)
+ cflags-$(CONFIG_MARCH_Z990) += $(call cc-option,-march=z990)
++cflags-$(CONFIG_MARCH_Z9_109) += $(call cc-option,-march=z9-109)
+ 
+ #
+ # Prevent tail-call optimizations, to get clearer backtraces:

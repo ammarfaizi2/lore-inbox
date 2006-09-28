@@ -1,76 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750849AbWI1X00@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751053AbWI1X0n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750849AbWI1X00 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Sep 2006 19:26:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750851AbWI1X0Z
+	id S1751053AbWI1X0n (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Sep 2006 19:26:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751035AbWI1X0m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Sep 2006 19:26:25 -0400
-Received: from ra.tuxdriver.com ([70.61.120.52]:21774 "EHLO ra.tuxdriver.com")
-	by vger.kernel.org with ESMTP id S1750849AbWI1X0Y (ORCPT
+	Thu, 28 Sep 2006 19:26:42 -0400
+Received: from DSL022.labridge.com ([206.117.136.22]:52743 "EHLO Perches.com")
+	by vger.kernel.org with ESMTP id S1750851AbWI1X0l (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Sep 2006 19:26:24 -0400
-Date: Thu, 28 Sep 2006 19:22:06 -0400
-From: Neil Horman <nhorman@tuxdriver.com>
-To: Sam Ravnborg <sam@ravnborg.org>
-Cc: linux-kernel@vger.kernel.org, mj@atrey.karlin.mff.cuni.cz,
-       davej@redhat.com
-Subject: Re: [PATCH] x86: update vmlinux.lds.S to place .data section on a page boundary
-Message-ID: <20060928232206.GA11386@hmsreliant.homelinux.net>
-References: <20060928201249.GA10037@hmsreliant.homelinux.net> <20060928204220.GA31096@uranus.ravnborg.org>
+	Thu, 28 Sep 2006 19:26:41 -0400
+Subject: Re: Tiny error in printk output for clocksource : a3:<6>Time:
+	acpi_pm clocksource has been installed.
+From: Joe Perches <joe@perches.com>
+To: Denis Vlasenko <vda.linux@googlemail.com>
+Cc: Randy Dunlap <rdunlap@xenotime.net>, Greg KH <greg@kroah.com>,
+       Jesper Juhl <jesper.juhl@gmail.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+In-Reply-To: <200609281819.43712.vda.linux@googlemail.com>
+References: <9a8748490609261722g557eaeeayc148b5f5d910874d@mail.gmail.com>
+	 <200609281256.23175.vda.linux@googlemail.com>
+	 <1159459694.5015.19.camel@localhost>
+	 <200609281819.43712.vda.linux@googlemail.com>
+Content-Type: text/plain
+Date: Thu, 28 Sep 2006 16:26:34 -0700
+Message-Id: <1159485994.5015.95.camel@localhost>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060928204220.GA31096@uranus.ravnborg.org>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.8.0-1mdv2007.0 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 28, 2006 at 10:42:20PM +0200, Sam Ravnborg wrote:
-> On Thu, Sep 28, 2006 at 04:12:49PM -0400, Neil Horman wrote:
-> > Patch to update vmlinux linker script so that .data section is on a page
-> > boundary.  without this change the kernel's .data section is on a non-4k
-> > boundary, and this prevents kexec from loading a new kernel.  Tested
-> > successfully by me.
-> NAK
-> 
-> > +  . = ALIGN(4096);
-> 
-> Do not use magic numbers like this.
-> Please replace 4096 with PAGE_SIZE - page.h is already included so it is
-> available.
-> This servers two purposes:
-> 1) This make it more self documenting
-> 2) It makes it more portable should we decide to do this in a general
-> way for all arch's.
-> 
-I'm happy to do this if that is the consensus, but if you look at the rest of
-the file, I'm simply following the standard that is currently in the file.  Are
-you sure you want me to go and revamp that through the entire script?
+On Thu, 2006-09-28 at 18:19 +0200, Denis Vlasenko wrote:
+> Actually, I think it makes sense to have both: yours for complicated
+> cases (printk with lots of other %something) and mine for simple ones
+> (no local variable, smaller code).
+> > Strictly, not all MAC addresses are 6 byte.
+> > Maybe all the Ethernet/TR addresses should use the
+> > IEEE EUI48 designation?  That feels a bit like the
+> > KiB/KB distinction, but it is technically correct.
+> > Would a patch with an DEV6_ADDR->EUI48 substitution
+> > be acceptable?
+> Maybe. Doesn't look obvious, but if it is in standards...
 
-> And then maybe a comment why it is desireable to waste a lot of RAM
-> in some cases. For the embedded people wasting up to 4088 bytes
-> of RAM is not desireable.
-> 
-Again, its the standard of the script.  All other sections are page aligned (or
-rather were).  some recent changes have added a section data (a __tracedata
-section I think), which is 4 byte aligned, which shifted the subsequent section
-to be 4 byte aligned (the following note section as described in the PHDRS
-section is prefixed with a simmilar ALIGN macro to bring it back into page
-alignment.
+I brought the RFC patch from several months ago forward
+using the implicit stack var in DECLARE_EUI48.
 
-Again, I'll repost with the adjustments you request, but first I'd like you please to
-look at the file and make sure thats best.  Currently, I'm more comfortable with
-the above, as it reflects the current standard of the script.
+It's quite large, > 300k.
 
-Regards
-Neil
+The patches also use single printks for more messages so
+that when CONFIG_PCI_MULTITHREAD_PROBE is set, message
+lines won't be split.
 
-> 
-> 	Sam
+I separated the patches into groups where the output is:
+1-identical, 2-changed but likely harmless, and 3-other.
 
--- 
-/***************************************************
- *Neil Horman
- *Software Engineer
- *gpg keyid: 1024D / 0x92A74FA1 - http://pgp.mit.edu
- ***************************************************/
+In some cases, mac addresses are formatted for use in
+/proc and seq_printf either in lower case or with just
+a "%x" instead of "%02X", or not colon separated.
+It's not good to change those formats.
+
+I'd like to agree on the form before posting.
+
+implicit DECLARE_EUI48; and EUI48(address)
+or
+explicit DECLARE_EUI48(name) and EUI48(name, address)
+
+Warts:
+
+There are some new non-debug warnings that are generated
+when using the stack automatic because some of the debug
+printks don't get compiled and you get "unused variable"
+warnings.
+
+It's possible to remove the DECLARE_EUI48 completely
+by not indirecting the formatting string
+"%02X:%02X:%02X:%02X:%02X:%02X" to "%s" and a function,
+but it increases the kernel or module size.
+

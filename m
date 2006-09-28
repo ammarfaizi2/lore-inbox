@@ -1,94 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031300AbWI1Ak4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031302AbWI1Al0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1031300AbWI1Ak4 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Sep 2006 20:40:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031302AbWI1Ak4
+	id S1031302AbWI1Al0 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Sep 2006 20:41:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031304AbWI1AlZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Sep 2006 20:40:56 -0400
-Received: from mail.gmx.de ([213.165.64.20]:19098 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1031300AbWI1Ak4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Sep 2006 20:40:56 -0400
-X-Authenticated: #5039886
-Date: Thu, 28 Sep 2006 02:40:53 +0200
-From: =?iso-8859-1?Q?Bj=F6rn?= Steinbrink <B.Steinbrink@gmx.de>
-To: Andrew Morton <akpm@osdl.org>, Martin Filip <bugtraq@smoula.net>,
-       linux-kernel@vger.kernel.org, Ayaz Abdulla <aabdulla@nvidia.com>
-Subject: Re: forcedeth - WOL [SOLVED]
-Message-ID: <20060928004053.GA3521@atjola.homenet>
-Mail-Followup-To: =?iso-8859-1?Q?Bj=F6rn?= Steinbrink <B.Steinbrink@gmx.de>,
-	Andrew Morton <akpm@osdl.org>, Martin Filip <bugtraq@smoula.net>,
-	linux-kernel@vger.kernel.org, Ayaz Abdulla <aabdulla@nvidia.com>
-References: <1159379441.9024.7.camel@archon.smoula-in.net> <20060927183857.GA2963@atjola.homenet> <1159389486.8902.4.camel@archon.smoula-in.net> <20060927165704.613bf0aa.akpm@osdl.org> <20060928000447.GB2963@atjola.homenet>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+	Wed, 27 Sep 2006 20:41:25 -0400
+Received: from mga05.intel.com ([192.55.52.89]:51378 "EHLO
+	fmsmga101.fm.intel.com") by vger.kernel.org with ESMTP
+	id S1031088AbWI1AlY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Sep 2006 20:41:24 -0400
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.09,226,1157353200"; 
+   d="scan'208"; a="138568150:sNHT64668485"
+Date: Wed, 27 Sep 2006 17:23:55 -0700
+From: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
+To: David Miller <davem@davemloft.net>
+Cc: suresh.b.siddha@intel.com, akpm@osdl.org, hugh@veritas.com,
+       linux-kernel@vger.kernel.org, asit.k.mallick@intel.com
+Subject: Re: [patch] mm: fix a race condition under SMC + COW
+Message-ID: <20060927172355.B12423@unix-os.sc.intel.com>
+References: <20060927151507.A12423@unix-os.sc.intel.com> <20060927.155442.71092068.davem@davemloft.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20060928000447.GB2963@atjola.homenet>
-User-Agent: Mutt/1.5.13 (2006-08-11)
-X-Y-GMX-Trusted: 0
+User-Agent: Mutt/1.2.5.1i
+In-Reply-To: <20060927.155442.71092068.davem@davemloft.net>; from davem@davemloft.net on Wed, Sep 27, 2006 at 03:54:42PM -0700
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2006.09.28 02:04:48 +0200, Björn Steinbrink wrote:
+On Wed, Sep 27, 2006 at 03:54:42PM -0700, David Miller wrote:
+> You can't really do a set_pte_at() in this code path because
+> there isn't a subsequent flush_tlb_*().
 > 
-> Hi Andrew,
+> This is needed because some architectures queue up all set_pte_at()
+> calls until the next flush_tlb_*() in order to batch TLB flushes.
+> PowerPC and Sparc64 both do this.
 > 
-> 
-> On 2006.09.27 16:57:04 -0700, Andrew Morton wrote:
-> > On Wed, 27 Sep 2006 22:38:06 +0200
-> > Martin Filip <bugtraq@smoula.net> wrote:
-> > 
-> > > Hi,
-> > > 
-> > > Bj__rn Steinbrink p____e v St 27. 09. 2006 v 20:38 +0200:
-> > > 
-> > > > Did you check that WOL was enabled? I need to re-activate it after each
-> > > > boot (I guess that's normal, not sure though).
-> > > > The output of "ethtool eth0" should show:
-> > > > 
-> > > >         Supports Wake-on: g
-> > > >         Wake-on: g
-> > > > 
-> > > Yes, of course :)
-> > > 
-> > > > Also, I remember a bugzilla entry in which it was said that the MAC was
-> > > > somehow reversed by the driver. I that is still the case (I can't find
-> > > > the bugzilla entry right now), you might just reverse the MAC address in
-> > > > your WOL packet to workaround the bug.
-> > > 
-> > > Hey! this is really crazy :) but it works! To bo honest - I really do
-> > > not know what crazy bug could cause problems like this. I thought it's
-> > > NIC thing to manage all the work about WOL. I thought OS only sets NIC
-> > > into "WOL mode".
-> > > 
-> > > But seeing this - one packet for windows and one magic packet for linux
-> > > driver - I really do not get it.
-> > > 
-> > 
-> > Are you saying that byte-reversing the MAC address make WOL work correctly?
-> > 
-> > What tool do you use to send the packet, and how is it being invoked?
-> > 
-> > Do we know if this reversal *always* happens with this driver, or only
-> > sometimes?
-> > 
-> > Thanks.
-> 
-> searching bugzilla was more succesful this time (somehow bugzillas hate
-> me, so I need a bunch of tries every time), the bug I meant was #6604.
-> 
-> The bugreport says that it should work with 0.57 though (which is in
-> 2.6.18 AFAICT), I'll go and see if it works for me...
+> The pte_establish() in the existing code works fine because it takes
+> care of the set_pte_at() and flush_tlb_*() work internally when
+> necessary on a given platform.
 
-... 5 reboots later ...
+I am flushing the pte entry in ptep_clear_flush() and it is Ok not
+to do another TLB flush after doing set_pte_at().
 
-It still breaks with 2.6.18.
+On Sparc64, this new set_pte_at() (after ptep_clear_flush) will not batch
+any TLB flush as the previous pte contents were zero.
 
-Not touching WOL from Linux at all, rebooting and turning the box off
-during POST, WOL works using the real MAC address.
+We are Ok with this patch, isn't it?
 
-Booting 2.16.17.x or 2.6.18, turning on WOL and finally shutting down
-the box, I need to send the WOL packet with the MAC address reversed.
-
-Björn
+thanks,
+suresh

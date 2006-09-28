@@ -1,59 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751752AbWI1Jif@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751757AbWI1Jka@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751752AbWI1Jif (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Sep 2006 05:38:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751807AbWI1Jif
+	id S1751757AbWI1Jka (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Sep 2006 05:40:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751807AbWI1Jk3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Sep 2006 05:38:35 -0400
-Received: from nat-132.atmel.no ([80.232.32.132]:52472 "EHLO relay.atmel.no")
-	by vger.kernel.org with ESMTP id S1751752AbWI1Jie (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Sep 2006 05:38:34 -0400
-Date: Thu, 28 Sep 2006 11:38:57 +0200
-From: Haavard Skinnemoen <hskinnemoen@atmel.com>
-To: Andrew Victor <andrew@sanpeople.com>
-Cc: Russell King <rmk+lkml@arm.linux.org.uk>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 8/8] atmel_serial: Kill at91_register_uart_fns
-Message-ID: <20060928113857.0e3e7c48@cad-250-152.norway.atmel.com>
-In-Reply-To: <1159435315.23157.73.camel@fuzzie.sanpeople.com>
-References: <1159376285670-git-send-email-hskinnemoen@atmel.com>
-	<115937628584-git-send-email-hskinnemoen@atmel.com>
-	<11593762852168-git-send-email-hskinnemoen@atmel.com>
-	<11593762851735-git-send-email-hskinnemoen@atmel.com>
-	<11593762853931-git-send-email-hskinnemoen@atmel.com>
-	<11593762851544-git-send-email-hskinnemoen@atmel.com>
-	<11593762851494-git-send-email-hskinnemoen@atmel.com>
-	<1159376285621-git-send-email-hskinnemoen@atmel.com>
-	<11593762852950-git-send-email-hskinnemoen@atmel.com>
-	<1159435315.23157.73.camel@fuzzie.sanpeople.com>
-Organization: Atmel Norway
-X-Mailer: Sylpheed-Claws 2.5.0-rc3 (GTK+ 2.8.20; i486-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 28 Sep 2006 05:40:29 -0400
+Received: from wx-out-0506.google.com ([66.249.82.234]:29670 "EHLO
+	wx-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1751757AbWI1Jk3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Sep 2006 05:40:29 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=O5sVrdUpQZ18aIEC+MkWTJV9TGFJYIZkPlGlkxj7Ysa72Gfdszw/RGS6XU/rnUqNS3tZ054c53dKQ7gWjx23ZqRX9JJ4dKC7J2kd5vgeKG6n5kSujyXW+V7AcAPDY2SG2iSMYd4/pu03oes916aOFKS7KKOw61QycLaKHcqlQ6M=
+Message-ID: <5a4c581d0609280240t6ed7200fo2540fb5297b77848@mail.gmail.com>
+Date: Thu, 28 Sep 2006 11:40:27 +0200
+From: "Alessandro Suardi" <alessandro.suardi@gmail.com>
+To: "Andrew Morton" <akpm@osdl.org>
+Subject: Re: 2.6.18-git7 freezes solid on boot
+Cc: "Linux Kernel" <linux-kernel@vger.kernel.org>
+In-Reply-To: <20060927124652.c670785e.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <5a4c581d0609270531p52d9452fie223dbd3152bcd38@mail.gmail.com>
+	 <20060927124652.c670785e.akpm@osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 28 Sep 2006 11:21:55 +0200
-Andrew Victor <andrew@sanpeople.com> wrote:
+On 9/27/06, Andrew Morton <akpm@osdl.org> wrote:
+> On Wed, 27 Sep 2006 12:31:52 +0000
+> "Alessandro Suardi" <alessandro.suardi@gmail.com> wrote:
+>
+> > Dell D610 running FC5, works fine with -git5, locks up
+> >  in less than a second after selecting the GRUB entry
+> >  for -git7, with NumLock on and nothing else working,
+> >  SysRq included, except for the power switch (no need
+> >  to keep it down for 10 secs though - it powers off
+> >  right away).
+> >
+> > Since bzdiffing patch-2.6.18-git5 and -git7 shows there
+> >  are framebuffer changes, I'm wondering whether anyone
+> >  had already stumbled into similar issues.
+> >
+> > Video card is an Intel i915GM.
+> >
+>
+> You probably want this..
+>
+> From: Andi Kleen <ak@suse.de>
+>
+> i386: Use early clobbers for semaphores now
+>
+> The new code does clobber the result early, so make sure to tell
+> gcc to not put it into the same register as a input argument
+>
+> Signed-off-by: Andi Kleen <ak@suse.de>
+>
+> Index: linux/include/asm-i386/semaphore.h
+> ===================================================================
+> --- linux.orig/include/asm-i386/semaphore.h
+> +++ linux/include/asm-i386/semaphore.h
+> @@ -126,7 +126,7 @@ static inline int down_interruptible(str
+>                 "lea %1,%%eax\n\t"
+>                 "call __down_failed_interruptible\n"
+>                 "2:"
+> -               :"=a" (result), "+m" (sem->count)
+> +               :"=&a" (result), "+m" (sem->count)
+>                 :
+>                 :"memory");
+>         return result;
+> @@ -148,7 +148,7 @@ static inline int down_trylock(struct se
+>                 "lea %1,%%eax\n\t"
+>                 "call __down_failed_trylock\n\t"
+>                 "2:\n"
+> -               :"=a" (result), "+m" (sem->count)
+> +               :"=&a" (result), "+m" (sem->count)
+>                 :
+>                 :"memory");
+>         return result;
+> -
 
-> hi Haavard,
-> 
-> > at91_register_uart_fns has no users as far as I can see. Let's get
-> > rid of it.
-> 
-> No.  It is being used.
-> 
-> This interface is used to register board-specific functions that can
-> be use to control the serial port modem-control lines.
-> 
-> For example, the AT91RM9200 only provides the full modem-control
-> signals on USART1.  If you need the modem-control signals for any of
-> the other ports you need to drive some of the GPIO pins manually.  So
-> you need this hook back into your board-specific file to do that.
+Indeed, this brought -git7 back to life for my laptop.
 
-Ok, I sort of suspected that. But I can't see any users in the kernel
-tree, so perhaps we should leave the name of the function alone too?
-(i.e. just drop the patch)
+Thanks Andrew ! (now going to build -git9...)
 
-Haavard
+--alessandro
+
+"Well a man has two reasons for things that he does
+  the first one is pride and the second one is love
+  all understandings must come by this way"
+
+     (Husker Du, 'She Floated Away')

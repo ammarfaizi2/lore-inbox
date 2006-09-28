@@ -1,86 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030903AbWI1AB7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031269AbWI1AE1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030903AbWI1AB7 (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Sep 2006 20:01:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031266AbWI1AB7
+	id S1031269AbWI1AE1 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Sep 2006 20:04:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031271AbWI1AE0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Sep 2006 20:01:59 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:30932 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1030903AbWI1AB6 (ORCPT
+	Wed, 27 Sep 2006 20:04:26 -0400
+Received: from ns.suse.de ([195.135.220.2]:25217 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1031269AbWI1AEZ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Sep 2006 20:01:58 -0400
-Date: Wed, 27 Sep 2006 17:01:49 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Michiel de Boer <x@rebelhomicide.demon.nl>
-Cc: gregkh@suse.de, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] Chipset addition for the VIA Southbridge workaround /
- quirk
-Message-Id: <20060927170149.3bc04845.akpm@osdl.org>
-In-Reply-To: <451AE795.6030804@rebelhomicide.demon.nl>
-References: <451AE795.6030804@rebelhomicide.demon.nl>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Wed, 27 Sep 2006 20:04:25 -0400
+From: Neil Brown <neilb@suse.de>
+To: Chase Venters <chase.venters@clientec.com>
+Date: Thu, 28 Sep 2006 10:03:57 +1000
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <17691.4461.70747.594419@cse.unsw.edu.au>
+Cc: Theodore Tso <tytso@mit.edu>, Linus Torvalds <torvalds@osdl.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Jan Engelhardt <jengelh@linux01.gwdg.de>,
+       Sergey Panov <sipan@sipan.org>,
+       James Bottomley <James.Bottomley@SteelEye.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: GPLv3 Position Statement
+In-Reply-To: message from Chase Venters on Wednesday September 27
+References: <1158941750.3445.31.camel@mulgrave.il.steeleye.com>
+	<1159319508.16507.15.camel@sipan.sipan.org>
+	<Pine.LNX.4.61.0609270753590.19275@yvahk01.tjqt.qr>
+	<1159342569.2653.30.camel@sipan.sipan.org>
+	<Pine.LNX.4.61.0609271051550.19438@yvahk01.tjqt.qr>
+	<1159359540.11049.347.camel@localhost.localdomain>
+	<Pine.LNX.4.64.0609271000510.3952@g5.osdl.org>
+	<Pine.LNX.4.64.0609271300130.7316@turbotaz.ourhouse>
+	<20060927225815.GB7469@thunk.org>
+	<Pine.LNX.4.64.0609271808041.7316@turbotaz.ourhouse>
+X-Mailer: VM 7.19 under Emacs 21.4.1
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 27 Sep 2006 23:05:25 +0200
-Michiel de Boer <x@rebelhomicide.demon.nl> wrote:
+On Wednesday September 27, chase.venters@clientec.com wrote:
+> 
+> What I was really addressing here is that the whole F/OSS community 
+> exploded over the news that Linux was not adopting the GPLv3. I think it's 
+> fair to say that the reason why Linux is not adopting GPLv3 (aside from 
+> the very practical matter of gaining the consensus of copyright holders)
+> is that Linus and other top copyright holders don't think what Tivo is 
+> doing is wrong. But when that statement first came out, it was almost lost 
+> in the noise of "The FSF is not going to listen to us, and what about 
+> encryption keys?" The former probably has no place outside of LKML; the 
+> latter is the sort of thing you'd bring up at gplv3.fsf.org if you wanted 
+> to participate in the process.
 
-> Hi, i'm (maybe unfortunately ;) the owner of a socket 370 motherboard
-> by DFI. It's type number is CA63-EC REV A+. According to the manual
-> this is the exact chipset naming:
-> VIA 82C693A/82C686B AGPset
-> 
-> Also built in is an Creative Labs SB Live! audio device. When i was
-> still using windows 98, i experienced corruptions when burning DVD's,
-> and after lengthy investigation i discovered i had a buggy southbridge.[1]
-> Apparently the presence of the SB Live! audio device might even accelerate
-> the problem, although it does not actually disappear when this PCI card
-> is removed. When i moved to Linux, i decided that writing a kernel patch
-> based on the fixup programs i found for windows 98 would be appropriate.
-> 
-> However, i was pleased to discover that fixup code was already present in
-> drivers/pci/quirks.c . The only thing i had to do then was add my mother-
-> board identifier to the bottom of the code. The patch has been tried and
-> tested since 2.6.8, and since then it has evolved since it turned out it
-> contained unneccessary code patches. It has also been tested without
-> problems on the user base of the distro Kanotix[2], of which i'm a
-> co-developer. It activates as it should when it should, fixes the corrup-
-> tions i had when burning DVD's, and improves system behavior.
-> It's a very small and simple patch, but it would spare me from having
-> to patch the kernel source myself it it were to be included.
-> 
-> Regards, Michiel de Boer
-> 
-> [1] 
-> http://www.theregister.co.uk/2001/04/12/datacorruption_bug_hits_via_chipsets/
->      http://www.realworldtech.com/page.cfm?ArticleID=RWT051401003409
->      http://www.tecchannel.de/ueberblick/archiv/401770/
-> [2] http://www.kanotix.com
-> 
-> Credit: Stefan Lippers-Hollmann <s.l-h@gmx.de>, for showing me the way
-> around in the kernel sources.
-> Signed-off-by: Michiel Lieuwe de Boer <x@rebelhomicide.demon.nl>
-> 
-> diff -Nru linux-2.6.18.orig/drivers/pci/quirks.c 
-> linux-2.6.18/drivers/pci/quirks.c
-> --- linux-2.6.18.orig/drivers/pci/quirks.c      2006-09-20 
-> 05:42:06.000000000 +0200
-> +++ linux-2.6.18/drivers/pci/quirks.c   2006-09-27 22:43:30.000000000 +0200
-> @@ -172,6 +172,7 @@
->  DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_VIA,     
-> PCI_DEVICE_ID_VIA_8363_0,       quirk_vialatency );
->  DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_VIA,     
-> PCI_DEVICE_ID_VIA_8371_1,       quirk_vialatency );
->  DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_VIA,     
-> PCI_DEVICE_ID_VIA_8361,         quirk_vialatency );
-> +DECLARE_PCI_FIXUP_FINAL(PCI_VENDOR_ID_VIA,     
-> PCI_DEVICE_ID_VIA_82C691_0,     quirk_vialatency );
-> 
+I don't think that anyone is saying that what Tivo is doing isn't
+wrong.  What is being said is that the license is the wrong place to
+try to stop this sort of behaviour.  It is too broad a brush.
+There are a number of different reasons for wanting to use
+technological measures for stopping people from re-purposing a device
+and they aren't necessarily all bad.  Do we want our code to be
+prohibited from being used in all of these cases?  Some people think
+not.
 
-Could you please test 2.6.18-mm1, or simply
-ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18/2.6.18-mm1/broken-out/via-irq-quirk-behaviour-change.patch
+But I wonder if GPLv3 will really stop Tivo....
+I just read it again and saw - at the end of section 1.
 
-Thanks.
+  The Corresponding Source need not include anything that users can
+  regenerate automatically from other parts of the Corresponding
+  Source. 
+
+So if Tivo included the code they used to generate the key, then they
+don't need to include the key itself :-)  Users can regenerate the key
+form that program.  Not sure how long it will take though.
+
+NeilBrown
+

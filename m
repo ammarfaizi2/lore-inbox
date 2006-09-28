@@ -1,45 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161179AbWI1V0Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964900AbWI1VfE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161179AbWI1V0Z (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Sep 2006 17:26:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161182AbWI1V0Z
+	id S964900AbWI1VfE (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Sep 2006 17:35:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964904AbWI1VfD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Sep 2006 17:26:25 -0400
-Received: from gw.goop.org ([64.81.55.164]:6533 "EHLO mail.goop.org")
-	by vger.kernel.org with ESMTP id S1161179AbWI1V0Y (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Sep 2006 17:26:24 -0400
-Message-ID: <451C3E09.6000400@goop.org>
-Date: Thu, 28 Sep 2006 14:26:33 -0700
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
+	Thu, 28 Sep 2006 17:35:03 -0400
+Received: from polish-dvd.com ([69.222.0.225]:18621 "HELO
+	mail.webhostingstar.com") by vger.kernel.org with SMTP
+	id S964900AbWI1VfB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Sep 2006 17:35:01 -0400
+Message-ID: <20060928160920.8r3tutazc9zv4sc4@69.222.0.225>
+Date: Thu, 28 Sep 2006 16:09:20 -0500
+From: art@usfltd.com
+To: linux-kernel@vger.kernel.org
+Cc: alan@lxorguk.ukuu.org.uk
+Subject: 2.6.18.git9 SMP x86_64 boot & compilation problem
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.18-1.2689.fc6PAE: oops in ext3_clear_inode+0x52/0x8b
-References: <451C33B2.5000007@goop.org> <20060928142313.8848cec9.akpm@osdl.org>
-In-Reply-To: <20060928142313.8848cec9.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+	charset=ISO-8859-1;
+	DelSp="Yes";
+	format="flowed"
+Content-Disposition: inline
 Content-Transfer-Encoding: 7bit
+User-Agent: Internet Messaging Program (IMP) H3 (4.1.3)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> 756e6547 -> uneG.   Matches "GenuineIntel".
->
-> That'll get written into a temporary page by the /proc/cpuinfo handler, so
-> it might just be a use-uninitialised.
->   
+2.6.18.git9 SMP x86_64 boot & compilation problem
 
-I was compiling a kernel at the time, so it could have come from the 
-kernel source.
+[xxx@localhost linux-2.6.18]$ make -j 4
+   CHK     include/linux/version.h
+   CHK     include/linux/utsrelease.h
+   CHK     include/linux/compile.h
+   MODPOST vmlinux
+Kernel: arch/x86_64/boot/bzImage is ready  (#1)
+   Building modules, stage 2.
+   MODPOST 1164 modules
+WARNING: arch/x86_64/kernel/cpufreq/acpi-cpufreq.o - Section mismatch:  
+reference to .init.data: from .text between 'acpi_cpufreq_cpu_init'  
+(at offset 0x3b9) and 'acpi_cpufreq_target'
+[xxx@localhost linux-2.6.18]$
 
-> It's relatively common for that big inode LRU walk to wander off in the
-> wrong direction and to start operating on random memory.
->
-> IOW: don't know.  Something scribbled on memory somewhere.
->   
+boot hungs up !!!
+3 last lines from screen at boot time:
 
-Yep, that was as far as I got...
+...
+drivers/usb/input/hid-core.c: v2.6:USB HID core driver
+PNP: PS/2 Controller [PNP0303:PS@K] at 0x60,0x64 irq1
+PNP: PS/2 controller doesn't have AUX irq: using default 12
 
-    J
+last working version is 2.6.18-git6
+
+xboom
+art@usfltd.com

@@ -1,97 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751205AbWI1XqH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750931AbWI1XqT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751205AbWI1XqH (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Sep 2006 19:46:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751213AbWI1XqG
+	id S1750931AbWI1XqT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Sep 2006 19:46:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161363AbWI1XqS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Sep 2006 19:46:06 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:53733 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1751205AbWI1XqE (ORCPT
+	Thu, 28 Sep 2006 19:46:18 -0400
+Received: from ns1.suse.de ([195.135.220.2]:33252 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1750931AbWI1XqR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Sep 2006 19:46:04 -0400
-Date: Thu, 28 Sep 2006 16:45:36 -0700
-From: Paul Jackson <pj@sgi.com>
-To: menage@google.com
-Cc: akpm@osdl.org, ckrm-tech@lists.sourceforge.net, mbligh@google.com,
-       rohitseth@google.com, winget@google.com, dev@sw.ru, sekharan@us.ibm.com,
-       linux-kernel@vger.kernel.org
-Subject: Re: [RFC][PATCH 1/4] Generic container system abstracted from
- cpusets code
-Message-Id: <20060928164536.84039937.pj@sgi.com>
-In-Reply-To: <20060928111407.762783000@menage.corp.google.com>
-References: <20060928104035.840699000@menage.corp.google.com>
-	<20060928111407.762783000@menage.corp.google.com>
-Organization: SGI
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 28 Sep 2006 19:46:17 -0400
+Date: Thu, 28 Sep 2006 16:46:18 -0700
+From: Greg KH <gregkh@suse.de>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-usb-devel@lists.sourceforge.net
+Subject: Re: [GIT PATCH] More USB patches for 2.6.18
+Message-ID: <20060928234618.GA17277@suse.de>
+References: <20060928224250.GA23841@kroah.com> <Pine.LNX.4.64.0609281639040.3952@g5.osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0609281639040.3952@g5.osdl.org>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, Sep 28, 2006 at 04:40:23PM -0700, Linus Torvalds wrote:
+> 
+> 
+> On Thu, 28 Sep 2006, Greg KH wrote:
+> >
+> > Here are some more USB bugfixes and device ids 2.6.18.  They should all
+> > fix the reported problems in your current tree (if not, please let me
+> > know.)
+> > 
+> > All of these changes have been in the -mm tree for a while.
+> 
+> Maybe I shouldn't have hurried you.
+> 
+> 	In file included from drivers/usb/host/ohci-hcd.c:140:
+> 	drivers/usb/host/ohci-hub.c: In function 'ohci_rh_resume':
+> 	drivers/usb/host/ohci-hub.c:184: error: invalid storage class for function 'ohci_restart'
+> 	drivers/usb/host/ohci-hub.c:188: warning: implicit declaration of function 'ohci_restart'
+> 	drivers/usb/host/ohci-hcd.c: At top level:
+> 	drivers/usb/host/ohci-hcd.c:815: error: static declaration of 'ohci_restart' follows non-static declaration
+> 	drivers/usb/host/ohci-hub.c:188: error: previous implicit declaration of 'ohci_restart' was here
+> 	make[3]: *** [drivers/usb/host/ohci-hcd.o] Error 1
+> 	make[2]: *** [drivers/usb/host] Error 2
+> 	make[1]: *** [drivers/usb] Error 2
+> 	make: *** [drivers] Error 2
+> 
+> oops.
 
-Be sure to spell out, if you haven't already, that there is just a
-single container hierarchy, with each task attached to a single
-container in that hierarchy, and each subsystem (e.g. cpusets)
-adding its own special files to the common container hierarchy
-directories.
+Odd, care to attach your .config?
 
-It is not the case that each subsystem using containers gets to
-concoct its own hierarchy, independent of any other subsystem.
+thanks,
 
-Menage wrote:
-> +config CONTAINERS
-> +	bool "Container support"
-> +	help
-> +	  This option will let you create and manage process containers,
-> +	  which can be used to aggregate multiple processes, e.g. for
-> +	  the purposes of resource tracking.
-
-I wonder if this should be a configurable ... perhaps not.
-
-If someone configures in one or more of the subsystems, such as
-cpusets, that requires CONTAINERS, then we need to enable containers.
-Otherwise we don't need to enable CONTAINERS.  I don't see what
-user input we need here specific to CONTAINERS.
-
-> + *  Copyright (C) 2003 BULL SA.
-> + *  Copyright (C) 2004-2006 Silicon Graphics, Inc.
-
-Perhaps you want to add a Google or Menage copyright here?
-
-> + *  2003-10-22 Updates by Stephen Hemminger.
-> + *  2004 May-July Rework by Paul Jackson.
-
-Perhaps time for another log line here, such as:
-  + *  2006 Generalized to containers by Paul Menage.
-
-> +	struct list_head sibling;	/* my parents children */
-> +	struct list_head children;	/* my children */
-> +
-> +	struct container *parent;		/* my parent */
-> +	struct dentry *dentry;		/* container fs entry */
-
-Delete extra tab after semi-colon on parent line.
-
-> + 2) mount -t container none /dev/container
-
-(Yes - this pertains to something this you took as is from the current
-cpuset docmentation ...)  Please don't use 'none' for this argument to
-mount.  Use some string relevant to the type of filesystem being
-mounted.  This argument shows up in error messages from mount, and as
-it notes in the mount(8) man page, when speaking of the proc file
-system, though it applies here too:
-
-       The  proc file system is not associated with a special device, and when
-       mounting it, an arbitrary keyword, such as proc can be used instead  of
-       a  device specification.  (The customary choice none is less fortunate:
-       the error message `none busy' from umount can be confusing.)
-
-For example, make the above:
-
-       mount -t container container /dev/container
-
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401
+greg k-h

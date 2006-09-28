@@ -1,79 +1,118 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965006AbWI1PtT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964962AbWI1Psw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965006AbWI1PtT (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Sep 2006 11:49:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965012AbWI1PtS
+	id S964962AbWI1Psw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Sep 2006 11:48:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964989AbWI1Psw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Sep 2006 11:49:18 -0400
-Received: from py-out-1112.google.com ([64.233.166.180]:12521 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S964989AbWI1PtP convert rfc822-to-8bit (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Sep 2006 11:49:15 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:from:organization:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
-        b=Zd+74mDd5gVsk4HcpzL2I9uml0RPYgVxaeez4mCL/ArYtYEV5dG8tZkPVgdFy/9QLJvtNrraazkYjgyGkSV89cInQ7h8Z4Xa8cZpjwlsL0QRj7Q+HimKw4I5gMQF/xsb/tmleChVXh14wvY7kHPNZxNqKTBqY1s/+Ip6L2BGPyM=
-From: Yu Luming <luming.yu@gmail.com>
-Organization: gmail
-To: Ismail Donmez <ismail@pardus.org.tr>
-Subject: Re: sonypc with Sony Vaio VGN-SZ1VP
-Date: Thu, 28 Sep 2006 23:48:58 +0800
-User-Agent: KMail/1.8.2
-Cc: Len Brown <lenb@kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Stelian Pop <stelian@popies.net>, Andrea Gelmini <gelma@gelma.net>,
-       linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org
-References: <20060926135659.GA3685@jnb.gelma.net> <200609270204.38970.len.brown@intel.com> <200609271050.03904.ismail@pardus.org.tr>
-In-Reply-To: <200609271050.03904.ismail@pardus.org.tr>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="utf-8"
-Content-Transfer-Encoding: 8BIT
+	Thu, 28 Sep 2006 11:48:52 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:35248 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S964962AbWI1Psv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Sep 2006 11:48:51 -0400
+Date: Thu, 28 Sep 2006 10:48:49 -0500
+From: Dean Nelson <dcn@sgi.com>
+To: torvalds@osdl.org
+Cc: linux-kernel@vger.kernel.org, holt@sgi.com, swise@opengridcomputing.com,
+       rdunlap@xenotime.net, jes@trained-monkey.org, avolkov@varma-el.com,
+       dcn@sgi.com
+Subject: Re: [PATCH] add gen_pool_destroy()
+Message-ID: <20060928154849.GA10434@sgi.com>
+References: <20060927153545.28235.76214.stgit@dell3.ogc.int> <20060927195156.GA3283@sgi.com> <1159391380.10663.62.camel@stevo-desktop> <20060928131614.GA3232@sgi.com> <20060928145142.GA6715@lnx-holt.americas.sgi.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200609282348.58888.luming.yu@gmail.com>
+In-Reply-To: <20060928145142.GA6715@lnx-holt.americas.sgi.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 27 September 2006 15:50, Ismail Donmez wrote:
-> Hi,
-> 27 Eyl 2006 Çar 09:04 tarihinde, Len Brown şunları yazmıştı:
-> [...]
->
-> > > > Will sony_acpi ever make it to the mainline? Its very useful for new
-> > > > Vaio models.
-> >
-> > Nope, not as it is.  Useful != supportable.
-> >
-> > 1. It must not create any files under /proc/acpi
-> >     This is creating a machine-specific API, which
-> >     is exactly what we don't want  Nobody can maintain
-> >     50 machine specific APIs.
-> >
-> >     These objects must appear generic and under sysfs
-> >     as if acpi were not involved in providing them.
+Modules using the genpool allocator need to be able to kfree() the memory
+used for the genpool data structures when unloading.
 
-Yes, the idea of generic code and sysfs things can
-remove the supportable issues as to complete different
-user interface exposed in /proc/acpi/ by different
-platform specific drivers such as ibm_acpi.c,
-asus_acpi.c, and toshiba_acpi.c,....
+Signed-off-by: Steve Wise <swise@opengridcomputing.com>
+Signed-off-by: Dean Nelson <dcn@sgi.com>
 
-> >
-> > 2. its source code shall not live in drivers/acpi
-> >     it is not part of the ACPI implementation after all --
-> >     it is a platform specific driver.
->
-> Is there a such example code under kernel now, so one could look at it and
-> fix sony_acpi driver.
+---
 
-Please take a look at drivers/video/backlight..
-And here is a example to use backlight class for acpi video driver:
-http://marc.theaimsgroup.com/?l=linux-acpi&m=115574087203605&w=2
+On Thu, Sep 28, 2006 at 09:51:42AM -0500, Robin Holt wrote:
+> Nack this.
+> 
+> Dean, you changed the list_for_each to list_for_each_safe where it was
+> not needed.  I think you only needed to change that in the remove path.
+> IIRC, list_for_each_safe is intended for walking a list where you unlink
+> the entry as part of your operation.  Keep it for the gen_pool_destroy
+> function since you are using kfree on those objects and somebody else
+> could reuse them (sort of a list delete), but do not change them for
+> the other case.  The list_for_each does an explicit prefetch which will
+> improve performance in many cases.
 
-Please let me know if you have any other ideas to consolidate the
-platform specific drivers such as ibm_acpi.c ,asus_acpi.c, toshiba_acpi.c
-panasonic_acpi.c, sony_acpi.c , msi s270.c .....
+Thanks Robin.
+
+Linus, here's a new version of the patch which corrects the
+issue that Robin Holt pointed out.
+
+Again, there is an issue with the block comments not being up to
+kernel-doc standards that plagues the entire file, which I will
+remedy in a followup patch.
 
 Thanks,
-Luming
+Dean
 
+
+ include/linux/genalloc.h |    1 +
+ lib/genalloc.c           |   30 ++++++++++++++++++++++++++++++
+ 2 files changed, 31 insertions(+)
+
+
+Index: linux-2.6/lib/genalloc.c
+===================================================================
+--- linux-2.6.orig/lib/genalloc.c	2006-09-28 09:53:53.372104302 -0500
++++ linux-2.6/lib/genalloc.c	2006-09-28 10:42:47.627258805 -0500
+@@ -71,6 +71,36 @@
+ 
+ 
+ /*
++ * Destroy a memory pool. Verifies that there are no outstanding allocations.
++ *
++ * @pool: pool to destroy
++ */
++void gen_pool_destroy(struct gen_pool *pool)
++{
++	struct list_head *_chunk, *_next_chunk;
++	struct gen_pool_chunk *chunk;
++	int order = pool->min_alloc_order;
++	int bit, end_bit;
++
++
++	write_lock(&pool->lock);
++	list_for_each_safe(_chunk, _next_chunk, &pool->chunks) {
++		chunk = list_entry(_chunk, struct gen_pool_chunk, next_chunk);
++		list_del(&chunk->next_chunk);
++
++		end_bit = (chunk->end_addr - chunk->start_addr) >> order;
++		bit = find_next_bit(chunk->bits, end_bit, 0);
++		BUG_ON(bit < end_bit);
++
++		kfree(chunk);
++	}
++	kfree(pool);
++	return;
++}
++EXPORT_SYMBOL(gen_pool_destroy);
++
++
++/*
+  * Allocate the requested number of bytes from the specified pool.
+  * Uses a first-fit algorithm.
+  *
+Index: linux-2.6/include/linux/genalloc.h
+===================================================================
+--- linux-2.6.orig/include/linux/genalloc.h	2006-09-28 09:53:53.372104302 -0500
++++ linux-2.6/include/linux/genalloc.h	2006-09-28 09:53:55.200331504 -0500
+@@ -31,5 +31,6 @@
+ 
+ extern struct gen_pool *gen_pool_create(int, int);
+ extern int gen_pool_add(struct gen_pool *, unsigned long, size_t, int);
++extern void gen_pool_destroy(struct gen_pool *);
+ extern unsigned long gen_pool_alloc(struct gen_pool *, size_t);
+ extern void gen_pool_free(struct gen_pool *, unsigned long, size_t);

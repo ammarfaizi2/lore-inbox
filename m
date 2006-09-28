@@ -1,18 +1,28 @@
-Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S932334AbWIZQJo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+akpm=40zip.com.au-S1750721AbWI1W6p@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932334AbWIZQJo (ORCPT <rfc822;akpm@zip.com.au>);
-	Tue, 26 Sep 2006 12:09:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932335AbWIZQJm
+	id S1750721AbWI1W6p (ORCPT <rfc822;akpm@zip.com.au>);
+	Thu, 28 Sep 2006 18:58:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750754AbWI1W6p
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 26 Sep 2006 12:09:42 -0400
-Received: from mail.selloro.com.pa ([201.225.2.18]:39061 "EHLO
-	decolosal.com.pa") by vger.kernel.org with ESMTP id S932331AbWIZQJl
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 26 Sep 2006 12:09:41 -0400
-Date: Tue, 26 Sep 2006 11:09:13 -0500
-From: maggire9873@yahoo.com.tw
-Message-Id: <200609261609.k8QG9DuS024873@decolosal.com.pa>
-To: unlisted-recipients:;;@mail-zipworld.pacific.net.au (no To-header on input)
+	Thu, 28 Sep 2006 18:58:45 -0400
+Received: from c-68-32-89-244.hsd1.mi.comcast.net ([68.32.89.244]:55823 "HELO
+	c-68-32-89-244.hsd1.mi.comcast.net") by vger.kernel.org with SMTP
+	id S1750721AbWI1W6o (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Sep 2006 18:58:44 -0400
+Date: Thu, 28 Sep 2006 17:08:04 -0400
+From: Garth Land <dkozuduhi@maritrans.com>
+Reply-To: Garth Land <dkozuduhi@maritrans.com>
+Message-ID: <610841091560.785201775448@maritrans.com>
+To: <linux-kernel@vger.kernel.org>
+Subject: Do you want fine-looking virrgin Bitch?
+MIME-Version: 1.0
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
+
+
+discriminating yooung Hussies harrdcore acction!
+
+http://vilinegofasdert.com
 

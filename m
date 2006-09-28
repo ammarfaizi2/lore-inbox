@@ -1,116 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031299AbWI1AjR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031300AbWI1Ak4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1031299AbWI1AjR (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Sep 2006 20:39:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031300AbWI1AjQ
+	id S1031300AbWI1Ak4 (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Sep 2006 20:40:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031302AbWI1Ak4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Sep 2006 20:39:16 -0400
-Received: from smtp111.sbc.mail.mud.yahoo.com ([68.142.198.210]:41654 "HELO
-	smtp111.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1031299AbWI1AjO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Sep 2006 20:39:14 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=pacbell.net;
-  h=Received:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
-  b=L4WlW68ERcalD8FSmYYJhxNHE5vmWSBeTZnzf7SKbDuMoqk2qxAf6YSWQS4kRjeQIiBFn3jIVaY/8XrPVLPzk5qll/tQdzsTrxcuuDS7PvWE1tEqMzbwk8KD4d2GAJ/fWq5+sZ/RxAdKPL6ubk3GwUyFMsCHGDBQaLkq8X7fBjQ=  ;
-From: David Brownell <david-b@pacbell.net>
-To: tglx@linutronix.de
-Subject: Re: [Bulk] Re: [patch 2.6.18] genirq: remove oops with fasteoi irq_chip descriptors
-Date: Wed, 27 Sep 2006 17:39:09 -0700
-User-Agent: KMail/1.7.1
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>, mingo@redhat.com
-References: <200609220641.58938.david-b@pacbell.net> <200609271621.11608.david-b@pacbell.net> <1159401291.9326.599.camel@localhost.localdomain>
-In-Reply-To: <1159401291.9326.599.camel@localhost.localdomain>
+	Wed, 27 Sep 2006 20:40:56 -0400
+Received: from mail.gmx.de ([213.165.64.20]:19098 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1031300AbWI1Ak4 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Sep 2006 20:40:56 -0400
+X-Authenticated: #5039886
+Date: Thu, 28 Sep 2006 02:40:53 +0200
+From: =?iso-8859-1?Q?Bj=F6rn?= Steinbrink <B.Steinbrink@gmx.de>
+To: Andrew Morton <akpm@osdl.org>, Martin Filip <bugtraq@smoula.net>,
+       linux-kernel@vger.kernel.org, Ayaz Abdulla <aabdulla@nvidia.com>
+Subject: Re: forcedeth - WOL [SOLVED]
+Message-ID: <20060928004053.GA3521@atjola.homenet>
+Mail-Followup-To: =?iso-8859-1?Q?Bj=F6rn?= Steinbrink <B.Steinbrink@gmx.de>,
+	Andrew Morton <akpm@osdl.org>, Martin Filip <bugtraq@smoula.net>,
+	linux-kernel@vger.kernel.org, Ayaz Abdulla <aabdulla@nvidia.com>
+References: <1159379441.9024.7.camel@archon.smoula-in.net> <20060927183857.GA2963@atjola.homenet> <1159389486.8902.4.camel@archon.smoula-in.net> <20060927165704.613bf0aa.akpm@osdl.org> <20060928000447.GB2963@atjola.homenet>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-Message-Id: <200609271739.10215.david-b@pacbell.net>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20060928000447.GB2963@atjola.homenet>
+User-Agent: Mutt/1.5.13 (2006-08-11)
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wednesday 27 September 2006 4:54 pm, Thomas Gleixner wrote:
-> Dave,
+On 2006.09.28 02:04:48 +0200, Björn Steinbrink wrote:
 > 
-> On Wed, 2006-09-27 at 16:21 -0700, David Brownell wrote:
-> > As you should know, irq_chip_set_defaults() ensures that every
-> > irqchip has startup() and shutdown() methods.  Their default
-> > implementations use enable() and disable() ... which in turn
-> > have default implementations using mask()/unmask(), for use
-> > with non-EIO handlers. 
+> Hi Andrew,
 > 
-> True. Still you change the semantics.
 > 
-> 	chip->mask();
-> 	chip->ack();
+> On 2006.09.27 16:57:04 -0700, Andrew Morton wrote:
+> > On Wed, 27 Sep 2006 22:38:06 +0200
+> > Martin Filip <bugtraq@smoula.net> wrote:
+> > 
+> > > Hi,
+> > > 
+> > > Bj__rn Steinbrink p____e v St 27. 09. 2006 v 20:38 +0200:
+> > > 
+> > > > Did you check that WOL was enabled? I need to re-activate it after each
+> > > > boot (I guess that's normal, not sure though).
+> > > > The output of "ethtool eth0" should show:
+> > > > 
+> > > >         Supports Wake-on: g
+> > > >         Wake-on: g
+> > > > 
+> > > Yes, of course :)
+> > > 
+> > > > Also, I remember a bugzilla entry in which it was said that the MAC was
+> > > > somehow reversed by the driver. I that is still the case (I can't find
+> > > > the bugzilla entry right now), you might just reverse the MAC address in
+> > > > your WOL packet to workaround the bug.
+> > > 
+> > > Hey! this is really crazy :) but it works! To bo honest - I really do
+> > > not know what crazy bug could cause problems like this. I thought it's
+> > > NIC thing to manage all the work about WOL. I thought OS only sets NIC
+> > > into "WOL mode".
+> > > 
+> > > But seeing this - one packet for windows and one magic packet for linux
+> > > driver - I really do not get it.
+> > > 
+> > 
+> > Are you saying that byte-reversing the MAC address make WOL work correctly?
+> > 
+> > What tool do you use to send the packet, and how is it being invoked?
+> > 
+> > Do we know if this reversal *always* happens with this driver, or only
+> > sometimes?
+> > 
+> > Thanks.
 > 
-> is not equal to :
+> searching bugzilla was more succesful this time (somehow bugzillas hate
+> me, so I need a bunch of tries every time), the bug I meant was #6604.
 > 
-> 	if (!(desc->status & IRQ_DELAYED_DISABLE))
-> 		irq_desc[irq].chip->mask(irq);
+> The bugreport says that it should work with 0.57 though (which is in
+> 2.6.18 AFAICT), I'll go and see if it works for me...
 
-And I'd said as much.  But you'll notice that code looked like
-it had lots of correctness issues in the first place:
+... 5 reboots later ...
 
- - Of course, there's the fact that it would oops.
+It still breaks with 2.6.18.
 
- - It wouldn't use chip->mask_ack() when that exists and those
-   other two routines don't, even though mask_ack_irq() is a
-   conveniently defined inline.
+Not touching WOL from Linux at all, rebooting and turning the box off
+during POST, WOL works using the real MAC address.
 
- - Umm, how could it ever be correct to leave the IRQ active
-   without a dispatcher?  ISTR the rationale for that delayed
-   disable was not purely to be a PITA for all driver writers,
-   but was to address some issue with edge triggering.  In that
-   path, triggering was no longer to be allowed ...
+Booting 2.16.17.x or 2.6.18, turning on WOL and finally shutting down
+the box, I need to send the WOL packet with the MAC address reversed.
 
- - Plus ack()ing the IRQ there just seemed pretty dubious.  It's
-   not like there would be anything preventing that signal line
-   from being lowered (or raised, etc) immediately after the ack(),
-   which in some hardware would latch the IRQ until later unmask().
-
-Leaving the question:  what's the point of it??  The overall
-system has to behave sanely with or without the ack(); just
-clearing a latch doesn't mean it couldn't get set later.
-
-
-> > So what's the correct fix then ... use enable() and disable()?
-> > Oopsing isn't OK... 
-> 
-> True, but we can not unconditionally change the semantics. 
-
-Some current semantics are "it oopses".  That's a good definition
-of semantics that _must_ be changed.  We're not Microsoft.  ;)
-
- 
-> Does it break existing or new code ?
-
-Could any code relying on those previous semantics have been
-correct in the first place, though?  Seemed to me it couldn't
-have been.
-
-Plus, unregistering IRQ dispatchers is a strange notion.  I've
-never seen it done in practice ... normally, they get set up once
-during chip/board setup then never changed.  Bugs in code paths
-like that have been known to last for decades unfixed.
-
-Now if IRQs were dynamically allocated rather than having hard
-platform limits of NR_IRQS, I could understand that changing.
-
-
-> > It was certainly _tested_ on a 2.6.18 ARM board, so you're clearly wrong
-> > about at least that part of your feedback as well as the bits about the
-> > shartup and shutdown calls being "optional" (in any practical sense, since
-> > they are in fact _always_ present).
-> 
-> Sorry, I did not think about the defaults in the first place. The
-> conditionals in manage,c are probably superflous leftovers from one of
-> the evolvement.
-
-And that's how I was taking that particular mask() then ack() too,
-especially given it never used mask_ack() when it should have, and
-since that logic oopsed in various cases with fasteoi handlers.
-
-- Dave
-
+Björn

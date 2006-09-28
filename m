@@ -1,140 +1,122 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751975AbWI1SRj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030342AbWI1SUV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751975AbWI1SRj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Sep 2006 14:17:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751980AbWI1SRj
+	id S1030342AbWI1SUV (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Sep 2006 14:20:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030344AbWI1SUV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Sep 2006 14:17:39 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:65482 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1751975AbWI1SRi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Sep 2006 14:17:38 -0400
-Date: Thu, 28 Sep 2006 13:17:34 -0500
-From: Dean Nelson <dcn@sgi.com>
+	Thu, 28 Sep 2006 14:20:21 -0400
+Received: from sj-iport-2-in.cisco.com ([171.71.176.71]:25912 "EHLO
+	sj-iport-2.cisco.com") by vger.kernel.org with ESMTP
+	id S1030342AbWI1SUT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Sep 2006 14:20:19 -0400
+X-IronPort-AV: i="4.09,231,1157353200"; 
+   d="scan'208"; a="343698368:sNHT56892180"
 To: torvalds@osdl.org
-Cc: linux-kernel@vger.kernel.org, rdunlap@xenotime.net, holt@sgi.com,
-       swise@opengridcomputing.com, jes@trained-monkey.org,
-       avolkov@varma-el.com, dcn@sgi.com
-Subject: Re: [PATCH] make genpool allocator adhere to kernel-doc standards
-Message-ID: <20060928181734.GA17382@sgi.com>
-References: <20060927153545.28235.76214.stgit@dell3.ogc.int> <20060927085123.99749d2c.rdunlap@xenotime.net> <1159372405.10663.13.camel@stevo-desktop> <20060927085608.7f753439.rdunlap@xenotime.net> <20060927195929.GB3283@sgi.com> <20060927132728.d01ee9fb.rdunlap@xenotime.net> <20060928172407.GA13807@sgi.com> <20060928104856.66c9eae4.rdunlap@xenotime.net>
-Mime-Version: 1.0
+Cc: linux-kernel@vger.kernel.org, openib-general@openib.org
+Subject: [GIT PULL] Please pull infiniband.git
+X-Message-Flag: Warning: May contain useful information
+From: Roland Dreier <rdreier@cisco.com>
+Date: Thu, 28 Sep 2006 11:20:16 -0700
+Message-ID: <adabqoz4zvj.fsf@cisco.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060928104856.66c9eae4.rdunlap@xenotime.net>
-User-Agent: Mutt/1.5.9i
+X-OriginalArrivalTime: 28 Sep 2006 18:20:17.0801 (UTC) FILETIME=[C01EBF90:01C6E32A]
+Authentication-Results: sj-dkim-4.cisco.com; header.From=rdreier@cisco.com; dkim=pass (
+	sig from cisco.com verified; ); 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The exported kernel interfaces of genpool allocator need to adhere to
-the requirements of kernel-doc.
+Linus, please pull from
 
-Signed-off-by: Dean Nelson <dcn@sgi.com>
-Acked-by: Randy Dunlap <rdunlap@xenotime.net>
+    master.kernel.org:/pub/scm/linux/kernel/git/roland/infiniband.git for-linus
 
----
+This tree is also available from kernel.org mirrors at:
 
-Linus,
+    git://git.kernel.org/pub/scm/linux/kernel/git/roland/infiniband.git for-linus
 
-This patch is dependent on another patch lib/genalloc.c to be applied first,
-the patch with  Subject: Re: [PATCH] add gen_pool_destroy()
+This will merge:
+ - ipath updates
+ - iSER updates
+ - a few of amso1100 Coverity fixes and warning cleanups
 
-Thanks,
-Dean
+Bryan O'Sullivan:
+      IB/ipath: Limit # of packets sent without an ACK received
+      IB/ipath: Fix memory leak if allocation fails
+      IB/ipath: Driver support for userspace sharing of HW contexts
+      IB/ipath: Support revision 2 InfiniPath PCIE devices
+      IB/ipath: Unregister from IB core early
+      IB/ipath: Clean up handling of GUID 0
+      IB/ipath: Lock and count allocated CQs properly
+      IB/ipath: Count SRQs properly
+      IB/ipath: Only allow complete writes to flash
+      IB/ipath: RC and UC should validate SLID and DLID
+      IB/ipath: Ensure that PD of MR matches PD of QP checking the Rkey
+      IB/ipath: Print more informative parity error messages
+      IB/ipath: Fix compiler warnings and errors on non-x86_64 systems
+      IB/ipath: Fix mismatch in shifts and masks for printing debug info
+      IB/ipath: Support multiple simultaneous devices of different types
+      IB/ipath: Drop unnecessary "(void *)" casts
+      IB/ipath: Improved support for PowerPC
+      IB/ipath: Flush RWQEs if access error or invalid error seen
+      IB/ipath: Call mtrr_del with correct arguments
+      IB/ipath: Clean up module exit code
+      IB/ipath: Change HT CRC message to indicate how to resolve problem
+      IB/ipath: Fix and recover TXE piobuf and PBC parity errors
+      IB/ipath: Fix EEPROM read when driver is compiled with -Os
+      IB/ipath: Set CPU affinity early
+      IB/ipath: Support new PCIE device, QLE7142
+      IB/ipath: Fix races with ib_resize_cq()
+      IB/ipath: Fix lockdep error upon "ifconfig ibN down"
 
+Erez Zilber:
+      IB/iser: Have iSER data transaction object point to iSER conn
+      IB/iser: DMA unmap unaligned for RDMA data before touching it
+      IB/iser: Fix the description of iSER in Kconfig
 
- genalloc.c |   39 +++++++++++++++++++++++----------------
- 1 file changed, 23 insertions(+), 16 deletions(-)
+Eric Sesterhenn:
+      RDMA/amso1100: Fix error path in c2_llp_accept()
 
+Roland Dreier:
+      RDMA/amso1100: Fix compile warnings
+      RDMA/amso1100: Fix memory leak in c2_reg_phys_mr()
 
-Index: linux-2.6/lib/genalloc.c
-===================================================================
---- linux-2.6.orig/lib/genalloc.c	2006-09-28 10:54:41.330794389 -0500
-+++ linux-2.6/lib/genalloc.c	2006-09-28 11:02:54.327472348 -0500
-@@ -14,11 +14,13 @@
- #include <linux/genalloc.h>
- 
- 
--/*
-- * Create a new special memory pool.
-- *
-+/**
-+ * gen_pool_create - create a new special memory pool
-  * @min_alloc_order: log base 2 of number of bytes each bitmap bit represents
-  * @nid: node id of the node the pool structure should be allocated on, or -1
-+ *
-+ * Create a new special memory pool that can be used to manage special purpose
-+ * memory not managed by the regular kmalloc/kfree interface.
-  */
- struct gen_pool *gen_pool_create(int min_alloc_order, int nid)
- {
-@@ -35,14 +37,15 @@
- EXPORT_SYMBOL(gen_pool_create);
- 
- 
--/*
-- * Add a new chunk of memory to the specified pool.
-- *
-+/**
-+ * gen_pool_add - add a new chunk of special memory to the pool
-  * @pool: pool to add new memory chunk to
-  * @addr: starting address of memory chunk to add to pool
-  * @size: size in bytes of the memory chunk to add to pool
-  * @nid: node id of the node the chunk structure and bitmap should be
-  *       allocated on, or -1
-+ *
-+ * Add a new chunk of special memory to the specified pool.
-  */
- int gen_pool_add(struct gen_pool *pool, unsigned long addr, size_t size,
- 		 int nid)
-@@ -70,10 +73,12 @@
- EXPORT_SYMBOL(gen_pool_add);
- 
- 
--/*
-- * Destroy a memory pool. Verifies that there are no outstanding allocations.
-- *
-+/**
-+ * gen_pool_destroy - destroy a special memory pool
-  * @pool: pool to destroy
-+ *
-+ * Destroy the specified special memory pool. Verifies that there are no
-+ * outstanding allocations.
-  */
- void gen_pool_destroy(struct gen_pool *pool)
- {
-@@ -100,12 +105,13 @@
- EXPORT_SYMBOL(gen_pool_destroy);
- 
- 
--/*
-- * Allocate the requested number of bytes from the specified pool.
-- * Uses a first-fit algorithm.
-- *
-+/**
-+ * gen_pool_alloc - allocate special memory from the pool
-  * @pool: pool to allocate from
-  * @size: number of bytes to allocate from the pool
-+ *
-+ * Allocate the requested number of bytes from the specified pool.
-+ * Uses a first-fit algorithm.
-  */
- unsigned long gen_pool_alloc(struct gen_pool *pool, size_t size)
- {
-@@ -158,12 +164,13 @@
- EXPORT_SYMBOL(gen_pool_alloc);
- 
- 
--/*
-- * Free the specified memory back to the specified pool.
-- *
-+/**
-+ * gen_pool_free - free allocated special memory back to the pool
-  * @pool: pool to free to
-  * @addr: starting address of memory to free back to pool
-  * @size: size in bytes of memory to free
-+ *
-+ * Free previously allocated special memory back to the specified pool.
-  */
- void gen_pool_free(struct gen_pool *pool, unsigned long addr, size_t size)
- {
+ drivers/infiniband/hw/amso1100/c2_ae.c         |    2 
+ drivers/infiniband/hw/amso1100/c2_alloc.c      |    2 
+ drivers/infiniband/hw/amso1100/c2_cm.c         |   15 
+ drivers/infiniband/hw/amso1100/c2_provider.c   |    8 
+ drivers/infiniband/hw/amso1100/c2_rnic.c       |    4 
+ drivers/infiniband/hw/ipath/ipath_common.h     |   54 +
+ drivers/infiniband/hw/ipath/ipath_cq.c         |   48 +
+ drivers/infiniband/hw/ipath/ipath_driver.c     |  359 ++++-----
+ drivers/infiniband/hw/ipath/ipath_eeprom.c     |   17 
+ drivers/infiniband/hw/ipath/ipath_file_ops.c   |  974 ++++++++++++++++++------
+ drivers/infiniband/hw/ipath/ipath_fs.c         |    9 
+ drivers/infiniband/hw/ipath/ipath_iba6110.c    |  132 ++-
+ drivers/infiniband/hw/ipath/ipath_iba6120.c    |  263 ++++--
+ drivers/infiniband/hw/ipath/ipath_init_chip.c  |   56 +
+ drivers/infiniband/hw/ipath/ipath_intr.c       |  280 +++++--
+ drivers/infiniband/hw/ipath/ipath_kernel.h     |  116 +++
+ drivers/infiniband/hw/ipath/ipath_keys.c       |   12 
+ drivers/infiniband/hw/ipath/ipath_mad.c        |   16 
+ drivers/infiniband/hw/ipath/ipath_mr.c         |    3 
+ drivers/infiniband/hw/ipath/ipath_qp.c         |   16 
+ drivers/infiniband/hw/ipath/ipath_rc.c         |   77 +-
+ drivers/infiniband/hw/ipath/ipath_registers.h  |   40 +
+ drivers/infiniband/hw/ipath/ipath_ruc.c        |   14 
+ drivers/infiniband/hw/ipath/ipath_srq.c        |   23 -
+ drivers/infiniband/hw/ipath/ipath_sysfs.c      |   21 -
+ drivers/infiniband/hw/ipath/ipath_uc.c         |    6 
+ drivers/infiniband/hw/ipath/ipath_ud.c         |    6 
+ drivers/infiniband/hw/ipath/ipath_user_pages.c |   56 +
+ drivers/infiniband/hw/ipath/ipath_verbs.c      |   43 +
+ drivers/infiniband/hw/ipath/ipath_verbs.h      |   18 
+ drivers/infiniband/hw/ipath/ipath_wc_ppc64.c   |   20 
+ drivers/infiniband/hw/ipath/ipath_wc_x86_64.c  |   13 
+ drivers/infiniband/ulp/iser/Kconfig            |   13 
+ drivers/infiniband/ulp/iser/iscsi_iser.c       |    2 
+ drivers/infiniband/ulp/iser/iscsi_iser.h       |    9 
+ drivers/infiniband/ulp/iser/iser_initiator.c   |   60 -
+ drivers/infiniband/ulp/iser/iser_memory.c      |   42 +
+ drivers/infiniband/ulp/iser/iser_verbs.c       |    8 
+ 38 files changed, 1973 insertions(+), 884 deletions(-)

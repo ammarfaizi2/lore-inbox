@@ -1,89 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161023AbWI1TfJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161025AbWI1Tf7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161023AbWI1TfJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Sep 2006 15:35:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161022AbWI1TfI
+	id S1161025AbWI1Tf7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Sep 2006 15:35:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161026AbWI1Tf7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Sep 2006 15:35:08 -0400
-Received: from odyssey.analogic.com ([204.178.40.5]:5135 "EHLO
-	odyssey.analogic.com") by vger.kernel.org with ESMTP
-	id S1030383AbWI1TfG convert rfc822-to-8bit (ORCPT
+	Thu, 28 Sep 2006 15:35:59 -0400
+Received: from cacti.profiwh.com ([85.93.165.66]:64222 "EHLO cacti.profiwh.com")
+	by vger.kernel.org with ESMTP id S1161025AbWI1Tf6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Sep 2006 15:35:06 -0400
-MIME-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-X-OriginalArrivalTime: 28 Sep 2006 19:35:04.0187 (UTC) FILETIME=[3236ECB0:01C6E335]
-Content-class: urn:content-classes:message
-Subject: Re: GPLv3 Position Statement
-Date: Thu, 28 Sep 2006 15:34:58 -0400
-Message-ID: <Pine.LNX.4.61.0609281522140.31709@chaos.analogic.com>
-In-Reply-To: <E4B98A24-5632-4DA5-AD3A-37396D5EF1B3@kernel.crashing.org>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: GPLv3 Position Statement
-thread-index: AcbjNTJAPIVMpED0T6+AOQGqDk9Jbw==
-References: <1158941750.3445.31.camel@mulgrave.il.steeleye.com>  <Pine.LNX.4.61.0609270753590.19275@yvahk01.tjqt.qr>  <1159342569.2653.30.camel@sipan.sipan.org>  <Pine.LNX.4.61.0609271051550.19438@yvahk01.tjqt.qr>  <1159359540.11049.347.camel@localhost.localdomain>  <Pine.LNX.4.64.0609271000510.3952@g5.osdl.org>  <Pine.LNX.4.64.0609271300130.7316@turbotaz.ourhouse>  <20060927225815.GB7469@thunk.org>  <Pine.LNX.4.64.0609271808041.7316@turbotaz.ourhouse>  <Pine.LNX.4.64.0609271641370.3952@g5.osdl.org> <d577e5690609271754u395e56ffr1601fddd6d4639a3@mail.gmail.com> <Pine.LNX.4.64.0609271945450.3952@g5.osdl.org> <Pine.LNX.4.61.0609281312350.31392@chaos.analogic.com> <E4B98A24-5632-4DA5-AD3A-37396D5EF1B3@kernel.crashing.org>
-From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-To: "Segher Boessenkool" <segher@kernel.crashing.org>
-Cc: "Linus Torvalds" <torvalds@osdl.org>,
-       "Patrick McFarland" <diablod3@gmail.com>,
-       "Chase Venters" <chase.venters@clientec.com>,
-       "Theodore Tso" <tytso@mit.edu>, "Alan Cox" <alan@lxorguk.ukuu.org.uk>,
-       "Jan Engelhardt" <jengelh@linux01.gwdg.de>,
-       "Sergey Panov" <sipan@sipan.org>,
-       "James Bottomley" <James.Bottomley@steeleye.com>,
-       "linux-kernel" <linux-kernel@vger.kernel.org>
-Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+	Thu, 28 Sep 2006 15:35:58 -0400
+Message-id: <123879783241321@wsc.cz>
+Subject: [PATCH 1/1] Char: specialix, kill unneeded page alloc
+From: Jiri Slaby <jirislaby@gmail.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: <linux-kernel@vger.kernel.org>, <R.E.Wolff@BitWizard.nl>
+Date: Thu, 28 Sep 2006 21:36:02 +0200 (CEST)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+specialix, kill unneeded page alloc
 
-On Thu, 28 Sep 2006, Segher Boessenkool wrote:
+There is no need to have allocated zeroed page in the driver at all. Save a
+little bit memory and some ticks by deleting that allocation and freeing.
 
->> However, now some are beginning to see the light as history
->> continues to be rewritten and a history lesson is unfolding.
->
->> These efforts go back to the days when
->> "distributions" consisted of 56 floppy disks and Linus was
->> in Helsinki, working on his degree. The FSF didn't exist, and
->> GNU was the name of an immature compiler.
->
-> The FSF was founded in 1985, now who is rewriting history
-> here :-)  "GNU" never was the name for the compiler, either.
->
+Signed-off-by: Jiri Slaby <jirislaby@gmail.com>
 
-No. GNU was coined in 1984-85 (depending upon the source).
-It was a recursive 'GNU Not Unix', and referred to some free
-tools, including Eimacs. One of the most important tools
-was a compiler which could be readily ported to new operating
-systems. The GNU compiler was used in an attempt to make
-Hurd, an early Unix clone. It was also used by BSD and Linux.
+---
+commit dba1b47119514420edc927a6abe337934c5c1a46
+tree 477db4a0abfd10ea8a411e2b61821b83afbfe75c
+parent 7a6d209f0b3ad71818138d9c2b4694fdf3181859
+author Jiri Slaby <jirislaby@gmail.com> Thu, 28 Sep 2006 11:42:07 +0200
+committer Jiri Slaby <xslaby@anemoi.localdomain> Thu, 28 Sep 2006 11:42:07 +0200
 
->> Sometimes we need
->> to be reminded of the history of a particular thing because,
->> once out-of-mind, history tends to be rewritten by those who
->> would advance in its new "interpretation."
->
-> I don't really want to know what you try to gain by this
-> "properly composed statement", heh.
->
-> Segher
->
+ drivers/char/specialix.c |   11 +----------
+ 1 files changed, 1 insertions(+), 10 deletions(-)
 
-FYI, the place to research your information is not on www.gnu.org or
-Wikipedia, both of which are too self-serving (in this area) to be used
-as a reference. You need to dig deeper or ask someone who was there.
-
-Cheers,
-Dick Johnson
-Penguin : Linux version 2.6.16.24 on an i686 machine (5592.66 BogoMips).
-New book: http://www.AbominableFirebug.com/
-_
-
-
-****************************************************************
-The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
-
-Thank you.
+diff --git a/drivers/char/specialix.c b/drivers/char/specialix.c
+index df07b4a..902c48d 100644
+--- a/drivers/char/specialix.c
++++ b/drivers/char/specialix.c
+@@ -182,7 +182,6 @@ #undef RS_EVENT_WRITE_WAKEUP
+ #define RS_EVENT_WRITE_WAKEUP	0
+ 
+ static struct tty_driver *specialix_driver;
+-static unsigned char * tmp_buf;
+ 
+ static unsigned long baud_table[] =  {
+ 	0, 50, 75, 110, 134, 150, 200, 300, 600, 1200, 1800, 2400, 4800,
+@@ -1674,7 +1673,7 @@ static int sx_write(struct tty_struct * 
+ 
+ 	bp = port_Board(port);
+ 
+-	if (!port->xmit_buf || !tmp_buf) {
++	if (!port->xmit_buf) {
+ 		func_exit();
+ 		return 0;
+ 	}
+@@ -2398,12 +2397,6 @@ static int sx_init_drivers(void)
+ 		return 1;
+ 	}
+ 
+-	if (!(tmp_buf = (unsigned char *) get_zeroed_page(GFP_KERNEL))) {
+-		printk(KERN_ERR "sx: Couldn't get free page.\n");
+-		put_tty_driver(specialix_driver);
+-		func_exit();
+-		return 1;
+-	}
+ 	specialix_driver->owner = THIS_MODULE;
+ 	specialix_driver->name = "ttyW";
+ 	specialix_driver->major = SPECIALIX_NORMAL_MAJOR;
+@@ -2417,7 +2410,6 @@ static int sx_init_drivers(void)
+ 
+ 	if ((error = tty_register_driver(specialix_driver))) {
+ 		put_tty_driver(specialix_driver);
+-		free_page((unsigned long)tmp_buf);
+ 		printk(KERN_ERR "sx: Couldn't register specialix IO8+ driver, error = %d\n",
+ 		       error);
+ 		func_exit();
+@@ -2443,7 +2435,6 @@ static void sx_release_drivers(void)
+ {
+ 	func_enter();
+ 
+-	free_page((unsigned long)tmp_buf);
+ 	tty_unregister_driver(specialix_driver);
+ 	put_tty_driver(specialix_driver);
+ 	func_exit();

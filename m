@@ -1,439 +1,258 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751813AbWI1JxO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751816AbWI1Jy4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751813AbWI1JxO (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Sep 2006 05:53:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751816AbWI1JxO
+	id S1751816AbWI1Jy4 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Sep 2006 05:54:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751823AbWI1Jyz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Sep 2006 05:53:14 -0400
-Received: from amsfep17-int.chello.nl ([213.46.243.15]:34728 "EHLO
-	amsfep20-int.chello.nl") by vger.kernel.org with ESMTP
-	id S1751813AbWI1JxN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Sep 2006 05:53:13 -0400
-Subject: [PATCH] completions: lockdep annotate on stack completions
-From: Peter Zijlstra <a.p.zijlstra@chello.nl>
-To: linux-kernel <linux-kernel@vger.kernel.org>
-Cc: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-       Arjan van de Ven <arjan@infradead.org>,
-       "James E.J. Bottomley" <James.Bottomley@SteelEye.com>,
-       Jens Axboe <axboe@suse.de>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Russell King <rmk@arm.linux.org.uk>
-Content-Type: text/plain
-Date: Thu, 28 Sep 2006 11:52:44 +0200
-Message-Id: <1159437164.28131.48.camel@taijtu>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5) 
+	Thu, 28 Sep 2006 05:54:55 -0400
+Received: from nf-out-0910.google.com ([64.233.182.189]:20911 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1751816AbWI1Jyz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Sep 2006 05:54:55 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:reply-to:user-agent:mime-version:to:cc:subject:content-type:content-transfer-encoding:from;
+        b=f7K8seXMoWhazDb5PbajMQyh/ywhEltRgtaEmXzaMk8wb+16lb64VZ3ycW3e7TAGRqIt3v0dPmwyfay4B/lCXtLeoKjP/ZQ26qBRJB3YtZGhAj9lDjF1e6rzH9CDBQPg3s1hB+ajV/eJGDfu/2ChMSyQlwnmtdlgSzwxypDPgnY=
+Message-ID: <451B9C1F.3050502@innova-card.com>
+Date: Thu, 28 Sep 2006 11:55:43 +0200
+Reply-To: Franck <vagabon.xyz@gmail.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+MIME-Version: 1.0
+To: akpm@osdl.org
+CC: pmarques@grupopie.com, linux-kernel@vger.kernel.org
+Subject: [PATCH] Create kallsyms_lookup_size_offset() [try #2]
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
+From: Franck Bui-Huu <vagabon.xyz@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Some uses of kallsyms_lookup() do not need to find out the name of
+a symbol and its module's name it belongs. This is specially true
+in arch specific code, which needs to unwind the stack to show the
+back trace during oops (mips is an example). In this specific case,
+we just need to retreive the function's size and the offset of the
+active intruction inside it.
 
-All on stack DECLARE_COMPLETIONs should be replaced by:
-  DECLARE_COMPLETION_ONSTACK
+This simple patch adds a new entry "kallsyms_lookup_size_offset()"
+This new entry does exactly the same as kallsyms_lookup() but does
+not require any buffers to store any names.
 
-Signed-off-by: Peter Zijlstra <a.p.zijlstra@chello.nl>
-Acked-by: Ingo Molnar <mingo@elte.hu>
+It returns 0 if it fails otherwise 1.
+
+Signed-off-by: Franck Bui-Huu <vagabon.xyz@gmail.com>
 ---
- arch/arm/kernel/ecard.c                      |    2 +-
- arch/i386/kernel/smpboot.c                   |    2 +-
- arch/powerpc/platforms/powermac/cpufreq_64.c |    2 +-
- arch/powerpc/platforms/powermac/nvram.c      |    4 ++--
- block/as-iosched.c                           |    2 +-
- block/cfq-iosched.c                          |    2 +-
- drivers/block/DAC960.c                       |    2 +-
- drivers/block/cciss.c                        |    6 +++---
- drivers/block/cciss_scsi.c                   |    2 +-
- drivers/block/paride/pd.c                    |    2 +-
- drivers/block/pktcdvd.c                      |    2 +-
- drivers/ide/ide-tape.c                       |    2 +-
- drivers/macintosh/smu.c                      |    4 ++--
- drivers/macintosh/windfarm_smu_controls.c    |    2 +-
- drivers/macintosh/windfarm_smu_sensors.c     |    2 +-
- drivers/s390/scsi/zfcp_scsi.c                |    2 +-
- drivers/scsi/53c700.c                        |    2 +-
- drivers/scsi/aic7xxx/aic79xx_osm.c           |    4 ++--
- drivers/scsi/aic7xxx/aic7xxx_osm.c           |    2 +-
- drivers/scsi/gdth.c                          |    4 ++--
- drivers/scsi/qla1280.c                       |    4 ++--
- drivers/usb/gadget/inode.c                   |    2 +-
- drivers/usb/gadget/omap_udc.c                |    2 +-
- net/ipv4/ipvs/ip_vs_sync.c                   |    2 +-
- 24 files changed, 31 insertions(+), 31 deletions(-)
+ include/linux/kallsyms.h |   11 ++++
+ kernel/kallsyms.c        |  125 ++++++++++++++++++++++++++++++----------------
+ kernel/module.c          |    3 +
+ 3 files changed, 94 insertions(+), 45 deletions(-)
 
-Index: linux-2.6/arch/arm/kernel/ecard.c
-===================================================================
---- linux-2.6.orig/arch/arm/kernel/ecard.c
-+++ linux-2.6/arch/arm/kernel/ecard.c
-@@ -295,7 +295,7 @@ ecard_task(void * unused)
-  */
- static void ecard_call(struct ecard_request *req)
+diff --git a/include/linux/kallsyms.h b/include/linux/kallsyms.h
+index 849043c..1cebcbc 100644
+--- a/include/linux/kallsyms.h
++++ b/include/linux/kallsyms.h
+@@ -12,6 +12,10 @@ #ifdef CONFIG_KALLSYMS
+ /* Lookup the address for a symbol. Returns 0 if not found. */
+ unsigned long kallsyms_lookup_name(const char *name);
+ 
++extern int kallsyms_lookup_size_offset(unsigned long addr,
++				  unsigned long *symbolsize,
++				  unsigned long *offset);
++
+ /* Lookup an address.  modname is set to NULL if it's in the kernel. */
+ const char *kallsyms_lookup(unsigned long addr,
+ 			    unsigned long *symbolsize,
+@@ -28,6 +32,13 @@ static inline unsigned long kallsyms_loo
+ 	return 0;
+ }
+ 
++static inline int kallsyms_lookup_size_offset(unsigned long addr,
++					      unsigned long *symbolsize,
++					      unsigned long *offset)
++{
++	return 0;
++}
++
+ static inline const char *kallsyms_lookup(unsigned long addr,
+ 					  unsigned long *symbolsize,
+ 					  unsigned long *offset,
+diff --git a/kernel/kallsyms.c b/kernel/kallsyms.c
+index ab16a5a..168619a 100644
+--- a/kernel/kallsyms.c
++++ b/kernel/kallsyms.c
+@@ -69,6 +69,15 @@ static inline int is_kernel(unsigned lon
+ 	return in_gate_area_no_task(addr);
+ }
+ 
++static int is_ksym_addr(unsigned long addr)
++{
++	if (all_var)
++		return is_kernel(addr);
++
++	return is_kernel_text(addr) || is_kernel_inittext(addr) ||
++		is_kernel_extratext(addr);
++}
++
+ /* expand a compressed symbol data into the resulting uncompressed string,
+    given the offset to where the symbol is in the compressed stream */
+ static unsigned int kallsyms_expand_symbol(unsigned int off, char *result)
+@@ -156,6 +165,73 @@ unsigned long kallsyms_lookup_name(const
+ }
+ EXPORT_SYMBOL_GPL(kallsyms_lookup_name);
+ 
++static unsigned long get_symbol_pos(unsigned long addr,
++				    unsigned long *symbolsize,
++				    unsigned long *offset)
++{
++	unsigned long symbol_start = 0, symbol_end = 0;
++	unsigned long i, low, high, mid;
++
++	/* This kernel should never had been booted. */
++	BUG_ON(!kallsyms_addresses);
++
++	/* do a binary search on the sorted kallsyms_addresses array */
++	low = 0;
++	high = kallsyms_num_syms;
++
++	while (high - low > 1) {
++		mid = (low + high) / 2;
++		if (kallsyms_addresses[mid] <= addr)
++			low = mid;
++		else
++			high = mid;
++	}
++
++	/*
++	 * search for the first aliased symbol. Aliased
++	 * symbols are symbols with the same address
++	 */
++	while (low && kallsyms_addresses[low-1] == kallsyms_addresses[low])
++		--low;
++
++	symbol_start = kallsyms_addresses[low];
++
++	/* Search for next non-aliased symbol */
++	for (i = low + 1; i < kallsyms_num_syms; i++) {
++		if (kallsyms_addresses[i] > symbol_start) {
++			symbol_end = kallsyms_addresses[i];
++			break;
++		}
++	}
++	
++	/* if we found no next symbol, we use the end of the section */
++	if (!symbol_end) {
++		if (is_kernel_inittext(addr))
++			symbol_end = (unsigned long)_einittext;
++		else if (all_var)
++			symbol_end = (unsigned long)_end;
++		else 
++			symbol_end = (unsigned long)_etext;
++	}
++
++	*symbolsize = symbol_end - symbol_start;
++	*offset = addr - symbol_start;
++
++	return low;
++}
++
++/*
++ * Lookup an address but don't bother to find any names.
++ */
++int kallsyms_lookup_size_offset(unsigned long addr, unsigned long *symbolsize,
++				unsigned long *offset)
++{
++	if (is_ksym_addr(addr))
++		return !!get_symbol_pos(addr, symbolsize, offset);
++
++	return !!module_address_lookup(addr, symbolsize, offset, NULL);
++}
++
+ /*
+  * Lookup an address
+  * - modname is set to NULL if it's in the kernel
+@@ -168,57 +244,18 @@ const char *kallsyms_lookup(unsigned lon
+ 			    unsigned long *offset,
+ 			    char **modname, char *namebuf)
  {
--	DECLARE_COMPLETION(completion);
-+	DECLARE_COMPLETION_ONSTACK(completion);
+-	unsigned long i, low, high, mid;
+ 	const char *msym;
  
- 	req->complete = &completion;
+-	/* This kernel should never had been booted. */
+-	BUG_ON(!kallsyms_addresses);
+-
+ 	namebuf[KSYM_NAME_LEN] = 0;
+ 	namebuf[0] = 0;
  
-Index: linux-2.6/arch/i386/kernel/smpboot.c
-===================================================================
---- linux-2.6.orig/arch/i386/kernel/smpboot.c
-+++ linux-2.6/arch/i386/kernel/smpboot.c
-@@ -1058,7 +1058,7 @@ static void __cpuinit do_warm_boot_cpu(v
+-	if ((all_var && is_kernel(addr)) ||
+-	    (!all_var && (is_kernel_text(addr) || is_kernel_inittext(addr) ||
+-				is_kernel_extratext(addr)))) {
+-		unsigned long symbol_end = 0;
+-
+-		/* do a binary search on the sorted kallsyms_addresses array */
+-		low = 0;
+-		high = kallsyms_num_syms;
+-
+-		while (high-low > 1) {
+-			mid = (low + high) / 2;
+-			if (kallsyms_addresses[mid] <= addr) low = mid;
+-			else high = mid;
+-		}
+-
+-		/* search for the first aliased symbol. Aliased symbols are
+-		   symbols with the same address */
+-		while (low && kallsyms_addresses[low - 1] == kallsyms_addresses[low])
+-			--low;
+-
++	if (is_ksym_addr(addr)) {
++		unsigned long pos;
++		
++		pos = get_symbol_pos(addr, symbolsize, offset);
+ 		/* Grab name */
+-		kallsyms_expand_symbol(get_symbol_offset(low), namebuf);
+-
+-		/* Search for next non-aliased symbol */
+-		for (i = low + 1; i < kallsyms_num_syms; i++) {
+-			if (kallsyms_addresses[i] > kallsyms_addresses[low]) {
+-				symbol_end = kallsyms_addresses[i];
+-				break;
+-			}
+-		}
+-
+-		/* if we found no next symbol, we use the end of the section */
+-		if (!symbol_end) {
+-			if (is_kernel_inittext(addr))
+-				symbol_end = (unsigned long)_einittext;
+-			else
+-				symbol_end = all_var ? (unsigned long)_end : (unsigned long)_etext;
+-		}
+-
+-		*symbolsize = symbol_end - kallsyms_addresses[low];
++		kallsyms_expand_symbol(get_symbol_offset(pos), namebuf);
+ 		*modname = NULL;
+-		*offset = addr - kallsyms_addresses[low];
+ 		return namebuf;
+ 	}
  
- static int __cpuinit __smp_prepare_cpu(int cpu)
- {
--	DECLARE_COMPLETION(done);
-+	DECLARE_COMPLETION_ONSTACK(done);
- 	struct warm_boot_cpu_info info;
- 	struct work_struct task;
- 	int	apicid, ret;
-Index: linux-2.6/arch/powerpc/platforms/powermac/cpufreq_64.c
-===================================================================
---- linux-2.6.orig/arch/powerpc/platforms/powermac/cpufreq_64.c
-+++ linux-2.6/arch/powerpc/platforms/powermac/cpufreq_64.c
-@@ -104,7 +104,7 @@ static void g5_smu_switch_volt(int speed
- {
- 	struct smu_simple_cmd	cmd;
- 
--	DECLARE_COMPLETION(comp);
-+	DECLARE_COMPLETION_ONSTACK(comp);
- 	smu_queue_simple(&cmd, SMU_CMD_POWER_COMMAND, 8, smu_done_complete,
- 			 &comp, 'V', 'S', 'L', 'E', 'W',
- 			 0xff, g5_fvt_cur+1, speed_mode);
-Index: linux-2.6/arch/powerpc/platforms/powermac/nvram.c
-===================================================================
---- linux-2.6.orig/arch/powerpc/platforms/powermac/nvram.c
-+++ linux-2.6/arch/powerpc/platforms/powermac/nvram.c
-@@ -195,7 +195,7 @@ static void pmu_nvram_complete(struct ad
- static unsigned char pmu_nvram_read_byte(int addr)
- {
- 	struct adb_request req;
--	DECLARE_COMPLETION(req_complete); 
-+	DECLARE_COMPLETION_ONSTACK(req_complete);
- 	
- 	req.arg = system_state == SYSTEM_RUNNING ? &req_complete : NULL;
- 	if (pmu_request(&req, pmu_nvram_complete, 3, PMU_READ_NVRAM,
-@@ -211,7 +211,7 @@ static unsigned char pmu_nvram_read_byte
- static void pmu_nvram_write_byte(int addr, unsigned char val)
- {
- 	struct adb_request req;
--	DECLARE_COMPLETION(req_complete); 
-+	DECLARE_COMPLETION_ONSTACK(req_complete);
- 	
- 	req.arg = system_state == SYSTEM_RUNNING ? &req_complete : NULL;
- 	if (pmu_request(&req, pmu_nvram_complete, 4, PMU_WRITE_NVRAM,
-Index: linux-2.6/block/as-iosched.c
-===================================================================
---- linux-2.6.orig/block/as-iosched.c
-+++ linux-2.6/block/as-iosched.c
-@@ -1828,7 +1828,7 @@ static int __init as_init(void)
- 
- static void __exit as_exit(void)
- {
--	DECLARE_COMPLETION(all_gone);
-+	DECLARE_COMPLETION_ONSTACK(all_gone);
- 	elv_unregister(&iosched_as);
- 	ioc_gone = &all_gone;
- 	/* ioc_gone's update must be visible before reading ioc_count */
-Index: linux-2.6/block/cfq-iosched.c
-===================================================================
---- linux-2.6.orig/block/cfq-iosched.c
-+++ linux-2.6/block/cfq-iosched.c
-@@ -2463,7 +2463,7 @@ static int __init cfq_init(void)
- 
- static void __exit cfq_exit(void)
- {
--	DECLARE_COMPLETION(all_gone);
-+	DECLARE_COMPLETION_ONSTACK(all_gone);
- 	elv_unregister(&iosched_cfq);
- 	ioc_gone = &all_gone;
- 	/* ioc_gone's update must be visible before reading ioc_count */
-Index: linux-2.6/drivers/block/DAC960.c
-===================================================================
---- linux-2.6.orig/drivers/block/DAC960.c
-+++ linux-2.6/drivers/block/DAC960.c
-@@ -770,7 +770,7 @@ static void DAC960_P_QueueCommand(DAC960
- static void DAC960_ExecuteCommand(DAC960_Command_T *Command)
- {
-   DAC960_Controller_T *Controller = Command->Controller;
--  DECLARE_COMPLETION(Completion);
-+  DECLARE_COMPLETION_ONSTACK(Completion);
-   unsigned long flags;
-   Command->Completion = &Completion;
- 
-Index: linux-2.6/drivers/block/cciss.c
-===================================================================
---- linux-2.6.orig/drivers/block/cciss.c
-+++ linux-2.6/drivers/block/cciss.c
-@@ -879,7 +879,7 @@ static int cciss_ioctl(struct inode *ino
- 			char *buff = NULL;
- 			u64bit temp64;
- 			unsigned long flags;
--			DECLARE_COMPLETION(wait);
-+			DECLARE_COMPLETION_ONSTACK(wait);
- 
- 			if (!arg)
- 				return -EINVAL;
-@@ -997,7 +997,7 @@ static int cciss_ioctl(struct inode *ino
- 			BYTE sg_used = 0;
- 			int status = 0;
- 			int i;
--			DECLARE_COMPLETION(wait);
-+			DECLARE_COMPLETION_ONSTACK(wait);
- 			__u32 left;
- 			__u32 sz;
- 			BYTE __user *data_ptr;
-@@ -1792,7 +1792,7 @@ static int sendcmd_withirq(__u8 cmd,
- 	u64bit buff_dma_handle;
- 	unsigned long flags;
- 	int return_status;
--	DECLARE_COMPLETION(wait);
-+	DECLARE_COMPLETION_ONSTACK(wait);
- 
- 	if ((c = cmd_alloc(h, 0)) == NULL)
- 		return -ENOMEM;
-Index: linux-2.6/drivers/block/cciss_scsi.c
-===================================================================
---- linux-2.6.orig/drivers/block/cciss_scsi.c
-+++ linux-2.6/drivers/block/cciss_scsi.c
-@@ -766,7 +766,7 @@ cciss_scsi_do_simple_cmd(ctlr_info_t *c,
- 			int direction)
- {
- 	unsigned long flags;
--	DECLARE_COMPLETION(wait);
-+	DECLARE_COMPLETION_ONSTACK(wait);
- 
- 	cp->cmd_type = CMD_IOCTL_PEND;		// treat this like an ioctl 
- 	cp->scsi_cmd = NULL;
-Index: linux-2.6/drivers/block/paride/pd.c
-===================================================================
---- linux-2.6.orig/drivers/block/paride/pd.c
-+++ linux-2.6/drivers/block/paride/pd.c
-@@ -713,7 +713,7 @@ static void do_pd_request(request_queue_
- static int pd_special_command(struct pd_unit *disk,
- 		      enum action (*func)(struct pd_unit *disk))
- {
--	DECLARE_COMPLETION(wait);
-+	DECLARE_COMPLETION_ONSTACK(wait);
- 	struct request rq;
- 	int err = 0;
- 
-Index: linux-2.6/drivers/block/pktcdvd.c
-===================================================================
---- linux-2.6.orig/drivers/block/pktcdvd.c
-+++ linux-2.6/drivers/block/pktcdvd.c
-@@ -348,7 +348,7 @@ static int pkt_generic_packet(struct pkt
- 	char sense[SCSI_SENSE_BUFFERSIZE];
- 	request_queue_t *q;
- 	struct request *rq;
--	DECLARE_COMPLETION(wait);
-+	DECLARE_COMPLETION_ONSTACK(wait);
- 	int err = 0;
- 
- 	q = bdev_get_queue(pd->bdev);
-Index: linux-2.6/drivers/ide/ide-tape.c
-===================================================================
---- linux-2.6.orig/drivers/ide/ide-tape.c
-+++ linux-2.6/drivers/ide/ide-tape.c
-@@ -2764,7 +2764,7 @@ static void idetape_add_stage_tail (ide_
-  */
- static void idetape_wait_for_request (ide_drive_t *drive, struct request *rq)
- {
--	DECLARE_COMPLETION(wait);
-+	DECLARE_COMPLETION_ONSTACK(wait);
- 	idetape_tape_t *tape = drive->driver_data;
- 
- #if IDETAPE_DEBUG_BUGS
-Index: linux-2.6/drivers/macintosh/smu.c
-===================================================================
---- linux-2.6.orig/drivers/macintosh/smu.c
-+++ linux-2.6/drivers/macintosh/smu.c
-@@ -870,7 +870,7 @@ int smu_queue_i2c(struct smu_i2c_cmd *cm
- 
- static int smu_read_datablock(u8 *dest, unsigned int addr, unsigned int len)
- {
--	DECLARE_COMPLETION(comp);
-+	DECLARE_COMPLETION_ONSTACK(comp);
- 	unsigned int chunk;
- 	struct smu_cmd cmd;
- 	int rc;
-@@ -917,7 +917,7 @@ static int smu_read_datablock(u8 *dest, 
- 
- static struct smu_sdbp_header *smu_create_sdb_partition(int id)
- {
--	DECLARE_COMPLETION(comp);
-+	DECLARE_COMPLETION_ONSTACK(comp);
- 	struct smu_simple_cmd cmd;
- 	unsigned int addr, len, tlen;
- 	struct smu_sdbp_header *hdr;
-Index: linux-2.6/drivers/macintosh/windfarm_smu_controls.c
-===================================================================
---- linux-2.6.orig/drivers/macintosh/windfarm_smu_controls.c
-+++ linux-2.6/drivers/macintosh/windfarm_smu_controls.c
-@@ -56,7 +56,7 @@ static int smu_set_fan(int pwm, u8 id, u
- {
- 	struct smu_cmd cmd;
- 	u8 buffer[16];
--	DECLARE_COMPLETION(comp);
-+	DECLARE_COMPLETION_ONSTACK(comp);
- 	int rc;
- 
- 	/* Fill SMU command structure */
-Index: linux-2.6/drivers/macintosh/windfarm_smu_sensors.c
-===================================================================
---- linux-2.6.orig/drivers/macintosh/windfarm_smu_sensors.c
-+++ linux-2.6/drivers/macintosh/windfarm_smu_sensors.c
-@@ -67,7 +67,7 @@ static void smu_ads_release(struct wf_se
- static int smu_read_adc(u8 id, s32 *value)
- {
- 	struct smu_simple_cmd	cmd;
--	DECLARE_COMPLETION(comp);
-+	DECLARE_COMPLETION_ONSTACK(comp);
- 	int rc;
- 
- 	rc = smu_queue_simple(&cmd, SMU_CMD_READ_ADC, 1,
-Index: linux-2.6/drivers/s390/scsi/zfcp_scsi.c
-===================================================================
---- linux-2.6.orig/drivers/s390/scsi/zfcp_scsi.c
-+++ linux-2.6/drivers/s390/scsi/zfcp_scsi.c
-@@ -301,7 +301,7 @@ zfcp_scsi_command_sync(struct zfcp_unit 
- 		       int use_timer)
- {
- 	int ret;
--	DECLARE_COMPLETION(wait);
-+	DECLARE_COMPLETION_ONSTACK(wait);
- 
- 	scpnt->SCp.ptr = (void *) &wait;  /* silent re-use */
- 	scpnt->scsi_done = zfcp_scsi_command_sync_handler;
-Index: linux-2.6/drivers/scsi/53c700.c
-===================================================================
---- linux-2.6.orig/drivers/scsi/53c700.c
-+++ linux-2.6/drivers/scsi/53c700.c
-@@ -1939,7 +1939,7 @@ NCR_700_abort(struct scsi_cmnd * SCp)
- STATIC int
- NCR_700_bus_reset(struct scsi_cmnd * SCp)
- {
--	DECLARE_COMPLETION(complete);
-+	DECLARE_COMPLETION_ONSTACK(complete);
- 	struct NCR_700_Host_Parameters *hostdata = 
- 		(struct NCR_700_Host_Parameters *)SCp->device->host->hostdata[0];
- 
-Index: linux-2.6/drivers/scsi/aic7xxx/aic79xx_osm.c
-===================================================================
---- linux-2.6.orig/drivers/scsi/aic7xxx/aic79xx_osm.c
-+++ linux-2.6/drivers/scsi/aic7xxx/aic79xx_osm.c
-@@ -646,7 +646,7 @@ ahd_linux_dev_reset(struct scsi_cmnd *cm
- 	struct	ahd_initiator_tinfo *tinfo;
- 	struct	ahd_tmode_tstate *tstate;
- 	unsigned long flags;
--	DECLARE_COMPLETION(done);
-+	DECLARE_COMPLETION_ONSTACK(done);
- 
- 	reset_scb = NULL;
- 	paused = FALSE;
-@@ -2251,7 +2251,7 @@ done:
- 	if (paused)
- 		ahd_unpause(ahd);
- 	if (wait) {
--		DECLARE_COMPLETION(done);
-+		DECLARE_COMPLETION_ONSTACK(done);
- 
- 		ahd->platform_data->eh_done = &done;
- 		ahd_unlock(ahd, &flags);
-Index: linux-2.6/drivers/scsi/aic7xxx/aic7xxx_osm.c
-===================================================================
---- linux-2.6.orig/drivers/scsi/aic7xxx/aic7xxx_osm.c
-+++ linux-2.6/drivers/scsi/aic7xxx/aic7xxx_osm.c
-@@ -2335,7 +2335,7 @@ done:
- 	if (paused)
- 		ahc_unpause(ahc);
- 	if (wait) {
--		DECLARE_COMPLETION(done);
-+		DECLARE_COMPLETION_ONSTACK(done);
- 
- 		ahc->platform_data->eh_done = &done;
- 		ahc_unlock(ahc, &flags);
-Index: linux-2.6/drivers/scsi/gdth.c
-===================================================================
---- linux-2.6.orig/drivers/scsi/gdth.c
-+++ linux-2.6/drivers/scsi/gdth.c
-@@ -724,7 +724,7 @@ int __gdth_execute(struct scsi_device *s
-                    int timeout, u32 *info)
- {
-     Scsi_Cmnd *scp;
--    DECLARE_COMPLETION(wait);
-+    DECLARE_COMPLETION_ONSTACK(wait);
-     int rval;
- 
-     scp = kmalloc(sizeof(*scp), GFP_KERNEL);
-@@ -764,7 +764,7 @@ int __gdth_execute(struct scsi_device *s
- {
-     Scsi_Cmnd *scp = scsi_allocate_device(sdev, 1, FALSE);
-     unsigned bufflen = gdtcmd ? sizeof(gdth_cmd_str) : 0;
--    DECLARE_COMPLETION(wait);
-+    DECLARE_COMPLETION_ONSTACK(wait);
-     int rval;
- 
-     if (!scp)
-Index: linux-2.6/drivers/scsi/qla1280.c
-===================================================================
---- linux-2.6.orig/drivers/scsi/qla1280.c
-+++ linux-2.6/drivers/scsi/qla1280.c
-@@ -813,7 +813,7 @@ qla1280_error_action(struct scsi_cmnd *c
- 	uint16_t data;
- 	unsigned char *handle;
- 	int result, i;
--	DECLARE_COMPLETION(wait);
-+	DECLARE_COMPLETION_ONSTACK(wait);
- 	struct timer_list timer;
- 
- 	ha = (struct scsi_qla_host *)(CMD_HOST(cmd)->hostdata);
-@@ -2406,7 +2406,7 @@ qla1280_mailbox_command(struct scsi_qla_
- 	uint16_t *optr, *iptr;
- 	uint16_t __iomem *mptr;
- 	uint16_t data;
--	DECLARE_COMPLETION(wait);
-+	DECLARE_COMPLETION_ONSTACK(wait);
- 	struct timer_list timer;
- 
- 	ENTER("qla1280_mailbox_command");
-Index: linux-2.6/drivers/usb/gadget/inode.c
-===================================================================
---- linux-2.6.orig/drivers/usb/gadget/inode.c
-+++ linux-2.6/drivers/usb/gadget/inode.c
-@@ -342,7 +342,7 @@ fail:
- static ssize_t
- ep_io (struct ep_data *epdata, void *buf, unsigned len)
- {
--	DECLARE_COMPLETION (done);
-+	DECLARE_COMPLETION_ONSTACK (done);
- 	int value;
- 
- 	spin_lock_irq (&epdata->dev->lock);
-Index: linux-2.6/drivers/usb/gadget/omap_udc.c
-===================================================================
---- linux-2.6.orig/drivers/usb/gadget/omap_udc.c
-+++ linux-2.6/drivers/usb/gadget/omap_udc.c
-@@ -2869,7 +2869,7 @@ cleanup0:
- 
- static int __exit omap_udc_remove(struct platform_device *pdev)
- {
--	DECLARE_COMPLETION(done);
-+	DECLARE_COMPLETION_ONSTACK(done);
- 
- 	if (!udc)
- 		return -ENODEV;
-Index: linux-2.6/net/ipv4/ipvs/ip_vs_sync.c
-===================================================================
---- linux-2.6.orig/net/ipv4/ipvs/ip_vs_sync.c
-+++ linux-2.6/net/ipv4/ipvs/ip_vs_sync.c
-@@ -836,7 +836,7 @@ static int fork_sync_thread(void *startu
- 
- int start_sync_thread(int state, char *mcast_ifn, __u8 syncid)
- {
--	DECLARE_COMPLETION(startup);
-+	DECLARE_COMPLETION_ONSTACK(startup);
- 	pid_t pid;
- 
- 	if ((state == IP_VS_STATE_MASTER && sync_master_pid) ||
+diff --git a/kernel/module.c b/kernel/module.c
+index 2a19cd4..0e3e6ab 100644
+--- a/kernel/module.c
++++ b/kernel/module.c
+@@ -2012,7 +2012,8 @@ const char *module_address_lookup(unsign
+ 	list_for_each_entry(mod, &modules, list) {
+ 		if (within(addr, mod->module_init, mod->init_size)
+ 		    || within(addr, mod->module_core, mod->core_size)) {
+-			*modname = mod->name;
++			if (modname)
++				*modname = mod->name;
+ 			return get_ksymbol(mod, addr, size, offset);
+ 		}
+ 	}
+-- 
+1.4.2
 
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/
 

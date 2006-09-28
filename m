@@ -1,114 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161086AbWI1La3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965333AbWI1LiH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161086AbWI1La3 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Sep 2006 07:30:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161087AbWI1La2
+	id S965333AbWI1LiH (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Sep 2006 07:38:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965331AbWI1LiH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Sep 2006 07:30:28 -0400
-Received: from mtagate4.de.ibm.com ([195.212.29.153]:19093 "EHLO
-	mtagate4.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1161086AbWI1La0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Sep 2006 07:30:26 -0400
-From: Jan-Bernd Themann <ossthema@de.ibm.com>
-To: Jeff Garzik <jeff@garzik.org>
-Subject: [PATCH 2.6.19-rc1] ehea bug fix (port state notification, default queue sizes)
-Date: Thu, 28 Sep 2006 12:44:40 +0200
-User-Agent: KMail/1.8.2
-Cc: netdev <netdev@vger.kernel.org>, Christoph Raisch <raisch@de.ibm.com>,
-       "Jan-Bernd Themann" <themann@de.ibm.com>,
-       "linux-kernel" <linux-kernel@vger.kernel.org>,
-       "linux-ppc" <linuxppc-dev@ozlabs.org>, Marcus Eder <meder@de.ibm.com>,
-       Thomas Klein <tklein@de.ibm.com>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200609281244.40887.ossthema@de.ibm.com>
+	Thu, 28 Sep 2006 07:38:07 -0400
+Received: from r16s03p19.home.nbox.cz ([83.240.22.12]:45490 "EHLO
+	scarab.smoula.net") by vger.kernel.org with ESMTP id S965322AbWI1LiE
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Sep 2006 07:38:04 -0400
+Subject: Re: forcedeth - WOL [SOLVED]
+From: Martin Filip <bugtraq@smoula.net>
+To: Andrew Morton <akpm@osdl.org>
+Cc: =?ISO-8859-1?Q?Bj=F6rn?= Steinbrink <B.Steinbrink@gmx.de>,
+       linux-kernel@vger.kernel.org, Ayaz Abdulla <aabdulla@nvidia.com>,
+       stable@kernel.org
+In-Reply-To: <20060927203906.f4fc331e.akpm@osdl.org>
+References: <1159379441.9024.7.camel@archon.smoula-in.net>
+	 <20060927183857.GA2963@atjola.homenet>
+	 <1159389486.8902.4.camel@archon.smoula-in.net>
+	 <20060927165704.613bf0aa.akpm@osdl.org>
+	 <20060928000447.GB2963@atjola.homenet>
+	 <20060928004053.GA3521@atjola.homenet>
+	 <20060928010133.GB3521@atjola.homenet>
+	 <20060927183625.5231e969.akpm@osdl.org>
+	 <20060928020438.GC3521@atjola.homenet>
+	 <20060928022447.GA3890@atjola.homenet>
+	 <20060927203906.f4fc331e.akpm@osdl.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-eDe6eLH0S6kGo8iH5UNK"
+Date: Thu, 28 Sep 2006 13:37:45 +0200
+Message-Id: <1159443465.8961.4.camel@archon.smoula-in.net>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.0 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Jeff,
 
-this patch includes a bug fix for the port state notification
-and fixes the default queue sizes.
+--=-eDe6eLH0S6kGo8iH5UNK
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-Thanks,
-Jan-Bernd
+> > > I just took a peek at the code.
+> > >=20
+> > > The version on bugzilla (last attachment, comment #22), which was
+> > > reported to work correctly, has the MAC address reversal hardcoded.
+> > > The driver in 2.6.18 has some logic to detect if it should reverse th=
+e
+> > > MAC address. So it looks like a hardware oddity/bug that the driver
+> > > wants to fix but fails. I'll see what happens if I force address
+> > > reversal and if I can decipher anything, but probably someone else wi=
+ll
+> > > have to cast the runes...
+> >=20
+> > OK, please excuse me wasting your time, it's late over here... I've
+> > actually been looking at Linus' git tree (pulled yesterday) while
+> > writing that mail, not 2.6.18.
+> > 2.6.18 does _not_ contain the address reversal detection.
+> > Using the git tree instead of 2.6.18 WOL works as expected, without
+> > having to reverse the MAC address.
+> >=20
+>=20
+> hm, OK, thanks.  Ayaz, do you think 5070d3408405ae1941f259acac7a9882045c3=
+be4 is
+> a suitable thing for 2.6.18.x?
+Hi,
 
-Signed-off-by: Jan-Bernd Themann <themann@de.ibm.com>
----
- drivers/net/ehea/ehea.h      |   13 +++++++------
- drivers/net/ehea/ehea_main.c |    6 +++---
- 2 files changed, 10 insertions(+), 9 deletions(-)
+you never sleep guys, do you :) I've just tried patch from bugzilla.
+(here is version twaked to be usable with 2.6.18
+http://www.smoula.net/download/forcedeth.c) and it looks like it's
+working correctly with correct ordered MAC.
 
+--=20
+Martin Filip
+e-mail: nexus@smoula.net
+ICQ#: 31531391
+jabber: nexus@smoula.net
+www: http://www.smoula.net
 
-diff --git a/drivers/net/ehea/ehea.h b/drivers/net/ehea/ehea.h
-index 23b451a..b40724f 100644
---- a/drivers/net/ehea/ehea.h
-+++ b/drivers/net/ehea/ehea.h
-@@ -39,7 +39,7 @@ #include <asm/abs_addr.h>
- #include <asm/io.h>
- 
- #define DRV_NAME	"ehea"
--#define DRV_VERSION	"EHEA_0028"
-+#define DRV_VERSION	"EHEA_0034"
- 
- #define EHEA_MSG_DEFAULT (NETIF_MSG_LINK | NETIF_MSG_TIMER \
- 	| NETIF_MSG_RX_ERR | NETIF_MSG_TX_ERR)
-@@ -50,6 +50,7 @@ #define EHEA_MAX_ENTRIES_RQ3 16383
- #define EHEA_MAX_ENTRIES_SQ  32767
- #define EHEA_MIN_ENTRIES_QP  127
- 
-+#define EHEA_SMALL_QUEUES
- #define EHEA_NUM_TX_QP 1
- 
- #ifdef EHEA_SMALL_QUEUES
-@@ -59,11 +60,11 @@ #define EHEA_DEF_ENTRIES_RQ1    4095
- #define EHEA_DEF_ENTRIES_RQ2    1023
- #define EHEA_DEF_ENTRIES_RQ3    1023
- #else
--#define EHEA_MAX_CQE_COUNT     32000
--#define EHEA_DEF_ENTRIES_SQ    16000
--#define EHEA_DEF_ENTRIES_RQ1   32080
--#define EHEA_DEF_ENTRIES_RQ2    4020
--#define EHEA_DEF_ENTRIES_RQ3    4020
-+#define EHEA_MAX_CQE_COUNT      4080
-+#define EHEA_DEF_ENTRIES_SQ     4080
-+#define EHEA_DEF_ENTRIES_RQ1    8160
-+#define EHEA_DEF_ENTRIES_RQ2    2040
-+#define EHEA_DEF_ENTRIES_RQ3    2040
- #endif
- 
- #define EHEA_MAX_ENTRIES_EQ 20
-diff --git a/drivers/net/ehea/ehea_main.c b/drivers/net/ehea/ehea_main.c
-index 263d1c5..0edb2f8 100644
---- a/drivers/net/ehea/ehea_main.c
-+++ b/drivers/net/ehea/ehea_main.c
-@@ -769,7 +769,7 @@ static void ehea_parse_eqe(struct ehea_a
- 		if (EHEA_BMASK_GET(NEQE_PORT_UP, eqe)) {
- 			if (!netif_carrier_ok(port->netdev)) {
- 				ret = ehea_sense_port_attr(
--					adapter->port[portnum]);
-+					port);
- 				if (ret) {
- 					ehea_error("failed resensing port "
- 						   "attributes");
-@@ -821,7 +821,7 @@ static void ehea_parse_eqe(struct ehea_a
- 		netif_stop_queue(port->netdev);
- 		break;
- 	default:
--		ehea_error("unknown event code %x", ec);
-+		ehea_error("unknown event code %x, eqe=0x%lX", ec, eqe);
- 		break;
- 	}
- }
-@@ -1845,7 +1845,7 @@ static int ehea_start_xmit(struct sk_buf
- 
- 	if (netif_msg_tx_queued(port)) {
- 		ehea_info("post swqe on QP %d", pr->qp->init_attr.qp_nr);
--		ehea_dump(swqe, sizeof(*swqe), "swqe");
-+		ehea_dump(swqe, 512, "swqe");
- 	}
- 
- 	ehea_post_swqe(pr->qp, swqe);
+ _______________________________=20
+< BOFH Excuse #100: IRQ dropout >
+ -------------------------------=20
+       \   ,__,
+        \  (oo)____
+           (__)    )\
+              ||--|| *
+
+--=-eDe6eLH0S6kGo8iH5UNK
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: Toto je =?UTF-8?Q?digit=C3=A1ln=C4=9B?=
+	=?ISO-8859-1?Q?_podepsan=E1?= =?UTF-8?Q?_=C4=8D=C3=A1st?=
+	=?ISO-8859-1?Q?_zpr=E1vy?=
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
+
+iD8DBQBFG7QJzvp9bBLJ9XMRAhOEAJ43RCO/BwZ5H04pi4TK5FnlO4VfLgCeO6eg
+XpZ6Fr6jeGIKzytLDgnvVbc=
+=kcri
+-----END PGP SIGNATURE-----
+
+--=-eDe6eLH0S6kGo8iH5UNK--
+

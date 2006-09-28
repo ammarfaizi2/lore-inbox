@@ -1,41 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161159AbWI1OoS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161163AbWI1OpG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161159AbWI1OoS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Sep 2006 10:44:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161161AbWI1OoS
+	id S1161163AbWI1OpG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Sep 2006 10:45:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161160AbWI1OpG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Sep 2006 10:44:18 -0400
-Received: from wohnheim.fh-wedel.de ([213.39.233.138]:62895 "EHLO
-	wohnheim.fh-wedel.de") by vger.kernel.org with ESMTP
-	id S1161159AbWI1OoR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Sep 2006 10:44:17 -0400
-Date: Thu, 28 Sep 2006 16:41:07 +0200
-From: =?iso-8859-1?Q?J=F6rn?= Engel <joern@wohnheim.fh-wedel.de>
-To: Heiko Carstens <heiko.carstens@de.ibm.com>
-Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, linux-kernel@vger.kernel.org,
-       holzheu@de.ibm.com
-Subject: Re: [S390] hypfs sparse warnings.
-Message-ID: <20060928144107.GB21814@wohnheim.fh-wedel.de>
-References: <20060928130737.GB1120@skybase> <20060928132540.GA18933@wohnheim.fh-wedel.de> <20060928134247.GB6899@osiris.boeblingen.de.ibm.com> <20060928135406.GB18933@wohnheim.fh-wedel.de> <20060928142139.GC6899@osiris.boeblingen.de.ibm.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20060928142139.GC6899@osiris.boeblingen.de.ibm.com>
-User-Agent: Mutt/1.5.9i
+	Thu, 28 Sep 2006 10:45:06 -0400
+Received: from 70-91-206-233-BusName-SFBA.hfc.comcastbusiness.net ([70.91.206.233]:29663
+	"EHLO saville.com") by vger.kernel.org with ESMTP id S1161162AbWI1OpC
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Sep 2006 10:45:02 -0400
+Message-ID: <451BDFF3.4040003@saville.com>
+Date: Thu, 28 Sep 2006 07:45:07 -0700
+From: Wink Saville <wink@saville.com>
+User-Agent: Thunderbird 1.5.0.7 (Windows/20060909)
+MIME-Version: 1.0
+To: Stephen Hemminger <shemminger@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: Zero copy between ISR, kernel and User
+References: <4519F7A9.4050807@saville.com> <20060927121030.4469ec6e@freekitty>
+In-Reply-To: <20060927121030.4469ec6e@freekitty>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 28 September 2006 16:21:39 +0200, Heiko Carstens wrote:
-> 
-> You probably need to update your git tree. All of them have casts in the
-> meantime. Except for the one addressed with this patch.
-> See: 331c982d4a6b43cdc0d056956a1cae8a7d6237bf
+Stephen Hemminger wrote:
+> On Tue, 26 Sep 2006 21:01:45 -0700
+> Wink Saville <wink@saville.com> wrote:
+>
+>   
+>> Hello,
+>>
+>> I would like to allow the transferring of data between ISR's, kernel and 
+>> user code, without requiring copying. I envision allocating buffers in 
+>> the kernel and then mapping them so that they appear at the same 
+>> addresses to all code, and never being swapped out of memory.
+>>
+>> Is this feasible for all supported Linux architectures and is there 
+>> existing code that someone could point me towards?
+>>
+>> Regards,
+>>
+>> Wink Saville
+>>
+>>     
+>
+> Your better off having application mmap a device, then transfer
+> the data to there. Something like AF_PACKET.
+>
+>   
+Is there some reason a kernel module can't mmap first, for instance I 
+assume display drivers might do that? One of the reasons I need it to 
+done in the kernel first is that data could come from the device or 
+other entities before the application is running.
 
-Doh!
+But I will study AF_PACKET handling.
 
-Jörn
+Thanks,
 
--- 
-He who knows that enough is enough will always have enough.
--- Lao Tsu
+Wink
+

@@ -1,114 +1,217 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030357AbWI1Sbd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030361AbWI1Sbx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030357AbWI1Sbd (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Sep 2006 14:31:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030358AbWI1Sbc
+	id S1030361AbWI1Sbx (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Sep 2006 14:31:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030360AbWI1Sbw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Sep 2006 14:31:32 -0400
-Received: from smtp-out.google.com ([216.239.45.12]:64098 "EHLO
-	smtp-out.google.com") by vger.kernel.org with ESMTP
-	id S1030357AbWI1Sba (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Sep 2006 14:31:30 -0400
-DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
-	h=received:subject:from:reply-to:to:cc:in-reply-to:references:
-	content-type:organization:date:message-id:mime-version:x-mailer:content-transfer-encoding;
-	b=T8j4Cr1WrvMLqrBGak6eILzOpP2apS/v7zZQ1Rz9XcC0vxW6MV8POfc/s53krRmuC
-	cyAxTPJJ5UM+sVjFRk3Xw==
-Subject: Re: [ckrm-tech] [patch00/05]: Containers(V2)- Introduction
-From: Rohit Seth <rohitseth@google.com>
-Reply-To: rohitseth@google.com
-To: balbir@in.ibm.com
-Cc: sekharan@us.ibm.com, linux-kernel <linux-kernel@vger.kernel.org>,
-       devel@openvz.org, CKRM-Tech <ckrm-tech@lists.sourceforge.net>
-In-Reply-To: <451B815D.2010807@in.ibm.com>
-References: <1158718568.29000.44.camel@galaxy.corp.google.com>
-	 <1159386644.4773.80.camel@linuxchandra>
-	 <1159392487.23458.70.camel@galaxy.corp.google.com>
-	 <1159395892.4773.107.camel@linuxchandra>  <451B815D.2010807@in.ibm.com>
-Content-Type: text/plain
-Organization: Google Inc
-Date: Thu, 28 Sep 2006 11:31:15 -0700
-Message-Id: <1159468275.2669.88.camel@galaxy.corp.google.com>
+	Thu, 28 Sep 2006 14:31:52 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.151]:37329 "EHLO
+	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S1030358AbWI1Sbr
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Sep 2006 14:31:47 -0400
+Date: Thu, 28 Sep 2006 13:31:40 -0500
+From: Michael Halcrow <mhalcrow@us.ibm.com>
+To: akpm@osdl.org
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: [PATCH] eCryptfs: Enable plaintext passthrough
+Message-ID: <20060928183139.GA5082@us.ibm.com>
+Reply-To: Michael Halcrow <mhalcrow@us.ibm.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.1.1 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-09-28 at 13:31 +0530, Balbir Singh wrote:
-> Chandra Seetharaman wrote:
-> > On Wed, 2006-09-27 at 14:28 -0700, Rohit Seth wrote:
-> > 
-> > Rohit,
-> > 
-> > For 1-4, I understand the rationale. But, your implementation deviates
-> > from the current behavior of the VM subsystem which could affect the
-> > ability of these patches getting into mainline.
-> > 
-> > IMO, the current behavior in terms of reclamation, LRU, vm_swappiness,
-> > and writeback logic should be maintained.
-> > 
-> 
-> <snip>
-> 
-> Hi, Rohit,
-> 
-> I have been playing around with the containers patch. I finally got
-> around to reading the code.
-> 
-> 
-> 1. Comments on reclaiming
-> 
-> You could try the following options to overcome some of the disadvantages of the
-> current scheme.
-> 
-> (a) You could consider a reclaim path based on Dave Hansen's Challenged memory
-> controller (see http://marc.theaimsgroup.com/?l=linux-mm&m=115566982532345&w=2).
-> 
+Code that is currently unused in mmap.c can simply pass through
+unencrypted data. This patch adds a mount option to enable that
+functionality.
 
-I will go through that.  Did you get a chance to stress the system and
-found any short comings that should be resolved.
+Note that, with this patch, one can encrypt a directory full of
+unencrypted files by doing something like this for each file:
 
-> (b) The other option is to do what the resource group memory controller does -
-> build a per group LRU list of pages (active, inactive) and reclaim
-> them using the existing code (by passing the correct container pointer,
-> instead of the zone pointer). One disadvantage of this approach is that
-> the global reclaim is impacted as the global LRU list is broken. At the
-> expense of another list, we could maintain two lists, global LRU and
-> container LRU lists. Depending on the context of the reclaim - (container
-> over limit, memory pressure) we could update/manipulate both lists.
-> This approach is definitely very expensive.
-> 
+cp file.txt .file.txt; mv .file.txt file.txt
 
-Two LRUs is a nice idea.  Though I don't think it will go too far.  It
-will involve adding another list pointers in the page structure.  I
-agree that the mem handler is not optimal at all but I don't want to
-make it mimic kernel reclaimer at the same time.
+Signed-off-by: Michael Halcrow <mhalcrow@us.ibm.com>
 
-> 2. Comments on task migration support
-> 
-> (a) One of the issues I found while using the container code is that, one could
-> add a task to a container say "a". "a" gets charged for the tasks usage,
-> when the same task moves to a different container say "b", when the task
-> exits, the credit goes to "b" and "a" remains indefinitely charged.
-> 
-hmm, when the task is removed from "a" then "a" gets the credits for the
-amount of anon memory that is used by the task.  Or do you mean
-something different.
+---
 
-> (b) For tasks addition and removal, I think it's probably better to move
-> the entire process (thread group) rather than allow each individual thread
-> to move across containers. Having threads belonging to the same process
-> reside in different containers can be complex to handle, since they
-> share the same VM. Do you have a scenario where the above condition
-> would be useful?
-> 
-> 
-I don't have a scenario where a task actually gets to move out of
-container (except exit).  That asynchronous removal of tasks has already
-got the code very complicated for locking etc.  But if you think moving
-a thread group is useful then I will add that functionality.
+ fs/ecryptfs/crypto.c          |    4 ----
+ fs/ecryptfs/ecryptfs_kernel.h |    5 ++++-
+ fs/ecryptfs/file.c            |   40 +++++++++++++++++++++++++++++-----------
+ fs/ecryptfs/inode.c           |    4 ++--
+ fs/ecryptfs/main.c            |    7 ++++++-
+ 5 files changed, 41 insertions(+), 19 deletions(-)
 
-Thanks,
--rohit
+39a20eb2e87eb501c849a78f41640f11c6a0a01d
+diff --git a/fs/ecryptfs/crypto.c b/fs/ecryptfs/crypto.c
+index 39d7ec0..ed35a97 100644
+--- a/fs/ecryptfs/crypto.c
++++ b/fs/ecryptfs/crypto.c
+@@ -1394,8 +1394,6 @@ static int ecryptfs_read_headers_virt(ch
+ 	offset = ECRYPTFS_FILE_SIZE_BYTES;
+ 	rc = contains_ecryptfs_marker(page_virt + offset);
+ 	if (rc == 0) {
+-		ecryptfs_printk(KERN_WARNING, "Valid eCryptfs marker not "
+-				"found\n");
+ 		rc = -EINVAL;
+ 		goto out;
+ 	}
+@@ -1463,8 +1461,6 @@ int ecryptfs_read_headers(struct dentry 
+ 					    &lower_file->f_pos);
+ 	set_fs(oldfs);
+ 	if (bytes_read != ECRYPTFS_DEFAULT_EXTENT_SIZE) {
+-		ecryptfs_printk(KERN_ERR, "Expected size of header not read."
+-				"Instead [%d] bytes were read\n", bytes_read);
+ 		rc = -EINVAL;
+ 		goto out;
+ 	}
+diff --git a/fs/ecryptfs/ecryptfs_kernel.h b/fs/ecryptfs/ecryptfs_kernel.h
+index bae19ea..3911219 100644
+--- a/fs/ecryptfs/ecryptfs_kernel.h
++++ b/fs/ecryptfs/ecryptfs_kernel.h
+@@ -42,7 +42,8 @@ #define ECRYPTFS_VERSIONING_PASSPHRASE 0
+ #define ECRYPTFS_VERSIONING_PUBKEY 0x00000002
+ #define ECRYPTFS_VERSIONING_PLAINTEXT_PASSTHROUGH 0x00000004
+ #define ECRYPTFS_VERSIONING_POLICY 0x00000008
+-#define ECRYPTFS_VERSIONING_MASK (ECRYPTFS_VERSIONING_PASSPHRASE)
++#define ECRYPTFS_VERSIONING_MASK (ECRYPTFS_VERSIONING_PASSPHRASE \
++                                  | ECRYPTFS_VERSIONING_PLAINTEXT_PASSTHROUGH)
+ 
+ #define ECRYPTFS_MAX_PASSWORD_LENGTH 64
+ #define ECRYPTFS_MAX_PASSPHRASE_BYTES ECRYPTFS_MAX_PASSWORD_LENGTH
+@@ -238,6 +239,8 @@ struct ecryptfs_dentry_info {
+  */
+ struct ecryptfs_mount_crypt_stat {
+ 	/* Pointers to memory we do not own, do not free these */
++#define ECRYPTFS_PLAINTEXT_PASSTHROUGH_ENABLED 0x00000001
++	u32 flags;
+ 	struct ecryptfs_auth_tok *global_auth_tok;
+ 	struct key *global_auth_tok_key;
+ 	size_t global_default_cipher_key_size;
+diff --git a/fs/ecryptfs/file.c b/fs/ecryptfs/file.c
+index 1cc2cc0..c8550c9 100644
+--- a/fs/ecryptfs/file.c
++++ b/fs/ecryptfs/file.c
+@@ -211,6 +211,7 @@ static int ecryptfs_open(struct inode *i
+ {
+ 	int rc = 0;
+ 	struct ecryptfs_crypt_stat *crypt_stat = NULL;
++	struct ecryptfs_mount_crypt_stat *mount_crypt_stat;
+ 	struct dentry *ecryptfs_dentry = file->f_dentry;
+ 	/* Private value of ecryptfs_dentry allocated in
+ 	 * ecryptfs_lookup() */
+@@ -233,6 +234,8 @@ static int ecryptfs_open(struct inode *i
+ 	memset(file_info, 0, sizeof(*file_info));
+ 	lower_dentry = ecryptfs_dentry_to_lower(ecryptfs_dentry);
+ 	crypt_stat = &ecryptfs_inode_to_private(inode)->crypt_stat;
++	mount_crypt_stat = &ecryptfs_superblock_to_private(
++		ecryptfs_dentry->d_sb)->mount_crypt_stat;
+ 	mutex_lock(&crypt_stat->cs_mutex);
+ 	if (!ECRYPTFS_CHECK_FLAG(crypt_stat->flags, ECRYPTFS_POLICY_APPLIED)) {
+ 		ecryptfs_printk(KERN_DEBUG, "Setting flags for stat...\n");
+@@ -267,12 +270,21 @@ static int ecryptfs_open(struct inode *i
+ 		goto out;
+ 	}
+ 	mutex_lock(&crypt_stat->cs_mutex);
+-	if (i_size_read(lower_inode) == 0) {
+-		ecryptfs_printk(KERN_EMERG, "Zero-length lower file; "
+-				"ecryptfs_create() had a problem?\n");
+-		rc = -ENOENT;
++	if (i_size_read(lower_inode) < ECRYPTFS_MINIMUM_HEADER_EXTENT_SIZE) {
++		if (!(mount_crypt_stat->flags
++		      & ECRYPTFS_PLAINTEXT_PASSTHROUGH_ENABLED)) {
++			rc = -EIO;
++			printk(KERN_WARNING "Attempt to read file that is "
++			       "not in a valid eCryptfs format, and plaintext "
++			       "passthrough mode is not enabled; returning "
++			       "-EIO\n");
++			mutex_unlock(&crypt_stat->cs_mutex);
++			goto out_puts;
++		}
++		crypt_stat->flags &= ~(ECRYPTFS_ENCRYPTED);
++		rc = 0;
+ 		mutex_unlock(&crypt_stat->cs_mutex);
+-		goto out_puts;
++		goto out;
+ 	} else if (!ECRYPTFS_CHECK_FLAG(crypt_stat->flags,
+ 					ECRYPTFS_POLICY_APPLIED)
+ 		   || !ECRYPTFS_CHECK_FLAG(crypt_stat->flags,
+@@ -281,15 +293,21 @@ static int ecryptfs_open(struct inode *i
+ 		if (rc) {
+ 			ecryptfs_printk(KERN_DEBUG,
+ 					"Valid headers not found\n");
++			if (!(mount_crypt_stat->flags
++			      & ECRYPTFS_PLAINTEXT_PASSTHROUGH_ENABLED)) {
++				rc = -EIO;
++				printk(KERN_WARNING "Attempt to read file that "
++				       "is not in a valid eCryptfs format, "
++				       "and plaintext passthrough mode is not "
++				       "enabled; returning -EIO\n");
++				mutex_unlock(&crypt_stat->cs_mutex);
++				goto out_puts;
++			}
+ 			ECRYPTFS_CLEAR_FLAG(crypt_stat->flags,
+ 					    ECRYPTFS_ENCRYPTED);
+-			/* At this point, we could just move on and
+-			 * have the encrypted data passed through
+-			 * as-is to userspace. For release 0.1, we are
+-			 * going to default to -EIO. */
+-			rc = -EIO;
++			rc = 0;
+ 			mutex_unlock(&crypt_stat->cs_mutex);
+-			goto out_puts;
++			goto out;
+ 		}
+ 	}
+ 	mutex_unlock(&crypt_stat->cs_mutex);
+diff --git a/fs/ecryptfs/inode.c b/fs/ecryptfs/inode.c
+index 503fb39..efdd2b7 100644
+--- a/fs/ecryptfs/inode.c
++++ b/fs/ecryptfs/inode.c
+@@ -436,8 +436,8 @@ static struct dentry *ecryptfs_lookup(st
+ 	} else {
+ 		if (!contains_ecryptfs_marker(page_virt
+ 					      + ECRYPTFS_FILE_SIZE_BYTES)) {
+-			ecryptfs_printk(KERN_WARNING, "Underlying file "
+-					"lacks recognizable eCryptfs marker\n");
++			kmem_cache_free(ecryptfs_header_cache_2, page_virt);
++			goto out;
+ 		}
+ 		memcpy(&file_size, page_virt, sizeof(file_size));
+ 		file_size = be64_to_cpu(file_size);
+diff --git a/fs/ecryptfs/main.c b/fs/ecryptfs/main.c
+index b7e3bd0..c88a8c9 100644
+--- a/fs/ecryptfs/main.c
++++ b/fs/ecryptfs/main.c
+@@ -126,7 +126,7 @@ out:
+ enum { ecryptfs_opt_sig, ecryptfs_opt_ecryptfs_sig, ecryptfs_opt_debug,
+        ecryptfs_opt_ecryptfs_debug, ecryptfs_opt_cipher,
+        ecryptfs_opt_ecryptfs_cipher, ecryptfs_opt_ecryptfs_key_bytes,
+-       ecryptfs_opt_err };
++       ecryptfs_opt_passthrough, ecryptfs_opt_err };
+ 
+ static match_table_t tokens = {
+ 	{ecryptfs_opt_sig, "sig=%s"},
+@@ -136,6 +136,7 @@ static match_table_t tokens = {
+ 	{ecryptfs_opt_cipher, "cipher=%s"},
+ 	{ecryptfs_opt_ecryptfs_cipher, "ecryptfs_cipher=%s"},
+ 	{ecryptfs_opt_ecryptfs_key_bytes, "ecryptfs_key_bytes=%u"},
++	{ecryptfs_opt_passthrough, "ecryptfs_passthrough"},
+ 	{ecryptfs_opt_err, NULL}
+ };
+ 
+@@ -273,6 +274,10 @@ static int ecryptfs_parse_options(struct
+ 					global_default_cipher_key_size);
+ 			cipher_key_bytes_set = 1;
+ 			break;
++		case ecryptfs_opt_passthrough:
++			mount_crypt_stat->flags |=
++				ECRYPTFS_PLAINTEXT_PASSTHROUGH_ENABLED;
++			break;
+ 		case ecryptfs_opt_err:
+ 		default:
+ 			ecryptfs_printk(KERN_WARNING,
+-- 
+1.3.3
 

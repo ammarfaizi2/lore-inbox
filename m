@@ -1,42 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751604AbWI1HhA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751763AbWI1HtN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751604AbWI1HhA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Sep 2006 03:37:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751747AbWI1HhA
+	id S1751763AbWI1HtN (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Sep 2006 03:49:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751760AbWI1HtN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Sep 2006 03:37:00 -0400
-Received: from ns.suse.de ([195.135.220.2]:35008 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751575AbWI1HhA (ORCPT
+	Thu, 28 Sep 2006 03:49:13 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:8856 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751757AbWI1HtM (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Sep 2006 03:37:00 -0400
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Krzysztof Halasa <khc@pm.waw.pl>,
-       Nicolas Mailhot <nicolas.mailhot@laposte.net>,
-       linux-kernel@vger.kernel.org,
-       James Bottomley <James.Bottomley@SteelEye.com>
-Subject: Re: GPLv3 Position Statement
-References: <43447.192.54.193.51.1159350218.squirrel@rousalka.dyndns.org>
-	<Pine.LNX.4.64.0609271031300.3952@g5.osdl.org>
-	<m33bad9hgy.fsf@defiant.localdomain>
-	<Pine.LNX.4.64.0609271336200.3952@g5.osdl.org>
-	<1159398089.11049.381.camel@localhost.localdomain>
+	Thu, 28 Sep 2006 03:49:12 -0400
 From: Andi Kleen <ak@suse.de>
-Date: 28 Sep 2006 09:36:52 +0200
-In-Reply-To: <1159398089.11049.381.camel@localhost.localdomain>
-Message-ID: <p73zmckigrv.fsf@verdi.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
+To: Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [BUG] Oops on boot (probably ACPI related)
+Date: Thu, 28 Sep 2006 09:49:06 +0200
+User-Agent: KMail/1.9.3
+Cc: Kyle McMartin <kyle@parisc-linux.org>, linux-kernel@vger.kernel.org,
+       linux-acpi@vger.kernel.org, akpm@osdl.org, jbeulich@novell.com
+References: <200609271424.47824.eike-kernel@sf-tec.de> <200609272250.21925.ak@suse.de> <Pine.LNX.4.64.0609271436310.3952@g5.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0609271436310.3952@g5.osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Message-Id: <200609280949.06676.ak@suse.de>
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Alan Cox <alan@lxorguk.ukuu.org.uk> writes:
+On Wednesday 27 September 2006 23:38, Linus Torvalds wrote:
 > 
-> Fortunately the thought of a slammer equivalent that erases the firmware
-> isn't something most vendors want to risk their stock price and business
-> on.
+> On Wed, 27 Sep 2006, Andi Kleen wrote:
+> > 
+> > It doesn't matter much because these days this stuff is all out of lined
+> > anyways and in a single function. And the dynamic branch predictor
+> > in all modern CPUs will usually cache the decision (unlocked) there.
+> 
+> Ahh, good point. Once there's only one copy, the branch predictor will get 
+> it right (and the code size won't much matter)
 
-AFAIK they do anyways. Stepan's /dev/flash worked on most systems
-at least a couple of years ago.  And I didn't think it used any SMM tricks.
+As a postscript I (unintentionally) bended the truth on that one actually
+yesterday. Sorry for that. Semaphores are still inline, unlike spinlocks.
+
+However if the spinlocks are out of line I see no reason to keep semaphores
+inline either, so perhaps it would be better to just move them. Then my
+argument above would actually work :)
+
+For some reason the unwinder also still seems to get stuck on it :/
 
 -Andi

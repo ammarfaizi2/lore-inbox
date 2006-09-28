@@ -1,22 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932509AbWI1QG2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964945AbWI1QHw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932509AbWI1QG2 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Sep 2006 12:06:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932269AbWI1QC3
+	id S964945AbWI1QHw (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Sep 2006 12:07:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964949AbWI1QHv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Sep 2006 12:02:29 -0400
-Received: from mx.pathscale.com ([64.160.42.68]:5814 "EHLO mx.pathscale.com")
-	by vger.kernel.org with ESMTP id S1751932AbWI1QBY (ORCPT
+	Thu, 28 Sep 2006 12:07:51 -0400
+Received: from mx.pathscale.com ([64.160.42.68]:2742 "EHLO mx.pathscale.com")
+	by vger.kernel.org with ESMTP id S1751921AbWI1QBY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Thu, 28 Sep 2006 12:01:24 -0400
 Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
 Content-Transfer-Encoding: 7bit
-Subject: [PATCH 28 of 28] IB/ipath - fix lockdep error upon "ifconfig ibN down"
-X-Mercurial-Node: c61b17b5602f2690dc3afecfdc0a17331c8a72ea
-Message-Id: <c61b17b5602f2690dc3a.1159459224@eng-12.pathscale.com>
+Subject: [PATCH 16 of 28] IB/ipath - drop unnecessary "(void *)" casts
+X-Mercurial-Node: cdbbf110848d15d93674a342a0c64e89d1563655
+Message-Id: <cdbbf110848d15d93674.1159459212@eng-12.pathscale.com>
 In-Reply-To: <patchbomb.1159459196@eng-12.pathscale.com>
-Date: Thu, 28 Sep 2006 09:00:24 -0700
+Date: Thu, 28 Sep 2006 09:00:12 -0700
 From: "Bryan O'Sullivan" <bos@pathscale.com>
 To: rdreier@cisco.com
 Cc: linux-kernel@vger.kernel.org, openib-general@openib.org
@@ -25,49 +25,33 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Signed-off-by: Bryan O'Sullivan <bryan.osullivan@qlogic.com>
 
-diff -r 944d7e53a049 -r c61b17b5602f drivers/infiniband/hw/ipath/ipath_verbs.c
---- a/drivers/infiniband/hw/ipath/ipath_verbs.c	Thu Sep 28 08:57:13 2006 -0700
-+++ b/drivers/infiniband/hw/ipath/ipath_verbs.c	Thu Sep 28 08:57:13 2006 -0700
-@@ -1202,6 +1202,7 @@ static struct ib_ah *ipath_create_ah(str
- 	struct ipath_ah *ah;
- 	struct ib_ah *ret;
- 	struct ipath_ibdev *dev = to_idev(pd->device);
-+	unsigned long flags;
+diff -r dcf5ac390abd -r cdbbf110848d drivers/infiniband/hw/ipath/ipath_driver.c
+--- a/drivers/infiniband/hw/ipath/ipath_driver.c	Thu Sep 28 08:57:12 2006 -0700
++++ b/drivers/infiniband/hw/ipath/ipath_driver.c	Thu Sep 28 08:57:12 2006 -0700
+@@ -1350,7 +1350,7 @@ int ipath_create_rcvhdrq(struct ipath_de
  
- 	/* A multicast address requires a GRH (see ch. 8.4.1). */
- 	if (ah_attr->dlid >= IPATH_MULTICAST_LID_BASE &&
-@@ -1228,16 +1229,16 @@ static struct ib_ah *ipath_create_ah(str
- 		goto bail;
+ 	/* clear for security and sanity on each use */
+ 	memset(pd->port_rcvhdrq, 0, pd->port_rcvhdrq_size);
+-	memset((void *)pd->port_rcvhdrtail_kvaddr, 0, PAGE_SIZE);
++	memset(pd->port_rcvhdrtail_kvaddr, 0, PAGE_SIZE);
+ 
+ 	/*
+ 	 * tell chip each time we init it, even if we are re-using previous
+@@ -1803,7 +1803,7 @@ void ipath_free_pddata(struct ipath_devd
+ 		pd->port_rcvhdrq = NULL;
+ 		if (pd->port_rcvhdrtail_kvaddr) {
+ 			dma_free_coherent(&dd->pcidev->dev, PAGE_SIZE,
+-					 (void *)pd->port_rcvhdrtail_kvaddr,
++					 pd->port_rcvhdrtail_kvaddr,
+ 					 pd->port_rcvhdrqtailaddr_phys);
+ 			pd->port_rcvhdrtail_kvaddr = NULL;
+ 		}
+@@ -1934,7 +1934,7 @@ static void cleanup_device(struct ipath_
+ 
+ 	if (dd->ipath_pioavailregs_dma) {
+ 		dma_free_coherent(&dd->pcidev->dev, PAGE_SIZE,
+-				  (void *) dd->ipath_pioavailregs_dma,
++				  dd->ipath_pioavailregs_dma,
+ 				  dd->ipath_pioavailregs_phys);
+ 		dd->ipath_pioavailregs_dma = NULL;
  	}
- 
--	spin_lock(&dev->n_ahs_lock);
-+	spin_lock_irqsave(&dev->n_ahs_lock, flags);
- 	if (dev->n_ahs_allocated == ib_ipath_max_ahs) {
--		spin_unlock(&dev->n_ahs_lock);
-+		spin_unlock_irqrestore(&dev->n_ahs_lock, flags);
- 		kfree(ah);
- 		ret = ERR_PTR(-ENOMEM);
- 		goto bail;
- 	}
- 
- 	dev->n_ahs_allocated++;
--	spin_unlock(&dev->n_ahs_lock);
-+	spin_unlock_irqrestore(&dev->n_ahs_lock, flags);
- 
- 	/* ib_create_ah() will initialize ah->ibah. */
- 	ah->attr = *ah_attr;
-@@ -1258,10 +1259,11 @@ static int ipath_destroy_ah(struct ib_ah
- {
- 	struct ipath_ibdev *dev = to_idev(ibah->device);
- 	struct ipath_ah *ah = to_iah(ibah);
--
--	spin_lock(&dev->n_ahs_lock);
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&dev->n_ahs_lock, flags);
- 	dev->n_ahs_allocated--;
--	spin_unlock(&dev->n_ahs_lock);
-+	spin_unlock_irqrestore(&dev->n_ahs_lock, flags);
- 
- 	kfree(ah);
- 

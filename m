@@ -1,158 +1,435 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964932AbWI1SXm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030347AbWI1SYl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964932AbWI1SXm (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Sep 2006 14:23:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964961AbWI1SXm
+	id S1030347AbWI1SYl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Sep 2006 14:24:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964968AbWI1SYl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Sep 2006 14:23:42 -0400
-Received: from einhorn.in-berlin.de ([192.109.42.8]:9961 "EHLO
-	einhorn.in-berlin.de") by vger.kernel.org with ESMTP
-	id S964932AbWI1SXl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Sep 2006 14:23:41 -0400
-X-Envelope-From: stefanr@s5r6.in-berlin.de
-Date: Thu, 28 Sep 2006 20:22:07 +0200 (CEST)
-From: Stefan Richter <stefanr@s5r6.in-berlin.de>
-Subject: [GIT PULL] ieee1394 updates post 2.6.18
-To: Linus Torvalds <torvalds@osdl.org>
-cc: linux1394-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Message-ID: <tkrat.33121604711a7251@s5r6.in-berlin.de>
+	Thu, 28 Sep 2006 14:24:41 -0400
+Received: from palinux.external.hp.com ([192.25.206.14]:47579 "EHLO
+	mail.parisc-linux.org") by vger.kernel.org with ESMTP
+	id S964961AbWI1SYj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Sep 2006 14:24:39 -0400
+Date: Thu, 28 Sep 2006 12:24:38 -0600
+From: Matthew Wilcox <matthew@wil.cx>
+To: linux-scsi@vger.kernel.org
+Cc: linux-kernel@vger.kernel.org
+Subject: [PATCH] async scsi scanning, version 12
+Message-ID: <20060928182438.GC5017@parisc-linux.org>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; CHARSET=us-ascii
-Content-Disposition: INLINE
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus, please pull from the upstream-linus branch at
+Hopefully the final version ... I've addressed all the comments
+I received on version 11.  Please review the implementation of
+shost_for_each_device_safe.
 
-    git://git.kernel.org/pub/scm/linux/kernel/git/ieee1394/linux1394-2.6.git upstream-linus
+Add ability to scan scsi busses asynchronously
 
-to receive IEEE 1394 subsystem updates as listed further below.
+Since it often takes around 20-30 seconds to scan a scsi bus, it's
+highly advantageous to do this in parallel with other things.  The bulk
+of this patch is ensuring that devices don't change numbering, and that
+all devices are discovered prior to trying to start init.  For those
+who build SCSI as modules, there's a new scsi_wait_scan module that will
+ensure all bus scans are finished.
 
-What's in there:
+This patch only handles drivers which call scsi_scan_host.  Fibre Channel,
+SAS, SATA, USB and Firewire all need additional work.
 
-  - bug fixes to sbp2
-  - locking fixes in ieee1394 and in raw1394
-  - other small bug fixes across the subsystem, code cleanups
-  - API conversions: replacements of semaphores by mutexes or
-    waitqueues, replacements of kernel_thread()
-  - new feature: support of poll operation on /dev/video1349
+Signed-off-by: Matthew Wilcox <matthew@wil.cx>
 
-All patches lived in -mm for a while, most of them since about their
-authorship date.
-
-Caution, I am now committing to this tree too, besides Ben C.
-I hope I handled git correctly. Things to watch out for:
-
-  - Merge commit 9b4f2e9576658c4e52d95dc8d309f51b2e2db096 contains a
-    conflict resolution in ieee1394_core.c.
-  - Patch "ieee1394: sbp2: enable auto spin-up for Maxtor disks" was
-    applied as a mailed patch to your tree in parallel to
-    linux1394-2.6.git, thus shows up in 'git log' although it isn't
-    effectively in the diff.
-  - 'git diff -M --stat --summary mainline..upstream-linus' gives
-    slightly different results than a diff between checkouts of mainline
-    and upstream-linus. (I have branch mainline only local, not on
-    kernel.org.) I cross-checked the checkout with a separate quilt-
-    managed tree and it is fine.
-
-Stat from git diff:
-
- Documentation/feature-removal-schedule.txt |    9 -
- MAINTAINERS                                |   37 +-
- drivers/ieee1394/Kconfig                   |   11 +
- drivers/ieee1394/csr.c                     |   31 +-
- drivers/ieee1394/csr.h                     |  109 +++---
- drivers/ieee1394/dma.c                     |    7 
- drivers/ieee1394/dma.h                     |   90 +++--
- drivers/ieee1394/dv1394-private.h          |    6 
- drivers/ieee1394/dv1394.c                  |   47 +--
- drivers/ieee1394/eth1394.c                 |   12 -
- drivers/ieee1394/highlevel.h               |  201 ++++++------
- drivers/ieee1394/hosts.c                   |   23 +
- drivers/ieee1394/hosts.h                   |   51 +--
- drivers/ieee1394/ieee1394-ioctl.h          |    9 -
- drivers/ieee1394/ieee1394.h                |  316 +++++++++---------
- drivers/ieee1394/ieee1394_core.c           |    9 -
- drivers/ieee1394/ieee1394_core.h           |   28 +-
- drivers/ieee1394/ieee1394_hotplug.h        |   30 --
- drivers/ieee1394/ieee1394_transactions.c   |  114 ++++---
- drivers/ieee1394/ieee1394_transactions.h   |   41 +-
- drivers/ieee1394/ieee1394_types.h          |   68 +---
- drivers/ieee1394/iso.c                     |    5 
- drivers/ieee1394/iso.h                     |   87 +++--
- drivers/ieee1394/nodemgr.c                 |  227 +++++--------
- drivers/ieee1394/nodemgr.h                 |   27 +-
- drivers/ieee1394/ohci1394.c                |   73 ++--
- drivers/ieee1394/raw1394-private.h         |    3 
- drivers/ieee1394/raw1394.c                 |  138 +++++---
- drivers/ieee1394/sbp2.c                    |  481 ++++++++++++++--------------
- drivers/ieee1394/sbp2.h                    |   37 +-
- drivers/ieee1394/video1394.c               |   52 +++
- 31 files changed, 1210 insertions(+), 1169 deletions(-)
-
-The log, sans merge commits:
-
-Adrian Bunk:
-    the scheduled removal of drivers/ieee1394/sbp2.c:force_inquiry_hack
-
-Alexey Dobriyan:
-    CONFIG_PM=n slim: drivers/ieee1394/ohci1394.c
-
-Pavel Machek:
-    set power state of firewire host during suspend
-
-Andi Kleen:
-    Initialize ieee1394 early when built in
-
-David Moore:
-    video1394: add poll file operation support
-
-Stefan Richter:
-    ieee1394: raw1394: arm functions slept in atomic context
-    ieee1394: sbp2: enable auto spin-up for all SBP-2 devices
-    MAINTAINERS: updates to IEEE 1394 subsystem maintainership
-    ieee1394: ohci1394: check for errors in suspend or resume
-    ieee1394: ohci1394: more obvious endianess handling
-    ieee1394: ohci1394: fix endianess bug in debug message
-    ieee1394: sbp2: don't prefer MODE SENSE 10
-    ieee1394: nodemgr: grab class.subsys.rwsem in nodemgr_resume_ne
-    ieee1394: nodemgr: fix rwsem recursion
-    ieee1394: sbp2: more help in Kconfig
-    ieee1394: sbp2: prevent rare deadlock in shutdown
-    ieee1394: sbp2: update includes
-    ieee1394: sbp2: better handling of transport errors
-    ieee1394: sbp2: recheck node generation in sbp2_update
-    ieee1394: sbp2: safer agent reset in error handlers
-    ieee1394: sbp2: handle "sbp2util_node_write_no_wait failed"
-    ieee1394: safer definition of empty macros
-    ieee1394: sbp2: convert sbp2util_down_timeout to waitqueue
-    ieee1394: sbp2: more checks of status block
-    ieee1394: sbp2: safer initialization of status fifo
-    ieee1394: sbp2: optimize DMA direction of command ORBs
-    ieee1394: sbp2: discard return value of sbp2_link_orb_command
-    ieee1394: sbp2: safer last_orb and next_ORB handling
-    ieee1394: remove #include <asm/semaphore.h>
-    ieee1394: shrink tlabel pools, remove tpool semaphores
-    [PATCH] ieee1394: fix kerneldoc of hpsb_alloc_host
-    [PATCH] ieee1394: nodemgr: convert nodemgr_serialize semaphore to mutex
-    [PATCH] ieee1394: nodemgr: switch to kthread api, replace reset semaphore
-    [PATCH] ieee1394: nodemgr: make module parameter ignore_drivers writable
-    [PATCH] ieee1394: nodemgr: do not spawn kernel_thread for sysfs rescan
-    [PATCH] ieee1394: nodemgr: remove unnecessary includes
-    [PATCH] ieee1394: raw1394: remove redundant counting semaphore
-    [PATCH] ieee1394: dv1394: sem2mutex conversion
-    [PATCH] ieee1394: clean up declarations of hpsb_*_config_rom
-    [PATCH] ieee1394: remove unused macros HPSB_PANIC and HPSB_TRACE
-    [PATCH] ieee1394: remove redundant code from ieee1394_hotplug.h
-    [PATCH] ieee1394: update #include directives in midlayer header files
-    [PATCH] ieee1394: coding style and comment fixes in midlayer header files
-    [PATCH] ieee1394: replace __inline__ by inline
-    [PATCH] ieee1394: skip dummy loop in build_speed_map
-    [PATCH] ieee1394: fix calculation of csr->expire
-    [PATCH] ieee1394: fix cosmetic problem in speed probe
-
--- 
-Stefan Richter
--=====-=-==- =--= ===--
-http://arcgraph.de/sr/
-
+diff --git a/Documentation/kernel-parameters.txt b/Documentation/kernel-parameters.txt
+index 5498324..4b687ef 100644
+--- a/Documentation/kernel-parameters.txt
++++ b/Documentation/kernel-parameters.txt
+@@ -1426,6 +1426,11 @@ running once the system is up.
+ 
+ 	scsi_logging=	[SCSI]
+ 
++	scsi_mod.scan=	[SCSI] sync (default) scans SCSI busses as they are
++			discovered.  async scans them in kernel threads,
++			allowing boot to proceed.  none ignores them, expecting
++			user space to do the scan.
++
+ 	selinux		[SELINUX] Disable or enable SELinux at boot time.
+ 			Format: { "0" | "1" }
+ 			See security/selinux/Kconfig help text.
+diff --git a/drivers/scsi/Makefile b/drivers/scsi/Makefile
+index 1ef951b..38d0e25 100644
+--- a/drivers/scsi/Makefile
++++ b/drivers/scsi/Makefile
+@@ -140,6 +140,8 @@ obj-$(CONFIG_CHR_DEV_SCH)	+= ch.o
+ # This goes last, so that "real" scsi devices probe earlier
+ obj-$(CONFIG_SCSI_DEBUG)	+= scsi_debug.o
+ 
++obj-$(CONFIG_SCSI)		+= scsi_wait_scan.o
++
+ scsi_mod-y			+= scsi.o hosts.o scsi_ioctl.o constants.o \
+ 				   scsicam.o scsi_error.o scsi_lib.o \
+ 				   scsi_scan.o scsi_sysfs.o \
+diff --git a/drivers/scsi/scsi_priv.h b/drivers/scsi/scsi_priv.h
+index 5d023d4..f458c2f 100644
+--- a/drivers/scsi/scsi_priv.h
++++ b/drivers/scsi/scsi_priv.h
+@@ -39,6 +39,9 @@ static inline void scsi_log_completion(s
+ 	{ };
+ #endif
+ 
++/* scsi_scan.c */
++int scsi_complete_async_scans(void);
++
+ /* scsi_devinfo.c */
+ extern int scsi_get_device_flags(struct scsi_device *sdev,
+ 				 const unsigned char *vendor,
+diff --git a/drivers/scsi/scsi_scan.c b/drivers/scsi/scsi_scan.c
+index fd9e281..6748b22 100644
+--- a/drivers/scsi/scsi_scan.c
++++ b/drivers/scsi/scsi_scan.c
+@@ -29,7 +29,9 @@ #include <linux/module.h>
+ #include <linux/moduleparam.h>
+ #include <linux/init.h>
+ #include <linux/blkdev.h>
+-#include <asm/semaphore.h>
++#include <linux/delay.h>
++#include <linux/kthread.h>
++#include <linux/spinlock.h>
+ 
+ #include <scsi/scsi.h>
+ #include <scsi/scsi_cmnd.h>
+@@ -87,6 +89,11 @@ module_param_named(max_luns, max_scsi_lu
+ MODULE_PARM_DESC(max_luns,
+ 		 "last scsi LUN (should be between 1 and 2^32-1)");
+ 
++static char scsi_scan_type[6] = "sync";
++
++module_param_string(scan, scsi_scan_type, sizeof(scsi_scan_type), S_IRUGO);
++MODULE_PARM_DESC(scan, "sync, async or none");
++
+ /*
+  * max_scsi_report_luns: the maximum number of LUNS that will be
+  * returned from the REPORT LUNS command. 8 times this value must
+@@ -108,6 +115,53 @@ MODULE_PARM_DESC(inq_timeout, 
+ 		 "Timeout (in seconds) waiting for devices to answer INQUIRY."
+ 		 " Default is 5. Some non-compliant devices need more.");
+ 
++static spinlock_t async_scan_lock = SPIN_LOCK_UNLOCKED;
++static LIST_HEAD(scanning_hosts);
++
++struct async_scan_data {
++	struct list_head list;
++	struct Scsi_Host *shost;
++	struct completion prev_finished;
++};
++
++int scsi_complete_async_scans(void)
++{
++	struct async_scan_data *data;
++
++	do {
++		if (list_empty(&scanning_hosts))
++			return 0;
++		data = kmalloc(sizeof(*data), GFP_KERNEL);
++		if (!data)
++			msleep(1);
++	} while (!data);
++
++	data->shost = NULL;
++	init_completion(&data->prev_finished);
++
++	spin_lock(&async_scan_lock);
++	if (list_empty(&scanning_hosts))
++		goto done;
++	list_add_tail(&data->list, &scanning_hosts);
++	spin_unlock(&async_scan_lock);
++
++	printk(KERN_INFO "scsi: waiting for bus probes to complete ...\n");
++	wait_for_completion(&data->prev_finished);
++
++	spin_lock(&async_scan_lock);
++	list_del(&data->list);
++ done:
++	spin_unlock(&async_scan_lock);
++
++	kfree(data);
++	return 0;
++}
++
++#ifdef MODULE
++/* Only exported for the benefit of scsi_wait_scan */
++EXPORT_SYMBOL_GPL(scsi_complete_async_scans);
++#endif
++
+ /**
+  * scsi_unlock_floptical - unlock device via a special MODE SENSE command
+  * @sdev:	scsi device to send command to
+@@ -619,7 +673,7 @@ static int scsi_probe_lun(struct scsi_de
+  *     SCSI_SCAN_LUN_PRESENT: a new scsi_device was allocated and initialized
+  **/
+ static int scsi_add_lun(struct scsi_device *sdev, unsigned char *inq_result,
+-		int *bflags)
++		int *bflags, int async)
+ {
+ 	/*
+ 	 * XXX do not save the inquiry, since it can change underneath us,
+@@ -795,7 +849,7 @@ static int scsi_add_lun(struct scsi_devi
+ 	 * register it and tell the rest of the kernel
+ 	 * about it.
+ 	 */
+-	if (scsi_sysfs_add_sdev(sdev) != 0)
++	if (!async && scsi_sysfs_add_sdev(sdev) != 0)
+ 		return SCSI_SCAN_NO_RESPONSE;
+ 
+ 	return SCSI_SCAN_LUN_PRESENT;
+@@ -964,7 +1018,7 @@ static int scsi_probe_and_add_lun(struct
+ 		goto out_free_result;
+ 	}
+ 
+-	res = scsi_add_lun(sdev, result, &bflags);
++	res = scsi_add_lun(sdev, result, &bflags, shost->async_scan);
+ 	if (res == SCSI_SCAN_LUN_PRESENT) {
+ 		if (bflags & BLIST_KEY) {
+ 			sdev->lockable = 0;
+@@ -1464,6 +1518,9 @@ void scsi_scan_target(struct device *par
+ {
+ 	struct Scsi_Host *shost = dev_to_shost(parent);
+ 
++	if (!shost->async_scan)
++		scsi_complete_async_scans();
++
+ 	mutex_lock(&shost->scan_mutex);
+ 	if (scsi_host_scan_allowed(shost))
+ 		__scsi_scan_target(parent, channel, id, lun, rescan);
+@@ -1509,6 +1566,9 @@ int scsi_scan_host_selected(struct Scsi_
+ 		"%s: <%u:%u:%u>\n",
+ 		__FUNCTION__, channel, id, lun));
+ 
++	if (!shost->async_scan)
++		scsi_complete_async_scans();
++
+ 	if (((channel != SCAN_WILD_CARD) && (channel > shost->max_channel)) ||
+ 	    ((id != SCAN_WILD_CARD) && (id >= shost->max_id)) ||
+ 	    ((lun != SCAN_WILD_CARD) && (lun > shost->max_lun)))
+@@ -1529,14 +1589,130 @@ int scsi_scan_host_selected(struct Scsi_
+ 	return 0;
+ }
+ 
++static void scsi_sysfs_add_devices(struct Scsi_Host *shost)
++{
++	struct scsi_device *sdev, *tmp;
++	shost_for_each_device_safe(sdev, tmp, shost) {
++		if (scsi_sysfs_add_sdev(sdev) != 0)
++			scsi_destroy_sdev(sdev);
++	}
++}
++
++/**
++ * scsi_prep_async_scan - prepare for an async scan
++ * @shost: the host which will be scanned
++ * Returns: a cookie to be passed to scsi_finish_async_scan()
++ *
++ * Tells the midlayer this host is going to do an asynchronous scan.
++ * It reserves the host's position in the scanning list and ensures
++ * that other asynchronous scans started after this one won't affect the
++ * ordering of the discovered devices.
++ */
++struct async_scan_data *scsi_prep_async_scan(struct Scsi_Host *shost)
++{
++	struct async_scan_data *data;
++
++	if (strncmp(scsi_scan_type, "sync", 4) == 0)
++		return NULL;
++
++	if (shost->async_scan) {
++		printk("%s called twice for host %d", __FUNCTION__,
++				shost->host_no);
++		dump_stack();
++		return NULL;
++	}
++
++	data = kmalloc(sizeof(*data), GFP_KERNEL);
++	if (!data)
++		goto err;
++	data->shost = scsi_host_get(shost);
++	if (!data->shost)
++		goto err;
++	init_completion(&data->prev_finished);
++
++	spin_lock(&async_scan_lock);
++	shost->async_scan = 1;
++	if (list_empty(&scanning_hosts))
++		complete(&data->prev_finished);
++	list_add_tail(&data->list, &scanning_hosts);
++	spin_unlock(&async_scan_lock);
++
++	return data;
++
++ err:
++	kfree(data);
++	return NULL;
++}
++
++/**
++ * scsi_finish_async_scan - asynchronous scan has finished
++ * @data: cookie returned from earlier call to scsi_prep_async_scan()
++ *
++ * All the devices currently attached to this host have been found.
++ * This function announces all the devices it has found to the rest
++ * of the system.
++ */
++void scsi_finish_async_scan(struct async_scan_data *data)
++{
++	struct Scsi_Host *shost;
++
++	if (!data)
++		return;
++
++	shost = data->shost;
++	if (!shost->async_scan) {
++		printk("%s called twice for host %d", __FUNCTION__,
++				shost->host_no);
++		dump_stack();
++		return;
++	}
++
++	wait_for_completion(&data->prev_finished);
++
++	scsi_sysfs_add_devices(shost);
++
++	spin_lock(&async_scan_lock);
++	shost->async_scan = 0;
++	list_del(&data->list);
++	if (!list_empty(&scanning_hosts)) {
++		struct async_scan_data *next = list_entry(scanning_hosts.next,
++				struct async_scan_data, list);
++		complete(&next->prev_finished);
++	}
++	spin_unlock(&async_scan_lock);
++
++	scsi_host_put(shost);
++	kfree(data);
++}
++
++static int do_scan_async(void *_data)
++{
++	struct async_scan_data *data = _data;
++	scsi_scan_host_selected(data->shost, SCAN_WILD_CARD, SCAN_WILD_CARD,
++				SCAN_WILD_CARD, 0);
++
++	scsi_finish_async_scan(data);
++	return 0;
++}
++
+ /**
+  * scsi_scan_host - scan the given adapter
+  * @shost:	adapter to scan
+  **/
+ void scsi_scan_host(struct Scsi_Host *shost)
+ {
+-	scsi_scan_host_selected(shost, SCAN_WILD_CARD, SCAN_WILD_CARD,
+-				SCAN_WILD_CARD, 0);
++	struct async_scan_data *data;
++
++	if (strncmp(scsi_scan_type, "none", 4) == 0)
++		return;
++
++	data = scsi_prep_async_scan(shost);
++	if (!data) {
++		scsi_scan_host_selected(shost, SCAN_WILD_CARD, SCAN_WILD_CARD,
++					SCAN_WILD_CARD, 0);
++		return;
++	}
++	kthread_run(do_scan_async, data, "scsi_scan_%d", shost->host_no);
+ }
+ EXPORT_SYMBOL(scsi_scan_host);
+ 
+diff --git a/drivers/scsi/scsi_wait_scan.c b/drivers/scsi/scsi_wait_scan.c
+new file mode 100644
+index 0000000..f7aea46
+--- /dev/null
++++ b/drivers/scsi/scsi_wait_scan.c
+@@ -0,0 +1,31 @@
++/*
++ * scsi_wait_scan.c
++ *
++ * Copyright (C) 2006 James Bottomley <James.Bottomley@SteelEye.com>
++ *
++ * This is a simple module to wait until all the async scans are
++ * complete.  The idea is to use it in initrd/initramfs scripts.  You
++ * modprobe it after all the modprobes of the root SCSI drivers and it
++ * will wait until they have all finished scanning their busses before
++ * allowing the boot to proceed
++ */
++
++#include <linux/module.h>
++#include "scsi_priv.h"
++
++static int __init wait_scan_init(void)
++{
++	scsi_complete_async_scans();
++	return 0;
++}
++
++static void __exit wait_scan_exit(void)
++{
++}
++ 
++MODULE_DESCRIPTION("SCSI wait for scans");
++MODULE_AUTHOR("James Bottomley");
++MODULE_LICENSE("GPL");
++ 
++late_initcall(wait_scan_init);
++module_exit(wait_scan_exit);
+diff --git a/include/scsi/scsi_device.h b/include/scsi/scsi_device.h
+index 895d212..f6e33ab 100644
+--- a/include/scsi/scsi_device.h
++++ b/include/scsi/scsi_device.h
+@@ -227,7 +227,7 @@ extern struct scsi_device *__scsi_iterat
+  * @sdev:	iterator
+  * @host:	host whiches devices we want to iterate over
+  *
+- * This traverses over each devices of @shost.  The devices have
++ * This iterates over each device of @shost.  The devices have
+  * a reference that must be released by scsi_host_put when breaking
+  * out of the loop.
+  */
+@@ -237,6 +237,24 @@ #define shost_for_each_device(sdev, shos
+ 	     (sdev) = __scsi_iterate_devices((shost), (sdev)))
+ 
+ /**
++ * shost_for_each_device_safe - iterate over all devices of a host allowing removal
++ * @sdev:	iterator
++ * @n:		another &struct scsi_device for temporary storage
++ * @host:	host whiches devices we want to iterate over
++ *
++ * This iterates over each device of @shost in a way that is safe against
++ * removals of the element being processed.  The devices have
++ * a reference that must be released by scsi_host_put when breaking
++ * out of the loop.
++ */
++#define shost_for_each_device_safe(sdev, n, shost) \
++	for ((sdev) = __scsi_iterate_devices((shost), NULL), \
++		(n) = __scsi_iterate_devices((shost), (sdev)); \
++	     (sdev); \
++	     (sdev) = (n), \
++		(n) = (n) ? __scsi_iterate_devices((shost), (n)) : NULL)
++
++/**
+  * __shost_for_each_device  -  iterate over all devices of a host (UNLOCKED)
+  * @sdev:	iterator
+  * @host:	host whiches devices we want to iterate over
+diff --git a/include/scsi/scsi_host.h b/include/scsi/scsi_host.h
+index 39c6f8c..ba5b3eb 100644
+--- a/include/scsi/scsi_host.h
++++ b/include/scsi/scsi_host.h
+@@ -552,6 +552,9 @@ struct Scsi_Host {
+ 	/* task mgmt function in progress */
+ 	unsigned tmf_in_progress:1;
+ 
++	/* Asynchronous scan in progress */
++	unsigned async_scan:1;
++
+ 	/*
+ 	 * Optional work queue to be utilized by the transport
+ 	 */

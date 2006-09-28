@@ -1,50 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964979AbWI1BIZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964981AbWI1BQh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964979AbWI1BIZ (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Sep 2006 21:08:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964980AbWI1BIZ
+	id S964981AbWI1BQh (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Sep 2006 21:16:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964986AbWI1BQh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Sep 2006 21:08:25 -0400
-Received: from havoc.gtf.org ([69.61.125.42]:45522 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id S964979AbWI1BIY (ORCPT
+	Wed, 27 Sep 2006 21:16:37 -0400
+Received: from www.osadl.org ([213.239.205.134]:44764 "EHLO mail.tglx.de")
+	by vger.kernel.org with ESMTP id S964981AbWI1BQg (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Sep 2006 21:08:24 -0400
-Date: Wed, 27 Sep 2006 21:08:24 -0400
-From: Jeff Garzik <jeff@garzik.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: LKML <linux-kernel@vger.kernel.org>, linux-scsi@vger.kernel.org
-Subject: [PATCH] SCSI: shift device_reprobe() warning explosion
-Message-ID: <20060928010824.GA26438@havoc.gtf.org>
+	Wed, 27 Sep 2006 21:16:36 -0400
+Subject: Re: [Bulk] Re: [patch 2.6.18] genirq: remove oops with fasteoi
+	irq_chip descriptors
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: David Brownell <david-b@pacbell.net>
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>, mingo@redhat.com
+In-Reply-To: <200609271739.10215.david-b@pacbell.net>
+References: <200609220641.58938.david-b@pacbell.net>
+	 <200609271621.11608.david-b@pacbell.net>
+	 <1159401291.9326.599.camel@localhost.localdomain>
+	 <200609271739.10215.david-b@pacbell.net>
+Content-Type: text/plain
+Date: Thu, 28 Sep 2006 03:18:19 +0200
+Message-Id: <1159406299.9326.644.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Dave,
 
-SCSI warns about device_reprobe() for _every file_, even though there is
-only a single caller in the entirety of SCSI.
+On Wed, 2006-09-27 at 17:39 -0700, David Brownell wrote:
+>  - It wouldn't use chip->mask_ack() when that exists and those
+>    other two routines don't, even though mask_ack_irq() is a
+>    conveniently defined inline.
 
-The need to check return code is valid, so we update the warning area to
-shift the burden to the [only] caller, mptsas.
+So why not replace it by mask_ack_irq() ?
 
-Signed-off-by: Jeff Garzik <jeff@garzik.org>
+>  - Umm, how could it ever be correct to leave the IRQ active
+>    without a dispatcher?  ISTR the rationale for that delayed
+>    disable was not purely to be a PITA for all driver writers,
+>    but was to address some issue with edge triggering.  In that
+>    path, triggering was no longer to be allowed ...
 
-diff --git a/include/scsi/scsi_device.h b/include/scsi/scsi_device.h
-index 895d212..b401c82 100644
---- a/include/scsi/scsi_device.h
-+++ b/include/scsi/scsi_device.h
-@@ -298,9 +298,9 @@ extern int scsi_execute_async(struct scs
- 			      void (*done)(void *, char *, int, int),
- 			      gfp_t gfp);
- 
--static inline void scsi_device_reprobe(struct scsi_device *sdev)
-+static inline int __must_check scsi_device_reprobe(struct scsi_device *sdev)
- {
--	device_reprobe(&sdev->sdev_gendev);
-+	return device_reprobe(&sdev->sdev_gendev);
- }
- 
- static inline unsigned int sdev_channel(struct scsi_device *sdev)
+Your patch would result in default_disable() when no shutdown function
+is provided. default_disable() does the delayed disable thing, while you
+remove the handler. The next event on that line will cause a spurious
+IRQ.
+
+>  - Plus ack()ing the IRQ there just seemed pretty dubious.  It's
+>    not like there would be anything preventing that signal line
+>    from being lowered (or raised, etc) immediately after the ack(),
+>    which in some hardware would latch the IRQ until later unmask().
+>
+> Leaving the question:  what's the point of it??  The overall
+> system has to behave sanely with or without the ack(); just
+> clearing a latch doesn't mean it couldn't get set later.
+
+Fair enough.
+
+> > > So what's the correct fix then ... use enable() and disable()?
+> > > Oopsing isn't OK... 
+> > 
+> > True, but we can not unconditionally change the semantics. 
+> 
+> Some current semantics are "it oopses".  That's a good definition
+> of semantics that _must_ be changed.  We're not Microsoft.  ;)
+
+Agreed, it just depends on how they get fixed.
+
+> > Does it break existing or new code ?
+> 
+> Could any code relying on those previous semantics have been
+> correct in the first place, though?  Seemed to me it couldn't
+> have been.
+> 
+> Plus, unregistering IRQ dispatchers is a strange notion.  I've
+> never seen it done in practice ... normally, they get set up once
+> during chip/board setup then never changed.  Bugs in code paths
+> like that have been known to last for decades unfixed.
+
+Agreed. Nothing is using this currently.
+
+> > Sorry, I did not think about the defaults in the first place. The
+> > conditionals in manage,c are probably superflous leftovers from one of
+> > the evolvement.
+> 
+> And that's how I was taking that particular mask() then ack() too,
+> especially given it never used mask_ack() when it should have, and
+> since that logic oopsed in various cases with fasteoi handlers.
+
+The remaining question is whether mask_ack_irq() or shutdown() is the
+correct approach. Your patch would make it mandatory to implement
+shutdown at least for such removable stuff.
+
+I'm not sure about that right now as I'm too tired.
+
+	tglx
+
 

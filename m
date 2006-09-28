@@ -1,55 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030373AbWI1S7j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030372AbWI1TBG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030373AbWI1S7j (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Sep 2006 14:59:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030374AbWI1S7j
+	id S1030372AbWI1TBG (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Sep 2006 15:01:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161018AbWI1TBG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Sep 2006 14:59:39 -0400
-Received: from mail-in-10.arcor-online.net ([151.189.21.50]:16536 "EHLO
-	mail-in-01.arcor-online.net") by vger.kernel.org with ESMTP
-	id S1030373AbWI1S7i (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Sep 2006 14:59:38 -0400
-In-Reply-To: <Pine.LNX.4.61.0609281312350.31392@chaos.analogic.com>
-References: <1158941750.3445.31.camel@mulgrave.il.steeleye.com>  <Pine.LNX.4.61.0609270753590.19275@yvahk01.tjqt.qr>  <1159342569.2653.30.camel@sipan.sipan.org>  <Pine.LNX.4.61.0609271051550.19438@yvahk01.tjqt.qr>  <1159359540.11049.347.camel@localhost.localdomain>  <Pine.LNX.4.64.0609271000510.3952@g5.osdl.org>  <Pine.LNX.4.64.0609271300130.7316@turbotaz.ourhouse>  <20060927225815.GB7469@thunk.org>  <Pine.LNX.4.64.0609271808041.7316@turbotaz.ourhouse>  <Pine.LNX.4.64.0609271641370.3952@g5.osdl.org> <d577e5690609271754u395e56ffr1601fddd6d4639a3@mail.gmail.com> <Pine.LNX.4.64.0609271945450.3952@g5.osdl.org> <Pine.LNX.4.61.0609281312350.31392@chaos.analogic.com>
-Mime-Version: 1.0 (Apple Message framework v752.2)
-Content-Type: text/plain; charset=US-ASCII; format=flowed
-Message-Id: <E4B98A24-5632-4DA5-AD3A-37396D5EF1B3@kernel.crashing.org>
-Cc: "Linus Torvalds" <torvalds@osdl.org>,
-       "Patrick McFarland" <diablod3@gmail.com>,
-       "Chase Venters" <chase.venters@clientec.com>,
-       "Theodore Tso" <tytso@mit.edu>, "Alan Cox" <alan@lxorguk.ukuu.org.uk>,
-       "Jan Engelhardt" <jengelh@linux01.gwdg.de>,
-       "Sergey Panov" <sipan@sipan.org>,
-       "James Bottomley" <James.Bottomley@steeleye.com>,
-       "linux-kernel" <linux-kernel@vger.kernel.org>
+	Thu, 28 Sep 2006 15:01:06 -0400
+Received: from smtp-out.google.com ([216.239.45.12]:10350 "EHLO
+	smtp-out.google.com") by vger.kernel.org with ESMTP
+	id S1030372AbWI1TBE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Sep 2006 15:01:04 -0400
+DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
+	h=received:message-id:date:from:to:subject:cc:in-reply-to:
+	mime-version:content-type:content-transfer-encoding:
+	content-disposition:references;
+	b=WyaoFEL7p2OXXB0FY05NZGhAk4Si4UasJ4Z14STrVQoonDx8o2XwrNZWl1297OLV9
+	Qhxa93d/bjJbYEpiBFGIg==
+Message-ID: <6599ad830609281200n441e6c00kf68e042d94f83abe@mail.google.com>
+Date: Thu, 28 Sep 2006 12:00:49 -0700
+From: "Paul Menage" <menage@google.com>
+To: "Paul Jackson" <pj@sgi.com>
+Subject: Re: [RFC][PATCH 0/4] Generic container system
+Cc: akpm@osdl.org, ckrm-tech@lists.sourceforge.net, mbligh@google.com,
+       rohitseth@google.com, winget@google.com, dev@sw.ru, sekharan@us.ibm.com,
+       linux-kernel@vger.kernel.org, jlan@sgi.com
+In-Reply-To: <20060928114939.d13c957b.pj@sgi.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-From: Segher Boessenkool <segher@kernel.crashing.org>
-Subject: Re: GPLv3 Position Statement
-Date: Thu, 28 Sep 2006 20:59:20 +0200
-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
-X-Mailer: Apple Mail (2.752.2)
+Content-Disposition: inline
+References: <20060928104035.840699000@menage.corp.google.com>
+	 <20060928114939.d13c957b.pj@sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> However, now some are beginning to see the light as history
-> continues to be rewritten and a history lesson is unfolding.
+On 9/28/06, Paul Jackson <pj@sgi.com> wrote:
+>
+> Question (perhaps already answered in your code - I haven't looked
+> yet): can loadable kernel modules register containers?  I'd like to
 
-> These efforts go back to the days when
-> "distributions" consisted of 56 floppy disks and Linus was
-> in Helsinki, working on his degree. The FSF didn't exist, and
-> GNU was the name of an immature compiler.
+There's no reason in principle why not, although this patch doesn't
+export the symbols.
 
-The FSF was founded in 1985, now who is rewriting history
-here :-)  "GNU" never was the name for the compiler, either.
-
-> Sometimes we need
-> to be reminded of the history of a particular thing because,
-> once out-of-mind, history tends to be rewritten by those who
-> would advance in its new "interpretation."
-
-I don't really want to know what you try to gain by this
-"properly composed statement", heh.
-
-
-Segher
-
+Paul

@@ -1,69 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161041AbWI1XHN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964912AbWI1XIY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161041AbWI1XHN (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Sep 2006 19:07:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750764AbWI1XHN
+	id S964912AbWI1XIY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Sep 2006 19:08:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964904AbWI1XIY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Sep 2006 19:07:13 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:14224 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1750826AbWI1XHL (ORCPT
+	Thu, 28 Sep 2006 19:08:24 -0400
+Received: from ns2.suse.de ([195.135.220.15]:11168 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S964910AbWI1XIX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Sep 2006 19:07:11 -0400
-Message-ID: <451C5599.80402@garzik.org>
-Date: Thu, 28 Sep 2006 19:07:05 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
+	Thu, 28 Sep 2006 19:08:23 -0400
+From: Andi Kleen <ak@suse.de>
+To: Jim Cromie <jim.cromie@gmail.com>
+Subject: Re: 2.6.18-mm2
+Date: Fri, 29 Sep 2006 01:08:15 +0200
+User-Agent: KMail/1.9.3
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+References: <20060928014623.ccc9b885.akpm@osdl.org> <451C4F0F.6010307@gmail.com>
+In-Reply-To: <451C4F0F.6010307@gmail.com>
 MIME-Version: 1.0
-To: oe@hentges.net
-CC: Andrew Morton <akpm@osdl.org>, Stephen Hemminger <shemminger@osdl.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Netdev List <netdev@vger.kernel.org>
-Subject: sky2 (was Re: 2.6.18-mm2)
-References: <20060928155053.7d8567ae.akpm@osdl.org>
-In-Reply-To: <20060928155053.7d8567ae.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.3 (----)
-X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.3 points, 5.0 required)
+Content-Disposition: inline
+Message-Id: <200609290108.15400.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> Another customer..
+On Friday 29 September 2006 00:39, Jim Cromie wrote:
 > 
-> Begin forwarded message:
+> [jimc@harpo linux-2.6.18-mm2-sk]$ make
+>   CHK     include/linux/version.h
+>   CHK     include/linux/utsrelease.h
+>   CHK     include/linux/compile.h
+>   GEN     .version
+>   CHK     include/linux/compile.h
+>   UPD     include/linux/compile.h
+>   CC      init/version.o
+>   LD      init/built-in.o
+>   LD      .tmp_vmlinux1
+> arch/i386/kernel/built-in.o(.text+0x34f1): In function `do_nmi':
+> arch/i386/kernel/traps.c:752: undefined reference to 
+> `panic_on_unrecovered_nmi'
+> arch/i386/kernel/built-in.o(.text+0x3564):arch/i386/kernel/traps.c:712: 
+> undefined reference to `panic_on_unrecovered_nmi'
 > 
-> Date: Fri, 29 Sep 2006 00:44:01 +0200
-> From: Matthias Hentges <oe@hentges.net>
-> To: Andrew Morton <akpm@osdl.org>
-> Cc: linux-kernel@vger.kernel.org
-> Subject: Re: 2.6.18-mm2
 > 
+> $ grep nmi arch/i386/kernel/Makefile
+> obj-$(CONFIG_X86_LOCAL_APIC)    += apic.o nmi.o
 > 
-> Hello all,
-> 
-> I've just tested -mm2 on my C2D system and I'm getting a lot of these
-> messages:
-> 
-> "[  139.143807] printk: 131 messages suppressed.
-> [  139.148235] sky2 0000:03:00.0: pci express error (0x500547)"
-> 
-> Please note that the "sky2" driver has always been the black sheep on
-> that system due to regular full lock-ups of the driver, requiring a
-> rmmod sky2 + modprobe sky2 cycle.
-> 
-> This happens often enough to warrant writing a cronjob checking the
-> network and auto-rmmod'ing the module.....
-> 
-> While the above is bloody annoying at times (heh), the driver never
-> caused any messages like the ones I now get with -mm2 .
+> which I dont have enabled.
 
-sky2 just turned on PCI Express error reporting, so it makes sense that 
-messages would appear.  The better question is whether this is a driver 
-problem, or a hardware problem.  With your "black sheep" comment, I 
-wonder if it isn't a hardware problem that's been hidden.
+Will fix.
 
-	Jeff
+BTW I was planning to make LOCAL_APIC unconditional on i386 too like on x86-64.
+There is basically no reason ever to disable it, and the bug work around
+for buggy BIOS one can be done at runtime. Overall the #ifdef / compile breakage
+ratio vs saved code on disabled APIC code is definitely unbalanced.
 
-
+-Andi

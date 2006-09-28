@@ -1,20 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964907AbWI1XDt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750818AbWI1XEl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964907AbWI1XDt (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Sep 2006 19:03:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964904AbWI1XDs
+	id S1750818AbWI1XEl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Sep 2006 19:04:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750774AbWI1XEk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Sep 2006 19:03:48 -0400
-Received: from gprs189-60.eurotel.cz ([160.218.189.60]:45488 "EHLO amd.ucw.cz")
-	by vger.kernel.org with ESMTP id S964907AbWI1XDq (ORCPT
+	Thu, 28 Sep 2006 19:04:40 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:46256 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1750818AbWI1XEj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Sep 2006 19:03:46 -0400
-Date: Fri, 29 Sep 2006 01:03:39 +0200
+	Thu, 28 Sep 2006 19:04:39 -0400
+Date: Fri, 29 Sep 2006 01:04:33 +0200
 From: Pavel Machek <pavel@ucw.cz>
 To: Andrew Morton <akpm@osdl.org>
 Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, LKML <linux-kernel@vger.kernel.org>
 Subject: Re: [PATCH -mm 1/3] swsusp: Add ioctl for swap files support
-Message-ID: <20060928230339.GF26653@elf.ucw.cz>
+Message-ID: <20060928230433.GG26653@elf.ucw.cz>
 References: <200609290005.17616.rjw@sisk.pl> <200609290013.39137.rjw@sisk.pl> <20060928154237.d91abb1f.akpm@osdl.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -27,40 +27,33 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi!
 
-> On Fri, 29 Sep 2006 00:13:38 +0200
-> "Rafael J. Wysocki" <rjw@sisk.pl> wrote:
-> 
-> > To be able to use swap files as suspend storage from the userland suspend
-> > tools we need an additional ioctl() that will allow us to provide the kernel
-> > with both the swap header's offset and the identification of the resume
-> > partition.
-> > 
-> > The new ioctl() should be regarded as a replacement for the
-> > SNAPSHOT_SET_SWAP_FILE ioctl() that from now on will be considered as
-> > obsolete, but has to stay for backwards compatibility of the interface.
-> > 
+> > +			swdev = old_decode_dev(swap_area.dev);
+> > +			if (swdev) {
+> > +				offset = swap_area.offset;
+> > +				data->swap = swap_type_of(swdev, offset);
+> > +				if (data->swap < 0)
+> > +					error = -ENODEV;
+> > +			} else {
+> > +				data->swap = -1;
+> > +				error = -EINVAL;
+> > +			}
+> > +		}
+> > +		break;
 > > +
-> > +/*
-> > + * This structure is used to pass the values needed for the identification
-> > + * of the resume swap area from a user space to the kernel via the
-> > + * SNAPSHOT_SET_SWAP_AREA ioctl
-> > + */
-> > +struct resume_swap_area {
-> > +	u_int16_t dev;
-> > +	loff_t offset;
-> > +} __attribute__((packed));
-
+> >  	default:
+> >  		error = -ENOTTY;
 > 
-> hmm.  Asking the compiler to pack 16-bit and 64-bit quantities in this
-> manner is a bit risky.  I guess it'll do the right thing, consistently,
-> across all compiler versions and vendors and 32-bit-on-64-bit-kernel, etc.
+> But I wonder if we need to pass the device identified into this ioctl at
+> all.  What device is the ioctl() against?  ie: what do `filp' and `inode'
+> point at?  If it's /dev/hda1 then everything we need is right there, is it
+> not?
 > 
-> But from a defensiveness/paranoia POV it'd be better to use a u32 here, I
-> suspect.  (Will access to that loff_t cause an alignment trap on ia64?  Any
-> other CPUs?  Dunno).
+> ohshit, it's a miscdevice.  I wonder if it would have defined all this
+> stuff to be operations against the blockdev.  Perhaps not.
 
-Perhaps just loff_t offset; u32 dev; ? If 64-bit variable is first, we
-should avoid most problems, no?
+Defining it against blockdev would be ugly... we'll want to suspend to
+two devices at the same time, and we'll want to suspend over network etc.
+
 								Pavel
 -- 
 (english) http://www.livejournal.com/~pavelmachek

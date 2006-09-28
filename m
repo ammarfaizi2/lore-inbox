@@ -1,66 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031332AbWI1CYu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031334AbWI1Cas@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1031332AbWI1CYu (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Sep 2006 22:24:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031334AbWI1CYu
+	id S1031334AbWI1Cas (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Sep 2006 22:30:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031335AbWI1Cas
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Sep 2006 22:24:50 -0400
-Received: from mail.gmx.net ([213.165.64.20]:46544 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S1031332AbWI1CYt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Sep 2006 22:24:49 -0400
-X-Authenticated: #5039886
-Date: Thu, 28 Sep 2006 04:24:47 +0200
-From: =?iso-8859-1?Q?Bj=F6rn?= Steinbrink <B.Steinbrink@gmx.de>
-To: Andrew Morton <akpm@osdl.org>, Martin Filip <bugtraq@smoula.net>,
-       linux-kernel@vger.kernel.org, Ayaz Abdulla <aabdulla@nvidia.com>
-Subject: Re: forcedeth - WOL [SOLVED]
-Message-ID: <20060928022447.GA3890@atjola.homenet>
-Mail-Followup-To: =?iso-8859-1?Q?Bj=F6rn?= Steinbrink <B.Steinbrink@gmx.de>,
-	Andrew Morton <akpm@osdl.org>, Martin Filip <bugtraq@smoula.net>,
-	linux-kernel@vger.kernel.org, Ayaz Abdulla <aabdulla@nvidia.com>
-References: <1159379441.9024.7.camel@archon.smoula-in.net> <20060927183857.GA2963@atjola.homenet> <1159389486.8902.4.camel@archon.smoula-in.net> <20060927165704.613bf0aa.akpm@osdl.org> <20060928000447.GB2963@atjola.homenet> <20060928004053.GA3521@atjola.homenet> <20060928010133.GB3521@atjola.homenet> <20060927183625.5231e969.akpm@osdl.org> <20060928020438.GC3521@atjola.homenet>
+	Wed, 27 Sep 2006 22:30:48 -0400
+Received: from mail4.hitachi.co.jp ([133.145.228.5]:13206 "EHLO
+	mail4.hitachi.co.jp") by vger.kernel.org with ESMTP
+	id S1031334AbWI1Car (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Sep 2006 22:30:47 -0400
+Message-ID: <451B33C8.4080107@hitachi.com>
+Date: Thu, 28 Sep 2006 11:30:32 +0900
+From: Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>
+Organization: Systems Development Lab., Hitachi, Ltd., Japan
+User-Agent: Thunderbird 1.5.0.7 (Windows/20060909)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20060928020438.GC3521@atjola.homenet>
-User-Agent: Mutt/1.5.13 (2006-08-11)
-X-Y-GMX-Trusted: 0
+To: karim@opersys.com
+Cc: Richard J Moore <richardj_moore@uk.ibm.com>,
+       Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
+       "Frank Ch. Eigler" <fche@redhat.com>, Ingo Molnar <mingo@elte.hu>,
+       Ingo Molnar <mingo@redhat.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       SystemTAP <systemtap@sources.redhat.com>,
+       Satoshi Oshima <soshima@redhat.com>,
+       "Martin J. Bligh" <mbligh@mbligh.org>,
+       Prasanna S Panchamukhi <prasanna@in.ibm.com>,
+       Tom Zanussi <zanussi@us.ibm.com>,
+       Michel Dagenais <michel.dagenais@polymtl.ca>,
+       William Cohen <wcohen@redhat.com>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Andrew Morton <akpm@osdl.org>, Christoph Hellwig <hch@infradead.org>
+Subject: Re: Does this work? "dcprobes" an x86-hack simple djprobes-equivalent?
+References: <45163D3D.4010108@opersys.com>
+In-Reply-To: <45163D3D.4010108@opersys.com>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2006.09.28 04:04:38 +0200, Björn Steinbrink wrote:
-> On 2006.09.27 18:36:25 -0700, Andrew Morton wrote:
-> > On Thu, 28 Sep 2006 03:01:33 +0200
-> > Björn Steinbrink <B.Steinbrink@gmx.de> wrote:
-> > 
-> > > > > > Do we know if this reversal *always* happens with this driver, or only
-> > > > > > sometimes?
-> > > 
-> > > I only tried 2.6.18 twice this time, but when I wrote my own tool to do
-> > > it, I had probably 20-30 power on -> ethtool -> poweroff cycles before I
-> > > decided to look into Bugzilla. As it looked like being fixed already and
-> > > I did use the nForce NIC for testing only, I didn't spend any further
-> > > time on it back then.
-> > 
-> > What I'm angling towards is: "is this just a driver bug"?
-> 
-> I just took a peek at the code.
-> 
-> The version on bugzilla (last attachment, comment #22), which was
-> reported to work correctly, has the MAC address reversal hardcoded.
-> The driver in 2.6.18 has some logic to detect if it should reverse the
-> MAC address. So it looks like a hardware oddity/bug that the driver
-> wants to fix but fails. I'll see what happens if I force address
-> reversal and if I can decipher anything, but probably someone else will
-> have to cast the runes...
+Hi Karim,
 
-OK, please excuse me wasting your time, it's late over here... I've
-actually been looking at Linus' git tree (pulled yesterday) while
-writing that mail, not 2.6.18.
-2.6.18 does _not_ contain the address reversal detection.
-Using the git tree instead of 2.6.18 WOL works as expected, without
-having to reverse the MAC address.
+Thank you for new idea.
+I discussed your proposal deeply with my coworkers.
 
-Björn
+I think your approach has following advantages/disadvantages/problem;
+<advantages>
+(a) Able to be inserted into the target address of the branch.
+(b) So, binary analysis tool becomes simple.
+<disadvantages>
+(c) Implementation is much complicated.
+(d) Highly depend on the x86 arch.
+(e) Bigger overhead than djprobe.
+(f) There will be side effect(*)
+<problem>
+(g) User applications can modify LDT. (ex. wine)
+
+I think the dcprobe will work, but, unfortunately, it has
+an vulnerability by the problem (g).
+
+(*) In the following code:
+---
+a=0
+do {
+...
+a++;
+}while (a <= 100)
+---
+In case of inserting dcprobe at the 1st line (a=0),
+it will replace 2nd (or more) instructions.
+In this case, the fix up routine (based on int3)
+will be invoked one hundred times.
+
+Thanks,
+
+
+
+-- 
+Masami HIRAMATSU
+2nd Research Dept.
+Hitachi, Ltd., Systems Development Laboratory
+E-mail: masami.hiramatsu.pt@hitachi.com
+
+

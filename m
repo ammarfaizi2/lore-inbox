@@ -1,15 +1,15 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751960AbWI1RaZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030261AbWI1RbU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751960AbWI1RaZ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Sep 2006 13:30:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751961AbWI1RaZ
+	id S1030261AbWI1RbU (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Sep 2006 13:31:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030262AbWI1RbU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Sep 2006 13:30:25 -0400
-Received: from e6.ny.us.ibm.com ([32.97.182.146]:50870 "EHLO e6.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1751960AbWI1RaW (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Sep 2006 13:30:22 -0400
-Date: Thu, 28 Sep 2006 22:59:51 +0530
+	Thu, 28 Sep 2006 13:31:20 -0400
+Received: from e36.co.us.ibm.com ([32.97.110.154]:60593 "EHLO
+	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S1030261AbWI1RbT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Sep 2006 13:31:19 -0400
+Date: Thu, 28 Sep 2006 23:00:57 +0530
 From: Srivatsa Vaddagiri <vatsa@in.ibm.com>
 To: Ingo Molnar <mingo@elte.hu>, Nick Piggin <nickpiggin@yahoo.com.au>
 Cc: linux-kernel@vger.kernel.org, Kirill Korotaev <dev@openvz.org>,
@@ -17,8 +17,8 @@ Cc: linux-kernel@vger.kernel.org, Kirill Korotaev <dev@openvz.org>,
        sekharan@us.ibm.com, Andrew Morton <akpm@osdl.org>,
        nagar@watson.ibm.com, matthltc@us.ibm.com, dipankar@in.ibm.com,
        ckrm-tech@lists.sourceforge.net
-Subject: [RFC, PATCH 4/9] CPU Controller V2 - define group operations
-Message-ID: <20060928172951.GE8746@in.ibm.com>
+Subject: [RFC, PATCH 5/9] CPU Controller V2 - deal with movement of tasks
+Message-ID: <20060928173057.GF8746@in.ibm.com>
 Reply-To: vatsa@in.ibm.com
 References: <20060928172520.GA8746@in.ibm.com>
 Mime-Version: 1.0
@@ -29,131 +29,106 @@ User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Define these operations for a task-group:
-
-        - create new group
-        - destroy existing group
-        - assign bandwidth (quota) for a group
-        - get bandwidth (quota) of a group
-
+When a task moves between groups (as initiated by an administrator), it has to
+be removed from the runqueue of its old group and added to the runqueue of its
+new group. This patch defines this move operation.
 
 Signed-off-by : Srivatsa Vaddagiri <vatsa@in.ibm.com>
 
 ---
 
- linux-2.6.18-root/include/linux/sched.h |   13 +++++
- linux-2.6.18-root/kernel/sched.c        |   79 ++++++++++++++++++++++++++++++++
- 2 files changed, 92 insertions(+)
+ linux-2.6.18-root/include/linux/sched.h |    3 +
+ linux-2.6.18-root/kernel/sched.c        |   61 ++++++++++++++++++++++++++++++++
+ 2 files changed, 64 insertions(+)
 
-diff -puN kernel/sched.c~cpu_ctlr_grp_ops kernel/sched.c
---- linux-2.6.18/kernel/sched.c~cpu_ctlr_grp_ops	2006-09-28 16:40:21.106832096 +0530
-+++ linux-2.6.18-root/kernel/sched.c	2006-09-28 17:23:19.055924264 +0530
-@@ -7192,3 +7192,82 @@ void set_curr_task(int cpu, struct task_
+diff -puN kernel/sched.c~cpu_ctlr_move_task kernel/sched.c
+--- linux-2.6.18/kernel/sched.c~cpu_ctlr_move_task	2006-09-28 16:40:24.971244616 +0530
++++ linux-2.6.18-root/kernel/sched.c	2006-09-28 17:23:18.115067296 +0530
+@@ -7261,10 +7261,71 @@ int sched_get_quota(struct task_grp *tg)
+ 	return cpu_quota(tg);
  }
  
- #endif
++/*
++ * Move a task from one group to another. If the task is already on a
++ * runqueue, this involves removing the task from its old group's runqueue
++ * and adding to its new group's runqueue.
++ *
++ * This however is slightly tricky, given the facts that:
++ *
++ *	- some pointer in the task struct (ex: cpuset) represents the group
++ *  	  to which a task belongs.
++ * 	- At any give point during the move operation, the pointer either
++ * 	  points to the old group or to the new group, but not both!
++ *	- dequeue_task/enqueue_task rely on this pointer to know which
++ * 	  task_grp_rq the task is to be removed from/added to.
++ *
++ * Hence the move is accomplished in two steps:
++ *
++ *	1. In first step, sched_pre_move_task() is called with the group
++ * 	   pointer set to the old group to which the task belonged.
++ * 	   If the task was on a runqueue, sched_pre_move_task() will
++ * 	   removes it from the runqueue.
++ *
++ * 	2. In second step, sched_post_move_task() is called with the group
++ *	   pointer set to the new group to which the task belongs.
++ *	   sched_post_move_task() will add the task in its new runqueue
++ * 	   if it was on a runqueue in step 1.
++ *
++ */
 +
-+#ifdef CONFIG_CPUMETER
-+
-+/* Allocate runqueue structures for the new task-group */
-+void *sched_alloc_group(void)
++int sched_pre_move_task(struct task_struct *tsk, unsigned long *flags,
++			 struct task_grp *tg_old, struct task_grp *tg_new)
 +{
-+	struct task_grp *tg;
-+	struct task_grp_rq *tgrq;
-+	int i;
++	struct rq *rq;
++	int rc = 0;
 +
-+	tg = kzalloc(sizeof(*tg), GFP_KERNEL);
-+	if (!tg)
-+		return NULL;
++	if (tg_new == tg_old)
++		return rc;
 +
-+	tg->ticks = CPU_CONTROL_SHORT_WINDOW;
-+	tg->long_ticks = NUM_LONG_TICKS;
++	rq = task_rq_lock(tsk, flags);
 +
-+	for_each_possible_cpu(i) {
-+		tgrq = kzalloc(sizeof(*tgrq), GFP_KERNEL);
-+		if (!tgrq)
-+			goto oom;
-+		tg->rq[i] = tgrq;
-+		task_grp_rq_init(tgrq, tg);
++	rc = 1;
++	if (tsk->array) {
++		rc = 2;
++		deactivate_task(tsk, rq);
 +	}
 +
-+	return tg;
-+oom:
-+	while (i--)
-+		kfree(tg->rq[i]);
-+
-+	kfree(tg);
-+	return NULL;
++	return rc;
 +}
 +
-+/* Deallocate runqueue structures */
-+void sched_dealloc_group(struct task_grp *tg)
++/* called with rq lock held */
++void sched_post_move_task(struct task_struct *tsk, unsigned long *flags, int rc)
 +{
-+	int i;
++	struct rq *rq = task_rq(tsk);
 +
-+	for_each_possible_cpu(i)
-+		kfree(tg->rq[i]);
++	if (rc == 2)
++		__activate_task(tsk, rq);
 +
-+	kfree(tg);
++	task_rq_unlock(rq, flags);
 +}
 +
-+/* Assign quota to this group */
-+int sched_assign_quota(struct task_grp *tg, int quota)
-+{
-+	int i;
-+
-+	tg->ticks = (quota * CPU_CONTROL_SHORT_WINDOW) / 100;
-+
-+	for_each_possible_cpu(i)
-+		tg->rq[i]->ticks = tg->ticks;
-+
-+	return 0;
-+}
-+
-+static inline int cpu_quota(struct task_grp *tg)
-+{
-+	return (tg->ticks * 100) / CPU_CONTROL_SHORT_WINDOW;
-+}
-+
-+/* Return assigned quota for this group */
-+int sched_get_quota(struct task_grp *tg)
-+{
-+	return cpu_quota(tg);
-+}
-+
-+static struct task_grp_ops sched_grp_ops = {
-+	.alloc_group = sched_alloc_group,
-+	.dealloc_group = sched_dealloc_group,
-+	.assign_quota = sched_assign_quota,
-+	.get_quota = sched_get_quota,
-+};
-+
-+struct task_grp_ops *cpu_ctlr = &sched_grp_ops;
-+
-+#endif /* CONFIG_CPUMETER */
-diff -puN include/linux/sched.h~cpu_ctlr_grp_ops include/linux/sched.h
---- linux-2.6.18/include/linux/sched.h~cpu_ctlr_grp_ops	2006-09-28 16:40:21.111831336 +0530
-+++ linux-2.6.18-root/include/linux/sched.h	2006-09-28 17:23:19.059923656 +0530
-@@ -1611,6 +1611,19 @@ static inline void thaw_processes(void) 
- static inline int try_to_freeze(void) { return 0; }
+ static struct task_grp_ops sched_grp_ops = {
+ 	.alloc_group = sched_alloc_group,
+ 	.dealloc_group = sched_dealloc_group,
+ 	.assign_quota = sched_assign_quota,
++	.pre_move_task = sched_pre_move_task,
++	.post_move_task = sched_post_move_task,
+ 	.get_quota = sched_get_quota,
+ };
  
- #endif /* CONFIG_PM */
-+
-+#ifdef CONFIG_CPUMETER
-+struct task_grp;
-+struct task_grp_ops {
-+	void *(*alloc_group)(void);
-+	void (*dealloc_group)(struct task_grp *grp);
-+	int (*assign_quota)(struct task_grp *grp, int quota);
-+	int (*get_quota)(struct task_grp *grp);
-+};
-+
-+extern struct task_grp_ops *cpu_ctlr;
-+#endif
-+
- #endif /* __KERNEL__ */
+diff -puN include/linux/sched.h~cpu_ctlr_move_task include/linux/sched.h
+--- linux-2.6.18/include/linux/sched.h~cpu_ctlr_move_task	2006-09-28 16:40:24.976243856 +0530
++++ linux-2.6.18-root/include/linux/sched.h	2006-09-28 17:23:18.119066688 +0530
+@@ -1618,6 +1618,9 @@ struct task_grp_ops {
+ 	void *(*alloc_group)(void);
+ 	void (*dealloc_group)(struct task_grp *grp);
+ 	int (*assign_quota)(struct task_grp *grp, int quota);
++	int (*pre_move_task)(struct task_struct *tsk, unsigned long *,
++				struct task_grp *old, struct task_grp *new);
++	void (*post_move_task)(struct task_struct *tsk, unsigned long *, int);
+ 	int (*get_quota)(struct task_grp *grp);
+ };
  
- #endif
 _
 -- 
 Regards,

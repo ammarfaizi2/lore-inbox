@@ -1,57 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161161AbWI1URG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161180AbWI1UUk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161161AbWI1URG (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Sep 2006 16:17:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161176AbWI1URG
+	id S1161180AbWI1UUk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Sep 2006 16:20:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161179AbWI1UUk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Sep 2006 16:17:06 -0400
-Received: from ra.tuxdriver.com ([70.61.120.52]:63248 "EHLO ra.tuxdriver.com")
-	by vger.kernel.org with ESMTP id S1161161AbWI1URD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Sep 2006 16:17:03 -0400
-Date: Thu, 28 Sep 2006 16:12:49 -0400
-From: Neil Horman <nhorman@tuxdriver.com>
-To: linux-kernel@vger.kernel.org
-Cc: mj@atrey.karlin.mff.cuni.cz, davej@redhat.com, nhorman@tuxdriver.com
-Subject: [PATCH] x86: update vmlinux.lds.S to place .data section on a page boundary
-Message-ID: <20060928201249.GA10037@hmsreliant.homelinux.net>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+	Thu, 28 Sep 2006 16:20:40 -0400
+Received: from mail-in-10.arcor-online.net ([151.189.21.50]:22472 "EHLO
+	mail-in-01.arcor-online.net") by vger.kernel.org with ESMTP
+	id S1161177AbWI1UUj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Sep 2006 16:20:39 -0400
+From: Prakash Punnoor <prakash@punnoor.de>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: 2.6.18 hangs during boot on ASUS M2NPV-VM motherboard
+Date: Thu, 28 Sep 2006 22:20:20 +0200
+User-Agent: KMail/1.9.4
+Cc: Marc Perkel <marc@perkel.com>, linux-kernel@vger.kernel.org,
+       "Andy Currid" <ACurrid@nvidia.com>
+References: <451BFDC8.6030308@perkel.com> <20060928131427.bc3d0ed4.akpm@osdl.org>
+In-Reply-To: <20060928131427.bc3d0ed4.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart5004007.idy3cveRYd";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200609282220.20790.prakash@punnoor.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Patch to update vmlinux linker script so that .data section is on a page
-boundary.  without this change the kernel's .data section is on a non-4k
-boundary, and this prevents kexec from loading a new kernel.  Tested
-successfully by me.
+--nextPart5004007.idy3cveRYd
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-Thanks & Regards
-Neil
+Am Donnerstag 28 September 2006 22:14 schrieb Andrew Morton:
 
-Signed-off-by: Neil Horman <nhorman@tuxdriver.com>
+> > I compiled 2.6.18 and setting acpi_skip_timer_override to 0 instead of 1
+> > makes the problem go away. Obviously the logic needs to e a little more
+> > complex than is but this shouldn't be that hard to resolve.
+> >
+> > http://bugzilla.kernel.org/show_bug.cgi?id=3D6975
+>
+> I think the kernel _should_ be enabling acpi_skip_timer_override by itsel=
+f,
+> but isn't doing that for some reason.
 
+Other way round. It should only enable it for broken chipsets. But it hasn'=
+t=20
+been defined what _are_ the broken chipsets.... currently it is enabled for=
+=20
+all chipsets.
 
- vmlinux.lds.S |    1 +
- 1 files changed, 1 insertion(+)
+>
+> Perhaps Andy can help.  He may not even be aware of this problem...
 
+Na, he just choses not to say anything.
 
-diff --git a/arch/i386/kernel/vmlinux.lds.S b/arch/i386/kernel/vmlinux.lds.S
-index 1e7ac1c..43ed5be 100644
---- a/arch/i386/kernel/vmlinux.lds.S
-+++ b/arch/i386/kernel/vmlinux.lds.S
-@@ -50,6 +50,7 @@ SECTIONS
-   }
-   __tracedata_end = .;
- 
-+  . = ALIGN(4096);
-   /* writeable */
-   .data : AT(ADDR(.data) - LOAD_OFFSET) {	/* Data */
- 	*(.data)
--- 
-/***************************************************
- *Neil Horman
- *Software Engineer
- *gpg keyid: 1024D / 0x92A74FA1 - http://pgp.mit.edu
- ***************************************************/
+http://marc.theaimsgroup.com/?l=3Dlinux-kernel&m=3D115675009906807&w=3D2
+
+=2D-=20
+(=B0=3D                 =3D=B0)
+//\ Prakash Punnoor /\\
+V_/                 \_V
+
+--nextPart5004007.idy3cveRYd
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
+
+iD8DBQBFHC6ExU2n/+9+t5gRAnLnAKDCvetITC3cvsXIUJ0sfKS/0qXqSQCfbEAG
+qbEtIMzEC1WqVg0BG1RCYH8=
+=0EQP
+-----END PGP SIGNATURE-----
+
+--nextPart5004007.idy3cveRYd--

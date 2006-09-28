@@ -1,39 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751674AbWI1KR1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161019AbWI1KVM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751674AbWI1KR1 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Sep 2006 06:17:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751792AbWI1KR1
+	id S1161019AbWI1KVM (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Sep 2006 06:21:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031359AbWI1KVM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Sep 2006 06:17:27 -0400
-Received: from mail5.postech.ac.kr ([141.223.1.113]:44469 "EHLO
-	mail5.postech.ac.kr") by vger.kernel.org with ESMTP
-	id S1751674AbWI1KR0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Sep 2006 06:17:26 -0400
-Date: Thu, 28 Sep 2006 19:17:24 +0900
-From: Seongsu Lee <senux@senux.com>
-To: linux-kernel@vger.kernel.org
-Subject: specifying the order of calling kernel functions (or modules)
-Message-ID: <20060928101724.GA18635@pooky.senux.com>
+	Thu, 28 Sep 2006 06:21:12 -0400
+Received: from pasmtpb.tele.dk ([80.160.77.98]:43985 "EHLO pasmtpB.tele.dk")
+	by vger.kernel.org with ESMTP id S1031297AbWI1KVL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Sep 2006 06:21:11 -0400
+Date: Thu, 28 Sep 2006 12:21:00 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+Cc: Olaf Hering <olaf@aepfle.de>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] add XARGS to toplevel Makefile
+Message-ID: <20060928102100.GA27424@uranus.ravnborg.org>
+References: <20060928060224.GA16290@aepfle.de> <Pine.LNX.4.61.0609281032420.21498@yvahk01.tjqt.qr>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-X-TERRACE-SPAMMARK: NO       (SR:3.11)                     
-  (by Terrace)                                                   
+In-Reply-To: <Pine.LNX.4.61.0609281032420.21498@yvahk01.tjqt.qr>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Thu, Sep 28, 2006 at 10:33:01AM +0200, Jan Engelhardt wrote:
+> >
+> >run xargs with --no-run-if-empty to avoid random failures:
+> 
+> How about the short option, -r?
+Is it more portable - otherwise the more descriptive option is preferred.
 
-I am a beginner of kernel module programming. I want to
-specify the order of calling functions that I registered
-by EXPORT_SYMBOL(). (or modules)
-
-Thank you for your help.
-
--- 
-Seongsu Lee - http://www.senux.com/
-Buck-passing usually turns out to be a boomerang.
-
-
-
-
+	Sam

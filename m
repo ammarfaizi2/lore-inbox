@@ -1,56 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751602AbWI1FDk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751614AbWI1FE7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751602AbWI1FDk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Sep 2006 01:03:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751601AbWI1FDj
+	id S1751614AbWI1FE7 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Sep 2006 01:04:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751609AbWI1FE7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Sep 2006 01:03:39 -0400
-Received: from mail4.hitachi.co.jp ([133.145.228.5]:14985 "EHLO
-	mail4.hitachi.co.jp") by vger.kernel.org with ESMTP
-	id S1751599AbWI1FDi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Sep 2006 01:03:38 -0400
-Message-Type: Multiple Part
-MIME-Version: 1.0
-Message-ID: <XNM1$9$0$4$$3$3$7$A$9002687U451b578f@hitachi.com>
-Content-Type: text/plain; charset="us-ascii"
-To: "Alan Cox" <alan@lxorguk.ukuu.org.uk>
-From: <eiichiro.oiwa.nm@hitachi.com>
-Cc: "Jesse Barnes" <jesse.barnes@intel.com>, <akpm@osdl.org>,
-       <tony.luck@intel.com>, <greg@kroah.com>, <linux-ia64@vger.kernel.org>,
-       <linux-kernel@vger.kernel.org>
-Date: Thu, 28 Sep 2006 14:03:22 +0900
-References: <XNM1$9$0$4$$3$3$7$A$9002684U451a5f21@hitachi.com> 
-    <1159359135.11049.341.camel@localhost.localdomain>
-Importance: normal
-Subject: Re[2]: [PATCH 2.6.18] IA64: Add pci_fixup_video into IA64 kernel
-    forembedded VGA
-X400-Content-Identifier: X451B578F00000M
-X400-MTS-Identifier: [/C=JP/ADMD=HITNET/PRMD=HITACHI/;gmml16060928140311JPK]
+	Thu, 28 Sep 2006 01:04:59 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:2755 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751601AbWI1FE5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Sep 2006 01:04:57 -0400
+Date: Wed, 27 Sep 2006 22:04:51 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Jeff Garzik <jeff@garzik.org>
+Cc: linux-scsi@vger.kernel.org, Greg KH <greg@kroah.com>,
+       LKML <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [PATCH] Illustration of warning explosion silliness
+Message-Id: <20060927220451.05310cf5.akpm@osdl.org>
+In-Reply-To: <451B5587.2050601@garzik.org>
+References: <20060928005830.GA25694@havoc.gtf.org>
+	<20060927183507.5ef244f3.akpm@osdl.org>
+	<451B29FA.7020502@garzik.org>
+	<20060927203417.f07674de.akpm@osdl.org>
+	<451B4D58.9070401@garzik.org>
+	<20060927213628.ef12b1ed.akpm@osdl.org>
+	<20060927214428.9e5c0e79.akpm@osdl.org>
+	<451B5587.2050601@garzik.org>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->Ar Mer, 2006-09-27 am 20:23 +0900, ysgrifennodd
->eiichiro.oiwa.nm@hitachi.com:
->> I moved pci_fixup_video to generic location (driver/pci/quirks.c).
->> I tested generic fixup_video on x86, x86_64 and IA64, and confirmed
->> we can read Video BIOS from the sysfs rom with embedded VGA.
->
->Lots of embedded systems don't have a PCI bios in the usual sense, and
->cannot run the x86 code in the ROM firmware either. That doesn't appear
->to be a big problem when setting PCI_ROM_SHADOW but those platforms may
->not all be able to access the shadow rom if one exists.
->
->Can you fix the comment in drivers/pci/rom.c to reflect the changes.
->
->Otherwise looks good.
->
->Alan
->
+On Thu, 28 Sep 2006 00:54:31 -0400
+Jeff Garzik <jeff@garzik.org> wrote:
 
-Thank you for some good advise.
-I changed this subject to appropriate one:
-[PATCH 2.6.18] PCI: Turn pci_fixup_video into generic for embedded VGA
+> Andrew Morton wrote:
+> > On Wed, 27 Sep 2006 21:36:28 -0700
+> > Andrew Morton <akpm@osdl.org> wrote:
+> > 
+> >> device_for_each_child() 
+> > 
+> > All that being said, device_for_each_child() is rather broken by design. 
+> > It walks a list of items applying a function to them and bales out on
+> > first-error.
+> 
+> Or, like scsi_sysfs.c, it stops when it meets the first match.  Which is 
+> a common thing to do.
 
-Thanks,
-Eiichiro
+That code is flakey.  Trace through all the called functions, see all the
+errors which get ignored.
+
+> 
+> > There's no way in which the caller can know which items have been operated
+> > on, nor which items have yet to be operated on, nor which item experienced
+> > the failure.  Any caller which is serious about error recovery presumably
+> > won't use it, unless the callback function happens to be something which
+> > makes no state changes.
+> 
+> A simple integer return error doesn't tell you all that information 
+> either.  The actor must obviously store that additional information 
+> somewhere, if it cares.
+
+Yup.
+
+> But whatever.  I give up.
+
+That's the spirit ;)
+
+> I'm going back to working on the libata 
+> warnings each build spits out (iomap).
+
+Thanks.

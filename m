@@ -1,50 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751679AbWI1H0Q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751589AbWI1HaJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751679AbWI1H0Q (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Sep 2006 03:26:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751730AbWI1H0Q
+	id S1751589AbWI1HaJ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Sep 2006 03:30:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751736AbWI1HaJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Sep 2006 03:26:16 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:32485 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751679AbWI1H0P (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Sep 2006 03:26:15 -0400
-Date: Thu, 28 Sep 2006 00:26:10 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Andi Kleen <ak@muc.de>
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Put the BUG __FILE__ and __LINE__ info out of line
-Message-Id: <20060928002610.05e61321.akpm@osdl.org>
-In-Reply-To: <20060928071731.GB84041@muc.de>
-References: <451B64E3.9020900@goop.org>
-	<20060927233509.f675c02d.akpm@osdl.org>
-	<451B708D.20505@goop.org>
-	<20060928000019.3fb4b317.akpm@osdl.org>
-	<20060928071731.GB84041@muc.de>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 28 Sep 2006 03:30:09 -0400
+Received: from ns2.uludag.org.tr ([193.140.100.220]:54184 "EHLO uludag.org.tr")
+	by vger.kernel.org with ESMTP id S1751735AbWI1HaH convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Sep 2006 03:30:07 -0400
+From: Ismail Donmez <ismail@pardus.org.tr>
+Organization: =?utf-8?q?T=C3=9CB=C4=B0TAK/UEKAE?=
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: __STRICT_ANSI__ checks in headers
+Date: Thu, 28 Sep 2006 10:30:25 +0300
+User-Agent: KMail/1.9.4
+Cc: David Woodhouse <dwmw2@infradead.org>, LKML <linux-kernel@vger.kernel.org>,
+       Kyle Moffett <mrmacman_g4@mac.com>, mchehab@infradead.org
+References: <200609150901.33644.ismail@pardus.org.tr> <200609281003.28644.ismail@pardus.org.tr> <1159427179.3309.183.camel@pmac.infradead.org>
+In-Reply-To: <1159427179.3309.183.camel@pmac.infradead.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="utf-8"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200609281030.26640.ismail@pardus.org.tr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 28 Sep 2006 09:17:31 +0200
-Andi Kleen <ak@muc.de> wrote:
+28 Eyl 2006 Per 10:06 tarihinde, David Woodhouse şunları yazmıştı: 
+> On Thu, 2006-09-28 at 10:03 +0300, Ismail Donmez wrote:
+> > David, is this ok? It would be good to apply this for 2.6.19 so all of
+> > KDE would compile ( all of the parts I tested ) with kernel-headers.
+>
+> Looks good to me.
 
-> > Plan #17 is to just put the BUG inline and then put the EIP+file*+line into
-> > a separate section, then search that section at BUG time to find the record
-> > whose EIP points back at this ud2a.
-> > 
-> > It's a bit messy for modules, but it minimises the .text impact and keeps
-> > disassembly happy, no?
-> > 
-> > And if done right it can probably be used by other architectures.
-> 
-> 
-> The way x86-64 solved it was to turn the inline code into valid
-> instructions. This can be done with two additional bytes.
-> IMHO that's the right solution for the problem on i386 too
-> 
+Andrew, now that David gave his blessing , can you push this for 2.6.19?
 
-That uses even more text.
+Regards,
+ismail
+
+-- 
+They that can give up essential liberty to obtain a little temporary safety 
+deserve neither liberty nor safety.
+-- Benjamin Franklin

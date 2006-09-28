@@ -1,114 +1,156 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031303AbWI1AmI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031311AbWI1AyX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1031303AbWI1AmI (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Sep 2006 20:42:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031304AbWI1AmH
+	id S1031311AbWI1AyX (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Sep 2006 20:54:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031312AbWI1AyX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Sep 2006 20:42:07 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.152]:60909 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S1031088AbWI1AmF
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Sep 2006 20:42:05 -0400
-Subject: Re: 2.6.18-rt1
-From: john stultz <johnstul@us.ibm.com>
-To: Ingo Molnar <mingo@elte.hu>
-Cc: "K.R. Foley" <kr@cybsft.com>, tglx@linutronix.de,
-       linux-kernel@vger.kernel.org, "Paul E. McKenney" <paulmck@us.ibm.com>,
-       Dipankar Sarma <dipankar@in.ibm.com>,
-       Arjan van de Ven <arjan@infradead.org>
-In-Reply-To: <20060922115854.GA12684@elte.hu>
-References: <20060920141907.GA30765@elte.hu> <45118EEC.2080700@cybsft.com>
-	 <20060920194958.GA24691@elte.hu> <4511A57D.9070500@cybsft.com>
-	 <1158784863.5724.1027.camel@localhost.localdomain>
-	 <4511A98A.4080908@cybsft.com>
-	 <1158866166.12028.9.camel@localhost.localdomain>
-	 <20060922115854.GA12684@elte.hu>
-Content-Type: text/plain
-Date: Wed, 27 Sep 2006 17:42:03 -0700
-Message-Id: <1159404123.5532.3.camel@localhost>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+	Wed, 27 Sep 2006 20:54:23 -0400
+Received: from nf-out-0910.google.com ([64.233.182.191]:30468 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1031311AbWI1AyV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Wed, 27 Sep 2006 20:54:21 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=l3vjrw+e1J/emnowCZeaSZVlaAEUB/fjNYJ6Ucxu353jc266td2+etZY5r4O1hyXJEWgnBTAc/C6cYdMLdUSPHxeZWny5gDKi6CzkgySfBGW8rSHDf62er0wy1X2U1dG6MqtKsDnvsPwKmKNVFwJjs4ocBKaTVHLa/o/HCIcV3Y=
+Message-ID: <d577e5690609271754u395e56ffr1601fddd6d4639a3@mail.gmail.com>
+Date: Wed, 27 Sep 2006 20:54:19 -0400
+From: "Patrick McFarland" <diablod3@gmail.com>
+To: "Linus Torvalds" <torvalds@osdl.org>
+Subject: Re: GPLv3 Position Statement
+Cc: "Chase Venters" <chase.venters@clientec.com>,
+       "Theodore Tso" <tytso@mit.edu>, "Alan Cox" <alan@lxorguk.ukuu.org.uk>,
+       "Jan Engelhardt" <jengelh@linux01.gwdg.de>,
+       "Sergey Panov" <sipan@sipan.org>,
+       "James Bottomley" <James.Bottomley@steeleye.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.64.0609271641370.3952@g5.osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=UTF-8; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <1158941750.3445.31.camel@mulgrave.il.steeleye.com>
+	 <Pine.LNX.4.61.0609270753590.19275@yvahk01.tjqt.qr>
+	 <1159342569.2653.30.camel@sipan.sipan.org>
+	 <Pine.LNX.4.61.0609271051550.19438@yvahk01.tjqt.qr>
+	 <1159359540.11049.347.camel@localhost.localdomain>
+	 <Pine.LNX.4.64.0609271000510.3952@g5.osdl.org>
+	 <Pine.LNX.4.64.0609271300130.7316@turbotaz.ourhouse>
+	 <20060927225815.GB7469@thunk.org>
+	 <Pine.LNX.4.64.0609271808041.7316@turbotaz.ourhouse>
+	 <Pine.LNX.4.64.0609271641370.3952@g5.osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-09-22 at 13:58 +0200, Ingo Molnar wrote: 
-> * john stultz <johnstul@us.ibm.com> wrote:
-> 
-> > I'm seeing a similar issue. Although the log is a bit futzed. Maybe 
-> > its the sd_mod?
-> > 
-> >  at virtual address 75010000le kernel paging requestproc filesystem
-> 
-> would be nice to figure out why it crashes - unfortunately i cannot 
-> trigger it. Could it be some build tool incompatibility perhaps? Some 
-> sizing issue (some module struct gets too large)?
+On Wednesday 27 September 2006 20:18, Linus Torvalds wrote:
+> I think a lot of people may be confused because what they see is
+>
+>  (a) Something that has been brewing for a _loong_ time. There has been
+>      the FSF position, and there has been the open source position, and
+>      the two have been very clearly separated.
 
-Been looking a bit deeper into this again:
+But whats wrong with that? The FSF is a "project" (or really, a group
+of projects, because some FSF projects don't agree with the FSF
+position either), it isn't them official voice of the community.
 
-BUG: unable to handle kernel paging request at virtual address 75010000
-printing eip:
-c01354ea      
-*pde = cccccccc
-stopped custom tracer.
-Oops: 0000 [#1]
-SMP           
-Modules linked in:
-CPU:    1     
-EIP:    0060:[<c01354ea>]    Not tainted VLI
-EFLAGS: 00010282   (2.6.18-rtjohn #9)
-EIP is at lookup_symbol+0x37/0x5b
-eax: 00000018   ebx: c0387a10   ecx: f7df7e58   edx: c0349c7e
-esi: 75010000   edi: f881a229   ebp: c038a524   esp: f7df7e5c
-ds: 007b   es: 007b   ss: 0068   preempt: 00000000
-Process insmod (pid: 453, ti=f7df6000 task=c2b54030 task.ti=f7df6000)
-Stack: f881f940 f8820c80 f881a229 f7df7ea4 c013555c f881a229 c03855a0
-c038a524
-       f881f940 f8820c80 f881a229 00000000 c01362dd f881a229 f7df7ea0
-f7df7ea4
-       00000001 00000000 f881a229 f881f940 000004f0 0000003c c0136855
-f881922c
-Call Trace:   
-[<c013555c>] __find_symbol+0x26/0x2e0
-[<c01362dd>] resolve_symbol+0x23/0x5f
-[<c0136855>] simplify_symbols+0x7e/0xf0
-[<c01375b0>] load_module+0x7c4/0xc14
-[<c0137a60>] sys_init_module+0x3d/0x171
-[<c0102855>] sysenter_past_esp+0x56/0x79
-Code: 55 53 ff 74 24 1c 68 5f 9c 34 c0 e8 df 80 fe ff 83 c4 10 39 eb 73
-31 53 68 7e 9c 34 c0 e8 cd 80 fe ff 5e 5f 8b 73 04 8b 7c 24 14 <ac> ae
-75 08 84 c0 75 f8 31 c0 eb 04 19 c0 0c 01 85 c0 75 04 89
-EIP: [<c01354ea>] lookup_symbol+0x37/0x5b SS:ESP 0068:f7df7e5c
+The open source community (which, of course, the FSF hates the term
+"open source" because it undermines their authority) is made up of
+many projects, each with their own official line. RMS has his, you
+have yours, GNOME has theirs, KDE has theirs, and so on.
 
+>      At the same time, both camps have been trying to be somewhat polite,
+>      as long as the fact that the split does clearly exist doesn't
+>      actually _matter_.
 
-Put some debugging into __find_symbol() and came up w/ this:
+I agree. It doesn't matter because everyone is free to use whatever
+version they want of the GPL. Of course, people do also recognize that
+the GPL2 vs GPL3 argument is just a more subtle version of whats been
+going on for years with BSD vs GPL.
 
-lookup_symbol: scsi_print_sense_hdr 0xc0385590 0xc038a514
+>      So, for example, the GPLv2 has been acceptable to all parties (which
+>      is what I argue is its great strength), and practically you've not
+>      actually had to care. In fact, most programmers _still_ probably
+>      don't care. A lot of people use a license not because they "chose"
+>      it, but because they work on a project where somebody else chose the
+>      license for them originally.
 
-Where it goes through that range in kernel_symbol increments.
+Programmers don't care because we aren't lawyers. I mean, few things
+are stated so simply, but lets face it, law is boring to quite a few
+geeks, and the intersection between geeks who code and geeks who law
+is very small.
 
-The last one it checks before crashing is: 0xc0387a10
+>  (b) This tension and the standpoints of the two sides has definitely
+>      _not_ been unknown to the people involved. Trust me, the FSF knew
+>      very well that the kernel standpoint on the GPLv2 was that Tivo was
+>      legally in the right, and that it was all ok in that sense.
+>
+>      Now, a number of people didn't necessarily _like_ what Tivo does or
+>      how they did it, but the whole rabid "this must be stopped" thing was
+>      from the FSF side.
 
->From Symbol.map:
-c0385590 R __start___ksymtab
-c038a514 R __stop___ksymtab
+Which is why I said above, the FSF is not the official voice of the
+community, but instead one of many, and also no longer one of the
+loudest.
 
-That looks right. Now looking up 0xc0387a10, there's no symbol there.
+> > What I was really addressing here is that the whole F/OSS community
+> > exploded over the news that Linux was not adopting the GPLv3.
+>
+> Not really. It wasn't even news. The kernel has had the "v2 only" thing
+> explicitly for more than half a decade, and I have personally tried to
+> make it very clear that even before that, it never had anything else (ie
+> it very much _had_ a specific license version, just by including the damn
+> thing, and the kernel has _never_ had the "v2 or any later" language).
 
-c03879e8 r __ksymtab_find_next_bit
-c03879f0 r __ksymtab_find_next_zero_bit
-c03879f8 R __write_lock_failed
-c0387a18 R __read_lock_failed
-c0387a2c r __ksymtab___delay
-c0387a34 r __ksymtab___const_udelay
-c0387a3c r __ksymtab___udelay
-c0387a44 r __ksymtab___ndelay
+Wasn't that just to prevent the FSF from going evil and juping all your code?
 
-That __read/__write_lock_failed bit looks wrong.
+> In fact, a lot of people have felt that they've been riding of the
+> coat-tails of Linux - without ever realizing that one of the things that
+> made Linux and Open Source so successful was exactly the fact that we did
+> _not_ buy into the rhetoric and the extremism.
 
-That's as far as I've gotten so far, but will email with more as I find
-it.
+The only problem is that, alternatively, the FOSS movement was so
+strong because of RMS's kool-aid everyone drank. The community has
+teeth, and this is in partly because of the actions of the FSF. We
+defend ourselves when we need to.
 
-thanks
--john
+Its just that, at least with the Tivo case, that the defense went a tad too far.
 
+> Claiming that the FSF didn't know, and that this took them "by surprise"
+> is just ludicrous. Richard Stallman has very vocally complained about the
+> Open Source people having "forgotten" what was important, and has talked
+> about me as if I'm some half-wit who doesn't understand the "real" issue.
+
+The real issue, in my opinion, is that RMS found out that he no longer
+leads the community, and his power base is a lot smaller than it used
+to be. The FSF itself is a lot less relevant than it was 10 years ago.
+
+> In fact, they still do that. Trying to explain the "mis-understanding".
+
+Ego does wonders.
+
+> Because the even _deeper_ rift between the FSF and the whole "Open Source"
+> community is not over "Tivo" or any particular detail like that, but
+> between "practical and useful" and "ideology".
+
+I agree. I totally agree. The rift exists _not_ because the OSS
+community wants to do its own thing, but because the FSF are no longer
+the overlords of the Bazaar that they thought they were.
+
+> 			Linus
+
+Also, I expect to get flamed for what I've written above, especially
+from RMS in some form or another. Thats fine. The FSF has given the
+community a lot, and us, the community, has given a lot in return.
+
+That doesn't, however, give RMS the right to be some sort of King. The
+OSS community, instead, is a form of a democracy, and you vote with
+your code.
+
+Linus, you voted with your code.
+
+-- 
+Patrick McFarland || http://AdTerrasPerAspera.com
+"Computer games don't affect kids; I mean if Pac-Man affected us as kids,
+we'd all be running around in darkened rooms, munching magic pills and
+listening to repetitive electronic music." -- Kristian Wilson, Nintendo,
+Inc, 1989

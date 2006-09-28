@@ -1,39 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751025AbWI1Jkk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751808AbWI1Jll@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751025AbWI1Jkk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Sep 2006 05:40:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751807AbWI1Jkk
+	id S1751808AbWI1Jll (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Sep 2006 05:41:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751043AbWI1Jll
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Sep 2006 05:40:40 -0400
-Received: from main.gmane.org ([80.91.229.2]:47584 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S1751025AbWI1Jkj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Sep 2006 05:40:39 -0400
-X-Injected-Via-Gmane: http://gmane.org/
-To: linux-kernel@vger.kernel.org
-From: Samuel Tardieu <sam@rfc1149.net>
-Subject: Re: GPLv3 Position Statement
-Date: 28 Sep 2006 11:39:08 +0200
-Message-ID: <8764f8nxdv.fsf@willow.rfc1149.net>
-References: <1158941750.3445.31.camel@mulgrave.il.steeleye.com> <1159319508.16507.15.camel@sipan.sipan.org> <Pine.LNX.4.61.0609270753590.19275@yvahk01.tjqt.qr> <Pine.LNX.4.64.0609270947030.3952@g5.osdl.org>
+	Thu, 28 Sep 2006 05:41:41 -0400
+Received: from aa014msr.fastwebnet.it ([85.18.95.74]:1689 "EHLO
+	aa014msr.fastwebnet.it") by vger.kernel.org with ESMTP
+	id S1751805AbWI1Jlk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Sep 2006 05:41:40 -0400
+Date: Thu, 28 Sep 2006 11:41:12 +0200
+From: Paolo Ornati <ornati@fastwebnet.it>
+To: Arkadiusz =?ISO-8859-2?B?SmGzb3dpZWM=?= <ajalowiec@interia.pl>
+Cc: linux-kernel@vger.kernel.org, linux-usb-users@lists.sourceforge.net
+Subject: Re: PROBLEM: Kernel 2.6.x freeze
+Message-ID: <20060928114112.78beed72@localhost>
+In-Reply-To: <451B7ACA.1000504@interia.pl>
+References: <451B7ACA.1000504@interia.pl>
+X-Mailer: Sylpheed-Claws 2.3.0 (GTK+ 2.8.19; x86_64-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: zaphod.rfc1149.net
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.4
-X-Leafnode-NNTP-Posting-Host: 2001:6f8:37a:2::2
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->>>>> "Linus" == Linus Torvalds <torvalds@osdl.org> writes:
+On Thu, 28 Sep 2006 07:33:30 +0000
+Arkadiusz Jalowiec <ajalowiec@interia.pl> wrote:
 
-Linus> We have no trouble at all running programs with much worse
-Linus> licenses than the GPLv3 (ie commercial programs). There is no
-Linus> problem with user space being v3.
+> I have problem with kernels 2.6.x and I don't know what I do. My 
+> computer always freeze with kernel 2.6.x (I test all kernel stable 
+> versions with different distributions ). Computer work 2-6 hours and 
+> crash. I can't do anything. My keyboard don't work. I've never had this 
+> problem with kernel 2.4.x. I use linux about 2 years. I am not 
+> programmer. Maybe I found bug ?
+> 
+> OOps:
+> 
+> ivalid opcode: 0000 [#1]
 
-I guess you mean "proprietary" instead of "commercial" here.
+Maybe you have hardware problems?
 
-  Sam
+Have you tried to run memtest86 and/or memtest86+ for many hours?
+
+http://www.memtest86.com/
+http://www.memtest.org/
+
 -- 
-Samuel Tardieu -- sam@rfc1149.net -- http://www.rfc1149.net/
-
+	Paolo Ornati
+	Linux 2.6.18 on x86_64

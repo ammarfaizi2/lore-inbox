@@ -1,132 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751610AbWI1FFv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751634AbWI1FO1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751610AbWI1FFv (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Sep 2006 01:05:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751611AbWI1FFv
+	id S1751634AbWI1FO1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Sep 2006 01:14:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751615AbWI1FO0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Sep 2006 01:05:51 -0400
-Received: from rwcrmhc14.comcast.net ([216.148.227.154]:64428 "EHLO
-	rwcrmhc14.comcast.net") by vger.kernel.org with ESMTP
-	id S1751609AbWI1FFu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Sep 2006 01:05:50 -0400
+	Thu, 28 Sep 2006 01:14:26 -0400
+Received: from pat.uio.no ([129.240.10.4]:29370 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S1751622AbWI1FOZ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Sep 2006 01:14:25 -0400
 Subject: Re: GPLv3 Position Statement
-From: Sergey Panov <sipan@sipan.org>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Patrick McFarland <diablod3@gmail.com>,
-       Chase Venters <chase.venters@clientec.com>,
-       Theodore Tso <tytso@mit.edu>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Chase Venters <chase.venters@clientec.com>
+Cc: Sergey Panov <sipan@sipan.org>, Linus Torvalds <torvalds@osdl.org>,
+       Patrick McFarland <diablod3@gmail.com>, Theodore Tso <tytso@mit.edu>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
        Jan Engelhardt <jengelh@linux01.gwdg.de>,
        James Bottomley <James.Bottomley@steeleye.com>,
        linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <Pine.LNX.4.64.0609272102150.3952@g5.osdl.org>
+In-Reply-To: <200609272339.28337.chase.venters@clientec.com>
 References: <1158941750.3445.31.camel@mulgrave.il.steeleye.com>
-	 <Pine.LNX.4.61.0609270753590.19275@yvahk01.tjqt.qr>
-	 <1159342569.2653.30.camel@sipan.sipan.org>
-	 <Pine.LNX.4.61.0609271051550.19438@yvahk01.tjqt.qr>
-	 <1159359540.11049.347.camel@localhost.localdomain>
-	 <Pine.LNX.4.64.0609271000510.3952@g5.osdl.org>
-	 <Pine.LNX.4.64.0609271300130.7316@turbotaz.ourhouse>
-	 <20060927225815.GB7469@thunk.org>
-	 <Pine.LNX.4.64.0609271808041.7316@turbotaz.ourhouse>
-	 <Pine.LNX.4.64.0609271641370.3952@g5.osdl.org>
-	 <d577e5690609271754u395e56ffr1601fddd6d4639a3@mail.gmail.com>
 	 <Pine.LNX.4.64.0609271945450.3952@g5.osdl.org>
 	 <1159415242.13562.12.camel@sipan.sipan.org>
-	 <Pine.LNX.4.64.0609272102150.3952@g5.osdl.org>
+	 <200609272339.28337.chase.venters@clientec.com>
 Content-Type: text/plain
-Organization: Home
-Date: Thu, 28 Sep 2006 01:05:44 -0400
-Message-Id: <1159419944.13562.70.camel@sipan.sipan.org>
+Date: Thu, 28 Sep 2006 01:13:58 -0400
+Message-Id: <1159420438.5453.38.camel@lade.trondhjem.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5) 
+X-Mailer: Evolution 2.8.0 
 Content-Transfer-Encoding: 7bit
+X-UiO-Spam-info: not spam, SpamAssassin (score=-3.183, required 12,
+	autolearn=disabled, AWL 1.68, RCVD_IN_SORBS_DUL 0.14,
+	UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-09-27 at 21:13 -0700, Linus Torvalds wrote:
-> 
-> On Wed, 27 Sep 2006, Sergey Panov wrote:
-> > 
-> > I hope you understand that "Passionate Moderate" is an oxymoron.
-> 
-> No. It's a joke.
-> 
-> But it's a sad, serious, one. You really don't want it explained to you. 
-> It's too painful.
-> 
-> > And I do not believe RMS is a commie!
-> 
-> Ehh. Nobody called him a commie.
-> 
-> I said he was an extremist (and tastes differ, but I think most people 
-> would agree). And he _has_ written a manifesto. I'm not kidding. Really. 
-> 
->   "How soon they forget.."
-> 
-
-I appreciate it was not : "Ein Gespenst geht um in Europa ... "
-
-> One thing that I have realized during some of these discussions is that a 
-> _lot_ of people have literally grown up during all the "Open Source" 
-> years, and really don't know anything about rms, GNU, or the reason Open 
-> Source split from Free Software.
-> 
-> I'm feeling like an old fart, just because I still remember the BSD 
-> license wars, and rms' manifesto, and all this crap.
-> 
-> For you young whippersnappers out there, let me tell you how it was when I 
-> was young..
-> 
-
-FYI: I am using (in/on my home network) nothing but YOUR kernel with GNU
-tools since 1993. I was A PhD student at the unnamed US university at
-that time.
-  
-> We had to walk uphill both ways
-> 
->  [ "In snow! Five feet deep!"
->    "No! Ten feet!"
->    "Calm down boys, I'm telling the story" ]
-> 
-> And we had all these rabid GPL haters that were laughing at us, and 
-> telling us you could never make software under the GPL because none of the 
-> commercial people would ever touch it and all programmers need to eat and 
-> feed their kids..
-> 
->  [ "Tell them about when you killed a grizzly bear with your teeth, 
->     gramps!"
-> 
->    "Shh, Tommy, that's a different story, shush now" ]
-
-It is nice to know you are not aware of the "grizzly? no, dushily"
-Russian jock, people in Republic of Georgia might not appreciate.
-
-> And Richard Stallman wrote a manifesto.
-> 
-> Thank God we still have google. "GNU manifesto" still finds it.
-
-www.gnu.org/gnu/manifesto.html. The funniest sentence is the first one:
-"... the complete Unix-compatible software system which I am writing so
-that I can give it away free to everyone who can use it."
-
-> > To me he is quite a moderate figure
-> 
-> I'd hate to meet the people you call extreme.
-
-You are a happy individual from a happy country. Some of us were
-unfortunate to be bourn in a less friendly environment.
-
+On Wed, 2006-09-27 at 23:39 -0500, Chase Venters wrote:
+> On Wednesday 27 September 2006 22:46, Sergey Panov wrote:
+> > On Wed, 2006-09-27 at 20:15 -0700, Linus Torvalds wrote:
+> > > So everybody - join the "Passionate Moderate" movement, even if you're
+> > > not in the US. We're not passionate about any of the issues, we are just
+> > > _really_ fed up with extreme opinions! And we're not afraid to say so!
+> >
+> > I hope you understand that "Passionate Moderate" is an oxymoron. And I
+> > do not believe RMS is a commie! To me he is quite a moderate figure
 > > (very strong principals and no diplomatic skills at all, but it does not
 > > mean he is an extremist).
 > 
-> I have nothing funny to say here.
-> 
-> I was going to make a joke about the principals, but that's just low. It's 
-> "principle". A "principal" is something totally different.
-> 
-> Anyway, I'd clearly in need of a drink, as all my "mad debating skillz" 
-> are clearly leaving me, and I just find myself making all these silly 
-> comments.
-> 
-> 		Linus
+> After lots of careful consideration, I think it is fair to say that Stallman 
+> vigorously and extremely promotes and stands by his ideals, but the ideals he 
+> stands for aren't all that radical or extreme. That is the difference, isn't 
+> it? Wouldn't we all love free software running on free hardware, supporting 
+> free culture and talking over free spectrum? The biggest difference I've seen 
+> in the movements is that one aims to strike a conservative and functional 
+> balance while the other is always trying to push the envelope.
+
+If that were true, then why is he trying to restrict people's freedom of
+use? Face it: the GPLv3 is basically the GPLv2 + a load of restrictions
+on how you are allowed to use the software. It is building on the same
+traditions as the concepts of "Dictatorship of the proletariat" or
+"PATRIOT act" whereby you are requested to give up a set of existing
+freedoms in return for nebulous promises of a rosy future.
+
+It is quite possible to fight for your ideals without compromising on
+existing freedoms. That is what the FSF has failed to recognise.
+
+Cheers,
+  Trond
 

@@ -1,98 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751615AbWI1GfS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161039AbWI1Ggz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751615AbWI1GfS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Sep 2006 02:35:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161036AbWI1GfR
+	id S1161039AbWI1Ggz (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Sep 2006 02:36:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161040AbWI1Ggz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Sep 2006 02:35:17 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:56535 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751615AbWI1GfP (ORCPT
+	Thu, 28 Sep 2006 02:36:55 -0400
+Received: from mga09.intel.com ([134.134.136.24]:44870 "EHLO mga09.intel.com")
+	by vger.kernel.org with ESMTP id S1161039AbWI1Ggz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Sep 2006 02:35:15 -0400
-Date: Wed, 27 Sep 2006 23:35:09 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Andi Kleen <ak@muc.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Put the BUG __FILE__ and __LINE__ info out of line
-Message-Id: <20060927233509.f675c02d.akpm@osdl.org>
-In-Reply-To: <451B64E3.9020900@goop.org>
-References: <451B64E3.9020900@goop.org>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+	Thu, 28 Sep 2006 02:36:55 -0400
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.09,228,1157353200"; 
+   d="scan'208"; a="137501789:sNHT34135010"
+Subject: Re: pcie_portdrv_restore_config undefined without CONFIG_PM
+From: "Zhang, Yanmin" <yanmin_zhang@linux.intel.com>
+To: Olaf Hering <olaf@aepfle.de>
+Cc: Yanmin Zhang <yanmin.zhang@intel.com>, Greg Kroah-Hartman <gregkh@suse.de>,
+       LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20060927194235.GA9894@aepfle.de>
+References: <20060927194235.GA9894@aepfle.de>
+Content-Type: text/plain
+Message-Id: <1159425359.20092.615.camel@ymzhang-perf.sh.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-9) 
+Date: Thu, 28 Sep 2006 14:35:59 +0800
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 27 Sep 2006 23:00:03 -0700
-Jeremy Fitzhardinge <jeremy@goop.org> wrote:
-
-> When CONFIG_DEBUG_BUGVERBOSE is enabled, the embedded file and line
-> information makes a disassembler very unhappy, because it tries to
-> parse them as instructions (it probably makes the CPU's instruction
-> decoder a little unhappy too).
+On Thu, 2006-09-28 at 03:42, Olaf Hering wrote:
+> PCI-Express AER implemetation: pcie_portdrv error handler
 > 
-> This patch moves them out of line, and calls the ud2 from the code -
-> the call makes sure the original %eip is available on the top of the
-> stack.  The result is a happy disassembler, with no loss of debugging
-> information.
-> 
-> Signed-off-by: Jeremy Fitzhardinge <jeremy@goop.org>
-> 
-> --
->  arch/i386/kernel/vmlinux.lds.S |    2 ++
->  include/asm-i386/bug.h         |   13 ++++++++-----
->  2 files changed, 10 insertions(+), 5 deletions(-)
-> 
-> diff -r 1d29394927f3 arch/i386/kernel/vmlinux.lds.S
-> --- a/arch/i386/kernel/vmlinux.lds.S	Tue Sep 26 01:20:38 2006 -0700
-> +++ b/arch/i386/kernel/vmlinux.lds.S	Wed Sep 27 22:18:23 2006 -0700
-> @@ -27,6 +27,8 @@ SECTIONS
->    _text = .;			/* Text and read-only data */
->    .text : AT(ADDR(.text) - LOAD_OFFSET) {
->  	*(.text)
-> +	__bugs = .;
-> +	*(.text.bugs)
->  	SCHED_TEXT
->  	LOCK_TEXT
->  	KPROBES_TEXT
-> diff -r 1d29394927f3 include/asm-i386/bug.h
-> --- a/include/asm-i386/bug.h	Tue Sep 26 01:20:38 2006 -0700
-> +++ b/include/asm-i386/bug.h	Wed Sep 27 18:59:41 2006 -0700
-> @@ -11,11 +11,14 @@
->  #ifdef CONFIG_BUG
->  #define HAVE_ARCH_BUG
->  #ifdef CONFIG_DEBUG_BUGVERBOSE
-> -#define BUG()				\
-> - __asm__ __volatile__(	"ud2\n"		\
-> -			"\t.word %c0\n"	\
-> -			"\t.long %c1\n"	\
-> -			 : : "i" (__LINE__), "i" (__FILE__))
-> +#define BUG()								\
-> +	__asm__ __volatile__("call 1f\n"				\
-> +			     ".section .text.bugs\n"			\
-> +			     "1:\tud2\n"					\
-> +			     "\t.word %c0\n"				\
-> +			     "\t.long %c1\n"				\
-> +			     ".previous\n"				\
-> +			     : : "i" (__LINE__), "i" (__FILE__))
->  #else
->  #define BUG() __asm__ __volatile__("ud2\n")
->  #endif
+> This patch breaks if CONFIG_PM is not enabled,
+> pcie_portdrv_restore_config() will be undefined.
+I move the definition of pcie_portdrv_restore_config
+out of CONFIG_PM.
 
-hm.  Bigger vmlinux, smaller .text.
+Below patch is against 2.6.18-mm1. Could you try it?
 
-It means that we'll hit handle_BUG with that extra EIP pushed on the stack.
- What does that do to the stack trace, and to the unwinder?
+Signed-off-by: Zhang Yanmin <yanmin.zhang@intel.com>
 
-It'll also muck up the displayed EIP, not that that matters a lot (well, it
-might matter a bit if the BUG is in an inlined function).
+---
 
-We could get the correct EIP by fishing it off the stack (and subtracting
-five from it?)
-
-Or we could assume that BUG doesn't return (it doesn't) and make that call
-a jmp.  But then we'd really lose the EIP.
-
-
+diff -Nraup linux-2.6.18_mm1/drivers/pci/pcie/portdrv_pci.c linux-2.6.18_mm1_fix/drivers/pci/pcie/portdrv_pci.c
+--- linux-2.6.18_mm1/drivers/pci/pcie/portdrv_pci.c	2006-09-29 07:19:48.000000000 -0600
++++ linux-2.6.18_mm1_fix/drivers/pci/pcie/portdrv_pci.c	2006-09-29 07:21:08.000000000 -0600
+@@ -37,7 +37,6 @@ static int pcie_portdrv_save_config(stru
+ 	return pci_save_state(dev);
+ }
+ 
+-#ifdef CONFIG_PM
+ static int pcie_portdrv_restore_config(struct pci_dev *dev)
+ {
+ 	int retval;
+@@ -50,6 +49,7 @@ static int pcie_portdrv_restore_config(s
+ 	return 0;
+ }
+ 
++#ifdef CONFIG_PM
+ static int pcie_portdrv_suspend(struct pci_dev *dev, pm_message_t state)
+ {
+ 	int ret = pcie_port_device_suspend(dev, state);

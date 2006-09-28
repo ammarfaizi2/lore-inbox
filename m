@@ -1,84 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161144AbWI1OUB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161147AbWI1OWt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161144AbWI1OUB (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Sep 2006 10:20:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161146AbWI1OUB
+	id S1161147AbWI1OWt (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Sep 2006 10:22:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161150AbWI1OWt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Sep 2006 10:20:01 -0400
-Received: from ns9.hostinglmi.net ([213.194.149.146]:51332 "EHLO
-	ns9.hostinglmi.net") by vger.kernel.org with ESMTP id S1161144AbWI1OUA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Sep 2006 10:20:00 -0400
-Date: Thu, 28 Sep 2006 16:19:32 +0200
-From: DervishD <lkml@dervishd.net>
-To: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>
-Cc: Chase Venters <chase.venters@clientec.com>, Sergey Panov <sipan@sipan.org>,
-       Linus Torvalds <torvalds@osdl.org>,
-       Patrick McFarland <diablod3@gmail.com>, Theodore Tso <tytso@mit.edu>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Jan Engelhardt <jengelh@linux01.gwdg.de>,
-       James Bottomley <James.Bottomley@steeleye.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: GPLv3 Position Statement
-Message-ID: <20060928141932.GA707@DervishD>
-Mail-Followup-To: Lennart Sorensen <lsorense@csclub.uwaterloo.ca>,
-	Chase Venters <chase.venters@clientec.com>,
-	Sergey Panov <sipan@sipan.org>, Linus Torvalds <torvalds@osdl.org>,
-	Patrick McFarland <diablod3@gmail.com>,
-	Theodore Tso <tytso@mit.edu>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
-	Jan Engelhardt <jengelh@linux01.gwdg.de>,
-	James Bottomley <James.Bottomley@steeleye.com>,
-	linux-kernel <linux-kernel@vger.kernel.org>
-References: <1158941750.3445.31.camel@mulgrave.il.steeleye.com> <Pine.LNX.4.64.0609271945450.3952@g5.osdl.org> <1159415242.13562.12.camel@sipan.sipan.org> <200609272339.28337.chase.venters@clientec.com> <20060928135510.GR13641@csclub.uwaterloo.ca>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+	Thu, 28 Sep 2006 10:22:49 -0400
+Received: from mtagate5.uk.ibm.com ([195.212.29.138]:17774 "EHLO
+	mtagate5.uk.ibm.com") by vger.kernel.org with ESMTP
+	id S1161147AbWI1OWs (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Sep 2006 10:22:48 -0400
+Date: Thu, 28 Sep 2006 16:21:39 +0200
+From: Heiko Carstens <heiko.carstens@de.ibm.com>
+To: J?rn Engel <joern@wohnheim.fh-wedel.de>
+Cc: Martin Schwidefsky <schwidefsky@de.ibm.com>, linux-kernel@vger.kernel.org,
+       holzheu@de.ibm.com
+Subject: Re: [S390] hypfs sparse warnings.
+Message-ID: <20060928142139.GC6899@osiris.boeblingen.de.ibm.com>
+References: <20060928130737.GB1120@skybase> <20060928132540.GA18933@wohnheim.fh-wedel.de> <20060928134247.GB6899@osiris.boeblingen.de.ibm.com> <20060928135406.GB18933@wohnheim.fh-wedel.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <20060928135510.GR13641@csclub.uwaterloo.ca>
-User-Agent: Mutt/1.4.2.1i
-Organization: DervishD
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - ns9.hostinglmi.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - dervishd.net
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+In-Reply-To: <20060928135406.GB18933@wohnheim.fh-wedel.de>
+User-Agent: mutt-ng/devel-r804 (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-    Hi Lennart :)
+On Thu, Sep 28, 2006 at 03:54:06PM +0200, J?rn Engel wrote:
+> On Thu, 28 September 2006 15:42:47 +0200, Heiko Carstens wrote:
+> > On Thu, Sep 28, 2006 at 03:25:40PM +0200, J?rn Engel wrote:
+> > > On Thu, 28 September 2006 15:07:37 +0200, Martin Schwidefsky wrote:
+> > > > 
+> > > > sparse complains, if we use bitwise operations on enums. Cast enum to
+> > > > long in order to fix that problem!
+> > > 
+> > > At this point I start to wonder which part should be changed.  Is it
+> > > better to
+> > > a) cast some more, as you started to do,
+> > > b) change enums to #defines or
+> > > c) change '|' to '+'?
+> > > 
+> > > At any rate, you have the same problem in 5 seperate places by my
+> > > count and only changed 1 of them.  Nak - in case anyone cares.
+> > 
+> > That would be where? My sparse run didn't reveal anything else.
+> 
+> Search for diag204.  All calls have the same format with bitwise or of
+> two enums, so they are all equally (in-)correct.
 
- * Lennart Sorensen <lsorense@csclub.uwaterloo.ca> dixit:
-> I wonder if perhaps the solution should be that the GPLv3 draft
-> should be renamed to something else to allow RMS to create his new
-> license that does exactly what he wants it to do, without hijacking
-> existing GPLv2 code using a license that in many people's opinion
-> is NOT in the spirit of the GPLv2 (which it could be argued
-> overrides the "or later" part of the license).
-
-    That's quite curious, because my wife (who doesn't have a great
-software background and that knows FOSS and GPL through me) said
-exactly the same when I told her yesterday the problem that people
-like me, who has released code under GPLv2, may face if GPLv3 is
-applied retroactively to every software that says "or any later
-version". She said that of course anybody has the right of making new
-licenses, but that, as far as she could tell, the new license
-shouldn't be named "GPL" because it was very different from what we
-now call "GPL". Of course her vision may be highly biased by what I
-told her, but since I still don't have a clear position about all
-this GPLv2 vs. GPLv3 issue, I don't think that the bias is so high.
-
-    Probably the renaming is just common sense and will avoid ALL
-problems. People like me are concerned only because all GPLv2 that
-doesn't state otherwise will be released automagically under GPLv3 as
-soon as the latest draft is made the official version. Otherwise, I
-wouldn't give a hump about any new license until I have the time to
-read it and see if I like it.
-
-    Raúl Núñez de Arenas Coronado
-
--- 
-Linux Registered User 88736 | http://www.dervishd.net
-It's my PC and I'll cry if I want to... RAmen!
+You probably need to update your git tree. All of them have casts in the
+meantime. Except for the one addressed with this patch.
+See: 331c982d4a6b43cdc0d056956a1cae8a7d6237bf

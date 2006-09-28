@@ -1,43 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751924AbWI1Qci@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030254AbWI1QfZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751924AbWI1Qci (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Sep 2006 12:32:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932520AbWI1Qch
+	id S1030254AbWI1QfZ (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Sep 2006 12:35:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030253AbWI1QfZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Sep 2006 12:32:37 -0400
-Received: from gw.goop.org ([64.81.55.164]:16357 "EHLO mail.goop.org")
-	by vger.kernel.org with ESMTP id S1751660AbWI1Qcg (ORCPT
+	Thu, 28 Sep 2006 12:35:25 -0400
+Received: from mga01.intel.com ([192.55.52.88]:55993 "EHLO mga01.intel.com")
+	by vger.kernel.org with ESMTP id S1030251AbWI1QfY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Sep 2006 12:32:36 -0400
-Message-ID: <451BF92F.1010403@goop.org>
-Date: Thu, 28 Sep 2006 09:32:47 -0700
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
+	Thu, 28 Sep 2006 12:35:24 -0400
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.09,231,1157353200"; 
+   d="scan'208"; a="138891838:sNHT57678327"
+From: Jesse Barnes <jesse.barnes@intel.com>
+To: eiichiro.oiwa.nm@hitachi.com
+Subject: Re: [PATCH 2.6.18] PCI: Turn pci_fixup_video into generic for embedded VGA
+Date: Thu, 28 Sep 2006 09:36:01 -0700
+User-Agent: KMail/1.9.4
+Cc: akpm@osdl.org, tony.luck@intel.com, greg@kroah.com,
+       "Alan Cox" <alan@lxorguk.ukuu.org.uk>, linux-ia64@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+References: <XNM1$9$0$4$$3$3$7$A$9002686U451b55cd@hitachi.com>
+In-Reply-To: <XNM1$9$0$4$$3$3$7$A$9002686U451b55cd@hitachi.com>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: Andi Kleen <ak@muc.de>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Put the BUG __FILE__ and __LINE__ info out of line
-References: <451B64E3.9020900@goop.org>	<20060927233509.f675c02d.akpm@osdl.org>	<451B708D.20505@goop.org>	<20060928000019.3fb4b317.akpm@osdl.org>	<451BA380.7030502@goop.org> <20060928091809.0253ce4f.akpm@osdl.org>
-In-Reply-To: <20060928091809.0253ce4f.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200609280936.02098.jesse.barnes@intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> - We're using ten bytes of instruction cache where we could use two bytes
->   
-
-My patch reduces it to 5, but 2 would be better.
-
-> - If this is done right, other architectures can use the look-it-up code,
->   thus cleaning up the kernel codebase.
+On Wednesday, September 27, 2006 9:55 pm, eiichiro.oiwa.nm@hitachi.com 
+wrote:
+> pci_fixup_video turns into generic code because there are many platforms
+> need this fixup for embedded VGA as well as x86. The Video BIOS
+> integrates into System BIOS on a machine has embedded VGA although
+> embedded VGA generally don't have PCI ROM. As a result, embedded VGA
+> need the way that the sysfs rom points to the Video BIOS of System RAM
+> (0xC0000). PCI-to-PCI Bridge Architecture specification describes the
+> condition whether or not PCI ROM forwards VGA compatible memory address.
+> fixup_video suits this specification. Although the Video ROM generally
+> implements in x86 code regardless of platform, some application such as
+> X Window System can run this code by dosemu86. Therefore,
+> pci_fixup_video should turn into generic code.
 >
-> And looky, powerpc already does this, so it'd be a matter of librarifying
-> their code.
->   
+>
+> Signed-off-by: Eiichiro Oiwa <eiichiro.oiwa.nm@hitachi.com>
+> ---
 
-I'll have a look.
+Acked-by:  Jesse Barnes <jesse.barnes@intel.com>
 
-    J
+Thanks a lot, Eiichiro, this patch has been needed for awhile.
+
+Jesse

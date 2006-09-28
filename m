@@ -1,87 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161025AbWI1Tf7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161027AbWI1Tj6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161025AbWI1Tf7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Sep 2006 15:35:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161026AbWI1Tf7
+	id S1161027AbWI1Tj6 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Sep 2006 15:39:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161029AbWI1Tj5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Sep 2006 15:35:59 -0400
-Received: from cacti.profiwh.com ([85.93.165.66]:64222 "EHLO cacti.profiwh.com")
-	by vger.kernel.org with ESMTP id S1161025AbWI1Tf6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Sep 2006 15:35:58 -0400
-Message-id: <123879783241321@wsc.cz>
-Subject: [PATCH 1/1] Char: specialix, kill unneeded page alloc
-From: Jiri Slaby <jirislaby@gmail.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: <linux-kernel@vger.kernel.org>, <R.E.Wolff@BitWizard.nl>
-Date: Thu, 28 Sep 2006 21:36:02 +0200 (CEST)
+	Thu, 28 Sep 2006 15:39:57 -0400
+Received: from excu-mxob-1.symantec.com ([198.6.49.12]:19615 "EHLO
+	excu-mxob-1.symantec.com") by vger.kernel.org with ESMTP
+	id S1161028AbWI1Tj4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Sep 2006 15:39:56 -0400
+Date: Thu, 28 Sep 2006 20:39:45 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@blonde.wat.veritas.com
+To: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
+cc: akpm@osdl.org, linux-kernel@vger.kernel.org, asit.k.mallick@intel.com
+Subject: Re: [patch] mm: fix a race condition under SMC + COW
+In-Reply-To: <20060927151507.A12423@unix-os.sc.intel.com>
+Message-ID: <Pine.LNX.4.64.0609282015100.9244@blonde.wat.veritas.com>
+References: <20060927151507.A12423@unix-os.sc.intel.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 28 Sep 2006 19:39:37.0397 (UTC) FILETIME=[D50F7650:01C6E335]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-specialix, kill unneeded page alloc
+On Wed, 27 Sep 2006, Siddha, Suresh B wrote:
+> From: "Siddha, Suresh B" <suresh.b.siddha@intel.com>
+> 
+> Failing context is a multi threaded process context and the failing
+> sequence is as follows.
+> 
+> One thread T0 doing self modifying code on page X on processor P0 and
+> another thread T1 doing COW (breaking the COW setup as part of just happened
+> fork() in another thread T2) on the same page X on processor P1. T0 doing SMC
+> can endup modifying  the new page Y (allocated by the T1 doing COW on P1) but
+> because of different I/D TLB's, P0 ITLB will not see the new mapping till
+> the flush TLB IPI from  P1 is received. During this interval, if T0 executes
+> the code created by SMC it can result in an app error (as ITLB still points to
+> old page X and endup executing the content in page X rather than using
+> the content in page Y).
+> 
+> Fix this issue by first clearing the PTE and flushing it, before updating it
+> with new entry.
+> 
+> Signed-off-by: Suresh Siddha <suresh.b.siddha@intel.com>
 
-There is no need to have allocated zeroed page in the driver at all. Save a
-little bit memory and some ticks by deleting that allocation and freeing.
+I was a bit sceptical, in the habit of thinking that Self Modifying Code
+must look such issues itself: but I guess there's nothing it can do to
+avoid this one.
 
-Signed-off-by: Jiri Slaby <jirislaby@gmail.com>
+Fair enough, what you're changing it to is pretty much what powerpc
+and s390 were already doing, and is a more robust way of proceeding,
+consistent with how ptes are set everywhere else.
 
----
-commit dba1b47119514420edc927a6abe337934c5c1a46
-tree 477db4a0abfd10ea8a411e2b61821b83afbfe75c
-parent 7a6d209f0b3ad71818138d9c2b4694fdf3181859
-author Jiri Slaby <jirislaby@gmail.com> Thu, 28 Sep 2006 11:42:07 +0200
-committer Jiri Slaby <xslaby@anemoi.localdomain> Thu, 28 Sep 2006 11:42:07 +0200
+The ptep_clear_flush is a bit heavy-handed (it's anxious to return
+the pte that was atomically cleared), but we'd have to wander through
+lots of arches to get the right minimal behaviour.  It'd also be nice
+to eliminate ptep_establish completely, now only used to define other
+macros/inlines: it always seemed obfuscation to me, what you've got
+there now is clearer.  Let's put those cleanups on a TODO list.
 
- drivers/char/specialix.c |   11 +----------
- 1 files changed, 1 insertions(+), 10 deletions(-)
+Acked-by: Hugh Dickins <hugh@veritas.com>
 
-diff --git a/drivers/char/specialix.c b/drivers/char/specialix.c
-index df07b4a..902c48d 100644
---- a/drivers/char/specialix.c
-+++ b/drivers/char/specialix.c
-@@ -182,7 +182,6 @@ #undef RS_EVENT_WRITE_WAKEUP
- #define RS_EVENT_WRITE_WAKEUP	0
- 
- static struct tty_driver *specialix_driver;
--static unsigned char * tmp_buf;
- 
- static unsigned long baud_table[] =  {
- 	0, 50, 75, 110, 134, 150, 200, 300, 600, 1200, 1800, 2400, 4800,
-@@ -1674,7 +1673,7 @@ static int sx_write(struct tty_struct * 
- 
- 	bp = port_Board(port);
- 
--	if (!port->xmit_buf || !tmp_buf) {
-+	if (!port->xmit_buf) {
- 		func_exit();
- 		return 0;
- 	}
-@@ -2398,12 +2397,6 @@ static int sx_init_drivers(void)
- 		return 1;
- 	}
- 
--	if (!(tmp_buf = (unsigned char *) get_zeroed_page(GFP_KERNEL))) {
--		printk(KERN_ERR "sx: Couldn't get free page.\n");
--		put_tty_driver(specialix_driver);
--		func_exit();
--		return 1;
--	}
- 	specialix_driver->owner = THIS_MODULE;
- 	specialix_driver->name = "ttyW";
- 	specialix_driver->major = SPECIALIX_NORMAL_MAJOR;
-@@ -2417,7 +2410,6 @@ static int sx_init_drivers(void)
- 
- 	if ((error = tty_register_driver(specialix_driver))) {
- 		put_tty_driver(specialix_driver);
--		free_page((unsigned long)tmp_buf);
- 		printk(KERN_ERR "sx: Couldn't register specialix IO8+ driver, error = %d\n",
- 		       error);
- 		func_exit();
-@@ -2443,7 +2435,6 @@ static void sx_release_drivers(void)
- {
- 	func_enter();
- 
--	free_page((unsigned long)tmp_buf);
- 	tty_unregister_driver(specialix_driver);
- 	put_tty_driver(specialix_driver);
- 	func_exit();
+> ---
+> 
+> --- linux-2.6.18/mm/memory.c.orig	2006-09-27 14:59:48.000000000 -0700
+> +++ linux-2.6.18/mm/memory.c	2006-09-27 15:17:35.000000000 -0700
+> @@ -1551,7 +1551,14 @@ gotten:
+>  		entry = mk_pte(new_page, vma->vm_page_prot);
+>  		entry = maybe_mkwrite(pte_mkdirty(entry), vma);
+>  		lazy_mmu_prot_update(entry);
+> -		ptep_establish(vma, address, page_table, entry);
+> +		/*
+> +		 * Clear the pte entry and flush it first, before updating the
+> +		 * pte with the new entry. This will avoid a race condition
+> +		 * seen in the presence of one thread doing SMC and another
+> +		 * thread doing COW.
+> +		 */
+> +		ptep_clear_flush(vma, address, page_table);
+> +		set_pte_at(mm, address, page_table, entry);
+>  		update_mmu_cache(vma, address, entry);
+>  		lru_cache_add_active(new_page);
+>  		page_add_new_anon_rmap(new_page, vma, address);

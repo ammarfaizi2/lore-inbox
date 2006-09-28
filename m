@@ -1,99 +1,135 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161328AbWI1WJj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030277AbWI1WO1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161328AbWI1WJj (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Sep 2006 18:09:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161329AbWI1WJj
+	id S1030277AbWI1WO1 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Sep 2006 18:14:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932526AbWI1WO1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Sep 2006 18:09:39 -0400
-Received: from natsmtp00.rzone.de ([81.169.145.165]:212 "EHLO
-	natsmtp00.rzone.de") by vger.kernel.org with ESMTP id S1161328AbWI1WJi
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Sep 2006 18:09:38 -0400
-Date: Fri, 29 Sep 2006 00:08:52 +0200
-From: Olaf Hering <olaf@aepfle.de>
-To: Greg KH <gregkh@suse.de>, Alan Stern <stern@rowland.harvard.edu>
-Cc: Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, linux-usb-devel@lists.sourceforge.net
-Subject: Re: [GIT PATCH] USB patches for 2.6.18
-Message-ID: <20060928220852.GA24043@aepfle.de>
-References: <20060927200626.GA10018@kroah.com>
+	Thu, 28 Sep 2006 18:14:27 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:60395 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932525AbWI1WO0 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Sep 2006 18:14:26 -0400
+X-Mozilla-Status: 0001
+X-Mozilla-Status2: 00800000
+Message-ID: <451C4468.4010009@in.ibm.com>
+Date: Fri, 29 Sep 2006 03:23:44 +0530
+From: Balbir Singh <balbir@in.ibm.com>
+Reply-To: balbir@in.ibm.com
+Organization: IBM
+User-Agent: Thunderbird 1.5.0.7 (X11/20060922)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-In-Reply-To: <20060927200626.GA10018@kroah.com>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+To: rohitseth@google.com
+CC: CKRM-Tech <ckrm-tech@lists.sourceforge.net>, sekharan@us.ibm.com,
+       devel@openvz.org, linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: [ckrm-tech] [patch00/05]: Containers(V2)- Introduction
+References: <1158718568.29000.44.camel@galaxy.corp.google.com>	<1159386644.4773.80.camel@linuxchandra>	<1159392487.23458.70.camel@galaxy.corp.google.com>	<1159395892.4773.107.camel@linuxchandra> <451B815D.2010807@in.ibm.com> <1159468275.2669.88.camel@galaxy.corp.google.com>
+In-Reply-To: <1159468275.2669.88.camel@galaxy.corp.google.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 27, Greg KH wrote:
+Rohit Seth wrote:
+> On Thu, 2006-09-28 at 13:31 +0530, Balbir Singh wrote:
+>> Chandra Seetharaman wrote:
+>>> On Wed, 2006-09-27 at 14:28 -0700, Rohit Seth wrote:
+>>>
+>>> Rohit,
+>>>
+>>> For 1-4, I understand the rationale. But, your implementation deviates
+>>> from the current behavior of the VM subsystem which could affect the
+>>> ability of these patches getting into mainline.
+>>>
+>>> IMO, the current behavior in terms of reclamation, LRU, vm_swappiness,
+>>> and writeback logic should be maintained.
+>>>
+>> <snip>
+>>
+>> Hi, Rohit,
+>>
+>> I have been playing around with the containers patch. I finally got
+>> around to reading the code.
+>>
+>>
+>> 1. Comments on reclaiming
+>>
+>> You could try the following options to overcome some of the disadvantages of the
+>> current scheme.
+>>
+>> (a) You could consider a reclaim path based on Dave Hansen's Challenged memory
+>> controller (see http://marc.theaimsgroup.com/?l=linux-mm&m=115566982532345&w=2).
+>>
+> 
+> I will go through that.  Did you get a chance to stress the system and
+> found any short comings that should be resolved.
 
-> Alan Stern:
-
->       usbcore: remove usb_suspend_root_hub
-
-This change between -git8 and -git9 makes my keyboard unhappy:
-
-@@ -16,7 +16,7 @@
- htab_address                  = 0xc00000007c000000
- htab_hash_mask                = 0x3ffff
- -----------------------------------------------------
--Linux version 2.6.18-g5-g01d883d4 (olaf@g5) (gcc version 4.1.0 (SUSE Linux)) #56 SMP Fri Sep 29 00:01:23 CEST 2006
-+Linux version 2.6.18-g5-g02c399ee (olaf@g5) (gcc version 4.1.0 (SUSE Linux)) #55 SMP Thu Sep 28 23:58:26 CEST 2006
- [boot]0012 Setup Arch
- Entering add_active_range(0, 0, 524288) 0 entries of 256 used
- Found U4-PCIE PCI host bridge.  Firmware bus number: 0->255
-@@ -256,28 +256,13 @@
- NET: Registered protocol family 1
- NET: Registered protocol family 17
- Freeing unused kernel memory: 204k freed
--ohci_hcd 0001:01:0b.1: wakeup
- ieee1394: Host added: ID:BUS[0-01:1023]  GUID[001451fffea8daae]
--usb 3-1: new full speed USB device using ohci_hcd and address 2
- windfarm: CPUs control loops started.
--usb 3-1: configuration #1 chosen from 1 choice
--hub 3-1:1.0: USB hub found
--hub 3-1:1.0: 3 ports detected
--usb 3-1.2: new low speed USB device using ohci_hcd and address 3
--usb 3-1.2: configuration #1 chosen from 1 choice
--input: Mitsumi Electric Apple Optical USB Mouse as /class/input/input0
--input: USB HID v1.10 Mouse [Mitsumi Electric Apple Optical USB Mouse] on usb-0001:01:0b.1-1.2
- sat 0 partition c8: c8 6 2 7f ff 2 ff 1 fb bf 0 41 0 20 0 0 0 7 89 37 0 a0 0 0
--usb 3-1.3: new full speed USB device using ohci_hcd and address 4
--usb 3-1.3: configuration #1 chosen from 1 choice
--input: Mitsumi Electric Apple Extended USB Keyboard as /class/input/input1
--input: USB HID v1.10 Keyboard [Mitsumi Electric Apple Extended USB Keyboard] on usb-0001:01:0b.1-1.3
--input: Mitsumi Electric Apple Extended USB Keyboard as /class/input/input2
--input: USB HID v1.10 Device [Mitsumi Electric Apple Extended USB Keyboard] on usb-0001:01:0b.1-1.3
--ioctl32(showconsole:718): Unknown cmd fd(0) cmd(40045432){00} arg(ffe1bb18) on /dev/console
-+ioctl32(showconsole:712): Unknown cmd fd(0) cmd(40045432){00} arg(ffff8b18) on /dev/console
- sat 0 partition c4: c4 4 1 7f 22 11 e0 e6 ff 55 7b 12 ec 11 0 0
- Adding 1048568k swap on /dev/sdb3.  Priority:-1 extents:1 across:1048568k
--ioctl32(showconsole:745): Unknown cmd fd(0) cmd(40045432){00} arg(ffe6daa8) on /dev/console (deleted)
-+ioctl32(showconsole:739): Unknown cmd fd(0) cmd(40045432){00} arg(ff9d7aa8) on /dev/console (deleted)
- sat 0 partition c9: c9 6 2 7f ff 2 ff 1 fb bf 0 41 0 20 0 0 0 7 89 37 0 a0 0 0
- sat 0 partition c5: c5 4 1 7f 22 11 e0 e6 ff 55 7b 12 ec 11 0 0
- windfarm: Backside control loop started.
+I am yet to reach that stage, most of my playing around was w.r.t moving tasks.
+At this point my basic aim was to test basic stability and look at the
+accounting w.r.t correctness. I am yet to run any stress on the system.
 
 
-git-bisect start
-# good: [cdb8355add9b1d87ecfcb58b12879897dc1e3e36] Merge branch 'release' of git://git.kernel.org/pub/scm/linux/kernel/git/aegl/linux-2.6
-git-bisect good cdb8355add9b1d87ecfcb58b12879897dc1e3e36
-# bad: [a77c64c1a641950626181b4857abb701d8f38ccc] Merge branch 'upstream-linus' of master.kernel.org:/pub/scm/linux/kernel/git/jgarzik/netdev-2.6
-git-bisect bad a77c64c1a641950626181b4857abb701d8f38ccc
-# good: [14acdcd32160767d7f2fa00803d2d764d3e3373a] USB: usb/input/usbmouse.c: whitespace cleanup
-git-bisect good 14acdcd32160767d7f2fa00803d2d764d3e3373a
-# good: [8aca23103c2ed2cf158adbe92f4f17ee69463d1a] Make PC300 WAN driver compile again
-git-bisect good 8aca23103c2ed2cf158adbe92f4f17ee69463d1a
-# bad: [a5c66e4b2418278786a025a5bd9625f485b2087a] USB: ftdi-elan: client driver for ELAN Uxxx adapters
-git-bisect bad a5c66e4b2418278786a025a5bd9625f485b2087a
-# bad: [1ee95216c0db6305c047a90b0822e2f1d2d5acdc] USB: fix __must_check warnings in drivers/usb/host/
-git-bisect bad 1ee95216c0db6305c047a90b0822e2f1d2d5acdc
-# bad: [592fbbe4bc339399d363dd55f0391e0623400706] USB: fix root-hub resume when CONFIG_USB_SUSPEND is not set
-git-bisect bad 592fbbe4bc339399d363dd55f0391e0623400706
-# good: [645daaab0b6adc35c1838df2a82f9d729fdb1767] usbcore: add autosuspend/autoresume infrastructure
-git-bisect good 645daaab0b6adc35c1838df2a82f9d729fdb1767
-# bad: [02c399ee45a54987c152fe5f627ed949bb55f187] usbcore: remove usb_suspend_root_hub
-git-bisect bad 02c399ee45a54987c152fe5f627ed949bb55f187
-# good: [01d883d44a1ca8dc77486635d428cba63e7fdadf] usbcore: non-hub-specific uses of autosuspend
-git-bisect good 01d883d44a1ca8dc77486635d428cba63e7fdadf
+> 
+>> (b) The other option is to do what the resource group memory controller does -
+>> build a per group LRU list of pages (active, inactive) and reclaim
+>> them using the existing code (by passing the correct container pointer,
+>> instead of the zone pointer). One disadvantage of this approach is that
+>> the global reclaim is impacted as the global LRU list is broken. At the
+>> expense of another list, we could maintain two lists, global LRU and
+>> container LRU lists. Depending on the context of the reclaim - (container
+>> over limit, memory pressure) we could update/manipulate both lists.
+>> This approach is definitely very expensive.
+>>
+> 
+> Two LRUs is a nice idea.  Though I don't think it will go too far.  It
+> will involve adding another list pointers in the page structure.  I
+> agree that the mem handler is not optimal at all but I don't want to
+> make it mimic kernel reclaimer at the same time.
+
+One possible solution is to move the container tracking out of the pages and
+into address_space and anon_vma. I guess this functionality will complicate
+task migration and accounting a bit though.
+
+> 
+>> 2. Comments on task migration support
+>>
+>> (a) One of the issues I found while using the container code is that, one could
+>> add a task to a container say "a". "a" gets charged for the tasks usage,
+>> when the same task moves to a different container say "b", when the task
+>> exits, the credit goes to "b" and "a" remains indefinitely charged.
+>>
+> hmm, when the task is removed from "a" then "a" gets the credits for the
+> amount of anon memory that is used by the task.  Or do you mean
+> something different.
+
+Aah, I see. Once possible minor concern here is that a task could hope across
+several containers, it could map files in each container and allocate page
+cache pages, when it reaches the limit, it could hop to another container
+and carry on until it hits the limit there.
+
+> 
+>> (b) For tasks addition and removal, I think it's probably better to move
+>> the entire process (thread group) rather than allow each individual thread
+>> to move across containers. Having threads belonging to the same process
+>> reside in different containers can be complex to handle, since they
+>> share the same VM. Do you have a scenario where the above condition
+>> would be useful?
+>>
+>>
+> I don't have a scenario where a task actually gets to move out of
+> container (except exit).  That asynchronous removal of tasks has already
+> got the code very complicated for locking etc.  But if you think moving
+> a thread group is useful then I will add that functionality.
+> 
+
+Yes, that would be nice.
+
+> Thanks,
+> -rohit
+> 
+
+-- 
+
+	Balbir Singh,
+	Linux Technology Center,
+	IBM Software Labs
 

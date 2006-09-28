@@ -1,74 +1,132 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751614AbWI1FE7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751610AbWI1FFv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751614AbWI1FE7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Sep 2006 01:04:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751609AbWI1FE7
+	id S1751610AbWI1FFv (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Sep 2006 01:05:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751611AbWI1FFv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Sep 2006 01:04:59 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:2755 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751601AbWI1FE5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Sep 2006 01:04:57 -0400
-Date: Wed, 27 Sep 2006 22:04:51 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Jeff Garzik <jeff@garzik.org>
-Cc: linux-scsi@vger.kernel.org, Greg KH <greg@kroah.com>,
-       LKML <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [PATCH] Illustration of warning explosion silliness
-Message-Id: <20060927220451.05310cf5.akpm@osdl.org>
-In-Reply-To: <451B5587.2050601@garzik.org>
-References: <20060928005830.GA25694@havoc.gtf.org>
-	<20060927183507.5ef244f3.akpm@osdl.org>
-	<451B29FA.7020502@garzik.org>
-	<20060927203417.f07674de.akpm@osdl.org>
-	<451B4D58.9070401@garzik.org>
-	<20060927213628.ef12b1ed.akpm@osdl.org>
-	<20060927214428.9e5c0e79.akpm@osdl.org>
-	<451B5587.2050601@garzik.org>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+	Thu, 28 Sep 2006 01:05:51 -0400
+Received: from rwcrmhc14.comcast.net ([216.148.227.154]:64428 "EHLO
+	rwcrmhc14.comcast.net") by vger.kernel.org with ESMTP
+	id S1751609AbWI1FFu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Sep 2006 01:05:50 -0400
+Subject: Re: GPLv3 Position Statement
+From: Sergey Panov <sipan@sipan.org>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Patrick McFarland <diablod3@gmail.com>,
+       Chase Venters <chase.venters@clientec.com>,
+       Theodore Tso <tytso@mit.edu>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Jan Engelhardt <jengelh@linux01.gwdg.de>,
+       James Bottomley <James.Bottomley@steeleye.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.64.0609272102150.3952@g5.osdl.org>
+References: <1158941750.3445.31.camel@mulgrave.il.steeleye.com>
+	 <Pine.LNX.4.61.0609270753590.19275@yvahk01.tjqt.qr>
+	 <1159342569.2653.30.camel@sipan.sipan.org>
+	 <Pine.LNX.4.61.0609271051550.19438@yvahk01.tjqt.qr>
+	 <1159359540.11049.347.camel@localhost.localdomain>
+	 <Pine.LNX.4.64.0609271000510.3952@g5.osdl.org>
+	 <Pine.LNX.4.64.0609271300130.7316@turbotaz.ourhouse>
+	 <20060927225815.GB7469@thunk.org>
+	 <Pine.LNX.4.64.0609271808041.7316@turbotaz.ourhouse>
+	 <Pine.LNX.4.64.0609271641370.3952@g5.osdl.org>
+	 <d577e5690609271754u395e56ffr1601fddd6d4639a3@mail.gmail.com>
+	 <Pine.LNX.4.64.0609271945450.3952@g5.osdl.org>
+	 <1159415242.13562.12.camel@sipan.sipan.org>
+	 <Pine.LNX.4.64.0609272102150.3952@g5.osdl.org>
+Content-Type: text/plain
+Organization: Home
+Date: Thu, 28 Sep 2006 01:05:44 -0400
+Message-Id: <1159419944.13562.70.camel@sipan.sipan.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 28 Sep 2006 00:54:31 -0400
-Jeff Garzik <jeff@garzik.org> wrote:
-
-> Andrew Morton wrote:
-> > On Wed, 27 Sep 2006 21:36:28 -0700
-> > Andrew Morton <akpm@osdl.org> wrote:
+On Wed, 2006-09-27 at 21:13 -0700, Linus Torvalds wrote:
+> 
+> On Wed, 27 Sep 2006, Sergey Panov wrote:
 > > 
-> >> device_for_each_child() 
-> > 
-> > All that being said, device_for_each_child() is rather broken by design. 
-> > It walks a list of items applying a function to them and bales out on
-> > first-error.
+> > I hope you understand that "Passionate Moderate" is an oxymoron.
 > 
-> Or, like scsi_sysfs.c, it stops when it meets the first match.  Which is 
-> a common thing to do.
-
-That code is flakey.  Trace through all the called functions, see all the
-errors which get ignored.
-
+> No. It's a joke.
 > 
-> > There's no way in which the caller can know which items have been operated
-> > on, nor which items have yet to be operated on, nor which item experienced
-> > the failure.  Any caller which is serious about error recovery presumably
-> > won't use it, unless the callback function happens to be something which
-> > makes no state changes.
+> But it's a sad, serious, one. You really don't want it explained to you. 
+> It's too painful.
 > 
-> A simple integer return error doesn't tell you all that information 
-> either.  The actor must obviously store that additional information 
-> somewhere, if it cares.
+> > And I do not believe RMS is a commie!
+> 
+> Ehh. Nobody called him a commie.
+> 
+> I said he was an extremist (and tastes differ, but I think most people 
+> would agree). And he _has_ written a manifesto. I'm not kidding. Really. 
+> 
+>   "How soon they forget.."
+> 
 
-Yup.
+I appreciate it was not : "Ein Gespenst geht um in Europa ... "
 
-> But whatever.  I give up.
+> One thing that I have realized during some of these discussions is that a 
+> _lot_ of people have literally grown up during all the "Open Source" 
+> years, and really don't know anything about rms, GNU, or the reason Open 
+> Source split from Free Software.
+> 
+> I'm feeling like an old fart, just because I still remember the BSD 
+> license wars, and rms' manifesto, and all this crap.
+> 
+> For you young whippersnappers out there, let me tell you how it was when I 
+> was young..
+> 
 
-That's the spirit ;)
+FYI: I am using (in/on my home network) nothing but YOUR kernel with GNU
+tools since 1993. I was A PhD student at the unnamed US university at
+that time.
+  
+> We had to walk uphill both ways
+> 
+>  [ "In snow! Five feet deep!"
+>    "No! Ten feet!"
+>    "Calm down boys, I'm telling the story" ]
+> 
+> And we had all these rabid GPL haters that were laughing at us, and 
+> telling us you could never make software under the GPL because none of the 
+> commercial people would ever touch it and all programmers need to eat and 
+> feed their kids..
+> 
+>  [ "Tell them about when you killed a grizzly bear with your teeth, 
+>     gramps!"
+> 
+>    "Shh, Tommy, that's a different story, shush now" ]
 
-> I'm going back to working on the libata 
-> warnings each build spits out (iomap).
+It is nice to know you are not aware of the "grizzly? no, dushily"
+Russian jock, people in Republic of Georgia might not appreciate.
 
-Thanks.
+> And Richard Stallman wrote a manifesto.
+> 
+> Thank God we still have google. "GNU manifesto" still finds it.
+
+www.gnu.org/gnu/manifesto.html. The funniest sentence is the first one:
+"... the complete Unix-compatible software system which I am writing so
+that I can give it away free to everyone who can use it."
+
+> > To me he is quite a moderate figure
+> 
+> I'd hate to meet the people you call extreme.
+
+You are a happy individual from a happy country. Some of us were
+unfortunate to be bourn in a less friendly environment.
+
+> > (very strong principals and no diplomatic skills at all, but it does not
+> > mean he is an extremist).
+> 
+> I have nothing funny to say here.
+> 
+> I was going to make a joke about the principals, but that's just low. It's 
+> "principle". A "principal" is something totally different.
+> 
+> Anyway, I'd clearly in need of a drink, as all my "mad debating skillz" 
+> are clearly leaving me, and I just find myself making all these silly 
+> comments.
+> 
+> 		Linus
+

@@ -1,125 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031317AbWI1A6c@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1031308AbWI1BBg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1031317AbWI1A6c (ORCPT <rfc822;willy@w.ods.org>);
-	Wed, 27 Sep 2006 20:58:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031316AbWI1A6c
+	id S1031308AbWI1BBg (ORCPT <rfc822;willy@w.ods.org>);
+	Wed, 27 Sep 2006 21:01:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1031315AbWI1BBg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Wed, 27 Sep 2006 20:58:32 -0400
-Received: from havoc.gtf.org ([69.61.125.42]:20434 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id S1031314AbWI1A6b (ORCPT
+	Wed, 27 Sep 2006 21:01:36 -0400
+Received: from mail.gmx.de ([213.165.64.20]:32460 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1031308AbWI1BBf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Wed, 27 Sep 2006 20:58:31 -0400
-Date: Wed, 27 Sep 2006 20:58:30 -0400
-From: Jeff Garzik <jeff@garzik.org>
-To: linux-scsi@vger.kernel.org, Andrew Morton <akpm@osdl.org>,
-       Greg KH <greg@kroah.com>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: [PATCH] Illustration of warning explosion silliness
-Message-ID: <20060928005830.GA25694@havoc.gtf.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Wed, 27 Sep 2006 21:01:35 -0400
+X-Authenticated: #5039886
+Date: Thu, 28 Sep 2006 03:01:33 +0200
+From: =?iso-8859-1?Q?Bj=F6rn?= Steinbrink <B.Steinbrink@gmx.de>
+To: Andrew Morton <akpm@osdl.org>, Martin Filip <bugtraq@smoula.net>,
+       linux-kernel@vger.kernel.org, Ayaz Abdulla <aabdulla@nvidia.com>
+Subject: Re: forcedeth - WOL [SOLVED]
+Message-ID: <20060928010133.GB3521@atjola.homenet>
+Mail-Followup-To: =?iso-8859-1?Q?Bj=F6rn?= Steinbrink <B.Steinbrink@gmx.de>,
+	Andrew Morton <akpm@osdl.org>, Martin Filip <bugtraq@smoula.net>,
+	linux-kernel@vger.kernel.org, Ayaz Abdulla <aabdulla@nvidia.com>
+References: <1159379441.9024.7.camel@archon.smoula-in.net> <20060927183857.GA2963@atjola.homenet> <1159389486.8902.4.camel@archon.smoula-in.net> <20060927165704.613bf0aa.akpm@osdl.org> <20060928000447.GB2963@atjola.homenet> <20060928004053.GA3521@atjola.homenet>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20060928004053.GA3521@atjola.homenet>
+User-Agent: Mutt/1.5.13 (2006-08-11)
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The following patch (DO NOT APPLY) illustrates why
-device_for_each_child() should not be marked with __must_check.
+On 2006.09.28 02:40:53 +0200, Björn Steinbrink wrote:
+> On 2006.09.28 02:04:48 +0200, Björn Steinbrink wrote:
+> > 
+> > Hi Andrew,
+> > 
+> > 
+> > On 2006.09.27 16:57:04 -0700, Andrew Morton wrote:
+> > > On Wed, 27 Sep 2006 22:38:06 +0200
+> > > Martin Filip <bugtraq@smoula.net> wrote:
+> > > 
+> > > > Hi,
+> > > > 
+> > > > Bj__rn Steinbrink p____e v St 27. 09. 2006 v 20:38 +0200:
+> > > > 
+> > > > > Did you check that WOL was enabled? I need to re-activate it after each
+> > > > > boot (I guess that's normal, not sure though).
+> > > > > The output of "ethtool eth0" should show:
+> > > > > 
+> > > > >         Supports Wake-on: g
+> > > > >         Wake-on: g
+> > > > > 
+> > > > Yes, of course :)
+> > > > 
+> > > > > Also, I remember a bugzilla entry in which it was said that the MAC was
+> > > > > somehow reversed by the driver. I that is still the case (I can't find
+> > > > > the bugzilla entry right now), you might just reverse the MAC address in
+> > > > > your WOL packet to workaround the bug.
+> > > > 
+> > > > Hey! this is really crazy :) but it works! To bo honest - I really do
+> > > > not know what crazy bug could cause problems like this. I thought it's
+> > > > NIC thing to manage all the work about WOL. I thought OS only sets NIC
+> > > > into "WOL mode".
+> > > > 
+> > > > But seeing this - one packet for windows and one magic packet for linux
+> > > > driver - I really do not get it.
+> > > > 
+> > > 
+> > > Are you saying that byte-reversing the MAC address make WOL work correctly?
+> > > 
+> > > What tool do you use to send the packet, and how is it being invoked?
 
-The function returns the return value of the actor function, and ceases
-iteration upon error.
+As I like replying to myself, I of course intentionally forgot to answer
+this question... *sigh*
 
-However, _every_ case in drivers/scsi has a hardcoded return value,
-illustrating how it is quite valid to not check the return value of this
-function.
+I used etherwake this time, but tried with a self-made tool (which works
+with my Broadcom NIC) when I discovered the bug report.
 
-Not-signed-off-by: Jeff Garzik <jeff@garzik.org>
+etherwake 01:23:45:67:89:ab -- works when I shutdown during POST
+etherwake ab:89:67:45:23:01 -- works when WOL was enabled with ethtool
 
+> > > Do we know if this reversal *always* happens with this driver, or only
+> > > sometimes?
 
-diff --git a/drivers/scsi/scsi_lib.c b/drivers/scsi/scsi_lib.c
-index d6743b9..4816c42 100644
---- a/drivers/scsi/scsi_lib.c
-+++ b/drivers/scsi/scsi_lib.c
-@@ -2166,11 +2166,13 @@ target_block(struct device *dev, void *d
- void
- scsi_target_block(struct device *dev)
- {
-+	int dummy;
-+
- 	if (scsi_is_target_device(dev))
- 		starget_for_each_device(to_scsi_target(dev), NULL,
- 					device_block);
- 	else
--		device_for_each_child(dev, NULL, target_block);
-+		dummy = device_for_each_child(dev, NULL, target_block);
- }
- EXPORT_SYMBOL_GPL(scsi_target_block);
- 
-@@ -2192,11 +2194,13 @@ target_unblock(struct device *dev, void 
- void
- scsi_target_unblock(struct device *dev)
- {
-+	int dummy;
-+
- 	if (scsi_is_target_device(dev))
- 		starget_for_each_device(to_scsi_target(dev), NULL,
- 					device_unblock);
- 	else
--		device_for_each_child(dev, NULL, target_unblock);
-+		dummy = device_for_each_child(dev, NULL, target_unblock);
- }
- EXPORT_SYMBOL_GPL(scsi_target_unblock);
- 
-diff --git a/drivers/scsi/scsi_sysfs.c b/drivers/scsi/scsi_sysfs.c
-index e7fe565..520ec13 100644
---- a/drivers/scsi/scsi_sysfs.c
-+++ b/drivers/scsi/scsi_sysfs.c
-@@ -803,6 +803,7 @@ static int __remove_child (struct device
- void scsi_remove_target(struct device *dev)
- {
- 	struct device *rdev;
-+	int dummy;
- 
- 	if (scsi_is_target_device(dev)) {
- 		__scsi_remove_target(to_scsi_target(dev));
-@@ -810,7 +811,7 @@ void scsi_remove_target(struct device *d
- 	}
- 
- 	rdev = get_device(dev);
--	device_for_each_child(dev, NULL, __remove_child);
-+	dummy = device_for_each_child(dev, NULL, __remove_child);
- 	put_device(rdev);
- }
- EXPORT_SYMBOL(scsi_remove_target);
-diff --git a/drivers/scsi/scsi_transport_sas.c b/drivers/scsi/scsi_transport_sas.c
-index b5b0c2c..4370244 100644
---- a/drivers/scsi/scsi_transport_sas.c
-+++ b/drivers/scsi/scsi_transport_sas.c
-@@ -211,8 +211,10 @@ static int do_sas_phy_delete(struct devi
-  */
- void sas_remove_children(struct device *dev)
- {
--	device_for_each_child(dev, (void *)0, do_sas_phy_delete);
--	device_for_each_child(dev, (void *)1, do_sas_phy_delete);
-+	int dummy;
-+
-+	dummy = device_for_each_child(dev, (void *)0, do_sas_phy_delete);
-+	dummy = device_for_each_child(dev, (void *)1, do_sas_phy_delete);
- }
- EXPORT_SYMBOL(sas_remove_children);
- 
-diff --git a/drivers/scsi/scsi_transport_spi.c b/drivers/scsi/scsi_transport_spi.c
-index 9f070f0..6cc79e5 100644
---- a/drivers/scsi/scsi_transport_spi.c
-+++ b/drivers/scsi/scsi_transport_spi.c
-@@ -372,8 +372,9 @@ static ssize_t
- store_spi_revalidate(struct class_device *cdev, const char *buf, size_t count)
- {
- 	struct scsi_target *starget = transport_class_to_starget(cdev);
-+	int dummy;
- 
--	device_for_each_child(&starget->dev, NULL, child_iter);
-+	dummy = device_for_each_child(&starget->dev, NULL, child_iter);
- 	return count;
- }
- static CLASS_DEVICE_ATTR(revalidate, S_IWUSR, NULL, store_spi_revalidate);
+I only tried 2.6.18 twice this time, but when I wrote my own tool to do
+it, I had probably 20-30 power on -> ethtool -> poweroff cycles before I
+decided to look into Bugzilla. As it looked like being fixed already and
+I did use the nForce NIC for testing only, I didn't spend any further
+time on it back then.
+
+Regards,
+Björn

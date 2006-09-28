@@ -1,57 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751308AbWI1ETk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750789AbWI1EWp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751308AbWI1ETk (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Sep 2006 00:19:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750789AbWI1ETk
+	id S1750789AbWI1EWp (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Sep 2006 00:22:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751313AbWI1EWp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Sep 2006 00:19:40 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:38358 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1750786AbWI1ETj (ORCPT
+	Thu, 28 Sep 2006 00:22:45 -0400
+Received: from cantor2.suse.de ([195.135.220.15]:51588 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1750789AbWI1EWo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Sep 2006 00:19:39 -0400
-Message-ID: <451B4D58.9070401@garzik.org>
-Date: Thu, 28 Sep 2006 00:19:36 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
+	Thu, 28 Sep 2006 00:22:44 -0400
+From: Neil Brown <neilb@suse.de>
+To: "J. Bruce Fields" <bfields@fieldses.org>
+Date: Thu, 28 Sep 2006 14:22:38 +1000
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: linux-scsi@vger.kernel.org, Greg KH <greg@kroah.com>,
-       LKML <linux-kernel@vger.kernel.org>, Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [PATCH] Illustration of warning explosion silliness
-References: <20060928005830.GA25694@havoc.gtf.org>	<20060927183507.5ef244f3.akpm@osdl.org>	<451B29FA.7020502@garzik.org> <20060927203417.f07674de.akpm@osdl.org>
-In-Reply-To: <20060927203417.f07674de.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.3 (----)
-X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.3 points, 5.0 required)
+Message-ID: <17691.19982.162616.572205@cse.unsw.edu.au>
+Cc: Andrew Morton <akpm@osdl.org>, nfs@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: [NFS] [PATCH 009 of 11] knfsd: Allow max size of NFSd payload
+	to be configured.
+In-Reply-To: message from J. Bruce Fields on Monday September 25
+References: <20060824162917.3600.patches@notabene>
+	<1060824063716.5020@suse.de>
+	<20060925212457.GK32762@fieldses.org>
+X-Mailer: VM 7.19 under Emacs 21.4.1
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> And it's not sufficient to say "gee, I can't think of any reason why this
-> handler would return an error, so I'll design its callers to assume that". 
-> It is _much_ better to design the callers to assume that callees _can_
-> fail, and to stick the `return 0;' into the terminal callee.  Because
-> things can change.
+On Monday September 25, bfields@fieldses.org wrote:
+> 
+> It looks to me like totalram is actually measured in pages.  So in
+> practice this gives almost everyone 8k here.  So that 12 should be
+> something like 12 - PAGE_CACHE_SHIFT?
 
-huh?  You're going off on a tangent.  I agree with the above, just like 
-I already agreed that SCSI needs better error checking.
+Uhm.... yes.  Thanks.
+But are the pages that totalram is measure in, normal pages, of
+page_cache pages?  And is there a difference?
+Should we use PAGE_CACHE_SHIFT, or PAGE_SHIFT?
+And why do we have both if they are numerically identical?
 
-You're ignoring the API issue at hand.  Let me say it again for the 
-cheap seats:  "search"  You search a list, and stick a pointer somewhere 
-when found.  No hardware touched.  No allocations.  Real world.  There 
-is an example of usage in the kernel today.
+I'll submit a patch which uses
+        12 - PAGE_SHIFT
+in a little while.
 
-Yes, SCSI needs better error checking.  Yes, device_for_each_child() 
-actors _may_ return errors.  No, that doesn't imply 
-device_for_each_child() actors must be FORCED BY DESIGN to return error 
-codes.  It's just walking a list.  The current implementation and API is 
-fine... save for the "__must_check" marker itself.  The actor CAN return 
-an error code via the current API.
-
-CAN, not MUST.  (using RFC language)
-
-	Jeff
-
-
+Thanks,
+NeilBrown

@@ -1,39 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161063AbWI1LF7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750733AbWI1LH3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161063AbWI1LF7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Sep 2006 07:05:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965312AbWI1LF7
+	id S1750733AbWI1LH3 (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Sep 2006 07:07:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751835AbWI1LH2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Sep 2006 07:05:59 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:7578 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S965311AbWI1LF6
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Sep 2006 07:05:58 -0400
-Subject: Re: [PATCH] device_for_each_child(): kill pointless warning noise
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Jeff Garzik <jeff@garzik.org>
-Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
-       Greg KH <greg@kroah.com>, Linus Torvalds <torvalds@osdl.org>
-In-Reply-To: <451B2A58.9010603@garzik.org>
-References: <20060928010518.GA25865@havoc.gtf.org>
-	 <20060927184200.7d7b9cc2.akpm@osdl.org>  <451B2A58.9010603@garzik.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Thu, 28 Sep 2006 12:30:30 +0100
-Message-Id: <1159443030.11049.409.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+	Thu, 28 Sep 2006 07:07:28 -0400
+Received: from moutng.kundenserver.de ([212.227.126.171]:35278 "EHLO
+	moutng.kundenserver.de") by vger.kernel.org with ESMTP
+	id S1750733AbWI1LH2 convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Sep 2006 07:07:28 -0400
+From: Arnd Bergmann <arnd@arndb.de>
+To: David Brownell <david-b@pacbell.net>
+Subject: Re: [PATCH 1/3] driver for mcs7830 (aka DeLOCK) USB ethernet adapter
+Date: Thu, 28 Sep 2006 13:07:21 +0200
+User-Agent: KMail/1.9.4
+Cc: linux-usb-devel@lists.sourceforge.net,
+       David Hollis <dhollis@davehollis.com>, support@moschip.com,
+       dbrownell@users.sourceforge.net, linux-kernel@vger.kernel.org,
+       Michael Helmling <supermihi@web.de>
+References: <200609170102.50856.arnd@arndb.de> <200609271828.58205.david-b@pacbell.net>
+In-Reply-To: <200609271828.58205.david-b@pacbell.net>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200609281307.22923.arnd@arndb.de>
+X-Provags-ID: kundenserver.de abuse@kundenserver.de login:c48f057754fc1b1a557605ab9fa6da41
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Mer, 2006-09-27 am 21:50 -0400, ysgrifennodd Jeff Garzik:
-> "almost all"  Thus it is wrong to _force_ the usage model on the caller.
+On Thursday 28 September 2006 03:28, David Brownell wrote:
+> ... yes, I'd assume it's a hardware issue too.  Try different
+> cables; if you have a fast 'scope, you might see what kind of
+> eye diagram you get.
+
+Unfortunately, I don't have anything I could use to test this.
+
+> Do you know how the remote wakeup mechanism works for this chip?
+> It'd be interesting to see "usbnet" be taught how to autosuspend
+> chips which will wake up the USB host when they get the right
+> kind of packet ... for example, passing the multicast/broadcast
+> filter, or addressed directly to that adapter.
 > 
-> It should be obvious that a simple search need not _require_ a dummy 
-> return value, that is promptly ignored.
+> Such an autosuspend mechanism would let the host controller stop
+> polling a mostly-idle network link, getting rid of one source of
+> periodic DMA transfers and thus allowing deeper sleep states for
+> many x86 family CPUs.  And also, I'd expect, giving fewer
+> opportunities for those broken RX packets.  :)
 
-How about just adding an explicit device_for_each_child_noret() or
-similar function so that the safety check stays as well for the usual
-case.
+No, don't know. I did not find anything about this in the public
+spec.
 
-Alan
+	Arnd <><

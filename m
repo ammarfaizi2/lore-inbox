@@ -1,48 +1,75 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932080AbWI2KEB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932155AbWI2KIF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932080AbWI2KEB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Sep 2006 06:04:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932188AbWI2KEB
+	id S932155AbWI2KIF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Sep 2006 06:08:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932188AbWI2KIF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Sep 2006 06:04:01 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:7842 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S932080AbWI2KEA (ORCPT
+	Fri, 29 Sep 2006 06:08:05 -0400
+Received: from mx1.x-echo.com ([193.252.148.73]:45773 "EHLO smtp1.x-echo.com")
+	by vger.kernel.org with ESMTP id S932155AbWI2KIC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Sep 2006 06:04:00 -0400
-Message-ID: <451CEF8E.2050601@garzik.org>
-Date: Fri, 29 Sep 2006 06:03:58 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
+	Fri, 29 Sep 2006 06:08:02 -0400
+Message-ID: <451CF08D.8030606@lea-linux.com>
+Date: Fri, 29 Sep 2006 12:08:13 +0200
+From: Tchesmeli Serge <serge@lea-linux.com>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060909)
 MIME-Version: 1.0
-To: Prakash Punnoor <prakash@punnoor.de>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>,
-       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>
-Subject: Re: SATA status reports update
-References: <451CE8EC.1020203@garzik.org> <200609291149.37009.prakash@punnoor.de> <451CED23.1090909@garzik.org> <200609291200.56308.prakash@punnoor.de>
-In-Reply-To: <200609291200.56308.prakash@punnoor.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.3 (----)
-X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.3 points, 5.0 required)
+To: Joerg Roedel <joro-lkml@zlug.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [BUG] ? Strange behaviour since kernel 2.6.17 with a https website
+References: <451CEBA8.8050604@lea-linux.com> <20060929100211.GB19115@zlug.org>
+In-Reply-To: <20060929100211.GB19115@zlug.org>
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Prakash Punnoor wrote:
-> Well, how would one debug it w/o hw docs? Or is it possible to compare the 
-> patch with a working driver for another chipset?
+Joerg Roedel wrote:
+> On Fri, Sep 29, 2006 at 11:47:20AM +0200, Tchesmeli Serge wrote:
+>
+>   
+>> Me and a friend have discover a stange behaviour since kernel 2.6.17.
+>>     
+>
+> Please try to switch off TCP window scaling using the command below
+> (as root) and retry.
+>
+> echo 0 > /proc/sys/net/ipv4/tcp_window_scaling
+>
+>   
+Yes, it's work!
+Test:
+-------
 
-Well, it is based off of the standard ADMA[1] specification, albeit with 
-modifications.  There is pdc_adma.c, which is also based off ADMA.  And 
-the author (from NVIDIA) claims that the driver worked at one time, so 
-maybe it is simply bit rot that broke the driver.
 
-If I knew the answer, it would be fixed, so the best answer 
-unfortunately is "who knows".
+darkstar@stchesmeli:~$ sudo su -
+Password:
 
-I wish I had the time.  But I also wish I had a team of programmers 
-working on libata, too ;-)
+echo 0 > /proc/sys/net/ipv4/tcp_window_scaling
+root@stchesmeli:~# logout
 
-	Jeff
+darkstar@stchesmeli:~$ wget --no-check-certificate
+"https://e.secure.lcl.fr/v_1.0
+--12:05:57--  https://e.secure.lcl.fr/v_1.0/css/styleAp.css
+           => `styleAp.css.10'
+Resolving e.secure.lcl.fr... 193.110.152.59
+Connecting to e.secure.lcl.fr|193.110.152.59|:443... connected.
+WARNING: Certificate verification error for e.secure.lcl.fr: unable to
+get local issuer certificate
+HTTP request sent, awaiting response... 200 OK
+Length: 42,745 (42K) [text/css]
 
+100%[=================================================================================================================>]
+42,745        --.--K/s            
+
+12:06:00 (424.53 KB/s) - `styleAp.css.10' saved [42745/42745]
+
+------------ END OF TEST ----------------
+
+Many thanks!!
+
+-- 
+Tchesmeli serge
+Administrateur système & réseau
+Expert Linux et Logiciels Libres
 

@@ -1,68 +1,115 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751324AbWI2Skp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161398AbWI2SmA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751324AbWI2Skp (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Sep 2006 14:40:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751331AbWI2Sko
+	id S1161398AbWI2SmA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Sep 2006 14:42:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161400AbWI2SmA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Sep 2006 14:40:44 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:61317 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751324AbWI2Skn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Sep 2006 14:40:43 -0400
-Date: Fri, 29 Sep 2006 11:40:06 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Helge Hafting <helge.hafting@aitel.hist.no>, tglx@linutronix.de,
-       Neil Brown <neilb@suse.de>, Michiel de Boer <x@rebelhomicide.demon.nl>,
-       James Bottomley <James.Bottomley@SteelEye.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: GPLv3 Position Statement
-In-Reply-To: <Pine.LNX.4.64.0609291120440.3952@g5.osdl.org>
-Message-ID: <Pine.LNX.4.64.0609291131300.3952@g5.osdl.org>
-References: <1158941750.3445.31.camel@mulgrave.il.steeleye.com> 
- <451798FA.8000004@rebelhomicide.demon.nl>  <17687.46268.156413.352299@cse.unsw.edu.au>
-  <1159183895.11049.56.camel@localhost.localdomain> 
- <1159200620.9326.447.camel@localhost.localdomain>  <451CF22D.4030405@aitel.hist.no>
-  <Pine.LNX.4.64.0609290940480.3952@g5.osdl.org>  <1159552021.13029.58.camel@localhost.localdomain>
-  <Pine.LNX.4.64.0609291030050.3952@g5.osdl.org> <1159554375.13029.67.camel@localhost.localdomain>
- <Pine.LNX.4.64.0609291120440.3952@g5.osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Fri, 29 Sep 2006 14:42:00 -0400
+Received: from rs384.securehostserver.com ([72.22.69.69]:40722 "HELO
+	rs384.securehostserver.com") by vger.kernel.org with SMTP
+	id S1161398AbWI2Sl7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Sep 2006 14:41:59 -0400
+Subject: [RFC][PATCH 0/2] Swap token re-tuned
+From: Ashwin Chaugule <ashwin.chaugule@celunite.com>
+Reply-To: ashwin.chaugule@celunite.com
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Date: Sat, 30 Sep 2006 00:11:51 +0530
+Message-Id: <1159555312.2141.13.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+Hi, 
+Here's a brief up on the next two mails. 
 
-On Fri, 29 Sep 2006, Linus Torvalds wrote:
-> 
-> I think you can push that angle, and a lot of the time it will work in 
-> practice - because the companies involved are really not "evil", and most 
-> often they simply want to avoid any trouble. 
+PATCH 1: 
 
-Btw, I'd also like to say that not only am I not a lawyer, I also think 
-that it's perfectly fine for people to disagree with me and decide to sue 
-somebody they really really dislike. I'm not giving legal advice, and am 
-just stating my own standpoint.
+In the current implementation of swap token tuning, grab swap token is
+made from : 
+1) after page_cache_read (filemap.c) and 
+2) after the readahead logic in do_swap_page (memory.c) 
 
-I think people (especially in the US) tend to be way too lawsuit-happy 
-anyway, but I'm in no way trying to discourage people who feel they want 
-to assert rights that I personally don't think _I_ have. People differ in 
-their opinions of the rights they hold. That's ok.
+IMO, the contention for the swap token should happen _before_ the
+aforementioned calls, because in the event of low system memory, calls
+to freeup space will be made later from page_cache_read and
+read_swap_cache_async , so we want to avoid "false LRU" pages by
+grabbing the token before the VM starts searching for replacement
+candidates. 
 
-The way things _really_ get decided is not on the kernel mailing list, or 
-even by asking a lawyer, but by people who decided that some company or 
-other just simply crossed the line and did something illegal. My opinion 
-simply doesn't _matter_ in that sense.
+PATCH 2: 
 
-For example, when I say that I think it would be totally insane to think 
-that a 128-bit hash of a binary is a "derived work", I say that as a 
-concerned citizen. I think a world where real lawyers would say that would 
-be a _horrible_ world. And I don't think it makes sense. But sadly, until 
-I'm elected(*) life-time President and King of the World, what I think 
-doesn't actually change anything.
+Instead of using TIMEOUT as a parameter to transfer the token, I think a
+better solution is to hand it over to a process that proves its
+eligibilty. 
 
-			Linus
+What my scheme does, is to find out how frequently a process is calling
+these functions. The processes that call these more frequently get a
+higher priority. 
+The idea is to guarantee that a high priority process gets the token.
+The priority of a process is determined by the number of consecutive
+calls to swap-in and no-page. I mean "consecutive" not from the
+scheduler point of view, but from the process point of view. In other
+words, if the task called these functions every time it was scheduled,
+it means it is not getting any further with its execution. 
 
-(*) Hah. Who do I think I'm kidding? The revolution will be bloody and 
-brutal, and you're not going to get the choice to "elect" me except in the 
-history books written by yours truly.
+This way, its a matter of simple comparison of task priorities, to
+decide whether to transfer the token or not. 
+
+I did some testing with the two patches combined and the results are as
+follows: 
+
+Current Upstream implementation: 
+=============================== 
+
+root@ashbert:~/crap# time ./qsbench -n 9000000 -p 3 -s 1420300 
+seed = 1420300 
+seed = 1420300 
+seed = 1420300 
+
+real    3m40.124s 
+user    0m12.060s 
+sys     0m0.940s 
+
+
+-------------reboot----------------- 
+
+With my implementation : 
+======================== 
+
+root@ashbert:~/crap# time ./qsbench -n 9000000 -p 3 -s 1420300 
+seed = 1420300 
+seed = 1420300 
+seed = 1420300 
+
+real    2m58.708s 
+user    0m11.880s 
+sys     0m1.070s 
+
+
+
+My test machine: 
+
+1.69Ghz CPU 
+64M RAM 
+7200rpm hdd 
+2MB L2 cache 
+vanilla kernel 2.6.18 
+Ubuntu dapper with gnome. 
+
+
+Any comments, suggestions, ideas ? 
+
+Cheers, 
+Ashwin 
+
+
+
+
+
+
+
+

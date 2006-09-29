@@ -1,41 +1,32 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161597AbWI2Toc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161846AbWI2TrS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161597AbWI2Toc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Sep 2006 15:44:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161598AbWI2Toc
+	id S1161846AbWI2TrS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Sep 2006 15:47:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161849AbWI2TrR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Sep 2006 15:44:32 -0400
-Received: from gw.goop.org ([64.81.55.164]:14258 "EHLO mail.goop.org")
-	by vger.kernel.org with ESMTP id S1161597AbWI2Tob (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Sep 2006 15:44:31 -0400
-Message-ID: <451D77A5.20103@goop.org>
-Date: Fri, 29 Sep 2006 12:44:37 -0700
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
+	Fri, 29 Sep 2006 15:47:17 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:21738 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S1161847AbWI2TrQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Sep 2006 15:47:16 -0400
+Date: Fri, 29 Sep 2006 12:47:01 -0700 (PDT)
+From: Christoph Lameter <clameter@sgi.com>
+To: Valdis.Kletnieks@vt.edu
+cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.18-mm2 - oops in cache_alloc_refill()
+In-Reply-To: <200609291519.k8TFJfvw004256@turing-police.cc.vt.edu>
+Message-ID: <Pine.LNX.4.64.0609291246340.27456@schroedinger.engr.sgi.com>
+References: <20060928014623.ccc9b885.akpm@osdl.org>
+ <200609290319.k8T3JOwS005455@turing-police.cc.vt.edu>           
+ <20060928202931.dc324339.akpm@osdl.org> <200609291519.k8TFJfvw004256@turing-police.cc.vt.edu>
 MIME-Version: 1.0
-To: michael@ellerman.id.au
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Andi Kleen <ak@muc.de>, Hugh Dickens <hugh@veritas.com>,
-       Paul Mackerras <paulus@samba.org>
-Subject: Re: [PATCH RFC 1/4] Generic BUG handling.
-References: <20060928225444.439520197@goop.org> >	  <20060928225452.229936605@goop.org>> <1159506427.25820.20.camel@localhost.localdomain>
-In-Reply-To: <1159506427.25820.20.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michael Ellerman wrote:
-> It needed a bit of work to get going on powerpc:
->
-> Generic BUG handling, Powerpc fixups
->   
+On Fri, 29 Sep 2006, Valdis.Kletnieks@vt.edu wrote:
 
-BTW, powerpc doesn't seem to be using BUG_OPCODE or 
-BUG_ILLEGAL_INSTRUCTION for actual BUGs any more (I presume they were 
-once used).  There are still a couple of uses of those macros elsewhere 
-(kernel/prom_init.c and kernel/head_64.S); should be converted to "twi 
-31,0,0" as well?
+> I may have to learn how to use 'git bisect' to shoot this one, it appears.
 
-    J
+Or enable SLAB_DEBUG?
+

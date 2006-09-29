@@ -1,47 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161653AbWI2RCZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161572AbWI2RDv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161653AbWI2RCZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Sep 2006 13:02:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161651AbWI2RCY
+	id S1161572AbWI2RDv (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Sep 2006 13:03:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161759AbWI2RDs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Sep 2006 13:02:24 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:44249 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1161649AbWI2RCX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Sep 2006 13:02:23 -0400
-Subject: [PATCH] libata: pata_pcmcia new PCMCIA identifiers
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: jgarzik@pobox.com, linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Fri, 29 Sep 2006 18:25:27 +0100
-Message-Id: <1159550727.13029.40.camel@localhost.localdomain>
+	Fri, 29 Sep 2006 13:03:48 -0400
+Received: from xenotime.net ([66.160.160.81]:43951 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1161753AbWI2RDq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Sep 2006 13:03:46 -0400
+Date: Fri, 29 Sep 2006 10:04:57 -0700
+From: Randy Dunlap <rdunlap@xenotime.net>
+To: Kristen Carlson Accardi <kristen.c.accardi@intel.com>
+Cc: Matthew Garrett <mjg59@srcf.ucam.org>, linux-ide@vger.intel.com,
+       linux-kernel@vger.kernel.org, jgarzik@pobox.com
+Subject: Re: [patch 1/2] libata: _GTF support
+Message-Id: <20060929100457.eaf0425e.rdunlap@xenotime.net>
+In-Reply-To: <20060929095409.3656d7a9.kristen.c.accardi@intel.com>
+References: <20060928182211.076258000@localhost.localdomain>
+	<20060928112901.62ee8eba.kristen.c.accardi@intel.com>
+	<20060929020707.GA22082@srcf.ucam.org>
+	<20060929095409.3656d7a9.kristen.c.accardi@intel.com>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Signed-off-by: Alan Cox <alan@redhat.com>
+On Fri, 29 Sep 2006 09:54:09 -0700 Kristen Carlson Accardi wrote:
 
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.18-mm2/drivers/ata/pata_pcmcia.c linux-2.6.18-mm2/drivers/ata/pata_pcmcia.c
---- linux.vanilla-2.6.18-mm2/drivers/ata/pata_pcmcia.c	2006-09-28 14:33:46.000000000 +0100
-+++ linux-2.6.18-mm2/drivers/ata/pata_pcmcia.c	2006-09-28 15:24:37.000000000 +0100
-@@ -42,7 +42,7 @@
- 
- 
- #define DRV_NAME "pata_pcmcia"
--#define DRV_VERSION "0.2.9"
-+#define DRV_VERSION "0.2.11"
- 
- /*
-  *	Private data structure to glue stuff together
-@@ -355,6 +355,8 @@
- 	PCMCIA_DEVICE_PROD_ID12("SAMSUNG", "04/05/06", 0x43d74cb4, 0x6a22777d),
- 	PCMCIA_DEVICE_PROD_ID12("SMI VENDOR", "SMI PRODUCT", 0x30896c92, 0x703cc5f6),
- 	PCMCIA_DEVICE_PROD_ID12("TOSHIBA", "MK2001MPL", 0xb4585a1a, 0x3489e003),
-+	PCMCIA_DEVICE_PROD_ID1("TRANSCEND    512M   ", 0xd0909443),
-+	PCMCIA_DEVICE_PROD_ID12("TRANSCEND", "TS4GCF120", 0x709b1bf1, 0xf54a91c8),
- 	PCMCIA_DEVICE_PROD_ID12("WIT", "IDE16", 0x244e5994, 0x3e232852),
- 	PCMCIA_DEVICE_PROD_ID1("STI Flash", 0xe4a13209),
- 	PCMCIA_DEVICE_PROD_ID12("STI", "Flash 5.0", 0xbf2df18d, 0x8cb57a0e),
+> On Fri, 29 Sep 2006 03:07:07 +0100
+> Matthew Garrett <mjg59@srcf.ucam.org> wrote:
+> 
+> > On Thu, Sep 28, 2006 at 11:29:01AM -0700, Kristen Carlson Accardi wrote:
+> > 
+> > I mentioned this to Randy a while back, but I can't remember what sort 
+> > of resolution we came to. In any case:
+> > 
+> > > + * sata_get_dev_handle - finds acpi_handle and PCI device.function
+> > 
+> > I'm a bit uncomfortable that we seem to have two quite different ways of 
+> > accomplishing much the same thing. On the PCI bus, we have a callback 
+> > that gets triggered whenever a new PCI device is attached. At that 
+> > point, we look for the associated ACPI object and put a pointer to that 
+> > in the device structure. Then, whenever we want to make an ACPI call, we 
+> > can simply refer to that.
+> > 
+> > This implementation seems to reimplement much of the same lookup code, 
+> > but makes it libata specific. Wouldn't it be cleaner to implement it in 
+> > a similar way to PCI? The only real downside is that you need to add a 
+> > callback in the ata bus code. drivers/pci/pci-acpi.c/pci_acpi_init is 
+> > the sort of thing required.
+> > 
+> > (Thinking ahead, would that make it easier to maintain links in sysfs 
+> > between devices and acpi objects?)
+> > 
+> > -- 
+> > Matthew Garrett | mjg59@srcf.ucam.org
+> 
+> This makes sense to me.  I'm happy to put together some patches for 
+> commenting on if people think this is a good way to go.  It would be
+> much cleaner in my opinion and we could get rid of a good chunk of code.
 
+My belated memory of it is that I tried Matthew's suggestion
+and it didn't work, but I have confidence in Kristen.  Go for it.
+
+---
+~Randy

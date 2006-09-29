@@ -1,66 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161051AbWI2MtH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964886AbWI2Mw5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161051AbWI2MtH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Sep 2006 08:49:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161050AbWI2MtH
+	id S964886AbWI2Mw5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Sep 2006 08:52:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964888AbWI2Mw5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Sep 2006 08:49:07 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:55727 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1161051AbWI2MtE (ORCPT
+	Fri, 29 Sep 2006 08:52:57 -0400
+Received: from ns2.suse.de ([195.135.220.15]:5515 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S964886AbWI2Mw4 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Sep 2006 08:49:04 -0400
-Date: Fri, 29 Sep 2006 14:40:46 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: john stultz <johnstul@us.ibm.com>
-Cc: "K.R. Foley" <kr@cybsft.com>, tglx@linutronix.de,
-       linux-kernel@vger.kernel.org, "Paul E. McKenney" <paulmck@us.ibm.com>,
-       Dipankar Sarma <dipankar@in.ibm.com>,
-       Arjan van de Ven <arjan@infradead.org>, Andrew Morton <akpm@osdl.org>
-Subject: Re: 2.6.18-rt1
-Message-ID: <20060929124045.GA30558@elte.hu>
-References: <20060920141907.GA30765@elte.hu> <45118EEC.2080700@cybsft.com> <20060920194958.GA24691@elte.hu> <4511A57D.9070500@cybsft.com> <1158784863.5724.1027.camel@localhost.localdomain> <4511A98A.4080908@cybsft.com> <1158866166.12028.9.camel@localhost.localdomain> <20060922115854.GA12684@elte.hu> <1159404123.5532.3.camel@localhost> <1159483731.25415.12.camel@localhost>
-Mime-Version: 1.0
+	Fri, 29 Sep 2006 08:52:56 -0400
+From: Neil Brown <neilb@suse.de>
+To: Peter Zijlstra <a.p.zijlstra@chello.nl>
+Date: Fri, 29 Sep 2006 22:52:41 +1000
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1159483731.25415.12.camel@localhost>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -2.8
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.8 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.4593]
-	-0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+Content-Transfer-Encoding: 7bit
+Message-ID: <17693.5913.393686.223172@cse.unsw.edu.au>
+Cc: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>,
+       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
+       linux-raid@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: md deadlock (was Re: 2.6.18-mm2)
+In-Reply-To: message from Peter Zijlstra on Friday September 29
+References: <20060928014623.ccc9b885.akpm@osdl.org>
+	<6bffcb0e0609280454n34d40c0la8786e1eba6dcdf3@mail.gmail.com>
+	<1159531923.28131.80.camel@taijtu>
+X-Mailer: VM 7.19 under Emacs 21.4.1
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* john stultz <johnstul@us.ibm.com> wrote:
-
-> [snip]
-> > c03879e8 r __ksymtab_find_next_bit
-> > c03879f0 r __ksymtab_find_next_zero_bit
-> > c03879f8 R __write_lock_failed
-> > c0387a18 R __read_lock_failed
-> > c0387a2c r __ksymtab___delay
-> > c0387a34 r __ksymtab___const_udelay
-> > c0387a3c r __ksymtab___udelay
-> > c0387a44 r __ksymtab___ndelay
-> > 
-> > That __read/__write_lock_failed bit looks wrong.
+On Friday September 29, a.p.zijlstra@chello.nl wrote:
+> On Thu, 2006-09-28 at 13:54 +0200, Michal Piotrowski wrote:
 > 
+> Looks like a real deadlock here. It seems to me #2 is the easiest to
+> break.
+
+I guess it could deadlock if you tried to add /dev/md0 as a component
+of /dev/md0.  I should probably check for that somewhere.
+In other cases the array->member ordering ensures there is no
+deadlock.
+
 > 
-> So it seems gcc 3.4.4 misplaces the __write_lock_failed function into 
-> the ksymtab. It doesn't happen w/ 4.0.3.
+> static int md_open(struct inode *inode, struct file *file)
+> {
+> 	/*
+> 	 * Succeed if we can lock the mddev, which confirms that
+> 	 * it isn't being stopped right now.
+> 	 */
+> 	mddev_t *mddev = inode->i_bdev->bd_disk->private_data;
+> 	int err;
+> 
+> 	if ((err = mddev_lock(mddev)))
+> 		goto out;
+> 
+> 	err = 0;
+> 	mddev_get(mddev);
+> 	mddev_unlock(mddev);
+> 
+> 	check_disk_change(inode->i_bdev);
+>  out:
+> 	return err;
+> }
+> 
+> mddev_get() is a simple atomic_inc(), and I fail to see how waiting for
+> the lock makes any difference.
 
-i think it's an ld bug, and it's related to the nested 
-.section/.previous use in the LOCK_PREFIX macro in 
-include/asm-i386/alternatives.h.
+Hmm... I"m pretty sure I do want some sort of locking there - to make
+sure that the
+		if (atomic_read(&mddev->active)>2) {
+test in do_md_stop actually means something.  However it does seem
+that the locking I have doesn't really guarantee anything much.
 
-this is the second time i have seen smp-alternatives related linker 
-breakage.
+But I really think that this locking order should be allowed.  md
+should ensure that there are never any loops in the array->member
+ordering, and somehow that needs to be communicated to lockdep.
 
-	Ingo
+One of the items on my todo list is to sort out the lifetime rules of
+md devices (once accessed, they currently never disappear).  Getting
+this locking right should be part of that.
+
+NeilBrown

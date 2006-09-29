@@ -1,84 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161418AbWI2F0J@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161225AbWI2Fhn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161418AbWI2F0J (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Sep 2006 01:26:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161419AbWI2F0J
+	id S1161225AbWI2Fhn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Sep 2006 01:37:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161230AbWI2Fhn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Sep 2006 01:26:09 -0400
-Received: from py-out-1112.google.com ([64.233.166.179]:43459 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S1161418AbWI2F0F (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Sep 2006 01:26:05 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=EGtlzjExxn+leFXM02ygneJFO0qB/X2CFiJj45NYRoJD6+yfFzX97W33UI/eW3G8iOLq4FhX8boEJwZpZDYWEet5q4jE5jeTwsE9qJHN2OgW3DeS1FQUx+WOzJAaVQem9u3k6FxZH20S19A2Jmkwlkfq5BwH9wCLusLerrsX+qM=
-Message-ID: <a44ae5cd0609282226s27ddc4c2lc05596758ebccf05@mail.gmail.com>
-Date: Thu, 28 Sep 2006 22:26:03 -0700
-From: "Miles Lane" <miles.lane@gmail.com>
-To: "Andrew Morton" <akpm@osdl.org>
-Subject: Re: 2.6.18-mm2 -- EIP: [<c11a962e>] klist_node_init+0x2b/0x3a SS:ESP 0068:f63a5f80
-Cc: "Greg KH" <greg@kroah.com>, LKML <linux-kernel@vger.kernel.org>,
-       "James P. Ketrenos" <ipw2100-admin@linux.intel.com>, jgarzik@pobox.com
-In-Reply-To: <20060928221648.cbeb6889.akpm@osdl.org>
+	Fri, 29 Sep 2006 01:37:43 -0400
+Received: from mail.gmx.net ([213.165.64.20]:59585 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S1161225AbWI2Fhm (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Sep 2006 01:37:42 -0400
+X-Authenticated: #5039886
+Date: Fri, 29 Sep 2006 07:37:39 +0200
+From: =?iso-8859-1?Q?Bj=F6rn?= Steinbrink <B.Steinbrink@gmx.de>
+To: David Schwartz <davids@webmaster.com>
+Cc: Neil Brown <neilb@suse.de>,
+       "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
+Subject: Re: GPLv3 Position Statement
+Message-ID: <20060929053739.GB21048@atjola.homenet>
+Mail-Followup-To: =?iso-8859-1?Q?Bj=F6rn?= Steinbrink <B.Steinbrink@gmx.de>,
+	David Schwartz <davids@webmaster.com>, Neil Brown <neilb@suse.de>,
+	"Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
+References: <20060929030518.GA21048@atjola.homenet> <MDEHLPKNGKAHNMBLJOLKCENMOLAB.davids@webmaster.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-1
 Content-Disposition: inline
-References: <a44ae5cd0609281913q127abc03i72dc7ea8711a223f@mail.gmail.com>
-	 <20060928200431.8f7f3fea.akpm@osdl.org>
-	 <a44ae5cd0609282131t2841a7b7ued9ffc22ac470687@mail.gmail.com>
-	 <20060928214910.a3be37ea.akpm@osdl.org>
-	 <a44ae5cd0609282204p4f09da52n44124a2bee05b85c@mail.gmail.com>
-	 <20060928221648.cbeb6889.akpm@osdl.org>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <MDEHLPKNGKAHNMBLJOLKCENMOLAB.davids@webmaster.com>
+User-Agent: Mutt/1.5.13 (2006-08-11)
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 9/28/06, Andrew Morton <akpm@osdl.org> wrote:
-> On Thu, 28 Sep 2006 22:04:00 -0700
-> "Miles Lane" <miles.lane@gmail.com> wrote:
->
-> > > > but either ipw2200 or
-> > > > NetworkManager is still not working.  I am running Fedora development
-> > > > (rawhide).  For some reason, NM still cannot establish a connection
-> > > > with this kernel build (this failed with 2.6.18-mm2 previously, but I
-> > > > thought it was related to the BUG).  "iwlist scan" can corrently
-> > > > detect my access point.  Also, I can use iwconfig and dhclient to
-> > > > establish a working connection.  NM fails with this output in the
-> > > > message log (I'll try getting a more detailed debug log out of NM):
-> > >
-> > > Another reporter mentioned that he could only get his wireless to associate
-> > > with his AP by using essid "any".  But that was a different type of card.
-> > >
-> > > ipw2200 works OK for me, fwiw.
+On 2006.09.28 20:31:07 -0700, David Schwartz wrote:
+> 
+> > It's in section 1, where it says "keep intact all the notices that refer
+> > to this License" (section 2 refers to section 1).
+> > The current GPLv3 draft says (section 4): "keep intact all license
+> > notices".
 > >
-> > Shall I send you my .config?
->
-> argh.  I'm afraid my head pointer keeps on wrapping past my tail pointer
-> recently.
->
-> But what the heck, yes please.  I'm sure James will appreciate it ;)
-
-Okay, I'll send it directly.
-
-> > > There's a largeish ipw2200 update in mainline now.  That'd be worth testing.
-> > >
-> > > It looks like that ipw2200 update was in 2.6.18-mm1 though.  Did that work?
+> > Notice a difference? I'm not a native speaker and of course IANAL, but
+> > AFAICT, with "v2 or later", if you follow the terms of GPLv2, you are
+> > only required to keep notices refering to THAT license, ie. GPLv2, so
+> > you seem to be allowed to remove the GPLv3 notices. But if you follow
+> > the terms of the GPLv3, you are required to keep ALL license notices,
+> > including those that refer to v2.
+> > So you could actually never ever make a "v2 or later" program a
+> > "v3 only" program, but only a "v2 only".
 > >
-> > Yes, it did.  My main problem with mm1 was the broken CPUFreq, which
-> > is still busted in mm2.
->
-> Oh.  Is anyone looking into that?
+> > Am I missing something?
+> 
+> That section uses the phrase "this license" twice. I think it's only
+> reasonable to assume it means the same thing in both places. It says you
+> must "give any other recipients of the Program a copy of this License along
+> with the Program".
+> 
+> If "this license" means GPLv2, then the GPLv2 does not allow you to remove
+> the GPLv2 notice. I think it's somewhat absurd to say that you must include
+> a copy of the license but may take away their right to use the code under
+> that license.
+> 
+> If "this license" means "whatever license you happen to have to this
+> program", then you cannot remove or modify *any* license notices, including
+> the "GPLv2 or later at your option" notice.
+> 
+> I see no plausible way to argue that GPLv2 permits you to change "GPLv2 or
+> later at your option" to "GPLv3 or later at your option". If GPLv3 does not
+> either, then you may not do so.
 
-I asked David Jones about it.  He said he is in a push to get FC6 out
-the door and there are more pressing TODO items.
+That's what I'm saying (ok, I didn't mention the "GPLv3 or later"
+wording). Once v3 is out, you can choose between v2 and v3.
+v2 seems to only forces you to keep the notice that v2 is valid.
+The current v3 draft forces you to keep all license notices.
 
-> >  I am rebuilding with debugging enabled in the
-> > ipw2200 driver.  I'll see if I can capture any useful information when
-> > I try to associate using NM.
->
-> Testing mainline would be useful.
+So if at all, you can only remove anything _but_ v2, but never v2.
 
-Will do.
 
-        Miles
+But I've just re-read section 9 and "this License" obviously just refers to
+just the GPL there, as the version number of "this License" is mentioned.
+So removing the "or later" won't work either and you simply cannot change
+which versions apply at all (at least not without all copyright holders
+agreeing on that change).
+
+Björn

@@ -1,114 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161586AbWI2TnU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161584AbWI2Tmz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161586AbWI2TnU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Sep 2006 15:43:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422664AbWI2TnU
+	id S1161584AbWI2Tmz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Sep 2006 15:42:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161585AbWI2Tmz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Sep 2006 15:43:20 -0400
-Received: from elasmtp-banded.atl.sa.earthlink.net ([209.86.89.70]:48293 "EHLO
-	elasmtp-banded.atl.sa.earthlink.net") by vger.kernel.org with ESMTP
-	id S1422661AbWI2TnO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Sep 2006 15:43:14 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=dk20050327; d=earthlink.net;
-  b=D8JduP+IN1Y2CKvlH3A8ArzdesG7GVgyGTeVMExFbporM9NLec7qNPA4QFAmYj9I;
-  h=Received:Message-ID:From:To:References:Subject:Date:MIME-Version:Content-Type:Content-Transfer-Encoding:X-Priority:X-MSMail-Priority:X-Mailer:X-MIMEOLE:X-ELNK-Trace:X-Originating-IP;
-Message-ID: <03ff01c6e3ff$7d24b0c0$0225a8c0@Wednesday>
-From: "jdow" <jdow@earthlink.net>
-To: "linux-kernel" <linux-kernel@vger.kernel.org>
-References: <1158941750.3445.31.camel@mulgrave.il.steeleye.com>	 <451798FA.8000004@rebelhomicide.demon.nl>	 <17687.46268.156413.352299@cse.unsw.edu.au>	 <1159183895.11049.56.camel@localhost.localdomain> <1159200620.9326.447.camel@localhost.localdomain> <451CF22D.4030405@aitel.hist.no>
-Subject: Re: GPLv3 Position Statement
-Date: Fri, 29 Sep 2006 12:43:02 -0700
+	Fri, 29 Sep 2006 15:42:55 -0400
+Received: from p5082C379.dip.t-dialin.net ([80.130.195.121]:28408 "EHLO
+	stiffy.osknowledge.org") by vger.kernel.org with ESMTP
+	id S1161584AbWI2Tmy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Sep 2006 15:42:54 -0400
+Date: Fri, 29 Sep 2006 21:42:09 +0200
+From: Marc Koschewski <marc@osknowledge.org>
+To: linux-kernel@vger.kernel.org
+Subject: [GIT 2.6.18-g94c12cc7] CRASH: removed PCMCIA device
+Message-ID: <20060929194209.GA13805@stiffy.osknowledge.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	format=flowed;
-	charset="utf-8";
-	reply-type=response
-Content-Transfer-Encoding: 7bit
-X-Priority: 3
-X-MSMail-Priority: Normal
-X-Mailer: Microsoft Outlook Express 6.00.2900.2869
-X-MIMEOLE: Produced By Microsoft MimeOLE V6.00.2900.2962
-X-ELNK-Trace: bb89ecdb26a8f9f24d2b10475b57112040041c05260cc61e97814775684e741c315182ab6dc9f291350badd9bab72f9c350badd9bab72f9c350badd9bab72f9c
-X-Originating-IP: 71.116.187.9
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+X-PGP-Fingerprint: D514 7DC1 B5F5 8989 083E  38C9 5ECF E5BD 3430 ABF5
+X-PGP-Key: http://www.osknowledge.org/~marc/pubkey.asc
+X-Operating-System: Linux stiffy 2.6.18-rc5-marc
+User-Agent: mutt-ng/devel-r804 (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: "Helge Hafting" <helge.hafting@aitel.hist.no>
-> Thomas Gleixner wrote:
->> On Mon, 2006-09-25 at 12:31 +0100, Alan Cox wrote:
->>   
->>> The GPLv3 rewords it in an attempt to be clearer but also I think rather
->>> more over-reaching. It's not clear what for example happens with a
->>> rented device containing GPL software but with DRM on the hardware.
->>> Thats quite different to owned hardware. GPLv2 leaves it open for the
->>> courts to make a sensible decision per case, GPLv3 tries to define it in
->>> advance and its very very hard to define correctly.
->>>     
->>
->> Also the prevention of running modified versions is not only caused by
->> economic interests and business models. There are also scenarios where
->> it is simply necessary:
->>
->> - The liability for damages, where the manufacturer of a device might
->> be responsible in case of damage when he abandoned the prevention. This
->> applies to medical devices as well as to lasers, machine tools and many
->> more. Device manufacturers can not necessarily escape such liabilities
->> as it might be considered grossly negligent to hand out the prevention
->> key, even if the user signed an exemption from liability.
->>   
-> This seems silly to me.  Sure, lasers and medical equipment is
-> dangerous if used wrong.  When such equipment is
-> controlled by software, then changing that software brings
-> huge responsibility.  But it shouldn't be made impossible.
-> 
-> They can provide the key, with the warning that _using_ it
-> means you are on your own and take all responsibility.
+Hi hackers,
 
-In some more rational parts of the world (presuming they exist
-evidence to the contrary) this approach might work. This requires
-a people and government that are rather libertarian with the people
-taking full responsibility for their own actions. Now, I live in
-the country that awarded a woman millions of dollars because she
-was stupid enough to put a hot container of coffee in her lap as
-she reached over to her purse to make change. Of course it spilled
-and scorched her in a "nasty place to be scorched." This is also
-the country that awarded two drunken idiots who decided to trim a
-hedge with a rotary lawn mower. They tried to pick it up by the
-skirts and lost their fingers to the spinning blades. They sued
-the manufacturer for allowing them to be stupid - and won. So the
-blunt answer is "Product Liability."
+this is what I got with yesterdays -git kernel running.
 
-> I can take the covers off a cd player and let the laser
-> shine into the room.  Nothing prevents me from doing
-> that, it isn't welded shut or anything.  And it might
-> be useful if I ever need a laser beam.  Of course I am
-> then responsible if I take someone's eye out.  CD players
-> have warning labels about this.  And the same can be done
-> for the keys to dangerous software.
+Case was:
 
-Those warnings probably are not enough in a US court of law. But
-they are enough to discourage most idiots who do get blinded by
-their own stupidity from trying to sue.
+Boot with D-Link DWL-650+ WLAN card using this acx driver
 
->> - Regulations to prevent unauthorized access to radio frequencies, which
->> is what concerns e.g. cellphone manufacturers.
->>   
-> Unauthorized use is illegal and easy enough to track down.
-> No special protection is needed.  And it cannot be enforced
-> by making the phones har to modify - any radio amateur knows
-> how to build from scratch a transmitter to jam the GSM bands
-> if he should be inclined to do so. Anyone can look this up in
-> books too.
+	http://acx100.erley.org/acx-20060215.tar.bz2
 
-The bozo has to go through enough effort to build such a jammer
-that it'd (mostly) insulate the parts manufactures from liability.
-It's a little more work than pulling some CDROM screws and blinding
-people in the room as a result. (Yeah, I darned well know how little
-actual work is involved. But actual knowledge is also involved so it
-would be hard for that jammer to escape personal responsibility. Of
-course, there is the spark gap jammer.... Anecdotal evidence shows
-that the spark gap noise can motivate the Los Angeles FCC office to
-get off their lazy asses in a hurry, though.)
+and remove the card from the slot. In case anyone wants to test me
+some 'special' case or config, don't hasitate to direct me.
 
-{^_-}   Joanne
+Regards,
+Marc
+
+
+Sep 29 21:08:20 stiffy sdpd[10655]: Bluetooth SDP daemon
+Sep 29 21:08:22 stiffy cpufreqd: apm_init                 : /proc/apm: No such file or directory
+Sep 29 21:08:25 stiffy [   92.721000] pccard: card ejected from slot 1
+Sep 29 21:08:25 stiffy [   92.752000] BUG: unable to handle kernel NULL pointer dereference at virtual address 0000000c
+Sep 29 21:08:25 stiffy [   92.752000]  printing eip:
+Sep 29 21:08:25 stiffy [   92.752000] c02d8bb6
+Sep 29 21:08:25 stiffy [   92.752000] *pde = 00000000
+Sep 29 21:08:25 stiffy [   92.752000] Oops: 0000 [#1]
+Sep 29 21:08:25 stiffy [   92.752000] PREEMPT 
+Sep 29 21:08:25 stiffy [   92.752000] Modules linked in: snd_pcm_oss snd_mixer_oss rtc isofs zlib_inflate pwc compat_ioctl32 videodev v4l1_compat v4l2_common dvb_usb_dibusb_mb dib3000mb dvb_usb_dibusb_common dib3000mc dib3000_common dvb_usb dvb_core dvb_pll ircomm_tty ircomm irda crc_ccitt hidp bnep hci_uart rfcomm l2cap bluetooth cpufreq_stats speedstep_lib acpi_cpufreq freq_table i8k backlight lcd snd_seq_oss snd_seq_midi_event snd_seq_dummy snd_seq snd_seq_device loop usb_storage scsi_mod video fan button sbs i2c_ec i2c_core battery ac thermal processor acx eth1394 pcmcia firmware_class tsdev mousedev snd_intel8x0m snd_intel8x0 snd_ac97_codec snd_ac97_bus snd_pcm uhci_hcd usbcore parport_pc yenta_socket snd_timer ohci1394 intel_agp snd ieee1394 evdev rsrc_nonstatic agpgart psmouse parport pcspkr nvidiafb 3c59x soundcore mii pcmcia_core snd_page_alloc serio_raw ide_cd cdrom unix
+Sep 29 21:08:25 stiffy [   92.752000] CPU:    0
+Sep 29 21:08:25 stiffy [   92.752000] EIP:    0060:[<c02d8bb6>]    Not tainted VLI
+Sep 29 21:08:25 stiffy [   92.752000] EFLAGS: 00010246   (2.6.18-marc-g94c12cc7 #1)
+Sep 29 21:08:25 stiffy [   92.752000] EIP is at klist_del+0x6/0x52
+Sep 29 21:08:25 stiffy [   92.752000] eax: 00000000   ebx: 00000104   ecx: f75932a4   edx: c033a890
+Sep 29 21:08:25 stiffy [   92.752000] esi: f7ad7090   edi: c033a500   ebp: c1b5a448   esp: f7a4af20
+Sep 29 21:08:25 stiffy [   92.752000] ds: 007b   es: 007b   ss: 0068
+Sep 29 21:08:25 stiffy [   92.752000] Process pccardd (pid: 2462, ti=f7a4a000 task=f7da0570 task.ti=f7a4a000)
+Sep 29 21:08:25 stiffy [   92.752000] Stack: 00000104 f7ad7048 c02516c4 f7ad7048 f7ad7048 f7ad70b0 c02504ca f7ad7048 
+Sep 29 21:08:25 stiffy [   92.752000]        c1b5a400 f7ad7000 f7b12540 c0250500 f7ad7000 c01fa005 00000000 c01fa0f5 
+Sep 29 21:08:25 stiffy [   92.752000]        c1b2f014 c1b5a400 00000080 c01fa188 f7b12428 f7b12428 f8841788 f8841852 
+Sep 29 21:08:25 stiffy [   92.752000] Call Trace:
+Sep 29 21:08:25 stiffy [   92.752000]  [<c02516c4>] bus_remove_device+0x86/0x9f
+Sep 29 21:08:25 stiffy [   92.752000]  [<c02504ca>] device_del+0x13b/0x169
+Sep 29 21:08:25 stiffy [   92.752000]  [<c0250500>] device_unregister+0x8/0x10
+Sep 29 21:08:25 stiffy [   92.752000]  [<c01fa005>] pci_stop_dev+0x25/0x51
+Sep 29 21:08:25 stiffy [   92.752000]  [<c01fa0f5>] pci_remove_bus_device+0x26/0x96
+Sep 29 21:08:25 stiffy [   92.752000]  [<c01fa188>] pci_remove_behind_bridge+0x23/0x3b
+Sep 29 21:08:25 stiffy [   92.752000]  [<f8841788>] socket_shutdown+0x88/0x136 [pcmcia_core]
+Sep 29 21:08:25 stiffy [   92.752000]  [<f88421f7>] pccardd+0x23d/0x260 [pcmcia_core]
+Sep 29 21:08:25 stiffy [   92.752000]  [<c012a0ca>] kthread+0xc9/0xcd
+Sep 29 21:08:25 stiffy [   92.752000]  [<c0103ae3>] kernel_thread_helper+0x7/0x14
+Sep 29 21:08:25 stiffy [   92.752000]  =======================
+Sep 29 21:08:25 stiffy [   92.752000] Code: 04 89 42 04 89 10 c7 43 f8 00 01 10 00 c7 41 04 00 02 20 00 8d 43 04 e8 62 be e3 ff c7 43 f4 00 00 00 00 5b c3 56 53 89 c6 8b 00 <8b> 58 0c b8 01 00 00 00 e8 bc ac e3 ff 89 f0 e8 a9 ff ff ff 85 
+Sep 29 21:08:25 stiffy [   92.752000] EIP: [<c02d8bb6>] klist_del+0x6/0x52 SS:ESP 0068:f7a4af20
+Sep 29 21:08:28 stiffy exim[11153]: 2006-09-29 21:08:28 IPv6 socket creation failed: Address family not supported by protocol
+Sep 29 21:08:28 stiffy exim[11153]: 2006-09-29 21:08:28 Failed to create IPv6 socket for wildcard listening (Address family not supported by protocol): will use IPv4
+Sep 29 21:08:28 stiffy exim[11153]: 2006-09-29 21:08:28 exim 4.63 daemon started: pid=11153, -q15m, listening for SMTP on port 25 (IPv4)
+Sep 29 21:10:19 stiffy syslog-ng[9704]: syslog-ng version 1.6.11 starting
+Sep 29 21:10:19 stiffy syslog-ng[9704]: Changing permissions on special file /dev/tty12
+Sep 29 21:10:19 stiffy [    0.000000] Linux version 2.6.18-rc7-marc (marc@stiffy) (gcc-Version 4.1.1 (Gentoo 4.1.1-r1)) #1 PREEMPT Mon Sep 11 22:31:32 CEST 2006
+
+
+-- 
+Marc Koschewski

@@ -1,141 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750773AbWI2WTL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750756AbWI2WVh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750773AbWI2WTL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Sep 2006 18:19:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750778AbWI2WTK
+	id S1750756AbWI2WVh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Sep 2006 18:21:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750813AbWI2WVh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Sep 2006 18:19:10 -0400
-Received: from smtp-out.google.com ([216.239.45.12]:56464 "EHLO
-	smtp-out.google.com") by vger.kernel.org with ESMTP
-	id S1750773AbWI2WTJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Sep 2006 18:19:09 -0400
-DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
-	h=received:message-id:date:from:to:subject:cc:in-reply-to:
-	mime-version:content-type:references;
-	b=ZYSNNvXwCerBK8K2F8fbzBaBRNWa9iIQpbniLsOblXWX3FOYi70hS1Roqw6qBBDt8
-	dSRxfkUbmIeJcZ9jGDAaA==
-Message-ID: <65dd6fd50609291518s129786fbt1739c80533d1a36@mail.google.com>
-Date: Fri, 29 Sep 2006 15:18:52 -0700
-From: "Ollie Wild" <aaw@google.com>
-To: "Jeff Dike" <jdike@addtoit.com>
-Subject: Re: [PATCH 2/2] UML - Don't roll my own random MAC generator
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org,
-       user-mode-linux-devel@lists.sourceforge.net, dhollis@davehollis.com,
-       "Jason Lunz" <lunz@falooley.org>
-In-Reply-To: <200609281814.k8SIEsG8005226@ccure.user-mode-linux.org>
-MIME-Version: 1.0
-Content-Type: multipart/mixed; 
-	boundary="----=_Part_4360_29040619.1159568332997"
-References: <200609281814.k8SIEsG8005226@ccure.user-mode-linux.org>
+	Fri, 29 Sep 2006 18:21:37 -0400
+Received: from fmmailgate03.web.de ([217.72.192.234]:29381 "EHLO
+	fmmailgate03.web.de") by vger.kernel.org with ESMTP
+	id S1750756AbWI2WVg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Sep 2006 18:21:36 -0400
+Subject: [PATCH] Remove logic error in /Documentation/devices.txt
+From: Marcus Fischer <marcus-fischer@web.de>
+Reply-To: marcus-fischer@web.de
+To: linux-kernel@vger.kernel.org
+Cc: netwiz@crc.id.au
+Content-Type: text/plain
+Date: Sat, 30 Sep 2006 00:22:45 +0200
+Message-Id: <1159568565.11062.9.camel@mflaptop>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.0-1mdv2007.0 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-------=_Part_4360_29040619.1159568332997
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+commit 51f3fe947923f6e775031cc1d538de6cf06ec77d
+Author: Marcus Fischer <linux@marcusfischer.com>
+Date:   Fri Sep 29 23:50:01 2006 +0200
 
-This patch as provided breaks my build due to a missing semicolon.
+    I found an logic error in the following commit:
+    
+        author    Steven Haigh <netwiz@crc.id.au>
+                Tue, 8 Aug 2006 21:42:06 +0000 (07:42 +1000)
+        committer  Greg Kroah-Hartman <gregkh@suse.de>
+           Wed, 27 Sep 2006 18:58:59 +0000 (11:58 -0700)
+        commit    03270634e242dd10cc8569d31a00659d25b2b8e7
+        tree    8f4665eb7b17386e733fcdc7d02e87c4a1592550
+        parent    8ac283ad415358f022498887811c35ac656b5222
+    
+    Documentation/devices.txt may either say ../adutux10 11th Ontrack
+ADU device
+    or ../adutux9 10th Ontrack ADU device.
+    
+    Anyway, the original one makes no sense.
+    
+    + 67 = /dev/usb/adutux0 1st Ontrak ADU device
+    + ...
+    + 76 = /dev/usb/adutux10 10th Ontrak ADU device
+    
+    This patch removes the logic error.
+    
+    However, I saw that MAX_DEVICES is 16.
+    Thus, shouldn't this docu then say:
+    "81 = /dev/usb/adutux15 16th Ontrack ADU device" ?
 
-Patch attached.
+    CU, Marcus
 
-Ollie
 
-On 9/28/06, Jeff Dike <jdike@addtoit.com> wrote:
-> Use the existing random_ether_addr() instead of cooking up my own
-> version.  Pointed out by Dave Hollis and Jason Lunz.
->
-> Signed-off-by: Jeff Dike <jdike@addtoit.com>
-> ---
->
->  arch/um/drivers/net_kern.c |    4 +---
->  arch/um/drivers/net_user.c |   29 -----------------------------
->  arch/um/include/net_user.h |    2 --
->  3 files changed, 1 insertion(+), 34 deletions(-)
->
-> Index: linux-2.6.18-mm/arch/um/drivers/net_kern.c
-> ===================================================================
-> --- linux-2.6.18-mm.orig/arch/um/drivers/net_kern.c     2006-09-28 12:51:50.000000000 -0400
-> +++ linux-2.6.18-mm/arch/um/drivers/net_kern.c  2006-09-28 13:00:58.000000000 -0400
-> @@ -309,9 +309,7 @@ static void setup_etheraddr(char *str, u
->         return;
->
->  random:
-> -       addr[0] = 0xfe;
-> -       addr[1] = 0xfd;
-> -       random_mac(addr);
-> +       random_ether_addr(addr)
->  }
->
->  static DEFINE_SPINLOCK(devices_lock);
-> Index: linux-2.6.18-mm/arch/um/drivers/net_user.c
-> ===================================================================
-> --- linux-2.6.18-mm.orig/arch/um/drivers/net_user.c     2006-09-28 12:51:50.000000000 -0400
-> +++ linux-2.6.18-mm/arch/um/drivers/net_user.c  2006-09-28 13:00:06.000000000 -0400
-> @@ -259,32 +259,3 @@ char *split_if_spec(char *str, ...)
->         va_end(ap);
->         return str;
->  }
-> -
-> -void random_mac(unsigned char *addr)
-> -{
-> -       struct timeval tv;
-> -       long n;
-> -       unsigned int seed;
-> -
-> -       gettimeofday(&tv, NULL);
-> -
-> -       /* Assume that 20 bits of microseconds and 12 bits of the pid are
-> -        * reasonably unpredictable.
-> -        */
-> -       seed = tv.tv_usec | (os_getpid() << 20);
-> -       srandom(seed);
-> -
-> -       /* Don't care about endianness here - switching endianness
-> -        * just rearranges what are hopefully random numbers.
-> -        *
-> -        * Assume that RAND_MAX > 65536, so random is called twice and
-> -        * we use 16 bits of the result.
-> -        */
-> -       n = random();
-> -       addr[2] = (n >> 8) & 255;
-> -       addr[3] = n % 255;
-> -
-> -       n = random();
-> -       addr[4] = (n >> 8) & 255;
-> -       addr[5] = n % 255;
-> -}
-> Index: linux-2.6.18-mm/arch/um/include/net_user.h
-> ===================================================================
-> --- linux-2.6.18-mm.orig/arch/um/include/net_user.h     2006-09-28 12:15:48.000000000 -0400
-> +++ linux-2.6.18-mm/arch/um/include/net_user.h  2006-09-28 13:01:51.000000000 -0400
-> @@ -50,6 +50,4 @@ extern char *split_if_spec(char *str, ..
->
->  extern int dev_netmask(void *d, void *m);
->
-> -extern void random_mac(unsigned char *addr);
-> -
->  #endif
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+Signed-off-by: Marcus Fischer <linux@marcusfischer.com>
+---
 
-------=_Part_4360_29040619.1159568332997
-Content-Type: text/x-patch; name=random_ether_addr.patch; 
-	charset=ANSI_X3.4-1968
-Content-Transfer-Encoding: base64
-X-Attachment-Id: f_esp50wda
-Content-Disposition: attachment; filename="random_ether_addr.patch"
+diff --git a/Documentation/devices.txt b/Documentation/devices.txt
+index addc67b..37efae8 100644
+--- a/Documentation/devices.txt
++++ b/Documentation/devices.txt
+@@ -2545,7 +2545,7 @@ Your cooperation is appreciated.
+66 = /dev/usb/cpad0 Synaptics cPad (mouse/LCD)
+67 = /dev/usb/adutux0 1st Ontrak ADU device
+    ...
+- 76 = /dev/usb/adutux10 10th Ontrak ADU device
++ 76 = /dev/usb/adutux9 10th Ontrak ADU device
+96 = /dev/usb/hiddev0 1st USB HID device
+    ...
+111 = /dev/usb/hiddev15 16th USB HID device
 
-ZGlmZiAtLWdpdCBhL2FyY2gvdW0vZHJpdmVycy9uZXRfa2Vybi5jIGIvYXJjaC91bS9kcml2ZXJz
-L25ldF9rZXJuLmMKaW5kZXggMTZhYTU3Mi4uMzAwYTU0YSAxMDA2NDQKLS0tIGEvYXJjaC91bS9k
-cml2ZXJzL25ldF9rZXJuLmMKKysrIGIvYXJjaC91bS9kcml2ZXJzL25ldF9rZXJuLmMKQEAgLTMx
-MCw3ICszMTAsNyBAQCBzdGF0aWMgdm9pZCBzZXR1cF9ldGhlcmFkZHIoY2hhciAqc3RyLCB1CiAJ
-cmV0dXJuOwogCiByYW5kb206Ci0JcmFuZG9tX2V0aGVyX2FkZHIoYWRkcikKKwlyYW5kb21fZXRo
-ZXJfYWRkcihhZGRyKTsKIH0KIAogc3RhdGljIERFRklORV9TUElOTE9DSyhkZXZpY2VzX2xvY2sp
-Owo=
-------=_Part_4360_29040619.1159568332997--
+
+

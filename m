@@ -1,74 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422811AbWI2Ukj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932370AbWI2Uke@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422811AbWI2Ukj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Sep 2006 16:40:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932377AbWI2Uki
+	id S932370AbWI2Uke (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Sep 2006 16:40:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932371AbWI2Ukd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Sep 2006 16:40:38 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:12232 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S932371AbWI2Ukh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Sep 2006 16:40:37 -0400
-Date: Fri, 29 Sep 2006 22:32:27 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Andi Kleen <ak@suse.de>
-Cc: Jim Cromie <jim.cromie@gmail.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: 2.6.18-mm2
-Message-ID: <20060929203227.GA5051@elte.hu>
-References: <20060928014623.ccc9b885.akpm@osdl.org> <200609290108.15400.ak@suse.de> <20060929201449.GA32262@elte.hu> <200609292236.15330.ak@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 29 Sep 2006 16:40:33 -0400
+Received: from qb-out-0506.google.com ([72.14.204.224]:45910 "EHLO
+	qb-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S932370AbWI2Ukc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Sep 2006 16:40:32 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=REgwDFH4e8InR3FxSjzeNdIMGB/nJwU7C5iiWy5p+edHtib8nyd7Ti8qfFLouUhfqNvDD42nMKzVPO2iziepEHwPNClpRo3mGMHqDz79kSZDWPqRVZUARjQzIUCxMntgGTBL1vZuSQlmvx2MOT/yQmAA6WuvHFW4JST+DQ6SlcY=
+Message-ID: <5a4c581d0609291340q835571bg9657ac0a68bab20e@mail.gmail.com>
+Date: Fri, 29 Sep 2006 22:40:29 +0200
+From: "Alessandro Suardi" <alessandro.suardi@gmail.com>
+To: "John W. Linville" <linville@tuxdriver.com>
+Subject: Re: 2.6.18-git9 wireless fixes break ipw2200 association to AP with WPA
+Cc: "Linux Kernel" <linux-kernel@vger.kernel.org>, jt@hpl.hp.com
+In-Reply-To: <20060929202928.GA14000@tuxdriver.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <200609292236.15330.ak@suse.de>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -2.8
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.8 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5000]
-	-0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+References: <5a4c581d0609291225r4a2cbaacr35e5ef73d69f8718@mail.gmail.com>
+	 <20060929202928.GA14000@tuxdriver.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 9/29/06, John W. Linville <linville@tuxdriver.com> wrote:
+> On Fri, Sep 29, 2006 at 09:25:53PM +0200, Alessandro Suardi wrote:
+> > Dell Latitude D610, FC5-latest, ipw2200 configured to associate
+> > with a D-Link DSL-G604T (combo of router/ADSL modem/802.11g AP).
+> >
+> > 2.6.18-git8 (plus semaphore.h) is ok
+> > -git9, -git10, -git11 fail to associate
+> > -git11 with reverted wireless changes is ok
+> >
+> > Attaching diff of what I reverted in -git11 to make it work again.
+> >
+> > wpa_supplicant log of failing session available upon request.
+>
+> It looks like you reverted the WE-21 stuff.  Is your wireless-tools
+> package up to date?
 
-* Andi Kleen <ak@suse.de> wrote:
+Well, that's the latest I get under FC5:
 
-> On Friday 29 September 2006 22:14, Ingo Molnar wrote:
-> > 
-> > * Andi Kleen <ak@suse.de> wrote:
-> > 
-> > > BTW I was planning to make LOCAL_APIC unconditional on i386 too like 
-> > > on x86-64.
-> > 
-> > please dont - embedded doesnt need it most of the time.
-> 
-> What do you mean with not need?  Local APIC is an infinitely better 
-> interface than PIC and faster. On embedded too this makes a lot of 
-> sense.
+[asuardi@sandman ~]$ rpm -q wireless-tools
+wireless-tools-28-0.pre13.5.1
 
-it's just not present or hardware-disabled.
+ but indeed (-git11 minus the reverts) iwconfig says
 
-> And a lot of modern systems don't even work anymore without APIC 
-> enabled because Windows uses it and the BIOS haven't been tested 
-> without it (e.g. you often find totally broken code paths in the AML 
-> for PIC mode)
-> 
-> The code size also isn't a good argument because the delta
-> isn't that big:
-> 
->    text    data     bss     dec     hex filename
-> 3303894  694980  436420 4435294  43ad5e obj32-up/vmlinux
-> 3266532  665732  402372 4334636  42242c obj32-up-noapic/vmlinux
-> 
-> ~63K.
+[asuardi@sandman ~]$ iwconfig eth1
+Warning: Driver for device eth1 has been compiled with version 21
+of Wireless Extension, while this program supports up to version 19.
+Some things may be broken...
 
-63K???? You've got to be kidding. That's huge. That's ~10% of the 
-minconfig kernel. Even 1K would be bad. We did config hacks for half a K 
-win. Please ... dont cripple the i686 kernel.
+The criteria for the revert was actually "take out anything that
+ might remotely hit ipw2200 or wireless" - it was basically to
+ first rule out that either my WPA configuration or anything in
+ my environment could be at fault.
 
-	Ingo
+If you have suggestions about either upgrading wireless-tools
+ from a non-FC5 repository or narrowing down the reverts, I'm
+ up for giving them a go :)
+
+
+Thanks, ciao,
+
+--alessandro
+
+"Well a man has two reasons for things that he does
+  the first one is pride and the second one is love
+  all understandings must come by this way"
+
+     (Husker Du, 'She Floated Away')

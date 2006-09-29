@@ -1,61 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161244AbWI2A4P@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161242AbWI2A6J@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161244AbWI2A4P (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Sep 2006 20:56:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161243AbWI2A4P
+	id S1161242AbWI2A6J (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Sep 2006 20:58:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161243AbWI2A6J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Sep 2006 20:56:15 -0400
-Received: from smtp112.sbc.mail.mud.yahoo.com ([68.142.198.211]:40528 "HELO
-	smtp112.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1161242AbWI2A4O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Sep 2006 20:56:14 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=pacbell.net;
-  h=Received:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
-  b=fNS/XmRBPWNAMu523PaZtYlO3cf6pMaT2rMFTZYKRofYwy6Ned8M906huMSKLJ6rbG8kkmOlEvbR+XRfENVLZoh/ySuTb0TdfP5LCb/lbjss9XD/6wbfLW304QTc0NSxb9jqLx4ZrMjWCUpc6WcpNtktwRXNwPhyBaZtTXRiQUk=  ;
-From: David Brownell <david-b@pacbell.net>
-To: linux-usb-devel@lists.sourceforge.net
-Subject: Re: [linux-usb-devel] [GIT PATCH] More USB patches for 2.6.18
-Date: Thu, 28 Sep 2006 17:56:06 -0700
-User-Agent: KMail/1.7.1
-Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       Greg KH <gregkh@suse.de>, linux-kernel@vger.kernel.org
-References: <20060928224250.GA23841@kroah.com> <200609281708.34599.david-b@pacbell.net> <20060928172037.69a6a401.akpm@osdl.org>
-In-Reply-To: <20060928172037.69a6a401.akpm@osdl.org>
+	Thu, 28 Sep 2006 20:58:09 -0400
+Received: from scrub.xs4all.nl ([194.109.195.176]:7613 "EHLO scrub.xs4all.nl")
+	by vger.kernel.org with ESMTP id S1161242AbWI2A6H (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Sep 2006 20:58:07 -0400
+Date: Fri, 29 Sep 2006 02:57:45 +0200 (CEST)
+From: Roman Zippel <zippel@linux-m68k.org>
+X-X-Sender: roman@scrub.home
+To: Andrew Morton <akpm@osdl.org>
+cc: Dave Jones <davej@redhat.com>, Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: oom kill oddness.
+In-Reply-To: <20060928171706.bee0c50b.akpm@osdl.org>
+Message-ID: <Pine.LNX.4.64.0609290231460.6761@scrub.home>
+References: <20060927205435.GF1319@redhat.com> <Pine.LNX.4.64.0609290035060.6762@scrub.home>
+ <20060928171706.bee0c50b.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200609281756.07130.david-b@pacbell.net>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday 28 September 2006 5:20 pm, Andrew Morton wrote:
-> On Thu, 28 Sep 2006 17:08:33 -0700
-> David Brownell <david-b@pacbell.net> wrote:
+Hi,
+
+On Thu, 28 Sep 2006, Andrew Morton wrote:
+
+> Kernel versions please, guys.  There have been a lot of oom-killer changes
+> post-2.6.18.
+
+Last I tested this was with 2.6.18.
+The latest changes to vmscan.c should help...
+
+> > If someone wants to play with the problem, the example program below 
+> > triggers the problem relatively easily (booting with only little ram 
+> > helps), it starts a number of readers, which should touch a bit more 
+> > memory than is available and a few writers, which occasionally allocate 
+> > memory.
+> > 
 > 
-> > ... reviewing and testing those new OHCI changes is still on my
-> > list;
-> 
-> erm, we prefer to do that before code hits mainline.
+> How much ram, how much swap?
 
-Exactly why I mentioned the issue.  I trust Alan basically got the
-ohci parts of that new root hub suspend code right, but I probably
-have a lot more variety in OHCI silicon here ... but virtually no
-time to assemble the relevant platform patches and test them with
-new patches from MM/etc, given other ongoing work.
+I tested it with 32MB and 64MB and plenty of swap.
 
-On the plus side, I think maybe OMAP1 devel boards are now mostly
-buildable straight from kernel GIT (with i2c-omap merged), which is
-a BIG improvement for at least one part of the testing equation.
-
-- Dave
-
-
-> > all that suspend stuff needs care, things that work on PCs don't
-> > necessarily work on embedded hardware (where OHCI is common, and
-> > PM tends to be more critical).
-> 
-> I guess we'll find out.
-> 
+bye, Roman

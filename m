@@ -1,60 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751396AbWI2Tka@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161580AbWI2Tm1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751396AbWI2Tka (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Sep 2006 15:40:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751430AbWI2Tka
+	id S1161580AbWI2Tm1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Sep 2006 15:42:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161585AbWI2Tm0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Sep 2006 15:40:30 -0400
-Received: from ogre.sisk.pl ([217.79.144.158]:29590 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S1751419AbWI2Tk3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Sep 2006 15:40:29 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Mark Lord <lkml@rtr.ca>
-Subject: Re: Arrr! Linux 2.6.18
-Date: Fri, 29 Sep 2006 21:42:35 +0200
-User-Agent: KMail/1.9.1
-Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-References: <Pine.LNX.4.64.0609192126070.4388@g5.osdl.org> <20060929014433.bc01e83c.akpm@osdl.org> <451D5D66.8030501@rtr.ca>
-In-Reply-To: <451D5D66.8030501@rtr.ca>
+	Fri, 29 Sep 2006 15:42:26 -0400
+Received: from excu-mxob-2.symantec.com ([198.6.49.23]:43701 "EHLO
+	excu-mxob-2.symantec.com") by vger.kernel.org with ESMTP
+	id S1161573AbWI2TmY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Sep 2006 15:42:24 -0400
+Date: Fri, 29 Sep 2006 20:41:04 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@blonde.wat.veritas.com
+To: Neil Brown <neilb@suse.de>
+cc: Andrew Morton <akpm@osdl.org>, "David M. Grimes" <dgrimes@navisite.com>,
+       Atal Shargorodsky <atal@codefidence.com>,
+       Gilad Ben-Yossef <gilad@codefidence.com>, nfs@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: [NFS] [PATCH 001 of 8] knfsd: Add nfs-export support to tmpfs
+In-Reply-To: <17692.49605.248998.607609@cse.unsw.edu.au>
+Message-ID: <Pine.LNX.4.64.0609292014160.23046@blonde.wat.veritas.com>
+References: <20060929130518.23919.patches@notabene> <1060929030839.24024@suse.de>
+ <20060928232953.6da08f19.akpm@osdl.org> <17692.49605.248998.607609@cse.unsw.edu.au>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200609292142.36333.rjw@sisk.pl>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 29 Sep 2006 19:40:55.0911 (UTC) FILETIME=[2E457F70:01C6E3FF]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday, 29 September 2006 19:52, Mark Lord wrote:
-> Andrew Morton wrote:
-> > On Fri, 29 Sep 2006 04:40:03 -0400
-> > Mark Lord <lkml@rtr.ca> wrote:
+On Fri, 29 Sep 2006, Neil Brown wrote:
+> On Thursday September 28, akpm@osdl.org wrote:
 > > 
-> >> Linus Torvalds wrote:
-> >>> ..
-> >>> Cap'n Andrew Morton:
-> >>>       Blimey! hvc_console suspend fix
-> >> Mmm.. I wonder if this could be what killed resume-from-RAM
-> >> on my notebook, between -rc6 and -final ?
-> >>
-> >> Andrew, can you send me just that one patch, and I'll try reverting it.
-> ..
-> > --- a/drivers/char/hvc_console.c~hvc_console-suspend-fix
-> > +++ a/drivers/char/hvc_console.c
+> > Why don't other filesystems have the same problem?
 > 
-> ARrrgyeeematey.. the Adm'rl was right about this,
-> my kernel doesn't even use that source file.
+> Because most filesystems that hash their inodes do so at the point
+> where the 'struct inode' is initialised, and that has suitable locking
+> (I_NEW).  Here in shmem, we are hashing the inode later, the first
+> time we need an NFS file handle for it.  We no longer have I_NEW to
+> ensure only one thread tries to add it to the hash table.
 > 
-> I'll look through all of the post-rc6 changes and see if anything
-> else might be a candidate.
+> The comment tries to explain this, but obviously isn't completely
+> successful.
 
-Or could your .config change between -rc6 and -final?
+That makes sense.
 
-Rafael
+This patch looks mostly good to me, thanks to David and you for it;
+and my apologies to Atal and Gilad for never quite getting around
+to looking at theirs properly (but the hashing in this new one does
+look better than their linear search).  Though I know tmpfs, I
+don't know NFS, so I'm glad this is coming from your direction.
 
+But one anxiety, regarding i_ino.  That's an unsigned long originating
+from last_inode in fs/inode.c, isn't it?  Here getting cast to a __u32
+to make up one part of the file handle, which will then be cast back
+to an unsigned long for ilookup later.
 
--- 
-You never change things by fighting the existing reality.
-		R. Buckminster Fuller
+So on 64-bit arches, it'll only take one dedicated creator and
+deleter of files to advance the last_inode count to the point where
+the high int is non-zero, and shmem_get_dentry won't ever recognize
+any inodes created thereafter, always reporting -ESTALE?  I'm on
+unfamiliar territory, but it looks to me like we need another
+__u32 in the file handle to cope with that?
+
+Then there's the lesser but more tiresome problem, of i_ino collisions
+on 32-bit arches.  tmpfs hasn't worried about that to date, just taken
+whatever new_inode() has given it from last_inode: but perhaps these
+file handles now make that more of a concern?
+
+Hugh

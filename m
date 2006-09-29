@@ -1,46 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750764AbWI2JqZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750921AbWI2JsU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750764AbWI2JqZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Sep 2006 05:46:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750821AbWI2JqZ
+	id S1750921AbWI2JsU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Sep 2006 05:48:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964770AbWI2JsT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Sep 2006 05:46:25 -0400
-Received: from py-out-1112.google.com ([64.233.166.179]:24276 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S1750764AbWI2JqY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Sep 2006 05:46:24 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=ZEmJLqpCjGwTAp2B37st/8jp0vJDgnCfn1AyPhbxmG0DqYA5/HKPGooyqqBhWZH1X+i1jWUzDgsdziaAluCR3gk0npnmS5YR5A+uE0DeqnIQrahCKMK/D3UNETAn6KuA3qkEUmcLel2op7lBvWxtSYJdqZHgdTUhA64w67sZ9jc=
-Message-ID: <a44ae5cd0609290246w646ad782h4078f59dcbd1ad14@mail.gmail.com>
-Date: Fri, 29 Sep 2006 02:46:22 -0700
-From: "Miles Lane" <miles.lane@gmail.com>
-To: "Andrew Morton" <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
-       cpufreq@lists.linux.org.uk
-Subject: Re: 2.6.18-mm1 -- CPUFreq not working
-In-Reply-To: <a44ae5cd0609261051i6dc03777l6646899624a62d5a@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Fri, 29 Sep 2006 05:48:19 -0400
+Received: from relay.2ka.mipt.ru ([194.85.82.65]:36996 "EHLO 2ka.mipt.ru")
+	by vger.kernel.org with ESMTP id S1750921AbWI2JsR (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Sep 2006 05:48:17 -0400
+Date: Fri, 29 Sep 2006 13:48:09 +0400
+From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
+To: Andreas Jellinghaus <aj@ciphirelabs.com>
+Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
+       linux-crypto@vger.kernel.org
+Subject: Re: [ACRYPTO] New asynchronous crypto layer (acrypto) release.
+Message-ID: <20060929094809.GA31117@2ka.mipt.ru>
+References: <20060928120826.GA18063@2ka.mipt.ru> <451BCCDF.5000201@ciphirelabs.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=koi8-r
 Content-Disposition: inline
-References: <a44ae5cd0609261051i6dc03777l6646899624a62d5a@mail.gmail.com>
+In-Reply-To: <451BCCDF.5000201@ciphirelabs.com>
+User-Agent: Mutt/1.5.9i
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Fri, 29 Sep 2006 13:48:13 +0400 (MSD)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> I am wondering whether the following warning indicates a problem that
-> prevents CPUFreq from working, because no matter how I play with the
-> CPUFreq kernel config options, I always get a message from the power
-> management applet that CPUFreq isn't working.
-> WARNING: arch/i386/kernel/cpu/cpufreq/acpi-cpufreq.o - Section
-> mismatch: reference to .init.data:sw_any_bug_dmi_table from .text
-> between 'acpi_cpufreq_cpu_init' (at offset 0x360) and
-> 'acpi_cpufreq_target'
-> WARNING: arch/i386/kernel/cpu/cpufreq/speedstep-centrino.o - Section
-> mismatch: reference to .init.text: from .data between
-> 'sw_any_bug_dmi_table' (at offset 0x40) and 'models
+On Thu, Sep 28, 2006 at 03:23:43PM +0200, Andreas Jellinghaus (aj@ciphirelabs.com) wrote:
+> Evgeniy Polyakov wrote:
+> >Hello.
+> >
+> >I'm pleased to announce asynchronous crypto layer (acrypto) [1] release 
+> >for 2.6.18 kernel tree. Acrypto allows to handle crypto requests 
+> >asynchronously in hardware.
+> >
+> >Combined patchset includes:
+> > * acrypto core
+> > * IPsec ESP4 port to acrypto
+> > * dm-crypt port to acrypto
+> 
+> so I should be able to replace a plain 2.6.18 kernel with one
+> with this patchset and use dm-crypt'ed partitions (e.g. swap,
+> encrypted root filesystem) as usual without further changes?
+> 
+> Did anyone test this with success?
+> 
+> Regards, Andreas
 
-With 2.6.18-git11, I still get this one:
-WARNING: drivers/acpi/processor.o - Section mismatch: reference to
-.init.data: from .text between 'acpi_processor_power_init' (at offset
-0xf4f) and 'acpi_safe_halt'
+As I answered in your first e-mail, yes, you just need to patch 2.6.18
+tree and load one of the crypto provider.
+
+Acrypto works with request/response model, i.e. you ask acrypto core to
+perform some operation on given buffers and if it can, it will call
+your callback when it is ready (or some error happend and acrypto was
+unable to reroute request to other device), otherwise it will return error.
+
+With such a model it is possible to extend acrypto to any kind of
+operations on buffers, not only crypto related, for example it is
+possible to onload IPsec header transformation, perform DMA between
+specified areas and much more.
+
+-- 
+	Evgeniy Polyakov

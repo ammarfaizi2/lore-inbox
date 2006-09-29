@@ -1,42 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750735AbWI2IL4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751673AbWI2INE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750735AbWI2IL4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Sep 2006 04:11:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751640AbWI2IL4
+	id S1751673AbWI2INE (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Sep 2006 04:13:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030312AbWI2INE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Sep 2006 04:11:56 -0400
-Received: from emailer.gwdg.de ([134.76.10.24]:8877 "EHLO emailer.gwdg.de")
-	by vger.kernel.org with ESMTP id S1750735AbWI2ILy (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Sep 2006 04:11:54 -0400
-Date: Fri, 29 Sep 2006 10:10:59 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Stephan Wiebusch <stephanwib@t-online.de>
-cc: linux-kernel@vger.kernel.org
-Subject: Re: Initrd and ramdisk support
-In-Reply-To: <200609282147.41671.stephanwib@t-online.de>
-Message-ID: <Pine.LNX.4.61.0609291008170.20243@yvahk01.tjqt.qr>
-References: <200609282147.41671.stephanwib@t-online.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Report: Content analysis: 0.0 points, 6.0 required
-	_SUMMARY_
+	Fri, 29 Sep 2006 04:13:04 -0400
+Received: from mtagate3.de.ibm.com ([195.212.29.152]:28721 "EHLO
+	mtagate3.de.ibm.com") by vger.kernel.org with ESMTP
+	id S1751671AbWI2INB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Sep 2006 04:13:01 -0400
+Date: Fri, 29 Sep 2006 10:13:27 +0200
+From: Cornelia Huck <cornelia.huck@de.ibm.com>
+To: Jesper Juhl <jesper.juhl@gmail.com>
+Cc: Greg Kroah-Hartman <gregkh@suse.de>, linux-kernel@vger.kernel.org,
+       Patrick Mochel <mochel@osdl.org>,
+       Patrick Mochel <mochel@infinity.powertie.org>
+Subject: Re: [PATCH] Don't leak 'old_class_name' in
+ drivers/base/core.c::device_rename()
+Message-ID: <20060929101327.1ae1b793@gondolin.boeblingen.de.ibm.com>
+In-Reply-To: <200609282356.01962.jesper.juhl@gmail.com>
+References: <200609282356.01962.jesper.juhl@gmail.com>
+X-Mailer: Sylpheed-Claws 2.5.0-rc3 (GTK+ 2.8.20; i486-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 28 Sep 2006 23:56:01 +0200,
+Jesper Juhl <jesper.juhl@gmail.com> wrote:
 
->Unpacking initramfs...<0>Kernel panic - not syncing: bad gzip magic numbers
->Unpacking initramfs...<0>Kernel panic - not syncing: no cpio magic
->
->i luckily was able to determine the malefactor. There was the initrd support 
->built into the kernel while the ramdisk driver was just built as a module.
->
->Is it senseful to have the possibility to built the Initramfs/Initrd-support 
->without having the ramdisk driver forced to be integrated also?
+> If kmalloc() fails to allocate space for 'old_symlink_name' in
+> drivers/base/core.c::device_rename(), then we'll leak 'old_class_name'.
 
-I hardly see a point in using initrd support without ramdisk. Where would you
-store the initrd on instead?
+driver-core-fixes-check-for-return-value-of-sysfs_create_link.patch (in
+-mm) already fixes this (amongst other things).
 
-
-Jan Engelhardt
 -- 
+Cornelia Huck
+Linux for zSeries Developer
+Tel.: +49-7031-16-4837, Mail: cornelia.huck@de.ibm.com

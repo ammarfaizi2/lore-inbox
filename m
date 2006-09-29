@@ -1,78 +1,243 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161460AbWI2RL1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161727AbWI2RRi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161460AbWI2RL1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Sep 2006 13:11:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161796AbWI2RL0
+	id S1161727AbWI2RRi (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Sep 2006 13:17:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161831AbWI2RRi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Sep 2006 13:11:26 -0400
-Received: from mtagate5.de.ibm.com ([195.212.29.154]:23683 "EHLO
-	mtagate5.de.ibm.com") by vger.kernel.org with ESMTP
-	id S1161460AbWI2RLX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Sep 2006 13:11:23 -0400
-Date: Fri, 29 Sep 2006 20:11:19 +0300
-From: Muli Ben-Yehuda <muli@il.ibm.com>
-To: Jon Mason <jdmason@kudzu.us>
-Cc: Jeff Garzik <jeff@garzik.org>, Andrew Morton <akpm@osdl.org>,
-       Greg KH <greg@kroah.com>, Jim Paradis <jparadis@redhat.com>,
-       Andi Kleen <ak@suse.de>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] x86[-64] PCI domain support
-Message-ID: <20060929171119.GM22787@rhun.haifa.ibm.com>
-References: <20060926191508.GA6350@havoc.gtf.org> <20060928093332.GG22787@rhun.haifa.ibm.com> <451B99C5.7080809@garzik.org> <20060928224550.GJ22787@rhun.haifa.ibm.com> <20060929134330.GA1687@kudzu.us>
+	Fri, 29 Sep 2006 13:17:38 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:44760 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1161727AbWI2RRf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Sep 2006 13:17:35 -0400
+Date: Fri, 29 Sep 2006 10:17:31 -0700
+From: Bryce Harrington <bryce@osdl.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, "Moore, Eric Dean" <Eric.Moore@lsil.com>,
+       linux-scsi@vger.kernel.org
+Subject: Re: [OOPS] -git8,9:  NULL pointer dereference in mptspi_dv_renegotiate_work
+Message-ID: <20060929171731.GX12968@osdl.org>
+References: <20060928202548.GO12968@osdl.org> <20060928145121.561f077d.akpm@osdl.org> <20060928225426.GR12968@osdl.org> <20060928172652.058c781b.akpm@osdl.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060929134330.GA1687@kudzu.us>
+In-Reply-To: <20060928172652.058c781b.akpm@osdl.org>
 User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 29, 2006 at 08:43:31AM -0500, Jon Mason wrote:
+On Thu, Sep 28, 2006 at 05:26:52PM -0700, Andrew Morton wrote:
+> On Thu, 28 Sep 2006 15:54:26 -0700
+> Bryce Harrington <bryce@osdl.org> wrote:
+> 
+> > On Thu, Sep 28, 2006 at 02:51:21PM -0700, Andrew Morton wrote:
+> > > On Thu, 28 Sep 2006 13:25:48 -0700
+> > > Bryce Harrington <bryce@osdl.org> wrote:
+> > > 
+> > > > Apologies if this has already been reported;
+> > > 
+> > > It has not.
+> > > 
+> > > >  I didn't spot it on the
+> > > > list.  We've noticed an Oops on AMD64 when running linux-2.6.18-git8 and
+> > > > -git9, but not -git7:
+> > > > 
+> > > >  mptbase: Initiating ioc0 recovery
+> > > >  Unable to handle kernel NULL pointer dereference at 0000000000000500 RIP: 
+> > > >   [<ffffffff80489aa2>] mptspi_dv_renegotiate_work+0xc/0x45
+> > > >  PGD 0 
+> > > >  Oops: 0000 [1] PREEMPT SMP 
+> > > 
+> > 
+> > > That's very clever.  
+> > >
+> > > I'd be suspecting a miscompile, or something horrid in kfree().
+> > > 
+> > > Does it change anything if you move that kfree() down a bit?
+> > > 
+> > 
+> > Got essentially the same oops, although the addresses have changed a
+> > little:
+> > 
+> > mptbase: Initiating ioc0 recovery
+> > Unable to handle kernel NULL pointer dereference at 0000000000000500 RIP:
+> >  [<ffffffff80489aa3>] mptspi_dv_renegotiate_work+0xd/0x4c
+> > PGD 0
+> > Oops: 0000 [1] PREEMPT SMP
+> > CPU 0
+> > Modules linked in:
+> > Pid: 8, comm: events/0 Not tainted 2.6.18-git10 #1
+> > RIP: 0010:[<ffffffff80489aa3>]  [<ffffffff80489aa3>] mptspi_dv_renegotiate_work+0xd/0x4c
+> > RSP: 0000:ffff81003ec65e40  EFLAGS: 00010246
+> > RAX: ffff81003ec65ef8 RBX: ffff81003eff6640 RCX: ffff81003ec65ef8
+> > RDX: ffff81003ed0cf58 RSI: 0000000000000000 RDI: ffff81003eff6640
+> > RBP: 0000000000000500 R08: ffff81003ec64000 R09: 00000000ffffffff
+> > R10: 00000000ffffffff R11: ffff81003ed0cf40 R12: ffff81003eff6640
+> > R13: 0000000000000213 R14: ffff81003eff6640 R15: ffffffff80489a96
+> > FS:  0000000000000000(0000) GS:ffffffff8077a000(0000) knlGS:0000000000000000
+> > CS:  0010 DS: 0018 ES: 0018 CR0: 000000008005003b
+> > CR2: 0000000000000500 CR3: 0000000000201000 CR4: 00000000000006e0
+> > Process events/0 (pid: 8, threadinfo ffff81003ec64000, task ffff81007f180740)
+> > Stack:  ffff81003eff6640 ffff81003eff6648 ffff81003ed0cf40 ffffffff8023f1bd
+> >  ffff81003ed0cf40 ffff81003ed0cf40 ffffffff8023f204 ffff8100016dfd70
+> >  00000000fffffffc ffffffff8059457d 0000000000000000 ffffffff8023f30
+> > Call Trace:
+> >  [<ffffffff8023f1bd>] run_workqueue+0x9a/0xe1
+> >  [<ffffffff8023f204>] worker_thread+0x0/0x12e
+> >  [<ffffffff8023f300>] worker_thread+0xfc/0x12e
+> >  [<ffffffff80229f62>] default_wake_function+0x0/0xe
+> >  [<ffffffff80229f62>] default_wake_function+0x0/0xe
+> >  [<ffffffff80242433>] kthread+0xc8/0xf1
+> >  [<ffffffff8020a3f8>] child_rip+0xa/0x12
+> >  [<ffffffff8024236b>] kthread+0x0/0xf1
+> >  [<ffffffff8020a3ee>] child_rip+0x0/0x12
+> > 
+> > 
+> > Code: 48 8b 45 00 48 8b b8 50 01 00 00 e8 5d 4d fe ff 48 85 c0 48
+> > RIP  [<ffffffff80489aa3>] mptspi_dv_renegotiate_work+0xd/0x4c
+> >  RSP <ffff81003ec65e40>
+> > CR2: 0000000000000500
+> >  <6>mptbase: Initiating ioc0 recovery
+> > mptbase: Initiating ioc0 recovery
+> > mptbase: Initiating ioc0 recovery
+> > mptbase: Initiating ioc0 recovery
+> > mptbase: Initiating ioc0 recovery
+> > scsi0 : ioc0: LSI53C1030, FwRev=01030600h, Ports=1, MaxQ=255, IRQ=185
+> >  target0:0:0: dma_alloc_coherent for parameters failed
+> > mptscsih: ioc0: attempting task abort! (sc=ffff81003e840c80)
+> > scsi 0:0:0:0:
+> >         command: cdb[0]=0x12: 12 00 00 00 24 00
+> > mptbase: Initiating ioc0 recovery
+> > 
+> 
+> Ah.  Maybe we're simply being passed a junk pointer.  This, please:
+> 
+> --- a/drivers/message/fusion/mptspi.c~a
+> +++ a/drivers/message/fusion/mptspi.c
+> @@ -804,6 +804,9 @@ mptspi_dv_renegotiate(struct _MPT_SCSI_H
+>  	if (!wqw)
+>  		return;
+>  
+> +	printk("%p\n", hd);
+> +	if ((unsigned long)hd < 4000UL)
+> +		dump_stack();
+>  	INIT_WORK(&wqw->work, mptspi_dv_renegotiate_work, wqw);
+>  	wqw->hd = hd;
+>  
+> _
 
-> Nak!  The calgary code should not be affected by these patches.
+Here's the stack dump:
 
-It is. It triggers the BUG() I put there exactly in case someone tries
-to grab ->sysdata from uder us.
+mptbase: Initiating ioc0 recovery
+0000000000000500
 
-PCI-DMA: Using Calgary IOMMU
-Calgary: dev ffff8101979a7800 has sysdata ffff81019795f620
------------ [cut here ] --------- [please bite here ] ---------
-Kernel BUG at ...uli/w/iommu/calgary/linux/arch/x86_64/kernel/tce.c:143
-invalid opcode: 0000 [1] SMP
-CPU 1
-Modules linked in:
-Pid: 1, comm: swapper Not tainted 2.6.18mx #115
-RIP: 0010:[<ffffffff8021b38c>]  [<ffffffff8021b38c>] build_tce_table+0x2b/0x126
-RSP: 0000:ffff810197c7de70  EFLAGS: 00010282
-RAX: 000000000000003e RBX: 00000000ffffffc3 RCX: 0000000000000000
-RDX: ffffffff8022e3ee RSI: 0000000000000000 RDI: ffff810197c67040
-RBP: ffff810197c7de90 R08: 0000000000000002 R09: ffffffff8022df0a
-R10: 0000000000000000 R11: ffffffff80762280 R12: ffffc20000080000
-R13: ffff8101979a7800 R14: ffffc20000080000 R15: 00000000ffffffed
-FS:  0000000000000000(0000) GS:ffff810197c75cc0(0000) knlGS:0000000000000000
-CS:  0010 DS: 0018 ES: 0018 CR0: 000000ffff80c728db 0000000000000000 00000000000 00000
- ffffffff80c9cf18 0000000000000000 0000000000000000 0000000000000000
 Call Trace:
- [<ffffffff80c728db>] calgary_iommu_init+0x11e/0x569
- [<ffffffff80c6b6fe>] pci_iommu_init+0x9/0x17
- [<ffffffff8020718d>] init+0x145/0x300
- [<ffffffff805d8e51>] trace_hardirqs_on_thunk+0x35/0x37
- [<ffffffff80244a46>] trace_hardirqs_on+0xfe/0x129
- [<ffffffff8020a6c8>] child_rip+0xa/0x12
- [<ffffffff805d95ea>] _spin_unlock_irq+0x29/0x2f
- [<ffffffff80209e4d>] restore_args+0x0/0x30
- [<ffffffff80207048>] init+0x0/0x300
- [<ffffffff8020a6be>] child_rip+0x0/0x12
+<IRQ>  [<ffffffff803e0d37>] vgacon_cursor+0x0/0x1a7
+[<ffffffff80489b19>] mptspi_dv_renegotiate+0x3e/0x79
+[<ffffffff80489b7b>] mptspi_ioc_reset+0x27/0x2e
+[<ffffffff804846ea>] mpt_do_ioc_recovery+0x115f/0x11dd
+[<ffffffff802387d7>] current_tick_length+0x5/0x26
+[<ffffffff80238dd4>] do_timer+0x2f6/0x574
+[<ffffffff8023851c>] lock_timer_base+0x1b/0x3c
+[<ffffffff8055ebff>] _spin_lock+0xe/0x5e
+[<ffffffff8022797a>] task_rq_lock+0x3d/0x6f
+[<ffffffff80227d03>] resched_task+0x4e/0x71
+[<ffffffff8022847f>] try_to_wake_up+0x3d4/0x3e6
+[<ffffffff80461794>] atapi_output_bytes+0x21/0x5c
+[<ffffffff802387d7>] current_tick_length+0x5/0x26
+[<ffffffff8055ebff>] _spin_lock+0xe/0x5e
+[<ffffffff8022797a>] task_rq_lock+0x3d/0x6f
+[<ffffffff80227d03>] resched_task+0x4e/0x71
+[<ffffffff8022847f>] try_to_wake_up+0x3d4/0x3e6
+[<ffffffff8020cf66>] main_timer_handler+0x1e6/0x3a6
+[<ffffffff80228f29>] find_busiest_group+0x21f/0x66f
+[<ffffffff80484f94>] mpt_HardResetHandler+0xb4/0x12c
+[<ffffffff8048500c>] mpt_timer_expired+0x0/0x24
+[<ffffffff80485017>] mpt_timer_expired+0xb/0x24
+[<ffffffff80238a07>] run_timer_softirq+0x156/0x1b2
+[<ffffffff802357a1>] __do_softirq+0x46/0xb1
+[<ffffffff8020a76c>] call_softirq+0x1c/0x28
+[<ffffffff8020bb5f>] do_softirq+0x2c/0x7d
+[<ffffffff80207c37>] default_idle+0x0/0x47
+[<ffffffff8023583f>] irq_exit+0x33/0x3e
+[<ffffffff8020a216>] apic_timer_interrupt+0x66/0x70
+<EOI>  [<ffffffff80207c60>] default_idle+0x29/0x47
+[<ffffffff80207e3e>] cpu_idle+0x87/0xbe
+[<ffffffff80794704>] start_kernel+0x203/0x205
+[<ffffffff80794179>] _sinittext+0x179/0x17d
 
-> The PCI domain code uses the sysdata pointer from struct pci_bus,
-> where as calgary uses the sysdata pointer from struct pci_dev.  This
-> should not be an issue.  Can you confirm actual breakage?
+Unable to handle kernel NULL pointer dereference at 0000000000000500 RIP: 
+[<ffffffff80489aa2>] mptspi_dv_renegotiate_work+0xc/0x45
+PGD 0 
+Oops: 0000 [1] PREEMPT SMP 
+CPU 0 
+Modules linked in:
+Pid: 8, comm: events/0 Not tainted 2.6.18-git10 #1
+RIP: 0010:[<ffffffff80489aa2>]  [<ffffffff80489aa2>] mptspi_dv_renegotiate_work+0xc/0x45
+RSP: 0000:ffff81003ec65e40  EFLAGS: 00010282
+RAX: 0000000000000004 RBX: ffff81003eff3640 RCX: 000000000000001e
+RDX: 0000000000000003 RSI: 0000000000000213 RDI: 000000000003eff3
+RBP: 0000000000000500 R08: ffff81003ed0cf88 R09: ffff81003ed0cf40
+R10: ffff81003eff3640 R11: ffff81003ed0cf40 R12: ffff81003ed0cf40
+R13: 0000000000000213 R14: ffff81003eff3640 R15: ffffffff80489a96
+FS:  0000000000knlGS:0000000000000000
+CS:  0010 DS: 0018 ES: 0018 CR0: 000000008005003b
+CR2: 0000000000000500 CR3: 0000000000201000 CR4: 00000000000006e0
+Process events/0 (pid: 8, threadinfo ffff81003ec64000, task ffff81007f180740)
+Stack:  0000000000000000 ffff81003eff3640 ffff81003eff3648 ffffffff8023f1bd
+ffff81003ed0cf40 ffff81003ed0cf40 ffffffff8023f204 ffff8100016dfd70
+00000000fffffffc fd 0000000000000000 ffffffff8023f300
+Call Trace:
+[<ffffffff8023f1bd>] run_workqueue+0x9a/0xe1
+[<ffffffff8023f204>] worker_thread+0x0/0x12e
+[<ffffffff8023f300>] worker_thread+0xfc/0x12e
+[<ffffffff80229f62>] default_wake_function+0x0/0xe
+[<ffffffff80229f62>] default_wake_function+0x0/0xe
+[<ffffffff80242433>] kthread+0xc8/0xf1
+[<ffffffff8020a3f8>] child_rip+0xa/0x12
+[<ffffad+0x0/0xf1
+[<ffffffff8020a3ee>] child_rip+0x0/0x12
 
-See above. This is with mainline + Jeff's PCI domains patch.
 
-In any case, even if it wasn't necessary, I'd like to take advantage
-of Jeff's sysdata changes and get rid of our hack, as having an
-extensible struct hanging of ->sysdata is the right way to go
-forward.
+Code: 48 8b 45 00 31 f6 48 8b b8 50 01 00 00 e8 5c 4d fe ff 48 85 
+RIP  [<ffffffff80489aa2>] mptspi_dv_renegotiate_work+0xc/0x45
+RSP <ffff81003ec65e40>
+CR2: 0000000000000500
+<6>mptbase: Initiating ioc0 recovery
+0000000000000500
 
-Cheers,
-Muli
+Call Trace:
+<IRQ>  [<ffffffff803e0d37>] vgacon_cursor+0x0/0x1a7
+[<ffffffff80489b19>] mptspi_dv_renegotiate+0x3e/0x79
+[<ffffffff80489b7b>] mptspi_ioc_reset+0x27/0x2e
+[<ffffffff804846ea>] mpt_do_ioc_recovery+0x115f/0x11dd
+[<ffffffff802387d7>] current_tick_length+0x5/0x26
+[<ffffffff80238dd4>] do_timer+0x2f6/0x574
+[<ffffffff8023851c>] lock_timer_base+0x1b/0x3c
+[<ffffffff8055ebff>] _spin_lock+0xe/0x5e
+[<ffffffff8022797a>] task_rq_lock+0x3d/0x6f
+[<ffffffff80227d03>] resched_task+0x4e/0x71
+[<ffffffff8022847f>] try_to_wake_up+0x3d4/0x3e6
+[<ffffffff80461794>] atapi_output_bytes+0x21/0x5c
+[<ffffffff802387d7>] current_tick_length+0x5/0x26
+[<ffffffff80238dd4>] do_timer+0x2f6/0x574
+[<ffffffff8055ebff>] _spin_lock+0xe/0x5e
+[<ffffffff8020cf66>] main_timer_hax3a6
+[<ffffffff80228f29>] find_busiest_group+0x21f/0x66f
+[<ffffffff8055ebff>] _spin_lock+0xe/0x5e
+[<ffffffff80484f94>] mpt_HardResetHandler+0xb4/0x12c
+[<ffffffff8048500c>] mpt_timer_expired+0x0/0x24
+[<ffffffff80485017>] mpt_timer_expired+0xb/0x24
+[<ffffffff80238a07>] run_timer_softirq+0x156/0x1b2
+[<ffffffff802357a1>] __do_softirq+0x46/0xb1
+[<ffffffff8020a76c>] call_softir+0x1c/0x28
+[<ffffffff8020bb5f>] do_softirq+0x2c/0x7d
+[<ffffffff80207c37>] default_idle+0x0/0x47
+[<ffffffff8023583f>] irq_exit+0x33/0x3e
+[<ffffffff8020a216>] apic_timer_interrupt+0x66/0x70
+<EOI>  [<ffffffff80207c60>] default_idle+0x29/0x47
+[<ffffffff80207e3e>] cpu_idle+0x87/0xbe
+[<ffffffff80794704>] start_kernel+0x203/0x205
+[<ffffffff80794179>] _sinittext+0x179/0x17d
+
+
+Bryce

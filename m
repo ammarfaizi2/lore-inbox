@@ -1,93 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750749AbWI2Oyi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751183AbWI2PI6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750749AbWI2Oyi (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Sep 2006 10:54:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751139AbWI2Oyi
+	id S1751183AbWI2PI6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Sep 2006 11:08:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751186AbWI2PI6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Sep 2006 10:54:38 -0400
-Received: from inti.inf.utfsm.cl ([200.1.21.155]:43944 "EHLO inti.inf.utfsm.cl")
-	by vger.kernel.org with ESMTP id S1750749AbWI2Oyh (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Sep 2006 10:54:37 -0400
-Message-Id: <200609291454.k8TEsVJZ022006@laptop13.inf.utfsm.cl>
-To: James Bottomley <James.Bottomley@SteelEye.com>
-cc: Neil Brown <neilb@suse.de>, tridge@samba.org,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: GPLv3 Position Statement 
-In-Reply-To: Message from James Bottomley <James.Bottomley@SteelEye.com> 
-   of "Thu, 28 Sep 2006 23:56:37 MST." <1159512998.3880.50.camel@mulgrave.il.steeleye.com> 
-X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.5  (beta27)
-Date: Fri, 29 Sep 2006 10:54:31 -0400
-From: "Horst H. von Brand" <vonbrand@inf.utfsm.cl>
-X-Greylist: Recipient e-mail whitelisted, not delayed by milter-greylist-2.0.2 (inti.inf.utfsm.cl [200.1.21.155]); Fri, 29 Sep 2006 10:54:34 -0400 (CLT)
+	Fri, 29 Sep 2006 11:08:58 -0400
+Received: from rwcrmhc14.comcast.net ([216.148.227.154]:7896 "EHLO
+	rwcrmhc14.comcast.net") by vger.kernel.org with ESMTP
+	id S1751183AbWI2PIz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Sep 2006 11:08:55 -0400
+Date: Fri, 29 Sep 2006 10:10:54 -0500
+From: Corey Minyard <minyard@acm.org>
+To: Linux Kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+Cc: openipmi-developer@lists.sourceforge.net
+Subject: [PATCH] Don't start kipmid if the IPMI driver can use interrupts
+Message-ID: <20060929151053.GA17272@localdomain>
+Reply-To: minyard@acm.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[IANAL, just an interested bystander]
 
-James Bottomley <James.Bottomley@SteelEye.com> wrote:
-> On Fri, 2006-09-29 at 14:40 +1000, Neil Brown wrote:
-> > You seem to be saying that including software in a product that you
-> > then distribute is *both* a USE and a DISTRIBUTION of that software.
+If the driver has interrupts available to it, there is really no
+reason to have a kernel daemon push the IPMI state machine.
 
-Use is irrelevant; under US copyright law you can do whatever you want with
-what you got legally. The "use" clauses aren't any special dispensation by
-the GPL.
+Note that I have experienced machines where the interrupts do
+not work correctly.  This was a long time ago and hopefully
+things are better now.  If some machines still have broken
+interrupts, a blacklist will need to be added.
 
-> Sort of ... I'm asserting that producing something (an appliance say, or
-> a PCI card) that runs linux to achieve its function is a "use" (an act
-> of running the program) within the meaning of GPLv2 clause 0.
+Signed-off-by: Corey Minyard <minyard@acm.org>
 
-Not necessarily, but it doesn't matter anyway.
-
->                                                                Selling
-> the Box (or card, or whatever) also becomes a distribution.
-
-Sure does.
-
-> > So if the software is obtained under the GPL, and the GPL asserts "no
-> > restrictions on use" then it should also not restrict distribution.
-
-It doesn't, AFAICS.
-
-> > It can place requirements that must be met before distribution is
-> > allowed, but they shouldn't be so onerous as to inhibit distribution.
-> > Does that sound right?
-
-> Not exactly.  Under v2, there are specific duties that go along with the
-> act of distributing (providing access to the source code and all
-> modifications),
-
-No. Just to the full source code. It is very nice from distribution
-builders that e.g. an SRPM includes the original code plus patches, and of
-Linus that you can rumage around in Linux' git repository to trace the
-history, but that isn't a requirement of GPLv2 at all.
-
->                 but explicitly none on end use.  You can't get out of
-> the distribution requirements simply by claiming it's also a use.
-
-Right.
-
-> However I claim that, the GPLv3 requirement that you be able to "execute
-> modified versions from source code in the recommended or principal
-> context of use" does constitute an end use restriction on the embedded
-> system because the appliance (or card, or whatever) must be designed in
-> such a way as to allow this.
-
-It tries to leverage the license on the software to force certain hardware
-(or use) designs. Problem is, it won't work. Can't use FunkyOS for DRMing
-because it is GPLv3? Just use AnotherOS then. Or FunkyOS will do, and run
-propietary software on top of it that does all the nasty stuff anyway. This
-isn't rocket science, machines are so powerful today that developing such
-custom software isn't a tour de force anymore, and there are several
-alternatives out there, ones free for the taking and paid ones.
-
-Folks, open source is /very, very far/ from being prevalent enough to force
-anti-<whatever> provisions through via its software license (if that made
-any sense, which I very much doubt); and if it was, doing so would probably
-be moot anyway.
--- 
-Dr. Horst H. von Brand                   User #22616 counter.li.org
-Departamento de Informatica                    Fono: +56 32 2654431
-Universidad Tecnica Federico Santa Maria             +56 32 2654239
-Casilla 110-V, Valparaiso, Chile               Fax:  +56 32 2797513
+Index: linux-2.6.18/drivers/char/ipmi/ipmi_si_intf.c
+===================================================================
+--- linux-2.6.18.orig/drivers/char/ipmi/ipmi_si_intf.c
++++ linux-2.6.18/drivers/char/ipmi/ipmi_si_intf.c
+@@ -916,7 +916,11 @@ static int smi_start_processing(void    
+ 	new_smi->last_timeout_jiffies = jiffies;
+ 	mod_timer(&new_smi->si_timer, jiffies + SI_TIMEOUT_JIFFIES);
+ 
+- 	if (new_smi->si_type != SI_BT) {
++	/*
++	 * The BT interface is efficient enough to not need a thread,
++	 * and there is no need for a thread if we have interrupts.
++	 */
++ 	if ((new_smi->si_type != SI_BT) && (!new_smi->irq)) {
+ 		new_smi->thread = kthread_run(ipmi_thread, new_smi,
+ 					      "kipmi%d", new_smi->intf_num);
+ 		if (IS_ERR(new_smi->thread)) {

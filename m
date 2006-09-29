@@ -1,71 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750810AbWI2JSr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750826AbWI2JWT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750810AbWI2JSr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Sep 2006 05:18:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750887AbWI2JSr
+	id S1750826AbWI2JWT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Sep 2006 05:22:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751081AbWI2JWT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Sep 2006 05:18:47 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:13731 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750810AbWI2JSp (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Sep 2006 05:18:45 -0400
-Date: Fri, 29 Sep 2006 02:18:33 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Andi Kleen <ak@muc.de>
-Cc: Jeremy Fitzhardinge <jeremy@goop.org>, linux-kernel@vger.kernel.org,
-       Hugh Dickens <hugh@veritas.com>,
-       Michael Ellerman <michael@ellerman.id.au>,
-       Paul Mackerras <paulus@samba.org>
-Subject: Re: [PATCH RFC 1/4] Generic BUG handling.
-Message-Id: <20060929021833.147a17bd.akpm@osdl.org>
-In-Reply-To: <20060929091319.GB41098@muc.de>
-References: <20060928225444.439520197@goop.org>
-	<20060928225452.229936605@goop.org>
-	<20060929085745.GA41098@muc.de>
-	<20060929021019.19058b98.akpm@osdl.org>
-	<20060929091319.GB41098@muc.de>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+	Fri, 29 Sep 2006 05:22:19 -0400
+Received: from atrey.karlin.mff.cuni.cz ([195.113.31.123]:35037 "EHLO
+	atrey.karlin.mff.cuni.cz") by vger.kernel.org with ESMTP
+	id S1750826AbWI2JWS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Sep 2006 05:22:18 -0400
+Date: Fri, 29 Sep 2006 11:21:54 +0200
+From: Jan Kara <jack@suse.cz>
+To: "Zhang, Yanmin" <yanmin_zhang@linux.intel.com>
+Cc: akpm@osdl.org, LKML <linux-kernel@vger.kernel.org>,
+       Badari Pulavarty <pbadari@us.ibm.com>,
+       ia64 Fedora Core Development <fedora-ia64-list@redhat.com>
+Subject: Re: [PATCH] Fix commit of ordered data buffers
+Message-ID: <20060929092154.GC17124@atrey.karlin.mff.cuni.cz>
+References: <20060911210530.GA28445@atrey.karlin.mff.cuni.cz> <1159432266.20092.700.camel@ymzhang-perf.sh.intel.com> <20060928213558.GC15478@atrey.karlin.mff.cuni.cz> <1159493244.20092.718.camel@ymzhang-perf.sh.intel.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1159493244.20092.718.camel@ymzhang-perf.sh.intel.com>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 29 Sep 2006 11:13:19 +0200
-Andi Kleen <ak@muc.de> wrote:
+  Hello,
 
-> On Fri, Sep 29, 2006 at 02:10:19AM -0700, Andrew Morton wrote:
-> > On 29 Sep 2006 10:57:45 +0200
-> > Andi Kleen <ak@muc.de> wrote:
-> > 
-> > > > Some architectures (powerpc) implement WARN using the same mechanism;
-> > > > if the illegal instruction was the result of a WARN, then report_bug()
-> > > > returns 1; otherwise it returns 0.
+> On Fri, 2006-09-29 at 05:35, Jan Kara wrote:
+> > > The fsx-linux test issue is a race between journal_commit_transaction
+> > > and journal_dirty_data. After journal_commit_transaction adds buffer_head pointers
+> > > to wbuf, it might unlock journal->j_list_lock. Although all buffer head in wbuf are locked,
+> > > does that prevent journal_dirty_data from unlinking the buffer head from the transaction
+> > > and fsx-linux from truncating it?
+> >   Yes, it does. Because the buffers are locked *and dirty*. Nothing can
+> > clear the dirty bit while we are holding the lock and
+> > journal_dirty_data() also waits until it can safely write out the buffer
+> > - which is after we release the buffer lock.
+> With your patch, it's not true because journal_submit_data_buffers clear the dirty
+> flag, so later journal_dirty_data won't try to lock/flush the buffer. journal_dirty_data
+> would just move the jh to the t_sync_datalist of a new transaction.
+  Umm, yes. You're right, my previous explanation was bogus. But that
+should do no harm as we do not touch the journal_head of the buffer in
+wbuf array. We just eventually send it to disk. We are guarded against
+truncate/memory pressure because we hold the buffer lock so that should
+be fine too.
+
+> > > I'm not a journal expert. But I want to discuss it.
 > > > 
-> > > In theory we could do that on x86 too (and skipping the instruction), 
-> > > the only problem 
-> > > is that the only guaranteed to fault opcode is ud2 :/. Ok maybe we could
-> > > reserve some int XXX vector.
+> > > My investigation is below (Scenario):
 > > > 
-> > > % gid WARN_ON | grep -v arch | wc -l
-> > > 299
+> > > fsx-linux starts journal_dirty_data and journal_dirty_data links a jh to
+> > > journal->j_running_transaction's t_sync_datalist, kjournald might not
+> > > write the buffer to disk quickly, but saves it to array wbuf.
+> > > Then, fsx-linux starts the second journal_dirty_data of a new transaction
+> > > might submit the same buffer head and move the jh to the new transaction's
+> > > t_sync_datalist.
+> >   Yes, but this happens only after the buffer is removed from wbuf[] as
+> > I explain above.
 > > 
-> > powerpc sets a bit in the __LINE__ number to indicate that it was a
-> > WARN_ON.  That'll work on all architectures.
+> > > Then, fsx-linux truncates the last a couple of buffers of a page.
+> > > Then, block_write_full_page calls invalidatepage to invalidate the last a couple
+> > > of buffers of the page, so the journal_heads of the buffer_head are unlinked and
+> > > are marked as unmapped.
+> > > Then, fsx-linux extend the file and does a msync after changing the page content
+> > > by mmaping the page, so the page (inclduing the last buffer head) is marked dirty
+> > > again.
+> > > Then, kjournald's journal_commit_transaction goes through wbuf to submit_bh all
+> > > dirty buffers, but one buffer head is already marked as unmapped. A bug check is
+> > > triggerred.
+> I think the reason that your patch fixes it is that journal_invalidatepage
+> will lock the buffer before calling journal_unmap_buffer. So the last step to trigger
+> the bug will be synced with journal_commit_transaction.
 > 
-> We still would need an architecture dependent way to skip the opcode
-> though (just returning would raise it again). On x86
-> 
-> regs->eip += 2     (rip on x86-64) 
-> 
-> should be enough 
-> 
+> > I think the right way is to let journal_dirty_data to wait till wbuf is flushed.
+> >   This actually happens in my fix too. And my fix has also a bonus of
+> > fixing a few other flaws... Otherwise your patch seems to be right.
+> Other flaws could be fixed by other small patches to make it clearer.
+  Actually not quite - I've been thinking about the other problems for
+quite some while and I did not find a way to fix other flaws in a
+non-intrusive way. I also like small and clean fixes but sometimes one
+has to simply rewrite the code...
 
-We have all that now.  Do:
+							Bye
+								Honza
 
-	if (report_bug(regs->eip) == BUG_TRAP_TYPE_WARN)
-		regs>eip += 2;
-
-(The powerpc is_warning_bug() implementation needs to be hoisted into
-generic code)
-
+-- 
+Jan Kara <jack@suse.cz>
+SuSE CR Labs

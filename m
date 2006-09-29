@@ -1,46 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750834AbWI2Ojw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751121AbWI2Okq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750834AbWI2Ojw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Sep 2006 10:39:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751123AbWI2Ojw
+	id S1751121AbWI2Okq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Sep 2006 10:40:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932077AbWI2Okp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Sep 2006 10:39:52 -0400
-Received: from palinux.external.hp.com ([192.25.206.14]:53206 "EHLO
-	mail.parisc-linux.org") by vger.kernel.org with ESMTP
-	id S1750834AbWI2Ojv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Sep 2006 10:39:51 -0400
-Date: Fri, 29 Sep 2006 08:39:49 -0600
-From: Matthew Wilcox <matthew@wil.cx>
-To: "J.A. Magall??n" <jamagallon@ono.com>
-Cc: Andrew Morton <akpm@osdl.org>,
-       "Linux-Kernel, " <linux-kernel@vger.kernel.org>,
-       linux-scsi@vger.kernel.org
-Subject: Re: 2.6.18-mm2
-Message-ID: <20060929143949.GL5017@parisc-linux.org>
-References: <20060928014623.ccc9b885.akpm@osdl.org> <20060929155738.7076f0c8@werewolf>
+	Fri, 29 Sep 2006 10:40:45 -0400
+Received: from wx-out-0506.google.com ([66.249.82.229]:60777 "EHLO
+	wx-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1751123AbWI2Okn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Sep 2006 10:40:43 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=robkWdNi6sMMm/W6PPrK2IbXU12Lgtutwb22OwF7jyMH3hgxsVBmITq+ij9weEbZbXbzKA+0O/MyOf5755JzYTk2QxYxHvlKtHvRdK5dP6A+hArXeHVFBhyIZ7lz00zocjdVrqwD8ZlM39KOjwpo7e0maWT12tmVsxHhw8sPM6E=
+Message-ID: <39e6f6c70609290740s79bf0b1cwe0b64eef8074eeeb@mail.gmail.com>
+Date: Fri, 29 Sep 2006 11:40:43 -0300
+From: "Arnaldo Carvalho de Melo" <arnaldo.melo@gmail.com>
+To: "Gerrit Renker" <gerrit@erg.abdn.ac.uk>
+Subject: Re: [PATCH] IPv6/DCCP: Remove unused IPV6_PKTOPTIONS code
+Cc: "Andrew Morton" <akpm@osdl.org>, "Ian McDonald" <ian.mcdonald@jandi.co.nz>,
+       "Jesper Juhl" <jesper.juhl@gmail.com>, linux-kernel@vger.kernel.org,
+       netdev@vger.kernel.org, dccp@vger.kernel.org,
+       "David S. Miller" <davem@davemloft.net>,
+       "Pekka Savola" <pekkas@netcore.fi>, "James Morris" <jmorris@namei.org>,
+       "Hideaki YOSHIFUJI" <yoshfuji@linux-ipv6.org>,
+       "Patrick McHardy" <kaber@coreworks.de>,
+       "Alexey Kuznetsov" <kuznet@ms2.inr.ac.ru>
+In-Reply-To: <200609291102.19243@strip-the-willow>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060929155738.7076f0c8@werewolf>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+References: <200609290245.33618.jesper.juhl@gmail.com>
+	 <20060928230751.99041004.akpm@osdl.org>
+	 <200609291102.19243@strip-the-willow>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 29, 2006 at 03:57:38PM +0200, J.A. Magall??n wrote:
-> aic7xxx oopses on boot:
-> 
-> PCI: Setting latency timer of device 0000:00:0e.0 to 64
-> IRQ handler type mismatch for IRQ 0
+On 9/29/06, Gerrit Renker <gerrit@erg.abdn.ac.uk> wrote:
+> >  Coverity found what looks like a real leak in net/dccp/ipv6.c::dccp_v6_do_rcv()
+>
+> |  otoh, it seems to me that opt_skb doesn't actually do anything and can be
+> |  removed?
+> This is right, there is no code referencing opt_skb: compare with net/ipv6/tcp_ipv6.c.
+> Until someone has time to add the missing DCCP-specific code, it does seem better
+> to replace the dead part with a FIXME. This is done by the patch below, applies to
+> davem-net2.6 and has been tested to compile.
 
-Of course, this isn't a scsi problem, it's a peecee hardware problem.
-Or maybe a PCI subsystem problem.  But it's clearly not aic7xxx's fault.
+Thanks, I've been again sidetracked by Real Life(tm) but hopefully
+tomorrow I'll go over all the DCCP pending patches backlog and get
+them into tree to submit to Dave.
 
-> PCI: Cannot allocate resource region 0 of device 0000:00:0e.0
-
-That's not good.  Might be part of the problem.
-
-> PCI: Enabling device 0000:00:0e.0 (0000 -> 0003)
-> PCI: No IRQ known for interrupt pin A of device 0000:00:0e.0. Probably buggy MP table.
-
-This is the direct problem.  You've got no irq.
-
+- Arnaldo

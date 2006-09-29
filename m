@@ -1,53 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161495AbWI2Ht4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030404AbWI2HwX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161495AbWI2Ht4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Sep 2006 03:49:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161496AbWI2Ht4
+	id S1030404AbWI2HwX (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Sep 2006 03:52:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030405AbWI2HwX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Sep 2006 03:49:56 -0400
-Received: from dp.samba.org ([66.70.73.150]:15590 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S1161495AbWI2Htz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Sep 2006 03:49:55 -0400
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Fri, 29 Sep 2006 03:52:23 -0400
+Received: from e34.co.us.ibm.com ([32.97.110.152]:35304 "EHLO
+	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S1030404AbWI2HwW
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Sep 2006 03:52:22 -0400
+Subject: Re: [Lse-tech] [RFC][PATCH 05/10] Task watchers v2 Register cpuset
+	task watcher
+From: Matt Helsley <matthltc@us.ibm.com>
+To: Paul Jackson <pj@sgi.com>
+Cc: sekharan@us.ibm.com, jtk@us.ibm.com, jes@sgi.com,
+       linux-kernel@vger.kernel.org, linux-audit@redhat.com,
+       viro@zeniv.linux.org.uk, lse-tech@lists.sourceforge.net,
+       sgrubb@redhat.com, hch@lst.de
+In-Reply-To: <20060928193138.963c510a.pj@sgi.com>
+References: <20060929020232.756637000@us.ibm.com>
+	 <20060929021300.851205000@us.ibm.com>  <20060928193138.963c510a.pj@sgi.com>
+Content-Type: text/plain
+Organization: IBM Linux Technology Center
+Date: Fri, 29 Sep 2006 00:52:18 -0700
+Message-Id: <1159516338.3286.10.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.3 
 Content-Transfer-Encoding: 7bit
-Message-ID: <17692.53185.564741.502063@samba.org>
-Date: Fri, 29 Sep 2006 17:48:17 +1000
-To: torvalds@osdl.org
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: GPLv3 Position Statement
-In-Reply-To: <1159512998.3880.50.camel@mulgrave.il.steeleye.com>
-References: <1159498900.3880.31.camel@mulgrave.il.steeleye.com>
-	<17692.41932.957298.877577@cse.unsw.edu.au>
-	<1159512998.3880.50.camel@mulgrave.il.steeleye.com>
-X-Mailer: VM 7.19 under Emacs 21.4.1
-Reply-To: tridge@samba.org
-From: tridge@samba.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Linus,
+On Thu, 2006-09-28 at 19:31 -0700, Paul Jackson wrote:
+> Matt wrote:
+> 
+> > -	cpuset_fork(p);
+> >  #ifdef CONFIG_NUMA
+> >   	p->mempolicy = mpol_copy(p->mempolicy);
+> >   	if (IS_ERR(p->mempolicy)) {
+> >   		retval = PTR_ERR(p->mempolicy);
+> >   		p->mempolicy = NULL;
+> > - 		goto bad_fork_cleanup_cpuset;
+> > + 		goto bad_fork_cleanup_delays_binfmt;
+> >   	}
+> >  	mpol_fix_fork_child_flag(p);
+> >  #endif
+> >  #ifdef CONFIG_TRACE_IRQFLAGS
+> >  	p->irq_events = 0;
+> > @@ -1280,13 +1278,11 @@ bad_fork_cleanup_files:
+> >  bad_fork_cleanup_security:
+> >  	security_task_free(p);
+> >  bad_fork_cleanup_policy:
+> >  #ifdef CONFIG_NUMA
+> >  	mpol_free(p->mempolicy);
+> > -bad_fork_cleanup_cpuset:
+> >  #endif
+> > -	cpuset_exit(p);
+> >  bad_fork_cleanup_delays_binfmt:
+> 
+> 
+> The above code, before your change, had the affect that if mpol_copy()
+> failed, then the cpusets that were just setup by the cpuset_fork()
+> call were undone by a cpuset_exit() call.
+> 
+> >From what I can tell, after your change, this is no longer done,
+> and a failed mpol_copy will leave cpusets in an incorrect state.
+> 
+> Am I missing something?
+> 
 
-> Quite frankly, if the FSF ever relicenses any of their projects to be
-> "GPLv3 or later", I will hope that everybody immediately forks, and
-> creates a GPLv2-only copy (and yes, you have to do it immediately, or
-> you're screwed forever). That way the people involved can all vote with
-> their feet.
+If you look in the first patch there's a corresponding
+notify_task_watchers(WATCH_TASK_FREE, tsk) below when we get a failure
+from INIT. That in turn calls cpuset_exit() because a cpuset_exit()
+because a hunk of this patch marks it for execution whenever a task is
+freed.
 
-I do hope your either joking about this, or that you would consult
-with the major contributors to the project before doing this. In past
-postings you have expressed strong support for "authors rights", which
-includes the idea of not using someones code if they don't want you to
-use it, even if it might be legal to do so.
+Cheers,
+	-Matt Helsley
 
-I'm also a strong proponent of "authors rights", and I would consider
-it very nasty if someone took one of my projects and decided to fork
-it to be GPLv2 only, deliberately going against my intention. They
-might have a legal right to do so but it would clearly be against my
-wishes.  I'm not even 100% certain it would be legal.
-
-The "any later version" words I have put on all my projects are there
-quite deliberately.
-
-Cheers, Tridge

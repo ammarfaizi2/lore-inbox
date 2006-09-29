@@ -1,92 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422658AbWI2XyH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932326AbWI2Xzf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422658AbWI2XyH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Sep 2006 19:54:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422676AbWI2XyG
+	id S932326AbWI2Xzf (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Sep 2006 19:55:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932303AbWI2Xzf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Sep 2006 19:54:06 -0400
-Received: from vms042pub.verizon.net ([206.46.252.42]:52926 "EHLO
-	vms042pub.verizon.net") by vger.kernel.org with ESMTP
-	id S1422658AbWI2XyF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Sep 2006 19:54:05 -0400
-Date: Fri, 29 Sep 2006 19:53:42 -0400
-From: Gene Heskett <gene.heskett@verizon.net>
-Subject: Re: GPLv3 Position Statement
-In-reply-to: <20060929162505.8e950ddc.rdunlap@xenotime.net>
-To: linux-kernel@vger.kernel.org
-Message-id: <200609291953.42668.gene.heskett@verizon.net>
-Organization: Organization? Absolutely zip.
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-Content-disposition: inline
-References: <1158941750.3445.31.camel@mulgrave.il.steeleye.com>
- <200609291912.15763.gene.heskett@verizon.net>
- <20060929162505.8e950ddc.rdunlap@xenotime.net>
-User-Agent: KMail/1.7
+	Fri, 29 Sep 2006 19:55:35 -0400
+Received: from ns.suse.de ([195.135.220.2]:31443 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S932299AbWI2Xze (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Sep 2006 19:55:34 -0400
+From: Andi Kleen <ak@suse.de>
+To: torvalds@osdl.org
+Subject: Please pull x86 update
+Date: Sat, 30 Sep 2006 01:55:26 +0200
+User-Agent: KMail/1.9.3
+Cc: linux-kernel@vger.kernel.org, discuss@x86-64.org
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200609300155.26250.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 29 September 2006 19:25, Randy Dunlap wrote:
->On Fri, 29 Sep 2006 19:12:15 -0400 Gene Heskett wrote:
->> On Friday 29 September 2006 16:32, alan wrote:
->> >On Fri, 29 Sep 2006, alan wrote:
->> >> On Fri, 29 Sep 2006, Linus Torvalds wrote:
->> >>> On Fri, 29 Sep 2006, alan wrote:
->> >>>> On Fri, 29 Sep 2006, Linus Torvalds wrote:
->> >>>>> (*) Hah. Who do I think I'm kidding? The revolution will be
->> >>>>> bloody and brutal, and you're not going to get the choice to
->> >>>>> "elect" me except in the
->> >>>>> history books written by yours truly.
->> >>>>
->> >>>> Wow.  You have been living in Portland too long. ]:>
->> >>>
->> >>> Is there some Portland subculture that I should be aware of?
->> >>>
->> >>> Inquiring minds want to know.
->> >>
->> >> That would be telling.
->> >>
->> >> Here are a few clues to the secret handshake that is Portland...
->> >>
->> >> http://www.mondocroquet.com/
->> >> http://portland.cacophony.org/
->> >> http://www.orycon.org/orycon28/
->> >> http://communique.portland.or.us/02/12/santanarchy_now
->> >
->> >Not to mention:
->> >http://www.hplfilmfestival.com/
->> >
->> >And worst of all:
->> >
->> >http://www.stonehenge.com/merlyn/
->>
->> I take it that much of this indoor activity is caused by the relative
->> lack of sufficient umbrellas in Portland?
->
->what's an umbrella?
 
-See what I mean folks?  Underpriviledged is what Portlanders are.  I mean 
-Shirley Seattle doesn't hog all the rain on the left coast.
+Linus,  please pull from
 
-However, to be fair, the one time I flew in and out of Portland, to see an 
-Aunt in Salem I knew I'd never see again if I didn't do it then, it didn't 
-outright rain either time.  But Salem, an hour south, got about a foot in 
-that same 12 days.  Last of June, the road to Crater Lake was opened the 
-day before we were there, and there was still around 15 feet of snow up 
-there in places.
->
->---
->~Randy
->GPL v0:  http://www.glacierparkinc.com/GlacierParkLodge.htm
+	git://one.firstfloor.org/home/andi/git/linux-2.6 for-linus
 
-But does it have a wifi for your puter?  :-)
+to get
 
--- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-Yahoo.com and AOL/TW attorneys please note, additions to the above
-message by Gene Heskett are:
-Copyright 2006 by Maurice Eugene Heskett, all rights reserved.
+Andi Kleen:
+      Update defconfig
+      i386: Update defconfig
+      Add proper sparse __user casts to __copy_to_user_inatomic
+      Allow disabling DAC using command line options
+      Fix broken indentation in iommu_setup
+      Document iommu=panic
+      Refactor some duplicated code in mpparse.c
+      x86: Clean up x86 NMI sysctls
+      Use ARRAY_SIZE in setup.c
+      Define vsyscall cache as blob to make clearer that user space shouldn't use it
+      Use early clobber in semaphores
+
+Bjorn Helgaas:
+      i386: replace intermediate array-size definitions with ARRAY_SIZE()
+
+Vivek Goyal:
+      Re-positioning the bss segment
+
+ Documentation/x86_64/boot-options.txt |    5 +
+ arch/i386/defconfig                   |    7 +-
+ arch/i386/kernel/nmi.c                |    3 +
+ arch/i386/kernel/setup.c              |   10 ---
+ arch/i386/kernel/traps.c              |    2 
+ arch/x86_64/defconfig                 |    8 ++
+ arch/x86_64/kernel/mpparse.c          |   37 ++++++------
+ arch/x86_64/kernel/nmi.c              |    4 +
+ arch/x86_64/kernel/pci-dma.c          |  101 ++++++++++++++++++++--------------
+ arch/x86_64/kernel/setup.c            |   11 +--
+ arch/x86_64/kernel/vmlinux.lds.S      |   14 ++--
+ arch/x86_64/kernel/vsyscall.c         |    8 +-
+ include/asm-i386/nmi.h                |    6 ++
+ include/asm-x86_64/nmi.h              |    7 ++
+ include/asm-x86_64/semaphore.h        |    4 -
+ include/asm-x86_64/uaccess.h          |    7 ++
+ include/linux/getcpu.h                |   12 ++--
+ kernel/panic.c                        |    1 
+ kernel/sys.c                          |    8 +-
+ kernel/sysctl.c                       |   11 +--
+ 20 files changed, 156 insertions(+), 110 deletions(-)

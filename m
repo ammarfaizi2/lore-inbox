@@ -1,120 +1,176 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161412AbWI2Etq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161417AbWI2FHL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161412AbWI2Etq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Sep 2006 00:49:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161409AbWI2Etq
+	id S1161417AbWI2FHL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Sep 2006 01:07:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161416AbWI2FHL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Sep 2006 00:49:46 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:46801 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1161412AbWI2Etp (ORCPT
+	Fri, 29 Sep 2006 01:07:11 -0400
+Received: from ozlabs.org ([203.10.76.45]:49845 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S1161415AbWI2FHJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Sep 2006 00:49:45 -0400
-Date: Thu, 28 Sep 2006 21:49:10 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "Miles Lane" <miles.lane@gmail.com>, Greg KH <greg@kroah.com>
-Cc: LKML <linux-kernel@vger.kernel.org>,
-       "James P. Ketrenos" <ipw2100-admin@linux.intel.com>, jgarzik@pobox.com
-Subject: Re: 2.6.18-mm2 -- EIP: [<c11a962e>] klist_node_init+0x2b/0x3a
- SS:ESP 0068:f63a5f80
-Message-Id: <20060928214910.a3be37ea.akpm@osdl.org>
-In-Reply-To: <a44ae5cd0609282131t2841a7b7ued9ffc22ac470687@mail.gmail.com>
-References: <a44ae5cd0609281913q127abc03i72dc7ea8711a223f@mail.gmail.com>
-	<20060928200431.8f7f3fea.akpm@osdl.org>
-	<a44ae5cd0609282131t2841a7b7ued9ffc22ac470687@mail.gmail.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+	Fri, 29 Sep 2006 01:07:09 -0400
+Subject: Re: [PATCH RFC 1/4] Generic BUG handling.
+From: Michael Ellerman <michael@ellerman.id.au>
+Reply-To: michael@ellerman.id.au
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Andi Kleen <ak@muc.de>, Hugh Dickens <hugh@veritas.com>,
+       Paul Mackerras <paulus@samba.org>
+In-Reply-To: <20060928225452.229936605@goop.org>>
+References: <20060928225444.439520197@goop.org> >
+	  <20060928225452.229936605@goop.org>>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-nCsNY7HkVOcDv15QmrGc"
+Date: Fri, 29 Sep 2006 15:07:07 +1000
+Message-Id: <1159506427.25820.20.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution 2.6.1 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 28 Sep 2006 21:31:19 -0700
-"Miles Lane" <miles.lane@gmail.com> wrote:
 
-> On 9/28/06, Andrew Morton <akpm@osdl.org> wrote:
-> > On Thu, 28 Sep 2006 19:13:23 -0700
-> > "Miles Lane" <miles.lane@gmail.com> wrote:
-> >
-> > > eth1: RealTek RTL8139 at 0xf9076800, 00:c0:9f:95:18:1b, IRQ 19
-> > > eth1:  Identified 8139 chip type 'RTL-8100B/8139D'
-> > > BUG: unable to handle kernel NULL pointer dereference at virtual
-> > > address 000000d0
-> > >  printing eip:
-> > > c11a962e
-> > > *pde = 00000000
-> > > Oops: 0000 [#1]
-> > > PREEMPT
-> > > last sysfs file: /class/firmware/0000:01:06.0/loading
-> >
-> > So you got to the stage of loading firmware.
-> >
-> > > Modules linked in: shpchp pci_hotplug intel_agp i2c_i801 agpgart
-> > > snd_intel8x0 i2c_core snd_intel8x0m snd_ac97_codec snd_ac97_bus
-> > > snd_seq_dummy snd_seq_oss snd_seq_midi_event snd_seq snd_seq_device
-> > > snd_pcm_oss snd_mixer_oss ata_generic ata_piix libata 8139too sdhci
-> > > scsi_mod snd_pcm snd_timer psmouse snd soundcore snd_page_alloc 8139cp
-> > > mii yenta_socket rsrc_nonstatic pcmcia_core ohci1394 serio_raw ipw2200
-> > > ieee1394 ide_cd cdrom rtc unix ehci_hcd ohci_hcd uhci_hcd usbcore ext3
-> > > jbd mbcache
-> > > CPU:    0
-> > > EIP:    0060:[<c11a962e>]    Not tainted VLI
-> > > EFLAGS: 00010296   (2.6.18-mm2 #8)
-> > > EIP is at klist_node_init+0x2b/0x3a
-> > > eax: dff16b08   ebx: 000000a0   ecx: c102ebd7   edx: f63a5f44
-> > > esi: dff16afc   edi: f910e214   ebp: f63a5f88   esp: f63a5f80
-> > > ds: 007b   es: 007b   ss: 0068
-> > > Process probe-0000:01:0 (pid: 1697, ti=f63a4000 task=f639c030 task.ti=f63a4000)
-> > > Stack: 000000a0 dff16afc f63a5f98 c11a964f dff16a80 dff16afc f63a5fac c1124295
-> > >        00000000 dff16a80 f910e214 f63a5fc4 c1124338 f5c17e80 f5c17e80 f633bd90
-> > >        c11242f0 f63a5fe0 c102a834 ffffffff ffffffff c102a784 00000000 00000000
-> > > Call Trace:
-> > >  [<c11a964f>] klist_add_tail+0x12/0x38
-> > >  [<c1124295>] device_bind_driver+0x45/0xa0
-> > >  [<c1124338>] really_probe+0x48/0xb3
-> > >  [<c102a834>] kthread+0xb0/0xdc
-> > >  [<c1003abb>] kernel_thread_helper+0x7/0x10
-> > > DWARF2 unwinder stuck at kernel_thread_helper+0x7/0x10
-> > >
-> > > Leftover inexact backtrace:
-> > >
-> > >  [<c1003f02>] show_trace_log_lvl+0x12/0x25
-> > >  [<c1003fa1>] show_stack_log_lvl+0x8c/0x97
-> > >  [<c100412c>] show_registers+0x180/0x214
-> > >  [<c1004355>] die+0x195/0x2b0
-> > >  [<c10148a9>] do_page_fault+0x419/0x4e4
-> > >  [<c11ac329>] error_code+0x39/0x40
-> > >  [<c11a964f>] klist_add_tail+0x12/0x38
-> > >  [<c1124295>] device_bind_driver+0x45/0xa0
-> > >  [<c1124338>] really_probe+0x48/0xb3
-> > >  [<c102a834>] kthread+0xb0/0xdc
-> > >  [<c1003abb>] kernel_thread_helper+0x7/0x10
-> > >  =======================
-> > > Code: 55 89 e5 56 53 89 c3 89 d6 8d 42 04 89 42 04 89 40 04 c7 42 10
-> > > 00 00 00 00 8d 42 14 e8 f2 14 e8 ff 8d 46 0c e8 80 3d f1 ff 89 1e <8b>
-> > > 53 30 85 d2 74 04 89 f0 ff d2 5b 5e 5d c3 55 89 e5 56 53 89
-> > > EIP: [<c11a962e>] klist_node_init+0x2b/0x3a SS:ESP 0068:f63a5f80
-> > >  <6>ipw2200: Detected geography ZZM (11 802.11bg channels, 0 802.11a channels)
-> >
-> > Does setting CONFIG_PCI_MULTITHREAD_PROBE=n fix it?
-> 
-> Yes and no.  The BUG no longer occurs,
+--=-nCsNY7HkVOcDv15QmrGc
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
-OK, thanks.  Note to Greg: CONFIG_PCI_MULTITHREAD_PROBE+ipw2200 = oops.
+On Thu, 2006-09-28 at 15:54 -0700, Jeremy Fitzhardinge wrote:
+> plain text document attachment (generic-bug.patch)
+> This patch adds common handling for kernel BUGs, for use by
+> architectures as they wish.  The code is derived from arch/powerpc.
+>=20
+> The advantages of having common BUG handling are:
+>  - consistent BUG reporting across architectures
+>  - shared implementation of out-of-line file/line data
 
-> but either ipw2200 or
-> NetworkManager is still not working.  I am running Fedora development
-> (rawhide).  For some reason, NM still cannot establish a connection
-> with this kernel build (this failed with 2.6.18-mm2 previously, but I
-> thought it was related to the BUG).  "iwlist scan" can corrently
-> detect my access point.  Also, I can use iwconfig and dhclient to
-> establish a working connection.  NM fails with this output in the
-> message log (I'll try getting a more detailed debug log out of NM):
+Nice work.
 
-Another reporter mentioned that he could only get his wireless to associate
-with his AP by using essid "any".  But that was a different type of card. 
+> +       printk(KERN_EMERG "------------[ cut here ]------------\n");
 
-ipw2200 works OK for me, fwiw.
+I'm not sure I'm big on the cut here marker.
 
-There's a largeish ipw2200 update in mainline now.  That'd be worth testing.
+> i386 implements CONFIG_DEBUG_BUGVERBOSE, but x86-64 and powerpc do
+> not.  This should probably be made more consistent.
 
-It looks like that ipw2200 update was in 2.6.18-mm1 though.  Did that work?
+It looks like if you do this you _might_ be able to share struct
+bug_entry, or at least have consistent members for each arch. Which
+would eliminate some of the inlines you have for accessing the bug
+struct.
+
+It needed a bit of work to get going on powerpc:
+
+Generic BUG handling, Powerpc fixups
+
+Signed-off-by: Michael Ellerman <michael@ellerman.id.au>
+
+Index: to-merge/arch/powerpc/kernel/traps.c
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- to-merge.orig/arch/powerpc/kernel/traps.c
++++ to-merge/arch/powerpc/kernel/traps.c
+@@ -731,32 +731,9 @@ static int emulate_instruction(struct pt
+ 	return -EINVAL;
+ }
+=20
+-/*
+- * Look through the list of trap instructions that are used for BUG(),
+- * BUG_ON() and WARN_ON() and see if we hit one.  At this point we know
+- * that the exception was caused by a trap instruction of some kind.
+- * Returns 1 if we should continue (i.e. it was a WARN_ON) or 0
+- * otherwise.
+- */
+-extern struct bug_entry __start___bug_table[], __stop___bug_table[];
+-
+-#ifndef CONFIG_MODULES
+-#define module_find_bug(x)	NULL
+-#endif
+-
+-struct bug_entry *find_bug(unsigned long bugaddr)
+-{
+-	struct bug_entry *bug;
+-
+-	for (bug =3D __start___bug_table; bug < __stop___bug_table; ++bug)
+-		if (bugaddr =3D=3D bug->bug_addr)
+-			return bug;
+-	return module_find_bug(bugaddr);
+-}
+-
+ int is_valid_bugaddr(unsigned long addr)
+ {
+-	return addr >=3D PAGE_OFFSET;
++	return is_kernel_addr(addr);
+ }
+=20
+ void __kprobes program_check_exception(struct pt_regs *regs)
+Index: to-merge/include/asm-powerpc/bug.h
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- to-merge.orig/include/asm-powerpc/bug.h
++++ to-merge/include/asm-powerpc/bug.h
+@@ -20,8 +20,6 @@ struct bug_entry {
+ 	const char	*function;
+ };
+=20
+-struct bug_entry *find_bug(unsigned long bugaddr);
+-
+ /*
+  * If this bit is set in the line number it means that the trap
+  * is for WARN_ON rather than BUG or BUG_ON.
+Index: to-merge/include/linux/bug.h
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- to-merge.orig/include/linux/bug.h
++++ to-merge/include/linux/bug.h
+@@ -6,14 +6,16 @@
+ #ifdef CONFIG_GENERIC_BUG
+ #include <linux/module.h>
+=20
+-int report_bug(unsigned long bug_addr);
++extern int report_bug(unsigned long bug_addr);
+=20
+-int  module_bug_finalize(const Elf_Ehdr *, const Elf_Shdr *,
++extern int  module_bug_finalize(const Elf_Ehdr *, const Elf_Shdr *,
+ 			 struct module *);
+-void module_bug_cleanup(struct module *);
++extern void module_bug_cleanup(struct module *);
++
++extern const struct bug_entry *find_bug(unsigned long bugaddr);
+=20
+ /* These are defined by the architecture */
+-int is_valid_bugaddr(unsigned long addr);
++extern int is_valid_bugaddr(unsigned long addr);
+=20
+ #endif	/* CONFIG_GENERIC_BUG */
+ #endif	/* _LINUX_BUG_H */
+Index: to-merge/lib/bug.c
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=
+=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D=3D
+--- to-merge.orig/lib/bug.c
++++ to-merge/lib/bug.c
+@@ -21,7 +21,7 @@ static const struct bug_entry *module_fi
+ 	return NULL;
+ }
+=20
+-static const struct bug_entry *find_bug(unsigned long bugaddr)
++const struct bug_entry *find_bug(unsigned long bugaddr)
+ {
+ 	const struct bug_entry *bug;
+=20
+
+
+--=-nCsNY7HkVOcDv15QmrGc
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.2.2 (GNU/Linux)
+
+iD8DBQBFHKn7dSjSd0sB4dIRAh1YAJ4l2l0eEYZzOI3d8VAqAHTaoisXIACfcGWs
+fNQhGwkoBaqUtJD5hYeq9bs=
+=XlZl
+-----END PGP SIGNATURE-----
+
+--=-nCsNY7HkVOcDv15QmrGc--
+

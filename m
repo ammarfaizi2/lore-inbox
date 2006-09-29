@@ -1,55 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932107AbWI2XcX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030232AbWI2Xie@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932107AbWI2XcX (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Sep 2006 19:32:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932288AbWI2XcX
+	id S1030232AbWI2Xie (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Sep 2006 19:38:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030230AbWI2Xie
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Sep 2006 19:32:23 -0400
-Received: from ns2.suse.de ([195.135.220.15]:38362 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S932107AbWI2XcW (ORCPT
+	Fri, 29 Sep 2006 19:38:34 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:5516 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030200AbWI2Xid (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Sep 2006 19:32:22 -0400
-Date: Fri, 29 Sep 2006 16:32:09 -0700
-From: Greg KH <greg@kroah.com>
-To: Olaf Hering <olaf@aepfle.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 44/47] PCI: enable driver multi-threaded probe
-Message-ID: <20060929233209.GC27431@kroah.com>
-References: <1159249200793-git-send-email-greg@kroah.com> <11592492023883-git-send-email-greg@kroah.com> <11592492061208-git-send-email-greg@kroah.com> <1159249209773-git-send-email-greg@kroah.com> <11592492123695-git-send-email-greg@kroah.com> <11592492153066-git-send-email-greg@kroah.com> <11592492193773-git-send-email-greg@kroah.com> <11592492221573-git-send-email-greg@kroah.com> <1159249226922-git-send-email-greg@kroah.com> <20060927185124.GA9552@aepfle.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060927185124.GA9552@aepfle.de>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+	Fri, 29 Sep 2006 19:38:33 -0400
+Date: Fri, 29 Sep 2006 16:38:27 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Randy Dunlap <rdunlap@xenotime.net>
+Cc: len.brown@intel.com, Martin Bligh <mbligh@google.com>,
+       LKML <linux-kernel@vger.kernel.org>, linux-acpi@vger.kernel.org
+Subject: Re: [PATCH] Fix up a multitude of ACPI compiler warnings on x86_64
+Message-Id: <20060929163827.d77a12c8.akpm@osdl.org>
+In-Reply-To: <20060929161852.4b6ae44a.rdunlap@xenotime.net>
+References: <451D9236.6040902@google.com>
+	<20060929150526.38eec941.akpm@osdl.org>
+	<20060929161852.4b6ae44a.rdunlap@xenotime.net>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, Sep 27, 2006 at 08:51:24PM +0200, Olaf Hering wrote:
-> On Mon, Sep 25, Greg KH wrote:
-> 
-> > Use at your own risk!!!
-> 
-> I havent debugged it, but it seems to reorder the driver probing, offb
-> vs. nvidiafb (-bad, +good):
-> 
-> -Using unsupported 1024x768 NVDA,Display-A at 90020000, depth=8, pitch=1024
-> -PCI: Unable to reserve mem region #2:10000000@90000000 for device 0000:0a:00.0
-> -nvidiafb: cannot request PCI regions
-> +nvidiafb: Device ID: 10de0141 
-> +nvidiafb: CRTC0 analog found
-> +nvidiafb: CRTC1 analog found
-> +nvidiafb: Found OF EDID for head 1
-> +nvidiafb: EDID found from BUS1
-> +nvidiafb: EDID found from BUS2
-> +nvidiafb: CRTC 0 appears to have a CRT attached
-> +nvidiafb: Using CRT on CRTC 0
->  Console: switching to colour frame buffer device 128x48
-> -fb0: Open Firmware frame buffer device on /pci@0,f0000000/NVDA,Parent@0/NVDA,Display-A@0
-> +nvidiafb: PCI nVidia NV14 framebuffer (64MB @ 0x90000000)
+On Fri, 29 Sep 2006 16:18:52 -0700
+Randy Dunlap <rdunlap@xenotime.net> wrote:
 
-Hm, is things just getting registered out of order, so the wrong video
-device is used by the kernel?  Or by userspace?
+> > 
+> > acpi-fix-printk-format-warnings.patch was submitted to the ACPI developers
+> > on August 14 and on September 25 but remains unmerged.
+> 
+> Len and I discussed that patch some.  The question about it is:
+> why does gcc report this at all?  Is this a gcc problem or are
+> we misreading it somehow?
+> 
+>  drivers/acpi/tables/tbget.c: In function 'acpi_tb_get_this_table':
+> drivers/acpi/tables/tbget.c:326: warning: format '%X' expects type 'unsigned int', but argument 5 has type 'long unsigned int'
+> 
+> drivers/acpi/tables/tbrsdt.c: In function 'acpi_tb_validate_rsdt':
+> drivers/acpi/tables/tbrsdt.c:189: warning: format '%X' expects type 'unsigned int', but argument 5 has type 'long unsigned int'
+> 
+> Why does it think that sizeof(struct X) is long unsigned int?
+> (and only on 64-bit)
 
-thanks,
+hm, strange.  No warning at all on 32-bit.
 
-greg k-h
+Don't know.  But the patch is correct.

@@ -1,74 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750863AbWI2XMl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030195AbWI2XPi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750863AbWI2XMl (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Sep 2006 19:12:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750862AbWI2XMl
+	id S1030195AbWI2XPi (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Sep 2006 19:15:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030200AbWI2XPi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Sep 2006 19:12:41 -0400
-Received: from vms042pub.verizon.net ([206.46.252.42]:7140 "EHLO
-	vms042pub.verizon.net") by vger.kernel.org with ESMTP
-	id S1750797AbWI2XMk (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Sep 2006 19:12:40 -0400
-Date: Fri, 29 Sep 2006 19:12:15 -0400
-From: Gene Heskett <gene.heskett@verizon.net>
-Subject: Re: GPLv3 Position Statement
-In-reply-to: <Pine.LNX.4.64.0609291330120.30853@blackbox.fnordora.org>
-To: linux-kernel@vger.kernel.org
-Message-id: <200609291912.15763.gene.heskett@verizon.net>
-Organization: Organization? Absolutely zip.
-MIME-version: 1.0
-Content-type: text/plain; charset=us-ascii
-Content-transfer-encoding: 7bit
-Content-disposition: inline
-References: <1158941750.3445.31.camel@mulgrave.il.steeleye.com>
- <Pine.LNX.4.64.0609291314250.30853@blackbox.fnordora.org>
- <Pine.LNX.4.64.0609291330120.30853@blackbox.fnordora.org>
-User-Agent: KMail/1.7
+	Fri, 29 Sep 2006 19:15:38 -0400
+Received: from smtp.ono.com ([62.42.230.12]:7072 "EHLO resmta04.ono.com")
+	by vger.kernel.org with ESMTP id S932107AbWI2XPe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Sep 2006 19:15:34 -0400
+Date: Sat, 30 Sep 2006 01:15:10 +0200
+From: "J.A. =?UTF-8?B?TWFnYWxsw7Nu?=" <jamagallon@ono.com>
+To: Matthew Wilcox <matthew@wil.cx>,
+       "Linux-Kernel, " <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, linux-scsi@vger.kernel.org
+Subject: Re: 2.6.18-mm2
+Message-ID: <20060930011510.5a697026@werewolf>
+In-Reply-To: <20060929143949.GL5017@parisc-linux.org>
+References: <20060928014623.ccc9b885.akpm@osdl.org>
+	<20060929155738.7076f0c8@werewolf>
+	<20060929143949.GL5017@parisc-linux.org>
+X-Mailer: Sylpheed-Claws 2.5.2cvs19 (GTK+ 2.10.3; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 29 September 2006 16:32, alan wrote:
->On Fri, 29 Sep 2006, alan wrote:
->> On Fri, 29 Sep 2006, Linus Torvalds wrote:
->>> On Fri, 29 Sep 2006, alan wrote:
->>>> On Fri, 29 Sep 2006, Linus Torvalds wrote:
->>>>> (*) Hah. Who do I think I'm kidding? The revolution will be bloody
->>>>> and brutal, and you're not going to get the choice to "elect" me
->>>>> except in the
->>>>> history books written by yours truly.
->>>>
->>>> Wow.  You have been living in Portland too long. ]:>
->>>
->>> Is there some Portland subculture that I should be aware of?
->>>
->>> Inquiring minds want to know.
->>
->> That would be telling.
->>
->> Here are a few clues to the secret handshake that is Portland...
->>
->> http://www.mondocroquet.com/
->> http://portland.cacophony.org/
->> http://www.orycon.org/orycon28/
->> http://communique.portland.or.us/02/12/santanarchy_now
->
->Not to mention:
->http://www.hplfilmfestival.com/
->
->And worst of all:
->
->http://www.stonehenge.com/merlyn/
+On Fri, 29 Sep 2006 08:39:49 -0600, Matthew Wilcox <matthew@wil.cx> wrote:
 
-I take it that much of this indoor activity is caused by the relative lack 
-of sufficient umbrellas in Portland?
+> On Fri, Sep 29, 2006 at 03:57:38PM +0200, J.A. Magall??n wrote:
+> > aic7xxx oopses on boot:
+> > 
+> > PCI: Setting latency timer of device 0000:00:0e.0 to 64
+> > IRQ handler type mismatch for IRQ 0
+> 
+> Of course, this isn't a scsi problem, it's a peecee hardware problem.
+> Or maybe a PCI subsystem problem.  But it's clearly not aic7xxx's fault.
+> 
+> > PCI: Cannot allocate resource region 0 of device 0000:00:0e.0
+> 
+> That's not good.  Might be part of the problem.
+> 
+> > PCI: Enabling device 0000:00:0e.0 (0000 -> 0003)
+> > PCI: No IRQ known for interrupt pin A of device 0000:00:0e.0. Probably buggy MP table.
+> 
+> This is the direct problem.  You've got no irq.
+> 
 
-:-)
+Thanks...
 
--- 
-Cheers, Gene
-"There are four boxes to be used in defense of liberty:
- soap, ballot, jury, and ammo. Please use in that order."
--Ed Howdershelt (Author)
-Yahoo.com and AOL/TW attorneys please note, additions to the above
-message by Gene Heskett are:
-Copyright 2006 by Maurice Eugene Heskett, all rights reserved.
+Now I have just realized this:
+
+00:0d.0 SCSI storage controller: Adaptec AIC-7892A U160/m (rev 02)
+00:0e.0 SCSI storage controller: Adaptec AHA-2940U2/U2W / 7890/7891 (rev 01)
+
+leda:~# lsscsi -Hv
+[0]    aic7xxx     
+  dir: /sys/class/scsi_host/host0
+  device dir: /sys/devices/pci0000:00/0000:00:0d.0/host0
+[1]    ata_piix    
+  dir: /sys/class/scsi_host/host1
+  device dir: /sys/devices/pci0000:00/0000:00:07.1/host1
+[2]    ata_piix    
+  dir: /sys/class/scsi_host/host2
+  device dir: /sys/devices/pci0000:00/0000:00:07.1/host2
+
+leda:~# lsscsi
+[0:0:0:0]    disk    IBM      IC35L018UWD210-0 S5BS  /dev/sda
+[0:0:5:0]    cd/dvd  TOSHIBA  CD-ROM XM-6401TA 1015  /dev/sr0
+[2:0:0:0]    disk    IOMEGA   ZIP 250          51.G  /dev/sdb
+
+Device 00:0e.0 is the 2940, which has nothing hung.
+Who's to blame ? the bios because is assigns no interupts as no devices are
+connected to the bus ? Or the kernel that should understand something like
+'this device is disabled' ?
+
+I can try to change the cdrom to the 2940 and see what happens...
+
+Thanks, I will try the patch posted, it looks something like what I said
+above, disable the device.
+
+--
+J.A. Magallon <jamagallon()ono!com>     \               Software is like sex:
+                                         \         It's better when it's free
+Mandriva Linux release 2007.0 (Cooker) for i586
+Linux 2.6.18-jam02 (gcc 4.1.1 20060724 (prerelease) (4.1.1-3mdk)) #1 SMP PREEMPT

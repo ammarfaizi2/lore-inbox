@@ -1,77 +1,158 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751296AbWI2CJn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161231AbWI2CKr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751296AbWI2CJn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Sep 2006 22:09:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751300AbWI2CJn
+	id S1161231AbWI2CKr (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Sep 2006 22:10:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751311AbWI2CKr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Sep 2006 22:09:43 -0400
-Received: from mxsf32.cluster1.charter.net ([209.225.28.156]:60878 "EHLO
-	mxsf32.cluster1.charter.net") by vger.kernel.org with ESMTP
-	id S1751296AbWI2CJm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Sep 2006 22:09:42 -0400
-X-IronPort-AV: i="4.09,232,1157342400"; 
-   d="scan'208"; a="650402844:sNHT155157452"
-Message-ID: <451C8070.7020801@cybsft.com>
-Date: Thu, 28 Sep 2006 21:09:52 -0500
-From: "K.R. Foley" <kr@cybsft.com>
-Organization: Cybersoft Solutions, Inc.
-User-Agent: Thunderbird 1.5.0.7 (X11/20060909)
-MIME-Version: 1.0
-To: john stultz <johnstul@us.ibm.com>
-CC: Ingo Molnar <mingo@elte.hu>, tglx@linutronix.de,
-       linux-kernel@vger.kernel.org, "Paul E. McKenney" <paulmck@us.ibm.com>,
-       Dipankar Sarma <dipankar@in.ibm.com>,
-       Arjan van de Ven <arjan@infradead.org>
-Subject: Re: 2.6.18-rt1
-References: <20060920141907.GA30765@elte.hu> <45118EEC.2080700@cybsft.com>	 <20060920194958.GA24691@elte.hu> <4511A57D.9070500@cybsft.com>	 <1158784863.5724.1027.camel@localhost.localdomain>	 <4511A98A.4080908@cybsft.com>	 <1158866166.12028.9.camel@localhost.localdomain>	 <20060922115854.GA12684@elte.hu>  <1159404123.5532.3.camel@localhost> <1159483731.25415.12.camel@localhost>
-In-Reply-To: <1159483731.25415.12.camel@localhost>
-X-Enigmail-Version: 0.93.0.0
-Content-Type: text/plain; charset=ISO-8859-1
+	Thu, 28 Sep 2006 22:10:47 -0400
+Received: from xenotime.net ([66.160.160.81]:6541 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1751306AbWI2CKq (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Sep 2006 22:10:46 -0400
+Date: Thu, 28 Sep 2006 19:12:00 -0700
+From: Randy Dunlap <rdunlap@xenotime.net>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: akpm <akpm@osdl.org>, Lee Revell <rlrevell@joe-job.com>,
+       Dave Jones <davej@redhat.com>, devzero@web.de,
+       Alistair John Strachan <s0348365@sms.ed.ac.uk>
+Subject: [PATCH] list module taint flags in Oops/panic
+Message-Id: <20060928191200.5b76998c.rdunlap@xenotime.net>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-john stultz wrote:
-> On Wed, 2006-09-27 at 17:42 -0700, john stultz wrote:
->> On Fri, 2006-09-22 at 13:58 +0200, Ingo Molnar wrote: 
->>> * john stultz <johnstul@us.ibm.com> wrote:
->>>
->>>> I'm seeing a similar issue. Although the log is a bit futzed. Maybe 
->>>> its the sd_mod?
->>>>
->>>>  at virtual address 75010000le kernel paging requestproc filesystem
->>> would be nice to figure out why it crashes - unfortunately i cannot 
->>> trigger it. Could it be some build tool incompatibility perhaps? Some 
->>> sizing issue (some module struct gets too large)?
->> Been looking a bit deeper into this again:
-> [snip]
->> c03879e8 r __ksymtab_find_next_bit
->> c03879f0 r __ksymtab_find_next_zero_bit
->> c03879f8 R __write_lock_failed
->> c0387a18 R __read_lock_failed
->> c0387a2c r __ksymtab___delay
->> c0387a34 r __ksymtab___const_udelay
->> c0387a3c r __ksymtab___udelay
->> c0387a44 r __ksymtab___ndelay
->>
->> That __read/__write_lock_failed bit looks wrong.
-> 
-> 
-> So it seems gcc 3.4.4 misplaces the __write_lock_failed function into
-> the ksymtab. It doesn't happen w/ 4.0.3. 
-> 
-> Anyway, this patch explicitly defines the section and fixes the issue
-> for me. Would the other reporters of this issue give it a whirl as well?
-> 
-> thanks
-> -john
-> 
+From: Randy Dunlap <rdunlap@xenotime.net>
 
-John,
+When listing loaded modules during an oops or panic, also list each
+module's Tainted flags if non-zero (P: Proprietary or F: Forced load only).
 
-This fixes my problem on my fc3 box here at home. I will check my other
-development boxes at work tomorrow. Nice catch and thanks for effort.
+If a module is did not taint the kernel, it is just listed like
+	usbcore
+but if it did taint the kernel, it is listed like
+	wizmodem(PF)
+
+Example:
+[ 3260.121718] Unable to handle kernel NULL pointer dereference at 0000000000000000 RIP: 
+[ 3260.121729]  [<ffffffff8804c099>] :dump_test:proc_dump_test+0x99/0xc8
+[ 3260.121742] PGD fe8d067 PUD 264a6067 PMD 0 
+[ 3260.121748] Oops: 0002 [1] SMP 
+[ 3260.121753] CPU 1 
+[ 3260.121756] Modules linked in: dump_test(P) snd_pcm_oss snd_mixer_oss snd_seq snd_seq_device ide_cd generic ohci1394 snd_hda_intel snd_hda_codec snd_pcm snd_timer snd ieee1394 snd_page_alloc piix ide_core arcmsr aic79xx scsi_transport_spi usblp
+[ 3260.121785] Pid: 5556, comm: bash Tainted: P      2.6.18-git10 #1
+
+[Alternatively, I can look into listing tainted flags with 'lsmod',
+but that won't help in oopsen/panics so much.]
+
+Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
+---
+ include/linux/module.h |    2 ++
+ kernel/module.c        |   36 +++++++++++++++++++++++++++++++++---
+ 2 files changed, 35 insertions(+), 3 deletions(-)
+
+--- linux-2618-g10.orig/include/linux/module.h
++++ linux-2618-g10/include/linux/module.h
+@@ -320,6 +320,8 @@ struct module
+ 	/* Am I GPL-compatible */
+ 	int license_gplok;
+ 
++	unsigned int taints;	/* same bits as kernel:tainted */
++
+ #ifdef CONFIG_MODULE_UNLOAD
+ 	/* Reference counts */
+ 	struct module_ref ref[NR_CPUS];
+--- linux-2618-g10.orig/kernel/module.c
++++ linux-2618-g10/kernel/module.c
+@@ -851,6 +851,7 @@ static int check_version(Elf_Shdr *sechd
+ 		printk("%s: no version for \"%s\" found: kernel tainted.\n",
+ 		       mod->name, symname);
+ 		add_taint(TAINT_FORCED_MODULE);
++		mod->taints |= TAINT_FORCED_MODULE;
+ 	}
+ 	return 1;
+ }
+@@ -1325,6 +1326,7 @@ static void set_license(struct module *m
+ 		printk(KERN_WARNING "%s: module license '%s' taints kernel.\n",
+ 		       mod->name, license);
+ 		add_taint(TAINT_PROPRIETARY_MODULE);
++		mod->taints |= TAINT_PROPRIETARY_MODULE;
+ 	}
+ }
+ 
+@@ -1604,6 +1606,7 @@ static struct module *load_module(void _
+ 	/* This is allowed: modprobe --force will invalidate it. */
+ 	if (!modmagic) {
+ 		add_taint(TAINT_FORCED_MODULE);
++		mod->taints |= TAINT_FORCED_MODULE;
+ 		printk(KERN_WARNING "%s: no version magic, tainting kernel.\n",
+ 		       mod->name);
+ 	} else if (!same_magic(modmagic, vermagic)) {
+@@ -1697,10 +1700,14 @@ static struct module *load_module(void _
+ 	/* Set up license info based on the info section */
+ 	set_license(mod, get_modinfo(sechdrs, infoindex, "license"));
+ 
+-	if (strcmp(mod->name, "ndiswrapper") == 0)
++	if (strcmp(mod->name, "ndiswrapper") == 0) {
+ 		add_taint(TAINT_PROPRIETARY_MODULE);
+-	if (strcmp(mod->name, "driverloader") == 0)
++		mod->taints |= TAINT_PROPRIETARY_MODULE;
++	}
++	if (strcmp(mod->name, "driverloader") == 0) {
+ 		add_taint(TAINT_PROPRIETARY_MODULE);
++		mod->taints |= TAINT_PROPRIETARY_MODULE;
++	}
+ 
+ 	/* Set up MODINFO_ATTR fields */
+ 	setup_modinfo(mod, sechdrs, infoindex);
+@@ -1746,6 +1753,7 @@ static struct module *load_module(void _
+ 		printk(KERN_WARNING "%s: No versions for exported symbols."
+ 		       " Tainting kernel.\n", mod->name);
+ 		add_taint(TAINT_FORCED_MODULE);
++		mod->taints |= TAINT_FORCED_MODULE;
+ 	}
+ #endif
+ 
+@@ -2212,6 +2220,28 @@ struct module *module_text_address(unsig
+ 	return mod;
+ }
+ 
++static char *taint_flags(unsigned int taints)
++{
++	static char buf[8];
++	int bx;
++
++	if (!taints)
++		return "";
++
++	buf[0] = '(';
++	bx = 1;
++	if (taints & TAINT_PROPRIETARY_MODULE)
++		buf [bx++] = 'P';
++	if (taints & TAINT_FORCED_MODULE)
++		buf [bx++] = 'F';
++	/* TAINT_FORCED_RMMOD: could be added */
++	/* TAINT_UNSAFE_SMP, TAINT_MACHINE_CHECK, TAINT_BAD_PAGE
++	 * don't apply to modules */
++	buf[bx] = ')';
++
++	return buf;
++}
++
+ /* Don't grab lock, we're oopsing. */
+ void print_modules(void)
+ {
+@@ -2219,7 +2249,7 @@ void print_modules(void)
+ 
+ 	printk("Modules linked in:");
+ 	list_for_each_entry(mod, &modules, list)
+-		printk(" %s", mod->name);
++		printk(" %s%s", mod->name, taint_flags(mod->taints));
+ 	printk("\n");
+ }
+ 
 
 
--- 
-	kr
+---

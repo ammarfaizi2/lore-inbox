@@ -1,39 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751210AbWI2Rxh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161322AbWI2R4V@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751210AbWI2Rxh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Sep 2006 13:53:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751217AbWI2Rxh
+	id S1161322AbWI2R4V (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Sep 2006 13:56:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161318AbWI2R4V
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Sep 2006 13:53:37 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:46273 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1751210AbWI2Rxg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Sep 2006 13:53:36 -0400
-Subject: Re: PCI bridge missing
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Luke-Jr <luke@dashjr.org>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <200609291228.38799.luke@dashjr.org>
-References: <200609281624.16082.luke@dashjr.org>
-	 <1159485255.13029.7.camel@localhost.localdomain>
-	 <200609291228.38799.luke@dashjr.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Fri, 29 Sep 2006 19:18:40 +0100
-Message-Id: <1159553920.13029.62.camel@localhost.localdomain>
+	Fri, 29 Sep 2006 13:56:21 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:40605 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S1751234AbWI2R4T (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Sep 2006 13:56:19 -0400
+Message-Id: <200609291756.k8THuHAc008660@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
+To: Kristen Carlson Accardi <kristen.c.accardi@intel.com>
+Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org, jgarzik@pobox.com,
+       rdunlap@xenotime.net
+Subject: Re: [patch 2/2] libata: _SDD support
+In-Reply-To: Your message of "Thu, 28 Sep 2006 11:30:43 PDT."
+             <20060928113043.2dd47049.kristen.c.accardi@intel.com>
+From: Valdis.Kletnieks@vt.edu
+References: <20060928182211.076258000@localhost.localdomain>
+            <20060928113043.2dd47049.kristen.c.accardi@intel.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+Content-Type: multipart/signed; boundary="==_Exmh_1159552577_3377P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Fri, 29 Sep 2006 13:56:17 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Gwe, 2006-09-29 am 12:28 -0500, ysgrifennodd Luke-Jr:
-> On Thursday 28 September 2006 6:14 pm, Alan Cox wrote:
-> > lspci -vvxxx would be interesting
-> 
+--==_Exmh_1159552577_3377P
+Content-Type: text/plain; charset=us-ascii
 
-Ok so the 21152 just isn't seen by Linux. Ok try this
+On Thu, 28 Sep 2006 11:30:43 PDT, Kristen Carlson Accardi said:
+> _SDD (Set Device Data) is an ACPI method that is used to tell the 
+> firmware what the identify data is of the device that is attached to
+> the port.  It is an optional method, and it's ok for it to be missing. 
+> Because of this, we always return success from the routine that calls
+> this method, even if the execution fails.
 
-lspci -vvxxx -H1 -M
+I'm OK on it returning success if the _SDD is missing entirely.  And I see
+where it's properly droppping a KERN_DEBUG-level printk if it misbehaves.
+Whether it should continue on and return success anyhow, I'm not sure.  Can one
+of the ACPI wizards comment on that?
 
-that will try and do a hardware level scan and map
 
+--==_Exmh_1159552577_3377P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFFHV5AcC3lWbTT17ARAkKJAKD9k5z4IeQ6Jugkhzey5mxDaVhMOwCfSZhR
+RMZSCGD+8REjEtgxEYSIexQ=
+=fvUr
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1159552577_3377P--

@@ -1,52 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161891AbWI2Tzc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422689AbWI2T6v@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161891AbWI2Tzc (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Sep 2006 15:55:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161890AbWI2Tzb
+	id S1422689AbWI2T6v (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Sep 2006 15:58:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422690AbWI2T6v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Sep 2006 15:55:31 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:15777 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1422671AbWI2Tz3 (ORCPT
+	Fri, 29 Sep 2006 15:58:51 -0400
+Received: from rtr.ca ([64.26.128.89]:54032 "EHLO mail.rtr.ca")
+	by vger.kernel.org with ESMTP id S1422689AbWI2T6u (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Sep 2006 15:55:29 -0400
-Date: Fri, 29 Sep 2006 12:54:11 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: michael@ellerman.id.au, linux-kernel@vger.kernel.org,
-       Andi Kleen <ak@muc.de>, Hugh Dickens <hugh@veritas.com>,
-       Paul Mackerras <paulus@samba.org>
-Subject: Re: [PATCH RFC 1/4] Generic BUG handling.
-Message-Id: <20060929125411.60bbd0a2.akpm@osdl.org>
-In-Reply-To: <451D77A5.20103@goop.org>
-References: <20060928225444.439520197@goop.org>
-	<20060928225452.229936605@goop.org>
-	<1159506427.25820.20.camel@localhost.localdomain>
-	<451D77A5.20103@goop.org>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 29 Sep 2006 15:58:50 -0400
+Message-ID: <451D7AF7.50001@rtr.ca>
+Date: Fri, 29 Sep 2006 15:58:47 -0400
+From: Mark Lord <lkml@rtr.ca>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060909)
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Andrew Morton <akpm@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Arrr! Linux 2.6.18
+References: <Pine.LNX.4.64.0609192126070.4388@g5.osdl.org>	<451CDBE3.2080707@rtr.ca> <20060929014433.bc01e83c.akpm@osdl.org> <451D5D66.8030501@rtr.ca>
+In-Reply-To: <451D5D66.8030501@rtr.ca>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 29 Sep 2006 12:44:37 -0700
-Jeremy Fitzhardinge <jeremy@goop.org> wrote:
+Mark Lord wrote:
+>> Mark Lord <lkml@rtr.ca> wrote:
+..
+>>> Mmm.. I wonder if this could be what killed resume-from-RAM
+>>> on my notebook, between -rc6 and -final ?
+..
+> I'll look through all of the post-rc6 changes and see if anything
+> else might be a candidate.
 
-> Michael Ellerman wrote:
-> > It needed a bit of work to get going on powerpc:
-> >
-> > Generic BUG handling, Powerpc fixups
-> >   
-> 
-> BTW, powerpc doesn't seem to be using BUG_OPCODE or 
-> BUG_ILLEGAL_INSTRUCTION for actual BUGs any more (I presume they were 
-> once used).  There are still a couple of uses of those macros elsewhere 
-> (kernel/prom_init.c and kernel/head_64.S); should be converted to "twi 
-> 31,0,0" as well?
-> 
+Thus far, 2.6.18-rc7 seems to be okay, though it will take a day
+or so to win full confidence here.  So now to pick over the rc7-final
+patches..
 
-I added that to the changelog.
-
-I'll collapse all the patches I have back into a sane series and I'll send
-them back at you, in case you feel inspired to improve them ;)
-
+Cheers

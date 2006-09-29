@@ -1,63 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751203AbWI2Cpy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751375AbWI2CxI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751203AbWI2Cpy (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Sep 2006 22:45:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751324AbWI2Cpx
+	id S1751375AbWI2CxI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Sep 2006 22:53:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751381AbWI2CxI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Sep 2006 22:45:53 -0400
-Received: from mx1.suse.de ([195.135.220.2]:28814 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751203AbWI2Cpw (ORCPT
+	Thu, 28 Sep 2006 22:53:08 -0400
+Received: from ns2.suse.de ([195.135.220.15]:58039 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751372AbWI2CxG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Sep 2006 22:45:52 -0400
-From: Neil Brown <neilb@suse.de>
-To: davids@webmaster.com
-Date: Fri, 29 Sep 2006 12:45:40 +1000
-Message-ID: <17692.35028.84683.896718@cse.unsw.edu.au>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Cc: "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
-Subject: RE: GPLv3 Position Statement
-In-Reply-To: message from David Schwartz on Thursday September 28
-References: <20060928144028.GA21814@wohnheim.fh-wedel.de>
-	<MDEHLPKNGKAHNMBLJOLKCENGOLAB.davids@webmaster.com>
-X-Mailer: VM 7.19 under Emacs 21.4.1
+	Thu, 28 Sep 2006 22:53:06 -0400
+From: NeilBrown <neilb@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Date: Fri, 29 Sep 2006 12:52:52 +1000
+Message-Id: <1060929025252.15187@suse.de>
 X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
 	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
 	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Cc: linux-raid@vger.kernel.org, linux-kernel@vger.kernel.org
+Cc: Christian Kujau <evil@g-house.de>
+Subject: [PATCH 001 of 6] md: Fix duplicity of levels in md.txt
+References: <20060929125047.14064.patches@notabene>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday September 28, davids@webmaster.com wrote:
-> 
-> > In my very uninformed opinion, your problem is a very minor one.  Your
-> > "v2 or later" code won't get the license v2 removed, it will become
-> > dual "v2 or v3" licensed.  And assuming that v3 only adds restrictions
-> > and doesn't allow the licensee any additional rights, you, as the
-> > author, shouldn't have to worry much.
-> >
-> > The problem arises later.  As with BSD/GPL dual licensed code, where
-> > anyone can take the code and relicense it as either BSD or GPL, "v2 or
-> > v3" code can get relicensed as v3 only.  At this point, nothing is
-> > lost, as the identical "v2 or v3" code still exists.  But with further
-> > development on the "v3 only" branch, you have a fork.  And one that
-> > doesn't just require technical means to get merged back, but has legal
-> > restrictions.
-> 
-> Unless I'm missing something, you *cannot* change the license from "v2 or
-> later at your option" to "v3 or later". Both GPLv2 and GPLv3 explicitly
-> prohibit modifying license notices. (Did the FSF goof big time? It's not too
-> late to change the draft.)
 
-Could you point to the test in either license that prohibits modifying
-license notices?
-I certainly couldn't find it in section 2 of GPLv2, which seems to be
-the relevant section.
+md.txt has two sections describing the 'level'
+sysfs attribute, and some of the text is out-of-date.
+So make just one section, and make it right.
 
-Interestingly, 2.b seem to say that if I received a program under
-GPLv2, and I pass it on, then I must pass it on under GPLv2-only...
-So to be able to distribute something written today under GPLv3 (when
-it comes into existence), you must be the original or have received it
-directly from the original author....
+Cc: Christian Kujau <evil@g-house.de>
+Signed-off-by: Neil Brown <neilb@suse.de>
 
-NeilBrown
+### Diffstat output
+ ./Documentation/md.txt |   17 +++++------------
+ 1 file changed, 5 insertions(+), 12 deletions(-)
+
+diff .prev/Documentation/md.txt ./Documentation/md.txt
+--- .prev/Documentation/md.txt	2006-09-29 11:44:38.000000000 +1000
++++ ./Documentation/md.txt	2006-09-29 11:48:54.000000000 +1000
+@@ -154,11 +154,12 @@ contains further md-specific information
+ 
+ All md devices contain:
+   level
+-     a text file indicating the 'raid level'.  This may be a standard
+-     numerical level prefixed by "RAID-" - e.g. "RAID-5", or some
+-     other name such as "linear" or "multipath".
++     a text file indicating the 'raid level'. e.g. raid0, raid1,
++     raid5, linear, multipath, faulty.
+      If no raid level has been set yet (array is still being
+-     assembled), this file will be empty.
++     assembled), the value will reflect whatever has been written
++     to it, which may be a name like the above, or may be a number
++     such as '0', '5', etc.
+ 
+   raid_disks
+      a text file with a simple number indicating the number of devices
+@@ -192,14 +193,6 @@ All md devices contain:
+      1.2 (newer format in varying locations) or "none" indicating that
+      the kernel isn't managing metadata at all.
+ 
+-  level
+-     The raid 'level' for this array.  The name will often (but not
+-     always) be the same as the name of the module that implements the
+-     level.  To be auto-loaded the module must have an alias
+-        md-$LEVEL  e.g. md-raid5
+-     This can be written only while the array is being assembled, not
+-     after it is started.
+-
+   layout
+      The "layout" for the array for the particular level.  This is
+      simply a number that is interpretted differently by different

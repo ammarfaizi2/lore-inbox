@@ -1,59 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750885AbWI2IlL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030415AbWI2Ioi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750885AbWI2IlL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Sep 2006 04:41:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750819AbWI2IlK
+	id S1030415AbWI2Ioi (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Sep 2006 04:44:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030416AbWI2Ioi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Sep 2006 04:41:10 -0400
-Received: from gw.goop.org ([64.81.55.164]:56012 "EHLO mail.goop.org")
-	by vger.kernel.org with ESMTP id S1161415AbWI2IlJ (ORCPT
+	Fri, 29 Sep 2006 04:44:38 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:19097 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030415AbWI2Ioh (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Sep 2006 04:41:09 -0400
-Message-ID: <451CDC31.6060407@goop.org>
-Date: Fri, 29 Sep 2006 01:41:21 -0700
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
-MIME-Version: 1.0
-To: michael@ellerman.id.au
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Andi Kleen <ak@muc.de>, Hugh Dickens <hugh@veritas.com>,
-       Paul Mackerras <paulus@samba.org>
-Subject: Re: [PATCH RFC 1/4] Generic BUG handling.
-References: <20060928225444.439520197@goop.org> >	  <20060928225452.229936605@goop.org>> <1159506427.25820.20.camel@localhost.localdomain>
-In-Reply-To: <1159506427.25820.20.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-15; format=flowed
+	Fri, 29 Sep 2006 04:44:37 -0400
+Date: Fri, 29 Sep 2006 01:44:33 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Mark Lord <lkml@rtr.ca>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Arrr! Linux 2.6.18
+Message-Id: <20060929014433.bc01e83c.akpm@osdl.org>
+In-Reply-To: <451CDBE3.2080707@rtr.ca>
+References: <Pine.LNX.4.64.0609192126070.4388@g5.osdl.org>
+	<451CDBE3.2080707@rtr.ca>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Michael Ellerman wrote:
->> +       printk(KERN_EMERG "------------[ cut here ]------------\n");
->>     
->
-> I'm not sure I'm big on the cut here marker.
->   
+On Fri, 29 Sep 2006 04:40:03 -0400
+Mark Lord <lkml@rtr.ca> wrote:
 
-x86 has it.  I figured its more important to not change x86 output than 
-powerpc.
+> Linus Torvalds wrote:
+> > ..
+> > Cap'n Andrew Morton:
+> >       Blimey! hvc_console suspend fix
+> 
+> Mmm.. I wonder if this could be what killed resume-from-RAM
+> on my notebook, between -rc6 and -final ?
+> 
+> Andrew, can you send me just that one patch, and I'll try reverting it.
+> 
 
->> i386 implements CONFIG_DEBUG_BUGVERBOSE, but x86-64 and powerpc do
->> not.  This should probably be made more consistent.
->>     
->
-> It looks like if you do this you _might_ be able to share struct
-> bug_entry, or at least have consistent members for each arch. Which
-> would eliminate some of the inlines you have for accessing the bug
-> struct.
->   
-Yeah, its a bit of a toss-up.  powerpc wants to hide the warn flag 
-somewhere, which either means having a different structure, or using the 
-fields differently.  CONFIG_DEBUG_BUGVERBOSE supporters (ie, i386) want 
-to make the structure completely empty in the !DEBUG_BUGVERBOSE case 
-(which doesn't currently happen).
-> It needed a bit of work to get going on powerpc:
->   
+From: Andrew Morton <akpm@osdl.org>
 
-Thanks.  I'll try to fold all this together into a new patch when things 
-settle down.
+Fix http://bugzilla.kernel.org/show_bug.cgi?id=7152
 
-    J
+Cc: Michael Tautschnig <tautschn@model.in.tum.de>
+Signed-off-by: Andrew Morton <akpm@osdl.org>
+---
+
+ drivers/char/hvc_console.c |    1 +
+ 1 file changed, 1 insertion(+)
+
+diff -puN drivers/char/hvc_console.c~hvc_console-suspend-fix drivers/char/hvc_console.c
+--- a/drivers/char/hvc_console.c~hvc_console-suspend-fix
++++ a/drivers/char/hvc_console.c
+@@ -668,6 +668,7 @@ int khvcd(void *unused)
+ 	do {
+ 		poll_mask = 0;
+ 		hvc_kicked = 0;
++		try_to_freeze();
+ 		wmb();
+ 		if (cpus_empty(cpus_in_xmon)) {
+ 			spin_lock(&hvc_structs_lock);
+_
+

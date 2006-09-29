@@ -1,72 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422669AbWI2Ty4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161891AbWI2Tzc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422669AbWI2Ty4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Sep 2006 15:54:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422664AbWI2Tyz
+	id S1161891AbWI2Tzc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Sep 2006 15:55:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161890AbWI2Tzb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Sep 2006 15:54:55 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:50313 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1161890AbWI2Tyy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Sep 2006 15:54:54 -0400
-Subject: Re: [PATCH] fix compiler warning in drivers/media/video/video-buf.c
-From: Mauro Carvalho Chehab <mchehab@infradead.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Martin Bligh <mbligh@google.com>, Sujoy Gupta <sujoy@google.com>,
-       LKML <linux-kernel@vger.kernel.org>, video4linux-list@redhat.com
-In-Reply-To: <20060928105108.88b37304.akpm@osdl.org>
-References: <451C070E.8080800@google.com>
-	 <20060928105108.88b37304.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1
-Date: Fri, 29 Sep 2006 16:54:07 -0300
-Message-Id: <1159559648.10055.35.camel@praia>
+	Fri, 29 Sep 2006 15:55:31 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:15777 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1422671AbWI2Tz3 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Sep 2006 15:55:29 -0400
+Date: Fri, 29 Sep 2006 12:54:11 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: michael@ellerman.id.au, linux-kernel@vger.kernel.org,
+       Andi Kleen <ak@muc.de>, Hugh Dickens <hugh@veritas.com>,
+       Paul Mackerras <paulus@samba.org>
+Subject: Re: [PATCH RFC 1/4] Generic BUG handling.
+Message-Id: <20060929125411.60bbd0a2.akpm@osdl.org>
+In-Reply-To: <451D77A5.20103@goop.org>
+References: <20060928225444.439520197@goop.org>
+	<20060928225452.229936605@goop.org>
+	<1159506427.25820.20.camel@localhost.localdomain>
+	<451D77A5.20103@goop.org>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.8.0-1mdv2007.0 
-Content-Transfer-Encoding: 8bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <mchehab@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Em Qui, 2006-09-28 às 10:51 -0700, Andrew Morton escreveu:
-> On Thu, 28 Sep 2006 10:31:58 -0700
-> Martin Bligh <mbligh@google.com> wrote:
+On Fri, 29 Sep 2006 12:44:37 -0700
+Jeremy Fitzhardinge <jeremy@goop.org> wrote:
 
-> That being said, this driver is wrong to be storing dma addresses in a
-> void*.  And indeed there is a FIXME regarding this at
-> include/linux/videodev2.h:476, so I guess hiding this warning won't obscure
-> any fault which wasn't already known about..
+> Michael Ellerman wrote:
+> > It needed a bit of work to get going on powerpc:
+> >
+> > Generic BUG handling, Powerpc fixups
+> >   
+> 
+> BTW, powerpc doesn't seem to be using BUG_OPCODE or 
+> BUG_ILLEGAL_INSTRUCTION for actual BUGs any more (I presume they were 
+> once used).  There are still a couple of uses of those macros elsewhere 
+> (kernel/prom_init.c and kernel/head_64.S); should be converted to "twi 
+> 31,0,0" as well?
+> 
 
-Yes. The original structure is:
+I added that to the changelog.
 
-struct v4l2_framebuffer
-{
-        __u32                   capability;
-        __u32                   flags;
-        void*                   base;
-        struct v4l2_pix_format  fmt;
-};
-
-Since this is used at ioctl definition, changing this would break
-userspace apps. We might replace this to something like:
-
-struct v4l2_framebuffer
-{
-        __u32                   capability;
-        __u32                   flags;
-	union {
-	        void*		base_ptr; /*FOO definition to avoid breaking userpace apps */
-		dma_addr_t	base;
-	}
-        struct v4l2_pix_format  fmt;
-};
-
-This way, base will have the expected type, and it won't break any
-userspace app if sizeof(void *)<=sizeof(base). I think this is true for
-all architectures (anyway, if it isn't, v4l is broken anyway).
-
-What do you think?
-
-Cheers, 
-Mauro.
+I'll collapse all the patches I have back into a sane series and I'll send
+them back at you, in case you feel inspired to improve them ;)
 

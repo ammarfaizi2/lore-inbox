@@ -1,40 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030403AbWI2Hre@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161495AbWI2Ht4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030403AbWI2Hre (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Sep 2006 03:47:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161481AbWI2Hre
+	id S1161495AbWI2Ht4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Sep 2006 03:49:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161496AbWI2Ht4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Sep 2006 03:47:34 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:19614 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S965062AbWI2Hrd (ORCPT
+	Fri, 29 Sep 2006 03:49:56 -0400
+Received: from dp.samba.org ([66.70.73.150]:15590 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S1161495AbWI2Htz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Sep 2006 03:47:33 -0400
-Message-ID: <451CCF8C.1000504@pobox.com>
-Date: Fri, 29 Sep 2006 03:47:24 -0400
-From: Jeff Garzik <jgarzik@pobox.com>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
+	Fri, 29 Sep 2006 03:49:55 -0400
 MIME-Version: 1.0
-To: Zang Roy-r61911 <tie-fei.zang@freescale.com>
-CC: Andrew Morton <akpm@osdl.org>, netdev <netdev@vger.kernel.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: [patch 3/3] Add tsi108 On Chip Ethernet device driver support
-References: <A0CDBA58F226D911B202000BDBAD46730A1B1410@zch01exm23.fsl.freescale.net>	 <1157962200.10526.10.camel@localhost.localdomain>	 <1158051351.14448.97.camel@localhost.localdomain>	 <ada3bax2lzw.fsf@cisco.com>  <4506C789.4050404@pobox.com>	 <1158749825.7973.9.camel@localhost.localdomain>	 <45121924.4000200@pobox.com> <1159515406.13634.2.camel@localhost.localdomain>
-In-Reply-To: <1159515406.13634.2.camel@localhost.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.3 (----)
-X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.3 points, 5.0 required)
+Message-ID: <17692.53185.564741.502063@samba.org>
+Date: Fri, 29 Sep 2006 17:48:17 +1000
+To: torvalds@osdl.org
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: GPLv3 Position Statement
+In-Reply-To: <1159512998.3880.50.camel@mulgrave.il.steeleye.com>
+References: <1159498900.3880.31.camel@mulgrave.il.steeleye.com>
+	<17692.41932.957298.877577@cse.unsw.edu.au>
+	<1159512998.3880.50.camel@mulgrave.il.steeleye.com>
+X-Mailer: VM 7.19 under Emacs 21.4.1
+Reply-To: tridge@samba.org
+From: tridge@samba.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Zang Roy-r61911 wrote:
-> Could you interpret the chip structure in more detail?
-> Need I create two net_device struct for each port?
+Linus,
 
-No.  One net_device per port.  And one container structure for the 
-entire device.
+> Quite frankly, if the FSF ever relicenses any of their projects to be
+> "GPLv3 or later", I will hope that everybody immediately forks, and
+> creates a GPLv2-only copy (and yes, you have to do it immediately, or
+> you're screwed forever). That way the people involved can all vote with
+> their feet.
 
-	Jeff
+I do hope your either joking about this, or that you would consult
+with the major contributors to the project before doing this. In past
+postings you have expressed strong support for "authors rights", which
+includes the idea of not using someones code if they don't want you to
+use it, even if it might be legal to do so.
 
+I'm also a strong proponent of "authors rights", and I would consider
+it very nasty if someone took one of my projects and decided to fork
+it to be GPLv2 only, deliberately going against my intention. They
+might have a legal right to do so but it would clearly be against my
+wishes.  I'm not even 100% certain it would be legal.
 
+The "any later version" words I have put on all my projects are there
+quite deliberately.
+
+Cheers, Tridge

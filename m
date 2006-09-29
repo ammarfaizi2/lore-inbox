@@ -1,183 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964828AbWI2MMb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964857AbWI2Mci@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964828AbWI2MMb (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Sep 2006 08:12:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964818AbWI2MMb
+	id S964857AbWI2Mci (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Sep 2006 08:32:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964860AbWI2Mci
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Sep 2006 08:12:31 -0400
-Received: from amsfep17-int.chello.nl ([213.46.243.15]:55665 "EHLO
-	amsfep13-int.chello.nl") by vger.kernel.org with ESMTP
-	id S932077AbWI2MMa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Sep 2006 08:12:30 -0400
-Subject: md deadlock (was Re: 2.6.18-mm2)
-From: Peter Zijlstra <a.p.zijlstra@chello.nl>
-To: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>
-Cc: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-       Neil Brown <neilb@cse.unsw.edu.au>, linux-raid@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <6bffcb0e0609280454n34d40c0la8786e1eba6dcdf3@mail.gmail.com>
-References: <20060928014623.ccc9b885.akpm@osdl.org>
-	 <6bffcb0e0609280454n34d40c0la8786e1eba6dcdf3@mail.gmail.com>
-Content-Type: text/plain
-Date: Fri, 29 Sep 2006 14:12:03 +0200
-Message-Id: <1159531923.28131.80.camel@taijtu>
+	Fri, 29 Sep 2006 08:32:38 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:46550 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S964857AbWI2Mch (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Sep 2006 08:32:37 -0400
+Date: Fri, 29 Sep 2006 14:24:08 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: john stultz <johnstul@us.ibm.com>
+Cc: "K.R. Foley" <kr@cybsft.com>, tglx@linutronix.de,
+       linux-kernel@vger.kernel.org, "Paul E. McKenney" <paulmck@us.ibm.com>,
+       Dipankar Sarma <dipankar@in.ibm.com>,
+       Arjan van de Ven <arjan@infradead.org>
+Subject: Re: 2.6.18-rt1
+Message-ID: <20060929122408.GA27984@elte.hu>
+References: <20060920141907.GA30765@elte.hu> <45118EEC.2080700@cybsft.com> <20060920194958.GA24691@elte.hu> <4511A57D.9070500@cybsft.com> <1158784863.5724.1027.camel@localhost.localdomain> <4511A98A.4080908@cybsft.com> <1158866166.12028.9.camel@localhost.localdomain> <20060922115854.GA12684@elte.hu> <1159404123.5532.3.camel@localhost> <1159483731.25415.12.camel@localhost>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1159483731.25415.12.camel@localhost>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -2.8
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.8 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.4986]
+	-0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 2006-09-28 at 13:54 +0200, Michal Piotrowski wrote:
-> Hi,
-> 
-> On 28/09/06, Andrew Morton <akpm@osdl.org> wrote:
-> >
-> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18/2.6.18-mm2/
-> >
-> >
-> 
-> =======================================================
-> [ INFO: possible circular locking dependency detected ]
-> 2.6.18-mm2 #1
-> -------------------------------------------------------
-> nash/1264 is trying to acquire lock:
->  (&bdev_part_lock_key){--..}, at: [<c0310d4a>] mutex_lock+0x1c/0x1f
-> 
-> but task is already holding lock:
->  (&new->reconfig_mutex){--..}, at: [<c03108ff>]
-> mutex_lock_interruptible+0x1c/0x1f
-> 
-> which lock already depends on the new lock.
-> 
-> 
-> the existing dependency chain (in reverse order) is:
-> 
-> -> #2 (&new->reconfig_mutex){--..}:
->        [<c01390b8>] add_lock_to_list+0x5c/0x7a
->        [<c013b1dd>] __lock_acquire+0x9f3/0xaef
->        [<c013b643>] lock_acquire+0x71/0x91
->        [<c031068f>] __mutex_lock_interruptible_slowpath+0xd2/0x326
->        [<c03108ff>] mutex_lock_interruptible+0x1c/0x1f
->        [<c02ba4e3>] md_open+0x28/0x5d			-> mddev->reconfig_mutex
->        [<c0197853>] do_open+0x8b/0x377			-> bdev->bd_mutex (whole)
->        [<c0197cd5>] blkdev_open+0x1d/0x46
->        [<c0172f36>] __dentry_open+0x133/0x260
->        [<c01730d1>] nameidata_to_filp+0x1c/0x2e
->        [<c0173111>] do_filp_open+0x2e/0x35
->        [<c0173170>] do_sys_open+0x58/0xde
->        [<c0173222>] sys_open+0x16/0x18
->        [<c0103297>] syscall_call+0x7/0xb
->        [<ffffffff>] 0xffffffff
-> 
-> -> #1 (&bdev->bd_mutex){--..}:
->        [<c01390b8>] add_lock_to_list+0x5c/0x7a
->        [<c013b1dd>] __lock_acquire+0x9f3/0xaef
->        [<c013b643>] lock_acquire+0x71/0x91
->        [<c0310b0f>] __mutex_lock_slowpath+0xd2/0x2f1
->        [<c0310d4a>] mutex_lock+0x1c/0x1f
->        [<c0197824>] do_open+0x5c/0x377
->        [<c0197bab>] blkdev_get+0x6c/0x77
->        [<c01978d0>] do_open+0x108/0x377
->        [<c0197bab>] blkdev_get+0x6c/0x77
->        [<c0197eb1>] open_by_devnum+0x30/0x3c
->        [<c0147419>] swsusp_check+0x14/0xc5
->        [<c0145865>] software_resume+0x7e/0x100
->        [<c010049e>] init+0x121/0x29f
->        [<c0103f23>] kernel_thread_helper+0x7/0x10
->        [<c0109523>] save_stack_trace+0x17/0x30
->        [<c0138fb0>] save_trace+0x4f/0xfb
->        [<c01390b8>] add_lock_to_list+0x5c/0x7a
->        [<c013b1dd>] __lock_acquire+0x9f3/0xaef
->        [<c013b643>] lock_acquire+0x71/0x91
->        [<c0310b0f>] __mutex_lock_slowpath+0xd2/0x2f1
->        [<c0310d4a>] mutex_lock+0x1c/0x1f
->        [<c0197824>] do_open+0x5c/0x377			-> bdev->bd_mutex (whole)
->        [<c0197bab>] blkdev_get+0x6c/0x77
->        [<c01978d0>] do_open+0x108/0x377			-> bdev->bd_mutex (partition)
->        [<c0197bab>] blkdev_get+0x6c/0x77
->        [<c0197eb1>] open_by_devnum+0x30/0x3c
->        [<c0147419>] swsusp_check+0x14/0xc5
->        [<c0145865>] software_resume+0x7e/0x100
->        [<c010049e>] init+0x121/0x29f
->        [<c0103f23>] kernel_thread_helper+0x7/0x10
->        [<ffffffff>] 0xffffffff
-> 
-> -> #0 (&bdev_part_lock_key){--..}:
->        [<c013a7b6>] print_circular_bug_tail+0x30/0x64
->        [<c013b114>] __lock_acquire+0x92a/0xaef
->        [<c013b643>] lock_acquire+0x71/0x91
->        [<c0310b0f>] __mutex_lock_slowpath+0xd2/0x2f1
->        [<c0310d4a>] mutex_lock+0x1c/0x1f
->        [<c0197323>] bd_claim_by_disk+0x5f/0x18e		-> bdev->bd_mutex (partition)
->        [<c02b44ec>] bind_rdev_to_array+0x1f0/0x20e
->        [<c02b6453>] autostart_arrays+0x24b/0x322
->        [<c02b9158>] md_ioctl+0x91/0x13f4
->        [<c01ea5bc>] blkdev_driver_ioctl+0x49/0x5b
->        [<c01ead23>] blkdev_ioctl+0x755/0x7a2
->        [<c0196f9d>] block_ioctl+0x16/0x1b
->        [<c01801d2>] do_ioctl+0x22/0x67
->        [<c0180460>] vfs_ioctl+0x249/0x25c
->        [<c01804ba>] sys_ioctl+0x47/0x75
->        [<c0103297>] syscall_call+0x7/0xb
->        [<ffffffff>] 0xffffffff
-> 
-> other info that might help us debug this:
-> 
-> 1 lock held by nash/1264:
->  #0:  (&new->reconfig_mutex){--..}, at: [<c03108ff>]
-> mutex_lock_interruptible+0x1c/0x1f
-> stack backtrace:
->  [<c0104215>] dump_trace+0x64/0x1cd
->  [<c0104390>] show_trace_log_lvl+0x12/0x25
->  [<c01049e5>] show_trace+0xd/0x10
->  [<c0104aad>] dump_stack+0x19/0x1b
->  [<c013a7df>] print_circular_bug_tail+0x59/0x64
->  [<c013b114>] __lock_acquire+0x92a/0xaef
->  [<c013b643>] lock_acquire+0x71/0x91
->  [<c0310b0f>] __mutex_lock_slowpath+0xd2/0x2f1
->  [<c0310d4a>] mutex_lock+0x1c/0x1f
->  [<c0197323>] bd_claim_by_disk+0x5f/0x18e		-> bdev->bd_mutex (part)
->  [<c02b44ec>] bind_rdev_to_array+0x1f0/0x20e
-                autorun_devices				-> mddev->reconfig_mutex
->  [<c02b6453>] autostart_arrays+0x24b/0x322
->  [<c02b9158>] md_ioctl+0x91/0x13f4
->  [<c01ea5bc>] blkdev_driver_ioctl+0x49/0x5b
->  [<c01ead23>] blkdev_ioctl+0x755/0x7a2
->  [<c0196f9d>] block_ioctl+0x16/0x1b
->  [<c01801d2>] do_ioctl+0x22/0x67
->  [<c0180460>] vfs_ioctl+0x249/0x25c
->  [<c01804ba>] sys_ioctl+0x47/0x75
->  [<c0103297>] syscall_call+0x7/0xb
-> DWARF2 unwinder stuck at syscall_call+0x7/0xb
-> 
-> Leftover inexact backtrace:
 
-Looks like a real deadlock here. It seems to me #2 is the easiest to
-break.
+* john stultz <johnstul@us.ibm.com> wrote:
 
-static int md_open(struct inode *inode, struct file *file)
-{
-	/*
-	 * Succeed if we can lock the mddev, which confirms that
-	 * it isn't being stopped right now.
-	 */
-	mddev_t *mddev = inode->i_bdev->bd_disk->private_data;
-	int err;
+> > That __read/__write_lock_failed bit looks wrong.
+> 
+> So it seems gcc 3.4.4 misplaces the __write_lock_failed function into 
+> the ksymtab. It doesn't happen w/ 4.0.3.
+> 
+> Anyway, this patch explicitly defines the section and fixes the issue 
+> for me. Would the other reporters of this issue give it a whirl as 
+> well?
 
-	if ((err = mddev_lock(mddev)))
-		goto out;
+nice catch! applied.
 
-	err = 0;
-	mddev_get(mddev);
-	mddev_unlock(mddev);
-
-	check_disk_change(inode->i_bdev);
- out:
-	return err;
-}
-
-mddev_get() is a simple atomic_inc(), and I fail to see how waiting for
-the lock makes any difference.
-
-
-
+	Ingo

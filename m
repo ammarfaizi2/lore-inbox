@@ -1,68 +1,103 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030189AbWI2WsO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932130AbWI2WxW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030189AbWI2WsO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Sep 2006 18:48:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030183AbWI2WsO
+	id S932130AbWI2WxW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Sep 2006 18:53:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932181AbWI2WxW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Sep 2006 18:48:14 -0400
-Received: from smtp-out.google.com ([216.239.45.12]:47259 "EHLO
-	smtp-out.google.com") by vger.kernel.org with ESMTP id S932150AbWI2WsM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Sep 2006 18:48:12 -0400
-DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
-	h=received:message-id:date:from:to:subject:cc:in-reply-to:
-	mime-version:content-type:content-transfer-encoding:
-	content-disposition:references;
-	b=G07xcb6X3Jw1rpXPvgImtqRbmOLA6r8w+BAKqw/BpWmZJh5u9RVV9puThaoaFeguV
-	WOGKn39CvovP4Gw67ok8w==
-Message-ID: <65dd6fd50609291548x39707437yb7f1308c3397c488@mail.google.com>
-Date: Fri, 29 Sep 2006 15:48:04 -0700
-From: "Ollie Wild" <aaw@google.com>
-To: "Andrew Morton" <akpm@osdl.org>
-Subject: Re: [PATCH 2/2] UML - Don't roll my own random MAC generator
-Cc: "Jeff Dike" <jdike@addtoit.com>, linux-kernel@vger.kernel.org,
-       user-mode-linux-devel@lists.sourceforge.net, dhollis@davehollis.com,
-       "Jason Lunz" <lunz@falooley.org>
-In-Reply-To: <20060929153853.9bab3ca7.akpm@osdl.org>
+	Fri, 29 Sep 2006 18:53:22 -0400
+Received: from wx-out-0506.google.com ([66.249.82.231]:54966 "EHLO
+	wx-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S932130AbWI2WxV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Sep 2006 18:53:21 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=FQnIKDgASEVXo0aHPVI+YVlDoN44ZI0ou8F0p3yZTX/uiSdaPDzms2qbjFoOcdCziK4CgGn4GwSV2WmR1OG26DBBscwqQpUbuEjSYE5rPAhIAuswRk7vTCjil25IYC6t1cfNiN6kI0LTQlK1R9ThNC5pPMb0sJ7dfjrr6tjpYgY=
+Message-ID: <5a4c581d0609291552k7dc39685t15188bb5c881d3bd@mail.gmail.com>
+Date: Sat, 30 Sep 2006 00:52:58 +0200
+From: "Alessandro Suardi" <alessandro.suardi@gmail.com>
+To: jt@hpl.hp.com
+Subject: Re: 2.6.18-git9 wireless fixes break ipw2200 association to AP with WPA
+Cc: "John W. Linville" <linville@tuxdriver.com>,
+       "Linux Kernel" <linux-kernel@vger.kernel.org>,
+       "Dave Jones" <davej@redhat.com>
+In-Reply-To: <20060929224316.GA10423@bougret.hpl.hp.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <200609281814.k8SIEsG8005226@ccure.user-mode-linux.org>
-	 <65dd6fd50609291518s129786fbt1739c80533d1a36@mail.google.com>
-	 <20060929153853.9bab3ca7.akpm@osdl.org>
+References: <5a4c581d0609291225r4a2cbaacr35e5ef73d69f8718@mail.gmail.com>
+	 <20060929202928.GA14000@tuxdriver.com>
+	 <5a4c581d0609291340q835571bg9657ac0a68bab20e@mail.gmail.com>
+	 <20060929212748.GA10288@bougret.hpl.hp.com>
+	 <5a4c581d0609291504r40bc1796q715c5ffa41aa7b1b@mail.gmail.com>
+	 <20060929224316.GA10423@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-You can use "make ARCH=um SUBARCH=i386 .." to build for i386.
-
-Ollie
-
-On 9/29/06, Andrew Morton <akpm@osdl.org> wrote:
-> On Fri, 29 Sep 2006 15:18:52 -0700
-> "Ollie Wild" <aaw@google.com> wrote:
->
-> > This patch as provided breaks my build due to a missing semicolon.
+On 9/30/06, Jean Tourrilhes <jt@hpl.hp.com> wrote:
+> On Sat, Sep 30, 2006 at 12:04:31AM +0200, Alessandro Suardi wrote:
+> > On 9/29/06, Jean Tourrilhes <jt@hpl.hp.com> wrote:
+> > >>
+> > >> [asuardi@sandman ~]$ rpm -q wireless-tools
+> > >> wireless-tools-28-0.pre13.5.1
+> > >
+> > >        That's too old, the cutoff is 27-pre15.
 > >
-> > ..
+> > Are you sure ? For how I read it, 28-0.pre13.5.1 is more recent
+> > than 27-pre15, not older.
+>
+>         Sorry, I'm mixing up my numbers.
+>         The cutoff for the ESSID fix is 28-pre15, so your version is
+> just a little bit older. I'm mixing up with the iwpoint cutoff which
+> was 27-pre25.
+
+OK.
+
+> > So I guess there's an actual bug that doesn't depend on the
+> > wireless-tools. Or maybe it's wpa_supplicant that has to be
+> > upgraded ?
+>
+>         I don't have the start of the thread, so I don't know the
+> exact failure mode. If you are using wpa_supplicant, it bypasses the
+> wireless tools so it would have to be updated.
+>         Note that I've been pestering Jouni about the fact that he had
+> to update wpa_supplicant for that since last May, when Jouni himself
+> asked me to change the ESSID API. Ironic, isn't it ?
+>         The epitest.fi site seems unfortunately down...
+
+Yup, same from here. I was about to go downloading and rebuilding
+ wpa_supplicant from the 0.4.9 (stable) and failing that from the
+ 0.5.5 (dev) tarball, but epitest.fi isn't reachable.
+
+> > >        On the other hand, FC6, which is in beta, contains already the
+> > >proper version of the tools. I have been monitoring the various distro
+> > >in the last few months before sending those WE-21 patches, and all
+> > >major distro have WT-28 in the pipeline.
 > >
-> > -     random_ether_addr(addr)
-> > +     random_ether_addr(addr);
+> > Even if so, wireless-tools would be the only package I have to
+> > build out of the FC5 distribution to keep up with the latest -git
+> > snapshot of the Torvalds kernel... I'm not especially troubled
+> > with this anyway. Perhaps you could push the Fedora folks to
+> > be a bit more up-to-date with wireless-tools in their current
+> > main version ?
 >
-> ahem.  That must have had a lot of testing ;)
->
-> Jeff, could we pleeeeeze arrange for UML's `make allmodconfig' to work, and
-> to continue to work?
->
-> Right now it goes splut with
->
-> arch/um/os-Linux/sys-x86_64/registers.c: In function 'get_thread_regs':
-> arch/um/os-Linux/sys-x86_64/registers.c:85: error: 'JB_PC' undeclared (first use in this function)
-> arch/um/os-Linux/sys-x86_64/registers.c:85: error: (Each undeclared identifier is reported only once
-> arch/um/os-Linux/sys-x86_64/registers.c:85: error: for each function it appears in.)
-> arch/um/os-Linux/sys-x86_64/registers.c:86: error: 'JB_RSP' undeclared (first use in this function)
-> arch/um/os-Linux/sys-x86_64/registers.c:87: error: 'JB_RBP' undeclared (first use in this function)
->
->
-> How does one build uml-for-i386 on an x86_64 host, btw?
->
+>         The FC people are busy.
+
+In any case, cc'ing Dave who chipped in earlier in the thread -
+ if wpa_supplicant needs to be rebuilt, then it's very likely that
+ even FC6 which has 0.4.8-something (just checked ;) will not
+ work with the current kernel changes.
+
+I will post an update when I can get hold of the newer sources
+ for wpa_supplicant...
+
+Thanks, ciao,
+
+--alessandro
+
+"Well a man has two reasons for things that he does
+  the first one is pride and the second one is love
+  all understandings must come by this way"
+
+     (Husker Du, 'She Floated Away')

@@ -1,21 +1,21 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422654AbWI2XT1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750961AbWI2XVn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422654AbWI2XT1 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Sep 2006 19:19:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422648AbWI2XT0
+	id S1750961AbWI2XVn (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Sep 2006 19:21:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750869AbWI2XVn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Sep 2006 19:19:26 -0400
-Received: from e4.ny.us.ibm.com ([32.97.182.144]:33729 "EHLO e4.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1161021AbWI2XTY (ORCPT
+	Fri, 29 Sep 2006 19:21:43 -0400
+Received: from e36.co.us.ibm.com ([32.97.110.154]:7401 "EHLO e36.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1750833AbWI2XVl (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Sep 2006 19:19:24 -0400
-Date: Fri, 29 Sep 2006 18:19:22 -0500
+	Fri, 29 Sep 2006 19:21:41 -0400
+Date: Fri, 29 Sep 2006 18:21:39 -0500
 To: jeff@garzik.org, akpm@osdl.org
 Cc: netdev@vger.kernel.org, James K Lewis <jklewis@us.ibm.com>,
        linux-kernel@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
        linuxppc-dev@ozlabs.org
-Subject: [PATCH 3/6]: powerpc/cell spidernet stop error printing patch.
-Message-ID: <20060929231922.GK6433@austin.ibm.com>
+Subject: [PATCH 4/6]: powerpc/cell spidernet ethtool -i version number info.
+Message-ID: <20060929232139.GL6433@austin.ibm.com>
 References: <20060929230552.GG6433@austin.ibm.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -27,60 +27,64 @@ Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-Turn off mis-interpretation of the queue-empty interrupt
-status bit as an error. This bit is set as a part of 
-the previous low-watermark patch.
+This patch adds version information as reported by 
+ethtool -i to the Spidernet driver.
 
-Signed-off-by: Linas Vepstas <linas@austin.ibm.com>
+From: James K Lewis <jklewis@us.ibm.com>
 Signed-off-by: James K Lewis <jklewis@us.ibm.com>
+Signed-off-by: Linas Vepstas <linas@austin.ibm.com>
 Cc: Arnd Bergmann <arnd@arndb.de>
 
 ----
- drivers/net/spider_net.c |   13 +++++++++----
- 1 file changed, 9 insertions(+), 4 deletions(-)
+ drivers/net/spider_net.c         |    3 +++
+ drivers/net/spider_net.h         |    2 ++
+ drivers/net/spider_net_ethtool.c |    2 +-
+ 3 files changed, 6 insertions(+), 1 deletion(-)
 
 Index: linux-2.6.18-mm2/drivers/net/spider_net.c
 ===================================================================
---- linux-2.6.18-mm2.orig/drivers/net/spider_net.c	2006-09-29 15:01:55.000000000 -0500
-+++ linux-2.6.18-mm2/drivers/net/spider_net.c	2006-09-29 16:33:43.000000000 -0500
-@@ -1282,12 +1282,15 @@ spider_net_handle_error_irq(struct spide
- 	case SPIDER_NET_PHYINT:
- 	case SPIDER_NET_GMAC2INT:
- 	case SPIDER_NET_GMAC1INT:
--	case SPIDER_NET_GIPSINT:
- 	case SPIDER_NET_GFIFOINT:
- 	case SPIDER_NET_DMACINT:
- 	case SPIDER_NET_GSYSINT:
- 		break; */
+--- linux-2.6.18-mm2.orig/drivers/net/spider_net.c	2006-09-29 15:05:05.000000000 -0500
++++ linux-2.6.18-mm2/drivers/net/spider_net.c	2006-09-29 16:33:39.000000000 -0500
+@@ -55,6 +55,7 @@ MODULE_AUTHOR("Utz Bacher <utz.bacher@de
+ 	      "<Jens.Osterkamp@de.ibm.com>");
+ MODULE_DESCRIPTION("Spider Southbridge Gigabit Ethernet driver");
+ MODULE_LICENSE("GPL");
++MODULE_VERSION(VERSION);
  
-+	case SPIDER_NET_GIPSINT:
-+		show_error = 0;
-+		break;
+ static int rx_descriptors = SPIDER_NET_RX_DESCRIPTORS_DEFAULT;
+ static int tx_descriptors = SPIDER_NET_TX_DESCRIPTORS_DEFAULT;
+@@ -2303,6 +2304,8 @@ static struct pci_driver spider_net_driv
+  */
+ static int __init spider_net_init(void)
+ {
++	printk("spidernet Version %s.\n",VERSION);
 +
- 	case SPIDER_NET_GPWOPCMPINT:
- 		/* PHY write operation completed */
- 		show_error = 0;
-@@ -1346,9 +1349,10 @@ spider_net_handle_error_irq(struct spide
- 	case SPIDER_NET_GDTDCEINT:
- 		/* chain end. If a descriptor should be sent, kick off
- 		 * tx dma
--		if (card->tx_chain.tail == card->tx_chain.head)
-+		if (card->tx_chain.tail != card->tx_chain.head)
- 			spider_net_kick_tx_dma(card);
--		show_error = 0; */
-+		*/
-+		show_error = 0;
- 		break;
+ 	if (rx_descriptors < SPIDER_NET_RX_DESCRIPTORS_MIN) {
+ 		rx_descriptors = SPIDER_NET_RX_DESCRIPTORS_MIN;
+ 		pr_info("adjusting rx descriptors to %i.\n", rx_descriptors);
+Index: linux-2.6.18-mm2/drivers/net/spider_net.h
+===================================================================
+--- linux-2.6.18-mm2.orig/drivers/net/spider_net.h	2006-09-29 15:01:55.000000000 -0500
++++ linux-2.6.18-mm2/drivers/net/spider_net.h	2006-09-29 15:18:12.000000000 -0500
+@@ -24,6 +24,8 @@
+ #ifndef _SPIDER_NET_H
+ #define _SPIDER_NET_H
  
- 	/* case SPIDER_NET_G1TMCNTINT: not used. print a message */
-@@ -1462,8 +1466,9 @@ spider_net_handle_error_irq(struct spide
- 	}
++#define VERSION "1.1 A"
++
+ #include "sungem_phy.h"
  
- 	if ((show_error) && (netif_msg_intr(card)))
--		pr_err("Got error interrupt, GHIINT0STS = 0x%08x, "
-+		pr_err("Got error interrupt on %s, GHIINT0STS = 0x%08x, "
- 		       "GHIINT1STS = 0x%08x, GHIINT2STS = 0x%08x\n",
-+		       card->netdev->name,
- 		       status_reg, error_reg1, error_reg2);
- 
- 	/* clear interrupt sources */
+ extern int spider_net_stop(struct net_device *netdev);
+Index: linux-2.6.18-mm2/drivers/net/spider_net_ethtool.c
+===================================================================
+--- linux-2.6.18-mm2.orig/drivers/net/spider_net_ethtool.c	2006-09-29 14:11:18.000000000 -0500
++++ linux-2.6.18-mm2/drivers/net/spider_net_ethtool.c	2006-09-29 15:18:12.000000000 -0500
+@@ -76,7 +76,7 @@ spider_net_ethtool_get_drvinfo(struct ne
+ 	/* clear and fill out info */
+ 	memset(drvinfo, 0, sizeof(struct ethtool_drvinfo));
+ 	strncpy(drvinfo->driver, spider_net_driver_name, 32);
+-	strncpy(drvinfo->version, "0.1", 32);
++	strncpy(drvinfo->version, VERSION, 32);
+ 	strcpy(drvinfo->fw_version, "no information");
+ 	strncpy(drvinfo->bus_info, pci_name(card->pdev), 32);
+ }

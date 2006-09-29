@@ -1,35 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422805AbWI2UWh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422802AbWI2UXG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422805AbWI2UWh (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Sep 2006 16:22:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422807AbWI2UWh
+	id S1422802AbWI2UXG (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Sep 2006 16:23:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422800AbWI2UXF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Sep 2006 16:22:37 -0400
-Received: from tetsuo.zabbo.net ([207.173.201.20]:60829 "EHLO tetsuo.zabbo.net")
-	by vger.kernel.org with ESMTP id S1422808AbWI2UWg (ORCPT
+	Fri, 29 Sep 2006 16:23:05 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:12449 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932363AbWI2UXB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Sep 2006 16:22:36 -0400
-Message-ID: <451D808A.9050005@zabbo.net>
-Date: Fri, 29 Sep 2006 13:22:34 -0700
-From: Zach Brown <zab@zabbo.net>
-User-Agent: Thunderbird 1.5.0.5 (X11/20060808)
-MIME-Version: 1.0
-To: Randy Dunlap <rdunlap@xenotime.net>
-CC: Roger Gammans <roger@computer-surgery.co.uk>,
-       lkml <linux-kernel@vger.kernel.org>, axboe@kernel.dk
-Subject: Re: fs/bio.c - Hardcoded sector size ?
-References: <20060928182238.GA4759@julia.computer-surgery.co.uk>	<20060929113814.db87b8d5.rdunlap@xenotime.net>	<20060928185820.GB4759@julia.computer-surgery.co.uk>	<20060929121157.0258883f.rdunlap@xenotime.net>	<20060928191946.GC4759@julia.computer-surgery.co.uk>	<20060929123737.ec613178.rdunlap@xenotime.net>	<20060928195627.GD4759@julia.computer-surgery.co.uk> <20060929131730.0b733137.rdunlap@xenotime.net>
-In-Reply-To: <20060929131730.0b733137.rdunlap@xenotime.net>
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 29 Sep 2006 16:23:01 -0400
+Date: Fri, 29 Sep 2006 22:14:49 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Andi Kleen <ak@suse.de>
+Cc: Jim Cromie <jim.cromie@gmail.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+Subject: Re: 2.6.18-mm2
+Message-ID: <20060929201449.GA32262@elte.hu>
+References: <20060928014623.ccc9b885.akpm@osdl.org> <451C4F0F.6010307@gmail.com> <200609290108.15400.ak@suse.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200609290108.15400.ak@suse.de>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -2.8
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.8 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.4936]
+	-0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> 	sector_t		bi_sector;	/* block layer sector
-> 						 * addresses are always in
-> 						 * 512-byte units in Linux */
+* Andi Kleen <ak@suse.de> wrote:
 
-How about adding kerneldoc for sector_t itself?
+> BTW I was planning to make LOCAL_APIC unconditional on i386 too like 
+> on x86-64.
 
-- z
+please dont - embedded doesnt need it most of the time. At most make it 
+default y and dependent on EMBEDDED.
+
+	Ingo

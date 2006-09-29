@@ -1,28 +1,26 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965033AbWI2AH7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965047AbWI2AMe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965033AbWI2AH7 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Sep 2006 20:07:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965035AbWI2AH7
+	id S965047AbWI2AMe (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Sep 2006 20:12:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965051AbWI2AMe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Sep 2006 20:07:59 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:58776 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S965033AbWI2AH6 (ORCPT
+	Thu, 28 Sep 2006 20:12:34 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:23962 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S965047AbWI2AMd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Sep 2006 20:07:58 -0400
-Date: Thu, 28 Sep 2006 17:07:23 -0700
+	Thu, 28 Sep 2006 20:12:33 -0400
+Date: Thu, 28 Sep 2006 17:12:18 -0700
 From: Andrew Morton <akpm@osdl.org>
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: linux-kernel@vger.kernel.org, Andi Kleen <ak@muc.de>,
-       Hugh Dickens <hugh@veritas.com>,
-       Michael Ellerman <michael@ellerman.id.au>,
-       Paul Mackerras <paulus@samba.org>
-Subject: Re: [PATCH RFC 1/4] Generic BUG handling.
-Message-Id: <20060928170723.c2580a34.akpm@osdl.org>
-In-Reply-To: <451C5E3B.60204@goop.org>
-References: <20060928225444.439520197@goop.org>
-	<20060928225452.229936605@goop.org>
-	<20060928163256.aa53b8d7.akpm@osdl.org>
-	<451C5E3B.60204@goop.org>
+To: Greg KH <gregkh@suse.de>
+Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-usb-devel@lists.sourceforge.net
+Subject: Re: [GIT PATCH] More USB patches for 2.6.18
+Message-Id: <20060928171218.3ff99ec5.akpm@osdl.org>
+In-Reply-To: <20060929000524.GA1625@suse.de>
+References: <20060928224250.GA23841@kroah.com>
+	<Pine.LNX.4.64.0609281639040.3952@g5.osdl.org>
+	<20060928165951.2c5bd4c7.akpm@osdl.org>
+	<20060929000524.GA1625@suse.de>
 X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -30,29 +28,15 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 28 Sep 2006 16:43:55 -0700
-Jeremy Fitzhardinge <jeremy@goop.org> wrote:
+On Thu, 28 Sep 2006 17:05:24 -0700
+Greg KH <gregkh@suse.de> wrote:
 
-> Andrew Morton wrote:
-> > What is the locking for these lists?  I don't see much in here.  It has
-> > implications for code which wants to do BUG while holding that lock..
-> >   
+> >  
+> > +#ifdef CONFIG_PM
+> > +static int ohci_restart(struct ohci_hcd *ohci);
+> > +#endif
 > 
-> There's no locking.  This is a direct copy of the original powerpc 
-> code.  I assume, but haven't checked, that there's a lock to serialize 
-> module loading/unloading, so the insertion/deletion is all properly 
-> synchronized. 
-> 
-> The only other user is traversal when actually handling a bug; if you're 
-> very unlucky this could happen while you're actually loading/unloading 
-> and you would see the list in an inconsistent state.  I guess we could 
-> put a lock there, and trylock it on traversal; at least that would stop 
-> a concurrent modload/unload from getting in there while we're trying to 
-> walk the list.
+> That #ifdef shouldn't be even needed.
 
-The module_bug_cleanup() code is in a stop_machine_run() callback, so
-that's all OK.
-
-I _think_ your module_bug_finalize()'s list_add() could race with another
-CPU's BUG_ON().  We can live with that.
-
+We'll get "warning: 'ohci_restart' declared 'static' but never defined"
+without it.

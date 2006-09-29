@@ -1,66 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422817AbWI2Ubq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932366AbWI2UcV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422817AbWI2Ubq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Sep 2006 16:31:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030216AbWI2Ubq
+	id S932366AbWI2UcV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Sep 2006 16:32:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932377AbWI2UcU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Sep 2006 16:31:46 -0400
-Received: from mcr-smtp-002.bulldogdsl.com ([212.158.248.8]:44304 "EHLO
-	mcr-smtp-002.bulldogdsl.com") by vger.kernel.org with ESMTP
-	id S1030209AbWI2Ubo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Sep 2006 16:31:44 -0400
-X-Spam-Abuse: Please report all spam/abuse matters to abuse@bulldogdsl.com
-From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-To: Randy Dunlap <rdunlap@xenotime.net>
-Subject: Re: [PATCH] list module taint flags in Oops/panic
-Date: Fri, 29 Sep 2006 21:31:43 +0100
-User-Agent: KMail/1.9.4
-Cc: lkml <linux-kernel@vger.kernel.org>, akpm <akpm@osdl.org>,
-       Lee Revell <rlrevell@joe-job.com>, Dave Jones <davej@redhat.com>,
-       devzero@web.de
-References: <20060928191200.5b76998c.rdunlap@xenotime.net>
-In-Reply-To: <20060928191200.5b76998c.rdunlap@xenotime.net>
+	Fri, 29 Sep 2006 16:32:20 -0400
+Received: from 216-99-213-120.dsl.aracnet.com ([216.99.213.120]:37083 "EHLO
+	clueserver.org") by vger.kernel.org with ESMTP id S932366AbWI2UcT
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Sep 2006 16:32:19 -0400
+Date: Fri, 29 Sep 2006 13:32:18 -0700 (PDT)
+From: alan <alan@clueserver.org>
+X-X-Sender: alan@blackbox.fnordora.org
+To: Linus Torvalds <torvalds@osdl.org>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Helge Hafting <helge.hafting@aitel.hist.no>, tglx@linutronix.de,
+       Neil Brown <neilb@suse.de>, Michiel de Boer <x@rebelhomicide.demon.nl>,
+       James Bottomley <James.Bottomley@SteelEye.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: GPLv3 Position Statement
+In-Reply-To: <Pine.LNX.4.64.0609291314250.30853@blackbox.fnordora.org>
+Message-ID: <Pine.LNX.4.64.0609291330120.30853@blackbox.fnordora.org>
+References: <1158941750.3445.31.camel@mulgrave.il.steeleye.com> 
+ <451798FA.8000004@rebelhomicide.demon.nl>  <17687.46268.156413.352299@cse.unsw.edu.au>
+  <1159183895.11049.56.camel@localhost.localdomain> 
+ <1159200620.9326.447.camel@localhost.localdomain>  <451CF22D.4030405@aitel.hist.no>
+  <Pine.LNX.4.64.0609290940480.3952@g5.osdl.org>  <1159552021.13029.58.camel@localhost.localdomain>
+  <Pine.LNX.4.64.0609291030050.3952@g5.osdl.org> <1159554375.13029.67.camel@localhost.localdomain>
+ <Pine.LNX.4.64.0609291120440.3952@g5.osdl.org> <Pine.LNX.4.64.0609291131300.3952@g5.osdl.org>
+ <Pine.LNX.4.64.0609291258050.30636@blackbox.fnordora.org>
+ <Pine.LNX.4.64.0609291306080.3952@g5.osdl.org>
+ <Pine.LNX.4.64.0609291314250.30853@blackbox.fnordora.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200609292131.43752.s0348365@sms.ed.ac.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday 29 September 2006 03:12, Randy Dunlap wrote:
-> From: Randy Dunlap <rdunlap@xenotime.net>
->
-> When listing loaded modules during an oops or panic, also list each
-> module's Tainted flags if non-zero (P: Proprietary or F: Forced load only).
->
-> If a module is did not taint the kernel, it is just listed like
-> 	usbcore
-> but if it did taint the kernel, it is listed like
-> 	wizmodem(PF)
->
-> Example:
-> [ 3260.121718] Unable to handle kernel NULL pointer dereference at
-> 0000000000000000 RIP: [ 3260.121729]  [<ffffffff8804c099>]
-> :dump_test:proc_dump_test+0x99/0xc8 [ 3260.121742] PGD fe8d067 PUD 264a6067
-> PMD 0
-> [ 3260.121748] Oops: 0002 [1] SMP
-> [ 3260.121753] CPU 1
-> [ 3260.121756] Modules linked in: dump_test(P) snd_pcm_oss snd_mixer_oss
-> snd_seq snd_seq_device ide_cd generic ohci1394 snd_hda_intel snd_hda_codec
-> snd_pcm snd_timer snd ieee1394 snd_page_alloc piix ide_core arcmsr aic79xx
-> scsi_transport_spi usblp [ 3260.121785] Pid: 5556, comm: bash Tainted: P   
->   2.6.18-git10 #1
->
-> [Alternatively, I can look into listing tainted flags with 'lsmod',
-> but that won't help in oopsen/panics so much.]
+On Fri, 29 Sep 2006, alan wrote:
 
-I think this is definitely a good start.
+> On Fri, 29 Sep 2006, Linus Torvalds wrote:
+>
+>> 
+>> 
+>> On Fri, 29 Sep 2006, alan wrote:
+>>> 
+>>> On Fri, 29 Sep 2006, Linus Torvalds wrote:
+>>> 
+>>>> (*) Hah. Who do I think I'm kidding? The revolution will be bloody and
+>>>> brutal, and you're not going to get the choice to "elect" me except in 
+>>>> the
+>>>> history books written by yours truly.
+>>> 
+>>> Wow.  You have been living in Portland too long. ]:>
+>> 
+>> Is there some Portland subculture that I should be aware of?
+>> 
+>> Inquiring minds want to know.
+>
+> That would be telling.
+>
+> Here are a few clues to the secret handshake that is Portland...
+>
+> http://www.mondocroquet.com/
+> http://portland.cacophony.org/
+> http://www.orycon.org/orycon28/
+> http://communique.portland.or.us/02/12/santanarchy_now
+
+Not to mention:
+http://www.hplfilmfestival.com/
+
+And worst of all:
+
+http://www.stonehenge.com/merlyn/
 
 -- 
-Cheers,
-Alistair.
-
-Final year Computer Science undergraduate.
-1F2 55 South Clerk Street, Edinburgh, UK.
+"Oh, Joel Miller, you've just found the marble in the oatmeal. You're a
+lucky, lucky, lucky little boy. 'Cause you know why? You get to drink
+from... the FIRE HOOOOOSE!"
+         - The Stanley Spudoski guide to mailing list administration

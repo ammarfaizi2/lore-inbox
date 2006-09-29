@@ -1,18 +1,18 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161279AbWI2CPJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161281AbWI2CPK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161279AbWI2CPJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Sep 2006 22:15:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751360AbWI2CNJ
+	id S1161281AbWI2CPK (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Sep 2006 22:15:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751344AbWI2CNN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Sep 2006 22:13:09 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.152]:54179 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751326AbWI2CND
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Sep 2006 22:13:13 -0400
+Received: from e36.co.us.ibm.com ([32.97.110.154]:4517 "EHLO e36.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1751343AbWI2CND (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
 	Thu, 28 Sep 2006 22:13:03 -0400
-Message-Id: <20060929021300.307110000@us.ibm.com>
+Message-Id: <20060929021300.851205000@us.ibm.com>
 References: <20060929020232.756637000@us.ibm.com>
 User-Agent: quilt/0.45-1
-Date: Thu, 28 Sep 2006 19:02:35 -0700
+Date: Thu, 28 Sep 2006 19:02:37 -0700
 From: Matt Helsley <matthltc@us.ibm.com>
 To: Linux-Kernel <linux-kernel@vger.kernel.org>
 Cc: Jes Sorensen <jes@sgi.com>, LSE-Tech <lse-tech@lists.sourceforge.net>,
@@ -20,212 +20,190 @@ Cc: Jes Sorensen <jes@sgi.com>, LSE-Tech <lse-tech@lists.sourceforge.net>,
        John T Kohl <jtk@us.ibm.com>, Christoph Hellwig <hch@lst.de>,
        Al Viro <viro@zeniv.linux.org.uk>, Steve Grubb <sgrubb@redhat.com>,
        linux-audit@redhat.com, Paul Jackson <pj@sgi.com>
-Subject: [RFC][PATCH 03/10] Task watchers v2 Register audit task watcher
-Content-Disposition: inline; filename=task-watchers-register-audit
+Subject: [RFC][PATCH 05/10] Task watchers v2 Register cpuset task watcher
+Content-Disposition: inline; filename=task-watchers-register-cpusets
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Change audit to register a task watcher function rather than modify
-the copy_process() and do_exit() paths directly.
-
-Removes an unlikely() hint from kernel/exit.c:
-	if (unlikely(tsk->audit_context))
-		audit_free(tsk);
-This use of unlikely() is an artifact of audit_free()'s former invocation from
-__put_task_struct() (commit: fa84cb935d4ec601528f5e2f0d5d31e7876a5044).
-Clearly in the __put_task_struct() path it would be called much more frequently
-than do_exit() and hence the use of unlikely() there was justified. However, in
-the new location the hint most likely offers no measurable performance impact.
+Register a task watcher for cpusets instead of hooking into
+copy_process() and do_exit() directly.
 
 Signed-off-by: Matt Helsley <matthltc@us.ibm.com>
-Cc: Al Viro <viro@zeniv.linux.org.uk>
-Cc: Steve Grubb <sgrubb@redhat.com>
-Cc: linux-audit@redhat.com
+Cc: Paul Jackson <pj@sgi.com>
 ---
- include/linux/audit.h |    4 ----
- kernel/auditsc.c      |   10 +++++++---
- kernel/exit.c         |    3 ---
- kernel/fork.c         |    7 +------
- 4 files changed, 8 insertions(+), 16 deletions(-)
+ include/linux/cpuset.h |    4 ----
+ kernel/cpuset.c        |    7 +++++--
+ kernel/exit.c          |    2 --
+ kernel/fork.c          |    6 +-----
+ 4 files changed, 6 insertions(+), 13 deletions(-)
 
-Index: linux-2.6.18-mm1/kernel/auditsc.c
-===================================================================
---- linux-2.6.18-mm1.orig/kernel/auditsc.c
-+++ linux-2.6.18-mm1/kernel/auditsc.c
-@@ -63,10 +63,11 @@
- #include <linux/list.h>
- #include <linux/tty.h>
- #include <linux/selinux.h>
- #include <linux/binfmts.h>
- #include <linux/syscalls.h>
-+#include <linux/task_watchers.h>
- 
- #include "audit.h"
- 
- extern struct list_head audit_filter_list[];
- 
-@@ -674,11 +675,11 @@ static inline struct audit_context *audi
-  * Filter on the task information and allocate a per-task audit context
-  * if necessary.  Doing so turns on system call auditing for the
-  * specified task.  This is called from copy_process, so no lock is
-  * needed.
-  */
--int audit_alloc(struct task_struct *tsk)
-+static int audit_alloc(unsigned long val, struct task_struct *tsk)
- {
- 	struct audit_context *context;
- 	enum audit_state     state;
- 
- 	if (likely(!audit_enabled))
-@@ -700,10 +701,11 @@ int audit_alloc(struct task_struct *tsk)
- 
- 	tsk->audit_context  = context;
- 	set_tsk_thread_flag(tsk, TIF_SYSCALL_AUDIT);
- 	return 0;
- }
-+task_watcher_func(init, audit_alloc);
- 
- static inline void audit_free_context(struct audit_context *context)
- {
- 	struct audit_context *previous;
- 	int		     count = 0;
-@@ -1029,28 +1031,30 @@ static void audit_log_exit(struct audit_
-  * audit_free - free a per-task audit context
-  * @tsk: task whose audit context block to free
-  *
-  * Called from copy_process and do_exit
-  */
--void audit_free(struct task_struct *tsk)
-+static int audit_free(unsigned long val, struct task_struct *tsk)
- {
- 	struct audit_context *context;
- 
- 	context = audit_get_context(tsk, 0, 0);
- 	if (likely(!context))
--		return;
-+		return 0;
- 
- 	/* Check for system calls that do not go through the exit
- 	 * function (e.g., exit_group), then free context block. 
- 	 * We use GFP_ATOMIC here because we might be doing this 
- 	 * in the context of the idle thread */
- 	/* that can happen only if we are called from do_exit() */
- 	if (context->in_syscall && context->auditable)
- 		audit_log_exit(context, tsk);
- 
- 	audit_free_context(context);
-+	return 0;
- }
-+task_watcher_func(free, audit_free);
- 
- /**
-  * audit_syscall_entry - fill in an audit record at syscall entry
-  * @tsk: task being audited
-  * @arch: architecture type
-Index: linux-2.6.18-mm1/include/linux/audit.h
-===================================================================
---- linux-2.6.18-mm1.orig/include/linux/audit.h
-+++ linux-2.6.18-mm1/include/linux/audit.h
-@@ -326,12 +326,10 @@ struct mqstat;
- extern int __init audit_register_class(int class, unsigned *list);
- extern int audit_classify_syscall(int abi, unsigned syscall);
- #ifdef CONFIG_AUDITSYSCALL
- /* These are defined in auditsc.c */
- 				/* Public API */
--extern int  audit_alloc(struct task_struct *task);
--extern void audit_free(struct task_struct *task);
- extern void audit_syscall_entry(int arch,
- 				int major, unsigned long a0, unsigned long a1,
- 				unsigned long a2, unsigned long a3);
- extern void audit_syscall_exit(int failed, long return_code);
- extern void __audit_getname(const char *name);
-@@ -426,12 +424,10 @@ static inline int audit_mq_getsetattr(mq
- 		return __audit_mq_getsetattr(mqdes, mqstat);
- 	return 0;
- }
- extern int audit_n_rules;
- #else
--#define audit_alloc(t) ({ 0; })
--#define audit_free(t) do { ; } while (0)
- #define audit_syscall_entry(ta,a,b,c,d,e) do { ; } while (0)
- #define audit_syscall_exit(f,r) do { ; } while (0)
- #define audit_dummy_context() 1
- #define audit_getname(n) do { ; } while (0)
- #define audit_putname(n) do { ; } while (0)
 Index: linux-2.6.18-mm1/kernel/fork.c
 ===================================================================
 --- linux-2.6.18-mm1.orig/kernel/fork.c
 +++ linux-2.6.18-mm1/kernel/fork.c
-@@ -37,11 +37,10 @@
+@@ -28,11 +28,10 @@
+ #include <linux/mman.h>
+ #include <linux/fs.h>
+ #include <linux/nsproxy.h>
+ #include <linux/capability.h>
+ #include <linux/cpu.h>
+-#include <linux/cpuset.h>
+ #include <linux/security.h>
+ #include <linux/swap.h>
+ #include <linux/syscalls.h>
  #include <linux/jiffies.h>
  #include <linux/futex.h>
- #include <linux/rcupdate.h>
- #include <linux/ptrace.h>
- #include <linux/mount.h>
--#include <linux/audit.h>
- #include <linux/profile.h>
- #include <linux/rmap.h>
- #include <linux/acct.h>
- #include <linux/tsacct_kern.h>
- #include <linux/cn_proc.h>
-@@ -1103,15 +1102,13 @@ static struct task_struct *copy_process(
- 	p->blocked_on = NULL; /* not blocked yet */
- #endif
+@@ -1059,17 +1058,16 @@ static struct task_struct *copy_process(
+ 		p->tgid = current->tgid;
  
- 	if ((retval = security_task_alloc(p)))
- 		goto bad_fork_cleanup_policy;
--	if ((retval = audit_alloc(p)))
--		goto bad_fork_cleanup_security;
- 	/* copy all the process information */
- 	if ((retval = copy_semundo(clone_flags, p)))
--		goto bad_fork_cleanup_audit;
-+		goto bad_fork_cleanup_security;
- 	if ((retval = copy_files(clone_flags, p)))
- 		goto bad_fork_cleanup_semundo;
- 	if ((retval = copy_fs(clone_flags, p)))
- 		goto bad_fork_cleanup_files;
- 	if ((retval = copy_sighand(clone_flags, p)))
-@@ -1282,12 +1279,10 @@ bad_fork_cleanup_fs:
- 	exit_fs(p); /* blocking */
- bad_fork_cleanup_files:
- 	exit_files(p); /* blocking */
- bad_fork_cleanup_semundo:
- 	exit_sem(p);
--bad_fork_cleanup_audit:
--	audit_free(p);
+ 	retval = notify_task_watchers(WATCH_TASK_INIT, clone_flags, p);
+ 	if (retval < 0)
+ 		goto bad_fork_cleanup_delays_binfmt;
+-	cpuset_fork(p);
+ #ifdef CONFIG_NUMA
+  	p->mempolicy = mpol_copy(p->mempolicy);
+  	if (IS_ERR(p->mempolicy)) {
+  		retval = PTR_ERR(p->mempolicy);
+  		p->mempolicy = NULL;
+- 		goto bad_fork_cleanup_cpuset;
++ 		goto bad_fork_cleanup_delays_binfmt;
+  	}
+ 	mpol_fix_fork_child_flag(p);
+ #endif
+ #ifdef CONFIG_TRACE_IRQFLAGS
+ 	p->irq_events = 0;
+@@ -1280,13 +1278,11 @@ bad_fork_cleanup_files:
  bad_fork_cleanup_security:
  	security_task_free(p);
  bad_fork_cleanup_policy:
  #ifdef CONFIG_NUMA
  	mpol_free(p->mempolicy);
+-bad_fork_cleanup_cpuset:
+ #endif
+-	cpuset_exit(p);
+ bad_fork_cleanup_delays_binfmt:
+ 	delayacct_tsk_free(p);
+ 	notify_task_watchers(WATCH_TASK_FREE, 0, p);
+ 	if (p->binfmt)
+ 		module_put(p->binfmt->module);
+Index: linux-2.6.18-mm1/kernel/cpuset.c
+===================================================================
+--- linux-2.6.18-mm1.orig/kernel/cpuset.c
++++ linux-2.6.18-mm1/kernel/cpuset.c
+@@ -47,10 +47,11 @@
+ #include <linux/stat.h>
+ #include <linux/string.h>
+ #include <linux/time.h>
+ #include <linux/backing-dev.h>
+ #include <linux/sort.h>
++#include <linux/task_watchers.h>
+ 
+ #include <asm/uaccess.h>
+ #include <asm/atomic.h>
+ #include <linux/mutex.h>
+ 
+@@ -2173,17 +2174,18 @@ void __init cpuset_init_smp(void)
+  *
+  * At the point that cpuset_fork() is called, 'current' is the parent
+  * task, and the passed argument 'child' points to the child task.
+  **/
+ 
+-void cpuset_fork(struct task_struct *child)
++static void cpuset_fork(unsigned long clone_flags, struct task_struct *child)
+ {
+ 	task_lock(current);
+ 	child->cpuset = current->cpuset;
+ 	atomic_inc(&child->cpuset->count);
+ 	task_unlock(current);
+ }
++task_watcher_func(init, cpuset_fork);
+ 
+ /**
+  * cpuset_exit - detach cpuset from exiting task
+  * @tsk: pointer to task_struct of exiting process
+  *
+@@ -2240,11 +2242,11 @@ void cpuset_fork(struct task_struct *chi
+  *    to NULL here, and check in cpuset_update_task_memory_state()
+  *    for a NULL pointer.  This hack avoids that NULL check, for no
+  *    cost (other than this way too long comment ;).
+  **/
+ 
+-void cpuset_exit(struct task_struct *tsk)
++static void cpuset_exit(unsigned long exit_code, struct task_struct *tsk)
+ {
+ 	struct cpuset *cs;
+ 
+ 	cs = tsk->cpuset;
+ 	tsk->cpuset = &top_cpuset;	/* the_top_cpuset_hack - see above */
+@@ -2259,10 +2261,11 @@ void cpuset_exit(struct task_struct *tsk
+ 		cpuset_release_agent(pathbuf);
+ 	} else {
+ 		atomic_dec(&cs->count);
+ 	}
+ }
++task_watcher_func(free, cpuset_exit);
+ 
+ /**
+  * cpuset_cpus_allowed - return cpus_allowed mask from a tasks cpuset.
+  * @tsk: pointer to task_struct from which to obtain cpuset->cpus_allowed.
+  *
 Index: linux-2.6.18-mm1/kernel/exit.c
 ===================================================================
 --- linux-2.6.18-mm1.orig/kernel/exit.c
 +++ linux-2.6.18-mm1/kernel/exit.c
-@@ -36,11 +36,10 @@
+@@ -27,11 +27,10 @@
+ #include <linux/mount.h>
+ #include <linux/proc_fs.h>
+ #include <linux/mempolicy.h>
+ #include <linux/taskstats_kern.h>
+ #include <linux/delayacct.h>
+-#include <linux/cpuset.h>
+ #include <linux/syscalls.h>
+ #include <linux/signal.h>
+ #include <linux/posix-timers.h>
  #include <linux/cn_proc.h>
  #include <linux/mutex.h>
- #include <linux/futex.h>
- #include <linux/compat.h>
- #include <linux/pipe_fs_i.h>
--#include <linux/audit.h> /* for audit_free() */
- #include <linux/resource.h>
- #include <linux/blkdev.h>
- #include <linux/task_watchers.h>
+@@ -918,11 +917,10 @@ fastcall NORET_TYPE void do_exit(long co
+ 	if (group_dead)
+ 		acct_process();
+ 	__exit_files(tsk);
+ 	__exit_fs(tsk);
+ 	exit_thread();
+-	cpuset_exit(tsk);
+ 	exit_keys(tsk);
  
- #include <asm/uaccess.h>
-@@ -908,12 +907,10 @@ fastcall NORET_TYPE void do_exit(long co
- 		exit_robust_list(tsk);
- #if defined(CONFIG_FUTEX) && defined(CONFIG_COMPAT)
- 	if (unlikely(tsk->compat_robust_list))
- 		compat_exit_robust_list(tsk);
- #endif
--	if (unlikely(tsk->audit_context))
--		audit_free(tsk);
- 	taskstats_exit_send(tsk, tidstats, group_dead, mycpu);
- 	taskstats_exit_free(tidstats);
+ 	if (group_dead && tsk->signal->leader)
+ 		disassociate_ctty(1);
  
- 	exit_mm(tsk);
- 	notify_task_watchers(WATCH_TASK_FREE, code, tsk);
+Index: linux-2.6.18-mm1/include/linux/cpuset.h
+===================================================================
+--- linux-2.6.18-mm1.orig/include/linux/cpuset.h
++++ linux-2.6.18-mm1/include/linux/cpuset.h
+@@ -17,12 +17,10 @@
+ extern int number_of_cpusets;	/* How many cpusets are defined in system? */
+ 
+ extern int cpuset_init_early(void);
+ extern int cpuset_init(void);
+ extern void cpuset_init_smp(void);
+-extern void cpuset_fork(struct task_struct *p);
+-extern void cpuset_exit(struct task_struct *p);
+ extern cpumask_t cpuset_cpus_allowed(struct task_struct *p);
+ extern nodemask_t cpuset_mems_allowed(struct task_struct *p);
+ void cpuset_init_current_mems_allowed(void);
+ void cpuset_update_task_memory_state(void);
+ #define cpuset_nodes_subset_current_mems_allowed(nodes) \
+@@ -68,12 +66,10 @@ extern void cpuset_track_online_nodes(vo
+ #else /* !CONFIG_CPUSETS */
+ 
+ static inline int cpuset_init_early(void) { return 0; }
+ static inline int cpuset_init(void) { return 0; }
+ static inline void cpuset_init_smp(void) {}
+-static inline void cpuset_fork(struct task_struct *p) {}
+-static inline void cpuset_exit(struct task_struct *p) {}
+ 
+ static inline cpumask_t cpuset_cpus_allowed(struct task_struct *p)
+ {
+ 	return cpu_possible_map;
+ }
 
 --

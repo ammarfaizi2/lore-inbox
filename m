@@ -1,77 +1,110 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422663AbWI2UQK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932349AbWI2UUk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422663AbWI2UQK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Sep 2006 16:16:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422784AbWI2UQK
+	id S932349AbWI2UUk (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Sep 2006 16:20:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932363AbWI2UUk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Sep 2006 16:16:10 -0400
-Received: from xenotime.net ([66.160.160.81]:61591 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1422663AbWI2UQI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Sep 2006 16:16:08 -0400
-Date: Fri, 29 Sep 2006 13:17:30 -0700
-From: Randy Dunlap <rdunlap@xenotime.net>
-To: Roger Gammans <roger@computer-surgery.co.uk>
-Cc: lkml <linux-kernel@vger.kernel.org>, axboe@kernel.dk
-Subject: Re: fs/bio.c - Hardcoded sector size ?
-Message-Id: <20060929131730.0b733137.rdunlap@xenotime.net>
-In-Reply-To: <20060928195627.GD4759@julia.computer-surgery.co.uk>
-References: <20060928182238.GA4759@julia.computer-surgery.co.uk>
-	<20060929113814.db87b8d5.rdunlap@xenotime.net>
-	<20060928185820.GB4759@julia.computer-surgery.co.uk>
-	<20060929121157.0258883f.rdunlap@xenotime.net>
-	<20060928191946.GC4759@julia.computer-surgery.co.uk>
-	<20060929123737.ec613178.rdunlap@xenotime.net>
-	<20060928195627.GD4759@julia.computer-surgery.co.uk>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 29 Sep 2006 16:20:40 -0400
+Received: from baldrick.bootc.net ([83.142.228.48]:40665 "EHLO
+	baldrick.fusednetworks.co.uk") by vger.kernel.org with ESMTP
+	id S932349AbWI2UUj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Sep 2006 16:20:39 -0400
+In-Reply-To: <451D7DE8.8020504@freescale.com>
+References: <451D7DE8.8020504@freescale.com>
+Mime-Version: 1.0 (Apple Message framework v752.2)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <BA55C0C9-B58F-473E-9412-B582411D017A@bootc.net>
+Cc: linux-kernel@vger.kernel.org, linuxppc-dev@ozlabs.org
 Content-Transfer-Encoding: 7bit
+From: Chris Boot <bootc@bootc.net>
+Subject: Re: SATA: "unknown partition table" error, fdisk can't fix, works in 2.6.13
+Date: Fri, 29 Sep 2006 21:20:36 +0100
+To: Timur Tabi <timur@freescale.com>
+X-Mailer: Apple Mail (2.752.2)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 28 Sep 2006 20:56:27 +0100 Roger Gammans wrote:
+Timur,
 
-> On Fri, Sep 29, 2006 at 12:37:37PM -0700, Randy Dunlap wrote:
-> > Hm, I looked thru fs/bio.c and block/*.c and Documentation/Docbook/*.tmpl.
-> > The best place that I see to put it right now is in
-> > include/linux/bio.h, struct bio, field: bi_sector.
-> > 
-> > What do you think of that?
-> 
-> Well, ... Um. I can't think of anywhere better either, so how about
-> this:-
-> 
-> Signed-Off-By: Roger Gammans <rgammans@computer-sugery.co.uk>
+fdisk manipulates DOS-style partition maps. Have you compiled these  
+into your latest kernel? You don't actually have any errors in the  
+below messages, other than the partition map being unreadable...
+
+Chris
+
+On 29 Sep 2006, at 21:11, Timur Tabi wrote:
+
+> I have a SATA drive attached to a PowerPC 8349E board, using the  
+> SIL 3114 controller.  I'm running the latest code from Paul  
+> Mackerras (PowerPC maintainer) (2.6.18-blabla).
+>
+> I'm experiencing a number of I/O errors with the SATA drive.  fdisk  
+> can see the partition table, but when I issue the "w" command, I  
+> get this output:
+>
+> Calling ioctl() to re-read partition table.
+> SCSI device sda: 321672960 512-byte hdwr sectors (164697 MB)
+> sda: Write Protect is off
+> SCSI device sda: drive cache: write back
+>  sda: unknown partition table
+> SCSI device sda: 321672960 512-byte hdwr sectors (164697 MB)
+> sda: Write Protect is off
+> SCSI device sda: drive cache: write back
+>  sda: unknown partition table
+> Syncing disks.
+>
+> I cannot mount any partitions.  On boot, I see this:
+>
+> sata_sil 0000:00:10.0: Applying R_ERR on DMA activate FIS errata fix
+> ata1: SATA max UDMA/100 cmd 0xD100E080 ctl 0xD100E08A bmdma  
+> 0xD100E000 irq 22
+> ata2: SATA max UDMA/100 cmd 0xD100E0C0 ctl 0xD100E0CA bmdma  
+> 0xD100E008 irq 22
+> ata3: SATA max UDMA/100 cmd 0xD100E280 ctl 0xD100E28A bmdma  
+> 0xD100E200 irq 22
+> ata4: SATA max UDMA/100 cmd 0xD100E2C0 ctl 0xD100E2CA bmdma  
+> 0xD100E208 irq 22
+> scsi0 : sata_sil
+> ata1: SATA link up 1.5 Gbps (SStatus 113 SControl 310)
+> ata1.00: ATA-7, max UDMA/133, 321672960 sectors: LBA48 NCQ (depth  
+> 0/32)
+> ata1.00: ata1: dev 0 multi count 0
+> ata1.00: configured for UDMA/100
+> scsi1 : sata_sil
+> ata2: SATA link down (SStatus 0 SControl 310)
+> scsi2 : sata_sil
+> ata3: SATA link down (SStatus 0 SControl 310)
+> scsi3 : sata_sil
+> ata4: SATA link down (SStatus 0 SControl 310)
+> scsi 0:0:0:0: Direct-Access     ATA      HDT722516DLA380  V43O PQ:  
+> 0 ANSI: 5
+> SCSI device sda: 321672960 512-byte hdwr sectors (164697 MB)
+> sda: Write Protect is off
+> SCSI device sda: drive cache: write back
+> SCSI device sda: 321672960 512-byte hdwr sectors (164697 MB)
+> sda: Write Protect is off
+> SCSI device sda: drive cache: write back
+>  sda: unknown partition table
+> sd 0:0:0:0: Attached scsi disk sda
+> sd 0:0:0:0: Attached scsi generic sg0 type 0
+>
+> The odd thing is that this works in 2.6.13, so something is  
+> broken.  I don't know if it's a bug in the sata_sil driver, or a  
+> configuration issue.  Can anyone help?
+>
+> -- 
+> Timur Tabi
+> Linux Kernel Developer @ Freescale
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux- 
+> kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+
+-- 
+Chris Boot
+bootc@bootc.net
+http://www.bootc.net/
 
 
-Looks OK to me.  I would probably go for something a little
-stronger, though, like:
-
-	sector_t		bi_sector;	/* block layer sector
-						 * addresses are always in
-						 * 512-byte units in Linux */
-
-Jens, is something like this (above or below) OK with you?
-
-
-> diff --git a/include/linux/bio.h b/include/linux/bio.h
-> index 76bdaea..77a8e6b 100644
-> --- a/include/linux/bio.h
-> +++ b/include/linux/bio.h
-> @@ -70,7 +70,8 @@ typedef void (bio_destructor_t) (struct
->   * stacking drivers)
->   */
->  struct bio {
-> -       sector_t                bi_sector;
-> +       sector_t                bi_sector;      /* device address in 512 byte
-> +                                                  sectors */
->         struct bio              *bi_next;       /* request queue link */
->         struct block_device     *bi_bdev;
->         unsigned long           bi_flags;       /* status, command, etc
-> */
-
-
----
-~Randy

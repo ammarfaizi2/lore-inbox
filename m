@@ -1,50 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932542AbWI2GKg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161324AbWI2GUq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932542AbWI2GKg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Sep 2006 02:10:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932543AbWI2GKg
+	id S1161324AbWI2GUq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Sep 2006 02:20:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161419AbWI2GUq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Sep 2006 02:10:36 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:21988 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932542AbWI2GKf (ORCPT
+	Fri, 29 Sep 2006 02:20:46 -0400
+Received: from emailer.gwdg.de ([134.76.10.24]:25500 "EHLO emailer.gwdg.de")
+	by vger.kernel.org with ESMTP id S1161324AbWI2GUp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Sep 2006 02:10:35 -0400
-Date: Thu, 28 Sep 2006 23:10:33 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "Zhang, Yanmin" <yanmin_zhang@linux.intel.com>
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] Add flag __GFP_NOFAIL when allocating block
-Message-Id: <20060928231033.ff2d022b.akpm@osdl.org>
-In-Reply-To: <1159494812.20092.727.camel@ymzhang-perf.sh.intel.com>
-References: <1159494812.20092.727.camel@ymzhang-perf.sh.intel.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 29 Sep 2006 02:20:45 -0400
+Date: Fri, 29 Sep 2006 08:08:58 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Linus Torvalds <torvalds@osdl.org>
+cc: =?ISO-8859-1?Q?J=F6rn_Engel?= <joern@wohnheim.fh-wedel.de>,
+       Lennart Sorensen <lsorense@csclub.uwaterloo.ca>,
+       Chase Venters <chase.venters@clientec.com>,
+       Sergey Panov <sipan@sipan.org>, Patrick McFarland <diablod3@gmail.com>,
+       Theodore Tso <tytso@mit.edu>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       James Bottomley <James.Bottomley@steeleye.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: GPLv3 Position Statement
+In-Reply-To: <Pine.LNX.4.64.0609280748500.3952@g5.osdl.org>
+Message-ID: <Pine.LNX.4.61.0609290757400.30682@yvahk01.tjqt.qr>
+References: <1158941750.3445.31.camel@mulgrave.il.steeleye.com>
+ <Pine.LNX.4.64.0609271945450.3952@g5.osdl.org> <1159415242.13562.12.camel@sipan.sipan.org>
+ <200609272339.28337.chase.venters@clientec.com> <20060928135510.GR13641@csclub.uwaterloo.ca>
+ <20060928141932.GA707@DervishD> <20060928144028.GA21814@wohnheim.fh-wedel.de>
+ <Pine.LNX.4.64.0609280748500.3952@g5.osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Report: Content analysis: 0.0 points, 6.0 required
+	_SUMMARY_
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 29 Sep 2006 09:53:33 +0800
-"Zhang, Yanmin" <yanmin_zhang@linux.intel.com> wrote:
+>
+>And the GPLv2 and GPLv3 really _are_ mutually incompatible. There is 
+>absolutely nothing in the GPLv2 that is inherently compatible with the 
+>GPLv3, and the _only_ way you can mix code is if you explicitly 
+>dual-license it.
+>
+>Ie, GPLv2 and GPLv3 are compatible only the same way GPLv2 is compatible 
+>with a commercial proprietary license: they are compatible only if you 
+>release the code under a dual license. 
+>
+>The whole "or later" phrase is legally _no_ different at all from a dual 
+>licensing (it's just more open-ended, and you don't know what the "or 
+>later" will be, so you're basically saying that you trust the FSF 
+>implicitly).
 
-> Function journal_write_metadata_buffer doesn't estimate the return
-> value of jbd_slab_alloc. If the allocation fails, later jbd_slab_free
-> or memcpy will cause kernel oops.
-> 
-> Add flag __GFP_NOFAIL when allocating block. The patch is against
-> 2.6.18-mm1.
-> 
-> Signed-off-by: Zhang Yanmin <yanmin.zhang@intel.com>
-> 
-> ---
-> 
-> --- linux-2.6.18_mm1/fs/jbd/journal.c	2006-09-29 07:19:49.000000000 -0600
-> +++ linux-2.6.18_mm1_fix/fs/jbd/journal.c	2006-09-30 03:01:38.000000000 -0600
-> @@ -329,7 +329,7 @@ repeat:
->  		char *tmp;
->  
->  		jbd_unlock_bh_state(bh_in);
-> -		tmp = jbd_slab_alloc(bh_in->b_size, GFP_NOFS);
-> +		tmp = jbd_slab_alloc(bh_in->b_size, GFP_NOFS|__GFP_NOFAIL);
+So what would happen if I add an essential GPL2-only file to a "GPL2
+or later" project? Let's recall, a proprietary program that
+combines/derives with GPL code makes the final binary GPL (and hence
+the source, etc. and whatnot, don't stretch it). Question: The Linux
+kernel does have GPL2 and GPL2+later combined, what does this make
+the final binary?
 
-jbd_slab_alloc() does that internally.
+(Maybe you implicitly answered it by this already, please indicate): 
+>Exactly. The GPLv3 can _only_ take over a GPLv2 project if the "or later" 
+>exists.
+>From that I'd say it remains GPL2 only.
+
+
+Thanks for the clarification (though I know we're all IANALs.)
+
+Jan Engelhardt
+-- 

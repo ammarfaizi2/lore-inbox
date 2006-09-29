@@ -1,52 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422841AbWI2VtS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422848AbWI2VwR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422841AbWI2VtS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Sep 2006 17:49:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422846AbWI2VtS
+	id S1422848AbWI2VwR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Sep 2006 17:52:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422849AbWI2VwQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Sep 2006 17:49:18 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:37868 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1422845AbWI2VtQ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Sep 2006 17:49:16 -0400
-Date: Fri, 29 Sep 2006 23:41:37 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Andi Kleen <ak@suse.de>
-Cc: Jim Cromie <jim.cromie@gmail.com>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [patch] fix !apic build breakage
-Message-ID: <20060929214137.GB15721@elte.hu>
-References: <20060928014623.ccc9b885.akpm@osdl.org> <200609292258.24546.ak@suse.de> <20060929211417.GA11834@elte.hu> <200609292344.55363.ak@suse.de>
-Mime-Version: 1.0
+	Fri, 29 Sep 2006 17:52:16 -0400
+Received: from ug-out-1314.google.com ([66.249.92.171]:42970 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1422847AbWI2VwP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Sep 2006 17:52:15 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent:sender;
+        b=C64gc3gmnEmJHOvocqnNcvcuotmlEO1Hmb+X9zQIf2XLi7D6EANzEbfQY840uh1Cqjr3f033xw+miflFnh1pRMinRAym++Eu1EBhzrWYH8iVBpxQDB05QLmQJ/we+FZdQOQXNRw7ULxDPWSUrCrUdreJhnEPOg0vzRDiw2wV1k8=
+Date: Fri, 29 Sep 2006 23:50:54 +0000
+From: Frederik Deweerdt <deweerdt@free.fr>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Matthew Wilcox <matthew@wil.cx>, "J.A. Magall??n" <jamagallon@ono.com>,
+       Andrew Morton <akpm@osdl.org>,
+       "Linux-Kernel," <linux-kernel@vger.kernel.org>,
+       linux-scsi@vger.kernel.org
+Subject: Re: 2.6.18-mm2
+Message-ID: <20060929235054.GB2020@slug>
+References: <20060928014623.ccc9b885.akpm@osdl.org> <20060929155738.7076f0c8@werewolf> <20060929143949.GL5017@parisc-linux.org> <1159550143.13029.36.camel@localhost.localdomain>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200609292344.55363.ak@suse.de>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -2.8
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.8 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5000]
-	-0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+In-Reply-To: <1159550143.13029.36.camel@localhost.localdomain>
+User-Agent: mutt-ng/devel-r804 (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-* Andi Kleen <ak@suse.de> wrote:
-
-> > please dont throw away a perfectly fine config option.
+On Fri, Sep 29, 2006 at 06:15:42PM +0100, Alan Cox wrote:
+> Ar Gwe, 2006-09-29 am 08:39 -0600, ysgrifennodd Matthew Wilcox:
+> > On Fri, Sep 29, 2006 at 03:57:38PM +0200, J.A. Magall??n wrote:
+> > > aic7xxx oopses on boot:
+> > > 
+> > > PCI: Setting latency timer of device 0000:00:0e.0 to 64
+> > > IRQ handler type mismatch for IRQ 0
+> > 
+> > Of course, this isn't a scsi problem, it's a peecee hardware problem.
+> > Or maybe a PCI subsystem problem.  But it's clearly not aic7xxx's fault.
 > 
-> I can't count how many that silly option already got broken by changes 
-> in the APIC code. I definitely wouldn't describe it as "perfectly 
-> fine", more as "fragile and tends to fall over when you even look at 
-> it".
+> AIC7xxx finding it has no IRQ configured is valid (annoying, stupid and
+> valid) so the driver should check before requesting "no IRQ"
+> 
+Alan,
 
-i disagree. I frequently (daily) boot with apic-on and apic-off configs. 
-Very rarely does it break. Today it did, took me 30 seconds and 531 
-milliseconds to fix. Spent much more time writing these silly emails ...
+Does this patch makes sense in that case? If yes, I'll put up a patch
+for the remaining cases in the drivers/scsi/aic7xxx/ directory.
+Also, aic7xxx's coding style would put parenthesis around the returned
+value, should I follow it?
 
-	Ingo
+Regards,
+Frederik
+
+diff --git a/drivers/scsi/aic7xxx/aic7xxx_osm_pci.c b/drivers/scsi/aic7xxx/aic7xxx_osm_pci.c
+index ea5687d..38f5ca7 100644
+--- a/drivers/scsi/aic7xxx/aic7xxx_osm_pci.c
++++ b/drivers/scsi/aic7xxx/aic7xxx_osm_pci.c
+@@ -185,6 +185,9 @@ ahc_linux_pci_dev_probe(struct pci_dev *
+ 	int		 error;
+ 	struct device	*dev = &pdev->dev;
+ 
++	if (!pdev->irq)
++		return -ENODEV;
++
+ 	pci = pdev;
+ 	entry = ahc_find_pci_device(pci);
+ 	if (entry == NULL)

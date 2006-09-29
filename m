@@ -1,72 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932163AbWI2XXk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932243AbWI2X0a@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932163AbWI2XXk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Sep 2006 19:23:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932243AbWI2XXk
+	id S932243AbWI2X0a (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Sep 2006 19:26:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932244AbWI2X03
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Sep 2006 19:23:40 -0400
-Received: from xenotime.net ([66.160.160.81]:19152 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S932163AbWI2XXj (ORCPT
+	Fri, 29 Sep 2006 19:26:29 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:2224 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S932243AbWI2X02 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Sep 2006 19:23:39 -0400
-Date: Fri, 29 Sep 2006 16:25:05 -0700
-From: Randy Dunlap <rdunlap@xenotime.net>
-To: Gene Heskett <gene.heskett@verizon.net>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: GPLv3 Position Statement
-Message-Id: <20060929162505.8e950ddc.rdunlap@xenotime.net>
-In-Reply-To: <200609291912.15763.gene.heskett@verizon.net>
-References: <1158941750.3445.31.camel@mulgrave.il.steeleye.com>
-	<Pine.LNX.4.64.0609291314250.30853@blackbox.fnordora.org>
-	<Pine.LNX.4.64.0609291330120.30853@blackbox.fnordora.org>
-	<200609291912.15763.gene.heskett@verizon.net>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 29 Sep 2006 19:26:28 -0400
+Date: Fri, 29 Sep 2006 18:26:25 -0500
+To: jeff@garzik.org, akpm@osdl.org
+Cc: netdev@vger.kernel.org, James K Lewis <jklewis@us.ibm.com>,
+       linux-kernel@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+       linuxppc-dev@ozlabs.org
+Subject: [PATCH 5/6]: powerpc/cell spidernet ethtool -i version number
+Message-ID: <20060929232625.GM6433@austin.ibm.com>
+References: <20060929230552.GG6433@austin.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060929230552.GG6433@austin.ibm.com>
+User-Agent: Mutt/1.5.11
+From: linas@austin.ibm.com (Linas Vepstas)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 29 Sep 2006 19:12:15 -0400 Gene Heskett wrote:
 
-> On Friday 29 September 2006 16:32, alan wrote:
-> >On Fri, 29 Sep 2006, alan wrote:
-> >> On Fri, 29 Sep 2006, Linus Torvalds wrote:
-> >>> On Fri, 29 Sep 2006, alan wrote:
-> >>>> On Fri, 29 Sep 2006, Linus Torvalds wrote:
-> >>>>> (*) Hah. Who do I think I'm kidding? The revolution will be bloody
-> >>>>> and brutal, and you're not going to get the choice to "elect" me
-> >>>>> except in the
-> >>>>> history books written by yours truly.
-> >>>>
-> >>>> Wow.  You have been living in Portland too long. ]:>
-> >>>
-> >>> Is there some Portland subculture that I should be aware of?
-> >>>
-> >>> Inquiring minds want to know.
-> >>
-> >> That would be telling.
-> >>
-> >> Here are a few clues to the secret handshake that is Portland...
-> >>
-> >> http://www.mondocroquet.com/
-> >> http://portland.cacophony.org/
-> >> http://www.orycon.org/orycon28/
-> >> http://communique.portland.or.us/02/12/santanarchy_now
-> >
-> >Not to mention:
-> >http://www.hplfilmfestival.com/
-> >
-> >And worst of all:
-> >
-> >http://www.stonehenge.com/merlyn/
-> 
-> I take it that much of this indoor activity is caused by the relative lack 
-> of sufficient umbrellas in Portland?
+Jim, as the official maintainer, you should explicitly ack this patch.
+--linas
 
-what's an umbrella?
+This patch moves transmit queue cleanup code out of the 
+interrupt context, and into the NAPI polling routine.
 
----
-~Randy
-GPL v0:  http://www.glacierparkinc.com/GlacierParkLodge.htm
+Signed-off-by: Linas Vepstas <linas@austin.ibm.com>
+Cc: James K Lewis <jklewis@us.ibm.com>
+Cc: Arnd Bergmann <arnd@arndb.de>
+
+----
+
+ drivers/net/spider_net.c |   14 +++++++-------
+ 1 file changed, 7 insertions(+), 7 deletions(-)
+
+Index: linux-2.6.18-mm2/drivers/net/spider_net.c
+===================================================================
+--- linux-2.6.18-mm2.orig/drivers/net/spider_net.c	2006-09-29 17:01:39.000000000 -0500
++++ linux-2.6.18-mm2/drivers/net/spider_net.c	2006-09-29 17:39:06.000000000 -0500
+@@ -887,9 +887,10 @@ out:
+  * spider_net_cleanup_tx_ring - cleans up the TX ring
+  * @card: card structure
+  *
+- * spider_net_cleanup_tx_ring is called by the tx_timer (as we don't use
+- * interrupts to cleanup our TX ring) and returns sent packets to the stack
+- * by freeing them
++ * spider_net_cleanup_tx_ring is called by either the tx_timer
++ * or from the NAPI polling routine.
++ * This routine releases resources associted with transmitted
++ * packets, including updating the queue tail pointer.
+  */
+ static void
+ spider_net_cleanup_tx_ring(struct spider_net_card *card)
+@@ -1093,6 +1094,7 @@ spider_net_poll(struct net_device *netde
+ 	int packets_to_do, packets_done = 0;
+ 	int no_more_packets = 0;
+ 
++	spider_net_cleanup_tx_ring(card);
+ 	packets_to_do = min(*budget, netdev->quota);
+ 
+ 	while (packets_to_do) {
+@@ -1505,10 +1507,8 @@ spider_net_interrupt(int irq, void *ptr,
+ 		spider_net_rx_irq_off(card);
+ 		netif_rx_schedule(netdev);
+ 	}
+-	if (status_reg & SPIDER_NET_TXINT ) {
+-		spider_net_cleanup_tx_ring(card);
+-		netif_wake_queue(netdev);
+-	}
++	if (status_reg & SPIDER_NET_TXINT)
++		netif_rx_schedule(netdev);
+ 
+ 	if (status_reg & SPIDER_NET_ERRINT )
+ 		spider_net_handle_error_irq(card, status_reg);

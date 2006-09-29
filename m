@@ -1,84 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964886AbWI2Mw5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161053AbWI2M43@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964886AbWI2Mw5 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Sep 2006 08:52:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964888AbWI2Mw5
+	id S1161053AbWI2M43 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Sep 2006 08:56:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161061AbWI2M43
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Sep 2006 08:52:57 -0400
-Received: from ns2.suse.de ([195.135.220.15]:5515 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S964886AbWI2Mw4 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Sep 2006 08:52:56 -0400
-From: Neil Brown <neilb@suse.de>
-To: Peter Zijlstra <a.p.zijlstra@chello.nl>
-Date: Fri, 29 Sep 2006 22:52:41 +1000
-MIME-Version: 1.0
+	Fri, 29 Sep 2006 08:56:29 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:12307 "EHLO
+	spitz.ucw.cz") by vger.kernel.org with ESMTP id S1161053AbWI2M42
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Sep 2006 08:56:28 -0400
+Date: Fri, 29 Sep 2006 12:47:07 +0000
+From: Pavel Machek <pavel@ucw.cz>
+To: Theodore Tso <tytso@mit.edu>, Jan Engelhardt <jengelh@linux01.gwdg.de>,
+       Sergey Panov <sipan@sipan.org>,
+       James Bottomley <James.Bottomley@SteelEye.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: GPLv3 Position Statement
+Message-ID: <20060929124707.GB4931@ucw.cz>
+References: <1158941750.3445.31.camel@mulgrave.il.steeleye.com> <1159319508.16507.15.camel@sipan.sipan.org> <Pine.LNX.4.61.0609270753590.19275@yvahk01.tjqt.qr> <20060927123247.GA14668@thunk.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17693.5913.393686.223172@cse.unsw.edu.au>
-Cc: Michal Piotrowski <michal.k.k.piotrowski@gmail.com>,
-       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-       linux-raid@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: md deadlock (was Re: 2.6.18-mm2)
-In-Reply-To: message from Peter Zijlstra on Friday September 29
-References: <20060928014623.ccc9b885.akpm@osdl.org>
-	<6bffcb0e0609280454n34d40c0la8786e1eba6dcdf3@mail.gmail.com>
-	<1159531923.28131.80.camel@taijtu>
-X-Mailer: VM 7.19 under Emacs 21.4.1
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Content-Disposition: inline
+In-Reply-To: <20060927123247.GA14668@thunk.org>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Friday September 29, a.p.zijlstra@chello.nl wrote:
-> On Thu, 2006-09-28 at 13:54 +0200, Michal Piotrowski wrote:
-> 
-> Looks like a real deadlock here. It seems to me #2 is the easiest to
-> break.
+Hi!
 
-I guess it could deadlock if you tried to add /dev/md0 as a component
-of /dev/md0.  I should probably check for that somewhere.
-In other cases the array->member ordering ensures there is no
-deadlock.
+> And given that Stallman has announced that the new LGPL will be (to
+> use programming terms) a subclass of GPLv3, it means that the LGPLv3
+> is by extension incompatible with the GPLv2.  So that means that there
+> will have to be two different versions of glibc (and every other
+> shared library) shipped with every distributions --- one which is
+> GPLv2, and one which is GPLv3.  And this fork is going to be forced by
+> the FSF!  
 
-> 
-> static int md_open(struct inode *inode, struct file *file)
-> {
-> 	/*
-> 	 * Succeed if we can lock the mddev, which confirms that
-> 	 * it isn't being stopped right now.
-> 	 */
-> 	mddev_t *mddev = inode->i_bdev->bd_disk->private_data;
-> 	int err;
-> 
-> 	if ((err = mddev_lock(mddev)))
-> 		goto out;
-> 
-> 	err = 0;
-> 	mddev_get(mddev);
-> 	mddev_unlock(mddev);
-> 
-> 	check_disk_change(inode->i_bdev);
->  out:
-> 	return err;
-> }
-> 
-> mddev_get() is a simple atomic_inc(), and I fail to see how waiting for
-> the lock makes any difference.
+Whats the problem? FSF does not do any programming itself. It will
+force a fork, but world will just ignore the fork for glibc.
 
-Hmm... I"m pretty sure I do want some sort of locking there - to make
-sure that the
-		if (atomic_read(&mddev->active)>2) {
-test in do_md_stop actually means something.  However it does seem
-that the locking I have doesn't really guarantee anything much.
-
-But I really think that this locking order should be allowed.  md
-should ensure that there are never any loops in the array->member
-ordering, and somehow that needs to be communicated to lockdep.
-
-One of the items on my todo list is to sort out the lifetime rules of
-md devices (once accessed, they currently never disappear).  Getting
-this locking right should be part of that.
-
-NeilBrown
+-- 
+Thanks for all the (sleeping) penguins.

@@ -1,73 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030416AbWI2Iwi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030424AbWI2Ize@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030416AbWI2Iwi (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Sep 2006 04:52:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030419AbWI2Iwi
+	id S1030424AbWI2Ize (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Sep 2006 04:55:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030427AbWI2Ize
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Sep 2006 04:52:38 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:36251 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1030416AbWI2Iwg (ORCPT
+	Fri, 29 Sep 2006 04:55:34 -0400
+Received: from dp.samba.org ([66.70.73.150]:35720 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S1030424AbWI2Izd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Sep 2006 04:52:36 -0400
-Date: Fri, 29 Sep 2006 01:52:23 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: michael@ellerman.id.au, linux-kernel@vger.kernel.org,
-       Andi Kleen <ak@muc.de>, Hugh Dickens <hugh@veritas.com>,
-       Paul Mackerras <paulus@samba.org>
-Subject: Re: [PATCH RFC 1/4] Generic BUG handling.
-Message-Id: <20060929015223.76d8d85a.akpm@osdl.org>
-In-Reply-To: <451CDC31.6060407@goop.org>
-References: <20060928225444.439520197@goop.org>
-	<20060928225452.229936605@goop.org>
-	<1159506427.25820.20.camel@localhost.localdomain>
-	<451CDC31.6060407@goop.org>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 29 Sep 2006 04:55:33 -0400
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <17692.57123.749163.204216@samba.org>
+Date: Fri, 29 Sep 2006 18:53:55 +1000
+To: James Bottomley <James.Bottomley@SteelEye.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: GPLv3 Position Statement
+In-Reply-To: <1159515086.3880.79.camel@mulgrave.il.steeleye.com>
+References: <1159498900.3880.31.camel@mulgrave.il.steeleye.com>
+	<17692.46192.432673.743783@samba.org>
+	<1159515086.3880.79.camel@mulgrave.il.steeleye.com>
+X-Mailer: VM 7.19 under Emacs 21.4.1
+Reply-To: tridge@samba.org
+From: tridge@samba.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 29 Sep 2006 01:41:21 -0700
-Jeremy Fitzhardinge <jeremy@goop.org> wrote:
+James,
 
-> Michael Ellerman wrote:
-> >> +       printk(KERN_EMERG "------------[ cut here ]------------\n");
-> >>     
-> >
-> > I'm not sure I'm big on the cut here marker.
-> >   
-> 
-> x86 has it.  I figured its more important to not change x86 output than 
-> powerpc.
+ > > If the "entire patent portfolio" consists of a small group of patents
+ > > which specifically deal with what the code has been posted by the
+ > > company deals with, then sure.
+ > 
+ > So we agree that the statement is true for a company that has only a
+ > software patent portfolio.
 
-We need to clean that output up a bit.  For a while x86 was printing "BUG:"
-in front of both warnings and BUGs because Ingo through it made things
-clearer - we've lost that.
+No, we don't :)
 
-> >> i386 implements CONFIG_DEBUG_BUGVERBOSE, but x86-64 and powerpc do
-> >> not.  This should probably be made more consistent.
-> >>     
-> >
-> > It looks like if you do this you _might_ be able to share struct
-> > bug_entry, or at least have consistent members for each arch. Which
-> > would eliminate some of the inlines you have for accessing the bug
-> > struct.
-> >   
-> Yeah, its a bit of a toss-up.  powerpc wants to hide the warn flag 
-> somewhere, which either means having a different structure, or using the 
-> fields differently.  CONFIG_DEBUG_BUGVERBOSE supporters (ie, i386) want 
-> to make the structure completely empty in the !DEBUG_BUGVERBOSE case 
-> (which doesn't currently happen).
-> > It needed a bit of work to get going on powerpc:
-> >   
-> 
-> Thanks.  I'll try to fold all this together into a new patch when things 
-> settle down.
+The company can consist of only a patent portfolio, but additionally
+all of those patents (ie. the "entire patent portfolio") would need to
+be implemented by the program being distributed them.
 
-Is OK - I'm pretty happy with what I have now.  I'll clump various patches
-together and we can take another look at it.  I guess I'll merge the core
-and x86, send x86_64 to Andi, let the ppc guys worry about the powerpc
-bits.
+That caveat is important, and changes it from a misleading statement
+to a true statement. It also is a statement which is true for the
+GPLv2, which makes it not such a useful statement to make when
+considering the relative merits of the two licenses.
 
+I'd also like to note that I don't have much sympathy for companies
+that consist of only a patent portfolio. They are pretty much scum in
+my view. If they don't make any products at all and live on only
+patent revenue then the world would be better off without them :-)
+
+Cheers, Tridge

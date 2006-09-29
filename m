@@ -1,70 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422641AbWI2VY7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161406AbWI2V0X@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422641AbWI2VY7 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Sep 2006 17:24:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422823AbWI2VY7
+	id S1161406AbWI2V0X (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Sep 2006 17:26:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161419AbWI2V0X
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Sep 2006 17:24:59 -0400
-Received: from 242.178.36.72.reverse.layeredtech.com ([72.36.178.242]:37555
-	"EHLO tapestrysystems.com") by vger.kernel.org with ESMTP
-	id S1422641AbWI2VY6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Sep 2006 17:24:58 -0400
-Message-ID: <451D8EB4.6020000@madrabbit.org>
-Date: Fri, 29 Sep 2006 14:23:00 -0700
-From: Ray Lee <ray-lk@madrabbit.org>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060918)
+	Fri, 29 Sep 2006 17:26:23 -0400
+Received: from thunk.org ([69.25.196.29]:17126 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id S1161406AbWI2V0V (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Sep 2006 17:26:21 -0400
+Date: Fri, 29 Sep 2006 17:25:53 -0400
+From: Theodore Tso <tytso@mit.edu>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Helge Hafting <helge.hafting@aitel.hist.no>, tglx@linutronix.de,
+       Neil Brown <neilb@suse.de>, Michiel de Boer <x@rebelhomicide.demon.nl>,
+       James Bottomley <James.Bottomley@SteelEye.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: GPLv3 Position Statement
+Message-ID: <20060929212553.GB11017@thunk.org>
+Mail-Followup-To: Theodore Tso <tytso@mit.edu>,
+	Linus Torvalds <torvalds@osdl.org>,
+	Alan Cox <alan@lxorguk.ukuu.org.uk>,
+	Helge Hafting <helge.hafting@aitel.hist.no>, tglx@linutronix.de,
+	Neil Brown <neilb@suse.de>,
+	Michiel de Boer <x@rebelhomicide.demon.nl>,
+	James Bottomley <James.Bottomley@SteelEye.com>,
+	linux-kernel <linux-kernel@vger.kernel.org>
+References: <17687.46268.156413.352299@cse.unsw.edu.au> <1159183895.11049.56.camel@localhost.localdomain> <1159200620.9326.447.camel@localhost.localdomain> <451CF22D.4030405@aitel.hist.no> <Pine.LNX.4.64.0609290940480.3952@g5.osdl.org> <1159552021.13029.58.camel@localhost.localdomain> <Pine.LNX.4.64.0609291030050.3952@g5.osdl.org> <1159554375.13029.67.camel@localhost.localdomain> <Pine.LNX.4.64.0609291120440.3952@g5.osdl.org> <Pine.LNX.4.64.0609291131300.3952@g5.osdl.org>
 MIME-Version: 1.0
-To: Larry Finger <Larry.Finger@lwfinger.net>
-Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, dbtsai@gmail.com,
-       John Linville <linville@tuxdriver.com>, netdev@vger.kernel.org,
-       Bcm43xx-dev@lists.berlios.de, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: Bcm43xx softMac Driver in 2.6.18
-References: <4513E308.10507@lwfinger.net> <2c0942db0609222303o50e47156xe6af9a50ed8301c8@mail.gmail.com> <200609231141.26090.rjw@sisk.pl> <45156612.2080906@madrabbit.org> <4515972F.9080307@lwfinger.net>
-In-Reply-To: <4515972F.9080307@lwfinger.net>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0609291131300.3952@g5.osdl.org>
+User-Agent: Mutt/1.5.11
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: tytso@thunk.org
+X-SA-Exim-Scanned: No (on thunker.thunk.org); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-(re-adding linux-kernel.)
+One of the things which I'm fond of pointing out is that all of the
+freedoms people would have to hack MacOS, especially MacOS 9, where
+all of the various "Mac Extensions" which changed and extended the UI
+of the Macintosh, would have completely disappeared if the FSF's idea
+of "derived works" was in fact the law of the land.  That's because
+(a) Apple hated the fact that people dared to think that the UI has
+handed down on the stone tablets inscribed by Steve Jobs could be
+improved upon, and (b) the way those changes were made by patching
+jump tables so that code to extend the UI could be patched into the OS
+--- in effect, a dynamic link.
 
-Larry Finger wrote:
-> Would you please test the attached patch that should be applied to a
-> vanilla 2.6.18? I'm currently running it, but only for a few minutes. It
-> comes up fine and I ran it through several ifdown/ifup cycles without
-> any problem.
+Now, because Apple hated the fact that people dared to think they
+could improve on Apple's UI design, they frequently changed the jump
+table interfaces, forcing the people who wrote the "Mac Hacks" to
+follow a rapidly changing code stream --- much like what the Linux
+kernel does with its device driver interfaces.  But Apple has *never*
+said that just because you dynamically link with MacOS, that instantly
+makes your MacOS a derived work, and so therefore as the copyright
+holder of MacOS, Apple could therefore have the right to control how,
+or even whether or not the Macintosh Extensions could ever exist.
 
-Okay, this is far better than vanilla 2.6.18 (or your other patch). I've
-been running this for six hours so far with no troubles, when before I'd
-have a hard system freeze within a minute or two of associating (or
-trying to associate) with an access point.
+Thanks goodness, no sane court has ever ruled that the various
+Macintosh Extensions were a derived work, just because they lived in
+the same address space as MacOS and dynamically linked with MacOS, and
+in fact were **designed** only to work with MacOS, and very often used
+header files shipped by the Macintosh Programmer's Workbench.
 
-As for -stable, the patch is sorta, y'know, ginormous:
+So don't be too quick to wish that the courts will use the FSF's pet
+definition of what derived works mean ---- you may find that in the
+end, you end up losing far more freedoms than you expect.
 
- bcm43xx.h         |  181 +++++-----
- bcm43xx_debugfs.c |   80 ++++
- bcm43xx_debugfs.h |    1
- bcm43xx_dma.c     |  583 +++++++++++++++++++++++-----------
- bcm43xx_dma.h     |  296 +++++++++++++----
- bcm43xx_leds.c    |   10
- bcm43xx_main.c    |  905
-+++++++++++++++++++++++++++++++-----------------------
- bcm43xx_main.h    |    6
- bcm43xx_phy.c     |   48 +-
- bcm43xx_pio.c     |    4
- bcm43xx_sysfs.c   |   46 +-
- bcm43xx_wx.c      |  121 +++----
- 12 files changed, 1426 insertions(+), 855 deletions(-)
-
-OTOH, the current version is completely unusable on this system, so I
-don't know if the right path is to revert the driver to 2.6.17's
-version, or to try to move forward with the patch when it's had hard
-review and testing.
-
-I'm heading out on vacation for the next two weeks. I'll catch up with
-any mail directed to me for more things to try (or report about this
-specific system), if requested, when I get back. (Or catch me today.)
-
-Thank you very much for your help,
-
-Ray
+						- Ted

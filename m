@@ -1,52 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161426AbWI2JQU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161423AbWI2JQR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161426AbWI2JQU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Sep 2006 05:16:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161424AbWI2JQU
+	id S1161423AbWI2JQR (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Sep 2006 05:16:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161424AbWI2JQR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Sep 2006 05:16:20 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:29090 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1161427AbWI2JQT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Sep 2006 05:16:19 -0400
-Date: Fri, 29 Sep 2006 02:16:04 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: linux-kernel@vger.kernel.org, Andi Kleen <ak@muc.de>,
-       Hugh Dickens <hugh@veritas.com>,
-       Michael Ellerman <michael@ellerman.id.au>,
-       Paul Mackerras <paulus@samba.org>
-Subject: Re: [PATCH RFC 1/4] Generic BUG handling.
-Message-Id: <20060929021604.02fb6162.akpm@osdl.org>
-In-Reply-To: <20060928225452.229936605@goop.org>
-References: <20060928225444.439520197@goop.org>
-	<20060928225452.229936605@goop.org>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 29 Sep 2006 05:16:17 -0400
+Received: from mail1.webmaster.com ([216.152.64.169]:27146 "EHLO
+	mail1.webmaster.com") by vger.kernel.org with ESMTP
+	id S1161423AbWI2JQQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Sep 2006 05:16:16 -0400
+From: "David Schwartz" <davids@webmaster.com>
+To: "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
+Subject: RE: Creative Commons as an example of a simple license
+Date: Fri, 29 Sep 2006 02:16:08 -0700
+Message-ID: <MDEHLPKNGKAHNMBLJOLKMEPJOLAB.davids@webmaster.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
+In-Reply-To: <20060929075530.GD13837@DervishD>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2962
+Importance: Normal
+X-Authenticated-Sender: joelkatz@webmaster.com
+X-Spam-Processed: mail1.webmaster.com, Fri, 29 Sep 2006 02:19:04 -0800
+	(not processed: message from trusted or authenticated source)
+X-MDRemoteIP: 206.171.168.138
+X-Return-Path: davids@webmaster.com
+X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
+Reply-To: davids@webmaster.com
+X-MDAV-Processed: mail1.webmaster.com, Fri, 29 Sep 2006 02:19:05 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 28 Sep 2006 15:54:45 -0700
-Jeremy Fitzhardinge <jeremy@goop.org> wrote:
 
-> This patch adds common handling for kernel BUGs, for use by
-> architectures as they wish.  The code is derived from arch/powerpc.
+> > See http://www.copyright.gov/title17/92chap1.html#106 and notice
+> > that it doesn't say anything about commercial use. If someone isn't
+> > trying to do any of those things, copyright won't stop them.
 
-For my x86_64 usualconfig .text (from objdump --headers) went from
-0x002c55c7 down to 0x002c2bda, which is 10.5k saved.
+>     I see that this is for US: do you know if the same applies to
+> European countries, for example? I think that our copyright laws are
+> very different, but I cannot swear it, 'cause copyrigth is a complex
+> issue no matter the country.
 
-According to /usr/bin/size, vmlinux got bigger:
+I know a lot about US copyright law, a bit about German copyright law, a
+very tiny smidge about Japanese copyright law, and nothing at all about any
+other country. So I'm not the person to ask.
 
-box:/usr/src/25> size vmlinux 
-   text    data     bss     dec     hex filename
-3597448  716340  510456 4824244  499cb4 vmlinux-before
-3640604  716228  510456 4867288  4a44d8 vmlinux-after
+It's impossible to violate the GPL (or any license of its type). You can
+violate copyright law, but you cannot violate the GPL. The GPL is kind of
+like a sign that says "free dirt". If someone takes your tractor, you don't
+complain that they violated the sign (because it only offered free dirt, not
+free tractors), you complain that they violated laws against theft.
 
-But that's because size(1) is too blunt an instrument: the sum of .text and
-the new bug section got larger.
+DS
 
-I think we need to thank the powerpc guys, then take away their function
-name printing ;)
 

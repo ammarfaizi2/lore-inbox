@@ -1,61 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030196AbWI2JaY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751024AbWI2Jcu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030196AbWI2JaY (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Sep 2006 05:30:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751361AbWI2JaY
+	id S1751024AbWI2Jcu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Sep 2006 05:32:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751121AbWI2Jcu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Sep 2006 05:30:24 -0400
-Received: from madara.hpl.hp.com ([192.6.19.124]:61175 "EHLO madara.hpl.hp.com")
-	by vger.kernel.org with ESMTP id S1751343AbWI2JaX (ORCPT
+	Fri, 29 Sep 2006 05:32:50 -0400
+Received: from gw.goop.org ([64.81.55.164]:49109 "EHLO mail.goop.org")
+	by vger.kernel.org with ESMTP id S1751024AbWI2Jcu (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Sep 2006 05:30:23 -0400
-Date: Fri, 29 Sep 2006 02:30:01 -0700
-From: Stephane Eranian <eranian@hpl.hp.com>
-To: Andi Kleen <ak@suse.de>
-Cc: perfmon@napali.hpl.hp.com, linux-ia64@vger.kernel.org,
-       linux-kernel@vger.kernel.org, akpm@osdl.org
-Subject: Re: 2.6.18 perfmon new code base + libpfm + pfmon
-Message-ID: <20060929093001.GI20238@frankl.hpl.hp.com>
-Reply-To: eranian@hpl.hp.com
-References: <20060926143420.GF14550@frankl.hpl.hp.com> <p7364f8jvjc.fsf@verdi.suse.de> <20060928075608.GB18245@frankl.hpl.hp.com> <200609281005.08518.ak@suse.de>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200609281005.08518.ak@suse.de>
-User-Agent: Mutt/1.4.1i
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: eranian@hpl.hp.com
-X-HPL-MailScanner: Found to be clean
-X-HPL-MailScanner-From: eranian@hpl.hp.com
+	Fri, 29 Sep 2006 05:32:50 -0400
+Message-ID: <451CE84E.300@goop.org>
+Date: Fri, 29 Sep 2006 02:33:02 -0700
+From: Jeremy Fitzhardinge <jeremy@goop.org>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org, Andi Kleen <ak@muc.de>,
+       Hugh Dickens <hugh@veritas.com>,
+       Michael Ellerman <michael@ellerman.id.au>,
+       Paul Mackerras <paulus@samba.org>
+Subject: Re: [PATCH RFC 1/4] Generic BUG handling.
+References: <20060928225444.439520197@goop.org>	<20060928225452.229936605@goop.org> <20060929021604.02fb6162.akpm@osdl.org>
+In-Reply-To: <20060929021604.02fb6162.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi,
+Andrew Morton wrote:
+> For my x86_64 usualconfig .text (from objdump --headers) went from
+> 0x002c55c7 down to 0x002c2bda, which is 10.5k saved.
+>
+> According to /usr/bin/size, vmlinux got bigger:
+>
+> box:/usr/src/25> size vmlinux 
+>    text    data     bss     dec     hex filename
+> 3597448  716340  510456 4824244  499cb4 vmlinux-before
+> 3640604  716228  510456 4867288  4a44d8 vmlinux-after
+>   
 
-On Thu, Sep 28, 2006 at 10:05:08AM +0200, Andi Kleen wrote:
-> > PAPI people for instance.
-> > 
-> > The P4 PMU has independent counters, i.e., enable bits. The issue is that to stop a counter
-> > requires clearing the CCCR which also contains the overflow information (has the counter
-> > overflowed?). So you need to read the CCCR, save the value somewhere, clear the CCCR.
-> > You need some save area that you can safely access without grabbing any lock (because you
-> > are in the NMI handler).
-> 
-> Not sure what the lock would be needed for. It is only a per CPU variable that doesn't
-> need synchronization no?
+Good, that's what we'd hope for.  It's going to be a bigger overall than 
+the previous i386 code, because it's now saving away the EIP as well as 
+filename* and line for each BUG.
 
-The CCCR register is by definition a per-CPU entity. However, the perfmon context where the
-CCCR is saved is not. Any thread with access to the file descriptor can gain access to the
-context. This can occur from any CPU. Of course, we do have checks in place but they
-run after the context lock is held. The main restriction is that a thread cannot operate on
-a context attached to another thread unless that thread is stopped (checked via ptrace_check_attach).
-Yet there are a few perfmon syscalls, for which this restriction does not apply because they
-do not need to touch the PMU hardware, yet they modify the context state.
+> But that's because size(1) is too blunt an instrument: the sum of .text and
+> the new bug section got larger.
+>   
 
-I think this could work on P4, if we could clear the CCCR and yet retain enough state to detect
-which counter(s) overflowed. On P6, where there is not overflow bit in the control register, we
-simply check the upper bits on the counters. We could probably do the same for P4.
+size -A will tell you everything you ever wanted to know.
 
--- 
--Stephane
+> I think we need to thank the powerpc guys, then take away their function
+> name printing ;)
+>   
+
+I think so...
+
+    J

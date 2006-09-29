@@ -1,243 +1,275 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161727AbWI2RRi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161832AbWI2RSU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161727AbWI2RRi (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Sep 2006 13:17:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161831AbWI2RRi
+	id S1161832AbWI2RSU (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Sep 2006 13:18:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161831AbWI2RSU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Sep 2006 13:17:38 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:44760 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1161727AbWI2RRf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Sep 2006 13:17:35 -0400
-Date: Fri, 29 Sep 2006 10:17:31 -0700
-From: Bryce Harrington <bryce@osdl.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, "Moore, Eric Dean" <Eric.Moore@lsil.com>,
-       linux-scsi@vger.kernel.org
-Subject: Re: [OOPS] -git8,9:  NULL pointer dereference in mptspi_dv_renegotiate_work
-Message-ID: <20060929171731.GX12968@osdl.org>
-References: <20060928202548.GO12968@osdl.org> <20060928145121.561f077d.akpm@osdl.org> <20060928225426.GR12968@osdl.org> <20060928172652.058c781b.akpm@osdl.org>
+	Fri, 29 Sep 2006 13:18:20 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:28368 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1161832AbWI2RSR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Sep 2006 13:18:17 -0400
+Subject: [PATCH] libata: test driver for Marvell PATA
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: linux-kernel@vger.kernel.org
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Fri, 29 Sep 2006 18:43:29 +0100
+Message-Id: <1159551809.13029.56.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060928172652.058c781b.akpm@osdl.org>
-User-Agent: Mutt/1.5.11
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 28, 2006 at 05:26:52PM -0700, Andrew Morton wrote:
-> On Thu, 28 Sep 2006 15:54:26 -0700
-> Bryce Harrington <bryce@osdl.org> wrote:
-> 
-> > On Thu, Sep 28, 2006 at 02:51:21PM -0700, Andrew Morton wrote:
-> > > On Thu, 28 Sep 2006 13:25:48 -0700
-> > > Bryce Harrington <bryce@osdl.org> wrote:
-> > > 
-> > > > Apologies if this has already been reported;
-> > > 
-> > > It has not.
-> > > 
-> > > >  I didn't spot it on the
-> > > > list.  We've noticed an Oops on AMD64 when running linux-2.6.18-git8 and
-> > > > -git9, but not -git7:
-> > > > 
-> > > >  mptbase: Initiating ioc0 recovery
-> > > >  Unable to handle kernel NULL pointer dereference at 0000000000000500 RIP: 
-> > > >   [<ffffffff80489aa2>] mptspi_dv_renegotiate_work+0xc/0x45
-> > > >  PGD 0 
-> > > >  Oops: 0000 [1] PREEMPT SMP 
-> > > 
-> > 
-> > > That's very clever.  
-> > >
-> > > I'd be suspecting a miscompile, or something horrid in kfree().
-> > > 
-> > > Does it change anything if you move that kfree() down a bit?
-> > > 
-> > 
-> > Got essentially the same oops, although the addresses have changed a
-> > little:
-> > 
-> > mptbase: Initiating ioc0 recovery
-> > Unable to handle kernel NULL pointer dereference at 0000000000000500 RIP:
-> >  [<ffffffff80489aa3>] mptspi_dv_renegotiate_work+0xd/0x4c
-> > PGD 0
-> > Oops: 0000 [1] PREEMPT SMP
-> > CPU 0
-> > Modules linked in:
-> > Pid: 8, comm: events/0 Not tainted 2.6.18-git10 #1
-> > RIP: 0010:[<ffffffff80489aa3>]  [<ffffffff80489aa3>] mptspi_dv_renegotiate_work+0xd/0x4c
-> > RSP: 0000:ffff81003ec65e40  EFLAGS: 00010246
-> > RAX: ffff81003ec65ef8 RBX: ffff81003eff6640 RCX: ffff81003ec65ef8
-> > RDX: ffff81003ed0cf58 RSI: 0000000000000000 RDI: ffff81003eff6640
-> > RBP: 0000000000000500 R08: ffff81003ec64000 R09: 00000000ffffffff
-> > R10: 00000000ffffffff R11: ffff81003ed0cf40 R12: ffff81003eff6640
-> > R13: 0000000000000213 R14: ffff81003eff6640 R15: ffffffff80489a96
-> > FS:  0000000000000000(0000) GS:ffffffff8077a000(0000) knlGS:0000000000000000
-> > CS:  0010 DS: 0018 ES: 0018 CR0: 000000008005003b
-> > CR2: 0000000000000500 CR3: 0000000000201000 CR4: 00000000000006e0
-> > Process events/0 (pid: 8, threadinfo ffff81003ec64000, task ffff81007f180740)
-> > Stack:  ffff81003eff6640 ffff81003eff6648 ffff81003ed0cf40 ffffffff8023f1bd
-> >  ffff81003ed0cf40 ffff81003ed0cf40 ffffffff8023f204 ffff8100016dfd70
-> >  00000000fffffffc ffffffff8059457d 0000000000000000 ffffffff8023f30
-> > Call Trace:
-> >  [<ffffffff8023f1bd>] run_workqueue+0x9a/0xe1
-> >  [<ffffffff8023f204>] worker_thread+0x0/0x12e
-> >  [<ffffffff8023f300>] worker_thread+0xfc/0x12e
-> >  [<ffffffff80229f62>] default_wake_function+0x0/0xe
-> >  [<ffffffff80229f62>] default_wake_function+0x0/0xe
-> >  [<ffffffff80242433>] kthread+0xc8/0xf1
-> >  [<ffffffff8020a3f8>] child_rip+0xa/0x12
-> >  [<ffffffff8024236b>] kthread+0x0/0xf1
-> >  [<ffffffff8020a3ee>] child_rip+0x0/0x12
-> > 
-> > 
-> > Code: 48 8b 45 00 48 8b b8 50 01 00 00 e8 5d 4d fe ff 48 85 c0 48
-> > RIP  [<ffffffff80489aa3>] mptspi_dv_renegotiate_work+0xd/0x4c
-> >  RSP <ffff81003ec65e40>
-> > CR2: 0000000000000500
-> >  <6>mptbase: Initiating ioc0 recovery
-> > mptbase: Initiating ioc0 recovery
-> > mptbase: Initiating ioc0 recovery
-> > mptbase: Initiating ioc0 recovery
-> > mptbase: Initiating ioc0 recovery
-> > scsi0 : ioc0: LSI53C1030, FwRev=01030600h, Ports=1, MaxQ=255, IRQ=185
-> >  target0:0:0: dma_alloc_coherent for parameters failed
-> > mptscsih: ioc0: attempting task abort! (sc=ffff81003e840c80)
-> > scsi 0:0:0:0:
-> >         command: cdb[0]=0x12: 12 00 00 00 24 00
-> > mptbase: Initiating ioc0 recovery
-> > 
-> 
-> Ah.  Maybe we're simply being passed a junk pointer.  This, please:
-> 
-> --- a/drivers/message/fusion/mptspi.c~a
-> +++ a/drivers/message/fusion/mptspi.c
-> @@ -804,6 +804,9 @@ mptspi_dv_renegotiate(struct _MPT_SCSI_H
->  	if (!wqw)
->  		return;
->  
-> +	printk("%p\n", hd);
-> +	if ((unsigned long)hd < 4000UL)
-> +		dump_stack();
->  	INIT_WORK(&wqw->work, mptspi_dv_renegotiate_work, wqw);
->  	wqw->hd = hd;
->  
-> _
+This should drive the Marvell PATA (and first two SATA ports) but I
+don't have hardware to test so give it a spin. Currently it'll probably
+clash with the AHCI driver if you are using the SATA ports but if we
+know this code works for the PATA port that is fixable later on.
 
-Here's the stack dump:
+Alan
 
-mptbase: Initiating ioc0 recovery
-0000000000000500
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.18-mm2/drivers/ata/Kconfig linux-2.6.18-mm2/drivers/ata/Kconfig
+--- linux.vanilla-2.6.18-mm2/drivers/ata/Kconfig	2006-09-28 14:33:46.000000000 +0100
++++ linux-2.6.18-mm2/drivers/ata/Kconfig	2006-09-29 17:42:31.392428080 +0100
+@@ -327,6 +327,15 @@
+ 
+ 	  If unsure, say N.
+ 
++config PATA_MARVELL
++	tristate "Marvell PATA support via legacy nmode"
++	depends on PCI
++	help
++	  This option enables limited support for the Marvell 88SE6145 ATA
++	  controller.
++
++	  If unsure, say N.
++
+ config PATA_MPIIX
+ 	tristate "Intel PATA MPIIX support"
+ 	depends on PCI
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.18-mm2/drivers/ata/Makefile linux-2.6.18-mm2/drivers/ata/Makefile
+--- linux.vanilla-2.6.18-mm2/drivers/ata/Makefile	2006-09-28 14:33:46.000000000 +0100
++++ linux-2.6.18-mm2/drivers/ata/Makefile	2006-09-29 16:12:08.000000000 +0100
+@@ -38,6 +38,7 @@
+ obj-$(CONFIG_PATA_NS87410)	+= pata_ns87410.o
+ obj-$(CONFIG_PATA_OPTI)		+= pata_opti.o
+ obj-$(CONFIG_PATA_OPTIDMA)	+= pata_optidma.o
++obj-$(CONFIG_PATA_MARVELL)	+= pata_marvell.o
+ obj-$(CONFIG_PATA_MPIIX)	+= pata_mpiix.o
+ obj-$(CONFIG_PATA_OLDPIIX)	+= pata_oldpiix.o
+ obj-$(CONFIG_PATA_PCMCIA)	+= pata_pcmcia.o
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.18-mm2/drivers/ata/pata_marvell.c linux-2.6.18-mm2/drivers/ata/pata_marvell.c
+--- linux.vanilla-2.6.18-mm2/drivers/ata/pata_marvell.c	1970-01-01 01:00:00.000000000 +0100
++++ linux-2.6.18-mm2/drivers/ata/pata_marvell.c	2006-09-29 17:45:23.612246688 +0100
+@@ -0,0 +1,210 @@
++/*
++ *	Marvell PATA driver.
++ *
++ *	For the moment we drive the PATA port in legacy mode. That
++ *	isn't making full use of the device functionality but it is
++ *	easy to get working.
++ *
++ *	(c) 2006 Red Hat  <alan@redhat.com>
++ */
++
++#include <linux/kernel.h>
++#include <linux/module.h>
++#include <linux/pci.h>
++#include <linux/init.h>
++#include <linux/blkdev.h>
++#include <linux/delay.h>
++#include <linux/device.h>
++#include <scsi/scsi_host.h>
++#include <linux/libata.h>
++#include <linux/ata.h>
++
++#define DRV_NAME	"pata_marvell"
++#define DRV_VERSION	"0.0.3"
++
++/**
++ *	marvell_pre_reset	-	check for 40/80 pin
++ *	@ap: Port
++ *
++ *	Perform the PATA port setup we need.
++ */
++
++static int marvell_pre_reset(struct ata_port *ap)
++{
++	struct pci_dev *pdev = to_pci_dev(ap->host->dev);
++	u32 devices;
++	unsigned long bar5;
++	void __iomem *barp;
++
++	/* Check if our port is enabled */
++
++	bar5 = pci_resource_start(pdev, 5);
++	barp = ioremap(bar5, 0x10);
++	if (barp == NULL)
++		return -ENOMEM;
++	devices = readl(barp + 0x0C);
++	iounmap(barp);
++	
++	if (ap->port_no == 0 && !(devices & 0x10))	/* PATA enable ? */
++		return -ENOENT;
++
++	/* Cable type */
++	switch(ap->port_no)
++	{
++		case 0:
++			/* Might be backward, docs unclear */
++			if(inb(ap->ioaddr.bmdma_addr + 1) & 1)
++				ap->cbl = ATA_CBL_PATA80;
++			else
++				ap->cbl = ATA_CBL_PATA40;
++			
++		case 1: /* Legacy SATA port */
++			ap->cbl = ATA_CBL_SATA;
++			break;
++	}
++	return ata_std_prereset(ap);
++}
++
++/**
++ *	marvell_error_handler - Setup and error handler
++ *	@ap: Port to handle
++ *
++ *	LOCKING:
++ *	None (inherited from caller).
++ */
++
++static void marvell_error_handler(struct ata_port *ap)
++{
++	return ata_bmdma_drive_eh(ap, marvell_pre_reset, ata_std_softreset, NULL, ata_std_postreset);
++}
++
++/* No PIO or DMA methods needed for this device */
++
++static struct scsi_host_template marvell_sht = {
++	.module			= THIS_MODULE,
++	.name			= DRV_NAME,
++	.ioctl			= ata_scsi_ioctl,
++	.queuecommand		= ata_scsi_queuecmd,
++	.can_queue		= ATA_DEF_QUEUE,
++	.this_id		= ATA_SHT_THIS_ID,
++	.sg_tablesize		= LIBATA_MAX_PRD,
++	.max_sectors		= ATA_MAX_SECTORS,
++	.cmd_per_lun		= ATA_SHT_CMD_PER_LUN,
++	.emulated		= ATA_SHT_EMULATED,
++	.use_clustering		= ATA_SHT_USE_CLUSTERING,
++	.proc_name		= DRV_NAME,
++	.dma_boundary		= ATA_DMA_BOUNDARY,
++	.slave_configure	= ata_scsi_slave_config,
++	/* Use standard CHS mapping rules */
++	.bios_param		= ata_std_bios_param,
++};
++
++static const struct ata_port_operations marvell_ops = {
++	.port_disable		= ata_port_disable,
++
++	/* Task file is PCI ATA format, use helpers */
++	.tf_load		= ata_tf_load,
++	.tf_read		= ata_tf_read,
++	.check_status		= ata_check_status,
++	.exec_command		= ata_exec_command,
++	.dev_select		= ata_std_dev_select,
++
++	.freeze			= ata_bmdma_freeze,
++	.thaw			= ata_bmdma_thaw,
++	.error_handler		= marvell_error_handler,
++	.post_internal_cmd	= ata_bmdma_post_internal_cmd,
++
++	/* BMDMA handling is PCI ATA format, use helpers */
++	.bmdma_setup		= ata_bmdma_setup,
++	.bmdma_start		= ata_bmdma_start,
++	.bmdma_stop		= ata_bmdma_stop,
++	.bmdma_status		= ata_bmdma_status,
++	.qc_prep		= ata_qc_prep,
++	.qc_issue		= ata_qc_issue_prot,
++	.data_xfer		= ata_pio_data_xfer,
++
++	/* Timeout handling */
++	.eng_timeout		= ata_eng_timeout,
++	.irq_handler		= ata_interrupt,
++	.irq_clear		= ata_bmdma_irq_clear,
++
++	/* Generic PATA PCI ATA helpers */
++	.port_start		= ata_port_start,
++	.port_stop		= ata_port_stop,
++	.host_stop		= ata_host_stop,
++};
++
++
++/**
++ *	marvell_init_one - Register Marvell ATA PCI device with kernel services
++ *	@pdev: PCI device to register
++ *	@ent: Entry in marvell_pci_tbl matching with @pdev
++ *
++ *	Called from kernel PCI layer.
++ *
++ *	LOCKING:
++ *	Inherited from PCI layer (may sleep).
++ *
++ *	RETURNS:
++ *	Zero on success, or -ERRNO value.
++ */
++
++static int marvell_init_one (struct pci_dev *pdev, const struct pci_device_id *id)
++{
++	static struct ata_port_info info = {
++		.sht		= &marvell_sht,
++		.flags	= ATA_FLAG_SLAVE_POSS | ATA_FLAG_SRST,
++
++		.pio_mask	= 0x1f,
++		.mwdma_mask	= 0x07,
++		.udma_mask 	= 0x3f,
++
++		.port_ops	= &marvell_ops,
++	};
++	static struct ata_port_info info_sata = {
++		.sht		= &marvell_sht,
++		/* Slave possible as its magically mapped not real */
++		.flags	= ATA_FLAG_SLAVE_POSS | ATA_FLAG_SRST,
++
++		.pio_mask	= 0x1f,
++		.mwdma_mask	= 0x07,
++		.udma_mask 	= 0x7f,
++
++		.port_ops	= &marvell_ops,
++	};
++	struct ata_port_info *port_info[2] = { &info, &info_sata };
++	
++	return ata_pci_init_one(pdev, port_info, 2);
++}
++
++static const struct pci_device_id marvell_pci_tbl[] = {
++	{ PCI_DEVICE(0x11AB, 0x6145), },
++	{ }	/* terminate list */
++};
++
++static struct pci_driver marvell_pci_driver = {
++	.name			= DRV_NAME,
++	.id_table		= marvell_pci_tbl,
++	.probe			= marvell_init_one,
++	.remove			= ata_pci_remove_one,
++};
++
++static int __init marvell_init(void)
++{
++	return pci_register_driver(&marvell_pci_driver);
++}
++
++static void __exit marvell_exit(void)
++{
++	pci_unregister_driver(&marvell_pci_driver);
++}
++
++module_init(marvell_init);
++module_exit(marvell_exit);
++
++MODULE_AUTHOR("Alan Cox");
++MODULE_DESCRIPTION("SCSI low-level driver for Marvell ATA in legacy mode");
++MODULE_LICENSE("GPL");
++MODULE_DEVICE_TABLE(pci, marvell_pci_tbl);
++MODULE_VERSION(DRV_VERSION);
++
 
-Call Trace:
-<IRQ>  [<ffffffff803e0d37>] vgacon_cursor+0x0/0x1a7
-[<ffffffff80489b19>] mptspi_dv_renegotiate+0x3e/0x79
-[<ffffffff80489b7b>] mptspi_ioc_reset+0x27/0x2e
-[<ffffffff804846ea>] mpt_do_ioc_recovery+0x115f/0x11dd
-[<ffffffff802387d7>] current_tick_length+0x5/0x26
-[<ffffffff80238dd4>] do_timer+0x2f6/0x574
-[<ffffffff8023851c>] lock_timer_base+0x1b/0x3c
-[<ffffffff8055ebff>] _spin_lock+0xe/0x5e
-[<ffffffff8022797a>] task_rq_lock+0x3d/0x6f
-[<ffffffff80227d03>] resched_task+0x4e/0x71
-[<ffffffff8022847f>] try_to_wake_up+0x3d4/0x3e6
-[<ffffffff80461794>] atapi_output_bytes+0x21/0x5c
-[<ffffffff802387d7>] current_tick_length+0x5/0x26
-[<ffffffff8055ebff>] _spin_lock+0xe/0x5e
-[<ffffffff8022797a>] task_rq_lock+0x3d/0x6f
-[<ffffffff80227d03>] resched_task+0x4e/0x71
-[<ffffffff8022847f>] try_to_wake_up+0x3d4/0x3e6
-[<ffffffff8020cf66>] main_timer_handler+0x1e6/0x3a6
-[<ffffffff80228f29>] find_busiest_group+0x21f/0x66f
-[<ffffffff80484f94>] mpt_HardResetHandler+0xb4/0x12c
-[<ffffffff8048500c>] mpt_timer_expired+0x0/0x24
-[<ffffffff80485017>] mpt_timer_expired+0xb/0x24
-[<ffffffff80238a07>] run_timer_softirq+0x156/0x1b2
-[<ffffffff802357a1>] __do_softirq+0x46/0xb1
-[<ffffffff8020a76c>] call_softirq+0x1c/0x28
-[<ffffffff8020bb5f>] do_softirq+0x2c/0x7d
-[<ffffffff80207c37>] default_idle+0x0/0x47
-[<ffffffff8023583f>] irq_exit+0x33/0x3e
-[<ffffffff8020a216>] apic_timer_interrupt+0x66/0x70
-<EOI>  [<ffffffff80207c60>] default_idle+0x29/0x47
-[<ffffffff80207e3e>] cpu_idle+0x87/0xbe
-[<ffffffff80794704>] start_kernel+0x203/0x205
-[<ffffffff80794179>] _sinittext+0x179/0x17d
-
-Unable to handle kernel NULL pointer dereference at 0000000000000500 RIP: 
-[<ffffffff80489aa2>] mptspi_dv_renegotiate_work+0xc/0x45
-PGD 0 
-Oops: 0000 [1] PREEMPT SMP 
-CPU 0 
-Modules linked in:
-Pid: 8, comm: events/0 Not tainted 2.6.18-git10 #1
-RIP: 0010:[<ffffffff80489aa2>]  [<ffffffff80489aa2>] mptspi_dv_renegotiate_work+0xc/0x45
-RSP: 0000:ffff81003ec65e40  EFLAGS: 00010282
-RAX: 0000000000000004 RBX: ffff81003eff3640 RCX: 000000000000001e
-RDX: 0000000000000003 RSI: 0000000000000213 RDI: 000000000003eff3
-RBP: 0000000000000500 R08: ffff81003ed0cf88 R09: ffff81003ed0cf40
-R10: ffff81003eff3640 R11: ffff81003ed0cf40 R12: ffff81003ed0cf40
-R13: 0000000000000213 R14: ffff81003eff3640 R15: ffffffff80489a96
-FS:  0000000000knlGS:0000000000000000
-CS:  0010 DS: 0018 ES: 0018 CR0: 000000008005003b
-CR2: 0000000000000500 CR3: 0000000000201000 CR4: 00000000000006e0
-Process events/0 (pid: 8, threadinfo ffff81003ec64000, task ffff81007f180740)
-Stack:  0000000000000000 ffff81003eff3640 ffff81003eff3648 ffffffff8023f1bd
-ffff81003ed0cf40 ffff81003ed0cf40 ffffffff8023f204 ffff8100016dfd70
-00000000fffffffc fd 0000000000000000 ffffffff8023f300
-Call Trace:
-[<ffffffff8023f1bd>] run_workqueue+0x9a/0xe1
-[<ffffffff8023f204>] worker_thread+0x0/0x12e
-[<ffffffff8023f300>] worker_thread+0xfc/0x12e
-[<ffffffff80229f62>] default_wake_function+0x0/0xe
-[<ffffffff80229f62>] default_wake_function+0x0/0xe
-[<ffffffff80242433>] kthread+0xc8/0xf1
-[<ffffffff8020a3f8>] child_rip+0xa/0x12
-[<ffffad+0x0/0xf1
-[<ffffffff8020a3ee>] child_rip+0x0/0x12
-
-
-Code: 48 8b 45 00 31 f6 48 8b b8 50 01 00 00 e8 5c 4d fe ff 48 85 
-RIP  [<ffffffff80489aa2>] mptspi_dv_renegotiate_work+0xc/0x45
-RSP <ffff81003ec65e40>
-CR2: 0000000000000500
-<6>mptbase: Initiating ioc0 recovery
-0000000000000500
-
-Call Trace:
-<IRQ>  [<ffffffff803e0d37>] vgacon_cursor+0x0/0x1a7
-[<ffffffff80489b19>] mptspi_dv_renegotiate+0x3e/0x79
-[<ffffffff80489b7b>] mptspi_ioc_reset+0x27/0x2e
-[<ffffffff804846ea>] mpt_do_ioc_recovery+0x115f/0x11dd
-[<ffffffff802387d7>] current_tick_length+0x5/0x26
-[<ffffffff80238dd4>] do_timer+0x2f6/0x574
-[<ffffffff8023851c>] lock_timer_base+0x1b/0x3c
-[<ffffffff8055ebff>] _spin_lock+0xe/0x5e
-[<ffffffff8022797a>] task_rq_lock+0x3d/0x6f
-[<ffffffff80227d03>] resched_task+0x4e/0x71
-[<ffffffff8022847f>] try_to_wake_up+0x3d4/0x3e6
-[<ffffffff80461794>] atapi_output_bytes+0x21/0x5c
-[<ffffffff802387d7>] current_tick_length+0x5/0x26
-[<ffffffff80238dd4>] do_timer+0x2f6/0x574
-[<ffffffff8055ebff>] _spin_lock+0xe/0x5e
-[<ffffffff8020cf66>] main_timer_hax3a6
-[<ffffffff80228f29>] find_busiest_group+0x21f/0x66f
-[<ffffffff8055ebff>] _spin_lock+0xe/0x5e
-[<ffffffff80484f94>] mpt_HardResetHandler+0xb4/0x12c
-[<ffffffff8048500c>] mpt_timer_expired+0x0/0x24
-[<ffffffff80485017>] mpt_timer_expired+0xb/0x24
-[<ffffffff80238a07>] run_timer_softirq+0x156/0x1b2
-[<ffffffff802357a1>] __do_softirq+0x46/0xb1
-[<ffffffff8020a76c>] call_softir+0x1c/0x28
-[<ffffffff8020bb5f>] do_softirq+0x2c/0x7d
-[<ffffffff80207c37>] default_idle+0x0/0x47
-[<ffffffff8023583f>] irq_exit+0x33/0x3e
-[<ffffffff8020a216>] apic_timer_interrupt+0x66/0x70
-<EOI>  [<ffffffff80207c60>] default_idle+0x29/0x47
-[<ffffffff80207e3e>] cpu_idle+0x87/0xbe
-[<ffffffff80794704>] start_kernel+0x203/0x205
-[<ffffffff80794179>] _sinittext+0x179/0x17d
-
-
-Bryce

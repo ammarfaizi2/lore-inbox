@@ -1,52 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161376AbWI2S23@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422651AbWI2SaA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161376AbWI2S23 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Sep 2006 14:28:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161377AbWI2S23
+	id S1422651AbWI2SaA (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Sep 2006 14:30:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422653AbWI2SaA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Sep 2006 14:28:29 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:49025 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1161376AbWI2S22 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Sep 2006 14:28:28 -0400
-Date: Fri, 29 Sep 2006 11:27:15 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-cc: Helge Hafting <helge.hafting@aitel.hist.no>, tglx@linutronix.de,
-       Neil Brown <neilb@suse.de>, Michiel de Boer <x@rebelhomicide.demon.nl>,
-       James Bottomley <James.Bottomley@SteelEye.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: GPLv3 Position Statement
-In-Reply-To: <1159554375.13029.67.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.64.0609291120440.3952@g5.osdl.org>
-References: <1158941750.3445.31.camel@mulgrave.il.steeleye.com> 
- <451798FA.8000004@rebelhomicide.demon.nl>  <17687.46268.156413.352299@cse.unsw.edu.au>
-  <1159183895.11049.56.camel@localhost.localdomain> 
- <1159200620.9326.447.camel@localhost.localdomain>  <451CF22D.4030405@aitel.hist.no>
-  <Pine.LNX.4.64.0609290940480.3952@g5.osdl.org>  <1159552021.13029.58.camel@localhost.localdomain>
-  <Pine.LNX.4.64.0609291030050.3952@g5.osdl.org> <1159554375.13029.67.camel@localhost.localdomain>
+	Fri, 29 Sep 2006 14:30:00 -0400
+Received: from mail0.lsil.com ([147.145.40.20]:41099 "EHLO mail0.lsil.com")
+	by vger.kernel.org with ESMTP id S1422651AbWI2S37 convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Sep 2006 14:29:59 -0400
+x-mimeole: Produced By Microsoft Exchange V6.5
+Content-class: urn:content-classes:message
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [OOPS] -git8,9:  NULL pointer dereference in mptspi_dv_renegotiate_work
+Date: Fri, 29 Sep 2006 12:29:55 -0600
+Message-ID: <664A4EBB07F29743873A87CF62C26D7035039A@NAMAIL4.ad.lsil.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [OOPS] -git8,9:  NULL pointer dereference in mptspi_dv_renegotiate_work
+Thread-Index: Acbj6yiHFKfy7GVRQJGnAjTDaaTDpwACNusg
+From: "Moore, Eric" <Eric.Moore@lsil.com>
+To: "Bryce Harrington" <bryce@osdl.org>, "Andrew Morton" <akpm@osdl.org>
+Cc: <linux-kernel@vger.kernel.org>, <linux-scsi@vger.kernel.org>
+X-OriginalArrivalTime: 29 Sep 2006 18:29:56.0194 (UTC) FILETIME=[43484420:01C6E3F5]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Friday, September 29, 2006 11:18 AM, Bryce Harrington wrote:  
 
+> [<ffffffff80484f94>] mpt_HardResetHandler+0xb4/0x12c
+> [<ffffffff8048500c>] mpt_timer_expired+0x0/0x24
 
-On Fri, 29 Sep 2006, Alan Cox wrote:
->
-> thats the interpretation that has been accepted several times in out of 
-> court GPL violation settlements.
+mpt_timer_expired means most likely we timed out sending 
+request for config page from firmware.  The timeout results
+in host reset, which results in domain validation being called.
+Perhaps the config pages failed before we allocated memory for hd.
 
-I think you can push that angle, and a lot of the time it will work in 
-practice - because the companies involved are really not "evil", and most 
-often they simply want to avoid any trouble. 
+Can you enable debug messages in the driver Makefile, for
+the line called MPT_DEBUG_CONFIG; that way we can find out which
+config page failed.  
 
-At the same time, in many cases the settlements seem to be very much about 
-real issues, like not actually following the GPLv2 (giving no credit, not 
-mentioning the license, not making sources available). Rather than about 
-any imagined or real lock-down issues.
+There were some changes in scsi_transort_spi.c, that occured
+between 2.6.18-git1 and 2.6.18-git2.  I doubt these changes
+would of effected this.   Can you determine between which
+git version releases did this problem begin occuring?
 
-There's certainly a _correlation_ between "locking down" and "being sleazy 
-in general", but I don't think it's necessarily a causal relationship. 
+Also, can you describe your configuration?  Such as which
+kind of devices are you usign, and whether if they are U320 devices,
+or are their older ones, such as U160.
 
-			Linus
+Eric

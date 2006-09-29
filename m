@@ -1,109 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964770AbWI2KIJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751017AbWI2KKe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964770AbWI2KIJ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Sep 2006 06:08:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030186AbWI2KIJ
+	id S1751017AbWI2KKe (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Sep 2006 06:10:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751098AbWI2KKe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Sep 2006 06:08:09 -0400
-Received: from dee.erg.abdn.ac.uk ([139.133.204.82]:14750 "EHLO erg.abdn.ac.uk")
-	by vger.kernel.org with ESMTP id S932188AbWI2KIH (ORCPT
+	Fri, 29 Sep 2006 06:10:34 -0400
+Received: from main.gmane.org ([80.91.229.2]:39835 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S1751017AbWI2KKd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Sep 2006 06:08:07 -0400
-From: Gerrit Renker <gerrit@erg.abdn.ac.uk>
-Organization: ERG
-To: Andrew Morton <akpm@osdl.org>, Ian McDonald <ian.mcdonald@jandi.co.nz>
-Subject: [PATCH] IPv6/DCCP: Remove unused IPV6_PKTOPTIONS code
-Date: Fri, 29 Sep 2006 11:02:18 +0100
-User-Agent: KMail/1.9.3
-Cc: Jesper Juhl <jesper.juhl@gmail.com>, linux-kernel@vger.kernel.org,
-       netdev@vger.kernel.org, dccp@vger.kernel.org,
-       Arnaldo Carvalho de Melo <acme@ghostprotocols.net>,
-       "David S. Miller" <davem@davemloft.net>,
-       Pekka Savola <pekkas@netcore.fi>, James Morris <jmorris@namei.org>,
-       Hideaki YOSHIFUJI <yoshfuji@linux-ipv6.org>,
-       Patrick McHardy <kaber@coreworks.de>,
-       Alexey Kuznetsov <kuznet@ms2.inr.ac.ru>
-References: <200609290245.33618.jesper.juhl@gmail.com> <20060928230751.99041004.akpm@osdl.org>
-In-Reply-To: <20060928230751.99041004.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200609291102.19243@strip-the-willow>
-X-ERG-MailScanner: Found to be clean
-X-ERG-MailScanner-From: gerrit@erg.abdn.ac.uk
+	Fri, 29 Sep 2006 06:10:33 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Samuel Tardieu <sam@rfc1149.net>
+Subject: Re: GPLv3 Position Statement
+Date: 29 Sep 2006 12:08:22 +0200
+Message-ID: <871wpvnfxl.fsf@willow.rfc1149.net>
+References: <1159498900.3880.31.camel@mulgrave.il.steeleye.com> <17692.41932.957298.877577@cse.unsw.edu.au> <1159512998.3880.50.camel@mulgrave.il.steeleye.com> <17692.53185.564741.502063@samba.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: zaphod.rfc1149.net
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.4
+X-Leafnode-NNTP-Posting-Host: 2001:6f8:37a:2::2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->  Coverity found what looks like a real leak in net/dccp/ipv6.c::dccp_v6_do_rcv()
+>>>>> "Tridge" == tridge  <tridge@samba.org> writes:
 
-|  otoh, it seems to me that opt_skb doesn't actually do anything and can be
-|  removed?
-This is right, there is no code referencing opt_skb: compare with net/ipv6/tcp_ipv6.c.
-Until someone has time to add the missing DCCP-specific code, it does seem better
-to replace the dead part with a FIXME. This is done by the patch below, applies to
-davem-net2.6 and has been tested to compile.
+Tridge> I'm also a strong proponent of "authors rights", and I would
+Tridge> consider it very nasty if someone took one of my projects and
+Tridge> decided to fork it to be GPLv2 only, deliberately going
+Tridge> against my intention. They might have a legal right to do so
+Tridge> but it would clearly be against my wishes.  I'm not even 100%
+Tridge> certain it would be legal.
 
-Signed-off-by: Gerrit Renker <gerrit@erg.abdn.ac.uk>
---
- ipv6.c |   23 ++---------------------
- 1 file changed, 2 insertions(+), 21 deletions(-)
+Tridge> The "any later version" words I have put on all my projects
+Tridge> are there quite deliberately.
 
-diff --git a/net/dccp/ipv6.c b/net/dccp/ipv6.c
-index 7a47399..9d19344 100644
---- a/net/dccp/ipv6.c
-+++ b/net/dccp/ipv6.c
-@@ -956,8 +956,6 @@ out:
-  */
- static int dccp_v6_do_rcv(struct sock *sk, struct sk_buff *skb)
- {
--	struct ipv6_pinfo *np = inet6_sk(sk);
--	struct sk_buff *opt_skb = NULL;
- 
- 	/* Imagine: socket is IPv6. IPv4 packet arrives,
- 	   goes to IPv4 receive handler and backlogged.
-@@ -978,21 +976,8 @@ static int dccp_v6_do_rcv(struct sock *s
- 	 * called with bh processing disabled.
- 	 */
- 
--	/* Do Stevens' IPV6_PKTOPTIONS.
--
--	   Yes, guys, it is the only place in our code, where we
--	   may make it not affecting IPv4.
--	   The rest of code is protocol independent,
--	   and I do not like idea to uglify IPv4.
--
--	   Actually, all the idea behind IPV6_PKTOPTIONS
--	   looks not very well thought. For now we latch
--	   options, received in the last packet, enqueued
--	   by tcp. Feel free to propose better solution.
--	                                       --ANK (980728)
--	 */
--	if (np->rxopt.all)
--		opt_skb = skb_clone(skb, GFP_ATOMIC);
-+	/* FIXME: Add handling of IPV6_PKTOPTIONS with appropriate freeing of 
-+	 *        skb (see net/ipv6/tcp_ipv6.c for example)                   */
- 
- 	if (sk->sk_state == DCCP_OPEN) { /* Fast path */
- 		if (dccp_rcv_established(sk, skb, dccp_hdr(skb), skb->len))
-@@ -1013,8 +998,6 @@ static int dccp_v6_do_rcv(struct sock *s
-  		if (nsk != sk) {
- 			if (dccp_child_process(sk, nsk, skb))
- 				goto reset;
--			if (opt_skb != NULL)
--				__kfree_skb(opt_skb);
- 			return 0;
- 		}
- 	}
-@@ -1026,8 +1009,6 @@ static int dccp_v6_do_rcv(struct sock *s
- reset:
- 	dccp_v6_ctl_send_reset(skb);
- discard:
--	if (opt_skb != NULL)
--		__kfree_skb(opt_skb);
- 	kfree_skb(skb);
- 	return 0;
- }
+Tridge: *you* also chose deliberately to use the GPL which explicitely
+allows other people to do so. You could have written "the latest
+version of the GPL as released by the FSF" or used a licence similar
+to the GPLv2 with the permission to restrain the licence removed.
 
+Moreover, anyone can add a patch released under the GPLv2 only (this
+is their right, morally and technically) to a copy of your software;
+after that, they have no choice but to redistribute the whole as GPLv2
+only (I insist on "the whole", of course they might keep the "or later"
+on your individual files).
+
+  Sam
+-- 
+Samuel Tardieu -- sam@rfc1149.net -- http://www.rfc1149.net/
 

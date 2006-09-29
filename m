@@ -1,72 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161250AbWI2BOr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161261AbWI2B2b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161250AbWI2BOr (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Sep 2006 21:14:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161249AbWI2BOr
+	id S1161261AbWI2B2b (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Sep 2006 21:28:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161263AbWI2B2b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Sep 2006 21:14:47 -0400
-Received: from taverner.CS.Berkeley.EDU ([128.32.168.222]:48850 "EHLO
-	taverner.cs.berkeley.edu") by vger.kernel.org with ESMTP
-	id S1161250AbWI2BOq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Sep 2006 21:14:46 -0400
-To: linux-kernel@vger.kernel.org
-Path: not-for-mail
-From: daw@cs.berkeley.edu (David Wagner)
-Newsgroups: isaac.lists.linux-kernel
-Subject: Re: [patch] remove MNT_NOEXEC check for PROT_EXEC mmaps
-Date: Fri, 29 Sep 2006 01:14:32 +0000 (UTC)
-Organization: University of California, Berkeley
-Message-ID: <efhs1o$h5d$1@taverner.cs.berkeley.edu>
-References: <45150CD7.4010708@aknet.ru> <1159396436.3086.51.camel@laptopd505.fenrus.org> <eff0dv$poj$1@taverner.cs.berkeley.edu> <9a8748490609271638q590f10c3o8fb7d5e478e4dec2@mail.gmail.com>
-Reply-To: daw-usenet@taverner.cs.berkeley.edu (David Wagner)
-NNTP-Posting-Host: taverner.cs.berkeley.edu
-X-Trace: taverner.cs.berkeley.edu 1159492472 17581 128.32.168.222 (29 Sep 2006 01:14:32 GMT)
-X-Complaints-To: news@taverner.cs.berkeley.edu
-NNTP-Posting-Date: Fri, 29 Sep 2006 01:14:32 +0000 (UTC)
-X-Newsreader: trn 4.0-test76 (Apr 2, 2001)
-Originator: daw@taverner.cs.berkeley.edu (David Wagner)
+	Thu, 28 Sep 2006 21:28:31 -0400
+Received: from mga07.intel.com ([143.182.124.22]:38806 "EHLO
+	azsmga101.ch.intel.com") by vger.kernel.org with ESMTP
+	id S1161261AbWI2B23 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Sep 2006 21:28:29 -0400
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.09,232,1157353200"; 
+   d="scan'208"; a="124569674:sNHT1486284415"
+Subject: Re: [PATCH] Fix commit of ordered data buffers
+From: "Zhang, Yanmin" <yanmin_zhang@linux.intel.com>
+To: Jan Kara <jack@suse.cz>
+Cc: akpm@osdl.org, LKML <linux-kernel@vger.kernel.org>,
+       Badari Pulavarty <pbadari@us.ibm.com>,
+       ia64 Fedora Core Development <fedora-ia64-list@redhat.com>
+In-Reply-To: <20060928213558.GC15478@atrey.karlin.mff.cuni.cz>
+References: <20060911210530.GA28445@atrey.karlin.mff.cuni.cz>
+	 <1159432266.20092.700.camel@ymzhang-perf.sh.intel.com>
+	 <20060928213558.GC15478@atrey.karlin.mff.cuni.cz>
+Content-Type: text/plain
+Message-Id: <1159493244.20092.718.camel@ymzhang-perf.sh.intel.com>
+Mime-Version: 1.0
+X-Mailer: Ximian Evolution 1.4.5 (1.4.5-9) 
+Date: Fri, 29 Sep 2006 09:27:25 +0800
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jesper Juhl wrote:
->Below are some examples of how I've used noexec in the past and found
->it useful.
+On Fri, 2006-09-29 at 05:35, Jan Kara wrote:
+>   Hello,
+> 
+> > On Tue, 2006-09-12 at 05:05, Jan Kara wrote:
+> > >   Hi Andrew,
+> > > 
+> > >   here is the patch that came out of the thread "set_page_buffer_dirty
+> > > should skip unmapped buffers". It fixes several flaws in the code
+> > > writing out ordered data buffers during commit. It definitely fixed the
+> > > problem Badari was seeing with fsx-linux test.  Could you include it
+> > > into -mm? Since there are quite complex interactions with other JBD code
+> > > and the locking is kind of ugly, I'd leave it in -mm for a while whether
+> > > some bug does not emerge ;). Thanks.
+> > > 
+> > > 								Honza
+> > The fsx-linux test issue is a race between journal_commit_transaction
+> > and journal_dirty_data. After journal_commit_transaction adds buffer_head pointers
+> > to wbuf, it might unlock journal->j_list_lock. Although all buffer head in wbuf are locked,
+> > does that prevent journal_dirty_data from unlinking the buffer head from the transaction
+> > and fsx-linux from truncating it?
+>   Yes, it does. Because the buffers are locked *and dirty*. Nothing can
+> clear the dirty bit while we are holding the lock and
+> journal_dirty_data() also waits until it can safely write out the buffer
+> - which is after we release the buffer lock.
+With your patch, it's not true because journal_submit_data_buffers clear the dirty
+flag, so later journal_dirty_data won't try to lock/flush the buffer. journal_dirty_data
+would just move the jh to the t_sync_datalist of a new transaction.
 
-Ok, but every one of those examples is pretty much orthogonal to how
-the Linux kernel treats mmap(PROT_EXEC).  The only thing you are relying
-upon is that ld.so knows how to avoid unintentionally execute programs
-that live on noexec partitions.  As long as ld.so has some way to tell
-the kernel "please check for me whether this program lives on a noexec
-partition; if it does, please bail out", then you'll get all of the benefits
-you list and all of your use cases will be unaffected, no matter what
-other semantics are assigned to mmap().
+> 
+> > I'm not a journal expert. But I want to discuss it.
+> > 
+> > My investigation is below (Scenario):
+> > 
+> > fsx-linux starts journal_dirty_data and journal_dirty_data links a jh to
+> > journal->j_running_transaction's t_sync_datalist, kjournald might not
+> > write the buffer to disk quickly, but saves it to array wbuf.
+> > Then, fsx-linux starts the second journal_dirty_data of a new transaction
+> > might submit the same buffer head and move the jh to the new transaction's
+> > t_sync_datalist.
+>   Yes, but this happens only after the buffer is removed from wbuf[] as
+> I explain above.
+> 
+> > Then, fsx-linux truncates the last a couple of buffers of a page.
+> > Then, block_write_full_page calls invalidatepage to invalidate the last a couple
+> > of buffers of the page, so the journal_heads of the buffer_head are unlinked and
+> > are marked as unmapped.
+> > Then, fsx-linux extend the file and does a msync after changing the page content
+> > by mmaping the page, so the page (inclduing the last buffer head) is marked dirty
+> > again.
+> > Then, kjournald's journal_commit_transaction goes through wbuf to submit_bh all
+> > dirty buffers, but one buffer head is already marked as unmapped. A bug check is
+> > triggerred.
+I think the reason that your patch fixes it is that journal_invalidatepage
+will lock the buffer before calling journal_unmap_buffer. So the last step to trigger
+the bug will be synced with journal_commit_transaction.
 
-
-
-Here were your examples:
-
->1) Providing home directories for users that are mounted noexec
->prevents the situation where a user downloads a malicious program and
->accidentally executes it (for example by clicking on it in his GUI
->filemanager by mistake).  With the dir mounted noexec the application
->fails to run and the user (and admin) is spared some grief and
->possibly backup restores.
->
->2) serving static web pages from a filesystem mounted noexec offers a
->bit of protection against script kiddies who have found a hole in my
->webserver allowing them to exec a program from the web filesystem. It
->won't protect against clever attackers who have found a security hole
->big enough to allow them to work around noexec, but it does protect
->against lot of script kiddies who just found some "hackme.exe" that
->tries to just execute a few things (which I believe are the vast
->majority).
->
->3) I've often used noexec on filesystems used to store backup data,
->simply to guard against my own mistakes. Working with many shells on
->many boxes you sometimes make mistakes about what box you are on and
->if the backup box holds a complete copy of a filesystem hierarchy
->similar to the box you think you are on you may try executing some app
->on the backup box - possibly with the bad result of modifying your
->backup data. I know I've made that mistake in the past, but having the
->backup fs noexec prevented the programs to run and saved me some
->trouble.
+> I think the right way is to let journal_dirty_data to wait till wbuf is flushed.
+>   This actually happens in my fix too. And my fix has also a bonus of
+> fixing a few other flaws... Otherwise your patch seems to be right.
+Other flaws could be fixed by other small patches to make it clearer.

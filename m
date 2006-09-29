@@ -1,98 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161415AbWI2ItS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030418AbWI2It4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161415AbWI2ItS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Sep 2006 04:49:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161414AbWI2ItS
+	id S1030418AbWI2It4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Sep 2006 04:49:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030416AbWI2Itz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Sep 2006 04:49:18 -0400
-Received: from ozlabs.org ([203.10.76.45]:56530 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S1161416AbWI2ItQ (ORCPT
+	Fri, 29 Sep 2006 04:49:55 -0400
+Received: from ns2.uludag.org.tr ([193.140.100.220]:22963 "EHLO uludag.org.tr")
+	by vger.kernel.org with ESMTP id S1030418AbWI2Ity (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Sep 2006 04:49:16 -0400
-Subject: Re: [PATCH RFC 1/4] Generic BUG handling.
-From: Michael Ellerman <michael@ellerman.id.au>
-Reply-To: michael@ellerman.id.au
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Andi Kleen <ak@muc.de>, Hugh Dickens <hugh@veritas.com>,
-       Paul Mackerras <paulus@samba.org>
-In-Reply-To: <451CDC31.6060407@goop.org>
-References: <20060928225444.439520197@goop.org> >
-	 <20060928225452.229936605@goop.org> >
-	 <1159506427.25820.20.camel@localhost.localdomain>
-	 <451CDC31.6060407@goop.org>
-Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-qLX14O92Ht35+EQNdpJR"
-Date: Fri, 29 Sep 2006 18:49:14 +1000
-Message-Id: <1159519754.15896.2.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+	Fri, 29 Sep 2006 04:49:54 -0400
+From: "=?utf-8?q?S=2E=C3=87a=C4=9Flar?= Onur" <caglar@pardus.org.tr>
+Reply-To: caglar@pardus.org.tr
+Organization: =?utf-8?q?T=C3=9CB=C4=B0TAK_/?= UEKAE
+To: john stultz <johnstul@us.ibm.com>
+Subject: Re: 2.6.18 Nasty Lockup
+Date: Fri, 29 Sep 2006 11:49:52 +0300
+User-Agent: KMail/1.9.4
+Cc: Greg Schafer <gschafer@zip.com.au>, linux-kernel@vger.kernel.org,
+       Andi Kleen <ak@muc.de>
+References: <20060926123640.GA7826@tigers.local> <1159384500.29040.3.camel@localhost> <200609281439.58755.caglar@pardus.org.tr>
+In-Reply-To: <200609281439.58755.caglar@pardus.org.tr>
+MIME-Version: 1.0
+Content-Type: multipart/signed;
+  boundary="nextPart13807620.9j1jKMBtKU";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
+Content-Transfer-Encoding: 7bit
+Message-Id: <200609291149.52443.caglar@pardus.org.tr>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
---=-qLX14O92Ht35+EQNdpJR
-Content-Type: text/plain
+--nextPart13807620.9j1jKMBtKU
+Content-Type: text/plain;
+  charset="utf-8"
 Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-On Fri, 2006-09-29 at 01:41 -0700, Jeremy Fitzhardinge wrote:
-> Michael Ellerman wrote:
-> >> +       printk(KERN_EMERG "------------[ cut here ]------------\n");
-> >>    =20
+28 Eyl 2006 Per 14:39 tarihinde, S.=C3=87a=C4=9Flar Onur =C5=9Funlar=C4=B1 =
+yazm=C4=B1=C5=9Ft=C4=B1:=20
+> 27 Eyl 2006 =C3=87ar 22:14 tarihinde, john stultz =C5=9Funlar=C4=B1 yazm=
+=C4=B1=C5=9Ft=C4=B1:
+> > Ok. Good to hear you have a workaround. Now to sort out why your TSCs
+> > are becoming un-synced. From the dmesg you sent me privately, I noticed
+> > that while you have 4 cpus, the following message only shows up once:
 > >
-> > I'm not sure I'm big on the cut here marker.
-> >  =20
->=20
-> x86 has it.  I figured its more important to not change x86 output than=20
-> powerpc.
-
-Yeah, you don't want to go messing up legacy architectures.
-
-> >> i386 implements CONFIG_DEBUG_BUGVERBOSE, but x86-64 and powerpc do
-> >> not.  This should probably be made more consistent.
-> >>    =20
+> > ACPI: Processor [CPU1] (supports 8 throttling states)
 > >
-> > It looks like if you do this you _might_ be able to share struct
-> > bug_entry, or at least have consistent members for each arch. Which
-> > would eliminate some of the inlines you have for accessing the bug
-> > struct.
-> >  =20
-> Yeah, its a bit of a toss-up.  powerpc wants to hide the warn flag=20
-> somewhere, which either means having a different structure, or using the=20
-> fields differently.  CONFIG_DEBUG_BUGVERBOSE supporters (ie, i386) want=20
-> to make the structure completely empty in the !DEBUG_BUGVERBOSE case=20
-> (which doesn't currently happen).
-> > It needed a bit of work to get going on powerpc:
-> >  =20
->=20
-> Thanks.  I'll try to fold all this together into a new patch when things=20
-> settle down.
+> > Does disabling cpufreq change anything?
+>
+> By the way i tried but nothing changes :(
 
-Yeah ok there's a few competing concerns there, it's a good start
-though.
+Is there any other advice available? Is there anything else you want me to=
+=20
+try?
 
-cheers
+Cheers
+=2D-=20
+S.=C3=87a=C4=9Flar Onur <caglar@pardus.org.tr>
+http://cekirdek.pardus.org.tr/~caglar/
 
---=20
-Michael Ellerman
-OzLabs, IBM Australia Development Lab
+Linux is like living in a teepee. No Windows, no Gates and an Apache in hou=
+se!
 
-wwweb: http://michael.ellerman.id.au
-phone: +61 2 6212 1183 (tie line 70 21183)
-
-We do not inherit the earth from our ancestors,
-we borrow it from our children. - S.M.A.R.T Person
-
---=-qLX14O92Ht35+EQNdpJR
-Content-Type: application/pgp-signature; name=signature.asc
-Content-Description: This is a digitally signed message part
+--nextPart13807620.9j1jKMBtKU
+Content-Type: application/pgp-signature
 
 -----BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.2.2 (GNU/Linux)
+Version: GnuPG v1.4.5 (GNU/Linux)
 
-iD8DBQBFHN4KdSjSd0sB4dIRAnogAJsEQENYYFLGsaOGbBIntmV0OKV2JwCfe3rD
-GWWOMC2U8sfLLskqeBxtMpM=
-=1kwg
+iD8DBQBFHN4wy7E6i0LKo6YRAiqwAJ449f0z1h39g+BdFTrrmAuCV5QNEwCeKj30
+zSFYJmlHVVNQTdv1owxnsO0=
+=NAnq
 -----END PGP SIGNATURE-----
 
---=-qLX14O92Ht35+EQNdpJR--
-
+--nextPart13807620.9j1jKMBtKU--

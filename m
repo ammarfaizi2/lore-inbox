@@ -1,419 +1,129 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161212AbWI2A04@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161210AbWI2A1G@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161212AbWI2A04 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Sep 2006 20:26:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161213AbWI2A04
+	id S1161210AbWI2A1G (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Sep 2006 20:27:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161208AbWI2A1F
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Sep 2006 20:26:56 -0400
-Received: from havoc.gtf.org ([69.61.125.42]:31367 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id S1161212AbWI2A0x (ORCPT
+	Thu, 28 Sep 2006 20:27:05 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:51357 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1161210AbWI2A1A (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Sep 2006 20:26:53 -0400
-Date: Thu, 28 Sep 2006 20:26:53 -0400
-From: Jeff Garzik <jeff@garzik.org>
-To: linux-ide@vger.kernel.org
-Cc: LKML <linux-kernel@vger.kernel.org>
-Subject: [PATCH 1/5] libata: Use new PCI_VDEVICE() macro
-Message-ID: <20060929002653.GA7458@havoc.gtf.org>
-References: <20060929002601.GA7397@havoc.gtf.org>
+	Thu, 28 Sep 2006 20:27:00 -0400
+Date: Thu, 28 Sep 2006 17:26:52 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Bryce Harrington <bryce@osdl.org>
+Cc: linux-kernel@vger.kernel.org, "Moore, Eric Dean" <Eric.Moore@lsil.com>,
+       linux-scsi@vger.kernel.org
+Subject: Re: [OOPS] -git8,9:  NULL pointer dereference in
+ mptspi_dv_renegotiate_work
+Message-Id: <20060928172652.058c781b.akpm@osdl.org>
+In-Reply-To: <20060928225426.GR12968@osdl.org>
+References: <20060928202548.GO12968@osdl.org>
+	<20060928145121.561f077d.akpm@osdl.org>
+	<20060928225426.GR12968@osdl.org>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060929002601.GA7397@havoc.gtf.org>
-User-Agent: Mutt/1.4.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Thu, 28 Sep 2006 15:54:26 -0700
+Bryce Harrington <bryce@osdl.org> wrote:
 
-commit 54bb3a94b192be09feb85993b664ff118d6433d0
-Author: Jeff Garzik <jeff@garzik.org>
-Date:   Wed Sep 27 22:20:11 2006 -0400
+> On Thu, Sep 28, 2006 at 02:51:21PM -0700, Andrew Morton wrote:
+> > On Thu, 28 Sep 2006 13:25:48 -0700
+> > Bryce Harrington <bryce@osdl.org> wrote:
+> > 
+> > > Apologies if this has already been reported;
+> > 
+> > It has not.
+> > 
+> > >  I didn't spot it on the
+> > > list.  We've noticed an Oops on AMD64 when running linux-2.6.18-git8 and
+> > > -git9, but not -git7:
+> > > 
+> > >  mptbase: Initiating ioc0 recovery
+> > >  Unable to handle kernel NULL pointer dereference at 0000000000000500 RIP: 
+> > >   [<ffffffff80489aa2>] mptspi_dv_renegotiate_work+0xc/0x45
+> > >  PGD 0 
+> > >  Oops: 0000 [1] PREEMPT SMP 
+> > 
+> 
+> > That's very clever.  
+> >
+> > I'd be suspecting a miscompile, or something horrid in kfree().
+> > 
+> > Does it change anything if you move that kfree() down a bit?
+> > 
+> 
+> Got essentially the same oops, although the addresses have changed a
+> little:
+> 
+> mptbase: Initiating ioc0 recovery
+> Unable to handle kernel NULL pointer dereference at 0000000000000500 RIP:
+>  [<ffffffff80489aa3>] mptspi_dv_renegotiate_work+0xd/0x4c
+> PGD 0
+> Oops: 0000 [1] PREEMPT SMP
+> CPU 0
+> Modules linked in:
+> Pid: 8, comm: events/0 Not tainted 2.6.18-git10 #1
+> RIP: 0010:[<ffffffff80489aa3>]  [<ffffffff80489aa3>] mptspi_dv_renegotiate_work+0xd/0x4c
+> RSP: 0000:ffff81003ec65e40  EFLAGS: 00010246
+> RAX: ffff81003ec65ef8 RBX: ffff81003eff6640 RCX: ffff81003ec65ef8
+> RDX: ffff81003ed0cf58 RSI: 0000000000000000 RDI: ffff81003eff6640
+> RBP: 0000000000000500 R08: ffff81003ec64000 R09: 00000000ffffffff
+> R10: 00000000ffffffff R11: ffff81003ed0cf40 R12: ffff81003eff6640
+> R13: 0000000000000213 R14: ffff81003eff6640 R15: ffffffff80489a96
+> FS:  0000000000000000(0000) GS:ffffffff8077a000(0000) knlGS:0000000000000000
+> CS:  0010 DS: 0018 ES: 0018 CR0: 000000008005003b
+> CR2: 0000000000000500 CR3: 0000000000201000 CR4: 00000000000006e0
+> Process events/0 (pid: 8, threadinfo ffff81003ec64000, task ffff81007f180740)
+> Stack:  ffff81003eff6640 ffff81003eff6648 ffff81003ed0cf40 ffffffff8023f1bd
+>  ffff81003ed0cf40 ffff81003ed0cf40 ffffffff8023f204 ffff8100016dfd70
+>  00000000fffffffc ffffffff8059457d 0000000000000000 ffffffff8023f30
+> Call Trace:
+>  [<ffffffff8023f1bd>] run_workqueue+0x9a/0xe1
+>  [<ffffffff8023f204>] worker_thread+0x0/0x12e
+>  [<ffffffff8023f300>] worker_thread+0xfc/0x12e
+>  [<ffffffff80229f62>] default_wake_function+0x0/0xe
+>  [<ffffffff80229f62>] default_wake_function+0x0/0xe
+>  [<ffffffff80242433>] kthread+0xc8/0xf1
+>  [<ffffffff8020a3f8>] child_rip+0xa/0x12
+>  [<ffffffff8024236b>] kthread+0x0/0xf1
+>  [<ffffffff8020a3ee>] child_rip+0x0/0x12
+> 
+> 
+> Code: 48 8b 45 00 48 8b b8 50 01 00 00 e8 5d 4d fe ff 48 85 c0 48
+> RIP  [<ffffffff80489aa3>] mptspi_dv_renegotiate_work+0xd/0x4c
+>  RSP <ffff81003ec65e40>
+> CR2: 0000000000000500
+>  <6>mptbase: Initiating ioc0 recovery
+> mptbase: Initiating ioc0 recovery
+> mptbase: Initiating ioc0 recovery
+> mptbase: Initiating ioc0 recovery
+> mptbase: Initiating ioc0 recovery
+> scsi0 : ioc0: LSI53C1030, FwRev=01030600h, Ports=1, MaxQ=255, IRQ=185
+>  target0:0:0: dma_alloc_coherent for parameters failed
+> mptscsih: ioc0: attempting task abort! (sc=ffff81003e840c80)
+> scsi 0:0:0:0:
+>         command: cdb[0]=0x12: 12 00 00 00 24 00
+> mptbase: Initiating ioc0 recovery
+> 
 
-    [libata] Use new PCI_VDEVICE() macro to dramatically shorten ID lists
+Ah.  Maybe we're simply being passed a junk pointer.  This, please:
 
-    Signed-off-by: Jeff Garzik <jeff@garzik.org>
+--- a/drivers/message/fusion/mptspi.c~a
++++ a/drivers/message/fusion/mptspi.c
+@@ -804,6 +804,9 @@ mptspi_dv_renegotiate(struct _MPT_SCSI_H
+ 	if (!wqw)
+ 		return;
+ 
++	printk("%p\n", hd);
++	if ((unsigned long)hd < 4000UL)
++		dump_stack();
+ 	INIT_WORK(&wqw->work, mptspi_dv_renegotiate_work, wqw);
+ 	wqw->hd = hd;
+ 
+_
 
- drivers/ata/ahci.c         |   90 +++++++++++++++------------------------------
- drivers/ata/pdc_adma.c     |    3 -
- drivers/ata/sata_nv.c      |   50 +++++++++----------------
- drivers/ata/sata_promise.c |   55 +++++++++------------------
- drivers/ata/sata_sil.c     |   15 ++++---
- drivers/ata/sata_sil24.c   |   11 +++--
- drivers/ata/sata_sis.c     |    6 +--
- drivers/ata/sata_sx4.c     |    4 +-
- drivers/ata/sata_uli.c     |    7 ++-
- include/linux/libata.h     |    4 ++
- 10 files changed, 95 insertions(+), 150 deletions(-)
-
-54bb3a94b192be09feb85993b664ff118d6433d0
-diff --git a/drivers/ata/ahci.c b/drivers/ata/ahci.c
-index 1aabc81..54e1f38 100644
---- a/drivers/ata/ahci.c
-+++ b/drivers/ata/ahci.c
-@@ -299,76 +299,46 @@ static const struct ata_port_info ahci_p
- 
- static const struct pci_device_id ahci_pci_tbl[] = {
- 	/* Intel */
--	{ PCI_VENDOR_ID_INTEL, 0x2652, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
--	  board_ahci }, /* ICH6 */
--	{ PCI_VENDOR_ID_INTEL, 0x2653, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
--	  board_ahci }, /* ICH6M */
--	{ PCI_VENDOR_ID_INTEL, 0x27c1, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
--	  board_ahci }, /* ICH7 */
--	{ PCI_VENDOR_ID_INTEL, 0x27c5, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
--	  board_ahci }, /* ICH7M */
--	{ PCI_VENDOR_ID_INTEL, 0x27c3, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
--	  board_ahci }, /* ICH7R */
--	{ PCI_VENDOR_ID_AL, 0x5288, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
--	  board_ahci }, /* ULi M5288 */
--	{ PCI_VENDOR_ID_INTEL, 0x2681, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
--	  board_ahci }, /* ESB2 */
--	{ PCI_VENDOR_ID_INTEL, 0x2682, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
--	  board_ahci }, /* ESB2 */
--	{ PCI_VENDOR_ID_INTEL, 0x2683, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
--	  board_ahci }, /* ESB2 */
--	{ PCI_VENDOR_ID_INTEL, 0x27c6, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
--	  board_ahci }, /* ICH7-M DH */
--	{ PCI_VENDOR_ID_INTEL, 0x2821, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
--	  board_ahci }, /* ICH8 */
--	{ PCI_VENDOR_ID_INTEL, 0x2822, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
--	  board_ahci }, /* ICH8 */
--	{ PCI_VENDOR_ID_INTEL, 0x2824, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
--	  board_ahci }, /* ICH8 */
--	{ PCI_VENDOR_ID_INTEL, 0x2829, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
--	  board_ahci }, /* ICH8M */
--	{ PCI_VENDOR_ID_INTEL, 0x282a, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
--	  board_ahci }, /* ICH8M */
-+	{ PCI_VDEVICE(INTEL, 0x2652), board_ahci }, /* ICH6 */
-+	{ PCI_VDEVICE(INTEL, 0x2653), board_ahci }, /* ICH6M */
-+	{ PCI_VDEVICE(INTEL, 0x27c1), board_ahci }, /* ICH7 */
-+	{ PCI_VDEVICE(INTEL, 0x27c5), board_ahci }, /* ICH7M */
-+	{ PCI_VDEVICE(INTEL, 0x27c3), board_ahci }, /* ICH7R */
-+	{ PCI_VDEVICE(AL, 0x5288), board_ahci }, /* ULi M5288 */
-+	{ PCI_VDEVICE(INTEL, 0x2681), board_ahci }, /* ESB2 */
-+	{ PCI_VDEVICE(INTEL, 0x2682), board_ahci }, /* ESB2 */
-+	{ PCI_VDEVICE(INTEL, 0x2683), board_ahci }, /* ESB2 */
-+	{ PCI_VDEVICE(INTEL, 0x27c6), board_ahci }, /* ICH7-M DH */
-+	{ PCI_VDEVICE(INTEL, 0x2821), board_ahci }, /* ICH8 */
-+	{ PCI_VDEVICE(INTEL, 0x2822), board_ahci }, /* ICH8 */
-+	{ PCI_VDEVICE(INTEL, 0x2824), board_ahci }, /* ICH8 */
-+	{ PCI_VDEVICE(INTEL, 0x2829), board_ahci }, /* ICH8M */
-+	{ PCI_VDEVICE(INTEL, 0x282a), board_ahci }, /* ICH8M */
- 
- 	/* JMicron */
--	{ 0x197b, 0x2360, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
--	  board_ahci }, /* JMicron JMB360 */
--	{ 0x197b, 0x2361, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
--	  board_ahci }, /* JMicron JMB361 */
--	{ 0x197b, 0x2363, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
--	  board_ahci }, /* JMicron JMB363 */
--	{ 0x197b, 0x2365, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
--	  board_ahci }, /* JMicron JMB365 */
--	{ 0x197b, 0x2366, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
--	  board_ahci }, /* JMicron JMB366 */
-+	{ PCI_VDEVICE(JMICRON, 0x2360), board_ahci }, /* JMicron JMB360 */
-+	{ PCI_VDEVICE(JMICRON, 0x2361), board_ahci }, /* JMicron JMB361 */
-+	{ PCI_VDEVICE(JMICRON, 0x2363), board_ahci }, /* JMicron JMB363 */
-+	{ PCI_VDEVICE(JMICRON, 0x2365), board_ahci }, /* JMicron JMB365 */
-+	{ PCI_VDEVICE(JMICRON, 0x2366), board_ahci }, /* JMicron JMB366 */
- 
- 	/* ATI */
--	{ PCI_VENDOR_ID_ATI, 0x4380, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
--	  board_ahci }, /* ATI SB600 non-raid */
--	{ PCI_VENDOR_ID_ATI, 0x4381, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
--	  board_ahci }, /* ATI SB600 raid */
-+	{ PCI_VDEVICE(ATI, 0x4380), board_ahci }, /* ATI SB600 non-raid */
-+	{ PCI_VDEVICE(ATI, 0x4381), board_ahci }, /* ATI SB600 raid */
- 
- 	/* VIA */
--	{ PCI_VENDOR_ID_VIA, 0x3349, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
--	  board_ahci_vt8251 }, /* VIA VT8251 */
-+	{ PCI_VDEVICE(VIA, 0x3349), board_ahci_vt8251 }, /* VIA VT8251 */
- 
- 	/* NVIDIA */
--	{ PCI_VENDOR_ID_NVIDIA, 0x044c, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
--	  board_ahci },		/* MCP65 */
--	{ PCI_VENDOR_ID_NVIDIA, 0x044d, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
--	  board_ahci },		/* MCP65 */
--	{ PCI_VENDOR_ID_NVIDIA, 0x044e, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
--	  board_ahci },		/* MCP65 */
--	{ PCI_VENDOR_ID_NVIDIA, 0x044f, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
--	  board_ahci },		/* MCP65 */
-+	{ PCI_VDEVICE(NVIDIA, 0x044c), board_ahci },		/* MCP65 */
-+	{ PCI_VDEVICE(NVIDIA, 0x044d), board_ahci },		/* MCP65 */
-+	{ PCI_VDEVICE(NVIDIA, 0x044e), board_ahci },		/* MCP65 */
-+	{ PCI_VDEVICE(NVIDIA, 0x044f), board_ahci },		/* MCP65 */
- 
- 	/* SiS */
--	{ PCI_VENDOR_ID_SI, 0x1184, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
--	  board_ahci }, /* SiS 966 */
--	{ PCI_VENDOR_ID_SI, 0x1185, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
--	  board_ahci }, /* SiS 966 */
--	{ PCI_VENDOR_ID_SI, 0x0186, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
--	  board_ahci }, /* SiS 968 */
-+	{ PCI_VDEVICE(SI, 0x1184), board_ahci }, /* SiS 966 */
-+	{ PCI_VDEVICE(SI, 0x1185), board_ahci }, /* SiS 966 */
-+	{ PCI_VDEVICE(SI, 0x0186), board_ahci }, /* SiS 968 */
- 
- 	{ }	/* terminate list */
- };
-diff --git a/drivers/ata/pdc_adma.c b/drivers/ata/pdc_adma.c
-index 0e23ecb..81f3d21 100644
---- a/drivers/ata/pdc_adma.c
-+++ b/drivers/ata/pdc_adma.c
-@@ -192,8 +192,7 @@ static struct ata_port_info adma_port_in
- };
- 
- static const struct pci_device_id adma_ata_pci_tbl[] = {
--	{ PCI_VENDOR_ID_PDC, 0x1841, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
--	  board_1841_idx },
-+	{ PCI_VDEVICE(PDC, 0x1841), board_1841_idx },
- 
- 	{ }	/* terminate list */
- };
-diff --git a/drivers/ata/sata_nv.c b/drivers/ata/sata_nv.c
-index 8cd730f..bbf2959 100644
---- a/drivers/ata/sata_nv.c
-+++ b/drivers/ata/sata_nv.c
-@@ -106,38 +106,24 @@ enum nv_host_type
- };
- 
- static const struct pci_device_id nv_pci_tbl[] = {
--	{ PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE2S_SATA,
--		PCI_ANY_ID, PCI_ANY_ID, 0, 0, NFORCE2 },
--	{ PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE3S_SATA,
--		PCI_ANY_ID, PCI_ANY_ID, 0, 0, NFORCE3 },
--	{ PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE3S_SATA2,
--		PCI_ANY_ID, PCI_ANY_ID, 0, 0, NFORCE3 },
--	{ PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_CK804_SATA,
--		PCI_ANY_ID, PCI_ANY_ID, 0, 0, CK804 },
--	{ PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_CK804_SATA2,
--		PCI_ANY_ID, PCI_ANY_ID, 0, 0, CK804 },
--	{ PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_MCP04_SATA,
--		PCI_ANY_ID, PCI_ANY_ID, 0, 0, CK804 },
--	{ PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_MCP04_SATA2,
--		PCI_ANY_ID, PCI_ANY_ID, 0, 0, CK804 },
--	{ PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_MCP51_SATA,
--		PCI_ANY_ID, PCI_ANY_ID, 0, 0, GENERIC },
--	{ PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_MCP51_SATA2,
--		PCI_ANY_ID, PCI_ANY_ID, 0, 0, GENERIC },
--	{ PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_MCP55_SATA,
--		PCI_ANY_ID, PCI_ANY_ID, 0, 0, GENERIC },
--	{ PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_MCP55_SATA2,
--		PCI_ANY_ID, PCI_ANY_ID, 0, 0, GENERIC },
--	{ PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_MCP61_SATA,
--		PCI_ANY_ID, PCI_ANY_ID, 0, 0, GENERIC },
--	{ PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_MCP61_SATA2,
--		PCI_ANY_ID, PCI_ANY_ID, 0, 0, GENERIC },
--	{ PCI_VENDOR_ID_NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_MCP61_SATA3,
--		PCI_ANY_ID, PCI_ANY_ID, 0, 0, GENERIC },
--	{ PCI_VENDOR_ID_NVIDIA, 0x045c, PCI_ANY_ID, PCI_ANY_ID, 0, 0, GENERIC },
--	{ PCI_VENDOR_ID_NVIDIA, 0x045d, PCI_ANY_ID, PCI_ANY_ID, 0, 0, GENERIC },
--	{ PCI_VENDOR_ID_NVIDIA, 0x045e, PCI_ANY_ID, PCI_ANY_ID, 0, 0, GENERIC },
--	{ PCI_VENDOR_ID_NVIDIA, 0x045f, PCI_ANY_ID, PCI_ANY_ID, 0, 0, GENERIC },
-+	{ PCI_VDEVICE(NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE2S_SATA), NFORCE2 },
-+	{ PCI_VDEVICE(NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE3S_SATA), NFORCE3 },
-+	{ PCI_VDEVICE(NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE3S_SATA2), NFORCE3 },
-+	{ PCI_VDEVICE(NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_CK804_SATA), CK804 },
-+	{ PCI_VDEVICE(NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_CK804_SATA2), CK804 },
-+	{ PCI_VDEVICE(NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_MCP04_SATA), CK804 },
-+	{ PCI_VDEVICE(NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_MCP04_SATA2), CK804 },
-+	{ PCI_VDEVICE(NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_MCP51_SATA), GENERIC },
-+	{ PCI_VDEVICE(NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_MCP51_SATA2), GENERIC },
-+	{ PCI_VDEVICE(NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_MCP55_SATA), GENERIC },
-+	{ PCI_VDEVICE(NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_MCP55_SATA2), GENERIC },
-+	{ PCI_VDEVICE(NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_MCP61_SATA), GENERIC },
-+	{ PCI_VDEVICE(NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_MCP61_SATA2), GENERIC },
-+	{ PCI_VDEVICE(NVIDIA, PCI_DEVICE_ID_NVIDIA_NFORCE_MCP61_SATA3), GENERIC },
-+	{ PCI_VDEVICE(NVIDIA, 0x045c), GENERIC },
-+	{ PCI_VDEVICE(NVIDIA, 0x045d), GENERIC },
-+	{ PCI_VDEVICE(NVIDIA, 0x045e), GENERIC },
-+	{ PCI_VDEVICE(NVIDIA, 0x045f), GENERIC },
- 	{ PCI_VENDOR_ID_NVIDIA, PCI_ANY_ID,
- 		PCI_ANY_ID, PCI_ANY_ID,
- 		PCI_CLASS_STORAGE_IDE<<8, 0xffff00, GENERIC },
-diff --git a/drivers/ata/sata_promise.c b/drivers/ata/sata_promise.c
-index d627812..15c9437 100644
---- a/drivers/ata/sata_promise.c
-+++ b/drivers/ata/sata_promise.c
-@@ -234,48 +234,31 @@ static const struct ata_port_info pdc_po
- };
- 
- static const struct pci_device_id pdc_ata_pci_tbl[] = {
--	{ PCI_VENDOR_ID_PROMISE, 0x3371, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
--	  board_2037x },
--	{ PCI_VENDOR_ID_PROMISE, 0x3570, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
--	  board_2037x },
--	{ PCI_VENDOR_ID_PROMISE, 0x3571, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
--	  board_2037x },
--	{ PCI_VENDOR_ID_PROMISE, 0x3373, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
--	  board_2037x },
--	{ PCI_VENDOR_ID_PROMISE, 0x3375, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
--	  board_2037x },
--	{ PCI_VENDOR_ID_PROMISE, 0x3376, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
--	  board_2037x },
--	{ PCI_VENDOR_ID_PROMISE, 0x3574, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
--	  board_2057x },
--	{ PCI_VENDOR_ID_PROMISE, 0x3d75, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
--	  board_2057x },
--	{ PCI_VENDOR_ID_PROMISE, 0x3d73, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
--	  board_2037x },
--
--	{ PCI_VENDOR_ID_PROMISE, 0x3318, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
--	  board_20319 },
--	{ PCI_VENDOR_ID_PROMISE, 0x3319, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
--	  board_20319 },
--	{ PCI_VENDOR_ID_PROMISE, 0x3515, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
--	  board_20319 },
--	{ PCI_VENDOR_ID_PROMISE, 0x3519, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
--	  board_20319 },
--	{ PCI_VENDOR_ID_PROMISE, 0x3d17, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
--	  board_20319 },
--	{ PCI_VENDOR_ID_PROMISE, 0x3d18, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
--	  board_40518 },
--
--	{ PCI_VENDOR_ID_PROMISE, 0x6629, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
--	  board_20619 },
-+	{ PCI_VDEVICE(PROMISE, 0x3371), board_2037x },
-+	{ PCI_VDEVICE(PROMISE, 0x3570), board_2037x },
-+	{ PCI_VDEVICE(PROMISE, 0x3571), board_2037x },
-+	{ PCI_VDEVICE(PROMISE, 0x3373), board_2037x },
-+	{ PCI_VDEVICE(PROMISE, 0x3375), board_2037x },
-+	{ PCI_VDEVICE(PROMISE, 0x3376), board_2037x },
-+	{ PCI_VDEVICE(PROMISE, 0x3574), board_2057x },
-+	{ PCI_VDEVICE(PROMISE, 0x3d75), board_2057x },
-+	{ PCI_VDEVICE(PROMISE, 0x3d73), board_2037x },
-+
-+	{ PCI_VDEVICE(PROMISE, 0x3318), board_20319 },
-+	{ PCI_VDEVICE(PROMISE, 0x3319), board_20319 },
-+	{ PCI_VDEVICE(PROMISE, 0x3515), board_20319 },
-+	{ PCI_VDEVICE(PROMISE, 0x3519), board_20319 },
-+	{ PCI_VDEVICE(PROMISE, 0x3d17), board_20319 },
-+	{ PCI_VDEVICE(PROMISE, 0x3d18), board_40518 },
-+
-+	{ PCI_VDEVICE(PROMISE, 0x6629), board_20619 },
- 
- /* TODO: remove all associated board_20771 code, as it completely
-  * duplicates board_2037x code, unless reason for separation can be
-  * divined.
-  */
- #if 0
--	{ PCI_VENDOR_ID_PROMISE, 0x3570, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
--	  board_20771 },
-+	{ PCI_VDEVICE(PROMISE, 0x3570), board_20771 },
- #endif
- 
- 	{ }	/* terminate list */
-diff --git a/drivers/ata/sata_sil.c b/drivers/ata/sata_sil.c
-index c63dbab..3d9fa1c 100644
---- a/drivers/ata/sata_sil.c
-+++ b/drivers/ata/sata_sil.c
-@@ -123,13 +123,14 @@ static void sil_thaw(struct ata_port *ap
- 
- 
- static const struct pci_device_id sil_pci_tbl[] = {
--	{ 0x1095, 0x3112, PCI_ANY_ID, PCI_ANY_ID, 0, 0, sil_3112 },
--	{ 0x1095, 0x0240, PCI_ANY_ID, PCI_ANY_ID, 0, 0, sil_3112 },
--	{ 0x1095, 0x3512, PCI_ANY_ID, PCI_ANY_ID, 0, 0, sil_3512 },
--	{ 0x1095, 0x3114, PCI_ANY_ID, PCI_ANY_ID, 0, 0, sil_3114 },
--	{ 0x1002, 0x436e, PCI_ANY_ID, PCI_ANY_ID, 0, 0, sil_3112 },
--	{ 0x1002, 0x4379, PCI_ANY_ID, PCI_ANY_ID, 0, 0, sil_3112_no_sata_irq },
--	{ 0x1002, 0x437a, PCI_ANY_ID, PCI_ANY_ID, 0, 0, sil_3112_no_sata_irq },
-+	{ PCI_VDEVICE(CMD, 0x3112), sil_3112 },
-+	{ PCI_VDEVICE(CMD, 0x0240), sil_3112 },
-+	{ PCI_VDEVICE(CMD, 0x3512), sil_3512 },
-+	{ PCI_VDEVICE(CMD, 0x3114), sil_3114 },
-+	{ PCI_VDEVICE(ATI, 0x436e), sil_3112 },
-+	{ PCI_VDEVICE(ATI, 0x4379), sil_3112_no_sata_irq },
-+	{ PCI_VDEVICE(ATI, 0x437a), sil_3112_no_sata_irq },
-+
- 	{ }	/* terminate list */
- };
- 
-diff --git a/drivers/ata/sata_sil24.c b/drivers/ata/sata_sil24.c
-index 39cb07b..a951f40 100644
---- a/drivers/ata/sata_sil24.c
-+++ b/drivers/ata/sata_sil24.c
-@@ -344,11 +344,12 @@ static int sil24_pci_device_resume(struc
- #endif
- 
- static const struct pci_device_id sil24_pci_tbl[] = {
--	{ 0x1095, 0x3124, PCI_ANY_ID, PCI_ANY_ID, 0, 0, BID_SIL3124 },
--	{ 0x8086, 0x3124, PCI_ANY_ID, PCI_ANY_ID, 0, 0, BID_SIL3124 },
--	{ 0x1095, 0x3132, PCI_ANY_ID, PCI_ANY_ID, 0, 0, BID_SIL3132 },
--	{ 0x1095, 0x3131, PCI_ANY_ID, PCI_ANY_ID, 0, 0, BID_SIL3131 },
--	{ 0x1095, 0x3531, PCI_ANY_ID, PCI_ANY_ID, 0, 0, BID_SIL3131 },
-+	{ PCI_VDEVICE(CMD, 0x3124), BID_SIL3124 },
-+	{ PCI_VDEVICE(INTEL, 0x3124), BID_SIL3124 },
-+	{ PCI_VDEVICE(CMD, 0x3132), BID_SIL3132 },
-+	{ PCI_VDEVICE(CMD, 0x3131), BID_SIL3131 },
-+	{ PCI_VDEVICE(CMD, 0x3531), BID_SIL3131 },
-+
- 	{ } /* terminate list */
- };
- 
-diff --git a/drivers/ata/sata_sis.c b/drivers/ata/sata_sis.c
-index 18d49ff..8e8dc3f 100644
---- a/drivers/ata/sata_sis.c
-+++ b/drivers/ata/sata_sis.c
-@@ -67,9 +67,9 @@ static u32 sis_scr_read (struct ata_port
- static void sis_scr_write (struct ata_port *ap, unsigned int sc_reg, u32 val);
- 
- static const struct pci_device_id sis_pci_tbl[] = {
--	{ PCI_VENDOR_ID_SI, 0x180, PCI_ANY_ID, PCI_ANY_ID, 0, 0, sis_180 },
--	{ PCI_VENDOR_ID_SI, 0x181, PCI_ANY_ID, PCI_ANY_ID, 0, 0, sis_180 },
--	{ PCI_VENDOR_ID_SI, 0x182, PCI_ANY_ID, PCI_ANY_ID, 0, 0, sis_180 },
-+	{ PCI_VDEVICE(SI, 0x180), sis_180 },
-+	{ PCI_VDEVICE(SI, 0x181), sis_180 },
-+	{ PCI_VDEVICE(SI, 0x182), sis_180 },
- 	{ }	/* terminate list */
- };
- 
-diff --git a/drivers/ata/sata_sx4.c b/drivers/ata/sata_sx4.c
-index 091867e..2b3d44b 100644
---- a/drivers/ata/sata_sx4.c
-+++ b/drivers/ata/sata_sx4.c
-@@ -230,8 +230,8 @@ static const struct ata_port_info pdc_po
- };
- 
- static const struct pci_device_id pdc_sata_pci_tbl[] = {
--	{ PCI_VENDOR_ID_PROMISE, 0x6622, PCI_ANY_ID, PCI_ANY_ID, 0, 0,
--	  board_20621 },
-+	{ PCI_VDEVICE(PROMISE, 0x6622), board_20621 },
-+
- 	{ }	/* terminate list */
- };
- 
-diff --git a/drivers/ata/sata_uli.c b/drivers/ata/sata_uli.c
-index dd76f37..c2e6b7e 100644
---- a/drivers/ata/sata_uli.c
-+++ b/drivers/ata/sata_uli.c
-@@ -61,9 +61,10 @@ static u32 uli_scr_read (struct ata_port
- static void uli_scr_write (struct ata_port *ap, unsigned int sc_reg, u32 val);
- 
- static const struct pci_device_id uli_pci_tbl[] = {
--	{ PCI_VENDOR_ID_AL, 0x5289, PCI_ANY_ID, PCI_ANY_ID, 0, 0, uli_5289 },
--	{ PCI_VENDOR_ID_AL, 0x5287, PCI_ANY_ID, PCI_ANY_ID, 0, 0, uli_5287 },
--	{ PCI_VENDOR_ID_AL, 0x5281, PCI_ANY_ID, PCI_ANY_ID, 0, 0, uli_5281 },
-+	{ PCI_VDEVICE(AL, 0x5289), uli_5289 },
-+	{ PCI_VDEVICE(AL, 0x5287), uli_5287 },
-+	{ PCI_VDEVICE(AL, 0x5281), uli_5281 },
-+
- 	{ }	/* terminate list */
- };
- 
-diff --git a/include/linux/libata.h b/include/linux/libata.h
-index d6a3d4b..df44b09 100644
---- a/include/linux/libata.h
-+++ b/include/linux/libata.h
-@@ -109,6 +109,10 @@ static inline u32 ata_msg_init(int dval,
- #define ATA_TAG_POISON		0xfafbfcfdU
- 
- /* move to PCI layer? */
-+#define PCI_VDEVICE(vendor, device)		\
-+	PCI_VENDOR_ID_##vendor, (device),	\
-+	PCI_ANY_ID, PCI_ANY_ID, 0, 0
-+
- static inline struct device *pci_dev_to_dev(struct pci_dev *pdev)
- {
- 	return &pdev->dev;

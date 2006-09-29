@@ -1,66 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161287AbWI2Qyw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161292AbWI2Q5v@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161287AbWI2Qyw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Sep 2006 12:54:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161289AbWI2Qyw
+	id S1161292AbWI2Q5v (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Sep 2006 12:57:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161295AbWI2Q5v
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Sep 2006 12:54:52 -0400
-Received: from mga01.intel.com ([192.55.52.88]:24718 "EHLO mga01.intel.com")
-	by vger.kernel.org with ESMTP id S1161287AbWI2Qyv (ORCPT
+	Fri, 29 Sep 2006 12:57:51 -0400
+Received: from atlrel7.hp.com ([156.153.255.213]:9879 "EHLO atlrel7.hp.com")
+	by vger.kernel.org with ESMTP id S1161292AbWI2Q5u (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Sep 2006 12:54:51 -0400
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.09,238,1157353200"; 
-   d="scan'208"; a="139427039:sNHT18986044"
-Date: Fri, 29 Sep 2006 09:54:09 -0700
-From: Kristen Carlson Accardi <kristen.c.accardi@intel.com>
-To: Matthew Garrett <mjg59@srcf.ucam.org>
-Cc: linux-ide@vger.intel.com, linux-kernel@vger.kernel.org, jgarzik@pobox.com,
-       rdunlap@xenotime.net
-Subject: Re: [patch 1/2] libata: _GTF support
-Message-Id: <20060929095409.3656d7a9.kristen.c.accardi@intel.com>
-In-Reply-To: <20060929020707.GA22082@srcf.ucam.org>
-References: <20060928182211.076258000@localhost.localdomain>
-	<20060928112901.62ee8eba.kristen.c.accardi@intel.com>
-	<20060929020707.GA22082@srcf.ucam.org>
-X-Mailer: Sylpheed version 2.2.6 (GTK+ 2.8.20; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 29 Sep 2006 12:57:50 -0400
+From: Bjorn Helgaas <bjorn.helgaas@hp.com>
+To: Keith Owens <kaos@sgi.com>
+Subject: Re: KDB blindly reads keyboard port
+Date: Fri, 29 Sep 2006 10:57:41 -0600
+User-Agent: KMail/1.9.1
+Cc: linux-kernel@vger.kernel.org, linux-ia64@vger.kernel.org
+References: <14425.1159496284@kao2.melbourne.sgi.com>
+In-Reply-To: <14425.1159496284@kao2.melbourne.sgi.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200609291057.41529.bjorn.helgaas@hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 29 Sep 2006 03:07:07 +0100
-Matthew Garrett <mjg59@srcf.ucam.org> wrote:
+On Thursday 28 September 2006 20:18, Keith Owens wrote:
+> I have never been a big fan of ACPI, having seen too many broken ACPI
+> tables.  But if that is what you want ...
 
-> On Thu, Sep 28, 2006 at 11:29:01AM -0700, Kristen Carlson Accardi wrote:
-> 
-> I mentioned this to Randy a while back, but I can't remember what sort 
-> of resolution we came to. In any case:
-> 
-> > + * sata_get_dev_handle - finds acpi_handle and PCI device.function
-> 
-> I'm a bit uncomfortable that we seem to have two quite different ways of 
-> accomplishing much the same thing. On the PCI bus, we have a callback 
-> that gets triggered whenever a new PCI device is attached. At that 
-> point, we look for the associated ACPI object and put a pointer to that 
-> in the device structure. Then, whenever we want to make an ACPI call, we 
-> can simply refer to that.
-> 
-> This implementation seems to reimplement much of the same lookup code, 
-> but makes it libata specific. Wouldn't it be cleaner to implement it in 
-> a similar way to PCI? The only real downside is that you need to add a 
-> callback in the ata bus code. drivers/pci/pci-acpi.c/pci_acpi_init is 
-> the sort of thing required.
-> 
-> (Thinking ahead, would that make it easier to maintain links in sysfs 
-> between devices and acpi objects?)
-> 
-> -- 
-> Matthew Garrett | mjg59@srcf.ucam.org
+There's always broken firmware, but I think on the whole, it's better
+than just assuming that tomorrow's system will be the same as yesterday's.
+I think a big reason for broken tables is the fact that ignore many of
+them, so the breakage is never discovered.
 
-This makes sense to me.  I'm happy to put together some patches for 
-commenting on if people think this is a good way to go.  It would be
-much cleaner in my opinion and we could get rid of a good chunk of code.
+> Bjorn, could you apply my previous patch anyway, boot your problem
+> system with kdb_skip_keyboard, drop into KDB and
+> 'md4c1 acpi_kbd_controller_present'.  That will quickly confirm if acpi
+> is detecting the absence of the keyboard on your system.
 
-Kristen
+My system says:
+
+  acpi_parse_fadt: acpi_kbd_controller_present 0

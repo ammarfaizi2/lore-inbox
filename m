@@ -1,19 +1,20 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964893AbWI2NbT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751098AbWI2NiL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964893AbWI2NbT (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Sep 2006 09:31:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751343AbWI2NbT
+	id S1751098AbWI2NiL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Sep 2006 09:38:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750790AbWI2NiK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Sep 2006 09:31:19 -0400
-Received: from vmaila.mclink.it ([195.110.128.108]:25875 "EHLO
-	vmaila.mclink.it") by vger.kernel.org with ESMTP id S964884AbWI2Muj
+	Fri, 29 Sep 2006 09:38:10 -0400
+Received: from vmaila.mclink.it ([195.110.128.108]:25356 "EHLO
+	vmaila.mclink.it") by vger.kernel.org with ESMTP id S964863AbWI2MeF
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Sep 2006 08:50:39 -0400
+	Fri, 29 Sep 2006 08:34:05 -0400
 From: "Mauro Tassinari" <mtassinari@cmanet.it>
-To: <linux-kernel@vger.kernel.org>
+To: <rusty@rustcorp.com.au>, <andi@basil.nowhere.org>
+Cc: <linux-kernel@vger.kernel.org>
 Subject: patch needed in traps.c for linux-abi
-Date: Fri, 29 Sep 2006 14:50:41 +0200
-Message-ID: <!~!UENERkVCMDkAAQACAAAAAAAAAAAAAAAAABgAAAAAAAAA//gP36uv0hG9NQDAJogAp8KAAAAQAAAAX1zx8UCwgEyooUkm1rkVdwEAAAAA@cmanet.it>
+Date: Fri, 29 Sep 2006 14:33:50 +0200
+Message-ID: <!~!UENERkVCMDkAAQACAAAAAAAAAAAAAAAAABgAAAAAAAAA//gP36uv0hG9NQDAJogAp8KAAAAQAAAA29r/sWKdAk6N1kbiT0APrAEAAAAA@cmanet.it>
 MIME-Version: 1.0
 Content-Type: text/plain;
 	charset="us-ascii"
@@ -30,7 +31,7 @@ Sirs,
 
 Trying to keep the linux-abi (a patch to the linux kernel 
 that allows a linux system to run foreign binaries see 
-sourceforge.net/projects/linux-abi) run with current kernels, 
+http://sourceforge.net/projects/linux-abi) run with current kernels,
 a change must be done to arch/i386/kernel/traps.c.
 
 the patch commit 522e93e3fcdbf00ba85c72fde6df28cfc0486a65 modified
@@ -49,7 +50,8 @@ It should probably look like:
 
 static void __init set_call_gate(void *a, void *addr)
 {
-        _set_gate(a, 0xnn | DESCTYPE_DPL3, addr, __KERNEL_CS); }
+        _set_gate(a, 0xnn | DESCTYPE_DPL3, addr, __KERNEL_CS);
+}
 
 with some value for 0xnn, formerly 12.
 

@@ -1,43 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161318AbWI2R7f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751244AbWI2SBb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161318AbWI2R7f (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Sep 2006 13:59:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751244AbWI2R7f
+	id S1751244AbWI2SBb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Sep 2006 14:01:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751257AbWI2SBb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Sep 2006 13:59:35 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:21192 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1751243AbWI2R7e (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Sep 2006 13:59:34 -0400
-Subject: Re: SATA status reports update
+	Fri, 29 Sep 2006 14:01:31 -0400
+Received: from [81.2.110.250] ([81.2.110.250]:23752 "EHLO lxorguk.ukuu.org.uk")
+	by vger.kernel.org with ESMTP id S1751244AbWI2SBa (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Sep 2006 14:01:30 -0400
+Subject: Re: GPLv3 Position Statement
 From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: John Stoffel <john@stoffel.org>
-Cc: Jeff Garzik <jeff@garzik.org>, Linux Kernel <linux-kernel@vger.kernel.org>,
-       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>
-In-Reply-To: <17693.23849.348841.607752@smtp.charter.net>
-References: <451CE8EC.1020203@garzik.org>
-	 <17693.23849.348841.607752@smtp.charter.net>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Helge Hafting <helge.hafting@aitel.hist.no>, tglx@linutronix.de,
+       Neil Brown <neilb@suse.de>, Michiel de Boer <x@rebelhomicide.demon.nl>,
+       James Bottomley <James.Bottomley@SteelEye.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.64.0609291030050.3952@g5.osdl.org>
+References: <1158941750.3445.31.camel@mulgrave.il.steeleye.com>
+	 <451798FA.8000004@rebelhomicide.demon.nl>
+	 <17687.46268.156413.352299@cse.unsw.edu.au>
+	 <1159183895.11049.56.camel@localhost.localdomain>
+	 <1159200620.9326.447.camel@localhost.localdomain>
+	 <451CF22D.4030405@aitel.hist.no>
+	 <Pine.LNX.4.64.0609290940480.3952@g5.osdl.org>
+	 <1159552021.13029.58.camel@localhost.localdomain>
+	 <Pine.LNX.4.64.0609291030050.3952@g5.osdl.org>
 Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Date: Fri, 29 Sep 2006 19:24:03 +0100
-Message-Id: <1159554243.13029.64.camel@localhost.localdomain>
+Date: Fri, 29 Sep 2006 19:26:15 +0100
+Message-Id: <1159554375.13029.67.camel@localhost.localdomain>
 Mime-Version: 1.0
 X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Gwe, 2006-09-29 am 13:51 -0400, ysgrifennodd John Stoffel:
-> Jeff> I updated the info at http://linux-ata.org/ to match the current
-> Jeff> code in linux-2.6.git.
-> 
-> Thanks!
-> 
-> Jeff> Let me know if something is missing or in error.
-> 
-> It would be nice to have more details about PATA support.  I'm hoping
-> to test my HPT302 rev1 card with 2.6.18-mm2 tonight if all goes
-> well...
+Ar Gwe, 2006-09-29 am 10:49 -0700, ysgrifennodd Linus Torvalds:
+>    All that handy free code is perfectly usable for things like a secure 
+>    terminal or something else that doesn't allow you to change its 
+>    behaviour because of some load-time consistency check.
 
-I've sent Jeff so material to do that. The HPT302 is a "needs lots of
-testing" case still, as is pretty much all HPT later than the 366.
+If you provide the neccessary information so the user can replace it and
+it still works. Even with GPLv2. Thats the information I was given,
+thats the interpretation that the lawyers I've talked to consider
+reasonable and likely court enforcable, thats the interpretation that
+has been accepted several times in out of court GPL violation
+settlements.
+
+Alan
 

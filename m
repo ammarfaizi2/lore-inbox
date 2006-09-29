@@ -1,84 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030215AbWI2CNn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751316AbWI2CNI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030215AbWI2CNn (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Sep 2006 22:13:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161268AbWI2CNh
+	id S1751316AbWI2CNI (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Sep 2006 22:13:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751360AbWI2CNI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Sep 2006 22:13:37 -0400
-Received: from py-out-1112.google.com ([64.233.166.178]:12976 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S1030215AbWI2CNZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Sep 2006 22:13:25 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
-        b=da2vlBlUYYP4uILSRygFDDI6CR+Vq4iijNaCOgr0NwsuDmsw4m0vI5wEfNRnK56WN+m3znxcgHi5pp0H/4A6h+IxtxL4NN47II7Xx9r3WE3XIt1IqIAfr8/wJjFTKM1LfbtFh90cAeRottwKIWfsDSmxnfvjkL0Kh3yzrpcute4=
-Message-ID: <a44ae5cd0609281913q127abc03i72dc7ea8711a223f@mail.gmail.com>
-Date: Thu, 28 Sep 2006 19:13:23 -0700
-From: "Miles Lane" <miles.lane@gmail.com>
-To: "Andrew Morton" <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
-       "James P. Ketrenos" <ipw2100-admin@linux.intel.com>, jgarzik@pobox.com
-Subject: 2.6.18-mm2 -- EIP: [<c11a962e>] klist_node_init+0x2b/0x3a SS:ESP 0068:f63a5f80
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+	Thu, 28 Sep 2006 22:13:08 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.149]:12496 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751316AbWI2CND
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Sep 2006 22:13:03 -0400
+Message-Id: <20060929020232.756637000@us.ibm.com>
+User-Agent: quilt/0.45-1
+Date: Thu, 28 Sep 2006 19:02:32 -0700
+From: Matt Helsley <matthltc@us.ibm.com>
+To: Linux-Kernel <linux-kernel@vger.kernel.org>
+Cc: Jes Sorensen <jes@sgi.com>, LSE-Tech <lse-tech@lists.sourceforge.net>,
+       Chandra S Seetharaman <sekharan@us.ibm.com>,
+       John T Kohl <jtk@us.ibm.com>, Christoph Hellwig <hch@lst.de>,
+       Al Viro <viro@zeniv.linux.org.uk>, Steve Grubb <sgrubb@redhat.com>,
+       linux-audit@redhat.com, Paul Jackson <pj@sgi.com>
+Subject: [RFC][PATCH 00/10] Task watchers v2 Introduction
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-eth1: RealTek RTL8139 at 0xf9076800, 00:c0:9f:95:18:1b, IRQ 19
-eth1:  Identified 8139 chip type 'RTL-8100B/8139D'
-BUG: unable to handle kernel NULL pointer dereference at virtual
-address 000000d0
- printing eip:
-c11a962e
-*pde = 00000000
-Oops: 0000 [#1]
-PREEMPT
-last sysfs file: /class/firmware/0000:01:06.0/loading
-Modules linked in: shpchp pci_hotplug intel_agp i2c_i801 agpgart
-snd_intel8x0 i2c_core snd_intel8x0m snd_ac97_codec snd_ac97_bus
-snd_seq_dummy snd_seq_oss snd_seq_midi_event snd_seq snd_seq_device
-snd_pcm_oss snd_mixer_oss ata_generic ata_piix libata 8139too sdhci
-scsi_mod snd_pcm snd_timer psmouse snd soundcore snd_page_alloc 8139cp
-mii yenta_socket rsrc_nonstatic pcmcia_core ohci1394 serio_raw ipw2200
-ieee1394 ide_cd cdrom rtc unix ehci_hcd ohci_hcd uhci_hcd usbcore ext3
-jbd mbcache
-CPU:    0
-EIP:    0060:[<c11a962e>]    Not tainted VLI
-EFLAGS: 00010296   (2.6.18-mm2 #8)
-EIP is at klist_node_init+0x2b/0x3a
-eax: dff16b08   ebx: 000000a0   ecx: c102ebd7   edx: f63a5f44
-esi: dff16afc   edi: f910e214   ebp: f63a5f88   esp: f63a5f80
-ds: 007b   es: 007b   ss: 0068
-Process probe-0000:01:0 (pid: 1697, ti=f63a4000 task=f639c030 task.ti=f63a4000)
-Stack: 000000a0 dff16afc f63a5f98 c11a964f dff16a80 dff16afc f63a5fac c1124295
-       00000000 dff16a80 f910e214 f63a5fc4 c1124338 f5c17e80 f5c17e80 f633bd90
-       c11242f0 f63a5fe0 c102a834 ffffffff ffffffff c102a784 00000000 00000000
-Call Trace:
- [<c11a964f>] klist_add_tail+0x12/0x38
- [<c1124295>] device_bind_driver+0x45/0xa0
- [<c1124338>] really_probe+0x48/0xb3
- [<c102a834>] kthread+0xb0/0xdc
- [<c1003abb>] kernel_thread_helper+0x7/0x10
-DWARF2 unwinder stuck at kernel_thread_helper+0x7/0x10
+This is version 2 of my Task Watchers patches.
 
-Leftover inexact backtrace:
+Task watchers calls functions whenever a task forks, execs, changes its
+[re][ug]id, or exits.
 
- [<c1003f02>] show_trace_log_lvl+0x12/0x25
- [<c1003fa1>] show_stack_log_lvl+0x8c/0x97
- [<c100412c>] show_registers+0x180/0x214
- [<c1004355>] die+0x195/0x2b0
- [<c10148a9>] do_page_fault+0x419/0x4e4
- [<c11ac329>] error_code+0x39/0x40
- [<c11a964f>] klist_add_tail+0x12/0x38
- [<c1124295>] device_bind_driver+0x45/0xa0
- [<c1124338>] really_probe+0x48/0xb3
- [<c102a834>] kthread+0xb0/0xdc
- [<c1003abb>] kernel_thread_helper+0x7/0x10
- =======================
-Code: 55 89 e5 56 53 89 c3 89 d6 8d 42 04 89 42 04 89 40 04 c7 42 10
-00 00 00 00 8d 42 14 e8 f2 14 e8 ff 8d 46 0c e8 80 3d f1 ff 89 1e <8b>
-53 30 85 d2 74 04 89 f0 ff d2 5b 5e 5d c3 55 89 e5 56 53 89
-EIP: [<c11a962e>] klist_node_init+0x2b/0x3a SS:ESP 0068:f63a5f80
- <6>ipw2200: Detected geography ZZM (11 802.11bg channels, 0 802.11a channels)
+Task watchers is primarily useful to existing kernel code as a means making the
+code in fork and exit more readable. Kernel code uses these paths by marking a
+function as a task watcher much like modules mark their init functions with
+module_init(). This reduces the code length and complexity of copy_process().
+
+The first patch adds the basic infrastructure of task watchers: notification
+function calls in the various paths and a table of function pointers to be
+called. It uses an ELF section because parts of the table must be gathered
+from all over the kernel code and using the linker is easier than resolving
+and maintaining complex header interdependencies. An ELF table is also ideal
+because its read-only nature means that no locking nor list traversal are
+required.
+
+Subsequent patches adapt existing parts of the kernel to use a task watcher
+ -- typically in the fork, clone, and exit paths:
+	audit
+	semundo
+	cpusets
+	mempolicy
+	trace irqflags
+	lockdep
+	keys (for processes -- not for thread groups)
+	process events connector
+
+I'm working on three more patches that add support for creating a task watcher
+from within a module using an ELF section. I've not posted that work because it
+hasn't successfully booted much less completed the small selection of smoke
+tests I ran on these.
+
+TODO:
+	Mark the task watcher table ELF section read-only.  I've googled, read
+	man pages, navigated the info pages, tried using PHDR, and according to
+	the output of objdump, had no success. I'd really appreciate a pointer
+	to an example showing what makes ld mark a kernel ELF section read-only.
+
+Changes:
+v2:
+	Dropped use of notifier chains
+	Dropped per-task watchers
+		Can be implemented on top of this
+		Still requires notifier chains
+	Dropped taskstats conversion
+		Parts of taskstats had to move away from the regions of
+		copy_process() and do_exit() where task_watchers are notified
+	Used linker script mechanism suggested by Al Viro
+	Created one "list" of watchers per event as requested by Andrew Morton
+		No need to multiplex a single function call
+	Easier to static register/unregister watchers: 1 line of code
+	val param now used for:
+		WATCH_TASK_INIT:  clone_flags
+		WATCH_TASK_CLONE: clone_flags
+		WATCH_TASK_EXIT:  exit code
+		WATCH_TASK_*:     <unused>
+	Renamed notify_watchers() to notify_task_watchers()
+	Replaced: if (err != 0) --> if (err)
+	Added patches converting more "features" to use task watchers
+	Added return code handling to WATCH_TASK_INIT
+		Return code handling elsewhere didn't seem appropriate
+		since there was generally no response necessary
+	Fixed process keys free to handle failure in fork as originally coded
+		in copy_process
+	Added process keys code to watch for [er][ug]id changes
+
+v1:
+        Added ability to cause fork to fail with NOTIFY_STOP_MASK
+        Added WARN_ON() when watchers cause WATCH_TASK_FREE to stop early
+        Moved fork invocation
+        Moved exec invocation
+        Added current as argument to exec invocation
+        Moved exit code assignment
+        Added id change invocations
+v0:
+	Based on Jes Sorensen's Task Notifiers patches
+
+Cheers,
+	-Matt Helsley
+--

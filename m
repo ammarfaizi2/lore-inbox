@@ -1,82 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750913AbWI2J6Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750761AbWI2KBP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750913AbWI2J6Z (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Sep 2006 05:58:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750929AbWI2J6Z
+	id S1750761AbWI2KBP (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Sep 2006 06:01:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750929AbWI2KBP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Sep 2006 05:58:25 -0400
-Received: from py-out-1112.google.com ([64.233.166.181]:1016 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S1750801AbWI2J6Y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Sep 2006 05:58:24 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=dCK4XyBQ7lckPaLSLSuuOLLK8FrmwnEkf7gv3ccEMqcC6TWF5tW96dyMkqz73tiqCxQwHzUyZHW6l8acIEMAY9gVL6xbLrPEDPcPRhgb5zkyv595B3SVQt3MgXSKqoT59ysT9BtV+MeYHz1HOUv3h6WvrNYJ1K9AUsxuD/0ZfCc=
-Message-ID: <a44ae5cd0609290258re95dfd7ja8ac249ceb3581da@mail.gmail.com>
-Date: Fri, 29 Sep 2006 02:58:23 -0700
-From: "Miles Lane" <miles.lane@gmail.com>
-To: "Andrew Morton" <akpm@osdl.org>
-Subject: Re: 2.6.18-mm2 -- EIP: [<c11a962e>] klist_node_init+0x2b/0x3a SS:ESP 0068:f63a5f80
-Cc: "Greg KH" <greg@kroah.com>, LKML <linux-kernel@vger.kernel.org>,
-       "James P. Ketrenos" <ipw2100-admin@linux.intel.com>, jgarzik@pobox.com
-In-Reply-To: <20060928221648.cbeb6889.akpm@osdl.org>
+	Fri, 29 Sep 2006 06:01:15 -0400
+Received: from mail-in-01.arcor-online.net ([151.189.21.41]:54700 "EHLO
+	mail-in-01.arcor-online.net") by vger.kernel.org with ESMTP
+	id S1750761AbWI2KBO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Sep 2006 06:01:14 -0400
+From: Prakash Punnoor <prakash@punnoor.de>
+To: Jeff Garzik <jeff@garzik.org>
+Subject: Re: SATA status reports update
+Date: Fri, 29 Sep 2006 12:00:56 +0200
+User-Agent: KMail/1.9.4
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
+       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>
+References: <451CE8EC.1020203@garzik.org> <200609291149.37009.prakash@punnoor.de> <451CED23.1090909@garzik.org>
+In-Reply-To: <451CED23.1090909@garzik.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: multipart/signed;
+  boundary="nextPart1540062.iuFlL0M7mx";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <a44ae5cd0609281913q127abc03i72dc7ea8711a223f@mail.gmail.com>
-	 <20060928200431.8f7f3fea.akpm@osdl.org>
-	 <a44ae5cd0609282131t2841a7b7ued9ffc22ac470687@mail.gmail.com>
-	 <20060928214910.a3be37ea.akpm@osdl.org>
-	 <a44ae5cd0609282204p4f09da52n44124a2bee05b85c@mail.gmail.com>
-	 <20060928221648.cbeb6889.akpm@osdl.org>
+Message-Id: <200609291200.56308.prakash@punnoor.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 9/28/06, Andrew Morton <akpm@osdl.org> wrote:
-> On Thu, 28 Sep 2006 22:04:00 -0700
-> "Miles Lane" <miles.lane@gmail.com> wrote:
->
-> > > > but either ipw2200 or
-> > > > NetworkManager is still not working.  I am running Fedora development
-> > > > (rawhide).  For some reason, NM still cannot establish a connection
-> > > > with this kernel build (this failed with 2.6.18-mm2 previously, but I
-> > > > thought it was related to the BUG).  "iwlist scan" can corrently
-> > > > detect my access point.  Also, I can use iwconfig and dhclient to
-> > > > establish a working connection.  NM fails with this output in the
-> > > > message log (I'll try getting a more detailed debug log out of NM):
-> > >
-> > > Another reporter mentioned that he could only get his wireless to associate
-> > > with his AP by using essid "any".  But that was a different type of card.
-> > >
-> > > ipw2200 works OK for me, fwiw.
-> >
-> > Shall I send you my .config?
->
-> argh.  I'm afraid my head pointer keeps on wrapping past my tail pointer
-> recently.
->
-> But what the heck, yes please.  I'm sure James will appreciate it ;)
->
-> > > There's a largeish ipw2200 update in mainline now.  That'd be worth testing.
-> > >
-> > > It looks like that ipw2200 update was in 2.6.18-mm1 though.  Did that work?
-> >
-> > Yes, it did.  My main problem with mm1 was the broken CPUFreq, which
-> > is still busted in mm2.
->
-> Oh.  Is anyone looking into that?
->
-> >  I am rebuilding with debugging enabled in the
-> > ipw2200 driver.  I'll see if I can capture any useful information when
-> > I try to associate using NM.
->
-> Testing mainline would be useful.
+--nextPart1540062.iuFlL0M7mx
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
-Bad news,
-I tested 2.6.18-git11 tonight.  Both Network Manager and CPUFreq
-(Speedstep) are busted here as well.  I think I'll start trying
-changing some build options to try to narrow it down.
+Am Freitag 29 September 2006 11:53 schrieb Jeff Garzik:
+> Prakash Punnoor wrote:
+> > Am Freitag 29 September 2006 11:35 schrieb Jeff Garzik:
+> >> I updated the info at http://linux-ata.org/ to match the current code =
+in
+> >> linux-2.6.git.
+> >>
+> >> Hardware and driver status:
+> >> 	http://linux-ata.org/driver-status.html
+> >>    notably, the driver matrix:
+> >> 	http://linux-ata.org/driver-status.html#matrix
+> >
+> > Does any ETA exists for NV NON-AHCI NCQ support? The proabably not so
+> > small userbase would be happy if work on it would be done...
+>
+> No ETA at all.  It is admittedly low priority, and unfortunately the
+> only people with hardware documentation are myself and NVIDIA.
+>
+> There is a non-working patch, if someone wants to debug it, though:
+> http://www.kernel.org/pub/linux/kernel/people/jgarzik/libata/archive/2.6.=
+17
+>-nv-adma.patch.bz2
 
-        Miles
+Well, how would one debug it w/o hw docs? Or is it possible to compare the=
+=20
+patch with a working driver for another chipset?
+=2D-=20
+(=B0=3D                 =3D=B0)
+//\ Prakash Punnoor /\\
+V_/                 \_V
+
+--nextPart1540062.iuFlL0M7mx
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
+
+iD8DBQBFHO7YxU2n/+9+t5gRArq6AKC+/0EYDaCCUWnVDpX0+WHpZqu7qACgnySr
+9g1INrWDI9NZV2elt/MSAvs=
+=bbad
+-----END PGP SIGNATURE-----
+
+--nextPart1540062.iuFlL0M7mx--

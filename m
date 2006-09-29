@@ -1,92 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161088AbWI2DHA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161090AbWI2DIl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161088AbWI2DHA (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Sep 2006 23:07:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161090AbWI2DHA
+	id S1161090AbWI2DIl (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Sep 2006 23:08:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161141AbWI2DIl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Sep 2006 23:07:00 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:28863 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1161088AbWI2DG7 (ORCPT
+	Thu, 28 Sep 2006 23:08:41 -0400
+Received: from ns2.suse.de ([195.135.220.15]:4793 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1161090AbWI2DIk (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Sep 2006 23:06:59 -0400
-Date: Thu, 28 Sep 2006 20:04:31 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "Miles Lane" <miles.lane@gmail.com>
-Cc: LKML <linux-kernel@vger.kernel.org>,
-       "James P. Ketrenos" <ipw2100-admin@linux.intel.com>, jgarzik@pobox.com
-Subject: Re: 2.6.18-mm2 -- EIP: [<c11a962e>] klist_node_init+0x2b/0x3a
- SS:ESP 0068:f63a5f80
-Message-Id: <20060928200431.8f7f3fea.akpm@osdl.org>
-In-Reply-To: <a44ae5cd0609281913q127abc03i72dc7ea8711a223f@mail.gmail.com>
-References: <a44ae5cd0609281913q127abc03i72dc7ea8711a223f@mail.gmail.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Thu, 28 Sep 2006 23:08:40 -0400
+From: NeilBrown <neilb@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Date: Fri, 29 Sep 2006 13:08:34 +1000
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Cc: nfs@lists.sourceforge.net, linux-kernel@vger.kernel.org
+Subject: [PATCH 000 of 8] knfsd: Introduction
+Message-ID: <20060929130518.23919.patches@notabene>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, 28 Sep 2006 19:13:23 -0700
-"Miles Lane" <miles.lane@gmail.com> wrote:
+Follow are 8 knfsd related patches made against 2.6.18-mm2
+and suitable for 2.6.19.
 
-> eth1: RealTek RTL8139 at 0xf9076800, 00:c0:9f:95:18:1b, IRQ 19
-> eth1:  Identified 8139 chip type 'RTL-8100B/8139D'
-> BUG: unable to handle kernel NULL pointer dereference at virtual
-> address 000000d0
->  printing eip:
-> c11a962e
-> *pde = 00000000
-> Oops: 0000 [#1]
-> PREEMPT
-> last sysfs file: /class/firmware/0000:01:06.0/loading
+1 adds support to tmpfs to make it exportable
+2 and 3 are straight forward bugfixes.
+4 is a bugfix in dcache.c code, so some external review wouldn't
+go astray.
+5-8 are more nfsv4 updates.
 
-So you got to the stage of loading firmware.
+Thanks,
+NeilBrown
 
-> Modules linked in: shpchp pci_hotplug intel_agp i2c_i801 agpgart
-> snd_intel8x0 i2c_core snd_intel8x0m snd_ac97_codec snd_ac97_bus
-> snd_seq_dummy snd_seq_oss snd_seq_midi_event snd_seq snd_seq_device
-> snd_pcm_oss snd_mixer_oss ata_generic ata_piix libata 8139too sdhci
-> scsi_mod snd_pcm snd_timer psmouse snd soundcore snd_page_alloc 8139cp
-> mii yenta_socket rsrc_nonstatic pcmcia_core ohci1394 serio_raw ipw2200
-> ieee1394 ide_cd cdrom rtc unix ehci_hcd ohci_hcd uhci_hcd usbcore ext3
-> jbd mbcache
-> CPU:    0
-> EIP:    0060:[<c11a962e>]    Not tainted VLI
-> EFLAGS: 00010296   (2.6.18-mm2 #8)
-> EIP is at klist_node_init+0x2b/0x3a
-> eax: dff16b08   ebx: 000000a0   ecx: c102ebd7   edx: f63a5f44
-> esi: dff16afc   edi: f910e214   ebp: f63a5f88   esp: f63a5f80
-> ds: 007b   es: 007b   ss: 0068
-> Process probe-0000:01:0 (pid: 1697, ti=f63a4000 task=f639c030 task.ti=f63a4000)
-> Stack: 000000a0 dff16afc f63a5f98 c11a964f dff16a80 dff16afc f63a5fac c1124295
->        00000000 dff16a80 f910e214 f63a5fc4 c1124338 f5c17e80 f5c17e80 f633bd90
->        c11242f0 f63a5fe0 c102a834 ffffffff ffffffff c102a784 00000000 00000000
-> Call Trace:
->  [<c11a964f>] klist_add_tail+0x12/0x38
->  [<c1124295>] device_bind_driver+0x45/0xa0
->  [<c1124338>] really_probe+0x48/0xb3
->  [<c102a834>] kthread+0xb0/0xdc
->  [<c1003abb>] kernel_thread_helper+0x7/0x10
-> DWARF2 unwinder stuck at kernel_thread_helper+0x7/0x10
-> 
-> Leftover inexact backtrace:
-> 
->  [<c1003f02>] show_trace_log_lvl+0x12/0x25
->  [<c1003fa1>] show_stack_log_lvl+0x8c/0x97
->  [<c100412c>] show_registers+0x180/0x214
->  [<c1004355>] die+0x195/0x2b0
->  [<c10148a9>] do_page_fault+0x419/0x4e4
->  [<c11ac329>] error_code+0x39/0x40
->  [<c11a964f>] klist_add_tail+0x12/0x38
->  [<c1124295>] device_bind_driver+0x45/0xa0
->  [<c1124338>] really_probe+0x48/0xb3
->  [<c102a834>] kthread+0xb0/0xdc
->  [<c1003abb>] kernel_thread_helper+0x7/0x10
->  =======================
-> Code: 55 89 e5 56 53 89 c3 89 d6 8d 42 04 89 42 04 89 40 04 c7 42 10
-> 00 00 00 00 8d 42 14 e8 f2 14 e8 ff 8d 46 0c e8 80 3d f1 ff 89 1e <8b>
-> 53 30 85 d2 74 04 89 f0 ff d2 5b 5e 5d c3 55 89 e5 56 53 89
-> EIP: [<c11a962e>] klist_node_init+0x2b/0x3a SS:ESP 0068:f63a5f80
->  <6>ipw2200: Detected geography ZZM (11 802.11bg channels, 0 802.11a channels)
-
-Does setting CONFIG_PCI_MULTITHREAD_PROBE=n fix it?
+ [PATCH 001 of 8] knfsd: Add nfs-export support to tmpfs
+ [PATCH 002 of 8] knfsd: lockd: fix refount on nsm.
+ [PATCH 003 of 8] knfsd: Fix auto-sizing of nfsd request/reply buffers
+ [PATCH 004 of 8] knfsd: Close a race-opportunity in d_splice_alias
+ [PATCH 005 of 8] knfsd: nfsd: store export path in export
+ [PATCH 006 of 8] knfsd: nfsd4: fslocations data structures
+ [PATCH 007 of 8] knfsd: nfsd4: xdr encoding for fs_locations
+ [PATCH 008 of 8] knfsd: nfsd4: actually use all the pieces to implement referrals

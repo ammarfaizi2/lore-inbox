@@ -1,172 +1,216 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161451AbWI2TXk@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751300AbWI2TZz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161451AbWI2TXk (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Sep 2006 15:23:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161534AbWI2TXk
+	id S1751300AbWI2TZz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Sep 2006 15:25:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751331AbWI2TZz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Sep 2006 15:23:40 -0400
-Received: from amsfep17-int.chello.nl ([213.46.243.15]:50996 "EHLO
-	amsfep14-int.chello.nl") by vger.kernel.org with ESMTP
-	id S1161451AbWI2TXj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Sep 2006 15:23:39 -0400
-Subject: Re: [RFC][PATCH 2/2] Swap token re-tuned
-From: Peter Zijlstra <a.p.zijlstra@chello.nl>
-To: ashwin.chaugule@celunite.com
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <1159556740.2141.24.camel@localhost.localdomain>
-References: <1159556740.2141.24.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Fri, 29 Sep 2006 21:23:31 +0200
-Message-Id: <1159557812.13651.23.camel@lappy>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
+	Fri, 29 Sep 2006 15:25:55 -0400
+Received: from wx-out-0506.google.com ([66.249.82.224]:44384 "EHLO
+	wx-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1751300AbWI2TZy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Sep 2006 15:25:54 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type;
+        b=lOtCDWZbSfl+5RfdLKTF1KfNdwh4RsXtHCfUTPo1YyXOEJKj6a8U7DC4YAdLeQj/uBXUuQFqyiaxAghCLd7QK1dnyjmz4WlWFQtuknbT7afrmEmwny6LI/jfSdCYf3sFMME5rrPyIFhhA4MNDpbjCjJQRljYeIPjxQxXiXJy3gI=
+Message-ID: <5a4c581d0609291225r4a2cbaacr35e5ef73d69f8718@mail.gmail.com>
+Date: Fri, 29 Sep 2006 21:25:53 +0200
+From: "Alessandro Suardi" <alessandro.suardi@gmail.com>
+To: "Linux Kernel" <linux-kernel@vger.kernel.org>
+Subject: 2.6.18-git9 wireless fixes break ipw2200 association to AP with WPA
+MIME-Version: 1.0
+Content-Type: multipart/mixed; 
+	boundary="----=_Part_12896_21092666.1159557953162"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-09-30 at 00:35 +0530, Ashwin Chaugule wrote:
-> New scheme to preempt token. 
-> 
-> 
-> Signed-off-by: Ashwin Chaugule <ashwin.chaugule@celunite.com>
-> 
-> diff --git a/include/linux/sched.h b/include/linux/sched.h
-> index 34ed0d9..417bbe4 100644
-> --- a/include/linux/sched.h
-> +++ b/include/linux/sched.h
-> @@ -342,9 +342,15 @@ struct mm_struct {
->  	/* Architecture-specific MM context */
->  	mm_context_t context;
->  
-> -	/* Token based thrashing protection. */
-> -	unsigned long swap_token_time;
-> -	char recent_pagein;
-> +	/* Swap token stuff */
-> +	/* Last value of global fault stamp as seen by this process. 
-> +	 * In other words, this value gives an indication of how long
-> +	 * it has been since this task got the token */
-> +	unsigned int faultstamp;
-> +
-> +       /* Deciding factor ! Increment if (global_faults - faultstamp < 5) 
-> +        * else decrement. High priority wins the token.*/
-> +	int token_priority;
+------=_Part_12896_21092666.1159557953162
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
 
-/*
- * multi line comments look like this
- */
+Dell Latitude D610, FC5-latest, ipw2200 configured to associate
+ with a D-Link DSL-G604T (combo of router/ADSL modem/802.11g AP).
 
-> --- a/kernel/sysctl.c
-> +++ b/kernel/sysctl.c
-> @@ -910,6 +910,7 @@ #ifdef HAVE_ARCH_PICK_MMAP_LAYOUT
->  		.extra1		= &zero,
->  	},
->  #endif
-> +#if 0	/* Not needed anymore */
->  #ifdef CONFIG_SWAP
->  	{
->  		.ctl_name	= VM_SWAP_TOKEN_TIMEOUT,
-> @@ -921,6 +922,7 @@ #ifdef CONFIG_SWAP
->  		.strategy	= &sysctl_jiffies,
->  	},
->  #endif
-> +#endif
+2.6.18-git8 (plus semaphore.h) is ok
+-git9, -git10, -git11 fail to associate
+-git11 with reverted wireless changes is ok
 
-Just remove it.
+Attaching diff of what I reverted in -git11 to make it work again.
 
->  static int should_release_swap_token(struct mm_struct *mm)
->  {
->  	int ret = 0;
-> -	if (!mm->recent_pagein)
-> -		ret = SWAP_TOKEN_ENOUGH_RSS;
-> -	else if (time_after(jiffies, swap_token_timeout))
-> -		ret = SWAP_TOKEN_TIMED_OUT;
-> -	mm->recent_pagein = 0;
-> -	return ret;
-> +	if ( current->mm->token_priority > mm->token_priority )
-> +		return ret = SWAP_TOKEN_PREEMPT;
-> +	else
-> +		return ret;
->  }
+wpa_supplicant log of failing session available upon request.
 
-if (..)
-  ret = SWAP_TOKEN_PREEMPT;
+Thanks, ciao,
 
-return ret;
+--alessandro
 
-> -/*
-> - * Try to grab the swapout protection token.  We only try to
-> - * grab it once every TOKEN_CHECK_INTERVAL, both to prevent
-> - * SMP lock contention and to check that the process that held
-> - * the token before is no longer thrashing.
-> - */
->  void grab_swap_token(void)
->  {
-> -	struct mm_struct *mm;
-> +	struct mm_struct *mm_temp;
->  	int reason;
->  
-> -	/* We have the token. Let others know we still need it. */
-> -	if (has_swap_token(current->mm)) {
-> -		current->mm->recent_pagein = 1;
-> -		if (unlikely(!swap_token_default_timeout))
-> -			disable_swap_token();
-> +	/* This gives an indication of the number of processes contending for the token.*/
+"Well a man has two reasons for things that he does
+  the first one is pride and the second one is love
+  all understandings must come by this way"
 
-80 char max
+     (Husker Du, 'She Floated Away')
 
-> +	global_faults++; 
-> +
-> +	if (!spin_trylock(&swap_token_lock))
->  		return;
-> -	}
->  
-> -	if (time_after(jiffies, swap_token_check)) {
-> +	/* First come first served. If a process holding the token exits, its up for grabs immediately */
+------=_Part_12896_21092666.1159557953162
+Content-Type: text/x-patch; name="wifi.diff"
+Content-Transfer-Encoding: base64
+Content-Disposition: attachment; filename="wifi.diff"
+X-Attachment-Id: f_esoyum5l
 
-ditto
-
-> +	if ( swap_token_mm == NULL ) {
-> +		swap_token_mm = current->mm;
-> +		swap_token_mm->faultstamp = global_faults;
-> +		goto out;
-> +	}
->  
-> -		if (!swap_token_default_timeout) {
-> -			swap_token_check = jiffies + SWAP_TOKEN_CHECK_INTERVAL;
-> -			return;
-> -		}
-> +	if ((global_faults - current->mm->faultstamp) < FAULTSTAMP_DIFF )  {
->  
-> -		/* ... or if we recently held the token. */
-> -		if (time_before(jiffies, current->mm->swap_token_time))
-> -			return;
-> +	/*  This would mean that too many of the current tasks pages
-> +	 *  have been evicted and therefore it's calling swap-in or no-page 
-> +	 *  too frequently. */
-
-/*
- * multi line coment
- */
-
-> -		if (!spin_trylock(&swap_token_lock))
-> -			return;
-> +		current->mm->faultstamp = global_faults;
-> +		current->mm->token_priority++;
-> +		mm_temp = swap_token_mm;
-> +	}
-> +	else {
-> +	/* Decrement priority to ensure that the token holder doesnt
-> +	 * hold on to it for too long. */
-
-more comments
-
-> -		swap_token_check = jiffies + SWAP_TOKEN_CHECK_INTERVAL;
-> +		if (current->mm->token_priority > 0)
-> +			current->mm->token_priority--;
-> +		else {
-> +	/* After this, the process will be able to contend for the token 
-> +	 * again.*/
-
-ditto
-
-
+ZGlmZiAtdXJOIGxpbnV4LTIuNi4xOC1naXQxMS9kcml2ZXJzL25ldC93aXJlbGVzcy9pcHcyMjAw
+LmMgbGludXgtMi42LjE4LWdpdDExLW9sZHdpZmkvZHJpdmVycy9uZXQvd2lyZWxlc3MvaXB3MjIw
+MC5jCi0tLSBsaW51eC0yLjYuMTgtZ2l0MTEvZHJpdmVycy9uZXQvd2lyZWxlc3MvaXB3MjIwMC5j
+CTIwMDYtMDktMjkgMjE6MTE6MTkuMDAwMDAwMDAwICswMjAwCisrKyBsaW51eC0yLjYuMTgtZ2l0
+MTEtb2xkd2lmaS9kcml2ZXJzL25ldC93aXJlbGVzcy9pcHcyMjAwLmMJMjAwNi0wOS0yOSAyMDoy
+NDozMy4wMDAwMDAwMDAgKzAyMDAKQEAgLTg4NzUsNiArODg3NSw4IEBACiAgICAgICAgIH0KIAog
+CWxlbmd0aCA9IG1pbigoaW50KXdycXUtPmVzc2lkLmxlbmd0aCwgSVdfRVNTSURfTUFYX1NJWkUp
+OworCWlmICghZXh0cmFbbGVuZ3RoIC0gMV0pCisJCWxlbmd0aC0tOwogCiAJcHJpdi0+Y29uZmln
+IHw9IENGR19TVEFUSUNfRVNTSUQ7CiAKQEAgLTg5NTEsNyArODk1Myw3IEBACiAJc3RydWN0IGlw
+d19wcml2ICpwcml2ID0gaWVlZTgwMjExX3ByaXYoZGV2KTsKIAlJUFdfREVCVUdfV1goIkdldHRp
+bmcgbmlja1xuIik7CiAJbXV0ZXhfbG9jaygmcHJpdi0+bXV0ZXgpOwotCXdycXUtPmRhdGEubGVu
+Z3RoID0gc3RybGVuKHByaXYtPm5pY2spOworCXdycXUtPmRhdGEubGVuZ3RoID0gc3RybGVuKHBy
+aXYtPm5pY2spICsgMTsKIAltZW1jcHkoZXh0cmEsIHByaXYtPm5pY2ssIHdycXUtPmRhdGEubGVu
+Z3RoKTsKIAl3cnF1LT5kYXRhLmZsYWdzID0gMTsJLyogYWN0aXZlICovCiAJbXV0ZXhfdW5sb2Nr
+KCZwcml2LT5tdXRleCk7CkBAIC05Mjc0LDkgKzkyNzYsOSBAQAogCQlyZXR1cm4gLUVJTlZBTDsK
+IAogCW11dGV4X2xvY2soJnByaXYtPm11dGV4KTsKLQlpZiAod3JxdS0+cmV0cnkuZmxhZ3MgJiBJ
+V19SRVRSWV9TSE9SVCkKKwlpZiAod3JxdS0+cmV0cnkuZmxhZ3MgJiBJV19SRVRSWV9NSU4pCiAJ
+CXByaXYtPnNob3J0X3JldHJ5X2xpbWl0ID0gKHU4KSB3cnF1LT5yZXRyeS52YWx1ZTsKLQllbHNl
+IGlmICh3cnF1LT5yZXRyeS5mbGFncyAmIElXX1JFVFJZX0xPTkcpCisJZWxzZSBpZiAod3JxdS0+
+cmV0cnkuZmxhZ3MgJiBJV19SRVRSWV9NQVgpCiAJCXByaXYtPmxvbmdfcmV0cnlfbGltaXQgPSAo
+dTgpIHdycXUtPnJldHJ5LnZhbHVlOwogCWVsc2UgewogCQlwcml2LT5zaG9ydF9yZXRyeV9saW1p
+dCA9ICh1OCkgd3JxdS0+cmV0cnkudmFsdWU7CkBAIC05MzA1LDExICs5MzA3LDExIEBACiAJCXJl
+dHVybiAtRUlOVkFMOwogCX0KIAotCWlmICh3cnF1LT5yZXRyeS5mbGFncyAmIElXX1JFVFJZX0xP
+TkcpIHsKLQkJd3JxdS0+cmV0cnkuZmxhZ3MgPSBJV19SRVRSWV9MSU1JVCB8IElXX1JFVFJZX0xP
+Tkc7CisJaWYgKHdycXUtPnJldHJ5LmZsYWdzICYgSVdfUkVUUllfTUFYKSB7CisJCXdycXUtPnJl
+dHJ5LmZsYWdzID0gSVdfUkVUUllfTElNSVQgfCBJV19SRVRSWV9NQVg7CiAJCXdycXUtPnJldHJ5
+LnZhbHVlID0gcHJpdi0+bG9uZ19yZXRyeV9saW1pdDsKLQl9IGVsc2UgaWYgKHdycXUtPnJldHJ5
+LmZsYWdzICYgSVdfUkVUUllfU0hPUlQpIHsKLQkJd3JxdS0+cmV0cnkuZmxhZ3MgPSBJV19SRVRS
+WV9MSU1JVCB8IElXX1JFVFJZX1NIT1JUOworCX0gZWxzZSBpZiAod3JxdS0+cmV0cnkuZmxhZ3Mg
+JiBJV19SRVRSWV9NSU4pIHsKKwkJd3JxdS0+cmV0cnkuZmxhZ3MgPSBJV19SRVRSWV9MSU1JVCB8
+IElXX1JFVFJZX01JTjsKIAkJd3JxdS0+cmV0cnkudmFsdWUgPSBwcml2LT5zaG9ydF9yZXRyeV9s
+aW1pdDsKIAl9IGVsc2UgewogCQl3cnF1LT5yZXRyeS5mbGFncyA9IElXX1JFVFJZX0xJTUlUOwpk
+aWZmIC11ck4gbGludXgtMi42LjE4LWdpdDExL2luY2x1ZGUvbGludXgvbmV0ZGV2aWNlLmggbGlu
+dXgtMi42LjE4LWdpdDExLW9sZHdpZmkvaW5jbHVkZS9saW51eC9uZXRkZXZpY2UuaAotLS0gbGlu
+dXgtMi42LjE4LWdpdDExL2luY2x1ZGUvbGludXgvbmV0ZGV2aWNlLmgJMjAwNi0wOS0yOSAyMTox
+MTozMC4wMDAwMDAwMDAgKzAyMDAKKysrIGxpbnV4LTIuNi4xOC1naXQxMS1vbGR3aWZpL2luY2x1
+ZGUvbGludXgvbmV0ZGV2aWNlLmgJMjAwNi0wOS0yOSAyMDoyNzo0OS4wMDAwMDAwMDAgKzAyMDAK
+QEAgLTMzNCw2ICszMzQsNyBAQAogCiAKIAlzdHJ1Y3QgbmV0X2RldmljZV9zdGF0cyogKCpnZXRf
+c3RhdHMpKHN0cnVjdCBuZXRfZGV2aWNlICpkZXYpOworCXN0cnVjdCBpd19zdGF0aXN0aWNzKiAg
+ICgqZ2V0X3dpcmVsZXNzX3N0YXRzKShzdHJ1Y3QgbmV0X2RldmljZSAqZGV2KTsKIAogCS8qIExp
+c3Qgb2YgZnVuY3Rpb25zIHRvIGhhbmRsZSBXaXJlbGVzcyBFeHRlbnNpb25zIChpbnN0ZWFkIG9m
+IGlvY3RsKS4KIAkgKiBTZWUgPG5ldC9pd19oYW5kbGVyLmg+IGZvciBkZXRhaWxzLiBKZWFuIElJ
+ICovCmRpZmYgLXVyTiBsaW51eC0yLjYuMTgtZ2l0MTEvbmV0L2NvcmUvbmV0LXN5c2ZzLmMgbGlu
+dXgtMi42LjE4LWdpdDExLW9sZHdpZmkvbmV0L2NvcmUvbmV0LXN5c2ZzLmMKLS0tIGxpbnV4LTIu
+Ni4xOC1naXQxMS9uZXQvY29yZS9uZXQtc3lzZnMuYwkyMDA2LTA5LTI5IDIxOjExOjMxLjAwMDAw
+MDAwMCArMDIwMAorKysgbGludXgtMi42LjE4LWdpdDExLW9sZHdpZmkvbmV0L2NvcmUvbmV0LXN5
+c2ZzLmMJMjAwNi0wOS0yOSAyMDoyNDozNC4wMDAwMDAwMDAgKzAyMDAKQEAgLTM0NCw2ICszNDQs
+OCBAQAogCQlpZihkZXYtPndpcmVsZXNzX2hhbmRsZXJzICYmCiAJCSAgIGRldi0+d2lyZWxlc3Nf
+aGFuZGxlcnMtPmdldF93aXJlbGVzc19zdGF0cykKIAkJCWl3ID0gZGV2LT53aXJlbGVzc19oYW5k
+bGVycy0+Z2V0X3dpcmVsZXNzX3N0YXRzKGRldik7CisJCWVsc2UgaWYgKGRldi0+Z2V0X3dpcmVs
+ZXNzX3N0YXRzKQorCQkJaXcgPSBkZXYtPmdldF93aXJlbGVzc19zdGF0cyhkZXYpOwogCQlpZiAo
+aXcgIT0gTlVMTCkKIAkJCXJldCA9ICgqZm9ybWF0KShpdywgYnVmKTsKIAl9CkBAIC00NjMsNyAr
+NDY1LDggQEAKIAkJKmdyb3VwcysrID0gJm5ldHN0YXRfZ3JvdXA7CiAKICNpZmRlZiBXSVJFTEVT
+U19FWFQKLQlpZiAobmV0LT53aXJlbGVzc19oYW5kbGVycyAmJiBuZXQtPndpcmVsZXNzX2hhbmRs
+ZXJzLT5nZXRfd2lyZWxlc3Nfc3RhdHMpCisJaWYgKG5ldC0+Z2V0X3dpcmVsZXNzX3N0YXRzCisJ
+ICAgIHx8IChuZXQtPndpcmVsZXNzX2hhbmRsZXJzICYmIG5ldC0+d2lyZWxlc3NfaGFuZGxlcnMt
+PmdldF93aXJlbGVzc19zdGF0cykpCiAJCSpncm91cHMrKyA9ICZ3aXJlbGVzc19ncm91cDsKICNl
+bmRpZgogCmRpZmYgLXVyTiBsaW51eC0yLjYuMTgtZ2l0MTEvbmV0L2NvcmUvd2lyZWxlc3MuYyBs
+aW51eC0yLjYuMTgtZ2l0MTEtb2xkd2lmaS9uZXQvY29yZS93aXJlbGVzcy5jCi0tLSBsaW51eC0y
+LjYuMTgtZ2l0MTEvbmV0L2NvcmUvd2lyZWxlc3MuYwkyMDA2LTA5LTI5IDIxOjExOjMxLjAwMDAw
+MDAwMCArMDIwMAorKysgbGludXgtMi42LjE4LWdpdDExLW9sZHdpZmkvbmV0L2NvcmUvd2lyZWxl
+c3MuYwkyMDA2LTA5LTI5IDIwOjI0OjM1LjAwMDAwMDAwMCArMDIwMApAQCAtNjgsMTQgKzY4LDYg
+QEAKICAqCiAgKiB2OCAtIDE3LjAyLjA2IC0gSmVhbiBJSQogICoJbyBSdE5ldGxpbmsgcmVxdWVz
+dHMgc3VwcG9ydCAoU0VUL0dFVCkKLSAqCi0gKiB2OGIgLSAwMy4wOC4wNiAtIEhlcmJlcnQgWHUK
+LSAqCW8gRml4IFdpcmVsZXNzIEV2ZW50IGxvY2tpbmcgaXNzdWVzLgotICoKLSAqIHY5IC0gMTQu
+My4wNiAtIEplYW4gSUkKLSAqCW8gQ2hhbmdlIGxlbmd0aCBpbiBFU1NJRCBhbmQgTklDSyB0byBz
+dHJsZW4oKSBpbnN0ZWFkIG9mIHN0cmxlbigpKzEKLSAqCW8gTWFrZSBzdGFuZGFyZF9pb2N0bF9u
+dW0gYW5kIHN0YW5kYXJkX2V2ZW50X251bSB1bnNpZ25lZAotICoJbyBSZW1vdmUgKHN0cnVjdCBu
+ZXRfZGV2aWNlICopLT5nZXRfd2lyZWxlc3Nfc3RhdHMoKQogICovCiAKIC8qKioqKioqKioqKioq
+KioqKioqKioqKioqKioqKiBJTkNMVURFUyAqKioqKioqKioqKioqKioqKioqKioqKioqKioqKi8K
+QEAgLTI0MiwyNCArMjM0LDI0IEBACiAJW1NJT0NTSVdFU1NJRAktIFNJT0NJV0ZJUlNUXSA9IHsK
+IAkJLmhlYWRlcl90eXBlCT0gSVdfSEVBREVSX1RZUEVfUE9JTlQsCiAJCS50b2tlbl9zaXplCT0g
+MSwKLQkJLm1heF90b2tlbnMJPSBJV19FU1NJRF9NQVhfU0laRSwKKwkJLm1heF90b2tlbnMJPSBJ
+V19FU1NJRF9NQVhfU0laRSArIDEsCiAJCS5mbGFncwkJPSBJV19ERVNDUl9GTEFHX0VWRU5ULAog
+CX0sCiAJW1NJT0NHSVdFU1NJRAktIFNJT0NJV0ZJUlNUXSA9IHsKIAkJLmhlYWRlcl90eXBlCT0g
+SVdfSEVBREVSX1RZUEVfUE9JTlQsCiAJCS50b2tlbl9zaXplCT0gMSwKLQkJLm1heF90b2tlbnMJ
+PSBJV19FU1NJRF9NQVhfU0laRSwKKwkJLm1heF90b2tlbnMJPSBJV19FU1NJRF9NQVhfU0laRSAr
+IDEsCiAJCS5mbGFncwkJPSBJV19ERVNDUl9GTEFHX0RVTVAsCiAJfSwKIAlbU0lPQ1NJV05JQ0tO
+CS0gU0lPQ0lXRklSU1RdID0gewogCQkuaGVhZGVyX3R5cGUJPSBJV19IRUFERVJfVFlQRV9QT0lO
+VCwKIAkJLnRva2VuX3NpemUJPSAxLAotCQkubWF4X3Rva2Vucwk9IElXX0VTU0lEX01BWF9TSVpF
+LAorCQkubWF4X3Rva2Vucwk9IElXX0VTU0lEX01BWF9TSVpFICsgMSwKIAl9LAogCVtTSU9DR0lX
+TklDS04JLSBTSU9DSVdGSVJTVF0gPSB7CiAJCS5oZWFkZXJfdHlwZQk9IElXX0hFQURFUl9UWVBF
+X1BPSU5ULAogCQkudG9rZW5fc2l6ZQk9IDEsCi0JCS5tYXhfdG9rZW5zCT0gSVdfRVNTSURfTUFY
+X1NJWkUsCisJCS5tYXhfdG9rZW5zCT0gSVdfRVNTSURfTUFYX1NJWkUgKyAxLAogCX0sCiAJW1NJ
+T0NTSVdSQVRFCS0gU0lPQ0lXRklSU1RdID0gewogCQkuaGVhZGVyX3R5cGUJPSBJV19IRUFERVJf
+VFlQRV9QQVJBTSwKQEAgLTM0Niw4ICszMzgsOCBAQAogCQkubWF4X3Rva2Vucwk9IHNpemVvZihz
+dHJ1Y3QgaXdfcG1rc2EpLAogCX0sCiB9Owotc3RhdGljIGNvbnN0IHVuc2lnbmVkIHN0YW5kYXJk
+X2lvY3RsX251bSA9IChzaXplb2Yoc3RhbmRhcmRfaW9jdGwpIC8KLQkJCQkJICAgIHNpemVvZihz
+dHJ1Y3QgaXdfaW9jdGxfZGVzY3JpcHRpb24pKTsKK3N0YXRpYyBjb25zdCBpbnQgc3RhbmRhcmRf
+aW9jdGxfbnVtID0gKHNpemVvZihzdGFuZGFyZF9pb2N0bCkgLworCQkJCSAgICAgICBzaXplb2Yo
+c3RydWN0IGl3X2lvY3RsX2Rlc2NyaXB0aW9uKSk7CiAKIC8qCiAgKiBNZXRhLWRhdGEgYWJvdXQg
+YWxsIHRoZSBhZGRpdGlvbmFsIHN0YW5kYXJkIFdpcmVsZXNzIEV4dGVuc2lvbiBldmVudHMKQEAg
+LTM5Nyw4ICszODksOCBAQAogCQkubWF4X3Rva2Vucwk9IHNpemVvZihzdHJ1Y3QgaXdfcG1raWRf
+Y2FuZCksCiAJfSwKIH07Ci1zdGF0aWMgY29uc3QgdW5zaWduZWQgc3RhbmRhcmRfZXZlbnRfbnVt
+ID0gKHNpemVvZihzdGFuZGFyZF9ldmVudCkgLwotCQkJCQkgICAgc2l6ZW9mKHN0cnVjdCBpd19p
+b2N0bF9kZXNjcmlwdGlvbikpOworc3RhdGljIGNvbnN0IGludCBzdGFuZGFyZF9ldmVudF9udW0g
+PSAoc2l6ZW9mKHN0YW5kYXJkX2V2ZW50KSAvCisJCQkJICAgICAgIHNpemVvZihzdHJ1Y3QgaXdf
+aW9jdGxfZGVzY3JpcHRpb24pKTsKIAogLyogU2l6ZSAoaW4gYnl0ZXMpIG9mIHRoZSB2YXJpb3Vz
+IHByaXZhdGUgZGF0YSB0eXBlcyAqLwogc3RhdGljIGNvbnN0IGNoYXIgaXdfcHJpdl90eXBlX3Np
+emVbXSA9IHsKQEAgLTQ3Myw2ICs0NjUsMTcgQEAKIAkgICAoZGV2LT53aXJlbGVzc19oYW5kbGVy
+cy0+Z2V0X3dpcmVsZXNzX3N0YXRzICE9IE5VTEwpKQogCQlyZXR1cm4gZGV2LT53aXJlbGVzc19o
+YW5kbGVycy0+Z2V0X3dpcmVsZXNzX3N0YXRzKGRldik7CiAKKwkvKiBPbGQgbG9jYXRpb24sIGZp
+ZWxkIHRvIGJlIHJlbW92ZWQgaW4gbmV4dCBXRSAqLworCWlmKGRldi0+Z2V0X3dpcmVsZXNzX3N0
+YXRzKSB7CisJCXN0YXRpYyBpbnQgcHJpbnRlZF9tZXNzYWdlOworCisJCWlmICghcHJpbnRlZF9t
+ZXNzYWdlKyspCisJCQlwcmludGsoS0VSTl9ERUJVRyAiJXMgKFdFKSA6IERyaXZlciB1c2luZyBv
+bGQgL3Byb2MvbmV0L3dpcmVsZXNzIHN1cHBvcnQsIHBsZWFzZSBmaXggZHJpdmVyICFcbiIsCisJ
+CQkJZGV2LT5uYW1lKTsKKworCQlyZXR1cm4gZGV2LT5nZXRfd2lyZWxlc3Nfc3RhdHMoZGV2KTsK
+Kwl9CisKIAkvKiBOb3QgZm91bmQgKi8KIAlyZXR1cm4gKHN0cnVjdCBpd19zdGF0aXN0aWNzICop
+IE5VTEw7CiB9CkBAIC0xODQwLDMzICsxODQzLDggQEAKICAqLwogCiAjaWZkZWYgV0VfRVZFTlRf
+UlRORVRMSU5LCi0vKiAtLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tICovCi0vKgotICogTG9ja2luZy4uLgotICogLS0tLS0tLS0t
+LQotICoKLSAqIFRoYW5rcyB0byBIZXJiZXJ0IFh1IDxoZXJiZXJ0QGdvbmRvci5hcGFuYS5vcmcu
+YXU+IGZvciBmaXhpbmcKLSAqIHRoZSBsb2NraW5nIGlzc3VlIGluIGhlcmUgYW5kIGltcGxlbWVu
+dGluZyB0aGlzIGNvZGUgIQotICoKLSAqIFRoZSBpc3N1ZSA6IHdpcmVsZXNzX3NlbmRfZXZlbnQo
+KSBpcyBvZnRlbiBjYWxsZWQgaW4gaW50ZXJydXB0IGNvbnRleHQsCi0gKiB3aGlsZSB0aGUgTmV0
+bGluayBsYXllciBjYW4gbmV2ZXIgYmUgY2FsbGVkIGluIGludGVycnVwdCBjb250ZXh0LgotICog
+VGhlIGZ1bGx5IGZvcm1lZCBSdE5ldGxpbmsgZXZlbnRzIGFyZSBxdWV1ZWQsIGFuZCB0aGVuIGEg
+dGFza2xldCBpcyBydW4KLSAqIHRvIGZlZWQgdGhvc2UgdG8gTmV0bGluay4KLSAqIFRoZSBza2Jf
+cXVldWUgaXMgaW50ZXJydXB0IHNhZmUsIGFuZCBpdHMgbG9jayBpcyBub3QgaGVsZCB3aGlsZSBj
+YWxsaW5nCi0gKiBOZXRsaW5rLCBzbyB0aGVyZSBpcyBubyBwb3NzaWJpbGl0eSBvZiBkZWFsb2Nr
+LgotICogSmVhbiBJSQotICovCi0KIHN0YXRpYyBzdHJ1Y3Qgc2tfYnVmZl9oZWFkIHdpcmVsZXNz
+X25sZXZlbnRfcXVldWU7CiAKLXN0YXRpYyBpbnQgX19pbml0IHdpcmVsZXNzX25sZXZlbnRfaW5p
+dCh2b2lkKQotewotCXNrYl9xdWV1ZV9oZWFkX2luaXQoJndpcmVsZXNzX25sZXZlbnRfcXVldWUp
+OwotCXJldHVybiAwOwotfQotCi1zdWJzeXNfaW5pdGNhbGwod2lyZWxlc3NfbmxldmVudF9pbml0
+KTsKLQogc3RhdGljIHZvaWQgd2lyZWxlc3NfbmxldmVudF9wcm9jZXNzKHVuc2lnbmVkIGxvbmcg
+ZGF0YSkKIHsKIAlzdHJ1Y3Qgc2tfYnVmZiAqc2tiOwpAQCAtMTk0Myw2ICsxOTIxLDEzIEBACiAJ
+dGFza2xldF9zY2hlZHVsZSgmd2lyZWxlc3NfbmxldmVudF90YXNrbGV0KTsKIH0KIAorc3RhdGlj
+IGludCBfX2luaXQgd2lyZWxlc3NfbmxldmVudF9pbml0KHZvaWQpCit7CisJc2tiX3F1ZXVlX2hl
+YWRfaW5pdCgmd2lyZWxlc3NfbmxldmVudF9xdWV1ZSk7CisJcmV0dXJuIDA7Cit9CisKK3N1YnN5
+c19pbml0Y2FsbCh3aXJlbGVzc19ubGV2ZW50X2luaXQpOwogI2VuZGlmCS8qIFdFX0VWRU5UX1JU
+TkVUTElOSyAqLwogCiAvKiAtLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0t
+LS0tLS0tLS0tLS0tLS0tLS0tLS0tLS0tICovCmRpZmYgLXVyTiBsaW51eC0yLjYuMTgtZ2l0MTEv
+bmV0L2llZWU4MDIxMS9zb2Z0bWFjL2llZWU4MDIxMXNvZnRtYWNfd3guYyBsaW51eC0yLjYuMTgt
+Z2l0MTEtb2xkd2lmaS9uZXQvaWVlZTgwMjExL3NvZnRtYWMvaWVlZTgwMjExc29mdG1hY193eC5j
+Ci0tLSBsaW51eC0yLjYuMTgtZ2l0MTEvbmV0L2llZWU4MDIxMS9zb2Z0bWFjL2llZWU4MDIxMXNv
+ZnRtYWNfd3guYwkyMDA2LTA5LTI5IDIxOjExOjMyLjAwMDAwMDAwMCArMDIwMAorKysgbGludXgt
+Mi42LjE4LWdpdDExLW9sZHdpZmkvbmV0L2llZWU4MDIxMS9zb2Z0bWFjL2llZWU4MDIxMXNvZnRt
+YWNfd3guYwkyMDA2LTA5LTI5IDIwOjI0OjM3LjAwMDAwMDAwMCArMDIwMApAQCAtODAsMTAgKzgw
+LDEwIEBACiAJICogSWYgaXQncyBvdXIgbmV0d29yaywgaWdub3JlIHRoZSBjaGFuZ2UsIHdlJ3Jl
+IGFscmVhZHkgZG9pbmcgaXQhCiAJICovCiAJaWYoKHNtLT5hc3NvY2luZm8uYXNzb2NpYXRpbmcg
+fHwgc20tPmFzc29jaWF0ZWQpICYmCi0JICAgKGRhdGEtPmVzc2lkLmZsYWdzICYmIGRhdGEtPmVz
+c2lkLmxlbmd0aCkpIHsKKwkgICAoZGF0YS0+ZXNzaWQuZmxhZ3MgJiYgZGF0YS0+ZXNzaWQubGVu
+Z3RoICYmIGV4dHJhKSkgewogCQkvKiBHZXQgdGhlIGFzc29jaWF0aW5nIG5ldHdvcmsgKi8KIAkJ
+biA9IGllZWU4MDIxMXNvZnRtYWNfZ2V0X25ldHdvcmtfYnlfYnNzaWQoc20sIHNtLT5hc3NvY2lu
+Zm8uYnNzaWQpOwotCQlpZihuICYmIG4tPmVzc2lkLmxlbiA9PSBkYXRhLT5lc3NpZC5sZW5ndGgg
+JiYKKwkJaWYobiAmJiBuLT5lc3NpZC5sZW4gPT0gKGRhdGEtPmVzc2lkLmxlbmd0aCAtIDEpICYm
+CiAJCSAgICFtZW1jbXAobi0+ZXNzaWQuZGF0YSwgZXh0cmEsIG4tPmVzc2lkLmxlbikpIHsKIAkJ
+CWRwcmludGsoS0VSTl9JTkZPIFBGWCAiQWxyZWFkeSBhc3NvY2lhdGluZyBvciBhc3NvY2lhdGVk
+IHRvICJNQUNfRk1UIlxuIiwKIAkJCQlNQUNfQVJHKHNtLT5hc3NvY2luZm8uYnNzaWQpKTsKQEAg
+LTEwOSw4ICsxMDksOCBAQAogCXNtLT5hc3NvY2luZm8uc3RhdGljX2Vzc2lkID0gMDsKIAlzbS0+
+YXNzb2NpbmZvLmFzc29jX3dhaXQgPSAwOwogCi0JaWYgKGRhdGEtPmVzc2lkLmZsYWdzICYmIGRh
+dGEtPmVzc2lkLmxlbmd0aCkgewotCQlsZW5ndGggPSBtaW4oKGludClkYXRhLT5lc3NpZC5sZW5n
+dGgsIElXX0VTU0lEX01BWF9TSVpFKTsKKwlpZiAoZGF0YS0+ZXNzaWQuZmxhZ3MgJiYgZGF0YS0+
+ZXNzaWQubGVuZ3RoICYmIGV4dHJhIC8qcmVxdWlyZWQ/Ki8pIHsKKwkJbGVuZ3RoID0gbWluKGRh
+dGEtPmVzc2lkLmxlbmd0aCAtIDEsIElXX0VTU0lEX01BWF9TSVpFKTsKIAkJaWYgKGxlbmd0aCkg
+ewogCQkJbWVtY3B5KHNtLT5hc3NvY2luZm8ucmVxX2Vzc2lkLmRhdGEsIGV4dHJhLCBsZW5ndGgp
+OwogCQkJc20tPmFzc29jaW5mby5zdGF0aWNfZXNzaWQgPSAxOwo=
+------=_Part_12896_21092666.1159557953162--

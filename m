@@ -1,106 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932521AbWI2DJs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161167AbWI2DJT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932521AbWI2DJs (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Sep 2006 23:09:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161302AbWI2DJV
+	id S1161167AbWI2DJT (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Sep 2006 23:09:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161141AbWI2DJM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Sep 2006 23:09:21 -0400
-Received: from mail.suse.de ([195.135.220.2]:47761 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1161166AbWI2DJN (ORCPT
+	Thu, 28 Sep 2006 23:09:12 -0400
+Received: from ns.suse.de ([195.135.220.2]:46225 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1161167AbWI2DJF (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Sep 2006 23:09:13 -0400
+	Thu, 28 Sep 2006 23:09:05 -0400
 From: NeilBrown <neilb@suse.de>
 To: Andrew Morton <akpm@osdl.org>
-Date: Fri, 29 Sep 2006 13:09:04 +1000
-Message-Id: <1060929030904.24096@suse.de>
+Date: Fri, 29 Sep 2006 13:08:58 +1000
+Message-Id: <1060929030858.24062@suse.de>
 X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
 	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
 	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Cc: nfs@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: [PATCH 005 of 8] knfsd: nfsd: store export path in export
+Subject: [PATCH 004 of 8] knfsd: Close a race-opportunity in d_splice_alias
 References: <20060929130518.23919.patches@notabene>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-From: J.Bruce Fields <bfields@fieldses.org>
+There is a possible race in d_splice_alias.
+Though __d_find_alias(inode, 1) will only return a dentry
+with DCACHE_DISCONNECTED set, it is possible for it to get cleared
+before the BUG_ON, and it is is not possible to lock against that.
 
-Store the export path in the svc_export structure instead of storing only
-the dentry.  This will prevent the need for additional d_path calls to
-provide NFSv4 fs_locations support.
+There are a couple of problems here.
+Firstly, the code doesn't match the comment.  The comment describes
+a 'disconnected' dentry as being IS_ROOT as well as DCACHE_DISCONNECTED,
+however there is not testing of IS_ROOT anythere.
 
-Signed-off-by: J. Bruce Fields <bfields@citi.umich.edu>
+A dentry is marked DCACHE_DISCONNECTED when allocated with
+d_alloc_anon, and remains DCACHE_DISCONNECTED while a path is built up
+towards the root.  So a dentry can have a valid name and a valid
+parent and even grandparent, but will still be DCACHE_DISCONNECTED
+until a path to the root is created.  Once the path to the root is
+complete, everything in the path gets DCACHE_DISCONNECTED cleared.  So
+the fact that DCACHE_DISCONNECTED isn't enough to say that a dentry is
+free to be spliced in with a given name.  This can only be allowed if
+the dentry does not yet have a name, so the IS_ROOT test is needed too.
+
+However even adding that test to __d_find_alias isn't enough.  As
+d_splice_alias drops dcache_lock before calling d_move to perform the
+splice, it could race with another thread calling d_splice_alias to
+splice the inode in with a different name in a different part of the
+tree (in the case where a file has hard links).  So that splicing code
+is only really safe for directories (as we know that directories only
+have one link).  For directories, the caller of d_splice_alias will be
+holding i_mutex on the (unique) parent so there is no room for a race.
+
+A consequence of this is that a non-directory will never benefit from
+being spliced into a pre-exisiting dentry, but that isn't a problem.
+It is perfectly OK for a non-directory to have multiple dentries, some
+anonymous, some not.  And the comment for d_splice_alias says that it
+only happens for directories anyway.
+
 Signed-off-by: Neil Brown <neilb@suse.de>
 
 ### Diffstat output
- ./fs/nfsd/export.c            |   10 ++++++++++
- ./include/linux/nfsd/export.h |    1 +
- 2 files changed, 11 insertions(+)
+ ./fs/dcache.c |    9 +++++----
+ 1 file changed, 5 insertions(+), 4 deletions(-)
 
-diff .prev/fs/nfsd/export.c ./fs/nfsd/export.c
---- .prev/fs/nfsd/export.c	2006-09-29 12:57:30.000000000 +1000
-+++ ./fs/nfsd/export.c	2006-09-29 12:57:47.000000000 +1000
-@@ -325,6 +325,7 @@ static void svc_export_put(struct kref *
- 	dput(exp->ex_dentry);
- 	mntput(exp->ex_mnt);
- 	auth_domain_put(exp->ex_client);
-+	kfree(exp->ex_path);
- 	kfree(exp);
- }
+diff .prev/fs/dcache.c ./fs/dcache.c
+--- .prev/fs/dcache.c	2006-09-29 12:57:26.000000000 +1000
++++ ./fs/dcache.c	2006-09-29 12:57:34.000000000 +1000
+@@ -291,9 +291,9 @@ struct dentry * dget_locked(struct dentr
+  * it can be unhashed only if it has no children, or if it is the root
+  * of a filesystem.
+  *
+- * If the inode has a DCACHE_DISCONNECTED alias, then prefer
++ * If the inode has an IS_ROOT, DCACHE_DISCONNECTED alias, then prefer
+  * any other hashed alias over that one unless @want_discon is set,
+- * in which case only return a DCACHE_DISCONNECTED alias.
++ * in which case only return an IS_ROOT, DCACHE_DISCONNECTED alias.
+  */
  
-@@ -398,6 +399,7 @@ static int svc_export_parse(struct cache
- 	int an_int;
+ static struct dentry * __d_find_alias(struct inode *inode, int want_discon)
+@@ -309,7 +309,8 @@ static struct dentry * __d_find_alias(st
+ 		prefetch(next);
+ 		alias = list_entry(tmp, struct dentry, d_alias);
+  		if (S_ISDIR(inode->i_mode) || !d_unhashed(alias)) {
+-			if (alias->d_flags & DCACHE_DISCONNECTED)
++			if (IS_ROOT(alias) &&
++			    (alias->d_flags & DCACHE_DISCONNECTED))
+ 				discon_alias = alias;
+ 			else if (!want_discon) {
+ 				__dget_locked(alias);
+@@ -1134,7 +1135,7 @@ struct dentry *d_splice_alias(struct ino
+ {
+ 	struct dentry *new = NULL;
  
- 	nd.dentry = NULL;
-+	exp.ex_path = NULL;
- 
- 	if (mesg[mlen-1] != '\n')
- 		return -EINVAL;
-@@ -428,6 +430,10 @@ static int svc_export_parse(struct cache
- 	exp.ex_client = dom;
- 	exp.ex_mnt = nd.mnt;
- 	exp.ex_dentry = nd.dentry;
-+	exp.ex_path = kstrdup(buf, GFP_KERNEL);
-+	err = -ENOMEM;
-+	if (!exp.ex_path)
-+		goto out;
- 
- 	/* expiry */
- 	err = -EINVAL;
-@@ -473,6 +479,7 @@ static int svc_export_parse(struct cache
- 	else
- 		exp_put(expp);
-  out:
-+ 	kfree(exp.ex_path);
- 	if (nd.dentry)
- 		path_release(&nd);
-  out_no_path:
-@@ -524,6 +531,7 @@ static void svc_export_init(struct cache
- 	new->ex_client = item->ex_client;
- 	new->ex_dentry = dget(item->ex_dentry);
- 	new->ex_mnt = mntget(item->ex_mnt);
-+	new->ex_path = NULL;
- }
- 
- static void export_update(struct cache_head *cnew, struct cache_head *citem)
-@@ -535,6 +543,8 @@ static void export_update(struct cache_h
- 	new->ex_anon_uid = item->ex_anon_uid;
- 	new->ex_anon_gid = item->ex_anon_gid;
- 	new->ex_fsid = item->ex_fsid;
-+	new->ex_path = item->ex_path;
-+	item->ex_path = NULL;
- }
- 
- static struct cache_head *svc_export_alloc(void)
-
-diff .prev/include/linux/nfsd/export.h ./include/linux/nfsd/export.h
---- .prev/include/linux/nfsd/export.h	2006-09-29 12:57:30.000000000 +1000
-+++ ./include/linux/nfsd/export.h	2006-09-29 12:57:47.000000000 +1000
-@@ -51,6 +51,7 @@ struct svc_export {
- 	int			ex_flags;
- 	struct vfsmount *	ex_mnt;
- 	struct dentry *		ex_dentry;
-+	char *			ex_path;
- 	uid_t			ex_anon_uid;
- 	gid_t			ex_anon_gid;
- 	int			ex_fsid;
+-	if (inode) {
++	if (inode && S_ISDIR(inode->i_mode)) {
+ 		spin_lock(&dcache_lock);
+ 		new = __d_find_alias(inode, 1);
+ 		if (new) {

@@ -1,80 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932366AbWI2UcV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422819AbWI2UgW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932366AbWI2UcV (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Sep 2006 16:32:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932377AbWI2UcU
+	id S1422819AbWI2UgW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Sep 2006 16:36:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422821AbWI2UgW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Sep 2006 16:32:20 -0400
-Received: from 216-99-213-120.dsl.aracnet.com ([216.99.213.120]:37083 "EHLO
-	clueserver.org") by vger.kernel.org with ESMTP id S932366AbWI2UcT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Sep 2006 16:32:19 -0400
-Date: Fri, 29 Sep 2006 13:32:18 -0700 (PDT)
-From: alan <alan@clueserver.org>
-X-X-Sender: alan@blackbox.fnordora.org
-To: Linus Torvalds <torvalds@osdl.org>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Helge Hafting <helge.hafting@aitel.hist.no>, tglx@linutronix.de,
-       Neil Brown <neilb@suse.de>, Michiel de Boer <x@rebelhomicide.demon.nl>,
-       James Bottomley <James.Bottomley@SteelEye.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: GPLv3 Position Statement
-In-Reply-To: <Pine.LNX.4.64.0609291314250.30853@blackbox.fnordora.org>
-Message-ID: <Pine.LNX.4.64.0609291330120.30853@blackbox.fnordora.org>
-References: <1158941750.3445.31.camel@mulgrave.il.steeleye.com> 
- <451798FA.8000004@rebelhomicide.demon.nl>  <17687.46268.156413.352299@cse.unsw.edu.au>
-  <1159183895.11049.56.camel@localhost.localdomain> 
- <1159200620.9326.447.camel@localhost.localdomain>  <451CF22D.4030405@aitel.hist.no>
-  <Pine.LNX.4.64.0609290940480.3952@g5.osdl.org>  <1159552021.13029.58.camel@localhost.localdomain>
-  <Pine.LNX.4.64.0609291030050.3952@g5.osdl.org> <1159554375.13029.67.camel@localhost.localdomain>
- <Pine.LNX.4.64.0609291120440.3952@g5.osdl.org> <Pine.LNX.4.64.0609291131300.3952@g5.osdl.org>
- <Pine.LNX.4.64.0609291258050.30636@blackbox.fnordora.org>
- <Pine.LNX.4.64.0609291306080.3952@g5.osdl.org>
- <Pine.LNX.4.64.0609291314250.30853@blackbox.fnordora.org>
+	Fri, 29 Sep 2006 16:36:22 -0400
+Received: from cantor.suse.de ([195.135.220.2]:22455 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1422819AbWI2UgV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Sep 2006 16:36:21 -0400
+From: Andi Kleen <ak@suse.de>
+To: Ingo Molnar <mingo@elte.hu>
+Subject: Re: 2.6.18-mm2
+Date: Fri, 29 Sep 2006 22:36:15 +0200
+User-Agent: KMail/1.9.3
+Cc: Jim Cromie <jim.cromie@gmail.com>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org
+References: <20060928014623.ccc9b885.akpm@osdl.org> <200609290108.15400.ak@suse.de> <20060929201449.GA32262@elte.hu>
+In-Reply-To: <20060929201449.GA32262@elte.hu>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200609292236.15330.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 29 Sep 2006, alan wrote:
+On Friday 29 September 2006 22:14, Ingo Molnar wrote:
+> 
+> * Andi Kleen <ak@suse.de> wrote:
+> 
+> > BTW I was planning to make LOCAL_APIC unconditional on i386 too like 
+> > on x86-64.
+> 
+> please dont - embedded doesnt need it most of the time.
 
-> On Fri, 29 Sep 2006, Linus Torvalds wrote:
->
->> 
->> 
->> On Fri, 29 Sep 2006, alan wrote:
->>> 
->>> On Fri, 29 Sep 2006, Linus Torvalds wrote:
->>> 
->>>> (*) Hah. Who do I think I'm kidding? The revolution will be bloody and
->>>> brutal, and you're not going to get the choice to "elect" me except in 
->>>> the
->>>> history books written by yours truly.
->>> 
->>> Wow.  You have been living in Portland too long. ]:>
->> 
->> Is there some Portland subculture that I should be aware of?
->> 
->> Inquiring minds want to know.
->
-> That would be telling.
->
-> Here are a few clues to the secret handshake that is Portland...
->
-> http://www.mondocroquet.com/
-> http://portland.cacophony.org/
-> http://www.orycon.org/orycon28/
-> http://communique.portland.or.us/02/12/santanarchy_now
+What do you mean with not need?  Local APIC is an infinitely better
+interface than PIC and faster. On embedded too this makes a lot of sense.
+And a lot of modern systems don't even work anymore without
+APIC enabled because Windows uses it and the BIOS haven't been
+tested without it (e.g. you often find totally broken code paths
+in the AML for PIC mode) 
 
-Not to mention:
-http://www.hplfilmfestival.com/
+The code size also isn't a good argument because the delta
+isn't that big:
 
-And worst of all:
+   text    data     bss     dec     hex filename
+3303894  694980  436420 4435294  43ad5e obj32-up/vmlinux
+3266532  665732  402372 4334636  42242c obj32-up-noapic/vmlinux
 
-http://www.stonehenge.com/merlyn/
+~63K. I don't think such a small difference is worth the maintenance
+overhead of the many ifdefs and hairy code paths. If someone really
+cared about that memory they could save much more by just optimizing
+some dynamic memory allocations instead, which waste much more.
 
--- 
-"Oh, Joel Miller, you've just found the marble in the oatmeal. You're a
-lucky, lucky, lucky little boy. 'Cause you know why? You get to drink
-from... the FIRE HOOOOOSE!"
-         - The Stanley Spudoski guide to mailing list administration
+The only reason to not use it are old broken BIOS or old CPUs 
+without local APIC, but those can be all handled at runtime like
+the 64bit kernel does.
+
+The SUSE kernel has a imho good default heuristic based on 
+DMI date, DMI number of processors and of course trusting the ACPI tables
+(don't use if disabled there) 
+
+> At most make it  
+> default y and dependent on EMBEDDED.
+
+The whole point is to get rid of the many ifdefs and frequent
+compile breakage of it. This would defeat it.
+
+-Andi

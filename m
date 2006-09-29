@@ -1,24 +1,26 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030415AbWI2Ioi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750953AbWI2Is6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030415AbWI2Ioi (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Sep 2006 04:44:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030416AbWI2Ioi
+	id S1750953AbWI2Is6 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Sep 2006 04:48:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030416AbWI2Is6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Sep 2006 04:44:38 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:19097 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1030415AbWI2Ioh (ORCPT
+	Fri, 29 Sep 2006 04:48:58 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:32410 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750922AbWI2Is5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Sep 2006 04:44:37 -0400
-Date: Fri, 29 Sep 2006 01:44:33 -0700
+	Fri, 29 Sep 2006 04:48:57 -0400
+Date: Fri, 29 Sep 2006 01:48:45 -0700
 From: Andrew Morton <akpm@osdl.org>
-To: Mark Lord <lkml@rtr.ca>
-Cc: Linus Torvalds <torvalds@osdl.org>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
-Subject: Re: Arrr! Linux 2.6.18
-Message-Id: <20060929014433.bc01e83c.akpm@osdl.org>
-In-Reply-To: <451CDBE3.2080707@rtr.ca>
-References: <Pine.LNX.4.64.0609192126070.4388@g5.osdl.org>
-	<451CDBE3.2080707@rtr.ca>
+To: Cornelia Huck <cornelia.huck@de.ibm.com>
+Cc: Jesper Juhl <jesper.juhl@gmail.com>, Greg Kroah-Hartman <gregkh@suse.de>,
+       linux-kernel@vger.kernel.org, Patrick Mochel <mochel@osdl.org>,
+       Patrick Mochel <mochel@infinity.powertie.org>
+Subject: Re: [PATCH] Don't leak 'old_class_name' in
+ drivers/base/core.c::device_rename()
+Message-Id: <20060929014845.70d2b807.akpm@osdl.org>
+In-Reply-To: <20060929101327.1ae1b793@gondolin.boeblingen.de.ibm.com>
+References: <200609282356.01962.jesper.juhl@gmail.com>
+	<20060929101327.1ae1b793@gondolin.boeblingen.de.ibm.com>
 X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -26,41 +28,22 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 29 Sep 2006 04:40:03 -0400
-Mark Lord <lkml@rtr.ca> wrote:
+On Fri, 29 Sep 2006 10:13:27 +0200
+Cornelia Huck <cornelia.huck@de.ibm.com> wrote:
 
-> Linus Torvalds wrote:
-> > ..
-> > Cap'n Andrew Morton:
-> >       Blimey! hvc_console suspend fix
+> On Thu, 28 Sep 2006 23:56:01 +0200,
+> Jesper Juhl <jesper.juhl@gmail.com> wrote:
 > 
-> Mmm.. I wonder if this could be what killed resume-from-RAM
-> on my notebook, between -rc6 and -final ?
+> > If kmalloc() fails to allocate space for 'old_symlink_name' in
+> > drivers/base/core.c::device_rename(), then we'll leak 'old_class_name'.
 > 
-> Andrew, can you send me just that one patch, and I'll try reverting it.
+> driver-core-fixes-check-for-return-value-of-sysfs_create_link.patch (in
+> -mm) already fixes this (amongst other things).
 > 
 
-From: Andrew Morton <akpm@osdl.org>
+I noticed ;)
 
-Fix http://bugzilla.kernel.org/show_bug.cgi?id=7152
-
-Cc: Michael Tautschnig <tautschn@model.in.tum.de>
-Signed-off-by: Andrew Morton <akpm@osdl.org>
----
-
- drivers/char/hvc_console.c |    1 +
- 1 file changed, 1 insertion(+)
-
-diff -puN drivers/char/hvc_console.c~hvc_console-suspend-fix drivers/char/hvc_console.c
---- a/drivers/char/hvc_console.c~hvc_console-suspend-fix
-+++ a/drivers/char/hvc_console.c
-@@ -668,6 +668,7 @@ int khvcd(void *unused)
- 	do {
- 		poll_mask = 0;
- 		hvc_kicked = 0;
-+		try_to_freeze();
- 		wmb();
- 		if (cpus_empty(cpus_in_xmon)) {
- 			spin_lock(&hvc_structs_lock);
-_
-
+Greg, I fixed up the rejects this caued to
+driver-core-fixes-check-for-return-value-of-sysfs_create_link.patch so you
+might as well hang onto this patch.  Will include Cornelia's patch in the next
+patch-bombing.

@@ -1,62 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030247AbWI2G4t@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161140AbWI2HIT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030247AbWI2G4t (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Sep 2006 02:56:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030383AbWI2G4t
+	id S1161140AbWI2HIT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Sep 2006 03:08:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161460AbWI2HIT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Sep 2006 02:56:49 -0400
-Received: from stat9.steeleye.com ([209.192.50.41]:11443 "EHLO
-	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
-	id S1030247AbWI2G4s (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Sep 2006 02:56:48 -0400
+	Fri, 29 Sep 2006 03:08:19 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:65411 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1161140AbWI2HIS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Sep 2006 03:08:18 -0400
+Date: Fri, 29 Sep 2006 00:07:56 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+cc: =?ISO-8859-1?Q?J=F6rn_Engel?= <joern@wohnheim.fh-wedel.de>,
+       Lennart Sorensen <lsorense@csclub.uwaterloo.ca>,
+       Chase Venters <chase.venters@clientec.com>,
+       Sergey Panov <sipan@sipan.org>, Patrick McFarland <diablod3@gmail.com>,
+       Theodore Tso <tytso@mit.edu>, Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       James Bottomley <James.Bottomley@steeleye.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
 Subject: Re: GPLv3 Position Statement
-From: James Bottomley <James.Bottomley@SteelEye.com>
-To: Neil Brown <neilb@suse.de>
-Cc: tridge@samba.org, linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <17692.41932.957298.877577@cse.unsw.edu.au>
-References: <1159498900.3880.31.camel@mulgrave.il.steeleye.com>
-	 <17692.41932.957298.877577@cse.unsw.edu.au>
-Content-Type: text/plain
-Date: Thu, 28 Sep 2006 23:56:37 -0700
-Message-Id: <1159512998.3880.50.camel@mulgrave.il.steeleye.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
-Content-Transfer-Encoding: 7bit
+In-Reply-To: <Pine.LNX.4.61.0609290757400.30682@yvahk01.tjqt.qr>
+Message-ID: <Pine.LNX.4.64.0609282342380.3952@g5.osdl.org>
+References: <1158941750.3445.31.camel@mulgrave.il.steeleye.com>
+ <Pine.LNX.4.64.0609271945450.3952@g5.osdl.org> <1159415242.13562.12.camel@sipan.sipan.org>
+ <200609272339.28337.chase.venters@clientec.com> <20060928135510.GR13641@csclub.uwaterloo.ca>
+ <20060928141932.GA707@DervishD> <20060928144028.GA21814@wohnheim.fh-wedel.de>
+ <Pine.LNX.4.64.0609280748500.3952@g5.osdl.org> <Pine.LNX.4.61.0609290757400.30682@yvahk01.tjqt.qr>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-09-29 at 14:40 +1000, Neil Brown wrote:
-> You seem to be saying that including software in a product that you
-> then distribute is *both* a USE and a DISTRIBUTION of that software.
-
-Sort of ... I'm asserting that producing something (an appliance say, or
-a PCI card) that runs linux to achieve its function is a "use" (an act
-of running the program) within the meaning of GPLv2 clause 0.  Selling
-the Box (or card, or whatever) also becomes a distribution.
-
-> So if the software is obtained under the GPL, and the GPL asserts "no
-> restrictions on use" then it should also not restrict distribution.
-> It can place requirements that must be met before distribution is
-> allowed, but they shouldn't be so onerous as to inhibit distribution.
-> Does that sound right?
-
-Not exactly.  Under v2, there are specific duties that go along with the
-act of distributing (providing access to the source code and all
-modifications), but explicitly none on end use.  You can't get out of
-the distribution requirements simply by claiming it's also a use.
-
-However I claim that, the GPLv3 requirement that you be able to "execute
-modified versions from source code in the recommended or principal
-context of use" does constitute an end use restriction on the embedded
-system because the appliance (or card, or whatever) must be designed in
-such a way as to allow this.
-
-If my claim is valid, it means that GPLv3 violates the spirit of GPLv2
-because it specifically goes against one of its terms (clause 0).  This
-is the reason the FSF sees the act of running embedded Linux in
-something to be a distribution; so they can apply the additional
-restrictions without going against the spirit of GPLv2.
-
-James
 
 
+On Fri, 29 Sep 2006, Jan Engelhardt wrote:
+> 
+> So what would happen if I add an essential GPL2-only file to a "GPL2
+> or later" project? Let's recall, a proprietary program that
+> combines/derives with GPL code makes the final binary GPL (and hence
+> the source, etc. and whatnot, don't stretch it). Question: The Linux
+> kernel does have GPL2 and GPL2+later combined, what does this make
+> the final binary?
+
+The final is always the most restricted license (or put another way: it's 
+the "biggest possible license that can be used for everything", but in 
+practice it means that non-restrictive licenses always lose out to their 
+more restrictive brethren).
+
+This is, btw, why BSD code combined with GPL code is always GPL, and never 
+the other way. It's not a "vote" depending on which one has more code. And 
+it's not a mixture.
+
+The GPLv2 is very much designed to always be the most restricted license 
+in any combination - because the license says that you cannot add any 
+restrictions (so if there _was_ a more restricted license, it would no 
+longer be compatible with the GPLv2, and you couldn't mix them at all in 
+the first place).
+
+So any time you have a valid combination of licenses, if anything is 
+"GPLv2 only", the final end result is inevitably "GPLv2 only".
+
+[ Btw, the same is true of the GPLv3 - very much by design in both cases. 
+  This is why you can _never_ combine a "GPLv2" work with a "GPLv3" work. 
+
+  They simply aren't compatible. One or both must accept the others 
+  license restrictions, and since neither does, and the restrictions 
+  aren't identical, there is no way to turn one into the other, or turn 
+  them both into a wholly new "mixed" license. 
+
+  So this is why the _only_ way you can mix GPLv2 and GPLv3 code is if the 
+  code was dual-licensed, ie we have the "v2 or later" kind of situation. ]
+
+Basic rule: licenses are compatible only if they are strict subsets of 
+each other, and you can only ever take rights _away_ when you relicense 
+something. You can never add rights - if you didn't get those rights in 
+the first place with the original license, they're simply not yours to 
+add.
+
+Otherwise, we could all buy the latest CD albums, and then relicense them 
+with more rights than you got (or we could take GPLv3 code and remove the 
+restrictions, and relicense it as BSD).
+
+So the reason you can't re-license the CD albums is that you don't even 
+have any license to re-distribute them at all, and as such there is 
+nothing for you to sublicense further. And the reason you cannot relicense 
+the GPLv2 is that it tells you that you can't add any new restrictions 
+when you re-distribute anything, and you obviously can't add any rights 
+that you didn't have.
+
+And, as usual: IANAL. But none of this is really even remotely 
+controversial.
+
+			Linus

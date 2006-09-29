@@ -1,90 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932505AbWI2DFW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161088AbWI2DHA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932505AbWI2DFW (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Sep 2006 23:05:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932513AbWI2DFW
+	id S1161088AbWI2DHA (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Sep 2006 23:07:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161090AbWI2DHA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Sep 2006 23:05:22 -0400
-Received: from mail.gmx.net ([213.165.64.20]:985 "HELO mail.gmx.net")
-	by vger.kernel.org with SMTP id S932505AbWI2DFV (ORCPT
+	Thu, 28 Sep 2006 23:07:00 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:28863 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1161088AbWI2DG7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Sep 2006 23:05:21 -0400
-X-Authenticated: #5039886
-Date: Fri, 29 Sep 2006 05:05:19 +0200
-From: =?iso-8859-1?Q?Bj=F6rn?= Steinbrink <B.Steinbrink@gmx.de>
-To: Neil Brown <neilb@suse.de>
-Cc: davids@webmaster.com,
-       "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
-Subject: Re: GPLv3 Position Statement
-Message-ID: <20060929030518.GA21048@atjola.homenet>
-Mail-Followup-To: =?iso-8859-1?Q?Bj=F6rn?= Steinbrink <B.Steinbrink@gmx.de>,
-	Neil Brown <neilb@suse.de>, davids@webmaster.com,
-	"Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
-References: <20060928144028.GA21814@wohnheim.fh-wedel.de> <MDEHLPKNGKAHNMBLJOLKCENGOLAB.davids@webmaster.com> <17692.35028.84683.896718@cse.unsw.edu.au>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <17692.35028.84683.896718@cse.unsw.edu.au>
-User-Agent: Mutt/1.5.13 (2006-08-11)
-X-Y-GMX-Trusted: 0
+	Thu, 28 Sep 2006 23:06:59 -0400
+Date: Thu, 28 Sep 2006 20:04:31 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "Miles Lane" <miles.lane@gmail.com>
+Cc: LKML <linux-kernel@vger.kernel.org>,
+       "James P. Ketrenos" <ipw2100-admin@linux.intel.com>, jgarzik@pobox.com
+Subject: Re: 2.6.18-mm2 -- EIP: [<c11a962e>] klist_node_init+0x2b/0x3a
+ SS:ESP 0068:f63a5f80
+Message-Id: <20060928200431.8f7f3fea.akpm@osdl.org>
+In-Reply-To: <a44ae5cd0609281913q127abc03i72dc7ea8711a223f@mail.gmail.com>
+References: <a44ae5cd0609281913q127abc03i72dc7ea8711a223f@mail.gmail.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 2006.09.29 12:45:40 +1000, Neil Brown wrote:
-> On Thursday September 28, davids@webmaster.com wrote:
-> > 
-> > > In my very uninformed opinion, your problem is a very minor one.  Your
-> > > "v2 or later" code won't get the license v2 removed, it will become
-> > > dual "v2 or v3" licensed.  And assuming that v3 only adds restrictions
-> > > and doesn't allow the licensee any additional rights, you, as the
-> > > author, shouldn't have to worry much.
-> > >
-> > > The problem arises later.  As with BSD/GPL dual licensed code, where
-> > > anyone can take the code and relicense it as either BSD or GPL, "v2 or
-> > > v3" code can get relicensed as v3 only.  At this point, nothing is
-> > > lost, as the identical "v2 or v3" code still exists.  But with further
-> > > development on the "v3 only" branch, you have a fork.  And one that
-> > > doesn't just require technical means to get merged back, but has legal
-> > > restrictions.
-> > 
-> > Unless I'm missing something, you *cannot* change the license from "v2 or
-> > later at your option" to "v3 or later". Both GPLv2 and GPLv3 explicitly
-> > prohibit modifying license notices. (Did the FSF goof big time? It's not too
-> > late to change the draft.)
+On Thu, 28 Sep 2006 19:13:23 -0700
+"Miles Lane" <miles.lane@gmail.com> wrote:
+
+> eth1: RealTek RTL8139 at 0xf9076800, 00:c0:9f:95:18:1b, IRQ 19
+> eth1:  Identified 8139 chip type 'RTL-8100B/8139D'
+> BUG: unable to handle kernel NULL pointer dereference at virtual
+> address 000000d0
+>  printing eip:
+> c11a962e
+> *pde = 00000000
+> Oops: 0000 [#1]
+> PREEMPT
+> last sysfs file: /class/firmware/0000:01:06.0/loading
+
+So you got to the stage of loading firmware.
+
+> Modules linked in: shpchp pci_hotplug intel_agp i2c_i801 agpgart
+> snd_intel8x0 i2c_core snd_intel8x0m snd_ac97_codec snd_ac97_bus
+> snd_seq_dummy snd_seq_oss snd_seq_midi_event snd_seq snd_seq_device
+> snd_pcm_oss snd_mixer_oss ata_generic ata_piix libata 8139too sdhci
+> scsi_mod snd_pcm snd_timer psmouse snd soundcore snd_page_alloc 8139cp
+> mii yenta_socket rsrc_nonstatic pcmcia_core ohci1394 serio_raw ipw2200
+> ieee1394 ide_cd cdrom rtc unix ehci_hcd ohci_hcd uhci_hcd usbcore ext3
+> jbd mbcache
+> CPU:    0
+> EIP:    0060:[<c11a962e>]    Not tainted VLI
+> EFLAGS: 00010296   (2.6.18-mm2 #8)
+> EIP is at klist_node_init+0x2b/0x3a
+> eax: dff16b08   ebx: 000000a0   ecx: c102ebd7   edx: f63a5f44
+> esi: dff16afc   edi: f910e214   ebp: f63a5f88   esp: f63a5f80
+> ds: 007b   es: 007b   ss: 0068
+> Process probe-0000:01:0 (pid: 1697, ti=f63a4000 task=f639c030 task.ti=f63a4000)
+> Stack: 000000a0 dff16afc f63a5f98 c11a964f dff16a80 dff16afc f63a5fac c1124295
+>        00000000 dff16a80 f910e214 f63a5fc4 c1124338 f5c17e80 f5c17e80 f633bd90
+>        c11242f0 f63a5fe0 c102a834 ffffffff ffffffff c102a784 00000000 00000000
+> Call Trace:
+>  [<c11a964f>] klist_add_tail+0x12/0x38
+>  [<c1124295>] device_bind_driver+0x45/0xa0
+>  [<c1124338>] really_probe+0x48/0xb3
+>  [<c102a834>] kthread+0xb0/0xdc
+>  [<c1003abb>] kernel_thread_helper+0x7/0x10
+> DWARF2 unwinder stuck at kernel_thread_helper+0x7/0x10
 > 
-> Could you point to the test in either license that prohibits modifying
-> license notices?
-> I certainly couldn't find it in section 2 of GPLv2, which seems to be
-> the relevant section.
+> Leftover inexact backtrace:
+> 
+>  [<c1003f02>] show_trace_log_lvl+0x12/0x25
+>  [<c1003fa1>] show_stack_log_lvl+0x8c/0x97
+>  [<c100412c>] show_registers+0x180/0x214
+>  [<c1004355>] die+0x195/0x2b0
+>  [<c10148a9>] do_page_fault+0x419/0x4e4
+>  [<c11ac329>] error_code+0x39/0x40
+>  [<c11a964f>] klist_add_tail+0x12/0x38
+>  [<c1124295>] device_bind_driver+0x45/0xa0
+>  [<c1124338>] really_probe+0x48/0xb3
+>  [<c102a834>] kthread+0xb0/0xdc
+>  [<c1003abb>] kernel_thread_helper+0x7/0x10
+>  =======================
+> Code: 55 89 e5 56 53 89 c3 89 d6 8d 42 04 89 42 04 89 40 04 c7 42 10
+> 00 00 00 00 8d 42 14 e8 f2 14 e8 ff 8d 46 0c e8 80 3d f1 ff 89 1e <8b>
+> 53 30 85 d2 74 04 89 f0 ff d2 5b 5e 5d c3 55 89 e5 56 53 89
+> EIP: [<c11a962e>] klist_node_init+0x2b/0x3a SS:ESP 0068:f63a5f80
+>  <6>ipw2200: Detected geography ZZM (11 802.11bg channels, 0 802.11a channels)
 
-It's in section 1, where it says "keep intact all the notices that refer
-to this License" (section 2 refers to section 1).
-The current GPLv3 draft says (section 4): "keep intact all license
-notices".
-
-Notice a difference? I'm not a native speaker and of course IANAL, but
-AFAICT, with "v2 or later", if you follow the terms of GPLv2, you are
-only required to keep notices refering to THAT license, ie. GPLv2, so
-you seem to be allowed to remove the GPLv3 notices. But if you follow
-the terms of the GPLv3, you are required to keep ALL license notices,
-including those that refer to v2.
-So you could actually never ever make a "v2 or later" program a
-"v3 only" program, but only a "v2 only".
-
-Am I missing something?
-
-> Interestingly, 2.b seem to say that if I received a program under
-> GPLv2, and I pass it on, then I must pass it on under GPLv2-only...
-> So to be able to distribute something written today under GPLv3 (when
-> it comes into existence), you must be the original or have received it
-> directly from the original author....
-
-Section 9 states that the notices that refer to the license are
-important. If you specify "v2-only" you can use v2 only. If you specify
-"v2 or later" you are not bound to GPLv2 2.b at all if you choose to
-follow the terms of any later version. And if no version is mentioned at
-all, you can follow the terms of any version ever released.
-
-
-Björn
+Does setting CONFIG_PCI_MULTITHREAD_PROBE=n fix it?

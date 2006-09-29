@@ -1,72 +1,35 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422806AbWI2UV4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422805AbWI2UWh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422806AbWI2UV4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Sep 2006 16:21:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422804AbWI2UVz
+	id S1422805AbWI2UWh (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Sep 2006 16:22:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422807AbWI2UWh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Sep 2006 16:21:55 -0400
-Received: from 216-99-213-120.dsl.aracnet.com ([216.99.213.120]:26066 "EHLO
-	clueserver.org") by vger.kernel.org with ESMTP id S1422797AbWI2UVx
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Sep 2006 16:21:53 -0400
-Date: Fri, 29 Sep 2006 13:21:52 -0700 (PDT)
-From: alan <alan@clueserver.org>
-X-X-Sender: alan@blackbox.fnordora.org
-To: Linus Torvalds <torvalds@osdl.org>
-cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Helge Hafting <helge.hafting@aitel.hist.no>, tglx@linutronix.de,
-       Neil Brown <neilb@suse.de>, Michiel de Boer <x@rebelhomicide.demon.nl>,
-       James Bottomley <James.Bottomley@SteelEye.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: GPLv3 Position Statement
-In-Reply-To: <Pine.LNX.4.64.0609291306080.3952@g5.osdl.org>
-Message-ID: <Pine.LNX.4.64.0609291314250.30853@blackbox.fnordora.org>
-References: <1158941750.3445.31.camel@mulgrave.il.steeleye.com> 
- <451798FA.8000004@rebelhomicide.demon.nl>  <17687.46268.156413.352299@cse.unsw.edu.au>
-  <1159183895.11049.56.camel@localhost.localdomain> 
- <1159200620.9326.447.camel@localhost.localdomain>  <451CF22D.4030405@aitel.hist.no>
-  <Pine.LNX.4.64.0609290940480.3952@g5.osdl.org>  <1159552021.13029.58.camel@localhost.localdomain>
-  <Pine.LNX.4.64.0609291030050.3952@g5.osdl.org> <1159554375.13029.67.camel@localhost.localdomain>
- <Pine.LNX.4.64.0609291120440.3952@g5.osdl.org> <Pine.LNX.4.64.0609291131300.3952@g5.osdl.org>
- <Pine.LNX.4.64.0609291258050.30636@blackbox.fnordora.org>
- <Pine.LNX.4.64.0609291306080.3952@g5.osdl.org>
+	Fri, 29 Sep 2006 16:22:37 -0400
+Received: from tetsuo.zabbo.net ([207.173.201.20]:60829 "EHLO tetsuo.zabbo.net")
+	by vger.kernel.org with ESMTP id S1422808AbWI2UWg (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Sep 2006 16:22:36 -0400
+Message-ID: <451D808A.9050005@zabbo.net>
+Date: Fri, 29 Sep 2006 13:22:34 -0700
+From: Zach Brown <zab@zabbo.net>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060808)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+To: Randy Dunlap <rdunlap@xenotime.net>
+CC: Roger Gammans <roger@computer-surgery.co.uk>,
+       lkml <linux-kernel@vger.kernel.org>, axboe@kernel.dk
+Subject: Re: fs/bio.c - Hardcoded sector size ?
+References: <20060928182238.GA4759@julia.computer-surgery.co.uk>	<20060929113814.db87b8d5.rdunlap@xenotime.net>	<20060928185820.GB4759@julia.computer-surgery.co.uk>	<20060929121157.0258883f.rdunlap@xenotime.net>	<20060928191946.GC4759@julia.computer-surgery.co.uk>	<20060929123737.ec613178.rdunlap@xenotime.net>	<20060928195627.GD4759@julia.computer-surgery.co.uk> <20060929131730.0b733137.rdunlap@xenotime.net>
+In-Reply-To: <20060929131730.0b733137.rdunlap@xenotime.net>
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 29 Sep 2006, Linus Torvalds wrote:
 
->
->
-> On Fri, 29 Sep 2006, alan wrote:
->>
->> On Fri, 29 Sep 2006, Linus Torvalds wrote:
->>
->>> (*) Hah. Who do I think I'm kidding? The revolution will be bloody and
->>> brutal, and you're not going to get the choice to "elect" me except in the
->>> history books written by yours truly.
->>
->> Wow.  You have been living in Portland too long. ]:>
->
-> Is there some Portland subculture that I should be aware of?
->
-> Inquiring minds want to know.
+> 	sector_t		bi_sector;	/* block layer sector
+> 						 * addresses are always in
+> 						 * 512-byte units in Linux */
 
-That would be telling.
+How about adding kerneldoc for sector_t itself?
 
-Here are a few clues to the secret handshake that is Portland...
-
-http://www.mondocroquet.com/
-http://portland.cacophony.org/
-http://www.orycon.org/orycon28/
-http://communique.portland.or.us/02/12/santanarchy_now
-
-And that is only the stuff I can mention in public.  Portland has even 
-darker secrets.
-
--- 
-"Oh, Joel Miller, you've just found the marble in the oatmeal. You're a
-lucky, lucky, lucky little boy. 'Cause you know why? You get to drink
-from... the FIRE HOOOOOSE!"
-         - The Stanley Spudoski guide to mailing list administration
+- z

@@ -1,42 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161317AbWI2Rvr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751216AbWI2Rwl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161317AbWI2Rvr (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Sep 2006 13:51:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161318AbWI2Rvr
+	id S1751216AbWI2Rwl (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Sep 2006 13:52:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751210AbWI2Rwl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Sep 2006 13:51:47 -0400
-Received: from mxsf25.cluster1.charter.net ([209.225.28.225]:37058 "EHLO
-	mxsf25.cluster1.charter.net") by vger.kernel.org with ESMTP
-	id S1161317AbWI2Rvq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Sep 2006 13:51:46 -0400
-X-IronPort-AV: i="4.09,238,1157342400"; 
-   d="scan'208"; a="111656283:sNHT2535056816"
+	Fri, 29 Sep 2006 13:52:41 -0400
+Received: from rtr.ca ([64.26.128.89]:1291 "EHLO mail.rtr.ca")
+	by vger.kernel.org with ESMTP id S1751186AbWI2Rwk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Sep 2006 13:52:40 -0400
+Message-ID: <451D5D66.8030501@rtr.ca>
+Date: Fri, 29 Sep 2006 13:52:38 -0400
+From: Mark Lord <lkml@rtr.ca>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060909)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Andrew Morton <akpm@osdl.org>
+Cc: Linus Torvalds <torvalds@osdl.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: Arrr! Linux 2.6.18
+References: <Pine.LNX.4.64.0609192126070.4388@g5.osdl.org>	<451CDBE3.2080707@rtr.ca> <20060929014433.bc01e83c.akpm@osdl.org>
+In-Reply-To: <20060929014433.bc01e83c.akpm@osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Message-ID: <17693.23849.348841.607752@smtp.charter.net>
-Date: Fri, 29 Sep 2006 13:51:37 -0400
-From: "John Stoffel" <john@stoffel.org>
-To: Jeff Garzik <jeff@garzik.org>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
-       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>
-Subject: Re: SATA status reports update
-In-Reply-To: <451CE8EC.1020203@garzik.org>
-References: <451CE8EC.1020203@garzik.org>
-X-Mailer: VM 7.19 under Emacs 21.4.1
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Andrew Morton wrote:
+> On Fri, 29 Sep 2006 04:40:03 -0400
+> Mark Lord <lkml@rtr.ca> wrote:
+> 
+>> Linus Torvalds wrote:
+>>> ..
+>>> Cap'n Andrew Morton:
+>>>       Blimey! hvc_console suspend fix
+>> Mmm.. I wonder if this could be what killed resume-from-RAM
+>> on my notebook, between -rc6 and -final ?
+>>
+>> Andrew, can you send me just that one patch, and I'll try reverting it.
+..
+> --- a/drivers/char/hvc_console.c~hvc_console-suspend-fix
+> +++ a/drivers/char/hvc_console.c
 
-Jeff> I updated the info at http://linux-ata.org/ to match the current
-Jeff> code in linux-2.6.git.
+ARrrgyeeematey.. the Adm'rl was right about this,
+my kernel doesn't even use that source file.
 
-Thanks!
+I'll look through all of the post-rc6 changes and see if anything
+else might be a candidate.
 
-Jeff> Let me know if something is missing or in error.
-
-It would be nice to have more details about PATA support.  I'm hoping
-to test my HPT302 rev1 card with 2.6.18-mm2 tonight if all goes
-well...
-
-John
+Thanks

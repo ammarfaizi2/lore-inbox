@@ -1,271 +1,120 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751582AbWI2Evf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161412AbWI2Etq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751582AbWI2Evf (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Sep 2006 00:51:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751526AbWI2Evf
+	id S1161412AbWI2Etq (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Sep 2006 00:49:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161409AbWI2Etq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Sep 2006 00:51:35 -0400
-Received: from py-out-1112.google.com ([64.233.166.179]:12391 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S1750812AbWI2Eve (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Sep 2006 00:51:34 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:subject:message-id:x-mailer:mime-version:content-type:content-transfer-encoding;
-        b=Sn8UIvDKKKru+Ya/84GhXE3s7Y2p5bHBG/Z++HDZ3K/2+InAWPSWFl2FQH6LhSSYBxZlxvaf3bWynznJc5Z4MXBvKQQ0CTWdQPMTISdl6QlXwAf0CmBkNKCIIoxuOfcD4vV3IbIM70e2mr2h5vdEhKM9RyAnnaKMIvtP9DGu9Wc=
-Date: Fri, 29 Sep 2006 12:51:44 +0800
-From: "raise.sail" <raise.sail@gmail.com>
-To: "LKML" <linux-kernel@vger.kernel.org>,
-       "linux-usb-devel" <linux-usb-devel@lists.sourceforge.net>,
-       "greg" <greg@kroah.com>
-Subject: [Patch] usb/hid:Microsoft Natural Ergonomic Keyboard 4000 Driver 0.3.2
-Message-ID: <200609291251420464183@gmail.com>
-X-mailer: Foxmail 6, 5, 104, 21 [cn]
+	Fri, 29 Sep 2006 00:49:46 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:46801 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1161412AbWI2Etp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Sep 2006 00:49:45 -0400
+Date: Thu, 28 Sep 2006 21:49:10 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "Miles Lane" <miles.lane@gmail.com>, Greg KH <greg@kroah.com>
+Cc: LKML <linux-kernel@vger.kernel.org>,
+       "James P. Ketrenos" <ipw2100-admin@linux.intel.com>, jgarzik@pobox.com
+Subject: Re: 2.6.18-mm2 -- EIP: [<c11a962e>] klist_node_init+0x2b/0x3a
+ SS:ESP 0068:f63a5f80
+Message-Id: <20060928214910.a3be37ea.akpm@osdl.org>
+In-Reply-To: <a44ae5cd0609282131t2841a7b7ued9ffc22ac470687@mail.gmail.com>
+References: <a44ae5cd0609281913q127abc03i72dc7ea8711a223f@mail.gmail.com>
+	<20060928200431.8f7f3fea.akpm@osdl.org>
+	<a44ae5cd0609282131t2841a7b7ued9ffc22ac470687@mail.gmail.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain;
-	charset="gb2312"
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Changelogs:
+On Thu, 28 Sep 2006 21:31:19 -0700
+"Miles Lane" <miles.lane@gmail.com> wrote:
 
-	1. As Trantorvega suggestion, some key also yield keycode that less than 255. so we can use them under console, etc.
+> On 9/28/06, Andrew Morton <akpm@osdl.org> wrote:
+> > On Thu, 28 Sep 2006 19:13:23 -0700
+> > "Miles Lane" <miles.lane@gmail.com> wrote:
+> >
+> > > eth1: RealTek RTL8139 at 0xf9076800, 00:c0:9f:95:18:1b, IRQ 19
+> > > eth1:  Identified 8139 chip type 'RTL-8100B/8139D'
+> > > BUG: unable to handle kernel NULL pointer dereference at virtual
+> > > address 000000d0
+> > >  printing eip:
+> > > c11a962e
+> > > *pde = 00000000
+> > > Oops: 0000 [#1]
+> > > PREEMPT
+> > > last sysfs file: /class/firmware/0000:01:06.0/loading
+> >
+> > So you got to the stage of loading firmware.
+> >
+> > > Modules linked in: shpchp pci_hotplug intel_agp i2c_i801 agpgart
+> > > snd_intel8x0 i2c_core snd_intel8x0m snd_ac97_codec snd_ac97_bus
+> > > snd_seq_dummy snd_seq_oss snd_seq_midi_event snd_seq snd_seq_device
+> > > snd_pcm_oss snd_mixer_oss ata_generic ata_piix libata 8139too sdhci
+> > > scsi_mod snd_pcm snd_timer psmouse snd soundcore snd_page_alloc 8139cp
+> > > mii yenta_socket rsrc_nonstatic pcmcia_core ohci1394 serio_raw ipw2200
+> > > ieee1394 ide_cd cdrom rtc unix ehci_hcd ohci_hcd uhci_hcd usbcore ext3
+> > > jbd mbcache
+> > > CPU:    0
+> > > EIP:    0060:[<c11a962e>]    Not tainted VLI
+> > > EFLAGS: 00010296   (2.6.18-mm2 #8)
+> > > EIP is at klist_node_init+0x2b/0x3a
+> > > eax: dff16b08   ebx: 000000a0   ecx: c102ebd7   edx: f63a5f44
+> > > esi: dff16afc   edi: f910e214   ebp: f63a5f88   esp: f63a5f80
+> > > ds: 007b   es: 007b   ss: 0068
+> > > Process probe-0000:01:0 (pid: 1697, ti=f63a4000 task=f639c030 task.ti=f63a4000)
+> > > Stack: 000000a0 dff16afc f63a5f98 c11a964f dff16a80 dff16afc f63a5fac c1124295
+> > >        00000000 dff16a80 f910e214 f63a5fc4 c1124338 f5c17e80 f5c17e80 f633bd90
+> > >        c11242f0 f63a5fe0 c102a834 ffffffff ffffffff c102a784 00000000 00000000
+> > > Call Trace:
+> > >  [<c11a964f>] klist_add_tail+0x12/0x38
+> > >  [<c1124295>] device_bind_driver+0x45/0xa0
+> > >  [<c1124338>] really_probe+0x48/0xb3
+> > >  [<c102a834>] kthread+0xb0/0xdc
+> > >  [<c1003abb>] kernel_thread_helper+0x7/0x10
+> > > DWARF2 unwinder stuck at kernel_thread_helper+0x7/0x10
+> > >
+> > > Leftover inexact backtrace:
+> > >
+> > >  [<c1003f02>] show_trace_log_lvl+0x12/0x25
+> > >  [<c1003fa1>] show_stack_log_lvl+0x8c/0x97
+> > >  [<c100412c>] show_registers+0x180/0x214
+> > >  [<c1004355>] die+0x195/0x2b0
+> > >  [<c10148a9>] do_page_fault+0x419/0x4e4
+> > >  [<c11ac329>] error_code+0x39/0x40
+> > >  [<c11a964f>] klist_add_tail+0x12/0x38
+> > >  [<c1124295>] device_bind_driver+0x45/0xa0
+> > >  [<c1124338>] really_probe+0x48/0xb3
+> > >  [<c102a834>] kthread+0xb0/0xdc
+> > >  [<c1003abb>] kernel_thread_helper+0x7/0x10
+> > >  =======================
+> > > Code: 55 89 e5 56 53 89 c3 89 d6 8d 42 04 89 42 04 89 40 04 c7 42 10
+> > > 00 00 00 00 8d 42 14 e8 f2 14 e8 ff 8d 46 0c e8 80 3d f1 ff 89 1e <8b>
+> > > 53 30 85 d2 74 04 89 f0 ff d2 5b 5e 5d c3 55 89 e5 56 53 89
+> > > EIP: [<c11a962e>] klist_node_init+0x2b/0x3a SS:ESP 0068:f63a5f80
+> > >  <6>ipw2200: Detected geography ZZM (11 802.11bg channels, 0 802.11a channels)
+> >
+> > Does setting CONFIG_PCI_MULTITHREAD_PROBE=n fix it?
+> 
+> Yes and no.  The BUG no longer occurs,
 
-	For how use this driver in userspace, you can find much useful information at follow URL:
+OK, thanks.  Note to Greg: CONFIG_PCI_MULTITHREAD_PROBE+ipw2200 = oops.
 
-	http://gentoo-wiki.com/HOWTO_Microsoft_Natural_Ergonomic_Keyboard_4000
+> but either ipw2200 or
+> NetworkManager is still not working.  I am running Fedora development
+> (rawhide).  For some reason, NM still cannot establish a connection
+> with this kernel build (this failed with 2.6.18-mm2 previously, but I
+> thought it was related to the BUG).  "iwlist scan" can corrently
+> detect my access point.  Also, I can use iwconfig and dhclient to
+> establish a working connection.  NM fails with this output in the
+> message log (I'll try getting a more detailed debug log out of NM):
 
-	However, many discusses can be found here:
+Another reporter mentioned that he could only get his wireless to associate
+with his AP by using essid "any".  But that was a different type of card. 
 
-	http://www.ubuntuforums.org/showthread.php?t=229559
+ipw2200 works OK for me, fwiw.
 
-	Thanks trantorvega here again.
+There's a largeish ipw2200 update in mainline now.  That'd be worth testing.
 
-This driver requires:
-	1.  [PATCH] usb: The HID Simple Driver Interface 0.3.2 (core)
-	2.  [PATCH] usb: HID Simple Driver Interface 0.3.1 (Kconfig and Makefile)
-
-	Or you also can get all patches in the mail of "[PATCH] usb: The HID Simple Driver Interface 0.3.2 (core)", see its attachment.
-
-PS:	Who is the maintainer of the input subsystem today, Should I forward this mail to him/her?
-
-It can be applied on 2.6.18 at least. 
-
-Signed-off-by: Liyu <raise.sail@gmail.com>
-
-diff -Naurp linux-2.6.18/drivers/usb/input/usbnek4k.c linux-2.6.18/drivers/usb/input.new/usbnek4k.c
---- linux-2.6.18/drivers/usb/input/usbnek4k.c	1970-01-01 08:00:00.000000000 +0800
-+++ linux-2.6.18/drivers/usb/input.new/usbnek4k.c	2006-09-29 11:21:02.000000000 +0800
-@@ -0,0 +1,210 @@
-+/*
-+ *  Microsoft Natural Ergonomic Keyboard 4000 Driver
-+ *
-+ *  Version:	0.3.2
-+ *
-+ *  Copyright (c) 2006 Li Yu <raise.sail@gmail.com>
-+ */
-+
-+/*
-+ * This program is free software; you can redistribute it and/or modify it
-+ * under the terms of the GNU General Public License as published by the Free
-+ * Software Foundation; either version 2 of the License, or (at your option)
-+ * any later version.
-+ */
-+
-+#include <linux/kernel.h>
-+#include <linux/input.h>
-+#include "hid.h"
-+#include "hid-simple.h"
-+
-+#define USAGE_ZOOM_IN	0x22d
-+#define USAGE_ZOOM_OUT	0x22e
-+#define USAGE_HOME	0x223
-+#define USAGE_SEARCH	0x221
-+#define USAGE_EMAIL	0x18a
-+#define USAGE_FAVORITES	0x182
-+#define USAGE_MUTE	0xe2
-+#define USAGE_VOLUME_DOWN	0xea
-+#define USAGE_VOLUME_UP	0xe9
-+#define USAGE_PLAY_PAUSE	0xcd
-+#define USAGE_CALCULATOR	0x192
-+#define USAGE_BACK	0x224
-+#define USAGE_FORWARD	0x225
-+#define USAGE_CUSTOM	0xff05
-+
-+#define USAGE_CUSTOM_RELEASE	0x0
-+#define USAGE_CUSTOM_1	0x1
-+#define USAGE_CUSTOM_2	0x2
-+#define USAGE_CUSTOM_3	0x4
-+#define USAGE_CUSTOM_4	0x8
-+#define USAGE_CUSTOM_5	0x10
-+
-+#define USAGE_HELP	0x95
-+#define USAGE_UNDO	0x21a
-+#define USAGE_REDO	0x279
-+#define USAGE_NEW	0x201
-+#define USAGE_OPEN	0x202
-+#define USAGE_CLOSE	0x203
-+
-+#define USAGE_REPLY	0x289
-+#define USAGE_FWD	0x28b
-+#define USAGE_SEND	0x28c
-+#define USAGE_SPELL	0x1ab
-+#define USAGE_SAVE	0x207
-+#define USAGE_PRINT	0x208
-+
-+#define USAGE_KEYPAD_EQUAL	0x67
-+#define USAGE_KEYPAD_LEFT_PAREN	0xb6
-+#define USAGE_KEYPAD_RIGHT_PAREN	0xb7
-+
-+#define MSNEK4K_ID_VENDOR	0x045e
-+#define MSNEK4K_ID_PRODUCT	0x00db
-+
-+MODULE_DEVICE_TABLE(usb, nek4k_id_table);
-+
-+static char driver_name[] = "Microsoft Natural Ergonomic Keyboard 4000";
-+
-+struct usage_block consumer_usage_block[] = {
-+	USAGE_BLOCK(USAGE_ZOOM_IN, 0, EV_KEY, KEY_F13, 0),
-+	USAGE_BLOCK(USAGE_ZOOM_OUT, 0, EV_KEY, KEY_F14, 0),
-+	USAGE_BLOCK(USAGE_HOME, 0, EV_KEY, KEY_HOMEPAGE, 0),
-+	USAGE_BLOCK(USAGE_SEARCH, 0, EV_KEY, KEY_SEARCH, 0),
-+	USAGE_BLOCK(USAGE_EMAIL, 0, EV_KEY, KEY_EMAIL, 0),
-+	USAGE_BLOCK(USAGE_FAVORITES, 0, EV_KEY, KEY_F16, 0),
-+	USAGE_BLOCK(USAGE_FAVORITES, 0, EV_KEY, KEY_FAVORITES, 0),
-+	USAGE_BLOCK(USAGE_MUTE, 0, EV_KEY, KEY_MUTE, 0),
-+	USAGE_BLOCK(USAGE_VOLUME_DOWN, 0, EV_KEY, KEY_VOLUMEDOWN, 0),
-+	USAGE_BLOCK(USAGE_VOLUME_UP, 0, EV_KEY, KEY_VOLUMEUP, 0),
-+	USAGE_BLOCK(USAGE_PLAY_PAUSE, 0, EV_KEY, KEY_PLAYPAUSE, 0),
-+	USAGE_BLOCK(USAGE_CALCULATOR, 0, EV_KEY, KEY_CALC, 0),
-+	USAGE_BLOCK(USAGE_BACK, 0, EV_KEY, KEY_BACK, 0),
-+	USAGE_BLOCK(USAGE_FORWARD, 0, EV_KEY, KEY_FORWARD, 0),
-+	USAGE_BLOCK(USAGE_HELP, 0, EV_KEY, KEY_HELP, 0),
-+	USAGE_BLOCK(USAGE_UNDO, 0, EV_KEY, KEY_UNDO, 0),
-+	USAGE_BLOCK(USAGE_REDO, 0, EV_KEY, KEY_F17, 0),
-+	USAGE_BLOCK(USAGE_REDO, 0, EV_KEY, KEY_REDO, 0),
-+	USAGE_BLOCK(USAGE_NEW, 0, EV_KEY, KEY_NEW, 0),
-+	USAGE_BLOCK(USAGE_OPEN, 0, EV_KEY, KEY_OPEN, 0),
-+	USAGE_BLOCK(USAGE_CLOSE, 0, EV_KEY, KEY_CLOSE, 0),
-+	USAGE_BLOCK(USAGE_REPLY, 0, EV_KEY, KEY_REPLY, 0),
-+	USAGE_BLOCK(USAGE_FWD, 0, EV_KEY, KEY_FORWARDMAIL, 0),
-+	USAGE_BLOCK(USAGE_SEND, 0, EV_KEY, KEY_SEND, 0),
-+	USAGE_BLOCK(USAGE_SPELL, 0, EV_KEY, KEY_F15, 0),
-+	USAGE_BLOCK(USAGE_SAVE, 0, EV_KEY, KEY_SAVE, 0),
-+	USAGE_BLOCK(USAGE_PRINT, 0, EV_KEY, KEY_PRINT, 0),
-+	USAGE_BLOCK_NULL
-+};
-+
-+struct usage_block msvendor_usage_block[] = {
-+	USAGE_BLOCK(USAGE_CUSTOM, USAGE_CUSTOM_1, EV_KEY, KEY_FN_F1, 0),
-+	USAGE_BLOCK(USAGE_CUSTOM, USAGE_CUSTOM_2, EV_KEY, KEY_FN_F2, 0),
-+	USAGE_BLOCK(USAGE_CUSTOM, USAGE_CUSTOM_3, EV_KEY, KEY_FN_F3, 0),
-+	USAGE_BLOCK(USAGE_CUSTOM, USAGE_CUSTOM_4, EV_KEY, KEY_FN_F4, 0),
-+	USAGE_BLOCK(USAGE_CUSTOM, USAGE_CUSTOM_5, EV_KEY, KEY_FN_F5, 0),
-+	USAGE_BLOCK_NULL
-+};
-+
-+struct usage_block keyboard_usage_block[] = {
-+	USAGE_BLOCK(USAGE_KEYPAD_EQUAL, 0, EV_KEY, KEY_KPEQUAL, 0),
-+	USAGE_BLOCK(USAGE_KEYPAD_LEFT_PAREN, 0, EV_KEY, KEY_KPLEFTPAREN, 0),
-+	USAGE_BLOCK(USAGE_KEYPAD_RIGHT_PAREN, 0, EV_KEY, KEY_KPRIGHTPAREN, 0),
-+	USAGE_BLOCK_NULL
-+};
-+
-+struct usage_page_block nek4k_usage_page_blockes[] = {
-+	USAGE_PAGE_BLOCK(HID_UP_CONSUMER, consumer_usage_block),
-+	USAGE_PAGE_BLOCK(HID_UP_MSVENDOR, msvendor_usage_block),
-+	USAGE_PAGE_BLOCK(HID_UP_KEYBOARD, keyboard_usage_block),
-+	USAGE_PAGE_BLOCK_NULL
-+};
-+
-+static int nek4k_pre_event(const struct hid_device *hid, 
-+					const struct hid_field *field,
-+					const struct hid_usage *usage,
-+					const __s32 value,
-+					const struct pt_regs *regs)
-+{
-+	struct hid_input *hidinput = field->hidinput;
-+	struct input_dev *input = hidinput->input;
-+	int code = 0, ascii_keycode = 0, ev_value;
-+
-+	ev_value = value?1:0;
-+
-+	switch (usage->hid&HID_USAGE) {
-+	case USAGE_FAVORITES:
-+		code = KEY_FAVORITES;
-+		ascii_keycode = KEY_F16;
-+		goto exit;
-+	case USAGE_REDO:
-+		code = KEY_REDO;
-+		ascii_keycode = KEY_F17;
-+		goto exit;
-+	};
-+
-+	if ((usage->hid&HID_USAGE) != USAGE_CUSTOM)
-+		/* let hid core continue to process them */
-+		return (!0);
-+
-+	switch (value) {
-+	case USAGE_CUSTOM_RELEASE:
-+		code = get_keycode(hidinput->private);
-+		ascii_keycode = KEY_F18+(code-KEY_FN_F1);
-+		break;
-+	case USAGE_CUSTOM_1:
-+		code = KEY_FN_F1;
-+		ascii_keycode = KEY_F18;
-+		break;
-+	case USAGE_CUSTOM_2:
-+		code = KEY_FN_F2;
-+		ascii_keycode = KEY_F19;
-+		break;
-+	case USAGE_CUSTOM_3:
-+		code = KEY_FN_F3;
-+		ascii_keycode = KEY_F20;
-+		break;
-+	case USAGE_CUSTOM_4:
-+		code = KEY_FN_F4;
-+		ascii_keycode = KEY_F21;
-+		break;
-+	case USAGE_CUSTOM_5:
-+		code = KEY_FN_F5;
-+		ascii_keycode = KEY_F22;
-+		break;
-+	}
-+exit:
-+	if (code) {
-+		hidinput->private = (void*)code;
-+		input_event(input, EV_KEY, code, ev_value);
-+		input_sync(input);
-+	}
-+	if (ascii_keycode) {
-+		input_event(input, EV_KEY, ascii_keycode, ev_value);
-+		input_sync(input);
-+	}
-+	return 0; 
-+}
-+
-+static struct hidinput_simple_driver nek4k_driver = {
-+	.owner = THIS_MODULE,
-+	.name = driver_name,
-+	.pre_event = nek4k_pre_event,
-+	.id_table = nek4k_id_table,
-+	.usage_page_table = nek4k_usage_page_blockes,
-+	.private = NULL
-+};
-+
-+static int __init nek4k_init(void)
-+{
-+	return hidinput_register_simple_driver(&nek4k_driver);
-+}
-+
-+static void __exit nek4k_exit(void)
-+{
-+	hidinput_unregister_simple_driver(&nek4k_driver);
-+}
-+
-+module_init(nek4k_init);
-+module_exit(nek4k_exit);
-+
-+MODULE_LICENSE("GPL");
-
+It looks like that ipw2200 update was in 2.6.18-mm1 though.  Did that work?

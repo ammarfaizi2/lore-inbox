@@ -1,138 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422823AbWI2VlQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161390AbWI2VmV@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422823AbWI2VlQ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Sep 2006 17:41:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964855AbWI2VlQ
+	id S1161390AbWI2VmV (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Sep 2006 17:42:21 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161506AbWI2VmU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Sep 2006 17:41:16 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:46281 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S964851AbWI2VlO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Sep 2006 17:41:14 -0400
-Date: Fri, 29 Sep 2006 14:41:10 -0700
-From: Bryce Harrington <bryce@osdl.org>
-To: "Moore, Eric" <Eric.Moore@lsil.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-scsi@vger.kernel.org
-Subject: Re: [OOPS] -git8,9:  NULL pointer dereference in mptspi_dv_renegotiate_work
-Message-ID: <20060929214110.GH12968@osdl.org>
-References: <664A4EBB07F29743873A87CF62C26D7035039A@NAMAIL4.ad.lsil.com>
+	Fri, 29 Sep 2006 17:42:20 -0400
+Received: from ug-out-1314.google.com ([66.249.92.170]:52675 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1161390AbWI2VmT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Sep 2006 17:42:19 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:x-mailer:mime-version:content-type:content-transfer-encoding;
+        b=TIKWPakyLwFFx+3CsAcPYV4vlD+bN0CODuuVTSlH7HA8Ycp5hsX/ap1w/fM5n3FUJU7yyRJ9ARpmpNlrhAm97eXcPtCBw03vvGckzffECG1LHB9mHfaHLzkfGW6YJ7m7Um3F3/ozFn4uM611sEr41VjVEUyilTvEg34QCVJx0AQ=
+Date: Sat, 30 Sep 2006 01:43:55 +0400
+From: "Eugeny S. Mints" <eugeny.mints@gmail.com>
+To: linux-kernel@vger.kernel.org
+Cc: linux-pm@lists.osdl.org, matt@nomadgs.com, amit.kucheria@nokia.com,
+       igor.stoppa@nokia.com, ext-Tuukka.Tikkanen@nokia.com
+Subject: [PATCH] PowerOP, Intro 0/2
+Message-Id: <20060930014355.ccae11a9.eugeny.mints@gmail.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.15; i386-redhat-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <664A4EBB07F29743873A87CF62C26D7035039A@NAMAIL4.ad.lsil.com>
-User-Agent: Mutt/1.5.11
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 29, 2006 at 12:29:55PM -0600, Moore, Eric wrote:
-> On Friday, September 29, 2006 11:18 AM, Bryce Harrington wrote:  
-> 
-> > [<ffffffff80484f94>] mpt_HardResetHandler+0xb4/0x12c
-> > [<ffffffff8048500c>] mpt_timer_expired+0x0/0x24
-> 
-> mpt_timer_expired means most likely we timed out sending 
-> request for config page from firmware.  The timeout results
-> in host reset, which results in domain validation being called.
-> Perhaps the config pages failed before we allocated memory for hd.
-> 
-> Can you enable debug messages in the driver Makefile, for
-> the line called MPT_DEBUG_CONFIG; that way we can find out which
-> config page failed.  
+The PowerOP Core provides completely arch independent interface
+to create and control operating points which consist of arbitrary
+subset of power parameters available on a certain platform.
 
-Sure; not sure what the interesting part is, but here's the full log
-from this:
-
-   http://crucible.osdl.org/runs/2265/sysinfo/amd01.2.console
-
-> There were some changes in scsi_transort_spi.c, that occured
-> between 2.6.18-git1 and 2.6.18-git2.  I doubt these changes
-> would of effected this.   Can you determine between which
-> git version releases did this problem begin occuring?
-
-I found that the problem did not occur with -git7, but did occur with
--git8, 9, 10, 11, and 12.  I didn't check kernels prior to that but
-could if you think it would help.
- 
-> Also, can you describe your configuration?  Such as which
-> kind of devices are you usign, and whether if they are U320 devices,
-> or are their older ones, such as U160.
-
-Sure.  Yes, there are two U320 SCSI hd's.
-
-    Host:               amd01
-    Kernel:             2.6.12-gentoo-r10
-    Distribution:       gentoo 1.6.14
-    Memory:             2053852 kB
-    Arch:               x86_64
-    CPU(s):             2x AMD Opteron(tm) Processor 242
-
-SCSI:
-     *-pci:1
-          description: PCI bridge
-          product: AMD-8131 PCI-X Bridge
-          vendor: Advanced Micro Devices [AMD]
-          physical id: 2
-          bus info: pci@00:02.0
-          version: 12
-          width: 32 bits
-          clock: 66MHz
-          capabilities: pci normal_decode bus_master cap_list
-        *-scsi:0
-             description: SCSI storage controller
-             product: 53c1030 PCI-X Fusion-MPT Dual Ultra320 SCSI
-             vendor: LSI Logic / Symbios Logic
-             physical id: 1
-             bus info: pci@02:01.0
-             version: 07
-             width: 64 bits
-             clock: 33MHz
-             capabilities: scsi bus_master cap_list
-             configuration: driver=mptbase
-             resources: ioport:c400-c4ff iomemory:fe980000-fe98ffff iomemory:fe970000-fe97ffff irq:185
-        *-scsi:1
-             description: SCSI storage controller
-             product: 53c1030 PCI-X Fusion-MPT Dual Ultra320 SCSI
-             vendor: LSI Logic / Symbios Logic
-             physical id: 1.1
-             bus info: pci@02:01.1
-             version: 07
-             width: 64 bits
-             clock: 33MHz
-             capabilities: scsi bus_master cap_list
-             configuration: driver=mptbase
-             resources: ioport:c800-c8ff iomemory:fe9f0000-fe9fffff iomemory:fe9e0000-fe9effff irq:193
+PowerOP Core upper layer interface provides the following capabilities:
+- to register an operating point by passing an identifier of the point
+represented by a string and arbitrary subset of power parameters available
+on a certain platform by a string (parameter name) and value pairs.
+- to unregister operating point by name
+- to set operating point by name
+- to get/set values of arbitrary subset of platform power parameters associated
+with a point (point is passed by name or NULL to get current parameter values
+from hw)
+- _optional_ SysFS interface. If SysFs interface is enabled each operating point
+registered with PowerOP core appears under /sys/power/. /sys/power/<op>/ will
+contain an attribute for each power parameter. Power parameters are rw. An
+operating point may be activated by writing its name to /sys/power/active. The
+hardware power parameters currently set may be read via /sys/power/hw/, a
+special operating point that reads parameter attribute values from hardware, for
+diagnostic purposes.
+Operating points creation with help of SysFS interface is _optional_
+_configurable_ feature. Operating points are created by writing the name of the
+operating point to /sys/power/new.  This may be a job for configfs.
 
 
-PCI:
+PowerOP get and register point APIs use name/value pairs for the power
+parameters which eliminate the need for data structure sharing between
+the PM core and consumers of the PowerOP API.   Earlier versions
+required include/asm-xxx/power_params.h to be included in both places.
 
-    00:01.0 PCI bridge: Advanced Micro Devices [AMD] AMD-8131 PCI-X Bridge (rev 12) (prog-if 00 [Normal decode])
-    00:01.1 PIC: Advanced Micro Devices [AMD] AMD-8131 PCI-X IOAPIC (rev 01) (prog-if 10 [IO-APIC])
-    00:02.0 PCI bridge: Advanced Micro Devices [AMD] AMD-8131 PCI-X Bridge (rev 12) (prog-if 00 [Normal decode])
-    00:02.1 PIC: Advanced Micro Devices [AMD] AMD-8131 PCI-X IOAPIC (rev 01) (prog-if 10 [IO-APIC])
-    00:06.0 PCI bridge: Advanced Micro Devices [AMD] AMD-8111 PCI (rev 07) (prog-if 00 [Normal decode])
-    00:07.0 ISA bridge: Advanced Micro Devices [AMD] AMD-8111 LPC (rev 05)
-    00:07.1 IDE interface: Advanced Micro Devices [AMD] AMD-8111 IDE (rev 03) (prog-if 8a [Master SecP PriP])
-    00:07.3 Bridge: Advanced Micro Devices [AMD] AMD-8111 ACPI (rev 05)
-    00:18.0 Host bridge: Advanced Micro Devices [AMD] K8 [Athlon64/Opteron] HyperTransport Technology Configuration
-    00:18.1 Host bridge: Advanced Micro Devices [AMD] K8 [Athlon64/Opteron] Address Map
-    00:18.2 Host bridge: Advanced Micro Devices [AMD] K8 [Athlon64/Opteron] DRAM Controller
-    00:18.3 Host bridge: Advanced Micro Devices [AMD] K8 [Athlon64/Opteron] Miscellaneous Control
-    00:19.0 Host bridge: Advanced Micro Devices [AMD] K8 [Athlon64/Opteron] HyperTransport Technology Configuration
-    00:19.1 Host bridge: Advanced Micro Devices [AMD] K8 [Athlon64/Opteron] Address Map
-    00:19.2 Host bridge: Advanced Micro Devices [AMD] K8 [Athlon64/Opteron] DRAM Controller
-    00:19.3 Host bridge: Advanced Micro Devices [AMD] K8 [Athlon64/Opteron] Miscellaneous Control
-    01:00.0 USB Controller: Advanced Micro Devices [AMD] AMD-8111 USB (rev 0b) (prog-if 10 [OHCI])
-    01:00.1 USB Controller: Advanced Micro Devices [AMD] AMD-8111 USB (rev 0b) (prog-if 10 [OHCI])
-    01:04.0 VGA compatible controller: ATI Technologies Inc Rage XL (rev 27) (prog-if 00 [VGA])
-    02:01.0 SCSI storage controller: LSI Logic / Symbios Logic 53c1030 PCI-X Fusion-MPT Dual Ultra320 SCSI (rev 07)
-    02:01.1 SCSI storage controller: LSI Logic / Symbios Logic 53c1030 PCI-X Fusion-MPT Dual Ultra320 SCSI (rev 07)
-    02:03.0 Ethernet controller: Broadcom Corporation NetXtreme BCM5704 Gigabit Ethernet (rev 03)
-    02:03.1 Ethernet controller: Broadcom Corporation NetXtreme BCM5704 Gigabit Ethernet (rev 03)
+This also enables a variable argument list for the registration and get
+APIs.  Some operating points may only need to work with a subset of the
+power parameters.  In this case the creator of the operating point only
+needs to provide the name/value pair for the parameters required for
+that point.  The rest are set to a don't care value by the internals.
 
-More info about this machine can be found here (for a different testrun).
-The INFO directory has the full output from lshw:
+PowerOP is a building block for power management on systems that have a
+large set of power parameter that can adjusted to maximize power and
+operational efficiency.   Mobile consumer devices are examples of these
+systems that require the PowerOP features.   However, PowerOP works
+just as well on systems with one or two parameters.  The API allows the
+h/w layer to define what parameters are available on that platform.
 
-    http://crucible.osdl.org/runs/2284/sysinfo/amd01.1/
+Operating points can be registered at anytime.  Registration can occur
+from a architecture init-call, loadable kernel module or some other
+layer.  Operating point registration notifiers are provided for layers,
+such as cpufreq, that could take advantage of new operating
+points that become available or just need to know when operating points
+are loaded.
 
-Bryce
+PowerOP continues to support in kernel governor concepts from cpufreq as well
+as userspace policy managers.
+

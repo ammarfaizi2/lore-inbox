@@ -1,62 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932314AbWI2QXB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932322AbWI2QWi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932314AbWI2QXB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Sep 2006 12:23:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932328AbWI2QXB
+	id S932322AbWI2QWi (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Sep 2006 12:22:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932314AbWI2QWi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Sep 2006 12:23:01 -0400
-Received: from nz-out-0102.google.com ([64.233.162.194]:47419 "EHLO
-	nz-out-0102.google.com") by vger.kernel.org with ESMTP
-	id S932324AbWI2QXA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Sep 2006 12:23:00 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:to:mime-version:resent-cc:content-type:resent-date:message-id:content-transfer-encoding:resent-to:subject:resent-from:resent-message-id:date:x-mailer:from;
-        b=r/cvMu48qXcOHwlaVXM7LsJZ19sDhhtYrhc+KkNrB84yVhLMOFmpL48GjstQcVPkz8bsSLQhW0pQeO9e9a6jSgf6La3eGx2xgDEgkvvdYYBn4aHVhAvQuWWG9d9FEGVDQ9s88DqMMDL3qh+T37kDlfjRqw9eS8dxYFUsoPDsl3M=
-To: girishvg@gmail.com
-Mime-Version: 1.0 (Apple Message framework v749)
-Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
-Message-Id: <0635847A-C149-412C-92B1-A974230381F8@dts.local>
+	Fri, 29 Sep 2006 12:22:38 -0400
+Received: from smtp-out.google.com ([216.239.45.12]:46838 "EHLO
+	smtp-out.google.com") by vger.kernel.org with ESMTP id S932322AbWI2QWh
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Sep 2006 12:22:37 -0400
+DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
+	h=received:message-id:date:from:to:subject:cc:in-reply-to:
+	mime-version:content-type:content-transfer-encoding:
+	content-disposition:references;
+	b=DbwZUuB692KOMWpbUBYNjxV+LDVS3CaCwN72janNQNK5tKIrJArX5PtOQVe9Z1jSj
+	Apg9lh5LKgkXizbJi3zyQ==
+Message-ID: <6599ad830609290922v3c1c0798wcf4ff16f0883884d@mail.google.com>
+Date: Fri, 29 Sep 2006 09:22:23 -0700
+From: "Paul Menage" <menage@google.com>
+To: "Paul Jackson" <pj@sgi.com>
+Subject: Re: [RFC][PATCH 00/10] Task watchers v2 Introduction
+Cc: "Matt Helsley" <matthltc@us.ibm.com>, linux-kernel@vger.kernel.org,
+       jes@sgi.com, lse-tech@lists.sourceforge.net, sekharan@us.ibm.com,
+       jtk@us.ibm.com, hch@lst.de, viro@zeniv.linux.org.uk, sgrubb@redhat.com,
+       linux-audit@redhat.com
+In-Reply-To: <20060928194142.cece62bb.pj@sgi.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Subject: [PATCH] include children count, in Threads: field present in /proc/<pid>/status (take-1)
-Date: Sat, 30 Sep 2006 00:18:17 +0900 (JST)
-X-Mailer: Apple Mail (2.749)
-From: girish <girishvg@gmail.com>
+Content-Disposition: inline
+References: <20060929020232.756637000@us.ibm.com>
+	 <20060928194142.cece62bb.pj@sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 9/28/06, Paul Jackson <pj@sgi.com> wrote:
+> How might this play with Paul Menage's <menage@google.com> patch posted
+> earlier today on lkml:
+>
+>   [RFC][PATCH 0/4] Generic container system
 
-Hello.
+I've not looked closely at Matt's patch, but I'm sure that there would
+be no problems with hooking the container system to use task watchers
+rather than patching fork.c/exit.c directly.
 
-Could somebody please check if this is acceptable.
-
-Thanks.
-
-Signed-off-by: Girish V. Gulawani <girishvg@gmail.com>
-
-
---- linux-vanilla/fs/proc/array.c	2006-09-20 12:42:06.000000000 +0900
-+++ linux/fs/proc/array.c	2006-09-30 00:16:59.000000000 +0900
-@@ -248,6 +248,8 @@ static inline char * task_sig(struct tas
-  	int num_threads = 0;
-  	unsigned long qsize = 0;
-  	unsigned long qlim = 0;
-+	int num_children = 0;
-+	struct list_head *_p;
-
-  	sigemptyset(&pending);
-  	sigemptyset(&shpending);
-@@ -268,9 +270,11 @@ static inline char * task_sig(struct tas
-  		qlim = p->signal->rlim[RLIMIT_SIGPENDING].rlim_cur;
-  		spin_unlock_irq(&p->sighand->siglock);
-  	}
-+	list_for_each(_p, &p->children)
-+		++num_children;
-  	read_unlock(&tasklist_lock);
-
--	buffer += sprintf(buffer, "Threads:\t%d\n", num_threads);
-+	buffer += sprintf(buffer, "Threads:\t%d\n", num_threads +  
-num_children);
-  	buffer += sprintf(buffer, "SigQ:\t%lu/%lu\n", qsize, qlim);
-
-  	/* render them all */
+Paul

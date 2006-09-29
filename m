@@ -1,44 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932089AbWI2Jfo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932091AbWI2JgW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932089AbWI2Jfo (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Sep 2006 05:35:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932119AbWI2Jfo
+	id S932091AbWI2JgW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Sep 2006 05:36:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932107AbWI2JgW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Sep 2006 05:35:44 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:60832 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S932091AbWI2Jfn (ORCPT
+	Fri, 29 Sep 2006 05:36:22 -0400
+Received: from gw.goop.org ([64.81.55.164]:52190 "EHLO mail.goop.org")
+	by vger.kernel.org with ESMTP id S932091AbWI2JgV (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Sep 2006 05:35:43 -0400
-Message-ID: <451CE8EC.1020203@garzik.org>
-Date: Fri, 29 Sep 2006 05:35:40 -0400
-From: Jeff Garzik <jeff@garzik.org>
+	Fri, 29 Sep 2006 05:36:21 -0400
+Message-ID: <451CE921.5010002@goop.org>
+Date: Fri, 29 Sep 2006 02:36:33 -0700
+From: Jeremy Fitzhardinge <jeremy@goop.org>
 User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
 MIME-Version: 1.0
-To: Linux Kernel <linux-kernel@vger.kernel.org>,
-       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>
-Subject: SATA status reports update
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org, Andi Kleen <ak@muc.de>,
+       Hugh Dickens <hugh@veritas.com>,
+       Michael Ellerman <michael@ellerman.id.au>,
+       Paul Mackerras <paulus@samba.org>, Matt Mackall <mpm@selenic.com>
+Subject: Re: [PATCH RFC 1/4] Generic BUG handling.
+References: <20060928225444.439520197@goop.org>	<20060928225452.229936605@goop.org> <20060929021604.02fb6162.akpm@osdl.org>
+In-Reply-To: <20060929021604.02fb6162.akpm@osdl.org>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.3 (----)
-X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I updated the info at http://linux-ata.org/ to match the current code in 
-linux-2.6.git.
+Andrew Morton wrote:
+> I think we need to thank the powerpc guys, then take away their function
+> name printing ;)
+>   
 
-Hardware and driver status:
-	http://linux-ata.org/driver-status.html
-   notably, the driver matrix:
-	http://linux-ata.org/driver-status.html#matrix
-Software status:
-	http://linux-ata.org/software-status.html
-Concise feature (i.e. buzzword) list:
-	http://linux-ata.org/features.html
+Also, I think !CONFIG_DEBUG_BUGVERBOSE shouldn't store anything other 
+than the ud2a instructions, to keep the embedded people happy.
 
-Let me know if something is missing or in error.
-
-	Jeff
-
+    J
 

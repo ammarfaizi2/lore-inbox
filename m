@@ -1,38 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751030AbWI2KCO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932080AbWI2KEB@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751030AbWI2KCO (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Sep 2006 06:02:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751041AbWI2KCO
+	id S932080AbWI2KEB (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Sep 2006 06:04:01 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932188AbWI2KEB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Sep 2006 06:02:14 -0400
-Received: from ironport-c10.fh-zwickau.de ([141.32.72.200]:58895 "EHLO
-	ironport-c10.fh-zwickau.de") by vger.kernel.org with ESMTP
-	id S1751023AbWI2KCN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Sep 2006 06:02:13 -0400
-X-IronPort-Anti-Spam-Filtered: true
-X-IronPort-Anti-Spam-Result: AQAAABCKHEWLfAEBDQ
-X-IronPort-AV: i="4.09,234,1157320800"; 
-   d="scan'208"; a="3628484:sNHT30957080"
-Date: Fri, 29 Sep 2006 12:02:11 +0200
-From: Joerg Roedel <joro-lkml@zlug.org>
-To: Tchesmeli Serge <serge@lea-linux.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [BUG] ? Strange behaviour since kernel 2.6.17 with a https website
-Message-ID: <20060929100211.GB19115@zlug.org>
-References: <451CEBA8.8050604@lea-linux.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <451CEBA8.8050604@lea-linux.com>
-User-Agent: Mutt/1.3.28i
+	Fri, 29 Sep 2006 06:04:01 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:7842 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S932080AbWI2KEA (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Sep 2006 06:04:00 -0400
+Message-ID: <451CEF8E.2050601@garzik.org>
+Date: Fri, 29 Sep 2006 06:03:58 -0400
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
+MIME-Version: 1.0
+To: Prakash Punnoor <prakash@punnoor.de>
+CC: Linux Kernel <linux-kernel@vger.kernel.org>,
+       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>
+Subject: Re: SATA status reports update
+References: <451CE8EC.1020203@garzik.org> <200609291149.37009.prakash@punnoor.de> <451CED23.1090909@garzik.org> <200609291200.56308.prakash@punnoor.de>
+In-Reply-To: <200609291200.56308.prakash@punnoor.de>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.3 (----)
+X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 29, 2006 at 11:47:20AM +0200, Tchesmeli Serge wrote:
+Prakash Punnoor wrote:
+> Well, how would one debug it w/o hw docs? Or is it possible to compare the 
+> patch with a working driver for another chipset?
 
-> Me and a friend have discover a stange behaviour since kernel 2.6.17.
+Well, it is based off of the standard ADMA[1] specification, albeit with 
+modifications.  There is pdc_adma.c, which is also based off ADMA.  And 
+the author (from NVIDIA) claims that the driver worked at one time, so 
+maybe it is simply bit rot that broke the driver.
 
-Please try to switch off TCP window scaling using the command below
-(as root) and retry.
+If I knew the answer, it would be fixed, so the best answer 
+unfortunately is "who knows".
 
-echo 0 > /proc/sys/net/ipv4/tcp_window_scaling
+I wish I had the time.  But I also wish I had a team of programmers 
+working on libata, too ;-)
+
+	Jeff
+
+

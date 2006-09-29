@@ -1,46 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161335AbWI2Uun@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161379AbWI2Uvg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161335AbWI2Uun (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Sep 2006 16:50:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932380AbWI2Uun
+	id S1161379AbWI2Uvg (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Sep 2006 16:51:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161354AbWI2Uvg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Sep 2006 16:50:43 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:46472 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S932379AbWI2Uum (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Sep 2006 16:50:42 -0400
-Subject: Re: [patch] remove MNT_NOEXEC check for PROT_EXEC MAP_PRIVATE mmaps
-From: Arjan van de Ven <arjan@infradead.org>
-To: David Wagner <daw-usenet@taverner.cs.berkeley.edu>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <efhtke$h5d$2@taverner.cs.berkeley.edu>
-References: <45150CD7.4010708@aknet.ru>
-	 <Pine.LNX.4.64.0609272045560.24191@blonde.wat.veritas.com>
-	 <451B5096.6020205@aknet.ru>
-	 <Pine.LNX.4.64.0609281707190.27484@blonde.wat.veritas.com>
-	 <efhtke$h5d$2@taverner.cs.berkeley.edu>
-Content-Type: text/plain
-Organization: Intel International BV
-Date: Fri, 29 Sep 2006 22:50:12 +0200
-Message-Id: <1159563016.3093.28.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Fri, 29 Sep 2006 16:51:36 -0400
+Received: from 216-99-213-120.dsl.aracnet.com ([216.99.213.120]:1761 "EHLO
+	clueserver.org") by vger.kernel.org with ESMTP id S1161379AbWI2Uvf
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Sep 2006 16:51:35 -0400
+Date: Fri, 29 Sep 2006 13:51:34 -0700 (PDT)
+From: alan <alan@clueserver.org>
+X-X-Sender: alan@blackbox.fnordora.org
+To: Linus Torvalds <torvalds@osdl.org>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Helge Hafting <helge.hafting@aitel.hist.no>, tglx@linutronix.de,
+       Neil Brown <neilb@suse.de>, Michiel de Boer <x@rebelhomicide.demon.nl>,
+       James Bottomley <James.Bottomley@SteelEye.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: GPLv3 Position Statement
+In-Reply-To: <Pine.LNX.4.64.0609291306080.3952@g5.osdl.org>
+Message-ID: <Pine.LNX.4.64.0609291351020.30853@blackbox.fnordora.org>
+References: <1158941750.3445.31.camel@mulgrave.il.steeleye.com> 
+ <451798FA.8000004@rebelhomicide.demon.nl>  <17687.46268.156413.352299@cse.unsw.edu.au>
+  <1159183895.11049.56.camel@localhost.localdomain> 
+ <1159200620.9326.447.camel@localhost.localdomain>  <451CF22D.4030405@aitel.hist.no>
+  <Pine.LNX.4.64.0609290940480.3952@g5.osdl.org>  <1159552021.13029.58.camel@localhost.localdomain>
+  <Pine.LNX.4.64.0609291030050.3952@g5.osdl.org> <1159554375.13029.67.camel@localhost.localdomain>
+ <Pine.LNX.4.64.0609291120440.3952@g5.osdl.org> <Pine.LNX.4.64.0609291131300.3952@g5.osdl.org>
+ <Pine.LNX.4.64.0609291258050.30636@blackbox.fnordora.org>
+ <Pine.LNX.4.64.0609291306080.3952@g5.osdl.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-09-29 at 01:41 +0000, David Wagner wrote:
+On Fri, 29 Sep 2006, Linus Torvalds wrote:
 
-> 9) Stas's request is a request for a change to Linux kernel semantics.
-> The current mmap() semantics have been there for years.  We're not talking
-> about some recent change to mmap() semantics that have broken existing
-> userspace tools.  Rather, we have a longstanding set of semantics; Stas
-> wants to be able to mark more partitions as noexec,
+>
+>
+> On Fri, 29 Sep 2006, alan wrote:
+>>
+>> On Fri, 29 Sep 2006, Linus Torvalds wrote:
+>>
+>>> (*) Hah. Who do I think I'm kidding? The revolution will be bloody and
+>>> brutal, and you're not going to get the choice to "elect" me except in the
+>>> history books written by yours truly.
+>>
+>> Wow.  You have been living in Portland too long. ]:>
+>
+> Is there some Portland subculture that I should be aware of?
+>
+> Inquiring minds want to know.
+
+Some say the only subculture portland has is at:
+
+http://www.omsi.edu/visit/submarine/wq
 
 
-.... and then execute from them!
-that's what is bothering me most about all of this.
-
-
+-- 
+"Oh, Joel Miller, you've just found the marble in the oatmeal. You're a
+lucky, lucky, lucky little boy. 'Cause you know why? You get to drink
+from... the FIRE HOOOOOSE!"
+         - The Stanley Spudoski guide to mailing list administration

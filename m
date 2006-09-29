@@ -1,80 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030197AbWI2MGn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030212AbWI2MJI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030197AbWI2MGn (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Sep 2006 08:06:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030211AbWI2MGm
+	id S1030212AbWI2MJI (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Sep 2006 08:09:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030201AbWI2MJI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Sep 2006 08:06:42 -0400
-Received: from w241.dkm.cz ([62.24.88.241]:37843 "EHLO machine.or.cz")
-	by vger.kernel.org with ESMTP id S1030201AbWI2MGl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Sep 2006 08:06:41 -0400
-Date: Fri, 29 Sep 2006 14:06:39 +0200
-From: Petr Baudis <pasky@suse.cz>
-To: git@vger.kernel.org
-Cc: linux-kernel@vger.kernel.org
-Subject: [ANNOUNCE] Cogito-0.18
-Message-ID: <20060929120639.GK20017@pasky.or.cz>
+	Fri, 29 Sep 2006 08:09:08 -0400
+Received: from mraos.ra.phy.cam.ac.uk ([131.111.48.8]:30652 "EHLO
+	mraos.ra.phy.cam.ac.uk") by vger.kernel.org with ESMTP
+	id S1030212AbWI2MJG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Sep 2006 08:09:06 -0400
+To: James Bottomley <James.Bottomley@SteelEye.com>
+Cc: tridge@samba.org, linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: GPLv3 Position Statement
+References: <1159498900.3880.31.camel@mulgrave.il.steeleye.com>
+	<17692.46192.432673.743783@samba.org>
+	<17692.46192.432673.743783@samba.org>
+	<1159515085.3880.78.camel@mulgrave.il.steeleye.com>
+From: Sanjoy Mahajan <sanjoy@mrao.cam.ac.uk>
+Date: 29 Sep 2006 13:08:53 +0100
+In-Reply-To: <1159515085.3880.78.camel@mulgrave.il.steeleye.com>
+Message-ID: <r6ven6oox6.fsf@skye.ra.phy.cam.ac.uk>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.4
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-X-message-flag: Outlook : A program to spread viri, but it can do mail too.
-User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  Hello,
+> However, once they comply with the distribution requirements,
+> they're free to do whatever they want with the resulting OS in their
+> printer ... including checking for only HP authorised ink
+> cartridges.  You can take exception to this check and not buy the
+> resulting printer, but you can't tell them not to do the check
+> without telling them how they should be using the embedded platform.
 
-  I just released cogito-0.18 - new feature release of the Cogito
-user-friendly Git user interface.  The biggest highlights are
-super-duper cg-log, tagging interface and cg-patch -m. Contrary to my
-plan, this unfortunately does NOT contain three big things yet that are
-missing but will be in cogito-0.19 (which should be already quite near
-the ever-approaching version 1.0):
+I don't see where the GPLv3 forbids such checks.  Which section are
+you thinking of?  In my understanding, it says only that HP must give
+users the keys to install modified software.  From section 1 (of the
+July draft):
 
-	- Rigorous three-way merging of uncommitted local changes
-	  instead of stashing local changes in patches
-	  (stashing produces harder-to-resolve conflicts and can
-	   in some extreme circumstances lead to loss or almost-loss
-	   of your local changes which is highly evil; this is my
-	   priority now; if you want to be absolutely safe, do not
-	   update/merge/switch your tree while having uncommitted
-	   changes in it)
-	- Support for cg-clone -a (clone all remote branches)
-	- Support for auto-pushing tags
+  The Corresponding Source also includes any encryption or
+  authorization keys necessary to install and/or execute modified
+  versions from source code in the recommended or principal context of
+  use, such that they can implement all the same functionality in the
+  same range of circumstances.
 
-  So, now for things that ARE part of 0.18: :-)
+So the user, having the keys, can remove the cartridge check.  HP
+might not like it and may choose not to distribute GPLv3 software with
+the printer, but that's a separate story.
 
-First, a simple README update is the only difference from 0.18rc2.
+-Sanjoy
 
-* INCOMPATIBLE: $COGITO_COLORS is renamed to $CG_COLORS
-* INCOMPATIBLE: cg-log now by default hides merges, -M behaviour is
-reversed
-* All kinds of very stale command aliases that were deprecated for eons
-were removed
-* .git/author is deprecated (use .git/config to set it up)
-* We now officially depend on 1.4.2 (we use git-*-fetch --stdin which makes
-fetching tags _MUCH_ faster)
-
-* cg-log was reworked to support cg-log -d (show diffs inline),
-  cg-log -S (pickaxe) and renames following (does not quite work, though;
-  I decided not to fix it and wait for revisions.c in Git to support it
-  since the perl script which takes care of this is quite a hack)
-* cg-switch -l to stash your local changes when switching branches
-* cg-commit --amend
-* Tagging interface (cg-tag, cg-tag-ls, cg-tag-show) was greatly enhanced
-* cg-patch -m for applying mailboxes
-* cg-clone -l now sets up an alternate instead of symlinking the object db
-* Support for cg-clone --reference
-* cg-admin-setuprepo supports setting up repositories over SSH
-* Support fetching over FTP
-* Other cool stuff!
-
-  Happy hacking,
-
--- 
-				Petr "Pasky" Baudis
-Stuff: http://pasky.or.cz/
-Of the 3 great composers Mozart tells us what it's like to be human,
-Beethoven tells us what it's like to be Beethoven and Bach tells us
-what it's like to be the universe.  -- Douglas Adams
+`Never underestimate the evil of which men of power are capable.'
+         --Bertrand Russell, _War Crimes in Vietnam_, chapter 1.

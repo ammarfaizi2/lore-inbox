@@ -1,76 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161195AbWI2AW0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161199AbWI2AXY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161195AbWI2AW0 (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Sep 2006 20:22:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161196AbWI2AW0
+	id S1161199AbWI2AXY (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Sep 2006 20:23:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161203AbWI2AXY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Sep 2006 20:22:26 -0400
-Received: from ozlabs.org ([203.10.76.45]:46998 "EHLO ozlabs.org")
-	by vger.kernel.org with ESMTP id S1161195AbWI2AWZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Sep 2006 20:22:25 -0400
-Subject: Re: [PATCH 0/6] Per-processor private data areas for i386
-From: Rusty Russell <rusty@rustcorp.com.au>
-To: Jeremy Fitzhardinge <jeremy@goop.org>
-Cc: Pavel Machek <pavel@ucw.cz>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-In-Reply-To: <451ADEE4.4010508@goop.org>
-References: <20060925184540.601971833@goop.org>
-	 <20060927194600.GA4538@ucw.cz>  <451ADEE4.4010508@goop.org>
+	Thu, 28 Sep 2006 20:23:24 -0400
+Received: from smtp-out.google.com ([216.239.45.12]:10983 "EHLO
+	smtp-out.google.com") by vger.kernel.org with ESMTP
+	id S1161201AbWI2AXW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Sep 2006 20:23:22 -0400
+DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
+	h=received:subject:from:reply-to:to:cc:in-reply-to:references:
+	content-type:organization:date:message-id:mime-version:x-mailer:content-transfer-encoding;
+	b=S9tzs4UE6lKKft2/OYZPBFkpWN1/QQ8ORJd9ua4//0dUSQBlbSE9bHZ+7QUd7yHek
+	A+5TckqRSVtWzO+vFrLjw==
+Subject: Re: [ckrm-tech] [patch00/05]: Containers(V2)- Introduction
+From: Rohit Seth <rohitseth@google.com>
+Reply-To: rohitseth@google.com
+To: balbir@in.ibm.com
+Cc: CKRM-Tech <ckrm-tech@lists.sourceforge.net>, sekharan@us.ibm.com,
+       devel@openvz.org, linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <451C4468.4010009@in.ibm.com>
+References: <1158718568.29000.44.camel@galaxy.corp.google.com>
+	 <1159386644.4773.80.camel@linuxchandra>
+	 <1159392487.23458.70.camel@galaxy.corp.google.com>
+	 <1159395892.4773.107.camel@linuxchandra> <451B815D.2010807@in.ibm.com>
+	 <1159468275.2669.88.camel@galaxy.corp.google.com>
+	 <451C4468.4010009@in.ibm.com>
 Content-Type: text/plain
-Date: Fri, 29 Sep 2006 10:22:22 +1000
-Message-Id: <1159489343.6241.18.camel@localhost.localdomain>
+Organization: Google Inc
+Date: Thu, 28 Sep 2006 17:22:59 -0700
+Message-Id: <1159489380.2669.128.camel@galaxy.corp.google.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+X-Mailer: Evolution 2.2.1.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Wed, 2006-09-27 at 13:28 -0700, Jeremy Fitzhardinge wrote:
-> Pavel Machek wrote:
-> > So we have 4% slowdown...
-> >   
+On Fri, 2006-09-29 at 03:23 +0530, Balbir Singh wrote:
+> Rohit Seth wrote:
+> > On Thu, 2006-09-28 at 13:31 +0530, Balbir Singh wrote:
+
+> > 
+> >> (b) The other option is to do what the resource group memory controller does -
+> >> build a per group LRU list of pages (active, inactive) and reclaim
+> >> them using the existing code (by passing the correct container pointer,
+> >> instead of the zone pointer). One disadvantage of this approach is that
+> >> the global reclaim is impacted as the global LRU list is broken. At the
+> >> expense of another list, we could maintain two lists, global LRU and
+> >> container LRU lists. Depending on the context of the reclaim - (container
+> >> over limit, memory pressure) we could update/manipulate both lists.
+> >> This approach is definitely very expensive.
+> >>
+> > 
+> > Two LRUs is a nice idea.  Though I don't think it will go too far.  It
+> > will involve adding another list pointers in the page structure.  I
+> > agree that the mem handler is not optimal at all but I don't want to
+> > make it mimic kernel reclaimer at the same time.
 > 
-> Yes, that would be the worst-case slowdown in the hot-cache case.  
-> Rearranging the layout of the GDT would remove any theoretical 
-> cold-cache slowdown (I haven't measured if there's any impact in practice).
->
-> Rusty has also done more comprehensive benchmarks with his variant of 
-> this patch series, and found no statistically interesting performance 
-> difference.  Which is pretty much what I would expect, since it doesn't 
-> increase cache-misses at all.
+> One possible solution is to move the container tracking out of the pages and
+> into address_space and anon_vma. I guess this functionality will complicate
+> task migration and accounting a bit though.
+> 
 
-OK, here are my null-syscall results.  This is on a Intel(R) Pentium(R)
-4 CPU 3.00GHz (stepping 9), single processor (SMP kernel).  
+In the next version, I'm removing the per page pointer for container.
+address_space already has a container pointer, I'm adding a pointer in
+anon_vma as well.  And that does seem to be complicating the accounting
+just a wee bit.  Though on its own, it is not helping the reclaim part. 
 
-I did three sets of tests: before, with saving/restoring %gs, with using
-%gs for per-cpu vars and current and smp_processor_id().
+I'll have to see how to handle kernel pages w/o a per page pointer.
 
-Before:
-swarm5.0:Simple syscall: 0.3734 microseconds
-swarm5.1:Simple syscall: 0.3734 microseconds
-swarm5.2:Simple syscall: 0.3734 microseconds
-swarm5.3:Simple syscall: 0.3734 microseconds
+> > 
+> >> 2. Comments on task migration support
+> >>
+> >> (a) One of the issues I found while using the container code is that, one could
+> >> add a task to a container say "a". "a" gets charged for the tasks usage,
+> >> when the same task moves to a different container say "b", when the task
+> >> exits, the credit goes to "b" and "a" remains indefinitely charged.
+> >>
+> > hmm, when the task is removed from "a" then "a" gets the credits for the
+> > amount of anon memory that is used by the task.  Or do you mean
+> > something different.
+> 
+> Aah, I see. Once possible minor concern here is that a task could hope across
+> several containers, it could map files in each container and allocate page
+> cache pages, when it reaches the limit, it could hop to another container
+> and carry on until it hits the limit there.
+> 
+If there are multiple containers that a process can hop to then yes that
+will happen.
 
-With saving/restoring %gs: (per-cpu was same)
-swarm5.4:Simple syscall: 0.3801 microseconds
-swarm5.5:Simple syscall: 0.3801 microseconds
-swarm5.6:Simple syscall: 0.3804 microseconds
-swarm5.7:Simple syscall: 0.3801 microseconds
 
-That's a 6.5ns cost for saving and restoring gs, and other lmbench
-syscall benchmarks reflected similar differences where the noise didn't
-overwhelm them.
 
-On kernbench, the differences were in the noise.
-
-Strangely, I see a 4% drop on fork+exec when I used gs for per-cpu vars,
-which I am now investigating (71.0831 usec before, 71.1725 usec with
-saving, 73.7458 usec with per-cpu!).
-
-Cheers,
-Rusty.
--- 
-Help! Save Australia from the worst of the DMCA: http://linux.org.au/law
+-rohit
 

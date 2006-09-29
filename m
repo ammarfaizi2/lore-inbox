@@ -1,55 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030424AbWI2Ize@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030429AbWI2I5r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030424AbWI2Ize (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Sep 2006 04:55:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030427AbWI2Ize
+	id S1030429AbWI2I5r (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Sep 2006 04:57:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030430AbWI2I5r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Sep 2006 04:55:34 -0400
-Received: from dp.samba.org ([66.70.73.150]:35720 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S1030424AbWI2Izd (ORCPT
+	Fri, 29 Sep 2006 04:57:47 -0400
+Received: from colin.muc.de ([193.149.48.1]:28680 "EHLO mail.muc.de")
+	by vger.kernel.org with ESMTP id S1030429AbWI2I5r (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Sep 2006 04:55:33 -0400
-MIME-Version: 1.0
+	Fri, 29 Sep 2006 04:57:47 -0400
+Date: 29 Sep 2006 10:57:45 +0200
+Date: Fri, 29 Sep 2006 10:57:45 +0200
+From: Andi Kleen <ak@muc.de>
+To: Jeremy Fitzhardinge <jeremy@goop.org>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       Hugh Dickens <hugh@veritas.com>,
+       Michael Ellerman <michael@ellerman.id.au>,
+       Paul Mackerras <paulus@samba.org>
+Subject: Re: [PATCH RFC 1/4] Generic BUG handling.
+Message-ID: <20060929085745.GA41098@muc.de>
+References: <20060928225444.439520197@goop.org>> <20060928225452.229936605@goop.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17692.57123.749163.204216@samba.org>
-Date: Fri, 29 Sep 2006 18:53:55 +1000
-To: James Bottomley <James.Bottomley@SteelEye.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: GPLv3 Position Statement
-In-Reply-To: <1159515086.3880.79.camel@mulgrave.il.steeleye.com>
-References: <1159498900.3880.31.camel@mulgrave.il.steeleye.com>
-	<17692.46192.432673.743783@samba.org>
-	<1159515086.3880.79.camel@mulgrave.il.steeleye.com>
-X-Mailer: VM 7.19 under Emacs 21.4.1
-Reply-To: tridge@samba.org
-From: tridge@samba.org
+Content-Disposition: inline
+In-Reply-To: <20060928225452.229936605@goop.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James,
+> Some architectures (powerpc) implement WARN using the same mechanism;
+> if the illegal instruction was the result of a WARN, then report_bug()
+> returns 1; otherwise it returns 0.
 
- > > If the "entire patent portfolio" consists of a small group of patents
- > > which specifically deal with what the code has been posted by the
- > > company deals with, then sure.
- > 
- > So we agree that the statement is true for a company that has only a
- > software patent portfolio.
+In theory we could do that on x86 too (and skipping the instruction), 
+the only problem 
+is that the only guaranteed to fault opcode is ud2 :/. Ok maybe we could
+reserve some int XXX vector.
 
-No, we don't :)
+% gid WARN_ON | grep -v arch | wc -l
+299
 
-The company can consist of only a patent portfolio, but additionally
-all of those patents (ie. the "entire patent portfolio") would need to
-be implemented by the program being distributed them.
-
-That caveat is important, and changes it from a misleading statement
-to a true statement. It also is a statement which is true for the
-GPLv2, which makes it not such a useful statement to make when
-considering the relative merits of the two licenses.
-
-I'd also like to note that I don't have much sympathy for companies
-that consist of only a patent portfolio. They are pretty much scum in
-my view. If they don't make any products at all and live on only
-patent revenue then the world would be better off without them :-)
-
-Cheers, Tridge
+-Andi

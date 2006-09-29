@@ -1,125 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161434AbWI2GcW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161437AbWI2Gdi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161434AbWI2GcW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Sep 2006 02:32:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161437AbWI2GcW
+	id S1161437AbWI2Gdi (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Sep 2006 02:33:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161442AbWI2Gdi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Sep 2006 02:32:22 -0400
-Received: from smtp109.sbc.mail.mud.yahoo.com ([68.142.198.208]:2677 "HELO
-	smtp109.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1161434AbWI2GcV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Sep 2006 02:32:21 -0400
+	Fri, 29 Sep 2006 02:33:38 -0400
+Received: from smtp105.sbc.mail.mud.yahoo.com ([68.142.198.204]:1687 "HELO
+	smtp105.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1161437AbWI2Gdh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Sep 2006 02:33:37 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
   s=s1024; d=pacbell.net;
-  h=Received:From:To:Subject:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Disposition:Date:Content-Type:Content-Transfer-Encoding:Message-Id;
-  b=Z1ntTlMiS4Mbd1oJJkFjmMtur2trp/z+qq1EwGPbiQ66OGZm2APm4o3D0O9fK+4X3BbVcSVi0TGV1xRZqDHwLVvAsSFPgFA+VCCKVvCftR11sPyGelPCljZCZ7eRk9Ugmm2v1ggYSFXYKBYW1RO12Ny0ouj/gRHs6VPof5Itsqk=  ;
+  h=Received:From:To:Subject:User-Agent:Cc:MIME-Version:Content-Disposition:Date:Content-Type:Content-Transfer-Encoding:Message-Id;
+  b=qPRZ+w2vC4+s8mKBrUt9VfPZlAQUm9TxOu1bnjNwl7508ci5f2ZnjmPI1sdpJMmsmFG14DvjFbTdp/avT3b1IftDBETdbOR/8RYRGiooxauTBdWo00yDWwte+5GDeFGsRUtxyAPguMBg9NQHQtmjhhcEAEDNhJhAL2YLeyxxcyI=  ;
 From: David Brownell <david-b@pacbell.net>
 To: Alessandro Zummo <alessandro.zummo@towertech.it>
-Subject: [patch 2.6.18-git] RTC class, Kconfig improvements
+Subject: [patch 2.6.18-git] RTC class uses subsys_init
 User-Agent: KMail/1.7.1
 Cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
        Andrew Morton <akpm@osdl.org>
-References: <200608041741.26730.david-b@pacbell.net>
-In-Reply-To: <200608041741.26730.david-b@pacbell.net>
 MIME-Version: 1.0
 Content-Disposition: inline
-Date: Thu, 28 Sep 2006 23:32:16 -0700
+Date: Thu, 28 Sep 2006 23:33:33 -0700
 Content-Type: text/plain;
   charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-Message-Id: <200609282332.17195.david-b@pacbell.net>
+Message-Id: <200609282333.34224.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-[ RESEND third time ]
+[RESEND] 
 
-Small updates to make the RTC class Kconfig text be more informative.
-This should help folk used to the drivers/char/rtc.c support, or a
-single RTC, be slightly less surprised by the differences.
-
-Also, adds a new RTC_DEBUG option to predefine DEBUG in the framework
-and its drivers, while debugging.  That's getting to be a standard
-idiom, and it's pretty useful.
+This makes RTC core components use "subsys_init" instead of "module_init",
+as appropriate for subsystem infrastructure.  This is mostly useful for
+statically linking drivers in other parts of the tree that may provide an
+RTC interface as a secondary functionality (e.g. part of a multifunction
+chip); they won't need to worry so much about drivers/Makefile link order.
 
 Signed-off-by: David Brownell <dbrownell@users.sourceforge.net>
 
-Index: g26/drivers/rtc/Kconfig
+Index: linux/drivers/rtc/class.c
 ===================================================================
---- g26.orig/drivers/rtc/Kconfig	2006-08-19 02:02:45.000000000 -0700
-+++ g26/drivers/rtc/Kconfig	2006-08-19 10:08:23.000000000 -0700
-@@ -37,6 +37,13 @@ config RTC_HCTOSYS_DEVICE
- 	  The RTC device that will be used as the source for
- 	  the system time, usually rtc0.
+--- linux.orig/drivers/rtc/class.c	2006-07-30 16:08:47.000000000 -0700
++++ linux/drivers/rtc/class.c	2006-07-30 16:15:50.000000000 -0700
+@@ -142,9 +142,9 @@
+ 	class_destroy(rtc_class);
+ }
  
-+config RTC_DEBUG
-+	bool "RTC debug support"
-+	depends on RTC_CLASS = y
-+	help
-+	  Say yes here to enable debugging support in the RTC framework
-+	  and individual RTC drivers.
-+
- comment "RTC interfaces"
- 	depends on RTC_CLASS
+-module_init(rtc_init);
++subsys_initcall(rtc_init);
+ module_exit(rtc_exit);
  
-@@ -45,8 +52,8 @@ config RTC_INTF_SYSFS
- 	depends on RTC_CLASS && SYSFS
- 	default RTC_CLASS
- 	help
--	  Say yes here if you want to use your RTC using the sysfs
--	  interface, /sys/class/rtc/rtcX .
-+	  Say yes here if you want to use your RTCs using sysfs interfaces,
-+	  /sys/class/rtc/rtc0 through /sys/.../rtcN.
- 
- 	  This driver can also be built as a module. If so, the module
- 	  will be called rtc-sysfs.
-@@ -56,8 +63,9 @@ config RTC_INTF_PROC
- 	depends on RTC_CLASS && PROC_FS
- 	default RTC_CLASS
- 	help
--	  Say yes here if you want to use your RTC using the proc
--	  interface, /proc/driver/rtc .
-+	  Say yes here if you want to use your first RTC through the proc
-+	  interface, /proc/driver/rtc.  Other RTCs will not be available
-+	  through that API.
- 
- 	  This driver can also be built as a module. If so, the module
- 	  will be called rtc-proc.
-@@ -67,8 +75,11 @@ config RTC_INTF_DEV
- 	depends on RTC_CLASS
- 	default RTC_CLASS
- 	help
--	  Say yes here if you want to use your RTC using the dev
--	  interface, /dev/rtc .
-+	  Say yes here if you want to use your RTCs using the /dev
-+	  interfaces, which "udev" sets up as /dev/rtc0 through
-+	  /dev/rtcN.  You may want to set up a symbolic link so one
-+	  of these can be accessed as /dev/rtc, which is a name
-+	  expected by "hwclock" and some other programs.
- 
- 	  This driver can also be built as a module. If so, the module
- 	  will be called rtc-dev.
-@@ -78,7 +89,8 @@ config RTC_INTF_DEV_UIE_EMUL
- 	depends on RTC_INTF_DEV
- 	help
- 	  Provides an emulation for RTC_UIE if the underlaying rtc chip
--	  driver did not provide RTC_UIE ioctls.
-+	  driver does not expose RTC_UIE ioctls.  Those requests generate
-+	  once-per-second update interrupts, used for synchronization.
- 
- comment "RTC drivers"
- 	depends on RTC_CLASS
-Index: g26/drivers/rtc/Makefile
+-MODULE_AUTHOR("Alessandro Zummo <a.zummo@towerteh.it>");
++MODULE_AUTHOR("Alessandro Zummo <a.zummo@towertech.it>");
+ MODULE_DESCRIPTION("RTC class support");
+ MODULE_LICENSE("GPL");
+Index: linux/drivers/rtc/rtc-dev.c
 ===================================================================
---- g26.orig/drivers/rtc/Makefile	2006-08-19 10:08:09.000000000 -0700
-+++ g26/drivers/rtc/Makefile	2006-08-19 10:09:07.000000000 -0700
-@@ -2,6 +2,10 @@
- # Makefile for RTC class/drivers.
- #
+--- linux.orig/drivers/rtc/rtc-dev.c	2006-07-30 16:08:47.000000000 -0700
++++ linux/drivers/rtc/rtc-dev.c	2006-07-30 16:15:50.000000000 -0700
+@@ -496,7 +496,7 @@
+ 	unregister_chrdev_region(rtc_devt, RTC_DEV_MAX);
+ }
  
-+ifeq ($(CONFIG_RTC_DEBUG),y)
-+	EXTRA_CFLAGS		+= -DDEBUG
-+endif
-+
- obj-$(CONFIG_RTC_LIB)		+= rtc-lib.o
- obj-$(CONFIG_RTC_HCTOSYS)	+= hctosys.o
- obj-$(CONFIG_RTC_CLASS)		+= rtc-core.o
+-module_init(rtc_dev_init);
++subsys_initcall(rtc_dev_init);
+ module_exit(rtc_dev_exit);
+ 
+ MODULE_AUTHOR("Alessandro Zummo <a.zummo@towertech.it>");
+Index: linux/drivers/rtc/rtc-proc.c
+===================================================================
+--- linux.orig/drivers/rtc/rtc-proc.c	2006-07-30 16:08:47.000000000 -0700
++++ linux/drivers/rtc/rtc-proc.c	2006-07-30 16:15:50.000000000 -0700
+@@ -156,7 +156,7 @@
+ 	class_interface_unregister(&rtc_proc_interface);
+ }
+ 
+-module_init(rtc_proc_init);
++subsys_initcall(rtc_proc_init);
+ module_exit(rtc_proc_exit);
+ 
+ MODULE_AUTHOR("Alessandro Zummo <a.zummo@towertech.it>");
+Index: linux/drivers/rtc/rtc-sysfs.c
+===================================================================
+--- linux.orig/drivers/rtc/rtc-sysfs.c	2006-07-30 16:08:47.000000000 -0700
++++ linux/drivers/rtc/rtc-sysfs.c	2006-07-30 16:15:50.000000000 -0700
+@@ -116,7 +116,7 @@
+ 	class_interface_unregister(&rtc_sysfs_interface);
+ }
+ 
+-module_init(rtc_sysfs_init);
++subsys_init(rtc_sysfs_init);
+ module_exit(rtc_sysfs_exit);
+ 
+ MODULE_AUTHOR("Alessandro Zummo <a.zummo@towertech.it>");

@@ -1,154 +1,180 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422830AbWI2ViK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932387AbWI2Vhz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422830AbWI2ViK (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Sep 2006 17:38:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422829AbWI2ViK
+	id S932387AbWI2Vhz (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Sep 2006 17:37:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932386AbWI2Vhz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Sep 2006 17:38:10 -0400
-Received: from smtp-out.google.com ([216.239.45.12]:41345 "EHLO
-	smtp-out.google.com") by vger.kernel.org with ESMTP id S964851AbWI2ViG
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Sep 2006 17:38:06 -0400
-DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
-	h=received:message-id:date:from:user-agent:
-	x-accept-language:mime-version:to:cc:subject:content-type;
-	b=QURIjE+NcsYJZveOBZwzn0P0BaYQ3Sa20m0xq1iIJFpIO/mEyo4e9NSIyFogjDKbT
-	g6kfXJ1ufjtvtqwksL5rA==
-Message-ID: <451D9236.6040902@google.com>
-Date: Fri, 29 Sep 2006 14:37:58 -0700
-From: Martin Bligh <mbligh@google.com>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051011)
-X-Accept-Language: en-us, en
+	Fri, 29 Sep 2006 17:37:55 -0400
+Received: from mx.pathscale.com ([64.160.42.68]:58588 "EHLO mx.pathscale.com")
+	by vger.kernel.org with ESMTP id S932385AbWI2Vhy (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Sep 2006 17:37:54 -0400
+Content-Type: text/plain; charset="us-ascii"
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: LKML <linux-kernel@vger.kernel.org>, linux-acpi@vger.kernel.org
-Subject: [PATCH] Fix up a multitude of ACPI compiler warnings on x86_64
-Content-Type: multipart/mixed;
- boundary="------------040401070608060604030407"
+Content-Transfer-Encoding: 7bit
+Subject: [PATCH] IB/ipath - fix RDMA reads
+X-Mercurial-Node: 7b2b5b33a24891601ac168fec6887c20e2edff48
+Message-Id: <7b2b5b33a24891601ac1.1159565871@eng-12.pathscale.com>
+Date: Fri, 29 Sep 2006 14:37:51 -0700
+From: "Bryan O'Sullivan" <bos@pathscale.com>
+To: rdreier@cisco.com
+Cc: openib-general@openib.org, linux-kernel@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------040401070608060604030407
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+The PSN used to generate the request following a RDMA read was incorrect
+and some state booking wasn't maintained correctly.
+This patch fixes that.
 
-32bit vs 64 bit issues. sizeof(sizeof) and sizeof(pointer) is variable,
-but we're trying to shove it into unsigned int or u32.
+Signed-off-by: Ralph Campbell <ralph.campbell@qlogic.com>
+Signed-off-by: Bryan O'Sullivan <bryan.osullivan@qlogic.com>
 
-Signed-off-by: Martin J. Bligh <mbligh@google.com>
-
---------------040401070608060604030407
-Content-Type: text/plain;
- name="2.6.18-acpi"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="2.6.18-acpi"
-
-diff -aurpN -X /home/mbligh/.diff.exclude linux-2.6.18/drivers/acpi/executer/exmutex.c 2.6.18-acpi/drivers/acpi/executer/exmutex.c
---- linux-2.6.18/drivers/acpi/executer/exmutex.c	2006-09-20 12:24:30.000000000 -0700
-+++ 2.6.18-acpi/drivers/acpi/executer/exmutex.c	2006-09-29 14:34:44.000000000 -0700
-@@ -266,10 +266,10 @@ acpi_ex_release_mutex(union acpi_operand
- 	     walk_state->thread->thread_id)
- 	    && (obj_desc->mutex.os_mutex != ACPI_GLOBAL_LOCK)) {
- 		ACPI_ERROR((AE_INFO,
--			    "Thread %X cannot release Mutex [%4.4s] acquired by thread %X",
--			    (u32) walk_state->thread->thread_id,
-+			    "Thread %lX cannot release Mutex [%4.4s] acquired by thread %lX",
-+			    (unsigned long)walk_state->thread->thread_id,
- 			    acpi_ut_get_node_name(obj_desc->mutex.node),
--			    (u32) obj_desc->mutex.owner_thread->thread_id));
-+			    (unsigned long)obj_desc->mutex.owner_thread->thread_id));
- 		return_ACPI_STATUS(AE_AML_NOT_OWNER);
- 	}
- 
-diff -aurpN -X /home/mbligh/.diff.exclude linux-2.6.18/drivers/acpi/tables/tbget.c 2.6.18-acpi/drivers/acpi/tables/tbget.c
---- linux-2.6.18/drivers/acpi/tables/tbget.c	2006-09-20 12:24:30.000000000 -0700
-+++ 2.6.18-acpi/drivers/acpi/tables/tbget.c	2006-09-29 14:34:44.000000000 -0700
-@@ -324,8 +324,8 @@ acpi_tb_get_this_table(struct acpi_point
- 
- 	if (header->length < sizeof(struct acpi_table_header)) {
- 		ACPI_ERROR((AE_INFO,
--			    "Table length (%X) is smaller than minimum (%X)",
--			    header->length, sizeof(struct acpi_table_header)));
-+			    "Table length (%X) is smaller than minimum (%lX)",
-+			    header->length, (unsigned long) sizeof(struct acpi_table_header)));
- 
- 		return_ACPI_STATUS(AE_INVALID_TABLE_LENGTH);
- 	}
-diff -aurpN -X /home/mbligh/.diff.exclude linux-2.6.18/drivers/acpi/tables/tbrsdt.c 2.6.18-acpi/drivers/acpi/tables/tbrsdt.c
---- linux-2.6.18/drivers/acpi/tables/tbrsdt.c	2006-09-20 12:24:30.000000000 -0700
-+++ 2.6.18-acpi/drivers/acpi/tables/tbrsdt.c	2006-09-29 14:34:44.000000000 -0700
-@@ -187,9 +187,9 @@ acpi_status acpi_tb_validate_rsdt(struct
- 
- 	if (table_ptr->length < sizeof(struct acpi_table_header)) {
- 		ACPI_ERROR((AE_INFO,
--			    "RSDT/XSDT length (%X) is smaller than minimum (%X)",
-+			    "RSDT/XSDT length (%X) is smaller than minimum (%lX)",
- 			    table_ptr->length,
--			    sizeof(struct acpi_table_header)));
-+			    (unsigned long) sizeof(struct acpi_table_header)));
- 
- 		return (AE_INVALID_TABLE_LENGTH);
- 	}
-diff -aurpN -X /home/mbligh/.diff.exclude linux-2.6.18/drivers/acpi/utilities/utdebug.c 2.6.18-acpi/drivers/acpi/utilities/utdebug.c
---- linux-2.6.18/drivers/acpi/utilities/utdebug.c	2006-09-20 12:24:30.000000000 -0700
-+++ 2.6.18-acpi/drivers/acpi/utilities/utdebug.c	2006-09-29 14:34:44.000000000 -0700
-@@ -180,8 +180,9 @@ acpi_ut_debug_print(u32 requested_debug_
- 	if (thread_id != acpi_gbl_prev_thread_id) {
- 		if (ACPI_LV_THREADS & acpi_dbg_level) {
- 			acpi_os_printf
--			    ("\n**** Context Switch from TID %X to TID %X ****\n\n",
--			     (u32) acpi_gbl_prev_thread_id, (u32) thread_id);
-+			    ("\n**** Context Switch from TID %lX to TID %lX ****\n\n",
-+			     (unsigned long) acpi_gbl_prev_thread_id,
-+			     (unsigned long) thread_id);
+diff -r ac3953427dbf -r 7b2b5b33a248 drivers/infiniband/hw/ipath/ipath_rc.c
+--- a/drivers/infiniband/hw/ipath/ipath_rc.c	Fri Sep 29 14:20:17 2006 -0700
++++ b/drivers/infiniband/hw/ipath/ipath_rc.c	Fri Sep 29 14:20:40 2006 -0700
+@@ -241,10 +241,7 @@ int ipath_make_rc_req(struct ipath_qp *q
+ 		 * original work request since we may need to resend
+ 		 * it.
+ 		 */
+-		qp->s_sge.sge = wqe->sg_list[0];
+-		qp->s_sge.sg_list = wqe->sg_list + 1;
+-		qp->s_sge.num_sge = wqe->wr.num_sge;
+-		qp->s_len = len = wqe->length;
++		len = wqe->length;
+ 		ss = &qp->s_sge;
+ 		bth2 = 0;
+ 		switch (wqe->wr.opcode) {
+@@ -368,14 +365,23 @@ int ipath_make_rc_req(struct ipath_qp *q
+ 		default:
+ 			goto done;
  		}
++		qp->s_sge.sge = wqe->sg_list[0];
++		qp->s_sge.sg_list = wqe->sg_list + 1;
++		qp->s_sge.num_sge = wqe->wr.num_sge;
++		qp->s_len = wqe->length;
+ 		if (newreq) {
+ 			qp->s_tail++;
+ 			if (qp->s_tail >= qp->s_size)
+ 				qp->s_tail = 0;
+ 		}
+-		bth2 |= qp->s_psn++ & IPATH_PSN_MASK;
+-		if ((int)(qp->s_psn - qp->s_next_psn) > 0)
+-			qp->s_next_psn = qp->s_psn;
++		bth2 |= qp->s_psn & IPATH_PSN_MASK;
++		if (wqe->wr.opcode == IB_WR_RDMA_READ)
++			qp->s_psn = wqe->lpsn + 1;
++		else {
++			qp->s_psn++;
++			if ((int)(qp->s_psn - qp->s_next_psn) > 0)
++				qp->s_next_psn = qp->s_psn;
++		}
+ 		/*
+ 		 * Put the QP on the pending list so lost ACKs will cause
+ 		 * a retry.  More than one request can be pending so the
+@@ -690,13 +696,6 @@ void ipath_restart_rc(struct ipath_qp *q
+ 	struct ipath_swqe *wqe = get_swqe_ptr(qp, qp->s_last);
+ 	struct ipath_ibdev *dev;
  
- 		acpi_gbl_prev_thread_id = thread_id;
-diff -aurpN -X /home/mbligh/.diff.exclude linux-2.6.18/drivers/acpi/utilities/utmutex.c 2.6.18-acpi/drivers/acpi/utilities/utmutex.c
---- linux-2.6.18/drivers/acpi/utilities/utmutex.c	2006-09-20 12:24:30.000000000 -0700
-+++ 2.6.18-acpi/drivers/acpi/utilities/utmutex.c	2006-09-29 14:34:44.000000000 -0700
-@@ -243,23 +243,24 @@ acpi_status acpi_ut_acquire_mutex(acpi_m
- #endif
+-	/*
+-	 * If there are no requests pending, we are done.
+-	 */
+-	if (ipath_cmp24(psn, qp->s_next_psn) >= 0 ||
+-	    qp->s_last == qp->s_tail)
+-		goto done;
+-
+ 	if (qp->s_retry == 0) {
+ 		wc->wr_id = wqe->wr.wr_id;
+ 		wc->status = IB_WC_RETRY_EXC_ERR;
+@@ -731,8 +730,6 @@ void ipath_restart_rc(struct ipath_qp *q
+ 		dev->n_rc_resends += (int)qp->s_psn - (int)psn;
  
- 	ACPI_DEBUG_PRINT((ACPI_DB_MUTEX,
--			  "Thread %X attempting to acquire Mutex [%s]\n",
--			  (u32) this_thread_id, acpi_ut_get_mutex_name(mutex_id)));
-+			  "Thread %lX attempting to acquire Mutex [%s]\n",
-+			  (unsigned long) this_thread_id, 
-+			  acpi_ut_get_mutex_name(mutex_id)));
+ 	reset_psn(qp, psn);
+-
+-done:
+ 	tasklet_hi_schedule(&qp->s_task);
  
- 	status = acpi_os_acquire_mutex(acpi_gbl_mutex_info[mutex_id].mutex,
- 				       ACPI_WAIT_FOREVER);
- 	if (ACPI_SUCCESS(status)) {
- 		ACPI_DEBUG_PRINT((ACPI_DB_MUTEX,
--				  "Thread %X acquired Mutex [%s]\n",
--				  (u32) this_thread_id,
-+				  "Thread %lX acquired Mutex [%s]\n",
-+				  (unsigned long) this_thread_id,
- 				  acpi_ut_get_mutex_name(mutex_id)));
+ bail:
+@@ -765,6 +762,7 @@ static int do_rc_ack(struct ipath_qp *qp
+ 	struct ib_wc wc;
+ 	struct ipath_swqe *wqe;
+ 	int ret = 0;
++	u32 ack_psn;
  
- 		acpi_gbl_mutex_info[mutex_id].use_count++;
- 		acpi_gbl_mutex_info[mutex_id].thread_id = this_thread_id;
- 	} else {
- 		ACPI_EXCEPTION((AE_INFO, status,
--				"Thread %X could not acquire Mutex [%X]",
--				(u32) this_thread_id, mutex_id));
-+				"Thread %lX could not acquire Mutex [%X]",
-+				(unsigned long) this_thread_id, mutex_id));
- 	}
+ 	/*
+ 	 * Remove the QP from the timeout queue (or RNR timeout queue).
+@@ -777,26 +775,26 @@ static int do_rc_ack(struct ipath_qp *qp
+ 		list_del_init(&qp->timerwait);
+ 	spin_unlock(&dev->pending_lock);
  
- 	return (status);
-@@ -285,7 +286,8 @@ acpi_status acpi_ut_release_mutex(acpi_m
++	/* Nothing is pending to ACK/NAK. */
++	if (unlikely(qp->s_last == qp->s_tail))
++		goto bail;
++
+ 	/*
+ 	 * Note that NAKs implicitly ACK outstanding SEND and RDMA write
+ 	 * requests and implicitly NAK RDMA read and atomic requests issued
+ 	 * before the NAK'ed request.  The MSN won't include the NAK'ed
+ 	 * request but will include an ACK'ed request(s).
+ 	 */
++	ack_psn = psn;
++	if (aeth >> 29)
++		ack_psn--;
+ 	wqe = get_swqe_ptr(qp, qp->s_last);
+-
+-	/* Nothing is pending to ACK/NAK. */
+-	if (qp->s_last == qp->s_tail)
+-		goto bail;
  
- 	this_thread_id = acpi_os_get_thread_id();
- 	ACPI_DEBUG_PRINT((ACPI_DB_MUTEX,
--			  "Thread %X releasing Mutex [%s]\n", (u32) this_thread_id,
-+			  "Thread %lX releasing Mutex [%s]\n",
-+			  (unsigned long) this_thread_id,
- 			  acpi_ut_get_mutex_name(mutex_id)));
- 
- 	if (mutex_id > ACPI_MAX_MUTEX) {
-
---------------040401070608060604030407--
+ 	/*
+ 	 * The MSN might be for a later WQE than the PSN indicates so
+ 	 * only complete WQEs that the PSN finishes.
+ 	 */
+-	while (ipath_cmp24(psn, wqe->lpsn) >= 0) {
+-		/* If we are ACKing a WQE, the MSN should be >= the SSN. */
+-		if (ipath_cmp24(aeth, wqe->ssn) < 0)
+-			break;
++	while (ipath_cmp24(ack_psn, wqe->lpsn) >= 0) {
+ 		/*
+ 		 * If this request is a RDMA read or atomic, and the ACK is
+ 		 * for a later operation, this ACK NAKs the RDMA read or
+@@ -807,7 +805,8 @@ static int do_rc_ack(struct ipath_qp *qp
+ 		 * is sent but before the response is received.
+ 		 */
+ 		if ((wqe->wr.opcode == IB_WR_RDMA_READ &&
+-		     opcode != OP(RDMA_READ_RESPONSE_LAST)) ||
++		     (opcode != OP(RDMA_READ_RESPONSE_LAST) ||
++		       ipath_cmp24(ack_psn, wqe->lpsn) != 0)) ||
+ 		    ((wqe->wr.opcode == IB_WR_ATOMIC_CMP_AND_SWP ||
+ 		      wqe->wr.opcode == IB_WR_ATOMIC_FETCH_AND_ADD) &&
+ 		     (opcode != OP(ATOMIC_ACKNOWLEDGE) ||
+@@ -825,6 +824,10 @@ static int do_rc_ack(struct ipath_qp *qp
+ 			 */
+ 			goto bail;
+ 		}
++		if (wqe->wr.opcode == IB_WR_RDMA_READ ||
++		    wqe->wr.opcode == IB_WR_ATOMIC_CMP_AND_SWP ||
++		    wqe->wr.opcode == IB_WR_ATOMIC_FETCH_AND_ADD)
++			tasklet_hi_schedule(&qp->s_task);
+ 		/* Post a send completion queue entry if requested. */
+ 		if (!test_bit(IPATH_S_SIGNAL_REQ_WR, &qp->s_flags) ||
+ 		    (wqe->wr.send_flags & IB_SEND_SIGNALED)) {
+@@ -1055,7 +1058,8 @@ static inline void ipath_rc_rcv_resp(str
+ 		/* no AETH, no ACK */
+ 		if (unlikely(ipath_cmp24(psn, qp->s_last_psn + 1))) {
+ 			dev->n_rdma_seq++;
+-			ipath_restart_rc(qp, qp->s_last_psn + 1, &wc);
++			if (qp->s_last != qp->s_tail)
++				ipath_restart_rc(qp, qp->s_last_psn + 1, &wc);
+ 			goto ack_done;
+ 		}
+ 	rdma_read:
+@@ -1091,7 +1095,8 @@ static inline void ipath_rc_rcv_resp(str
+ 		/* ACKs READ req. */
+ 		if (unlikely(ipath_cmp24(psn, qp->s_last_psn + 1))) {
+ 			dev->n_rdma_seq++;
+-			ipath_restart_rc(qp, qp->s_last_psn + 1, &wc);
++			if (qp->s_last != qp->s_tail)
++				ipath_restart_rc(qp, qp->s_last_psn + 1, &wc);
+ 			goto ack_done;
+ 		}
+ 		/* FALLTHROUGH */

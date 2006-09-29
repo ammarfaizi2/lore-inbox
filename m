@@ -1,61 +1,83 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750872AbWI3Lsg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750899AbWI3MBP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750872AbWI3Lsg (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Sep 2006 07:48:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750874AbWI3Lsg
+	id S1750899AbWI3MBP (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Sep 2006 08:01:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750901AbWI3MBP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Sep 2006 07:48:36 -0400
-Received: from ns1.suse.de ([195.135.220.2]:24246 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1750872AbWI3Lsf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Sep 2006 07:48:35 -0400
-Date: Sat, 30 Sep 2006 13:48:18 +0200
-From: Stefan Seyfried <seife@suse.de>
-To: Jiri Kosina <jikos@jikos.cz>
-Cc: linux-acpi@intel.com, linux-kernel@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>, Len Brown <len.brown@intel.com>
-Subject: Re: [PATCH] preserve correct battery state through suspend/resume cycles
-Message-ID: <20060930114817.GA26217@suse.de>
-References: <Pine.LNX.4.64.0609280446230.22576@twin.jikos.cz>
+	Sat, 30 Sep 2006 08:01:15 -0400
+Received: (root@vger.kernel.org) by vger.kernel.org id S1750894AbWI3MBO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Sep 2006 08:01:14 -0400
+Received: from ug-out-1314.google.com ([66.249.92.173]:4944 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1751176AbWI2Rf6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Sep 2006 13:35:58 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=l6CvXJAJ1ZVx54SD3Q8q4npNRKuvdVCoDp5ycO50HlB1+QcIEoq47j6LdO2Bjz+4gLd9wVh0VgIlepJLeWzt2HJOKeRRCLGChUFmscLUspP6I0Ka78P8hk46iY859tYGeLxUI2Q0Z4jX5YxbNqzXJMejR0KdQhOAunnM4q8ODNE=
+Message-ID: <d120d5000609291035q7dad5f7fqcb38d4d8b3b211e5@mail.gmail.com>
+Date: Fri, 29 Sep 2006 13:35:56 -0400
+From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
+To: "Randy Dunlap" <rdunlap@xenotime.net>
+Subject: Re: [PATCH] usb/hid: The HID Simple Driver Interface 0.3.2 (core)
+Cc: "raise.sail" <raise.sail@gmail.com>, LKML <linux-kernel@vger.kernel.org>,
+       linux-usb-devel <linux-usb-devel@lists.sourceforge.net>,
+       greg <greg@kroah.com>
+Illegal-Object: Syntax error in Cc: address found on vger.kernel.org:
+	Cc:	raise.sail<raise.sail@gmail.com>
+				  ^-missing end of address
+Illegal-Object: Syntax error in Cc: address found on vger.kernel.org:
+	Cc:	raise.sail<raise.sail@gmail.com>
+				  ^-missing end of address
+Illegal-Object: Syntax error in Cc: address found on vger.kernel.org:
+	Cc:	raise.sail<raise.sail@gmail.com>
+				  ^-missing end of address
+Illegal-Object: Syntax error in Cc: address found on vger.kernel.org:
+	Cc:	raise.sail<raise.sail@gmail.com>
+				  ^-missing end of address
+In-Reply-To: <20060929095913.f1b6f79d.rdunlap@xenotime.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <Pine.LNX.4.64.0609280446230.22576@twin.jikos.cz>
-X-Operating-System: SUSE Linux Enterprise Desktop 10 (i586), Kernel 2.6.18-3-seife
-User-Agent: Mutt/1.5.13 (2006-08-11)
+References: <200609291624123283320@gmail.com>
+	 <20060929095913.f1b6f79d.rdunlap@xenotime.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 28, 2006 at 04:50:49AM +0200, Jiri Kosina wrote:
-> There is a problem in th following scenario(s):
-> 
-> boot -> suspend -> (un)plug battery -> resume
-> 
-> The problem arises in both cases - i.e. suspend with battery plugged in, 
-> and resume with battery unplugged, or vice versa.
-> 
-> After resume, when the battery status has changed (plugged in -> unplegged 
-> or unplugged -> plugged in) during the time when the system was sleeping, 
-> the /proc/acpi/battery/*/* is wrong (showing the state before suspend, not 
-> the current state).
+On 9/29/06, Randy Dunlap <rdunlap@xenotime.net> wrote:
+> On Fri, 29 Sep 2006 16:24:15 +0800 raise.sail wrote:
+>
+> > Changelogs:
+> >
+> >       1. A bugfix for clear usage process.
+> >
+> > This driver requires:
+> >       1.  [PATCH] usb: HID Simple Driver Interface 0.3.1 (Kconfig and Makefile), this patch can be used without any change.
+> >
+> > PS:   Who is the maintainer of the input subsystem today? Should I forward this mail to him/her?
+>
 
-Is this also needed if you use "platform" method? Also with suspend-to-RAM?
+I re-read these patches again and the main problem with the current
+implementation is that it alters input devices's properties after
+device has been registered and presented to userspace. That means that
+hotplug users that presently can inspect device's capabilities and
+decide if they are "interested" in device will not be able to do so
+anymore. For example I think X event interface drivers examine input
+devices and decide if it should be handled by as keyboard or pointing
+device so it is possible for them to not notice that touchpad
+capabilities were added to a keyboard later. For now the only thing
+that is allowed to change after device has been registered is keymap.
 
-> The following patch adds ->resume method to the ACPI battery handler, which
-> has the only aim - to check whether the battery state has changed during sleep, 
-> and if so, update the ACPI internal data structures, so that information 
-> published through /proc/acpi/battery/*/* is correct even after suspend/resume
-> cycle, during which the battery was removed/inserted.
+Then there is issue with automatic loading of these sub-drivers. How
+do they get loaded? Or we force everything to be built-in making HID
+module very fat (like psmouse got pretty fat, but with HID prtential
+for it to get very fat is much bigger).
 
-Although it generally is a good idea to add suspend and resume methods to
-all ACPI drivers, it would be interesting to know if you still need this
-when using the correct method (platform) instead of the incorrect default
-method (shutdown).
+The better way would be to split hid-input into a library module that
+parses hid usages and reports and is shared between device-specific
+modules that are "real" drivers (usb-drivers, not hid-sub-drivers).
 
-echo "platform" > /sys/power/disk
-echo "disk" > /sys/power/state
 -- 
-Stefan Seyfried                  \ "I didn't want to write for pay. I
-QA / R&D Team Mobile Devices      \ wanted to be paid for what I write."
-SUSE LINUX Products GmbH, Nürnberg \                    -- Leonard Cohen
+Dmitry

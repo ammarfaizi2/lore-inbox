@@ -1,47 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932322AbWI2QWi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161136AbWI2QXa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932322AbWI2QWi (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Sep 2006 12:22:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932314AbWI2QWi
+	id S1161136AbWI2QXa (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Sep 2006 12:23:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161135AbWI2QXa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Sep 2006 12:22:38 -0400
-Received: from smtp-out.google.com ([216.239.45.12]:46838 "EHLO
-	smtp-out.google.com") by vger.kernel.org with ESMTP id S932322AbWI2QWh
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Sep 2006 12:22:37 -0400
-DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
-	h=received:message-id:date:from:to:subject:cc:in-reply-to:
-	mime-version:content-type:content-transfer-encoding:
-	content-disposition:references;
-	b=DbwZUuB692KOMWpbUBYNjxV+LDVS3CaCwN72janNQNK5tKIrJArX5PtOQVe9Z1jSj
-	Apg9lh5LKgkXizbJi3zyQ==
-Message-ID: <6599ad830609290922v3c1c0798wcf4ff16f0883884d@mail.google.com>
-Date: Fri, 29 Sep 2006 09:22:23 -0700
-From: "Paul Menage" <menage@google.com>
-To: "Paul Jackson" <pj@sgi.com>
-Subject: Re: [RFC][PATCH 00/10] Task watchers v2 Introduction
-Cc: "Matt Helsley" <matthltc@us.ibm.com>, linux-kernel@vger.kernel.org,
-       jes@sgi.com, lse-tech@lists.sourceforge.net, sekharan@us.ibm.com,
-       jtk@us.ibm.com, hch@lst.de, viro@zeniv.linux.org.uk, sgrubb@redhat.com,
-       linux-audit@redhat.com
-In-Reply-To: <20060928194142.cece62bb.pj@sgi.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Fri, 29 Sep 2006 12:23:30 -0400
+Received: from xenotime.net ([66.160.160.81]:46476 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1161127AbWI2QX2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Sep 2006 12:23:28 -0400
+Date: Fri, 29 Sep 2006 09:24:46 -0700
+From: Randy Dunlap <rdunlap@xenotime.net>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: lkml <linux-kernel@vger.kernel.org>, akpm <akpm@osdl.org>,
+       76306.1226@compuserve.com, ebiederm@xmission.com
+Subject: Re: [PATCH] fix EMBEDDED + SYSCTL menu
+Message-Id: <20060929092446.6e2227b4.rdunlap@xenotime.net>
+In-Reply-To: <20060929160521.GF3469@stusta.de>
+References: <20060928204251.a20470c5.rdunlap@xenotime.net>
+	<20060929160521.GF3469@stusta.de>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <20060929020232.756637000@us.ibm.com>
-	 <20060928194142.cece62bb.pj@sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 9/28/06, Paul Jackson <pj@sgi.com> wrote:
-> How might this play with Paul Menage's <menage@google.com> patch posted
-> earlier today on lkml:
->
->   [RFC][PATCH 0/4] Generic container system
+On Fri, 29 Sep 2006 18:05:21 +0200 Adrian Bunk wrote:
 
-I've not looked closely at Matt's patch, but I'm sure that there would
-be no problems with hooking the container system to use task watchers
-rather than patching fork.c/exit.c directly.
+> On Thu, Sep 28, 2006 at 08:42:51PM -0700, Randy Dunlap wrote:
+> > From: Randy Dunlap <rdunlap@xenotime.net>
+> > 
+> > SYSCTL should still depend on EMBEDDED.  This unbreaks the
+> > EMBEDDED menu (from the recent SYSCTL_SYCALL menu option patch).
+> > 
+> > Fix typos in new SYSCTL_SYSCALL menu.
+> > 
+> > Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
+> > ---
+> >  init/Kconfig |   14 +++++++-------
+> >  1 files changed, 7 insertions(+), 7 deletions(-)
+> > 
+> > --- linux-2618-g10.orig/init/Kconfig
+> > +++ linux-2618-g10/init/Kconfig
+> > @@ -257,6 +257,9 @@ config CC_OPTIMIZE_FOR_SIZE
+> >  
+> >  	  If unsure, say N.
+> >  
+> > +config SYSCTL
+> > +	bool
+> > +
+> >  menuconfig EMBEDDED
+> >  	bool "Configure standard kernel features (for small systems)"
+> >  	help
+> > @@ -272,11 +275,8 @@ config UID16
+> >  	help
+> >  	  This enables the legacy 16-bit UID syscall wrappers.
+> >  
+> > -config SYSCTL
+> > -	bool
+> > -
+> 
+> ACK
+> 
+> >  config SYSCTL_SYSCALL
+> > -	bool "Sysctl syscall support"
+> > +	bool "Sysctl syscall support" if EMBEDDED
+> >  	default n
+> >  	select SYSCTL
+> >  	---help---
+> >...
+> 
+> You could achieve the same by removing the option...
+> 
+> Simply move SYSCTL_SYSCALL to the same place you are moving SYSCTL to 
+> without fiddling with the dependencies.
 
-Paul
+Yes, I realize that (I even had that patch earlier).
+I don't care which way it's done.  Eric, any preference here?
+
+---
+~Randy

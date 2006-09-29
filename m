@@ -1,103 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932130AbWI2WxW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932169AbWI2WxM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932130AbWI2WxW (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Sep 2006 18:53:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932181AbWI2WxW
+	id S932169AbWI2WxM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Sep 2006 18:53:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932130AbWI2WxL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Sep 2006 18:53:22 -0400
-Received: from wx-out-0506.google.com ([66.249.82.231]:54966 "EHLO
-	wx-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S932130AbWI2WxV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Sep 2006 18:53:21 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=FQnIKDgASEVXo0aHPVI+YVlDoN44ZI0ou8F0p3yZTX/uiSdaPDzms2qbjFoOcdCziK4CgGn4GwSV2WmR1OG26DBBscwqQpUbuEjSYE5rPAhIAuswRk7vTCjil25IYC6t1cfNiN6kI0LTQlK1R9ThNC5pPMb0sJ7dfjrr6tjpYgY=
-Message-ID: <5a4c581d0609291552k7dc39685t15188bb5c881d3bd@mail.gmail.com>
-Date: Sat, 30 Sep 2006 00:52:58 +0200
-From: "Alessandro Suardi" <alessandro.suardi@gmail.com>
-To: jt@hpl.hp.com
-Subject: Re: 2.6.18-git9 wireless fixes break ipw2200 association to AP with WPA
-Cc: "John W. Linville" <linville@tuxdriver.com>,
-       "Linux Kernel" <linux-kernel@vger.kernel.org>,
-       "Dave Jones" <davej@redhat.com>
-In-Reply-To: <20060929224316.GA10423@bougret.hpl.hp.com>
+	Fri, 29 Sep 2006 18:53:11 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:17559 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S964785AbWI2WxK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Sep 2006 18:53:10 -0400
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: girish <girishvg@gmail.com>
+Cc: Jan Engelhardt <jengelh@linux01.gwdg.de>, linux-kernel@vger.kernel.org,
+       William Pitcock <nenolod@atheme.org>
+Subject: Re: [PATCH] include children count, in Threads: field present in /proc/<pid>/status (take-3)
+References: <0635847A-C149-412C-92B1-A974230381F8@dts.local>
+	<F2F2C98F-6AFB-4E19-BEE9-D32652E2F478@atheme.org>
+	<EE7C757E-E2CE-4617-A1D4-3B8F5E3E8240@gmail.com>
+	<Pine.LNX.4.61.0609291905550.27518@yvahk01.tjqt.qr>
+	<CF74CE5D-42A1-4FF9-8C9B-682C5D6DEAE1@gmail.com>
+	<Pine.LNX.4.61.0609292011190.634@yvahk01.tjqt.qr>
+	<BEC70F7E-6143-4D8D-9800-A8538A152A18@gmail.com>
+Date: Fri, 29 Sep 2006 16:51:24 -0600
+In-Reply-To: <BEC70F7E-6143-4D8D-9800-A8538A152A18@gmail.com>
+	(girishvg@gmail.com's message of "Sat, 30 Sep 2006 03:24:41 +0900")
+Message-ID: <m1mz8ii8wj.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <5a4c581d0609291225r4a2cbaacr35e5ef73d69f8718@mail.gmail.com>
-	 <20060929202928.GA14000@tuxdriver.com>
-	 <5a4c581d0609291340q835571bg9657ac0a68bab20e@mail.gmail.com>
-	 <20060929212748.GA10288@bougret.hpl.hp.com>
-	 <5a4c581d0609291504r40bc1796q715c5ffa41aa7b1b@mail.gmail.com>
-	 <20060929224316.GA10423@bougret.hpl.hp.com>
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 9/30/06, Jean Tourrilhes <jt@hpl.hp.com> wrote:
-> On Sat, Sep 30, 2006 at 12:04:31AM +0200, Alessandro Suardi wrote:
-> > On 9/29/06, Jean Tourrilhes <jt@hpl.hp.com> wrote:
-> > >>
-> > >> [asuardi@sandman ~]$ rpm -q wireless-tools
-> > >> wireless-tools-28-0.pre13.5.1
-> > >
-> > >        That's too old, the cutoff is 27-pre15.
-> >
-> > Are you sure ? For how I read it, 28-0.pre13.5.1 is more recent
-> > than 27-pre15, not older.
+
+This conflicts with the /proc changes in -mm.
+Where we have manged to remove the use of the tasklist_lock.
+
+The information in Children: is racy as it may change immediately
+after you drop the lock.
+
+Why is it interesting to report this information?
+A process that cares can keep track of this in user space?
+
+Eric
+
+> Signed-off-by: Girish V. Gulawani <girishvg@gmail.com>
 >
->         Sorry, I'm mixing up my numbers.
->         The cutoff for the ESSID fix is 28-pre15, so your version is
-> just a little bit older. I'm mixing up with the iwpoint cutoff which
-> was 27-pre25.
-
-OK.
-
-> > So I guess there's an actual bug that doesn't depend on the
-> > wireless-tools. Or maybe it's wpa_supplicant that has to be
-> > upgraded ?
+> --- linux-vanilla/fs/proc/array.c	2006-09-20 12:42:06.000000000 +0900
+> +++ linux/fs/proc/array.c	2006-09-30 03:18:28.000000000 +0900
+> @@ -248,6 +248,8 @@ static inline char * task_sig(struct tas
+>  	int num_threads = 0;
+>  	unsigned long qsize = 0;
+>  	unsigned long qlim = 0;
+> +	int num_children = 0;
+> +	struct list_head *_p;
 >
->         I don't have the start of the thread, so I don't know the
-> exact failure mode. If you are using wpa_supplicant, it bypasses the
-> wireless tools so it would have to be updated.
->         Note that I've been pestering Jouni about the fact that he had
-> to update wpa_supplicant for that since last May, when Jouni himself
-> asked me to change the ESSID API. Ironic, isn't it ?
->         The epitest.fi site seems unfortunately down...
-
-Yup, same from here. I was about to go downloading and rebuilding
- wpa_supplicant from the 0.4.9 (stable) and failing that from the
- 0.5.5 (dev) tarball, but epitest.fi isn't reachable.
-
-> > >        On the other hand, FC6, which is in beta, contains already the
-> > >proper version of the tools. I have been monitoring the various distro
-> > >in the last few months before sending those WE-21 patches, and all
-> > >major distro have WT-28 in the pipeline.
-> >
-> > Even if so, wireless-tools would be the only package I have to
-> > build out of the FC5 distribution to keep up with the latest -git
-> > snapshot of the Torvalds kernel... I'm not especially troubled
-> > with this anyway. Perhaps you could push the Fedora folks to
-> > be a bit more up-to-date with wireless-tools in their current
-> > main version ?
+>  	sigemptyset(&pending);
+>  	sigemptyset(&shpending);
+> @@ -268,9 +270,13 @@ static inline char * task_sig(struct tas
+>  		qlim = p->signal->rlim[RLIMIT_SIGPENDING].rlim_cur;
+>  		spin_unlock_irq(&p->sighand->siglock);
+>  	}
+> +	list_for_each(_p, &p->children)
+> +		++num_children;
+>  	read_unlock(&tasklist_lock);
 >
->         The FC people are busy.
-
-In any case, cc'ing Dave who chipped in earlier in the thread -
- if wpa_supplicant needs to be rebuilt, then it's very likely that
- even FC6 which has 0.4.8-something (just checked ;) will not
- work with the current kernel changes.
-
-I will post an update when I can get hold of the newer sources
- for wpa_supplicant...
-
-Thanks, ciao,
-
---alessandro
-
-"Well a man has two reasons for things that he does
-  the first one is pride and the second one is love
-  all understandings must come by this way"
-
-     (Husker Du, 'She Floated Away')
+>  	buffer += sprintf(buffer, "Threads:\t%d\n", num_threads);
+> +	if (num_children)
+> +		buffer += sprintf(buffer, "Children:\t%d\nTotal:\t%d\n",
+> num_children, num_threads + num_children);
+>  	buffer += sprintf(buffer, "SigQ:\t%lu/%lu\n", qsize, qlim);
+>
+>  	/* render them all */
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/

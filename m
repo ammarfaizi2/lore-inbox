@@ -1,71 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161283AbWI2Cbw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161275AbWI2CbF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161283AbWI2Cbw (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Sep 2006 22:31:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161287AbWI2Cbv
+	id S1161275AbWI2CbF (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Sep 2006 22:31:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161283AbWI2CbF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Sep 2006 22:31:51 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:4786 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S1161283AbWI2Cbu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Sep 2006 22:31:50 -0400
-Date: Thu, 28 Sep 2006 19:31:38 -0700
-From: Paul Jackson <pj@sgi.com>
-To: Matt Helsley <matthltc@us.ibm.com>
-Cc: linux-kernel@vger.kernel.org, jes@sgi.com, lse-tech@lists.sourceforge.net,
-       sekharan@us.ibm.com, jtk@us.ibm.com, hch@lst.de,
-       viro@zeniv.linux.org.uk, sgrubb@redhat.com, linux-audit@redhat.com
-Subject: Re: [RFC][PATCH 05/10] Task watchers v2 Register cpuset task
- watcher
-Message-Id: <20060928193138.963c510a.pj@sgi.com>
-In-Reply-To: <20060929021300.851205000@us.ibm.com>
-References: <20060929020232.756637000@us.ibm.com>
-	<20060929021300.851205000@us.ibm.com>
-Organization: SGI
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Thu, 28 Sep 2006 22:31:05 -0400
+Received: from mail1.webmaster.com ([216.152.64.169]:19466 "EHLO
+	mail1.webmaster.com") by vger.kernel.org with ESMTP
+	id S1161275AbWI2CbC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Sep 2006 22:31:02 -0400
+From: "David Schwartz" <davids@webmaster.com>
+To: "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
+Subject: RE: Creative Commons as an example of a simple license
+Date: Thu, 28 Sep 2006 19:29:54 -0700
+Message-ID: <MDEHLPKNGKAHNMBLJOLKAENGOLAB.davids@webmaster.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook IMO, Build 9.0.6604 (9.0.2911.0)
+In-Reply-To: <20060928141327.GC32708@DervishD>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2962
+Importance: Normal
+X-Authenticated-Sender: joelkatz@webmaster.com
+X-Spam-Processed: mail1.webmaster.com, Thu, 28 Sep 2006 19:32:58 -0800
+	(not processed: message from trusted or authenticated source)
+X-MDRemoteIP: 206.171.168.138
+X-Return-Path: davids@webmaster.com
+X-MDaemon-Deliver-To: linux-kernel@vger.kernel.org
+Reply-To: davids@webmaster.com
+X-MDAV-Processed: mail1.webmaster.com, Thu, 28 Sep 2006 19:32:58 -0800
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matt wrote:
 
-> -	cpuset_fork(p);
->  #ifdef CONFIG_NUMA
->   	p->mempolicy = mpol_copy(p->mempolicy);
->   	if (IS_ERR(p->mempolicy)) {
->   		retval = PTR_ERR(p->mempolicy);
->   		p->mempolicy = NULL;
-> - 		goto bad_fork_cleanup_cpuset;
-> + 		goto bad_fork_cleanup_delays_binfmt;
->   	}
->  	mpol_fix_fork_child_flag(p);
->  #endif
->  #ifdef CONFIG_TRACE_IRQFLAGS
->  	p->irq_events = 0;
-> @@ -1280,13 +1278,11 @@ bad_fork_cleanup_files:
->  bad_fork_cleanup_security:
->  	security_task_free(p);
->  bad_fork_cleanup_policy:
->  #ifdef CONFIG_NUMA
->  	mpol_free(p->mempolicy);
-> -bad_fork_cleanup_cpuset:
->  #endif
-> -	cpuset_exit(p);
->  bad_fork_cleanup_delays_binfmt:
+> Or for example, you can give your work for free and
+> require that it is not used for commercial uses. You're reserving the
+> commercialization right for you.
+
+Actually, you can't do that. Copyright law does not permit restriction of
+use unless you can condition it on doing something else.
+
+There is no way to prevent someone who lawfully receives a copy of a work
+(who doesn't have to go through any click-through or shrink-wrap agreement)
+from using it commercially.
+
+You could say that anyone who modifies it or copies it must refrain from
+using it commercially. But that wouldn't stop someone who downloaded it from
+a web site or bought it on a CD from doing so.
+
+You would essentially have to say that in order to give someone a copy, you
+must obtain their affirmative assent to the usage restrictions or require
+that works always be packaged in an installer that required their assent to
+the terms.
+
+See http://www.copyright.gov/title17/92chap1.html#106 and notice that it
+doesn't say anything about commercial use. If someone isn't trying to do any
+of those things, copyright won't stop them.
+
+DS
 
 
-The above code, before your change, had the affect that if mpol_copy()
-failed, then the cpusets that were just setup by the cpuset_fork()
-call were undone by a cpuset_exit() call.
-
->From what I can tell, after your change, this is no longer done,
-and a failed mpol_copy will leave cpusets in an incorrect state.
-
-Am I missing something?
-
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401

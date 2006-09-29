@@ -1,209 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422643AbWI2XRg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932188AbWI2XR3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422643AbWI2XRg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Sep 2006 19:17:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422645AbWI2XRg
+	id S932188AbWI2XR3 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Sep 2006 19:17:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030230AbWI2XR3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Sep 2006 19:17:36 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:30413 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1422643AbWI2XRd (ORCPT
+	Fri, 29 Sep 2006 19:17:29 -0400
+Received: from xenotime.net ([66.160.160.81]:6860 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S932244AbWI2XR1 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Sep 2006 19:17:33 -0400
-Date: Fri, 29 Sep 2006 18:17:30 -0500
-To: jeff@garzik.org, akpm@osdl.org
-Cc: netdev@vger.kernel.org, James K Lewis <jklewis@us.ibm.com>,
-       linux-kernel@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-       linuxppc-dev@ozlabs.org
-Subject: [PATCH 2/6]: powerpc/cell spidernet low watermark patch.
-Message-ID: <20060929231730.GJ6433@austin.ibm.com>
-References: <20060929230552.GG6433@austin.ibm.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060929230552.GG6433@austin.ibm.com>
-User-Agent: Mutt/1.5.11
-From: linas@austin.ibm.com (Linas Vepstas)
+	Fri, 29 Sep 2006 19:17:27 -0400
+Date: Fri, 29 Sep 2006 16:18:52 -0700
+From: Randy Dunlap <rdunlap@xenotime.net>
+To: Andrew Morton <akpm@osdl.org>, len.brown@intel.com
+Cc: Martin Bligh <mbligh@google.com>, LKML <linux-kernel@vger.kernel.org>,
+       linux-acpi@vger.kernel.org
+Subject: Re: [PATCH] Fix up a multitude of ACPI compiler warnings on x86_64
+Message-Id: <20060929161852.4b6ae44a.rdunlap@xenotime.net>
+In-Reply-To: <20060929150526.38eec941.akpm@osdl.org>
+References: <451D9236.6040902@google.com>
+	<20060929150526.38eec941.akpm@osdl.org>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Fri, 29 Sep 2006 15:05:26 -0700 Andrew Morton wrote:
 
-Implement basic low-watermark support for the transmit queue.
-Hardware low-watermarks allow a properly configured kernel
-to continously stream data to a device and not have to handle 
-any interrupts at all in doing so. Correct zero-interrupt
-operation can be actually observed for this driver, when the 
-socket buffer is made large enough.
+> On Fri, 29 Sep 2006 14:37:58 -0700
+> Martin Bligh <mbligh@google.com> wrote:
+> 
+> > 32bit vs 64 bit issues. sizeof(sizeof) and sizeof(pointer) is variable,
+> > but we're trying to shove it into unsigned int or u32.
+> >
+> > ...
+> >
+> > -	"RSDT/XSDT length (%X) is smaller than minimum (%X)",
+> > +	"RSDT/XSDT length (%X) is smaller than minimum (%lX)",
+> >  	table_ptr->length,
+> > -	sizeof(struct acpi_table_header)));
+> > +	(unsigned long) sizeof(struct acpi_table_header)));
+> > 
+> 
+> These two sizeof()s have already been fixed by Randy in -mm's
+> acpi-fix-printk-format-warnings.patch.
+> 
+> Randy's fix is the preferred one: sizeof() returns size_t and size_t's are
+> printed with %z - there's no need to use a typecast.
+> 
+> (Actually Randy used %Z which avoids the warning which old gcc emitted with
+> %z, but is old-fashioned.  I'll switch that to %z).
+> 
+> 
+> acpi-fix-printk-format-warnings.patch was submitted to the ACPI developers
+> on August 14 and on September 25 but remains unmerged.
 
-The basic idea of a low-watermark interrupt is as follows.
-The device driver queues up a bunch of packets for the hardware
-to transmit, and then kicks the hardware to get it started.
-As the hardware drains the queue of pending, untransmitted 
-packets, the device driver will want to know when the queue
-is almost empty, so that it can queue some more packets.
+Len and I discussed that patch some.  The question about it is:
+why does gcc report this at all?  Is this a gcc problem or are
+we misreading it somehow?
 
-If the queue drains down to the low waterark, then an interrupt
-will be generated. However, if the kernel/driver continues 
-to add enough packets to keep the queue partially filled,
-no interrupt will actually be generated, and the hardware 
-can continue streaming packets indefinitely in this mode.
+ drivers/acpi/tables/tbget.c: In function 'acpi_tb_get_this_table':
+drivers/acpi/tables/tbget.c:326: warning: format '%X' expects type 'unsigned int', but argument 5 has type 'long unsigned int'
 
-The impelmentation is done by setting the DESCR_TXDESFLG flag 
-in one of the packets. When the hardware sees this flag, it will 
-interrupt the device driver. Because this flag is on a fixed
-packet, rather than at  fixed location in the queue, the
-code below needs to move the flag as more packets are
-queued up. This implementation attempts to keep the flag 
-at about 1/4 from "empty".
+drivers/acpi/tables/tbrsdt.c: In function 'acpi_tb_validate_rsdt':
+drivers/acpi/tables/tbrsdt.c:189: warning: format '%X' expects type 'unsigned int', but argument 5 has type 'long unsigned int'
 
-Signed-off-by: Linas Vepstas <linas@austin.ibm.com>
-Signed-off-by: James K Lewis <jklewis@us.ibm.com>
-Cc: Arnd Bergmann <arnd@arndb.de>
+Why does it think that sizeof(struct X) is long unsigned int?
+(and only on 64-bit)
 
-----
- drivers/net/spider_net.c |   56 ++++++++++++++++++++++++++++++++++++++++++-----
- drivers/net/spider_net.h |    6 +++--
- 2 files changed, 55 insertions(+), 7 deletions(-)
-
-Index: linux-2.6.18-mm2/drivers/net/spider_net.c
-===================================================================
---- linux-2.6.18-mm2.orig/drivers/net/spider_net.c	2006-09-29 14:11:20.000000000 -0500
-+++ linux-2.6.18-mm2/drivers/net/spider_net.c	2006-09-29 16:33:46.000000000 -0500
-@@ -703,6 +703,39 @@ spider_net_release_tx_descr(struct spide
- 	dev_kfree_skb_any(skb);
- }
- 
-+static void
-+spider_net_set_low_watermark(struct spider_net_card *card)
-+{
-+	int status;
-+	int cnt=0;
-+	int i;
-+	struct spider_net_descr *descr = card->tx_chain.tail;
-+
-+	/* Measure the length of the queue. */
-+	while (descr != card->tx_chain.head) {
-+		status = descr->dmac_cmd_status & SPIDER_NET_DESCR_NOT_IN_USE;
-+		if (status == SPIDER_NET_DESCR_NOT_IN_USE)
-+			break;
-+		descr = descr->next;
-+		cnt++;
-+	}
-+	if (cnt == 0)
-+		return;
-+
-+	/* Set low-watermark 3/4th's of the way into the queue. */
-+	descr = card->tx_chain.tail;
-+	cnt = (cnt*3)/4;
-+	for (i=0;i<cnt; i++)
-+		descr = descr->next;
-+
-+	/* Set the new watermark, clear the old wtermark */
-+	descr->dmac_cmd_status |= SPIDER_NET_DESCR_TXDESFLG;
-+	if (card->low_watermark && card->low_watermark != descr)
-+		card->low_watermark->dmac_cmd_status =
-+		     card->low_watermark->dmac_cmd_status & ~SPIDER_NET_DESCR_TXDESFLG;
-+	card->low_watermark = descr;
-+}
-+
- /**
-  * spider_net_release_tx_chain - processes sent tx descriptors
-  * @card: adapter structure
-@@ -720,6 +753,7 @@ spider_net_release_tx_chain(struct spide
- {
- 	struct spider_net_descr_chain *chain = &card->tx_chain;
- 	int status;
-+	int rc=0;
- 
- 	spider_net_read_reg(card, SPIDER_NET_GDTDMACCNTR);
- 
-@@ -732,8 +766,10 @@ spider_net_release_tx_chain(struct spide
- 			break;
- 
- 		case SPIDER_NET_DESCR_CARDOWNED:
--			if (!brutal)
--				return 1;
-+			if (!brutal) {
-+				rc = 1;
-+				goto done;
-+			}
- 			/* fallthrough, if we release the descriptors
- 			 * brutally (then we don't care about
- 			 * SPIDER_NET_DESCR_CARDOWNED) */
-@@ -750,12 +786,15 @@ spider_net_release_tx_chain(struct spide
- 
- 		default:
- 			card->netdev_stats.tx_dropped++;
--			return 1;
-+			rc = 1;
-+			goto done;
- 		}
- 		spider_net_release_tx_descr(card);
- 	}
--
--	return 0;
-+done:
-+	if (rc == 1)
-+		spider_net_set_low_watermark(card);
-+	return rc;
- }
- 
- /**
-@@ -1460,6 +1499,10 @@ spider_net_interrupt(int irq, void *ptr,
- 		spider_net_rx_irq_off(card);
- 		netif_rx_schedule(netdev);
- 	}
-+	if (status_reg & SPIDER_NET_TXINT ) {
-+		spider_net_cleanup_tx_ring(card);
-+		netif_wake_queue(netdev);
-+	}
- 
- 	if (status_reg & SPIDER_NET_ERRINT )
- 		spider_net_handle_error_irq(card, status_reg);
-@@ -1621,6 +1664,9 @@ spider_net_open(struct net_device *netde
- 	if (spider_net_init_chain(card, &card->tx_chain, card->descr,
- 			PCI_DMA_TODEVICE, card->tx_desc))
- 		goto alloc_tx_failed;
-+
-+	card->low_watermark = NULL;
-+
- 	if (spider_net_init_chain(card, &card->rx_chain,
- 			card->descr + card->rx_desc,
- 			PCI_DMA_FROMDEVICE, card->rx_desc))
-Index: linux-2.6.18-mm2/drivers/net/spider_net.h
-===================================================================
---- linux-2.6.18-mm2.orig/drivers/net/spider_net.h	2006-09-29 14:47:50.000000000 -0500
-+++ linux-2.6.18-mm2/drivers/net/spider_net.h	2006-09-29 16:33:43.000000000 -0500
-@@ -47,7 +47,7 @@ extern char spider_net_driver_name[];
- #define SPIDER_NET_TX_DESCRIPTORS_MIN		16
- #define SPIDER_NET_TX_DESCRIPTORS_MAX		512
- 
--#define SPIDER_NET_TX_TIMER			20
-+#define SPIDER_NET_TX_TIMER			(HZ/5)
- 
- #define SPIDER_NET_RX_CSUM_DEFAULT		1
- 
-@@ -209,7 +209,7 @@ extern char spider_net_driver_name[];
- #define SPIDER_NET_DMA_RX_FEND_VALUE	0x00030003
- /* to set TX_DMA_EN */
- #define SPIDER_NET_TX_DMA_EN		0x80000000
--#define SPIDER_NET_GDTDCEIDIS		0x00000302
-+#define SPIDER_NET_GDTDCEIDIS		0x00000300
- #define SPIDER_NET_DMA_TX_VALUE		SPIDER_NET_TX_DMA_EN | \
- 					SPIDER_NET_GDTDCEIDIS
- #define SPIDER_NET_DMA_TX_FEND_VALUE	0x00030003
-@@ -349,6 +349,7 @@ enum spider_net_int2_status {
- #define SPIDER_NET_DESCR_FORCE_END		0x50000000 /* used in rx and tx */
- #define SPIDER_NET_DESCR_CARDOWNED		0xA0000000 /* used in rx and tx */
- #define SPIDER_NET_DESCR_NOT_IN_USE		0xF0000000
-+#define SPIDER_NET_DESCR_TXDESFLG		0x00800000
- 
- struct spider_net_descr {
- 	/* as defined by the hardware */
-@@ -433,6 +434,7 @@ struct spider_net_card {
- 
- 	struct spider_net_descr_chain tx_chain;
- 	struct spider_net_descr_chain rx_chain;
-+	struct spider_net_descr *low_watermark;
- 
- 	struct net_device_stats netdev_stats;
- 
+---
+~Randy

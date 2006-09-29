@@ -1,127 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161717AbWI2RJZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161460AbWI2RL1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161717AbWI2RJZ (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Sep 2006 13:09:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161557AbWI2RJN
+	id S1161460AbWI2RL1 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Sep 2006 13:11:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161796AbWI2RL0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Sep 2006 13:09:13 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:44948 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1161772AbWI2RIp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Sep 2006 13:08:45 -0400
-Subject: [PATCH] IDE: more pci_find cleanup
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: akpm@osdl.org, linux-kernel@vger.kernel.org
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Fri, 29 Sep 2006 18:33:45 +0100
-Message-Id: <1159551225.13029.48.camel@localhost.localdomain>
+	Fri, 29 Sep 2006 13:11:26 -0400
+Received: from mtagate5.de.ibm.com ([195.212.29.154]:23683 "EHLO
+	mtagate5.de.ibm.com") by vger.kernel.org with ESMTP
+	id S1161460AbWI2RLX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Sep 2006 13:11:23 -0400
+Date: Fri, 29 Sep 2006 20:11:19 +0300
+From: Muli Ben-Yehuda <muli@il.ibm.com>
+To: Jon Mason <jdmason@kudzu.us>
+Cc: Jeff Garzik <jeff@garzik.org>, Andrew Morton <akpm@osdl.org>,
+       Greg KH <greg@kroah.com>, Jim Paradis <jparadis@redhat.com>,
+       Andi Kleen <ak@suse.de>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] x86[-64] PCI domain support
+Message-ID: <20060929171119.GM22787@rhun.haifa.ibm.com>
+References: <20060926191508.GA6350@havoc.gtf.org> <20060928093332.GG22787@rhun.haifa.ibm.com> <451B99C5.7080809@garzik.org> <20060928224550.GJ22787@rhun.haifa.ibm.com> <20060929134330.GA1687@kudzu.us>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060929134330.GA1687@kudzu.us>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Signed-off-by: Alan Cox <alan@redhat.com>
+On Fri, Sep 29, 2006 at 08:43:31AM -0500, Jon Mason wrote:
 
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.18-mm2/drivers/ide/pci/cs5530.c linux-2.6.18-mm2/drivers/ide/pci/cs5530.c
---- linux.vanilla-2.6.18-mm2/drivers/ide/pci/cs5530.c	2006-09-20 04:42:06.000000000 +0100
-+++ linux-2.6.18-mm2/drivers/ide/pci/cs5530.c	2006-09-25 12:19:18.000000000 +0100
-@@ -222,23 +222,23 @@
- 	unsigned long flags;
- 
- 	dev = NULL;
--	while ((dev = pci_find_device(PCI_VENDOR_ID_CYRIX, PCI_ANY_ID, dev)) != NULL) {
-+	while ((dev = pci_get_device(PCI_VENDOR_ID_CYRIX, PCI_ANY_ID, dev)) != NULL) {
- 		switch (dev->device) {
- 			case PCI_DEVICE_ID_CYRIX_PCI_MASTER:
--				master_0 = dev;
-+				master_0 = pci_dev_get(dev);
- 				break;
- 			case PCI_DEVICE_ID_CYRIX_5530_LEGACY:
--				cs5530_0 = dev;
-+				cs5530_0 = pci_dev_get(dev);
- 				break;
- 		}
- 	}
- 	if (!master_0) {
- 		printk(KERN_ERR "%s: unable to locate PCI MASTER function\n", name);
--		return 0;
-+		goto out;
- 	}
- 	if (!cs5530_0) {
- 		printk(KERN_ERR "%s: unable to locate CS5530 LEGACY function\n", name);
--		return 0;
-+		goto out;
- 	}
- 
- 	spin_lock_irqsave(&ide_lock, flags);
-@@ -296,6 +296,9 @@
- 
- 	spin_unlock_irqrestore(&ide_lock, flags);
- 
-+out:
-+	pci_dev_put(master_0);
-+	pci_dev_put(cs5530_0);
- 	return 0;
- }
- 
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.18-mm2/drivers/ide/pci/cy82c693.c linux-2.6.18-mm2/drivers/ide/pci/cy82c693.c
---- linux.vanilla-2.6.18-mm2/drivers/ide/pci/cy82c693.c	2006-09-20 04:42:06.000000000 +0100
-+++ linux-2.6.18-mm2/drivers/ide/pci/cy82c693.c	2006-09-25 12:19:18.000000000 +0100
-@@ -281,7 +281,7 @@
- 
- 	/* select primary or secondary channel */
- 	if (hwif->index > 0) {  /* drive is on the secondary channel */
--		dev = pci_find_slot(dev->bus->number, dev->devfn+1);
-+		dev = pci_get_slot(dev->bus, dev->devfn+1);
- 		if (!dev) {
- 			printk(KERN_ERR "%s: tune_drive: "
- 				"Cannot find secondary interface!\n",
-@@ -500,8 +500,9 @@
- 	   Function 1 is primary IDE channel, function 2 - secondary. */
-         if ((dev->class >> 8) == PCI_CLASS_STORAGE_IDE &&
- 	    PCI_FUNC(dev->devfn) == 1) {
--		dev2 = pci_find_slot(dev->bus->number, dev->devfn + 1);
-+		dev2 = pci_get_slot(dev->bus, dev->devfn + 1);
- 		ret = ide_setup_pci_devices(dev, dev2, d);
-+		/* We leak pci refs here but thats ok - we can't be unloaded */
- 	}
- 	return ret;
- }
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.18-mm2/drivers/ide/pci/via82cxxx.c linux-2.6.18-mm2/drivers/ide/pci/via82cxxx.c
---- linux.vanilla-2.6.18-mm2/drivers/ide/pci/via82cxxx.c	2006-09-20 04:42:06.000000000 +0100
-+++ linux-2.6.18-mm2/drivers/ide/pci/via82cxxx.c	2006-09-25 12:20:06.000000000 +0100
-@@ -248,7 +248,7 @@
- 	u8 t;
- 
- 	for (via_config = via_isa_bridges; via_config->id; via_config++)
--		if ((*isa = pci_find_device(PCI_VENDOR_ID_VIA +
-+		if ((*isa = pci_get_device(PCI_VENDOR_ID_VIA +
- 			!!(via_config->flags & VIA_BAD_ID),
- 			via_config->id, NULL))) {
- 
-@@ -256,6 +256,7 @@
- 			if (t >= via_config->rev_min &&
- 			    t <= via_config->rev_max)
- 				break;
-+			pci_dev_put(*isa);
- 		}
- 
- 	return via_config;
-@@ -283,6 +284,7 @@
- 	via_config = via_config_find(&isa);
- 	if (!via_config->id) {
- 		printk(KERN_WARNING "VP_IDE: Unknown VIA SouthBridge, disabling DMA.\n");
-+		pci_dev_put(isa);
- 		return -ENODEV;
- 	}
- 
-@@ -361,6 +363,7 @@
- 		via_dma[via_config->flags & VIA_UDMA],
- 		pci_name(dev));
- 
-+	pci_dev_put(isa);
- 	return 0;
- }
- 
+> Nak!  The calgary code should not be affected by these patches.
 
+It is. It triggers the BUG() I put there exactly in case someone tries
+to grab ->sysdata from uder us.
+
+PCI-DMA: Using Calgary IOMMU
+Calgary: dev ffff8101979a7800 has sysdata ffff81019795f620
+----------- [cut here ] --------- [please bite here ] ---------
+Kernel BUG at ...uli/w/iommu/calgary/linux/arch/x86_64/kernel/tce.c:143
+invalid opcode: 0000 [1] SMP
+CPU 1
+Modules linked in:
+Pid: 1, comm: swapper Not tainted 2.6.18mx #115
+RIP: 0010:[<ffffffff8021b38c>]  [<ffffffff8021b38c>] build_tce_table+0x2b/0x126
+RSP: 0000:ffff810197c7de70  EFLAGS: 00010282
+RAX: 000000000000003e RBX: 00000000ffffffc3 RCX: 0000000000000000
+RDX: ffffffff8022e3ee RSI: 0000000000000000 RDI: ffff810197c67040
+RBP: ffff810197c7de90 R08: 0000000000000002 R09: ffffffff8022df0a
+R10: 0000000000000000 R11: ffffffff80762280 R12: ffffc20000080000
+R13: ffff8101979a7800 R14: ffffc20000080000 R15: 00000000ffffffed
+FS:  0000000000000000(0000) GS:ffff810197c75cc0(0000) knlGS:0000000000000000
+CS:  0010 DS: 0018 ES: 0018 CR0: 000000ffff80c728db 0000000000000000 00000000000 00000
+ ffffffff80c9cf18 0000000000000000 0000000000000000 0000000000000000
+Call Trace:
+ [<ffffffff80c728db>] calgary_iommu_init+0x11e/0x569
+ [<ffffffff80c6b6fe>] pci_iommu_init+0x9/0x17
+ [<ffffffff8020718d>] init+0x145/0x300
+ [<ffffffff805d8e51>] trace_hardirqs_on_thunk+0x35/0x37
+ [<ffffffff80244a46>] trace_hardirqs_on+0xfe/0x129
+ [<ffffffff8020a6c8>] child_rip+0xa/0x12
+ [<ffffffff805d95ea>] _spin_unlock_irq+0x29/0x2f
+ [<ffffffff80209e4d>] restore_args+0x0/0x30
+ [<ffffffff80207048>] init+0x0/0x300
+ [<ffffffff8020a6be>] child_rip+0x0/0x12
+
+> The PCI domain code uses the sysdata pointer from struct pci_bus,
+> where as calgary uses the sysdata pointer from struct pci_dev.  This
+> should not be an issue.  Can you confirm actual breakage?
+
+See above. This is with mainline + Jeff's PCI domains patch.
+
+In any case, even if it wasn't necessary, I'd like to take advantage
+of Jeff's sysdata changes and get rid of our hack, as having an
+extensible struct hanging of ->sysdata is the right way to go
+forward.
+
+Cheers,
+Muli

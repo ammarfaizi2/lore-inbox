@@ -1,55 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751289AbWI2CAJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751298AbWI2CHS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751289AbWI2CAJ (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Sep 2006 22:00:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751296AbWI2CAJ
+	id S1751298AbWI2CHS (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Sep 2006 22:07:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751306AbWI2CHS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Sep 2006 22:00:09 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:52401 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751289AbWI2CAH (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Sep 2006 22:00:07 -0400
-From: Neil Brown <neilb@suse.de>
-To: Hugh Dickins <hugh@veritas.com>
-Date: Fri, 29 Sep 2006 11:59:46 +1000
-MIME-Version: 1.0
+	Thu, 28 Sep 2006 22:07:18 -0400
+Received: from cavan.codon.org.uk ([217.147.92.49]:64483 "EHLO
+	vavatch.codon.org.uk") by vger.kernel.org with ESMTP
+	id S1751298AbWI2CHQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Sep 2006 22:07:16 -0400
+Date: Fri, 29 Sep 2006 03:07:07 +0100
+From: Matthew Garrett <mjg59@srcf.ucam.org>
+To: Kristen Carlson Accardi <kristen.c.accardi@intel.com>
+Cc: linux-ide@vger.intel.com, linux-kernel@vger.kernel.org, jgarzik@pobox.com,
+       rdunlap@xenotime.net
+Subject: Re: [patch 1/2] libata: _GTF support
+Message-ID: <20060929020707.GA22082@srcf.ucam.org>
+References: <20060928182211.076258000@localhost.localdomain> <20060928112901.62ee8eba.kristen.c.accardi@intel.com>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
-Message-ID: <17692.32274.496872.473492@cse.unsw.edu.au>
-Cc: "J. Bruce Fields" <bfields@fieldses.org>, Andrew Morton <akpm@osdl.org>,
-       nfs@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [NFS] [PATCH 009 of 11] knfsd: Allow max size of NFSd payload
- to be configured.
-In-Reply-To: message from Hugh Dickins on Thursday September 28
-References: <20060824162917.3600.patches@notabene>
-	<1060824063716.5020@suse.de>
-	<20060925212457.GK32762@fieldses.org>
-	<17691.19982.162616.572205@cse.unsw.edu.au>
-	<Pine.LNX.4.64.0609281752290.32574@blonde.wat.veritas.com>
-X-Mailer: VM 7.19 under Emacs 21.4.1
-X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
-	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
-	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
+Content-Disposition: inline
+In-Reply-To: <20060928112901.62ee8eba.kristen.c.accardi@intel.com>
+User-Agent: Mutt/1.5.9i
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: mjg59@codon.org.uk
+X-SA-Exim-Scanned: No (on vavatch.codon.org.uk); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thursday September 28, hugh@veritas.com wrote:
-> > 
-> > I'll submit a patch which uses
-> >         12 - PAGE_SHIFT
-> > in a little while.
-> 
-> I haven't seen your context; but "12 - PAGE_SHIFT" sounds like a
-> bad idea on all those architectures with PAGE_SHIFT 13 or more;
-> you'll be on much safer ground working with "PAGE_SHIFT - 12".
+On Thu, Sep 28, 2006 at 11:29:01AM -0700, Kristen Carlson Accardi wrote:
 
-Ahhh yes... of course.  Thanks.
+I mentioned this to Randy a while back, but I can't remember what sort 
+of resolution we came to. In any case:
 
-		totalram <<= PAGE_SHIFT - 12;
+> + * sata_get_dev_handle - finds acpi_handle and PCI device.function
 
-Is what I want to convert a number of pages to 1/4096 the number of
-bytes.
+I'm a bit uncomfortable that we seem to have two quite different ways of 
+accomplishing much the same thing. On the PCI bus, we have a callback 
+that gets triggered whenever a new PCI device is attached. At that 
+point, we look for the associated ACPI object and put a pointer to that 
+in the device structure. Then, whenever we want to make an ACPI call, we 
+can simply refer to that.
 
-Thanks :-)
+This implementation seems to reimplement much of the same lookup code, 
+but makes it libata specific. Wouldn't it be cleaner to implement it in 
+a similar way to PCI? The only real downside is that you need to add a 
+callback in the ata bus code. drivers/pci/pci-acpi.c/pci_acpi_init is 
+the sort of thing required.
 
-NeilBrown
+(Thinking ahead, would that make it easier to maintain links in sysfs 
+between devices and acpi objects?)
+
+-- 
+Matthew Garrett | mjg59@srcf.ucam.org

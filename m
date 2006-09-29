@@ -1,55 +1,77 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751298AbWI2CHS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751296AbWI2CJn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751298AbWI2CHS (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Sep 2006 22:07:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751306AbWI2CHS
+	id S1751296AbWI2CJn (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Sep 2006 22:09:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751300AbWI2CJn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Sep 2006 22:07:18 -0400
-Received: from cavan.codon.org.uk ([217.147.92.49]:64483 "EHLO
-	vavatch.codon.org.uk") by vger.kernel.org with ESMTP
-	id S1751298AbWI2CHQ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Sep 2006 22:07:16 -0400
-Date: Fri, 29 Sep 2006 03:07:07 +0100
-From: Matthew Garrett <mjg59@srcf.ucam.org>
-To: Kristen Carlson Accardi <kristen.c.accardi@intel.com>
-Cc: linux-ide@vger.intel.com, linux-kernel@vger.kernel.org, jgarzik@pobox.com,
-       rdunlap@xenotime.net
-Subject: Re: [patch 1/2] libata: _GTF support
-Message-ID: <20060929020707.GA22082@srcf.ucam.org>
-References: <20060928182211.076258000@localhost.localdomain> <20060928112901.62ee8eba.kristen.c.accardi@intel.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060928112901.62ee8eba.kristen.c.accardi@intel.com>
-User-Agent: Mutt/1.5.9i
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: mjg59@codon.org.uk
-X-SA-Exim-Scanned: No (on vavatch.codon.org.uk); SAEximRunCond expanded to false
+	Thu, 28 Sep 2006 22:09:43 -0400
+Received: from mxsf32.cluster1.charter.net ([209.225.28.156]:60878 "EHLO
+	mxsf32.cluster1.charter.net") by vger.kernel.org with ESMTP
+	id S1751296AbWI2CJm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Sep 2006 22:09:42 -0400
+X-IronPort-AV: i="4.09,232,1157342400"; 
+   d="scan'208"; a="650402844:sNHT155157452"
+Message-ID: <451C8070.7020801@cybsft.com>
+Date: Thu, 28 Sep 2006 21:09:52 -0500
+From: "K.R. Foley" <kr@cybsft.com>
+Organization: Cybersoft Solutions, Inc.
+User-Agent: Thunderbird 1.5.0.7 (X11/20060909)
+MIME-Version: 1.0
+To: john stultz <johnstul@us.ibm.com>
+CC: Ingo Molnar <mingo@elte.hu>, tglx@linutronix.de,
+       linux-kernel@vger.kernel.org, "Paul E. McKenney" <paulmck@us.ibm.com>,
+       Dipankar Sarma <dipankar@in.ibm.com>,
+       Arjan van de Ven <arjan@infradead.org>
+Subject: Re: 2.6.18-rt1
+References: <20060920141907.GA30765@elte.hu> <45118EEC.2080700@cybsft.com>	 <20060920194958.GA24691@elte.hu> <4511A57D.9070500@cybsft.com>	 <1158784863.5724.1027.camel@localhost.localdomain>	 <4511A98A.4080908@cybsft.com>	 <1158866166.12028.9.camel@localhost.localdomain>	 <20060922115854.GA12684@elte.hu>  <1159404123.5532.3.camel@localhost> <1159483731.25415.12.camel@localhost>
+In-Reply-To: <1159483731.25415.12.camel@localhost>
+X-Enigmail-Version: 0.93.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 28, 2006 at 11:29:01AM -0700, Kristen Carlson Accardi wrote:
+john stultz wrote:
+> On Wed, 2006-09-27 at 17:42 -0700, john stultz wrote:
+>> On Fri, 2006-09-22 at 13:58 +0200, Ingo Molnar wrote: 
+>>> * john stultz <johnstul@us.ibm.com> wrote:
+>>>
+>>>> I'm seeing a similar issue. Although the log is a bit futzed. Maybe 
+>>>> its the sd_mod?
+>>>>
+>>>>  at virtual address 75010000le kernel paging requestproc filesystem
+>>> would be nice to figure out why it crashes - unfortunately i cannot 
+>>> trigger it. Could it be some build tool incompatibility perhaps? Some 
+>>> sizing issue (some module struct gets too large)?
+>> Been looking a bit deeper into this again:
+> [snip]
+>> c03879e8 r __ksymtab_find_next_bit
+>> c03879f0 r __ksymtab_find_next_zero_bit
+>> c03879f8 R __write_lock_failed
+>> c0387a18 R __read_lock_failed
+>> c0387a2c r __ksymtab___delay
+>> c0387a34 r __ksymtab___const_udelay
+>> c0387a3c r __ksymtab___udelay
+>> c0387a44 r __ksymtab___ndelay
+>>
+>> That __read/__write_lock_failed bit looks wrong.
+> 
+> 
+> So it seems gcc 3.4.4 misplaces the __write_lock_failed function into
+> the ksymtab. It doesn't happen w/ 4.0.3. 
+> 
+> Anyway, this patch explicitly defines the section and fixes the issue
+> for me. Would the other reporters of this issue give it a whirl as well?
+> 
+> thanks
+> -john
+> 
 
-I mentioned this to Randy a while back, but I can't remember what sort 
-of resolution we came to. In any case:
+John,
 
-> + * sata_get_dev_handle - finds acpi_handle and PCI device.function
+This fixes my problem on my fc3 box here at home. I will check my other
+development boxes at work tomorrow. Nice catch and thanks for effort.
 
-I'm a bit uncomfortable that we seem to have two quite different ways of 
-accomplishing much the same thing. On the PCI bus, we have a callback 
-that gets triggered whenever a new PCI device is attached. At that 
-point, we look for the associated ACPI object and put a pointer to that 
-in the device structure. Then, whenever we want to make an ACPI call, we 
-can simply refer to that.
-
-This implementation seems to reimplement much of the same lookup code, 
-but makes it libata specific. Wouldn't it be cleaner to implement it in 
-a similar way to PCI? The only real downside is that you need to add a 
-callback in the ata bus code. drivers/pci/pci-acpi.c/pci_acpi_init is 
-the sort of thing required.
-
-(Thinking ahead, would that make it easier to maintain links in sysfs 
-between devices and acpi objects?)
 
 -- 
-Matthew Garrett | mjg59@srcf.ucam.org
+	kr

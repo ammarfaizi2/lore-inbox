@@ -1,192 +1,178 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932403AbWI3AKB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964845AbWI3AMj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932403AbWI3AKB (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Sep 2006 20:10:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932385AbWI3AKA
+	id S964845AbWI3AMj (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Sep 2006 20:12:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932360AbWI3AEA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Sep 2006 20:10:00 -0400
-Received: from www.osadl.org ([213.239.205.134]:13716 "EHLO mail.tglx.de")
-	by vger.kernel.org with ESMTP id S1422800AbWI3AEF (ORCPT
+	Fri, 29 Sep 2006 20:04:00 -0400
+Received: from www.osadl.org ([213.239.205.134]:65427 "EHLO mail.tglx.de")
+	by vger.kernel.org with ESMTP id S1422810AbWI3AD6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Sep 2006 20:04:05 -0400
-Message-Id: <20060929234439.836620000@cruncher.tec.linutronix.de>
+	Fri, 29 Sep 2006 20:03:58 -0400
+Message-Id: <20060929234439.041924000@cruncher.tec.linutronix.de>
 References: <20060929234435.330586000@cruncher.tec.linutronix.de>
-Date: Fri, 29 Sep 2006 23:58:28 -0000
+Date: Fri, 29 Sep 2006 23:58:21 -0000
 From: Thomas Gleixner <tglx@linutronix.de>
 To: LKML <linux-kernel@vger.kernel.org>
 Cc: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
        Jim Gettys <jg@laptop.org>, John Stultz <johnstul@us.ibm.com>,
        David Woodhouse <dwmw2@infradead.org>,
        Arjan van de Ven <arjan@infradead.org>, Dave Jones <davej@redhat.com>
-Subject: [patch 09/23] dynticks: extend next_timer_interrupt() to use a
-	reference jiffie
-Content-Disposition: inline; filename=extend-timer-next-interrupt.patch
+Subject: [patch 02/23] GTOD: persistent clock support, core
+Content-Disposition: inline;
+	filename=linux-2.6.18-rc6_timeofday-persistent-clock-generic_C6.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Thomas Gleixner <tglx@linutronix.de>
+From: John Stultz <johnstul@us.ibm.com>
 
-For CONFIG_NO_HZ we need to calculate the next timer wheel event based
-to a given jiffie value. Extend the existing code to allow the extra now
-argument. Provide a compability function for the existing implementations
-to call the function with now = jiffies.
-This also solves the racyness of the original code vs. jiffies changing
-during the iteration.
+persistent clock support: do proper timekeeping across suspend/resume.
 
+Signed-off-by: John Stultz <johnstul@us.ibm.com>
 Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
 Signed-off-by: Ingo Molnar <mingo@elte.hu>
-----
- include/linux/timer.h |   10 +++++++
- kernel/timer.c        |   64 +++++++++++++++++++++++++++++++++++---------------
- 2 files changed, 56 insertions(+), 18 deletions(-)
+--
+ include/linux/hrtimer.h |    3 +++
+ include/linux/time.h    |    1 +
+ kernel/hrtimer.c        |    8 ++++++++
+ kernel/timer.c          |   34 +++++++++++++++++++++++++++++++---
+ 4 files changed, 43 insertions(+), 3 deletions(-)
 
-Index: linux-2.6.18-mm2/include/linux/timer.h
+linux-2.6.18-rc6_timeofday-persistent-clock-generic_C6.patch
+Index: linux-2.6.18-mm2/include/linux/hrtimer.h
 ===================================================================
---- linux-2.6.18-mm2.orig/include/linux/timer.h	2006-09-30 01:41:12.000000000 +0200
-+++ linux-2.6.18-mm2/include/linux/timer.h	2006-09-30 01:41:16.000000000 +0200
-@@ -61,7 +61,17 @@ extern int del_timer(struct timer_list *
- extern int __mod_timer(struct timer_list *timer, unsigned long expires);
- extern int mod_timer(struct timer_list *timer, unsigned long expires);
+--- linux-2.6.18-mm2.orig/include/linux/hrtimer.h	2006-09-30 01:41:14.000000000 +0200
++++ linux-2.6.18-mm2/include/linux/hrtimer.h	2006-09-30 01:41:15.000000000 +0200
+@@ -146,6 +146,9 @@ extern void hrtimer_init_sleeper(struct 
+ /* Soft interrupt function to run the hrtimer queues: */
+ extern void hrtimer_run_queues(void);
  
-+/*
-+ * Return when the next timer-wheel timeout occurs (in absolute jiffies),
-+ * locks the timer base:
-+ */
- extern unsigned long next_timer_interrupt(void);
-+/*
-+ * Return when the next timer-wheel timeout occurs (in absolute jiffies),
-+ * locks the timer base and does the comparison against the given
-+ * jiffie.
-+ */
-+extern unsigned long get_next_timer_interrupt(unsigned long now);
++/* Resume notification */
++void hrtimer_notify_resume(void);
++
+ /* Bootup initialization: */
+ extern void __init hrtimers_init(void);
  
- /***
-  * add_timer - start a timer
+Index: linux-2.6.18-mm2/include/linux/time.h
+===================================================================
+--- linux-2.6.18-mm2.orig/include/linux/time.h	2006-09-30 01:41:14.000000000 +0200
++++ linux-2.6.18-mm2/include/linux/time.h	2006-09-30 01:41:15.000000000 +0200
+@@ -92,6 +92,7 @@ extern struct timespec xtime;
+ extern struct timespec wall_to_monotonic;
+ extern seqlock_t xtime_lock;
+ 
++extern unsigned long read_persistent_clock(void);
+ void timekeeping_init(void);
+ 
+ static inline unsigned long get_seconds(void)
+Index: linux-2.6.18-mm2/kernel/hrtimer.c
+===================================================================
+--- linux-2.6.18-mm2.orig/kernel/hrtimer.c	2006-09-30 01:41:14.000000000 +0200
++++ linux-2.6.18-mm2/kernel/hrtimer.c	2006-09-30 01:41:15.000000000 +0200
+@@ -287,6 +287,14 @@ static unsigned long ktime_divns(const k
+ #endif /* BITS_PER_LONG >= 64 */
+ 
+ /*
++ * Timekeeping resumed notification
++ */
++void hrtimer_notify_resume(void)
++{
++	clock_was_set();
++}
++
++/*
+  * Counterpart to lock_timer_base above:
+  */
+ static inline
 Index: linux-2.6.18-mm2/kernel/timer.c
 ===================================================================
---- linux-2.6.18-mm2.orig/kernel/timer.c	2006-09-30 01:41:15.000000000 +0200
-+++ linux-2.6.18-mm2/kernel/timer.c	2006-09-30 01:41:16.000000000 +0200
-@@ -468,29 +468,28 @@ static inline void __run_timers(tvec_bas
-  * is used on S/390 to stop all activity when a cpus is idle.
-  * This functions needs to be called disabled.
-  */
--unsigned long next_timer_interrupt(void)
-+unsigned long __next_timer_interrupt(tvec_base_t *base, unsigned long now)
- {
--	tvec_base_t *base;
- 	struct list_head *list;
--	struct timer_list *nte;
-+	struct timer_list *nte, *found = NULL;
- 	unsigned long expires;
--	unsigned long hr_expires = MAX_JIFFY_OFFSET;
--	ktime_t hr_delta;
- 	tvec_t *varray[4];
- 	int i, j;
+--- linux-2.6.18-mm2.orig/kernel/timer.c	2006-09-30 01:41:14.000000000 +0200
++++ linux-2.6.18-mm2/kernel/timer.c	2006-09-30 01:41:15.000000000 +0200
+@@ -41,6 +41,9 @@
+ #include <asm/timex.h>
+ #include <asm/io.h>
  
--	hr_delta = hrtimer_get_next_event();
-+#ifndef CONFIG_NO_HZ
-+	unsigned long hr_expires = MAX_JIFFY_OFFSET;
-+	ktime_t hr_delta = hrtimer_get_next_event();
++/* jiffies at the most recent update of wall time */
++unsigned long wall_jiffies = INITIAL_JIFFIES;
 +
- 	if (hr_delta.tv64 != KTIME_MAX) {
- 		struct timespec tsdelta;
- 		tsdelta = ktime_to_timespec(hr_delta);
- 		hr_expires = timespec_to_jiffies(&tsdelta);
- 		if (hr_expires < 3)
--			return hr_expires + jiffies;
-+			return hr_expires + now;
- 	}
--	hr_expires += jiffies;
-+	hr_expires += now;
-+#endif
+ u64 jiffies_64 __cacheline_aligned_in_smp = INITIAL_JIFFIES;
  
--	base = __get_cpu_var(tvec_bases);
--	spin_lock(&base->lock);
- 	expires = base->timer_jiffies + (LONG_MAX >> 1);
- 	list = NULL;
- 
-@@ -499,6 +498,7 @@ unsigned long next_timer_interrupt(void)
- 	do {
- 		list_for_each_entry(nte, base->tv1.vec + j, entry) {
- 			expires = nte->expires;
-+			found = nte;
- 			if (j < (base->timer_jiffies & TVR_MASK))
- 				list = base->tv2.vec + (INDEX(0));
- 			goto found;
-@@ -518,9 +518,12 @@ unsigned long next_timer_interrupt(void)
- 				j = (j + 1) & TVN_MASK;
- 				continue;
- 			}
--			list_for_each_entry(nte, varray[i]->vec + j, entry)
--				if (time_before(nte->expires, expires))
-+			list_for_each_entry(nte, varray[i]->vec + j, entry) {
-+				if (time_before(nte->expires, expires)) {
- 					expires = nte->expires;
-+					found = nte;
-+				}
-+			}
- 			if (j < (INDEX(i)) && i < 3)
- 				list = varray[i + 1]->vec + (INDEX(i + 1));
- 			goto found;
-@@ -534,12 +537,15 @@ found:
- 		 * where we found the timer element.
- 		 */
- 		list_for_each_entry(nte, list, entry) {
--			if (time_before(nte->expires, expires))
-+			if (time_before(nte->expires, expires)) {
- 				expires = nte->expires;
-+				found = nte;
-+			}
- 		}
- 	}
--	spin_unlock(&base->lock);
-+	WARN_ON(!found);
- 
-+#ifndef CONFIG_NO_HZ
- 	/*
- 	 * It can happen that other CPUs service timer IRQs and increment
- 	 * jiffies, but we have not yet got a local timer tick to process
-@@ -553,14 +559,36 @@ found:
- 	 * would falsely evaluate to true.  If that is the case, just
- 	 * return jiffies so that we can immediately fire the local timer
- 	 */
--	if (time_before(expires, jiffies))
--		return jiffies;
-+	if (time_before(expires, now))
-+		expires = now;
-+	else if (time_before(hr_expires, expires))
-+		expires = hr_expires;
-+#endif
-+	/*
-+	 * 'Timer wheel time' can lag behind 'jiffies time' due to
-+	 * delayed processing, so make sure we return a value that
-+	 * makes sense externally:
-+	 */
-+	return expires - (now - base->timer_jiffies);
-+}
-+
-+unsigned long get_next_timer_interrupt(unsigned long now)
-+{
-+	tvec_base_t *base = __get_cpu_var(tvec_bases);
-+	unsigned long expires;
- 
--	if (time_before(hr_expires, expires))
--		return hr_expires;
-+	spin_lock(&base->lock);
-+	expires = __next_timer_interrupt(base, now);
-+	spin_unlock(&base->lock);
- 
- 	return expires;
+ EXPORT_SYMBOL(jiffies_64);
+@@ -743,12 +746,20 @@ int timekeeping_is_continuous(void)
+ 	return ret;
  }
-+
-+unsigned long next_timer_interrupt(void)
+ 
++/* Weak dummy function for arches that do not yet support it.
++ * XXX - Do be sure to remove it once all arches implement it.
++ */
++unsigned long __attribute__((weak)) read_persistent_clock(void)
 +{
-+	return get_next_timer_interrupt(jiffies);
++	return 0;
 +}
 +
- #endif
+ /*
+  * timekeeping_init - Initializes the clocksource and common timekeeping values
+  */
+ void __init timekeeping_init(void)
+ {
+-	unsigned long flags;
++	unsigned long flags, sec = read_persistent_clock();
  
- /******************************************************************/
+ 	write_seqlock_irqsave(&xtime_lock, flags);
+ 
+@@ -758,11 +769,18 @@ void __init timekeeping_init(void)
+ 	clocksource_calculate_interval(clock, tick_nsec);
+ 	clock->cycle_last = clocksource_read(clock);
+ 
++	xtime.tv_sec = sec;
++	xtime.tv_nsec = (jiffies % HZ) * (NSEC_PER_SEC / HZ);
++	set_normalized_timespec(&wall_to_monotonic,
++		-xtime.tv_sec, -xtime.tv_nsec);
++
+ 	write_sequnlock_irqrestore(&xtime_lock, flags);
+ }
+ 
+ 
+ static int timekeeping_suspended;
++static unsigned long timekeeping_suspend_time;
++
+ /**
+  * timekeeping_resume - Resumes the generic timekeeping subsystem.
+  * @dev:	unused
+@@ -773,14 +791,23 @@ static int timekeeping_suspended;
+  */
+ static int timekeeping_resume(struct sys_device *dev)
+ {
+-	unsigned long flags;
++	unsigned long flags, now = read_persistent_clock();
+ 
+ 	write_seqlock_irqsave(&xtime_lock, flags);
+-	/* restart the last cycle value */
++
++	if (now && (now > timekeeping_suspend_time)) {
++		unsigned long sleep_length = now - timekeeping_suspend_time;
++		xtime.tv_sec += sleep_length;
++		jiffies_64 += sleep_length * HZ;
++	}
++	/* re-base the last cycle value */
+ 	clock->cycle_last = clocksource_read(clock);
+ 	clock->error = 0;
+ 	timekeeping_suspended = 0;
+ 	write_sequnlock_irqrestore(&xtime_lock, flags);
++
++	hrtimer_notify_resume();
++
+ 	return 0;
+ }
+ 
+@@ -790,6 +817,7 @@ static int timekeeping_suspend(struct sy
+ 
+ 	write_seqlock_irqsave(&xtime_lock, flags);
+ 	timekeeping_suspended = 1;
++	timekeeping_suspend_time = read_persistent_clock();
+ 	write_sequnlock_irqrestore(&xtime_lock, flags);
+ 	return 0;
+ }
 
 --
 

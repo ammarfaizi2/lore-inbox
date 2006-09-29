@@ -1,106 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161299AbWI2G2O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161439AbWI2GaM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161299AbWI2G2O (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Sep 2006 02:28:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161436AbWI2G2O
+	id S1161439AbWI2GaM (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Sep 2006 02:30:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161437AbWI2GaM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Sep 2006 02:28:14 -0400
-Received: from smtp104.sbc.mail.mud.yahoo.com ([68.142.198.203]:35946 "HELO
-	smtp104.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1161299AbWI2G2O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Sep 2006 02:28:14 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=pacbell.net;
-  h=Received:From:To:Subject:Date:User-Agent:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
-  b=tWnl4vJqqlWSTk27VkVhEhfDqntTysv/UkKeYIXklCiHE3fYEZu84coFCECJ/+JPfWeRtDDfrZA6S2+zfp7dUNatVSqoVywb4lPXbR/aVoRl/nLPu2/YS9mjZmAoV+ffFeLVoHPzoytqn/qFgQKlAzQ4LeBiTOOoYbpbADLdNFw=  ;
-From: David Brownell <david-b@pacbell.net>
-To: Jean Delvare <khali@linux-fr.org>
-Subject: [patch 2.6.18-git] i2c/tps65010, update for current i2c-omap
-Date: Thu, 28 Sep 2006 23:28:09 -0700
-User-Agent: KMail/1.7.1
-Cc: linux-kernel@vger.kernel.org
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
+	Fri, 29 Sep 2006 02:30:12 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:17385 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1161439AbWI2GaK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Sep 2006 02:30:10 -0400
+Date: Thu, 28 Sep 2006 23:29:53 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: NeilBrown <neilb@suse.de>, "David M. Grimes" <dgrimes@navisite.com>,
+       Atal Shargorodsky <atal@codefidence.com>,
+       Gilad Ben-Yossef <gilad@codefidence.com>
+Cc: nfs@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       Hugh Dickins <hugh@veritas.com>
+Subject: Re: [PATCH 001 of 8] knfsd: Add nfs-export support to tmpfs
+Message-Id: <20060928232953.6da08f19.akpm@osdl.org>
+In-Reply-To: <1060929030839.24024@suse.de>
+References: <20060929130518.23919.patches@notabene>
+	<1060929030839.24024@suse.de>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200609282328.09871.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This updates the TPS6501x driver to stop trying to use the faked-out
-I2C probe protocol (never guaranteed to work), since the OMAP I2C
-driver merged to kernel.org no longer tries to support it.
+On Fri, 29 Sep 2006 13:08:39 +1000
+NeilBrown <neilb@suse.de> wrote:
 
-Until the I2C stack is updated to offer full driver model support from
-static board-specific device tables, and is able to pass things like
-IRQ resources and chip IDs, the only way to address this type of issue
-is for drivers to have board-specific info kick in before registering
-the driver (for addressing), and in the probe code (for other resources).
-So that's what this patch adds.
+> +static int shmem_encode_fh(struct dentry *dentry, __u32 *fh, int *len, int connectable)
+> +{
+> +	struct inode *inode = dentry->d_inode;
+> +
+> +	if (*len < 2)
+> +		return 255;
+> +
+> +	if (hlist_unhashed(&inode->i_hash)) {
+> +		/* Unfortunately insert_inode_hash is not idempotent,
+> +		 * so as we hash inodes here rather than at creation
+> +		 * time, we need a lock to ensure we only try
+> +		 * to do it once
+> +		 */
+> +		static DEFINE_SPINLOCK(lock);
+> +		spin_lock(&lock);
+> +		if (hlist_unhashed(&inode->i_hash))
+> +			insert_inode_hash(inode);
+> +		spin_unlock(&lock);
+> +	}
 
-Signed-off-by: David Brownell <dbrownell@users.sourceforge.net>
+This looks fishy.
 
-------
-please merge for 2.6.18-rc ...
+How do we get two callers in here at the same time for the same inode?
 
---- osk.orig/drivers/i2c/chips/tps65010.c	2006-09-28 19:27:51.000000000 -0700
-+++ osk/drivers/i2c/chips/tps65010.c	2006-09-28 21:06:10.000000000 -0700
-@@ -42,15 +42,38 @@
- 
- /*-------------------------------------------------------------------------*/
- 
--#define	DRIVER_VERSION	"2 May 2005"
-+#define	DRIVER_VERSION	"28 Sept 2006"
- #define	DRIVER_NAME	(tps65010_driver.driver.name)
- 
- MODULE_DESCRIPTION("TPS6501x Power Management Driver");
- MODULE_LICENSE("GPL");
- 
--static unsigned short normal_i2c[] = { 0x48, /* 0x49, */ I2C_CLIENT_END };
- 
--I2C_CLIENT_INSMOD;
-+/* The i2c-omap driver doesn't support the i2c request used to fake probes,
-+ * so we need board-specific tables saying what devices exist.
-+ *
-+ * Until the I2C stack doesn't support such tables, we need to fake them
-+ * in the module initialization code (and in driver init for IRQs etc).
-+ *
-+ * Note we expect only ONE tps chip per board; no point in having more.
-+ */
-+
-+static unsigned short force[3] __devinitdata = {
-+	0, 0x48,		/* default address */
-+	I2C_CLIENT_END,
-+};
-+static unsigned short *forces[] __devinitdata = { force, NULL, };
-+
-+static unsigned short ignore[] __devinitdata = {
-+	I2C_CLIENT_END, I2C_CLIENT_END,
-+};
-+
-+static struct i2c_client_address_data addr_data __devinitdata = {
-+	.forces		= forces,
-+	.probe		= ignore,
-+	.normal_i2c	= ignore,
-+	.ignore		= ignore,
-+};
- 
- static struct i2c_driver tps65010_driver;
- 
-@@ -990,6 +1013,15 @@ static int __init tps_init(void)
- 	u32	tries = 3;
- 	int	status = -ENODEV;
- 
-+#ifdef	CONFIG_ARM
-+	if (machine_is_omap_osk()
-+			|| machine_is_omap_h2()
-+			|| machine_is_omap_h3())
-+		/* ok */ ;
-+	else
-+		return status;
-+#endif
-+
- 	printk(KERN_INFO "%s: version %s\n", DRIVER_NAME, DRIVER_VERSION);
- 
- 	/* some boards have startup glitches */
+Why don't other filesystems have the same problem?
+
+

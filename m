@@ -1,86 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965035AbWI2AIE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965043AbWI2AIk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965035AbWI2AIE (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Sep 2006 20:08:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965043AbWI2AID
+	id S965043AbWI2AIk (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Sep 2006 20:08:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965051AbWI2AIk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Sep 2006 20:08:03 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:50855 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S965035AbWI2AIB (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Sep 2006 20:08:01 -0400
-Date: Thu, 28 Sep 2006 17:07:59 -0700
-From: Greg KH <gregkh@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
-       linux-usb-devel@lists.sourceforge.net
-Subject: Re: [GIT PATCH] More USB patches for 2.6.18
-Message-ID: <20060929000759.GB1625@suse.de>
-References: <20060928224250.GA23841@kroah.com> <Pine.LNX.4.64.0609281639040.3952@g5.osdl.org> <20060928165951.2c5bd4c7.akpm@osdl.org> <20060929000524.GA1625@suse.de>
+	Thu, 28 Sep 2006 20:08:40 -0400
+Received: from smtp106.sbc.mail.mud.yahoo.com ([68.142.198.205]:28238 "HELO
+	smtp106.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S965043AbWI2AIi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Sep 2006 20:08:38 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=pacbell.net;
+  h=Received:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
+  b=YiTFA37WbsRH1FMs+gJbYJuXTrxyB57A+JhGagsCGnhAKfBakHpn3Voq9HbRL2a+31ZrcY9Zw2w6KuUtagej+52da0oegwseGFcLfzVco1AvuZTd/alEODaZT0Jfy7rT+bsRoxFubv/eyf+U1IvajCaG98d1KDmB2+UIMQ1Ni1A=  ;
+From: David Brownell <david-b@pacbell.net>
+To: linux-usb-devel@lists.sourceforge.net
+Subject: Re: [linux-usb-devel] [GIT PATCH] More USB patches for 2.6.18
+Date: Thu, 28 Sep 2006 17:08:33 -0700
+User-Agent: KMail/1.7.1
+Cc: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>,
+       Greg KH <gregkh@suse.de>, linux-kernel@vger.kernel.org
+References: <20060928224250.GA23841@kroah.com> <Pine.LNX.4.64.0609281639040.3952@g5.osdl.org> <20060928165951.2c5bd4c7.akpm@osdl.org>
+In-Reply-To: <20060928165951.2c5bd4c7.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060929000524.GA1625@suse.de>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+Message-Id: <200609281708.34599.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 28, 2006 at 05:05:24PM -0700, Greg KH wrote:
-> On Thu, Sep 28, 2006 at 04:59:51PM -0700, Andrew Morton wrote:
-> > On Thu, 28 Sep 2006 16:40:23 -0700 (PDT)
-> > Linus Torvalds <torvalds@osdl.org> wrote:
-> > 
-> > > 
-> > > 
-> > > On Thu, 28 Sep 2006, Greg KH wrote:
-> > > >
-> > > > Here are some more USB bugfixes and device ids 2.6.18.  They should all
-> > > > fix the reported problems in your current tree (if not, please let me
-> > > > know.)
-> > > > 
-> > > > All of these changes have been in the -mm tree for a while.
-> > > 
-> > > Maybe I shouldn't have hurried you.
-> > > 
-> > > 	In file included from drivers/usb/host/ohci-hcd.c:140:
-> > > 	drivers/usb/host/ohci-hub.c: In function 'ohci_rh_resume':
-> > > 	drivers/usb/host/ohci-hub.c:184: error: invalid storage class for function 'ohci_restart'
-> > > 	drivers/usb/host/ohci-hub.c:188: warning: implicit declaration of function 'ohci_restart'
-> > > 	drivers/usb/host/ohci-hcd.c: At top level:
-> > > 	drivers/usb/host/ohci-hcd.c:815: error: static declaration of 'ohci_restart' follows non-static declaration
-> > > 	drivers/usb/host/ohci-hub.c:188: error: previous implicit declaration of 'ohci_restart' was here
-> > > 	make[3]: *** [drivers/usb/host/ohci-hcd.o] Error 1
-> > > 	make[2]: *** [drivers/usb/host] Error 2
-> > > 	make[1]: *** [drivers/usb] Error 2
-> > > 	make: *** [drivers] Error 2
-> > > 
-> > 
-> > That's the "some gccs dont like static function decls in that scope" thing.
-> > 
-> > I fixed it (unpleasantly) like this:
-> > 
-> > 
-> > diff -puN drivers/usb/host/ohci-hub.c~ohci-add-auto-stop-support-hack-hack drivers/usb/host/ohci-hub.c
-> > --- a/drivers/usb/host/ohci-hub.c~ohci-add-auto-stop-support-hack-hack
-> > +++ a/drivers/usb/host/ohci-hub.c
-> > @@ -132,6 +132,10 @@ static inline struct ed *find_head (stru
-> >  	return ed;
-> >  }
-> >  
-> > +#ifdef CONFIG_PM
-> > +static int ohci_restart(struct ohci_hcd *ohci);
-> > +#endif
-> 
-> That #ifdef shouldn't be even needed.
-> 
-> I'll add a patch to the git tree to fix this up, give me a few
-> minutes...
+> --- a/drivers/usb/host/ohci-hub.c~ohci-add-auto-stop-support-hack-hack
+> +++ a/drivers/usb/host/ohci-hub.c
+> @@ -132,6 +132,10 @@ static inline struct ed *find_head (stru
+>  	return ed;
+>  }
+>  
+> +#ifdef CONFIG_PM
+> +static int ohci_restart(struct ohci_hcd *ohci);
+> +#endif
+> +
+>  /* caller has locked the root hub */
 
-Ok, Linus, if you pull from:
-	master.kernel.org:/pub/scm/linux/kernel/git/gregkh/usb-2.6.git
+Better to just always include the forward decl... much cleaner!
 
-You should have one more patch that fixes this problem.
+... reviewing and testing those new OHCI changes is still on my
+list; all that suspend stuff needs care, things that work on PCs don't
+necessarily work on embedded hardware (where OHCI is common, and
+PM tends to be more critical).
 
-Sorry, I think I need to upgrade to gcc4 here to catch these things...
+- Dave
 
-greg k-h

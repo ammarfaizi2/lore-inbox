@@ -1,86 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422721AbWI2UE4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161912AbWI2UIb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422721AbWI2UE4 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Sep 2006 16:04:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422727AbWI2UE4
+	id S1161912AbWI2UIb (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Sep 2006 16:08:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161909AbWI2UIb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Sep 2006 16:04:56 -0400
-Received: from mail3.uklinux.net ([80.84.72.33]:38568 "EHLO mail3.uklinux.net")
-	by vger.kernel.org with ESMTP id S1422721AbWI2UEz (ORCPT
+	Fri, 29 Sep 2006 16:08:31 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:15272 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1161912AbWI2UIa (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Sep 2006 16:04:55 -0400
-Date: Thu, 28 Sep 2006 20:56:27 +0100
-To: Randy Dunlap <rdunlap@xenotime.net>
-Cc: Roger Gammans <roger@computer-surgery.co.uk>,
-       lkml <linux-kernel@vger.kernel.org>
-Subject: Re: fs/bio.c - Hardcoded sector size ?
-Message-ID: <20060928195627.GD4759@julia.computer-surgery.co.uk>
-References: <20060928182238.GA4759@julia.computer-surgery.co.uk> <20060929113814.db87b8d5.rdunlap@xenotime.net> <20060928185820.GB4759@julia.computer-surgery.co.uk> <20060929121157.0258883f.rdunlap@xenotime.net> <20060928191946.GC4759@julia.computer-surgery.co.uk> <20060929123737.ec613178.rdunlap@xenotime.net>
+	Fri, 29 Sep 2006 16:08:30 -0400
+Date: Fri, 29 Sep 2006 13:06:52 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: alan <alan@clueserver.org>
+cc: Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Helge Hafting <helge.hafting@aitel.hist.no>, tglx@linutronix.de,
+       Neil Brown <neilb@suse.de>, Michiel de Boer <x@rebelhomicide.demon.nl>,
+       James Bottomley <James.Bottomley@SteelEye.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: GPLv3 Position Statement
+In-Reply-To: <Pine.LNX.4.64.0609291258050.30636@blackbox.fnordora.org>
+Message-ID: <Pine.LNX.4.64.0609291306080.3952@g5.osdl.org>
+References: <1158941750.3445.31.camel@mulgrave.il.steeleye.com> 
+ <451798FA.8000004@rebelhomicide.demon.nl>  <17687.46268.156413.352299@cse.unsw.edu.au>
+  <1159183895.11049.56.camel@localhost.localdomain> 
+ <1159200620.9326.447.camel@localhost.localdomain>  <451CF22D.4030405@aitel.hist.no>
+  <Pine.LNX.4.64.0609290940480.3952@g5.osdl.org>  <1159552021.13029.58.camel@localhost.localdomain>
+  <Pine.LNX.4.64.0609291030050.3952@g5.osdl.org> <1159554375.13029.67.camel@localhost.localdomain>
+ <Pine.LNX.4.64.0609291120440.3952@g5.osdl.org> <Pine.LNX.4.64.0609291131300.3952@g5.osdl.org>
+ <Pine.LNX.4.64.0609291258050.30636@blackbox.fnordora.org>
 MIME-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="O5XBE6gyVG5Rl6Rj"
-Content-Disposition: inline
-In-Reply-To: <20060929123737.ec613178.rdunlap@xenotime.net>
-X-GPG-Fingerprint: ADAD DF3A AE05 CA28 3BDB  D352 7E81 8852 817A FB7B
-X-GPG-Key: 1024D/817AFB7B (wwwkeys.uk.pgp.net)
-User-Agent: Mutt/1.5.13 (2006-08-11)
-From: Roger Gammans <roger@computer-surgery.co.uk>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---O5XBE6gyVG5Rl6Rj
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
 
-On Fri, Sep 29, 2006 at 12:37:37PM -0700, Randy Dunlap wrote:
-> Hm, I looked thru fs/bio.c and block/*.c and Documentation/Docbook/*.tmpl.
-> The best place that I see to put it right now is in
-> include/linux/bio.h, struct bio, field: bi_sector.
->=20
-> What do you think of that?
+On Fri, 29 Sep 2006, alan wrote:
+>
+> On Fri, 29 Sep 2006, Linus Torvalds wrote:
+> 
+> > (*) Hah. Who do I think I'm kidding? The revolution will be bloody and
+> > brutal, and you're not going to get the choice to "elect" me except in the
+> > history books written by yours truly.
+> 
+> Wow.  You have been living in Portland too long. ]:>
 
-Well, ... Um. I can't think of anywhere better either, so how about
-this:-
+Is there some Portland subculture that I should be aware of?
 
-Signed-Off-By: Roger Gammans <rgammans@computer-sugery.co.uk>
+Inquiring minds want to know.
 
-diff --git a/include/linux/bio.h b/include/linux/bio.h
-index 76bdaea..77a8e6b 100644
---- a/include/linux/bio.h
-+++ b/include/linux/bio.h
-@@ -70,7 +70,8 @@ typedef void (bio_destructor_t) (struct
-  * stacking drivers)
-  */
- struct bio {
--       sector_t                bi_sector;
-+       sector_t                bi_sector;      /* device address in 512 by=
-te
-+                                                  sectors */
-        struct bio              *bi_next;       /* request queue link */
-        struct block_device     *bi_bdev;
-        unsigned long           bi_flags;       /* status, command, etc
-*/
-
-
---=20
-Roger.                          Home| http://www.sandman.uklinux.net/
-Master of Peng Shui.      (Ancient oriental art of Penguin Arranging)
-Work|Independent Sys Consultant | http://www.computer-surgery.co.uk/
-So what are the eigenvalues and eigenvectors of 'The Matrix'? --anon
-
---O5XBE6gyVG5Rl6Rj
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
-
-iD8DBQFFHCjqTryqm47jHdMRAppAAKChfRmMB6a6MwmRJLKIIDF2HWbP1ACbBphj
-aITeTNo8tJ99UX6HFkkVyWQ=
-=LwQH
------END PGP SIGNATURE-----
-
---O5XBE6gyVG5Rl6Rj--
+		Linus

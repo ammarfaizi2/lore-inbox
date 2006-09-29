@@ -1,102 +1,269 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161857AbWI2Ttq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161875AbWI2Tv4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161857AbWI2Ttq (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Sep 2006 15:49:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161862AbWI2Ttp
+	id S1161875AbWI2Tv4 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Sep 2006 15:51:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161874AbWI2Tv4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Sep 2006 15:49:45 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:62366 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1161857AbWI2Tto (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Sep 2006 15:49:44 -0400
-Date: Fri, 29 Sep 2006 12:45:58 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Valdis.Kletnieks@vt.edu
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.18-mm2 - oops in cache_alloc_refill()
-Message-Id: <20060929124558.33ef6c75.akpm@osdl.org>
-In-Reply-To: <200609291519.k8TFJfvw004256@turing-police.cc.vt.edu>
-References: <20060928014623.ccc9b885.akpm@osdl.org>
-	<200609290319.k8T3JOwS005455@turing-police.cc.vt.edu>
-	<20060928202931.dc324339.akpm@osdl.org>
-	<200609291519.k8TFJfvw004256@turing-police.cc.vt.edu>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+	Fri, 29 Sep 2006 15:51:56 -0400
+Received: from rs384.securehostserver.com ([72.22.69.69]:35343 "HELO
+	rs384.securehostserver.com") by vger.kernel.org with SMTP
+	id S1161873AbWI2Tvy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Sep 2006 15:51:54 -0400
+Subject: Re: [RFC][PATCH 2/2] Swap token re-tuned
+From: Ashwin Chaugule <ashwin.chaugule@celunite.com>
+Reply-To: ashwin.chaugule@celunite.com
+To: lkml <linux-kernel@vger.kernel.org>
+In-Reply-To: <1159557812.13651.23.camel@lappy>
+References: <1159556740.2141.24.camel@localhost.localdomain>
+	 <1159557812.13651.23.camel@lappy>
+Content-Type: text/plain
+Date: Sat, 30 Sep 2006 01:21:35 +0530
+Message-Id: <1159559495.2141.33.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 29 Sep 2006 11:19:41 -0400
-Valdis.Kletnieks@vt.edu wrote:
-
-> On Thu, 28 Sep 2006 20:29:31 PDT, Andrew Morton said:
+On Fri, 2006-09-29 at 21:23 +0200, Peter Zijlstra wrote:
+> On Sat, 2006-09-30 at 00:35 +0530, Ashwin Chaugule wrote:
+> > New scheme to preempt token. 
+> > 
+> /*
+>  * multi line comments look like this
+>  */
 > 
-> > bisecting would be good, thanks.  It might be quicker to strip down the .config
-> > though.
-> 
-> Well, I started with a clean 2.6.18 tree, and did a 'quilt push origin.patch'
-> to put just the stuff already in Linus's tree on.  Unfortunately, *that*
-> dies a *different* horrid death after 2 to 5 minutes or so of uptime (and
-> this one is also a locked-up-hard power-cycle hang, no alt-sysrq).  Of the
-> 3 or 4 times I triggered it, it managed to scribble the oops down into
-> syslog before totally wedging:
-> 
-> BUG: unable to handle kernel paging request at virtual address 00100104
-> printing eip:
-> c014c8b3
-> *pde = 00000000
-> Oops: 0002 [#1]
-> PREEMPT
-> Modules linked in: xt_SECMARK xt_CONNSECMARK ip6table_mangle iptable_mangle nf_conntrack_ftp xt_pkttype ipt_REJECT nf_conntrack_ipv4 ipt_LOG iptable_filter ip_tables xt_tcpudp nf_conntrack_ipv6 xt_state nf_conntrack ip6t_LOG xt_limit ip6table_filter ip6_tables x_tables thermal processor fan button battery ac nfnetlink i8k floppy nvram orinoco_cs orinoco hermes pcmcia firmware_class ohci1394 intel_agp ieee1394 agpgart yenta_socket rsrc_nonstatic pcmcia_core rtc
-> CPU:    0
-> EIP:    0060:[<c014c8b3>]    Not tainted VLI
-> EFLAGS: 00010083   (2.6.18-test #1)
-> EIP is at drain_freelist+0x45/0x9b
-> eax: 00200200   ebx: e5ce0540   ecx: effe10c0   edx: 00100100
-> esi: effdf4c0   edi: 00000001   ebp: effd2f54   esp: effd2f40
-> ds: 007b   es: 007b   ss: 0068
-> Process events/0 (pid: 3, ti=effd2000 task=c56cf000 task.ti=effd2000)
-> Stack: 00000002 effe18c0 effdf4c0 effe18c0 efe006c0 effd2f64 c014d8ea 00000296
-> c053df60 effd2f80 c0120f91 c014d864 00000000 efe006d0 efe006c0 efe006c8
-> effd2fc4 c01214d6 00000001 00000000 00000001 00010000 00000000 00000000
-> Call Trace:
-> [<c014d8ea>] cache_reap+0x86/0xc4
-> [<c0120f91>] run_workqueue+0x8f/0xe0
-> [<c01214d6>] worker_thread+0xe1/0x113
-> [<c0123861>] kthread+0xb0/0xdf
-> [<c0103813>] kernel_thread_helper+0x7/0x10
-> DWARF2 unwinder stuck at kernel_thread_helper+0x7/0x10
-> 
-> Leftover inexact backtrace:
-> 
-> [<c0103c4d>] show_trace_log_lvl+0x12/0x25
-> [<c0103cec>] show_stack_log_lvl+0x8c/0x97
-> [<c0103e18>] show_registers+0x121/0x1b2
-> [<c0104041>] die+0x198/0x273
-> [<c034fce1>] do_page_fault+0x3f5/0x4c2
-> [<c034e819>] error_code+0x39/0x40
-> [<c014d8ea>] cache_reap+0x86/0xc4
-> [<c0120f91>] run_workqueue+0x8f/0xe0
-> [<c01214d6>] worker_thread+0xe1/0x113
-> [<c0123861>] kthread+0xb0/0xdf
-> [<c0103813>] kernel_thread_helper+0x7/0x10
-> =======================
-> Code: f0 ff ff ff 40 14 8b 5e 14 39 d3 75 19 fb 89 e0 25 00 f0 ff ff ff 48 14 8b 40 08 a8 08 74 59 e8 99 04 20 00 eb 52 8b 13 8b 43 04 <89> 42 04 89 10 c7 03 00 01 10 00 c7 43 04 00 02 20 00 8b 46 18
-> EIP: [<c014c8b3>] drain_freelist+0x45/0x9b SS:ESP 0068:effd2f40
-> <6>note: events/0[3] exited with preempt_count 1
-> 
-> Now the question arises - is this the same bug I was seeing under the full -mm2,
-> and all the other patches just move the manifestation around, or is this fixed
-> by another -mm2 patch, and my original bug report is something else?
 
-I'd expect it's the same bug - slab data structures have gone bad.
 
-> I may have to learn how to use 'git bisect' to shoot this one, it appears.
+Thanks Peter ! 
 
-That's one way.
+Patch with reformatted comments.
 
-Again: how come nobody else is hitting this?  Something's different.
+Signed-off-by: Ashwin Chaugule <ashwin.chaugule@celunite.com>
 
-What device drivers are being used?
+---
+
+diff --git a/include/linux/sched.h b/include/linux/sched.h
+index 34ed0d9..b818fdc 100644
+--- a/include/linux/sched.h
++++ b/include/linux/sched.h
+@@ -342,9 +342,20 @@ struct mm_struct {
+ 	/* Architecture-specific MM context */
+ 	mm_context_t context;
+ 
+-	/* Token based thrashing protection. */
+-	unsigned long swap_token_time;
+-	char recent_pagein;
++	/* Swap token stuff */
++	/* 
++	 * Last value of global fault stamp as seen by this process. 
++	 * In other words, this value gives an indication of how long
++	 * it has been since this task got the token 
++	 */
++	unsigned int faultstamp;
++
++       /*
++	* Deciding factor ! 
++	* Incrememt if (global_faults - faultstamp < FAULTSTAMP_DIFF ) 
++        * else decrement. High priority wins the token.
++	*/
++	int token_priority;
+ 
+ 	/* coredumping support */
+ 	int core_waiters;
+diff --git a/include/linux/swap.h b/include/linux/swap.h
+index e7c36ba..89f8a39 100644
+--- a/include/linux/swap.h
++++ b/include/linux/swap.h
+@@ -259,7 +259,6 @@ extern spinlock_t swap_lock;
+ 
+ /* linux/mm/thrash.c */
+ extern struct mm_struct * swap_token_mm;
+-extern unsigned long swap_token_default_timeout;
+ extern void grab_swap_token(void);
+ extern void __put_swap_token(struct mm_struct *);
+ 
+diff --git a/kernel/sysctl.c b/kernel/sysctl.c
+index fd43c3e..ef52798 100644
+--- a/kernel/sysctl.c
++++ b/kernel/sysctl.c
+@@ -910,17 +910,6 @@ #ifdef HAVE_ARCH_PICK_MMAP_LAYOUT
+ 		.extra1		= &zero,
+ 	},
+ #endif
+-#ifdef CONFIG_SWAP
+-	{
+-		.ctl_name	= VM_SWAP_TOKEN_TIMEOUT,
+-		.procname	= "swap_token_timeout",
+-		.data		= &swap_token_default_timeout,
+-		.maxlen		= sizeof(swap_token_default_timeout),
+-		.mode		= 0644,
+-		.proc_handler	= &proc_dointvec_jiffies,
+-		.strategy	= &sysctl_jiffies,
+-	},
+-#endif
+ #ifdef CONFIG_NUMA
+ 	{
+ 		.ctl_name	= VM_ZONE_RECLAIM_MODE,
+diff --git a/mm/thrash.c b/mm/thrash.c
+index f4c560b..e1480c0 100644
+--- a/mm/thrash.c
++++ b/mm/thrash.c
+@@ -14,83 +14,87 @@ #include <linux/sched.h>
+ #include <linux/swap.h>
+ 
+ static DEFINE_SPINLOCK(swap_token_lock);
+-static unsigned long swap_token_timeout;
+-static unsigned long swap_token_check;
+-struct mm_struct * swap_token_mm = &init_mm;
++struct mm_struct * swap_token_mm = NULL;
++unsigned long global_faults = 0;
+ 
+-#define SWAP_TOKEN_CHECK_INTERVAL (HZ * 2)
+-#define SWAP_TOKEN_TIMEOUT	(300 * HZ)
+-/*
+- * Currently disabled; Needs further code to work at HZ * 300.
+- */
+-unsigned long swap_token_default_timeout = SWAP_TOKEN_TIMEOUT;
++#define SWAP_TOKEN_PREEMPT 1
++#define FAULTSTAMP_DIFF 5
+ 
+-/*
+- * Take the token away if the process had no page faults
+- * in the last interval, or if it has held the token for
+- * too long.
+- */
+-#define SWAP_TOKEN_ENOUGH_RSS 1
+-#define SWAP_TOKEN_TIMED_OUT 2
+ static int should_release_swap_token(struct mm_struct *mm)
+ {
+ 	int ret = 0;
+-	if (!mm->recent_pagein)
+-		ret = SWAP_TOKEN_ENOUGH_RSS;
+-	else if (time_after(jiffies, swap_token_timeout))
+-		ret = SWAP_TOKEN_TIMED_OUT;
+-	mm->recent_pagein = 0;
++	if ( current->mm->token_priority > mm->token_priority )
++		ret = SWAP_TOKEN_PREEMPT;
++	
+ 	return ret;
+ }
+ 
+-/*
+- * Try to grab the swapout protection token.  We only try to
+- * grab it once every TOKEN_CHECK_INTERVAL, both to prevent
+- * SMP lock contention and to check that the process that held
+- * the token before is no longer thrashing.
+- */
+ void grab_swap_token(void)
+ {
+-	struct mm_struct *mm;
++	struct mm_struct *mm_temp;
+ 	int reason;
+ 
+-	/* We have the token. Let others know we still need it. */
+-	if (has_swap_token(current->mm)) {
+-		current->mm->recent_pagein = 1;
+-		if (unlikely(!swap_token_default_timeout))
+-			disable_swap_token();
++	/* 
++	 * This gives an indication of the number of processes 
++	 * contending for the token.
++	 */
++	
++	global_faults++; 
++
++	if (!spin_trylock(&swap_token_lock))
+ 		return;
+-	}
+ 
+-	if (time_after(jiffies, swap_token_check)) {
++	/*
++	 * First come first served. If a process holding the 
++	 * token exits, its up for grabs immediately 
++	 */
++	
++	if ( swap_token_mm == NULL ) {
++		swap_token_mm = current->mm;
++		swap_token_mm->faultstamp = global_faults;
++		goto out;
++	}
+ 
+-		if (!swap_token_default_timeout) {
+-			swap_token_check = jiffies + SWAP_TOKEN_CHECK_INTERVAL;
+-			return;
+-		}
++	if ((global_faults - current->mm->faultstamp) < FAULTSTAMP_DIFF )  {
+ 
+-		/* ... or if we recently held the token. */
+-		if (time_before(jiffies, current->mm->swap_token_time))
+-			return;
++	/*
++	 * This would mean that too many of the current tasks pages
++	 * have been evicted and therefore it's calling swap-in or no-page 
++	 * too frequently. 
++	 */
+ 
+-		if (!spin_trylock(&swap_token_lock))
+-			return;
++		current->mm->faultstamp = global_faults;
++		current->mm->token_priority++;
++		mm_temp = swap_token_mm;
++	}
++	else {
++	/*
++	 * Decrement priority to ensure that the token holder doesnt
++	 * hold on to it for too long. 
++	 */
+ 
+-		swap_token_check = jiffies + SWAP_TOKEN_CHECK_INTERVAL;
++		if (current->mm->token_priority > 0)
++			current->mm->token_priority--;
++		else {
++	/*
++	 * After this, the process will be able to contend for the token 
++	 * again.
++	 */
+ 
+-		mm = swap_token_mm;
+-		if ((reason = should_release_swap_token(mm))) {
+-			unsigned long eligible = jiffies;
+-			if (reason == SWAP_TOKEN_TIMED_OUT) {
+-				eligible += swap_token_default_timeout;
+-			}
+-			mm->swap_token_time = eligible;
+-			swap_token_timeout = jiffies + swap_token_default_timeout;
+-			swap_token_mm = current->mm;
++			current->mm->token_priority = 0;
++			current->mm->faultstamp = global_faults;
+ 		}
+-		spin_unlock(&swap_token_lock);
++		goto out;
+ 	}
+-	return;
++
++	if ((reason = should_release_swap_token(mm_temp))) {
++		current->mm->faultstamp = global_faults;
++		swap_token_mm = current->mm;
++	}
++
++out:
++	spin_unlock(&swap_token_lock);
++return;
+ }
+ 
+ /* Called on process exit. */
+@@ -98,9 +102,7 @@ void __put_swap_token(struct mm_struct *
+ {
+ 	spin_lock(&swap_token_lock);
+ 	if (likely(mm == swap_token_mm)) {
+-		mm->swap_token_time = jiffies + SWAP_TOKEN_CHECK_INTERVAL;
+-		swap_token_mm = &init_mm;
+-		swap_token_check = jiffies;
++		swap_token_mm = NULL;
+ 	}
+ 	spin_unlock(&swap_token_lock);
+ }
+
+---
 

@@ -1,64 +1,104 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750921AbWI2JsU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750821AbWI2JrL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750921AbWI2JsU (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Sep 2006 05:48:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964770AbWI2JsT
+	id S1750821AbWI2JrL (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Sep 2006 05:47:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750883AbWI2JrL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Sep 2006 05:48:19 -0400
-Received: from relay.2ka.mipt.ru ([194.85.82.65]:36996 "EHLO 2ka.mipt.ru")
-	by vger.kernel.org with ESMTP id S1750921AbWI2JsR (ORCPT
+	Fri, 29 Sep 2006 05:47:11 -0400
+Received: from mx1.x-echo.com ([193.252.148.73]:60108 "EHLO smtp1.x-echo.com")
+	by vger.kernel.org with ESMTP id S1750821AbWI2JrK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Sep 2006 05:48:17 -0400
-Date: Fri, 29 Sep 2006 13:48:09 +0400
-From: Evgeniy Polyakov <johnpol@2ka.mipt.ru>
-To: Andreas Jellinghaus <aj@ciphirelabs.com>
-Cc: netdev@vger.kernel.org, linux-kernel@vger.kernel.org,
-       linux-crypto@vger.kernel.org
-Subject: Re: [ACRYPTO] New asynchronous crypto layer (acrypto) release.
-Message-ID: <20060929094809.GA31117@2ka.mipt.ru>
-References: <20060928120826.GA18063@2ka.mipt.ru> <451BCCDF.5000201@ciphirelabs.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=koi8-r
-Content-Disposition: inline
-In-Reply-To: <451BCCDF.5000201@ciphirelabs.com>
-User-Agent: Mutt/1.5.9i
-X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-1.7.5 (2ka.mipt.ru [0.0.0.0]); Fri, 29 Sep 2006 13:48:13 +0400 (MSD)
+	Fri, 29 Sep 2006 05:47:10 -0400
+Message-ID: <451CEBA8.8050604@lea-linux.com>
+Date: Fri, 29 Sep 2006 11:47:20 +0200
+From: Tchesmeli Serge <serge@lea-linux.com>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060909)
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+Subject: [BUG] ? Strange behaviour since kernel 2.6.17 with a https website
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 8bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 28, 2006 at 03:23:43PM +0200, Andreas Jellinghaus (aj@ciphirelabs.com) wrote:
-> Evgeniy Polyakov wrote:
-> >Hello.
-> >
-> >I'm pleased to announce asynchronous crypto layer (acrypto) [1] release 
-> >for 2.6.18 kernel tree. Acrypto allows to handle crypto requests 
-> >asynchronously in hardware.
-> >
-> >Combined patchset includes:
-> > * acrypto core
-> > * IPsec ESP4 port to acrypto
-> > * dm-crypt port to acrypto
-> 
-> so I should be able to replace a plain 2.6.18 kernel with one
-> with this patchset and use dm-crypt'ed partitions (e.g. swap,
-> encrypted root filesystem) as usual without further changes?
-> 
-> Did anyone test this with success?
-> 
-> Regards, Andreas
+Hi all.
 
-As I answered in your first e-mail, yes, you just need to patch 2.6.18
-tree and load one of the crypto provider.
+First of all, excuse my (poor) english, i'm french.
 
-Acrypto works with request/response model, i.e. you ask acrypto core to
-perform some operation on given buffers and if it can, it will call
-your callback when it is ready (or some error happend and acrypto was
-unable to reroute request to other device), otherwise it will return error.
 
-With such a model it is possible to extend acrypto to any kind of
-operations on buffers, not only crypto related, for example it is
-possible to onload IPsec header transformation, perform DMA between
-specified areas and much more.
+Me and a friend have discover a stange behaviour since kernel 2.6.17.
+
+Let me explain.
+We use to go to a ssh website, our bank website. One day my friend has
+notice than he cannot acces this site from his linux workstation, but
+can from his windows workstation. On my side, i still access on this
+website form my linux workstation. And several days laters i notice i
+can access this website too from my workstation, but my linux laptop on
+the same network can...
+After many tests, we have found that the problem is linked with kernel
+version. We don't have the same linux distribution (i'm on slackware
+current, he is on a debian unstable), but the same behaviour.
+Let see the tests i have made, on the same machine, with two kernel:
+2.4.33 and 2.6.17.13:
+
+First test:
+
+darkstar@stchesmeli:~$ uname -a
+Linux stchesmeli 2.4.33.3 #1 Fri Sep 1 01:48:52 CDT 2006 i686 pentium4
+i386 GNU/Linux
+
+wget --no-check-certificate "https://e.secure.lcl.fr/v_1.0/css/styleAp.css"
+--11:17:58--  https://e.secure.lcl.fr/v_1.0/css/styleAp.css
+           => `styleAp.css.8'
+Resolving e.secure.lcl.fr... 193.110.152.59
+Connecting to e.secure.lcl.fr|193.110.152.59|:443... connected.
+WARNING: Certificate verification error for e.secure.lcl.fr: unable to
+get local issuer certificate
+HTTP request sent, awaiting response... 200 OK
+Length: 42,745 (42K) [text/css]
+
+100%[==========================================================================================================>]
+42,745        --.--K/s            
+
+11:17:58 (476.32 KB/s) - `styleAp.css.8' saved [42745/42745]
+
+--------------- END OF TEST ----------------
+
+wget have take less than 1 second
+
+
+Second test:
+-----------------
+darkstar@stchesmeli:~$ uname -a
+Linux stchesmeli 2.6.17.11 #1 Fri Sep 1 16:36:50 CEST 2006 i686 pentium4
+i386 GN
+U/Linux
+darkstar@stchesmeli:~$ wget --no-check-certificate
+"https://e.secure.lcl.fr/v_1.
+0/css/styleAp.css"
+--11:44:00--  https://e.secure.lcl.fr/v_1.0/css/styleAp.css
+           => `styleAp.css.9'
+Resolving e.secure.lcl.fr... 193.110.152.59
+Connecting to e.secure.lcl.fr|193.110.152.59|:443... connected.
+WARNING: Certificate verification error for e.secure.lcl.fr: unable to
+get local
+ issuer certificate
+HTTP request sent, awaiting response... 200 OK
+Length: 42,745 (42K) [text/css]
+
+38%
+[==========================================>                                                                      
+] 16,384         1.13K/s    ETA 00:22
+
+--------------- END OF TEST ----------------
+
+i have kill wget after 4 mns on the second test.
+I have try to change MTU on the interface, no change, same behaviour.
+
+
 
 -- 
-	Evgeniy Polyakov
+Tchesmeli serge
+Administrateur système & réseau
+Expert Linux et Logiciels Libres
+

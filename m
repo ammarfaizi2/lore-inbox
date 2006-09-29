@@ -1,53 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932162AbWI2WFg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750739AbWI2WOu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932162AbWI2WFg (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Sep 2006 18:05:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932394AbWI2WFg
+	id S1750739AbWI2WOu (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Sep 2006 18:14:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750745AbWI2WOu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Sep 2006 18:05:36 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:35539 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932162AbWI2WFf (ORCPT
+	Fri, 29 Sep 2006 18:14:50 -0400
+Received: from mx.pathscale.com ([64.160.42.68]:37600 "EHLO mx.pathscale.com")
+	by vger.kernel.org with ESMTP id S1750739AbWI2WOt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Sep 2006 18:05:35 -0400
-Date: Fri, 29 Sep 2006 15:05:26 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Martin Bligh <mbligh@google.com>
-Cc: LKML <linux-kernel@vger.kernel.org>, linux-acpi@vger.kernel.org
-Subject: Re: [PATCH] Fix up a multitude of ACPI compiler warnings on x86_64
-Message-Id: <20060929150526.38eec941.akpm@osdl.org>
-In-Reply-To: <451D9236.6040902@google.com>
-References: <451D9236.6040902@google.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+	Fri, 29 Sep 2006 18:14:49 -0400
+Subject: Re: [openib-general] [PATCH] IB/ipath - fix RDMA reads
+From: Ralph Campbell <ralphc@pathscale.com>
+To: Roland Dreier <rdreier@cisco.com>
+Cc: "Bryan O'Sullivan" <bos@pathscale.com>, linux-kernel@vger.kernel.org,
+       openib-general@openib.org
+In-Reply-To: <adaven6z6pp.fsf@cisco.com>
+References: <7b2b5b33a24891601ac1.1159565871@eng-12.pathscale.com>
+	 <adaven6z6pp.fsf@cisco.com>
+Content-Type: text/plain
+Date: Fri, 29 Sep 2006 15:14:48 -0700
+Message-Id: <1159568088.29948.14.camel@brick.pathscale.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 29 Sep 2006 14:37:58 -0700
-Martin Bligh <mbligh@google.com> wrote:
+Yes, I am the author.
 
-> 32bit vs 64 bit issues. sizeof(sizeof) and sizeof(pointer) is variable,
-> but we're trying to shove it into unsigned int or u32.
->
-> ...
->
-> -	"RSDT/XSDT length (%X) is smaller than minimum (%X)",
-> +	"RSDT/XSDT length (%X) is smaller than minimum (%lX)",
->  	table_ptr->length,
-> -	sizeof(struct acpi_table_header)));
-> +	(unsigned long) sizeof(struct acpi_table_header)));
+On Fri, 2006-09-29 at 14:46 -0700, Roland Dreier wrote:
+> Thanks, applied (I assumed Ralph was the author when merging, please
+> let me know if that was wrong)
+> 
+> _______________________________________________
+> openib-general mailing list
+> openib-general@openib.org
+> http://openib.org/mailman/listinfo/openib-general
+> 
+> To unsubscribe, please visit http://openib.org/mailman/listinfo/openib-general
 > 
 
-These two sizeof()s have already been fixed by Randy in -mm's
-acpi-fix-printk-format-warnings.patch.
-
-Randy's fix is the preferred one: sizeof() returns size_t and size_t's are
-printed with %z - there's no need to use a typecast.
-
-(Actually Randy used %Z which avoids the warning which old gcc emitted with
-%z, but is old-fashioned.  I'll switch that to %z).
-
-
-acpi-fix-printk-format-warnings.patch was submitted to the ACPI developers
-on August 14 and on September 25 but remains unmerged.

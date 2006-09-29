@@ -1,26 +1,28 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751334AbWI2N0K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964893AbWI2NbT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751334AbWI2N0K (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Sep 2006 09:26:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751336AbWI2N0J
+	id S964893AbWI2NbT (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Sep 2006 09:31:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751343AbWI2NbT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Sep 2006 09:26:09 -0400
-Received: from smtp7.libero.it ([193.70.192.90]:30876 "EHLO smtp7.libero.it")
-	by vger.kernel.org with ESMTP id S1751334AbWI2N0H convert rfc822-to-8bit
+	Fri, 29 Sep 2006 09:31:19 -0400
+Received: from vmaila.mclink.it ([195.110.128.108]:25875 "EHLO
+	vmaila.mclink.it") by vger.kernel.org with ESMTP id S964884AbWI2Muj
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Sep 2006 09:26:07 -0400
-Date: Fri, 29 Sep 2006 15:26:04 +0200
-Message-Id: <J6CVZG$70B56AF5DA3ACEC3A5A6E0B89CE334E2@libero.it>
+	Fri, 29 Sep 2006 08:50:39 -0400
+From: "Mauro Tassinari" <mtassinari@cmanet.it>
+To: <linux-kernel@vger.kernel.org>
 Subject: patch needed in traps.c for linux-abi
+Date: Fri, 29 Sep 2006 14:50:41 +0200
+Message-ID: <!~!UENERkVCMDkAAQACAAAAAAAAAAAAAAAAABgAAAAAAAAA//gP36uv0hG9NQDAJogAp8KAAAAQAAAAX1zx8UCwgEyooUkm1rkVdwEAAAAA@cmanet.it>
 MIME-Version: 1.0
-X-Sensitivity: 3
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7BIT
-From: "mtassinari\@libero\.it" <mtassinari@libero.it>
-To: "linux-kernel" <linux-kernel@vger.kernel.org>
-X-XaM3-API-Version: 4.3 (R1) (B3pl17)
-X-SenderIP: 195.110.141.30
-X-Scanned: with antispam and antivirus automated system at libero.it
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+X-MSMail-Priority: Normal
+X-Mailer: Microsoft Outlook, Build 10.0.6626
+Importance: Normal
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2962
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
@@ -31,7 +33,8 @@ that allows a linux system to run foreign binaries see
 sourceforge.net/projects/linux-abi) run with current kernels, 
 a change must be done to arch/i386/kernel/traps.c.
 
-the patch commit 522e93e3fcdbf00ba85c72fde6df28cfc0486a65 modified descriptor and trap table. 
+the patch commit 522e93e3fcdbf00ba85c72fde6df28cfc0486a65 modified
+descriptor and trap table. 
 
 Could somebody suggest how to change the following code:
 
@@ -55,7 +58,4 @@ Any help will be greatly appreciated.
 Regards
 
 Mauro Tassinari
-
-mtassinari@cmanet.it
-
 

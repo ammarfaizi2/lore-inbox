@@ -1,80 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161304AbWI2Dlg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161307AbWI2D6M@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161304AbWI2Dlg (ORCPT <rfc822;willy@w.ods.org>);
-	Thu, 28 Sep 2006 23:41:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751377AbWI2Dlg
+	id S1161307AbWI2D6M (ORCPT <rfc822;willy@w.ods.org>);
+	Thu, 28 Sep 2006 23:58:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161308AbWI2D6M
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Thu, 28 Sep 2006 23:41:36 -0400
-Received: from xenotime.net ([66.160.160.81]:7862 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1751328AbWI2Dlf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Thu, 28 Sep 2006 23:41:35 -0400
-Date: Thu, 28 Sep 2006 20:42:51 -0700
-From: Randy Dunlap <rdunlap@xenotime.net>
-To: lkml <linux-kernel@vger.kernel.org>
-Cc: akpm <akpm@osdl.org>, 76306.1226@compuserve.com, ebiederm@xmission.com
-Subject: [PATCH] fix EMBEDDED + SYSCTL menu
-Message-Id: <20060928204251.a20470c5.rdunlap@xenotime.net>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
+	Thu, 28 Sep 2006 23:58:12 -0400
+Received: from pool-72-66-199-147.ronkva.east.verizon.net ([72.66.199.147]:63427
+	"EHLO turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S1161307AbWI2D6M (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Thu, 28 Sep 2006 23:58:12 -0400
+Message-Id: <200609290358.k8T3w1OV008852@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.18-mm2 - oops in cache_alloc_refill()
+In-Reply-To: Your message of "Thu, 28 Sep 2006 20:29:31 PDT."
+             <20060928202931.dc324339.akpm@osdl.org>
+From: Valdis.Kletnieks@vt.edu
+References: <20060928014623.ccc9b885.akpm@osdl.org> <200609290319.k8T3JOwS005455@turing-police.cc.vt.edu>
+            <20060928202931.dc324339.akpm@osdl.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+Content-Type: multipart/signed; boundary="==_Exmh_1159502281_2840P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
+Date: Thu, 28 Sep 2006 23:58:01 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Randy Dunlap <rdunlap@xenotime.net>
+--==_Exmh_1159502281_2840P
+Content-Type: text/plain; charset=us-ascii
 
-SYSCTL should still depend on EMBEDDED.  This unbreaks the
-EMBEDDED menu (from the recent SYSCTL_SYCALL menu option patch).
+On Thu, 28 Sep 2006 20:29:31 PDT, Andrew Morton said:
+> On Thu, 28 Sep 2006 23:19:11 -0400
+> Valdis.Kletnieks@vt.edu wrote:
+> 
+> > On Thu, 28 Sep 2006 01:46:23 PDT, Andrew Morton said:
+> > > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18/2.6.18-mm2/
 
-Fix typos in new SYSCTL_SYSCALL menu.
+> > Something is giving cache_alloc_refill() massive indigestion, I'm taking
+> > lots of oopsen in it.  Usually within 5-10 minutes I'm dead in the water.
+> 
+> Could be anything I'm afraid.  But you're the first to report it, so there's
+> something distinct in your .config or hardware.
 
-Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
----
- init/Kconfig |   14 +++++++-------
- 1 files changed, 7 insertions(+), 7 deletions(-)
+Like *that* hasn't happened before. :)
 
---- linux-2618-g10.orig/init/Kconfig
-+++ linux-2618-g10/init/Kconfig
-@@ -257,6 +257,9 @@ config CC_OPTIMIZE_FOR_SIZE
- 
- 	  If unsure, say N.
- 
-+config SYSCTL
-+	bool
-+
- menuconfig EMBEDDED
- 	bool "Configure standard kernel features (for small systems)"
- 	help
-@@ -272,11 +275,8 @@ config UID16
- 	help
- 	  This enables the legacy 16-bit UID syscall wrappers.
- 
--config SYSCTL
--	bool
--
- config SYSCTL_SYSCALL
--	bool "Sysctl syscall support"
-+	bool "Sysctl syscall support" if EMBEDDED
- 	default n
- 	select SYSCTL
- 	---help---
-@@ -285,11 +285,11 @@ config SYSCTL_SYSCALL
- 	  and use.  The interface in /proc/sys is now the primary and what
- 	  everyone uses.
- 
--	  Nothing has been using the binary sysctl interface for some time
-+	  Nothing has been using the binary sysctl interface for some
- 	  time now so nothing should break if you disable sysctl syscall
--	  support, and you kernel will get marginally smaller.
-+	  support, and your kernel will get marginally smaller.
- 
--	  Unless you have an application that uses the sys_syscall interface
-+	  Unless you have an application that uses the sys_sysctl interface
-  	  you should probably say N here.
- 
- config KALLSYMS
+> bisecting would be good, thanks.  It might be quicker to strip down the .config
+> though.
 
+On the other hand, this really smells like the kind of storage overlay that
+changing the config can change what gets overlaid, scaring it into hiding.
+The fact the system lives 5-10 minutes means that there's *something* that
+happens that makes it manifest - and that could be almost anything.
 
----
+--==_Exmh_1159502281_2840P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFFHJnJcC3lWbTT17ARAlULAJ9KRvSa6+xGLo45oTK/5Q1P/s8flACfduQN
+XA9bq9ZG4W4qYGzHBf+umz8=
+=Tmzb
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1159502281_2840P--

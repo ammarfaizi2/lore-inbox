@@ -1,40 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422814AbWI2UaH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422816AbWI2Ual@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422814AbWI2UaH (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Sep 2006 16:30:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422816AbWI2UaH
+	id S1422816AbWI2Ual (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Sep 2006 16:30:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932370AbWI2Ual
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Sep 2006 16:30:07 -0400
-Received: from de01egw01.freescale.net ([192.88.165.102]:19710 "EHLO
-	de01egw01.freescale.net") by vger.kernel.org with ESMTP
-	id S1422814AbWI2UaF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Sep 2006 16:30:05 -0400
-Message-ID: <451D8246.7060703@freescale.com>
-Date: Fri, 29 Sep 2006 15:29:58 -0500
-From: Timur Tabi <timur@freescale.com>
-Organization: Freescale
-User-Agent: Mozilla/5.0 (X11; U; Linux i686 (x86_64); en-US; rv:1.8.0.5) Gecko/20060720 SeaMonkey/1.0.3
-MIME-Version: 1.0
-To: Chris Boot <bootc@bootc.net>
-CC: linux-kernel@vger.kernel.org, linuxppc-dev@ozlabs.org
-Subject: Re: SATA: "unknown partition table" error, fdisk can't fix, works
- in 2.6.13
-References: <451D7DE8.8020504@freescale.com> <BA55C0C9-B58F-473E-9412-B582411D017A@bootc.net>
-In-Reply-To: <BA55C0C9-B58F-473E-9412-B582411D017A@bootc.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Fri, 29 Sep 2006 16:30:41 -0400
+Received: from xenotime.net ([66.160.160.81]:30119 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S932366AbWI2Uak (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Sep 2006 16:30:40 -0400
+Date: Fri, 29 Sep 2006 13:32:05 -0700
+From: Randy Dunlap <rdunlap@xenotime.net>
+To: Zach Brown <zab@zabbo.net>
+Cc: Roger Gammans <roger@computer-surgery.co.uk>,
+       lkml <linux-kernel@vger.kernel.org>, axboe@kernel.dk
+Subject: Re: fs/bio.c - Hardcoded sector size ?
+Message-Id: <20060929133205.19c318cb.rdunlap@xenotime.net>
+In-Reply-To: <451D808A.9050005@zabbo.net>
+References: <20060928182238.GA4759@julia.computer-surgery.co.uk>
+	<20060929113814.db87b8d5.rdunlap@xenotime.net>
+	<20060928185820.GB4759@julia.computer-surgery.co.uk>
+	<20060929121157.0258883f.rdunlap@xenotime.net>
+	<20060928191946.GC4759@julia.computer-surgery.co.uk>
+	<20060929123737.ec613178.rdunlap@xenotime.net>
+	<20060928195627.GD4759@julia.computer-surgery.co.uk>
+	<20060929131730.0b733137.rdunlap@xenotime.net>
+	<451D808A.9050005@zabbo.net>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Chris Boot wrote:
-> Timur,
+On Fri, 29 Sep 2006 13:22:34 -0700 Zach Brown wrote:
+
 > 
-> fdisk manipulates DOS-style partition maps. Have you compiled these into 
-> your latest kernel? You don't actually have any errors in the below 
-> messages, other than the partition map being unreadable...
+> > 	sector_t		bi_sector;	/* block layer sector
+> > 						 * addresses are always in
+> > 						 * 512-byte units in Linux */
+> 
+> How about adding kerneldoc for sector_t itself?
 
-Yes, that was it!  Thank you very much.  All I had to do was select "PC BIOS (MSDOS partition tables) support" configuration option, and that was it.
+Good idea, but afaik it would have to be added for the entire
+struct, not just one field.
 
--- 
-Timur Tabi
-Linux Kernel Developer @ Freescale
+---
+~Randy

@@ -1,89 +1,108 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751283AbWI3RbK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751330AbWI3Rb0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751283AbWI3RbK (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Sep 2006 13:31:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751317AbWI3RbK
+	id S1751330AbWI3Rb0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Sep 2006 13:31:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751327AbWI3Rb0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Sep 2006 13:31:10 -0400
-Received: from mga03.intel.com ([143.182.124.21]:21640 "EHLO mga03.intel.com")
-	by vger.kernel.org with ESMTP id S1751283AbWI3RbI convert rfc822-to-8bit
-	(ORCPT <rfc822;Linux-Kernel@vger.kernel.org>);
-	Sat, 30 Sep 2006 13:31:08 -0400
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.09,240,1157353200"; 
-   d="scan'208"; a="125253466:sNHT25090009"
-X-MimeOLE: Produced By Microsoft Exchange V6.5
-Content-class: urn:content-classes:message
+	Sat, 30 Sep 2006 13:31:26 -0400
+Received: from mail3.uklinux.net ([80.84.72.33]:60649 "EHLO mail3.uklinux.net")
+	by vger.kernel.org with ESMTP id S1751317AbWI3RbW (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Sep 2006 13:31:22 -0400
+Date: Fri, 29 Sep 2006 18:25:58 +0100
+To: Randy Dunlap <rdunlap@xenotime.net>
+Cc: Zach Brown <zab@zabbo.net>, Roger Gammans <roger@computer-surgery.co.uk>,
+       lkml <linux-kernel@vger.kernel.org>, axboe@kernel.dk
+Subject: Re: fs/bio.c - Hardcoded sector size ?
+Message-ID: <20060929172558.GB4478@julia.computer-surgery.co.uk>
+References: <20060928182238.GA4759@julia.computer-surgery.co.uk> <20060929113814.db87b8d5.rdunlap@xenotime.net> <20060928185820.GB4759@julia.computer-surgery.co.uk> <20060929121157.0258883f.rdunlap@xenotime.net> <20060928191946.GC4759@julia.computer-surgery.co.uk> <20060929123737.ec613178.rdunlap@xenotime.net> <20060928195627.GD4759@julia.computer-surgery.co.uk> <20060929131730.0b733137.rdunlap@xenotime.net> <451D808A.9050005@zabbo.net> <20060929133205.19c318cb.rdunlap@xenotime.net>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: RE: Postal 56% waits for flock_lock_file_wait
-Date: Sat, 30 Sep 2006 21:26:40 +0400
-Message-ID: <B41635854730A14CA71C92B36EC22AAC3AD92D@mssmsx411>
-X-MS-Has-Attach: 
-X-MS-TNEF-Correlator: 
-Thread-Topic: Postal 56% waits for flock_lock_file_wait
-Thread-Index: Acbkof3Lqy94qeO2QhKIq8bZeBW9DQAEGifw
-From: "Ananiev, Leonid I" <leonid.i.ananiev@intel.com>
-To: "Trond Myklebust" <trond.myklebust@fys.uio.no>
-Cc: "Linux Kernel Mailing List" <Linux-Kernel@vger.kernel.org>
-X-OriginalArrivalTime: 30 Sep 2006 17:30:44.0438 (UTC) FILETIME=[28AF0F60:01C6E4B6]
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="d6Gm4EdcadzBjdND"
+Content-Disposition: inline
+In-Reply-To: <20060929133205.19c318cb.rdunlap@xenotime.net>
+X-GPG-Fingerprint: ADAD DF3A AE05 CA28 3BDB  D352 7E81 8852 817A FB7B
+X-GPG-Key: 1024D/817AFB7B (wwwkeys.uk.pgp.net)
+User-Agent: Mutt/1.5.13 (2006-08-11)
+From: Roger Gammans <roger@computer-surgery.co.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> On which filesystem were the above results obtained if it was not
-ext2?
-The default ext3 fs was used.
 
-> All the above results are telling you is that your test involves
-several
-> processes contending for the same lock, and so all of them barring the
-> one process that actually holds the lock are idle.
+--d6Gm4EdcadzBjdND
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
-Yes. It is  flock_lock_file_wait.
+On Fri, Sep 29, 2006 at 01:32:05PM -0700, Randy Dunlap wrote:
+> > How about adding kerneldoc for sector_t itself?
+>=20
+> Good idea, but afaik it would have to be added for the entire
+> struct, not just one field.
 
-Leonid
------Original Message-----
-From: Trond Myklebust [mailto:trond.myklebust@fys.uio.no] 
-Sent: Saturday, September 30, 2006 7:06 PM
-To: Ananiev, Leonid I
-Cc: Linux Kernel Mailing List
-Subject: Re: Postal 56% waits for flock_lock_file_wait
+sector_t 's a simple typedef from unsigned long or u64 depending on
+config rather than a struct - will kerneldoc still pick up the comments
+on theese?
 
-On Sat, 2006-09-30 at 09:25 +0400, Ananiev, Leonid I wrote:
-> A benchmark
->              'postal -p 16 localhost list_of_1000_users'
-> 56% of run time waits for flock_lock_file_wait;
-> Vmstat reports that 66% cpu is idle and  vmstat bi+bo=3600 (far from
-> max).
-> Postfix server with FD_SETSIZE=2048 was used.
-> Similar results got for sendmail. 
-> Wchan is counted by
->             while :; do
->                         ps -o user,wchan=WIDE-WCHAN-COLUMN,comm;
-> sleep 1;
->            done | awk '/ postfix /{a[$2]++}END{for (i in a) print
-> a[i]"\t"i}'
-> If ext2 fs is used the Postal throughput is twice more and bi+bo by
-50%
-> less while  flock_lock_file_wait 60% still.
+Assuming it will I suggest the following. I've kept my shorter text in
+the bi_sector field as it is now more fully explained with sector_t.
 
-On which filesystem were the above results obtained if it was not ext2?
 
-> Is flock_lock_file_wait considered as a performance limiting waiting
-for
-> similar applications in smp?
+Signed-Off-By: Roger Gammans <rgammans@computer-surgery.co.uk>
 
-All the above results are telling you is that your test involves several
-processes contending for the same lock, and so all of them barring the
-one process that actually holds the lock are idle.
+diff --git a/include/linux/bio.h b/include/linux/bio.h
+index 76bdaea..77a8e6b 100644
+--- a/include/linux/bio.h
++++ b/include/linux/bio.h
+@@ -70,7 +70,8 @@ typedef void (bio_destructor_t) (struct
+  * stacking drivers)
+  */
+ struct bio {
+-       sector_t                bi_sector;
++       sector_t                bi_sector;      /* device address in 512 by=
+te
++                                                  sectors */
+        struct bio              *bi_next;       /* request queue link */
+        struct block_device     *bi_bdev;
+        unsigned long           bi_flags;       /* status, command, etc
+*/
+diff --git a/include/linux/types.h b/include/linux/types.h
+index 3f23566..0ddfa1a 100644
+--- a/include/linux/types.h
++++ b/include/linux/types.h
+@@ -127,8 +127,12 @@ #endif
+ /* this is a special 64bit data type that is 8-byte aligned */
+ #define aligned_u64 unsigned long long __attribute__((aligned(8)))
 
-As for the throughput issue, that really depends on the filesystem you
-are measuring. For remote filesystems like NFS, locks can _really_ slow
-down performance because they are often required to flush all dirty data
-to disk prior to releasing the lock (so that it becomes visible to
-processes on other clients that might subsequently obtain the lock).
+-/*
++/**
+  * The type used for indexing onto a disc or disc partition.
++ *
++ * Linux always considers sectors to be 512 bytes long independently
++ * of the devices real block size.
++ *
+  * If required, asm/types.h can override it and define
+  * HAVE_SECTOR_T
+  */
 
-Cheers,
-  Trond
+
+--=20
+Roger.                          Home| http://www.sandman.uklinux.net/
+Master of Peng Shui.      (Ancient oriental art of Penguin Arranging)
+Work|Independent Sys Consultant | http://www.computer-surgery.co.uk/
+So what are the eigenvalues and eigenvectors of 'The Matrix'? --anon
+
+--d6Gm4EdcadzBjdND
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
+
+iD8DBQFFHVcmTryqm47jHdMRAiyKAJ9YSJToFrylK0XwKaJpzdSiko6ukACgtq6f
+5TD7OSZzoNmka36Qz5Tsy2Q=
+=dC90
+-----END PGP SIGNATURE-----
+
+--d6Gm4EdcadzBjdND--

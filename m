@@ -1,60 +1,125 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161439AbWI2GaM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161434AbWI2GcW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161439AbWI2GaM (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Sep 2006 02:30:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161437AbWI2GaM
+	id S1161434AbWI2GcW (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Sep 2006 02:32:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161437AbWI2GcW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Sep 2006 02:30:12 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:17385 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1161439AbWI2GaK (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Sep 2006 02:30:10 -0400
-Date: Thu, 28 Sep 2006 23:29:53 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: NeilBrown <neilb@suse.de>, "David M. Grimes" <dgrimes@navisite.com>,
-       Atal Shargorodsky <atal@codefidence.com>,
-       Gilad Ben-Yossef <gilad@codefidence.com>
-Cc: nfs@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       Hugh Dickins <hugh@veritas.com>
-Subject: Re: [PATCH 001 of 8] knfsd: Add nfs-export support to tmpfs
-Message-Id: <20060928232953.6da08f19.akpm@osdl.org>
-In-Reply-To: <1060929030839.24024@suse.de>
-References: <20060929130518.23919.patches@notabene>
-	<1060929030839.24024@suse.de>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Fri, 29 Sep 2006 02:32:22 -0400
+Received: from smtp109.sbc.mail.mud.yahoo.com ([68.142.198.208]:2677 "HELO
+	smtp109.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S1161434AbWI2GcV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Sep 2006 02:32:21 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=pacbell.net;
+  h=Received:From:To:Subject:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Disposition:Date:Content-Type:Content-Transfer-Encoding:Message-Id;
+  b=Z1ntTlMiS4Mbd1oJJkFjmMtur2trp/z+qq1EwGPbiQ66OGZm2APm4o3D0O9fK+4X3BbVcSVi0TGV1xRZqDHwLVvAsSFPgFA+VCCKVvCftR11sPyGelPCljZCZ7eRk9Ugmm2v1ggYSFXYKBYW1RO12Ny0ouj/gRHs6VPof5Itsqk=  ;
+From: David Brownell <david-b@pacbell.net>
+To: Alessandro Zummo <alessandro.zummo@towertech.it>
+Subject: [patch 2.6.18-git] RTC class, Kconfig improvements
+User-Agent: KMail/1.7.1
+Cc: Linux Kernel list <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+References: <200608041741.26730.david-b@pacbell.net>
+In-Reply-To: <200608041741.26730.david-b@pacbell.net>
+MIME-Version: 1.0
+Content-Disposition: inline
+Date: Thu, 28 Sep 2006 23:32:16 -0700
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Message-Id: <200609282332.17195.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 29 Sep 2006 13:08:39 +1000
-NeilBrown <neilb@suse.de> wrote:
+[ RESEND third time ]
 
-> +static int shmem_encode_fh(struct dentry *dentry, __u32 *fh, int *len, int connectable)
-> +{
-> +	struct inode *inode = dentry->d_inode;
-> +
-> +	if (*len < 2)
-> +		return 255;
-> +
-> +	if (hlist_unhashed(&inode->i_hash)) {
-> +		/* Unfortunately insert_inode_hash is not idempotent,
-> +		 * so as we hash inodes here rather than at creation
-> +		 * time, we need a lock to ensure we only try
-> +		 * to do it once
-> +		 */
-> +		static DEFINE_SPINLOCK(lock);
-> +		spin_lock(&lock);
-> +		if (hlist_unhashed(&inode->i_hash))
-> +			insert_inode_hash(inode);
-> +		spin_unlock(&lock);
-> +	}
+Small updates to make the RTC class Kconfig text be more informative.
+This should help folk used to the drivers/char/rtc.c support, or a
+single RTC, be slightly less surprised by the differences.
 
-This looks fishy.
+Also, adds a new RTC_DEBUG option to predefine DEBUG in the framework
+and its drivers, while debugging.  That's getting to be a standard
+idiom, and it's pretty useful.
 
-How do we get two callers in here at the same time for the same inode?
+Signed-off-by: David Brownell <dbrownell@users.sourceforge.net>
 
-Why don't other filesystems have the same problem?
-
-
+Index: g26/drivers/rtc/Kconfig
+===================================================================
+--- g26.orig/drivers/rtc/Kconfig	2006-08-19 02:02:45.000000000 -0700
++++ g26/drivers/rtc/Kconfig	2006-08-19 10:08:23.000000000 -0700
+@@ -37,6 +37,13 @@ config RTC_HCTOSYS_DEVICE
+ 	  The RTC device that will be used as the source for
+ 	  the system time, usually rtc0.
+ 
++config RTC_DEBUG
++	bool "RTC debug support"
++	depends on RTC_CLASS = y
++	help
++	  Say yes here to enable debugging support in the RTC framework
++	  and individual RTC drivers.
++
+ comment "RTC interfaces"
+ 	depends on RTC_CLASS
+ 
+@@ -45,8 +52,8 @@ config RTC_INTF_SYSFS
+ 	depends on RTC_CLASS && SYSFS
+ 	default RTC_CLASS
+ 	help
+-	  Say yes here if you want to use your RTC using the sysfs
+-	  interface, /sys/class/rtc/rtcX .
++	  Say yes here if you want to use your RTCs using sysfs interfaces,
++	  /sys/class/rtc/rtc0 through /sys/.../rtcN.
+ 
+ 	  This driver can also be built as a module. If so, the module
+ 	  will be called rtc-sysfs.
+@@ -56,8 +63,9 @@ config RTC_INTF_PROC
+ 	depends on RTC_CLASS && PROC_FS
+ 	default RTC_CLASS
+ 	help
+-	  Say yes here if you want to use your RTC using the proc
+-	  interface, /proc/driver/rtc .
++	  Say yes here if you want to use your first RTC through the proc
++	  interface, /proc/driver/rtc.  Other RTCs will not be available
++	  through that API.
+ 
+ 	  This driver can also be built as a module. If so, the module
+ 	  will be called rtc-proc.
+@@ -67,8 +75,11 @@ config RTC_INTF_DEV
+ 	depends on RTC_CLASS
+ 	default RTC_CLASS
+ 	help
+-	  Say yes here if you want to use your RTC using the dev
+-	  interface, /dev/rtc .
++	  Say yes here if you want to use your RTCs using the /dev
++	  interfaces, which "udev" sets up as /dev/rtc0 through
++	  /dev/rtcN.  You may want to set up a symbolic link so one
++	  of these can be accessed as /dev/rtc, which is a name
++	  expected by "hwclock" and some other programs.
+ 
+ 	  This driver can also be built as a module. If so, the module
+ 	  will be called rtc-dev.
+@@ -78,7 +89,8 @@ config RTC_INTF_DEV_UIE_EMUL
+ 	depends on RTC_INTF_DEV
+ 	help
+ 	  Provides an emulation for RTC_UIE if the underlaying rtc chip
+-	  driver did not provide RTC_UIE ioctls.
++	  driver does not expose RTC_UIE ioctls.  Those requests generate
++	  once-per-second update interrupts, used for synchronization.
+ 
+ comment "RTC drivers"
+ 	depends on RTC_CLASS
+Index: g26/drivers/rtc/Makefile
+===================================================================
+--- g26.orig/drivers/rtc/Makefile	2006-08-19 10:08:09.000000000 -0700
++++ g26/drivers/rtc/Makefile	2006-08-19 10:09:07.000000000 -0700
+@@ -2,6 +2,10 @@
+ # Makefile for RTC class/drivers.
+ #
+ 
++ifeq ($(CONFIG_RTC_DEBUG),y)
++	EXTRA_CFLAGS		+= -DDEBUG
++endif
++
+ obj-$(CONFIG_RTC_LIB)		+= rtc-lib.o
+ obj-$(CONFIG_RTC_HCTOSYS)	+= hctosys.o
+ obj-$(CONFIG_RTC_CLASS)		+= rtc-core.o

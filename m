@@ -1,53 +1,108 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751183AbWI2PI6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932126AbWI2PTt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751183AbWI2PI6 (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Sep 2006 11:08:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751186AbWI2PI6
+	id S932126AbWI2PTt (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Sep 2006 11:19:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932188AbWI2PTt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Sep 2006 11:08:58 -0400
-Received: from rwcrmhc14.comcast.net ([216.148.227.154]:7896 "EHLO
-	rwcrmhc14.comcast.net") by vger.kernel.org with ESMTP
-	id S1751183AbWI2PIz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Sep 2006 11:08:55 -0400
-Date: Fri, 29 Sep 2006 10:10:54 -0500
-From: Corey Minyard <minyard@acm.org>
-To: Linux Kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-Cc: openipmi-developer@lists.sourceforge.net
-Subject: [PATCH] Don't start kipmid if the IPMI driver can use interrupts
-Message-ID: <20060929151053.GA17272@localdomain>
-Reply-To: minyard@acm.org
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.5.13 (2006-08-11)
+	Fri, 29 Sep 2006 11:19:49 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:48518 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S932126AbWI2PTs (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Sep 2006 11:19:48 -0400
+Message-Id: <200609291519.k8TFJfvw004256@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: 2.6.18-mm2 - oops in cache_alloc_refill()
+In-Reply-To: Your message of "Thu, 28 Sep 2006 20:29:31 PDT."
+             <20060928202931.dc324339.akpm@osdl.org>
+From: Valdis.Kletnieks@vt.edu
+References: <20060928014623.ccc9b885.akpm@osdl.org> <200609290319.k8T3JOwS005455@turing-police.cc.vt.edu>
+            <20060928202931.dc324339.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1159543181_3377P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Fri, 29 Sep 2006 11:19:41 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+--==_Exmh_1159543181_3377P
+Content-Type: text/plain; charset=us-ascii
 
-If the driver has interrupts available to it, there is really no
-reason to have a kernel daemon push the IPMI state machine.
+On Thu, 28 Sep 2006 20:29:31 PDT, Andrew Morton said:
 
-Note that I have experienced machines where the interrupts do
-not work correctly.  This was a long time ago and hopefully
-things are better now.  If some machines still have broken
-interrupts, a blacklist will need to be added.
+> bisecting would be good, thanks.  It might be quicker to strip down the .config
+> though.
 
-Signed-off-by: Corey Minyard <minyard@acm.org>
+Well, I started with a clean 2.6.18 tree, and did a 'quilt push origin.patch'
+to put just the stuff already in Linus's tree on.  Unfortunately, *that*
+dies a *different* horrid death after 2 to 5 minutes or so of uptime (and
+this one is also a locked-up-hard power-cycle hang, no alt-sysrq).  Of the
+3 or 4 times I triggered it, it managed to scribble the oops down into
+syslog before totally wedging:
 
-Index: linux-2.6.18/drivers/char/ipmi/ipmi_si_intf.c
-===================================================================
---- linux-2.6.18.orig/drivers/char/ipmi/ipmi_si_intf.c
-+++ linux-2.6.18/drivers/char/ipmi/ipmi_si_intf.c
-@@ -916,7 +916,11 @@ static int smi_start_processing(void    
- 	new_smi->last_timeout_jiffies = jiffies;
- 	mod_timer(&new_smi->si_timer, jiffies + SI_TIMEOUT_JIFFIES);
- 
-- 	if (new_smi->si_type != SI_BT) {
-+	/*
-+	 * The BT interface is efficient enough to not need a thread,
-+	 * and there is no need for a thread if we have interrupts.
-+	 */
-+ 	if ((new_smi->si_type != SI_BT) && (!new_smi->irq)) {
- 		new_smi->thread = kthread_run(ipmi_thread, new_smi,
- 					      "kipmi%d", new_smi->intf_num);
- 		if (IS_ERR(new_smi->thread)) {
+BUG: unable to handle kernel paging request at virtual address 00100104
+printing eip:
+c014c8b3
+*pde = 00000000
+Oops: 0002 [#1]
+PREEMPT
+Modules linked in: xt_SECMARK xt_CONNSECMARK ip6table_mangle iptable_mangle nf_conntrack_ftp xt_pkttype ipt_REJECT nf_conntrack_ipv4 ipt_LOG iptable_filter ip_tables xt_tcpudp nf_conntrack_ipv6 xt_state nf_conntrack ip6t_LOG xt_limit ip6table_filter ip6_tables x_tables thermal processor fan button battery ac nfnetlink i8k floppy nvram orinoco_cs orinoco hermes pcmcia firmware_class ohci1394 intel_agp ieee1394 agpgart yenta_socket rsrc_nonstatic pcmcia_core rtc
+CPU:    0
+EIP:    0060:[<c014c8b3>]    Not tainted VLI
+EFLAGS: 00010083   (2.6.18-test #1)
+EIP is at drain_freelist+0x45/0x9b
+eax: 00200200   ebx: e5ce0540   ecx: effe10c0   edx: 00100100
+esi: effdf4c0   edi: 00000001   ebp: effd2f54   esp: effd2f40
+ds: 007b   es: 007b   ss: 0068
+Process events/0 (pid: 3, ti=effd2000 task=c56cf000 task.ti=effd2000)
+Stack: 00000002 effe18c0 effdf4c0 effe18c0 efe006c0 effd2f64 c014d8ea 00000296
+c053df60 effd2f80 c0120f91 c014d864 00000000 efe006d0 efe006c0 efe006c8
+effd2fc4 c01214d6 00000001 00000000 00000001 00010000 00000000 00000000
+Call Trace:
+[<c014d8ea>] cache_reap+0x86/0xc4
+[<c0120f91>] run_workqueue+0x8f/0xe0
+[<c01214d6>] worker_thread+0xe1/0x113
+[<c0123861>] kthread+0xb0/0xdf
+[<c0103813>] kernel_thread_helper+0x7/0x10
+DWARF2 unwinder stuck at kernel_thread_helper+0x7/0x10
+
+Leftover inexact backtrace:
+
+[<c0103c4d>] show_trace_log_lvl+0x12/0x25
+[<c0103cec>] show_stack_log_lvl+0x8c/0x97
+[<c0103e18>] show_registers+0x121/0x1b2
+[<c0104041>] die+0x198/0x273
+[<c034fce1>] do_page_fault+0x3f5/0x4c2
+[<c034e819>] error_code+0x39/0x40
+[<c014d8ea>] cache_reap+0x86/0xc4
+[<c0120f91>] run_workqueue+0x8f/0xe0
+[<c01214d6>] worker_thread+0xe1/0x113
+[<c0123861>] kthread+0xb0/0xdf
+[<c0103813>] kernel_thread_helper+0x7/0x10
+=======================
+Code: f0 ff ff ff 40 14 8b 5e 14 39 d3 75 19 fb 89 e0 25 00 f0 ff ff ff 48 14 8b 40 08 a8 08 74 59 e8 99 04 20 00 eb 52 8b 13 8b 43 04 <89> 42 04 89 10 c7 03 00 01 10 00 c7 43 04 00 02 20 00 8b 46 18
+EIP: [<c014c8b3>] drain_freelist+0x45/0x9b SS:ESP 0068:effd2f40
+<6>note: events/0[3] exited with preempt_count 1
+
+Now the question arises - is this the same bug I was seeing under the full -mm2,
+and all the other patches just move the manifestation around, or is this fixed
+by another -mm2 patch, and my original bug report is something else?
+
+I may have to learn how to use 'git bisect' to shoot this one, it appears.
+
+
+--==_Exmh_1159543181_3377P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFFHTmNcC3lWbTT17ARAgE8AKCDYusjNldiF9HZUO9BiR6iuuKtRgCffRlK
+yxLrUQpc0diIR3meYH1O/wo=
+=NLMJ
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1159543181_3377P--

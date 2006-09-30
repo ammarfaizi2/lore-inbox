@@ -1,122 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751421AbWI3WMn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751429AbWI3WNK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751421AbWI3WMn (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Sep 2006 18:12:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751425AbWI3WMn
+	id S1751429AbWI3WNK (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Sep 2006 18:13:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751425AbWI3WNK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Sep 2006 18:12:43 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:41951 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751421AbWI3WMm (ORCPT
+	Sat, 30 Sep 2006 18:13:10 -0400
+Received: from ns1.suse.de ([195.135.220.2]:39326 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751429AbWI3WNG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Sep 2006 18:12:42 -0400
-Date: Sun, 1 Oct 2006 00:05:05 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Eric Rannaud <eric.rannaud@gmail.com>
-Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Linus Torvalds <torvalds@osdl.org>, nagar@watson.ibm.com
-Subject: Re: BUG-lockdep and freeze (was: Arrr! Linux 2.6.18)
-Message-ID: <20060930220505.GA19338@elte.hu>
-References: <5f3c152b0609301220p7a487c7dw456d007298578cd7@mail.gmail.com> <20060930131310.0d6494e7.akpm@osdl.org> <5f3c152b0609301352w5bc52653s3e2a28e482c7d69e@mail.gmail.com> <20060930140426.37918062.akpm@osdl.org> <5f3c152b0609301500l52a4c6c5o2052b88621dc7ca3@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 30 Sep 2006 18:13:06 -0400
+From: Andi Kleen <ak@suse.de>
+To: Luca Tettamanti <kronos.it@gmail.com>
+Subject: Re: [2.6.18-git] Lost all PCI devices
+Date: Sun, 1 Oct 2006 00:13:01 +0200
+User-Agent: KMail/1.9.3
+Cc: linux-kernel@vger.kernel.org
+References: <20060930174247.GA31793@dreamland.darkstar.lan> <200609302234.24778.ak@suse.de> <20060930220600.GA19990@dreamland.darkstar.lan>
+In-Reply-To: <20060930220600.GA19990@dreamland.darkstar.lan>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <5f3c152b0609301500l52a4c6c5o2052b88621dc7ca3@mail.gmail.com>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -2.8
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.8 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5000]
-	-0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+Message-Id: <200610010013.01390.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-* Eric Rannaud <eric.rannaud@gmail.com> wrote:
+> "pci_direct_probe conf*" printk are placed before calling into
+> pci_check_type{1,2}, it doesn't call pci_sanity_check so it's the I/O
+> check that fails.
+> I can do further debugging if you're interested.
 
-> On 9/30/06, Andrew Morton <akpm@osdl.org> wrote:
-> >You could set CONFIG_UNWIND_INFO=n and CONFIG_STACK_UNWIND=n and reenable
-> >lockdep.  That will a) tell us if there's some lockdep problem and b) will
-> >give us a clearer look at any locking problems which your kernel is
-> >detecting.
-> 
-> 
-> All right. Here is the stacktrace I get with config
-> CONFIG_UNWIND_INFO=n and CONFIG_STACK_UNWIND=n and v2.6.18 (all the
-> rest being equal  http://engm.ath.cx/kernel/config-2.6.18). (and no
-> freeze)
+No I was just curious. It's strange that your system doesn't work without 
+PCI BIOS though. Is it an older laptop? The assumption so far
+was that everything modern can do type 1 without problems (except 
+one broken Apple system). Apparently that's not universally true.
 
-hm, does the patch below solve it? In general, lockdep warnings are 
-intended to be non-fatal, so i have put in various practical limits on 
-internal data structure failure modes. We havent had a /single/ 
-lockdep-internal crash ever since lockdep went upstream [the unwinder 
-crashes are outside of lockdep], and that's largely due to the good 
-internal checks it does.
+> ACPI: Access to PCI configuration space unavailable
+> ACPI: Interpreter enabled
+> ACPI: Using PIC for interrupt routing
+> ------------[ cut here ]------------
+> Kernel BUG at [verbose debug info unavailable]
+> invalid opcode: 0000 [#1]
+> PREEMPT
+> CPU:    0
+> EIP:    0060:[<c0233103>]    Not tainted VLI
+> EFLAGS: 00010246   (2.6.18-g5ffd1a6a-dirty #20)
+> EIP is at acpi_os_read_pci_configuration+0x4f/0x87
 
-Recursion within the dependency graph is currently limited to 20, that's 
-probably not enough on your box - this patch doubles it to 40. I have 
-written the lockdep functions to have as small stackframes as possible, 
-so 40 should be OK too. (The practical recursion limit should be 
-somewhere between 100 and 200 entries. If we hit that then i'll change 
-the algorithm to be iteration-based. Graph walking logic is so easy to 
-program via recursion, so i'd like to keep recursion as long as 
-possible.)
+The patch I posted should have fixed that.
 
-	Ingo
+Although I think it might be better to do panic() instead of printk.
 
----------------->
-Subject: lockdep: increase max allowed recursion depth
-From: Ingo Molnar <mingo@elte.hu>
-
-With lots of CPUs there can be lots of deep dependencies. Will change 
-the algorithm to iteration-based if it gets too deep.
-
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
----
- kernel/lockdep.c |    8 +++++---
- 1 file changed, 5 insertions(+), 3 deletions(-)
-
-Index: linux/kernel/lockdep.c
-===================================================================
---- linux.orig/kernel/lockdep.c
-+++ linux/kernel/lockdep.c
-@@ -575,6 +575,8 @@ static noinline int print_circular_bug_t
- 	return 0;
- }
- 
-+#define RECURSION_LIMIT 40
-+
- static int noinline print_infinite_recursion_bug(void)
- {
- 	__raw_spin_unlock(&hash_lock);
-@@ -595,7 +597,7 @@ check_noncircular(struct lock_class *sou
- 	debug_atomic_inc(&nr_cyclic_check_recursions);
- 	if (depth > max_recursion_depth)
- 		max_recursion_depth = depth;
--	if (depth >= 20)
-+	if (depth >= RECURSION_LIMIT)
- 		return print_infinite_recursion_bug();
- 	/*
- 	 * Check this lock's dependency list:
-@@ -645,7 +647,7 @@ find_usage_forwards(struct lock_class *s
- 
- 	if (depth > max_recursion_depth)
- 		max_recursion_depth = depth;
--	if (depth >= 20)
-+	if (depth >= RECURSION_LIMIT)
- 		return print_infinite_recursion_bug();
- 
- 	debug_atomic_inc(&nr_find_usage_forwards_checks);
-@@ -684,7 +686,7 @@ find_usage_backwards(struct lock_class *
- 
- 	if (depth > max_recursion_depth)
- 		max_recursion_depth = depth;
--	if (depth >= 20)
-+	if (depth >= RECURSION_LIMIT)
- 		return print_infinite_recursion_bug();
- 
- 	debug_atomic_inc(&nr_find_usage_backwards_checks);
+-Andi

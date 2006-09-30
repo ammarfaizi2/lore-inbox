@@ -1,74 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751354AbWI3V4s@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751347AbWI3Vzu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751354AbWI3V4s (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Sep 2006 17:56:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751379AbWI3V4s
+	id S1751347AbWI3Vzu (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Sep 2006 17:55:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751354AbWI3Vzu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Sep 2006 17:56:48 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:60566 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751354AbWI3V4r (ORCPT
+	Sat, 30 Sep 2006 17:55:50 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:26262 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751347AbWI3Vzt (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Sep 2006 17:56:47 -0400
-Date: Sat, 30 Sep 2006 14:56:21 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Andi Kleen <ak@suse.de>
-cc: Eric Rannaud <eric.rannaud@gmail.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
-       nagar@watson.ibm.com, Chandra Seetharaman <sekharan@us.ibm.com>,
-       Jan Beulich <jbeulich@novell.com>
-Subject: Re: BUG-lockdep and freeze (was: Arrr! Linux 2.6.18)
-In-Reply-To: <200609302230.24070.ak@suse.de>
-Message-ID: <Pine.LNX.4.64.0609301449130.3952@g5.osdl.org>
-References: <5f3c152b0609301220p7a487c7dw456d007298578cd7@mail.gmail.com>
- <Pine.LNX.4.64.0609301237460.3952@g5.osdl.org> <200609302230.24070.ak@suse.de>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 30 Sep 2006 17:55:49 -0400
+Date: Sat, 30 Sep 2006 14:55:44 -0700
+From: Bryce Harrington <bryce@osdl.org>
+To: "Moore, Eric" <Eric.Moore@lsil.com>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       linux-scsi@vger.kernel.org
+Subject: Re: [OOPS] -git8,9:  NULL pointer dereference in mptspi_dv_renegotiate_work
+Message-ID: <20060930215544.GB7957@osdl.org>
+References: <664A4EBB07F29743873A87CF62C26D70350500@NAMAIL4.ad.lsil.com> <20060930002755.GI12968@osdl.org> <664A4EBB07F29743873A87CF62C26D702A994F@NAMAIL4.ad.lsil.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <664A4EBB07F29743873A87CF62C26D702A994F@NAMAIL4.ad.lsil.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Sat, 30 Sep 2006, Andi Kleen wrote:
+On Fri, Sep 29, 2006 at 10:22:50PM -0600, Moore, Eric wrote:
+> On Fri 9/29/2006 6:27 PM, Bryce Harrington wrote:
 > 
-> Anyways, I guess we need even more validation in the fallback code,
-> but just terminating the kernel thread stacks should fix that particular case.
+> > Does this look better?
+> >
+> >    http://crucible.osdl.org/runs/2265/sysinfo/amd01.3.console
+> 
+> 
+> It appears that the problem is we're not receiving interrupts.
+> The first command after interrupts enabled is not getting a response
+> back from firmware, thus timing out.   I noticed in the log its
+> saying interrupt is at 185, but apparently the INT line is not getting
+> raised.  
+> 
+> In addition, I understand why the panic.  You've compiled the drivers
+> into the kernel, instead of module.  i.e. if you compiled as module, 
+> mptspi wouldn't been called while mptbase is loaded, as in your case.
+> I guess we would need to add sanity check for that case. I'm usually
+> testing as modules.
 
-Why not just add the simple validation?
+Ah, that could explain it; when doing testing we do compile everything
+in.  So it sounds like we could eliminate the panic by compiling as a
+module, however is it intended that the driver should work when compiled
+in as well?  If so, I'd be happy to do additional testing to verify any
+fixes worth trying out.
 
-A kernel stack is one page in size. If you move to another page, you 
-terminate. It's that simple.
+> Besides, we need to undertand why your interrupt controller is not
+> generating interrupts.
 
-What if the kernel stack is corrupt? Buffer overruns do that.
+We typically boot every -mm, -git, -rc and mainline kernel on this
+machine, but it's only been relatively recently that this particular
+behavior has occurred.  Could this suggest that there was a regression
+due to recent changes?
 
-This patch seems to just paper over the _real_ problem, namely the fact 
-that the stack tracer code doesn't actually validate any of its arguments.
-
-> When show_trace faults it is actually not the unwinder itself
-> (which would be unwind()/processCFI() etc.), but fallback code
-> which is actually just the old unwinder. So most of your accusations 
-> are hitting the wrong piece of code, Linus.
-
-Ehh, that's not even _true_, Andi.
-
-The old unwinder (well, at least for x86, and I assume x86-64 used that as 
-the beginning point) didn't have this problem at all, exactly because it 
-couldn't get on the wrong stack-page in the first place.
-
-The old code literally had:
-
-	static inline int valid_stack_ptr(struct thread_info *tinfo, void *p)
-	{
-	        return  p > (void *)tinfo &&
-	                p < (void *)tinfo + THREAD_SIZE - 3;
-	}
-
-and would refuse to touch anything that wasn't in the stack page. It was 
-simple, AND WE NEVER _EVER_ HAD A BUG RELATED TO IT, AFAIK.
-
-In contrast, the new code doesn't do any sanity checking at all, and this 
-is not the first or even the second time it causes problems.
-
-So be honest here, don't try to shift the blame.
-
-		Linus
+Thanks,
+Bryce

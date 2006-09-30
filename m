@@ -1,39 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751971AbWI3VVP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751973AbWI3V0c@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751971AbWI3VVP (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Sep 2006 17:21:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751973AbWI3VVP
+	id S1751973AbWI3V0c (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Sep 2006 17:26:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751977AbWI3V0c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Sep 2006 17:21:15 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:12235 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751971AbWI3VVO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Sep 2006 17:21:14 -0400
-Date: Sat, 30 Sep 2006 14:20:03 -0700
-From: Pete Zaitcev <zaitcev@redhat.com>
-To: dtor@insightbb.com
-Cc: zaitcev@redhat.com, linux-kernel@vger.kernel.org
-Subject: appletouch vs. usbhid
-Message-Id: <20060930142003.8ba909b1.zaitcev@redhat.com>
-Organization: Red Hat, Inc.
-X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.10.3; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sat, 30 Sep 2006 17:26:32 -0400
+Received: from warden-p.diginsite.com ([208.29.163.248]:34748 "HELO
+	warden.diginsite.com") by vger.kernel.org with SMTP
+	id S1751973AbWI3V0b (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Sep 2006 17:26:31 -0400
+Date: Sat, 30 Sep 2006 14:11:57 -0700 (PDT)
+From: David Lang <dlang@digitalinsight.com>
+X-X-Sender: dlang@dlang.diginsite.com
+To: James Bottomley <James.Bottomley@SteelEye.com>
+cc: tridge@samba.org, linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: GPLv3 Position Statement
+In-Reply-To: <1159559443.9543.23.camel@mulgrave.il.steeleye.com>
+Message-ID: <Pine.LNX.4.63.0609301408450.27570@qynat.qvtvafvgr.pbz>
+References: <1159498900.3880.31.camel@mulgrave.il.steeleye.com> 
+ <17692.46192.432673.743783@samba.org>  <1159515086.3880.79.camel@mulgrave.il.steeleye.com>
+  <17692.57123.749163.204216@samba.org> <1159559443.9543.23.camel@mulgrave.il.steeleye.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dear Dmitry:
+On Fri, 29 Sep 2006, James Bottomley wrote:
 
-A user filed a bug here which seems to indicate that hid lacks needed
-exclusions for Apple pointers:
- https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=208721
-Do you think we should be adding QUIRK_IGNORE for these?
-Perhaps conditional on CONFIG_USB_APPLETOUCH?
+>> That caveat is important, and changes it from a misleading statement
+>> to a true statement. It also is a statement which is true for the
+>> GPLv2, which makes it not such a useful statement to make when
+>> considering the relative merits of the two licenses.
+>
+> Well, this is the whole point.  Today, you can distribute GPLv2 packages
+> without much patent worry ... if you develop GPLv2 packages, that's
+> different, but if you simply act as a conduit, you're not going to have
+> too much trouble..  If I take the broad interpretation that I give a
+> licence to every patent practised by every package I distribute, then I
+> don't know what my liability might be until I've done an IP assessment
+> of everything that's distributed from the website.  That means not just
+> what I'm working on, but also what support put up there to assist a
+> customer, and also what the engineers are putting up in their private
+> areas.
 
-We used to have those IGNORE quirks for Wacom, but then started to ignore
-all Wacoms. We seem to be not at that point with Apple yet, and also they
-have varying vendor IDs.
+this is especially relavent for companies that have formerly been willing to act 
+as mirrors for free software projects. now the act of mirroring debian means 
+that any patent they own could be comprimised by a random debian developer 
+adding a patch to any of 19000 packages that implements that patent
 
-Cheers,
--- Pete
+David Lang

@@ -1,104 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751074AbWI3HEN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751104AbWI3HG7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751074AbWI3HEN (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Sep 2006 03:04:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751092AbWI3HEN
+	id S1751104AbWI3HG7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Sep 2006 03:06:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751105AbWI3HG7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Sep 2006 03:04:13 -0400
-Received: from smtp103.plus.mail.re2.yahoo.com ([206.190.53.28]:19296 "HELO
-	smtp103.plus.mail.re2.yahoo.com") by vger.kernel.org with SMTP
-	id S1751074AbWI3HEM convert rfc822-to-8bit (ORCPT
+	Sat, 30 Sep 2006 03:06:59 -0400
+Received: from dp.samba.org ([66.70.73.150]:57474 "EHLO lists.samba.org")
+	by vger.kernel.org with ESMTP id S1751104AbWI3HG6 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Sep 2006 03:04:12 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.de;
-  h=Received:Received:Date:From:To:Cc:Subject:Message-ID:Reply-To:References:MIME-Version:Content-Type:Content-Disposition:In-Reply-To:User-Agent:Content-Transfer-Encoding;
-  b=0/hNxWitRYVUc4oPQRBJJyrKW6WLH2mRr86m01imxUkwYJzag+fWS4aIr07LezOx8IxcJlN66lR1flj9QNEJoWpV/2gPKgiu0JrmgNC5SCEa1HQAbuNvbxUGLuQwnsu/FBkWzneBXGGQEVtPbFqWzgNbV2tXAAtss6rDxhEQXQ8=  ;
-Date: Sat, 30 Sep 2006 09:04:06 +0200
-From: Borislav Petkov <bbpetkov@yahoo.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: 2.6.18-mm2 - possible recursive locking detected
-Message-ID: <20060930070406.GA7090@gollum.tnic>
-Reply-To: petkov@math.uni-muenster.de
-References: <20060928014623.ccc9b885.akpm@osdl.org>
+	Sat, 30 Sep 2006 03:06:58 -0400
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-In-Reply-To: <20060928014623.ccc9b885.akpm@osdl.org>
-User-Agent: Mutt/1.5.13 (2006-08-11)
-Content-Transfer-Encoding: 8BIT
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
+Message-ID: <17694.5933.159694.454938@samba.org>
+Date: Sat, 30 Sep 2006 17:05:17 +1000
+To: James Bottomley <James.Bottomley@SteelEye.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: GPLv3 Position Statement
+In-Reply-To: <1159559443.9543.23.camel@mulgrave.il.steeleye.com>
+References: <1159498900.3880.31.camel@mulgrave.il.steeleye.com>
+	<17692.46192.432673.743783@samba.org>
+	<1159515086.3880.79.camel@mulgrave.il.steeleye.com>
+	<17692.57123.749163.204216@samba.org>
+	<1159559443.9543.23.camel@mulgrave.il.steeleye.com>
+X-Mailer: VM 7.19 under Emacs 21.4.1
+Reply-To: tridge@samba.org
+From: tridge@samba.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 28, 2006 at 01:46:23AM -0700, Andrew Morton wrote:
-Hi,
+James,
 
-    .config is at http://tim.dnsalias.org/2.6.18-mm2.cfg.
+ > Well, this is the whole point.  Today, you can distribute GPLv2 packages
+ > without much patent worry ... if you develop GPLv2 packages, that's
+ > different, but if you simply act as a conduit, you're not going to have
+ > too much trouble.
 
-Sep 30 08:38:17 zmei kernel: [  285.197902] 
-Sep 30 08:38:19 zmei kernel: [  285.197905] =============================================
-Sep 30 08:38:19 zmei kernel: [  285.204776] [ INFO: possible recursive locking detected ]
-Sep 30 08:38:19 zmei kernel: [  285.210163] 2.6.18-mm2 #1
-Sep 30 08:38:19 zmei kernel: [  285.212782] ---------------------------------------------
-Sep 30 08:38:19 zmei kernel: [  285.218168] swapper/0 is trying to acquire lock:
-Sep 30 08:38:19 zmei kernel: [  285.222777]  (&q->lock){++..}, at: [<c0112f70>] __wake_up+0x15/0x3b
-Sep 30 08:38:19 zmei kernel: [  285.229114] 
-Sep 30 08:38:19 zmei kernel: [  285.229115] but task is already holding lock:
-Sep 30 08:38:19 zmei kernel: [  285.234952]  (&q->lock){++..}, at: [<c0112f70>] __wake_up+0x15/0x3b
-Sep 30 08:38:19 zmei kernel: [  285.241290] 
-Sep 30 08:38:19 zmei kernel: [  285.241291] other info that might help us debug this:
-Sep 30 08:38:19 zmei kernel: [  285.247817] 4 locks held by swapper/0:
-Sep 30 08:38:19 zmei kernel: [  285.251561]  #0:  (&tp->rx_lock){-+..}, at: [<c020f350>] rtl8139_poll+0x42/0x405
-Sep 30 08:38:19 zmei kernel: [  285.259041]  #1:  (slock-AF_INET/1){-+..}, at: [<c02aa753>] tcp_v4_rcv+0x3fa/0x8eb
-Sep 30 08:38:19 zmei kernel: [  285.266700]  #2:  (af_callback_keys + sk->sk_family#3){-.-?}, at: [<c0278d83>] sock_def_readable+0x15/0x69
-Sep 30 08:38:19 zmei kernel: [  285.276454]  #3:  (&q->lock){++..}, at: [<c0112f70>] __wake_up+0x15/0x3b
-Sep 30 08:38:19 zmei kernel: [  285.283241] 
-Sep 30 08:38:19 zmei kernel: [  285.283242] stack backtrace:
-Sep 30 08:38:19 zmei kernel: [  285.287688]  [<c0103b65>] dump_trace+0x64/0x1cd
-Sep 30 08:38:19 zmei kernel: [  285.292243]  [<c0103ce0>] show_trace_log_lvl+0x12/0x25
-Sep 30 08:38:19 zmei kernel: [  285.297405]  [<c010431c>] show_trace+0xd/0x10
-Sep 30 08:38:19 zmei kernel: [  285.301780]  [<c01043e4>] dump_stack+0x19/0x1b
-Sep 30 08:38:19 zmei kernel: [  285.306250]  [<c013022d>] __lock_acquire+0x750/0x96c
-Sep 30 08:38:19 zmei kernel: [  285.311304]  [<c013098c>] lock_acquire+0x4b/0x6b
-Sep 30 08:38:19 zmei kernel: [  285.316005]  [<c02ca474>] _spin_lock_irqsave+0x2c/0x3c
-Sep 30 08:38:19 zmei kernel: [  285.321233]  [<c0112f70>] __wake_up+0x15/0x3b
-Sep 30 08:38:19 zmei kernel: [  285.325638]  [<c0178dd4>] ep_poll_safewake+0x91/0xc3
-Sep 30 08:38:19 zmei kernel: [  285.330760]  [<c0179c69>] ep_poll_callback+0x83/0x8e
-Sep 30 08:38:19 zmei kernel: [  285.335888]  [<c01122e5>] __wake_up_common+0x2f/0x53
-Sep 30 08:38:19 zmei kernel: [  285.340898]  [<c0112f83>] __wake_up+0x28/0x3b
-Sep 30 08:38:19 zmei kernel: [  285.345312]  [<c0278da8>] sock_def_readable+0x3a/0x69
-Sep 30 08:38:20 zmei kernel: [  285.350778]  [<c02a1892>] tcp_data_queue+0x50f/0xa53
-Sep 30 08:38:20 zmei kernel: [  285.356232]  [<c02a34c3>] tcp_rcv_established+0x5aa/0x64f
-Sep 30 08:38:20 zmei kernel: [  285.362077]  [<c02a86f6>] tcp_v4_do_rcv+0x26/0x2f2
-Sep 30 08:38:20 zmei kernel: [  285.367322]  [<c02aabd4>] tcp_v4_rcv+0x87b/0x8eb
-Sep 30 08:38:20 zmei kernel: [  285.372432]  [<c02928e3>] ip_local_deliver+0x19c/0x265
-Sep 30 08:38:20 zmei kernel: [  285.378033]  [<c029270b>] ip_rcv+0x453/0x48f
-Sep 30 08:38:20 zmei kernel: [  285.382769]  [<c027e51a>] netif_receive_skb+0x1a6/0x239
-Sep 30 08:38:20 zmei kernel: [  285.388440]  [<c020f5a5>] rtl8139_poll+0x297/0x405
-Sep 30 08:38:20 zmei kernel: [  285.393553]  [<c027ff20>] net_rx_action+0x76/0x109
-Sep 30 08:38:20 zmei kernel: [  285.398782]  [<c011dad0>] __do_softirq+0x70/0xf0
-Sep 30 08:38:20 zmei kernel: [  285.403459]  [<c011db89>] do_softirq+0x39/0x55
-Sep 30 08:38:20 zmei kernel: [  285.407963]  [<c011dcd5>] irq_exit+0x49/0x56
-Sep 30 08:38:20 zmei kernel: [  285.412295]  [<c010537f>] do_IRQ+0x8f/0x9c
-Sep 30 08:38:20 zmei kernel: [  285.416408]  [<c01035e1>] common_interrupt+0x25/0x2c
-Sep 30 08:38:20 zmei kernel: [  285.421393] DWARF2 unwinder stuck at common_interrupt+0x25/0x2c
-Sep 30 08:38:20 zmei kernel: [  285.427298] 
-Sep 30 08:38:20 zmei kernel: [  285.428786] Leftover inexact backtrace:
-Sep 30 08:38:20 zmei kernel: [  285.428787] 
-Sep 30 08:38:20 zmei kernel: [  285.434103]  [<c010168b>] cpu_idle+0x72/0x9b
-Sep 30 08:38:20 zmei kernel: [  285.438383]  [<c010064e>] rest_init+0x37/0x39
-Sep 30 08:38:20 zmei kernel: [  285.442742]  [<c043d73b>] start_kernel+0x356/0x35e
-Sep 30 08:38:20 zmei kernel: [  285.447549]  [<00000000>] 0x0
-Sep 30 08:38:20 zmei kernel: [  285.450541]  =======================
+I just can't see where you get this interpretation of the GPLv2
+from. The wording in GPLv2 is:
 
--- 
-Regards/Gruß,
-    Boris.
+  If you cannot distribute so as to satisfy simultaneously your
+  obligations under this License and any other pertinent obligations,
+  then as a consequence you may not distribute the Program at all.
+  For example, if a patent license would not permit royalty-free
+  redistribution of the Program by all those who receive copies
+  directly or indirectly through you, then the only way you could
+  satisfy both it and this License would be to refrain entirely from
+  distribution of the Program.
 
-	
+It specifically says "distribute" (4 times in fact). It specifically
+says that all people, direct or indirect must be able to redistribute
+royalty free, or you have to refrain from distributing.
 
-	
-		
-___________________________________________________________ 
-Der frühe Vogel fängt den Wurm. Hier gelangen Sie zum neuen Yahoo! Mail: http://mail.yahoo.de
+It never mentions the word develop in the license text (only in the
+"how to apply these terms to your program" section).
+
+I just can't see how any lawyer, especially one trying to be cautious
+about their companies potential liability, could try to claim that the
+above paragraph doesn't apply to distribution.
+
+Do you really have a solid legal opinion that the above paragraph from
+GPLv2 doesn't apply when distributing? If so, could you ask the lawyer
+to explain the argument? I know legal interpretations can sometimes be
+tortuous, but to read the above without it applying to distribution
+seems far too much of a stretch.
+
+Cheers, Tridge

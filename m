@@ -1,67 +1,90 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751033AbWI3Ohw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751251AbWI3QJ1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751033AbWI3Ohw (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Sep 2006 10:37:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751034AbWI3Ohw
+	id S1751251AbWI3QJ1 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Sep 2006 12:09:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751254AbWI3QJ1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Sep 2006 10:37:52 -0400
-Received: from smtp103.mail.mud.yahoo.com ([209.191.85.213]:57502 "HELO
-	smtp103.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1751032AbWI3Ohv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Sep 2006 10:37:51 -0400
+	Sat, 30 Sep 2006 12:09:27 -0400
+Received: from nf-out-0910.google.com ([64.233.182.187]:32372 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1751251AbWI3QJ0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Sep 2006 12:09:26 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=yahoo.com.au;
-  h=Received:Message-ID:Date:From:User-Agent:X-Accept-Language:MIME-Version:To:CC:Subject:References:In-Reply-To:Content-Type:Content-Transfer-Encoding;
-  b=qxb5fD8EtcHx1ppYGWooCktkKp2r7eclP2TtpRi2Z2o9ciLWQ1Qoazzw3n+3etjuHUHD7Kmx2mC3WUqyeoOUYnY0Y0WkE+3mddaNsEe5vWAT6LClMlE4Icv99MmUktFfVWTwcjh2zMavpN/ftF22E3IiwNq0FAAqzEIOwWNrB34=  ;
-Message-ID: <451E8143.5030300@yahoo.com.au>
-Date: Sun, 01 Oct 2006 00:37:55 +1000
-From: Nick Piggin <nickpiggin@yahoo.com.au>
-User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.12) Gecko/20051007 Debian/1.7.12-1
-X-Accept-Language: en
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=DILXgFMD9bBKFIi5MAOAb3kgYmJvnLHuLaZGQTJYbsflBPUDt9Qz5rqle26BbbnEyefsDEEr+WlEfvg8sUJ5t9vectdX5f5ksT+ZeoTrIpmk8vrZpkYpKB0NxACHMBOc97Hm75sPILteCcuAeuuCsyBXuUYjXKFWJlG/WR02PyU=
+Message-ID: <a2ebde260609300909l5f33c152xa331f7600be67f6b@mail.gmail.com>
+Date: Sun, 1 Oct 2006 00:09:24 +0800
+From: "Dong Feng" <middle.fengdong@gmail.com>
+To: "Nick Piggin" <nickpiggin@yahoo.com.au>
+Subject: Re: How is Code in do_sys_settimeofday() safe in case of SMP and Nest Kernel Path?
+Cc: "Christoph Lameter" <clameter@sgi.com>, "Andi Kleen" <ak@suse.de>,
+       "Arjan van de Ven" <arjan@infradead.org>,
+       "Paul Mackerras" <paulus@samba.org>,
+       "David Howells" <dhowells@redhat.com>, linux-kernel@vger.kernel.org
+In-Reply-To: <451E8143.5030300@yahoo.com.au>
 MIME-Version: 1.0
-To: Dong Feng <middle.fengdong@gmail.com>
-CC: Christoph Lameter <clameter@sgi.com>, Andi Kleen <ak@suse.de>,
-       Arjan van de Ven <arjan@infradead.org>,
-       Paul Mackerras <paulus@samba.org>, David Howells <dhowells@redhat.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: How is Code in do_sys_settimeofday() safe in case of SMP and
- Nest Kernel Path?
-References: <a2ebde260609290733m207780f0t8601e04fcf64f0a6@mail.gmail.com>	 <Pine.LNX.4.64.0609290903550.23840@schroedinger.engr.sgi.com> <a2ebde260609290916j3a3deb9g33434ca5d93e7a84@mail.gmail.com>
-In-Reply-To: <a2ebde260609290916j3a3deb9g33434ca5d93e7a84@mail.gmail.com>
-Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <a2ebde260609290733m207780f0t8601e04fcf64f0a6@mail.gmail.com>
+	 <Pine.LNX.4.64.0609290903550.23840@schroedinger.engr.sgi.com>
+	 <a2ebde260609290916j3a3deb9g33434ca5d93e7a84@mail.gmail.com>
+	 <451E8143.5030300@yahoo.com.au>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dong Feng wrote:
-> 2006/9/30, Christoph Lameter <clameter@sgi.com>:
-> 
->> On Fri, 29 Sep 2006, Dong Feng wrote:
->>
+On Sat, 30 Sep 2006, Nick Piggin wrote
+>
+> You should write a patch and send it to Mister Morton.
+>
+> --
+> SUSE Labs, Novell Inc.
+> Send instant messages to your online friends http://au.messenger.yahoo.com
+>
+>
 
->> > If the comments mean the subsequent code is SMP-safe and can prevent
->> > nest-kernel-path, how does it achieves that?
->>
->> It relies on locking outside of do_sys_settimeofday(). Seems that this
->> indicates locking is to be performed by the arch before calling
->> do_sys_settimeofday. Looks suspicious to me. Check that this function is
->> always called with the same lock.
->>
-> 
-> Yes, that is the question. The whole invocation path is
-> sys_settimeofday() -> do_sys_settimeofday()
-> 
-> I do not find a lock embracing do_sys_settimeofday().
-> 
-> Moreover, seems neither write operations nor read operations on sys_tz
-> is protected by any locks, in sys_gettimeofday() and
-> sys_settimeofday() respectively.
+This is a patch for your review.
 
-Did you get to the bottom of this yet? It looks like you're right,
-and I suggest a seqlock might be a good option.
+--- kernel/time.c.orig	2006-09-30 23:21:29.000000000 +0800
++++ kernel/time.c	2006-09-30 23:38:18.000000000 +0800
+@@ -107,7 +107,16 @@ asmlinkage long sys_gettimeofday(struct
+ 			return -EFAULT;
+ 	}
+ 	if (unlikely(tz != NULL)) {
+-		if (copy_to_user(tz, &sys_tz, sizeof(sys_tz)))
++		struct timezone ktz;
++		unsigned long seq;
++
++		do {
++                	seq = read_seqbegin(&xtime_lock);
++			ktz.tz_minuteswest = sys_tz.tz_minuteswest;
++			ktz.tz_dsttime = sys_tz.tz_dsttime;
++        	} while (unlikely(read_seqretry(&xtime_lock, seq)));
++
++		if (copy_to_user(tz, &ktz, sizeof(ktz)))
+ 			return -EFAULT;
+ 	}
+ 	return 0;
+@@ -164,12 +173,16 @@ int do_sys_settimeofday(struct timespec
 
-You should write a patch and send it to Mister Morton.
-
--- 
-SUSE Labs, Novell Inc.
-Send instant messages to your online friends http://au.messenger.yahoo.com 
+ 	if (tz) {
+ 		/* SMP safe, global irq locking makes it work. */
+-		sys_tz = *tz;
+-		if (firsttime) {
+-			firsttime = 0;
+-			if (!tv)
+-				warp_clock();
++		write_seqlock_irq(&xtime_lock);
++		{
++			sys_tz = *tz;
++			if (firsttime) {
++				firsttime = 0;
++				if (!tv)
++					warp_clock();
++			}
+ 		}
++		write_sequnlock_irq(&xtime_lock);
+ 	}
+ 	if (tv)
+ 	{

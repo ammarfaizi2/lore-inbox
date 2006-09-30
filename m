@@ -1,115 +1,253 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751088AbWI3PnU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751189AbWI3Ppb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751088AbWI3PnU (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Sep 2006 11:43:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751163AbWI3PnU
+	id S1751189AbWI3Ppb (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Sep 2006 11:45:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751193AbWI3Ppa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Sep 2006 11:43:20 -0400
-Received: from ns.suse.de ([195.135.220.2]:14297 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751088AbWI3PnT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Sep 2006 11:43:19 -0400
-Date: Sat, 30 Sep 2006 17:32:41 +0200
-From: Andrea Arcangeli <andrea@suse.de>
-To: tridge@samba.org
-Cc: torvalds@osdl.org, linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: GPLv3 Position Statement
-Message-ID: <20060930153241.GC6955@opteron.random>
-References: <1159498900.3880.31.camel@mulgrave.il.steeleye.com> <17692.41932.957298.877577@cse.unsw.edu.au> <1159512998.3880.50.camel@mulgrave.il.steeleye.com> <17692.53185.564741.502063@samba.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <17692.53185.564741.502063@samba.org>
+	Sat, 30 Sep 2006 11:45:30 -0400
+Received: from py-out-1112.google.com ([64.233.166.182]:9192 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S1751189AbWI3Pp3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Sep 2006 11:45:29 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:content-type:content-transfer-encoding;
+        b=SXPWSzDMtQuTo5TDlg/LkWPWrD6CSi6juhm1UNnpAcQz/o4lbn/CsSKgOV2gKFYepVurLH3Tt1fmLO/ptsgV3iK05KLbU+EVlp+S7DJ5Pf1tUZ6idW85iYmslWRfJmOI0QSs+62X768BHSUTEMEh4Mvs7a2P+y8Yu81WKY1cfT8=
+Message-ID: <451E9127.2080204@gmail.com>
+Date: Sat, 30 Sep 2006 23:45:43 +0800
+From: Yi Yang <yang.y.yi@gmail.com>
+User-Agent: Thunderbird 1.5 (X11/20051201)
+MIME-Version: 1.0
+To: linux-kernel@vger.kernel.org
+CC: Evgeniy Polyakov <johnpol@2ka.mipt.ru>, Matt Helsley <matthltc@us.ibm.com>
+Subject: [2.6.18 PATCH]: Filesystem Event Reporter V4 -- test program
+Content-Type: text/plain; charset=GB2312
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+This is the test program for Filesystem Event Reporter V4, 
+You need to use the header files of built 2.6.18 kernel to compile.
+Assume your kernel dir is linux-2.6.18, this test program has the
+ same parent directory with linux-2.6.18, then you can compile it
+ using the following command:
 
-On Fri, Sep 29, 2006 at 05:48:17PM +1000, tridge@samba.org wrote:
-> wishes.  I'm not even 100% certain it would be legal.
+# gcc -o fsevent-test -I linux-2.6.18/include fsevent-test.c
 
-How can you not be sure that it would be legal? If you didn't want to
-allow forking, you shouldn't have released the code as GPL. See qmail
-and pine for example of slightly different licenses in terms of forking.
+after insmod linux-2.6.18/fs/fsevent.ko, you can run it:
 
-The basic logic of the GPL and open source as well, is that anyone is
-legally allowed to fork away your code as much as they want as long as
-the result is still using the same license. Oh well, if even this
-_basic_ legal point is not clear, then I'm not surprised there's lots
-of confusion about the rest...
+# ./fsevent-test > /tmp/fsevent.log
 
-IMHO GPL is _all_ about _freedom_ of usage in any shape and form, and
-most important about _sharing_ of the resulting/modified code. GPL has
-_never_ been about restricting usage. Infact it apparently even allows
-you to do whatever you want with it as long as you do it behind the
-corporate firewall and you don't redistribute the code itself, but
-only the result of the computations of the code.
+you can start some test tools in another terminal, for example
+ltp, build kernel, fs stress tools, then you view /tmp/fsevent.log
+ to see if it catch those file system operations. If you want to
+ stop it, just press CTRL+C. you can grep system log by
+ the following command to know how many process migration
+ happens.
 
-If there's something to work on for GPLv3 it is _not_ about
-restricting usage. It's about forcing _more_ sharing even behind the
-corporate firewall! In the ideal world that should be the only
-priority in FSF minds and I think they're still in time to change
-their focus on what really matters.
+# cat /var/log/messages | grep migration | wc -l
 
-My ideal GPLv3 would be that if you modify a GPLv3 project and you
-have a _third_party_ using in any way (think a web application running
-behind the corporate firewall), you would be required to release your
-GPLv3 source code to the third party that is using the GPLv3 code on
-your servers, even if you never redistributed the code itself (nor in
-source nor in binary form). Now I clearly don't know for sure if this
-is enforceable, but I think this is the only point where the GPLv2
-could be improved.
+if you don't want to use it, rmmod it to see if it is ok.
 
-Nothing would change if the user of the code isn't a third party, so
-for example you can still pick your preferred webmail for your
-intranet, improve it, and release nothing back as long as it's never
-used by third parties living outside the corporate firewall. But if
-you start shipping the service to third parties as a webapplication
-through the internet, my ideal GPLv3 would give the third parties the
-right to see the modifications you did.
+# rmmod fsevent
 
-Creating a GPLv3 that restricts usage is not going to work. They think
-the worst usage possible is DRM, I disagree, the DRM certainly
-wouldn't be at the top of my priority of the worst possible usage of
-my GPL code. Restricting usage is something where there cannot be a
-real agreement on what should be forbidden, and as such it should be
-avoided. If RMS has to choose which usage to forbid in GPLv3 he
-apparently goes after DRM which sounds fair from his point of
-view. Now if a greenpeace activist would have to choose he would
-probably instead go after usage inside nuclear reactors which sounds
-fair enough again from his point of view. I would go after different
-things that sounds fair enough to me. If we keep focusing on
-"forbidding what is unethical" eventually GPLv4 will forbid making too
-much money off the software too ;). This is why there should be not be
-any restriction on usage at all, so everyone can agree to giveup his
-small wish for the common good. And if somebody really wants to add up
-any exceptional restriction on usage on top of the GPL, that should be
-up to the copyright holder to decide, not a job for the GPLv3 authors.
 
-The worry that open source will eventually die with the advent of DRM
-and trusted computing because no kernel will boot anymore, is
-baseless. Who says something on those lines, probably doesn't
-understand how the economy works (and most certainly they don't
-understand how trusted computing works). To make an example if some
-hardware vendor is not allowing to replace kernels, and I want to be
-allowed to do that, I simply decided to buy my new htpc from
-linuxtechtoys instead. It's truly as simple as that. And regardless,
-even if they would be right about trusted computing going to kill open
-source (again a baseless claim IMHO), it certainly wouldn't be the
-GPLv3 DRM clause that could save us.
+ Any feedback is welcomed.
 
-To make an example: I truly hope Microsoft will use trusted computing
-to make the windows genuine update program totally unbreakable and to
-force 100% of their users to pay. They can easily do that. There are
-many more positive things around trusted computing that are never
-being mentioned.
+Here is fsevent-test.c
+/////////////////////////////////////////////
+/*
+ * fsevent_test.c - Filesystem Events Reporter Userspace Test Program
+ * created by Yi Yang <yang.y.yi@gmail.com>
+ */
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <signal.h>
+#include <linux/netlink.h>
+#define _LINUX_TIME_H
+#include <linux/fsevent.h>
 
-About the patent claims I also didn't see anything that would
-invalidate the entire patent portfolio of any company (well, unless
-the linux kernel already infringe on the whole patent portfolio of
-said company, but I doubt that's what they meant ;). To me it looked
-like v3 made explicit what was already implicit with v2 (i.e. when you
-release patented software under GPLv2, you already implicitly allow
-anybody to run your patented idea as long as the code is still under
-the GPLv2). I didn't think there was any need to make it explicit, but
-anyway I can't see a big difference.
+#define MAX_MSGSIZE 1024
+#ifndef SOL_NETLINK
+#define SOL_NETLINK 270
+#endif
+#define MATCH_FSEVENT_TYPE(t1, t2) (((t1) & (t2)) == (t2))
+
+int sd;
+struct sockaddr_nl l_local, daddr;
+int on;
+int len;
+struct nlmsghdr *nlhdr = NULL;
+struct msghdr msg;
+struct iovec iov;
+struct fsevent_filter * filter;
+struct cn_msg * cnmsg;
+struct fsevent * fsevent;
+int counter = 0;
+int ret;
+struct sigaction sigint_action;
+enum fsevent_type type;
+
+void set_fsevent_filter(unsigned int mask, int control, int type, int id)
+{
+	memset(nlhdr, 0, sizeof(NLMSG_SPACE(MAX_MSGSIZE)));
+	memset(&iov, 0, sizeof(struct iovec));
+	memset(&msg, 0, sizeof(struct msghdr));
+        filter = (struct fsevent_filter *)NLMSG_DATA(nlhdr);
+        filter->mask = mask;
+	if (type != FSEVENT_FILTER_ALL) {
+		filter->id.pid = id;
+	}
+	filter->type = type;
+	filter->control = control;
+        nlhdr->nlmsg_len = NLMSG_LENGTH(sizeof(struct fsevent_filter));
+        nlhdr->nlmsg_pid = getpid();
+        nlhdr->nlmsg_flags = 0;
+        nlhdr->nlmsg_type = NLMSG_DONE;
+        nlhdr->nlmsg_seq = 0;
+
+        iov.iov_base = (void *)nlhdr;
+        iov.iov_len = nlhdr->nlmsg_len;
+        msg.msg_name = (void *)&daddr;
+        msg.msg_namelen = sizeof(daddr);
+        msg.msg_iov = &iov;
+        msg.msg_iovlen = 1;
+        ret = sendmsg(sd, &msg, 0);
+        if (ret == -1) {
+        	perror("sendmsg error:");
+		exit(-1);
+        }
+}
+int get_fsevent()
+{
+	memset(nlhdr, 0, NLMSG_SPACE(MAX_MSGSIZE));
+	memset(&iov, 0, sizeof(struct iovec));
+	memset(&msg, 0, sizeof(struct msghdr));
+
+        iov.iov_base = (void *)nlhdr;
+        iov.iov_len = NLMSG_SPACE(MAX_MSGSIZE);
+        msg.msg_name = (void *)&daddr;
+        msg.msg_namelen = sizeof(daddr);
+        msg.msg_iov = &iov;
+        msg.msg_iovlen = 1;
+
+        return recvmsg(sd, &msg, 0);
+}
+void stop_listen()
+{
+	set_fsevent_filter(0xffffffff, FSEVENT_FILTER_IGNORE,
+				FSEVENT_FILTER_ALL,0);
+	set_fsevent_filter(0xffffffff, FSEVENT_FILTER_REMOVE,
+				FSEVENT_FILTER_ALL,0);
+}
+void sigint_handler(int signo)
+{
+	stop_listen();
+	printf("filesystem event: turn off filesystem event listening.\n");
+	get_fsevent();
+	get_fsevent();
+	close(sd);
+	exit(0);
+}
+void print_fsevent(struct fsevent * event, char * typestr, int flag)
+{
+	printf("filesystem event: %s\n"
+		"process '%s' %s %s '%s'",
+		typestr,
+		fsevent->name,
+		typestr,
+		((fsevent->type & FSEVENT_ISDIR)
+			== FSEVENT_ISDIR)?"dir":"file",
+		fsevent->name + fsevent->pname_len + 1);
+	if (flag)
+		printf(" to '%s'", fsevent->name + fsevent->pname_len
+                                        + fsevent->fname_len + 2);
+	printf("\n");
+}
+void print_ack(char * typestr)
+{
+	printf("filesystem event: "
+		"acknowledge for filter on %s\n", typestr);
+}
+int main(void)
+{
+	memset(&sigint_action, 0, sizeof(struct sigaction));
+	sigint_action.sa_flags = SA_ONESHOT;
+	sigint_action.sa_handler = &sigint_handler;
+	sigaction(SIGINT, &sigint_action, NULL);
+	nlhdr = (struct nlmsghdr *)malloc(NLMSG_SPACE(MAX_MSGSIZE));
+	if (nlhdr == NULL) {
+		perror("malloc:");
+		exit(-1);
+	}
+	daddr.nl_family = AF_NETLINK;
+        daddr.nl_pid = 0;
+        daddr.nl_groups = 0;
+
+	sd = socket(PF_NETLINK, SOCK_DGRAM, NETLINK_FSEVENT);
+
+	l_local.nl_family = AF_NETLINK;
+	l_local.nl_groups = 0;
+	l_local.nl_pid = getpid();
+
+	if (bind(sd, (struct sockaddr *)&l_local,
+			sizeof(struct sockaddr_nl)) == -1) {
+        	perror("bind");
+	        close(sd);
+        	return -1;
+	}
+	//set_fsevent_filter(FSEVENT_MOUNT|FSEVENT_UMOUNT,
+	set_fsevent_filter(0xffffffff,
+			FSEVENT_FILTER_LISTEN, FSEVENT_FILTER_ALL, 0);
+	printf("filesystem event: turn on filesystem event listening.\n");
+	while (1) {
+		ret = get_fsevent();
+                if (ret == 0) {
+                        printf("Exit.\n");
+                        exit(0);
+                }
+                if (ret == -1) {
+                        perror("recvmsg:");
+                        exit(1);
+                }
+		fsevent = (struct fsevent *)NLMSG_DATA(nlhdr);
+		type = fsevent->type;
+		if (MATCH_FSEVENT_TYPE(type, FSEVENT_ACCESS))
+			print_fsevent(fsevent, "access", 0);
+		if (MATCH_FSEVENT_TYPE(type, FSEVENT_MODIFY))
+			print_fsevent(fsevent, "modify", 0);
+		if (MATCH_FSEVENT_TYPE(type, FSEVENT_MODIFY_ATTRIB))
+			print_fsevent(fsevent, "modify_attr", 0);
+		if (MATCH_FSEVENT_TYPE(type, FSEVENT_CLOSE))
+			print_fsevent(fsevent, "close", 0);
+		if (MATCH_FSEVENT_TYPE(type, FSEVENT_OPEN))
+			print_fsevent(fsevent, "open", 0);
+		if (MATCH_FSEVENT_TYPE(type, FSEVENT_MOVE))
+			print_fsevent(fsevent, "move", 1);
+		if (MATCH_FSEVENT_TYPE(type, FSEVENT_CREATE))
+			print_fsevent(fsevent, "create", 0);
+		if (MATCH_FSEVENT_TYPE(type, FSEVENT_DELETE))
+			print_fsevent(fsevent, "delete", 0);
+		if (MATCH_FSEVENT_TYPE(type, FSEVENT_MOUNT))
+			print_fsevent(fsevent, "mount", 1);
+		if (MATCH_FSEVENT_TYPE(type, FSEVENT_UMOUNT))
+			print_fsevent(fsevent, "umount", 0);
+		if (MATCH_FSEVENT_TYPE(type, FSEVENT_FILTER_ALL))
+			print_ack("all");
+		if (MATCH_FSEVENT_TYPE(type, FSEVENT_FILTER_PID))
+			print_ack("pid");
+		if (MATCH_FSEVENT_TYPE(type, FSEVENT_FILTER_UID))
+			print_ack("uid");
+		if (MATCH_FSEVENT_TYPE(type, FSEVENT_FILTER_GID))
+			print_ack("gid");
+		printf("event type = %08x, pid = %d, uid = %d, gid = %d\n",
+			fsevent->type, fsevent->pid,
+			fsevent->uid, fsevent->gid);
+		printf("counter = %d\n\n", counter++);
+	}
+}
+///////////////////////////////////////
+

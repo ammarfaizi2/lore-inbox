@@ -1,49 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751317AbWI3Rei@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751327AbWI3RfZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751317AbWI3Rei (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Sep 2006 13:34:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751327AbWI3Reh
+	id S1751327AbWI3RfZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Sep 2006 13:35:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751290AbWI3RfZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Sep 2006 13:34:37 -0400
-Received: from khc.piap.pl ([195.187.100.11]:30139 "EHLO khc.piap.pl")
-	by vger.kernel.org with ESMTP id S1751317AbWI3Reh (ORCPT
+	Sat, 30 Sep 2006 13:35:25 -0400
+Received: from emailer.gwdg.de ([134.76.10.24]:60620 "EHLO emailer.gwdg.de")
+	by vger.kernel.org with ESMTP id S1751327AbWI3RfW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Sep 2006 13:34:37 -0400
-To: Ben Greear <greearb@candelatech.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Question on HDLC and raw access to T1/E1 serial streams.
-References: <451DC75E.4070403@candelatech.com>
-From: Krzysztof Halasa <khc@pm.waw.pl>
-Date: Sat, 30 Sep 2006 19:34:33 +0200
-In-Reply-To: <451DC75E.4070403@candelatech.com> (Ben Greear's message of "Fri, 29 Sep 2006 18:24:46 -0700")
-Message-ID: <m3mz8hntqu.fsf@defiant.localdomain>
+	Sat, 30 Sep 2006 13:35:22 -0400
+Date: Sat, 30 Sep 2006 19:31:31 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: Alessandro Guido <alessandro.guido@gmail.com>
+cc: linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org,
+       len.brown@intel.com, gelma@gelma.net, ismail@pardus.org.tr
+Subject: Re: [PATCH 2.6.18-mm2] acpi: add backlight support to the sony_acpi
+ driver
+In-Reply-To: <20060930191457.a120ff56.alessandro.guido@gmail.com>
+Message-ID: <Pine.LNX.4.61.0609301931160.4615@yvahk01.tjqt.qr>
+References: <20060930190810.30b8737f.alessandro.guido@gmail.com>
+ <20060930191457.a120ff56.alessandro.guido@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Report: Content analysis: 0.0 points, 6.0 required
+	_SUMMARY_
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ben Greear <greearb@candelatech.com> writes:
 
-> I am looking for a way to bridge a T1/E1 network by reading a raw
-> bitstream from one T1 interface and writing it out to the other.  The
-> application is adding delay and/or bit corruptions for impairment
-> testing.
+>> Make the sony_acpi use the backlight subsystem to adjust brightness value
+>> instead of using the /proc/sony/brightness file.
+>> (Other settings will still have a /proc/sony/... entry)
 >
-> I have been using Sangoma's drivers and NICs, but I'm having no luck
-> getting their latest stuff to work so I was hoping to use in-kernel
-> drivers (even if that means writing or hiring someone to write new ones.)
->
-> Is there currently a way to read/write the raw bitstream for a full T1
-> or E1 or a subset of channels?
+>I meant /proc/acpi/sony/brightness and /proc/acpi/sony/...
 
-Well, my generic HDLC works with HDLC framing only, T1/E1 is
-a layer lower than that... I think Cyclades have (had?) a version
-of PC300 card with T1/E1 interface. It at least doesn't require
-any "binary blobs", though I think the driver would need some work.
+Hm spicctrl needs to be updated then. (Or maybe not if it does not use 
+/proc)
 
-Which line interface do you need? G.703?
-Do you need to bridge multiple streams (not slots) over one
-interface (internal (de)multiplexer - I mean "more than one
-subset of channels")?
+
+Jan Engelhardt
 -- 
-Krzysztof Halasa

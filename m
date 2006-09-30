@@ -1,73 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751299AbWI3RAU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750827AbWI3RF6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751299AbWI3RAU (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Sep 2006 13:00:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750827AbWI3RAU
+	id S1750827AbWI3RF6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Sep 2006 13:05:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751305AbWI3RF5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Sep 2006 13:00:20 -0400
-Received: from mail-gw1.sa.eol.hu ([212.108.200.67]:20891 "EHLO
-	mail-gw1.sa.eol.hu") by vger.kernel.org with ESMTP id S1751301AbWI3RAT
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Sep 2006 13:00:19 -0400
-To: rmk@arm.linux.org.uk
-CC: dhylands@gmail.com, guinan@bluebutton.com, linux-kernel@vger.kernel.org
-Subject: get_user_pages() cache issues on ARM
-Message-Id: <E1GTiBq-0002i3-00@dorka.pomaz.szeredi.hu>
-From: Miklos Szeredi <miklos@szeredi.hu>
-Date: Sat, 30 Sep 2006 18:59:50 +0200
+	Sat, 30 Sep 2006 13:05:57 -0400
+Received: from caramon.arm.linux.org.uk ([217.147.92.249]:63752 "EHLO
+	caramon.arm.linux.org.uk") by vger.kernel.org with ESMTP
+	id S1750827AbWI3RF4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Sep 2006 13:05:56 -0400
+Date: Sat, 30 Sep 2006 18:05:48 +0100
+From: Russell King <rmk+lkml@arm.linux.org.uk>
+To: Miklos Szeredi <miklos@szeredi.hu>
+Cc: dhylands@gmail.com, guinan@bluebutton.com, linux-kernel@vger.kernel.org
+Subject: Re: get_user_pages() cache issues on ARM
+Message-ID: <20060930170548.GA24949@flint.arm.linux.org.uk>
+Mail-Followup-To: Miklos Szeredi <miklos@szeredi.hu>, dhylands@gmail.com,
+	guinan@bluebutton.com, linux-kernel@vger.kernel.org
+References: <E1GTiBq-0002i3-00@dorka.pomaz.szeredi.hu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <E1GTiBq-0002i3-00@dorka.pomaz.szeredi.hu>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Russell,
+On Sat, Sep 30, 2006 at 06:59:50PM +0200, Miklos Szeredi wrote:
+> Hi Russell,
+> 
+> The get_user_pages() vs dcache coherency issue still seems to be
+> unresolved on ARM.
+> 
+> See flush_anon_page() and flush_kernel_dcache_page() in
+> Documentation/cachetlb.txt and their implementation on PARISC.
+> 
+> Can you please take a look at this?
 
-The get_user_pages() vs dcache coherency issue still seems to be
-unresolved on ARM.
+I'm sorry, I don't think I have sufficient understanding of the Linux VM
+to look at these issues anymore.
 
-See flush_anon_page() and flush_kernel_dcache_page() in
-Documentation/cachetlb.txt and their implementation on PARISC.
+The questions I have are:
 
-Can you please take a look at this?
+- where do these pages that get_user_pages() finds and calls flush_anon_page()
+  on come from?
+- why is the current ARM flush_dcache_page() (which is also called after
+  flush_anon_page()) not sufficient?
+- if we implement flush_anon_page() does that mean that we end up flushing
+  multiple times in some circumstances?  If so, how do we avoid this?
 
-Thanks,
-Miklos
+I'm really serious - I no longer understand the Linux VM sufficiently to
+get this stuff right.
 
-------- Start of forwarded message -------
-Date: Sun, 24 Sep 2006 20:20:15 -0700
-From: "Dave Hylands" <dhylands@gmail.com>
-To: "Miklos Szeredi" <miklos@szeredi.hu>
-Subject: Re: [fuse-devel] ARM cross build issues
-Cc: guinan@bluebutton.com, fuse-devel@lists.sourceforge.net
-In-Reply-To: <E1GR461-0003WJ-00@dorka.pomaz.szeredi.hu>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-
-Hi Miklos,
-
-Sending this to the list...
-
-> > 2.6.18 still calls get_user_pages will the NULL vma. I verified that
-> > the flush_cache_all patch made things work for me under 2.6.11
-> > (big-endian ARM) and 2.6.17 (little-endian ARM).
->
-> get_user_pages() should do the right thing on it's own.  So passing
-> NULL vma is the normal thing to do, and the workaround should not be
-> needed.
->
-> So if 2.6.18 works without the patch, then it's fixed, otherwise not.
-
-So 2.6.18 does NOT work on the ARM using the fuse.ko that gets built from the
-kernel sources.
-
-If I add the flush_cache_all() patch or the DCAHCE_BUG patch, then
-everything works fine.
-
-This was tested on my gumstix, which is an ARM XScale PXA255 running
-in little-endian mode, using 2.6.18. I was using the hello filesystem
-for the tests.
-
-- -- 
-Dave Hylands
-Vancouver, BC, Canada
-http://www.DaveHylands.com/
-------- End of forwarded message -------
+-- 
+Russell King
+ Linux kernel    2.6 ARM Linux   - http://www.arm.linux.org.uk/
+ maintainer of:  2.6 Serial core

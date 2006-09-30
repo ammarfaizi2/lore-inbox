@@ -1,109 +1,80 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751400AbWI3WC5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751399AbWI3WCw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751400AbWI3WC5 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Sep 2006 18:02:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751403AbWI3WC5
+	id S1751399AbWI3WCw (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Sep 2006 18:02:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751400AbWI3WCw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Sep 2006 18:02:57 -0400
-Received: from ogre.sisk.pl ([217.79.144.158]:60575 "EHLO ogre.sisk.pl")
-	by vger.kernel.org with ESMTP id S1751400AbWI3WC4 convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Sep 2006 18:02:56 -0400
-From: "Rafael J. Wysocki" <rjw@sisk.pl>
-To: Arnd Bergmann <arnd@arndb.de>
-Subject: Re: [PATCH -mm 1/3] swsusp: Add ioctl for swap files support
-Date: Sun, 1 Oct 2006 00:04:58 +0200
-User-Agent: KMail/1.9.1
-Cc: Pavel Machek <pavel@ucw.cz>, Andrew Morton <akpm@osdl.org>,
-       LKML <linux-kernel@vger.kernel.org>
-References: <200609290005.17616.rjw@sisk.pl> <200609302158.03692.rjw@sisk.pl> <200609302237.22086.arnd@arndb.de>
-In-Reply-To: <200609302237.22086.arnd@arndb.de>
+	Sat, 30 Sep 2006 18:02:52 -0400
+Received: from ns.suse.de ([195.135.220.2]:20381 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1751399AbWI3WCv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Sep 2006 18:02:51 -0400
+From: Andi Kleen <ak@suse.de>
+To: Linus Torvalds <torvalds@osdl.org>
+Subject: Re: BUG-lockdep and freeze (was: Arrr! Linux 2.6.18)
+Date: Sun, 1 Oct 2006 00:02:46 +0200
+User-Agent: KMail/1.9.3
+Cc: Eric Rannaud <eric.rannaud@gmail.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
+       nagar@watson.ibm.com, Chandra Seetharaman <sekharan@us.ibm.com>,
+       Jan Beulich <jbeulich@novell.com>
+References: <5f3c152b0609301220p7a487c7dw456d007298578cd7@mail.gmail.com> <200609302230.24070.ak@suse.de> <Pine.LNX.4.64.0609301449130.3952@g5.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0609301449130.3952@g5.osdl.org>
 MIME-Version: 1.0
 Content-Type: text/plain;
   charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-Message-Id: <200610010004.58984.rjw@sisk.pl>
+Message-Id: <200610010002.46634.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday, 30 September 2006 22:37, Arnd Bergmann wrote:
-> Am Saturday 30 September 2006 21:58 schrieb Rafael J. Wysocki:
-> > > Your definition looks wrong, '_IOW(SNAPSHOT_IOC_MAGIC, 13, void *)' means
-> > > your ioctl passes a pointer to a 'void *'.
-> > >
-> > > You probably mean
-> > >
-> > > #define SNAPSHOT_SET_SWAP_AREA _IOW(SNAPSHOT_IOC_MAGIC, 13, \
-> > >                                               struct resume_swap_area)
-> >
-> > No.  I mean the ioctl passes a pointer, the size of which is sizeof(void *).
+On Saturday 30 September 2006 23:56, Linus Torvalds wrote:
 > 
-> That's a very bad thing to do. It means that the ioctl number is different
-> between 32 and 64 bit and you need to write a conversion handler that
-> first reads your pointer and then then writes the real data.
+> On Sat, 30 Sep 2006, Andi Kleen wrote:
+> > 
+> > Anyways, I guess we need even more validation in the fallback code,
+> > but just terminating the kernel thread stacks should fix that particular case.
+> 
+> Why not just add the simple validation?
+> 
+> A kernel stack is one page in size. If you move to another page, you 
+> terminate. It's that simple.
 
-Ouch, I meant exactly what you said above, sorry.
-
-Now that means some other ioctl definitions in kernel/power/power.h are
-wrong, but I'm not sure what I should do.
-
-I think I'll just change the new definition and let the others stay as they
-are which is done in the appended patch.
-
-Thanks,
-Rafael
-
-
----
-Fix the SNAPSHOT_SET_SWAP_AREA ioctl definition.
-
-Signed-off-by: Rafael J. Wysocki <rjw@sisk.pl>
----
----
- kernel/power/power.h |   23 ++++++++++++-----------
- 1 file changed, 12 insertions(+), 11 deletions(-)
-
-Index: linux-2.6.18-mm2/kernel/power/power.h
-===================================================================
---- linux-2.6.18-mm2.orig/kernel/power/power.h
-+++ linux-2.6.18-mm2/kernel/power/power.h
-@@ -106,6 +106,16 @@ extern int snapshot_write_next(struct sn
- extern void snapshot_write_finalize(struct snapshot_handle *handle);
- extern int snapshot_image_loaded(struct snapshot_handle *handle);
+No, it's not. On x86-64 it can be three or more stacks nested in
+complicated ways (process stack, interrupt stack, exception stack)
+The exception stack can happen multiple times.
  
-+/*
-+ * This structure is used to pass the values needed for the identification
-+ * of the resume swap area from a user space to the kernel via the
-+ * SNAPSHOT_SET_SWAP_AREA ioctl
-+ */
-+struct resume_swap_area {
-+	loff_t offset;
-+	u_int32_t dev;
-+} __attribute__((packed));
-+
- #define SNAPSHOT_IOC_MAGIC	'3'
- #define SNAPSHOT_FREEZE			_IO(SNAPSHOT_IOC_MAGIC, 1)
- #define SNAPSHOT_UNFREEZE		_IO(SNAPSHOT_IOC_MAGIC, 2)
-@@ -119,19 +129,10 @@ extern int snapshot_image_loaded(struct 
- #define SNAPSHOT_SET_SWAP_FILE		_IOW(SNAPSHOT_IOC_MAGIC, 10, unsigned int)
- #define SNAPSHOT_S2RAM			_IO(SNAPSHOT_IOC_MAGIC, 11)
- #define SNAPSHOT_PMOPS			_IOW(SNAPSHOT_IOC_MAGIC, 12, unsigned int)
--#define SNAPSHOT_SET_SWAP_AREA		_IOW(SNAPSHOT_IOC_MAGIC, 13, void *)
-+#define SNAPSHOT_SET_SWAP_AREA		_IOW(SNAPSHOT_IOC_MAGIC, 13, \
-+							struct resume_swap_area)
- #define SNAPSHOT_IOC_MAXNR	13
+> What if the kernel stack is corrupt? Buffer overruns do that.
+> 
+> This patch seems to just paper over the _real_ problem, namely the fact 
+> that the stack tracer code doesn't actually validate any of its arguments.
+
+It has pretty good sanity checking by first using __get_user for the stack
+data, and the regularly double checking the EIPs by looking them up
+in CFI. If it can't find them it will abort.
+
+> The old unwinder (well, at least for x86, and I assume x86-64 used that as 
+> the beginning point) didn't have this problem at all, exactly because it 
+> couldn't get on the wrong stack-page in the first place.
+
+In this particular case what happened is that the dwarf2 unwinder
+ended and then the fallback was in the wrong page and couldn't handle 
+it.
  
--/*
-- * This structure is used to pass the values needed for the identification
-- * of the resume swap area from a user space to the kernel via the
-- * SNAPSHOT_SET_SWAP_AREA ioctl
-- */
--struct resume_swap_area {
--	loff_t offset;
--	u_int32_t dev;
--} __attribute__((packed));
--
- #define PMOPS_PREPARE	1
- #define PMOPS_ENTER	2
- #define PMOPS_FINISH	3
+> The old code literally had:
+> 
+> 	static inline int valid_stack_ptr(struct thread_info *tinfo, void *p)
+> 	{
+> 	        return  p > (void *)tinfo &&
+> 	                p < (void *)tinfo + THREAD_SIZE - 3;
+> 	}
+> 
+> and would refuse to touch anything that wasn't in the stack page. It was 
+> simple, AND WE NEVER _EVER_ HAD A BUG RELATED TO IT, AFAIK.
+
+That was before interrupt stacks were introduced. With that it is significantly
+more complicated. On x86-64 even more because there are exception stacks.
+
+-Andi

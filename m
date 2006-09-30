@@ -1,52 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750886AbWI3VEn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751936AbWI3VLT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750886AbWI3VEn (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Sep 2006 17:04:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751971AbWI3VEn
+	id S1751936AbWI3VLT (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Sep 2006 17:11:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751971AbWI3VLT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Sep 2006 17:04:43 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:34442 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1750886AbWI3VEm (ORCPT
+	Sat, 30 Sep 2006 17:11:19 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:51851 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751936AbWI3VLS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Sep 2006 17:04:42 -0400
-Date: Sat, 30 Sep 2006 14:04:26 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "Eric Rannaud" <eric.rannaud@gmail.com>
-Cc: linux-kernel@vger.kernel.org, "Linus Torvalds" <torvalds@osdl.org>,
-       mingo@elte.hu, nagar@watson.ibm.com
+	Sat, 30 Sep 2006 17:11:18 -0400
+Date: Sat, 30 Sep 2006 14:11:06 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Ingo Molnar <mingo@elte.hu>
+cc: Andi Kleen <ak@suse.de>, Eric Rannaud <eric.rannaud@gmail.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, nagar@watson.ibm.com,
+       Chandra Seetharaman <sekharan@us.ibm.com>,
+       Jan Beulich <jbeulich@novell.com>
 Subject: Re: BUG-lockdep and freeze (was: Arrr! Linux 2.6.18)
-Message-Id: <20060930140426.37918062.akpm@osdl.org>
-In-Reply-To: <5f3c152b0609301352w5bc52653s3e2a28e482c7d69e@mail.gmail.com>
+In-Reply-To: <20060930204900.GA576@elte.hu>
+Message-ID: <Pine.LNX.4.64.0609301406340.3952@g5.osdl.org>
 References: <5f3c152b0609301220p7a487c7dw456d007298578cd7@mail.gmail.com>
-	<20060930131310.0d6494e7.akpm@osdl.org>
-	<5f3c152b0609301352w5bc52653s3e2a28e482c7d69e@mail.gmail.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+ <Pine.LNX.4.64.0609301237460.3952@g5.osdl.org> <200609302230.24070.ak@suse.de>
+ <Pine.LNX.4.64.0609301344231.3952@g5.osdl.org> <20060930204900.GA576@elte.hu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 30 Sep 2006 22:52:12 +0200
-"Eric Rannaud" <eric.rannaud@gmail.com> wrote:
 
-> On 9/30/06, Andrew Morton <akpm@osdl.org> wrote:
-> > > On  a 16-way Opteron (8 dual-core 880) with 8GB of RAM, vanilla 2.6.18
-> > > crashes early on boot with a BUG.
-> >
-> > omg what a mess.  Have you tried it with lockdep disabled in config?
+
+On Sat, 30 Sep 2006, Ingo Molnar wrote:
 > 
-> Well, all I can say is that without lockdep it doesn't freeze right
-> away (and no BUG, but that's to be expected). I can stress test it if
-> you want, although it will take a while, if you think it might be a
-> false positive.
-> 
+> (i'd have been happy with an %rbp based unwinder for x86_64, in fact i 
+> implemented it for lockdep and used it for some time on x86_64, but Andi 
+> wanted a dwarf-based, lower-overhead one. Andi also nicely integrated it 
+> into stacktrace.c.)
 
-Well.  We always appreciate stress-testing, thanks.  But if that finds a
-bug, it's presumably a different one from this lockdep-vs-unwinder problem.
+I wouldn't mind the dawrf-based one so much, if it wasn't so obviously 
+crap.
 
-You could set CONFIG_UNWIND_INFO=n and CONFIG_STACK_UNWIND=n and reenable
-lockdep.  That will a) tell us if there's some lockdep problem and b) will
-give us a clearer look at any locking problems which your kernel is
-detecting.
+It could - and _should_ dammit! - do some basic sanity tests like "is the 
+thing even in the same stack page"? But nooo... It seems _designed_ to be 
+fragile and broken.
 
+Here's a simple test: if the next stack-slot isn't on the same page, the 
+unwind information is bogus unless you had the IRQ stack-switch signature 
+there. Does the code do that? No. It just assumes that unwind information 
+is complete and perfect.
+
+That's not the kind of code we write in the kernel. In the kernel, we 
+write code that _works_, regardless of the kind of horrible stuff people 
+feed it. That's _doubly_ true for something like a stack frame debugger, 
+which is invoced when there is trouble, and for all we know the stack 
+itself MIGHT BE CORRUPT.
+
+In short, I think the stack unwinder is just _broken_. It has made all the 
+wrong policy decisions - it only works when everything is perfect, yet 
+it's actually meant to be _used_ when somethign bad happened. Doesn't that 
+strike anybody else as a totally flawed design?
+
+It damn well should.
+
+		Linus

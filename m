@@ -1,182 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751645AbWI3WyT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751667AbWI3Wyk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751645AbWI3WyT (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Sep 2006 18:54:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751659AbWI3WyT
+	id S1751667AbWI3Wyk (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Sep 2006 18:54:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751665AbWI3Wyk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Sep 2006 18:54:19 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:60067 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751631AbWI3WyS (ORCPT
+	Sat, 30 Sep 2006 18:54:40 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:420 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751661AbWI3Wyi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Sep 2006 18:54:18 -0400
-Date: Sat, 30 Sep 2006 15:54:10 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "Chris Lee" <labmonkey42@gmail.com>
-Cc: <linux-kernel@vger.kernel.org>, "Ju, Seokmann" <Seokmann.Ju@lsil.com>,
-       linux-scsi@vger.kernel.org, Neela.Kolli@engenio.com
-Subject: Re: Problem with legacy megaraid
-Message-Id: <20060930155410.8238c195.akpm@osdl.org>
-In-Reply-To: <451e87fa.60a54fb4.44c0.4562@mx.gmail.com>
-References: <451e87fa.60a54fb4.44c0.4562@mx.gmail.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sat, 30 Sep 2006 18:54:38 -0400
+Date: Sat, 30 Sep 2006 15:54:20 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Andi Kleen <ak@suse.de>
+cc: Ingo Molnar <mingo@elte.hu>, Eric Rannaud <eric.rannaud@gmail.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>, nagar@watson.ibm.com,
+       Chandra Seetharaman <sekharan@us.ibm.com>,
+       Jan Beulich <jbeulich@novell.com>
+Subject: Re: BUG-lockdep and freeze (was: Arrr! Linux 2.6.18)
+In-Reply-To: <200609302357.06215.ak@suse.de>
+Message-ID: <Pine.LNX.4.64.0609301548270.3952@g5.osdl.org>
+References: <5f3c152b0609301220p7a487c7dw456d007298578cd7@mail.gmail.com>
+ <20060930204900.GA576@elte.hu> <Pine.LNX.4.64.0609301406340.3952@g5.osdl.org>
+ <200609302357.06215.ak@suse.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 30 Sep 2006 10:06:36 -0500
-"Chris Lee" <labmonkey42@gmail.com> wrote:
-
-> I am not subscribed to this list.  Please CC me on replies.
-
-(more cc's added)
-
-> I have a machine I'm trying to use as a file server.  I have a RAID10 and a
-> RAID5 on a single Dell PERC2/DC (AMI Megaraid 467) controller.  Both arrays
-> are also on the same SCSI channel.  The system runs fine for days on end
-> until I put some heavy I/O load on either array and sustain it for a few
-> seconds.
-
-We recently discovered that "The old megaraid driver is apparently borken
-for firmware newer than 6.61.".  So please check that and see if a
-downgrade is needed.
-
-Is there some reason why you cannot use the new megaraid driver?
 
 
-> Distro: Gentoo Linux
-> Kernel: 2.6.17-gentoo-r7
+On Sat, 30 Sep 2006, Andi Kleen wrote:
 > 
-> Hardware:
-> Motherboard: Tyan Thunder i7501 Pro (S2721-533)
-> CPUs: Dual 2.8Ghz P4 HT Xeons
-> RAM: 4GB registered (3/1 split, flat model)
-> RAID: Dell PERC2/DC (AMI Megaraid 467)
-> SCSI: Adaptec AHA-2940U2/U2W PCI
-> NICs: onboard e100 and dual onboard e1000
-> 
-> There are 14 hard drives on channel 0 of the perc2/dc.  IDs 1-6 are RAID10
-> mounted in an external enclosure; IDs 8-15 are RAID5 mounted internally.
-> The I/O problems occur on either array, which suggests to me that it is not
-> a cabling issue.
-> 
-> To reproduce the problem for the purpose of this email I ran `bonnie++ -d
-> /home/nobody -u nobody:nogroup` where /home is the mountpoint of the RAID5
-> and bonnie++ created an 8GB file.  I have reproduced this problem numerous
-> times and the sustained I/O time required to create the fault varies.  Once
-> it happened running a ./configure script for some rather small package.
-> However, this time it took approximately 20-30 minutes before it freaked
-> out.
-> 
-> Once the problem occurs I have to reboot the machine to regain use of the
-> affected array(s).  I should note that the controller bios finds nothing
-> wrong with the arrays, and when e2fsck is forced on boot it replays the
-> journal and reports no other problems aside from a "Superblock last write
-> time is in the future.  FIXED." which I attribute to a misconfiguration on
-> my part for saving system time to hardware clock.  If I attempt to unmount
-> the array and mount it again without rebooting I get an error message that
-> sdXX is not a valid block device.
-> 
-> Logs/info:
-> 
-> active vt says (this is copied via eyeball):
-> [4513644.094000] ext3_aboart called.
-> [4513644.101000] EXT3-fs error (device sdb1): ext3_journal_start_sb: <3>sd
-> 0:0:1:0: rejecting I/O to offline device
-> [4513644.109000] Remounting filesystem read-only
-> 
-> dmesg stuff about megaraid:
-> [4294675.180000] megaraid: found 0x8086:0x1960:bus 3:slot 3:func 1
-> [4294675.191000] scsi0:Found MegaRAID controller at 0xf8806000, IRQ:177
-> [4294675.254000] megaraid: [1.06:1p00] detected 2 logical drives.
-> [4294675.316000] megaraid: channel[0] is raid.
-> [4294675.326000] megaraid: channel[1] is raid.
-> [4294675.362000] scsi0 : LSI Logic MegaRAID 1.06 254 commands 16 targs 5
-> chans 7 luns
-> [4294675.372000] scsi0: scanning scsi channel 0 for logical drives.
-> [4294675.383000]   Vendor: MegaRAID  Model: LD0 RAID1 09634R  Rev: 1.06
-> [4294675.393000]   Type:   Direct-Access                      ANSI SCSI
-> revision: 02
-> [4294675.404000]   Vendor: MegaRAID  Model: LD1 RAID5 38288R  Rev: 1.06
-> [4294675.415000]   Type:   Direct-Access                      ANSI SCSI
-> revision: 02
-> [4294675.428000] scsi0: scanning scsi channel 4 [P0] for physical devices.
-> [4294675.726000] scsi0: scanning scsi channel 5 [P1] for physical devices.
-> [4294680.126000] megaraid cmm: 2.20.2.6 (Release Date: Mon Mar 7 00:01:03
-> EST 2005)
-> [4294680.136000] megaraid: 2.20.4.8 (Release Date: Mon Apr 11 12:27:22 EST
-> 2006)
-> [4294680.157000] SCSI device sda: 429330432 512-byte hdwr sectors (219817
-> MB)
-> [4294680.167000] sda: Write Protect is off
-> [4294680.198000] SCSI device sda: 429330432 512-byte hdwr sectors (219817
-> MB)
-> [4294680.208000] sda: Write Protect is off
-> [4294680.237000]  sda: sda1 sda2
-> [4294680.247000] sd 0:0:0:0: Attached scsi disk sda
-> [4294680.257000] SCSI device sdb: 2126413824 512-byte hdwr sectors (1088724
-> MB)
-> [4294680.267000] sdb: Write Protect is off
-> [4294680.296000] SCSI device sdb: 2126413824 512-byte hdwr sectors (1088724
-> MB)
-> [4294680.305000] sdb: Write Protect is off
-> [4294680.334000]  sdb: sdb1
-> [4294680.345000] sd 0:0:1:0: Attached scsi disk sdb
-> [4294680.355000] sd 0:0:0:0: Attached scsi generic sg0 type 0
-> [4294680.365000] sd 0:0:1:0: Attached scsi generic sg1 type 0
-> 
-> /var/log/messages:
-> Sep 29 07:46:16 hostname kernel: [4513615.601000] sd 0:0:1:0: SCSI error:
-> return code = 0x40001
-> Sep 29 07:46:16 hostname kernel: [4513615.601000] end_request: I/O error,
-> dev sdb, sector 1744348567
-> Sep 29 07:46:16 hostname kernel: [4513615.601000] Buffer I/O error on device
-> sdb1, logical block 218043563
-> Sep 29 07:46:16 hostname kernel: [4513615.601000] lost page write due to I/O
-> error on sdb1
-> Sep 29 07:46:16 hostname kernel: [4513615.601000] sd 0:0:1:0: SCSI error:
-> return code = 0x40001
-> Sep 29 07:46:16 hostname kernel: [4513615.601000] end_request: I/O error,
-> dev sdb, sector 1744348695
-> Sep 29 07:46:16 hostname kernel: [4513615.601000] Buffer I/O error on device
-> sdb1, logical block 218043579
-> Sep 29 07:46:16 hostname kernel: [4513615.601000] lost page write due to I/O
-> error on sdb1
-> Sep 29 07:46:16 hostname kernel: [4513615.778000] sd 0:0:1:0: SCSI error:
-> return code = 0x40001
-> Sep 29 07:46:16 hostname kernel: [4513615.778000] end_request: I/O error,
-> dev sdb, sector 1744348823
-> Sep 29 07:46:16 hostname kernel: [4513615.778000] Buffer I/O error on device
-> sdb1, logical block 218043595
-> Sep 29 07:46:16 hostname kernel: [4513615.778000] lost page write due to I/O
-> error on sdb1
-> Sep 29 07:46:16 hostname kernel: [4513615.778000] sd 0:0:1:0: SCSI error:
-> return code = 0x40001
-> Sep 29 07:46:44 hostname kernel: [4513615.778000] end_request: I/O error,
-> dev sdb, sector 1744348951
-> Sep 29 07:46:44 hostname kernel: [4513615.778000] Buffer I/O error on device
-> sdb1, logical block 218043611
-> Sep 29 07:46:44 hostname kernel: [4513615.778000] lost page write due to I/O
-> error on sdb1
-> Sep 29 07:46:44 hostname kernel: [4513615.778000] sd 0:0:1:0: SCSI error:
-> return code = 0x40001
-> Sep 29 07:46:44 hostname kernel: [4513615.778000] end_request: I/O error,
-> dev sdb, sector 1744348959
-> Sep 29 07:46:44 hostname kernel: [4513615.778000] Buffer I/O error on device
-> sdb1, logical block 218043612
-> Sep 29 07:46:44 hostname kernel: [4513615.778000] lost page write due to I/O
-> error on sdb1
-> Sep 29 07:46:44 hostname kernel: [4513643.303000] sd 0:0:1:0: rejecting I/O
-> to offline device
-> Sep 29 07:46:44 hostname last message repeated 92 times
-> 
-> The last two lines repeat as long as something continues trying to access
-> that logical drive.
-> 
-> If any other logs/info would be useful please let me know and I will by
-> happy to include them.  TIA for any help.  Also I apologise if this is not
-> relevant for the list.
-> 
-> Thanks,
-> Chris 
+> That wouldn't work with interrupt stacks.
+
+Andi.
+
+Please spend even just a few minutes looking at the old i386 code.
+
+> The old unwinder code had a state machine to deal with them, but it was 
+> distingustingly complicated (there are nasty corner cases where you can 
+> be in multiple interrupt stacks nested). I'm not sure we would have 
+> really wanted to retain that.
+
+Here's what the old code did:
+
+	frameptr = initialize frame code
+	while (1) {
+		struct thread_info *context;
+		context = (struct thread_info *)
+			((unsigned long)stack & (~(THREAD_SIZE - 1)));
+		frameptr = print_context_stack(context, stack, frameptr, log_lvl);
+		stack = (unsigned long*)context->previous_esp;
+		if (!stack)
+			break;
+		printk(" =======================\n");
+	}
+
+it it really was that simple. The actual frame-following code was in 
+"print_context_stack()", and it works entirely within a single stack page, 
+and returns once it is outside that stack page. 
+
+There is absolutely ZERO problem with new pages through interrupt stacks 
+etc, because we don't even trust the stack contents for that, we just 
+follow the stack context pointers that we _can_ trust.
+
+		Linus

@@ -1,49 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422877AbWI3BpI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422883AbWI3ByK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422877AbWI3BpI (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Sep 2006 21:45:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422879AbWI3BpI
+	id S1422883AbWI3ByK (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Sep 2006 21:54:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422882AbWI3ByK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Sep 2006 21:45:08 -0400
-Received: from madara.hpl.hp.com ([192.6.19.124]:55265 "EHLO madara.hpl.hp.com")
-	by vger.kernel.org with ESMTP id S1422877AbWI3BpG (ORCPT
+	Fri, 29 Sep 2006 21:54:10 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:1462 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932410AbWI3ByJ (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Sep 2006 21:45:06 -0400
-Date: Fri, 29 Sep 2006 18:40:43 -0700
-To: Andrew Morton <akpm@osdl.org>
-Cc: Valdis.Kletnieks@vt.edu, "John W. Linville" <linville@tuxdriver.com>,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Subject: Re: 2.6.18-mm2 - oops in cache_alloc_refill()
-Message-ID: <20060930014043.GA10927@bougret.hpl.hp.com>
-Reply-To: jt@hpl.hp.com
-References: <20060928014623.ccc9b885.akpm@osdl.org> <200609290319.k8T3JOwS005455@turing-police.cc.vt.edu> <20060928202931.dc324339.akpm@osdl.org> <200609291519.k8TFJfvw004256@turing-police.cc.vt.edu> <20060929124558.33ef6c75.akpm@osdl.org> <200609300001.k8U01sPI004389@turing-police.cc.vt.edu> <20060929182008.fee2a229.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060929182008.fee2a229.akpm@osdl.org>
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: jt@hpl.hp.com
-User-Agent: Mutt/1.5.9i
-From: Jean Tourrilhes <jt@hpl.hp.com>
-X-HPL-MailScanner: Found to be clean
-X-HPL-MailScanner-From: jt@hpl.hp.com
+	Fri, 29 Sep 2006 21:54:09 -0400
+Date: Fri, 29 Sep 2006 18:54:04 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Andi Kleen <ak@suse.de>
+cc: linux-kernel@vger.kernel.org, discuss@x86-64.org
+Subject: Re: Please pull x86 update
+In-Reply-To: <200609300155.26250.ak@suse.de>
+Message-ID: <Pine.LNX.4.64.0609291851430.3952@g5.osdl.org>
+References: <200609300155.26250.ak@suse.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 29, 2006 at 06:20:08PM -0700, Andrew Morton wrote:
-> On Fri, 29 Sep 2006 20:01:54 -0400
-> > 
-> > A quick strace of gkrellm finds these likely ioctl's causing the problem:
-> > 
-> > % grep ioctl /tmp/foo2 | sort -u | more
-> > ioctl(13, SIOCGIWESSID, 0xbfbcdb9c)     = 0
-> > ioctl(13, SIOCGIWRANGE, 0xbfbcdbdc)     = 0
-> > ioctl(13, SIOCGIWRATE, 0xbfbcdbbc)      = 0
 
-	Excuse me, can you point out wich version of gkrellm you use
-and where to find it, the only version that is listed on my page does
-not use the ESSID ioctl. I want to be sure I'm looking at the same
-thing as you are...
 
-	Jean
+On Sat, 30 Sep 2006, Andi Kleen wrote:
+> 
+> Linus,  please pull from
+> 
+> 	git://one.firstfloor.org/home/andi/git/linux-2.6 for-linus
+
+Do we haev a typo again, or perhaps a forgotten-to-execute git-daemon:
+
+	fatal: unexpected EOF
+	Fetch failure: git://one.firstfloor.org/home/andi/git/linux-2.6
+
+(git-daemon is fairly security-conscious, so it won't actually tell you 
+what's wrong - quite on purpose. I didn't want people to be able to just 
+try different paths to see if certain files exist, so the anonymous 
+daemon basically gives no indication of why it's unhappy)
+
+		Linus

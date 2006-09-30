@@ -1,58 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751996AbWI3VoJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751966AbWI3VrH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751996AbWI3VoJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Sep 2006 17:44:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751981AbWI3VoJ
+	id S1751966AbWI3VrH (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Sep 2006 17:47:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751981AbWI3VrH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Sep 2006 17:44:09 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:458 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1751991AbWI3VoF (ORCPT
+	Sat, 30 Sep 2006 17:47:07 -0400
+Received: from xenotime.net ([66.160.160.81]:34472 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1751966AbWI3VrD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Sep 2006 17:44:05 -0400
-Date: Sat, 30 Sep 2006 23:35:41 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Dipankar Sarma <dipankar@in.ibm.com>
-Cc: Andrew Morton <akpm@osdl.org>, Thomas Gleixner <tglx@linutronix.de>,
-       "Paul E. McKenney" <paulmck@us.ibm.com>,
-       LKML <linux-kernel@vger.kernel.org>, Jim Gettys <jg@laptop.org>,
-       John Stultz <johnstul@us.ibm.com>,
-       David Woodhouse <dwmw2@infradead.org>,
-       Arjan van de Ven <arjan@infradead.org>, Dave Jones <davej@redhat.com>
-Subject: Re: [patch 08/23] dynticks: prepare the RCU code
-Message-ID: <20060930213541.GA13629@elte.hu>
-References: <20060929234435.330586000@cruncher.tec.linutronix.de> <20060929234439.721237000@cruncher.tec.linutronix.de> <20060930013641.263a1cc3.akpm@osdl.org> <20060930122514.GC8763@in.ibm.com> <20060930130958.GA12021@elte.hu> <20060930135226.GF8763@in.ibm.com>
+	Sat, 30 Sep 2006 17:47:03 -0400
+Date: Sat, 30 Sep 2006 14:48:30 -0700
+From: Randy Dunlap <rdunlap@xenotime.net>
+To: Stefan Richter <stefanr@s5r6.in-berlin.de>
+Cc: Miguel Ojeda Sandonis <maxextreme@gmail.com>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.18 V6] drivers: add lcd display support
+Message-Id: <20060930144830.eba63268.rdunlap@xenotime.net>
+In-Reply-To: <451EE36C.5080002@s5r6.in-berlin.de>
+References: <20060930132253.8ccaa0ad.maxextreme@gmail.com>
+	<20060930123547.d055383f.rdunlap@xenotime.net>
+	<451EE36C.5080002@s5r6.in-berlin.de>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060930135226.GF8763@in.ibm.com>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -2.8
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.8 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.4999]
-	-0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sat, 30 Sep 2006 23:36:44 +0200 Stefan Richter wrote:
 
-* Dipankar Sarma <dipankar@in.ibm.com> wrote:
-
-> > secondly, i think i saw functionality problems when RCU was not 
-> > completed before going idle - for example synchronize_rcu() on 
-> > another CPU would hang.
+> ...
+> >> patching file drivers/lcddisplay/cfag12864b.c
+> ...
 > 
-> That is probably because of what I mention above. In the original 
-> CONFIG_NO_IDLE_HZ, we don't go into a nohz state if there are RCUs 
-> pending in that cpu.
+> What does the D in LCD stand for? I suggest this is named
+> drivers/lcdisplay/ instead.
 
-hm. I just tried it and it seems completing RCU processing isnt even 
-necessary. I'll drop the RCU hackery. If we need anything then in 
-synchronize_rcu [which is a rare and slowpath op]: there (on NO_HZ) we 
-should tickle all cpus via an smp_call_function().
+Yes, someone else mentioned that too.
+It does mean Display.
+not a big deal to me in this age of acronyms.
 
-	Ingo
+---
+~Randy

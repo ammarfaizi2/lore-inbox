@@ -1,54 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751365AbWI3SZw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751369AbWI3Scm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751365AbWI3SZw (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Sep 2006 14:25:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751369AbWI3SZw
+	id S1751369AbWI3Scm (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Sep 2006 14:32:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751372AbWI3Scm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Sep 2006 14:25:52 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:26807 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S1751365AbWI3SZv (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Sep 2006 14:25:51 -0400
-Subject: Re: 2.6.18-rt1
-From: Lee Revell <rlrevell@joe-job.com>
-To: dipankar@in.ibm.com
-Cc: Ingo Molnar <mingo@elte.hu>, linux-kernel@vger.kernel.org,
-       Thomas Gleixner <tglx@linutronix.de>, John Stultz <johnstul@us.ibm.com>,
-       "Paul E. McKenney" <paulmck@us.ibm.com>,
-       Arjan van de Ven <arjan@infradead.org>
-In-Reply-To: <20060930181804.GA28768@in.ibm.com>
-References: <20060920141907.GA30765@elte.hu>
-	 <1159639564.4067.43.camel@mindpipe>  <20060930181804.GA28768@in.ibm.com>
-Content-Type: text/plain
-Date: Sat, 30 Sep 2006 14:25:55 -0400
-Message-Id: <1159640756.4067.47.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+	Sat, 30 Sep 2006 14:32:42 -0400
+Received: from nf-out-0910.google.com ([64.233.182.185]:2609 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1751370AbWI3Scl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Sep 2006 14:32:41 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=O+sndXpyW67vvzKjhsOQpPm37cyIjk9hLPTomq7Mj5J0SeMkE0qMUNFwRMwjwFxNPEu4wQZH7VCXqg3gKr1PA5Jq+ylvEz8W2Wd1re6sSCOrqB4jdkEnOWXo6aq2M3GnERGRHKOm4oK4lkFMbZIhmhtETCoiJWwPwzYOJ3F47iA=
+Message-ID: <4727185d0609301132y6a6899eapa05d37c52d2eaab@mail.gmail.com>
+Date: Sat, 30 Sep 2006 20:32:40 +0200
+From: "Vincent Legoll" <vincent.legoll@gmail.com>
+To: "Andi Kleen" <ak@suse.de>
+Subject: Re: [PATCH] off-by-one in kernel command line option parsing
+Cc: "Vincent Legoll" <legoll@online.fr>, linux-kernel@vger.kernel.org,
+       torvalds@osdl.org
+In-Reply-To: <200609302025.17903.ak@suse.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <451EB56C.9020105@online.fr> <200609302025.17903.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-09-30 at 23:48 +0530, Dipankar Sarma wrote:
-> On Sat, Sep 30, 2006 at 02:06:04PM -0400, Lee Revell wrote:
-> > I got this Oops with -rt3, looks RCU related.  Apologies in advance if
-> > it's already known.
-> > 
-> > Unable to handle kernel NULL pointer dereference at 0000000000000000 RIP: 
-> >  [<ffffffff802aafa7>] __rcu_read_unlock+0x2e/0x82
-> > PGD 46a3067 PUD 4e27067 PMD 0 
-> > Oops: 0002 [1] PREEMPT SMP 
-> > CPU 1 
-> 
-> I see a very similar crash while running rcutorture on 2.6.18-mm1 and
-> my rcu patchset that has rcupreempt stuff rom -rt. I don't see this
-> while running on 2.6.18-rc3, but then rc3 had an older version
-> of rcutorture. I am working on narrowing it down.
-> 
-> The following script reproduces the problem quickly (within
-> a couple of minutes) in my 4-cpu x86_64 system -
+On 9/30/06, Andi Kleen <ak@suse.de> wrote:
+> That code is already gone in the latest tree.
 
-Let me know if you want more info such as config.  I was compiling a
-kernel when the Oops occurred.  System is Athlon X2.
+OK, I fumbled with git and checked a not-so-recent
+snapshot. Sorry for the noise.
 
-Lee
-
+-- 
+Vincent Legoll

@@ -1,68 +1,86 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751174AbWI3Izf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751162AbWI3I4l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751174AbWI3Izf (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Sep 2006 04:55:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751175AbWI3Izf
+	id S1751162AbWI3I4l (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Sep 2006 04:56:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751178AbWI3I4l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Sep 2006 04:55:35 -0400
-Received: from pasmtpb.tele.dk ([80.160.77.98]:35797 "EHLO pasmtpB.tele.dk")
-	by vger.kernel.org with ESMTP id S1751174AbWI3Izd (ORCPT
+	Sat, 30 Sep 2006 04:56:41 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:51878 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751162AbWI3I4k (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Sep 2006 04:55:33 -0400
-Date: Sat, 30 Sep 2006 10:55:32 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: x z <dealup@yahoo.com>
-Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Subject: Re: Makefile for linux modules
-Message-ID: <20060930085532.GA13745@uranus.ravnborg.org>
-References: <20060929182008.fee2a229.akpm@osdl.org> <20060930015700.26045.qmail@web52812.mail.yahoo.com>
+	Sat, 30 Sep 2006 04:56:40 -0400
+Date: Sat, 30 Sep 2006 01:49:31 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Thomas Gleixner <tglx@linutronix.de>, Dmitry Torokhov <dtor@mail.ru>
+Cc: LKML <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>,
+       Jim Gettys <jg@laptop.org>, John Stultz <johnstul@us.ibm.com>,
+       David Woodhouse <dwmw2@infradead.org>,
+       Arjan van de Ven <arjan@infradead.org>, Dave Jones <davej@redhat.com>
+Subject: Re: [patch 23/23] dynticks: decrease I8042_POLL_PERIOD
+Message-Id: <20060930014931.230c5fdb.akpm@osdl.org>
+In-Reply-To: <20060929234441.435573000@cruncher.tec.linutronix.de>
+References: <20060929234435.330586000@cruncher.tec.linutronix.de>
+	<20060929234441.435573000@cruncher.tec.linutronix.de>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060930015700.26045.qmail@web52812.mail.yahoo.com>
-User-Agent: Mutt/1.4.2.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Robert.
+On Fri, 29 Sep 2006 23:58:43 -0000
+Thomas Gleixner <tglx@linutronix.de> wrote:
 
->    I have a makefielt to make several driver modules:
-> obj-$(CONFIG_FUSION_SPI)	+= mptbase.o mptscsih.o
-> mptspi.o
-> obj-$(CONFIG_FUSION_FC)		+= mptbase.o mptscsih.o
-> mptfc.o
-> obj-m				+= mptbase.o mptscsih.o mptsas.o
-> obj-$(CONFIG_FUSION_LAN)	+= mptlan.o
-> obj-m				+= mptctl.o
-> obj-m                           += mptcfg.o
-> obj-m                       +=mptstm.o
+> From: Ingo Molnar <mingo@elte.hu>
+> 
+> decrease the rate of timers going off. Also work around apparent
+> kbd-init bug by making the first timeout short.
+> 
 
-The above kbuild file snippet tells us that you are creating
-a number of modules:
-mptbase.ko mptscsih.ko mptsas.ko mptlan.ko mptctl.ko mtpcfg.ko and mptstm.ko
-They are each build from a single .c file.
+Again, please don't make unrelated kernel functions behave differently like
+this.
 
-> mptbase-objs             := comfunc.o
+> 
+> Index: linux-2.6.18-mm2/drivers/input/serio/i8042.c
+> ===================================================================
+> --- linux-2.6.18-mm2.orig/drivers/input/serio/i8042.c	2006-09-30 01:41:08.000000000 +0200
+> +++ linux-2.6.18-mm2/drivers/input/serio/i8042.c	2006-09-30 01:41:20.000000000 +0200
+> @@ -1101,7 +1101,7 @@ static int __devinit i8042_probe(struct 
+>  		goto err_controller_cleanup;
+>  	}
+>  
+> -	mod_timer(&i8042_timer, jiffies + I8042_POLL_PERIOD);
+> +	mod_timer(&i8042_timer, jiffies + 2); //I8042_POLL_PERIOD);
+>  	return 0;
+>  
+>   err_unregister_ports:
+> Index: linux-2.6.18-mm2/drivers/input/serio/i8042.h
+> ===================================================================
+> --- linux-2.6.18-mm2.orig/drivers/input/serio/i8042.h	2006-09-30 01:41:08.000000000 +0200
+> +++ linux-2.6.18-mm2/drivers/input/serio/i8042.h	2006-09-30 01:41:20.000000000 +0200
+> @@ -43,7 +43,7 @@
+>   * polling.
+>   */
+>  
+> -#define I8042_POLL_PERIOD	HZ/20
+> +#define I8042_POLL_PERIOD	(10*HZ)
 
-Now you try to include confunc.o in every module.
-To do so you need to tell kbuild that you are dealing with a module
-based on composite .o files.
-That would look like:
-obj-$(CONFIG_FUSION_PCI) += mptbase-foo.o
-mtpbase-foo-y := comfunc.o mptbase.o
+That's a huge change.  Perhaps the interval was too short in the first
+case.  I guess waiting ten seconds for your keyboard or mouse to come to
+life after hot-add is liveable with.
 
-This will result in a module named mtpbase-foo.ko which is hardly what
-you try to achive. Likewise you will have duplicate symbols in the
-modules due to comfunc.o being included more than once.
+But whatever.  This timer gets deleted in Dmitry's current development tree:
 
-The only sane approce here is to compile comfunc.o as an independent
-module and let the modutils pull in the comfunc (deservers a more
-specific name) module as needed.
+commit de9ce703c6b807b1dfef5942df4f2fadd0fdb67a
+Author: Dmitry Torokhov <dtor@insightbb.com>
+Date:   Sun Sep 10 21:57:21 2006 -0400
 
-So what you need to do is simply:
-obj-m += comfunc.o
+    Input: i8042 - get rid of polling timer
+    
+    Remove polling timer that was used to detect keybord/mice hotplug and
+    register both IRQs right away instead of waiting for a driver to
+    attach to a port.
+    
+    Signed-off-by: Dmitry Torokhov <dtor@mail.ru>
 
-And accept this is a module so all symbols that you needs must be properly
-exported using EXPORT_SYMBOL*
-
-	Sam
+so problem solved.

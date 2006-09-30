@@ -1,39 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751021AbWI3OVf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751005AbWI3Oeg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751021AbWI3OVf (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Sep 2006 10:21:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751019AbWI3OVf
+	id S1751005AbWI3Oeg (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Sep 2006 10:34:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751020AbWI3Oeg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Sep 2006 10:21:35 -0400
-Received: from 1wt.eu ([62.212.114.60]:33299 "EHLO 1wt.eu")
-	by vger.kernel.org with ESMTP id S1751014AbWI3OVe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Sep 2006 10:21:34 -0400
-Date: Sat, 30 Sep 2006 15:51:22 +0200
-From: Willy Tarreau <w@1wt.eu>
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Cc: Frederik Deweerdt <deweerdt@free.fr>, Matthew Wilcox <matthew@wil.cx>,
-       "J.A. Magall??n" <jamagallon@ono.com>, Andrew Morton <akpm@osdl.org>,
-       "Linux-Kernel," <linux-kernel@vger.kernel.org>,
-       linux-scsi@vger.kernel.org
-Subject: Re: [-mm patch] aic7xxx: check irq validity (was Re: 2.6.18-mm2)
-Message-ID: <20060930135122.GP541@1wt.eu>
-References: <20060928014623.ccc9b885.akpm@osdl.org> <20060929155738.7076f0c8@werewolf> <20060929143949.GL5017@parisc-linux.org> <1159550143.13029.36.camel@localhost.localdomain> <20060929235054.GB2020@slug> <1159573404.13029.96.camel@localhost.localdomain> <20060930140946.GA1195@slug> <1159625954.13029.136.camel@localhost.localdomain>
+	Sat, 30 Sep 2006 10:34:36 -0400
+Received: from fmmailgate01.web.de ([217.72.192.221]:35290 "EHLO
+	fmmailgate01.web.de") by vger.kernel.org with ESMTP
+	id S1750996AbWI3Oef (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Sep 2006 10:34:35 -0400
+Subject: Re: [PATCH] Remove logic error in /Documentation/devices.txt
+From: Marcus Fischer <marcus-fischer@web.de>
+Reply-To: marcus-fischer@web.de
+To: linux-kernel@vger.kernel.org
+In-Reply-To: <1159568565.11062.9.camel@mflaptop>
+References: <1159568565.11062.9.camel@mflaptop>
+Content-Type: text/plain
+Date: Sat, 30 Sep 2006 16:35:56 +0200
+Message-Id: <1159626956.14558.2.camel@mflaptop>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1159625954.13029.136.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.11
+X-Mailer: Evolution 2.8.0-1mdv2007.0 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Sep 30, 2006 at 03:19:14PM +0100, Alan Cox wrote:
-> Ar Sad, 2006-09-30 am 14:09 +0000, ysgrifennodd Frederik Deweerdt:
-> > Signed-off-by: Frederik Deweerdt <frederik.deweerdt@gmail.com>
+Please CC: me, I'm not subscribed to the LKML.
+
+Thanks,
+Marcus
+
+
+
+Am Samstag, den 30.09.2006, 00:22 +0200 schrieb Marcus Fischer:
+> commit 51f3fe947923f6e775031cc1d538de6cf06ec77d
+> Author: Marcus Fischer <linux@marcusfischer.com>
+> Date:   Fri Sep 29 23:50:01 2006 +0200
 > 
-> Acked-by: Alan Cox <alan@redhat.com>
-
-It seems to me that it's also valid for 2.4. Has someone any objection ?
-
-Willy
+>     I found an logic error in the following commit:
+>     
+>         author    Steven Haigh <netwiz@crc.id.au>
+>                 Tue, 8 Aug 2006 21:42:06 +0000 (07:42 +1000)
+>         committer  Greg Kroah-Hartman <gregkh@suse.de>
+>            Wed, 27 Sep 2006 18:58:59 +0000 (11:58 -0700)
+>         commit    03270634e242dd10cc8569d31a00659d25b2b8e7
+>         tree    8f4665eb7b17386e733fcdc7d02e87c4a1592550
+>         parent    8ac283ad415358f022498887811c35ac656b5222
+>     
+>     Documentation/devices.txt may either say ../adutux10 11th Ontrack
+> ADU device
+>     or ../adutux9 10th Ontrack ADU device.
+>     
+>     Anyway, the original one makes no sense.
+>     
+>     + 67 = /dev/usb/adutux0 1st Ontrak ADU device
+>     + ...
+>     + 76 = /dev/usb/adutux10 10th Ontrak ADU device
+>     
+>     This patch removes the logic error.
+>     
+>     However, I saw that MAX_DEVICES is 16.
+>     Thus, shouldn't this docu then say:
+>     "81 = /dev/usb/adutux15 16th Ontrack ADU device" ?
+> 
+>     CU, Marcus
+> 
+> 
+> Signed-off-by: Marcus Fischer <linux@marcusfischer.com>
+> ---
+> 
+> diff --git a/Documentation/devices.txt b/Documentation/devices.txt
+> index addc67b..37efae8 100644
+> --- a/Documentation/devices.txt
+> +++ b/Documentation/devices.txt
+> @@ -2545,7 +2545,7 @@ Your cooperation is appreciated.
+> 66 = /dev/usb/cpad0 Synaptics cPad (mouse/LCD)
+> 67 = /dev/usb/adutux0 1st Ontrak ADU device
+>     ...
+> - 76 = /dev/usb/adutux10 10th Ontrak ADU device
+> + 76 = /dev/usb/adutux9 10th Ontrak ADU device
+> 96 = /dev/usb/hiddev0 1st USB HID device
+>     ...
+> 111 = /dev/usb/hiddev15 16th USB HID device
+> 
+> 
+> 
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 

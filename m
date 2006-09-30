@@ -1,51 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750704AbWI3DPj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750728AbWI3DeS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750704AbWI3DPj (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Sep 2006 23:15:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750705AbWI3DPj
+	id S1750728AbWI3DeS (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Sep 2006 23:34:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750729AbWI3DeS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Sep 2006 23:15:39 -0400
-Received: from pop5-1.us4.outblaze.com ([205.158.62.125]:36239 "HELO
-	pop5-1.us4.outblaze.com") by vger.kernel.org with SMTP
-	id S1750704AbWI3DPi (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Sep 2006 23:15:38 -0400
-From: "Peter T. Breuer" <ptb@inv.it.uc3m.es>
-Message-Id: <200609300315.k8U3FYw25601@inv.it.uc3m.es>
-Subject: how stop sync on last close of removable medium?
-To: "linux kernel" <linux-kernel@vger.kernel.org>
-Date: Sat, 30 Sep 2006 05:15:34 +0200 (MET DST)
-X-Anonymously-To: 
-Reply-To: ptb@inv.it.uc3m.es
-X-message-flag: Had your Outlook virus, today?  http://www.counterpane.com/crypto-gram-0103.html#4
-X-WebTV-Stationery: Standard\; BGColor=black\; TextColor=black
-Reply-By: Sat, 1 Apr 2006 14:21:08 -0700
-X-Mailer: ELM [version 2.4ME+ PL66 (25)]
+	Fri, 29 Sep 2006 23:34:18 -0400
+Received: from pool-72-66-199-147.ronkva.east.verizon.net ([72.66.199.147]:5831
+	"EHLO turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S1750728AbWI3DeR (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Sep 2006 23:34:17 -0400
+Message-Id: <200609300331.k8U3ViNR008895@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
+To: jt@hpl.hp.com
+Cc: Andrew Morton <akpm@osdl.org>, "John W. Linville" <linville@tuxdriver.com>,
+       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: Re: 2.6.18-mm2 - oops in cache_alloc_refill()
+In-Reply-To: Your message of "Fri, 29 Sep 2006 18:40:43 PDT."
+             <20060930014043.GA10927@bougret.hpl.hp.com>
+From: Valdis.Kletnieks@vt.edu
+References: <20060928014623.ccc9b885.akpm@osdl.org> <200609290319.k8T3JOwS005455@turing-police.cc.vt.edu> <20060928202931.dc324339.akpm@osdl.org> <200609291519.k8TFJfvw004256@turing-police.cc.vt.edu> <20060929124558.33ef6c75.akpm@osdl.org> <200609300001.k8U01sPI004389@turing-police.cc.vt.edu> <20060929182008.fee2a229.akpm@osdl.org>
+            <20060930014043.GA10927@bougret.hpl.hp.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1159587104_2769P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
+Content-Transfer-Encoding: 7bit
+Date: Fri, 29 Sep 2006 23:31:44 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-blkdev_close calls blkdev_put, which does a sync if we were the last
-opener of the device and are now closing:
+--==_Exmh_1159587104_2769P
+Content-Type: text/plain; charset=us-ascii
 
-          if (!--bdev->bd_openers) {
-                  sync_blockdev(bdev);
-                  kill_bdev(bdev);
-          }
+On Fri, 29 Sep 2006 18:40:43 PDT, Jean Tourrilhes said:
+> On Fri, Sep 29, 2006 at 06:20:08PM -0700, Andrew Morton wrote:
+> > On Fri, 29 Sep 2006 20:01:54 -0400
+> > > 
+> > > A quick strace of gkrellm finds these likely ioctl's causing the problem:
+> > > 
+> > > % grep ioctl /tmp/foo2 | sort -u | more
+> > > ioctl(13, SIOCGIWESSID, 0xbfbcdb9c)     = 0
+> > > ioctl(13, SIOCGIWRANGE, 0xbfbcdbdc)     = 0
+> > > ioctl(13, SIOCGIWRATE, 0xbfbcdbbc)      = 0
+> 
+> 	Excuse me, can you point out wich version of gkrellm you use
+> and where to find it, the only version that is listed on my page does
+> not use the ESSID ioctl. I want to be sure I'm looking at the same
+> thing as you are...
 
-This is bad news for nbd-like devices which use a client daemon
-to transfer data out of the device. If there are requests pending
-when the daemon is killed off (hey, we may want to shut down!)
-then the sync in the daemon's close of its device creates a deadlock.
-The sync will not complete until the daemon sends pending
-requests which it will not do since it is closing due to death.
+All the pieces:
+http://download.fedora.redhat.com/pub/fedora/linux/extras/development/SRPMS/
 
-Is there a mechanism to prevent this sync occuring? Say for
-removable devices?
+The particular plugin causing the trouble:
+http://download.fedora.redhat.com/pub/fedora/linux/extras/development/SRPMS/gkrellm-wifi-0.9.12-3.fc6.src.rpm
 
-(I don't see it, due to blindness and mental density ...  I could change
-blkdev_close in inode->i_fops, I suppose, but that is attached to an
-inode, presumably of our special device node in the fs above, and by the
-time I get to it we have already opened the device node and it seems
-that changing the release method then doesn't actually do anything.
-Shrug).
+If you're not on a box that has rpm2cpio or similar, yell and I'll
+break that .src.rpm up for you - there's basically just an 18K .tar.gz and
+a 14K patch in there.
 
-Peter
+--==_Exmh_1159587104_2769P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFFHeUgcC3lWbTT17ARAjQmAJ0XlSvnOdcxCTEEVcR8xJ4za5stcgCfZCSv
+uVWgxbG36DigNUo5HNTnUoY=
+=8Hj/
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1159587104_2769P--

@@ -1,76 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964818AbWI3ALG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964827AbWI3ALF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964818AbWI3ALG (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Sep 2006 20:11:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932379AbWI3AKH
+	id S964827AbWI3ALF (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Sep 2006 20:11:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964806AbWI3AK7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Sep 2006 20:10:07 -0400
-Received: from www.osadl.org ([213.239.205.134]:9108 "EHLO mail.tglx.de")
-	by vger.kernel.org with ESMTP id S1422687AbWI3AED (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Sep 2006 20:04:03 -0400
-Message-Id: <20060929234439.611901000@cruncher.tec.linutronix.de>
-References: <20060929234435.330586000@cruncher.tec.linutronix.de>
-Date: Fri, 29 Sep 2006 23:58:26 -0000
-From: Thomas Gleixner <tglx@linutronix.de>
-To: LKML <linux-kernel@vger.kernel.org>
-Cc: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-       Jim Gettys <jg@laptop.org>, John Stultz <johnstul@us.ibm.com>,
-       David Woodhouse <dwmw2@infradead.org>,
-       Arjan van de Ven <arjan@infradead.org>, Dave Jones <davej@redhat.com>
-Subject: [patch 07/23] cleanup: uninline irq_enter() and move it into a
-	function
-Content-Disposition: inline; filename=unmacro-irq-enter.patch
+	Fri, 29 Sep 2006 20:10:59 -0400
+Received: from mail0.lsil.com ([147.145.40.20]:3777 "EHLO mail0.lsil.com")
+	by vger.kernel.org with ESMTP id S1422800AbWI3AKr convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Sep 2006 20:10:47 -0400
+x-mimeole: Produced By Microsoft Exchange V6.5
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: [OOPS] -git8,9:  NULL pointer dereference in mptspi_dv_renegotiate_work
+Date: Fri, 29 Sep 2006 18:10:42 -0600
+Message-ID: <664A4EBB07F29743873A87CF62C26D70350500@NAMAIL4.ad.lsil.com>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: [OOPS] -git8,9:  NULL pointer dereference in mptspi_dv_renegotiate_work
+Thread-Index: AcbkD/0PIicQGE8ETeuPbtEXcL2MGgAFJa8g
+From: "Moore, Eric" <Eric.Moore@lsil.com>
+To: "Bryce Harrington" <bryce@osdl.org>
+Cc: "Andrew Morton" <akpm@osdl.org>, <linux-kernel@vger.kernel.org>,
+       <linux-scsi@vger.kernel.org>
+X-OriginalArrivalTime: 30 Sep 2006 00:10:43.0718 (UTC) FILETIME=[DEF4D260:01C6E424]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Ingo Molnar <mingo@elte.hu>
+On Friday, September 29, 2006 3:41 PM, Bryce Harrington wrote: 
+> > Can you enable debug messages in the driver Makefile, for
+> > the line called MPT_DEBUG_CONFIG; that way we can find out which
+> > config page failed.  
+> 
+> Sure; not sure what the interesting part is, but here's the full log
+> from this:
+> 
+>    http://crucible.osdl.org/runs/2265/sysinfo/amd01.2.console
+> 
 
-uninline irq_enter(). [dynticks adds more stuff to it]
 
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
---
- include/linux/hardirq.h |    7 +------
- kernel/softirq.c        |    7 +++++++
- 2 files changed, 8 insertions(+), 6 deletions(-)
+Thanks.  It appears you enabled MPT_DEBUG instead of MPT_DEBUG_CONFIG.
+All the "WaitForDoorbell" debugs are from that.  Can you recheck your
+Makefile.
 
-Index: linux-2.6.18-mm2/include/linux/hardirq.h
-===================================================================
---- linux-2.6.18-mm2.orig/include/linux/hardirq.h	2006-09-30 01:41:13.000000000 +0200
-+++ linux-2.6.18-mm2/include/linux/hardirq.h	2006-09-30 01:41:16.000000000 +0200
-@@ -106,12 +106,7 @@ static inline void account_system_vtime(
-  * always balanced, so the interrupted value of ->hardirq_context
-  * will always be restored.
-  */
--#define irq_enter()					\
--	do {						\
--		account_system_vtime(current);		\
--		add_preempt_count(HARDIRQ_OFFSET);	\
--		trace_hardirq_enter();			\
--	} while (0)
-+extern void irq_enter(void);
- 
- /*
-  * Exit irq context without processing softirqs:
-Index: linux-2.6.18-mm2/kernel/softirq.c
-===================================================================
---- linux-2.6.18-mm2.orig/kernel/softirq.c	2006-09-30 01:41:13.000000000 +0200
-+++ linux-2.6.18-mm2/kernel/softirq.c	2006-09-30 01:41:16.000000000 +0200
-@@ -279,6 +279,13 @@ EXPORT_SYMBOL(do_softirq);
- # define invoke_softirq()	do_softirq()
- #endif
- 
-+extern void irq_enter(void)
-+{
-+	account_system_vtime(current);
-+	add_preempt_count(HARDIRQ_OFFSET);
-+	trace_hardirq_enter();
-+}
-+
- /*
-  * Exit an interrupt context. Process softirqs if needed and possible:
-  */
-
---
-
+Thanks,
+Eric

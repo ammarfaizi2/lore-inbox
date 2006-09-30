@@ -1,50 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751012AbWI3OQK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751021AbWI3OVf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751012AbWI3OQK (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Sep 2006 10:16:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751019AbWI3OQK
+	id S1751021AbWI3OVf (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Sep 2006 10:21:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751019AbWI3OVf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Sep 2006 10:16:10 -0400
-Received: from moutng.kundenserver.de ([212.227.126.186]:35315 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S1751012AbWI3OQJ convert rfc822-to-8bit (ORCPT
+	Sat, 30 Sep 2006 10:21:35 -0400
+Received: from 1wt.eu ([62.212.114.60]:33299 "EHLO 1wt.eu")
+	by vger.kernel.org with ESMTP id S1751014AbWI3OVe (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Sep 2006 10:16:09 -0400
-From: Arnd Bergmann <arnd@arndb.de>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Subject: Re: [PATCH -mm 1/3] swsusp: Add ioctl for swap files support
-Date: Sat, 30 Sep 2006 16:15:47 +0200
-User-Agent: KMail/1.9.1
-Cc: Pavel Machek <pavel@ucw.cz>, Andrew Morton <akpm@osdl.org>,
-       LKML <linux-kernel@vger.kernel.org>
-References: <200609290005.17616.rjw@sisk.pl> <20060928230339.GF26653@elf.ucw.cz> <200609290135.33683.rjw@sisk.pl>
-In-Reply-To: <200609290135.33683.rjw@sisk.pl>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
+	Sat, 30 Sep 2006 10:21:34 -0400
+Date: Sat, 30 Sep 2006 15:51:22 +0200
+From: Willy Tarreau <w@1wt.eu>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Frederik Deweerdt <deweerdt@free.fr>, Matthew Wilcox <matthew@wil.cx>,
+       "J.A. Magall??n" <jamagallon@ono.com>, Andrew Morton <akpm@osdl.org>,
+       "Linux-Kernel," <linux-kernel@vger.kernel.org>,
+       linux-scsi@vger.kernel.org
+Subject: Re: [-mm patch] aic7xxx: check irq validity (was Re: 2.6.18-mm2)
+Message-ID: <20060930135122.GP541@1wt.eu>
+References: <20060928014623.ccc9b885.akpm@osdl.org> <20060929155738.7076f0c8@werewolf> <20060929143949.GL5017@parisc-linux.org> <1159550143.13029.36.camel@localhost.localdomain> <20060929235054.GB2020@slug> <1159573404.13029.96.camel@localhost.localdomain> <20060930140946.GA1195@slug> <1159625954.13029.136.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200609301615.47746.arnd@arndb.de>
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:bf0b512fe2ff06b96d9695102898be39
+In-Reply-To: <1159625954.13029.136.camel@localhost.localdomain>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Friday 29 September 2006 01:35 schrieb Rafael J. Wysocki:
-> @@ -119,7 +119,18 @@ extern int snapshot_image_loaded(struct
->  #define SNAPSHOT_SET_SWAP_FILE         _IOW(SNAPSHOT_IOC_MAGIC, 10,
-> unsigned int) #define
-> SNAPSHOT_S2RAM                 _IO(SNAPSHOT_IOC_MAGIC, 11) #define
-> SNAPSHOT_PMOPS                 _IOW(SNAPSHOT_IOC_MAGIC, 12, unsigned int)
-> -#define SNAPSHOT_IOC_MAXNR     12
-> +#define SNAPSHOT_SET_SWAP_AREA         _IOW(SNAPSHOT_IOC_MAGIC, 13, void *) 
-> +#define SNAPSHOT_IOC_MAXNR     13
+On Sat, Sep 30, 2006 at 03:19:14PM +0100, Alan Cox wrote:
+> Ar Sad, 2006-09-30 am 14:09 +0000, ysgrifennodd Frederik Deweerdt:
+> > Signed-off-by: Frederik Deweerdt <frederik.deweerdt@gmail.com>
+> 
+> Acked-by: Alan Cox <alan@redhat.com>
 
-Your definition looks wrong, '_IOW(SNAPSHOT_IOC_MAGIC, 13, void *)' means
-your ioctl passes a pointer to a 'void *'.
+It seems to me that it's also valid for 2.4. Has someone any objection ?
 
-You probably mean 
+Willy
 
-#define SNAPSHOT_SET_SWAP_AREA _IOW(SNAPSHOT_IOC_MAGIC, 13, \
-						struct resume_swap_area)
-
-	Arnd <><

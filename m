@@ -1,50 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751946AbWI3UhZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751963AbWI3UoD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751946AbWI3UhZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Sep 2006 16:37:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751953AbWI3UhZ
+	id S1751963AbWI3UoD (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Sep 2006 16:44:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751964AbWI3UoB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Sep 2006 16:37:25 -0400
-Received: from moutng.kundenserver.de ([212.227.126.188]:33014 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S1751946AbWI3UhY convert rfc822-to-8bit (ORCPT
+	Sat, 30 Sep 2006 16:44:01 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:24966 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751963AbWI3UoA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Sep 2006 16:37:24 -0400
-From: Arnd Bergmann <arnd@arndb.de>
-To: "Rafael J. Wysocki" <rjw@sisk.pl>
-Subject: Re: [PATCH -mm 1/3] swsusp: Add ioctl for swap files support
-Date: Sat, 30 Sep 2006 22:37:21 +0200
-User-Agent: KMail/1.9.1
-Cc: Pavel Machek <pavel@ucw.cz>, Andrew Morton <akpm@osdl.org>,
-       LKML <linux-kernel@vger.kernel.org>
-References: <200609290005.17616.rjw@sisk.pl> <200609301615.47746.arnd@arndb.de> <200609302158.03692.rjw@sisk.pl>
-In-Reply-To: <200609302158.03692.rjw@sisk.pl>
+	Sat, 30 Sep 2006 16:44:00 -0400
+Date: Sat, 30 Sep 2006 13:43:44 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Andi Kleen <ak@suse.de>, Jan Beulich <jbeulich@novell.com>
+cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
+       nagar@watson.ibm.com, Chandra Seetharaman <sekharan@us.ibm.com>,
+       Eric Rannaud <eric.rannaud@gmail.com>
+Subject: Re: BUG-lockdep and freeze (was: Arrr! Linux 2.6.18)
+In-Reply-To: <Pine.LNX.4.64.0609301237460.3952@g5.osdl.org>
+Message-ID: <Pine.LNX.4.64.0609301329230.3952@g5.osdl.org>
+References: <5f3c152b0609301220p7a487c7dw456d007298578cd7@mail.gmail.com>
+ <Pine.LNX.4.64.0609301237460.3952@g5.osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200609302237.22086.arnd@arndb.de>
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:bf0b512fe2ff06b96d9695102898be39
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Saturday 30 September 2006 21:58 schrieb Rafael J. Wysocki:
-> > Your definition looks wrong, '_IOW(SNAPSHOT_IOC_MAGIC, 13, void *)' means
-> > your ioctl passes a pointer to a 'void *'.
-> >
-> > You probably mean
-> >
-> > #define SNAPSHOT_SET_SWAP_AREA _IOW(SNAPSHOT_IOC_MAGIC, 13, \
-> >                                               struct resume_swap_area)
+
+
+On Sat, 30 Sep 2006, Linus Torvalds wrote:
 >
-> No.  I mean the ioctl passes a pointer, the size of which is sizeof(void *).
+> It's not just unreadable and obviously buggy, it's so scarily that it's 
+> hard to even talk about it. Lookie here:
+> 
+> 	#define HANDLE_STACK(cond) \
+> 	        do while (cond) { \
+> 	                unsigned long addr = *stack++; \
+> 
+> What the F*CK! "do while(cond) {" ???? 
 
-That's a very bad thing to do. It means that the ioctl number is different
-between 32 and 64 bit and you need to write a conversion handler that
-first reads your pointer and then then writes the real data.
+Btw, it took me quite a while to realize how something like that can 
+even compile. Seriously. Don't write code like that. Maybe some humans 
+parse it as
 
-Also, it needs to be at least _IOR() in the case you're describing,
-because the pointer is read, not written (I hope).
+	do {
+		while (cond) {
+			..
+		}
+	} while(0)
 
-	Arnd <><
+(which is the technically correct parsing and explains why it compiles 
+and wors), but I suspect I'm not the only one who went "What the F*CK" 
+when shown it without the "extraneous" braces.
+
+For similar reasons, we write
+
+	#define dummy(x) do { } while (0)
+
+rather than the shorter
+
+	#define dummy(x) do ; while (0)
+
+(which some people _do_ seem to use. Aarggh!)
+
+Or at least indent it. Or something.
+
+I'll see if I can make git warn about "do <non-blockstatement> while ()", 
+if only because I at least personally seem to have trouble parsing it.
+
+		Linus

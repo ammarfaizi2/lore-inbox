@@ -1,505 +1,265 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751113AbWI3ANL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422676AbWI3A0b@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751113AbWI3ANL (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Sep 2006 20:13:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964851AbWI3AMm
+	id S1422676AbWI3A0b (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Sep 2006 20:26:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932369AbWI3A0b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Sep 2006 20:12:42 -0400
-Received: from www.osadl.org ([213.239.205.134]:2964 "EHLO mail.tglx.de")
-	by vger.kernel.org with ESMTP id S932346AbWI3AEA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Sep 2006 20:04:00 -0400
-Message-Id: <20060929234439.269962000@cruncher.tec.linutronix.de>
-References: <20060929234435.330586000@cruncher.tec.linutronix.de>
-Date: Fri, 29 Sep 2006 23:58:23 -0000
-From: Thomas Gleixner <tglx@linutronix.de>
-To: LKML <linux-kernel@vger.kernel.org>
-Cc: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-       Jim Gettys <jg@laptop.org>, John Stultz <johnstul@us.ibm.com>,
-       David Woodhouse <dwmw2@infradead.org>,
-       Arjan van de Ven <arjan@infradead.org>, Dave Jones <davej@redhat.com>
-Subject: [patch 04/23] time: uninline jiffies.h
-Content-Disposition: inline; filename=uninline-jiffies-h.patch
+	Fri, 29 Sep 2006 20:26:31 -0400
+Received: from hentges.net ([81.169.178.128]:38804 "EHLO
+	h6563.serverkompetenz.net") by vger.kernel.org with ESMTP
+	id S932367AbWI3A03 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Sep 2006 20:26:29 -0400
+Subject: Re: sky2 (was Re: 2.6.18-mm2)
+From: Matthias Hentges <oe@hentges.net>
+To: Stephen Hemminger <shemminger@osdl.org>
+Cc: Jeff Garzik <jeff@garzik.org>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Netdev List <netdev@vger.kernel.org>
+In-Reply-To: <20060928161956.5262e5d3@freekitty>
+References: <20060928155053.7d8567ae.akpm@osdl.org>
+	 <451C5599.80402@garzik.org>  <20060928161956.5262e5d3@freekitty>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-ThSaUNnaMC2amI0oV38I"
+Date: Sat, 30 Sep 2006 02:26:10 +0200
+Message-Id: <1159575970.4641.20.camel@mhcln03>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.3 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Ingo Molnar <mingo@elte.hu>
 
-there are load of fat functions hidden in jiffies.h. Uninline them.
-No code changes.
+--=-ThSaUNnaMC2amI0oV38I
+Content-Type: multipart/mixed; boundary="=-hej8BlCykSYTQUgI8gZb"
 
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
---
- include/linux/jiffies.h |  223 +++---------------------------------------------
- kernel/time.c           |  218 ++++++++++++++++++++++++++++++++++++++++++++++
- 2 files changed, 234 insertions(+), 207 deletions(-)
 
-Index: linux-2.6.18-mm2/include/linux/jiffies.h
-===================================================================
---- linux-2.6.18-mm2.orig/include/linux/jiffies.h	2006-09-30 01:41:14.000000000 +0200
-+++ linux-2.6.18-mm2/include/linux/jiffies.h	2006-09-30 01:41:15.000000000 +0200
-@@ -259,215 +259,24 @@ static inline u64 get_jiffies_64(void)
- #endif
- 
- /*
-- * Convert jiffies to milliseconds and back.
-- *
-- * Avoid unnecessary multiplications/divisions in the
-- * two most common HZ cases:
-+ * Convert various time units to each other:
-  */
--static inline unsigned int jiffies_to_msecs(const unsigned long j)
--{
--#if HZ <= MSEC_PER_SEC && !(MSEC_PER_SEC % HZ)
--	return (MSEC_PER_SEC / HZ) * j;
--#elif HZ > MSEC_PER_SEC && !(HZ % MSEC_PER_SEC)
--	return (j + (HZ / MSEC_PER_SEC) - 1)/(HZ / MSEC_PER_SEC);
--#else
--	return (j * MSEC_PER_SEC) / HZ;
--#endif
--}
--
--static inline unsigned int jiffies_to_usecs(const unsigned long j)
--{
--#if HZ <= USEC_PER_SEC && !(USEC_PER_SEC % HZ)
--	return (USEC_PER_SEC / HZ) * j;
--#elif HZ > USEC_PER_SEC && !(HZ % USEC_PER_SEC)
--	return (j + (HZ / USEC_PER_SEC) - 1)/(HZ / USEC_PER_SEC);
--#else
--	return (j * USEC_PER_SEC) / HZ;
--#endif
--}
--
--static inline unsigned long msecs_to_jiffies(const unsigned int m)
--{
--	if (m > jiffies_to_msecs(MAX_JIFFY_OFFSET))
--		return MAX_JIFFY_OFFSET;
--#if HZ <= MSEC_PER_SEC && !(MSEC_PER_SEC % HZ)
--	return (m + (MSEC_PER_SEC / HZ) - 1) / (MSEC_PER_SEC / HZ);
--#elif HZ > MSEC_PER_SEC && !(HZ % MSEC_PER_SEC)
--	return m * (HZ / MSEC_PER_SEC);
--#else
--	return (m * HZ + MSEC_PER_SEC - 1) / MSEC_PER_SEC;
--#endif
--}
--
--static inline unsigned long usecs_to_jiffies(const unsigned int u)
--{
--	if (u > jiffies_to_usecs(MAX_JIFFY_OFFSET))
--		return MAX_JIFFY_OFFSET;
--#if HZ <= USEC_PER_SEC && !(USEC_PER_SEC % HZ)
--	return (u + (USEC_PER_SEC / HZ) - 1) / (USEC_PER_SEC / HZ);
--#elif HZ > USEC_PER_SEC && !(HZ % USEC_PER_SEC)
--	return u * (HZ / USEC_PER_SEC);
--#else
--	return (u * HZ + USEC_PER_SEC - 1) / USEC_PER_SEC;
--#endif
--}
--
--/*
-- * The TICK_NSEC - 1 rounds up the value to the next resolution.  Note
-- * that a remainder subtract here would not do the right thing as the
-- * resolution values don't fall on second boundries.  I.e. the line:
-- * nsec -= nsec % TICK_NSEC; is NOT a correct resolution rounding.
-- *
-- * Rather, we just shift the bits off the right.
-- *
-- * The >> (NSEC_JIFFIE_SC - SEC_JIFFIE_SC) converts the scaled nsec
-- * value to a scaled second value.
-- */
--static __inline__ unsigned long
--timespec_to_jiffies(const struct timespec *value)
--{
--	unsigned long sec = value->tv_sec;
--	long nsec = value->tv_nsec + TICK_NSEC - 1;
--
--	if (sec >= MAX_SEC_IN_JIFFIES){
--		sec = MAX_SEC_IN_JIFFIES;
--		nsec = 0;
--	}
--	return (((u64)sec * SEC_CONVERSION) +
--		(((u64)nsec * NSEC_CONVERSION) >>
--		 (NSEC_JIFFIE_SC - SEC_JIFFIE_SC))) >> SEC_JIFFIE_SC;
--
--}
--
--static __inline__ void
--jiffies_to_timespec(const unsigned long jiffies, struct timespec *value)
--{
--	/*
--	 * Convert jiffies to nanoseconds and separate with
--	 * one divide.
--	 */
--	u64 nsec = (u64)jiffies * TICK_NSEC;
--	value->tv_sec = div_long_long_rem(nsec, NSEC_PER_SEC, &value->tv_nsec);
--}
--
--/* Same for "timeval"
-- *
-- * Well, almost.  The problem here is that the real system resolution is
-- * in nanoseconds and the value being converted is in micro seconds.
-- * Also for some machines (those that use HZ = 1024, in-particular),
-- * there is a LARGE error in the tick size in microseconds.
--
-- * The solution we use is to do the rounding AFTER we convert the
-- * microsecond part.  Thus the USEC_ROUND, the bits to be shifted off.
-- * Instruction wise, this should cost only an additional add with carry
-- * instruction above the way it was done above.
-- */
--static __inline__ unsigned long
--timeval_to_jiffies(const struct timeval *value)
--{
--	unsigned long sec = value->tv_sec;
--	long usec = value->tv_usec;
--
--	if (sec >= MAX_SEC_IN_JIFFIES){
--		sec = MAX_SEC_IN_JIFFIES;
--		usec = 0;
--	}
--	return (((u64)sec * SEC_CONVERSION) +
--		(((u64)usec * USEC_CONVERSION + USEC_ROUND) >>
--		 (USEC_JIFFIE_SC - SEC_JIFFIE_SC))) >> SEC_JIFFIE_SC;
--}
--
--static __inline__ void
--jiffies_to_timeval(const unsigned long jiffies, struct timeval *value)
--{
--	/*
--	 * Convert jiffies to nanoseconds and separate with
--	 * one divide.
--	 */
--	u64 nsec = (u64)jiffies * TICK_NSEC;
--	long tv_usec;
--
--	value->tv_sec = div_long_long_rem(nsec, NSEC_PER_SEC, &tv_usec);
--	tv_usec /= NSEC_PER_USEC;
--	value->tv_usec = tv_usec;
--}
--
--/*
-- * Convert jiffies/jiffies_64 to clock_t and back.
-- */
--static inline clock_t jiffies_to_clock_t(long x)
--{
--#if (TICK_NSEC % (NSEC_PER_SEC / USER_HZ)) == 0
--	return x / (HZ / USER_HZ);
--#else
--	u64 tmp = (u64)x * TICK_NSEC;
--	do_div(tmp, (NSEC_PER_SEC / USER_HZ));
--	return (long)tmp;
--#endif
--}
--
--static inline unsigned long clock_t_to_jiffies(unsigned long x)
--{
--#if (HZ % USER_HZ)==0
--	if (x >= ~0UL / (HZ / USER_HZ))
--		return ~0UL;
--	return x * (HZ / USER_HZ);
--#else
--	u64 jif;
--
--	/* Don't worry about loss of precision here .. */
--	if (x >= ~0UL / HZ * USER_HZ)
--		return ~0UL;
--
--	/* .. but do try to contain it here */
--	jif = x * (u64) HZ;
--	do_div(jif, USER_HZ);
--	return jif;
--#endif
--}
--
--static inline u64 jiffies_64_to_clock_t(u64 x)
--{
--#if (TICK_NSEC % (NSEC_PER_SEC / USER_HZ)) == 0
--	do_div(x, HZ / USER_HZ);
--#else
--	/*
--	 * There are better ways that don't overflow early,
--	 * but even this doesn't overflow in hundreds of years
--	 * in 64 bits, so..
--	 */
--	x *= TICK_NSEC;
--	do_div(x, (NSEC_PER_SEC / USER_HZ));
--#endif
--	return x;
--}
--
--static inline u64 nsec_to_clock_t(u64 x)
--{
--#if (NSEC_PER_SEC % USER_HZ) == 0
--	do_div(x, (NSEC_PER_SEC / USER_HZ));
--#elif (USER_HZ % 512) == 0
--	x *= USER_HZ/512;
--	do_div(x, (NSEC_PER_SEC / 512));
--#else
--	/*
--         * max relative error 5.7e-8 (1.8s per year) for USER_HZ <= 1024,
--         * overflow after 64.99 years.
--         * exact for HZ=60, 72, 90, 120, 144, 180, 300, 600, 900, ...
--         */
--	x *= 9;
--	do_div(x, (unsigned long)((9ull * NSEC_PER_SEC + (USER_HZ/2))
--	                          / USER_HZ));
--#endif
--	return x;
--}
-+extern unsigned int jiffies_to_msecs(const unsigned long j);
-+extern unsigned int jiffies_to_usecs(const unsigned long j);
-+extern unsigned long msecs_to_jiffies(const unsigned int m);
-+extern unsigned long usecs_to_jiffies(const unsigned int u);
-+extern unsigned long timespec_to_jiffies(const struct timespec *value);
-+extern void jiffies_to_timespec(const unsigned long jiffies,
-+				struct timespec *value);
-+extern unsigned long timeval_to_jiffies(const struct timeval *value);
-+extern void jiffies_to_timeval(const unsigned long jiffies,
-+			       struct timeval *value);
-+extern clock_t jiffies_to_clock_t(long x);
-+extern unsigned long clock_t_to_jiffies(unsigned long x);
-+extern u64 jiffies_64_to_clock_t(u64 x);
-+extern u64 nsec_to_clock_t(u64 x);
-+extern int nsec_to_timestamp(char *s, u64 t);
- 
--static inline int nsec_to_timestamp(char *s, u64 t)
--{
--	unsigned long nsec_rem = do_div(t, NSEC_PER_SEC);
--	return sprintf(s, "[%5lu.%06lu]", (unsigned long)t,
--		       nsec_rem/NSEC_PER_USEC);
--}
- #define TIMESTAMP_SIZE	30
- 
- #endif
-Index: linux-2.6.18-mm2/kernel/time.c
-===================================================================
---- linux-2.6.18-mm2.orig/kernel/time.c	2006-09-30 01:41:14.000000000 +0200
-+++ linux-2.6.18-mm2/kernel/time.c	2006-09-30 01:41:15.000000000 +0200
-@@ -470,6 +470,224 @@ struct timeval ns_to_timeval(const s64 n
- 	return tv;
- }
- 
-+/*
-+ * Convert jiffies to milliseconds and back.
-+ *
-+ * Avoid unnecessary multiplications/divisions in the
-+ * two most common HZ cases:
-+ */
-+unsigned int jiffies_to_msecs(const unsigned long j)
-+{
-+#if HZ <= MSEC_PER_SEC && !(MSEC_PER_SEC % HZ)
-+	return (MSEC_PER_SEC / HZ) * j;
-+#elif HZ > MSEC_PER_SEC && !(HZ % MSEC_PER_SEC)
-+	return (j + (HZ / MSEC_PER_SEC) - 1)/(HZ / MSEC_PER_SEC);
-+#else
-+	return (j * MSEC_PER_SEC) / HZ;
-+#endif
-+}
-+EXPORT_SYMBOL(jiffies_to_msecs);
-+
-+unsigned int jiffies_to_usecs(const unsigned long j)
-+{
-+#if HZ <= USEC_PER_SEC && !(USEC_PER_SEC % HZ)
-+	return (USEC_PER_SEC / HZ) * j;
-+#elif HZ > USEC_PER_SEC && !(HZ % USEC_PER_SEC)
-+	return (j + (HZ / USEC_PER_SEC) - 1)/(HZ / USEC_PER_SEC);
-+#else
-+	return (j * USEC_PER_SEC) / HZ;
-+#endif
-+}
-+EXPORT_SYMBOL(jiffies_to_usecs);
-+
-+unsigned long msecs_to_jiffies(const unsigned int m)
-+{
-+	if (m > jiffies_to_msecs(MAX_JIFFY_OFFSET))
-+		return MAX_JIFFY_OFFSET;
-+#if HZ <= MSEC_PER_SEC && !(MSEC_PER_SEC % HZ)
-+	return (m + (MSEC_PER_SEC / HZ) - 1) / (MSEC_PER_SEC / HZ);
-+#elif HZ > MSEC_PER_SEC && !(HZ % MSEC_PER_SEC)
-+	return m * (HZ / MSEC_PER_SEC);
-+#else
-+	return (m * HZ + MSEC_PER_SEC - 1) / MSEC_PER_SEC;
-+#endif
-+}
-+EXPORT_SYMBOL(msecs_to_jiffies);
-+
-+unsigned long usecs_to_jiffies(const unsigned int u)
-+{
-+	if (u > jiffies_to_usecs(MAX_JIFFY_OFFSET))
-+		return MAX_JIFFY_OFFSET;
-+#if HZ <= USEC_PER_SEC && !(USEC_PER_SEC % HZ)
-+	return (u + (USEC_PER_SEC / HZ) - 1) / (USEC_PER_SEC / HZ);
-+#elif HZ > USEC_PER_SEC && !(HZ % USEC_PER_SEC)
-+	return u * (HZ / USEC_PER_SEC);
-+#else
-+	return (u * HZ + USEC_PER_SEC - 1) / USEC_PER_SEC;
-+#endif
-+}
-+EXPORT_SYMBOL(usecs_to_jiffies);
-+
-+/*
-+ * The TICK_NSEC - 1 rounds up the value to the next resolution.  Note
-+ * that a remainder subtract here would not do the right thing as the
-+ * resolution values don't fall on second boundries.  I.e. the line:
-+ * nsec -= nsec % TICK_NSEC; is NOT a correct resolution rounding.
-+ *
-+ * Rather, we just shift the bits off the right.
-+ *
-+ * The >> (NSEC_JIFFIE_SC - SEC_JIFFIE_SC) converts the scaled nsec
-+ * value to a scaled second value.
-+ */
-+unsigned long
-+timespec_to_jiffies(const struct timespec *value)
-+{
-+	unsigned long sec = value->tv_sec;
-+	long nsec = value->tv_nsec + TICK_NSEC - 1;
-+
-+	if (sec >= MAX_SEC_IN_JIFFIES){
-+		sec = MAX_SEC_IN_JIFFIES;
-+		nsec = 0;
-+	}
-+	return (((u64)sec * SEC_CONVERSION) +
-+		(((u64)nsec * NSEC_CONVERSION) >>
-+		 (NSEC_JIFFIE_SC - SEC_JIFFIE_SC))) >> SEC_JIFFIE_SC;
-+
-+}
-+EXPORT_SYMBOL(timespec_to_jiffies);
-+
-+void
-+jiffies_to_timespec(const unsigned long jiffies, struct timespec *value)
-+{
-+	/*
-+	 * Convert jiffies to nanoseconds and separate with
-+	 * one divide.
-+	 */
-+	u64 nsec = (u64)jiffies * TICK_NSEC;
-+	value->tv_sec = div_long_long_rem(nsec, NSEC_PER_SEC, &value->tv_nsec);
-+}
-+
-+/* Same for "timeval"
-+ *
-+ * Well, almost.  The problem here is that the real system resolution is
-+ * in nanoseconds and the value being converted is in micro seconds.
-+ * Also for some machines (those that use HZ = 1024, in-particular),
-+ * there is a LARGE error in the tick size in microseconds.
-+
-+ * The solution we use is to do the rounding AFTER we convert the
-+ * microsecond part.  Thus the USEC_ROUND, the bits to be shifted off.
-+ * Instruction wise, this should cost only an additional add with carry
-+ * instruction above the way it was done above.
-+ */
-+unsigned long
-+timeval_to_jiffies(const struct timeval *value)
-+{
-+	unsigned long sec = value->tv_sec;
-+	long usec = value->tv_usec;
-+
-+	if (sec >= MAX_SEC_IN_JIFFIES){
-+		sec = MAX_SEC_IN_JIFFIES;
-+		usec = 0;
-+	}
-+	return (((u64)sec * SEC_CONVERSION) +
-+		(((u64)usec * USEC_CONVERSION + USEC_ROUND) >>
-+		 (USEC_JIFFIE_SC - SEC_JIFFIE_SC))) >> SEC_JIFFIE_SC;
-+}
-+
-+void jiffies_to_timeval(const unsigned long jiffies, struct timeval *value)
-+{
-+	/*
-+	 * Convert jiffies to nanoseconds and separate with
-+	 * one divide.
-+	 */
-+	u64 nsec = (u64)jiffies * TICK_NSEC;
-+	long tv_usec;
-+
-+	value->tv_sec = div_long_long_rem(nsec, NSEC_PER_SEC, &tv_usec);
-+	tv_usec /= NSEC_PER_USEC;
-+	value->tv_usec = tv_usec;
-+}
-+
-+/*
-+ * Convert jiffies/jiffies_64 to clock_t and back.
-+ */
-+clock_t jiffies_to_clock_t(long x)
-+{
-+#if (TICK_NSEC % (NSEC_PER_SEC / USER_HZ)) == 0
-+	return x / (HZ / USER_HZ);
-+#else
-+	u64 tmp = (u64)x * TICK_NSEC;
-+	do_div(tmp, (NSEC_PER_SEC / USER_HZ));
-+	return (long)tmp;
-+#endif
-+}
-+EXPORT_SYMBOL(jiffies_to_clock_t);
-+
-+unsigned long clock_t_to_jiffies(unsigned long x)
-+{
-+#if (HZ % USER_HZ)==0
-+	if (x >= ~0UL / (HZ / USER_HZ))
-+		return ~0UL;
-+	return x * (HZ / USER_HZ);
-+#else
-+	u64 jif;
-+
-+	/* Don't worry about loss of precision here .. */
-+	if (x >= ~0UL / HZ * USER_HZ)
-+		return ~0UL;
-+
-+	/* .. but do try to contain it here */
-+	jif = x * (u64) HZ;
-+	do_div(jif, USER_HZ);
-+	return jif;
-+#endif
-+}
-+EXPORT_SYMBOL(clock_t_to_jiffies);
-+
-+u64 jiffies_64_to_clock_t(u64 x)
-+{
-+#if (TICK_NSEC % (NSEC_PER_SEC / USER_HZ)) == 0
-+	do_div(x, HZ / USER_HZ);
-+#else
-+	/*
-+	 * There are better ways that don't overflow early,
-+	 * but even this doesn't overflow in hundreds of years
-+	 * in 64 bits, so..
-+	 */
-+	x *= TICK_NSEC;
-+	do_div(x, (NSEC_PER_SEC / USER_HZ));
-+#endif
-+	return x;
-+}
-+
-+EXPORT_SYMBOL(jiffies_64_to_clock_t);
-+
-+u64 nsec_to_clock_t(u64 x)
-+{
-+#if (NSEC_PER_SEC % USER_HZ) == 0
-+	do_div(x, (NSEC_PER_SEC / USER_HZ));
-+#elif (USER_HZ % 512) == 0
-+	x *= USER_HZ/512;
-+	do_div(x, (NSEC_PER_SEC / 512));
-+#else
-+	/*
-+         * max relative error 5.7e-8 (1.8s per year) for USER_HZ <= 1024,
-+         * overflow after 64.99 years.
-+         * exact for HZ=60, 72, 90, 120, 144, 180, 300, 600, 900, ...
-+         */
-+	x *= 9;
-+	do_div(x, (unsigned long)((9ull * NSEC_PER_SEC + (USER_HZ/2)) /
-+				  USER_HZ));
-+#endif
-+	return x;
-+}
-+
-+int nsec_to_timestamp(char *s, u64 t)
-+{
-+	unsigned long nsec_rem = do_div(t, NSEC_PER_SEC);
-+	return sprintf(s, "[%5lu.%06lu]", (unsigned long)t,
-+		       nsec_rem/NSEC_PER_USEC);
-+}
- __attribute__((weak)) unsigned long long timestamp_clock(void)
- {
- 	return sched_clock();
+--=-hej8BlCykSYTQUgI8gZb
+Content-Type: text/plain
+Content-Transfer-Encoding: quoted-printable
 
---
+Hello Stephen,
+
+Am Donnerstag, den 28.09.2006, 16:19 -0700 schrieb Stephen Hemminger:
+
+[...]
+
+> Here is the debug patch I sent to the first reporter of the problem.
+> I know what the offset is supposed to be, so if the PCI subsystem is
+> wrong, this will show.=20
+>=20
+> --- sky2.orig/drivers/net/sky2.c	2006-09-28 08:45:27.000000000 -0700
+> +++ sky2/drivers/net/sky2.c	2006-09-28 08:51:24.000000000 -0700
+
+[...]
+
+Thanks for the patch:
+
++root@mhcln01:~ >dmesg |grep -i expres
+[   36.814288] sky2 pci express found but not extended error support?
+[   36.820494] sky2 pci express error status register fixed from 0x0 to
+0x100
+[   36.833769] sky2 0000:04:00.0: pci express error (0x100000)
+[   36.851296] sky2 pci express found but not extended error support?
+[   36.857499] sky2 pci express error status register fixed from 0x0 to
+0x100
+[   36.870756] sky2 0000:03:00.0: pci express error (0x100000)
++root@mhcln01:~ >
+
+The annoying messages are gone =3D)
+Attached is a complete dmesg of a fresh boot.
+
+Thanks for your time.
+--=20
+Matthias Hentges=20
+
+My OS: Debian SID. Geek by Nature, Linux by Choice
+
+--=-hej8BlCykSYTQUgI8gZb
+Content-Disposition: attachment; filename=dmesg_2.6.18-mm2-sky2-patched.txt.gz
+Content-Type: application/x-gzip; name=dmesg_2.6.18-mm2-sky2-patched.txt.gz
+Content-Transfer-Encoding: base64
+
+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
+
+
+--=-hej8BlCykSYTQUgI8gZb--
+
+--=-ThSaUNnaMC2amI0oV38I
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: Dies ist ein digital signierter Nachrichtenteil
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
+
+iD8DBQBFHbmiAq2P5eLUP5IRAmCBAKD6GmV+oyUyfASfTBisYBqrTBPXHACg3xBT
+G706M7tGY0p5gN0iiUPKLAY=
+=1RqG
+-----END PGP SIGNATURE-----
+
+--=-ThSaUNnaMC2amI0oV38I--
 

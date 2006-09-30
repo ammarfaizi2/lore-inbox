@@ -1,44 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750871AbWI3LmA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750872AbWI3Lsg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750871AbWI3LmA (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Sep 2006 07:42:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750872AbWI3LmA
+	id S1750872AbWI3Lsg (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Sep 2006 07:48:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750874AbWI3Lsg
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Sep 2006 07:42:00 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:48594 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1750857AbWI3Ll7 (ORCPT
+	Sat, 30 Sep 2006 07:48:36 -0400
+Received: from ns1.suse.de ([195.135.220.2]:24246 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S1750872AbWI3Lsf (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Sep 2006 07:41:59 -0400
-Message-ID: <451E57FE.5000600@garzik.org>
-Date: Sat, 30 Sep 2006 07:41:50 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
+	Sat, 30 Sep 2006 07:48:35 -0400
+Date: Sat, 30 Sep 2006 13:48:18 +0200
+From: Stefan Seyfried <seife@suse.de>
+To: Jiri Kosina <jikos@jikos.cz>
+Cc: linux-acpi@intel.com, linux-kernel@vger.kernel.org,
+       Andrew Morton <akpm@osdl.org>, Len Brown <len.brown@intel.com>
+Subject: Re: [PATCH] preserve correct battery state through suspend/resume cycles
+Message-ID: <20060930114817.GA26217@suse.de>
+References: <Pine.LNX.4.64.0609280446230.22576@twin.jikos.cz>
 MIME-Version: 1.0
-To: Muli Ben-Yehuda <muli@il.ibm.com>
-CC: Andrew Morton <akpm@osdl.org>, Greg KH <greg@kroah.com>,
-       Jim Paradis <jparadis@redhat.com>, Andi Kleen <ak@suse.de>,
-       LKML <linux-kernel@vger.kernel.org>, jdmason@kudzu.us
-Subject: Re: [PATCH] x86[-64] PCI domain support
-References: <20060926191508.GA6350@havoc.gtf.org> <20060928093332.GG22787@rhun.haifa.ibm.com> <451B99C5.7080809@garzik.org> <20060928224550.GJ22787@rhun.haifa.ibm.com> <451C54C0.6080402@garzik.org> <20060928233116.GK22787@rhun.haifa.ibm.com> <20060930093421.GP22787@rhun.haifa.ibm.com> <451E40DF.30406@garzik.org> <20060930104248.GR22787@rhun.haifa.ibm.com>
-In-Reply-To: <20060930104248.GR22787@rhun.haifa.ibm.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.3 (----)
-X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.3 points, 5.0 required)
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <Pine.LNX.4.64.0609280446230.22576@twin.jikos.cz>
+X-Operating-System: SUSE Linux Enterprise Desktop 10 (i586), Kernel 2.6.18-3-seife
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Muli Ben-Yehuda wrote:
-> The patch I posted earlier is all that's needed, if you could merge it
-> into #pciseg that would be fine. I'm pondering making one small
-> change though: in your pci domains patch, you have this snippet:
+On Thu, Sep 28, 2006 at 04:50:49AM +0200, Jiri Kosina wrote:
+> There is a problem in th following scenario(s):
+> 
+> boot -> suspend -> (un)plug battery -> resume
+> 
+> The problem arises in both cases - i.e. suspend with battery plugged in, 
+> and resume with battery unplugged, or vice versa.
+> 
+> After resume, when the battery status has changed (plugged in -> unplegged 
+> or unplugged -> plugged in) during the time when the system was sleeping, 
+> the /proc/acpi/battery/*/* is wrong (showing the state before suspend, not 
+> the current state).
 
-Would you be kind enough to resend the patch with a proper Signed-off-by 
-line?  (and subject/description, etc. while you're at it)
+Is this also needed if you use "platform" method? Also with suspend-to-RAM?
 
-Thanks,
+> The following patch adds ->resume method to the ACPI battery handler, which
+> has the only aim - to check whether the battery state has changed during sleep, 
+> and if so, update the ACPI internal data structures, so that information 
+> published through /proc/acpi/battery/*/* is correct even after suspend/resume
+> cycle, during which the battery was removed/inserted.
 
-	Jeff
+Although it generally is a good idea to add suspend and resume methods to
+all ACPI drivers, it would be interesting to know if you still need this
+when using the correct method (platform) instead of the incorrect default
+method (shutdown).
 
-
+echo "platform" > /sys/power/disk
+echo "disk" > /sys/power/state
+-- 
+Stefan Seyfried                  \ "I didn't want to write for pay. I
+QA / R&D Team Mobile Devices      \ wanted to be paid for what I write."
+SUSE LINUX Products GmbH, Nürnberg \                    -- Leonard Cohen

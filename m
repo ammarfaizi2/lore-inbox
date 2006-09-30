@@ -1,47 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751931AbWI3UZQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751942AbWI3U3a@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751931AbWI3UZQ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Sep 2006 16:25:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751932AbWI3UZQ
+	id S1751942AbWI3U3a (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Sep 2006 16:29:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751938AbWI3U3a
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Sep 2006 16:25:16 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:27800 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1751931AbWI3UZO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Sep 2006 16:25:14 -0400
-Subject: Re: GPLv3 Position Statement
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: tglx@linutronix.de
-Cc: Helge Hafting <helge.hafting@aitel.hist.no>, Neil Brown <neilb@suse.de>,
-       Michiel de Boer <x@rebelhomicide.demon.nl>,
-       James Bottomley <James.Bottomley@SteelEye.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <1159641498.9326.824.camel@localhost.localdomain>
-References: <1158941750.3445.31.camel@mulgrave.il.steeleye.com>
-	 <451798FA.8000004@rebelhomicide.demon.nl>
-	 <17687.46268.156413.352299@cse.unsw.edu.au>
-	 <1159183895.11049.56.camel@localhost.localdomain>
-	 <1159200620.9326.447.camel@localhost.localdomain>
-	 <451CF22D.4030405@aitel.hist.no>
-	 <1159641498.9326.824.camel@localhost.localdomain>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Sat, 30 Sep 2006 21:49:44 +0100
-Message-Id: <1159649384.13029.143.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+	Sat, 30 Sep 2006 16:29:30 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:60546 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751936AbWI3U33 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Sep 2006 16:29:29 -0400
+Date: Sat, 30 Sep 2006 13:28:14 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Al Viro <viro@ftp.linux.org.uk>
+cc: Eric Rannaud <eric.rannaud@gmail.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
+       nagar@watson.ibm.com, Chandra Seetharaman <sekharan@us.ibm.com>,
+       Andi Kleen <ak@suse.de>, Jan Beulich <jbeulich@novell.com>
+Subject: Re: BUG-lockdep and freeze (was: Arrr! Linux 2.6.18)
+In-Reply-To: <20060930202117.GO29920@ftp.linux.org.uk>
+Message-ID: <Pine.LNX.4.64.0609301326320.3952@g5.osdl.org>
+References: <5f3c152b0609301220p7a487c7dw456d007298578cd7@mail.gmail.com>
+ <Pine.LNX.4.64.0609301237460.3952@g5.osdl.org> <20060930202117.GO29920@ftp.linux.org.uk>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Sad, 2006-09-30 am 20:38 +0200, ysgrifennodd Thomas Gleixner:
-> This might be silly in your opinion, but it is simply the reality,
-> especially in the US, but also in Europe we have an increasing madness
-> in liability jurisdiction. Do you believe that any responsible corporate
-> lawyer will buy your "with a warning" argument when he is aware of
-> rulings stating the opposite ?
-
-Well the corporate laywer can also havea warning that he may get sued if
-he doesn't release the needed keys. There now he can and use openbsd and
-everyone is happy.
 
 
+On Sat, 30 Sep 2006, Al Viro wrote:
+> 
+> Oh, so _that_ is what it is supposed to do?  I've seen it when it went
+> in, tried to read, barfed and chalked it up to KDB or itanic braindamage
+> (both have turds of that genre).  Didn't realize that lockdep used it too...
+
+Well, anything that shows or needs a back-trace. By definition, it's 
+pretty much just debug code.
+
+I sure as hell hope we don't have any actual _semantics_ that depend on 
+back-traces, like the broken asynchronous C++ exception handling code etc 
+that people have in user space (what a total brain-damage _that_ is!).
+
+		Linus

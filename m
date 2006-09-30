@@ -1,61 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750782AbWI3KkM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750803AbWI3KmG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750782AbWI3KkM (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Sep 2006 06:40:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750803AbWI3KkM
+	id S1750803AbWI3KmG (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Sep 2006 06:42:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750804AbWI3KmG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Sep 2006 06:40:12 -0400
-Received: from moutng.kundenserver.de ([212.227.126.183]:49659 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S1750782AbWI3KkK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Sep 2006 06:40:10 -0400
-From: Arnd Bergmann <arnd@arndb.de>
-To: linuxppc-dev@ozlabs.org
-Subject: Re: [PATCH 0/6]: powerpc/cell spidernet ethernet patches
-Date: Sat, 30 Sep 2006 12:40:00 +0200
-User-Agent: KMail/1.9.1
-Cc: Linas Vepstas <linas@austin.ibm.com>, jeff@garzik.org, akpm@osdl.org,
-       netdev@vger.kernel.org, James K Lewis <jklewis@us.ibm.com>,
-       linux-kernel@vger.kernel.org
-References: <20060929230552.GG6433@austin.ibm.com>
-In-Reply-To: <20060929230552.GG6433@austin.ibm.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Sat, 30 Sep 2006 06:42:06 -0400
+Received: from mail5.postech.ac.kr ([141.223.1.113]:654 "EHLO
+	mail5.postech.ac.kr") by vger.kernel.org with ESMTP
+	id S1750803AbWI3KmD convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Sep 2006 06:42:03 -0400
+Date: Sat, 30 Sep 2006 19:42:05 +0900
+From: Seongsu Lee <senux@senux.com>
+To: linux-kernel@vger.kernel.org
+Subject: Re: specifying the order of calling kernel functions (or modules)
+Message-ID: <20060930104205.GB10248@pooky.senux.com>
+References: <20060928101724.GA18635@pooky.senux.com> <200609281547.k8SFl3Au004978@turing-police.cc.vt.edu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200609301240.03464.arnd@arndb.de>
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:bf0b512fe2ff06b96d9695102898be39
+Content-Transfer-Encoding: 8BIT
+In-Reply-To: <200609281547.k8SFl3Au004978@turing-police.cc.vt.edu>
+X-TERRACE-SPAMMARK: NO       (SR:4.79)                     
+  (by Terrace)                                                   
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Am Saturday 30 September 2006 01:05 schrieb Linas Vepstas:
-> Although these patches have not been baking in
-> any -mm tree, they have been tested and are
-> generally available as a part of the Cell SDK 2.0
-> overseen by Arnd Bergmann. (Arnd, if you want
-> to lend a voice of authority here, or to correct
-> me, please do so...)
->
-> The following sequence of six patches implement a
-> series of changes to the transmit side of the
-> spidernet ethernet device driver, significantly
-> improving performance for large packets.
->
-> This series of patches is almost identical to
-> those previously mailed on 18-20 August, with one
-> critical change: NAPI polling is used instead of
-> homegrown polling.
->
-> Although these patches improve things, I am not
-> satisfied with how this driver behaves, and so
-> plan to do additional work next week.
->
+On Thu, Sep 28, 2006 at 11:47:02AM -0400, Valdis.Kletnieks@vt.edu wrote:
+> On Thu, 28 Sep 2006 19:17:24 +0900, Seongsu Lee said:
+> > I am a beginner of kernel module programming. I want to
+> > specify the order of calling functions that I registered
+> > by EXPORT_SYMBOL(). (or modules)
+> 
+> What problem did you expect to solve by specifying the order?  Phrased
+> differently, why does the order matter?
 
-I'm not sure if I have missed a patch in here, but I
-don't see anything reintroducing the 'netif_stop_queue'
-that is missing from the transmit path.
+I am playing with mtdconcat in MTD (Memory Technology Device).
 
-Do you have a extra patch for that?
+For example:
+  mtdconcat must be called after initializing the lower device and
+  partitions. So, the order of calling functions must be decided
+  always.
 
-	Arnd <><
+Actuall, the functions in Linux kernel are called in a order. I want
+to know how to specify these orders.
+
+Sorry for short English. Thank you for your help.
+
+-- 
+Seongsu Lee - http://www.senux.com/
+"I don't think so," said Ren'e Descartes. Just then,
+he vanished.
+
+
+
+

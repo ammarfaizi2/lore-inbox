@@ -1,71 +1,439 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751342AbWI3SLV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751378AbWI3SQT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751342AbWI3SLV (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Sep 2006 14:11:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751392AbWI3SLV
+	id S1751378AbWI3SQT (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Sep 2006 14:16:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751380AbWI3SQT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Sep 2006 14:11:21 -0400
-Received: from mx2.suse.de ([195.135.220.15]:60627 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751342AbWI3SLU (ORCPT
+	Sat, 30 Sep 2006 14:16:19 -0400
+Received: from mail.aknet.ru ([82.179.72.26]:58628 "EHLO mail.aknet.ru")
+	by vger.kernel.org with ESMTP id S1751378AbWI3SQR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Sep 2006 14:11:20 -0400
-From: Andi Kleen <ak@suse.de>
-To: Luca Tettamanti <kronos.it@gmail.com>
-Subject: Re: [2.6.18-git] Lost all PCI devices
-Date: Sat, 30 Sep 2006 20:11:13 +0200
-User-Agent: KMail/1.9.3
-Cc: linux-kernel@vger.kernel.org
-References: <20060930174247.GA31793@dreamland.darkstar.lan>
-In-Reply-To: <20060930174247.GA31793@dreamland.darkstar.lan>
+	Sat, 30 Sep 2006 14:16:17 -0400
+Message-ID: <451EB4DB.3080508@aknet.ru>
+Date: Sat, 30 Sep 2006 22:18:03 +0400
+From: Stas Sergeev <stsp@aknet.ru>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-15"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200609302011.13457.ak@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: zach@vmware.com, linux-kernel@vger.kernel.org,
+       Chuck Ebbert <76306.1226@compuserve.com>,
+       Jan Beulich <JBeulich@novell.com>
+Subject: [patch] espfix cleanup take 3
+References: <44D0D643.6090108@aknet.ru> <20060802203336.c4f8a428.akpm@osdl.org>
+In-Reply-To: <20060802203336.c4f8a428.akpm@osdl.org>
+Content-Type: multipart/mixed;
+ boundary="------------070407030107060502090508"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Saturday 30 September 2006 19:42, Luca Tettamanti wrote:
-> Hi Andi,
-> I'm testing current git on my notebook, but kernel doesn't find any
-> PCI device: no video card, no IDE, nothing.
+This is a multi-part message in MIME format.
+--------------070407030107060502090508
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Can you test it with this patch please? 
+Hello.
 
--Andi
+Andrew Morton wrote:
+> Ho hum, this conflicts moderately with the hypervisor preparatory patches
+> which Jeremy sent.
+> So could I ask that you redo this patch in a couple of weeks time against
+> the current -mm lineup?
+Done.
 
-Fix PCI BIOS config space access
+The attached patch cleans up the espfix code:
+- Introduced PER_CPU() macro to be used from asm
+- Introduced GET_DESC_BASE() macro to be used from asm
+- Rewrote the fixup code in asm, as calling a C code with the altered %ss
+  appeared to be unsafe
+- No longer altering the stack from a .fixup section
+- 16bit per-cpu stack is no longer used, instead the stack segment base
+  is patched the way so that the high word of the kernel and user %esp
+  are the same.
+- Added the limit-patching for the espfix segment. (Chuck Ebbert)
 
-Got broken by a earlier change.
+Signed-off-by: Stas Sergeev <stsp@aknet.ru>
+Acked-by: Zachary Amsden <zach@vmware.com>
+Acked-by: Chuck Ebbert <76306.1226@compuserve.com>
+Acked-by: Jan Beulich <jbeulich@novell.com>
 
-Signed-off-by: Andi Kleen <ak@suse.de>
 
-Index: linux/arch/i386/pci/direct.c
-===================================================================
---- linux.orig/arch/i386/pci/direct.c
-+++ linux/arch/i386/pci/direct.c
-@@ -256,6 +256,8 @@ static int __init pci_check_type2(void)
+--------------070407030107060502090508
+Content-Type: text/plain;
+ name="espfcln3.diff"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="espfcln3.diff"
+
+diff -ur linux-2.6.18-mm2/arch/i386/kernel/asm-offsets.c linux-2.6.18-mm2-stk/arch/i386/kernel/asm-offsets.c
+--- linux-2.6.18-mm2/arch/i386/kernel/asm-offsets.c	2006-09-30 14:28:27.000000000 +0400
++++ linux-2.6.18-mm2-stk/arch/i386/kernel/asm-offsets.c	2006-09-30 20:18:41.000000000 +0400
+@@ -58,6 +58,11 @@
+ 	OFFSET(TI_sysenter_return, thread_info, sysenter_return);
+ 	BLANK();
  
- void __init pci_direct_init(int type)
- {
-+	if (type == 0)
-+		return;
- 	printk(KERN_INFO "PCI: Using configuration type %d\n", type);
- 	if (type == 1)
- 		raw_pci_ops = &pci_direct_conf1;
-Index: linux/arch/i386/pci/init.c
-===================================================================
---- linux.orig/arch/i386/pci/init.c
-+++ linux/arch/i386/pci/init.c
-@@ -28,6 +28,10 @@ static __init int pci_access_init(void)
- #ifdef CONFIG_PCI_DIRECT
- 	pci_direct_init(type);
- #endif
-+	if (!raw_pci_ops)
-+		printk(KERN_ERR 
-+		"PCI: Fatal: No config space access function found\n");
++	OFFSET(GDS_size, Xgt_desc_struct, size);
++	OFFSET(GDS_address, Xgt_desc_struct, address);
++	OFFSET(GDS_pad, Xgt_desc_struct, pad);
++	BLANK();
 +
- 	return 0;
+ 	OFFSET(EXEC_DOMAIN_handler, exec_domain, handler);
+ 	OFFSET(RT_SIGFRAME_sigcontext, rt_sigframe, uc.uc_mcontext);
+ 	BLANK();
+diff -ur linux-2.6.18-mm2/arch/i386/kernel/cpu/common.c linux-2.6.18-mm2-stk/arch/i386/kernel/cpu/common.c
+--- linux-2.6.18-mm2/arch/i386/kernel/cpu/common.c	2006-09-30 16:27:56.000000000 +0400
++++ linux-2.6.18-mm2-stk/arch/i386/kernel/cpu/common.c	2006-09-30 20:18:39.000000000 +0400
+@@ -24,9 +24,6 @@
+ DEFINE_PER_CPU(struct Xgt_desc_struct, cpu_gdt_descr);
+ EXPORT_PER_CPU_SYMBOL(cpu_gdt_descr);
+ 
+-DEFINE_PER_CPU(unsigned char, cpu_16bit_stack[CPU_16BIT_STACK_SIZE]);
+-EXPORT_PER_CPU_SYMBOL(cpu_16bit_stack);
+-
+ static int cachesize_override __cpuinitdata = -1;
+ static int disable_x86_fxsr __cpuinitdata;
+ static int disable_x86_serial_nr __cpuinitdata = 1;
+@@ -594,7 +591,6 @@
+ 	struct tss_struct * t = &per_cpu(init_tss, cpu);
+ 	struct thread_struct *thread = &current->thread;
+ 	struct desc_struct *gdt;
+-	__u32 stk16_off = (__u32)&per_cpu(cpu_16bit_stack, cpu);
+ 	struct Xgt_desc_struct *cpu_gdt_descr = &per_cpu(cpu_gdt_descr, cpu);
+ 
+ 	if (cpu_test_and_set(cpu, cpu_initialized)) {
+@@ -642,13 +638,6 @@
+ 	 * and set up the GDT descriptor:
+ 	 */
+  	memcpy(gdt, cpu_gdt_table, GDT_SIZE);
+-
+-	/* Set up GDT entry for 16bit stack */
+- 	*(__u64 *)(&gdt[GDT_ENTRY_ESPFIX_SS]) |=
+-		((((__u64)stk16_off) << 16) & 0x000000ffffff0000ULL) |
+-		((((__u64)stk16_off) << 32) & 0xff00000000000000ULL) |
+-		(CPU_16BIT_STACK_SIZE - 1);
+-
+ 	cpu_gdt_descr->size = GDT_SIZE - 1;
+  	cpu_gdt_descr->address = (unsigned long)gdt;
+ 
+diff -ur linux-2.6.18-mm2/arch/i386/kernel/entry.S linux-2.6.18-mm2-stk/arch/i386/kernel/entry.S
+--- linux-2.6.18-mm2/arch/i386/kernel/entry.S	2006-09-30 16:27:56.000000000 +0400
++++ linux-2.6.18-mm2-stk/arch/i386/kernel/entry.S	2006-09-30 20:18:42.000000000 +0400
+@@ -48,6 +48,7 @@
+ #include <asm/smp.h>
+ #include <asm/page.h>
+ #include <asm/desc.h>
++#include <asm/percpu.h>
+ #include <asm/dwarf2.h>
+ #include "irq_vectors.h"
+ 
+@@ -418,23 +419,18 @@
+ 	 * This is an "official" bug of all the x86-compatible
+ 	 * CPUs, which we can try to work around to make
+ 	 * dosemu and wine happy. */
+-	subl $8, %esp		# reserve space for switch16 pointer
+-	CFI_ADJUST_CFA_OFFSET 8
++	movl OLDESP(%esp), %eax
++	movl %esp, %edx
++	call patch_espfix_desc
++	pushl $__ESPFIX_SS
++	CFI_ADJUST_CFA_OFFSET 4
++	pushl %eax
++	CFI_ADJUST_CFA_OFFSET 4
+ 	DISABLE_INTERRUPTS
+ 	TRACE_IRQS_OFF
+-	movl %esp, %eax
+-	/* Set up the 16bit stack frame with switch32 pointer on top,
+-	 * and a switch16 pointer on top of the current frame. */
+-	call setup_x86_bogus_stack
+-	CFI_ADJUST_CFA_OFFSET -8	# frame has moved
+-	TRACE_IRQS_IRET
+-	RESTORE_REGS
+-	lss 20+4(%esp), %esp	# switch to 16bit stack
+-1:	INTERRUPT_RETURN
+-.section __ex_table,"a"
+-	.align 4
+-	.long 1b,iret_exc
+-.previous
++	lss (%esp), %esp
++	CFI_ADJUST_CFA_OFFSET -8
++	jmp restore_nocheck
+ 	CFI_ENDPROC
+ 
+ 	# perform work that needs to be done immediately before resumption
+@@ -524,30 +520,30 @@
+ 	CFI_ENDPROC
+ 
+ #define FIXUP_ESPFIX_STACK \
+-	movl %esp, %eax; \
+-	/* switch to 32bit stack using the pointer on top of 16bit stack */ \
+-	lss %ss:CPU_16BIT_STACK_SIZE-8, %esp; \
+-	/* copy data from 16bit stack to 32bit stack */ \
+-	call fixup_x86_bogus_stack; \
+-	/* put ESP to the proper location */ \
+-	movl %eax, %esp;
+-#define UNWIND_ESPFIX_STACK \
++	/* since we are on a wrong stack, we cant make it a C code :( */ \
++	GET_THREAD_INFO(%ebp); \
++	movl TI_cpu(%ebp), %ebx; \
++	PER_CPU(cpu_gdt_descr, %ebx); \
++	movl GDS_address(%ebx), %ebx; \
++	GET_DESC_BASE(GDT_ENTRY_ESPFIX_SS, %ebx, %eax, %ax, %al, %ah); \
++	addl %esp, %eax; \
++	pushl $__KERNEL_DS; \
++	CFI_ADJUST_CFA_OFFSET 4; \
+ 	pushl %eax; \
+ 	CFI_ADJUST_CFA_OFFSET 4; \
++	lss (%esp), %esp; \
++	CFI_ADJUST_CFA_OFFSET -8;
++#define UNWIND_ESPFIX_STACK \
+ 	movl %ss, %eax; \
+-	/* see if on 16bit stack */ \
++	/* see if on espfix stack */ \
+ 	cmpw $__ESPFIX_SS, %ax; \
+-	je 28f; \
+-27:	popl %eax; \
+-	CFI_ADJUST_CFA_OFFSET -4; \
+-.section .fixup,"ax"; \
+-28:	movl $__KERNEL_DS, %eax; \
++	jne 27f; \
++	movl $__KERNEL_DS, %eax; \
+ 	movl %eax, %ds; \
+ 	movl %eax, %es; \
+-	/* switch to 32bit stack */ \
++	/* switch to normal stack */ \
+ 	FIXUP_ESPFIX_STACK; \
+-	jmp 27b; \
+-.previous
++27:;
+ 
+ /*
+  * Build the entry stubs and pointer table with
+@@ -614,7 +610,6 @@
+ 	pushl %eax
+ 	CFI_ADJUST_CFA_OFFSET 4
+ 	CFI_REL_OFFSET eax, 0
+-	xorl %eax, %eax
+ 	pushl %ebp
+ 	CFI_ADJUST_CFA_OFFSET 4
+ 	CFI_REL_OFFSET ebp, 0
+@@ -627,7 +622,6 @@
+ 	pushl %edx
+ 	CFI_ADJUST_CFA_OFFSET 4
+ 	CFI_REL_OFFSET edx, 0
+-	decl %eax			# eax = -1
+ 	pushl %ecx
+ 	CFI_ADJUST_CFA_OFFSET 4
+ 	CFI_REL_OFFSET ecx, 0
+@@ -644,7 +638,7 @@
+ 	/*CFI_REGISTER es, ecx*/
+ 	movl ES(%esp), %edi		# get the function address
+ 	movl ORIG_EAX(%esp), %edx	# get the error code
+-	movl %eax, ORIG_EAX(%esp)
++	movl $-1, ORIG_EAX(%esp)
+ 	movl %ecx, ES(%esp)
+ 	/*CFI_REL_OFFSET es, ES*/
+ 	movl $(__USER_DS), %ecx
+@@ -754,7 +748,7 @@
+ 	cmpw $__ESPFIX_SS, %ax
+ 	popl %eax
+ 	CFI_ADJUST_CFA_OFFSET -4
+-	je nmi_16bit_stack
++	je nmi_espfix_stack
+ 	cmpl $sysenter_entry,(%esp)
+ 	je nmi_stack_fixup
+ 	pushl %eax
+@@ -797,7 +791,7 @@
+ 	FIX_STACK(24,nmi_stack_correct, 1)
+ 	jmp nmi_stack_correct
+ 
+-nmi_16bit_stack:
++nmi_espfix_stack:
+ 	/* We have a RING0_INT_FRAME here.
+ 	 *
+ 	 * create the pointer to lss back
+@@ -806,7 +800,6 @@
+ 	CFI_ADJUST_CFA_OFFSET 4
+ 	pushl %esp
+ 	CFI_ADJUST_CFA_OFFSET 4
+-	movzwl %sp, %esp
+ 	addw $4, (%esp)
+ 	/* copy the iret frame of 12 bytes */
+ 	.rept 3
+@@ -817,11 +810,11 @@
+ 	CFI_ADJUST_CFA_OFFSET 4
+ 	SAVE_ALL
+ 	FIXUP_ESPFIX_STACK		# %eax == %esp
+-	CFI_ADJUST_CFA_OFFSET -20	# the frame has now moved
+ 	xorl %edx,%edx			# zero error code
+ 	call do_nmi
+ 	RESTORE_REGS
+-	lss 12+4(%esp), %esp		# back to 16bit stack
++	lss 12+4(%esp), %esp		# back to espfix stack
++	CFI_ADJUST_CFA_OFFSET -24
+ 1:	INTERRUPT_RETURN
+ 	CFI_ENDPROC
+ .section __ex_table,"a"
+diff -ur linux-2.6.18-mm2/arch/i386/kernel/head.S linux-2.6.18-mm2-stk/arch/i386/kernel/head.S
+--- linux-2.6.18-mm2/arch/i386/kernel/head.S	2006-09-30 16:27:56.000000000 +0400
++++ linux-2.6.18-mm2-stk/arch/i386/kernel/head.S	2006-09-30 20:18:41.000000000 +0400
+@@ -584,7 +584,7 @@
+ 	.quad 0x00009a000000ffff	/* 0xc0 APM CS 16 code (16 bit) */
+ 	.quad 0x004092000000ffff	/* 0xc8 APM DS    data */
+ 
+-	.quad 0x0000920000000000	/* 0xd0 - ESPFIX 16-bit SS */
++	.quad 0x00c0920000000000	/* 0xd0 - ESPFIX SS */
+ 	.quad 0x0000000000000000	/* 0xd8 - unused */
+ 	.quad 0x0000000000000000	/* 0xe0 - unused */
+ 	.quad 0x0000000000000000	/* 0xe8 - unused */
+diff -ur linux-2.6.18-mm2/arch/i386/kernel/traps.c linux-2.6.18-mm2-stk/arch/i386/kernel/traps.c
+--- linux-2.6.18-mm2/arch/i386/kernel/traps.c	2006-09-30 16:27:56.000000000 +0400
++++ linux-2.6.18-mm2-stk/arch/i386/kernel/traps.c	2006-09-30 20:18:41.000000000 +0400
+@@ -1088,49 +1088,24 @@
+ #endif
  }
- arch_initcall(pci_access_init);
+ 
+-fastcall void setup_x86_bogus_stack(unsigned char * stk)
++fastcall unsigned long patch_espfix_desc(unsigned long uesp,
++					  unsigned long kesp)
+ {
+-	unsigned long *switch16_ptr, *switch32_ptr;
+-	struct pt_regs *regs;
+-	unsigned long stack_top, stack_bot;
+-	unsigned short iret_frame16_off;
+ 	int cpu = smp_processor_id();
+-	/* reserve the space on 32bit stack for the magic switch16 pointer */
+-	memmove(stk, stk + 8, sizeof(struct pt_regs));
+-	switch16_ptr = (unsigned long *)(stk + sizeof(struct pt_regs));
+-	regs = (struct pt_regs *)stk;
+-	/* now the switch32 on 16bit stack */
+-	stack_bot = (unsigned long)&per_cpu(cpu_16bit_stack, cpu);
+-	stack_top = stack_bot +	CPU_16BIT_STACK_SIZE;
+-	switch32_ptr = (unsigned long *)(stack_top - 8);
+-	iret_frame16_off = CPU_16BIT_STACK_SIZE - 8 - 20;
+-	/* copy iret frame on 16bit stack */
+-	memcpy((void *)(stack_bot + iret_frame16_off), &regs->eip, 20);
+-	/* fill in the switch pointers */
+-	switch16_ptr[0] = (regs->esp & 0xffff0000) | iret_frame16_off;
+-	switch16_ptr[1] = __ESPFIX_SS;
+-	switch32_ptr[0] = (unsigned long)stk + sizeof(struct pt_regs) +
+-		8 - CPU_16BIT_STACK_SIZE;
+-	switch32_ptr[1] = __KERNEL_DS;
+-}
+-
+-fastcall unsigned char * fixup_x86_bogus_stack(unsigned short sp)
+-{
+-	unsigned long *switch32_ptr;
+-	unsigned char *stack16, *stack32;
+-	unsigned long stack_top, stack_bot;
+-	int len;
+-	int cpu = smp_processor_id();
+-	stack_bot = (unsigned long)&per_cpu(cpu_16bit_stack, cpu);
+-	stack_top = stack_bot +	CPU_16BIT_STACK_SIZE;
+-	switch32_ptr = (unsigned long *)(stack_top - 8);
+-	/* copy the data from 16bit stack to 32bit stack */
+-	len = CPU_16BIT_STACK_SIZE - 8 - sp;
+-	stack16 = (unsigned char *)(stack_bot + sp);
+-	stack32 = (unsigned char *)
+-		(switch32_ptr[0] + CPU_16BIT_STACK_SIZE - 8 - len);
+-	memcpy(stack32, stack16, len);
+-	return stack32;
++	struct Xgt_desc_struct *cpu_gdt_descr = &per_cpu(cpu_gdt_descr, cpu);
++	struct desc_struct *gdt = (struct desc_struct *)cpu_gdt_descr->address;
++	unsigned long base = (kesp - uesp) & -THREAD_SIZE;
++	unsigned long new_kesp = kesp - base;
++	unsigned long lim_pages = (new_kesp | (THREAD_SIZE - 1)) >> PAGE_SHIFT;
++	__u64 desc = *(__u64 *)&gdt[GDT_ENTRY_ESPFIX_SS];
++	/* Set up base for espfix segment */
++ 	desc &= 0x00f0ff0000000000ULL;
++ 	desc |=	((((__u64)base) << 16) & 0x000000ffffff0000ULL) |
++		((((__u64)base) << 32) & 0xff00000000000000ULL) |
++		((((__u64)lim_pages) << 32) & 0x000f000000000000ULL) |
++		(lim_pages & 0xffff);
++	*(__u64 *)&gdt[GDT_ENTRY_ESPFIX_SS] = desc;
++	return new_kesp;
+ }
+ 
+ /*
+diff -ur linux-2.6.18-mm2/include/asm-i386/desc.h linux-2.6.18-mm2-stk/include/asm-i386/desc.h
+--- linux-2.6.18-mm2/include/asm-i386/desc.h	2006-09-30 16:28:08.000000000 +0400
++++ linux-2.6.18-mm2-stk/include/asm-i386/desc.h	2006-09-30 20:20:49.000000000 +0400
+@@ -4,8 +4,6 @@
+ #include <asm/ldt.h>
+ #include <asm/segment.h>
+ 
+-#define CPU_16BIT_STACK_SIZE 1024
+-
+ #ifndef __ASSEMBLY__
+ 
+ #include <linux/preempt.h>
+@@ -16,8 +14,6 @@
+ 
+ extern struct desc_struct cpu_gdt_table[GDT_ENTRIES];
+ 
+-DECLARE_PER_CPU(unsigned char, cpu_16bit_stack[CPU_16BIT_STACK_SIZE]);
+-
+ struct Xgt_desc_struct {
+ 	unsigned short size;
+ 	unsigned long address __attribute__((packed));
+@@ -181,6 +177,29 @@
+ 	return base;
+ }
+ 
++#else /* __ASSEMBLY__ */
++
++/*
++ * GET_DESC_BASE reads the descriptor base of the specified segment.
++ *
++ * Args:
++ *    idx - descriptor index
++ *    gdt - GDT pointer
++ *    base - 32bit register to which the base will be written
++ *    lo_w - lo word of the "base" register
++ *    lo_b - lo byte of the "base" register
++ *    hi_b - hi byte of the low word of the "base" register
++ *
++ * Example:
++ *    GET_DESC_BASE(GDT_ENTRY_ESPFIX_SS, %ebx, %eax, %ax, %al, %ah)
++ *    Will read the base address of GDT_ENTRY_ESPFIX_SS and put it into %eax.
++ */
++#define GET_DESC_BASE(idx, gdt, base, lo_w, lo_b, hi_b) \
++	movb idx*8+4(gdt), lo_b; \
++	movb idx*8+7(gdt), hi_b; \
++	shll $16, base; \
++	movw idx*8+2(gdt), lo_w;
++
+ #endif /* !__ASSEMBLY__ */
+ 
+ #endif
+diff -ur linux-2.6.18-mm2/include/asm-i386/percpu.h linux-2.6.18-mm2-stk/include/asm-i386/percpu.h
+--- linux-2.6.18-mm2/include/asm-i386/percpu.h	2004-01-09 10:00:03.000000000 +0300
++++ linux-2.6.18-mm2-stk/include/asm-i386/percpu.h	2006-09-30 20:20:49.000000000 +0400
+@@ -1,6 +1,27 @@
+ #ifndef __ARCH_I386_PERCPU__
+ #define __ARCH_I386_PERCPU__
+ 
++#ifndef __ASSEMBLY__
+ #include <asm-generic/percpu.h>
++#else
++
++/*
++ * PER_CPU finds an address of a per-cpu variable.
++ *
++ * Args:
++ *    var - variable name
++ *    cpu - 32bit register containing the current CPU number
++ *
++ * The resulting address is stored in the "cpu" argument.
++ *
++ * Example:
++ *    PER_CPU(cpu_gdt_descr, %ebx)
++ */
++#define PER_CPU(var, cpu) \
++	shll $2, cpu; \
++	movl __per_cpu_offset(cpu), cpu; \
++	addl $per_cpu__/**/var, cpu;
++
++#endif /* !__ASSEMBLY__ */
+ 
+ #endif /* __ARCH_I386_PERCPU__ */
+
+--------------070407030107060502090508--

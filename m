@@ -1,56 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751957AbWI3UtD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751922AbWI3UvY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751957AbWI3UtD (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Sep 2006 16:49:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751964AbWI3UtB
+	id S1751922AbWI3UvY (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Sep 2006 16:51:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751935AbWI3UvY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Sep 2006 16:49:01 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:14215 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751935AbWI3UtA (ORCPT
+	Sat, 30 Sep 2006 16:51:24 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:48770 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1751922AbWI3UvX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Sep 2006 16:49:00 -0400
-Date: Sat, 30 Sep 2006 13:47:13 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Andi Kleen <ak@suse.de>
-cc: Eric Rannaud <eric.rannaud@gmail.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
-       nagar@watson.ibm.com, Chandra Seetharaman <sekharan@us.ibm.com>,
-       Jan Beulich <jbeulich@novell.com>
-Subject: Re: BUG-lockdep and freeze (was: Arrr! Linux 2.6.18)
-In-Reply-To: <200609302230.24070.ak@suse.de>
-Message-ID: <Pine.LNX.4.64.0609301344231.3952@g5.osdl.org>
-References: <5f3c152b0609301220p7a487c7dw456d007298578cd7@mail.gmail.com>
- <Pine.LNX.4.64.0609301237460.3952@g5.osdl.org> <200609302230.24070.ak@suse.de>
+	Sat, 30 Sep 2006 16:51:23 -0400
+Date: Sat, 30 Sep 2006 22:51:15 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: "Eugeny S. Mints" <eugeny.mints@gmail.com>
+Cc: linux-kernel@vger.kernel.org, linux-pm@lists.osdl.org,
+       ext-Tuukka.Tikkanen@nokia.com
+Subject: Re: [linux-pm] PowerOP, Whatchanged/Issues/TODO 2/2
+Message-ID: <20060930205115.GA3061@elf.ucw.cz>
+References: <20060930014412.98405be8.eugeny.mints@gmail.com>
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060930014412.98405be8.eugeny.mints@gmail.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-
-
-On Sat, 30 Sep 2006, Andi Kleen wrote:
+On Sat 2006-09-30 01:44:12, Eugeny S. Mints wrote:
+> whatchanged:
+> - new concept of powerop power parameter is introduced
+> - new powerop core interface routine to set individual(or subset of)
+>   power parameter value is added
+> - no more string parsing at any layer
+> - no more va_list interface 
+> - powerop driver module refcounting is added
+> - documentation file including optional sysfs interface description is added
 > 
-> We didn't so far find any bug in the unwinder code itself (ok if you don't
-> count the performance issue Ingo found) just lots in the annotations and one
-> bug in the dwarf2 standard.
+> todo/issues:
+> - better implementation for getting registered operating point names
+> - configfs for operating points creation from user space
 
-I don't think it matters if it's a bug in the unwinding code or in the 
-data generated for it. It's still a bug in the unwinder.
+You forgot to mention: how to solve the "256 cpus, 2 power states
+each" case?
 
-Those bugs have been compiler bugs, manual annotation bugs, and it 
-doesn't _matter_ what kind of bugs. The end result is the same: the 
-unwinder is buggy.
+									Pavel
 
-> If you kick the people who add more than three levels of callback
-> to core driver code to get their acts together too that's fine 
-> to me. Unfortunately I don't think that's realistic. So we clearly
-> need better unwinding.
-
-I dispute the "clearly". We didn't have _that_ many problems with just 
-manually filtering out obvious left-overs from some previous callchain.
-
-I mean, really: Andi, point me to anything that was a real problem when we 
-had no unwinder at all?
-
-			Linus
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

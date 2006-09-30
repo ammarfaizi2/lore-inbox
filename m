@@ -1,103 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1422870AbWI3Adw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161048AbWI3Ah5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1422870AbWI3Adw (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Sep 2006 20:33:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1422869AbWI3Adw
+	id S1161048AbWI3Ah5 (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Sep 2006 20:37:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161055AbWI3Ah5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Sep 2006 20:33:52 -0400
-Received: from mga09.intel.com ([134.134.136.24]:28849 "EHLO mga09.intel.com")
-	by vger.kernel.org with ESMTP id S1161012AbWI3Adv (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Sep 2006 20:33:51 -0400
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.09,238,1157353200"; 
-   d="scan'208"; a="138469510:sNHT23675309"
-Date: Fri, 29 Sep 2006 17:33:08 -0700
-From: Kristen Carlson Accardi <kristen.c.accardi@intel.com>
-To: Matthew Garrett <mjg59@srcf.ucam.org>
-Cc: linux-ide@vger.kernel.org, linux-kernel@vger.kernel.org, jgarzik@pobox.com,
-       rdunlap@xenotime.net
-Subject: Re: [patch 2/2] libata: _SDD support
-Message-Id: <20060929173308.c9b2d29e.kristen.c.accardi@intel.com>
-In-Reply-To: <20060929021353.GB22082@srcf.ucam.org>
-References: <20060928182211.076258000@localhost.localdomain>
-	<20060928112912.d2ae0d8f.kristen.c.accardi@intel.com>
-	<20060929021353.GB22082@srcf.ucam.org>
-X-Mailer: Sylpheed version 2.2.6 (GTK+ 2.8.20; i386-redhat-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Fri, 29 Sep 2006 20:37:57 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:34220 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1161048AbWI3Ah4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Sep 2006 20:37:56 -0400
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: "Bryan O'Sullivan" <bos@pathscale.com>
+Cc: rdreier@cisco.com, linux-kernel@vger.kernel.org, openib-general@openib.org
+Subject: Re: [PATCH 0 of 28] ipath patches for 2.6.19
+References: <patchbomb.1159459196@eng-12.pathscale.com>
+Date: Fri, 29 Sep 2006 18:36:25 -0600
+In-Reply-To: <patchbomb.1159459196@eng-12.pathscale.com> (Bryan O'Sullivan's
+	message of "Thu, 28 Sep 2006 08:59:56 -0700")
+Message-ID: <m1irj6gph2.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 29 Sep 2006 03:13:53 +0100
-Matthew Garrett <mjg59@srcf.ucam.org> wrote:
+"Bryan O'Sullivan" <bos@pathscale.com> writes:
 
-> This may be paranoia, but:
-> 
-> If I'm reading the code right (I may well not be), you seem to be 
-> evaulating _GTF before _SDD. The spec (9.9.1.1) claims that _SDD should 
-> be evaulated before _GTF - we had a couple of bug reports against an 
-> earlier version of the patch that may have been due to that, but I never 
-> had a chance to chase them down properly.
-> 
-> -- 
-> Matthew Garrett | mjg59@srcf.ucam.org
+> Hi, Roland -
+>
+> This patch series brings the ipath driver almost up to date with what's
+> in our internal tree.  The only substantial thing missing is the
+> memcpy_cachebypass patch that I sent out a while back and haven't had
+> time to rework.
+>
+> These patches have seen a lot of testing, including on a git snapshot
+> as of yesterday afternoon.  Please apply.
 
-You are right, that was happening.  this patch fixes the issue:
+Have you tested your driver against the -mm tree?
 
-Subject: libata: change order of sdd/gtf execution
+To the best of my knowledge the irq handling of your hypertransport card
+is a complete and total hack that works only by chance.
 
-Make the sdd call come before gtf.  _SDD is used to provide
-input to the _GTF file, so it should be executed first.
+In the -mm tree I have added a first pass at proper support for the
+hypertranport interrupt capability.  As this code is slated to go into
+2.6.19 could you please test against that?
 
-Signed-off-by: Kristen Carlson Accardi <kristen.c.accardi@intel.com>
+I would have tested it myself except when I mentioned this earlier I was told
+that your card does not actually implement the hypertransport interrupt
+capability properly.  
 
----
- drivers/ata/libata-core.c |   21 ++++++++++-----------
- 1 file changed, 10 insertions(+), 11 deletions(-)
+The practical reason for pathscale to work on this is the genirq work
+in 2.6.19 changes the internal implementation detail your
+hypertransport card has been relying on to work so your hypertranport
+card will not work without fixes.
 
---- 2.6-mm.orig/drivers/ata/libata-core.c
-+++ 2.6-mm/drivers/ata/libata-core.c
-@@ -1404,6 +1404,16 @@ int ata_dev_configure(struct ata_device 
- 		ata_dev_printk(dev, KERN_DEBUG, "%s: ENTER, host %u, dev %u\n",
- 			       __FUNCTION__, ap->id, dev->devno);
- 
-+	/* set _SDD */
-+	rc = ata_acpi_push_id(ap, dev->devno);
-+	if (rc) {
-+		ata_dev_printk(dev, KERN_WARNING, "failed to set _SDD(%d)\n",
-+			rc);
-+	}
-+
-+	/* retrieve and execute the ATA task file of _GTF */
-+	ata_acpi_exec_tfs(ap);
-+
- 	/* print device capabilities */
- 	if (ata_msg_probe(ap))
- 		ata_dev_printk(dev, KERN_DEBUG,
-@@ -1556,14 +1566,6 @@ int ata_dev_configure(struct ata_device 
- 	if (ap->ops->dev_config)
- 		ap->ops->dev_config(ap, dev);
- 
--	/* set _SDD */
--	rc = ata_acpi_push_id(ap, dev->devno);
--	if (rc) {
--		ata_dev_printk(dev, KERN_WARNING, "failed to set _SDD(%d)\n",
--			rc);
--		goto err_out_nosup;
--	}
--
- 	if (ata_msg_probe(ap))
- 		ata_dev_printk(dev, KERN_DEBUG, "%s: EXIT, drv_stat = 0x%x\n",
- 			__FUNCTION__, ata_chk_status(ap));
-@@ -1609,9 +1611,6 @@ int ata_bus_probe(struct ata_port *ap)
- 	/* reset and determine device classes */
- 	ap->ops->phy_reset(ap);
- 
--	/* retrieve and execute the ATA task file of _GTF */
--	ata_acpi_exec_tfs(ap);
--
- 	for (i = 0; i < ATA_MAX_DEVICES; i++) {
- 		dev = &ap->device[i];
- 
+Thanks,
+Eric

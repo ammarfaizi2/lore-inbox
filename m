@@ -1,51 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751471AbWI3WZF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751501AbWI3W3Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751471AbWI3WZF (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Sep 2006 18:25:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751473AbWI3WZF
+	id S1751501AbWI3W3Z (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Sep 2006 18:29:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751512AbWI3W3Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Sep 2006 18:25:05 -0400
-Received: from mx1.suse.de ([195.135.220.2]:51871 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751471AbWI3WZA (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Sep 2006 18:25:00 -0400
-From: Andi Kleen <ak@suse.de>
-To: "Eric Rannaud" <eric.rannaud@gmail.com>
-Subject: Re: BUG-lockdep and freeze (was: Arrr! Linux 2.6.18) II
-Date: Sun, 1 Oct 2006 00:24:53 +0200
-User-Agent: KMail/1.9.3
-Cc: "Linus Torvalds" <torvalds@osdl.org>, "Ingo Molnar" <mingo@elte.hu>,
-       "Linux Kernel Mailing List" <linux-kernel@vger.kernel.org>,
-       "Andrew Morton" <akpm@osdl.org>, nagar@watson.ibm.com,
-       "Chandra Seetharaman" <sekharan@us.ibm.com>,
-       "Jan Beulich" <jbeulich@novell.com>
-References: <5f3c152b0609301220p7a487c7dw456d007298578cd7@mail.gmail.com> <200610010009.30123.ak@suse.de> <5f3c152b0609301519p42250850ufe02a79364249622@mail.gmail.com>
-In-Reply-To: <5f3c152b0609301519p42250850ufe02a79364249622@mail.gmail.com>
+	Sat, 30 Sep 2006 18:29:24 -0400
+Received: from post-23.mail.nl.demon.net ([194.159.73.193]:3835 "EHLO
+	post-23.mail.nl.demon.net") by vger.kernel.org with ESMTP
+	id S1751501AbWI3W3Y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Sep 2006 18:29:24 -0400
+Message-ID: <451EEFC2.4090600@rebelhomicide.demon.nl>
+Date: Sun, 01 Oct 2006 00:29:22 +0200
+From: Michiel de Boer <x@rebelhomicide.demon.nl>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060915)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: David Lang <dlang@digitalinsight.com>
+CC: James Bottomley <James.Bottomley@SteelEye.com>, tridge@samba.org,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: GPLv3 Position Statement
+References: <1159498900.3880.31.camel@mulgrave.il.steeleye.com>  <17692.46192.432673.743783@samba.org>  <1159515086.3880.79.camel@mulgrave.il.steeleye.com>  <17692.57123.749163.204216@samba.org> <1159559443.9543.23.camel@mulgrave.il.steeleye.com> <Pine.LNX.4.63.0609301408450.27570@qynat.qvtvafvgr.pbz>
+In-Reply-To: <Pine.LNX.4.63.0609301408450.27570@qynat.qvtvafvgr.pbz>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200610010024.53854.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 01 October 2006 00:19, Eric Rannaud wrote:
-> On 10/1/06, Andi Kleen <ak@suse.de> wrote:
-> > I double checked this now. This case Eric ran into should be already
-> > fixed by a patch from Jan that went in before 2.6.18 even.
-> >
-> > He just ran with an old kernel (2.6.18-rc3) that didn't have
-> > that particular fix.
-> 
-> Hmm, not sure I'm following you, but I did try with the released
-> v2.6.18 (fourth stacktrace in my first email in this thread). The
-> 2.6.13-rc3 (d94a041519f3ab1ac023bf917619cd8c4a7d3c01) version was
-> tested only as the result of git-bisect, and is the first kernel that
-> crashed in this way. But v2.6.18 crashed in a similar way as well.
-> Are you saying v2.6.18 should contain a fix preventing it from crashing?
+David Lang wrote:
+> On Fri, 29 Sep 2006, James Bottomley wrote:
+>
+>>> That caveat is important, and changes it from a misleading statement
+>>> to a true statement. It also is a statement which is true for the
+>>> GPLv2, which makes it not such a useful statement to make when
+>>> considering the relative merits of the two licenses.
+>>
+>> Well, this is the whole point.  Today, you can distribute GPLv2 packages
+>> without much patent worry ... if you develop GPLv2 packages, that's
+>> different, but if you simply act as a conduit, you're not going to have
+>> too much trouble..  If I take the broad interpretation that I give a
+>> licence to every patent practised by every package I distribute, then I
+>> don't know what my liability might be until I've done an IP assessment
+>> of everything that's distributed from the website.  That means not just
+>> what I'm working on, but also what support put up there to assist a
+>> customer, and also what the engineers are putting up in their private
+>> areas.
+>
+> this is especially relavent for companies that have formerly been 
+> willing to act as mirrors for free software projects. now the act of 
+> mirroring debian means that any patent they own could be comprimised 
+> by a random debian developer adding a patch to any of 19000 packages 
+> that implements that patent 
 
-2.6.18 should have showed the backtrace from lockdep, but not the oops at 
-the end of the backtrace in show_trace()
+Conversely, is it possible that the 'random debian developer' could be 
+sued for patent infringement if he isn't protected by the GPL?
+Besides, software patents are evil, period.
 
--Andi
+Regards, Michiel de Boer

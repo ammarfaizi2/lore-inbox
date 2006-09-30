@@ -1,43 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751301AbWI3RMg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751307AbWI3RNX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751301AbWI3RMg (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Sep 2006 13:12:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751309AbWI3RMg
+	id S1751307AbWI3RNX (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Sep 2006 13:13:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751309AbWI3RNW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Sep 2006 13:12:36 -0400
-Received: from nf-out-0910.google.com ([64.233.182.190]:25925 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1751306AbWI3RMf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Sep 2006 13:12:35 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:in-reply-to:references:x-mailer:mime-version:content-type:content-transfer-encoding;
-        b=apg2zimWVzGq+bG3bRPHqAOsLlYtWkBVuBUmFvPGW/r5NXkL1JHCSRe9mAJyeodEqCN4yhcuVJbJg9B8Ae38Po0HPE7INfVEcANN6YPpau0FW7hL0ludNE5VRvz5o4MVdshLiBRo7gBWUiI5s/15Vwp53MNntacOoY2ydlCBkyI=
-Date: Sat, 30 Sep 2006 19:14:57 +0200
-From: Alessandro Guido <alessandro.guido@gmail.com>
-To: Alessandro Guido <alessandro.guido@gmail.com>
-Cc: linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org,
-       len.brown@intel.com, jengelh@linux01.gwdg.de, gelma@gelma.net,
-       ismail@pardus.org.tr
-Subject: Re: [PATCH 2.6.18-mm2] acpi: add backlight support to the sony_acpi
- driver
-Message-Id: <20060930191457.a120ff56.alessandro.guido@gmail.com>
-In-Reply-To: <20060930190810.30b8737f.alessandro.guido@gmail.com>
-References: <20060930190810.30b8737f.alessandro.guido@gmail.com>
-X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.10.4; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sat, 30 Sep 2006 13:13:22 -0400
+Received: from emailer.gwdg.de ([134.76.10.24]:27347 "EHLO emailer.gwdg.de")
+	by vger.kernel.org with ESMTP id S1751307AbWI3RNV (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Sep 2006 13:13:21 -0400
+Date: Sat, 30 Sep 2006 19:11:33 +0200 (MEST)
+From: Jan Engelhardt <jengelh@linux01.gwdg.de>
+To: girish <girishvg@gmail.com>
+cc: "Eric W. Biederman" <ebiederm@xmission.com>, linux-kernel@vger.kernel.org,
+       William Pitcock <nenolod@atheme.org>
+Subject: Re: [PATCH] include children count, in Threads: field present in
+ /proc/<pid>/status (take-3)
+In-Reply-To: <E78297DA-5F0F-40FA-A008-89264570B313@gmail.com>
+Message-ID: <Pine.LNX.4.61.0609301908460.4615@yvahk01.tjqt.qr>
+References: <0635847A-C149-412C-92B1-A974230381F8@dts.local>
+ <F2F2C98F-6AFB-4E19-BEE9-D32652E2F478@atheme.org> <EE7C757E-E2CE-4617-A1D4-3B8F5E3E8240@gmail.com>
+ <Pine.LNX.4.61.0609291905550.27518@yvahk01.tjqt.qr>
+ <CF74CE5D-42A1-4FF9-8C9B-682C5D6DEAE1@gmail.com> <Pine.LNX.4.61.0609292011190.634@yvahk01.tjqt.qr>
+ <BEC70F7E-6143-4D8D-9800-A8538A152A18@gmail.com> <m1mz8ii8wj.fsf@ebiederm.dsl.xmission.com>
+ <E78297DA-5F0F-40FA-A008-89264570B313@gmail.com>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-Spam-Report: Content analysis: 0.0 points, 6.0 required
+	_SUMMARY_
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 30 Sep 2006 19:08:10 +0200
-Alessandro Guido <alessandro.guido@gmail.com> wrote:
+>
+>  PID COMMAND      %CPU   TIME   #TH #PRTS #MREGS RPRVT  RSHRD  RSIZE  VSIZE
+> 22429 top         16.6%  0:21.12   1    18    20  1.35M   684K  1.77M  26.9M
+> ------------------------------------------------------------------------
+> --------------------------------------------------------
+>
+> Comments/opinions?
 
-> Make the sony_acpi use the backlight subsystem to adjust brightness value
-> instead of using the /proc/sony/brightness file.
-> (Other settings will still have a /proc/sony/... entry)
+I fail to see which column you mean.
 
-I meant /proc/acpi/sony/brightness and /proc/acpi/sony/...
+#TH perhaps? I think, that can be calculated under linux by
 
-sorry
+ (a) counting the directories in /proc/22429/task using readdir
+or
+ (b) get the nlink of /proc/22429/task and subtract 2, which should give 
+     the same as (a), and, better than (a), should also be atomic
+
+
+Jan Engelhardt
+-- 

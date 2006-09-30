@@ -1,26 +1,27 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751963AbWI3UoD@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751957AbWI3UtD@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751963AbWI3UoD (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Sep 2006 16:44:03 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751964AbWI3UoB
+	id S1751957AbWI3UtD (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Sep 2006 16:49:03 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751964AbWI3UtB
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Sep 2006 16:44:01 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:24966 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751963AbWI3UoA (ORCPT
+	Sat, 30 Sep 2006 16:49:01 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:14215 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751935AbWI3UtA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Sep 2006 16:44:00 -0400
-Date: Sat, 30 Sep 2006 13:43:44 -0700 (PDT)
+	Sat, 30 Sep 2006 16:49:00 -0400
+Date: Sat, 30 Sep 2006 13:47:13 -0700 (PDT)
 From: Linus Torvalds <torvalds@osdl.org>
-To: Andi Kleen <ak@suse.de>, Jan Beulich <jbeulich@novell.com>
-cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+To: Andi Kleen <ak@suse.de>
+cc: Eric Rannaud <eric.rannaud@gmail.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
        Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
        nagar@watson.ibm.com, Chandra Seetharaman <sekharan@us.ibm.com>,
-       Eric Rannaud <eric.rannaud@gmail.com>
+       Jan Beulich <jbeulich@novell.com>
 Subject: Re: BUG-lockdep and freeze (was: Arrr! Linux 2.6.18)
-In-Reply-To: <Pine.LNX.4.64.0609301237460.3952@g5.osdl.org>
-Message-ID: <Pine.LNX.4.64.0609301329230.3952@g5.osdl.org>
+In-Reply-To: <200609302230.24070.ak@suse.de>
+Message-ID: <Pine.LNX.4.64.0609301344231.3952@g5.osdl.org>
 References: <5f3c152b0609301220p7a487c7dw456d007298578cd7@mail.gmail.com>
- <Pine.LNX.4.64.0609301237460.3952@g5.osdl.org>
+ <Pine.LNX.4.64.0609301237460.3952@g5.osdl.org> <200609302230.24070.ak@suse.de>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
@@ -28,44 +29,28 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-On Sat, 30 Sep 2006, Linus Torvalds wrote:
->
-> It's not just unreadable and obviously buggy, it's so scarily that it's 
-> hard to even talk about it. Lookie here:
+On Sat, 30 Sep 2006, Andi Kleen wrote:
 > 
-> 	#define HANDLE_STACK(cond) \
-> 	        do while (cond) { \
-> 	                unsigned long addr = *stack++; \
-> 
-> What the F*CK! "do while(cond) {" ???? 
+> We didn't so far find any bug in the unwinder code itself (ok if you don't
+> count the performance issue Ingo found) just lots in the annotations and one
+> bug in the dwarf2 standard.
 
-Btw, it took me quite a while to realize how something like that can 
-even compile. Seriously. Don't write code like that. Maybe some humans 
-parse it as
+I don't think it matters if it's a bug in the unwinding code or in the 
+data generated for it. It's still a bug in the unwinder.
 
-	do {
-		while (cond) {
-			..
-		}
-	} while(0)
+Those bugs have been compiler bugs, manual annotation bugs, and it 
+doesn't _matter_ what kind of bugs. The end result is the same: the 
+unwinder is buggy.
 
-(which is the technically correct parsing and explains why it compiles 
-and wors), but I suspect I'm not the only one who went "What the F*CK" 
-when shown it without the "extraneous" braces.
+> If you kick the people who add more than three levels of callback
+> to core driver code to get their acts together too that's fine 
+> to me. Unfortunately I don't think that's realistic. So we clearly
+> need better unwinding.
 
-For similar reasons, we write
+I dispute the "clearly". We didn't have _that_ many problems with just 
+manually filtering out obvious left-overs from some previous callchain.
 
-	#define dummy(x) do { } while (0)
+I mean, really: Andi, point me to anything that was a real problem when we 
+had no unwinder at all?
 
-rather than the shorter
-
-	#define dummy(x) do ; while (0)
-
-(which some people _do_ seem to use. Aarggh!)
-
-Or at least indent it. Or something.
-
-I'll see if I can make git warn about "do <non-blockstatement> while ()", 
-if only because I at least personally seem to have trouble parsing it.
-
-		Linus
+			Linus

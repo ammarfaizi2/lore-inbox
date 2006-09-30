@@ -1,53 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751307AbWI3RNX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751309AbWI3ROF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751307AbWI3RNX (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Sep 2006 13:13:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751309AbWI3RNW
+	id S1751309AbWI3ROF (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Sep 2006 13:14:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751317AbWI3ROE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Sep 2006 13:13:22 -0400
-Received: from emailer.gwdg.de ([134.76.10.24]:27347 "EHLO emailer.gwdg.de")
-	by vger.kernel.org with ESMTP id S1751307AbWI3RNV (ORCPT
+	Sat, 30 Sep 2006 13:14:04 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:32394 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1751309AbWI3ROA (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Sep 2006 13:13:21 -0400
-Date: Sat, 30 Sep 2006 19:11:33 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: girish <girishvg@gmail.com>
-cc: "Eric W. Biederman" <ebiederm@xmission.com>, linux-kernel@vger.kernel.org,
-       William Pitcock <nenolod@atheme.org>
-Subject: Re: [PATCH] include children count, in Threads: field present in
- /proc/<pid>/status (take-3)
-In-Reply-To: <E78297DA-5F0F-40FA-A008-89264570B313@gmail.com>
-Message-ID: <Pine.LNX.4.61.0609301908460.4615@yvahk01.tjqt.qr>
-References: <0635847A-C149-412C-92B1-A974230381F8@dts.local>
- <F2F2C98F-6AFB-4E19-BEE9-D32652E2F478@atheme.org> <EE7C757E-E2CE-4617-A1D4-3B8F5E3E8240@gmail.com>
- <Pine.LNX.4.61.0609291905550.27518@yvahk01.tjqt.qr>
- <CF74CE5D-42A1-4FF9-8C9B-682C5D6DEAE1@gmail.com> <Pine.LNX.4.61.0609292011190.634@yvahk01.tjqt.qr>
- <BEC70F7E-6143-4D8D-9800-A8538A152A18@gmail.com> <m1mz8ii8wj.fsf@ebiederm.dsl.xmission.com>
- <E78297DA-5F0F-40FA-A008-89264570B313@gmail.com>
+	Sat, 30 Sep 2006 13:14:00 -0400
+Date: Sat, 30 Sep 2006 10:13:39 -0700 (PDT)
+From: Christoph Lameter <clameter@sgi.com>
+To: Andi Kleen <ak@suse.de>
+cc: Nick Piggin <nickpiggin@yahoo.com.au>,
+       Dong Feng <middle.fengdong@gmail.com>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Paul Mackerras <paulus@samba.org>, David Howells <dhowells@redhat.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: How is Code in do_sys_settimeofday() safe in case of SMP and
+ Nest Kernel Path?
+In-Reply-To: <200609301703.45364.ak@suse.de>
+Message-ID: <Pine.LNX.4.64.0609301013040.3519@schroedinger.engr.sgi.com>
+References: <a2ebde260609290733m207780f0t8601e04fcf64f0a6@mail.gmail.com>
+ <a2ebde260609290916j3a3deb9g33434ca5d93e7a84@mail.gmail.com>
+ <451E8143.5030300@yahoo.com.au> <200609301703.45364.ak@suse.de>
 MIME-Version: 1.0
 Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Report: Content analysis: 0.0 points, 6.0 required
-	_SUMMARY_
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
->
->  PID COMMAND      %CPU   TIME   #TH #PRTS #MREGS RPRVT  RSHRD  RSIZE  VSIZE
-> 22429 top         16.6%  0:21.12   1    18    20  1.35M   684K  1.77M  26.9M
-> ------------------------------------------------------------------------
-> --------------------------------------------------------
->
-> Comments/opinions?
+On Sat, 30 Sep 2006, Andi Kleen wrote:
 
-I fail to see which column you mean.
+> > Did you get to the bottom of this yet? It looks like you're right,
+> > and I suggest a seqlock might be a good option.
+> 
+> It basically doesn't matter because nobody changes the time zone after boot.
 
-#TH perhaps? I think, that can be calculated under linux by
+Then we need to change to comments to explain the situation.
 
- (a) counting the directories in /proc/22429/task using readdir
-or
- (b) get the nlink of /proc/22429/task and subtract 2, which should give 
-     the same as (a), and, better than (a), should also be atomic
-
-
-Jan Engelhardt
--- 

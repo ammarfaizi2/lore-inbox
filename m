@@ -1,92 +1,182 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751629AbWI3Wv0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751645AbWI3WyT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751629AbWI3Wv0 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Sep 2006 18:51:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751630AbWI3Wv0
+	id S1751645AbWI3WyT (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Sep 2006 18:54:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751659AbWI3WyT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Sep 2006 18:51:26 -0400
-Received: from xenotime.net ([66.160.160.81]:729 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1751626AbWI3WvZ (ORCPT
+	Sat, 30 Sep 2006 18:54:19 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:60067 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751631AbWI3WyS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Sep 2006 18:51:25 -0400
-Date: Sat, 30 Sep 2006 15:52:50 -0700
-From: Randy Dunlap <rdunlap@xenotime.net>
-To: "Miguel Ojeda" <maxextreme@gmail.com>
-Cc: "Stefan Richter" <stefanr@s5r6.in-berlin.de>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.18 V6] drivers: add lcd display support
-Message-Id: <20060930155250.8cae208b.rdunlap@xenotime.net>
-In-Reply-To: <653402b90609301545y2d4f162dq824ac360149fc0a7@mail.gmail.com>
-References: <20060930132253.8ccaa0ad.maxextreme@gmail.com>
-	<20060930123547.d055383f.rdunlap@xenotime.net>
-	<451EE36C.5080002@s5r6.in-berlin.de>
-	<20060930144830.eba63268.rdunlap@xenotime.net>
-	<653402b90609301545y2d4f162dq824ac360149fc0a7@mail.gmail.com>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
+	Sat, 30 Sep 2006 18:54:18 -0400
+Date: Sat, 30 Sep 2006 15:54:10 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: "Chris Lee" <labmonkey42@gmail.com>
+Cc: <linux-kernel@vger.kernel.org>, "Ju, Seokmann" <Seokmann.Ju@lsil.com>,
+       linux-scsi@vger.kernel.org, Neela.Kolli@engenio.com
+Subject: Re: Problem with legacy megaraid
+Message-Id: <20060930155410.8238c195.akpm@osdl.org>
+In-Reply-To: <451e87fa.60a54fb4.44c0.4562@mx.gmail.com>
+References: <451e87fa.60a54fb4.44c0.4562@mx.gmail.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 30 Sep 2006 22:45:56 +0000 Miguel Ojeda wrote:
+On Sat, 30 Sep 2006 10:06:36 -0500
+"Chris Lee" <labmonkey42@gmail.com> wrote:
 
-> Randy, I'm testing right now the V7 of the driver after fixing all
-> your mistakes found. Thank you for your deep work: the sharing of the
-> buffer was a very good point. Finally I allocated both 2 (the bigger
-> and the smaller one at the initialization).
-> 
-> In a few minutes I will send the V7 patch.
-> 
-> About "lcdisplay":
-> 
-> On 9/30/06, Randy Dunlap <rdunlap@xenotime.net> wrote:
-> > On Sat, 30 Sep 2006 23:36:44 +0200 Stefan Richter wrote:
-> >
-> > > ...
-> > > >> patching file drivers/lcddisplay/cfag12864b.c
-> > > ...
-> > >
-> > > What does the D in LCD stand for? I suggest this is named
-> > > drivers/lcdisplay/ instead.
-> >
-> > Yes, someone else mentioned that too.
-> > It does mean Display.
-> > not a big deal to me in this age of acronyms.
-> >
-> 
-> Well, I can rename it, but there is a problem:
-> 
-> How should I write the name in other places?
-> 
-> I mean, for example, in Kconfig:
-> 
-> 	tristate "KS0108 LCD Controller"
-> 
-> if the ks0108 is a LCD controller, then
-> 
-> 	tristate "CFAG12864B LCD Display"
+> I am not subscribed to this list.  Please CC me on replies.
 
-That seems very common to me.
+(more cc's added)
 
-> should be the right way to write it?
+> I have a machine I'm trying to use as a file server.  I have a RAID10 and a
+> RAID5 on a single Dell PERC2/DC (AMI Megaraid 467) controller.  Both arrays
+> are also on the same SCSI channel.  The system runs fine for days on end
+> until I put some heavy I/O load on either array and sustain it for a few
+> seconds.
+
+We recently discovered that "The old megaraid driver is apparently borken
+for firmware newer than 6.61.".  So please check that and see if a
+downgrade is needed.
+
+Is there some reason why you cannot use the new megaraid driver?
+
+
+> Distro: Gentoo Linux
+> Kernel: 2.6.17-gentoo-r7
 > 
-> 	tristate "CFAG12864B LCDisplay"
+> Hardware:
+> Motherboard: Tyan Thunder i7501 Pro (S2721-533)
+> CPUs: Dual 2.8Ghz P4 HT Xeons
+> RAM: 4GB registered (3/1 split, flat model)
+> RAID: Dell PERC2/DC (AMI Megaraid 467)
+> SCSI: Adaptec AHA-2940U2/U2W PCI
+> NICs: onboard e100 and dual onboard e1000
 > 
-> seems so ugly to me. Is it? Remember, this applies for all the other
-> places in the documentation / source code / ...
+> There are 14 hard drives on channel 0 of the perc2/dc.  IDs 1-6 are RAID10
+> mounted in an external enclosure; IDs 8-15 are RAID5 mounted internally.
+> The I/O problems occur on either array, which suggests to me that it is not
+> a cabling issue.
 > 
-> IMHO it seems better as LCD Display. Yeah, drivers/lcdisplay/ would be
-> nice, but I don't think the same about other places:
+> To reproduce the problem for the purpose of this email I ran `bonnie++ -d
+> /home/nobody -u nobody:nogroup` where /home is the mountpoint of the RAID5
+> and bonnie++ created an 8GB file.  I have reproduced this problem numerous
+> times and the sustained I/O time required to create the fault varies.  Once
+> it happened running a ./configure script for some rather small package.
+> However, this time it took approximately 20-30 minutes before it freaked
+> out.
 > 
-> LCD Controller.
-
-OK
-
-> LCDisplay??
-
-I would continue to use LCD display (small d).
-
----
-~Randy
+> Once the problem occurs I have to reboot the machine to regain use of the
+> affected array(s).  I should note that the controller bios finds nothing
+> wrong with the arrays, and when e2fsck is forced on boot it replays the
+> journal and reports no other problems aside from a "Superblock last write
+> time is in the future.  FIXED." which I attribute to a misconfiguration on
+> my part for saving system time to hardware clock.  If I attempt to unmount
+> the array and mount it again without rebooting I get an error message that
+> sdXX is not a valid block device.
+> 
+> Logs/info:
+> 
+> active vt says (this is copied via eyeball):
+> [4513644.094000] ext3_aboart called.
+> [4513644.101000] EXT3-fs error (device sdb1): ext3_journal_start_sb: <3>sd
+> 0:0:1:0: rejecting I/O to offline device
+> [4513644.109000] Remounting filesystem read-only
+> 
+> dmesg stuff about megaraid:
+> [4294675.180000] megaraid: found 0x8086:0x1960:bus 3:slot 3:func 1
+> [4294675.191000] scsi0:Found MegaRAID controller at 0xf8806000, IRQ:177
+> [4294675.254000] megaraid: [1.06:1p00] detected 2 logical drives.
+> [4294675.316000] megaraid: channel[0] is raid.
+> [4294675.326000] megaraid: channel[1] is raid.
+> [4294675.362000] scsi0 : LSI Logic MegaRAID 1.06 254 commands 16 targs 5
+> chans 7 luns
+> [4294675.372000] scsi0: scanning scsi channel 0 for logical drives.
+> [4294675.383000]   Vendor: MegaRAID  Model: LD0 RAID1 09634R  Rev: 1.06
+> [4294675.393000]   Type:   Direct-Access                      ANSI SCSI
+> revision: 02
+> [4294675.404000]   Vendor: MegaRAID  Model: LD1 RAID5 38288R  Rev: 1.06
+> [4294675.415000]   Type:   Direct-Access                      ANSI SCSI
+> revision: 02
+> [4294675.428000] scsi0: scanning scsi channel 4 [P0] for physical devices.
+> [4294675.726000] scsi0: scanning scsi channel 5 [P1] for physical devices.
+> [4294680.126000] megaraid cmm: 2.20.2.6 (Release Date: Mon Mar 7 00:01:03
+> EST 2005)
+> [4294680.136000] megaraid: 2.20.4.8 (Release Date: Mon Apr 11 12:27:22 EST
+> 2006)
+> [4294680.157000] SCSI device sda: 429330432 512-byte hdwr sectors (219817
+> MB)
+> [4294680.167000] sda: Write Protect is off
+> [4294680.198000] SCSI device sda: 429330432 512-byte hdwr sectors (219817
+> MB)
+> [4294680.208000] sda: Write Protect is off
+> [4294680.237000]  sda: sda1 sda2
+> [4294680.247000] sd 0:0:0:0: Attached scsi disk sda
+> [4294680.257000] SCSI device sdb: 2126413824 512-byte hdwr sectors (1088724
+> MB)
+> [4294680.267000] sdb: Write Protect is off
+> [4294680.296000] SCSI device sdb: 2126413824 512-byte hdwr sectors (1088724
+> MB)
+> [4294680.305000] sdb: Write Protect is off
+> [4294680.334000]  sdb: sdb1
+> [4294680.345000] sd 0:0:1:0: Attached scsi disk sdb
+> [4294680.355000] sd 0:0:0:0: Attached scsi generic sg0 type 0
+> [4294680.365000] sd 0:0:1:0: Attached scsi generic sg1 type 0
+> 
+> /var/log/messages:
+> Sep 29 07:46:16 hostname kernel: [4513615.601000] sd 0:0:1:0: SCSI error:
+> return code = 0x40001
+> Sep 29 07:46:16 hostname kernel: [4513615.601000] end_request: I/O error,
+> dev sdb, sector 1744348567
+> Sep 29 07:46:16 hostname kernel: [4513615.601000] Buffer I/O error on device
+> sdb1, logical block 218043563
+> Sep 29 07:46:16 hostname kernel: [4513615.601000] lost page write due to I/O
+> error on sdb1
+> Sep 29 07:46:16 hostname kernel: [4513615.601000] sd 0:0:1:0: SCSI error:
+> return code = 0x40001
+> Sep 29 07:46:16 hostname kernel: [4513615.601000] end_request: I/O error,
+> dev sdb, sector 1744348695
+> Sep 29 07:46:16 hostname kernel: [4513615.601000] Buffer I/O error on device
+> sdb1, logical block 218043579
+> Sep 29 07:46:16 hostname kernel: [4513615.601000] lost page write due to I/O
+> error on sdb1
+> Sep 29 07:46:16 hostname kernel: [4513615.778000] sd 0:0:1:0: SCSI error:
+> return code = 0x40001
+> Sep 29 07:46:16 hostname kernel: [4513615.778000] end_request: I/O error,
+> dev sdb, sector 1744348823
+> Sep 29 07:46:16 hostname kernel: [4513615.778000] Buffer I/O error on device
+> sdb1, logical block 218043595
+> Sep 29 07:46:16 hostname kernel: [4513615.778000] lost page write due to I/O
+> error on sdb1
+> Sep 29 07:46:16 hostname kernel: [4513615.778000] sd 0:0:1:0: SCSI error:
+> return code = 0x40001
+> Sep 29 07:46:44 hostname kernel: [4513615.778000] end_request: I/O error,
+> dev sdb, sector 1744348951
+> Sep 29 07:46:44 hostname kernel: [4513615.778000] Buffer I/O error on device
+> sdb1, logical block 218043611
+> Sep 29 07:46:44 hostname kernel: [4513615.778000] lost page write due to I/O
+> error on sdb1
+> Sep 29 07:46:44 hostname kernel: [4513615.778000] sd 0:0:1:0: SCSI error:
+> return code = 0x40001
+> Sep 29 07:46:44 hostname kernel: [4513615.778000] end_request: I/O error,
+> dev sdb, sector 1744348959
+> Sep 29 07:46:44 hostname kernel: [4513615.778000] Buffer I/O error on device
+> sdb1, logical block 218043612
+> Sep 29 07:46:44 hostname kernel: [4513615.778000] lost page write due to I/O
+> error on sdb1
+> Sep 29 07:46:44 hostname kernel: [4513643.303000] sd 0:0:1:0: rejecting I/O
+> to offline device
+> Sep 29 07:46:44 hostname last message repeated 92 times
+> 
+> The last two lines repeat as long as something continues trying to access
+> that logical drive.
+> 
+> If any other logs/info would be useful please let me know and I will by
+> happy to include them.  TIA for any help.  Also I apologise if this is not
+> relevant for the list.
+> 
+> Thanks,
+> Chris 

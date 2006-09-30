@@ -1,47 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932400AbWI3BTd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161062AbWI3BYw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932400AbWI3BTd (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Sep 2006 21:19:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932412AbWI3BTd
+	id S1161062AbWI3BYw (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Sep 2006 21:24:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161066AbWI3BYw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Sep 2006 21:19:33 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:25506 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S932400AbWI3BTc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Sep 2006 21:19:32 -0400
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: Neil Horman <nhorman@tuxdriver.com>
-Cc: Sam Ravnborg <sam@ravnborg.org>, linux-kernel@vger.kernel.org,
-       mj@atrey.karlin.mff.cuni.cz, davej@redhat.com
-Subject: Re: [PATCH] x86: update vmlinux.lds.S to place .data section on a page boundary
-References: <20060928201249.GA10037@hmsreliant.homelinux.net>
-	<20060928204220.GA31096@uranus.ravnborg.org>
-	<20060928232206.GA11386@hmsreliant.homelinux.net>
-	<20060929000301.GB11386@hmsreliant.homelinux.net>
-Date: Fri, 29 Sep 2006 19:13:46 -0600
-In-Reply-To: <20060929000301.GB11386@hmsreliant.homelinux.net> (Neil Horman's
-	message of "Thu, 28 Sep 2006 20:03:01 -0400")
-Message-ID: <m11wpugnqt.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+	Fri, 29 Sep 2006 21:24:52 -0400
+Received: from ns2.lanforge.com ([66.165.47.211]:61645 "EHLO ns2.lanforge.com")
+	by vger.kernel.org with ESMTP id S1161062AbWI3BYv (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Sep 2006 21:24:51 -0400
+Message-ID: <451DC75E.4070403@candelatech.com>
+Date: Fri, 29 Sep 2006 18:24:46 -0700
+From: Ben Greear <greearb@candelatech.com>
+Organization: Candela Technologies
+User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: linux-kernel <linux-kernel@vger.kernel.org>
+CC: khc@pm.waw.pl
+Subject: Question on HDLC and raw access to T1/E1 serial streams.
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Neil Horman <nhorman@tuxdriver.com> writes:
+I am looking for a way to bridge a T1/E1 network by reading a raw 
+bitstream from one T1 interface and writing it out to the other.  The 
+application is adding delay and/or bit corruptions for impairment testing.
 
-> Sorry, Replying to myself.  I forgot to mention in my last note why specifically
-> I was calling for this change, and why it was necessecary.  In addition to being
-> the standard in the script for executable sections, kexec also appears to rely
-> on PT_LOAD sections being on page boundaries.  With vmlinux.ld.s as it is, that
-> isn't the case, and so we can't load any kernels with kexec at the moment.  I've
-> seen this on the most recent fedora kernels (which have the latest version of
-> this linker script), and this patch corrects that.
->
-> Please look at the file in its entirety, and if you still feel that modifying
-> the script so all the ALIGN(4096) directives to be ALIGN(PAGE_SIZE) instead is
-> the direction to go, I'll implement the change and test it out.
+I have been using Sangoma's drivers and NICs, but I'm having no luck 
+getting their latest stuff to work so I was hoping to use in-kernel
+drivers (even if that means writing or hiring someone to write new ones.)
 
-Is there a reason you don't want to kexec the bzImage?
+Is there currently a way to read/write the raw bitstream for a full T1 
+or E1 or a subset of channels?
 
-Eric
+Thanks,
+Ben
+
+-- 
+Ben Greear <greearb@candelatech.com>
+Candela Technologies Inc  http://www.candelatech.com
+

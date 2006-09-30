@@ -1,81 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750870AbWI3Mjb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750951AbWI3NSU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750870AbWI3Mjb (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Sep 2006 08:39:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750940AbWI3Mjb
+	id S1750951AbWI3NSU (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Sep 2006 09:18:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750965AbWI3NSU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Sep 2006 08:39:31 -0400
-Received: from lug-owl.de ([195.71.106.12]:38629 "EHLO lug-owl.de")
-	by vger.kernel.org with ESMTP id S1750870AbWI3Mja (ORCPT
+	Sat, 30 Sep 2006 09:18:20 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:23747 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S1750934AbWI3NST (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Sep 2006 08:39:30 -0400
-Date: Sat, 30 Sep 2006 14:39:28 +0200
-From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
-To: Miguel Ojeda Sandonis <maxextreme@gmail.com>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.18 V6] drivers: add lcd display support
-Message-ID: <20060930123928.GV30245@lug-owl.de>
-Mail-Followup-To: Miguel Ojeda Sandonis <maxextreme@gmail.com>,
-	akpm@osdl.org, linux-kernel@vger.kernel.org
-References: <20060930132253.8ccaa0ad.maxextreme@gmail.com>
+	Sat, 30 Sep 2006 09:18:19 -0400
+Date: Sat, 30 Sep 2006 15:09:58 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Dipankar Sarma <dipankar@in.ibm.com>
+Cc: Andrew Morton <akpm@osdl.org>, Thomas Gleixner <tglx@linutronix.de>,
+       "Paul E. McKenney" <paulmck@us.ibm.com>,
+       LKML <linux-kernel@vger.kernel.org>, Jim Gettys <jg@laptop.org>,
+       John Stultz <johnstul@us.ibm.com>,
+       David Woodhouse <dwmw2@infradead.org>,
+       Arjan van de Ven <arjan@infradead.org>, Dave Jones <davej@redhat.com>
+Subject: Re: [patch 08/23] dynticks: prepare the RCU code
+Message-ID: <20060930130958.GA12021@elte.hu>
+References: <20060929234435.330586000@cruncher.tec.linutronix.de> <20060929234439.721237000@cruncher.tec.linutronix.de> <20060930013641.263a1cc3.akpm@osdl.org> <20060930122514.GC8763@in.ibm.com>
 Mime-Version: 1.0
-Content-Type: multipart/signed; micalg=pgp-sha1;
-	protocol="application/pgp-signature"; boundary="gpXIsXW0UVH8BryT"
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060930132253.8ccaa0ad.maxextreme@gmail.com>
-X-Operating-System: Linux mail 2.6.12.3lug-owl 
-X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
-X-gpg-key: wwwkeys.de.pgp.net
-X-Echelon-Enable: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
-X-TKUeV: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
-User-Agent: Mutt/1.5.9i
+In-Reply-To: <20060930122514.GC8763@in.ibm.com>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -2.8
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.8 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5000]
+	-0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
---gpXIsXW0UVH8BryT
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: quoted-printable
+* Dipankar Sarma <dipankar@in.ibm.com> wrote:
 
-On Sat, 2006-09-30 13:22:53 +0000, Miguel Ojeda Sandonis <maxextreme@gmail.=
-com> wrote:
-> Patched files Index
-> -------------------
-> patching file drivers/Kconfig
-> patching file drivers/lcddisplay/cfag12864b.c
-> patching file drivers/lcddisplay/cfag12864b_image.h
-> patching file drivers/lcddisplay/Kconfig
-> patching file drivers/lcddisplay/ks0108.c
-> patching file drivers/lcddisplay/lcddisplay.c
-> patching file drivers/lcddisplay/Makefile
-> patching file include/linux/lcddisplay.h
-> patching file Documentation/lcddisplay/cfag12864b
-> patching file Documentation/lcddisplay/lcddisplay
-> patching file Documentation/ioctl-number.txt
+> It is duplicating code. That can be easily fixed, but we need to 
+> figure out what we really want from RCU when we are about to switch 
+> off the ticks. It is hard if you want to finish off all the pending 
+> RCUs and go to nohz state. Can you live with backing out if there are 
+> pending RCUs ?
 
-AFAIK, the 'D' in LCD is already an abbreviation for "display", so
-could we name it lcdisplay or something like that?
+the thing is that when we go idle we /want/ to process whatever delayed 
+work there might be - rate limited or not. Do you agree with that 
+approach? I consider this a performance feature as well: this way we can 
+utilize otherwise lost idle time. It is not a problem that we dont 
+'batch' this processing: we are really idle and we've got free cycles to 
+burn. We could even do an RCU processing loop that immediately breaks 
+out if need_resched() gets set [by an IRQ or by another CPU].
 
-MfG, JBG
+secondly, i think i saw functionality problems when RCU was not 
+completed before going idle - for example synchronize_rcu() on another 
+CPU would hang.
 
---=20
-      Jan-Benedict Glaw      jbglaw@lug-owl.de              +49-172-7608481
-Signature of:  The real problem with C++ for kernel modules is: the languag=
-e just sucks.
-the second  :                                            -- Linus Torvalds
+what approach would you suggest to achieve these goals?
 
---gpXIsXW0UVH8BryT
-Content-Type: application/pgp-signature; name="signature.asc"
-Content-Description: Digital signature
-Content-Disposition: inline
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.1 (GNU/Linux)
-
-iD8DBQFFHmWAHb1edYOZ4bsRAkdpAJ4g9+GPFYU4Y5W7JdGZXFDCmBDIggCfe6dk
-3FbG+mcZQ+10MNkq5wC9J7w=
-=KzkJ
------END PGP SIGNATURE-----
-
---gpXIsXW0UVH8BryT--
+	Ingo

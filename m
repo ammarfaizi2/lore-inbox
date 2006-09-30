@@ -1,71 +1,88 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750905AbWI3MEB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750926AbWI3MLL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750905AbWI3MEB (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Sep 2006 08:04:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750910AbWI3MEB
+	id S1750926AbWI3MLL (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Sep 2006 08:11:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750938AbWI3MLK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Sep 2006 08:04:01 -0400
-Received: (root@vger.kernel.org) by vger.kernel.org id S1750901AbWI3MEA
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Sep 2006 08:04:00 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:11456 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1750813AbWI2WUz (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Sep 2006 18:20:55 -0400
-Message-ID: <451D9C40.6070008@garzik.org>
-Date: Fri, 29 Sep 2006 18:20:48 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
+	Sat, 30 Sep 2006 08:11:10 -0400
+Received: from ug-out-1314.google.com ([66.249.92.173]:49642 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1750926AbWI3MLI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Sep 2006 08:11:08 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent:sender;
+        b=mkAkhoi+8M5pGUadY0QS5Zge1oXYAwemEbYvCgma01bPLBEHtYLi0tyoOlIHQLKGqB0LXu1M/cvWdyDN8reltAnPBF4uAXbP/i/Y5D0bu5T0/UodOVxRVRS0306/YabiE3SsyNcX5CGzoDRXIwuTgO9S1W1mBQyS3SLBJW5y0kI=
+Date: Sat, 30 Sep 2006 14:09:46 +0000
+From: Frederik Deweerdt <deweerdt@free.fr>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Cc: Matthew Wilcox <matthew@wil.cx>, "J.A. Magall??n" <jamagallon@ono.com>,
+       Andrew Morton <akpm@osdl.org>,
+       "Linux-Kernel," <linux-kernel@vger.kernel.org>,
+       linux-scsi@vger.kernel.org
+Subject: [-mm patch] aic7xxx: check irq validity (was Re: 2.6.18-mm2)
+Message-ID: <20060930140946.GA1195@slug>
+References: <20060928014623.ccc9b885.akpm@osdl.org> <20060929155738.7076f0c8@werewolf> <20060929143949.GL5017@parisc-linux.org> <1159550143.13029.36.camel@localhost.localdomain> <20060929235054.GB2020@slug> <1159573404.13029.96.camel@localhost.localdomain>
 MIME-Version: 1.0
-To: tridge@samba.org
-CC: davids@webmaster.com, James Bottomley <James.Bottomley@SteelEye.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: GPLv3 Position Statement
-References: <James.Bottomley@SteelEye.com>	<1159512998.3880.50.camel@mulgrave.il.steeleye.com>	<200609291454.k8TEsVJZ022006@laptop13.inf.utfsm.cl> <17693.37937.928098.495836@samba.org>
-In-Reply-To: <17693.37937.928098.495836@samba.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.3 (----)
-X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.3 points, 5.0 required)
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1159573404.13029.96.camel@localhost.localdomain>
+User-Agent: mutt-ng/devel-r804 (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-tridge@samba.org wrote:
-> So when I saw Linus advocating forking programs that are currently "v2
-> or later" and making them "v2 only", then I asked that he clarify to
-> ensure that the major contributors to the project be consulted before
-> doing that. Whether it is legal is beside the point - it is good
-> manners to follow the ground rules of the people who write the code.
+On Sat, Sep 30, 2006 at 12:43:24AM +0100, Alan Cox wrote:
+> Ar Gwe, 2006-09-29 am 23:50 +0000, ysgrifennodd Frederik Deweerdt:
+> > Does this patch makes sense in that case? If yes, I'll put up a patch
+> > for the remaining cases in the drivers/scsi/aic7xxx/ directory.
+> > Also, aic7xxx's coding style would put parenthesis around the returned
+> > value, should I follow it?
 > 
-> Thankfully Linus has clarified that now in a later posting. I was
-> already pretty sure he always intended for the major contributors to
-> be consulted before a fork was done, but I'm glad its on the record so
-> people don't start forking madly while flying a "Linus said its OK"
-> banner :)
+> Yes - but perhaps with a warning message so users know why ?
+> 
+> As to coding style - kernel style is unbracketed so I wouldnt worry
+> about either.
+> 
+Thanks for the advices. 
 
+The following patch checks whenever the irq is valid before issuing a
+request_irq() for AIC7XXX and AIC79XX. An error message is displayed to
+let the user know what went wrong.
 
-It's good manners, but ultimately users vote with their feet.
+Regards,
+Frederik
 
-If codebase A requires that modifications be given back (GPL v2), and 
-codebase A' additionally requires embedded device makers to permit users 
-to use modified code in all cases, which do you think device makers -- 
-and ultimately users -- will choose?
+Signed-off-by: Frederik Deweerdt <frederik.deweerdt@gmail.com>
 
-For a lot of kernel devs who voted, I got the sense that the DRM clause 
-was the big stopping point.  I actually think the patent clauses might 
-help things a bit, providing the "convey" language is cleared up.  But 
-the DRM clause is far from technology-neutral, and doesn't take into 
-account useful DRM.
-
-DRM is just a technology.  It's not good or evil.  It's a bit like 
-bittorrent:  arguably, the majority of BT usage is for copyright 
-violations, but there are good uses for it too.
-
-Further, the GPL v3 gets _too specific_ when it comes to talking about 
-technological remedies.  It gets into the same trouble that politicians 
-get into, when they write technological remedies into law.  Technology 
-changes too rapidly to get specific.  Pretty soon you'll find that a 
-useful scenario was outlawed.
-
-	Jeff
+diff --git a/drivers/scsi/aic7xxx/aic79xx_osm_pci.c b/drivers/scsi/aic7xxx/aic79xx_osm_pci.c
+index 2001fe8..8279122 100644
+--- a/drivers/scsi/aic7xxx/aic79xx_osm_pci.c
++++ b/drivers/scsi/aic7xxx/aic79xx_osm_pci.c
+@@ -132,6 +132,11 @@ ahd_linux_pci_dev_probe(struct pci_dev *
+ 	char		*name;
+ 	int		 error;
+ 
++	if (!pdev->irq) {
++		printk(KERN_WARNING "aic79xx: No irq line set\n");
++		return -ENODEV;
++	}
++
+ 	pci = pdev;
+ 	entry = ahd_find_pci_device(pci);
+ 	if (entry == NULL)
+diff --git a/drivers/scsi/aic7xxx/aic7xxx_osm_pci.c b/drivers/scsi/aic7xxx/aic7xxx_osm_pci.c
+index ea5687d..ca61cdb 100644
+--- a/drivers/scsi/aic7xxx/aic7xxx_osm_pci.c
++++ b/drivers/scsi/aic7xxx/aic7xxx_osm_pci.c
+@@ -185,6 +185,11 @@ ahc_linux_pci_dev_probe(struct pci_dev *
+ 	int		 error;
+ 	struct device	*dev = &pdev->dev;
+ 
++	if (!pdev->irq) {
++		printk(KERN_WARNING "aic7xxx: No irq line set\n");
++		return -ENODEV;
++	}
++
+ 	pci = pdev;
+ 	entry = ahc_find_pci_device(pci);
+ 	if (entry == NULL)

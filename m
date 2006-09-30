@@ -1,64 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751052AbWI3PGH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751080AbWI3PGp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751052AbWI3PGH (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Sep 2006 11:06:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751072AbWI3PGH
+	id S1751080AbWI3PGp (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Sep 2006 11:06:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751078AbWI3PGp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Sep 2006 11:06:07 -0400
-Received: from pat.uio.no ([129.240.10.4]:34203 "EHLO pat.uio.no")
-	by vger.kernel.org with ESMTP id S1751052AbWI3PGE (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Sep 2006 11:06:04 -0400
-Subject: Re: Postal 56% waits for flock_lock_file_wait
-From: Trond Myklebust <trond.myklebust@fys.uio.no>
-To: "Ananiev, Leonid I" <leonid.i.ananiev@intel.com>
-Cc: Linux Kernel Mailing List <Linux-Kernel@vger.kernel.org>
-In-Reply-To: <B41635854730A14CA71C92B36EC22AAC3AD921@mssmsx411>
-References: <B41635854730A14CA71C92B36EC22AAC3AD921@mssmsx411>
+	Sat, 30 Sep 2006 11:06:45 -0400
+Received: from stat9.steeleye.com ([209.192.50.41]:8915 "EHLO
+	hancock.sc.steeleye.com") by vger.kernel.org with ESMTP
+	id S1751084AbWI3PGn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Sep 2006 11:06:43 -0400
+Subject: Re: GPLv3 Position Statement
+From: James Bottomley <James.Bottomley@SteelEye.com>
+To: tridge@samba.org
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <17694.5933.159694.454938@samba.org>
+References: <1159498900.3880.31.camel@mulgrave.il.steeleye.com>
+	 <17692.46192.432673.743783@samba.org>
+	 <1159515086.3880.79.camel@mulgrave.il.steeleye.com>
+	 <17692.57123.749163.204216@samba.org>
+	 <1159559443.9543.23.camel@mulgrave.il.steeleye.com>
+	 <17694.5933.159694.454938@samba.org>
 Content-Type: text/plain
-Date: Sat, 30 Sep 2006 11:05:52 -0400
-Message-Id: <1159628752.5425.31.camel@lade.trondhjem.org>
+Date: Sat, 30 Sep 2006 10:06:36 -0500
+Message-Id: <1159628796.9543.69.camel@mulgrave.il.steeleye.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.8.0 
+X-Mailer: Evolution 2.2.3 (2.2.3-4.fc4) 
 Content-Transfer-Encoding: 7bit
-X-UiO-Spam-info: not spam, SpamAssassin (score=-3.222, required 12,
-	autolearn=disabled, AWL 1.64, RCVD_IN_SORBS_DUL 0.14,
-	UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-09-30 at 09:25 +0400, Ananiev, Leonid I wrote:
-> A benchmark
->              'postal -p 16 localhost list_of_1000_users'
-> 56% of run time waits for flock_lock_file_wait;
-> Vmstat reports that 66% cpu is idle and  vmstat bi+bo=3600 (far from
-> max).
-> Postfix server with FD_SETSIZE=2048 was used.
-> Similar results got for sendmail. 
-> Wchan is counted by
->             while :; do
->                         ps -o user,wchan=WIDE-WCHAN-COLUMN,comm;
-> sleep 1;
->            done | awk '/ postfix /{a[$2]++}END{for (i in a) print
-> a[i]"\t"i}'
-> If ext2 fs is used the Postal throughput is twice more and bi+bo by 50%
-> less while  flock_lock_file_wait 60% still.
+On Sat, 2006-09-30 at 17:05 +1000, tridge@samba.org wrote:
+> I just can't see where you get this interpretation of the GPLv2
+> from. The wording in GPLv2 is:
+> 
+>   If you cannot distribute so as to satisfy simultaneously your
+>   obligations under this License and any other pertinent obligations,
+>   then as a consequence you may not distribute the Program at all.
+>   For example, if a patent license would not permit royalty-free
+>   redistribution of the Program by all those who receive copies
+>   directly or indirectly through you, then the only way you could
+>   satisfy both it and this License would be to refrain entirely from
+>   distribution of the Program.
 
-On which filesystem were the above results obtained if it was not ext2?
+This means if you try to enforce royalties on a patent in a piece of
+GPLv2 software, you and everyone else lose the right to distribute it.
+However, to enforce or license royalty free is an existing choice.  The
+damage caused by making the programme undistributable is assessable
+against the value of the patent.
 
-> Is flock_lock_file_wait considered as a performance limiting waiting for
-> similar applications in smp?
+v3 removes this choice by making the patent automatically licensed as
+soon as you distribute, hence the choice is taken away.
 
-All the above results are telling you is that your test involves several
-processes contending for the same lock, and so all of them barring the
-one process that actually holds the lock are idle.
+James
 
-As for the throughput issue, that really depends on the filesystem you
-are measuring. For remote filesystems like NFS, locks can _really_ slow
-down performance because they are often required to flush all dirty data
-to disk prior to releasing the lock (so that it becomes visible to
-processes on other clients that might subsequently obtain the lock).
-
-Cheers,
-  Trond
 

@@ -1,55 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751372AbWI3Sk2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751432AbWI3TCU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751372AbWI3Sk2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Sep 2006 14:40:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751380AbWI3Sk2
+	id S1751432AbWI3TCU (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Sep 2006 15:02:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751444AbWI3TCU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Sep 2006 14:40:28 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:23427 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S1751372AbWI3Sk1 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Sep 2006 14:40:27 -0400
-Date: Sat, 30 Sep 2006 14:37:54 -0400
-From: Dave Jones <davej@redhat.com>
-To: Alessandro Suardi <alessandro.suardi@gmail.com>
-Cc: jt@hpl.hp.com, "John W. Linville" <linville@tuxdriver.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.18-git9 wireless fixes break ipw2200 association to AP with WPA
-Message-ID: <20060930183754.GB28868@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Alessandro Suardi <alessandro.suardi@gmail.com>, jt@hpl.hp.com,
-	"John W. Linville" <linville@tuxdriver.com>,
-	Linux Kernel <linux-kernel@vger.kernel.org>
-References: <5a4c581d0609291225r4a2cbaacr35e5ef73d69f8718@mail.gmail.com> <20060929202928.GA14000@tuxdriver.com> <5a4c581d0609291340q835571bg9657ac0a68bab20e@mail.gmail.com> <20060929212748.GA10288@bougret.hpl.hp.com> <5a4c581d0609291504r40bc1796q715c5ffa41aa7b1b@mail.gmail.com> <20060929224316.GA10423@bougret.hpl.hp.com> <5a4c581d0609291552k7dc39685t15188bb5c881d3bd@mail.gmail.com> <5a4c581d0609300527m1654f2cha56517e1c85f4606@mail.gmail.com>
+	Sat, 30 Sep 2006 15:02:20 -0400
+Received: from rwcrmhc15.comcast.net ([216.148.227.155]:13277 "EHLO
+	rwcrmhc15.comcast.net") by vger.kernel.org with ESMTP
+	id S1751432AbWI3TCT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Sep 2006 15:02:19 -0400
+Subject: Re: Performance analysis of Linux Kernel Markers 0.20 for 2.6.17
+From: Nicholas Miell <nmiell@comcast.net>
+To: Mathieu Desnoyers <compudj@krystal.dyndns.org>
+Cc: Martin Bligh <mbligh@google.com>, "Frank Ch. Eigler" <fche@redhat.com>,
+       Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>, prasanna@in.ibm.com,
+       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
+       Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
+       Paul Mundt <lethal@linux-sh.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>, Jes Sorensen <jes@sgi.com>,
+       Tom Zanussi <zanussi@us.ibm.com>,
+       Richard J Moore <richardj_moore@uk.ibm.com>,
+       Michel Dagenais <michel.dagenais@polymtl.ca>,
+       Christoph Hellwig <hch@infradead.org>,
+       Greg Kroah-Hartman <gregkh@suse.de>,
+       Thomas Gleixner <tglx@linutronix.de>, William Cohen <wcohen@redhat.com>,
+       ltt-dev@shafik.org, systemtap@sources.redhat.com,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Jeremy Fitzhardinge <jeremy@goop.org>,
+       Karim Yaghmour <karim@opersys.com>, Pavel Machek <pavel@suse.cz>,
+       Joe Perches <joe@perches.com>, "Randy.Dunlap" <rdunlap@xenotime.net>,
+       "Jose R. Santos" <jrs@us.ibm.com>
+In-Reply-To: <20060930180157.GA25761@Krystal>
+References: <20060930180157.GA25761@Krystal>
+Content-Type: text/plain
+Date: Sat, 30 Sep 2006 12:02:13 -0700
+Message-Id: <1159642933.2355.1.camel@entropy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <5a4c581d0609300527m1654f2cha56517e1c85f4606@mail.gmail.com>
-User-Agent: Mutt/1.4.2.2i
+X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5.0.njm.1) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Sep 30, 2006 at 02:27:01PM +0200, Alessandro Suardi wrote:
- > 
- > Good news, WPA association is back to work for me using
- >  wireless_tools.29.pre10 and wpa_supplicant-0.4.9 with
- > 
- >  2.6.18-git11 vanilla
- >  2.6.18-git11 with reverted wireless fixes
- >  2.6.18-git13
- > 
- >  which appears to mean that backward compatibility of the
- >  new tools with older kernel features has also been tested :)
- > 
- > Dave, do you want me to file a request for updated FC5 RPMs
- >  for wireless-tools and wpa_supplicant in bugzilla or is it
- >   - already happening
- >   - never going to happen
- >  ?
+On Sat, 2006-09-30 at 14:01 -0400, Mathieu Desnoyers wrote:
+> Hi,
+> 
+> Following the huge discussion thread about tracing/static vs dynamic
+> instrumentation/markers, a consensus seems to emerge about the need for a
+> marker system in the Linux kernel. The main issues this mechanism addresses are:
+> 
+> - Identify code important to runtime data collection/analysis tools in tree so
+>   that it follows the code changes naturally.
+> - Be visually appealing to kernel developers.
+> - Have a very low impact on the system performance.
+> - Integrate in the standard kernel infrastructure : use C and loadable modules.
+> 
+> The time has come for some performance measurements of the Linux Kernel Markers,
+> which follows. I attach a PDF with tables and charts which condense these
+> results.
 
-I'm not sure if we usually wait for a 'real' release, or if there's
-precedent for us shipping pre's before, but filing a bug-report
-is a good idea so that it doesn't go unnoticed when I eventually
-push a 2.6.19 update to FC5-updates in a few months.
+Has anyone done any performance measurements with the "regular function
+call replaced by a NOP" type of marker?
 
-	Dave
+-- 
+Nicholas Miell <nmiell@comcast.net>
+

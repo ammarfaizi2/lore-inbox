@@ -1,63 +1,106 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750938AbWI3MPN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750945AbWI3MWb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750938AbWI3MPN (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Sep 2006 08:15:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750940AbWI3MPM
+	id S1750945AbWI3MWb (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Sep 2006 08:22:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750947AbWI3MWb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Sep 2006 08:15:12 -0400
-Received: from ug-out-1314.google.com ([66.249.92.174]:16882 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1750938AbWI3MPK (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Sep 2006 08:15:10 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:mime-version:content-type:content-disposition:user-agent:sender;
-        b=Oo3GbDgvWJ9yNb4BfYr08mc2aNuCO2JWe8uw4bpLFJTV9+qaIitRdsxhmBtU9evHjc1E+VwLcJ5foJo1PHp9IhjJiMEiNuVSA0NO9S4LHEg6xEZ2RNIWhf3gDE74Cu31y3A2xOlOhQMGzZ9oqi/MIN8LNzz+xPHRRbNgtoi5KI0=
-Date: Sat, 30 Sep 2006 14:13:48 +0000
-From: Frederik Deweerdt <deweerdt@free.fr>
-To: linux-kernel@vger.kernel.org
-Cc: akpm@osdl.org
-Subject: [-mm patch] fix nftl_write warning
-Message-ID: <20060930141348.GB1195@slug>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: mutt-ng/devel-r804 (Linux)
+	Sat, 30 Sep 2006 08:22:31 -0400
+Received: from aa011msr.fastwebnet.it ([85.18.95.71]:45259 "EHLO
+	aa011msr.fastwebnet.it") by vger.kernel.org with ESMTP
+	id S1750944AbWI3MWa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Sep 2006 08:22:30 -0400
+Date: Sat, 30 Sep 2006 14:14:55 +0200
+From: Paolo Ornati <ornati@fastwebnet.it>
+To: Alan Stern <stern@rowland.harvard.edu>
+Cc: Arkadiusz =?UTF-8?B?SmHFgm93aWVj?= <ajalowiec@interia.pl>,
+       <linux-kernel@vger.kernel.org>, <linux-usb-users@lists.sourceforge.net>
+Subject: Re: [Linux-usb-users] PROBLEM: Kernel 2.6.x freeze
+Message-ID: <20060930141455.29fdadef@localhost>
+In-Reply-To: <Pine.LNX.4.44L0.0609291717460.26116-100000@netrider.rowland.org>
+References: <20060929143806.0d6a9162@localhost>
+	<Pine.LNX.4.44L0.0609291717460.26116-100000@netrider.rowland.org>
+X-Mailer: Sylpheed-Claws 2.3.0 (GTK+ 2.8.19; x86_64-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Fri, 29 Sep 2006 17:29:04 -0400 (EDT)
+Alan Stern <stern@rowland.harvard.edu> wrote:
 
-Building 2.6.18-mm2 issues the following warning if CONFIG_NFTL_RW is not set:
-  CC [M]  drivers/mtd/nftlcore.o
-drivers/mtd/nftlcore.c:183: warning: 'nftl_write' defined but not used
-The following patch only compiles nftl_write if CONFIG_NFTL_RW is set.
+> > But we have:
+> > 
+> >   500894:       74 3f                   je     5008d5 <_end+0x2d>
+> >   500896:       0f b6 46 20             movzbl 0x20(%rsi),%eax
+> >   50089a:       8b 4e 20                mov    0x20(%rsi),%ecx
+> >   50089d:       ba                      .byte 0xba
+> >   50089e:       fe                      (bad)
+> >   50089f:       ff                      .byte 0xff
+> > 
+> > 
+> > So "c7 04 24" turned into
+> >    "ba fe ff"
+> 
+> What do you mean by "we have"?  Where did your two disassembly listings 
+> come from?  The values in the oops message above don't match either of 
+> your listings, at least not exactly.
 
-Regards,
-Frederik
+Beacuse I'm an idiot :)
 
 
-Signed-off-by: Frederik Deweerdt <frederik.deweerdt@gmail.com>
+The first disassembed code comes from a 2.6.18 compiled with gcc 3.3.6
+(but different config than Arkadiusz).
 
-diff --git a/drivers/mtd/nftlcore.c b/drivers/mtd/nftlcore.c
-index dd5cea8..b5a5f8d 100644
---- a/drivers/mtd/nftlcore.c
-+++ b/drivers/mtd/nftlcore.c
-@@ -175,6 +175,8 @@ int nftl_write_oob(struct mtd_info *mtd,
- 	return res;
- }
- 
-+#ifdef CONFIG_NFTL_RW
-+
- /*
-  * Write data and oob to flash
-  */
-@@ -196,8 +198,6 @@ static int nftl_write(struct mtd_info *m
- 	return res;
- }
- 
--#ifdef CONFIG_NFTL_RW
--
- /* Actual NFTL access routines */
- /* NFTL_findfreeblock: Find a free Erase Unit on the NFTL partition. This function is used
-  *	when the give Virtual Unit Chain
+
+The second (and wrong one) comes from:
+
+--- 1.c ---
+char str[]={0x5c,0x89,0x57,0x2c,0x8b,0x40,0x44,0xc7,0x47,0x40,0x00,0x00,0x
+00,0x00,0x89,0x47,0x3c,0x8b,0x45,0x00,0x8b,0x55,0x04,0x89,0x02,0x89,0x50,0
+x04,0x89,0x6d,0x00,0x8d,0x47,0x18,0x89,0x6d,0x04,0x39,0x47,0x18,0x75,0x4b,
+0x0f,0xb6,0x47,0x50,0xa8,0x02,0x88,0x44,0x24,0x08,0x74,0x3f,0x0f,0xb6,0x46
+,0x20,0x8b,0x4e,0x20,0xba,0xfe,0xff};
+void main(void){}
+--------------
+
+disassembled with "objdump -D".
+
+The problem was that I'm on AMD64 and I've forgot to add "-m32" at gcc
+options to produce a i386 executable ;)
+
+
+This one should be correct:
+
+00000000 <str>:
+   0:   5c                      pop    %esp
+   1:   89 57 2c                mov    %edx,0x2c(%edi)
+   4:   8b 40 44                mov    0x44(%eax),%eax
+   7:   c7 47 40 00 00 00 00    movl   $0x0,0x40(%edi)
+   e:   89 47 3c                mov    %eax,0x3c(%edi)
+  11:   8b 45 00                mov    0x0(%ebp),%eax
+  14:   8b 55 04                mov    0x4(%ebp),%edx
+  17:   89 02                   mov    %eax,(%edx)
+  19:   89 50 04                mov    %edx,0x4(%eax)
+  1c:   89 6d 00                mov    %ebp,0x0(%ebp)
+  1f:   8d 47 18                lea    0x18(%edi),%eax
+  22:   89 6d 04                mov    %ebp,0x4(%ebp)
+  25:   39 47 18                cmp    %eax,0x18(%edi)
+  28:   75 4b                   jne    75 <main+0x75>
+  2a:   0f b6 47 50             movzbl 0x50(%edi),%eax
+  2e:   a8 02                   test   $0x2,%al
+  30:   88 44 24 08             mov    %al,0x8(%esp)
+  34:   74 3f                   je     75 <main+0x75>
+  36:   0f b6 46 20             movzbl 0x20(%esi),%eax   <----- crash!
+  3a:   8b 4e 20                mov    0x20(%esi),%ecx
+  3d:   ba                      .byte 0xba
+  3e:   fe                      (bad)
+  3f:   ff                      .byte 0xff
+
+
+So now the problem is, as you pointed out, to discover why EIP is
+pointing to "b6" intead of "0f".
+
+-- 
+	Paolo Ornati
+	Linux 2.6.18 on x86_64

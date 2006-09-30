@@ -1,94 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751395AbWI3WBS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751415AbWI3WJx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751395AbWI3WBS (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Sep 2006 18:01:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751399AbWI3WBS
+	id S1751415AbWI3WJx (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Sep 2006 18:09:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751421AbWI3WJx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Sep 2006 18:01:18 -0400
-Received: from ns2.lanforge.com ([66.165.47.211]:3779 "EHLO ns2.lanforge.com")
-	by vger.kernel.org with ESMTP id S1751395AbWI3WBR (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Sep 2006 18:01:17 -0400
-Message-ID: <451EE973.10907@candelatech.com>
-Date: Sat, 30 Sep 2006 15:02:27 -0700
-From: Ben Greear <greearb@candelatech.com>
-Organization: Candela Technologies
-User-Agent: Thunderbird 1.5.0.5 (X11/20060808)
-MIME-Version: 1.0
-To: Krzysztof Halasa <khc@pm.waw.pl>
-CC: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Question on HDLC and raw access to T1/E1 serial streams.
-References: <451DC75E.4070403@candelatech.com> <m3mz8hntqu.fsf@defiant.localdomain>
-In-Reply-To: <m3mz8hntqu.fsf@defiant.localdomain>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 30 Sep 2006 18:09:53 -0400
+Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:34109 "EHLO
+	pd4mo3so.prod.shaw.ca") by vger.kernel.org with ESMTP
+	id S1751415AbWI3WJw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Sep 2006 18:09:52 -0400
+Date: Sat, 30 Sep 2006 16:09:46 -0600
+From: Robert Hancock <hancockr@shaw.ca>
+Subject: Re: SATA status reports update
+In-reply-to: <fa.mQXoq13o43zcI4XRFyX1EjaYxI4@ifi.uio.no>
+To: Jeff Garzik <jeff@garzik.org>, linux-kernel <linux-kernel@vger.kernel.org>
+Cc: Robert Hancock <hancockr@shaw.ca>, prakash@punnoor.de
+Message-id: <451EEB2A.7070702@shaw.ca>
+MIME-version: 1.0
+Content-type: text/plain; charset=ISO-8859-1; format=flowed
+Content-transfer-encoding: 7bit
+References: <fa.YaF1lJH12hP9W/r7m3pt7oXOeL4@ifi.uio.no>
+ <fa.g2Kx9MbD4ZVWpxAjjpedYrf09zM@ifi.uio.no>
+ <fa.b1vkqJfue4GOQ6qZfdh86ct/nDk@ifi.uio.no>
+ <fa.YmprXb8sC090DghGSt7gnlhfo2c@ifi.uio.no>
+ <fa.IewnjLanGhRn8aKEjkVZcxkolss@ifi.uio.no>
+ <fa.mQXoq13o43zcI4XRFyX1EjaYxI4@ifi.uio.no>
+User-Agent: Thunderbird 1.5.0.7 (Windows/20060909)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Krzysztof Halasa wrote:
-> Ben Greear <greearb@candelatech.com> writes:
->
->   
->> I am looking for a way to bridge a T1/E1 network by reading a raw
->> bitstream from one T1 interface and writing it out to the other.  The
->> application is adding delay and/or bit corruptions for impairment
->> testing.
+Jeff Garzik wrote:
+> Robert Hancock wrote:
+>> Jeff Garzik wrote:
+>>> Prakash Punnoor wrote:
+>>>> Well, how would one debug it w/o hw docs? Or is it possible to 
+>>>> compare the patch with a working driver for another chipset?
+>>>
+>>> Well, it is based off of the standard ADMA[1] specification, albeit 
+>>> with modifications.  There is pdc_adma.c, which is also based off 
+>>> ADMA.  And the author (from NVIDIA) claims that the driver worked at 
+>>> one time, so maybe it is simply bit rot that broke the driver.
+>>>
+>>> If I knew the answer, it would be fixed, so the best answer 
+>>> unfortunately is "who knows".
+>>>
+>>> I wish I had the time.  But I also wish I had a team of programmers 
+>>> working on libata, too ;-)
 >>
->> I have been using Sangoma's drivers and NICs, but I'm having no luck
->> getting their latest stuff to work so I was hoping to use in-kernel
->> drivers (even if that means writing or hiring someone to write new ones.)
->>
->> Is there currently a way to read/write the raw bitstream for a full T1
->> or E1 or a subset of channels?
->>     
->
-> Well, my generic HDLC works with HDLC framing only, T1/E1 is
-> a layer lower than that... I think Cyclades have (had?) a version
-> of PC300 card with T1/E1 interface. It at least doesn't require
-> any "binary blobs", though I think the driver would need some work.
->
-> Which line interface do you need? G.703?
-> Do you need to bridge multiple streams (not slots) over one
-> interface (internal (de)multiplexer - I mean "more than one
-> subset of channels")?
->   
-For protocols running HDLC as transport, I can just bridge HDLC frames.  
-I would want
-to be able to select the channel(s) for the HDLC frames.
+>> Do you know exactly what is allegedly broken in that version? I see 
+>> that there are some functions which are just "TODO"..
+> 
+> I just know it was a working driver at one time.
 
-For bridging something like voice, I think if I could break out an 
-individual channel into
-a bit-stream interface, I could just read bits off on one T1 channel and 
-write to the other.
-Preferably, I could also bond multiple channels (including an entire T1 
-or E1) and bridge
-it as raw bits too.
+I had a look at the ADMA patch. It looks like it is vaguely based off 
+the ADMA spec, though with some significant changes (i.e. 64-bit 
+addresses instead of 32-bit, some things are missing or at least not 
+defined in the constants provided in the patch).
 
-I think if I could support these scenarios below, I would have 
-everything I need:
+I think the code will more or less work in ADMA mode with NCQ disabled 
+(i.e. how it is in the patch currently, with #define NV_ADMA_NCQ 
+commented out). However, with NCQ on there would be a few problems:
 
-*  Configure T1 as unchannelized bitstream, bridge entire thing to 
-second T1.
+-When the driver gets a command which is not DMA-mapped (i.e. PIO 
+commands), it switches the controller from ADMA mode into port-register 
+mode and then issues the command in the existing fashion. This isn't 
+going to work very well if there are already NCQ command(s) in progress, 
+which I assume is a possibility. Either the driver needs to stall the 
+PIO command until all the NCQ commands are done and prevent any other 
+NCQ commands starting while the PIO is in progress (is this viable?), or 
+it needs to push the PIO command through the ADMA pipeline. The ADMA 
+standard provides a means for executing PIO commands through the 
+pipeline using PIO-over-DMA, but there's not enough info to say whether 
+the NVIDIA controller implements that the same way or at all. Jeff, you 
+may be able to help with this if you have access to the docs.
 
-*  Configure channels 1-5 as a bitstream and bridge that to channels 1-5 
-of a second T1.  (random proprietary bit-streaming protocol,
-                     would probably bridge HDLC just fine, but handling 
-HDLC as frames would be more efficient I think.)
-    channels 6-10 configured as an HDLC interface, bridged as HDLC 
-frames to channels 6-10 of a second T1. (PPP & other protocols over HDLC)
-    channels 10-24 each configured as a separate bit-stream, bridged to 
-channels 10-24 on the second T1. (Voice)
+-Inside the interrupt handler the driver uses ata_qc_from_tag(ap, 
+ap->active_tag) to find the qc which was just completed. This won't work 
+in NCQ as active_tag is not used and multiple commands may be in 
+progress. It should be checking the CPB flags on all the active CPBs to 
+see which one(s) have completed (or maybe the hardware has a register 
+that indicates which CPBs have been completed already, the patch doesn't 
+provide a hint of how that would work however).
 
-*  Configure entire T1 as HDLC transport, bridge HDLC frames from one T1 
-to the other.
-
-Does that make sense?
-
-Thanks,
-Ben
+So it looks like it needs some work before NCQ will work properly. 
+However, there would be some gains to getting ADMA working even without 
+NCQ, both in terms of reduced CPU overhead. Also, ADMA supports full 
+64-bit DMA as opposed to the 32-bit DMA capability of the standard 
+interface, which would reduce IOMMU load on systems with RAM above 4GB. 
+(Note that this is broken in the patch currently, the sg addresses get 
+dumped into a u32 and truncated before they are written to the 
+controller, and it also doesn't set a 64-bit DMA mask in ADMA mode..)
 
 -- 
-Ben Greear <greearb@candelatech.com> 
-Candela Technologies Inc  http://www.candelatech.com
-
+Robert Hancock      Saskatoon, SK, Canada
+To email, remove "nospam" from hancockr@nospamshaw.ca
+Home Page: http://www.roberthancock.com/
 

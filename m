@@ -1,44 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751935AbWI3UwO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751964AbWI3UxK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751935AbWI3UwO (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Sep 2006 16:52:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751964AbWI3UwO
+	id S1751964AbWI3UxK (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Sep 2006 16:53:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751965AbWI3UxK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Sep 2006 16:52:14 -0400
-Received: from nf-out-0910.google.com ([64.233.182.188]:45248 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S1751935AbWI3UwN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Sep 2006 16:52:13 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=NYqWaM8Dfvnx2uvvkDskXH3FohDmMkQ0a+b8n4Y0nVC2toWXczRrtM8CkrkFPbIuvdY4wDJSK9sR3cPHm5xOI7UHXFkk1e6OKNU1ma+GL9F0Wa7rBwajjjMVMx/W9XScS5Eqj/9p/LBrDFF4GPS8wycT+Wpr8RNXovrQYWNHu6s=
-Message-ID: <5f3c152b0609301352w5bc52653s3e2a28e482c7d69e@mail.gmail.com>
-Date: Sat, 30 Sep 2006 22:52:12 +0200
-From: "Eric Rannaud" <eric.rannaud@gmail.com>
-To: "Andrew Morton" <akpm@osdl.org>
-Subject: Re: BUG-lockdep and freeze (was: Arrr! Linux 2.6.18)
-Cc: linux-kernel@vger.kernel.org, "Linus Torvalds" <torvalds@osdl.org>,
-       mingo@elte.hu, nagar@watson.ibm.com
-In-Reply-To: <20060930131310.0d6494e7.akpm@osdl.org>
+	Sat, 30 Sep 2006 16:53:10 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:41162 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1751964AbWI3UxH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Sep 2006 16:53:07 -0400
+Date: Sat, 30 Sep 2006 22:52:58 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: "Eugeny S. Mints" <eugeny.mints@gmail.com>
+Cc: linux-kernel@vger.kernel.org, linux-pm@lists.osdl.org,
+       ext-Tuukka.Tikkanen@nokia.com
+Subject: Re: [linux-pm] [RFC] OMAP1 PM Core,  Platform Power Parameter 1/2
+Message-ID: <20060930205258.GB3061@elf.ucw.cz>
+References: <20060930022428.e27d4c53.eugeny.mints@gmail.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <5f3c152b0609301220p7a487c7dw456d007298578cd7@mail.gmail.com>
-	 <20060930131310.0d6494e7.akpm@osdl.org>
+In-Reply-To: <20060930022428.e27d4c53.eugeny.mints@gmail.com>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 9/30/06, Andrew Morton <akpm@osdl.org> wrote:
-> > On  a 16-way Opteron (8 dual-core 880) with 8GB of RAM, vanilla 2.6.18
-> > crashes early on boot with a BUG.
->
-> omg what a mess.  Have you tried it with lockdep disabled in config?
+Hi!
 
-Well, all I can say is that without lockdep it doesn't freeze right
-away (and no BUG, but that's to be expected). I can stress test it if
-you want, although it will take a while, if you think it might be a
-false positive.
+> Basic building block for PM Core layer is platform power parameter concept. A platform power parameter is a name, get and set methods.  
+> 
+> Although an PM Core implementation is completely arch specific any PM Core is
+> supposed to utilize platform power parameter concept.
+> 
+> Also any PM Core is supposed to export names of all platform power parameters
+> available on a platform. Any entity which registeres operating points is primary
+> consumer of platform_pwr_param_get_names() interface.
+> 
+> (Probably this interface routine might be moved to be a part of PowerOP Core 
+> interface)
+> 
+> diff --git a/include/linux/plat_pwr_param.h b/include/linux/plat_pwr_param.h
+> new file mode 100644
+> index 0000000..3a78d2b
+> --- /dev/null
+> +++ b/include/linux/plat_pwr_param.h
 
-er.
+This is generic code (and please select some more reasonable
+filename). It should not be in patch marked "OMAP1".
+
+								Pavel
+
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

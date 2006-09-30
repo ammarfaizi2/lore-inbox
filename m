@@ -1,72 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750728AbWI3DeS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750716AbWI3Dbc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750728AbWI3DeS (ORCPT <rfc822;willy@w.ods.org>);
-	Fri, 29 Sep 2006 23:34:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750729AbWI3DeS
+	id S1750716AbWI3Dbc (ORCPT <rfc822;willy@w.ods.org>);
+	Fri, 29 Sep 2006 23:31:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750728AbWI3Dbc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Fri, 29 Sep 2006 23:34:18 -0400
-Received: from pool-72-66-199-147.ronkva.east.verizon.net ([72.66.199.147]:5831
-	"EHLO turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S1750728AbWI3DeR (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Fri, 29 Sep 2006 23:34:17 -0400
-Message-Id: <200609300331.k8U3ViNR008895@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
-To: jt@hpl.hp.com
-Cc: Andrew Morton <akpm@osdl.org>, "John W. Linville" <linville@tuxdriver.com>,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Subject: Re: 2.6.18-mm2 - oops in cache_alloc_refill()
-In-Reply-To: Your message of "Fri, 29 Sep 2006 18:40:43 PDT."
-             <20060930014043.GA10927@bougret.hpl.hp.com>
-From: Valdis.Kletnieks@vt.edu
-References: <20060928014623.ccc9b885.akpm@osdl.org> <200609290319.k8T3JOwS005455@turing-police.cc.vt.edu> <20060928202931.dc324339.akpm@osdl.org> <200609291519.k8TFJfvw004256@turing-police.cc.vt.edu> <20060929124558.33ef6c75.akpm@osdl.org> <200609300001.k8U01sPI004389@turing-police.cc.vt.edu> <20060929182008.fee2a229.akpm@osdl.org>
-            <20060930014043.GA10927@bougret.hpl.hp.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1159587104_2769P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Fri, 29 Sep 2006 23:31:44 -0400
+	Fri, 29 Sep 2006 23:31:32 -0400
+Received: from shawidc-mo1.cg.shawcable.net ([24.71.223.10]:28816 "EHLO
+	pd4mo2so.prod.shaw.ca") by vger.kernel.org with ESMTP
+	id S1750716AbWI3Dbb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Fri, 29 Sep 2006 23:31:31 -0400
+Date: Fri, 29 Sep 2006 21:30:07 -0600
+From: Robert Hancock <hancockr@shaw.ca>
+Subject: Re: SATA status reports update
+In-reply-to: <fa.BuZY3hsao85GkcEIgE6/7ZlG40A@ifi.uio.no>
+To: Jeff Garzik <jeff@garzik.org>, linux-kernel <linux-kernel@vger.kernel.org>
+Cc: Prakash Punnoor <prakash@punnoor.de>
+Message-id: <451DE4BF.70906@shaw.ca>
+MIME-version: 1.0
+Content-type: text/plain; charset=ISO-8859-1; format=flowed
+Content-transfer-encoding: 7bit
+References: <fa.qX++qRit8w9OM0g1pdrG/oO2vt0@ifi.uio.no>
+ <fa.Rp+FWnZ2aDKMZggJQPBaMZJIiTk@ifi.uio.no>
+ <fa.mf96kUVw9JlcVmzGTV5ysiCiT3E@ifi.uio.no>
+ <fa.qyxVQ/280iu/YZsbUzTDjAygfL4@ifi.uio.no>
+ <fa.BuZY3hsao85GkcEIgE6/7ZlG40A@ifi.uio.no>
+User-Agent: Thunderbird 1.5.0.7 (Windows/20060909)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1159587104_2769P
-Content-Type: text/plain; charset=us-ascii
-
-On Fri, 29 Sep 2006 18:40:43 PDT, Jean Tourrilhes said:
-> On Fri, Sep 29, 2006 at 06:20:08PM -0700, Andrew Morton wrote:
-> > On Fri, 29 Sep 2006 20:01:54 -0400
-> > > 
-> > > A quick strace of gkrellm finds these likely ioctl's causing the problem:
-> > > 
-> > > % grep ioctl /tmp/foo2 | sort -u | more
-> > > ioctl(13, SIOCGIWESSID, 0xbfbcdb9c)     = 0
-> > > ioctl(13, SIOCGIWRANGE, 0xbfbcdbdc)     = 0
-> > > ioctl(13, SIOCGIWRATE, 0xbfbcdbbc)      = 0
+Jeff Garzik wrote:
+> Prakash Punnoor wrote:
+>> Well, how would one debug it w/o hw docs? Or is it possible to compare 
+>> the patch with a working driver for another chipset?
 > 
-> 	Excuse me, can you point out wich version of gkrellm you use
-> and where to find it, the only version that is listed on my page does
-> not use the ESSID ioctl. I want to be sure I'm looking at the same
-> thing as you are...
+> Well, it is based off of the standard ADMA[1] specification, albeit with 
+> modifications.  There is pdc_adma.c, which is also based off ADMA.  And 
+> the author (from NVIDIA) claims that the driver worked at one time, so 
+> maybe it is simply bit rot that broke the driver.
+> 
+> If I knew the answer, it would be fixed, so the best answer 
+> unfortunately is "who knows".
+> 
+> I wish I had the time.  But I also wish I had a team of programmers 
+> working on libata, too ;-)
 
-All the pieces:
-http://download.fedora.redhat.com/pub/fedora/linux/extras/development/SRPMS/
+Do you know exactly what is allegedly broken in that version? I see that 
+there are some functions which are just "TODO"..
 
-The particular plugin causing the trouble:
-http://download.fedora.redhat.com/pub/fedora/linux/extras/development/SRPMS/gkrellm-wifi-0.9.12-3.fc6.src.rpm
+-- 
+Robert Hancock      Saskatoon, SK, Canada
+To email, remove "nospam" from hancockr@nospamshaw.ca
+Home Page: http://www.roberthancock.com/
 
-If you're not on a box that has rpm2cpio or similar, yell and I'll
-break that .src.rpm up for you - there's basically just an 18K .tar.gz and
-a 14K patch in there.
-
---==_Exmh_1159587104_2769P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFFHeUgcC3lWbTT17ARAjQmAJ0XlSvnOdcxCTEEVcR8xJ4za5stcgCfZCSv
-uVWgxbG36DigNUo5HNTnUoY=
-=8Hj/
------END PGP SIGNATURE-----
-
---==_Exmh_1159587104_2769P--

@@ -1,66 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751432AbWI3TCU@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751448AbWI3TP3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751432AbWI3TCU (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Sep 2006 15:02:20 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751444AbWI3TCU
+	id S1751448AbWI3TP3 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Sep 2006 15:15:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751450AbWI3TP3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Sep 2006 15:02:20 -0400
-Received: from rwcrmhc15.comcast.net ([216.148.227.155]:13277 "EHLO
-	rwcrmhc15.comcast.net") by vger.kernel.org with ESMTP
-	id S1751432AbWI3TCT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Sep 2006 15:02:19 -0400
-Subject: Re: Performance analysis of Linux Kernel Markers 0.20 for 2.6.17
-From: Nicholas Miell <nmiell@comcast.net>
-To: Mathieu Desnoyers <compudj@krystal.dyndns.org>
-Cc: Martin Bligh <mbligh@google.com>, "Frank Ch. Eigler" <fche@redhat.com>,
-       Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>, prasanna@in.ibm.com,
-       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-       Mathieu Desnoyers <mathieu.desnoyers@polymtl.ca>,
-       Paul Mundt <lethal@linux-sh.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>, Jes Sorensen <jes@sgi.com>,
-       Tom Zanussi <zanussi@us.ibm.com>,
-       Richard J Moore <richardj_moore@uk.ibm.com>,
-       Michel Dagenais <michel.dagenais@polymtl.ca>,
-       Christoph Hellwig <hch@infradead.org>,
-       Greg Kroah-Hartman <gregkh@suse.de>,
-       Thomas Gleixner <tglx@linutronix.de>, William Cohen <wcohen@redhat.com>,
-       ltt-dev@shafik.org, systemtap@sources.redhat.com,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Jeremy Fitzhardinge <jeremy@goop.org>,
-       Karim Yaghmour <karim@opersys.com>, Pavel Machek <pavel@suse.cz>,
-       Joe Perches <joe@perches.com>, "Randy.Dunlap" <rdunlap@xenotime.net>,
-       "Jose R. Santos" <jrs@us.ibm.com>
-In-Reply-To: <20060930180157.GA25761@Krystal>
-References: <20060930180157.GA25761@Krystal>
+	Sat, 30 Sep 2006 15:15:29 -0400
+Received: from www.osadl.org ([213.239.205.134]:42400 "EHLO mail.tglx.de")
+	by vger.kernel.org with ESMTP id S1751448AbWI3TP2 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Sep 2006 15:15:28 -0400
+Subject: Re: [patch 00/23]
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: Andrew Morton <akpm@osdl.org>
+Cc: LKML <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>,
+       Jim Gettys <jg@laptop.org>, John Stultz <johnstul@us.ibm.com>,
+       David Woodhouse <dwmw2@infradead.org>,
+       Arjan van de Ven <arjan@infradead.org>, Dave Jones <davej@redhat.com>
+In-Reply-To: <20060930013529.4afd6906.akpm@osdl.org>
+References: <20060929234435.330586000@cruncher.tec.linutronix.de>
+	 <20060930013529.4afd6906.akpm@osdl.org>
 Content-Type: text/plain
-Date: Sat, 30 Sep 2006 12:02:13 -0700
-Message-Id: <1159642933.2355.1.camel@entropy>
+Date: Sat, 30 Sep 2006 21:17:24 +0200
+Message-Id: <1159643844.9326.831.camel@localhost.localdomain>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5.0.njm.1) 
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, 2006-09-30 at 14:01 -0400, Mathieu Desnoyers wrote:
-> Hi,
+On Sat, 2006-09-30 at 01:35 -0700, Andrew Morton wrote:
+> Could we please have a full description of these features?  All we have at
+> present is "high resolution timers" and "dynticks", which is ludicrously
+> terse.  Please also describe the design and implementation.  This is basic
+> stuff for a run-of-the-mill patch, let alone a feature like this one.
 > 
-> Following the huge discussion thread about tracing/static vs dynamic
-> instrumentation/markers, a consensus seems to emerge about the need for a
-> marker system in the Linux kernel. The main issues this mechanism addresses are:
+> I don't believe I can adequately review this work without that information.
+> I can try, but obviously such a review will not be as beneficial - it can
+> only cover trivial matters.
 > 
-> - Identify code important to runtime data collection/analysis tools in tree so
->   that it follows the code changes naturally.
-> - Be visually appealing to kernel developers.
-> - Have a very low impact on the system performance.
-> - Integrate in the standard kernel infrastructure : use C and loadable modules.
+> With all the work which has gone into this, and with the impact which it
+> will have upon us all it is totally disproportionate that no more than a
+> few minutes were spent telling the rest of us what it does and how it
+> does it.
 > 
-> The time has come for some performance measurements of the Linux Kernel Markers,
-> which follows. I attach a PDF with tables and charts which condense these
-> results.
+> We've had a lot of problems with timekeeping in recent years, and they have
+> been hard and slow to solve.  Hence I'd like to set the bar very high on
+> the maintainability and understandability of this work.  And what I see
+> here doesn't look really great from that POV.
 
-Has anyone done any performance measurements with the "regular function
-call replaced by a NOP" type of marker?
+Fair enough. Point taken. We're working on it and on the comments you
+gave. Thanks for taking the time to go through it nevertheless.
 
--- 
-Nicholas Miell <nmiell@comcast.net>
+The OLS proceedings
+http://www.linuxsymposium.org/2006/linuxsymposium_procv1.pdf
+
+and the slides of my talk 
+http://tglx.de/projects/hrtimers/ols2006-hrtimers.pdf
+
+might also shed some light on the design.
+
+	tglx
+
 

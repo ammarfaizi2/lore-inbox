@@ -1,55 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750995AbWI3GHP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751057AbWI3GK7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750995AbWI3GHP (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Sep 2006 02:07:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751057AbWI3GHO
+	id S1751057AbWI3GK7 (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Sep 2006 02:10:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751059AbWI3GK7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Sep 2006 02:07:14 -0400
-Received: from natblert.rzone.de ([81.169.145.181]:62688 "EHLO
-	natblert.rzone.de") by vger.kernel.org with ESMTP id S1750995AbWI3GHN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Sep 2006 02:07:13 -0400
-Date: Sat, 30 Sep 2006 08:07:08 +0200
-From: Olaf Hering <olaf@aepfle.de>
-To: Greg KH <greg@kroah.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 44/47] PCI: enable driver multi-threaded probe
-Message-ID: <20060930060708.GA6352@aepfle.de>
-References: <11592492023883-git-send-email-greg@kroah.com> <11592492061208-git-send-email-greg@kroah.com> <1159249209773-git-send-email-greg@kroah.com> <11592492123695-git-send-email-greg@kroah.com> <11592492153066-git-send-email-greg@kroah.com> <11592492193773-git-send-email-greg@kroah.com> <11592492221573-git-send-email-greg@kroah.com> <1159249226922-git-send-email-greg@kroah.com> <20060927185124.GA9552@aepfle.de> <20060929233209.GC27431@kroah.com>
+	Sat, 30 Sep 2006 02:10:59 -0400
+Received: from mail8.sea5.speakeasy.net ([69.17.117.10]:21228 "EHLO
+	mail8.sea5.speakeasy.net") by vger.kernel.org with ESMTP
+	id S1751057AbWI3GK6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Sep 2006 02:10:58 -0400
+From: Vadim Lobanov <vlobanov@speakeasy.net>
+To: Randy Dunlap <rdunlap@xenotime.net>
+Subject: Re: GPLv3 Position Statement
+Date: Fri, 29 Sep 2006 23:10:52 -0700
+User-Agent: KMail/1.9.1
+Cc: Gene Heskett <gene.heskett@verizon.net>, linux-kernel@vger.kernel.org
+References: <1158941750.3445.31.camel@mulgrave.il.steeleye.com> <200609292137.27854.vlobanov@speakeasy.net> <20060929215410.9a576838.rdunlap@xenotime.net>
+In-Reply-To: <20060929215410.9a576838.rdunlap@xenotime.net>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20060929233209.GC27431@kroah.com>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+Message-Id: <200609292310.52265.vlobanov@speakeasy.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 29, Greg KH wrote:
+On Friday 29 September 2006 21:54, Randy Dunlap wrote:
+> On Fri, 29 Sep 2006 21:37:27 -0700 Vadim Lobanov wrote:
+> > > >No, not at all. It's simply that we Seattle-ites just whine about it
+> > > > the loudest. It's nothing more than a ploy to scare away the
+> > > > tourists. :)
+> > >
+> > > You don't have to, the weather does that.  The std joke question for
+> > > anyone from a Northern CA market tv station who goes to Seattle to
+> > > interview for a job at a larger market tv station is:  Was it raining? 
+> > > And the answer is always yes.  I never saw it fail. :)
+> >
+> > Ah, our weather is honestly not all that bad. In fact, judging from the
+> > various sources out there, Seattle actually gets less rainfall overall
+> > than Portland. (ex.
+> > http://en.wikipedia.org/wiki/Seattle,_Washington#Climate) The worst part
+> > is the 8-9 months of constantly-overcast and dreary weather in the fall,
+> > winter, and spring; but, to balance that out, our summers are very, very
+> > nice. And yes, we even get droughts every so often around here! :)
+>
+> Hey, you aren't supposed to tell people about the great summer
+> weather out here...
 
-> On Wed, Sep 27, 2006 at 08:51:24PM +0200, Olaf Hering wrote:
-> > On Mon, Sep 25, Greg KH wrote:
-> > 
-> > > Use at your own risk!!!
-> > 
-> > I havent debugged it, but it seems to reorder the driver probing, offb
-> > vs. nvidiafb (-bad, +good):
-> > 
-> > -Using unsupported 1024x768 NVDA,Display-A at 90020000, depth=8, pitch=1024
-> > -PCI: Unable to reserve mem region #2:10000000@90000000 for device 0000:0a:00.0
-> > -nvidiafb: cannot request PCI regions
-> > +nvidiafb: Device ID: 10de0141 
-> > +nvidiafb: CRTC0 analog found
-> > +nvidiafb: CRTC1 analog found
-> > +nvidiafb: Found OF EDID for head 1
-> > +nvidiafb: EDID found from BUS1
-> > +nvidiafb: EDID found from BUS2
-> > +nvidiafb: CRTC 0 appears to have a CRT attached
-> > +nvidiafb: Using CRT on CRTC 0
-> >  Console: switching to colour frame buffer device 128x48
-> > -fb0: Open Firmware frame buffer device on /pci@0,f0000000/NVDA,Parent@0/NVDA,Display-A@0
-> > +nvidiafb: PCI nVidia NV14 framebuffer (64MB @ 0x90000000)
-> 
-> Hm, is things just getting registered out of order, so the wrong video
-> device is used by the kernel?  Or by userspace?
+True, we shouldn't announce this particular little secret to the whole wide 
+world, but I think it's alright to tell the people on this list about it. ;) 
+After all, the only thing that could happen is that more kernel hackers 
+decide to move here... and getting more smart neighbors like them, as a 
+result, is never a bad thing!
 
-noidea, offb seems to get initialized before nvidiafb.
+So does this mean that you live in the Pacific Northwest in general, or 
+Seattle in particular? If so, I never knew. And speaking of, who else haunts 
+this little corner of the world? David Miller is moving here, unless my mind 
+is playing tricks on me; anybody else?
+
+> ---
+> ~Randy
+
+-- Vadim Lobanov

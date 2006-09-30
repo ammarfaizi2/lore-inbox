@@ -1,26 +1,28 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751155AbWI3IrJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751167AbWI3Iqd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751155AbWI3IrJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Sep 2006 04:47:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751166AbWI3IrI
+	id S1751167AbWI3Iqd (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Sep 2006 04:46:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751163AbWI3IqE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Sep 2006 04:47:08 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:9123 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751155AbWI3IrD (ORCPT
+	Sat, 30 Sep 2006 04:46:04 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:45730 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751155AbWI3Ipc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Sep 2006 04:47:03 -0400
-Date: Sat, 30 Sep 2006 01:46:33 -0700
+	Sat, 30 Sep 2006 04:45:32 -0400
+Date: Sat, 30 Sep 2006 01:44:56 -0700
 From: Andrew Morton <akpm@osdl.org>
-To: Thomas Gleixner <tglx@linutronix.de>
+To: Thomas Gleixner <tglx@linutronix.de>,
+       "Paul E. McKenney" <paulmck@us.ibm.com>,
+       Dipankar Sarma <dipankar@in.ibm.com>
 Cc: LKML <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>,
        Jim Gettys <jg@laptop.org>, John Stultz <johnstul@us.ibm.com>,
        David Woodhouse <dwmw2@infradead.org>,
        Arjan van de Ven <arjan@infradead.org>, Dave Jones <davej@redhat.com>
-Subject: Re: [patch 21/23] debugging feature: timer stats
-Message-Id: <20060930014633.f90caa13.akpm@osdl.org>
-In-Reply-To: <20060929234441.210732000@cruncher.tec.linutronix.de>
+Subject: Re: [patch 16/23] dynticks: core
+Message-Id: <20060930014456.55543e93.akpm@osdl.org>
+In-Reply-To: <20060929234440.636609000@cruncher.tec.linutronix.de>
 References: <20060929234435.330586000@cruncher.tec.linutronix.de>
-	<20060929234441.210732000@cruncher.tec.linutronix.de>
+	<20060929234440.636609000@cruncher.tec.linutronix.de>
 X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -28,171 +30,248 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 29 Sep 2006 23:58:41 -0000
+On Fri, 29 Sep 2006 23:58:35 -0000
 Thomas Gleixner <tglx@linutronix.de> wrote:
 
-> From: Thomas Gleixner <tglx@linutronix.de>
+> From: Ingo Molnar <mingo@elte.hu>
 > 
-> add /proc/tstats support:
+> dynticks core code.
+> 
+> Add idling-stats to the cpu base (to be used to optimize power
+> management decisions), add the scheduler tick and its stop/restart
+> functions, and the jiffies-update function to be called when an irq
+> context hits the idle context.
+> 
 
-/proc/timer_stats would be a better name.
+I worry that we're making this feature optional.
 
-Is this intended as a mainlineable feature?  If so, some documentation
-would be nice.
+Certainly for the public testing period we should wire these new features
+to "on".
 
-> debugging feature to profile timer expiration.
-> Both the starting site, process/PID and the expiration function is
-> captured. This allows the quick identification of timer event sources
-> in a system.
-> 
-> sample output:
-> 
->  # echo 1 > /proc/tstats
->  # cat /proc/tstats
->  Timerstats sample period: 3.888770 s
->    12,     0 swapper          hrtimer_stop_sched_tick (hrtimer_sched_tick)
->    15,     1 swapper          hcd_submit_urb (rh_timer_func)
->     4,   959 kedac            schedule_timeout (process_timeout)
->     1,     0 swapper          page_writeback_init (wb_timer_fn)
->    28,     0 swapper          hrtimer_stop_sched_tick (hrtimer_sched_tick)
->    22,  2948 IRQ 4            tty_flip_buffer_push (delayed_work_timer_fn)
->     3,  3100 bash             schedule_timeout (process_timeout)
->     1,     1 swapper          queue_delayed_work_on (delayed_work_timer_fn)
->     1,     1 swapper          queue_delayed_work_on (delayed_work_timer_fn)
->     1,     1 swapper          neigh_table_init_no_netlink (neigh_periodic_timer)
->     1,  2292 ip               __netdev_watchdog_up (dev_watchdog)
->     1,    23 events/1         do_cache_clean (delayed_work_timer_fn)
->  90 total events, 30.0 events/sec
-> 
-> ...
-> 
-> @@ -74,6 +74,11 @@ struct hrtimer {
->  	int				cb_mode;
->  	struct list_head		cb_entry;
->  #endif
-> +#ifdef CONFIG_TIMER_STATS
-> +	void				*start_site;
-> +	char				start_comm[16];
-> +	int				start_pid;
+But long-term this is yet another question which we'll need to ask when
+we're trying to work out why someone's computer failed.
+
+> --- linux-2.6.18-mm2.orig/include/linux/hrtimer.h	2006-09-30 01:41:18.000000000 +0200
+> +++ linux-2.6.18-mm2/include/linux/hrtimer.h	2006-09-30 01:41:18.000000000 +0200
+> @@ -142,6 +142,14 @@ struct hrtimer_cpu_base {
+>  	struct hrtimer			sched_timer;
+>  	struct pt_regs			*sched_regs;
+>  	unsigned long			events;
+> +#ifdef CONFIG_NO_HZ
+> +	ktime_t				idle_tick;
+> +	int				tick_stopped;
+> +	unsigned long			idle_jiffies;
+> +	unsigned long			idle_calls;
+> +	unsigned long			idle_sleeps;
+> +	unsigned long			idle_sleeptime;
 > +#endif
->  };
 
-Forgot to update this struct's kerneldoc.
+Forgot to update this structure's kerneldoc.
 
-> +extern void tstats_update_stats(void *timer, pid_t pid, void *startf,
+> +# define show_no_hz_stats(p)			do { } while (0)
 
-timer_stats_* would be nicer...
+static inlines provide type checking.
 
-> Index: linux-2.6.18-mm2/include/linux/timer.h
-> ===================================================================
-> --- linux-2.6.18-mm2.orig/include/linux/timer.h	2006-09-30 01:41:19.000000000 +0200
-> +++ linux-2.6.18-mm2/include/linux/timer.h	2006-09-30 01:41:20.000000000 +0200
-> @@ -2,6 +2,7 @@
->  #define _LINUX_TIMER_H
+> @@ -451,7 +450,6 @@ static void update_jiffies64(ktime_t now
 >  
->  #include <linux/list.h>
-> +#include <linux/ktime.h>
->  #include <linux/spinlock.h>
->  #include <linux/stddef.h>
->  
-> @@ -15,6 +16,11 @@ struct timer_list {
->  	unsigned long data;
->  
->  	struct tvec_t_base_s *base;
-> +#ifdef CONFIG_TIMER_STATS
-> +	void *start_site;
-> +	char start_comm[16];
-> +	int start_pid;
-> +#endif
->  };
+>  			last_jiffies_update = ktime_add_ns(last_jiffies_update,
+>  							   incr * orun);
+> -			jiffies_64 += orun;
+>  			orun++;
+>  		}
 
-hm.  So it's very much a developer thing.
+I think we just fixed that bug I might have seen.
 
-> ===================================================================
-> --- /dev/null	1970-01-01 00:00:00.000000000 +0000
-> +++ linux-2.6.18-mm2/kernel/time/timer_stats.c	2006-09-30 01:41:20.000000000 +0200
-> @@ -0,0 +1,227 @@
+>  		do_timer(orun);
+> @@ -459,28 +457,201 @@ static void update_jiffies64(ktime_t now
+>  	write_sequnlock(&xtime_lock);
+>  }
+>  
+> +#ifdef CONFIG_NO_HZ
 > +/*
-> + * kernel/time/timer_stats.c
-> + *
-> + * Copyright(C) 2006, Red Hat, Inc., Ingo Molnar
-> + * Copyright(C) 2006, Thomas Gleixner <tglx@timesys.com>
-> + *
-> + * Based on: timer_top.c
-> + *	Copyright (C) 2005 Instituto Nokia de Tecnologia - INdT - Manaus
-> + *	Written by Daniel Petrini <d.pensator@gmail.com>
+> + * Called from interrupt entry when then CPU was idle
 
-We're missing a Signed-off-by:?
+tpyo
 
-> + * Collect timer usage statistics.
-> + *
-> + * We export the addresses and counting of timer functions being called,
-> + * the pid and cmdline from the owner process if applicable.
-> + *
-> + * Start/stop data collection:
-> + * # echo 1[0] >/proc/tstats
-> + *
-> + * Display the collected information:
-> + * # cat /proc/tstats
-> + *
-> + * This program is free software; you can redistribute it and/or modify
-> + * it under the terms of the GNU General Public License version 2 as
-> + * published by the Free Software Foundation.
 > + */
-> +
-> +#include <linux/list.h>
-> +#include <linux/proc_fs.h>
-> +#include <linux/module.h>
-> +#include <linux/spinlock.h>
-> +#include <linux/sched.h>
-> +#include <linux/seq_file.h>
-> +#include <linux/kallsyms.h>
-> +
-> +#include <asm/uaccess.h>
-> +
-> +static DEFINE_SPINLOCK(tstats_lock);
-> +static int tstats_status;
-
-This is not an integer.  It has type `enum tstats_stat'.
-
-> +static ktime_t tstats_time;
-> +
-> +enum tstats_stat {
-> +	TSTATS_INACTIVE,
-> +	TSTATS_ACTIVE,
-> +	TSTATS_READOUT,
-> +	TSTATS_RESET,
-> +};
-> +
->
-> ...
->
-> +static void tstats_reset(void)
+> +void update_jiffies(void)
 > +{
-> +	memset(tstats, 0, sizeof(tstats));
+> +	unsigned long flags;
+> +	ktime_t now;
+> +
+> +	if (unlikely(!hrtimer_hres_active))
+> +		return;
+> +
+> +	now = ktime_get();
+> +
+> +	local_irq_save(flags);
+> +	update_jiffies64(now);
+> +	local_irq_restore(flags);
+> +}
+> +
+> +/*
+> + * Called from the idle thread so careful!
+
+about what?
+
+> + */
+> +int hrtimer_stop_sched_tick(void)
+> +{
+> +	int cpu = smp_processor_id();
+> +	struct hrtimer_cpu_base *cpu_base = &per_cpu(hrtimer_bases, cpu);
+> +	unsigned long seq, last_jiffies, next_jiffies;
+> +	ktime_t last_update, expires;
+> +	unsigned long delta_jiffies;
+> +	unsigned long flags;
+> +
+> +	if (unlikely(!hrtimer_hres_active))
+> +		return 0;
+> +
+> +	local_irq_save(flags);
+
+Do we really need local_irq_save() here?  If it's called from the idle
+thread then presumably local IRQs are enabled already.  They'd better be,
+because this function unconditionally enables them in a couple of places.
+
+> +	do {
+> +		seq = read_seqbegin(&xtime_lock);
+> +		last_update = last_jiffies_update;
+> +		last_jiffies = jiffies;
+> +	} while (read_seqretry(&xtime_lock, seq));
+> +
+> +	next_jiffies = get_next_timer_interrupt(last_jiffies);
+> +	delta_jiffies = next_jiffies - last_jiffies;
+> +
+> +	cpu_base->idle_calls++;
+> +
+> +	if ((long)delta_jiffies >= 1) {
+> +		/*
+> +		 * Save the current tick time, so we can restart the
+> +		 * scheduler tick when we get woken up before the next
+> +		 * wheel timer expires
+> +		 */
+> +		cpu_base->idle_tick = cpu_base->sched_timer.expires;
+> +		expires = ktime_add_ns(last_update,
+> +				       nsec_per_hz.tv64 * delta_jiffies);
+> +		hrtimer_start(&cpu_base->sched_timer, expires, HRTIMER_ABS);
+> +		cpu_base->idle_sleeps++;
+> +		cpu_base->idle_jiffies = last_jiffies;
+> +		cpu_base->tick_stopped = 1;
+> +	} else {
+> +		/* Keep the timer alive */
+> +		if ((long) delta_jiffies < 0)
+> +			raise_softirq(TIMER_SOFTIRQ);
+> +	}
+> +
+> +	if (local_softirq_pending()) {
+> +		inc_preempt_count();
+
+I am unable to work out why the inc_preempt_count() is there.  Please add
+comment.
+
+> +		do_softirq();
+> +		dec_preempt_count();
+> +	}
+> +
+> +	WARN_ON(!idle_cpu(cpu));
+> +	/*
+> +	 * RCU normally depends on the timer IRQ kicking completion
+> +	 * in every tick. We have to do this here now:
+> +	 */
+> +	if (rcu_pending(cpu)) {
+> +		/*
+> +		 * We are in quiescent state, so advance callbacks:
+> +		 */
+> +		rcu_advance_callbacks(cpu, 1);
+> +		local_irq_enable();
+> +		local_bh_disable();
+> +		rcu_process_callbacks(0);
+> +		local_bh_enable();
+> +	}
+> +
+> +	local_irq_restore(flags);
+> +
+> +	return need_resched();
 > +}
 
-This is called without the lock held, which looks wrong.
+Are the RCU guys OK with this?
 
-> +static ssize_t tstats_write(struct file *file, const char __user *buf,
-> +			    size_t count, loff_t *offs)
+> +void hrtimer_restart_sched_tick(void)
+
+Am unable to work out what this does from its implementation and from its
+caller.  Please document it.
+
+
 > +{
-> +	char ctl[2];
+> +	struct hrtimer_cpu_base *cpu_base = &__get_cpu_var(hrtimer_bases);
+> +	unsigned long flags;
+> +	ktime_t now;
 > +
-> +	if (count != 2 || *offs)
-> +		return -EINVAL;
+> +	if (!hrtimer_hres_active || !cpu_base->tick_stopped)
+> +		return;
+> +
+> +	/* Update jiffies first */
+> +	now = ktime_get();
+> +
+> +	local_irq_save(flags);
 
-Let's hope nobody's echo command does while(n) write(fd, *p++, 1);
+The sole caller of this function calls it with local interrupts enabled. 
+local_irq_disable() could be used here.
 
-> -static void delayed_work_timer_fn(unsigned long __data)
-> +void delayed_work_timer_fn(unsigned long __data)
->  {
->  	struct work_struct *work = (struct work_struct *)__data;
->  	struct workqueue_struct *wq = work->wq_data;
->  	int cpu = smp_processor_id();
-> +	struct list_head *head;
->  
-> +	head = &per_cpu_ptr(wq->cpu_wq, cpu)->more_work.task_list;
+> +	update_jiffies64(now);
+> +
+> +	/*
+> +	 * Update process times would randomly account the time we slept to
+> +	 * whatever the context of the next sched tick is.  Enforce that this
+> +	 * is accounted to idle !
+> +	 */
+> +	add_preempt_count(HARDIRQ_OFFSET);
+> +	update_process_times(0);
+> +	sub_preempt_count(HARDIRQ_OFFSET);
+> +
+> +	cpu_base->idle_sleeptime += jiffies - cpu_base->idle_jiffies;
+> +
+> +	cpu_base->tick_stopped  = 0;
+> +	hrtimer_cancel(&cpu_base->sched_timer);
+> +	cpu_base->sched_timer.expires = cpu_base->idle_tick;
+> +
+> +	while (1) {
+> +		hrtimer_forward(&cpu_base->sched_timer, now, nsec_per_hz);
+> +		hrtimer_start(&cpu_base->sched_timer,
+> +			      cpu_base->sched_timer.expires, HRTIMER_ABS);
+> +		if (hrtimer_active(&cpu_base->sched_timer))
+> +			break;
+> +		/* We missed an update */
+> +		update_jiffies64(now);
+> +		now = ktime_get();
+> +	}
+> +	local_irq_restore(flags);
+> +}
+> +
+> +void show_no_hz_stats(struct seq_file *p)
+> +{
+> +	int cpu;
+> +	unsigned long calls = 0, sleeps = 0, time = 0, events = 0;
+> +
+> +	for_each_online_cpu(cpu) {
+> +		struct hrtimer_cpu_base *base = &per_cpu(hrtimer_bases, cpu);
+> +
+> +		calls += base->idle_calls;
+> +		sleeps += base->idle_sleeps;
+> +		time += base->idle_sleeptime;
+> +		events += base->events;
+> +
+> +		seq_printf(p, "nohz cpu%d I:%lu S:%lu T:%lu A:%lu E: %lu\n",
+> +			   cpu, base->idle_calls, base->idle_sleeps,
+> +			   base->idle_sleeptime, base->idle_sleeps ?
+> +			   base->idle_sleeptime / sleeps : 0, base->events);
+> +	}
+> +#ifdef CONFIG_SMP
+> +	seq_printf(p, "nohz total I:%lu S:%lu T:%lu A:%lu E:%lu\n",
+> +		   calls, sleeps, time, sleeps ? time / sleeps : 0, events);
+> +#endif
+> +}
 
-This doesn't do anything.
+Wouldn't it be better to display the "total" line on UP rather than cpu0?
+
 

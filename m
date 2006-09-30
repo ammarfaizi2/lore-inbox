@@ -1,44 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751930AbWI3UYM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751931AbWI3UZQ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751930AbWI3UYM (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Sep 2006 16:24:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751931AbWI3UYM
+	id S1751931AbWI3UZQ (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Sep 2006 16:25:16 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751932AbWI3UZQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Sep 2006 16:24:12 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:45185 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751930AbWI3UYL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Sep 2006 16:24:11 -0400
-Date: Sat, 30 Sep 2006 13:23:53 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Peter Zijlstra <a.p.zijlstra@chello.nl>
-cc: Eric Rannaud <eric.rannaud@gmail.com>, linux-kernel@vger.kernel.org,
-       mingo@elte.hu, akpm@osdl.org, nagar@watson.ibm.com,
-       Ravikiran G Thirumalai <kiran@scalex86.org>
-Subject: Re: BUG-lockdep and freeze (was: Arrr! Linux 2.6.18)
-In-Reply-To: <1159645755.13651.54.camel@lappy>
-Message-ID: <Pine.LNX.4.64.0609301322530.3952@g5.osdl.org>
-References: <5f3c152b0609301220p7a487c7dw456d007298578cd7@mail.gmail.com>
- <1159645755.13651.54.camel@lappy>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 30 Sep 2006 16:25:16 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:27800 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1751931AbWI3UZO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Sep 2006 16:25:14 -0400
+Subject: Re: GPLv3 Position Statement
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: tglx@linutronix.de
+Cc: Helge Hafting <helge.hafting@aitel.hist.no>, Neil Brown <neilb@suse.de>,
+       Michiel de Boer <x@rebelhomicide.demon.nl>,
+       James Bottomley <James.Bottomley@SteelEye.com>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <1159641498.9326.824.camel@localhost.localdomain>
+References: <1158941750.3445.31.camel@mulgrave.il.steeleye.com>
+	 <451798FA.8000004@rebelhomicide.demon.nl>
+	 <17687.46268.156413.352299@cse.unsw.edu.au>
+	 <1159183895.11049.56.camel@localhost.localdomain>
+	 <1159200620.9326.447.camel@localhost.localdomain>
+	 <451CF22D.4030405@aitel.hist.no>
+	 <1159641498.9326.824.camel@localhost.localdomain>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Sat, 30 Sep 2006 21:49:44 +0100
+Message-Id: <1159649384.13029.143.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Ar Sad, 2006-09-30 am 20:38 +0200, ysgrifennodd Thomas Gleixner:
+> This might be silly in your opinion, but it is simply the reality,
+> especially in the US, but also in Europe we have an increasing madness
+> in liability jurisdiction. Do you believe that any responsible corporate
+> lawyer will buy your "with a warning" argument when he is aware of
+> rulings stating the opposite ?
+
+Well the corporate laywer can also havea warning that he may get sued if
+he doesn't release the needed keys. There now he can and use openbsd and
+everyone is happy.
 
 
-On Sat, 30 Sep 2006, Peter Zijlstra wrote:
-> 
-> http://kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18/2.6.18-mm1/broken-out/slab-fix-lockdep-warnings.patch
-> http://kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18/2.6.18-mm1/broken-out/slab-fix-lockdep-warnings-fix.patch
-> http://kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18/2.6.18-mm1/broken-out/slab-fix-lockdep-warnings-fix-2.patch
-> 
-> Those should rid you off the trace seen under:
-
-Well, the more serious problem seems to be that any warning that causes a 
-back-trace on x86-64 seems liable to just lock up due to the backtrace 
-code itself being buggy.
-
-At least I _hope_ its x86-64 only.
-
-		Linus

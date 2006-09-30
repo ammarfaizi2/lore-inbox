@@ -1,122 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750817AbWI3M1F@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750870AbWI3Mjb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750817AbWI3M1F (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Sep 2006 08:27:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750836AbWI3M1F
+	id S1750870AbWI3Mjb (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Sep 2006 08:39:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750940AbWI3Mjb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Sep 2006 08:27:05 -0400
-Received: from wx-out-0506.google.com ([66.249.82.234]:46667 "EHLO
-	wx-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1750817AbWI3M1C (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Sep 2006 08:27:02 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=eTmG70sXsnVgruB3ijx+bpLv97LIWnBVxQg4zmlVA/h1ZjS9kkEiS4Dlh0nQtYGqwbaFdjL5MGvh8XVOXYcd8iED0G7B2AE+qSuTtRypET4p78IeFfAl88e4Zb+7FNZnIQM5UQZYvffbtrhRI1XuMlF6r9yuUkIvup+c6Z5tpKQ=
-Message-ID: <5a4c581d0609300527m1654f2cha56517e1c85f4606@mail.gmail.com>
-Date: Sat, 30 Sep 2006 14:27:01 +0200
-From: "Alessandro Suardi" <alessandro.suardi@gmail.com>
-To: jt@hpl.hp.com
-Subject: Re: 2.6.18-git9 wireless fixes break ipw2200 association to AP with WPA
-Cc: "John W. Linville" <linville@tuxdriver.com>,
-       "Linux Kernel" <linux-kernel@vger.kernel.org>,
-       "Dave Jones" <davej@redhat.com>
-In-Reply-To: <5a4c581d0609291552k7dc39685t15188bb5c881d3bd@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sat, 30 Sep 2006 08:39:31 -0400
+Received: from lug-owl.de ([195.71.106.12]:38629 "EHLO lug-owl.de")
+	by vger.kernel.org with ESMTP id S1750870AbWI3Mja (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Sep 2006 08:39:30 -0400
+Date: Sat, 30 Sep 2006 14:39:28 +0200
+From: Jan-Benedict Glaw <jbglaw@lug-owl.de>
+To: Miguel Ojeda Sandonis <maxextreme@gmail.com>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.18 V6] drivers: add lcd display support
+Message-ID: <20060930123928.GV30245@lug-owl.de>
+Mail-Followup-To: Miguel Ojeda Sandonis <maxextreme@gmail.com>,
+	akpm@osdl.org, linux-kernel@vger.kernel.org
+References: <20060930132253.8ccaa0ad.maxextreme@gmail.com>
+Mime-Version: 1.0
+Content-Type: multipart/signed; micalg=pgp-sha1;
+	protocol="application/pgp-signature"; boundary="gpXIsXW0UVH8BryT"
 Content-Disposition: inline
-References: <5a4c581d0609291225r4a2cbaacr35e5ef73d69f8718@mail.gmail.com>
-	 <20060929202928.GA14000@tuxdriver.com>
-	 <5a4c581d0609291340q835571bg9657ac0a68bab20e@mail.gmail.com>
-	 <20060929212748.GA10288@bougret.hpl.hp.com>
-	 <5a4c581d0609291504r40bc1796q715c5ffa41aa7b1b@mail.gmail.com>
-	 <20060929224316.GA10423@bougret.hpl.hp.com>
-	 <5a4c581d0609291552k7dc39685t15188bb5c881d3bd@mail.gmail.com>
+In-Reply-To: <20060930132253.8ccaa0ad.maxextreme@gmail.com>
+X-Operating-System: Linux mail 2.6.12.3lug-owl 
+X-gpg-fingerprint: 250D 3BCF 7127 0D8C A444  A961 1DBD 5E75 8399 E1BB
+X-gpg-key: wwwkeys.de.pgp.net
+X-Echelon-Enable: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
+X-TKUeV: howto poison arsenous mail psychological biological nuclear warfare test the bombastical terror of flooding the spy listeners explosion sex drugs and rock'n'roll
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 9/30/06, Alessandro Suardi <alessandro.suardi@gmail.com> wrote:
-> On 9/30/06, Jean Tourrilhes <jt@hpl.hp.com> wrote:
-> > On Sat, Sep 30, 2006 at 12:04:31AM +0200, Alessandro Suardi wrote:
-> > > On 9/29/06, Jean Tourrilhes <jt@hpl.hp.com> wrote:
-> > > >>
-> > > >> [asuardi@sandman ~]$ rpm -q wireless-tools
-> > > >> wireless-tools-28-0.pre13.5.1
-> > > >
-> > > >        That's too old, the cutoff is 27-pre15.
-> > >
-> > > Are you sure ? For how I read it, 28-0.pre13.5.1 is more recent
-> > > than 27-pre15, not older.
-> >
-> >         Sorry, I'm mixing up my numbers.
-> >         The cutoff for the ESSID fix is 28-pre15, so your version is
-> > just a little bit older. I'm mixing up with the iwpoint cutoff which
-> > was 27-pre25.
->
-> OK.
->
-> > > So I guess there's an actual bug that doesn't depend on the
-> > > wireless-tools. Or maybe it's wpa_supplicant that has to be
-> > > upgraded ?
-> >
-> >         I don't have the start of the thread, so I don't know the
-> > exact failure mode. If you are using wpa_supplicant, it bypasses the
-> > wireless tools so it would have to be updated.
-> >         Note that I've been pestering Jouni about the fact that he had
-> > to update wpa_supplicant for that since last May, when Jouni himself
-> > asked me to change the ESSID API. Ironic, isn't it ?
-> >         The epitest.fi site seems unfortunately down...
->
-> Yup, same from here. I was about to go downloading and rebuilding
->  wpa_supplicant from the 0.4.9 (stable) and failing that from the
->  0.5.5 (dev) tarball, but epitest.fi isn't reachable.
->
-> > > >        On the other hand, FC6, which is in beta, contains already the
-> > > >proper version of the tools. I have been monitoring the various distro
-> > > >in the last few months before sending those WE-21 patches, and all
-> > > >major distro have WT-28 in the pipeline.
-> > >
-> > > Even if so, wireless-tools would be the only package I have to
-> > > build out of the FC5 distribution to keep up with the latest -git
-> > > snapshot of the Torvalds kernel... I'm not especially troubled
-> > > with this anyway. Perhaps you could push the Fedora folks to
-> > > be a bit more up-to-date with wireless-tools in their current
-> > > main version ?
-> >
-> >         The FC people are busy.
->
-> In any case, cc'ing Dave who chipped in earlier in the thread -
->  if wpa_supplicant needs to be rebuilt, then it's very likely that
->  even FC6 which has 0.4.8-something (just checked ;) will not
->  work with the current kernel changes.
->
-> I will post an update when I can get hold of the newer sources
->  for wpa_supplicant...
 
-Good news, WPA association is back to work for me using
- wireless_tools.29.pre10 and wpa_supplicant-0.4.9 with
+--gpXIsXW0UVH8BryT
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: quoted-printable
 
- 2.6.18-git11 vanilla
- 2.6.18-git11 with reverted wireless fixes
- 2.6.18-git13
+On Sat, 2006-09-30 13:22:53 +0000, Miguel Ojeda Sandonis <maxextreme@gmail.=
+com> wrote:
+> Patched files Index
+> -------------------
+> patching file drivers/Kconfig
+> patching file drivers/lcddisplay/cfag12864b.c
+> patching file drivers/lcddisplay/cfag12864b_image.h
+> patching file drivers/lcddisplay/Kconfig
+> patching file drivers/lcddisplay/ks0108.c
+> patching file drivers/lcddisplay/lcddisplay.c
+> patching file drivers/lcddisplay/Makefile
+> patching file include/linux/lcddisplay.h
+> patching file Documentation/lcddisplay/cfag12864b
+> patching file Documentation/lcddisplay/lcddisplay
+> patching file Documentation/ioctl-number.txt
 
- which appears to mean that backward compatibility of the
- new tools with older kernel features has also been tested :)
+AFAIK, the 'D' in LCD is already an abbreviation for "display", so
+could we name it lcdisplay or something like that?
 
-Dave, do you want me to file a request for updated FC5 RPMs
- for wireless-tools and wpa_supplicant in bugzilla or is it
-  - already happening
-  - never going to happen
- ?
+MfG, JBG
 
+--=20
+      Jan-Benedict Glaw      jbglaw@lug-owl.de              +49-172-7608481
+Signature of:  The real problem with C++ for kernel modules is: the languag=
+e just sucks.
+the second  :                                            -- Linus Torvalds
 
-Thanks, ciao,
+--gpXIsXW0UVH8BryT
+Content-Type: application/pgp-signature; name="signature.asc"
+Content-Description: Digital signature
+Content-Disposition: inline
 
---alessandro
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.1 (GNU/Linux)
 
-"Well a man has two reasons for things that he does
-  the first one is pride and the second one is love
-  all understandings must come by this way"
+iD8DBQFFHmWAHb1edYOZ4bsRAkdpAJ4g9+GPFYU4Y5W7JdGZXFDCmBDIggCfe6dk
+3FbG+mcZQ+10MNkq5wC9J7w=
+=KzkJ
+-----END PGP SIGNATURE-----
 
-     (Husker Du, 'She Floated Away')
+--gpXIsXW0UVH8BryT--

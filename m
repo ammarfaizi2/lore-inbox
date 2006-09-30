@@ -1,68 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751104AbWI3HG7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751106AbWI3H0Z@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751104AbWI3HG7 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Sep 2006 03:06:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751105AbWI3HG7
+	id S1751106AbWI3H0Z (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Sep 2006 03:26:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751086AbWI3H0Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Sep 2006 03:06:59 -0400
-Received: from dp.samba.org ([66.70.73.150]:57474 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S1751104AbWI3HG6 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Sep 2006 03:06:58 -0400
+	Sat, 30 Sep 2006 03:26:25 -0400
+Received: from mail-in-03.arcor-online.net ([151.189.21.43]:54934 "EHLO
+	mail-in-01.arcor-online.net") by vger.kernel.org with ESMTP
+	id S1751077AbWI3H0Y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Sep 2006 03:26:24 -0400
+From: Prakash Punnoor <prakash@punnoor.de>
+To: Jeff Garzik <jeff@garzik.org>
+Subject: Re: SATA status reports update
+Date: Sat, 30 Sep 2006 09:26:01 +0200
+User-Agent: KMail/1.9.4
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>,
+       "linux-ide@vger.kernel.org" <linux-ide@vger.kernel.org>
+References: <451CE8EC.1020203@garzik.org> <200609291200.56308.prakash@punnoor.de> <451CEF8E.2050601@garzik.org>
+In-Reply-To: <451CEF8E.2050601@garzik.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: multipart/signed;
+  boundary="nextPart1709138.FVaA91345o";
+  protocol="application/pgp-signature";
+  micalg=pgp-sha1
 Content-Transfer-Encoding: 7bit
-Message-ID: <17694.5933.159694.454938@samba.org>
-Date: Sat, 30 Sep 2006 17:05:17 +1000
-To: James Bottomley <James.Bottomley@SteelEye.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: GPLv3 Position Statement
-In-Reply-To: <1159559443.9543.23.camel@mulgrave.il.steeleye.com>
-References: <1159498900.3880.31.camel@mulgrave.il.steeleye.com>
-	<17692.46192.432673.743783@samba.org>
-	<1159515086.3880.79.camel@mulgrave.il.steeleye.com>
-	<17692.57123.749163.204216@samba.org>
-	<1159559443.9543.23.camel@mulgrave.il.steeleye.com>
-X-Mailer: VM 7.19 under Emacs 21.4.1
-Reply-To: tridge@samba.org
-From: tridge@samba.org
+Message-Id: <200609300926.04964.prakash@punnoor.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James,
+--nextPart1709138.FVaA91345o
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: quoted-printable
+Content-Disposition: inline
 
- > Well, this is the whole point.  Today, you can distribute GPLv2 packages
- > without much patent worry ... if you develop GPLv2 packages, that's
- > different, but if you simply act as a conduit, you're not going to have
- > too much trouble.
+Am Freitag 29 September 2006 12:03 schrieb Jeff Garzik:
+> Prakash Punnoor wrote:
+> > Well, how would one debug it w/o hw docs? Or is it possible to compare
+> > the patch with a working driver for another chipset?
+>
+> Well, it is based off of the standard ADMA[1] specification, albeit with
+> modifications.  There is pdc_adma.c, which is also based off ADMA.  And
+> the author (from NVIDIA) claims that the driver worked at one time, so
+> maybe it is simply bit rot that broke the driver.
 
-I just can't see where you get this interpretation of the GPLv2
-from. The wording in GPLv2 is:
+Well, I tried to hack the patch into 2.6.18 driver, but wasn't very=20
+successful. It migt be also due to the case that I have a MCP51 chipset and=
+=20
+if I read the patch correctly it isn't designed  to activate ADMA on MCP51.=
+=20
+Do you know whether MCP51 knows ADMA? If not, how is NCQ to be activated on=
+=20
+MCP51? According to nvidia.com and windows user reports MCP51 does know NCQ.
 
-  If you cannot distribute so as to satisfy simultaneously your
-  obligations under this License and any other pertinent obligations,
-  then as a consequence you may not distribute the Program at all.
-  For example, if a patent license would not permit royalty-free
-  redistribution of the Program by all those who receive copies
-  directly or indirectly through you, then the only way you could
-  satisfy both it and this License would be to refrain entirely from
-  distribution of the Program.
+Cheers,
+=2D-=20
+(=B0=3D                 =3D=B0)
+//\ Prakash Punnoor /\\
+V_/                 \_V
 
-It specifically says "distribute" (4 times in fact). It specifically
-says that all people, direct or indirect must be able to redistribute
-royalty free, or you have to refrain from distributing.
+--nextPart1709138.FVaA91345o
+Content-Type: application/pgp-signature
 
-It never mentions the word develop in the license text (only in the
-"how to apply these terms to your program" section).
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
 
-I just can't see how any lawyer, especially one trying to be cautious
-about their companies potential liability, could try to claim that the
-above paragraph doesn't apply to distribution.
+iD8DBQBFHhwMxU2n/+9+t5gRAs9hAKDRq2VPIuJz8uAARUJToozpmEZq3wCguWwx
+/UNGHleepNs7heo1HREwLq4=
+=2Qnu
+-----END PGP SIGNATURE-----
 
-Do you really have a solid legal opinion that the above paragraph from
-GPLv2 doesn't apply when distributing? If so, could you ask the lawyer
-to explain the argument? I know legal interpretations can sometimes be
-tortuous, but to read the above without it applying to distribution
-seems far too much of a stretch.
-
-Cheers, Tridge
+--nextPart1709138.FVaA91345o--

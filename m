@@ -1,66 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932410AbWJAVp3@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932422AbWJAVwT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932410AbWJAVp3 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Oct 2006 17:45:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932420AbWJAVp3
+	id S932422AbWJAVwT (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Oct 2006 17:52:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932423AbWJAVwT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Oct 2006 17:45:29 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:60355 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932410AbWJAVp2 (ORCPT
+	Sun, 1 Oct 2006 17:52:19 -0400
+Received: from ra.tuxdriver.com ([70.61.120.52]:35856 "EHLO ra.tuxdriver.com")
+	by vger.kernel.org with ESMTP id S932422AbWJAVwS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Oct 2006 17:45:28 -0400
-Date: Sun, 1 Oct 2006 14:45:09 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Al Viro <viro@ftp.linux.org.uk>
-Cc: Daniel Walker <dwalker@mvista.com>, Jeff Garzik <jeff@garzik.org>,
-       Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Announce: gcc bogus warning repository
-Message-Id: <20061001144509.e7950a16.akpm@osdl.org>
-In-Reply-To: <20061001193330.GE29920@ftp.linux.org.uk>
-References: <452005E7.5030705@garzik.org>
-	<1159727188.24767.9.camel@c-67-180-230-165.hsd1.ca.comcast.net>
-	<45200CC8.2030404@garzik.org>
-	<1159729113.24767.14.camel@c-67-180-230-165.hsd1.ca.comcast.net>
-	<20061001190034.GB29920@ftp.linux.org.uk>
-	<1159729390.24767.16.camel@c-67-180-230-165.hsd1.ca.comcast.net>
-	<20061001190740.GC29920@ftp.linux.org.uk>
-	<1159730035.24767.22.camel@c-67-180-230-165.hsd1.ca.comcast.net>
-	<20061001192029.GD29920@ftp.linux.org.uk>
-	<1159730750.24767.27.camel@c-67-180-230-165.hsd1.ca.comcast.net>
-	<20061001193330.GE29920@ftp.linux.org.uk>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+	Sun, 1 Oct 2006 17:52:18 -0400
+Date: Sun, 1 Oct 2006 17:47:56 -0400
+From: Neil Horman <nhorman@tuxdriver.com>
+To: "Eric W. Biederman" <ebiederm@xmission.com>
+Cc: Sam Ravnborg <sam@ravnborg.org>, linux-kernel@vger.kernel.org,
+       mj@atrey.karlin.mff.cuni.cz, davej@redhat.com
+Subject: Re: [PATCH] x86: update vmlinux.lds.S to place .data section on a page boundary
+Message-ID: <20061001214756.GA27963@hmsreliant.homelinux.net>
+References: <20060928201249.GA10037@hmsreliant.homelinux.net> <20060928204220.GA31096@uranus.ravnborg.org> <20060928232206.GA11386@hmsreliant.homelinux.net> <20060929000301.GB11386@hmsreliant.homelinux.net> <m11wpugnqt.fsf@ebiederm.dsl.xmission.com>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <m11wpugnqt.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 1 Oct 2006 20:33:30 +0100
-Al Viro <viro@ftp.linux.org.uk> wrote:
-
-> On Sun, Oct 01, 2006 at 12:25:50PM -0700, Daniel Walker wrote:
-> > > > > I bow to your incredible power of observation.  Now that you've shared
-> > > > > that revelation with the list, could you explain what does blanket silencing
-> > > > > of these warnings buy you, oh wan^H^Hise one?
-> > > > 
-> > > > Did you see me silencing anything (with your crystal ball?) ? Cause I'm
-> > > > not.
-> > > 
-> > > And what, in your opinion, does the patch in question achieve if not
-> > > that?
-> > 
-> > You mean the patch from Steven posted in May? Well it does appear to
-> > silence the warning. You didn't like the approach it seems? Please tell
-> > me why .
+On Fri, Sep 29, 2006 at 07:13:46PM -0600, Eric W. Biederman wrote:
+> Neil Horman <nhorman@tuxdriver.com> writes:
 > 
-> Read the list archives...
+> > Sorry, Replying to myself.  I forgot to mention in my last note why specifically
+> > I was calling for this change, and why it was necessecary.  In addition to being
+> > the standard in the script for executable sections, kexec also appears to rely
+> > on PT_LOAD sections being on page boundaries.  With vmlinux.ld.s as it is, that
+> > isn't the case, and so we can't load any kernels with kexec at the moment.  I've
+> > seen this on the most recent fedora kernels (which have the latest version of
+> > this linker script), and this patch corrects that.
+> >
+> > Please look at the file in its entirety, and if you still feel that modifying
+> > the script so all the ALIGN(4096) directives to be ALIGN(PAGE_SIZE) instead is
+> > the direction to go, I'll implement the change and test it out.
+> 
+> Is there a reason you don't want to kexec the bzImage?
+> 
+Not so much that I don't want to, but I don't think you should have to.  There
+isn't any reason that we shouldn't be able to boot uncompressed kernels, is
+there?
+Regards
+Neil
 
-There isn't much point in doing that if they're as useless as this thread.
+> Eric
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 
-Fact is, those bogus warnings are harmful and cause real problems to not be
-noticed.  There is value in finding some way of making real warnings
-apparent to all developers and testers.
-
-An external post-processor isn't very useful because few people will run
-it.  If we can integrate such a thing into the build system and make it
-available to all developers and testers then OK.
+-- 
+/***************************************************
+ *Neil Horman
+ *Software Engineer
+ *gpg keyid: 1024D / 0x92A74FA1 - http://pgp.mit.edu
+ ***************************************************/

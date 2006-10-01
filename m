@@ -1,60 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751887AbWJABXr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751876AbWJABXY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751887AbWJABXr (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Sep 2006 21:23:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751881AbWJABXq
+	id S1751876AbWJABXY (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Sep 2006 21:23:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751879AbWJABXY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Sep 2006 21:23:46 -0400
-Received: from havoc.gtf.org ([69.61.125.42]:16597 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id S1751873AbWJABXp (ORCPT
+	Sat, 30 Sep 2006 21:23:24 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:49641 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1751876AbWJABXX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Sep 2006 21:23:45 -0400
-Date: Sat, 30 Sep 2006 21:23:44 -0400
+	Sat, 30 Sep 2006 21:23:23 -0400
+Message-ID: <451F1887.3040102@garzik.org>
+Date: Sat, 30 Sep 2006 21:23:19 -0400
 From: Jeff Garzik <jeff@garzik.org>
-To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
-Cc: LKML <linux-kernel@vger.kernel.org>, linux-scsi@vger.kernel.org
-Subject: [PATCH] scsi: device_reprobe() can fail
-Message-ID: <20061001012344.GA24609@havoc.gtf.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
+MIME-Version: 1.0
+To: v4l-dvb-maintainer@linuxtv.org,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+CC: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
+Subject: zoran driver breaks 'make all{yes,mod}config'
+Content-Type: text/plain; charset=windows-1252; format=flowed
+Content-Transfer-Encoding: 8bit
+X-Spam-Score: -4.3 (----)
+X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Current linux-2.6.git doesn't build anymore:
 
-[This has been sitting in James Bottomley's scsi-misc for five days.
- With SCSI outputting a warning for almost -every- file, let's go ahead
- and get the patch in.]
+   CC [M]  drivers/media/video/zoran_driver.o
+drivers/media/video/zoran_driver.c: In function ‘setup_fbuffer’:
+drivers/media/video/zoran_driver.c:1519: error: ‘PCIAGP_FAIL’ undeclared 
+(first use in this function)
+drivers/media/video/zoran_driver.c:1519: error: (Each undeclared 
+identifier is reported only once
+drivers/media/video/zoran_driver.c:1519: error: for each function it 
+appears in.)
 
-From: Andrew Morton <akpm@osdl.org>
+Same build breakage in bt484, saa7134.
 
-device_reprobe() should return an error code.  When it does so,
-scsi_device_reprobe() should propagate it back.
+The PCIAGP_FAIL symbol doesn't exist anywhere.
 
-Acked-by: Jeff Garzik <jeff@garzik.org>
-Signed-off-by: Andrew Morton <akpm@osdl.org>
-Signed-off-by: James Bottomley <James.Bottomley@SteelEye.com>
-
----
-
- include/scsi/scsi_device.h |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
-
-8350a348e97c2f8aa3e91c025c0e040c90146414
-diff --git a/include/scsi/scsi_device.h b/include/scsi/scsi_device.h
-index 895d212..b401c82 100644
---- a/include/scsi/scsi_device.h
-+++ b/include/scsi/scsi_device.h
-@@ -298,9 +298,9 @@ extern int scsi_execute_async(struct scs
- 			      void (*done)(void *, char *, int, int),
- 			      gfp_t gfp);
- 
--static inline void scsi_device_reprobe(struct scsi_device *sdev)
-+static inline int __must_check scsi_device_reprobe(struct scsi_device *sdev)
- {
--	device_reprobe(&sdev->sdev_gendev);
-+	return device_reprobe(&sdev->sdev_gendev);
- }
- 
- static inline unsigned int sdev_channel(struct scsi_device *sdev)

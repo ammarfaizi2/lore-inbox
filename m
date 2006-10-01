@@ -1,71 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751768AbWJAJO1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751725AbWJAJUj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751768AbWJAJO1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Oct 2006 05:14:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751838AbWJAJO1
+	id S1751725AbWJAJUj (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Oct 2006 05:20:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751726AbWJAJUj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Oct 2006 05:14:27 -0400
-Received: from pasmtpb.tele.dk ([80.160.77.98]:39308 "EHLO pasmtpB.tele.dk")
-	by vger.kernel.org with ESMTP id S1751768AbWJAJO0 (ORCPT
+	Sun, 1 Oct 2006 05:20:39 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:27859 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751724AbWJAJUi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Oct 2006 05:14:26 -0400
-Date: Sun, 1 Oct 2006 11:14:11 +0200
-From: Sam Ravnborg <sam@ravnborg.org>
-To: Ismail Donmez <ismail@pardus.org.tr>
-Cc: Kyle Moffett <mrmacman_g4@mac.com>, Andrew Morton <akpm@osdl.org>,
-       David Woodhouse <dwmw2@infradead.org>,
-       LKML <linux-kernel@vger.kernel.org>, mchehab@infradead.org
-Subject: Re: __STRICT_ANSI__ checks in headers
-Message-ID: <20061001091411.GA9647@uranus.ravnborg.org>
-References: <200609150901.33644.ismail@pardus.org.tr> <20060930215343.548f5cd9.akpm@osdl.org> <110413A1-7699-4DDB-9997-C3DA9E9DDB46@mac.com> <200610011034.57158.ismail@pardus.org.tr>
+	Sun, 1 Oct 2006 05:20:38 -0400
+Date: Sun, 1 Oct 2006 02:20:22 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Olaf Hering <olaf@aepfle.de>
+Cc: David Brownell <david-b@pacbell.net>,
+       Alessandro Zummo <alessandro.zummo@towertech.it>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+Subject: Re: [patch 2.6.18-git] RTC class uses subsys_init
+Message-Id: <20061001022022.d7f86b39.akpm@osdl.org>
+In-Reply-To: <20061001090717.GA14885@aepfle.de>
+References: <200609282333.34224.david-b@pacbell.net>
+	<20061001090717.GA14885@aepfle.de>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200610011034.57158.ismail@pardus.org.tr>
-User-Agent: Mutt/1.4.2.1i
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 01, 2006 at 10:34:56AM +0300, Ismail Donmez wrote:
-> On Sunday 01 October 2006 08:20, Kyle Moffett wrote:
-> > On Oct 01, 2006, at 00:53:43, Andrew Morton wrote:
-> [...]
-> > > Bisection shows that this patch causes these depmod warnings:
-> > >
-> > > WARNING: "snd_card_disconnect" [sound/usb/usx2y/snd-usb-usx2y.ko]
-> > > has no CRC!
-> > > [etc]
-> > >
-> > > I don't know why that would happen.
-> > >
-> > > From: Ismail Donmez <ismail@pardus.org.tr>
-> > >
-> > > __STRICT_ANSI__ usage in types.h header results in compile errors
-> > > for some userspace packages[1] when used with gcc -ansi flag.  With
-> > > the suggestion of Kyle Moffett I replace strict ansi checks with
-> > > __extension__ to tell gcc not to error or warn on gcc extensions.
-> > > Compile tested on x86 with 2.6.18.
-> >
-> > Best guess:  Depmod does some kind of funny type-based expansion and
-> > hashing of the symbols which doesn't understand the "__extension__"
-> > keyword.  Probably the simplest thing to do is to add "-
-> > D__extension__=" to the depmod preprocessing flags.  Alternatively
-> > you could teach depmod to completely ignore the __extension__ keyword
-> > when it shows up in the sources, but the former seems like it would
-> > be much simpler.
-> >
-> > Just thinking about it we probably also need to educate sparse about
-> > __extension__ too.  Perhaps somebody could also add an sparse flag to
-> > make it warn about nonportable constructs in exported header files.
-> >
-> > I'd submit a patch but my knowledge of kernel makefiles and depmod is
-> > somewhere between zero and none, exclusive.
+On Sun, 1 Oct 2006 11:07:17 +0200
+Olaf Hering <olaf@aepfle.de> wrote:
+
+> On Thu, Sep 28, David Brownell wrote:
 > 
-> Thanks, I will have a look at it.
-I assume you will same errors from the in-kernel modpost.
-If you do not do so then there is some inconsistency between depmod
-and modpost that ougth to be fixed.
+> 
+> > +++ linux/drivers/rtc/rtc-sysfs.c	2006-07-30 16:15:50.000000000 -0700
+> > @@ -116,7 +116,7 @@
+> >  	class_interface_unregister(&rtc_sysfs_interface);
+> >  }
+> >  
+> > -module_init(rtc_sysfs_init);
+> > +subsys_init(rtc_sysfs_init);
+> >  module_exit(rtc_sysfs_exit);
+> 
+> subsys_init is not defined, but the change is in Linus tree now.
 
-I'm not up to the task atm - busy with my day job and travelling a lot
+doh.  But it still compiled.
 
-	Sam
+drivers/rtc/rtc-sysfs.c:119: warning: data definition has no type or storage class
+drivers/rtc/rtc-sysfs.c:119: warning: type defaults to 'int' in declaration of 'subsys_init'
+drivers/rtc/rtc-sysfs.c:119: warning: parameter names (without types) in function declaration
+drivers/rtc/rtc-sysfs.c:110: warning: 'rtc_sysfs_init' defined but not used
+
+I'll fix it up.
+
+(Wonders how it passed runtime testing..)

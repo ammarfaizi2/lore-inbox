@@ -1,57 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751302AbWJARGZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751306AbWJARKk@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751302AbWJARGZ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Oct 2006 13:06:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751304AbWJARGZ
+	id S1751306AbWJARKk (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Oct 2006 13:10:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751305AbWJARKk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Oct 2006 13:06:25 -0400
-Received: from xenotime.net ([66.160.160.81]:1498 "HELO xenotime.net")
-	by vger.kernel.org with SMTP id S1751302AbWJARGY (ORCPT
+	Sun, 1 Oct 2006 13:10:40 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:8679 "EHLO amd.ucw.cz")
+	by vger.kernel.org with ESMTP id S1751306AbWJARKj (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Oct 2006 13:06:24 -0400
-Date: Sun, 1 Oct 2006 10:07:47 -0700
-From: Randy Dunlap <rdunlap@xenotime.net>
-To: Jeff Garzik <jeff@garzik.org>
-Cc: Linux Kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
-Subject: Re: Announce: gcc bogus warning repository
-Message-Id: <20061001100747.d1842273.rdunlap@xenotime.net>
-In-Reply-To: <451FC657.6090603@garzik.org>
-References: <451FC657.6090603@garzik.org>
-Organization: YPO4
-X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Sun, 1 Oct 2006 13:10:39 -0400
+Date: Sun, 1 Oct 2006 19:10:32 +0200
+From: Pavel Machek <pavel@ucw.cz>
+To: Heikki Orsila <shd@zakalwe.fi>
+Cc: "Eugeny S. Mints" <eugeny.mints@gmail.com>, linux-pm@lists.osdl.org,
+       linux-kernel@vger.kernel.org, ext-Tuukka.Tikkanen@nokia.com
+Subject: Re: [linux-pm] [RFC] OMAP1 PM Core, PM Core  Implementation 2/2
+Message-ID: <20061001171032.GE2254@elf.ucw.cz>
+References: <20060930022435.b2344b5f.eugeny.mints@gmail.com> <20061001152228.GA24539@zakalwe.fi>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061001152228.GA24539@zakalwe.fi>
+X-Warning: Reading this can be dangerous to your mental health.
+User-Agent: Mutt/1.5.11+cvs20060126
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 01 Oct 2006 09:44:55 -0400 Jeff Garzik wrote:
+On Sun 2006-10-01 18:22:28, Heikki Orsila wrote:
+> Some nitpicking about the patch follows..
+> 
+> On Sat, Sep 30, 2006 at 02:24:35AM +0400, Eugeny S. Mints wrote:
+> > +static long 
+> > +get_vtg(const char *vdomain)
+> > +{
+> > +	long ret = 0;
+> 
+> Unnecessary initialisation.
 
-> 
-> The level of warnings in a kernel build has lately increased to the 
-> point where it is hiding bugs and otherwise making life difficult.
-> 
-> In particular, recent gcc versions throw warnings when it thinks a 
-> variable "MAY be used uninitialized", which is not terribly helpful due 
-> to the fact that most of these warnings are bogus.
-> 
-> For those that may find this valuable, I have started a git repo that 
-> silences these bogus warnings, after careful auditing of code paths to 
-> ensure that the warning truly is bogus.
-> 
-> The results may be found in the "gccbug" branch of
-> git://git.kernel.org/pub/scm/linux/kernel/git/jgarzik/misc-2.6.git
-> 
-> This repository will NEVER EVER be pushed upstream.  It exists solely 
-> for those who want to decrease their build noise, thereby exposing true 
-> bugs.
-> 
-> The audit has already uncovered several minor bugs, lending credence to 
-> my theory that too many warnings hides bugs.
+No, sorry.
 
-I usually build with must_check etc. enabled then grep them
-away if I want to look for other messages.  I think that the situation
-is not so disastrous.
+> > +static long 
+> > +set_vtg(const char *vdomain, int val)
+> > +{
+> > +	long ret = 0;
+> 
+> here too. This and 'int i = 0;' happens in many functions.
 
----
-~Randy
+Wrong again. automatic variables are not zero initialized.
+
+> > +	err = omap_pm_core_verify_opt(opt);
+> > +	if (err != 0)
+> > +		goto out;
+> > +
+> > +	return (void *)opt;
+> > +out:
+> > +	kfree(opt);
+> > +	return NULL;
+> > +}
+> 
+> Maybe use if (err != 0) { kfree(opt); return NULL; } because goto out is 
+> only used once?
+
+This is actually common kernel idiom, so it is okay to leave like
+this. Your other points are ok.
+
+									Pavel
+
+-- 
+(english) http://www.livejournal.com/~pavelmachek
+(cesky, pictures) http://atrey.karlin.mff.cuni.cz/~pavel/picture/horses/blog.html

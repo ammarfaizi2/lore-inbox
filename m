@@ -1,48 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932139AbWJAMnz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932135AbWJAMsn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932139AbWJAMnz (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Oct 2006 08:43:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932146AbWJAMnz
+	id S932135AbWJAMsn (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Oct 2006 08:48:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932146AbWJAMsn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Oct 2006 08:43:55 -0400
-Received: from havoc.gtf.org ([69.61.125.42]:48102 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id S932135AbWJAMnx (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Oct 2006 08:43:53 -0400
-Date: Sun, 1 Oct 2006 08:43:52 -0400
-From: Jeff Garzik <jeff@garzik.org>
-To: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
-Cc: davidel@xmailserver.org
-Subject: [PATCH] fs/eventpoll: error handling micro-cleanup
-Message-ID: <20061001124352.GA30263@havoc.gtf.org>
-Mime-Version: 1.0
+	Sun, 1 Oct 2006 08:48:43 -0400
+Received: from pne-smtpout1-sn2.hy.skanova.net ([81.228.8.83]:59127 "EHLO
+	pne-smtpout1-sn2.hy.skanova.net") by vger.kernel.org with ESMTP
+	id S932135AbWJAMsm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 Oct 2006 08:48:42 -0400
+To: balagi@justmail.de
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       "Greg KH" <greg@kroah.com>, torvalds@osdl.org, alan@redhat.com
+Subject: Re: [PATCH 2.6.18] pktcdvd driver module: added sysfs interface
+References: <op.tgd9kamfiudtyh@master> <op.tgqhg1pgiudtyh@master>
+From: Peter Osterlund <petero2@telia.com>
+Date: 01 Oct 2006 14:47:58 +0200
+In-Reply-To: <op.tgqhg1pgiudtyh@master>
+Message-ID: <m3d59ci4n5.fsf@telia.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.4
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+"Thomas Maier" <balagi@justmail.de> writes:
 
-While reviewing the 'may be used uninitialized' bogus gcc warnings,
-I noticed that an error code assignment was only needed if an error had
-actually occured.
+> this is a patch for the packet writing module pktcdvd.
+> The patch adds a sysfs and a debugfs interface, a Kconfig
+> parameter to switch of the procfs interface off and a
+> bio write queue congestion handling for the driver.
 
-Signed-off-by: Jeff Garzik <jeff@garzik.org>
+I think most of these changes are good. However, some comments:
 
-diff --git a/fs/eventpoll.c b/fs/eventpoll.c
-index 8d54433..557d5b6 100644
---- a/fs/eventpoll.c
-+++ b/fs/eventpoll.c
-@@ -720,9 +720,10 @@ static int ep_getfd(int *efd, struct ino
- 
- 	/* Allocates an inode from the eventpoll file system */
- 	inode = ep_eventpoll_inode();
--	error = PTR_ERR(inode);
--	if (IS_ERR(inode))
-+	if (IS_ERR(inode)) {
-+		error = PTR_ERR(inode);
- 		goto eexit_2;
-+	}
- 
- 	/* Allocates a free descriptor to plug the file onto */
- 	error = get_unused_fd();
+* There are many logically independent parts in this change, so they
+  should be in separate patches. For example:
+  - Introduce the DRIVER_NAME #define.
+  - Add sysfs support.
+  - Make procfs support optional.
+  - Implement congestion control.
+  - Move lots of functions around. (Is it needed at all?)
+
+* You need to add Signed-off-by.
+
+* You should CC Andrew Morton and not Linus. These changes should live
+  in -mm for a while before going into the main tree.
+
+* The patch is white space damaged. All lines that should start with a
+  single space start with two spaces.
+
+-- 
+Peter Osterlund - petero2@telia.com
+http://web.telia.com/~u89404340

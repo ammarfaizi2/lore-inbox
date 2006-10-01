@@ -1,35 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750892AbWJAPMc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750955AbWJAPVT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750892AbWJAPMc (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Oct 2006 11:12:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750866AbWJAPMc
+	id S1750955AbWJAPVT (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Oct 2006 11:21:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750974AbWJAPVT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Oct 2006 11:12:32 -0400
-Received: from [198.99.130.12] ([198.99.130.12]:41448 "EHLO
-	saraswathi.solana.com") by vger.kernel.org with ESMTP
-	id S1750831AbWJAPMb (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Oct 2006 11:12:31 -0400
-Date: Sun, 1 Oct 2006 11:11:11 -0400
-From: Jeff Dike <jdike@addtoit.com>
-To: Blaisorblade <blaisorblade@yahoo.it>
-Cc: user-mode-linux-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org
-Subject: Re: [uml-devel] [PATCH 3/8] UML - Fix missing x86_64 register definitions
-Message-ID: <20061001151111.GA3552@ccure.user-mode-linux.org>
-References: <200609251834.k8PIYWLu005031@ccure.user-mode-linux.org> <200610011649.08382.blaisorblade@yahoo.it>
+	Sun, 1 Oct 2006 11:21:19 -0400
+Received: from havoc.gtf.org ([69.61.125.42]:3563 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S1750955AbWJAPVS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 Oct 2006 11:21:18 -0400
+Date: Sun, 1 Oct 2006 11:21:16 -0400
+From: Jeff Garzik <jeff@garzik.org>
+To: kkeil@suse.de, kai.germaschewski@gmx.de, Andrew Morton <akpm@osdl.org>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: [PATCH] ISDN: mark as 32-bit only
+Message-ID: <20061001152116.GA4684@havoc.gtf.org>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200610011649.08382.blaisorblade@yahoo.it>
-User-Agent: Mutt/1.4.2.1i
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 01, 2006 at 04:49:07PM +0200, Blaisorblade wrote:
-> The patch is ok for me, but frankly, this hunk could be further cleaned up - 
-> there is an awful hardcoded duplication of code which could be removed (the 
-> definition could be split away from <sysdep/ptrace.h> if inclusion order hell
-> starts).
 
-Yeah, these headers needs some serious cleanup.
+Tons of ISDN drivers cast pointers to/from 32-bit values, which just
+won't work on 64-bit.
 
-				Jeff
+Signed-off-by: Jeff Garzik <jeff@garzik.org>
+
+diff --git a/drivers/isdn/Kconfig b/drivers/isdn/Kconfig
+index c90afee..608588f 100644
+--- a/drivers/isdn/Kconfig
++++ b/drivers/isdn/Kconfig
+@@ -6,7 +6,7 @@ menu "ISDN subsystem"
+ 
+ config ISDN
+ 	tristate "ISDN support"
+-	depends on NET
++	depends on NET && 32BIT
+ 	---help---
+ 	  ISDN ("Integrated Services Digital Networks", called RNIS in France)
+ 	  is a special type of fully digital telephone service; it's mostly

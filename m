@@ -1,27 +1,26 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932127AbWJARwh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932140AbWJAR6P@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932127AbWJARwh (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Oct 2006 13:52:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932132AbWJARwh
+	id S932140AbWJAR6P (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Oct 2006 13:58:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932141AbWJAR6P
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Oct 2006 13:52:37 -0400
-Received: from py-out-1112.google.com ([64.233.166.182]:62709 "EHLO
+	Sun, 1 Oct 2006 13:58:15 -0400
+Received: from py-out-1112.google.com ([64.233.166.176]:21262 "EHLO
 	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S932127AbWJARwg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Oct 2006 13:52:36 -0400
+	id S932140AbWJAR6O (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 Oct 2006 13:58:14 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=EFDrxs8D5kJNEThKGsMjP9JLQ6mvI2nUOLbj4paPcF32Cqq9Byq/xa5RU3Jn2rf0GV5bJj08BSvwhnec7rW1NAOZEGBM0wl1M6TBPj+fN5uAEVow/a83tMFWIpmwh8VtzZeXGo7hg13PD8tlm93lPK91mjyxyTDG3tVLn/KGo48=
-Message-ID: <653402b90610011052o24574dd5o4cb911f118e8adfd@mail.gmail.com>
-Date: Sun, 1 Oct 2006 19:52:35 +0200
+        b=BLVCHnSQuaAF6KYe2BDRHAf/yo0m26wCBEZ2GpJ7n40jgkKpH3XQFld0Sls1gxHB5uvPV+MvLYzmDo6Dd+Mc0Nen6LN2OKg8Xj8ngWzQBVHqMdczRxlg8gvbFv0jWAERPTXfsIvSPjSJtEo2GTkXMFCg+NhxZYG3YKaa+Jvrd0g=
+Message-ID: <653402b90610011058k69ded913yfc8e9a822fb1800a@mail.gmail.com>
+Date: Sun, 1 Oct 2006 19:58:13 +0200
 From: "Miguel Ojeda" <maxextreme@gmail.com>
-To: "Alexander van Heukelum" <heukelum@fastmail.fm>
+To: "Stefan Richter" <stefanr@s5r6.in-berlin.de>
 Subject: Re: [PATCH 2.6.18 V7] drivers: add lcd display support
-Cc: "Randy Dunlap" <rdunlap@xenotime.net>, akpm@osdl.org,
-       "Stefan Richter" <stefanr@s5r6.in-berlin.de>,
-       linux-kernel@vger.kernel.org, Valdis.Kletnieks@vt.edu
-In-Reply-To: <1159723673.14141.272274719@webmail.messagingengine.com>
+Cc: akpm@osdl.org, "Randy Dunlap" <rdunlap@xenotime.net>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <451FF176.7090500@s5r6.in-berlin.de>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
@@ -29,28 +28,29 @@ Content-Disposition: inline
 References: <20060930232445.59e8adf6.maxextreme@gmail.com>
 	 <653402b90610010553p23819d2bsd7a07fabaee7ecf3@mail.gmail.com>
 	 <451FC7DC.7070909@s5r6.in-berlin.de>
-	 <200610011605.k91G5wJD031632@turing-police.cc.vt.edu>
-	 <20061001094342.55a331d1.rdunlap@xenotime.net>
-	 <1159723673.14141.272274719@webmail.messagingengine.com>
+	 <653402b90610010725l7862ff9fy2b1c072caedaff24@mail.gmail.com>
+	 <451FF176.7090500@s5r6.in-berlin.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/1/06, Alexander van Heukelum <heukelum@fastmail.fm> wrote:
-> I think there is a problem with the name anyhow. Would you use the
-> LCD(d)isplay driver for an OLED screen?
->
-> How about auxiliary display or AUXdisplay?
->
-> Alexander
->
+On 10/1/06, Stefan Richter <stefanr@s5r6.in-berlin.de> wrote:
+> LCD is in Spanish, as in German, a foreign term. But still, its D is
+> carrying the meaning of "display" or its native equivalent. ("Display"
+> itself is even in common use in Spain, Germany, and many other
+> countries.) In German, "display" may be translated to "Anzeige",
+> "Bildschirm", "Display", "Monitor"; and any of "LCD-Anzeige",
+> "LCD-Bildschirm", "LCD-Display", "LCD-Monitor" would be bad style.
+> ("LCD-Display" would clearly be the worst of all, because one could
+> argue that a display is just a part of a monitor, thus "LCD monitor" is
+> arguably less redundant than "LCD display"...)
 
-Mi first guess was drivers/display/, to put driver about
-extra-displays, not only LCDs.
+I'm not saying it is the right way, just I'm saying which is the
+common way to say it in Spanish: We say "LCD" as "pantalla LCD"; and
+althought "pantalla" means "display", it is more expressive that way.
+We use "LCD" as a kind of display.
 
-But people thought it can confuse users, so I chose to add "LCD" to be
-more specific.
+Yeah, we should use "pantalla LC", but we don't. However, in formal
+written language, you should write just "LCD", like in English,
+because it is wrong such "pantalla LCD".
 
-And no, it is not an organic screen. It is for a cfag12864b LCD
-(Liquid Crystal Display):
-
-http://www.crystalfontz.com/products/12864b/index.html
+Whatever. The point is that in English "LCD Display" is bad.

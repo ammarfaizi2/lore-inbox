@@ -1,53 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932287AbWJAUNK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932299AbWJAUQo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932287AbWJAUNK (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Oct 2006 16:13:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932297AbWJAUNK
+	id S932299AbWJAUQo (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Oct 2006 16:16:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932301AbWJAUQo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Oct 2006 16:13:10 -0400
-Received: from pne-smtpout1-sn1.fre.skanova.net ([81.228.11.98]:48059 "EHLO
-	pne-smtpout1-sn1.fre.skanova.net") by vger.kernel.org with ESMTP
-	id S932287AbWJAUNJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Oct 2006 16:13:09 -0400
-Message-ID: <45202141.3010304@verkstad.net>
-Date: Sun, 01 Oct 2006 22:12:49 +0200
-From: Theo Kanter <theo@verkstad.net>
-User-Agent: Thunderbird 1.5.0.7 (Windows/20060909)
+	Sun, 1 Oct 2006 16:16:44 -0400
+Received: from smtp1.pacifier.net ([64.255.237.171]:13285 "EHLO
+	smtp1.pacifier.net") by vger.kernel.org with ESMTP id S932299AbWJAUQn
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 Oct 2006 16:16:43 -0400
+Message-ID: <452021F4.79081F8F@e-z.net>
+Date: Sun, 01 Oct 2006 13:15:49 -0700
+From: "Steven J. Hathaway" <shathawa@e-z.net>
+X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.2.17 i586)
+X-Accept-Language: en
 MIME-Version: 1.0
-To: Jeff Garzik <jeff@garzik.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Kernel 2.6.18 PATA support for sata_promise not working for PDC20378
- on MSI 865PE-NEO FISR2 motherboard
-References: <45201943.7050408@verkstad.net> <45201E98.5030104@garzik.org>
-In-Reply-To: <45201E98.5030104@garzik.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+To: andre@linux-ide.org, linux-kernel@vger.kernel.org, axboe@suse.de
+Subject: Add "SAMSUNG CD-ROM SC-140" to ide-dma blacklist
+Content-Type: multipart/mixed;
+ boundary="------------43E602F95EB7DAFC4B546471"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jeff Garzik wrote:
-> Theo Kanter wrote:
->> Kernel 2.6.18 claims to provide PATA support for sata_promise 
->> according to the changelog.
-> Which changelog?  I assure you (a) PATA support for sata_promise is 
-> not in 2.6.18, and (b) it implies nothing of the sort in the official 
-> kernel changelog on ftp.kernel.org.
-Thanks Jeff for a quick response. Well, it is only because 
-http://www.kernel.org/pub/linux/kernel/v2.6/ChangeLog-2.6.18 mentions 
-the following:
+This is a multi-part message in MIME format.
+--------------43E602F95EB7DAFC4B546471
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 
-    Author: Jeff Garzik <jeff@garzik.org>
-    Date:   Wed May 24 01:43:25 2006 -0400
-        [libata sata_promise] Add PATA cable detection.
-        Original patch from Phillip Jordan <phillip.m.jordan@gmail.com>
-        Cleanups and fixes by me.
+MS-Windows sees the CD-ROM ok.
+Linux V 2.4.21 and earlier see the CD-ROM ok.
+Linux V 2.4.24 and later fail to find a CD-ROM file system.
+The major ide code changed since 2.4.21.  I have since
+required the following patch in order for the kernel to
+see the CDROM.   Enclosed is a context diff patch file.
 
-Does this mean something other than that sata_promise actually provides 
-support for PATA or how should I interpret this? Also, with respect to 
-the error messages in my previous messages, could you please advise me 
-about my options? (e.g., wait for a new kernel, etc.)?
+The problem appeared when I was trying to install a Slackware
+distribution.
+The bootstrap would load the kernel and initrd structure, but the
+kernel,
+once gaining control, would register file system errors when accessing
+the disk drive.  Seeing other related SAMSUNG CD-ROM drivers in the
+ide-dma.c blacklist, and adding my SAMSUNG CD-ROM device to the
+same blacklist, and rebuilding a kernel, the problem has been overcome.
 
-Thanks,
-Theo
+Sincerely,
+Steven J. Hathaway
 
+
+
+--------------43E602F95EB7DAFC4B546471
+Content-Type: text/plain; charset=us-ascii;
+ name="ide-dma.c-patch-samsung-cdr"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="ide-dma.c-patch-samsung-cdr"
+
+KERNEL Version 2.4.32
+The "SAMSUNG CD-ROM SC-140" needs to be added to the dma blacklist.
+I have had to make this patch since about Version 2.4.23 to accommodate
+a major code change in ide-dma structure.  Here is the context diff.
+
+Sincerely:  Steven J.Hathaway, <shathawa@e-z.net>
+
+*** drivers/ide/ide-dma.c-org	2006-10-01 12:31:17.000000000 -0700
+--- drivers/ide/ide-dma.c	2006-10-01 12:33:20.000000000 -0700
+***************
+*** 137,142 ****
+--- 137,143 ----
+  	{ "CD-ROM Drive/F5A",	"ALL"		},
+  	{ "RICOH CD-R/RW MP7083A",	"ALL"		},
+  	{ "WPI CDD-820",		"ALL"		},
++ 	{ "SAMSUNG CD-ROM SC-140",	"ALL"		},
+  	{ "SAMSUNG CD-ROM SC-148C",	"ALL"		},
+  	{ "SAMSUNG CD-ROM SC-148F",	"ALL"		},
+  	{ "SAMSUNG CD-ROM SC",	"ALL"		},
+
+--------------43E602F95EB7DAFC4B546471--
 

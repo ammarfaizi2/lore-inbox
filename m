@@ -1,56 +1,112 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751829AbWJADm1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751818AbWJADmT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751829AbWJADm1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Sep 2006 23:42:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751824AbWJADm1
+	id S1751818AbWJADmT (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Sep 2006 23:42:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751824AbWJADmT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Sep 2006 23:42:27 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:43243 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1751829AbWJADm0 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Sep 2006 23:42:26 -0400
-Message-ID: <451F38FB.8080902@garzik.org>
-Date: Sat, 30 Sep 2006 23:41:47 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
-MIME-Version: 1.0
-To: Muli Ben-Yehuda <muli@il.ibm.com>, Andrew Morton <akpm@osdl.org>
-CC: Greg KH <greg@kroah.com>, Jim Paradis <jparadis@redhat.com>,
-       Andi Kleen <ak@suse.de>, LKML <linux-kernel@vger.kernel.org>,
-       jdmason@kudzu.us
-Subject: Re: [PATCH] x86-64: Calgary IOMMU: update to work with PCI domains
-References: <20060926191508.GA6350@havoc.gtf.org> <20060928093332.GG22787@rhun.haifa.ibm.com> <451B99C5.7080809@garzik.org> <20060928224550.GJ22787@rhun.haifa.ibm.com> <451C54C0.6080402@garzik.org> <20060928233116.GK22787@rhun.haifa.ibm.com> <20060930093421.GP22787@rhun.haifa.ibm.com> <451E40DF.30406@garzik.org> <20060930104248.GR22787@rhun.haifa.ibm.com> <451E57FE.5000600@garzik.org> <20060930175148.GS22787@rhun.haifa.ibm.com>
-In-Reply-To: <20060930175148.GS22787@rhun.haifa.ibm.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Sat, 30 Sep 2006 23:42:19 -0400
+Received: from tomts40-srv.bellnexxia.net ([209.226.175.97]:18650 "EHLO
+	tomts40-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id S1751818AbWJADmS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Sep 2006 23:42:18 -0400
+Date: Sat, 30 Sep 2006 23:42:12 -0400
+From: Mathieu Desnoyers <compudj@krystal.dyndns.org>
+To: Nicholas Miell <nmiell@comcast.net>
+Cc: Martin Bligh <mbligh@google.com>, "Frank Ch. Eigler" <fche@redhat.com>,
+       Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>, prasanna@in.ibm.com,
+       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
+       Paul Mundt <lethal@linux-sh.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>, Jes Sorensen <jes@sgi.com>,
+       Tom Zanussi <zanussi@us.ibm.com>,
+       Richard J Moore <richardj_moore@uk.ibm.com>,
+       Michel Dagenais <michel.dagenais@polymtl.ca>,
+       Christoph Hellwig <hch@infradead.org>,
+       Greg Kroah-Hartman <gregkh@suse.de>,
+       Thomas Gleixner <tglx@linutronix.de>, William Cohen <wcohen@redhat.com>,
+       ltt-dev@shafik.org, systemtap@sources.redhat.com,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Jeremy Fitzhardinge <jeremy@goop.org>,
+       Karim Yaghmour <karim@opersys.com>, Pavel Machek <pavel@suse.cz>,
+       Joe Perches <joe@perches.com>, "Randy.Dunlap" <rdunlap@xenotime.net>,
+       "Jose R. Santos" <jrs@us.ibm.com>
+Subject: Re: Performance analysis of Linux Kernel Markers 0.20 for 2.6.17
+Message-ID: <20061001034212.GB13527@Krystal>
+References: <20060930180157.GA25761@Krystal> <1159642933.2355.1.camel@entropy>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.3 (----)
-X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.3 points, 5.0 required)
+Content-Disposition: inline
+In-Reply-To: <1159642933.2355.1.camel@entropy>
+X-Editor: vi
+X-Info: http://krystal.dyndns.org:8080
+X-Operating-System: Linux/2.4.32-grsec (i686)
+X-Uptime: 23:31:55 up 39 days, 40 min,  1 user,  load average: 0.24, 0.21, 0.20
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Muli Ben-Yehuda wrote:
-> On Sat, Sep 30, 2006 at 07:41:50AM -0400, Jeff Garzik wrote:
+* Nicholas Miell (nmiell@comcast.net) wrote:
+> On Sat, 2006-09-30 at 14:01 -0400, Mathieu Desnoyers wrote:
+> > Hi,
+> > 
+> > Following the huge discussion thread about tracing/static vs dynamic
+> > instrumentation/markers, a consensus seems to emerge about the need for a
+> > marker system in the Linux kernel. The main issues this mechanism addresses are:
+> > 
+> > - Identify code important to runtime data collection/analysis tools in tree so
+> >   that it follows the code changes naturally.
+> > - Be visually appealing to kernel developers.
+> > - Have a very low impact on the system performance.
+> > - Integrate in the standard kernel infrastructure : use C and loadable modules.
+> > 
+> > The time has come for some performance measurements of the Linux Kernel Markers,
+> > which follows. I attach a PDF with tables and charts which condense these
+> > results.
 > 
->> Muli Ben-Yehuda wrote:
->>> The patch I posted earlier is all that's needed, if you could merge it
->>> into #pciseg that would be fine. I'm pondering making one small
->>> change though: in your pci domains patch, you have this snippet:
->> Would you be kind enough to resend the patch with a proper Signed-off-by 
->> line?  (and subject/description, etc. while you're at it)
+> Has anyone done any performance measurements with the "regular function
+> call replaced by a NOP" type of marker?
 > 
-> This patch updates Calgary to work with Jeff's PCI domains code by
-> moving each bus's pointer to its struct iommu_table to struct
-> pci_sysdata, rather than stashing it in ->sysdata directly.
-> 
-> Signed-off-by: Muli Ben-Yehuda <muli@il.ibm.com>
-> Signed-off-by: Jon Mason <jdmason@kudzu.us>
 
-applied, and pushed out to jgarzik/misc-2.6.git#pciseg.
+Here it is (on the same setup as the other tests : Pentium 4, 3 GHz) :
 
-thanks,
+* Execute an empty loop
 
-	Jeff
+- Without marker
+NR_LOOPS : 10000000
+time delta (cycles): 15026497
+cycles per loop : 1.50
+
+- With 5 NOPs
+NR_LOOPS : 100000
+time delta (cycles): 300157
+cycles per loop : 3.00
+added cycles per loop for nops : 3.00-1.50 = 1.50
+
+
+* Execute a loop of memcpy 4096 bytes
+
+- Without marker
+NR_LOOPS : 10000
+time delta (cycles): 12981555
+cycles per loop : 1298.16
+
+- With 5 NOPs
+NR_LOOPS : 10000
+time delta (cycles): 12983925
+cycles per loop : 1298.39
+added cycles per loop for nops : 0.23
+
+
+If we compare this approach to the jump-over-call markers (in cycles per loop) :
+
+              NOPs    Jump over call generic    Jump over call optimized
+empty loop    1.50    1.17                      2.50 
+memcpy        0.23    2.12                      0.07
 
 
 
+Mathieu
+
+
+OpenPGP public key:              http://krystal.dyndns.org:8080/key/compudj.gpg
+Key fingerprint:     8CD5 52C3 8E3C 4140 715F  BA06 3F25 A8FE 3BAE 9A68 

@@ -1,235 +1,280 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932495AbWJAXXo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932480AbWJAXXe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932495AbWJAXXo (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Oct 2006 19:23:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932488AbWJAXXo
+	id S932480AbWJAXXe (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Oct 2006 19:23:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932494AbWJAXXe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Oct 2006 19:23:44 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:36826 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932495AbWJAXXm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Oct 2006 19:23:42 -0400
-Subject: Re: [PATCH] ISDN: mark as 32-bit only
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Jeff Garzik <jeff@garzik.org>
-Cc: kkeil@suse.de, kai.germaschewski@gmx.de, Andrew Morton <akpm@osdl.org>,
-       LKML <linux-kernel@vger.kernel.org>
-In-Reply-To: <20061001152116.GA4684@havoc.gtf.org>
-References: <20061001152116.GA4684@havoc.gtf.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Mon, 02 Oct 2006 00:47:50 +0100
-Message-Id: <1159746470.13029.194.camel@localhost.localdomain>
+	Sun, 1 Oct 2006 19:23:34 -0400
+Received: from usul.saidi.cx ([204.11.33.34]:64665 "EHLO usul.overt.org")
+	by vger.kernel.org with ESMTP id S932480AbWJAXXb (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 Oct 2006 19:23:31 -0400
+Message-ID: <15141.67.169.45.37.1159744412.squirrel@overt.org>
+Date: Sun, 1 Oct 2006 19:13:32 -0400 (EDT)
+Subject: [PATCH 2.6.18 1/2] mmc: Add structure definition for mmc v4 EXT_CSD
+From: philipl@overt.org
+To: "Pierre Ossman" <drzeus-list@drzeus.cx>, linux-kernel@vger.kernel.org
+User-Agent: SquirrelMail/1.4.8
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+Content-Type: text/plain; charset=iso-8859-1
+Content-Transfer-Encoding: 7bit
+X-Priority: 3 (Normal)
+Importance: Normal
+References: <45200340.9080306@overt.org> <45201116.2080601@drzeus.cx>
+In-Reply-To: <45201116.2080601@drzeus.cx>
+X-Mime-Autoconverted: from 8bit to 7bit by courier 0.53
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Some suggestions on doing it better
+This is a resend of a patch I sent a few months ago which didn't generate any responses. Pierre has agreed to take a
+look. Thanks!
 
-- Clean up warnings in drivers/isdn by using long not int for the values
-where we pass void * and cast to integer types. The code is ok (ok
-passing the stuff this way isn't pretty but the code is valid). In all
-the cases I checked out the right thing happens anyway but this removes
-all the warnings.
+Original email follows:
 
-Signed-off-by: Alan Cox <alan@redhat.com>
+Hi all,
 
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.18-mm2/drivers/isdn/hisax/config.c linux-2.6.18-mm2/drivers/isdn/hisax/config.c
---- linux.vanilla-2.6.18-mm2/drivers/isdn/hisax/config.c	2006-09-20 04:42:06.000000000 +0100
-+++ linux-2.6.18-mm2/drivers/isdn/hisax/config.c	2006-09-25 12:20:16.000000000 +0100
-@@ -1721,11 +1721,11 @@
- 		hisax_b_sched_event(bcs, B_RCVBUFREADY);
- 		break;
- 	case PH_DATA | CONFIRM:
--		bcs->tx_cnt -= (int) arg;
-+		bcs->tx_cnt -= (long)arg;
- 		if (test_bit(FLG_LLI_L1WAKEUP,&bcs->st->lli.flag)) {
- 			u_long	flags;
- 			spin_lock_irqsave(&bcs->aclock, flags);
--			bcs->ackcnt += (int) arg;
-+			bcs->ackcnt += (long)arg;
- 			spin_unlock_irqrestore(&bcs->aclock, flags);
- 			schedule_event(bcs, B_ACKPENDING);
- 		}
-@@ -1789,7 +1789,7 @@
- 
- 	switch (pr) {
- 	case PH_ACTIVATE | REQUEST:
--		B_L2L1(b_if, pr, (void *) st->l1.mode);
-+		B_L2L1(b_if, pr, (void *)(unsigned long)st->l1.mode);
- 		break;
- 	case PH_DATA | REQUEST:
- 	case PH_PULL | INDICATION:
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.18-mm2/drivers/isdn/hisax/hfc4s8s_l1.c linux-2.6.18-mm2/drivers/isdn/hisax/hfc4s8s_l1.c
---- linux.vanilla-2.6.18-mm2/drivers/isdn/hisax/hfc4s8s_l1.c	2006-09-20 04:42:06.000000000 +0100
-+++ linux-2.6.18-mm2/drivers/isdn/hisax/hfc4s8s_l1.c	2006-09-25 12:20:25.000000000 +0100
-@@ -424,7 +424,7 @@
- 	struct hfc4s8s_btype *bch = ifc->priv;
- 	struct hfc4s8s_l1 *l1 = bch->l1p;
- 	struct sk_buff *skb = (struct sk_buff *) arg;
--	int mode = (int) arg;
-+	long mode = (long) arg;
- 	u_long flags;
- 
- 	switch (pr) {
-@@ -914,7 +914,7 @@
- 	struct sk_buff *skb;
- 	u_char f1, f2;
- 	u_char *cp;
--	int cnt;
-+	long cnt;
- 
- 	if (l1p->l1_state != 7)
- 		return;
-@@ -980,7 +980,8 @@
- 	struct sk_buff *skb;
- 	struct hfc4s8s_l1 *l1 = bch->l1p;
- 	u_char *cp;
--	int cnt, max, hdlc_num, ack_len = 0;
-+	int cnt, max, hdlc_num;
-+	long ack_len = 0;
- 
- 	if (!l1->enabled || (bch->mode == L1_MODE_NULL))
- 		return;
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.18-mm2/drivers/isdn/hisax/hfc_sx.c linux-2.6.18-mm2/drivers/isdn/hisax/hfc_sx.c
---- linux.vanilla-2.6.18-mm2/drivers/isdn/hisax/hfc_sx.c	2006-09-20 04:42:06.000000000 +0100
-+++ linux-2.6.18-mm2/drivers/isdn/hisax/hfc_sx.c	2006-09-25 12:20:25.000000000 +0100
-@@ -970,7 +970,7 @@
- 			break;
- 		case (HW_TESTLOOP | REQUEST):
- 			spin_lock_irqsave(&cs->lock, flags);
--			switch ((int) arg) {
-+			switch ((long) arg) {
- 				case (1):
- 					Write_hfc(cs, HFCSX_B1_SSL, 0x80);	/* tx slot */
- 					Write_hfc(cs, HFCSX_B1_RSL, 0x80);	/* rx slot */
-@@ -986,7 +986,7 @@
- 				default:
- 					spin_unlock_irqrestore(&cs->lock, flags);
- 					if (cs->debug & L1_DEB_WARN)
--						debugl1(cs, "hfcsx_l1hw loop invalid %4x", (int) arg);
-+						debugl1(cs, "hfcsx_l1hw loop invalid %4lx", arg);
- 					return;
- 			}
- 			cs->hw.hfcsx.trm |= 0x80;	/* enable IOM-loop */
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.18-mm2/drivers/isdn/hisax/hfc_usb.c linux-2.6.18-mm2/drivers/isdn/hisax/hfc_usb.c
---- linux.vanilla-2.6.18-mm2/drivers/isdn/hisax/hfc_usb.c	2006-09-20 04:42:06.000000000 +0100
-+++ linux-2.6.18-mm2/drivers/isdn/hisax/hfc_usb.c	2006-09-25 12:20:25.000000000 +0100
-@@ -696,7 +696,7 @@
- 				fifo->delete_flg = TRUE;
- 				fifo->hif->l1l2(fifo->hif,
- 						PH_DATA | CONFIRM,
--						(void *) fifo->skbuff->
-+						(void *) (unsigned long) fifo->skbuff->
- 						truesize);
- 				if (fifo->skbuff && fifo->delete_flg) {
- 					dev_kfree_skb_any(fifo->skbuff);
-@@ -1144,7 +1144,7 @@
- 				set_hfcmode(hfc,
- 					    (fifo->fifonum ==
- 					     HFCUSB_B1_TX) ? 0 : 1,
--					    (int) arg);
-+					    (long) arg);
- 				fifo->hif->l1l2(fifo->hif,
- 						PH_ACTIVATE | INDICATION,
- 						NULL);
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.18-mm2/drivers/isdn/hisax/hisax_fcpcipnp.c linux-2.6.18-mm2/drivers/isdn/hisax/hisax_fcpcipnp.c
---- linux.vanilla-2.6.18-mm2/drivers/isdn/hisax/hisax_fcpcipnp.c	2006-09-20 04:42:06.000000000 +0100
-+++ linux-2.6.18-mm2/drivers/isdn/hisax/hisax_fcpcipnp.c	2006-09-25 12:20:25.000000000 +0100
-@@ -546,7 +546,7 @@
- 	}
- 	bcs->tx_cnt = 0;
- 	bcs->tx_skb = NULL;
--	B_L1L2(bcs, PH_DATA | CONFIRM, (void *) skb->truesize);
-+	B_L1L2(bcs, PH_DATA | CONFIRM, (void *)(unsigned long)skb->truesize);
- 	dev_kfree_skb_irq(skb);
- }
- 
-@@ -635,7 +635,7 @@
- 		hdlc_fill_fifo(bcs);
- 		break;
- 	case PH_ACTIVATE | REQUEST:
--		mode = (int) arg;
-+		mode = (long) arg;
- 		DBG(4,"B%d,PH_ACTIVATE_REQUEST %d", bcs->channel + 1, mode);
- 		modehdlc(bcs, mode);
- 		B_L1L2(bcs, PH_ACTIVATE | INDICATION, NULL);
-@@ -998,18 +998,15 @@
- 
- 	retval = pci_register_driver(&fcpci_driver);
- 	if (retval)
--		goto out;
-+		return retval;
- #ifdef __ISAPNP__
- 	retval = pnp_register_driver(&fcpnp_driver);
--	if (retval < 0)
--		goto out_unregister_pci;
-+	if (retval < 0) {
-+		pci_unregister_driver(&fcpci_driver);
-+		return retval;
-+	}
- #endif
- 	return 0;
--
-- out_unregister_pci:
--	pci_unregister_driver(&fcpci_driver);
-- out:
--	return retval;
- }
- 
- static void __exit hisax_fcpcipnp_exit(void)
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.18-mm2/drivers/isdn/hisax/st5481_b.c linux-2.6.18-mm2/drivers/isdn/hisax/st5481_b.c
---- linux.vanilla-2.6.18-mm2/drivers/isdn/hisax/st5481_b.c	2006-09-20 04:42:06.000000000 +0100
-+++ linux-2.6.18-mm2/drivers/isdn/hisax/st5481_b.c	2006-09-25 12:20:39.000000000 +0100
-@@ -86,7 +86,7 @@
- 			if (!skb->len) {
- 				// Frame sent
- 				b_out->tx_skb = NULL;
--				B_L1L2(bcs, PH_DATA | CONFIRM, (void *) skb->truesize);
-+				B_L1L2(bcs, PH_DATA | CONFIRM, (void *)(unsigned long) skb->truesize);
- 				dev_kfree_skb_any(skb);
- 
- /* 				if (!(bcs->tx_skb = skb_dequeue(&bcs->sq))) { */
-@@ -350,7 +350,7 @@
- {
- 	struct st5481_bcs *bcs = ifc->priv;
- 	struct sk_buff *skb = arg;
--	int mode;
-+	long mode;
- 
- 	DBG(4, "");
- 
-@@ -360,8 +360,8 @@
- 		bcs->b_out.tx_skb = skb;
- 		break;
- 	case PH_ACTIVATE | REQUEST:
--		mode = (int) arg;
--		DBG(4,"B%d,PH_ACTIVATE_REQUEST %d", bcs->channel + 1, mode);
-+		mode = (long) arg;
-+		DBG(4,"B%d,PH_ACTIVATE_REQUEST %ld", bcs->channel + 1, mode);
- 		st5481B_mode(bcs, mode);
- 		B_L1L2(bcs, PH_ACTIVATE | INDICATION, NULL);
- 		break;
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.18-mm2/drivers/isdn/hisax/st5481_d.c linux-2.6.18-mm2/drivers/isdn/hisax/st5481_d.c
---- linux.vanilla-2.6.18-mm2/drivers/isdn/hisax/st5481_d.c	2006-09-20 04:42:06.000000000 +0100
-+++ linux-2.6.18-mm2/drivers/isdn/hisax/st5481_d.c	2006-09-25 12:20:39.000000000 +0100
-@@ -374,7 +374,7 @@
- {
- 	struct st5481_adapter *adapter = urb->context;
- 	struct st5481_d_out *d_out = &adapter->d_out;
--	int buf_nr;
-+	long buf_nr;
- 	
- 	DBG(2, "");
- 
-@@ -546,7 +546,7 @@
- static void dout_complete(struct FsmInst *fsm, int event, void *arg)
- {
- 	struct st5481_adapter *adapter = fsm->userdata;
--	int buf_nr = (int) arg;
-+	long buf_nr = (long) arg;
- 
- 	usb_d_out(adapter, buf_nr);
- }
+I've recently being investigating adding support for the mmc v4 high speed and wide bus features, based on some
+documents I found online (A couple of samsung ones and the freely available mmc v4.1 application note).
+
+For reference, these are:
+
+v4.1 app note:
+http://www.mmca.org/compliance/buy_spec/AN_MMCA050419.pdf
+
+samsung datsheet:
+http://www.samsung.com/Products/Semiconductor/FlashCard/MMC/HighSpeedMMC/FullSize_MMCplus/MC4GH02GNMCA/ds_HS_MMC_rev03.pdf
+
+
+samsung app note:
+http://www.samsung.com/Products/Semiconductor/Memory/appnote/hs_mmc_application_note_050111.pdf
+
+I have successfully turned high speed and 4 bit transfers on in conjunction with an sdhci controller and observed the
+expected speed increase - to be about equivalent to an SD card on the same hardware. mmc v4 can go faster but as you'd
+expect, the sdhci controller doesn't have an 8 bit bus and can't run faster than SD speeds.
+
+This proof of concept patch is available here for the curious:
+http://intr.overt.org/diff.cgi/diffs/mmcv4.diff
+
+However, turning that into a real mergable patch requires a lot more work; there is an elaborate dance required to
+verify that any particular feature is safe to turn on that includes special commands that spend test patterns to the
+card and read them back (to verify 4/8bit suport at the electrical level!) and a table of current draws at different
+speeds/bus widths which have to be confirmed against the specific host controller; I don't have an example of card
+that populates this table - my card apparently conforms to mmc <= v4 power levels at all times, but this is probably
+not something one can presume.
+
+The first patch defines the mmc v4 EXT_CSD and the second one populates it.
+
+The only thing interesting at this point is that I did not directly map the full EXT_CSD because most of it is unused
+and it's large (512 bytes).
+
+--phil
+
+Signed-off-by: Philip Langdale <philipl@overt.org>
+---
+
+ card.h     |   46 ++++++++++++++++++++++++++++
+ protocol.h |   99 +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++-- 2 files changed, 143 insertions(+), 2
+deletions(-)
+
+diff -ur /usr/src/linux/include/linux/mmc/card.h new/include/linux/mmc/card.h ---
+/usr/src/linux/include/linux/mmc/card.h	2005-10-30 16:32:45.000000000 -0800 +++
+new/include/linux/mmc/card.h	2006-02-12 12:03:17.000000000 -0800 @@ -39,6 +39,48 @@
+				write_misalign:1;
+ };
+
++struct mmc_ext_csd {
++	unsigned char		cmd_set_rev;
++	unsigned char		ext_csd_rev;
++	unsigned char		csd_structure;
++
++	unsigned char		card_type;
++
++	/*
++	 * Each power class defines MAX RMS Current
++	 * and Max Peak Current in mA.
++	 * Each category is of the form:
++	 *   pwr_cl_<speed/MHz>_<voltage/V>
++	 *
++	 * Each category encodes the power class for 4
++	 * bit transfers in [3:0] and 8 bit transfers
++	 * in [7:4]. Use mmc_get_4bit_pwr_cl() and
++	 * mmc_get_8bit_pwr_cl() to decode these.
++	 */
++	unsigned char		pwr_cl_52_195;
++	unsigned char		pwr_cl_26_195;
++
++	unsigned char		pwr_cl_52_360;
++	unsigned char		pwr_cl_26_360;
++
++	/*
++	 * Performance classes describe the minimum
++	 * transfer speed the card claims to support
++	 * for the given bus widths and speeds.
++	 */
++	unsigned char		min_perf_r_4_26;
++	unsigned char		min_perf_w_4_26;
++	unsigned char		min_perf_r_8_26_4_52;
++	unsigned char		min_perf_w_8_26_4_52;
++	unsigned char		min_perf_r_8_52;
++	unsigned char		min_perf_w_8_52;
++
++	unsigned char		s_cmd_set;
++};
++
++#define mmc_get_4bit_pwr_cl(p)	(p & 0x0F)
++#define mmc_get_8bit_pwr_cl(p)	(p >> 4)
++
+ struct sd_scr {
+ 	unsigned char		sda_vsn;
+ 	unsigned char		bus_widths;
+@@ -62,11 +106,13 @@
+ #define MMC_STATE_BAD		(1<<2)		/* unrecognised device */
+ #define MMC_STATE_SDCARD	(1<<3)		/* is an SD card */
+ #define MMC_STATE_READONLY	(1<<4)		/* card is read-only */
++#define MMC_STATE_HIGHSPEED	(1<<5)		/* card is in mmc4 highspeed mode */
+ 	u32			raw_cid[4];	/* raw card CID */
+ 	u32			raw_csd[4];	/* raw card CSD */
+ 	u32			raw_scr[2];	/* raw card SCR */
+ 	struct mmc_cid		cid;		/* card identification */
+ 	struct mmc_csd		csd;		/* card specific */
++	struct mmc_ext_csd	ext_csd;	/* mmc v4 extended card specific */
+ 	struct sd_scr		scr;		/* extra SD information */
+ };
+
+@@ -75,12 +119,14 @@
+ #define mmc_card_bad(c)		((c)->state & MMC_STATE_BAD)
+ #define mmc_card_sd(c)		((c)->state & MMC_STATE_SDCARD)
+ #define mmc_card_readonly(c)	((c)->state & MMC_STATE_READONLY)
++#define mmc_card_highspeed(c)	((c)->state & MMC_STATE_HIGHSPEED)
+
+ #define mmc_card_set_present(c)	((c)->state |= MMC_STATE_PRESENT) #define mmc_card_set_dead(c)	((c)->state |=
+MMC_STATE_DEAD)
+ #define mmc_card_set_bad(c)	((c)->state |= MMC_STATE_BAD)
+ #define mmc_card_set_sd(c)	((c)->state |= MMC_STATE_SDCARD)
+ #define mmc_card_set_readonly(c) ((c)->state |= MMC_STATE_READONLY)
++#define mmc_card_set_highspeed(c) ((c)->state |= MMC_STATE_HIGHSPEED)
+
+ #define mmc_card_name(c)	((c)->cid.prod_name)
+ #define mmc_card_id(c)		((c)->dev.bus_id)
+diff -ur /usr/src/linux/include/linux/mmc/protocol.h new/include/linux/mmc/protocol.h ---
+/usr/src/linux/include/linux/mmc/protocol.h	2006-01-03 23:48:23.000000000 -0800 +++
+new/include/linux/mmc/protocol.h	2006-02-12 12:12:45.000000000 -0800 @@ -33,6 +33,7 @@
+ #define MMC_SET_RELATIVE_ADDR     3   /* ac   [31:16] RCA        R1  */ #define MMC_SET_DSR               4   /* bc  
+[31:16] RCA            */ #define MMC_SELECT_CARD           7   /* ac   [31:16] RCA        R1  */
++#define MMC_SEND_EXT_CSD          8   /* adtc                    R1  */
+ #define MMC_SEND_CSD              9   /* ac   [31:16] RCA        R2  */ #define MMC_SEND_CID             10   /* ac  
+[31:16] RCA        R2  */ #define MMC_READ_DAT_UNTIL_STOP  11   /* adtc [31:0] dadr        R1  */
+@@ -229,13 +230,107 @@
+
+ #define CSD_STRUCT_VER_1_0  0           /* Valid for system specification 1.0 - 1.2 */ #define CSD_STRUCT_VER_1_1  1 
+         /* Valid for system specification 1.4 - 2.2 */
+-#define CSD_STRUCT_VER_1_2  2           /* Valid for system specification 3.1       */ +#define CSD_STRUCT_VER_1_2  2
+          /* Valid for system specification 3.1 - 3.2 - 3.31 - 4.0 - 4.1 */ +#define CSD_STRUCT_EXT_CSD  3          
+/* Version is coded in CSD_STRUCTURE in EXT_CSD */
+
+ #define CSD_SPEC_VER_0      0           /* Implements system specification 1.0 - 1.2 */ #define CSD_SPEC_VER_1      1
+          /* Implements system specification 1.4 */ #define CSD_SPEC_VER_2      2           /* Implements system
+specification 2.0 - 2.2 */
+-#define CSD_SPEC_VER_3      3           /* Implements system specification 3.1 */ +#define CSD_SPEC_VER_3      3     
+     /* Implements system specification 3.1 - 3.2 - 3.31 */ +#define CSD_SPEC_VER_4      4           /* Implements
+system specification 4.0 - 4.1 */
+
++/*
++ * EXT_CSD fields
++ */
++#define EXT_CSD_BUS_WIDTH		183	/* WO  */
++#define EXT_CSD_HS_TIMING		185	/* R/W */
++#define EXT_CSD_POWER_CLASS		187	/* R/W */
++#define EXT_CSD_CMD_SET_REV		189	/* RO  */
++#define EXT_CSD_CMD_SET		191	/* R/W */
++#define EXT_CSD_EXT_CSD_REV		192	/* RO  */
++#define EXT_CSD_CSD_STRUCTURE		194	/* RO  */
++#define EXT_CSD_CARD_TYPE		196	/* RO  */
++#define EXT_CSD_PWR_CL_52_195		200	/* RO  */
++#define EXT_CSD_PWR_CL_26_195		201	/* RO  */
++#define EXT_CSD_PWR_CL_52_360		202	/* RO  */
++#define EXT_CSD_PWR_CL_26_360		203	/* RO  */
++#define EXT_CSD_MIN_PERF_R_4_26	205	/* RO  */
++#define EXT_CSD_MIN_PERF_W_4_26	206	/* RO  */
++#define EXT_CSD_MIN_PERF_R_8_26_4_52	207	/* RO  */
++#define EXT_CSD_MIN_PERF_W_8_26_4_52	208	/* RO  */
++#define EXT_CSD_MIN_PERF_R_8_52	209	/* RO  */
++#define EXT_CSD_MIN_PERF_W_8_52	210	/* RO  */
++#define EXT_CSD_S_CMD_SET		504	/* RO  */
++
++/*
++ * EXT_CSD field definitions
++ */
++
++#define EXT_CSD_BUS_WIDTH_1     0
++#define EXT_CSD_BUS_WIDTH_4     1
++#define EXT_CSD_BUS_WIDTH_8     2
++
++#define EXT_CSD_HS_TIMING_LEGACY	0	/* <= 20MHz */
++#define EXT_CSD_HS_TIMING_FAST		1	/* > 20Mhz */
++
++#define EXT_CSD_CMD_SET_REV_4	0
++
++#define EXT_CSD_CMD_SET_NORMAL		(1<<0)
++#define EXT_CSD_CMD_SET_SECURE		(1<<1)
++#define EXT_CSD_CMD_SET_CPSECURE	(1<<2)
++
++#define EXT_CSD_EXT_CSD_REV_1_0	0
++#define EXT_CSD_EXT_CSD_REV_1_1	1
++
++#define EXT_CSD_CARD_TYPE_26	(1<<0)	/* Card can run at 26MHz */
++#define EXT_CSD_CARD_TYPE_52	(1<<1)	/* Card can run at 52MHz */
++
++/*
++ * Power classes
++ *
++ * Each class is of the form:
++ *   <voltage>_<max RMS current/mA>_<max Peak Current/mA>
++ *
++ */
++#define EXT_CSD_PWR_CL_195_065_130	0
++#define EXT_CSD_PWR_CL_195_070_140	1
++#define EXT_CSD_PWR_CL_195_080_160	2
++#define EXT_CSD_PWR_CL_195_090_180	3
++#define EXT_CSD_PWR_CL_195_100_200	4
++#define EXT_CSD_PWR_CL_195_120_220	5
++#define EXT_CSD_PWR_CL_195_140_240	6
++#define EXT_CSD_PWR_CL_195_160_260	7
++#define EXT_CSD_PWR_CL_195_180_280	8
++#define EXT_CSD_PWR_CL_195_200_300	9
++#define EXT_CSD_PWR_CL_195_250_350	10
++
++#define EXT_CSD_PWR_CL_360_100_200	0
++#define EXT_CSD_PWR_CL_360_120_220	1
++#define EXT_CSD_PWR_CL_360_150_250	2
++#define EXT_CSD_PWR_CL_360_180_280	3
++#define EXT_CSD_PWR_CL_360_200_300	4
++#define EXT_CSD_PWR_CL_360_220_320	5
++#define EXT_CSD_PWR_CL_360_250_350	6
++#define EXT_CSD_PWR_CL_360_300_400	7
++#define EXT_CSD_PWR_CL_360_350_450	8
++#define EXT_CSD_PWR_CL_360_400_500	9
++#define EXT_CSD_PWR_CL_360_450_550	10
++
++#define EXT_CSD_MIN_PERF_CLASS_LEGACY	0x00 /* < 2.4 MB/s */
++#define EXT_CSD_MIN_PERF_CLASS_A	0x08 /* 2.4 MB/s */
++#define EXT_CSD_MIN_PERF_CLASS_B	0x0A /* 3 MB/s */
++#define EXT_CSD_MIN_PERF_CLASS_C	0x0F /* 4.5 MB/s */
++#define EXT_CSD_MIN_PERF_CLASS_D	0x14 /* 6 MB/s */
++#define EXT_CSD_MIN_PERF_CLASS_E	0x1E /* 9 MB/s */
++#define EXT_CSD_MIN_PERF_CLASS_F	0x28 /* 12 MB/s */
++#define EXT_CSD_MIN_PERF_CLASS_G	0x32 /* 15 MB/s */
++#define EXT_CSD_MIN_PERF_CLASS_H	0x3C /* 18 MB/s */
++#define EXT_CSD_MIN_PERF_CLASS_J	0x46 /* 21 MB/s */
++#define EXT_CSD_MIN_PERF_CLASS_K	0x50 /* 24 MB/s */
++#define EXT_CSD_MIN_PERF_CLASS_M	0x64 /* 30 MB/s */
++#define EXT_CSD_MIN_PERF_CLASS_O	0x78 /* 36 MB/s */
++#define EXT_CSD_MIN_PERF_CLASS_R	0x8C /* 42 MB/s */
++#define EXT_CSD_MIN_PERF_CLASS_T	0xA0 /* 48 MB/s */
+
+ /*
+  * SD bus widths
+
+
+
 

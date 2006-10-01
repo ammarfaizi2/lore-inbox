@@ -1,97 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751277AbWJAQtA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751288AbWJAQxb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751277AbWJAQtA (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Oct 2006 12:49:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751271AbWJAQtA
+	id S1751288AbWJAQxb (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Oct 2006 12:53:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751290AbWJAQxb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Oct 2006 12:49:00 -0400
-Received: from pool-72-66-199-147.ronkva.east.verizon.net ([72.66.199.147]:32453
-	"EHLO turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S1751268AbWJAQtA (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Oct 2006 12:49:00 -0400
-Message-Id: <200610011648.k91Gmtc4032526@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
-To: James Bottomley <James.Bottomley@SteelEye.com>
-Cc: tridge@samba.org, linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: GPLv3 Position Statement
-In-Reply-To: Your message of "Sun, 01 Oct 2006 10:45:50 CDT."
-             <1159717550.3542.3.camel@mulgrave.il.steeleye.com>
-From: Valdis.Kletnieks@vt.edu
-References: <1159498900.3880.31.camel@mulgrave.il.steeleye.com> <17692.46192.432673.743783@samba.org> <1159515086.3880.79.camel@mulgrave.il.steeleye.com> <17692.57123.749163.204216@samba.org> <1159559443.9543.23.camel@mulgrave.il.steeleye.com> <17694.5933.159694.454938@samba.org> <1159628796.9543.69.camel@mulgrave.il.steeleye.com> <17695.24581.587794.831888@samba.org>
-            <1159717550.3542.3.camel@mulgrave.il.steeleye.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1159721335_8054P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Sun, 01 Oct 2006 12:48:55 -0400
+	Sun, 1 Oct 2006 12:53:31 -0400
+Received: from mga02.intel.com ([134.134.136.20]:44370 "EHLO mga02.intel.com")
+	by vger.kernel.org with ESMTP id S1751288AbWJAQxa convert rfc822-to-8bit
+	(ORCPT <rfc822;Linux-Kernel@vger.kernel.org>);
+	Sun, 1 Oct 2006 12:53:30 -0400
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.09,241,1157353200"; 
+   d="scan'208"; a="138968568:sNHT23249282"
+X-MimeOLE: Produced By Microsoft Exchange V6.5
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: RE: Postal 56% waits for flock_lock_file_wait
+Date: Sun, 1 Oct 2006 20:53:19 +0400
+Message-ID: <B41635854730A14CA71C92B36EC22AAC3AD954@mssmsx411>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Postal 56% waits for flock_lock_file_wait
+Thread-Index: AcblDtGUqvOFWl0MRrytKQFs9ThMXwAZbhKQ
+From: "Ananiev, Leonid I" <leonid.i.ananiev@intel.com>
+To: "Trond Myklebust" <trond.myklebust@fys.uio.no>
+Cc: "Linux Kernel Mailing List" <Linux-Kernel@vger.kernel.org>
+X-OriginalArrivalTime: 01 Oct 2006 16:53:28.0814 (UTC) FILETIME=[1E8FA8E0:01C6E57A]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1159721335_8054P
-Content-Type: text/plain; charset=us-ascii
+> The kernel would appear to be doing exactly what is expected of it.
 
-On Sun, 01 Oct 2006 10:45:50 CDT, James Bottomley said:
-> Erm ... I think you'll find there's already case law precedent on that:
-> the SCO case.  The question there was could SCO sue IBM for copyright
-> infringement after having distributed the kernel from their website.
-> The answer, from the judge in the case, was yes.
+Each of 16 user threads calls to open() one of 1000 files each 20 sec.
+3000 calls per minute in sum.
+The open() sleeps.
+I'm not sure that users expected just of sleeping.
 
-(IANAL, just an interested amature bystander - if my explanation actually
-matters to anybody, they should hire competent legal representation instead)
+Leonid
 
-Note that the precedent set there was "Yes, you can *file suit* about it",
-handed down by a judge that is being *very* careful to not leave *any*
-possible reason for SCO to have grounds for an appeal (and "judge improperly
-denied our cause of action" would likely qualify for an appeal).
+-----Original Message-----
+From: Trond Myklebust [mailto:trond.myklebust@fys.uio.no] 
+Sent: Sunday, October 01, 2006 8:05 AM
+To: Ananiev, Leonid I
+Cc: Linux Kernel Mailing List
+Subject: RE: Postal 56% waits for flock_lock_file_wait
 
-(For those readers outside the US - due to quirks in the US legal system,
-it *is* permissible to bankrupt yourself by filing pointless lawsuits that
-have no chance of winning.  The truly dangerous part is that the people you
-sue often countersue, and include "and attourney's fees" in the list of
-damages they claim.  So if you sue somebody and it costs them $150K to
-defend themselves against a pointless lawsuit, you can end up owing them
-$150K....)
+On Sat, 2006-09-30 at 21:26 +0400, Ananiev, Leonid I wrote:
+> > On which filesystem were the above results obtained if it was not
+> ext2?
+> The default ext3 fs was used.
+> 
+> > All the above results are telling you is that your test involves
+> several
+> > processes contending for the same lock, and so all of them barring
+the
+> > one process that actually holds the lock are idle.
+> 
+> Yes. It is  flock_lock_file_wait.
 
-IBM recently filed a motion for summary judgement on one of their
-counterclaims, which basically said "SCO isn't permitted to ask for it after
-distributing it themselves".  Once that counterclaim is resolved, *then* we
-will have a better precedent to cite (most likely changing "You can file suit
-about it" into "You can file suit, but SCO v. IBM already said you can go stick
-it in a pig, unless your lawyer can show how this case is *different* from SCO
-v. IBM").  And that's the way the legal system works in the US - both sides
-cite all the precedents they think support *their* view of the case, the
-judge listens to all of them, and decides one of the following:
+That is the function which causes the sleep, yes. So what is your gripe?
+The kernel would appear to be doing exactly what is expected of it.
 
-1) The case is basically the same as a precedent cited by one side or the other,
-and therefor the ruling should be decided the same way.
-
-2) The judge buys one side's claim that this is a *new* situation, and writes
-a precedent-setting ruling for the situation.
-
-3) Rarely, except in appelate courts, the judge will decide a prededent's
-situation applies,  but that the previous judge got the ruling wrong, and
-will overrule the prededent.  Most often, this happens when a lawyer cites
-a precedent from a different "District" (the US is divided into a dozen or
-so Districts, each of which has a semi-autonomous set of courts).  Occasionally,
-the Supreme Court will take a case of the form "The Third District precedent
-is this, and the Ninth Distric is that, and we need to know which one is
-the Law of the Land".
-
-And yes, every once in a while, a lawyer will even base a case on claiming
-that a Supreme Court ruling is an incorrect precedent, usually by arguing
-that the precedent was written in 1873, and that society has changed so much
-that the ruling doesn't apply correctly anymore, or similar.
-
---==_Exmh_1159721335_8054P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFFH/F3cC3lWbTT17ARAvXAAKDWhV1A+wPAYszZxOlWkqbYLTXzfwCfe/yQ
-sa6UHEnbUUAACXCnUdhfukU=
-=lbF1
------END PGP SIGNATURE-----
-
---==_Exmh_1159721335_8054P--
+Trond

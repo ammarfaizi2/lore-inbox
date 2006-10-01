@@ -1,71 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750806AbWJASgf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751272AbWJASgO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750806AbWJASgf (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Oct 2006 14:36:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751006AbWJASge
+	id S1751272AbWJASgO (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Oct 2006 14:36:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751006AbWJASgO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Oct 2006 14:36:34 -0400
-Received: from mout0.freenet.de ([194.97.50.131]:44742 "EHLO mout0.freenet.de")
-	by vger.kernel.org with ESMTP id S1750806AbWJASgd (ORCPT
+	Sun, 1 Oct 2006 14:36:14 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:17027 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1750806AbWJASgN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Oct 2006 14:36:33 -0400
-Date: Sun, 01 Oct 2006 20:37:24 +0200
-To: "Peter Osterlund" <petero2@telia.com>
-Subject: Re: [PATCH 2.6.18] pktcdvd driver module: added sysfs interface
-Reply-To: balagi@justmail.de
-From: "Thomas Maier" <balagi@justmail.de>
-Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>
-Content-Type: text/plain; charset=iso-8859-15
-MIME-Version: 1.0
-References: <op.tgd9kamfiudtyh@master> <op.tgqhg1pgiudtyh@master> <m3d59ci4n5.fsf@telia.com>
+	Sun, 1 Oct 2006 14:36:13 -0400
+Date: Sun, 1 Oct 2006 11:36:00 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Randy Dunlap <rdunlap@xenotime.net>
+Cc: lkml <linux-kernel@vger.kernel.org>, torvalds@osdl.org, rossb@google.com,
+       akpm@google.com, sam@ravnborg.org
+Subject: Re: [patch 024/144] allow /proc/config.gz to be built as a module
+Message-Id: <20061001113600.3c318eda.akpm@osdl.org>
+In-Reply-To: <20061001093954.8d2aa064.rdunlap@xenotime.net>
+References: <200610010627.k916RPIs010370@shell0.pdx.osdl.net>
+	<20061001093954.8d2aa064.rdunlap@xenotime.net>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-ID: <op.tgq8k7j9iudtyh@master>
-In-Reply-To: <m3d59ci4n5.fsf@telia.com>
-User-Agent: Opera Mail/9.00 (Win32)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello,
+On Sun, 1 Oct 2006 09:39:54 -0700
+Randy Dunlap <rdunlap@xenotime.net> wrote:
 
-> "Thomas Maier" <balagi@justmail.de> writes:
->
->> this is a patch for the packet writing module pktcdvd.
->> The patch adds a sysfs and a debugfs interface, a Kconfig
->> parameter to switch of the procfs interface off and a
->> bio write queue congestion handling for the driver.
->
-> I think most of these changes are good. However, some comments:
->
-> * There are many logically independent parts in this change, so they
->   should be in separate patches. For example:
->   - Introduce the DRIVER_NAME #define.
->   - Add sysfs support.
->   - Make procfs support optional.
->   - Implement congestion control.
->   - Move lots of functions around. (Is it needed at all?)
+> On Sat, 30 Sep 2006 23:27:25 -0700 akpm@osdl.org wrote:
+> 
+> > From: Ross Biro <rossb@google.com>
+> > 
+> > The driver for /proc/config.gz consumes rather a lot of memory and it is in
+> > fact possible to build it as a module.
+> > 
+> > In some ways this is a bit risky, because the .config which is used for
+> > compiling kernel/configs.c isn't necessarily the same as the .config which was
+> > used to build vmlinux.
+> > 
+> > But OTOH the potential memory savings are decent, and it'd be fairly dumb to
+> > build your configs.o with a different .config.
+> 
+> so after getting several disagreements on this, you are going ahead
+> with it.
 
-Oh, this is ugly for coding, since all is in the same file.
-But i splitted the patch and will send all 4 parts again.
+Actually I had this mentally tagged as "needs more arguing before merging"
+but then forgot and went and sent it anyway.
 
-I moved the functions for grouping and better readability.
-
-
-> * You need to add Signed-off-by.
-
-Ok.
-
-> * You should CC Andrew Morton and not Linus. These changes should live
->   in -mm for a while before going into the main tree.
-
-Ok, but the changes should not be harmful and easy, i think ;)
-
-> * The patch is white space damaged. All lines that should start with a
->   single space start with two spaces.
-
-Ugly. Thanks for the hit, haven't noticed it.
-
-
-Thanks
-
-Thomas Maier
-
+So now it's in the "needs more arguing before we revert it" category.

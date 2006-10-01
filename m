@@ -1,45 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751981AbWJABZp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751995AbWJAB2Y@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751981AbWJABZp (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Sep 2006 21:25:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751897AbWJABZp
+	id S1751995AbWJAB2Y (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Sep 2006 21:28:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751991AbWJAB2Y
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Sep 2006 21:25:45 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:55785 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1751881AbWJABZo (ORCPT
+	Sat, 30 Sep 2006 21:28:24 -0400
+Received: from havoc.gtf.org ([69.61.125.42]:22229 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S1751990AbWJAB2X (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Sep 2006 21:25:44 -0400
-Message-ID: <451F1914.9040007@garzik.org>
-Date: Sat, 30 Sep 2006 21:25:40 -0400
+	Sat, 30 Sep 2006 21:28:23 -0400
+Date: Sat, 30 Sep 2006 21:28:22 -0400
 From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
-MIME-Version: 1.0
-To: Jens Axboe <axboe@suse.de>, SCSI Mailing List <linux-scsi@vger.kernel.org>,
-       James Bottomley <James.Bottomley@SteelEye.com>
-CC: Linux Kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       Linus Torvalds <torvalds@osdl.org>
-Subject: SCSI make all{yes,mod}config build breakage
-Content-Type: text/plain; charset=windows-1252; format=flowed
-Content-Transfer-Encoding: 8bit
-X-Spam-Score: -4.3 (----)
-X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.3 points, 5.0 required)
+To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
+Cc: axboe@kernel.dk, linux-scsi@vger.kernel.org,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: [PATCH] SCSI: fix request flag-related build breakage
+Message-ID: <20061001012822.GA25208@havoc.gtf.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The block tree merge broke the SCSI build:
 
-   CC [M]  drivers/scsi/libsas/sas_scsi_host.o
-In file included from include/scsi/libsas.h:35,
-                  from drivers/scsi/libsas/sas_internal.h:32,
-                  from drivers/scsi/libsas/sas_scsi_host.c:26:
-include/scsi/scsi_device.h: In function ‘scsi_device_reprobe’:
-include/scsi/scsi_device.h:303: warning: ignoring return value of 
-‘device_reprobe’, declared with attribute warn_unused_result
-drivers/scsi/libsas/sas_scsi_host.c: In function ‘sas_scsi_get_task_attr’:
-drivers/scsi/libsas/sas_scsi_host.c:129: error: ‘struct request’ has no 
-member named ‘flags’
+The ->flags in struct request was split into two variables, in a recent
+changeset.  The merge of this change forgot to update SCSI's libsas,
+probably because libsas was a very recent merge.
 
-The attached patch (sent in separate email with proper sign-off) fixes 
-things.
+Signed-off-by: Jeff Garzik <jeff@garzik.org>
 
+diff --git a/drivers/scsi/libsas/sas_scsi_host.c b/drivers/scsi/libsas/sas_scsi_host.c
+index 7f9e89b..e46e793 100644
+--- a/drivers/scsi/libsas/sas_scsi_host.c
++++ b/drivers/scsi/libsas/sas_scsi_host.c
+@@ -126,7 +126,7 @@ static enum task_attribute sas_scsi_get_
+ 	enum task_attribute ta = TASK_ATTR_SIMPLE;
+ 	if (cmd->request && blk_rq_tagged(cmd->request)) {
+ 		if (cmd->device->ordered_tags &&
+-		    (cmd->request->flags & REQ_HARDBARRIER))
++		    (cmd->request->cmd_flags & REQ_HARDBARRIER))
+ 			ta = TASK_ATTR_HOQ;
+ 	}
+ 	return ta;

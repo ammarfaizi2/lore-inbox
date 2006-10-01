@@ -1,45 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932189AbWJATKd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932222AbWJATN6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932189AbWJATKd (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Oct 2006 15:10:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932222AbWJATKd
+	id S932222AbWJATN6 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Oct 2006 15:13:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932223AbWJATN5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Oct 2006 15:10:33 -0400
-Received: from mail2.genealogia.fi ([194.100.116.229]:54462 "EHLO
-	mail2.genealogia.fi") by vger.kernel.org with ESMTP id S932189AbWJATKc
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Oct 2006 15:10:32 -0400
-Date: Sun, 1 Oct 2006 12:08:52 -0700
-From: Jouni Malinen <jouni.malinen@genealogia.fi>
-To: Alessandro Suardi <alessandro.suardi@gmail.com>
-Cc: jt@hpl.hp.com, "John W. Linville" <linville@tuxdriver.com>,
+	Sun, 1 Oct 2006 15:13:57 -0400
+Received: from gateway-1237.mvista.com ([63.81.120.158]:14645 "EHLO
+	gateway-1237.mvista.com") by vger.kernel.org with ESMTP
+	id S932222AbWJATN4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 Oct 2006 15:13:56 -0400
+Subject: Re: Announce: gcc bogus warning repository
+From: Daniel Walker <dwalker@mvista.com>
+To: Al Viro <viro@ftp.linux.org.uk>
+Cc: Jeff Garzik <jeff@garzik.org>, Andrew Morton <akpm@osdl.org>,
        Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: 2.6.18-git9 wireless fixes break ipw2200 association to AP with WPA
-Message-ID: <20061001190852.GR6121@jm.kir.nu>
-References: <5a4c581d0609291225r4a2cbaacr35e5ef73d69f8718@mail.gmail.com> <20060929202928.GA14000@tuxdriver.com> <5a4c581d0609291340q835571bg9657ac0a68bab20e@mail.gmail.com> <20060929212748.GA10288@bougret.hpl.hp.com> <5a4c581d0609291504r40bc1796q715c5ffa41aa7b1b@mail.gmail.com>
+In-Reply-To: <20061001190740.GC29920@ftp.linux.org.uk>
+References: <451FC657.6090603@garzik.org>
+	 <1159717214.24767.3.camel@c-67-180-230-165.hsd1.ca.comcast.net>
+	 <20061001111226.3e14133f.akpm@osdl.org> <452005E7.5030705@garzik.org>
+	 <1159727188.24767.9.camel@c-67-180-230-165.hsd1.ca.comcast.net>
+	 <45200CC8.2030404@garzik.org>
+	 <1159729113.24767.14.camel@c-67-180-230-165.hsd1.ca.comcast.net>
+	 <20061001190034.GB29920@ftp.linux.org.uk>
+	 <1159729390.24767.16.camel@c-67-180-230-165.hsd1.ca.comcast.net>
+	 <20061001190740.GC29920@ftp.linux.org.uk>
+Content-Type: text/plain
+Date: Sun, 01 Oct 2006 12:13:54 -0700
+Message-Id: <1159730035.24767.22.camel@c-67-180-230-165.hsd1.ca.comcast.net>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <5a4c581d0609291504r40bc1796q715c5ffa41aa7b1b@mail.gmail.com>
-User-Agent: Mutt/1.5.11
-X-Spam-Score: -2.4 (--)
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Sep 30, 2006 at 12:04:31AM +0200, Alessandro Suardi wrote:
-
-> So I guess there's an actual bug that doesn't depend on the
-> wireless-tools. Or maybe it's wpa_supplicant that has to be
-> upgraded ?
+On Sun, 2006-10-01 at 20:07 +0100, Al Viro wrote:
+> On Sun, Oct 01, 2006 at 12:03:10PM -0700, Daniel Walker wrote:
+> > > And that's better than the current situation in which respects, exactly?
+> > 
+> > Seeing the warnings is the current situation.
 > 
-> [asuardi@sandman ~]$ rpm -q wpa_supplicant
-> wpa_supplicant-0.4.8-10.fc5
+> I bow to your incredible power of observation.  Now that you've shared
+> that revelation with the list, could you explain what does blanket silencing
+> of these warnings buy you, oh wan^H^Hise one?
 
-2006-05-06 - v0.4.9
- * driver_wext: added support for WE-21 change to SSID configuration
+Did you see me silencing anything (with your crystal ball?) ? Cause I'm
+not.
 
-I.e., not really a "bug", but an unfortunate result of making WLAN
-drivers use one part of WE consistently..
+Daniel
 
--- 
-Jouni Malinen                                            PGP id EFC895FA

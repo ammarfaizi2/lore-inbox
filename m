@@ -1,107 +1,123 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932435AbWJAWJq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932454AbWJAW4c@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932435AbWJAWJq (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Oct 2006 18:09:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932433AbWJAWJq
+	id S932454AbWJAW4c (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Oct 2006 18:56:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932456AbWJAW4c
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Oct 2006 18:09:46 -0400
-Received: from khc.piap.pl ([195.187.100.11]:15552 "EHLO khc.piap.pl")
-	by vger.kernel.org with ESMTP id S932435AbWJAWJp (ORCPT
+	Sun, 1 Oct 2006 18:56:32 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:60890 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932454AbWJAW4b (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Oct 2006 18:09:45 -0400
-To: Ben Greear <greearb@candelatech.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Question on HDLC and raw access to T1/E1 serial streams.
-References: <451DC75E.4070403@candelatech.com>
-	<m3mz8hntqu.fsf@defiant.localdomain> <451EE973.10907@candelatech.com>
-	<m3hcyo2qvs.fsf@defiant.localdomain>
-	<45200BD7.6030509@candelatech.com>
-From: Krzysztof Halasa <khc@pm.waw.pl>
-Date: Mon, 02 Oct 2006 00:09:41 +0200
-In-Reply-To: <45200BD7.6030509@candelatech.com> (Ben Greear's message of "Sun, 01 Oct 2006 11:41:27 -0700")
-Message-ID: <m3zmcf8z8a.fsf@defiant.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 1 Oct 2006 18:56:31 -0400
+Date: Sun, 1 Oct 2006 15:56:08 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: ashwin.chaugule@celunite.com
+Cc: linux-kernel@vger.kernel.org, Rik van Riel <riel@redhat.com>,
+       Peter Zijlstra <a.p.zijlstra@chello.nl>
+Subject: Re: [RFC][PATCH 0/2] Swap token re-tuned
+Message-Id: <20061001155608.0a464d4c.akpm@osdl.org>
+In-Reply-To: <1159555312.2141.13.camel@localhost.localdomain>
+References: <1159555312.2141.13.camel@localhost.localdomain>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ben Greear <greearb@candelatech.com> writes:
+On Sat, 30 Sep 2006 00:11:51 +0530
+Ashwin Chaugule <ashwin.chaugule@celunite.com> wrote:
 
-> My assumption for bridging a bitstream is that timeslot sync is not
-> absolutely critical.  However, IF
-> you could be sure of time-slot sync, you'd  have a lot more power and
-> be able to do some extra ticks
-> in user-space I think...
+> 
+> Hi, 
+> Here's a brief up on the next two mails. 
 
-Not sure what do you want to do with that, but it may be critical for
-many things.
+When preparing patches, please give each one's email a different and
+meaningful Subject:, and try to put the description of the patch within the
+email which  contains that patch, thanks.
 
-> The key for me is that if you ever miss a slot in bit-stream mode, you
-> can never make it up because
-> every bit is critical.
+> PATCH 1: 
+> 
+> In the current implementation of swap token tuning, grab swap token is
+> made from : 
+> 1) after page_cache_read (filemap.c) and 
+> 2) after the readahead logic in do_swap_page (memory.c) 
+> 
+> IMO, the contention for the swap token should happen _before_ the
+> aforementioned calls, because in the event of low system memory, calls
+> to freeup space will be made later from page_cache_read and
+> read_swap_cache_async , so we want to avoid "false LRU" pages by
+> grabbing the token before the VM starts searching for replacement
+> candidates. 
 
-I think you'd have to perform some recover procedure then, that's similar
-to DCE losing sync.
+Seems sane.
 
->  This leads to having to drop arbitrary data to
-> keep from ever-increasing latency on your
-> bridge.
+> PATCH 2: 
+> 
+> Instead of using TIMEOUT as a parameter to transfer the token, I think a
+> better solution is to hand it over to a process that proves its
+> eligibilty. 
+> 
+> What my scheme does, is to find out how frequently a process is calling
+> these functions. The processes that call these more frequently get a
+> higher priority. 
+> The idea is to guarantee that a high priority process gets the token.
+> The priority of a process is determined by the number of consecutive
+> calls to swap-in and no-page. I mean "consecutive" not from the
+> scheduler point of view, but from the process point of view. In other
+> words, if the task called these functions every time it was scheduled,
+> it means it is not getting any further with its execution. 
+> 
+> This way, its a matter of simple comparison of task priorities, to
+> decide whether to transfer the token or not. 
 
-If your clocks are synchronized (for example, if you get a "master"
-clock from your public phone exchange and you propagate it downstream,
-or your machine is the "master") then you never drop anything, the
-input and output rates are equal and in sync.
+Does this introduce the possibility of starvation?  Where the
+fast-allocating process hogs the system and everything else makes no
+progress?
 
->  With HDLC, you can skip the flags and make up time if you
-> ever miss a timeslot (assuming the
-> HDLC is not using the line at 100% capacity.)
 
-Sure. Even at 100% you can just drop a frame, HDLC applications must
-be prepared for it.
+> I did some testing with the two patches combined and the results are as
+> follows: 
+> 
+> Current Upstream implementation: 
+> =============================== 
+> 
+> root@ashbert:~/crap# time ./qsbench -n 9000000 -p 3 -s 1420300 
+> seed = 1420300 
+> seed = 1420300 
+> seed = 1420300 
+> 
+> real    3m40.124s 
+> user    0m12.060s 
+> sys     0m0.940s 
+> 
+> 
+> -------------reboot----------------- 
+> 
+> With my implementation : 
+> ======================== 
+> 
+> root@ashbert:~/crap# time ./qsbench -n 9000000 -p 3 -s 1420300 
+> seed = 1420300 
+> seed = 1420300 
+> seed = 1420300 
+> 
+> real    2m58.708s 
+> user    0m11.880s 
+> sys     0m1.070s 
+> 
 
-> I'd be happy with a software approach.  In fact, if I could get a
-> framed packet (ie, I know that
-> byte 0 is channel 1, byte 24 is channel 24, and byte 25 is channel 1
-> again...) then I could even
-> do the multiplexing in user space.
+qsbench gives quite unstable results in my experience.  How stable is the
+above result (say, average across ten runs?)
 
-Well, with software framing it would look a bit different - there
-is no such thing as "packet" as both TX and RX is continuous, not
-aligned to anything etc. You would have to detect channel boundaries,
-and bit-shift the data. Requires the sync serial controller (and FALC)
-in transparent mode (I would have to look at some docs). I think
-the kernel is a better place for things like that due to latency
-issues.
+It's quite easy to make changes in this area which speed qsbench up with
+one set of arguments, and which slow it down with a different set.  Did you
+try mixing the tests up a bit?
 
-> For write, I'd also need to be able to guarantee that byte 0 goes to
-> channel 1, etc.  So, if the
-> driver bit-stuffed, then it would need to do an entire time-slice at once.
+Also, qsbench isn't really a very good test for swap-intensive workloads -
+it's re-referencing and locality patterns seem fairly artificial.
 
-BTW: An HDLC frame can use many slices. You can in fact have many
-HDLC frames (from different streams) multiplexed. You just need
-a multi-stream device or a multiplexer.
+Another workload which it would be useful to benchmark is a kernel compile
+- say, boot with `mem=16M' and time `make -j4 vmlinux' (numbers may need
+tuning).
 
->>> *  Configure entire T1 as HDLC transport, bridge HDLC frames from one
->>> T1 to the other.
-> Excellent.  I actually want to write the bridge logic myself in
-> user-space..I just need the driver
-> API and at least one driver that supports it and has support for
-> readily available T1/E1 hardware.
-
-If you want the userspace HDLC bridge... I'd use a pair of T1/E1 cards
-with generic HDLC support, for example, Cyclades PC300 (never used them
-and while I don't exactly like their driver, in case of problems I could
-add T1/E1 to my own driver which currently supports PC300 X.21 and
-V.24/V.35).
-
-Once T1/E1s are working and the required slots are selected:
-sethdlc hdlc0 hdlc (options)
-sethdlc hdlc1 hdlc (options)
-ifconfig hdlc0 up
-ifconfig hdlc1 up
-man PF_PACKET
-
-A single HDLC stream is a simple thing because it's exactly what
-the cards are designed for.
--- 
-Krzysztof Halasa

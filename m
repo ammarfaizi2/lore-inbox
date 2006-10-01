@@ -1,79 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932299AbWJAUQo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932306AbWJAURz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932299AbWJAUQo (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Oct 2006 16:16:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932301AbWJAUQo
+	id S932306AbWJAURz (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Oct 2006 16:17:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932303AbWJAURz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Oct 2006 16:16:44 -0400
-Received: from smtp1.pacifier.net ([64.255.237.171]:13285 "EHLO
-	smtp1.pacifier.net") by vger.kernel.org with ESMTP id S932299AbWJAUQn
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Oct 2006 16:16:43 -0400
-Message-ID: <452021F4.79081F8F@e-z.net>
-Date: Sun, 01 Oct 2006 13:15:49 -0700
-From: "Steven J. Hathaway" <shathawa@e-z.net>
-X-Mailer: Mozilla 4.7 [en] (X11; I; Linux 2.2.17 i586)
-X-Accept-Language: en
+	Sun, 1 Oct 2006 16:17:55 -0400
+Received: from palinux.external.hp.com ([192.25.206.14]:22149 "EHLO
+	mail.parisc-linux.org") by vger.kernel.org with ESMTP
+	id S932301AbWJAURy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 Oct 2006 16:17:54 -0400
+Date: Sun, 1 Oct 2006 14:17:53 -0600
+From: Matthew Wilcox <matthew@wil.cx>
+To: James Bottomley <James.Bottomley@SteelEye.com>
+Cc: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] async scsi scanning, version 13
+Message-ID: <20061001201753.GG16272@parisc-linux.org>
+References: <20060928211920.GI5017@parisc-linux.org> <1159732857.3542.5.camel@mulgrave.il.steeleye.com>
 MIME-Version: 1.0
-To: andre@linux-ide.org, linux-kernel@vger.kernel.org, axboe@suse.de
-Subject: Add "SAMSUNG CD-ROM SC-140" to ide-dma blacklist
-Content-Type: multipart/mixed;
- boundary="------------43E602F95EB7DAFC4B546471"
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1159732857.3542.5.camel@mulgrave.il.steeleye.com>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-This is a multi-part message in MIME format.
---------------43E602F95EB7DAFC4B546471
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+On Sun, Oct 01, 2006 at 03:00:57PM -0500, James Bottomley wrote:
+> OK, my plan for this is to place it in SCSI misc as soon as we get
+> 2.6.19-rc1.  That way we'll give it a thorough check out in -mm before
+> it hits mainline.
+> 
+> By the way, a global change log (rather than changes relative to
+> previous versions) would be appreciated.
 
-MS-Windows sees the CD-ROM ok.
-Linux V 2.4.21 and earlier see the CD-ROM ok.
-Linux V 2.4.24 and later fail to find a CD-ROM file system.
-The major ide code changed since 2.4.21.  I have since
-required the following patch in order for the kernel to
-see the CDROM.   Enclosed is a context diff patch file.
+Certainly ...
 
-The problem appeared when I was trying to install a Slackware
-distribution.
-The bootstrap would load the kernel and initrd structure, but the
-kernel,
-once gaining control, would register file system errors when accessing
-the disk drive.  Seeing other related SAMSUNG CD-ROM drivers in the
-ide-dma.c blacklist, and adding my SAMSUNG CD-ROM device to the
-same blacklist, and rebuilding a kernel, the problem has been overcome.
+Add ability to scan scsi busses asynchronously
 
-Sincerely,
-Steven J. Hathaway
+Since it often takes around 20-30 seconds to scan a scsi bus, it's
+highly advantageous to do this in parallel with other things.  The bulk
+of this patch is ensuring that devices don't change numbering, and that
+all devices are discovered prior to trying to start init.  For those
+who build SCSI as modules, there's a new scsi_wait_scan module that will
+ensure all bus scans are finished.
 
+This patch only handles drivers which call scsi_scan_host.  Fibre Channel,
+SAS, SATA, USB and Firewire all need additional work.
 
-
---------------43E602F95EB7DAFC4B546471
-Content-Type: text/plain; charset=us-ascii;
- name="ide-dma.c-patch-samsung-cdr"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline;
- filename="ide-dma.c-patch-samsung-cdr"
-
-KERNEL Version 2.4.32
-The "SAMSUNG CD-ROM SC-140" needs to be added to the dma blacklist.
-I have had to make this patch since about Version 2.4.23 to accommodate
-a major code change in ide-dma structure.  Here is the context diff.
-
-Sincerely:  Steven J.Hathaway, <shathawa@e-z.net>
-
-*** drivers/ide/ide-dma.c-org	2006-10-01 12:31:17.000000000 -0700
---- drivers/ide/ide-dma.c	2006-10-01 12:33:20.000000000 -0700
-***************
-*** 137,142 ****
---- 137,143 ----
-  	{ "CD-ROM Drive/F5A",	"ALL"		},
-  	{ "RICOH CD-R/RW MP7083A",	"ALL"		},
-  	{ "WPI CDD-820",		"ALL"		},
-+ 	{ "SAMSUNG CD-ROM SC-140",	"ALL"		},
-  	{ "SAMSUNG CD-ROM SC-148C",	"ALL"		},
-  	{ "SAMSUNG CD-ROM SC-148F",	"ALL"		},
-  	{ "SAMSUNG CD-ROM SC",	"ALL"		},
-
---------------43E602F95EB7DAFC4B546471--
+Signed-off-by: Matthew Wilcox <matthew@wil.cx>
 

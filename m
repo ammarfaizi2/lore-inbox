@@ -1,112 +1,100 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751818AbWJADmT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751839AbWJADrp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751818AbWJADmT (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Sep 2006 23:42:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751824AbWJADmT
+	id S1751839AbWJADrp (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Sep 2006 23:47:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751848AbWJADrp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Sep 2006 23:42:19 -0400
-Received: from tomts40-srv.bellnexxia.net ([209.226.175.97]:18650 "EHLO
-	tomts40-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id S1751818AbWJADmS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Sep 2006 23:42:18 -0400
-Date: Sat, 30 Sep 2006 23:42:12 -0400
-From: Mathieu Desnoyers <compudj@krystal.dyndns.org>
-To: Nicholas Miell <nmiell@comcast.net>
-Cc: Martin Bligh <mbligh@google.com>, "Frank Ch. Eigler" <fche@redhat.com>,
-       Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>, prasanna@in.ibm.com,
-       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-       Paul Mundt <lethal@linux-sh.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>, Jes Sorensen <jes@sgi.com>,
-       Tom Zanussi <zanussi@us.ibm.com>,
-       Richard J Moore <richardj_moore@uk.ibm.com>,
-       Michel Dagenais <michel.dagenais@polymtl.ca>,
-       Christoph Hellwig <hch@infradead.org>,
-       Greg Kroah-Hartman <gregkh@suse.de>,
-       Thomas Gleixner <tglx@linutronix.de>, William Cohen <wcohen@redhat.com>,
-       ltt-dev@shafik.org, systemtap@sources.redhat.com,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Jeremy Fitzhardinge <jeremy@goop.org>,
-       Karim Yaghmour <karim@opersys.com>, Pavel Machek <pavel@suse.cz>,
-       Joe Perches <joe@perches.com>, "Randy.Dunlap" <rdunlap@xenotime.net>,
-       "Jose R. Santos" <jrs@us.ibm.com>
-Subject: Re: Performance analysis of Linux Kernel Markers 0.20 for 2.6.17
-Message-ID: <20061001034212.GB13527@Krystal>
-References: <20060930180157.GA25761@Krystal> <1159642933.2355.1.camel@entropy>
+	Sat, 30 Sep 2006 23:47:45 -0400
+Received: from xenotime.net ([66.160.160.81]:28834 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1751839AbWJADrn (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Sep 2006 23:47:43 -0400
+Date: Sat, 30 Sep 2006 20:48:30 -0700
+From: Randy Dunlap <rdunlap@xenotime.net>
+To: lkml <linux-kernel@vger.kernel.org>
+Cc: akpm <akpm@osdl.org>
+Subject: [PATCH] kernel-doc for kernel/dma.c
+Message-Id: <20060930204830.2fe2a4cc.rdunlap@xenotime.net>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-In-Reply-To: <1159642933.2355.1.camel@entropy>
-X-Editor: vi
-X-Info: http://krystal.dyndns.org:8080
-X-Operating-System: Linux/2.4.32-grsec (i686)
-X-Uptime: 23:31:55 up 39 days, 40 min,  1 user,  load average: 0.24, 0.21, 0.20
-User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-* Nicholas Miell (nmiell@comcast.net) wrote:
-> On Sat, 2006-09-30 at 14:01 -0400, Mathieu Desnoyers wrote:
-> > Hi,
-> > 
-> > Following the huge discussion thread about tracing/static vs dynamic
-> > instrumentation/markers, a consensus seems to emerge about the need for a
-> > marker system in the Linux kernel. The main issues this mechanism addresses are:
-> > 
-> > - Identify code important to runtime data collection/analysis tools in tree so
-> >   that it follows the code changes naturally.
-> > - Be visually appealing to kernel developers.
-> > - Have a very low impact on the system performance.
-> > - Integrate in the standard kernel infrastructure : use C and loadable modules.
-> > 
-> > The time has come for some performance measurements of the Linux Kernel Markers,
-> > which follows. I attach a PDF with tables and charts which condense these
-> > results.
-> 
-> Has anyone done any performance measurements with the "regular function
-> call replaced by a NOP" type of marker?
-> 
+From: Randy Dunlap <rdunlap@xenotime.net>
 
-Here it is (on the same setup as the other tests : Pentium 4, 3 GHz) :
+Add kernel-doc function headers in kernel/dma.c and use it in DocBook.
 
-* Execute an empty loop
+Clean up kernel-doc in mca_dma.h (the colon (':') represents a
+section header).
 
-- Without marker
-NR_LOOPS : 10000000
-time delta (cycles): 15026497
-cycles per loop : 1.50
+Signed-off-by: Randy Dunlap <rdunlap@xenotime.net>
+---
+ Documentation/DocBook/kernel-api.tmpl |    4 ++++
+ include/asm-i386/mca_dma.h            |    3 +--
+ kernel/dma.c                          |   10 +++++++++-
+ 3 files changed, 14 insertions(+), 3 deletions(-)
 
-- With 5 NOPs
-NR_LOOPS : 100000
-time delta (cycles): 300157
-cycles per loop : 3.00
-added cycles per loop for nops : 3.00-1.50 = 1.50
+--- linux-2618-g12.orig/include/asm-i386/mca_dma.h
++++ linux-2618-g12/include/asm-i386/mca_dma.h
+@@ -181,7 +181,7 @@ static __inline__ void mca_set_dma_io(un
+  *	@mode: mode to set
+  *
+  *	The DMA controller supports several modes. The mode values you can
+- *	set are :
++ *	set are-
+  *
+  *	%MCA_DMA_MODE_READ when reading from the DMA device.
+  *
+@@ -190,7 +190,6 @@ static __inline__ void mca_set_dma_io(un
+  *	%MCA_DMA_MODE_IO to do DMA to or from an I/O port.
+  *
+  *	%MCA_DMA_MODE_16 to do 16bit transfers.
+- *
+  */
+ 
+ static __inline__ void mca_set_dma_mode(unsigned int dmanr, unsigned int mode)
+--- linux-2618-g12.orig/kernel/dma.c
++++ linux-2618-g12/kernel/dma.c
+@@ -62,6 +62,11 @@ static struct dma_chan dma_chan_busy[MAX
+ };
+ 
+ 
++/**
++ * request_dma - request and reserve a system DMA channel
++ * @dmanr: DMA channel number
++ * @device_id: reserving device ID string, used in /proc/dma
++ */
+ int request_dma(unsigned int dmanr, const char * device_id)
+ {
+ 	if (dmanr >= MAX_DMA_CHANNELS)
+@@ -76,7 +81,10 @@ int request_dma(unsigned int dmanr, cons
+ 	return 0;
+ } /* request_dma */
+ 
+-
++/**
++ * free_dma - free a reserved system DMA channel
++ * @dmanr: DMA channel number
++ */
+ void free_dma(unsigned int dmanr)
+ {
+ 	if (dmanr >= MAX_DMA_CHANNELS) {
+--- linux-2618-g12.orig/Documentation/DocBook/kernel-api.tmpl
++++ linux-2618-g12/Documentation/DocBook/kernel-api.tmpl
+@@ -325,6 +325,10 @@ X!Ekernel/module.c
+ !Ekernel/irq/manage.c
+      </sect1>
+ 
++     <sect1><title>DMA Channels</title>
++!Ekernel/dma.c
++     </sect1>
++
+      <sect1><title>Resources Management</title>
+ !Ikernel/resource.c
+      </sect1>
 
 
-* Execute a loop of memcpy 4096 bytes
-
-- Without marker
-NR_LOOPS : 10000
-time delta (cycles): 12981555
-cycles per loop : 1298.16
-
-- With 5 NOPs
-NR_LOOPS : 10000
-time delta (cycles): 12983925
-cycles per loop : 1298.39
-added cycles per loop for nops : 0.23
-
-
-If we compare this approach to the jump-over-call markers (in cycles per loop) :
-
-              NOPs    Jump over call generic    Jump over call optimized
-empty loop    1.50    1.17                      2.50 
-memcpy        0.23    2.12                      0.07
-
-
-
-Mathieu
-
-
-OpenPGP public key:              http://krystal.dyndns.org:8080/key/compudj.gpg
-Key fingerprint:     8CD5 52C3 8E3C 4140 715F  BA06 3F25 A8FE 3BAE 9A68 
+---

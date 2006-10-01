@@ -1,56 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932148AbWJASEs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932144AbWJASEe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932148AbWJASEs (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Oct 2006 14:04:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932153AbWJASEr
+	id S932144AbWJASEe (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Oct 2006 14:04:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932148AbWJASEe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Oct 2006 14:04:47 -0400
-Received: from py-out-1112.google.com ([64.233.166.182]:49693 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S932148AbWJASEp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Oct 2006 14:04:45 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=rEL7WrBaDPY7iQBshx0bsSyb4Y+w1NcwEGqSWQ4M3iZPXCml3LXtuxdHF+5b9k9gaTpGYHwidHi191aQqXeW0Cs0qA52dsHKiLWsAJxU4n57bqeMDdf38Wo5+2qNWko9OK3Q0rcmLmUyukdUjcPFqXLk1InmnEA+A5iqaqygdJc=
-Message-ID: <653402b90610011104v33fbb2b5ue876bc7e1bdd1e10@mail.gmail.com>
-Date: Sun, 1 Oct 2006 20:04:44 +0200
-From: "Miguel Ojeda" <maxextreme@gmail.com>
-To: "Stefan Richter" <stefanr@s5r6.in-berlin.de>
-Subject: Re: [PATCH 2.6.18 V6] drivers: add lcd display support
-Cc: "Randy Dunlap" <rdunlap@xenotime.net>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-In-Reply-To: <451FFEE9.8080705@s5r6.in-berlin.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Sun, 1 Oct 2006 14:04:34 -0400
+Received: from brick.kernel.dk ([62.242.22.158]:30521 "EHLO kernel.dk")
+	by vger.kernel.org with ESMTP id S932144AbWJASEe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 Oct 2006 14:04:34 -0400
+Date: Sun, 1 Oct 2006 20:03:58 +0200
+From: Jens Axboe <axboe@kernel.dk>
+To: Peter Zijlstra <a.p.zijlstra@chello.nl>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       Ingo Molnar <mingo@elte.hu>, Arjan van de Ven <arjan@infradead.org>,
+       "James E.J. Bottomley" <James.Bottomley@SteelEye.com>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Russell King <rmk@arm.linux.org.uk>
+Subject: Re: [PATCH] completions: lockdep annotate on stack completions
+Message-ID: <20061001180357.GO5670@kernel.dk>
+References: <1159437164.28131.48.camel@taijtu>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <20060930132253.8ccaa0ad.maxextreme@gmail.com>
-	 <20060930123547.d055383f.rdunlap@xenotime.net>
-	 <451EE36C.5080002@s5r6.in-berlin.de>
-	 <20060930144830.eba63268.rdunlap@xenotime.net>
-	 <653402b90609301545y2d4f162dq824ac360149fc0a7@mail.gmail.com>
-	 <20060930155250.8cae208b.rdunlap@xenotime.net>
-	 <451F7A59.4020803@s5r6.in-berlin.de>
-	 <20061001094053.5d55bf06.rdunlap@xenotime.net>
-	 <451FFEE9.8080705@s5r6.in-berlin.de>
+In-Reply-To: <1159437164.28131.48.camel@taijtu>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/1/06, Stefan Richter <stefanr@s5r6.in-berlin.de> wrote:
->
-> Nor does anybody say or write AT machine. A web search finds 15 times
-> more occurrences of "LC-Display" on German pages than of "LC display" on
-> English pages. So it seams my suggestion of "LC display" is a bad one
-> for usage outside of Germany. BTW, "LCD-Display" is doubly as often
-> found on German web pages than "LC-Display" on German pages, and I'm not
-> surprised.
->
+On Thu, Sep 28 2006, Peter Zijlstra wrote:
+> 
+> All on stack DECLARE_COMPLETIONs should be replaced by:
+>   DECLARE_COMPLETION_ONSTACK
+> 
+> Signed-off-by: Peter Zijlstra <a.p.zijlstra@chello.nl>
+> Acked-by: Ingo Molnar <mingo@elte.hu>
 
-Searching Google for "pantalla LCD" you can find 1.590.000 pages.
+Looks good to me.
 
-And it is wrong ;-)
+-- 
+Jens Axboe
 
-
-(Please continue the discussion the same "thread" (V7) as it is the
-last version of the patch I sent.)

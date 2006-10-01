@@ -1,64 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751255AbWJAQlF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751188AbWJAQmR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751255AbWJAQlF (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Oct 2006 12:41:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751260AbWJAQlF
+	id S1751188AbWJAQmR (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Oct 2006 12:42:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751234AbWJAQmR
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Oct 2006 12:41:05 -0400
-Received: from x35.xmailserver.org ([69.30.125.51]:60310 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP
-	id S1751255AbWJAQlC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Oct 2006 12:41:02 -0400
-X-AuthUser: davidel@xmailserver.org
-Date: Sun, 1 Oct 2006 09:41:00 -0700 (PDT)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@alien.or.mcafeemobile.com
-To: Jeff Garzik <jeff@garzik.org>
-cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] fs/eventpoll: error handling micro-cleanup
-In-Reply-To: <451FED1C.60900@garzik.org>
-Message-ID: <Pine.LNX.4.64.0610010934300.21285@alien.or.mcafeemobile.com>
-References: <20061001124352.GA30263@havoc.gtf.org>
- <Pine.LNX.4.64.0610010900540.21285@alien.or.mcafeemobile.com>
- <451FE7E3.4050503@garzik.org> <Pine.LNX.4.64.0610010911231.21285@alien.or.mcafeemobile.com>
- <451FED1C.60900@garzik.org>
-X-GPG-FINGRPRINT: CFAE 5BEE FD36 F65E E640  56FE 0974 BF23 270F 474E
-X-GPG-PUBLIC_KEY: http://www.xmailserver.org/davidel.asc
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 1 Oct 2006 12:42:17 -0400
+Received: from xenotime.net ([66.160.160.81]:63678 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1751188AbWJAQmQ (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 Oct 2006 12:42:16 -0400
+Date: Sun, 1 Oct 2006 09:43:42 -0700
+From: Randy Dunlap <rdunlap@xenotime.net>
+To: Valdis.Kletnieks@vt.edu
+Cc: Stefan Richter <stefanr@s5r6.in-berlin.de>,
+       Miguel Ojeda <maxextreme@gmail.com>, akpm@osdl.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.18 V7] drivers: add lcd display support
+Message-Id: <20061001094342.55a331d1.rdunlap@xenotime.net>
+In-Reply-To: <200610011605.k91G5wJD031632@turing-police.cc.vt.edu>
+References: <20060930232445.59e8adf6.maxextreme@gmail.com>
+	<653402b90610010553p23819d2bsd7a07fabaee7ecf3@mail.gmail.com>
+	<451FC7DC.7070909@s5r6.in-berlin.de>
+	<200610011605.k91G5wJD031632@turing-police.cc.vt.edu>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 1 Oct 2006, Jeff Garzik wrote:
+On Sun, 01 Oct 2006 12:05:58 -0400 Valdis.Kletnieks@vt.edu wrote:
 
-> Davide Libenzi wrote:
+> On Sun, 01 Oct 2006 15:51:24 +0200, Stefan Richter said:
 > 
-> > I just tried a `find /usr/src/linux-2.6.16/ -type f -exec grep -H -C 2
-> > PTR_ERR {} \;`
-> > and looked at the cases where the error variable is assigned in any case
-> > before the test. Same code pattern as, like:
-> > 
-> > error = -EFAULT;
-> > if (copy_from_user(...))
-> > 	goto kaboom;
+> > I am not sure which looks prettiest. But I know that "LCD display" looks
+> > really bad to everybody who knows what the D stands for. :-)
 > 
-> No, that's quite different.  I'm talking about
-> 
-> 	ptr = get_a_pointer_from_somewhere()
-> 	error = PTR_ERR(ptr)
-> 
-> See the difference?  The error variable is directly assigned from a
-> potentially-valid pointer.
+> Maybe I'm confused, but doesn't the D stand for *DIODE*?
 
-So? Is PTR_ERR() defined and documented in a way that, if called with a 
-valid pointer, has an unexpected/faulty behaviour?
-Again, I don't care either ways, but don't tell me you're not sure about 
-the countless occurrences. Take a look at:
+not that wikipedia or I know of.
 
-`find $LINUXSRC -type f -exec grep -H -C 2 PTR_ERR {} \;`
-
-
-
-- Davide
-
-
+---
+~Randy

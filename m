@@ -1,52 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751263AbWJARCb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751302AbWJARGZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751263AbWJARCb (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Oct 2006 13:02:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751291AbWJARCb
+	id S1751302AbWJARGZ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Oct 2006 13:06:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751304AbWJARGZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Oct 2006 13:02:31 -0400
-Received: from chen.mtu.ru ([195.34.34.232]:30724 "EHLO chen.mtu.ru")
-	by vger.kernel.org with ESMTP id S1751263AbWJARCb (ORCPT
+	Sun, 1 Oct 2006 13:06:25 -0400
+Received: from xenotime.net ([66.160.160.81]:1498 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1751302AbWJARGY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Oct 2006 13:02:31 -0400
-From: Andrey Borzenkov <arvidjaar@mail.ru>
-Subject: Re: [patch 1/2] libata: _GTF support
-To: Kristen Carlson Accardi <kristen.c.accardi@intel.com>,
-       linux-kernel@vger.kernel.org
-Date: Sun, 01 Oct 2006 21:02:21 +0400
-References: <20060928182211.076258000@localhost.localdomain> <20060928112901.62ee8eba.kristen.c.accardi@intel.com>
-User-Agent: KNode/0.10.4
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7Bit
-Message-Id: <20061001170216.34F3F54C4EC@chen.mtu.ru>
+	Sun, 1 Oct 2006 13:06:24 -0400
+Date: Sun, 1 Oct 2006 10:07:47 -0700
+From: Randy Dunlap <rdunlap@xenotime.net>
+To: Jeff Garzik <jeff@garzik.org>
+Cc: Linux Kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+Subject: Re: Announce: gcc bogus warning repository
+Message-Id: <20061001100747.d1842273.rdunlap@xenotime.net>
+In-Reply-To: <451FC657.6090603@garzik.org>
+References: <451FC657.6090603@garzik.org>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Kristen Carlson Accardi wrote:
+On Sun, 01 Oct 2006 09:44:55 -0400 Jeff Garzik wrote:
 
-> _GTF is an acpi method that is used to reinitialize the drive.  It returns
-> a task file containing ata commands that are sent back to the drive to
-> restore it to boot up defaults.
 > 
-[...]
-> @@ -1597,6 +1601,9 @@ int ata_bus_probe(struct ata_port *ap)
->  /* reset and determine device classes */
->  ap->ops->phy_reset(ap);
->  
-> +     /* retrieve and execute the ATA task file of _GTF */
-> +     ata_acpi_exec_tfs(ap);
-> +
->  for (i = 0; i < ATA_MAX_DEVICES; i++) {
->  dev = &ap->device[i];
->
+> The level of warnings in a kernel build has lately increased to the 
+> point where it is hiding bugs and otherwise making life difficult.
+> 
+> In particular, recent gcc versions throw warnings when it thinks a 
+> variable "MAY be used uninitialized", which is not terribly helpful due 
+> to the fact that most of these warnings are bogus.
+> 
+> For those that may find this valuable, I have started a git repo that 
+> silences these bogus warnings, after careful auditing of code paths to 
+> ensure that the warning truly is bogus.
+> 
+> The results may be found in the "gccbug" branch of
+> git://git.kernel.org/pub/scm/linux/kernel/git/jgarzik/misc-2.6.git
+> 
+> This repository will NEVER EVER be pushed upstream.  It exists solely 
+> for those who want to decrease their build noise, thereby exposing true 
+> bugs.
+> 
+> The audit has already uncovered several minor bugs, lending credence to 
+> my theory that too many warnings hides bugs.
 
-ata_bus_probe() seems to be called only if driver does not provide own error
-handler? Also would GTF be executed on resume? I hoped it may fix resume
-from RAM problem I have but it looks like this is never executed in my case
-(pata_ali).
+I usually build with must_check etc. enabled then grep them
+away if I want to look for other messages.  I think that the situation
+is not so disastrous.
 
-TIA
-
--andrey
-
+---
+~Randy

@@ -1,73 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752035AbWJAGaV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752037AbWJAGoG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752035AbWJAGaV (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Oct 2006 02:30:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752036AbWJAGaV
+	id S1752037AbWJAGoG (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Oct 2006 02:44:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752038AbWJAGoD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Oct 2006 02:30:21 -0400
-Received: from dp.samba.org ([66.70.73.150]:31902 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S1752035AbWJAGaT (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Oct 2006 02:30:19 -0400
+	Sun, 1 Oct 2006 02:44:03 -0400
+Received: from wx-out-0506.google.com ([66.249.82.227]:62915 "EHLO
+	wx-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1752037AbWJAGoA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 Oct 2006 02:44:00 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:from:to:cc:subject:date:mime-version:content-type:content-transfer-encoding:x-mailer:in-reply-to:x-mimeole:thread-index:message-id;
+        b=A4EWpSHSQp84MYz64hV8ZDcJzPRjn8pxFrSMOOZo8h1a5MOC5Hg1YuCSCcDrumB7v9lWOG9adcxgG2I1E/5lRY9msJNpLpgdpp7EErgvk1+lnn1W60fWSIw3hpUPDFWHoBILXFJh2wZgF6bs0DDvoO1SjvZcdPJk53sn2wvppJs=
+From: "Chris Lee" <labmonkey42@gmail.com>
+To: "'Andrew Morton'" <akpm@osdl.org>
+Cc: <linux-kernel@vger.kernel.org>, "'Ju, Seokmann'" <Seokmann.Ju@lsil.com>,
+       <linux-scsi@vger.kernel.org>, <Neela.Kolli@engenio.com>
+Subject: RE: Problem with legacy megaraid
+Date: Sun, 1 Oct 2006 01:44:04 -0500
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain;
+	charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-Message-ID: <17695.24581.587794.831888@samba.org>
-Date: Sun, 1 Oct 2006 16:28:21 +1000
-To: James Bottomley <James.Bottomley@SteelEye.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: GPLv3 Position Statement
-In-Reply-To: <1159628796.9543.69.camel@mulgrave.il.steeleye.com>
-References: <1159498900.3880.31.camel@mulgrave.il.steeleye.com>
-	<17692.46192.432673.743783@samba.org>
-	<1159515086.3880.79.camel@mulgrave.il.steeleye.com>
-	<17692.57123.749163.204216@samba.org>
-	<1159559443.9543.23.camel@mulgrave.il.steeleye.com>
-	<17694.5933.159694.454938@samba.org>
-	<1159628796.9543.69.camel@mulgrave.il.steeleye.com>
-X-Mailer: VM 7.19 under Emacs 21.4.1
-Reply-To: tridge@samba.org
-From: tridge@samba.org
+X-Mailer: Microsoft Office Outlook, Build 11.0.5510
+In-Reply-To: <20060930230259.497b7bc9.akpm@osdl.org>
+X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2800.1807
+Thread-Index: AcblH0H1o/3Jk+L5TPSSVpEakJV4UwABL70g
+Message-ID: <451f63b0.0b6e62c3.1073.0ffa@mx.gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-James,
+> > > 
+> > > > Distro: Gentoo Linux
+> > > > Kernel: 2.6.17-gentoo-r7
+> > > > 
+> > > > Hardware:
+> > > > Motherboard: Tyan Thunder i7501 Pro (S2721-533)
+> > > > CPUs: Dual 2.8Ghz P4 HT Xeons
+> > > > RAM: 4GB registered (3/1 split, flat model)
+> > > > RAID: Dell PERC2/DC (AMI Megaraid 467)
+> > > > SCSI: Adaptec AHA-2940U2/U2W PCI
+> > > > NICs: onboard e100 and dual onboard e1000
+> > > > 
+> 
+> Did it work correctly under any earlier kernel version?  If 
+> so, which?
 
- > > from. The wording in GPLv2 is:
- > > 
- > >   If you cannot distribute so as to satisfy simultaneously your
- > >   obligations under this License and any other pertinent obligations,
- > >   then as a consequence you may not distribute the Program at all.
- > >   For example, if a patent license would not permit royalty-free
- > >   redistribution of the Program by all those who receive copies
- > >   directly or indirectly through you, then the only way you could
- > >   satisfy both it and this License would be to refrain entirely from
- > >   distribution of the Program.
- > 
- > This means if you try to enforce royalties on a patent in a piece of
- > GPLv2 software, you and everyone else lose the right to distribute it.
- > However, to enforce or license royalty free is an existing choice.  The
- > damage caused by making the programme undistributable is assessable
- > against the value of the patent.
+I've recently built the system and the problem was present with both
+2.6.16-gentoo-r4 and now 2.6.17-gentoo-r7.  I've not used any earlier kernel
+versions in this system.
 
-I think you would have a hard time convincing a judge that "permit
-royalty-free redistribution by all those who receive copies directly
-or indirectly through you" applies only to "right now", and you can
-reserve the right to start charging royalties or other enforcements at
-a later date.
+Thanks,
+Chris  
 
-It doesn't say "right now" or "temporarily". It also talks about
-people who receive it indirectly through you, and doesn't qualify that
-with "as long as they check back with you that you still think its
-OK".
-
-If a company decided down the track to 'monetise' one of their
-patents, and begun by stopping distribution of the GPLv2 program, then
-I suspect that the copyright holders of that program could take action
-against them for having been in breach of the license for the period
-of distribution. What the penalty for that might be is hard to tell
-(it might depend on the jurisdiction and whether the copyright is
-registered with the LOC in places like the US). I could certainly
-imagine circumstances where the penalty is quite substantial.
-
-Cheers, Tridge

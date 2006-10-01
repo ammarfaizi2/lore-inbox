@@ -1,76 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932204AbWJAO2L@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750742AbWJAOkE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932204AbWJAO2L (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Oct 2006 10:28:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932196AbWJAO2K
+	id S1750742AbWJAOkE (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Oct 2006 10:40:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750772AbWJAOkE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Oct 2006 10:28:10 -0400
-Received: from palinux.external.hp.com ([192.25.206.14]:713 "EHLO
-	mail.parisc-linux.org") by vger.kernel.org with ESMTP
-	id S932194AbWJAO2J (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Oct 2006 10:28:09 -0400
-Date: Sun, 1 Oct 2006 08:28:07 -0600
-From: Matthew Wilcox <matthew@wil.cx>
-To: Jeff Garzik <jeff@garzik.org>
-Cc: Frederik Deweerdt <deweerdt@free.fr>, Andrew Morton <akpm@osdl.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       "J.A. Magall??n" <jamagallon@ono.com>,
-       "Linux-Kernel," <linux-kernel@vger.kernel.org>,
-       linux-scsi@vger.kernel.org
-Subject: Re: [-mm patch] aic7xxx: check irq validity (was Re: 2.6.18-mm2)
-Message-ID: <20061001142807.GD16272@parisc-linux.org>
-References: <20060928014623.ccc9b885.akpm@osdl.org> <20060929155738.7076f0c8@werewolf> <20060929143949.GL5017@parisc-linux.org> <1159550143.13029.36.camel@localhost.localdomain> <20060929235054.GB2020@slug> <1159573404.13029.96.camel@localhost.localdomain> <20060930140946.GA1195@slug> <451F049A.1010404@garzik.org>
+	Sun, 1 Oct 2006 10:40:04 -0400
+Received: from nf-out-0910.google.com ([64.233.182.188]:37003 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S1750742AbWJAOkB (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 Oct 2006 10:40:01 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=ecziwsJEKf9DscU1HdHqycQMXJC4uvI9LPIZMbs3+xzmz2p+P50kh0tWbDubjTRakfB/cccHpR0cHobxc9fCRzB4khubWEnApCUhyEm1z14+WKpNcXLFtnN2hFWPgoWRisn05/ld82RTlCoqR+fzKLliNMzvLEWjmRy9FPC3/3U=
+Message-ID: <f4527be0610010740r662f8d8at4dbbf68d1543040f@mail.gmail.com>
+Date: Sun, 1 Oct 2006 15:40:00 +0100
+From: "Andrew Lyon" <andrew.lyon@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: SATA CD/DVDRW Support in 2.6.18?
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <451F049A.1010404@garzik.org>
-User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Sep 30, 2006 at 07:58:18PM -0400, Jeff Garzik wrote:
-> Actually, rather than adding this check to every driver, I would rather 
-> do something like the attached patch:  create a pci_request_irq(), and 
-> pass a struct pci_device to it.  Then the driver author doesn't have to 
-> worry about such details.
+Hi,
 
-I like pci_request_irq(), but pci_valid_irq is bad.
+I have a Samsung SH-W163A SATA CD/DVDRW connected to jmicron
+20360/20363 onboard sata controller, running kernel 2.6.18 with sr_mod
+loaded I can mount recorded/original disks and read them, but if I try
+to burn a cd or dvd using cdrecord, and somtimes when mounting media I
+get loads of errors in dmesg and the burn fails:
 
-> +#ifndef ARCH_VALIDATE_PCI_IRQ
-> +int pci_valid_irq(struct pci_dev *pdev)
-> +{
-> +	if (pdev->irq == 0)
-> +		return -EINVAL;
-> +	
-> +	return 0;
-> +}
-> +EXPORT_SYMBOL(pci_valid_irq);
-> +#endif /* ARCH_VALIDATE_PCI_IRQ */
+ata2.00: speed down requested but no transfer mode left
+ata2.00: exception Emask 0x0 SAct 0x0 SErr 0x0 action 0x2 frozen
+ata2.00: (irq_stat 0x48000000, interface fatal error)
+ata2.00: tag 0 cmd 0xa0 Emask 0x50 stat 0x51 err 0x30 (ATA bus error)
+ata2: soft resetting port
+ata2: SATA link up 1.5 Gbps (SStatus 113 SControl 300)
+ata2.00: configured for PIO0
+ata2: EH complete
+ata2.00: speed down requested but no transfer mode left
+ata2.00: exception Emask 0x0 SAct 0x0 SErr 0x0 action 0x2 frozen
+ata2.00: (irq_stat 0x48000000, interface fatal error)
+ata2.00: tag 0 cmd 0xa0 Emask 0x50 stat 0x51 err 0x30 (ATA bus error)
+ata2: soft resetting port
+ata2: SATA link up 1.5 Gbps (SStatus 113 SControl 300)
+ata2.00: configured for PIO0
+ata2: EH complete
+ata2.00: speed down requested but no transfer mode left
+ata2.00: exception Emask 0x0 SAct 0x0 SErr 0x0 action 0x2 frozen
+ata2.00: (irq_stat 0x48000000, interface fatal error)
 
-Better would be:
 
-#ifndef ARCH_VALIDATE_IRQ
-static inline int valid_irq(unsigned int irq)
-{
-	return irq ? 1 : 0;
-}
-#endif
+It looks like the interface is trying to run at 1.5Gbps which is
+obviously too fast for this drive, is there any way to set the
+interface speed ? I have a WD Raptor on the other sata port of the
+jmicron and that works perfectly (as long as NCQ is disabled - drive
+firmware bug).
 
-in linux/interrupt.h (around request_irq).
+What is the status of sata cd/dvdrw support? It is getting hard to buy
+machines with IDE writers, most of our workstations are dell and have
+only sata devices, we have similar problems with those.
 
-And it doesn't need to be a __must_check.  There's no point -- it has
-no side-effects.  The only reason to call it is if you want the answer
-to the question.  You had the sense of the return code wrong too; you
-want to use it as:
-
-int pci_request_irq(struct pci_dev *pdev, irq_handler_t handler,
-			unsigned long flags, const char *name, void *data)
-{
-	if (!valid_irq(pdev->irq)) {
-		dev_printk(KERN_ERR, &pdev->dev, "invalid irq\n");
-		return -EINVAL;
-	}
-
-	return request_irq(pdev->irq, handler, flags | IRQF_SHARED, name, data);
-}
-
+Andy

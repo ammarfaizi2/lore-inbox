@@ -1,40 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932335AbWJAUdW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932348AbWJAUmH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932335AbWJAUdW (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Oct 2006 16:33:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932336AbWJAUdW
+	id S932348AbWJAUmH (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Oct 2006 16:42:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932352AbWJAUmH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Oct 2006 16:33:22 -0400
-Received: from main.gmane.org ([80.91.229.2]:29079 "EHLO ciao.gmane.org")
-	by vger.kernel.org with ESMTP id S932335AbWJAUdV (ORCPT
+	Sun, 1 Oct 2006 16:42:07 -0400
+Received: from mail.gmx.de ([213.165.64.20]:17804 "HELO mail.gmx.net")
+	by vger.kernel.org with SMTP id S932348AbWJAUmG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Oct 2006 16:33:21 -0400
-X-Injected-Via-Gmane: http://gmane.org/
+	Sun, 1 Oct 2006 16:42:06 -0400
+X-Authenticated: #704063
+Subject: [Patch] Remove unnecessary check in fs/reiserfs/inode.c
+From: Eric Sesterhenn <snakebyte@gmx.de>
 To: linux-kernel@vger.kernel.org
-From: Oleg Verych <olecom@flower.upol.cz>
-Subject: Re: [patch 2.6.18-git] RTC class uses subsys_init
-Date: Sun, 1 Oct 2006 20:32:50 +0000 (UTC)
-Organization: Palacky University in Olomouc, experimental physics department.
-Message-ID: <slrnei09h4.3ik.olecom@deen.upol.cz.local>
-References: <200609282333.34224.david-b@pacbell.net> <20061001090717.GA14885@aepfle.de> <20061001022022.d7f86b39.akpm@osdl.org>
-X-Complaints-To: usenet@sea.gmane.org
-X-Gmane-NNTP-Posting-Host: 158.194.180.30
-User-Agent: slrn/0.9.8.1pl1 (Debian)
+Cc: reiserfs-dev@namesys.com
+Content-Type: text/plain
+Date: Sun, 01 Oct 2006 22:41:57 +0200
+Message-Id: <1159735317.11887.10.camel@alice>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 
+Content-Transfer-Encoding: 7bit
+X-Y-GMX-Trusted: 0
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hallo, Andrew
+hi,
 
-On 2006-10-01, Andrew Morton <akpm@osdl.org> wrote:
->
-> (Wonders how it passed runtime testing..)
+since all callers dereference dir, we dont need this check.
+Coverity id #337.
 
-Somebody is not going to use and test sysfs.
+Signed-off-by: Eric Sesterhenn <snakebyte@gmx.de>
 
-[ start->control panel->device manager->.... ]
-[ /sys/devices/system/...]
+--- linux-2.6.18-git16/fs/reiserfs/inode.c.orig	2006-10-01 22:40:24.000000000 +0200
++++ linux-2.6.18-git16/fs/reiserfs/inode.c	2006-10-01 22:40:35.000000000 +0200
+@@ -1780,7 +1780,7 @@ int reiserfs_new_inode(struct reiserfs_t
+ 		err = -EDQUOT;
+ 		goto out_end_trans;
+ 	}
+-	if (!dir || !dir->i_nlink) {
++	if (!dir->i_nlink) {
+ 		err = -EPERM;
+ 		goto out_bad_inode;
+ 	}
 
-But sorry, i will try to not loosing it next time.
-
---
 

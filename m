@@ -1,333 +1,505 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932465AbWJAXFA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932469AbWJAXGr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932465AbWJAXFA (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Oct 2006 19:05:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932469AbWJAXFA
+	id S932469AbWJAXGr (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Oct 2006 19:06:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932477AbWJAXGq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Oct 2006 19:05:00 -0400
-Received: from www.osadl.org ([213.239.205.134]:49330 "EHLO mail.tglx.de")
-	by vger.kernel.org with ESMTP id S932465AbWJAXE7 (ORCPT
+	Sun, 1 Oct 2006 19:06:46 -0400
+Received: from www.osadl.org ([213.239.205.134]:57778 "EHLO mail.tglx.de")
+	by vger.kernel.org with ESMTP id S932469AbWJAXGo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Oct 2006 19:04:59 -0400
-Message-Id: <20061001225720.115967000@cruncher.tec.linutronix.de>
-Date: Sun, 01 Oct 2006 22:59:01 -0000
+	Sun, 1 Oct 2006 19:06:44 -0400
+Message-Id: <20061001225723.491598000@cruncher.tec.linutronix.de>
+References: <20061001225720.115967000@cruncher.tec.linutronix.de>
+Date: Sun, 01 Oct 2006 23:00:50 -0000
 From: Thomas Gleixner <tglx@linutronix.de>
 To: Andrew Morton <akpm@osdl.org>
 Cc: LKML <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>,
        Jim Gettys <jg@laptop.org>, John Stultz <johnstul@us.ibm.com>,
        David Woodhouse <dwmw2@infradead.org>,
        Arjan van de Ven <arjan@infradead.org>, Dave Jones <davej@redhat.com>
-Subject: [patch 00/21] high resolution timers / dynamic ticks - V2
+Subject: [patch 04/21] time: uninline jiffies.h
+Content-Disposition: inline; filename=uninline-jiffies-h.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew,
-
-the following patch series is an update in response to your review.
-
-Following points have been addressed:
-
-- documentation for the high res / dyntick design 
-
-- documentation for timer_stats
-
-- removal of the patches, which modify timeout behaviour (i8042, slab, timeout
-granularity). Those are definitely worth to investigate further, but they are
-not a fundamental part of the high res / dyntick feature.
-
-- cleanup of enum -> int abuse
-
-- namespace cleanup
-
-- kernel doc fixups
-
-- improved comments all over the place
-
-- pointed out bugs resolved
-
-- mismerge from -mm1 to -mm2 in the clockevents-i386 patch repaired
-
-- rcu hackery removed: This was a leftover from an attempt to enforce the RCU
-updates to be processed on the way to idle rather than waiting for the grace
-period expiry. This is interesting to further reduce the idle wakeups with
-respect to power saving, but is not necessary for the basic functionality of
-the dyntick patch set.
-
-
-We did not address the GTOD patches, as we want to wait for John's input on
-your comments. The persistent clock modifications are useful in two ways:
-
- 1. completely remove manipulation of xtime related variables from the
-    architecture code
- 2. ensure the correct resume ordering
-
-We experiencend resume problems with earlier versions of the high resolution
-timer /dyntick patches and we were able to identify the unordered update as the
-cause. After an initial workaround similar to the current code, John
-resurrected his timeofday-persistant-xxx patch set, which integrates nicely
-with the already merged GTOD functionality.
-
-The series contains two new patches:
-
-#09:	hrtimer-enum-and-namespace-cleanup.patch 
-	(new patch, resolves review issues vs. enums and namespaces)
-
-#13:	time-and-timer-documentation.patch
-	(Move hrtimer.txt to a new directory and add high res / dyntick
-	design notes)
-
-A broken out series and a combined patch are available at the ususal place:
-http://tglx.de/projects/hrtimers/2.6.18-mm2/
-
-The following design notes are also part of patch #13
-
-
-High resolution timers and dynamic ticks design notes
------------------------------------------------------
-
-Further information can be found in the paper of the OLS 2006 talk "hrtimers
-and beyond". The paper is part of the OLS 2006 Proceedings Volume 1, which can
-be found on the OLS website:
-http://www.linuxsymposium.org/2006/linuxsymposium_procv1.pdf
-
-The slides to this talk are available from:
-http://tglx.de/projects/hrtimers/ols2006-hrtimers.pdf
-
-The slides contain five figures (pages 2, 15, 18, 20, 22), which illustrate the
-changes in the time(r) related Linux subsystems. Figure #1 (p. 2) shows the
-design of the Linux time(r) system before hrtimers and other building blocks
-got merged into mainline.
-
-Note: the paper and the slides are talking about "clock event source", while we
-switched to the name "clock event devices" in meantime.
-
-The design contains the following basic building blocks:
-
-- hrtimer base infrastructure
-- timeofday and clock source management
-- clock event management
-- high resolution timer functionality
-- dynamic ticks
-
-
-hrtimer base infrastructure
----------------------------
-
-The hrtimer base infrastructure was merged into the 2.6.16 kernel. Details of
-the base implementation are covered in Documentation/hrtimer/hrtimer.txt. See
-also figure #2 (OLS slides p. 15)
-
-The main differences to the timer wheel, which holds the armed timer_list type
-timers are:
-       - time ordered enqueueing into a rb-tree
-       - independent of ticks (the processing is based on nanoseconds)
-
-
-timeofday and clock source management
--------------------------------------
-
-John Stultz's Generic Time Of Day (GTOD) framework moves a large portion of
-code out of the architecture-specific areas into a generic management
-framework, as illustrated in figure #3 (OLS slides p. 18). The architecture
-specific portion is reduced to the low level hardware details of the clock
-sources, which are registered in the framework and selected on a quality based
-decision. The low level code provides hardware setup and readout routines and
-initializes data structures, which are used by the generic time keeping code to
-convert the clock ticks to nanosecond based time values. All other time keeping
-related functionality is moved into the generic code. The GTOD base patch got
-merged into the 2.6.18 kernel.
-
-Further information about the Generic Time Of Day framework is available in the
-OLS 2005 Proceedings Volume 1:
-http://www.linuxsymposium.org/2005/linuxsymposium_procv1.pdf
-
-The paper "We Are Not Getting Any Younger: A New Approach to Time and
-Timers" was written by J. Stultz, D.V. Hart, & N. Aravamudan.
-
-Figure #3 (OLS slides p.18) illustrates the transformation.
-
-
-clock event management
-----------------------
-
-While clock sources provide read access to the monotonically increasing time
-value, clock event devices are used to schedule the next event
-interrupt(s). The next event is currently defined to be periodic, with its
-period defined at compile time. The setup and selection of the event device
-for various event driven functionalities is hardwired into the architecture
-dependent code. This results in duplicated code across all architectures and
-makes it extremely difficult to change the configuration of the system to use
-event interrupt devices other than those already built into the
-architecture. Another implication of the current design is that it is necessary
-to touch all the architecture-specific implementations in order to provide new
-functionality like high resolution timers or dynamic ticks.
-
-The clock events subsystem tries to address this problem by providing a generic
-solution to manage clock event devices and their usage for the various clock
-event driven kernel functionalities. The goal of the clock event subsystem is
-to minimize the clock event related architecture dependent code to the pure
-hardware related handling and to allow easy addition and utilization of new
-clock event devices. It also minimizes the duplicated code across the
-architectures as it provides generic functionality down to the interrupt
-service handler, which is almost inherently hardware dependent.
-
-Clock event devices are registered either by the architecture dependent boot
-code or at module insertion time. Each clock event device fills a data
-structure with clock-specific property parameters and callback functions. The
-clock event management decides, by using the specified property parameters, the
-set of system functions a clock event device will be used to support. This
-includes the distinction of per-CPU and per-system global event devices.
-
-System-level global event devices are used for the Linux periodic tick. Per-CPU
-event devices are used to provide local CPU functionality such as process
-accounting, profiling, and high resolution timers.
-
-The management layer assignes one or more of the folliwing functions to a clock
-event device:
-      - system global periodic tick (jiffies update)
-      - cpu local update_process_times
-      - cpu local profiling
-      - cpu local next event interrupt (non periodic mode)
-
-The clock event device delegates the selection of those timer interrupt related
-functions completely to the management layer. The clock management layer stores
-a function pointer in the device description structure, which has to be called
-from the hardware level handler. This removes a lot of duplicated code from the
-architecture specific timer interrupt handlers and hands the control over the
-clock event devices and the assignment of timer interrupt related functionality
-to the core code.
-
-The clock event layer API is rather small. Aside from the clock event device
-registration interface it provides functions to schedule the next event
-interrupt, clock event device notification service and support for suspend and
-resume.
-
-The framework adds about 700 lines of code which results in a 2KB increase of
-the kernel binary size. The conversion of i386 removes about 100 lines of
-code. The binary size decrease is in the range of 400 byte. We believe that the
-increase of flexibility and the avoidance of duplicated code across
-architectures justifies the slight increase of the binary size.
-
-The conversion of an architecture has no functional impact, but allows to
-utilize the high resolution and dynamic tick functionalites without any change
-to the clock event device and timer interrupt code. After the conversion the
-enabling of high resolution timers and dynamic ticks is simply provided by
-adding the kernel/time/Kconfig file to the architecture specific Kconfig and
-adding the dynamic tick specific calls to the idle routine (a total of 3 lines
-added to the idle function and the Kconfig file)
-
-Figure #4 (OLS slides p.20) illustrates the transformation.
-
-
-high resolution timer functionality
------------------------------------
-
-During system boot it is not possible to use the high resolution timer
-functionality, while making it possible would be difficult and would serve no
-useful function. The initialization of the clock event device framework, the
-clock source framework (GTOD) and hrtimers itself has to be done and
-appropriate clock sources and clock event devices have to be registered before
-the high resolution functionality can work. Up to the point where hrtimers are
-initialized, the system works in the usual low resolution periodic mode. The
-clock source and the clock event device layers provide notification functions
-which inform hrtimers about availability of new hardware. hrtimers validates
-the usability of the registered clock sources and clock event devices before
-switching to high resolution mode. This ensures also that a kernel which is
-configured for high resolution timers can run on a system which lacks the
-necessary hardware support.
-
-The high resolution timer code does not support SMP machines which have only
-global clock event devices. The support of such hardware would involve IPI
-calls when an interrupt happens. The overhead would be much larger than the
-benefit. This is the reason why we currently disable high resolution and
-dynamic ticks on i386 SMP systems which stop the local APIC in C3 power
-state. A workaround is available as an idea, but the problem has not been
-tackled yet.
-
-The time ordered insertion of timers provides all the infrastructure to decide
-whether the event device has to be reprogrammed when a timer is added. The
-decision is made per timer base and synchronized across per-cpu timer bases in
-a support function. The design allows the system to utilize separate per-CPU
-clock event devices for the per-CPU timer bases, but currently only one
-reprogrammable clock event device per-CPU is utilized.
-
-When the timer interrupt happens, the next event interrupt handler is called
-from the clock event distribution code and moves expired timers from the
-red-black tree to a separate double linked list and invokes the softirq
-handler. An additional mode field in the hrtimer structure allows the system to
-execute callback functions directly from the next event interrupt handler. This
-is restricted to code which can safely be executed in the hard interrupt
-context. This applies, for example, to the common case of a wakeup function as
-used by nanosleep. The advantage of executing the handler in the interrupt
-context is the avoidance of up to two context switches - from the interrupted
-context to the softirq and to the task which is woken up by the expired
-timer.
-
-Once a system has switched to high resolution mode, the periodic tick is
-switched off. This disables the per system global periodic clock event device -
-e.g. the PIT on i386 SMP systems.
-
-The periodic tick functionality is provided by an per-cpu hrtimer. The callback
-function is executed in the next event interrupt context and updates jiffies
-and calls update_process_times and profiling. The implementation of the hrtimer
-based periodic tick is designed to be extended with dynamic tick functionality.
-This allows to use a single clock event device to schedule high resolution
-timer and periodic events (jiffies tick, profiling, process accounting) on UP
-systems. This has been proved to work with the PIT on i386 and the Incrementer
-on PPC.
-
-The softirq for running the hrtimer queues and executing the callbacks has been
-separated from the tick bound timer softirq to allow accurate delivery of high
-resolution timer signals which are used by itimer and POSIX interval
-timers. The execution of this softirq can still be delayed by other softirqs,
-but the overall latencies have been significantly improved by this separation.
-
-Figure #5 (OLS slides p.22) illustrates the transformation.
-
-
-dynamic ticks
--------------
-
-Dynamic ticks are the logical consequence of the hrtimer based periodic tick
-replacement (sched_tick). The functionality of the sched_tick hrtimer is
-extended by three functions:
-
-- hrtimer_stop_sched_tick
-- hrtimer_restart_sched_tick
-- hrtimer_update_jiffies
-
-hrtimer_stop_sched_tick() is called when a CPU goes into idle state. The code
-evaluates the next scheduled timer event (from both hrtimers and the timer
-wheel) and in case that the next event is further away than the next tick it
-reprograms the sched_tick to this future event, to allow longer idle sleeps
-without worthless interruption by the periodic tick. The function is also
-called when an interrupt happens during the idle period, which does not cause a
-reschedule. The call is necessary as the interrupt handler might have armed a
-new timer whose expiry time is before the time which was identified as the
-nearest event in the previous call to hrtimer_stop_sched_tick.
-
-hrtimer_restart_sched_tick() is called when the CPU leaves the idle state before
-it calls schedule(). hrtimer_restart_sched_tick() resumes the periodic tick,
-which is kept active until the next call to hrtimer_stop_sched_tick().
-
-hrtimer_update_jiffies() is called from irq_enter() when an interrupt happens
-in the idle period to make sure that jiffies are up to date and the interrupt
-handler has not to deal with an eventually stale jiffy value.
-
-The dynamic tick feature provides statistical values which are exported to
-userspace via /proc/stats and can be made available for enhanced power
-management control.
-
-The implementation leaves room for further development like full tickless
-systems, where the time slice is controlled by the scheduler, variable
-frequency profiling, and a complete removal of jiffies in the future.
-
-
-Aside the current initial submission of i386 support, the patchset has been
-extended to x86_64 and ARM already. Initial (work in progress) support is also
-available for MIPS and PowerPC.
-
-	  Thomas, Ingo
+From: Ingo Molnar <mingo@elte.hu>
+
+there are load of fat functions hidden in jiffies.h. Uninline them.
+No code changes.
+
+Signed-off-by: Ingo Molnar <mingo@elte.hu>
+Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+--
+ include/linux/jiffies.h |  223 +++---------------------------------------------
+ kernel/time.c           |  218 ++++++++++++++++++++++++++++++++++++++++++++++
+ 2 files changed, 234 insertions(+), 207 deletions(-)
+
+Index: linux-2.6.18-mm2/include/linux/jiffies.h
+===================================================================
+--- linux-2.6.18-mm2.orig/include/linux/jiffies.h	2006-10-02 00:55:49.000000000 +0200
++++ linux-2.6.18-mm2/include/linux/jiffies.h	2006-10-02 00:55:50.000000000 +0200
+@@ -259,215 +259,24 @@ static inline u64 get_jiffies_64(void)
+ #endif
+ 
+ /*
+- * Convert jiffies to milliseconds and back.
+- *
+- * Avoid unnecessary multiplications/divisions in the
+- * two most common HZ cases:
++ * Convert various time units to each other:
+  */
+-static inline unsigned int jiffies_to_msecs(const unsigned long j)
+-{
+-#if HZ <= MSEC_PER_SEC && !(MSEC_PER_SEC % HZ)
+-	return (MSEC_PER_SEC / HZ) * j;
+-#elif HZ > MSEC_PER_SEC && !(HZ % MSEC_PER_SEC)
+-	return (j + (HZ / MSEC_PER_SEC) - 1)/(HZ / MSEC_PER_SEC);
+-#else
+-	return (j * MSEC_PER_SEC) / HZ;
+-#endif
+-}
+-
+-static inline unsigned int jiffies_to_usecs(const unsigned long j)
+-{
+-#if HZ <= USEC_PER_SEC && !(USEC_PER_SEC % HZ)
+-	return (USEC_PER_SEC / HZ) * j;
+-#elif HZ > USEC_PER_SEC && !(HZ % USEC_PER_SEC)
+-	return (j + (HZ / USEC_PER_SEC) - 1)/(HZ / USEC_PER_SEC);
+-#else
+-	return (j * USEC_PER_SEC) / HZ;
+-#endif
+-}
+-
+-static inline unsigned long msecs_to_jiffies(const unsigned int m)
+-{
+-	if (m > jiffies_to_msecs(MAX_JIFFY_OFFSET))
+-		return MAX_JIFFY_OFFSET;
+-#if HZ <= MSEC_PER_SEC && !(MSEC_PER_SEC % HZ)
+-	return (m + (MSEC_PER_SEC / HZ) - 1) / (MSEC_PER_SEC / HZ);
+-#elif HZ > MSEC_PER_SEC && !(HZ % MSEC_PER_SEC)
+-	return m * (HZ / MSEC_PER_SEC);
+-#else
+-	return (m * HZ + MSEC_PER_SEC - 1) / MSEC_PER_SEC;
+-#endif
+-}
+-
+-static inline unsigned long usecs_to_jiffies(const unsigned int u)
+-{
+-	if (u > jiffies_to_usecs(MAX_JIFFY_OFFSET))
+-		return MAX_JIFFY_OFFSET;
+-#if HZ <= USEC_PER_SEC && !(USEC_PER_SEC % HZ)
+-	return (u + (USEC_PER_SEC / HZ) - 1) / (USEC_PER_SEC / HZ);
+-#elif HZ > USEC_PER_SEC && !(HZ % USEC_PER_SEC)
+-	return u * (HZ / USEC_PER_SEC);
+-#else
+-	return (u * HZ + USEC_PER_SEC - 1) / USEC_PER_SEC;
+-#endif
+-}
+-
+-/*
+- * The TICK_NSEC - 1 rounds up the value to the next resolution.  Note
+- * that a remainder subtract here would not do the right thing as the
+- * resolution values don't fall on second boundries.  I.e. the line:
+- * nsec -= nsec % TICK_NSEC; is NOT a correct resolution rounding.
+- *
+- * Rather, we just shift the bits off the right.
+- *
+- * The >> (NSEC_JIFFIE_SC - SEC_JIFFIE_SC) converts the scaled nsec
+- * value to a scaled second value.
+- */
+-static __inline__ unsigned long
+-timespec_to_jiffies(const struct timespec *value)
+-{
+-	unsigned long sec = value->tv_sec;
+-	long nsec = value->tv_nsec + TICK_NSEC - 1;
+-
+-	if (sec >= MAX_SEC_IN_JIFFIES){
+-		sec = MAX_SEC_IN_JIFFIES;
+-		nsec = 0;
+-	}
+-	return (((u64)sec * SEC_CONVERSION) +
+-		(((u64)nsec * NSEC_CONVERSION) >>
+-		 (NSEC_JIFFIE_SC - SEC_JIFFIE_SC))) >> SEC_JIFFIE_SC;
+-
+-}
+-
+-static __inline__ void
+-jiffies_to_timespec(const unsigned long jiffies, struct timespec *value)
+-{
+-	/*
+-	 * Convert jiffies to nanoseconds and separate with
+-	 * one divide.
+-	 */
+-	u64 nsec = (u64)jiffies * TICK_NSEC;
+-	value->tv_sec = div_long_long_rem(nsec, NSEC_PER_SEC, &value->tv_nsec);
+-}
+-
+-/* Same for "timeval"
+- *
+- * Well, almost.  The problem here is that the real system resolution is
+- * in nanoseconds and the value being converted is in micro seconds.
+- * Also for some machines (those that use HZ = 1024, in-particular),
+- * there is a LARGE error in the tick size in microseconds.
+-
+- * The solution we use is to do the rounding AFTER we convert the
+- * microsecond part.  Thus the USEC_ROUND, the bits to be shifted off.
+- * Instruction wise, this should cost only an additional add with carry
+- * instruction above the way it was done above.
+- */
+-static __inline__ unsigned long
+-timeval_to_jiffies(const struct timeval *value)
+-{
+-	unsigned long sec = value->tv_sec;
+-	long usec = value->tv_usec;
+-
+-	if (sec >= MAX_SEC_IN_JIFFIES){
+-		sec = MAX_SEC_IN_JIFFIES;
+-		usec = 0;
+-	}
+-	return (((u64)sec * SEC_CONVERSION) +
+-		(((u64)usec * USEC_CONVERSION + USEC_ROUND) >>
+-		 (USEC_JIFFIE_SC - SEC_JIFFIE_SC))) >> SEC_JIFFIE_SC;
+-}
+-
+-static __inline__ void
+-jiffies_to_timeval(const unsigned long jiffies, struct timeval *value)
+-{
+-	/*
+-	 * Convert jiffies to nanoseconds and separate with
+-	 * one divide.
+-	 */
+-	u64 nsec = (u64)jiffies * TICK_NSEC;
+-	long tv_usec;
+-
+-	value->tv_sec = div_long_long_rem(nsec, NSEC_PER_SEC, &tv_usec);
+-	tv_usec /= NSEC_PER_USEC;
+-	value->tv_usec = tv_usec;
+-}
+-
+-/*
+- * Convert jiffies/jiffies_64 to clock_t and back.
+- */
+-static inline clock_t jiffies_to_clock_t(long x)
+-{
+-#if (TICK_NSEC % (NSEC_PER_SEC / USER_HZ)) == 0
+-	return x / (HZ / USER_HZ);
+-#else
+-	u64 tmp = (u64)x * TICK_NSEC;
+-	do_div(tmp, (NSEC_PER_SEC / USER_HZ));
+-	return (long)tmp;
+-#endif
+-}
+-
+-static inline unsigned long clock_t_to_jiffies(unsigned long x)
+-{
+-#if (HZ % USER_HZ)==0
+-	if (x >= ~0UL / (HZ / USER_HZ))
+-		return ~0UL;
+-	return x * (HZ / USER_HZ);
+-#else
+-	u64 jif;
+-
+-	/* Don't worry about loss of precision here .. */
+-	if (x >= ~0UL / HZ * USER_HZ)
+-		return ~0UL;
+-
+-	/* .. but do try to contain it here */
+-	jif = x * (u64) HZ;
+-	do_div(jif, USER_HZ);
+-	return jif;
+-#endif
+-}
+-
+-static inline u64 jiffies_64_to_clock_t(u64 x)
+-{
+-#if (TICK_NSEC % (NSEC_PER_SEC / USER_HZ)) == 0
+-	do_div(x, HZ / USER_HZ);
+-#else
+-	/*
+-	 * There are better ways that don't overflow early,
+-	 * but even this doesn't overflow in hundreds of years
+-	 * in 64 bits, so..
+-	 */
+-	x *= TICK_NSEC;
+-	do_div(x, (NSEC_PER_SEC / USER_HZ));
+-#endif
+-	return x;
+-}
+-
+-static inline u64 nsec_to_clock_t(u64 x)
+-{
+-#if (NSEC_PER_SEC % USER_HZ) == 0
+-	do_div(x, (NSEC_PER_SEC / USER_HZ));
+-#elif (USER_HZ % 512) == 0
+-	x *= USER_HZ/512;
+-	do_div(x, (NSEC_PER_SEC / 512));
+-#else
+-	/*
+-         * max relative error 5.7e-8 (1.8s per year) for USER_HZ <= 1024,
+-         * overflow after 64.99 years.
+-         * exact for HZ=60, 72, 90, 120, 144, 180, 300, 600, 900, ...
+-         */
+-	x *= 9;
+-	do_div(x, (unsigned long)((9ull * NSEC_PER_SEC + (USER_HZ/2))
+-	                          / USER_HZ));
+-#endif
+-	return x;
+-}
++extern unsigned int jiffies_to_msecs(const unsigned long j);
++extern unsigned int jiffies_to_usecs(const unsigned long j);
++extern unsigned long msecs_to_jiffies(const unsigned int m);
++extern unsigned long usecs_to_jiffies(const unsigned int u);
++extern unsigned long timespec_to_jiffies(const struct timespec *value);
++extern void jiffies_to_timespec(const unsigned long jiffies,
++				struct timespec *value);
++extern unsigned long timeval_to_jiffies(const struct timeval *value);
++extern void jiffies_to_timeval(const unsigned long jiffies,
++			       struct timeval *value);
++extern clock_t jiffies_to_clock_t(long x);
++extern unsigned long clock_t_to_jiffies(unsigned long x);
++extern u64 jiffies_64_to_clock_t(u64 x);
++extern u64 nsec_to_clock_t(u64 x);
++extern int nsec_to_timestamp(char *s, u64 t);
+ 
+-static inline int nsec_to_timestamp(char *s, u64 t)
+-{
+-	unsigned long nsec_rem = do_div(t, NSEC_PER_SEC);
+-	return sprintf(s, "[%5lu.%06lu]", (unsigned long)t,
+-		       nsec_rem/NSEC_PER_USEC);
+-}
+ #define TIMESTAMP_SIZE	30
+ 
+ #endif
+Index: linux-2.6.18-mm2/kernel/time.c
+===================================================================
+--- linux-2.6.18-mm2.orig/kernel/time.c	2006-10-02 00:55:49.000000000 +0200
++++ linux-2.6.18-mm2/kernel/time.c	2006-10-02 00:55:50.000000000 +0200
+@@ -470,6 +470,224 @@ struct timeval ns_to_timeval(const s64 n
+ 	return tv;
+ }
+ 
++/*
++ * Convert jiffies to milliseconds and back.
++ *
++ * Avoid unnecessary multiplications/divisions in the
++ * two most common HZ cases:
++ */
++unsigned int jiffies_to_msecs(const unsigned long j)
++{
++#if HZ <= MSEC_PER_SEC && !(MSEC_PER_SEC % HZ)
++	return (MSEC_PER_SEC / HZ) * j;
++#elif HZ > MSEC_PER_SEC && !(HZ % MSEC_PER_SEC)
++	return (j + (HZ / MSEC_PER_SEC) - 1)/(HZ / MSEC_PER_SEC);
++#else
++	return (j * MSEC_PER_SEC) / HZ;
++#endif
++}
++EXPORT_SYMBOL(jiffies_to_msecs);
++
++unsigned int jiffies_to_usecs(const unsigned long j)
++{
++#if HZ <= USEC_PER_SEC && !(USEC_PER_SEC % HZ)
++	return (USEC_PER_SEC / HZ) * j;
++#elif HZ > USEC_PER_SEC && !(HZ % USEC_PER_SEC)
++	return (j + (HZ / USEC_PER_SEC) - 1)/(HZ / USEC_PER_SEC);
++#else
++	return (j * USEC_PER_SEC) / HZ;
++#endif
++}
++EXPORT_SYMBOL(jiffies_to_usecs);
++
++unsigned long msecs_to_jiffies(const unsigned int m)
++{
++	if (m > jiffies_to_msecs(MAX_JIFFY_OFFSET))
++		return MAX_JIFFY_OFFSET;
++#if HZ <= MSEC_PER_SEC && !(MSEC_PER_SEC % HZ)
++	return (m + (MSEC_PER_SEC / HZ) - 1) / (MSEC_PER_SEC / HZ);
++#elif HZ > MSEC_PER_SEC && !(HZ % MSEC_PER_SEC)
++	return m * (HZ / MSEC_PER_SEC);
++#else
++	return (m * HZ + MSEC_PER_SEC - 1) / MSEC_PER_SEC;
++#endif
++}
++EXPORT_SYMBOL(msecs_to_jiffies);
++
++unsigned long usecs_to_jiffies(const unsigned int u)
++{
++	if (u > jiffies_to_usecs(MAX_JIFFY_OFFSET))
++		return MAX_JIFFY_OFFSET;
++#if HZ <= USEC_PER_SEC && !(USEC_PER_SEC % HZ)
++	return (u + (USEC_PER_SEC / HZ) - 1) / (USEC_PER_SEC / HZ);
++#elif HZ > USEC_PER_SEC && !(HZ % USEC_PER_SEC)
++	return u * (HZ / USEC_PER_SEC);
++#else
++	return (u * HZ + USEC_PER_SEC - 1) / USEC_PER_SEC;
++#endif
++}
++EXPORT_SYMBOL(usecs_to_jiffies);
++
++/*
++ * The TICK_NSEC - 1 rounds up the value to the next resolution.  Note
++ * that a remainder subtract here would not do the right thing as the
++ * resolution values don't fall on second boundries.  I.e. the line:
++ * nsec -= nsec % TICK_NSEC; is NOT a correct resolution rounding.
++ *
++ * Rather, we just shift the bits off the right.
++ *
++ * The >> (NSEC_JIFFIE_SC - SEC_JIFFIE_SC) converts the scaled nsec
++ * value to a scaled second value.
++ */
++unsigned long
++timespec_to_jiffies(const struct timespec *value)
++{
++	unsigned long sec = value->tv_sec;
++	long nsec = value->tv_nsec + TICK_NSEC - 1;
++
++	if (sec >= MAX_SEC_IN_JIFFIES){
++		sec = MAX_SEC_IN_JIFFIES;
++		nsec = 0;
++	}
++	return (((u64)sec * SEC_CONVERSION) +
++		(((u64)nsec * NSEC_CONVERSION) >>
++		 (NSEC_JIFFIE_SC - SEC_JIFFIE_SC))) >> SEC_JIFFIE_SC;
++
++}
++EXPORT_SYMBOL(timespec_to_jiffies);
++
++void
++jiffies_to_timespec(const unsigned long jiffies, struct timespec *value)
++{
++	/*
++	 * Convert jiffies to nanoseconds and separate with
++	 * one divide.
++	 */
++	u64 nsec = (u64)jiffies * TICK_NSEC;
++	value->tv_sec = div_long_long_rem(nsec, NSEC_PER_SEC, &value->tv_nsec);
++}
++
++/* Same for "timeval"
++ *
++ * Well, almost.  The problem here is that the real system resolution is
++ * in nanoseconds and the value being converted is in micro seconds.
++ * Also for some machines (those that use HZ = 1024, in-particular),
++ * there is a LARGE error in the tick size in microseconds.
++
++ * The solution we use is to do the rounding AFTER we convert the
++ * microsecond part.  Thus the USEC_ROUND, the bits to be shifted off.
++ * Instruction wise, this should cost only an additional add with carry
++ * instruction above the way it was done above.
++ */
++unsigned long
++timeval_to_jiffies(const struct timeval *value)
++{
++	unsigned long sec = value->tv_sec;
++	long usec = value->tv_usec;
++
++	if (sec >= MAX_SEC_IN_JIFFIES){
++		sec = MAX_SEC_IN_JIFFIES;
++		usec = 0;
++	}
++	return (((u64)sec * SEC_CONVERSION) +
++		(((u64)usec * USEC_CONVERSION + USEC_ROUND) >>
++		 (USEC_JIFFIE_SC - SEC_JIFFIE_SC))) >> SEC_JIFFIE_SC;
++}
++
++void jiffies_to_timeval(const unsigned long jiffies, struct timeval *value)
++{
++	/*
++	 * Convert jiffies to nanoseconds and separate with
++	 * one divide.
++	 */
++	u64 nsec = (u64)jiffies * TICK_NSEC;
++	long tv_usec;
++
++	value->tv_sec = div_long_long_rem(nsec, NSEC_PER_SEC, &tv_usec);
++	tv_usec /= NSEC_PER_USEC;
++	value->tv_usec = tv_usec;
++}
++
++/*
++ * Convert jiffies/jiffies_64 to clock_t and back.
++ */
++clock_t jiffies_to_clock_t(long x)
++{
++#if (TICK_NSEC % (NSEC_PER_SEC / USER_HZ)) == 0
++	return x / (HZ / USER_HZ);
++#else
++	u64 tmp = (u64)x * TICK_NSEC;
++	do_div(tmp, (NSEC_PER_SEC / USER_HZ));
++	return (long)tmp;
++#endif
++}
++EXPORT_SYMBOL(jiffies_to_clock_t);
++
++unsigned long clock_t_to_jiffies(unsigned long x)
++{
++#if (HZ % USER_HZ)==0
++	if (x >= ~0UL / (HZ / USER_HZ))
++		return ~0UL;
++	return x * (HZ / USER_HZ);
++#else
++	u64 jif;
++
++	/* Don't worry about loss of precision here .. */
++	if (x >= ~0UL / HZ * USER_HZ)
++		return ~0UL;
++
++	/* .. but do try to contain it here */
++	jif = x * (u64) HZ;
++	do_div(jif, USER_HZ);
++	return jif;
++#endif
++}
++EXPORT_SYMBOL(clock_t_to_jiffies);
++
++u64 jiffies_64_to_clock_t(u64 x)
++{
++#if (TICK_NSEC % (NSEC_PER_SEC / USER_HZ)) == 0
++	do_div(x, HZ / USER_HZ);
++#else
++	/*
++	 * There are better ways that don't overflow early,
++	 * but even this doesn't overflow in hundreds of years
++	 * in 64 bits, so..
++	 */
++	x *= TICK_NSEC;
++	do_div(x, (NSEC_PER_SEC / USER_HZ));
++#endif
++	return x;
++}
++
++EXPORT_SYMBOL(jiffies_64_to_clock_t);
++
++u64 nsec_to_clock_t(u64 x)
++{
++#if (NSEC_PER_SEC % USER_HZ) == 0
++	do_div(x, (NSEC_PER_SEC / USER_HZ));
++#elif (USER_HZ % 512) == 0
++	x *= USER_HZ/512;
++	do_div(x, (NSEC_PER_SEC / 512));
++#else
++	/*
++         * max relative error 5.7e-8 (1.8s per year) for USER_HZ <= 1024,
++         * overflow after 64.99 years.
++         * exact for HZ=60, 72, 90, 120, 144, 180, 300, 600, 900, ...
++         */
++	x *= 9;
++	do_div(x, (unsigned long)((9ull * NSEC_PER_SEC + (USER_HZ/2)) /
++				  USER_HZ));
++#endif
++	return x;
++}
++
++int nsec_to_timestamp(char *s, u64 t)
++{
++	unsigned long nsec_rem = do_div(t, NSEC_PER_SEC);
++	return sprintf(s, "[%5lu.%06lu]", (unsigned long)t,
++		       nsec_rem/NSEC_PER_USEC);
++}
+ __attribute__((weak)) unsigned long long timestamp_clock(void)
+ {
+ 	return sched_clock();
 
 --
 

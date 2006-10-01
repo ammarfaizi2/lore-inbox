@@ -1,505 +1,253 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932469AbWJAXGr@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932475AbWJAXGq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932469AbWJAXGr (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Oct 2006 19:06:47 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932477AbWJAXGq
-	(ORCPT <rfc822;linux-kernel-outgoing>);
+	id S932475AbWJAXGq (ORCPT <rfc822;willy@w.ods.org>);
 	Sun, 1 Oct 2006 19:06:46 -0400
-Received: from www.osadl.org ([213.239.205.134]:57778 "EHLO mail.tglx.de")
-	by vger.kernel.org with ESMTP id S932469AbWJAXGo (ORCPT
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932472AbWJAXGp
+	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Sun, 1 Oct 2006 19:06:45 -0400
+Received: from www.osadl.org ([213.239.205.134]:56754 "EHLO mail.tglx.de")
+	by vger.kernel.org with ESMTP id S932468AbWJAXGo (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Sun, 1 Oct 2006 19:06:44 -0400
-Message-Id: <20061001225723.491598000@cruncher.tec.linutronix.de>
+Message-Id: <20061001225723.379113000@cruncher.tec.linutronix.de>
 References: <20061001225720.115967000@cruncher.tec.linutronix.de>
-Date: Sun, 01 Oct 2006 23:00:50 -0000
+Date: Sun, 01 Oct 2006 23:00:49 -0000
 From: Thomas Gleixner <tglx@linutronix.de>
 To: Andrew Morton <akpm@osdl.org>
 Cc: LKML <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>,
        Jim Gettys <jg@laptop.org>, John Stultz <johnstul@us.ibm.com>,
        David Woodhouse <dwmw2@infradead.org>,
        Arjan van de Ven <arjan@infradead.org>, Dave Jones <davej@redhat.com>
-Subject: [patch 04/21] time: uninline jiffies.h
-Content-Disposition: inline; filename=uninline-jiffies-h.patch
+Subject: [patch 03/21] GTOD: persistent clock support, i386
+Content-Disposition: inline;
+	filename=linux-2.6.18-rc6_timeofday-persistent-clock-i386_C6.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Ingo Molnar <mingo@elte.hu>
+From: John Stultz <johnstul@us.ibm.com>
 
-there are load of fat functions hidden in jiffies.h. Uninline them.
-No code changes.
+persistent clock support: do proper timekeeping across suspend/resume,
+i386 arch support.
 
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
+Signed-off-by: John Stultz <johnstul@us.ibm.com>
 Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Signed-off-by: Ingo Molnar <mingo@elte.hu>
 --
- include/linux/jiffies.h |  223 +++---------------------------------------------
- kernel/time.c           |  218 ++++++++++++++++++++++++++++++++++++++++++++++
- 2 files changed, 234 insertions(+), 207 deletions(-)
+ arch/i386/kernel/apm.c  |   44 ---------------------------------------
+ arch/i386/kernel/time.c |   54 +-----------------------------------------------
+ 2 files changed, 2 insertions(+), 96 deletions(-)
 
-Index: linux-2.6.18-mm2/include/linux/jiffies.h
+linux-2.6.18-rc6_timeofday-persistent-clock-i386_C6.patch
+Index: linux-2.6.18-mm2/arch/i386/kernel/apm.c
 ===================================================================
---- linux-2.6.18-mm2.orig/include/linux/jiffies.h	2006-10-02 00:55:49.000000000 +0200
-+++ linux-2.6.18-mm2/include/linux/jiffies.h	2006-10-02 00:55:50.000000000 +0200
-@@ -259,215 +259,24 @@ static inline u64 get_jiffies_64(void)
- #endif
+--- linux-2.6.18-mm2.orig/arch/i386/kernel/apm.c	2006-10-02 00:55:49.000000000 +0200
++++ linux-2.6.18-mm2/arch/i386/kernel/apm.c	2006-10-02 00:55:50.000000000 +0200
+@@ -234,7 +234,6 @@
  
- /*
-- * Convert jiffies to milliseconds and back.
-- *
-- * Avoid unnecessary multiplications/divisions in the
-- * two most common HZ cases:
-+ * Convert various time units to each other:
-  */
--static inline unsigned int jiffies_to_msecs(const unsigned long j)
--{
--#if HZ <= MSEC_PER_SEC && !(MSEC_PER_SEC % HZ)
--	return (MSEC_PER_SEC / HZ) * j;
--#elif HZ > MSEC_PER_SEC && !(HZ % MSEC_PER_SEC)
--	return (j + (HZ / MSEC_PER_SEC) - 1)/(HZ / MSEC_PER_SEC);
--#else
--	return (j * MSEC_PER_SEC) / HZ;
--#endif
--}
--
--static inline unsigned int jiffies_to_usecs(const unsigned long j)
--{
--#if HZ <= USEC_PER_SEC && !(USEC_PER_SEC % HZ)
--	return (USEC_PER_SEC / HZ) * j;
--#elif HZ > USEC_PER_SEC && !(HZ % USEC_PER_SEC)
--	return (j + (HZ / USEC_PER_SEC) - 1)/(HZ / USEC_PER_SEC);
--#else
--	return (j * USEC_PER_SEC) / HZ;
--#endif
--}
--
--static inline unsigned long msecs_to_jiffies(const unsigned int m)
--{
--	if (m > jiffies_to_msecs(MAX_JIFFY_OFFSET))
--		return MAX_JIFFY_OFFSET;
--#if HZ <= MSEC_PER_SEC && !(MSEC_PER_SEC % HZ)
--	return (m + (MSEC_PER_SEC / HZ) - 1) / (MSEC_PER_SEC / HZ);
--#elif HZ > MSEC_PER_SEC && !(HZ % MSEC_PER_SEC)
--	return m * (HZ / MSEC_PER_SEC);
--#else
--	return (m * HZ + MSEC_PER_SEC - 1) / MSEC_PER_SEC;
--#endif
--}
--
--static inline unsigned long usecs_to_jiffies(const unsigned int u)
--{
--	if (u > jiffies_to_usecs(MAX_JIFFY_OFFSET))
--		return MAX_JIFFY_OFFSET;
--#if HZ <= USEC_PER_SEC && !(USEC_PER_SEC % HZ)
--	return (u + (USEC_PER_SEC / HZ) - 1) / (USEC_PER_SEC / HZ);
--#elif HZ > USEC_PER_SEC && !(HZ % USEC_PER_SEC)
--	return u * (HZ / USEC_PER_SEC);
--#else
--	return (u * HZ + USEC_PER_SEC - 1) / USEC_PER_SEC;
--#endif
--}
--
--/*
-- * The TICK_NSEC - 1 rounds up the value to the next resolution.  Note
-- * that a remainder subtract here would not do the right thing as the
-- * resolution values don't fall on second boundries.  I.e. the line:
-- * nsec -= nsec % TICK_NSEC; is NOT a correct resolution rounding.
-- *
-- * Rather, we just shift the bits off the right.
-- *
-- * The >> (NSEC_JIFFIE_SC - SEC_JIFFIE_SC) converts the scaled nsec
-- * value to a scaled second value.
-- */
--static __inline__ unsigned long
--timespec_to_jiffies(const struct timespec *value)
--{
--	unsigned long sec = value->tv_sec;
--	long nsec = value->tv_nsec + TICK_NSEC - 1;
--
--	if (sec >= MAX_SEC_IN_JIFFIES){
--		sec = MAX_SEC_IN_JIFFIES;
--		nsec = 0;
--	}
--	return (((u64)sec * SEC_CONVERSION) +
--		(((u64)nsec * NSEC_CONVERSION) >>
--		 (NSEC_JIFFIE_SC - SEC_JIFFIE_SC))) >> SEC_JIFFIE_SC;
--
--}
--
--static __inline__ void
--jiffies_to_timespec(const unsigned long jiffies, struct timespec *value)
--{
--	/*
--	 * Convert jiffies to nanoseconds and separate with
--	 * one divide.
--	 */
--	u64 nsec = (u64)jiffies * TICK_NSEC;
--	value->tv_sec = div_long_long_rem(nsec, NSEC_PER_SEC, &value->tv_nsec);
--}
--
--/* Same for "timeval"
-- *
-- * Well, almost.  The problem here is that the real system resolution is
-- * in nanoseconds and the value being converted is in micro seconds.
-- * Also for some machines (those that use HZ = 1024, in-particular),
-- * there is a LARGE error in the tick size in microseconds.
--
-- * The solution we use is to do the rounding AFTER we convert the
-- * microsecond part.  Thus the USEC_ROUND, the bits to be shifted off.
-- * Instruction wise, this should cost only an additional add with carry
-- * instruction above the way it was done above.
-- */
--static __inline__ unsigned long
--timeval_to_jiffies(const struct timeval *value)
--{
--	unsigned long sec = value->tv_sec;
--	long usec = value->tv_usec;
--
--	if (sec >= MAX_SEC_IN_JIFFIES){
--		sec = MAX_SEC_IN_JIFFIES;
--		usec = 0;
--	}
--	return (((u64)sec * SEC_CONVERSION) +
--		(((u64)usec * USEC_CONVERSION + USEC_ROUND) >>
--		 (USEC_JIFFIE_SC - SEC_JIFFIE_SC))) >> SEC_JIFFIE_SC;
--}
--
--static __inline__ void
--jiffies_to_timeval(const unsigned long jiffies, struct timeval *value)
--{
--	/*
--	 * Convert jiffies to nanoseconds and separate with
--	 * one divide.
--	 */
--	u64 nsec = (u64)jiffies * TICK_NSEC;
--	long tv_usec;
--
--	value->tv_sec = div_long_long_rem(nsec, NSEC_PER_SEC, &tv_usec);
--	tv_usec /= NSEC_PER_USEC;
--	value->tv_usec = tv_usec;
--}
--
--/*
-- * Convert jiffies/jiffies_64 to clock_t and back.
-- */
--static inline clock_t jiffies_to_clock_t(long x)
--{
--#if (TICK_NSEC % (NSEC_PER_SEC / USER_HZ)) == 0
--	return x / (HZ / USER_HZ);
--#else
--	u64 tmp = (u64)x * TICK_NSEC;
--	do_div(tmp, (NSEC_PER_SEC / USER_HZ));
--	return (long)tmp;
--#endif
--}
--
--static inline unsigned long clock_t_to_jiffies(unsigned long x)
--{
--#if (HZ % USER_HZ)==0
--	if (x >= ~0UL / (HZ / USER_HZ))
--		return ~0UL;
--	return x * (HZ / USER_HZ);
--#else
--	u64 jif;
--
--	/* Don't worry about loss of precision here .. */
--	if (x >= ~0UL / HZ * USER_HZ)
--		return ~0UL;
--
--	/* .. but do try to contain it here */
--	jif = x * (u64) HZ;
--	do_div(jif, USER_HZ);
--	return jif;
--#endif
--}
--
--static inline u64 jiffies_64_to_clock_t(u64 x)
--{
--#if (TICK_NSEC % (NSEC_PER_SEC / USER_HZ)) == 0
--	do_div(x, HZ / USER_HZ);
--#else
--	/*
--	 * There are better ways that don't overflow early,
--	 * but even this doesn't overflow in hundreds of years
--	 * in 64 bits, so..
--	 */
--	x *= TICK_NSEC;
--	do_div(x, (NSEC_PER_SEC / USER_HZ));
--#endif
--	return x;
--}
--
--static inline u64 nsec_to_clock_t(u64 x)
--{
--#if (NSEC_PER_SEC % USER_HZ) == 0
--	do_div(x, (NSEC_PER_SEC / USER_HZ));
--#elif (USER_HZ % 512) == 0
--	x *= USER_HZ/512;
--	do_div(x, (NSEC_PER_SEC / 512));
--#else
--	/*
--         * max relative error 5.7e-8 (1.8s per year) for USER_HZ <= 1024,
--         * overflow after 64.99 years.
--         * exact for HZ=60, 72, 90, 120, 144, 180, 300, 600, 900, ...
--         */
--	x *= 9;
--	do_div(x, (unsigned long)((9ull * NSEC_PER_SEC + (USER_HZ/2))
--	                          / USER_HZ));
--#endif
--	return x;
--}
-+extern unsigned int jiffies_to_msecs(const unsigned long j);
-+extern unsigned int jiffies_to_usecs(const unsigned long j);
-+extern unsigned long msecs_to_jiffies(const unsigned int m);
-+extern unsigned long usecs_to_jiffies(const unsigned int u);
-+extern unsigned long timespec_to_jiffies(const struct timespec *value);
-+extern void jiffies_to_timespec(const unsigned long jiffies,
-+				struct timespec *value);
-+extern unsigned long timeval_to_jiffies(const struct timeval *value);
-+extern void jiffies_to_timeval(const unsigned long jiffies,
-+			       struct timeval *value);
-+extern clock_t jiffies_to_clock_t(long x);
-+extern unsigned long clock_t_to_jiffies(unsigned long x);
-+extern u64 jiffies_64_to_clock_t(u64 x);
-+extern u64 nsec_to_clock_t(u64 x);
-+extern int nsec_to_timestamp(char *s, u64 t);
+ #include "io_ports.h"
  
--static inline int nsec_to_timestamp(char *s, u64 t)
--{
--	unsigned long nsec_rem = do_div(t, NSEC_PER_SEC);
--	return sprintf(s, "[%5lu.%06lu]", (unsigned long)t,
--		       nsec_rem/NSEC_PER_USEC);
--}
- #define TIMESTAMP_SIZE	30
+-extern unsigned long get_cmos_time(void);
+ extern void machine_real_restart(unsigned char *, int);
  
- #endif
-Index: linux-2.6.18-mm2/kernel/time.c
-===================================================================
---- linux-2.6.18-mm2.orig/kernel/time.c	2006-10-02 00:55:49.000000000 +0200
-+++ linux-2.6.18-mm2/kernel/time.c	2006-10-02 00:55:50.000000000 +0200
-@@ -470,6 +470,224 @@ struct timeval ns_to_timeval(const s64 n
- 	return tv;
+ #if defined(CONFIG_APM_DISPLAY_BLANK) && defined(CONFIG_VT)
+@@ -1153,28 +1152,6 @@ out:
+ 	spin_unlock(&user_list_lock);
  }
  
-+/*
-+ * Convert jiffies to milliseconds and back.
-+ *
-+ * Avoid unnecessary multiplications/divisions in the
-+ * two most common HZ cases:
-+ */
-+unsigned int jiffies_to_msecs(const unsigned long j)
-+{
-+#if HZ <= MSEC_PER_SEC && !(MSEC_PER_SEC % HZ)
-+	return (MSEC_PER_SEC / HZ) * j;
-+#elif HZ > MSEC_PER_SEC && !(HZ % MSEC_PER_SEC)
-+	return (j + (HZ / MSEC_PER_SEC) - 1)/(HZ / MSEC_PER_SEC);
-+#else
-+	return (j * MSEC_PER_SEC) / HZ;
-+#endif
-+}
-+EXPORT_SYMBOL(jiffies_to_msecs);
-+
-+unsigned int jiffies_to_usecs(const unsigned long j)
-+{
-+#if HZ <= USEC_PER_SEC && !(USEC_PER_SEC % HZ)
-+	return (USEC_PER_SEC / HZ) * j;
-+#elif HZ > USEC_PER_SEC && !(HZ % USEC_PER_SEC)
-+	return (j + (HZ / USEC_PER_SEC) - 1)/(HZ / USEC_PER_SEC);
-+#else
-+	return (j * USEC_PER_SEC) / HZ;
-+#endif
-+}
-+EXPORT_SYMBOL(jiffies_to_usecs);
-+
-+unsigned long msecs_to_jiffies(const unsigned int m)
-+{
-+	if (m > jiffies_to_msecs(MAX_JIFFY_OFFSET))
-+		return MAX_JIFFY_OFFSET;
-+#if HZ <= MSEC_PER_SEC && !(MSEC_PER_SEC % HZ)
-+	return (m + (MSEC_PER_SEC / HZ) - 1) / (MSEC_PER_SEC / HZ);
-+#elif HZ > MSEC_PER_SEC && !(HZ % MSEC_PER_SEC)
-+	return m * (HZ / MSEC_PER_SEC);
-+#else
-+	return (m * HZ + MSEC_PER_SEC - 1) / MSEC_PER_SEC;
-+#endif
-+}
-+EXPORT_SYMBOL(msecs_to_jiffies);
-+
-+unsigned long usecs_to_jiffies(const unsigned int u)
-+{
-+	if (u > jiffies_to_usecs(MAX_JIFFY_OFFSET))
-+		return MAX_JIFFY_OFFSET;
-+#if HZ <= USEC_PER_SEC && !(USEC_PER_SEC % HZ)
-+	return (u + (USEC_PER_SEC / HZ) - 1) / (USEC_PER_SEC / HZ);
-+#elif HZ > USEC_PER_SEC && !(HZ % USEC_PER_SEC)
-+	return u * (HZ / USEC_PER_SEC);
-+#else
-+	return (u * HZ + USEC_PER_SEC - 1) / USEC_PER_SEC;
-+#endif
-+}
-+EXPORT_SYMBOL(usecs_to_jiffies);
-+
-+/*
-+ * The TICK_NSEC - 1 rounds up the value to the next resolution.  Note
-+ * that a remainder subtract here would not do the right thing as the
-+ * resolution values don't fall on second boundries.  I.e. the line:
-+ * nsec -= nsec % TICK_NSEC; is NOT a correct resolution rounding.
-+ *
-+ * Rather, we just shift the bits off the right.
-+ *
-+ * The >> (NSEC_JIFFIE_SC - SEC_JIFFIE_SC) converts the scaled nsec
-+ * value to a scaled second value.
-+ */
-+unsigned long
-+timespec_to_jiffies(const struct timespec *value)
-+{
-+	unsigned long sec = value->tv_sec;
-+	long nsec = value->tv_nsec + TICK_NSEC - 1;
-+
-+	if (sec >= MAX_SEC_IN_JIFFIES){
-+		sec = MAX_SEC_IN_JIFFIES;
-+		nsec = 0;
-+	}
-+	return (((u64)sec * SEC_CONVERSION) +
-+		(((u64)nsec * NSEC_CONVERSION) >>
-+		 (NSEC_JIFFIE_SC - SEC_JIFFIE_SC))) >> SEC_JIFFIE_SC;
-+
-+}
-+EXPORT_SYMBOL(timespec_to_jiffies);
-+
-+void
-+jiffies_to_timespec(const unsigned long jiffies, struct timespec *value)
-+{
-+	/*
-+	 * Convert jiffies to nanoseconds and separate with
-+	 * one divide.
-+	 */
-+	u64 nsec = (u64)jiffies * TICK_NSEC;
-+	value->tv_sec = div_long_long_rem(nsec, NSEC_PER_SEC, &value->tv_nsec);
-+}
-+
-+/* Same for "timeval"
-+ *
-+ * Well, almost.  The problem here is that the real system resolution is
-+ * in nanoseconds and the value being converted is in micro seconds.
-+ * Also for some machines (those that use HZ = 1024, in-particular),
-+ * there is a LARGE error in the tick size in microseconds.
-+
-+ * The solution we use is to do the rounding AFTER we convert the
-+ * microsecond part.  Thus the USEC_ROUND, the bits to be shifted off.
-+ * Instruction wise, this should cost only an additional add with carry
-+ * instruction above the way it was done above.
-+ */
-+unsigned long
-+timeval_to_jiffies(const struct timeval *value)
-+{
-+	unsigned long sec = value->tv_sec;
-+	long usec = value->tv_usec;
-+
-+	if (sec >= MAX_SEC_IN_JIFFIES){
-+		sec = MAX_SEC_IN_JIFFIES;
-+		usec = 0;
-+	}
-+	return (((u64)sec * SEC_CONVERSION) +
-+		(((u64)usec * USEC_CONVERSION + USEC_ROUND) >>
-+		 (USEC_JIFFIE_SC - SEC_JIFFIE_SC))) >> SEC_JIFFIE_SC;
-+}
-+
-+void jiffies_to_timeval(const unsigned long jiffies, struct timeval *value)
-+{
-+	/*
-+	 * Convert jiffies to nanoseconds and separate with
-+	 * one divide.
-+	 */
-+	u64 nsec = (u64)jiffies * TICK_NSEC;
-+	long tv_usec;
-+
-+	value->tv_sec = div_long_long_rem(nsec, NSEC_PER_SEC, &tv_usec);
-+	tv_usec /= NSEC_PER_USEC;
-+	value->tv_usec = tv_usec;
-+}
-+
-+/*
-+ * Convert jiffies/jiffies_64 to clock_t and back.
-+ */
-+clock_t jiffies_to_clock_t(long x)
-+{
-+#if (TICK_NSEC % (NSEC_PER_SEC / USER_HZ)) == 0
-+	return x / (HZ / USER_HZ);
-+#else
-+	u64 tmp = (u64)x * TICK_NSEC;
-+	do_div(tmp, (NSEC_PER_SEC / USER_HZ));
-+	return (long)tmp;
-+#endif
-+}
-+EXPORT_SYMBOL(jiffies_to_clock_t);
-+
-+unsigned long clock_t_to_jiffies(unsigned long x)
-+{
-+#if (HZ % USER_HZ)==0
-+	if (x >= ~0UL / (HZ / USER_HZ))
-+		return ~0UL;
-+	return x * (HZ / USER_HZ);
-+#else
-+	u64 jif;
-+
-+	/* Don't worry about loss of precision here .. */
-+	if (x >= ~0UL / HZ * USER_HZ)
-+		return ~0UL;
-+
-+	/* .. but do try to contain it here */
-+	jif = x * (u64) HZ;
-+	do_div(jif, USER_HZ);
-+	return jif;
-+#endif
-+}
-+EXPORT_SYMBOL(clock_t_to_jiffies);
-+
-+u64 jiffies_64_to_clock_t(u64 x)
-+{
-+#if (TICK_NSEC % (NSEC_PER_SEC / USER_HZ)) == 0
-+	do_div(x, HZ / USER_HZ);
-+#else
-+	/*
-+	 * There are better ways that don't overflow early,
-+	 * but even this doesn't overflow in hundreds of years
-+	 * in 64 bits, so..
-+	 */
-+	x *= TICK_NSEC;
-+	do_div(x, (NSEC_PER_SEC / USER_HZ));
-+#endif
-+	return x;
-+}
-+
-+EXPORT_SYMBOL(jiffies_64_to_clock_t);
-+
-+u64 nsec_to_clock_t(u64 x)
-+{
-+#if (NSEC_PER_SEC % USER_HZ) == 0
-+	do_div(x, (NSEC_PER_SEC / USER_HZ));
-+#elif (USER_HZ % 512) == 0
-+	x *= USER_HZ/512;
-+	do_div(x, (NSEC_PER_SEC / 512));
-+#else
-+	/*
-+         * max relative error 5.7e-8 (1.8s per year) for USER_HZ <= 1024,
-+         * overflow after 64.99 years.
-+         * exact for HZ=60, 72, 90, 120, 144, 180, 300, 600, 900, ...
-+         */
-+	x *= 9;
-+	do_div(x, (unsigned long)((9ull * NSEC_PER_SEC + (USER_HZ/2)) /
-+				  USER_HZ));
-+#endif
-+	return x;
-+}
-+
-+int nsec_to_timestamp(char *s, u64 t)
-+{
-+	unsigned long nsec_rem = do_div(t, NSEC_PER_SEC);
-+	return sprintf(s, "[%5lu.%06lu]", (unsigned long)t,
-+		       nsec_rem/NSEC_PER_USEC);
-+}
- __attribute__((weak)) unsigned long long timestamp_clock(void)
+-static void set_time(void)
+-{
+-	struct timespec ts;
+-	if (got_clock_diff) {	/* Must know time zone in order to set clock */
+-		ts.tv_sec = get_cmos_time() + clock_cmos_diff;
+-		ts.tv_nsec = 0;
+-		do_settimeofday(&ts);
+-	} 
+-}
+-
+-static void get_time_diff(void)
+-{
+-#ifndef CONFIG_APM_RTC_IS_GMT
+-	/*
+-	 * Estimate time zone so that set_time can update the clock
+-	 */
+-	clock_cmos_diff = -get_cmos_time();
+-	clock_cmos_diff += get_seconds();
+-	got_clock_diff = 1;
+-#endif
+-}
+-
+ static void reinit_timer(void)
  {
- 	return sched_clock();
+ #ifdef INIT_TIMER_AFTER_SUSPEND
+@@ -1214,19 +1191,6 @@ static int suspend(int vetoable)
+ 	local_irq_disable();
+ 	device_power_down(PMSG_SUSPEND);
+ 
+-	/* serialize with the timer interrupt */
+-	write_seqlock(&xtime_lock);
+-
+-	/* protect against access to timer chip registers */
+-	spin_lock(&i8253_lock);
+-
+-	get_time_diff();
+-	/*
+-	 * Irq spinlock must be dropped around set_system_power_state.
+-	 * We'll undo any timer changes due to interrupts below.
+-	 */
+-	spin_unlock(&i8253_lock);
+-	write_sequnlock(&xtime_lock);
+ 	local_irq_enable();
+ 
+ 	save_processor_state();
+@@ -1235,7 +1199,6 @@ static int suspend(int vetoable)
+ 	restore_processor_state();
+ 
+ 	local_irq_disable();
+-	set_time();
+ 	reinit_timer();
+ 
+ 	if (err == APM_NO_ERROR)
+@@ -1265,11 +1228,6 @@ static void standby(void)
+ 
+ 	local_irq_disable();
+ 	device_power_down(PMSG_SUSPEND);
+-	/* serialize with the timer interrupt */
+-	write_seqlock(&xtime_lock);
+-	/* If needed, notify drivers here */
+-	get_time_diff();
+-	write_sequnlock(&xtime_lock);
+ 	local_irq_enable();
+ 
+ 	err = set_system_power_state(APM_STATE_STANDBY);
+@@ -1363,7 +1321,6 @@ static void check_events(void)
+ 			ignore_bounce = 1;
+ 			if ((event != APM_NORMAL_RESUME)
+ 			    || (ignore_normal_resume == 0)) {
+-				set_time();
+ 				device_resume();
+ 				pm_send_all(PM_RESUME, (void *)0);
+ 				queue_event(event, NULL);
+@@ -1379,7 +1336,6 @@ static void check_events(void)
+ 			break;
+ 
+ 		case APM_UPDATE_TIME:
+-			set_time();
+ 			break;
+ 
+ 		case APM_CRITICAL_SUSPEND:
+Index: linux-2.6.18-mm2/arch/i386/kernel/time.c
+===================================================================
+--- linux-2.6.18-mm2.orig/arch/i386/kernel/time.c	2006-10-02 00:55:49.000000000 +0200
++++ linux-2.6.18-mm2/arch/i386/kernel/time.c	2006-10-02 00:55:50.000000000 +0200
+@@ -216,7 +216,7 @@ irqreturn_t timer_interrupt(int irq, voi
+ }
+ 
+ /* not static: needed by APM */
+-unsigned long get_cmos_time(void)
++unsigned long read_persistent_clock(void)
+ {
+ 	unsigned long retval;
+ 	unsigned long flags;
+@@ -232,7 +232,7 @@ unsigned long get_cmos_time(void)
+ 
+ 	return retval;
+ }
+-EXPORT_SYMBOL(get_cmos_time);
++EXPORT_SYMBOL(read_persistent_clock);
+ 
+ static void sync_cmos_clock(unsigned long dummy);
+ 
+@@ -283,58 +283,19 @@ void notify_arch_cmos_timer(void)
+ 	mod_timer(&sync_cmos_timer, jiffies + 1);
+ }
+ 
+-static long clock_cmos_diff;
+-static unsigned long sleep_start;
+-
+-static int timer_suspend(struct sys_device *dev, pm_message_t state)
+-{
+-	/*
+-	 * Estimate time zone so that set_time can update the clock
+-	 */
+-	unsigned long ctime =  get_cmos_time();
+-
+-	clock_cmos_diff = -ctime;
+-	clock_cmos_diff += get_seconds();
+-	sleep_start = ctime;
+-	return 0;
+-}
+-
+ static int timer_resume(struct sys_device *dev)
+ {
+-	unsigned long flags;
+-	unsigned long sec;
+-	unsigned long ctime = get_cmos_time();
+-	long sleep_length = (ctime - sleep_start) * HZ;
+-	struct timespec ts;
+-
+-	if (sleep_length < 0) {
+-		printk(KERN_WARNING "CMOS clock skew detected in timer resume!\n");
+-		/* The time after the resume must not be earlier than the time
+-		 * before the suspend or some nasty things will happen
+-		 */
+-		sleep_length = 0;
+-		ctime = sleep_start;
+-	}
+ #ifdef CONFIG_HPET_TIMER
+ 	if (is_hpet_enabled())
+ 		hpet_reenable();
+ #endif
+ 	setup_pit_timer();
+ 
+-	sec = ctime + clock_cmos_diff;
+-	ts.tv_sec = sec;
+-	ts.tv_nsec = 0;
+-	do_settimeofday(&ts);
+-	write_seqlock_irqsave(&xtime_lock, flags);
+-	jiffies_64 += sleep_length;
+-	write_sequnlock_irqrestore(&xtime_lock, flags);
+-	touch_softlockup_watchdog();
+ 	return 0;
+ }
+ 
+ static struct sysdev_class timer_sysclass = {
+ 	.resume = timer_resume,
+-	.suspend = timer_suspend,
+ 	set_kset_name("timer"),
+ };
+ 
+@@ -360,12 +321,6 @@ extern void (*late_time_init)(void);
+ /* Duplicate of time_init() below, with hpet_enable part added */
+ static void __init hpet_time_init(void)
+ {
+-	struct timespec ts;
+-	ts.tv_sec = get_cmos_time();
+-	ts.tv_nsec = (INITIAL_JIFFIES % HZ) * (NSEC_PER_SEC / HZ);
+-
+-	do_settimeofday(&ts);
+-
+ 	if ((hpet_enable() >= 0) && hpet_use_timer) {
+ 		printk("Using HPET for base-timer\n");
+ 	}
+@@ -376,7 +331,6 @@ static void __init hpet_time_init(void)
+ 
+ void __init time_init(void)
+ {
+-	struct timespec ts;
+ #ifdef CONFIG_HPET_TIMER
+ 	if (is_hpet_capable()) {
+ 		/*
+@@ -387,10 +341,6 @@ void __init time_init(void)
+ 		return;
+ 	}
+ #endif
+-	ts.tv_sec = get_cmos_time();
+-	ts.tv_nsec = (INITIAL_JIFFIES % HZ) * (NSEC_PER_SEC / HZ);
+-
+-	do_settimeofday(&ts);
+ 
+ 	time_init_hook();
+ }
 
 --
 

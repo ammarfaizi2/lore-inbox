@@ -1,51 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751227AbWJAQQo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751236AbWJAQSA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751227AbWJAQQo (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Oct 2006 12:16:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751231AbWJAQQo
+	id S1751236AbWJAQSA (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Oct 2006 12:18:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751239AbWJAQSA
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Oct 2006 12:16:44 -0400
-Received: from havoc.gtf.org ([69.61.125.42]:60396 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id S1751227AbWJAQQn (ORCPT
+	Sun, 1 Oct 2006 12:18:00 -0400
+Received: from ns2.suse.de ([195.135.220.15]:23518 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751236AbWJAQR7 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Oct 2006 12:16:43 -0400
-Date: Sun, 1 Oct 2006 12:16:00 -0400
-From: Jeff Garzik <jeff@garzik.org>
-To: dwmw2@infradead.org, Andrew Morton <akpm@osdl.org>,
-       LKML <linux-kernel@vger.kernel.org>
-Cc: axboe@kernel.dk
-Subject: [PATCH] MTD: fix printk warning
-Message-ID: <20061001161600.GA7636@havoc.gtf.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
+	Sun, 1 Oct 2006 12:17:59 -0400
+From: Andreas Schwab <schwab@suse.de>
+To: Valdis.Kletnieks@vt.edu
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2.6.18 V7] drivers: add lcd display support
+References: <20060930232445.59e8adf6.maxextreme@gmail.com>
+	<653402b90610010553p23819d2bsd7a07fabaee7ecf3@mail.gmail.com>
+	<451FC7DC.7070909@s5r6.in-berlin.de>
+	<200610011605.k91G5wJD031632@turing-police.cc.vt.edu>
+X-Yow: Zippy's brain cells are straining to bridge synapses...
+Date: Sun, 01 Oct 2006 18:17:56 +0200
+In-Reply-To: <200610011605.k91G5wJD031632@turing-police.cc.vt.edu> (Valdis
+	Kletnieks's message of "Sun, 01 Oct 2006 12:05:58 -0400")
+Message-ID: <jelko03t8r.fsf@sykes.suse.de>
+User-Agent: Gnus/5.110006 (No Gnus v0.6) Emacs/22.0.50 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
 Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Valdis.Kletnieks@vt.edu writes:
 
-gcc spits out this warning:
+> Maybe I'm confused, but doesn't the D stand for *DIODE*?
 
-drivers/mtd/mtd_blkdevs.c: In function ‘do_blktrans_request’:
-drivers/mtd/mtd_blkdevs.c:72: warning: format ‘%ld’ expects type ‘long int’, but argument 2 has type ‘unsigned int’
+No, it's the D in LED that stands for diode.
 
-This could be fixed any number of ways, including use of BUG().
-rq_data_dir() only returns 0 or 1, so this entire case is superfluous.
-I did the most simple fix.
+Andreas.
 
-Signed-off-by: Jeff Garzik <jeff@garzik.org>
-
-diff --git a/drivers/mtd/mtd_blkdevs.c b/drivers/mtd/mtd_blkdevs.c
-index 6baf5fe..178b53b 100644
---- a/drivers/mtd/mtd_blkdevs.c
-+++ b/drivers/mtd/mtd_blkdevs.c
-@@ -69,7 +69,7 @@ static int do_blktrans_request(struct mt
- 		return 1;
- 
- 	default:
--		printk(KERN_NOTICE "Unknown request %ld\n", rq_data_dir(req));
-+		printk(KERN_NOTICE "Unknown request %u\n", rq_data_dir(req));
- 		return 0;
- 	}
- }
+-- 
+Andreas Schwab, SuSE Labs, schwab@suse.de
+SuSE Linux Products GmbH, Maxfeldstra�e 5, 90409 N�rnberg, Germany
+PGP key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
+"And now for something completely different."

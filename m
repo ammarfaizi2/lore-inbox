@@ -1,85 +1,107 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932431AbWJAWJA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932435AbWJAWJq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932431AbWJAWJA (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Oct 2006 18:09:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932435AbWJAWI7
+	id S932435AbWJAWJq (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Oct 2006 18:09:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932433AbWJAWJq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Oct 2006 18:08:59 -0400
-Received: from [198.99.130.12] ([198.99.130.12]:19692 "EHLO
-	saraswathi.solana.com") by vger.kernel.org with ESMTP
-	id S932433AbWJAWI6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Oct 2006 18:08:58 -0400
-Date: Sun, 1 Oct 2006 18:07:27 -0400
-From: Jeff Dike <jdike@addtoit.com>
-To: Blaisorblade <blaisorblade@yahoo.it>
-Cc: user-mode-linux-devel@lists.sourceforge.net, akpm@osdl.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [uml-devel] [PATCH 4/5] UML - Close file descriptor leaks
-Message-ID: <20061001220727.GA5194@ccure.user-mode-linux.org>
-References: <200609271757.k8RHvtNK005742@ccure.user-mode-linux.org> <200610011910.37805.blaisorblade@yahoo.it>
-Mime-Version: 1.0
+	Sun, 1 Oct 2006 18:09:46 -0400
+Received: from khc.piap.pl ([195.187.100.11]:15552 "EHLO khc.piap.pl")
+	by vger.kernel.org with ESMTP id S932435AbWJAWJp (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 Oct 2006 18:09:45 -0400
+To: Ben Greear <greearb@candelatech.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Question on HDLC and raw access to T1/E1 serial streams.
+References: <451DC75E.4070403@candelatech.com>
+	<m3mz8hntqu.fsf@defiant.localdomain> <451EE973.10907@candelatech.com>
+	<m3hcyo2qvs.fsf@defiant.localdomain>
+	<45200BD7.6030509@candelatech.com>
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Date: Mon, 02 Oct 2006 00:09:41 +0200
+In-Reply-To: <45200BD7.6030509@candelatech.com> (Ben Greear's message of "Sun, 01 Oct 2006 11:41:27 -0700")
+Message-ID: <m3zmcf8z8a.fsf@defiant.localdomain>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <200610011910.37805.blaisorblade@yahoo.it>
-User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 01, 2006 at 07:10:37PM +0200, Blaisorblade wrote:
-> NACK on the ubd driver part. It adds a bugs and does fix the one you found in
-> the right point. ACK on the other hunk.
-> 
-> Now, Andrew, you can ignore what follows if you want:
-> 
-> Jeff, please explain me the exact ubd driver bug - I believe that the open 
-> must be done there, that it is balanced by ubd_close(), and that the leak fix
-> should be done differently. 
+Ben Greear <greearb@candelatech.com> writes:
 
-The code as it was was just wrong.  There was a call to ubd_open_dev
-at the start and a matching ubd_close at the end.  So far, so good,
-since ubd_close inverts ubd_open_dev.  However, neither manipulates
-dev->count (this is done by ubd_open/ubd_release) and the call to
-ubd_add_disk indirectly calls ubd_open, which, since dev->count is
-still zero redoes the initialization, leaking the descriptor and
-vmalloc space allocated by the first ubd_open_dev call.
+> My assumption for bridging a bitstream is that timeslot sync is not
+> absolutely critical.  However, IF
+> you could be sure of time-slot sync, you'd  have a lot more power and
+> be able to do some extra ticks
+> in user-space I think...
 
-The fix is simple - there is no need for ubd_add to call ubd_open_dev
-or ubd_close (ubd_file_size doesn't require the device be opened), so
-the calls can simply be deleted.  With the non-count-changing
-device-opening call gone, the leaks just disappear.
+Not sure what do you want to do with that, but it may be critical for
+many things.
 
-There are multiple things wrong with the code, many of which are still
-there, but I don't see this as being an argument against this change.
-It eliminates some useless code, which is good from both a maintenance
-and performance standpoint.  However, leaks aside, the main benefit of
-this change is that eliminates the one call to ubd_open_dev outside of
-ubd_open, and thus opening stuff on the host and allocating memory is
-always inside a check of dev->open.
+> The key for me is that if you ever miss a slot in bit-stream mode, you
+> can never make it up because
+> every bit is critical.
 
-> I've done huge changes to the UBD driver and I'll
-> send them you briefly for your tree (they work but they're not yet in a 
-> perfect shape).
+I think you'd have to perform some recover procedure then, that's similar
+to DCE losing sync.
 
-OK, just make sure you preserve (or add) this property.
+>  This leads to having to drop arbitrary data to
+> keep from ever-increasing latency on your
+> bridge.
 
-> For what I can gather from your description and code, the leak you diagnosed 
-> is a bug in ubd_open_dev(), and is valid for any call to it: 
+If your clocks are synchronized (for example, if you get a "master"
+clock from your public phone exchange and you propagate it downstream,
+or your machine is the "master") then you never drop anything, the
+input and output rates are equal and in sync.
 
-No, the bug is doing the work of opening the device outside a check of
-the device refcount.
+>  With HDLC, you can skip the flags and make up time if you
+> ever miss a timeslot (assuming the
+> HDLC is not using the line at 100% capacity.)
 
-> generally, if an
-> _open function fails it should leave nothing to cleanup, and in particular 
-> the corresponding _close should not be called (this is the implicit standard 
-> I've seen in Linux). 
+Sure. Even at 100% you can just drop a frame, HDLC applications must
+be prepared for it.
 
-This is true - however the _open function was succeeding, so it's
-irrelevant in this case.
+> I'd be happy with a software approach.  In fact, if I could get a
+> framed packet (ie, I know that
+> byte 0 is channel 1, byte 24 is channel 24, and byte 25 is channel 1
+> again...) then I could even
+> do the multiplexing in user space.
 
-> Btw, ubd_open_dev() and ubd_close() are matching functions, while ubd_close()
-> does not match ubd_open(), so I renamed ubd_close -> ubd_close_dev.
+Well, with software framing it would look a bit different - there
+is no such thing as "packet" as both TX and RX is continuous, not
+aligned to anything etc. You would have to detect channel boundaries,
+and bit-shift the data. Requires the sync serial controller (and FALC)
+in transparent mode (I would have to look at some docs). I think
+the kernel is a better place for things like that due to latency
+issues.
 
-Yes, this is one of the things wrong with the current code - the names
-are messed up.
+> For write, I'd also need to be able to guarantee that byte 0 goes to
+> channel 1, etc.  So, if the
+> driver bit-stuffed, then it would need to do an entire time-slice at once.
 
-				Jeff
+BTW: An HDLC frame can use many slices. You can in fact have many
+HDLC frames (from different streams) multiplexed. You just need
+a multi-stream device or a multiplexer.
+
+>>> *  Configure entire T1 as HDLC transport, bridge HDLC frames from one
+>>> T1 to the other.
+> Excellent.  I actually want to write the bridge logic myself in
+> user-space..I just need the driver
+> API and at least one driver that supports it and has support for
+> readily available T1/E1 hardware.
+
+If you want the userspace HDLC bridge... I'd use a pair of T1/E1 cards
+with generic HDLC support, for example, Cyclades PC300 (never used them
+and while I don't exactly like their driver, in case of problems I could
+add T1/E1 to my own driver which currently supports PC300 X.21 and
+V.24/V.35).
+
+Once T1/E1s are working and the required slots are selected:
+sethdlc hdlc0 hdlc (options)
+sethdlc hdlc1 hdlc (options)
+ifconfig hdlc0 up
+ifconfig hdlc1 up
+man PF_PACKET
+
+A single HDLC stream is a simple thing because it's exactly what
+the cards are designed for.
+-- 
+Krzysztof Halasa

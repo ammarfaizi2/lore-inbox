@@ -1,73 +1,116 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932259AbWJATnJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932254AbWJAT7n@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932259AbWJATnJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Oct 2006 15:43:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932253AbWJATnI
+	id S932254AbWJAT7n (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Oct 2006 15:59:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932256AbWJAT7n
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Oct 2006 15:43:08 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:18067 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S932252AbWJATnE (ORCPT
+	Sun, 1 Oct 2006 15:59:43 -0400
+Received: from havoc.gtf.org ([69.61.125.42]:24196 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S932254AbWJAT7m (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Oct 2006 15:43:04 -0400
-Message-ID: <45201A39.6020500@garzik.org>
-Date: Sun, 01 Oct 2006 15:42:49 -0400
+	Sun, 1 Oct 2006 15:59:42 -0400
+Date: Sun, 1 Oct 2006 15:59:41 -0400
 From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
-MIME-Version: 1.0
-To: Matthew Wilcox <matthew@wil.cx>
-CC: Arjan van de Ven <arjan@infradead.org>, linux-scsi@vger.kernel.org,
-       "Linux-Kernel," <linux-kernel@vger.kernel.org>,
-       "J.A. Magall??n" <jamagallon@ono.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Morton <akpm@osdl.org>,
-       Frederik Deweerdt <deweerdt@free.fr>
-Subject: Re: [-mm patch] aic7xxx: check irq validity (was Re: 2.6.18-mm2)
-References: <20060928014623.ccc9b885.akpm@osdl.org> <20060929155738.7076f0c8@werewolf> <20060929143949.GL5017@parisc-linux.org> <1159550143.13029.36.camel@localhost.localdomain> <20060929235054.GB2020@slug> <1159573404.13029.96.camel@localhost.localdomain> <20060930140946.GA1195@slug> <451F049A.1010404@garzik.org> <20061001142807.GD16272@parisc-linux.org> <1159729523.2891.408.camel@laptopd505.fenrus.org> <20061001193616.GF16272@parisc-linux.org>
-In-Reply-To: <20061001193616.GF16272@parisc-linux.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.3 (----)
-X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.3 points, 5.0 required)
+To: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
+Subject: [doc] Full audit of 'make allmodconfig' uninit warnings
+Message-ID: <20061001195941.GA17762@havoc.gtf.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Matthew Wilcox wrote:
-> Others tend to use the driver name.  Changing them all to be 0000:00:1d.2
-> isn't really an improvement in the readability of /proc/interrupts, IMO.
 
-agreed
+Ok, done with the first pass on x86_64.  I break down each and every
+uninit warning.  There were more Real Bugs than I would have guessed.
 
+There are three categories:
 
-> Passing pdev as the data is a good idea for practically no device driver.
-
-agreed
-
-
-> It's rare to actually want the pci_device down in the interrupt handler;
-> normally you want the device private data.  Using pci_get_drvdata(pdev)
-> as the data would make sense for both sym2 and tg3.  I don't feel like
-
-Using pci_get_drvdata() is a pretty good idea
+1) gcc bugs, and things highly difficult for the compiler to figure out.
+2) confirmed kernel bugs.  already created patches for several of these.
+3) other stuff.  explanations inline.
 
 
-> int pci_request_irq(struct pci_dev *pdev, irq_handler_t handler,
-> 			const char *name)
-> {
-> 	if (!valid_irq(pdev->irq)) {
-> 		dev_printk(KERN_ERR, &pdev->dev, "invalid irq\n");
-> 		return -EINVAL;
-> 	}
-> 
-> 	return request_irq(pdev->irq, handler, IRQF_SHARED, name,
-> 				pci_get_drvdata(pdev));
-> }
-> 
-> But what about IRQF_SAMPLE_RANDOM?
+1) COMPILER ANALYSIS DIFFICULTIES AND BUGS
+------------------------------------------
+arch/x86_64/kernel/../../i386/kernel/microcode.c:387: warning: ‘new_mc’ may be used uninitialized in this function
+drivers/ata/pata_artop.c:429: warning: ‘info’ may be used uninitialized in this function
+drivers/infiniband/hw/mthca/mthca_qp.c:1529: warning: ‘f0’ may be used uninitialized in this function
+drivers/infiniband/hw/mthca/mthca_qp.c:1872: warning: ‘f0’ may be used uninitialized in this function
+drivers/net/r8169.c:2221: warning: ‘txd’ may be used uninitialized in this function
+drivers/net/wan/sbni.c:598: warning: ‘framelen’ may be used uninitialized in this function
+drivers/usb/misc/auerswald.c:667: warning: ‘length’ may be used uninitialized in this function
+drivers/usb/net/kaweth.c:1213: warning: ‘length’ may be used uninitialized in this function
+drivers/video/matrox/matroxfb_maven.c:287: warning: ‘p’ may be used uninitialized in this function
+drivers/video/matrox/matroxfb_maven.c:718: warning: ‘a’ may be used uninitialized in this function
+drivers/video/matrox/matroxfb_maven.c:718: warning: ‘b’ may be used uninitialized in this function
+drivers/video/matrox/matroxfb_maven.c:718: warning: ‘h2’ may be used uninitialized in this function
+fs/bio.c:169: warning: ‘idx’ may be used uninitialized in this function
+fs/eventpoll.c:500: warning: ‘fd’ may be used uninitialized in this function
+fs/jfs/jfs_txnmgr.c:1922: warning: ‘pxd.addr1’ may be used uninitialized in this function
+fs/jfs/jfs_txnmgr.c:1922: warning: ‘pxd.addr2’ may be used uninitialized in this function
+fs/jfs/jfs_txnmgr.c:1922: warning: ‘pxd.len’ may be used uninitialized in this function
+ipc/msg.c:341: warning: ‘setbuf.gid’ may be used uninitialized in this function
+ipc/msg.c:341: warning: ‘setbuf.mode’ may be used uninitialized in this function
+ipc/msg.c:341: warning: ‘setbuf.qbytes’ may be used uninitialized in this function
+ipc/msg.c:341: warning: ‘setbuf.uid’ may be used uninitialized in this function
+ipc/sem.c:809: warning: ‘setbuf.gid’ may be used uninitialized in this function
+ipc/sem.c:809: warning: ‘setbuf.mode’ may be used uninitialized in this function
+ipc/sem.c:809: warning: ‘setbuf.uid’ may be used uninitialized in this function
+fs/ocfs2/dlm/dlmdomain.c:918: warning: ‘response’ may be used uninitialized in this function
+fs/ocfs2/vote.c:667: warning: ‘response’ may be used uninitialized in this function
+fs/udf/balloc.c:751: warning: ‘goal_eloc.logicalBlockNum’ may be used uninitialized in this function
+fs/udf/super.c:1363: warning: ‘ino.partitionReferenceNum’ may be used uninitialized in this function
+kernel/auditfilter.c:1164: warning: ‘ndp’ may be used uninitialized in this function
+kernel/auditfilter.c:1164: warning: ‘ndw’ may be used uninitialized in this function
+kernel/auditfilter.c:1599: warning: ‘state’ may be used uninitialized in this function
+sound/pci/pcxhr/pcxhr.c:640: warning: ‘stream’ may be used uninitialized in this function
 
-I still like having a flags argument though.  It's enough of an open 
-question, and I bet there will be a new flag or two in the future that 
-PCI drivers will want to use.
+2) KERNEL BUGS
+--------------
+drivers/ata/pata_atiixp.c:118: warning: ‘wanted_pio’ may be used uninitialized in this function
+	--> Needs BUG() to be marked 'noreturn'
+drivers/atm/ambassador.c:1049: warning: ‘tx_rate_bits’ may be used uninitialized in this function
+drivers/atm/firestream.c:870: warning: ‘tmc0’ may be used uninitialized in this function
+drivers/atm/zatm.c:919: warning: ‘pcr’ may be used uninitialized in this function
+	--> ATM bug descriptions on LKML
+drivers/char/ipmi/ipmi_si_intf.c:1733: warning: ‘data.irq’ may be used uninitialized in this function
+	--> Patch sent to LKML
+drivers/net/wan/pc300_drv.c:2870: warning: ‘br’ may be used uninitialized in this function
+	--> Description sent to LKML, netdev, maintainer
+drivers/scsi/ips.c:7123: warning: ‘index’ may be used uninitialized in this function
+	--> Description sent to LKML, linux-scsi
+drivers/video/aty/aty128fb.c:1511: warning: ‘pll.post_divider’ may be used uninitialized in this function
+	--> Might be OK, might need to return an error.  Prefer the latter.
+drivers/video/riva/riva_hw.c:1241: warning: ‘m’ may be used uninitialized in this function
+drivers/video/riva/riva_hw.c:1241: warning: ‘n’ may be used uninitialized in this function
+drivers/video/riva/riva_hw.c:1241: warning: ‘p’ may be used uninitialized in this function
+drivers/video/riva/riva_hw.c:1241: warning: ‘VClk’ may be used uninitialized in this function
+	--> Unhandled error return... but error propagation is difficult.
 
-	Jeff
 
+3) MISCELLANEOUS
+----------------
+drivers/telephony/ixj.c:3448: warning: ‘blankword.high’ may be used uninitialized in this function
+drivers/telephony/ixj.c:3448: warning: ‘blankword.low’ may be used uninitialized in this function
+drivers/telephony/ixj.c:4847: warning: ‘bytes.high’ may be used uninitialized in this function
+
+	--> Difficult to answer without knowning the hardware well,
+	    or doing a _really_ deep analysis.
+
+
+fs/jffs2/readinode.c:664: warning: ‘fd_list’ may be used uninitialized in this function
+fs/jffs2/readinode.c:667: warning: ‘latest_mctime’ may be used uninitialized in this function
+
+	--> Code makes my fscking eyes bleed.  Gave up.
+
+
+
+net/ipv4/tcp_input.c:2262: warning: ‘tv.tv_sec’ may be used uninitialized in this function
+net/ipv4/tcp_input.c:2262: warning: ‘tv.tv_usec’ may be used uninitialized in this function
+
+	--> Difficult to analyze.  Requires knowing about flags and
+	    conditions that occur in other parts of the code.
 

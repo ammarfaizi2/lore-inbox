@@ -1,50 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932167AbWJANo6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932192AbWJANt0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932167AbWJANo6 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Oct 2006 09:44:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932183AbWJANo6
+	id S932192AbWJANt0 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Oct 2006 09:49:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932193AbWJANt0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Oct 2006 09:44:58 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:7563 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S932167AbWJANo5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Oct 2006 09:44:57 -0400
-Message-ID: <451FC657.6090603@garzik.org>
-Date: Sun, 01 Oct 2006 09:44:55 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
+	Sun, 1 Oct 2006 09:49:26 -0400
+Received: from smtp102.sbc.mail.mud.yahoo.com ([68.142.198.201]:33640 "HELO
+	smtp102.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S932192AbWJANtZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 Oct 2006 09:49:25 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=pacbell.net;
+  h=Received:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
+  b=TkKUoph8d7KS9b4a2bGFAG1wl4PAsE5G/MLSRO2bmOCdLLNmzwZU5GS9IWO/H9Ad3d6qB0m4CwJzw4CpsCwJKbgKTN/QZVwd9HBqPqYootO1Iv0fv2IJihD3gxnAPRVYYBDG8jfDhWP4ZUqe2S6mZOK0bSFkBN2D4Ky+9XWj07o=  ;
+From: David Brownell <david-b@pacbell.net>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: [patch 2.6.18-git] RTC class uses subsys_init
+Date: Sun, 1 Oct 2006 06:49:20 -0700
+User-Agent: KMail/1.7.1
+Cc: Olaf Hering <olaf@aepfle.de>,
+       Alessandro Zummo <alessandro.zummo@towertech.it>,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+References: <200609282333.34224.david-b@pacbell.net> <20061001090717.GA14885@aepfle.de> <20061001022022.d7f86b39.akpm@osdl.org>
+In-Reply-To: <20061001022022.d7f86b39.akpm@osdl.org>
 MIME-Version: 1.0
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-CC: Andrew Morton <akpm@osdl.org>
-Subject: Announce: gcc bogus warning repository
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="us-ascii"
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.3 (----)
-X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.3 points, 5.0 required)
+Content-Disposition: inline
+Message-Id: <200610010649.21348.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Sunday 01 October 2006 2:20 am, Andrew Morton wrote:
+> I'll fix it up.
+> 
+> (Wonders how it passed runtime testing..)
 
-The level of warnings in a kernel build has lately increased to the 
-point where it is hiding bugs and otherwise making life difficult.
+Thanks ... this is a "wrong patch version" got forwarded" issue, sorry.
 
-In particular, recent gcc versions throw warnings when it thinks a 
-variable "MAY be used uninitialized", which is not terribly helpful due 
-to the fact that most of these warnings are bogus.
-
-For those that may find this valuable, I have started a git repo that 
-silences these bogus warnings, after careful auditing of code paths to 
-ensure that the warning truly is bogus.
-
-The results may be found in the "gccbug" branch of
-git://git.kernel.org/pub/scm/linux/kernel/git/jgarzik/misc-2.6.git
-
-This repository will NEVER EVER be pushed upstream.  It exists solely 
-for those who want to decrease their build noise, thereby exposing true 
-bugs.
-
-The audit has already uncovered several minor bugs, lending credence to 
-my theory that too many warnings hides bugs.
-
-
+- Dave

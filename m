@@ -1,64 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932078AbWJAR13@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932092AbWJAR2r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932078AbWJAR13 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Oct 2006 13:27:29 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932081AbWJAR13
+	id S932092AbWJAR2r (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Oct 2006 13:28:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932088AbWJAR2r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Oct 2006 13:27:29 -0400
-Received: from mcr-smtp-002.bulldogdsl.com ([212.158.248.8]:64530 "EHLO
-	mcr-smtp-002.bulldogdsl.com") by vger.kernel.org with ESMTP
-	id S932078AbWJAR12 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Oct 2006 13:27:28 -0400
-X-Spam-Abuse: Please report all spam/abuse matters to abuse@bulldogdsl.com
-From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
-To: Jeff Garzik <jeff@garzik.org>
-Subject: Re: Announce: gcc bogus warning repository
-Date: Sun, 1 Oct 2006 18:27:29 +0100
-User-Agent: KMail/1.9.4
-Cc: Randy Dunlap <rdunlap@xenotime.net>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-References: <451FC657.6090603@garzik.org> <20061001100747.d1842273.rdunlap@xenotime.net> <451FF8ED.9080507@garzik.org>
-In-Reply-To: <451FF8ED.9080507@garzik.org>
+	Sun, 1 Oct 2006 13:28:47 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:3728 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S932092AbWJAR2q (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 Oct 2006 13:28:46 -0400
+Message-ID: <451FFAC9.1050903@garzik.org>
+Date: Sun, 01 Oct 2006 13:28:41 -0400
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+To: Davide Libenzi <davidel@xmailserver.org>
+CC: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] fs/eventpoll: error handling micro-cleanup
+References: <20061001124352.GA30263@havoc.gtf.org> <Pine.LNX.4.64.0610010900540.21285@alien.or.mcafeemobile.com> <451FE7E3.4050503@garzik.org> <Pine.LNX.4.64.0610010911231.21285@alien.or.mcafeemobile.com> <451FED1C.60900@garzik.org> <Pine.LNX.4.64.0610010934300.21285@alien.or.mcafeemobile.com>
+In-Reply-To: <Pine.LNX.4.64.0610010934300.21285@alien.or.mcafeemobile.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200610011827.29732.s0348365@sms.ed.ac.uk>
+X-Spam-Score: -4.3 (----)
+X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 01 October 2006 18:20, Jeff Garzik wrote:
-> Randy Dunlap wrote:
-[snip]
-> >> This repository will NEVER EVER be pushed upstream.  It exists solely
-> >> for those who want to decrease their build noise, thereby exposing true
-> >> bugs.
-> >>
-> >> The audit has already uncovered several minor bugs, lending credence to
-> >> my theory that too many warnings hides bugs.
-> >
-> > I usually build with must_check etc. enabled then grep them
-> > away if I want to look for other messages.  I think that the situation
-> > is not so disastrous.
->
-> I think it's both sad, and telling, that the high level of build noise
-> has trained kernel hackers to tune out warnings, and/or build tools of
-> ever-increasing sophistication just to pick out the useful messages from
-> all the noise.
->
-> If you have to grep useful stuff out of the noise, you've already lost.
+Davide Libenzi wrote:
+> On Sun, 1 Oct 2006, Jeff Garzik wrote:
+> 
+>> Davide Libenzi wrote:
+>>
+>>> I just tried a `find /usr/src/linux-2.6.16/ -type f -exec grep -H -C 2
+>>> PTR_ERR {} \;`
+>>> and looked at the cases where the error variable is assigned in any case
+>>> before the test. Same code pattern as, like:
+>>>
+>>> error = -EFAULT;
+>>> if (copy_from_user(...))
+>>> 	goto kaboom;
+>> No, that's quite different.  I'm talking about
+>>
+>> 	ptr = get_a_pointer_from_somewhere()
+>> 	error = PTR_ERR(ptr)
+>>
+>> See the difference?  The error variable is directly assigned from a
+>> potentially-valid pointer.
+> 
+> So? Is PTR_ERR() defined and documented in a way that, if called with a 
+> valid pointer, has an unexpected/faulty behaviour?
 
-The question is whether the GCC guys are actually doing anything about the 
-problem. If they are, we should do nothing. If they aren't, maybe it's time 
-for "x = x" hacks like Steven's.
+When called with a valid pointer, the value assigned to the return-code 
+integer is essentially a random number.
 
-Is GCC 4.2 any better with this class of warnings?
 
--- 
-Cheers,
-Alistair.
+> Again, I don't care either ways, but don't tell me you're not sure about 
+> the countless occurrences. Take a look at:
+> 
+> `find $LINUXSRC -type f -exec grep -H -C 2 PTR_ERR {} \;`
 
-Final year Computer Science undergraduate.
-1F2 55 South Clerk Street, Edinburgh, UK.
+Perhaps 1 out of every 100 or so hits from this find(1) is unprotected 
+by IS_ERR().  IOW, what I've been describing here is quite rare.
+
+	Jeff
+
+
+

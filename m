@@ -1,56 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932111AbWJARdt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932108AbWJARdt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932111AbWJARdt (ORCPT <rfc822;willy@w.ods.org>);
+	id S932108AbWJARdt (ORCPT <rfc822;willy@w.ods.org>);
 	Sun, 1 Oct 2006 13:33:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932073AbWJARdt
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932114AbWJARdt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
 	Sun, 1 Oct 2006 13:33:49 -0400
-Received: from pool-72-66-199-147.ronkva.east.verizon.net ([72.66.199.147]:52165
-	"EHLO turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S932111AbWJARds (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+Received: from zakalwe.fi ([80.83.5.154]:62147 "EHLO zakalwe.fi")
+	by vger.kernel.org with ESMTP id S932108AbWJARds (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
 	Sun, 1 Oct 2006 13:33:48 -0400
-Message-Id: <200610011733.k91HXgYS001029@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
-To: Andreas Schwab <schwab@suse.de>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.18 V7] drivers: add lcd display support
-In-Reply-To: Your message of "Sun, 01 Oct 2006 18:17:56 +0200."
-             <jelko03t8r.fsf@sykes.suse.de>
-From: Valdis.Kletnieks@vt.edu
-References: <20060930232445.59e8adf6.maxextreme@gmail.com> <653402b90610010553p23819d2bsd7a07fabaee7ecf3@mail.gmail.com> <451FC7DC.7070909@s5r6.in-berlin.de> <200610011605.k91G5wJD031632@turing-police.cc.vt.edu>
-            <jelko03t8r.fsf@sykes.suse.de>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1159724021_8054P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Sun, 01 Oct 2006 13:33:41 -0400
+Date: Sun, 1 Oct 2006 20:32:52 +0300
+From: Heikki Orsila <shd@zakalwe.fi>
+To: Pavel Machek <pavel@ucw.cz>
+Cc: "Eugeny S. Mints" <eugeny.mints@gmail.com>, linux-pm@lists.osdl.org,
+       linux-kernel@vger.kernel.org, ext-Tuukka.Tikkanen@nokia.com
+Subject: Re: [linux-pm] [RFC] OMAP1 PM Core, PM Core  Implementation 2/2
+Message-ID: <20061001173252.GB24539@zakalwe.fi>
+References: <20060930022435.b2344b5f.eugeny.mints@gmail.com> <20061001152228.GA24539@zakalwe.fi> <20061001171032.GE2254@elf.ucw.cz>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+In-Reply-To: <20061001171032.GE2254@elf.ucw.cz>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1159724021_8054P
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: quoted-printable
+On Sun, Oct 01, 2006 at 07:10:32PM +0200, Pavel Machek wrote:
+> On Sun 2006-10-01 18:22:28, Heikki Orsila wrote:
+> > Some nitpicking about the patch follows..
+> > 
+> > On Sat, Sep 30, 2006 at 02:24:35AM +0400, Eugeny S. Mints wrote:
+> > > +static long 
+> > > +get_vtg(const char *vdomain)
+> > > +{
+> > > +	long ret = 0;
+> > 
+> > Unnecessary initialisation.
+> 
+> No, sorry.
 
-On Sun, 01 Oct 2006 18:17:56 +0200, Andreas Schwab said:
-> Valdis.Kletnieks=40vt.edu writes:
->=20
-> > Maybe I'm confused, but doesn't the D stand for *DIODE*?
->=20
-> No, it's the D in LED that stands for diode.
+In get_vtg(), if VOLTAGE_FRAMEWORK is defined then
 
-Argh. Ever wish your laptop had a caffeine detector to prevent you from
-posting before you were sufficiently awake? :)
+	ret = vtg_get_voltage(v);
 
---==_Exmh_1159724021_8054P
-Content-Type: application/pgp-signature
+is the first user. If VOLTAGE_FRAMEWORK is not defined, the first user is:
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
+	ret = vtg_get_voltage(&vhandle);
 
-iD8DBQFFH/v1cC3lWbTT17ARAgLfAKDst5+lsApc4NU7kXSN9ogmzsb9aQCfVqx3
-W4cHvoN5b2M9yORc7/4QdVk=
-=xS+w
------END PGP SIGNATURE-----
+Then "return ret;" follows. I cannot see a path where 
+pre-initialisation of ret does anything useful. If someone removed the
+#else part, the compiler would bark.
 
---==_Exmh_1159724021_8054P--
+> 
+> > > +static long 
+> > > +set_vtg(const char *vdomain, int val)
+> > > +{
+> > > +	long ret = 0;
+> > 
+> > here too.
+> 
+> Wrong again. automatic variables are not zero initialized.
+
+My bad, this was a mistake. If VOLTAGE_FRAMEWORK is not defined, ret 
+must be initialised. (the compiler would have noticed this one :-)
+
+>> 'int i = 0;' happens in many functions.
+
+for example, omap_pm_create_point() does this.
+
+- Heikki

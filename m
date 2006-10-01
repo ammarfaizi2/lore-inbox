@@ -1,54 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751222AbWJAQGc@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751219AbWJAQIJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751222AbWJAQGc (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Oct 2006 12:06:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751221AbWJAQGc
+	id S1751219AbWJAQIJ (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Oct 2006 12:08:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751221AbWJAQIJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Oct 2006 12:06:32 -0400
-Received: from pool-72-66-199-147.ronkva.east.verizon.net ([72.66.199.147]:14789
-	"EHLO turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S1751222AbWJAQGb (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Oct 2006 12:06:31 -0400
-Message-Id: <200610011605.k91G5wJD031632@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
-To: Stefan Richter <stefanr@s5r6.in-berlin.de>
-Cc: Miguel Ojeda <maxextreme@gmail.com>, akpm@osdl.org,
-       Randy Dunlap <rdunlap@xenotime.net>, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.18 V7] drivers: add lcd display support
-In-Reply-To: Your message of "Sun, 01 Oct 2006 15:51:24 +0200."
-             <451FC7DC.7070909@s5r6.in-berlin.de>
-From: Valdis.Kletnieks@vt.edu
-References: <20060930232445.59e8adf6.maxextreme@gmail.com> <653402b90610010553p23819d2bsd7a07fabaee7ecf3@mail.gmail.com>
-            <451FC7DC.7070909@s5r6.in-berlin.de>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1159718758_8054P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+	Sun, 1 Oct 2006 12:08:09 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:6286 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S1751219AbWJAQIG (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 Oct 2006 12:08:06 -0400
+Message-ID: <451FE7E3.4050503@garzik.org>
+Date: Sun, 01 Oct 2006 12:08:03 -0400
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
+MIME-Version: 1.0
+To: Davide Libenzi <davidel@xmailserver.org>
+CC: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] fs/eventpoll: error handling micro-cleanup
+References: <20061001124352.GA30263@havoc.gtf.org> <Pine.LNX.4.64.0610010900540.21285@alien.or.mcafeemobile.com>
+In-Reply-To: <Pine.LNX.4.64.0610010900540.21285@alien.or.mcafeemobile.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Date: Sun, 01 Oct 2006 12:05:58 -0400
+X-Spam-Score: -4.3 (----)
+X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1159718758_8054P
-Content-Type: text/plain; charset=us-ascii
+Davide Libenzi wrote:
+> On Sun, 1 Oct 2006, Jeff Garzik wrote:
+> 
+>> While reviewing the 'may be used uninitialized' bogus gcc warnings,
+>> I noticed that an error code assignment was only needed if an error had
+>> actually occured.
+> 
+> But that saved one line of code, and there are countless occurences in the 
+> kernel of such code pattern ;)
 
-On Sun, 01 Oct 2006 15:51:24 +0200, Stefan Richter said:
-
-> I am not sure which looks prettiest. But I know that "LCD display" looks
-> really bad to everybody who knows what the D stands for. :-)
-
-Maybe I'm confused, but doesn't the D stand for *DIODE*?
+I'm not sure there are countless occurrences with PTR_ERR().  The line 
+is incorrect (but harmless) if inode is a valid pointer...
 
 
---==_Exmh_1159718758_8054P
-Content-Type: application/pgp-signature
+> In any case, fine by me and not worth further discussion.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
+Thanks :)
 
-iD8DBQFFH+dmcC3lWbTT17ARAr/JAJ9cqQYR6nT85BZadvq+tmmAHEnZtQCfYHo7
-6SLmhJN6B2entcdvmOlUQuM=
-=tGX5
------END PGP SIGNATURE-----
 
---==_Exmh_1159718758_8054P--
+>> --- a/fs/eventpoll.c
+>> +++ b/fs/eventpoll.c
+>> @@ -720,9 +720,10 @@ static int ep_getfd(int *efd, struct ino
+>>  
+>>  	/* Allocates an inode from the eventpoll file system */
+>>  	inode = ep_eventpoll_inode();
+>> -	error = PTR_ERR(inode);
+>> -	if (IS_ERR(inode))
+>> +	if (IS_ERR(inode)) {
+>> +		error = PTR_ERR(inode);
+
+

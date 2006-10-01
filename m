@@ -1,52 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751731AbWJALYf@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751757AbWJALeP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751731AbWJALYf (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Oct 2006 07:24:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750998AbWJALYf
+	id S1751757AbWJALeP (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Oct 2006 07:34:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751772AbWJALeP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Oct 2006 07:24:35 -0400
-Received: from havoc.gtf.org ([69.61.125.42]:2533 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id S1751731AbWJALYe (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Oct 2006 07:24:34 -0400
-Date: Sun, 1 Oct 2006 07:24:33 -0400
-From: Jeff Garzik <jeff@garzik.org>
-To: Greg KH <greg@kroah.com>
-Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
-Subject: [PATCH] usb/serial/mos7840: fix cast
-Message-ID: <20061001112433.GA26855@havoc.gtf.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=utf-8
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-User-Agent: Mutt/1.4.1i
+	Sun, 1 Oct 2006 07:34:15 -0400
+Received: from py-out-1112.google.com ([64.233.166.182]:49011 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S1751757AbWJALeO (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 Oct 2006 07:34:14 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:in-reply-to:references:mime-version:content-type:message-id:cc:content-transfer-encoding:from:subject:date:to:x-mailer;
+        b=gBOZesaYkkQA94jW8PMJm2ke8SqVp6MZv8ZYnstE+GR5duLnGM0gkWWNnBPzcjQTB4W18+7jcX3H4EC33FsaPiyVrdsztfqdHrw1AcbpyzLYehs+rbLsvqP/Zfth8v4F15IBygDYnU6v0FqnxVMa7X32utxN9A0FMhp8E2ev8+E=
+In-Reply-To: <Pine.LNX.4.61.0609301908460.4615@yvahk01.tjqt.qr>
+References: <0635847A-C149-412C-92B1-A974230381F8@dts.local> <F2F2C98F-6AFB-4E19-BEE9-D32652E2F478@atheme.org> <EE7C757E-E2CE-4617-A1D4-3B8F5E3E8240@gmail.com> <Pine.LNX.4.61.0609291905550.27518@yvahk01.tjqt.qr> <CF74CE5D-42A1-4FF9-8C9B-682C5D6DEAE1@gmail.com> <Pine.LNX.4.61.0609292011190.634@yvahk01.tjqt.qr> <BEC70F7E-6143-4D8D-9800-A8538A152A18@gmail.com> <m1mz8ii8wj.fsf@ebiederm.dsl.xmission.com> <E78297DA-5F0F-40FA-A008-89264570B313@gmail.com> <Pine.LNX.4.61.0609301908460.4615@yvahk01.tjqt.qr>
+Mime-Version: 1.0 (Apple Message framework v749)
+Content-Type: text/plain; charset=US-ASCII; delsp=yes; format=flowed
+Message-Id: <FD5311BD-3DE3-4185-B093-CE05199F09C7@gmail.com>
+Cc: "Eric W. Biederman" <ebiederm@xmission.com>, linux-kernel@vger.kernel.org,
+       William Pitcock <nenolod@atheme.org>
+Content-Transfer-Encoding: 7bit
+From: girish <girishvg@gmail.com>
+Subject: Re: [PATCH] include children count, in Threads: field present in /proc/<pid>/status (take-3)
+Date: Sun, 1 Oct 2006 20:34:30 +0900
+To: Jan Engelhardt <jengelh@linux01.gwdg.de>
+X-Mailer: Apple Mail (2.749)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+>>  PID COMMAND      %CPU   TIME   #TH #PRTS #MREGS RPRVT  RSHRD   
+>> RSIZE  VSIZE
+>> 22429 top         16.6%  0:21.12   1    18    20  1.35M   684K   
+>> 1.77M  26.9M
+>> --------------------------------------------------------------------- 
+>> ---
+>> --------------------------------------------------------
+>>
+>> Comments/opinions?
+>
+> I fail to see which column you mean.
+>
+> #TH perhaps? I think, that can be calculated under linux by
+>
+>  (a) counting the directories in /proc/22429/task using readdir
+> or
 
-Debug code in mos7840 emits the following warnings on 64-bit:
+I have implemented the child_count script, in this way. I was  
+wondering what is more convenient.
 
-drivers/usb/serial/mos7840.c: In function ‘mos7840_open’:
-drivers/usb/serial/mos7840.c:1091: warning: cast from pointer to integer of different size
-drivers/usb/serial/mos7840.c:1091: warning: cast from pointer to integer of different size
-drivers/usb/serial/mos7840.c:1091: warning: cast from pointer to integer of different size
 
-Solution:  Don't assume pointers are 32-bit.  The easy solution actually
-cleans up the code:  "%p" (pointer) permits us to eliminate the casts,
-and print correct debug information on 64-bit.
+>  (b) get the nlink of /proc/22429/task and subtract 2, which should  
+> give
+>      the same as (a), and, better than (a), should also be atomic
 
-Signed-off-by: Jeff Garzik <jeff@garzik.org>
-
-diff --git a/drivers/usb/serial/mos7840.c b/drivers/usb/serial/mos7840.c
-index 95bf571..117fe5f 100644
---- a/drivers/usb/serial/mos7840.c
-+++ b/drivers/usb/serial/mos7840.c
-@@ -1088,7 +1088,7 @@ static int mos7840_open(struct usb_seria
- 	mos7840_port->icount.tx = 0;
- 	mos7840_port->icount.rx = 0;
- 
--	dbg("\n\nusb_serial serial:%x       mos7840_port:%x\n      usb_serial_port port:%x\n\n", (unsigned int)serial, (unsigned int)mos7840_port, (unsigned int)port);
-+	dbg("\n\nusb_serial serial:%p       mos7840_port:%p\n      usb_serial_port port:%p\n\n", serial, mos7840_port, port);
- 
- 	return 0;
- 
+This one, is good. I did not think about this approach. 

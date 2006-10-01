@@ -1,62 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751220AbWJAQEX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751195AbWJAQFm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751220AbWJAQEX (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Oct 2006 12:04:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751222AbWJAQEW
+	id S1751195AbWJAQFm (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Oct 2006 12:05:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751221AbWJAQFm
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Oct 2006 12:04:22 -0400
-Received: from x35.xmailserver.org ([69.30.125.51]:21139 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP
-	id S1751220AbWJAQEW (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Oct 2006 12:04:22 -0400
-X-AuthUser: davidel@xmailserver.org
-Date: Sun, 1 Oct 2006 09:04:19 -0700 (PDT)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@alien.or.mcafeemobile.com
-To: Jeff Garzik <jeff@garzik.org>
-cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] fs/eventpoll: error handling micro-cleanup
-In-Reply-To: <20061001124352.GA30263@havoc.gtf.org>
-Message-ID: <Pine.LNX.4.64.0610010900540.21285@alien.or.mcafeemobile.com>
-References: <20061001124352.GA30263@havoc.gtf.org>
-X-GPG-FINGRPRINT: CFAE 5BEE FD36 F65E E640  56FE 0974 BF23 270F 474E
-X-GPG-PUBLIC_KEY: http://www.xmailserver.org/davidel.asc
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 1 Oct 2006 12:05:42 -0400
+Received: from gateway-1237.mvista.com ([63.81.120.158]:21534 "EHLO
+	dwalker1.mvista.com") by vger.kernel.org with ESMTP
+	id S1751195AbWJAQFl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 Oct 2006 12:05:41 -0400
+Message-Id: <20061001160130.326875000@mvista.com>
+User-Agent: quilt/0.45-1
+Date: Sun, 01 Oct 2006 09:01:30 -0700
+From: dwalker@mvista.com
+To: akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org
+Cc: sam@ravnborg.org
+Cc: jengelh@gmx.de
+Subject: [PATCH] docs: small kbuild cleanup
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 1 Oct 2006, Jeff Garzik wrote:
+While reading this I noticed that the contents of this document
+list section "3.8 Command line dependency" but it doesn't exist 
+in the document.
 
-> 
-> While reviewing the 'may be used uninitialized' bogus gcc warnings,
-> I noticed that an error code assignment was only needed if an error had
-> actually occured.
+Signed-Off-By: Daniel Walker <dwalker@mvista.com>
 
-But that saved one line of code, and there are countless occurences in the 
-kernel of such code pattern ;)
-In any case, fine by me and not worth further discussion.
+---
+ Documentation/kbuild/kconfig-language.txt |    2 +-
+ Documentation/kbuild/makefiles.txt        |    2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-
-
-> --- a/fs/eventpoll.c
-> +++ b/fs/eventpoll.c
-> @@ -720,9 +720,10 @@ static int ep_getfd(int *efd, struct ino
->  
->  	/* Allocates an inode from the eventpoll file system */
->  	inode = ep_eventpoll_inode();
-> -	error = PTR_ERR(inode);
-> -	if (IS_ERR(inode))
-> +	if (IS_ERR(inode)) {
-> +		error = PTR_ERR(inode);
->  		goto eexit_2;
-> +	}
->  
->  	/* Allocates a free descriptor to plug the file onto */
->  	error = get_unused_fd();
-
-
-
-- Davide
-
-
+Index: linux-2.6.18/Documentation/kbuild/kconfig-language.txt
+===================================================================
+--- linux-2.6.18.orig/Documentation/kbuild/kconfig-language.txt
++++ linux-2.6.18/Documentation/kbuild/kconfig-language.txt
+@@ -1,7 +1,7 @@
+ Introduction
+ ------------
+ 
+-The configuration database is collection of configuration options
++The configuration database is a collection of configuration options
+ organized in a tree structure:
+ 
+ 	+- Code maturity level options
+Index: linux-2.6.18/Documentation/kbuild/makefiles.txt
+===================================================================
+--- linux-2.6.18.orig/Documentation/kbuild/makefiles.txt
++++ linux-2.6.18/Documentation/kbuild/makefiles.txt
+@@ -390,7 +390,7 @@ more details, with real examples.
+ 	The kernel may be built with several different versions of
+ 	$(CC), each supporting a unique set of features and options.
+ 	kbuild provide basic support to check for valid options for $(CC).
+-	$(CC) is useally the gcc compiler, but other alternatives are
++	$(CC) is usually the gcc compiler, but other alternatives are
+ 	available.
+ 
+     as-option
+--

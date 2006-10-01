@@ -1,44 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751236AbWJAQSA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751231AbWJAQT2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751236AbWJAQSA (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Oct 2006 12:18:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751239AbWJAQSA
+	id S1751231AbWJAQT2 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Oct 2006 12:19:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751234AbWJAQT1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Oct 2006 12:18:00 -0400
-Received: from ns2.suse.de ([195.135.220.15]:23518 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1751236AbWJAQR7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Oct 2006 12:17:59 -0400
-From: Andreas Schwab <schwab@suse.de>
-To: Valdis.Kletnieks@vt.edu
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.18 V7] drivers: add lcd display support
-References: <20060930232445.59e8adf6.maxextreme@gmail.com>
-	<653402b90610010553p23819d2bsd7a07fabaee7ecf3@mail.gmail.com>
-	<451FC7DC.7070909@s5r6.in-berlin.de>
-	<200610011605.k91G5wJD031632@turing-police.cc.vt.edu>
-X-Yow: Zippy's brain cells are straining to bridge synapses...
-Date: Sun, 01 Oct 2006 18:17:56 +0200
-In-Reply-To: <200610011605.k91G5wJD031632@turing-police.cc.vt.edu> (Valdis
-	Kletnieks's message of "Sun, 01 Oct 2006 12:05:58 -0400")
-Message-ID: <jelko03t8r.fsf@sykes.suse.de>
-User-Agent: Gnus/5.110006 (No Gnus v0.6) Emacs/22.0.50 (gnu/linux)
+	Sun, 1 Oct 2006 12:19:27 -0400
+Received: from x35.xmailserver.org ([69.30.125.51]:58518 "EHLO
+	x35.xmailserver.org") by vger.kernel.org with ESMTP
+	id S1751231AbWJAQT0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 Oct 2006 12:19:26 -0400
+X-AuthUser: davidel@xmailserver.org
+Date: Sun, 1 Oct 2006 09:19:23 -0700 (PDT)
+From: Davide Libenzi <davidel@xmailserver.org>
+X-X-Sender: davide@alien.or.mcafeemobile.com
+To: Jeff Garzik <jeff@garzik.org>
+cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH] fs/eventpoll: error handling micro-cleanup
+In-Reply-To: <451FE7E3.4050503@garzik.org>
+Message-ID: <Pine.LNX.4.64.0610010911231.21285@alien.or.mcafeemobile.com>
+References: <20061001124352.GA30263@havoc.gtf.org>
+ <Pine.LNX.4.64.0610010900540.21285@alien.or.mcafeemobile.com>
+ <451FE7E3.4050503@garzik.org>
+X-GPG-FINGRPRINT: CFAE 5BEE FD36 F65E E640  56FE 0974 BF23 270F 474E
+X-GPG-PUBLIC_KEY: http://www.xmailserver.org/davidel.asc
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: 8bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Valdis.Kletnieks@vt.edu writes:
+On Sun, 1 Oct 2006, Jeff Garzik wrote:
 
-> Maybe I'm confused, but doesn't the D stand for *DIODE*?
+> Davide Libenzi wrote:
+> > On Sun, 1 Oct 2006, Jeff Garzik wrote:
+> > 
+> > > While reviewing the 'may be used uninitialized' bogus gcc warnings,
+> > > I noticed that an error code assignment was only needed if an error had
+> > > actually occured.
+> > 
+> > But that saved one line of code, and there are countless occurences in the
+> > kernel of such code pattern ;)
+> 
+> I'm not sure there are countless occurrences with PTR_ERR().  The line is
+> incorrect (but harmless) if inode is a valid pointer...
 
-No, it's the D in LED that stands for diode.
+I just tried a `find /usr/src/linux-2.6.16/ -type f -exec grep -H -C 2 PTR_ERR {} \;`
+and looked at the cases where the error variable is assigned in any case 
+before the test. Same code pattern as, like:
 
-Andreas.
+error = -EFAULT;
+if (copy_from_user(...))
+	goto kaboom;
 
--- 
-Andreas Schwab, SuSE Labs, schwab@suse.de
-SuSE Linux Products GmbH, Maxfeldstraße 5, 90409 Nürnberg, Germany
-PGP key fingerprint = 58CA 54C7 6D53 942B 1756  01D3 44D5 214B 8276 4ED5
-"And now for something completely different."
+Again, expect a big patch if you're gonna fix all those ;)
+
+
+
+- Davide
+
+

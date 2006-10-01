@@ -1,237 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932201AbWJAS6Z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932202AbWJATAp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932201AbWJAS6Z (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Oct 2006 14:58:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932199AbWJAS6Y
+	id S932202AbWJATAp (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Oct 2006 15:00:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932205AbWJATAp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Oct 2006 14:58:24 -0400
-Received: from x35.xmailserver.org ([69.30.125.51]:61334 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP id S932201AbWJAS6X
+	Sun, 1 Oct 2006 15:00:45 -0400
+Received: from zeniv.linux.org.uk ([195.92.253.2]:12710 "EHLO
+	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S932202AbWJATAo
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Oct 2006 14:58:23 -0400
-X-AuthUser: davidel@xmailserver.org
-Date: Sun, 1 Oct 2006 11:58:06 -0700 (PDT)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@alien.or.mcafeemobile.com
-To: Jeff Garzik <jeff@garzik.org>
-cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] fs/eventpoll: error handling micro-cleanup
-In-Reply-To: <451FFAC9.1050903@garzik.org>
-Message-ID: <Pine.LNX.4.64.0610011154520.21548@alien.or.mcafeemobile.com>
-References: <20061001124352.GA30263@havoc.gtf.org>
- <Pine.LNX.4.64.0610010900540.21285@alien.or.mcafeemobile.com>
- <451FE7E3.4050503@garzik.org> <Pine.LNX.4.64.0610010911231.21285@alien.or.mcafeemobile.com>
- <451FED1C.60900@garzik.org> <Pine.LNX.4.64.0610010934300.21285@alien.or.mcafeemobile.com>
- <451FFAC9.1050903@garzik.org>
-X-GPG-FINGRPRINT: CFAE 5BEE FD36 F65E E640  56FE 0974 BF23 270F 474E
-X-GPG-PUBLIC_KEY: http://www.xmailserver.org/davidel.asc
-MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="1795850513-851499190-1159729086=:21548"
+	Sun, 1 Oct 2006 15:00:44 -0400
+Date: Sun, 1 Oct 2006 20:00:34 +0100
+From: Al Viro <viro@ftp.linux.org.uk>
+To: Daniel Walker <dwalker@mvista.com>
+Cc: Jeff Garzik <jeff@garzik.org>, Andrew Morton <akpm@osdl.org>,
+       Linux Kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Announce: gcc bogus warning repository
+Message-ID: <20061001190034.GB29920@ftp.linux.org.uk>
+References: <451FC657.6090603@garzik.org> <1159717214.24767.3.camel@c-67-180-230-165.hsd1.ca.comcast.net> <20061001111226.3e14133f.akpm@osdl.org> <452005E7.5030705@garzik.org> <1159727188.24767.9.camel@c-67-180-230-165.hsd1.ca.comcast.net> <45200CC8.2030404@garzik.org> <1159729113.24767.14.camel@c-67-180-230-165.hsd1.ca.comcast.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1159729113.24767.14.camel@c-67-180-230-165.hsd1.ca.comcast.net>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
-
---1795850513-851499190-1159729086=:21548
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-
-On Sun, 1 Oct 2006, Jeff Garzik wrote:
-
-> > So? Is PTR_ERR() defined and documented in a way that, if called with a
-> > valid pointer, has an unexpected/faulty behaviour?
+On Sun, Oct 01, 2006 at 11:58:33AM -0700, Daniel Walker wrote:
+> On Sun, 2006-10-01 at 14:45 -0400, Jeff Garzik wrote:
 > 
-> When called with a valid pointer, the value assigned to the return-code
-> integer is essentially a random number.
-
-That will never be used ...
-
-
-
-> > Again, I don't care either ways, but don't tell me you're not sure about the
-> > countless occurrences. Take a look at:
-> > 
-> > `find $LINUXSRC -type f -exec grep -H -C 2 PTR_ERR {} \;`
+> > That doesn't address my question at all.
 > 
-> Perhaps 1 out of every 100 or so hits from this find(1) is unprotected by
-> IS_ERR().  IOW, what I've been describing here is quite rare.
+> Did you have a question?
+> 
+> > If there is no difference between real non-init bugs and bogus warnings, 
+> > then a config option doesn't make any difference at all, does it?  Real 
+> > bugs are still hidden either way:  if the warnings are turned on, the 
+> > bugs are lost in the noise.  if the warnings are turned off, the bugs 
+> > are completely hidden.
+> 
+> If you turn the warnings on, at least you have a chance to see a warning
+> even if it's mixed with others.
 
-Made a stupid script that try to find such code pattern. Found 193 
-instances all around the code. Report and script included for you view 
-(I verified about 10 or so of those, and they look correctly captured by 
-the script).
-
-
-
-- Davide
-
-
---1795850513-851499190-1159729086=:21548
-Content-Type: TEXT/x-perl; charset=US-ASCII; name=ptrerr-find.pl
-Content-Transfer-Encoding: BASE64
-Content-Description: 
-Content-Disposition: attachment; filename=ptrerr-find.pl
-
-IyEvdXNyL2Jpbi9wZXJsIC13DQoNCnVzZSBzdHJpY3Q7DQoNCg0KbXkgJGZu
-YW1lID0gMDsNCm15ICRsY250ID0gMDsNCm15ICRzdGF0ZSA9IDA7DQpteSAk
-Zm91bmQgPSAwOw0KDQp3aGlsZSAoPFNURElOPikgew0KICAgICRsY250Kys7
-DQogICAgaWYgKC9QVFJfRVJSLykgew0KCSRzdGF0ZSA9IDE7DQoJbmV4dDsN
-CiAgICB9DQogICAgaWYgKCRzdGF0ZSA9PSAwIHx8ICgvXltcclxuIFx0XSsk
-LykpIHsNCgluZXh0Ow0KICAgIH0NCiAgICBpZiAoL15bIFx0XSppZlsgXSpc
-KC8pIHsNCglpZiAoJGZuYW1lID09IDApIHsNCgkgICAgcHJpbnQgIkZpbGU6
-ICIsICRBUkdWWzBdLCAiXG4iOw0KCSAgICAkZm5hbWUrKzsNCgl9DQoJcHJp
-bnQgIkZvdW5kIGF0ICRsY250XG4iOw0KCSRmb3VuZCsrOw0KICAgIH0NCiAg
-ICAkc3RhdGUgPSAwOw0KfQ0KDQpleGl0KCRmb3VuZCk7DQoNCg==
-
---1795850513-851499190-1159729086=:21548
-Content-Type: TEXT/PLAIN; charset=US-ASCII; name=ptrerr-find.report
-Content-Transfer-Encoding: BASE64
-Content-Description: 
-Content-Disposition: attachment; filename=ptrerr-find.report
-
-RmlsZTogLi9hcmNoL2FscGhhL2tlcm5lbC9vc2Zfc3lzLmMNCkZvdW5kIGF0
-IDMyOA0KRm91bmQgYXQgMzQ4DQpGb3VuZCBhdCAzNzcNCkZpbGU6IC4vYXJj
-aC9hbHBoYS9rZXJuZWwvcHJvY2Vzcy5jDQpGb3VuZCBhdCA0NTUNCkZpbGU6
-IC4vYXJjaC9hcm0va2VybmVsL3N5c19hcm0uYw0KRm91bmQgYXQgMjc0DQpG
-aWxlOiAuL2FyY2gvYXJtL3BsYXQtb21hcC9jcHUtb21hcC5jDQpGb3VuZCBh
-dCAxMDgNCkZpbGU6IC4vYXJjaC9hcm0yNi9rZXJuZWwvc3lzX2FybS5jDQpG
-b3VuZCBhdCAyNzcNCkZpbGU6IC4vYXJjaC9jcmlzL2FyY2gtdjEwL2tlcm5l
-bC9wcm9jZXNzLmMNCkZvdW5kIGF0IDIxOA0KRmlsZTogLi9hcmNoL2NyaXMv
-YXJjaC12MzIva2VybmVsL3Byb2Nlc3MuYw0KRm91bmQgYXQgMjM0DQpGaWxl
-OiAuL2FyY2gvZnJ2L2tlcm5lbC9wcm9jZXNzLmMNCkZvdW5kIGF0IDI2MQ0K
-RmlsZTogLi9hcmNoL2g4MzAwL2tlcm5lbC9wcm9jZXNzLmMNCkZvdW5kIGF0
-IDIyNA0KRmlsZTogLi9hcmNoL2kzODYva2VybmVsL3Byb2Nlc3MuYw0KRm91
-bmQgYXQgNzQ3DQpGaWxlOiAuL2FyY2gvaWE2NC9pYTMyL3N5c19pYTMyLmMN
-CkZvdW5kIGF0IDk5DQpGaWxlOiAuL2FyY2gvaWE2NC9rZXJuZWwvcGVyZm1v
-bi5jDQpGb3VuZCBhdCAxNDk0DQpGaWxlOiAuL2FyY2gvaWE2NC9rZXJuZWwv
-cHJvY2Vzcy5jDQpGb3VuZCBhdCA2NjQNCkZpbGU6IC4vYXJjaC9tMzJyL2tl
-cm5lbC9wcm9jZXNzLmMNCkZvdW5kIGF0IDMyNw0KRmlsZTogLi9hcmNoL202
-OGsva2VybmVsL3Byb2Nlc3MuYw0KRm91bmQgYXQgMzczDQpGaWxlOiAuL2Fy
-Y2gvbTY4a25vbW11L2tlcm5lbC9wcm9jZXNzLmMNCkZvdW5kIGF0IDM1OQ0K
-RmlsZTogLi9hcmNoL21pcHMva2VybmVsL2xpbnV4MzIuYw0KRm91bmQgYXQg
-MTU2DQpGaWxlOiAuL2FyY2gvbWlwcy9rZXJuZWwvc3lzY2FsbC5jDQpGb3Vu
-ZCBhdCAyMTkNCkZpbGU6IC4vYXJjaC9taXBzL2tlcm5lbC9zeXNpcml4LmMN
-CkZvdW5kIGF0IDgwMg0KRm91bmQgYXQgODIxDQpGaWxlOiAuL2FyY2gvcGFy
-aXNjL2hwdXgvZnMuYw0KRm91bmQgYXQgNDANCkZpbGU6IC4vYXJjaC9wYXJp
-c2Mva2VybmVsL3Byb2Nlc3MuYw0KRm91bmQgYXQgMzU2DQpGaWxlOiAuL2Fy
-Y2gvcGFyaXNjL2tlcm5lbC9zeXNfcGFyaXNjMzIuYw0KRm91bmQgYXQgNzcN
-CkZpbGU6IC4vYXJjaC9wb3dlcnBjL2tlcm5lbC9wcm9jZXNzLmMNCkZvdW5k
-IGF0IDgxMA0KRmlsZTogLi9hcmNoL3Bvd2VycGMva2VybmVsL3N5c19wcGMz
-Mi5jDQpGb3VuZCBhdCA0MjUNCkZpbGU6IC4vYXJjaC9wb3dlcnBjL3BsYXRm
-b3Jtcy9jZWxsL3NwdWZzL2lub2RlLmMNCkZvdW5kIGF0IDMxMw0KRmlsZTog
-Li9hcmNoL3Bvd2VycGMvcGxhdGZvcm1zL2NlbGwvc3B1ZnMvc3lzY2FsbHMu
-Yw0KRm91bmQgYXQgODQNCkZpbGU6IC4vYXJjaC9zMzkwL2h5cGZzL2h5cGZz
-X2RpYWcuYw0KRm91bmQgYXQgNTY0DQpGaWxlOiAuL2FyY2gvczM5MC9rZXJu
-ZWwvY29tcGF0X2xpbnV4LmMNCkZvdW5kIGF0IDUzNw0KRmlsZTogLi9hcmNo
-L3MzOTAva2VybmVsL3Byb2Nlc3MuYw0KRm91bmQgYXQgMzI5DQpGaWxlOiAu
-L2FyY2gvc2gva2VybmVsL3Byb2Nlc3MuYw0KRm91bmQgYXQgNDIzDQpGaWxl
-OiAuL2FyY2gvc2g2NC9rZXJuZWwvcHJvY2Vzcy5jDQpGb3VuZCBhdCA4MzAN
-CkZpbGU6IC4vYXJjaC9zcGFyYy9rZXJuZWwvcHJvY2Vzcy5jDQpGb3VuZCBh
-dCA2NjQNCkZpbGU6IC4vYXJjaC9zcGFyYy9rZXJuZWwvc3lzX3N1bm9zLmMN
-CkZvdW5kIGF0IDc4Mw0KRm91bmQgYXQgNzg4DQpGb3VuZCBhdCA4MDkNCkZp
-bGU6IC4vYXJjaC9zcGFyYzY0L2tlcm5lbC9wcm9jZXNzLmMNCkZvdW5kIGF0
-IDc5OA0KRmlsZTogLi9hcmNoL3NwYXJjNjQva2VybmVsL3N5c19zcGFyYzMy
-LmMNCkZvdW5kIGF0IDcyOQ0KRmlsZTogLi9hcmNoL3NwYXJjNjQva2VybmVs
-L3N5c19zdW5vczMyLmMNCkZvdW5kIGF0IDc0OA0KRm91bmQgYXQgNzUzDQpG
-b3VuZCBhdCA3NzQNCkZpbGU6IC4vYXJjaC91bS9rZXJuZWwvZXhlYy5jDQpG
-b3VuZCBhdCA4MA0KRmlsZTogLi9hcmNoL3Y4NTAva2VybmVsL3Byb2Nlc3Mu
-Yw0KRm91bmQgYXQgMTc2DQpGaWxlOiAuL2FyY2gveDg2XzY0L2lhMzIvc3lz
-X2lhMzIuYw0KRm91bmQgYXQgODU1DQpGaWxlOiAuL2FyY2gveDg2XzY0L2tl
-cm5lbC9wcm9jZXNzLmMNCkZvdW5kIGF0IDYzNg0KRmlsZTogLi9hcmNoL3h0
-ZW5zYS9rZXJuZWwvc3lzY2FsbHMuYw0KRm91bmQgYXQgMTE5DQpGaWxlOiAu
-L2Jsb2NrL2xsX3J3X2Jsay5jDQpGb3VuZCBhdCAyNDYzDQpGaWxlOiAuL2Ry
-aXZlcnMvYmxvY2svbmJkLmMNCkZvdW5kIGF0IDMxNQ0KRmlsZTogLi9kcml2
-ZXJzL2NoYXIvbWlzYy5jDQpGb3VuZCBhdCAyOTENCkZpbGU6IC4vZHJpdmVy
-cy9jaGFyL3RwbS90cG1fdGlzLmMNCkZvdW5kIGF0IDY2MQ0KRmlsZTogLi9k
-cml2ZXJzL2luZmluaWJhbmQvY29yZS91dmVyYnNfY21kLmMNCkZvdW5kIGF0
-IDc0MQ0KRmlsZTogLi9kcml2ZXJzL21lc3NhZ2UvaTJvL2kyb19jb25maWcu
-Yw0KRm91bmQgYXQgMjYzDQpGb3VuZCBhdCAzMzgNCkZpbGU6IC4vZHJpdmVy
-cy9tdGQvZGV2aWNlcy9ibG9jazJtdGQuYw0KRm91bmQgYXQgMjIzDQpGaWxl
-OiAuL2RyaXZlcnMvczM5MC9ibG9jay9kYXNkLmMNCkZvdW5kIGF0IDIwNzIN
-CkZpbGU6IC4vZHJpdmVycy9zMzkwL2Jsb2NrL2Rhc2RfZGV2bWFwLmMNCkZv
-dW5kIGF0IDgzNg0KRmlsZTogLi9kcml2ZXJzL3MzOTAvY2hhci9tb25yZWFk
-ZXIuYw0KRm91bmQgYXQgNTEwDQpGaWxlOiAuL2RyaXZlcnMvczM5MC9jaGFy
-L3RhcGVfY2xhc3MuYw0KRm91bmQgYXQgODANCkZpbGU6IC4vZHJpdmVycy9z
-MzkwL25ldC9xZXRoX21haW4uYw0KRm91bmQgYXQgODU3Nw0KRmlsZTogLi9k
-cml2ZXJzL3Njc2kvc2NzaV9wcm9jLmMNCkZvdW5kIGF0IDIwNA0KRmlsZTog
-Li9mcy85cC9mY2FsbC5jDQpGb3VuZCBhdCAxMzkNCkZpbGU6IC4vZnMvYWlv
-LmMNCkZvdW5kIGF0IDEyNzMNCkZpbGU6IC4vZnMvYXV0b2ZzNC9yb290LmMN
-CkZvdW5kIGF0IDE2MA0KRmlsZTogLi9mcy9iaW5mbXRfZWxmLmMNCkZvdW5k
-IGF0IDY4NA0KRmlsZTogLi9mcy9iaW5mbXRfZWxmX2ZkcGljLmMNCkZvdW5k
-IGF0IDIzNQ0KRmlsZTogLi9mcy9iaW5mbXRfZmxhdC5jDQpGb3VuZCBhdCA4
-MDENCkZpbGU6IC4vZnMvYmluZm10X21pc2MuYw0KRm91bmQgYXQgMTg1DQpG
-b3VuZCBhdCA2MjgNCkZpbGU6IC4vZnMvYmxvY2tfZGV2LmMNCkZvdW5kIGF0
-IDMyOA0KRmlsZTogLi9mcy9jb21wYXQuYw0KRm91bmQgYXQgODYzDQpGb3Vu
-ZCBhdCAxNTIzDQpGaWxlOiAuL2ZzL2RjYWNoZS5jDQpGb3VuZCBhdCAxNTM5
-DQpGaWxlOiAuL2ZzL2RxdW90LmMNCkZvdW5kIGF0IDE1NDINCkZpbGU6IC4v
-ZnMvZXZlbnRwb2xsLmMNCkZvdW5kIGF0IDc3Mw0KRm91bmQgYXQgMTY4OQ0K
-RmlsZTogLi9mcy9leGVjLmMNCkZvdW5kIGF0IDE0NA0KRm91bmQgYXQgMTA0
-NQ0KRm91bmQgYXQgMTE0Mw0KRmlsZTogLi9mcy9leHBvcnRmcy9leHBmcy5j
-DQpGb3VuZCBhdCAxMjcNCkZvdW5kIGF0IDM2MQ0KRmlsZTogLi9mcy9leHQy
-L2FjbC5jDQpGb3VuZCBhdCAyODcNCkZvdW5kIGF0IDQzMg0KRmlsZTogLi9m
-cy9leHQyL2Rpci5jDQpGb3VuZCBhdCA0NTYNCkZpbGU6IC4vZnMvZXh0Mi9u
-YW1laS5jDQpGb3VuZCBhdCAxMTANCkZvdW5kIGF0IDEzOA0KRm91bmQgYXQg
-MTYyDQpGb3VuZCBhdCAyMjANCkZpbGU6IC4vZnMvZXh0My9hY2wuYw0KRm91
-bmQgYXQgMjkyDQpGb3VuZCBhdCA0NTYNCkZpbGU6IC4vZnMvZXh0My9uYW1l
-aS5jDQpGb3VuZCBhdCAxNjYyDQpGb3VuZCBhdCAxNjY3DQpGb3VuZCBhdCAx
-Njk2DQpGb3VuZCBhdCAxNzAxDQpGb3VuZCBhdCAxNzMyDQpGb3VuZCBhdCAx
-NzM3DQpGb3VuZCBhdCAyMDgwDQpGb3VuZCBhdCAyMTM3DQpGb3VuZCBhdCAy
-MTQyDQpGb3VuZCBhdCAyMTkxDQpGb3VuZCBhdCAyMjM0DQpGaWxlOiAuL2Zz
-L2ZpbGVzeXN0ZW1zLmMNCkZvdW5kIGF0IDEzMA0KRmlsZTogLi9mcy9mdXNl
-L2Rpci5jDQpGb3VuZCBhdCAzMDENCkZpbGU6IC4vZnMvZnVzZS9maWxlLmMN
-CkZvdW5kIGF0IDMwOA0KRm91bmQgYXQgNDA2DQpGaWxlOiAuL2ZzL2hwcGZz
-L2hwcGZzX2tlcm4uYw0KRm91bmQgYXQgNDc4DQpGb3VuZCBhdCA1MzINCkZp
-bGU6IC4vZnMvamZmczIvYWNsLmMNCkZvdW5kIGF0IDI5NQ0KRm91bmQgYXQg
-MzIxDQpGb3VuZCBhdCA0MDkNCkZvdW5kIGF0IDQ0Mw0KRmlsZTogLi9mcy9q
-ZmZzMi9zY2FuLmMNCkZvdW5kIGF0IDM0OQ0KRmlsZTogLi9mcy9qZmZzMi9z
-dW1tYXJ5LmMNCkZvdW5kIGF0IDQ4Nw0KRmlsZTogLi9mcy9qZnMvYWNsLmMN
-CkZvdW5kIGF0IDE2Mg0KRmlsZTogLi9mcy9taW5peC9kaXIuYw0KRm91bmQg
-YXQgMjEyDQpGaWxlOiAuL2ZzL25hbWVpLmMNCkZvdW5kIGF0IDU4OA0KRm91
-bmQgYXQgMTIxNA0KRm91bmQgYXQgMTMxMw0KRm91bmQgYXQgMTYzOA0KRm91
-bmQgYXQgMTg0OA0KRm91bmQgYXQgMTkxMg0KRm91bmQgYXQgMTkyMQ0KRm91
-bmQgYXQgMjAzMQ0KRm91bmQgYXQgMjEwNQ0KRm91bmQgYXQgMjE4MA0KRm91
-bmQgYXQgMjE4OQ0KRm91bmQgYXQgMjI4Mw0KRm91bmQgYXQgMjQ4Mw0KRm91
-bmQgYXQgMjUwMw0KRm91bmQgYXQgMjUzOA0KRm91bmQgYXQgMjU1Ng0KRmls
-ZTogLi9mcy9uYW1lc3BhY2UuYw0KRm91bmQgYXQgMTU2NQ0KRmlsZTogLi9m
-cy9uZnMvZGlyLmMNCkZvdW5kIGF0IDExNTYNCkZpbGU6IC4vZnMvbmZzL21v
-dW50X2NsbnQuYw0KRm91bmQgYXQgNjcNCkZpbGU6IC4vZnMvbmZzL25hbWVz
-cGFjZS5jDQpGb3VuZCBhdCAxMTcNCkZpbGU6IC4vZnMvbmZzL25mczNhY2wu
-Yw0KRm91bmQgYXQgMjcNCkZvdW5kIGF0IDM2DQpGaWxlOiAuL2ZzL25mcy9u
-ZnM0cHJvYy5jDQpGb3VuZCBhdCAzMzEwDQpGaWxlOiAuL2ZzL25mcy93cml0
-ZS5jDQpGb3VuZCBhdCA4NjgNCkZpbGU6IC4vZnMvbmZzZC9uZnMyYWNsLmMN
-CkZvdW5kIGF0IDU1DQpGb3VuZCBhdCA3OA0KRmlsZTogLi9mcy9uZnNkL25m
-czNhY2wuYw0KRm91bmQgYXQgNTENCkZvdW5kIGF0IDc0DQpGaWxlOiAuL2Zz
-L25mc2QvbmZzNHJlY292ZXIuYw0KRm91bmQgYXQgMjI3DQpGaWxlOiAuL2Zz
-L25mc2QvdmZzLmMNCkZvdW5kIGF0IDIwNA0KRm91bmQgYXQgMTEyMA0KRm91
-bmQgYXQgMTI1MA0KRm91bmQgYXQgMTQzMg0KRm91bmQgYXQgMTUwMw0KRm91
-bmQgYXQgMTU3NQ0KRm91bmQgYXQgMTU4Nw0KRm91bmQgYXQgMTY1Mw0KRmls
-ZTogLi9mcy9udGZzL2F0dHJpYi5jDQpGb3VuZCBhdCAxMDE1DQpGb3VuZCBh
-dCAyMTkwDQpGb3VuZCBhdCAyMjI4DQpGb3VuZCBhdCAyMjQxDQpGaWxlOiAu
-L2ZzL250ZnMvYml0bWFwLmMNCkZvdW5kIGF0IDE3Mw0KRmlsZTogLi9mcy9u
-dGZzL2ZpbGUuYw0KRm91bmQgYXQgOTMxDQpGaWxlOiAuL2ZzL250ZnMvbGNu
-YWxsb2MuYw0KRm91bmQgYXQgOTM3DQpGaWxlOiAuL2ZzL250ZnMvbG9nZmls
-ZS5jDQpGb3VuZCBhdCA0MDQNCkZpbGU6IC4vZnMvb3Blbi5jDQpGb3VuZCBh
-dCAxMDgzDQpGaWxlOiAuL2ZzL3Byb2MvYmFzZS5jDQpGb3VuZCBhdCAxMDk4
-DQpGaWxlOiAuL2ZzL3Byb2Mvcm9vdC5jDQpGb3VuZCBhdCA1MA0KRmlsZTog
-Li9mcy9yZWlzZXJmcy94YXR0ci5jDQpGb3VuZCBhdCAxMDkyDQpGb3VuZCBh
-dCAxMjkwDQpGaWxlOiAuL2ZzL3JlaXNlcmZzL3hhdHRyX2FjbC5jDQpGb3Vu
-ZCBhdCA1OA0KRmlsZTogLi9mcy9zZXFfZmlsZS5jDQpGb3VuZCBhdCAxMTQN
-CkZvdW5kIGF0IDE5Nw0KRmlsZTogLi9mcy9zdXBlci5jDQpGb3VuZCBhdCA4
-MDENCkZpbGU6IC4vZnMvc3lzdi9kaXIuYw0KRm91bmQgYXQgMjA0DQpGaWxl
-OiAuL2ZzL3N5c3YvbmFtZWkuYw0KRm91bmQgYXQgNzYNCkZvdW5kIGF0IDEw
-MQ0KRm91bmQgYXQgMTQ2DQpGaWxlOiAuL2ZzL3Vmcy9kaXIuYw0KRm91bmQg
-YXQgMzM0DQpGaWxlOiAuL2ZzL3Vmcy9uYW1laS5jDQpGb3VuZCBhdCA4OQ0K
-Rm91bmQgYXQgMTExDQpGb3VuZCBhdCAxMzcNCkZvdW5kIGF0IDIwMQ0KRmls
-ZTogLi9pcGMvc2htLmMNCkZvdW5kIGF0IDIzOA0KRmlsZTogLi9rZXJuZWwv
-YWNjdC5jDQpGb3VuZCBhdCAyMTQNCkZpbGU6IC4va2VybmVsL2ZvcmsuYw0K
-Rm91bmQgYXQgMjM3DQpGaWxlOiAuL21tL21lbXBvbGljeS5jDQpGb3VuZCBh
-dCA3ODQNCkZpbGU6IC4vbW0vc2htZW0uYw0KRm91bmQgYXQgMjM1MA0KRmls
-ZTogLi9tbS9zd2FwZmlsZS5jDQpGb3VuZCBhdCAxMTU0DQpGb3VuZCBhdCAx
-MTYwDQpGb3VuZCBhdCAxNDIwDQpGb3VuZCBhdCAxNDI2DQpGaWxlOiAuL21t
-L3Rpbnktc2htZW0uYw0KRm91bmQgYXQgMTE3DQpGaWxlOiAuL25ldC9pcHY0
-L2FycC5jDQpGb3VuZCBhdCAxMDM3DQpGaWxlOiAuL25ldC9zdW5ycGMvYXV0
-aF9nc3MvYXV0aF9nc3MuYw0KRm91bmQgYXQgNTY3DQpGaWxlOiAuL25ldC9z
-dW5ycGMvY2xudC5jDQpGb3VuZCBhdCA5MQ0KRmlsZTogLi9uZXQvdW5peC9h
-Zl91bml4LmMNCkZvdW5kIGF0IDgwMg0K
-
---1795850513-851499190-1159729086=:21548--
+And that's better than the current situation in which respects, exactly?

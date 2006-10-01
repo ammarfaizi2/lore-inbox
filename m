@@ -1,100 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1752027AbWJAGDJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751865AbWJAEFU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1752027AbWJAGDJ (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Oct 2006 02:03:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1752026AbWJAGDJ
+	id S1751865AbWJAEFU (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Oct 2006 00:05:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751870AbWJAEFU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Oct 2006 02:03:09 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:28833 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1752027AbWJAGDG (ORCPT
+	Sun, 1 Oct 2006 00:05:20 -0400
+Received: from pat.uio.no ([129.240.10.4]:23795 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S1751865AbWJAEFT (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Oct 2006 02:03:06 -0400
-Date: Sat, 30 Sep 2006 23:02:59 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: "Chris Lee" <labmonkey42@gmail.com>
-Cc: <linux-kernel@vger.kernel.org>, "'Ju, Seokmann'" <Seokmann.Ju@lsil.com>,
-       <linux-scsi@vger.kernel.org>, <Neela.Kolli@engenio.com>
-Subject: Re: Problem with legacy megaraid
-Message-Id: <20060930230259.497b7bc9.akpm@osdl.org>
-In-Reply-To: <451f5496.40cc4d00.1456.ffffef37@mx.gmail.com>
-References: <20060930155410.8238c195.akpm@osdl.org>
-	<451f5496.40cc4d00.1456.ffffef37@mx.gmail.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+	Sun, 1 Oct 2006 00:05:19 -0400
+Subject: RE: Postal 56% waits for flock_lock_file_wait
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: "Ananiev, Leonid I" <leonid.i.ananiev@intel.com>
+Cc: Linux Kernel Mailing List <Linux-Kernel@vger.kernel.org>
+In-Reply-To: <B41635854730A14CA71C92B36EC22AAC3AD92D@mssmsx411>
+References: <B41635854730A14CA71C92B36EC22AAC3AD92D@mssmsx411>
+Content-Type: text/plain
+Date: Sun, 01 Oct 2006 00:05:07 -0400
+Message-Id: <1159675508.5453.3.camel@lade.trondhjem.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+X-Mailer: Evolution 2.8.0 
 Content-Transfer-Encoding: 7bit
+X-UiO-Spam-info: not spam, SpamAssassin (score=-3.168, required 12,
+	autolearn=disabled, AWL 1.70, RCVD_IN_SORBS_DUL 0.14,
+	UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 1 Oct 2006 00:39:37 -0500
-"Chris Lee" <labmonkey42@gmail.com> wrote:
+On Sat, 2006-09-30 at 21:26 +0400, Ananiev, Leonid I wrote:
+> > On which filesystem were the above results obtained if it was not
+> ext2?
+> The default ext3 fs was used.
+> 
+> > All the above results are telling you is that your test involves
+> several
+> > processes contending for the same lock, and so all of them barring the
+> > one process that actually holds the lock are idle.
+> 
+> Yes. It is  flock_lock_file_wait.
 
-> Thanks for your response Andrew.  Comment responses in-line:
-> 
-> > 
-> > > I am not subscribed to this list.  Please CC me on replies.
-> > 
-> > (more cc's added)
-> > 
-> 
-> Outstanding; thank you.
-> 
-> > > I have a machine I'm trying to use as a file server.  I 
-> > have a RAID10 and a
-> > > RAID5 on a single Dell PERC2/DC (AMI Megaraid 467) 
-> > controller.  Both arrays
-> > > are also on the same SCSI channel.  The system runs fine 
-> > for days on end
-> > > until I put some heavy I/O load on either array and sustain 
-> > it for a few
-> > > seconds.
-> > 
-> > We recently discovered that "The old megaraid driver is 
-> > apparently borken
-> > for firmware newer than 6.61.".  So please check that and see if a
-> > downgrade is needed.
-> > 
-> 
-> The Dell firmware version on the card currently is 1.06.  I have not found a
-> newer firmware version than that one.
-> 
-> > Is there some reason why you cannot use the new megaraid driver?
-> > 
-> 
-> The config help for the megaraid drivers suggested that the new megaraid
-> driver would not support a PERC2.  I had enabled both drivers in the kernel
-> which is having this problem.:
-> 
-> CONFIG_MEGARAID_NEWGEN=y
-> CONFIG_MEGARAID_MM=y
-> CONFIG_MEGARAID_MAILBOX=y
-> CONFIG_MEGARAID_LEGACY=y
-> 
-> After your suggestion I rebuilt the kernel with legacy disabled.:
-> 
-> CONFIG_MEGARAID_NEWGEN=y
-> CONFIG_MEGARAID_MM=y
-> CONFIG_MEGARAID_MAILBOX=y
-> # CONFIG_MEGARAID_LEGACY is not set
-> 
-> The new megaraid driver does not detect the PERC2/DC just as I feared it
-> would not.  Unless I'm missing some kernel commandline arguments necessary
-> to make the new driver find the card, I'm stuck with legacy.
+That is the function which causes the sleep, yes. So what is your gripe?
+The kernel would appear to be doing exactly what is expected of it.
 
-Oh well.  I was just guessing - I've never even seen a megaraid controller,
-sorry.
+Trond
 
-> > 
-> > > Distro: Gentoo Linux
-> > > Kernel: 2.6.17-gentoo-r7
-> > > 
-> > > Hardware:
-> > > Motherboard: Tyan Thunder i7501 Pro (S2721-533)
-> > > CPUs: Dual 2.8Ghz P4 HT Xeons
-> > > RAM: 4GB registered (3/1 split, flat model)
-> > > RAID: Dell PERC2/DC (AMI Megaraid 467)
-> > > SCSI: Adaptec AHA-2940U2/U2W PCI
-> > > NICs: onboard e100 and dual onboard e1000
-> > > 
-
-Did it work correctly under any earlier kernel version?  If so, which?

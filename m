@@ -1,60 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751231AbWJAQT2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751241AbWJAQYP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751231AbWJAQT2 (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Oct 2006 12:19:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751234AbWJAQT1
+	id S1751241AbWJAQYP (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Oct 2006 12:24:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751240AbWJAQYP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Oct 2006 12:19:27 -0400
-Received: from x35.xmailserver.org ([69.30.125.51]:58518 "EHLO
-	x35.xmailserver.org") by vger.kernel.org with ESMTP
-	id S1751231AbWJAQT0 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Oct 2006 12:19:26 -0400
-X-AuthUser: davidel@xmailserver.org
-Date: Sun, 1 Oct 2006 09:19:23 -0700 (PDT)
-From: Davide Libenzi <davidel@xmailserver.org>
-X-X-Sender: davide@alien.or.mcafeemobile.com
-To: Jeff Garzik <jeff@garzik.org>
-cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] fs/eventpoll: error handling micro-cleanup
-In-Reply-To: <451FE7E3.4050503@garzik.org>
-Message-ID: <Pine.LNX.4.64.0610010911231.21285@alien.or.mcafeemobile.com>
-References: <20061001124352.GA30263@havoc.gtf.org>
- <Pine.LNX.4.64.0610010900540.21285@alien.or.mcafeemobile.com>
- <451FE7E3.4050503@garzik.org>
-X-GPG-FINGRPRINT: CFAE 5BEE FD36 F65E E640  56FE 0974 BF23 270F 474E
-X-GPG-PUBLIC_KEY: http://www.xmailserver.org/davidel.asc
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sun, 1 Oct 2006 12:24:15 -0400
+Received: from havoc.gtf.org ([69.61.125.42]:7661 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S1751218AbWJAQYO (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 Oct 2006 12:24:14 -0400
+Date: Sun, 1 Oct 2006 12:24:13 -0400
+From: Jeff Garzik <jeff@garzik.org>
+To: per.liden@ericsson.com, jon.maloy@ericsson.com,
+       allan.stephens@windriver.com, davem@davemloft.net,
+       Andrew Morton <akpm@osdl.org>, netdev@vger.kernel.org
+Cc: LKML <linux-kernel@vger.kernel.org>
+Subject: [PATCH] TIPC: fix printk warning
+Message-ID: <20061001162413.GA8000@havoc.gtf.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=utf-8
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 1 Oct 2006, Jeff Garzik wrote:
 
-> Davide Libenzi wrote:
-> > On Sun, 1 Oct 2006, Jeff Garzik wrote:
-> > 
-> > > While reviewing the 'may be used uninitialized' bogus gcc warnings,
-> > > I noticed that an error code assignment was only needed if an error had
-> > > actually occured.
-> > 
-> > But that saved one line of code, and there are countless occurences in the
-> > kernel of such code pattern ;)
-> 
-> I'm not sure there are countless occurrences with PTR_ERR().  The line is
-> incorrect (but harmless) if inode is a valid pointer...
+gcc spits out this warning:
 
-I just tried a `find /usr/src/linux-2.6.16/ -type f -exec grep -H -C 2 PTR_ERR {} \;`
-and looked at the cases where the error variable is assigned in any case 
-before the test. Same code pattern as, like:
+net/tipc/link.c: In function ‘link_retransmit_failure’:
+net/tipc/link.c:1669: warning: cast from pointer to integer of different
+size
 
-error = -EFAULT;
-if (copy_from_user(...))
-	goto kaboom;
+More than a little bit ugly, storing integers in void*, but at least the
+code is correct, unlike some of the more crufty Linux kernel code found
+elsewhere.
 
-Again, expect a big patch if you're gonna fix all those ;)
+Rather than having two casts to massage the value into u32, it's easier
+just to have a single cast and use "%lu", since it's just a printk.
 
+Signed-off-by: Jeff Garzik <jeff@garzik.org>
 
-
-- Davide
-
-
+diff --git a/net/tipc/link.c b/net/tipc/link.c
+index 693f02e..53bc8cb 100644
+--- a/net/tipc/link.c
++++ b/net/tipc/link.c
+@@ -1666,8 +1666,9 @@ static void link_retransmit_failure(stru
+ 		char addr_string[16];
+ 
+ 		tipc_printf(TIPC_OUTPUT, "Msg seq number: %u,  ", msg_seqno(msg));
+-		tipc_printf(TIPC_OUTPUT, "Outstanding acks: %u\n", (u32)TIPC_SKB_CB(buf)->handle);
+-		
++		tipc_printf(TIPC_OUTPUT, "Outstanding acks: %lu\n",
++				     (unsigned long) TIPC_SKB_CB(buf)->handle);
++
+ 		n_ptr = l_ptr->owner->next;
+ 		tipc_node_lock(n_ptr);
+ 

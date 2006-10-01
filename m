@@ -1,50 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932213AbWJAKbe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751704AbWJAKku@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932213AbWJAKbe (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Oct 2006 06:31:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932214AbWJAKbe
+	id S1751704AbWJAKku (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Oct 2006 06:40:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751709AbWJAKku
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Oct 2006 06:31:34 -0400
-Received: from server6.greatnet.de ([83.133.96.26]:13025 "EHLO
-	server6.greatnet.de") by vger.kernel.org with ESMTP id S932213AbWJAKbd
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Oct 2006 06:31:33 -0400
-Message-ID: <451F98CB.3040509@nachtwindheim.de>
-Date: Sun, 01 Oct 2006 12:30:35 +0200
-From: Henne <henne@nachtwindheim.de>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060911)
-MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-Cc: Christoph Hellwig <hch@infradead.org>, pbadari@us.ibm.com,
-       linux-kernel@vger.kernel.org
-Subject: [PATCH] mm: fix in kerneldoc
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+	Sun, 1 Oct 2006 06:40:50 -0400
+Received: from pasmtpb.tele.dk ([80.160.77.98]:41190 "EHLO pasmtpB.tele.dk")
+	by vger.kernel.org with ESMTP id S1751039AbWJAKkt (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 Oct 2006 06:40:49 -0400
+Date: Sun, 1 Oct 2006 12:40:46 +0200
+From: Sam Ravnborg <sam@ravnborg.org>
+To: Michael Rasenberger <miraze@web.de>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: 2.6.18-mm1 violates sandbox feature on linux distribution
+Message-ID: <20061001104046.GA10205@uranus.ravnborg.org>
+References: <451ABE0E.2030904@web.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <451ABE0E.2030904@web.de>
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fixes an kerneldoc error.
-Signed-off-by: Henrik Kretzschmar <henne@nachtwindheim.de>
+On Wed, Sep 27, 2006 at 06:08:14PM +0000, Michael Rasenberger wrote:
+> -----BEGIN PGP SIGNED MESSAGE-----
+> Hash: SHA1
+> 
+> Hello,
+> 
+> when building external kernel module on gentoo linux distribution,
+> 2.6.18-mm1 violates gentoo's sandbox feature due to file creation in
+> "as-instr" test in scripts/Kbuild.include. (AFAIK due to removal of
+> revert-x86_64-mm-detect-cfi.patch)
 
----
+Can you point to to some description of this sandbox feature.
+The error you point out looks pretty generic and should happen
+in several places - so I need to understand what problem I shall
+fix before trying to fix it.
 
-diff --git a/mm/filemap.c b/mm/filemap.c
-index ec46923..f789500 100644
---- a/mm/filemap.c
-+++ b/mm/filemap.c
-@@ -1139,11 +1139,11 @@ success:
- }
- 
- /**
-- * __generic_file_aio_read - generic filesystem read routine
-+ * generic_file_aio_read - generic filesystem read routine
-  * @iocb:	kernel I/O control block
-  * @iov:	io vector request
-  * @nr_segs:	number of segments in the iovec
-- * @ppos:	current file position
-+ * @pos:	current file position
-  *
-  * This is the "read()" routine for all filesystems
-  * that can use the page cache directly.
+The point is that we have other places where we create temporary files
+so this should not be the only issue.
 
-
+	Sam

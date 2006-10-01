@@ -1,68 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932083AbWJAR1y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932078AbWJAR13@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932083AbWJAR1y (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Oct 2006 13:27:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932087AbWJAR1y
+	id S932078AbWJAR13 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Oct 2006 13:27:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932081AbWJAR13
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Oct 2006 13:27:54 -0400
-Received: from out1.smtp.messagingengine.com ([66.111.4.25]:31401 "EHLO
-	out1.smtp.messagingengine.com") by vger.kernel.org with ESMTP
-	id S932084AbWJAR1w (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Oct 2006 13:27:52 -0400
-Message-Id: <1159723673.14141.272274719@webmail.messagingengine.com>
-X-Sasl-Enc: IBjPDfMLmEkJFztQUK9CQPJ8nwSSnmsyzBK29MxS4YFO 1159723673
-From: "Alexander van Heukelum" <heukelum@fastmail.fm>
-To: "Randy Dunlap" <rdunlap@xenotime.net>
-Cc: "Miguel Ojeda" <maxextreme@gmail.com>, akpm@osdl.org,
-       "Stefan Richter" <stefanr@s5r6.in-berlin.de>,
-       linux-kernel@vger.kernel.org, Valdis.Kletnieks@vt.edu
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
-Content-Type: text/plain; charset="ISO-8859-1"
+	Sun, 1 Oct 2006 13:27:29 -0400
+Received: from mcr-smtp-002.bulldogdsl.com ([212.158.248.8]:64530 "EHLO
+	mcr-smtp-002.bulldogdsl.com") by vger.kernel.org with ESMTP
+	id S932078AbWJAR12 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 Oct 2006 13:27:28 -0400
+X-Spam-Abuse: Please report all spam/abuse matters to abuse@bulldogdsl.com
+From: Alistair John Strachan <s0348365@sms.ed.ac.uk>
+To: Jeff Garzik <jeff@garzik.org>
+Subject: Re: Announce: gcc bogus warning repository
+Date: Sun, 1 Oct 2006 18:27:29 +0100
+User-Agent: KMail/1.9.4
+Cc: Randy Dunlap <rdunlap@xenotime.net>,
+       Linux Kernel <linux-kernel@vger.kernel.org>,
+       Andrew Morton <akpm@osdl.org>
+References: <451FC657.6090603@garzik.org> <20061001100747.d1842273.rdunlap@xenotime.net> <451FF8ED.9080507@garzik.org>
+In-Reply-To: <451FF8ED.9080507@garzik.org>
 MIME-Version: 1.0
-X-Mailer: MessagingEngine.com Webmail Interface
-References: <20060930232445.59e8adf6.maxextreme@gmail.com>
-   <653402b90610010553p23819d2bsd7a07fabaee7ecf3@mail.gmail.com>
-   <451FC7DC.7070909@s5r6.in-berlin.de>
-   <200610011605.k91G5wJD031632@turing-police.cc.vt.edu>
-   <20061001094342.55a331d1.rdunlap@xenotime.net>
-Subject: Re: [PATCH 2.6.18 V7] drivers: add lcd display support
-In-Reply-To: <20061001094342.55a331d1.rdunlap@xenotime.net>
-Date: Sun, 01 Oct 2006 19:27:53 +0200
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200610011827.29732.s0348365@sms.ed.ac.uk>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 1 Oct 2006 09:43:42 -0700, "Randy Dunlap" <rdunlap@xenotime.net>
-said:
-> On Sun, 01 Oct 2006 12:05:58 -0400 Valdis.Kletnieks@vt.edu wrote:
-> > On Sun, 01 Oct 2006 15:51:24 +0200, Stefan Richter said:
-> > > I am not sure which looks prettiest. But I know that "LCD display" looks
-> > > really bad to everybody who knows what the D stands for. :-)
-> > 
-> > Maybe I'm confused, but doesn't the D stand for *DIODE*?
+On Sunday 01 October 2006 18:20, Jeff Garzik wrote:
+> Randy Dunlap wrote:
+[snip]
+> >> This repository will NEVER EVER be pushed upstream.  It exists solely
+> >> for those who want to decrease their build noise, thereby exposing true
+> >> bugs.
+> >>
+> >> The audit has already uncovered several minor bugs, lending credence to
+> >> my theory that too many warnings hides bugs.
+> >
+> > I usually build with must_check etc. enabled then grep them
+> > away if I want to look for other messages.  I think that the situation
+> > is not so disastrous.
 >
-> not that wikipedia or I know of.
+> I think it's both sad, and telling, that the high level of build noise
+> has trained kernel hackers to tune out warnings, and/or build tools of
+> ever-increasing sophistication just to pick out the useful messages from
+> all the noise.
+>
+> If you have to grep useful stuff out of the noise, you've already lost.
 
-I think there is a problem with the name anyhow. Would you use the 
-LCD(d)isplay driver for an OLED screen?
+The question is whether the GCC guys are actually doing anything about the 
+problem. If they are, we should do nothing. If they aren't, maybe it's time 
+for "x = x" hacks like Steven's.
 
-How about auxiliary display or AUXdisplay?
-
-Alexander
-
-> ---
-> ~Randy
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel"
-> in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
--- 
-  Alexander van Heukelum
-  heukelum@fastmail.fm
+Is GCC 4.2 any better with this class of warnings?
 
 -- 
-http://www.fastmail.fm - Faster than the air-speed velocity of an
-                          unladen european swallow
+Cheers,
+Alistair.
 
+Final year Computer Science undergraduate.
+1F2 55 South Clerk Street, Edinburgh, UK.

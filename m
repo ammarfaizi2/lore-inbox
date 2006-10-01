@@ -1,50 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932306AbWJAURz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932302AbWJAUTv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932306AbWJAURz (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Oct 2006 16:17:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932303AbWJAURz
+	id S932302AbWJAUTv (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Oct 2006 16:19:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932303AbWJAUTv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Oct 2006 16:17:55 -0400
-Received: from palinux.external.hp.com ([192.25.206.14]:22149 "EHLO
-	mail.parisc-linux.org") by vger.kernel.org with ESMTP
-	id S932301AbWJAURy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Oct 2006 16:17:54 -0400
-Date: Sun, 1 Oct 2006 14:17:53 -0600
-From: Matthew Wilcox <matthew@wil.cx>
-To: James Bottomley <James.Bottomley@SteelEye.com>
-Cc: linux-scsi@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] async scsi scanning, version 13
-Message-ID: <20061001201753.GG16272@parisc-linux.org>
-References: <20060928211920.GI5017@parisc-linux.org> <1159732857.3542.5.camel@mulgrave.il.steeleye.com>
+	Sun, 1 Oct 2006 16:19:51 -0400
+Received: from smtp.tvcom.ru ([80.246.64.4]:36811 "EHLO smtp.tvcom.ru")
+	by vger.kernel.org with ESMTP id S932302AbWJAUTv convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 Oct 2006 16:19:51 -0400
+Message-ID: <45202519.3030809@flightmedia.ru>
+Date: Mon, 02 Oct 2006 00:29:13 +0400
+From: Dvorkin Dmitry <dvorkin@flightmedia.ru>
+User-Agent: Mozilla Thunderbird 1.0.6-6mdk (X11/20050322)
+X-Accept-Language: en-us, en
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1159732857.3542.5.camel@mulgrave.il.steeleye.com>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+To: linux-kernel@vger.kernel.org
+Subject: aic94xx
+Content-Type: text/plain; charset=UTF-8
+Content-Transfer-Encoding: 8BIT
+X-SpamTest-Info: Profile: Formal (576/060930)
+X-SpamTest-Info: Profile: Detect Standard No RBL (4/030526)
+X-SpamTest-Info: Profile: SysLog
+X-SpamTest-Info: Profile: Archiving/Rejecting (2/030321)
+X-SpamTest-Status: Not detected
+X-SpamTest-Version: SMTP-Filter Version 2.0.0 [0125], KAS/Release
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 01, 2006 at 03:00:57PM -0500, James Bottomley wrote:
-> OK, my plan for this is to place it in SCSI misc as soon as we get
-> 2.6.19-rc1.  That way we'll give it a thorough check out in -mm before
-> it hits mainline.
-> 
-> By the way, a global change log (rather than changes relative to
-> previous versions) would be appreciated.
+does anybody have success with aic94xx or adp94xx running in Xen 3?
 
-Certainly ...
-
-Add ability to scan scsi busses asynchronously
-
-Since it often takes around 20-30 seconds to scan a scsi bus, it's
-highly advantageous to do this in parallel with other things.  The bulk
-of this patch is ensuring that devices don't change numbering, and that
-all devices are discovered prior to trying to start init.  For those
-who build SCSI as modules, there's a new scsi_wait_scan module that will
-ensure all bus scans are finished.
-
-This patch only handles drivers which call scsi_scan_host.  Fibre Channel,
-SAS, SATA, USB and Firewire all need additional work.
-
-Signed-off-by: Matthew Wilcox <matthew@wil.cx>
+-- 
+С уважением,
+Дмитрий Солдатов.
+______________________________
+Служба техничекой поддержки.
+Компания "Взлет Медиа", Тверь
+Тел. +7 (0822) 69-11-55
+E-mail: support@tvernet.ru
+http://www.flightmedia.ru 
 

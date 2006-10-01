@@ -1,56 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751725AbWJAJUj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751402AbWJAJ14@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751725AbWJAJUj (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Oct 2006 05:20:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751726AbWJAJUj
+	id S1751402AbWJAJ14 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Oct 2006 05:27:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751492AbWJAJ14
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Oct 2006 05:20:39 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:27859 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751724AbWJAJUi (ORCPT
+	Sun, 1 Oct 2006 05:27:56 -0400
+Received: from ns2.suse.de ([195.135.220.15]:64181 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1751402AbWJAJ14 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Oct 2006 05:20:38 -0400
-Date: Sun, 1 Oct 2006 02:20:22 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Olaf Hering <olaf@aepfle.de>
-Cc: David Brownell <david-b@pacbell.net>,
-       Alessandro Zummo <alessandro.zummo@towertech.it>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-Subject: Re: [patch 2.6.18-git] RTC class uses subsys_init
-Message-Id: <20061001022022.d7f86b39.akpm@osdl.org>
-In-Reply-To: <20061001090717.GA14885@aepfle.de>
-References: <200609282333.34224.david-b@pacbell.net>
-	<20061001090717.GA14885@aepfle.de>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Sun, 1 Oct 2006 05:27:56 -0400
+From: Andi Kleen <ak@suse.de>
+To: Linus Torvalds <torvalds@osdl.org>
+Subject: Re: BUG-lockdep and freeze (was: Arrr! Linux 2.6.18)
+Date: Sun, 1 Oct 2006 11:27:35 +0200
+User-Agent: KMail/1.9.3
+Cc: Eric Rannaud <eric.rannaud@gmail.com>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
+       nagar@watson.ibm.com, Chandra Seetharaman <sekharan@us.ibm.com>,
+       Jan Beulich <jbeulich@novell.com>
+References: <5f3c152b0609301220p7a487c7dw456d007298578cd7@mail.gmail.com> <Pine.LNX.4.64.0609301713460.3952@g5.osdl.org> <Pine.LNX.4.64.0609301748340.3952@g5.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0609301748340.3952@g5.osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200610011127.35393.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 1 Oct 2006 11:07:17 +0200
-Olaf Hering <olaf@aepfle.de> wrote:
 
-> On Thu, Sep 28, David Brownell wrote:
+> Side note: it's entirely possible that the "unwinder" code shouldn't even 
+
+How often do I need to repeat that it wasn't the dwarf2 unwinder that crashed 
+here,  but the fallback code that is essentially just the old unwinder? Somehow 
+I don't seem to get through. 
+
+> try to return the address outside the page, since the first/last frame on 
+> a page is likely to be special (ie it's an exception/interrupt kind of 
+> thing), and it's entirely possible that the "page-level" loop is better at 
+> handling that part too.
 > 
+> That way you wouldn't even need to make the exception frames haev the 
+> dwarf info etc, because you could choose to just depend on knowing what 
+> the format of such a page was. But that's obviously just an implementation 
+> choice..
 > 
-> > +++ linux/drivers/rtc/rtc-sysfs.c	2006-07-30 16:15:50.000000000 -0700
-> > @@ -116,7 +116,7 @@
-> >  	class_interface_unregister(&rtc_sysfs_interface);
-> >  }
-> >  
-> > -module_init(rtc_sysfs_init);
-> > +subsys_init(rtc_sysfs_init);
-> >  module_exit(rtc_sysfs_exit);
-> 
-> subsys_init is not defined, but the change is in Linus tree now.
+> Doesn't that sound like it should be both fairly straightforward and 
+> reasonable?
 
-doh.  But it still compiled.
+Ok I guess it would be possible to add another level of stack validation to
+the unwinder if you insist of it. 
 
-drivers/rtc/rtc-sysfs.c:119: warning: data definition has no type or storage class
-drivers/rtc/rtc-sysfs.c:119: warning: type defaults to 'int' in declaration of 'subsys_init'
-drivers/rtc/rtc-sysfs.c:119: warning: parameter names (without types) in function declaration
-drivers/rtc/rtc-sysfs.c:110: warning: 'rtc_sysfs_init' defined but not used
+I don't think it would help all that much because the unwinder already does 
+pretty good validation based on CFI and it wouldn't have avoided that 
+particular problem anyways (which was already fixed in 2.6.18 BTW, Eric's 
+bisect just managed to find a bad spot before 2.6.18) 
 
-I'll fix it up.
+Also I still think the code will be fairly ugly to do this, but at least it's 
+already written for the old unwinder. The x86-64 code needed
+at least one state variable, requiring more function arguments
+all over the unwinder, but it might be possible to do it without that.
 
-(Wonders how it passed runtime testing..)
+-Andi

@@ -1,49 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751321AbWJAGxm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751355AbWJAHPX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751321AbWJAGxm (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Oct 2006 02:53:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751346AbWJAGxl
+	id S1751355AbWJAHPX (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Oct 2006 03:15:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751341AbWJAHPX
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Oct 2006 02:53:41 -0400
-Received: from dp.samba.org ([66.70.73.150]:27044 "EHLO lists.samba.org")
-	by vger.kernel.org with ESMTP id S1751321AbWJAGxl (ORCPT
+	Sun, 1 Oct 2006 03:15:23 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:31924 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1751214AbWJAHPW (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Oct 2006 02:53:41 -0400
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sun, 1 Oct 2006 03:15:22 -0400
+Date: Sun, 1 Oct 2006 00:15:11 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: John Keller <jpk@sgi.com>
+Cc: linux-ia64@vger.kernel.org, pcihpd-discuss@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org,
+       ayoung@sgi.com
+Subject: Re: [PATCH 1/3] - Altix: Add initial ACPI IO support
+Message-Id: <20061001001511.ae77d6b1.akpm@osdl.org>
+In-Reply-To: <20060922145123.12414.81897.sendpatchset@attica.americas.sgi.com>
+References: <20060922145123.12414.81897.sendpatchset@attica.americas.sgi.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Message-ID: <17695.26000.2548.503368@samba.org>
-Date: Sun, 1 Oct 2006 16:52:00 +1000
-To: David Lang <dlang@digitalinsight.com>
-Cc: James Bottomley <James.Bottomley@SteelEye.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: GPLv3 Position Statement
-In-Reply-To: <Pine.LNX.4.63.0609301408450.27570@qynat.qvtvafvgr.pbz>
-References: <1159498900.3880.31.camel@mulgrave.il.steeleye.com>
-	<17692.46192.432673.743783@samba.org>
-	<1159515086.3880.79.camel@mulgrave.il.steeleye.com>
-	<17692.57123.749163.204216@samba.org>
-	<1159559443.9543.23.camel@mulgrave.il.steeleye.com>
-	<Pine.LNX.4.63.0609301408450.27570@qynat.qvtvafvgr.pbz>
-X-Mailer: VM 7.19 under Emacs 21.4.1
-Reply-To: tridge@samba.org
-From: tridge@samba.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David,
+On Fri, 22 Sep 2006 09:51:23 -0500
+John Keller <jpk@sgi.com> wrote:
 
- > this is especially relavent for companies that have formerly been willing to act 
- > as mirrors for free software projects. now the act of mirroring debian means 
- > that any patent they own could be comprimised by a random debian developer 
- > adding a patch to any of 19000 packages that implements that patent
+> First phase in introducing ACPI support to SN.
 
-I'd be interested to hear what the debian legal people think of this,
-but my reading of the GPLv2 is that mirror sites are already
-effectively granting a patent license by distributing GPLv2 programs. 
+This:
 
-Maybe this has already been discussed to death somewhere else and some
-solid legal conclusion has been come to? If so, can someone please
-send me a link :)
+--- gregkh-2.6.orig/include/linux/pci.h
++++ gregkh-2.6/include/linux/pci.h
+@@ -405,6 +405,7 @@ extern struct bus_type pci_bus_type;
+ extern struct list_head pci_root_buses;        /* list of all known PCI buses */
+ extern struct list_head pci_devices;   /* list of all devices */
+ 
++void pcibios_fixup_device_resources(struct pci_dev *);
+ void pcibios_fixup_bus(struct pci_bus *);
+ int __must_check pcibios_enable_device(struct pci_dev *, int mask);
+ char *pcibios_setup (char *str);
 
-Cheers, Tridge
+breaks a bunch of architectures.
+
+For example alpha has
+
+void __init
+pcibios_fixup_device_resources(struct pci_dev *dev, struct pci_bus *bus)
+
+box:/usr/src/linux-2.6.18> grep -rl pcibios_fixup_device_resources .
+./arch/alpha/kernel/pci.c
+./arch/ia64/pci/pci.c
+./arch/mips/pci/pci.c
+./arch/powerpc/kernel/pci_64.c
+./arch/powerpc/platforms/pseries/pci_dlpar.c
+./include/asm-powerpc/pci.h
+
+It needs work...

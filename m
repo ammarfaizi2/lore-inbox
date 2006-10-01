@@ -1,58 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932164AbWJASpe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932190AbWJASvS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932164AbWJASpe (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Oct 2006 14:45:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932176AbWJASpe
+	id S932190AbWJASvS (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Oct 2006 14:51:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932193AbWJASvS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Oct 2006 14:45:34 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:44689 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S932164AbWJASpd (ORCPT
+	Sun, 1 Oct 2006 14:51:18 -0400
+Received: from xenotime.net ([66.160.160.81]:62942 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S932190AbWJASvS (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Oct 2006 14:45:33 -0400
-Message-ID: <45200CC8.2030404@garzik.org>
-Date: Sun, 01 Oct 2006 14:45:28 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
-MIME-Version: 1.0
-To: Daniel Walker <dwalker@mvista.com>
-CC: Andrew Morton <akpm@osdl.org>, Linux Kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Announce: gcc bogus warning repository
-References: <451FC657.6090603@garzik.org>	 <1159717214.24767.3.camel@c-67-180-230-165.hsd1.ca.comcast.net>	 <20061001111226.3e14133f.akpm@osdl.org>  <452005E7.5030705@garzik.org> <1159727188.24767.9.camel@c-67-180-230-165.hsd1.ca.comcast.net>
-In-Reply-To: <1159727188.24767.9.camel@c-67-180-230-165.hsd1.ca.comcast.net>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Sun, 1 Oct 2006 14:51:18 -0400
+Date: Sun, 1 Oct 2006 11:52:41 -0700
+From: Randy Dunlap <rdunlap@xenotime.net>
+To: Andrew Morton <akpm@osdl.org>
+Cc: lkml <linux-kernel@vger.kernel.org>, torvalds@osdl.org, rossb@google.com,
+       akpm@google.com, sam@ravnborg.org
+Subject: Re: [patch 024/144] allow /proc/config.gz to be built as a module
+Message-Id: <20061001115241.fb9dc96d.rdunlap@xenotime.net>
+In-Reply-To: <20061001113600.3c318eda.akpm@osdl.org>
+References: <200610010627.k916RPIs010370@shell0.pdx.osdl.net>
+	<20061001093954.8d2aa064.rdunlap@xenotime.net>
+	<20061001113600.3c318eda.akpm@osdl.org>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.3 (----)
-X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Daniel Walker wrote:
-> On Sun, 2006-10-01 at 14:16 -0400, Jeff Garzik wrote:
->> Andrew Morton wrote:
->>> The downsides are that it muckies up the source a little and introduces a
->>> very small risk that real use-uninitialised bugs will be hidden.  But I
->>> believe the benefit outweighs those disadvantages.
->> How about just marking the ones I've already done in #gccbug?
->>
->> If I'm taking the time to audit the code, and separate out bogosities 
->> from real bugs, it would be nice not to see that effort wasted.
+On Sun, 1 Oct 2006 11:36:00 -0700 Andrew Morton wrote:
+
+> On Sun, 1 Oct 2006 09:39:54 -0700
+> Randy Dunlap <rdunlap@xenotime.net> wrote:
 > 
-> There was a long thread on this, it's not about anyone not reviewing the
-> code properly when the warning is first silenced. It's that future
-> changes might create new problems that are also silenced. I don't think
-> it's a huge concern, especially since there's was a config option to
-> turn the warning backs on.
+> > On Sat, 30 Sep 2006 23:27:25 -0700 akpm@osdl.org wrote:
+> > 
+> > > From: Ross Biro <rossb@google.com>
+> > > 
+> > > The driver for /proc/config.gz consumes rather a lot of memory and it is in
+> > > fact possible to build it as a module.
+> > > 
+> > > In some ways this is a bit risky, because the .config which is used for
+> > > compiling kernel/configs.c isn't necessarily the same as the .config which was
+> > > used to build vmlinux.
+> > > 
+> > > But OTOH the potential memory savings are decent, and it'd be fairly dumb to
+> > > build your configs.o with a different .config.
+> > 
+> > so after getting several disagreements on this, you are going ahead
+> > with it.
+> 
+> Actually I had this mentally tagged as "needs more arguing before merging"
+> but then forgot and went and sent it anyway.
 
-That doesn't address my question at all.
+Well, we agree on that part at least.
 
-If there is no difference between real non-init bugs and bogus warnings, 
-then a config option doesn't make any difference at all, does it?  Real 
-bugs are still hidden either way:  if the warnings are turned on, the 
-bugs are lost in the noise.  if the warnings are turned off, the bugs 
-are completely hidden.
+> So now it's in the "needs more arguing before we revert it" category.
 
-	Jeff
+Wrong order IMO.
 
-
-
+---
+~Randy

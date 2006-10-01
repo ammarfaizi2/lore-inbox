@@ -1,71 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932108AbWJARdt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932114AbWJARfE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932108AbWJARdt (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Oct 2006 13:33:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932114AbWJARdt
+	id S932114AbWJARfE (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Oct 2006 13:35:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932110AbWJARfC
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Oct 2006 13:33:49 -0400
-Received: from zakalwe.fi ([80.83.5.154]:62147 "EHLO zakalwe.fi")
-	by vger.kernel.org with ESMTP id S932108AbWJARds (ORCPT
+	Sun, 1 Oct 2006 13:35:02 -0400
+Received: from mx2.mail.ru ([194.67.23.122]:59149 "EHLO mx2.mail.ru")
+	by vger.kernel.org with ESMTP id S932114AbWJARfB (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Oct 2006 13:33:48 -0400
-Date: Sun, 1 Oct 2006 20:32:52 +0300
-From: Heikki Orsila <shd@zakalwe.fi>
-To: Pavel Machek <pavel@ucw.cz>
-Cc: "Eugeny S. Mints" <eugeny.mints@gmail.com>, linux-pm@lists.osdl.org,
-       linux-kernel@vger.kernel.org, ext-Tuukka.Tikkanen@nokia.com
-Subject: Re: [linux-pm] [RFC] OMAP1 PM Core, PM Core  Implementation 2/2
-Message-ID: <20061001173252.GB24539@zakalwe.fi>
-References: <20060930022435.b2344b5f.eugeny.mints@gmail.com> <20061001152228.GA24539@zakalwe.fi> <20061001171032.GE2254@elf.ucw.cz>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+	Sun, 1 Oct 2006 13:35:01 -0400
+From: Andrey Borzenkov <arvidjaar@mail.ru>
+To: linux-kernel@vger.kernel.org
+Subject: 2.6.18: qconf.moc does not get rebuilt in separate build directory
+Date: Sun, 1 Oct 2006 21:34:52 +0400
+User-Agent: KMail/1.9.4
+Cc: sam@ravnborg.org
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20061001171032.GE2254@elf.ucw.cz>
-User-Agent: Mutt/1.5.11
+Message-Id: <200610012134.53322.arvidjaar@mail.ru>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 01, 2006 at 07:10:32PM +0200, Pavel Machek wrote:
-> On Sun 2006-10-01 18:22:28, Heikki Orsila wrote:
-> > Some nitpicking about the patch follows..
-> > 
-> > On Sat, Sep 30, 2006 at 02:24:35AM +0400, Eugeny S. Mints wrote:
-> > > +static long 
-> > > +get_vtg(const char *vdomain)
-> > > +{
-> > > +	long ret = 0;
-> > 
-> > Unnecessary initialisation.
-> 
-> No, sorry.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-In get_vtg(), if VOLTAGE_FRAMEWORK is defined then
+I am not sure what happened; but at some point it refused to do xconfig. This 
+is vanilla 2.6.18.
 
-	ret = vtg_get_voltage(v);
+{pts/1}% LC_ALL=C make -C $PWD O=$HOME/build/linux-2.6.18 V=1 xconfig
+make: Entering directory `/home/bor/src/linux-git'
+make -C /home/bor/build/linux-2.6.18 \
+        KBUILD_SRC=/home/bor/src/linux-git \
+        KBUILD_EXTMOD="" -f /home/bor/src/linux-git/Makefile xconfig
+make -f /home/bor/src/linux-git/scripts/Makefile.build obj=scripts/basic
+/bin/sh /home/bor/src/linux-git/scripts/mkmakefile \
+            /home/bor/src/linux-git /home/bor/build/linux-2.6.18 2 6
+  GEN     /home/bor/build/linux-2.6.18/Makefile
+mkdir -p include/linux include/config
+make -f /home/bor/src/linux-git/scripts/Makefile.build obj=scripts/kconfig 
+xconfig
+  
+g++ -Wp,-MD,scripts/kconfig/.qconf.o.d -Iscripts/kconfig -O2 -DQT_SHARED -DQT_NO_DEBUG -DQT_THREAD_SUPPORT -D_REENTRANT  -I/usr/lib/qt3//include -D 
+LKC_DIRECT_LINK -c -o 
+scripts/kconfig/qconf.o /home/bor/src/linux-git/scripts/kconfig/qconf.cc
+/home/bor/src/linux-git/scripts/kconfig/qconf.cc:30:21: error: qconf.moc: No 
+such file or directory
+make[2]: *** [scripts/kconfig/qconf.o] Error 1
+make[1]: *** [xconfig] Error 2
+make: *** [xconfig] Error 2
+make: Leaving directory `/home/bor/src/linux-git'
 
-is the first user. If VOLTAGE_FRAMEWORK is not defined, the first user is:
+{pts/1}% make --version
+GNU Make 3.81
+Copyright (C) 2006  Free Software Foundation, Inc.
+This is free software; see the source for copying conditions.
+There is NO warranty; not even for MERCHANTABILITY or FITNESS FOR A
+PARTICULAR PURPOSE.
 
-	ret = vtg_get_voltage(&vhandle);
+This program built for i586-mandriva-linux-gnu
 
-Then "return ret;" follows. I cannot see a path where 
-pre-initialisation of ret does anything useful. If someone removed the
-#else part, the compiler would bark.
+- -andrey
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
 
-> 
-> > > +static long 
-> > > +set_vtg(const char *vdomain, int val)
-> > > +{
-> > > +	long ret = 0;
-> > 
-> > here too.
-> 
-> Wrong again. automatic variables are not zero initialized.
-
-My bad, this was a mistake. If VOLTAGE_FRAMEWORK is not defined, ret 
-must be initialised. (the compiler would have noticed this one :-)
-
->> 'int i = 0;' happens in many functions.
-
-for example, omap_pm_create_point() does this.
-
-- Heikki
+iD8DBQFFH/w9R6LMutpd94wRAhgNAKDA2X/PB11xaOgqdtJNg1O1iYUH7wCfTA1G
+gA8hEszsWC5h087/+5smJTI=
+=kLj4
+-----END PGP SIGNATURE-----

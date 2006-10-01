@@ -1,51 +1,178 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932489AbWJAXLw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932472AbWJAXNi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932489AbWJAXLw (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Oct 2006 19:11:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932482AbWJAXHZ
+	id S932472AbWJAXNi (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Oct 2006 19:13:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932488AbWJAXNY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Oct 2006 19:07:25 -0400
-Received: from www.osadl.org ([213.239.205.134]:26803 "EHLO mail.tglx.de")
-	by vger.kernel.org with ESMTP id S932490AbWJAXHA (ORCPT
+	Sun, 1 Oct 2006 19:13:24 -0400
+Received: from www.osadl.org ([213.239.205.134]:691 "EHLO mail.tglx.de")
+	by vger.kernel.org with ESMTP id S932472AbWJAXGr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Oct 2006 19:07:00 -0400
-Message-Id: <20061001225725.323709000@cruncher.tec.linutronix.de>
+	Sun, 1 Oct 2006 19:06:47 -0400
+Message-Id: <20061001225723.260534000@cruncher.tec.linutronix.de>
 References: <20061001225720.115967000@cruncher.tec.linutronix.de>
-Date: Sun, 01 Oct 2006 23:01:07 -0000
+Date: Sun, 01 Oct 2006 23:00:48 -0000
 From: Thomas Gleixner <tglx@linutronix.de>
 To: Andrew Morton <akpm@osdl.org>
 Cc: LKML <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>,
        Jim Gettys <jg@laptop.org>, John Stultz <johnstul@us.ibm.com>,
        David Woodhouse <dwmw2@infradead.org>,
        Arjan van de Ven <arjan@infradead.org>, Dave Jones <davej@redhat.com>
-Subject: [patch 20/21] high-res timers, dynticks: enable i386 support
-Content-Disposition: inline; filename=hrtimer-hres-i386.patch
+Subject: [patch 02/21] GTOD: persistent clock support, core
+Content-Disposition: inline;
+	filename=linux-2.6.18-rc6_timeofday-persistent-clock-generic_C6.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Ingo Molnar <mingo@elte.hu>
+From: John Stultz <johnstul@us.ibm.com>
 
-enable high-res timers and dyntick on i386.
+persistent clock support: do proper timekeeping across suspend/resume.
 
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
+Signed-off-by: John Stultz <johnstul@us.ibm.com>
 Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
+Signed-off-by: Ingo Molnar <mingo@elte.hu>
 --
- arch/i386/Kconfig |    2 ++
- 1 file changed, 2 insertions(+)
+ include/linux/hrtimer.h |    3 +++
+ include/linux/time.h    |    1 +
+ kernel/hrtimer.c        |    8 ++++++++
+ kernel/timer.c          |   34 +++++++++++++++++++++++++++++++---
+ 4 files changed, 43 insertions(+), 3 deletions(-)
 
-Index: linux-2.6.18-mm2/arch/i386/Kconfig
+linux-2.6.18-rc6_timeofday-persistent-clock-generic_C6.patch
+Index: linux-2.6.18-mm2/include/linux/hrtimer.h
 ===================================================================
---- linux-2.6.18-mm2.orig/arch/i386/Kconfig	2006-10-02 00:55:53.000000000 +0200
-+++ linux-2.6.18-mm2/arch/i386/Kconfig	2006-10-02 00:55:55.000000000 +0200
-@@ -65,6 +65,8 @@ source "init/Kconfig"
+--- linux-2.6.18-mm2.orig/include/linux/hrtimer.h	2006-10-02 00:55:49.000000000 +0200
++++ linux-2.6.18-mm2/include/linux/hrtimer.h	2006-10-02 00:55:50.000000000 +0200
+@@ -146,6 +146,9 @@ extern void hrtimer_init_sleeper(struct 
+ /* Soft interrupt function to run the hrtimer queues: */
+ extern void hrtimer_run_queues(void);
  
- menu "Processor type and features"
- 
-+source "kernel/time/Kconfig"
++/* Resume notification */
++void hrtimer_notify_resume(void);
 +
- config SMP
- 	bool "Symmetric multi-processing support"
- 	---help---
+ /* Bootup initialization: */
+ extern void __init hrtimers_init(void);
+ 
+Index: linux-2.6.18-mm2/include/linux/time.h
+===================================================================
+--- linux-2.6.18-mm2.orig/include/linux/time.h	2006-10-02 00:55:49.000000000 +0200
++++ linux-2.6.18-mm2/include/linux/time.h	2006-10-02 00:55:50.000000000 +0200
+@@ -92,6 +92,7 @@ extern struct timespec xtime;
+ extern struct timespec wall_to_monotonic;
+ extern seqlock_t xtime_lock;
+ 
++extern unsigned long read_persistent_clock(void);
+ void timekeeping_init(void);
+ 
+ static inline unsigned long get_seconds(void)
+Index: linux-2.6.18-mm2/kernel/hrtimer.c
+===================================================================
+--- linux-2.6.18-mm2.orig/kernel/hrtimer.c	2006-10-02 00:55:49.000000000 +0200
++++ linux-2.6.18-mm2/kernel/hrtimer.c	2006-10-02 00:55:50.000000000 +0200
+@@ -287,6 +287,14 @@ static unsigned long ktime_divns(const k
+ #endif /* BITS_PER_LONG >= 64 */
+ 
+ /*
++ * Timekeeping resumed notification
++ */
++void hrtimer_notify_resume(void)
++{
++	clock_was_set();
++}
++
++/*
+  * Counterpart to lock_timer_base above:
+  */
+ static inline
+Index: linux-2.6.18-mm2/kernel/timer.c
+===================================================================
+--- linux-2.6.18-mm2.orig/kernel/timer.c	2006-10-02 00:55:50.000000000 +0200
++++ linux-2.6.18-mm2/kernel/timer.c	2006-10-02 00:55:50.000000000 +0200
+@@ -41,6 +41,9 @@
+ #include <asm/timex.h>
+ #include <asm/io.h>
+ 
++/* jiffies at the most recent update of wall time */
++unsigned long wall_jiffies = INITIAL_JIFFIES;
++
+ u64 jiffies_64 __cacheline_aligned_in_smp = INITIAL_JIFFIES;
+ 
+ EXPORT_SYMBOL(jiffies_64);
+@@ -743,12 +746,20 @@ int timekeeping_is_continuous(void)
+ 	return ret;
+ }
+ 
++/* Weak dummy function for arches that do not yet support it.
++ * XXX - Do be sure to remove it once all arches implement it.
++ */
++unsigned long __attribute__((weak)) read_persistent_clock(void)
++{
++	return 0;
++}
++
+ /*
+  * timekeeping_init - Initializes the clocksource and common timekeeping values
+  */
+ void __init timekeeping_init(void)
+ {
+-	unsigned long flags;
++	unsigned long flags, sec = read_persistent_clock();
+ 
+ 	write_seqlock_irqsave(&xtime_lock, flags);
+ 
+@@ -758,11 +769,18 @@ void __init timekeeping_init(void)
+ 	clocksource_calculate_interval(clock, tick_nsec);
+ 	clock->cycle_last = clocksource_read(clock);
+ 
++	xtime.tv_sec = sec;
++	xtime.tv_nsec = (jiffies % HZ) * (NSEC_PER_SEC / HZ);
++	set_normalized_timespec(&wall_to_monotonic,
++		-xtime.tv_sec, -xtime.tv_nsec);
++
+ 	write_sequnlock_irqrestore(&xtime_lock, flags);
+ }
+ 
+ 
+ static int timekeeping_suspended;
++static unsigned long timekeeping_suspend_time;
++
+ /**
+  * timekeeping_resume - Resumes the generic timekeeping subsystem.
+  * @dev:	unused
+@@ -773,14 +791,23 @@ static int timekeeping_suspended;
+  */
+ static int timekeeping_resume(struct sys_device *dev)
+ {
+-	unsigned long flags;
++	unsigned long flags, now = read_persistent_clock();
+ 
+ 	write_seqlock_irqsave(&xtime_lock, flags);
+-	/* restart the last cycle value */
++
++	if (now && (now > timekeeping_suspend_time)) {
++		unsigned long sleep_length = now - timekeeping_suspend_time;
++		xtime.tv_sec += sleep_length;
++		jiffies_64 += sleep_length * HZ;
++	}
++	/* re-base the last cycle value */
+ 	clock->cycle_last = clocksource_read(clock);
+ 	clock->error = 0;
+ 	timekeeping_suspended = 0;
+ 	write_sequnlock_irqrestore(&xtime_lock, flags);
++
++	hrtimer_notify_resume();
++
+ 	return 0;
+ }
+ 
+@@ -790,6 +817,7 @@ static int timekeeping_suspend(struct sy
+ 
+ 	write_seqlock_irqsave(&xtime_lock, flags);
+ 	timekeeping_suspended = 1;
++	timekeeping_suspend_time = read_persistent_clock();
+ 	write_sequnlock_irqrestore(&xtime_lock, flags);
+ 	return 0;
+ }
 
 --
 

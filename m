@@ -1,45 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751995AbWJAB2Y@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751546AbWJACRo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751995AbWJAB2Y (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Sep 2006 21:28:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751991AbWJAB2Y
+	id S1751546AbWJACRo (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Sep 2006 22:17:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751547AbWJACRo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Sep 2006 21:28:24 -0400
-Received: from havoc.gtf.org ([69.61.125.42]:22229 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id S1751990AbWJAB2X (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Sep 2006 21:28:23 -0400
-Date: Sat, 30 Sep 2006 21:28:22 -0400
-From: Jeff Garzik <jeff@garzik.org>
-To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
-Cc: axboe@kernel.dk, linux-scsi@vger.kernel.org,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: [PATCH] SCSI: fix request flag-related build breakage
-Message-ID: <20061001012822.GA25208@havoc.gtf.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Sat, 30 Sep 2006 22:17:44 -0400
+Received: from gateway.insightbb.com ([74.128.0.19]:12397 "EHLO
+	asav01.insightbb.com") by vger.kernel.org with ESMTP
+	id S1751534AbWJACRo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sat, 30 Sep 2006 22:17:44 -0400
+X-IronPort-Anti-Spam-Filtered: true
+X-IronPort-Anti-Spam-Result: AbgeAEHBHkWBTogSgg8s
+From: Dmitry Torokhov <dtor@insightbb.com>
+To: Pete Zaitcev <zaitcev@redhat.com>
+Subject: Re: appletouch vs. usbhid
+Date: Sat, 30 Sep 2006 22:17:39 -0400
+User-Agent: KMail/1.9.3
+Cc: linux-kernel@vger.kernel.org, Andrew Morton <akpm@osdl.org>
+References: <20060930142003.8ba909b1.zaitcev@redhat.com>
+In-Reply-To: <20060930142003.8ba909b1.zaitcev@redhat.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+Message-Id: <200609302217.40895.dtor@insightbb.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Pete,
 
-The ->flags in struct request was split into two variables, in a recent
-changeset.  The merge of this change forgot to update SCSI's libsas,
-probably because libsas was a very recent merge.
+On Saturday 30 September 2006 17:20, Pete Zaitcev wrote:
+> Dear Dmitry:
+> 
+> A user filed a bug here which seems to indicate that hid lacks needed
+> exclusions for Apple pointers:
+>  https://bugzilla.redhat.com/bugzilla/show_bug.cgi?id=208721
+> Do you think we should be adding QUIRK_IGNORE for these?
 
-Signed-off-by: Jeff Garzik <jeff@garzik.org>
+Yes, I think we should.
 
-diff --git a/drivers/scsi/libsas/sas_scsi_host.c b/drivers/scsi/libsas/sas_scsi_host.c
-index 7f9e89b..e46e793 100644
---- a/drivers/scsi/libsas/sas_scsi_host.c
-+++ b/drivers/scsi/libsas/sas_scsi_host.c
-@@ -126,7 +126,7 @@ static enum task_attribute sas_scsi_get_
- 	enum task_attribute ta = TASK_ATTR_SIMPLE;
- 	if (cmd->request && blk_rq_tagged(cmd->request)) {
- 		if (cmd->device->ordered_tags &&
--		    (cmd->request->flags & REQ_HARDBARRIER))
-+		    (cmd->request->cmd_flags & REQ_HARDBARRIER))
- 			ta = TASK_ATTR_HOQ;
- 	}
- 	return ta;
+> Perhaps conditional on CONFIG_USB_APPLETOUCH?
+
+No, I think we should just do that unconditionally and have users select
+appletouch driver.
+
+> 
+> We used to have those IGNORE quirks for Wacom, but then started to ignore
+> all Wacoms. We seem to be not at that point with Apple yet, and also they
+> have varying vendor IDs.
+>
+
+Ping Cheng swore that Wacom never produced HID-compiant device and that
+it would be easier for her if we blacklisted Wacom as vendor in HID...
+
+-- 
+Dmitry

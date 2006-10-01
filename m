@@ -1,51 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932071AbWJALmV@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932086AbWJALyS@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932071AbWJALmV (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Oct 2006 07:42:21 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932081AbWJALmV
+	id S932086AbWJALyS (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Oct 2006 07:54:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932097AbWJALyS
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Oct 2006 07:42:21 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:29831 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S932065AbWJALmU (ORCPT
+	Sun, 1 Oct 2006 07:54:18 -0400
+Received: from khc.piap.pl ([195.187.100.11]:31634 "EHLO khc.piap.pl")
+	by vger.kernel.org with ESMTP id S932086AbWJALyR (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Oct 2006 07:42:20 -0400
-Message-ID: <451FA997.9050000@garzik.org>
-Date: Sun, 01 Oct 2006 07:42:15 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
+	Sun, 1 Oct 2006 07:54:17 -0400
+To: Ben Greear <greearb@candelatech.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Question on HDLC and raw access to T1/E1 serial streams.
+References: <451DC75E.4070403@candelatech.com>
+	<m3mz8hntqu.fsf@defiant.localdomain> <451EE973.10907@candelatech.com>
+From: Krzysztof Halasa <khc@pm.waw.pl>
+Date: Sun, 01 Oct 2006 13:54:15 +0200
+In-Reply-To: <451EE973.10907@candelatech.com> (Ben Greear's message of "Sat, 30 Sep 2006 15:02:27 -0700")
+Message-ID: <m3hcyo2qvs.fsf@defiant.localdomain>
 MIME-Version: 1.0
-To: Linux Kernel <linux-kernel@vger.kernel.org>, Andi Kleen <ak@suse.de>
-CC: Andrew Morton <akpm@osdl.org>
-Subject: x86 BUG bug
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.3 (----)
-X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.3 points, 5.0 required)
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-I have a couple ATA drivers that spit out "foo might be used 
-uninitialized" warnings.  Rather than the usual gcc nonsense, it turns 
-out that the code follows this pattern:
+Ben Greear <greearb@candelatech.com> writes:
 
-	type_t foo;
+> I think if I could support these scenarios below, I would have
+> everything I need:
+>
+> *  Configure T1 as unchannelized bitstream, bridge entire thing to
+> second T1.
 
-	if (condition 1)
-		foo = x;
-	else if (condition 2)
-		foo = y;
-	else
-		BUG();
+I think it should be easy with such card, though I think the drivers
+can't currently do that.
 
-It doesn't warn on other platforms, so I dug into the BUG() code on x86, 
-and discovered that it is missing the 'noreturn' attribute found in 
-other BUG() definitions.
+> *  Configure channels 1-5 as a bitstream and bridge that to channels
+> 1-5
+> of a second T1.  (random proprietary bit-streaming protocol,
 
-Being rusty on the gcc asm syntax -- does an inline asm statement permit 
-'noreturn'? -- I figured it would be best just to report this, rather 
-than create a patch myself.
+I think the hardware would permit that. Probably needs additional
+driver support and I'm not sure about timeslot synchronization (for
+HDLC, sync doesn't matter).
 
-	Jeff
+>                     would probably bridge HDLC just fine, but handling
+> HDLC as frames would be more efficient I think.)
 
+Not sure, maybe yes (less data to bridge due to bit stuffing, flags etc.),
+maybe not (variable length of HDLC frame).
 
+>    channels 6-10 configured as an HDLC interface, bridged as HDLC
+> frames to channels 6-10 of a second T1. (PPP & other protocols over
+> HDLC)
+>    channels 10-24 each configured as a separate bit-stream, bridged to
+> channels 10-24 on the second T1. (Voice)
+
+I think the above could be a problem - I think common T1/E1 cards
+can do only one stream at once.
+
+I wonder if it can be done in software - the hardware framer would
+have to pass all data transparently, and it would be demultiplexed,
+processed and then multiplexed by the driver. Quite complicated,
+but I think at 2 Mbps it wouldn't be a CPU performance problem.
+
+> *  Configure entire T1 as HDLC transport, bridge HDLC frames from one
+> T1 to the other.
+
+Easy even with existing drivers I think (no bridge support but it's
+trivial).
+-- 
+Krzysztof Halasa

@@ -1,58 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751742AbWJAAv1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751887AbWJABXr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751742AbWJAAv1 (ORCPT <rfc822;willy@w.ods.org>);
-	Sat, 30 Sep 2006 20:51:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751793AbWJAAv1
+	id S1751887AbWJABXr (ORCPT <rfc822;willy@w.ods.org>);
+	Sat, 30 Sep 2006 21:23:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751881AbWJABXq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sat, 30 Sep 2006 20:51:27 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:21697 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1751742AbWJAAv0 (ORCPT
+	Sat, 30 Sep 2006 21:23:46 -0400
+Received: from havoc.gtf.org ([69.61.125.42]:16597 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S1751873AbWJABXp (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sat, 30 Sep 2006 20:51:26 -0400
-Date: Sat, 30 Sep 2006 17:51:12 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Andi Kleen <ak@suse.de>
-cc: Eric Rannaud <eric.rannaud@gmail.com>,
-       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
-       nagar@watson.ibm.com, Chandra Seetharaman <sekharan@us.ibm.com>,
-       Jan Beulich <jbeulich@novell.com>
-Subject: Re: BUG-lockdep and freeze (was: Arrr! Linux 2.6.18)
-In-Reply-To: <Pine.LNX.4.64.0609301713460.3952@g5.osdl.org>
-Message-ID: <Pine.LNX.4.64.0609301748340.3952@g5.osdl.org>
-References: <5f3c152b0609301220p7a487c7dw456d007298578cd7@mail.gmail.com>
- <200610010002.46634.ak@suse.de> <Pine.LNX.4.64.0609301554310.3952@g5.osdl.org>
- <200610010156.52675.ak@suse.de> <Pine.LNX.4.64.0609301713460.3952@g5.osdl.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Sat, 30 Sep 2006 21:23:45 -0400
+Date: Sat, 30 Sep 2006 21:23:44 -0400
+From: Jeff Garzik <jeff@garzik.org>
+To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
+Cc: LKML <linux-kernel@vger.kernel.org>, linux-scsi@vger.kernel.org
+Subject: [PATCH] scsi: device_reprobe() can fail
+Message-ID: <20061001012344.GA24609@havoc.gtf.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
+[This has been sitting in James Bottomley's scsi-misc for five days.
+ With SCSI outputting a warning for almost -every- file, let's go ahead
+ and get the patch in.]
 
-On Sat, 30 Sep 2006, Linus Torvalds wrote:
-> 
->  - you have an outer loop that loops around the pages (since the _kernel_ 
->    controls the stack nesting at that level). This is the loop I quoted at 
->    you.
-> 
->  - you have a _separate_ "unwinder()" for each page. It only unwinds 
->    within that one page, and if the frame moves away from the page, it 
->    immediately just returns that address, but it knows that it cannot be a 
->    "valid" unwind address within that page.
+From: Andrew Morton <akpm@osdl.org>
 
-Side note: it's entirely possible that the "unwinder" code shouldn't even 
-try to return the address outside the page, since the first/last frame on 
-a page is likely to be special (ie it's an exception/interrupt kind of 
-thing), and it's entirely possible that the "page-level" loop is better at 
-handling that part too.
+device_reprobe() should return an error code.  When it does so,
+scsi_device_reprobe() should propagate it back.
 
-That way you wouldn't even need to make the exception frames haev the 
-dwarf info etc, because you could choose to just depend on knowing what 
-the format of such a page was. But that's obviously just an implementation 
-choice..
+Acked-by: Jeff Garzik <jeff@garzik.org>
+Signed-off-by: Andrew Morton <akpm@osdl.org>
+Signed-off-by: James Bottomley <James.Bottomley@SteelEye.com>
 
-Doesn't that sound like it should be both fairly straightforward and 
-reasonable?
+---
 
-		Linus
+ include/scsi/scsi_device.h |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+8350a348e97c2f8aa3e91c025c0e040c90146414
+diff --git a/include/scsi/scsi_device.h b/include/scsi/scsi_device.h
+index 895d212..b401c82 100644
+--- a/include/scsi/scsi_device.h
++++ b/include/scsi/scsi_device.h
+@@ -298,9 +298,9 @@ extern int scsi_execute_async(struct scs
+ 			      void (*done)(void *, char *, int, int),
+ 			      gfp_t gfp);
+ 
+-static inline void scsi_device_reprobe(struct scsi_device *sdev)
++static inline int __must_check scsi_device_reprobe(struct scsi_device *sdev)
+ {
+-	device_reprobe(&sdev->sdev_gendev);
++	return device_reprobe(&sdev->sdev_gendev);
+ }
+ 
+ static inline unsigned int sdev_channel(struct scsi_device *sdev)

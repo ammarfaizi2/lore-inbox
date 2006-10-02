@@ -1,45 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932534AbWJBAmN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932548AbWJBAsW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932534AbWJBAmN (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Oct 2006 20:42:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932535AbWJBAmN
+	id S932548AbWJBAsW (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Oct 2006 20:48:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932546AbWJBAsW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Oct 2006 20:42:13 -0400
-Received: from pfepc.post.tele.dk ([195.41.46.237]:65457 "EHLO
-	pfepc.post.tele.dk") by vger.kernel.org with ESMTP id S932534AbWJBAmM
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Oct 2006 20:42:12 -0400
-Subject: Re: Spam, bogofilter, etc
-From: Kasper Sandberg <lkml@metanurb.dk>
-To: Chris Wedgwood <cw@f00f.org>
-Cc: Lee Revell <rlrevell@joe-job.com>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-In-Reply-To: <20061001232317.GA1187@tuatara.stupidest.org>
-References: <1159539793.7086.91.camel@mindpipe>
-	 <20061001232317.GA1187@tuatara.stupidest.org>
-Content-Type: text/plain
-Date: Mon, 02 Oct 2006 02:41:51 +0200
-Message-Id: <1159749711.15735.5.camel@localhost>
+	Sun, 1 Oct 2006 20:48:22 -0400
+Received: from ausc60pc101.us.dell.com ([143.166.85.206]:64622 "EHLO
+	ausc60pc101.us.dell.com") by vger.kernel.org with ESMTP
+	id S932545AbWJBAsV (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 Oct 2006 20:48:21 -0400
+DomainKey-Signature: s=smtpout; d=dell.com; c=nofws; q=dns; b=VrDNzZ6nWOPGYAu+hvExRAp7hszhUB+ef1fVGDYto6iUuF17ry+qliHmMd99qFLi/8c5jtzzydPSEylp6qPK1rxw9C1zbIYpYadaByoTGLwfOpX54TLBspY6ZZXAZ4p0;
+X-IronPort-AV: i="4.09,241,1157346000"; 
+   d="scan'208"; a="89630332:sNHT59842908"
+Date: Sun, 1 Oct 2006 19:48:24 -0500
+From: Matt Domsch <Matt_Domsch@dell.com>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Alessandro Guido <alessandro.guido@gmail.com>,
+       linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org,
+       len.brown@intel.com, jengelh@linux01.gwdg.de, gelma@gelma.net,
+       ismail@pardus.org.tr
+Subject: Re: [PATCH 2.6.18-mm2] acpi: add backlight support to the sony_acpi driver
+Message-ID: <20061002004824.GB18707@lists.us.dell.com>
+References: <20060930190810.30b8737f.alessandro.guido@gmail.com> <20061001171912.b7aac1d8.akpm@osdl.org> <20061002003908.GA18707@lists.us.dell.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.4.0 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061002003908.GA18707@lists.us.dell.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-10-01 at 16:23 -0700, Chris Wedgwood wrote:
-> On Fri, Sep 29, 2006 at 10:23:12AM -0400, Lee Revell wrote:
+On Sun, Oct 01, 2006 at 07:39:08PM -0500, Matt Domsch wrote:
+> On Sun, Oct 01, 2006 at 05:19:12PM -0700, Andrew Morton wrote:
+> > umm, OK, but now how do I adjust my screen brightness? ;)
+> > 
+> > I assume that cute userspace applications for controlling backlight
+> > brightness via the generic backlight driver either exist or are in
+> > progress?  What is the status of that?
 > 
-> > What ever happened with bogofilter on vger?  The spam problem is
-> > considerably worse in the past few weeks.
-> 
-> run it locally and see how well it works for you (my guess is not very
-> well)
-this latest spam seems relentless, i have spent 15 minutes moving it all
-way, to have my filter learn from it, yet it doesent seem to work.
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+> For Dell laptops, the dellLcdBrightness app is included in the
+> libsmbios-bin package (http://linux.dell.com/libsmbios/main/ and
+> http://linux.dell.com/libsmbios/main/yum.html for the yum repo).  It's
+> entirely userspace.
 
+Which is to say, if a system-agnostic userspace app exists, please
+advise, as we'd like to incorporate dellLcdBrightness functionality
+into it.
+
+Thanks,
+Matt
+
+-- 
+Matt Domsch
+Software Architect
+Dell Linux Solutions linux.dell.com & www.dell.com/linux
+Linux on Dell mailing lists @ http://lists.us.dell.com

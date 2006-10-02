@@ -1,61 +1,890 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750750AbWJBKak@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750758AbWJBKi6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750750AbWJBKak (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Oct 2006 06:30:40 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750748AbWJBKak
+	id S1750758AbWJBKi6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Oct 2006 06:38:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750754AbWJBKi6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Oct 2006 06:30:40 -0400
-Received: from mx2.suse.de ([195.135.220.15]:49367 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1750741AbWJBKaj (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Oct 2006 06:30:39 -0400
-Date: Mon, 2 Oct 2006 12:29:59 +0200
-From: Holger Macht <hmacht@suse.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Alessandro Guido <alessandro.guido@gmail.com>,
-       linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org,
-       len.brown@intel.com, jengelh@linux01.gwdg.de, gelma@gelma.net,
-       ismail@pardus.org.tr
-Subject: Re: [PATCH 2.6.18-mm2] acpi: add backlight support to the sony_acpi driver
-Message-ID: <20061002102959.GA21558@homac>
-Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
-	Alessandro Guido <alessandro.guido@gmail.com>,
-	linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org,
-	len.brown@intel.com, jengelh@linux01.gwdg.de, gelma@gelma.net,
-	ismail@pardus.org.tr
-References: <20060930190810.30b8737f.alessandro.guido@gmail.com> <20061001171912.b7aac1d8.akpm@osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061001171912.b7aac1d8.akpm@osdl.org>
-User-Agent: mutt-ng/devel-r804 (Linux)
+	Mon, 2 Oct 2006 06:38:58 -0400
+Received: from smtp-out.google.com ([216.239.45.12]:29392 "EHLO
+	smtp-out.google.com") by vger.kernel.org with ESMTP
+	id S1750761AbWJBKi4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Oct 2006 06:38:56 -0400
+DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
+	h=received:message-id:references:user-agent:date:from:to:cc:
+	subject:content-disposition:sender;
+	b=NlsKl9y8b/KuDhQW71DPcsZuMAV6qddqNe1CxpeNo0R5384Ar7yapleahLDTdQLuB
+	Ym8pnNjrzbtdMRWiWejQQ==
+Message-Id: <20061002103825.869949000@menage.corp.google.com>
+References: <20061002095319.865614000@menage.corp.google.com>
+User-Agent: quilt/0.45-1
+Date: Mon, 02 Oct 2006 02:53:22 -0700
+From: Paul Menage <menage@google.com>
+To: pj@sgi.com, akpm@osdl.org, ckrm-tech@lists.sourceforge.net
+Cc: linux-kernel@vger.kernel.org, winget@google.com, mbligh@google.com,
+       rohitseth@google.com, sekharan@us.ibm.com, jlan@sgi.com
+Subject: [RFC][PATCH 3/4] Add generic multi-subsystem API to containers
+Content-Disposition: inline; filename=multiuser_container.patch
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun 01. Oct - 17:19:12, Andrew Morton wrote:
-> On Sat, 30 Sep 2006 19:08:10 +0200
-> Alessandro Guido <alessandro.guido@gmail.com> wrote:
-> 
-> > Make the sony_acpi use the backlight subsystem to adjust brightness value
-> > instead of using the /proc/sony/brightness file.
-> > (Other settings will still have a /proc/sony/... entry)
-> 
-> umm, OK, but now how do I adjust my screen brightness? ;)
-> 
-> I assume that cute userspace applications for controlling backlight
-> brightness via the generic backlight driver either exist or are in
-> progress?  What is the status of that?
+This patch removes all cpuset-specific knowlege from the container
+system, replacing it with a generic API that can be used by multiple
+subsystems. Cpusets is adapted to be a container subsystem.
 
-Most applications use HAL as a backend for display brightness these
-days. HAL still supports the old interface in /proc for the different
-brightness drivers, though, but the conversion to the new interface is on
-my TODO and I will do it this week. So userspace should have fixed this
-soon, so go ahead ;-)
+Signed-off-by: Paul Menage <menage@google.com>
 
-Btw, there's a patchset from Matthew Garrett [1] sent some time ago which
-also converts the asus_acpi, ibm_acpi and the toshiba_acpi drivers.
+---
+ Documentation/containers.txt |  127 +++++++++++++++++++++++++++++++
+ include/linux/container.h    |   34 +++++++-
+ include/linux/cpuset.h       |   11 --
+ kernel/container.c           |  172 ++++++++++++++++++++++++++++++++++++-------
+ kernel/cpuset.c              |  119 +++++++++++++++++++----------
+ 5 files changed, 378 insertions(+), 85 deletions(-)
 
-Regards,
-	Holger
+Index: linux-2.6.18/include/linux/container.h
+===================================================================
+--- linux-2.6.18.orig/include/linux/container.h
++++ linux-2.6.18/include/linux/container.h
+@@ -30,6 +30,8 @@ extern void container_unlock(void);
+ extern void container_manage_lock(void);
+ extern void container_manage_unlock(void);
+ 
++#define MAX_CONTAINER_SUBSYS 8
++
+ struct container {
+ 	unsigned long flags;		/* "unsigned long" so bitops work */
+ 
+@@ -48,9 +50,8 @@ struct container {
+ 	struct container *parent;	/* my parent */
+ 	struct dentry *dentry;		/* container fs entry */
+ 
+-#ifdef CONFIG_CPUSETS
+-	struct cpuset *cpuset;
+-#endif
++	/* Private pointers for each registered subsystem */
++	void *subsys[MAX_CONTAINER_SUBSYS];
+ };
+ 
+ /* struct cftype:
+@@ -84,6 +85,33 @@ int container_add_file(struct container 
+ 
+ int container_is_removed(const struct container *cont);
+ 
++/* Container subsystem type. See Documentation/containers.txt for details */
++
++struct container_subsys {
++	int (*create)(struct container *cont);
++	void (*destroy)(struct container *cont);
++	int (*can_attach)(struct container *cont, struct task_struct *tsk);
++	void (*attach)(struct container *cont, struct task_struct *tsk);
++	void (*post_attach)(struct container *cont,
++			   struct container *old_cont,
++			   struct task_struct *tsk);
++	int (*populate)(struct container *cont);
++
++	int subsys_id;
++#define MAX_CONTAINER_TYPE_NAMELEN 32
++	const char *name;
++
++	/* file handler for enable/disable - managed by container.c */
++	struct cftype enable_cft;
++	char enable_cft_filename[MAX_CONTAINER_TYPE_NAMELEN + 10];
++
++	/* enabled/disabled flag - managed by container.c, but can be
++	 * set to a default value before registration */
++	int enabled;
++};
++
++int container_register_subsys(struct container_subsys *subsys);
++
+ #else /* !CONFIG_CONTAINERS */
+ 
+ static inline int container_init_early(void) { return 0; }
+Index: linux-2.6.18/include/linux/cpuset.h
+===================================================================
+--- linux-2.6.18.orig/include/linux/cpuset.h
++++ linux-2.6.18/include/linux/cpuset.h
+@@ -58,17 +58,6 @@ static inline int cpuset_do_slab_mem_spr
+ 	return current->flags & PF_SPREAD_SLAB;
+ }
+ 
+-extern int cpuset_can_attach_task(struct container *cont,
+-				  struct task_struct *tsk);
+-extern void cpuset_attach_task(struct container *cont,
+-				struct task_struct *tsk);
+-extern void cpuset_post_attach_task(struct container *cont,
+-				    struct container *oldcont,
+-				    struct task_struct *tsk);
+-extern int cpuset_populate_dir(struct container *cont);
+-extern int cpuset_create(struct container *cont);
+-extern void cpuset_destroy(struct container *cont);
+-
+ #else /* !CONFIG_CPUSETS */
+ 
+ static inline int cpuset_init_early(void) { return 0; }
+Index: linux-2.6.18/kernel/container.c
+===================================================================
+--- linux-2.6.18.orig/kernel/container.c
++++ linux-2.6.18/kernel/container.c
+@@ -55,7 +55,6 @@
+ #include <linux/time.h>
+ #include <linux/backing-dev.h>
+ #include <linux/sort.h>
+-#include <linux/cpuset.h>
+ 
+ #include <asm/uaccess.h>
+ #include <asm/atomic.h>
+@@ -70,6 +69,9 @@
+  */
+ int number_of_containers __read_mostly;
+ 
++static struct container_subsys *subsys[MAX_CONTAINER_SUBSYS];
++static int subsys_count = 0;
++
+ /* bits in struct container flags field */
+ typedef enum {
+ 	CONT_REMOVED,
+@@ -489,6 +491,7 @@ static int attach_task(struct container 
+ 	struct task_struct *tsk;
+ 	struct container *oldcont;
+ 	int retval = 0;
++	int s;
+ 
+ 	if (sscanf(pidbuf, "%d", &pid) != 1)
+ 		return -EIO;
+@@ -515,12 +518,15 @@ static int attach_task(struct container 
+ 		get_task_struct(tsk);
+ 	}
+ 
+-#ifdef CONFIG_CPUSETS
+-	retval = cpuset_can_attach_task(cont, tsk);
+-#endif
+-	if (retval) {
+-		put_task_struct(tsk);
+-		return retval;
++	for (s = 0; s < subsys_count; s++) {
++		struct container_subsys *ss = subsys[s];
++		if (ss->enabled && ss->can_attach) {
++			retval = ss->can_attach(cont, tsk);
++			if (retval) {
++				put_task_struct(tsk);
++				return retval;
++			}
++		}
+ 	}
+ 
+ 	mutex_lock(&callback_mutex);
+@@ -537,15 +543,21 @@ static int attach_task(struct container 
+ 	rcu_assign_pointer(tsk->container, cont);
+ 	task_unlock(tsk);
+ 
+-#ifdef CONFIG_CPUSETS
+-	cpuset_attach_task(cont, tsk);
+-#endif
++	for (s = 0; s < subsys_count; s++) {
++		struct container_subsys *ss = subsys[s];
++		if (ss->enabled && ss->attach) {
++			ss->attach(cont, tsk);
++		}
++	}
+ 
+ 	mutex_unlock(&callback_mutex);
+ 
+-#ifdef CONFIG_CPUSETS
+-	cpuset_post_attach_task(cont, oldcont, tsk);
+-#endif
++	for (s = 0; s < subsys_count; s++) {
++		struct container_subsys *ss = subsys[s];
++		if (ss->enabled && ss->post_attach) {
++			ss->post_attach(cont, oldcont, tsk);
++		}
++	}
+ 
+ 	put_task_struct(tsk);
+ 	synchronize_rcu();
+@@ -561,6 +573,7 @@ typedef enum {
+ 	FILE_DIR,
+ 	FILE_NOTIFY_ON_RELEASE,
+ 	FILE_TASKLIST,
++	FILE_ENABLED,
+ } container_filetype_t;
+ 
+ static ssize_t container_common_file_write(struct container *cont,
+@@ -602,6 +615,18 @@ static ssize_t container_common_file_wri
+ 	case FILE_TASKLIST:
+ 		retval = attach_task(cont, buffer, &pathbuf);
+ 		break;
++	case FILE_ENABLED: {
++		struct container_subsys *ss;
++		if (number_of_containers != 1) {
++			retval = -EBUSY;
++			goto out2;
++		}
++		/* The cftype object is embedded in the subsys */
++		ss = container_of(cft, struct container_subsys, enable_cft);
++		ss->enabled = simple_strtoul(buffer, NULL, 10) != 0;
++		retval = 0;
++		break;
++	}
+ 	default:
+ 		retval = -EINVAL;
+ 		goto out2;
+@@ -655,6 +680,13 @@ static ssize_t container_common_file_rea
+ 	case FILE_NOTIFY_ON_RELEASE:
+ 		*s++ = notify_on_release(cont) ? '1' : '0';
+ 		break;
++	case FILE_ENABLED: {
++		struct container_subsys *ss;
++		/* The cftype object is embedded in the subsys */
++		ss = container_of(cft, struct container_subsys, enable_cft);
++		*s++ = ss->enabled ? '1' : '0';
++		break;
++	}
+ 	default:
+ 		retval = -EINVAL;
+ 		goto out;
+@@ -990,18 +1022,35 @@ static struct cftype cft_notify_on_relea
+ 	.private = FILE_NOTIFY_ON_RELEASE,
+ };
+ 
++/* This is just a template for the per-subsystem xxx_enabled file */
++static struct cftype cft_enabled_template = {
++	.read = container_common_file_read,
++	.write = container_common_file_write,
++	.private = FILE_ENABLED,
++};
++
+ static int container_populate_dir(struct container *cont)
+ {
+ 	int err;
++	int s;
+ 
+ 	if ((err = container_add_file(cont, &cft_notify_on_release)) < 0)
+ 		return err;
+ 	if ((err = container_add_file(cont, &cft_tasks)) < 0)
+ 		return err;
+-#ifdef CONFIG_CPUSETS
+-	if ((err = cpuset_populate_dir(cont)) < 0)
+-		return err;
+-#endif
++	for (s = 0; s < subsys_count; s++) {
++		struct container_subsys *ss = subsys[s];
++		/* All subsystems have an "xxx_enabled" file in the top dir */
++		if (cont == &top_container &&
++		    (err = container_add_file(cont, &ss->enable_cft)) < 0)
++			return err;
++		/* All subsystems live in the top dir; only enabled
++		 * subsystems live in subdirs */
++		if (ss->enabled || (cont == &top_container)) {
++			if (ss->populate && (err = ss->populate(cont)) < 0)
++				return err;
++		}
++	}
+ 	return 0;
+ }
+ 
+@@ -1018,6 +1067,7 @@ static long container_create(struct cont
+ {
+ 	struct container *cont;
+ 	int err;
++	int s = 0;
+ 
+ 	cont = kmalloc(sizeof(*cont), GFP_KERNEL);
+ 	if (!cont)
+@@ -1033,11 +1083,22 @@ static long container_create(struct cont
+ 
+ 	cont->parent = parent;
+ 
+-#ifdef CONFIG_CPUSETS
+-	err = cpuset_create(cont);
+-	if (err)
+-		goto err_unlock_free;
+-#endif
++	for (s = 0; s < subsys_count; s++) {
++		struct container_subsys *ss = subsys[s];
++		if (ss->enabled) {
++			err = ss->create(cont);
++			if (err) {
++				for (s--; s >= 0; s--) {
++					if (subsys[s]->enabled)
++						subsys[s]->destroy(cont);
++				}
++				goto err_unlock_free;
++			}
++		} else {
++			/* Just copy subsys object from parent */
++			cont->subsys[s] = parent->subsys[s];
++		}
++	}
+ 
+ 	mutex_lock(&callback_mutex);
+ 	list_add(&cont->sibling, &cont->parent->children);
+@@ -1060,9 +1121,11 @@ static long container_create(struct cont
+ 	return 0;
+ 
+  err_remove:
+-#ifdef CONFIG_CPUSETS
+-	cpuset_destroy(cont);
+-#endif
++	for (s = subsys_count - 1; s >= 0; s--) {
++		if (subsys[s]->enabled)
++			subsys[s]->destroy(cont);
++	}
++
+ 	mutex_lock(&callback_mutex);
+ 	list_del(&cont->sibling);
+ 	number_of_containers--;
+@@ -1098,6 +1161,7 @@ static int container_rmdir(struct inode 
+ 	struct dentry *d;
+ 	struct container *parent;
+ 	char *pathbuf = NULL;
++	int s;
+ 
+ 	/* the vfs holds both inode->i_mutex already */
+ 
+@@ -1122,9 +1186,10 @@ static int container_rmdir(struct inode 
+ 	dput(d);
+ 	number_of_containers--;
+ 	mutex_unlock(&callback_mutex);
+-#ifdef CONFIG_CPUSETS
+-	cpuset_destroy(cont);
+-#endif
++	for (s = 0; s < subsys_count; s++) {
++		if (subsys[s]->enabled)
++			subsys[s]->destroy(cont);
++	}
+ 	if (list_empty(&parent->children))
+ 		check_for_release(parent, &pathbuf);
+ 	mutex_unlock(&manage_mutex);
+@@ -1179,6 +1244,57 @@ out:
+ 	return err;
+ }
+ 
++int container_register_subsys(struct container_subsys *new_subsys) {
++	int retval = 0;
++	int i;
++	mutex_lock(&manage_mutex);
++	if (number_of_containers > 1) {
++		retval = -EBUSY;
++		goto out;
++	}
++	if (subsys_count == MAX_CONTAINER_SUBSYS) {
++		retval = -ENOSPC;
++		goto out;
++	}
++	if (!new_subsys->name ||
++	    (strlen(new_subsys->name) > MAX_CONTAINER_TYPE_NAMELEN) ||
++	    !new_subsys->create || !new_subsys->destroy) {
++		retval = -EINVAL;
++		goto out;
++	}
++	for (i = 0; i < subsys_count; i++) {
++		if (!strcmp(subsys[i]->name, new_subsys->name)) {
++			retval = -EEXIST;
++			goto out;
++		}
++	}
++
++	subsys[subsys_count] = new_subsys;
++	new_subsys->subsys_id = subsys_count++;
++	retval = new_subsys->create(&top_container);
++	if (retval) {
++		new_subsys->subsys_id = -1;
++		subsys_count--;
++		goto out;
++	}
++
++	/* Set up the per-container "enabled" file */
++	strcpy(new_subsys->enable_cft_filename, new_subsys->name);
++	strcat(new_subsys->enable_cft_filename, "_enabled");
++	new_subsys->enable_cft = cft_enabled_template;
++	new_subsys->enable_cft.name = new_subsys->enable_cft_filename;
++
++	/* Only populate the top container if we've done
++	 * container_init() */
++	if (container_mount && new_subsys->populate) {
++		new_subsys->populate(&top_container);
++		container_add_file(&top_container, &new_subsys->enable_cft);
++	}
++ out:
++	mutex_unlock(&manage_mutex);
++	return retval;
++}
++
+ /**
+  * container_fork - attach newly forked task to its parents container.
+  * @tsk: pointer to task_struct of forking parent process.
+Index: linux-2.6.18/kernel/cpuset.c
+===================================================================
+--- linux-2.6.18.orig/kernel/cpuset.c
++++ linux-2.6.18/kernel/cpuset.c
+@@ -5,6 +5,7 @@
+  *
+  *  Copyright (C) 2003 BULL SA.
+  *  Copyright (C) 2004-2006 Silicon Graphics, Inc.
++ *  Copyright (C) 2006 Google, Inc
+  *
+  *  Portions derived from Patrick Mochel's sysfs code.
+  *  sysfs is Copyright (c) 2001-3 Patrick Mochel
+@@ -12,6 +13,7 @@
+  *  2003-10-10 Written by Simon Derr.
+  *  2003-10-22 Updates by Stephen Hemminger.
+  *  2004 May-July Rework by Paul Jackson.
++ *  2006 Rework by Paul Menage to use generic containers
+  *
+  *  This file is subject to the terms and conditions of the GNU General Public
+  *  License.  See the file COPYING in the main directory of the Linux
+@@ -61,6 +63,25 @@
+  */
+ int number_of_cpusets __read_mostly;
+ 
++/* Retrieve the cpuset from a container */
++static struct container_subsys cpuset_subsys;
++static inline struct cpuset *container_cs(struct container *cont)
++{
++	return (struct cpuset *)cont->subsys[cpuset_subsys.subsys_id];
++}
++
++/* Update the cpuset for a container */
++static inline void set_container_cs(struct container *cont, struct cpuset *cs)
++{
++	cont->subsys[cpuset_subsys.subsys_id] = cs;
++}
++
++/* Retrieve the cpuset for a task */
++static inline struct cpuset *task_cs(struct task_struct *task)
++{
++	return container_cs(task->container);
++}
++
+ /* See "Frequency meter" comments, below. */
+ 
+ struct fmeter {
+@@ -246,20 +267,21 @@ void cpuset_update_task_memory_state(voi
+ 	struct task_struct *tsk = current;
+ 	struct cpuset *cs;
+ 
+-	if (tsk->container->cpuset == &top_cpuset) {
++	if (task_cs(tsk) == &top_cpuset) {
+ 		/* Don't need rcu for top_cpuset.  It's never freed. */
+ 		my_cpusets_mem_gen = top_cpuset.mems_generation;
+ 	} else {
++		struct container *cont;
+ 		rcu_read_lock();
+-		cs = rcu_dereference(tsk->container->cpuset);
+-		my_cpusets_mem_gen = cs->mems_generation;
++		cont = rcu_dereference(tsk->container);
++		my_cpusets_mem_gen = container_cs(cont)->mems_generation;
+ 		rcu_read_unlock();
+ 	}
+ 
+ 	if (my_cpusets_mem_gen != tsk->cpuset_mems_generation) {
+ 		container_lock();
+ 		task_lock(tsk);
+-		cs = tsk->container->cpuset; /* Maybe changed when task not locked */
++		cs = task_cs(tsk); /* Maybe changed when task not locked */
+ 		guarantee_online_mems(cs, &tsk->mems_allowed);
+ 		tsk->cpuset_mems_generation = cs->mems_generation;
+ 		if (is_spread_page(cs))
+@@ -319,8 +341,7 @@ static int validate_change(const struct 
+ 
+ 	/* Each of our child cpusets must be a subset of us */
+ 	list_for_each_entry(cont, &cur->container->children, sibling) {
+-		c = cont->cpuset;
+-		if (!is_cpuset_subset(c, trial))
++		if (!is_cpuset_subset(container_cs(cont), trial))
+ 			return -EBUSY;
+ 	}
+ 
+@@ -334,7 +355,7 @@ static int validate_change(const struct 
+ 
+ 	/* If either I or some sibling (!= me) is exclusive, we can't overlap */
+ 	list_for_each_entry(cont, &par->container->children, sibling) {
+-		c = cont->cpuset;
++		c = container_cs(cont);
+ 		if ((is_cpu_exclusive(trial) || is_cpu_exclusive(c)) &&
+ 		    c != cur &&
+ 		    cpus_intersects(trial->cpus_allowed, c->cpus_allowed))
+@@ -377,7 +398,7 @@ static void update_cpu_domains(struct cp
+ 	 */
+ 	pspan = par->cpus_allowed;
+ 	list_for_each_entry(cont, &par->container->children, sibling) {
+-		c = cont->cpuset;
++		c = container_cs(cont);
+ 		if (is_cpu_exclusive(c))
+ 			cpus_andnot(pspan, pspan, c->cpus_allowed);
+ 	}
+@@ -395,7 +416,7 @@ static void update_cpu_domains(struct cp
+ 		 * of exclusive children
+ 		 */
+ 		list_for_each_entry(cont, &cur->container->children, sibling) {
+-			c = cont->cpuset;
++			c = container_cs(cont);
+ 			if (is_cpu_exclusive(c))
+ 				cpus_andnot(cspan, cspan, c->cpus_allowed);
+ 		}
+@@ -483,7 +504,7 @@ static void cpuset_migrate_mm(struct mm_
+ 	do_migrate_pages(mm, from, to, MPOL_MF_MOVE_ALL);
+ 
+ 	container_lock();
+-	guarantee_online_mems(tsk->container->cpuset, &tsk->mems_allowed);
++	guarantee_online_mems(task_cs(tsk),&tsk->mems_allowed);
+ 	container_unlock();
+ }
+ 
+@@ -665,7 +686,7 @@ static int update_flag(cpuset_flagbits_t
+ 	container_unlock();
+ 
+ 	if (cpu_exclusive_changed)
+-                update_cpu_domains(cs);
++		update_cpu_domains(cs);
+ 	return 0;
+ }
+ 
+@@ -767,9 +788,9 @@ static int fmeter_getrate(struct fmeter 
+ 	return val;
+ }
+ 
+-int cpuset_can_attach_task(struct container *cont, struct task_struct *tsk)
++int cpuset_can_attach(struct container *cont, struct task_struct *tsk)
+ {
+-	struct cpuset *cs = cont->cpuset;
++	struct cpuset *cs = container_cs(cont);
+ 
+ 	if (cpus_empty(cs->cpus_allowed) || nodes_empty(cs->mems_allowed))
+ 		return -ENOSPC;
+@@ -777,22 +798,21 @@ int cpuset_can_attach_task(struct contai
+ 	return security_task_setscheduler(tsk, 0, NULL);
+ }
+ 
+-void cpuset_attach_task(struct container *cont, struct task_struct *tsk)
++void cpuset_attach(struct container *cont, struct task_struct *tsk)
+ {
+ 	cpumask_t cpus;
+-	struct cpuset *cs = cont->cpuset;
+-	guarantee_online_cpus(cs, &cpus);
++	guarantee_online_cpus(container_cs(cont), &cpus);
+ 	set_cpus_allowed(tsk, cpus);
+ }
+ 
+-void cpuset_post_attach_task(struct container *cont,
+-			     struct container *oldcont,
+-			     struct task_struct *tsk)
++void cpuset_post_attach(struct container *cont,
++			struct container *oldcont,
++			struct task_struct *tsk)
+ {
+ 	nodemask_t from, to;
+ 	struct mm_struct *mm;
+-	struct cpuset *cs = cont->cpuset;
+-	struct cpuset *oldcs = oldcont->cpuset;
++	struct cpuset *cs = container_cs(cont);
++	struct cpuset *oldcs = container_cs(oldcont);
+ 
+ 	from = oldcs->mems_allowed;
+ 	to = cs->mems_allowed;
+@@ -826,7 +846,7 @@ static ssize_t cpuset_common_file_write(
+ 					const char __user *userbuf,
+ 					size_t nbytes, loff_t *unused_ppos)
+ {
+-	struct cpuset *cs = cont->cpuset;
++	struct cpuset *cs = container_cs(cont);
+ 	cpuset_filetype_t type = cft->private;
+ 	char *buffer;
+ 	int retval = 0;
+@@ -936,7 +956,7 @@ static ssize_t cpuset_common_file_read(s
+ 				       char __user *buf,
+ 				       size_t nbytes, loff_t *ppos)
+ {
+-	struct cpuset *cs = cont->cpuset;
++	struct cpuset *cs = container_cs(cont);
+ 	cpuset_filetype_t type = cft->private;
+ 	char *page;
+ 	ssize_t retval = 0;
+@@ -1055,7 +1075,7 @@ static struct cftype cft_spread_slab = {
+ 	.private = FILE_SPREAD_SLAB,
+ };
+ 
+-int cpuset_populate_dir(struct container *cont)
++int cpuset_populate(struct container *cont)
+ {
+ 	int err;
+ 
+@@ -1093,8 +1113,18 @@ int cpuset_populate_dir(struct container
+ int cpuset_create(struct container *cont)
+ {
+ 	struct cpuset *cs;
+-	struct cpuset *parent = cont->parent->cpuset;
++	struct cpuset *parent;
+ 
++	if (!cont->parent) {
++		/* This is early initialization for the top container */
++		set_container_cs(cont, &top_cpuset);
++		top_cpuset.container = cont;
++		top_cpuset.mems_generation = cpuset_mems_generation++;
++
++		return 0;
++	}
++
++	parent = container_cs(cont->parent);
+ 	cs = kmalloc(sizeof(*cs), GFP_KERNEL);
+ 	if (!cs)
+ 		return -ENOMEM;
+@@ -1111,7 +1141,7 @@ int cpuset_create(struct container *cont
+ 	fmeter_init(&cs->fmeter);
+ 
+ 	cs->parent = parent;
+-	cont->cpuset = cs;
++	set_container_cs(cont, cs);
+ 	cs->container = cont;
+ 	number_of_cpusets++;
+ 	return 0;
+@@ -1130,7 +1160,7 @@ int cpuset_create(struct container *cont
+ 
+ void cpuset_destroy(struct container *cont)
+ {
+-	struct cpuset *cs = cont->cpuset;
++	struct cpuset *cs = container_cs(cont);
+ 
+ 	cpuset_update_task_memory_state();
+ 	if (is_cpu_exclusive(cs)) {
+@@ -1140,6 +1170,20 @@ void cpuset_destroy(struct container *co
+ 	number_of_cpusets--;
+ }
+ 
++static struct container_subsys cpuset_subsys = {
++	.name = "cpuset",
++	.create = cpuset_create,
++	.destroy  = cpuset_destroy,
++	.can_attach = cpuset_can_attach,
++	.attach = cpuset_attach,
++	.post_attach = cpuset_post_attach,
++	.populate = cpuset_populate,
++#ifdef CONFIG_CPUSETS_DEFAULT_ENABLED
++	/* For legacy compatibility, cpusets starts enabled */
++	.enabled = 1,
++#endif
++};
++
+ /*
+  * cpuset_init_early - just enough so that the calls to
+  * cpuset_update_task_memory_state() in early init code
+@@ -1148,10 +1192,8 @@ void cpuset_destroy(struct container *co
+ 
+ int __init cpuset_init_early(void)
+ {
+-	struct container *cont = current->container;
+-	cont->cpuset = &top_cpuset;
+-	top_cpuset.container = cont;
+-	cont->cpuset->mems_generation = cpuset_mems_generation++;
++	if (container_register_subsys(&cpuset_subsys) < 0)
++		panic("Couldn't register cpuset subsystem");
+ 	return 0;
+ }
+ 
+@@ -1230,7 +1272,7 @@ cpumask_t cpuset_cpus_allowed(struct tas
+ 
+ 	container_lock();
+ 	task_lock(tsk);
+-	guarantee_online_cpus(tsk->container->cpuset, &mask);
++	guarantee_online_cpus(task_cs(tsk), &mask);
+ 	task_unlock(tsk);
+ 	container_unlock();
+ 
+@@ -1258,7 +1300,7 @@ nodemask_t cpuset_mems_allowed(struct ta
+ 
+ 	container_lock();
+ 	task_lock(tsk);
+-	guarantee_online_mems(tsk->container->cpuset, &mask);
++	guarantee_online_mems(task_cs(tsk), &mask);
+ 	task_unlock(tsk);
+ 	container_unlock();
+ 
+@@ -1363,7 +1405,7 @@ int __cpuset_zone_allowed(struct zone *z
+ 	container_lock();
+ 
+ 	task_lock(current);
+-	cs = nearest_exclusive_ancestor(current->container->cpuset);
++	cs = nearest_exclusive_ancestor(task_cs(current));
+ 	task_unlock(current);
+ 
+ 	allowed = node_isset(node, cs->mems_allowed);
+@@ -1431,7 +1473,7 @@ int cpuset_excl_nodes_overlap(const stru
+ 		task_unlock(current);
+ 		goto done;
+ 	}
+-	cs1 = nearest_exclusive_ancestor(current->container->cpuset);
++	cs1 = nearest_exclusive_ancestor(task_cs(current));
+ 	task_unlock(current);
+ 
+ 	task_lock((struct task_struct *)p);
+@@ -1439,7 +1481,7 @@ int cpuset_excl_nodes_overlap(const stru
+ 		task_unlock((struct task_struct *)p);
+ 		goto done;
+ 	}
+-	cs2 = nearest_exclusive_ancestor(p->container->cpuset);
++	cs2 = nearest_exclusive_ancestor(task_cs((struct task_struct *)p));
+ 	task_unlock((struct task_struct *)p);
+ 
+ 	overlap = nodes_intersects(cs1->mems_allowed, cs2->mems_allowed);
+@@ -1475,11 +1517,8 @@ int cpuset_memory_pressure_enabled __rea
+ 
+ void __cpuset_memory_pressure_bump(void)
+ {
+-	struct cpuset *cs;
+-
+ 	task_lock(current);
+-	cs = current->container->cpuset;
+-	fmeter_markevent(&cs->fmeter);
++	fmeter_markevent(&task_cs(current)->fmeter);
+ 	task_unlock(current);
+ }
+ 
+Index: linux-2.6.18/Documentation/containers.txt
+===================================================================
+--- linux-2.6.18.orig/Documentation/containers.txt
++++ linux-2.6.18/Documentation/containers.txt
+@@ -21,8 +21,11 @@ CONTENTS:
+ 2. Usage Examples and Syntax
+   2.1 Basic Usage
+   2.2 Attaching processes
+-3. Questions
+-4. Contact
++3. Kernel API
++  3.1 Overview
++  3.2 Synchronization
++  3.3 Subsystem API
++4. Questions
+ 
+ 1. Containers
+ ==========
+@@ -214,8 +217,126 @@ If you have several tasks to attach, you
+ 	...
+ # /bin/echo PIDn > tasks
+ 
++3. Kernel API
++=============
+ 
+-3. Questions
++3.1 Overview
++------------
++
++Each kernel subsystem that wants to hook into the generic container
++system needs to create a container_subsys object. This contains
++various methods, which are callbacks from the container system, along
++with a subsystem id which will be assigned by the container system.
++
++Each container object created by the system has an array of pointers,
++indexed by subsystem id; this pointer is entirely managed by the
++subsystem; the generic container code will never touch this pointer.
++
++Note that all subsystems share the same hierarchy of containers; it's
++not currently possible to have independent hierarchies and container
++memberships for different subsystems.
++
++3.2 Synchronization
++-------------------
++
++There are two global mutexes used by the container system. The first
++is the manage_mutex, which should be taken by anything that wants to
++modify a container; The second if the callback_mutex, which should be
++taken by holders of the manage_mutex at the point when they actually
++make changes, and by callbacks from lower-level subsystems that want
++to ensure that no container changes occur.  Note that memory
++allocations cannot be made while holding callback_mutex.
++
++The callback_mutex nests inside the manage_mutex.
++
++In general, the pattern of use is:
++
++1) take manage_mutex
++2) verify that the change is valid and do any necessary allocations\
++3) take callback_mutex
++4) make changes
++5) release callback_mutex
++6) release manage_mutex
++
++See kernel/container.c for more details.
++
++Subsystems can take/release the manage_mutex via the functions
++container_manage_lock()/container_manage_unlock(), and can
++take/release the callback_mutex via the functions
++container_lock()/container_unlock().
++
++Accessing a task's container pointer may be done in the following ways:
++- while holding manage_mutex
++- while holding callback_mutex
++- while holding the task's alloc_lock (via task_lock())
++- inside an rcu_read_lock() section via rcu_dereference()
++
++3.3 Subsystem API
++--------------------------
++
++Each subsystem should call container_register_subsys() with a pointer
++to its subsystem object. This will store the new subsystem id in the
++subsystem subsys_id field and return 0, or a negative error.  There's
++currently no facility for deregestering a subsystem nor for
++registering a subsystem after any containers (other than the default
++"top_container") have been created.
++
++Each subsystem may export the following methods. The only mandatory
++methods are create/destroy. Any others that are null are presumed to
++be successful no-ops.
++
++int create(struct container *cont)
++LL=manage_mutex
++
++The subsystem should appropriately initialize its subsystem pointer
++for the passed container, returning 0 on success or a negative error
++code. Typically this will involve allocating a new per-container
++structure and storing a reference to it in the container, but there's
++nothing to stop a subsystem having multiple containers with pointers
++to the same subsystem object.  Note that this will be called during
++container_register_subsys() to initialize this subsystem on the root
++container.
++
++void destroy(struct container *cont)
++LL=manage_mutex
++
++The container system is about to destroy the passed container; the
++subsystem should do any necessary cleanup
++
++int can_attach(struct container *cont, struct task_struct *task)
++LL=manage_mutex
++
++Called prior to moving a task into a container; if the subsystem
++returns an error, this will abort the attach operation.  Note that
++this isn't called on a fork.
++
++void attach(struct container *cont, struct task_struct *task)
++LL=manage_mutex & callback_mutex
++
++Called during the attach operation.  The subsystem should do any
++necessary work that can be accomplished without memory allocations or
++sleeping.
++
++void post_attach(struct container *cont, struct container *old_cont,
++                 struct task_struct *task)
++LL=manage_mutex
++
++Called after the task has been attached to the container, to allow any
++post-attachment activity that requires memory allocations or blocking.
++
++int populate(struct container *cont)
++LL=none
++
++Called after creation of a container to allow a subsystem to populate
++the container directory with file entries.  The subsystem should make
++calls to container_add_file() with objects of type cftype (see
++include/linux/container.h for details).  Called during
++container_register_subsys() to populate the root container.  Note that
++although this method can return an error code, the error code is
++currently not always handled well.
++
++
++4. Questions
+ ============
+ 
+ Q: what's up with this '/bin/echo' ?
 
-[1] http://lkml.org/lkml/2006/4/18/28
+--

@@ -1,68 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964775AbWJBShn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964826AbWJBShv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964775AbWJBShn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Oct 2006 14:37:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964826AbWJBShn
+	id S964826AbWJBShv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Oct 2006 14:37:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964896AbWJBShv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Oct 2006 14:37:43 -0400
-Received: from nf-out-0910.google.com ([64.233.182.186]:28639 "EHLO
-	nf-out-0910.google.com") by vger.kernel.org with ESMTP
-	id S964775AbWJBShm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Oct 2006 14:37:42 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=BDzwTZPseAewUqFGo5jCCI/Az4iwej0xJX2D5ysScXvcYxVITjy6+ryudsx1TNLBr32mvCJcZX+4nobrsm2LZUyAILu1o/KdvHhe5LpEx9q4rtg5qXVHudpwOlwzVz2YYp6wYjC/mjbSzcSGwo5etTMddu5sdOp2tI1eeqTeVXE=
-Message-ID: <82ecf08e0610021137r446031a8pa303053479e9cb27@mail.gmail.com>
-Date: Mon, 2 Oct 2006 14:37:39 -0400
-From: "Thiago Galesi" <thiagogalesi@gmail.com>
-To: "David Brownell" <david-b@pacbell.net>
-Subject: Re: [patch 2.6.18-git] SPI -- Freescale iMX SPI controller driver
-Cc: "Andrew Morton" <akpm@osdl.org>,
-       "Andrea Paterniani" <a.paterniani@swapp-eng.it>,
-       "Linux Kernel list" <linux-kernel@vger.kernel.org>
-In-Reply-To: <200610020816.58985.david-b@pacbell.net>
+	Mon, 2 Oct 2006 14:37:51 -0400
+Received: from palinux.external.hp.com ([192.25.206.14]:9169 "EHLO
+	mail.parisc-linux.org") by vger.kernel.org with ESMTP
+	id S964826AbWJBShu (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Oct 2006 14:37:50 -0400
+Date: Mon, 2 Oct 2006 12:37:49 -0600
+From: Matthew Wilcox <matthew@wil.cx>
+To: Frederik Deweerdt <deweerdt@free.fr>
+Cc: Arjan van de Ven <arjan@infradead.org>, linux-scsi@vger.kernel.org,
+       "Linux-Kernel," <linux-kernel@vger.kernel.org>,
+       "J.A. Magall??n" <jamagallon@ono.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Morton <akpm@osdl.org>,
+       Jeff Garzik <jeff@garzik.org>
+Subject: Re: [RFC PATCH] move drm to pci_request_irq
+Message-ID: <20061002183749.GO16272@parisc-linux.org>
+References: <20060929235054.GB2020@slug> <1159573404.13029.96.camel@localhost.localdomain> <20060930140946.GA1195@slug> <451F049A.1010404@garzik.org> <20061001142807.GD16272@parisc-linux.org> <1159729523.2891.408.camel@laptopd505.fenrus.org> <20061001193616.GF16272@parisc-linux.org> <1159755141.2891.434.camel@laptopd505.fenrus.org> <20061002200048.GC3003@slug> <20061002201229.GF3003@slug>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <200610020816.58985.david-b@pacbell.net>
+In-Reply-To: <20061002201229.GF3003@slug>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-<nitpickery on>
-+
-> +/*-------------------------------------------------------------------------*/
-> +/* SPI Control Register Bit Fields & Masks */
-> +#define SPI_CONTROL_BITCOUNT   (0xF)           /* Bit Count Mask */
-> +#define SPI_CONTROL_BITCOUNT_1 (0x0)           /* Bit Count = 1 */
-> +#define SPI_CONTROL_BITCOUNT_2 (0x1)           /* Bit Count = 2 */
-> +#define SPI_CONTROL_BITCOUNT_3 (0x2)           /* Bit Count = 3 */
-
-I thinking these comments are awfully confusing (bitcount_1 == 0
-?!?!?) and maybe redundant.
-
-It would be much more useful to explain the logic behind why
-(bitcount_1 == 0) and remove the /* Bit Count = X */ comments
-
-
-> +/* SPI Soft Reset Register Bit Fields & Masks */
-> +#define SPI_RESET_START                (0x1 << 0)      /* Start */
-
-Wouldn't only (0x1) be better?
-
+On Mon, Oct 02, 2006 at 08:12:29PM +0000, Frederik Deweerdt wrote:
+>  
+> +	pci_set_drvdata(dev, NULL);
 > +
-> +/* Message state */
-> +#define START_STATE                    ((void*)0)
-> +#define RUNNING_STATE                  ((void*)1)
-> +#define DONE_STATE                     ((void*)2)
-> +#define ERROR_STATE                    ((void*)-1)
+>  	DRM_DEBUG("lastclose completed\n");
 
-!?!??!?!
+Not necessary.  pci_devs are allocated initialised to 0.
 
-All in all, except for what Andrew has pointed out, it looks good,
-maybe a little bit overengineered...
+> @@ -132,8 +132,10 @@ static int drm_irq_install(drm_device_t 
+>  	if (drm_core_check_feature(dev, DRIVER_IRQ_SHARED))
+>  		sh_flags = IRQF_SHARED;
+>  
+> -	ret = request_irq(dev->irq, dev->driver->irq_handler,
+> -			  sh_flags, dev->devname, dev);
+> +	pci_set_drvdata(dev->pdev, dev);
+> +
+> +	ret = pci_request_irq(dev->pdev, dev->driver->irq_handler,
+> +			  sh_flags, dev->devname);
 
--- 
--
-Thiago Galesi
+This seems like the wrong place to be setting the pci_drvdata.  It
+should probably be done in each driver.  But then, requesting the IRQ
+should also be done by each driver.  You've dragged us into the "wow,
+what a mess DRI is" black hole here, I'm afraid.
+

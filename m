@@ -1,49 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932372AbWJBOJv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932445AbWJBOPU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932372AbWJBOJv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Oct 2006 10:09:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932376AbWJBOJv
+	id S932445AbWJBOPU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Oct 2006 10:15:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932448AbWJBOPT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Oct 2006 10:09:51 -0400
-Received: from smtp-out.google.com ([216.239.45.12]:49147 "EHLO
-	smtp-out.google.com") by vger.kernel.org with ESMTP id S932372AbWJBOJu
+	Mon, 2 Oct 2006 10:15:19 -0400
+Received: from iolanthe.rowland.org ([192.131.102.54]:10248 "HELO
+	iolanthe.rowland.org") by vger.kernel.org with SMTP id S932445AbWJBOPS
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Oct 2006 10:09:50 -0400
-DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
-	h=received:message-id:date:from:to:subject:cc:in-reply-to:
-	mime-version:content-type:content-transfer-encoding:
-	content-disposition:references;
-	b=ovEDWete82DjAxBbdGcA0eCE+SvcHtpFGGezGnE08L6hxHsaKBXeQcTWj5w0+gcaI
-	1CLgjB0BctAi5tPFljtFQ==
-Message-ID: <d43160c70610020709l720518a8j1aea5e04e9cdd20c@mail.gmail.com>
-Date: Mon, 2 Oct 2006 10:09:36 -0400
-From: "Ross Biro" <rossb@google.com>
-To: "Randy Dunlap" <rdunlap@xenotime.net>
-Subject: Re: [patch 024/144] allow /proc/config.gz to be built as a module
-Cc: "Andrew Morton" <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
-       torvalds@osdl.org, akpm@google.com, sam@ravnborg.org
-In-Reply-To: <20061001115241.fb9dc96d.rdunlap@xenotime.net>
+	Mon, 2 Oct 2006 10:15:18 -0400
+Date: Mon, 2 Oct 2006 10:15:13 -0400 (EDT)
+From: Alan Stern <stern@rowland.harvard.edu>
+X-X-Sender: stern@iolanthe.rowland.org
+To: Paul Jackson <pj@sgi.com>
+cc: Andrew Morton <akpm@osdl.org>, <linux-kernel@vger.kernel.org>,
+       Greg KH <greg@kroah.com>
+Subject: Re: [PATCH] usb hubc build fix.patch prefix
+In-Reply-To: <20061002023720.9780.85391.sendpatchset@v0>
+Message-ID: <Pine.LNX.4.44L0.0610021003330.6651-100000@iolanthe.rowland.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <200610010627.k916RPIs010370@shell0.pdx.osdl.net>
-	 <20061001093954.8d2aa064.rdunlap@xenotime.net>
-	 <20061001113600.3c318eda.akpm@osdl.org>
-	 <20061001115241.fb9dc96d.rdunlap@xenotime.net>
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/1/06, Randy Dunlap <rdunlap@xenotime.net> wrote:
-> > Actually I had this mentally tagged as "needs more arguing before merging"
-> > but then forgot and went and sent it anyway.
->
-> Well, we agree on that part at least.
->
-> > So now it's in the "needs more arguing before we revert it" category.
->
-> Wrong order IMO.
+On Sun, 1 Oct 2006, Paul Jackson wrote:
 
-I think we should pull it and then argue about putting it back in.
+> From: Paul Jackson <pj@sgi.com>
+> 
+> The patch series 2.6.18-mm2-broken-out does not apply to 2.6.18,
+> for me anyway.
+> 
+> The 'quilt push' of this series fails with:
+> 
+>     Applying patch usb-hubc-build-fix.patch
+>     patching file drivers/usb/core/hub.c
+>     Hunk #1 FAILED at 1831.
+>     Hunk #2 succeeded at 1904 (offset -2 lines).
+>     Hunk #3 FAILED at 1946.
+>     2 out of 3 hunks FAILED -- rejects in file drivers/usb/core/hub.c
+>     Patch usb-hubc-build-fix.patch does not apply (enforce with -f)
 
-    Ross
+There is no patch labelled usb-hubc-build-fix.patch anywhere in 
+http://www.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18/2.6.18-mm2/broken-out/
+This suggests that the quilt archive is indeed messed up.
+
+> If I apply the following patch *just before* the failing
+> usb-hubc-build-fix.patch, everything applies cleanly from there on
+> down the patch set.
+> 
+> I don't know what's right here.  I'm just blindly pushing code.
+> 
+> But it seems obvious to me that the 2.6.18-mm2 broken-out patch set
+> is borked:
+> 
+>   The first patch in the series: origin.patch, definitely places these
+>   two hub_* defines just before the usb_resume_root_hub() routine.
+
+That is in fact where they belong.  Furthermore, that's where the 
+origin.patch file from the URL above puts them.  It sounds like the 
+contents of the archive don't match the contents of the directory.
+
+>   But then the patch usb-hubc-build-fix.patch clearly expects to find
+>   those two hub_* defines just before the hub_suspend() routine.
+
+That is wrong.  The module won't compile properly when CONFIG_PM is set 
+and CONFIG_USB_SUSPEND isn't if the defines are placed there.
+
+Alan Stern
+

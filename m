@@ -1,76 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965490AbWJBWpJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965493AbWJBWsn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965490AbWJBWpJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Oct 2006 18:45:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965491AbWJBWpJ
+	id S965493AbWJBWsn (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Oct 2006 18:48:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965494AbWJBWsn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Oct 2006 18:45:09 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:7386 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S965490AbWJBWpG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Oct 2006 18:45:06 -0400
-Date: Mon, 2 Oct 2006 15:44:32 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: john stultz <johnstul@us.ibm.com>
-Cc: Thomas Gleixner <tglx@linutronix.de>, LKML <linux-kernel@vger.kernel.org>,
-       Ingo Molnar <mingo@elte.hu>, Jim Gettys <jg@laptop.org>,
-       David Woodhouse <dwmw2@infradead.org>,
-       Arjan van de Ven <arjan@infradead.org>, Dave Jones <davej@redhat.com>
-Subject: Re: [patch 03/23] GTOD: persistent clock support, i386
-Message-Id: <20061002154432.ed090fd9.akpm@osdl.org>
-In-Reply-To: <1159826617.27968.22.camel@localhost.localdomain>
-References: <20060929234435.330586000@cruncher.tec.linutronix.de>
-	<20060929234439.158061000@cruncher.tec.linutronix.de>
-	<20060930013612.92e12313.akpm@osdl.org>
-	<1159826617.27968.22.camel@localhost.localdomain>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 2 Oct 2006 18:48:43 -0400
+Received: from outbound-red.frontbridge.com ([216.148.222.49]:1750 "EHLO
+	outbound2-red-R.bigfish.com") by vger.kernel.org with ESMTP
+	id S965493AbWJBWsm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Oct 2006 18:48:42 -0400
+X-BigFish: VP
+X-Server-Uuid: 519AC16A-9632-469E-B354-112C592D09E8
+Date: Mon, 2 Oct 2006 16:57:38 -0600
+From: "Jordan Crouse" <jordan.crouse@amd.com>
+To: linux-fbdev-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       devel@laptop.org
+Subject: [PATCH] video: Get the default mode from the right database
+Message-ID: <20061002225738.GD7716@cosmic.amd.com>
+MIME-Version: 1.0
+User-Agent: Mutt/1.5.11
+X-OriginalArrivalTime: 02 Oct 2006 22:48:27.0933 (UTC)
+ FILETIME=[E03D0CD0:01C6E674]
+X-WSS-ID: 693F48B60C43578102-01-01
+Content-Type: multipart/mixed;
+ boundary=OXfL5xGRrasGEqWY
+Content-Disposition: inline
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 02 Oct 2006 15:03:37 -0700
-john stultz <johnstul@us.ibm.com> wrote:
 
->  static int timer_resume(struct sys_device *dev)
->  {
-> -	unsigned long flags;
-> -	unsigned long sec;
-> -	unsigned long ctime = get_cmos_time();
-> -	long sleep_length = (ctime - sleep_start) * HZ;
-> -	struct timespec ts;
-> -
-> -	if (sleep_length < 0) {
-> -		printk(KERN_WARNING "CMOS clock skew detected in timer resume!\n");
-> -		/* The time after the resume must not be earlier than the time
-> -		 * before the suspend or some nasty things will happen
-> -		 */
-> -		sleep_length = 0;
-> -		ctime = sleep_start;
-> -	}
->  #ifdef CONFIG_HPET_TIMER
->  	if (is_hpet_enabled())
->  		hpet_reenable();
->  #endif
->  	setup_pit_timer();
-> -
-> -	sec = ctime + clock_cmos_diff;
-> -	ts.tv_sec = sec;
-> -	ts.tv_nsec = 0;
-> -	do_settimeofday(&ts);
-> -	write_seqlock_irqsave(&xtime_lock, flags);
-> -	jiffies_64 += sleep_length;
-> -	write_sequnlock_irqrestore(&xtime_lock, flags);
->  	touch_softlockup_watchdog();
->  	return 0;
->  }
+--OXfL5xGRrasGEqWY
+Content-Type: text/plain;
+ charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
 
-In this version of the patch, you no longer remove the
-touch_softlockup_watchdog() call from timer_resume().
+fb_find_mode() is behaving in an non-intuitive way.  When I specify my
+own video mode database, and no default mode, I would have expected it
+to assume the first mode in my database as the default mode.  Instead, it
+uses the built in database:
 
-But clockevents-drivers-for-i386.patch deletes timer_resume()
-altogether.
+> if (!db) {
+>     db = modedb;
+>     dbsize = ARRAY_SIZE(modedb);
+> }
+> if (!default_mode)
+>     default_mode = &modedb[DEFAULT_MODEDB_INDEX];
 
-Hence we might need to put that re-added touch_softlockup_watchdog() call
-into somewhere else now.
+Personally, I think this is incorrect - if an alternate database is
+specified, it should be always using that.  Patch is attached.
+
+Regards,
+Jordan
+
+-- 
+Jordan Crouse
+Senior Linux Engineer
+Advanced Micro Devices, Inc.
+<www.amd.com/embeddedprocessors>
+
+--OXfL5xGRrasGEqWY
+Content-Type: text/plain;
+ charset=us-ascii
+Content-Disposition: inline;
+ filename=modedb-fix.patch
+Content-Transfer-Encoding: 7bit
+
+[PATCH] video: Get the default mode from the right database
+
+From: Jordan Crouse <jordan.crouse@amd.com>
+
+If no default mode is specified, it should be grabbed from the supplied
+database, not the default one.  
+
+Signed-off-by: Jordan Crouse <jordan.crouse@amd.com>
+---
+
+ drivers/video/modedb.c |    2 +-
+ 1 files changed, 1 insertions(+), 1 deletions(-)
+
+diff --git a/drivers/video/modedb.c b/drivers/video/modedb.c
+index d126790..e068f52 100644
+--- a/drivers/video/modedb.c
++++ b/drivers/video/modedb.c
+@@ -506,7 +506,7 @@ int fb_find_mode(struct fb_var_screeninf
+ 	dbsize = ARRAY_SIZE(modedb);
+     }
+     if (!default_mode)
+-	default_mode = &modedb[DEFAULT_MODEDB_INDEX];
++	default_mode = &db[DEFAULT_MODEDB_INDEX];
+     if (!default_bpp)
+ 	default_bpp = 8;
+ 
+
+--OXfL5xGRrasGEqWY--
+
+

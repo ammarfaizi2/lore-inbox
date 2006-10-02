@@ -1,63 +1,46 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965282AbWJBVUe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965399AbWJBV2E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965282AbWJBVUe (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Oct 2006 17:20:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965283AbWJBVUe
+	id S965399AbWJBV2E (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Oct 2006 17:28:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965400AbWJBV2E
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Oct 2006 17:20:34 -0400
-Received: from www.osadl.org ([213.239.205.134]:35011 "EHLO mail.tglx.de")
-	by vger.kernel.org with ESMTP id S965282AbWJBVUd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Oct 2006 17:20:33 -0400
-Subject: Re: [patch] dynticks core: Fix idle time accounting
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: Valdis.Kletnieks@vt.edu
-Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
-       Ingo Molnar <mingo@elte.hu>, Jim Gettys <jg@laptop.org>,
-       John Stultz <johnstul@us.ibm.com>,
-       David Woodhouse <dwmw2@infradead.org>,
-       Arjan van de Ven <arjan@infradead.org>, Dave Jones <davej@redhat.com>
-In-Reply-To: <200610022017.k92KH4Ch004773@turing-police.cc.vt.edu>
-References: <20061001225720.115967000@cruncher.tec.linutronix.de>
-	 <200610021302.k92D23W1003320@turing-police.cc.vt.edu>
-	 <1159796582.1386.9.camel@localhost.localdomain>
-	 <200610021825.k92IPSnd008215@turing-police.cc.vt.edu>
-	 <1159814606.1386.52.camel@localhost.localdomain>
-	 <200610022017.k92KH4Ch004773@turing-police.cc.vt.edu>
-Content-Type: text/plain
-Date: Mon, 02 Oct 2006 23:22:38 +0200
-Message-Id: <1159824158.1386.77.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
+	Mon, 2 Oct 2006 17:28:04 -0400
+Received: from aa009msg.fastweb.it ([213.140.2.76]:10687 "EHLO
+	aa009msg.fastweb.it") by vger.kernel.org with ESMTP id S965399AbWJBV2B
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Oct 2006 17:28:01 -0400
+Date: Mon, 2 Oct 2006 23:27:31 +0200
+From: Andrea Gelmini <gelma@gelma.net>
+To: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Cc: shemminger@osdl.org, jeff@garzik.org
+Subject: Re: [PATCH] sky2: version 1.9
+Message-ID: <20061002212731.GA4104@gelma.net>
+References: <200610021659.k92GxBOF020192@hera.kernel.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200610021659.k92GxBOF020192@hera.kernel.org>
+User-Agent: Mutt/1.5.12-2006-07-14
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-10-02 at 16:17 -0400, Valdis.Kletnieks@vt.edu wrote:
-> cpu  27634 0 7762 20470 881 331 252 0
-> cpu0 27634 0 7762 20470 881 331 252 0
-> intr 812332 631476 2960 0 4 4 12667 3 14 1 1 4 142891 114 0 22193 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
-> ctxt 2187603
-> btime 1159817297
-> processes 4028
-> procs_running 1
-> procs_blocked 0
-> nohz total I:397276 S:379955 T:1187.393123 A:0.003125 E: 629447
-> cpu  27753 0 7818 20739 881 332 253 0
-> cpu0 27753 0 7818 20739 881 332 253 0
-> intr 819027 636542 2969 0 4 4 12801 3 14 1 1 4 144371 114 0 22199 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
-> ctxt 2209881
-> btime 1159817297
-> processes 4033
-> procs_running 1
-> procs_blocked 0
-> nohz total I:401991 S:384494 T:1200.732924 A:0.003122 E: 634513
+Hi all,
+	I've tried this, using -git18, but nothing more than what I
+	reported here.[1]
 
-Strange.
+Thanks a lot for your time,
+Andrea Gelmini
 
-/me digs deeper
+------
+[1] http://groups.google.it/group/linux.kernel/msg/d2ff5576eaa0ede9
 
-	tglx
-
-
+On Mon, Oct 02, 2006 at 04:59:11PM +0000, Linux Kernel Mailing List wrote:
+> commit c73a29da23c9236f868faecf85cb5401893d7c42
+> tree bc35735f0f3bb11335d6773772aaab5277f0e131
+> parent 14d0263fea0613d4f83dc5e3ad4631f363d1689f
+> author Stephen Hemminger <shemminger@osdl.org> 1159297064 -0700
+> committer Jeff Garzik <jeff@garzik.org> 1159394192 -0400
+> 
+> [PATCH] sky2: version 1.9
+> 
+> Version 1.9 is for 2.6.19.

@@ -1,53 +1,40 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932525AbWJBQvA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932334AbWJBQwO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932525AbWJBQvA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Oct 2006 12:51:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932524AbWJBQu7
+	id S932334AbWJBQwO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Oct 2006 12:52:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932524AbWJBQwN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Oct 2006 12:50:59 -0400
-Received: from moutng.kundenserver.de ([212.227.126.186]:40128 "EHLO
-	moutng.kundenserver.de") by vger.kernel.org with ESMTP
-	id S932282AbWJBQu6 convert rfc822-to-8bit (ORCPT
+	Mon, 2 Oct 2006 12:52:13 -0400
+Received: from brick.kernel.dk ([62.242.22.158]:21820 "EHLO kernel.dk")
+	by vger.kernel.org with ESMTP id S932334AbWJBQwL (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Oct 2006 12:50:58 -0400
-From: Arnd Bergmann <arnd@arndb.de>
-To: Linas Vepstas <linas@austin.ibm.com>
-Subject: Re: [PATCH 0/6]: powerpc/cell spidernet ethernet patches
-Date: Mon, 2 Oct 2006 18:50:39 +0200
-User-Agent: KMail/1.9.4
-Cc: linuxppc-dev@ozlabs.org, jeff@garzik.org, akpm@osdl.org,
-       netdev@vger.kernel.org, James K Lewis <jklewis@us.ibm.com>,
+	Mon, 2 Oct 2006 12:52:11 -0400
+Date: Mon, 2 Oct 2006 18:51:38 +0200
+From: Jens Axboe <axboe@kernel.dk>
+To: David Howells <dhowells@redhat.com>
+Cc: torvalds@osdl.org, akpm@osdl.org, linux-fsdevel@vger.kernel.org,
        linux-kernel@vger.kernel.org
-References: <20060929230552.GG6433@austin.ibm.com> <200609301240.03464.arnd@arndb.de> <20061002162749.GB4546@austin.ibm.com>
-In-Reply-To: <20061002162749.GB4546@austin.ibm.com>
-MIME-Version: 1.0
+Subject: Re: [PATCH 2/2] BLOCK: Fix linux/compat.h's use sigset_t
+Message-ID: <20061002165137.GK5670@kernel.dk>
+References: <20061002131231.19879.19860.stgit@warthog.cambridge.redhat.com> <20061002131234.19879.34671.stgit@warthog.cambridge.redhat.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Message-Id: <200610021850.41062.arnd@arndb.de>
-X-Provags-ID: kundenserver.de abuse@kundenserver.de login:c48f057754fc1b1a557605ab9fa6da41
+In-Reply-To: <20061002131234.19879.34671.stgit@warthog.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 02 October 2006 18:27, Linas Vepstas wrote:
-> > 
-> > I'm not sure if I have missed a patch in here, but I
-> > don't see anything reintroducing the 'netif_stop_queue'
-> > that is missing from the transmit path.
-> > 
-> > Do you have a extra patch for that?
+On Mon, Oct 02 2006, David Howells wrote:
+> From: David Howells <dhowells@redhat.com>
 > 
-> Unfinished.  There are several ways in which the current 
-> spider-net driver doesn't do things the way Greg KH's, etal 
-> book on device drivers recommends. I was planning on combing 
-> through these this week.
+> Make linux/compat.h #include asm/signal.h to gain a definition of
+> sigset_t so that it can externally declare sigset_from_compat().
+> 
+> This has been compile-tested for i386, x86_64, ia64, mips, mips64,
+> frv, ppc and ppc64 and run-tested on frv.
 
-Ok, that's good. However, removing the netif_stop_queue
-was an obvious oversight that happened during the cleanup
-last year.
+Ack both patches, thanks David.
 
-Putting that one line back in should be a really safe fix for
-the problem of overly high system load we sometimes see.
+-- 
+Jens Axboe
 
-	Arnd <><

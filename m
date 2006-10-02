@@ -1,65 +1,220 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965440AbWJBWIG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965471AbWJBWKM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965440AbWJBWIG (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Oct 2006 18:08:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965443AbWJBWIF
+	id S965471AbWJBWKM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Oct 2006 18:10:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965474AbWJBWKL
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Oct 2006 18:08:05 -0400
-Received: from wx-out-0506.google.com ([66.249.82.236]:14692 "EHLO
-	wx-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S965440AbWJBWID (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Oct 2006 18:08:03 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=YhQfWlehL4AWSHuxD1dNeG8dEB2nRgXwojcv2I6jMJOqij6NEtWKVh4H9+X5zw3AJroTgkWKZVGqIQxSN8mUethUZDQrDMOz42omUdxm+suGf0HY2rKuDPyZseHYyRDdhQ/2RVL9AeLivFcYHemdo+tRyxxD+grODfcUFSabCd0=
-Message-ID: <5a4c581d0610021508hdc331f0w7c9b71c3944d4d8b@mail.gmail.com>
-Date: Tue, 3 Oct 2006 00:08:01 +0200
-From: "Alessandro Suardi" <alessandro.suardi@gmail.com>
-To: "Theodore Tso" <tytso@mit.edu>, "Dan Williams" <dcbw@redhat.com>,
-       "Rafael J. Wysocki" <rjw@sisk.pl>, jt@hpl.hp.com,
-       "Andrew Morton" <akpm@osdl.org>,
-       "John W. Linville" <linville@tuxdriver.com>,
-       "Norbert Preining" <preining@logic.at>,
-       "Alessandro Suardi" <alessandro.suardi@gmail.com>, hostap@shmoo.com,
-       linux-kernel@vger.kernel.org, ipw3945-devel@lists.sourceforge.net
-Subject: Re: wpa supplicant/ipw3945, ESSID last char missing
-In-Reply-To: <20061002212604.GA6520@thunk.org>
+	Mon, 2 Oct 2006 18:10:11 -0400
+Received: from cpe-70-113-217-93.austin.res.rr.com ([70.113.217.93]:30621 "EHLO
+	kinison.puremagic.com") by vger.kernel.org with ESMTP
+	id S965471AbWJBWKI (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Oct 2006 18:10:08 -0400
+Date: Mon, 2 Oct 2006 17:08:17 -0500 (CDT)
+From: Evan Harris <eharris@puremagic.com>
+To: Milan Kupcevic <milan@physics.harvard.edu>
+cc: Fabian Knittel <fabian.knittel@avona.com>, Jeff Garzik <jgarzik@pobox.com>,
+       linux-scsi@vger.kernel.org,
+       Linux Kernel List <linux-kernel@vger.kernel.org>,
+       Eyal Lebedinsky <eyal@eyal.emu.id.au>,
+       Stan Seibert <volsung@mailsnare.net>, linux-ide@vger.kernel.org,
+       Christiaan den Besten <chris@scorpion.nl>
+Subject: Re: [PATCH] sata_promise: Port enumeration order - SATA 150 TX4,
+ SATA 300 TX4
+In-Reply-To: <447CB9B4.50700@physics.harvard.edu>
+Message-ID: <Pine.LNX.4.62.0610021700350.10249@kinison.puremagic.com>
+References: <43FFAE3D.7010002@physics.harvard.edu> <44000036.7070403@eyal.emu.id.au>
+ <011f01c639f9$8dc86bc0$3d64880a@speedy> <442DB29D.1010102@avona.com>
+ <447CB9B4.50700@physics.harvard.edu>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <20061002085942.GA32387@gamma.logic.tuwien.ac.at>
-	 <20061002111537.baa077d2.akpm@osdl.org>
-	 <20061002185550.GA14854@bougret.hpl.hp.com>
-	 <200610022147.03748.rjw@sisk.pl>
-	 <1159822831.11771.5.camel@localhost.localdomain>
-	 <20061002212604.GA6520@thunk.org>
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/2/06, Theodore Tso <tytso@mit.edu> wrote:
-> On Mon, Oct 02, 2006 at 05:00:31PM -0400, Dan Williams wrote:
-> > Distributions _are_ shipping those tools already.  The problem is more
-> > with older distributions where, for example, the kernel gets upgraded
-> > but other stuff does not.  If a kernel upgrade happens, then the distro
-> > needs to make sure userspace works with it.  That's nothing new.
+
+I have a card that mirrors this one from your list:
+
+Retail name: SATA300 TX4
+Chip label: PDC40718-GP  SATAII300
+Vendor-Device number: 105a:3d17 (rev 02)
+
+Through testing, I've found linux 2.6.16 and 2.6.17 find the ports in this 
+order (the list is ordered by linux detection):
+
+1. silkscreen port 3
+2. silkscreen port 2
+3. silkscreen port 4
+4. silkscreen port 1
+
+Evan
+
+On Tue, 30 May 2006, Milan Kupcevic wrote:
+
 >
-> Um, *which* distro's are shipping it already?  RHEL4?  SLES10?  I
-> thought we saw a note saying that even Debian **unstable** didn't have
-> a new enough version of the wireless-tools....
-
-That was my point initially. FC5-latest is apparently carrying
- tools which are "too old"... and I yum update twice or thrice
- a week. Not that *I* minded building packages from source,
- but this is likely a bit too much for a good slice of the userbase.
-
-Ciao,
-
---alessandro
-
-"Well a man has two reasons for things that he does
-  the first one is pride and the second one is love
-  all understandings must come by this way"
-
-     (Husker Du, 'She Floated Away')
+> Fabian Knittel wrote:
+>
+>> In other words: The boards appear to be wired correctly (or maybe just
+>> uniformly the wrong way) and the bios, the windows driver and the closed
+>> source promise driver (reportedly) know how to handle it.
+>> 
+>> We have a SATA 150 TX4 board with the same behaviour and would love to
+>> see this annoying little bug fixed in linux. :)
+>> 
+>>  Fabian
+>> 
+>> Christiaan den Besten wrote:
+>> 
+>>> We have several of these boards in use [SATA 300 TX4] (bought over time
+>>> .. not in one batch). All of them have the ordering as described below.
+>>> So another vote for "Please fix!" :)
+>>> 
+>>> 
+>>>> Milan Kupcevic wrote:
+>>>> 
+>>>> 
+>>>>> From: Milan Kupcevic <milan@physics.harvard.edu>
+>>>>> 
+>>>>> Fix Promise SATAII 150 TX4 (PDC40518) and Promise SATA 300 TX4
+>>>>> (PDC40718-GP) wrong port enumeration order that makes it (nearly)
+>>>>> impossible to deal with boot problems using two or more drives.
+>>>>> 
+>>>>> Signed-off-by: Milan Kupcevic <milan@physics.harvard.edu>
+>>>>> ---
+>>>>> 
+>>>>> The current kernel driver assumes:
+>>>>> 
+>>>>> port 1 - scsi3
+>>>>> port 2 - scsi1
+>>>>> port 3 - scsi0
+>>>>> port 4 - scsi2
+>>>>> 
+>>>> I totally agree with the fact that the Linux driver gets the ports wrong
+>>>> when compared to the BIOS, Windows and surely contradicts the port
+>>>> numbers printed on the board. I doubt we all got samples on the one
+>>>> bad batch...
+>>>> 
+>>>> It *is* a real problem and if the solution is correct then I support it.
+>>>> 
+>>>> Maybe we need a quick feedback from current users: do you guys find
+>>>> that the ports are detected as they are labelled (white silk screen)
+>>>> on the board or do they show up out of order (as listed above by
+>>>> Milan)?
+>>>> 
+>
+> This is a list of Promise SATA TX4 and FastTrak TX4xxx controllers, I have in 
+> my lab, affected with the "wiring" bug:
+>
+> Retail name: SATAII150 TX4
+> Chip label: PDC40518  SATAII150
+> Vendor-Device number: 105a:3d18 (rev 02)
+> Wiring: NEW
+>
+> Retail name: FastTrak TX4200
+> Chip label: PDC40519  RAID  SATAII150
+> Vendor-Device number: 105a:3519
+> Wiring: NEW
+>
+> Retail name: SATA300 TX4
+> Chip label: PDC40718-GP  SATAII300
+> Vendor-Device number: 105a:3d17 (rev 02)
+> Wiring: NEW
+>
+>
+> This is the only one Promise TX4 controller, I have in my lab, that is 
+> working properly regarding the "wiring" bug with the current kernel driver:
+>
+> Retail name: FastTrak S150 TX4
+> Chip label: PDC20319 RAID SATA 150
+> Vendor-Device number: 105a:3319 (rev 02)
+> Wiring: OLD
+>
+>
+> This is a list of Promise SATA TX2 and FastTrak TX2xxx controllers, I have in 
+> my lab, that are working correctly regarding the "wiring" bug with the 
+> current kernel driver:
+>
+> Retail name: FastTrak S150 TX2plus
+> Chip label: PDC20371  SATA 150
+> Vendor-Device number: 105a:3371 (rev 02)
+>
+> Retail name: SATA150 TX2plus
+> Chip label: PDC20375  SATA 150
+> Vendor-Device number: 105a:3375 (rev 02)
+>
+> Retail name: FastTrak TX2200
+> Chip label: PDC20571  SATAII150
+> Vendor-Device number: 105a:3571 (rev 02)
+>
+>
+> It seems the problem exists on all newer Promise SATA TX4 and FastTrak TX4xxx 
+> controllers, so I refer to them as the "new wiring" Promise SATA controllers. 
+> All the Promise SATA TX2 and FastTrak TX2xxx I have in my lab are working 
+> correctly with the current kernel driver, so it seems this "wiring" problem 
+> does not affect the TX2(xxx) controllers; only SATA TX4 and FastTrak TX4xxx 
+> are affected.
+>
+> For driver to be able to distinguish the "new wiring" and the "old wiring" 
+> Promise TX4(xxx) controllers we need a feedback from the users that are aware 
+> of this problem.
+>
+> Q. How to know if a controller has the "new wiring"? A. You need to be able 
+> to boot your testing machine using a hard drive not attached to the 
+> controller you are going to test.  Connect 4 different size/brand/model SATA 
+> hard drives to the testing controller so you can see the particular order 
+> they are recognized by the BIOS and by the kernel (not patched for the "new 
+> wiring").   Boot the machine and look for the BIOS recognized hard drive 
+> order.  The BIOS recognized hard drive order always matches the order the 
+> hard drives are connected to, with respect to port number labels.  If you are 
+> testing FastTrak TX series controller you may need to press Ctrl-F (or 
+> Ctrl-A) to get into controllers' BIOS and then press "2" to see the BIOS 
+> recognized order.  Plain SATA models do not have controller specific BIOS and 
+> they will report the BIOS recognized order without user intervention.  You 
+> may want to press the "Pause" key on your keyboard to have enough time to 
+> read the text on the screen.  If you are arguing with your machine using a 
+> serial terminal, there is a Hold Screen button somewhere on the terminal 
+> keyboard.   When the machine boots up, type "cat /proc/scsi/scsi", it will 
+> show up the order hard drives are recognized by the kernel.  Make sure the 
+> kernel you are using is NOT patched for the "new wiring" bug.  If you have 
+> the "new wiring" case, the order will be 3-2-4-1; that means, the drive 
+> connected to the "port 3" and recognized as the third drive connected to the 
+> controller by the BIOS, will be seen by the kernel as first hard drive 
+> connected to this controller.  The second drive is always at second place, 
+> the fourth one goes at third place and the first one goes at fourth place.
+>
+>
+> Please respond with this data:
+>
+> - Your Promise SATA controller retail name
+> - Chip label (PDCxxxxx)
+> - PCI vendor and device code as you can get with "lspci -n"
+> - Say if the controler has the new or the old wiring
+>
+> Your feedback will be appreciated.
+>
+>
+> NOTE: the patch I have submitted ( 
+> http://marc.theaimsgroup.com/?l=linux-ide&m=114082978311290&w=2 ) is a 
+> solution that doesn't know about the older Promise SATA controllers, which 
+> are not affected with the "new wiring" problem, so the older controllers will 
+> appear screwed if you use it.
+>
+> Hopefully we will collect enough info about all the SATA Promise controllers 
+> to distinguish the new and the old wiring controllers, then produce a new 
+> patch that will be a correct solution to the "new wiring" problem.
+>
+>
+> The best to all,
+>
+> Milan
+>
+> -- 
+> Milan Kupcevic
+> System Administrator
+> Harvard University
+> Department of Physics
+>
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+>

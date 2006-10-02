@@ -1,86 +1,73 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964892AbWJBS7O@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965309AbWJBTDA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964892AbWJBS7O (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Oct 2006 14:59:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964896AbWJBS7N
+	id S965309AbWJBTDA (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Oct 2006 15:03:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965310AbWJBTC7
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Oct 2006 14:59:13 -0400
-Received: from mail125.messagelabs.com ([85.158.136.35]:43586 "HELO
-	mail125.messagelabs.com") by vger.kernel.org with SMTP
-	id S964893AbWJBS7K (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Oct 2006 14:59:10 -0400
-X-VirusChecked: Checked
-X-Env-Sender: preece@urbana.css.mot.com
-X-Msg-Ref: server-3.tower-125.messagelabs.com!1159815544!16141134!1
-X-StarScan-Version: 5.5.10.7; banners=-,-,-
-X-Originating-IP: [144.189.100.105]
-X-POPI: The contents of this message are Motorola Internal Use Only (MIUO)
-       unless indicated otherwise in the message.
-Date: Mon, 2 Oct 2006 13:58:33 -0500 (CDT)
-Message-Id: <200610021858.k92IwXJg011184@olwen.urbana.css.mot.com>
-From: "Scott E. Preece" <preece@motorola.com>
-To: shd@zakalwe.fi
-CC: eugeny.mints@gmail.com, linux-pm@lists.osdl.org,
-       linux-kernel@vger.kernel.org, ext-Tuukka.Tikkanen@nokia.com
-In-reply-to: Heikki Orsila's message of Sun, 1 Oct 2006 18:22:28 +0300
-Subject: Re: [linux-pm] [RFC] OMAP1 PM Core, PM Core  Implementation 2/2
+	Mon, 2 Oct 2006 15:02:59 -0400
+Received: from omx1-ext.sgi.com ([192.48.179.11]:19934 "EHLO
+	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
+	id S965308AbWJBTC5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Oct 2006 15:02:57 -0400
+From: John Keller <jpk@sgi.com>
+Message-Id: <200610021902.k92J2hEP124945@fcbayern.americas.sgi.com>
+Subject: Re: [PATCH 1/3] - Altix: Add initial ACPI IO support
+To: akpm@osdl.org (Andrew Morton)
+Date: Mon, 2 Oct 2006 14:02:42 -0500 (CDT)
+Cc: jpk@sgi.com (John Keller), linux-ia64@vger.kernel.org,
+       pcihpd-discuss@lists.sourceforge.net, linux-kernel@vger.kernel.org,
+       linux-acpi@vger.kernel.org, ayoung@sgi.com
+In-Reply-To: <20061001001511.ae77d6b1.akpm@osdl.org> from "Andrew Morton" at Oct 01, 2006 12:15:11 AM
+X-Mailer: ELM [version 2.5 PL2]
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+> 
+> On Fri, 22 Sep 2006 09:51:23 -0500
+> John Keller <jpk@sgi.com> wrote:
+> 
+> > First phase in introducing ACPI support to SN.
+> 
+> This:
+> 
+> --- gregkh-2.6.orig/include/linux/pci.h
+> +++ gregkh-2.6/include/linux/pci.h
+> @@ -405,6 +405,7 @@ extern struct bus_type pci_bus_type;
+>  extern struct list_head pci_root_buses;        /* list of all known PCI buses */
+>  extern struct list_head pci_devices;   /* list of all devices */
+>  
+> +void pcibios_fixup_device_resources(struct pci_dev *);
+>  void pcibios_fixup_bus(struct pci_bus *);
+>  int __must_check pcibios_enable_device(struct pci_dev *, int mask);
+>  char *pcibios_setup (char *str);
+> 
+> breaks a bunch of architectures.
+> 
+> For example alpha has
+> 
+> void __init
+> pcibios_fixup_device_resources(struct pci_dev *dev, struct pci_bus *bus)
+> 
+> box:/usr/src/linux-2.6.18> grep -rl pcibios_fixup_device_resources .
+> ./arch/alpha/kernel/pci.c
+> ./arch/ia64/pci/pci.c
+> ./arch/mips/pci/pci.c
+> ./arch/powerpc/kernel/pci_64.c
+> ./arch/powerpc/platforms/pseries/pci_dlpar.c
+> ./include/asm-powerpc/pci.h
+> 
+> It needs work...
+> 
 
+Interesting. Looks like I made a bad assumption thinking
+the definitions would be the same for all archs.
 
-| From: Heikki Orsila<shd@zakalwe.fi>
-| 
-| Some nitpicking about the patch follows..
-| 
-| On Sat, Sep 30, 2006 at 02:24:35AM +0400, Eugeny S. Mints wrote:
-| > +static long 
-| > +get_vtg(const char *vdomain)
-| > +{
-| > +	long ret = 0;
-| 
-| Unnecessary initialisation.
----
+I'll fix and resend.
 
-Many of us work in environments where initialization is in the coding
-standard. It also helps with static analysis tools. CodingStyle seems to
-be silent on the point, but points to Kernighan and Ritchie, who say
-"These initializations are actually unnecessary, since all are zero, but
-it's a good idea to make them explicit anyway."
+John
 
-Any reasonable compiler will avoid doing the initialization twice...
-
----
-| ...
-| > +static int cpu_vltg_show(void *md_opt, int *value)
-| > +{
-| > +	int rc = 0;
-| > +	if (md_opt == NULL) {
-| > +		if ((*value = get_vtg("v1")) <= 0)
-| > +			return -EIO;
-| > +	}
-| > +	else {
-| > +		struct pm_core_point *opt = (struct pm_core_point *)md_opt;
-| > +		*value = opt->cpu_vltg;
-| > +	}
-| > +
-| > +	return rc;
-| > +}
-| 
-| int rc is unnecessary because the function always returns 0. This 
-| happens in many places.
----
-
-Wonder if he wrote it for a coding standard that requires single return
-(so that the "return -EIO" would have been "rc=-EIO") and converted
-it...
-
-scott
-
--- 
-scott preece
-motorola mobile devices, il67, 1800 s. oak st., champaign, il  61820  
-e-mail:	preece@motorola.com	fax:	+1-217-384-8550
-phone:	+1-217-384-8589	cell: +1-217-433-6114	pager: 2174336114@vtext.com
 
 

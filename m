@@ -1,46 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965392AbWJBVUR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965282AbWJBVUe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965392AbWJBVUR (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Oct 2006 17:20:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965283AbWJBVUR
+	id S965282AbWJBVUe (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Oct 2006 17:20:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965283AbWJBVUe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Oct 2006 17:20:17 -0400
-Received: from cantor2.suse.de ([195.135.220.15]:6592 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S965202AbWJBVUP (ORCPT
+	Mon, 2 Oct 2006 17:20:34 -0400
+Received: from www.osadl.org ([213.239.205.134]:35011 "EHLO mail.tglx.de")
+	by vger.kernel.org with ESMTP id S965282AbWJBVUd (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Oct 2006 17:20:15 -0400
-From: Andi Kleen <ak@suse.de>
-To: Linus Torvalds <torvalds@osdl.org>
-Subject: Re: [PATCH 3/3] IRQ: Maintain regs pointer globally rather than passing to IRQ handlers
-Date: Mon, 2 Oct 2006 23:19:59 +0200
-User-Agent: KMail/1.9.3
-Cc: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-       David Howells <dhowells@redhat.com>,
-       Thomas Gleixner <tglx@linutronix.de>, linux-kernel@vger.kernel.org,
-       linux-arch@vger.kernel.org, Dmitry Torokhov <dtor@mail.ru>,
-       Greg KH <greg@kroah.com>, David Brownell <david-b@pacbell.net>,
-       Alan Stern <stern@rowland.harvard.edu>
-References: <20061002162049.17763.39576.stgit@warthog.cambridge.redhat.com> <20061002140121.f588b463.akpm@osdl.org> <Pine.LNX.4.64.0610021412200.3952@g5.osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0610021412200.3952@g5.osdl.org>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Mon, 2 Oct 2006 17:20:33 -0400
+Subject: Re: [patch] dynticks core: Fix idle time accounting
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: Valdis.Kletnieks@vt.edu
+Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
+       Ingo Molnar <mingo@elte.hu>, Jim Gettys <jg@laptop.org>,
+       John Stultz <johnstul@us.ibm.com>,
+       David Woodhouse <dwmw2@infradead.org>,
+       Arjan van de Ven <arjan@infradead.org>, Dave Jones <davej@redhat.com>
+In-Reply-To: <200610022017.k92KH4Ch004773@turing-police.cc.vt.edu>
+References: <20061001225720.115967000@cruncher.tec.linutronix.de>
+	 <200610021302.k92D23W1003320@turing-police.cc.vt.edu>
+	 <1159796582.1386.9.camel@localhost.localdomain>
+	 <200610021825.k92IPSnd008215@turing-police.cc.vt.edu>
+	 <1159814606.1386.52.camel@localhost.localdomain>
+	 <200610022017.k92KH4Ch004773@turing-police.cc.vt.edu>
+Content-Type: text/plain
+Date: Mon, 02 Oct 2006 23:22:38 +0200
+Message-Id: <1159824158.1386.77.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200610022319.59029.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 02 October 2006 23:12, Linus Torvalds wrote:
-> 
-> On Mon, 2 Oct 2006, Andrew Morton wrote:
-> > 
-> > Whimper.   Later in the week, please.
-> 
-> Sure. Somebody send me a (tested) version that works against pure -rc1, 
-> and we're set to go.
+On Mon, 2006-10-02 at 16:17 -0400, Valdis.Kletnieks@vt.edu wrote:
+> cpu  27634 0 7762 20470 881 331 252 0
+> cpu0 27634 0 7762 20470 881 331 252 0
+> intr 812332 631476 2960 0 4 4 12667 3 14 1 1 4 142891 114 0 22193 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+> ctxt 2187603
+> btime 1159817297
+> processes 4028
+> procs_running 1
+> procs_blocked 0
+> nohz total I:397276 S:379955 T:1187.393123 A:0.003125 E: 629447
+> cpu  27753 0 7818 20739 881 332 253 0
+> cpu0 27753 0 7818 20739 881 332 253 0
+> intr 819027 636542 2969 0 4 4 12801 3 14 1 1 4 144371 114 0 22199 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+> ctxt 2209881
+> btime 1159817297
+> processes 4033
+> procs_running 1
+> procs_blocked 0
+> nohz total I:401991 S:384494 T:1200.732924 A:0.003122 E: 634513
 
-How would you test something like this? It would touch all architectures
-and nearly all drivers too.
+Strange.
 
--Andi
+/me digs deeper
+
+	tglx
+
+

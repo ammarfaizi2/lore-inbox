@@ -1,55 +1,93 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750718AbWJBKva@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750810AbWJBLBP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750718AbWJBKva (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Oct 2006 06:51:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750784AbWJBKva
+	id S1750810AbWJBLBP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Oct 2006 07:01:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750802AbWJBLBM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Oct 2006 06:51:30 -0400
-Received: from dtp.xs4all.nl ([80.126.206.180]:29286 "HELO abra2.bitwizard.nl")
-	by vger.kernel.org with SMTP id S1750718AbWJBKv3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Oct 2006 06:51:29 -0400
-Date: Mon, 2 Oct 2006 12:51:26 +0200
-From: Erik Mouw <erik@harddisk-recovery.com>
-To: Junio C Hamano <junkio@cox.net>
-Cc: Frederik Deweerdt <deweerdt@free.fr>, linux-kernel@vger.kernel.org,
-       Sam Ravnborg <sam@ravnborg.org>
-Subject: Re: Make kernel -dirty naming optional
-Message-ID: <20061002105125.GE7523@harddisk-recovery.com>
-References: <20060922120210.GA957@slug> <20060922104933.GA3348@harddisk-recovery.com> <20060924090743.GB22731@uranus.ravnborg.org> <20060924101155.GB9271@harddisk-recovery.nl> <7vy7s7y62j.fsf@assigned-by-dhcp.cox.net>
+	Mon, 2 Oct 2006 07:01:12 -0400
+Received: from ug-out-1314.google.com ([66.249.92.173]:58446 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1750789AbWJBLAz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Oct 2006 07:00:55 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent:sender;
+        b=tLwIqrYWjHReC5Lu0Kv9v0adFrpA2S+5lIqrLu7HUWQa4dmbckFuQQyV+NAI4A/i2oVtnfxDYRwq4zdaKLbnD5GtFINsXqKARmBkZtXCbugPHwFAFQtGMfNmmEbno+SUMALmGl7v599LdBQGiYv7L4oZdgcsmNEfKj2OMH8QRI0=
+Date: Mon, 2 Oct 2006 12:59:29 +0000
+From: Frederik Deweerdt <deweerdt@free.fr>
+To: Jesse Huang <jesse@icplus.com.tw>
+Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org, akpm@osdl.org,
+       jgarzik@pobox.com
+Subject: Re: [PATCH 5/5] Solve host error problem in low performance embedded system when continune down and up.
+Message-ID: <20061002125929.GB3003@slug>
+References: <1159813596.2576.8.camel@localhost.localdomain>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <7vy7s7y62j.fsf@assigned-by-dhcp.cox.net>
-Organization: Harddisk-recovery.com
-User-Agent: Mutt/1.5.13 (2006-08-11)
+In-Reply-To: <1159813596.2576.8.camel@localhost.localdomain>
+User-Agent: mutt-ng/devel-r804 (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Sep 25, 2006 at 02:44:36PM -0700, Junio C Hamano wrote:
-> Erik Mouw <erik@harddisk-recovery.com> writes:
+On Mon, Oct 02, 2006 at 02:26:36PM -0400, Jesse Huang wrote:
+> From: Jesse Huang <jesse@icplus.com.tw>
 > 
-> > make mrproper
-> > cp ../config-2.6 .config
-> > yes no | make oldconfig
-> > fakeroot make targz-pkg
+> Change Logs:
+> Solve host error problem in low performance embedded system when continune down and up.
 > 
-> fakeroot makes the working tree files appear to be owned by
-> root.root but does not know git uses the file ownership
-> information recorded in the index and uses it to detect if the
-> working tree is dirty.  Because the index says they are owned by
-> you (the one who pulled from the kernel.org and owns the files
-> in the real world not fakeroot world), you get -dirty suffix.
-
-Aha, thanks for the explanation.
-
-> Perhaps "fakeroot -u" would help.
-
-Yes, that helps, I just build linux-2.6.18-gd834c165.tar.gz. Thanks!
-
-
-Erik
-
--- 
-+-- Erik Mouw -- www.harddisk-recovery.com -- +31 70 370 12 90 --
-| Lab address: Delftechpark 26, 2628 XH, Delft, The Netherlands
+> Signed-off-by: Jesse Huang <jesse@icplus.com.tw>
+> ---
+> 
+>  drivers/net/sundance.c |   26 +++++++++++++++++++++++---
+>  1 files changed, 23 insertions(+), 3 deletions(-)
+> 
+> c06c70e20a85facd640528ca66e0b579fc3ee745
+> diff --git a/drivers/net/sundance.c b/drivers/net/sundance.c
+> index 14b4933..b4a6010 100755
+> --- a/drivers/net/sundance.c
+> +++ b/drivers/net/sundance.c
+> @@ -1643,6 +1643,14 @@ static int netdev_close(struct net_devic
+>  	struct sk_buff *skb;
+>  	int i;
+>  
+> +	/* Wait and kill tasklet */
+> +	tasklet_kill(&np->rx_tasklet);
+> +	tasklet_kill(&np->tx_tasklet);
+> +	np->cur_tx = 0;
+> +	np->dirty_tx = 0;
+> +	np->cur_task = 0;
+> +	np->last_tx = 0;
+> +
+>  	netif_stop_queue(dev);
+>  
+>  	if (netif_msg_ifdown(np)) {
+> @@ -1663,9 +1671,20 @@ static int netdev_close(struct net_devic
+>  	/* Stop the chip's Tx and Rx processes. */
+>  	iowrite16(TxDisable | RxDisable | StatsDisable, ioaddr + MACCtrl1);
+>  
+> -	/* Wait and kill tasklet */
+> -	tasklet_kill(&np->rx_tasklet);
+> -	tasklet_kill(&np->tx_tasklet);
+> +    	for (i = 2000; i > 0; i--) {
+> + 		if ((ioread32(ioaddr + DMACtrl) &0xC000) == 0)
+                                                ^^^^^^^
+Missing white space?
+> +			break;
+> +		mdelay(1);
+> +    	}
+> +
+> +    	iowrite16(GlobalReset | DMAReset | FIFOReset | NetworkReset, ioaddr +ASICCtrl + 2);
+                                                                            ^^^^^^^^^
+Same here..
+> +
+> +    	for (i = 2000; i > 0; i--)
+> +    	{
+> + 		if ((ioread16(ioaddr + ASICCtrl +2) &ResetBusy) == 0)
+                                                    ^^^^^^^^^^
+.. and here
+> +			break;
+> +		mdelay(1);
+> +    	}
+>  
+Regards,
+Frederik

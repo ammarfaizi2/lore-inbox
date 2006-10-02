@@ -1,53 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750737AbWJBKUq@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750750AbWJBKak@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750737AbWJBKUq (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Oct 2006 06:20:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750741AbWJBKUq
+	id S1750750AbWJBKak (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Oct 2006 06:30:40 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750748AbWJBKak
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Oct 2006 06:20:46 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:16795 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1750737AbWJBKUp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Oct 2006 06:20:45 -0400
-Subject: Re: CONFIG_PARPORT_PC_SUPERIO
-From: David Woodhouse <dwmw2@infradead.org>
-To: Olaf Hering <olaf@aepfle.de>
-Cc: linux-kernel@vger.kernel.org
-In-Reply-To: <20061002094959.GA13986@aepfle.de>
-References: <20061002094959.GA13986@aepfle.de>
-Content-Type: text/plain
-Date: Mon, 02 Oct 2006 11:20:24 +0100
-Message-Id: <1159784424.4801.26.camel@pmac.infradead.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.0 (2.8.0-6.fc6.dwmw2.1) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Mon, 2 Oct 2006 06:30:40 -0400
+Received: from mx2.suse.de ([195.135.220.15]:49367 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S1750741AbWJBKaj (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Oct 2006 06:30:39 -0400
+Date: Mon, 2 Oct 2006 12:29:59 +0200
+From: Holger Macht <hmacht@suse.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Alessandro Guido <alessandro.guido@gmail.com>,
+       linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org,
+       len.brown@intel.com, jengelh@linux01.gwdg.de, gelma@gelma.net,
+       ismail@pardus.org.tr
+Subject: Re: [PATCH 2.6.18-mm2] acpi: add backlight support to the sony_acpi driver
+Message-ID: <20061002102959.GA21558@homac>
+Mail-Followup-To: Andrew Morton <akpm@osdl.org>,
+	Alessandro Guido <alessandro.guido@gmail.com>,
+	linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org,
+	len.brown@intel.com, jengelh@linux01.gwdg.de, gelma@gelma.net,
+	ismail@pardus.org.tr
+References: <20060930190810.30b8737f.alessandro.guido@gmail.com> <20061001171912.b7aac1d8.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061001171912.b7aac1d8.akpm@osdl.org>
+User-Agent: mutt-ng/devel-r804 (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-10-02 at 11:49 +0200, Olaf Hering wrote:
-> Does aynone know if the hardware that is enabled with
-> CONFIG_PARPORT_PC_SUPERIO is available on PCI devices? The functions
-> detect_and_report_winbond() and detect_and_report_smsc() poke at random
-> legacy IO ports. I just wonder if they may also find the hardware if
-> they come from a PCI device.
-> If they are i386 only, the config option should probably be i386 (or
-> whatever) only. 
+On Sun 01. Oct - 17:19:12, Andrew Morton wrote:
+> On Sat, 30 Sep 2006 19:08:10 +0200
+> Alessandro Guido <alessandro.guido@gmail.com> wrote:
+> 
+> > Make the sony_acpi use the backlight subsystem to adjust brightness value
+> > instead of using the /proc/sony/brightness file.
+> > (Other settings will still have a /proc/sony/... entry)
+> 
+> umm, OK, but now how do I adjust my screen brightness? ;)
+> 
+> I assume that cute userspace applications for controlling backlight
+> brightness via the generic backlight driver either exist or are in
+> progress?  What is the status of that?
 
-They're not i386 only. There's plenty of non-i386 machines with SuperIO
-chips in. They're the easiest way to bolt floppy/parallel/IrDA/serial
-support onto a board.
+Most applications use HAL as a backend for display brightness these
+days. HAL still supports the old interface in /proc for the different
+brightness drivers, though, but the conversion to the new interface is on
+my TODO and I will do it this week. So userspace should have fixed this
+soon, so go ahead ;-)
 
-But we really shouldn't have individual drivers poking at the magic
-configuration addresses to find SuperIO chips. There should be support
-for those _separately_ -- and then the parport/irda/serial drivers can
-all consult it as appropriate, rather than poking directly at the
-hardware.
+Btw, there's a patchset from Matthew Garrett [1] sent some time ago which
+also converts the asus_acpi, ibm_acpi and the toshiba_acpi drivers.
 
-I did make a start on drivers/pnp/superio once, but didn't get very far
-before I got distracted. Start with lssuperio.
+Regards,
+	Holger
 
--- 
-dwmw2
-
+[1] http://lkml.org/lkml/2006/4/18/28

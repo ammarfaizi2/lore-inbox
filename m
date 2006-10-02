@@ -1,81 +1,98 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750962AbWJBJOa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750986AbWJBJVu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750962AbWJBJOa (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Oct 2006 05:14:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750974AbWJBJOa
+	id S1750986AbWJBJVu (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Oct 2006 05:21:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750990AbWJBJVu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Oct 2006 05:14:30 -0400
-Received: from wx-out-0506.google.com ([66.249.82.230]:5430 "EHLO
+	Mon, 2 Oct 2006 05:21:50 -0400
+Received: from wx-out-0506.google.com ([66.249.82.228]:43584 "EHLO
 	wx-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1750952AbWJBJO3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Oct 2006 05:14:29 -0400
+	id S1750985AbWJBJVt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Oct 2006 05:21:49 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=oLpP1c+v1g5QFdwSulhTBJh5gpbLLRv2J0CPBBE8IGZaBPgTXvjw8US+03RaQHX8ZfV1P7fgdWL/Nlo/dDF+zy+66oPlBH/liYD7hfHI32phU6GQC8KlY+wNFPqtVWv0++4bGGJb9/G18C9rxV7JNAiQ87L7EhbkZonYpSQ+DQY=
-Message-ID: <9a8748490610020214r6ecc5cc9nd5f1617d06650234@mail.gmail.com>
-Date: Mon, 2 Oct 2006 11:14:28 +0200
-From: "Jesper Juhl" <jesper.juhl@gmail.com>
-To: "Marc Perkel" <marc@perkel.com>
-Subject: Re: Maybe it's time to fork the GPL License - create the Linux license?
-Cc: "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <4520D40F.8080500@perkel.com>
+        b=ghvJw956LLr9r13pDaorSdMOn3KRwCa051qNrZG7YR6qOvpJlaQM29eIXRcCxMmc/VqjGihTdh059vZewxsh0ISNNmQ7L6+Zcf53LlJ5BZ2w8B6UG1sMvDXIFhX5CrZblS00zTxQlppK/nAZ2UjHfV4O0sAKlbtk1NX3d1FxyTU=
+Message-ID: <5a4c581d0610020221s7bf100f8q893161b7c8c492d2@mail.gmail.com>
+Date: Mon, 2 Oct 2006 09:21:48 +0000
+From: "Alessandro Suardi" <alessandro.suardi@gmail.com>
+To: "Norbert Preining" <preining@logic.at>
+Subject: Re: wpa supplicant/ipw3945, ESSID last char missing
+Cc: hostap@shmoo.com, ipw3945-devel@lists.sourceforge.net,
+       "Andrew Morton" <akpm@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <20061002085942.GA32387@gamma.logic.tuwien.ac.at>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <20060928144028.GA21814@wohnheim.fh-wedel.de>
-	 <MDEHLPKNGKAHNMBLJOLKCENGOLAB.davids@webmaster.com>
-	 <BAYC1-PASMTP11B5EB1224711DCB6D4F3DAE180@CEZ.ICE>
-	 <4520D40F.8080500@perkel.com>
+References: <20061002085942.GA32387@gamma.logic.tuwien.ac.at>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 02/10/06, Marc Perkel <marc@perkel.com> wrote:
-> Just a thought. Suppose we forked the GPL2 license and created the Linux
-> license? (Or some better name) It's kind of clear the Stallman has his
-> own ajenda and that it's not compatible with the Linux model. So - lets
-> fork it an start a new one.
+On 10/2/06, Norbert Preining <preining@logic.at> wrote:
+> Dear all!
 >
-Why? We can just stay with the GPLv2 forever.
-
-> The idea of the new license is as follows. It would be backwards
-> compatible with GPL2. It's would eliminate the "or later" clause because
-> we have already seen the potential for abuse there.
-
-The "or later" clause is not part of the actual license. It's part of
-the preamble.
-
-> How can one agree to
-> future licenses without knowing what they are going to be? The other
-> feature is that the license is only modified to provide legal
-> clarification or to deal with future issues that occur as a result of
-> new technology or circumstances that we don't know about yet. If the
-> licenses is modified then copyright holders would then have to
-> explicitly declare that they accept the modifications by switching to
-> the new terms.
+> I have the following problem with wpa supplicant/ipw3945. First the
+> versions:
+> kernel: 2.6.18-mm2      (self compiled)
+> ieee80211:      1.1.14
+> ipw3945:        git source
+> ipw3945d:       1.7.19
+> wpa supplicant: 0.5.5   (Debian/unstable 0.5.5-1)
 >
-As things are now we'd already need acceptance from all major
-copyright holders to switch license away from GPLv2...
-
-> Anyhow - I'm thinking that Richard Stallman might be more of a liability
-> to the GPL movement and that if something can't be worked out with GPLx
-> then maybe it's time to just fork the license and come up with a new
-> system that is crazy leader proof.
 >
-> Just suggesting this as an alternative if the FSF folks insist on a
-> political ajenda.
+> Config file of wpa_supplicant:
+> ctrl_interface=/var/run/wpa_supplicant
+> ctrl_interface_group=0
+> eapol_version=1
+> ap_scan=1
+> network={
+>         ssid="norbunet"
+>         key_mgmt=NONE
+>         auth_alg=SHARED
+>         wep_key0=HEXKEY1
+>         wep_key1=HEXKEY2
+>         wep_key2=HEXKEY3
+>         wep_key3=HEXKEY4
+>         wep_tx_keyidx=0
+>         priority=5
+> }
 >
-I don't see the point. RMS can create GPLv3 any way he wants, the
-Linux kernel will still be under GPLv2 terms... GPLv3 really doesn't
-change anything for the kernel. It would only change something if we
-switched the kernel to GPLv3, but doing that would probably be next to
-impossible anyway since all copyright holders would need to agree on
-the switch and; a) some copyright holders have already publicly stated
-that they will not agree to GPLv3 terms, and b) some of the copyright
-holders are dead.
+> When I start ipw3945d and wpa_supplicant it does not connect. And the
+> reason is that when typing
+>         iwconfig eth2
+> (eth0 cable, eth1 not present!?!, eth2 ipw3945) I see that the ESSID is
+> set to
+>         "norbune"
+> instead of
+>         "norbunet"
+>
+> Calling
+>         iwconfig eth2 essid "norbunet "
+> (mind the space at the end) immediately connects (even with encryption)
+> and everything is working.
+>
+> Do you have any idea what this might be related to?
+>
+> The last kernel I tried which worked out of the box (well, with
+> comnpiling ieee and ipw) was 2.6.18-rc4.
 
--- 
-Jesper Juhl <jesper.juhl@gmail.com>
-Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
-Plain text mails only, please      http://www.expita.com/nomime.html
+Hi Norbert,
+
+  we've been just through an email thread where it has been
+  determined that wpa_supplicant 0.4.9 (I would assume that
+  0.5.5 is also okay) and wireless-tools from Jean's latest
+  tarball are necessary to work with the recent wireless
+  extensions v21 that have been merged in.
+
+What wireless-tools are you using ?
+
+Ciao,
+
+--alessandro
+
+"Well a man has two reasons for things that he does
+  the first one is pride and the second one is love
+  all understandings must come by this way"
+
+     (Husker Du, 'She Floated Away')

@@ -1,35 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965150AbWJBRUp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965143AbWJBRXF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965150AbWJBRUp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Oct 2006 13:20:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965149AbWJBRUp
+	id S965143AbWJBRXF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Oct 2006 13:23:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965149AbWJBRXE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Oct 2006 13:20:45 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:63897 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S965150AbWJBRUp
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Oct 2006 13:20:45 -0400
-Subject: Re: [patch 2.6.18-git] ide-cs (CompactFlash) driver, rm irq warning
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: David Brownell <david-b@pacbell.net>
-Cc: B.Zolnierkiewicz@elka.pw.edu.pl,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
-In-Reply-To: <200610020902.20030.david-b@pacbell.net>
-References: <200610020902.20030.david-b@pacbell.net>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Mon, 02 Oct 2006 18:45:49 +0100
-Message-Id: <1159811149.8907.32.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+	Mon, 2 Oct 2006 13:23:04 -0400
+Received: from e33.co.us.ibm.com ([32.97.110.151]:2234 "EHLO e33.co.us.ibm.com")
+	by vger.kernel.org with ESMTP id S965143AbWJBRXC (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Oct 2006 13:23:02 -0400
+Date: Mon, 2 Oct 2006 12:23:00 -0500
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: linuxppc-dev@ozlabs.org, jeff@garzik.org, akpm@osdl.org,
+       netdev@vger.kernel.org, James K Lewis <jklewis@us.ibm.com>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 0/6]: powerpc/cell spidernet ethernet patches
+Message-ID: <20061002172300.GD4546@austin.ibm.com>
+References: <20060929230552.GG6433@austin.ibm.com> <200609301240.03464.arnd@arndb.de> <20061002162749.GB4546@austin.ibm.com> <200610021850.41062.arnd@arndb.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-1
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <200610021850.41062.arnd@arndb.de>
+User-Agent: Mutt/1.5.11
+From: linas@austin.ibm.com (Linas Vepstas)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Llu, 2006-10-02 am 09:02 -0700, ysgrifennodd David Brownell:
-> Git rid of the runtime warning about pcmcia not supporting
-> exclusive IRQs, so "the driver needs updating".
+On Mon, Oct 02, 2006 at 06:50:39PM +0200, Arnd Bergmann wrote:
+> On Monday 02 October 2006 18:27, Linas Vepstas wrote:
+> > > 
+> > > I'm not sure if I have missed a patch in here, but I
+> > > don't see anything reintroducing the 'netif_stop_queue'
+> > > that is missing from the transmit path.
+> > > 
+> > > Do you have a extra patch for that?
+> > 
+> > Unfinished.  There are several ways in which the current 
+> > spider-net driver doesn't do things the way Greg KH's, etal 
+> > book on device drivers recommends. I was planning on combing 
+> > through these this week.
 > 
-> Signed-off-by: David Brownell <dbrownell@users.sourceforge.net>
+> Ok, that's good. However, removing the netif_stop_queue
+> was an obvious oversight that happened during the cleanup
+> last year.
+> 
+> Putting that one line back in should be a really safe fix for
+> the problem of overly high system load we sometimes see.
 
-You've audited the code to check this is safely handled ?
+Hmm. I have a patch from 5 weeks ago that seems to insert a bunch 
+of these. I'm not sure why it hadn't been mailed before, I'll 
+test and post as soon as I can.
 
+--linas

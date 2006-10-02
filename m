@@ -1,58 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965422AbWJBVkZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965431AbWJBVku@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965422AbWJBVkZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Oct 2006 17:40:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965424AbWJBVkZ
+	id S965431AbWJBVku (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Oct 2006 17:40:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965427AbWJBVks
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Oct 2006 17:40:25 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:9942 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S965422AbWJBVkY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Oct 2006 17:40:24 -0400
-Date: Mon, 2 Oct 2006 22:39:55 +0100
-From: Christoph Hellwig <hch@infradead.org>
-To: Henne <henne@nachtwindheim.de>
-Cc: Andrew Morton <akpm@osdl.org>, Christoph Hellwig <hch@infradead.org>,
-       pbadari@us.ibm.com, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] mm: fix in kerneldoc
-Message-ID: <20061002213955.GB27561@infradead.org>
-Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
-	Henne <henne@nachtwindheim.de>, Andrew Morton <akpm@osdl.org>,
-	pbadari@us.ibm.com, linux-kernel@vger.kernel.org
-References: <451F98CB.3040509@nachtwindheim.de>
+	Mon, 2 Oct 2006 17:40:48 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:17119 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S965426AbWJBVkp
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Oct 2006 17:40:45 -0400
+Subject: Re: [PATCH 2.6.18 V7] drivers: add lcd display support
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: andrew.j.wade@gmail.com
+Cc: Miguel Ojeda <maxextreme@gmail.com>, akpm@osdl.org,
+       Stefan Richter <stefanr@s5r6.in-berlin.de>,
+       Randy Dunlap <rdunlap@xenotime.net>, linux-kernel@vger.kernel.org
+In-Reply-To: <200610021449.08640.ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com>
+References: <20060930232445.59e8adf6.maxextreme@gmail.com>
+	 <653402b90610010553p23819d2bsd7a07fabaee7ecf3@mail.gmail.com>
+	 <200610021449.08640.ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Mon, 02 Oct 2006 23:06:06 +0100
+Message-Id: <1159826766.8907.82.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <451F98CB.3040509@nachtwindheim.de>
-User-Agent: Mutt/1.4.2.1i
-X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 01, 2006 at 12:30:35PM +0200, Henne wrote:
-> Fixes an kerneldoc error.
-> Signed-off-by: Henrik Kretzschmar <henne@nachtwindheim.de>
-> 
-> ---
-> 
-> diff --git a/mm/filemap.c b/mm/filemap.c
-> index ec46923..f789500 100644
-> --- a/mm/filemap.c
-> +++ b/mm/filemap.c
-> @@ -1139,11 +1139,11 @@ success:
->  }
->  
->  /**
-> - * __generic_file_aio_read - generic filesystem read routine
-> + * generic_file_aio_read - generic filesystem read routine
->   * @iocb:	kernel I/O control block
->   * @iov:	io vector request
->   * @nr_segs:	number of segments in the iovec
-> - * @ppos:	current file position
-> + * @pos:	current file position
->   *
->   * This is the "read()" routine for all filesystems
->   * that can use the page cache directly.
+Ar Llu, 2006-10-02 am 14:49 -0400, ysgrifennodd Andrew James Wade:
+> To me too. Acronyms tend to be treated as opaque tokens in English:
+> their expansions tend not be be well known and don't really interact
+> with their usage. "LCD display" is fine, and is clearer than both
 
-Looks good - thank you a lot!
+Speak for yourself. LCD is wrong to my ears. Now "LCD monitor" on the
+other hand is a great solution.
+
+

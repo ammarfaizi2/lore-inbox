@@ -1,41 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965157AbWJBR0g@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965159AbWJBR2h@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965157AbWJBR0g (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Oct 2006 13:26:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965159AbWJBR0g
+	id S965159AbWJBR2h (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Oct 2006 13:28:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965160AbWJBR2h
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Oct 2006 13:26:36 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:2486 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S965157AbWJBR0f
-	(ORCPT <rfc822;Linux-Kernel@vger.kernel.org>);
-	Mon, 2 Oct 2006 13:26:35 -0400
-Subject: Re: Postal 56% waits for flock_lock_file_wait
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Trond Myklebust <trond.myklebust@fys.uio.no>
-Cc: Tim Chen <tim.c.chen@intel.com>,
-       "Ananiev, Leonid I" <leonid.i.ananiev@intel.com>,
-       Linux Kernel Mailing List <Linux-Kernel@vger.kernel.org>
-In-Reply-To: <1159809081.5466.3.camel@lade.trondhjem.org>
-References: <B41635854730A14CA71C92B36EC22AAC3AD954@mssmsx411>
-	 <1159723092.5645.14.camel@lade.trondhjem.org>
-	 <3282373b0610020957u739392eekf8b78c7574e1a6e7@mail.gmail.com>
-	 <1159809081.5466.3.camel@lade.trondhjem.org>
-Content-Type: text/plain
-Content-Transfer-Encoding: 7bit
-Date: Mon, 02 Oct 2006 18:51:56 +0100
-Message-Id: <1159811516.8907.38.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+	Mon, 2 Oct 2006 13:28:37 -0400
+Received: from sj-iport-2-in.cisco.com ([171.71.176.71]:8516 "EHLO
+	sj-iport-2.cisco.com") by vger.kernel.org with ESMTP
+	id S965159AbWJBR2g (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Oct 2006 13:28:36 -0400
+X-IronPort-AV: i="4.09,245,1157353200"; 
+   d="scan'208"; a="344157118:sNHT55678840"
+To: linux-kernel@vger.kernel.org
+Cc: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>,
+       MUNEDA Takahiro <muneda.takahiro@jp.fujitsu.com>,
+       Satoru Takeuchi <takeuchi_satoru@jp.fujitsu.com>,
+       Kristen Carlson Accardi <kristen.c.accardi@intel.com>,
+       Greg Kroah-Hartman <gregkh@suse.de>
+Subject: Re: The change "PCI: assign ioapic resource at hotplug" breaks my system
+X-Message-Flag: Warning: May contain useful information
+References: <adar6xqwsuw.fsf@cisco.com>
+From: Roland Dreier <rdreier@cisco.com>
+Date: Mon, 02 Oct 2006 10:28:34 -0700
+In-Reply-To: <adar6xqwsuw.fsf@cisco.com> (Roland Dreier's message of "Mon, 02 Oct 2006 10:05:43 -0700")
+Message-ID: <adafye6wrst.fsf@cisco.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+X-OriginalArrivalTime: 02 Oct 2006 17:28:35.0099 (UTC) FILETIME=[306AFEB0:01C6E648]
+Authentication-Results: sj-dkim-2.cisco.com; header.From=rdreier@cisco.com; dkim=pass (
+	sig from cisco.com verified; ); 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Llu, 2006-10-02 am 13:11 -0400, ysgrifennodd Trond Myklebust:
-> Ext3 does not use flock() in order to lock its journal. The performance
-> issues that he is seeing may well be due to the journalling, but that
-> has nothing to do with flock_lock_file_wait.
+One piece of information that might be useful is that lspci shows a
+difference in the configuration of the PCI bridge IOAPIC.  In the good
+(working) case, the IOAPIC memory region 0 is disabled, while in the
+bad case it is enabled.
 
-The ext3 journal also generally speaking improves many-writer
-performance as do the reservations so the claim seems odd on that basis
-too. Rerun the test on a gigabyte iRam or similar and you'll see where
-the non-media bottlenecks actually are
+Here are full details: first, the good/working case:
 
+	04:01.1 PIC: Advanced Micro Devices [AMD] AMD-8132 PCI-X IOAPIC (rev 12) (prog-if 10 [IO-APIC])
+		Subsystem: Advanced Micro Devices [AMD] AMD-8132 PCI-X IOAPIC
+		Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+		Status: Cap- 66MHz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+		Latency: 0
+		Region 0: Memory at <ignored> (64-bit, non-prefetchable)
+	00: 22 10 59 74 06 00 00 02 12 10 00 08 00 00 00 00
+	10: 04 e0 af fe 00 00 00 00 00 00 00 00 00 00 00 00
+	20: 00 00 00 00 00 00 00 00 00 00 00 00 22 10 59 74
+	30: 00 00 00 00 50 00 00 00 00 00 00 00 00 00 00 00
+	40: 00 00 00 00 03 00 00 00 04 e0 af fe 00 00 00 00
+
+Then the bad (non-working e1000) case:
+
+	04:01.1 PIC: Advanced Micro Devices [AMD] AMD-8132 PCI-X IOAPIC (rev 12) (prog-if 10 [IO-APIC])
+		Subsystem: Advanced Micro Devices [AMD] AMD-8132 PCI-X IOAPIC
+		Control: I/O- Mem+ BusMaster+ SpecCycle- MemWINV- VGASnoop- ParErr- Stepping- SERR- FastB2B-
+		Status: Cap- 66MHz- UDF- FastB2B- ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
+		Latency: 0
+		Region 0: Memory at e2100000 (64-bit, non-prefetchable) [size=4K]
+	00: 22 10 59 74 06 00 00 02 12 10 00 08 00 00 00 00
+	10: 04 00 10 e2 00 00 00 00 00 00 00 00 00 00 00 00
+	20: 00 00 00 00 00 00 00 00 00 00 00 00 22 10 59 74
+	30: 00 00 00 00 50 00 00 00 00 00 00 00 00 00 00 00
+	40: 00 00 00 00 03 00 00 00 04 00 10 e2 00 00 00 00
+
+I have no idea whether there's any significance to this.
+
+ - R.

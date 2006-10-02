@@ -1,39 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750762AbWJBKmM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750718AbWJBKva@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750762AbWJBKmM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Oct 2006 06:42:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750764AbWJBKmM
+	id S1750718AbWJBKva (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Oct 2006 06:51:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750784AbWJBKva
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Oct 2006 06:42:12 -0400
-Received: from dspnet.fr.eu.org ([213.186.44.138]:9481 "EHLO dspnet.fr.eu.org")
-	by vger.kernel.org with ESMTP id S1750762AbWJBKmK (ORCPT
+	Mon, 2 Oct 2006 06:51:30 -0400
+Received: from dtp.xs4all.nl ([80.126.206.180]:29286 "HELO abra2.bitwizard.nl")
+	by vger.kernel.org with SMTP id S1750718AbWJBKv3 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Oct 2006 06:42:10 -0400
-Date: Mon, 2 Oct 2006 12:42:09 +0200
-From: Olivier Galibert <galibert@pobox.com>
-To: Mikael Pettersson <mikpe@it.uu.se>
-Cc: akpm@osdl.org, rdunlap@xenotime.net, linux-kernel@vger.kernel.org,
-       rossb@google.com, sam@ravnborg.org
-Subject: Re: + allow-proc-configgz-to-be-built-as-a-module.patch added to -mm tree
-Message-ID: <20061002104209.GA90774@dspnet.fr.eu.org>
-Mail-Followup-To: Olivier Galibert <galibert@pobox.com>,
-	Mikael Pettersson <mikpe@it.uu.se>, akpm@osdl.org,
-	rdunlap@xenotime.net, linux-kernel@vger.kernel.org,
-	rossb@google.com, sam@ravnborg.org
-References: <200610020708.k92788Th007608@harpo.it.uu.se>
-Mime-Version: 1.0
+	Mon, 2 Oct 2006 06:51:29 -0400
+Date: Mon, 2 Oct 2006 12:51:26 +0200
+From: Erik Mouw <erik@harddisk-recovery.com>
+To: Junio C Hamano <junkio@cox.net>
+Cc: Frederik Deweerdt <deweerdt@free.fr>, linux-kernel@vger.kernel.org,
+       Sam Ravnborg <sam@ravnborg.org>
+Subject: Re: Make kernel -dirty naming optional
+Message-ID: <20061002105125.GE7523@harddisk-recovery.com>
+References: <20060922120210.GA957@slug> <20060922104933.GA3348@harddisk-recovery.com> <20060924090743.GB22731@uranus.ravnborg.org> <20060924101155.GB9271@harddisk-recovery.nl> <7vy7s7y62j.fsf@assigned-by-dhcp.cox.net>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <200610020708.k92788Th007608@harpo.it.uu.se>
-User-Agent: Mutt/1.4.2.2i
+In-Reply-To: <7vy7s7y62j.fsf@assigned-by-dhcp.cox.net>
+Organization: Harddisk-recovery.com
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 02, 2006 at 09:08:08AM +0200, Mikael Pettersson wrote:
-> All that's needed is to standardise the location of the
-> config file; /lib/modules/`uname -r`/config.gz seems a
-> reasonable choice.
+On Mon, Sep 25, 2006 at 02:44:36PM -0700, Junio C Hamano wrote:
+> Erik Mouw <erik@harddisk-recovery.com> writes:
+> 
+> > make mrproper
+> > cp ../config-2.6 .config
+> > yes no | make oldconfig
+> > fakeroot make targz-pkg
+> 
+> fakeroot makes the working tree files appear to be owned by
+> root.root but does not know git uses the file ownership
+> information recorded in the index and uses it to detect if the
+> working tree is dirty.  Because the index says they are owned by
+> you (the one who pulled from the kernel.org and owns the files
+> in the real world not fakeroot world), you get -dirty suffix.
 
-It's already /boot/config-`uname -r`, why change?
+Aha, thanks for the explanation.
 
-  OG.
+> Perhaps "fakeroot -u" would help.
+
+Yes, that helps, I just build linux-2.6.18-gd834c165.tar.gz. Thanks!
+
+
+Erik
+
+-- 
++-- Erik Mouw -- www.harddisk-recovery.com -- +31 70 370 12 90 --
+| Lab address: Delftechpark 26, 2628 XH, Delft, The Netherlands

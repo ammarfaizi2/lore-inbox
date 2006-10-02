@@ -1,58 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965445AbWJBVzp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965444AbWJBVzf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965445AbWJBVzp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Oct 2006 17:55:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965441AbWJBVzp
+	id S965444AbWJBVzf (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Oct 2006 17:55:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965441AbWJBVzf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Oct 2006 17:55:45 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:37345 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S965445AbWJBVzn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Oct 2006 17:55:43 -0400
-Date: Mon, 2 Oct 2006 23:47:32 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Andi Kleen <ak@suse.de>, Andrew Morton <akpm@osdl.org>,
-       David Howells <dhowells@redhat.com>,
-       Thomas Gleixner <tglx@linutronix.de>, linux-kernel@vger.kernel.org,
-       linux-arch@vger.kernel.org, Dmitry Torokhov <dtor@mail.ru>,
-       Greg KH <greg@kroah.com>, David Brownell <david-b@pacbell.net>,
-       Alan Stern <stern@rowland.harvard.edu>
-Subject: Re: [PATCH 3/3] IRQ: Maintain regs pointer globally rather than passing to IRQ handlers
-Message-ID: <20061002214732.GA11451@elte.hu>
-References: <20061002162049.17763.39576.stgit@warthog.cambridge.redhat.com> <20061002140121.f588b463.akpm@osdl.org> <Pine.LNX.4.64.0610021412200.3952@g5.osdl.org> <200610022319.59029.ak@suse.de> <Pine.LNX.4.64.0610021445570.3952@g5.osdl.org>
-Mime-Version: 1.0
+	Mon, 2 Oct 2006 17:55:35 -0400
+Received: from pne-smtpout1-sn1.fre.skanova.net ([81.228.11.98]:60856 "EHLO
+	pne-smtpout1-sn1.fre.skanova.net") by vger.kernel.org with ESMTP
+	id S965444AbWJBVze (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Oct 2006 17:55:34 -0400
+To: balagi@justmail.de
+Cc: "linux-kernel@vger.kernel.org" <linux-kernel@vger.kernel.org>,
+       akpm@osdl.org
+Subject: Re: [PATCH 2/4] 2.6.18-mm2 pktcdvd: make procfs interface optional
+References: <op.tgrasbjeiudtyh@master>
+From: Peter Osterlund <petero2@telia.com>
+Date: 02 Oct 2006 23:55:06 +0200
+In-Reply-To: <op.tgrasbjeiudtyh@master>
+Message-ID: <m3sli6e62t.fsf@telia.com>
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.4
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0610021445570.3952@g5.osdl.org>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -2.8
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.8 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5000]
-	-0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+"Thomas Maier" <balagi@justmail.de> writes:
 
-* Linus Torvalds <torvalds@osdl.org> wrote:
+> this patch 2/4 for pktcdvd against Linux 2.6.18 (stable)
+> or 2.6.18-mm2 makes the procfs interface optional. A new kernel
+> config parameter is added: CDROM_PKTCDVD_PROCINTF
+> (Of course, you can not use pktcdvd if there is no procfs
+> interface. Wait for patch 4/4 that adds the sysfs interface ;)
 
-> On Mon, 2 Oct 2006, Andi Kleen wrote:
-> > 
-> > How would you test something like this? It would touch all 
-> > architectures and nearly all drivers too.
-> 
-> "If it compiles, it works".
-> 
-> Pretty close.
+This comment indicates that the patch ordering is wrong. It doesn't
+make much sense to turn off the procfs interface when doing so makes
+the driver totally unusable.
 
-Note that the IRQ threading code in the -rt tree already passes NULL as 
-the pt_regs argument to /all/ drivers [except the timer interrupt]. So 
-there's more than just the compilation evidence ;-)
-
-	Ingo
+-- 
+Peter Osterlund - petero2@telia.com
+http://web.telia.com/~u89404340

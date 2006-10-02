@@ -1,50 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750854AbWJBIzp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750710AbWJBJBd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750854AbWJBIzp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Oct 2006 04:55:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751031AbWJBIzp
+	id S1750710AbWJBJBd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Oct 2006 05:01:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750719AbWJBJBd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Oct 2006 04:55:45 -0400
-Received: from 8.ctyme.com ([69.50.231.8]:3456 "EHLO darwin.ctyme.com")
-	by vger.kernel.org with ESMTP id S1750854AbWJBIzo (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Oct 2006 04:55:44 -0400
-Message-ID: <4520D40F.8080500@perkel.com>
-Date: Mon, 02 Oct 2006 01:55:43 -0700
-From: Marc Perkel <marc@perkel.com>
-User-Agent: Thunderbird 1.5.0.7 (Windows/20060909)
-MIME-Version: 1.0
-To: "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
-Subject: Maybe it's time to fork the GPL License - create the Linux license?
-References: <20060928144028.GA21814@wohnheim.fh-wedel.de>	<MDEHLPKNGKAHNMBLJOLKCENGOLAB.davids@webmaster.com> <BAYC1-PASMTP11B5EB1224711DCB6D4F3DAE180@CEZ.ICE>
-In-Reply-To: <BAYC1-PASMTP11B5EB1224711DCB6D4F3DAE180@CEZ.ICE>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spamfilter-host: darwin.ctyme.com - http://www.junkemailfilter.com
+	Mon, 2 Oct 2006 05:01:33 -0400
+Received: from alpha.logic.tuwien.ac.at ([128.130.175.20]:54245 "EHLO
+	alpha.logic.tuwien.ac.at") by vger.kernel.org with ESMTP
+	id S1750710AbWJBJBc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Oct 2006 05:01:32 -0400
+Date: Mon, 2 Oct 2006 10:59:42 +0200
+To: hostap@shmoo.com, ipw3945-devel@lists.sourceforge.net
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: wpa supplicant/ipw3945, ESSID last char missing
+Message-ID: <20061002085942.GA32387@gamma.logic.tuwien.ac.at>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-15
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+User-Agent: Mutt/1.3.28i
+From: Norbert Preining <preining@logic.at>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Just a thought. Suppose we forked the GPL2 license and created the Linux 
-license? (Or some better name) It's kind of clear the Stallman has his 
-own ajenda and that it's not compatible with the Linux model. So - lets 
-fork it an start a new one.
+Dear all!
 
-The idea of the new license is as follows. It would be backwards 
-compatible with GPL2. It's would eliminate the "or later" clause because 
-we have already seen the potential for abuse there. How can one agree to 
-future licenses without knowing what they are going to be? The other 
-feature is that the license is only modified to provide legal 
-clarification or to deal with future issues that occur as a result of 
-new technology or circumstances that we don't know about yet. If the 
-licenses is modified then copyright holders would then have to 
-explicitly declare that they accept the modifications by switching to 
-the new terms.
+I have the following problem with wpa supplicant/ipw3945. First the
+versions:
+kernel:	2.6.18-mm2	(self compiled)
+ieee80211:	1.1.14
+ipw3945:	git source
+ipw3945d:	1.7.19
+wpa supplicant:	0.5.5	(Debian/unstable 0.5.5-1)
 
-Anyhow - I'm thinking that Richard Stallman might be more of a liability 
-to the GPL movement and that if something can't be worked out with GPLx 
-then maybe it's time to just fork the license and come up with a new 
-system that is crazy leader proof.
 
-Just suggesting this as an alternative if the FSF folks insist on a 
-political ajenda.
+Config file of wpa_supplicant:
+ctrl_interface=/var/run/wpa_supplicant
+ctrl_interface_group=0
+eapol_version=1
+ap_scan=1
+network={
+        ssid="norbunet"
+        key_mgmt=NONE
+        auth_alg=SHARED
+        wep_key0=HEXKEY1
+        wep_key1=HEXKEY2
+        wep_key2=HEXKEY3
+        wep_key3=HEXKEY4
+        wep_tx_keyidx=0
+        priority=5
+}
 
+When I start ipw3945d and wpa_supplicant it does not connect. And the
+reason is that when typing
+	iwconfig eth2
+(eth0 cable, eth1 not present!?!, eth2 ipw3945) I see that the ESSID is
+set to
+	"norbune"
+instead of
+	"norbunet"
+
+Calling
+	iwconfig eth2 essid "norbunet "
+(mind the space at the end) immediately connects (even with encryption)
+and everything is working.
+
+Do you have any idea what this might be related to?
+
+The last kernel I tried which worked out of the box (well, with
+comnpiling ieee and ipw) was 2.6.18-rc4.
+
+
+Best wishes
+
+Norbert
+
+-------------------------------------------------------------------------------
+Dr. Norbert Preining <preining@logic.at>                    Università di Siena
+Debian Developer <preining@debian.org>                         Debian TeX Group
+gpg DSA: 0x09C5B094      fp: 14DF 2E6C 0307 BE6D AD76  A9C0 D2BF 4AA3 09C5 B094
+-------------------------------------------------------------------------------
+`I think you ought to know that I'm feeling very
+depressed.'
+`Life, don't talk to me about life.'
+`Here I am, brain the size of a planet and they ask me to
+take you down to the bridge. Call that "job satisfaction"?
+'Cos I don't.'
+`I've got this terrible pain in all the diodes down my
+left side.'
+                 --- Guess who.
+                 --- Douglas Adams, The Hitchhikers Guide to the Galaxy

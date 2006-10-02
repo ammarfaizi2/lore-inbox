@@ -1,79 +1,143 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932116AbWJBQ4j@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965126AbWJBRAJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932116AbWJBQ4j (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Oct 2006 12:56:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932265AbWJBQ4j
+	id S965126AbWJBRAJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Oct 2006 13:00:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965131AbWJBRAI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Oct 2006 12:56:39 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:22741 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932116AbWJBQ4j (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Oct 2006 12:56:39 -0400
-Subject: Re: wpa supplicant/ipw3945, ESSID last char missing
-From: Dan Williams <dcbw@redhat.com>
-To: Norbert Preining <preining@logic.at>
-Cc: Alessandro Suardi <alessandro.suardi@gmail.com>,
-       Andrew Morton <akpm@osdl.org>, hostap@shmoo.com,
-       linux-kernel@vger.kernel.org, ipw3945-devel@lists.sourceforge.net
-In-Reply-To: <20061002165053.GA2986@gamma.logic.tuwien.ac.at>
-References: <20061002085942.GA32387@gamma.logic.tuwien.ac.at>
-	 <5a4c581d0610020221s7bf100f8q893161b7c8c492d2@mail.gmail.com>
-	 <20061002113259.GA8295@gamma.logic.tuwien.ac.at>
-	 <5a4c581d0610020521q721e3157q88ad17d3cc84a066@mail.gmail.com>
-	 <20061002124613.GB13984@gamma.logic.tuwien.ac.at>
-	 <20061002165053.GA2986@gamma.logic.tuwien.ac.at>
-Content-Type: text/plain; charset=utf-8
-Date: Mon, 02 Oct 2006 12:58:24 -0400
-Message-Id: <1159808304.2834.89.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.8.0 (2.8.0-6.fc6) 
-Content-Transfer-Encoding: 8bit
+	Mon, 2 Oct 2006 13:00:08 -0400
+Received: from mail.impinj.com ([206.169.229.170]:16588 "EHLO earth.impinj.com")
+	by vger.kernel.org with ESMTP id S965126AbWJBRAG convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Oct 2006 13:00:06 -0400
+From: Vadim Lobanov <vlobanov@speakeasy.net>
+To: Eric Dumazet <dada1@cosmosbay.com>
+Subject: Re: [PATCH 4/4] fdtable: Implement new pagesize-based fdtable allocation scheme.
+Date: Mon, 2 Oct 2006 10:00:00 -0700
+User-Agent: KMail/1.9.1
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+References: <200610011414.30443.vlobanov@speakeasy.net> <200610021052.35731.dada1@cosmosbay.com>
+In-Reply-To: <200610021052.35731.dada1@cosmosbay.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 8BIT
+Content-Disposition: inline
+Message-Id: <200610021000.00768.vlobanov@speakeasy.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-10-02 at 18:50 +0200, Norbert Preining wrote:
-> On Mon, 02 Okt 2006, Norbert Preining wrote:
-> > > The main features of the latest beta is WE-21 support (long/short
-> > > retry, power saving level, modulation), enhanced command line parser
-> > > in iwconfig, scanning options, more WPA support and more footprint
-> > > reduction tricks
-> > 
-> > Bingo. I build the new 29-pre10 and everything is working.
-> 
-> Sorry, that was over-optimistic. still same behaviour as with the Debian
-> v28 version.
-> 
-> The last character is cut of from wpa_supplicant. I have to set the
-> essid by hadn with
-> 	"real-essid "
-> mark the space at the end!
+On Monday 02 October 2006 01:52, Eric Dumazet wrote:
+> On Sunday 01 October 2006 23:14, Vadim Lobanov wrote:
+> > This patch provides an improved fdtable allocation scheme, useful for
+> > expanding fdtable file descriptor entries. The main focus is on the
+> > fdarray, as its memory usage grows 128 times faster than that of an
+> > fdset.
+> >
+> > The allocation algorithm sizes the fdarray in such a way that its memory
+> > usage increases in easy page-sized chunks. Additionally, it tries to
+> > account for the optimal usage of the allocators involved: kmalloc() for
+> > sizes less than a page, and vmalloc() with page granularity for sizes
+> > greater than a page. Namely, the following sizes for the fdarray are
+> > considered, and the smallest that accommodates the requested fd count is
+> > chosen:
+> >     pagesize / 4
+> >     pagesize / 2
+> >     pagesize      <- memory allocator switch point
+> >     pagesize * 2
+> >     pagesize * 3
+> >     pagesize * 4
+> >     ...etc...
+> > Unlike the current implementation, this allocation scheme does not
+> > require a loop to compute the optimal fdarray size, and can be done in
+> > straightline code.
+> >
+> > Furthermore, since the fdarray overflows the pagesize boundary long
+> > before any of the fdsets do, it makes sense to optimize run-time by
+> > allocating both fdsets
+> > in a single swoop. Even together, they will still be, by far, smaller
+> > than the fdarray.
+> >
+> > As long as we're replacing the guts of fs/file.c, it makes sense to tidy
+> > up the code. This work includes:
+> >     simplification via refactoring,
+> >     elimination of unnecessary code, and
+> >     extensive commenting throughout the entire file.
+> > This is the last patch in the series. All the code should now be sparkly
+> > clean.
+>
+> Vadim, I think your patch is way too complex, and some changes are dubious.
+> You mix cleanups and changes in the same patch, making hard to match your
+> patch description and its content.
 
-You have a mismatch between your wireless-tools, your kernel, and/or
-wpa_supplicant.  WE-21 uses the _real_ ssid length rather than the
-kludge of hacking off the last byte used previously.  Please ensure that
-your tools, driver, and kernel are using WE-21.
-'cat /proc/net/wireless' should tell you what your kernel is using.
-Getting the driver WE is a bit harder and you may have to look at the
-source.
+Sorry; it was simply easier to roll all the really intrusive fs/file.c changes 
+into a single patch, rather than making several smaller but equally-intrusive 
+patches in a row. It was a timesaver for me, and I thought it would 
+ultimately be a timersaver for those trying to follow the changes as well. If 
+necessary, I can always split up the last patch in the series into multiple 
+patches -- no problems there. :) Andrew, any preference in this particular 
+case?
 
-Dan
+> Current scheme is to allocate power of two sizes, and not 'the smallest
+> that accommodates the requested fd count'. This is for a good reason,
+> because we don't want to call vmalloc()/vfree() each time a process opens
+> 512 or 1024 more files (x86_64 or ia32)
 
-> 
-> Best wishes
-> 
-> Norbert
-> 
-> -------------------------------------------------------------------------------
-> Dr. Norbert Preining <preining@logic.at>                    UniversitÃ  di Siena
-> Debian Developer <preining@debian.org>                         Debian TeX Group
-> gpg DSA: 0x09C5B094      fp: 14DF 2E6C 0307 BE6D AD76  A9C0 D2BF 4AA3 09C5 B094
-> -------------------------------------------------------------------------------
-> MELCOMBE REGIS (n.)
-> The name of the style of decoration used in cocktail lounges in mock
-> Tudor hotels in Surrey.
-> 			--- Douglas Adams, The Meaning of Liff
-> _______________________________________________
-> HostAP mailing list
-> HostAP@shmoo.com
-> http://lists.shmoo.com/mailman/listinfo/hostap
+Yep, that is most definitely a consideration. I was balancing it against the 
+fact that, when the table becomes big, growing it by a power of two 
+regardless of the size results in massive memory usage deltas. The worry here 
+is that an application may likely cause the table to grow by a huge amount, 
+due to the power-of-two increase, and then actually use only a modest number 
+of further fds, wasting the rest of the allocated table memory.
 
+Which applications open so many file handles so quickly? Do they actually need 
+the amortized power-of-two table area increase? In those cases, would the 
+actual process of opening these files take more time than growing the table 
+in fixed-size steps? Or at least outweigh it enough that it would be more 
+preferable to try to reduce memory waste instead of improve file open time?
+
+> I  personally prefer that table grows by a two factor, especially when they
+> are huge. Also, power of two sizes gives less vmalloc space fragmentation
+> (might be a concern for some people that are LOWMEM tight and that reduce
+> VMALLOC space to get more LOWMEM)
+> default __VMALLOC_RESERVE on i386 is 128Mo, but I have some servers where I
+> use
+> vmalloc=16M just to give more LOWMEM for kernel use.
+
+Is it really true that it will create less fragmentation? It seems to me that 
+this will only be the true if most of the other heavy users of vmalloc also 
+tried to use power-of-two allocation sizes.
+
+What do you think of Andi Kleen's follow-up suggestion about eliminating 
+vmalloc use altogether?
+
+>
+> diff -Npru old/include/linux/file.h new/include/linux/file.h
+> --- old/include/linux/file.h    2006-09-28 20:13:13.000000000 -0700
+> +++ new/include/linux/file.h    2006-09-28 20:22:05.000000000 -0700
+> @@ -29,8 +29,8 @@ struct embedded_fd_set {
+>  struct fdtable {
+>         unsigned int max_fds;
+>         struct file ** fd;      /* current fd array */
+> -       fd_set *close_on_exec;
+>         fd_set *open_fds;
+> +       fd_set *close_on_exec;
+>         struct rcu_head rcu;
+>         struct fdtable *next;
+>  };
+>
+> Whats the reason for moving this close_on_exec definition in struct fdtable
+> ?
+
+Better code readability. The code in fs/file.c initializes all the fields in 
+the fdtable in the same order as they appear in the struct definition: this 
+makes it easy to spot any omissions in the field initializations or verify 
+that all members are, in fact, initialized correctly. (Simply read downwards 
+in both the header file and the source file.) Since open_fds is the anchor 
+for the fdset memory area, it is easier to initialize it first, then jump 
+ahead, and initialize close_on_exec from this offset.
+
+> Eric
+
+Thanks for the input.
+
+-- Vadim Lobanov

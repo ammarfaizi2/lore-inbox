@@ -1,95 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965151AbWJBRmx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965167AbWJBRpg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965151AbWJBRmx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Oct 2006 13:42:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965167AbWJBRmx
+	id S965167AbWJBRpg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Oct 2006 13:45:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965171AbWJBRpf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Oct 2006 13:42:53 -0400
-Received: from mail.impinj.com ([206.169.229.170]:10734 "EHLO earth.impinj.com")
-	by vger.kernel.org with ESMTP id S965151AbWJBRmw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Oct 2006 13:42:52 -0400
-From: Vadim Lobanov <vlobanov@speakeasy.net>
-To: Eric Dumazet <dada1@cosmosbay.com>
-Subject: Re: [PATCH 4/4] fdtable: Implement new pagesize-based fdtable allocation scheme.
-Date: Mon, 2 Oct 2006 10:42:51 -0700
-User-Agent: KMail/1.9.1
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-References: <200610011414.30443.vlobanov@speakeasy.net> <200610021000.00768.vlobanov@speakeasy.net> <200610021925.19069.dada1@cosmosbay.com>
-In-Reply-To: <200610021925.19069.dada1@cosmosbay.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Mon, 2 Oct 2006 13:45:35 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.149]:27345 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S965167AbWJBRpf
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Oct 2006 13:45:35 -0400
+Subject: Re: hrtimers bug message on 2.6.18-rt4
+From: john stultz <johnstul@us.ibm.com>
+To: Clark Williams <williams@redhat.com>
+Cc: Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@elte.hu>,
+       LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <45214EDC.6060706@redhat.com>
+References: <45214EDC.6060706@redhat.com>
+Content-Type: text/plain
+Date: Mon, 02 Oct 2006 10:45:30 -0700
+Message-Id: <1159811130.5873.5.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200610021042.51124.vlobanov@speakeasy.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 02 October 2006 10:25, Eric Dumazet wrote:
-> On Monday 02 October 2006 19:00, Vadim Lobanov wrote:
-> > On Monday 02 October 2006 01:52, Eric Dumazet wrote:
-> > > Current scheme is to allocate power of two sizes, and not 'the smallest
-> > > that accommodates the requested fd count'. This is for a good reason,
-> > > because we don't want to call vmalloc()/vfree() each time a process
-> > > opens 512 or 1024 more files (x86_64 or ia32)
-> >
-> > Yep, that is most definitely a consideration. I was balancing it against
-> > the fact that, when the table becomes big, growing it by a power of two
-> > regardless of the size results in massive memory usage deltas. The worry
-> > here is that an application may likely cause the table to grow by a huge
-> > amount, due to the power-of-two increase, and then actually use only a
-> > modest number of further fds, wasting the rest of the allocated table
-> > memory.
-> >
-> > Which applications open so many file handles so quickly? Do they actually
-> > need the amortized power-of-two table area increase? In those cases,
-> > would the actual process of opening these files take more time than
-> > growing the table in fixed-size steps? Or at least outweigh it enough
-> > that it would be more preferable to try to reduce memory waste instead of
-> > improve file open time?
->
-> I think that for such applications, the 'waste' of ram for fd table is
-> nothing compared to the ram cost of opened files/sockets/dentries/inodes.
->
-> > Is it really true that it will create less fragmentation? It seems to me
-> > that this will only be the true if most of the other heavy users of
-> > vmalloc also tried to use power-of-two allocation sizes.
->
-> I am quite sure that on my machines, big vmalloc users are fdtable most of
-> the time.
+On Mon, 2006-10-02 at 12:39 -0500, Clark Williams wrote:
+> I was debugging a PI mutex stress test when I got the following message
+> on my Athlon64x2 (running 2.6.18-rt4):
+> 
+> BUG: time warp detected!
+> prev > now, 101878c199393108 > 101878c081eaca2b:
+> = 4685981405 delta, on CPU#0
+>  [<c0104c3c>] show_trace+0x2c/0x30
+>  [<c0104dcb>] dump_stack+0x2b/0x30
+>  [<c012ec89>] getnstimeofday+0x249/0x270
 
-Ok, I think I'm convinced. :) Do you want to dig up some actual data regarding 
-vmalloc usage on your boxes, at least so it can be saved on the mailing list 
-archives for future reference?
+Could you send me your dmesg and .config?
 
-I'll reroll the last patch in the series soon, after letting it rest for a bit 
-and seeing if anyone else has any more input on the proposed changes. I'll 
-tweak it so that it always does power-of-two increases in table size, rather 
-than switching to linear deltas after a certain point. Sounds good to you?
+thanks
+-john
 
-> > What do you think of Andi Kleen's follow-up suggestion about eliminating
-> > vmalloc use altogether?
->
-> It would be interesting, but would need one indirection level, that could
-> kill performance of said huge applications... For such applications, the
-> cost of expanding fdtable is nothing compared to the cost of
-> open()/close()/poll()/read()/write() calls. This is because fdtable never
-> shrinks. So adding one indirection (if you use a table of pointers to PAGES
-> containing 1024 or 512 (struct file *)).
->
-> At least, expanding fdtable by 1024 slots would need to reallocate the
-> first table (adding one void *), and allocating one PAGE only. No need to
-> copy previous pages, this is a win.
->
-> Of course, big fdset still need vmalloc(), or else we cannot use
-> find_next_zero_bit() anymore... And for such applications, the time and
-> memory scanned to find a zero bit at open() time is probably the killer
-> (touching a large part of cpu caches). One million bits is 128 KB...
 
-Yep. (We could play really nifty games with the fdtable if we didn't have to 
-return the lowest available fd for the new file, but alas...)
-
-> Eric
-
--- Vadim Lobanov

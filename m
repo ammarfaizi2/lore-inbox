@@ -1,46 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965006AbWJBQC0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965018AbWJBQFK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965006AbWJBQC0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Oct 2006 12:02:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965008AbWJBQC0
+	id S965018AbWJBQFK (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Oct 2006 12:05:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965021AbWJBQFK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Oct 2006 12:02:26 -0400
-Received: from smtp105.sbc.mail.mud.yahoo.com ([68.142.198.204]:43883 "HELO
-	smtp105.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S965006AbWJBQCX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Oct 2006 12:02:23 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=pacbell.net;
-  h=Received:From:To:Subject:Date:User-Agent:Cc:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
-  b=YLGiY1jOqCVROzK7yXG2wSbnyv6d6bhCg0xqOqOsbEg0ka70Lo+n/76XDOqV4MiHnvm2gYrIJAUSbS9Er7it+E7PfnnXSQ5WPYqBKKsInHi9XNFWvWKwdTu4rtxTYtk2xFeZPrcjfQi75fVVkAcF2hr3RveG/PNjGdGRJYNCYWA=  ;
-From: David Brownell <david-b@pacbell.net>
-To: B.Zolnierkiewicz@elka.pw.edu.pl
-Subject: [patch 2.6.18-git] ide-cs (CompactFlash) driver, rm irq warning
-Date: Mon, 2 Oct 2006 09:02:19 -0700
-User-Agent: KMail/1.7.1
-Cc: Linux Kernel list <linux-kernel@vger.kernel.org>
+	Mon, 2 Oct 2006 12:05:10 -0400
+Received: from warden-p.diginsite.com ([208.29.163.248]:5119 "HELO
+	warden.diginsite.com") by vger.kernel.org with SMTP id S965018AbWJBQFJ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Oct 2006 12:05:09 -0400
+Date: Mon, 2 Oct 2006 08:48:51 -0700 (PDT)
+From: David Lang <dlang@digitalinsight.com>
+X-X-Sender: dlang@dlang.diginsite.com
+To: Phillip Susi <psusi@cfl.rr.com>
+cc: Willy Tarreau <w@1wt.eu>, Drew Scott Daniels <ddaniels@UMAlumni.mb.ca>,
+       linux-kernel@vger.kernel.org
+Subject: Re: Smaller compressed kernel source tarballs?
+In-Reply-To: <45212D5D.7010201@cfl.rr.com>
+Message-ID: <Pine.LNX.4.63.0610020848070.28876@qynat.qvtvafvgr.pbz>
+References: <20061002033511.GB12695@zimmer> <20061002033531.GA5050@1wt.eu> 
+ <Pine.LNX.4.63.0610012205280.28534@qynat.qvtvafvgr.pbz> <45212D5D.7010201@cfl.rr.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200610020902.20030.david-b@pacbell.net>
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Git rid of the runtime warning about pcmcia not supporting
-exclusive IRQs, so "the driver needs updating".
+On Mon, 2 Oct 2006, Phillip Susi wrote:
 
-Signed-off-by: David Brownell <dbrownell@users.sourceforge.net>
+> David Lang wrote:
+>> I just had what's probably a silly thought.
+>> 
+>> as an alturnative to useing tar, what about useing a git pack?
+>> 
+>> create a git archive with no history, just the current files, and then pack 
+>> it with agressive delta options.
+>> 
+>
+> Isn't that what a patch.gz is?  Diff generates the deltas and then they are 
+> compressed.  Can't get much simpler or better than that.
 
---- osk.orig/drivers/ide/legacy/ide-cs.c	2006-09-28 19:27:51.000000000 -0700
-+++ osk/drivers/ide/legacy/ide-cs.c	2006-10-02 08:25:21.000000000 -0700
-@@ -120,7 +120,7 @@ static int ide_probe(struct pcmcia_devic
-     link->io.Attributes1 = IO_DATA_PATH_WIDTH_AUTO;
-     link->io.Attributes2 = IO_DATA_PATH_WIDTH_8;
-     link->io.IOAddrLines = 3;
--    link->irq.Attributes = IRQ_TYPE_EXCLUSIVE;
-+    link->irq.Attributes = IRQ_TYPE_DYNAMIC_SHARING;
-     link->irq.IRQInfo1 = IRQ_LEVEL_ID;
-     link->conf.Attributes = CONF_ENABLE_IRQ;
-     link->conf.IntType = INT_MEMORY_AND_IO;
+not quite, a git pack includes everythign you need to get the full source, a 
+patch.gz requires that you have the prior version of the source to start with.
+
+David Lang

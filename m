@@ -1,81 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964983AbWJBXoa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965124AbWJBXxJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964983AbWJBXoa (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Oct 2006 19:44:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964993AbWJBXoa
+	id S965124AbWJBXxJ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Oct 2006 19:53:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965123AbWJBXxI
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Oct 2006 19:44:30 -0400
-Received: from emailhub.stusta.mhn.de ([141.84.69.5]:14085 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S964983AbWJBXoa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Oct 2006 19:44:30 -0400
-Date: Tue, 3 Oct 2006 01:44:28 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Judith Lebzelter <judith@osdl.org>
-Cc: linux-kernel@vger.kernel.org, linuxppc-dev@ozlabs.org
-Subject: Re: Undefined '.bus_to_virt', '.virt_to_bus' causes compile error on Powerpc 64-bit
-Message-ID: <20061002234428.GE3278@stusta.de>
-References: <20061002214954.GD665@shell0.pdx.osdl.net>
+	Mon, 2 Oct 2006 19:53:08 -0400
+Received: from cantor.suse.de ([195.135.220.2]:63703 "EHLO mx1.suse.de")
+	by vger.kernel.org with ESMTP id S965092AbWJBXxH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Oct 2006 19:53:07 -0400
+Date: Mon, 2 Oct 2006 16:52:46 -0700
+From: Greg KH <greg@kroah.com>
+To: Dmitry Torokhov <dmitry.torokhov@gmail.com>
+Cc: Andrew Morton <akpm@osdl.org>, David Howells <dhowells@redhat.com>,
+       Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@elte.hu>,
+       torvalds@osdl.org, linux-kernel@vger.kernel.org,
+       linux-arch@vger.kernel.org, David Brownell <david-b@pacbell.net>,
+       Alan Stern <stern@rowland.harvard.edu>
+Subject: Re: [PATCH 3/3] IRQ: Maintain regs pointer globally rather than passing to IRQ handlers
+Message-ID: <20061002235246.GA27274@kroah.com>
+References: <20061002162049.17763.39576.stgit@warthog.cambridge.redhat.com> <20061002162053.17763.26032.stgit@warthog.cambridge.redhat.com> <20061002132116.2663d7a3.akpm@osdl.org> <d120d5000610021343h45bf1414ica2246f3b10ff46d@mail.gmail.com>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20061002214954.GD665@shell0.pdx.osdl.net>
+In-Reply-To: <d120d5000610021343h45bf1414ica2246f3b10ff46d@mail.gmail.com>
 User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 02, 2006 at 02:49:54PM -0700, Judith Lebzelter wrote:
-
-> Hello:
-
-Hi Judith,
-
-> For the automated cross-compile builds at OSDL, powerpc 64-bit 
-> 'allmodconfig' is failing.  The warnings/errors below appear in 
-> the 'modpost' stage of kernel compiles for 2.6.18 and -mm2 kernels.
-
-known for ages - the drivers need fixing.
-
-You might want to convince Andrew accepting my patch to make 
-virt_to_bus/bus_to_virt give compile warnings on i386 for making
-people more aware of this problem...
-
-> Thanks;
-> Judith Lebzelter
-> OSDL
+On Mon, Oct 02, 2006 at 04:43:38PM -0400, Dmitry Torokhov wrote:
+> On 10/2/06, Andrew Morton <akpm@osdl.org> wrote:
+> >On Mon, 02 Oct 2006 17:21:09 +0100
+> >David Howells <dhowells@redhat.com> wrote:
+> >
+> >> Maintain a per-CPU global "struct pt_regs *" variable which can be used 
+> >instead
+> >> of passing regs around manually through all ~1800 interrupt handlers in 
+> >the
+> >> Linux kernel.
+> >>
 > 
-> -----------
+> Nice! I was wanting to do that for a long time...
+
+Yeah!  Finally get rid of that from every single fricken USB urb
+callback.  I have been wanting that gone for a very long time.
+
+> >I think the change is good.  But I don't want to maintain this whopper
+> >out-of-tree for two months!  If we want to do this, we should just smash it
+> >in and grit our teeth.
 > 
->   Building modules, stage 2.
->   MODPOST 1658 modules
-> WARNING: Can't handle masks in drivers/ata/ahci:FFFF05
-> WARNING: ".virt_to_bus" [sound/oss/sscape.ko] undefined!
-> WARNING: ".virt_to_bus" [sound/oss/sound.ko] undefined!
-> WARNING: ".bus_to_virt" [sound/oss/cs46xx.ko] undefined!
-> WARNING: ".virt_to_bus" [sound/oss/cs46xx.ko] undefined!
-> WARNING: ".bus_to_virt" [drivers/scsi/tmscsim.ko] undefined!
-> WARNING: ".bus_to_virt" [drivers/scsi/BusLogic.ko] undefined!
-> WARNING: ".virt_to_bus" [drivers/net/wan/lmc/lmc.ko] undefined!
-> WARNING: ".virt_to_bus" [drivers/message/i2o/i2o_config.ko] undefined!
-> WARNING: ".bus_to_virt" [drivers/block/cpqarray.ko] undefined!
-> WARNING: ".bus_to_virt" [drivers/atm/zatm.ko] undefined!
-> WARNING: ".virt_to_bus" [drivers/atm/zatm.ko] undefined!
-> WARNING: ".bus_to_virt" [drivers/atm/horizon.ko] undefined!
-> WARNING: ".virt_to_bus" [drivers/atm/firestream.ko] undefined!
-> WARNING: ".bus_to_virt" [drivers/atm/firestream.ko] undefined!
-> WARNING: ".bus_to_virt" [drivers/atm/ambassador.ko] undefined!
-> WARNING: ".virt_to_bus" [drivers/atm/ambassador.ko] undefined!
-> make[1]: *** [__modpost] Error 1
-> make: *** [modules] Error 2
-> 
+> Yes, lets drop it in while we still not reached rc1.
 
-cu
-Adrian
+I don't care when it goes it, I have no objection to it at all.
 
--- 
+David, thanks a lot for doing this.
 
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+greg k-h

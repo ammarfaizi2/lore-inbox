@@ -1,48 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965173AbWJBRkN@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965169AbWJBRjt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965173AbWJBRkN (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Oct 2006 13:40:13 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965167AbWJBRkN
+	id S965169AbWJBRjt (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Oct 2006 13:39:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965164AbWJBRjt
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Oct 2006 13:40:13 -0400
-Received: from codepoet.org ([166.70.99.138]:17381 "EHLO codepoet.org")
-	by vger.kernel.org with ESMTP id S965164AbWJBRjw (ORCPT
+	Mon, 2 Oct 2006 13:39:49 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:41605 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S965169AbWJBRjs (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Oct 2006 13:39:52 -0400
-Date: Mon, 2 Oct 2006 11:39:51 -0600
-From: Erik Andersen <andersen@codepoet.org>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: "Martin J. Bligh" <mbligh@mbligh.org>,
-       Matti Aarnio <matti.aarnio@zmailer.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Spam, bogofilter, etc
-Message-ID: <20061002173951.GA8534@codepoet.org>
-Reply-To: andersen@codepoet.org
-Mail-Followup-To: andersen@codepoet.org,
-	Lee Revell <rlrevell@joe-job.com>,
-	"Martin J. Bligh" <mbligh@mbligh.org>,
-	Matti Aarnio <matti.aarnio@zmailer.org>,
-	linux-kernel <linux-kernel@vger.kernel.org>
-References: <1159539793.7086.91.camel@mindpipe> <20061002100302.GS16047@mea-ext.zmailer.org> <1159802486.4067.140.camel@mindpipe> <45212F39.5000307@mbligh.org> <1159804137.4067.144.camel@mindpipe>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1159804137.4067.144.camel@mindpipe>
-X-No-Junk-Mail: I do not want to get *any* junk mail.
-User-Agent: Mutt/1.5.9i
+	Mon, 2 Oct 2006 13:39:48 -0400
+Message-ID: <45214EDC.6060706@redhat.com>
+Date: Mon, 02 Oct 2006 12:39:40 -0500
+From: Clark Williams <williams@redhat.com>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
+MIME-Version: 1.0
+To: Thomas Gleixner <tglx@linutronix.de>
+CC: Ingo Molnar <mingo@elte.hu>, john stultz <johnstul@us.ibm.com>,
+       LKML <linux-kernel@vger.kernel.org>
+Subject: hrtimers bug message on 2.6.18-rt4
+X-Enigmail-Version: 0.94.0.0
+Content-Type: text/plain; charset=ISO-8859-1
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon Oct 02, 2006 at 11:48:57AM -0400, Lee Revell wrote:
-> You could also flag a very short message that contains a URL and is not
-> a reply to an existing thread - I can't think of a legitimate post to
-> LKML fitting this pattern.
+-----BEGIN PGP SIGNED MESSAGE-----
+Hash: SHA1
 
-Blocking emails containing URLs pointing to domains registered
-less than a week ago would block most of the recent spams.
+Thomas, et al,
 
- -Erik
+I was debugging a PI mutex stress test when I got the following message
+on my Athlon64x2 (running 2.6.18-rt4):
 
---
-Erik B. Andersen             http://codepoet-consulting.com/
---This message was written using 73% post-consumer electrons--
+BUG: time warp detected!
+prev > now, 101878c199393108 > 101878c081eaca2b:
+= 4685981405 delta, on CPU#0
+ [<c0104c3c>] show_trace+0x2c/0x30
+ [<c0104dcb>] dump_stack+0x2b/0x30
+ [<c012ec89>] getnstimeofday+0x249/0x270
+ [<c013e893>] ktime_get_ts+0x23/0x60
+ [<c013e8ef>] ktime_get+0x1f/0x60
+ [<c013f042>] hrtimer_interrupt+0x62/0x310
+ [<c0114557>] smp_apic_timer_interrupt+0x77/0x90
+ [<c0103f33>] apic_timer_interrupt+0x1f/0x24
+ [<c0101bc4>] cpu_idle+0x84/0xe0
+ [<c01007a4>] rest_init+0x54/0x60
+ [<c06258f6>] start_kernel+0x396/0x460
+ [<00000000>] 0x0
+skipping trace printing on CPU#0 != -1
+
+I've seen this at least three times on -rt4. I'm building -rt5 as I
+write this, so I'll run the test again on the new kernel and see what
+(if anything) changes.
+
+If you want my test, grab:
+
+   http://people.redhat.com/williams/tests/pi_tests.tar.gz
+
+and build pi_stress.
+
+Clark
+
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
+Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
+
+iD8DBQFFIU7cHyuj/+TTEp0RAkfdAJ9KLtBlfgYljBYhBatL+/BatsdygwCZAYkz
+9d2C/aSysAX5OppUlqbpSzQ=
+=kcN9
+-----END PGP SIGNATURE-----

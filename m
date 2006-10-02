@@ -1,81 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751007AbWJBJ0n@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751038AbWJBJ10@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751007AbWJBJ0n (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Oct 2006 05:26:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751029AbWJBJ0n
+	id S1751038AbWJBJ10 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Oct 2006 05:27:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751042AbWJBJ1Z
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Oct 2006 05:26:43 -0400
-Received: from cantor.suse.de ([195.135.220.2]:34747 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1751007AbWJBJ0m (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Oct 2006 05:26:42 -0400
-Date: Mon, 2 Oct 2006 11:26:40 +0200
-From: Karsten Keil <kkeil@suse.de>
-To: Jeff Garzik <jeff@garzik.org>
-Cc: kai.germaschewski@gmx.de, Andrew Morton <akpm@osdl.org>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] ISDN: mark as 32-bit only
-Message-ID: <20061002092640.GA10395@pingi.kke.suse.de>
-Mail-Followup-To: Jeff Garzik <jeff@garzik.org>,
-	kai.germaschewski@gmx.de, Andrew Morton <akpm@osdl.org>,
-	LKML <linux-kernel@vger.kernel.org>
-References: <20061001152116.GA4684@havoc.gtf.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 2 Oct 2006 05:27:25 -0400
+Received: from wx-out-0506.google.com ([66.249.82.231]:24136 "EHLO
+	wx-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1751038AbWJBJ1Z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Oct 2006 05:27:25 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:from:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id;
+        b=jRC9butzUlOEnXbsMO7izTcukaH23R+pbrMbplMWcWJ6Iqvv3ETHQ6TUGU0OsUDJTYfrn887YrEB7VcLAR7A/aldDswEdap6xfPJ5tCV9B3dJU2ksQj5T+/mAA8LW2qKUbPyt2kdyA5L81QJAQ3RyRa7s67c25s5n7tFHpL2Lgk=
+From: Patrick McFarland <diablod3@gmail.com>
+To: Marc Perkel <marc@perkel.com>
+Subject: Re: Maybe it's time to fork the GPL License - create the Linux license?
+Date: Mon, 2 Oct 2006 05:25:05 -0400
+User-Agent: KMail/1.9.4
+Cc: "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
+References: <20060928144028.GA21814@wohnheim.fh-wedel.de> <BAYC1-PASMTP11B5EB1224711DCB6D4F3DAE180@CEZ.ICE> <4520D40F.8080500@perkel.com>
+In-Reply-To: <4520D40F.8080500@perkel.com>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20061001152116.GA4684@havoc.gtf.org>
-Organization: SuSE Linux AG
-X-Operating-System: Linux 2.6.16.21-0.23-smp x86_64
-User-Agent: Mutt/1.5.9i
+Message-Id: <200610020525.05941.diablod3@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, Oct 01, 2006 at 11:21:16AM -0400, Jeff Garzik wrote:
-> 
-> Tons of ISDN drivers cast pointers to/from 32-bit values, which just
-> won't work on 64-bit.
-> 
+On Monday 02 October 2006 04:55, Marc Perkel wrote:
+> Just a thought. Suppose we forked the GPL2 license and created the Linux
+> license? (Or some better name) It's kind of clear the Stallman has his
+> own ajenda and that it's not compatible with the Linux model. So - lets
+> fork it an start a new one.
+>
+> The idea of the new license is as follows. It would be backwards
+> compatible with GPL2. It's would eliminate the "or later" clause because
+> we have already seen the potential for abuse there. How can one agree to
+> future licenses without knowing what they are going to be? The other
+> feature is that the license is only modified to provide legal
+> clarification or to deal with future issues that occur as a result of
+> new technology or circumstances that we don't know about yet. If the
+> licenses is modified then copyright holders would then have to
+> explicitly declare that they accept the modifications by switching to
+> the new terms.
 
-NACK.
+I'd be behind such a license if it was 100% functionally equivalent to the GPL 
+(ie, a reword just to get around the FSF Copyright of the GPL). I'd even 
+license my own code under it.
 
-This is no problem for ISDN only some old HW drivers may not work (for most
-I do not have any hardware by myself). 
-I will compile all drivers again and if here are 64 bit issues I will
-disable the drivers, not ISDN.
-
-ISDN works on 64 bits, at least with following protocols:
-- transparent (audio/voice)
-- X.75
-- HDLC
-- sync PPP
-
-Maybe some other protocols need some 64 bit cleanup, but last time I audited
-the ISDN core code for 64 bit I did not saw any problems.
-My main test machines are 64 bit (and SMP) and they are running ISDN servers
-for sync PPP and voice data processing on different ISDN HW and drivers
-(CAPI and Hisax) without any problem.
-
-You will see still some warnings in the CAPI code, because the capi code
-has dual 64/32 bit protocol format for data packets (has 2 different pointer
-areas one for 64 bit one for32 bit), but this is OK.
-
-> Signed-off-by: Jeff Garzik <jeff@garzik.org>
-> 
-> diff --git a/drivers/isdn/Kconfig b/drivers/isdn/Kconfig
-> index c90afee..608588f 100644
-> --- a/drivers/isdn/Kconfig
-> +++ b/drivers/isdn/Kconfig
-> @@ -6,7 +6,7 @@ menu "ISDN subsystem"
->  
->  config ISDN
->  	tristate "ISDN support"
-> -	depends on NET
-> +	depends on NET && 32BIT
->  	---help---
->  	  ISDN ("Integrated Services Digital Networks", called RNIS in France)
->  	  is a special type of fully digital telephone service; it's mostly
+Linus, you want to chime in here?
 
 -- 
-Karsten Keil
-SuSE Labs
-ISDN development
+Patrick McFarland || http://AdTerrasPerAspera.com
+"Computer games don't affect kids; I mean if Pac-Man affected us as kids,
+we'd all be running around in darkened rooms, munching magic pills and
+listening to repetitive electronic music." -- Kristian Wilson, Nintendo,
+Inc, 1989
+

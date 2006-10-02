@@ -1,22 +1,22 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932699AbWJBGyI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932706AbWJBGys@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932699AbWJBGyI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Oct 2006 02:54:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932696AbWJBGyI
+	id S932706AbWJBGys (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Oct 2006 02:54:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932703AbWJBGys
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Oct 2006 02:54:08 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:62347 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932699AbWJBGyC (ORCPT
+	Mon, 2 Oct 2006 02:54:48 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:12428 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S932696AbWJBGyq (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Oct 2006 02:54:02 -0400
-Date: Sun, 1 Oct 2006 23:53:12 -0700
+	Mon, 2 Oct 2006 02:54:46 -0400
+Date: Sun, 1 Oct 2006 23:53:38 -0700
 From: Andrew Morton <akpm@osdl.org>
 To: Jesse Huang <jesse@icplus.com.tw>
 Cc: linux-kernel@vger.kernel.org, netdev@vger.kernel.org, jgarzik@pobox.com
-Subject: Re: [PATCH 1/5] remove TxStartThresh and RxEarlyThresh
-Message-Id: <20061001235312.aa2c6d17.akpm@osdl.org>
-In-Reply-To: <1159813431.2576.0.camel@localhost.localdomain>
-References: <1159813431.2576.0.camel@localhost.localdomain>
+Subject: Re: [PATCH 2/5] Fix TX Pause bug (reset_tx, intr_handler)
+Message-Id: <20061001235338.566f4a67.akpm@osdl.org>
+In-Reply-To: <1159813476.2576.2.camel@localhost.localdomain>
+References: <1159813476.2576.2.camel@localhost.localdomain>
 X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -24,12 +24,9 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 02 Oct 2006 14:23:51 -0400
+On Mon, 02 Oct 2006 14:24:36 -0400
 Jesse Huang <jesse@icplus.com.tw> wrote:
 
-> For pattern issue need to remove TxStartThresh and RxEarlyThresh.
+> Fix TX Pause bug (reset_tx, intr_handler)
 
-Please describe this issue more completely.
-
-What are the implications of simply removing this feature?  Presumably that
-code was there for a reason..
+Please describe this bug more completely.    How does this patch solve it?

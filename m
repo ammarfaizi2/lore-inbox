@@ -1,49 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965480AbWJBW1q@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965487AbWJBWeO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965480AbWJBW1q (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Oct 2006 18:27:46 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965482AbWJBW1q
+	id S965487AbWJBWeO (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Oct 2006 18:34:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965486AbWJBWeO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Oct 2006 18:27:46 -0400
-Received: from mustang.oldcity.dca.net ([216.158.38.3]:31363 "HELO
-	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
-	id S965480AbWJBW1p (ORCPT <rfc822;linux-kerneL@vger.kernel.org>);
-	Mon, 2 Oct 2006 18:27:45 -0400
-Subject: Re: RT exec for exercising RT kernel capabilities
-From: Lee Revell <rlrevell@joe-job.com>
-To: Thomas Gleixner <tglx@linutronix.de>
-Cc: markh@compro.net, linux-kerneL@vger.kernel.org,
-       Ingo Molnar <mingo@elte.hu>, Steven Rostedt <rostedt@goodmis.org>
-In-Reply-To: <1152929428.3119.114.camel@mindpipe>
-References: <448876B9.9060906@compro.net>
-	 <1152916456.3119.92.camel@mindpipe>  <1152929059.5915.11.camel@localhost>
-	 <1152929428.3119.114.camel@mindpipe>
-Content-Type: text/plain
-Date: Mon, 02 Oct 2006 18:27:59 -0400
-Message-Id: <1159828079.20801.9.camel@mindpipe>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
+	Mon, 2 Oct 2006 18:34:14 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:16341 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S965484AbWJBWeN (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Oct 2006 18:34:13 -0400
+Date: Mon, 2 Oct 2006 15:33:38 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Andi Kleen <ak@suse.de>
+cc: Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
+       David Howells <dhowells@redhat.com>,
+       Thomas Gleixner <tglx@linutronix.de>, linux-kernel@vger.kernel.org,
+       linux-arch@vger.kernel.org, Dmitry Torokhov <dtor@mail.ru>,
+       Greg KH <greg@kroah.com>, David Brownell <david-b@pacbell.net>,
+       Alan Stern <stern@rowland.harvard.edu>
+Subject: Re: [PATCH 3/3] IRQ: Maintain regs pointer globally rather than
+ passing to IRQ handlers
+In-Reply-To: <200610022359.00951.ak@suse.de>
+Message-ID: <Pine.LNX.4.64.0610021529260.3952@g5.osdl.org>
+References: <20061002162049.17763.39576.stgit@warthog.cambridge.redhat.com>
+ <200610022319.59029.ak@suse.de> <Pine.LNX.4.64.0610021445570.3952@g5.osdl.org>
+ <200610022359.00951.ak@suse.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-07-14 at 22:10 -0400, Lee Revell wrote:
-> On Sat, 2006-07-15 at 04:04 +0200, Thomas Gleixner wrote:
-> > On Fri, 2006-07-14 at 18:34 -0400, Lee Revell wrote:
-> > > On Thu, 2006-06-08 at 15:12 -0400, Mark Hounschell wrote:
-> > > > ftp://ftp.compro.net/public/rt-exec/
-> > > 
-> > > The high res timers do not seem to be working.  Using 2.6.17-rt3 and
-> > > glibc 2.3.6, I get the exact same (bad) results whether
-> > > CONFIG_HIGH_RES_TIMERS is enabled or not.
-> > 
-> > Can you please send me a boot log ?
+
+
+On Mon, 2 Oct 2006, Andi Kleen wrote:
 > 
-> Sent off-list.
+> I remember trying to compile a lot of architectures when I did 4level,
+> but I quickly gave up because of many of them just didn't without
+> me changing anything.
 
-I've discovered the problem - I was running rt-exec as a non-root user.
+I think that if we cover x86-64 and plain old x86 with something like 
+"allmodconfig", and just doing a best effort on the other architectures, 
+we're already in pretty damn good shape. It's not like fixing any stupid 
+left-overs that got missed because some "grep" pattern didn't notice an 
+odd user is going to really cause problems.
 
-Is the use of high res timers limited to root?
+I don't think the architecture maintainers will have any trouble 
+converting their own architecture. It's literally a question of getting 
+clear compiler warnings or errors, and just fixing them up. I'll do at 
+least the parts of ppc64 that I'd notice myself, unless somebody else just 
+gets to it first.
 
-Lee
+So I really wouldn't worry about any small short-term problems. The reason 
+I mentioned out-of-tree drivers is exactly the fact that they can't just 
+fix it up trivially for a single flag-day, so they have to have a longer- 
+term solution.
 
+		Linus

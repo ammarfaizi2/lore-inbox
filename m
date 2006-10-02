@@ -1,87 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965231AbWJBSXh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965242AbWJBSY5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965231AbWJBSXh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Oct 2006 14:23:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965236AbWJBSXh
+	id S965242AbWJBSY5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Oct 2006 14:24:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965247AbWJBSY4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Oct 2006 14:23:37 -0400
-Received: from mail.fieldses.org ([66.93.2.214]:13550 "EHLO
-	pickle.fieldses.org") by vger.kernel.org with ESMTP id S965231AbWJBSXf
+	Mon, 2 Oct 2006 14:24:56 -0400
+Received: from mail.fieldses.org ([66.93.2.214]:17646 "EHLO
+	pickle.fieldses.org") by vger.kernel.org with ESMTP id S965242AbWJBSYx
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Oct 2006 14:23:35 -0400
-Date: Mon, 2 Oct 2006 14:23:27 -0400
+	Mon, 2 Oct 2006 14:24:53 -0400
+Date: Mon, 2 Oct 2006 14:24:51 -0400
 To: Andrew Morton <akpm@osdl.org>
 Cc: NeilBrown <neilb@suse.de>, nfs@lists.sourceforge.net,
        linux-kernel@vger.kernel.org
-Subject: Re: [NFS] [PATCH 006 of 8] knfsd: nfsd4: fslocations data structures
-Message-ID: <20061002182327.GB8084@fieldses.org>
-References: <20060929130518.23919.patches@notabene> <1060929030913.24108@suse.de> <20060928234540.fd74f1e1.akpm@osdl.org>
+Subject: [PATCH 1 of 3] nfsd4: fix fs locations bounds-checking
+Message-ID: <20061002182451.GC8084@fieldses.org>
+References: <20060929130518.23919.patches@notabene> <1060929030913.24108@suse.de> <20060928234540.fd74f1e1.akpm@osdl.org> <20061002182327.GB8084@fieldses.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060928234540.fd74f1e1.akpm@osdl.org>
+In-Reply-To: <20061002182327.GB8084@fieldses.org>
 User-Agent: Mutt/1.5.13 (2006-08-11)
 From: "J. Bruce Fields" <bfields@fieldses.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Thu, Sep 28, 2006 at 11:45:40PM -0700, Andrew Morton wrote:
-> On Fri, 29 Sep 2006 13:09:13 +1000
-> NeilBrown <neilb@suse.de> wrote:
-> 
-> > 
-> > From: Manoj Naik <manoj@almaden.ibm.com>
-> > 
-> > Define FS locations structures, some functions to manipulate them, and add
-> > code to parse FS locations in downcall and add to the exports structure.
-...
-> > +	if (fsloc->locations_count < 0)
-> 
-> this is unsigned.
 
-Yes, thanks.
+The comparison here is obviously useless as locations_count is unsigned.
 
-> > +	fsloc->locations = kzalloc(fsloc->locations_count
-> > +			* sizeof(struct nfsd4_fs_location), GFP_KERNEL);
-> 
-> This is subject to multiplication overflow.  If it's a privileged operation
-> and isn't dependent on stuff coming in over the wire then ok..
+Though fsloc_parse can only be handed data by root, still I'd rather have
+some sanity-checking; so set a (generous) maximum number of fslocations to
+keep the following kzalloc to a reasonable size.
 
-This is data provided locally by root.  But there's no reason to allow
-this to be arbitrarily large, and I'd still prefer to have some
-sanity-checking, so I'll replace the bogus "<0" check above by a
-check for something "too large".
+Signed-off-by: J. Bruce Fields <bfields@citi.umich.edu>
+---
+ fs/nfsd/export.c            |    2 +-
+ include/linux/nfsd/export.h |    3 +++
+ 2 files changed, 4 insertions(+), 1 deletions(-)
 
-> > +out_free_all:
-> > +	nfsd4_fslocs_free(fsloc);
-> 
-> This call to nfsd4_fslocs_free() can end up kfreeing members of
-> fsloc->locations[] which haven't been initialised here.  Are we sure the
-> caller set them all to zero?
+diff --git a/fs/nfsd/export.c b/fs/nfsd/export.c
+index 7e429ca..71f3655 100644
+--- a/fs/nfsd/export.c
++++ b/fs/nfsd/export.c
+@@ -418,7 +418,7 @@ fsloc_parse(char **mesg, char *buf, stru
+ 	err = get_int(mesg, &fsloc->locations_count);
+ 	if (err)
+ 		return err;
+-	if (fsloc->locations_count < 0)
++	if (fsloc->locations_count > MAX_FS_LOCATIONS)
+ 		return -EINVAL;
+ 	if (fsloc->locations_count == 0)
+ 		return 0;
+diff --git a/include/linux/nfsd/export.h b/include/linux/nfsd/export.h
+index 101fb4c..6e78ea9 100644
+--- a/include/linux/nfsd/export.h
++++ b/include/linux/nfsd/export.h
+@@ -48,6 +48,9 @@ #ifdef __KERNEL__
+ /*
+  * FS Locations
+  */
++
++#define MAX_FS_LOCATIONS	128
++
+ struct nfsd4_fs_location {
+ 	char *hosts; /* colon separated list of hosts */
+ 	char *path;  /* slash separated list of path components */
+-- 
+1.4.2.g55c3
 
-Yes.  There will only ever be one caller, and it has to initialize
-these to zero.  I agree that this could be more obvious....
-
-> > +	return err;
-> > +}
-> > +
-> > +#else /* CONFIG_NFSD_V4 */
-> > +static int fsloc_parse(char **, char *, struct svc_export *) { return 0; }
-> 
-> static inline
-> 
-> This has a different prototype from the other version of fsloc_parse()
-> 
-> This ain't C++ - function arguments need identifiers as well as types.
-> 
-> Someone needs to read Documentation/SubmitChecklist..
-
-That would be me, sorry, yes.
-
-Bryce Harrington is also setting up automatic compile-testing for us
-with the obvious config options turned on and off, so hopefully that
-will help save me from myself....
-
-Patches addressing the above follow.
-
---b.

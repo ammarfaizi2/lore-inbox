@@ -1,66 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750699AbWJBKDE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750721AbWJBKKy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750699AbWJBKDE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Oct 2006 06:03:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750721AbWJBKDE
+	id S1750721AbWJBKKy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Oct 2006 06:10:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750725AbWJBKKy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Oct 2006 06:03:04 -0400
-Received: from z2.cat.iki.fi ([212.16.98.133]:37820 "EHLO z2.cat.iki.fi")
-	by vger.kernel.org with ESMTP id S1750699AbWJBKDD (ORCPT
+	Mon, 2 Oct 2006 06:10:54 -0400
+Received: from main.gmane.org ([80.91.229.2]:51165 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S1750721AbWJBKKx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Oct 2006 06:03:03 -0400
-Date: Mon, 2 Oct 2006 13:03:02 +0300
-From: Matti Aarnio <matti.aarnio@zmailer.org>
-To: Lee Revell <rlrevell@joe-job.com>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Spam, bogofilter, etc
-Message-ID: <20061002100302.GS16047@mea-ext.zmailer.org>
-References: <1159539793.7086.91.camel@mindpipe>
+	Mon, 2 Oct 2006 06:10:53 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: Samuel Tardieu <sam@rfc1149.net>
+Subject: Re: How is Code in do_sys_settimeofday() safe in case of SMP and Nest Kernel Path?
+Date: 02 Oct 2006 12:08:08 +0200
+Message-ID: <87mz8fm3nb.fsf@willow.rfc1149.net>
+References: <a2ebde260609290733m207780f0t8601e04fcf64f0a6@mail.gmail.com> <a2ebde260609290916j3a3deb9g33434ca5d93e7a84@mail.gmail.com> <451E8143.5030300@yahoo.com.au> <200609301703.45364.ak@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1159539793.7086.91.camel@mindpipe>
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: zaphod.rfc1149.net
+User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.4
+X-Leafnode-NNTP-Posting-Host: 2001:6f8:37a:2::2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 29, 2006 at 10:23:12AM -0400, Lee Revell wrote:
-> What ever happened with bogofilter on vger?  The spam problem is
-> considerably worse in the past few weeks.
+>>>>> "Andi" == Andi Kleen <ak@suse.de> writes:
 
-It is globbing (and blocking) lots of spam.
-And now it is rarely blocking ham - under 10 cases per week.
+>> Did you get to the bottom of this yet? It looks like you're right,
+>> and I suggest a seqlock might be a good option.
 
-Yes, the thing is NOT 100% perfect.
-Especially very short spams are prone to leak thru it,
-and those hams that do get block do tend to be longish, and
-never before seen.  (It all comes from Bayes Statistics.)
+Andi> It basically doesn't matter because nobody changes the time zone
+Andi> after boot.
 
-However what is now apparent is that we are no longer
-adding very much new patterns into Majordomo filter.
-Indeed we are taking off old patterns that bite at wrong things.
+I do when I travel, and my laptop has a dual-core processor.
 
-I do think that Markov Chains combined with Bayes Statistics 
-might do a wee bit better.  (Except with very short emails.)
-However all that these things are able to do is essentially
-grow the key database when spammers are producing new mutated
-(mis-spelled) texts by mixing in spaces, punctuations, and even
-occasional characters.
+  Sam
+-- 
+Samuel Tardieu -- sam@rfc1149.net -- http://www.rfc1149.net/
 
-For recognizing those pill merchants one needs complex software
-to read the site at the URL, and to read texts out of the IMAGES
-at the site.  Captcha to get thru spam filters...
-
-The idea of closed lists is ever more appealing.
-We do need to do something for the bug-report addresses like
-linux-smp@vger.kernel.org -- so that addresses specified for
-receiving the bug reports will still receive them.
-
-I can do fairly easily "this address is allowed to post" type
-filters at Majordomo - it has a way to specify allowed posters.
-Usually it is used to permit list members to post, but it can
-also be configured to use other datasets.
-
-
-> Lee
-
-  /Matti Aarnio

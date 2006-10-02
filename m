@@ -1,62 +1,87 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965204AbWJBSXI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965231AbWJBSXh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965204AbWJBSXI (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Oct 2006 14:23:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965206AbWJBSXI
+	id S965231AbWJBSXh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Oct 2006 14:23:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965236AbWJBSXh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Oct 2006 14:23:08 -0400
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:3233 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S965204AbWJBSXG (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Oct 2006 14:23:06 -0400
-Message-Id: <200610021822.k92IMo44008167@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, "Martin J. Bligh" <mbligh@mbligh.org>,
-       Lee Revell <rlrevell@joe-job.com>,
-       Matti Aarnio <matti.aarnio@zmailer.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Spam, bogofilter, etc
-In-Reply-To: Your message of "Mon, 02 Oct 2006 11:02:36 PDT."
-             <Pine.LNX.4.64.0610021050350.3952@g5.osdl.org>
-From: Valdis.Kletnieks@vt.edu
-References: <1159539793.7086.91.camel@mindpipe> <20061002100302.GS16047@mea-ext.zmailer.org> <1159802486.4067.140.camel@mindpipe> <45212F39.5000307@mbligh.org> <Pine.LNX.4.64.0610020933020.3952@g5.osdl.org> <1159811392.8907.36.camel@localhost.localdomain>
-            <Pine.LNX.4.64.0610021050350.3952@g5.osdl.org>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1159813369_5418P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Mon, 02 Oct 2006 14:22:50 -0400
+	Mon, 2 Oct 2006 14:23:37 -0400
+Received: from mail.fieldses.org ([66.93.2.214]:13550 "EHLO
+	pickle.fieldses.org") by vger.kernel.org with ESMTP id S965231AbWJBSXf
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Oct 2006 14:23:35 -0400
+Date: Mon, 2 Oct 2006 14:23:27 -0400
+To: Andrew Morton <akpm@osdl.org>
+Cc: NeilBrown <neilb@suse.de>, nfs@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: [NFS] [PATCH 006 of 8] knfsd: nfsd4: fslocations data structures
+Message-ID: <20061002182327.GB8084@fieldses.org>
+References: <20060929130518.23919.patches@notabene> <1060929030913.24108@suse.de> <20060928234540.fd74f1e1.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20060928234540.fd74f1e1.akpm@osdl.org>
+User-Agent: Mutt/1.5.13 (2006-08-11)
+From: "J. Bruce Fields" <bfields@fieldses.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1159813369_5418P
-Content-Type: text/plain; charset=us-ascii
-
-On Mon, 02 Oct 2006 11:02:36 PDT, Linus Torvalds said:
-
-> > MX checking is as broken or more broken than bayes.
+On Thu, Sep 28, 2006 at 11:45:40PM -0700, Andrew Morton wrote:
+> On Fri, 29 Sep 2006 13:09:13 +1000
+> NeilBrown <neilb@suse.de> wrote:
 > 
-> I have to say, OSDL has been doing MX checking, and it's effective as 
-> hell. Most importantly, when it _does_ break, it's not because some 
-> "content" is considered inappropriate, it's because some ISP does 
-> something technically wrong.
+> > 
+> > From: Manoj Naik <manoj@almaden.ibm.com>
+> > 
+> > Define FS locations structures, some functions to manipulate them, and add
+> > code to parse FS locations in downcall and add to the exports structure.
+...
+> > +	if (fsloc->locations_count < 0)
+> 
+> this is unsigned.
 
-How did OSDL's MX checking deal with split in/out configurations like ours,
-where our MX points at a load-balanced farm of Mirapoint front end appliances
-with 1 IP address, but our main off-campus *outbound* comes from a different
-address?
+Yes, thanks.
 
---==_Exmh_1159813369_5418P
-Content-Type: application/pgp-signature
+> > +	fsloc->locations = kzalloc(fsloc->locations_count
+> > +			* sizeof(struct nfsd4_fs_location), GFP_KERNEL);
+> 
+> This is subject to multiplication overflow.  If it's a privileged operation
+> and isn't dependent on stuff coming in over the wire then ok..
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
+This is data provided locally by root.  But there's no reason to allow
+this to be arbitrarily large, and I'd still prefer to have some
+sanity-checking, so I'll replace the bogus "<0" check above by a
+check for something "too large".
 
-iD8DBQFFIVj5cC3lWbTT17ARAsWuAKCMpjeT8dMoRs1VuuEEq1htqDrt7wCfTGg2
-uIrvX3p7SYvurExZzC8T22w=
-=btxU
------END PGP SIGNATURE-----
+> > +out_free_all:
+> > +	nfsd4_fslocs_free(fsloc);
+> 
+> This call to nfsd4_fslocs_free() can end up kfreeing members of
+> fsloc->locations[] which haven't been initialised here.  Are we sure the
+> caller set them all to zero?
 
---==_Exmh_1159813369_5418P--
+Yes.  There will only ever be one caller, and it has to initialize
+these to zero.  I agree that this could be more obvious....
+
+> > +	return err;
+> > +}
+> > +
+> > +#else /* CONFIG_NFSD_V4 */
+> > +static int fsloc_parse(char **, char *, struct svc_export *) { return 0; }
+> 
+> static inline
+> 
+> This has a different prototype from the other version of fsloc_parse()
+> 
+> This ain't C++ - function arguments need identifiers as well as types.
+> 
+> Someone needs to read Documentation/SubmitChecklist..
+
+That would be me, sorry, yes.
+
+Bryce Harrington is also setting up automatic compile-testing for us
+with the obvious config options turned on and off, so hopefully that
+will help save me from myself....
+
+Patches addressing the above follow.
+
+--b.

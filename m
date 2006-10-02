@@ -1,68 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965089AbWJBQpx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932357AbWJBQvE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965089AbWJBQpx (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Oct 2006 12:45:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965090AbWJBQpw
+	id S932357AbWJBQvE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Oct 2006 12:51:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932116AbWJBQvE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Oct 2006 12:45:52 -0400
-Received: from mga03.intel.com ([143.182.124.21]:48 "EHLO mga03.intel.com")
-	by vger.kernel.org with ESMTP id S965089AbWJBQpw (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Oct 2006 12:45:52 -0400
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.09,245,1157353200"; 
-   d="scan'208"; a="125841801:sNHT570791221"
-Date: Mon, 2 Oct 2006 09:45:18 -0700
-From: Kristen Carlson Accardi <kristen.c.accardi@intel.com>
-To: Andrey Borzenkov <arvidjaar@mail.ru>
-Cc: linux-kernel@vger.kernel.org, jgarzik@pobox.com
-Subject: Re: [patch 1/2] libata: _GTF support
-Message-Id: <20061002094518.4ba56020.kristen.c.accardi@intel.com>
-In-Reply-To: <20061001170216.34F3F54C4EC@chen.mtu.ru>
-References: <20060928182211.076258000@localhost.localdomain>
-	<20060928112901.62ee8eba.kristen.c.accardi@intel.com>
-	<20061001170216.34F3F54C4EC@chen.mtu.ru>
-X-Mailer: Sylpheed version 2.2.6 (GTK+ 2.8.20; i386-redhat-linux-gnu)
+	Mon, 2 Oct 2006 12:51:04 -0400
+Received: from alpha.logic.tuwien.ac.at ([128.130.175.20]:7839 "EHLO
+	alpha.logic.tuwien.ac.at") by vger.kernel.org with ESMTP
+	id S932357AbWJBQu7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Oct 2006 12:50:59 -0400
+Date: Mon, 2 Oct 2006 18:50:53 +0200
+To: Alessandro Suardi <alessandro.suardi@gmail.com>
+Cc: Andrew Morton <akpm@osdl.org>, hostap@shmoo.com,
+       linux-kernel@vger.kernel.org, ipw3945-devel@lists.sourceforge.net
+Subject: Re: wpa supplicant/ipw3945, ESSID last char missing
+Message-ID: <20061002165053.GA2986@gamma.logic.tuwien.ac.at>
+References: <20061002085942.GA32387@gamma.logic.tuwien.ac.at> <5a4c581d0610020221s7bf100f8q893161b7c8c492d2@mail.gmail.com> <20061002113259.GA8295@gamma.logic.tuwien.ac.at> <5a4c581d0610020521q721e3157q88ad17d3cc84a066@mail.gmail.com> <20061002124613.GB13984@gamma.logic.tuwien.ac.at>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=iso-8859-15
+Content-Disposition: inline
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <20061002124613.GB13984@gamma.logic.tuwien.ac.at>
+User-Agent: Mutt/1.3.28i
+From: Norbert Preining <preining@logic.at>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 01 Oct 2006 21:02:21 +0400
-Andrey Borzenkov <arvidjaar@mail.ru> wrote:
-
-> Kristen Carlson Accardi wrote:
+On Mon, 02 Okt 2006, Norbert Preining wrote:
+> > The main features of the latest beta is WE-21 support (long/short
+> > retry, power saving level, modulation), enhanced command line parser
+> > in iwconfig, scanning options, more WPA support and more footprint
+> > reduction tricks
 > 
-> > _GTF is an acpi method that is used to reinitialize the drive.  It returns
-> > a task file containing ata commands that are sent back to the drive to
-> > restore it to boot up defaults.
-> > 
-> [...]
-> > @@ -1597,6 +1601,9 @@ int ata_bus_probe(struct ata_port *ap)
-> >  /* reset and determine device classes */
-> >  ap->ops->phy_reset(ap);
-> >  
-> > +     /* retrieve and execute the ATA task file of _GTF */
-> > +     ata_acpi_exec_tfs(ap);
-> > +
-> >  for (i = 0; i < ATA_MAX_DEVICES; i++) {
-> >  dev = &ap->device[i];
-> >
-> 
-> ata_bus_probe() seems to be called only if driver does not provide own error
-> handler? Also would GTF be executed on resume? I hoped it may fix resume
-> from RAM problem I have but it looks like this is never executed in my case
-> (pata_ali).
-> 
-> TIA
-> 
-> -andrey
+> Bingo. I build the new 29-pre10 and everything is working.
 
-Hi Andrey
-On Friday I submitted another patch which changes where this is executed.
-http://marc.theaimsgroup.com/?l=linux-ide&m=115957671114738&w=2
+Sorry, that was over-optimistic. still same behaviour as with the Debian
+v28 version.
 
-Hopefully this will work better for you.
+The last character is cut of from wpa_supplicant. I have to set the
+essid by hadn with
+	"real-essid "
+mark the space at the end!
 
-Kristen
+Best wishes
+
+Norbert
+
+-------------------------------------------------------------------------------
+Dr. Norbert Preining <preining@logic.at>                    Università di Siena
+Debian Developer <preining@debian.org>                         Debian TeX Group
+gpg DSA: 0x09C5B094      fp: 14DF 2E6C 0307 BE6D AD76  A9C0 D2BF 4AA3 09C5 B094
+-------------------------------------------------------------------------------
+MELCOMBE REGIS (n.)
+The name of the style of decoration used in cocktail lounges in mock
+Tudor hotels in Surrey.
+			--- Douglas Adams, The Meaning of Liff

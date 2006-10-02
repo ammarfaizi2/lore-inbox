@@ -1,52 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965406AbWJBVbj@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965410AbWJBVdy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965406AbWJBVbj (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Oct 2006 17:31:39 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965409AbWJBVbj
+	id S965410AbWJBVdy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Oct 2006 17:33:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965411AbWJBVdy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Oct 2006 17:31:39 -0400
-Received: from thunk.org ([69.25.196.29]:31625 "EHLO thunker.thunk.org")
-	by vger.kernel.org with ESMTP id S965406AbWJBVbi (ORCPT
+	Mon, 2 Oct 2006 17:33:54 -0400
+Received: from inti.inf.utfsm.cl ([200.1.21.155]:27361 "EHLO inti.inf.utfsm.cl")
+	by vger.kernel.org with ESMTP id S965410AbWJBVdx (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Oct 2006 17:31:38 -0400
-Date: Mon, 2 Oct 2006 17:26:04 -0400
-From: Theodore Tso <tytso@mit.edu>
-To: Dan Williams <dcbw@redhat.com>
-Cc: "Rafael J. Wysocki" <rjw@sisk.pl>, jt@hpl.hp.com,
-       Andrew Morton <akpm@osdl.org>,
-       "John W. Linville" <linville@tuxdriver.com>,
-       Norbert Preining <preining@logic.at>,
-       Alessandro Suardi <alessandro.suardi@gmail.com>, hostap@shmoo.com,
-       linux-kernel@vger.kernel.org, ipw3945-devel@lists.sourceforge.net
-Subject: Re: wpa supplicant/ipw3945, ESSID last char missing
-Message-ID: <20061002212604.GA6520@thunk.org>
-Mail-Followup-To: Theodore Tso <tytso@mit.edu>,
-	Dan Williams <dcbw@redhat.com>, "Rafael J. Wysocki" <rjw@sisk.pl>,
-	jt@hpl.hp.com, Andrew Morton <akpm@osdl.org>,
-	"John W. Linville" <linville@tuxdriver.com>,
-	Norbert Preining <preining@logic.at>,
-	Alessandro Suardi <alessandro.suardi@gmail.com>, hostap@shmoo.com,
-	linux-kernel@vger.kernel.org, ipw3945-devel@lists.sourceforge.net
-References: <20061002085942.GA32387@gamma.logic.tuwien.ac.at> <20061002111537.baa077d2.akpm@osdl.org> <20061002185550.GA14854@bougret.hpl.hp.com> <200610022147.03748.rjw@sisk.pl> <1159822831.11771.5.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <1159822831.11771.5.camel@localhost.localdomain>
-User-Agent: Mutt/1.5.11
-X-SA-Exim-Connect-IP: <locally generated>
-X-SA-Exim-Mail-From: tytso@thunk.org
-X-SA-Exim-Scanned: No (on thunker.thunk.org); SAEximRunCond expanded to false
+	Mon, 2 Oct 2006 17:33:53 -0400
+Message-Id: <200610022133.k92LXO5d020760@laptop13.inf.utfsm.cl>
+To: Linus Torvalds <torvalds@osdl.org>
+cc: "Martin J. Bligh" <mbligh@mbligh.org>, Lee Revell <rlrevell@joe-job.com>,
+       Matti Aarnio <matti.aarnio@zmailer.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Spam, bogofilter, etc 
+In-Reply-To: Message from Linus Torvalds <torvalds@osdl.org> 
+   of "Mon, 02 Oct 2006 09:40:42 MST." <Pine.LNX.4.64.0610020933020.3952@g5.osdl.org> 
+X-Mailer: MH-E 7.4.2; nmh 1.1; XEmacs 21.5  (beta27)
+Date: Mon, 02 Oct 2006 17:33:24 -0400
+From: "Horst H. von Brand" <vonbrand@inf.utfsm.cl>
+X-Greylist: Sender IP whitelisted, not delayed by milter-greylist-2.0.2 (inti.inf.utfsm.cl [200.1.21.155]); Mon, 02 Oct 2006 17:33:24 -0400 (CLT)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 02, 2006 at 05:00:31PM -0400, Dan Williams wrote:
-> Distributions _are_ shipping those tools already.  The problem is more
-> with older distributions where, for example, the kernel gets upgraded
-> but other stuff does not.  If a kernel upgrade happens, then the distro
-> needs to make sure userspace works with it.  That's nothing new.
+Linus Torvalds <torvalds@osdl.org> wrote:
 
-Um, *which* distro's are shipping it already?  RHEL4?  SLES10?  I
-thought we saw a note saying that even Debian **unstable** didn't have
-a new enough version of the wireless-tools....
+[...]
 
-						- Ted
+> If you want a yes/no kind of thing, do it on real hard issues, like not 
+> accepting email from machines that aren't registered MX gateways. Sure, 
+> that will mean that people who just set up their local sendmail thing and 
+> connect directly to port 25 will just not be able to email, but let's face 
+> it, that's why we have ISP's and DNS in the first place.
+
+Larger sites have ingoing (MX) machines and outgoing (no MX) ones... this
+is useless. And the whole SPF fiasco shows that such mechanisms (DNS based,
+remote site publishes the data) are even easier to bypass (I've seen
+statistics showing that the overwhelming mayority of SPF-"protected" email
+is spam).
+
+What does work rather well is greylisting (on first try tell them to come
+back later, spammers rarely retry their junk).
+
+Add blacklists (sadly, there are few reliable ones, AFAICS) and you cut it
+down even more.
+
+And yes, there is no silver bullet. This is an arms race, get a new
+anti-spam device (filter configuration, ...) and soon they will figure out
+how to bypass it.
+
+In any case, I've seen claims that around 80% of email now is spam. That
+it is still only a little in LKML says that the listmasters are doing an
+oustanding job.
+-- 
+Dr. Horst H. von Brand                   User #22616 counter.li.org
+Departamento de Informatica                    Fono: +56 32 2654431
+Universidad Tecnica Federico Santa Maria             +56 32 2654239
+Casilla 110-V, Valparaiso, Chile               Fax:  +56 32 2797513

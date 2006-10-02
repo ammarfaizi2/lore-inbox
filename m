@@ -1,105 +1,91 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932546AbWJBAxK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932550AbWJBA51@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932546AbWJBAxK (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Oct 2006 20:53:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932547AbWJBAxK
+	id S932550AbWJBA51 (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Oct 2006 20:57:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932551AbWJBA51
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Oct 2006 20:53:10 -0400
-Received: from rwcrmhc13.comcast.net ([204.127.192.83]:7929 "EHLO
-	rwcrmhc13.comcast.net") by vger.kernel.org with ESMTP
-	id S932546AbWJBAxG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Oct 2006 20:53:06 -0400
-Subject: Re: Performance analysis of Linux Kernel Markers 0.20 for 2.6.17
-From: Nicholas Miell <nmiell@comcast.net>
-To: Mathieu Desnoyers <compudj@krystal.dyndns.org>
-Cc: Martin Bligh <mbligh@google.com>, "Frank Ch. Eigler" <fche@redhat.com>,
-       Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>, prasanna@in.ibm.com,
-       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-       Paul Mundt <lethal@linux-sh.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>, Jes Sorensen <jes@sgi.com>,
-       Tom Zanussi <zanussi@us.ibm.com>,
-       Richard J Moore <richardj_moore@uk.ibm.com>,
-       Michel Dagenais <michel.dagenais@polymtl.ca>,
-       Christoph Hellwig <hch@infradead.org>,
-       Greg Kroah-Hartman <gregkh@suse.de>,
-       Thomas Gleixner <tglx@linutronix.de>, William Cohen <wcohen@redhat.com>,
-       ltt-dev@shafik.org, systemtap@sources.redhat.com,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Jeremy Fitzhardinge <jeremy@goop.org>,
-       Karim Yaghmour <karim@opersys.com>, Pavel Machek <pavel@suse.cz>,
-       Joe Perches <joe@perches.com>, "Randy.Dunlap" <rdunlap@xenotime.net>,
-       "Jose R. Santos" <jrs@us.ibm.com>
-In-Reply-To: <20061002000731.GA22337@Krystal>
-References: <20060930180157.GA25761@Krystal>
-	 <1159642933.2355.1.camel@entropy> <20061001034212.GB13527@Krystal>
-	 <1159676382.2355.13.camel@entropy> <20061001153317.GB24313@Krystal>
-	 <1159747060.2355.21.camel@entropy>  <20061002000731.GA22337@Krystal>
-Content-Type: text/plain
-Date: Sun, 01 Oct 2006 17:53:00 -0700
-Message-Id: <1159750380.2355.41.camel@entropy>
+	Sun, 1 Oct 2006 20:57:27 -0400
+Received: from remus.commandcorp.com ([130.205.32.4]:49314 "EHLO
+	remus.wittsend.com") by vger.kernel.org with ESMTP id S932550AbWJBA50
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 Oct 2006 20:57:26 -0400
+Subject: Re: [PATCH] drivers/char/ip2: kill unused code, label
+From: "Michael H. Warfield" <mhw@WittsEnd.com>
+Reply-To: mhw@WittsEnd.com
+To: Jeff Garzik <jeff@garzik.org>
+Cc: mhw@WittsEnd.com, Andrew Morton <akpm@osdl.org>,
+       LKML <linux-kernel@vger.kernel.org>
+In-Reply-To: <20061001153753.GA5388@havoc.gtf.org>
+References: <20061001153753.GA5388@havoc.gtf.org>
+Content-Type: multipart/signed; micalg=pgp-sha1; protocol="application/pgp-signature"; boundary="=-TeSfFaMXFkLYp1MC7oef"
+Organization: Thaumaturgy & Speculums Technology
+Date: Sun, 01 Oct 2006 20:57:07 -0400
+Message-Id: <1159750627.24836.1.camel@canyon.wittsend.com>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5.0.njm.1) 
-Content-Transfer-Encoding: 7bit
+X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5) 
+X-WittsEnd-MailScanner-Information: Please contact the ISP for more information
+X-WittsEnd-MailScanner: Found to be clean
+X-WittsEnd-MailScanner-From: mhw@wittsend.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 2006-10-01 at 20:07 -0400, Mathieu Desnoyers wrote:
-> * Nicholas Miell (nmiell@comcast.net) wrote:
-> > To summarize in chart form:
-> > 
-> >               JoC	JoCo	2NOP	1NOP
-> > empty loop	1.17	2.50	0.50	2.50
-> > memcpy	2.12	0.07	0.03	0.43
-> > 
-> > JoC 	= Jump over call - generic
-> > JoCo	= Jump over call - optimized
-> > 2NOP	= "data16 data16 nop; data16 nop"
-> > 1NOP	= NOP with ModRM
-> > 
-> > I left out your "nop; lea 0(%esi), %esi" because it isn't actually a NOP
-> > (the CPU will do actual work even if it has no effect, and on AMD64,
-> > that insn is "nop; lea 0(%rdi), %esi", which will truncate RDI+0 to fit
-> > 32-bits.)
-> > 
-> > The performance of NOP with ModRM doesn't suprise me -- AFAIK, only the
-> > most recent of Intel CPUs actually special case that to be a true
-> > no-work-done NOP.
-> > 
-> > It'd be nice to see the results of "jump to an out-of-line call with the
-> > jump replaced by a NOP", but even if it performs well (and it should,
-> > the argument passing and stack alignment overhead won't be executed in
-> > the disabled probe case), actually using it in practice would be
-> > difficult without compiler support (call instructions are easy to find
-> > thanks to their relocations, which local jumps don't have).
-> > 
-> 
-> Hi,
-> 
-> Just to make sure we see things the same way : the JoC approach is similar to
-> the out-of-line call in that the argument passing and stack alignment are not
-> executed when the probe is disabled.
-> 
 
-Yeah, I assumed that.
+--=-TeSfFaMXFkLYp1MC7oef
+Content-Type: text/plain; charset=utf-8
+Content-Transfer-Encoding: quoted-printable
 
-For the jump-over-call, you'll always have to do a test and a
-conditional jump (even when the probe is disabled), and that test takes
-work and that conditional jump will consume "useless" space in the
-predictor cache.
+On Sun, 2006-10-01 at 11:37 -0400, Jeff Garzik wrote:
+> Kill warning:
 
-For an unconditional-call-replaced-by-NOP, you'll always be doing the
-work involved in the setup and cleanup for a function call, but there's
-no conditional branching (which is a win, as your test results
-demonstrate).
+> drivers/char/ip2/ip2main.c: In function =E2=80=98ip2_loadmain=E2=80=99:
+> drivers/char/ip2/ip2main.c:782: warning: label =E2=80=98out_class=E2=80=
+=99 defined but not used
 
-For the ideal case, you'd have a single unconditional jump to an
-out-of-line function call, which you'd replace with a single NOP. No
-unnecessary work (beyond the NOP instruction itself) gets done in the
-disabled probe case, and in the enabled case, you don't have to do any
-tests to see if the probe should be run. It should be an improvement all
-around, if we could just get gcc to do the hard part of replacing the
-unconditional jump with a NOP for us.
+> This driver's initialization (and cleanup of errors during init) is
+> extremely convoluted, and could stand to be transformed into the
+> standard unwinding-goto style of error cleanup.
 
--- 
-Nicholas Miell <nmiell@comcast.net>
+> Signed-off-by: Jeff Garzik <jeff@garzik.org>
+
+	Looks good to me.  I'll look into the unwinding suggestion.
+
+	Signed-off-by: Michael H. Warfield <mhw@wittsend.com>
+
+> diff --git a/drivers/char/ip2/ip2main.c b/drivers/char/ip2/ip2main.c
+> index 331f447..bcf6573 100644
+> --- a/drivers/char/ip2/ip2main.c
+> +++ b/drivers/char/ip2/ip2main.c
+> @@ -779,8 +779,6 @@ retry:
+>  	ip2trace (ITRC_NO_PORT, ITRC_INIT, ITRC_RETURN, 0 );
+>  	goto out;
+> =20
+> -out_class:
+> -	class_destroy(ip2_class);
+>  out_chrdev:
+>  	unregister_chrdev(IP2_IPL_MAJOR, "ip2");
+>  out:
+--=20
+Michael H. Warfield (AI4NB) | (770) 985-6132 |  mhw@WittsEnd.com
+   /\/\|=3Dmhw=3D|\/\/          | (678) 463-0932 |  http://www.wittsend.com=
+/mhw/
+   NIC whois: MHW9          | An optimist believes we live in the best of a=
+ll
+ PGP Key: 0xDF1DD471        | possible worlds.  A pessimist is sure of it!
+
+
+--=-TeSfFaMXFkLYp1MC7oef
+Content-Type: application/pgp-signature; name=signature.asc
+Content-Description: This is a digitally signed message part
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
+
+iQCVAwUARSBj4uHJS0bfHdRxAQIHxgP/ajgRx3SYspHXyMpx2so+EAikiR1getiu
+KsKeFCLswsJreoezmjwywVCyJP0/rqV2YPNF5vasZg27SmAEhOhNQpSWuJHh05Su
+DedFfZ2MBcGPqtyivpXVcCY4e6FY4U///mbMf1tMNZ4wnaJNqanaCHKam4fjOBHD
+53CWMVITQP0=
+=Ldy1
+-----END PGP SIGNATURE-----
+
+--=-TeSfFaMXFkLYp1MC7oef--
 

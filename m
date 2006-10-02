@@ -1,2115 +1,416 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932521AbWJBPRK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932511AbWJBPKv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932521AbWJBPRK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Oct 2006 11:17:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932524AbWJBPRK
+	id S932511AbWJBPKv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Oct 2006 11:10:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932499AbWJBPKv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Oct 2006 11:17:10 -0400
-Received: from smtp106.sbc.mail.mud.yahoo.com ([68.142.198.205]:60248 "HELO
-	smtp106.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S932521AbWJBPRE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Oct 2006 11:17:04 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-  s=s1024; d=pacbell.net;
-  h=Received:From:To:Subject:User-Agent:Cc:MIME-Version:Content-Disposition:Date:Content-Type:Content-Transfer-Encoding:Message-Id;
-  b=OoKV136TgVZp53NnCtNrGf2tpYwvLphz4clZxtwj6fxDAJh5Ald3vZr0IPbWaWHn12vqwS02aaDtZL9QgTiE75fP6jBFi913VsWoGiFrho4ythELF7BhTutbte4SXXWwroiOQuoj51pl/A40ppmI1wE/x4D06wej90SdCBI0Pmw=  ;
-From: David Brownell <david-b@pacbell.net>
-To: Andrew Morton <akpm@osdl.org>
-Subject: [patch 2.6.18-git] SPI -- Freescale iMX SPI controller driver
-User-Agent: KMail/1.7.1
-Cc: "Andrea Paterniani" <a.paterniani@swapp-eng.it>,
-       Linux Kernel list <linux-kernel@vger.kernel.org>
+	Mon, 2 Oct 2006 11:10:51 -0400
+Received: from 70-91-206-233-BusName-SFBA.hfc.comcastbusiness.net ([70.91.206.233]:18659
+	"EHLO saville.com") by vger.kernel.org with ESMTP id S932511AbWJBPKu
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Oct 2006 11:10:50 -0400
+Message-ID: <45212BFB.3080708@saville.com>
+Date: Mon, 02 Oct 2006 08:10:51 -0700
+From: Wink Saville <wink@saville.com>
+User-Agent: Thunderbird 1.5.0.7 (Windows/20060909)
 MIME-Version: 1.0
-Content-Disposition: inline
-Date: Mon, 2 Oct 2006 08:16:58 -0700
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200610020816.58985.david-b@pacbell.net>
+To: Andi Kleen <ak@suse.de>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: PCI: BIOS Bug: MCFG area at f0000000 is not E820-reserved with
+ 2.6.18 kernel
+References: <45206777.7020405@saville.com> <p733ba7hwlh.fsf@verdi.suse.de>
+In-Reply-To: <p733ba7hwlh.fsf@verdi.suse.de>
+Content-Type: multipart/mixed;
+ boundary="------------060108090305000903040405"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Subject: SPI controller driver for Freescale iMX
-From: Andrea Paterniani <a.paterniani@swapp-eng.it>
+This is a multi-part message in MIME format.
+--------------060108090305000903040405
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 
-This patch adds a SPI controller driver for the Freescale i.MX(S/L/1).
-The code is inspired by pxa2xx_spi driver.  Main features summary:
- -  Per chip setup via board specific code and/or protocol driver.
- -  Per transfer setup.
- -  PIO transfers.
- -  DMA transfers.
- -  Managing of NULL tx / rx buffer for rd only / wr only transfers.
+Andi,
 
-Signed-off-by: Andrea Paterniani <a.paterniani@swapp-eng.it>
-Signed-off-by: David Brownell <dbrownell@users.sourceforge.net>
+Attached is the log file captured via a serial port with initcall_debug 
+enabled and loglevel=7. BTW, if I didn't have a serial port what other 
+mechanisms are available to capture the logs if the kernel won't boot?
+
+Cheers,
+
+Wink
 
 
-Index: at91/drivers/spi/Kconfig
-===================================================================
---- at91.orig/drivers/spi/Kconfig	2006-09-30 19:05:12.000000000 -0700
-+++ at91/drivers/spi/Kconfig	2006-10-01 23:45:10.000000000 -0700
-@@ -75,6 +75,12 @@ config SPI_BUTTERFLY
- 	  inexpensive battery powered microcontroller evaluation board.
- 	  This same cable can be used to flash new firmware.
- 
-+config SPI_IMX
-+	tristate "Freescale iMX SPI controller driver"
-+	depends on SPI_MASTER && ARCH_IMX && EXPERIMENTAL
-+	help
-+	  This is the iMX SPI controller driver.
-+
- config SPI_MPC83xx
- 	tristate "Freescale MPC83xx SPI controller"
- 	depends on SPI_MASTER && PPC_83xx && EXPERIMENTAL
-Index: at91/drivers/spi/Makefile
-===================================================================
---- at91.orig/drivers/spi/Makefile	2006-09-30 19:05:12.000000000 -0700
-+++ at91/drivers/spi/Makefile	2006-10-01 20:06:53.000000000 -0700
-@@ -13,6 +13,7 @@ obj-$(CONFIG_SPI_MASTER)		+= spi.o
- # SPI master controller drivers (bus)
- obj-$(CONFIG_SPI_BITBANG)		+= spi_bitbang.o
- obj-$(CONFIG_SPI_BUTTERFLY)		+= spi_butterfly.o
-+obj-$(CONFIG_SPI_IMX)			+= spi_imx.o
- obj-$(CONFIG_SPI_PXA2XX)		+= pxa2xx_spi.o
- obj-$(CONFIG_SPI_MPC83xx)		+= spi_mpc83xx.o
- obj-$(CONFIG_SPI_S3C24XX_GPIO)		+= spi_s3c24xx_gpio.o
-Index: at91/drivers/spi/spi_imx.c
-===================================================================
---- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ at91/drivers/spi/spi_imx.c	2006-10-01 23:48:25.000000000 -0700
-@@ -0,0 +1,1962 @@
-+/*
-+ * drivers/spi/spi_imx.c
-+ *
-+ * Copyright (C) 2006 SWAPP
-+ *	Andrea Paterniani <a.paterniani@swapp-eng.it>
-+ *
-+ * Initial version inspired by:
-+ *	linux-2.6.17-rc3-mm1/drivers/spi/pxa2xx_spi.c
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ */
-+
-+#include <linux/init.h>
-+#include <linux/module.h>
-+#include <linux/device.h>
-+#include <linux/ioport.h>
-+#include <linux/errno.h>
-+#include <linux/interrupt.h>
-+#include <linux/platform_device.h>
-+#include <linux/dma-mapping.h>
-+#include <linux/spi/spi.h>
-+#include <linux/workqueue.h>
-+#include <linux/errno.h>
-+#include <linux/delay.h>
-+
-+#include <asm/io.h>
-+#include <asm/irq.h>
-+#include <asm/hardware.h>
-+#include <asm/delay.h>
-+
-+#include <asm/arch/hardware.h>
-+#include <asm/arch/imx-dma.h>
-+#include <asm/arch/spi_imx.h>
-+
-+/*-------------------------------------------------------------------------*/
-+/* SPI Control Register Bit Fields & Masks */
-+#define SPI_CONTROL_BITCOUNT	(0xF)		/* Bit Count Mask */
-+#define SPI_CONTROL_BITCOUNT_1	(0x0)		/* Bit Count = 1 */
-+#define SPI_CONTROL_BITCOUNT_2	(0x1)		/* Bit Count = 2 */
-+#define SPI_CONTROL_BITCOUNT_3	(0x2)		/* Bit Count = 3 */
-+#define SPI_CONTROL_BITCOUNT_4	(0x3)		/* Bit Count = 4 */
-+#define SPI_CONTROL_BITCOUNT_5	(0x4)		/* Bit Count = 5 */
-+#define SPI_CONTROL_BITCOUNT_6	(0x5)		/* Bit Count = 6 */
-+#define SPI_CONTROL_BITCOUNT_7	(0x6)		/* Bit Count = 7 */
-+#define SPI_CONTROL_BITCOUNT_8	(0x7)		/* Bit Count = 8 */
-+#define SPI_CONTROL_BITCOUNT_9	(0x8)		/* Bit Count = 9 */
-+#define SPI_CONTROL_BITCOUNT_10	(0x9)		/* Bit Count = 10 */
-+#define SPI_CONTROL_BITCOUNT_11	(0xA)		/* Bit Count = 11 */
-+#define SPI_CONTROL_BITCOUNT_12	(0xB)		/* Bit Count = 12 */
-+#define SPI_CONTROL_BITCOUNT_13	(0xC)		/* Bit Count = 13 */
-+#define SPI_CONTROL_BITCOUNT_14	(0xD)		/* Bit Count = 14 */
-+#define SPI_CONTROL_BITCOUNT_15	(0xE)		/* Bit Count = 15 */
-+#define SPI_CONTROL_BITCOUNT_16	(0xF)		/* Bit Count = 16 */
-+#define SPI_CONTROL_POL		(0x1 << 4)      /* Clock Polarity Mask */
-+#define SPI_CONTROL_POL_0	(0x0 << 4)      /* Active high pol. (0=idle) */
-+#define SPI_CONTROL_POL_1	(0x1 << 4)      /* Active low pol. (1=idle) */
-+#define SPI_CONTROL_PHA		(0x1 << 5)      /* Clock Phase Mask */
-+#define SPI_CONTROL_PHA_0	(0x0 << 5)      /* Clock Phase 0 */
-+#define SPI_CONTROL_PHA_1	(0x1 << 5)      /* Clock Phase 1 */
-+#define SPI_CONTROL_SSCTL	(0x1 << 6)      /* /SS Waveform Select Mask */
-+#define SPI_CONTROL_SSCTL_0	(0x0 << 6)      /* Master: /SS stays low
-+							between SPI burst
-+						   Slave: RXFIFO advanced by
-+							BIT_COUNT */
-+#define SPI_CONTROL_SSCTL_1	(0x1 << 6)      /* Master: /SS insert pulse
-+							between SPI burst
-+						   Slave: RXFIFO advanced by
-+							/SS rising edge */
-+#define SPI_CONTROL_SSPOL	(0x1 << 7)      /* /SS Polarity Select Mask */
-+#define SPI_CONTROL_SSPOL_0	(0x0 << 7)      /* /SS Active low */
-+#define SPI_CONTROL_SSPOL_1	(0x1 << 7)      /* /SS Active high */
-+#define SPI_CONTROL_XCH		(0x1 << 8)      /* Exchange */
-+#define SPI_CONTROL_SPIEN	(0x1 << 9)      /* SPI Module Enable */
-+#define SPI_CONTROL_MODE	(0x1 << 10)     /* SPI Mode Select Mask */
-+#define SPI_CONTROL_MODE_SLAVE	(0x0 << 10)     /* SPI Mode Slave */
-+#define SPI_CONTROL_MODE_MASTER	(0x1 << 10)     /* SPI Mode Master */
-+#define SPI_CONTROL_DRCTL	(0x3 << 11)     /* /SPI_RDY Control Mask */
-+#define SPI_CONTROL_DRCTL_0	(0x0 << 11)     /* Ignore /SPI_RDY */
-+#define SPI_CONTROL_DRCTL_1	(0x1 << 11)     /* /SPI_RDY falling edge
-+							triggers input */
-+#define SPI_CONTROL_DRCTL_2	(0x2 << 11)     /* /SPI_RDY active low level
-+							triggers input */
-+#define SPI_CONTROL_DATARATE	(0x7 << 13)     /* Data Rate Mask */
-+#define SPI_PERCLK2_DIV_MIN		(0)	/* PERCLK2:4 */
-+#define SPI_PERCLK2_DIV_MAX		(7)	/* PERCLK2:512 */
-+#define SPI_CONTROL_DATARATE_MIN	(SPI_PERCLK2_DIV_MAX << 13)
-+#define SPI_CONTROL_DATARATE_MAX	(SPI_PERCLK2_DIV_MIN << 13)
-+#define SPI_CONTROL_DATARATE_BAD	(SPI_CONTROL_DATARATE_MIN + 1)
-+
-+/* SPI Interrupt/Status Register Bit Fields & Masks */
-+#define SPI_STATUS_TE		(0x1 << 0)	/* TXFIFO Empty Status */
-+#define SPI_STATUS_TH		(0x1 << 1)      /* TXFIFO Half Status */
-+#define SPI_STATUS_TF		(0x1 << 2)      /* TXFIFO Full Status */
-+#define SPI_STATUS_RR		(0x1 << 3)      /* RXFIFO Data Ready Status */
-+#define SPI_STATUS_RH		(0x1 << 4)      /* RXFIFO Half Status */
-+#define SPI_STATUS_RF		(0x1 << 5)      /* RXFIFO Full Status */
-+#define SPI_STATUS_RO		(0x1 << 6)      /* RXFIFO Overflow */
-+#define SPI_STATUS_BO		(0x1 << 7)      /* Bit Count Overflow */
-+#define SPI_STATUS		(0xFF)		/* SPI Status Mask */
-+#define SPI_INTEN_TE		(0x1 << 8)      /* TXFIFO Empty Interrupt
-+							Enable */
-+#define SPI_INTEN_TH		(0x1 << 9)      /* TXFIFO Half Interrupt
-+							Enable */
-+#define SPI_INTEN_TF		(0x1 << 10)     /* TXFIFO Full Interrupt
-+							Enable */
-+#define SPI_INTEN_RE		(0x1 << 11)     /* RXFIFO Data Ready Interrupt
-+							Enable */
-+#define SPI_INTEN_RH		(0x1 << 12)     /* RXFIFO Half Interrupt
-+							Enable */
-+#define SPI_INTEN_RF		(0x1 << 13)     /* RXFIFO Full Interrupt
-+							Enable */
-+#define SPI_INTEN_RO		(0x1 << 14)     /* RXFIFO Overflow Interrupt
-+							Enable */
-+#define SPI_INTEN_BO		(0x1 << 15)     /* Bit Count Overflow
-+							Interrupt Enable */
-+#define SPI_INTEN		(0xFF << 8)	/* SPI Interrupt Enable Mask */
-+
-+/* SPI Test Register Bit Fields & Masks */
-+#define SPI_TEST_TXCNT		(0xF << 0)	/* TXFIFO Counter */
-+#define SPI_TEST_RXCNT_LSB	(4)		/* RXFIFO Counter LSB */
-+#define SPI_TEST_RXCNT		(0xF << 4)	/* RXFIFO Counter */
-+#define SPI_TEST_SSTATUS	(0xF << 8)	/* State Machine Status */
-+#define SPI_TEST_LBC		(0x1 << 14)	/* Loop Back Control */
-+
-+/* SPI Period Register Bit Fields & Masks */
-+#define SPI_PERIOD_WAIT		(0x7FFF << 0)	/* Wait Between Transactions */
-+#define SPI_PERIOD_MAX_WAIT	(0x7FFF)	/* Max Wait Between
-+							Transactions */
-+#define SPI_PERIOD_CSRC		(0x1 << 15)	/* Period Clock Source Mask */
-+#define SPI_PERIOD_CSRC_BCLK	(0x0 << 15)	/* Period Clock Source is
-+							Bit Clock */
-+#define SPI_PERIOD_CSRC_32768	(0x1 << 15)	/* Period Clock Source is
-+							32.768 KHz Clock */
-+
-+/* SPI DMA Register Bit Fields & Masks */
-+#define SPI_DMA_RHDMA		(0xF << 4)	/* RXFIFO Half Status */
-+#define SPI_DMA_RFDMA		(0x1 << 5)      /* RXFIFO Full Status */
-+#define SPI_DMA_TEDMA		(0x1 << 6)      /* TXFIFO Empty Status */
-+#define SPI_DMA_THDMA		(0x1 << 7)      /* TXFIFO Half Status */
-+#define SPI_DMA_RHDEN		(0x1 << 12)	/* RXFIFO Half DMA Request
-+							Enable */
-+#define SPI_DMA_RFDEN		(0x1 << 13)     /* RXFIFO Full DMA Request
-+							Enable */
-+#define SPI_DMA_TEDEN		(0x1 << 14)     /* TXFIFO Empty DMA Request
-+							Enable */
-+#define SPI_DMA_THDEN		(0x1 << 15)     /* TXFIFO Half DMA Request
-+							Enable */
-+
-+/* SPI Soft Reset Register Bit Fields & Masks */
-+#define SPI_RESET_START		(0x1 << 0)	/* Start */
-+
-+/* Default SPI configuration values */
-+#define SPI_DEFAULT_CONTROL		\
-+(					\
-+	SPI_CONTROL_BITCOUNT_16 |	\
-+	SPI_CONTROL_POL_0 |		\
-+	SPI_CONTROL_PHA_0 |		\
-+	SPI_CONTROL_SSCTL_0 |		\
-+	SPI_CONTROL_MODE_MASTER |	\
-+	SPI_CONTROL_DRCTL_0 |		\
-+	SPI_CONTROL_DATARATE_MIN	\
-+)
-+#define SPI_DEFAULT_ENABLE_LOOPBACK	(0)
-+#define SPI_DEFAULT_ENABLE_DMA		(0)
-+/*-------------------------------------------------------------------------*/
-+
-+
-+/*-------------------------------------------------------------------------*/
-+/* TX/RX SPI FIFO size */
-+#define SPI_FIFO_DEPTH			(8)
-+#define SPI_FIFO_BYTE_WIDTH		(2)
-+#define SPI_FIFO_OVERFLOW_MARGIN	(2)
-+
-+/* DMA burst lenght for half full/empty request trigger */
-+#define SPI_DMA_BLR			(SPI_FIFO_DEPTH * SPI_FIFO_BYTE_WIDTH / 2)
-+
-+/* Dummy char output to achieve reads.
-+   Choosing something different from all zeors or all ones may help
-+   pattern recognition for oscilloscope analysis. */
-+#define SPI_DUMMY_u8			('@')
-+#define SPI_DUMMY_u16			((SPI_DUMMY_u8 << 8) | SPI_DUMMY_u8)
-+#define SPI_DUMMY_u32			((SPI_DUMMY_u16 << 16) | SPI_DUMMY_u16)
-+
-+/**
-+ * Macro to change a u32 field:
-+ * @r : register to edit
-+ * @m : bit mask
-+ * @v : new value for the field correctly bit-alligned
-+*/
-+#define u32_EDIT(r, m, v)		r = (r & ~(m)) | (v)
-+
-+/* Message state */
-+#define START_STATE			((void*)0)
-+#define RUNNING_STATE			((void*)1)
-+#define DONE_STATE			((void*)2)
-+#define ERROR_STATE			((void*)-1)
-+
-+/* Queue state */
-+#define QUEUE_RUNNING			(0)
-+#define QUEUE_STOPPED			(1)
-+
-+#define IS_DMA_ALIGNED(x)		(((u32)(x) & 0x03) == 0)
-+/*-------------------------------------------------------------------------*/
-+
-+
-+/*-------------------------------------------------------------------------*/
-+/* Inline functions for SPI controller registers access */
-+
-+#define DEFINE_SPI_REG_RD(reg, off)			\
-+	static inline u32 rd_##reg(void __iomem *p)	\
-+	{						\
-+		return readl(p + (off));		\
-+	}
-+
-+#define DEFINE_SPI_REG_WR(reg, off)				\
-+	static inline void wr_##reg(u32 v, void __iomem *p)	\
-+	{							\
-+		writel(v, p + (off));				\
-+	}
-+
-+DEFINE_SPI_REG_RD(DATA, 0x00)
-+DEFINE_SPI_REG_WR(DATA, 0x04)
-+DEFINE_SPI_REG_RD(CONTROL, 0x08)
-+DEFINE_SPI_REG_WR(CONTROL, 0x08)
-+DEFINE_SPI_REG_RD(INT_STATUS, 0x0C)
-+DEFINE_SPI_REG_WR(INT_STATUS, 0x0C)
-+DEFINE_SPI_REG_RD(TEST, 0x10)
-+DEFINE_SPI_REG_WR(TEST, 0x10)
-+DEFINE_SPI_REG_RD(PERIOD, 0x14)
-+DEFINE_SPI_REG_WR(PERIOD, 0x14)
-+DEFINE_SPI_REG_RD(DMA, 0x18)
-+DEFINE_SPI_REG_WR(DMA, 0x18)
-+DEFINE_SPI_REG_WR(RESET, 0x1C)
-+/*-------------------------------------------------------------------------*/
-+
-+
-+/*-------------------------------------------------------------------------*/
-+/* Debug print macros */
-+
-+#define PRINT_DMA_GLOBAL_REGS(dev)	\
-+	dev_dbg(dev,			\
-+		"DMA_GLOBAL\n"		\
-+		"    DCR    = 0x%08X\n"	\
-+		"    DISR   = 0x%08X\n"	\
-+		"    DIMR   = 0x%08X\n"	\
-+		"    DBTOSR = 0x%08X\n"	\
-+		"    DRTOSR = 0x%08X\n"	\
-+		"    DSESR  = 0x%08X\n"	\
-+		"    DBOSR  = 0x%08X\n"	\
-+		"    DBTOCR = 0x%08X\n",\
-+		DCR,			\
-+		DISR,			\
-+		DIMR,			\
-+		DBTOSR,			\
-+		DRTOSR,			\
-+		DSESR,			\
-+		DBOSR,			\
-+		DBTOCR)
-+
-+#define PRINT_DMA_CH_REGS(dev, channel)	\
-+	dev_dbg(dev,			\
-+		"DMA(%d)\n"		\
-+		"    SAR    = 0x%08X\n"	\
-+		"    DAR    = 0x%08X\n"	\
-+		"    CNTR   = 0x%08X\n"	\
-+		"    CCR    = 0x%08X\n"	\
-+		"    RSSR   = 0x%08X\n"	\
-+		"    BLR    = 0x%08X\n"	\
-+		"    RTOR   = 0x%08X\n"	\
-+		"    BUCR   = 0x%08X\n",\
-+		channel,		\
-+		SAR(channel),		\
-+		DAR(channel),		\
-+		CNTR(channel),		\
-+		CCR(channel),		\
-+		RSSR(channel),		\
-+		BLR(channel),		\
-+		RTOR(channel),		\
-+		BUCR(channel))
-+
-+#define PRINT_SPI_REGS(dev, regs)		\
-+	dev_dbg(dev,				\
-+		"SPI_REGS\n"			\
-+		"    CONTROL    = 0x%08X\n"	\
-+		"    INT_STATUS = 0x%08X\n"	\
-+		"    TEST       = 0x%08X\n"	\
-+		"    PERIOD     = 0x%08X\n"	\
-+		"    DMA        = 0x%08X\n",	\
-+		rd_CONTROL(regs),		\
-+		rd_INT_STATUS(regs),		\
-+		rd_TEST(regs),			\
-+		rd_PERIOD(regs),			\
-+		rd_DMA(regs))
-+/*-------------------------------------------------------------------------*/
-+
-+
-+/*-------------------------------------------------------------------------*/
-+/* Driver data structs */
-+
-+/* Context */
-+struct driver_data {
-+	/* Driver model hookup */
-+	struct platform_device *pdev;
-+
-+	/* SPI framework hookup */
-+	struct spi_master *master;
-+
-+	/* IMX hookup */
-+	struct spi_imx_master *master_info;
-+
-+	/* Memory resources and SPI regs virtual address */
-+	struct resource *ioarea;
-+	void __iomem *regs;
-+
-+	/* SPI RX_DATA physical address */
-+	dma_addr_t rd_data_phys;
-+
-+	/* Driver message queue */
-+	struct workqueue_struct	*workqueue;
-+	struct work_struct pump_messages;
-+	spinlock_t lock;
-+	struct list_head queue;
-+	int busy;
-+	int run;
-+
-+	/* Message Transfer pump */
-+	struct tasklet_struct pump_transfers;
-+
-+	/* Current message, transfer and state */
-+	struct spi_message *cur_msg;
-+	struct spi_transfer *cur_transfer;
-+	struct chip_data *cur_chip;
-+
-+	/* Rd / Wr buffers pointers */
-+	size_t len;
-+	void *tx;
-+	void *tx_end;
-+	void *rx;
-+	void *rx_end;
-+
-+	u8 n_bytes;
-+	int cs_change;
-+
-+	/* Function pointers */
-+	int (*write)(struct driver_data *drv_data);
-+	int (*read)(struct driver_data *drv_data);
-+	irqreturn_t (*transfer_handler)(struct driver_data *drv_data);
-+	void (*cs_control)(u32 command);
-+
-+	/* DMA setup */
-+	int rx_channel;
-+	int tx_channel;
-+	dma_addr_t rx_dma;
-+	dma_addr_t tx_dma;
-+	int rx_dma_needs_unmap;
-+	int tx_dma_needs_unmap;
-+	size_t tx_map_len;
-+	u32 dummy_dma_buf ____cacheline_aligned;
-+};
-+
-+/* Runtime state */
-+struct chip_data {
-+	u32 control;
-+	u32 test;
-+
-+	u8 enable_dma:1;
-+	u8 bits_per_word;
-+	u8 n_bytes;
-+	u32 max_speed_hz;
-+
-+	int (*write)(struct driver_data *drv_data);
-+	int (*read)(struct driver_data *drv_data);
-+	void (*cs_control)(u32 command);
-+};
-+/*-------------------------------------------------------------------------*/
-+
-+
-+static void pump_messages(void *data);
-+
-+static int flush(struct driver_data *drv_data)
-+{
-+	unsigned long limit = loops_per_jiffy << 1;
-+	void __iomem *regs = drv_data->regs;
-+	volatile u32 d;
-+
-+	dev_dbg(&drv_data->pdev->dev, "flush\n");
-+
-+	do {
-+		while (rd_INT_STATUS(regs) & SPI_STATUS_RR)
-+			d = rd_DATA(regs);
-+	} while ((rd_CONTROL(regs) & SPI_CONTROL_XCH) && limit--);
-+
-+	return limit;
-+}
-+
-+static void restore_state(struct driver_data *drv_data)
-+{
-+	void __iomem *regs = drv_data->regs;
-+	struct chip_data *chip = drv_data->cur_chip;
-+
-+	/* Temporary disable SPI */
-+	wr_CONTROL(rd_CONTROL(regs) & ~SPI_CONTROL_SPIEN, regs);
-+
-+	/* Load chip registers */
-+	dev_dbg(&drv_data->pdev->dev,
-+		"restore_state\n"
-+		"    test    = 0x%08X\n"
-+		"    control = 0x%08X\n",
-+		chip->test,
-+		chip->control);
-+	wr_TEST(chip->test, regs);
-+	wr_PERIOD(0, regs);
-+	wr_INT_STATUS(0, regs);
-+	wr_CONTROL(chip->control, regs);
-+}
-+
-+static void null_cs_control(u32 command)
-+{
-+}
-+
-+static inline u32 data_to_write(struct driver_data *drv_data)
-+{
-+	return ((u32)(drv_data->tx_end - drv_data->tx)) / drv_data->n_bytes;
-+}
-+
-+static inline u32 data_to_read(struct driver_data *drv_data)
-+{
-+	return ((u32)(drv_data->rx_end - drv_data->rx)) / drv_data->n_bytes;
-+}
-+
-+static int dummy_writer(struct driver_data *drv_data)
-+{
-+	void __iomem *regs = drv_data->regs;
-+	u8 *tx, *tx_end;
-+	u32 remaining_data;
-+	u32 fifo_avail_space;
-+	u32 n;
-+
-+	/* Compute how many fifo writes to do */
-+	tx = (u8*)drv_data->tx;
-+	tx_end = (u8*)drv_data->tx_end;
-+	remaining_data = (u32)(tx_end - tx) / drv_data->n_bytes;
-+	fifo_avail_space = SPI_FIFO_DEPTH - (rd_TEST(regs) & SPI_TEST_TXCNT);
-+	if (fifo_avail_space > SPI_FIFO_OVERFLOW_MARGIN)
-+		/* Fix misunderstood receive overflow */
-+		fifo_avail_space -= SPI_FIFO_OVERFLOW_MARGIN;
-+	n = min(remaining_data, fifo_avail_space);
-+	dev_dbg(&drv_data->pdev->dev,
-+		"dummy_writer\n"
-+		"    remaining data   = %d\n"
-+		"    fifo avail space = %d\n"
-+		"    fifo writes      = %d\n",
-+		remaining_data,
-+		fifo_avail_space,
-+		n);
-+
-+	if (n > 0) {
-+
-+		/* Fill SPI TXFIFO */
-+		tx += n * drv_data->n_bytes;
-+		while (n--)
-+			wr_DATA(SPI_DUMMY_u16, regs);
-+
-+		/* Trigger transfer */
-+		wr_CONTROL(rd_CONTROL(regs) | SPI_CONTROL_XCH, regs);
-+
-+		/* Update tx pointer */
-+		drv_data->tx = tx;
-+	}
-+
-+	return (tx >= tx_end);
-+}
-+
-+static int u8_writer(struct driver_data *drv_data)
-+{
-+	void __iomem *regs = drv_data->regs;
-+	u8 *tx, *tx_end;
-+	u32 remaining_data;
-+	u32 fifo_avail_space;
-+	u32 n;
-+
-+	/* Compute how many fifo writes to do */
-+	tx = (u8*)drv_data->tx;
-+	tx_end = (u8*)drv_data->tx_end;
-+	remaining_data = (u32)(tx_end - tx);
-+	fifo_avail_space = SPI_FIFO_DEPTH - (rd_TEST(regs) & SPI_TEST_TXCNT);
-+	if (drv_data->rx && (fifo_avail_space > SPI_FIFO_OVERFLOW_MARGIN))
-+		/* Fix misunderstood receive overflow */
-+		fifo_avail_space -= SPI_FIFO_OVERFLOW_MARGIN;
-+	n = min(remaining_data, fifo_avail_space);
-+	dev_dbg(&drv_data->pdev->dev,
-+		"u8_writer\n"
-+		"    remaining data   = %d\n"
-+		"    fifo avail space = %d\n"
-+		"    fifo writes      = %d\n",
-+		remaining_data,
-+		fifo_avail_space,
-+		n);
-+
-+	if (n > 0) {
-+		/* Fill SPI TXFIFO */
-+		while (n--)
-+			wr_DATA(*tx++, regs);
-+
-+		/* Trigger transfer */
-+		wr_CONTROL(rd_CONTROL(regs) | SPI_CONTROL_XCH, regs);
-+
-+		/* Update tx pointer */
-+		drv_data->tx = tx;
-+	}
-+
-+	return (tx >= tx_end);
-+}
-+
-+static int u8_reader(struct driver_data *drv_data)
-+{
-+	void __iomem *regs = drv_data->regs;
-+	u8 *rx, *rx_end;
-+	u32 remaining_data;
-+	u32 fifo_rxcnt;
-+	u32 n;
-+
-+	/* Compute how many fifo reads to do */
-+	rx = (u8*)drv_data->rx;
-+	rx_end = (u8*)drv_data->rx_end;
-+	remaining_data = (u32)(rx_end - rx);
-+	fifo_rxcnt = (rd_TEST(regs) & SPI_TEST_RXCNT) >> SPI_TEST_RXCNT_LSB;
-+	n = min(remaining_data, fifo_rxcnt);
-+	dev_dbg(&drv_data->pdev->dev,
-+		"u8_reader\n"
-+		"    remaining data = %d\n"
-+		"    fifo_rxcnt     = %d\n"
-+		"    fifo reads     = %d\n",
-+		remaining_data,
-+		fifo_rxcnt,
-+		n);
-+
-+	if (n > 0) {
-+		/* Read SPI RXFIFO */
-+		while (n--)
-+			*rx++ = rd_DATA(regs);
-+
-+		/* Update rx pointer */
-+		drv_data->rx = rx;
-+	}
-+
-+	return (rx >= rx_end);
-+}
-+
-+static int u16_writer(struct driver_data *drv_data)
-+{
-+	void __iomem *regs = drv_data->regs;
-+	u16 *tx, *tx_end;
-+	u32 remaining_data;
-+	u32 fifo_avail_space;
-+	u32 n;
-+
-+	/* Compute how many fifo writes to do */
-+	tx = (u16*)drv_data->tx;
-+	tx_end = (u16*)drv_data->tx_end;
-+	remaining_data = (u32)(tx_end - tx);
-+	fifo_avail_space = SPI_FIFO_DEPTH - (rd_TEST(regs) & SPI_TEST_TXCNT);
-+	if (drv_data->rx && (fifo_avail_space > SPI_FIFO_OVERFLOW_MARGIN))
-+		/* Fix misunderstood receive overflow */
-+		fifo_avail_space -= SPI_FIFO_OVERFLOW_MARGIN;
-+	n = min(remaining_data, fifo_avail_space);
-+	dev_dbg(&drv_data->pdev->dev,
-+		"u16_writer\n"
-+		"    remaining data   = %d\n"
-+		"    fifo avail space = %d\n"
-+		"    fifo writes      = %d\n",
-+		remaining_data,
-+		fifo_avail_space,
-+		n);
-+
-+	if (n > 0) {
-+		/* Fill SPI TXFIFO */
-+		while (n--)
-+			wr_DATA(*tx++, regs);
-+
-+		/* Trigger transfer */
-+		wr_CONTROL(rd_CONTROL(regs) | SPI_CONTROL_XCH, regs);
-+
-+		/* Update tx pointer */
-+		drv_data->tx = tx;
-+	}
-+
-+	return (tx >= tx_end);
-+}
-+
-+static int u16_reader(struct driver_data *drv_data)
-+{
-+	struct spi_regs __iomem *regs;
-+	u16 *rx, *rx_end;
-+	u32 remaining_data;
-+	u32 fifo_rxcnt;
-+	u32 n;
-+
-+	regs = drv_data->regs;
-+
-+	/* Compute how many fifo reads to do */
-+	rx = (u16*)drv_data->rx;
-+	rx_end = (u16*)drv_data->rx_end;
-+	remaining_data = (u32)(rx_end - rx);
-+	fifo_rxcnt = (rd_TEST(regs) & SPI_TEST_RXCNT) >> SPI_TEST_RXCNT_LSB;
-+	n = min(remaining_data, fifo_rxcnt);
-+	dev_dbg(&drv_data->pdev->dev,
-+		"u16_reader\n"
-+		"    remaining data = %d\n"
-+		"    fifo_rxcnt     = %d\n"
-+		"    fifo reads     = %d\n",
-+		remaining_data,
-+		fifo_rxcnt,
-+		n);
-+
-+	if (n > 0) {
-+		/* Read SPI RXFIFO */
-+		while (n--)
-+			*rx++ = rd_DATA(regs);
-+
-+		/* Update rx pointer */
-+		drv_data->rx = rx;
-+	}
-+
-+	return (rx >= rx_end);
-+}
-+
-+static void *next_transfer(struct driver_data *drv_data)
-+{
-+	struct spi_message *msg = drv_data->cur_msg;
-+	struct spi_transfer *trans = drv_data->cur_transfer;
-+
-+	/* Move to next transfer */
-+	if (trans->transfer_list.next != &msg->transfers) {
-+		drv_data->cur_transfer =
-+			list_entry(trans->transfer_list.next,
-+					struct spi_transfer,
-+					transfer_list);
-+		return RUNNING_STATE;
-+	}
-+
-+	return DONE_STATE;
-+}
-+
-+static int map_dma_buffers(struct driver_data *drv_data)
-+{
-+	struct spi_message *msg;
-+	struct device *dev;
-+	void *buf;
-+
-+	drv_data->rx_dma_needs_unmap = 0;
-+	drv_data->tx_dma_needs_unmap = 0;
-+
-+	if (!drv_data->master_info->enable_dma ||
-+			!drv_data->cur_chip->enable_dma)
-+		return 0;
-+
-+	msg = drv_data->cur_msg;
-+	dev = &msg->spi->dev;
-+	if (msg->is_dma_mapped) {
-+		if (drv_data->tx_dma)
-+			/* The caller provided at least dma and cpu virtual
-+			   address for write; pump_transfers() will consider the
-+			   transfer as write only if cpu rx virtual address is
-+			   NULL */
-+			return 1;
-+
-+		if (drv_data->rx_dma) {
-+			/* The caller provided dma and cpu virtual address to
-+			   performe read only transfer -->
-+			   use drv_data->dummy_dma_buf for dummy writes to
-+			   achive reads */
-+			buf = &drv_data->dummy_dma_buf;
-+			drv_data->tx_map_len = sizeof(drv_data->dummy_dma_buf);
-+			drv_data->tx_dma = dma_map_single(dev,
-+							buf,
-+							drv_data->tx_map_len,
-+							DMA_TO_DEVICE);
-+			if (dma_mapping_error(drv_data->tx_dma))
-+				return 0;
-+
-+			drv_data->tx_dma_needs_unmap = 1;
-+
-+			/* Flags transfer as rd_only for pump_transfers() DMA
-+			   regs programming (should be redundant) */
-+			drv_data->tx = NULL;
-+
-+			return 1;
-+		}
-+	}
-+
-+	if (!IS_DMA_ALIGNED(drv_data->rx) || !IS_DMA_ALIGNED(drv_data->tx))
-+		return 0;
-+
-+	/* NULL rx means write-only transfer and no map needed
-+	   since rx DMA will not be used */
-+	if (drv_data->rx) {
-+		buf = drv_data->rx;
-+		drv_data->rx_dma = dma_map_single(
-+					dev,
-+					buf,
-+					drv_data->len,
-+					DMA_FROM_DEVICE);
-+		if (dma_mapping_error(drv_data->rx_dma))
-+			return 0;
-+		drv_data->rx_dma_needs_unmap = 1;
-+	}
-+
-+	if (drv_data->tx == NULL) {
-+		/* Read only message --> use drv_data->dummy_dma_buf for dummy
-+		   writes to achive reads */
-+		buf = &drv_data->dummy_dma_buf;
-+		drv_data->tx_map_len = sizeof(drv_data->dummy_dma_buf);
-+	} else {
-+		buf = drv_data->tx;
-+		drv_data->tx_map_len = drv_data->len;
-+	}
-+	drv_data->tx_dma = dma_map_single(dev,
-+					buf,
-+					drv_data->tx_map_len,
-+					DMA_TO_DEVICE);
-+	if (dma_mapping_error(drv_data->tx_dma)) {
-+		if (drv_data->rx_dma) {
-+			dma_unmap_single(dev,
-+					drv_data->rx_dma,
-+					drv_data->len,
-+					DMA_FROM_DEVICE);
-+			drv_data->rx_dma_needs_unmap = 0;
-+		}
-+		return 0;
-+	}
-+	drv_data->tx_dma_needs_unmap = 1;
-+
-+	return 1;
-+}
-+
-+static void unmap_dma_buffers(struct driver_data *drv_data)
-+{
-+	struct spi_message *msg = drv_data->cur_msg;
-+	struct device *dev = &msg->spi->dev;
-+
-+	if (drv_data->rx_dma_needs_unmap) {
-+		dma_unmap_single(dev,
-+				drv_data->rx_dma,
-+				drv_data->len,
-+				DMA_FROM_DEVICE);
-+		drv_data->rx_dma_needs_unmap = 0;
-+	}
-+	if (drv_data->tx_dma_needs_unmap) {
-+		dma_unmap_single(dev,
-+				drv_data->tx_dma,
-+				drv_data->tx_map_len,
-+				DMA_TO_DEVICE);
-+		drv_data->tx_dma_needs_unmap = 0;
-+	}
-+}
-+
-+/* Caller already set message->status (dma is already blocked) */
-+static void giveback(struct spi_message *message, struct driver_data *drv_data)
-+{
-+	void __iomem *regs = drv_data->regs;
-+
-+	/* Bring SPI to sleep; restore_state() and pump_transfer()
-+	   will do new setup */
-+	wr_CONTROL(0, regs);
-+	wr_INT_STATUS(0, regs);
-+	wr_DMA(0, regs);
-+
-+	drv_data->cs_control(SPI_CS_DEASSERT);
-+
-+	message->state = NULL;
-+	if (message->complete)
-+		message->complete(message->context);
-+
-+	drv_data->cur_msg = NULL;
-+	drv_data->cur_transfer = NULL;
-+	drv_data->cur_chip = NULL;
-+	queue_work(drv_data->workqueue, &drv_data->pump_messages);
-+}
-+
-+static void dma_err_handler(
-+	int channel, void *data, struct pt_regs *regs, int errcode)
-+{
-+	struct driver_data *drv_data = data;
-+	struct spi_message *msg = drv_data->cur_msg;
-+
-+	dev_dbg(&drv_data->pdev->dev, "dma_err_handler\n");
-+
-+	/* Disable both rx and tx dma channels */
-+	imx_dma_disable(drv_data->rx_channel);
-+	imx_dma_disable(drv_data->tx_channel);
-+
-+	if (flush(drv_data) == 0)
-+		dev_err(&drv_data->pdev->dev,
-+				"dma_err_handler - flush failed\n");
-+
-+	unmap_dma_buffers(drv_data);
-+
-+	msg->state = ERROR_STATE;
-+	tasklet_schedule(&drv_data->pump_transfers);
-+}
-+
-+static void dma_tx_handler(int channel, void *data, struct pt_regs *regs)
-+{
-+	struct driver_data *drv_data = data;
-+
-+	dev_dbg(&drv_data->pdev->dev, "dma_tx_handler\n");
-+
-+	imx_dma_disable(channel);
-+
-+	/* Now waits for TX FIFO empty */
-+	wr_INT_STATUS(rd_INT_STATUS(drv_data->regs) | SPI_INTEN_TE,
-+			drv_data->regs);
-+}
-+
-+static irqreturn_t dma_transfer(struct driver_data *drv_data)
-+{
-+	u32 status;
-+	struct spi_message *msg = drv_data->cur_msg;
-+	void __iomem *regs = drv_data->regs;
-+	unsigned long limit;
-+
-+	status = rd_INT_STATUS(regs);
-+
-+	if ((status & SPI_INTEN_RO) && (status & SPI_STATUS_RO)) {
-+		wr_INT_STATUS(status & ~SPI_INTEN, regs);
-+
-+		imx_dma_disable(drv_data->rx_channel);
-+		unmap_dma_buffers(drv_data);
-+
-+		if (flush(drv_data) == 0)
-+			dev_err(&drv_data->pdev->dev,
-+				"dma_transfer - flush failed\n");
-+
-+		dev_warn(&drv_data->pdev->dev,
-+				"dma_transfer - fifo overun\n");
-+
-+		msg->state = ERROR_STATE;
-+		tasklet_schedule(&drv_data->pump_transfers);
-+
-+		return IRQ_HANDLED;
-+	}
-+
-+	if (status & SPI_STATUS_TE) {
-+		wr_INT_STATUS(status & ~SPI_INTEN_TE, regs);
-+
-+		if (drv_data->rx) {
-+			/* Wait end of transfer before read trailing data */
-+			limit = loops_per_jiffy << 1;
-+			while ((rd_CONTROL(regs) & SPI_CONTROL_XCH) && limit--);
-+
-+			if (limit == 0)
-+				dev_err(&drv_data->pdev->dev,
-+					"dma_transfer - end of tx failed\n");
-+			else
-+				dev_dbg(&drv_data->pdev->dev,
-+					"dma_transfer - end of tx\n");
-+
-+			imx_dma_disable(drv_data->rx_channel);
-+			unmap_dma_buffers(drv_data);
-+
-+			/* Calculate number of trailing data and read them */
-+			dev_dbg(&drv_data->pdev->dev,
-+				"dma_transfer - test = 0x%08X\n",
-+				rd_TEST(regs));
-+			drv_data->rx = drv_data->rx_end -
-+					((rd_TEST(regs) & SPI_TEST_RXCNT) >>
-+					SPI_TEST_RXCNT_LSB)*drv_data->n_bytes;
-+			drv_data->read(drv_data);
-+		} else {
-+			/* Write only transfer */
-+			unmap_dma_buffers(drv_data);
-+
-+			if (flush(drv_data) == 0)
-+				dev_err(&drv_data->pdev->dev,
-+					"dma_transfer - flush failed\n");
-+		}
-+
-+		/* End of transfer, update total byte transfered */
-+		msg->actual_length += drv_data->len;
-+
-+		/* Release chip select if requested, transfer delays are
-+		   handled in pump_transfers() */
-+		if (drv_data->cs_change)
-+			drv_data->cs_control(SPI_CS_DEASSERT);
-+
-+		/* Move to next transfer */
-+		msg->state = next_transfer(drv_data);
-+
-+		/* Schedule transfer tasklet */
-+		tasklet_schedule(&drv_data->pump_transfers);
-+
-+		return IRQ_HANDLED;
-+	}
-+
-+	/* Opps problem detected */
-+	return IRQ_NONE;
-+}
-+
-+static irqreturn_t interrupt_wronly_transfer(struct driver_data *drv_data)
-+{
-+	struct spi_message *msg = drv_data->cur_msg;
-+	void __iomem *regs = drv_data->regs;
-+	u32 status;
-+	irqreturn_t handled = IRQ_NONE;
-+
-+	status = rd_INT_STATUS(regs);
-+
-+	while (status & SPI_STATUS_TH) {
-+		dev_dbg(&drv_data->pdev->dev,
-+			"interrupt_wronly_transfer - status = 0x%08X\n", status);
-+
-+		/* Pump data */
-+		if (drv_data->write(drv_data)) {
-+			wr_INT_STATUS(rd_INT_STATUS(regs) & ~SPI_INTEN, regs);
-+
-+			dev_dbg(&drv_data->pdev->dev,
-+				"interrupt_wronly_transfer - end of tx\n");
-+
-+			if (flush(drv_data) == 0)
-+				dev_err(&drv_data->pdev->dev,
-+					"interrupt_wronly_transfer - "
-+					"flush failed\n");
-+
-+			/* End of transfer, update total byte transfered */
-+			msg->actual_length += drv_data->len;
-+
-+			/* Release chip select if requested, transfer delays are
-+			   handled in pump_transfers */
-+			if (drv_data->cs_change)
-+				drv_data->cs_control(SPI_CS_DEASSERT);
-+
-+			/* Move to next transfer */
-+			msg->state = next_transfer(drv_data);
-+
-+			/* Schedule transfer tasklet */
-+			tasklet_schedule(&drv_data->pump_transfers);
-+
-+			return IRQ_HANDLED;
-+		}
-+
-+		status = rd_INT_STATUS(regs);
-+
-+		/* We did something */
-+		handled = IRQ_HANDLED;
-+	}
-+
-+	return handled;
-+}
-+
-+static irqreturn_t interrupt_transfer(struct driver_data *drv_data)
-+{
-+	struct spi_message *msg = drv_data->cur_msg;
-+	void __iomem *regs = drv_data->regs;
-+	u32 status;
-+	irqreturn_t handled = IRQ_NONE;
-+	unsigned long limit;
-+
-+	status = rd_INT_STATUS(regs);
-+
-+	while (status & (SPI_STATUS_TH | SPI_STATUS_RO)) {
-+		dev_dbg(&drv_data->pdev->dev,
-+			"interrupt_transfer - status = 0x%08X\n", status);
-+
-+		if (status & SPI_STATUS_RO) {
-+			wr_INT_STATUS(rd_INT_STATUS(regs) & ~SPI_INTEN, regs);
-+
-+			dev_warn(&drv_data->pdev->dev,
-+				"interrupt_transfer - fifo overun\n"
-+				"    data not yet written = %d\n"
-+				"    data not yet read    = %d\n",
-+				data_to_write(drv_data),
-+				data_to_read(drv_data));
-+
-+			if (flush(drv_data) == 0)
-+				dev_err(&drv_data->pdev->dev,
-+					"interrupt_transfer - flush failed\n");
-+
-+			msg->state = ERROR_STATE;
-+			tasklet_schedule(&drv_data->pump_transfers);
-+
-+			return IRQ_HANDLED;
-+		}
-+
-+		/* Pump data */
-+		drv_data->read(drv_data);
-+		if (drv_data->write(drv_data)) {
-+			wr_INT_STATUS(rd_INT_STATUS(regs) & ~SPI_INTEN, regs);
-+
-+			dev_dbg(&drv_data->pdev->dev,
-+				"interrupt_transfer - end of tx\n");
-+
-+			/* Read trailing bytes */
-+			limit = loops_per_jiffy << 1;
-+			while ((drv_data->read(drv_data) == 0) && limit--);
-+
-+			if (limit == 0)
-+				dev_err(&drv_data->pdev->dev,
-+					"interrupt_transfer - "
-+					"trailing byte read failed\n");
-+			else
-+				dev_dbg(&drv_data->pdev->dev,
-+					"interrupt_transfer - end of rx\n");
-+
-+			/* End of transfer, update total byte transfered */
-+			msg->actual_length += drv_data->len;
-+
-+			/* Release chip select if requested, transfer delays are
-+			   handled in pump_transfers */
-+			if (drv_data->cs_change)
-+				drv_data->cs_control(SPI_CS_DEASSERT);
-+
-+			/* Move to next transfer */
-+			msg->state = next_transfer(drv_data);
-+
-+			/* Schedule transfer tasklet */
-+			tasklet_schedule(&drv_data->pump_transfers);
-+
-+			return IRQ_HANDLED;
-+		}
-+
-+		status = rd_INT_STATUS(regs);
-+
-+		/* We did something */
-+		handled = IRQ_HANDLED;
-+	}
-+
-+	return handled;
-+}
-+
-+static irqreturn_t spi_int(int irq, void *dev_id, struct pt_regs *regs)
-+{
-+	struct driver_data *drv_data = (struct driver_data *)dev_id;
-+
-+	if (!drv_data->cur_msg) {
-+		dev_err(&drv_data->pdev->dev,
-+			"spi_int - bad message state\n");
-+		/* Never fail */
-+		return IRQ_HANDLED;
-+	}
-+
-+	return drv_data->transfer_handler(drv_data);
-+}
-+
-+static inline u32 spi_speed_hz(u32 data_rate)
-+{
-+	return imx_get_perclk2() / (4 << ((data_rate) >> 13));
-+}
-+
-+static u32 spi_data_rate(u32 speed_hz)
-+{
-+	u32 div;
-+	u32 quantized_hz = imx_get_perclk2() >> 2;
-+
-+	for (div = SPI_PERCLK2_DIV_MIN;
-+		div <= SPI_PERCLK2_DIV_MAX;
-+		div++, quantized_hz >>= 1) {
-+			if (quantized_hz <= speed_hz)
-+				/* Max available speed LEQ required speed */
-+				return div << 13;
-+	}
-+	return SPI_CONTROL_DATARATE_BAD;
-+}
-+
-+static void pump_transfers(unsigned long data)
-+{
-+	struct driver_data *drv_data = (struct driver_data *)data;
-+	struct spi_message *message;
-+	struct spi_transfer *transfer, *previous;
-+	struct chip_data *chip;
-+	struct spi_regs __iomem *regs;
-+	u32 tmp, control;
-+
-+	dev_dbg(&drv_data->pdev->dev, "pump_transfer\n");
-+
-+	message = drv_data->cur_msg;
-+
-+	/* Handle for abort */
-+	if (message->state == ERROR_STATE) {
-+		message->status = -EIO;
-+		giveback(message, drv_data);
-+		return;
-+	}
-+
-+	/* Handle end of message */
-+	if (message->state == DONE_STATE) {
-+		message->status = 0;
-+		giveback(message, drv_data);
-+		return;
-+	}
-+
-+	chip = drv_data->cur_chip;
-+
-+	/* Delay if requested at end of transfer*/
-+	transfer = drv_data->cur_transfer;
-+	if (message->state == RUNNING_STATE) {
-+		previous = list_entry(transfer->transfer_list.prev,
-+					struct spi_transfer,
-+					transfer_list);
-+		if (previous->delay_usecs)
-+			udelay(previous->delay_usecs);
-+	} else {
-+		/* START_STATE */
-+		message->state = RUNNING_STATE;
-+		drv_data->cs_control = chip->cs_control;
-+	}
-+
-+	transfer = drv_data->cur_transfer;
-+	drv_data->tx = (void *)transfer->tx_buf;
-+	drv_data->tx_end = drv_data->tx + transfer->len;
-+	drv_data->rx = transfer->rx_buf;
-+	drv_data->rx_end = drv_data->rx + transfer->len;
-+	drv_data->rx_dma = transfer->rx_dma;
-+	drv_data->tx_dma = transfer->tx_dma;
-+	drv_data->len = transfer->len;
-+	drv_data->cs_change = transfer->cs_change;
-+
-+	regs = drv_data->regs;
-+	control = rd_CONTROL(regs);
-+
-+	/* Bits per word setup */
-+	tmp = transfer->bits_per_word;
-+	if (tmp == 0) {
-+		/* Use device setup */
-+		tmp = chip->bits_per_word;
-+		drv_data->n_bytes = chip->n_bytes;
-+		drv_data->write = drv_data->tx ? chip->write : dummy_writer;
-+		drv_data->read = drv_data->rx ? chip->read : NULL;
-+	} else {
-+		/* Use per-transfer setup */
-+		if (tmp <= 8) {
-+			drv_data->n_bytes = 1;
-+			drv_data->write = drv_data->tx ?
-+						u8_writer : dummy_writer;
-+			drv_data->read = drv_data->rx ? u8_reader : NULL;
-+		} else {
-+			drv_data->n_bytes = 2;
-+			drv_data->write = drv_data->tx ?
-+						u16_writer : dummy_writer;
-+			drv_data->read = drv_data->rx ? u16_reader : NULL;
-+		}
-+	}
-+	u32_EDIT(control, SPI_CONTROL_BITCOUNT, tmp - 1);
-+
-+	/* Speed setup (surely valid because already checked) */
-+	tmp = transfer->speed_hz;
-+	if (tmp == 0)
-+		tmp = chip->max_speed_hz;
-+	tmp = spi_data_rate(tmp);
-+	u32_EDIT(control, SPI_CONTROL_DATARATE, tmp);
-+
-+	wr_CONTROL(control, regs);
-+
-+	/* Assert device chip-select */
-+	drv_data->cs_control(SPI_CS_ASSERT);
-+
-+	/* DMA cannot read/write SPI FIFOs other than 16 bits at a time; hence
-+	   if bits_per_word is less or equal 8 PIO transfers are performed.
-+	   Moreover DMA is convinient for transfer length bigger than FIFOs
-+	   byte size. */
-+	if ((drv_data->n_bytes == 2) &&
-+		(drv_data->len > SPI_FIFO_DEPTH*SPI_FIFO_BYTE_WIDTH) &&
-+		map_dma_buffers(drv_data)) {
-+		dev_dbg(&drv_data->pdev->dev,
-+			"pump dma transfer\n"
-+			"    tx      = 0x%08X\n"
-+			"    tx_dma  = 0x%08X\n"
-+			"    rx      = 0x%08X\n"
-+			"    rx_dma  = 0x%08X\n"
-+			"    len     = %d\n",
-+			(u32)drv_data->tx,
-+			(u32)drv_data->tx_dma,
-+			(u32)drv_data->rx,
-+			(u32)drv_data->rx_dma,
-+			(u32)drv_data->len);
-+
-+		/* Ensure we have the correct interrupt handler */
-+		drv_data->transfer_handler = dma_transfer;
-+
-+		/* Enable SPI and arm transfer */
-+		wr_CONTROL(rd_CONTROL(regs) |
-+				SPI_CONTROL_SPIEN | SPI_CONTROL_XCH,
-+				regs);
-+
-+		/* Setup tx DMA */
-+		if (drv_data->tx)
-+			/* Linear source address */
-+			CCR(drv_data->tx_channel) =
-+				CCR_DMOD_FIFO |
-+				CCR_SMOD_LINEAR |
-+				CCR_SSIZ_32 | CCR_DSIZ_16 |
-+				CCR_REN;
-+		else
-+			/* Read only transfer -> fixed source address for
-+			   dummy write to achive read */
-+			CCR(drv_data->tx_channel) =
-+				CCR_DMOD_FIFO |
-+				CCR_SMOD_FIFO |
-+				CCR_SSIZ_32 | CCR_DSIZ_16 |
-+				CCR_REN;
-+
-+		imx_dma_setup_single(
-+			drv_data->tx_channel,
-+			drv_data->tx_dma,
-+			drv_data->len,
-+			drv_data->rd_data_phys + 4,
-+			DMA_MODE_WRITE
-+		);
-+
-+		if (drv_data->rx) {
-+			/* Setup rx DMA for linear destination address */
-+			CCR(drv_data->rx_channel) =
-+				CCR_DMOD_LINEAR |
-+				CCR_SMOD_FIFO |
-+				CCR_DSIZ_32 | CCR_SSIZ_16 |
-+				CCR_REN;
-+			imx_dma_setup_single(
-+				drv_data->rx_channel,
-+				drv_data->rx_dma,
-+				drv_data->len,
-+				drv_data->rd_data_phys,
-+				DMA_MODE_READ);
-+			imx_dma_enable(drv_data->rx_channel);
-+
-+			/* Enable SPI interrupt */
-+			wr_INT_STATUS(SPI_INTEN_RO, regs);
-+
-+			/* Set SPI to request DMA service on both
-+			   Rx and Tx half fifo watermark */
-+			wr_DMA(SPI_DMA_RHDEN | SPI_DMA_THDEN, regs);
-+		} else
-+			/* Write only access -> set SPI to request DMA
-+			   service on Tx half fifo watermark */
-+			wr_DMA(SPI_DMA_THDEN, regs);
-+
-+		imx_dma_enable(drv_data->tx_channel);
-+	} else {
-+		dev_dbg(&drv_data->pdev->dev,
-+			"pump pio transfer\n"
-+			"    tx      = 0x%08X\n"
-+			"    rx      = 0x%08X\n"
-+			"    len     = %d\n",
-+			(u32)drv_data->tx,
-+			(u32)drv_data->rx,
-+			(u32)drv_data->len);
-+
-+		/* Ensure we have the correct interrupt handler	*/
-+		if (drv_data->rx)
-+			drv_data->transfer_handler = interrupt_transfer;
-+		else
-+			drv_data->transfer_handler = interrupt_wronly_transfer;
-+
-+		/* Enable SPI */
-+		wr_CONTROL(rd_CONTROL(regs) | SPI_CONTROL_SPIEN, regs);
-+
-+		/* Enable SPI interrupt */
-+		if (drv_data->rx)
-+			wr_INT_STATUS(SPI_INTEN_TH | SPI_INTEN_RO, regs);
-+		else
-+			wr_INT_STATUS(SPI_INTEN_TH, regs);
-+	}
-+}
-+
-+static void pump_messages(void *data)
-+{
-+	struct driver_data *drv_data = data;
-+	unsigned long flags;
-+
-+	/* Lock queue and check for queue work */
-+	spin_lock_irqsave(&drv_data->lock, flags);
-+	if (list_empty(&drv_data->queue) || drv_data->run == QUEUE_STOPPED) {
-+		drv_data->busy = 0;
-+		spin_unlock_irqrestore(&drv_data->lock, flags);
-+		return;
-+	}
-+
-+	/* Make sure we are not already running a message */
-+	if (drv_data->cur_msg) {
-+		spin_unlock_irqrestore(&drv_data->lock, flags);
-+		return;
-+	}
-+
-+	/* Extract head of queue */
-+	drv_data->cur_msg = list_entry(drv_data->queue.next,
-+					struct spi_message, queue);
-+	list_del_init(&drv_data->cur_msg->queue);
-+	drv_data->busy = 1;
-+	spin_unlock_irqrestore(&drv_data->lock, flags);
-+
-+	/* Initial message state */
-+	drv_data->cur_msg->state = START_STATE;
-+	drv_data->cur_transfer = list_entry(drv_data->cur_msg->transfers.next,
-+						struct spi_transfer,
-+						transfer_list);
-+
-+	/* Setup the SPI using the per chip configuration */
-+	drv_data->cur_chip = spi_get_ctldata(drv_data->cur_msg->spi);
-+	restore_state(drv_data);
-+
-+	/* Mark as busy and launch transfers */
-+	tasklet_schedule(&drv_data->pump_transfers);
-+}
-+
-+static int transfer(struct spi_device *spi, struct spi_message *msg)
-+{
-+	struct driver_data *drv_data = spi_master_get_devdata(spi->master);
-+	u32 min_speed_hz, max_speed_hz, tmp;
-+	struct spi_transfer *trans;
-+	unsigned long flags;
-+
-+	msg->actual_length = 0;
-+
-+	/* Per transfer setup check */
-+	min_speed_hz = spi_speed_hz(SPI_CONTROL_DATARATE_MIN);
-+	max_speed_hz = spi->max_speed_hz;
-+	list_for_each_entry(trans, &msg->transfers, transfer_list) {
-+		tmp = trans->bits_per_word;
-+		if (tmp > 16) {
-+			dev_err(&drv_data->pdev->dev,
-+				"message rejected : "
-+				"invalid transfer bits_per_word (%d bits)\n",
-+				tmp);
-+			goto msg_rejected;
-+		}
-+		tmp = trans->speed_hz;
-+		if (tmp) {
-+			if (tmp < min_speed_hz) {
-+				dev_err(&drv_data->pdev->dev,
-+					"message rejected : "
-+					"device min speed (%d Hz) exceeds "
-+					"required transfer speed (%d Hz)\n",
-+					min_speed_hz,
-+					tmp);
-+				goto msg_rejected;
-+			} else if (tmp > max_speed_hz) {
-+				dev_err(&drv_data->pdev->dev,
-+					"message rejected : "
-+					"transfer speed (%d Hz) exceeds "
-+					"device max speed (%d Hz)\n",
-+					tmp,
-+					max_speed_hz);
-+				goto msg_rejected;
-+			}
-+		}
-+	}
-+
-+	/* Message accepted */
-+	msg->status = -EINPROGRESS;
-+	msg->state = START_STATE;
-+
-+	spin_lock_irqsave(&drv_data->lock, flags);
-+	if (drv_data->run == QUEUE_STOPPED) {
-+		spin_unlock_irqrestore(&drv_data->lock, flags);
-+		return -ESHUTDOWN;
-+	}
-+
-+	list_add_tail(&msg->queue, &drv_data->queue);
-+	if (drv_data->run == QUEUE_RUNNING && !drv_data->busy)
-+		queue_work(drv_data->workqueue, &drv_data->pump_messages);
-+
-+	spin_unlock_irqrestore(&drv_data->lock, flags);
-+	return 0;
-+
-+msg_rejected:
-+	/* Message rejected and not queued */
-+	msg->status = -EINVAL;
-+	msg->state = ERROR_STATE;
-+	if (msg->complete)
-+		msg->complete(msg->context);
-+	return -EINVAL;
-+}
-+
-+/* On first setup bad values must free chip_data memory since will cause
-+   spi_new_device to fail. Bad value setup from protocol driver are simply not
-+   applied and notified to the calling driver. */
-+static int setup(struct spi_device *spi)
-+{
-+	struct spi_imx_chip *chip_info;
-+	struct chip_data *chip;
-+	int first_setup = 0;
-+	u32 tmp;
-+	int status = 0;
-+
-+	/* Get controller data */
-+	chip_info = spi->controller_data;
-+
-+	/* Get controller_state */
-+	chip = spi_get_ctldata(spi);
-+	if (chip == NULL) {
-+		first_setup = 1;
-+
-+		chip = kzalloc(sizeof(struct chip_data), GFP_KERNEL);
-+		if (!chip) {
-+			dev_err(&spi->dev,
-+				"setup - cannot allocate controller state");
-+			return -ENOMEM;
-+		}
-+		chip->control = SPI_DEFAULT_CONTROL;
-+
-+		if (chip_info == NULL) {
-+			/* spi_board_info.controller_data not is supplied */
-+			chip_info = kzalloc(sizeof(struct spi_imx_chip),
-+						GFP_KERNEL);
-+			if (!chip_info) {
-+				dev_err(&spi->dev,
-+					"setup - "
-+					"cannot allocate controller data");
-+				status = -ENOMEM;
-+				goto err_first_setup;
-+			}
-+			/* Set controller data default value */
-+			chip_info->enable_loopback =
-+						SPI_DEFAULT_ENABLE_LOOPBACK;
-+			chip_info->enable_dma = SPI_DEFAULT_ENABLE_DMA;
-+			chip_info->cs_control = null_cs_control;
-+		}
-+	}
-+
-+	/* Now set controller state based on controller data */
-+
-+	/* SPI loopback */
-+	if (chip_info->enable_loopback)
-+		chip->test = SPI_TEST_LBC;
-+	else
-+		chip->test = 0;
-+
-+	/* SPI dma driven */
-+	chip->enable_dma = chip_info->enable_dma;
-+
-+	/* SPI mode */
-+	tmp = spi->mode;
-+	if (tmp & SPI_LSB_FIRST) {
-+		status = -EINVAL;
-+		if (first_setup) {
-+			dev_err(&spi->dev,
-+				"setup - "
-+				"HW doesn't support LSB first transfer\n");
-+			goto err_first_setup;
-+		} else {
-+			dev_err(&spi->dev,
-+				"setup - "
-+				"HW doesn't support LSB first transfer, "
-+				"default to MSB first\n");
-+			spi->mode &= ~SPI_LSB_FIRST;
-+		}
-+	}
-+	if (tmp & SPI_CS_HIGH) {
-+		u32_EDIT(chip->control,
-+				SPI_CONTROL_SSPOL, SPI_CONTROL_SSPOL_1);
-+	}
-+	switch (tmp & SPI_MODE_3) {
-+	case SPI_MODE_0:
-+		tmp = 0;
-+		break;
-+	case SPI_MODE_1:
-+		tmp = SPI_CONTROL_PHA_1;
-+		break;
-+	case SPI_MODE_2:
-+		tmp = SPI_CONTROL_POL_1;
-+		break;
-+	default:
-+		/* SPI_MODE_3 */
-+		tmp = SPI_CONTROL_PHA_1 | SPI_CONTROL_POL_1;
-+		break;
-+	}
-+	u32_EDIT(chip->control, SPI_CONTROL_POL | SPI_CONTROL_PHA, tmp);
-+
-+	/* SPI word width */
-+	tmp = spi->bits_per_word;
-+	if (tmp == 0) {
-+		tmp = 8;
-+		spi->bits_per_word = 8;
-+	} else if (tmp > 16) {
-+		status = -EINVAL;
-+		dev_err(&spi->dev,
-+			"setup - "
-+			"invalid bits_per_word (%d)\n",
-+			tmp);
-+		if (first_setup)
-+			goto err_first_setup;
-+		else {
-+			/* Undo setup using chip as backup copy */
-+			tmp = chip->bits_per_word;
-+			spi->bits_per_word = tmp;
-+		}
-+	}
-+	chip->bits_per_word = tmp;
-+	u32_EDIT(chip->control, SPI_CONTROL_BITCOUNT, tmp - 1);
-+	if (tmp <= 8) {
-+		chip->n_bytes = 1;
-+		chip->write = u8_writer;
-+		chip->read = u8_reader;
-+	} else {
-+		chip->n_bytes = 2;
-+		chip->write = u16_writer;
-+		chip->read = u16_reader;
-+	}
-+
-+	/* SPI datarate */
-+	tmp = spi_data_rate(spi->max_speed_hz);
-+	if (tmp == SPI_CONTROL_DATARATE_BAD) {
-+		status = -EINVAL;
-+		dev_err(&spi->dev,
-+			"setup - "
-+			"HW min speed (%d Hz) exceeds required "
-+			"max speed (%d Hz)\n",
-+			spi_speed_hz(SPI_CONTROL_DATARATE_MIN),
-+			spi->max_speed_hz);
-+		if (first_setup)
-+			goto err_first_setup;
-+		else
-+			/* Undo setup using chip as backup copy */
-+			spi->max_speed_hz = spi_data_rate(chip->max_speed_hz);
-+	} else {
-+		u32_EDIT(chip->control, SPI_CONTROL_DATARATE, tmp);
-+		/* Actual rounded max_speed_hz */
-+		tmp = spi_speed_hz(tmp);
-+		spi->max_speed_hz = tmp;
-+		chip->max_speed_hz = tmp;
-+	}
-+
-+	/* SPI chip-select management */
-+	if (chip_info->cs_control)
-+		chip->cs_control = chip_info->cs_control;
-+
-+	/* Save controller_state */
-+	spi_set_ctldata(spi, chip);
-+
-+	/* Summary */
-+	dev_dbg(&spi->dev,
-+		"setup succeded\n"
-+		"    loopback enable   = %s\n"
-+		"    dma enable        = %s\n"
-+		"    mode              = %d\n"
-+		"    bits per word     = %d\n"
-+		"    min speed         = %d Hz\n"
-+		"    rounded max speed = %d Hz\n",
-+		chip->test & SPI_TEST_LBC ? "Yes" : "No",
-+		chip->enable_dma ? "Yes" : "No",
-+		spi->mode,
-+		spi->bits_per_word,
-+		spi_speed_hz(SPI_CONTROL_DATARATE_MIN),
-+		spi->max_speed_hz);
-+	return status;
-+
-+err_first_setup:
-+	kfree(chip);
-+	return status;
-+}
-+
-+static void cleanup(const struct spi_device *spi)
-+{
-+	struct chip_data *chip = spi_get_ctldata((struct spi_device *)spi);
-+	kfree(chip);
-+}
-+
-+static int init_queue(struct driver_data *drv_data)
-+{
-+	INIT_LIST_HEAD(&drv_data->queue);
-+	spin_lock_init(&drv_data->lock);
-+
-+	drv_data->run = QUEUE_STOPPED;
-+	drv_data->busy = 0;
-+
-+	tasklet_init(&drv_data->pump_transfers,
-+			pump_transfers,	(unsigned long)drv_data);
-+
-+	INIT_WORK(&drv_data->pump_messages, pump_messages, drv_data);
-+	drv_data->workqueue = create_singlethread_workqueue(
-+					drv_data->master->cdev.dev->bus_id);
-+	if (drv_data->workqueue == NULL)
-+		return -EBUSY;
-+
-+	return 0;
-+}
-+
-+static int start_queue(struct driver_data *drv_data)
-+{
-+	unsigned long flags;
-+
-+	spin_lock_irqsave(&drv_data->lock, flags);
-+
-+	if (drv_data->run == QUEUE_RUNNING || drv_data->busy) {
-+		spin_unlock_irqrestore(&drv_data->lock, flags);
-+		return -EBUSY;
-+	}
-+
-+	drv_data->run = QUEUE_RUNNING;
-+	drv_data->cur_msg = NULL;
-+	drv_data->cur_transfer = NULL;
-+	drv_data->cur_chip = NULL;
-+	spin_unlock_irqrestore(&drv_data->lock, flags);
-+
-+	queue_work(drv_data->workqueue, &drv_data->pump_messages);
-+
-+	return 0;
-+}
-+
-+static int stop_queue(struct driver_data *drv_data)
-+{
-+	unsigned long flags;
-+	unsigned limit = 500;
-+	int status = 0;
-+
-+	spin_lock_irqsave(&drv_data->lock, flags);
-+
-+	/* This is a bit lame, but is optimized for the common execution path.
-+	 * A wait_queue on the drv_data->busy could be used, but then the common
-+	 * execution path (pump_messages) would be required to call wake_up or
-+	 * friends on every SPI message. Do this instead */
-+	drv_data->run = QUEUE_STOPPED;
-+	while (!list_empty(&drv_data->queue) && drv_data->busy && limit--) {
-+		spin_unlock_irqrestore(&drv_data->lock, flags);
-+		msleep(10);
-+		spin_lock_irqsave(&drv_data->lock, flags);
-+	}
-+
-+	if (!list_empty(&drv_data->queue) || drv_data->busy)
-+		status = -EBUSY;
-+
-+	spin_unlock_irqrestore(&drv_data->lock, flags);
-+
-+	return status;
-+}
-+
-+static int destroy_queue(struct driver_data *drv_data)
-+{
-+	int status;
-+
-+	status = stop_queue(drv_data);
-+	if (status != 0)
-+		return status;
-+
-+	destroy_workqueue(drv_data->workqueue);
-+
-+	return 0;
-+}
-+
-+static int spi_imx_probe(struct platform_device *pdev)
-+{
-+	struct device *dev = &pdev->dev;
-+	struct spi_imx_master *platform_info;
-+	struct spi_master *master;
-+	struct driver_data *drv_data = NULL;
-+	struct resource *res;
-+	int irq, status = 0;
-+
-+	platform_info = dev->platform_data;
-+	if (platform_info == NULL) {
-+		dev_err(&pdev->dev, "probe - no platform data supplied\n");
-+		status = -ENODEV;
-+		goto err_no_pdata;
-+	}
-+
-+	/* Allocate master with space for drv_data */
-+	master = spi_alloc_master(dev, sizeof(struct driver_data));
-+	if (!master) {
-+		dev_err(&pdev->dev, "probe - cannot alloc spi_master\n");
-+		status = -ENOMEM;
-+		goto err_no_mem;
-+	}
-+	drv_data = spi_master_get_devdata(master);
-+	drv_data->master = master;
-+	drv_data->master_info = platform_info;
-+	drv_data->pdev = pdev;
-+
-+	master->bus_num = pdev->id;
-+	master->num_chipselect = platform_info->num_chipselect;
-+	master->cleanup = cleanup;
-+	master->setup = setup;
-+	master->transfer = transfer;
-+
-+	drv_data->dummy_dma_buf = SPI_DUMMY_u32;
-+
-+	/* Find and map resources */
-+	res = platform_get_resource(pdev, IORESOURCE_MEM, 0);
-+	if (!res) {
-+		dev_err(&pdev->dev, "probe - MEM resources not defined\n");
-+		status = -ENODEV;
-+		goto err_no_iores;
-+	}
-+	drv_data->ioarea = request_mem_region(res->start,
-+						res->end - res->start + 1,
-+						pdev->name);
-+	if (drv_data->ioarea == NULL) {
-+		dev_err(&pdev->dev, "probe - cannot reserve region\n");
-+		status = -ENXIO;
-+		goto err_no_iores;
-+	}
-+	drv_data->regs = ioremap(res->start, res->end - res->start + 1);
-+	if (drv_data->regs == NULL) {
-+		dev_err(&pdev->dev, "probe - cannot map IO\n");
-+		status = -ENXIO;
-+		goto err_no_iomap;
-+	}
-+	drv_data->rd_data_phys = (dma_addr_t)res->start;
-+
-+	/* Attach to IRQ */
-+	irq = platform_get_irq(pdev, 0);
-+	if (irq < 0) {
-+		dev_err(&pdev->dev, "probe - IRQ resource not defined\n");
-+		status = -ENODEV;
-+		goto err_no_irqres;
-+	}
-+	status = request_irq(irq, spi_int, SA_INTERRUPT, dev->bus_id, drv_data);
-+	if (status < 0) {
-+		dev_err(&pdev->dev, "probe - cannot get IRQ (%d)\n", status);
-+		goto err_no_irqres;
-+	}
-+
-+	/* Setup DMA if requested */
-+	drv_data->tx_channel = -1;
-+	drv_data->rx_channel = -1;
-+	if (platform_info->enable_dma) {
-+		/* Get rx DMA channel */
-+		status = imx_dma_request_by_prio(&drv_data->rx_channel,
-+			"spi_imx_rx", DMA_PRIO_HIGH);
-+		if (status < 0) {
-+			dev_err(dev,
-+				"probe - problem (%d) requesting rx channel\n",
-+				status);
-+			goto err_no_rxdma;
-+		} else
-+			imx_dma_setup_handlers(drv_data->rx_channel, NULL,
-+						dma_err_handler, drv_data);
-+
-+		/* Get tx DMA channel */
-+		status = imx_dma_request_by_prio(&drv_data->tx_channel,
-+						"spi_imx_tx", DMA_PRIO_MEDIUM);
-+		if (status < 0) {
-+			dev_err(dev,
-+				"probe - problem (%d) requesting tx channel\n",
-+				status);
-+			goto err_no_txdma;
-+		} else
-+			imx_dma_setup_handlers(drv_data->tx_channel,
-+						dma_tx_handler, dma_err_handler,
-+						drv_data);
-+
-+		/* Set request source and burst length for allocated channels */
-+		switch (drv_data->pdev->id) {
-+		case 1:
-+			/* Using SPI1 */
-+			RSSR(drv_data->rx_channel) = DMA_REQ_SPI1_R;
-+			RSSR(drv_data->tx_channel) = DMA_REQ_SPI1_T;
-+			break;
-+		case 2:
-+			/* Using SPI2 */
-+			RSSR(drv_data->rx_channel) = DMA_REQ_SPI2_R;
-+			RSSR(drv_data->tx_channel) = DMA_REQ_SPI2_T;
-+			break;
-+		default:
-+			status = -ENODEV;
-+			dev_err(dev, "probe - bad SPI Id\n");
-+			goto err_no_devid;
-+		}
-+		BLR(drv_data->rx_channel) = SPI_DMA_BLR;
-+		BLR(drv_data->tx_channel) = SPI_DMA_BLR;
-+	}
-+
-+	/* Load default SPI configuration */
-+	wr_RESET(SPI_RESET_START, drv_data->regs);
-+	wr_RESET(0, drv_data->regs);
-+	wr_CONTROL(SPI_DEFAULT_CONTROL, drv_data->regs);
-+
-+	/* Initial and start queue */
-+	status = init_queue(drv_data);
-+	if (status != 0) {
-+		dev_err(&pdev->dev, "probe - problem initializing queue\n");
-+		goto err_init_queue;
-+	}
-+	status = start_queue(drv_data);
-+	if (status != 0) {
-+		dev_err(&pdev->dev, "probe - problem starting queue\n");
-+		goto err_start_queue;
-+	}
-+
-+	/* Register with the SPI framework */
-+	platform_set_drvdata(pdev, drv_data);
-+	status = spi_register_master(master);
-+	if (status != 0) {
-+		dev_err(&pdev->dev, "probe - problem registering spi master\n");
-+		goto err_spi_register;
-+	}
-+
-+	dev_dbg(dev, "probe succeded\n");
-+	return 0;
-+
-+err_init_queue:
-+err_start_queue:
-+err_spi_register:
-+	destroy_queue(drv_data);
-+
-+err_no_devid:
-+	imx_dma_free(drv_data->tx_channel);
-+
-+err_no_txdma:
-+	imx_dma_free(drv_data->rx_channel);
-+
-+err_no_rxdma:
-+	free_irq(irq, drv_data);
-+
-+err_no_irqres:
-+	iounmap(drv_data->regs);
-+
-+err_no_iomap:
-+	release_resource(drv_data->ioarea);
-+	kfree(drv_data->ioarea);
-+
-+err_no_iores:
-+	spi_master_put(master);
-+
-+err_no_pdata:
-+err_no_mem:
-+	return status;
-+}
-+
-+static int __devexit spi_imx_remove(struct platform_device *pdev)
-+{
-+	struct driver_data *drv_data = platform_get_drvdata(pdev);
-+	int irq;
-+	int status = 0;
-+
-+	if (!drv_data)
-+		return 0;
-+
-+	/* Remove the queue */
-+	status = destroy_queue(drv_data);
-+	if (status != 0) {
-+		dev_err(&pdev->dev, "queue remove failed (%d)\n", status);
-+		return status;
-+	}
-+
-+	/* Reset SPI */
-+	wr_RESET(SPI_RESET_START, drv_data->regs);
-+	wr_RESET(0, drv_data->regs);
-+
-+	/* Release DMA */
-+	if (drv_data->master_info->enable_dma) {
-+		RSSR(drv_data->rx_channel) = 0;
-+		RSSR(drv_data->tx_channel) = 0;
-+		imx_dma_free(drv_data->tx_channel);
-+		imx_dma_free(drv_data->rx_channel);
-+	}
-+
-+	/* Release IRQ */
-+	irq = platform_get_irq(pdev, 0);
-+	if (irq >= 0)
-+		free_irq(irq, drv_data);
-+
-+	/* Release map resources */
-+	iounmap(drv_data->regs);
-+	release_resource(drv_data->ioarea);
-+	kfree(drv_data->ioarea);
-+
-+	/* Disconnect from the SPI framework */
-+	spi_unregister_master(drv_data->master);
-+	spi_master_put(drv_data->master);
-+
-+	/* Prevent double remove */
-+	platform_set_drvdata(pdev, NULL);
-+
-+	dev_dbg(&pdev->dev, "remove succeded\n");
-+
-+	return 0;
-+}
-+
-+static void spi_imx_shutdown(struct platform_device *pdev)
-+{
-+	struct driver_data *drv_data = platform_get_drvdata(pdev);
-+
-+	/* Reset SPI */
-+	wr_RESET(SPI_RESET_START, drv_data->regs);
-+	wr_RESET(0, drv_data->regs);
-+
-+	dev_dbg(&pdev->dev, "shutdown succeded\n");
-+}
-+
-+#ifdef CONFIG_PM
-+static int suspend_devices(struct device *dev, void *pm_message)
-+{
-+	pm_message_t *state = pm_message;
-+
-+	if (dev->power.power_state.event != state->event) {
-+		dev_warn(dev, "pm state does not match request\n");
-+		return -1;
-+	}
-+
-+	return 0;
-+}
-+
-+static int spi_imx_suspend(struct platform_device *pdev, pm_message_t state)
-+{
-+	struct driver_data *drv_data = platform_get_drvdata(pdev);
-+	int status = 0;
-+
-+	status = stop_queue(drv_data);
-+	if (status != 0) {
-+		dev_warn(&pdev->dev, "suspend cannot stop queue\n");
-+		return status;
-+	}
-+
-+	dev_dbg(&pdev->dev, "suspended\n");
-+
-+	return 0;
-+}
-+
-+static int spi_imx_resume(struct platform_device *pdev)
-+{
-+	struct driver_data *drv_data = platform_get_drvdata(pdev);
-+	int status = 0;
-+
-+	/* Start the queue running */
-+	status = start_queue(drv_data);
-+	if (status != 0)
-+		dev_err(&pdev->dev, "problem starting queue (%d)\n", status);
-+	else
-+		dev_dbg(&pdev->dev, "resumed\n");
-+
-+	return status;
-+}
-+#else
-+#define spi_imx_suspend NULL
-+#define spi_imx_resume NULL
-+#endif /* CONFIG_PM */
-+
-+static struct platform_driver driver = {
-+	.driver = {
-+		.name = "imx-spi",
-+		.bus = &platform_bus_type,
-+		.owner = THIS_MODULE,
-+	},
-+	.probe = spi_imx_probe,
-+	.remove = __devexit_p(spi_imx_remove),
-+	.shutdown = spi_imx_shutdown,
-+	.suspend = spi_imx_suspend,
-+	.resume = spi_imx_resume,
-+};
-+
-+static int __init spi_imx_init(void)
-+{
-+	return platform_driver_register(&driver);
-+}
-+module_init(spi_imx_init);
-+
-+static void __exit spi_imx_exit(void)
-+{
-+	platform_driver_unregister(&driver);
-+}
-+module_exit(spi_imx_exit);
-+
-+MODULE_AUTHOR("Andrea Paterniani, <a.paterniani@swapp-eng.it>");
-+MODULE_DESCRIPTION("iMX SPI Contoller Driver");
-+MODULE_LICENSE("GPL");
-Index: at91/include/asm-arm/arch-imx/spi_imx.h
-===================================================================
---- /dev/null	1970-01-01 00:00:00.000000000 +0000
-+++ at91/include/asm-arm/arch-imx/spi_imx.h	2006-10-01 20:06:53.000000000 -0700
-@@ -0,0 +1,68 @@
-+/*
-+ * include/asm-arm/arch-imx/spi_imx.h
-+ *
-+ * Copyright (C) 2006 SWAPP
-+ *	Andrea Paterniani <a.paterniani@swapp-eng.it>
-+ *
-+ * Initial version inspired by:
-+ *	linux-2.6.17-rc3-mm1/include/asm-arm/arch-pxa/pxa2xx_spi.h
-+ *
-+ * This program is free software; you can redistribute it and/or modify
-+ * it under the terms of the GNU General Public License as published by
-+ * the Free Software Foundation; either version 2 of the License, or
-+ * (at your option) any later version.
-+ *
-+ * This program is distributed in the hope that it will be useful,
-+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
-+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-+ * GNU General Public License for more details.
-+ *
-+ * You should have received a copy of the GNU General Public License
-+ * along with this program; if not, write to the Free Software
-+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-+ */
-+
-+#ifndef SPI_IMX_H_
-+#define SPI_IMX_H_
-+#ifdef	__KERNEL__
-+
-+/**
-+ * struct spi_imx_master - device.platform_data for SPI controller devices.
-+ * @num_chipselect: chipselects are used to distinguish individual
-+ *	SPI slaves, and are numbered from zero to num_chipselects - 1.
-+ *	each slave has a chipselect signal, but it's common that not
-+ *	every chipselect is connected to a slave.
-+ * @enable_dma: if true enables DMA driven transfers.
-+*/
-+struct spi_imx_master {
-+	u8 num_chipselect;
-+	u8 enable_dma:1;
-+};
-+
-+/**
-+ * struct spi_imx_chip - spi_board_info.controller_data for SPI
-+ * slave devices, copied to spi_device.controller_data.
-+ * @enable_loopback : used for test purpouse to internally connect RX and TX
-+ *	sections.
-+ * @enable_dma : enables dma transfer (provided that controller driver has
-+ *	dma enabled too).
-+ * @mode : defines clock phase and polarity (SPI_MODE_0..SPI_MODE_3).
-+ * @bits_per_word : data transfer word size (1..16).
-+ * @ins_ss_pulse : enable /SS pulse insertion between SPI burst.
-+ * @period_bclk : used to define wait time (number of bit clock) between data
-+ *	transactions (0..32767).
-+ * @cs_control : function pointer to board-specific function to assert/deassert
-+ *	I/O port to control HW generation of devices chip-select.
-+*/
-+struct spi_imx_chip {
-+	u8	enable_loopback:1;
-+	u8	enable_dma:1;
-+	void (*cs_control)(u32 control);
-+};
-+
-+/* Chip-select state */
-+#define SPI_CS_ASSERT			(1 << 0)
-+#define SPI_CS_DEASSERT			(1 << 1)
-+
-+#endif	/* __KERNEL__ */
-+#endif /* SPI_IMX_H_*/
+--------------060108090305000903040405
+Content-Type: text/plain;
+ name="winkc2d1-log-1.txt"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="winkc2d1-log-1.txt"
+
+[    0.000000] Linux version 2.6.18-w3 (wink@winkc2d1) (gcc version 4.0.3 (Ubuntu 4.0.3-1ubuntu5)) #1 SMP PREEMPT Sun Oct 1 12:23:45 PDT 2006
+[    0.000000] Command line: root=/dev/sda2 ro quiet splash initcall_debug console=ttyS0,115200n8 loglevel=7
+[    0.000000] BIOS-provided physical RAM map:
+[    0.000000]  BIOS-e820: 0000000000000000 - 000000000009fc00 (usable)
+[    0.000000]  BIOS-e820: 000000000009fc00 - 00000000000a0000 (reserved)
+[    0.000000]  BIOS-e820: 00000000000e4000 - 0000000000100000 (reserved)
+[    0.000000]  BIOS-e820: 0000000000100000 - 000000007ff80000 (usable)
+[    0.000000]  BIOS-e820: 000000007ff80000 - 000000007ff8e000 (ACPI data)
+[    0.000000]  BIOS-e820: 000000007ff8e000 - 000000007ffe0000 (ACPI NVS)
+[    0.000000]  BIOS-e820: 000000007ffe0000 - 0000000080000000 (reserved)
+[    0.000000]  BIOS-e820: 00000000ffb00000 - 0000000100000000 (reserved)
+[    0.000000] end_pfn_map = 1048576
+[    0.000000] DMI 2.3 present.
+[    0.000000] Zone PFN ranges:
+[    0.000000]   DMA             0 ->     4096
+[    0.000000]   DMA32        4096 ->  1048576
+[    0.000000]   Normal    1048576 ->  1048576
+[    0.000000] early_node_map[2] active PFN ranges
+[    0.000000]     0:        0 ->      159
+[    0.000000]     0:      256 ->   524160
+[    0.000000] ACPI: PM-Timer IO Port: 0x808
+[    0.000000] ACPI: LAPIC (acpi_id[0x01] lapic_id[0x00] enabled)
+[    0.000000] Processor #0 (Bootup-CPU)
+[    0.000000] ACPI: LAPIC (acpi_id[0x02] lapic_id[0x01] enabled)
+[    0.000000] Processor #1
+[    0.000000] ACPI: LAPIC (acpi_id[0x03] lapic_id[0x82] disabled)
+[    0.000000] ACPI: LAPIC (acpi_id[0x04] lapic_id[0x83] disabled)
+[    0.000000] ACPI: IOAPIC (id[0x02] address[0xfec00000] gsi_base[0])
+[    0.000000] IOAPIC[0]: apic_id 2, address 0xfec00000, GSI 0-23
+[    0.000000] ACPI: INT_SRC_OVR (bus 0 bus_irq 0 global_irq 2 dfl dfl)
+[    0.000000] ACPI: INT_SRC_OVR (bus 0 bus_irq 9 global_irq 9 high level)
+[    0.000000] ACPI: INT_SRC_OVR (bus 0 bus_irq 0 global_irq 2 dfl dfl)
+[    0.000000] ACPI: INT_SRC_OVR (bus 0 bus_irq 9 global_irq 9 high level)
+[    0.000000] Setting APIC routing to flat
+[    0.000000] Using ACPI (MADT) for SMP configuration information
+[    0.000000] Nosave address range: 000000000009f000 - 00000000000a0000
+[    0.000000] Nosave address range: 00000000000a0000 - 00000000000e4000
+[    0.000000] Nosave address range: 00000000000e4000 - 0000000000100000
+[    0.000000] Allocating PCI resources starting at 88000000 (gap: 80000000:7fb00000)
+[    0.000000] PERCPU: Allocating 31616 bytes of per cpu data
+[    0.000000] Built 1 zonelists.  Total pages: 515219
+[    0.000000] Kernel command line: root=/dev/sda2 ro quiet splash initcall_debug console=ttyS0,115200n8 loglevel=7
+[    0.000000] Initializing CPU#0
+[    0.000000] PID hash table entries: 4096 (order: 12, 32768 bytes)
+[   84.420383] Console: colour VGA+ 80x25
+[   84.674982] Dentry cache hash table entries: 262144 (order: 9, 2097152 bytes)
+[   84.683050] Inode-cache hash table entries: 131072 (order: 8, 1048576 bytes)
+[   84.690219] Checking aperture...
+[   84.714386] Memory: 2057540k/2096640k available (4269k kernel code, 38684k reserved, 1554k data, 260k init)
+[   84.783517] Calibrating delay using timer specific routine.. 4810.18 BogoMIPS (lpj=2405092)
+[   84.791908] Mount-cache hash table entries: 256
+[   84.796532] CPU: L1 I cache: 32K, L1 D cache: 32K
+[   84.801248] CPU: L2 cache: 4096K
+[   84.804474] using mwait in idle threads.
+[   84.808392] CPU: Physical Processor ID: 0
+[   84.812395] CPU: Processor Core ID: 0
+[   84.816057] CPU0: Thermal monitoring enabled (TM2)
+[   84.820844] Freeing SMP alternatives: 36k freed
+[   84.825382] ACPI: Core revision 20060707
+[   84.855783] Using local APIC timer interrupts.
+[   84.901726] result 16695787
+[   84.904513] Detected 16.695 MHz APIC timer.
+[   84.909286] Booting processor 1/2 APIC 0x1
+[   84.923894] Initializing CPU#1
+[   85.000999] Calibrating delay using timer specific routine.. 6517.75 BogoMIPS (lpj=3258877)
+[   85.001005] CPU: L1 I cache: 32K, L1 D cache: 32K
+[   85.001006] CPU: L2 cache: 4096K
+[   85.001008] CPU: Physical Processor ID: 0
+[   85.001009] CPU: Processor Core ID: 1
+[   85.001014] CPU1: Thermal monitoring enabled (TM2)
+[   85.001424] Intel(R) Core(TM)2 CPU          6600  @ 2.40GHz stepping 06
+[   85.002012] Brought up 2 CPUs
+[   85.043275] testing NMI watchdog ... OK.
+[   85.057199] time.c: Using 3.579545 MHz WALL PM GTOD PIT/TSC timer.
+[   85.063364] time.c: Detected 2404.196 MHz processor.
+[   85.201853] migration_cost=21
+[   85.205085] Calling initcall 0xffffffff807cfe40: cpufreq_tsc+0x0/0x70()
+[   85.211721] Calling initcall 0xffffffff807d4980: init_smp_flush+0x0/0x70()
+[   85.219063] Calling initcall 0xffffffff807dc760: init_elf32_binfmt+0x0/0x10()
+[   85.226230] Calling initcall 0xffffffff807de210: helper_init+0x0/0x40()
+[   85.232869] Calling initcall 0xffffffff807de5c0: pm_init+0x0/0x40()
+[   85.239162] Calling initcall 0xffffffff807de690: ksysfs_init+0x0/0x40()
+[   85.245804] Calling initcall 0xffffffff807e10b0: filelock_init+0x0/0x40()
+[   85.252621] Calling initcall 0xffffffff807e1d30: init_misc_binfmt+0x0/0x40()
+[   85.259689] Calling initcall 0xffffffff807e1d70: init_script_binfmt+0x0/0x10()
+[   85.266935] Calling initcall 0xffffffff807e1d80: init_elf_binfmt+0x0/0x10()
+[   85.273913] Calling initcall 0xffffffff807e35e0: debugfs_init+0x0/0x50()
+[   85.280643] Calling initcall 0xffffffff807ef670: sock_init+0x0/0x70()<7>Losing some ticks... checking if CPU frequency changed.
+[   85.292121] 
+[   85.293630] Calling initcall 0xffffffff807f01d0: netlink_proto_init+0x0/0x190()
+[   85.300958] NET: Registered protocol family 16
+[   85.305397] Calling initcall 0xffffffff807e4380: kobject_uevent_init+0x0/0x40()
+[   85.312724] Calling initcall 0xffffffff807e4500: pcibus_class_init+0x0/0x10()
+[   85.319886] Calling initcall 0xffffffff807e4e50: pci_driver_init+0x0/0x10()
+[   85.326878] Calling initcall 0xffffffff807e5990: lcd_class_init+0x0/0x10()
+[   85.333773] Calling initcall 0xffffffff807e59a0: backlight_class_init+0x0/0x10()
+[   85.341194] Calling initcall 0xffffffff807e7861: dock_init+0x0/0x46()
+[   85.347715] Calling initcall 0xffffffff807e89a0: tty_class_init+0x0/0x30()
+[   85.354623] Calling initcall 0xffffffff807e91c0: vtconsole_class_init+0x0/0xd0()
+[   85.362081] Calling initcall 0xffffffff807d37f0: mtrr_if_init+0x0/0x80()
+[   85.368805] Calling initcall 0xffffffff807e54b0: acpi_pci_init+0x0/0x40()
+[   85.375628] ACPI: bus type pci registered
+[   85.379631] Calling initcall 0xffffffff807e710d: init_acpi_device_notify+0x0/0x48()
+[   85.387310] Calling initcall 0xffffffff807ee6e0: pci_access_init+0x0/0x30()
+[   85.394294] PCI: BIOS Bug: MCFG area at f0000000 is not E820-reserved
+[   85.400714] PCI: Not using MMCONFIG.
+[   85.404277] PCI: Using configuration type 1
+[   85.408456] Calling initcall 0xffffffff807d3640: mtrr_init_finialize+0x0/0x40()
+[   85.415786] Calling initcall 0xffffffff807daaf0: topology_init+0x0/0x40()
+[   85.422625] Calling initcall 0xffffffff807ddf70: param_sysfs_init+0x0/0x210()
+[   85.430776] Calling initcall 0xffffffff807e18d0: init_bio+0x0/0x110()
+[   85.437285] Calling initcall 0xffffffff807e4200: genhd_device_init+0x0/0x60()
+[   85.444485] Calling initcall 0xffffffff807e54f0: fbmem_init+0x0/0xa0()
+[   85.451043] Calling initcall 0xffffffff807e6f25: acpi_init+0x0/0x1e8()
+[   85.464257] ACPI: Interpreter enabled
+[   85.467917] ACPI: Using IOAPIC for interrupt routing
+[   85.473282] Calling initcall 0xffffffff807e7236: acpi_ec_init+0x0/0x5e()
+[   85.480007] Calling initcall 0xffffffff807e7b1e: acpi_pci_root_init+0x0/0x27()
+[   85.487251] Calling initcall 0xffffffff807e7c0a: acpi_pci_link_init+0x0/0x46()
+[   85.494489] Calling initcall 0xffffffff807e7cea: acpi_power_init+0x0/0x76()
+[   85.501475] Calling initcall 0xffffffff807e7e3c: acpi_system_init+0x0/0xc3()
+[   85.508542] Calling initcall 0xffffffff807e7eff: acpi_event_init+0x0/0x3e()
+[   85.515529] Calling initcall 0xffffffff807e7f3d: acpi_scan_init+0x0/0x1a4()
+[   85.523211] ACPI: PCI Root Bridge [PCI0] (0000:00)
+[   85.529604] PCI: Ignoring BAR0-3 of IDE controller 0000:00:1f.1
+[   85.536141] PCI: Transparent bridge - 0000:00:1e.0
+[   85.547106] ACPI: PCI Interrupt Link [LNKA] (IRQs 3 4 5 6 7 *10 11 12 14 15)
+[   85.554558] ACPI: PCI Interrupt Link [LNKB] (IRQs 3 4 5 6 *7 10 11 12 14 15)
+[   85.561985] ACPI: PCI Interrupt Link [LNKC] (IRQs *3 4 5 6 7 10 11 12 14 15)
+[   85.569429] ACPI: PCI Interrupt Link [LNKD] (IRQs 3 4 5 6 7 10 *11 12 14 15)
+[   85.576859] ACPI: PCI Interrupt Link [LNKE] (IRQs 3 4 *5 6 7 10 11 12 14 15)
+[   85.584304] ACPI: PCI Interrupt Link [LNKF] (IRQs 3 4 5 6 7 *10 11 12 14 15)
+[   85.591750] ACPI: PCI Interrupt Link [LNKG] (IRQs 3 4 5 6 7 10 11 12 14 15) *0, disabled.
+[   85.600344] ACPI: PCI Interrupt Link [LNKH] (IRQs 3 4 5 *6 7 10 11 12 14 15)
+[   85.607687] Calling initcall 0xffffffff807e8254: acpi_cm_sbs_init+0x0/0xc()
+[   85.614682] Calling initcall 0xffffffff807e8260: pnp_init+0x0/0x30()
+[   85.621063] Linux Plug and Play Support v0.97 (c) Adam Belay
+[   85.626706] Calling initcall 0xffffffff807e8420: pnpacpi_init+0x0/0x70()
+[   85.633421] pnp: PnP ACPI init
+[   85.638555] pnp: PnP ACPI: found 13 devices
+[   85.642727] Calling initcall 0xffffffff807e8e80: misc_init+0x0/0x90()
+[   85.649207] Calling initcall 0xffffffff807e9720: mod_init+0x0/0x280()
+[   85.657054] intel_rng: FWH not detected
+[   85.660894] Calling initcall 0xffffffff807e99a0: mod_init+0x0/0xc0()
+[   85.667283] Calling initcall 0xffffffff807e9a60: mod_init+0x0/0xc0()
+[   85.673663] Calling initcall 0xffffffff804bdda0: cn_init+0x0/0xe0()
+[   85.679992] Calling initcall 0xffffffff807ec270: init_scsi+0x0/0x90()
+[   85.686569] SCSI subsystem initialized
+[   85.690306] Calling initcall 0xffffffff807ec9c0: init_pcmcia_cs+0x0/0x50()
+[   85.697208] Calling initcall 0xffffffff807ecb00: usb_init+0x0/0x110()
+[   85.703725] usbcore: registered new interface driver usbfs
+[   85.709216] usbcore: registered new interface driver hub
+[   85.714538] usbcore: registered new device driver usb
+[   85.719579] Calling initcall 0xffffffff807eced0: serio_init+0x0/0xf0()
+[   85.726579] Calling initcall 0xffffffff807ed350: gameport_init+0x0/0xe0()
+[   85.733403] Calling initcall 0xffffffff807ed430: input_init+0x0/0x120()
+[   85.740050] Calling initcall 0xffffffff807ed850: rtc_init+0x0/0x50()
+[   85.746438] Calling initcall 0xffffffff807ed8a0: i2c_init+0x0/0x40()
+[   85.752850] Calling initcall 0xffffffff807ee710: pci_acpi_init+0x0/0xb0()
+[   85.759659] PCI: Using ACPI for IRQ routing
+[   85.763828] PCI: If a device doesn't work, try "pci=routeirq".  If it helps, post a report
+[   85.772070] Calling initcall 0xffffffff807ee7c0: pci_legacy_init+0x0/0x130()
+[   85.779141] Calling initcall 0xffffffff807eed80: pcibios_irq_init+0x0/0x540()
+[   85.786295] Calling initcall 0xffffffff807ef2c0: pcibios_init+0x0/0x70()
+[   85.793075] Calling initcall 0xffffffff807ef740: proto_init+0x0/0x40()
+[   85.799627] Calling initcall 0xffffffff807ef8e0: net_dev_init+0x0/0x210()
+[   85.806448] Calling initcall 0xffffffff807f01c0: fib_rules_init+0x0/0x10()
+[   85.813335] Calling initcall 0xffffffff807f0360: genl_init+0x0/0xb0()
+[   85.819808] Calling initcall 0xffffffff807cff40: late_hpet_init+0x0/0xb0()
+[   85.826703] Calling initcall 0xffffffff807d3070: pci_iommu_init+0x0/0x20()
+[   85.833603] PCI-GART: No AMD northbridge found.
+[   85.838118] Calling initcall 0xffffffff807e1030: init_pipe_fs+0x0/0x50()
+[   85.844849] Calling initcall 0xffffffff807e8121: acpi_motherboard_init+0x0/0x133()
+[   85.852979] Calling initcall 0xffffffff807e8390: pnp_system_init+0x0/0x10()
+[   85.859987] pnp: 00:06: ioport range 0x290-0x297 has been reserved
+[   85.866162] Calling initcall 0xffffffff807e8880: chr_dev_init+0x0/0x90()
+[   85.873036] Calling initcall 0xffffffff807eacd0: firmware_class_init+0x0/0x80()
+[   85.880364] Calling initcall 0xffffffff807eca10: init_pcmcia_bus+0x0/0x50()
+[   85.887346] Calling initcall 0xffffffff807eda00: cpufreq_gov_performance_init+0x0/0x10()
+[   85.895453] Calling initcall 0xffffffff807eda20: cpufreq_gov_userspace_init+0x0/0x30()
+[   85.903391] Calling initcall 0xffffffff807ee0f0: pcibios_assign_resources+0x0/0x90()
+[   85.911172] PCI: Bridge: 0000:00:01.0
+[   85.914824]   IO window: c000-cfff
+[   85.918224]   MEM window: faa00000-feafffff
+[   85.922400]   PREFETCH window: cff00000-efefffff
+[   85.927009] PCI: Bridge: 0000:00:1c.0
+[   85.930666]   IO window: disabled.
+[   85.934066]   MEM window: disabled.
+[   85.937551]   PREFETCH window: cfe00000-cfefffff
+[   85.942161] PCI: Bridge: 0000:00:1c.3
+[   85.945818]   IO window: b000-bfff
+[   85.949217]   MEM window: fa900000-fa9fffff
+[   85.953393]   PREFETCH window: disabled.
+[   85.957310] PCI: Bridge: 0000:00:1c.4
+[   85.960969]   IO window: a000-afff
+[   85.964367]   MEM window: fa800000-fa8fffff
+[   85.968543]   PREFETCH window: disabled.
+[   85.972463] PCI: Bridge: 0000:00:1e.0
+[   85.976118]   IO window: disabled.
+[   85.979969]   MEM window: fa700000-fa7fffff
+[   85.984144]   PREFETCH window: disabled.
+[   85.988073] GSI 16 sharing vector 0xA9 and IRQ 16
+[   85.992766] ACPI: PCI Interrupt 0000:00:01.0[A] -> GSI 16 (level, low) -> IRQ 169
+[   86.000268] ACPI: PCI Interrupt 0000:00:1c.0[A] -> GSI 16 (level, low) -> IRQ 169
+[   86.007767] GSI 17 sharing vector 0xB1 and IRQ 17
+[   86.012455] ACPI: PCI Interrupt 0000:00:1c.3[D] -> GSI 19 (level, low) -> IRQ 177
+[   86.019951] ACPI: PCI Interrupt 0000:00:1c.4[A] -> GSI 16 (level, low) -> IRQ 169
+[   86.027436] Calling initcall 0xffffffff807f0eb0: inet_init+0x0/0x3e0()
+[   86.034001] NET: Registered protocol family 2
+[   86.046931] IP route cache hash table entries: 65536 (order: 7, 524288 bytes)
+[   86.054152] TCP established hash table entries: 262144 (order: 10, 4194304 bytes)
+[   86.063143] TCP bind hash table entries: 65536 (order: 8, 1048576 bytes)
+[   86.070376] TCP: Hash tables configured (established 262144 bind 65536)
+[   86.076975] TCP reno registered
+[   86.080154] Calling initcall 0xffffffff8020e040: time_init_device+0x0/0x30()
+[   86.087287] Calling initcall 0xffffffff807d04b0: add_pcspkr+0x0/0x60()
+[   86.093868] Calling initcall 0xffffffff807d1390: init_timer_sysfs+0x0/0x30()
+[   86.100956] Calling initcall 0xffffffff807d1360: i8259A_init_sysfs+0x0/0x30()
+[   86.108141] Calling initcall 0xffffffff807d18c0: vsyscall_init+0x0/0xb0()
+[   86.114960] Calling initcall 0xffffffff807d1fd0: sbf_init+0x0/0xe0()
+[   86.121336] Calling initcall 0xffffffff807d2e00: i8237A_init_sysfs+0x0/0x30()
+[   86.128522] Calling initcall 0xffffffff807d32c0: mce_init_device+0x0/0x1b0()
+[   86.135661] Calling initcall 0xffffffff807d31c0: periodic_mcheck_init+0x0/0x30()
+[   86.143077] Calling initcall 0xffffffff807d34e0: thermal_throttle_init_device+0x0/0x60()
+[   86.151194] Calling initcall 0xffffffff807d4680: msr_init+0x0/0x130()
+[   86.157696] Calling initcall 0xffffffff807d47b0: microcode_init+0x0/0xa0()
+[  106.118228] IA-32 Microcode Update Driver: v1.14a <tigran@veritas.com>
+[  106.124743] Calling initcall 0xffffffff807d4850: cpuid_init+0x0/0x130()
+[  106.131417] Calling initcall 0xffffffff807d5c70: init_lapic_sysfs+0x0/0x40()
+[  106.138516] Calling initcall 0xffffffff807d6b30: ioapic_init_sysfs+0x0/0xf0()
+[  106.145694] Calling initcall 0xffffffff807db670: cache_sysfs_init+0x0/0x60()
+[  106.152913] Calling initcall 0xffffffff807db990: x8664_sysctl_init+0x0/0x20()
+[  106.160456] Calling initcall 0xffffffff807dc430: aes_init+0x0/0x330()
+[  106.166942] Calling initcall 0xffffffff807dc770: ia32_binfmt_init+0x0/0x20()
+[  106.174017] Calling initcall 0xffffffff807dc790: init_syscall32+0x0/0x80()
+[  106.180928] Calling initcall 0xffffffff807dc810: init_aout_binfmt+0x0/0x10()
+[  106.188008] Calling initcall 0xffffffff807dd300: create_proc_profile+0x0/0x2c0()
+[  106.195427] Calling initcall 0xffffffff807dd770: ioresources_init+0x0/0x50()
+[  106.202501] Calling initcall 0xffffffff807dd8e0: timekeeping_init_device+0x0/0x30()
+[  106.210206] Calling initcall 0xffffffff807ddb60: uid_cache_init+0x0/0x90()
+[  106.217115] Calling initcall 0xffffffff807de180: init_posix_timers+0x0/0x90()
+[  106.224279] Calling initcall 0xffffffff807de250: init_posix_cpu_timers+0x0/0x80()
+[  106.231790] Calling initcall 0xffffffff807de360: latency_init+0x0/0x30()
+[  106.238510] Calling initcall 0xffffffff807de3a0: init_clocksource_sysfs+0x0/0x60()
+[  106.246127] Calling initcall 0xffffffff807de4b0: init_jiffies_clocksource+0x0/0x10()
+[  106.253885] Calling initcall 0xffffffff807de4c0: init+0x0/0x90()
+[  106.259931] Calling initcall 0xffffffff807de550: proc_dma_init+0x0/0x30()
+[  106.266753] Calling initcall 0xffffffff8024ff30: percpu_modinit+0x0/0x80()
+[  106.273653] Calling initcall 0xffffffff807de590: kallsyms_init+0x0/0x30()
+[  106.280459] Calling initcall 0xffffffff807de600: crash_notes_memory_init+0x0/0x50()
+[  106.288138] Calling initcall 0xffffffff807de650: ikconfig_init+0x0/0x40()
+[  106.294953] Calling initcall 0xffffffff807dfc40: init_per_zone_pages_min+0x0/0x50()
+[  106.302642] Calling initcall 0xffffffff807e0710: pdflush_init+0x0/0x20()
+[  106.309386] Calling initcall 0xffffffff807e0750: kswapd_init+0x0/0x20()
+[  106.316042] Calling initcall 0xffffffff807e0770: setup_vmstat+0x0/0x20()
+[  106.322763] Calling initcall 0xffffffff807e0810: procswaps_init+0x0/0x30()
+[  106.329664] Calling initcall 0xffffffff807e0840: init_tmpfs+0x0/0xd0()
+[  106.336236] Calling initcall 0xffffffff807e0910: cpucache_init+0x0/0x40()
+[  106.343051] Calling initcall 0xffffffff807e1080: fasync_init+0x0/0x30()
+[  106.349696] Calling initcall 0xffffffff807e1800: aio_setup+0x0/0x70()
+[  106.356188] Calling initcall 0xffffffff807e1a70: inotify_setup+0x0/0x10()
+[  106.363000] Calling initcall 0xffffffff807e1a80: inotify_user_setup+0x0/0xc0()
+[  106.370257] Calling initcall 0xffffffff807e1b40: eventpoll_init+0x0/0xf0()
+[  106.377164] Calling initcall 0xffffffff807e1c30: init_sys32_ioctl+0x0/0x100()
+[  106.384330] Calling initcall 0xffffffff807e1d90: init_mbcache+0x0/0x30()
+[  106.391053] Calling initcall 0xffffffff807e1dc0: dnotify_init+0x0/0x30()
+[  106.397783] Calling initcall 0xffffffff807e2260: configfs_init+0x0/0xa0()
+[  106.404602] Calling initcall 0xffffffff807e2300: init_devpts_fs+0x0/0x40()
+[  106.411510] Calling initcall 0xffffffff807e2340: init_reiserfs_fs+0x0/0xa0()
+[  106.419041] Calling initcall 0xffffffff807e2510: init_ext3_fs+0x0/0x70()
+[  106.425782] Calling initcall 0xffffffff807e2640: journal_init+0x0/0xd0()
+[  106.432514] Calling initcall 0xffffffff807e2710: init_ext2_fs+0x0/0x70()
+[  106.439253] Calling initcall 0xffffffff807e27c0: init_cramfs_fs+0x0/0x30()
+[  106.446161] Calling initcall 0xffffffff807e27f0: init_ramfs_fs+0x0/0x10()
+[  106.452961] Calling initcall 0xffffffff807e2810: init_minix_fs+0x0/0x60()
+[  106.459769] Calling initcall 0xffffffff807e28b0: init_fat_fs+0x0/0x50()
+[  106.466415] Calling initcall 0xffffffff807e2900: init_msdos_fs+0x0/0x10()
+[  106.473232] Calling initcall 0xffffffff807e2910: init_vfat_fs+0x0/0x10()
+[  106.479959] Calling initcall 0xffffffff807e2920: init_iso9660_fs+0x0/0x70()
+[  106.486950] Calling initcall 0xffffffff807e2ae0: init_nfs_fs+0x0/0xd0()
+[  106.493628] Calling initcall 0xffffffff807e2da0: init_nfsd+0x0/0xb0()
+[  106.500090] Installing knfsd (copyright (C) 1996 okir@monad.swb.de).
+[  106.506545] Calling initcall 0xffffffff807e2e50: init_nlm+0x0/0x30()
+[  106.512935] Calling initcall 0xffffffff807e2e80: init_nls_ascii+0x0/0x10()
+[  106.519843] Calling initcall 0xffffffff807e2e90: init_nls_iso8859_1+0x0/0x10()
+[  106.527088] Calling initcall 0xffffffff807e2ea0: init_smb_fs+0x0/0x70()
+[  106.533728] Calling initcall 0xffffffff807e2f10: init_ntfs_fs+0x0/0x1e0()
+[  106.540536] NTFS driver 2.1.27 [Flags: R/W].
+[  106.544813] Calling initcall 0xffffffff807e30f0: init_romfs_fs+0x0/0x60()
+[  106.551625] Calling initcall 0xffffffff807e3150: init_autofs_fs+0x0/0x10()
+[  106.558523] Calling initcall 0xffffffff807e3160: init_autofs4_fs+0x0/0x10()
+[  106.565501] initcall at 0xffffffff807e3160: init_autofs4_fs+0x0/0x10(): returned with error code -16
+[  106.574650] Calling initcall 0xffffffff807e31c0: fuse_init+0x0/0x120()
+[  106.581213] fuse init (API version 7.7)
+[  106.585067] Calling initcall 0xffffffff807e32f0: init_udf_fs+0x0/0x60()
+[  106.591716] Calling initcall 0xffffffff807e3350: init_jfs_fs+0x0/0x210()
+[  106.598459] JFS: nTxBlock = 8192, nTxLock = 65536
+[  106.606349] Calling initcall 0xffffffff807e3630: ipc_init+0x0/0x20()
+[  106.612759] Calling initcall 0xffffffff807e3890: init_mqueue_fs+0x0/0xf0()
+[  106.619700] Calling initcall 0xffffffff807e3980: crypto_algapi_init+0x0/0x10()
+[  106.626952] Calling initcall 0xffffffff807e39c0: cryptomgr_init+0x0/0x10()
+[  106.633852] Calling initcall 0xffffffff807e39d0: hmac_module_init+0x0/0x10()
+[  106.640927] Calling initcall 0xffffffff807e39e0: init+0x0/0x60()
+[  106.646973] Calling initcall 0xffffffff807e3a40: init+0x0/0x10()
+[  106.652998] Calling initcall 0xffffffff807e3a50: init+0x0/0x10()
+[  106.659035] Calling initcall 0xffffffff807e3a60: init+0x0/0x10()
+[  106.665079] Calling initcall 0xffffffff807e3a70: init+0x0/0x10()
+[  106.671590] Calling initcall 0xffffffff807e3a80: init+0x0/0x40()
+[  106.677618] Calling initcall 0xffffffff807e3ac0: init+0x0/0x70()
+[  106.683655] Calling initcall 0xffffffff807e3b30: init+0x0/0x70()
+[  106.689700] Calling initcall 0xffffffff807e3ba0: crypto_ecb_module_init+0x0/0x10()
+[  106.697300] Calling initcall 0xffffffff807e3bb0: crypto_cbc_module_init+0x0/0x10()
+[  106.704891] Calling initcall 0xffffffff807e3bc0: init+0x0/0x40()
+[  106.710921] Calling initcall 0xffffffff807e3c00: init+0x0/0x10()
+[  106.716965] Calling initcall 0xffffffff807e3c10: init+0x0/0x10()
+[  106.723009] Calling initcall 0xffffffff807e3c20: init+0x0/0x40()
+[  106.729046] Calling initcall 0xffffffff807e3c60: aes_init+0x0/0x330()
+[  106.735537] Calling initcall 0xffffffff807e3f90: init+0x0/0x10()
+[  106.741576] Calling initcall 0xffffffff807e3fa0: init+0x0/0x10()
+[  106.747620] Calling initcall 0xffffffff807e3fb0: arc4_init+0x0/0x10()
+[  106.754088] Calling initcall 0xffffffff807e3fc0: init+0x0/0x70()
+[  106.760117] Calling initcall 0xffffffff807e4030: init+0x0/0x10()
+[  106.766161] Calling initcall 0xffffffff807e4040: init+0x0/0x10()
+[  106.772197] Calling initcall 0xffffffff807e4050: init+0x0/0x10()
+[  106.778233] Calling initcall 0xffffffff807e4060: michael_mic_init+0x0/0x10()
+[  106.785306] Calling initcall 0xffffffff807e4070: init+0x0/0x10()
+[  106.791334] Calling initcall 0xffffffff807e4260: noop_init+0x0/0x10()
+[  106.797803] io scheduler noop registered
+[  106.801746] Calling initcall 0xffffffff807e4270: as_init+0x0/0x10()
+[  106.808049] io scheduler anticipatory registered (default)
+[  106.813557] Calling initcall 0xffffffff807e4280: deadline_init+0x0/0x10()
+[  106.820363] io scheduler deadline registered
+[  106.824644] Calling initcall 0xffffffff807e4290: cfq_init+0x0/0xb0()
+[  106.831024] io scheduler cfq registered
+[  106.834864] Calling initcall 0xffffffff807e4340: blk_trace_init+0x0/0x40()
+[  106.841777] Calling initcall 0xffffffff80433370: pci_init+0x0/0x30()
+[  106.850046] Calling initcall 0xffffffff807e4e60: pci_sysfs_init+0x0/0x40()
+[  106.856997] Calling initcall 0xffffffff807e4ea0: pci_proc_init+0x0/0x70()
+[  106.863827] Calling initcall 0xffffffff807e4f10: pcie_portdrv_init+0x0/0x50()
+[  106.871079] assign_interrupt_mode Found MSI capability
+[  106.876331] assign_interrupt_mode Found MSI capability
+[  106.881615] assign_interrupt_mode Found MSI capability
+[  106.886870] assign_interrupt_mode Found MSI capability
+[  106.892090] Calling initcall 0xffffffff807e4f60: aer_service_init+0x0/0x10()
+[  106.899178] Calling initcall 0xffffffff807e4f70: pci_hotplug_init+0x0/0x50()
+[  106.906252] pci_hotplug: PCI Hot Plug PCI Core version: 0.5
+[  106.911811] Calling initcall 0xffffffff807e4fc0: dummyphp_init+0x0/0x60()
+[  106.918626] fakephp: Fake PCI Hot Plug Controller Driver
+[  106.924228] Calling initcall 0xffffffff807e5020: acpiphp_init+0x0/0x50()
+[  106.930958] acpiphp: ACPI Hot Plug PCI Controller Driver version: 0.5
+[  106.938716] Calling initcall 0xffffffff807e5290: ibm_acpiphp_init+0x0/0x1a0()
+[  106.946009] acpiphp_ibm: ibm_find_acpi_device:  Failed to get device information<3>acpiphp_ibm: ibm_find_acpi_device:  Failed to get device information<3>acpiphp_ibm: ibm_find_acpi_device:  Failed to get device information<3>acpiphp_ibm: ibm_acpiphp_init: acpi_walk_namespace failed
+[  106.971992] Calling initcall 0xffffffff807e58b0: fb_console_init+0x0/0xe0()
+[  106.979005] Calling initcall 0xffffffff80457f60: rivafb_init+0x0/0x160()
+[  106.985759] Calling initcall 0xffffffff80460a30: nvidiafb_init+0x0/0x240()
+[  106.992698] ACPI: PCI Interrupt 0000:05:00.0[A] -> GSI 16 (level, low) -> IRQ 169
+[  107.000200] nvidiafb: Device ID: 10de0391 
+[  107.008307] nvidiafb: CRTC0 analog found
+[  107.016390] nvidiafb: CRTC1 analog not found
+[  107.042392] nvidiafb: EDID found from BUS1
+[  107.200423] nvidiafb: EDID found from BUS2
+[  107.204509] nvidiafb: CRTC 0 appears to have a CRT attached
+[  107.210067] nvidiafb: Using CRT on CRTC 0
+[  107.214820] nvidiafb: MTRR set to ON
+
+--------------060108090305000903040405--

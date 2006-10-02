@@ -1,83 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965152AbWJBRZZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965157AbWJBR0g@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965152AbWJBRZZ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Oct 2006 13:25:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965157AbWJBRZY
+	id S965157AbWJBR0g (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Oct 2006 13:26:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965159AbWJBR0g
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Oct 2006 13:25:24 -0400
-Received: from pfx2.jmh.fr ([194.153.89.55]:28601 "EHLO pfx2.jmh.fr")
-	by vger.kernel.org with ESMTP id S965152AbWJBRZX (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Oct 2006 13:25:23 -0400
-From: Eric Dumazet <dada1@cosmosbay.com>
-To: Vadim Lobanov <vlobanov@speakeasy.net>
-Subject: Re: [PATCH 4/4] fdtable: Implement new pagesize-based fdtable allocation scheme.
-Date: Mon, 2 Oct 2006 19:25:18 +0200
-User-Agent: KMail/1.9.4
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-References: <200610011414.30443.vlobanov@speakeasy.net> <200610021052.35731.dada1@cosmosbay.com> <200610021000.00768.vlobanov@speakeasy.net>
-In-Reply-To: <200610021000.00768.vlobanov@speakeasy.net>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
+	Mon, 2 Oct 2006 13:26:36 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:2486 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S965157AbWJBR0f
+	(ORCPT <rfc822;Linux-Kernel@vger.kernel.org>);
+	Mon, 2 Oct 2006 13:26:35 -0400
+Subject: Re: Postal 56% waits for flock_lock_file_wait
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Trond Myklebust <trond.myklebust@fys.uio.no>
+Cc: Tim Chen <tim.c.chen@intel.com>,
+       "Ananiev, Leonid I" <leonid.i.ananiev@intel.com>,
+       Linux Kernel Mailing List <Linux-Kernel@vger.kernel.org>
+In-Reply-To: <1159809081.5466.3.camel@lade.trondhjem.org>
+References: <B41635854730A14CA71C92B36EC22AAC3AD954@mssmsx411>
+	 <1159723092.5645.14.camel@lade.trondhjem.org>
+	 <3282373b0610020957u739392eekf8b78c7574e1a6e7@mail.gmail.com>
+	 <1159809081.5466.3.camel@lade.trondhjem.org>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200610021925.19069.dada1@cosmosbay.com>
+Date: Mon, 02 Oct 2006 18:51:56 +0100
+Message-Id: <1159811516.8907.38.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 02 October 2006 19:00, Vadim Lobanov wrote:
-> On Monday 02 October 2006 01:52, Eric Dumazet wrote:
->
-> > Current scheme is to allocate power of two sizes, and not 'the smallest
-> > that accommodates the requested fd count'. This is for a good reason,
-> > because we don't want to call vmalloc()/vfree() each time a process opens
-> > 512 or 1024 more files (x86_64 or ia32)
->
-> Yep, that is most definitely a consideration. I was balancing it against
-> the fact that, when the table becomes big, growing it by a power of two
-> regardless of the size results in massive memory usage deltas. The worry
-> here is that an application may likely cause the table to grow by a huge
-> amount, due to the power-of-two increase, and then actually use only a
-> modest number of further fds, wasting the rest of the allocated table
-> memory.
->
-> Which applications open so many file handles so quickly? Do they actually
-> need the amortized power-of-two table area increase? In those cases, would
-> the actual process of opening these files take more time than growing the
-> table in fixed-size steps? Or at least outweigh it enough that it would be
-> more preferable to try to reduce memory waste instead of improve file open
-> time?
+Ar Llu, 2006-10-02 am 13:11 -0400, ysgrifennodd Trond Myklebust:
+> Ext3 does not use flock() in order to lock its journal. The performance
+> issues that he is seeing may well be due to the journalling, but that
+> has nothing to do with flock_lock_file_wait.
 
-I think that for such applications, the 'waste' of ram for fd table is nothing 
-compared to the ram cost of opened files/sockets/dentries/inodes.
+The ext3 journal also generally speaking improves many-writer
+performance as do the reservations so the claim seems odd on that basis
+too. Rerun the test on a gigabyte iRam or similar and you'll see where
+the non-media bottlenecks actually are
 
->
-> Is it really true that it will create less fragmentation? It seems to me
-> that this will only be the true if most of the other heavy users of vmalloc
-> also tried to use power-of-two allocation sizes.
-
-I am quite sure that on my machines, big vmalloc users are fdtable most of the 
-time.
-
->
-> What do you think of Andi Kleen's follow-up suggestion about eliminating
-> vmalloc use altogether?
-
-It would be interesting, but would need one indirection level, that could kill 
-performance of said huge applications... For such applications, the cost of 
-expanding fdtable is nothing compared to the cost of 
-open()/close()/poll()/read()/write() calls. This is because fdtable never 
-shrinks. So adding one indirection (if you use a table of pointers to PAGES 
-containing 1024 or 512 (struct file *)). 
-
-At least, expanding fdtable by 1024 slots would need to reallocate the first 
-table (adding one void *), and allocating one PAGE only. No need to copy 
-previous pages, this is a win.
-
-Of course, big fdset still need vmalloc(), or else we cannot use 
-find_next_zero_bit() anymore... And for such applications, the time and 
-memory scanned to find a zero bit at open() time is probably the killer 
-(touching a large part of cpu caches). One million bits is 128 KB...
-
-Eric

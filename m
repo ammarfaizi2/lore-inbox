@@ -1,76 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965227AbWJBSQv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965235AbWJBSUP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965227AbWJBSQv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Oct 2006 14:16:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965233AbWJBSQv
+	id S965235AbWJBSUP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Oct 2006 14:20:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965239AbWJBSUP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Oct 2006 14:16:51 -0400
-Received: from ns2.g-housing.de ([81.169.133.75]:15518 "EHLO mail.g-house.de")
-	by vger.kernel.org with ESMTP id S965227AbWJBSQu (ORCPT
+	Mon, 2 Oct 2006 14:20:15 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:47848 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S965235AbWJBSUN (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Oct 2006 14:16:50 -0400
-Date: Mon, 2 Oct 2006 19:16:45 +0100 (BST)
-From: Christian Kujau <evil@g-house.de>
-X-X-Sender: evil@sheep.housecafe.de
-To: linux-kernel@vger.kernel.org
-cc: christopher.leech@intel.com
-Subject: CONFIG_DMA_ENGINE helptext
-Message-ID: <Pine.LNX.4.64.0610021903260.8599@sheep.housecafe.de>
-MIME-Version: 1.0
-Content-Type: MULTIPART/MIXED; BOUNDARY="-1463809526-190321547-1159813005=:8599"
+	Mon, 2 Oct 2006 14:20:13 -0400
+Date: Mon, 2 Oct 2006 11:15:37 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Dan Williams <dcbw@redhat.com>, Jean Tourrilhes <jt@bougret.hpl.hp.com>,
+       "John W. Linville" <linville@tuxdriver.com>
+Cc: Norbert Preining <preining@logic.at>,
+       Alessandro Suardi <alessandro.suardi@gmail.com>, hostap@shmoo.com,
+       linux-kernel@vger.kernel.org, ipw3945-devel@lists.sourceforge.net
+Subject: Re: wpa supplicant/ipw3945, ESSID last char missing
+Message-Id: <20061002111537.baa077d2.akpm@osdl.org>
+In-Reply-To: <1159808304.2834.89.camel@localhost.localdomain>
+References: <20061002085942.GA32387@gamma.logic.tuwien.ac.at>
+	<5a4c581d0610020221s7bf100f8q893161b7c8c492d2@mail.gmail.com>
+	<20061002113259.GA8295@gamma.logic.tuwien.ac.at>
+	<5a4c581d0610020521q721e3157q88ad17d3cc84a066@mail.gmail.com>
+	<20061002124613.GB13984@gamma.logic.tuwien.ac.at>
+	<20061002165053.GA2986@gamma.logic.tuwien.ac.at>
+	<1159808304.2834.89.camel@localhost.localdomain>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-  This message is in MIME format.  The first part should be readable text,
-  while the remaining parts are likely unreadable without MIME-aware tools.
+On Mon, 02 Oct 2006 12:58:24 -0400
+Dan Williams <dcbw@redhat.com> wrote:
 
----1463809526-190321547-1159813005=:8599
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+> On Mon, 2006-10-02 at 18:50 +0200, Norbert Preining wrote:
+> > On Mon, 02 Okt 2006, Norbert Preining wrote:
+> > > > The main features of the latest beta is WE-21 support (long/short
+> > > > retry, power saving level, modulation), enhanced command line parser
+> > > > in iwconfig, scanning options, more WPA support and more footprint
+> > > > reduction tricks
+> > > 
+> > > Bingo. I build the new 29-pre10 and everything is working.
+> > 
+> > Sorry, that was over-optimistic. still same behaviour as with the Debian
+> > v28 version.
+> > 
+> > The last character is cut of from wpa_supplicant. I have to set the
+> > essid by hadn with
+> > 	"real-essid "
+> > mark the space at the end!
+> 
+> You have a mismatch between your wireless-tools, your kernel, and/or
+> wpa_supplicant.  WE-21 uses the _real_ ssid length rather than the
+> kludge of hacking off the last byte used previously.  Please ensure that
+> your tools, driver, and kernel are using WE-21.
+> 'cat /proc/net/wireless' should tell you what your kernel is using.
+> Getting the driver WE is a bit harder and you may have to look at the
+> source.
 
-Hello,
+Jean, John: the amount of trouble which this change is causing is quite
+high considering that we're not even at -rc1 yet.  It's going to get worse.
 
-I was wondering what CONFIG_DMA_ENGINE is about and the only hint I 
-found was this: http://lkml.org/lkml/2006/9/25/285
-
-That's why I was about to send the attached patch. However, from looking 
-at the comments in drivers/dma/dmaengine.c, it seems to be about 
-non-HW-specific DMA support:
-
-"This code implements the DMA subsystem. It provides a HW-neutral
-  interface for other kernel code to use asynchronous memory copy
-  capabilities"
-
-Because I don't know anything about the innards of DMA, can someone 
-please enlighten me what this knob is for and why one should enable it?
-
-Thanks,
-Christian.
--- 
-BOFH excuse #94:
-
-Internet outage
----1463809526-190321547-1159813005=:8599
-Content-Type: TEXT/plain; charset=US-ASCII; name=Kconfig-DMA_ENGINE-2.6.18.diff
-Content-Transfer-Encoding: BASE64
-Content-ID: <Pine.LNX.4.64.0610021916450.8599@sheep.housecafe.de>
-Content-Description: 
-Content-Disposition: attachment; filename=Kconfig-DMA_ENGINE-2.6.18.diff
-
-LS0tIGxpbnV4LTIuNi9kcml2ZXJzL2RtYS9LY29uZmlnCTIwMDYtMDktMjIg
-MDY6MjA6MTYuMDAwMDAwMDAwICswMTAwDQorKysgbGludXgtMi42L2RyaXZl
-cnMvZG1hL0tjb25maWcuZWRpdGVkCTIwMDYtMTAtMDIgMTk6MDQ6MjUuMDAw
-MDAwMDAwICswMTAwDQpAQCAtOCw3ICs4LDExIEBAIGNvbmZpZyBETUFfRU5H
-SU5FDQogCWJvb2wgIlN1cHBvcnQgZm9yIERNQSBlbmdpbmVzIg0KIAktLS1o
-ZWxwLS0tDQogCSAgRE1BIGVuZ2luZXMgb2ZmbG9hZCBjb3B5IG9wZXJhdGlv
-bnMgZnJvbSB0aGUgQ1BVIHRvIGRlZGljYXRlZA0KLQkgIGhhcmR3YXJlLCBh
-bGxvd2luZyB0aGUgY29waWVzIHRvIGhhcHBlbiBhc3luY2hyb25vdXNseS4N
-CisJICBoYXJkd2FyZSwgYWxsb3dpbmcgdGhlIGNvcGllcyB0byBoYXBwZW4g
-YXN5bmNocm9ub3VzbHkuIFNwZWNpYWwNCisJICBoYXJkd2FyZSBpcyByZXF1
-aXJlZCBmb3IgdGhpcywgY3VycmVudGx5IG9ubHkgdGhlIEludGVsIEU1MDAw
-IA0KKwkgIGNoaXBzZXQgaXMgc3VwcG9ydGVkLCBjZXJ0YWluIFJBSUQgY29u
-dHJvbGxlcnMgbWlnaHQgc3VwcG9ydA0KKwkgIHRoaXMgdG9vLiBOb3RlIHRo
-YXQgdGhpcyBoYXMgbm90aGluZyB0byBkbyB3aXRoIFBDSS1ETUEgaW4NCisJ
-ICB0aGUgZmlyc3QgcGxhY2UuDQogDQogY29tbWVudCAiRE1BIENsaWVudHMi
-DQogDQo=
-
----1463809526-190321547-1159813005=:8599--
+It doesn't sound like it'll be too hard to arrange for the kernel to
+continue to work correctly with old userspace?

@@ -1,98 +1,41 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965493AbWJBWsn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965498AbWJBW6R@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965493AbWJBWsn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Oct 2006 18:48:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965494AbWJBWsn
+	id S965498AbWJBW6R (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Oct 2006 18:58:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965497AbWJBW6R
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Oct 2006 18:48:43 -0400
-Received: from outbound-red.frontbridge.com ([216.148.222.49]:1750 "EHLO
-	outbound2-red-R.bigfish.com") by vger.kernel.org with ESMTP
-	id S965493AbWJBWsm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Oct 2006 18:48:42 -0400
-X-BigFish: VP
-X-Server-Uuid: 519AC16A-9632-469E-B354-112C592D09E8
-Date: Mon, 2 Oct 2006 16:57:38 -0600
-From: "Jordan Crouse" <jordan.crouse@amd.com>
-To: linux-fbdev-devel@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       devel@laptop.org
-Subject: [PATCH] video: Get the default mode from the right database
-Message-ID: <20061002225738.GD7716@cosmic.amd.com>
+	Mon, 2 Oct 2006 18:58:17 -0400
+Received: from mout2.freenet.de ([194.97.50.155]:31975 "EHLO mout2.freenet.de")
+	by vger.kernel.org with ESMTP id S965495AbWJBW6Q (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Oct 2006 18:58:16 -0400
+From: Karsten Wiese <annabellesgarden@yahoo.de>
+To: Linus Torvalds <torvalds@osdl.org>
+Subject: Re: [PATCH 3/3] IRQ: Maintain regs pointer globally rather than passing to IRQ handlers
+Date: Tue, 3 Oct 2006 00:59:09 +0200
+User-Agent: KMail/1.9.4
+Cc: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
+       David Howells <dhowells@redhat.com>,
+       Thomas Gleixner <tglx@linutronix.de>, linux-kernel@vger.kernel.org,
+       linux-arch@vger.kernel.org, Dmitry Torokhov <dtor@mail.ru>,
+       Greg KH <greg@kroah.com>, David Brownell <david-b@pacbell.net>,
+       Alan Stern <stern@rowland.harvard.edu>
+References: <20061002162049.17763.39576.stgit@warthog.cambridge.redhat.com> <20061002201836.GB31365@elte.hu> <Pine.LNX.4.64.0610021349090.3952@g5.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0610021349090.3952@g5.osdl.org>
 MIME-Version: 1.0
-User-Agent: Mutt/1.5.11
-X-OriginalArrivalTime: 02 Oct 2006 22:48:27.0933 (UTC)
- FILETIME=[E03D0CD0:01C6E674]
-X-WSS-ID: 693F48B60C43578102-01-01
-Content-Type: multipart/mixed;
- boundary=OXfL5xGRrasGEqWY
+Content-Type: text/plain;
+  charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
+Message-Id: <200610030059.10035.annabellesgarden@yahoo.de>
+X-Warning: yahoo.de is listed at abuse.rfc-ignorant.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Am Montag, 2. Oktober 2006 22:54 schrieb Linus Torvalds:
+> 
+> So speak up, people...
+> 
+pro apply.
 
---OXfL5xGRrasGEqWY
-Content-Type: text/plain;
- charset=us-ascii
-Content-Disposition: inline
-Content-Transfer-Encoding: 7bit
-
-fb_find_mode() is behaving in an non-intuitive way.  When I specify my
-own video mode database, and no default mode, I would have expected it
-to assume the first mode in my database as the default mode.  Instead, it
-uses the built in database:
-
-> if (!db) {
->     db = modedb;
->     dbsize = ARRAY_SIZE(modedb);
-> }
-> if (!default_mode)
->     default_mode = &modedb[DEFAULT_MODEDB_INDEX];
-
-Personally, I think this is incorrect - if an alternate database is
-specified, it should be always using that.  Patch is attached.
-
-Regards,
-Jordan
-
--- 
-Jordan Crouse
-Senior Linux Engineer
-Advanced Micro Devices, Inc.
-<www.amd.com/embeddedprocessors>
-
---OXfL5xGRrasGEqWY
-Content-Type: text/plain;
- charset=us-ascii
-Content-Disposition: inline;
- filename=modedb-fix.patch
-Content-Transfer-Encoding: 7bit
-
-[PATCH] video: Get the default mode from the right database
-
-From: Jordan Crouse <jordan.crouse@amd.com>
-
-If no default mode is specified, it should be grabbed from the supplied
-database, not the default one.  
-
-Signed-off-by: Jordan Crouse <jordan.crouse@amd.com>
----
-
- drivers/video/modedb.c |    2 +-
- 1 files changed, 1 insertions(+), 1 deletions(-)
-
-diff --git a/drivers/video/modedb.c b/drivers/video/modedb.c
-index d126790..e068f52 100644
---- a/drivers/video/modedb.c
-+++ b/drivers/video/modedb.c
-@@ -506,7 +506,7 @@ int fb_find_mode(struct fb_var_screeninf
- 	dbsize = ARRAY_SIZE(modedb);
-     }
-     if (!default_mode)
--	default_mode = &modedb[DEFAULT_MODEDB_INDEX];
-+	default_mode = &db[DEFAULT_MODEDB_INDEX];
-     if (!default_bpp)
- 	default_bpp = 8;
- 
-
---OXfL5xGRrasGEqWY--
-
-
+      Karsten

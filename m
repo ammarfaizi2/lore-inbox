@@ -1,177 +1,179 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932504AbWJBAFs@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932513AbWJBAHn@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932504AbWJBAFs (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Oct 2006 20:05:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932513AbWJBAFs
+	id S932513AbWJBAHn (ORCPT <rfc822;willy@w.ods.org>);
+	Sun, 1 Oct 2006 20:07:43 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932515AbWJBAHn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Oct 2006 20:05:48 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.151]:52896 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S932504AbWJBAFr
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Oct 2006 20:05:47 -0400
-Date: Sun, 1 Oct 2006 17:06:45 -0700
-From: "Paul E. McKenney" <paulmck@us.ibm.com>
-To: Alan Stern <stern@rowland.harvard.edu>
-Cc: David Howells <dhowells@redhat.com>,
-       Kernel development list <linux-kernel@vger.kernel.org>
-Subject: Re: Uses for memory barriers
-Message-ID: <20061002000645.GC3584@us.ibm.com>
-Reply-To: paulmck@us.ibm.com
-References: <20060930011148.GL1315@us.ibm.com> <Pine.LNX.4.44L0.0609301625280.15977-100000@netrider.rowland.org>
+	Sun, 1 Oct 2006 20:07:43 -0400
+Received: from tomts5.bellnexxia.net ([209.226.175.25]:35574 "EHLO
+	tomts5-srv.bellnexxia.net") by vger.kernel.org with ESMTP
+	id S932513AbWJBAHm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Sun, 1 Oct 2006 20:07:42 -0400
+Date: Sun, 1 Oct 2006 20:07:32 -0400
+From: Mathieu Desnoyers <compudj@krystal.dyndns.org>
+To: Nicholas Miell <nmiell@comcast.net>
+Cc: Martin Bligh <mbligh@google.com>, "Frank Ch. Eigler" <fche@redhat.com>,
+       Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>, prasanna@in.ibm.com,
+       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
+       Paul Mundt <lethal@linux-sh.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>, Jes Sorensen <jes@sgi.com>,
+       Tom Zanussi <zanussi@us.ibm.com>,
+       Richard J Moore <richardj_moore@uk.ibm.com>,
+       Michel Dagenais <michel.dagenais@polymtl.ca>,
+       Christoph Hellwig <hch@infradead.org>,
+       Greg Kroah-Hartman <gregkh@suse.de>,
+       Thomas Gleixner <tglx@linutronix.de>, William Cohen <wcohen@redhat.com>,
+       ltt-dev@shafik.org, systemtap@sources.redhat.com,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>,
+       Jeremy Fitzhardinge <jeremy@goop.org>,
+       Karim Yaghmour <karim@opersys.com>, Pavel Machek <pavel@suse.cz>,
+       Joe Perches <joe@perches.com>, "Randy.Dunlap" <rdunlap@xenotime.net>,
+       "Jose R. Santos" <jrs@us.ibm.com>
+Subject: Re: Performance analysis of Linux Kernel Markers 0.20 for 2.6.17
+Message-ID: <20061002000731.GA22337@Krystal>
+References: <20060930180157.GA25761@Krystal> <1159642933.2355.1.camel@entropy> <20061001034212.GB13527@Krystal> <1159676382.2355.13.camel@entropy> <20061001153317.GB24313@Krystal> <1159747060.2355.21.camel@entropy>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.44L0.0609301625280.15977-100000@netrider.rowland.org>
-User-Agent: Mutt/1.4.1i
+In-Reply-To: <1159747060.2355.21.camel@entropy>
+X-Editor: vi
+X-Info: http://krystal.dyndns.org:8080
+X-Operating-System: Linux/2.4.32-grsec (i686)
+X-Uptime: 20:05:28 up 39 days, 21:14,  4 users,  load average: 0.21, 0.23, 0.24
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Sep 30, 2006 at 05:01:05PM -0400, Alan Stern wrote:
-> On Fri, 29 Sep 2006, Paul E. McKenney wrote:
-> 
-> > > Let's start with some new notation.  If A is a location in memory and n is
-> > > an index number, let's write "ld(A,n)", "st(A,n)", and "ac(A,n)" to stand
-> > > for a load, store, or arbitrary access to A.  The index n is simply a way
-> > > to distinguish among multiple accesses to the same location.  If n isn't
-> > > needed we may choose to omit it.
-> > 
-> > Don't we also need to have an argument indicating who is observing the
-> > stores?
-> 
-> Not here.  Such an observation would itself have to be a separate load,
-> and so would have its own index.
-
-Ah!  So ld(A,n) sees st(A,i) for the largest i<n?
-
-> > > "Comes before" need not be transitive, depending on the architecture.  We 
-> > > can safely allow it to be transitive among stores that are all visible to 
-> > > some single CPU, but not all stores need to be so visible.
-> > 
-> > OK, I agree with total ordering on a specific variable, and also on
-> > all loads and stores from a given CPU -- but the latter only from the
-> > viewpoint of that particular CPU.
-> 
-> What I meant above was that the ordering can be total on all stores for a
-> specific variable that are visible to a given CPU, regardless of the CPUs
-> executing the stores.  ("Comes before" never tries to compare accesses to
-> different variables.)
-> 
-> I admit that this notion may be a little vague, since it's hard to say
-> whether a particular store is visible to a particular CPU in the absence
-> of a witnessing load.  The same objection applies to the issue of whether
-> one store overwrites another -- if a third store comes along and
-> overwrites both then it can be difficult or impossible to define the
-> ordering of the first two.
-
-Definitely a complication!
-
-> > > As an example, consider a 4-CPU system where CPUs 0,1 share the cache C01
-> > > and CPUs 2,3 share the cache C23.  Suppose that each CPU executes a store
-> > > to A concurrently.  Then C01 might decide that the store from CPU 0 will
-> > > overwrite the store from CPU 1, and C23 might decide that the store from
-> > > CPU 2 will overwrite the store from CPU 3.  Similarly, the two caches
-> > > together might decide that the store from CPU 0 will overwrite the store
-> > > from CPU 2.  Under these conditions it makes no sense to compare the
-> > > stores from CPUs 1 and 3, because nowhere are both stores visible.
-> > 
-> > Agreed -- in the absence of concurrent loads from A or use of things
-> > like atomic_xchg() to do the stores, there is no way for the software
-> > to know anything except that CPU 0 was the eventual winner.  This means
-> > that the six permutations of 1, 2, and 3 are possible from the software's
-> > viewpoint -- it has no way of knowing that the order 3, 2, 1, 0 is the
-> > "real" order.
-> 
-> It's worse than you say.  Even if there _are_ concurrent loads that see
-> the various intermediate states, there's still no single CPU that can see
-> both the CPU 1 and CPU 3 values.  No matter how hard you looked, you
-> wouldn't be able to order those two stores.
-
-In absence of something like a synchronized fine-grained clock, yes, you are
-all too correct.
-
-> > > Now, if we consider atomic_xchg() to be a combined load followed by a
-> > > store, its atomic nature is expressed by requiring that no other store can
-> > > occur in the middle.  Symbolically, let's say atomic_xchg(&A) is
-> > > represented by
+* Nicholas Miell (nmiell@comcast.net) wrote:
+> On Sun, 2006-10-01 at 11:33 -0400, Mathieu Desnoyers wrote:
+> > * Nicholas Miell (nmiell@comcast.net) wrote:
+> > > On Sat, 2006-09-30 at 23:42 -0400, Mathieu Desnoyers wrote:
+> > > > * Nicholas Miell (nmiell@comcast.net) wrote:
+> > > > > 
+> > > > > Has anyone done any performance measurements with the "regular function
+> > > > > call replaced by a NOP" type of marker?
+> > > > > 
+> > > > 
+> > > > Here it is (on the same setup as the other tests : Pentium 4, 3 GHz) :
+> > > > 
+> > > > * Execute an empty loop
+> > > > 
+> > > > - Without marker
+> > > > NR_LOOPS : 10000000
+> > > > time delta (cycles): 15026497
+> > > > cycles per loop : 1.50
+> > > > 
+> > > > - With 5 NOPs
+> > > > NR_LOOPS : 100000
+> > > > time delta (cycles): 300157
+> > > > cycles per loop : 3.00
+> > > > added cycles per loop for nops : 3.00-1.50 = 1.50
+> > > > 
+> > > > 
+> > > > * Execute a loop of memcpy 4096 bytes
+> > > > 
+> > > > - Without marker
+> > > > NR_LOOPS : 10000
+> > > > time delta (cycles): 12981555
+> > > > cycles per loop : 1298.16
+> > > > 
+> > > > - With 5 NOPs
+> > > > NR_LOOPS : 10000
+> > > > time delta (cycles): 12983925
+> > > > cycles per loop : 1298.39
+> > > > added cycles per loop for nops : 0.23
+> > > > 
+> > > > 
+> > > > If we compare this approach to the jump-over-call markers (in cycles per loop) :
+> > > > 
+> > > >               NOPs    Jump over call generic    Jump over call optimized
+> > > > empty loop    1.50    1.17                      2.50 
+> > > > memcpy        0.23    2.12                      0.07
+> > > > 
+> > > > 
+> > > > 
+> > > > Mathieu
 > > > 
-> > > 	ld(A,m); st(A,n);
+> > > What about with two NOPs (".byte 0x66, 0x66, 0x90, 0x66, 0x90" - this
+> > > should work with everything) or one (".byte 0x0f, 0x1f, 0x44, 0x00,
+> > > 0x00" - AFAIK, this should work with P6 or newer).
 > > > 
-> > > and we can even stipulate that since these are atomic accesses, ld(A,m) <
-> > > st(A,n).  Then for any other st(A,k) on any CPU, if st(A,k) c.b. st(A,n)  
-> > > we must have st(A,k) c.b. ld(A,m).  The reverse implication follows from
-> > > one of the degenerate subcases above.
+> > > (Sorry, I should have mentioned this the first time.)
 > > > 
-> > > >From this you can prove that for any two atomic_xchg() calls on the same
-> > > atomic_t variable, one "comes before" the other.  Going on from there, you
-> > > can show that -- assuming spinlocks are implemented via atomic_xchg() --
-> > > for any two critical sections, one comes completely before the other. 
-> > > Furthermore every CPU will agree on which came first, so there is a 
-> > > global total ordering of critical sections.
-> 
-> > Interesting!
 > > 
-> > However, I believe we can safely claim a little bit more, given that
-> > some CPUs do a blind store for the spin_unlock() operation.  In this
-> > blind-store case, a CPU that sees the store corresponding to (say) CPU
-> > 0's unlock would necessarily see the all the accesses corresponding to
-> > (say) CPU 1's "earlier" critical section.  Therefore, at least some
-> > degree of transitivity can be assumed for sequences of loads and stores
-> > to a single variable.
+> > Hi,
 > > 
-> > Thoughts?
+> > The tests I made were with : 
+> > #define GENERIC_NOP1    ".byte 0x90\n"
+> > #define GENERIC_NOP4        ".byte 0x8d,0x74,0x26,0x00\n"
+> > #define GENERIC_NOP5        GENERIC_NOP1 GENERIC_NOP4
+> > 
+> > Now with the tests you ask for :
+> > 
+> > * Execute an empty loop
+> > - 2 NOPs ".byte 0x66, 0x66, 0x90, 0x66, 0x90"
+> > NR_LOOPS : 100000
+> > time delta (cycles): 200190
+> > cycles per loop : 2.00
+> > cycles per loop for nops : 2.00-1.50 = 0.50
+> > 
+> > - 1 NOP "0x0f, 0x1f, 0x44, 0x00, 0x00"
+> > NR_LOOPS : 100000
+> > time delta (cycles): 300172
+> > cycles per loop : 3.00
+> > cycles per loop for nops : 3.00-1.50 = 2.50
+> > 
+> > 
+> > * Execute a loop of memcpy 4096 bytes
+> > - 2 NOPs ".byte 0x66, 0x66, 0x90, 0x66, 0x90"
+> > NR_LOOPS : 10000
+> > time delta (cycles): 12981293
+> > cycles per loop : 1298.13
+> > cycles per loop for nops : 1298.16-1298.13=0.03
+> > 
+> > - 1 NOP "0x0f, 0x1f, 0x44, 0x00, 0x00"
+> > NR_LOOPS : 10000
+> > time delta (cycles): 12985590
+> > cycles per loop : 1298.56
+> > cycles per loop for nops : 0.43
+> > 
 > 
-> I'm not quite sure what you're saying.  In practice does it amount to 
-> this?
+> To summarize in chart form:
 > 
-> 	CPU 0			CPU 1			CPU 2
-> 	-----			-----			-----
-> 				spin_lock(&L);		spin_lock(&L);
-> 				a = 1;			b = a + 1;
-> 				spin_unlock(&L);	spin_unlock(&L);
-> 	while (spin_is_locked(&L)) ;
-> 	rmb();
-> 	assert(!(b==2 && a==0));
+>               	JoC	JoCo	2NOP	1NOP
+> empty loop	1.17	2.50	0.50	2.50
+> memcpy		2.12	0.07	0.03	0.43
 > 
-> I think this follows from the principles I laid out.  But of course it 
-> depends crucially on the protection provided by the critical sections.
+> JoC 	= Jump over call - generic
+> JoCo	= Jump over call - optimized
+> 2NOP	= "data16 data16 nop; data16 nop"
+> 1NOP	= NOP with ModRM
+> 
+> I left out your "nop; lea 0(%esi), %esi" because it isn't actually a NOP
+> (the CPU will do actual work even if it has no effect, and on AMD64,
+> that insn is "nop; lea 0(%rdi), %esi", which will truncate RDI+0 to fit
+> 32-bits.)
+> 
+> The performance of NOP with ModRM doesn't suprise me -- AFAIK, only the
+> most recent of Intel CPUs actually special case that to be a true
+> no-work-done NOP.
+> 
+> It'd be nice to see the results of "jump to an out-of-line call with the
+> jump replaced by a NOP", but even if it performs well (and it should,
+> the argument passing and stack alignment overhead won't be executed in
+> the disabled probe case), actually using it in practice would be
+> difficult without compiler support (call instructions are easy to find
+> thanks to their relocations, which local jumps don't have).
+> 
 
-In absence of CONFIG_X86_OOSTORE or CONFIG_X86_PPRO_FENCE, i386's
-implementation of spin_unlock() ends up being a simple store:
+Hi,
 
-	#define __raw_spin_unlock_string \
-		"movb $1,%0" \
-			:"+m" (lock->slock) : : "memory"
+Just to make sure we see things the same way : the JoC approach is similar to
+the out-of-line call in that the argument passing and stack alignment are not
+executed when the probe is disabled.
 
-No explicit memory barrier, as the x86's implicit store-ordering memory
-barriers suffice to keep stores inside the critical section.  In addition,
-x86 refuses to pull a store ahead of a load, so the loads are also confined
-to the critical section.
+Mathieu
 
-So, your example then looks as follows:
-
-	CPU 0			CPU 1			CPU 2
-	-----			-----			-----
-				spin_lock(&L);		spin_lock(&L);
-				a = 1;			b = a + 1;
-				implicit_mb();		implicit_mb();
-				L=unlocked;		L=unlocked;
-	while (spin_is_locked(&L)) ;
-	rmb();
-	assert(!(b==2 && a==0));
-
-I am then asserting that a very weak form of transitivity is required.
-The fact that CPU 0 saw CPU 2's unlock and the fact that CPU 2 saw
-CPU 1's assignment a=1 must imply that CPU 0 also sees CPU 1's a=1.
-It is OK to also invoke the fact that CPU 2 also saw CPU 1's unlock before
-seeing CPU 1's assignment a=1, and I am suggesting taking this latter
-course, since it appears to me to be a weaker assumption.
-
-Thoughts?
-
-BTW, I like you approach of naming the orderings differently.  For
-the pseudo-ordering implied by a memory barrier, would something like
-"conditionally preceeds" and "conditionally follows" get across the
-fact that -some- sort of ordering is happening, but not necessarily
-strict temporal ordering?
-
-						Thanx, Paul
+OpenPGP public key:              http://krystal.dyndns.org:8080/key/compudj.gpg
+Key fingerprint:     8CD5 52C3 8E3C 4140 715F  BA06 3F25 A8FE 3BAE 9A68 

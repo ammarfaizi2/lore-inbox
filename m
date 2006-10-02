@@ -1,94 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965301AbWJBTLS@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965360AbWJBTTb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965301AbWJBTLS (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Oct 2006 15:11:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965363AbWJBTLR
+	id S965360AbWJBTTb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Oct 2006 15:19:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965356AbWJBTTb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Oct 2006 15:11:17 -0400
-Received: from ug-out-1314.google.com ([66.249.92.168]:34351 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S965356AbWJBTLP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Oct 2006 15:11:15 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent:sender;
-        b=DRbAk+dlxa2nTCHk0LvGQH/XUbA3if0fKKlylohbYSReJBN1aY4DLjshxjgaXUQTGbDTNN/Nh/Cn3WGcf9/zpHKiasxnJtpzGR8WE5kF7Suabc6Ixjhpjae1BNNusRtk3/Grrz4BGvV2/4YH4J/U8x85y3vbASbEv/Jbz5rq97I=
-Date: Mon, 2 Oct 2006 21:09:49 +0000
-From: Frederik Deweerdt <deweerdt@free.fr>
-To: Matthew Wilcox <matthew@wil.cx>
-Cc: Arjan van de Ven <arjan@infradead.org>, linux-scsi@vger.kernel.org,
-       "Linux-Kernel," <linux-kernel@vger.kernel.org>,
-       "J.A. Magall??n" <jamagallon@ono.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Morton <akpm@osdl.org>,
-       Jeff Garzik <jeff@garzik.org>
-Subject: Re: [RFC PATCH] pci_request_irq (was [-mm patch] aic7xxx: check irq validity)
-Message-ID: <20061002210949.GJ3003@slug>
-References: <20060929235054.GB2020@slug> <1159573404.13029.96.camel@localhost.localdomain> <20060930140946.GA1195@slug> <451F049A.1010404@garzik.org> <20061001142807.GD16272@parisc-linux.org> <1159729523.2891.408.camel@laptopd505.fenrus.org> <20061001193616.GF16272@parisc-linux.org> <1159755141.2891.434.camel@laptopd505.fenrus.org> <20061002200048.GC3003@slug> <20061002181522.GL16272@parisc-linux.org>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061002181522.GL16272@parisc-linux.org>
-User-Agent: mutt-ng/devel-r804 (Linux)
+	Mon, 2 Oct 2006 15:19:31 -0400
+Received: from mail128.messagelabs.com ([216.82.250.131]:24306 "HELO
+	mail128.messagelabs.com") by vger.kernel.org with SMTP
+	id S965360AbWJBTTa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Oct 2006 15:19:30 -0400
+X-VirusChecked: Checked
+X-Env-Sender: preece@urbana.css.mot.com
+X-Msg-Ref: server-15.tower-128.messagelabs.com!1159816769!1653810!1
+X-StarScan-Version: 5.5.10.7; banners=-,-,-
+X-Originating-IP: [129.188.136.8]
+X-POPI: The contents of this message are Motorola Internal Use Only (MIUO)
+       unless indicated otherwise in the message.
+Date: Mon, 2 Oct 2006 14:19:22 -0500 (CDT)
+Message-Id: <200610021919.k92JJMs1011215@olwen.urbana.css.mot.com>
+From: "Scott E. Preece" <preece@motorola.com>
+To: shd@zakalwe.fi
+CC: pavel@ucw.cz, linux-pm@lists.osdl.org, linux-kernel@vger.kernel.org,
+       ext-Tuukka.Tikkanen@nokia.com
+In-reply-to: Heikki Orsila's message of Sun, 1 Oct 2006 20:32:52 +0300
+Subject: Re: [linux-pm] [RFC] OMAP1 PM Core, PM Core  Implementation 2/2
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 02, 2006 at 12:15:22PM -0600, Matthew Wilcox wrote:
-> On Mon, Oct 02, 2006 at 08:00:48PM +0000, Frederik Deweerdt wrote:
-> >  /**
-> > + * pci_request_irq - Reserve an IRQ for a PCI device
-> > + * @pdev: The PCI device whose irq is to be reserved
-> > + * handler: The interrupt handler function,
-> 
-> > + * pci_get_drvdata(pdev) shall be passed as an argument to that function
-> 
-> I don't think you can (or should) do this.  Move it to the body of the
-> comment below.
-OK, thanks for pointing this, will do.
-> 
-> > + * @flags: The flags to be passed to request_irq()
-> > + * @name: The name of the device to be associated with the irq
-> > + *
-> > + * Returns 0 on success, or a negative value on error.  A warning
-> > + * message is also printed on failure.
-> > + */
-> > +int pci_request_irq(struct pci_dev *pdev,
-> > +		    irqreturn_t (*handler)(int, void *, struct pt_regs *),
-> > +		    unsigned long flags, const char *name)
-> > +{
-> > +	int rc;
-> > +	const char *actual_name = name;
-> > +
-> > +	rc = is_irq_valid(pdev->irq);
-> > +	if (!rc) {
-> > +		dev_printk(KERN_ERR, &pdev->dev, "invalid irq #%d\n", pdev->irq);
-> > +		return -EINVAL;
-> > +	}
-> 
-> Why is that more readable than
-> 
-> 	if (!is_irq_valid(pdev->irq)) {
-> 		dev_err(&pdev->dev, "invalid irq #%d\n", pdev->irq);
-> 		return -EINVAL;
-> 	}
-> 
-Better too.
-> > +	if (!actual_name)
-> > +		actual_name = pci_name(pdev);
-> > +
-> > +	return request_irq(pdev->irq, handler, flags | IRQF_SHARED,
-> > +			   actual_name, pci_get_drvdata(pdev));
-> 
-> The driver name is a far more common usage than the pci_name.
-> 
-> 	return request_irq(pdev->irq, handler, flags | IRQF_SHARED,
-> 			name ? name : pdev->driver->name,
-> 			pci_get_drvdata(pdev));
-OK, thanks for the feedback,
-Frederik
-> 
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
-> 
+
+| From: Heikki Orsila<shd@zakalwe.fi>
+| 
+| On Sun, Oct 01, 2006 at 07:10:32PM +0200, Pavel Machek wrote:
+| > On Sun 2006-10-01 18:22:28, Heikki Orsila wrote:
+| > > Some nitpicking about the patch follows..
+| > > 
+| > > On Sat, Sep 30, 2006 at 02:24:35AM +0400, Eugeny S. Mints wrote:
+| > > > +static long 
+| > > > +get_vtg(const char *vdomain)
+| > > > +{
+| > > > +	long ret = 0;
+| > > 
+| > > Unnecessary initialisation.
+| > 
+| > No, sorry.
+| 
+| In get_vtg(), if VOLTAGE_FRAMEWORK is defined then
+| 
+| 	ret = vtg_get_voltage(v);
+| 
+| is the first user. If VOLTAGE_FRAMEWORK is not defined, the first user is:
+| 
+| 	ret = vtg_get_voltage(&vhandle);
+| 
+| Then "return ret;" follows. I cannot see a path where 
+| pre-initialisation of ret does anything useful. If someone removed the
+| #else part, the compiler would bark.
+---
+
+True, but a good compiler should remove the dead initialization...
+
+scott
+-- 
+scott preece
+motorola mobile devices, il67, 1800 s. oak st., champaign, il  61820  
+e-mail:	preece@motorola.com	fax:	+1-217-384-8550
+phone:	+1-217-384-8589	cell: +1-217-433-6114	pager: 2174336114@vtext.com
+
+

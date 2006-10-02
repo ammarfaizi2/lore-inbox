@@ -1,42 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964985AbWJBUpX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965094AbWJBUqT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964985AbWJBUpX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Oct 2006 16:45:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965096AbWJBUpW
+	id S965094AbWJBUqT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Oct 2006 16:46:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965098AbWJBUqT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Oct 2006 16:45:22 -0400
-Received: from zakalwe.fi ([80.83.5.154]:7133 "EHLO zakalwe.fi")
-	by vger.kernel.org with ESMTP id S964985AbWJBUpV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Oct 2006 16:45:21 -0400
-Date: Mon, 2 Oct 2006 23:44:25 +0300
-From: Heikki Orsila <shd@zakalwe.fi>
-To: "Scott E. Preece" <preece@motorola.com>
-Cc: eugeny.mints@gmail.com, linux-pm@lists.osdl.org,
-       linux-kernel@vger.kernel.org, ext-Tuukka.Tikkanen@nokia.com
-Subject: Re: [linux-pm] [RFC] OMAP1 PM Core, PM Core  Implementation 2/2
-Message-ID: <20061002204425.GC24539@zakalwe.fi>
-References: <200610021858.k92IwXJg011184@olwen.urbana.css.mot.com>
+	Mon, 2 Oct 2006 16:46:19 -0400
+Received: from smtp111.sbc.mail.mud.yahoo.com ([68.142.198.210]:6515 "HELO
+	smtp111.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S965094AbWJBUqR (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Oct 2006 16:46:17 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=pacbell.net;
+  h=Received:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
+  b=CbQBh3nuNEXpb9GEFQKLscX7PcpjurTv0gBlw11dS7xLzaTMFN47KYjRBD5Eax9ex4oXL9XylJQYC5WMh1rL/+p3fUsxonobcmewUzBDk7aq/x013bYY62KB0dFPnxMHwh27/yDQCB3mPEzna67cG34lMkp1k2U7j4TUe/LLw2w=  ;
+From: David Brownell <david-b@pacbell.net>
+To: Andrew Morton <akpm@osdl.org>, David Howells <dhowells@redhat.com>
+Subject: Re: [PATCH 3/3] IRQ: Maintain regs pointer globally rather than passing to IRQ handlers
+Date: Mon, 2 Oct 2006 13:46:11 -0700
+User-Agent: KMail/1.7.1
+Cc: Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@elte.hu>,
+       torvalds@osdl.org, linux-kernel@vger.kernel.org,
+       linux-arch@vger.kernel.org, Dmitry Torokhov <dtor@mail.ru>,
+       Greg KH <greg@kroah.com>, Alan Stern <stern@rowland.harvard.edu>
+References: <20061002162049.17763.39576.stgit@warthog.cambridge.redhat.com> <20061002162053.17763.26032.stgit@warthog.cambridge.redhat.com> <20061002132116.2663d7a3.akpm@osdl.org>
+In-Reply-To: <20061002132116.2663d7a3.akpm@osdl.org>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <200610021858.k92IwXJg011184@olwen.urbana.css.mot.com>
-User-Agent: Mutt/1.5.11
+Message-Id: <200610021346.13135.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 02, 2006 at 01:58:33PM -0500, Scott E. Preece wrote:
-> It also helps with static analysis tools.
+The only downside I can think of for dropping pt_regs is that now it's harder
+to just find the IRQ handler in a driver ... it's previously been all but
+guaranteed that the _only_ use of that type is the IRQ logic.  The upsides
+surely outweigh that.
 
-I'd say those analysis tools are pretty useless if they can not handle 
-trivial cases like this.
+> >  (*) finish_unlinks() in drivers/usb/host/ohci-q.c needs checking.  It does
+> >      something different depending on whether it's been supplied with a regs
+> >      pointer or not.
 
-> CodingStyle seems to
-> be silent on the point, but points to Kernighan and Ritchie, who say
-> "These initializations are actually unnecessary, since all are zero, but
-> it's a good idea to make them explicit anyway."
+gaak!  where did that come from?  I'll be surprised if removing
+that causes any problem at all.
 
-It was a local variable. They are not autoinitialised. Are you perhaps 
-mixing this with statics and globals?
+- Dave
 
-- Heikki

@@ -1,67 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965098AbWJBUvB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965106AbWJBUzN@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965098AbWJBUvB (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Oct 2006 16:51:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965100AbWJBUvB
+	id S965106AbWJBUzN (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Oct 2006 16:55:13 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965103AbWJBUzM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Oct 2006 16:51:01 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:50862 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S965098AbWJBUvA (ORCPT
+	Mon, 2 Oct 2006 16:55:12 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:14768 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S965101AbWJBUzK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Oct 2006 16:51:00 -0400
-Date: Mon, 2 Oct 2006 13:50:36 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: David Miller <davem@davemloft.net>
-Cc: linux-kernel@vger.kernel.org, David Howells <dhowells@redhat.com>,
-       Jens Axboe <axboe@suse.de>
-Subject: Re: linux/compat.h includes asm/signal.h causing problems
-Message-Id: <20061002135036.7bd1f76b.akpm@osdl.org>
-In-Reply-To: <20061002.131414.74728780.davem@davemloft.net>
-References: <20061002.131414.74728780.davem@davemloft.net>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 2 Oct 2006 16:55:10 -0400
+Date: Mon, 2 Oct 2006 13:54:33 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Ingo Molnar <mingo@elte.hu>
+cc: Andrew Morton <akpm@osdl.org>, David Howells <dhowells@redhat.com>,
+       Thomas Gleixner <tglx@linutronix.de>, linux-kernel@vger.kernel.org,
+       linux-arch@vger.kernel.org, Dmitry Torokhov <dtor@mail.ru>,
+       Greg KH <greg@kroah.com>, David Brownell <david-b@pacbell.net>,
+       Alan Stern <stern@rowland.harvard.edu>
+Subject: Re: [PATCH 3/3] IRQ: Maintain regs pointer globally rather than
+ passing to IRQ handlers
+In-Reply-To: <20061002201836.GB31365@elte.hu>
+Message-ID: <Pine.LNX.4.64.0610021349090.3952@g5.osdl.org>
+References: <20061002162049.17763.39576.stgit@warthog.cambridge.redhat.com>
+ <20061002162053.17763.26032.stgit@warthog.cambridge.redhat.com>
+ <20061002132116.2663d7a3.akpm@osdl.org> <20061002201836.GB31365@elte.hu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 02 Oct 2006 13:14:14 -0700 (PDT)
-David Miller <davem@davemloft.net> wrote:
-
-> 
-> On some platforms, including sparc64, asm/signal.h needs
-> compat_sigset_t, but this is defined in linux/compat.h
-> after asm/signal.h is included.
-> 
-> Andrew, aren't you doing sparc64 cross builds these days? :-)
-> 
-> This came from 3f2e05e90e0846c42626e3d272454f26be34a1bc
-> 
->     [PATCH] BLOCK: Revert patch to hack around undeclared sigset_t in linux/compat.h
->     
->     Revert Andrew Morton's patch to temporarily hack around the lack of a
->     declaration of sigset_t in linux/compat.h to make the block-disablement
->     patches build on IA64.  This got accidentally pushed to Linus and should
->     be fixed in a different manner.
->     
->     Also make linux/compat.h #include asm/signal.h to gain a definition of
->     sigset_t so that it can externally declare sigset_from_compat().
->     
->     This has been compile-tested for i386, x86_64, ia64, mips, mips64, frv, ppc and
->     ppc64 and run-tested on frv.
->     
->     Signed-off-by: David Howells <dhowells@redhat.com>
->     Signed-off-by: Linus Torvalds <torvalds@osdl.org>
-> 
-> It figures that one of the platforms it wasn't compile tested on is
-> the one that breaks :-)
-
-not me, boss - I told 'em that using sigset_t in compat.h was a minefield. 
-sparc64 built OK with my hack-shouldnt-be-merged patch applied, which is
-how it was tested in -mm.
-
-I don't know what a good fix is, really.  I guess one could put the
-declaration of sigset_from_compat() into its own header file and include
-that header from the right places.
 
 
+On Mon, 2 Oct 2006, Ingo Molnar wrote:
+>
+> i agree that we should do this in one go and in Linus' tree. I suspect 
+> David has a script for this, so we can do it anytime for any tree, 
+> right?
+> 
+> the amount of code that truly relies on regs being present is very low. 
+> Mostly only sysrq type of stuff and the timer interrupt is such.
+
+Yeah, well, it's been discussed before, and the real problem is not the 
+patch itself, it's the damn drivers maintained outside the tree, and 
+people who want to maintain the same driver for multiple different 
+versions of the kernel.
+
+Things like the kernel graphics direct-rendering code, for example - 
+mostly maintained in X.org trees that then want to compile with other 
+kernels too.
+
+I don't personally mind the patch, I just wanted to bring that issue up. 
+
+So far, when this has come up, the gains it gives have not been worth the 
+pain. I don't quite see why FRV is so broken that it would matter 20% 
+worth, and I suspect that number was somehow really not real, but more a 
+matter of "this small code snippet that is part of the irq delivery and 
+isn't really measurable improves by 20%", which is a different thing.
+
+That said, it's almost certainly worth it, and I don't think anybody 
+really objects deep down.
+
+So if the patch works against my current tree, and nobody objects, I can 
+certainly apply it.
+
+So speak up, people...
+
+		Linus

@@ -1,65 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932321AbWJBNk7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932324AbWJBNlP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932321AbWJBNk7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Oct 2006 09:40:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932322AbWJBNk7
+	id S932324AbWJBNlP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Oct 2006 09:41:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932328AbWJBNlP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Oct 2006 09:40:59 -0400
-Received: from www.osadl.org ([213.239.205.134]:11709 "EHLO mail.tglx.de")
-	by vger.kernel.org with ESMTP id S932321AbWJBNk6 (ORCPT
+	Mon, 2 Oct 2006 09:41:15 -0400
+Received: from [69.90.0.18] ([69.90.0.18]:15510 "EHLO mtl.rackplans.net")
+	by vger.kernel.org with ESMTP id S932324AbWJBNlK (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Oct 2006 09:40:58 -0400
-Subject: Re: [patch 00/21] high resolution timers / dynamic ticks - V2
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: Valdis.Kletnieks@vt.edu
-Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
-       Ingo Molnar <mingo@elte.hu>, Jim Gettys <jg@laptop.org>,
-       John Stultz <johnstul@us.ibm.com>,
-       David Woodhouse <dwmw2@infradead.org>,
-       Arjan van de Ven <arjan@infradead.org>, Dave Jones <davej@redhat.com>
-In-Reply-To: <200610021302.k92D23W1003320@turing-police.cc.vt.edu>
-References: <20061001225720.115967000@cruncher.tec.linutronix.de>
-	 <200610021302.k92D23W1003320@turing-police.cc.vt.edu>
-Content-Type: text/plain
-Date: Mon, 02 Oct 2006 15:43:02 +0200
-Message-Id: <1159796582.1386.9.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
+	Mon, 2 Oct 2006 09:41:10 -0400
+Date: Mon, 2 Oct 2006 09:41:02 -0400 (EDT)
+From: Gerhard Mack <gmack@innerfire.net>
+X-X-Sender: gmack@mtl.rackplans.net
+To: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
+cc: Michael Obster <lkm@obster.org>, linux-kernel@vger.kernel.org
+Subject: Re: OT: linux-kernel list and greylisting
+In-Reply-To: <200609281946.11845.m.kozlowski@tuxland.pl>
+Message-ID: <Pine.LNX.4.64.0610020940010.31384@mtl.rackplans.net>
+References: <451BFF6F.2050602@obster.org> <200609281946.11845.m.kozlowski@tuxland.pl>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-10-02 at 09:02 -0400, Valdis.Kletnieks@vt.edu wrote:
-> On Sun, 01 Oct 2006 22:59:01 -0000, Thomas Gleixner said:
-> > the following patch series is an update in response to your review.
+If you absolutely need to graylist (I have my doubts about it's 
+effectiveness) then whitelist vger.kernel.org.
+
+Gerhard
+
+
+On Thu, 28 Sep 2006, Mariusz Kozlowski wrote:
+
+> Date: Thu, 28 Sep 2006 19:46:11 +0200
+> From: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
+> To: Michael Obster <lkm@obster.org>
+> Cc: linux-kernel@vger.kernel.org
+> Subject: Re: OT: linux-kernel list and greylisting
 > 
-> First runtime results - no lockups or other severe badness in a half-hour or so
-> of running.
+> Hi,
 > 
-> -mm2-hrt-dynticks5 shows severe clock drift issues if you run 'cpuspeed'.
+> > anyone here who has experience with greylisting and the linux-kernel
+> > list? I want to configure greylisting on my server but I don't know if
+> > this setting is compatible with the list here.
+> > What I want to avoid is a massive bounce because of that! So please give
+> > me feedback, if greylisting is a problem for the list.
 > 
-> Using speedstep-ich as a kernel built-in, and cpuspeed is invoked as:
+> Greylisting relayed traffic is useless. Greyslisting is also expensive (delays 
+> and bounces) so probably that's not what you want. Anyway if you know what 
+> you are doing ;-) take a look at this:
 > 
-> cpuspeed -d -n -i 10 -p 10 50 -a /proc/acpi/ac_adapter/*/state
+> http://aisk.tuxland.pl/os-fp-vs-spam-src.html
 > 
-> If cpuspeed drops the CPU speed from the default 1.6Ghz down to 1.2Ghz (the
-> only 2 speeds available on this core), the system clock proceeds to lose
-> about 15 seconds a minute.  I haven't dug further into why yet. (If the system
-> is busy so cpuspeed keeps the processor at 1.6Ghz, the clock doesn't drift
-> as much - so it looks like a "when speed is 1.2Ghz" issue...)
+> OS based greylisting is a compromise. Gives great results with minimal costs 
+> to most of incoming traffic.
+> 
+> Regards,
+> 
+> 	Mariusz Kozlowski
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
+> 
 
-Can you please send me the bootlog and further dmesg output (especially
-when related to timers / cpufreq).
+--
+Gerhard Mack
 
-> I'm also seeing gkrellm reporting about 25% CPU use when "near-idle" (X is up
-> but not much is going on) when that's usually down around 5-6%.  I need to
-> collect some oprofile numbers and investigate that as well.
+gmack@innerfire.net
 
-I look into the accounting fixups again.
-
-	tglx
-
-
-		
-
+<>< As a computer I find your faith in technology amusing.

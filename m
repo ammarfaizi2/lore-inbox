@@ -1,100 +1,134 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932305AbWJBNMu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932314AbWJBNkH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932305AbWJBNMu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Oct 2006 09:12:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932309AbWJBNMu
+	id S932314AbWJBNkH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Oct 2006 09:40:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932322AbWJBNkG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Oct 2006 09:12:50 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:4067 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932298AbWJBNMt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Oct 2006 09:12:49 -0400
-From: David Howells <dhowells@redhat.com>
-Subject: [PATCH 1/2] BLOCK: Revert patch to hack around undeclared sigset_t in linux/compat.h
-Date: Mon, 02 Oct 2006 14:12:31 +0100
-To: torvalds@osdl.org, akpm@osdl.org, axboe@suse.de
-Cc: dhowells@redhat.com, linux-fsdevel@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Message-Id: <20061002131231.19879.19860.stgit@warthog.cambridge.redhat.com>
-Content-Type: text/plain; charset=utf-8; format=fixed
-Content-Transfer-Encoding: 8bit
-User-Agent: StGIT/0.10
+	Mon, 2 Oct 2006 09:40:06 -0400
+Received: from rwcrmhc12.comcast.net ([216.148.227.152]:62434 "EHLO
+	rwcrmhc12.comcast.net") by vger.kernel.org with ESMTP
+	id S932314AbWJBNkF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Oct 2006 09:40:05 -0400
+Date: Mon, 2 Oct 2006 08:42:07 -0500
+From: Corey Minyard <minyard@acm.org>
+To: Linux Kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>
+Cc: OpenIPMI Developers <openipmi-developer@lists.sourceforge.net>
+Subject: [PATCH] IPMI: allow user to override the kernel IPMI daemon enable
+Message-ID: <20061002134207.GA10202@localdomain>
+Reply-To: minyard@acm.org
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: David Howells <dhowells@redhat.com>
 
-Revert Andrew Morton's patch to temporarily hack around the lack of a
-declaration of sigset_t in linux/compat.h to make the block-disablement patches
-build on IA64.  This got accidentally pushed to Linus and should be fixed in a
-different manner.
+After the previous patch to disable the kernel IPMI daemon if interrupts
+were available, the issue of broken hardware was raised, and a reasonable
+request to add an override was mode.  So here it is.
 
-Signed-Off-By: David Howells <dhowells@redhat.com>
----
+Allow the user to force the kernel ipmi daemon on or off.  This way,
+hardware with broken interrupts or users that are not concerned with
+performance can turn it on or off to their liking.
 
- arch/mips/kernel/signal_n32.c |    4 ++--
- fs/compat.c                   |    2 --
- include/linux/compat.h        |    1 +
- kernel/compat.c               |    2 --
- 4 files changed, 3 insertions(+), 6 deletions(-)
+Signed-off-by: Corey Minyard <minyard@acm.org>
 
-diff --git a/arch/mips/kernel/signal_n32.c b/arch/mips/kernel/signal_n32.c
-index 50c17ea..477c533 100644
---- a/arch/mips/kernel/signal_n32.c
-+++ b/arch/mips/kernel/signal_n32.c
-@@ -42,8 +42,6 @@ #include <asm/war.h>
+Index: linux-2.6.18/Documentation/IPMI.txt
+===================================================================
+--- linux-2.6.18.orig/Documentation/IPMI.txt
++++ linux-2.6.18/Documentation/IPMI.txt
+@@ -364,6 +364,7 @@ You can change this at module load time 
+        regspacings=<sp1>,<sp2>,... regsizes=<size1>,<size2>,...
+        regshifts=<shift1>,<shift2>,...
+        slave_addrs=<addr1>,<addr2>,...
++       force_kipmid=<enable1>,<enable2>,...
  
- #include "signal-common.h"
+ Each of these except si_trydefaults is a list, the first item for the
+ first interface, second item for the second interface, etc.
+@@ -409,7 +410,13 @@ The slave_addrs specifies the IPMI addre
+ usually 0x20 and the driver defaults to that, but in case it's not, it
+ can be specified when the driver starts up.
  
--extern void sigset_from_compat(sigset_t *set, compat_sigset_t *compat);
--
- /*
-  * Including <asm/unistd.h> would give use the 64-bit syscall numbers ...
-  */
-@@ -83,6 +81,8 @@ #if ICACHE_REFILLS_WORKAROUND_WAR
- #endif
+-When compiled into the kernel, the addresses can be specified on the
++The force_ipmid parameter forcefully enables (if set to 1) or disables
++(if set to 0) the kernel IPMI daemon.  Normally this is auto-detected
++by the driver, but systems with broken interrupts might need an enable,
++or users that don't want the daemon (don't need the performance, don't
++want the CPU hit) can disable it.
++
++When compiled into the kernel, the parameters can be specified on the
+ kernel command line as:
+ 
+   ipmi_si.type=<type1>,<type2>...
+@@ -419,6 +426,7 @@ kernel command line as:
+        ipmi_si.regsizes=<size1>,<size2>,...
+        ipmi_si.regshifts=<shift1>,<shift2>,...
+        ipmi_si.slave_addrs=<addr1>,<addr2>,...
++       ipmi_si.force_kipmid=<enable1>,<enable2>,...
+ 
+ It works the same as the module parameters of the same names.
+ 
+Index: linux-2.6.18/drivers/char/ipmi/ipmi_si_intf.c
+===================================================================
+--- linux-2.6.18.orig/drivers/char/ipmi/ipmi_si_intf.c
++++ linux-2.6.18/drivers/char/ipmi/ipmi_si_intf.c
+@@ -217,6 +217,11 @@ struct smi_info
+ 	struct list_head link;
  };
  
-+extern void sigset_from_compat (sigset_t *set, compat_sigset_t *compat);
++#define SI_MAX_PARMS 4
 +
- save_static_function(sysn32_rt_sigsuspend);
- __attribute_used__ noinline static int
- _sysn32_rt_sigsuspend(nabi_no_regargs struct pt_regs regs)
-diff --git a/fs/compat.c b/fs/compat.c
-index 13fb08d..d98c96f 100644
---- a/fs/compat.c
-+++ b/fs/compat.c
-@@ -56,8 +56,6 @@ #include "internal.h"
++static int force_kipmid[SI_MAX_PARMS];
++static int num_force_kipmid = 0;
++
+ static int try_smi_init(struct smi_info *smi);
  
- int compat_log = 1;
- 
--extern void sigset_from_compat(sigset_t *set, compat_sigset_t *compat);
--
- int compat_printk(const char *fmt, ...)
+ static ATOMIC_NOTIFIER_HEAD(xaction_notifier_list);
+@@ -908,6 +913,7 @@ static int smi_start_processing(void    
+ 				ipmi_smi_t intf)
  {
- 	va_list ap;
-diff --git a/include/linux/compat.h b/include/linux/compat.h
-index 9760753..967e748 100644
---- a/include/linux/compat.h
-+++ b/include/linux/compat.h
-@@ -227,6 +227,7 @@ static inline int compat_timespec_compar
- asmlinkage long compat_sys_adjtimex(struct compat_timex __user *utp);
+ 	struct smi_info *new_smi = send_info;
++	int             enable = 0;
  
- extern int compat_printk(const char *fmt, ...);
-+extern void sigset_from_compat(sigset_t *set, compat_sigset_t *compat);
+ 	new_smi->intf = intf;
  
- #endif /* CONFIG_COMPAT */
- #endif /* _LINUX_COMPAT_H */
-diff --git a/kernel/compat.c b/kernel/compat.c
-index b4fbd83..75573e5 100644
---- a/kernel/compat.c
-+++ b/kernel/compat.c
-@@ -26,8 +26,6 @@ #include <linux/posix-timers.h>
+@@ -917,10 +923,18 @@ static int smi_start_processing(void    
+ 	mod_timer(&new_smi->si_timer, jiffies + SI_TIMEOUT_JIFFIES);
  
- #include <asm/uaccess.h>
+ 	/*
++	 * Check if the user forcefully enabled the daemon.
++	 */
++	if (new_smi->intf_num < num_force_kipmid)
++		enable = force_kipmid[new_smi->intf_num];
++	/*
+ 	 * The BT interface is efficient enough to not need a thread,
+ 	 * and there is no need for a thread if we have interrupts.
+ 	 */
+- 	if ((new_smi->si_type != SI_BT) && (!new_smi->irq)) {
++ 	else if ((new_smi->si_type != SI_BT) && (!new_smi->irq))
++		enable = 1;
++
++	if (enable) {
+ 		new_smi->thread = kthread_run(ipmi_thread, new_smi,
+ 					      "kipmi%d", new_smi->intf_num);
+ 		if (IS_ERR(new_smi->thread)) {
+@@ -948,7 +962,6 @@ static struct ipmi_smi_handlers handlers
+ /* There can be 4 IO ports passed in (with or without IRQs), 4 addresses,
+    a default IO port, and 1 ACPI/SPMI address.  That sets SI_MAX_DRIVERS */
  
--extern void sigset_from_compat(sigset_t *set, compat_sigset_t *compat);
--
- int get_compat_timespec(struct timespec *ts, const struct compat_timespec __user *cts)
- {
- 	return (!access_ok(VERIFY_READ, cts, sizeof(*cts)) ||
+-#define SI_MAX_PARMS 4
+ static LIST_HEAD(smi_infos);
+ static DEFINE_MUTEX(smi_infos_lock);
+ static int smi_num; /* Used to sequence the SMIs */
+@@ -1021,6 +1034,10 @@ MODULE_PARM_DESC(slave_addrs, "Set the d
+ 		 " the controller.  Normally this is 0x20, but can be"
+ 		 " overridden by this parm.  This is an array indexed"
+ 		 " by interface number.");
++module_param_array(force_kipmid, int, &num_force_kipmid, 0);
++MODULE_PARM_DESC(force_kipmid, "Force the kipmi daemon to be enabled (1) or"
++		 " disabled(0).  Normally the IPMI driver auto-detects"
++		 " this, but the value may be overridden by this parm.");
+ 
+ 
+ #define IPMI_IO_ADDR_SPACE  0

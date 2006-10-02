@@ -1,39 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751016AbWJBJXd@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751034AbWJBJY2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751016AbWJBJXd (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Oct 2006 05:23:33 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751020AbWJBJXd
+	id S1751034AbWJBJY2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Oct 2006 05:24:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751038AbWJBJY2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Oct 2006 05:23:33 -0400
-Received: from 8.ctyme.com ([69.50.231.8]:56474 "EHLO darwin.ctyme.com")
-	by vger.kernel.org with ESMTP id S1751002AbWJBJXc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Oct 2006 05:23:32 -0400
-Message-ID: <4520DA94.1090701@perkel.com>
-Date: Mon, 02 Oct 2006 02:23:32 -0700
-From: Marc Perkel <marc@perkel.com>
-User-Agent: Thunderbird 1.5.0.7 (Windows/20060909)
-MIME-Version: 1.0
-To: Jesper Juhl <jesper.juhl@gmail.com>
-CC: "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
-Subject: Re: Maybe it's time to fork the GPL License - create the Linux license?
-References: <20060928144028.GA21814@wohnheim.fh-wedel.de>	 <MDEHLPKNGKAHNMBLJOLKCENGOLAB.davids@webmaster.com>	 <BAYC1-PASMTP11B5EB1224711DCB6D4F3DAE180@CEZ.ICE>	 <4520D40F.8080500@perkel.com> <9a8748490610020214r6ecc5cc9nd5f1617d06650234@mail.gmail.com>
-In-Reply-To: <9a8748490610020214r6ecc5cc9nd5f1617d06650234@mail.gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Mon, 2 Oct 2006 05:24:28 -0400
+Received: from crystal.sipsolutions.net ([195.210.38.204]:24024 "EHLO
+	sipsolutions.net") by vger.kernel.org with ESMTP id S1751020AbWJBJY2
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Oct 2006 05:24:28 -0400
+Subject: debugfs oddity
+From: Johannes Berg <johannes@sipsolutions.net>
+To: Greg KH <gregkh@suse.de>, Takashi Iwai <tiwai@suse.de>,
+       linux-kernel <linux-kernel@vger.kernel.org>,
+       Joel Becker <Joel.Becker@oracle.com>, Michael Buesch <mb@bu3sch.de>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-X-Spamfilter-host: darwin.ctyme.com - http://www.junkemailfilter.com
+Date: Mon, 02 Oct 2006 11:25:04 +0200
+Message-Id: <1159781104.2655.47.camel@ux156>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.7.92 
+X-sips-origin: local
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-My thoughts on this was to make the new license backwards compatible 
-with GPL2 so that there wouldn't be a change. The main feature of a new 
-name is to lose RMS control. From what I can see the FSF is an cult that 
-worships RMS who has become a little full of himself and has abandoned 
-logic and scientific process. He has no concept of IP at all and wants 
-to put GNU in front of everything as if he had personally invented all 
-software. He's more like a cat spraying everything to mark it with his 
-scent than someone who is contributing in a meaningful way.
+Recently, I observed (in bcm43xx) that debugfs seems to keep things
+alive when userspace still has a directory open. Consider the following
+sequence of events:
+ (a) kernel code creates a directory in debugfs
+ (b) user changes current directory to that
+ (c) kernel code removes that directory in debugfs
 
-It's late - and I'm on a rant. I suppose it's a metaphor for a divorce 
-from RMS. Just getting tired of his bullshit.
+Now, consider the equivalent sequence in a regular filesystem (or
+tmpfs):
+ (a') user creates directory
+ (b') user cd's into it
+ (c') user deletes directory from a different shell
 
+The same thing should happen, in both cases the directory is kept around
+in a way until the process that has the current dir in the dead
+directory gives it up.
+
+Now, however, consider
+ (d') user creates directory with the same name
+
+This works fine, and the old process sees nothing that happens in the
+new directory, as expected. However,
+ (d) kernel code tries to create a debugfs directory with the same name
+
+does not work at all.
+
+Is this expected behaviour? It seems that once a driver requested that a
+directory is removed it can rightfully expect to be able to recreate it
+afterwards even if there's still the need to keep it lingering around
+for a bit.
+
+Similar things can probably happen when attributes are kept open, but I
+haven't tested this. I have also not tested sysfs or configfs.
+
+johannes

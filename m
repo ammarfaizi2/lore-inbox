@@ -1,54 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932095AbWJBLdQ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750885AbWJBLjU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932095AbWJBLdQ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Oct 2006 07:33:16 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932116AbWJBLdP
+	id S1750885AbWJBLjU (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Oct 2006 07:39:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750921AbWJBLjU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Oct 2006 07:33:15 -0400
-Received: from alpha.logic.tuwien.ac.at ([128.130.175.20]:10883 "EHLO
-	alpha.logic.tuwien.ac.at") by vger.kernel.org with ESMTP
-	id S932095AbWJBLdP (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Oct 2006 07:33:15 -0400
-Date: Mon, 2 Oct 2006 13:32:59 +0200
-To: Alessandro Suardi <alessandro.suardi@gmail.com>
-Cc: hostap@shmoo.com, ipw3945-devel@lists.sourceforge.net,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: Re: wpa supplicant/ipw3945, ESSID last char missing
-Message-ID: <20061002113259.GA8295@gamma.logic.tuwien.ac.at>
-References: <20061002085942.GA32387@gamma.logic.tuwien.ac.at> <5a4c581d0610020221s7bf100f8q893161b7c8c492d2@mail.gmail.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-15
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <5a4c581d0610020221s7bf100f8q893161b7c8c492d2@mail.gmail.com>
-User-Agent: Mutt/1.3.28i
-From: Norbert Preining <preining@logic.at>
+	Mon, 2 Oct 2006 07:39:20 -0400
+Received: from odyssey.analogic.com ([204.178.40.5]:5906 "EHLO
+	odyssey.analogic.com") by vger.kernel.org with ESMTP
+	id S1750885AbWJBLjT convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Oct 2006 07:39:19 -0400
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+X-OriginalArrivalTime: 02 Oct 2006 11:39:07.0935 (UTC) FILETIME=[5F03AAF0:01C6E617]
+Content-class: urn:content-classes:message
+Subject: Re: Announce: gcc bogus warning repository
+Date: Mon, 2 Oct 2006 07:39:02 -0400
+Message-ID: <Pine.LNX.4.61.0610020735550.16599@chaos.analogic.com>
+In-Reply-To: <1159717214.24767.3.camel@c-67-180-230-165.hsd1.ca.comcast.net>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: Announce: gcc bogus warning repository
+thread-index: AcbmF18slCEKMMdDToanIemSe3SYvQ==
+References: <451FC657.6090603@garzik.org> <1159717214.24767.3.camel@c-67-180-230-165.hsd1.ca.comcast.net>
+From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+To: "Daniel Walker" <dwalker@mvista.com>
+Cc: "Jeff Garzik" <jeff@garzik.org>,
+       "Linux Kernel" <linux-kernel@vger.kernel.org>,
+       "Andrew Morton" <akpm@osdl.org>
+Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 02 Okt 2006, Alessandro Suardi wrote:
->  we've been just through an email thread where it has been
->  determined that wpa_supplicant 0.4.9 (I would assume that
->  0.5.5 is also okay) and wireless-tools from Jean's latest
->  tarball are necessary to work with the recent wireless
->  extensions v21 that have been merged in.
-> 
-> What wireless-tools are you using ?
 
-wireless-tools from Debian/unstable, version 28-1, so I assume wireless
-v28. And the README tells the same. What would be the newest version?
+On Sun, 1 Oct 2006, Daniel Walker wrote:
 
-Best wishes
+> On Sun, 2006-10-01 at 09:44 -0400, Jeff Garzik wrote:
+>> The level of warnings in a kernel build has lately increased to the
+>> point where it is hiding bugs and otherwise making life difficult.
+>>
+>> In particular, recent gcc versions throw warnings when it thinks a
+>> variable "MAY be used uninitialized", which is not terribly helpful due
+>> to the fact that most of these warnings are bogus.
+>>
+>> For those that may find this valuable, I have started a git repo that
+>> silences these bogus warnings, after careful auditing of code paths to
+>> ensure that the warning truly is bogus.
+>>
+>> The results may be found in the "gccbug" branch of
+>> git://git.kernel.org/pub/scm/linux/kernel/git/jgarzik/misc-2.6.git
+>>
+>
+> Steven Rostedt an I worked on this problem in May. Steven came up with,
+> a nice way to handle these warnings, which doesn't increase code size.
+> Here's the post if your interested.
+>
+> http://lkml.org/lkml/2006/5/11/50
+>
+> Daniel
 
-Norbert
+I wouldn't hide this in a macro, though. This could cause future
+maintainers a lot of problems after code is revised. If you are
+going to assign a variable's value to itself to eliminate compiler
+warnings, please do it openly, preferably with a comment.
 
--------------------------------------------------------------------------------
-Dr. Norbert Preining <preining@logic.at>                    Università di Siena
-Debian Developer <preining@debian.org>                         Debian TeX Group
-gpg DSA: 0x09C5B094      fp: 14DF 2E6C 0307 BE6D AD76  A9C0 D2BF 4AA3 09C5 B094
--------------------------------------------------------------------------------
-FROLESWORTH (n.)
-Measure. The minimum time it is necessary to spend frowning in deep
-concentration at each picture in an art gallery in order that everyone
-else doesn't think you've a complete moron.
-			--- Douglas Adams, The Meaning of Liff
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.16.24 on an i686 machine (5592.72 BogoMips).
+New book: http://www.AbominableFirebug.com/
+_
+
+
+****************************************************************
+The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
+
+Thank you.

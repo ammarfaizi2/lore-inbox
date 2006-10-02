@@ -1,57 +1,125 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965517AbWJBXSY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965530AbWJBXV4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965517AbWJBXSY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Oct 2006 19:18:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964974AbWJBXSY
+	id S965530AbWJBXV4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Oct 2006 19:21:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965534AbWJBXVq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Oct 2006 19:18:24 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.149]:23730 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S965517AbWJBXSX
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Oct 2006 19:18:23 -0400
-Subject: Re: Network problem with 2.6.18-mm1 ?
-From: Badari Pulavarty <pbadari@gmail.com>
-To: "Eric W. Biederman" <ebiederm@xmission.com>, akpm@osdl.org,
-       adurbin@google.com, ak@suse.de
-Cc: Jesse Brandeburg <jesse.brandeburg@gmail.com>,
-       Sukadev Bhattiprolu <sukadev@us.ibm.com>,
-       Auke Kok <auke-jan.h.kok@intel.com>,
-       lkml <linux-kernel@vger.kernel.org>, netdev@vger.kernel.org,
-       Andrew Morton <akpm@osdl.org>
-In-Reply-To: <m1ejtui73g.fsf@ebiederm.dsl.xmission.com>
-References: <20060928013724.GA22898@us.ibm.com> <451B2D29.9040306@intel.com>
-	 <20060928185222.GB3352@us.ibm.com>
-	 <4807377b0609281410p28d445c8mc32e7d2cb71221ab@mail.gmail.com>
-	 <20060929005205.GA3876@us.ibm.com>
-	 <4807377b0609291108x84f39c6ic4c669fd91f8fcd4@mail.gmail.com>
-	 <m1ejtui73g.fsf@ebiederm.dsl.xmission.com>
-Content-Type: text/plain
-Date: Mon, 02 Oct 2006 16:17:51 -0700
-Message-Id: <1159831071.5039.19.camel@dyn9047017100.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
-Content-Transfer-Encoding: 7bit
+	Mon, 2 Oct 2006 19:21:46 -0400
+Received: from tetsuo.zabbo.net ([207.173.201.20]:29399 "EHLO tetsuo.zabbo.net")
+	by vger.kernel.org with ESMTP id S965530AbWJBXVk (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Oct 2006 19:21:40 -0400
+From: Zach Brown <zach.brown@oracle.com>
+To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Cc: linux-fsdevel@vger.kernel.org, linux-aio@kvack.org
+Message-Id: <20061002232140.18827.64960.sendpatchset@tetsuo.zabbo.net>
+In-Reply-To: <20061002232119.18827.96966.sendpatchset@tetsuo.zabbo.net>
+References: <20061002232119.18827.96966.sendpatchset@tetsuo.zabbo.net>
+Subject: [PATCH take2 4/5] dio: remove duplicate bio wait code
+Date: Mon,  2 Oct 2006 16:21:40 -0700 (PDT)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, 2006-09-29 at 17:30 -0600, Eric W. Biederman wrote:
-....
-> 
-> So it looks like the kernel moved the ioapics.
-> 
-> The following patch in 2.6.18-mm1 is known to have that effect.
-> x86_64-mm-insert-ioapics-and-local-apic-into-resource-map
-> 
-> Can you please try reverting that one patch?
-> 
-> There is a fix an updated version of that patch I think in -mm2
-> but I haven't had a chance to see if it fixes the problem yet.
-> 
+dio: remove duplicate bio wait code
 
-Bingo !! Reverting this patch fixed my networking problem on
-2.6.18-mm2.
+Now that we have a single refcount and waiting path we can reuse it in the
+async 'should_wait' path.  It continues to rely on the fragile link between the
+conditional in dio_complete_aio() which decides to complete the AIO and the
+conditional in direct_io_worker() which decides to wait and free.
 
-Thanks,
-Badari
+By waiting before dropping the reference we stop dio_bio_end_aio() from calling
+dio_complete_aio() which used to wake up the waiter after seeing the reference
+count drop to 0.  We hoist this wake up into dio_bio_end_aio() which now
+notices when it's left a single remaining reference that is held by the waiter.
 
+Signed-off-by: Zach Brown <zach.brown@oracle.com>
+---
 
+ fs/direct-io.c |   41 ++++++++++++-----------------------------
+ 1 file changed, 12 insertions(+), 29 deletions(-)
+
+Index: 2.6.18-rc6-dio-cleanup/fs/direct-io.c
+===================================================================
+--- 2.6.18-rc6-dio-cleanup.orig/fs/direct-io.c
++++ 2.6.18-rc6-dio-cleanup/fs/direct-io.c
+@@ -256,7 +256,6 @@ static int dio_complete(struct dio *dio,
+  */
+ static void dio_complete_aio(struct dio *dio)
+ {
+-	unsigned long flags;
+ 	int ret;
+ 
+ 	ret = dio_complete(dio, dio->iocb->ki_pos, 0);
+@@ -266,14 +265,6 @@ static void dio_complete_aio(struct dio 
+ 		((dio->rw == READ) && dio->result)) {
+ 		aio_complete(dio->iocb, ret, 0);
+ 		kfree(dio);
+-	} else {
+-		/*
+-		 * Falling back to buffered
+-		 */
+-		spin_lock_irqsave(&dio->bio_lock, flags);
+-		if (dio->waiter)
+-			wake_up_process(dio->waiter);
+-		spin_unlock_irqrestore(&dio->bio_lock, flags);
+ 	}
+ }
+ 
+@@ -284,6 +275,8 @@ static int dio_bio_complete(struct dio *
+ static int dio_bio_end_aio(struct bio *bio, unsigned int bytes_done, int error)
+ {
+ 	struct dio *dio = bio->bi_private;
++	int waiter_holds_ref = 0;
++	int remaining;
+ 
+ 	if (bio->bi_size)
+ 		return 1;
+@@ -291,7 +284,12 @@ static int dio_bio_end_aio(struct bio *b
+ 	/* cleanup the bio */
+ 	dio_bio_complete(dio, bio);
+ 
+-	if (atomic_dec_and_test(&dio->refcount))
++	waiter_holds_ref = !!dio->waiter;
++	remaining = atomic_sub_return(1, (&dio->refcount));
++	if (remaining == 1 && waiter_holds_ref)
++		wake_up_process(dio->waiter);
++
++	if (remaining == 0)
+ 		dio_complete_aio(dio);
+ 
+ 	return 0;
+@@ -1089,30 +1087,15 @@ direct_io_worker(int rw, struct kiocb *i
+ 		if (ret == 0)
+ 			ret = dio->result;
+ 
++		if (should_wait)
++			dio_await_completion(dio);
++
+ 		/* this can free the dio */
+ 		if (atomic_dec_and_test(&dio->refcount))
+ 			dio_complete_aio(dio);
+ 
+-		if (should_wait) {
+-			unsigned long flags;
+-			/*
+-			 * Wait for already issued I/O to drain out and
+-			 * release its references to user-space pages
+-			 * before returning to fallback on buffered I/O
+-			 */
+-
+-			spin_lock_irqsave(&dio->bio_lock, flags);
+-			set_current_state(TASK_UNINTERRUPTIBLE);
+-			while (atomic_read(&dio->refcount)) {
+-				spin_unlock_irqrestore(&dio->bio_lock, flags);
+-				io_schedule();
+-				spin_lock_irqsave(&dio->bio_lock, flags);
+-				set_current_state(TASK_UNINTERRUPTIBLE);
+-			}
+-			spin_unlock_irqrestore(&dio->bio_lock, flags);
+-			set_current_state(TASK_RUNNING);
++		if (should_wait)
+ 			kfree(dio);
+-		}
+ 	} else {
+ 		dio_await_completion(dio);
+ 

@@ -1,83 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965226AbWJBSN6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965221AbWJBSPY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965226AbWJBSN6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Oct 2006 14:13:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965225AbWJBSN6
+	id S965221AbWJBSPY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Oct 2006 14:15:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965225AbWJBSPY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Oct 2006 14:13:58 -0400
-Received: from ug-out-1314.google.com ([66.249.92.168]:48755 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S965210AbWJBSNz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Oct 2006 14:13:55 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent:sender;
-        b=opPdKZiGhMjrZwehPZvuBpWZJUTh95aKJFp9ETtghjV/OFU2cIicibXnTtTlg9zlJflcp98e+IZZYMv+NiX7L6IdTzodxiho45SSZF0+/oyDURBOHiUHAizrf12UXb3z9OcfAkgAFHzW12m/jMFXCCT8jouGrFjrr4ZLImc7M28=
-Date: Mon, 2 Oct 2006 20:12:29 +0000
-From: Frederik Deweerdt <deweerdt@free.fr>
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Matthew Wilcox <matthew@wil.cx>, linux-scsi@vger.kernel.org,
+	Mon, 2 Oct 2006 14:15:24 -0400
+Received: from palinux.external.hp.com ([192.25.206.14]:53457 "EHLO
+	mail.parisc-linux.org") by vger.kernel.org with ESMTP
+	id S965221AbWJBSPX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Oct 2006 14:15:23 -0400
+Date: Mon, 2 Oct 2006 12:15:22 -0600
+From: Matthew Wilcox <matthew@wil.cx>
+To: Frederik Deweerdt <deweerdt@free.fr>
+Cc: Arjan van de Ven <arjan@infradead.org>, linux-scsi@vger.kernel.org,
        "Linux-Kernel," <linux-kernel@vger.kernel.org>,
        "J.A. Magall??n" <jamagallon@ono.com>,
        Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Morton <akpm@osdl.org>,
        Jeff Garzik <jeff@garzik.org>
-Subject: [RFC PATCH] move drm to pci_request_irq
-Message-ID: <20061002201229.GF3003@slug>
+Subject: Re: [RFC PATCH] pci_request_irq (was [-mm patch] aic7xxx: check irq validity)
+Message-ID: <20061002181522.GL16272@parisc-linux.org>
 References: <1159550143.13029.36.camel@localhost.localdomain> <20060929235054.GB2020@slug> <1159573404.13029.96.camel@localhost.localdomain> <20060930140946.GA1195@slug> <451F049A.1010404@garzik.org> <20061001142807.GD16272@parisc-linux.org> <1159729523.2891.408.camel@laptopd505.fenrus.org> <20061001193616.GF16272@parisc-linux.org> <1159755141.2891.434.camel@laptopd505.fenrus.org> <20061002200048.GC3003@slug>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
 In-Reply-To: <20061002200048.GC3003@slug>
-User-Agent: mutt-ng/devel-r804 (Linux)
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Mon, Oct 02, 2006 at 08:00:48PM +0000, Frederik Deweerdt wrote:
+>  /**
+> + * pci_request_irq - Reserve an IRQ for a PCI device
+> + * @pdev: The PCI device whose irq is to be reserved
+> + * handler: The interrupt handler function,
 
-This proof-of-concept patch converts the drm driver to use the
-pci_request_irq() function.
+> + * pci_get_drvdata(pdev) shall be passed as an argument to that function
 
-Regards,
-Frederik
+I don't think you can (or should) do this.  Move it to the body of the
+comment below.
 
+> + * @flags: The flags to be passed to request_irq()
+> + * @name: The name of the device to be associated with the irq
+> + *
+> + * Returns 0 on success, or a negative value on error.  A warning
+> + * message is also printed on failure.
+> + */
+> +int pci_request_irq(struct pci_dev *pdev,
+> +		    irqreturn_t (*handler)(int, void *, struct pt_regs *),
+> +		    unsigned long flags, const char *name)
+> +{
+> +	int rc;
+> +	const char *actual_name = name;
+> +
+> +	rc = is_irq_valid(pdev->irq);
+> +	if (!rc) {
+> +		dev_printk(KERN_ERR, &pdev->dev, "invalid irq #%d\n", pdev->irq);
+> +		return -EINVAL;
+> +	}
 
+Why is that more readable than
 
-diff --git a/drivers/char/drm/drm_drv.c b/drivers/char/drm/drm_drv.c
-index b366c5b..5b000cd 100644
---- a/drivers/char/drm/drm_drv.c
-+++ b/drivers/char/drm/drm_drv.c
-@@ -234,6 +234,8 @@ int drm_lastclose(drm_device_t * dev)
- 	}
- 	mutex_unlock(&dev->struct_mutex);
- 
-+	pci_set_drvdata(dev, NULL);
-+
- 	DRM_DEBUG("lastclose completed\n");
- 	return 0;
- }
-diff --git a/drivers/char/drm/drm_irq.c b/drivers/char/drm/drm_irq.c
-index 4553a3a..5dd12cb 100644
---- a/drivers/char/drm/drm_irq.c
-+++ b/drivers/char/drm/drm_irq.c
-@@ -132,8 +132,10 @@ static int drm_irq_install(drm_device_t 
- 	if (drm_core_check_feature(dev, DRIVER_IRQ_SHARED))
- 		sh_flags = IRQF_SHARED;
- 
--	ret = request_irq(dev->irq, dev->driver->irq_handler,
--			  sh_flags, dev->devname, dev);
-+	pci_set_drvdata(dev->pdev, dev);
-+
-+	ret = pci_request_irq(dev->pdev, dev->driver->irq_handler,
-+			  sh_flags, dev->devname);
- 	if (ret < 0) {
- 		mutex_lock(&dev->struct_mutex);
- 		dev->irq_enabled = 0;
-@@ -173,7 +175,7 @@ int drm_irq_uninstall(drm_device_t * dev
- 
- 	dev->driver->irq_uninstall(dev);
- 
--	free_irq(dev->irq, dev);
-+	pci_free_irq(dev->pdev);
- 
- 	return 0;
- }
+	if (!is_irq_valid(pdev->irq)) {
+		dev_err(&pdev->dev, "invalid irq #%d\n", pdev->irq);
+		return -EINVAL;
+	}
+
+> +	if (!actual_name)
+> +		actual_name = pci_name(pdev);
+> +
+> +	return request_irq(pdev->irq, handler, flags | IRQF_SHARED,
+> +			   actual_name, pci_get_drvdata(pdev));
+
+The driver name is a far more common usage than the pci_name.
+
+	return request_irq(pdev->irq, handler, flags | IRQF_SHARED,
+			name ? name : pdev->driver->name,
+			pci_get_drvdata(pdev));
+

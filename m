@@ -1,41 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932360AbWJBN5z@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932372AbWJBOJv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932360AbWJBN5z (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Oct 2006 09:57:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932354AbWJBN5z
+	id S932372AbWJBOJv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Oct 2006 10:09:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932376AbWJBOJv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Oct 2006 09:57:55 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:50356 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932342AbWJBN5x
+	Mon, 2 Oct 2006 10:09:51 -0400
+Received: from smtp-out.google.com ([216.239.45.12]:49147 "EHLO
+	smtp-out.google.com") by vger.kernel.org with ESMTP id S932372AbWJBOJu
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Oct 2006 09:57:53 -0400
-Subject: Re: [PATCH] Introduce BROKEN_ON_64BIT facility
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: Jeff Garzik <jeff@garzik.org>
-Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
-       chas@cmf.nrl.navy.mil, netdev@vger.kernel.org, kkeil@suse.de,
-       kai.germaschewski@gmx.de, isdn4linux@listserv.isdn4linux.de,
-       mac@melware.de, markus.lidel@shadowconnect.com, samuel@sortiz.org,
-       Neela.Kolli@engenio.com, linux-scsi@vger.kernel.org,
-       Greg KH <greg@kroah.com>, thomas@winischhofer.net, ak@suse.de
-In-Reply-To: <20061002045512.GA8835@havoc.gtf.org>
-References: <20061002045512.GA8835@havoc.gtf.org>
-Content-Type: text/plain
+	Mon, 2 Oct 2006 10:09:50 -0400
+DomainKey-Signature: a=rsa-sha1; s=beta; d=google.com; c=nofws; q=dns;
+	h=received:message-id:date:from:to:subject:cc:in-reply-to:
+	mime-version:content-type:content-transfer-encoding:
+	content-disposition:references;
+	b=ovEDWete82DjAxBbdGcA0eCE+SvcHtpFGGezGnE08L6hxHsaKBXeQcTWj5w0+gcaI
+	1CLgjB0BctAi5tPFljtFQ==
+Message-ID: <d43160c70610020709l720518a8j1aea5e04e9cdd20c@mail.gmail.com>
+Date: Mon, 2 Oct 2006 10:09:36 -0400
+From: "Ross Biro" <rossb@google.com>
+To: "Randy Dunlap" <rdunlap@xenotime.net>
+Subject: Re: [patch 024/144] allow /proc/config.gz to be built as a module
+Cc: "Andrew Morton" <akpm@osdl.org>, lkml <linux-kernel@vger.kernel.org>,
+       torvalds@osdl.org, akpm@google.com, sam@ravnborg.org
+In-Reply-To: <20061001115241.fb9dc96d.rdunlap@xenotime.net>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Date: Mon, 02 Oct 2006 14:03:28 +0100
-Message-Id: <1159794208.8907.9.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
+Content-Disposition: inline
+References: <200610010627.k916RPIs010370@shell0.pdx.osdl.net>
+	 <20061001093954.8d2aa064.rdunlap@xenotime.net>
+	 <20061001113600.3c318eda.akpm@osdl.org>
+	 <20061001115241.fb9dc96d.rdunlap@xenotime.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Ar Llu, 2006-10-02 am 00:55 -0400, ysgrifennodd Jeff Garzik:
-> Add a broken-on-64bit option, similar to the existing broken-on-smp
-> config option.  This is just the first pass, marking the obvious
-> candidates.
+On 10/1/06, Randy Dunlap <rdunlap@xenotime.net> wrote:
+> > Actually I had this mentally tagged as "needs more arguing before merging"
+> > but then forgot and went and sent it anyway.
+>
+> Well, we agree on that part at least.
+>
+> > So now it's in the "needs more arguing before we revert it" category.
+>
+> Wrong order IMO.
 
-NAK. This contains lots of stuff whcih isn't broken in the first place.
+I think we should pull it and then argue about putting it back in.
 
-(Eg Megaraid works with 32bit config tools not 64bit ones and is
-otherwise fine, ISDN is just bogus warnings now swatted)
-
+    Ross

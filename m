@@ -1,97 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750941AbWJBMEn@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932180AbWJBMVh@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750941AbWJBMEn (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Oct 2006 08:04:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750973AbWJBMEn
+	id S932180AbWJBMVh (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Oct 2006 08:21:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932184AbWJBMVh
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Oct 2006 08:04:43 -0400
-Received: from natlemon.rzone.de ([81.169.145.170]:1517 "EHLO
-	natlemon.rzone.de") by vger.kernel.org with ESMTP id S1750941AbWJBMEm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Oct 2006 08:04:42 -0400
-Date: Mon, 2 Oct 2006 14:04:31 +0200
-From: Olaf Hering <olaf@aepfle.de>
-To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: [PATCH] restore parport_pc probing on powermac
-Message-ID: <20061002120431.GA14670@aepfle.de>
+	Mon, 2 Oct 2006 08:21:37 -0400
+Received: from wx-out-0506.google.com ([66.249.82.228]:21076 "EHLO
+	wx-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S932180AbWJBMVg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Oct 2006 08:21:36 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=cqKCJejS94yKxbBp/TVeF3u9EIhxW9EoEemDaZ1wjVMUHDLtwkwJNWIxurfaVi6gN3QzC6JMeCqnkogdM3TW7kJyLUkjEKsBZhSuj58Z5Tswey4jbu2oH0u9cHomUnkwY0Q+W8GT1+ggGDGa3CKDbHh+7x/BiLkU1tA1Go3amas=
+Message-ID: <5a4c581d0610020521q721e3157q88ad17d3cc84a066@mail.gmail.com>
+Date: Mon, 2 Oct 2006 12:21:35 +0000
+From: "Alessandro Suardi" <alessandro.suardi@gmail.com>
+To: "Norbert Preining" <preining@logic.at>
+Subject: Re: wpa supplicant/ipw3945, ESSID last char missing
+Cc: hostap@shmoo.com, ipw3945-devel@lists.sourceforge.net,
+       "Andrew Morton" <akpm@osdl.org>, linux-kernel@vger.kernel.org
+In-Reply-To: <20061002113259.GA8295@gamma.logic.tuwien.ac.at>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=utf-8
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.5.13 (2006-08-11)
+References: <20061002085942.GA32387@gamma.logic.tuwien.ac.at>
+	 <5a4c581d0610020221s7bf100f8q893161b7c8c492d2@mail.gmail.com>
+	 <20061002113259.GA8295@gamma.logic.tuwien.ac.at>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 10/2/06, Norbert Preining <preining@logic.at> wrote:
+> On Mon, 02 Okt 2006, Alessandro Suardi wrote:
+> >  we've been just through an email thread where it has been
+> >  determined that wpa_supplicant 0.4.9 (I would assume that
+> >  0.5.5 is also okay) and wireless-tools from Jean's latest
+> >  tarball are necessary to work with the recent wireless
+> >  extensions v21 that have been merged in.
+> >
+> > What wireless-tools are you using ?
+>
+> wireless-tools from Debian/unstable, version 28-1, so I assume wireless
+> v28. And the README tells the same. What would be the newest version?
 
-The last change for partport_pc did fix the common case for all PowerMacs,
-but it broke the case for PCI multiport IO cards.
-In fact, the config option CONFIG_PARPORT_PC_SUPERIO=y lead to a hard crash
-when cups probed the parport driver. It enables the winbond and smsc probing.
+http://www.hpl.hp.com/personal/Jean_Tourrilhes/Linux/wireless_tools.29.pre10.tar.gz
 
-Remove the PARPORT_BASE check again, parport_pc_find_nonpci_ports() will take
-care of it. 
-All powerpc configs should have CONFIG_PARPORT_PC_SUPERIO=n, the code did not
-find anything on the chrp boards we tested it on.
+ which, from Jean's page, has the following:
 
-Tested on a G4/466 with a PCI card:
+The main features of the latest beta is WE-21 support (long/short
+retry, power saving level, modulation), enhanced command line parser
+in iwconfig, scanning options, more WPA support and more footprint
+reduction tricks
 
-0001:10:13.0 Serial controller: Timedia Technology Co Ltd PCI2S550 (Dual 16550 UART) (rev 01) (prog-if 02 [16550])
-        Subsystem: Timedia Technology Co Ltd Unknown device 5079
-        Control: I/O+ Mem- BusMaster- SpecCycle- MemWINV- VGASnoop- ParErr- Stepping+ SERR- FastB2B-
-        Status: Cap- 66MHz- UDF- FastB2B+ ParErr- DEVSEL=medium >TAbort- <TAbort- <MAbort- >SERR- <PERR-
-        Interrupt: pin A routed to IRQ 53
-        Region 0: I/O ports at f2000800 [size=32]
-        Region 2: I/O ports at f2000870 [size=8]
-        Region 3: I/O ports at f2000860 [size=8]
 
-Signed-off-by: Olaf Hering <olaf@aepfle.de>
+Cheers,
 
----
- arch/powerpc/platforms/pseries/setup.c |    6 ------
- drivers/parport/parport_pc.c           |    4 ----
- include/asm-powerpc/io.h               |    1 -
- 3 files changed, 11 deletions(-)
+--alessandro
 
-Index: linux-2.6.18-git17/arch/powerpc/platforms/pseries/setup.c
-===================================================================
---- linux-2.6.18-git17.orig/arch/powerpc/platforms/pseries/setup.c
-+++ linux-2.6.18-git17/arch/powerpc/platforms/pseries/setup.c
-@@ -415,12 +415,6 @@ static int pSeries_check_legacy_ioport(u
- 			return -ENODEV;
- 		of_node_put(np);
- 		break;
--	case PARALLEL_BASE:
--		np = of_find_node_by_type(NULL, "parallel");
--		if (np == NULL)
--			return -ENODEV;
--		of_node_put(np);
--		break;
- 	}
- 	return 0;
- }
-Index: linux-2.6.18-git17/drivers/parport/parport_pc.c
-===================================================================
---- linux-2.6.18-git17.orig/drivers/parport/parport_pc.c
-+++ linux-2.6.18-git17/drivers/parport/parport_pc.c
-@@ -3374,10 +3374,6 @@ __setup("parport_init_mode=",parport_ini
- 
- static int __init parport_pc_init(void)
- {
--#if defined(CONFIG_PPC_MERGE)
--	if (check_legacy_ioport(PARALLEL_BASE))
--		return -ENODEV;
--#endif
- 	if (parse_parport_params())
- 		return -EINVAL;
- 
-Index: linux-2.6.18-git17/include/asm-powerpc/io.h
-===================================================================
---- linux-2.6.18-git17.orig/include/asm-powerpc/io.h
-+++ linux-2.6.18-git17/include/asm-powerpc/io.h
-@@ -11,7 +11,6 @@
- 
- /* Check of existence of legacy devices */
- extern int check_legacy_ioport(unsigned long base_port);
--#define PARALLEL_BASE	0x378
- #define PNPBIOS_BASE	0xf000	/* only relevant for PReP */
- 
- #ifndef CONFIG_PPC64
+"Well a man has two reasons for things that he does
+  the first one is pride and the second one is love
+  all understandings must come by this way"
+
+     (Husker Du, 'She Floated Away')

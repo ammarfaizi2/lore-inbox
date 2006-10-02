@@ -1,47 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932533AbWJBRF0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965091AbWJBRGT@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932533AbWJBRF0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Oct 2006 13:05:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932539AbWJBRF0
+	id S965091AbWJBRGT (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Oct 2006 13:06:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965131AbWJBRGT
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Oct 2006 13:05:26 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:27083 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932533AbWJBRFZ (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Oct 2006 13:05:25 -0400
-Date: Mon, 2 Oct 2006 10:05:02 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Jens Axboe <axboe@kernel.dk>
-cc: David Howells <dhowells@redhat.com>, akpm@osdl.org,
-       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2/2] BLOCK: Fix linux/compat.h's use sigset_t
-In-Reply-To: <20061002165137.GK5670@kernel.dk>
-Message-ID: <Pine.LNX.4.64.0610021004090.3952@g5.osdl.org>
-References: <20061002131231.19879.19860.stgit@warthog.cambridge.redhat.com>
- <20061002131234.19879.34671.stgit@warthog.cambridge.redhat.com>
- <20061002165137.GK5670@kernel.dk>
+	Mon, 2 Oct 2006 13:06:19 -0400
+Received: from sj-iport-4.cisco.com ([171.68.10.86]:44590 "EHLO
+	sj-iport-4.cisco.com") by vger.kernel.org with ESMTP
+	id S965091AbWJBRGS (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Oct 2006 13:06:18 -0400
+X-IronPort-AV: i="4.09,245,1157353200"; 
+   d="scan'208"; a="1856175752:sNHT64640176"
+To: linux-kernel@vger.kernel.org,
+       Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>,
+       MUNEDA Takahiro <muneda.takahiro@jp.fujitsu.com>,
+       Satoru Takeuchi <takeuchi_satoru@jp.fujitsu.com>,
+       Kristen Carlson Accardi <kristen.c.accardi@intel.com>,
+       Greg Kroah-Hartman <gregkh@suse.de>
+Subject: The change "PCI: assign ioapic resource at hotplug" breaks my system
+X-Message-Flag: Warning: May contain useful information
+From: Roland Dreier <rdreier@cisco.com>
+Date: Mon, 02 Oct 2006 10:05:43 -0700
+Message-ID: <adar6xqwsuw.fsf@cisco.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+X-OriginalArrivalTime: 02 Oct 2006 17:05:44.0817 (UTC) FILETIME=[FFAA8E10:01C6E644]
+Authentication-Results: sj-dkim-7.cisco.com; header.From=rdreier@cisco.com; dkim=pass (
+	sig from cisco.com verified; ); 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+The change "PCI: assign ioapic resource at hotplug" (commit
+23186279658cea6d42a050400d3e79c56cb459b4 in Linus's tree) makes
+networking stop working on my system (SuperMicro H8QC8 with four
+dual-core Opteron 885 CPUs).  In particular, the on-board NIC stops
+working, probably because it gets assigned the wrong IRQ (225 in the
+non-working case, 217 in the working case)
 
+With that patch applied, e1000 doesn't work.  Reverting just that
+patch (shown below) from Linus's latest tree fixes things for me.
 
-On Mon, 2 Oct 2006, Jens Axboe wrote:
+Please let me know what other debug information might be useful.
 
-> On Mon, Oct 02 2006, David Howells wrote:
-> > From: David Howells <dhowells@redhat.com>
-> > 
-> > Make linux/compat.h #include asm/signal.h to gain a definition of
-> > sigset_t so that it can externally declare sigset_from_compat().
-> > 
-> > This has been compile-tested for i386, x86_64, ia64, mips, mips64,
-> > frv, ppc and ppc64 and run-tested on frv.
-> 
-> Ack both patches, thanks David.
+Thanks,
+  Roland
 
-Well, I already applied them, but I applied them as a single patch (since 
-1/2 wasn't actually usable on its own _or_ even just a plain revert, and 
-2/2 was really required for 1/2 to even compile).
+Here's the patch I revert.  I'm not sure what it's trying to do, or
+why it breaks my systems.  But anyway, reverting this fixes things for
+me:
 
-		Linus
+Author: Satoru Takeuchi <takeuchi_satoru@jp.fujitsu.com>
+Date:   Tue Sep 12 10:21:44 2006 -0700
+
+    PCI: assign ioapic resource at hotplug
+    
+    We need to assign resources to ioapics being hot-added. This patch
+    changes pbus_assign_resources_sorted() to assign resources if the
+    ioapic has no assigned resources.
+    
+    Signed-off-by: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>
+    Signed-off-by: MUNEDA Takahiro <muneda.takahiro@jp.fujitsu.com>
+    Signed-off-by: Satoru Takeuchi <takeuchi_satoru@jp.fujitsu.com>
+    Signed-off-by: Kristen Carlson Accardi <kristen.c.accardi@intel.com>
+    Signed-off-by: Greg Kroah-Hartman <gregkh@suse.de>
+
+diff --git a/drivers/pci/setup-bus.c b/drivers/pci/setup-bus.c
+index 47c1071..5440491 100644
+--- a/drivers/pci/setup-bus.c
++++ b/drivers/pci/setup-bus.c
+@@ -55,12 +55,19 @@ pbus_assign_resources_sorted(struct pci_
+ 	list_for_each_entry(dev, &bus->devices, bus_list) {
+ 		u16 class = dev->class >> 8;
+ 
+-		/* Don't touch classless devices or host bridges or ioapics.  */
++		/* Don't touch classless devices or host bridges. */
+ 		if (class == PCI_CLASS_NOT_DEFINED ||
+-		    class == PCI_CLASS_BRIDGE_HOST ||
+-		    class == PCI_CLASS_SYSTEM_PIC)
++		    class == PCI_CLASS_BRIDGE_HOST)
+ 			continue;
+ 
++		/* Don't touch ioapics if it has the assigned resources. */
++		if (class == PCI_CLASS_SYSTEM_PIC) {
++			res = &dev->resource[0];
++			if (res[0].start || res[1].start || res[2].start ||
++			    res[3].start || res[4].start || res[5].start)
++				continue;
++		}
++
+ 		pdev_sort_resources(dev, &head);
+ 	}
+

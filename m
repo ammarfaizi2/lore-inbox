@@ -1,42 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965417AbWJBVhJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965422AbWJBVkZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965417AbWJBVhJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Oct 2006 17:37:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965418AbWJBVhI
+	id S965422AbWJBVkZ (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Oct 2006 17:40:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965424AbWJBVkZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Oct 2006 17:37:08 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:48321 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S965417AbWJBVhG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Oct 2006 17:37:06 -0400
-Date: Mon, 2 Oct 2006 14:36:25 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Wim Van Sebroeck <wim@iguana.be>
-Cc: Linus Torvalds <torvalds@osdl.org>, linux-kernel@vger.kernel.org,
-       Dave Jones <davej@redhat.com>, Samuel Tardieu <sam@rfc1149.net>,
-       Ben Dooks <ben-linux@fluff.org>, Vitaly Wool <vitalywool@gmail.com>,
-       Jiri Slaby <jirislaby@gmail.com>, Alan Cox <alan@redhat.com>
-Subject: Re: [WATCHDOG] v2.6.19 watchdog patches
-Message-Id: <20061002143625.2143e4e4.akpm@osdl.org>
-In-Reply-To: <20061002212753.GA9556@infomag.infomag.iguana.be>
-References: <20061002212753.GA9556@infomag.infomag.iguana.be>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+	Mon, 2 Oct 2006 17:40:25 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:9942 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S965422AbWJBVkY (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Oct 2006 17:40:24 -0400
+Date: Mon, 2 Oct 2006 22:39:55 +0100
+From: Christoph Hellwig <hch@infradead.org>
+To: Henne <henne@nachtwindheim.de>
+Cc: Andrew Morton <akpm@osdl.org>, Christoph Hellwig <hch@infradead.org>,
+       pbadari@us.ibm.com, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] mm: fix in kerneldoc
+Message-ID: <20061002213955.GB27561@infradead.org>
+Mail-Followup-To: Christoph Hellwig <hch@infradead.org>,
+	Henne <henne@nachtwindheim.de>, Andrew Morton <akpm@osdl.org>,
+	pbadari@us.ibm.com, linux-kernel@vger.kernel.org
+References: <451F98CB.3040509@nachtwindheim.de>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <451F98CB.3040509@nachtwindheim.de>
+User-Agent: Mutt/1.4.2.1i
+X-SRS-Rewrite: SMTP reverse-path rewritten from <hch@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2 Oct 2006 23:27:53 +0200
-Wim Van Sebroeck <wim@iguana.be> wrote:
+On Sun, Oct 01, 2006 at 12:30:35PM +0200, Henne wrote:
+> Fixes an kerneldoc error.
+> Signed-off-by: Henrik Kretzschmar <henne@nachtwindheim.de>
+> 
+> ---
+> 
+> diff --git a/mm/filemap.c b/mm/filemap.c
+> index ec46923..f789500 100644
+> --- a/mm/filemap.c
+> +++ b/mm/filemap.c
+> @@ -1139,11 +1139,11 @@ success:
+>  }
+>  
+>  /**
+> - * __generic_file_aio_read - generic filesystem read routine
+> + * generic_file_aio_read - generic filesystem read routine
+>   * @iocb:	kernel I/O control block
+>   * @iov:	io vector request
+>   * @nr_segs:	number of segments in the iovec
+> - * @ppos:	current file position
+> + * @pos:	current file position
+>   *
+>   * This is the "read()" routine for all filesystems
+>   * that can use the page cache directly.
 
-> If no-one objects, can you please pull from 'master' branch of
-> 	rsync://rsync.kernel.org/pub/scm/linux/kernel/git/wim/linux-2.6-watchdog.git
-> or if master.kernel.org hasn't synced up yet:
-> 	master.kernel.org:/pub/scm/linux/kernel/git/wim/linux-2.6-watchdog.git
-
-OK by me.
-
-I notice that you're holding back a couple of drivers:
-drivers/char/watchdog/iTCO_wdt.c and
-drivers/char/watchdog/smsc37b787_wdt.c.  Not ready yet?
+Looks good - thank you a lot!

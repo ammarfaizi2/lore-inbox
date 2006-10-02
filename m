@@ -1,56 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965109AbWJBVAt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965180AbWJBVBR@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965109AbWJBVAt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Oct 2006 17:00:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965113AbWJBVAs
+	id S965180AbWJBVBR (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Oct 2006 17:01:17 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965122AbWJBVBQ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Oct 2006 17:00:48 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:1459 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S965109AbWJBVAr (ORCPT
+	Mon, 2 Oct 2006 17:01:16 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:14259 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S965113AbWJBVBO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Oct 2006 17:00:47 -0400
-Date: Mon, 2 Oct 2006 14:00:41 -0700
-From: Stephen Hemminger <shemminger@osdl.org>
-To: linux-kernel@vger.kernel.org
-Subject: [ANNOUNCE] iproute2-2.6.18-061002
-Message-ID: <20061002140041.02ef3936@freekitty>
-Organization: OSDL
-X-Mailer: Sylpheed-Claws 2.5.0-rc3 (GTK+ 2.10.4; i486-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 2 Oct 2006 17:01:14 -0400
+Date: Mon, 2 Oct 2006 14:00:49 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: Olaf Hering <olaf@aepfle.de>
+cc: Jens Axboe <axboe@kernel.dk>, David Howells <dhowells@redhat.com>,
+       akpm@osdl.org, linux-fsdevel@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2/2] BLOCK: Fix linux/compat.h's use sigset_t
+In-Reply-To: <20061002204055.GA18735@aepfle.de>
+Message-ID: <Pine.LNX.4.64.0610021355330.3952@g5.osdl.org>
+References: <20061002131231.19879.19860.stgit@warthog.cambridge.redhat.com>
+ <20061002131234.19879.34671.stgit@warthog.cambridge.redhat.com>
+ <20061002165137.GK5670@kernel.dk> <Pine.LNX.4.64.0610021004090.3952@g5.osdl.org>
+ <20061002204055.GA18735@aepfle.de>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-his is a much delayed update to the iproute2 command set.
-It can be downloaded from:
-  http://developer.osdl.org/dev/iproute2/download/iproute2-2.6.18-061002.tar.gz
 
-Repository:
-  git://git.kernel.org/pub/scm/linux/kernel/git/shemminger/iproute2.git
 
-For more info on iproute2 see:
-  http://linux-net.osdl.org/index.php/Iproute2
+On Mon, 2 Oct 2006, Olaf Hering wrote:
+> On Mon, Oct 02, Linus Torvalds wrote:
+> 
+> > Well, I already applied them, but I applied them as a single patch (since 
+> > 1/2 wasn't actually usable on its own _or_ even just a plain revert, and 
+> > 2/2 was really required for 1/2 to even compile).
+> 
+> The sigset_from_compat() calls in fs/compat.c have currently no
+> declaration of that function.
+> The change for include/linux/compat.h is appearently missing.
 
-The version number includes the kernel version to denote what features are
-supported. The same source should build on older systems, but obviously the
-newer kernel features won't be available. As much as possible, this package
-tries to be source compatible across releases.
+Yeah, damn, I don't know what happened there. I fixed the patch, but then 
+actually applied the old version, it looks like.
 
-Summary of changes:
-	- converted to git
-	- build fixes for some distributions
-	- bug fix for xfrm monitor
-	- alignment fixes for cris
-	- documentation corrections
-	- many small bug fixes
-	- new tc monitor mode
+Duh.
 
-Contributors to this release
-	Jamal Hadi Salim
-	Patrick McHardy
-	Andy Gay
-	Jesper Dangaard Brouer
-	Vince Worthington 
-	
-Git changelog is a bit of a mess, so if I missed your name sorry.
+		Linus "uhh.. Too little coffee?" Torvalds

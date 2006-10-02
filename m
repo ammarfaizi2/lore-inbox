@@ -1,76 +1,81 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750874AbWJBJCv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750962AbWJBJOa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750874AbWJBJCv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Oct 2006 05:02:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750866AbWJBJCu
+	id S1750962AbWJBJOa (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Oct 2006 05:14:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750974AbWJBJOa
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Oct 2006 05:02:50 -0400
-Received: from mx2.mail.elte.hu ([157.181.151.9]:20360 "EHLO mx2.mail.elte.hu")
-	by vger.kernel.org with ESMTP id S1750816AbWJBJCt (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Oct 2006 05:02:49 -0400
-Date: Mon, 2 Oct 2006 10:54:53 +0200
-From: Ingo Molnar <mingo@elte.hu>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Thomas Gleixner <tglx@linutronix.de>, LKML <linux-kernel@vger.kernel.org>,
-       Jim Gettys <jg@laptop.org>, John Stultz <johnstul@us.ibm.com>,
-       David Woodhouse <dwmw2@infradead.org>,
-       Arjan van de Ven <arjan@infradead.org>, Dave Jones <davej@redhat.com>
-Subject: [patch] dynticks: core, NMI watchdog fix, #2
-Message-ID: <20061002085453.GA6403@elte.hu>
-References: <20061001225720.115967000@cruncher.tec.linutronix.de> <20061001225724.985115000@cruncher.tec.linutronix.de> <20061002064127.GA20841@elte.hu>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 2 Oct 2006 05:14:30 -0400
+Received: from wx-out-0506.google.com ([66.249.82.230]:5430 "EHLO
+	wx-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1750952AbWJBJO3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Oct 2006 05:14:29 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=oLpP1c+v1g5QFdwSulhTBJh5gpbLLRv2J0CPBBE8IGZaBPgTXvjw8US+03RaQHX8ZfV1P7fgdWL/Nlo/dDF+zy+66oPlBH/liYD7hfHI32phU6GQC8KlY+wNFPqtVWv0++4bGGJb9/G18C9rxV7JNAiQ87L7EhbkZonYpSQ+DQY=
+Message-ID: <9a8748490610020214r6ecc5cc9nd5f1617d06650234@mail.gmail.com>
+Date: Mon, 2 Oct 2006 11:14:28 +0200
+From: "Jesper Juhl" <jesper.juhl@gmail.com>
+To: "Marc Perkel" <marc@perkel.com>
+Subject: Re: Maybe it's time to fork the GPL License - create the Linux license?
+Cc: "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
+In-Reply-To: <4520D40F.8080500@perkel.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20061002064127.GA20841@elte.hu>
-User-Agent: Mutt/1.4.2.1i
-X-ELTE-SpamScore: -2.8
-X-ELTE-SpamLevel: 
-X-ELTE-SpamCheck: no
-X-ELTE-SpamVersion: ELTE 2.0 
-X-ELTE-SpamCheck-Details: score=-2.8 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
-	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
-	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
-	[score: 0.5000]
-	-0.0 AWL                    AWL: From: address is in the auto white-list
-X-ELTE-VirusStatus: clean
+References: <20060928144028.GA21814@wohnheim.fh-wedel.de>
+	 <MDEHLPKNGKAHNMBLJOLKCENGOLAB.davids@webmaster.com>
+	 <BAYC1-PASMTP11B5EB1224711DCB6D4F3DAE180@CEZ.ICE>
+	 <4520D40F.8080500@perkel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On 02/10/06, Marc Perkel <marc@perkel.com> wrote:
+> Just a thought. Suppose we forked the GPL2 license and created the Linux
+> license? (Or some better name) It's kind of clear the Stallman has his
+> own ajenda and that it's not compatible with the Linux model. So - lets
+> fork it an start a new one.
+>
+Why? We can just stay with the GPLv2 forever.
 
-Andrew, there's one more fallout of the dyntick queue: the fix below 
-goes after (or into) dynticks-core-nmi-watchdog-fix.patch. The bug only 
-affected NO_HZ kernels.
+> The idea of the new license is as follows. It would be backwards
+> compatible with GPL2. It's would eliminate the "or later" clause because
+> we have already seen the potential for abuse there.
 
-	Ingo
+The "or later" clause is not part of the actual license. It's part of
+the preamble.
 
------------------>
-Subject: dynticks: core, NMI watchdog fix, #2
-From: Ingo Molnar <mingo@elte.hu>
+> How can one agree to
+> future licenses without knowing what they are going to be? The other
+> feature is that the license is only modified to provide legal
+> clarification or to deal with future issues that occur as a result of
+> new technology or circumstances that we don't know about yet. If the
+> licenses is modified then copyright holders would then have to
+> explicitly declare that they accept the modifications by switching to
+> the new terms.
+>
+As things are now we'd already need acceptance from all major
+copyright holders to switch license away from GPLv2...
 
-a partial fix of the NMI watchdog bug sneaked into yesterday night's
-queue - this patch removes that extra in_interrupt() condition.
+> Anyhow - I'm thinking that Richard Stallman might be more of a liability
+> to the GPL movement and that if something can't be worked out with GPLx
+> then maybe it's time to just fork the license and come up with a new
+> system that is crazy leader proof.
+>
+> Just suggesting this as an alternative if the FSF folks insist on a
+> political ajenda.
+>
+I don't see the point. RMS can create GPLv3 any way he wants, the
+Linux kernel will still be under GPLv2 terms... GPLv3 really doesn't
+change anything for the kernel. It would only change something if we
+switched the kernel to GPLv3, but doing that would probably be next to
+impossible anyway since all copyright holders would need to agree on
+the switch and; a) some copyright holders have already publicly stated
+that they will not agree to GPLv3 terms, and b) some of the copyright
+holders are dead.
 
-(One effect of this bug is a 'slow' serial console on NO_HZ, because we 
-never update jiffies and the serial console's timeouts get confused by 
-it.)
-
-Signed-off-by: Ingo Molnar <mingo@elte.hu>
-Signed-off-by: Thomas Gleixner <tglx@linutronix.de>
----
- kernel/softirq.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-Index: linux/kernel/softirq.c
-===================================================================
---- linux.orig/kernel/softirq.c
-+++ linux/kernel/softirq.c
-@@ -280,7 +280,7 @@ void irq_enter(void)
- {
- 	__irq_enter();
- #ifdef CONFIG_NO_HZ
--	if (idle_cpu(smp_processor_id()) && !in_interrupt())
-+	if (idle_cpu(smp_processor_id()))
- 		hrtimer_update_jiffies();
- #endif
- }
+-- 
+Jesper Juhl <jesper.juhl@gmail.com>
+Don't top-post  http://www.catb.org/~esr/jargon/html/T/top-post.html
+Plain text mails only, please      http://www.expita.com/nomime.html

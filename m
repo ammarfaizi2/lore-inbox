@@ -1,98 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750986AbWJBJVu@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751016AbWJBJXd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750986AbWJBJVu (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Oct 2006 05:21:50 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750990AbWJBJVu
+	id S1751016AbWJBJXd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Oct 2006 05:23:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751020AbWJBJXd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Oct 2006 05:21:50 -0400
-Received: from wx-out-0506.google.com ([66.249.82.228]:43584 "EHLO
-	wx-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1750985AbWJBJVt (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Oct 2006 05:21:49 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=ghvJw956LLr9r13pDaorSdMOn3KRwCa051qNrZG7YR6qOvpJlaQM29eIXRcCxMmc/VqjGihTdh059vZewxsh0ISNNmQ7L6+Zcf53LlJ5BZ2w8B6UG1sMvDXIFhX5CrZblS00zTxQlppK/nAZ2UjHfV4O0sAKlbtk1NX3d1FxyTU=
-Message-ID: <5a4c581d0610020221s7bf100f8q893161b7c8c492d2@mail.gmail.com>
-Date: Mon, 2 Oct 2006 09:21:48 +0000
-From: "Alessandro Suardi" <alessandro.suardi@gmail.com>
-To: "Norbert Preining" <preining@logic.at>
-Subject: Re: wpa supplicant/ipw3945, ESSID last char missing
-Cc: hostap@shmoo.com, ipw3945-devel@lists.sourceforge.net,
-       "Andrew Morton" <akpm@osdl.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <20061002085942.GA32387@gamma.logic.tuwien.ac.at>
+	Mon, 2 Oct 2006 05:23:33 -0400
+Received: from 8.ctyme.com ([69.50.231.8]:56474 "EHLO darwin.ctyme.com")
+	by vger.kernel.org with ESMTP id S1751002AbWJBJXc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Oct 2006 05:23:32 -0400
+Message-ID: <4520DA94.1090701@perkel.com>
+Date: Mon, 02 Oct 2006 02:23:32 -0700
+From: Marc Perkel <marc@perkel.com>
+User-Agent: Thunderbird 1.5.0.7 (Windows/20060909)
 MIME-Version: 1.0
+To: Jesper Juhl <jesper.juhl@gmail.com>
+CC: "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
+Subject: Re: Maybe it's time to fork the GPL License - create the Linux license?
+References: <20060928144028.GA21814@wohnheim.fh-wedel.de>	 <MDEHLPKNGKAHNMBLJOLKCENGOLAB.davids@webmaster.com>	 <BAYC1-PASMTP11B5EB1224711DCB6D4F3DAE180@CEZ.ICE>	 <4520D40F.8080500@perkel.com> <9a8748490610020214r6ecc5cc9nd5f1617d06650234@mail.gmail.com>
+In-Reply-To: <9a8748490610020214r6ecc5cc9nd5f1617d06650234@mail.gmail.com>
 Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <20061002085942.GA32387@gamma.logic.tuwien.ac.at>
+X-Spamfilter-host: darwin.ctyme.com - http://www.junkemailfilter.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/2/06, Norbert Preining <preining@logic.at> wrote:
-> Dear all!
->
-> I have the following problem with wpa supplicant/ipw3945. First the
-> versions:
-> kernel: 2.6.18-mm2      (self compiled)
-> ieee80211:      1.1.14
-> ipw3945:        git source
-> ipw3945d:       1.7.19
-> wpa supplicant: 0.5.5   (Debian/unstable 0.5.5-1)
->
->
-> Config file of wpa_supplicant:
-> ctrl_interface=/var/run/wpa_supplicant
-> ctrl_interface_group=0
-> eapol_version=1
-> ap_scan=1
-> network={
->         ssid="norbunet"
->         key_mgmt=NONE
->         auth_alg=SHARED
->         wep_key0=HEXKEY1
->         wep_key1=HEXKEY2
->         wep_key2=HEXKEY3
->         wep_key3=HEXKEY4
->         wep_tx_keyidx=0
->         priority=5
-> }
->
-> When I start ipw3945d and wpa_supplicant it does not connect. And the
-> reason is that when typing
->         iwconfig eth2
-> (eth0 cable, eth1 not present!?!, eth2 ipw3945) I see that the ESSID is
-> set to
->         "norbune"
-> instead of
->         "norbunet"
->
-> Calling
->         iwconfig eth2 essid "norbunet "
-> (mind the space at the end) immediately connects (even with encryption)
-> and everything is working.
->
-> Do you have any idea what this might be related to?
->
-> The last kernel I tried which worked out of the box (well, with
-> comnpiling ieee and ipw) was 2.6.18-rc4.
+My thoughts on this was to make the new license backwards compatible 
+with GPL2 so that there wouldn't be a change. The main feature of a new 
+name is to lose RMS control. From what I can see the FSF is an cult that 
+worships RMS who has become a little full of himself and has abandoned 
+logic and scientific process. He has no concept of IP at all and wants 
+to put GNU in front of everything as if he had personally invented all 
+software. He's more like a cat spraying everything to mark it with his 
+scent than someone who is contributing in a meaningful way.
 
-Hi Norbert,
+It's late - and I'm on a rant. I suppose it's a metaphor for a divorce 
+from RMS. Just getting tired of his bullshit.
 
-  we've been just through an email thread where it has been
-  determined that wpa_supplicant 0.4.9 (I would assume that
-  0.5.5 is also okay) and wireless-tools from Jean's latest
-  tarball are necessary to work with the recent wireless
-  extensions v21 that have been merged in.
-
-What wireless-tools are you using ?
-
-Ciao,
-
---alessandro
-
-"Well a man has two reasons for things that he does
-  the first one is pride and the second one is love
-  all understandings must come by this way"
-
-     (Husker Du, 'She Floated Away')

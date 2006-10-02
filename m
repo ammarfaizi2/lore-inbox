@@ -1,80 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965003AbWJBUhX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965002AbWJBUhE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965003AbWJBUhX (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Oct 2006 16:37:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965007AbWJBUhX
+	id S965002AbWJBUhE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Oct 2006 16:37:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965003AbWJBUhD
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Oct 2006 16:37:23 -0400
-Received: from mtagate6.de.ibm.com ([195.212.29.155]:56669 "EHLO
-	mtagate6.de.ibm.com") by vger.kernel.org with ESMTP id S965003AbWJBUhV
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Oct 2006 16:37:21 -0400
-From: Hoang-Nam Nguyen <hnguyen@de.ibm.com>
-To: rolandd@cisco.com
-Subject: [PATCH 2.6.19-rc1 2/2] ehca: improved ehca debug format
-Date: Mon, 2 Oct 2006 22:33:50 +0200
-User-Agent: KMail/1.7.1
-Cc: linux-kernel@vger.kernel.org, linuxppc-dev@ozlabs.org,
-       openib-general@openib.org, openfabrics-ewg@openib.org
-MIME-Version: 1.0
-Content-Type: Multipart/Mixed;
-  boundary="Boundary-00=_ueXIFIJcvA+6/M1"
-Message-Id: <200610022233.50497.hnguyen@de.ibm.com>
+	Mon, 2 Oct 2006 16:37:03 -0400
+Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:36291
+	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
+	id S965002AbWJBUhA (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Oct 2006 16:37:00 -0400
+Date: Mon, 02 Oct 2006 13:37:15 -0700 (PDT)
+Message-Id: <20061002.133715.63105344.davem@davemloft.net>
+To: jeff@garzik.org
+Cc: jengelh@linux01.gwdg.de, kkeil@suse.de, kai.germaschewski@gmx.de,
+       akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] ISDN: mark as 32-bit only
+From: David Miller <davem@davemloft.net>
+In-Reply-To: <45208D82.8010606@garzik.org>
+References: <20061001152116.GA4684@havoc.gtf.org>
+	<Pine.LNX.4.61.0610012007240.13920@yvahk01.tjqt.qr>
+	<45208D82.8010606@garzik.org>
+X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+Mime-Version: 1.0
+Content-Type: Text/Plain; charset=us-ascii
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---Boundary-00=_ueXIFIJcvA+6/M1
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
+From: Jeff Garzik <jeff@garzik.org>
+Date: Sun, 01 Oct 2006 23:54:42 -0400
 
-Hi,
-here is the 2nd patch of ehca with a small format improvement in ehca debug function.
-Thanks!
-Nam Nguyen
+> Jan Engelhardt wrote:
+> >> Tons of ISDN drivers cast pointers to/from 32-bit values, which just
+> >> won't work on 64-bit.
+> > 
+> > Should not that be fixed instead of restricting isdn to 32bit?
+> 
+> It hasn't been fixed in many years, and I don't see anyone stepping up 
+> to the plate, even with my current trolling...  :)
+> 
+> > Though this is probably the best temporary workaround until someone can 
+> > fix up all the "tons".
+> 
+> I have a better workaround, I think.
+
+I totally agree with Jeff.  The ISDN layer is effectively unmaintained
+and the vast majority of the ISDN work that does actually occur is
+done out-of-tree.
+
+If someone cares enough about the ISDN layer, they can make changes
+after Jeff's goes in to reduce the protection to a per-driver basis.
+
+But right now, blocking this whole unmaintained pile of poo on 64-bit
+is the best starting point.
+
+We're talking about effectively an 8 year old code base that hasn't
+been touched much at all during that time.  Let's be honest about the
+situation.  The only subsystem that is more unmaintained and gathering
+dust is probably the ftape layer :-)
 
 
-Signed-off-by: Hoang-Nam Nguyen <hnguyen@de.ibm.com>
----
-
-
- ehca_tools.h |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-
-diff -Nurp infiniband_orig/drivers/infiniband/hw/ehca/ehca_tools.h infiniband_work/drivers/infiniband/hw/ehca/ehca_tools.h
---- infiniband_orig/drivers/infiniband/hw/ehca/ehca_tools.h 2006-10-02 22:08:57.000000000 +0200
-+++ infiniband_work/drivers/infiniband/hw/ehca/ehca_tools.h 2006-10-02 18:29:53.000000000 +0200
-@@ -117,7 +117,7 @@ extern int ehca_debug_level;
-   unsigned int l = (unsigned int)(len); \
-   unsigned char *deb = (unsigned char*)(adr); \
-   for (x = 0; x < l; x += 16) { \
--   printk("EHCA_DMP:%s" format \
-+   printk("EHCA_DMP:%s " format \
-           " adr=%p ofs=%04x %016lx %016lx\n", \
-           __FUNCTION__, ##args, deb, x, \
-           *((u64 *)&deb[0]), *((u64 *)&deb[8])); \
-
---Boundary-00=_ueXIFIJcvA+6/M1
-Content-Type: text/x-diff;
-  charset="us-ascii";
-  name="svnehca_0017_roland_git.patch2"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: attachment;
-	filename="svnehca_0017_roland_git.patch2"
-
-diff -Nurp infiniband_orig/drivers/infiniband/hw/ehca/ehca_tools.h infiniband_work/drivers/infiniband/hw/ehca/ehca_tools.h
---- infiniband_orig/drivers/infiniband/hw/ehca/ehca_tools.h	2006-10-02 22:08:57.000000000 +0200
-+++ infiniband_work/drivers/infiniband/hw/ehca/ehca_tools.h	2006-10-02 18:29:53.000000000 +0200
-@@ -117,7 +117,7 @@ extern int ehca_debug_level;
- 		unsigned int l = (unsigned int)(len); \
- 		unsigned char *deb = (unsigned char*)(adr);	\
- 		for (x = 0; x < l; x += 16) { \
--			printk("EHCA_DMP:%s" format \
-+			printk("EHCA_DMP:%s " format \
- 			       " adr=%p ofs=%04x %016lx %016lx\n", \
- 			       __FUNCTION__, ##args, deb, x, \
- 			       *((u64 *)&deb[0]), *((u64 *)&deb[8])); \
-
---Boundary-00=_ueXIFIJcvA+6/M1--

@@ -1,102 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750975AbWJBIwl@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750854AbWJBIzp@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750975AbWJBIwl (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Oct 2006 04:52:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751014AbWJBIwl
+	id S1750854AbWJBIzp (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Oct 2006 04:55:45 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751031AbWJBIzp
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Oct 2006 04:52:41 -0400
-Received: from pfx2.jmh.fr ([194.153.89.55]:40868 "EHLO pfx2.jmh.fr")
-	by vger.kernel.org with ESMTP id S1750975AbWJBIwk convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Oct 2006 04:52:40 -0400
-From: Eric Dumazet <dada1@cosmosbay.com>
-To: Vadim Lobanov <vlobanov@speakeasy.net>
-Subject: Re: [PATCH 4/4] fdtable: Implement new pagesize-based fdtable allocation scheme.
-Date: Mon, 2 Oct 2006 10:52:34 +0200
-User-Agent: KMail/1.9.1
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-References: <200610011414.30443.vlobanov@speakeasy.net>
-In-Reply-To: <200610011414.30443.vlobanov@speakeasy.net>
+	Mon, 2 Oct 2006 04:55:45 -0400
+Received: from 8.ctyme.com ([69.50.231.8]:3456 "EHLO darwin.ctyme.com")
+	by vger.kernel.org with ESMTP id S1750854AbWJBIzo (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Oct 2006 04:55:44 -0400
+Message-ID: <4520D40F.8080500@perkel.com>
+Date: Mon, 02 Oct 2006 01:55:43 -0700
+From: Marc Perkel <marc@perkel.com>
+User-Agent: Thunderbird 1.5.0.7 (Windows/20060909)
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 8BIT
-Content-Disposition: inline
-Message-Id: <200610021052.35731.dada1@cosmosbay.com>
+To: "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
+Subject: Maybe it's time to fork the GPL License - create the Linux license?
+References: <20060928144028.GA21814@wohnheim.fh-wedel.de>	<MDEHLPKNGKAHNMBLJOLKCENGOLAB.davids@webmaster.com> <BAYC1-PASMTP11B5EB1224711DCB6D4F3DAE180@CEZ.ICE>
+In-Reply-To: <BAYC1-PASMTP11B5EB1224711DCB6D4F3DAE180@CEZ.ICE>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
+X-Spamfilter-host: darwin.ctyme.com - http://www.junkemailfilter.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 01 October 2006 23:14, Vadim Lobanov wrote:
-> This patch provides an improved fdtable allocation scheme, useful for
-> expanding fdtable file descriptor entries. The main focus is on the
-> fdarray, as its memory usage grows 128 times faster than that of an fdset.
->
-> The allocation algorithm sizes the fdarray in such a way that its memory
-> usage increases in easy page-sized chunks. Additionally, it tries to
-> account for the optimal usage of the allocators involved: kmalloc() for
-> sizes less than a page, and vmalloc() with page granularity for sizes
-> greater than a page. Namely, the following sizes for the fdarray are
-> considered, and the smallest that accommodates the requested fd count is
-> chosen:
->     pagesize / 4
->     pagesize / 2
->     pagesize      <- memory allocator switch point
->     pagesize * 2
->     pagesize * 3
->     pagesize * 4
->     ...etc...
-> Unlike the current implementation, this allocation scheme does not require
-> a loop to compute the optimal fdarray size, and can be done in straightline
-> code.
->
-> Furthermore, since the fdarray overflows the pagesize boundary long before
-> any of the fdsets do, it makes sense to optimize run-time by allocating
-> both fdsets
-> in a single swoop. Even together, they will still be, by far, smaller than
-> the fdarray.
->
-> As long as we're replacing the guts of fs/file.c, it makes sense to tidy up
-> the code. This work includes:
->     simplification via refactoring,
->     elimination of unnecessary code, and
->     extensive commenting throughout the entire file.
-> This is the last patch in the series. All the code should now be sparkly
-> clean.
->
+Just a thought. Suppose we forked the GPL2 license and created the Linux 
+license? (Or some better name) It's kind of clear the Stallman has his 
+own ajenda and that it's not compatible with the Linux model. So - lets 
+fork it an start a new one.
 
-Vadim, I think your patch is way too complex, and some changes are dubious.
-You mix cleanups and changes in the same patch, making hard to match your 
-patch description and its content.
+The idea of the new license is as follows. It would be backwards 
+compatible with GPL2. It's would eliminate the "or later" clause because 
+we have already seen the potential for abuse there. How can one agree to 
+future licenses without knowing what they are going to be? The other 
+feature is that the license is only modified to provide legal 
+clarification or to deal with future issues that occur as a result of 
+new technology or circumstances that we don't know about yet. If the 
+licenses is modified then copyright holders would then have to 
+explicitly declare that they accept the modifications by switching to 
+the new terms.
 
-Current scheme is to allocate power of two sizes, and not 'the smallest that 
-accommodates the requested fd count'. This is for a good reason, because we 
-don't want to call vmalloc()/vfree() each time a process opens 512 or 1024 
-more files (x86_64 or ia32)
+Anyhow - I'm thinking that Richard Stallman might be more of a liability 
+to the GPL movement and that if something can't be worked out with GPLx 
+then maybe it's time to just fork the license and come up with a new 
+system that is crazy leader proof.
 
-I  personally prefer that table grows by a two factor, especially when they 
-are huge. Also, power of two sizes gives less vmalloc space fragmentation 
-(might be a concern for some people that are LOWMEM tight and that reduce 
-VMALLOC space to get more LOWMEM)
-default __VMALLOC_RESERVE on i386 is 128Mo, but I have some servers where I 
-use
-vmalloc=16M just to give more LOWMEM for kernel use.
+Just suggesting this as an alternative if the FSF folks insist on a 
+political ajenda.
 
-
-
-diff -Npru old/include/linux/file.h new/include/linux/file.h
---- old/include/linux/file.h    2006-09-28 20:13:13.000000000 -0700
-+++ new/include/linux/file.h    2006-09-28 20:22:05.000000000 -0700
-@@ -29,8 +29,8 @@ struct embedded_fd_set {
- struct fdtable {
-        unsigned int max_fds;
-        struct file ** fd;      /* current fd array */
--       fd_set *close_on_exec;
-        fd_set *open_fds;
-+       fd_set *close_on_exec;
-        struct rcu_head rcu;
-        struct fdtable *next;
- };
-
-Whats the reason for moving this close_on_exec definition in struct fdtable ?
-
-Eric

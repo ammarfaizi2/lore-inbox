@@ -1,72 +1,95 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965169AbWJBRjt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965151AbWJBRmx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965169AbWJBRjt (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Oct 2006 13:39:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965164AbWJBRjt
+	id S965151AbWJBRmx (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Oct 2006 13:42:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965167AbWJBRmx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Oct 2006 13:39:49 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:41605 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S965169AbWJBRjs (ORCPT
+	Mon, 2 Oct 2006 13:42:53 -0400
+Received: from mail.impinj.com ([206.169.229.170]:10734 "EHLO earth.impinj.com")
+	by vger.kernel.org with ESMTP id S965151AbWJBRmw (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Oct 2006 13:39:48 -0400
-Message-ID: <45214EDC.6060706@redhat.com>
-Date: Mon, 02 Oct 2006 12:39:40 -0500
-From: Clark Williams <williams@redhat.com>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
+	Mon, 2 Oct 2006 13:42:52 -0400
+From: Vadim Lobanov <vlobanov@speakeasy.net>
+To: Eric Dumazet <dada1@cosmosbay.com>
+Subject: Re: [PATCH 4/4] fdtable: Implement new pagesize-based fdtable allocation scheme.
+Date: Mon, 2 Oct 2006 10:42:51 -0700
+User-Agent: KMail/1.9.1
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+References: <200610011414.30443.vlobanov@speakeasy.net> <200610021000.00768.vlobanov@speakeasy.net> <200610021925.19069.dada1@cosmosbay.com>
+In-Reply-To: <200610021925.19069.dada1@cosmosbay.com>
 MIME-Version: 1.0
-To: Thomas Gleixner <tglx@linutronix.de>
-CC: Ingo Molnar <mingo@elte.hu>, john stultz <johnstul@us.ibm.com>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: hrtimers bug message on 2.6.18-rt4
-X-Enigmail-Version: 0.94.0.0
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+Message-Id: <200610021042.51124.vlobanov@speakeasy.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Monday 02 October 2006 10:25, Eric Dumazet wrote:
+> On Monday 02 October 2006 19:00, Vadim Lobanov wrote:
+> > On Monday 02 October 2006 01:52, Eric Dumazet wrote:
+> > > Current scheme is to allocate power of two sizes, and not 'the smallest
+> > > that accommodates the requested fd count'. This is for a good reason,
+> > > because we don't want to call vmalloc()/vfree() each time a process
+> > > opens 512 or 1024 more files (x86_64 or ia32)
+> >
+> > Yep, that is most definitely a consideration. I was balancing it against
+> > the fact that, when the table becomes big, growing it by a power of two
+> > regardless of the size results in massive memory usage deltas. The worry
+> > here is that an application may likely cause the table to grow by a huge
+> > amount, due to the power-of-two increase, and then actually use only a
+> > modest number of further fds, wasting the rest of the allocated table
+> > memory.
+> >
+> > Which applications open so many file handles so quickly? Do they actually
+> > need the amortized power-of-two table area increase? In those cases,
+> > would the actual process of opening these files take more time than
+> > growing the table in fixed-size steps? Or at least outweigh it enough
+> > that it would be more preferable to try to reduce memory waste instead of
+> > improve file open time?
+>
+> I think that for such applications, the 'waste' of ram for fd table is
+> nothing compared to the ram cost of opened files/sockets/dentries/inodes.
+>
+> > Is it really true that it will create less fragmentation? It seems to me
+> > that this will only be the true if most of the other heavy users of
+> > vmalloc also tried to use power-of-two allocation sizes.
+>
+> I am quite sure that on my machines, big vmalloc users are fdtable most of
+> the time.
 
-Thomas, et al,
+Ok, I think I'm convinced. :) Do you want to dig up some actual data regarding 
+vmalloc usage on your boxes, at least so it can be saved on the mailing list 
+archives for future reference?
 
-I was debugging a PI mutex stress test when I got the following message
-on my Athlon64x2 (running 2.6.18-rt4):
+I'll reroll the last patch in the series soon, after letting it rest for a bit 
+and seeing if anyone else has any more input on the proposed changes. I'll 
+tweak it so that it always does power-of-two increases in table size, rather 
+than switching to linear deltas after a certain point. Sounds good to you?
 
-BUG: time warp detected!
-prev > now, 101878c199393108 > 101878c081eaca2b:
-= 4685981405 delta, on CPU#0
- [<c0104c3c>] show_trace+0x2c/0x30
- [<c0104dcb>] dump_stack+0x2b/0x30
- [<c012ec89>] getnstimeofday+0x249/0x270
- [<c013e893>] ktime_get_ts+0x23/0x60
- [<c013e8ef>] ktime_get+0x1f/0x60
- [<c013f042>] hrtimer_interrupt+0x62/0x310
- [<c0114557>] smp_apic_timer_interrupt+0x77/0x90
- [<c0103f33>] apic_timer_interrupt+0x1f/0x24
- [<c0101bc4>] cpu_idle+0x84/0xe0
- [<c01007a4>] rest_init+0x54/0x60
- [<c06258f6>] start_kernel+0x396/0x460
- [<00000000>] 0x0
-skipping trace printing on CPU#0 != -1
+> > What do you think of Andi Kleen's follow-up suggestion about eliminating
+> > vmalloc use altogether?
+>
+> It would be interesting, but would need one indirection level, that could
+> kill performance of said huge applications... For such applications, the
+> cost of expanding fdtable is nothing compared to the cost of
+> open()/close()/poll()/read()/write() calls. This is because fdtable never
+> shrinks. So adding one indirection (if you use a table of pointers to PAGES
+> containing 1024 or 512 (struct file *)).
+>
+> At least, expanding fdtable by 1024 slots would need to reallocate the
+> first table (adding one void *), and allocating one PAGE only. No need to
+> copy previous pages, this is a win.
+>
+> Of course, big fdset still need vmalloc(), or else we cannot use
+> find_next_zero_bit() anymore... And for such applications, the time and
+> memory scanned to find a zero bit at open() time is probably the killer
+> (touching a large part of cpu caches). One million bits is 128 KB...
 
-I've seen this at least three times on -rt4. I'm building -rt5 as I
-write this, so I'll run the test again on the new kernel and see what
-(if anything) changes.
+Yep. (We could play really nifty games with the fdtable if we didn't have to 
+return the lowest available fd for the new file, but alas...)
 
-If you want my test, grab:
+> Eric
 
-   http://people.redhat.com/williams/tests/pi_tests.tar.gz
-
-and build pi_stress.
-
-Clark
-
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
-Comment: Using GnuPG with Fedora - http://enigmail.mozdev.org
-
-iD8DBQFFIU7cHyuj/+TTEp0RAkfdAJ9KLtBlfgYljBYhBatL+/BatsdygwCZAYkz
-9d2C/aSysAX5OppUlqbpSzQ=
-=kcN9
------END PGP SIGNATURE-----
+-- Vadim Lobanov

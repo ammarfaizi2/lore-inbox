@@ -1,108 +1,119 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932460AbWJBObp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932503AbWJBOua@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932460AbWJBObp (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Oct 2006 10:31:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932462AbWJBObp
+	id S932503AbWJBOua (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Oct 2006 10:50:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932506AbWJBOua
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Oct 2006 10:31:45 -0400
-Received: from tomts20.bellnexxia.net ([209.226.175.74]:12950 "EHLO
-	tomts20-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id S932461AbWJBObo (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Oct 2006 10:31:44 -0400
-Date: Mon, 2 Oct 2006 10:31:38 -0400
-From: Mathieu Desnoyers <compudj@krystal.dyndns.org>
-To: Martin Bligh <mbligh@google.com>, "Frank Ch. Eigler" <fche@redhat.com>,
-       Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>, prasanna@in.ibm.com,
-       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-       Paul Mundt <lethal@linux-sh.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>, Jes Sorensen <jes@sgi.com>,
-       Tom Zanussi <zanussi@us.ibm.com>,
-       Richard J Moore <richardj_moore@uk.ibm.com>,
-       Michel Dagenais <michel.dagenais@polymtl.ca>,
-       Christoph Hellwig <hch@infradead.org>,
-       Greg Kroah-Hartman <gregkh@suse.de>,
-       Thomas Gleixner <tglx@linutronix.de>, William Cohen <wcohen@redhat.com>,
-       ltt-dev@shafik.org, systemtap@sources.redhat.com,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Jeremy Fitzhardinge <jeremy@goop.org>,
-       Karim Yaghmour <karim@opersys.com>, Pavel Machek <pavel@suse.cz>,
-       Joe Perches <joe@perches.com>, "Randy.Dunlap" <rdunlap@xenotime.net>,
-       "Jose R. Santos" <jrs@us.ibm.com>
-Subject: [UPDATE] Performance analysis of Linux Kernel Markers 0.20 for 2.6.17
-Message-ID: <20061002143138.GA19717@Krystal>
-References: <20060930180157.GA25761@Krystal>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 2 Oct 2006 10:50:30 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:33002 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S932501AbWJBOu3
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Oct 2006 10:50:29 -0400
+Subject: Re: [PATCH] Introduce BROKEN_ON_64BIT facility
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: chas3@users.sourceforge.net
+Cc: Jeff Garzik <jeff@garzik.org>, Andrew Morton <akpm@osdl.org>,
+       LKML <linux-kernel@vger.kernel.org>, netdev@vger.kernel.org,
+       kkeil@suse.de, kai.germaschewski@gmx.de,
+       isdn4linux@listserv.isdn4linux.de, mac@melware.de,
+       markus.lidel@shadowconnect.com, samuel@sortiz.org,
+       Neela.Kolli@engenio.com, linux-scsi@vger.kernel.org,
+       Greg KH <greg@kroah.com>, thomas@winischhofer.net, ak@suse.de
+In-Reply-To: <200610021352.k92DqRwa015220@cmf.nrl.navy.mil>
+References: <200610021352.k92DqRwa015220@cmf.nrl.navy.mil>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-In-Reply-To: <20060930180157.GA25761@Krystal>
-X-Editor: vi
-X-Info: http://krystal.dyndns.org:8080
-X-Operating-System: Linux/2.4.32-grsec (i686)
-X-Uptime: 10:27:55 up 40 days, 11:36,  5 users,  load average: 0.22, 0.30, 0.35
-User-Agent: Mutt/1.5.13 (2006-08-11)
+Date: Mon, 02 Oct 2006 16:12:35 +0100
+Message-Id: <1159801956.8907.13.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Here are two minor corrections of my results :
+Ar Llu, 2006-10-02 am 09:52 -0400, ysgrifennodd chas williams -
+CONTRACTOR:
+> some of the drivers in atm are already marked with !64BIT and some
+> need to be marked.  this might be more complete for drivers/atm/Kconfig:
 
-* Mathieu Desnoyers (compudj@krystal.dyndns.org) wrote:
-[...]
-> * Micro-benchmarks
-[...]
-> The following tests are done with the "optimized" markers only
->
-[...]
-> - Execute a loop with a marker enabled, with an empty probe. Var args argument
->   setup, probe empty. No preemption disabling.
-> NR_LOOPS : 100000
-> time delta (cycles): 3363450
-> cycles per loop : 33.63
-- cycles per loop to disable preemption : 44.08-33.63=10.45
-+ cycles per loop to disable preemption : 52.11-33.63=18.48
-[...]
-> * Size (x86)
-> 
-> This is the size added by each marker to the memory image :
-> 
-> - Optimized
-> 
-> .text section : instructions
-> Adds 6 bytes in the "likely" path.
-> Adds 32 bytes in the "unlikely" path.
-> .data section : r/w data
-> 0 byte
-+ 4 bytes for the call address
-> .rodata.str1 : strings
-> Length of the marker name
-> .debug_str : strings (if loaded..)
-> Length of the marker name + 7 bytes (__mark_)
-> .markers
-> 8 bytes (2 pointers)
-> .markers.c
-> 12 bytes (3 pointers)
-> 
-> - Generic
-> 
-> .text section : instructions
-> Adds 11 bytes in the "likely" path.
-> Adds 32 bytes in the "unlikely" path.
-> .data section : r/w data
-> 1 byte (the activation flag)
-+ 4 bytes for the call address
-> .rodata.str1 : strings
-> Length of the marker name
-> .debug_str : strings (if loaded..)
-> Length of the marker name + 7 bytes (__mark_)
-> .markers
-> 8 bytes (2 pointers)
-> .markers.c
-> 12 bytes (3 pointers)
-> 
+This should fix Iphase for one. Some of the others look a lot harder
+however
 
+Signed-off-by: Alan Cox <alan@redhat.com>
 
-Mathieu
+Binary files linux.vanilla-2.6.18-mm2/drivers/atm/fore200e_mkfirm and linux-2.6.18-mm2/drivers/atm/fore200e_mkfirm differ
+diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.18-mm2/drivers/atm/iphase.c linux-2.6.18-mm2/drivers/atm/iphase.c
+--- linux.vanilla-2.6.18-mm2/drivers/atm/iphase.c	2006-09-20 04:42:06.000000000 +0100
++++ linux-2.6.18-mm2/drivers/atm/iphase.c	2006-10-02 15:28:51.678220488 +0100
+@@ -93,10 +93,6 @@
+ 
+ MODULE_LICENSE("GPL");
+ 
+-#if BITS_PER_LONG != 32
+-#  error FIXME: this driver only works on 32-bit platforms
+-#endif
+-
+ /**************************** IA_LIB **********************************/
+ 
+ static void ia_init_rtn_q (IARTN_Q *que) 
+@@ -1408,7 +1404,6 @@
+ 	struct abr_vc_table  *abr_vc_table; 
+ 	u16 *vc_table;  
+ 	u16 *reass_table;  
+-        u16 *ptr16;
+ 	int i,j, vcsize_sel;  
+ 	u_short freeq_st_adr;  
+ 	u_short *freeq_start;  
+@@ -1423,14 +1418,15 @@
+ 		printk(KERN_ERR DEV_LABEL "can't allocate DLEs\n");
+ 		goto err_out;
+ 	}
+-	iadev->rx_dle_q.start = (struct dle*)dle_addr;  
++	iadev->rx_dle_q.start = (struct dle *)dle_addr;
+ 	iadev->rx_dle_q.read = iadev->rx_dle_q.start;  
+ 	iadev->rx_dle_q.write = iadev->rx_dle_q.start;  
+-	iadev->rx_dle_q.end = (struct dle*)((u32)dle_addr+sizeof(struct dle)*DLE_ENTRIES);  
++	iadev->rx_dle_q.end = (struct dle*)((unsigned long)dle_addr+sizeof(struct dle)*DLE_ENTRIES);
+ 	/* the end of the dle q points to the entry after the last  
+ 	DLE that can be used. */  
+   
+ 	/* write the upper 20 bits of the start address to rx list address register */  
++	/* We know this is 32bit bus addressed so the following is safe */
+ 	writel(iadev->rx_dle_dma & 0xfffff000,
+ 	       iadev->dma + IPHASE5575_RX_LIST_ADDR);  
+ 	IF_INIT(printk("Tx Dle list addr: 0x%08x value: 0x%0x\n", 
+@@ -1584,11 +1580,12 @@
+ 	   Set Packet Aging Interval count register to overflow in about 4 us
+  	*/  
+         writew(0xF6F8, iadev->reass_reg+PKT_TM_CNT );
+-        ptr16 = (u16*)j;
+-        i = ((u32)ptr16 >> 6) & 0xff;
+-	ptr16  += j - 1;
+-	i |=(((u32)ptr16 << 2) & 0xff00);
++        
++        i = (j >> 6) & 0xFF;
++        j += 2 * (j - 1);
++        i |= ((j << 2) & 0xFF00);
+         writew(i, iadev->reass_reg+TMOUT_RANGE);
++
+         /* initiate the desc_tble */
+         for(i=0; i<iadev->num_tx_desc;i++)
+             iadev->desc_tbl[i].timestamp = 0;
+@@ -1911,7 +1908,7 @@
+ 	iadev->tx_dle_q.start = (struct dle*)dle_addr;  
+ 	iadev->tx_dle_q.read = iadev->tx_dle_q.start;  
+ 	iadev->tx_dle_q.write = iadev->tx_dle_q.start;  
+-	iadev->tx_dle_q.end = (struct dle*)((u32)dle_addr+sizeof(struct dle)*DLE_ENTRIES);  
++	iadev->tx_dle_q.end = (struct dle*)((unsigned long)dle_addr+sizeof(struct dle)*DLE_ENTRIES);  
+ 
+ 	/* write the upper 20 bits of the start address to tx list address register */  
+ 	writel(iadev->tx_dle_dma & 0xfffff000,
+@@ -2913,7 +2910,7 @@
+                  dev_kfree_skb_any(skb);
+           return 0;
+         }
+-        if ((u32)skb->data & 3) {
++        if ((unsigned long)skb->data & 3) {
+            printk("Misaligned SKB\n");
+            if (vcc->pop)
+                  vcc->pop(vcc, skb);
 
-
-OpenPGP public key:              http://krystal.dyndns.org:8080/key/compudj.gpg
-Key fingerprint:     8CD5 52C3 8E3C 4140 715F  BA06 3F25 A8FE 3BAE 9A68 

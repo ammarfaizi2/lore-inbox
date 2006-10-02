@@ -1,77 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965279AbWJBS06@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965280AbWJBS1r@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965279AbWJBS06 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Oct 2006 14:26:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965280AbWJBS05
+	id S965280AbWJBS1r (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Oct 2006 14:27:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965261AbWJBS1r
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Oct 2006 14:26:57 -0400
-Received: from wx-out-0506.google.com ([66.249.82.233]:19169 "EHLO
-	wx-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S965261AbWJBS0z (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Oct 2006 14:26:55 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=A4cgmxLbL5LgRIBSRKc2tOImUtvuESNJFrmtFM1SJZuJ2HKepfvME+T/HlwkaBdHUVl3oc9DD0f4dSy9uaM9+n3wABvcFE2TysZTHePmE4iSaggDvsoQW1AozEHUg3JYBOoP+zyjmTMjMX3OObmX5AvHKypzHhPVdGRkECh172k=
-Message-ID: <cd09bdd10610021126y371ddd86w130a75898fa64875@mail.gmail.com>
-Date: Mon, 2 Oct 2006 13:26:54 -0500
-From: "James Dickens" <jamesd.wi@gmail.com>
-To: "Patrick McFarland" <diablod3@gmail.com>
-Subject: Re: Maybe it's time to fork the GPL License - create the Linux license?
-Cc: "Marc Perkel" <marc@perkel.com>,
-       "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
-In-Reply-To: <200610020525.05941.diablod3@gmail.com>
+	Mon, 2 Oct 2006 14:27:47 -0400
+Received: from palinux.external.hp.com ([192.25.206.14]:14280 "EHLO
+	mail.parisc-linux.org") by vger.kernel.org with ESMTP
+	id S965280AbWJBS1q (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Oct 2006 14:27:46 -0400
+Date: Mon, 2 Oct 2006 12:27:44 -0600
+From: Matthew Wilcox <matthew@wil.cx>
+To: Frederik Deweerdt <deweerdt@free.fr>
+Cc: Arjan van de Ven <arjan@infradead.org>, linux-scsi@vger.kernel.org,
+       "Linux-Kernel," <linux-kernel@vger.kernel.org>,
+       "J.A. Magall??n" <jamagallon@ono.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Morton <akpm@osdl.org>,
+       Jeff Garzik <jeff@garzik.org>
+Subject: Re: [RFC PATCH] move aic7xxx to pci_request_irq
+Message-ID: <20061002182744.GM16272@parisc-linux.org>
+References: <20060929235054.GB2020@slug> <1159573404.13029.96.camel@localhost.localdomain> <20060930140946.GA1195@slug> <451F049A.1010404@garzik.org> <20061001142807.GD16272@parisc-linux.org> <1159729523.2891.408.camel@laptopd505.fenrus.org> <20061001193616.GF16272@parisc-linux.org> <1159755141.2891.434.camel@laptopd505.fenrus.org> <20061002200048.GC3003@slug> <20061002200703.GD3003@slug>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <20060928144028.GA21814@wohnheim.fh-wedel.de>
-	 <BAYC1-PASMTP11B5EB1224711DCB6D4F3DAE180@CEZ.ICE>
-	 <4520D40F.8080500@perkel.com> <200610020525.05941.diablod3@gmail.com>
+In-Reply-To: <20061002200703.GD3003@slug>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/2/06, Patrick McFarland <diablod3@gmail.com> wrote:
-> On Monday 02 October 2006 04:55, Marc Perkel wrote:
-> > Just a thought. Suppose we forked the GPL2 license and created the Linux
-> > license? (Or some better name) It's kind of clear the Stallman has his
-> > own ajenda and that it's not compatible with the Linux model. So - lets
-> > fork it an start a new one.
-> >
-> > The idea of the new license is as follows. It would be backwards
-> > compatible with GPL2. It's would eliminate the "or later" clause because
-> > we have already seen the potential for abuse there. How can one agree to
-> > future licenses without knowing what they are going to be? The other
-> > feature is that the license is only modified to provide legal
-> > clarification or to deal with future issues that occur as a result of
-> > new technology or circumstances that we don't know about yet. If the
-> > licenses is modified then copyright holders would then have to
-> > explicitly declare that they accept the modifications by switching to
-> > the new terms.
->
-> I'd be behind such a license if it was 100% functionally equivalent to the GPL
-> (ie, a reword just to get around the FSF Copyright of the GPL). I'd even
-> license my own code under it.
->
-it doesn't matter, how compatible it is, there is still the problem
-that all past code submitters would have to agree to it. Since they
-submitted their code to be  gpl v2.
+On Mon, Oct 02, 2006 at 08:07:03PM +0000, Frederik Deweerdt wrote:
+> +++ b/drivers/scsi/aic7xxx/aic79xx_osm_pci.c
+> @@ -341,12 +341,12 @@ ahd_pci_map_int(struct ahd_softc *ahd)
+>  {
+>  	int error;
+>  
+> -	error = request_irq(ahd->dev_softc->irq, ahd_linux_isr,
+> -			    IRQF_SHARED, "aic79xx", ahd);
+> +	error = pci_request_irq(ahd->dev_softc, ahd_linux_isr,
+> +			    IRQF_SHARED, "aic79xx");
+>  	if (!error)
+>  		ahd->platform_data->irq = ahd->dev_softc->irq;
+>  	
+> -	return (-error);
+> +	return error;
 
-James Dickens
-uadmin.blogspot.com
+Seems unsafe to me.  Unless you want to trace through the whole driver
+changing its internal conventions to use negative errnos like the rest
+of the kernel.
 
-> Linus, you want to chime in here?
->
-> --
-> Patrick McFarland || http://AdTerrasPerAspera.com
-> "Computer games don't affect kids; I mean if Pac-Man affected us as kids,
-> we'd all be running around in darkened rooms, munching magic pills and
-> listening to repetitive electronic music." -- Kristian Wilson, Nintendo,
-> Inc, 1989
->
-> -
-> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
-> the body of a message to majordomo@vger.kernel.org
-> More majordomo info at  http://vger.kernel.org/majordomo-info.html
-> Please read the FAQ at  http://www.tux.org/lkml/
->
+> -	
+> -	return (-error);
+> -}
+>  
+> +	return error;
+> +}
+
+Ditto.

@@ -1,70 +1,42 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964913AbWJBTt7@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964921AbWJBTuy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964913AbWJBTt7 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Oct 2006 15:49:59 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964919AbWJBTt7
+	id S964921AbWJBTuy (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Oct 2006 15:50:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964927AbWJBTux
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Oct 2006 15:49:59 -0400
-Received: from ug-out-1314.google.com ([66.249.92.171]:55205 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S964913AbWJBTt6 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Oct 2006 15:49:58 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=PXjs1MN9tdtoFN55N6U6Py6t6GZf0rHZY8yGcLOrfPo/O9yzMXVMimMB/4d7NPGJbubRHZ23BmS7YyalIBqqf+LbasHuQo1rm0gB2t+gk2wmcplBsXPNDNtRvgAsOFTa9U4V5gg07wTohfNjcX7lw0sPP9LuiwW83y8p18gHttI=
-Message-ID: <d120d5000610021249g4d204333nea423c1cc00ff112@mail.gmail.com>
-Date: Mon, 2 Oct 2006 15:49:56 -0400
-From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
-To: jt@hpl.hp.com
-Subject: Re: wpa supplicant/ipw3945, ESSID last char missing
-Cc: "Andrew Morton" <akpm@osdl.org>, "Dan Williams" <dcbw@redhat.com>,
-       "John W. Linville" <linville@tuxdriver.com>,
-       "Norbert Preining" <preining@logic.at>,
-       "Alessandro Suardi" <alessandro.suardi@gmail.com>, hostap@shmoo.com,
-       linux-kernel@vger.kernel.org, ipw3945-devel@lists.sourceforge.net
-In-Reply-To: <20061002193917.GA14966@bougret.hpl.hp.com>
+	Mon, 2 Oct 2006 15:50:53 -0400
+Received: from mx2.suse.de ([195.135.220.15]:36530 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S964921AbWJBTux (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Oct 2006 15:50:53 -0400
+From: Andi Kleen <ak@suse.de>
+To: discuss@x86-64.org
+Subject: Re: [discuss] Re: Please report all left over "DWARF2 unwinder stucks"
+Date: Mon, 2 Oct 2006 21:50:48 +0200
+User-Agent: KMail/1.9.3
+Cc: Roland Dreier <rdreier@cisco.com>, linux-kernel@vger.kernel.org
+References: <200610012201.20544.ak@suse.de> <adazmcev8qy.fsf@cisco.com>
+In-Reply-To: <adazmcev8qy.fsf@cisco.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-References: <20061002085942.GA32387@gamma.logic.tuwien.ac.at>
-	 <20061002113259.GA8295@gamma.logic.tuwien.ac.at>
-	 <5a4c581d0610020521q721e3157q88ad17d3cc84a066@mail.gmail.com>
-	 <20061002124613.GB13984@gamma.logic.tuwien.ac.at>
-	 <20061002165053.GA2986@gamma.logic.tuwien.ac.at>
-	 <1159808304.2834.89.camel@localhost.localdomain>
-	 <20061002111537.baa077d2.akpm@osdl.org>
-	 <20061002185550.GA14854@bougret.hpl.hp.com>
-	 <d120d5000610021234s3cb0388bi26b5493fc85e4974@mail.gmail.com>
-	 <20061002193917.GA14966@bougret.hpl.hp.com>
+Message-Id: <200610022150.48346.ak@suse.de>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/2/06, Jean Tourrilhes <jt@hpl.hp.com> wrote:
-> On Mon, Oct 02, 2006 at 03:34:04PM -0400, Dmitry Torokhov wrote:
-> > On 10/2/06, Jean Tourrilhes <jt@hpl.hp.com> wrote:
-> > >
-> > >       The whole point of the -rc process is to find problems and the
-> > >scope of it, there is no way I can know everything. At this point, we
-> > >can decide if WE-21 should go in 2.6.19 or wait for 2.6.20. But I know
-> > >that most Linux-Wireless people such as Dan and Jouni have been
-> > >waiting impatiently for those changes...
-> > >
-> >
-> > It would be nice if need of a specific version of wireless tools was
-> > documented in Documentaion/Changes. It was a surprise for me when my
-> > wireless card stopped working.
->
->        The Wireless Tols themselves issue a nice warning telling you
-> about the version mismatch and the need to upgrade. This is even more
-> powerful, as most people don't read the doc, but they run the tools.
->        Don't tell my you ignored the warning !
->
 
-I think it was giving me that warning for the last couple of years...
-I think FC3 was shipped with version 17? "May not work" is different
-from "need release x.y.z" to work.
+> [  971.940288] Call Trace:
+> [  971.952076]  [<ffffffff8026018f>] show_trace+0x34/0x47
+> [  971.967433]  [<ffffffff802601b4>] dump_stack+0x12/0x17
+> [  971.982793]  [<ffffffff80294a10>] softlockup_tick+0xdb/0xed
+> [  971.999517]  [<ffffffff8027e49e>] update_process_times+0x42/0x68
+> [  972.017521]  [<ffffffff802677d0>] smp_local_timer_interrupt+0x23/0x47
+> [  972.036770]  [<ffffffff80267c7a>] smp_apic_timer_interrupt+0x38/0x3e
+> [  972.055761]  [<ffffffff80254ce6>] apic_timer_interrupt+0x66/0x70
+> [  972.073697] DWARF2 unwinder stuck at apic_timer_interrupt+0x66/0x70
 
--- 
-Dmitry
+Thanks. Fixed that one.
+
+-Andi

@@ -1,42 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964782AbWJBPb0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964805AbWJBPh1@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964782AbWJBPb0 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Oct 2006 11:31:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964792AbWJBPbZ
+	id S964805AbWJBPh1 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Oct 2006 11:37:27 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964806AbWJBPh1
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Oct 2006 11:31:25 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:25257 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S964782AbWJBPbZ (ORCPT
+	Mon, 2 Oct 2006 11:37:27 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:10640 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S964805AbWJBPh0 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Oct 2006 11:31:25 -0400
-Date: Mon, 2 Oct 2006 08:31:18 -0700 (PDT)
-From: Linus Torvalds <torvalds@osdl.org>
-To: Dave Kleikamp <shaggy@austin.ibm.com>
-cc: akpm@osdl.org, linux-kernel@vger.kernel.org
-Subject: Re: [git pull] jfs update
-In-Reply-To: <20061002151612.6AB5A83A2B@kleikamp.austin.ibm.com>
-Message-ID: <Pine.LNX.4.64.0610020827390.3952@g5.osdl.org>
-References: <20061002151612.6AB5A83A2B@kleikamp.austin.ibm.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 2 Oct 2006 11:37:26 -0400
+From: David Howells <dhowells@redhat.com>
+Subject: [PATCH] FRV: Permit large kmalloc allocations
+Date: Mon, 02 Oct 2006 16:37:08 +0100
+To: akpm@osdl.org
+Cc: dhowells@redhat.com, linux-kernel@vger.kernel.org
+Message-Id: <20061002153708.22649.96337.stgit@warthog.cambridge.redhat.com>
+Content-Type: text/plain; charset=utf-8; format=fixed
+Content-Transfer-Encoding: 8bit
+User-Agent: StGIT/0.10
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+From: David Howells <dhowells@redhat.com>
 
+Permit kmalloc() to make allocations of up to 32MB if so configured.  This may
+be useful under NOMMU conditions where vmalloc() can't do this.
 
-On Mon, 2 Oct 2006, Dave Kleikamp wrote:
->
->     Signed-off-by: Dave Kleikamp <shaggy@austin.ibm.com>
->     (cherry picked from f74156539964d7b3d5164fdf8848e6a682f75b97 commit)
+Signed-Off-By: David Howells <dhowells@redhat.com>
+---
 
-Btw, these cherry-pick messages are useless (and just noise) when sending 
-to me, since nobody will likely ever see the private tree that you 
-cherry-picked from, so the SHA1 won't ever match anything meaningful for 
-anybody but you.
+ arch/frv/Kconfig |    8 ++++++++
+ 1 files changed, 8 insertions(+), 0 deletions(-)
 
-So please either edit it out by hand ("git cherry-pick -e") or just ask 
-git to not generate it at all (the "-r" flag, for "replay"). I thought git 
-had already been fixed to not do this by default, but maybe I was 
-dreaming.
-
-			Linus
+diff --git a/arch/frv/Kconfig b/arch/frv/Kconfig
+index f7b171b..69f9846 100644
+--- a/arch/frv/Kconfig
++++ b/arch/frv/Kconfig
+@@ -86,6 +86,14 @@ config HIGHPTE
+ 	  with a lot of RAM, this can be wasteful of precious low memory.
+ 	  Setting this option will put user-space page tables in high memory.
+ 
++config LARGE_ALLOCS
++	bool "Allow allocating large blocks (> 1MB) of memory"
++	help
++	  Allow the slab memory allocator to keep chains for very large memory
++	  sizes - upto 32MB. You may need this if your system has a lot of RAM,
++	  and you need to able to allocate very large contiguous chunks. If
++	  unsure, say N.
++
+ source "mm/Kconfig"
+ 
+ choice

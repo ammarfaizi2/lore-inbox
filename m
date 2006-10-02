@@ -1,79 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965221AbWJBSPY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965227AbWJBSQv@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965221AbWJBSPY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Oct 2006 14:15:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965225AbWJBSPY
+	id S965227AbWJBSQv (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Oct 2006 14:16:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965233AbWJBSQv
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Oct 2006 14:15:24 -0400
-Received: from palinux.external.hp.com ([192.25.206.14]:53457 "EHLO
-	mail.parisc-linux.org") by vger.kernel.org with ESMTP
-	id S965221AbWJBSPX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Oct 2006 14:15:23 -0400
-Date: Mon, 2 Oct 2006 12:15:22 -0600
-From: Matthew Wilcox <matthew@wil.cx>
-To: Frederik Deweerdt <deweerdt@free.fr>
-Cc: Arjan van de Ven <arjan@infradead.org>, linux-scsi@vger.kernel.org,
-       "Linux-Kernel," <linux-kernel@vger.kernel.org>,
-       "J.A. Magall??n" <jamagallon@ono.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Morton <akpm@osdl.org>,
-       Jeff Garzik <jeff@garzik.org>
-Subject: Re: [RFC PATCH] pci_request_irq (was [-mm patch] aic7xxx: check irq validity)
-Message-ID: <20061002181522.GL16272@parisc-linux.org>
-References: <1159550143.13029.36.camel@localhost.localdomain> <20060929235054.GB2020@slug> <1159573404.13029.96.camel@localhost.localdomain> <20060930140946.GA1195@slug> <451F049A.1010404@garzik.org> <20061001142807.GD16272@parisc-linux.org> <1159729523.2891.408.camel@laptopd505.fenrus.org> <20061001193616.GF16272@parisc-linux.org> <1159755141.2891.434.camel@laptopd505.fenrus.org> <20061002200048.GC3003@slug>
+	Mon, 2 Oct 2006 14:16:51 -0400
+Received: from ns2.g-housing.de ([81.169.133.75]:15518 "EHLO mail.g-house.de")
+	by vger.kernel.org with ESMTP id S965227AbWJBSQu (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Oct 2006 14:16:50 -0400
+Date: Mon, 2 Oct 2006 19:16:45 +0100 (BST)
+From: Christian Kujau <evil@g-house.de>
+X-X-Sender: evil@sheep.housecafe.de
+To: linux-kernel@vger.kernel.org
+cc: christopher.leech@intel.com
+Subject: CONFIG_DMA_ENGINE helptext
+Message-ID: <Pine.LNX.4.64.0610021903260.8599@sheep.housecafe.de>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061002200048.GC3003@slug>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+Content-Type: MULTIPART/MIXED; BOUNDARY="-1463809526-190321547-1159813005=:8599"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 02, 2006 at 08:00:48PM +0000, Frederik Deweerdt wrote:
->  /**
-> + * pci_request_irq - Reserve an IRQ for a PCI device
-> + * @pdev: The PCI device whose irq is to be reserved
-> + * handler: The interrupt handler function,
+  This message is in MIME format.  The first part should be readable text,
+  while the remaining parts are likely unreadable without MIME-aware tools.
 
-> + * pci_get_drvdata(pdev) shall be passed as an argument to that function
+---1463809526-190321547-1159813005=:8599
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 
-I don't think you can (or should) do this.  Move it to the body of the
-comment below.
+Hello,
 
-> + * @flags: The flags to be passed to request_irq()
-> + * @name: The name of the device to be associated with the irq
-> + *
-> + * Returns 0 on success, or a negative value on error.  A warning
-> + * message is also printed on failure.
-> + */
-> +int pci_request_irq(struct pci_dev *pdev,
-> +		    irqreturn_t (*handler)(int, void *, struct pt_regs *),
-> +		    unsigned long flags, const char *name)
-> +{
-> +	int rc;
-> +	const char *actual_name = name;
-> +
-> +	rc = is_irq_valid(pdev->irq);
-> +	if (!rc) {
-> +		dev_printk(KERN_ERR, &pdev->dev, "invalid irq #%d\n", pdev->irq);
-> +		return -EINVAL;
-> +	}
+I was wondering what CONFIG_DMA_ENGINE is about and the only hint I 
+found was this: http://lkml.org/lkml/2006/9/25/285
 
-Why is that more readable than
+That's why I was about to send the attached patch. However, from looking 
+at the comments in drivers/dma/dmaengine.c, it seems to be about 
+non-HW-specific DMA support:
 
-	if (!is_irq_valid(pdev->irq)) {
-		dev_err(&pdev->dev, "invalid irq #%d\n", pdev->irq);
-		return -EINVAL;
-	}
+"This code implements the DMA subsystem. It provides a HW-neutral
+  interface for other kernel code to use asynchronous memory copy
+  capabilities"
 
-> +	if (!actual_name)
-> +		actual_name = pci_name(pdev);
-> +
-> +	return request_irq(pdev->irq, handler, flags | IRQF_SHARED,
-> +			   actual_name, pci_get_drvdata(pdev));
+Because I don't know anything about the innards of DMA, can someone 
+please enlighten me what this knob is for and why one should enable it?
 
-The driver name is a far more common usage than the pci_name.
+Thanks,
+Christian.
+-- 
+BOFH excuse #94:
 
-	return request_irq(pdev->irq, handler, flags | IRQF_SHARED,
-			name ? name : pdev->driver->name,
-			pci_get_drvdata(pdev));
+Internet outage
+---1463809526-190321547-1159813005=:8599
+Content-Type: TEXT/plain; charset=US-ASCII; name=Kconfig-DMA_ENGINE-2.6.18.diff
+Content-Transfer-Encoding: BASE64
+Content-ID: <Pine.LNX.4.64.0610021916450.8599@sheep.housecafe.de>
+Content-Description: 
+Content-Disposition: attachment; filename=Kconfig-DMA_ENGINE-2.6.18.diff
 
+LS0tIGxpbnV4LTIuNi9kcml2ZXJzL2RtYS9LY29uZmlnCTIwMDYtMDktMjIg
+MDY6MjA6MTYuMDAwMDAwMDAwICswMTAwDQorKysgbGludXgtMi42L2RyaXZl
+cnMvZG1hL0tjb25maWcuZWRpdGVkCTIwMDYtMTAtMDIgMTk6MDQ6MjUuMDAw
+MDAwMDAwICswMTAwDQpAQCAtOCw3ICs4LDExIEBAIGNvbmZpZyBETUFfRU5H
+SU5FDQogCWJvb2wgIlN1cHBvcnQgZm9yIERNQSBlbmdpbmVzIg0KIAktLS1o
+ZWxwLS0tDQogCSAgRE1BIGVuZ2luZXMgb2ZmbG9hZCBjb3B5IG9wZXJhdGlv
+bnMgZnJvbSB0aGUgQ1BVIHRvIGRlZGljYXRlZA0KLQkgIGhhcmR3YXJlLCBh
+bGxvd2luZyB0aGUgY29waWVzIHRvIGhhcHBlbiBhc3luY2hyb25vdXNseS4N
+CisJICBoYXJkd2FyZSwgYWxsb3dpbmcgdGhlIGNvcGllcyB0byBoYXBwZW4g
+YXN5bmNocm9ub3VzbHkuIFNwZWNpYWwNCisJICBoYXJkd2FyZSBpcyByZXF1
+aXJlZCBmb3IgdGhpcywgY3VycmVudGx5IG9ubHkgdGhlIEludGVsIEU1MDAw
+IA0KKwkgIGNoaXBzZXQgaXMgc3VwcG9ydGVkLCBjZXJ0YWluIFJBSUQgY29u
+dHJvbGxlcnMgbWlnaHQgc3VwcG9ydA0KKwkgIHRoaXMgdG9vLiBOb3RlIHRo
+YXQgdGhpcyBoYXMgbm90aGluZyB0byBkbyB3aXRoIFBDSS1ETUEgaW4NCisJ
+ICB0aGUgZmlyc3QgcGxhY2UuDQogDQogY29tbWVudCAiRE1BIENsaWVudHMi
+DQogDQo=
+
+---1463809526-190321547-1159813005=:8599--

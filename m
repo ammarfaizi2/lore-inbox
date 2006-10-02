@@ -1,44 +1,28 @@
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932160AbWJBMKb (ORCPT <rfc822;ralf@linux-mips.org>);
-	Mon, 2 Oct 2006 08:10:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932177AbWJBMKb
+	id S932273AbWJBM5b (ORCPT <rfc822;ralf@linux-mips.org>);
+	Mon, 2 Oct 2006 08:57:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932278AbWJBM5b
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Oct 2006 08:10:31 -0400
-Received: from ns36.root-name-server.net ([67.18.107.190]:47844 "EHLO
-	host24.root-name-server.net") by vger.kernel.org with ESMTP
-	id S932160AbWJBMKa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Oct 2006 08:10:30 -0400
-To: linux-kernel@vger.kernel.org
-Subject: Make money at home
-From: Makemoney@online.com
-Reply-To: Makemoney@online.com
-Message-Id: <E1GUMcs-0007rM-K6@host24.root-name-server.net>
-Date: Mon, 02 Oct 2006 07:10:26 -0500
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - host24.root-name-server.net
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [99 32003] / [47 12]
-X-AntiAbuse: Sender Address Domain - host24.root-name-server.net
-X-Source: 
-X-Source-Args: /usr/local/apache/bin/httpd -DSSL 
-X-Source-Dir: stealthhyip.com:/public_html
+	Mon, 2 Oct 2006 08:57:31 -0400
+Received: from [124.61.207.116] ([124.61.207.116]:16646 "HELO 124.61.207.116")
+	by vger.kernel.org with SMTP id S932273AbWJBM5b (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Oct 2006 08:57:31 -0400
+Reply-To: "Lanny Land" <mikehsbny@ecgbb.co.za>
+From: "Lanny" <mikehsbny@ecgbb.co.za>
+Message-ID: <7291310073.20061002080104@exlht>
+Date: Mon, 2 Oct 2006 08:01:04 -0400
+To: <linux-kernel@vger.kernel.org>
+Subject: killing teens in bukkaake action.
+MIME-Version: 1.0
+Content-Type: text/plain; charset="iso-8859-1"
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
-Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S932160AbWJBMKb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+ralf=40linux-mips.org-S932273AbWJBM5b@vger.kernel.org>
 
-www.goldinvestment.biz
 
-53.5% Daily For 2 Days
-75% Daily For 2 Days
-350% After 3 Days
-600% After 3 Days
+lewd Just Ladies and careful Eighteen from Your dreaam!
 
-www.goldinvestment.biz
+http://fergasderolpok.com
 
-Started  Sep 16, 2006 
-Total accounts 75 
-Total deposited $ 1,112.50 
-Total withdraw $ 709.08 
-Visitors online 31 
-
-www.goldinvestment.biz

@@ -1,48 +1,39 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965414AbWJBVen@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965420AbWJBVje@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965414AbWJBVen (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Oct 2006 17:34:43 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965417AbWJBVen
+	id S965420AbWJBVje (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Oct 2006 17:39:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965422AbWJBVje
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Oct 2006 17:34:43 -0400
-Received: from iolanthe.rowland.org ([192.131.102.54]:51724 "HELO
-	iolanthe.rowland.org") by vger.kernel.org with SMTP id S965411AbWJBVel
+	Mon, 2 Oct 2006 17:39:34 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:15071 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S965420AbWJBVjd
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Oct 2006 17:34:41 -0400
-Date: Mon, 2 Oct 2006 17:34:40 -0400 (EDT)
-From: Alan Stern <stern@rowland.harvard.edu>
-X-X-Sender: stern@iolanthe.rowland.org
-To: David Brownell <david-b@pacbell.net>
-cc: Andrew Morton <akpm@osdl.org>, David Howells <dhowells@redhat.com>,
-       Thomas Gleixner <tglx@linutronix.de>, Ingo Molnar <mingo@elte.hu>,
-       <torvalds@osdl.org>, <linux-kernel@vger.kernel.org>,
-       <linux-arch@vger.kernel.org>, Dmitry Torokhov <dtor@mail.ru>,
-       Greg KH <greg@kroah.com>
-Subject: Re: [PATCH 3/3] IRQ: Maintain regs pointer globally rather than
- passing to IRQ handlers
-In-Reply-To: <200610021346.13135.david-b@pacbell.net>
-Message-ID: <Pine.LNX.4.44L0.0610021729490.8219-100000@iolanthe.rowland.org>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Mon, 2 Oct 2006 17:39:33 -0400
+Subject: Re: [PATCH] ISDN: mark as 32-bit only
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: David Miller <davem@davemloft.net>
+Cc: jeff@garzik.org, jengelh@linux01.gwdg.de, kkeil@suse.de,
+       kai.germaschewski@gmx.de, akpm@osdl.org, linux-kernel@vger.kernel.org
+In-Reply-To: <20061002.133715.63105344.davem@davemloft.net>
+References: <20061001152116.GA4684@havoc.gtf.org>
+	 <Pine.LNX.4.61.0610012007240.13920@yvahk01.tjqt.qr>
+	 <45208D82.8010606@garzik.org>
+	 <20061002.133715.63105344.davem@davemloft.net>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Mon, 02 Oct 2006 23:04:05 +0100
+Message-Id: <1159826645.8907.80.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2 Oct 2006, David Brownell wrote:
+Ar Llu, 2006-10-02 am 13:37 -0700, ysgrifennodd David Miller:
+> I totally agree with Jeff.  The ISDN layer is effectively unmaintained
+> and the vast majority of the ISDN work that does actually occur is
+> done out-of-tree.
 
-> > >  (*) finish_unlinks() in drivers/usb/host/ohci-q.c needs checking.  It does
-> > >      something different depending on whether it's been supplied with a regs
-> > >      pointer or not.
-> 
-> gaak!  where did that come from?  I'll be surprised if removing
-> that causes any problem at all.
+There are big chunks this is not true for. Also it work son x86-64
+correctly, Jeff is barking up the wrong tree altogether.
 
-Here's the statement in question:
-
-	if (likely (regs && HC_IS_RUNNING(ohci_to_hcd(ohci)->state))) {
-		...
-
-Notice another questionable use of hcd->state.  I don't know what the 
-correct change here is, but I suspect David H's isn't optimal.
-
-Alan Stern
-
+Alan

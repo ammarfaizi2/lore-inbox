@@ -1,93 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932668AbWJBGlW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932679AbWJBGrF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932668AbWJBGlW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Oct 2006 02:41:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932667AbWJBGlV
+	id S932679AbWJBGrF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Oct 2006 02:47:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932683AbWJBGrE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Oct 2006 02:41:21 -0400
-Received: from msr44.hinet.net ([168.95.4.144]:10927 "EHLO msr44.hinet.net")
-	by vger.kernel.org with ESMTP id S932663AbWJBGlU (ORCPT
+	Mon, 2 Oct 2006 02:47:04 -0400
+Received: from aun.it.uu.se ([130.238.12.36]:22424 "EHLO aun.it.uu.se")
+	by vger.kernel.org with ESMTP id S932681AbWJBGrC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Oct 2006 02:41:20 -0400
-Subject: [PATCH 5/5] Solve host error problem in low performance embedded
-	system when continune down and up.
-From: Jesse Huang <jesse@icplus.com.tw>
-To: linux-kernel@vger.kernel.org, netdev@vger.kernel.org, akpm@osdl.org,
-       jgarzik@pobox.com, jesse@icplus.com.tw
-Content-Type: text/plain
-Date: Mon, 02 Oct 2006 14:26:36 -0400
-Message-Id: <1159813596.2576.8.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.0 (2.6.0-1) 
-Content-Transfer-Encoding: 7bit
+	Mon, 2 Oct 2006 02:47:02 -0400
+Date: Mon, 2 Oct 2006 08:45:18 +0200 (MEST)
+Message-Id: <200610020645.k926jI3K007324@harpo.it.uu.se>
+From: Mikael Pettersson <mikpe@it.uu.se>
+To: akpm@osdl.org, jeff@garzik.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] schedule ftape removal
+Cc: linux-tape@vger.kernel.org
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Jesse Huang <jesse@icplus.com.tw>
+On Mon, 2 Oct 2006 01:05:28 -0400, Jeff Garzik wrote:
+> diff --git a/Documentation/feature-removal-schedule.txt b/Documentation/feature-removal-schedule.txt
+> index 9364f47..57e72e6 100644
+> --- a/Documentation/feature-removal-schedule.txt
+> +++ b/Documentation/feature-removal-schedule.txt
+> @@ -325,3 +325,11 @@ Why:	i2c-isa is a non-sense and doesn't 
+>  Who:	Jean Delvare <khali@linux-fr.org>
+>  
+>  ---------------------------
+> +
+> +What:	ftape
+> +When:	2.6.20
+> +Why:	Orphaned for ages.  SMP bugs long unfixed.  Few users left
+> +	in the world.
+> +Who:	Jeff Garzik <jeff@garzik.org>
 
-Change Logs:
-Solve host error problem in low performance embedded system when continune down and up.
+I actually have the hardware, but with a capacity of 1.6GB
+per tape and transfer speeds at a few hundred KB/s it's not
+the most practical backup solution today.
 
-Signed-off-by: Jesse Huang <jesse@icplus.com.tw>
----
+Removing it is perfectly acceptable for me.
 
- drivers/net/sundance.c |   26 +++++++++++++++++++++++---
- 1 files changed, 23 insertions(+), 3 deletions(-)
-
-c06c70e20a85facd640528ca66e0b579fc3ee745
-diff --git a/drivers/net/sundance.c b/drivers/net/sundance.c
-index 14b4933..b4a6010 100755
---- a/drivers/net/sundance.c
-+++ b/drivers/net/sundance.c
-@@ -1643,6 +1643,14 @@ static int netdev_close(struct net_devic
- 	struct sk_buff *skb;
- 	int i;
- 
-+	/* Wait and kill tasklet */
-+	tasklet_kill(&np->rx_tasklet);
-+	tasklet_kill(&np->tx_tasklet);
-+	np->cur_tx = 0;
-+	np->dirty_tx = 0;
-+	np->cur_task = 0;
-+	np->last_tx = 0;
-+
- 	netif_stop_queue(dev);
- 
- 	if (netif_msg_ifdown(np)) {
-@@ -1663,9 +1671,20 @@ static int netdev_close(struct net_devic
- 	/* Stop the chip's Tx and Rx processes. */
- 	iowrite16(TxDisable | RxDisable | StatsDisable, ioaddr + MACCtrl1);
- 
--	/* Wait and kill tasklet */
--	tasklet_kill(&np->rx_tasklet);
--	tasklet_kill(&np->tx_tasklet);
-+    	for (i = 2000; i > 0; i--) {
-+ 		if ((ioread32(ioaddr + DMACtrl) &0xC000) == 0)
-+			break;
-+		mdelay(1);
-+    	}
-+
-+    	iowrite16(GlobalReset | DMAReset | FIFOReset | NetworkReset, ioaddr +ASICCtrl + 2);
-+
-+    	for (i = 2000; i > 0; i--)
-+    	{
-+ 		if ((ioread16(ioaddr + ASICCtrl +2) &ResetBusy) == 0)
-+			break;
-+		mdelay(1);
-+    	}
- 
- #ifdef __i386__
- 	if (netif_msg_hw(np)) {
-@@ -1703,6 +1722,7 @@ #endif /* __i386__ debugging only */
- 		}
- 	}
- 	for (i = 0; i < TX_RING_SIZE; i++) {
-+		np->tx_ring[i].next_desc = 0;
- 		skb = np->tx_skbuff[i];
- 		if (skb) {
- 			pci_unmap_single(np->pci_dev,
--- 
-1.3.GIT
-
-
-
+/Mikael

@@ -1,41 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965276AbWJBS30@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965286AbWJBS2v@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965276AbWJBS30 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Oct 2006 14:29:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965234AbWJBS3Z
+	id S965286AbWJBS2v (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Oct 2006 14:28:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965284AbWJBS2u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Oct 2006 14:29:25 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:3021 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S965276AbWJBS3Y (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Oct 2006 14:29:24 -0400
-Date: Mon, 2 Oct 2006 11:28:57 -0700
-From: Paul Jackson <pj@sgi.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: stern@rowland.harvard.edu, linux-kernel@vger.kernel.org, greg@kroah.com
-Subject: Re: [PATCH] usb hubc build fix.patch prefix
-Message-Id: <20061002112857.dc955603.pj@sgi.com>
-In-Reply-To: <20061002111223.1e5943dc.akpm@osdl.org>
-References: <20061002023720.9780.85391.sendpatchset@v0>
-	<Pine.LNX.4.44L0.0610021003330.6651-100000@iolanthe.rowland.org>
-	<20061002092737.7816b8f5.pj@sgi.com>
-	<20061002111223.1e5943dc.akpm@osdl.org>
-Organization: SGI
-X-Mailer: Sylpheed version 2.2.4 (GTK+ 2.8.3; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 2 Oct 2006 14:28:50 -0400
+Received: from palinux.external.hp.com ([192.25.206.14]:7902 "EHLO
+	mail.parisc-linux.org") by vger.kernel.org with ESMTP
+	id S965276AbWJBS2t (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Oct 2006 14:28:49 -0400
+Date: Mon, 2 Oct 2006 12:28:47 -0600
+From: Matthew Wilcox <matthew@wil.cx>
+To: Frederik Deweerdt <deweerdt@free.fr>
+Cc: Arjan van de Ven <arjan@infradead.org>, linux-scsi@vger.kernel.org,
+       "Linux-Kernel," <linux-kernel@vger.kernel.org>,
+       "J.A. Magall??n" <jamagallon@ono.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Morton <akpm@osdl.org>,
+       Jeff Garzik <jeff@garzik.org>
+Subject: Re: [RFC PATCH] move tg3 to pci_request_irq
+Message-ID: <20061002182847.GN16272@parisc-linux.org>
+References: <20060929235054.GB2020@slug> <1159573404.13029.96.camel@localhost.localdomain> <20060930140946.GA1195@slug> <451F049A.1010404@garzik.org> <20061001142807.GD16272@parisc-linux.org> <1159729523.2891.408.camel@laptopd505.fenrus.org> <20061001193616.GF16272@parisc-linux.org> <1159755141.2891.434.camel@laptopd505.fenrus.org> <20061002200048.GC3003@slug> <20061002201134.GE3003@slug>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061002201134.GE3003@slug>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew wrote:
-> I screwed things up and attempted to fix things by hand post-release and ...
+On Mon, Oct 02, 2006 at 08:11:34PM +0000, Frederik Deweerdt wrote:
+> @@ -6838,9 +6838,9 @@ restart_timer:
+>  
+>  static int tg3_request_irq(struct tg3 *tp)
+>  {
+> +	struct net_device *dev = tp->dev;
+>  	irqreturn_t (*fn)(int, void *, struct pt_regs *);
+>  	unsigned long flags;
+> -	struct net_device *dev = tp->dev;
+>  
+>  	if (tp->tg3_flags2 & TG3_FLG2_USING_MSI) {
+>  		fn = tg3_msi;
 
-Aha.  Looks like we found the culprit ;).
+Is there any reason for this noise?
 
-Sounds like you're on it.  Good.
-
--- 
-                  I won't rest till it's the best ...
-                  Programmer, Linux Scalability
-                  Paul Jackson <pj@sgi.com> 1.925.600.0401

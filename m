@@ -1,19 +1,19 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965223AbWJBSNH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965226AbWJBSN6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965223AbWJBSNH (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Oct 2006 14:13:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965224AbWJBSNG
+	id S965226AbWJBSN6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Oct 2006 14:13:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965225AbWJBSN6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Oct 2006 14:13:06 -0400
-Received: from ug-out-1314.google.com ([66.249.92.170]:60784 "EHLO
+	Mon, 2 Oct 2006 14:13:58 -0400
+Received: from ug-out-1314.google.com ([66.249.92.168]:48755 "EHLO
 	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S965223AbWJBSNC (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Oct 2006 14:13:02 -0400
+	id S965210AbWJBSNz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Oct 2006 14:13:55 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent:sender;
-        b=AB93Ck+T7n6MMs6dLN+GdrtrnqQg1HfGHxVeWm2G+M8Yd1X3nK6iVusingMusQmNUKZMxUMvvtXuq0rcjZelBHpkYXKYDdmwtYNxw/GBlwxn/AEUQ3xLPMQebCqQhVxVo15oYbrHT/6huKgElISxnzTUJuPtFF5ammT4dhE+/8o=
-Date: Mon, 2 Oct 2006 20:11:34 +0000
+        b=opPdKZiGhMjrZwehPZvuBpWZJUTh95aKJFp9ETtghjV/OFU2cIicibXnTtTlg9zlJflcp98e+IZZYMv+NiX7L6IdTzodxiho45SSZF0+/oyDURBOHiUHAizrf12UXb3z9OcfAkgAFHzW12m/jMFXCCT8jouGrFjrr4ZLImc7M28=
+Date: Mon, 2 Oct 2006 20:12:29 +0000
 From: Frederik Deweerdt <deweerdt@free.fr>
 To: Arjan van de Ven <arjan@infradead.org>
 Cc: Matthew Wilcox <matthew@wil.cx>, linux-scsi@vger.kernel.org,
@@ -21,8 +21,8 @@ Cc: Matthew Wilcox <matthew@wil.cx>, linux-scsi@vger.kernel.org,
        "J.A. Magall??n" <jamagallon@ono.com>,
        Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Morton <akpm@osdl.org>,
        Jeff Garzik <jeff@garzik.org>
-Subject: [RFC PATCH] move tg3 to pci_request_irq
-Message-ID: <20061002201134.GE3003@slug>
+Subject: [RFC PATCH] move drm to pci_request_irq
+Message-ID: <20061002201229.GF3003@slug>
 References: <1159550143.13029.36.camel@localhost.localdomain> <20060929235054.GB2020@slug> <1159573404.13029.96.camel@localhost.localdomain> <20060930140946.GA1195@slug> <451F049A.1010404@garzik.org> <20061001142807.GD16272@parisc-linux.org> <1159729523.2891.408.camel@laptopd505.fenrus.org> <20061001193616.GF16272@parisc-linux.org> <1159755141.2891.434.camel@laptopd505.fenrus.org> <20061002200048.GC3003@slug>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -34,101 +34,50 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
 
-This proof-of-concept patch converts the tg3 driver to use the
+This proof-of-concept patch converts the drm driver to use the
 pci_request_irq() function.
 
 Regards,
 Frederik
 
 
-diff --git a/drivers/net/tg3.c b/drivers/net/tg3.c
-index c25ba27..23660c6 100644
---- a/drivers/net/tg3.c
-+++ b/drivers/net/tg3.c
-@@ -6838,9 +6838,9 @@ restart_timer:
- 
- static int tg3_request_irq(struct tg3 *tp)
- {
-+	struct net_device *dev = tp->dev;
- 	irqreturn_t (*fn)(int, void *, struct pt_regs *);
- 	unsigned long flags;
--	struct net_device *dev = tp->dev;
- 
- 	if (tp->tg3_flags2 & TG3_FLG2_USING_MSI) {
- 		fn = tg3_msi;
-@@ -6853,7 +6853,7 @@ static int tg3_request_irq(struct tg3 *t
- 			fn = tg3_interrupt_tagged;
- 		flags = IRQF_SHARED | IRQF_SAMPLE_RANDOM;
+
+diff --git a/drivers/char/drm/drm_drv.c b/drivers/char/drm/drm_drv.c
+index b366c5b..5b000cd 100644
+--- a/drivers/char/drm/drm_drv.c
++++ b/drivers/char/drm/drm_drv.c
+@@ -234,6 +234,8 @@ int drm_lastclose(drm_device_t * dev)
  	}
--	return (request_irq(tp->pdev->irq, fn, flags, dev->name, dev));
-+	return pci_request_irq(tp->pdev, fn, flags, dev->name);
+ 	mutex_unlock(&dev->struct_mutex);
+ 
++	pci_set_drvdata(dev, NULL);
++
+ 	DRM_DEBUG("lastclose completed\n");
+ 	return 0;
  }
+diff --git a/drivers/char/drm/drm_irq.c b/drivers/char/drm/drm_irq.c
+index 4553a3a..5dd12cb 100644
+--- a/drivers/char/drm/drm_irq.c
++++ b/drivers/char/drm/drm_irq.c
+@@ -132,8 +132,10 @@ static int drm_irq_install(drm_device_t 
+ 	if (drm_core_check_feature(dev, DRIVER_IRQ_SHARED))
+ 		sh_flags = IRQF_SHARED;
  
- static int tg3_test_interrupt(struct tg3 *tp)
-@@ -6866,10 +6866,10 @@ static int tg3_test_interrupt(struct tg3
+-	ret = request_irq(dev->irq, dev->driver->irq_handler,
+-			  sh_flags, dev->devname, dev);
++	pci_set_drvdata(dev->pdev, dev);
++
++	ret = pci_request_irq(dev->pdev, dev->driver->irq_handler,
++			  sh_flags, dev->devname);
+ 	if (ret < 0) {
+ 		mutex_lock(&dev->struct_mutex);
+ 		dev->irq_enabled = 0;
+@@ -173,7 +175,7 @@ int drm_irq_uninstall(drm_device_t * dev
  
- 	tg3_disable_ints(tp);
+ 	dev->driver->irq_uninstall(dev);
  
--	free_irq(tp->pdev->irq, dev);
-+	pci_free_irq(tp->pdev);
+-	free_irq(dev->irq, dev);
++	pci_free_irq(dev->pdev);
  
--	err = request_irq(tp->pdev->irq, tg3_test_isr,
--			  IRQF_SHARED | IRQF_SAMPLE_RANDOM, dev->name, dev);
-+	err = pci_request_irq(tp->pdev, tg3_test_isr, 
-+			      IRQF_SHARED | IRQF_SAMPLE_RANDOM, dev->name);
- 	if (err)
- 		return err;
- 
-@@ -6897,7 +6897,7 @@ static int tg3_test_interrupt(struct tg3
- 
- 	tg3_disable_ints(tp);
- 
--	free_irq(tp->pdev->irq, dev);
-+	pci_free_irq(tp->pdev);
- 
- 	err = tg3_request_irq(tp);
- 
-@@ -6915,7 +6915,6 @@ static int tg3_test_interrupt(struct tg3
-  */
- static int tg3_test_msi(struct tg3 *tp)
- {
--	struct net_device *dev = tp->dev;
- 	int err;
- 	u16 pci_cmd;
- 
-@@ -6946,7 +6945,7 @@ static int tg3_test_msi(struct tg3 *tp)
- 	       "the PCI maintainer and include system chipset information.\n",
- 		       tp->dev->name);
- 
--	free_irq(tp->pdev->irq, dev);
-+	pci_free_irq(tp->pdev);
- 	pci_disable_msi(tp->pdev);
- 
- 	tp->tg3_flags2 &= ~TG3_FLG2_USING_MSI;
-@@ -6966,7 +6965,7 @@ static int tg3_test_msi(struct tg3 *tp)
- 	tg3_full_unlock(tp);
- 
- 	if (err)
--		free_irq(tp->pdev->irq, dev);
-+		pci_free_irq(tp->pdev);
- 
- 	return err;
+ 	return 0;
  }
-@@ -7051,7 +7050,7 @@ static int tg3_open(struct net_device *d
- 	tg3_full_unlock(tp);
- 
- 	if (err) {
--		free_irq(tp->pdev->irq, dev);
-+		pci_free_irq(tp->pdev);
- 		if (tp->tg3_flags2 & TG3_FLG2_USING_MSI) {
- 			pci_disable_msi(tp->pdev);
- 			tp->tg3_flags2 &= ~TG3_FLG2_USING_MSI;
-@@ -7363,7 +7362,7 @@ #endif
- 
- 	tg3_full_unlock(tp);
- 
--	free_irq(tp->pdev->irq, dev);
-+	pci_free_irq(tp->pdev);
- 	if (tp->tg3_flags2 & TG3_FLG2_USING_MSI) {
- 		pci_disable_msi(tp->pdev);
- 		tp->tg3_flags2 &= ~TG3_FLG2_USING_MSI;

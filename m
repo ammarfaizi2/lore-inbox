@@ -1,55 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965143AbWJBRXF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965154AbWJBRYg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965143AbWJBRXF (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Oct 2006 13:23:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965149AbWJBRXE
+	id S965154AbWJBRYg (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Oct 2006 13:24:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965152AbWJBRYf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Oct 2006 13:23:04 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.151]:2234 "EHLO e33.co.us.ibm.com")
-	by vger.kernel.org with ESMTP id S965143AbWJBRXC (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Oct 2006 13:23:02 -0400
-Date: Mon, 2 Oct 2006 12:23:00 -0500
-To: Arnd Bergmann <arnd@arndb.de>
-Cc: linuxppc-dev@ozlabs.org, jeff@garzik.org, akpm@osdl.org,
-       netdev@vger.kernel.org, James K Lewis <jklewis@us.ibm.com>,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 0/6]: powerpc/cell spidernet ethernet patches
-Message-ID: <20061002172300.GD4546@austin.ibm.com>
-References: <20060929230552.GG6433@austin.ibm.com> <200609301240.03464.arnd@arndb.de> <20061002162749.GB4546@austin.ibm.com> <200610021850.41062.arnd@arndb.de>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=iso-8859-1
-Content-Disposition: inline
-Content-Transfer-Encoding: 8bit
-In-Reply-To: <200610021850.41062.arnd@arndb.de>
-User-Agent: Mutt/1.5.11
-From: linas@austin.ibm.com (Linas Vepstas)
+	Mon, 2 Oct 2006 13:24:35 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:182 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP id S965154AbWJBRYe
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Oct 2006 13:24:34 -0400
+Subject: Re: Spam, bogofilter, etc
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: "Martin J. Bligh" <mbligh@mbligh.org>, Lee Revell <rlrevell@joe-job.com>,
+       Matti Aarnio <matti.aarnio@zmailer.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+In-Reply-To: <Pine.LNX.4.64.0610020933020.3952@g5.osdl.org>
+References: <1159539793.7086.91.camel@mindpipe>
+	 <20061002100302.GS16047@mea-ext.zmailer.org>
+	 <1159802486.4067.140.camel@mindpipe> <45212F39.5000307@mbligh.org>
+	 <Pine.LNX.4.64.0610020933020.3952@g5.osdl.org>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Mon, 02 Oct 2006 18:49:52 +0100
+Message-Id: <1159811392.8907.36.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 02, 2006 at 06:50:39PM +0200, Arnd Bergmann wrote:
-> On Monday 02 October 2006 18:27, Linas Vepstas wrote:
-> > > 
-> > > I'm not sure if I have missed a patch in here, but I
-> > > don't see anything reintroducing the 'netif_stop_queue'
-> > > that is missing from the transmit path.
-> > > 
-> > > Do you have a extra patch for that?
-> > 
-> > Unfinished.  There are several ways in which the current 
-> > spider-net driver doesn't do things the way Greg KH's, etal 
-> > book on device drivers recommends. I was planning on combing 
-> > through these this week.
-> 
-> Ok, that's good. However, removing the netif_stop_queue
-> was an obvious oversight that happened during the cleanup
-> last year.
-> 
-> Putting that one line back in should be a really safe fix for
-> the problem of overly high system load we sometimes see.
+Ar Llu, 2006-10-02 am 09:40 -0700, ysgrifennodd Linus Torvalds:
+> If you want a yes/no kind of thing, do it on real hard issues, like not 
+> accepting email from machines that aren't registered MX gateways. Sure, 
+> that will mean that people who just set up their local sendmail thing and 
+> connect directly to port 25 will just not be able to email, but let's face 
+> it, that's why we have ISP's and DNS in the first place.
 
-Hmm. I have a patch from 5 weeks ago that seems to insert a bunch 
-of these. I'm not sure why it hadn't been mailed before, I'll 
-test and post as soon as I can.
+Except most of the ISPs are incompetent and many people have to run
+their own mail system in order to get mail that actually *works*. I've
+had that experience several times, although thankfully I now have a sane
+ISP.
 
---linas
+MX checking is as broken or more broken than bayes.
+
+There is another reason bayes is not very good too - every good spammer
+reruns their message through spamassassin adding random text till they
+get a good score *then* they spew it out.
+
+Alan

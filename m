@@ -1,72 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964932AbWJBUAW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964944AbWJBUFW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964932AbWJBUAW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Oct 2006 16:00:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964940AbWJBUAW
+	id S964944AbWJBUFW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Oct 2006 16:05:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964949AbWJBUFV
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Oct 2006 16:00:22 -0400
-Received: from madara.hpl.hp.com ([192.6.19.124]:8947 "EHLO madara.hpl.hp.com")
-	by vger.kernel.org with ESMTP id S964933AbWJBUAS (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Oct 2006 16:00:18 -0400
-Date: Mon, 2 Oct 2006 12:59:21 -0700
-To: Dan Williams <dcbw@redhat.com>
-Cc: Andrew Morton <akpm@osdl.org>, "John W. Linville" <linville@tuxdriver.com>,
-       Norbert Preining <preining@logic.at>,
-       Alessandro Suardi <alessandro.suardi@gmail.com>, hostap@shmoo.com,
-       linux-kernel@vger.kernel.org, ipw3945-devel@lists.sourceforge.net
-Subject: Re: wpa supplicant/ipw3945, ESSID last char missing
-Message-ID: <20061002195921.GC14966@bougret.hpl.hp.com>
-Reply-To: jt@hpl.hp.com
-References: <20061002085942.GA32387@gamma.logic.tuwien.ac.at> <5a4c581d0610020221s7bf100f8q893161b7c8c492d2@mail.gmail.com> <20061002113259.GA8295@gamma.logic.tuwien.ac.at> <5a4c581d0610020521q721e3157q88ad17d3cc84a066@mail.gmail.com> <20061002124613.GB13984@gamma.logic.tuwien.ac.at> <20061002165053.GA2986@gamma.logic.tuwien.ac.at> <1159808304.2834.89.camel@localhost.localdomain> <20061002111537.baa077d2.akpm@osdl.org> <20061002185550.GA14854@bougret.hpl.hp.com> <1159816923.12691.29.camel@localhost.localdomain>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 2 Oct 2006 16:05:21 -0400
+Received: from smtp110.sbc.mail.mud.yahoo.com ([68.142.198.209]:64418 "HELO
+	smtp110.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S964944AbWJBUFT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Oct 2006 16:05:19 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=pacbell.net;
+  h=Received:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
+  b=txzf5C+ayDFS0fZLKCNCAaUyQDQNNgeDFA4QV34egvXJ+ouqI0crWD4nKD2vkTcO3a900Nc0lcsL3tQQENi2x5Ru8o73rIFhSJqclqsxinK9Uwc8azFUE2RqA2T/X+gx68z6Orj3KaoQWhbIz5MYMnx0oPxBJSCmcPsufD53MVM=  ;
+From: David Brownell <david-b@pacbell.net>
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+Subject: Re: [patch 2.6.18-git] ide-cs (CompactFlash) driver, rm irq warning
+Date: Mon, 2 Oct 2006 11:58:59 -0700
+User-Agent: KMail/1.7.1
+Cc: B.Zolnierkiewicz@elka.pw.edu.pl,
+       Linux Kernel list <linux-kernel@vger.kernel.org>
+References: <200610020902.20030.david-b@pacbell.net> <1159811149.8907.32.camel@localhost.localdomain>
+In-Reply-To: <1159811149.8907.32.camel@localhost.localdomain>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <1159816923.12691.29.camel@localhost.localdomain>
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: jt@hpl.hp.com
-User-Agent: Mutt/1.5.9i
-From: Jean Tourrilhes <jt@hpl.hp.com>
-X-HPL-MailScanner: Found to be clean
-X-HPL-MailScanner-From: jt@hpl.hp.com
+Message-Id: <200610021158.59886.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 02, 2006 at 03:22:03PM -0400, Dan Williams wrote:
+On Monday 02 October 2006 10:45 am, Alan Cox wrote:
+> Ar Llu, 2006-10-02 am 09:02 -0700, ysgrifennodd David Brownell:
+> > Git rid of the runtime warning about pcmcia not supporting
+> > exclusive IRQs, so "the driver needs updating".
+> > 
+> > Signed-off-by: David Brownell <dbrownell@users.sourceforge.net>
 > 
-> Right; we need to get this settled and we need to figure out a way with
-> Wireless Extensions to allow exact SSIDs to be sent and retrieved from
-> the card/driver.  How much cruft do we add to drivers and/or WE bits to
-> bend over backwards and preserve compatibility with a lot of older bits?
-> I can think of a few ways here to preserve backwards compat, but most
-> involve adding bits to 3 places in each driver and a new flag to WE,
-> which puts us right back in the same situation we're in right now;
-> inconsistent drivers and poor semantics both inside and outside the
-> kernel.
+> You've audited the code to check this is safely handled ?
 
-	There is no way old tools are going to set/process those extra
-flags, so it does not work. And this won't fix out-of-tree drivers...
+As best I can, yes.  IDE being somewhat black-boxish to most of us.
+The patch literally does no more than shut up the warning found in
+drivers/pcmcia/pcmcia_resource.c ... it doesn't change any other
+behavior in the PCMCIA layer.  And the IDE layer never appeared to
+have a problem.
 
-> Maybe the answer here _is_ to bend over backwards to preserve
-> compatibility, restore null-termination-and-increment-length bits in
-> drivers and WE, and kludge all the user-space tools.
+The IRQ handler seems to be drivers/ide/ide-io.c::ide_intr() and
+comments there reflect the expectation that it handle shared IRQs.
 
-	Let's not throw the baby with the bathwater.
-	This is *not* the first time I've done such incompatible
-change in WE (size in set, pointer in scan, remove pointer in
-events). The other time, it went completely under the radar, you guys
-did not noticed anything (apart Jouni).
-	The difference is that this time I attempted to do it a bit
-quicker than usual. Maybe I was too fast this time. But I've noticed
-that some distro have become slower to pick up changes than in the
-past, which is frustrating me.
-	To me, the solution is just to let a bit more time for the
-userspace to propagate to the distro. And to educate users to pay
-attention to the incompatibility warnings displayed by the tools.
-
-> Dan
-
-	Have fun...
-
-	Jean
+- Dave

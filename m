@@ -1,21 +1,23 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965072AbWJBQU4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965069AbWJBQU6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965072AbWJBQU4 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Oct 2006 12:20:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965071AbWJBQU4
+	id S965069AbWJBQU6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Oct 2006 12:20:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965070AbWJBQU5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Oct 2006 12:20:56 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:15542 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S965068AbWJBQUz (ORCPT
+	Mon, 2 Oct 2006 12:20:57 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:16566 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S965069AbWJBQUz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
 	Mon, 2 Oct 2006 12:20:55 -0400
 From: David Howells <dhowells@redhat.com>
-Subject: [PATCH 1/3] IRQ: Typedef the IRQ flow handler function type
-Date: Mon, 02 Oct 2006 17:20:49 +0100
+Subject: [PATCH 2/3] IRQ: Typedef the IRQ handler function type
+Date: Mon, 02 Oct 2006 17:20:51 +0100
 To: torvalds@osdl.org, akpm@osdl.org
 Cc: dhowells@redhat.com, linux-kernel@vger.kernel.org,
        linux-arch@vger.kernel.org
-Message-Id: <20061002162049.17763.39576.stgit@warthog.cambridge.redhat.com>
+Message-Id: <20061002162051.17763.72448.stgit@warthog.cambridge.redhat.com>
+In-Reply-To: <20061002162049.17763.39576.stgit@warthog.cambridge.redhat.com>
+References: <20061002162049.17763.39576.stgit@warthog.cambridge.redhat.com>
 Content-Type: text/plain; charset=utf-8; format=fixed
 Content-Transfer-Encoding: 8bit
 User-Agent: StGIT/0.10
@@ -24,124 +26,57 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 From: David Howells <dhowells@redhat.com>
 
-Typedef the IRQ flow handler function type.
+Typedef the IRQ handler function type.
 
 Signed-Off-By: David Howells <dhowells@redhat.com>
 ---
 
- include/linux/irq.h |   30 ++++++++++++------------------
- kernel/irq/chip.c   |   12 +++---------
- 2 files changed, 15 insertions(+), 27 deletions(-)
+ include/linux/interrupt.h |    7 ++++---
+ kernel/irq/manage.c       |    4 +---
+ 2 files changed, 5 insertions(+), 6 deletions(-)
 
-diff --git a/include/linux/irq.h b/include/linux/irq.h
-index 48d3cb3..8e1e1d8 100644
---- a/include/linux/irq.h
-+++ b/include/linux/irq.h
-@@ -22,6 +22,12 @@ #include <linux/irqreturn.h>
- #include <asm/irq.h>
- #include <asm/ptrace.h>
+diff --git a/include/linux/interrupt.h b/include/linux/interrupt.h
+index 1f97e3d..1978235 100644
+--- a/include/linux/interrupt.h
++++ b/include/linux/interrupt.h
+@@ -64,8 +64,10 @@ #define SA_TRIGGER_FALLING	IRQF_TRIGGER_
+ #define SA_TRIGGER_RISING	IRQF_TRIGGER_RISING
+ #define SA_TRIGGER_MASK		IRQF_TRIGGER_MASK
  
-+struct irq_desc;
-+typedef	void fastcall (*irq_flow_handler_t)(unsigned int irq,
-+					    struct irq_desc *desc,
-+					    struct pt_regs *regs);
++typedef irqreturn_t (*irq_handler_t)(int, void *, struct pt_regs *);
 +
-+
- /*
-  * IRQ line status.
-  *
-@@ -139,9 +145,7 @@ #endif
-  * Pad this out to 32 bytes for cache and indexing reasons.
-  */
- struct irq_desc {
--	void fastcall		(*handle_irq)(unsigned int irq,
--					      struct irq_desc *desc,
--					      struct pt_regs *regs);
-+	irq_flow_handler_t	handle_irq;
- 	struct irq_chip		*chip;
- 	void			*handler_data;
- 	void			*chip_data;
-@@ -312,9 +316,7 @@ handle_bad_irq(unsigned int irq, struct 
-  * Get a descriptive string for the highlevel handler, for
-  * /proc/interrupts output:
-  */
--extern const char *
--handle_irq_name(void fastcall (*handle)(unsigned int, struct irq_desc *,
--					struct pt_regs *));
-+extern const char *handle_irq_name(irq_flow_handler_t handle);
- 
- /*
-  * Monolithic do_IRQ implementation.
-@@ -366,22 +368,15 @@ extern struct irq_chip dummy_irq_chip;
- 
- extern void
- set_irq_chip_and_handler(unsigned int irq, struct irq_chip *chip,
--			 void fastcall (*handle)(unsigned int,
--						 struct irq_desc *,
--						 struct pt_regs *));
-+			 irq_flow_handler_t handle);
- extern void
--__set_irq_handler(unsigned int irq,
--		  void fastcall (*handle)(unsigned int, struct irq_desc *,
--					  struct pt_regs *),
--		  int is_chained);
-+__set_irq_handler(unsigned int irq, irq_flow_handler_t handle, int is_chained);
- 
- /*
-  * Set a highlevel flow handler for a given IRQ:
-  */
- static inline void
--set_irq_handler(unsigned int irq,
--		void fastcall (*handle)(unsigned int, struct irq_desc *,
--					struct pt_regs *))
-+set_irq_handler(unsigned int irq, irq_flow_handler_t handle)
- {
- 	__set_irq_handler(irq, handle, 0);
- }
-@@ -393,8 +388,7 @@ set_irq_handler(unsigned int irq,
-  */
- static inline void
- set_irq_chained_handler(unsigned int irq,
--			void fastcall (*handle)(unsigned int, struct irq_desc *,
--						struct pt_regs *))
-+			irq_flow_handler_t handle)
- {
- 	__set_irq_handler(irq, handle, 1);
- }
-diff --git a/kernel/irq/chip.c b/kernel/irq/chip.c
-index 736cb0b..ca8a28d 100644
---- a/kernel/irq/chip.c
-+++ b/kernel/irq/chip.c
-@@ -442,10 +442,7 @@ handle_percpu_irq(unsigned int irq, stru
- #endif /* CONFIG_SMP */
- 
- void
--__set_irq_handler(unsigned int irq,
--		  void fastcall (*handle)(unsigned int, irq_desc_t *,
--					  struct pt_regs *),
--		  int is_chained)
-+__set_irq_handler(unsigned int irq, irq_flow_handler_t handle, int is_chained)
- {
- 	struct irq_desc *desc;
+ struct irqaction {
+-	irqreturn_t (*handler)(int, void *, struct pt_regs *);
++	irq_handler_t handler;
  	unsigned long flags;
-@@ -498,9 +495,7 @@ __set_irq_handler(unsigned int irq,
+ 	cpumask_t mask;
+ 	const char *name;
+@@ -76,8 +78,7 @@ struct irqaction {
+ };
  
- void
- set_irq_chip_and_handler(unsigned int irq, struct irq_chip *chip,
--			 void fastcall (*handle)(unsigned int,
--						 struct irq_desc *,
--						 struct pt_regs *))
-+			 irq_flow_handler_t handle)
- {
- 	set_irq_chip(irq, chip);
- 	__set_irq_handler(irq, handle, 0);
-@@ -511,8 +506,7 @@ set_irq_chip_and_handler(unsigned int ir
-  * /proc/interrupts output:
+ extern irqreturn_t no_action(int cpl, void *dev_id, struct pt_regs *regs);
+-extern int request_irq(unsigned int,
+-		       irqreturn_t (*handler)(int, void *, struct pt_regs *),
++extern int request_irq(unsigned int, irq_handler_t handler,
+ 		       unsigned long, const char *, void *);
+ extern void free_irq(unsigned int, void *);
+ 
+diff --git a/kernel/irq/manage.c b/kernel/irq/manage.c
+index 92be519..6879202 100644
+--- a/kernel/irq/manage.c
++++ b/kernel/irq/manage.c
+@@ -427,8 +427,7 @@ EXPORT_SYMBOL(free_irq);
+  *	IRQF_SAMPLE_RANDOM	The interrupt can be used for entropy
+  *
   */
- const char *
--handle_irq_name(void fastcall (*handle)(unsigned int, struct irq_desc *,
--					struct pt_regs *))
-+handle_irq_name(irq_flow_handler_t handle)
+-int request_irq(unsigned int irq,
+-		irqreturn_t (*handler)(int, void *, struct pt_regs *),
++int request_irq(unsigned int irq, irq_handler_t handler,
+ 		unsigned long irqflags, const char *devname, void *dev_id)
  {
- 	if (handle == handle_level_irq)
- 		return "level  ";
+ 	struct irqaction *action;
+@@ -475,4 +474,3 @@ #endif
+ 	return retval;
+ }
+ EXPORT_SYMBOL(request_irq);
+-

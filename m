@@ -1,43 +1,66 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750703AbWJBKDM@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750699AbWJBKDE@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750703AbWJBKDM (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Oct 2006 06:03:12 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750720AbWJBKDL
+	id S1750699AbWJBKDE (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Oct 2006 06:03:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750721AbWJBKDE
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Oct 2006 06:03:11 -0400
-Received: from cantor.suse.de ([195.135.220.2]:49857 "EHLO mx1.suse.de")
-	by vger.kernel.org with ESMTP id S1750703AbWJBKDK (ORCPT
+	Mon, 2 Oct 2006 06:03:04 -0400
+Received: from z2.cat.iki.fi ([212.16.98.133]:37820 "EHLO z2.cat.iki.fi")
+	by vger.kernel.org with ESMTP id S1750699AbWJBKDD (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Oct 2006 06:03:10 -0400
-From: Andi Kleen <ak@suse.de>
-To: discuss@x86-64.org
-Subject: Re: [discuss] Please report all left over "DWARF2 unwinder stucks"
-Date: Mon, 2 Oct 2006 12:03:05 +0200
-User-Agent: KMail/1.9.3
-Cc: Dave Jones <davej@redhat.com>, linux-kernel@vger.kernel.org
-References: <200610012201.20544.ak@suse.de> <20061001211435.GC26348@redhat.com>
-In-Reply-To: <20061001211435.GC26348@redhat.com>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Mon, 2 Oct 2006 06:03:03 -0400
+Date: Mon, 2 Oct 2006 13:03:02 +0300
+From: Matti Aarnio <matti.aarnio@zmailer.org>
+To: Lee Revell <rlrevell@joe-job.com>
+Cc: linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Spam, bogofilter, etc
+Message-ID: <20061002100302.GS16047@mea-ext.zmailer.org>
+References: <1159539793.7086.91.camel@mindpipe>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200610021203.05590.ak@suse.de>
+In-Reply-To: <1159539793.7086.91.camel@mindpipe>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sunday 01 October 2006 23:14, Dave Jones wrote:
-> On Sun, Oct 01, 2006 at 10:01:20PM +0200, Andi Kleen wrote:
->  > 
->  > All the fixes for known "DWARF2 unwinder stuck at ..." are
->  > in Linus -git mainline now.
->  > 
->  > If you still see any with current -git please report them.
-> 
-> I'm doing a 2.6.18 update for Fedora users soon, so I'll try
-> and scoop up all these and backport them.  If any pop out of
-> the woodwork after that, I'll let you know.
+On Fri, Sep 29, 2006 at 10:23:12AM -0400, Lee Revell wrote:
+> What ever happened with bogofilter on vger?  The spam problem is
+> considerably worse in the past few weeks.
 
-That's a lot of patches. But ok your call.
+It is globbing (and blocking) lots of spam.
+And now it is rarely blocking ham - under 10 cases per week.
 
--Andi
+Yes, the thing is NOT 100% perfect.
+Especially very short spams are prone to leak thru it,
+and those hams that do get block do tend to be longish, and
+never before seen.  (It all comes from Bayes Statistics.)
+
+However what is now apparent is that we are no longer
+adding very much new patterns into Majordomo filter.
+Indeed we are taking off old patterns that bite at wrong things.
+
+I do think that Markov Chains combined with Bayes Statistics 
+might do a wee bit better.  (Except with very short emails.)
+However all that these things are able to do is essentially
+grow the key database when spammers are producing new mutated
+(mis-spelled) texts by mixing in spaces, punctuations, and even
+occasional characters.
+
+For recognizing those pill merchants one needs complex software
+to read the site at the URL, and to read texts out of the IMAGES
+at the site.  Captcha to get thru spam filters...
+
+The idea of closed lists is ever more appealing.
+We do need to do something for the bug-report addresses like
+linux-smp@vger.kernel.org -- so that addresses specified for
+receiving the bug reports will still receive them.
+
+I can do fairly easily "this address is allowed to post" type
+filters at Majordomo - it has a way to specify allowed posters.
+Usually it is used to permit list members to post, but it can
+also be configured to use other datasets.
+
+
+> Lee
+
+  /Matti Aarnio

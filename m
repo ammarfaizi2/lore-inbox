@@ -1,33 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965077AbWJBQ1m@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965075AbWJBQ2E@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965077AbWJBQ1m (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Oct 2006 12:27:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965033AbWJBQ1m
+	id S965075AbWJBQ2E (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Oct 2006 12:28:04 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965083AbWJBQ2D
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Oct 2006 12:27:42 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:63675 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S965077AbWJBQ1l (ORCPT
+	Mon, 2 Oct 2006 12:28:03 -0400
+Received: from e1.ny.us.ibm.com ([32.97.182.141]:26011 "EHLO e1.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S965078AbWJBQ1w (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Oct 2006 12:27:41 -0400
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <20061002085744.55bf8c28.rdunlap@xenotime.net> 
-References: <20061002085744.55bf8c28.rdunlap@xenotime.net>  <20061002153708.22649.96337.stgit@warthog.cambridge.redhat.com> 
-To: Randy Dunlap <rdunlap@xenotime.net>
-Cc: David Howells <dhowells@redhat.com>, akpm@osdl.org,
+	Mon, 2 Oct 2006 12:27:52 -0400
+Date: Mon, 2 Oct 2006 11:27:49 -0500
+To: Arnd Bergmann <arnd@arndb.de>
+Cc: linuxppc-dev@ozlabs.org, jeff@garzik.org, akpm@osdl.org,
+       netdev@vger.kernel.org, James K Lewis <jklewis@us.ibm.com>,
        linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] FRV: Permit large kmalloc allocations 
-X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
-Date: Mon, 02 Oct 2006 17:27:36 +0100
-Message-ID: <17963.1159806456@warthog.cambridge.redhat.com>
+Subject: Re: [PATCH 0/6]: powerpc/cell spidernet ethernet patches
+Message-ID: <20061002162749.GB4546@austin.ibm.com>
+References: <20060929230552.GG6433@austin.ibm.com> <200609301240.03464.arnd@arndb.de>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <200609301240.03464.arnd@arndb.de>
+User-Agent: Mutt/1.5.11
+From: linas@austin.ibm.com (Linas Vepstas)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Randy Dunlap <rdunlap@xenotime.net> wrote:
-
-> > +	  sizes - upto 32MB. You may need this if your system has a lot of RAM,
+On Sat, Sep 30, 2006 at 12:40:00PM +0200, Arnd Bergmann wrote:
+> Am Saturday 30 September 2006 01:05 schrieb Linas Vepstas:
+> >
+> > Although these patches improve things, I am not
+> > satisfied with how this driver behaves, and so
+> > plan to do additional work next week.
+> >
 > 
-> 		up to (2 words)
+> I'm not sure if I have missed a patch in here, but I
+> don't see anything reintroducing the 'netif_stop_queue'
+> that is missing from the transmit path.
+> 
+> Do you have a extra patch for that?
 
-Altered, thanks.
+Unfinished.  There are several ways in which the current 
+spider-net driver doesn't do things the way Greg KH's, etal 
+book on device drivers recommends. I was planning on combing 
+through these this week.
 
-David
+--linas

@@ -1,65 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932180AbWJBMVh@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932209AbWJBMqc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932180AbWJBMVh (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Oct 2006 08:21:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932184AbWJBMVh
+	id S932209AbWJBMqc (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Oct 2006 08:46:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932211AbWJBMqc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Oct 2006 08:21:37 -0400
-Received: from wx-out-0506.google.com ([66.249.82.228]:21076 "EHLO
-	wx-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S932180AbWJBMVg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Oct 2006 08:21:36 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=cqKCJejS94yKxbBp/TVeF3u9EIhxW9EoEemDaZ1wjVMUHDLtwkwJNWIxurfaVi6gN3QzC6JMeCqnkogdM3TW7kJyLUkjEKsBZhSuj58Z5Tswey4jbu2oH0u9cHomUnkwY0Q+W8GT1+ggGDGa3CKDbHh+7x/BiLkU1tA1Go3amas=
-Message-ID: <5a4c581d0610020521q721e3157q88ad17d3cc84a066@mail.gmail.com>
-Date: Mon, 2 Oct 2006 12:21:35 +0000
-From: "Alessandro Suardi" <alessandro.suardi@gmail.com>
-To: "Norbert Preining" <preining@logic.at>
-Subject: Re: wpa supplicant/ipw3945, ESSID last char missing
+	Mon, 2 Oct 2006 08:46:32 -0400
+Received: from alpha.logic.tuwien.ac.at ([128.130.175.20]:52104 "EHLO
+	alpha.logic.tuwien.ac.at") by vger.kernel.org with ESMTP
+	id S932209AbWJBMqc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Oct 2006 08:46:32 -0400
+Date: Mon, 2 Oct 2006 14:46:13 +0200
+To: Alessandro Suardi <alessandro.suardi@gmail.com>
 Cc: hostap@shmoo.com, ipw3945-devel@lists.sourceforge.net,
-       "Andrew Morton" <akpm@osdl.org>, linux-kernel@vger.kernel.org
-In-Reply-To: <20061002113259.GA8295@gamma.logic.tuwien.ac.at>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: Re: wpa supplicant/ipw3945, ESSID last char missing
+Message-ID: <20061002124613.GB13984@gamma.logic.tuwien.ac.at>
+References: <20061002085942.GA32387@gamma.logic.tuwien.ac.at> <5a4c581d0610020221s7bf100f8q893161b7c8c492d2@mail.gmail.com> <20061002113259.GA8295@gamma.logic.tuwien.ac.at> <5a4c581d0610020521q721e3157q88ad17d3cc84a066@mail.gmail.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=iso-8859-15
 Content-Disposition: inline
-References: <20061002085942.GA32387@gamma.logic.tuwien.ac.at>
-	 <5a4c581d0610020221s7bf100f8q893161b7c8c492d2@mail.gmail.com>
-	 <20061002113259.GA8295@gamma.logic.tuwien.ac.at>
+Content-Transfer-Encoding: 8bit
+In-Reply-To: <5a4c581d0610020521q721e3157q88ad17d3cc84a066@mail.gmail.com>
+User-Agent: Mutt/1.3.28i
+From: Norbert Preining <preining@logic.at>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/2/06, Norbert Preining <preining@logic.at> wrote:
-> On Mon, 02 Okt 2006, Alessandro Suardi wrote:
-> >  we've been just through an email thread where it has been
-> >  determined that wpa_supplicant 0.4.9 (I would assume that
-> >  0.5.5 is also okay) and wireless-tools from Jean's latest
-> >  tarball are necessary to work with the recent wireless
-> >  extensions v21 that have been merged in.
-> >
-> > What wireless-tools are you using ?
->
-> wireless-tools from Debian/unstable, version 28-1, so I assume wireless
-> v28. And the README tells the same. What would be the newest version?
+Hi all!
 
-http://www.hpl.hp.com/personal/Jean_Tourrilhes/Linux/wireless_tools.29.pre10.tar.gz
+On Mon, 02 Okt 2006, Alessandro Suardi wrote:
+> The main features of the latest beta is WE-21 support (long/short
+> retry, power saving level, modulation), enhanced command line parser
+> in iwconfig, scanning options, more WPA support and more footprint
+> reduction tricks
 
- which, from Jean's page, has the following:
+Bingo. I build the new 29-pre10 and everything is working.
 
-The main features of the latest beta is WE-21 support (long/short
-retry, power saving level, modulation), enhanced command line parser
-in iwconfig, scanning options, more WPA support and more footprint
-reduction tricks
+Thanks for the tip!
 
+Now for the Debian bug report.
 
-Cheers,
+Best wishes
 
---alessandro
+Norbert
 
-"Well a man has two reasons for things that he does
-  the first one is pride and the second one is love
-  all understandings must come by this way"
-
-     (Husker Du, 'She Floated Away')
+-------------------------------------------------------------------------------
+Dr. Norbert Preining <preining@logic.at>                    Università di Siena
+Debian Developer <preining@debian.org>                         Debian TeX Group
+gpg DSA: 0x09C5B094      fp: 14DF 2E6C 0307 BE6D AD76  A9C0 D2BF 4AA3 09C5 B094
+-------------------------------------------------------------------------------
+LOCHRANZA (n.)
+The long unaccomplished wail in the middle of a Scottish folk song
+where the pipes nip around the corner for a couple of drinks.
+			--- Douglas Adams, The Meaning of Liff

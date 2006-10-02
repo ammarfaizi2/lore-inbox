@@ -1,52 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965209AbWJBSH6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965214AbWJBSIe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965209AbWJBSH6 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Oct 2006 14:07:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965211AbWJBSH6
+	id S965214AbWJBSIe (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Oct 2006 14:08:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965213AbWJBSIe
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Oct 2006 14:07:58 -0400
-Received: from dvhart.com ([64.146.134.43]:30851 "EHLO dvhart.com")
-	by vger.kernel.org with ESMTP id S965209AbWJBSH5 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Oct 2006 14:07:57 -0400
-Message-ID: <4521557C.3060500@mbligh.org>
-Date: Mon, 02 Oct 2006 11:07:56 -0700
-From: Martin Bligh <mbligh@mbligh.org>
-User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051011)
-X-Accept-Language: en-us, en
+	Mon, 2 Oct 2006 14:08:34 -0400
+Received: from ug-out-1314.google.com ([66.249.92.171]:43619 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S965214AbWJBSIc (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Oct 2006 14:08:32 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent:sender;
+        b=ba2ssgdlJSkGi2ow0DuPKmVkYODTmkKGerDgUtsXPzA0ZWYTVhDfxPj2SlChMdZ4cjstuVFxvXS4fr7OARxXFJRgT7rUjHvS7KUdfDm6YR9q75iS6SlT585ERYrwxxM72KloTWv0zV1LtqQzjm4f9mTnQmxtyreDIJxhQx+pnYM=
+Date: Mon, 2 Oct 2006 20:07:03 +0000
+From: Frederik Deweerdt <deweerdt@free.fr>
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Matthew Wilcox <matthew@wil.cx>, linux-scsi@vger.kernel.org,
+       "Linux-Kernel," <linux-kernel@vger.kernel.org>,
+       "J.A. Magall??n" <jamagallon@ono.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Morton <akpm@osdl.org>,
+       Jeff Garzik <jeff@garzik.org>
+Subject: [RFC PATCH] move aic7xxx to pci_request_irq
+Message-ID: <20061002200703.GD3003@slug>
+References: <1159550143.13029.36.camel@localhost.localdomain> <20060929235054.GB2020@slug> <1159573404.13029.96.camel@localhost.localdomain> <20060930140946.GA1195@slug> <451F049A.1010404@garzik.org> <20061001142807.GD16272@parisc-linux.org> <1159729523.2891.408.camel@laptopd505.fenrus.org> <20061001193616.GF16272@parisc-linux.org> <1159755141.2891.434.camel@laptopd505.fenrus.org> <20061002200048.GC3003@slug>
 MIME-Version: 1.0
-To: Linus Torvalds <torvalds@osdl.org>
-Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Lee Revell <rlrevell@joe-job.com>,
-       Matti Aarnio <matti.aarnio@zmailer.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Spam, bogofilter, etc
-References: <1159539793.7086.91.camel@mindpipe>  <20061002100302.GS16047@mea-ext.zmailer.org>  <1159802486.4067.140.camel@mindpipe> <45212F39.5000307@mbligh.org>  <Pine.LNX.4.64.0610020933020.3952@g5.osdl.org> <1159811392.8907.36.camel@localhost.localdomain> <Pine.LNX.4.64.0610021050350.3952@g5.osdl.org>
-In-Reply-To: <Pine.LNX.4.64.0610021050350.3952@g5.osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061002200048.GC3003@slug>
+User-Agent: mutt-ng/devel-r804 (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi,
 
->>MX checking is as broken or more broken than bayes.
-> 
-> I have to say, OSDL has been doing MX checking, and it's effective as 
-> hell. Most importantly, when it _does_ break, it's not because some 
-> "content" is considered inappropriate, it's because some ISP does 
-> something technically wrong.
-> 
-> OSDL also refused to talk to open mail relays etc. I got into something of 
-> a (fairly civilized) shouting match with John Gilmore over it, who used to 
-> send out email from a "fake open mail relay" on princuple (maybe he still 
-> does). He claimed I was censoring his free speech rights when I didn't 
-> read his emails, but I just told him that I was expressing my right to not 
-> listen to people who are so stupid that they can't configure their email 
-> servers.
+This proof-of-concept patch converts the aic7xxx drivers to use the
+pci_request_irq() function.
 
-That was actually pretty broken. Sending Andrew email stopped working
-for ages. IIRC because I was sending email from my home address through
-the IBM work server. It's not a trouble-free solution, and otherwise
-fairly reasonable things stop working. I forget what the OSDL admins
-did in the end ... I think put in a specific exception for an IP range.
+Regards,
+Frederik
 
-M.
+
+diff --git a/drivers/scsi/aic7xxx/aic79xx_osm_pci.c b/drivers/scsi/aic7xxx/aic79xx_osm_pci.c
+index 2001fe8..c934f30 100644
+--- a/drivers/scsi/aic7xxx/aic79xx_osm_pci.c
++++ b/drivers/scsi/aic7xxx/aic79xx_osm_pci.c
+@@ -341,12 +341,12 @@ ahd_pci_map_int(struct ahd_softc *ahd)
+ {
+ 	int error;
+ 
+-	error = request_irq(ahd->dev_softc->irq, ahd_linux_isr,
+-			    IRQF_SHARED, "aic79xx", ahd);
++	error = pci_request_irq(ahd->dev_softc, ahd_linux_isr,
++			    IRQF_SHARED, "aic79xx");
+ 	if (!error)
+ 		ahd->platform_data->irq = ahd->dev_softc->irq;
+ 	
+-	return (-error);
++	return error;
+ }
+ 
+ void
+diff --git a/drivers/scsi/aic7xxx/aic7xxx_osm_pci.c b/drivers/scsi/aic7xxx/aic7xxx_osm_pci.c
+index ea5687d..d5c402e 100644
+--- a/drivers/scsi/aic7xxx/aic7xxx_osm_pci.c
++++ b/drivers/scsi/aic7xxx/aic7xxx_osm_pci.c
+@@ -368,16 +368,14 @@ ahc_pci_map_registers(struct ahc_softc *
+ 	return (error);
+ }
+ 
+-int
+-ahc_pci_map_int(struct ahc_softc *ahc)
++int ahc_pci_map_int(struct ahc_softc *ahc)
+ {
+ 	int error;
+ 
+-	error = request_irq(ahc->dev_softc->irq, ahc_linux_isr,
+-			    IRQF_SHARED, "aic7xxx", ahc);
++	error = pci_request_irq(ahc->dev_softc, ahc_linux_isr, IRQF_SHARED,
++			    	"aic7xxx");
+ 	if (error == 0)
+ 		ahc->platform_data->irq = ahc->dev_softc->irq;
+-	
+-	return (-error);
+-}
+ 
++	return error;
++}

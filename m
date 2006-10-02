@@ -1,71 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964934AbWJBUAP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964932AbWJBUAW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964934AbWJBUAP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Oct 2006 16:00:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964933AbWJBUAP
+	id S964932AbWJBUAW (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Oct 2006 16:00:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964940AbWJBUAW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Oct 2006 16:00:15 -0400
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:39862 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S964929AbWJBUAN (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Oct 2006 16:00:13 -0400
-Message-Id: <200610021957.k92Jvk6c004169@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
-To: jt@hpl.hp.com
-Cc: Andrew Morton <akpm@osdl.org>, Pavel Roskin <proski@gnu.org>,
-       "John W. Linville" <linville@tuxdriver.com>,
-       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
-Subject: Re: 2.6.18-mm2 - oops in cache_alloc_refill()
-In-Reply-To: Your message of "Mon, 02 Oct 2006 10:52:45 PDT."
-             <20061002175245.GA14744@bougret.hpl.hp.com>
-From: Valdis.Kletnieks@vt.edu
-References: <20060928014623.ccc9b885.akpm@osdl.org> <200609290319.k8T3JOwS005455@turing-police.cc.vt.edu> <20060928202931.dc324339.akpm@osdl.org> <200609291519.k8TFJfvw004256@turing-police.cc.vt.edu> <20060929124558.33ef6c75.akpm@osdl.org> <200609300001.k8U01sPI004389@turing-police.cc.vt.edu> <20060929182008.fee2a229.akpm@osdl.org>
-            <20061002175245.GA14744@bougret.hpl.hp.com>
+	Mon, 2 Oct 2006 16:00:22 -0400
+Received: from madara.hpl.hp.com ([192.6.19.124]:8947 "EHLO madara.hpl.hp.com")
+	by vger.kernel.org with ESMTP id S964933AbWJBUAS (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Oct 2006 16:00:18 -0400
+Date: Mon, 2 Oct 2006 12:59:21 -0700
+To: Dan Williams <dcbw@redhat.com>
+Cc: Andrew Morton <akpm@osdl.org>, "John W. Linville" <linville@tuxdriver.com>,
+       Norbert Preining <preining@logic.at>,
+       Alessandro Suardi <alessandro.suardi@gmail.com>, hostap@shmoo.com,
+       linux-kernel@vger.kernel.org, ipw3945-devel@lists.sourceforge.net
+Subject: Re: wpa supplicant/ipw3945, ESSID last char missing
+Message-ID: <20061002195921.GC14966@bougret.hpl.hp.com>
+Reply-To: jt@hpl.hp.com
+References: <20061002085942.GA32387@gamma.logic.tuwien.ac.at> <5a4c581d0610020221s7bf100f8q893161b7c8c492d2@mail.gmail.com> <20061002113259.GA8295@gamma.logic.tuwien.ac.at> <5a4c581d0610020521q721e3157q88ad17d3cc84a066@mail.gmail.com> <20061002124613.GB13984@gamma.logic.tuwien.ac.at> <20061002165053.GA2986@gamma.logic.tuwien.ac.at> <1159808304.2834.89.camel@localhost.localdomain> <20061002111537.baa077d2.akpm@osdl.org> <20061002185550.GA14854@bougret.hpl.hp.com> <1159816923.12691.29.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1159819066_3357P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Mon, 02 Oct 2006 15:57:46 -0400
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <1159816923.12691.29.camel@localhost.localdomain>
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: jt@hpl.hp.com
+User-Agent: Mutt/1.5.9i
+From: Jean Tourrilhes <jt@hpl.hp.com>
+X-HPL-MailScanner: Found to be clean
+X-HPL-MailScanner-From: jt@hpl.hp.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1159819066_3357P
-Content-Type: text/plain; charset=us-ascii
-
-On Mon, 02 Oct 2006 10:52:45 PDT, Jean Tourrilhes said:
-> On Fri, Sep 29, 2006 at 06:20:08PM -0700, Andrew Morton wrote:
-> > On Fri, 29 Sep 2006 20:01:54 -0400
-> > > 
-> > > % grep ioctl /tmp/foo2 | sort -u | more
-> > > ioctl(13, SIOCGIWESSID, 0xbfbcdb9c)     = 0
-> > > ioctl(13, SIOCGIWRANGE, 0xbfbcdbdc)     = 0
-> > > ioctl(13, SIOCGIWRATE, 0xbfbcdbbc)      = 0
-> > 
-> > Yes.  The main thing which those WE-21 patches do is to shorten the size of
-> > various buffers which are used in wireless ioctls.
+On Mon, Oct 02, 2006 at 03:22:03PM -0400, Dan Williams wrote:
 > 
-> 	Ok, I've found it. Actually, I feel ashamed, as it is a fairly
-> classical buffer overflow, we put one extra char in a buffer. Now, I
-> don't understand why it did not blow up on my box ;-)
-> 	New patch. I think it is right, but I would not mind Pavel to
-> have a look at it. On my box it does not make thing worse.
-> 	Valdis : would you mind trying if this patch fix the problem
-> you are seeing with WE-21 ? If it fixes it, I'll send it to John...
+> Right; we need to get this settled and we need to figure out a way with
+> Wireless Extensions to allow exact SSIDs to be sent and retrieved from
+> the card/driver.  How much cruft do we add to drivers and/or WE bits to
+> bend over backwards and preserve compatibility with a lot of older bits?
+> I can think of a few ways here to preserve backwards compat, but most
+> involve adding bits to 3 places in each driver and a new flag to WE,
+> which puts us right back in the same situation we're in right now;
+> inconsistent drivers and poor semantics both inside and outside the
+> kernel.
 
-Been up and running with we-21 configured in, and gkrellm doing the monitoring
-that gave it indigestion.  It was dying in 1-2 minutes, now been up for 30 mins
-with no issues....
+	There is no way old tools are going to set/process those extra
+flags, so it does not work. And this won't fix out-of-tree drivers...
 
---==_Exmh_1159819066_3357P
-Content-Type: application/pgp-signature
+> Maybe the answer here _is_ to bend over backwards to preserve
+> compatibility, restore null-termination-and-increment-length bits in
+> drivers and WE, and kludge all the user-space tools.
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
+	Let's not throw the baby with the bathwater.
+	This is *not* the first time I've done such incompatible
+change in WE (size in set, pointer in scan, remove pointer in
+events). The other time, it went completely under the radar, you guys
+did not noticed anything (apart Jouni).
+	The difference is that this time I attempted to do it a bit
+quicker than usual. Maybe I was too fast this time. But I've noticed
+that some distro have become slower to pick up changes than in the
+past, which is frustrating me.
+	To me, the solution is just to let a bit more time for the
+userspace to propagate to the distro. And to educate users to pay
+attention to the incompatibility warnings displayed by the tools.
 
-iD8DBQFFIW86cC3lWbTT17ARAm5YAKDhD4Cpy1VshSwCJRKNc+v0q4IHwACeJbTF
-QD9vlJjo0NeVietrs44RLwE=
-=rsmA
------END PGP SIGNATURE-----
+> Dan
 
---==_Exmh_1159819066_3357P--
+	Have fun...
+
+	Jean

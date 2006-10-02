@@ -1,83 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965207AbWJBSFE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965209AbWJBSH6@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965207AbWJBSFE (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Oct 2006 14:05:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965208AbWJBSFE
+	id S965209AbWJBSH6 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Oct 2006 14:07:58 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965211AbWJBSH6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Oct 2006 14:05:04 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:12257 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S965207AbWJBSFC (ORCPT
+	Mon, 2 Oct 2006 14:07:58 -0400
+Received: from dvhart.com ([64.146.134.43]:30851 "EHLO dvhart.com")
+	by vger.kernel.org with ESMTP id S965209AbWJBSH5 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Oct 2006 14:05:02 -0400
-Date: Mon, 2 Oct 2006 11:04:49 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Jeff Garzik <jeff@garzik.org>, Auke Kok <auke-jan.h.kok@intel.com>
-Cc: Linus Torvalds <torvalds@osdl.org>, LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [git patches] net driver updates
-Message-Id: <20061002110449.bf0a47d4.akpm@osdl.org>
-In-Reply-To: <20061002154831.GA8929@havoc.gtf.org>
-References: <20061002154831.GA8929@havoc.gtf.org>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Mon, 2 Oct 2006 14:07:57 -0400
+Message-ID: <4521557C.3060500@mbligh.org>
+Date: Mon, 02 Oct 2006 11:07:56 -0700
+From: Martin Bligh <mbligh@mbligh.org>
+User-Agent: Mozilla Thunderbird 1.0.7 (X11/20051011)
+X-Accept-Language: en-us, en
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Alan Cox <alan@lxorguk.ukuu.org.uk>, Lee Revell <rlrevell@joe-job.com>,
+       Matti Aarnio <matti.aarnio@zmailer.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Spam, bogofilter, etc
+References: <1159539793.7086.91.camel@mindpipe>  <20061002100302.GS16047@mea-ext.zmailer.org>  <1159802486.4067.140.camel@mindpipe> <45212F39.5000307@mbligh.org>  <Pine.LNX.4.64.0610020933020.3952@g5.osdl.org> <1159811392.8907.36.camel@localhost.localdomain> <Pine.LNX.4.64.0610021050350.3952@g5.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0610021050350.3952@g5.osdl.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> Cc: linux-ide@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
-
-wrong mailing list ;)
-
-On Mon, 2 Oct 2006 11:48:31 -0400
-Jeff Garzik <jeff@garzik.org> wrote:
-
+>>MX checking is as broken or more broken than bayes.
 > 
-> Please pull from 'upstream-linus' branch of
-> master.kernel.org:/pub/scm/linux/kernel/git/jgarzik/netdev-2.6.git upstream-linus
+> I have to say, OSDL has been doing MX checking, and it's effective as 
+> hell. Most importantly, when it _does_ break, it's not because some 
+> "content" is considered inappropriate, it's because some ISP does 
+> something technically wrong.
 > 
-> to receive the following updates:
-> 
->  drivers/net/e100.c                |   82 +--
->  drivers/net/e1000/LICENSE         |  339 ------------
->  drivers/net/e1000/Makefile        |   35 +
->  drivers/net/e1000/e1000.h         |   59 +-
->  drivers/net/e1000/e1000_ethtool.c |  150 +++--
->  drivers/net/e1000/e1000_hw.c      | 1074 +++++++++++++++++--------------------
->  drivers/net/e1000/e1000_hw.h      |   86 ++-
->  drivers/net/e1000/e1000_main.c    |  271 ++++++---
->  drivers/net/e1000/e1000_osdep.h   |   35 +
->  drivers/net/e1000/e1000_param.c   |   47 +-
->  drivers/net/hp100.c               |    5 
->  drivers/net/ixgb/Makefile         |   38 +
->  drivers/net/ixgb/ixgb.h           |   38 +
->  drivers/net/ixgb/ixgb_ee.c        |   36 +
->  drivers/net/ixgb/ixgb_ee.h        |   36 +
->  drivers/net/ixgb/ixgb_ethtool.c   |   36 +
->  drivers/net/ixgb/ixgb_hw.c        |   36 +
->  drivers/net/ixgb/ixgb_hw.h        |   36 +
->  drivers/net/ixgb/ixgb_ids.h       |   36 +
->  drivers/net/ixgb/ixgb_main.c      |   46 +-
->  drivers/net/ixgb/ixgb_osdep.h     |   36 +
->  drivers/net/ixgb/ixgb_param.c     |   36 +
->  drivers/net/phy/fixed.c           |    6 
->  drivers/net/phy/phy_device.c      |    8 
->  drivers/net/sky2.c                |  548 ++++++++++++-------
->  drivers/net/sky2.h                |   62 --
->  drivers/net/spider_net.c          |    6 
->  drivers/net/wireless/airo.c       |   23 +
->  drivers/net/wireless/ipw2100.c    |   11 
->  29 files changed, 1502 insertions(+), 1755 deletions(-)
->  delete mode 100644 drivers/net/e1000/LICENSE
-> 
-> Auke Kok:
->       e100, e1000, ixgb: update copyright header and remove LICENSE
->       e100, e1000, ixgb: Fix an impossible memory overwrite bug
->       e1000: keep .suspend and .resume driver methods in CONFIG_PM
->       e100: rework WoL and shutdown handling
->       e1000: driver state fixes (race fix)
->       ixgb: convert to netdev_priv(netdev)
->       e100, e1000, ixgb: increment version numbers
+> OSDL also refused to talk to open mail relays etc. I got into something of 
+> a (fairly civilized) shouting match with John Gilmore over it, who used to 
+> send out email from a "fake open mail relay" on princuple (maybe he still 
+> does). He claimed I was censoring his free speech rights when I didn't 
+> read his emails, but I just told him that I was expressing my right to not 
+> listen to people who are so stupid that they can't configure their email 
+> servers.
 
-Does this include the e100 change which caused
-reboot-with-netconsole-enabled to hang?
+That was actually pretty broken. Sending Andrew email stopped working
+for ages. IIRC because I was sending email from my home address through
+the IBM work server. It's not a trouble-free solution, and otherwise
+fairly reasonable things stop working. I forget what the OSDL admins
+did in the end ... I think put in a specific exception for an IP range.
+
+M.

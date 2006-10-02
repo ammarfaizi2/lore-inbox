@@ -1,73 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965309AbWJBTDA@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965320AbWJBTEP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965309AbWJBTDA (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Oct 2006 15:03:00 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965310AbWJBTC7
+	id S965320AbWJBTEP (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Oct 2006 15:04:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965326AbWJBTEO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Oct 2006 15:02:59 -0400
-Received: from omx1-ext.sgi.com ([192.48.179.11]:19934 "EHLO
-	omx1.americas.sgi.com") by vger.kernel.org with ESMTP
-	id S965308AbWJBTC5 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Oct 2006 15:02:57 -0400
-From: John Keller <jpk@sgi.com>
-Message-Id: <200610021902.k92J2hEP124945@fcbayern.americas.sgi.com>
-Subject: Re: [PATCH 1/3] - Altix: Add initial ACPI IO support
-To: akpm@osdl.org (Andrew Morton)
-Date: Mon, 2 Oct 2006 14:02:42 -0500 (CDT)
-Cc: jpk@sgi.com (John Keller), linux-ia64@vger.kernel.org,
-       pcihpd-discuss@lists.sourceforge.net, linux-kernel@vger.kernel.org,
-       linux-acpi@vger.kernel.org, ayoung@sgi.com
-In-Reply-To: <20061001001511.ae77d6b1.akpm@osdl.org> from "Andrew Morton" at Oct 01, 2006 12:15:11 AM
-X-Mailer: ELM [version 2.5 PL2]
+	Mon, 2 Oct 2006 15:04:14 -0400
+Received: from ug-out-1314.google.com ([66.249.92.173]:48155 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S965319AbWJBTEN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Oct 2006 15:04:13 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent:sender;
+        b=aTDlOHV6TthdeDtParOcMwZUM1f802Yxh4OL1Z61D8+7pSex3t34Pr6ryBuXRhurlRknzj/9MNVmsACvfkWY72BY6ap5qpdbAO5lCooHCOfuWsM+p3vFpJugcmZNoWkgXqp8mR4/AGH+hBMyCCaYIsvGATbYVMOaPV9eXeZ6ZCQ=
+Date: Mon, 2 Oct 2006 21:02:46 +0000
+From: Frederik Deweerdt <deweerdt@free.fr>
+To: Matthew Wilcox <matthew@wil.cx>
+Cc: Arjan van de Ven <arjan@infradead.org>, linux-scsi@vger.kernel.org,
+       "Linux-Kernel," <linux-kernel@vger.kernel.org>,
+       "J.A. Magall??n" <jamagallon@ono.com>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Morton <akpm@osdl.org>,
+       Jeff Garzik <jeff@garzik.org>
+Subject: Re: [RFC PATCH] move aic7xxx to pci_request_irq
+Message-ID: <20061002210246.GG3003@slug>
+References: <1159573404.13029.96.camel@localhost.localdomain> <20060930140946.GA1195@slug> <451F049A.1010404@garzik.org> <20061001142807.GD16272@parisc-linux.org> <1159729523.2891.408.camel@laptopd505.fenrus.org> <20061001193616.GF16272@parisc-linux.org> <1159755141.2891.434.camel@laptopd505.fenrus.org> <20061002200048.GC3003@slug> <20061002200703.GD3003@slug> <20061002182744.GM16272@parisc-linux.org>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
-Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+In-Reply-To: <20061002182744.GM16272@parisc-linux.org>
+User-Agent: mutt-ng/devel-r804 (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon, Oct 02, 2006 at 12:27:44PM -0600, Matthew Wilcox wrote:
+> On Mon, Oct 02, 2006 at 08:07:03PM +0000, Frederik Deweerdt wrote:
+> > +++ b/drivers/scsi/aic7xxx/aic79xx_osm_pci.c
+> > @@ -341,12 +341,12 @@ ahd_pci_map_int(struct ahd_softc *ahd)
+> >  {
+> >  	int error;
+> >  
+> > -	error = request_irq(ahd->dev_softc->irq, ahd_linux_isr,
+> > -			    IRQF_SHARED, "aic79xx", ahd);
+> > +	error = pci_request_irq(ahd->dev_softc, ahd_linux_isr,
+> > +			    IRQF_SHARED, "aic79xx");
+> >  	if (!error)
+> >  		ahd->platform_data->irq = ahd->dev_softc->irq;
+> >  	
+> > -	return (-error);
+> > +	return error;
 > 
-> On Fri, 22 Sep 2006 09:51:23 -0500
-> John Keller <jpk@sgi.com> wrote:
+> Seems unsafe to me.
+It is, it slipped through the patches, I didn't mean to send it to the
+list :(. Please ignore that.
 > 
-> > First phase in introducing ACPI support to SN.
+> > -	
+> > -	return (-error);
+> > -}
+> >  
+> > +	return error;
+> > +}
 > 
-> This:
+> Ditto.
+> -
+> To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+> the body of a message to majordomo@vger.kernel.org
+> More majordomo info at  http://vger.kernel.org/majordomo-info.html
+> Please read the FAQ at  http://www.tux.org/lkml/
 > 
-> --- gregkh-2.6.orig/include/linux/pci.h
-> +++ gregkh-2.6/include/linux/pci.h
-> @@ -405,6 +405,7 @@ extern struct bus_type pci_bus_type;
->  extern struct list_head pci_root_buses;        /* list of all known PCI buses */
->  extern struct list_head pci_devices;   /* list of all devices */
->  
-> +void pcibios_fixup_device_resources(struct pci_dev *);
->  void pcibios_fixup_bus(struct pci_bus *);
->  int __must_check pcibios_enable_device(struct pci_dev *, int mask);
->  char *pcibios_setup (char *str);
-> 
-> breaks a bunch of architectures.
-> 
-> For example alpha has
-> 
-> void __init
-> pcibios_fixup_device_resources(struct pci_dev *dev, struct pci_bus *bus)
-> 
-> box:/usr/src/linux-2.6.18> grep -rl pcibios_fixup_device_resources .
-> ./arch/alpha/kernel/pci.c
-> ./arch/ia64/pci/pci.c
-> ./arch/mips/pci/pci.c
-> ./arch/powerpc/kernel/pci_64.c
-> ./arch/powerpc/platforms/pseries/pci_dlpar.c
-> ./include/asm-powerpc/pci.h
-> 
-> It needs work...
-> 
-
-Interesting. Looks like I made a bad assumption thinking
-the definitions would be the same for all archs.
-
-I'll fix and resend.
-
-John
-
-
-

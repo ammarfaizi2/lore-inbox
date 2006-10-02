@@ -1,81 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932619AbWJBFMy@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932618AbWJBF0m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932619AbWJBFMy (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Oct 2006 01:12:54 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932620AbWJBFMy
+	id S932618AbWJBF0m (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Oct 2006 01:26:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932622AbWJBF0m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Oct 2006 01:12:54 -0400
-Received: from pool-72-66-199-147.ronkva.east.verizon.net ([72.66.199.147]:7879
-	"EHLO turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S932619AbWJBFMx (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Oct 2006 01:12:53 -0400
-Message-Id: <200610020511.k925BeSC020416@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
-To: Thomas Gleixner <tglx@linutronix.de>
-Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
-       Ingo Molnar <mingo@elte.hu>, Jim Gettys <jg@laptop.org>,
-       John Stultz <johnstul@us.ibm.com>,
-       David Woodhouse <dwmw2@infradead.org>,
-       Arjan van de Ven <arjan@infradead.org>, Dave Jones <davej@redhat.com>
-Subject: Re: [patch 00/21] high resolution timers / dynamic ticks - V2
-In-Reply-To: Your message of "Sun, 01 Oct 2006 22:59:01 -0000."
-             <20061001225720.115967000@cruncher.tec.linutronix.de>
-From: Valdis.Kletnieks@vt.edu
-References: <20061001225720.115967000@cruncher.tec.linutronix.de>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1159765900_8054P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Mon, 02 Oct 2006 01:11:40 -0400
+	Mon, 2 Oct 2006 01:26:42 -0400
+Received: from warden-p.diginsite.com ([208.29.163.248]:36846 "HELO
+	warden.diginsite.com") by vger.kernel.org with SMTP id S932618AbWJBF0l
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Oct 2006 01:26:41 -0400
+Date: Sun, 1 Oct 2006 22:11:49 -0700 (PDT)
+From: David Lang <dlang@digitalinsight.com>
+X-X-Sender: dlang@dlang.diginsite.com
+To: Willy Tarreau <w@1wt.eu>
+cc: Drew Scott Daniels <ddaniels@UMAlumni.mb.ca>, linux-kernel@vger.kernel.org
+Subject: Re: Smaller compressed kernel source tarballs?
+In-Reply-To: <20061002033531.GA5050@1wt.eu>
+Message-ID: <Pine.LNX.4.63.0610012205280.28534@qynat.qvtvafvgr.pbz>
+References: <20061002033511.GB12695@zimmer> <20061002033531.GA5050@1wt.eu>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1159765900_8054P
-Content-Type: text/plain; charset=us-ascii
+On Mon, 2 Oct 2006, Willy Tarreau wrote:
 
-On Sun, 01 Oct 2006 22:59:01 -0000, Thomas Gleixner said:
+> A lot of improvement can be made in tar to compress better archive with
+> large number of small files such as the kernel. You just have to see the
+> difference in archive size depending on the base directory name. If you
+> come up with something really interesting which does not alter the output
+> format nor the compression time, it might get a place in the git-tar-tree
+> command. But IMHO, it would me more interesting to further reduce patches
+> size than tarballs size, since patches might be downloaded far more often.
 
-> the following patch series is an update in response to your review.
+I just had what's probably a silly thought.
 
-This complains if you try to compile with -Werror-implicit-function-declaration
-and rightly so, as we're missing a #include to define IS_ERR_VALUE().
+as an alturnative to useing tar, what about useing a git pack?
 
-Patch attached.
+create a git archive with no history, just the current files, and then pack it 
+with agressive delta options.
 
-Signed-off-by: Valdis Kletnieks <valdis.kletnieks@vt.edu>
+since git uses compression on the result anyway it's unlikly to be much worse 
+then a tarball, and since it can use deltas across files it may even be better 
+(potentially enough better to cover the cost of downloading the git binaries)
 
---- linux-2.6.18-mm2/kernel/hrtimer.c.buggy	2006-10-02 00:46:50.000000000 -0400
-+++ linux-2.6.18-mm2/kernel/hrtimer.c	2006-10-02 01:02:55.000000000 -0400
-@@ -43,6 +43,7 @@
- #include <linux/clockchips.h>
- #include <linux/profile.h>
- #include <linux/seq_file.h>
-+#include <linux/err.h>
- 
- #include <asm/uaccess.h>
- 
---- linux-2.6.18-mm2/kernel/time/clockevents.c.buggy	2006-10-02 00:46:50.000000000 -0400
-+++ linux-2.6.18-mm2/kernel/time/clockevents.c	2006-10-02 01:04:22.000000000 -0400
-@@ -33,6 +33,7 @@
- #include <linux/profile.h>
- #include <linux/sysdev.h>
- #include <linux/hrtimer.h>
-+#include <linux/err.h>
- 
- #define MAX_CLOCK_EVENTS	4
- #define GLOBAL_CLOCK_EVENT	MAX_CLOCK_EVENTS
+this would be especially effective once git adds a 'shallow clone' capability to 
+then take the snapshot pack and extend it (either forward or backward as 
+requested by the user), but may be worth doing even without this.
 
+thoughts?
 
---==_Exmh_1159765900_8054P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFFIJ+McC3lWbTT17ARAnWeAKCa/vP1CyFoyRnYtlbiDcGz4G1VkgCg023J
-jGk9T5LHLINEngb7CFP5odk=
-=ltbL
------END PGP SIGNATURE-----
-
---==_Exmh_1159765900_8054P--
+David Lang

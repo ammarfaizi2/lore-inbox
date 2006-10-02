@@ -1,41 +1,61 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750908AbWJBJyO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750985AbWJBKAM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750908AbWJBJyO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Oct 2006 05:54:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750898AbWJBJyO
+	id S1750985AbWJBKAM (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Oct 2006 06:00:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751112AbWJBKAM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Oct 2006 05:54:14 -0400
-Received: from mx2.suse.de ([195.135.220.15]:15315 "EHLO mx2.suse.de")
-	by vger.kernel.org with ESMTP id S1750837AbWJBJyO (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Oct 2006 05:54:14 -0400
-To: Wink Saville <wink@saville.com>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: PCI: BIOS Bug: MCFG area at f0000000 is not E820-reserved with 2.6.18 kernel
-References: <45206777.7020405@saville.com>
-From: Andi Kleen <ak@suse.de>
-Date: 02 Oct 2006 11:54:02 +0200
-In-Reply-To: <45206777.7020405@saville.com>
-Message-ID: <p733ba7hwlh.fsf@verdi.suse.de>
-User-Agent: Gnus/5.09 (Gnus v5.9.0) Emacs/21.3
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 2 Oct 2006 06:00:12 -0400
+Received: from rs384.securehostserver.com ([72.22.69.69]:56074 "HELO
+	rs384.securehostserver.com") by vger.kernel.org with SMTP
+	id S1750985AbWJBKAJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Oct 2006 06:00:09 -0400
+Subject: Re: [RFC][PATCH 0/2] Swap token re-tuned
+From: Ashwin Chaugule <ashwin.chaugule@celunite.com>
+Reply-To: ashwin.chaugule@celunite.com
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, Rik van Riel <riel@redhat.com>,
+       Peter Zijlstra <a.p.zijlstra@chello.nl>
+In-Reply-To: <20061001155608.0a464d4c.akpm@osdl.org>
+References: <1159555312.2141.13.camel@localhost.localdomain>
+	 <20061001155608.0a464d4c.akpm@osdl.org>
+Content-Type: text/plain
+Date: Mon, 02 Oct 2006 15:30:01 +0530
+Message-Id: <1159783202.5574.1.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Wink Saville <wink@saville.com> writes:
+On Sun, 2006-10-01 at 15:56 -0700, Andrew Morton wrote:
 
-> I'm trying to build the 2.6.18 kernel for a Intel Core 2 Duo 2.4GHZ in
-> a Asus P5W DH Deluxe Motherboard which has a 975 chip set. It does
-> work when booting from a 2.6.15-27 kernel installed from Ubuntu 2.06
-> LTS.
+> Another workload which it would be useful to benchmark is a kernel compile
+> - say, boot with `mem=16M' and time `make -j4 vmlinux' (numbers may need
+> tuning).
 > 
-> When failing I get three messages on the screen:
-> 
-> PCI: BIOS Bug: MCFG area at f0000000 is not E820-reserved
-> PCI: Not using MMCONFIG
-> Intel-rng: FWH not detected
 
-Can you boot with initcall_debug and report the complete output?
+This is what I got :
 
--Andi
+mem=64M
+
+
+Upstream:
+2.6.18
+make -j 4 vmlinux
+
+
+real    31m26.021s
+user    4m32.140s
+sys     0m23.340s
+
+------------------
+
+My patch:
+
+real    27m42.984s
+user    4m33.800s
+sys     0m22.080s
+
+
+Ashwin
+

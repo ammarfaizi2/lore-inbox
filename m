@@ -1,43 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965116AbWJBU7R@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965109AbWJBVAt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965116AbWJBU7R (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Oct 2006 16:59:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965113AbWJBU7Q
+	id S965109AbWJBVAt (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Oct 2006 17:00:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965113AbWJBVAs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Oct 2006 16:59:16 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:2226 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S965112AbWJBU7P (ORCPT
+	Mon, 2 Oct 2006 17:00:48 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:1459 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S965109AbWJBVAr (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Oct 2006 16:59:15 -0400
-Date: Mon, 2 Oct 2006 13:58:42 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: David Brownell <david-b@pacbell.net>
-Cc: David Howells <dhowells@redhat.com>, Thomas Gleixner <tglx@linutronix.de>,
-       Ingo Molnar <mingo@elte.hu>, torvalds@osdl.org,
-       linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org,
-       Dmitry Torokhov <dtor@mail.ru>, Greg KH <greg@kroah.com>,
-       Alan Stern <stern@rowland.harvard.edu>
-Subject: Re: [PATCH 3/3] IRQ: Maintain regs pointer globally rather than
- passing to IRQ handlers
-Message-Id: <20061002135842.35e31418.akpm@osdl.org>
-In-Reply-To: <200610021346.13135.david-b@pacbell.net>
-References: <20061002162049.17763.39576.stgit@warthog.cambridge.redhat.com>
-	<20061002162053.17763.26032.stgit@warthog.cambridge.redhat.com>
-	<20061002132116.2663d7a3.akpm@osdl.org>
-	<200610021346.13135.david-b@pacbell.net>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+	Mon, 2 Oct 2006 17:00:47 -0400
+Date: Mon, 2 Oct 2006 14:00:41 -0700
+From: Stephen Hemminger <shemminger@osdl.org>
+To: linux-kernel@vger.kernel.org
+Subject: [ANNOUNCE] iproute2-2.6.18-061002
+Message-ID: <20061002140041.02ef3936@freekitty>
+Organization: OSDL
+X-Mailer: Sylpheed-Claws 2.5.0-rc3 (GTK+ 2.10.4; i486-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2 Oct 2006 13:46:11 -0700
-David Brownell <david-b@pacbell.net> wrote:
+his is a much delayed update to the iproute2 command set.
+It can be downloaded from:
+  http://developer.osdl.org/dev/iproute2/download/iproute2-2.6.18-061002.tar.gz
 
-> The only downside I can think of for dropping pt_regs is that now it's harder
-> to just find the IRQ handler in a driver ... it's previously been all but
-> guaranteed that the _only_ use of that type is the IRQ logic.  The upsides
-> surely outweigh that.
+Repository:
+  git://git.kernel.org/pub/scm/linux/kernel/git/shemminger/iproute2.git
 
-You can use irqreturn_t for that.
+For more info on iproute2 see:
+  http://linux-net.osdl.org/index.php/Iproute2
+
+The version number includes the kernel version to denote what features are
+supported. The same source should build on older systems, but obviously the
+newer kernel features won't be available. As much as possible, this package
+tries to be source compatible across releases.
+
+Summary of changes:
+	- converted to git
+	- build fixes for some distributions
+	- bug fix for xfrm monitor
+	- alignment fixes for cris
+	- documentation corrections
+	- many small bug fixes
+	- new tc monitor mode
+
+Contributors to this release
+	Jamal Hadi Salim
+	Patrick McHardy
+	Andy Gay
+	Jesper Dangaard Brouer
+	Vince Worthington 
+	
+Git changelog is a bit of a mess, so if I missed your name sorry.

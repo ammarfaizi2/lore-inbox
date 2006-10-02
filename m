@@ -1,60 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965160AbWJBRag@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965163AbWJBRe0@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965160AbWJBRag (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Oct 2006 13:30:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965161AbWJBRag
+	id S965163AbWJBRe0 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Oct 2006 13:34:26 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965158AbWJBRe0
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Oct 2006 13:30:36 -0400
-Received: from pfx2.jmh.fr ([194.153.89.55]:39353 "EHLO pfx2.jmh.fr")
-	by vger.kernel.org with ESMTP id S965160AbWJBRaf (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Oct 2006 13:30:35 -0400
-From: Eric Dumazet <dada1@cosmosbay.com>
-To: Vadim Lobanov <vlobanov@speakeasy.net>
-Subject: Re: [PATCH 4/4] fdtable: Implement new pagesize-based fdtable allocation scheme.
-Date: Mon, 2 Oct 2006 19:30:31 +0200
-User-Agent: KMail/1.9.4
-Cc: Andi Kleen <ak@suse.de>, linux-kernel@vger.kernel.org
-References: <200610011414.30443.vlobanov@speakeasy.net> <p73y7rzghos.fsf@verdi.suse.de> <200610021004.13634.vlobanov@speakeasy.net>
-In-Reply-To: <200610021004.13634.vlobanov@speakeasy.net>
+	Mon, 2 Oct 2006 13:34:26 -0400
+Received: from warden-p.diginsite.com ([208.29.163.248]:23751 "HELO
+	warden.diginsite.com") by vger.kernel.org with SMTP id S965163AbWJBReZ
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Oct 2006 13:34:25 -0400
+Date: Mon, 2 Oct 2006 10:19:00 -0700 (PDT)
+From: David Lang <dlang@digitalinsight.com>
+X-X-Sender: dlang@dlang.diginsite.com
+To: Alan Cox <alan@lxorguk.ukuu.org.uk>
+cc: Linus Torvalds <torvalds@osdl.org>, "Martin J. Bligh" <mbligh@mbligh.org>,
+       Lee Revell <rlrevell@joe-job.com>,
+       Matti Aarnio <matti.aarnio@zmailer.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Spam, bogofilter, etc
+In-Reply-To: <1159811392.8907.36.camel@localhost.localdomain>
+Message-ID: <Pine.LNX.4.63.0610021017310.28876@qynat.qvtvafvgr.pbz>
+References: <1159539793.7086.91.camel@mindpipe>  <20061002100302.GS16047@mea-ext.zmailer.org>
+  <1159802486.4067.140.camel@mindpipe> <45212F39.5000307@mbligh.org> 
+ <Pine.LNX.4.64.0610020933020.3952@g5.osdl.org> <1159811392.8907.36.camel@localhost.localdomain>
 MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-Message-Id: <200610021930.32017.dada1@cosmosbay.com>
+Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Monday 02 October 2006 19:04, Vadim Lobanov wrote:
-> On Monday 02 October 2006 03:01, Andi Kleen wrote:
-> > Vadim Lobanov <vlobanov@speakeasy.net> writes:
-> > > The allocation algorithm sizes the fdarray in such a way that its
-> > > memory usage increases in easy page-sized chunks. Additionally, it
-> > > tries to account for the optimal usage of the allocators involved:
-> > > kmalloc() for sizes less than a page, and vmalloc() with page
-> > > granularity for sizes greater than a page.
-> >
-> > Best would be to avoid vmalloc() completely because it can be quite
-> > costly
+On Mon, 2 Oct 2006, Alan Cox wrote:
+
+> Ar Llu, 2006-10-02 am 09:40 -0700, ysgrifennodd Linus Torvalds:
+>> If you want a yes/no kind of thing, do it on real hard issues, like not
+>> accepting email from machines that aren't registered MX gateways. Sure,
+>> that will mean that people who just set up their local sendmail thing and
+>> connect directly to port 25 will just not be able to email, but let's face
+>> it, that's why we have ISP's and DNS in the first place.
 >
-> It's possible. This switch between kmalloc() and vmalloc() was there in the
-> original code, and I didn't feel safe ripping it out right now. We can
-> always explore this approach too, however.
+> Except most of the ISPs are incompetent and many people have to run
+> their own mail system in order to get mail that actually *works*. I've
+> had that experience several times, although thankfully I now have a sane
+> ISP.
 >
-> What is the origin and history of this particular code? (It's been there
-> since at least 2.4.x.) Who put in the switch between the two allocators,
-> and for what reason? Is that reason still valid?
+> MX checking is as broken or more broken than bayes.
+>
+> There is another reason bayes is not very good too - every good spammer
+> reruns their message through spamassassin adding random text till they
+> get a good score *then* they spew it out.
 
-I think Andi was suggesting using a indirection, with a table of pointers to 
-PAGES, each PAGE containing PAGE_SIZE/sizeof(struct file *) pointers. Kind of 
-what is doing vmalloc(), but without the need of contiguous virtual memory 
-space.
+that's why you don't use a fixed table like that. if the table is customized for 
+your mail then it's unlikly to agree with anyone else's, so mail that will get 
+through their filter wont' get through yours (and vice versa)
 
-You cannot just zap vmalloc() and use one kmalloc(), because some programs 
-open one million files. That's 8 MByte of memory on x86_64. kmalloc() cannot 
-cope with that. It cannot even cope with 32KB allocations but just after 
-reboot...
-
-
-Eric
+David Lang

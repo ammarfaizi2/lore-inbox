@@ -1,49 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751345AbWJBDyz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932284AbWJBEHd@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751345AbWJBDyz (ORCPT <rfc822;willy@w.ods.org>);
-	Sun, 1 Oct 2006 23:54:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751346AbWJBDyz
+	id S932284AbWJBEHd (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Oct 2006 00:07:33 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932352AbWJBEHd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Sun, 1 Oct 2006 23:54:55 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:42909 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1751345AbWJBDyz (ORCPT
+	Mon, 2 Oct 2006 00:07:33 -0400
+Received: from 1wt.eu ([62.212.114.60]:1540 "EHLO 1wt.eu") by vger.kernel.org
+	with ESMTP id S932284AbWJBEHc (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Sun, 1 Oct 2006 23:54:55 -0400
-Message-ID: <45208D82.8010606@garzik.org>
-Date: Sun, 01 Oct 2006 23:54:42 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
-MIME-Version: 1.0
-To: Jan Engelhardt <jengelh@linux01.gwdg.de>
-CC: kkeil@suse.de, kai.germaschewski@gmx.de, Andrew Morton <akpm@osdl.org>,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [PATCH] ISDN: mark as 32-bit only
-References: <20061001152116.GA4684@havoc.gtf.org> <Pine.LNX.4.61.0610012007240.13920@yvahk01.tjqt.qr>
-In-Reply-To: <Pine.LNX.4.61.0610012007240.13920@yvahk01.tjqt.qr>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.3 (----)
-X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.3 points, 5.0 required)
+	Mon, 2 Oct 2006 00:07:32 -0400
+Date: Mon, 2 Oct 2006 05:35:31 +0200
+From: Willy Tarreau <w@1wt.eu>
+To: Drew Scott Daniels <ddaniels@UMAlumni.mb.ca>
+Cc: linux-kernel@vger.kernel.org
+Subject: Re: Smaller compressed kernel source tarballs?
+Message-ID: <20061002033531.GA5050@1wt.eu>
+References: <20061002033511.GB12695@zimmer>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061002033511.GB12695@zimmer>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jan Engelhardt wrote:
->> Tons of ISDN drivers cast pointers to/from 32-bit values, which just
->> won't work on 64-bit.
-> 
-> Should not that be fixed instead of restricting isdn to 32bit?
+On Sun, Oct 01, 2006 at 10:35:11PM -0500, Drew Scott Daniels wrote:
+> ppmd, also in Debian had better compression than lzma. PAQ8i has even
+> better compression, but isn't in Debian. See the maximumcompression web
+> site or other archive comparison tests.
 
-It hasn't been fixed in many years, and I don't see anyone stepping up 
-to the plate, even with my current trolling...  :)
+Interesting. But I suspect that you have not checked the compression time.
+PAQ8I for instance is between 100 and 300 times SLOWER than bzip2 to achieve
+about 30% smaller ! Given that the kernel already takes a very long time to
+compress with bzip2, it would take several hours to compress it with such
+tools. While they're very interesting proofs of concept for compression
+research, they're not suited to any real world usage !
 
+> The pace of compression algorithm development is high enough that I'd
+> suggest that the bar be placed quite high before switching to a new
+> compression format that's not reverse compatible.
 
-> Though this is probably the best temporary workaround until someone can 
-> fix up all the "tons".
+At least, ppmd takes the same time as bzip2 to achieve about 12% better
+compression. But I don't think it justifies a switch.
 
-I have a better workaround, I think.
+> For those interested, I'm working on publishing a proof of concept that 
+> can make most tarballs compress better. About 2-3% better in my tests 
+> with bzip2/gzip on the Linux kernel source code.
 
-	Jeff
+A lot of improvement can be made in tar to compress better archive with
+large number of small files such as the kernel. You just have to see the
+difference in archive size depending on the base directory name. If you
+come up with something really interesting which does not alter the output
+format nor the compression time, it might get a place in the git-tar-tree
+command. But IMHO, it would me more interesting to further reduce patches
+size than tarballs size, since patches might be downloaded far more often.
 
-
+Regards,
+Willy
 

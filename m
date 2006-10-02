@@ -1,48 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965175AbWJBRr2@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965187AbWJBRt4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965175AbWJBRr2 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Oct 2006 13:47:28 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965174AbWJBRr1
+	id S965187AbWJBRt4 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Oct 2006 13:49:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965186AbWJBRt4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Oct 2006 13:47:27 -0400
-Received: from e3.ny.us.ibm.com ([32.97.182.143]:43462 "EHLO e3.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S965171AbWJBRr0 (ORCPT
+	Mon, 2 Oct 2006 13:49:56 -0400
+Received: from brick.kernel.dk ([62.242.22.158]:37442 "EHLO kernel.dk")
+	by vger.kernel.org with ESMTP id S965184AbWJBRtz (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Oct 2006 13:47:26 -0400
-Date: Mon, 2 Oct 2006 12:47:22 -0500
-To: Andrew Morton <akpm@osdl.org>
-Cc: jeff@garzik.org, netdev@vger.kernel.org,
-       James K Lewis <jklewis@us.ibm.com>, linux-kernel@vger.kernel.org,
-       Arnd Bergmann <arnd@arndb.de>, linuxppc-dev@ozlabs.org
-Subject: Re: [PATCH 6/6]: powerpc/cell spidernet refine locking
-Message-ID: <20061002174722.GE4546@austin.ibm.com>
-References: <20060929230552.GG6433@austin.ibm.com> <20060929232911.GN6433@austin.ibm.com> <20060929194752.2194f94f.akpm@osdl.org>
-MIME-Version: 1.0
+	Mon, 2 Oct 2006 13:49:55 -0400
+Date: Mon, 2 Oct 2006 19:49:22 +0200
+From: Jens Axboe <axboe@kernel.dk>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: David Howells <dhowells@redhat.com>, akpm@osdl.org,
+       linux-fsdevel@vger.kernel.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH 2/2] BLOCK: Fix linux/compat.h's use sigset_t
+Message-ID: <20061002174919.GL5670@kernel.dk>
+References: <20061002131231.19879.19860.stgit@warthog.cambridge.redhat.com> <20061002131234.19879.34671.stgit@warthog.cambridge.redhat.com> <20061002165137.GK5670@kernel.dk> <Pine.LNX.4.64.0610021004090.3952@g5.osdl.org>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20060929194752.2194f94f.akpm@osdl.org>
-User-Agent: Mutt/1.5.11
-From: linas@austin.ibm.com (Linas Vepstas)
+In-Reply-To: <Pine.LNX.4.64.0610021004090.3952@g5.osdl.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Fri, Sep 29, 2006 at 07:47:52PM -0700, Andrew Morton wrote:
-> On Fri, 29 Sep 2006 18:29:11 -0500
-> linas@austin.ibm.com (Linas Vepstas) wrote:
+On Mon, Oct 02 2006, Linus Torvalds wrote:
 > 
-> > The transmit side of the spider ethernet driver currently
-> > places locks around some very large chunks of code. This
-> > results in a fair amount of lock contention is some cases. 
-> > This patch makes the locks much more fine-grained, protecting
-> > only the cirtical sections. One lock is used to protect 
-> > three locations: the queue head and tail pointers, and the 
-> > queue low-watermark location.
 > 
-> You have spider_net_set_low_watermark() walking the tx_chain outside
-> tx_chain.lock.  Are you sure about that?
+> On Mon, 2 Oct 2006, Jens Axboe wrote:
+> 
+> > On Mon, Oct 02 2006, David Howells wrote:
+> > > From: David Howells <dhowells@redhat.com>
+> > > 
+> > > Make linux/compat.h #include asm/signal.h to gain a definition of
+> > > sigset_t so that it can externally declare sigset_from_compat().
+> > > 
+> > > This has been compile-tested for i386, x86_64, ia64, mips, mips64,
+> > > frv, ppc and ppc64 and run-tested on frv.
+> > 
+> > Ack both patches, thanks David.
+> 
+> Well, I already applied them, but I applied them as a single patch (since 
+> 1/2 wasn't actually usable on its own _or_ even just a plain revert, and 
+> 2/2 was really required for 1/2 to even compile).
 
-Yes. Its making an approximate count of the queue length, and I figured
-that if its approximate to begin with, an unlocked version should be
-just fine.
+Works for me, thanks Linus.
 
---linas
+-- 
+Jens Axboe
+

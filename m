@@ -1,92 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964821AbWJBPtg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964817AbWJBP4T@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964821AbWJBPtg (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Oct 2006 11:49:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964822AbWJBPtg
+	id S964817AbWJBP4T (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Oct 2006 11:56:19 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750980AbWJBP4S
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Oct 2006 11:49:36 -0400
-Received: from tomts43.bellnexxia.net ([209.226.175.110]:8416 "EHLO
-	tomts43-srv.bellnexxia.net") by vger.kernel.org with ESMTP
-	id S964821AbWJBPtf (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Oct 2006 11:49:35 -0400
-Date: Mon, 2 Oct 2006 11:38:49 -0400
-From: Mathieu Desnoyers <compudj@krystal.dyndns.org>
-To: "Jose R. Santos" <jrs@us.ibm.com>
-Cc: Martin Bligh <mbligh@google.com>, "Frank Ch. Eigler" <fche@redhat.com>,
-       Masami Hiramatsu <masami.hiramatsu.pt@hitachi.com>, prasanna@in.ibm.com,
-       Andrew Morton <akpm@osdl.org>, Ingo Molnar <mingo@elte.hu>,
-       Paul Mundt <lethal@linux-sh.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>, Jes Sorensen <jes@sgi.com>,
-       Tom Zanussi <zanussi@us.ibm.com>,
-       Richard J Moore <richardj_moore@uk.ibm.com>,
-       Michel Dagenais <michel.dagenais@polymtl.ca>,
-       Christoph Hellwig <hch@infradead.org>,
-       Greg Kroah-Hartman <gregkh@suse.de>,
-       Thomas Gleixner <tglx@linutronix.de>, William Cohen <wcohen@redhat.com>,
-       ltt-dev@shafik.org, systemtap@sources.redhat.com,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>,
-       Jeremy Fitzhardinge <jeremy@goop.org>,
-       Karim Yaghmour <karim@opersys.com>, Pavel Machek <pavel@suse.cz>,
-       Joe Perches <joe@perches.com>, "Randy.Dunlap" <rdunlap@xenotime.net>
-Subject: Re: Performance analysis of Linux Kernel Markers 0.20 for 2.6.17
-Message-ID: <20061002153849.GA19568@Krystal>
-References: <20060930180157.GA25761@Krystal> <45212F1E.3080409@us.ibm.com>
+	Mon, 2 Oct 2006 11:56:18 -0400
+Received: from xenotime.net ([66.160.160.81]:42728 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S1750838AbWJBP4S (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Oct 2006 11:56:18 -0400
+Date: Mon, 2 Oct 2006 08:57:44 -0700
+From: Randy Dunlap <rdunlap@xenotime.net>
+To: David Howells <dhowells@redhat.com>
+Cc: akpm@osdl.org, linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] FRV: Permit large kmalloc allocations
+Message-Id: <20061002085744.55bf8c28.rdunlap@xenotime.net>
+In-Reply-To: <20061002153708.22649.96337.stgit@warthog.cambridge.redhat.com>
+References: <20061002153708.22649.96337.stgit@warthog.cambridge.redhat.com>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-In-Reply-To: <45212F1E.3080409@us.ibm.com>
-X-Editor: vi
-X-Info: http://krystal.dyndns.org:8080
-X-Operating-System: Linux/2.4.32-grsec (i686)
-X-Uptime: 11:33:01 up 40 days, 12:41,  4 users,  load average: 0.82, 0.71, 0.54
-User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Jose,
+On Mon, 02 Oct 2006 16:37:08 +0100 David Howells wrote:
 
-* Jose R. Santos (jrs@us.ibm.com) wrote:
+> From: David Howells <dhowells@redhat.com>
 > 
-> The problem now is how do we define "high event rate".  This is 
-> something that is highly dependent on the workload being run as well as 
-> the system configuration for such workload.  There are a lot of places 
-> in the kernel that can be turned into high event rates with with the 
-> right workload even though the may not represent 99% of most user cases. 
+> Permit kmalloc() to make allocations of up to 32MB if so configured.  This may
+> be useful under NOMMU conditions where vmalloc() can't do this.
 > 
-> I would guess that anything above 500 event/s per-CPU on several 
-> realistic workloads is a good place to start.
+> Signed-Off-By: David Howells <dhowells@redhat.com>
+> ---
 > 
-Yes, it seems like a good starting point. But besides the event rate, just
-having the most widely used events marked in the code should also be the
-target. The markup mechanism serves two purposes :
-1 - identify important events in a way that follows code change.
-2 - speed up instrumentation.
+>  arch/frv/Kconfig |    8 ++++++++
+>  1 files changed, 8 insertions(+), 0 deletions(-)
+> 
+> diff --git a/arch/frv/Kconfig b/arch/frv/Kconfig
+> index f7b171b..69f9846 100644
+> --- a/arch/frv/Kconfig
+> +++ b/arch/frv/Kconfig
+> @@ -86,6 +86,14 @@ config HIGHPTE
+>  	  with a lot of RAM, this can be wasteful of precious low memory.
+>  	  Setting this option will put user-space page tables in high memory.
+>  
+> +config LARGE_ALLOCS
+> +	bool "Allow allocating large blocks (> 1MB) of memory"
+> +	help
+> +	  Allow the slab memory allocator to keep chains for very large memory
+> +	  sizes - upto 32MB. You may need this if your system has a lot of RAM,
 
-> 
-> >On the macro-benchmark side, no significant difference in performance has 
-> >been
-> >found between the vanilla kernel and a kernel "marked" with the standard 
-> >LTTng
-> >instrumentation.
-> >  
-> 
-> Out of curiosity,  how many cycles does it take to process a complete 
-> LTTng event up until the point were it has been completely stored into 
-> the trace buffer.  Since this should take a lot more than 55.74 cycles, 
-> it would be interesting to know at what event rate would a static marker 
-> stop showing as big of a performance advantage compared to dynamic probing.
-> 
+		up to (2 words)
 
-In my OLS paper, I pointed out that, in its current state, LTTng took about 278
-cycles on the same Pentium 4. I think I could lower that by implementing per-cpu
-atomic operations (removing the LOCK prefix, as the data is not shared between
-the CPUs; the atomic operations are only useful to protect from higher priority
-execution contexts on the same CPU).
+> +	  and you need to able to allocate very large contiguous chunks. If
+> +	  unsure, say N.
+> +
+>  source "mm/Kconfig"
 
-Regards,
 
-Mathieu
 
-OpenPGP public key:              http://krystal.dyndns.org:8080/key/compudj.gpg
-Key fingerprint:     8CD5 52C3 8E3C 4140 715F  BA06 3F25 A8FE 3BAE 9A68 
+---
+~Randy

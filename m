@@ -1,54 +1,102 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965425AbWJBVkv@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965400AbWJBVfl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965425AbWJBVkv (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Oct 2006 17:40:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965430AbWJBVku
+	id S965400AbWJBVfl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Oct 2006 17:35:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965417AbWJBVfl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Oct 2006 17:40:50 -0400
-Received: from py-out-1112.google.com ([64.233.166.176]:844 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S965425AbWJBVkm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Oct 2006 17:40:42 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=Bzh7DO3rw/PGWq1rPPozkQpPDKYYZiiaseocz1azRnVOTcxSISYyz6sNroLe8q5ao04eNKjJCq7xuRwOgroDitIBOfy0IluWKDQBx3zEag5Ga2IVK6mdjf6HjTPsZ7nBibO22Kgi9xhcskw0Q7uvZjbnvDlvKk782qthdlu0nTM=
-Message-ID: <653402b90610021440h2e416394r55227ce5e7eb6171@mail.gmail.com>
-Date: Mon, 2 Oct 2006 23:40:41 +0200
-From: "Miguel Ojeda" <maxextreme@gmail.com>
-To: andrew.j.wade@gmail.com
-Subject: Re: [PATCH 2.6.18 V7] drivers: add lcd display support
-Cc: akpm@osdl.org, "Stefan Richter" <stefanr@s5r6.in-berlin.de>,
-       "Randy Dunlap" <rdunlap@xenotime.net>, linux-kernel@vger.kernel.org
-In-Reply-To: <200610021449.08640.ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Mon, 2 Oct 2006 17:35:41 -0400
+Received: from turing-police.cc.vt.edu ([128.173.14.107]:47838 "EHLO
+	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
+	id S965400AbWJBVfj (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Oct 2006 17:35:39 -0400
+Message-Id: <200610022135.k92LZHCn008618@turing-police.cc.vt.edu>
+X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
+To: tglx@linutronix.de
+Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
+       Ingo Molnar <mingo@elte.hu>, Jim Gettys <jg@laptop.org>,
+       John Stultz <johnstul@us.ibm.com>,
+       David Woodhouse <dwmw2@infradead.org>,
+       Arjan van de Ven <arjan@infradead.org>, Dave Jones <davej@redhat.com>
+Subject: Re: [patch] dynticks core: Fix idle time accounting
+In-Reply-To: Your message of "Mon, 02 Oct 2006 23:22:38 +0200."
+             <1159824158.1386.77.camel@localhost.localdomain>
+From: Valdis.Kletnieks@vt.edu
+References: <20061001225720.115967000@cruncher.tec.linutronix.de> <200610021302.k92D23W1003320@turing-police.cc.vt.edu> <1159796582.1386.9.camel@localhost.localdomain> <200610021825.k92IPSnd008215@turing-police.cc.vt.edu> <1159814606.1386.52.camel@localhost.localdomain> <200610022017.k92KH4Ch004773@turing-police.cc.vt.edu>
+            <1159824158.1386.77.camel@localhost.localdomain>
+Mime-Version: 1.0
+Content-Type: multipart/signed; boundary="==_Exmh_1159824917_3357P";
+	 micalg=pgp-sha1; protocol="application/pgp-signature"
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <20060930232445.59e8adf6.maxextreme@gmail.com>
-	 <653402b90610010553p23819d2bsd7a07fabaee7ecf3@mail.gmail.com>
-	 <200610021449.08640.ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com>
+Date: Mon, 02 Oct 2006 17:35:17 -0400
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/2/06, Andrew James Wade <andrew.j.wade@gmail.com> wrote:
-> On Sunday 01 October 2006 08:53, Miguel Ojeda wrote:
-> > Sure it is wrong, the point is what is the best to understading. "LCD
-> > display" seems better to me than just "LC display".
->
-> To me too. Acronyms tend to be treated as opaque tokens in English:
-> their expansions tend not be be well known and don't really interact
-> with their usage. "LCD display" is fine, and is clearer than both
-> "LCD" or "liquid crystal display". (Some users won't know that a
-> "liquid crystal display" is what they know as an "LCD display").
->
-> Andrew Wade
->
+--==_Exmh_1159824917_3357P
+Content-Type: text/plain; charset=us-ascii
 
-I agree. As I said, in other languages is also common to use "LCD" as
-a adjective, not as a noun.
+On Mon, 02 Oct 2006 23:22:38 +0200, Thomas Gleixner said:
+> On Mon, 2006-10-02 at 16:17 -0400, Valdis.Kletnieks@vt.edu wrote:
+> > cpu  27634 0 7762 20470 881 331 252 0
+> > cpu0 27634 0 7762 20470 881 331 252 0
+> > intr 812332 631476 2960 0 4 4 12667 3 14 1 1 4 142891 114 0 22193 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
+0 0 0 0 0 0 0
+> > ctxt 2187603
+> > btime 1159817297
+> > processes 4028
+> > procs_running 1
+> > procs_blocked 0
+> > nohz total I:397276 S:379955 T:1187.393123 A:0.003125 E: 629447
+> > cpu  27753 0 7818 20739 881 332 253 0
+> > cpu0 27753 0 7818 20739 881 332 253 0
+> > intr 819027 636542 2969 0 4 4 12801 3 14 1 1 4 144371 114 0 22199 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
+0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
+ 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 
+0 0 0 0 0 0 0
+> > ctxt 2209881
+> > btime 1159817297
+> > processes 4033
+> > procs_running 1
+> > procs_blocked 0
+> > nohz total I:401991 S:384494 T:1200.732924 A:0.003122 E: 634513
+> 
+> Strange.
+> 
+> /me digs deeper
 
-Andrew, can you tell me how should I name it? So I will be able to
-change it (if apply) and send the V8 patch.
+Not really strange at all - between code inspection and checking other stuff,
+I'm now convinced the *counts* of "was the previous tick user/nice/system/idle"
+reported in the cpu0 lines are accurate and report the relative counts
+correctly.  The problem is that userspace tools are assuming that all the ticks
+reported are created equal.  "We had 200 ticks, total, 100 were user and 100
+were idle, so we were at 50/50 user/idle" - but in reality we had 100 10-ms
+user ticks and 100 100-ms idle ticks and and only about 10% busy.....
 
-I wish V8 will be the final patch...
+We could "pump up" the relative counts - if 1 no-hz tick would have been 5ms
+long, increment the count by 5 rather than 1 (for an alledged 1khz tick).
+However, when we do that, we break the property that the sum of the ticks
+in the 'cpu0' line is equal to the number of timer interrupts reported in the
+'intr' line.
+
+Like I said - unclear how to fix this....
+
+--==_Exmh_1159824917_3357P
+Content-Type: application/pgp-signature
+
+-----BEGIN PGP SIGNATURE-----
+Version: GnuPG v1.4.5 (GNU/Linux)
+Comment: Exmh version 2.5 07/13/2001
+
+iD8DBQFFIYYVcC3lWbTT17ARAjxYAJkBO/1zKOuBHrRo0Mln0+Av5j9+hQCgkDHU
+Ga9Di3eYL/dBuEEnrjC8/MM=
+=w43D
+-----END PGP SIGNATURE-----
+
+--==_Exmh_1159824917_3357P--

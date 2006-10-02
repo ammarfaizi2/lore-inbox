@@ -1,78 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965118AbWJBVIa@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965122AbWJBVJl@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965118AbWJBVIa (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Oct 2006 17:08:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965120AbWJBVIa
+	id S965122AbWJBVJl (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Oct 2006 17:09:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965125AbWJBVJk
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Oct 2006 17:08:30 -0400
-Received: from hera.kernel.org ([140.211.167.34]:12169 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S965118AbWJBVI3 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Oct 2006 17:08:29 -0400
-Date: Mon, 2 Oct 2006 21:08:21 +0000
-From: Willy Tarreau <wtarreau@hera.kernel.org>
-To: Linux Kernel <linux-kernel@vger.kernel.org>
-Cc: Marcelo Tosatti <mtosatti@redhat.com>
-Subject: Linux 2.4.34-pre4
-Message-ID: <20061002210821.GA5700@hera.kernel.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Mon, 2 Oct 2006 17:09:40 -0400
+Received: from smtp103.sbc.mail.mud.yahoo.com ([68.142.198.202]:63409 "HELO
+	smtp103.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
+	id S965122AbWJBVJj (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Oct 2006 17:09:39 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+  s=s1024; d=pacbell.net;
+  h=Received:From:To:Subject:Date:User-Agent:Cc:References:In-Reply-To:MIME-Version:Content-Type:Content-Transfer-Encoding:Content-Disposition:Message-Id;
+  b=EWuUsu8KH7A1zt75nEVU1DbUAetWDFOYQRbhdbbWDChWY+HezPY7HgGUiYi/9rO4SBS4HHxkkWGC0Rsjdzj40cV5BpsdQNH6j0G1guOysPbTiWXQIVV+jqXrc7qiaPiT6gTZeLA9e5oS8RbqnS6n+lEm/NcKztbLRhjpRaUvKZw=  ;
+From: David Brownell <david-b@pacbell.net>
+To: Andrew Morton <akpm@osdl.org>
+Subject: Re: [patch 2.6.18-git] SPI -- Freescale iMX SPI controller driver
+Date: Mon, 2 Oct 2006 14:09:34 -0700
+User-Agent: KMail/1.7.1
+Cc: "Thiago Galesi" <thiagogalesi@gmail.com>,
+       "Andrea Paterniani" <a.paterniani@swapp-eng.it>,
+       "Linux Kernel list" <linux-kernel@vger.kernel.org>
+References: <200610020816.58985.david-b@pacbell.net> <200610021310.15374.david-b@pacbell.net> <20061002133806.10bd652d.akpm@osdl.org>
+In-Reply-To: <20061002133806.10bd652d.akpm@osdl.org>
+MIME-Version: 1.0
+Content-Type: text/plain;
+  charset="us-ascii"
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
+Message-Id: <200610021409.35518.david-b@pacbell.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi there !
+On Monday 02 October 2006 1:38 pm, Andrew Morton wrote:
+> On Mon, 2 Oct 2006 13:10:14 -0700
+> David Brownell <david-b@pacbell.net> wrote:
+> 
+> > > > +/* Message state */
+> > > > +#define START_STATE                    ((void*)0)
+> > > > +#define RUNNING_STATE                  ((void*)1)
+> > > > +#define DONE_STATE                     ((void*)2)
+> > > > +#define ERROR_STATE                    ((void*)-1)
+> > > 
+> > > !?!??!?!
+> > 
+> > Now that you mention it ... let me second that comment!
+> 
+> These are "better enums".  The problem with C's enums is that it's possible
+> to mix them with integers and the compiler just swallows it.  With the
+> above, you'll get a warning if you make that mistake.
 
-This is version 2.4.34-pre4. Very minor fixes as well as a backport of the
-fix for CVE-2006-4997 by Dann Frazier.
+I see.
 
-I'm pretty happy with the gcc4 fixes, a few people reported success and
-nobody complained yet. One of the OpenWRT developers offered to contribute
-MIPS patches from his project, but as I don't have a toolchain anymore, I
-will not be able to break them into pieces before merging them. I asked
-him to do all the dirty and thankless job, but I don't know if he will
-feel brave enough. I might try to perform an Alpha port when I receive
-my memory upgrade. If other people want to contribute gcc4 fixes for other
-archs, they're welcome, but *please* provide one patch per build error
-with the copy of the error in the commit.
 
-I will wait a bit more for fixes and will soon enter -rc as things calm
-down. If I find some spare time, I will release 2.4.33.4 with minor fixes,
-and even possibly resync the hotfix tree for users of older versions.
+>  Do the enum-mismatch checking in sparse.
 
-Have fun,
-Willy
+With __bitwise types and values, for example...
 
-Summary of changes from v2.4.34-pre3 to v2.4.34-pre4
-============================================
+- Dave
 
-dann frazier:
-      Backport fix for CVE-2006-4997 to 2.4 tree
-
-Geert Uytterhoeven:
-      fbdev: correct buffer size limit in fbmem_read_proc()
-
-Jurzitza, Dieter:
-      really fix size display for sun partitions larger than 1TByte
-
-Michael Chen:
-      i386: fix overflow in vmap on an x86 system which has more than 4GB memory.
-
-mostrows@earthlink.net:
-      Advertise PPPoE MTU
-
-PaX Team:
-      MIPS: fix long long cast in pte macro
-      i386: fix long long cast in pte macro
-
-Steffen Maier:
-      block: fix negative bias of ios_in_flight (CONFIG_BLK_STATS) because of unbalanced I/O accounting
-
-Toyo Abe:
-      x86_64: Fix missing delay when the TSC counter just overflowed
-
-Willy Tarreau:
-      fix Configure.help concerning rp_filter
-      Change VERSION to 2.4.34-pre4
-
+ 

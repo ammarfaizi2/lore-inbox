@@ -1,63 +1,56 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965132AbWJBRJK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965133AbWJBRLe@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965132AbWJBRJK (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Oct 2006 13:09:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965133AbWJBRJK
+	id S965133AbWJBRLe (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Oct 2006 13:11:34 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965134AbWJBRLd
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Oct 2006 13:09:10 -0400
-Received: from gundega.hpl.hp.com ([192.6.19.190]:23003 "EHLO
-	gundega.hpl.hp.com") by vger.kernel.org with ESMTP id S965132AbWJBRJJ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Oct 2006 13:09:09 -0400
-Date: Mon, 2 Oct 2006 10:08:32 -0700
-To: Pavel Machek <pavel@ucw.cz>
-Cc: Alessandro Suardi <alessandro.suardi@gmail.com>,
-       "John W. Linville" <linville@tuxdriver.com>,
-       Linux Kernel <linux-kernel@vger.kernel.org>,
-       Andrew Morton <akpm@osdl.org>
-Subject: Re: wireless abi breakage (was Re: 2.6.18-git9 wireless fixes break ipw2200 association to AP with WPA)
-Message-ID: <20061002170832.GB14535@bougret.hpl.hp.com>
-Reply-To: jt@hpl.hp.com
-References: <5a4c581d0609291225r4a2cbaacr35e5ef73d69f8718@mail.gmail.com> <20060929202928.GA14000@tuxdriver.com> <5a4c581d0609291340q835571bg9657ac0a68bab20e@mail.gmail.com> <20060929212748.GA10288@bougret.hpl.hp.com> <20060930193853.GA6890@ucw.cz>
+	Mon, 2 Oct 2006 13:11:33 -0400
+Received: from pat.uio.no ([129.240.10.4]:25318 "EHLO pat.uio.no")
+	by vger.kernel.org with ESMTP id S965133AbWJBRLd (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Oct 2006 13:11:33 -0400
+Subject: Re: Postal 56% waits for flock_lock_file_wait
+From: Trond Myklebust <trond.myklebust@fys.uio.no>
+To: Tim Chen <tim.c.chen@intel.com>
+Cc: "Ananiev, Leonid I" <leonid.i.ananiev@intel.com>,
+       Linux Kernel Mailing List <Linux-Kernel@vger.kernel.org>
+In-Reply-To: <3282373b0610020957u739392eekf8b78c7574e1a6e7@mail.gmail.com>
+References: <B41635854730A14CA71C92B36EC22AAC3AD954@mssmsx411>
+	 <1159723092.5645.14.camel@lade.trondhjem.org>
+	 <3282373b0610020957u739392eekf8b78c7574e1a6e7@mail.gmail.com>
+Content-Type: text/plain
+Date: Mon, 02 Oct 2006 13:11:21 -0400
+Message-Id: <1159809081.5466.3.camel@lade.trondhjem.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20060930193853.GA6890@ucw.cz>
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: jt@hpl.hp.com
-User-Agent: Mutt/1.5.9i
-From: Jean Tourrilhes <jt@hpl.hp.com>
-X-HPL-MailScanner: Found to be clean
-X-HPL-MailScanner-From: jt@hpl.hp.com
+X-Mailer: Evolution 2.8.0 
+Content-Transfer-Encoding: 7bit
+X-UiO-Spam-info: not spam, SpamAssassin (score=-3.831, required 12,
+	autolearn=disabled, AWL 1.17, UIO_MAIL_IS_INTERNAL -5.00)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sat, Sep 30, 2006 at 07:38:53PM +0000, Pavel Machek wrote:
-> Hi!
+On Mon, 2006-10-02 at 09:57 -0700, Tim Chen wrote:
+> On 10/1/06, Trond Myklebust <trond.myklebust@fys.uio.no> wrote:
 > 
-> > 	That's exactly the point of this warning (some distro like to
-> > kill it), I think it spells pretty clearly what's wrong. Don't say I
-> > did not warn you...
+> >
+> > I still don't get it. The job of the flock() system call is to sleep if
+> > someone already holds the lock, and then grab the lock when it is
+> > released. If that is not what the user expects, then the user has the
+> > option of not calling flock(). This has nothing to do with open().
+> >
+> > Trond
+> >
 > 
-> Well... we are trying to have stable abi here. Breaking older wireless
-> tools randomly is *not* okay in the middle of stable series.
+> If I understand Leonid correctly, I think what he is saying is ext3
+> does not scale very well when you have a large number of processes
+> acessing file system because of locks in journal.    This is seen in
+> the excessive idle time.  By comparison, ext2 does not have this
+> issue.
 
-	I'm sorry, but as there is no longer any "devel" serie, to me
-there is no longer any "stable" serie. Do you mean that we are going
-to get frozen with the same APIs until then end of time ? I don't
-think so...
-	You can see the glass half-full or half-empty. Maybe you can
-see that both Wireless Tools and wpa_supplicant compatible with those
-changes were released last May, which means by the time this kernel
-change hit the distro, people won't notice...
+Ext3 does not use flock() in order to lock its journal. The performance
+issues that he is seeing may well be due to the journalling, but that
+has nothing to do with flock_lock_file_wait.
 
-> > 	If you run a custom kernel, I think you won't see any problems
-> > running a custom version of Wireless Tools. They are available on my
-> > web site, pretty easy to install, and have minimal
-> 
-> No. Kernel abi is stable in 2.6.x.
+Cheers,
+  Trond
 
-	Sure, I saw for examples a few warning about udev API changes.
-
-	Jean

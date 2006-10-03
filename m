@@ -1,56 +1,118 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751035AbWJCXto@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932337AbWJCXxH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751035AbWJCXto (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Oct 2006 19:49:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932285AbWJCXtn
+	id S932337AbWJCXxH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Oct 2006 19:53:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932342AbWJCXxH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Oct 2006 19:49:43 -0400
-Received: from ug-out-1314.google.com ([66.249.92.170]:58121 "EHLO
-	ug-out-1314.google.com") by vger.kernel.org with ESMTP
-	id S1751026AbWJCXtm (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Oct 2006 19:49:42 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=VQqZREgjoYI6xMxAjck/sdKdxhidXp0AmSX8oFEe1OP3560qCi8v5ZYzwgCIWTosXkvjDk//Ky0u/RsEAYbr7tVWx5OPfAZphYM0FxSOh/UXz7dNn9Xp4dBp868gwWBqtl0qpi8MYi2MYT+Gwi8uUkKn1tKh4iz8m2XpO5x1WXY=
-Message-ID: <41840b750610031649n5db15a0bq4834420b51974562@mail.gmail.com>
-Date: Wed, 4 Oct 2006 01:49:41 +0200
-From: "Shem Multinymous" <multinymous@gmail.com>
-To: "Kristen Carlson Accardi" <kristen.c.accardi@intel.com>
-Subject: Re: [patch 2/2]: acpi: add removable drive bay support
-Cc: linux-kernel@vger.kernel.org, linux-acpi@vger.kernel.org,
-       len.brown@intel.com
-In-Reply-To: <20060907161319.5495fc65.kristen.c.accardi@intel.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 3 Oct 2006 19:53:07 -0400
+Received: from mga05.intel.com ([192.55.52.89]:30735 "EHLO
+	fmsmga101.fm.intel.com") by vger.kernel.org with ESMTP
+	id S932337AbWJCXxE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Oct 2006 19:53:04 -0400
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.09,252,1157353200"; 
+   d="scan'208"; a="141179768:sNHT18030369"
+Subject: [PATCH] Fix WARN_ON / WARN_ON_ONCE regression
+From: Tim Chen <tim.c.chen@linux.intel.com>
+Reply-To: tim.c.chen@linux.intel.com
+To: herbert@gondor.apana.org.au, akpm@osdl.org
+Cc: linux-kernel@vger.kernel.org, leonid.ananiev@intel.com
+Content-Type: text/plain
+Organization: Intel
+Date: Tue, 03 Oct 2006 16:04:04 -0700
+Message-Id: <1159916644.8035.35.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.0.2 (2.0.2-8) 
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <20060907161319.5495fc65.kristen.c.accardi@intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi Kristen,
+Hi Herbet,
 
-On 9/8/06, Kristen Carlson Accardi <kristen.c.accardi@intel.com> wrote:
+The patch "Let WARN_ON/WARN_ON_ONCE return the condition"
+http://kernel.org/git/?
+p=linux/kernel/git/torvalds/linux-2.6.git;a=commit;h=684f978347deb42d180373ac4c427f82ef963171
 
-> +static void bay_notify(acpi_handle handle, u32 event, void *data)
-[...]
-> +       case ACPI_NOTIFY_EJECT_REQUEST:
-[...]
-> +               /* wouldn't it be a good idea to just call the
-> +                * eject_device here if we were a SATA device?
-> +                */
+introduced 40% more 2nd level cache miss to tbench workload
+being run in a loop back mode on a Core 2 machine.  I think the
+introduction of the local variables to WARN_ON and WARN_ON_ONCE
 
-No, bay eject should go through userspace so that it gets a chance to
-do cleanup (e.g., unmount filesystems) or to tell the user to abort
-the eject (e.g., filesystems in use, or system running on bay battery
-power).
+typeof(x) __ret_warn_on = (x);
+typeof(condition) __ret_warn_once = (condition);
 
-And the driver of whatever is in the bay should be informed before
-power is removed so it can do its own cleanup (e.g., spin down disk).
-This can also be done by userspace.
+results in the extra cache misses.  In our test workload profile, we see
+heavily used functions like do_softirq and local_bh_enable 
+takes a lot longer to execute.  
 
-So your current code is fine, and the comment should probably be
-removed lest someone tries to follow it.
+The modification below helps fix the problem.  I made a slight
+modification to sched.c to get around a gcc bug.
 
-  Shem
+Signed-off-by: Tim Chen <tim.c.chen@intel.com>
+diff --git a/include/asm-generic/bug.h b/include/asm-generic/bug.h
+index a525089..05ed388 100644
+--- a/include/asm-generic/bug.h
++++ b/include/asm-generic/bug.h
+@@ -17,13 +17,12 @@ #endif
+ 
+ #ifndef HAVE_ARCH_WARN_ON
+ #define WARN_ON(condition)
+({                                          \
+-       typeof(condition) __ret_warn_on =
+(condition);                  \
+-       if (unlikely(__ret_warn_on))
+{                                  \
++       if (unlikely(condition))
+{                                      \
+                printk("BUG: warning at %s:%d/%s()\n",
+__FILE__,        \
+                        __LINE__,
+__FUNCTION__);                        \
+                dump_stack
+();                                           \
+        }                                                               \
+-       unlikely
+(__ret_warn_on);                                        \
++       unlikely
+(condition);                                            \
+ })
+ #endif
+ 
+@@ -43,12 +42,16 @@ #endif
+ 
+ #define WARN_ON_ONCE(condition)        ({                      \
+        static int __warn_once = 1;                     \
+-       typeof(condition) __ret_warn_once = (condition);\
+                                                        \
+-       if (likely(__warn_once))                        \
+-               if (WARN_ON(__ret_warn_once))           \
+-                       __warn_once = 0;                \
+-       unlikely(__ret_warn_once);                      \
++       if (unlikely(condition)){                       \
++               if (likely(__warn_once)){               \
++                       __warn_once=0;                  \
++                       printk("BUG: warning at %s:%d/%s()\n", __FILE__,
+\
++                               __LINE__, __FUNCTION__);\
++                       dump_stack();                   \
++               }                                       \
++       }                                               \
++       unlikely(condition);                            \
+ })
+ 
+ #ifdef CONFIG_SMP
+diff --git a/kernel/sched.c b/kernel/sched.c
+index 5c848fd..8ae972c 100644
+--- a/kernel/sched.c
++++ b/kernel/sched.c
+@@ -5629,7 +5629,8 @@ static unsigned long domain_distance(int
+        struct sched_domain *sd;
+ 
+        for_each_domain(cpu1, sd) {
+-               WARN_ON(!cpu_isset(cpu1, sd->span));
++               if (unlikely(!cpu_isset(cpu1, sd->span)))
++                       WARN_ON(1);
+                if (cpu_isset(cpu2, sd->span))
+                        return distance;
+                distance++;
+
+

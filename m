@@ -1,40 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932313AbWJCD1K@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932241AbWJCDh5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932313AbWJCD1K (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Oct 2006 23:27:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932157AbWJCD1J
+	id S932241AbWJCDh5 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Oct 2006 23:37:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932339AbWJCDh5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Oct 2006 23:27:09 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:26561 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932313AbWJCD1I (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Oct 2006 23:27:08 -0400
-Date: Mon, 2 Oct 2006 20:23:28 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Thomas Gleixner <tglx@linutronix.de>
-Cc: LKML <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>,
-       Jim Gettys <jg@laptop.org>, John Stultz <johnstul@us.ibm.com>,
-       David Woodhouse <dwmw2@infradead.org>,
-       Arjan van de Ven <arjan@infradead.org>, Dave Jones <davej@redhat.com>
-Subject: Re: [patch 00/21] high resolution timers / dynamic ticks - V2
-Message-Id: <20061002202328.4249df11.akpm@osdl.org>
-In-Reply-To: <20061001225720.115967000@cruncher.tec.linutronix.de>
-References: <20061001225720.115967000@cruncher.tec.linutronix.de>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+	Mon, 2 Oct 2006 23:37:57 -0400
+Received: from twinlark.arctic.org ([207.7.145.18]:53700 "EHLO
+	twinlark.arctic.org") by vger.kernel.org with ESMTP id S932241AbWJCDh4
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Oct 2006 23:37:56 -0400
+Date: Mon, 2 Oct 2006 20:37:56 -0700 (PDT)
+From: dean gaudet <dean@arctic.org>
+To: Erik Andersen <andersen@codepoet.org>
+cc: Lee Revell <rlrevell@joe-job.com>, "Martin J. Bligh" <mbligh@mbligh.org>,
+       Matti Aarnio <matti.aarnio@zmailer.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Spam, bogofilter, etc
+In-Reply-To: <20061002173951.GA8534@codepoet.org>
+Message-ID: <Pine.LNX.4.64.0610022029010.32183@twinlark.arctic.org>
+References: <1159539793.7086.91.camel@mindpipe> <20061002100302.GS16047@mea-ext.zmailer.org>
+ <1159802486.4067.140.camel@mindpipe> <45212F39.5000307@mbligh.org>
+ <1159804137.4067.144.camel@mindpipe> <20061002173951.GA8534@codepoet.org>
+MIME-Version: 1.0
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Sun, 01 Oct 2006 23:00:45 -0000
-Thomas Gleixner <tglx@linutronix.de> wrote:
+On Mon, 2 Oct 2006, Erik Andersen wrote:
 
-> We did not address the GTOD patches, as we want to wait for John's input on
-> your comments.
+> On Mon Oct 02, 2006 at 11:48:57AM -0400, Lee Revell wrote:
+> > You could also flag a very short message that contains a URL and is not
+> > a reply to an existing thread - I can't think of a legitimate post to
+> > LKML fitting this pattern.
+> 
+> Blocking emails containing URLs pointing to domains registered
+> less than a week ago would block most of the recent spams.
 
-I note that the default CONFIG_HIGH_RES_RESOLUTION is still 1000 (one
-microsecond), which is far higher resolution than you actually recommend.
+unless they changed pattern the past week this wouldn't work... two weeks 
+ago the domains from the 1-liner porn spams were registered 3 or 4 months 
+ago.  i checked a dozen+ of them looking for anything useful for 
+filtering.
 
-I did query that last time around.  I'd prefer not to have to go back and
-re-review it all, please...
+if you visited the urls they lead to the same web page text -- something 
+so obviously a porn front-door even bayes could have got it right.  (i.e. 
+"are you 18?").
+
+it sure would be nice if posting were subscribers-only.
+
+-dean

@@ -1,40 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030470AbWJCSih@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964852AbWJCSk5@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030470AbWJCSih (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Oct 2006 14:38:37 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030469AbWJCSih
+	id S964852AbWJCSk5 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Oct 2006 14:40:57 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964876AbWJCSk5
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Oct 2006 14:38:37 -0400
-Received: from mail.aknet.ru ([82.179.72.26]:25360 "EHLO mail.aknet.ru")
-	by vger.kernel.org with ESMTP id S1030470AbWJCSig (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Oct 2006 14:38:36 -0400
-Message-ID: <4522AEA1.5060304@aknet.ru>
-Date: Tue, 03 Oct 2006 22:40:33 +0400
-From: Stas Sergeev <stsp@aknet.ru>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
+	Tue, 3 Oct 2006 14:40:57 -0400
+Received: from excu-mxob-1.symantec.com ([198.6.49.12]:15031 "EHLO
+	excu-mxob-1.symantec.com") by vger.kernel.org with ESMTP
+	id S964852AbWJCSk4 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Oct 2006 14:40:56 -0400
+Date: Tue, 3 Oct 2006 19:31:08 +0100 (BST)
+From: Hugh Dickins <hugh@veritas.com>
+X-X-Sender: hugh@blonde.wat.veritas.com
+To: "John W. Linville" <linville@tuxdriver.com>
+cc: Linus Torvalds <torvalds@osdl.org>, Lee Revell <rlrevell@joe-job.com>,
+       Alessandro Suardi <alessandro.suardi@gmail.com>,
+       Norbert Preining <preining@logic.at>, hostap@shmoo.com,
+       ipw3945-devel@lists.sourceforge.net, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, jeff@garzik.org,
+       johannes@sipsolutions.net, jt@hpl.hp.com
+Subject: Re: wpa supplicant/ipw3945, ESSID last char missing
+In-Reply-To: <20061003180543.GD23912@tuxdriver.com>
+Message-ID: <Pine.LNX.4.64.0610031923520.3328@blonde.wat.veritas.com>
+References: <20061002085942.GA32387@gamma.logic.tuwien.ac.at>
+ <5a4c581d0610020221s7bf100f8q893161b7c8c492d2@mail.gmail.com>
+ <1159807483.4067.150.camel@mindpipe> <20061003123835.GA23912@tuxdriver.com>
+ <1159890876.20801.65.camel@mindpipe> <Pine.LNX.4.64.0610030916000.3952@g5.osdl.org>
+ <20061003180543.GD23912@tuxdriver.com>
 MIME-Version: 1.0
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Linux kernel <linux-kernel@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Hugh Dickins <hugh@veritas.com>,
-       Ulrich Drepper <drepper@redhat.com>, Valdis.Kletnieks@vt.edu
-Subject: Re: [patch] remove MNT_NOEXEC check for PROT_EXEC mmaps
-References: <45150CD7.4010708@aknet.ru>	 <Pine.LNX.4.64.0609231555390.27012@blonde.wat.veritas.com>	 <451555CB.5010006@aknet.ru>	 <Pine.LNX.4.64.0609231647420.29557@blonde.wat.veritas.com>	 <1159037913.24572.62.camel@localhost.localdomain>	 <45162BE5.2020100@aknet.ru>	 <1159106032.11049.12.camel@localhost.localdomain>	 <45169C0C.5010001@aknet.ru> <4516A8E3.4020100@redhat.com>	 <4516B2C8.4050202@aknet.ru> <4516B721.5070801@redhat.com>	 <45198395.4050008@aknet.ru>	 <1159396436.3086.51.camel@laptopd505.fenrus.org> <451E3C0C.10105@aknet.ru>	 <1159887682.2891.537.camel@laptopd505.fenrus.org>	 <45229A99.6060703@aknet.ru> <1159899820.2891.542.camel@laptopd505.fenrus.org>
-In-Reply-To: <1159899820.2891.542.camel@laptopd505.fenrus.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+Content-Type: TEXT/PLAIN; charset=US-ASCII
+X-OriginalArrivalTime: 03 Oct 2006 18:31:00.0218 (UTC) FILETIME=[13188DA0:01C6E71A]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.
+On Tue, 3 Oct 2006, John W. Linville wrote:
+> 
+> Today's news seems to indicate that at least the major distros are
+> already shipping the updated tools, or on the verge of shipping them.
+> The window of breakage for most users looks like it will be fairly
+> small, no matter what action taken.
+> 
+> The more we can clean-up the WE API, the easier it will be to implement
+> the cfg80211 WE compatibility layer intended for wireless-dev.
+> I think WE-21 makes things better in that respect.
 
-Arjan van de Ven wrote:
-> you do "noexec" and then complain that executing (!!) windows binaries
-> from that gets more of a problem!
-It only became slower and more memory-consuming -
-is this really what you wanted to achieve?
-Also, you haven't commented on the other points,
-namely, the problem of getting a shm with an exec
-permission, and the current limitation of an ld.so
-fix (and the solution to it).
+Please correct me if I'm wrong: isn't it the case that a few of the
+distros are now coming out with wireless_tools.28 supporting WE-20,
+but current 2.6.18-git wireless drivers are WE-21, supported only
+by wireless_tools.29.pre10?
 
+Hugh

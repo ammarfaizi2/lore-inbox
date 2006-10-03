@@ -1,36 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964841AbWJCJpp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964842AbWJCJqu@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964841AbWJCJpp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Oct 2006 05:45:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964842AbWJCJpp
+	id S964842AbWJCJqu (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Oct 2006 05:46:50 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964843AbWJCJqu
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Oct 2006 05:45:45 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:18593 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S964841AbWJCJpn (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Oct 2006 05:45:43 -0400
-From: David Howells <dhowells@redhat.com>
-In-Reply-To: <20061002.141850.18280315.davem@davemloft.net> 
-References: <20061002.141850.18280315.davem@davemloft.net>  <20061002.131414.74728780.davem@davemloft.net> <20061002135036.7bd1f76b.akpm@osdl.org> <20061002.140437.78732307.davem@davemloft.net> 
-To: David Miller <davem@davemloft.net>
-Cc: akpm@osdl.org, linux-kernel@vger.kernel.org, dhowells@redhat.com,
-       axboe@suse.de
-Subject: Re: linux/compat.h includes asm/signal.h causing problems 
-X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
-Date: Tue, 03 Oct 2006 10:45:25 +0100
-Message-ID: <9802.1159868725@warthog.cambridge.redhat.com>
+	Tue, 3 Oct 2006 05:46:50 -0400
+Received: from embla.aitel.hist.no ([158.38.50.22]:11422 "HELO
+	embla.aitel.hist.no") by vger.kernel.org with SMTP id S964842AbWJCJqt
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Oct 2006 05:46:49 -0400
+Message-ID: <452230BD.8050902@aitel.hist.no>
+Date: Tue, 03 Oct 2006 11:43:25 +0200
+From: Helge Hafting <helge.hafting@aitel.hist.no>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060915)
+MIME-Version: 1.0
+To: Linus Torvalds <torvalds@osdl.org>
+CC: "Martin J. Bligh" <mbligh@mbligh.org>, Lee Revell <rlrevell@joe-job.com>,
+       Matti Aarnio <matti.aarnio@zmailer.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Spam, bogofilter, etc
+References: <1159539793.7086.91.camel@mindpipe>  <20061002100302.GS16047@mea-ext.zmailer.org> <1159802486.4067.140.camel@mindpipe> <45212F39.5000307@mbligh.org> <Pine.LNX.4.64.0610020933020.3952@g5.osdl.org>
+In-Reply-To: <Pine.LNX.4.64.0610020933020.3952@g5.osdl.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-David Miller <davem@davemloft.net> wrote:
+Linus Torvalds wrote:
+> On Mon, 2 Oct 2006, Martin J. Bligh wrote:
+>   
+>> If you got rid of "slut" and "schoolgirl" that'd get rid of half of it.
+>>     
+>
+> The problem with bogo-filter is that THE WHOLE CONCEPT IS FLAWED.
+>   
+Perhaps, but it works remarkably well anyway. After training with a
+few thousand messages of each kind the amount of wrong
+decisions is low.  Each month I retrain the filter with the 20
+or so messages it wasn't able to classify. (I sort into
+spam, nonspam, and "dubious".)
 
-> > I'm working on a patch that puts the compat signal bits into
-> > include/asm-sparc64/compat_signal.h and adds the necessary
-> > includes to a few *.c files under arch/sparc64 when needed.
-> 
-> Ok, this seems to work and is what I'll sent to Linus.
-
-Do you have an x86-hosted or an x86_64-hosted cross-compiler that targets
-sparc/sparc64?
-
-David
+Helge Hafting

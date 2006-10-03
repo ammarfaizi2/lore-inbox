@@ -1,70 +1,94 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030638AbWJCWmI@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030635AbWJCWmG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030638AbWJCWmI (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Oct 2006 18:42:08 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030637AbWJCWmI
-	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Oct 2006 18:42:08 -0400
-Received: from hu-out-0506.google.com ([72.14.214.234]:58917 "EHLO
-	hu-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1030638AbWJCWmG (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	id S1030635AbWJCWmG (ORCPT <rfc822;willy@w.ods.org>);
 	Tue, 3 Oct 2006 18:42:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030637AbWJCWmG
+	(ORCPT <rfc822;linux-kernel-outgoing>);
+	Tue, 3 Oct 2006 18:42:06 -0400
+Received: from wx-out-0506.google.com ([66.249.82.233]:55814 "EHLO
+	wx-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1030635AbWJCWmD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Oct 2006 18:42:03 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent:sender;
-        b=soKd4CQCmN9jPU1jzU2FxpPqikIcjEtEZrYfSFqhwd2QNMnSQDy0KFNHIkKuWF44ikO7UcagR/gzBYZTtQWnHTi+y+m2Ha+o7jbK71D2gl0YeAoz843C1i7Wx0BN8KnE0zA8aKNiaTe4TQ3ZQafoqT/60apd5qz2RlbSYI9Qtoo=
-Date: Tue, 3 Oct 2006 22:41:46 +0000
-From: Frederik Deweerdt <deweerdt@free.fr>
-To: Jeff Garzik <jeff@garzik.org>
-Cc: linux-kernel@vger.kernel.org, arjan@infradead.org, matthew@wil.cx,
-       alan@lxorguk.ukuu.org.uk, akpm@osdl.org, rdunlap@xenotime.net,
-       gregkh@suse.de
-Subject: Re: [RFC PATCH] move tg3 to pci_request_irq
-Message-ID: <20061003224146.GK2785@slug>
-References: <20061003220732.GE2785@slug> <20061003222223.GH2785@slug> <4522E637.9090103@garzik.org>
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=gf7K1fJ8T/3NftFrHkplcHAQ5p0TKDz1PkB+3FQuoXxbmqr3suxoWweBATZtThrjgKPm+LKhiNFcjH/E3VzdgLEV3BP8dBoxXbAJCjF0xCAm46XuZGcJfiM5/cj7Rh2VSvp8M7EnHfiPMuPsUonrvXOaiiGZkmj9ZtR8NUKUp+s=
+Message-ID: <4522E76C.3080202@gmail.com>
+Date: Tue, 03 Oct 2006 16:42:52 -0600
+From: Jim Cromie <jim.cromie@gmail.com>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060909)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4522E637.9090103@garzik.org>
-User-Agent: mutt-ng/devel-r804 (Linux)
+To: Jim Cromie <jim.cromie@gmail.com>
+CC: Linux kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
+       john stultz <johnstul@us.ibm.com>
+Subject: Re: [patch 2.6.18+ ] scx200_hrt - fix precedence bug manifesting
+ as 27x clock in 1 MHz mode (resend with preformat)
+References: <4522DDBF.3070701@gmail.com>
+In-Reply-To: <4522DDBF.3070701@gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 03, 2006 at 06:37:43PM -0400, Jeff Garzik wrote:
-> Frederik Deweerdt wrote:
-> >Hi,
-> >This proof-of-concept patch converts the tg3 driver to use the
-> >pci_request_irq() function.
-> >Please note that I'm not submitting the driver changes, they're there
-> >only for illustration purposes. I'll CC the appropriate maintainers
-> >when/if an API is agreed upon.
-> >Regards,
-> >Frederik diff --git a/drivers/net/tg3.c b/drivers/net/tg3.c
-> >index c25ba27..23660c6 100644
-> >Index: 2.6.18-mm3/drivers/net/tg3.c
-> >===================================================================
-> >--- 2.6.18-mm3.orig/drivers/net/tg3.c
-> >+++ 2.6.18-mm3/drivers/net/tg3.c
-> >@@ -6853,7 +6853,7 @@ static int tg3_request_irq(struct tg3 *t
-> > 			fn = tg3_interrupt_tagged;
-> > 		flags = IRQF_SHARED | IRQF_SAMPLE_RANDOM;
-> > 	}
-> >-	return (request_irq(tp->pdev->irq, fn, flags, dev->name, dev));
-> >+	return pci_request_irq(tp->pdev, fn, flags, dev->name);
-> > }
-> >  static int tg3_test_interrupt(struct tg3 *tp)
-> >@@ -6866,10 +6866,10 @@ static int tg3_test_interrupt(struct tg3
-> >  	tg3_disable_ints(tp);
-> > -	free_irq(tp->pdev->irq, dev);
-> >+	pci_free_irq(tp->pdev);
-> > -	err = request_irq(tp->pdev->irq, tg3_test_isr,
-> >-			  IRQF_SHARED | IRQF_SAMPLE_RANDOM, dev->name, dev);
-> >+	err = pci_request_irq(tp->pdev, tg3_test_isr,
-> >+			      IRQF_SHARED | IRQF_SAMPLE_RANDOM, dev->name);
-> 
-> IRQF_SHARED flags are still left hanging around...
-I did it on purpose (see parent post): some parts of tg3 for example
-don't pass IRQF_SHARED, so I though it wasn't a good idea to enforce
-IRQF_SHARED in all cases. Did I miss something?
 
-Frederik
+Fix paren-placement / precedence bug breaking initialization for 1 MHz 
+clock mode.
+Also fix comment spelling error, and fence-post (off-by-one) error on 
+symbol
+used in request_region.
+
+Signed-off-by:  Jim Cromie <jim.cromie@gmail.com>
+---
+
+Oops, fix the <preformat>
+
+drivers/clocksource/scx200_hrt.c |    4 ++--
+include/linux/scx200.h           |    2 +-
+2 files changed, 3 insertions(+), 3 deletions(-)
+
+this patch fixes http://bugzilla.kernel.org/show_bug.cgi?id=7242
+but I cannot close it, so I'll leave it to those so empowered.
+
+should be ok for -stable, if the spelling correction doesnt break the 
+rules.
+The fence-post error is real, just not caught on x86, AFAICT.
+
+Thanks alexander.krause@erazor-zone.de, dzpost@dedekind.net, for the 
+reports and patch test,
+and phelps@mantara.com for the independent patch and verification.
+
+diff -ruNp -X dontdiff -X exclude-diffs ../linux-2.6.18-sk/drivers/clocksource/scx200_hrt.c debug/drivers/clocksource/scx200_hrt.c
+--- ../linux-2.6.18-sk/drivers/clocksource/scx200_hrt.c	2006-09-19 23:58:35.000000000 -0600
++++ debug/drivers/clocksource/scx200_hrt.c	2006-10-03 14:05:27.000000000 -0600
+@@ -63,7 +63,7 @@ static struct clocksource cs_hrt = {
+ 
+ static int __init init_hrt_clocksource(void)
+ {
+-	/* Make sure scx200 has initializedd the configuration block */
++	/* Make sure scx200 has initialized the configuration block */
+ 	if (!scx200_cb_present())
+ 		return -ENODEV;
+ 
+@@ -76,7 +76,7 @@ static int __init init_hrt_clocksource(v
+ 	}
+ 
+ 	/* write timer config */
+-	outb(HR_TMEN | (mhz27) ? HR_TMCLKSEL : 0,
++	outb(HR_TMEN | (mhz27 ? HR_TMCLKSEL : 0),
+ 	     scx200_cb_base + SCx200_TMCNFG_OFFSET);
+ 
+ 	if (mhz27) {
+diff -ruNp -X dontdiff -X exclude-diffs ../linux-2.6.18-sk/include/linux/scx200.h debug/include/linux/scx200.h
+--- ../linux-2.6.18-sk/include/linux/scx200.h	2006-09-20 00:00:59.000000000 -0600
++++ debug/include/linux/scx200.h	2006-10-03 09:18:50.000000000 -0600
+@@ -32,7 +32,7 @@ extern unsigned scx200_cb_base;
+ 
+ /* High Resolution Timer */
+ #define SCx200_TIMER_OFFSET 0x08
+-#define SCx200_TIMER_SIZE 0x05
++#define SCx200_TIMER_SIZE 0x06
+ 
+ /* Clock Generators */
+ #define SCx200_CLOCKGEN_OFFSET 0x10
+
+

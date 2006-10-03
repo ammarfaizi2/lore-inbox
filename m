@@ -1,72 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030253AbWJCCrP@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932524AbWJCCzH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030253AbWJCCrP (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Oct 2006 22:47:15 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030254AbWJCCrP
+	id S932524AbWJCCzH (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Oct 2006 22:55:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932449AbWJCCzH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Oct 2006 22:47:15 -0400
-Received: from server99.tchmachines.com ([72.9.230.178]:46002 "EHLO
-	server99.tchmachines.com") by vger.kernel.org with ESMTP
-	id S1030253AbWJCCrN (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Oct 2006 22:47:13 -0400
-Date: Mon, 2 Oct 2006 19:49:14 -0700
-From: Ravikiran G Thirumalai <kiran@scalex86.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: linux-kernel@vger.kernel.org, Alok Kataria <alok.kataria@calsoftinc.com>,
-       "Shai Fultheim (Shai@scalex86.org)" <shai@scalex86.org>,
-       "Benzi Galili (Benzi@ScaleMP.com)" <benzi@scalemp.com>
-Subject: [patch] mm: Fix incorrect mempolicy for idle threads
-Message-ID: <20061003024914.GA4071@localhost.localdomain>
+	Mon, 2 Oct 2006 22:55:07 -0400
+Received: from sccrmhc15.comcast.net ([63.240.77.85]:20625 "EHLO
+	sccrmhc15.comcast.net") by vger.kernel.org with ESMTP
+	id S1030258AbWJCCzD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Oct 2006 22:55:03 -0400
+Subject: Re: [2.6 patch] mark virt_to_bus/bus_to_virt as __deprecated on
+	i386
+From: Nicholas Miell <nmiell@comcast.net>
+To: Adrian Bunk <bunk@stusta.de>
+Cc: Judith Lebzelter <judith@osdl.org>, linux-kernel@vger.kernel.org,
+       linuxppc-dev@ozlabs.org
+In-Reply-To: <20061003015820.GG3278@stusta.de>
+References: <20061002214954.GD665@shell0.pdx.osdl.net>
+	 <20061002234428.GE3278@stusta.de> <20061003012241.GF3278@stusta.de>
+	 <1159840091.2349.0.camel@entropy>  <20061003015820.GG3278@stusta.de>
+Content-Type: text/plain
+Date: Mon, 02 Oct 2006 19:55:00 -0700
+Message-Id: <1159844100.2349.5.camel@entropy>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
-X-AntiAbuse: This header was added to track abuse, please include it with any abuse report
-X-AntiAbuse: Primary Hostname - server99.tchmachines.com
-X-AntiAbuse: Original Domain - vger.kernel.org
-X-AntiAbuse: Originator/Caller UID/GID - [0 0] / [47 12]
-X-AntiAbuse: Sender Address Domain - scalex86.org
-X-Source: 
-X-Source-Args: 
-X-Source-Dir: 
+X-Mailer: Evolution 2.6.3 (2.6.3-1.fc5.5.0.njm.1) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The kernel boots up on the BP with an initial memory policy of
-MPOL_INTERLEAVE (start_kernel() -> numa_policy_init()).  This is
-done to avoid all boot data structure allocations to be off the boot
-node. Current mainline resets the memory policy to MPOL_DEFAULT at init(), 
-just before calling userspace init.  But, this is too late and leaves 
-the kernel idle thread with MPOL_INTERLEAVE, causing later allocations 
-off interrupt/BH context to use MPOL_INTERLEAVE, rather than MPOL_DEFAULT 
-(if the interrupt occurs on an idle cpu).  This can be fixed by changing 
-the mempolicy to MPOL_DEFAULT just before the 'init' kernel thread is 
-spawned, OR just before smp_init() (smp_init would spawn idle threads).  
-The following patch uses the latter approach and moves numa_default_policy() 
-to just  before smp_init().
+On Tue, 2006-10-03 at 03:58 +0200, Adrian Bunk wrote:
+> On Mon, Oct 02, 2006 at 06:48:11PM -0700, Nicholas Miell wrote:
+> > On Tue, 2006-10-03 at 03:22 +0200, Adrian Bunk wrote:
+> > > On Tue, Oct 03, 2006 at 01:44:28AM +0200, Adrian Bunk wrote:
+> > > > On Mon, Oct 02, 2006 at 02:49:54PM -0700, Judith Lebzelter wrote:
+> > > > 
+> > > > > Hello:
+> > > > 
+> > > > Hi Judith,
+> > > > 
+> > > > > For the automated cross-compile builds at OSDL, powerpc 64-bit 
+> > > > > 'allmodconfig' is failing.  The warnings/errors below appear in 
+> > > > > the 'modpost' stage of kernel compiles for 2.6.18 and -mm2 kernels.
+> > > > 
+> > > > known for ages - the drivers need fixing.
+> > > > 
+> > > > You might want to convince Andrew accepting my patch to make 
+> > > > virt_to_bus/bus_to_virt give compile warnings on i386 for making
+> > > > people more aware of this problem...
+> > > >...
+> > > 
+> > > In case anyone is interested, the patch is below.
+> > > 
+> > > cu
+> > > Adrian
+> > > 
+> > 
+> > Won't this also cause warnings for valid arch-specific usage (i.e. in
+> > linux/arch/{i386,x86_64})?
+> 
+> They aren't used under linux/arch/i386/ and my patch doesn't change x86_64.
 
-Signed-off-by: Alok N Kataria <alok.kataria@calsoftinc.com>
-Signed-off-by: Ravikiran Thirumalai <kiran@scalex86.org>
-Signed-off-by: Shai Fultheim <shai@scalex86.org>
+Sorry, for some reason I thought isa_bus_to_virt and isa_virt_to_bus
+were defined in terms of virt_to_bus/bus_to_virt instead of
+virt_to_phys/phys_to_virt.
 
-Index: linux-2.6.18/init/main.c
-===================================================================
---- linux-2.6.18.orig/init/main.c	2006-09-19 20:42:06.000000000 -0700
-+++ linux-2.6.18/init/main.c	2006-09-28 15:13:01.000000000 -0700
-@@ -703,6 +703,8 @@ static int init(void * unused)
- 
- 	do_pre_smp_initcalls();
- 
-+	numa_default_policy();
-+
- 	smp_init();
- 	sched_init_smp();
- 
-@@ -738,7 +740,6 @@ static int init(void * unused)
- 	unlock_kernel();
- 	mark_rodata_ro();
- 	system_state = SYSTEM_RUNNING;
--	numa_default_policy();
- 
- 	if (sys_open((const char __user *) "/dev/console", O_RDWR, 0) < 0)
- 		printk(KERN_WARNING "Warning: unable to open an initial console.\n");
+
+-- 
+Nicholas Miell <nmiell@comcast.net>
+

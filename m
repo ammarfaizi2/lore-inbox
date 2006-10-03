@@ -1,68 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030303AbWJCREW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030333AbWJCRIZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030303AbWJCREW (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Oct 2006 13:04:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030312AbWJCREW
+	id S1030333AbWJCRIZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Oct 2006 13:08:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030334AbWJCRIZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Oct 2006 13:04:22 -0400
-Received: from mx6.mail.ru ([194.67.23.26]:64848 "EHLO mx6.mail.ru")
-	by vger.kernel.org with ESMTP id S1030303AbWJCRET (ORCPT
+	Tue, 3 Oct 2006 13:08:25 -0400
+Received: from madara.hpl.hp.com ([192.6.19.124]:48364 "EHLO madara.hpl.hp.com")
+	by vger.kernel.org with ESMTP id S1030333AbWJCRIY (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Oct 2006 13:04:19 -0400
-From: Andrey Borzenkov <arvidjaar@mail.ru>
-To: linux-kernel@vger.kernel.org
-Subject: 2.6.18: BUG: lock held at task exit time! on resume from STR
-Date: Tue, 3 Oct 2006 21:04:20 +0400
-User-Agent: KMail/1.9.4
-Cc: linux-acpi@vger.kernel.org
-Content-Type: text/plain;
-  charset="us-ascii"
-Content-Transfer-Encoding: 7bit
+	Tue, 3 Oct 2006 13:08:24 -0400
+Date: Tue, 3 Oct 2006 10:03:45 -0700
+To: Theodore Tso <tytso@mit.edu>, Dan Williams <dcbw@redhat.com>,
+       "John W. Linville" <linville@tuxdriver.com>,
+       Alessandro Suardi <alessandro.suardi@gmail.com>,
+       "Rafael J. Wysocki" <rjw@sisk.pl>, jt@hpl.hp.com,
+       Andrew Morton <akpm@osdl.org>, hostap@shmoo.com,
+       linux-kernel@vger.kernel.org, ipw3945-devel@lists.sourceforge.net
+Subject: Re: wpa supplicant/ipw3945, ESSID last char missing
+Message-ID: <20061003170345.GE17252@bougret.hpl.hp.com>
+Reply-To: jt@hpl.hp.com
+References: <20061002185550.GA14854@bougret.hpl.hp.com> <200610022147.03748.rjw@sisk.pl> <1159822831.11771.5.camel@localhost.localdomain> <20061002212604.GA6520@thunk.org> <5a4c581d0610021508hdc331f0w7c9b71c3944d4d8b@mail.gmail.com> <1159877574.2879.11.camel@localhost.localdomain> <20061003124902.GB23912@tuxdriver.com> <20061003133845.GG2930@thunk.org> <1159884779.2855.18.camel@localhost.localdomain> <20061003160041.GC29333@thunk.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200610032104.21492.arvidjaar@mail.ru>
+In-Reply-To: <20061003160041.GC29333@thunk.org>
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: jt@hpl.hp.com
+User-Agent: Mutt/1.5.9i
+From: Jean Tourrilhes <jt@hpl.hp.com>
+X-HPL-MailScanner: Found to be clean
+X-HPL-MailScanner-From: jt@hpl.hp.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
------BEGIN PGP SIGNED MESSAGE-----
-Hash: SHA1
+On Tue, Oct 03, 2006 at 12:00:41PM -0400, Theodore Tso wrote:
+> 
+> Consider that that the normal, MINIMUM waiting period for *removing*
+> an interface or functionality is six months.  I would argue that this
+> means that we should be waiting that long before making
+> backwards-incompatible changes to an interface should be at least that
+> long.
 
-Running Toshiba Portege 4000, I have intermittent lockups at resume from STR. 
-Those lockups were less frequent before 2.6.18 ("it mostly works"); after 
-switching to 2.6.18 it is rather "it almost never works". After enabling full 
-console output (SysRq-9) and doing suspend/resume I got:
+	Wireless Tools with the new API were released in
+April. wpa_supplicant with the new API was release May 5th. That makes
+it 6 months.
+	Wireless Tools v28 was included in Gentoo April 11th and in
+Debian testing May 27th. wpa_supplicant 0.4.9 was included in Gentoo
+May 27th and Debian testing June 10th.
 
-BUG: lock held at task exit time!
-echo/1931 is exiting with locks still held!
-1 lock held by by echo/1931
-  #0 (acpi_gbl_hardware_lock) {+...}, at [<c01df0d8>] 
-acpi_os_acquire_lock+0x8/0xa
+	Please consider the facts before assuming.
 
-I also have relatively bad photo of screen with stack trace but it is not 
-actually interesting (it just says task was exiting).
-
-After that system stays still, I only can press power button.
-
-echo mentioned above is likely to be
-
-    FILE=/sys/power/state
-    PARAM=mem
-
-    /usr/share/suspend-scripts/run_scripts $debug suspend s3
-
-    if ! (/bin/echo $PARAM > $FILE &) ;then
-        ret=1
-    fi
-
-I appreciate any hint how to further debug the issue.
-
-
-TIA
-
-- -andrey
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
-
-iD8DBQFFIpgVR6LMutpd94wRAlIwAKCPPlxwmeogp6mKdNfSo3teAtqYywCgrP6B
-uD5IBV2GYyxwfjmusTlHzrM=
-=6QeU
------END PGP SIGNATURE-----
+	Jean

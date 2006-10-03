@@ -1,84 +1,76 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932105AbWJCMz4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932124AbWJCM4m@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932105AbWJCMz4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Oct 2006 08:55:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932118AbWJCMz4
+	id S932124AbWJCM4m (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Oct 2006 08:56:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932122AbWJCM4m
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Oct 2006 08:55:56 -0400
-Received: from rhlx01.fht-esslingen.de ([129.143.116.10]:59587 "EHLO
-	rhlx01.fht-esslingen.de") by vger.kernel.org with ESMTP
-	id S932103AbWJCMzz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Oct 2006 08:55:55 -0400
-Date: Tue, 3 Oct 2006 14:55:53 +0200
-From: Andreas Mohr <andi@rhlx01.fht-esslingen.de>
-To: Andrew Morton <akpm@osdl.org>
-Cc: rgooch@atnf.csiro.au, Jan Beulich <jbeulich@novell.com>,
-       Kurt Garloff <garloff@suse.de>, linux-kernel@vger.kernel.org
-Subject: [PATCH -mm] fix buggy MTRR address checks
-Message-ID: <20061003125553.GA3648@rhlx01.fht-esslingen.de>
+	Tue, 3 Oct 2006 08:56:42 -0400
+Received: from ra.tuxdriver.com ([70.61.120.52]:40457 "EHLO ra.tuxdriver.com")
+	by vger.kernel.org with ESMTP id S932124AbWJCM4l (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Oct 2006 08:56:41 -0400
+Date: Tue, 3 Oct 2006 08:49:07 -0400
+From: "John W. Linville" <linville@tuxdriver.com>
+To: Dan Williams <dcbw@redhat.com>
+Cc: Alessandro Suardi <alessandro.suardi@gmail.com>,
+       Theodore Tso <tytso@mit.edu>, "Rafael J. Wysocki" <rjw@sisk.pl>,
+       jt@hpl.hp.com, Andrew Morton <akpm@osdl.org>,
+       Norbert Preining <preining@logic.at>, hostap@shmoo.com,
+       linux-kernel@vger.kernel.org, ipw3945-devel@lists.sourceforge.net
+Subject: Re: wpa supplicant/ipw3945, ESSID last char missing
+Message-ID: <20061003124902.GB23912@tuxdriver.com>
+References: <20061002085942.GA32387@gamma.logic.tuwien.ac.at> <20061002111537.baa077d2.akpm@osdl.org> <20061002185550.GA14854@bougret.hpl.hp.com> <200610022147.03748.rjw@sisk.pl> <1159822831.11771.5.camel@localhost.localdomain> <20061002212604.GA6520@thunk.org> <5a4c581d0610021508hdc331f0w7c9b71c3944d4d8b@mail.gmail.com> <1159877574.2879.11.camel@localhost.localdomain>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-User-Agent: Mutt/1.4.2.1i
-X-Priority: none
+In-Reply-To: <1159877574.2879.11.camel@localhost.localdomain>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Fix checks that failed to realize that values are 4-kB-unit-sized
-(note the format strings in this same diff context which *do* realize the
-unit size, via appended "000"!).
-Also fix an incorrect below-1MB area check (as gathered from Jan Beulich's
-unapplied patch at
-http://www.ussg.iu.edu/hypermail/linux/kernel/0411.1/1378.html )
-Update mtrr_add_page() docu to make 4-kB-sized calculation more obvious.
+On Tue, Oct 03, 2006 at 08:12:53AM -0400, Dan Williams wrote:
+> On Tue, 2006-10-03 at 00:08 +0200, Alessandro Suardi wrote:
+> > On 10/2/06, Theodore Tso <tytso@mit.edu> wrote:
+> > > On Mon, Oct 02, 2006 at 05:00:31PM -0400, Dan Williams wrote:
+> > > > Distributions _are_ shipping those tools already.  The problem is more
+> > > > with older distributions where, for example, the kernel gets upgraded
+> > > > but other stuff does not.  If a kernel upgrade happens, then the distro
+> > > > needs to make sure userspace works with it.  That's nothing new.
+> > >
+> > > Um, *which* distro's are shipping it already?  RHEL4?  SLES10?  I
+> > > thought we saw a note saying that even Debian **unstable** didn't have
+> > > a new enough version of the wireless-tools....
+> > 
+> > That was my point initially. FC5-latest is apparently carrying
+> >  tools which are "too old"... and I yum update twice or thrice
+> >  a week. Not that *I* minded building packages from source,
+> >  but this is likely a bit too much for a good slice of the userbase.
+> 
+> And that's my fault.  I was made aware of this issue last week and am
+> currently testing out the newer wireless-tools with the intention of
+> pushing them to FC5-updates.  Had I actually been tracking the
+> wireless-tools release cycle more closely, I would have pushed the
+> wireless-tools-28 final version when it came out.
+> 
+> But, as far as I know (please correct me if I'm wrong), that 2.6.18
+> doesn't actually include WE-21! [1]  Somebody is trying to run
+> out-of-kernel ipw3945 drivers using a 2.6.18 kernel from FC5 that's
+> WE-20 only, but the driver uses WE-21?
 
+Obviously I was a bit optimisitic in accepting the notion that distros
+had already upgraded their userland bits to handle WE-21.  I apologize.
 
+As Dan points-out, it will be a while before distros (other than
+Fedora rawhide and equivalents) have 2.6.19 kernels for general
+users.  For now, those experiencing this issue should be comfortable
+experiencing some breakage...?
 
-Given several further items mentioned in Jan's patch mail, all in all
-MTRR code seems surprisingly buggy, for a surprisingly long period of time
-(many years). Further work/investigation would be useful.
+So, is the window between now and the release of 2.6.19 big enough
+to give the distros time to get wireless-tools and wpa_supplicant
+into their update streams?  Or do we need to go through the pain of
+reverting/delaying WE-21?
 
-Note that my patch is pretty much UNTESTED, since I can only verify that
-it successfully boots my machine, but I cannot test against actual buggy
-hardware which would require these (formerly broken) checks.
-Long -mm simmering would make sense, especially since these now-working
-checks might turn out to have adverse effects on unaffected hardware.
-
-Signed-off-by: Andreas Mohr <andi@lisas.de>
-
-
-diff -urN linux-2.6.18-mm3.orig/arch/i386/kernel/cpu/mtrr/generic.c linux-2.6.18-mm3/arch/i386/kernel/cpu/mtrr/generic.c
---- linux-2.6.18-mm3.orig/arch/i386/kernel/cpu/mtrr/generic.c	2006-10-11 11:59:45.000000000 +0200
-+++ linux-2.6.18-mm3/arch/i386/kernel/cpu/mtrr/generic.c	2006-10-11 12:04:37.000000000 +0200
-@@ -366,7 +366,7 @@
- 			printk(KERN_WARNING "mtrr: base(0x%lx000) is not 4 MiB aligned\n", base);
- 			return -EINVAL;
- 		}
--		if (!(base + size < 0x70000000 || base > 0x7003FFFF) &&
-+		if (!(base + size < 0x70000 || base > 0x7003F) &&
- 		    (type == MTRR_TYPE_WRCOMB
- 		     || type == MTRR_TYPE_WRBACK)) {
- 			printk(KERN_WARNING "mtrr: writable mtrr between 0x70000000 and 0x7003FFFF may hang the CPU.\n");
-@@ -374,7 +374,7 @@
- 		}
- 	}
- 
--	if (base + size < 0x100) {
-+	if (base < 0x100) {
- 		printk(KERN_WARNING "mtrr: cannot set region below 1 MiB (0x%lx000,0x%lx000)\n",
- 		       base, size);
- 		return -EINVAL;
-diff -urN linux-2.6.18-mm3.orig/arch/i386/kernel/cpu/mtrr/main.c linux-2.6.18-mm3/arch/i386/kernel/cpu/mtrr/main.c
---- linux-2.6.18-mm3.orig/arch/i386/kernel/cpu/mtrr/main.c	2006-08-18 20:03:00.000000000 +0200
-+++ linux-2.6.18-mm3/arch/i386/kernel/cpu/mtrr/main.c	2006-10-11 12:04:37.000000000 +0200
-@@ -263,8 +263,8 @@
- 
- /**
-  *	mtrr_add_page - Add a memory type region
-- *	@base: Physical base address of region in pages (4 KB)
-- *	@size: Physical size of region in pages (4 KB)
-+ *	@base: Physical base address of region in pages (in units of 4 kB!)
-+ *	@size: Physical size of region in pages (4 kB)
-  *	@type: Type of MTRR desired
-  *	@increment: If this is true do usage counting on the region
-  *
+John
+-- 
+John W. Linville
+linville@tuxdriver.com

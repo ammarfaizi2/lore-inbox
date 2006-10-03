@@ -1,76 +1,74 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965379AbWJCHTp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965371AbWJCHUg@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965379AbWJCHTp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Oct 2006 03:19:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965354AbWJCHTp
+	id S965371AbWJCHUg (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Oct 2006 03:20:36 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965382AbWJCHUf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Oct 2006 03:19:45 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:26292 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S965308AbWJCHTn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Oct 2006 03:19:43 -0400
-Subject: Re: [RFC PATCH] move tg3 to pci_request_irq
-From: Arjan van de Ven <arjan@infradead.org>
-To: Frederik Deweerdt <deweerdt@free.fr>
-Cc: Matthew Wilcox <matthew@wil.cx>, linux-scsi@vger.kernel.org,
-       "Linux-Kernel," <linux-kernel@vger.kernel.org>,
-       "J.A. Magall??n" <jamagallon@ono.com>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Andrew Morton <akpm@osdl.org>,
-       Jeff Garzik <jeff@garzik.org>
-In-Reply-To: <20061002201134.GE3003@slug>
-References: <1159550143.13029.36.camel@localhost.localdomain>
-	 <20060929235054.GB2020@slug>
-	 <1159573404.13029.96.camel@localhost.localdomain>
-	 <20060930140946.GA1195@slug> <451F049A.1010404@garzik.org>
-	 <20061001142807.GD16272@parisc-linux.org>
-	 <1159729523.2891.408.camel@laptopd505.fenrus.org>
-	 <20061001193616.GF16272@parisc-linux.org>
-	 <1159755141.2891.434.camel@laptopd505.fenrus.org>
-	 <20061002200048.GC3003@slug>  <20061002201134.GE3003@slug>
-Content-Type: text/plain
-Organization: Intel International BV
-Date: Tue, 03 Oct 2006 09:18:27 +0200
-Message-Id: <1159859907.2891.513.camel@laptopd505.fenrus.org>
+	Tue, 3 Oct 2006 03:20:35 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:51107 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S965371AbWJCHUe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Oct 2006 03:20:34 -0400
+Date: Tue, 3 Oct 2006 00:20:14 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Paul Mackerras <paulus@samba.org>
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>, linux-kernel@vger.kernel.org,
+       Andi Kleen <ak@muc.de>, Hugh Dickens <hugh@veritas.com>,
+       Michael Ellerman <michael@ellerman.id.au>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH 5/6] From: Andrew Morton <akpm@osdl.org>
+Message-Id: <20061003002014.321f68b6.akpm@osdl.org>
+In-Reply-To: <17698.2424.528747.211313@cargo.ozlabs.ibm.com>
+References: <20061003010842.438670755@goop.org>
+	<20061003010933.392428107@goop.org>
+	<17697.58794.113796.925995@cargo.ozlabs.ibm.com>
+	<20061002213347.8229b6fc.akpm@osdl.org>
+	<17697.62198.476469.265990@cargo.ozlabs.ibm.com>
+	<20061002225053.46be0324.akpm@osdl.org>
+	<17698.2424.528747.211313@cargo.ozlabs.ibm.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-10-02 at 20:11 +0000, Frederik Deweerdt wrote:
-> Hi,
-> 
-> This proof-of-concept patch converts the tg3 driver to use the
-> pci_request_irq() function.
-> 
-> Regards,
-> Frederik
-> 
-> 
-> diff --git a/drivers/net/tg3.c b/drivers/net/tg3.c
-> index c25ba27..23660c6 100644
-> --- a/drivers/net/tg3.c
-> +++ b/drivers/net/tg3.c
-> @@ -6838,9 +6838,9 @@ restart_timer:
->  
->  static int tg3_request_irq(struct tg3 *tp)
->  {
-> +	struct net_device *dev = tp->dev;
->  	irqreturn_t (*fn)(int, void *, struct pt_regs *);
->  	unsigned long flags;
-> -	struct net_device *dev = tp->dev;
->  
->  	if (tp->tg3_flags2 & TG3_FLG2_USING_MSI) {
->  		fn = tg3_msi;
-> @@ -6853,7 +6853,7 @@ static int tg3_request_irq(struct tg3 *t
->  			fn = tg3_interrupt_tagged;
->  		flags = IRQF_SHARED | IRQF_SAMPLE_RANDOM;
->  	}
-> -	return (request_irq(tp->pdev->irq, fn, flags, dev->name, dev));
-> +	return pci_request_irq(tp->pdev, fn, flags, dev->name);
+On Tue, 3 Oct 2006 16:55:52 +1000
+Paul Mackerras <paulus@samba.org> wrote:
 
-since pci_request_irq sets IRQF_SHARED... might as well drop that above.
+> That is because the nvidia console driver has changed the line pitch
+> from what the firmware set it to.  This should fix it by making the
+> nvidia driver inform the btext engine (which xmon uses if the screen
+> is its output device) about changes to display resolution.
+> 
+> Signed-off-by: Paul Mackerras <paulus@samba.org>
+> ---
+> diff --git a/drivers/video/nvidia/nvidia.c b/drivers/video/nvidia/nvidia.c
+> index d4f8501..18b9101 100644
+> --- a/drivers/video/nvidia/nvidia.c
+> +++ b/drivers/video/nvidia/nvidia.c
+> @@ -28,6 +28,9 @@ #ifdef CONFIG_PPC_OF
+>  #include <asm/prom.h>
+>  #include <asm/pci-bridge.h>
+>  #endif
+> +#ifdef CONFIG_BOOTX_TEXT
+> +#include <asm/btext.h>
+> +#endif
+>  
+>  #include "nv_local.h"
+>  #include "nv_type.h"
+> @@ -681,6 +684,13 @@ #endif
+>  
+>  	nvidia_vga_protect(par, 0);
+>  
+> +#ifdef CONFIG_BOOTX_TEXT
+> +	/* Update debug text engine */
+> +	btext_update_display(info->fix.smem_start,
+> +			     info->var.xres, info->var.yres,
+> +			     info->var.bits_per_pixel, info->fix.line_length);
+> +#endif
 
+yup, that fixed it.  xmon apparently doesn't know where fbcon's output
+cursor is, but the characters are now readable.
 

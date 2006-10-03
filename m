@@ -1,43 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030345AbWJCRab@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030351AbWJCRbA@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030345AbWJCRab (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Oct 2006 13:30:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030348AbWJCRab
+	id S1030351AbWJCRbA (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Oct 2006 13:31:00 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030349AbWJCRam
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Oct 2006 13:30:31 -0400
-Received: from xdsl-664.zgora.dialog.net.pl ([81.168.226.152]:43280 "EHLO
-	tuxland.pl") by vger.kernel.org with ESMTP id S1030345AbWJCRaa
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Oct 2006 13:30:30 -0400
-From: Mariusz Kozlowski <m.kozlowski@tuxland.pl>
-Organization: tuxland
-To: Alan Cox <alan@lxorguk.ukuu.org.uk>
-Subject: Re: Spam, bogofilter, etc
-Date: Tue, 3 Oct 2006 19:32:13 +0200
-User-Agent: KMail/1.9.1
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-References: <1159539793.7086.91.camel@mindpipe> <Pine.LNX.4.64.0610020933020.3952@g5.osdl.org> <1159811392.8907.36.camel@localhost.localdomain>
-In-Reply-To: <1159811392.8907.36.camel@localhost.localdomain>
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-2"
-Content-Transfer-Encoding: 7bit
+	Tue, 3 Oct 2006 13:30:42 -0400
+Received: from e4.ny.us.ibm.com ([32.97.182.144]:45211 "EHLO e4.ny.us.ibm.com")
+	by vger.kernel.org with ESMTP id S1030351AbWJCRaf (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Oct 2006 13:30:35 -0400
+Date: Tue, 3 Oct 2006 13:10:55 -0400
+From: Vivek Goyal <vgoyal@in.ibm.com>
+To: linux kernel mailing list <linux-kernel@vger.kernel.org>
+Cc: Reloc Kernel List <fastboot@lists.osdl.org>, ebiederm@xmission.com,
+       akpm@osdl.org, ak@suse.de, horms@verge.net.au, lace@jankratochvil.net,
+       hpa@zytor.com, magnus.damm@gmail.com, lwang@redhat.com,
+       dzickus@redhat.com, maneesh@in.ibm.com
+Subject: [PATCH 4/12] i386: define __pa_symbol()
+Message-ID: <20061003171055.GD3164@in.ibm.com>
+Reply-To: vgoyal@in.ibm.com
+References: <20061003170032.GA30036@in.ibm.com>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200610031932.13125.m.kozlowski@tuxland.pl>
+In-Reply-To: <20061003170032.GA30036@in.ibm.com>
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
 
-> every good spammer reruns their message through spamassassin adding random
-> text till they get a good score *then* they spew it out.
 
-That's a flaw in the whole idea of having pre-defined (by human) separate 
-rules catching misc obvious (to us) spam indicators. If you had a filter that 
-you just feed with raw data from many sources and that does pattern 
-recognition and learns on its own, there (probably) would be no way to go 
-around it. At least it wouldn't be easy. In fact i.e. when ANN is used as 
-classifier, the rules created after training are hidden and have no obvious 
-represantation to us so one would have no idea what to change to get the 
-desired filter output.
+On x86_64 we have to be careful with calculating the physical
+address of kernel symbols.  Both because of compiler odditities
+and because the symbols live in a different range of the virtual
+address space.
 
-	Mariusz
+Having a defintition of __pa_symbol that works on both x86_64 and
+i386 simplifies writing code that works for both x86_64 and
+i386 that has these kinds of dependencies.
+
+So this patch adds the trivial i386 __pa_symbol definition.
+
+Added assembly magic similar to RELOC_HIDE as suggested by Andi Kleen.
+Just picked it up from x86_64.
+
+Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
+Signed-off-by: Vivek Goyal <vgoyal@in.ibm.com>
+---
+
+ include/asm-i386/page.h |    6 ++++++
+ 1 file changed, 6 insertions(+)
+
+diff -puN include/asm-i386/page.h~i386-define-__pa_symbol include/asm-i386/page.h
+--- linux-2.6.18-git17/include/asm-i386/page.h~i386-define-__pa_symbol	2006-10-02 13:17:58.000000000 -0400
++++ linux-2.6.18-git17-root/include/asm-i386/page.h	2006-10-02 14:36:32.000000000 -0400
+@@ -124,6 +124,12 @@ extern int page_is_ram(unsigned long pag
+ #define VMALLOC_RESERVE		((unsigned long)__VMALLOC_RESERVE)
+ #define MAXMEM			(-__PAGE_OFFSET-__VMALLOC_RESERVE)
+ #define __pa(x)			((unsigned long)(x)-PAGE_OFFSET)
++/* __pa_symbol should be used for C visible symbols.
++   This seems to be the official gcc blessed way to do such arithmetic. */
++#define __pa_symbol(x)          \
++	({unsigned long v;  \
++	  asm("" : "=r" (v) : "0" (x)); \
++	  __pa(v); })
+ #define __va(x)			((void *)((unsigned long)(x)+PAGE_OFFSET))
+ #define pfn_to_kaddr(pfn)      __va((pfn) << PAGE_SHIFT)
+ #ifdef CONFIG_FLATMEM
+_

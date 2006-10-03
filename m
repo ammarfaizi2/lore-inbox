@@ -1,126 +1,78 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964831AbWJCSGR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964882AbWJCSOM@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964831AbWJCSGR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Oct 2006 14:06:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964830AbWJCSGR
+	id S964882AbWJCSOM (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Oct 2006 14:14:12 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751025AbWJCSOM
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Oct 2006 14:06:17 -0400
-Received: from e36.co.us.ibm.com ([32.97.110.154]:62425 "EHLO
-	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S964831AbWJCSGQ
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Oct 2006 14:06:16 -0400
-Subject: Re: 2.6.18-mm3
-From: Badari Pulavarty <pbadari@gmail.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: lkml <linux-kernel@vger.kernel.org>, linux-mm <linux-mm@kvack.org>
-In-Reply-To: <1159897051.9569.0.camel@dyn9047017100.beaverton.ibm.com>
-References: <20061003001115.e898b8cb.akpm@osdl.org>
-	 <1159897051.9569.0.camel@dyn9047017100.beaverton.ibm.com>
-Content-Type: text/plain
-Date: Tue, 03 Oct 2006 11:05:46 -0700
-Message-Id: <1159898746.9569.6.camel@dyn9047017100.beaverton.ibm.com>
+	Tue, 3 Oct 2006 14:14:12 -0400
+Received: from ra.tuxdriver.com ([70.61.120.52]:25869 "EHLO ra.tuxdriver.com")
+	by vger.kernel.org with ESMTP id S1751023AbWJCSOK (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Oct 2006 14:14:10 -0400
+Date: Tue, 3 Oct 2006 14:05:50 -0400
+From: "John W. Linville" <linville@tuxdriver.com>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Lee Revell <rlrevell@joe-job.com>,
+       Alessandro Suardi <alessandro.suardi@gmail.com>,
+       Norbert Preining <preining@logic.at>, hostap@shmoo.com,
+       ipw3945-devel@lists.sourceforge.net, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, jeff@garzik.org,
+       johannes@sipsolutions.net, jt@hpl.hp.com
+Subject: Re: wpa supplicant/ipw3945, ESSID last char missing
+Message-ID: <20061003180543.GD23912@tuxdriver.com>
+References: <20061002085942.GA32387@gamma.logic.tuwien.ac.at> <5a4c581d0610020221s7bf100f8q893161b7c8c492d2@mail.gmail.com> <1159807483.4067.150.camel@mindpipe> <20061003123835.GA23912@tuxdriver.com> <1159890876.20801.65.camel@mindpipe> <Pine.LNX.4.64.0610030916000.3952@g5.osdl.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0610030916000.3952@g5.osdl.org>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-10-03 at 10:37 -0700, Badari Pulavarty wrote:
-> On Tue, 2006-10-03 at 00:11 -0700, Andrew Morton wrote:
-> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18/2.6.18-mm3/
-> > 
-> > - Added Jeff's make-bogus-warnings-go-away tree to the -mm lineup, as
-> >   git-gccbug.patch
-> > 
-> > - Francois Romieu is doing some qlogic driver maintenance - added his
-> >   git-qla3xxx.patch to the -mm lineup.
-> > 
-> > - Some wireless-related crashes are hopefully fixed.  But if there are still
-> >   wireless problems, be sure that you have the latest userspace tools.
-> > 
-> > - The recent spate of IRQ-allocation-related crashes on x86_64 is hopefully
-> >   fixed.
-> > 
-> > - As far as we know, the MSI handling in -mm is now rock-solid.
-> 
-> 
-> Not having any luck with it :(
-> 
-> Thanks,
-> Badari
-> 
-> Kernel command line: root=/dev/hda2 vga=0x314  selinux=0   console=tty0
-> console=ttyS0,38400 resume=/dev/hda1 resume=/dev/hda1  splash=silent
-> showopts
-> Initializing CPU#0
-> PID hash table entries: 4096 (order: 12, 32768 bytes)
-> Console: colour dummy device 80x25
-> Dentry cache hash table entries: 1048576 (order: 11, 8388608 bytes)
-> Inode-cache hash table entries: 524288 (order: 10, 4194304 bytes)
-> Checking aperture...
-> CPU 0: aperture @ 0 size 32 MB
-> No AGP bridge found
-> Your BIOS doesn't leave a aperture memory hole
-> Please enable the IOMMU option in the BIOS setup
-> This costs you 64 MB of RAM
-> Mapping aperture over 65536 KB of RAM @ 4000000
-> Memory: 7147724k/7864320k available (2924k kernel code, 191856k
-> reserved, 1697k data, 360k init)
-> ------------[ cut here ]------------
-> kernel BUG in init_list at mm/slab.c:1334!
-> invalid opcode: 0000 [1] SMP
-> last sysfs file:
-> CPU 0
-> Modules linked in:
-> Pid: 0, comm: swapper Not tainted 2.6.18-mm3 #1
-> RIP: 0010:[<ffffffff8027bd5b>]  [<ffffffff8027bd5b>] init_list
-> +0x2b/0x120
-> RSP: 0018:ffffffff806d9f18  EFLAGS: 00010212
-> RAX: 000000000000003f RBX: 0000000000000001 RCX: 0000000000000000
-> RDX: 0000000000000001 RSI: ffffffff8072b0a8 RDI: ffff81017a800040
-> RBP: ffffffff806d9f48 R08: 0000000000000001 R09: 0000000000000003
-> R10: 0000000000000000 R11: ffffffff8072cac8 R12: 0000000000000001
-> R13: ffff81017a800040 R14: ffffffff8072b0a8 R15: 0000000000000000
-> FS:  0000000000000000(0000) GS:ffffffff80684000(0000)
-> knlGS:0000000000000000
-> CS:  0010 DS: 0018 ES: 0018 CR0: 000000008005003b
-> CR2: 0000000000000000 CR3: 0000000000201000 CR4: 00000000000006a0
-> Process swapper (pid: 0, threadinfo ffffffff806d8000, task
-> ffffffff805f7bc0)
-> Stack:  ffffffff806d9f48 0000000100000286 0000000000000001
-> ffffffff8072b0a8
->  0000000000000040 0000000000000000 ffffffff806d9f98 ffffffff806fdc69
->  0000000000000168 0000000000000240 0000000100000001 0000000000090000
-> Call Trace:
->  [<ffffffff806fdc69>] kmem_cache_init+0x3b9/0x490
->  [<ffffffff806e36ef>] start_kernel+0x18f/0x220
->  [<ffffffff806e3176>] _sinittext+0x176/0x180
+On Tue, Oct 03, 2006 at 09:27:34AM -0700, Linus Torvalds wrote:
 
-Here is the fix for this. With this -mm3 boots fine (no networking
-problems so far).
-
-Thanks,
-Badari
-
-Fix typo in kmem_cache_init().
-
-Signed-off-by: Badari Pulavarty <pbadari@us.ibm.com>
-
- mm/slab.c |    2 +-
- 1 file changed, 1 insertion(+), 1 deletion(-)
-
-Index: linux-2.6.18-mm3/mm/slab.c
-===================================================================
---- linux-2.6.18-mm3.orig/mm/slab.c	2006-10-03 11:31:31.000000000 -0700
-+++ linux-2.6.18-mm3/mm/slab.c	2006-10-03 11:31:45.000000000 -0700
-@@ -1513,7 +1513,7 @@ void __init kmem_cache_init(void)
+> We don't do this version skew dance. If we need to break something, it had 
+> better be some damn substantial reasons, and even then we're generally 
+> better off supporting _both_ interfaces for a while (perhaps using a 
+> version code), and then marking the old one deprecated.
  
- 		for_each_online_node(nid) {
- 			init_list(malloc_sizes[INDEX_AC].cs_cachep,
--				  &initkmem_list3[SIZE_AC + node], nid);
-+				  &initkmem_list3[SIZE_AC + nid], nid);
- 
- 			if (INDEX_AC != INDEX_L3) {
- 				init_list(malloc_sizes[INDEX_L3].cs_cachep,
+FWIW, this clean-up is not intended to break older binaries.
+It is intended to standardize driver implementations of the WE API.
+Breakage is (merely!) a side-effect...
 
+The overall purpose of the WE-21 patch was to continue disambiguating
+how drivers implement the WE API.  This is intended to (hopefully)
+avoid strange, hidden bugs lurking out there in driver/tool
+interaction, especially for tools other than wireless-tools
+(e.g. NetworkManager, wpa_supplicant, etc).  In this case, it looks
+like maybe some older versions of these tools were effectively
+exploting the strange, hidden bugs... :-(
 
+It seems there were a few genuine bugs which crept into the WE-21
+implementation.  Jean has posted fixes for those today.  It looks
+like those patches get things working again when combined with
+updated tools.
+
+Today's news seems to indicate that at least the major distros are
+already shipping the updated tools, or on the verge of shipping them.
+The window of breakage for most users looks like it will be fairly
+small, no matter what action taken.
+
+The more we can clean-up the WE API, the easier it will be to implement
+the cfg80211 WE compatibility layer intended for wireless-dev.
+I think WE-21 makes things better in that respect.
+
+Finally, I already scaled-back Jean's original WE-21 patch.  I only
+anticipate minor bug fixes for WE from now on, with nl80211/cfg80211
+as the heir-apparent.
+
+With all that said, I'd prefer to keep the existing WE-21 patches and
+add Jean's fixes ASAP.  Is this acceptable?  If not, I'll submit the
+reversions to Jeff ASAP.
+
+Suggestions?
+
+John
+-- 
+John W. Linville
+linville@tuxdriver.com

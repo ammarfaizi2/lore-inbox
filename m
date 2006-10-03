@@ -1,54 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750809AbWJCNav@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750818AbWJCNkU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750809AbWJCNav (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Oct 2006 09:30:51 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750812AbWJCNav
+	id S1750818AbWJCNkU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Oct 2006 09:40:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750819AbWJCNkU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Oct 2006 09:30:51 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:25218 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1750809AbWJCNau (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Oct 2006 09:30:50 -0400
-Subject: Re: PCI: BIOS Bug: MCFG area at f0000000 is not E820-reserved with
-	2.6.18 kernel
-From: Arjan van de Ven <arjan@infradead.org>
-To: Wink Saville <wink@saville.com>
-Cc: Matthias Hentges <oe@hentges.net>, linux-kernel@vger.kernel.org
-In-Reply-To: <4521E326.2000406@saville.com>
-References: <45206777.7020405@saville.com> <1159808447.4652.6.camel@mhcln03>
-	 <4521E326.2000406@saville.com>
-Content-Type: text/plain
-Organization: Intel International BV
-Date: Tue, 03 Oct 2006 15:30:25 +0200
-Message-Id: <1159882225.2891.525.camel@laptopd505.fenrus.org>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+	Tue, 3 Oct 2006 09:40:20 -0400
+Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:41699 "EHLO
+	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
+	id S1750818AbWJCNkT (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Oct 2006 09:40:19 -0400
+From: ebiederm@xmission.com (Eric W. Biederman)
+To: Cedric Le Goater <clg@fr.ibm.com>
+Cc: David Woodhouse <dwmw2@infradead.org>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Kirill Korotaev <dev@openvz.org>, Pavel Emelianov <xemul@openvz.org>,
+       "Eric W. Biederman" <ebiederm@xmission.com>,
+       Andrew Morton <akpm@osdl.org>
+Subject: Re: [PATCH] IPC namespace core
+References: <200610021601.k92G13mT003934@hera.kernel.org>
+	<1159866174.3438.66.camel@pmac.infradead.org>
+	<45223633.4020009@fr.ibm.com>
+Date: Tue, 03 Oct 2006 07:38:19 -0600
+In-Reply-To: <45223633.4020009@fr.ibm.com> (Cedric Le Goater's message of
+	"Tue, 03 Oct 2006 12:06:43 +0200")
+Message-ID: <m1y7rxfrjo.fsf@ebiederm.dsl.xmission.com>
+User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-10-02 at 21:12 -0700, Wink Saville wrote:
-> Matthias,
-> 
-> Thanks, I tried your config file on 2.6.18 and it works!
-> 
-> The first time I tried my command line was:
-> 
-> Command line: root=/dev/sda2 ro quiet splash initcall_debug 
-> console=ttyS0,115200n8 loglevel=7 video=nvidiafb:nomtrr
-> 
-> and it came up but no keyboard or mouse, I changed it too:
-> 
-> Command line: root=/dev/sda2 ro quiet splash
-> 
-> You mentioned you "saw some hangs", I assume with the current 
-> configuration your having no problems with stability?
+Cedric Le Goater <clg@fr.ibm.com> writes:
+> No biscuit ! That can not be ! patch bellow.
 
+Oh my ears...
 
-please please remove "quiet"... that removes any kind of useful debug
-output! It also makes you point at the wrong party for blaming hangs
-on ;)
-
-
+Eric

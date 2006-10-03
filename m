@@ -1,67 +1,58 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030376AbWJCRuZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030439AbWJCRwZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030376AbWJCRuZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Oct 2006 13:50:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030384AbWJCRuZ
+	id S1030439AbWJCRwZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Oct 2006 13:52:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030443AbWJCRwZ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Oct 2006 13:50:25 -0400
-Received: from 85.8.24.16.se.wasadata.net ([85.8.24.16]:25743 "EHLO
-	smtp.drzeus.cx") by vger.kernel.org with ESMTP id S1030376AbWJCRuY
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Oct 2006 13:50:24 -0400
-Message-ID: <4522A2DD.9080803@drzeus.cx>
-Date: Tue, 03 Oct 2006 19:50:21 +0200
-From: Pierre Ossman <drzeus-list@drzeus.cx>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060927)
+	Tue, 3 Oct 2006 13:52:25 -0400
+Received: from sj-iport-5.cisco.com ([171.68.10.87]:18499 "EHLO
+	sj-iport-5.cisco.com") by vger.kernel.org with ESMTP
+	id S1030440AbWJCRwX (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Oct 2006 13:52:23 -0400
+X-IronPort-AV: i="4.09,251,1157353200"; 
+   d="scan'208"; a="327709418:sNHT57829792"
+To: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>
+Cc: linux-kernel@vger.kernel.org,
+       MUNEDA Takahiro <muneda.takahiro@jp.fujitsu.com>,
+       Satoru Takeuchi <takeuchi_satoru@jp.fujitsu.com>,
+       Kristen Carlson Accardi <kristen.c.accardi@intel.com>,
+       Greg Kroah-Hartman <gregkh@suse.de>, Andrew Morton <akpm@osdl.org>,
+       shemminger@osdl.org, ak@suse.de, davem@davemloft.net
+Subject: Re: The change "PCI: assign ioapic resource at hotplug" breaks my system
+X-Message-Flag: Warning: May contain useful information
+References: <adar6xqwsuw.fsf@cisco.com> <45225876.1080705@jp.fujitsu.com>
+From: Roland Dreier <rdreier@cisco.com>
+Date: Tue, 03 Oct 2006 10:51:55 -0700
+In-Reply-To: <45225876.1080705@jp.fujitsu.com> (Kenji Kaneshige's message of "Tue, 03 Oct 2006 21:32:54 +0900")
+Message-ID: <ada3ba5s2x0.fsf@cisco.com>
+User-Agent: Gnus/5.1007 (Gnus v5.10.7) XEmacs/21.4.18 (linux)
 MIME-Version: 1.0
-To: philipl@overt.org
-CC: linux-kernel@vger.kernel.org
-Subject: Re: [PATCH 2.6.18 2/2] mmc: Read mmc v4 EXT_CSD
-References: <15151.67.169.45.37.1159744878.squirrel@overt.org>
-In-Reply-To: <15151.67.169.45.37.1159744878.squirrel@overt.org>
-Content-Type: text/plain; charset=ISO-8859-1
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+X-OriginalArrivalTime: 03 Oct 2006 17:51:56.0606 (UTC) FILETIME=[9E31BDE0:01C6E714]
+Authentication-Results: sj-dkim-6.cisco.com; header.From=rdreier@cisco.com; dkim=pass (
+	sig from cisco.com verified; ); 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-philipl@overt.org wrote:
-> +	list_for_each_entry(card, &host->cards, node) {
-> +		if (card->state & (MMC_STATE_DEAD|MMC_STATE_PRESENT))
-> +			continue;
->   
+    Kenji> The cause of this problem might be an wrong assumption that
+    Kenji> the 'start' member of resource structure for ioapic device
+    Kenji> has non-zero value if the resources are assigned by
+    Kenji> firmware. The 'start' member of ioapic device seems not to
+    Kenji> be set even though the resources were actually assigned to
+    Kenji> ioapic devices by firmware.
 
-Please use the macros.
+    Kenji> I made a patch to fix this problem against
+    Kenji> 2.6.18-git18. This patch checks command register instead of
+    Kenji> checking 'start' member to see if the ioapic is already
+    Kenji> enabled by firmware. Unfortunately, I don't have any system
+    Kenji> to reproduce this problem. Could you please try it and let
+    Kenji> me know whether the problem is fixed? If the patch below
+    Kenji> fixes the problem, I'll resend it with description and
+    Kenji> Signed-off-by.
 
-> +		if (card->csd.mmca_vsn < CSD_SPEC_VER_4)
-> +			continue;
-> +
->   
+Yes, applying this patch makes everything work on the same SuperMicro
+motherboard that breaks with Linus's current tree.  Assuming this
+doesn't break anything else, I think this should go upstream.
 
-You need to check that the card isn't SD before you can look at that
-part of the csd structure. BUG_ON or similar is acceptable if you
-consider it an error to call this function if SD cards are present.
-
-> +		err = mmc_select_card(host, card);
-> +		if (err != MMC_ERR_NONE) {
-> +			mmc_card_set_dead(card);
-> +			continue;
-> +		}
-> +
-> +		memset(&cmd, 0, sizeof(struct mmc_command));
-> +
-> +		cmd.opcode = MMC_SEND_EXT_CSD;
-> +		cmd.arg = 0;
-> +		cmd.flags = MMC_RSP_R1;
-> +
-> +		memset(&data, 0, sizeof(struct mmc_data));
-> +
-> +		data.timeout_ns = card->csd.tacc_ns * 10;
-> +		data.timeout_clks = card->csd.tacc_clks * 10;
->   
-
-We have a new function for setting timeouts that you should use called
-mmc_set_data_timeout().
-
-Rgds
-Pierre
-
+Thanks,
+  Roland

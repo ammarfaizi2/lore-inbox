@@ -1,47 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030680AbWJCXZm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030682AbWJCX1v@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030680AbWJCXZm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Oct 2006 19:25:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030684AbWJCXZm
+	id S1030682AbWJCX1v (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Oct 2006 19:27:51 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030683AbWJCX1u
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Oct 2006 19:25:42 -0400
-Received: from dsl027-180-168.sfo1.dsl.speakeasy.net ([216.27.180.168]:4066
-	"EHLO sunset.davemloft.net") by vger.kernel.org with ESMTP
-	id S1030680AbWJCXZl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Oct 2006 19:25:41 -0400
-Date: Tue, 03 Oct 2006 16:25:44 -0700 (PDT)
-Message-Id: <20061003.162544.125897847.davem@davemloft.net>
-To: jeff@garzik.org
-Cc: per.liden@ericsson.com, jon.maloy@ericsson.com,
-       allan.stephens@windriver.com, akpm@osdl.org, netdev@vger.kernel.org,
-       linux-kernel@vger.kernel.org
-Subject: Re: [PATCH] TIPC: fix printk warning
-From: David Miller <davem@davemloft.net>
-In-Reply-To: <20061001162413.GA8000@havoc.gtf.org>
-References: <20061001162413.GA8000@havoc.gtf.org>
-X-Mailer: Mew version 4.2 on Emacs 21.4 / Mule 5.0 (SAKAKI)
+	Tue, 3 Oct 2006 19:27:50 -0400
+Received: from www.osadl.org ([213.239.205.134]:25302 "EHLO mail.tglx.de")
+	by vger.kernel.org with ESMTP id S1030682AbWJCX1t (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Oct 2006 19:27:49 -0400
+Subject: Re: [patch 03/23] GTOD: persistent clock support, i386
+From: Thomas Gleixner <tglx@linutronix.de>
+Reply-To: tglx@linutronix.de
+To: Andrew Morton <akpm@osdl.org>
+Cc: john stultz <johnstul@us.ibm.com>, LKML <linux-kernel@vger.kernel.org>,
+       Ingo Molnar <mingo@elte.hu>, Jim Gettys <jg@laptop.org>,
+       David Woodhouse <dwmw2@infradead.org>,
+       Arjan van de Ven <arjan@infradead.org>, Dave Jones <davej@redhat.com>
+In-Reply-To: <20061002154432.ed090fd9.akpm@osdl.org>
+References: <20060929234435.330586000@cruncher.tec.linutronix.de>
+	 <20060929234439.158061000@cruncher.tec.linutronix.de>
+	 <20060930013612.92e12313.akpm@osdl.org>
+	 <1159826617.27968.22.camel@localhost.localdomain>
+	 <20061002154432.ed090fd9.akpm@osdl.org>
+Content-Type: text/plain
+Date: Wed, 04 Oct 2006 01:30:00 +0200
+Message-Id: <1159918200.1386.234.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: Text/Plain; charset=iso-2022-jp-2
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-From: Jeff Garzik <jeff@garzik.org>
-Date: Sun, 1 Oct 2006 12:24:13 -0400
+On Mon, 2006-10-02 at 15:44 -0700, Andrew Morton wrote:
+> > -	write_seqlock_irqsave(&xtime_lock, flags);
+> > -	jiffies_64 += sleep_length;
+> > -	write_sequnlock_irqrestore(&xtime_lock, flags);
+> >  	touch_softlockup_watchdog();
+> >  	return 0;
+> >  }
+> 
+> In this version of the patch, you no longer remove the
+> touch_softlockup_watchdog() call from timer_resume().
+> 
+> But clockevents-drivers-for-i386.patch deletes timer_resume()
+> altogether.
+> 
+> Hence we might need to put that re-added touch_softlockup_watchdog() call
+> into somewhere else now.
 
-> gcc spits out this warning:
-> 
-> net/tipc/link.c: In function $,1rx(Blink_retransmit_failure$,1ry(B:
-> net/tipc/link.c:1669: warning: cast from pointer to integer of different
-> size
-> 
-> More than a little bit ugly, storing integers in void*, but at least the
-> code is correct, unlike some of the more crufty Linux kernel code found
-> elsewhere.
-> 
-> Rather than having two casts to massage the value into u32, it's easier
-> just to have a single cast and use "%lu", since it's just a printk.
-> 
-> Signed-off-by: Jeff Garzik <jeff@garzik.org>
+clockevents has is it in the resume path.
 
-Applied, thanks Jeff.
+static void clockevents_resume_local_events(void *arg)
+{
+....
+        touch_softlockup_watchdog();
+}
+
+	tglx
+
+

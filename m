@@ -1,61 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030472AbWJCTCH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030476AbWJCTFm@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030472AbWJCTCH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Oct 2006 15:02:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030476AbWJCTCH
+	id S1030476AbWJCTFm (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Oct 2006 15:05:42 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030478AbWJCTFl
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Oct 2006 15:02:07 -0400
-Received: from ebiederm.dsl.xmission.com ([166.70.28.69]:57800 "EHLO
-	ebiederm.dsl.xmission.com") by vger.kernel.org with ESMTP
-	id S1030472AbWJCTCE (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Oct 2006 15:02:04 -0400
-From: ebiederm@xmission.com (Eric W. Biederman)
-To: Dave Hansen <haveblue@us.ibm.com>
-Cc: vgoyal@in.ibm.com,
-       linux kernel mailing list <linux-kernel@vger.kernel.org>,
-       Reloc Kernel List <fastboot@lists.osdl.org>, ebiederm@xmission.com,
-       akpm@osdl.org, ak@suse.de, horms@verge.net.au, lace@jankratochvil.net,
-       hpa@zytor.com, magnus.damm@gmail.com, lwang@redhat.com,
-       dzickus@redhat.com, maneesh@in.ibm.com
-Subject: Re: [PATCH 6/12] i386: CONFIG_PHYSICAL_START cleanup
-References: <20061003170032.GA30036@in.ibm.com>
-	<20061003171531.GF3164@in.ibm.com>
-	<1159901109.18746.9.camel@localhost.localdomain>
-Date: Tue, 03 Oct 2006 12:59:21 -0600
-In-Reply-To: <1159901109.18746.9.camel@localhost.localdomain> (Dave Hansen's
-	message of "Tue, 03 Oct 2006 11:45:09 -0700")
-Message-ID: <m1lknxdy46.fsf@ebiederm.dsl.xmission.com>
-User-Agent: Gnus/5.110004 (No Gnus v0.4) Emacs/21.4 (gnu/linux)
+	Tue, 3 Oct 2006 15:05:41 -0400
+Received: from mail.aknet.ru ([82.179.72.26]:2573 "EHLO mail.aknet.ru")
+	by vger.kernel.org with ESMTP id S1030476AbWJCTFl (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Oct 2006 15:05:41 -0400
+Message-ID: <4522B4F9.8000301@aknet.ru>
+Date: Tue, 03 Oct 2006 23:07:37 +0400
+From: Stas Sergeev <stsp@aknet.ru>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+To: Arjan van de Ven <arjan@infradead.org>
+Cc: Linux kernel <linux-kernel@vger.kernel.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Hugh Dickins <hugh@veritas.com>,
+       Ulrich Drepper <drepper@redhat.com>, Valdis.Kletnieks@vt.edu
+Subject: Re: [patch] remove MNT_NOEXEC check for PROT_EXEC mmaps
+References: <45150CD7.4010708@aknet.ru>	 <Pine.LNX.4.64.0609231555390.27012@blonde.wat.veritas.com>	 <451555CB.5010006@aknet.ru>	 <Pine.LNX.4.64.0609231647420.29557@blonde.wat.veritas.com>	 <1159037913.24572.62.camel@localhost.localdomain>	 <45162BE5.2020100@aknet.ru>	 <1159106032.11049.12.camel@localhost.localdomain>	 <45169C0C.5010001@aknet.ru> <4516A8E3.4020100@redhat.com>	 <4516B2C8.4050202@aknet.ru> <4516B721.5070801@redhat.com>	 <45198395.4050008@aknet.ru>	 <1159396436.3086.51.camel@laptopd505.fenrus.org> <451E3C0C.10105@aknet.ru>	 <1159887682.2891.537.camel@laptopd505.fenrus.org>	 <45229A99.6060703@aknet.ru>	 <1159899820.2891.542.camel@laptopd505.fenrus.org>	 <4522AEA1.5060304@aknet.ru> <1159900934.2891.548.camel@laptopd505.fenrus.org>
+In-Reply-To: <1159900934.2891.548.camel@laptopd505.fenrus.org>
+Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Hansen <haveblue@us.ibm.com> writes:
+Hi.
 
-> On Tue, 2006-10-03 at 13:15 -0400, Vivek Goyal wrote:
->> diff -puN arch/i386/boot/compressed/misc.c~i386-CONFIG_PHYSICAL_START-cleanup
-> arch/i386/boot/compressed/misc.c
->> ---
-> linux-2.6.18-git17/arch/i386/boot/compressed/misc.c~i386-CONFIG_PHYSICAL_START-cleanup
-> 2006-10-02 13:17:58.000000000 -0400
->> +++ linux-2.6.18-git17-root/arch/i386/boot/compressed/misc.c 2006-10-02
-> 14:33:44.000000000 -0400
->> @@ -9,11 +9,11 @@
->>   * High loaded stuff by Hans Lermen & Werner Almesberger, Feb. 1996
->>   */
->>  
->> +#include <linux/config.h>
->>  #include <linux/linkage.h>
->>  #include <linux/vmalloc.h>
->>  #include <linux/screen_info.h> 
->
-> Isn't config.h implicitly included everywhere by the build system now?
-> I don't think this is needed.
+Arjan van de Ven wrote:
+> then don't put noexec on /dev/shm.
+That's obviously possible, but I'd feel safer having
+"noexec" on *every* user-writable partition. It used
+to work in the past - that way an attacker had no place
+to run his binary from.
 
-It should be.
-
-That is one of the issues I received feedback on, the first round.
-
-Eric
+> ld.so fix is phony. Really; I can always put an "unfixed" ld.so there
+> and use it as user. 
+See above. In the past it was possible to have "noexec"
+on *all* user-writable mounts, so you couldn't run your
+own ld.so that easily. Thats why I am reluctant to take
+the "if it hurts, just remove noexec" argument.
+And since you can run the scripts via binfmt-misc, I'd
+also do "chmod 'o-x' perl", so that the direct invocation
+of perl to not be possible for unwanted users. Or do not.
+At least the approach I propose, allows to do this, so the
+"script loader" problem can also be fixed that way.
 

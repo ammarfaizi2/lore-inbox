@@ -1,63 +1,63 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030228AbWJCPxK@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030244AbWJCPyX@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030228AbWJCPxK (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Oct 2006 11:53:10 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030229AbWJCPxJ
+	id S1030244AbWJCPyX (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Oct 2006 11:54:23 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030237AbWJCPyW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Oct 2006 11:53:09 -0400
-Received: from gw.goop.org ([64.81.55.164]:1762 "EHLO mail.goop.org")
-	by vger.kernel.org with ESMTP id S1030228AbWJCPxI (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Oct 2006 11:53:08 -0400
-Message-ID: <45228762.7000005@goop.org>
-Date: Tue, 03 Oct 2006 08:53:06 -0700
-From: Jeremy Fitzhardinge <jeremy@goop.org>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060927)
-MIME-Version: 1.0
-To: Andi Kleen <ak@muc.de>
-CC: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       Hugh Dickens <hugh@veritas.com>,
-       Michael Ellerman <michael@ellerman.id.au>,
-       Paul Mackerras <paulus@samba.org>,
-       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
-       Rusty Russell <rusty@rustcorp.com.au>
-Subject: Re: [PATCH 1/6] Generic implemenatation of BUG.
-References: <20061003010842.438670755@goop.org>> <20061003010930.971200285@goop.org> <20061003103740.GB73786@muc.de>
-In-Reply-To: <20061003103740.GB73786@muc.de>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 3 Oct 2006 11:54:22 -0400
+Received: from mustang.oldcity.dca.net ([216.158.38.3]:33443 "HELO
+	mustang.oldcity.dca.net") by vger.kernel.org with SMTP
+	id S1030229AbWJCPyU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Oct 2006 11:54:20 -0400
+Subject: Re: wpa supplicant/ipw3945, ESSID last char missing
+From: Lee Revell <rlrevell@joe-job.com>
+To: "John W. Linville" <linville@tuxdriver.com>
+Cc: Alessandro Suardi <alessandro.suardi@gmail.com>,
+       Norbert Preining <preining@logic.at>, hostap@shmoo.com,
+       ipw3945-devel@lists.sourceforge.net, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, Linus Torvalds <torvalds@osdl.org>
+In-Reply-To: <20061003123835.GA23912@tuxdriver.com>
+References: <20061002085942.GA32387@gamma.logic.tuwien.ac.at>
+	 <5a4c581d0610020221s7bf100f8q893161b7c8c492d2@mail.gmail.com>
+	 <1159807483.4067.150.camel@mindpipe> <20061003123835.GA23912@tuxdriver.com>
+Content-Type: text/plain
+Date: Tue, 03 Oct 2006 11:54:36 -0400
+Message-Id: <1159890876.20801.65.camel@mindpipe>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.1 
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andi Kleen wrote:
->> Because powerpc also records the function name, I added this to i386 and
->> x86-64 for consistency.  Strictly speaking the function name is redundant with
->> kallsyms, so perhaps it can be dropped from powerpc.
->>     
->
-> It would be good to change it to use kallsyms() then.
->   
+On Tue, 2006-10-03 at 08:38 -0400, John W. Linville wrote:
+> On Mon, Oct 02, 2006 at 12:44:42PM -0400, Lee Revell wrote:
+> > On Mon, 2006-10-02 at 09:21 +0000, Alessandro Suardi wrote:
+> > >   we've been just through an email thread where it has been
+> > >   determined that wpa_supplicant 0.4.9 (I would assume that
+> > >   0.5.5 is also okay) and wireless-tools from Jean's latest
+> > >   tarball are necessary to work with the recent wireless
+> > >   extensions v21 that have been merged in.
+> > > 
+> > > What wireless-tools are you using ? 
+> > 
+> > This must be considered a kernel bug - it's not allowed to break
+> > userspace compatibility in a stable series.
+> 
+> But there is no development series.  The closest thing we have is the
+> merge window after each release -- which is exactly when this issue
+> revealed itself.
+> 
+> Wireless in general (and the wireless extensions api in particular)
+> is a bit of a 'whipping boy' in the Linux world.  OK, we suck.
+> Everyone wants to display their wisdom by telling us how much we suck!
+> We know all about it...
+> 
+> We have sucked, and we continue to suck -- and we are working on it.
+> But, we are not going to be able to whip-up this omelette without
+> breaking a few eggs.  If we can't do that during the merge windows,
+> WHEN CAN WE DO IT?
 
-It does, in effect, when it prints the oops message and backtrace.
+This is a question for Linus, it's his rule...
 
->>  
->>  #ifdef CONFIG_BUG
->> +
->> +#ifdef CONFIG_GENERIC_BUG
->> +struct bug_entry {
->> +	unsigned long	bug_addr;
->> +#ifdef CONFIG_DEBUG_BUGVERBOSE
->> +	const char	*file;
->> +	unsigned short	line;
->> +#endif
->> +	unsigned short	flags;
->>     
->
-> Can't you put the flags into the high bits of the line? I don't think
-> we have any 64kLOC files.
+Lee
 
-I thought about it, but it would still be padded out to 12 bytes on 
-i386, and more on 64-bit platforms.  And it doesn't matter that much.
-
-
-    J

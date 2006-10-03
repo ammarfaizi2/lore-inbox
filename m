@@ -1,60 +1,159 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030594AbWJCWHw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030597AbWJCWHz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030594AbWJCWHw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Oct 2006 18:07:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030599AbWJCWHw
+	id S1030597AbWJCWHz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Oct 2006 18:07:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030596AbWJCWHz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Oct 2006 18:07:52 -0400
-Received: from us01smtp1.synopsys.com ([198.182.44.79]:25515 "EHLO
-	boden.synopsys.com") by vger.kernel.org with ESMTP id S1030596AbWJCWHu convert rfc822-to-8bit
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Oct 2006 18:07:50 -0400
-X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
-Content-class: urn:content-classes:message
+	Tue, 3 Oct 2006 18:07:55 -0400
+Received: from hu-out-0506.google.com ([72.14.214.238]:40459 "EHLO
+	hu-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1030598AbWJCWHx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Oct 2006 18:07:53 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:date:from:to:cc:subject:message-id:mime-version:content-type:content-disposition:user-agent:sender;
+        b=d9+JIlCxbtIR5lGMpOgBr7QlxIqA+LcGJSWhdLNAJQx/d1iF/7M/d4BglOypU5U1blRrB1iE831fgw7jYfEQvlGM7I4rVbrE8Voei3t2Wc+rYT0pbW3dHrsU4p2sTUfkSR/Cww4Y8HocG1k0cMXexiKYC3qzlDcAHrb6BQ9vA5U=
+Date: Tue, 3 Oct 2006 22:07:32 +0000
+From: Frederik Deweerdt <deweerdt@free.fr>
+To: linux-kernel@vger.kernel.org
+Cc: arjan@infradead.org, matthew@wil.cx, alan@lxorguk.ukuu.org.uk,
+       jeff@garzik.org, akpm@osdl.org, rdunlap@xenotime.net, gregkh@suse.de
+Subject: [RFC PATCH] add pci_{request,free}_irq take #2
+Message-ID: <20061003220732.GE2785@slug>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 8BIT
-Subject: System hang problem.
-Date: Tue, 3 Oct 2006 15:07:52 -0700
-Message-ID: <C9A861D62D068643A0F4A7B1BCB38E2C0327B5A0@US01WEMBX1.internal.synopsys.com>
-Thread-Topic: System hang problem.
-Thread-Index: AcbnOF7IPNQ9hELCRKG8xOeXVR314w==
-From: "Manish Neema" <Manish.Neema@synopsys.com>
-To: <linux-kernel@vger.kernel.org>
-X-OriginalArrivalTime: 03 Oct 2006 22:07:49.0378 (UTC) FILETIME=[5D28D620:01C6E738]
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: mutt-ng/devel-r804 (Linux)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Sorry, I've lost my patience with RedHat so posting here....
+Hi all,
 
-We see this problem frequently on RHEL3.0 U5 and U7. System would
-completely hang upon memory shortage. The only option left is
-power-cycle (or 'sysrq + b'). System hang occurs with any of the below 3
-overcommit settings:
+This is take #2 of the "add pci_{request,free}_irq" patch.
+The following changes have been made since last proposal:
+- fix broken kerneldoc (Randy Dunlap)
+- change warning message (Alan Cox)
+- taken into account the various comments made by Matthew Wilcox
+- remove the IRQF_SHARED flag from the request_irq() call: not all
+  drivers (eg. tg3) set it (Arjan van de Ven suggested dropping it
+  before the call, but this may not suit the different usage patterns,
+  tg3 in particular)
 
-   - default (heuristic) overcommit (overcommit_memory=0) 
-   - no overcommit handling by kernel (overcommit_memory=1)
-   - restrictive overcommit with ratio=100% (overcommit_memory=2;
-overcommit_ratio=100)
+I'll send a follow-up patch showing the implied modifications for the
+following - semi-randomly chosen :) - drivers: aic7xxx, aic79xx, tg3
+and e1000 (Dropped the drm one, which was NACKed by the maintainer).
 
-RHEL3.0 U3 would generate an OOM kill "each and every time" it sensed
-system hang but due to other bugs, we had to move away from it. RedHat
-calls the timely (at least for us) invocation of OOM in U3 a buggy
-implementation and the delayed OOM kill in U5 and U7 the right
-implementation (which we rarely get to see resulting in at least 5
-systems hanging daily!)
+Please note that I'm not submitting the driver changes, they're there
+only for illustration purposes. I'll CC the appropriate maintainers
+when/if an API is agreed upon.
 
-Changing overcommit to 2 (and ratio to any where from 1 to 99) would
-result in certain OS processes (automount daemon for e.g.) getting
-killed when all the allowed memory is committed. What is the point in
-reserving some memory if a random root process would get killed leaving
-the system in a totally unknown state?
+Regards,
+Frederik
 
-Any suggestions on how we can prevent system-hang + not have automount
-(and any other root process) die? 
+PS: trimmed the CC list a bit, this must be noise to linux-scsi
+PPS: used quilt to manage patches, I should have done it long ago :)
 
-TIA,
--Manish Neema
-
-P.S. Sorry, we cannot move away from RHEL3.0 U7 for a while.
+diff --git a/drivers/pci/pci.c b/drivers/pci/pci.c
+index a544997..50b49ef 100644
+Index: 2.6.18-mm3/drivers/pci/pci.c
+===================================================================
+--- 2.6.18-mm3.orig/drivers/pci/pci.c
++++ 2.6.18-mm3/drivers/pci/pci.c
+@@ -15,6 +15,7 @@
+ #include <linux/pci.h>
+ #include <linux/module.h>
+ #include <linux/spinlock.h>
++#include <linux/interrupt.h>
+ #include <linux/string.h>
+ #include <asm/dma.h>	/* isa_dma_bridge_buggy */
+ #include "pci.h"
+@@ -810,6 +811,47 @@ err_out:
+ }
+ 
+ /**
++ * pci_request_irq - Reserve an IRQ for a PCI device
++ * @pdev: The PCI device whose irq is to be reserved
++ * @handler: The interrupt handler function,
++ * @flags: The flags to be passed to request_irq()
++ * @name: The name of the device to be associated with the irq
++ *
++ * Returns 0 on success, or a negative value on error.  A warning
++ * message is also printed on failure.
++ * pci_get_drvdata(pdev) shall be passed as an argument to the @handler
++ * function
++ */
++int pci_request_irq(struct pci_dev *pdev,
++		    irqreturn_t(*handler) (int, void *, struct pt_regs *),
++		    unsigned long flags, const char *name)
++{
++	if (!is_irq_valid(pdev->irq)) {
++		dev_printk(KERN_ERR, &pdev->dev,
++			   "No usable irq line was found (got #%d)\n",
++			   pdev->irq);
++		return -EINVAL;
++	}
++
++	return request_irq(pdev->irq, handler, flags,
++			   name ? name : pdev->driver->name,
++			   pci_get_drvdata(pdev));
++}
++EXPORT_SYMBOL(pci_request_irq);
++
++/**
++ * pci_free_irq - Free an IRQ for a PCI device
++ *
++ * @pdev: the PCI device whose interrupt is to be freed
++ * pci_get_drvdata(pdev) is used as the device identifier
++ */
++void pci_free_irq(struct pci_dev *pdev)
++{
++	free_irq(pdev->irq, pci_get_drvdata(pdev));
++}
++EXPORT_SYMBOL(pci_free_irq);
++
++/**
+  * pci_set_master - enables bus-mastering for device dev
+  * @dev: the PCI device to enable
+  *
+Index: 2.6.18-mm3/include/linux/interrupt.h
+===================================================================
+--- 2.6.18-mm3.orig/include/linux/interrupt.h
++++ 2.6.18-mm3/include/linux/interrupt.h
+@@ -75,6 +75,13 @@ struct irqaction {
+ 	struct proc_dir_entry *dir;
+ };
+ 
++#ifndef ARCH_VALIDATE_PCI_IRQ
++static inline int is_irq_valid(unsigned int irq)
++{
++	return irq ? 1 : 0;
++}
++#endif /* ARCH_VALIDATE_PCI_IRQ */
++
+ extern irqreturn_t no_action(int cpl, void *dev_id, struct pt_regs *regs);
+ extern int request_irq(unsigned int,
+ 		       irqreturn_t (*handler)(int, void *, struct pt_regs *),
+Index: 2.6.18-mm3/include/linux/pci.h
+===================================================================
+--- 2.6.18-mm3.orig/include/linux/pci.h
++++ 2.6.18-mm3/include/linux/pci.h
+@@ -52,6 +52,7 @@
+ #include <linux/compiler.h>
+ #include <linux/errno.h>
+ #include <linux/device.h>
++#include <linux/interrupt.h>
+ 
+ /* File state for mmap()s on /proc/bus/pci/X/Y */
+ enum pci_mmap_state {
+@@ -532,6 +533,11 @@ void pci_release_regions(struct pci_dev 
+ int __must_check pci_request_region(struct pci_dev *, int, const char *);
+ void pci_release_region(struct pci_dev *, int);
+ 
++int __must_check pci_request_irq(struct pci_dev *pdev,
++		    irqreturn_t (*handler)(int, void *, struct pt_regs *),
++		    unsigned long flags, const char *name);
++void pci_free_irq(struct pci_dev *pdev);
++
+ /* drivers/pci/bus.c */
+ int __must_check pci_bus_alloc_resource(struct pci_bus *bus,
+ 			struct resource *res, resource_size_t size,

@@ -1,25 +1,28 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030643AbWJCWo4@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030618AbWJCWuF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030643AbWJCWo4 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Oct 2006 18:44:56 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030642AbWJCWo4
+	id S1030618AbWJCWuF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Oct 2006 18:50:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030645AbWJCWuF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Oct 2006 18:44:56 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:4590 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1030637AbWJCWoz (ORCPT
+	Tue, 3 Oct 2006 18:50:05 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:37504 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030618AbWJCWuC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Oct 2006 18:44:55 -0400
-Date: Tue, 3 Oct 2006 15:44:49 -0700
+	Tue, 3 Oct 2006 18:50:02 -0400
+Date: Tue, 3 Oct 2006 15:49:47 -0700
 From: Andrew Morton <akpm@osdl.org>
-To: Zach Brown <zach.brown@oracle.com>
-Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
-       linux-aio@kvack.org
-Subject: Re: [PATCH take2 3/5] dio: formalize bio counters as a dio
- reference count
-Message-Id: <20061003154449.daab5dbd.akpm@osdl.org>
-In-Reply-To: <20061002232135.18827.28686.sendpatchset@tetsuo.zabbo.net>
-References: <20061002232119.18827.96966.sendpatchset@tetsuo.zabbo.net>
-	<20061002232135.18827.28686.sendpatchset@tetsuo.zabbo.net>
+To: David Woodhouse <dwmw2@infradead.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Kirill Korotaev <dev@openvz.org>, Pavel Emelianov <xemul@openvz.org>,
+       Cedric Le Goater <clg@fr.ibm.com>,
+       "Eric W. Biederman" <ebiederm@xmission.com>
+Subject: Re: [PATCH] IPC namespace core
+Message-Id: <20061003154947.7ef2d4a3.akpm@osdl.org>
+In-Reply-To: <1159912891.27726.3.camel@pmac.infradead.org>
+References: <200610021601.k92G13mT003934@hera.kernel.org>
+	<1159866174.3438.66.camel@pmac.infradead.org>
+	<20061003093505.0bb7bb6a.akpm@osdl.org>
+	<1159912891.27726.3.camel@pmac.infradead.org>
 X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
@@ -27,56 +30,28 @@ Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon,  2 Oct 2006 16:21:35 -0700 (PDT)
-Zach Brown <zach.brown@oracle.com> wrote:
+On Tue, 03 Oct 2006 23:01:31 +0100
+David Woodhouse <dwmw2@infradead.org> wrote:
 
-> dio: formalize bio counters as a dio reference count
+> On Tue, 2006-10-03 at 09:35 -0700, Andrew Morton wrote:
+> > We'll get there ;) I'm waiting for a suitable time to merge
+> > add-config_headers_check-option-to-automatically-run-make-headers_check.patch,
+> > which will cause all `make allmodconfig' testers to automatically run `make
+> > headers_check'.
+> > 
+> > But I don't think the time is right yet - a little later, when things have
+> > settled down and when it all works nicely on multiple architectures.
 > 
-> Previously we had two confusing counts of bio progress.  'bio_count' was
-> decremented as bios were processed and freed by the dio core.  It was used to
-> indicate final completion of the dio operation.  'bios_in_flight' reflected how
-> many bios were between submit_bio() and bio->end_io.  It was used by the sync
-> path to decide when to wake up and finish completing bios and was ignored
-> by the async path.
+> Other than the glitches I just whinged about, it _does_ work nicely on
+> almost all architectures. I sent Linus those fixes as soon as 2.6.18
+> came out, and you were talking about putting them in -stable too
+> (although you went quiet on that front when you saw how many there
+> were__).
 > 
-> This patch collapses the two notions into one notion of a dio reference count.
-> bios hold a dio reference when they're between submit_bio and bio->end_io.
+> In fact, I held off on merging some of Arnd's extra checks because I
+> didn't want to add extra failures -- specifically because I thought we
+> were turning that config-headers-check thingy on.
 > 
-> Since bios_in_flight was only used in the sync path it is now equivalent
-> to dio->refcount - 1 which accounts for direct_io_worker() holding a 
-> reference for the duration of the operation.
-> 
-> dio_bio_complete() -> finished_one_bio() was called from the sync path after
-> finding bios on the list that the bio->end_io function had deposited.
-> finished_one_bio() can not drop the dio reference on behalf of these bios now
-> because bio->end_io already has.  The is_async test in finished_one_bio() meant
-> that it never actually did anything other than drop the bio_count for sync
-> callers.  So we remove its refcount decrement, don't call it from
-> dio_bio_complete(), and hoist its call up into the async dio_bio_complete()
-> caller after an explicit refcount decrement.  It is renamed dio_complete_aio()
-> to reflect the remaining work it actually does.
-> 
-> ...
->  
-> +static int wait_for_more_bios(struct dio *dio)
-> +{
-> +	assert_spin_locked(&dio->bio_lock);
-> +
-> +	return (atomic_read(&dio->refcount) > 1) && (dio->bio_list == NULL);
-> +}
 
-This function isn't well-named.
-
-> @@ -1103,7 +1088,11 @@ direct_io_worker(int rw, struct kiocb *i
->  		}
->  		if (ret == 0)
->  			ret = dio->result;
-> -		finished_one_bio(dio);		/* This can free the dio */
-> +
-> +		/* this can free the dio */
-> +		if (atomic_dec_and_test(&dio->refcount))
-> +			dio_complete_aio(dio);
-
-So...  how come it's legitimate to touch *dio if it can be freed by now? 
-(iirc, it's legit, but a comment explaining this oddity is needed).
-
+Yes - I'll send it along soon.  I just want to have a few hours to convince
+myself that it won't break the whole world if I do...

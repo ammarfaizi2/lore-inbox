@@ -1,55 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932093AbWJCMvF@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932102AbWJCMvr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932093AbWJCMvF (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Oct 2006 08:51:05 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932101AbWJCMvF
+	id S932102AbWJCMvr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Oct 2006 08:51:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932101AbWJCMvq
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Oct 2006 08:51:05 -0400
-Received: from pool-72-66-199-147.ronkva.east.verizon.net ([72.66.199.147]:59333
-	"EHLO turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S932093AbWJCMvE (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Oct 2006 08:51:04 -0400
-Message-Id: <200610031251.k93Cp0YJ019873@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
-To: Paul Zimmerman <paul-zimmerman@sbcglobal.net>
-Cc: linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Spam, bogofilter, etc
-In-Reply-To: Your message of "Mon, 02 Oct 2006 23:08:29 PDT."
-             <20061003060829.16536.qmail@web80829.mail.yahoo.com>
-From: Valdis.Kletnieks@vt.edu
-References: <20061003060829.16536.qmail@web80829.mail.yahoo.com>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1159879859_5146P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
-Content-Transfer-Encoding: 7bit
-Date: Tue, 03 Oct 2006 08:51:00 -0400
+	Tue, 3 Oct 2006 08:51:46 -0400
+Received: from odyssey.analogic.com ([204.178.40.5]:32531 "EHLO
+	odyssey.analogic.com") by vger.kernel.org with ESMTP
+	id S932096AbWJCMvp convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Oct 2006 08:51:45 -0400
+MIME-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7BIT
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+X-OriginalArrivalTime: 03 Oct 2006 12:51:41.0643 (UTC) FILETIME=[AC7089B0:01C6E6EA]
+Content-class: urn:content-classes:message
+Subject: Re: error to be returned while suspended
+Date: Tue, 3 Oct 2006 08:51:36 -0400
+Message-ID: <Pine.LNX.4.61.0610030846040.21211@chaos.analogic.com>
+In-Reply-To: <200610031323.00547.oliver@neukum.org>
+X-MS-Has-Attach: 
+X-MS-TNEF-Correlator: 
+Thread-Topic: error to be returned while suspended
+thread-index: Acbm6qyNV/DrBjZpRcmVETpmMJJK0A==
+References: <200610031323.00547.oliver@neukum.org>
+From: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
+To: "Oliver Neukum" <oliver@neukum.org>
+Cc: <linux-kernel@vger.kernel.org>
+Reply-To: "linux-os \(Dick Johnson\)" <linux-os@analogic.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1159879859_5146P
-Content-Type: text/plain; charset=us-ascii
 
-On Mon, 02 Oct 2006 23:08:29 PDT, Paul Zimmerman said:
+On Tue, 3 Oct 2006, Oliver Neukum wrote:
 
-> That's ridiculous! Run a spell-checker on the title,
-> and then filter it. How hard could that be?
+> Hi,
+>
+> which error should a character device return if a read/write cannot be
+> serviced because the device is suspended? Shouldn't there be an error
+> code specific to that?
+>
+> 	Regards
+> 		Oliver
 
-Subject: iounmap supplicant usx2y racy
+The de-facto error codes were created long before one could "suspend"
+a device, so there isn't a ESUSP code. However, I suggest EIO or EBUSY
+unless you want to define an ESUSP and get it accepted by the POSIX
+committee.
 
-(Picking from the last 10 or so e-mails I see here).
+Cheers,
+Dick Johnson
+Penguin : Linux version 2.6.16.24 on an i686 machine (5592.72 BogoMips).
+New book: http://www.AbominableFirebug.com/
+_
+
 
-let me know what your spell checker says. :)
+****************************************************************
+The information transmitted in this message is confidential and may be privileged.  Any review, retransmission, dissemination, or other use of this information by persons or entities other than the intended recipient is prohibited.  If you are not the intended recipient, please notify Analogic Corporation immediately - by replying to this message or by sending an email to DeliveryErrors@analogic.com - and destroy all copies of this information, including any attachments, without reading or disclosing them.
 
---==_Exmh_1159879859_5146P
-Content-Type: application/pgp-signature
-
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
-
-iD8DBQFFIlyzcC3lWbTT17ARAlsVAJ40IzBylSj2l95uu7cFgX6Uv+sRzgCgnwZ2
-smujhOKRDjIvLGBvYybqe6E=
-=dvPc
------END PGP SIGNATURE-----
-
---==_Exmh_1159879859_5146P--
+Thank you.

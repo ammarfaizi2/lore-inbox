@@ -1,113 +1,71 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030444AbWJCSCZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030446AbWJCSCj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030444AbWJCSCZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Oct 2006 14:02:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030445AbWJCSCZ
+	id S1030446AbWJCSCj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Oct 2006 14:02:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030448AbWJCSCj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Oct 2006 14:02:25 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:2964 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1030444AbWJCSCY (ORCPT
+	Tue, 3 Oct 2006 14:02:39 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:6548 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030446AbWJCSCi (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Oct 2006 14:02:24 -0400
-Date: Tue, 3 Oct 2006 11:01:36 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Badari Pulavarty <pbadari@us.ibm.com>
-Cc: lkml <linux-kernel@vger.kernel.org>, linux-mm@kvack.org
-Subject: Re: 2.6.18-mm3
-Message-Id: <20061003110136.3a572578.akpm@osdl.org>
-In-Reply-To: <1159897051.9569.0.camel@dyn9047017100.beaverton.ibm.com>
-References: <20061003001115.e898b8cb.akpm@osdl.org>
-	<1159897051.9569.0.camel@dyn9047017100.beaverton.ibm.com>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+	Tue, 3 Oct 2006 14:02:38 -0400
+Date: Tue, 3 Oct 2006 11:02:17 -0700
+From: Stephen Hemminger <shemminger@osdl.org>
+To: Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com>
+Cc: Roland Dreier <rdreier@cisco.com>, linux-kernel@vger.kernel.org,
+       MUNEDA Takahiro <muneda.takahiro@jp.fujitsu.com>,
+       Satoru Takeuchi <takeuchi_satoru@jp.fujitsu.com>,
+       Kristen Carlson Accardi <kristen.c.accardi@intel.com>,
+       Greg Kroah-Hartman <gregkh@suse.de>, Andrew Morton <akpm@osdl.org>,
+       ak@suse.de, davem@davemloft.net
+Subject: Re: The change "PCI: assign ioapic resource at hotplug" breaks my
+ system
+Message-ID: <20061003110217.5ea3e152@dxpl.pdx.osdl.net>
+In-Reply-To: <45225876.1080705@jp.fujitsu.com>
+References: <adar6xqwsuw.fsf@cisco.com>
+	<45225876.1080705@jp.fujitsu.com>
+X-Mailer: Sylpheed-Claws 2.4.0 (GTK+ 2.8.20; x86_64-redhat-linux-gnu)
+X-Face: &@E+xe?c%:&e4D{>f1O<&U>2qwRREG5!}7R4;D<"NO^UI2mJ[eEOA2*3>(`Th.yP,VDPo9$
+ /`~cw![cmj~~jWe?AHY7D1S+\}5brN0k*NE?pPh_'_d>6;XGG[\KDRViCfumZT3@[
 Mime-Version: 1.0
 Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 03 Oct 2006 10:37:31 -0700
-Badari Pulavarty <pbadari@us.ibm.com> wrote:
+On Tue, 03 Oct 2006 21:32:54 +0900
+Kenji Kaneshige <kaneshige.kenji@jp.fujitsu.com> wrote:
 
-> On Tue, 2006-10-03 at 00:11 -0700, Andrew Morton wrote:
-> > ftp://ftp.kernel.org/pub/linux/kernel/people/akpm/patches/2.6/2.6.18/2.6.18-mm3/
+> Roland Dreier wrote:
+> > The change "PCI: assign ioapic resource at hotplug" (commit
+> > 23186279658cea6d42a050400d3e79c56cb459b4 in Linus's tree) makes
+> > networking stop working on my system (SuperMicro H8QC8 with four
+> > dual-core Opteron 885 CPUs).  In particular, the on-board NIC stops
+> > working, probably because it gets assigned the wrong IRQ (225 in the
+> > non-working case, 217 in the working case)
 > > 
-> > - Added Jeff's make-bogus-warnings-go-away tree to the -mm lineup, as
-> >   git-gccbug.patch
+> > With that patch applied, e1000 doesn't work.  Reverting just that
+> > patch (shown below) from Linus's latest tree fixes things for me.
 > > 
-> > - Francois Romieu is doing some qlogic driver maintenance - added his
-> >   git-qla3xxx.patch to the -mm lineup.
+> > Please let me know what other debug information might be useful.
 > > 
-> > - Some wireless-related crashes are hopefully fixed.  But if there are still
-> >   wireless problems, be sure that you have the latest userspace tools.
-> > 
-> > - The recent spate of IRQ-allocation-related crashes on x86_64 is hopefully
-> >   fixed.
-> > 
-> > - As far as we know, the MSI handling in -mm is now rock-solid.
 > 
+> The cause of this problem might be an wrong assumption that the 'start'
+> member of resource structure for ioapic device has non-zero value if the
+> resources are assigned by firmware. The 'start' member of ioapic device
+> seems not to be set even though the resources were actually assigned to
+> ioapic devices by firmware.
 > 
-> Not having any luck with it :(
+> I made a patch to fix this problem against 2.6.18-git18. This patch
+> checks command register instead of checking 'start' member to see if
+> the ioapic is already enabled by firmware. Unfortunately, I don't have
+> any system to reproduce this problem. Could you please try it and let
+> me know whether the problem is fixed? If the patch below fixes the
+> problem, I'll resend it with description and Signed-off-by.
 > 
+> Thanks,
+> Kenji Kaneshige
+>
 
-You never do ;)
-
-We'd make better progress if you could bisect these failures.
-
-> 
-> Kernel command line: root=/dev/hda2 vga=0x314  selinux=0   console=tty0
-> console=ttyS0,38400 resume=/dev/hda1 resume=/dev/hda1  splash=silent
-> showopts
-> Initializing CPU#0
-> PID hash table entries: 4096 (order: 12, 32768 bytes)
-> Console: colour dummy device 80x25
-> Dentry cache hash table entries: 1048576 (order: 11, 8388608 bytes)
-> Inode-cache hash table entries: 524288 (order: 10, 4194304 bytes)
-> Checking aperture...
-> CPU 0: aperture @ 0 size 32 MB
-> No AGP bridge found
-> Your BIOS doesn't leave a aperture memory hole
-> Please enable the IOMMU option in the BIOS setup
-> This costs you 64 MB of RAM
-> Mapping aperture over 65536 KB of RAM @ 4000000
-> Memory: 7147724k/7864320k available (2924k kernel code, 191856k
-> reserved, 1697k data, 360k init)
-> ------------[ cut here ]------------
-> kernel BUG in init_list at mm/slab.c:1334!
-> invalid opcode: 0000 [1] SMP
-> last sysfs file:
-> CPU 0
-> Modules linked in:
-> Pid: 0, comm: swapper Not tainted 2.6.18-mm3 #1
-> RIP: 0010:[<ffffffff8027bd5b>]  [<ffffffff8027bd5b>] init_list
-> +0x2b/0x120
-> RSP: 0018:ffffffff806d9f18  EFLAGS: 00010212
-> RAX: 000000000000003f RBX: 0000000000000001 RCX: 0000000000000000
-> RDX: 0000000000000001 RSI: ffffffff8072b0a8 RDI: ffff81017a800040
-> RBP: ffffffff806d9f48 R08: 0000000000000001 R09: 0000000000000003
-> R10: 0000000000000000 R11: ffffffff8072cac8 R12: 0000000000000001
-> R13: ffff81017a800040 R14: ffffffff8072b0a8 R15: 0000000000000000
-> FS:  0000000000000000(0000) GS:ffffffff80684000(0000)
-> knlGS:0000000000000000
-> CS:  0010 DS: 0018 ES: 0018 CR0: 000000008005003b
-> CR2: 0000000000000000 CR3: 0000000000201000 CR4: 00000000000006a0
-> Process swapper (pid: 0, threadinfo ffffffff806d8000, task
-> ffffffff805f7bc0)
-> Stack:  ffffffff806d9f48 0000000100000286 0000000000000001
-> ffffffff8072b0a8
->  0000000000000040 0000000000000000 ffffffff806d9f98 ffffffff806fdc69
->  0000000000000168 0000000000000240 0000000100000001 0000000000090000
-> Call Trace:
->  [<ffffffff806fdc69>] kmem_cache_init+0x3b9/0x490
->  [<ffffffff806e36ef>] start_kernel+0x18f/0x220
->  [<ffffffff806e3176>] _sinittext+0x176/0x180
-> 
-> 
-> Code: 0f 0b 66 66 90 48 8b 3d b1 ae 38 00 be d0 00 00 00 e8 0f ff
-> RIP  [<ffffffff8027bd5b>] init_list+0x2b/0x120
->  RSP <ffffffff806d9f18>
->  <0>Kernel panic - not syncing: Attempted to kill the idle task!
-
-http://userweb.kernel.org/~akpm/badari2.bz2 is a rollup against 2.6.18
-which omits the various zone changes.  Can you see if that also fails?
-
-Thanks.
+This also fixes my problems with the built in tg3 on the dual CPU Opteron
+IBM workstation.

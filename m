@@ -1,64 +1,84 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932090AbWJCMzL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932105AbWJCMz4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932090AbWJCMzL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Oct 2006 08:55:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932096AbWJCMzL
+	id S932105AbWJCMz4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Oct 2006 08:55:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932118AbWJCMz4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Oct 2006 08:55:11 -0400
-Received: from py-out-1112.google.com ([64.233.166.177]:36581 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S932090AbWJCMzJ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Oct 2006 08:55:09 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=kQAQDMOCKA5NPGdhocUqNYAR0f56cpRxWAE+AhIYWrJW0rGIXL/M1rQ6qcPkR4xUFxXY/I7GeS3KdqqTuzdnqduyHNZDH6TdcpcrSPKMAr7TkQl66ckbGRCS1mNmwsRZ9t2UFzsYcAu9PERp0n3YdwAPRvQMR/1FuPqvl4DQDs4=
-Message-ID: <653402b90610030555h2536b04bs3603d95635b93ca7@mail.gmail.com>
-Date: Tue, 3 Oct 2006 14:55:07 +0200
-From: "Miguel Ojeda" <maxextreme@gmail.com>
-To: andrew.j.wade@gmail.com
-Subject: Re: [PATCH 2.6.18 V7] drivers: add lcd display support
-Cc: akpm@osdl.org, "Stefan Richter" <stefanr@s5r6.in-berlin.de>,
-       "Randy Dunlap" <rdunlap@xenotime.net>, linux-kernel@vger.kernel.org
-In-Reply-To: <200610022006.45806.ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 3 Oct 2006 08:55:56 -0400
+Received: from rhlx01.fht-esslingen.de ([129.143.116.10]:59587 "EHLO
+	rhlx01.fht-esslingen.de") by vger.kernel.org with ESMTP
+	id S932103AbWJCMzz (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Oct 2006 08:55:55 -0400
+Date: Tue, 3 Oct 2006 14:55:53 +0200
+From: Andreas Mohr <andi@rhlx01.fht-esslingen.de>
+To: Andrew Morton <akpm@osdl.org>
+Cc: rgooch@atnf.csiro.au, Jan Beulich <jbeulich@novell.com>,
+       Kurt Garloff <garloff@suse.de>, linux-kernel@vger.kernel.org
+Subject: [PATCH -mm] fix buggy MTRR address checks
+Message-ID: <20061003125553.GA3648@rhlx01.fht-esslingen.de>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-References: <20060930232445.59e8adf6.maxextreme@gmail.com>
-	 <200610021449.08640.ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com>
-	 <653402b90610021440h2e416394r55227ce5e7eb6171@mail.gmail.com>
-	 <200610022006.45806.ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com>
+User-Agent: Mutt/1.4.2.1i
+X-Priority: none
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On 10/3/06, Andrew James Wade <andrew.j.wade@gmail.com> wrote:
->
-> I'm afraid not; it looks like my suggestion "LCD display" grates on
-> people's ears. Simply calling the device an "LCD" is probably the
-> best bet, and "LCD screen" would be better than "LCD monitor". Screens
-> can be any size, it's a fairly generic term.
->
-> The class name and directory name should probably include the word
-> "display", but I don't know what the other part should be. What sort
-> of displays should be included in this category, and what sort
-> shouldn't?
->
-> Andrew Wade
->
+Fix checks that failed to realize that values are 4-kB-unit-sized
+(note the format strings in this same diff context which *do* realize the
+unit size, via appended "000"!).
+Also fix an incorrect below-1MB area check (as gathered from Jan Beulich's
+unapplied patch at
+http://www.ussg.iu.edu/hypermail/linux/kernel/0411.1/1378.html )
+Update mtrr_add_page() docu to make 4-kB-sized calculation more obvious.
 
-My first idea was call it "display", for small/medium screens of any
-kind (LCD, OLED, FED, NED... whatever). I named it "drivers/display/",
-so anyone who create a driver for a display or display controller can
-put it there (creating a separator for its own category at Kconfig),
-as there aren't so many of them for now.
 
-But people said "display" could be so generic and cause confusion with
-usual video drivers, so I renamed it to "drivers/lcddisplay/", as it
-is more expressive (however when someone will create a OLED driver
-will have to create a new folder...).
 
-I would like to put any kind of display driver there (LCD, OLED...)
-not just LCDs and name it "drivers/display". I think people won't
-confuse them with VESA... as there aren't drivers for "screens", just
-for video cards (logically). But some people don't agree.
+Given several further items mentioned in Jan's patch mail, all in all
+MTRR code seems surprisingly buggy, for a surprisingly long period of time
+(many years). Further work/investigation would be useful.
+
+Note that my patch is pretty much UNTESTED, since I can only verify that
+it successfully boots my machine, but I cannot test against actual buggy
+hardware which would require these (formerly broken) checks.
+Long -mm simmering would make sense, especially since these now-working
+checks might turn out to have adverse effects on unaffected hardware.
+
+Signed-off-by: Andreas Mohr <andi@lisas.de>
+
+
+diff -urN linux-2.6.18-mm3.orig/arch/i386/kernel/cpu/mtrr/generic.c linux-2.6.18-mm3/arch/i386/kernel/cpu/mtrr/generic.c
+--- linux-2.6.18-mm3.orig/arch/i386/kernel/cpu/mtrr/generic.c	2006-10-11 11:59:45.000000000 +0200
++++ linux-2.6.18-mm3/arch/i386/kernel/cpu/mtrr/generic.c	2006-10-11 12:04:37.000000000 +0200
+@@ -366,7 +366,7 @@
+ 			printk(KERN_WARNING "mtrr: base(0x%lx000) is not 4 MiB aligned\n", base);
+ 			return -EINVAL;
+ 		}
+-		if (!(base + size < 0x70000000 || base > 0x7003FFFF) &&
++		if (!(base + size < 0x70000 || base > 0x7003F) &&
+ 		    (type == MTRR_TYPE_WRCOMB
+ 		     || type == MTRR_TYPE_WRBACK)) {
+ 			printk(KERN_WARNING "mtrr: writable mtrr between 0x70000000 and 0x7003FFFF may hang the CPU.\n");
+@@ -374,7 +374,7 @@
+ 		}
+ 	}
+ 
+-	if (base + size < 0x100) {
++	if (base < 0x100) {
+ 		printk(KERN_WARNING "mtrr: cannot set region below 1 MiB (0x%lx000,0x%lx000)\n",
+ 		       base, size);
+ 		return -EINVAL;
+diff -urN linux-2.6.18-mm3.orig/arch/i386/kernel/cpu/mtrr/main.c linux-2.6.18-mm3/arch/i386/kernel/cpu/mtrr/main.c
+--- linux-2.6.18-mm3.orig/arch/i386/kernel/cpu/mtrr/main.c	2006-08-18 20:03:00.000000000 +0200
++++ linux-2.6.18-mm3/arch/i386/kernel/cpu/mtrr/main.c	2006-10-11 12:04:37.000000000 +0200
+@@ -263,8 +263,8 @@
+ 
+ /**
+  *	mtrr_add_page - Add a memory type region
+- *	@base: Physical base address of region in pages (4 KB)
+- *	@size: Physical size of region in pages (4 KB)
++ *	@base: Physical base address of region in pages (in units of 4 kB!)
++ *	@size: Physical size of region in pages (4 kB)
+  *	@type: Type of MTRR desired
+  *	@increment: If this is true do usage counting on the region
+  *

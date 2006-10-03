@@ -1,52 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030592AbWJCWGe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030594AbWJCWHw@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030592AbWJCWGe (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Oct 2006 18:06:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030594AbWJCWGe
+	id S1030594AbWJCWHw (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Oct 2006 18:07:52 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030599AbWJCWHw
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Oct 2006 18:06:34 -0400
-Received: from av4.karneval.cz ([81.27.192.11]:10771 "EHLO av2.karneval.cz")
-	by vger.kernel.org with ESMTP id S1030592AbWJCWGc (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Oct 2006 18:06:32 -0400
-Message-id: <126432123123@karneval.cz>
-Subject: [PATCH 6/6] Char: mxser_new, CMSPAR is defined
-From: Jiri Slaby <jirislaby@gmail.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: <linux-kernel@vger.kernel.org>, <support@moxa.com.tw>
-Date: Wed,  4 Oct 2006 00:06:30 +0200 (CEST)
+	Tue, 3 Oct 2006 18:07:52 -0400
+Received: from us01smtp1.synopsys.com ([198.182.44.79]:25515 "EHLO
+	boden.synopsys.com") by vger.kernel.org with ESMTP id S1030596AbWJCWHu convert rfc822-to-8bit
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Oct 2006 18:07:50 -0400
+X-MimeOLE: Produced By Microsoft Exchange V6.5.7226.0
+Content-class: urn:content-classes:message
+MIME-Version: 1.0
+Content-Type: text/plain;
+	charset="us-ascii"
+Content-Transfer-Encoding: 8BIT
+Subject: System hang problem.
+Date: Tue, 3 Oct 2006 15:07:52 -0700
+Message-ID: <C9A861D62D068643A0F4A7B1BCB38E2C0327B5A0@US01WEMBX1.internal.synopsys.com>
+Thread-Topic: System hang problem.
+Thread-Index: AcbnOF7IPNQ9hELCRKG8xOeXVR314w==
+From: "Manish Neema" <Manish.Neema@synopsys.com>
+To: <linux-kernel@vger.kernel.org>
+X-OriginalArrivalTime: 03 Oct 2006 22:07:49.0378 (UTC) FILETIME=[5D28D620:01C6E738]
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-mxser_new, CMSPAR is defined
+Sorry, I've lost my patience with RedHat so posting here....
 
-There is no need to have another (ifndeffed) definition of CMSPAR. It's
-defined in includes.
+We see this problem frequently on RHEL3.0 U5 and U7. System would
+completely hang upon memory shortage. The only option left is
+power-cycle (or 'sysrq + b'). System hang occurs with any of the below 3
+overcommit settings:
 
-Signed-off-by: Jiri Slaby <jirislaby@gmail.com>
+   - default (heuristic) overcommit (overcommit_memory=0) 
+   - no overcommit handling by kernel (overcommit_memory=1)
+   - restrictive overcommit with ratio=100% (overcommit_memory=2;
+overcommit_ratio=100)
 
----
-commit 6545715838791f2e9f1501b5b48fae69f2d82d35
-tree 1a289cd1a7c4d0e744c5036ebdd92ba4d40cb52f
-parent b4f8f18a380e652a92f0dbd41622b5f536a00bed
-author Jiri Slaby <jirislaby@gmail.com> Tue, 03 Oct 2006 23:59:23 +0200
-committer Jiri Slaby <xslaby@anemoi.localdomain> Tue, 03 Oct 2006 23:59:23 +0200
+RHEL3.0 U3 would generate an OOM kill "each and every time" it sensed
+system hang but due to other bugs, we had to move away from it. RedHat
+calls the timely (at least for us) invocation of OOM in U3 a buggy
+implementation and the delayed OOM kill in U5 and U7 the right
+implementation (which we rarely get to see resulting in at least 5
+systems hanging daily!)
 
- drivers/char/mxser_new.c |    4 ----
- 1 files changed, 0 insertions(+), 4 deletions(-)
+Changing overcommit to 2 (and ratio to any where from 1 to 99) would
+result in certain OS processes (automount daemon for e.g.) getting
+killed when all the allowed memory is committed. What is the point in
+reserving some memory if a random root process would get killed leaving
+the system in a totally unknown state?
 
-diff --git a/drivers/char/mxser_new.c b/drivers/char/mxser_new.c
-index d4cb2d8..cb9c865 100644
---- a/drivers/char/mxser_new.c
-+++ b/drivers/char/mxser_new.c
-@@ -1602,10 +1602,6 @@ static int mxser_read_register(int port,
- 	return id;
- }
- 
--#ifndef CMSPAR
--#define	CMSPAR 010000000000
--#endif
--
- static int mxser_ioctl_special(unsigned int cmd, void __user *argp)
- {
- 	struct mxser_port *port;
+Any suggestions on how we can prevent system-hang + not have automount
+(and any other root process) die? 
+
+TIA,
+-Manish Neema
+
+P.S. Sorry, we cannot move away from RHEL3.0 U7 for a while.

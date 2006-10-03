@@ -1,50 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030586AbWJCWCO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030587AbWJCWBj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030586AbWJCWCO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Oct 2006 18:02:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030593AbWJCWCN
+	id S1030587AbWJCWBj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Oct 2006 18:01:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030586AbWJCWBj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Oct 2006 18:02:13 -0400
-Received: from iabervon.org ([66.92.72.58]:35343 "EHLO iabervon.org")
-	by vger.kernel.org with ESMTP id S1030591AbWJCWCM (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Oct 2006 18:02:12 -0400
-Date: Tue, 3 Oct 2006 18:02:09 -0400 (EDT)
-From: Daniel Barkalow <barkalow@iabervon.org>
-To: Marc Perkel <marc@perkel.com>
-cc: "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
-Subject: Re: Maybe it's time to fork the GPL License - create the Linux
- license?
-In-Reply-To: <4520D40F.8080500@perkel.com>
-Message-ID: <Pine.LNX.4.64.0610031749540.9789@iabervon.org>
-References: <20060928144028.GA21814@wohnheim.fh-wedel.de>
- <MDEHLPKNGKAHNMBLJOLKCENGOLAB.davids@webmaster.com>
- <BAYC1-PASMTP11B5EB1224711DCB6D4F3DAE180@CEZ.ICE> <4520D40F.8080500@perkel.com>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+	Tue, 3 Oct 2006 18:01:39 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:46044 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1030590AbWJCWBh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Oct 2006 18:01:37 -0400
+Subject: Re: [PATCH] IPC namespace core
+From: David Woodhouse <dwmw2@infradead.org>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
+       Kirill Korotaev <dev@openvz.org>, Pavel Emelianov <xemul@openvz.org>,
+       Cedric Le Goater <clg@fr.ibm.com>,
+       "Eric W. Biederman" <ebiederm@xmission.com>
+In-Reply-To: <20061003093505.0bb7bb6a.akpm@osdl.org>
+References: <200610021601.k92G13mT003934@hera.kernel.org>
+	 <1159866174.3438.66.camel@pmac.infradead.org>
+	 <20061003093505.0bb7bb6a.akpm@osdl.org>
+Content-Type: text/plain; charset=UTF-8
+Date: Tue, 03 Oct 2006 23:01:31 +0100
+Message-Id: <1159912891.27726.3.camel@pmac.infradead.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.8.0 (2.8.0-7.fc6) 
+Content-Transfer-Encoding: 8bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2 Oct 2006, Marc Perkel wrote:
+On Tue, 2006-10-03 at 09:35 -0700, Andrew Morton wrote:
+> We'll get there ;) I'm waiting for a suitable time to merge
+> add-config_headers_check-option-to-automatically-run-make-headers_check.patch,
+> which will cause all `make allmodconfig' testers to automatically run `make
+> headers_check'.
+> 
+> But I don't think the time is right yet - a little later, when things have
+> settled down and when it all works nicely on multiple architectures.
 
-> Just a thought. Suppose we forked the GPL2 license and created the Linux
-> license? (Or some better name) It's kind of clear the Stallman has his own
-> ajenda and that it's not compatible with the Linux model. So - lets fork it an
-> start a new one.
+Other than the glitches I just whinged about, it _does_ work nicely on
+almost all architectures. I sent Linus those fixes as soon as 2.6.18
+came out, and you were talking about putting them in -stable too
+(although you went quiet on that front when you saw how many there
+were¹).
 
-The GPLv2 isn't open source, so it can't (legally) be forked:
+In fact, I held off on merging some of Arnd's extra checks because I
+didn't want to add extra failures -- specifically because I thought we
+were turning that config-headers-check thingy on.
 
- Everyone is permitted to copy and distribute verbatim copies
- of this license document, but changing it is not allowed.
+-- 
+dwmw2
 
-(The "mere aggregation" clause is, in fact, very important, since 
-otherwise it would be impossible to distribute GPLed code along with the 
-license for it.)
+¹ http://git.infradead.org/?p=users/dwmw2/khdrs-2.6.git;a=shortlog;h=stable
 
-Now, it would be plausible to get Creative Commons to do a "provide 
-source" clause, such that there would be an alternative text with the same 
-effect as the GPLv2, if there was enough negative opinion about the FSF to 
-justify having an alternative text to use for this effect.
-
-	-Daniel
-*This .sig left intentionally blank*

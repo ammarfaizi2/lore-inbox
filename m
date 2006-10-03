@@ -1,45 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030585AbWJCWBB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030586AbWJCWCO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030585AbWJCWBB (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Oct 2006 18:01:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030586AbWJCWBB
+	id S1030586AbWJCWCO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Oct 2006 18:02:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030593AbWJCWCN
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Oct 2006 18:01:01 -0400
-Received: from py-out-1112.google.com ([64.233.166.182]:52569 "EHLO
-	py-out-1112.google.com") by vger.kernel.org with ESMTP
-	id S1030585AbWJCWA7 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Oct 2006 18:00:59 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:from:to:cc:subject:date:message-id:mime-version:content-type:content-transfer-encoding:x-mailer:in-reply-to:x-mimeole:thread-index;
-        b=Ec6cLBz1mwuy+MFTgZakS+qYKl8iU5Ijgu3TnOmdEOS+xiI8CfYdVutDcSTGqhrqSff/7HlIyPn02l75rzWSCyzyHtuUvHhm7KuQUDQK/Py3caIn8k8Nw064kJdVxPHt3mFAvPaptxWIhIaweF007pbDX78gyBBNZjULW+tAfwM=
-From: "Hua Zhong" <hzhong@gmail.com>
-To: "'Marc Perkel'" <marc@perkel.com>, "'Adam Henley'" <adamazing@gmail.com>
-Cc: "'Ivan Dimitrov'" <madcat@pzforum.net>,
-       "'Linux-Kernel@Vger. Kernel. Org'" <linux-kernel@vger.kernel.org>
-Subject: RE: It's not GNU/Linux - it's jusy LINUX
-Date: Tue, 3 Oct 2006 15:00:54 -0700
-Message-ID: <008101c6e737$672c4590$6721100a@nuitysystems.com>
+	Tue, 3 Oct 2006 18:02:13 -0400
+Received: from iabervon.org ([66.92.72.58]:35343 "EHLO iabervon.org")
+	by vger.kernel.org with ESMTP id S1030591AbWJCWCM (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Oct 2006 18:02:12 -0400
+Date: Tue, 3 Oct 2006 18:02:09 -0400 (EDT)
+From: Daniel Barkalow <barkalow@iabervon.org>
+To: Marc Perkel <marc@perkel.com>
+cc: "Linux-Kernel@Vger. Kernel. Org" <linux-kernel@vger.kernel.org>
+Subject: Re: Maybe it's time to fork the GPL License - create the Linux
+ license?
+In-Reply-To: <4520D40F.8080500@perkel.com>
+Message-ID: <Pine.LNX.4.64.0610031749540.9789@iabervon.org>
+References: <20060928144028.GA21814@wohnheim.fh-wedel.de>
+ <MDEHLPKNGKAHNMBLJOLKCENGOLAB.davids@webmaster.com>
+ <BAYC1-PASMTP11B5EB1224711DCB6D4F3DAE180@CEZ.ICE> <4520D40F.8080500@perkel.com>
 MIME-Version: 1.0
-Content-Type: text/plain;
-	charset="us-ascii"
-Content-Transfer-Encoding: 7bit
-X-Mailer: Microsoft Office Outlook 11
-In-Reply-To: <4522DA72.7070908@perkel.com>
-X-MimeOLE: Produced By Microsoft MimeOLE V6.00.2900.2962
-Thread-Index: AcbnNircH9B7AAERSRi4IvySpma+DgAAQ/tQ
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-> Most of the GNU utilities were just clones of the work the 
-> AT&T did when the C language and the Unix operating system 
-> was invented. To clone an existing product is trivial as 
-> compared to coming up with the original ideas in the first 
-> place. RMS didn't invent C, he cloned it. If anything it 
-> should be called AT&T/Linux if you want to give credit to the 
-> innovators. RMS is just a middleman in the process.
+On Mon, 2 Oct 2006, Marc Perkel wrote:
 
-Since we've got to this point, let's call it AT&T/Unix.
+> Just a thought. Suppose we forked the GPL2 license and created the Linux
+> license? (Or some better name) It's kind of clear the Stallman has his own
+> ajenda and that it's not compatible with the Linux model. So - lets fork it an
+> start a new one.
 
-Hua
+The GPLv2 isn't open source, so it can't (legally) be forked:
 
+ Everyone is permitted to copy and distribute verbatim copies
+ of this license document, but changing it is not allowed.
+
+(The "mere aggregation" clause is, in fact, very important, since 
+otherwise it would be impossible to distribute GPLed code along with the 
+license for it.)
+
+Now, it would be plausible to get Creative Commons to do a "provide 
+source" clause, such that there would be an alternative text with the same 
+effect as the GPLv2, if there was enough negative opinion about the FSF to 
+justify having an alternative text to use for this effect.
+
+	-Daniel
+*This .sig left intentionally blank*

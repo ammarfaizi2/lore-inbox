@@ -1,60 +1,51 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965554AbWJCAvW@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030194AbWJCA57@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965554AbWJCAvW (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Oct 2006 20:51:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965552AbWJCAvW
+	id S1030194AbWJCA57 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Oct 2006 20:57:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030196AbWJCA56
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Oct 2006 20:51:22 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:35019 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S965550AbWJCAvV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Oct 2006 20:51:21 -0400
-Message-ID: <4521B403.2050606@garzik.org>
-Date: Mon, 02 Oct 2006 20:51:15 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
+	Mon, 2 Oct 2006 20:57:58 -0400
+Received: from py-out-1112.google.com ([64.233.166.182]:17527 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S1030194AbWJCA56 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Oct 2006 20:57:58 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:reply-to:to:subject:date:user-agent:cc:references:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:message-id:from;
+        b=BGOUgzo/+0Sj3jEvxro3Fvx/KCi3kGy0zrpVH1yOO0Q/I5YKt9VyJLrRQ4nRdF+cq5vB/4n4dsJviOdBji2DQYoabQ4pUbnwoTjtYdsFMXNylJW4/gc38etpdXCOSlVcx5LrDRi/NW2L9poDtKGRNfdyc5pJUqe11gzL6Bd6tlM=
+Reply-To: andrew.j.wade@gmail.com
+To: "Miguel Ojeda" <maxextreme@gmail.com>
+Subject: Re: [PATCH 2.6.18 V7] drivers: add lcd display support
+Date: Mon, 2 Oct 2006 20:06:39 -0400
+User-Agent: KMail/1.9.1
+Cc: andrew.j.wade@gmail.com, akpm@osdl.org,
+       "Stefan Richter" <stefanr@s5r6.in-berlin.de>,
+       "Randy Dunlap" <rdunlap@xenotime.net>, linux-kernel@vger.kernel.org
+References: <20060930232445.59e8adf6.maxextreme@gmail.com> <200610021449.08640.ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com> <653402b90610021440h2e416394r55227ce5e7eb6171@mail.gmail.com>
+In-Reply-To: <653402b90610021440h2e416394r55227ce5e7eb6171@mail.gmail.com>
 MIME-Version: 1.0
-To: Andrew Morton <akpm@osdl.org>
-CC: "Moore, Eric" <Eric.Moore@lsil.com>, Martin Bligh <mbligh@google.com>,
-       LKML <linux-kernel@vger.kernel.org>, Andy Whitcroft <apw@shadowen.org>,
-       linux-scsi@vger.kernel.org
-Subject: Re: Panic from mptspi_dv_renegotiate_work in 2.6.18-mm2
-References: <664A4EBB07F29743873A87CF62C26D703507DA@NAMAIL4.ad.lsil.com>	<20061002163733.610a3c1f.akpm@osdl.org>	<4521AF8D.4050209@garzik.org> <20061002174147.82093f20.akpm@osdl.org>
-In-Reply-To: <20061002174147.82093f20.akpm@osdl.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Type: text/plain;
+  charset="iso-8859-1"
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.3 (----)
-X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.3 points, 5.0 required)
+Content-Disposition: inline
+Message-Id: <200610022006.45806.ajwade@cpe001346162bf9-cm0011ae8cd564.cpe.net.cable.rogers.com>
+From: Andrew James Wade <andrew.j.wade@gmail.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Andrew Morton wrote:
-> On Mon, 02 Oct 2006 20:32:13 -0400
-> Jeff Garzik <jeff@garzik.org> wrote:
-> 
->> FWIW, I am seeing precisely this problem, in the latest -git.
-> 
-> I just sent this to Linus.  Fingers crossed, it'll fix...
-> 
-> From: Andrew Morton <akpm@osdl.org>
-> 
-> 54dbc0c9ebefb38840c6b07fa6eabaeb96c921f5 is causing various people's machines
-> to fail to map PCI resources.
-> 
-> Revert it in preparation for addressing the show-APICs-in-/proc/iomem
-> requirement in a different manner.
-> 
-> Cc: Aaron Durbin <adurbin@google.com>
-> Cc: Andi Kleen <ak@muc.de>
-> Cc: "Eric W. Biederman" <ebiederm@xmission.com>
-> Signed-off-by: Andrew Morton <akpm@osdl.org>
+On Monday 02 October 2006 17:40, Miguel Ojeda wrote:
 
-I'll give it a good test.  My sata_mv (requires PCI domains) also died 
-with a bunch of timeouts.  Lack of interrupts, or lack of PCI resources, 
-is definitely indicative of a cause.
+> Andrew, can you tell me how should I name it? So I will be able to
+> change it (if apply) and send the V8 patch.
 
-	Jeff
+I'm afraid not; it looks like my suggestion "LCD display" grates on
+people's ears. Simply calling the device an "LCD" is probably the
+best bet, and "LCD screen" would be better than "LCD monitor". Screens
+can be any size, it's a fairly generic term.
 
+The class name and directory name should probably include the word
+"display", but I don't know what the other part should be. What sort
+of displays should be included in this category, and what sort
+shouldn't?
 
-
+Andrew Wade

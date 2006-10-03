@@ -1,70 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030621AbWJCWbo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030632AbWJCWcH@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030621AbWJCWbo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Oct 2006 18:31:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030618AbWJCWbn
+	id S1030632AbWJCWcH (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Oct 2006 18:32:07 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030633AbWJCWcG
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Oct 2006 18:31:43 -0400
-Received: from gundega.hpl.hp.com ([192.6.19.190]:27094 "EHLO
-	gundega.hpl.hp.com") by vger.kernel.org with ESMTP id S1030621AbWJCWbm
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Oct 2006 18:31:42 -0400
-Date: Tue, 3 Oct 2006 15:27:07 -0700
-To: Jeff Garzik <jeff@garzik.org>
+	Tue, 3 Oct 2006 18:32:06 -0400
+Received: from thunk.org ([69.25.196.29]:37300 "EHLO thunker.thunk.org")
+	by vger.kernel.org with ESMTP id S1030618AbWJCWcD (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Oct 2006 18:32:03 -0400
+Date: Tue, 3 Oct 2006 18:30:29 -0400
+From: Theodore Tso <tytso@mit.edu>
+To: Jean Tourrilhes <jt@hpl.hp.com>
 Cc: "John W. Linville" <linville@tuxdriver.com>,
-       Linus Torvalds <torvalds@osdl.org>, Lee Revell <rlrevell@joe-job.com>,
+       Dan Williams <dcbw@redhat.com>,
        Alessandro Suardi <alessandro.suardi@gmail.com>,
-       Norbert Preining <preining@logic.at>, hostap@shmoo.com,
-       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
-       johannes@sipsolutions.net
+       "Rafael J. Wysocki" <rjw@sisk.pl>, Andrew Morton <akpm@osdl.org>,
+       hostap@shmoo.com, linux-kernel@vger.kernel.org
 Subject: Re: wpa supplicant/ipw3945, ESSID last char missing
-Message-ID: <20061003222707.GB1790@bougret.hpl.hp.com>
-Reply-To: jt@hpl.hp.com
-References: <1159807483.4067.150.camel@mindpipe> <20061003123835.GA23912@tuxdriver.com> <1159890876.20801.65.camel@mindpipe> <Pine.LNX.4.64.0610030916000.3952@g5.osdl.org> <20061003180543.GD23912@tuxdriver.com> <4522A9BE.9000805@garzik.org> <20061003183849.GA17635@bougret.hpl.hp.com> <4522B311.7070905@garzik.org> <20061003214038.GE23912@tuxdriver.com> <4522DA9B.6050207@garzik.org>
-Mime-Version: 1.0
+Message-ID: <20061003223029.GA26351@thunk.org>
+Mail-Followup-To: Theodore Tso <tytso@mit.edu>,
+	Jean Tourrilhes <jt@hpl.hp.com>,
+	"John W. Linville" <linville@tuxdriver.com>,
+	Dan Williams <dcbw@redhat.com>,
+	Alessandro Suardi <alessandro.suardi@gmail.com>,
+	"Rafael J. Wysocki" <rjw@sisk.pl>, Andrew Morton <akpm@osdl.org>,
+	hostap@shmoo.com, linux-kernel@vger.kernel.org
+References: <20061002111537.baa077d2.akpm@osdl.org> <20061002185550.GA14854@bougret.hpl.hp.com> <200610022147.03748.rjw@sisk.pl> <1159822831.11771.5.camel@localhost.localdomain> <20061002212604.GA6520@thunk.org> <5a4c581d0610021508hdc331f0w7c9b71c3944d4d8b@mail.gmail.com> <1159877574.2879.11.camel@localhost.localdomain> <20061003124902.GB23912@tuxdriver.com> <20061003133845.GG2930@thunk.org> <20061003172327.GA17443@bougret.hpl.hp.com>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4522DA9B.6050207@garzik.org>
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: jt@hpl.hp.com
-User-Agent: Mutt/1.5.9i
-From: Jean Tourrilhes <jt@hpl.hp.com>
-X-HPL-MailScanner: Found to be clean
-X-HPL-MailScanner-From: jt@hpl.hp.com
+In-Reply-To: <20061003172327.GA17443@bougret.hpl.hp.com>
+User-Agent: Mutt/1.5.11
+X-SA-Exim-Connect-IP: <locally generated>
+X-SA-Exim-Mail-From: tytso@thunk.org
+X-SA-Exim-Scanned: No (on thunker.thunk.org); SAEximRunCond expanded to false
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 03, 2006 at 05:48:11PM -0400, Jeff Garzik wrote:
-> John W. Linville wrote:
-> >Unfortunately, I don't see any way to "fix" WE-21 without similarly
-> >breaking wireless-tools 29 and other "WE-21 aware" apps.  And since
-> >I'll bet that the various WE-aware apps have checks like "if WE >
-> >20" for managing ESSID length settings, we may have painted ourselves
-> >into a korner (sic).
-> 
-> The apps are based on a pre-release kernel, which everyone knows could 
-> change, precisely for reasons like this.  Sounds like somebody took a 
-> risk, and lost...
-> 
-> 	Jeff
+On Tue, Oct 03, 2006 at 10:23:27AM -0700, Jean Tourrilhes wrote:
+> 	In the past, I personally tried to upgrade Red-Hat Workstation
+> 4 with a pristine 2.6 kernel. This was far from trivial, as Red-Hat
+> did compile their kernel with some weird options/patches, and
+> userspace (libc) were expecting those.
 
-	Jeff,
+I (well, me and my team) am supporting a customer using a RHEL 4
+userspace and a 2.6.16 kernel with Ingo's real-time patches.  We just
+used Red Hat config file as the basis, and it wasn't that hard.  There
+were some initrd breakages, which I've complained about in the past,
+but the goal is that this sort of thing is supposed to work!  (And for
+the most part, it does).
 
-	Let's not make a mountain of this molehill. If you want to use
-old versions of Wireless Tools and wpa_supplicant with WE-21, what you
-need is just to add a dummy character at the end of your ESSID. And
-everything will be fine.
+> 	On the other hand, I've been personally running the latest
+> 2.6.X kernels on Debian stable for as long as 2.6.X was
+> available. And, things *do* break, in the past I had trouble with
+> module tools, I can't run devfs or udev, Pcmcia is on the verge of
+> breaking, etc...
 
-	Also, there is no other way to update cleanly a kernel API
-than to push userspace first. I think I took way more care in term of
-smoothing over the API transition than any other kernel subsystem, so
-I don't know what could have been done better. I don't remember this
-level of flamewar when those other subsystems did change their
-userspace APIs.
-	I try to be constructive about all this, so let's find a way
-forward without loosing perspective.
+I'm currently using the latest 2.6 kernel with Ubuntu 6.06 (their
+stable release), and to date, I haven't had any problems.  
 
-	Regards,
+Of course, that may be about to change, given that Ubuntu is shipping
+with wireless-tools version "27+28pre13-1ub", which I assume is a
+version between 27 and 28.  Do you know off-hand whether this is is
+WE-21 capable?
 
-	Jean
+						- Ted

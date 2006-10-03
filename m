@@ -1,81 +1,85 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964894AbWJCXct@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964832AbWJCXf2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964894AbWJCXct (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Oct 2006 19:32:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964887AbWJCXct
+	id S964832AbWJCXf2 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Oct 2006 19:35:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964848AbWJCXf2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Oct 2006 19:32:49 -0400
-Received: from madara.hpl.hp.com ([192.6.19.124]:3026 "EHLO madara.hpl.hp.com")
-	by vger.kernel.org with ESMTP id S964894AbWJCXcs (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Oct 2006 19:32:48 -0400
-Date: Tue, 3 Oct 2006 16:31:38 -0700
-To: Theodore Tso <tytso@mit.edu>, "John W. Linville" <linville@tuxdriver.com>,
-       Jeff Garzik <jeff@garzik.org>, Linus Torvalds <torvalds@osdl.org>,
-       Lee Revell <rlrevell@joe-job.com>,
-       Alessandro Suardi <alessandro.suardi@gmail.com>,
-       Norbert Preining <preining@logic.at>, hostap@shmoo.com,
-       ipw3945-devel@lists.sourceforge.net, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, johannes@sipsolutions.net
-Subject: Re: wpa supplicant/ipw3945, ESSID last char missing
-Message-ID: <20061003233138.GA2095@bougret.hpl.hp.com>
-Reply-To: jt@hpl.hp.com
-References: <1159807483.4067.150.camel@mindpipe> <20061003123835.GA23912@tuxdriver.com> <1159890876.20801.65.camel@mindpipe> <Pine.LNX.4.64.0610030916000.3952@g5.osdl.org> <20061003180543.GD23912@tuxdriver.com> <4522A9BE.9000805@garzik.org> <20061003183849.GA17635@bougret.hpl.hp.com> <4522B311.7070905@garzik.org> <20061003214038.GE23912@tuxdriver.com> <20061003231648.GB26351@thunk.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+	Tue, 3 Oct 2006 19:35:28 -0400
+Received: from nf-out-0910.google.com ([64.233.182.184]:31082 "EHLO
+	nf-out-0910.google.com") by vger.kernel.org with ESMTP
+	id S964832AbWJCXf1 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Oct 2006 19:35:27 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=pnPpt8dnu+b0DKHFG+LoiG+bTqoQYEW9s4m6VS7XT+B51gw9q+iObg1SdXa/3ixsK9zEt4pWaZaZX9Rpqov0mHLJtJi7ogMNWzt6Njmz1kotvNZCvjDkwoXtYuS/ad+PX9vJV6ZowTZq4rlz6FwCIMwGxdqltxoetpqQ+9I38Ag=
+Message-ID: <a762e240610031635v73fdf36fk80005c4967b38410@mail.gmail.com>
+Date: Tue, 3 Oct 2006 16:35:25 -0700
+From: "Keith Mannthey" <kmannth@gmail.com>
+To: "Manish Neema" <Manish.Neema@synopsys.com>
+Subject: Re: System hang problem.
+Cc: linux-kernel@vger.kernel.org
+In-Reply-To: <C9A861D62D068643A0F4A7B1BCB38E2C0327B5A0@US01WEMBX1.internal.synopsys.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Content-Disposition: inline
-In-Reply-To: <20061003231648.GB26351@thunk.org>
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: jt@hpl.hp.com
-User-Agent: Mutt/1.5.9i
-From: Jean Tourrilhes <jt@hpl.hp.com>
-X-HPL-MailScanner: Found to be clean
-X-HPL-MailScanner-From: jt@hpl.hp.com
+References: <C9A861D62D068643A0F4A7B1BCB38E2C0327B5A0@US01WEMBX1.internal.synopsys.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 03, 2006 at 07:16:48PM -0400, Theodore Tso wrote:
-> On Tue, Oct 03, 2006 at 05:40:44PM -0400, John W. Linville wrote:
-> > Unfortunately, I don't see any way to "fix" WE-21 without similarly
-> > breaking wireless-tools 29 and other "WE-21 aware" apps.  And since
-> > I'll bet that the various WE-aware apps have checks like "if WE >
-> > 20" for managing ESSID length settings, we may have painted ourselves
-> > into a korner (sic).
-> 
-> OK, I'm going to ask a stupid question.  Why is the kernel<->wireless
-> driver interface have to be tied to the userspace<->wireless
-> interface?
+On 10/3/06, Manash Neema <Manish.Neema@synopsys.com> wrote:
+> Sorry, I've lost my patience with RedHat so posting here....
+>
+> We see this problem frequently on RHEL3.0 U5 and U7. System would
+> completely hang upon memory shortage. The only option left is
+> power-cycle (or 'sysrq + b'). System hang occurs with any of the below 3
+> overcommit settings:
 
-	They are not tied since WE-13. But you need a certain amount
-of consistency, otherwise it's pure madness. If the driver does X
-(no-NUL), but the userspace sees Y (mandatory NUL), then both driver
-writer and application writer will go insane. You really want the API
-to be as transparent as possible.
+In general RHEL3 isn't to good at returning from "memory shortage"
+once the oom comes out I would consider the system trashed. You need
+to manage it better so you don't overcommit the system resouces.
 
-	But that's not the issue. The issue is that the userspace API
-change was decided at the wireless summit last spring, and this was
-something that most wireless people were very strongly advocating for,
-including userspace people (Dan, Jouni). And most of it has already
-been implemented.
-	I think we can trust both Dan and Jouni to have a pretty good
-idea of the impact of such changes. They are the one having to
-implement it and dealing with the angry users.
-	I've done many incompatible changes to the WE API over the
-years, and it all went fine and dandy (anybody did notice those
-changes ?). They key is to get userspace in place when you do the
-kernel change.
-	As I said, I was against that change, and I'm the one being
-flamed.
+>    - default (heuristic) overcommit (overcommit_memory=0)
+>    - no overcommit handling by kernel (overcommit_memory=1)
+>    - restrictive overcommit with ratio=100% (overcommit_memory=2;
+> overcommit_ratio=100)
+>
+> RHEL3.0 U3 would generate an OOM kill "each and every time" it sensed
+> system hang but due to other bugs, we had to move away from it. RedHat
+> calls the timely (at least for us) invocation of OOM in U3 a buggy
+> implementation and the delayed OOM kill in U5 and U7 the right
+> implementation (which we rarely get to see resulting in at least 5
+> systems hanging daily!)
 
-> Is there some reason why this would be too hard to do with the current
-> interface?
+If you are using too much memory you are using too much memory.  RHEL3
+may not be recovering well (by your standards) from this. (perhaps not
+any kernel for that matter)
 
-	It's already done with the current interface, you can access
-the API with either ioctls or RtNetlink.
+> Changing overcommit to 2 (and ratio to any where from 1 to 99) would
+> result in certain OS processes (automount daemon for e.g.) getting
+> killed when all the allowed memory is committed. What is the point in
+> reserving some memory if a random root process would get killed leaving
+> the system in a totally unknown state?
 
-> 						- Ted
+Choosing who to kill is a hard decision.  Stay away from the kernel
+oom killer is is a wiley beast.
 
-	Have fun...
+> Any suggestions on how we can prevent system-hang + not have automount
+> (and any other root process) die?
 
-	Jean
+There are a whole bunch of /proc knobs (more than just the overcommit)
+in RHEL3 that you may dive into.  You would need to get your RHEL
+support to help you out with that.  It is really hard to say what the
+deal is but if you application is using too much memory oom is
+inevitable.
+
+  As far as having an oom killer that meets you standards... You have
+to talk to Redhat about that.
+
+  At a high level I would say add more memory (or reduce the amount
+used my the applications) to the box if you can't find the right /proc
+bit to work.  Sounds like something has to give.
+
+good luck,
+  Keith

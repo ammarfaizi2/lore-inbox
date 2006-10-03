@@ -1,54 +1,96 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030552AbWJCVES@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030541AbWJCVEW@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030552AbWJCVES (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Oct 2006 17:04:18 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030541AbWJCVER
+	id S1030541AbWJCVEW (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Oct 2006 17:04:22 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030551AbWJCVEW
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Oct 2006 17:04:17 -0400
-Received: from e31.co.us.ibm.com ([32.97.110.149]:25499 "EHLO
-	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S1030416AbWJCVEO
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Oct 2006 17:04:14 -0400
-Date: Tue, 3 Oct 2006 16:04:08 -0500
-To: akpm@osdl.org, jeff@garzik.org
-Cc: netdev@vger.kernel.org, James K Lewis <jklewis@us.ibm.com>,
-       linux-kernel@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-       linuxppc-dev@ozlabs.org
-Subject: [PATCH 4/4]: Spidernet module parm permissions
-Message-ID: <20061003210408.GI4381@austin.ibm.com>
-References: <20061003205240.GE4381@austin.ibm.com>
-MIME-Version: 1.0
+	Tue, 3 Oct 2006 17:04:22 -0400
+Received: from outmx024.isp.belgacom.be ([195.238.4.128]:37267 "EHLO
+	outmx024.isp.belgacom.be") by vger.kernel.org with ESMTP
+	id S1030554AbWJCVEU (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Oct 2006 17:04:20 -0400
+Date: Tue, 3 Oct 2006 23:04:06 +0200
+From: Wim Van Sebroeck <wim@iguana.be>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
+Subject: [WATCHDOG] v2.6.19 watchdog patches - part 2bis
+Message-ID: <20061003210406.GC2397@infomag.infomag.iguana.be>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20061003205240.GE4381@austin.ibm.com>
-User-Agent: Mutt/1.5.11
-From: linas@austin.ibm.com (Linas Vepstas)
+User-Agent: Mutt/1.4.2.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+Hi Linus,
 
-The module param permsissions should bw read-only, not writable.
+I forgot to add this trivial bit. Sorry about that. Can you do an extra
+pull from 'master' branch of
+	rsync://rsync.kernel.org/pub/scm/linux/kernel/git/wim/linux-2.6-watchdog.git
+or if master.kernel.org hasn't synced up yet:
+	master.kernel.org:/pub/scm/linux/kernel/git/wim/linux-2.6-watchdog.git
 
-Signed-off-by: James K Lewis <jklewis@us.ibm.com>
-Signed-off-by: Linas Vepstas <linas@austin.ibm.com>
-Cc: Arnd Bergmann <arnd@arndb.de>
+This will update the following files:
 
-----
- drivers/net/spider_net.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ drivers/char/watchdog/iTCO_wdt.c    |    2 +-
+ drivers/char/watchdog/pnx4008_wdt.c |    2 +-
+ 2 files changed, 2 insertions(+), 2 deletions(-)
 
-Index: linux-2.6.18-mm2/drivers/net/spider_net.c
-===================================================================
---- linux-2.6.18-mm2.orig/drivers/net/spider_net.c	2006-10-02 19:09:38.000000000 -0500
-+++ linux-2.6.18-mm2/drivers/net/spider_net.c	2006-10-02 19:14:48.000000000 -0500
-@@ -60,8 +60,8 @@ MODULE_VERSION(VERSION);
- static int rx_descriptors = SPIDER_NET_RX_DESCRIPTORS_DEFAULT;
- static int tx_descriptors = SPIDER_NET_TX_DESCRIPTORS_DEFAULT;
+with these Changes:
+
+Merge: f311896... 2fee7b1...
+Author: Wim Van Sebroeck <wim@iguana.be>
+Date:   Tue Oct 3 23:01:47 2006 +0200
+
+    Merge branch 'master' of git://git.kernel.org/pub/scm/linux/kernel/git/torvalds/linux-2.6
+
+Author: Wim Van Sebroeck <wim@iguana.be>
+Date:   Wed Sep 13 21:27:29 2006 +0200
+
+    [WATCHDOG] use ENOTTY instead of ENOIOCTLCMD in ioctl()
+    
+    Return ENOTTY instead of ENOIOCTLCMD in user-visible ioctl() results
+    
+    The watchdog drivers used to return ENOIOCTLCMD for bad ioctl() commands.
+    ENOIOCTLCMD should not be visible by the user, so use ENOTTY instead.
+    
+    Signed-off-by: Samuel Tardieu <sam@rfc1149.net>
+    Signed-off-by: Wim Van Sebroeck <wim@iguana.be>
+    Acked-by: Alan Cox <alan@redhat.com>
+    Signed-off-by: Andrew Morton <akpm@osdl.org>
+
+The Changes can also be looked at on:
+	http://www.kernel.org/git/?p=linux/kernel/git/wim/linux-2.6-watchdog.git;a=summary
+
+For completeness, I added the overal diff below.
+
+Greetings,
+Wim.
+
+================================================================================
+diff --git a/drivers/char/watchdog/iTCO_wdt.c b/drivers/char/watchdog/iTCO_wdt.c
+index ebd3fc8..8f89948 100644
+--- a/drivers/char/watchdog/iTCO_wdt.c
++++ b/drivers/char/watchdog/iTCO_wdt.c
+@@ -494,7 +494,7 @@ static int iTCO_wdt_ioctl (struct inode 
+ 		}
  
--module_param(rx_descriptors, int, 0644);
--module_param(tx_descriptors, int, 0644);
-+module_param(rx_descriptors, int, 0444);
-+module_param(tx_descriptors, int, 0444);
+ 		default:
+-			return -ENOIOCTLCMD;
++			return -ENOTTY;
+ 	}
+ }
  
- MODULE_PARM_DESC(rx_descriptors, "number of descriptors used " \
- 		 "in rx chains");
+diff --git a/drivers/char/watchdog/pnx4008_wdt.c b/drivers/char/watchdog/pnx4008_wdt.c
+index e7f0450..db2731b 100644
+--- a/drivers/char/watchdog/pnx4008_wdt.c
++++ b/drivers/char/watchdog/pnx4008_wdt.c
+@@ -184,7 +184,7 @@ static int
+ pnx4008_wdt_ioctl(struct inode *inode, struct file *file, unsigned int cmd,
+ 		  unsigned long arg)
+ {
+-	int ret = -ENOIOCTLCMD;
++	int ret = -ENOTTY;
+ 	int time;
+ 
+ 	switch (cmd) {

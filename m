@@ -1,48 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965061AbWJCEB1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964978AbWJCEGJ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965061AbWJCEB1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Oct 2006 00:01:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932353AbWJCEB0
+	id S964978AbWJCEGJ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Oct 2006 00:06:09 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932353AbWJCEGJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Oct 2006 00:01:26 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:24781 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S932339AbWJCEB0 (ORCPT
+	Tue, 3 Oct 2006 00:06:09 -0400
+Received: from ns2.suse.de ([195.135.220.15]:52710 "EHLO mx2.suse.de")
+	by vger.kernel.org with ESMTP id S932339AbWJCEGG (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Oct 2006 00:01:26 -0400
-Date: Mon, 2 Oct 2006 21:00:53 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Thomas Gleixner <tglx@linutronix.de>
-Cc: LKML <linux-kernel@vger.kernel.org>, Ingo Molnar <mingo@elte.hu>,
-       Jim Gettys <jg@laptop.org>, John Stultz <johnstul@us.ibm.com>,
-       David Woodhouse <dwmw2@infradead.org>,
-       Arjan van de Ven <arjan@infradead.org>, Dave Jones <davej@redhat.com>
-Subject: Re: [patch 00/21] high resolution timers / dynamic ticks - V2
-Message-Id: <20061002210053.16e5d23c.akpm@osdl.org>
-In-Reply-To: <20061001225720.115967000@cruncher.tec.linutronix.de>
-References: <20061001225720.115967000@cruncher.tec.linutronix.de>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
-Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
+	Tue, 3 Oct 2006 00:06:06 -0400
+From: Neil Brown <neilb@suse.de>
+To: dean gaudet <dean@arctic.org>
+Date: Tue, 3 Oct 2006 14:05:34 +1000
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
+Message-ID: <17697.57742.653845.715710@cse.unsw.edu.au>
+Cc: Erik Andersen <andersen@codepoet.org>, Lee Revell <rlrevell@joe-job.com>,
+       "Martin J. Bligh" <mbligh@mbligh.org>,
+       Matti Aarnio <matti.aarnio@zmailer.org>,
+       linux-kernel <linux-kernel@vger.kernel.org>
+Subject: Re: Spam, bogofilter, etc
+In-Reply-To: message from dean gaudet on Monday October 2
+References: <1159539793.7086.91.camel@mindpipe>
+	<20061002100302.GS16047@mea-ext.zmailer.org>
+	<1159802486.4067.140.camel@mindpipe>
+	<45212F39.5000307@mbligh.org>
+	<1159804137.4067.144.camel@mindpipe>
+	<20061002173951.GA8534@codepoet.org>
+	<Pine.LNX.4.64.0610022029010.32183@twinlark.arctic.org>
+X-Mailer: VM 7.19 under Emacs 21.4.1
+X-face: [Gw_3E*Gng}4rRrKRYotwlE?.2|**#s9D<ml'fY1Vw+@XfR[fRCsUoP?K6bt3YD\ui5Fh?f
+	LONpR';(ql)VM_TQ/<l_^D3~B:z$\YC7gUCuC=sYm/80G=$tt"98mr8(l))QzVKCk$6~gldn~*FK9x
+	8`;pM{3S8679sP+MbP,72<3_PIH-$I&iaiIb|hV1d%cYg))BmI)AZ
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Monday October 2, dean@arctic.org wrote:
+> 
+> it sure would be nice if posting were subscribers-only.
+> 
 
-These patches make my Vaio run really really slowly.  Maybe a quarter of
-the normal speed or lower.  Bisection shows that the bug is introduced by
-clockevents-drivers-for-i386.patch+clockevents-drivers-for-i386-fix.patch
+How about adding a header to messages posted by non-subscribers
+ X-vger-kernel-org: non-subscriber
 
-With all patches applied, the slowdown happens with
-CONFIG_HIGH_RES_TIMERS=n and also with CONFIG_HIGH_RES_TIMERS=y &&
-CONFIG_NO_HZ=y.  So something got collaterally damaged.
+and maybe even a different footer:
 
-I put various helpful stuff at http://userweb.kernel.org/~akpm/x/
+--
+ This mail was from a non-subscriber and may not have reached all
+ subscribers. 
 
-I uploaded all the patches I was using to
-http://userweb.kernel.org/~akpm/x/patches/
-
-It doesn't seem to be a cpufreq thing: cpuinfo_min_freq=800kHz,
-cpuinfo_max_freq=2GHz and cpuinfo_cur_freq goes up to 2GHz under load. 
-Wall time is increasing at one second per second.
+Then people who think the list should be subscriber-only could enforce
+that locally, and people who want to be more broad-minded still have
+that option.
 
 
+Then something like:
+ IF it is from a subscriber
+  OR it has a subject mentioning my area of interest 
+ THEN let it through
+ ELSE apply strict spam checks.
+
+I'd really like to add 
+  OR in reply to some lkml message, but as as Message-id: is left
+  untouch when the mail is forwarded (probably a good thing) that
+  doesn't seem to be possible.
+
+NeilBrown

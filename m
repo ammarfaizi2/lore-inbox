@@ -1,68 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965194AbWJCIxx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030263AbWJCI4K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965194AbWJCIxx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Oct 2006 04:53:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932547AbWJCIxx
+	id S1030263AbWJCI4K (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Oct 2006 04:56:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932551AbWJCI4K
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Oct 2006 04:53:53 -0400
-Received: from highlandsun.propagation.net ([66.221.212.168]:5901 "EHLO
-	highlandsun.propagation.net") by vger.kernel.org with ESMTP
-	id S932543AbWJCIxw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Oct 2006 04:53:52 -0400
-Message-ID: <452224E7.9060105@symas.com>
-Date: Tue, 03 Oct 2006 01:52:55 -0700
-From: Howard Chu <hyc@symas.com>
-User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.9a1) Gecko/20060911 Netscape/7.2 (ax) Firefox/1.5 SeaMonkey/1.5a
-MIME-Version: 1.0
-To: John Graham-Cumming <antispam@jgc.org>
-CC: linux-kernel@vger.kernel.org
-Subject: Re: Spam, bogofilter, etc
-References: <1159539793.7086.91.camel@mindpipe>  <20061002100302.GS16047@mea-ext.zmailer.org> <1159802486.4067.140.camel@mindpipe> <45212F39.5000307@mbligh.org> <Pine.LNX.4.64.0610020933020.3952@g5.osdl.org> <loom.20061003T100646-668@post.gmane.org>
-In-Reply-To: <loom.20061003T100646-668@post.gmane.org>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
+	Tue, 3 Oct 2006 04:56:10 -0400
+Received: from mx2.mail.elte.hu ([157.181.151.9]:32164 "EHLO mx2.mail.elte.hu")
+	by vger.kernel.org with ESMTP id S932549AbWJCI4I (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Oct 2006 04:56:08 -0400
+Date: Tue, 3 Oct 2006 10:47:29 +0200
+From: Ingo Molnar <mingo@elte.hu>
+To: Andrew Morton <akpm@osdl.org>
+Cc: Thomas Gleixner <tglx@linutronix.de>, LKML <linux-kernel@vger.kernel.org>,
+       Jim Gettys <jg@laptop.org>, John Stultz <johnstul@us.ibm.com>,
+       David Woodhouse <dwmw2@infradead.org>,
+       Arjan van de Ven <arjan@infradead.org>, Dave Jones <davej@redhat.com>
+Subject: Re: [patch 00/21] high resolution timers / dynamic ticks - V2
+Message-ID: <20061003084729.GA24961@elte.hu>
+References: <20061001225720.115967000@cruncher.tec.linutronix.de> <20061002210053.16e5d23c.akpm@osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061002210053.16e5d23c.akpm@osdl.org>
+User-Agent: Mutt/1.4.2.1i
+X-ELTE-SpamScore: -2.8
+X-ELTE-SpamLevel: 
+X-ELTE-SpamCheck: no
+X-ELTE-SpamVersion: ELTE 2.0 
+X-ELTE-SpamCheck-Details: score=-2.8 required=5.9 tests=ALL_TRUSTED,AWL,BAYES_50 autolearn=no SpamAssassin version=3.0.3
+	-3.3 ALL_TRUSTED            Did not pass through any untrusted hosts
+	0.5 BAYES_50               BODY: Bayesian spam probability is 40 to 60%
+	[score: 0.5000]
+	-0.0 AWL                    AWL: From: address is in the auto white-list
+X-ELTE-VirusStatus: clean
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John Graham-Cumming wrote:
-> Linus Torvalds <torvalds <at> osdl.org> writes:
->> I'm sorry, but spam-filtering is simply harder than the bayesian 
->> word-count weenies think it is. I even used to _know_ something about 
->> bayesian filtering, since it was one of the projects I worked on at uni, 
->> and dammit, it's not a good approach, as shown by the fact that it's 
->> trivial to get around.
 
-> Have you actually followed any of the research into Bayesian (and similar
-> machine learning based) anti-spam filtering, and attacks on such filters?  Are
-> you making a claim that these filters are 'trivial to get around' based on a
-> project you did at University over 10 years ago?
+* Andrew Morton <akpm@osdl.org> wrote:
 
-Well the recent spate of spams with technical/jargon keywords in their 
-subjects was enough to make my Seamonkey client start marking all 
-incoming mail as spam. Interesting that recent journals talk about this 
-as an approach to get spam past current filters; instead it had a 
-reverse effect.
+> These patches make my Vaio run really really slowly.  Maybe a quarter 
+> of the normal speed or lower.  Bisection shows that the bug is 
+> introduced by 
+> clockevents-drivers-for-i386.patch+clockevents-drivers-for-i386-fix.patch
+> 
+> With all patches applied, the slowdown happens with 
+> CONFIG_HIGH_RES_TIMERS=n and also with CONFIG_HIGH_RES_TIMERS=y && 
+> CONFIG_NO_HZ=y.  So something got collaterally damaged.
 
-So much for email management at our hosting provider. At least on my 
-highlandsun.com domain I've got my own sendmail milter blocking spams 
-before they get into the server. It's basically the equivalent of a 
-sendmail accessdb in LDAP, plus simple rules to reject relays from 
-unregistered IP addresses, or addresses with dynamically generated 
-hostnames. Rejecting with 451 temporary failure is also useful, most 
-bulk mailer programs fail immediately and go away. Real mail servers 
-will retry; by looking at the logs of the envelope FROM and RCPT I can 
-pick out any emails that should have been let thru and add an OK 
-exception to LDAP so the message eventually gets redelivered. I suppose 
-I could put a URL in the reject error message, and let the sender 
-confirm it from there. At this point the only spam that gets thru is 
-from dedicated mass marketers with legitimate DNS registrations and I 
-just manually add their subnets to my blacklist.
+yeah, i suspect it works again if you disable:
 
-(One then is faced with the interesting question - what if someone from 
-one of those companies was actually trying to hire my services? Their 
-loss I guess, sometimes money really is tainted...)
--- 
-   -- Howard Chu
-   Chief Architect, Symas Corp.  http://www.symas.com
-   Director, Highland Sun        http://highlandsun.com/hyc
-   OpenLDAP Core Team            http://www.openldap.org/project/
+ CONFIG_X86_UP_APIC=y
+ CONFIG_X86_UP_IOAPIC=y
+ CONFIG_X86_LOCAL_APIC=y
+ CONFIG_X86_IO_APIC=y
+
+as the slowdown has the feeling of a runaway lapic timer irq.
+
+from code review so far we can only see an udelay(10) difference in the 
+initialization sequence of the PIT - we'll send a fix for that but i 
+dont think that's the cause of the bug.
+
+investigating it.
+
+	Ingo

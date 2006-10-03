@@ -1,59 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030264AbWJCTzR@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030254AbWJCTy4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030264AbWJCTzR (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Oct 2006 15:55:17 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030237AbWJCTzQ
+	id S1030254AbWJCTy4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Oct 2006 15:54:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030237AbWJCTyz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Oct 2006 15:55:16 -0400
-Received: from gundega.hpl.hp.com ([192.6.19.190]:23494 "EHLO
-	gundega.hpl.hp.com") by vger.kernel.org with ESMTP id S1030264AbWJCTzN
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Oct 2006 15:55:13 -0400
-Date: Tue, 3 Oct 2006 12:52:44 -0700
-To: Jeff Garzik <jeff@garzik.org>
-Cc: "John W. Linville" <linville@tuxdriver.com>,
-       Linus Torvalds <torvalds@osdl.org>, Lee Revell <rlrevell@joe-job.com>,
-       Alessandro Suardi <alessandro.suardi@gmail.com>,
-       Norbert Preining <preining@logic.at>, hostap@shmoo.com,
-       ipw3945-devel@lists.sourceforge.net, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, johannes@sipsolutions.net
-Subject: Re: wpa supplicant/ipw3945, ESSID last char missing
-Message-ID: <20061003195244.GC17855@bougret.hpl.hp.com>
-Reply-To: jt@hpl.hp.com
-References: <20061002085942.GA32387@gamma.logic.tuwien.ac.at> <5a4c581d0610020221s7bf100f8q893161b7c8c492d2@mail.gmail.com> <1159807483.4067.150.camel@mindpipe> <20061003123835.GA23912@tuxdriver.com> <1159890876.20801.65.camel@mindpipe> <Pine.LNX.4.64.0610030916000.3952@g5.osdl.org> <20061003180543.GD23912@tuxdriver.com> <4522A9BE.9000805@garzik.org> <20061003183849.GA17635@bougret.hpl.hp.com> <4522B311.7070905@garzik.org>
+	Tue, 3 Oct 2006 15:54:55 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:47003 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1030254AbWJCTyy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Oct 2006 15:54:54 -0400
+Subject: Re: [patch] remove MNT_NOEXEC check for PROT_EXEC mmaps
+From: Arjan van de Ven <arjan@infradead.org>
+To: Stas Sergeev <stsp@aknet.ru>
+Cc: Ulrich Drepper <drepper@redhat.com>,
+       Linux kernel <linux-kernel@vger.kernel.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Hugh Dickins <hugh@veritas.com>,
+       Valdis.Kletnieks@vt.edu
+In-Reply-To: <4522BCBF.2050508@aknet.ru>
+References: <45150CD7.4010708@aknet.ru>
+	 <Pine.LNX.4.64.0609231555390.27012@blonde.wat.veritas.com>
+	 <451555CB.5010006@aknet.ru>
+	 <Pine.LNX.4.64.0609231647420.29557@blonde.wat.veritas.com>
+	 <1159037913.24572.62.camel@localhost.localdomain>
+	 <45162BE5.2020100@aknet.ru>
+	 <1159106032.11049.12.camel@localhost.localdomain>
+	 <45169C0C.5010001@aknet.ru> <4516A8E3.4020100@redhat.com>
+	 <4516B2C8.4050202@aknet.ru> <4516B721.5070801@redhat.com>
+	 <45198395.4050008@aknet.ru>
+	 <1159396436.3086.51.camel@laptopd505.fenrus.org> <451E3C0C.10105@aknet.ru>
+	 <1159887682.2891.537.camel@laptopd505.fenrus.org>
+	 <45229A99.6060703@aknet.ru> <45229C8E.6080503@redhat.com>
+	 <4522A691.7070700@aknet.ru> <4522B7CD.4040206@redhat.com>
+	 <4522BCBF.2050508@aknet.ru>
+Content-Type: text/plain
+Organization: Intel International BV
+Date: Tue, 03 Oct 2006 21:54:25 +0200
+Message-Id: <1159905265.2891.551.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <4522B311.7070905@garzik.org>
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: jt@hpl.hp.com
-User-Agent: Mutt/1.5.9i
-From: Jean Tourrilhes <jt@hpl.hp.com>
-X-HPL-MailScanner: Found to be clean
-X-HPL-MailScanner-From: jt@hpl.hp.com
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 03, 2006 at 02:59:29PM -0400, Jeff Garzik wrote:
-> Jean Tourrilhes wrote:
-> >	Now it's too late, those changes have propagated to userspace
-> >tools, and are now shipping in some actual release of some distro. So,
-> >what are we going to say to Mandriva 2007 and FC6 users, to revert
-> >back to an *older* version of the tools ?
-> >	Because userspace has already been updated, we have only two
-> >options, merge it now, or in 2.6.20.
+On Tue, 2006-10-03 at 23:40 +0400, Stas Sergeev wrote:
+> Hello.
 > 
-> If the choice is between the ABI used by a bunch of distros in 
-> production, and the ABI used by two re-release distros, I think the 
-> choice is obvious...
+> Ulrich Drepper wrote:
+> > You really don't get it, do you.
+> Yes, sorry. :)
 > 
-> 	Jeff
+> > The way ld.so works can be implemented
+> > in many other forms with other programs.
+> Having "noexec" (in its older form) on *every* user-writable
+> mount makes it harder for an attacker to run his own loaders,
+> so implementing it in other forms was useless in the past.
+> 
+> > With some time and energy you
+> > likely can write a perl or python script to do it.
+> This is solvable the same way too - "chmod 'o-x' perl"
 
-	And remember that it's not *terminally* broken, the user can
-still use the old tools with WE-21, he just need to add a dummy
-character at the end of the ESSID string.
-	It's probably annoying, but it's not the end of the world.
+and chmod o-x bash ....
+at which point.. game over.
+(and yes you can do in bash pretty much what you can do in perl. heck
+you can prove that.. shell is turning complete ;)
 
-	Jean
 

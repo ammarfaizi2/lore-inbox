@@ -1,52 +1,48 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030650AbWJCW7o@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030655AbWJCXAj@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030650AbWJCW7o (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Oct 2006 18:59:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030651AbWJCW7n
+	id S1030655AbWJCXAj (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Oct 2006 19:00:39 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030654AbWJCXAj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Oct 2006 18:59:43 -0400
-Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:7660 "EHLO
-	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
-	id S1030650AbWJCW7n (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Oct 2006 18:59:43 -0400
-Subject: [PATCH] ide-generic: jmicron fix
-From: Alan Cox <alan@lxorguk.ukuu.org.uk>
-To: linux-kernel@vger.kernel.org
-Content-Type: text/plain
+	Tue, 3 Oct 2006 19:00:39 -0400
+Received: from tetsuo.zabbo.net ([207.173.201.20]:56470 "EHLO tetsuo.zabbo.net")
+	by vger.kernel.org with ESMTP id S1030651AbWJCXAi (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Oct 2006 19:00:38 -0400
+Message-ID: <4522EB94.1040708@oracle.com>
+Date: Tue, 03 Oct 2006 16:00:36 -0700
+From: Zach Brown <zach.brown@oracle.com>
+User-Agent: Thunderbird 1.5.0.5 (X11/20060808)
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+CC: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+       linux-aio@kvack.org
+Subject: Re: [PATCH take2 0/5] dio: clean up completion phase of direct_io_worker()
+References: <20061002232119.18827.96966.sendpatchset@tetsuo.zabbo.net> <20061003152004.ca255c33.akpm@osdl.org>
+In-Reply-To: <20061003152004.ca255c33.akpm@osdl.org>
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
-Date: Wed, 04 Oct 2006 00:25:20 +0100
-Message-Id: <1159917920.17553.95.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Some people find their Jmicron pata port reports its disabled even
-though it has devices on it and was boot probed. Fix this
 
-(Candidate for 2.6.18.*, less so for 2.6.19 as we've got a proper
-jmicron driver on the merge for that to replace ide-generic support)
+> I trust a lot of testing was done on blocksize<pagesize filesystems?
 
-diff -u --new-file --recursive --exclude-from /usr/src/exclude linux.vanilla-2.6.18-mm3/drivers/ide/pci/generic.c linux-2.6.18-mm3/drivers/ide/pci/generic.c
---- linux.vanilla-2.6.18-mm3/drivers/ide/pci/generic.c	2006-10-03 19:23:03.166273120 +0100
-+++ linux-2.6.18-mm3/drivers/ide/pci/generic.c	2006-10-03 16:57:36.000000000 +0100
-@@ -236,11 +236,13 @@
- 
- 	if (dev->vendor == PCI_VENDOR_ID_JMICRON && PCI_FUNC(dev->devfn) != 1)
- 		goto out;
--
--	pci_read_config_word(dev, PCI_COMMAND, &command);
--	if (!(command & PCI_COMMAND_IO)) {
--		printk(KERN_INFO "Skipping disabled %s IDE controller.\n", d->name);
--		goto out;
-+	
-+	if (dev->vendor != PCI_VENDOR_ID_JMICRON) {
-+		pci_read_config_word(dev, PCI_COMMAND, &command);
-+		if (!(command & PCI_COMMAND_IO)) {
-+			printk(KERN_INFO "Skipping disabled %s IDE controller.\n", d->name);
-+			goto out;
-+		}
- 	}
- 	ret = ide_setup_pci_device(dev, d);
- out:
+I haven't, no.
 
+> And did you test direct-io into and out of hugepages?
+
+No, though..
+
+> `odread' and `odwrite' from
+> http://www.zip.com.au/~akpm/linux/patches/stuff/ext3-tools.tar.gz can be
+> used to test that.
+
+.. I'll definitely give those a spin, thanks.
+
+I'll see if I can get some real resources dedicated to collecting the N
+different piles of tests that are kicking around into something
+coherent.  It'll take a while, but I'm sure I'm not alone in being
+frustrated by this disorganized collaborative works-for-me approach.
+
+- z

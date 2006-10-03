@@ -1,63 +1,79 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750898AbWJCDWO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932275AbWJCDXF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750898AbWJCDWO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Oct 2006 23:22:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932157AbWJCDWO
+	id S932275AbWJCDXF (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Oct 2006 23:23:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932157AbWJCDXF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Oct 2006 23:22:14 -0400
-Received: from 1wt.eu ([62.212.114.60]:6404 "EHLO 1wt.eu") by vger.kernel.org
-	with ESMTP id S1750898AbWJCDWN (ORCPT
+	Mon, 2 Oct 2006 23:23:05 -0400
+Received: from xenotime.net ([66.160.160.81]:27013 "HELO xenotime.net")
+	by vger.kernel.org with SMTP id S932275AbWJCDXC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Oct 2006 23:22:13 -0400
-Date: Tue, 3 Oct 2006 04:48:52 +0200
-From: Willy Tarreau <w@1wt.eu>
-To: Sean <seanlkml@sympatico.ca>
-Cc: David Lang <dlang@digitalinsight.com>, Phillip Susi <psusi@cfl.rr.com>,
-       Drew Scott Daniels <ddaniels@UMAlumni.mb.ca>,
-       linux-kernel@vger.kernel.org
-Subject: Re: Smaller compressed kernel source tarballs?
-Message-ID: <20061003024852.GA11775@1wt.eu>
-References: <20061002033511.GB12695@zimmer> <20061002033531.GA5050@1wt.eu> <Pine.LNX.4.63.0610012205280.28534@qynat.qvtvafvgr.pbz> <45212D5D.7010201@cfl.rr.com> <Pine.LNX.4.63.0610020848070.28876@qynat.qvtvafvgr.pbz> <45217498.8060806@cfl.rr.com> <Pine.LNX.4.63.0610021310150.28876@qynat.qvtvafvgr.pbz> <20061002203527.GA585@1wt.eu> <20061002174938.bb82027d.seanlkml@sympatico.ca>
+	Mon, 2 Oct 2006 23:23:02 -0400
+Date: Mon, 2 Oct 2006 20:24:26 -0700
+From: Randy Dunlap <rdunlap@xenotime.net>
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: akpm <akpm@osdl.org>, Jesper Juhl <jesper.juhl@gmail.com>,
+       Andi Kleen <ak@suse.de>,
+       Linux Kernel Mailing List <linux-kernel@vger.kernel.org>
+Subject: Re: [PATCH/RFC] Math-emu kills the kernel on Athlon64 X2
+Message-Id: <20061002202426.aa3ecb4f.rdunlap@xenotime.net>
+In-Reply-To: <Pine.LNX.4.64.0610021932080.3952@g5.osdl.org>
+References: <9a8748490609181518j2d12e4f0l2c55e755e40d38c2@mail.gmail.com>
+	<p73venk2sjw.fsf@verdi.suse.de>
+	<9a8748490609191414m6748f2fu521637df29ef9e8e@mail.gmail.com>
+	<Pine.LNX.4.64.0609191453310.4388@g5.osdl.org>
+	<20061002191638.093fde85.rdunlap@xenotime.net>
+	<Pine.LNX.4.64.0610021932080.3952@g5.osdl.org>
+Organization: YPO4
+X-Mailer: Sylpheed version 2.2.9 (GTK+ 2.8.10; x86_64-unknown-linux-gnu)
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061002174938.bb82027d.seanlkml@sympatico.ca>
-User-Agent: Mutt/1.5.11
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 02, 2006 at 05:49:38PM -0400, Sean wrote:
-> On Mon, 2 Oct 2006 22:35:27 +0200
-> Willy Tarreau <w@1wt.eu> wrote:
+On Mon, 2 Oct 2006 19:34:27 -0700 (PDT) Linus Torvalds wrote:
+
 > 
-> > On Mon, Oct 02, 2006 at 01:12:55PM -0700, David Lang wrote:
-> > > no, I was suggesting a pack file that contained _only_ the head version.
-> > > 
-> > > within the pack file it would delta against other files in the pack (how 
-> > > many copies of the GPLv2 text exist across all files for example)
-> > > 
-> > > however Willy did a test and found that the resulting pack was 
-> > > significantly larger then a .tgz. I don't know what options he used, so 
-> > > while there's some chance that being more agressive in looking for deltas 
-> > > would result in an improvement, the difference to make up is fairly 
-> > > significant.
+> 
+> On Mon, 2 Oct 2006, Randy Dunlap wrote:
 > > 
-> > no options at all, so there may be room for improvement. Also, on my
-> > notebook, I have hardlinked all my linux directories so that each
-> > content only appears once. I don't have the numbers right here, but
-> > I remember that it was really useful to merge lots of different versions,
-> > but that the net gain within one given tree was really minor, as there
-> > are not that many identical files in one tree.
+> > I had no trouble reproducing the boot failure (on Pentium-M), then
+> > I tried TRACE_RESUME().  Nifty, but not really needed here since
+> > earlyprintk worked and contained the fault messages:
+> > 
+> > [   16.841784] math_emulate: 0060:c01062dd
+> > [   16.845579] Kernel panic - not syncing: Math emulation needed in kernel
+> > 
+> > But CONFIG_MATH_EMULATION=y, so what now?
 > 
-> Hey Willy,
+> The "Math emulation needed in kernel" message means that it was asked to 
+> emulate a kernel instruction, and it refuses to do so. The emulation is 
+> _not_ meant to be a real FPU, it simply looks like one to user space. A 
+> lot of things aren't really emulated (there's no global x87 context, for 
+> example: the context is all strictly per-process).
 > 
-> I don't really understand the objective here, but you may want to double
-> check your procedure, the entire 2.4 history only takes a single 41M pack
-> in Git for me.
+> > Linus mentioned CPU feature bits.  The message log above didn't
+> > make me feel good about them.  Sure enough, we are playing with
+> > features before reading the feature bits.
+> 
+> Please look up address c01062dd in the system map (or just using gdb), 
+> that will tell you what code _tried_ to use the math coprocessor in kernel 
+> space.
 
-I'm not really surprized, as GIT history begins at 2.4.32 and recent
-2.4 patches are very small. So basically, the size is about the same
-for the latest 2.4 and all 2.4 history.
+Sure, it's in arch/i386/kernel/i387.c::mxcsr_feature_mask_init(),
+on the fxsave instruction:
 
-Willy
+void mxcsr_feature_mask_init(void)
+{
+	unsigned long mask = 0;
+	clts();
+	if (cpu_has_fxsr) {
+		memset(&current->thread.i387.fxsave, 0, sizeof(struct i387_fxsave_struct));
+		asm volatile("fxsave %0" : : "m" (current->thread.i387.fxsave)); 
+		mask = current->thread.i387.fxsave.mxcsr_mask;
+		if (mask == 0) mask = 0x0000ffbf;
+	}
 
+---
+~Randy

@@ -1,23 +1,23 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030356AbWJCRcL@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030359AbWJCRdq@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030356AbWJCRcL (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Oct 2006 13:32:11 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030368AbWJCRby
+	id S1030359AbWJCRdq (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Oct 2006 13:33:46 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030352AbWJCRbo
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Oct 2006 13:31:54 -0400
-Received: from e5.ny.us.ibm.com ([32.97.182.145]:28135 "EHLO e5.ny.us.ibm.com")
-	by vger.kernel.org with ESMTP id S1030356AbWJCRbD (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Oct 2006 13:31:44 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.149]:55951 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S1030364AbWJCRbD
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 3 Oct 2006 13:31:03 -0400
-Date: Tue, 3 Oct 2006 13:12:57 -0400
+Date: Tue, 3 Oct 2006 13:06:28 -0400
 From: Vivek Goyal <vgoyal@in.ibm.com>
 To: linux kernel mailing list <linux-kernel@vger.kernel.org>
 Cc: Reloc Kernel List <fastboot@lists.osdl.org>, ebiederm@xmission.com,
        akpm@osdl.org, ak@suse.de, horms@verge.net.au, lace@jankratochvil.net,
        hpa@zytor.com, magnus.damm@gmail.com, lwang@redhat.com,
        dzickus@redhat.com, maneesh@in.ibm.com
-Subject: [PATCH 5/12] i386 setup.c: Reserve kernel memory starting from _text
-Message-ID: <20061003171257.GE3164@in.ibm.com>
+Subject: [PATCH 2/12] i386: align data section to 4K boundary
+Message-ID: <20061003170628.GB3164@in.ibm.com>
 Reply-To: vgoyal@in.ibm.com
 References: <20061003170032.GA30036@in.ibm.com>
 Mime-Version: 1.0
@@ -30,34 +30,27 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-Currently when we are reserving the memory the kernel text
-resides in we start at __PHYSICAL_START which happens to be
-correct but not very obvious.  In addition when we start relocating
-the kernel __PHYSICAL_START is the wrong value, as it is an
-absolute symbol that does not get relocated.
+o Currently there is no specific alignment restriction in linker script
+  and in some cases it can be placed non 4K aligned addresses. This fails
+  kexec which checks that segment to be loaded is page aligned.
 
-By starting the reservation at __pa_symbol(_text)
-the code is clearer and will be correct when relocated.
+o I guess, it does not harm data segment to be 4K aligned.
 
-Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
 Signed-off-by: Vivek Goyal <vgoyal@in.ibm.com>
 ---
 
- arch/i386/kernel/setup.c |    4 ++--
- 1 file changed, 2 insertions(+), 2 deletions(-)
+ arch/i386/kernel/vmlinux.lds.S |    1 +
+ 1 file changed, 1 insertion(+)
 
-diff -puN arch/i386/kernel/setup.c~i386-setup.c-Reserve-kernel-memory-starting-from-_text arch/i386/kernel/setup.c
---- linux-2.6.18-git17/arch/i386/kernel/setup.c~i386-setup.c-Reserve-kernel-memory-starting-from-_text	2006-10-02 13:17:58.000000000 -0400
-+++ linux-2.6.18-git17-root/arch/i386/kernel/setup.c	2006-10-02 13:17:58.000000000 -0400
-@@ -1119,8 +1119,8 @@ void __init setup_bootmem_allocator(void
- 	 * the (very unlikely) case of us accidentally initializing the
- 	 * bootmem allocator with an invalid RAM area.
- 	 */
--	reserve_bootmem(__PHYSICAL_START, (PFN_PHYS(min_low_pfn) +
--			 bootmap_size + PAGE_SIZE-1) - (__PHYSICAL_START));
-+	reserve_bootmem(__pa_symbol(_text), (PFN_PHYS(min_low_pfn) +
-+			 bootmap_size + PAGE_SIZE-1) - __pa_symbol(_text));
+diff -puN arch/i386/kernel/vmlinux.lds.S~i386-force-data-section-to-4K-aligned arch/i386/kernel/vmlinux.lds.S
+--- linux-2.6.18-git17/arch/i386/kernel/vmlinux.lds.S~i386-force-data-section-to-4K-aligned	2006-10-02 13:17:58.000000000 -0400
++++ linux-2.6.18-git17-root/arch/i386/kernel/vmlinux.lds.S	2006-10-02 14:38:17.000000000 -0400
+@@ -52,6 +52,7 @@ SECTIONS
+   }
  
- 	/*
- 	 * reserve physical page 0 - it's a special BIOS page on many boxes,
+   /* writeable */
++  . = ALIGN(4096);
+   .data : AT(ADDR(.data) - LOAD_OFFSET) {	/* Data */
+ 	*(.data)
+ 	CONSTRUCTORS
 _

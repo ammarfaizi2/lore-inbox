@@ -1,92 +1,72 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030198AbWJCBIY@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030202AbWJCBI3@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030198AbWJCBIY (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Oct 2006 21:08:24 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030202AbWJCBIY
+	id S1030202AbWJCBI3 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Oct 2006 21:08:29 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030203AbWJCBI3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Oct 2006 21:08:24 -0400
-Received: from havoc.gtf.org ([69.61.125.42]:4031 "EHLO havoc.gtf.org")
-	by vger.kernel.org with ESMTP id S1030198AbWJCBIX (ORCPT
+	Mon, 2 Oct 2006 21:08:29 -0400
+Received: from gate.crashing.org ([63.228.1.57]:15273 "EHLO gate.crashing.org")
+	by vger.kernel.org with ESMTP id S1030202AbWJCBI2 (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Oct 2006 21:08:23 -0400
-Date: Mon, 2 Oct 2006 21:08:22 -0400
-From: Jeff Garzik <jeff@garzik.org>
-To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
-Cc: netdev@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
-Subject: [PATCH] hp100: fix conditional compilation mess
-Message-ID: <20061003010822.GA29176@havoc.gtf.org>
+	Mon, 2 Oct 2006 21:08:28 -0400
+Subject: Re: Undefined '.bus_to_virt', '.virt_to_bus' causes compile error
+	on Powerpc 64-bit
+From: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+To: Judith Lebzelter <judith@osdl.org>
+Cc: linux-kernel@vger.kernel.org, linuxppc-dev@ozlabs.org
+In-Reply-To: <20061002214954.GD665@shell0.pdx.osdl.net>
+References: <20061002214954.GD665@shell0.pdx.osdl.net>
+Content-Type: text/plain
+Date: Tue, 03 Oct 2006 11:05:39 +1000
+Message-Id: <1159837539.5482.15.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.8.0 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-The previous hp100 changeset attempted to kill warnings, but was only
-tested on !CONFIG_ISA platforms.  The correct conditional compilation
-setup involves tested CONFIG_ISA rather than just MODULE.
+On Mon, 2006-10-02 at 14:49 -0700, Judith Lebzelter wrote:
+> Hello:
+> 
+> For the automated cross-compile builds at OSDL, powerpc 64-bit 
+> 'allmodconfig' is failing.  The warnings/errors below appear in 
+> the 'modpost' stage of kernel compiles for 2.6.18 and -mm2 kernels.
 
-Fixes link on CONFIG_ISA platforms (i386) in current -git.
+All those drivers are bogus and need to be updated. They should be
+marked CONFIG_BROKEN
 
-Signed-off-by: Jeff Garzik <jeff@garzik.org>
+Ben.
 
----
+> Thanks;
+> Judith Lebzelter
+> OSDL
+> 
+> -----------
+> 
+>   Building modules, stage 2.
+>   MODPOST 1658 modules
+> WARNING: Can't handle masks in drivers/ata/ahci:FFFF05
+> WARNING: ".virt_to_bus" [sound/oss/sscape.ko] undefined!
+> WARNING: ".virt_to_bus" [sound/oss/sound.ko] undefined!
+> WARNING: ".bus_to_virt" [sound/oss/cs46xx.ko] undefined!
+> WARNING: ".virt_to_bus" [sound/oss/cs46xx.ko] undefined!
+> WARNING: ".bus_to_virt" [drivers/scsi/tmscsim.ko] undefined!
+> WARNING: ".bus_to_virt" [drivers/scsi/BusLogic.ko] undefined!
+> WARNING: ".virt_to_bus" [drivers/net/wan/lmc/lmc.ko] undefined!
+> WARNING: ".virt_to_bus" [drivers/message/i2o/i2o_config.ko] undefined!
+> WARNING: ".bus_to_virt" [drivers/block/cpqarray.ko] undefined!
+> WARNING: ".bus_to_virt" [drivers/atm/zatm.ko] undefined!
+> WARNING: ".virt_to_bus" [drivers/atm/zatm.ko] undefined!
+> WARNING: ".bus_to_virt" [drivers/atm/horizon.ko] undefined!
+> WARNING: ".virt_to_bus" [drivers/atm/firestream.ko] undefined!
+> WARNING: ".bus_to_virt" [drivers/atm/firestream.ko] undefined!
+> WARNING: ".bus_to_virt" [drivers/atm/ambassador.ko] undefined!
+> WARNING: ".virt_to_bus" [drivers/atm/ambassador.ko] undefined!
+> make[1]: *** [__modpost] Error 1
+> make: *** [modules] Error 2
+> 
+> _______________________________________________
+> Linuxppc-dev mailing list
+> Linuxppc-dev@ozlabs.org
+> https://ozlabs.org/mailman/listinfo/linuxppc-dev
 
- drivers/net/Space.c |    2 +-
- drivers/net/hp100.c |    8 +++++---
- 2 files changed, 6 insertions(+), 4 deletions(-)
-
-diff --git a/drivers/net/Space.c b/drivers/net/Space.c
-index 9953201..a67f5ef 100644
---- a/drivers/net/Space.c
-+++ b/drivers/net/Space.c
-@@ -165,7 +165,7 @@ #endif
-  * look for EISA/PCI/MCA cards in addition to ISA cards).
-  */
- static struct devprobe2 isa_probes[] __initdata = {
--#ifdef CONFIG_HP100 		/* ISA, EISA & PCI */
-+#if defined(CONFIG_HP100) && defined(CONFIG_ISA)	/* ISA, EISA */
- 	{hp100_probe, 0},
- #endif
- #ifdef CONFIG_3C515
-diff --git a/drivers/net/hp100.c b/drivers/net/hp100.c
-index 561db44..ae8ad4f 100644
---- a/drivers/net/hp100.c
-+++ b/drivers/net/hp100.c
-@@ -188,7 +188,7 @@ struct hp100_private {
- /*
-  *  variables
-  */
--#ifndef MODULE
-+#ifdef CONFIG_ISA
- static const char *hp100_isa_tbl[] = {
- 	"HWPF150", /* HP J2573 rev A */
- 	"HWP1950", /* HP J2573 */
-@@ -335,7 +335,7 @@ static __devinit const char *hp100_read_
- 	return str;
- }
- 
--#ifndef MODULE
-+#ifdef CONFIG_ISA
- static __init int hp100_isa_probe1(struct net_device *dev, int ioaddr)
- {
- 	const char *sig;
-@@ -393,7 +393,9 @@ static int  __init hp100_isa_probe(struc
- 	}
- 	return err;
- }
-+#endif /* CONFIG_ISA */
- 
-+#if !defined(MODULE) && defined(CONFIG_ISA)
- struct net_device * __init hp100_probe(int unit)
- {
- 	struct net_device *dev = alloc_etherdev(sizeof(struct hp100_private));
-@@ -423,7 +425,7 @@ #endif
- 	free_netdev(dev);
- 	return ERR_PTR(err);
- }
--#endif
-+#endif /* !MODULE && CONFIG_ISA */
- 
- static int __devinit hp100_probe1(struct net_device *dev, int ioaddr,
- 				  u_char bus, struct pci_dev *pci_dev)

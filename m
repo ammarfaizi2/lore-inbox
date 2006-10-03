@@ -1,47 +1,43 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030258AbWJCIOx@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030260AbWJCIPK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030258AbWJCIOx (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Oct 2006 04:14:53 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030260AbWJCIOx
+	id S1030260AbWJCIPK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Oct 2006 04:15:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030261AbWJCIPK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Oct 2006 04:14:53 -0400
-Received: from wx-out-0506.google.com ([66.249.82.238]:11501 "EHLO
-	wx-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1030258AbWJCIOw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Oct 2006 04:14:52 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:to:subject:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
-        b=rRxrLVQMuRx83H8V8i3mgISzInAn5wpj/TrT7u6tRs9eNw/YQRGrwSUwvsQtnvZjN2P88Loj7RH78Ewca5mByYw4pakSbR4yCT8i2cdpk1Jk34cNRFI/hj2RODLQd6zX8FinewIyRqnoxS6kW1mjaG85OFjE6kdD8dEx6d5y79A=
-Message-ID: <3420082f0610030114o4c6998en907bccce81d28c59@mail.gmail.com>
-Date: Tue, 3 Oct 2006 13:14:52 +0500
-From: "Irfan Habib" <irfan.habib@gmail.com>
-To: "Linux kernel" <linux-kernel@vger.kernel.org>
-Subject: Fwd: Any way to find the network usage by a process?
-In-Reply-To: <3420082f0610030114o5b44b8ak7797483e02002614@mail.gmail.com>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 3 Oct 2006 04:15:10 -0400
+Received: from main.gmane.org ([80.91.229.2]:27861 "EHLO ciao.gmane.org")
+	by vger.kernel.org with ESMTP id S1030260AbWJCIPH (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Oct 2006 04:15:07 -0400
+X-Injected-Via-Gmane: http://gmane.org/
+To: linux-kernel@vger.kernel.org
+From: John Graham-Cumming <antispam@jgc.org>
+Subject: Re: Spam, bogofilter, etc
+Date: Tue, 3 Oct 2006 08:08:56 +0000 (UTC)
+Message-ID: <loom.20061003T100646-668@post.gmane.org>
+References: <1159539793.7086.91.camel@mindpipe>  <20061002100302.GS16047@mea-ext.zmailer.org> <1159802486.4067.140.camel@mindpipe> <45212F39.5000307@mbligh.org> <Pine.LNX.4.64.0610020933020.3952@g5.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Transfer-Encoding: 7bit
-Content-Disposition: inline
-References: <3420082f0610030114o5b44b8ak7797483e02002614@mail.gmail.com>
+X-Complaints-To: usenet@sea.gmane.org
+X-Gmane-NNTP-Posting-Host: main.gmane.org
+User-Agent: Loom/3.14 (http://gmane.org/)
+X-Loom-IP: 82.216.33.146 (Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.8) Gecko/20051111 Firefox/1.5 Mnenhy/0.6.0.104)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+Linus Torvalds <torvalds <at> osdl.org> writes:
+> I'm sorry, but spam-filtering is simply harder than the bayesian 
+> word-count weenies think it is. I even used to _know_ something about 
+> bayesian filtering, since it was one of the projects I worked on at uni, 
+> and dammit, it's not a good approach, as shown by the fact that it's 
+> trivial to get around.
 
-Is there any method either kernel or user level which tells me which
-process is generating how much traffic from a machine. For example if
-some process is flooding the network, then I would like to know which
-process (PID ideally), is generating the most traffic.
+Have you actually followed any of the research into Bayesian (and similar
+machine learning based) anti-spam filtering, and attacks on such filters?  Are
+you making a claim that these filters are 'trivial to get around' based on a
+project you did at University over 10 years ago?
 
-Some people told me to monitor ports and check through nmap which
-process is using that port, but thats not a good approach as there is
-nothing to restrict a process to use the same port for its lifetime,
-it can close it and open another one etc..
+John.
 
-I dont require it to do this remotely, it should be run on the same
-machine as that originates the traffic
-Any help will be highly appreciated
 
-Regards
-Irfan

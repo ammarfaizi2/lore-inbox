@@ -1,49 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030476AbWJCTFm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030336AbWJCTIz@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030476AbWJCTFm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Oct 2006 15:05:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030478AbWJCTFl
+	id S1030336AbWJCTIz (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Oct 2006 15:08:55 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030478AbWJCTIz
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Oct 2006 15:05:41 -0400
-Received: from mail.aknet.ru ([82.179.72.26]:2573 "EHLO mail.aknet.ru")
-	by vger.kernel.org with ESMTP id S1030476AbWJCTFl (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Oct 2006 15:05:41 -0400
-Message-ID: <4522B4F9.8000301@aknet.ru>
-Date: Tue, 03 Oct 2006 23:07:37 +0400
-From: Stas Sergeev <stsp@aknet.ru>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
+	Tue, 3 Oct 2006 15:08:55 -0400
+Received: from ug-out-1314.google.com ([66.249.92.170]:51911 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1030336AbWJCTIy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Oct 2006 15:08:54 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=oR8OHChcuUeJMRXdM/F3qHoLTpAtk2lGYK1jlllYR+4AyZ9r/tDhqr5d4Eb09At7q0JUHtYIRN3sACc3udHYjd9cckhYI7656bewMnpcQIlLMmzxr000wW6sEDRmujHQXlfTNosMb+PIxDHbg38qEcgJZfA4lM6JkZgZ9uLRDuY=
+Message-ID: <d120d5000610031208i4a204b2es8de8d424a573acf4@mail.gmail.com>
+Date: Tue, 3 Oct 2006 15:08:43 -0400
+From: "Dmitry Torokhov" <dmitry.torokhov@gmail.com>
+To: jt@hpl.hp.com
+Subject: Re: wpa supplicant/ipw3945, ESSID last char missing
+Cc: "Jeff Garzik" <jeff@garzik.org>,
+       "John W. Linville" <linville@tuxdriver.com>,
+       "Linus Torvalds" <torvalds@osdl.org>,
+       "Lee Revell" <rlrevell@joe-job.com>,
+       "Alessandro Suardi" <alessandro.suardi@gmail.com>,
+       "Norbert Preining" <preining@logic.at>, hostap@shmoo.com,
+       ipw3945-devel@lists.sourceforge.net, "Andrew Morton" <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, johannes@sipsolutions.net
+In-Reply-To: <20061003183849.GA17635@bougret.hpl.hp.com>
 MIME-Version: 1.0
-To: Arjan van de Ven <arjan@infradead.org>
-Cc: Linux kernel <linux-kernel@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Hugh Dickins <hugh@veritas.com>,
-       Ulrich Drepper <drepper@redhat.com>, Valdis.Kletnieks@vt.edu
-Subject: Re: [patch] remove MNT_NOEXEC check for PROT_EXEC mmaps
-References: <45150CD7.4010708@aknet.ru>	 <Pine.LNX.4.64.0609231555390.27012@blonde.wat.veritas.com>	 <451555CB.5010006@aknet.ru>	 <Pine.LNX.4.64.0609231647420.29557@blonde.wat.veritas.com>	 <1159037913.24572.62.camel@localhost.localdomain>	 <45162BE5.2020100@aknet.ru>	 <1159106032.11049.12.camel@localhost.localdomain>	 <45169C0C.5010001@aknet.ru> <4516A8E3.4020100@redhat.com>	 <4516B2C8.4050202@aknet.ru> <4516B721.5070801@redhat.com>	 <45198395.4050008@aknet.ru>	 <1159396436.3086.51.camel@laptopd505.fenrus.org> <451E3C0C.10105@aknet.ru>	 <1159887682.2891.537.camel@laptopd505.fenrus.org>	 <45229A99.6060703@aknet.ru>	 <1159899820.2891.542.camel@laptopd505.fenrus.org>	 <4522AEA1.5060304@aknet.ru> <1159900934.2891.548.camel@laptopd505.fenrus.org>
-In-Reply-To: <1159900934.2891.548.camel@laptopd505.fenrus.org>
-Content-Type: text/plain; charset=UTF-8; format=flowed
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <20061002085942.GA32387@gamma.logic.tuwien.ac.at>
+	 <5a4c581d0610020221s7bf100f8q893161b7c8c492d2@mail.gmail.com>
+	 <1159807483.4067.150.camel@mindpipe>
+	 <20061003123835.GA23912@tuxdriver.com>
+	 <1159890876.20801.65.camel@mindpipe>
+	 <Pine.LNX.4.64.0610030916000.3952@g5.osdl.org>
+	 <20061003180543.GD23912@tuxdriver.com> <4522A9BE.9000805@garzik.org>
+	 <20061003183849.GA17635@bougret.hpl.hp.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi.
+On 10/3/06, Jean Tourrilhes <jt@hpl.hp.com> wrote:
+>
+>        Now it's too late, those changes have propagated to userspace
+> tools, and are now shipping in some actual release of some distro. So,
+> what are we going to say to Mandriva 2007 and FC6 users, to revert
+> back to an *older* version of the tools ?
+>        Because userspace has already been updated, we have only two
+> options, merge it now, or in 2.6.20.
+>
 
-Arjan van de Ven wrote:
-> then don't put noexec on /dev/shm.
-That's obviously possible, but I'd feel safer having
-"noexec" on *every* user-writable partition. It used
-to work in the past - that way an attacker had no place
-to run his binary from.
+Are you saying that compatibility is broken both ways?? Not only one
+needs new tools for the new kernels but also has to downgrade tools to
+work with older kernels??
 
-> ld.so fix is phony. Really; I can always put an "unfixed" ld.so there
-> and use it as user. 
-See above. In the past it was possible to have "noexec"
-on *all* user-writable mounts, so you couldn't run your
-own ld.so that easily. Thats why I am reluctant to take
-the "if it hurts, just remove noexec" argument.
-And since you can run the scripts via binfmt-misc, I'd
-also do "chmod 'o-x' perl", so that the direct invocation
-of perl to not be possible for unwanted users. Or do not.
-At least the approach I propose, allows to do this, so the
-"script loader" problem can also be fixed that way.
-
+-- 
+Dmitry

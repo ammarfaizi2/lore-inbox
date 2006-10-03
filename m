@@ -1,70 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030238AbWJCB6W@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030242AbWJCB7l@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030238AbWJCB6W (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Oct 2006 21:58:22 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030241AbWJCB6W
+	id S1030242AbWJCB7l (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Oct 2006 21:59:41 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030243AbWJCB7l
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Oct 2006 21:58:22 -0400
-Received: from mailout.stusta.mhn.de ([141.84.69.5]:64261 "HELO
-	mailout.stusta.mhn.de") by vger.kernel.org with SMTP
-	id S1030238AbWJCB6V (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Oct 2006 21:58:21 -0400
-Date: Tue, 3 Oct 2006 03:58:20 +0200
-From: Adrian Bunk <bunk@stusta.de>
-To: Nicholas Miell <nmiell@comcast.net>
-Cc: Judith Lebzelter <judith@osdl.org>, linux-kernel@vger.kernel.org,
-       linuxppc-dev@ozlabs.org
-Subject: Re: [2.6 patch] mark virt_to_bus/bus_to_virt as __deprecated on i386
-Message-ID: <20061003015820.GG3278@stusta.de>
-References: <20061002214954.GD665@shell0.pdx.osdl.net> <20061002234428.GE3278@stusta.de> <20061003012241.GF3278@stusta.de> <1159840091.2349.0.camel@entropy>
-MIME-Version: 1.0
+	Mon, 2 Oct 2006 21:59:41 -0400
+Received: from omx2-ext.sgi.com ([192.48.171.19]:56266 "EHLO omx2.sgi.com")
+	by vger.kernel.org with ESMTP id S1030242AbWJCB7k (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Oct 2006 21:59:40 -0400
+Date: Tue, 3 Oct 2006 11:59:20 +1000
+From: Greg Banks <gnb@sgi.com>
+To: Neil Brown <neilb@suse.de>
+Cc: "J. Bruce Fields" <bfields@fieldses.org>, nfs@lists.sourceforge.net,
+       linux-kernel@vger.kernel.org
+Subject: Re: [NFS] [PATCH 008 of 11] knfsd: Prepare knfsd for support of rsize/wsize of up to 1MB, over TCP.
+Message-ID: <20061003015920.GJ28796@sgi.com>
+References: <20060824162917.3600.patches@notabene> <1060824063711.5008@suse.de> <20060925154316.GA17465@fieldses.org> <17697.48800.933642.581926@cse.unsw.edu.au>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <1159840091.2349.0.camel@entropy>
-User-Agent: Mutt/1.5.13 (2006-08-11)
+In-Reply-To: <17697.48800.933642.581926@cse.unsw.edu.au>
+User-Agent: Mutt/1.5.5.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 02, 2006 at 06:48:11PM -0700, Nicholas Miell wrote:
-> On Tue, 2006-10-03 at 03:22 +0200, Adrian Bunk wrote:
-> > On Tue, Oct 03, 2006 at 01:44:28AM +0200, Adrian Bunk wrote:
-> > > On Mon, Oct 02, 2006 at 02:49:54PM -0700, Judith Lebzelter wrote:
-> > > 
-> > > > Hello:
-> > > 
-> > > Hi Judith,
-> > > 
-> > > > For the automated cross-compile builds at OSDL, powerpc 64-bit 
-> > > > 'allmodconfig' is failing.  The warnings/errors below appear in 
-> > > > the 'modpost' stage of kernel compiles for 2.6.18 and -mm2 kernels.
-> > > 
-> > > known for ages - the drivers need fixing.
-> > > 
-> > > You might want to convince Andrew accepting my patch to make 
-> > > virt_to_bus/bus_to_virt give compile warnings on i386 for making
-> > > people more aware of this problem...
-> > >...
+On Tue, Oct 03, 2006 at 11:36:32AM +1000, Neil Brown wrote:
+> On Monday September 25, bfields@fieldses.org wrote:
 > > 
-> > In case anyone is interested, the patch is below.
-> > 
-> > cu
-> > Adrian
-> > 
+> > We're reporting svc_max_payload(rqstp) as the server's maximum
+> > read/write block size:
 > 
-> Won't this also cause warnings for valid arch-specific usage (i.e. in
-> linux/arch/{i386,x86_64})?
+> Yes.  So I'm going to change the number returned by
+> svc_max_payload(rqstp) to mean the maximum read/write block size.
+> i.e. when a service is created, the number passed isn't the maximum
+> packet size, but is the maximum payload size.
 
-They aren't used under linux/arch/i386/ and my patch doesn't change x86_64.
+I'm confused.  Last time I looked at the code that was
+exactly what the semantics were?
 
-> Nicholas Miell <nmiell@comcast.net>
+> The assumption is that all of the request that is not payload will fit
+> into one page, and all of the reply that is not payload will also fit
+> into one page (though a different page).
 
-cu
-Adrian
+This is a pretty good assumption for v3.
 
+> It means that RPC services that have lots of non-payload data combined
+> with payload data won't work, but making sunrpc code completely
+> general when there are only two users is just too painful.
+> 
+> The only real problem is that NFSv4 can have arbitrarily large
+> non-payload data, and arbitrarily many payloads.  But I guess any
+> client that trying to send two full-sized payloads in the one request
+> is asking for trouble (I don't suppose the RPC spells this out at
+> all?).
+
+Bruce and I briefly discussed this when I dropped into CITI the other
+week.  The conclusion was that this is a non-issue in the short term
+because all the clients do a single READ or WRITE per call.  In the
+long term I hope to rewrite some parts of that code to do away with
+one of the memcpy()s in the WRITE path, and handling multiple WRITEs
+for v4 would be a natural extension of that.
+
+Greg.
 -- 
-
-       "Is there not promise of rain?" Ling Tan asked suddenly out
-        of the darkness. There had been need of rain for many days.
-       "Only a promise," Lao Er said.
-                                       Pearl S. Buck - Dragon Seed
-
+Greg Banks, R&D Software Engineer, SGI Australian Software Group.
+I don't speak for SGI.

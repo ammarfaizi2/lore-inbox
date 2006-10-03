@@ -1,305 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750823AbWJCDEJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932079AbWJCDCa@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750823AbWJCDEJ (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Oct 2006 23:04:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750801AbWJCDEJ
+	id S932079AbWJCDCa (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Oct 2006 23:02:30 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750823AbWJCDC3
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Oct 2006 23:04:09 -0400
-Received: from wx-out-0506.google.com ([66.249.82.227]:44849 "EHLO
-	wx-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S932157AbWJCDEH (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Oct 2006 23:04:07 -0400
+	Mon, 2 Oct 2006 23:02:29 -0400
+Received: from ug-out-1314.google.com ([66.249.92.175]:23960 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1750733AbWJCDC2 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Oct 2006 23:02:28 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=f/O0e5iCFJCVvn5XloY5PF8qC2ZOgWzKUSRZBVQjnXwy1dPerUa+GRUw6guCIh4E8wWDd5IEtuTfoFA0hcqIMVoqssX45wLS2H7Usz0hL8Sp3cPnXUSLywGmB7iWbBYdZx2A23QGnA691E8z5JZ98kANYm99arUim/ircRft/jc=
-Message-ID: <4521D340.9030301@gmail.com>
-Date: Mon, 02 Oct 2006 23:04:32 -0400
-From: Florin Malita <fmalita@gmail.com>
-User-Agent: Thunderbird 1.5.0.4 (X11/20060614)
+        h=received:message-id:date:from:to:subject:cc:in-reply-to:mime-version:content-type:content-transfer-encoding:content-disposition:references;
+        b=ktYIG1W4/ZY90qIv5iKeotkY3waa4uCAVih4Bil5eheUSjfxrWGzFamHEoyKQgt87TfNvTthq+Sz7RfXbLCuHDxQfBkN9BGQQBhKxv9fGEmhrNnP0tE3XRRGhRbzdwTwSH6/DsG6jOS6cmLgAiV6pw+OFg9ISZm278sBKVQVZEU=
+Message-ID: <41840b750610022002j4d73ab23l83a88ec757925b08@mail.gmail.com>
+Date: Tue, 3 Oct 2006 05:02:25 +0200
+From: "Shem Multinymous" <multinymous@gmail.com>
+To: "Jeff Garzik" <jeff@garzik.org>
+Subject: Re: SATA status reports update
+Cc: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org,
+       "Pavel Machek" <pavel@suse.cz>, "Tejun Heo" <htejun@gmail.com>
+In-Reply-To: <451CE8EC.1020203@garzik.org>
 MIME-Version: 1.0
-To: Randy Dunlap <rdunlap@xenotime.net>
-CC: lkml <linux-kernel@vger.kernel.org>, akpm <akpm@osdl.org>,
-       Lee Revell <rlrevell@joe-job.com>, Dave Jones <davej@redhat.com>,
-       devzero@web.de, Alistair John Strachan <s0348365@sms.ed.ac.uk>
-Subject: Re: [PATCH] list module taint flags in Oops/panic
-References: <20060928191200.5b76998c.rdunlap@xenotime.net>
-In-Reply-To: <20060928191200.5b76998c.rdunlap@xenotime.net>
-Content-Type: text/plain; charset=ISO-8859-1
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+Content-Disposition: inline
+References: <451CE8EC.1020203@garzik.org>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Randy Dunlap wrote:
-> From: Randy Dunlap <rdunlap@xenotime.net>
->
-> When listing loaded modules during an oops or panic, also list each
-> module's Tainted flags if non-zero (P: Proprietary or F: Forced load only).
->   
+Hi Jeff,
 
-Funny, I was playing with something very similar last weekend, then I
-noticed your patch merged into mainline ;) So here are some comments...
+On 9/29/06, Jeff Garzik <jeff@garzik.org> wrote:
+> Software status:
+>         http://linux-ata.org/software-status.html
 
-> --- linux-2618-g10.orig/include/linux/module.h
-> +++ linux-2618-g10/include/linux/module.h
-> @@ -320,6 +320,8 @@ struct module
->  	/* Am I GPL-compatible */
->  	int license_gplok;
->  
-> +	unsigned int taints;	/* same bits as kernel:tainted */
->   
-
-No need to keep 'license_gplok' around anymore, it should be equivalent
-to !(taints & TAINT_PROPRIETARY_MODULE).
-
-> @@ -851,6 +851,7 @@ static int check_version(Elf_Shdr *sechd
->  		printk("%s: no version for \"%s\" found: kernel tainted.\n",
->  		       mod->name, symname);
->  		add_taint(TAINT_FORCED_MODULE);
-> +		mod->taints |= TAINT_FORCED_MODULE;
->  	}
->   
-
-This seems wrong, it only dirties mod->taints if the kernel is not
-already F-tainted (the branch is conditioned by !(tainted &
-TAINT_FORCED_MODULE)). So only the first forcefully-loaded module gets
-its F bit set, which is probably not the intention...
-
-> @@ -1325,6 +1326,7 @@ static void set_license(struct module *m
->  		printk(KERN_WARNING "%s: module license '%s' taints kernel.\n",
->  		       mod->name, license);
->  		add_taint(TAINT_PROPRIETARY_MODULE);
-> +		mod->taints |= TAINT_PROPRIETARY_MODULE;
->  	}
->   
-
-Similarly here, will only take the branch upon loading the first
-proprietary module (conditional on !(tainted & TAINT_PROPRIETARY_MODULE)).
-
-The currently merged version also has a problem in taint_flags():
-
-static char *taint_flags(unsigned int taints, char *buf)
-{
-        *buf = '\0';
-        if (taints) {
-                int bx;
-
-                buf[0] = '(';
-                bx = 1;
-                if (taints & TAINT_PROPRIETARY_MODULE)
-                        buf[bx++] = 'P';
-                if (taints & TAINT_FORCED_MODULE)
-                        buf[bx++] = 'F';
-                /*
-                 * TAINT_FORCED_RMMOD: could be added.
-                 * TAINT_UNSAFE_SMP, TAINT_MACHINE_CHECK, TAINT_BAD_PAGE
-don't
-                 * apply to modules.
-                 */
-                buf[bx] = ')';
-        }
-        return buf;
-}
-
-The buffer is not NULL-terminated after printing the flags.
-
-Also, it would be nice to show per-module taint info in /proc/modules
-too. So how about the following (applies on top of the merged
-version/current git, tested):
-
-Signed-off-by: Florin Malita <fmalita@gmail.com>
----
-
- include/linux/module.h |    3 -
- kernel/module.c        |   94 +++++++++++++++++++++++++------------------------
- 2 files changed, 49 insertions(+), 48 deletions(-)
-
-diff --git a/include/linux/module.h b/include/linux/module.h
-index 4b2d809..d1d00ce 100644
---- a/include/linux/module.h
-+++ b/include/linux/module.h
-@@ -317,9 +317,6 @@ struct module
- 	/* Am I unsafe to unload? */
- 	int unsafe;
- 
--	/* Am I GPL-compatible */
--	int license_gplok;
--
- 	unsigned int taints;	/* same bits as kernel:tainted */
- 
- #ifdef CONFIG_MODULE_UNLOAD
-diff --git a/kernel/module.c b/kernel/module.c
-index 7c77a0a..a258cd5 100644
---- a/kernel/module.c
-+++ b/kernel/module.c
-@@ -87,6 +87,12 @@ static inline int strong_try_module_get(
- 	return try_module_get(mod);
- }
- 
-+static inline void add_taint_module(struct module *mod, unsigned flag)
-+{
-+	add_taint(flag);
-+	mod->taints |= flag;
-+}
-+
- /* A thread that wants to hold a reference to a module only while it
-  * is running can call ths to safely exit.
-  * nfsd and lockd use this.
-@@ -847,12 +853,10 @@ static int check_version(Elf_Shdr *sechd
- 		return 0;
- 	}
- 	/* Not in module's version table.  OK, but that taints the kernel. */
--	if (!(tainted & TAINT_FORCED_MODULE)) {
-+	if (!(tainted & TAINT_FORCED_MODULE))
- 		printk("%s: no version for \"%s\" found: kernel tainted.\n",
- 		       mod->name, symname);
--		add_taint(TAINT_FORCED_MODULE);
--		mod->taints |= TAINT_FORCED_MODULE;
--	}
-+	add_taint_module(mod, TAINT_FORCED_MODULE);
- 	return 1;
- }
- 
-@@ -910,7 +914,8 @@ static unsigned long resolve_symbol(Elf_
- 	unsigned long ret;
- 	const unsigned long *crc;
- 
--	ret = __find_symbol(name, &owner, &crc, mod->license_gplok);
-+	ret = __find_symbol(name, &owner, &crc,
-+			!(mod->taints & TAINT_PROPRIETARY_MODULE));
- 	if (ret) {
- 		/* use_module can fail due to OOM, or module unloading */
- 		if (!check_version(sechdrs, versindex, name, mod, crc) ||
-@@ -1335,12 +1340,11 @@ static void set_license(struct module *m
- 	if (!license)
- 		license = "unspecified";
- 
--	mod->license_gplok = license_is_gpl_compatible(license);
--	if (!mod->license_gplok && !(tainted & TAINT_PROPRIETARY_MODULE)) {
--		printk(KERN_WARNING "%s: module license '%s' taints kernel.\n",
--		       mod->name, license);
--		add_taint(TAINT_PROPRIETARY_MODULE);
--		mod->taints |= TAINT_PROPRIETARY_MODULE;
-+	if (!license_is_gpl_compatible(license)) {
-+		if (!(tainted & TAINT_PROPRIETARY_MODULE))
-+			printk(KERN_WARNING "%s: module license '%s' taints"
-+				"kernel.\n", mod->name, license);
-+		add_taint_module(mod, TAINT_PROPRIETARY_MODULE);
- 	}
- }
- 
-@@ -1619,8 +1623,7 @@ #endif
- 	modmagic = get_modinfo(sechdrs, infoindex, "vermagic");
- 	/* This is allowed: modprobe --force will invalidate it. */
- 	if (!modmagic) {
--		add_taint(TAINT_FORCED_MODULE);
--		mod->taints |= TAINT_FORCED_MODULE;
-+		add_taint_module(mod, TAINT_FORCED_MODULE);
- 		printk(KERN_WARNING "%s: no version magic, tainting kernel.\n",
- 		       mod->name);
- 	} else if (!same_magic(modmagic, vermagic)) {
-@@ -1714,14 +1717,10 @@ #endif
- 	/* Set up license info based on the info section */
- 	set_license(mod, get_modinfo(sechdrs, infoindex, "license"));
- 
--	if (strcmp(mod->name, "ndiswrapper") == 0) {
--		add_taint(TAINT_PROPRIETARY_MODULE);
--		mod->taints |= TAINT_PROPRIETARY_MODULE;
--	}
--	if (strcmp(mod->name, "driverloader") == 0) {
--		add_taint(TAINT_PROPRIETARY_MODULE);
--		mod->taints |= TAINT_PROPRIETARY_MODULE;
--	}
-+	if (strcmp(mod->name, "ndiswrapper") == 0)
-+		add_taint_module(mod, TAINT_PROPRIETARY_MODULE);
-+	if (strcmp(mod->name, "driverloader") == 0)
-+		add_taint_module(mod, TAINT_PROPRIETARY_MODULE);
- 
- 	/* Set up MODINFO_ATTR fields */
- 	setup_modinfo(mod, sechdrs, infoindex);
-@@ -1766,8 +1765,7 @@ #ifdef CONFIG_MODVERSIONS
- 	    (mod->num_unused_gpl_syms && !unusedgplcrcindex)) {
- 		printk(KERN_WARNING "%s: No versions for exported symbols."
- 		       " Tainting kernel.\n", mod->name);
--		add_taint(TAINT_FORCED_MODULE);
--		mod->taints |= TAINT_FORCED_MODULE;
-+		add_taint_module(mod, TAINT_FORCED_MODULE);
- 	}
- #endif
- 
-@@ -2131,9 +2129,33 @@ static void m_stop(struct seq_file *m, v
- 	mutex_unlock(&module_mutex);
- }
- 
-+static char *taint_flags(unsigned int taints, char *buf)
-+{
-+	int bx = 0;
-+	
-+	if (taints) {
-+		buf[bx++] = '(';
-+		if (taints & TAINT_PROPRIETARY_MODULE)
-+			buf[bx++] = 'P';
-+		if (taints & TAINT_FORCED_MODULE)
-+			buf[bx++] = 'F';
-+		/*
-+		 * TAINT_FORCED_RMMOD: could be added.
-+		 * TAINT_UNSAFE_SMP, TAINT_MACHINE_CHECK, TAINT_BAD_PAGE don't
-+		 * apply to modules.
-+		 */
-+		buf[bx++] = ')';
-+	}
-+	buf[bx] = '\0';
-+
-+	return buf;
-+}
-+
- static int m_show(struct seq_file *m, void *p)
- {
- 	struct module *mod = list_entry(p, struct module, list);
-+	char buf[8];
-+
- 	seq_printf(m, "%s %lu",
- 		   mod->name, mod->init_size + mod->core_size);
- 	print_unload_info(m, mod);
-@@ -2146,6 +2168,10 @@ static int m_show(struct seq_file *m, vo
- 	/* Used by oprofile and other similar tools. */
- 	seq_printf(m, " 0x%p", mod->module_core);
- 
-+	/* Taints info */
-+	if (mod->taints)
-+		seq_printf(m, " %s", taint_flags(mod->taints, buf));
-+
- 	seq_printf(m, "\n");
- 	return 0;
- }
-@@ -2234,28 +2260,6 @@ struct module *module_text_address(unsig
- 	return mod;
- }
- 
--static char *taint_flags(unsigned int taints, char *buf)
--{
--	*buf = '\0';
--	if (taints) {
--		int bx;
--
--		buf[0] = '(';
--		bx = 1;
--		if (taints & TAINT_PROPRIETARY_MODULE)
--			buf[bx++] = 'P';
--		if (taints & TAINT_FORCED_MODULE)
--			buf[bx++] = 'F';
--		/*
--		 * TAINT_FORCED_RMMOD: could be added.
--		 * TAINT_UNSAFE_SMP, TAINT_MACHINE_CHECK, TAINT_BAD_PAGE don't
--		 * apply to modules.
--		 */
--		buf[bx] = ')';
--	}
--	return buf;
--}
--
- /* Don't grab lock, we're oopsing. */
- void print_modules(void)
- {
+It says:
+"Over and above the power management specified in the ATA/ATAPI
+specification, one can aggressively control the power consumption of
+SATA hosts, the SATA bus, and the SATA device. [...]
+There is little demand at the present time for aggressive, automatic
+power management under Linux."
 
 
+What about laptops on batteries? Pavel reports a 1W power draw by his
+ThinkPad's ICH7M SATA controller [1]. It would be neat to eliminate
+this when the disk is not in use (and powering up the silicon can't
+take much longer than spinning up a chunk glass to 7200RPM).
+
+  Shem
+
+[1] http://atrey.karlin.mff.cuni.cz/~pavel/swsusp/8hours.pdf
+    slide 11

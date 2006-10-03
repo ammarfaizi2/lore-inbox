@@ -1,54 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030281AbWJCUAX@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030320AbWJCUUy@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030281AbWJCUAX (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Oct 2006 16:00:23 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030267AbWJCUAW
+	id S1030320AbWJCUUy (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Oct 2006 16:20:54 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030324AbWJCUUy
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Oct 2006 16:00:22 -0400
-Received: from www.osadl.org ([213.239.205.134]:54995 "EHLO mail.tglx.de")
-	by vger.kernel.org with ESMTP id S1030281AbWJCUAV (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Oct 2006 16:00:21 -0400
-Subject: Re: [patch] dynticks core: Fix idle time accounting
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: Valdis.Kletnieks@vt.edu
-Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
-       Ingo Molnar <mingo@elte.hu>, Jim Gettys <jg@laptop.org>,
-       John Stultz <johnstul@us.ibm.com>,
-       David Woodhouse <dwmw2@infradead.org>,
-       Arjan van de Ven <arjan@infradead.org>, Dave Jones <davej@redhat.com>
-In-Reply-To: <200610022135.k92LZHCn008618@turing-police.cc.vt.edu>
-References: <20061001225720.115967000@cruncher.tec.linutronix.de>
-	 <200610021302.k92D23W1003320@turing-police.cc.vt.edu>
-	 <1159796582.1386.9.camel@localhost.localdomain>
-	 <200610021825.k92IPSnd008215@turing-police.cc.vt.edu>
-	 <1159814606.1386.52.camel@localhost.localdomain>
-	 <200610022017.k92KH4Ch004773@turing-police.cc.vt.edu>
-	 <1159824158.1386.77.camel@localhost.localdomain>
-	 <200610022135.k92LZHCn008618@turing-police.cc.vt.edu>
-Content-Type: text/plain
-Date: Tue, 03 Oct 2006 22:02:30 +0200
-Message-Id: <1159905750.1386.215.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
+	Tue, 3 Oct 2006 16:20:54 -0400
+Received: from server6.greatnet.de ([83.133.96.26]:44484 "EHLO
+	server6.greatnet.de") by vger.kernel.org with ESMTP
+	id S1030320AbWJCUUx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Oct 2006 16:20:53 -0400
+Message-ID: <4522C63C.6000208@nachtwindheim.de>
+Date: Tue, 03 Oct 2006 22:21:16 +0200
+From: Henne <henne@nachtwindheim.de>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060911)
+MIME-Version: 1.0
+To: Andrew Morton <akpm@osdl.org>
+Cc: James Bottomley <James.Bottomley@SteelEye.com>, linux-scsi@vger.kernel.org,
+       linux-kernel@vger.kernel.org
+Subject: [PATCH] scsi: Scsi_Cmnd convertion in psi240i driver
+Content-Type: text/plain; charset=ISO-8859-1
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2006-10-02 at 17:35 -0400, Valdis.Kletnieks@vt.edu wrote:
-> We could "pump up" the relative counts - if 1 no-hz tick would have been 5ms
-> long, increment the count by 5 rather than 1 (for an alledged 1khz tick).
-> However, when we do that, we break the property that the sum of the ticks
-> in the 'cpu0' line is equal to the number of timer interrupts reported in the
-> 'intr' line.
+Changes the obsolete Scsi_Cmnd to struct scsi_cmnd in psi240i-driver.
+Signed-off-by: Henrik Kretzschmar <henne@nachtwindheim.de>
 
-I found a way to fix my thinkos. I put up a queue with all fixes to:
+---
 
-http://www.tglx.de/projects/hrtimers/2.6.18-mm3/patch-2.6.18-mm3-hrt-dyntick1.patches.tar.bz2
+ psi240i.c |   31 ++++++++++++++++++-------------
+ psi240i.h |    6 +++---
+ 2 files changed, 21 insertions(+), 16 deletions(-)
 
-Can you please verify if it makes your problem go away ?
-
-	tglx
+diff --git a/drivers/scsi/psi240i.c b/drivers/scsi/psi240i.c
+index 5c2cdf5..b08654d 100644
+--- a/drivers/scsi/psi240i.c
++++ b/drivers/scsi/psi240i.c
+@@ -87,11 +87,11 @@ typedef struct
+ 	{
+ 	USHORT		 ports[13];
+ 	OUR_DEVICE	 device[8];
+-	Scsi_Cmnd	*pSCmnd;
++	struct scsi_cmnd *pSCmnd;
+ 	IDE_STRUCT	 ide;
+ 	ULONG		 startSector;
+ 	USHORT		 sectorCount;
+-	Scsi_Cmnd	*SCpnt;
++	struct scsi_cmnd *SCpnt;
+ 	VOID		*buffer;
+ 	USHORT		 expectingIRQ;
+ 	}	ADAPTER240I, *PADAPTER240I;
+@@ -254,12 +254,12 @@ static ULONG DecodeError (struct Scsi_Ho
+  ****************************************************************/
+ static void Irq_Handler (int irq, void *dev_id, struct pt_regs *regs)
+ 	{
+-	struct Scsi_Host   *shost;			// Pointer to host data block
+-	PADAPTER240I		padapter;		// Pointer to adapter control structure
+-	USHORT		 	   *pports;			// I/O port array
+-	Scsi_Cmnd		   *SCpnt;
+-	UCHAR				status;
+-	int					z;
++	struct Scsi_Host *shost;	// Pointer to host data block
++	PADAPTER240I padapter;		// Pointer to adapter control structure
++	USHORT *pports;			// I/O port array
++	struct scsi_cmnd *SCpnt;
++	UCHAR status;
++	int z;
+ 
+ 	DEB(printk ("\npsi240i received interrupt\n"));
+ 
+@@ -390,12 +390,17 @@ static irqreturn_t do_Irq_Handler (int i
+  *	Returns:		Status code.
+  *
+  ****************************************************************/
+-static int Psi240i_QueueCommand (Scsi_Cmnd *SCpnt, void (*done)(Scsi_Cmnd *))
++static int Psi240i_QueueCommand(struct scsi_cmnd *SCpnt,
++				void (*done)(struct scsi_cmnd *))
+ 	{
+-	UCHAR		   *cdb = (UCHAR *)SCpnt->cmnd;					// Pointer to SCSI CDB
+-	PADAPTER240I	padapter = HOSTDATA (SCpnt->device->host); 			// Pointer to adapter control structure
+-	POUR_DEVICE 		pdev	 = &padapter->device [SCpnt->device->id];// Pointer to device information
+-	UCHAR			rc;											// command return code
++	UCHAR *cdb = (UCHAR *)SCpnt->cmnd;
++	// Pointer to SCSI CDB
++	PADAPTER240I padapter = HOSTDATA (SCpnt->device->host);
++	// Pointer to adapter control structure
++	POUR_DEVICE pdev = &padapter->device [SCpnt->device->id];
++	// Pointer to device information
++	UCHAR rc;
++	// command return code
+ 
+ 	SCpnt->scsi_done = done;
+ 	padapter->ide.ide.ides.spigot = pdev->spigot;
+diff --git a/drivers/scsi/psi240i.h b/drivers/scsi/psi240i.h
+index 6a59876..21ebb92 100644
+--- a/drivers/scsi/psi240i.h
++++ b/drivers/scsi/psi240i.h
+@@ -309,7 +309,7 @@ typedef struct _IDENTIFY_DATA2 {
+ #endif	// PSI_EIDE_SCSIOP
+ 
+ // function prototypes
+-int Psi240i_Command			(Scsi_Cmnd *SCpnt);
+-int Psi240i_Abort			(Scsi_Cmnd *SCpnt);
+-int Psi240i_Reset			(Scsi_Cmnd *SCpnt, unsigned int flags);
++int Psi240i_Command(struct scsi_cmnd *SCpnt);
++int Psi240i_Abort(struct scsi_cmnd *SCpnt);
++int Psi240i_Reset(struct scsi_cmnd *SCpnt, unsigned int flags);
+ #endif
 
 

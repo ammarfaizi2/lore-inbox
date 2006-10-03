@@ -1,33 +1,47 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750735AbWJCLW0@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750733AbWJCLYc@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1750735AbWJCLW0 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Oct 2006 07:22:26 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750741AbWJCLW0
+	id S1750733AbWJCLYc (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Oct 2006 07:24:32 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750719AbWJCLYc
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Oct 2006 07:22:26 -0400
-Received: from smtp-out001.kontent.com ([81.88.40.215]:13017 "EHLO
-	smtp-out.kontent.com") by vger.kernel.org with ESMTP
-	id S1750735AbWJCLWZ (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Oct 2006 07:22:25 -0400
-From: Oliver Neukum <oliver@neukum.org>
-To: linux-kernel@vger.kernel.org
-Subject: error to be returned while suspended
-Date: Tue, 3 Oct 2006 13:23:00 +0200
-User-Agent: KMail/1.8
-MIME-Version: 1.0
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
+	Tue, 3 Oct 2006 07:24:32 -0400
+Received: from brick.kernel.dk ([62.242.22.158]:25143 "EHLO kernel.dk")
+	by vger.kernel.org with ESMTP id S1750733AbWJCLYc (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Oct 2006 07:24:32 -0400
+Date: Tue, 3 Oct 2006 13:24:04 +0200
+From: Jens Axboe <jens.axboe@oracle.com>
+To: "Steven J. Hathaway" <shathawa@e-z.net>
+Cc: andre@linux-ide.org, linux-kernel@vger.kernel.org
+Subject: Re: Add "SAMSUNG CD-ROM SC-140" to ide-dma blacklist
+Message-ID: <20061003112404.GL7778@kernel.dk>
+References: <452021F4.79081F8F@e-z.net>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-Message-Id: <200610031323.00547.oliver@neukum.org>
+In-Reply-To: <452021F4.79081F8F@e-z.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
+On Sun, Oct 01 2006, Steven J. Hathaway wrote:
+> MS-Windows sees the CD-ROM ok.
+> Linux V 2.4.21 and earlier see the CD-ROM ok.
+> Linux V 2.4.24 and later fail to find a CD-ROM file system.
+> The major ide code changed since 2.4.21.  I have since
+> required the following patch in order for the kernel to
+> see the CDROM.   Enclosed is a context diff patch file.
+> 
+> The problem appeared when I was trying to install a Slackware
+> distribution.
+> The bootstrap would load the kernel and initrd structure, but the
+> kernel,
+> once gaining control, would register file system errors when accessing
+> the disk drive.  Seeing other related SAMSUNG CD-ROM drivers in the
+> ide-dma.c blacklist, and adding my SAMSUNG CD-ROM device to the
+> same blacklist, and rebuilding a kernel, the problem has been overcome.
 
-which error should a character device return if a read/write cannot be
-serviced because the device is suspended? Shouldn't there be an error
-code specific to that?
+Looks reasonable, applied.
 
-	Regards
-		Oliver
+-- 
+Jens Axboe
+

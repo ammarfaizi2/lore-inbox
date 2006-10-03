@@ -1,191 +1,111 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964833AbWJCPQb@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964865AbWJCPT4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964833AbWJCPQb (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Oct 2006 11:16:31 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964837AbWJCPQa
+	id S964865AbWJCPT4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Oct 2006 11:19:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964868AbWJCPT4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Oct 2006 11:16:30 -0400
-Received: from mga05.intel.com ([192.55.52.89]:27252 "EHLO
-	fmsmga101.fm.intel.com") by vger.kernel.org with ESMTP
-	id S964833AbWJCPQa (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Oct 2006 11:16:30 -0400
-X-ExtLoop1: 1
-X-IronPort-AV: i="4.09,251,1157353200"; 
-   d="scan'208"; a="140949682:sNHT25978512"
-From: Reinette Chatre <reinette.chatre@linux.intel.com>
-To: Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
-Subject: [PATCH] bitmap: bitmap_parse takes a kernel buffer instead of a user buffer
-User-Agent: KMail/1.9.4
+	Tue, 3 Oct 2006 11:19:56 -0400
+Received: from outbound-sin.frontbridge.com ([207.46.51.80]:26410 "EHLO
+	outbound4-sin-R.bigfish.com") by vger.kernel.org with ESMTP
+	id S964865AbWJCPTy (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Oct 2006 11:19:54 -0400
+X-BigFish: VP
+X-Server-Uuid: 5FC0E2DF-CD44-48CD-883A-0ED95B391E89
+Date: Tue, 3 Oct 2006 09:07:23 -0600
+From: "Jordan Crouse" <jordan.crouse@amd.com>
+To: linux-fbdev-devel@lists.sourceforge.net
+cc: "Linux Kernel Development" <linux-kernel@vger.kernel.org>,
+       devel@laptop.org
+Subject: Re: video: Get the default mode from the right database
+Message-ID: <20061003150723.GG7716@cosmic.amd.com>
+References: <20061002225738.GD7716@cosmic.amd.com>
+ <Pine.LNX.4.62.0610030901070.28197@pademelon.sonytel.be>
 MIME-Version: 1.0
+In-Reply-To: <Pine.LNX.4.62.0610030901070.28197@pademelon.sonytel.be>
+User-Agent: Mutt/1.5.11
+X-OriginalArrivalTime: 03 Oct 2006 14:57:59.0710 (UTC)
+ FILETIME=[5151CBE0:01C6E6FC]
+X-WSS-ID: 693CA5F20Y45084029-01-01
+Content-Type: multipart/mixed;
+ boundary="E39vaYmALEf/7YXx"
 Content-Disposition: inline
-Cc: Inaky Perez-Gonzalez <inaky@linux.intel.com>
-Date: Tue, 3 Oct 2006 08:16:27 -0700
-Content-Type: text/plain;
-  charset="iso-8859-1"
-Content-Transfer-Encoding: 7bit
-Message-Id: <200610030816.27941.reinette.chatre@linux.intel.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-lib/bitmap.c:bitmap_parse() is a library function that received as input a  user buffer. This seemed to have originated from the way the write_proc function of the /proc filesystem operates.
 
-This function will be useful for other uses as well; for example, taking input  for /sysfs instead of /proc, so it was changed to accept kernel buffers. We have this use for the Linux UWB project, as part as the upcoming bandwidth allocator code.
+--E39vaYmALEf/7YXx
+Content-Type: text/plain;
+ charset=us-ascii
+Content-Disposition: inline
+Content-Transfer-Encoding: 7bit
 
-Only a few routines used this function and they were changed too.
-    
-Signed-off-by: Reinette Chatre <reinette.chatre@linux.intel.com>
+On 03/10/06 09:04 +0200, Geert Uytterhoeven wrote:
+> >      if (!default_mode)
+> > -	default_mode = &modedb[DEFAULT_MODEDB_INDEX];
+> > +	default_mode = &db[DEFAULT_MODEDB_INDEX];
+> >      if (!default_bpp)
+> >  	default_bpp = 8;
+> 
+> Although currently DEFAULT_MODEDB_INDEX is defined to be 0, perhaps we need a
+> more rigorous check now it may apply to the custom video mode database?
+> Probably you always want the first mode of your custom video mode database to
+> be the default?
+
+Indeed.  I'm not sure how many people out there actually change
+DEFAULT_MODEDB_INDEX to be non zero, but can't think of a reason why the
+default shouldn't just always use the first index in the database.  
+
+At least, thats the way I thought fb_find_mode() worked before I looked into 
+the internals. Still, there might be some people attached to 
+DEFAULT_MODEDB_INDEX, so I've attached a new patch that should make everybody 
+happy.
+
+Jordan
+
+-- 
+Jordan Crouse
+Senior Linux Engineer
+Advanced Micro Devices, Inc.
+<www.amd.com/embeddedprocessors>
+
+--E39vaYmALEf/7YXx
+Content-Type: text/plain;
+ charset=us-ascii
+Content-Disposition: inline;
+ filename=modedb-fix.patch
+Content-Transfer-Encoding: 7bit
+
+[PATCH] video: Get the default mode from the right database
+
+From: Jordan Crouse <jordan.crouse@amd.com>
+
+If no default mode is specified, it should be grabbed from the supplied
+database, not the default one.  
+
+Signed-off-by: Jordan Crouse <jordan.crouse@amd.com>
 ---
 
-Applies to the current Linus' kernel tip.
+ drivers/video/modedb.c |    5 ++++-
+ 1 files changed, 4 insertions(+), 1 deletions(-)
 
- include/linux/bitmap.h   |    4 ++--
- include/linux/cpumask.h  |    2 +-
- include/linux/nodemask.h |    2 +-
- kernel/irq/proc.c        |   13 ++++++++++++-
- kernel/profile.c         |   13 ++++++++++++-
- lib/bitmap.c             |   15 +++++++--------
- 6 files changed, 35 insertions(+), 14 deletions(-)
+diff --git a/drivers/video/modedb.c b/drivers/video/modedb.c
+index d126790..4c04413 100644
+--- a/drivers/video/modedb.c
++++ b/drivers/video/modedb.c
+@@ -505,8 +505,11 @@ int fb_find_mode(struct fb_var_screeninf
+ 	db = modedb;
+ 	dbsize = ARRAY_SIZE(modedb);
+     }
+-    if (!default_mode)
++    if (!default_mode && db != modedb)
++	default_mode = &db[0];
++    else
+ 	default_mode = &modedb[DEFAULT_MODEDB_INDEX];
++
+     if (!default_bpp)
+ 	default_bpp = 8;
+ 
 
-diff -uprN -X linux-2.6.hg.vanilla/Documentation/dontdiff linux-2.6.hg.vanilla/include/linux/bitmap.h linux-2.6.hg/include/linux/bitmap.h
---- linux-2.6.hg.vanilla/include/linux/bitmap.h	2006-10-02 14:04:35.000000000 -0700
-+++ linux-2.6.hg/include/linux/bitmap.h	2006-10-02 13:50:05.000000000 -0700
-@@ -46,7 +46,7 @@
-  * bitmap_remap(dst, src, old, new, nbits)	*dst = map(old, new)(src)
-  * bitmap_bitremap(oldbit, old, new, nbits)	newbit = map(old, new)(oldbit)
-  * bitmap_scnprintf(buf, len, src, nbits)	Print bitmap src to buf
-- * bitmap_parse(ubuf, ulen, dst, nbits)		Parse bitmap dst from user buf
-+ * bitmap_parse(buf, len, dst, nbits)		Parse bitmap dst from buf
-  * bitmap_scnlistprintf(buf, len, src, nbits)	Print bitmap src as list to buf
-  * bitmap_parselist(buf, dst, nbits)		Parse bitmap dst from list
-  * bitmap_find_free_region(bitmap, bits, order)	Find and allocate bit region
-@@ -106,7 +106,7 @@ extern int __bitmap_weight(const unsigne
- 
- extern int bitmap_scnprintf(char *buf, unsigned int len,
- 			const unsigned long *src, int nbits);
--extern int bitmap_parse(const char __user *ubuf, unsigned int ulen,
-+extern int bitmap_parse(const char *buf, unsigned int len,
- 			unsigned long *dst, int nbits);
- extern int bitmap_scnlistprintf(char *buf, unsigned int len,
- 			const unsigned long *src, int nbits);
-diff -uprN -X linux-2.6.hg.vanilla/Documentation/dontdiff linux-2.6.hg.vanilla/lib/bitmap.c linux-2.6.hg/lib/bitmap.c
---- linux-2.6.hg.vanilla/lib/bitmap.c	2006-10-02 14:04:39.000000000 -0700
-+++ linux-2.6.hg/lib/bitmap.c	2006-10-02 13:51:57.000000000 -0700
-@@ -317,8 +317,8 @@ EXPORT_SYMBOL(bitmap_scnprintf);
- 
- /**
-  * bitmap_parse - convert an ASCII hex string into a bitmap.
-- * @ubuf: pointer to buffer in user space containing string.
-- * @ubuflen: buffer size in bytes.  If string is smaller than this
-+ * @buf: pointer to buffer containing string.
-+ * @buflen: buffer size in bytes.  If string is smaller than this
-  *    then it must be terminated with a \0.
-  * @maskp: pointer to bitmap array that will contain result.
-  * @nmaskbits: size of bitmap, in bits.
-@@ -330,7 +330,7 @@ EXPORT_SYMBOL(bitmap_scnprintf);
-  * characters and for grouping errors such as "1,,5", ",44", "," and "".
-  * Leading and trailing whitespace accepted, but not embedded whitespace.
-  */
--int bitmap_parse(const char __user *ubuf, unsigned int ubuflen,
-+int bitmap_parse(const char *buf, unsigned int buflen,
-         unsigned long *maskp, int nmaskbits)
- {
- 	int c, old_c, totaldigits, ndigits, nchunks, nbits;
-@@ -343,11 +343,10 @@ int bitmap_parse(const char __user *ubuf
- 		chunk = ndigits = 0;
- 
- 		/* Get the next chunk of the bitmap */
--		while (ubuflen) {
-+		while (buflen) {
- 			old_c = c;
--			if (get_user(c, ubuf++))
--				return -EFAULT;
--			ubuflen--;
-+			c = *buf++;
-+			buflen--;
- 			if (isspace(c))
- 				continue;
- 
-@@ -388,7 +387,7 @@ int bitmap_parse(const char __user *ubuf
- 		nbits += (nchunks == 1) ? nbits_to_hold_value(chunk) : CHUNKSZ;
- 		if (nbits > nmaskbits)
- 			return -EOVERFLOW;
--	} while (ubuflen && c == ',');
-+	} while (buflen && c == ',');
- 
- 	return 0;
- }
-diff -uprN -X linux-2.6.hg.vanilla/Documentation/dontdiff linux-2.6.hg.vanilla/include/linux/cpumask.h linux-2.6.hg/include/linux/cpumask.h
---- linux-2.6.hg.vanilla/include/linux/cpumask.h	2006-10-02 14:04:35.000000000 -0700
-+++ linux-2.6.hg/include/linux/cpumask.h	2006-10-02 13:46:53.000000000 -0700
-@@ -275,7 +275,7 @@ static inline int __cpumask_scnprintf(ch
- 
- #define cpumask_parse(ubuf, ulen, dst) \
- 			__cpumask_parse((ubuf), (ulen), &(dst), NR_CPUS)
--static inline int __cpumask_parse(const char __user *buf, int len,
-+static inline int __cpumask_parse(const char *buf, int len,
- 					cpumask_t *dstp, int nbits)
- {
- 	return bitmap_parse(buf, len, dstp->bits, nbits);
-diff -uprN -X linux-2.6.hg.vanilla/Documentation/dontdiff linux-2.6.hg.vanilla/kernel/irq/proc.c linux-2.6.hg/kernel/irq/proc.c
---- linux-2.6.hg.vanilla/kernel/irq/proc.c	2006-10-02 14:04:38.000000000 -0700
-+++ linux-2.6.hg/kernel/irq/proc.c	2006-10-02 13:46:53.000000000 -0700
-@@ -53,11 +53,22 @@ static int irq_affinity_write_proc(struc
- {
- 	unsigned int irq = (int)(long)data, full_count = count, err;
- 	cpumask_t new_value, tmp;
-+	char *kbuf;
-+	unsigned long ret;
- 
- 	if (!irq_desc[irq].chip->set_affinity || no_irq_affinity)
- 		return -EIO;
- 
--	err = cpumask_parse(buffer, count, new_value);
-+	kbuf = kmalloc(count, GFP_KERNEL);
-+	if (kbuf == NULL)
-+		return -ENOMEM;
-+	ret = copy_from_user(kbuf, buffer, count);
-+	if (ret != 0) {
-+		kfree(kbuf);
-+		return -EFAULT;
-+	}
-+	err = cpumask_parse(kbuf, count, new_value);
-+	kfree(kbuf);
- 	if (err)
- 		return err;
- 
-diff -uprN -X linux-2.6.hg.vanilla/Documentation/dontdiff linux-2.6.hg.vanilla/include/linux/nodemask.h linux-2.6.hg/include/linux/nodemask.h
---- linux-2.6.hg.vanilla/include/linux/nodemask.h	2006-10-02 14:04:36.000000000 -0700
-+++ linux-2.6.hg/include/linux/nodemask.h	2006-10-02 13:46:53.000000000 -0700
-@@ -290,7 +290,7 @@ static inline int __nodemask_scnprintf(c
- 
- #define nodemask_parse(ubuf, ulen, dst) \
- 			__nodemask_parse((ubuf), (ulen), &(dst), MAX_NUMNODES)
--static inline int __nodemask_parse(const char __user *buf, int len,
-+static inline int __nodemask_parse(const char *buf, int len,
- 					nodemask_t *dstp, int nbits)
- {
- 	return bitmap_parse(buf, len, dstp->bits, nbits);
-diff -uprN -X linux-2.6.hg.vanilla/Documentation/dontdiff linux-2.6.hg.vanilla/kernel/profile.c linux-2.6.hg/kernel/profile.c
---- linux-2.6.hg.vanilla/kernel/profile.c	2006-10-02 14:04:38.000000000 -0700
-+++ linux-2.6.hg/kernel/profile.c	2006-10-02 13:46:53.000000000 -0700
-@@ -395,8 +395,19 @@ static int prof_cpu_mask_write_proc (str
- 	cpumask_t *mask = (cpumask_t *)data;
- 	unsigned long full_count = count, err;
- 	cpumask_t new_value;
-+	char *kbuf;
-+	unsigned long ret;
- 
--	err = cpumask_parse(buffer, count, new_value);
-+	kbuf = kmalloc(count, GFP_KERNEL);
-+	if (kbuf == NULL)
-+		return -ENOMEM;
-+	ret = copy_from_user(kbuf, buffer, count);
-+	if (ret != 0) {
-+		kfree(kbuf);
-+		return -EFAULT;
-+	}
-+	err = cpumask_parse(kbuf, count, new_value);
-+	kfree(kbuf);
- 	if (err)
- 		return err;
- 
+--E39vaYmALEf/7YXx--
+
+

@@ -1,62 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964981AbWJCIDH@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030224AbWJCIEU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964981AbWJCIDH (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Oct 2006 04:03:07 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965272AbWJCIDH
+	id S1030224AbWJCIEU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Oct 2006 04:04:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030237AbWJCIEU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Oct 2006 04:03:07 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:39819 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S964981AbWJCIDF (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Oct 2006 04:03:05 -0400
-Date: Tue, 3 Oct 2006 18:02:02 +1000
-From: Greg Banks <gnb@sgi.com>
-To: Neil Brown <neilb@suse.de>
-Cc: "J. Bruce Fields" <bfields@fieldses.org>, nfs@lists.sourceforge.net,
+	Tue, 3 Oct 2006 04:04:20 -0400
+Received: from gprs189-60.eurotel.cz ([160.218.189.60]:18701 "EHLO
+	spitz.ucw.cz") by vger.kernel.org with ESMTP id S1030224AbWJCIES
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Oct 2006 04:04:18 -0400
+Date: Tue, 3 Oct 2006 08:03:53 +0000
+From: Pavel Machek <pavel@suse.cz>
+To: Andi Kleen <ak@suse.de>
+Cc: Nick Piggin <nickpiggin@yahoo.com.au>,
+       Dong Feng <middle.fengdong@gmail.com>,
+       Christoph Lameter <clameter@sgi.com>,
+       Arjan van de Ven <arjan@infradead.org>,
+       Paul Mackerras <paulus@samba.org>, David Howells <dhowells@redhat.com>,
        linux-kernel@vger.kernel.org
-Subject: Re: [NFS] [PATCH 008 of 11] knfsd: Prepare knfsd for support of	rsize/wsize of up to 1MB, over TCP.
-Message-ID: <20061003080202.GM28796@sgi.com>
-References: <20060824162917.3600.patches@notabene> <1060824063711.5008@suse.de> <20060925154316.GA17465@fieldses.org> <17697.48800.933642.581926@cse.unsw.edu.au> <20061003021304.GB12867@fieldses.org> <17697.63511.32591.797058@cse.unsw.edu.au>
+Subject: Re: How is Code in do_sys_settimeofday() safe in case of SMP and Nest Kernel Path?
+Message-ID: <20061003080352.GA4078@ucw.cz>
+References: <a2ebde260609290733m207780f0t8601e04fcf64f0a6@mail.gmail.com> <a2ebde260609290916j3a3deb9g33434ca5d93e7a84@mail.gmail.com> <451E8143.5030300@yahoo.com.au> <200609301703.45364.ak@suse.de>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <17697.63511.32591.797058@cse.unsw.edu.au>
-User-Agent: Mutt/1.5.5.1i
+In-Reply-To: <200609301703.45364.ak@suse.de>
+User-Agent: Mutt/1.5.9i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 03, 2006 at 03:41:43PM +1000, Neil Brown wrote:
-> Comments on the below?
+On Sat 30-09-06 17:03:45, Andi Kleen wrote:
+> 
+> > Did you get to the bottom of this yet? It looks like you're right,
+> > and I suggest a seqlock might be a good option.
+> 
+> It basically doesn't matter because nobody changes the time zone after boot.
 
-Looks ok, except...
+Attacker might; in a tight loop, to confuse time-of-day subsystem, or
+maybe oops the kernel.
+							Pavel
 
-> @@ -57,7 +57,8 @@ struct svc_serv {
->  	struct svc_stat *	sv_stats;	/* RPC statistics */
->  	spinlock_t		sv_lock;
->  	unsigned int		sv_nrthreads;	/* # of server threads */
-> -	unsigned int		sv_bufsz;	/* datagram buffer size */
-> +	unsigned int		sv_max_payload;	/* datagram payload size */
-> +	unsigned int		sv_max_mesg;	/* bufsz + 1 page for overheads */
-
-Presumably the comment should read "max_payload + 1 page..." ?
-
-> @@ -414,9 +415,11 @@ svc_init_buffer(struct svc_rqst *rqstp, 
->  	int pages;
->  	int arghi;
->  	
-> -	if (size > RPCSVC_MAXPAYLOAD)
-> -		size = RPCSVC_MAXPAYLOAD;
-> -	pages = 2 + (size+ PAGE_SIZE -1) / PAGE_SIZE;
-> +	if (size > RPCSVC_MAXPAYLOAD + PAGE_SIZE)
-> +		size = RPCSVC_MAXPAYLOAD + PAGE_SIZE;
-> +	pages = size + PAGE_SIZE; /* extra page as we hold both request and reply.
-> +				   * We assume one is at most one page
-> +				   */
-
-Isn't there a divide by PAGE_SIZE missing here?  Looks
-like we'll be allocating a *lot* of pages ;-)
-
-Greg.
 -- 
-Greg Banks, R&D Software Engineer, SGI Australian Software Group.
-I don't speak for SGI.
+Thanks for all the (sleeping) penguins.

@@ -1,81 +1,59 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030600AbWJCWPJ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030605AbWJCWSU@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030600AbWJCWPJ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Oct 2006 18:15:09 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030602AbWJCWPI
+	id S1030605AbWJCWSU (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Oct 2006 18:18:20 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030606AbWJCWSU
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Oct 2006 18:15:08 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:44932 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1030600AbWJCWPG (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Oct 2006 18:15:06 -0400
-Message-ID: <4522E0E0.9020404@garzik.org>
-Date: Tue, 03 Oct 2006 18:14:56 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
-MIME-Version: 1.0
-To: Frederik Deweerdt <deweerdt@free.fr>
-CC: linux-kernel@vger.kernel.org, arjan@infradead.org, matthew@wil.cx,
-       alan@lxorguk.ukuu.org.uk, akpm@osdl.org, rdunlap@xenotime.net,
-       gregkh@suse.de
-Subject: Re: [RFC PATCH] add pci_{request,free}_irq take #2
-References: <20061003220732.GE2785@slug>
-In-Reply-To: <20061003220732.GE2785@slug>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.3 (----)
-X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.3 points, 5.0 required)
+	Tue, 3 Oct 2006 18:18:20 -0400
+Received: from gundega.hpl.hp.com ([192.6.19.190]:13525 "EHLO
+	gundega.hpl.hp.com") by vger.kernel.org with ESMTP id S1030605AbWJCWST
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Oct 2006 18:18:19 -0400
+Date: Tue, 3 Oct 2006 15:16:12 -0700
+To: Linus Torvalds <torvalds@osdl.org>
+Cc: "John W. Linville" <linville@tuxdriver.com>, Jeff Garzik <jeff@garzik.org>,
+       Lee Revell <rlrevell@joe-job.com>,
+       Alessandro Suardi <alessandro.suardi@gmail.com>,
+       Norbert Preining <preining@logic.at>, hostap@shmoo.com,
+       Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
+       johannes@sipsolutions.net
+Subject: Re: wpa supplicant/ipw3945, ESSID last char missing
+Message-ID: <20061003221612.GA1790@bougret.hpl.hp.com>
+Reply-To: jt@hpl.hp.com
+References: <1159807483.4067.150.camel@mindpipe> <20061003123835.GA23912@tuxdriver.com> <1159890876.20801.65.camel@mindpipe> <Pine.LNX.4.64.0610030916000.3952@g5.osdl.org> <20061003180543.GD23912@tuxdriver.com> <4522A9BE.9000805@garzik.org> <20061003183849.GA17635@bougret.hpl.hp.com> <4522B311.7070905@garzik.org> <20061003214038.GE23912@tuxdriver.com> <Pine.LNX.4.64.0610031454420.3952@g5.osdl.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <Pine.LNX.4.64.0610031454420.3952@g5.osdl.org>
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: jt@hpl.hp.com
+User-Agent: Mutt/1.5.9i
+From: Jean Tourrilhes <jt@hpl.hp.com>
+X-HPL-MailScanner: Found to be clean
+X-HPL-MailScanner-From: jt@hpl.hp.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Frederik Deweerdt wrote:
-> +int pci_request_irq(struct pci_dev *pdev,
-> +		    irqreturn_t(*handler) (int, void *, struct pt_regs *),
-> +		    unsigned long flags, const char *name)
-> +{
-> +	if (!is_irq_valid(pdev->irq)) {
-> +		dev_printk(KERN_ERR, &pdev->dev,
-> +			   "No usable irq line was found (got #%d)\n",
-> +			   pdev->irq);
-> +		return -EINVAL;
-> +	}
-> +
-> +	return request_irq(pdev->irq, handler, flags,
-> +			   name ? name : pdev->driver->name,
-> +			   pci_get_drvdata(pdev));
-> +}
-> +EXPORT_SYMBOL(pci_request_irq);
+On Tue, Oct 03, 2006 at 02:59:16PM -0700, Linus Torvalds wrote:
+> 
+> 
+> On Tue, 3 Oct 2006, John W. Linville wrote:
+> >
+> > I.E.  With "WE-21 aware" tools already in the wild, it isn't now clear
+> > to me how WE can evolve any further than WE-20.
+> 
+> Well, if you get a WE-22 out soon enough, the situation will be one where 
+> people who are fast at updating will have a fixed version quickly, and the 
+> ones that aren't quick at updating will never have even seen the broken 
+> case.
 
-> +void pci_free_irq(struct pci_dev *pdev)
-> +{
-> +	free_irq(pdev->irq, pci_get_drvdata(pdev));
-> +}
-> +EXPORT_SYMBOL(pci_free_irq);
+	Wrong.
+	Slackware has just released with WE-21 aware tools. Users of
+this version of Slackware will never see anything else than WE-21
+aware tools. And if there is a distro and users which are
+conservative, this is Slackware.
+	Same deal for Mandriva 2007.
+	Regards,
 
-ACK these parts
-
-
-> Index: 2.6.18-mm3/include/linux/interrupt.h
-> ===================================================================
-> --- 2.6.18-mm3.orig/include/linux/interrupt.h
-> +++ 2.6.18-mm3/include/linux/interrupt.h
-> @@ -75,6 +75,13 @@ struct irqaction {
->  	struct proc_dir_entry *dir;
->  };
->  
-> +#ifndef ARCH_VALIDATE_PCI_IRQ
-> +static inline int is_irq_valid(unsigned int irq)
-> +{
-> +	return irq ? 1 : 0;
-> +}
-> +#endif /* ARCH_VALIDATE_PCI_IRQ */
-
-It's not appropriate to have PCI IRQ stuff in linux/interrupt.h.
-
-This is precisely why I passed 'struct pci_dev *' to a PCI-specific irq 
-validation function, and prototyped it in linux/pci.h.
-
-	Jeff
-
-
+	Jean

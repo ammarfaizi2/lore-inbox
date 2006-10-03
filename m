@@ -1,40 +1,44 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030290AbWJCKyp@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030296AbWJCK6o@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030290AbWJCKyp (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Oct 2006 06:54:45 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030294AbWJCKyp
+	id S1030296AbWJCK6o (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Oct 2006 06:58:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030298AbWJCK6o
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Oct 2006 06:54:45 -0400
-Received: from zeniv.linux.org.uk ([195.92.253.2]:62893 "EHLO
-	ZenIV.linux.org.uk") by vger.kernel.org with ESMTP id S1030290AbWJCKyo
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Oct 2006 06:54:44 -0400
-Date: Tue, 3 Oct 2006 11:54:35 +0100
-From: Al Viro <viro@ftp.linux.org.uk>
-To: David Howells <dhowells@redhat.com>
-Cc: David Miller <davem@davemloft.net>, akpm@osdl.org,
-       linux-kernel@vger.kernel.org, axboe@suse.de
-Subject: Re: linux/compat.h includes asm/signal.h causing problems
-Message-ID: <20061003105435.GG29920@ftp.linux.org.uk>
-References: <20061002.141850.18280315.davem@davemloft.net> <20061002.131414.74728780.davem@davemloft.net> <20061002135036.7bd1f76b.akpm@osdl.org> <20061002.140437.78732307.davem@davemloft.net> <9802.1159868725@warthog.cambridge.redhat.com>
+	Tue, 3 Oct 2006 06:58:44 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:48875 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1030296AbWJCK6n (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Oct 2006 06:58:43 -0400
+Subject: Re: Undefined '.bus_to_virt', '.virt_to_bus' causes compile error
+	on Powerpc 64-bit
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
+Cc: Judith Lebzelter <judith@osdl.org>, linux-kernel@vger.kernel.org,
+       linuxppc-dev@ozlabs.org
+In-Reply-To: <1159837539.5482.15.camel@localhost.localdomain>
+References: <20061002214954.GD665@shell0.pdx.osdl.net>
+	 <1159837539.5482.15.camel@localhost.localdomain>
+Content-Type: text/plain
+Content-Transfer-Encoding: 7bit
+Date: Tue, 03 Oct 2006 12:23:16 +0100
+Message-Id: <1159874596.17553.11.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <9802.1159868725@warthog.cambridge.redhat.com>
-User-Agent: Mutt/1.4.1i
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 03, 2006 at 10:45:25AM +0100, David Howells wrote:
-> David Miller <davem@davemloft.net> wrote:
-> 
-> > > I'm working on a patch that puts the compat signal bits into
-> > > include/asm-sparc64/compat_signal.h and adds the necessary
-> > > includes to a few *.c files under arch/sparc64 when needed.
+Ar Maw, 2006-10-03 am 11:05 +1000, ysgrifennodd Benjamin Herrenschmidt:
+> On Mon, 2006-10-02 at 14:49 -0700, Judith Lebzelter wrote:
+> > Hello:
 > > 
-> > Ok, this seems to work and is what I'll sent to Linus.
+> > For the automated cross-compile builds at OSDL, powerpc 64-bit 
+> > 'allmodconfig' is failing.  The warnings/errors below appear in 
+> > the 'modpost' stage of kernel compiles for 2.6.18 and -mm2 kernels.
 > 
-> Do you have an x86-hosted or an x86_64-hosted cross-compiler that targets
-> sparc/sparc64?
+> All those drivers are bogus and need to be updated. They should be
+> marked CONFIG_BROKEN
 
-I do, it's not a problem...
+Several of them are only really meaningful on PC so marking them BROKEN
+is the wrong answer. Some of them definitely do need updating but stuff
+like the remaining OSS drivers are just waiting to die out quietly.
+

@@ -1,53 +1,92 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030200AbWJCBGO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030198AbWJCBIY@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030200AbWJCBGO (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Oct 2006 21:06:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030202AbWJCBGO
+	id S1030198AbWJCBIY (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Oct 2006 21:08:24 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030202AbWJCBIY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Oct 2006 21:06:14 -0400
-Received: from smtp.osdl.org ([65.172.181.4]:29331 "EHLO smtp.osdl.org")
-	by vger.kernel.org with ESMTP id S1030200AbWJCBGN (ORCPT
+	Mon, 2 Oct 2006 21:08:24 -0400
+Received: from havoc.gtf.org ([69.61.125.42]:4031 "EHLO havoc.gtf.org")
+	by vger.kernel.org with ESMTP id S1030198AbWJCBIX (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Oct 2006 21:06:13 -0400
-Date: Mon, 2 Oct 2006 18:06:03 -0700
-From: Andrew Morton <akpm@osdl.org>
-To: Mark Nipper <nipsy@bitgnome.net>
-Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
-Subject: Re: kernel: pageout: orphaned page with reiserfs v3 in data=journal
- mode under 2.6.18
-Message-Id: <20061002180603.b19bfbd0.akpm@osdl.org>
-In-Reply-To: <20061002170353.GA26816@king.bitgnome.net>
-References: <20061002170353.GA26816@king.bitgnome.net>
-X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+	Mon, 2 Oct 2006 21:08:23 -0400
+Date: Mon, 2 Oct 2006 21:08:22 -0400
+From: Jeff Garzik <jeff@garzik.org>
+To: Andrew Morton <akpm@osdl.org>, Linus Torvalds <torvalds@osdl.org>
+Cc: netdev@vger.kernel.org, LKML <linux-kernel@vger.kernel.org>
+Subject: [PATCH] hp100: fix conditional compilation mess
+Message-ID: <20061003010822.GA29176@havoc.gtf.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=US-ASCII
-Content-Transfer-Encoding: 7bit
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2 Oct 2006 12:03:54 -0500
-Mark Nipper <nipsy@bitgnome.net> wrote:
+The previous hp100 changeset attempted to kill warnings, but was only
+tested on !CONFIG_ISA platforms.  The correct conditional compilation
+setup involves tested CONFIG_ISA rather than just MODULE.
 
->         I saw this in my logs earlier today:
-> ---
-> kernel: pageout: orphaned page
-> 
->         It's the first time I've seen it on this box, but I also
-> just switched to data=journal mode for all of my reiserfs mounts
-> yesterday after a hard drive died in a software RAID-1 volume
-> (which incidentally caused some thankfully repairable file system
-> damage after a --rebuild-tree seemingly because even though the
-> hard drive which was failing was reporting uncorrectable errors
-> to the kernel, the software RAID system never failed the drive
-> out of the volume but instead kept trying to use it).
-> 
->         Anyway, just wondering if the message is bad actually as
-> in it indicates some memory leak will bring down my server at
-> some point or if it's just a corner case which someone felt the
-> need to document whenever it happens.
+Fixes link on CONFIG_ISA platforms (i386) in current -git.
 
-I think that's a piece of temporary debugging code which I put in there in
-a fit of curiosity and which I then promptly forgot about.
+Signed-off-by: Jeff Garzik <jeff@garzik.org>
 
-It's been in there since March 2005 and you are the first person who has
-reported seeing the message...
+---
+
+ drivers/net/Space.c |    2 +-
+ drivers/net/hp100.c |    8 +++++---
+ 2 files changed, 6 insertions(+), 4 deletions(-)
+
+diff --git a/drivers/net/Space.c b/drivers/net/Space.c
+index 9953201..a67f5ef 100644
+--- a/drivers/net/Space.c
++++ b/drivers/net/Space.c
+@@ -165,7 +165,7 @@ #endif
+  * look for EISA/PCI/MCA cards in addition to ISA cards).
+  */
+ static struct devprobe2 isa_probes[] __initdata = {
+-#ifdef CONFIG_HP100 		/* ISA, EISA & PCI */
++#if defined(CONFIG_HP100) && defined(CONFIG_ISA)	/* ISA, EISA */
+ 	{hp100_probe, 0},
+ #endif
+ #ifdef CONFIG_3C515
+diff --git a/drivers/net/hp100.c b/drivers/net/hp100.c
+index 561db44..ae8ad4f 100644
+--- a/drivers/net/hp100.c
++++ b/drivers/net/hp100.c
+@@ -188,7 +188,7 @@ struct hp100_private {
+ /*
+  *  variables
+  */
+-#ifndef MODULE
++#ifdef CONFIG_ISA
+ static const char *hp100_isa_tbl[] = {
+ 	"HWPF150", /* HP J2573 rev A */
+ 	"HWP1950", /* HP J2573 */
+@@ -335,7 +335,7 @@ static __devinit const char *hp100_read_
+ 	return str;
+ }
+ 
+-#ifndef MODULE
++#ifdef CONFIG_ISA
+ static __init int hp100_isa_probe1(struct net_device *dev, int ioaddr)
+ {
+ 	const char *sig;
+@@ -393,7 +393,9 @@ static int  __init hp100_isa_probe(struc
+ 	}
+ 	return err;
+ }
++#endif /* CONFIG_ISA */
+ 
++#if !defined(MODULE) && defined(CONFIG_ISA)
+ struct net_device * __init hp100_probe(int unit)
+ {
+ 	struct net_device *dev = alloc_etherdev(sizeof(struct hp100_private));
+@@ -423,7 +425,7 @@ #endif
+ 	free_netdev(dev);
+ 	return ERR_PTR(err);
+ }
+-#endif
++#endif /* !MODULE && CONFIG_ISA */
+ 
+ static int __devinit hp100_probe1(struct net_device *dev, int ioaddr,
+ 				  u_char bus, struct pci_dev *pci_dev)

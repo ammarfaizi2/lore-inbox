@@ -1,45 +1,38 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964872AbWJCK3f@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030261AbWJCKcF@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964872AbWJCK3f (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Oct 2006 06:29:35 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964879AbWJCK3f
+	id S1030261AbWJCKcF (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Oct 2006 06:32:05 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030254AbWJCKcF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Oct 2006 06:29:35 -0400
-Received: from emailer.gwdg.de ([134.76.10.24]:31962 "EHLO emailer.gwdg.de")
-	by vger.kernel.org with ESMTP id S964872AbWJCK3e (ORCPT
+	Tue, 3 Oct 2006 06:32:05 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:10945 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1030220AbWJCKcC (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Oct 2006 06:29:34 -0400
-Date: Tue, 3 Oct 2006 12:28:41 +0200 (MEST)
-From: Jan Engelhardt <jengelh@linux01.gwdg.de>
-To: Willy Tarreau <w@1wt.eu>
-cc: Drew Scott Daniels <ddaniels@UMAlumni.mb.ca>, linux-kernel@vger.kernel.org
-Subject: Re: Smaller compressed kernel source tarballs?
-In-Reply-To: <20061002033531.GA5050@1wt.eu>
-Message-ID: <Pine.LNX.4.61.0610031227420.32633@yvahk01.tjqt.qr>
-References: <20061002033511.GB12695@zimmer> <20061002033531.GA5050@1wt.eu>
-MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
-X-Spam-Report: Content analysis: 0.0 points, 6.0 required
-	_SUMMARY_
+	Tue, 3 Oct 2006 06:32:02 -0400
+From: David Howells <dhowells@redhat.com>
+In-Reply-To: <10243.1159869674@warthog.cambridge.redhat.com> 
+References: <10243.1159869674@warthog.cambridge.redhat.com>  <20061002201836.GB31365@elte.hu> <20061002162049.17763.39576.stgit@warthog.cambridge.redhat.com> <20061002162053.17763.26032.stgit@warthog.cambridge.redhat.com> <20061002132116.2663d7a3.akpm@osdl.org> 
+To: David Howells <dhowells@redhat.com>
+Cc: Ingo Molnar <mingo@elte.hu>, Andrew Morton <akpm@osdl.org>,
+       Thomas Gleixner <tglx@linutronix.de>, torvalds@osdl.org,
+       linux-kernel@vger.kernel.org, linux-arch@vger.kernel.org,
+       Dmitry Torokhov <dtor@mail.ru>, Greg KH <greg@kroah.com>,
+       David Brownell <david-b@pacbell.net>,
+       Alan Stern <stern@rowland.harvard.edu>
+Subject: Re: [PATCH 3/3] IRQ: Maintain regs pointer globally rather than passing to IRQ handlers 
+X-Mailer: MH-E 8.0; nmh 1.1; GNU Emacs 22.0.50
+Date: Tue, 03 Oct 2006 11:30:04 +0100
+Message-ID: <10922.1159871404@warthog.cambridge.redhat.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+David Howells <dhowells@redhat.com> wrote:
 
->> ppmd, also in Debian had better compression than lzma. PAQ8i has even
->> better compression, but isn't in Debian. See the maximumcompression web
->> site or other archive comparison tests.
->
->Interesting. But I suspect that you have not checked the compression time.
->PAQ8I for instance is between 100 and 300 times SLOWER than bzip2 to achieve
->about 30% smaller ! Given that the kernel already takes a very long time to
->compress with bzip2, it would take several hours to compress it with such
->tools. While they're very interesting proofs of concept for compression
->research, they're not suited to any real world usage !
+> I wish.  No, it's not simple enough to script.  All the usages of struct
+> pt_regs have to be eyeballed and have to be poked with the compiler.  The
+> problem is when an interrupt handler passes regs down to someone else - that I
+> can't find.
 
-There are lots of obscure compression formats that achieve somewhat 
-better compression at the cost of MUCH more time (neglecting they are 
-not too open), such as MS CAB and ACE.
+Can't find with grep, I mean.
 
-
-Jan Engelhardt
--- 
+David

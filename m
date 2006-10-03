@@ -1,107 +1,45 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030606AbWJCWTi@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030610AbWJCWUP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030606AbWJCWTi (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Oct 2006 18:19:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030607AbWJCWTi
+	id S1030610AbWJCWUP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Oct 2006 18:20:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030612AbWJCWUO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Oct 2006 18:19:38 -0400
-Received: from hu-out-0506.google.com ([72.14.214.230]:50708 "EHLO
-	hu-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1030606AbWJCWTh (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Oct 2006 18:19:37 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent:sender;
-        b=qrqLWtPlOJOTycMvvJVAWy/oizPHBSGX/KA8/1KcRJOX+nTjd1vbSxDY3D0RqNoJyTx1xAg4B6DDK7Hp/bdFATiaxekQwf8sl13rG4L24FBmTLX3cIQIrPFOCvVbeEbgV6MWutjlurzD3zhG/WUKbbn46YrM6PrG1DypH78lkc8=
-Date: Tue, 3 Oct 2006 22:19:17 +0000
-From: Frederik Deweerdt <deweerdt@free.fr>
-To: linux-kernel@vger.kernel.org
-Cc: arjan@infradead.org, matthew@wil.cx, alan@lxorguk.ukuu.org.uk,
-       jeff@garzik.org, akpm@osdl.org, rdunlap@xenotime.net, gregkh@suse.de
-Subject: [RFC PATCH] move aic79xx to pci_request_irq
-Message-ID: <20061003221917.GG2785@slug>
-References: <20061003220732.GE2785@slug>
-MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061003220732.GE2785@slug>
-User-Agent: mutt-ng/devel-r804 (Linux)
+	Tue, 3 Oct 2006 18:20:14 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:35815 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030611AbWJCWUL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Oct 2006 18:20:11 -0400
+Date: Tue, 3 Oct 2006 15:10:34 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Pierre Ossman <drzeus@drzeus.cx>
+Cc: rmk+lkml@arm.linux.org.uk, Pierre Ossman <drzeus-list@drzeus.cx>,
+       linux-kernel@vger.kernel.org
+Subject: Re: [PATCH] [MMC] Multi sector write transfers
+Message-Id: <20061003151034.a7894df8.akpm@osdl.org>
+In-Reply-To: <20061001124257.17012.78166.stgit@poseidon.drzeus.cx>
+References: <20061001124257.17012.78166.stgit@poseidon.drzeus.cx>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi,
 
-This proof-of-concept patch converts the aic79xx driver to use the
-pci_request_irq() function.
+Russell is moving away from mmc maintainership so we'll need to do
+something different here.
 
-Please note that I'm not submitting the driver changes, they're there
-only for illustration purposes. I'll CC the appropriate maintainers
-when/if an API is agreed upon.
+The patches look good to my untrained eye, except...
 
-Regards,
-Frederik 
+On Sun, 01 Oct 2006 14:42:57 +0200
+Pierre Ossman <drzeus@drzeus.cx> wrote:
 
+> SD cards extend the protocol by allowing the host to query a card how many
+> blocks were successfully stored on the medium. This allows us to safely write
+> chunks of blocks at once.
 
-diff --git a/drivers/scsi/aic7xxx/aic79xx_osm.h b/drivers/scsi/aic7xxx/aic79xx_osm.h
-index 448c39c..67897d4 100644
-Index: 2.6.18-mm3/drivers/scsi/aic7xxx/aic79xx_osm.h
-===================================================================
---- 2.6.18-mm3.orig/drivers/scsi/aic7xxx/aic79xx_osm.h
-+++ 2.6.18-mm3/drivers/scsi/aic7xxx/aic79xx_osm.h
-@@ -594,7 +594,6 @@ void ahd_power_state_change(struct ahd_s
- int			 ahd_linux_pci_init(void);
- void			 ahd_linux_pci_exit(void);
- int			 ahd_pci_map_registers(struct ahd_softc *ahd);
--int			 ahd_pci_map_int(struct ahd_softc *ahd);
- 
- static __inline uint32_t ahd_pci_read_config(ahd_dev_softc_t pci,
- 					     int reg, int width);
-Index: 2.6.18-mm3/drivers/scsi/aic7xxx/aic79xx_osm_pci.c
-===================================================================
---- 2.6.18-mm3.orig/drivers/scsi/aic7xxx/aic79xx_osm_pci.c
-+++ 2.6.18-mm3/drivers/scsi/aic7xxx/aic79xx_osm_pci.c
-@@ -336,19 +336,6 @@ ahd_pci_map_registers(struct ahd_softc *
- 	return (error);
- }
- 
--int
--ahd_pci_map_int(struct ahd_softc *ahd)
--{
--	int error;
--
--	error = request_irq(ahd->dev_softc->irq, ahd_linux_isr,
--			    IRQF_SHARED, "aic79xx", ahd);
--	if (!error)
--		ahd->platform_data->irq = ahd->dev_softc->irq;
--	
--	return (-error);
--}
--
- void
- ahd_power_state_change(struct ahd_softc *ahd, ahd_power_state new_state)
- {
-Index: 2.6.18-mm3/drivers/scsi/aic7xxx/aic79xx_pci.c
-===================================================================
---- 2.6.18-mm3.orig/drivers/scsi/aic7xxx/aic79xx_pci.c
-+++ 2.6.18-mm3/drivers/scsi/aic7xxx/aic79xx_pci.c
-@@ -376,10 +376,18 @@ ahd_pci_config(struct ahd_softc *ahd, st
- 
- 	/*
- 	 * Allow interrupts now that we are completely setup.
-+	 *
-+	 * Note: pci_request_irq return value is negated due to aic79xx
-+	 * error handling style
- 	 */
--	error = ahd_pci_map_int(ahd);
--	if (!error)
-+
-+	error = -pci_request_irq(ahd->dev_softc, ahd_linux_isr,
-+				 IRQF_SHARED, "aic79xx");
-+	if (!error) {
-+		ahd->platform_data->irq = ahd->dev_softc->irq;
- 		ahd->init_level++;
-+	}
-+
- 	return error;
- }
- 
+I recall Russell nacked multisector mmc-writing when it came up six or
+twelve months ago.  I don't recall the exact details - lack of trust in
+manufacturers supporting it correctly?
+
+Is that concern relevant to this patch?

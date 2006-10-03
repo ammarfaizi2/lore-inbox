@@ -1,53 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964889AbWJCSUO@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964898AbWJCSXt@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964889AbWJCSUO (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Oct 2006 14:20:14 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964893AbWJCSUO
+	id S964898AbWJCSXt (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Oct 2006 14:23:49 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964899AbWJCSXs
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Oct 2006 14:20:14 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:11241 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S964889AbWJCSUL (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Oct 2006 14:20:11 -0400
-Message-ID: <4522A9BE.9000805@garzik.org>
-Date: Tue, 03 Oct 2006 14:19:42 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
-MIME-Version: 1.0
-To: "John W. Linville" <linville@tuxdriver.com>
-CC: Linus Torvalds <torvalds@osdl.org>, Lee Revell <rlrevell@joe-job.com>,
-       Alessandro Suardi <alessandro.suardi@gmail.com>,
-       Norbert Preining <preining@logic.at>, hostap@shmoo.com,
-       ipw3945-devel@lists.sourceforge.net, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, johannes@sipsolutions.net, jt@hpl.hp.com
-Subject: Re: wpa supplicant/ipw3945, ESSID last char missing
-References: <20061002085942.GA32387@gamma.logic.tuwien.ac.at> <5a4c581d0610020221s7bf100f8q893161b7c8c492d2@mail.gmail.com> <1159807483.4067.150.camel@mindpipe> <20061003123835.GA23912@tuxdriver.com> <1159890876.20801.65.camel@mindpipe> <Pine.LNX.4.64.0610030916000.3952@g5.osdl.org> <20061003180543.GD23912@tuxdriver.com>
-In-Reply-To: <20061003180543.GD23912@tuxdriver.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 3 Oct 2006 14:23:48 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:56026 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S964898AbWJCSXr (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Oct 2006 14:23:47 -0400
+Subject: Re: [patch] remove MNT_NOEXEC check for PROT_EXEC mmaps
+From: Arjan van de Ven <arjan@infradead.org>
+To: Stas Sergeev <stsp@aknet.ru>
+Cc: Linux kernel <linux-kernel@vger.kernel.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Hugh Dickins <hugh@veritas.com>,
+       Ulrich Drepper <drepper@redhat.com>, Valdis.Kletnieks@vt.edu
+In-Reply-To: <45229A99.6060703@aknet.ru>
+References: <45150CD7.4010708@aknet.ru>
+	 <Pine.LNX.4.64.0609231555390.27012@blonde.wat.veritas.com>
+	 <451555CB.5010006@aknet.ru>
+	 <Pine.LNX.4.64.0609231647420.29557@blonde.wat.veritas.com>
+	 <1159037913.24572.62.camel@localhost.localdomain>
+	 <45162BE5.2020100@aknet.ru>
+	 <1159106032.11049.12.camel@localhost.localdomain>
+	 <45169C0C.5010001@aknet.ru> <4516A8E3.4020100@redhat.com>
+	 <4516B2C8.4050202@aknet.ru> <4516B721.5070801@redhat.com>
+	 <45198395.4050008@aknet.ru>
+	 <1159396436.3086.51.camel@laptopd505.fenrus.org> <451E3C0C.10105@aknet.ru>
+	 <1159887682.2891.537.camel@laptopd505.fenrus.org>
+	 <45229A99.6060703@aknet.ru>
+Content-Type: text/plain
+Organization: Intel International BV
+Date: Tue, 03 Oct 2006 20:23:39 +0200
+Message-Id: <1159899820.2891.542.camel@laptopd505.fenrus.org>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
 Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.3 (----)
-X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.3 points, 5.0 required)
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-John W. Linville wrote:
-> The more we can clean-up the WE API, the easier it will be to implement
-> the cfg80211 WE compatibility layer intended for wireless-dev.
-> I think WE-21 makes things better in that respect.
+>  point. :)
 > 
-> Finally, I already scaled-back Jean's original WE-21 patch.  I only
-> anticipate minor bug fixes for WE from now on, with nl80211/cfg80211
-> as the heir-apparent.
+> > What breaks?
+> You missed the beginning of the discussion, but briefly:
+> http://bugs.debian.org/cgi-bin/bugreport.cgi?bug=386945
+> ... breaks UML and dosemu.
+> Also I speculate that it makes Wine slower causing it to
+> fallback to read() if the windows partition is mounted with
+> "noexec" (which I think is/was common). In that case people
+> will never figure out why Wine suddenly became slower and
+> more memory-consuming than before.
+
+BUT THIS IS MADNESS!
+
+you do "noexec" and then complain that executing (!!) windows binaries
+from that gets more of a problem!
+
 > 
-> With all that said, I'd prefer to keep the existing WE-21 patches and
-> add Jean's fixes ASAP.  Is this acceptable?  If not, I'll submit the
-> reversions to Jeff ASAP.
-
-I for one don't want to change the userspace ABI for this...  If I had 
-realized the userspace ABI was changing (<- my fault), I wouldn't have 
-merged the changes in the first place.
-
-	Jeff
-
+-- 
+if you want to mail me at work (you don't), use arjan (at) linux.intel.com
 

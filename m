@@ -1,74 +1,89 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030581AbWJCWAe@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030583AbWJCWAs@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030581AbWJCWAe (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Oct 2006 18:00:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030583AbWJCWAe
+	id S1030583AbWJCWAs (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Oct 2006 18:00:48 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030585AbWJCWAr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Oct 2006 18:00:34 -0400
-Received: from hera.kernel.org ([140.211.167.34]:11716 "EHLO hera.kernel.org")
-	by vger.kernel.org with ESMTP id S1030581AbWJCWAd (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Oct 2006 18:00:33 -0400
-To: linux-kernel@vger.kernel.org
-From: Stephen Hemminger <shemminger@osdl.org>
-Subject: Re: Registration Weakness in Linux Kernel's Binary formats
-Date: Tue, 3 Oct 2006 14:59:54 -0700
-Organization: OSDL
-Message-ID: <20061003145954.06b2aa49@freekitty>
-References: <1df1788c0610031425p4f1ca206teb05590a91eb7659@mail.gmail.com>
-	<198AC4CE-A2CC-41DB-8D53-BDFB7959781B@mac.com>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=UTF-8
-X-Trace: build.pdx.osdl.net 1159912795 24966 10.8.0.54 (3 Oct 2006 21:59:55 GMT)
-X-Complaints-To: abuse@osdl.org
-NNTP-Posting-Date: Tue, 3 Oct 2006 21:59:55 +0000 (UTC)
-X-Newsreader: Sylpheed-Claws 2.5.0-rc3 (GTK+ 2.10.5; i486-pc-linux-gnu)
-Content-Transfer-Encoding: 8bit
-X-MIME-Autoconverted: from quoted-printable to 8bit by hera.kernel.org id k93Lxuuj031228
+	Tue, 3 Oct 2006 18:00:47 -0400
+Received: from wx-out-0506.google.com ([66.249.82.232]:182 "EHLO
+	wx-out-0506.google.com") by vger.kernel.org with ESMTP
+	id S1030583AbWJCWAp (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Oct 2006 18:00:45 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:content-type:content-transfer-encoding;
+        b=NZK1bBDex3GGw1cHOWFFzyleeFn4CN4wEMs5aMzpK7/eQcG7blgQVric2WcOStDH0L1uUFdPLD6ZL8KzqwVCDkcVMxPhiH5nZl03C8vMuX5BcApe9UI/R7likxPtjeaOBoueB1/nkkWYAhn4hWCI8nfhWFszF0KW7dJBFUyHIuQ=
+Message-ID: <4522DDBF.3070701@gmail.com>
+Date: Tue, 03 Oct 2006 16:01:35 -0600
+From: Jim Cromie <jim.cromie@gmail.com>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060909)
+MIME-Version: 1.0
+To: Linux kernel <linux-kernel@vger.kernel.org>
+CC: Andrew Morton <akpm@osdl.org>
+Subject: [patch 2.6.18+ ] scx200_hrt - fix precedence bug manifesting as 27x
+ clock in 1 MHz mode
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 3 Oct 2006 17:53:30 -0400
-Kyle Moffett <mrmacman_g4@mac.com> wrote:
 
-> On Oct 03, 2006, at 17:25:07, Bráulio Oliveira wrote:
-> > Just forwarding....
-> 
-> Well, you could have checked the list archives first to make sure the  
-> idiot didn't send it here himself.  Secondly if you're going to  
-> forward something like this best send it to security@kernel.org first.
-> 
-> Of course, it's partially the abovementioned idiot's fault for BCCing  
-> a mailing list and several others:
-> > To: undisclosed-recipients
-> 
-> > Hello,
-> > The present document aims to demonstrate a design weakness found in  
-> > the
-> > handling of simply linked   lists   used   to   register   binary    
-> > formats   handled   by Linux   kernel,   and   affects   all    
-> > the   kernel families (2.0/2.2/2.4/2.6), allowing the insertion of  
-> > infection modules in kernel  space that can be used by malicious  
-> > users to create infection tools, for example rootkits.
-> 
-> Would be nice if I could get to your paper to actually read it, but  
-> as it returns a 404 error I'm going to make one brief statement:
-> 
-> If you can load another binary format or access the "simply linked  
-> lists" of the binfmt chain in any way, then you're root and therefore  
-> there are easier ways to own the box than patching the kernel.
-> 
-> Cheers,
-> Kyle Moffett
+Fix paren-placement / precedence bug breaking initialization for 1 MHz 
+clock mode.
+Also fixes comment spelling error, and fence-post (off-by-one) error on 
+symbol
+used in request_region.
 
-I looked at it, basically his argument which is all flowered up in pretty
-pictures and security vulnerability language is:
+Signed-off-by:  Jim Cromie <jim.cromie@gmail.com>
+---
 
-   If root loads a buggy module then the module can be used to compromise
-   the system.
+ drivers/clocksource/scx200_hrt.c |    4 ++--
+ include/linux/scx200.h           |    2 +-
+ 2 files changed, 3 insertions(+), 3 deletions(-)
 
-Well isn't that surprising.
+this patch fixes http://bugzilla.kernel.org/show_bug.cgi?id=7242
+but I cannot close it, so I'll leave it to those so empowered.
 
--- 
-Stephen Hemminger <shemminger@osdl.org>
+should be ok for -stable, if the spelling correction doesnt break the rules.
+The fence-post error is real, just not caught on x86, AFAICT.
+
+Thanks alexander.krause@erazor-zone.de, dzpost@dedekind.net, for the 
+reports and patch test,
+and phelps@mantara.com for the independent patch and verification.
+
+
+diff -ruNp -X dontdiff -X exclude-diffs ../linux-2.6.18-sk/drivers/clocksource/scx200_hrt.c debug/drivers/clocksource/scx200_hrt.c
+--- ../linux-2.6.18-sk/drivers/clocksource/scx200_hrt.c	2006-09-19 23:58:35.000000000 -0600
++++ debug/drivers/clocksource/scx200_hrt.c	2006-10-03 14:05:27.000000000 -0600
+@@ -63,7 +63,7 @@ static struct clocksource cs_hrt = {
+ 
+ static int __init init_hrt_clocksource(void)
+ {
+-	/* Make sure scx200 has initializedd the configuration block */
++	/* Make sure scx200 has initialized the configuration block */
+ 	if (!scx200_cb_present())
+ 		return -ENODEV;
+ 
+@@ -76,7 +76,7 @@ static int __init init_hrt_clocksource(v
+ 	}
+ 
+ 	/* write timer config */
+-	outb(HR_TMEN | (mhz27) ? HR_TMCLKSEL : 0,
++	outb(HR_TMEN | (mhz27 ? HR_TMCLKSEL : 0),
+ 	     scx200_cb_base + SCx200_TMCNFG_OFFSET);
+ 
+ 	if (mhz27) {
+diff -ruNp -X dontdiff -X exclude-diffs ../linux-2.6.18-sk/include/linux/scx200.h debug/include/linux/scx200.h
+--- ../linux-2.6.18-sk/include/linux/scx200.h	2006-09-20 00:00:59.000000000 -0600
++++ debug/include/linux/scx200.h	2006-10-03 09:18:50.000000000 -0600
+@@ -32,7 +32,7 @@ extern unsigned scx200_cb_base;
+ 
+ /* High Resolution Timer */
+ #define SCx200_TIMER_OFFSET 0x08
+-#define SCx200_TIMER_SIZE 0x05
++#define SCx200_TIMER_SIZE 0x06
+ 
+ /* Clock Generators */
+ #define SCx200_CLOCKGEN_OFFSET 0x10
+
 

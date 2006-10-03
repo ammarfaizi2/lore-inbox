@@ -1,80 +1,217 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030487AbWJCTiw@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1750991AbWJCToP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030487AbWJCTiw (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Oct 2006 15:38:52 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750942AbWJCTiv
+	id S1750991AbWJCToP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Oct 2006 15:44:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1750981AbWJCToP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Oct 2006 15:38:51 -0400
-Received: from mail.aknet.ru ([82.179.72.26]:16136 "EHLO mail.aknet.ru")
-	by vger.kernel.org with ESMTP id S1750893AbWJCTiv (ORCPT
+	Tue, 3 Oct 2006 15:44:15 -0400
+Received: from smtp4-g19.free.fr ([212.27.42.30]:58270 "EHLO smtp4-g19.free.fr")
+	by vger.kernel.org with ESMTP id S1750893AbWJCToO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Oct 2006 15:38:51 -0400
-Message-ID: <4522BCBF.2050508@aknet.ru>
-Date: Tue, 03 Oct 2006 23:40:47 +0400
-From: Stas Sergeev <stsp@aknet.ru>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
+	Tue, 3 Oct 2006 15:44:14 -0400
+Message-ID: <4522BD8B.5070101@free.fr>
+Date: Tue, 03 Oct 2006 21:44:11 +0200
+From: matthieu castet <castet.matthieu@free.fr>
+User-Agent: Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.7.13) Gecko/20060809 Debian/1.7.13-0.3
+X-Accept-Language: fr-fr, en, en-us
 MIME-Version: 1.0
-To: Ulrich Drepper <drepper@redhat.com>
-Cc: Arjan van de Ven <arjan@infradead.org>,
-       Linux kernel <linux-kernel@vger.kernel.org>,
-       Alan Cox <alan@lxorguk.ukuu.org.uk>, Hugh Dickins <hugh@veritas.com>,
-       Valdis.Kletnieks@vt.edu
-Subject: Re: [patch] remove MNT_NOEXEC check for PROT_EXEC mmaps
-References: <45150CD7.4010708@aknet.ru>	 <Pine.LNX.4.64.0609231555390.27012@blonde.wat.veritas.com>	 <451555CB.5010006@aknet.ru>	 <Pine.LNX.4.64.0609231647420.29557@blonde.wat.veritas.com>	 <1159037913.24572.62.camel@localhost.localdomain>	 <45162BE5.2020100@aknet.ru>	 <1159106032.11049.12.camel@localhost.localdomain>	 <45169C0C.5010001@aknet.ru> <4516A8E3.4020100@redhat.com>	 <4516B2C8.4050202@aknet.ru> <4516B721.5070801@redhat.com>	 <45198395.4050008@aknet.ru>	 <1159396436.3086.51.camel@laptopd505.fenrus.org>  <451E3C0C.10105@aknet.ru> <1159887682.2891.537.camel@laptopd505.fenrus.org> <45229A99.6060703@aknet.ru> <45229C8E.6080503@redhat.com> <4522A691.7070700@aknet.ru> <4522B7CD.4040206@redhat.com>
-In-Reply-To: <4522B7CD.4040206@redhat.com>
-Content-Type: text/plain; charset=UTF-8; format=flowed
-Content-Transfer-Encoding: 7bit
+To: greg@kroah.com
+CC: linux-kernel@vger.kernel.org, usbatm@lists.infradead.org,
+       linux-usb-devel@lists.sourceforge.net, ueagle <ueagleatm-dev@gna.org>
+Subject: [PATCH 1/3] UEAGLE : comestic 
+Content-Type: multipart/mixed;
+ boundary="------------010808040602090101090703"
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hello.
+This is a multi-part message in MIME format.
+--------------010808040602090101090703
+Content-Type: text/plain; charset=us-ascii; format=flowed
+Content-Transfer-Encoding: 7bit
 
-Ulrich Drepper wrote:
-> You really don't get it, do you.
-Yes, sorry. :)
+Hi,
 
-> The way ld.so works can be implemented
-> in many other forms with other programs.
-Having "noexec" (in its older form) on *every* user-writable
-mount makes it harder for an attacker to run his own loaders,
-so implementing it in other forms was useless in the past.
+this patch do some ommestic changes :
+- dump firwmare version as soon as possible and export it on sysfs
+- hint about wrong cmv/dsp
+- Display a message to warn user when the modem is ready : it can help 
+people to detect problems on the line without debug trace
+- Fix wrong indent
+- display modem type (pots/isdn)
+- increase version number
 
-> With some time and energy you
-> likely can write a perl or python script to do it.
-This is solvable the same way too - "chmod 'o-x' perl"
-and run the scripts via binfmt-misc (not sure if this is
-really suitable though). You need a trivial kernel patch
-to make that possible.
 
->> And allow an attacker to store his files on that partition,
->> and then execute them.
-> They can do it anyway.
-With having "noexec" (in its older form) on every user-writable
-partition - how they can do it?
+Signed-off-by: Matthieu CASTET <castet.matthieu@free.fr>
 
->> I have already proposed another solution for ld.so problem
->> 3 times.
-> And for obvious reasons I ignored it.
-Some explanation could do better, but oh well.
 
-> noexec mounts the way _you_ want them are completely, utterly useless.
-But I used them. And having them on _every_ user-writable
-mounts at least used to give some results.
 
-> nonexec mounts as they are today plus an upcoming mprotect patch give
-As was pointed out by Hugh, such a patch is unlikely.
+--------------010808040602090101090703
+Content-Type: text/plain;
+ name="eagle-comestic"
+Content-Transfer-Encoding: 7bit
+Content-Disposition: inline;
+ filename="eagle-comestic"
 
-> fine grained control.
-Control of what? The malicious loader will always work - it is
-unaffected by both mmap and mprotect changes. So what you can
-control is only how many apps you break.
+Commestic change :
+- dump firwmare version as soon as possible and export it on sysfs
+- hint about wrong cmv/dsp
+- Display a message to warn user when the modem is ready : it can help people to
+ detect problems on the line without debug trace
+- Fix wrong indent
+- display modem type (pots/isdn)
+- increase version number
 
-> You have to use additional mechanism like SELinux
-> to fill in all the holes but that's OK.
-Yes, selinux is the only solution here.
+Signed-off-by: matthieu castet <castet.matthieu@free.fr>
+Index: linux/drivers/usb/atm/ueagle-atm.c
+===================================================================
+--- linux.orig/drivers/usb/atm/ueagle-atm.c	2006-09-22 22:03:49.000000000 +0200
++++ linux/drivers/usb/atm/ueagle-atm.c	2006-09-26 19:52:54.000000000 +0200
+@@ -68,7 +68,7 @@
+ 
+ #include "usbatm.h"
+ 
+-#define EAGLEUSBVERSION "ueagle 1.3"
++#define EAGLEUSBVERSION "ueagle 1.4"
+ 
+ 
+ /*
+@@ -80,14 +80,14 @@
+ 			dev_dbg(&(usb_dev)->dev, \
+ 				"[ueagle-atm dbg] %s: " format, \
+ 					__FUNCTION__, ##args); \
+-       } while (0)
++	} while (0)
+ 
+ #define uea_vdbg(usb_dev, format, args...)	\
+ 	do { \
+ 		if (debug >= 2) \
+ 			dev_dbg(&(usb_dev)->dev, \
+ 				"[ueagle-atm vdbg]  " format, ##args); \
+-       } while (0)
++	} while (0)
+ 
+ #define uea_enters(usb_dev) \
+ 	uea_vdbg(usb_dev, "entering %s\n", __FUNCTION__)
+@@ -218,8 +218,8 @@
+ #define UEA_CHIP_VERSION(x) \
+ 	((x)->driver_info & 0xf)
+ 
+-#define IS_ISDN(sc) \
+-	(le16_to_cpu(sc->usb_dev->descriptor.bcdDevice) & 0x80)
++#define IS_ISDN(usb_dev) \
++	(le16_to_cpu((usb_dev)->descriptor.bcdDevice) & 0x80)
+ 
+ #define INS_TO_USBDEV(ins) ins->usb_dev
+ 
+@@ -625,12 +625,12 @@
+ 	char *dsp_name;
+ 
+ 	if (UEA_CHIP_VERSION(sc) == ADI930) {
+-		if (IS_ISDN(sc))
++		if (IS_ISDN(sc->usb_dev))
+ 			dsp_name = FW_DIR "DSP9i.bin";
+ 		else
+ 			dsp_name = FW_DIR "DSP9p.bin";
+ 	} else {
+-		if (IS_ISDN(sc))
++		if (IS_ISDN(sc->usb_dev))
+ 			dsp_name = FW_DIR "DSPei.bin";
+ 		else
+ 			dsp_name = FW_DIR "DSPep.bin";
+@@ -885,7 +885,8 @@
+ 		break;
+ 
+ 	case 3:		/* fail ... */
+-		uea_info(INS_TO_USBDEV(sc), "modem synchronization failed\n");
++		uea_info(INS_TO_USBDEV(sc), "modem synchronization failed"
++				" (may be try other cmv/dsp)\n");
+ 		return -EAGAIN;
+ 
+ 	case 4 ... 6:	/* test state */
+@@ -913,12 +914,6 @@
+ 			release_firmware(sc->dsp_firm);
+ 			sc->dsp_firm = NULL;
+ 		}
+-
+-		ret = uea_read_cmv(sc, SA_INFO, 10, &sc->stats.phy.firmid);
+-		if (ret < 0)
+-			return ret;
+-		uea_info(INS_TO_USBDEV(sc), "ATU-R firmware version : %x\n",
+-				sc->stats.phy.firmid);
+ 	}
+ 
+ 	/* always update it as atm layer could not be init when we switch to
+@@ -1033,9 +1028,9 @@
+ 
+ 	if (cmv_file[sc->modem_index] == NULL) {
+ 		if (UEA_CHIP_VERSION(sc) == ADI930)
+-			file = (IS_ISDN(sc)) ? "CMV9i.bin" : "CMV9p.bin";
++			file = (IS_ISDN(sc->usb_dev)) ? "CMV9i.bin" : "CMV9p.bin";
+ 		else
+-			file = (IS_ISDN(sc)) ? "CMVei.bin" : "CMVep.bin";
++			file = (IS_ISDN(sc->usb_dev)) ? "CMVei.bin" : "CMVep.bin";
+ 	} else
+ 		file = cmv_file[sc->modem_index];
+ 
+@@ -1131,6 +1126,13 @@
+ 	if (ret < 0)
+ 		return ret;
+ 
++	/* Dump firmware version */
++	ret = uea_read_cmv(sc, SA_INFO, 10, &sc->stats.phy.firmid);
++	if (ret < 0)
++		return ret;
++	uea_info(INS_TO_USBDEV(sc), "ATU-R firmware version : %x\n",
++			sc->stats.phy.firmid);
++
+ 	/* get options */
+  	ret = len = request_cmvs(sc, &cmvs, &cmvs_fw);
+ 	if (ret < 0)
+@@ -1147,6 +1149,8 @@
+ 	/* Enter in R-ACT-REQ */
+ 	ret = uea_write_cmv(sc, SA_CNTL, 0, 2);
+ 	uea_vdbg(INS_TO_USBDEV(sc), "Entering in R-ACT-REQ state\n");
++	uea_info(INS_TO_USBDEV(sc), "Modem started, "
++		"waiting synchronization\n");
+ out:
+ 	release_firmware(cmvs_fw);
+ 	sc->reset = 0;
+@@ -1566,6 +1570,7 @@
+ UEA_ATTR(dscorr, 0);
+ UEA_ATTR(usunc, 0);
+ UEA_ATTR(dsunc, 0);
++UEA_ATTR(firmid, 0);
+ 
+ /* Retrieve the device End System Identifier (MAC) */
+ 
+@@ -1641,6 +1646,7 @@
+ 	device_create_file(&intf->dev, &dev_attr_stat_dscorr);
+ 	device_create_file(&intf->dev, &dev_attr_stat_usunc);
+ 	device_create_file(&intf->dev, &dev_attr_stat_dsunc);
++	device_create_file(&intf->dev, &dev_attr_stat_firmid);
+ }
+ 
+ static int uea_bind(struct usbatm_data *usbatm, struct usb_interface *intf,
+@@ -1732,6 +1738,7 @@
+ 	device_remove_file(&intf->dev, &dev_attr_stat_dscorr);
+ 	device_remove_file(&intf->dev, &dev_attr_stat_usunc);
+ 	device_remove_file(&intf->dev, &dev_attr_stat_dsunc);
++	device_remove_file(&intf->dev, &dev_attr_stat_firmid);
+ }
+ 
+ static void uea_unbind(struct usbatm_data *usbatm, struct usb_interface *intf)
+@@ -1759,10 +1766,10 @@
+ 	struct usb_device *usb = interface_to_usbdev(intf);
+ 
+ 	uea_enters(usb);
+-	uea_info(usb, "ADSL device founded vid (%#X) pid (%#X) : %s\n",
++	uea_info(usb, "ADSL device founded vid (%#X) pid (%#X) : %s %s\n",
+ 	       le16_to_cpu(usb->descriptor.idVendor),
+ 	       le16_to_cpu(usb->descriptor.idProduct),
+-	       chip_name[UEA_CHIP_VERSION(id)]);
++	       chip_name[UEA_CHIP_VERSION(id)], IS_ISDN(usb)?"isdn":"pots");
+ 
+ 	usb_reset_device(usb);
+ 
 
-> nonexec mounts give a great
-> deal more of flexibility.
-Any real-life examples of what problem does this solve?
-(except of the already discussed partially-solved ld.so problem)
-
+--------------010808040602090101090703--

@@ -1,44 +1,50 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030648AbWJCWva@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030468AbWJCWwK@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030648AbWJCWva (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Oct 2006 18:51:30 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030468AbWJCWva
+	id S1030468AbWJCWwK (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Oct 2006 18:52:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030649AbWJCWwJ
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Oct 2006 18:51:30 -0400
-Received: from pentafluge.infradead.org ([213.146.154.40]:34202 "EHLO
-	pentafluge.infradead.org") by vger.kernel.org with ESMTP
-	id S1030648AbWJCWv3 (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Oct 2006 18:51:29 -0400
-Subject: Re: [PATCH] IPC namespace core
-From: David Woodhouse <dwmw2@infradead.org>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Linux Kernel Mailing List <linux-kernel@vger.kernel.org>,
-       Kirill Korotaev <dev@openvz.org>, Pavel Emelianov <xemul@openvz.org>,
-       Cedric Le Goater <clg@fr.ibm.com>,
-       "Eric W. Biederman" <ebiederm@xmission.com>
-In-Reply-To: <20061003154947.7ef2d4a3.akpm@osdl.org>
-References: <200610021601.k92G13mT003934@hera.kernel.org>
-	 <1159866174.3438.66.camel@pmac.infradead.org>
-	 <20061003093505.0bb7bb6a.akpm@osdl.org>
-	 <1159912891.27726.3.camel@pmac.infradead.org>
-	 <20061003154947.7ef2d4a3.akpm@osdl.org>
-Content-Type: text/plain
-Date: Tue, 03 Oct 2006 23:51:24 +0100
-Message-Id: <1159915884.3698.2.camel@pmac.infradead.org>
+	Tue, 3 Oct 2006 18:52:09 -0400
+Received: from gundega.hpl.hp.com ([192.6.19.190]:49880 "EHLO
+	gundega.hpl.hp.com") by vger.kernel.org with ESMTP id S1030468AbWJCWwI
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Oct 2006 18:52:08 -0400
+Date: Tue, 3 Oct 2006 15:51:23 -0700
+To: Theodore Tso <tytso@mit.edu>, "John W. Linville" <linville@tuxdriver.com>,
+       Dan Williams <dcbw@redhat.com>,
+       Alessandro Suardi <alessandro.suardi@gmail.com>,
+       "Rafael J. Wysocki" <rjw@sisk.pl>, Andrew Morton <akpm@osdl.org>,
+       hostap@shmoo.com, linux-kernel@vger.kernel.org
+Subject: Re: wpa supplicant/ipw3945, ESSID last char missing
+Message-ID: <20061003225123.GA1858@bougret.hpl.hp.com>
+Reply-To: jt@hpl.hp.com
+References: <20061002185550.GA14854@bougret.hpl.hp.com> <200610022147.03748.rjw@sisk.pl> <1159822831.11771.5.camel@localhost.localdomain> <20061002212604.GA6520@thunk.org> <5a4c581d0610021508hdc331f0w7c9b71c3944d4d8b@mail.gmail.com> <1159877574.2879.11.camel@localhost.localdomain> <20061003124902.GB23912@tuxdriver.com> <20061003133845.GG2930@thunk.org> <20061003172327.GA17443@bougret.hpl.hp.com> <20061003223029.GA26351@thunk.org>
 Mime-Version: 1.0
-X-Mailer: Evolution 2.8.0 (2.8.0-7.fc6) 
-Content-Transfer-Encoding: 7bit
-X-SRS-Rewrite: SMTP reverse-path rewritten from <dwmw2@infradead.org> by pentafluge.infradead.org
-	See http://www.infradead.org/rpr.html
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061003223029.GA26351@thunk.org>
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: jt@hpl.hp.com
+User-Agent: Mutt/1.5.9i
+From: Jean Tourrilhes <jt@hpl.hp.com>
+X-HPL-MailScanner: Found to be clean
+X-HPL-MailScanner-From: jt@hpl.hp.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-10-03 at 15:49 -0700, Andrew Morton wrote:
-> Yes - I'll send it along soon.  I just want to have a few hours to convince
-> myself that it won't break the whole world if I do...
+On Tue, Oct 03, 2006 at 06:30:29PM -0400, Theodore Tso wrote:
+> 
+> I'm currently using the latest 2.6 kernel with Ubuntu 6.06 (their
+> stable release), and to date, I haven't had any problems.  
+> 
+> Of course, that may be about to change, given that Ubuntu is shipping
+> with wireless-tools version "27+28pre13-1ub", which I assume is a
+> version between 27 and 28.  Do you know off-hand whether this is is
+> WE-21 capable?
 
-Seems fair :)
+	No it's not.
 
--- 
-dwmw2
+> 						- Ted
 
+	Jean

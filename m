@@ -1,159 +1,65 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030597AbWJCWHz@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030595AbWJCWHf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030597AbWJCWHz (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Oct 2006 18:07:55 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030596AbWJCWHz
+	id S1030595AbWJCWHf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Oct 2006 18:07:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030596AbWJCWHf
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Oct 2006 18:07:55 -0400
-Received: from hu-out-0506.google.com ([72.14.214.238]:40459 "EHLO
-	hu-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1030598AbWJCWHx (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Oct 2006 18:07:53 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:date:from:to:cc:subject:message-id:mime-version:content-type:content-disposition:user-agent:sender;
-        b=d9+JIlCxbtIR5lGMpOgBr7QlxIqA+LcGJSWhdLNAJQx/d1iF/7M/d4BglOypU5U1blRrB1iE831fgw7jYfEQvlGM7I4rVbrE8Voei3t2Wc+rYT0pbW3dHrsU4p2sTUfkSR/Cww4Y8HocG1k0cMXexiKYC3qzlDcAHrb6BQ9vA5U=
-Date: Tue, 3 Oct 2006 22:07:32 +0000
-From: Frederik Deweerdt <deweerdt@free.fr>
-To: linux-kernel@vger.kernel.org
-Cc: arjan@infradead.org, matthew@wil.cx, alan@lxorguk.ukuu.org.uk,
-       jeff@garzik.org, akpm@osdl.org, rdunlap@xenotime.net, gregkh@suse.de
-Subject: [RFC PATCH] add pci_{request,free}_irq take #2
-Message-ID: <20061003220732.GE2785@slug>
+	Tue, 3 Oct 2006 18:07:35 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:9443 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030595AbWJCWHe (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Oct 2006 18:07:34 -0400
+Date: Tue, 3 Oct 2006 14:59:16 -0700 (PDT)
+From: Linus Torvalds <torvalds@osdl.org>
+To: "John W. Linville" <linville@tuxdriver.com>
+cc: Jeff Garzik <jeff@garzik.org>, jt@hpl.hp.com,
+       Lee Revell <rlrevell@joe-job.com>,
+       Alessandro Suardi <alessandro.suardi@gmail.com>,
+       Norbert Preining <preining@logic.at>, hostap@shmoo.com,
+       ipw3945-devel@lists.sourceforge.net, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, johannes@sipsolutions.net
+Subject: Re: wpa supplicant/ipw3945, ESSID last char missing
+In-Reply-To: <20061003214038.GE23912@tuxdriver.com>
+Message-ID: <Pine.LNX.4.64.0610031454420.3952@g5.osdl.org>
+References: <20061002085942.GA32387@gamma.logic.tuwien.ac.at>
+ <5a4c581d0610020221s7bf100f8q893161b7c8c492d2@mail.gmail.com>
+ <1159807483.4067.150.camel@mindpipe> <20061003123835.GA23912@tuxdriver.com>
+ <1159890876.20801.65.camel@mindpipe> <Pine.LNX.4.64.0610030916000.3952@g5.osdl.org>
+ <20061003180543.GD23912@tuxdriver.com> <4522A9BE.9000805@garzik.org>
+ <20061003183849.GA17635@bougret.hpl.hp.com> <4522B311.7070905@garzik.org>
+ <20061003214038.GE23912@tuxdriver.com>
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-User-Agent: mutt-ng/devel-r804 (Linux)
+Content-Type: TEXT/PLAIN; charset=US-ASCII
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Hi all,
 
-This is take #2 of the "add pci_{request,free}_irq" patch.
-The following changes have been made since last proposal:
-- fix broken kerneldoc (Randy Dunlap)
-- change warning message (Alan Cox)
-- taken into account the various comments made by Matthew Wilcox
-- remove the IRQF_SHARED flag from the request_irq() call: not all
-  drivers (eg. tg3) set it (Arjan van de Ven suggested dropping it
-  before the call, but this may not suit the different usage patterns,
-  tg3 in particular)
 
-I'll send a follow-up patch showing the implied modifications for the
-following - semi-randomly chosen :) - drivers: aic7xxx, aic79xx, tg3
-and e1000 (Dropped the drm one, which was NACKed by the maintainer).
+On Tue, 3 Oct 2006, John W. Linville wrote:
+>
+> I.E.  With "WE-21 aware" tools already in the wild, it isn't now clear
+> to me how WE can evolve any further than WE-20.
 
-Please note that I'm not submitting the driver changes, they're there
-only for illustration purposes. I'll CC the appropriate maintainers
-when/if an API is agreed upon.
+Well, if you get a WE-22 out soon enough, the situation will be one where 
+people who are fast at updating will have a fixed version quickly, and the 
+ones that aren't quick at updating will never have even seen the broken 
+case.
 
-Regards,
-Frederik
+And without any actual release kernel actually having had the issue, we 
+should be pretty well off - the only people who actually saw semantics 
+change were people who build their own kernels etc, and those people 
+aren't the problem cases.
 
-PS: trimmed the CC list a bit, this must be noise to linux-scsi
-PPS: used quilt to manage patches, I should have done it long ago :)
+The users that you need to care about are the ones that upgrade rather 
+seldom and/or need to maintain a stable setup for other reasons (eg it's 
+not at all unheard of to have a common base release, but then have certain 
+machines on the network with more modern kernels because they have new 
+hardware that requires a modern kernel for support, for example: that's 
+the situation where you may want to have a much older common user space, 
+even if you have a new kernel).
 
-diff --git a/drivers/pci/pci.c b/drivers/pci/pci.c
-index a544997..50b49ef 100644
-Index: 2.6.18-mm3/drivers/pci/pci.c
-===================================================================
---- 2.6.18-mm3.orig/drivers/pci/pci.c
-+++ 2.6.18-mm3/drivers/pci/pci.c
-@@ -15,6 +15,7 @@
- #include <linux/pci.h>
- #include <linux/module.h>
- #include <linux/spinlock.h>
-+#include <linux/interrupt.h>
- #include <linux/string.h>
- #include <asm/dma.h>	/* isa_dma_bridge_buggy */
- #include "pci.h"
-@@ -810,6 +811,47 @@ err_out:
- }
- 
- /**
-+ * pci_request_irq - Reserve an IRQ for a PCI device
-+ * @pdev: The PCI device whose irq is to be reserved
-+ * @handler: The interrupt handler function,
-+ * @flags: The flags to be passed to request_irq()
-+ * @name: The name of the device to be associated with the irq
-+ *
-+ * Returns 0 on success, or a negative value on error.  A warning
-+ * message is also printed on failure.
-+ * pci_get_drvdata(pdev) shall be passed as an argument to the @handler
-+ * function
-+ */
-+int pci_request_irq(struct pci_dev *pdev,
-+		    irqreturn_t(*handler) (int, void *, struct pt_regs *),
-+		    unsigned long flags, const char *name)
-+{
-+	if (!is_irq_valid(pdev->irq)) {
-+		dev_printk(KERN_ERR, &pdev->dev,
-+			   "No usable irq line was found (got #%d)\n",
-+			   pdev->irq);
-+		return -EINVAL;
-+	}
-+
-+	return request_irq(pdev->irq, handler, flags,
-+			   name ? name : pdev->driver->name,
-+			   pci_get_drvdata(pdev));
-+}
-+EXPORT_SYMBOL(pci_request_irq);
-+
-+/**
-+ * pci_free_irq - Free an IRQ for a PCI device
-+ *
-+ * @pdev: the PCI device whose interrupt is to be freed
-+ * pci_get_drvdata(pdev) is used as the device identifier
-+ */
-+void pci_free_irq(struct pci_dev *pdev)
-+{
-+	free_irq(pdev->irq, pci_get_drvdata(pdev));
-+}
-+EXPORT_SYMBOL(pci_free_irq);
-+
-+/**
-  * pci_set_master - enables bus-mastering for device dev
-  * @dev: the PCI device to enable
-  *
-Index: 2.6.18-mm3/include/linux/interrupt.h
-===================================================================
---- 2.6.18-mm3.orig/include/linux/interrupt.h
-+++ 2.6.18-mm3/include/linux/interrupt.h
-@@ -75,6 +75,13 @@ struct irqaction {
- 	struct proc_dir_entry *dir;
- };
- 
-+#ifndef ARCH_VALIDATE_PCI_IRQ
-+static inline int is_irq_valid(unsigned int irq)
-+{
-+	return irq ? 1 : 0;
-+}
-+#endif /* ARCH_VALIDATE_PCI_IRQ */
-+
- extern irqreturn_t no_action(int cpl, void *dev_id, struct pt_regs *regs);
- extern int request_irq(unsigned int,
- 		       irqreturn_t (*handler)(int, void *, struct pt_regs *),
-Index: 2.6.18-mm3/include/linux/pci.h
-===================================================================
---- 2.6.18-mm3.orig/include/linux/pci.h
-+++ 2.6.18-mm3/include/linux/pci.h
-@@ -52,6 +52,7 @@
- #include <linux/compiler.h>
- #include <linux/errno.h>
- #include <linux/device.h>
-+#include <linux/interrupt.h>
- 
- /* File state for mmap()s on /proc/bus/pci/X/Y */
- enum pci_mmap_state {
-@@ -532,6 +533,11 @@ void pci_release_regions(struct pci_dev 
- int __must_check pci_request_region(struct pci_dev *, int, const char *);
- void pci_release_region(struct pci_dev *, int);
- 
-+int __must_check pci_request_irq(struct pci_dev *pdev,
-+		    irqreturn_t (*handler)(int, void *, struct pt_regs *),
-+		    unsigned long flags, const char *name);
-+void pci_free_irq(struct pci_dev *pdev);
-+
- /* drivers/pci/bus.c */
- int __must_check pci_bus_alloc_resource(struct pci_bus *bus,
- 			struct resource *res, resource_size_t size,
+Kernel developers tend to be happy to upgrade their user programs, and 
+don't generally see it as a big problem. The people for whom it is a 
+problem are elsewhere :)
+
+		Linus

@@ -1,50 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932241AbWJCDh5@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932341AbWJCDp2@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932241AbWJCDh5 (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Oct 2006 23:37:57 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932339AbWJCDh5
+	id S932341AbWJCDp2 (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Oct 2006 23:45:28 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932339AbWJCDp2
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Oct 2006 23:37:57 -0400
-Received: from twinlark.arctic.org ([207.7.145.18]:53700 "EHLO
-	twinlark.arctic.org") by vger.kernel.org with ESMTP id S932241AbWJCDh4
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Oct 2006 23:37:56 -0400
-Date: Mon, 2 Oct 2006 20:37:56 -0700 (PDT)
-From: dean gaudet <dean@arctic.org>
-To: Erik Andersen <andersen@codepoet.org>
-cc: Lee Revell <rlrevell@joe-job.com>, "Martin J. Bligh" <mbligh@mbligh.org>,
-       Matti Aarnio <matti.aarnio@zmailer.org>,
-       linux-kernel <linux-kernel@vger.kernel.org>
-Subject: Re: Spam, bogofilter, etc
-In-Reply-To: <20061002173951.GA8534@codepoet.org>
-Message-ID: <Pine.LNX.4.64.0610022029010.32183@twinlark.arctic.org>
-References: <1159539793.7086.91.camel@mindpipe> <20061002100302.GS16047@mea-ext.zmailer.org>
- <1159802486.4067.140.camel@mindpipe> <45212F39.5000307@mbligh.org>
- <1159804137.4067.144.camel@mindpipe> <20061002173951.GA8534@codepoet.org>
+	Mon, 2 Oct 2006 23:45:28 -0400
+Received: from ozlabs.org ([203.10.76.45]:39075 "EHLO ozlabs.org")
+	by vger.kernel.org with ESMTP id S932341AbWJCDp1 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Oct 2006 23:45:27 -0400
+Date: Tue, 3 Oct 2006 13:45:13 +1000
+From: David Gibson <david@gibson.dropbear.id.au>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org
+Subject: Fix spurious error on TAGS target when missing defconfig
+Message-ID: <20061003034513.GA24053@localhost.localdomain>
+Mail-Followup-To: David Gibson <david@gibson.dropbear.id.au>,
+	Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+User-Agent: Mutt/1.5.11
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, 2 Oct 2006, Erik Andersen wrote:
+Andrew, please apply:
 
-> On Mon Oct 02, 2006 at 11:48:57AM -0400, Lee Revell wrote:
-> > You could also flag a very short message that contains a URL and is not
-> > a reply to an existing thread - I can't think of a legitimate post to
-> > LKML fitting this pattern.
-> 
-> Blocking emails containing URLs pointing to domains registered
-> less than a week ago would block most of the recent spams.
+Not all architectures have a file named 'defconfig' (e.g. powerpc).
+However the make TAGS and make tags targets search such files for
+tags, causing an error message when they don't exist.  This patch
+addresses the problem by instructing xargs not to run the tags program
+if there are no matching files.
 
-unless they changed pattern the past week this wouldn't work... two weeks 
-ago the domains from the 1-liner porn spams were registered 3 or 4 months 
-ago.  i checked a dozen+ of them looking for anything useful for 
-filtering.
+Signed-off-by: David Gibson <david@gibson.dropbear.id.au>
 
-if you visited the urls they lead to the same web page text -- something 
-so obviously a porn front-door even bayes could have got it right.  (i.e. 
-"are you 18?").
+Index: working-2.6/Makefile
+===================================================================
+--- working-2.6.orig/Makefile	2006-10-03 13:35:19.000000000 +1000
++++ working-2.6/Makefile	2006-10-03 13:41:08.000000000 +1000
+@@ -1321,7 +1321,7 @@ define xtags
+ 		--langdef=kconfig \
+ 		--language-force=kconfig \
+ 		--regex-kconfig='/^[[:blank:]]*config[[:blank:]]+([[:alnum:]_]+)/\1/'; \
+-	    $(all-defconfigs) | xargs $1 -a \
++	    $(all-defconfigs) | xargs -r $1 -a \
+ 		--langdef=dotconfig \
+ 		--language-force=dotconfig \
+ 		--regex-dotconfig='/^#?[[:blank:]]*(CONFIG_[[:alnum:]_]+)/\1/'; \
+@@ -1329,7 +1329,7 @@ define xtags
+ 	    $(all-sources) | xargs $1 -a; \
+ 	    $(all-kconfigs) | xargs $1 -a \
+ 		--regex='/^[ \t]*config[ \t]+\([a-zA-Z0-9_]+\)/\1/'; \
+-	    $(all-defconfigs) | xargs $1 -a \
++	    $(all-defconfigs) | xargs -r $1 -a \
+ 		--regex='/^#?[ \t]?\(CONFIG_[a-zA-Z0-9_]+\)/\1/'; \
+ 	else \
+ 	    $(all-sources) | xargs $1 -a; \
 
-it sure would be nice if posting were subscribers-only.
-
--dean
+-- 
+David Gibson			| I'll have my music baroque, and my code
+david AT gibson.dropbear.id.au	| minimalist, thank you.  NOT _the_ _other_
+				| _way_ _around_!
+http://www.ozlabs.org/~dgibson

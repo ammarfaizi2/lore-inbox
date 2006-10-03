@@ -1,55 +1,60 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161001AbWJDAbg@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1161002AbWJDAcG@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1161001AbWJDAbg (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Oct 2006 20:31:36 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161002AbWJDAbg
+	id S1161002AbWJDAcG (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Oct 2006 20:32:06 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1161008AbWJDAcF
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Oct 2006 20:31:36 -0400
-Received: from gundega.hpl.hp.com ([192.6.19.190]:62178 "EHLO
-	gundega.hpl.hp.com") by vger.kernel.org with ESMTP id S1161001AbWJDAbe
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Oct 2006 20:31:34 -0400
-Date: Tue, 3 Oct 2006 17:30:31 -0700
-To: Sean <seanlkml@sympatico.ca>
-Cc: Theodore Tso <tytso@mit.edu>, "John W. Linville" <linville@tuxdriver.com>,
-       Jeff Garzik <jeff@garzik.org>, Linus Torvalds <torvalds@osdl.org>,
-       Lee Revell <rlrevell@joe-job.com>,
-       Alessandro Suardi <alessandro.suardi@gmail.com>,
-       Norbert Preining <preining@logic.at>, hostap@shmoo.com,
-       linux-kernel@vger.kernel.org, johannes@sipsolutions.net
-Subject: Re: wpa supplicant/ipw3945, ESSID last char missing
-Message-ID: <20061004003031.GA2215@bougret.hpl.hp.com>
-Reply-To: jt@hpl.hp.com
-References: <1159890876.20801.65.camel@mindpipe> <Pine.LNX.4.64.0610030916000.3952@g5.osdl.org> <20061003180543.GD23912@tuxdriver.com> <4522A9BE.9000805@garzik.org> <20061003183849.GA17635@bougret.hpl.hp.com> <4522B311.7070905@garzik.org> <20061003214038.GE23912@tuxdriver.com> <20061003231648.GB26351@thunk.org> <20061003233138.GA2095@bougret.hpl.hp.com> <20061003202754.ce69f03a.seanlkml@sympatico.ca>
+	Tue, 3 Oct 2006 20:32:05 -0400
+Received: from mga07.intel.com ([143.182.124.22]:29887 "EHLO
+	azsmga101.ch.intel.com") by vger.kernel.org with ESMTP
+	id S1161002AbWJDAcD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Oct 2006 20:32:03 -0400
+X-ExtLoop1: 1
+X-IronPort-AV: i="4.09,252,1157353200"; 
+   d="scan'208"; a="126528432:sNHT136468997"
+Subject: Re: [PATCH] Fix WARN_ON / WARN_ON_ONCE regression
+From: Tim Chen <tim.c.chen@linux.intel.com>
+Reply-To: tim.c.chen@linux.intel.com
+To: Andrew Morton <akpm@osdl.org>
+Cc: herbert@gondor.apana.org.au, linux-kernel@vger.kernel.org,
+       leonid.i.ananiev@intel.com
+In-Reply-To: <20061003170705.6a75f4dd.akpm@osdl.org>
+References: <1159916644.8035.35.camel@localhost.localdomain>
+	 <20061003170705.6a75f4dd.akpm@osdl.org>
+Content-Type: text/plain
+Organization: Intel
+Date: Tue, 03 Oct 2006 16:42:56 -0700
+Message-Id: <1159918976.8035.59.camel@localhost.localdomain>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061003202754.ce69f03a.seanlkml@sympatico.ca>
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: jt@hpl.hp.com
-User-Agent: Mutt/1.5.9i
-From: Jean Tourrilhes <jt@hpl.hp.com>
-X-HPL-MailScanner: Found to be clean
-X-HPL-MailScanner-From: jt@hpl.hp.com
+X-Mailer: Evolution 2.0.2 (2.0.2-8) 
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 03, 2006 at 08:27:54PM -0400, Sean wrote:
-> On Tue, 3 Oct 2006 16:31:38 -0700
-> Jean Tourrilhes <jt@hpl.hp.com> wrote:
+On Tue, 2006-10-03 at 17:07 -0700, Andrew Morton wrote:
+
+> > 
+> > introduced 40% more 2nd level cache miss to tbench workload
+> > being run in a loop back mode on a Core 2 machine.  I think the
+> > introduction of the local variables to WARN_ON and WARN_ON_ONCE
+> > 
+> > typeof(x) __ret_warn_on = (x);
+> > typeof(condition) __ret_warn_once = (condition);
+> > 
+> > results in the extra cache misses.
 > 
-> > 	It's already done with the current interface, you can access
-> > the API with either ioctls or RtNetlink.
+> I don't see why it should.
 > 
-> Does this answer Ted's question though?  Why can't userspace request
-> the new v48 interface to get the changed API while older tools
-> get the v47 interface and continue to work without needing to
-> be upgraded?
 
-	How does that happen in practice ? Kernel has no clue on what
-userpace version is running.
+Before the WARN_ON/WARN_ON_ONCE patch, the condition given to
+WARN_ON/WARN_ON_ONCE is evaluated once and that's it.  But after the
+patch, the condition is stored in a variable and returned later.  I
+think that accessing this variable causes cache misses.
 
-> Sean
+> Perhaps the `static int __warn_once' is getting put in the same cacheline
+> as some frequently-modified thing.   Perhaps try marking that as __read_mostly?
+> 
 
-	Jean
+I'll give that a try to see if it will improve things.
+
+Tim

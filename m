@@ -1,64 +1,52 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030485AbWJCW2i@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030627AbWJCW3K@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030485AbWJCW2i (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Oct 2006 18:28:38 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030625AbWJCW2i
+	id S1030627AbWJCW3K (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Oct 2006 18:29:10 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030628AbWJCW3J
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Oct 2006 18:28:38 -0400
-Received: from turing-police.cc.vt.edu ([128.173.14.107]:37017 "EHLO
-	turing-police.cc.vt.edu") by vger.kernel.org with ESMTP
-	id S1030485AbWJCW2h (ORCPT <RFC822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Oct 2006 18:28:37 -0400
-Message-Id: <200610032228.k93MSOhn015311@turing-police.cc.vt.edu>
-X-Mailer: exmh version 2.7.2 01/07/2005 with nmh-1.2
-To: Stephen Hemminger <shemminger@osdl.org>
-Cc: linux-kernel@vger.kernel.org
-Subject: Re: Registration Weakness in Linux Kernel's Binary formats
-In-Reply-To: Your message of "Tue, 03 Oct 2006 14:59:54 PDT."
-             <20061003145954.06b2aa49@freekitty>
-From: Valdis.Kletnieks@vt.edu
-References: <1df1788c0610031425p4f1ca206teb05590a91eb7659@mail.gmail.com> <198AC4CE-A2CC-41DB-8D53-BDFB7959781B@mac.com>
-            <20061003145954.06b2aa49@freekitty>
-Mime-Version: 1.0
-Content-Type: multipart/signed; boundary="==_Exmh_1159914504_6282P";
-	 micalg=pgp-sha1; protocol="application/pgp-signature"
+	Tue, 3 Oct 2006 18:29:09 -0400
+Received: from outpipe-village-512-1.bc.nu ([81.2.110.250]:31885 "EHLO
+	lxorguk.ukuu.org.uk") by vger.kernel.org with ESMTP
+	id S1030625AbWJCW3G (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Oct 2006 18:29:06 -0400
+Subject: Re: =?ISO-8859-1?Q?Registration=A0Weakness=A0?=
+	=?ISO-8859-1?Q?in=A0Linux=A0Kernel's=A0Bin?= =?ISO-8859-1?Q?ary=A0formats?=
+From: Alan Cox <alan@lxorguk.ukuu.org.uk>
+To: Chase Venters <chase.venters@clientec.com>
+Cc: SHELLCODE Security Research <GoodFellas@shellcode.com.ar>,
+       linux-kernel@vger.kernel.org
+In-Reply-To: <Pine.LNX.4.64.0610031645340.3514@turbotaz.ourhouse>
+References: <1159902785.2855.34.camel@goku.staff.locallan>
+	 <Pine.LNX.4.64.0610031645340.3514@turbotaz.ourhouse>
+Content-Type: text/plain
 Content-Transfer-Encoding: 7bit
-Date: Tue, 03 Oct 2006 18:28:24 -0400
+Date: Tue, 03 Oct 2006 23:54:14 +0100
+Message-Id: <1159916054.17553.92.camel@localhost.localdomain>
+Mime-Version: 1.0
+X-Mailer: Evolution 2.6.2 (2.6.2-1.fc5.5) 
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
---==_Exmh_1159914504_6282P
-Content-Type: text/plain; charset=iso-8859-1
-Content-Transfer-Encoding: quoted-printable
+Ar Maw, 2006-10-03 am 16:48 -0500, ysgrifennodd Chase Venters:
+> So the problem you find is that newly registered binfmts are inserted into 
+> the front of the binfmt list instead of the rear, and this means that a 
+> binfmt handler can slip in at runtime at run quietly before any other 
+> handler?
 
-On Tue, 03 Oct 2006 14:59:54 PDT, Stephen Hemminger said:
+This is a feature as anyone trying to debug versions of the elf loader
+could would find out quite fast.
 
-> I looked at it, basically his argument which is all flowered up in pret=
-ty
-> pictures and security vulnerability language is:
->=20
->    If root loads a buggy module then the module can be used to compromi=
-se
->    the system.
->=20
-> Well isn't that surprising.
+> 
+> I'm not sure I see this as a real problem. If you can load a module into 
+> kernel space and access arbitrary symbols (not to mention run in ring 0) I 
+> think you can do a lot more than just hide out on the binfmt list.
+> 
+> Am I missing something?
 
-Big yawner.  Now if the claim had been that a properly buggy module, inse=
-rted
-under a certain set of circumstances, got onto the binfmt list *even when=
- the
-process loading it wasn't root*, now *that* would be an exploit....
+Don't think so. At the point you can load code into the kernel you can
+replace any code anyway.
 
---==_Exmh_1159914504_6282P
-Content-Type: application/pgp-signature
+NOTABUG
 
------BEGIN PGP SIGNATURE-----
-Version: GnuPG v1.4.5 (GNU/Linux)
-Comment: Exmh version 2.5 07/13/2001
+Alan
 
-iD8DBQFFIuQIcC3lWbTT17ARAv0CAKCFFVbyow8bK1SDpev8V5Yiw5SFrgCgtZOn
-pOO92agdQNQ7BMKYWNNn9IA=
-=mEq5
------END PGP SIGNATURE-----
-
---==_Exmh_1159914504_6282P--

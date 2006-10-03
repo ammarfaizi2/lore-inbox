@@ -1,68 +1,64 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030242AbWJCB7l@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030241AbWJCCHb@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030242AbWJCB7l (ORCPT <rfc822;willy@w.ods.org>);
-	Mon, 2 Oct 2006 21:59:41 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030243AbWJCB7l
+	id S1030241AbWJCCHb (ORCPT <rfc822;willy@w.ods.org>);
+	Mon, 2 Oct 2006 22:07:31 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030243AbWJCCHb
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Mon, 2 Oct 2006 21:59:41 -0400
-Received: from omx2-ext.sgi.com ([192.48.171.19]:56266 "EHLO omx2.sgi.com")
-	by vger.kernel.org with ESMTP id S1030242AbWJCB7k (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Mon, 2 Oct 2006 21:59:40 -0400
-Date: Tue, 3 Oct 2006 11:59:20 +1000
-From: Greg Banks <gnb@sgi.com>
-To: Neil Brown <neilb@suse.de>
-Cc: "J. Bruce Fields" <bfields@fieldses.org>, nfs@lists.sourceforge.net,
-       linux-kernel@vger.kernel.org
-Subject: Re: [NFS] [PATCH 008 of 11] knfsd: Prepare knfsd for support of rsize/wsize of up to 1MB, over TCP.
-Message-ID: <20061003015920.GJ28796@sgi.com>
-References: <20060824162917.3600.patches@notabene> <1060824063711.5008@suse.de> <20060925154316.GA17465@fieldses.org> <17697.48800.933642.581926@cse.unsw.edu.au>
-Mime-Version: 1.0
+	Mon, 2 Oct 2006 22:07:31 -0400
+Received: from king.bitgnome.net ([70.84.111.244]:40683 "EHLO
+	king.bitgnome.net") by vger.kernel.org with ESMTP id S1030241AbWJCCHb
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Mon, 2 Oct 2006 22:07:31 -0400
+Date: Mon, 2 Oct 2006 21:07:22 -0500
+From: Mark Nipper <nipsy@bitgnome.net>
+To: Andrew Morton <akpm@osdl.org>
+Cc: linux-kernel@vger.kernel.org, linux-mm@kvack.org
+Subject: Re: kernel: pageout: orphaned page with reiserfs v3 in data=journal  mode under 2.6.18
+Message-ID: <20061003020719.GA28692@king.bitgnome.net>
+References: <20061002170353.GA26816@king.bitgnome.net> <20061002180603.b19bfbd0.akpm@osdl.org>
+MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <17697.48800.933642.581926@cse.unsw.edu.au>
-User-Agent: Mutt/1.5.5.1i
+In-Reply-To: <20061002180603.b19bfbd0.akpm@osdl.org>
+User-Agent: Mutt/1.5.13 (2006-08-11)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 03, 2006 at 11:36:32AM +1000, Neil Brown wrote:
-> On Monday September 25, bfields@fieldses.org wrote:
+On 02 Oct 2006, Andrew Morton wrote:
+> On Mon, 2 Oct 2006 12:03:54 -0500
+> Mark Nipper <nipsy@bitgnome.net> wrote:
+> 
+> >         I saw this in my logs earlier today:
+> > ---
+> > kernel: pageout: orphaned page
 > > 
-> > We're reporting svc_max_payload(rqstp) as the server's maximum
-> > read/write block size:
+> >         It's the first time I've seen it on this box, but I also
+> > just switched to data=journal mode for all of my reiserfs mounts
+> > yesterday after a hard drive died in a software RAID-1 volume
+> > <snipped>
+> I think that's a piece of temporary debugging code which I put in there in
+> a fit of curiosity and which I then promptly forgot about.
 > 
-> Yes.  So I'm going to change the number returned by
-> svc_max_payload(rqstp) to mean the maximum read/write block size.
-> i.e. when a service is created, the number passed isn't the maximum
-> packet size, but is the maximum payload size.
+> It's been in there since March 2005 and you are the first person who has
+> reported seeing the message...
 
-I'm confused.  Last time I looked at the code that was
-exactly what the semantics were?
+        Okay.  Thanks for replying Andrew.  I just wanted to make
+sure my kernel wasn't going to eat itself at some point.  :)
 
-> The assumption is that all of the request that is not payload will fit
-> into one page, and all of the reply that is not payload will also fit
-> into one page (though a different page).
-
-This is a pretty good assumption for v3.
-
-> It means that RPC services that have lots of non-payload data combined
-> with payload data won't work, but making sunrpc code completely
-> general when there are only two users is just too painful.
-> 
-> The only real problem is that NFSv4 can have arbitrarily large
-> non-payload data, and arbitrarily many payloads.  But I guess any
-> client that trying to send two full-sized payloads in the one request
-> is asking for trouble (I don't suppose the RPC spells this out at
-> all?).
-
-Bruce and I briefly discussed this when I dropped into CITI the other
-week.  The conclusion was that this is a non-issue in the short term
-because all the clients do a single READ or WRITE per call.  In the
-long term I hope to rewrite some parts of that code to do away with
-one of the memcpy()s in the WRITE path, and handling multiple WRITEs
-for v4 would be a natural extension of that.
-
-Greg.
 -- 
-Greg Banks, R&D Software Engineer, SGI Australian Software Group.
-I don't speak for SGI.
+Mark Nipper                                                e-contacts:
+4320 Milam Street                                   nipsy@bitgnome.net
+Bryan, Texas 77801-3920                     http://nipsy.bitgnome.net/
+(979)575-3193                      AIM/Yahoo: texasnipsy ICQ: 66971617
+
+-----BEGIN GEEK CODE BLOCK-----
+Version: 3.1
+GG/IT d- s++:+ a- C++$ UBL++++$ P--->+++ L+++$ !E---
+W++(--) N+ o K++ w(---) O++ M V(--) PS+++(+) PE(--)
+Y+ PGP t+ 5 X R tv b+++@ DI+(++) D+ G e h r++ y+(**)
+------END GEEK CODE BLOCK------
+
+---begin random quote of the moment---
+You need a license to drive a car, but any idiot can have a
+child.
+----end random quote of the moment----

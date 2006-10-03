@@ -1,23 +1,23 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030349AbWJCRbB@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030365AbWJCRbf@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030349AbWJCRbB (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Oct 2006 13:31:01 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030348AbWJCRal
+	id S1030365AbWJCRbf (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Oct 2006 13:31:35 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030352AbWJCRaj
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Oct 2006 13:30:41 -0400
-Received: from e33.co.us.ibm.com ([32.97.110.151]:62100 "EHLO
-	e33.co.us.ibm.com") by vger.kernel.org with ESMTP id S1030349AbWJCRaf
+	Tue, 3 Oct 2006 13:30:39 -0400
+Received: from e36.co.us.ibm.com ([32.97.110.154]:64743 "EHLO
+	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S1030348AbWJCRaf
 	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
 	Tue, 3 Oct 2006 13:30:35 -0400
-Date: Tue, 3 Oct 2006 13:04:13 -0400
+Date: Tue, 3 Oct 2006 13:21:04 -0400
 From: Vivek Goyal <vgoyal@in.ibm.com>
 To: linux kernel mailing list <linux-kernel@vger.kernel.org>
 Cc: Reloc Kernel List <fastboot@lists.osdl.org>, ebiederm@xmission.com,
        akpm@osdl.org, ak@suse.de, horms@verge.net.au, lace@jankratochvil.net,
        hpa@zytor.com, magnus.damm@gmail.com, lwang@redhat.com,
        dzickus@redhat.com, maneesh@in.ibm.com
-Subject: [PATCH 1/12] i386: Distinguish absolute symbols
-Message-ID: <20061003170413.GA3164@in.ibm.com>
+Subject: [PATCH 9/12] kallsyms: Generate relocatable symbols
+Message-ID: <20061003172104.GI3164@in.ibm.com>
 Reply-To: vgoyal@in.ibm.com
 References: <20061003170032.GA30036@in.ibm.com>
 Mime-Version: 1.0
@@ -30,272 +30,150 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 
 
-Ld knows about 2 kinds of symbols,  absolute and section
-relative.  Section relative symbols symbols change value
-when a section is moved and absolute symbols do not.
+Print the addresses of non-absolute symbols relative to _text
+so that ld will generate relocations.  Allowing a relocatable
+kernel to relocate them.  We can't actually use the symbol names
+because kallsyms includes static symbols that are not exported
+from their object files.
 
-Currently in the linker script we have several labels
-marking the beginning and ending of sections that
-are outside of sections, making them absolute symbols.
-Having a mixture of absolute and section relative
-symbols refereing to the same data is currently harmless
-but it is confusing.
-
-This must be done carefully as newer revs of ld do not place
-symbols that appear in sections without data and instead
-ld makes those symbols global :(
-
-My ultimate goal is to build a relocatable kernel.  The
-safest and least intrusive technique is to generate
-relocation entries so the kernel can be relocated at load
-time.  The only penalty would be an increase in the size
-of the kernel binary.  The problem is that if absolute and
-relocatable symbols are not properly specified absolute symbols
-will be relocated or section relative symbols won't be, which
-is fatal.
-
-The practical motivation is that when generating kernels that
-will run from a reserved area for analyzing what caused
-a kernel panic, it is simpler if you don't need to hard code
-the physical memory location they will run at, especially
-for the distributions.
+Add the _text symbol definitions to the architectures which don't
+define it otherwise linker will fail.
 
 Signed-off-by: Eric W. Biederman <ebiederm@xmission.com>
 Signed-off-by: Vivek Goyal <vgoyal@in.ibm.com>
 ---
 
- arch/i386/kernel/vmlinux.lds.S    |  109 ++++++++++++++++++++------------------
- include/asm-generic/vmlinux.lds.h |    4 -
- 2 files changed, 60 insertions(+), 53 deletions(-)
+ arch/h8300/kernel/vmlinux.lds.S     |    1 +
+ arch/m68knommu/kernel/vmlinux.lds.S |    1 +
+ arch/powerpc/kernel/vmlinux.lds.S   |    1 +
+ arch/ppc/kernel/vmlinux.lds.S       |    1 +
+ arch/sparc/kernel/vmlinux.lds.S     |    1 +
+ arch/sparc64/kernel/vmlinux.lds.S   |    1 +
+ arch/v850/kernel/vmlinux.lds.S      |    1 +
+ scripts/kallsyms.c                  |   20 +++++++++++++++++---
+ 8 files changed, 24 insertions(+), 3 deletions(-)
 
-diff -puN arch/i386/kernel/vmlinux.lds.S~i386-vmlinux.lds.S-Distinguish-absolute-symbols arch/i386/kernel/vmlinux.lds.S
---- linux-2.6.18-git17/arch/i386/kernel/vmlinux.lds.S~i386-vmlinux.lds.S-Distinguish-absolute-symbols	2006-10-02 13:17:58.000000000 -0400
-+++ linux-2.6.18-git17-root/arch/i386/kernel/vmlinux.lds.S	2006-10-02 14:38:44.000000000 -0400
-@@ -24,31 +24,32 @@ SECTIONS
-   . = __KERNEL_START;
-   phys_startup_32 = startup_32 - LOAD_OFFSET;
-   /* read-only */
--  _text = .;			/* Text and read-only data */
-   .text : AT(ADDR(.text) - LOAD_OFFSET) {
-+  	_text = .;			/* Text and read-only data */
- 	*(.text)
- 	SCHED_TEXT
- 	LOCK_TEXT
- 	KPROBES_TEXT
- 	*(.fixup)
- 	*(.gnu.warning)
--	} :text = 0x9090
--
--  _etext = .;			/* End of text section */
-+  	_etext = .;			/* End of text section */
-+  } :text = 0x9090
+diff -puN scripts/kallsyms.c~kallsyms.c-Generate-relocatable-symbols scripts/kallsyms.c
+--- linux-2.6.18-git17/scripts/kallsyms.c~kallsyms.c-Generate-relocatable-symbols	2006-10-02 13:17:59.000000000 -0400
++++ linux-2.6.18-git17-root/scripts/kallsyms.c	2006-10-02 13:17:59.000000000 -0400
+@@ -43,7 +43,7 @@ struct sym_entry {
  
-   . = ALIGN(16);		/* Exception table */
--  __start___ex_table = .;
--  __ex_table : AT(ADDR(__ex_table) - LOAD_OFFSET) { *(__ex_table) }
--  __stop___ex_table = .;
-+  __ex_table : AT(ADDR(__ex_table) - LOAD_OFFSET) {
-+  	__start___ex_table = .;
-+	 *(__ex_table)
-+  	__stop___ex_table = .;
-+  }
+ static struct sym_entry *table;
+ static unsigned int table_size, table_cnt;
+-static unsigned long long _stext, _etext, _sinittext, _einittext, _sextratext, _eextratext;
++static unsigned long long _text, _stext, _etext, _sinittext, _einittext, _sextratext, _eextratext;
+ static int all_symbols = 0;
+ static char symbol_prefix_char = '\0';
  
-   RODATA
+@@ -91,7 +91,9 @@ static int read_symbol(FILE *in, struct 
+ 		sym++;
  
-   . = ALIGN(4);
--  __tracedata_start = .;
-   .tracedata : AT(ADDR(.tracedata) - LOAD_OFFSET) {
-+  	__tracedata_start = .;
- 	*(.tracedata)
-+  	__tracedata_end = .;
-   }
--  __tracedata_end = .;
+ 	/* Ignore most absolute/undefined (?) symbols. */
+-	if (strcmp(sym, "_stext") == 0)
++	if (strcmp(sym, "_text") == 0)
++		_text = s->addr;
++	else if (strcmp(sym, "_stext") == 0)
+ 		_stext = s->addr;
+ 	else if (strcmp(sym, "_etext") == 0)
+ 		_etext = s->addr;
+@@ -265,9 +267,21 @@ static void write_src(void)
  
-   /* writeable */
-   .data : AT(ADDR(.data) - LOAD_OFFSET) {	/* Data */
-@@ -57,10 +58,12 @@ SECTIONS
- 	} :data
+ 	printf(".data\n");
  
-   . = ALIGN(4096);
--  __nosave_begin = .;
--  .data_nosave : AT(ADDR(.data_nosave) - LOAD_OFFSET) { *(.data.nosave) }
--  . = ALIGN(4096);
--  __nosave_end = .;
-+  .data_nosave : AT(ADDR(.data_nosave) - LOAD_OFFSET) {
-+  	__nosave_begin = .;
-+	*(.data.nosave)
-+  	. = ALIGN(4096);
-+  	__nosave_end = .;
-+  }
++	/* Provide proper symbols relocatability by their '_text'
++	 * relativeness.  The symbol names cannot be used to construct
++	 * normal symbol references as the list of symbols contains
++	 * symbols that are declared static and are private to their
++	 * .o files.  This prevents .tmp_kallsyms.o or any other
++	 * object from referencing them.
++	 */
+ 	output_label("kallsyms_addresses");
+ 	for (i = 0; i < table_cnt; i++) {
+-		printf("\tPTR\t%#llx\n", table[i].addr);
++		if (toupper(table[i].sym[0]) != 'A') {
++			printf("\tPTR\t_text + %#llx\n",
++				table[i].addr - _text);
++		} else {
++			printf("\tPTR\t%#llx\n", table[i].addr);
++		}
+ 	}
+ 	printf("\n");
  
-   . = ALIGN(4096);
-   .data.page_aligned : AT(ADDR(.data.page_aligned) - LOAD_OFFSET) {
-@@ -74,8 +77,10 @@ SECTIONS
+diff -puN arch/h8300/kernel/vmlinux.lds.S~kallsyms.c-Generate-relocatable-symbols arch/h8300/kernel/vmlinux.lds.S
+--- linux-2.6.18-git17/arch/h8300/kernel/vmlinux.lds.S~kallsyms.c-Generate-relocatable-symbols	2006-10-02 13:17:59.000000000 -0400
++++ linux-2.6.18-git17-root/arch/h8300/kernel/vmlinux.lds.S	2006-10-02 13:17:59.000000000 -0400
+@@ -70,6 +70,7 @@ SECTIONS
+ #endif
+         .text :
+ 	{
++	_text = .;
+ #if defined(CONFIG_ROMKERNEL)
+ 	*(.int_redirect)
+ #endif
+diff -puN arch/m68knommu/kernel/vmlinux.lds.S~kallsyms.c-Generate-relocatable-symbols arch/m68knommu/kernel/vmlinux.lds.S
+--- linux-2.6.18-git17/arch/m68knommu/kernel/vmlinux.lds.S~kallsyms.c-Generate-relocatable-symbols	2006-10-02 13:17:59.000000000 -0400
++++ linux-2.6.18-git17-root/arch/m68knommu/kernel/vmlinux.lds.S	2006-10-02 13:17:59.000000000 -0400
+@@ -60,6 +60,7 @@ SECTIONS {
+ #endif
  
-   /* rarely changed data like cpu maps */
-   . = ALIGN(32);
--  .data.read_mostly : AT(ADDR(.data.read_mostly) - LOAD_OFFSET) { *(.data.read_mostly) }
--  _edata = .;			/* End of data section */
-+  .data.read_mostly : AT(ADDR(.data.read_mostly) - LOAD_OFFSET) {
-+	*(.data.read_mostly)
-+	_edata = .;		/* End of data section */
-+  }
+ 	.text : {
++		_text = .;
+ 		_stext = . ;
+         	*(.text)
+ 		SCHED_TEXT
+diff -puN arch/powerpc/kernel/vmlinux.lds.S~kallsyms.c-Generate-relocatable-symbols arch/powerpc/kernel/vmlinux.lds.S
+--- linux-2.6.18-git17/arch/powerpc/kernel/vmlinux.lds.S~kallsyms.c-Generate-relocatable-symbols	2006-10-02 13:17:59.000000000 -0400
++++ linux-2.6.18-git17-root/arch/powerpc/kernel/vmlinux.lds.S	2006-10-02 13:17:59.000000000 -0400
+@@ -33,6 +33,7 @@ SECTIONS
  
- #ifdef CONFIG_STACK_UNWIND
-   . = ALIGN(4);
-@@ -93,39 +98,41 @@ SECTIONS
+ 	/* Text and gots */
+ 	.text : {
++		_text = .;
+ 		*(.text .text.*)
+ 		SCHED_TEXT
+ 		LOCK_TEXT
+diff -puN arch/ppc/kernel/vmlinux.lds.S~kallsyms.c-Generate-relocatable-symbols arch/ppc/kernel/vmlinux.lds.S
+--- linux-2.6.18-git17/arch/ppc/kernel/vmlinux.lds.S~kallsyms.c-Generate-relocatable-symbols	2006-10-02 13:17:59.000000000 -0400
++++ linux-2.6.18-git17-root/arch/ppc/kernel/vmlinux.lds.S	2006-10-02 13:17:59.000000000 -0400
+@@ -31,6 +31,7 @@ SECTIONS
+   .plt : { *(.plt) }
+   .text      :
+   {
++    _text = .;
+     *(.text)
+     SCHED_TEXT
+     LOCK_TEXT
+diff -puN arch/sparc64/kernel/vmlinux.lds.S~kallsyms.c-Generate-relocatable-symbols arch/sparc64/kernel/vmlinux.lds.S
+--- linux-2.6.18-git17/arch/sparc64/kernel/vmlinux.lds.S~kallsyms.c-Generate-relocatable-symbols	2006-10-02 13:17:59.000000000 -0400
++++ linux-2.6.18-git17-root/arch/sparc64/kernel/vmlinux.lds.S	2006-10-02 13:17:59.000000000 -0400
+@@ -13,6 +13,7 @@ SECTIONS
+   . = 0x4000;
+   .text 0x0000000000404000 :
+   {
++    _text = .;
+     *(.text)
+     SCHED_TEXT
+     LOCK_TEXT
+diff -puN arch/sparc/kernel/vmlinux.lds.S~kallsyms.c-Generate-relocatable-symbols arch/sparc/kernel/vmlinux.lds.S
+--- linux-2.6.18-git17/arch/sparc/kernel/vmlinux.lds.S~kallsyms.c-Generate-relocatable-symbols	2006-10-02 13:17:59.000000000 -0400
++++ linux-2.6.18-git17-root/arch/sparc/kernel/vmlinux.lds.S	2006-10-02 13:17:59.000000000 -0400
+@@ -11,6 +11,7 @@ SECTIONS
+   . = 0x10000 + SIZEOF_HEADERS;
+   .text 0xf0004000 :
+   {
++    _text = .;
+     *(.text)
+     SCHED_TEXT
+     LOCK_TEXT
+diff -puN arch/v850/kernel/vmlinux.lds.S~kallsyms.c-Generate-relocatable-symbols arch/v850/kernel/vmlinux.lds.S
+--- linux-2.6.18-git17/arch/v850/kernel/vmlinux.lds.S~kallsyms.c-Generate-relocatable-symbols	2006-10-02 13:17:59.000000000 -0400
++++ linux-2.6.18-git17-root/arch/v850/kernel/vmlinux.lds.S	2006-10-02 13:17:59.000000000 -0400
+@@ -90,6 +90,7 @@
  
-   /* might get freed after init */
-   . = ALIGN(4096);
--  __smp_alt_begin = .;
--  __smp_alt_instructions = .;
-   .smp_altinstructions : AT(ADDR(.smp_altinstructions) - LOAD_OFFSET) {
-+	__smp_alt_begin = .;
-+	__smp_alt_instructions = .;
- 	*(.smp_altinstructions)
-+	__smp_alt_instructions_end = .;
-   }
--  __smp_alt_instructions_end = .;
-   . = ALIGN(4);
--  __smp_locks = .;
-   .smp_locks : AT(ADDR(.smp_locks) - LOAD_OFFSET) {
-+	__smp_locks = .;
- 	*(.smp_locks)
-+	__smp_locks_end = .;
-   }
--  __smp_locks_end = .;
-   .smp_altinstr_replacement : AT(ADDR(.smp_altinstr_replacement) - LOAD_OFFSET) {
- 	*(.smp_altinstr_replacement)
-+	. = ALIGN(4096);
-+	__smp_alt_end = .;
-   }
--  . = ALIGN(4096);
--  __smp_alt_end = .;
- 
-   /* will be freed after init */
-   . = ALIGN(4096);		/* Init code and data */
--  __init_begin = .;
-   .init.text : AT(ADDR(.init.text) - LOAD_OFFSET) {
-+  	__init_begin = .;
- 	_sinittext = .;
- 	*(.init.text)
- 	_einittext = .;
-   }
-   .init.data : AT(ADDR(.init.data) - LOAD_OFFSET) { *(.init.data) }
-   . = ALIGN(16);
--  __setup_start = .;
--  .init.setup : AT(ADDR(.init.setup) - LOAD_OFFSET) { *(.init.setup) }
--  __setup_end = .;
--  __initcall_start = .;
-+  .init.setup : AT(ADDR(.init.setup) - LOAD_OFFSET) {
-+	__setup_start = .;
-+	*(.init.setup)
-+	__setup_end = .;
-+  }
-   .initcall.init : AT(ADDR(.initcall.init) - LOAD_OFFSET) {
-+	__initcall_start = .;
- 	*(.initcall1.init) 
- 	*(.initcall2.init) 
- 	*(.initcall3.init) 
-@@ -133,20 +140,20 @@ SECTIONS
- 	*(.initcall5.init) 
- 	*(.initcall6.init) 
- 	*(.initcall7.init)
-+	__initcall_end = .;
-   }
--  __initcall_end = .;
--  __con_initcall_start = .;
-   .con_initcall.init : AT(ADDR(.con_initcall.init) - LOAD_OFFSET) {
-+	__con_initcall_start = .;
- 	*(.con_initcall.init)
-+	__con_initcall_end = .;
-   }
--  __con_initcall_end = .;
-   SECURITY_INIT
-   . = ALIGN(4);
--  __alt_instructions = .;
-   .altinstructions : AT(ADDR(.altinstructions) - LOAD_OFFSET) {
-+	__alt_instructions = .;
- 	*(.altinstructions)
-+	__alt_instructions_end = .;
-   }
--  __alt_instructions_end = .; 
-   .altinstr_replacement : AT(ADDR(.altinstr_replacement) - LOAD_OFFSET) {
- 	*(.altinstr_replacement)
-   }
-@@ -155,32 +162,32 @@ SECTIONS
-   .exit.text : AT(ADDR(.exit.text) - LOAD_OFFSET) { *(.exit.text) }
-   .exit.data : AT(ADDR(.exit.data) - LOAD_OFFSET) { *(.exit.data) }
-   . = ALIGN(4096);
--  __initramfs_start = .;
--  .init.ramfs : AT(ADDR(.init.ramfs) - LOAD_OFFSET) { *(.init.ramfs) }
--  __initramfs_end = .;
-+  .init.ramfs : AT(ADDR(.init.ramfs) - LOAD_OFFSET) {
-+	__initramfs_start = .;
-+	*(.init.ramfs)
-+	__initramfs_end = .;
-+  }
-   . = ALIGN(L1_CACHE_BYTES);
--  __per_cpu_start = .;
--  .data.percpu  : AT(ADDR(.data.percpu) - LOAD_OFFSET) { *(.data.percpu) }
--  __per_cpu_end = .;
-+  .data.percpu  : AT(ADDR(.data.percpu) - LOAD_OFFSET) {
-+	__per_cpu_start = .;
-+	*(.data.percpu)
-+	__per_cpu_end = .;
-+  }
-   . = ALIGN(4096);
--  __init_end = .;
-   /* freed after init ends here */
- 	
--  __bss_start = .;		/* BSS */
--  .bss.page_aligned : AT(ADDR(.bss.page_aligned) - LOAD_OFFSET) {
--	*(.bss.page_aligned)
--  }
-   .bss : AT(ADDR(.bss) - LOAD_OFFSET) {
-+	__init_end = .;
-+	__bss_start = .;		/* BSS */
-+	*(.bss.page_aligned)
- 	*(.bss)
-+	. = ALIGN(4);
-+	__bss_stop = .;
-+  	_end = . ;
-+	/* This is where the kernel creates the early boot page tables */
-+	. = ALIGN(4096);
-+	pg0 = . ;
-   }
--  . = ALIGN(4);
--  __bss_stop = .; 
--
--  _end = . ;
--
--  /* This is where the kernel creates the early boot page tables */
--  . = ALIGN(4096);
--  pg0 = .;
- 
-   /* Sections to be discarded */
-   /DISCARD/ : {
-diff -puN include/asm-generic/vmlinux.lds.h~i386-vmlinux.lds.S-Distinguish-absolute-symbols include/asm-generic/vmlinux.lds.h
---- linux-2.6.18-git17/include/asm-generic/vmlinux.lds.h~i386-vmlinux.lds.S-Distinguish-absolute-symbols	2006-10-02 13:17:58.000000000 -0400
-+++ linux-2.6.18-git17-root/include/asm-generic/vmlinux.lds.h	2006-10-02 13:17:58.000000000 -0400
-@@ -11,8 +11,8 @@
- 
- #define RODATA								\
- 	. = ALIGN(4096);						\
--	__start_rodata = .;						\
- 	.rodata           : AT(ADDR(.rodata) - LOAD_OFFSET) {		\
-+		VMLINUX_SYMBOL(__start_rodata) = .;			\
- 		*(.rodata) *(.rodata.*)					\
- 		*(__vermagic)		/* Kernel version magic */	\
- 	}								\
-@@ -124,8 +124,8 @@
- 		VMLINUX_SYMBOL(__start___param) = .;			\
- 		*(__param)						\
- 		VMLINUX_SYMBOL(__stop___param) = .;			\
-+		VMLINUX_SYMBOL(__end_rodata) = .;			\
- 	}								\
--	__end_rodata = .;						\
- 	. = ALIGN(4096);
- 
- #define SECURITY_INIT							\
+ /* Kernel text segment, and some constant data areas.  */
+ #define TEXT_CONTENTS							      \
++		_text = .;						      \
+ 		__stext = . ;						      \
+         	*(.text)						      \
+ 		SCHED_TEXT						      \
 _

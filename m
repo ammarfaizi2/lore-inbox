@@ -1,94 +1,49 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030527AbWJCU7c@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030538AbWJCVA7@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030527AbWJCU7c (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Oct 2006 16:59:32 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030524AbWJCU7c
+	id S1030538AbWJCVA7 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Oct 2006 17:00:59 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030434AbWJCVA6
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Oct 2006 16:59:32 -0400
-Received: from e36.co.us.ibm.com ([32.97.110.154]:38833 "EHLO
-	e36.co.us.ibm.com") by vger.kernel.org with ESMTP id S1030429AbWJCU73
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Oct 2006 16:59:29 -0400
-Date: Tue, 3 Oct 2006 15:59:22 -0500
-To: akpm@osdl.org, jeff@garzik.org
-Cc: netdev@vger.kernel.org, James K Lewis <jklewis@us.ibm.com>,
-       linux-kernel@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
-       linuxppc-dev@ozlabs.org
-Subject: [PATCH 2/4]: Spidernet fix register field definitions
-Message-ID: <20061003205922.GG4381@austin.ibm.com>
-References: <20061003205240.GE4381@austin.ibm.com>
-MIME-Version: 1.0
+	Tue, 3 Oct 2006 17:00:58 -0400
+Received: from mx1.redhat.com ([66.187.233.31]:62872 "EHLO mx1.redhat.com")
+	by vger.kernel.org with ESMTP id S1030538AbWJCVA5 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Oct 2006 17:00:57 -0400
+Date: Tue, 3 Oct 2006 17:00:37 -0400
+From: Jakub Jelinek <jakub@redhat.com>
+To: Stas Sergeev <stsp@aknet.ru>
+Cc: Arjan van de Ven <arjan@infradead.org>,
+       Linux kernel <linux-kernel@vger.kernel.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Hugh Dickins <hugh@veritas.com>,
+       Ulrich Drepper <drepper@redhat.com>, Valdis.Kletnieks@vt.edu
+Subject: Re: [patch] remove MNT_NOEXEC check for PROT_EXEC mmaps
+Message-ID: <20061003210037.GO20982@devserv.devel.redhat.com>
+Reply-To: Jakub Jelinek <jakub@redhat.com>
+References: <4516B721.5070801@redhat.com> <45198395.4050008@aknet.ru> <1159396436.3086.51.camel@laptopd505.fenrus.org> <451E3C0C.10105@aknet.ru> <1159887682.2891.537.camel@laptopd505.fenrus.org> <45229A99.6060703@aknet.ru> <1159899820.2891.542.camel@laptopd505.fenrus.org> <4522AEA1.5060304@aknet.ru> <1159900934.2891.548.camel@laptopd505.fenrus.org> <4522B4F9.8000301@aknet.ru>
+Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20061003205240.GE4381@austin.ibm.com>
-User-Agent: Mutt/1.5.11
-From: linas@austin.ibm.com (Linas Vepstas)
+In-Reply-To: <4522B4F9.8000301@aknet.ru>
+User-Agent: Mutt/1.4.1i
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Tue, Oct 03, 2006 at 11:07:37PM +0400, Stas Sergeev wrote:
+> Arjan van de Ven wrote:
+> >then don't put noexec on /dev/shm.
+> That's obviously possible, but I'd feel safer having
+> "noexec" on *every* user-writable partition. It used
+> to work in the past - that way an attacker had no place
+> to run his binary from.
 
-This patch fixes the names of a few fields in the DMA control 
-register. There is no functional change.
+Even assuming ld.so would be hacked up so that it parses /proc/mounts
+to see if you are trying to run an executable via ld.so from
+noexec mount (which isn't going to happen), if mmap with PROT_EXEC
+is allowed on noexec mounts, you can always put there a shared
+library instead of a binary and put some interesting stuff in its
+constructors and then just LD_PRELOAD=/dev/shm/libmyhack.so /bin/true
+Really, if noexec is supposed to make any sense at all, it needs
+to prevent PROT_EXEC mapping/mprotect, otherwise it is completely
+useless.
 
-Signed-off-by: Linas Vepstas <linas@austin.ibm.com>
-Cc: James K Lewis <jklewis@us.ibm.com>
-Cc: Arnd Bergmann <arnd@arndb.de>
-
-----
-
- drivers/net/spider_net.c |    2 +-
- drivers/net/spider_net.h |   14 +++++++++-----
- 2 files changed, 10 insertions(+), 6 deletions(-)
-
-Index: linux-2.6.18-mm2/drivers/net/spider_net.c
-===================================================================
---- linux-2.6.18-mm2.orig/drivers/net/spider_net.c	2006-10-02 18:59:43.000000000 -0500
-+++ linux-2.6.18-mm2/drivers/net/spider_net.c	2006-10-02 19:06:55.000000000 -0500
-@@ -1639,7 +1639,7 @@ spider_net_enable_card(struct spider_net
- 			     SPIDER_NET_INT2_MASK_VALUE);
- 
- 	spider_net_write_reg(card, SPIDER_NET_GDTDMACCNTR,
--			     SPIDER_NET_GDTDCEIDIS);
-+			     SPIDER_NET_GDTBSTA);
- }
- 
- /**
-Index: linux-2.6.18-mm2/drivers/net/spider_net.h
-===================================================================
---- linux-2.6.18-mm2.orig/drivers/net/spider_net.h	2006-10-02 18:58:11.000000000 -0500
-+++ linux-2.6.18-mm2/drivers/net/spider_net.h	2006-10-02 19:06:55.000000000 -0500
-@@ -191,7 +191,9 @@ extern char spider_net_driver_name[];
- #define SPIDER_NET_MACMODE_VALUE	0x00000001
- #define SPIDER_NET_BURSTLMT_VALUE	0x00000200 /* about 16 us */
- 
--/* 1(0)					enable r/tx dma
-+/* DMAC control register GDMACCNTR
-+ *
-+ * 1(0)				enable r/tx dma
-  *  0000000				fixed to 0
-  *
-  *         000000			fixed to 0
-@@ -200,6 +202,7 @@ extern char spider_net_driver_name[];
-  *
-  *                 000000		fixed to 0
-  *                       00		burst alignment: 128 bytes
-+ *                       11		burst alignment: 1024 bytes
-  *
-  *                         00000	fixed to 0
-  *                              0	descr writeback size 32 bytes
-@@ -210,10 +213,11 @@ extern char spider_net_driver_name[];
- #define SPIDER_NET_DMA_RX_VALUE		0x80000000
- #define SPIDER_NET_DMA_RX_FEND_VALUE	0x00030003
- /* to set TX_DMA_EN */
--#define SPIDER_NET_TX_DMA_EN		0x80000000
--#define SPIDER_NET_GDTDCEIDIS		0x00000300
--#define SPIDER_NET_DMA_TX_VALUE		SPIDER_NET_TX_DMA_EN | \
--					SPIDER_NET_GDTDCEIDIS
-+#define SPIDER_NET_TX_DMA_EN           0x80000000
-+#define SPIDER_NET_GDTBSTA             0x00000300
-+#define SPIDER_NET_GDTDCEIDIS          0x00000002
-+#define SPIDER_NET_DMA_TX_VALUE        SPIDER_NET_TX_DMA_EN | \
-+                                       SPIDER_NET_GDTBSTA
- #define SPIDER_NET_DMA_TX_FEND_VALUE	0x00030003
- 
- /* SPIDER_NET_UA_DESCR_VALUE is OR'ed with the unicast address */
+	Jakub

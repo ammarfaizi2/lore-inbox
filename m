@@ -1,56 +1,67 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030484AbWJCSlZ@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030262AbWJCSmi@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030484AbWJCSlZ (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Oct 2006 14:41:25 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030478AbWJCSlY
+	id S1030262AbWJCSmi (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Oct 2006 14:42:38 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030472AbWJCSmi
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Oct 2006 14:41:24 -0400
-Received: from madara.hpl.hp.com ([192.6.19.124]:47605 "EHLO madara.hpl.hp.com")
-	by vger.kernel.org with ESMTP id S1030477AbWJCSk7 (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Oct 2006 14:40:59 -0400
-Date: Tue, 3 Oct 2006 11:40:16 -0700
-To: Hugh Dickins <hugh@veritas.com>
-Cc: "John W. Linville" <linville@tuxdriver.com>,
-       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, jeff@garzik.org
-Subject: Re: wpa supplicant/ipw3945, ESSID last char missing
-Message-ID: <20061003184016.GB17635@bougret.hpl.hp.com>
-Reply-To: jt@hpl.hp.com
-References: <20061002085942.GA32387@gamma.logic.tuwien.ac.at> <5a4c581d0610020221s7bf100f8q893161b7c8c492d2@mail.gmail.com> <1159807483.4067.150.camel@mindpipe> <20061003123835.GA23912@tuxdriver.com> <1159890876.20801.65.camel@mindpipe> <Pine.LNX.4.64.0610030916000.3952@g5.osdl.org> <20061003180543.GD23912@tuxdriver.com> <Pine.LNX.4.64.0610031923520.3328@blonde.wat.veritas.com>
+	Tue, 3 Oct 2006 14:42:38 -0400
+Received: from pentafluge.infradead.org ([213.146.154.40]:46295 "EHLO
+	pentafluge.infradead.org") by vger.kernel.org with ESMTP
+	id S1030458AbWJCSmg (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Oct 2006 14:42:36 -0400
+Subject: Re: [patch] remove MNT_NOEXEC check for PROT_EXEC mmaps
+From: Arjan van de Ven <arjan@infradead.org>
+To: Stas Sergeev <stsp@aknet.ru>
+Cc: Linux kernel <linux-kernel@vger.kernel.org>,
+       Alan Cox <alan@lxorguk.ukuu.org.uk>, Hugh Dickins <hugh@veritas.com>,
+       Ulrich Drepper <drepper@redhat.com>, Valdis.Kletnieks@vt.edu
+In-Reply-To: <4522AEA1.5060304@aknet.ru>
+References: <45150CD7.4010708@aknet.ru>
+	 <Pine.LNX.4.64.0609231555390.27012@blonde.wat.veritas.com>
+	 <451555CB.5010006@aknet.ru>
+	 <Pine.LNX.4.64.0609231647420.29557@blonde.wat.veritas.com>
+	 <1159037913.24572.62.camel@localhost.localdomain>
+	 <45162BE5.2020100@aknet.ru>
+	 <1159106032.11049.12.camel@localhost.localdomain>
+	 <45169C0C.5010001@aknet.ru> <4516A8E3.4020100@redhat.com>
+	 <4516B2C8.4050202@aknet.ru> <4516B721.5070801@redhat.com>
+	 <45198395.4050008@aknet.ru>
+	 <1159396436.3086.51.camel@laptopd505.fenrus.org> <451E3C0C.10105@aknet.ru>
+	 <1159887682.2891.537.camel@laptopd505.fenrus.org>
+	 <45229A99.6060703@aknet.ru>
+	 <1159899820.2891.542.camel@laptopd505.fenrus.org>
+	 <4522AEA1.5060304@aknet.ru>
+Content-Type: text/plain
+Organization: Intel International BV
+Date: Tue, 03 Oct 2006 20:42:14 +0200
+Message-Id: <1159900934.2891.548.camel@laptopd505.fenrus.org>
 Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <Pine.LNX.4.64.0610031923520.3328@blonde.wat.veritas.com>
-Organisation: HP Labs Palo Alto
-Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
-E-mail: jt@hpl.hp.com
-User-Agent: Mutt/1.5.9i
-From: Jean Tourrilhes <jt@hpl.hp.com>
-X-HPL-MailScanner: Found to be clean
-X-HPL-MailScanner-From: jt@hpl.hp.com
+X-Mailer: Evolution 2.2.3 (2.2.3-2.fc4) 
+Content-Transfer-Encoding: 7bit
+X-SRS-Rewrite: SMTP reverse-path rewritten from <arjan@infradead.org> by pentafluge.infradead.org
+	See http://www.infradead.org/rpr.html
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 03, 2006 at 07:31:08PM +0100, Hugh Dickins wrote:
-> On Tue, 3 Oct 2006, John W. Linville wrote:
-> > 
-> > Today's news seems to indicate that at least the major distros are
-> > already shipping the updated tools, or on the verge of shipping them.
-> > The window of breakage for most users looks like it will be fairly
-> > small, no matter what action taken.
-> > 
-> > The more we can clean-up the WE API, the easier it will be to implement
-> > the cfg80211 WE compatibility layer intended for wireless-dev.
-> > I think WE-21 makes things better in that respect.
+On Tue, 2006-10-03 at 22:40 +0400, Stas Sergeev wrote:
+> Hello.
 > 
-> Please correct me if I'm wrong: isn't it the case that a few of the
-> distros are now coming out with wireless_tools.28 supporting WE-20,
-> but current 2.6.18-git wireless drivers are WE-21, supported only
-> by wireless_tools.29.pre10?
-> 
-> Hugh
+> Arjan van de Ven wrote:
+> > you do "noexec" and then complain that executing (!!) windows binaries
+> > from that gets more of a problem!
+> It only became slower and more memory-consuming -
+> is this really what you wanted to achieve?
+> Also, you haven't commented on the other points,
+> namely, the problem of getting a shm with an exec
 
-	wireless_tools.28 do support WE-21. I'm not a fool.
+then don't put noexec on /dev/shm.
 
-	Jean
+> permission, and the current limitation of an ld.so
+> fix (and the solution to it).
+
+ld.so fix is phony. Really; I can always put an "unfixed" ld.so there
+and use it as user. 
+
+-- 
+if you want to mail me at work (you don't), use arjan (at) linux.intel.com
+

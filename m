@@ -1,181 +1,68 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932328AbWJCIvT@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965194AbWJCIxx@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932328AbWJCIvT (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Oct 2006 04:51:19 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932157AbWJCIvT
+	id S965194AbWJCIxx (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Oct 2006 04:53:53 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932547AbWJCIxx
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Oct 2006 04:51:19 -0400
-Received: from calculon.skynet.ie ([193.1.99.88]:16318 "EHLO
-	calculon.skynet.ie") by vger.kernel.org with ESMTP id S965592AbWJCIvS
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Oct 2006 04:51:18 -0400
-Date: Tue, 3 Oct 2006 09:51:16 +0100 (IST)
-From: Mel Gorman <mel@csn.ul.ie>
-X-X-Sender: mel@skynet.skynet.ie
-To: Benjamin Herrenschmidt <benh@kernel.crashing.org>
-Cc: Judith Lebzelter <judith@osdl.org>, linux-kernel@vger.kernel.org,
-       akpm@osdl.org, Paul Mackerras <paulus@samba.org>
-Subject: Re: 2.6.18-rc6-mm2: fix for error compiling ppc/mm/init.c
-In-Reply-To: <1159849491.5482.24.camel@localhost.localdomain>
-Message-ID: <Pine.LNX.4.64.0610030909490.2904@skynet.skynet.ie>
-References: <20060914173705.GC19807@shell0.pdx.osdl.net> 
- <Pine.LNX.4.64.0609141910440.1812@skynet.skynet.ie>
- <1159849491.5482.24.camel@localhost.localdomain>
+	Tue, 3 Oct 2006 04:53:53 -0400
+Received: from highlandsun.propagation.net ([66.221.212.168]:5901 "EHLO
+	highlandsun.propagation.net") by vger.kernel.org with ESMTP
+	id S932543AbWJCIxw (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Oct 2006 04:53:52 -0400
+Message-ID: <452224E7.9060105@symas.com>
+Date: Tue, 03 Oct 2006 01:52:55 -0700
+From: Howard Chu <hyc@symas.com>
+User-Agent: Mozilla/5.0 (Windows; U; Windows NT 5.1; en-US; rv:1.9a1) Gecko/20060911 Netscape/7.2 (ax) Firefox/1.5 SeaMonkey/1.5a
 MIME-Version: 1.0
-Content-Type: TEXT/PLAIN; charset=US-ASCII; format=flowed
+To: John Graham-Cumming <antispam@jgc.org>
+CC: linux-kernel@vger.kernel.org
+Subject: Re: Spam, bogofilter, etc
+References: <1159539793.7086.91.camel@mindpipe>  <20061002100302.GS16047@mea-ext.zmailer.org> <1159802486.4067.140.camel@mindpipe> <45212F39.5000307@mbligh.org> <Pine.LNX.4.64.0610020933020.3952@g5.osdl.org> <loom.20061003T100646-668@post.gmane.org>
+In-Reply-To: <loom.20061003T100646-668@post.gmane.org>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 3 Oct 2006, Benjamin Herrenschmidt wrote:
+John Graham-Cumming wrote:
+> Linus Torvalds <torvalds <at> osdl.org> writes:
+>> I'm sorry, but spam-filtering is simply harder than the bayesian 
+>> word-count weenies think it is. I even used to _know_ something about 
+>> bayesian filtering, since it was one of the projects I worked on at uni, 
+>> and dammit, it's not a good approach, as shown by the fact that it's 
+>> trivial to get around.
 
-> On Thu, 2006-09-14 at 19:11 +0100, Mel Gorman wrote:
->> On Thu, 14 Sep 2006, Judith Lebzelter wrote:
->>
->>> For ppc in our cross-compile build farm (PLM), there is an error
->>> compiling file ppc/mm/init.c:
->>>
->>>  CC      arch/ppc/mm/init.o
->>>  CC      arch/powerpc/kernel/init_task.o
->>> arch/ppc/mm/init.c: In function 'paging_init':
->>> arch/ppc/mm/init.c:381: error: subscripted value is neither array nor pointer
->>> arch/ppc/mm/init.c:383: warning: passing argument 1 of '/' makes pointer from integer without a cast
->>> make[1]: [arch/ppc/mm/init.o] Error 1 (ignored)
->>>
->>>
->>> This is caused by an error/oversight in file
->>> 'have-power-use-add_active_range-and-free_area_init_nodes.patch'
->>>
->>> Here is a patch to fix that patch.
->>>
->>
->> Looks good. Thanks
->>
->> Acked-by: Mel Gorman <mel@csn.ul.ie>
->
-> Note that the whole ppc patch here seems broken. Sorry for not jumping
-> earlier, I've been swamped with other things.
->
-> First, why the heck do you use indices 0 and 1 explicitely rather than
-> the symbolic constants ?
+> Have you actually followed any of the research into Bayesian (and similar
+> machine learning based) anti-spam filtering, and attacks on such filters?  Are
+> you making a claim that these filters are 'trivial to get around' based on a
+> project you did at University over 10 years ago?
 
-Because in the -mm kernel the patches were rolled against, ZONE_DMA was 
-optional and MAX_NR_ZONES could change which led to this confusion. It is 
-wrong and thanks for catching it. However, this is a a fairly small part 
-of the whole patch, is it an exaggeration to call the whole patch broken?
+Well the recent spate of spams with technical/jargon keywords in their 
+subjects was enough to make my Seamonkey client start marking all 
+incoming mail as spam. Interesting that recent journals talk about this 
+as an approach to get spam past current filters; instead it had a 
+reverse effect.
 
-On a semi-related (but not very important) note, why does PPC use ZONE_DMA 
-as it's lowest zone and not ZONE_NORMAL? I currently view zones as 
-meaning;
+So much for email management at our hosting provider. At least on my 
+highlandsun.com domain I've got my own sendmail milter blocking spams 
+before they get into the server. It's basically the equivalent of a 
+sendmail accessdb in LDAP, plus simple rules to reject relays from 
+unregistered IP addresses, or addresses with dynamically generated 
+hostnames. Rejecting with 451 temporary failure is also useful, most 
+bulk mailer programs fail immediately and go away. Real mail servers 
+will retry; by looking at the logs of the envelope FROM and RCPT I can 
+pick out any emails that should have been let thru and add an OK 
+exception to LDAP so the message eventually gets redelivered. I suppose 
+I could put a URL in the reject error message, and let the sender 
+confirm it from there. At this point the only spam that gets thru is 
+from dedicated mass marketers with legitimate DNS registrations and I 
+just manually add their subnets to my blacklist.
 
-ZONE_DMA - The physical range of memory usable by a subset of devices
- 	available on the target platform (usually considered to be ISA
- 	devices). It is mapped into the kernel
- 	virtual address space
-
-ZONE_DMA32 - The physical range of memory usable by 32 bit devices on 64
- 	bit platforms. It is mapped into the kernel virtual address space
-
-ZONE_NORMAL - The physical range of memory excluding the lower
- 	zones directly mapped into the kernel virtual address space.
-
-ZONE_HIGHMEM - The higher physical address spaces not permanently mapped
- 	into the kernel virtual address space
-
-This is not 100% bullet-proof definition. For example, memmap can be 
-allocated from highmem and placed in the kernel virtual address space. But 
-by the definitions above, ppc would have no ZONE_DMA, only ZONE_NORMAL and 
-ZONE_HIGHMEM. Was ZONE_DMA used for any particular reason?
-
-> ppc doesn't have a ZONE_NORMAL, so we should be
-> filling ZONE_DMA and ZONE_HIGHMEM but you end up filling ZONE_DMA and
-> ZONE_NORMAL and leave ZONE_HIGHMEM alone. Also, you leave other entries
-> filled with crap (the array isn't initialized) which cause some strange
-> display of the PFN list, if not worse problems later, I don't know for
-> sure at this stage.
->
-
-By the PFN list, I assume you mean the dmesg entry that starts with "Zone 
-PFN ranges:". If that is messed up, it is bad, but it should still boot 
-albeit with memory in the wrong zones.
-
-> I've about to run some tests with this patch.
-
-I made a minor comment on your patch below.
-
-> Looks like we need give a
-> closer look at those patches, in case that breakage appears on other
-> archs as well (or similar).
-
-I looked through the other patches for similar breakage. On x86, 
-max_zone_pfns is initialised as;
-
-# x86 init
-+       unsigned long max_zone_pfns[MAX_NR_ZONES] = {
-+               virt_to_phys((char *)MAX_DMA_ADDRESS) >> PAGE_SHIFT,
-+               max_low_pfn,
-+               highend_pfn
-+       };
-
-as it does not have ZONE_DMA32, I believe it's ok. On x86_64, I used
-
-# x86_64 init
-+       unsigned long max_zone_pfns[MAX_NR_ZONES] = {MAX_DMA_PFN,
-+                                                       MAX_DMA32_PFN,
-+                                                       end_pfn};
-
-This should be ok because x86_64 uses ZONE_NORMAL as the highest zone.
-
-On ia64, there is
-
-# ia64
-+       max_zone_pfns[ZONE_DMA] = max_dma;
-+       max_zone_pfns[ZONE_NORMAL] = max_low_pfn;
-
-That should also be ok because it doesn't use HIGHMEM.
-
-How do they look to you?
-
-
-> ---
->
-> New zone initialisation on powerpc is broken, especially with
-> CONFIG_HIGHMEM, this fixes it by initializing the array to 0 and filling
-> up the right entries.
->
-> Signed-off-by: Benjamin Herrenschmidt <benh@kernel.crashing.org>
->
-> Index: linux-work/arch/powerpc/mm/mem.c
-> ===================================================================
-> --- linux-work.orig/arch/powerpc/mm/mem.c	2006-10-03 12:41:03.000000000 +1000
-> +++ linux-work/arch/powerpc/mm/mem.c	2006-10-03 14:08:30.000000000 +1000
-> @@ -307,11 +307,12 @@ void __init paging_init(void)
-> 	       top_of_ram, total_ram);
-> 	printk(KERN_DEBUG "Memory hole size: %ldMB\n",
-> 	       (top_of_ram - total_ram) >> 20);
-> +	memset(max_zone_pfns, 0, sizeof(max_zone_pfns));
-> #ifdef CONFIG_HIGHMEM
-> -	max_zone_pfns[0] = total_lowmem >> PAGE_SHIFT;
-> -	max_zone_pfns[1] = top_of_ram >> PAGE_SHIFT;
-> +	max_zone_pfns[ZONE_DMA] = total_lowmem >> PAGE_SHIFT;
-
-Add
-
-max_zone_pfns[ZONE_NORMAL] = total_lowmem >> PAGE_SHIFT;
-
-The effect will be that ZONE_NORMAL will be initialised as empty.
-
-> +	max_zone_pfns[ZONE_HIGHMEM] = top_of_ram >> PAGE_SHIFT;
-> #else
-> -	max_zone_pfns[0] = top_of_ram >> PAGE_SHIFT;
-> +	max_zone_pfns[ZONE_DMA] = top_of_ram >> PAGE_SHIFT;
-> #endif
-> 	free_area_init_nodes(max_zone_pfns);
-> }
->
->
->
-
+(One then is faced with the interesting question - what if someone from 
+one of those companies was actually trying to hire my services? Their 
+loss I guess, sometimes money really is tainted...)
 -- 
-Mel Gorman
-Part-time Phd Student                          Linux Technology Center
-University of Limerick                         IBM Dublin Software Lab
+   -- Howard Chu
+   Chief Architect, Symas Corp.  http://www.symas.com
+   Director, Highland Sun        http://highlandsun.com/hyc
+   OpenLDAP Core Team            http://www.openldap.org/project/

@@ -1,60 +1,53 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1751042AbWJCSR1@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964889AbWJCSUO@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1751042AbWJCSR1 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Oct 2006 14:17:27 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1751053AbWJCSR1
+	id S964889AbWJCSUO (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Oct 2006 14:20:14 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964893AbWJCSUO
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Oct 2006 14:17:27 -0400
-Received: from e34.co.us.ibm.com ([32.97.110.152]:64913 "EHLO
-	e34.co.us.ibm.com") by vger.kernel.org with ESMTP id S1751041AbWJCSR0
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Oct 2006 14:17:26 -0400
-Subject: Re: 2.6.18-mm3
-From: Badari Pulavarty <pbadari@us.ibm.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: lkml <linux-kernel@vger.kernel.org>, linux-mm <linux-mm@kvack.org>
-In-Reply-To: <20061003110136.3a572578.akpm@osdl.org>
-References: <20061003001115.e898b8cb.akpm@osdl.org>
-	 <1159897051.9569.0.camel@dyn9047017100.beaverton.ibm.com>
-	 <20061003110136.3a572578.akpm@osdl.org>
-Content-Type: text/plain
-Date: Tue, 03 Oct 2006 11:16:57 -0700
-Message-Id: <1159899417.9569.11.camel@dyn9047017100.beaverton.ibm.com>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.0.4 (2.0.4-4) 
+	Tue, 3 Oct 2006 14:20:14 -0400
+Received: from srv5.dvmed.net ([207.36.208.214]:11241 "EHLO mail.dvmed.net")
+	by vger.kernel.org with ESMTP id S964889AbWJCSUL (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Oct 2006 14:20:11 -0400
+Message-ID: <4522A9BE.9000805@garzik.org>
+Date: Tue, 03 Oct 2006 14:19:42 -0400
+From: Jeff Garzik <jeff@garzik.org>
+User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
+MIME-Version: 1.0
+To: "John W. Linville" <linville@tuxdriver.com>
+CC: Linus Torvalds <torvalds@osdl.org>, Lee Revell <rlrevell@joe-job.com>,
+       Alessandro Suardi <alessandro.suardi@gmail.com>,
+       Norbert Preining <preining@logic.at>, hostap@shmoo.com,
+       ipw3945-devel@lists.sourceforge.net, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, johannes@sipsolutions.net, jt@hpl.hp.com
+Subject: Re: wpa supplicant/ipw3945, ESSID last char missing
+References: <20061002085942.GA32387@gamma.logic.tuwien.ac.at> <5a4c581d0610020221s7bf100f8q893161b7c8c492d2@mail.gmail.com> <1159807483.4067.150.camel@mindpipe> <20061003123835.GA23912@tuxdriver.com> <1159890876.20801.65.camel@mindpipe> <Pine.LNX.4.64.0610030916000.3952@g5.osdl.org> <20061003180543.GD23912@tuxdriver.com>
+In-Reply-To: <20061003180543.GD23912@tuxdriver.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
 Content-Transfer-Encoding: 7bit
+X-Spam-Score: -4.3 (----)
+X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
+	Content analysis details:   (-4.3 points, 5.0 required)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-10-03 at 11:01 -0700, Andrew Morton wrote:
-...
+John W. Linville wrote:
+> The more we can clean-up the WE API, the easier it will be to implement
+> the cfg80211 WE compatibility layer intended for wireless-dev.
+> I think WE-21 makes things better in that respect.
 > 
-> http://userweb.kernel.org/~akpm/badari2.bz2 is a rollup against 2.6.18
-> which omits the various zone changes.  Can you see if that also fails?
+> Finally, I already scaled-back Jean's original WE-21 patch.  I only
+> anticipate minor bug fixes for WE from now on, with nl80211/cfg80211
+> as the heir-apparent.
+> 
+> With all that said, I'd prefer to keep the existing WE-21 patches and
+> add Jean's fixes ASAP.  Is this acceptable?  If not, I'll submit the
+> reversions to Jeff ASAP.
 
-I can't compile this. I found the problem with -mm3 (I sent the patch
-already). Networking is working fine now on -mm3. So I don't bother
-trying this for now ?
+I for one don't want to change the userspace ABI for this...  If I had 
+realized the userspace ABI was changing (<- my fault), I wouldn't have 
+merged the changes in the first place.
 
-  CHK     include/linux/version.h
-  CHK     include/linux/utsrelease.h
-  CC      arch/x86_64/kernel/asm-offsets.s
-In file included from arch/x86_64/kernel/asm-offsets.c:7:
-include/linux/crypto.h:20:24: error: asm/atomic.h: No such file or
-directory
-In file included from include/linux/sched.h:4,
-                 from include/linux/module.h:9,
-                 from include/linux/crypto.h:21,
-                 from arch/x86_64/kernel/asm-offsets.c:7:
-include/linux/auxvec.h:4:24: error: asm/auxvec.h: No such file or
-directory
-In file included from include/linux/module.h:9,
-                 from include/linux/crypto.h:21,
-                 from arch/x86_64/kernel/asm-offsets.c:7:
-include/linux/sched.h:44:36: error: asm/param.h: No such file or
-directory
+	Jeff
 
-
-Thanks,
-Badari
 

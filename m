@@ -1,49 +1,70 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030628AbWJCWae@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030621AbWJCWbo@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030628AbWJCWae (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Oct 2006 18:30:34 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030632AbWJCWae
+	id S1030621AbWJCWbo (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Oct 2006 18:31:44 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030618AbWJCWbn
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Oct 2006 18:30:34 -0400
-Received: from srv5.dvmed.net ([207.36.208.214]:16005 "EHLO mail.dvmed.net")
-	by vger.kernel.org with ESMTP id S1030628AbWJCWad (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Oct 2006 18:30:33 -0400
-Message-ID: <4522E479.1090105@garzik.org>
-Date: Tue, 03 Oct 2006 18:30:17 -0400
-From: Jeff Garzik <jeff@garzik.org>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060913)
-MIME-Version: 1.0
-To: jt@hpl.hp.com
-CC: Linus Torvalds <torvalds@osdl.org>,
-       "John W. Linville" <linville@tuxdriver.com>,
-       Lee Revell <rlrevell@joe-job.com>,
+	Tue, 3 Oct 2006 18:31:43 -0400
+Received: from gundega.hpl.hp.com ([192.6.19.190]:27094 "EHLO
+	gundega.hpl.hp.com") by vger.kernel.org with ESMTP id S1030621AbWJCWbm
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Oct 2006 18:31:42 -0400
+Date: Tue, 3 Oct 2006 15:27:07 -0700
+To: Jeff Garzik <jeff@garzik.org>
+Cc: "John W. Linville" <linville@tuxdriver.com>,
+       Linus Torvalds <torvalds@osdl.org>, Lee Revell <rlrevell@joe-job.com>,
        Alessandro Suardi <alessandro.suardi@gmail.com>,
        Norbert Preining <preining@logic.at>, hostap@shmoo.com,
        Andrew Morton <akpm@osdl.org>, linux-kernel@vger.kernel.org,
        johannes@sipsolutions.net
 Subject: Re: wpa supplicant/ipw3945, ESSID last char missing
-References: <1159807483.4067.150.camel@mindpipe> <20061003123835.GA23912@tuxdriver.com> <1159890876.20801.65.camel@mindpipe> <Pine.LNX.4.64.0610030916000.3952@g5.osdl.org> <20061003180543.GD23912@tuxdriver.com> <4522A9BE.9000805@garzik.org> <20061003183849.GA17635@bougret.hpl.hp.com> <4522B311.7070905@garzik.org> <20061003214038.GE23912@tuxdriver.com> <Pine.LNX.4.64.0610031454420.3952@g5.osdl.org> <20061003221612.GA1790@bougret.hpl.hp.com>
-In-Reply-To: <20061003221612.GA1790@bougret.hpl.hp.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
-Content-Transfer-Encoding: 7bit
-X-Spam-Score: -4.3 (----)
-X-Spam-Report: SpamAssassin version 3.1.3 on srv5.dvmed.net summary:
-	Content analysis details:   (-4.3 points, 5.0 required)
+Message-ID: <20061003222707.GB1790@bougret.hpl.hp.com>
+Reply-To: jt@hpl.hp.com
+References: <1159807483.4067.150.camel@mindpipe> <20061003123835.GA23912@tuxdriver.com> <1159890876.20801.65.camel@mindpipe> <Pine.LNX.4.64.0610030916000.3952@g5.osdl.org> <20061003180543.GD23912@tuxdriver.com> <4522A9BE.9000805@garzik.org> <20061003183849.GA17635@bougret.hpl.hp.com> <4522B311.7070905@garzik.org> <20061003214038.GE23912@tuxdriver.com> <4522DA9B.6050207@garzik.org>
+Mime-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <4522DA9B.6050207@garzik.org>
+Organisation: HP Labs Palo Alto
+Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
+E-mail: jt@hpl.hp.com
+User-Agent: Mutt/1.5.9i
+From: Jean Tourrilhes <jt@hpl.hp.com>
+X-HPL-MailScanner: Found to be clean
+X-HPL-MailScanner-From: jt@hpl.hp.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Jean Tourrilhes wrote:
-> 	Wrong.
-> 	Slackware has just released with WE-21 aware tools. Users of
-> this version of Slackware will never see anything else than WE-21
-> aware tools. And if there is a distro and users which are
-> conservative, this is Slackware.
-> 	Same deal for Mandriva 2007.
+On Tue, Oct 03, 2006 at 05:48:11PM -0400, Jeff Garzik wrote:
+> John W. Linville wrote:
+> >Unfortunately, I don't see any way to "fix" WE-21 without similarly
+> >breaking wireless-tools 29 and other "WE-21 aware" apps.  And since
+> >I'll bet that the various WE-aware apps have checks like "if WE >
+> >20" for managing ESSID length settings, we may have painted ourselves
+> >into a korner (sic).
+> 
+> The apps are based on a pre-release kernel, which everyone knows could 
+> change, precisely for reasons like this.  Sounds like somebody took a 
+> risk, and lost...
+> 
+> 	Jeff
 
-And those distros have the standard option of doing what you always do 
-when you release based on an unreleased API...
+	Jeff,
 
-	Jeff
+	Let's not make a mountain of this molehill. If you want to use
+old versions of Wireless Tools and wpa_supplicant with WE-21, what you
+need is just to add a dummy character at the end of your ESSID. And
+everything will be fine.
 
+	Also, there is no other way to update cleanly a kernel API
+than to push userspace first. I think I took way more care in term of
+smoothing over the API transition than any other kernel subsystem, so
+I don't know what could have been done better. I don't remember this
+level of flamewar when those other subsystems did change their
+userspace APIs.
+	I try to be constructive about all this, so let's find a way
+forward without loosing perspective.
 
+	Regards,
+
+	Jean

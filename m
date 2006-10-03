@@ -1,66 +1,57 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932281AbWJCQps@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S932276AbWJCQph@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S932281AbWJCQps (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Oct 2006 12:45:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932282AbWJCQps
+	id S932276AbWJCQph (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Oct 2006 12:45:37 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S932281AbWJCQph
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Oct 2006 12:45:48 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:60075 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S932281AbWJCQpr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Oct 2006 12:45:47 -0400
-Date: Tue, 3 Oct 2006 12:45:37 -0400
-From: Dave Jones <davej@redhat.com>
-To: Andrew Morton <akpm@osdl.org>, Eric Sandeen <sandeen@sandeen.net>,
-       Linux Kernel <linux-kernel@vger.kernel.org>, esandeen@redhat.com,
-       Badari Pulavarty <pbadari@us.ibm.com>, Jan Kara <jack@ucw.cz>
-Subject: Re: 2.6.18 ext3 panic.
-Message-ID: <20061003164537.GC23492@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Andrew Morton <akpm@osdl.org>, Eric Sandeen <sandeen@sandeen.net>,
-	Linux Kernel <linux-kernel@vger.kernel.org>, esandeen@redhat.com,
-	Badari Pulavarty <pbadari@us.ibm.com>, Jan Kara <jack@ucw.cz>
-References: <20061002194711.GA1815@redhat.com> <20061003052219.GA15563@redhat.com> <4521F865.6060400@sandeen.net> <20061002231945.f2711f99.akpm@osdl.org> <20061003064030.GA23492@redhat.com>
+	Tue, 3 Oct 2006 12:45:37 -0400
+Received: from anyanka.rfc1149.net ([81.56.47.149]:23781 "EHLO
+	mail2.rfc1149.net") by vger.kernel.org with ESMTP id S932276AbWJCQpg
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Oct 2006 12:45:36 -0400
+Date: Tue, 3 Oct 2006 18:45:35 +0200
+To: Jean Tourrilhes <jt@hpl.hp.com>
+Cc: Pavel Roskin <proski@gnu.org>, "John W. Linville" <linville@tuxdriver.com>,
+       linux-kernel@vger.kernel.org, netdev@vger.kernel.org
+Subject: Re: 2.6.18-mm2 - oops in cache_alloc_refill()
+References: <20060928014623.ccc9b885.akpm@osdl.org> <200609290319.k8T3JOwS005455@turing-police.cc.vt.edu> <20060928202931.dc324339.akpm@osdl.org> <200609291519.k8TFJfvw004256@turing-police.cc.vt.edu> <20060929124558.33ef6c75.akpm@osdl.org> <200609300001.k8U01sPI004389@turing-police.cc.vt.edu> <20060929182008.fee2a229.akpm@osdl.org> <20061002175245.GA14744@bougret.hpl.hp.com> <2006-10-03-17-58-31+trackit+sam@rfc1149.net> <20061003163415.GA17252@bougret.hpl.hp.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <20061003064030.GA23492@redhat.com>
-User-Agent: Mutt/1.4.2.2i
+In-Reply-To: <20061003163415.GA17252@bougret.hpl.hp.com>
+User-Agent: Mutt/1.5.11
+From: Samuel Tardieu <sam@rfc1149.net>
+Organization: RFC 1149 (see http://www.rfc1149.net/)
+Content-Transfer-Encoding: 8bit
+X-WWW: http://www.rfc1149.net/sam
+X-Jabber: <sam@rfc1149.net> (see http://www.jabber.org/)
+X-OpenPGP-Fingerprint: 79C0 AE3C CEA8 F17B 0EF1  45A5 F133 2241 1B80 ADE6 (see http://www.gnupg.org/)
+Message-Id: <2006-10-03-18-45-35+trackit+sam@rfc1149.net>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 03, 2006 at 02:40:30AM -0400, Dave Jones wrote:
- 
- >  > > > ----------- [cut here ] --------- [please bite here ] ---------
- >  > > > Kernel BUG at fs/buffer.c:2791
- >  > > 
- >  > > I had thought/hoped that this was fixed by Jan's patch at 
- >  > > http://lkml.org/lkml/2006/9/7/236 from the thread started at 
- >  > > http://lkml.org/lkml/2006/9/1/149, but it seems maybe not.  Dave hit this bug 
- >  > > first by going through that new codepath....
- >  > 
- >  > Yes, Jan's patch is supposed to fix that !buffer_mapped() assertion.  iirc,
- >  > Badari was hitting that BUG and was able to confirm that Jan's patch
- >  > (3998b9301d3d55be8373add22b6bc5e11c1d9b71 in post-2.6.18 mainline) fixed
- >  > it.
- > 
- > Ok, this afternoon I was definitly running a kernel with that patch in it,
- > and managed to get a trace (It was the one from the top of this thread
- > that unfortunatly got truncated).
- > 
- > Now, I can't reproduce it on a plain 2.6.18+that patch.
- > I'll leave the stress test running overnight, and see if anything
- > falls out in the morning.
- 
-Been chugging away for 10 hrs now without repeating that incident. Hmm.
-That patch looks like good -stable material. I'll keep digging to
-see if I can somehow reproduce the problem I saw with the patch applied,
-but in absense of something better, I think we should go with it.
+On  3/10, Jean Tourrilhes wrote:
 
-One thing that did happen in the 10hrs was fsx-over-NFS spewed some
-nasty looking trace. I'll post that separately next.
+| > I suggest that you revert the memset() to IW_ESSID_MAX_SIZE+1 so that
+| > the last byte is cleared as well. Or am I missing something?
+| 
+| No, that would bring back the slab/memory overflow we are
+| trying to get rid of.
 
-	Dave
+Then I am puzzled by the function declaration:
 
--- 
-http://www.codemonkey.org.uk
+static int orinoco_hw_get_essid(struct orinoco_private *priv, int *active,
+                                char buf[IW_ESSID_MAX_SIZE+1])
+
+Do you mean that this function is called with a buf parameter which
+doesn't have the expected size? (as far as the function declaration is
+concerned) Shouldn't the declaration be changed to
+
+static int orinoco_hw_get_essid(struct orinoco_private *priv, int *active,
+                                char buf[IW_ESSID_MAX_SIZE])
+
+then to reflect the reality? (it won't change the code but would be
+clearer from a documentation point of view)
+
+ Sam
+

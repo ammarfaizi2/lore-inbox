@@ -1,71 +1,69 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S964828AbWJCGks@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965273AbWJCGyr@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S964828AbWJCGks (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Oct 2006 02:40:48 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S964936AbWJCGkr
+	id S965273AbWJCGyr (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Oct 2006 02:54:47 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965274AbWJCGyr
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Oct 2006 02:40:47 -0400
-Received: from mx1.redhat.com ([66.187.233.31]:31393 "EHLO mx1.redhat.com")
-	by vger.kernel.org with ESMTP id S964828AbWJCGkr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Oct 2006 02:40:47 -0400
-Date: Tue, 3 Oct 2006 02:40:30 -0400
-From: Dave Jones <davej@redhat.com>
-To: Andrew Morton <akpm@osdl.org>
-Cc: Eric Sandeen <sandeen@sandeen.net>,
-       Linux Kernel <linux-kernel@vger.kernel.org>, esandeen@redhat.com,
-       Badari Pulavarty <pbadari@us.ibm.com>, Jan Kara <jack@ucw.cz>
-Subject: Re: 2.6.18 ext3 panic.
-Message-ID: <20061003064030.GA23492@redhat.com>
-Mail-Followup-To: Dave Jones <davej@redhat.com>,
-	Andrew Morton <akpm@osdl.org>, Eric Sandeen <sandeen@sandeen.net>,
-	Linux Kernel <linux-kernel@vger.kernel.org>, esandeen@redhat.com,
-	Badari Pulavarty <pbadari@us.ibm.com>, Jan Kara <jack@ucw.cz>
-References: <20061002194711.GA1815@redhat.com> <20061003052219.GA15563@redhat.com> <4521F865.6060400@sandeen.net> <20061002231945.f2711f99.akpm@osdl.org>
-Mime-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
-Content-Disposition: inline
-In-Reply-To: <20061002231945.f2711f99.akpm@osdl.org>
-User-Agent: Mutt/1.4.2.2i
+	Tue, 3 Oct 2006 02:54:47 -0400
+Received: from py-out-1112.google.com ([64.233.166.182]:45171 "EHLO
+	py-out-1112.google.com") by vger.kernel.org with ESMTP
+	id S965266AbWJCGyq (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Oct 2006 02:54:46 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
+        b=dgUZAPkbJTcnyT0vZQ4ceSeWp58u9PevQPW3tbVAmkpjQs/qaPzBRLngRPZozhxnRFoByHglAKnnr2Xfp3fQmkCPDyj9ZUJQSSXMGh7psPYOx9x33ZgjevWeVBuAZUrmzE2qsH+29lyQxiwOcqwnGf4hYCZpv2r3QqrLHPmiNOw=
+Message-ID: <4522093D.9040506@gmail.com>
+Date: Tue, 03 Oct 2006 15:54:53 +0900
+From: Tejun Heo <htejun@gmail.com>
+User-Agent: Thunderbird 1.5.0.4 (X11/20060713)
+MIME-Version: 1.0
+To: Molle Bestefich <molle.bestefich@gmail.com>
+CC: linux-kernel@vger.kernel.org, linux-ide@vger.kernel.org
+Subject: Re: SATA repeated failure (command 0x35 timeout, status 0xd8)
+References: <62b0912f0609240816q54c3535bt86f781745ecbfa13@mail.gmail.com>	 <4518B643.6030407@gmail.com> <62b0912f0610011927k789b63f4r370b419e5b98bb5f@mail.gmail.com>
+In-Reply-To: <62b0912f0610011927k789b63f4r370b419e5b98bb5f@mail.gmail.com>
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Mon, Oct 02, 2006 at 11:19:45PM -0700, Andrew Morton wrote:
- > On Tue, 03 Oct 2006 00:43:01 -0500
- > Eric Sandeen <sandeen@sandeen.net> wrote:
- > 
- > > Dave Jones wrote:
- > > 
- > > > So I managed to reproduce it with an 'fsx foo' and a
- > > > 'fsstress -d . -r -n 100000 -p 20 -r'. This time I grabbed it from
- > > > a vanilla 2.6.18 with none of the Fedora patches..
- > > > 
- > > > I'll give 2.6.18-git a try next.
- > > > 
- > > > 		Dave
- > > > 
- > > > ----------- [cut here ] --------- [please bite here ] ---------
- > > > Kernel BUG at fs/buffer.c:2791
- > > 
- > > I had thought/hoped that this was fixed by Jan's patch at 
- > > http://lkml.org/lkml/2006/9/7/236 from the thread started at 
- > > http://lkml.org/lkml/2006/9/1/149, but it seems maybe not.  Dave hit this bug 
- > > first by going through that new codepath....
- > 
- > Yes, Jan's patch is supposed to fix that !buffer_mapped() assertion.  iirc,
- > Badari was hitting that BUG and was able to confirm that Jan's patch
- > (3998b9301d3d55be8373add22b6bc5e11c1d9b71 in post-2.6.18 mainline) fixed
- > it.
+Molle Bestefich wrote:
+[--snip--]
+> The above repeats itself thru modes UDMA/66, UDMA/44, UDMA/33,
+> UDMA/25, UDMA/16, PIO4, PIO3, PIO1 and PIO0.
 
-Ok, this afternoon I was definitly running a kernel with that patch in it,
-and managed to get a trace (It was the one from the top of this thread
-that unfortunatly got truncated).
+Can you full dmesg for this?  Preferably w/ timestamp?
 
-Now, I can't reproduce it on a plain 2.6.18+that patch.
-I'll leave the stress test running overnight, and see if anything
-falls out in the morning.
+> At which point /dev/sdb disappears completely, only to reappear as 
+> /dev/sdh:
+> ===============
+> SCSI device sdh: 398297088 512-byte hdwr sectors (203928 MB)
+> sdh: Write Protect is off
+> sdh: Mode Sense: 00 3a 00 00
+> SCSI device sdh: drive cache: write back
+> SCSI device sdh: 398297088 512-byte hdwr sectors (203928 MB)
+> sdh: Write Protect is off
+> sdh: Mode Sense: 00 3a 00 00
+> SCSI device sdh: drive cache: write back
+> ===============
+> 
+> (Odd.)
+> 
+> I don't get why PowerMax works this drive just fine while Linux
+> doesn't.  Perhaps because PowerMax only uses SMART commands and
+> doesn't transfer data over the SATA bus?
+> 
+> Anyway, with the device now failing fairly consistently, I guess I
+> should begin moving around cables, controllers, disks etc. again.  I'm
+> very worried about doing this though, since I'm pretty sure that it'll
+> break the MD array on the disks very quickly..
 
-	Dave
+Your problem seems to be hardware transmission error.  I don't know what 
+a powermax is and doesn't know what it does, so you'll have to play the 
+swap-and-see-what-breaks game to figure out the problematic part.
+
+Thanks.
 
 -- 
-http://www.codemonkey.org.uk
+tejun

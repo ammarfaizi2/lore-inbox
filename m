@@ -1,94 +1,82 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030635AbWJCWmG@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030643AbWJCWo4@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030635AbWJCWmG (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Oct 2006 18:42:06 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030637AbWJCWmG
+	id S1030643AbWJCWo4 (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Oct 2006 18:44:56 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030642AbWJCWo4
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Oct 2006 18:42:06 -0400
-Received: from wx-out-0506.google.com ([66.249.82.233]:55814 "EHLO
-	wx-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1030635AbWJCWmD (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Oct 2006 18:42:03 -0400
-DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
-        s=beta; d=gmail.com;
-        h=received:message-id:date:from:user-agent:mime-version:to:cc:subject:references:in-reply-to:content-type:content-transfer-encoding;
-        b=gf7K1fJ8T/3NftFrHkplcHAQ5p0TKDz1PkB+3FQuoXxbmqr3suxoWweBATZtThrjgKPm+LKhiNFcjH/E3VzdgLEV3BP8dBoxXbAJCjF0xCAm46XuZGcJfiM5/cj7Rh2VSvp8M7EnHfiPMuPsUonrvXOaiiGZkmj9ZtR8NUKUp+s=
-Message-ID: <4522E76C.3080202@gmail.com>
-Date: Tue, 03 Oct 2006 16:42:52 -0600
-From: Jim Cromie <jim.cromie@gmail.com>
-User-Agent: Thunderbird 1.5.0.7 (X11/20060909)
-MIME-Version: 1.0
-To: Jim Cromie <jim.cromie@gmail.com>
-CC: Linux kernel <linux-kernel@vger.kernel.org>, Andrew Morton <akpm@osdl.org>,
-       john stultz <johnstul@us.ibm.com>
-Subject: Re: [patch 2.6.18+ ] scx200_hrt - fix precedence bug manifesting
- as 27x clock in 1 MHz mode (resend with preformat)
-References: <4522DDBF.3070701@gmail.com>
-In-Reply-To: <4522DDBF.3070701@gmail.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 3 Oct 2006 18:44:56 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:4590 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S1030637AbWJCWoz (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Oct 2006 18:44:55 -0400
+Date: Tue, 3 Oct 2006 15:44:49 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Zach Brown <zach.brown@oracle.com>
+Cc: linux-kernel@vger.kernel.org, linux-fsdevel@vger.kernel.org,
+       linux-aio@kvack.org
+Subject: Re: [PATCH take2 3/5] dio: formalize bio counters as a dio
+ reference count
+Message-Id: <20061003154449.daab5dbd.akpm@osdl.org>
+In-Reply-To: <20061002232135.18827.28686.sendpatchset@tetsuo.zabbo.net>
+References: <20061002232119.18827.96966.sendpatchset@tetsuo.zabbo.net>
+	<20061002232135.18827.28686.sendpatchset@tetsuo.zabbo.net>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.6; i686-pc-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
+On Mon,  2 Oct 2006 16:21:35 -0700 (PDT)
+Zach Brown <zach.brown@oracle.com> wrote:
 
-Fix paren-placement / precedence bug breaking initialization for 1 MHz 
-clock mode.
-Also fix comment spelling error, and fence-post (off-by-one) error on 
-symbol
-used in request_region.
+> dio: formalize bio counters as a dio reference count
+> 
+> Previously we had two confusing counts of bio progress.  'bio_count' was
+> decremented as bios were processed and freed by the dio core.  It was used to
+> indicate final completion of the dio operation.  'bios_in_flight' reflected how
+> many bios were between submit_bio() and bio->end_io.  It was used by the sync
+> path to decide when to wake up and finish completing bios and was ignored
+> by the async path.
+> 
+> This patch collapses the two notions into one notion of a dio reference count.
+> bios hold a dio reference when they're between submit_bio and bio->end_io.
+> 
+> Since bios_in_flight was only used in the sync path it is now equivalent
+> to dio->refcount - 1 which accounts for direct_io_worker() holding a 
+> reference for the duration of the operation.
+> 
+> dio_bio_complete() -> finished_one_bio() was called from the sync path after
+> finding bios on the list that the bio->end_io function had deposited.
+> finished_one_bio() can not drop the dio reference on behalf of these bios now
+> because bio->end_io already has.  The is_async test in finished_one_bio() meant
+> that it never actually did anything other than drop the bio_count for sync
+> callers.  So we remove its refcount decrement, don't call it from
+> dio_bio_complete(), and hoist its call up into the async dio_bio_complete()
+> caller after an explicit refcount decrement.  It is renamed dio_complete_aio()
+> to reflect the remaining work it actually does.
+> 
+> ...
+>  
+> +static int wait_for_more_bios(struct dio *dio)
+> +{
+> +	assert_spin_locked(&dio->bio_lock);
+> +
+> +	return (atomic_read(&dio->refcount) > 1) && (dio->bio_list == NULL);
+> +}
 
-Signed-off-by:  Jim Cromie <jim.cromie@gmail.com>
----
+This function isn't well-named.
 
-Oops, fix the <preformat>
+> @@ -1103,7 +1088,11 @@ direct_io_worker(int rw, struct kiocb *i
+>  		}
+>  		if (ret == 0)
+>  			ret = dio->result;
+> -		finished_one_bio(dio);		/* This can free the dio */
+> +
+> +		/* this can free the dio */
+> +		if (atomic_dec_and_test(&dio->refcount))
+> +			dio_complete_aio(dio);
 
-drivers/clocksource/scx200_hrt.c |    4 ++--
-include/linux/scx200.h           |    2 +-
-2 files changed, 3 insertions(+), 3 deletions(-)
-
-this patch fixes http://bugzilla.kernel.org/show_bug.cgi?id=7242
-but I cannot close it, so I'll leave it to those so empowered.
-
-should be ok for -stable, if the spelling correction doesnt break the 
-rules.
-The fence-post error is real, just not caught on x86, AFAICT.
-
-Thanks alexander.krause@erazor-zone.de, dzpost@dedekind.net, for the 
-reports and patch test,
-and phelps@mantara.com for the independent patch and verification.
-
-diff -ruNp -X dontdiff -X exclude-diffs ../linux-2.6.18-sk/drivers/clocksource/scx200_hrt.c debug/drivers/clocksource/scx200_hrt.c
---- ../linux-2.6.18-sk/drivers/clocksource/scx200_hrt.c	2006-09-19 23:58:35.000000000 -0600
-+++ debug/drivers/clocksource/scx200_hrt.c	2006-10-03 14:05:27.000000000 -0600
-@@ -63,7 +63,7 @@ static struct clocksource cs_hrt = {
- 
- static int __init init_hrt_clocksource(void)
- {
--	/* Make sure scx200 has initializedd the configuration block */
-+	/* Make sure scx200 has initialized the configuration block */
- 	if (!scx200_cb_present())
- 		return -ENODEV;
- 
-@@ -76,7 +76,7 @@ static int __init init_hrt_clocksource(v
- 	}
- 
- 	/* write timer config */
--	outb(HR_TMEN | (mhz27) ? HR_TMCLKSEL : 0,
-+	outb(HR_TMEN | (mhz27 ? HR_TMCLKSEL : 0),
- 	     scx200_cb_base + SCx200_TMCNFG_OFFSET);
- 
- 	if (mhz27) {
-diff -ruNp -X dontdiff -X exclude-diffs ../linux-2.6.18-sk/include/linux/scx200.h debug/include/linux/scx200.h
---- ../linux-2.6.18-sk/include/linux/scx200.h	2006-09-20 00:00:59.000000000 -0600
-+++ debug/include/linux/scx200.h	2006-10-03 09:18:50.000000000 -0600
-@@ -32,7 +32,7 @@ extern unsigned scx200_cb_base;
- 
- /* High Resolution Timer */
- #define SCx200_TIMER_OFFSET 0x08
--#define SCx200_TIMER_SIZE 0x05
-+#define SCx200_TIMER_SIZE 0x06
- 
- /* Clock Generators */
- #define SCx200_CLOCKGEN_OFFSET 0x10
-
+So...  how come it's legitimate to touch *dio if it can be freed by now? 
+(iirc, it's legit, but a comment explaining this oddity is needed).
 

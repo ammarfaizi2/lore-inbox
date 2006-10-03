@@ -1,45 +1,55 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965258AbWJCFnE@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S965265AbWJCFvP@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S965258AbWJCFnE (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Oct 2006 01:43:04 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965263AbWJCFnE
+	id S965265AbWJCFvP (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Oct 2006 01:51:15 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S965267AbWJCFvP
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Oct 2006 01:43:04 -0400
-Received: from sandeen.net ([209.173.210.139]:4408 "EHLO sandeen.net")
-	by vger.kernel.org with ESMTP id S965258AbWJCFnB (ORCPT
+	Tue, 3 Oct 2006 01:51:15 -0400
+Received: from smtp.osdl.org ([65.172.181.4]:27780 "EHLO smtp.osdl.org")
+	by vger.kernel.org with ESMTP id S965265AbWJCFvO (ORCPT
 	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Oct 2006 01:43:01 -0400
-Message-ID: <4521F865.6060400@sandeen.net>
-Date: Tue, 03 Oct 2006 00:43:01 -0500
-From: Eric Sandeen <sandeen@sandeen.net>
-User-Agent: Thunderbird 1.5.0.7 (Macintosh/20060909)
-MIME-Version: 1.0
-To: Dave Jones <davej@redhat.com>, Linux Kernel <linux-kernel@vger.kernel.org>,
-       esandeen@redhat.com
-Subject: Re: 2.6.18 ext3 panic.
-References: <20061002194711.GA1815@redhat.com> <20061003052219.GA15563@redhat.com>
-In-Reply-To: <20061003052219.GA15563@redhat.com>
-Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+	Tue, 3 Oct 2006 01:51:14 -0400
+Date: Mon, 2 Oct 2006 22:50:53 -0700
+From: Andrew Morton <akpm@osdl.org>
+To: Paul Mackerras <paulus@samba.org>
+Cc: Jeremy Fitzhardinge <jeremy@goop.org>, linux-kernel@vger.kernel.org,
+       Andi Kleen <ak@muc.de>, Hugh Dickens <hugh@veritas.com>,
+       Michael Ellerman <michael@ellerman.id.au>,
+       Benjamin Herrenschmidt <benh@kernel.crashing.org>,
+       Rusty Russell <rusty@rustcorp.com.au>
+Subject: Re: [PATCH 5/6] From: Andrew Morton <akpm@osdl.org>
+Message-Id: <20061002225053.46be0324.akpm@osdl.org>
+In-Reply-To: <17697.62198.476469.265990@cargo.ozlabs.ibm.com>
+References: <20061003010842.438670755@goop.org>
+	<20061003010933.392428107@goop.org>
+	<17697.58794.113796.925995@cargo.ozlabs.ibm.com>
+	<20061002213347.8229b6fc.akpm@osdl.org>
+	<17697.62198.476469.265990@cargo.ozlabs.ibm.com>
+X-Mailer: Sylpheed version 2.2.7 (GTK+ 2.8.17; x86_64-unknown-linux-gnu)
+Mime-Version: 1.0
+Content-Type: text/plain; charset=US-ASCII
 Content-Transfer-Encoding: 7bit
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-Dave Jones wrote:
+On Tue, 3 Oct 2006 15:19:50 +1000
+Paul Mackerras <paulus@samba.org> wrote:
 
-> So I managed to reproduce it with an 'fsx foo' and a
-> 'fsstress -d . -r -n 100000 -p 20 -r'. This time I grabbed it from
-> a vanilla 2.6.18 with none of the Fedora patches..
-> 
-> I'll give 2.6.18-git a try next.
-> 
-> 		Dave
-> 
-> ----------- [cut here ] --------- [please bite here ] ---------
-> Kernel BUG at fs/buffer.c:2791
+> --- a/arch/powerpc/xmon/xmon.c
+> +++ b/arch/powerpc/xmon/xmon.c
+> @@ -503,7 +503,7 @@ #endif
+>  
+>  	mtmsr(msr);		/* restore interrupt enable */
+>  
+> -	return cmd != 'X';
+> +	return cmd != 'X' && cmd != EOF;
+>  }
+>  
+>  int xmon(struct pt_regs *excp)
 
-I had thought/hoped that this was fixed by Jan's patch at 
-http://lkml.org/lkml/2006/9/7/236 from the thread started at 
-http://lkml.org/lkml/2006/9/1/149, but it seems maybe not.  Dave hit this bug 
-first by going through that new codepath....
+That fixes it.
 
--Eric
+I still get crap all over the screen when xmon is tring to print something
+(at least, I assume that's what causes it).  See
+http://userweb.kernel.org/~akpm/s5000334.jpg
+

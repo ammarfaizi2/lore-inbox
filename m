@@ -1,25 +1,25 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030614AbWJCWWo@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030622AbWJCWYI@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030614AbWJCWWo (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Oct 2006 18:22:44 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030616AbWJCWWo
+	id S1030622AbWJCWYI (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Oct 2006 18:24:08 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030494AbWJCWYH
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Oct 2006 18:22:44 -0400
-Received: from hu-out-0506.google.com ([72.14.214.237]:6167 "EHLO
+	Tue, 3 Oct 2006 18:24:07 -0400
+Received: from hu-out-0506.google.com ([72.14.214.232]:13080 "EHLO
 	hu-out-0506.google.com") by vger.kernel.org with ESMTP
-	id S1030614AbWJCWWn (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Oct 2006 18:22:43 -0400
+	id S1030622AbWJCWYF (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Oct 2006 18:24:05 -0400
 DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
         s=beta; d=gmail.com;
         h=received:date:from:to:cc:subject:message-id:references:mime-version:content-type:content-disposition:in-reply-to:user-agent:sender;
-        b=XVnFSvIpHGlBFjxL5sHf5MoLEsrQLOB1XIolGoFWtJWbMb+ZxMEaGTitNPMbmvSbTWLOzC4xv3+icMGTAIQHQc5WzYZX0k3DdpdwWheq6EywE25l1P9LJIbfOqltVJumnVhvHmDK659QGktauqHuyNfnGUfNwBUea2rxeBiyMqs=
-Date: Tue, 3 Oct 2006 22:22:23 +0000
+        b=eywMXdOskuUTYL+hlVBK0k0ct+6Mqfs5KOnml5N7+ZAuf1IVzx6wCXj+6Nvy65jN6tzHLIsvhy6sHvm9RTslYbdNEMOhcGqxPCd1Zp8Qa/eg1OcPi+jIDIMX4iC4AUI0F4YNopZR00UA6JBRodnteXsf4DiYJ3txPRQcd2sxOFY=
+Date: Tue, 3 Oct 2006 22:23:45 +0000
 From: Frederik Deweerdt <deweerdt@free.fr>
 To: linux-kernel@vger.kernel.org
 Cc: arjan@infradead.org, matthew@wil.cx, alan@lxorguk.ukuu.org.uk,
        jeff@garzik.org, akpm@osdl.org, rdunlap@xenotime.net, gregkh@suse.de
-Subject: [RFC PATCH] move tg3 to pci_request_irq
-Message-ID: <20061003222223.GH2785@slug>
+Subject: [RFC PATCH] move e1000 to pci_request_irq
+Message-ID: <20061003222345.GI2785@slug>
 References: <20061003220732.GE2785@slug>
 MIME-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
@@ -31,7 +31,7 @@ X-Mailing-List: linux-kernel@vger.kernel.org
 
 Hi,
 
-This proof-of-concept patch converts the tg3 driver to use the
+This proof-of-concept patch converts the e1000 driver to use the
 pci_request_irq() function.
 
 Please note that I'm not submitting the driver changes, they're there
@@ -41,85 +41,67 @@ when/if an API is agreed upon.
 Regards,
 Frederik 
 
-diff --git a/drivers/net/tg3.c b/drivers/net/tg3.c
-index c25ba27..23660c6 100644
-Index: 2.6.18-mm3/drivers/net/tg3.c
+
+diff --git a/drivers/net/e1000/e1000_ethtool.c b/drivers/net/e1000/e1000_ethtool.c
+index 778ede3..8b7be73 100644
+Index: 2.6.18-mm3/drivers/net/e1000/e1000_ethtool.c
 ===================================================================
---- 2.6.18-mm3.orig/drivers/net/tg3.c
-+++ 2.6.18-mm3/drivers/net/tg3.c
-@@ -6853,7 +6853,7 @@ static int tg3_request_irq(struct tg3 *t
- 			fn = tg3_interrupt_tagged;
- 		flags = IRQF_SHARED | IRQF_SAMPLE_RANDOM;
- 	}
--	return (request_irq(tp->pdev->irq, fn, flags, dev->name, dev));
-+	return pci_request_irq(tp->pdev, fn, flags, dev->name);
- }
- 
- static int tg3_test_interrupt(struct tg3 *tp)
-@@ -6866,10 +6866,10 @@ static int tg3_test_interrupt(struct tg3
- 
- 	tg3_disable_ints(tp);
- 
--	free_irq(tp->pdev->irq, dev);
-+	pci_free_irq(tp->pdev);
- 
--	err = request_irq(tp->pdev->irq, tg3_test_isr,
--			  IRQF_SHARED | IRQF_SAMPLE_RANDOM, dev->name, dev);
-+	err = pci_request_irq(tp->pdev, tg3_test_isr,
-+			      IRQF_SHARED | IRQF_SAMPLE_RANDOM, dev->name);
- 	if (err)
- 		return err;
- 
-@@ -6897,7 +6897,7 @@ static int tg3_test_interrupt(struct tg3
- 
- 	tg3_disable_ints(tp);
- 
--	free_irq(tp->pdev->irq, dev);
-+	pci_free_irq(tp->pdev);
- 
- 	err = tg3_request_irq(tp);
- 
-@@ -6915,7 +6915,6 @@ static int tg3_test_interrupt(struct tg3
-  */
- static int tg3_test_msi(struct tg3 *tp)
+--- 2.6.18-mm3.orig/drivers/net/e1000/e1000_ethtool.c
++++ 2.6.18-mm3/drivers/net/e1000/e1000_ethtool.c
+@@ -899,17 +899,16 @@ e1000_intr_test(struct e1000_adapter *ad
  {
--	struct net_device *dev = tp->dev;
- 	int err;
- 	u16 pci_cmd;
+ 	struct net_device *netdev = adapter->netdev;
+ 	uint32_t mask, i=0, shared_int = TRUE;
+-	uint32_t irq = adapter->pdev->irq;
  
-@@ -6946,7 +6945,7 @@ static int tg3_test_msi(struct tg3 *tp)
- 	       "the PCI maintainer and include system chipset information.\n",
- 		       tp->dev->name);
+ 	*data = 0;
  
--	free_irq(tp->pdev->irq, dev);
-+	pci_free_irq(tp->pdev);
- 	pci_disable_msi(tp->pdev);
+ 	/* NOTE: we don't test MSI interrupts here, yet */
+ 	/* Hook up test interrupt handler just for this test */
+-	if (!request_irq(irq, &e1000_test_intr, IRQF_PROBE_SHARED,
+-			 netdev->name, netdev))
++	if (!pci_request_irq(adapter->pdev, &e1000_test_intr, IRQF_PROBE_SHARED,
++			    netdev->name))
+ 		shared_int = FALSE;
+-	else if (request_irq(irq, &e1000_test_intr, IRQF_SHARED,
+-			      netdev->name, netdev)) {
++	else if (pci_request_irq(adapter->pdev, &e1000_test_intr, IRQF_SHARED,
++		 		 netdev->name)) {
+ 		*data = 1;
+ 		return -1;
+ 	}
+@@ -986,7 +985,7 @@ e1000_intr_test(struct e1000_adapter *ad
+ 	msleep(10);
  
- 	tp->tg3_flags2 &= ~TG3_FLG2_USING_MSI;
-@@ -6966,7 +6965,7 @@ static int tg3_test_msi(struct tg3 *tp)
- 	tg3_full_unlock(tp);
+ 	/* Unhook test interrupt handler */
+-	free_irq(irq, netdev);
++	pci_free_irq(adapter->pdev);
  
- 	if (err)
--		free_irq(tp->pdev->irq, dev);
-+		pci_free_irq(tp->pdev);
- 
+ 	return *data;
+ }
+Index: 2.6.18-mm3/drivers/net/e1000/e1000_main.c
+===================================================================
+--- 2.6.18-mm3.orig/drivers/net/e1000/e1000_main.c
++++ 2.6.18-mm3/drivers/net/e1000/e1000_main.c
+@@ -296,19 +296,13 @@ static int e1000_request_irq(struct e100
+ 	if (adapter->have_msi)
+ 		flags &= ~IRQF_SHARED;
+ #endif
+-	if ((err = request_irq(adapter->pdev->irq, &e1000_intr, flags,
+-	                       netdev->name, netdev)))
+-		DPRINTK(PROBE, ERR,
+-		        "Unable to allocate interrupt Error: %d\n", err);
+-
++	err = pci_request_irq(adapter->pdev, &e1000_intr, flags, netdev->name);
  	return err;
  }
-@@ -7051,7 +7050,7 @@ static int tg3_open(struct net_device *d
- 	tg3_full_unlock(tp);
  
- 	if (err) {
--		free_irq(tp->pdev->irq, dev);
-+		pci_free_irq(tp->pdev);
- 		if (tp->tg3_flags2 & TG3_FLG2_USING_MSI) {
- 			pci_disable_msi(tp->pdev);
- 			tp->tg3_flags2 &= ~TG3_FLG2_USING_MSI;
-@@ -7363,7 +7362,7 @@ static int tg3_close(struct net_device *
+ static void e1000_free_irq(struct e1000_adapter *adapter)
+ {
+-	struct net_device *netdev = adapter->netdev;
+-
+-	free_irq(adapter->pdev->irq, netdev);
++	pci_free_irq(adapter->pdev);
  
- 	tg3_full_unlock(tp);
- 
--	free_irq(tp->pdev->irq, dev);
-+	pci_free_irq(tp->pdev);
- 	if (tp->tg3_flags2 & TG3_FLG2_USING_MSI) {
- 		pci_disable_msi(tp->pdev);
- 		tp->tg3_flags2 &= ~TG3_FLG2_USING_MSI;
+ #ifdef CONFIG_PCI_MSI
+ 	if (adapter->have_msi)

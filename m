@@ -1,51 +1,54 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030545AbWJCVDt@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030552AbWJCVES@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030545AbWJCVDt (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Oct 2006 17:03:49 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030551AbWJCVDs
+	id S1030552AbWJCVES (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Oct 2006 17:04:18 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030541AbWJCVER
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Oct 2006 17:03:48 -0400
-Received: from www.osadl.org ([213.239.205.134]:42452 "EHLO mail.tglx.de")
-	by vger.kernel.org with ESMTP id S1030545AbWJCVDr (ORCPT
-	<rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Oct 2006 17:03:47 -0400
-Subject: Re: [patch] dynticks core: Fix idle time accounting
-From: Thomas Gleixner <tglx@linutronix.de>
-Reply-To: tglx@linutronix.de
-To: Valdis.Kletnieks@vt.edu
-Cc: Andrew Morton <akpm@osdl.org>, LKML <linux-kernel@vger.kernel.org>,
-       Ingo Molnar <mingo@elte.hu>, Jim Gettys <jg@laptop.org>,
-       John Stultz <johnstul@us.ibm.com>,
-       David Woodhouse <dwmw2@infradead.org>,
-       Arjan van de Ven <arjan@infradead.org>, Dave Jones <davej@redhat.com>
-In-Reply-To: <1159905750.1386.215.camel@localhost.localdomain>
-References: <20061001225720.115967000@cruncher.tec.linutronix.de>
-	 <200610021302.k92D23W1003320@turing-police.cc.vt.edu>
-	 <1159796582.1386.9.camel@localhost.localdomain>
-	 <200610021825.k92IPSnd008215@turing-police.cc.vt.edu>
-	 <1159814606.1386.52.camel@localhost.localdomain>
-	 <200610022017.k92KH4Ch004773@turing-police.cc.vt.edu>
-	 <1159824158.1386.77.camel@localhost.localdomain>
-	 <200610022135.k92LZHCn008618@turing-police.cc.vt.edu>
-	 <1159905750.1386.215.camel@localhost.localdomain>
-Content-Type: text/plain
-Date: Tue, 03 Oct 2006 23:05:57 +0200
-Message-Id: <1159909557.1386.218.camel@localhost.localdomain>
-Mime-Version: 1.0
-X-Mailer: Evolution 2.6.1 
-Content-Transfer-Encoding: 7bit
+	Tue, 3 Oct 2006 17:04:17 -0400
+Received: from e31.co.us.ibm.com ([32.97.110.149]:25499 "EHLO
+	e31.co.us.ibm.com") by vger.kernel.org with ESMTP id S1030416AbWJCVEO
+	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Oct 2006 17:04:14 -0400
+Date: Tue, 3 Oct 2006 16:04:08 -0500
+To: akpm@osdl.org, jeff@garzik.org
+Cc: netdev@vger.kernel.org, James K Lewis <jklewis@us.ibm.com>,
+       linux-kernel@vger.kernel.org, Arnd Bergmann <arnd@arndb.de>,
+       linuxppc-dev@ozlabs.org
+Subject: [PATCH 4/4]: Spidernet module parm permissions
+Message-ID: <20061003210408.GI4381@austin.ibm.com>
+References: <20061003205240.GE4381@austin.ibm.com>
+MIME-Version: 1.0
+Content-Type: text/plain; charset=us-ascii
+Content-Disposition: inline
+In-Reply-To: <20061003205240.GE4381@austin.ibm.com>
+User-Agent: Mutt/1.5.11
+From: linas@austin.ibm.com (Linas Vepstas)
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, 2006-10-03 at 22:02 +0200, Thomas Gleixner wrote:
-> I found a way to fix my thinkos. I put up a queue with all fixes to:
-> 
-> http://www.tglx.de/projects/hrtimers/2.6.18-mm3/patch-2.6.18-mm3-hrt-dyntick1.patches.tar.bz2
-> 
-> Can you please verify if it makes your problem go away ?
 
-Please use dyntick2, as #1 is missing a fix. Sorry.
+The module param permsissions should bw read-only, not writable.
 
-	tglx
+Signed-off-by: James K Lewis <jklewis@us.ibm.com>
+Signed-off-by: Linas Vepstas <linas@austin.ibm.com>
+Cc: Arnd Bergmann <arnd@arndb.de>
 
+----
+ drivers/net/spider_net.c |    4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
 
+Index: linux-2.6.18-mm2/drivers/net/spider_net.c
+===================================================================
+--- linux-2.6.18-mm2.orig/drivers/net/spider_net.c	2006-10-02 19:09:38.000000000 -0500
++++ linux-2.6.18-mm2/drivers/net/spider_net.c	2006-10-02 19:14:48.000000000 -0500
+@@ -60,8 +60,8 @@ MODULE_VERSION(VERSION);
+ static int rx_descriptors = SPIDER_NET_RX_DESCRIPTORS_DEFAULT;
+ static int tx_descriptors = SPIDER_NET_TX_DESCRIPTORS_DEFAULT;
+ 
+-module_param(rx_descriptors, int, 0644);
+-module_param(tx_descriptors, int, 0644);
++module_param(rx_descriptors, int, 0444);
++module_param(tx_descriptors, int, 0444);
+ 
+ MODULE_PARM_DESC(rx_descriptors, "number of descriptors used " \
+ 		 "in rx chains");

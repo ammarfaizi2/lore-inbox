@@ -1,52 +1,62 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030555AbWJCVXm@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030389AbWJCVZL@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030555AbWJCVXm (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Oct 2006 17:23:42 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030557AbWJCVXm
+	id S1030389AbWJCVZL (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Oct 2006 17:25:11 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030561AbWJCVZK
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Oct 2006 17:23:42 -0400
-Received: from smtp113.sbc.mail.mud.yahoo.com ([68.142.198.212]:2674 "HELO
-	smtp113.sbc.mail.mud.yahoo.com") by vger.kernel.org with SMTP
-	id S1030555AbWJCVXl (ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Oct 2006 17:23:41 -0400
-Date: Tue, 3 Oct 2006 14:23:35 -0700
-From: Chris Wedgwood <cw@f00f.org>
-To: David Chinner <dgc@sgi.com>
-Cc: xfs-dev@sgi.com, xfs@oss.sgi.com, dhowells@redhat.com,
-       LKML <linux-kernel@vger.kernel.org>
-Subject: Re: [RFC 0/3] Convert XFS inode hashes to radix trees
-Message-ID: <20061003212335.GA13120@tuatara.stupidest.org>
-References: <20061003060610.GV3024@melbourne.sgi.com>
+	Tue, 3 Oct 2006 17:25:10 -0400
+Received: from ug-out-1314.google.com ([66.249.92.175]:44196 "EHLO
+	ug-out-1314.google.com") by vger.kernel.org with ESMTP
+	id S1030389AbWJCVZJ convert rfc822-to-8bit (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Oct 2006 17:25:09 -0400
+DomainKey-Signature: a=rsa-sha1; q=dns; c=nofws;
+        s=beta; d=gmail.com;
+        h=received:message-id:date:from:to:subject:mime-version:content-type:content-transfer-encoding:content-disposition;
+        b=SQ6mcUgJj3qGurQ7H1dnHcP8HRoEwTdLBUarfa3i4XebOaUFSBZ6tpQ7IyNY6uURG7X/IVcNElj1mf6JGEi/PJmC4TWOV5/LgNBLZJ8W9xNm6LDlBbUlI9nJB9taR67ALH7BGgs+tEv99hISyx4+kA5nQt1fw2/xmIz1ZoXU388=
+Message-ID: <1df1788c0610031425p4f1ca206teb05590a91eb7659@mail.gmail.com>
+Date: Tue, 3 Oct 2006 18:25:07 -0300
+From: "=?ISO-8859-1?Q?Br=E1ulio_Oliveira?=" <brauliobo@gmail.com>
+To: linux-kernel@vger.kernel.org
+Subject: Fwd: Registration Weakness in Linux Kernel's Binary formats
 MIME-Version: 1.0
-Content-Type: text/plain; charset=us-ascii
+Content-Type: text/plain; charset=ISO-8859-1; format=flowed
+Content-Transfer-Encoding: 8BIT
 Content-Disposition: inline
-In-Reply-To: <20061003060610.GV3024@melbourne.sgi.com>
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 03, 2006 at 04:06:10PM +1000, David Chinner wrote:
+Just forwarding....
 
-> Overall, the patchset removes more than 200 lines of code from the
-> xfs inode caching and lookup code and provides more consistent
-> scalability for large numbers of cached inodes. The only down side
-> is that it limits us to 32 bit inode numbers of 32 bit platforms due
-> to the way the radix tree uses unsigned longs for it's indexes
+---------- Forwarded message ----------
+From: SHELLCODE Security Research <GoodFellas@shellcode.com.ar>
+Date: Oct 3, 2006 4:13 PM
+Subject: Registration Weakness in Linux Kernel's Binary formats
+To: undisclosed-recipients
 
-    commit afefdbb28a0a2af689926c30b94a14aea6036719
-    tree 6ee500575cac928cd90045bcf5b691cf2b8daa09
-    parent 1d32849b14bc8792e6f35ab27dd990d74b16126c
-    author David Howells <dhowells@redhat.com> 1159863226 -0700
-    committer Linus Torvalds <torvalds@g5.osdl.org> 1159887820 -0700
 
-    [PATCH] VFS: Make filldir_t and struct kstat deal in 64-bit inode numbers
+Hello,
+The present document aims to demonstrate a design weakness found in the
+handling of simply
+linked   lists   used   to   register   binary   formats   handled   by
+Linux   kernel,   and   affects   all   the   kernel families
+(2.0/2.2/2.4/2.6), allowing the insertion of infection modules in
+kernel­ space that can be used by malicious users to create infection
+tools, for example rootkits.
 
-    These patches make the kernel pass 64-bit inode numbers internally when
-    communicating to userspace, even on a 32-bit system.  They are required
-    because some filesystems have intrinsic 64-bit inode numbers: NFS3+ and XFS
-    for example.  The 64-bit inode numbers are then propagated to userspace
-    automatically where the arch supports it.
-    [...]
+POC, details and proposed solution at:
+English version: http://www.shellcode.com.ar/docz/binfmt-en.pdf
+Spanish version: http://www.shellcode.com.ar/docz/binfmt-es.pdf
 
-Doing this will mean XFS won't be able to support 32-bit inodes on
-32-bit platforms the above (merged) patch --- though given that cheap
-64-bit systems are now abundant does anyone really care?
+regards,
+--
+SHELLCODE Security Research TEAM
+GoodFellas@shellcode.com.ar
+http://www.shellcode.com.ar
+
+
+-
+To unsubscribe from this list: send the line "unsubscribe linux-kernel" in
+the body of a message to majordomo@vger.kernel.org
+More majordomo info at  http://vger.kernel.org/majordomo-info.html
+Please read the FAQ at  http://www.tux.org/lkml/

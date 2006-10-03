@@ -1,30 +1,27 @@
-Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030475AbWJCSk6@vger.kernel.org>
+Return-Path: <linux-kernel-owner+willy=40w.ods.org-S1030484AbWJCSlZ@vger.kernel.org>
 Received: (majordomo@vger.kernel.org) by vger.kernel.org via listexpand
-	id S1030475AbWJCSk6 (ORCPT <rfc822;willy@w.ods.org>);
-	Tue, 3 Oct 2006 14:40:58 -0400
-Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030472AbWJCSk6
+	id S1030484AbWJCSlZ (ORCPT <rfc822;willy@w.ods.org>);
+	Tue, 3 Oct 2006 14:41:25 -0400
+Received: (majordomo@vger.kernel.org) by vger.kernel.org id S1030478AbWJCSlY
 	(ORCPT <rfc822;linux-kernel-outgoing>);
-	Tue, 3 Oct 2006 14:40:58 -0400
-Received: from gundega.hpl.hp.com ([192.6.19.190]:16894 "EHLO
-	gundega.hpl.hp.com") by vger.kernel.org with ESMTP id S964862AbWJCSk5
-	(ORCPT <rfc822;linux-kernel@vger.kernel.org>);
-	Tue, 3 Oct 2006 14:40:57 -0400
-Date: Tue, 3 Oct 2006 11:38:49 -0700
-To: Jeff Garzik <jeff@garzik.org>
+	Tue, 3 Oct 2006 14:41:24 -0400
+Received: from madara.hpl.hp.com ([192.6.19.124]:47605 "EHLO madara.hpl.hp.com")
+	by vger.kernel.org with ESMTP id S1030477AbWJCSk7 (ORCPT
+	<rfc822;linux-kernel@vger.kernel.org>);
+	Tue, 3 Oct 2006 14:40:59 -0400
+Date: Tue, 3 Oct 2006 11:40:16 -0700
+To: Hugh Dickins <hugh@veritas.com>
 Cc: "John W. Linville" <linville@tuxdriver.com>,
-       Linus Torvalds <torvalds@osdl.org>, Lee Revell <rlrevell@joe-job.com>,
-       Alessandro Suardi <alessandro.suardi@gmail.com>,
-       Norbert Preining <preining@logic.at>, hostap@shmoo.com,
-       ipw3945-devel@lists.sourceforge.net, Andrew Morton <akpm@osdl.org>,
-       linux-kernel@vger.kernel.org, johannes@sipsolutions.net
+       Linus Torvalds <torvalds@osdl.org>, Andrew Morton <akpm@osdl.org>,
+       linux-kernel@vger.kernel.org, jeff@garzik.org
 Subject: Re: wpa supplicant/ipw3945, ESSID last char missing
-Message-ID: <20061003183849.GA17635@bougret.hpl.hp.com>
+Message-ID: <20061003184016.GB17635@bougret.hpl.hp.com>
 Reply-To: jt@hpl.hp.com
-References: <20061002085942.GA32387@gamma.logic.tuwien.ac.at> <5a4c581d0610020221s7bf100f8q893161b7c8c492d2@mail.gmail.com> <1159807483.4067.150.camel@mindpipe> <20061003123835.GA23912@tuxdriver.com> <1159890876.20801.65.camel@mindpipe> <Pine.LNX.4.64.0610030916000.3952@g5.osdl.org> <20061003180543.GD23912@tuxdriver.com> <4522A9BE.9000805@garzik.org>
+References: <20061002085942.GA32387@gamma.logic.tuwien.ac.at> <5a4c581d0610020221s7bf100f8q893161b7c8c492d2@mail.gmail.com> <1159807483.4067.150.camel@mindpipe> <20061003123835.GA23912@tuxdriver.com> <1159890876.20801.65.camel@mindpipe> <Pine.LNX.4.64.0610030916000.3952@g5.osdl.org> <20061003180543.GD23912@tuxdriver.com> <Pine.LNX.4.64.0610031923520.3328@blonde.wat.veritas.com>
 Mime-Version: 1.0
 Content-Type: text/plain; charset=us-ascii
 Content-Disposition: inline
-In-Reply-To: <4522A9BE.9000805@garzik.org>
+In-Reply-To: <Pine.LNX.4.64.0610031923520.3328@blonde.wat.veritas.com>
 Organisation: HP Labs Palo Alto
 Address: HP Labs, 1U-17, 1501 Page Mill road, Palo Alto, CA 94304, USA.
 E-mail: jt@hpl.hp.com
@@ -35,46 +32,25 @@ X-HPL-MailScanner-From: jt@hpl.hp.com
 Sender: linux-kernel-owner@vger.kernel.org
 X-Mailing-List: linux-kernel@vger.kernel.org
 
-On Tue, Oct 03, 2006 at 02:19:42PM -0400, Jeff Garzik wrote:
-> John W. Linville wrote:
-> >The more we can clean-up the WE API, the easier it will be to implement
-> >the cfg80211 WE compatibility layer intended for wireless-dev.
-> >I think WE-21 makes things better in that respect.
-> >
-> >Finally, I already scaled-back Jean's original WE-21 patch.  I only
-> >anticipate minor bug fixes for WE from now on, with nl80211/cfg80211
-> >as the heir-apparent.
-> >
-> >With all that said, I'd prefer to keep the existing WE-21 patches and
-> >add Jean's fixes ASAP.  Is this acceptable?  If not, I'll submit the
-> >reversions to Jeff ASAP.
+On Tue, Oct 03, 2006 at 07:31:08PM +0100, Hugh Dickins wrote:
+> On Tue, 3 Oct 2006, John W. Linville wrote:
+> > 
+> > Today's news seems to indicate that at least the major distros are
+> > already shipping the updated tools, or on the verge of shipping them.
+> > The window of breakage for most users looks like it will be fairly
+> > small, no matter what action taken.
+> > 
+> > The more we can clean-up the WE API, the easier it will be to implement
+> > the cfg80211 WE compatibility layer intended for wireless-dev.
+> > I think WE-21 makes things better in that respect.
 > 
-> I for one don't want to change the userspace ABI for this...  If I had 
-> realized the userspace ABI was changing (<- my fault), I wouldn't have 
-> merged the changes in the first place.
+> Please correct me if I'm wrong: isn't it the case that a few of the
+> distros are now coming out with wireless_tools.28 supporting WE-20,
+> but current 2.6.18-git wireless drivers are WE-21, supported only
+> by wireless_tools.29.pre10?
 > 
-> 	Jeff
+> Hugh
 
-	Jeff,
-
-	This was discussed publically on this mailing list last
-January.
-		http://marc.theaimsgroup.com/?t=113710086000009&r=1&w=2
-	I made clear at that time that I did not like this change
-because the userspace ABI would change, but I was overruled by a wide
-consensus. So, don't blame me.
-	This change was rediscussed and reconfirmed at the Wireless
-Summit. I only tried to make such change smooth, but it was not my
-idea.
-
-	Now it's too late, those changes have propagated to userspace
-tools, and are now shipping in some actual release of some distro. So,
-what are we going to say to Mandriva 2007 and FC6 users, to revert
-back to an *older* version of the tools ?
-	Because userspace has already been updated, we have only two
-options, merge it now, or in 2.6.20.
-
-	Regards,
+	wireless_tools.28 do support WE-21. I'm not a fool.
 
 	Jean
-
